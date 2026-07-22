@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DHashMap.Internal.Defs
-// Imports: public import Init.Data.Array.Lemmas public import Std.Data.DHashMap.RawDef public import Std.Data.Internal.List.Defs public import Std.Data.DHashMap.Internal.Index public import Init.Data.Nat.Power2.Basic import Init.Data.List.Impl import Init.Omega
+// Imports: public import Init.Data.Array.Lemmas public import Std.Data.DHashMap.RawDef public import Std.Data.Internal.List.Defs public import Std.Data.DHashMap.Internal.Index public import Init.Data.Nat.Power2.Basic import Init.Data.Nat.Power2.Lemmas import Init.Data.List.Impl import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5313,6 +5313,7 @@ lean_object* runtime_initialize_Std_Data_DHashMap_RawDef(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_Internal_List_Defs(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_DHashMap_Internal_Index(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Power2_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Power2_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Impl(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 static bool _G_runtime_initialized = false;
@@ -5335,6 +5336,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_Power2_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_Power2_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_Impl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -5355,6 +5359,7 @@ lean_object* initialize_Std_Data_DHashMap_RawDef(uint8_t builtin);
 lean_object* initialize_Std_Data_Internal_List_Defs(uint8_t builtin);
 lean_object* initialize_Std_Data_DHashMap_Internal_Index(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Power2_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Power2_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Impl(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
@@ -5375,6 +5380,9 @@ res = initialize_Std_Data_DHashMap_Internal_Index(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Power2_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Power2_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Impl(builtin);

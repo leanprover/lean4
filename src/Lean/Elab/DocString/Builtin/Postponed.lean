@@ -13,12 +13,16 @@ set_option linter.missingDocs true
 
 public section
 
+namespace Lean
+
 /-- Enables the deferred checks recorded while elaborating Verso docstrings, such as forward
 references. -/
 register_builtin_option linter.doc.deferred : Bool := {
   defValue := true
   descr := "if true, run the deferred checks recorded while elaborating Verso docstrings"
 }
+
+end Lean
 
 namespace Lean.Doc
 open Lean Elab Term

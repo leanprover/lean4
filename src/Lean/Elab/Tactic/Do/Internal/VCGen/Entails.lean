@@ -12,6 +12,7 @@ public import Lean.Elab.Tactic.Do.Internal.VCGen.RuleCache
 public import Lean.Elab.Tactic.Do.Internal.VCGen.Util
 public import Lean.Meta.Sym.Util
 import Lean.Meta.Sym.InferType
+import Lean.Meta.Sym.InstantiateMVarsS
 
 open Lean Meta Elab Tactic Sym Sym.Internal
 open Lean.Elab.Tactic.Do.Internal.SpecAttr
@@ -62,28 +63,44 @@ public def reduceEPostHead? (goal : MVarId) (target α inst pre rhs : Expr) :
     let excessArgs := args.drop 3
     let rhs ← betaS epost excessArgs
     let newTarget ← mkAppNS target.getAppFn #[α, inst, pre, rhs]
-    return some (← goal.replaceTargetDefEq newTarget)
+    return some (← goal.replaceTargetDefEqFast newTarget)
+
+/-- Refold a meet upper adjoint `upperAdjoint (meet F) Q s⃗` on the RHS of `pre ⊑ rhs` to the Heyting
+implication `(F ⇨ Q) s⃗`, rewriting `goal` and returning it with its new RHS, so it decomposes through
+the clean pointwise `⇨` split instead of generic point-framing. Returns `none` if the RHS is not a
+meet upper adjoint. -/
+private def refoldHimpUpperAdjoint? (goal : MVarId) (rhs : Expr) :
+    VCGenM (Option (MVarId × Expr)) :=
+  rhs.withApp fun head args => do
+    unless head.isConstOf ``Lean.Order.PreservesSup.upperAdjoint do return none
+    let some slice := args[2]? | return none
+    unless slice.isAppOf ``Lean.Order.meet do return none
+    let some Q := args[3]? | return none
+    let rhs' := mkAppN (← mkAppM ``Lean.Order.himp #[slice.appArg!, Q]) (args.extract 4 args.size)
+    let target ← goal.getType
+    let newTarget := mkAppN target.getAppFn (target.getAppArgs.set! 3 rhs')
+    return some (← goal.replaceTargetDefEqFast newTarget, rhs')
 
 /--
-Decompose a supported lattice connective (`⊓`, `⇨`, `⌜p⌝`, `⊤`) on the RHS of `pre ⊑ rhs` by
-applying its cached split rule, looked up from `latticeSplits` by head constant. Returns `none` if
-the head is not a supported connective or its rule does not apply.
+Decompose a supported lattice connective (`⊓`, `⇨`, `⌜p⌝`, `⊤`) or a registered frame operator on the
+RHS of `pre ⊑ rhs` by saturating it with the built-in and `@[frameproc]` rewrites, closing it with a
+terminal, and point-framing any excess state arguments. Returns `none` if the head is neither a
+built-in connective nor a frame operator, or its rule does not apply.
 
-An embedded proposition `⌜p⌝` is decomposed only when the precondition is `⊤`: its `⊤`-fixed split
-rule fails to apply otherwise, since turning `pre ⊑ ⌜p⌝` into the subgoal `p` drops `pre`.
+An embedded proposition `⌜p⌝` is decomposed only when the precondition is `⊤`: its `⊤`-fixed terminal
+`top_le_ofProp` fails to apply otherwise, since turning `pre ⊑ ⌜p⌝` into the subgoal `p` drops `pre`.
 -/
 public def splitLatticeOp? (goal : MVarId) (rhs : Expr) :
-    VCGenM (Option (List MVarId)) :=
-  rhs.withApp fun head args => do
-    let some headName := head.constName? | return none
-    let some c := latticeSplits[headName]? | return none
-    let as := args.extract 2 (2 + c.numOperands)
-    let excessArgs := args.drop (2 + c.numOperands)
-    let resultType? := if c.needApplyArgs then none else args[0]?
-    let rule ← mkBackwardRuleForLatticeCached c as excessArgs resultType?
-    match ← rule.applyChecked goal with
-    | .goals goals => return some goals
-    | .failed => return none
+    VCGenM (Option (List MVarId)) := do
+  -- Refold a meet upper adjoint to `F ⇨ Q` up front, so the dispatch below takes the clean `⇨` path.
+  let (goal, rhs) := (← refoldHimpUpperAdjoint? goal rhs).getD (goal, rhs)
+  let some headName := rhs.getAppFn.constName? | return none
+  -- A split applies only for a built-in connective or a registered frame operator.
+  let some op := (← read).latticeOps[headName]? | return none
+  let rule ← mkLatticeOpRuleCached rhs op
+  match ← rule.applyChecked goal with
+  | .goals goals => return some goals
+  | .failed => return none
 
 /--
 Reduce a precondition that is the bare top applied to the state arguments introduced by
@@ -112,7 +129,7 @@ public def reduceTopAppliedPre? (goal : MVarId) (target pre : Expr) : SymM (Opti
   let mut curTy := carrier
   let mut curCL := instTop
   for x in args.extract 2 args.size do
-    let .forallE _ σ τ _ := curTy | return none
+    let .forallE _ σ τ _ ← instantiateMVarsIfMVarAppS curTy | return none
     if τ.hasLooseBVars then return none
     unless curCL.isAppOf ``Lean.Order.instCompleteLatticePi do return none
     let .lam _ _ τCL _ := curCL.appArg! | return none
@@ -146,7 +163,7 @@ where the reduction is sound; entailments at an abstract lattice carrier pass th
 public def elimTopPre (goal : MVarId) : VCGenM MVarId := do
   let some (.sort .zero, _, pre, _) := (← goal.getType).app4? ``Lean.Order.PartialOrder.rel
     | return goal
-  unless (← instantiateMVarsIfMVarApp pre).isAppOf ``Lean.Order.top do return goal
+  unless (← instantiateMVarsIfMVarAppS pre).isAppOf ``Lean.Order.top do return goal
   let .goals [goal] ← (← read).backwardRules.elimPre.apply goal
     | throwError "Failed to strip the `⊤ ⊑` wrapper of {goal}"
   return goal

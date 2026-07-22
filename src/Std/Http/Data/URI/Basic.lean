@@ -36,7 +36,7 @@ namespace Std.Http
 
 set_option linter.all true
 
-open Internal Char
+open Std.Http.Internal _root_.Char Std.Http.Internal.Char
 
 namespace URI
 

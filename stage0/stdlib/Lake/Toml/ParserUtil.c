@@ -601,7 +601,6 @@ return v___x_69_;
 else
 {
 uint8_t v___x_70_; 
-lean_dec_ref_known(v_x_68_, 1);
 v___x_70_ = 0;
 return v___x_70_;
 }
@@ -611,7 +610,6 @@ else
 if (lean_obj_tag(v_x_68_) == 0)
 {
 uint8_t v___x_71_; 
-lean_dec_ref_known(v_x_67_, 1);
 v___x_71_ = 0;
 return v___x_71_;
 }
@@ -619,11 +617,7 @@ else
 {
 lean_object* v_val_72_; lean_object* v_val_73_; uint8_t v___x_74_; 
 v_val_72_ = lean_ctor_get(v_x_67_, 0);
-lean_inc(v_val_72_);
-lean_dec_ref_known(v_x_67_, 1);
 v_val_73_ = lean_ctor_get(v_x_68_, 0);
-lean_inc(v_val_73_);
-lean_dec_ref_known(v_x_68_, 1);
 v___x_74_ = l_Lean_Parser_instBEqError_beq(v_val_72_, v_val_73_);
 return v___x_74_;
 }
@@ -635,6 +629,8 @@ _start:
 {
 uint8_t v_res_77_; lean_object* v_r_78_; 
 v_res_77_ = l_Option_instBEq_beq___at___00Lake_Toml_optFn_spec__0(v_x_75_, v_x_76_);
+lean_dec(v_x_76_);
+lean_dec(v_x_75_);
 v_r_78_ = lean_box(v_res_77_);
 return v_r_78_;
 }
@@ -653,6 +649,7 @@ v_errorMsg_86_ = lean_ctor_get(v_s_84_, 4);
 lean_inc(v_errorMsg_86_);
 v___x_87_ = lean_box(0);
 v___x_88_ = l_Option_instBEq_beq___at___00Lake_Toml_optFn_spec__0(v_errorMsg_86_, v___x_87_);
+lean_dec(v_errorMsg_86_);
 if (v___x_88_ == 0)
 {
 uint8_t v___x_89_; 
@@ -856,7 +853,6 @@ v___jp_156_:
 lean_object* v_errorMsg_158_; lean_object* v___x_159_; uint8_t v___x_160_; 
 v_errorMsg_158_ = lean_ctor_get(v___y_157_, 4);
 v___x_159_ = lean_box(0);
-lean_inc(v_errorMsg_158_);
 v___x_160_ = l_Option_instBEq_beq___at___00Lake_Toml_optFn_spec__0(v_errorMsg_158_, v___x_159_);
 if (v___x_160_ == 0)
 {
@@ -955,6 +951,7 @@ v_errorMsg_205_ = lean_ctor_get(v_s_204_, 4);
 lean_inc(v_errorMsg_205_);
 v___x_206_ = lean_box(0);
 v___x_207_ = l_Option_instBEq_beq___at___00Lake_Toml_optFn_spec__0(v_errorMsg_205_, v___x_206_);
+lean_dec(v_errorMsg_205_);
 if (v___x_207_ == 0)
 {
 lean_dec(v_expected_201_);
@@ -1041,6 +1038,7 @@ v_errorMsg_241_ = lean_ctor_get(v_s_240_, 4);
 lean_inc(v_errorMsg_241_);
 v___x_242_ = lean_box(0);
 v___x_243_ = l_Option_instBEq_beq___at___00Lake_Toml_optFn_spec__0(v_errorMsg_241_, v___x_242_);
+lean_dec(v_errorMsg_241_);
 if (v___x_243_ == 0)
 {
 lean_dec(v_strPos_235_);
@@ -1346,6 +1344,7 @@ v_errorMsg_353_ = lean_ctor_get(v_s_352_, 4);
 lean_inc(v_errorMsg_353_);
 v___x_354_ = lean_box(0);
 v___x_355_ = l_Option_instBEq_beq___at___00Lake_Toml_optFn_spec__0(v_errorMsg_353_, v___x_354_);
+lean_dec(v_errorMsg_353_);
 if (v___x_355_ == 0)
 {
 lean_dec(v_pos_351_);
@@ -2399,6 +2398,7 @@ v_errorMsg_816_ = lean_ctor_get(v_s_815_, 4);
 lean_inc(v_errorMsg_816_);
 v___x_817_ = lean_box(0);
 v___x_818_ = l_Option_instBEq_beq___at___00Lake_Toml_optFn_spec__0(v_errorMsg_816_, v___x_817_);
+lean_dec(v_errorMsg_816_);
 if (v___x_818_ == 0)
 {
 lean_dec(v_pos_814_);

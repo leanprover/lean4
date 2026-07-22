@@ -183,7 +183,7 @@ structure CacheableParserContext where
   quotDepth          : Nat := 0
   suppressInsideQuot : Bool := false
   savedPos?          : Option String.Pos.Raw := none
-  forbiddenTk?       : Option Token := none
+  forbiddenTks       : Array Token := #[]
   deriving BEq
 
 /-- Parser context updateable in `adaptUncacheableContextFn`. -/

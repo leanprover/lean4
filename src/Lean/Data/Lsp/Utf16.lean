@@ -16,18 +16,20 @@ public section
 /-! LSP uses UTF-16 for indexing, so we need to provide some primitives
 to interact with Lean strings using UTF-16 indices. -/
 
-namespace Char.Internal
+open Lean String
+
+namespace Lean.Char
 
 /-- Returns the number of bytes required to encode this `Char` in UTF-16. -/
 def utf16Size (c : Char) : UInt32 :=
   if c.val ≤ 0xFFFF then 1 else 2
 
-end Char.Internal
+end Lean.Char
 
-namespace String.Internal
+namespace Lean.String
 
 private def csize16 (c : Char) : Nat :=
-  Char.Internal.utf16Size c |>.toNat
+  c.utf16Size.toNat
 
 def utf16Length (s : String) : Nat :=
   s.foldr (fun c acc => csize16 c + acc) 0
@@ -62,7 +64,7 @@ def codepointPosToUtf8PosFrom (s : String) : String.Pos.Raw → Nat → String.P
   | utf8pos, 0 => utf8pos
   | utf8pos, p+1 => codepointPosToUtf8PosFrom s (utf8pos.next s) p
 
-end String.Internal
+end Lean.String
 
 namespace Lean
 namespace FileMap
@@ -79,12 +81,12 @@ private def lineStartPos (text : FileMap) (line : Nat) : String.Pos.Raw :=
 from an LSP-style 0-indexed (ln, col) position. -/
 def lspPosToUtf8Pos (text : FileMap) (pos : Lsp.Position) : String.Pos.Raw :=
   let lineStartPos := lineStartPos text pos.line
-  let chr := String.Internal.utf16PosToCodepointPosFrom text.source pos.character lineStartPos
-  String.Internal.codepointPosToUtf8PosFrom text.source lineStartPos chr
+  let chr := text.source.utf16PosToCodepointPosFrom pos.character lineStartPos
+  text.source.codepointPosToUtf8PosFrom lineStartPos chr
 
 def leanPosToLspPos (text : FileMap) : Lean.Position → Lsp.Position
   | ⟨line, col⟩ =>
-    ⟨line - 1, String.Internal.codepointPosToUtf16PosFrom text.source col (lineStartPos text (line - 1))⟩
+    ⟨line - 1, text.source.codepointPosToUtf16PosFrom col (lineStartPos text (line - 1))⟩
 
 def utf8PosToLspPos (text : FileMap) (pos : String.Pos.Raw) : Lsp.Position :=
   text.leanPosToLspPos (text.toPosition pos)

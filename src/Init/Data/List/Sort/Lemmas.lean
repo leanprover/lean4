@@ -15,7 +15,7 @@ import Init.Data.List.Pairwise
 import Init.Data.List.Perm
 import Init.Data.List.Range
 import Init.Data.List.Sublist
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Prod
 
 public section

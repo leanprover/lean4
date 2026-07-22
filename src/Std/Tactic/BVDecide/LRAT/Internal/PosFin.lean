@@ -14,7 +14,7 @@ namespace Std.Tactic.BVDecide
 namespace LRAT
 namespace Internal
 
-def PosFin (n : Nat) := {x : Nat // 0 < x ∧ x < n}
+@[implicit_reducible] def PosFin (n : Nat) := {x : Nat // 0 < x ∧ x < n}
 
 instance : DecidableEq (PosFin n) :=
   inferInstanceAs (DecidableEq {x : Nat // 0 < x ∧ x < n})

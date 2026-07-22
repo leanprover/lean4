@@ -65,7 +65,10 @@ theorem toNat_cast (h : w = v) (x : BitVec w) : (x.cast h).toNat = x.toNat := rf
 @[simp, bitvec_to_nat, grind =]
 theorem toNat_ofFin (x : Fin (2^n)) : (BitVec.ofFin x).toNat = x.val := rfl
 
-@[simp, grind =] theorem toNat_ofNatLT (x : Nat) (p : x < 2^w) : (x#'p).toNat = x := rfl
+-- The `[grind =]` attribute is attached in `Init.Data.BitVec.Lemmas` because the pattern must
+-- be normalized with respect to the `grind` normalization theorem `ofNatLT_eq_ofNat`, which is
+-- only activated in `Init.Grind.Norm`.
+@[simp] theorem toNat_ofNatLT (x : Nat) (p : x < 2^w) : (x#'p).toNat = x := rfl
 
 @[simp, grind =] theorem toNat_cons (b : Bool) (x : BitVec w) :
     (cons b x).toNat = (b.toNat <<< w) ||| x.toNat := by
@@ -173,5 +176,8 @@ theorem cons_induction {motive : (w : Nat) → BitVec w → Prop} (nil : motive 
     rw [← cons_msb_setWidth x]
     apply cons
     apply ih
+
+theorem ofNatLT_eq_ofNat {w : Nat} {n : Nat} (hn) : BitVec.ofNatLT n hn = BitVec.ofNat w n :=
+  eq_of_toNat_eq (by simp [Nat.mod_eq_of_lt hn])
 
 end BitVec

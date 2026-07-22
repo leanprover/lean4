@@ -31,10 +31,12 @@ builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ←
   registerParametricAttribute {
     name := `deprecated
     descr := "mark declaration as deprecated",
-    getParam := fun _ stx => do
+    getParam := fun declName stx => do
       let `(attr| deprecated $[$id?]? $[$text?]? $[(since := $since?)]?) := stx
         | throwError "Invalid `[deprecated]` attribute syntax"
       let newName? ← id?.mapM Elab.realizeGlobalConstNoOverloadWithInfo
+      if newName? == some declName then
+        throwError "Invalid `[deprecated]` attribute: `{.ofConstName declName true}` cannot be deprecated in favor of itself"
       if let some newName := newName? then
         recordExtraModUseFromDecl (isMeta := false) newName
       let text? := text?.map TSyntax.getString

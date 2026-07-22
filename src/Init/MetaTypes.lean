@@ -51,7 +51,7 @@ Each level unfolds everything the previous level does, plus more:
   instances by the `instance` command). Primarily but not exclusively used during type class synthesis
   when unifying an instance's type with the expected type. Constants that play a role in an instance's
   discrimination pattern must not be instance-reducible; they must at least be implicit-reducible.
-  For example, if `id : α → α` was instance-reducible, unter some circumstances an instance of type
+  For example, if `id : α → α` was instance-reducible, under some circumstances an instance of type
   `C (id x)` can be applied when an instance of type `C x` is requested. If this is undesirable,
   `id` (in this example) should be at most implicit-reducible.
   Most users should follow a simple rule: Make declarations that are meant to return instances but

@@ -7,89 +7,18 @@ module
 prelude
 public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Transform
-import Init.Grind.Util
-import Lean.Meta.WHNF
-import Lean.Meta.AppBuilder
 import Lean.Util.ForEachExpr
 namespace Lean.Meta.Sym
 
 /--
-Returns `true` if `declName` is the name of a grind helper declaration that
-should not be unfolded by `unfoldReducible`.
+Instantiates metavariables and applies `shareCommon`, which maintains the `SymM`
+invariants enabled in the current configuration (see `Sym.Config`).
 -/
-def isGrindGadget (declName : Name) : Bool :=
-  declName == ``Grind.EqMatch
-
-/--
-Auxiliary function for implementing `unfoldReducible` and `unfoldReducibleSimproc`.
-Performs a single step.
--/
-public def unfoldReducibleStep (e : Expr) : MetaM TransformStep := do
-  let .const declName _ := e.getAppFn | return .continue
-  unless (← isReducible declName) do return .continue
-  if isGrindGadget declName then return .continue
-  -- See comment at isUnfoldReducibleTarget.
-  if (← getEnv).isProjectionFn declName then return .continue
-  let some v ← unfoldDefinition? e | return .continue
-  return .visit v
-
-def isUnfoldReducibleTarget (e : Expr) : CoreM Bool := do
-  let env ← getEnv
-  return Option.isSome <| e.find? fun e => Id.run do
-    let .const declName _ := e | return false
-    if getReducibilityStatusCore env declName matches .reducible then
-      -- Remark: it is wasteful to unfold projection functions since
-      -- kernel projections are folded again in the `foldProjs` preprocessing step.
-      return !isGrindGadget declName && !env.isProjectionFn declName
-    else
-      return false
-
-/--
-Unfolds all `reducible` declarations occurring in `e`.
-This is meant as a preprocessing step. It does **not** guarantee maximally shared terms
--/
-public def unfoldReducible (e : Expr) : MetaM Expr := do
-  if !(← isUnfoldReducibleTarget e) then return e
-  Meta.transform e (pre := unfoldReducibleStep)
-
-/--
-Converts nested `Expr.proj`s into projection applications if possible.
-The structural simplifier and pattern matcher do not handle kernel projection
-terms; this preprocessing step folds them into projection function applications.
--/
-public def foldProjs (e : Expr) : MetaM Expr := do
-  if Option.isNone <| e.find? fun e => e.isProj then return e
-  let post (e : Expr) := do
-    let .proj structName idx s := e | return .done e
-    let some info := getStructureInfo? (← getEnv) structName |
-      trace[sym.issues] "found `Expr.proj` but `{structName}` is not marked as structure{indentExpr e}"
-      return .done e
-    if h : idx < info.fieldNames.size then
-      let fieldName := info.fieldNames[idx]
-      /-
-      In the test `grind_cat.lean`, the following operation fails if we are not using default
-      transparency. We get the following error.
-      ```
-      error: AppBuilder for 'mkProjection', structure expected
-        T
-      has type
-        F ⟶ G
-      ```
-      We should make `mkProjection` more robust.
-
-      The `mkProjection` function may create new kernel projections. So, we must use `.visit`.
-      -/
-      return .visit (← withDefault <| mkProjection s fieldName)
-    else
-      trace[sym.issues] "found `Expr.proj` with invalid field index `{idx}`{indentExpr e}"
-      return .done e
-  Meta.transform e (post := post)
-
-/--
-Instantiates metavariables, unfold reducible, and applies `shareCommon`.
--/
-def preprocessExpr (e : Expr) : SymM Expr := do
-  shareCommon (← unfoldReducible (← instantiateMVars e))
+public def preprocessExpr (e : Expr) : SymM Expr := do
+  -- This function relies on `shareCommon` to unfold reducible constants, so the
+  -- corresponding check must not have been disabled (e.g., via `withoutShareCommonChecks`).
+  assert! (← getConfig).enforceUnfoldReducible
+  shareCommon (← instantiateMVars e)
 
 /--
 Helper function that removes gaps, instantiate metavariables, and applies `shareCommon`.

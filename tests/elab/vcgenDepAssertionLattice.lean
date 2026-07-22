@@ -15,6 +15,7 @@ open Std.Internal.Do
 opaque State : Type
 opaque State.Invariant : State → Prop
 
+@[implicit_reducible]
 def Stateful (a : Type) := State → Option a × State
 
 instance : Monad Stateful where

@@ -1126,7 +1126,7 @@ public:
 
     object * run_init(name const & decl, name const & init_decl) {
         try {
-            object * args[] = {};
+            object * args[] = { io_mk_world() };
             object * r = call_boxed(init_decl, 1, args);
             if (io_result_is_ok(r)) {
                 object * o = io_result_get_value(r);

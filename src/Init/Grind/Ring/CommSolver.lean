@@ -18,7 +18,7 @@ public import Init.Data.RArray
 public import Init.Ext
 import Init.Data.Hashable
 import Init.Data.Int.LemmasAux
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Grind.Ordered.Order
 import Init.Omega
 import Init.WFTactics

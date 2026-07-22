@@ -1053,7 +1053,7 @@ The executable will statically link in `linkObjs` (e.g., object files or
 static libraries) and dynamically link to `linkLibs` (and their transitive
 `deps`).
 
-By default, Lean will be statically linked to the exeutable.
+By default, Lean will be statically linked to the executable.
 If `sharedLean := true`, it will instead be dynamically linked.
 This means users of the resulting executable will need to have Lean's
 shared libraries on their system.
@@ -1078,7 +1078,7 @@ The executable will statically link in the results of `linkObjs` (e.g., object
 files or static libraries) and dynamically link to the results of `linkLibs`
 (and their transitive `deps`).
 
-By default, Lean will be statically linked to the exeutable.
+By default, Lean will be statically linked to the executable.
 If `sharedLean := true`, it will instead be dynamically linked.
 This means users of the resulting executable will need to have Lean's
 shared libraries on their system.

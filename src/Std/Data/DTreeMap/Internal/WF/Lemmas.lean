@@ -9,7 +9,7 @@ prelude
 public import Std.Data.DTreeMap.Internal.Model
 import all Std.Data.Internal.List.Associative
 import Init.Data.List.Impl
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Option.List
 import Init.Data.Subtype.Basic
 

@@ -11,7 +11,7 @@ public import Init.Data.Order.Classes
 public import Init.NotationExtra
 import Init.ByCases
 import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Omega
 import Init.TacticsExtra
 import Init.Hints
@@ -152,7 +152,7 @@ attribute [scoped instance] instIntCast
 
 end IntCast
 
-open IntCast in
+open Fin.IntCast in
 theorem intCast_def {n : Nat} [NeZero n] (x : Int) :
     (x : Fin n) = if 0 ≤ x then Fin.ofNat n x.natAbs else -Fin.ofNat n x.natAbs := rfl
 
@@ -1010,7 +1010,7 @@ For the induction:
 
 @[simp, grind =] theorem reverseInduction_last {n : Nat} {motive : Fin (n + 1) → Sort _} {zero succ} :
     (reverseInduction zero succ (Fin.last n) : motive (Fin.last n)) = zero := by
-  rw [reverseInduction, reverseInduction.go]; simp; rfl
+  rw [reverseInduction, reverseInduction.go]; simp
 
 private theorem reverseInduction_castSucc_aux {n : Nat} {motive : Fin (n + 1) → Sort _} {succ}
     (i : Fin n) (j : Nat) (h) (h2 : i.1 < j) (zero : motive ⟨j, h⟩) :
@@ -1021,7 +1021,7 @@ private theorem reverseInduction_castSucc_aux {n : Nat} {motive : Fin (n + 1) �
   | succ j ih =>
     rw [reverseInduction.go, dif_neg (by exact Nat.ne_of_lt h2)]
     by_cases hij : i = j
-    · subst hij; simp [reverseInduction.go]; rfl
+    · subst hij; simp [reverseInduction.go]
     · dsimp only
       rw [ih _ _ (by omega), eq_comm, reverseInduction.go, dif_neg (by change i.1 + 1 ≠ _; omega)]
 
@@ -1122,7 +1122,7 @@ theorem sub_ofNat [NeZero n] (x : Fin n) (y : Nat) :
 
 private theorem _root_.Nat.mod_eq_sub_of_lt_two_mul {x n} (h₁ : n ≤ x) (h₂ : x < 2 * n) :
     x % n = x - n := by
-  rw [Nat.mod_eq, if_pos (by omega), Nat.mod_eq_of_lt (by omega)]
+  rw [Nat.mod_eq_ite, if_pos (by omega), Nat.mod_eq_of_lt (by omega)]
 
 theorem coe_sub_iff_le {a b : Fin n} : (↑(a - b) : Nat) = a - b ↔ b ≤ a := by
   rw [sub_def, le_def]

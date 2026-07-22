@@ -56,7 +56,7 @@ lean_object* l_List_reverse___redArg(lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
@@ -509,7 +509,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_getMatcherInfoCore_x3f(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Lean_Meta_getMatcherInfo_x3f___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getMatcherInfo_x3f___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getMatcherInfo_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_is_matcher(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Meta_isMatcherCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isMatcherCore___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isMatcher___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isMatcher___redArg(lean_object*, lean_object*, lean_object*);
@@ -7053,8 +7053,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Match_Extension_getMatcherInfo_x3f(lean_obj
 _start:
 {
 lean_object* v___x_2129_; 
-lean_inc(v_declName_2128_);
-v___x_2129_ = lean_erase_macro_scopes(v_declName_2128_);
+v___x_2129_ = l_Lean_Name_eraseMacroScopes(v_declName_2128_);
 if (lean_obj_tag(v___x_2129_) == 1)
 {
 lean_object* v_str_2130_; lean_object* v___x_2131_; lean_object* v___x_2132_; lean_object* v___x_2133_; uint8_t v___x_2134_; 
@@ -7312,7 +7311,7 @@ v___x_2246_ = l_Lean_Meta_getMatcherInfo_x3f___redArg(v_inst_2243_, v_inst_2244_
 return v___x_2246_;
 }
 }
-LEAN_EXPORT uint8_t lean_is_matcher(lean_object* v_env_2247_, lean_object* v_declName_2248_){
+LEAN_EXPORT uint8_t l_Lean_Meta_isMatcherCore(lean_object* v_env_2247_, lean_object* v_declName_2248_){
 _start:
 {
 lean_object* v___x_2249_; 
@@ -7336,7 +7335,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_isMatcherCore___boxed(lean_object* v_env_22
 _start:
 {
 uint8_t v_res_2254_; lean_object* v_r_2255_; 
-v_res_2254_ = lean_is_matcher(v_env_2252_, v_declName_2253_);
+v_res_2254_ = l_Lean_Meta_isMatcherCore(v_env_2252_, v_declName_2253_);
 v_r_2255_ = lean_box(v_res_2254_);
 return v_r_2255_;
 }
@@ -7345,7 +7344,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_isMatcher___redArg___lam__0(lean_object* v_
 _start:
 {
 uint8_t v___x_2259_; lean_object* v___x_2260_; lean_object* v___x_2261_; 
-v___x_2259_ = lean_is_matcher(v_____do__lift_2258_, v_declName_2256_);
+v___x_2259_ = l_Lean_Meta_isMatcherCore(v_____do__lift_2258_, v_declName_2256_);
 v___x_2260_ = lean_box(v___x_2259_);
 v___x_2261_ = lean_apply_2(v_toPure_2257_, lean_box(0), v___x_2260_);
 return v___x_2261_;

@@ -173,6 +173,9 @@ jobs:
         run: |
           ulimit -c unlimited  # coredumps
           time make -C build stage1-configure -j$NPROC
+          # Key every subsequent Lake invocation's cache trace the same way as the CMake-driven
+          # stdlib build, using the githash the stage1 configure emitted (see `src/CMakeLists.txt`).
+          echo "LEAN_GITHASH=$(cat build/stage1/lake-githash)" >> "$GITHUB_ENV"
       - name: Check for stage0 update
         id: check-stage0
         # A stage0 update replaces the bootstrap compiler, which invalidates every Lake artifact

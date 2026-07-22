@@ -2,6 +2,7 @@ import Lake
 open Lake DSL
 
 def test := get_config? test |>.getD "Test" |>.capitalize
+def precompile := get_config? precompile >>= envToBool? |>.getD false
 
 package inundation where
   buildDir := defaultBuildDir / test
@@ -10,6 +11,7 @@ package inundation where
 lean_lib Inundation where
   srcDir := "test"
   roots := #[.mkSimple test]
+  precompileModules := precompile
 
 script nop :=
   return 0

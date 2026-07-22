@@ -85,8 +85,8 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     unsigned major_idx           = rec_val.get_major_idx();
     if (major_idx >= rec_args.size()) return none_expr(); // major premise is missing
     if (rec_val.is_k()) {
-        expr const & e = mk_app(rec_fn, rec_val.get_major_idx() + 1, rec_args.data());
-        expr const & e_type = infer_type(e);
+        expr const & motive = rec_args[rec_val.get_nparams()];
+        expr const & e_type = mk_app(motive, rec_val.get_major_idx() + 1 - rec_val.get_first_index_idx(), rec_args.data() + rec_val.get_first_index_idx());
         unsigned minor_idx = rec_val.get_first_minor_idx();
         expr const & minor = rec_args[minor_idx];
         expr const & minor_type = infer_type(minor);

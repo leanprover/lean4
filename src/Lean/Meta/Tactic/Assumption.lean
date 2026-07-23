@@ -29,16 +29,23 @@ def findLocalDeclWithType? (type : Expr) (lowerBound : Nat := 0) (upperBound : N
   if lowerBound == 0 && upperBound == 0 then
     lctx.findDeclRevM? check
   else
-    let hi := if upperBound == 0 then lctx.decls.size else min upperBound lctx.decls.size
-    let slice := (lctx.decls.foldl (init := (#[] : Array (Option LocalDecl))) (start := lowerBound)
-      Array.push).take (hi - lowerBound)
-    slice.findSomeRevM? fun localDecl? => localDecl?.elim (pure none) check
+    let hi := if upperBound == 0 then lctx.numIndices else min upperBound lctx.numIndices
+    let rec go : Nat → MetaM (Option FVarId)
+      | 0 => return none
+      | i + 1 => do
+        if i < lowerBound then return none
+        if let some localDecl := lctx.getAt? i then
+          if let some fvarId ← check localDecl then return some fvarId
+        go i
+    go hi
 
-/-- Return `true` if managed to close goal `mvarId` using an assumption. -/
-def _root_.Lean.MVarId.assumptionCore (mvarId : MVarId) : MetaM Bool :=
+/-- Return `true` if managed to close goal `mvarId` using an assumption at a context index in
+`[lowerBound, upperBound)` (see `findLocalDeclWithType?`). -/
+def _root_.Lean.MVarId.assumptionCore (mvarId : MVarId) (lowerBound : Nat := 0)
+    (upperBound : Nat := 0) : MetaM Bool :=
   mvarId.withContext do
     mvarId.checkNotAssigned `assumption
-    match (← findLocalDeclWithType? (← mvarId.getType)) with
+    match (← findLocalDeclWithType? (← mvarId.getType) lowerBound upperBound) with
     | none => return false
     | some fvarId => mvarId.assign (mkFVar fvarId); return true
 

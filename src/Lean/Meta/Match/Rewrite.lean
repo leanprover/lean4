@@ -76,11 +76,8 @@ def rwMatcher (altIdx : Nat) (e : Expr) (assumptionLowerBound : Nat := 0)
     (assumptionUpperBound : Nat := 0) : MetaM Simp.Result := do
   -- Close `g` by an assumption at context index in `[assumptionLowerBound, assumptionUpperBound)`, so
   -- the search for the congruence-equation hypotheses is confined to a window of the local context.
-  let assumptionProc (g : MVarId) : MetaM Bool := g.withContext do
-    match ← findLocalDeclWithType? (← g.getType) (lowerBound := assumptionLowerBound)
-        (upperBound := assumptionUpperBound) with
-    | some fvarId => g.assign (mkFVar fvarId); return true
-    | none => return false
+  let assumptionProc (g : MVarId) : MetaM Bool :=
+    g.assumptionCore assumptionLowerBound assumptionUpperBound
   if e.isAppOf ``PSum.casesOn || e.isAppOf ``PSigma.casesOn then
     let mut e := e
     while true do
@@ -107,11 +104,11 @@ def rwMatcher (altIdx : Nat) (e : Expr) (assumptionLowerBound : Nat := 0)
     let tryRefl (h : MVarId) (hType : Expr) : MetaM Bool := do
       if let some (_, a, b) := hType.eq? then
         unless ← isDefEq a b do return false
-        h.refl
+        h.assign (← mkEqRefl a)
         return true
       if let some (α, a, β, b) := hType.heq? then
         unless ← (isDefEq α β <&&> isDefEq a b) do return false
-        h.hrefl
+        h.assign (← mkHEqRefl a)
         return true
       return false
     try
@@ -152,7 +149,7 @@ def rwMatcher (altIdx : Nat) (e : Expr) (assumptionLowerBound : Nat := 0)
             else
               pure true
           unless discharged do return { expr := e }
-      unless (← hyps.filterM fun h => return !(← h.isAssigned)).isEmpty do
+      if ← hyps.anyM fun h => return !(← h.isAssigned) then
         return { expr := e }
       let rhs ← instantiateMVars rhs
       let proof ← instantiateMVars proof

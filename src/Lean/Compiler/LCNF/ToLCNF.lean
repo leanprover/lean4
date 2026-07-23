@@ -466,7 +466,8 @@ def countProofOverApp (motive : Expr) (maxArgs : Nat) : MetaM Nat := do
       return n
 
 /--
-Given `e : ∀ (h₁ : p₁) ... (hₙ : pₙ), b h₁ ... hₙ`, returns `e (lcProof p₁) ... (lcProof pₙ)`.
+Given `e : ∀ (h₁ : p₁) ... (hₙ : pₙ), b h₁ ... hₙ`,
+returns the beta reduced `e (lcProof p₁) ... (lcProof pₙ)`.
 -/
 def mkProofOverApp (e : Expr) (n : Nat) : MetaM Expr := do
   let mut type ← Meta.inferType e

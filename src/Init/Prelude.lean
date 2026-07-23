@@ -155,15 +155,6 @@ Examples:
 @[inline] def Function.const {α : Sort u} (β : Sort v) (a : α) : β → α :=
   fun _ => a
 
-/--
-`letFun v (fun x => b)` is a function version of `have x := v; b`.
-This is equal to `(fun x => b) v`, so the value of `x` is not accessible to `b`.
-This is in contrast to `let x := v; b`, where the value of `x` is accessible to `b`.
-
-This used to be the way `have`/`let_fun` syntax was encoded,
-and there used to be special support for `letFun` in WHNF and `simp`.
--/
-def letFun {α : Sort u} {β : α → Sort v} (v : α) (f : (x : α) → β x) : β v := f v
 
 set_option checkBinderAnnotations false in
 /--

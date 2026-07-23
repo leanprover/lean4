@@ -353,7 +353,7 @@ jobs:
               },
               {
                 "name": "Linux tsanitize",
-                "os": large ? "nscloud-ubuntu-24.04-amd64-8x16" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-24.04-amd64-32x64" : "ubuntu-latest",
                 "enabled": (level >= 2 || fsanitize) && target_stage < 2,
                 "test": true,
                 // turn off custom allocator & symbolic functions to make TSAN do its magic

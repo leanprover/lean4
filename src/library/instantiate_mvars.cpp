@@ -375,8 +375,8 @@ class instantiate_delayed_fn {
 
     /* Memo for `lift_loose_bvars(value, d)` applied to fvar-substitution
        values in `lookup_fvar`; see comment there. `lift_loose_bvars` is a
-       pure function of (value, d), so a global memo is sound. Keeps the keyed
-       exprs alive for the lifetime of the pass, so raw-pointer keys remain
+       pure function of (value, d), so a global memo is sound. The keyed
+       exprs are retained via `m_saved`, so the raw-pointer keys remain
        valid. */
     std::unordered_map<cache_key, expr, key_hasher> m_lift_cache;
 
@@ -506,6 +506,11 @@ class instantiate_delayed_fn {
         if (lit != m_lift_cache.end())
             return optional<expr>(lit->second);
         expr lifted = lift_loose_bvars(v, d);
+        /* Retain the input: the raw-pointer key must not dangle. The
+           substitution entry holding `v` can be dropped while the cache
+           entry lives on, and only lifted copies of `v` may survive in the
+           output. */
+        m_saved.push_back(v);
         m_lift_cache.insert(mk_pair(key, lifted));
         return optional<expr>(lifted);
     }

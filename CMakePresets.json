@@ -55,7 +55,7 @@
       "cacheVariables": {
         "LEAN_EXTRA_CXX_FLAGS": "-g3 -fsanitize=address,undefined -DLEAN_DEFAULT_THREAD_STACK_SIZE=16*1024*1024",
         "LEANC_EXTRA_CC_FLAGS": "-g3 -fsanitize=address,undefined",
-        "LEAN_EXTRA_LINKER_FLAGS": "-fsanitize=address,undefined -fsanitize-link-c++-runtime",
+        "LEAN_EXTRA_LINKER_FLAGS": "-fsanitize=address,undefined -fsanitize-link-c++-runtime -fuse-ld=lld",
         "STRIP_BINARIES": "OFF",
         "USE_MIMALLOC": "OFF",
         "BSYMBOLIC": "OFF",

@@ -956,7 +956,7 @@ def Result.addForalls (r : Result) (xs : Array Expr) : MetaM Result := do
   | none   => return { expr := eNew }
   | some h =>
     let p ← xs.foldrM (init := h) fun x h => do
-      mkPiCongr (← mkLambdaFVars #[x] h)
+      mkForallCongr (← mkLambdaFVars #[x] h)
     return { expr := eNew, proof? := p }
 
 

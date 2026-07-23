@@ -366,11 +366,12 @@ def simpForall (e : Expr) : SimpM Result := withParent e do
   trace[Debug.Meta.Tactic.simp] "forall {e}"
   if e.isArrow then
     simpArrow e
-  else
+  else if (← isProp e) then
+    /- The forall is a proposition. -/
     let domain := e.bindingDomain!
-    if (← isProp e) && (← isProp domain) then
+    if (← isProp domain) then
       /-
-      The domain and codomain of the forall are propositions, and we can use `forall_prop_domain_congr`
+      The domain of the forall is also a proposition, and we can use `forall_prop_domain_congr`
       IF we can simplify the domain.
       -/
       let rd ← simp domain
@@ -406,7 +407,9 @@ def simpForall (e : Expr) : SimpM Result := withParent e do
       let eNew ← mkForallFVars #[x] rb.expr
       match rb.proof? with
       | none   => return { expr := eNew }
-      | some h => return { expr := eNew, proof? := (← mkPiCongr (← mkLambdaFVars #[x] h)) }
+      | some h => return { expr := eNew, proof? := (← mkForallCongr (← mkLambdaFVars #[x] h)) }
+  else
+    return { expr := (← dsimp e) }
 
 /-- Adapter for `Meta.simpHaveTelescope` -/
 def simpHaveTelescope (e : Expr) : SimpM Result := do

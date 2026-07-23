@@ -2,8 +2,8 @@ theorem ex1 : ∀ {a : Nat}, a * 2 = 2 * a :=
 fun {a} =>
   have h := fun a b => Eq.refl (a * b);
   Eq.mp
-    (pi_congr fun a =>
-      pi_congr fun b =>
+    (forall_congr fun a =>
+      forall_congr fun b =>
         (fun a a_1 e_a =>
             Eq.rec (motive := fun a_2 e_a => ∀ (a_3 : Nat), (a = a_3) = (a_2 = a_3)) (fun a_2 => Eq.refl (a = a_2)) e_a)
           (a * b) (b * a) (Eq.trans (congrArg (fun _a => _a) (Nat.mul_comm a b)) (Eq.refl (b * a))) (a * b))

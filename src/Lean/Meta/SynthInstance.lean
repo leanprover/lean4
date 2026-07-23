@@ -929,13 +929,12 @@ private def findCachedResult? (key : SynthInstanceCacheKey) :
     MetaM (Option (Option AbstractMVarsResult)) := do
   if let some result? := (← get).cache.synthInstance.find? key then
     return some result?
-  let some ref := synthInstanceCacheExt.getState (← getEnv) | return none
-  return (← ref.get).find? key
+  return synthInstanceCacheExt.getState (← getEnv) |>.find? key
 
 /--
-Inserts a result into the type class resolution cache: into the persistent tier if `persist` is
-true, and otherwise into the transient `Meta.Cache.synthInstance` tier, which has the lifetime of
-the current `Meta.State`.
+Inserts a result into the type class resolution cache: always into the transient
+`Meta.Cache.synthInstance` tier, which has the lifetime of the current `Meta.State`, and
+additionally into the persistent tier if `persist` is true.
 
 Only context-free entries may be persisted: the key must not contain metavariables and the result
 must be closed. Results with abstracted metavariables are only valid relative to the elaboration
@@ -943,16 +942,20 @@ context that created them: their degrees of freedom (e.g. universe metavariables
 by the key, cf. `Small`) are resolved by ambient constraints, so reusing them in a different
 context can produce incorrectly instantiated terms.
 
-Persistent insertions mutate the cache ref instead of the environment, so they survive
-environment rollbacks; see `synthInstanceCacheExt`.
+A persistent insertion is rolled back together with the environment (see
+`synthInstanceCacheExt`); the transient copy then still serves the entry for the rest of the
+command, as `Meta.SavedState.restore` deliberately does not restore `Meta.Cache`. Without it,
+backtracking-heavy elaboration (e.g. tactics trying alternatives) would re-run every failed
+attempt's typeclass queries from scratch.
 -/
 private def insertCachedResult (key : SynthInstanceCacheKey) (result? : Option AbstractMVarsResult)
     (persist : Bool) : MetaM Unit := do
   if persist then
-    let some ref := synthInstanceCacheExt.getState (← getEnv) | return ()
-    ref.modify (·.insert key result?)
-  else
-    modifyCache fun c => { c with synthInstance := c.synthInstance.insert key result? }
+    -- Modify the environment directly instead of via `Meta.modifyEnv`, which would reset the
+    -- `Meta.Cache` caches.
+    modifyThe Core.State fun s =>
+      { s with env := synthInstanceCacheExt.modifyState s.env (·.insert key result?) }
+  modifyCache fun c => { c with synthInstance := c.synthInstance.insert key result? }
 
 /--
 Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.

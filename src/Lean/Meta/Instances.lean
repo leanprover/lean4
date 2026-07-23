@@ -123,22 +123,19 @@ Only *context-free* entries are stored here: keys without metavariables and clos
 Context-sensitive entries (whose validity depends on the ambient metavariable context) live in
 the transient `Meta.Cache.synthInstance` tier instead.
 
-The cache map is stored behind an `IO.Ref` (`none` only as an unreachable `Inhabited` fallback):
-cache *fills* mutate the ref and thus survive elaborator backtracking, like the `Meta.Cache`
-caches, which are deliberately not restored by `Meta.SavedState.restore` either. *Invalidation*
-replaces the ref, which is an environment modification and is thus correctly reverted when the
-environment is rolled back, e.g. when a speculatively added instance is discarded together with
-the cache entries that were computed with it.
-
-Note that environment values derived from the same environment share the ref and thus the cache;
-this is sound for context-free entries, but e.g. incremental reuse across edits may require
-replacing the ref explicitly in the future.
+Both fills and invalidation are plain (branch-local) environment modifications: an entry is
+only ever observable in environments derived from the one it was filled in, so rolling back the
+environment (e.g. discarding a speculatively added instance) also rolls back the entries that
+were computed with it, and parallel elaboration branches never observe each other's fills.
+Entries persisted within a rolled-back region are lost with it; within a single command the
+transient tier compensates, as `Meta.Cache` is deliberately not restored by
+`Meta.SavedState.restore` (see `Lean.Meta.SynthInstance.insertCachedResult`).
 -/
-builtin_initialize synthInstanceCacheExt : EnvExtension (Option (IO.Ref SynthInstanceCache)) ←
-  registerEnvExtension (some <$> IO.mkRef {}) (asyncMode := .local)  -- mere cache, keep local
+builtin_initialize synthInstanceCacheExt : EnvExtension SynthInstanceCache ←
+  registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep local
 
 /--
-Resets the type class resolution cache by replacing its `IO.Ref`.
+Resets the type class resolution cache.
 
 The cache is reset automatically when an instance is added via `addInstance` or erased, and
 activation of scoped instances is accounted for in the cache key
@@ -146,9 +143,8 @@ activation of scoped instances is accounted for in the cache key
 e.g. closing a section containing local instances or changing the reducibility status of a
 pre-existing declaration, require calling this function explicitly.
 -/
-def resetSynthInstanceCache : CoreM Unit := do
-  let ref ← IO.mkRef {}
-  modify fun s => { s with env := synthInstanceCacheExt.setState s.env (some ref) }
+def resetSynthInstanceCache : CoreM Unit :=
+  modify fun s => { s with env := synthInstanceCacheExt.setState s.env {} }
 
 private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
   let type ← inferType e

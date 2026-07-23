@@ -446,11 +446,11 @@ abbrev DefEqCache := PersistentHashMap DefEqCacheKey Bool
 /--
 Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
 
-The `synthInstance` field is only the *transient* tier of the type class resolution cache: it
-holds context-sensitive entries (keys containing metavariables, or results with abstracted
-metavariables), whose validity is tied to the current elaboration context. Context-free entries
-are stored in an environment extension instead so that they persist across commands (see
-`synthInstanceCacheExt`).
+The `synthInstance` field is the *transient* tier of the type class resolution cache: it has
+the lifetime of the current `Meta.State` and holds all entries, including context-sensitive ones
+(keys containing metavariables, or results with abstracted metavariables) whose validity is tied
+to the current elaboration context. Context-free entries are additionally stored in an
+environment extension so that they persist across commands (see `synthInstanceCacheExt`).
 -/
 structure Cache where
   inferType      : InferTypeCache := {}

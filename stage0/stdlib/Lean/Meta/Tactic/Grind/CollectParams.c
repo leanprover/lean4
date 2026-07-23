@@ -286,8 +286,6 @@ if (v___x_5_ == 0)
 {
 lean_object* v___x_6_; uint8_t v___x_7_; 
 v___x_6_ = lean_array_uget_borrowed(v_as_2_, v_i_3_);
-lean_inc(v___x_6_);
-lean_inc(v_a_1_);
 v___x_7_ = l_Lean_Syntax_structEq(v_a_1_, v___x_6_);
 if (v___x_7_ == 0)
 {
@@ -299,14 +297,12 @@ goto _start;
 }
 else
 {
-lean_dec(v_a_1_);
 return v___x_7_;
 }
 }
 else
 {
 uint8_t v___x_11_; 
-lean_dec(v_a_1_);
 v___x_11_ = 0;
 return v___x_11_;
 }
@@ -322,6 +318,7 @@ v_stop_boxed_17_ = lean_unbox_usize(v_stop_15_);
 lean_dec(v_stop_15_);
 v_res_18_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00__private_Lean_Meta_Tactic_Grind_CollectParams_0__Lean_Meta_Grind_Collector_pushParam_spec__0_spec__0(v_a_12_, v_as_13_, v_i_boxed_16_, v_stop_boxed_17_);
 lean_dec_ref(v_as_13_);
+lean_dec(v_a_12_);
 v_r_19_ = lean_box(v_res_18_);
 return v_r_19_;
 }
@@ -335,14 +332,12 @@ v___x_23_ = lean_array_get_size(v_as_20_);
 v___x_24_ = lean_nat_dec_lt(v___x_22_, v___x_23_);
 if (v___x_24_ == 0)
 {
-lean_dec(v_a_21_);
 return v___x_24_;
 }
 else
 {
 if (v___x_24_ == 0)
 {
-lean_dec(v_a_21_);
 return v___x_24_;
 }
 else
@@ -361,6 +356,7 @@ _start:
 {
 uint8_t v_res_30_; lean_object* v_r_31_; 
 v_res_30_ = l_Array_contains___at___00__private_Lean_Meta_Tactic_Grind_CollectParams_0__Lean_Meta_Grind_Collector_pushParam_spec__0(v_as_28_, v_a_29_);
+lean_dec(v_a_29_);
 lean_dec_ref(v_as_28_);
 v_r_31_ = lean_box(v_res_30_);
 return v_r_31_;
@@ -374,7 +370,6 @@ v___x_35_ = lean_st_ref_get(v_a_33_);
 v_params_36_ = lean_ctor_get(v___x_35_, 0);
 lean_inc_ref(v_params_36_);
 lean_dec(v___x_35_);
-lean_inc(v_p_32_);
 v___x_37_ = l_Array_contains___at___00__private_Lean_Meta_Tactic_Grind_CollectParams_0__Lean_Meta_Grind_Collector_pushParam_spec__0(v_params_36_, v_p_32_);
 lean_dec_ref(v_params_36_);
 if (v___x_37_ == 0)
@@ -479,14 +474,12 @@ v___x_74_ = lean_array_get_size(v_as_71_);
 v___x_75_ = lean_nat_dec_lt(v___x_73_, v___x_74_);
 if (v___x_75_ == 0)
 {
-lean_dec(v_a_72_);
 return v___x_75_;
 }
 else
 {
 if (v___x_75_ == 0)
 {
-lean_dec(v_a_72_);
 return v___x_75_;
 }
 else
@@ -505,6 +498,7 @@ _start:
 {
 uint8_t v_res_81_; lean_object* v_r_82_; 
 v_res_81_ = l_Array_contains___at___00__private_Lean_Meta_Tactic_Grind_CollectParams_0__Lean_Meta_Grind_Collector_pushAnchor_spec__0(v_as_79_, v_a_80_);
+lean_dec(v_a_80_);
 lean_dec_ref(v_as_79_);
 v_r_82_ = lean_box(v_res_81_);
 return v_r_82_;
@@ -518,7 +512,6 @@ v___x_86_ = lean_st_ref_get(v_a_84_);
 v_anchors_87_ = lean_ctor_get(v___x_86_, 1);
 lean_inc_ref(v_anchors_87_);
 lean_dec(v___x_86_);
-lean_inc(v_a_83_);
 v___x_88_ = l_Array_contains___at___00__private_Lean_Meta_Tactic_Grind_CollectParams_0__Lean_Meta_Grind_Collector_pushAnchor_spec__0(v_anchors_87_, v_a_83_);
 lean_dec_ref(v_anchors_87_);
 if (v___x_88_ == 0)

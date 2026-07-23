@@ -19,6 +19,8 @@ theorem t1 : True := by
 
 theorem t2 : True := by
   grind +locals only
-  unblock
-  trivial
-       --^ collectDiagnostics
+  skip
+    --^ waitFor: blocked
+    --^ insert: "; unblock"
+    --^ collectDiagnostics
+    -- (should print "blocked!" exactly once)

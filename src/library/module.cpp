@@ -332,13 +332,8 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_save(b_obj_arg ofname, b_o
             out.write(reinterpret_cast<char *>(&header), sizeof(header));
 
             compactor(odata);
-
-            if (out.fail()) {
-                throw exception((sstream() << "failed to create file '" << olean_fn << "'").str());
-            }
             out.write(static_cast<char const *>(compactor.data()) + file_offset + sizeof(olean_header),
                       compactor.size() - file_offset - sizeof(olean_header));
-            out.close();
         } else {
             // v3 format
             // NOTE: each section's data MUST be reserved in the compactor buffer, even when
@@ -395,11 +390,14 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_save(b_obj_arg ofname, b_o
             // Relocation table: only the libraries containing a compacted closure's fn pointer.
             compactor.alloc(lib_table_size(used_libs));
             write_lib_table(out, used_libs);
-
-            if (out.fail()) {
-                throw exception((sstream() << "failed to create file '" << olean_fn << "'").str());
-            }
-            out.close();
+        }
+        out.close();
+        // Note that close itself can fail to flush, so this must be last.
+        if (out.fail()) {
+            // No need to include the filename here, the `catch` below adds that.
+            // TODO: use libuv for file IO so that we can report _why_ the stream failed in the
+            // IO.Error type; `errno` is not reliable set by iostream.
+            throw exception((sstream() << "failed to create file").str());
         }
     } catch (exception & ex) {
         std::remove(olean_tmp_fn.c_str());

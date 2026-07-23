@@ -188,7 +188,7 @@ def withUserNames {n} [MonadControlT MetaM n] [Monad n]
   {α} (fvars : Array Expr) (names : Array Name) (k : n α) : n α := do
   mapMetaM (withUserNamesImpl fvars names) k
 
-/-
+/--
 `Match.forallAltTelescope` lifted to a monad transformer
 (and only passing those arguments that we care about below)
 -/

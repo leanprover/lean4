@@ -164,12 +164,6 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
     elabTerm e expectedType?
   | _ => throwUnsupportedSyntax
 
-register_builtin_option tactic.tryOnEmptyBy : Bool := {
-  defValue := false
-  descr    := "when an empty `by` block is encountered interactively, run `try?` to suggest \
-    a proof (currently disabled by default; may become the default in a future release)"
-}
-
 /-- Returns `true` if `stx` is a `by` expression with an empty tactic body
 (not a parse error producing `.missing`).
 The structure is: `node byTactic [atom "by", node tacticSeq [node tacticSeq1Indented [node null []]]]` -/
@@ -181,20 +175,7 @@ def isEmptyByBlock (stx : Syntax) : Bool :=
   stx[1][0][0].getNumArgs == 0 &&
   !stx[1][0][0].isMissing
 
-/-- Returns `true` if all conditions are met for empty `by` to be elaborated as `try?`:
-the body is empty, the option is enabled, we are in an interactive (non-combinator) context,
-and the `try?` infrastructure (parser `Lean.Parser.Tactic.tryTrace`) is available — the latter
-matters when working on the prelude, before `Init.Try` is imported. -/
-def shouldElabEmptyByAsTry (stx : Syntax) : TermElabM Bool := do
-  return isEmptyByBlock stx
-    && tactic.tryOnEmptyBy.get (← getOptions)
-    && (← read).errToSorry
-    && (← getEnv).contains `Lean.Parser.Tactic.tryTrace
-
-/-- Body of the `byTactic` term elaborator: registers a tactic mvar for the body, or
-errors when there's no expected type. Shared between `elabByTactic` and
-`Lean.Elab.Tactic.Try`'s `elabEmptyByAsTry` so the two paths can't drift. -/
-def elabByTacticCore : TermElab := fun stx expectedType? => do
+@[builtin_term_elab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
   match expectedType? with
   | some expectedType =>
     -- `by` switches from an exported to a private context, so we must disallow unassigned
@@ -204,13 +185,6 @@ def elabByTacticCore : TermElab := fun stx expectedType? => do
   | none =>
     tryPostpone
     throwError ("invalid 'by' tactic, expected type has not been provided")
-
-@[builtin_term_elab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
-  -- When the conditions for `try?` on empty `by` are met, skip this elaborator so a later one
-  -- (in Lean.Elab.Tactic.Try) can handle it with try?.
-  if (← shouldElabEmptyByAsTry stx) then
-    throwUnsupportedSyntax
-  elabByTacticCore stx expectedType?
 
 @[builtin_term_elab noImplicitLambda] def elabNoImplicitLambda : TermElab := fun stx expectedType? =>
   elabTerm stx[1] (mkNoImplicitLambdaAnnotation <$> expectedType?)
@@ -400,7 +374,12 @@ private def resynthInstImplicitArgs (type : Expr) : TermElabM Expr := do
     -- Wrap instance so its type matches the expected type exactly.
     let logCompileErrors := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
     let isMeta := (← read).declName?.any (isMarkedMeta (← getEnv))
+    -- The auxiliary definitions `wrapInstance` introduces bridge `type` and `expectedType`, so their
+    -- bodies are only well-typed when the definitions whose unfolding the bridge requires are
+    -- exposed (#14147).
+    let exposedDefEq ← withExporting <| isDefEqGuarded type expectedType
     wrapInstance inst expectedType (logCompileErrors := logCompileErrors) (isMeta := isMeta)
+      (exposeAux := exposedDefEq)
   else
     pure inst
   ensureHasType expectedType? inst
@@ -429,7 +408,7 @@ private def resynthInstImplicitArgs (type : Expr) : TermElabM Expr := do
     pushScope
     let openDecls ← elabOpenDecl decl
     withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
-      elabTerm e expectedType?
+      withSaveInfoContext <| elabTerm e expectedType?
   finally
     popScope
 
@@ -438,7 +417,7 @@ private def resynthInstImplicitArgs (type : Expr) : TermElabM Expr := do
   withRef stx[1] <| Elab.checkDeprecatedOption (stx[1].getId.eraseMacroScopes) decl
   withOptions (fun _ => options) do
     try
-      elabTerm stx[5] expectedType?
+      withSaveInfoContext <| elabTerm stx[5] expectedType?
     finally
       if stx[1].getId == `diagnostics then
         reportDiag

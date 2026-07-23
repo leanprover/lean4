@@ -32,6 +32,20 @@ do
     t✝
   else
     e✝
+do
+  for x✝ in xs✝ do
+    pure✝ ()
+do
+  let mut acc✝ := 0;
+  for x✝ in xs✝ do
+    acc✝ := acc✝ + x✝;
+    return acc✝
+do
+  while c✝ do
+    pure✝ ()
+do
+  unless c✝ do
+    pure✝ ()
 def foo✝ := by
   · skip; skip
   · skip; skip

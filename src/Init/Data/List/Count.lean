@@ -94,6 +94,8 @@ theorem countP_le_length : countP p l ≤ l.length := by
   simp only [countP_eq_length_filter]
   apply length_filter_le
 
+grind_pattern countP_le_length => countP p l, l.length
+
 @[simp, grind =] theorem countP_append {l₁ l₂ : List α} : countP p (l₁ ++ l₂) = countP p l₁ + countP p l₂ := by
   simp only [countP_eq_length_filter, filter_append, length_append]
 
@@ -257,9 +259,10 @@ theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
   funext l
   apply count_eq_countP
 
-@[grind =]
 theorem count_eq_length_filter {a : α} {l : List α} : count a l = (filter (· == a) l).length := by
   simp [count, countP_eq_length_filter]
+
+grind_pattern count_eq_length_filter => count a l, (filter _ l).length
 
 @[grind =]
 theorem count_tail : ∀ {l : List α} {a : α},
@@ -271,7 +274,7 @@ theorem count_tail : ∀ {l : List α} {a : α},
 
 theorem count_le_length {a : α} {l : List α} : count a l ≤ l.length := countP_le_length
 
-grind_pattern count_le_length => count a l
+grind_pattern count_le_length => count a l, l.length
 
 theorem Sublist.count_le (a : α) (h : l₁ <+ l₂) : count a l₁ ≤ count a l₂ := h.countP_le
 

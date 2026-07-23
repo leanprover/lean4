@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Rat.Basic
-// Imports: public import Init.Data.Nat.Coprime public import Init.Data.OfScientific public import Init.Data.Int.DivMod.Basic public import Init.Data.String.Defs public import Init.Data.ToString.Macro public import Init.Data.ToString.Extra import Init.Data.Hashable import Init.Data.Int.DivMod.Bootstrap import Init.Data.Int.DivMod.Lemmas import Init.Data.Int.Lemmas import Init.Data.Int.Order import Init.Data.Int.Pow import Init.Data.Nat.Dvd
+// Imports: public import Init.Data.Nat.Coprime public import Init.Data.OfScientific.Basic public import Init.Data.Int.DivMod.Basic public import Init.Data.String.Defs public import Init.Data.ToString.Macro public import Init.Data.ToString.Extra import Init.Data.Hashable import Init.Data.Int.DivMod.Bootstrap import Init.Data.Int.DivMod.Lemmas import Init.Data.Int.Lemmas import Init.Data.Int.Order import Init.Data.Int.Pow import Init.Data.Nat.Dvd
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2286,7 +2286,7 @@ return v_a_722_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Nat_Coprime(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_OfScientific(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_OfScientific_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Defs(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_ToString_Macro(uint8_t builtin);
@@ -2306,7 +2306,7 @@ _G_runtime_initialized = true;
 res = runtime_initialize_Init_Data_Nat_Coprime(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_OfScientific(builtin);
+res = runtime_initialize_Init_Data_OfScientific_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Int_DivMod_Basic(builtin);
@@ -2364,7 +2364,7 @@ lean_mark_persistent(l_Rat_normalize___auto__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_Nat_Coprime(uint8_t builtin);
-lean_object* initialize_Init_Data_OfScientific(uint8_t builtin);
+lean_object* initialize_Init_Data_OfScientific_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Defs(uint8_t builtin);
 lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin);
@@ -2384,7 +2384,7 @@ _G_initialized = true;
 res = initialize_Init_Data_Nat_Coprime(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_OfScientific(builtin);
+res = initialize_Init_Data_OfScientific_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Int_DivMod_Basic(builtin);

@@ -160,7 +160,7 @@ def isNatOffset (fName : Name) (e : Expr) : MetaM Bool := do
   else
     return fName == ``Nat.succ && e.getAppNumArgs == 1
 
-/-
+/--
 This is a hook to determine if we should add an expression as a wildcard pattern.
 
 Clone of `Lean.Meta.DiscrTree.shouldAddAsStar`.  See it for more discussion.
@@ -261,7 +261,7 @@ def getKeyArgs (e : Expr) (isMatch root : Bool) :
   | .bvar _ | .letE _ _ _ _ _ | .lam _ _ _ _ | .mdata _ _ | .app _ _ | .sort _ =>
     return (.other, #[])
 
-/-
+/--
 Given an expression we are looking for patterns that match, return the key and sub-expressions.
 -/
 abbrev getMatchKeyArgs (e : Expr) (root : Bool) :
@@ -581,7 +581,7 @@ partial def appendResults (mr : MatchResult α) (a : Array α) : Array α :=
 
 end MatchResult
 
-/-
+/--
 A partial match captures the intermediate state of a match
 execution.
 
@@ -660,7 +660,7 @@ def getStarResult (root : Std.HashMap Key TrieIndex) : MatchM α (MatchResult α
     let (vs, _) ← evalNode idx
     pure <| ({} : MatchResult α).push (score := 1) vs
 
-/-
+/--
 Add partial match to cases if discriminator tree root map has potential matches.
 -/
 def pushRootCase (r : Std.HashMap Key TrieIndex) (k : Key) (args : Array Expr)

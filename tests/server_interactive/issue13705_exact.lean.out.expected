@@ -1,6 +1,6 @@
 blocked!
 unblocking!
-{"version": 1,
+{"version": 2,
  "uri": "file:///issue13705_exact.lean",
  "isIncremental": false,
  "diagnostics":
@@ -23,10 +23,12 @@ unblocking!
    {"start": {"line": 12, "character": 2},
     "end": {"line": 12, "character": 18}}},
   {"source": "Lean 4",
-   "severity": 2,
+   "severity": 1,
    "range":
-   {"start": {"line": 15, "character": 0}, "end": {"line": 15, "character": 7}},
-   "message": "declaration uses `sorry`",
+   {"start": {"line": 15, "character": 31},
+    "end": {"line": 16, "character": 0}},
+   "message": "unsolved goals\nx y : Nat\n⊢ x = y",
+   "leanTags": [1],
    "fullRange":
-   {"start": {"line": 15, "character": 0},
-    "end": {"line": 15, "character": 7}}}]}
+   {"start": {"line": 15, "character": 31},
+    "end": {"line": 17, "character": 15}}}]}

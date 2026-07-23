@@ -26,6 +26,17 @@ decomposes.
 
 namespace Lean.Elab.Tactic.Do.Internal
 
+/-- Change `goal`'s `Prop`-typed target to the definitionally-equal `targetNew`, mirroring the goal
+update in `Sym.Simp`: a fresh synthetic-opaque goal cast back through `@id`. Unlike
+`MVarId.replaceTargetDefEq` it skips the `instantiateMVars`/`Expr.equal` round-trip, so it neither
+detects a no-op change nor supports a non-`Prop` target; the caller must pass a genuinely different
+`targetNew` definitionally equal to the current target. -/
+public def _root_.Lean.MVarId.replaceTargetDefEqFast (goal : MVarId) (targetNew : Expr) :
+    MetaM MVarId := goal.withContext do
+  let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew (← goal.getTag)
+  goal.assign (mkApp2 (mkConst ``id [.zero]) (← goal.getType) mvarNew)
+  return mvarNew.mvarId!
+
 /-- Internalize a backward rule's pattern into the current `SymM` share table. See
 `Pattern.shareCommon`. Designed for dot notation: `rule.shareCommon`. -/
 public def _root_.Lean.Meta.Sym.BackwardRule.shareCommon (rule : BackwardRule) : SymM BackwardRule :=
@@ -165,7 +176,7 @@ public partial def solveTrivialConjuncts (goal : MVarId) : VCGenM (Option MVarId
     let lhs ← reduceHead lhs
     let rhs ← reduceHead rhs
     let u ← Meta.getLevel ty
-    let goal ← goal.replaceTargetDefEq (mkApp3 (mkConst ``Eq [u]) ty lhs rhs)
+    let goal ← goal.replaceTargetDefEqFast (mkApp3 (mkConst ``Eq [u]) ty lhs rhs)
     -- Synthetic opaque metavariables (e.g. invariant holes) stay rigid; natural
     -- metavariables may be assigned (e.g. `?m := e` for `e = ?m` leaves).
     if ← isDefEqS lhs rhs then

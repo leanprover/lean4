@@ -26,7 +26,7 @@ lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TSyntax_getId(lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l___private_Init_Meta_Defs_0__Lean_getEscapedNameParts_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_quoteNameMk(lean_object*);
 lean_object* lean_string_intercalate(lean_object*, lean_object*);
@@ -230,7 +230,8 @@ lean_ctor_set(v___x_139_, 3, v___x_138_);
 v___x_140_ = ((lean_object*)(l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__13));
 v___x_165_ = l_Lean_TSyntax_getId(v_id_128_);
 lean_dec(v_id_128_);
-v___x_166_ = lean_erase_macro_scopes(v___x_165_);
+v___x_166_ = l_Lean_Name_eraseMacroScopes(v___x_165_);
+lean_dec(v___x_165_);
 lean_inc(v___x_166_);
 v___x_167_ = l___private_Init_Meta_Defs_0__Lean_getEscapedNameParts_x3f(v___x_137_, v___x_166_);
 if (lean_obj_tag(v___x_167_) == 0)

@@ -5,6 +5,8 @@ open Std.Time
 def ISO8601UTCAllow : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm:ss.SSSSSSSSSZ", { allowLeapSeconds := true })
 def ISO8601UTCNot : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm:ss.SSSSSSSSSZ", { allowLeapSeconds := false })
 def ISO8601UTCDef : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm:ss.SSSSSSSSSZ")
+def zMW := zoned("2002-07-14T23:13:12.324354679-09:30")  -- Marquesas −09:30
+def zIN := zoned("2002-07-14T23:13:12.324354679+05:30")  -- India +05:30
 
 /--
 info: Except.ok (zoned("2002-07-14T23:13:60.324354679-23:59"))
@@ -23,10 +25,6 @@ info: Except.error "offset 19: need a natural number in the interval of 0 to 59"
 -/
 #guard_msgs in
 #eval ISO8601UTCDef.parse "2002-07-14T23:13:60.324354679-2359"
-
-/-
-Offset
--/
 
 /--
 info: Except.error "offset 32: invalid hour offset: 24. Must be between 0 and 23."
@@ -75,3 +73,15 @@ info: Except.error "offset 34: invalid minute offset: 99. Must be between 0 and 
 -/
 #guard_msgs in
 #eval ISO8601UTCAllow.parse "2002-07-14T23:14:00.324354679-0099"
+
+/--
+info: "+0530 +0530 +05:30 +0530 +05:30"
+-/
+#guard_msgs in
+#eval zIN.format "X XX XXX XXXX XXXXX"
+
+/--
+info: "-0930"
+-/
+#guard_msgs in
+#eval zMW.format "X"

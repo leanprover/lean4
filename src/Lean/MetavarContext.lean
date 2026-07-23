@@ -591,7 +591,7 @@ def instantiateMVarsCore (mctx : MetavarContext) (e : Expr) : Expr × MetavarCon
     instantiateExprMVars e
   runST fun _ => instantiate e |>.run |>.run mctx
 
-/-
+/--
 Substitutes assigned metavariables in `e` with their assigned value according to the
 `MetavarContext`, recursively.
 

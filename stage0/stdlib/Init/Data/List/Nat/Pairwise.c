@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Nat.Pairwise
-// Imports: public import Init.NotationExtra import Init.Data.Fin.Lemmas import Init.Data.List.Nat.TakeDrop import Init.Data.List.Pairwise import Init.Data.List.Sublist import Init.Data.List.TakeDrop
+// Imports: public import Init.NotationExtra import Init.Data.Fin.Lemmas import Init.Data.List.Nat.TakeDrop import Init.Data.List.Pairwise import Init.Data.List.Sublist import Init.Data.List.TakeDrop public import Init.Data.List.FinRange public import Init.Data.List.Find
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,6 +19,8 @@ lean_object* runtime_initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Pairwise(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Sublist(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_TakeDrop(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_FinRange(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Find(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_List_Nat_Pairwise(uint8_t builtin) {
 lean_object * res;
@@ -42,6 +44,12 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_FinRange(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Find(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -57,6 +65,8 @@ lean_object* initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Sublist(uint8_t builtin);
 lean_object* initialize_Init_Data_List_TakeDrop(uint8_t builtin);
+lean_object* initialize_Init_Data_List_FinRange(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Find(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Nat_Pairwise(uint8_t builtin) {
 lean_object * res;
@@ -78,6 +88,12 @@ res = initialize_Init_Data_List_Sublist(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_TakeDrop(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_FinRange(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Find(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_Nat_Pairwise(builtin);

@@ -56,6 +56,8 @@ theorem countP_le_size {xs : Vector α n} : countP p xs ≤ n := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.countP_le_size (p := p)]
 
+grind_pattern countP_le_size => countP p xs
+
 @[simp, grind =] theorem countP_append {xs : Vector α n} {ys : Vector α m} : countP p (xs ++ ys) = countP p xs + countP p ys := by
   cases xs
   cases ys

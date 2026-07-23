@@ -268,10 +268,10 @@ LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_cancel___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_cancel___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_cancel(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_cancel___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Task_asServerTask___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Task_asServerTask___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Task_asServerTask(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Task_asServerTask___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Task_asServerTask___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Task_asServerTask___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Task_asServerTask(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Task_asServerTask___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedServerTask_default___redArg(lean_object* v_inst_1_){
 _start:
 {
@@ -2111,34 +2111,34 @@ lean_dec_ref(v_t_790_);
 return v_res_792_;
 }
 }
-LEAN_EXPORT lean_object* l_Task_asServerTask___redArg(lean_object* v_t_793_){
+LEAN_EXPORT lean_object* l_Lean_Task_asServerTask___redArg(lean_object* v_t_793_){
 _start:
 {
 lean_inc_ref(v_t_793_);
 return v_t_793_;
 }
 }
-LEAN_EXPORT lean_object* l_Task_asServerTask___redArg___boxed(lean_object* v_t_794_){
+LEAN_EXPORT lean_object* l_Lean_Task_asServerTask___redArg___boxed(lean_object* v_t_794_){
 _start:
 {
 lean_object* v_res_795_; 
-v_res_795_ = l_Task_asServerTask___redArg(v_t_794_);
+v_res_795_ = l_Lean_Task_asServerTask___redArg(v_t_794_);
 lean_dec_ref(v_t_794_);
 return v_res_795_;
 }
 }
-LEAN_EXPORT lean_object* l_Task_asServerTask(lean_object* v_00_u03b1_796_, lean_object* v_t_797_){
+LEAN_EXPORT lean_object* l_Lean_Task_asServerTask(lean_object* v_00_u03b1_796_, lean_object* v_t_797_){
 _start:
 {
 lean_inc_ref(v_t_797_);
 return v_t_797_;
 }
 }
-LEAN_EXPORT lean_object* l_Task_asServerTask___boxed(lean_object* v_00_u03b1_798_, lean_object* v_t_799_){
+LEAN_EXPORT lean_object* l_Lean_Task_asServerTask___boxed(lean_object* v_00_u03b1_798_, lean_object* v_t_799_){
 _start:
 {
 lean_object* v_res_800_; 
-v_res_800_ = l_Task_asServerTask(v_00_u03b1_798_, v_t_799_);
+v_res_800_ = l_Lean_Task_asServerTask(v_00_u03b1_798_, v_t_799_);
 lean_dec_ref(v_t_799_);
 return v_res_800_;
 }

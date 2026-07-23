@@ -51,14 +51,14 @@ lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_ob
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
-lean_object* l_List_foldl___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instReprTupleOfRepr___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_Prod_repr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_foldl___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_repr___redArg(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
+lean_object* l_List_foldl___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_foldlMAux___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_once_cell_t l_Lean_SMap_instInhabited___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_SMap_instInhabited___closed__0;
@@ -177,9 +177,9 @@ static const lean_object* l_Lean_SMap_toList___redArg___closed__0 = (const lean_
 LEAN_EXPORT lean_object* l_Lean_SMap_toList___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_toList(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_toList___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_toSMap___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_toSMap___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_toSMap(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_List_toSMap___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_List_toSMap___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_List_toSMap(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_instReprSMap___redArg___lam__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = ".toSMap"};
 static const lean_object* l_Lean_instReprSMap___redArg___lam__0___closed__0 = (const lean_object*)&l_Lean_instReprSMap___redArg___lam__0___closed__0_value;
 static const lean_ctor_object l_Lean_instReprSMap___redArg___lam__0___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_instReprSMap___redArg___lam__0___closed__0_value)}};
@@ -1793,7 +1793,7 @@ lean_dec_ref(v_inst_713_);
 return v_res_716_;
 }
 }
-LEAN_EXPORT lean_object* l_List_toSMap___redArg___lam__0(lean_object* v_inst_717_, lean_object* v_inst_718_, lean_object* v_s_719_, lean_object* v_x_720_){
+LEAN_EXPORT lean_object* l_Lean_List_toSMap___redArg___lam__0(lean_object* v_inst_717_, lean_object* v_inst_718_, lean_object* v_s_719_, lean_object* v_x_720_){
 _start:
 {
 lean_object* v_fst_721_; lean_object* v_snd_722_; lean_object* v___x_723_; 
@@ -1806,11 +1806,11 @@ v___x_723_ = l_Lean_SMap_insert___redArg(v_inst_717_, v_inst_718_, v_s_719_, v_f
 return v___x_723_;
 }
 }
-LEAN_EXPORT lean_object* l_List_toSMap___redArg(lean_object* v_inst_724_, lean_object* v_inst_725_, lean_object* v_es_726_){
+LEAN_EXPORT lean_object* l_Lean_List_toSMap___redArg(lean_object* v_inst_724_, lean_object* v_inst_725_, lean_object* v_es_726_){
 _start:
 {
 lean_object* v___f_727_; lean_object* v___x_728_; lean_object* v___x_729_; 
-v___f_727_ = lean_alloc_closure((void*)(l_List_toSMap___redArg___lam__0), 4, 2);
+v___f_727_ = lean_alloc_closure((void*)(l_Lean_List_toSMap___redArg___lam__0), 4, 2);
 lean_closure_set(v___f_727_, 0, v_inst_724_);
 lean_closure_set(v___f_727_, 1, v_inst_725_);
 v___x_728_ = lean_obj_once(&l_Lean_SMap_instInhabited___closed__4, &l_Lean_SMap_instInhabited___closed__4_once, _init_l_Lean_SMap_instInhabited___closed__4);
@@ -1818,11 +1818,11 @@ v___x_729_ = l_List_foldl___redArg(v___f_727_, v___x_728_, v_es_726_);
 return v___x_729_;
 }
 }
-LEAN_EXPORT lean_object* l_List_toSMap(lean_object* v_00_u03b1_730_, lean_object* v_00_u03b2_731_, lean_object* v_inst_732_, lean_object* v_inst_733_, lean_object* v_es_734_){
+LEAN_EXPORT lean_object* l_Lean_List_toSMap(lean_object* v_00_u03b1_730_, lean_object* v_00_u03b2_731_, lean_object* v_inst_732_, lean_object* v_inst_733_, lean_object* v_es_734_){
 _start:
 {
 lean_object* v___x_735_; 
-v___x_735_ = l_List_toSMap___redArg(v_inst_732_, v_inst_733_, v_es_734_);
+v___x_735_ = l_Lean_List_toSMap___redArg(v_inst_732_, v_inst_733_, v_es_734_);
 return v___x_735_;
 }
 }

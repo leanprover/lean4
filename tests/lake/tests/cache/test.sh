@@ -329,6 +329,13 @@ test_restored +Module:olean.server Module.olean.server
 test_restored +Module:olean.private Module.olean.private
 test_restored +Module:ir Module.ir
 
+# Verify that a hard linked restored executable is given the right
+# permissions to run even if the cached artifact lacked them (e.g.,
+# because it came from `lake cache get`)
+test_cmd chmod 444 $CACHE_DIR/artifacts/*
+test_cmd rm -rf .lake/build/bin
+test_run exe test
+
 # Verify that invalid outputs do not break Lake
 if command -v jq > /dev/null; then # skip if no jq found
   libPath=$($LAKE query Test:static)

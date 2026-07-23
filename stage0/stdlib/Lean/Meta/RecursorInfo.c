@@ -7566,9 +7566,9 @@ return v___x_2677_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_initFn___lam__2_00___x40_Lean_Meta_RecursorInfo_3248140585____hygCtx___hyg_2____boxed(lean_object* v___x_2678_, lean_object* v_env_2679_, lean_object* v_n_2680_, lean_object* v_x_2681_){
 _start:
 {
-uint8_t v___x_643__boxed_2682_; uint8_t v_res_2683_; lean_object* v_r_2684_; 
-v___x_643__boxed_2682_ = lean_unbox(v___x_2678_);
-v_res_2683_ = l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_initFn___lam__2_00___x40_Lean_Meta_RecursorInfo_3248140585____hygCtx___hyg_2_(v___x_643__boxed_2682_, v_env_2679_, v_n_2680_, v_x_2681_);
+uint8_t v___x_646__boxed_2682_; uint8_t v_res_2683_; lean_object* v_r_2684_; 
+v___x_646__boxed_2682_ = lean_unbox(v___x_2678_);
+v_res_2683_ = l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_initFn___lam__2_00___x40_Lean_Meta_RecursorInfo_3248140585____hygCtx___hyg_2_(v___x_646__boxed_2682_, v_env_2679_, v_n_2680_, v_x_2681_);
 lean_dec(v_x_2681_);
 v_r_2684_ = lean_box(v_res_2683_);
 return v_r_2684_;

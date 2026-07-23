@@ -249,9 +249,19 @@ These bash variables (set via `<file>.init.sh`) are used by the run script:
   A bash variable containing the expected exit code of the program.
   When set to `nonzero` instead of a numerical value, the exit code must not be 0.
 
+- `TEST_REPEAT`:
+  A number specifying how often to repeat the benchmark.
+  The resulting measurements are averaged.
+  Has no effect when testing.
+
+- `TEST_REPEAT_DROP_HIGHEST`, `TEST_REPEAT_DROP_LOWEST`:
+  A number specifying how many extreme measurements to drop before averaging.
+  Only takes effect if `TEST_REPEAT` is set.
+
 For performance reasons, elab tests can use prebuilt header snapshots.
-Use of the snapshots is controlled by `LEAN_HEADER_SNAPSHOTS`:
-set it to `0` to force them off, or to `1` to force them on.
+Building the snapshots and wiring them into the ctest suite (as the `build_lean_header_snapshots.sh` setup fixture) is gated by the `LEAN_HEADER_SNAPSHOTS` CMake option, which currently defaults to `OFF`.
+Use of the snapshots at runtime is further controlled by the `LEAN_HEADER_SNAPSHOTS` environment variable:
+set it to `0` to force them off, or to `1` to force them on (if enabled at build time).
 By default, they are turned on only when running under ctest.
 To use the pre-built snapshots when manually running tests,
 run `tests/with_stage1_test_env.sh tests/build_lean_header_snapshots.sh`
@@ -308,6 +318,15 @@ These bash variables (set via `<file>.init.sh`) are used by the run script:
 - `TEST_EXIT`:
   A bash variable containing the expected exit code of the program.
   When set to `nonzero` instead of a numerical value, the exit code must not be 0.
+
+- `TEST_REPEAT`:
+  A number specifying how often to repeat the benchmark.
+  The resulting measurements are averaged.
+  Has no effect when testing.
+
+- `TEST_REPEAT_DROP_HIGHEST`, `TEST_REPEAT_DROP_LOWEST`:
+  A number specifying how many extreme measurements to drop before averaging.
+  Only takes effect if `TEST_REPEAT` is set.
 
 ## The `interactive` test pile
 

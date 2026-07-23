@@ -325,7 +325,7 @@ private def dispatchPendingRequest
 Attempts a single non-blocking receive from the body and feeds any available chunk
 into the machine, without going through the `Selectable.one` scheduler.
 
-For fully-buffered bodies (e.g. `Body.Full`, `Body.Buffered`) this avoids one
+For fully-buffered bodies (e.g. `Body.Full`) this avoids one
 `Selectable.one` round-trip when the chunk is already in memory. Streaming bodies
 that have no producer waiting return `none` and fall through to the normal poll loop
 unchanged.

@@ -1445,8 +1445,8 @@ def Extension.addEMatchAttr (ext : Extension) (declName : Name) (attrKind : Attr
     ext.addGrindEqAttr declName attrKind thmKind (useLhs := true) (showInfo := showInfo)
     ext.addGrindEqAttr declName attrKind thmKind (useLhs := false) (showInfo := showInfo)
   | _ =>
-    let info ← getConstInfo declName
-    if !wasOriginallyTheorem (← getEnv) declName && !info.isCtor && !info.isAxiom then
+    let info ← getAsyncConstInfo declName
+    if !(info.kind matches .thm | .ctor | .axiom) then
       ensureNoMinIndexable minIndexable
       ext.addGrindEqAttr declName attrKind thmKind (showInfo := showInfo)
     else

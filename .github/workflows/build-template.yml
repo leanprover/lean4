@@ -54,8 +54,10 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@ef8a148080ab6020fd15196c2084a2eea5ff2d25 # v22
         if: runner.os == 'Linux' && !matrix.cmultilib
+        with:
+          summarize: false
       - name: Install MSYS2
-        uses: msys2/setup-msys2@e9898307ac31d1a803454791be09ab9973336e1c # v2.31.1
+        uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
         with:
           msystem: clang64
           # `:` means do not prefix with msystem
@@ -70,6 +72,10 @@ jobs:
         with:
           # the default is to use a virtual merge commit between the PR and master: just use the PR
           ref: ${{ github.event.pull_request.head.sha }}
+          # The Lake cache job walks git history to resolve a cached ancestor revision, so on
+          # push/merge_group it needs more than the default single commit. (PRs instead get depth
+          # from the "CI Merge Checkout" step below.)
+          fetch-depth: ${{ (matrix.name == 'Linux Lake (Cached)' && github.event_name != 'pull_request') && 10 || 1 }}
       - name: Open Nix shell once
         run: true
         if: runner.os == 'Linux'
@@ -96,7 +102,7 @@ jobs:
         if: matrix.cmultilib
       - name: Restore Cache
         id: restore-cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           # NOTE: must be in sync with `save` below and with `restore-cache` in `update-stage0.yml`
           path: |
@@ -131,7 +137,9 @@ jobs:
           [ -d build ] || mkdir build
           cd build
           # arguments passed to `cmake`
-          OPTIONS=(-DWFAIL=ON)
+          # opt into `LEAN_HEADER_SNAPSHOTS` as suspected issue with incremental builds does not
+          # affect CI
+          OPTIONS=(-DWFAIL=ON -DLEAN_HEADER_SNAPSHOTS=ON)
           if [[ -n '${{ matrix.release }}' ]]; then
             # this also enables githash embedding into stage 1 library, which prohibits reusing
             # `.olean`s across commits, so we don't do it in the fast non-release CI
@@ -165,8 +173,22 @@ jobs:
         run: |
           ulimit -c unlimited  # coredumps
           time make -C build stage1-configure -j$NPROC
-      - name: Download Lake Cache
+      - name: Check for stage0 update
+        id: check-stage0
+        # A stage0 update replaces the bootstrap compiler, which invalidates every Lake artifact
+        # (Lake does not track stage0), so there is nothing reusable in the cache to download.
+        # `github.sha` is the pushed commit (push/merge_group) or the virtual merge commit (PRs),
+        # so `github.sha^1` is the parent / PR base to diff `stage0` against in both cases.
         if: matrix.name == 'Linux Lake (Cached)'
+        run: |
+          sha='${{ github.sha }}'
+          if git rev-parse --verify --quiet "$sha^1" >/dev/null && ! git diff --quiet "$sha^1" "$sha" -- stage0; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Download Lake Cache
+        if: matrix.name == 'Linux Lake (Cached)' && steps.check-stage0.outputs.changed != 'true'
         run: |
           cd src
           ../build/stage0/bin/lake cache get --repo=${{ github.repository }}
@@ -182,7 +204,7 @@ jobs:
         # Caching on cancellation created some mysterious issues perhaps related to improper build
         # shutdown
         if: steps.restore-cache.outputs.cache-hit != 'true' && !cancelled()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           # NOTE: must be in sync with `restore` above
           path: |
@@ -267,6 +289,11 @@ jobs:
           ulimit -c unlimited  # coredumps
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/$TARGET_STAGE -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
         if: matrix.test
+      # copy failed tests' output into the `<failure>` elements shown by the test summary
+      - name: Embed Test Output
+        run: |
+          python3 script/junit_embed_output.py build/$TARGET_STAGE/test-results.xml
+        if: always() && steps.test.conclusion == 'failure'
       - name: Test Summary
         uses: test-summary/action@37b508cfee6d4d080eedd00b5bb240a6a784a6a5 # v2.6
         with:

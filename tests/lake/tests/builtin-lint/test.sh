@@ -344,3 +344,26 @@ match_pat 'missing doc string for public def undocumentedInDep' produced.out
 # produces no entry for `Dep`.
 lake_out lint --builtin-only Dep || true
 no_match_pat 'missing doc string for public def undocumentedInDep' produced.out
+
+# --- Forward references in Verso docstrings (`linter.doc.deferred`) ---
+# `ForwardRef` has a resolvable reference (`Nat.succ`) and an unresolvable one
+# (`Nat.totallyMissingXYZ`). The unresolvable one fails the lint, reported in the
+# docstring of `badForwardRef`; the resolvable one produces no output.
+test_err 'Unknown constant' lint --builtin-only ForwardRef
+match_pat 'Nat.totallyMissingXYZ' produced.out
+match_pat 'badForwardRef' produced.out
+no_match_pat 'Nat\.succ' produced.out
+# A reference under `set_option linter.doc.deferred false in` is suppressed at its site.
+no_match_pat 'Nat\.suppressedMissingABC' produced.out
+no_match_pat 'suppressedForwardRef' produced.out
+# The same suppression works for a module docstring.
+no_match_pat 'Nat\.suppressedModuleDocDEF' produced.out
+
+# Disabling the linter on the command line suppresses the check.
+test_run lint --linters=-linter.doc.deferred ForwardRef
+
+# Under `--lint-only`, the check runs only when explicitly selected: an unrelated
+# spec passes despite the bad reference, while selecting it surfaces the error.
+test_run lint --lint-only=linter.unusedVariables ForwardRef
+test_err 'Unknown constant' lint --lint-only=linter.doc.deferred ForwardRef
+match_pat 'Nat.totallyMissingXYZ' produced.out

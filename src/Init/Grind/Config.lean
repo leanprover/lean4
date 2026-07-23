@@ -134,6 +134,15 @@ structure Config where
   -/
   lia := true
   /--
+  Maximum number of steps performed by the `lia` solver while searching for an assignment
+  satisfying the linear integer arithmetic constraints.
+  A step is counted for each variable processed during the search. This threshold prevents
+  case-split explosion in examples that require enumerating a huge number of cases
+  (e.g., Cooper conflict resolution with large coefficients).
+  When the threshold is reached, the search is interrupted, and the solver becomes incomplete.
+  -/
+  liaSteps : Nat := 10000
+  /--
   When `true` (default: `true`), uses procedure for handling associative (and commutative) operators.
   -/
   ac := true

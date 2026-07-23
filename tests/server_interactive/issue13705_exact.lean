@@ -15,6 +15,8 @@ theorem t1 : True := by
 
 example (x y : Nat) : x = y := by
   try exact?
-  unblock
-  sorry
-       --^ collectDiagnostics
+  skip
+    --^ waitFor: blocked
+    --^ insert: "; unblock"
+    --^ collectDiagnostics
+    -- (should print "blocked!" exactly once)

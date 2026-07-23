@@ -100,8 +100,6 @@ partial def takeUntilEscFn (p : Char → Bool) : ParserFn := fun c s =>
   else if p (c.get' i h) then s
   else takeUntilEscFn p c (s.next' c i h)
 
-partial def takeWhileEscFn (p : Char → Bool) : ParserFn := takeUntilEscFn (not ∘ p)
-
 /--
 Parses as `p`, but discards the result.
 -/
@@ -382,7 +380,7 @@ Parses block opener prefixes. At the beginning of the line, if this parser succe
 block is beginning.
 -/
 public def blockOpener := atomicFn <|
-  takeWhileEscFn (· == ' ') >>
+  eatSpaces >>
   (atomicFn ((bullet >> chFn ' ')) <|> -- Unordered list
    atomicFn ((numbering >> chFn ' ')) <|> -- Ordered list
    atomicFn (strFn ": ") <|> -- Description list item

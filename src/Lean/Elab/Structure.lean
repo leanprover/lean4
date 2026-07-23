@@ -1581,8 +1581,8 @@ def elabStructureCommand : InductiveElabDescr where
                   for field in view.fields do
                     -- may not exist if overriding inherited field
                     if (← getEnv).contains field.declName then
-                      if let some (doc, isVerso) := field.modifiers.docString? then
-                        addDocStringOf isVerso field.declName field.binders doc
+                      if let some doc := field.modifiers.docString? then
+                        addDocString field.declName field.binders doc
                   -- Add terminfo after docstrings so hovers include the docstring.
                   withSaveInfoContext do
                     for field in view.fields do

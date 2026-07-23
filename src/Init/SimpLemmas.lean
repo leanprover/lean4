@@ -20,7 +20,7 @@ theorem eq_true (h : p) : p = True :=
   propext ⟨fun _ => trivial, fun _ => h⟩
 
 -- Adding this attribute needs `eq_true`.
-attribute [simp] cast_heq
+attribute [simp] cast_heq eqRec_heq_iff heq_eqRec_iff
 
 theorem eq_false (h : ¬ p) : p = False :=
   propext ⟨fun h' => absurd h' h, fun h' => False.elim h'⟩

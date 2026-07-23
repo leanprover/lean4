@@ -12,6 +12,7 @@ public import Lean.OriginalConstKind
 public import Lean.AutoDecl
 import Lean.Linter.Init
 import Lean.Compiler.MetaAttr
+import Lean.Util.RecDepth
 import all Lean.OriginalConstKind  -- for accessing `privateConstKindsExt`
 
 public section
@@ -24,11 +25,12 @@ def Kernel.Environment.addDecl (env : Environment) (opts : Options) (decl : Decl
   if debug.skipKernelTC.get opts then
     addDeclWithoutChecking env decl
   else
-    addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl cancelTk?
+    addDeclCore env (Core.getMaxHeartbeats opts).toUSize (maxRecDepth.get opts).toUSize decl cancelTk?
 
 private def Environment.addDeclAux (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
-  env.addDeclCore (Core.getMaxHeartbeats opts).toUSize decl cancelTk? (!debug.skipKernelTC.get opts)
+  env.addDeclCore (Core.getMaxHeartbeats opts).toUSize (maxRecDepth.get opts).toUSize decl cancelTk?
+    (!debug.skipKernelTC.get opts)
 
 open Linter in
 /--

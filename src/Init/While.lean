@@ -12,10 +12,7 @@ public import Init.Classical
 /-!
 # `repeatM`
 
-`repeatM f a` iterates `f : α → m (α ⊕ β)`, recursing on `.inl` and terminating on
-`.inr`. The public unfolding lemma `repeatM_eq_of_monadTail`, which requires a
-`Lean.Order.MonadTail m` instance, lives in `Init.Internal.Order.While` to keep this
-module's import closure small.
+`repeatM f a` iterates `f : α → m (α ⊕ β)`, recursing on `.inl` and terminating on `.inr`.
 -/
 
 variable {α : Type u} {m : Type u → Type v} [Monad m]
@@ -68,17 +65,13 @@ Can be removed once `repeatM.impl` optimizes to the same code.
 @[specialize] private partial def repeatM.erased [Nonempty β] (f : α → m (α ⊕ β)) (a : α) : m β :=
   repeatM.body f (repeatM.erased f ·) a
 
-/--
-`repeatM f a` iterates `f` at `a`, recursing on `.inl` and terminating on `.inr`.
-
-Its unfolding lemma is `repeatM_eq_of_monadTail`.
--/
+/-- `repeatM f a` iterates `f` at `a`, recursing on `.inl` and terminating on `.inr`. -/
 @[implemented_by repeatM.erased] -- See comment above `repeatM.erased`.
 public def repeatM [Nonempty β] (f : α → m (α ⊕ β)) (a : α) : m β :=
   (repeatM.impl f a).val
 
--- This lemma is intentionally private. Users are expected to unfold using
--- `repeatM_eq_of_monadTail` instead.
+-- Intentionally private: unfolding `repeatM` needs a `MonadTail m` instance and is done
+-- in `Init.Internal.Order.While`.
 private theorem repeatM_eq [Nonempty β] {f : α → m (α ⊕ β)} (a : α)
     (h : ∃ g, repeatM.body f g = g) :
     repeatM f a = repeatM.body f (repeatM f) a := by

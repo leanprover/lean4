@@ -1,3 +1,4 @@
+import time
 from argparse import ArgumentParser
 from dataclasses import dataclass
 from pathlib import Path
@@ -70,6 +71,7 @@ class RepoChecker:
         # pygithub doesn't support because both belong to the same organization:
         # https://github.com/PyGithub/PyGithub/issues/2942
         # So we just give the user a link instead.
+        # TODO https://github.com/PyGithub/PyGithub/pull/3479 was merged, await release and update
         if nightly:
             url = util.create_pr_url(
                 base=self.rrepo,
@@ -133,24 +135,27 @@ class DownstreamChecker(RepoChecker):
     def _bump_toolchain_mathlib4(self) -> None:
         self._bump_toolchain(self.lrepo.path)
 
-        pw = self.github.get_repo(repos.PROOFWIDGETS4.gh_full_name)
-        tag = util.get_proofwidgets_release_for(pw, self.version)
-        if not tag:
-            raise SystemExit(1)
-
-        # For both normal and rc1 PRs
-        util.edit(
-            self.lrepo.path / "lakefile.lean",
-            r'"proofwidgets" @ git ".*"',
-            f'"proofwidgets" @ git "{tag.name}"',
-        )
-
-        # For rc1 PRs
-        util.edit(
-            self.lrepo.path / "lakefile.lean",
-            r' @ git "nightly-testing"',
-            f' @ git "{self.version}"',
-        )
+        if self.version.rc == 1:
+            lakefile = self.lrepo.path / "lakefile.lean"
+            util.edit(
+                lakefile,
+                '"batteries" @ git "nightly-testing"',
+                '"batteries" @ git "main"',
+            )
+            util.edit(lakefile, '"Qq" @ git "nightly-testing"', '"Qq" @ git "master"')
+            util.edit(
+                lakefile, '"aesop" @ git "nightly-testing"', '"aesop" @ git "master"'
+            )
+            util.edit(
+                lakefile,
+                '"proofwidgets" @ git "nightly-testing"',
+                '"proofwidgets" @ git "main"',
+            )
+            util.edit(
+                lakefile,
+                '"plausible" @ git "nightly-testing"',
+                '"plausible" @ git "main"',
+            )
 
         self._bump_toolchain_deps(self.lrepo.path)
 
@@ -184,18 +189,6 @@ class DownstreamChecker(RepoChecker):
         self._bump_toolchain(mathlib)
         self._bump_toolchain_deps(mathlib)
 
-        if self.prompt("Run tests?"):
-            try:
-                util.run("./test.sh", cwd=self.lrepo.path)
-                print("#####################")
-                print("## Tests succeeded ##")
-                print("#####################")
-            except SystemExit as e:
-                print("###################")
-                print("## Tests failed! ##")
-                print("###################")
-                raise e
-
     def _bump_toolchain_verso(self) -> None:
         self._bump_toolchain(self.lrepo.path)
         self._bump_toolchain_deps(self.lrepo.path)
@@ -215,6 +208,24 @@ class DownstreamChecker(RepoChecker):
         util.run(
             "uv", "run", "release_notes.py", self.version.tag, self.lrepo.path, cwd=here
         )
+
+        if self.version.rc == 1:
+            module = util.get_release_notes_module_for(self.version)
+            index = self.lrepo.path / util.get_release_notes_index_path()
+
+            util.edit(
+                index,
+                r"(?m)^(import Manual\.Releases\..*)$",
+                f"import {module}\n\\1",
+                count=1,
+            )
+
+            util.edit(
+                index,
+                r"(?m)^(\{include 0 Manual\.Releases\..*\})$",
+                f"{{include 0 {module}}}\n\n\\1",
+                count=1,
+            )
 
         self.prompt("Check release notes before commit")
 
@@ -296,56 +307,65 @@ class DownstreamChecker(RepoChecker):
             self._bump_toolchain_unicode_basic()
             return
 
-        # Normally:
+        # Normally; also RC1, rc1_pr_base == "default":
         # 1. Create bump branch from origin/main
-        # 2. Edit files 'n stuff and commit
-        # 3. Push branch to origin
-        # 4. Create PR to origin/main
+        # 2. Create bump commit
+        # 3. Push branch to origin (or nightly, if specified)
+        # 4. Create bump PR to origin/main
 
-        # Nightly:
-        # 1. Create bump branch from origin/main
-        # 2. Edit files 'n stuff and commit
-        # 3. Push branch to nightly
-        # 4. Create PR to origin/main
+        # RC1, rc1_pr_base == "bump":
+        # 1. Create bump branch from origin/bump/v* (or nightly/bump/v*, if specified)
+        # 2. Create bump commit
+        # 3. Push branch to origin (or nightly, if specified)
+        # 4. Create bump PR to origin/main
 
-        # Normally, with RC1 and bump branch:
-        # 1. Switch to origin/bump/v*
-        # 2. Edit files 'n stuff and commit
-        # 3. Push branch to origin
-        # 4. Create PR to origin/main
+        # RC1, rc1_pr_base == "downstream":
+        # 1. Create bump branch in downstream-lean4, based off of downstream's origin/master
+        #   1.1. Fetch that branch into the local repo, so the remaining steps stay normal
+        # 2. Create bump commit
+        # 3. Push branch to origin (or nightly, if specified)
+        # 4. Create bump PR to origin/main
 
-        # Nightly, with RC1 and bump branch:
-        # 1. Switch to nightly/bump/v*
-        # 2. Edit files 'n stuff and commit
-        # 3. Push branch to nightly
-        # 4. Create PR to origin/main
-
+        # Determine bump PR info
         base = self.grepo.default_branch
         head = f"bump-to-{self.version}"
-        nightly = None
-
-        use_bump_branch = self.rrepo.bump_branch and self.version.rc == 1
-        if use_bump_branch:
+        if self.version.rc == 1 and self.rrepo.rc1_pr_base == "bump":
             head = util.get_bump_branch(self.version)
-            nightly = self.rrepo.nightly
-
         title = util.get_toolchain_bump_message(self.version)
+
+        # If a bump PR already exists, we don't have to do any actual work.
         if self.check_pr(base=base, head=head, title=title):
             return
 
-        self.lrepo.prepare(nightly=nightly)
-        if use_bump_branch:
-            self.lrepo.switch(head, remote="nightly" if nightly else "origin")
+        # Get the head branch into self.lrepo from whatever rc1 or non-rc1 source is appropriate
+        self.lrepo.prepare(nightly=self.rrepo.nightly)
+        if self.version.rc == 1 and self.rrepo.rc1_pr_base == "bump":
+            # `head` has already been set to the bump branch name earlier
+            remote = "nightly" if self.rrepo.nightly else "origin"
+            self.lrepo.switch(head, remote=remote)
+        elif self.version.rc == 1 and self.rrepo.rc1_pr_base == "downstream":
+            dsl = repos.DOWNSTREAM_LEAN4.local
+            dsl.prepare()
+            dsl.switch("master")
+            dsl.run(
+                *("python", ".downstream/split.py", ".", self.rrepo.gh_name, head),
+                *("-m", "chore: adaptations from downstream-lean4"),
+            )
+            # See also LocalRepo.prepare and LocalRepo.switch
+            self.lrepo.git("fetch", "--force", dsl.path, head)
+            self.lrepo.git("switch", "-C", head, "FETCH_HEAD")
         else:
             self.lrepo.create_branch(head)
 
+        # Create bump commit
         self._bump_toolchain_in_worktree()
         self.lrepo.commit(title)
 
-        self.create_pr(base=base, head=head, title=title, nightly=nightly)
+        # Create bump PR
+        self.create_pr(base=base, head=head, title=title, nightly=self.rrepo.nightly)
 
     def check_next_bump_branch(self) -> None:
-        if not self.rrepo.bump_branch:
+        if self.rrepo.rc1_pr_base != "bump":
             return
 
         grepo = self.grepo
@@ -405,6 +425,7 @@ class DownstreamChecker(RepoChecker):
             self.cl.fatal(f"{what} does not exist")
         self.lrepo.push(tag_name, upstream=False)
 
+        time.sleep(5)  # Sometimes it takes GitHub a while to update
         tag = self.grepo.get_git_ref(f"tags/{tag_name}")
         self.cl.success(f"{what} created")
         return tag
@@ -562,7 +583,7 @@ class LeanChecker(RepoChecker):
             self.cl.fatal(f"{what} does not exist")
 
         self.lrepo.prepare()
-        self.lrepo.create_branch(branch_name)
+        self.lrepo.create_branch(branch_name, remote_branch="downstream-green")
 
         if not self.prompt(f"Push branch [b]{e(branch_name)}[/b]?"):
             self.cl.fatal(f"{what} does not exist")
@@ -616,7 +637,7 @@ class LeanChecker(RepoChecker):
             return  # Not fatal
 
         self.lrepo.prepare()
-        self.lrepo.create_branch(head, branch_name)
+        self.lrepo.create_branch(head, remote_branch=branch_name)
         util.set_cmake_version(self.lrepo, target)
         self.lrepo.commit(title)
 
@@ -671,7 +692,8 @@ class LeanChecker(RepoChecker):
         self.lrepo.push(tag_name, upstream=False)
 
         tag = self.grepo.get_git_ref(f"tags/{tag_name}")
-        self.cl.success(f"{what} created")
+        self.cl.success(f"{what} created, waiting a few seconds for release CI...")
+        time.sleep(10)
         return tag
 
     def check_release_ci(self, release_tag: GitRef) -> None:
@@ -725,6 +747,67 @@ class LeanChecker(RepoChecker):
         )
         self.cl.success(f"{what} updated")
 
+    def check_api_docs_workflow(self) -> None:
+        grepo = self.github.get_repo(repos.LEAN4_API_DOCS.gh_full_name)
+        workflow = grepo.get_workflow("docs.yaml")
+        url = "https://github.com/leanprover/lean4-api-docs/actions/workflows/docs.yaml"
+        what = f"[u link={url}]docs.yaml workflow[/u link] on [b]{e(repos.LEAN4_API_DOCS.gh_full_name)}[/b]"
+
+        if not self.prompt(f"Trigger {what}?"):
+            self.cl.fail(f"{what} not triggered")
+            return
+
+        workflow.create_dispatch(ref=grepo.default_branch)
+        self.cl.success(f"{what} triggered")
+
+    def check_zulip_post(self) -> None:
+        what = "Zulip release announcement"
+
+        if not self.prompt(f"Post {what}?"):
+            self.cl.fail(f"{what} not posted")
+            return
+
+        proofwidgets = self.github.get_repo(repos.PROOFWIDGETS4.gh_full_name)
+        proofwidgets_tag = util.get_proofwidgets_release_for(proofwidgets, self.version)
+        if proofwidgets_tag is None:
+            self.cl.fail("ProofWidgets release tag not found")
+            return
+
+        release_notes_url = f"https://lean-lang.org/doc/reference/latest/releases/{self.version.stable}/"
+
+        msg = ""
+        if self.version.is_stable:
+            msg += f"We have a new stable release of Lean, `{self.version.tag}`! "
+        else:
+            msg += f"We have a new release candidate of Lean, `{self.version.tag}`. "
+        msg += f"See the [release notes]({release_notes_url}) for more information."
+        msg += "\n\n"
+        msg += "The usual repos are all available with the new toolchain "
+        msg += f"at their respective `{self.version.tag}` tags "
+        msg += f"(and ProofWidgets at `{proofwidgets_tag.name}`). "
+        msg += "We encourage all projects downstream "
+        msg += f"to update to `{self.version.tag}` when possible, and "
+        msg += "to release their own corresponding toolchain tags after updating."
+
+        print()
+        print(e(msg))
+        print()
+
+        if not self.prompt(f"Posted {what}?"):
+            self.cl.fail(f"{what} not posted")
+            return
+
+        self.cl.success(f"{what} posted")
+
+    def check_notify_ashley(self) -> None:
+        if not self.version.is_stable:
+            return
+
+        if self.prompt("Tell Ashley that the release is finished."):
+            self.cl.success("Ashley notified")
+        else:
+            self.cl.fail("Ashley not notified")
+
     def check(self) -> None:
         self.cl.section("Prepare release cycle")
         self.check_backport_label_exists(self.version)
@@ -748,6 +831,13 @@ class LeanChecker(RepoChecker):
                 DownstreamChecker(config=self.config, rrepo=drepo).check()
             except SystemExit:
                 self.cl.failed = True
+
+        self.cl.ensure_success()
+
+        self.cl.section("Post release")
+        self.check_api_docs_workflow()
+        self.check_zulip_post()
+        self.check_notify_ashley()
 
         self.cl.ensure_success()
 

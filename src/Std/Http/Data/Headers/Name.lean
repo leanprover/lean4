@@ -26,7 +26,7 @@ namespace Std.Http.Header
 
 set_option linter.all true
 
-open Internal Char
+open Std.Http.Internal
 
 /--
 Proposition asserting that a string is a valid HTTP header name: all characters are valid token
@@ -73,7 +73,7 @@ theorem beq_eq {x y : Name} : (x == y) = (x.value == y.value) :=
   rfl
 
 set_option linter.extra.dupNamespace false in
-@[deprecated beq_eq (since := "2026-06-04")]
+@[deprecated Header.Name.beq_eq (since := "2026-06-04")]
 theorem Name.beq_eq {x y : Name} : (x == y) = (x.value == y.value) :=
   Header.Name.beq_eq
 

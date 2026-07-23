@@ -295,6 +295,15 @@ where
     the same instances.
     -/
     let type ← inferType e
+    if !(← read).insideType && (← isProp type) then
+      /-
+      `e` is a nested proof lacking the `Grind.nestedProof` wrapper (wrapped ones are handled
+      by `canonInstProp`). Preprocessing wraps every closed nested proof, so an unwrapped one
+      can only occur in a binder body that `markNestedSubsingletons` skipped. Resynthesizing
+      it here could produce a closed proof lacking the wrapper, and congruence closure would
+      then treat it as distinct from wrapped occurrences of the same instance. See issue #13655.
+      -/
+      return e
     let type' ← canonInsideType' type
     canonInstCore e type' report
 

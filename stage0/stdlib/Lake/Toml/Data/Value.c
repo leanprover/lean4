@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Data.Value
-// Imports: public import Init.Data.Float public import Lake.Toml.Data.Dict public import Lake.Toml.Data.DateTime import Lake.Util.String import Init.Data.String.TakeDrop import Init.Data.String.Search public import Init.Data.String.Defs import Init.Data.ToString.Macro
+// Imports: public import Init.Data.Float.Float public import Lake.Toml.Data.Dict public import Lake.Toml.Data.DateTime import Lake.Util.String import Init.Data.String.TakeDrop import Init.Data.String.Search public import Init.Data.String.Defs import Init.Data.ToString.Macro
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -497,6 +497,8 @@ v_s_117_ = lean_ctor_get(v_x_113_, 1);
 lean_inc_ref(v_s_117_);
 lean_dec_ref_known(v_x_113_, 2);
 v___x_118_ = l_Lean_Syntax_structEq(v_ref_114_, v_ref_116_);
+lean_dec(v_ref_116_);
+lean_dec(v_ref_114_);
 if (v___x_118_ == 0)
 {
 lean_dec_ref(v_s_117_);
@@ -537,6 +539,8 @@ v_n_124_ = lean_ctor_get(v_x_113_, 1);
 lean_inc(v_n_124_);
 lean_dec_ref_known(v_x_113_, 2);
 v___x_125_ = l_Lean_Syntax_structEq(v_ref_121_, v_ref_123_);
+lean_dec(v_ref_123_);
+lean_dec(v_ref_121_);
 if (v___x_125_ == 0)
 {
 lean_dec(v_n_124_);
@@ -575,6 +579,8 @@ lean_inc(v_ref_130_);
 v_n_131_ = lean_ctor_get_float(v_x_113_, sizeof(void*)*1);
 lean_dec_ref_known(v_x_113_, 1);
 v___x_132_ = l_Lean_Syntax_structEq(v_ref_128_, v_ref_130_);
+lean_dec(v_ref_130_);
+lean_dec(v_ref_128_);
 if (v___x_132_ == 0)
 {
 return v___x_132_;
@@ -609,6 +615,8 @@ lean_inc(v_ref_137_);
 v_b_138_ = lean_ctor_get_uint8(v_x_113_, sizeof(void*)*1);
 lean_dec_ref_known(v_x_113_, 1);
 v___x_139_ = l_Lean_Syntax_structEq(v_ref_135_, v_ref_137_);
+lean_dec(v_ref_137_);
+lean_dec(v_ref_135_);
 if (v___x_139_ == 0)
 {
 return v___x_139_;
@@ -657,6 +665,8 @@ v_dt_144_ = lean_ctor_get(v_x_113_, 1);
 lean_inc_ref(v_dt_144_);
 lean_dec_ref_known(v_x_113_, 2);
 v___x_145_ = l_Lean_Syntax_structEq(v_ref_141_, v_ref_143_);
+lean_dec(v_ref_143_);
+lean_dec(v_ref_141_);
 if (v___x_145_ == 0)
 {
 lean_dec_ref(v_dt_144_);
@@ -695,6 +705,8 @@ v_xs_151_ = lean_ctor_get(v_x_113_, 1);
 lean_inc_ref(v_xs_151_);
 lean_dec_ref_known(v_x_113_, 2);
 v___x_152_ = l_Lean_Syntax_structEq(v_ref_148_, v_ref_150_);
+lean_dec(v_ref_150_);
+lean_dec(v_ref_148_);
 if (v___x_152_ == 0)
 {
 lean_dec_ref(v_xs_151_);
@@ -748,6 +760,8 @@ v_xs_161_ = lean_ctor_get(v_x_113_, 1);
 lean_inc_ref(v_xs_161_);
 lean_dec_ref_known(v_x_113_, 2);
 v___x_162_ = l_Lean_Syntax_structEq(v_ref_158_, v_ref_160_);
+lean_dec(v_ref_160_);
+lean_dec(v_ref_158_);
 if (v___x_162_ == 0)
 {
 lean_dec_ref(v_xs_161_);
@@ -2562,7 +2576,7 @@ lean_dec_ref(v_t_806_);
 return v_res_807_;
 }
 }
-lean_object* runtime_initialize_Init_Data_Float(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Float_Float(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Toml_Data_Dict(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Toml_Data_DateTime(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Util_String(uint8_t builtin);
@@ -2575,7 +2589,7 @@ LEAN_EXPORT lean_object* runtime_initialize_Lake_Toml_Data_Value(uint8_t builtin
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Float(builtin);
+res = runtime_initialize_Init_Data_Float_Float(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lake_Toml_Data_Dict(builtin);
@@ -2610,7 +2624,7 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* initialize_Init_Data_Float(uint8_t builtin);
+lean_object* initialize_Init_Data_Float_Float(uint8_t builtin);
 lean_object* initialize_Lake_Toml_Data_Dict(uint8_t builtin);
 lean_object* initialize_Lake_Toml_Data_DateTime(uint8_t builtin);
 lean_object* initialize_Lake_Util_String(uint8_t builtin);
@@ -2623,7 +2637,7 @@ LEAN_EXPORT lean_object* initialize_Lake_Toml_Data_Value(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Float(builtin);
+res = initialize_Init_Data_Float_Float(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Toml_Data_Dict(builtin);

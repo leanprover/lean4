@@ -211,6 +211,17 @@ info: "target: /a/b?old=1"
   | some p => s!"target: {toString p.target}"
   | none => "no plan"
 
+-- An explicit empty query clears the current request target's query instead of inheriting it.
+
+/--
+info: "target: /a/b?a=2"
+-/
+#guard_msgs in
+#eval
+  match plan? (decideRedirect origin queryReq false false .v11 .found (withLocation "?a=2")) with
+  | some p => s!"target: {toString p.target}"
+  | none => "no plan"
+
 private def sameOriginHopHeaders : Headers :=
   Headers.empty.insert .transferEncoding (Header.Value.ofString! "chunked")
 

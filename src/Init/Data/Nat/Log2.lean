@@ -19,7 +19,7 @@ theorem log2_terminates : ∀ n, n ≥ 2 → n / 2 < n
   | 2, _ => by decide
   | 3, _ => by decide
   | n+4, _ => by
-    rw [div_eq, if_pos]
+    rw [div_eq_ite, if_pos]
     refine succ_lt_succ (Nat.lt_trans ?_ (lt_succ_self _))
     exact log2_terminates (n+2) (by simp)
     simp

@@ -12,7 +12,7 @@ import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
-import Lean.Meta.Tactic.Grind.RevertAll
+import Lean.Meta.Tactic.Grind.MarkAccessible
 import Init.Grind.Util
 public section
 namespace Lean.Meta.Grind

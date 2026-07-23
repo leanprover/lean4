@@ -316,7 +316,7 @@ asserts that there is some `x` of type `α` such that `p x` holds.
 To create an existential proof, use the `exists` tactic,
 or the anonymous constructor notation `⟨x, h⟩`.
 To unpack an existential, use `cases h` where `h` is a proof of `∃ x : α, p x`,
-or `let ⟨x, hx⟩ := h` where `.
+or `let ⟨x, hx⟩ := h`.
 
 Because Lean has proof irrelevance, any two proofs of an existential are
 definitionally equal. One consequence of this is that it is impossible to recover the
@@ -769,7 +769,7 @@ the `BEq` typeclass.
 Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead of
 `Prop` valued. It is mainly intended for programming applications.
 -/
-@[inline] def bne {α : Type u} [BEq α] (a b : α) : Bool :=
+@[inline, implicit_reducible] def bne {α : Type u} [BEq α] (a b : α) : Bool :=
   !(a == b)
 
 @[inherit_doc] infix:50 " != " => bne
@@ -887,8 +887,6 @@ variable {a b : α} {p : Prop}
 
 theorem Ne.intro (h : a = b → False) : a ≠ b := h
 
-theorem Ne.elim (h : a ≠ b) : a = b → False := h
-
 theorem Ne.irrefl (h : a ≠ a) : False := h rfl
 
 @[symm] theorem Ne.symm (h : a ≠ b) : b ≠ a := fun h₁ => h (h₁.symm)
@@ -989,7 +987,7 @@ Heterogeneous equality with an `Eq.rec` application on the left is equivalent to
 equality on the original term.
 -/
 theorem eqRec_heq_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
-    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h}
+    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : β}
     : @Eq.rec α a motive refl b h ≍ c ↔ refl ≍ c :=
   h.rec (fun _ => ⟨id, id⟩) c
 
@@ -998,7 +996,7 @@ Heterogeneous equality with an `Eq.rec` application on the right is equivalent t
 equality on the original term.
 -/
 theorem heq_eqRec_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
-    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h} :
+    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : β} :
     c ≍ @Eq.rec α a motive refl b h ↔ c ≍ refl :=
   h.rec (fun _ => ⟨id, id⟩) c
 
@@ -1331,7 +1329,7 @@ def Subrelation {α : Sort u} (q r : α → α → Prop) :=
 The inverse image of `r : β → β → Prop` by a function `α → β` is the relation
 `s : α → α → Prop` defined by `s a b = r (f a) (f b)`.
 -/
-def InvImage {α : Sort u} {β : Sort v} (r : β → β → Prop) (f : α → β) : α → α → Prop :=
+@[implicit_reducible] def InvImage {α : Sort u} {β : Sort v} (r : β → β → Prop) (f : α → β) : α → α → Prop :=
   fun a₁ a₂ => r (f a₁) (f a₂)
 
 /--
@@ -1478,7 +1476,7 @@ Examples:
  * `(1, 2).map (· + 1) (· * 3) = (2, 6)`
  * `(1, 2).map toString (· * 3) = ("1", 6)`
 -/
-def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
+@[implicit_reducible] def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
     (f : α₁ → α₂) (g : β₁ → β₂) : α₁ × β₁ → α₂ × β₂
   | (a, b) => (f a, g b)
 
@@ -1983,6 +1981,7 @@ must respect `s.r`. `Quotient.lift` allows values in a quotient to be mapped to 
 as the mapping respects `s.r`.
 
 -/
+@[implicit_reducible]
 protected def mk' {α : Sort u} [s : Setoid α] (a : α) : Quotient s :=
   Quotient.mk s a
 

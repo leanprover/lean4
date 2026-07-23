@@ -2012,8 +2012,7 @@ theorem getElem_smod {x y : BitVec w} (h : i < w) :
       | true, false => (if -x % y = 0#w then (-x % y) else (y - -x % y))[i]
       | true, true => (-(-x % -y))[i] := by
   simp only [smod, umod_eq, neg_eq, zero_eq, add_eq, sub_eq]
-  by_cases hx : x.msb <;> by_cases hy : y.msb
-  <;> simp [hx, hy]
+  by_cases hx : x.msb <;> by_cases hy : y.msb <;> simp [hx, hy]
 
 theorem getLsbD_smod {x y : BitVec w} :
     (x.smod y).getLsbD i =
@@ -2037,8 +2036,7 @@ theorem getMsbD_smod {x y : BitVec w} :
       | true, false => (if -x % y = 0#w then (-x % y) else (y - -x % y)).getMsbD i
       | true, true => (-(-x % -y)).getMsbD i := by
   simp only [smod, umod_eq, neg_eq, zero_eq, add_eq, sub_eq]
-  by_cases hx : x.msb <;> by_cases hy : y.msb
-  <;> simp [hx, hy]
+  by_cases hx : x.msb <;> by_cases hy : y.msb <;> simp [hx, hy]
 
 theorem msb_smod {x y : BitVec w} :
     (x.smod y).msb = (x.msb && y = 0) || (y.msb && (x.smod y) ≠ 0) := by

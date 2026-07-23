@@ -47,8 +47,10 @@ participate in `getLinterValue` like any user-declared set.
 -/
 builtin_initialize builtinLinterSetsRef : IO.Ref (Array (Name × NameSet)) ← IO.mkRef #[]
 
-/-- Register a builtin linter set entry. Only valid during initialization;
-use `register_builtin_linter_set` rather than calling this directly. -/
+/-- 
+  Register a builtin linter set entry. 
+  Only valid during initialization.
+-/
 def addBuiltinLinterSet (setName : Name) (linterNames : NameSet) : IO Unit := do
   builtinLinterSetsRef.modify (·.push (setName, linterNames))
 
@@ -105,6 +107,12 @@ register_builtin_option linter.extra : Bool := {
   defValue := false
   descr := "enables the set of extra linters — linters that are turned off by default and \
     only available via `lake lint`. An extra linter early-returns unless this option is true."
+}
+
+register_builtin_option linter.coreInternal : Bool := {
+  defValue := false
+  descr := "enables the set of core-internal linters — linters that enforce conventions of the \
+    Lean repository itself and are not intended for use by non-core projects."
 }
 
 /--

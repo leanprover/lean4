@@ -36,8 +36,8 @@ namespace Std.Http.URI.Parser
 
 set_option linter.all true
 
-open Internal Char
-open Std Internal Parsec ByteArray
+open Std.Http.Internal Std.Http.Internal.Char
+open Std Std.Internal Parsec Std.Internal.Parsec.ByteArray
 
 @[inline]
 private def tryOpt (p : Parser α) : Parser (Option α) :=
@@ -338,7 +338,6 @@ def parseURI (config : URI.Config := {}) : Parser URI := do
   let (authority, path) ← parseHierPart config
 
   let query ← optional (skipByteChar '?' *> parseQuery config)
-  let query := query.getD .empty
 
   let fragment ← optional do
     let some result := (← (skipByteChar '#' *> parseFragment config)) |>.decode
@@ -373,7 +372,6 @@ where
     skipByte ':'.toUInt8
     let (auth, path) ← parseHierPart config
     let query ← optional (skipByteChar '?' *> parseQuery config)
-    let query := query.getD URI.Query.empty
 
     return .absoluteForm { path, scheme, authority := auth, query, fragment := none }
 
@@ -387,7 +385,6 @@ where
       if ← peekIs (· == '/'.toUInt8) then
         let (authority, path) ← parseHierPart config
         let query ← optional (skipByteChar '?' *> parseQuery config)
-        let query := query.getD .empty
         return .absoluteForm { scheme, path, authority, query, fragment := none }
       else
         fail "not http absolute uri with path"
@@ -436,7 +433,6 @@ where
     skipByte ':'.toUInt8
     let (authority, path) ← parseHierPart config
     let query ← optional (skipByteChar '?' *> parseQuery config)
-    let query := query.getD .empty
     let frag ← optional (skipByteChar '#' *> fragment)
     return .absolute { scheme, authority, path, query, fragment := frag }
 
@@ -446,7 +442,6 @@ where
     let authority ← parseAuthority config
     let path ← parsePath config true true
     let query ← optional (skipByteChar '?' *> parseQuery config)
-    let query := query.getD .empty
     let frag ← optional (skipByteChar '#' *> fragment)
     return { authority := some authority, path, query, fragment := frag }
 
@@ -455,7 +450,6 @@ where
     -- path-absolute starts with "/"; path-noscheme starts with a non-colon pchar or is empty
     let path ← parsePath config false true
     let query ← optional (skipByteChar '?' *> parseQuery config)
-    let query := query.getD .empty
     let frag ← optional (skipByteChar '#' *> fragment)
     return { authority := none, path, query, fragment := frag }
 

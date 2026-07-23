@@ -85,6 +85,8 @@ end Options
 structure OptionDeprecation where
   since    : String
   text?    : Option String := none
+  /-- The option to use instead, taken from the `@[deprecated <name>]` attribute. -/
+  newName? : Option Name := none
   deriving Inhabited
 
 structure OptionDecl where
@@ -228,7 +230,28 @@ protected def register [KVMap.Value α] (name : Name) (decl : Lean.Option.Decl �
 macro (name := registerBuiltinOption) doc?:(docComment)? vis?:(visibility)? "register_builtin_option" name:ident " : " type:term " := " decl:term : command =>
   `($[$doc?]? $[$vis?:visibility]? builtin_initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
 
-macro (name := registerOption) mods:declModifiers "register_option" name:ident " : " type:term " := " decl:term : command =>
+private meta def declWithDeprecation (attr : Syntax) (type decl : Term) : MacroM Term := do
+  let `(attr| deprecated $[$id?]? $[$text?]? $[(since := $since?)]?) := attr | return decl
+  let since : Term ← match since? with | some s => pure s | none => `("")
+  let text : Term ← match text? with | some text => `(some $text) | none => `(none)
+  let newName : Term ← match id? with | some id => `(some ($id).name) | none => `(none)
+  `({ ($decl : Lean.Option.Decl $type) with
+      deprecation? := some { since := $since, text? := $text, newName? := $newName } })
+
+macro (name := registerOption) mods:declModifiers "register_option" name:ident " : " type:term " := " decl:term : command => do
+  let attr? := mods.raw.find? (·.isOfKind ``Lean.deprecated)
+  -- The `deprecation?` field is internal: it is populated from the `@[deprecated]` attribute below.
+  let field? := decl.raw.find? (·.getId == `deprecation?)
+  let decl ← match attr?, field? with
+    | some _, some field =>
+      Macro.throwErrorAt field "remove the `deprecation?` field: it is populated automatically from \
+        the option's `@[deprecated]` attribute"
+    | none, some field =>
+      Macro.throwErrorAt field "do not set the `deprecation?` field directly; it is an internal \
+        implementation detail. Deprecate the option with a `@[deprecated \"...\" (since := \"...\")]` \
+        attribute instead"
+    | some attr, none => declWithDeprecation attr type decl
+    | none, none => pure decl
   `($mods:declModifiers initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
 
 end Option

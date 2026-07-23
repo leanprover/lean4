@@ -355,7 +355,7 @@ info: Std.Http.RequestTarget.absoluteForm
                    host := Std.Http.URI.Host.name "example.com",
                    port := Std.Http.URI.Port.value 8080 },
     path := { segments := #["ata"], absolute := true },
-    query := #[],
+    query := none,
     fragment := none }
 -/
 #guard_msgs in
@@ -370,7 +370,7 @@ info: Std.Http.RequestTarget.absoluteForm
                    host := Std.Http.URI.Host.ipv6 2001:db8::1,
                    port := Std.Http.URI.Port.value 8080 },
     path := { segments := #["path"], absolute := true },
-    query := #[],
+    query := none,
     fragment := none }
 -/
 #guard_msgs in
@@ -385,7 +385,7 @@ info: Std.Http.RequestTarget.absoluteForm
                    host := Std.Http.URI.Host.name "secure.example.com",
                    port := Std.Http.URI.Port.omitted },
     path := { segments := #["private"], absolute := true },
-    query := #[],
+    query := none,
     fragment := none }
 -/
 #guard_msgs in
@@ -906,7 +906,7 @@ info: Std.Http.RequestTarget.absoluteForm
                    host := Std.Http.URI.Host.name "1example.com",
                    port := Std.Http.URI.Port.omitted },
     path := { segments := #["path"], absolute := true },
-    query := #[],
+    query := none,
     fragment := none }
 -/
 #guard_msgs in
@@ -921,7 +921,7 @@ info: Std.Http.RequestTarget.absoluteForm
                    host := Std.Http.URI.Host.name "123abc.example.com",
                    port := Std.Http.URI.Port.omitted },
     path := { segments := #["page"], absolute := true },
-    query := #[],
+    query := none,
     fragment := none }
 -/
 #guard_msgs in
@@ -1005,4 +1005,27 @@ info: some (some "a%3Db")
 #guard
   match URIReference.parse? "file:///etc/passwd" with
   | some (.absolute af) => af.scheme.val == "file" && af.authority.isNone
+  | _ => false
+
+-- `none` means no query delimiter, while `some .empty` means an explicit empty query.
+#guard (URI.parse! "http://example.com/path").query.isNone
+
+#guard
+  match (URI.parse! "http://example.com/path?").query with
+  | some q => q.isEmpty && toString (URI.parse! "http://example.com/path?") == "http://example.com/path?"
+  | none => false
+
+#guard
+  match RequestTarget.parse? "/path?" with
+  | some (.originForm _ (some q)) => q.isEmpty && toString (RequestTarget.parse! "/path?") == "/path?"
+  | _ => false
+
+#guard
+  match URIReference.parse? "?" with
+  | some (.relative ref) => ref.query.isSome && toString (URIReference.parse! "?") == "?"
+  | _ => false
+
+#guard
+  match URIReference.parse? "#frag" with
+  | some (.relative ref) => ref.query.isNone && toString (URIReference.parse! "#frag") == "#frag"
   | _ => false

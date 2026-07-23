@@ -45,7 +45,7 @@ lean_object* l_ReaderT_instMonadExceptOf___redArg___lam__2(lean_object*, lean_ob
 lean_object* l_ReaderT_instMonadExceptOf___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Term_instAddErrorMessageContextTermElabM;
 lean_object* l_Lean_TSyntax_getId(lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_throwErrorAt___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -990,7 +990,8 @@ v_resetjp_302_:
 {
 lean_object* v___x_305_; lean_object* v_y_306_; lean_object* v___x_307_; uint8_t v___x_308_; 
 v___x_305_ = l_Lean_TSyntax_getId(v_val_301_);
-v_y_306_ = lean_erase_macro_scopes(v___x_305_);
+v_y_306_ = l_Lean_Name_eraseMacroScopes(v___x_305_);
+lean_dec(v___x_305_);
 v___x_307_ = ((lean_object*)(l_Lean_Doc_instFromDocArgDocScope___private__1___closed__27));
 v___x_308_ = lean_name_eq(v_y_306_, v___x_307_);
 lean_dec(v_y_306_);
@@ -1647,7 +1648,8 @@ v_resetjp_503_:
 {
 lean_object* v___x_506_; lean_object* v_y_507_; lean_object* v___x_508_; uint8_t v___x_509_; 
 v___x_506_ = l_Lean_TSyntax_getId(v_val_502_);
-v_y_507_ = lean_erase_macro_scopes(v___x_506_);
+v_y_507_ = l_Lean_Name_eraseMacroScopes(v___x_506_);
+lean_dec(v___x_506_);
 v___x_508_ = ((lean_object*)(l_Lean_Doc_instFromDocArgDocScope___private__1___closed__27));
 v___x_509_ = lean_name_eq(v_y_507_, v___x_508_);
 lean_dec(v_y_507_);

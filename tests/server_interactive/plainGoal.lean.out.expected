@@ -210,3 +210,11 @@ null
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 153, "character": 43}}
 {"rendered": "no goals", "goals": []}
+{"textDocument": {"uri": "file:///plainGoal.lean"},
+ "position": {"line": 164, "character": 2}}
+{"rendered": "```lean\na : Nat\nha : a = 3\n⊢ 3 ≤ 4\n```",
+ "goals": ["a : Nat\nha : a = 3\n⊢ 3 ≤ 4"]}
+{"textDocument": {"uri": "file:///plainGoal.lean"},
+ "position": {"line": 170, "character": 2}}
+{"rendered": "```lean\na : Nat\nha : a = 3\n⊢ 3 ≤ 4\n```",
+ "goals": ["a : Nat\nha : a = 3\n⊢ 3 ≤ 4"]}

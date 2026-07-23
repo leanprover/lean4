@@ -56,7 +56,7 @@ example (s : S) (a b idx : Nat) (h1 : idx < s.decls.size)
 
 -- With `unfold`, the note SHOULD fire (`h2`'s type no longer matches after unfolding)
 /--
-Note: The target expression is not type-correct under the `instances` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps.
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps.
 -/
 #guard_msgs (substring := true) in
 example (s : S) (a b idx : Nat) (h1 : idx < s.decls.size)
@@ -67,7 +67,7 @@ example (s : S) (a b idx : Nat) (h1 : idx < s.decls.size)
 
 -- The defeq abuse may already be part of the initial goal.
 /--
-Note: The target expression is not type-correct under the `instances` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps.
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps.
 -/
 #guard_msgs (substring := true) in
 example (s : S) (a b idx : Nat) (h1 : idx < s.decls.size) :
@@ -92,7 +92,7 @@ example (s : S) (a b idx : Nat) (h1 : idx < s.decls.size)
 /--
 error: `simp` made no progress
 
-Note: The target expression is not type-correct under the `instances` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
 Full error:
   Application type mismatch: The argument
     h2

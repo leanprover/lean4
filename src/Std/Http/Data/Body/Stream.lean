@@ -243,12 +243,15 @@ namespace Stream
 
 /--
 Attempts to receive a chunk from the channel without blocking.
-Returns `some chunk` only when a producer is already waiting.
+Returns `some chunk` only when a producer is already waiting. If the stream has been closed with a
+terminal error, throws that error instead of returning `none`.
 -/
 def tryRecv (stream : Stream) : Async (Option Chunk) :=
   stream.state.atomically do
     Channel.pruneFinishedWaiters
-    Channel.tryRecv'
+    match ← Channel.recvReadyResult' with
+    | .ok result => return result
+    | .error err => throw err
 
 /--
 Non-blocking receive for the `Body` typeclass. Returns `none` when no producer is
@@ -322,16 +325,16 @@ def closeIfAbandoned (stream : Stream) : Async Bool :=
       return false
 
 /--
-Closes the channel and records `err` as a terminal error. A subsequent `recv`
-that would have returned end-of-stream surfaces the error instead; already
-buffered chunks are still delivered first.
+Closes the channel and records `err` as a terminal error. A subsequent `recv` that would have
+returned end-of-stream surfaces the error instead; already buffered chunks are still delivered first.
+This function does not overwrite an existing error.
 -/
 def closeWithError (stream : Stream) (err : IO.Error) : Async Unit :=
   stream.state.atomically do
-    let st ← get
-    -- Do not overwrite an existing error; record the first one.
-    if st.closeError.isNone then
-      set { st with closeError := some err }
+    modify fun st =>
+      if st.closeError.isNone then { st with closeError := some err }
+      else st
+
     Channel.close'
 
 /--
@@ -446,20 +449,16 @@ class NextChunk (m : Type → Type) where
   nextChunk : Stream → m (Option Chunk)
 
 instance : NextChunk Async where
-  nextChunk stream := do
-    match ← Stream.recv stream with
-    | some chunk => return some chunk
-    | none => return none
+  nextChunk stream :=
+    Stream.recv stream
 
 instance : NextChunk ContextAsync where
   nextChunk stream := do
-    let result ← Selectable.one #[
+    Selectable.one #[
       .case stream.recvSelector pure,
       .case (← ContextAsync.doneSelector) (fun _ => pure none),
     ]
-    match result with
-    | some _ => return result
-    | none => return none
+
 
 /--
 Reads all remaining chunks and decodes them into `α`.
@@ -500,7 +499,7 @@ Works in both `Async` (reads until EOF, no cancellation) and `ContextAsync` (als
 context is cancelled).
 -/
 partial def drain
-    [Monad m] [MonadExceptOf IO.Error m] [NextChunk m]
+    [Monad m] [NextChunk m]
     (stream : Stream)
     (drainLimit : Option UInt64 := none)
     (closeStream : m Unit := pure ()) : m Unit := do
@@ -755,6 +754,8 @@ def stream
     (gen : Body.Stream → Async Unit) :
     Async (Response Body.Stream) := do
   let s ← Body.stream gen
+  s.setKnownSize (some .chunked)
+
   return Response.Builder.body builder s
 
 end Response.Builder

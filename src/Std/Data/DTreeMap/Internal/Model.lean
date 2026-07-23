@@ -8,7 +8,7 @@ module
 prelude
 public import Std.Data.DTreeMap.Internal.WF.Defs
 public import Std.Data.DTreeMap.Internal.Cell
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Omega
 
 @[expose] public section

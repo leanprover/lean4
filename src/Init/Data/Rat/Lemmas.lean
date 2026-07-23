@@ -172,6 +172,7 @@ theorem mk_eq_divInt {num den nz c} : ⟨num, den, nz, c⟩ = num /. (den : Nat)
   simp [mk_eq_mkRat]
 
 theorem num_divInt_den (a : Rat) : a.num /. a.den = a := by rw [divInt_ofNat, mkRat_self]
+
 @[simp] theorem zero_divInt (n) : 0 /. n = 0 := by cases n <;> simp [divInt]
 
 @[simp] theorem divInt_zero (n) : n /. 0 = 0 := mkRat_zero n

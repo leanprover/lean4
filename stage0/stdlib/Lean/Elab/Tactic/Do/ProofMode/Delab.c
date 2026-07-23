@@ -40,7 +40,7 @@ lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_parseEmptyHyp_x3f(lean_object*);
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_parseHyp_x3f(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
@@ -60,7 +60,7 @@ lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_syntax_ident(lean_object*);
+lean_object* l_Lean_mkIdent(lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_append_after(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -1629,9 +1629,9 @@ v_resetjp_585_:
 {
 lean_object* v___y_589_; lean_object* v_accessibles_590_; lean_object* v_inaccessibles_591_; lean_object* v_name_602_; lean_object* v___x_603_; uint8_t v___x_604_; lean_object* v_fst_606_; lean_object* v_snd_607_; lean_object* v___y_640_; lean_object* v___y_641_; lean_object* v_val_644_; 
 v_name_602_ = lean_ctor_get(v_val_578_, 0);
-lean_inc_n(v_name_602_, 2);
+lean_inc(v_name_602_);
 lean_dec(v_val_578_);
-v___x_603_ = lean_erase_macro_scopes(v_name_602_);
+v___x_603_ = l_Lean_Name_eraseMacroScopes(v_name_602_);
 v___x_604_ = l_Lean_Name_hasMacroScopes(v_name_602_);
 lean_dec(v_name_602_);
 if (v___x_604_ == 0)
@@ -1748,7 +1748,7 @@ v_a_612_ = lean_ctor_get(v___x_611_, 0);
 lean_inc(v_a_612_);
 lean_dec_ref_known(v___x_611_, 1);
 v_ref_613_ = lean_ctor_get(v_a_564_, 5);
-v___x_614_ = lean_mk_syntax_ident(v_snd_607_);
+v___x_614_ = l_Lean_mkIdent(v_snd_607_);
 v___x_615_ = 0;
 v___x_616_ = l_Lean_SourceInfo_fromRef(v_ref_613_, v___x_615_);
 v___x_617_ = ((lean_object*)(l___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal_delabHypotheses___closed__3));

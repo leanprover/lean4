@@ -11,6 +11,7 @@ public import Std.Data.DHashMap.RawDef
 public import Std.Data.Internal.List.Defs
 public import Std.Data.DHashMap.Internal.Index
 public import Init.Data.Nat.Power2.Basic
+import Init.Data.Nat.Power2.Lemmas
 import Init.Data.List.Impl
 import Init.Omega
 
@@ -359,6 +360,7 @@ def get? [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Opt
   buckets[i].getCast? a
 
 /-- Internal implementation detail of the hash map -/
+@[implicit_reducible]
 def contains [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Bool :=
   let ⟨⟨_, buckets⟩, h⟩ := m
   let ⟨i, h⟩ := mkIdx buckets.size h (hash a)

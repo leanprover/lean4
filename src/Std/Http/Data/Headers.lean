@@ -166,12 +166,12 @@ def erase (headers : Headers) (name : Header.Name) : Headers :=
 /--
 Removes all headers whose names appear in `names`.
 Names not present are ignored. Cheaper than chaining `erase` calls because
-`IndexMultiMap.eraseKeys` rebuilds the index once in total rather than once
+`IndexMultiMap.eraseMany` rebuilds the index once in total rather than once
 per `erase` call.
 -/
 @[inline]
-def eraseKeys (headers : Headers) (names : Array Header.Name) : Headers :=
-  { map := headers.map.eraseKeys names }
+def eraseMany (headers : Headers) (names : Array Header.Name) : Headers :=
+  { map := headers.map.eraseMany names }
 
 /--
 Gets the number of headers.

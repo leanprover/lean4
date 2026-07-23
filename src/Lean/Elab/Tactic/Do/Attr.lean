@@ -10,9 +10,11 @@ public import Lean.Meta.Tactic.Simp
 public import Lean.Meta.Sym.Pattern
 public import Std.Tactic.Do.Syntax
 public import Std.Internal.Do.Triple.Basic
+public import Lean.Elab.Tactic.Do.ConjunctivePre
 import Init.While
 import Init.Syntax
 import Lean.Meta.Sym.Simp.DiscrTree
+import Lean.Meta.DiscrTree.Util
 
 public section
 
@@ -293,7 +295,7 @@ Normalises a specification proof so its conclusion is in `pre ⊑ wp …` form.
 -/
 def tripleToWpProof? (proof type : Expr) : MetaM (Option (Expr × Expr)) := do
   let type ← whnfR type
-  if type.isAppOfArity ``Triple 12 then
+  if type.isAppOfArity ``Triple 11 then
     -- Build the `Triple.le_wp` projection application explicitly from the `Triple` type's own
     -- arguments rather than via `mkAppM`. `mkAppM` would re-synthesise the instance arguments
     -- (`Monad m`, `WPMonad m …`), which fails for transformer specs whose monad is a partially
@@ -338,6 +340,10 @@ structure SpecTheorem where
   proof : SpecProof
   /-- The kind of spec theorem: triple or simp. -/
   kind : SpecTheoremKind := .triple
+  /-- Whether the precondition is conjunctive in the spec's postconditions, so applying the spec
+  directly carries any frame and `vcgen` skips the frame machinery. Opt out with a trivial `Q = Q`
+  premise. -/
+  conjunctivePre : Bool := false
   priority : Nat := eval_prio default
   deriving Inhabited
 
@@ -346,13 +352,22 @@ instance : BEq SpecTheorem where
 
 abbrev SpecEntry := SpecTheorem
 
+/-- Priority for a spec named explicitly in a `vcgen [...]` argument list. -/
+def explicitSpecPrio : Nat := eval_prio high + 20
+
+/-- Priority for a local hypothesis pulled into `vcgen`'s spec set by `*`. -/
+def starSpecPrio : Nat := eval_prio high + 10
+
 structure SpecTheorems where
   specs : DiscrTree SpecTheorem := DiscrTree.empty
   erased : PHashSet SpecProof := {}
   deriving Inhabited
 
+/-- Insert `e`, keeping the higher priority when a spec with the same proof is already stored. -/
 def SpecTheorems.insert (d : SpecTheorems) (e : SpecTheorem) : SpecTheorems :=
-  { d with specs := Sym.insertPattern d.specs e.pattern e }
+  let priority := (Sym.getMatch d.specs e.pattern.pattern).foldl (init := e.priority) fun pr s =>
+    if s.proof == e.proof then max pr s.priority else pr
+  { d with specs := Sym.insertPattern d.specs e.pattern { e with priority } }
 
 def SpecTheorems.isErased (d : SpecTheorems) (thmId : SpecProof) : Bool :=
   d.erased.contains thmId
@@ -377,7 +392,7 @@ structure is untouched (bound variables are wildcards in the key).
 
 **Important:** only use this when the matched arguments are *not* reused to rebuild a proof term,
 as `Sym.BackwardRule`/`Sym.mkValue` do — dropping variables would drop arguments those need. It is
-meant for databases such as `mvcgen'`'s spec table, where the proof is re-elaborated independently
+meant for databases such as `vcgen`'s spec table, where the proof is re-elaborated independently
 of the pattern.
 -/
 def eraseUnusedVarsFromPattern (p : Sym.Pattern) : Sym.Pattern := Id.run do
@@ -418,6 +433,14 @@ def eraseUnusedVarsFromPattern (p : Sym.Pattern) : Sym.Pattern := Id.run do
     varInfos? := newVarInfos?
     checkTypeMask? := newCheckTypeMask? }
 
+/-- The application-argument index of `declName`'s program parameter `x`, read from its signature. -/
+def progArgIdx? (declName : Name) : MetaM (Option Nat) := do
+  forallTelescope (← getConstInfo declName).type fun xs _ => do
+    for i in [0:xs.size] do
+      if (← xs[i]!.fvarId!.getUserName) == `x then
+        return some i
+    return none
+
 /--
 Selects the program a spec conclusion is keyed on: the program of a `Triple`, or the program inside
 the `wp` on the RHS of a `pre ⊑ wp …` entailment. Returns `none` if `type` is neither shape — e.g. a
@@ -426,13 +449,15 @@ bare `lhs ⊑ rhs` whose RHS is not a `wp` application (an invariant entailment 
 `none` to skip such non-spec hypotheses instead of failing.
 -/
 def selectProg (type : Expr) : MetaM (Option Expr) := do
+  if type.getAppFn.isConstOf ``Triple then
+    let some idx ← progArgIdx? ``Triple | return none
+    return type.getAppArgs[idx]?
   match_expr type with
-  | Triple _m _Pred _EPred _α _monad _instAL _instEAL _wpInst _pre prog _post _epost =>
-    return prog
   | PartialOrder.rel _α _inst _pre rhs =>
-    let_expr wp _m _Pred _EPred _monad _instAL _instEAL _wpInst _α prog _post _epost := rhs
-      | return none
-    return prog
+    if rhs.getAppFn.isConstOf ``wp then
+      let some idx ← progArgIdx? ``wp | return none
+      return rhs.getAppArgs[idx]?
+    return none
   | _ => return none
 
 /--
@@ -451,10 +476,14 @@ def mkSpecPatternFromExpr (expr : Expr)
 private def mkSpecTheorem (type : Expr) (proof : SpecProof) (prio : Nat) : MetaM (Option SpecTheorem) := do
   let (levelParams, expr) ← proof.getProof
   let type ← instantiateMVars type
-  let (_, _, type) ← forallMetaTelescope type
+  let (binders, _, type) ← forallMetaTelescope type
+  -- Reduce reducible abbreviations so a proof whose type is an abbreviation like
+  -- `abbrev s := ⦃P⦄ prog ⦃Q⦄` is recognized as a triple spec.
+  let type ← whnfR type
   let some _ ← selectProg type | return none
   let pattern ← mkSpecPatternFromExpr expr levelParams
-  return some { pattern, proof, priority := prio }
+  let conjunctivePre ← isConjunctiveInPosts type binders
+  return some { pattern, proof, priority := prio, conjunctivePre }
 
 def mkSpecTheoremFromConst (declName : Name) (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
   let info ← getConstInfo declName
@@ -467,6 +496,159 @@ def mkSpecTheoremFromLocal (fvar : FVarId) (prio : Nat := eval_prio default) : M
 def mkSpecTheoremFromStx (ref : Syntax) (proof : Expr) (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
   let type ← inferType proof
   mkSpecTheorem type (.stx (← mkFreshId) ref proof) prio
+
+/--
+Eta-expand a pattern for a function-level equation.
+
+For unfold equations of class projections (e.g., `MonadState.modifyGet.eq_1`), the equation
+may be between functions: `@modifyGet σ m self = self.3` of type `{α} → (σ → α × σ) → m α`.
+The discrimination tree key includes the arg count, so lookup would fail if the pattern has
+fewer args than the actual fully-applied program. This appends the leading forall domains of
+`eqTy` to the pattern's variables and applies the new bound variables to the pattern expression.
+Returns the eta-expanded pattern and the number of extra args (0 if no expansion needed).
+-/
+private def etaExpandEqPattern (pattern : Sym.Pattern) (eqTy : Expr) : Sym.Pattern × Nat :=
+  if !eqTy.isForall then (pattern, 0)
+  else
+    let rec collectDomains (ty : Expr) (acc : Array Expr) : Array Expr :=
+      if let .forallE _ d b _ := ty then collectDomains b (acc.push d) else acc
+    let extraDomains := collectDomains eqTy #[]
+    let k := extraDomains.size
+    let liftedPattern := pattern.pattern.liftLooseBVars 0 k
+    let newBVars := Array.ofFn (n := k) fun i => mkBVar (k - 1 - i)
+    let newPatternExpr := mkAppN liftedPattern newBVars
+    let newPattern : Sym.Pattern :=
+      { pattern with
+        varTypes := pattern.varTypes ++ extraDomains
+        pattern := newPatternExpr
+        varInfos? := none
+        checkTypeMask? := none }
+    (newPattern, k)
+
+/-- Whether some hypothesis of the equation type is an overlap hypothesis
+(see `Simp.isEqnThmHypothesis`), as in the wildcard-row equation of an overlapping `match`. -/
+private def hasOverlapHypothesis : Expr → Bool
+  | .forallE _ d b _ => Simp.isEqnThmHypothesis d || hasOverlapHypothesis b
+  | _ => false
+
+/--
+Create a `SpecTheorem` from a simp/equational declaration `declName : ∀ xs, lhs = rhs`, keyed on the
+LHS. Function-level equations (e.g. class projection unfold lemmas) are eta-expanded so the
+discrimination-tree key includes all arguments. Returns `none` for no-op equations whose LHS key is
+syntactically the RHS.
+-/
+def mkSpecTheoremFromSimpDecl? (declName : Name) (prio : Nat) : MetaM (Option SpecTheorem) := do
+  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromDeclWithKey declName fun body => do
+    let_expr Eq eqTy lhs rhs := body | throwError "conclusion is not an equality{indentExpr body}"
+    return (lhs, (eqTy, rhs))
+  -- Skip no-op equations whose preprocessed LHS key is syntactically the RHS, so rewriting makes no
+  -- progress (e.g. `getThe.eq_1 : getThe σ = MonadStateOf.get` after reducible unfolding).
+  if pattern.pattern == rhs then return none
+  let (pattern, etaArgs) := etaExpandEqPattern pattern eqTy
+  return some { pattern, proof := .global declName, kind := .simp etaArgs, priority := prio }
+
+/--
+Create a `SpecTheorem` from an elaborated equational proof term `proof : ∀ xs, lhs = rhs`, keyed on
+the LHS. Mirrors `mkSpecTheoremFromSimpDecl?` for proofs supplied as terms rather than declaration
+names. Returns `none` for a no-op equation whose LHS key equals its RHS.
+-/
+def mkSpecTheoremFromSimpExpr? (ref : Syntax) (proof : Expr) (levelParams : List Name := [])
+    (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
+  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromExprWithKey proof levelParams fun body => do
+    let_expr Eq eqTy lhs rhs := body | throwError "conclusion is not an equality{indentExpr body}"
+    return (lhs, (eqTy, rhs))
+  if pattern.pattern == rhs then return none
+  let (pattern, etaArgs) := etaExpandEqPattern pattern eqTy
+  return some { pattern, proof := .stx (← mkFreshId) ref proof, kind := .simp etaArgs, priority := prio }
+
+/--
+The unfold theorem `declName.eq_def` through which a definition in a simp set's `toUnfold`
+rewrites, the spec-database counterpart of `simp`'s delta unfolding. `none` for a recursive
+definition, whose unconditional unfolding would not terminate.
+-/
+def unfoldSpecEqn? (declName : Name) : MetaM (Option Name) := do
+  if (← isRecursiveDefinition declName) then return none
+  getUnfoldEqnFor? declName (nonRec := true)
+
+/--
+The spec theorems the simp entries `entries` contribute, the single place a `vcgen [...]` argument or
+an `attribute [spec] f` definition (through `mkSimpEntryOfDeclToUnfold`) turns into specs:
+- each `.thm` entry, keyed on its left-hand side at `prio`, skipping wildcard-row equations guarded
+  by an overlap hypothesis (as a spec such an equation matches any call and strands the hypothesis as
+  a verification condition). A declaration equation is keyed via `mkSpecTheoremFromSimpDecl?`; an
+  equation supplied as a `vcgen [...]` term carries its proof directly (`mkSpecTheoremFromSimpExpr?`),
+- each `.toUnfold` definition through its unfold theorem `f.eq_def` (`unfoldSpecEqn?`) at priority
+  `0`, below every equation, so a call with an opaque discriminant still rewrites to the underlying
+  `match` expression, which `vcgen` then splits.
+A single malformed entry is traced and skipped rather than aborting the set.
+-/
+def simpSpecTheorems (entries : Array SimpEntry) (prio : Nat) : MetaM (Array SpecTheorem) := do
+  let mut result := #[]
+  for entry in entries do
+    match entry with
+    | .thm thm =>
+      match thm.origin with
+      | .decl declName .. =>
+        try
+          if hasOverlapHypothesis (← getConstInfo declName).type then
+            trace[Elab.Tactic.Do.specAttr] "Skipping overlap-hypothesis equation {declName}"
+          else if let some spec ← mkSpecTheoremFromSimpDecl? declName prio then
+            result := result.push spec
+        catch e =>
+          trace[Elab.Tactic.Do.specAttr] "Failed to add simp spec {declName}: {e.toMessageData}"
+      | .stx .. =>
+        try
+          if hasOverlapHypothesis (← inferType thm.proof) then
+            trace[Elab.Tactic.Do.specAttr] "Skipping overlap-hypothesis equation {thm.origin.key}"
+          else if let some spec ← mkSpecTheoremFromSimpExpr? .missing thm.proof thm.levelParams.toList prio then
+            result := result.push spec
+        catch e =>
+          trace[Elab.Tactic.Do.specAttr] "Failed to add simp spec {thm.origin.key}: {e.toMessageData}"
+      | _ => pure ()
+    | .toUnfold declName =>
+      try
+        if let some eqDef ← unfoldSpecEqn? declName then
+          if let some spec ← mkSpecTheoremFromSimpDecl? eqDef 0 then
+            result := result.push spec
+      catch e =>
+        trace[Elab.Tactic.Do.specAttr] "Failed to add unfold spec {declName}: {e.toMessageData}"
+    | .toUnfoldThms .. => pure ()
+  return result
+
+/--
+Register the equational lemmas of a `@[spec]`-annotated declaration as `.simp` entries with the
+given priority. An equational proposition is registered directly; a definition is registered via the
+specs its simp entries contribute (`simpSpecTheorems`). Anything else throws, since it cannot serve as
+a `vcgen` spec.
+-/
+def SpecExtension.addSimpSpecTheoremsFromConst (ext : SpecExtension) (declName : Name) (prio : Nat)
+    (attrKind : AttributeKind) : MetaM Unit := do
+  let info ← getConstInfo declName
+  if (← isProp info.type) then
+    if let some thm ← mkSpecTheoremFromSimpDecl? declName prio then
+      ext.add thm attrKind
+  else if info.isDefinition then
+    for thm in ← simpSpecTheorems (← mkSimpEntryOfDeclToUnfold declName) prio do
+      ext.add thm attrKind
+  else
+    throwError "'{declName}' is neither an equational theorem nor a definition with unfold equations"
+
+/--
+The spec proofs a `@[spec]` constant contributes to the database: the constant itself for a
+`Triple`/`⊑ wp` spec, the equation itself for an equational spec, or the specs its simp set
+contributes for a definition registered to unfold. Mirrors `addSimpSpecTheoremsFromConst` so `[-foo]`
+erases exactly the entries that annotating `foo` inserted.
+-/
+def specEraseProofs (declName : Name) : MetaM (Array SpecProof) := do
+  if (← mkSpecTheoremFromConst declName).isSome then
+    return #[.global declName]
+  let info ← getConstInfo declName
+  if (← isProp info.type) then
+    return #[.global declName]
+  else if info.isDefinition then
+    return (← simpSpecTheorems (← mkSimpEntryOfDeclToUnfold declName) (eval_prio default)).map (·.proof)
+  else
+    return #[]
 
 def SpecExtension.addSpecTheoremFromConst (ext : SpecExtension) (declName : Name) (prio : Nat) (attrKind : AttributeKind) : MetaM Unit := do
   let some thm ← mkSpecTheoremFromConst declName prio |
@@ -514,11 +696,15 @@ def mkSpecAttr : AttributeImpl where
         -- New metatheory `Std.Internal.Do.Triple` / `⊑ wp` specs.
         Internal.SpecAttr.specAttr.addSpecTheoremFromConst declName prio attrKind
       catch _ =>
+      -- Equality / unfold specs: register for legacy `mvcgen` via `mvcgen_simp`, and for the new
+      -- metatheory's internal database with the annotated priority (the `mvcgen_simp` hand-off
+      -- does not preserve the priority, so `vcgen` reads it from the internal database instead).
       let impl ← getBuiltinAttributeImpl `mvcgen_simp
       try
         let newStx ← `(attr| mvcgen_simp)
         let newStx := newStx.raw.setArg 3 stx[1]
         impl.add declName newStx attrKind
+        Internal.SpecAttr.specAttr.addSimpSpecTheoremsFromConst declName prio attrKind
       catch e =>
       trace[Elab.Tactic.Do.specAttr] "Reason for failure to apply spec attribute: {e.toMessageData}"
       throwError "Invalid 'spec': target was neither a Hoare triple specification nor a 'simp' lemma"

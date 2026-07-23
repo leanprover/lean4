@@ -160,7 +160,9 @@ private def chooseMethod (originalMethod : Method) (responseVersion : Version) :
     if originalMethod == .head then .head else .get
   | .movedPermanently | .found =>
 
-    -- https://httpwg.org/specs/rfc9110.html#status.303
+    -- https://httpwg.org/specs/rfc9110.html#status.301
+    -- https://httpwg.org/specs/rfc9110.html#status.302
+
     -- Note: In HTTP/1.0, the status codes 301 (Moved Permanently) and 302 (Found) were originally
     -- defined as method-preserving ([HTTP/1.0], Section 9.3).
 
@@ -218,7 +220,7 @@ request.
 private def validatingHeaders : Array Header.Name :=
   #[.ifNoneMatch, .ifModifiedSince]
 
-/-
+/--
 Resource-specific headers that become meaningless when the method changes to GET/HEAD and no body
 is sent.
 -/
@@ -235,7 +237,7 @@ and cache-validating header groups.
 Method change (to GET/HEAD): removes resource-specific content headers because
 the redirected request carries no body.
 -/
--- `methodChanged` is only ever set when the method changed to GET/HEAD: `chooseMethod` never
+-- `methodChanged` is only ever set when the method changed to GET: `chooseMethod` never
 -- produces any other new method, so a changed method is always a change "to safe".
 private def scrubHeaders (headers : Headers) (isCrossOrigin methodChanged : Bool) : Headers :=
   let afterConnection := connectionHeaders ++ nominatedConnectionHeaders headers
@@ -263,7 +265,7 @@ private def scrubHeaders (headers : Headers) (isCrossOrigin methodChanged : Bool
     else
       afterOrigin
 
-  headers.eraseKeys afterMethod
+  headers.eraseMany afterMethod
 
 /--
 Rewrites the `Host` header for a cross-origin redirect. The redirected request is dispatched on a
@@ -275,21 +277,18 @@ private def rewriteHostHeader (headers : Headers) (origin : URI.Origin) : Header
   else headers
 
 /--
-Returns whether a URI-reference string contains an explicit query delimiter before any fragment.
+Extracts the base query, preserving absence as `none`.
 -/
-private def hasExplicitQuery (location : String) : Bool :=
-  let rec loop : List Char → Bool
-    | [] => false
-    | '#' :: _ => false
-    | '?' :: _ => true
-    | _ :: rest => loop rest
-  loop location.toList
+private def requestTargetQuery? : RequestTarget → Option URI.Query
+  | .originForm _ q => q
+  | .absoluteForm uri => uri.query
+  | _ => none
 
 /--
 Rewrites the target actually placed on the wire.
 -/
 private def rewriteTarget (ref : URIReference) (isCrossOrigin : Bool)
-    (basePath : URI.Path) (baseQuery : Option URI.Query) (hasExplicitQuery : Bool)
+    (basePath : URI.Path) (baseQuery : Option URI.Query)
     (currentScheme : URI.Scheme) : RequestTarget :=
   match ref with
   | .absolute af =>
@@ -302,8 +301,7 @@ private def rewriteTarget (ref : URIReference) (isCrossOrigin : Bool)
     if isCrossOrigin then
       .absoluteForm stripped
     else
-      .originForm stripped.path
-        (if stripped.query.isEmpty then none else some stripped.query)
+      .originForm stripped.path stripped.query
   | .relative { authority := some auth, path, query, .. } =>
 
     -- Protocol-relative: authority present, scheme inherited from current.
@@ -312,7 +310,7 @@ private def rewriteTarget (ref : URIReference) (isCrossOrigin : Bool)
     if isCrossOrigin then
       .absoluteForm af
     else
-      .originForm path.normalize (if query.isEmpty then none else some query)
+      .originForm path.normalize query
   | .relative { authority := none, path := refPath, query, .. } =>
 
     -- RFC 3986 §5.2.2: merge base path with reference path, then normalize.
@@ -324,12 +322,10 @@ private def rewriteTarget (ref : URIReference) (isCrossOrigin : Bool)
       else
         basePath.parent.join refPath
     let rewrittenQuery :=
-      if refPath.isEmpty && !hasExplicitQuery then
+      if refPath.isEmpty && query.isNone then
         baseQuery
-      else if query.isEmpty then
-        none
       else
-        some query
+        query
     .originForm merged.normalize rewrittenQuery
 
 end RedirectPlan
@@ -400,13 +396,13 @@ def decideRedirect
     | return .done
 
   -- RFC 9110 §10.2.2: Location = URI-reference (absolute URI or relative reference)
-  let some uriRef := URIReference.parse? locationValue.value
+  let some location := URIReference.parse? locationValue.value
     | return .done
 
   let newMethod := RedirectPlan.chooseMethod request.method responseVersion status
 
   -- An absolute `Location` with no authority (RFC 3986 §5.2.2) names no host to connect to.
-  let some newOrigin := RedirectPlan.resolveOrigin current uriRef
+  let some newOrigin := RedirectPlan.resolveOrigin current location
     | return .done
 
   -- SSRF guard: only http(s) origins may be auto-followed. `Scheme.val` is always
@@ -417,11 +413,6 @@ def decideRedirect
   let isCrossOrigin := newOrigin != current
   let methodChanged := newMethod != request.method
 
-  -- RFC 9110 §15.4.2/§15.4.3: "If the 301/302 status code is received in response to a request
-  -- other than GET or HEAD, the user agent MUST NOT automatically redirect the request unless it
-  -- can be confirmed by the user." The POST→GET downgrade is the only automatic exception for
-  -- prevailing practice. All other unsafe methods (PUT, DELETE, PATCH, …) must not be silently
-  -- followed through 301/302.
   -- RFC 9110 §15.4.8/§15.4.9: the same MUST NOT applies to 307/308 — method is preserved, so
   -- a non-GET/HEAD method with a body requires user confirmation unless the body is replayable.
   let isGetOrHead := request.method == .get || request.method == .head
@@ -453,13 +444,9 @@ def decideRedirect
     else
       .replay
 
-  let rewrittenTarget := RedirectPlan.rewriteTarget uriRef isCrossOrigin
+  let rewrittenTarget := RedirectPlan.rewriteTarget location isCrossOrigin
     request.uri.pathOrRoot
-    (match request.uri with
-     | .originForm _ q => q
-     | .absoluteForm uri => if uri.query.isEmpty then none else some uri.query
-     | _ => none)
-    (RedirectPlan.hasExplicitQuery locationValue.value)
+    (RedirectPlan.requestTargetQuery? request.uri)
     current.scheme
 
   return .follow {

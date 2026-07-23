@@ -7,6 +7,7 @@ module
 
 prelude
 import Lean.Elab.InfoTree.Main
+import Lean.DocString.Markdown
 
 namespace Lean
 

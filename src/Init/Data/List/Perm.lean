@@ -303,7 +303,7 @@ theorem countP_eq_countP_filter_add (l : List α) (p q : α → Bool) :
 theorem Perm.count_eq [BEq α] {l₁ l₂ : List α} (p : l₁ ~ l₂) (a) :
     count a l₁ = count a l₂ := p.countP_eq _
 
-/-
+/--
 This theorem is a variant of `Perm.foldl_eq` defined in Mathlib which uses typeclasses rather
 than the explicit `comm` argument.
 -/
@@ -323,7 +323,7 @@ theorem Perm.foldl_eq' {f : β → α → β} {l₁ l₂ : List α} (p : l₁ ~ 
     refine (IH₁ comm init).trans (IH₂ ?_ _)
     intros; apply comm <;> apply p₁.symm.subset <;> assumption
 
-/-
+/--
 This theorem is a variant of `Perm.foldr_eq` defined in Mathlib which uses typeclasses rather
 than the explicit `comm` argument.
 -/
@@ -471,6 +471,37 @@ theorem perm_insert_swap (x y : α) (l : List α) :
   constructor
 
 end LawfulBEq
+
+/-- Two lists without duplicates are permutations of each other if and only if
+they have the same elements. -/
+theorem perm_ext_iff_of_nodup {l₁ l₂ : List α} (d₁ : Nodup l₁) (d₂ : Nodup l₂) :
+    l₁ ~ l₂ ↔ ∀ a, a ∈ l₁ ↔ a ∈ l₂ := by
+  classical
+  rw [perm_iff_count]
+  refine ⟨fun h a => by rw [← count_pos_iff, ← count_pos_iff, h], fun h a => ?_⟩
+  rw [d₁.count, d₂.count]
+  simp only [h a]
+
+/-- A list with no duplicates that is a subset of another list is no longer than
+that list. -/
+theorem Nodup.length_le_of_subset {l₁ l₂ : List α}
+    (h₁ : l₁.Nodup) (hsub : l₁ ⊆ l₂) : l₁.length ≤ l₂.length := by
+  classical
+  induction l₁ generalizing l₂ with
+  | nil => simp
+  | cons a t ih =>
+    rw [nodup_cons] at h₁
+    have ha : a ∈ l₂ := hsub (mem_cons_self ..)
+    have htsub : t ⊆ l₂.erase a := by
+      intro x hx
+      have hxa : x ≠ a := fun h => h₁.1 (h ▸ hx)
+      exact (mem_erase_of_ne hxa).2 (hsub (mem_cons_of_mem _ hx))
+    have hih := ih h₁.2 htsub
+    have hlen : (l₂.erase a).length = l₂.length - 1 := by rw [length_erase]; simp [ha]
+    have hpos : 1 ≤ l₂.length := length_pos_of_mem ha
+    calc t.length + 1 ≤ (l₂.erase a).length + 1 := Nat.succ_le_succ hih
+      _ = (l₂.length - 1) + 1 := by rw [hlen]
+      _ = l₂.length := Nat.sub_add_cancel hpos
 
 theorem Perm.pairwise_iff {R : α → α → Prop} (S : ∀ {x y}, R x y → R y x) :
     ∀ {l₁ l₂ : List α} (_p : l₁ ~ l₂), Pairwise R l₁ ↔ Pairwise R l₂ :=

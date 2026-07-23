@@ -15,11 +15,19 @@ namespace Lean.Compiler.LCNF
 
 /--
 Given a constructor, return a bitmask `m` s.t. `m[i]` is true if field `i` is
-computationally relevant.
+computationally relevant. Returns `none` if the constructor is not sufficiently public for the
+result to be stable across modules.
 -/
-def getRelevantCtorFields (ctorName : Name) (trivialType : Expr → MetaM Bool) :
-    CoreM (Array Bool) := do
+def getRelevantCtorFields? (ctorName : Name) (trivialType : Expr → MetaM Bool) :
+    CoreM (Option (Array Bool)) := do
   let .ctorInfo info ← getConstInfo ctorName | unreachable!
+  if !isPrivateName info.induct && isPrivateName ctorName then
+    try
+      withExporting do
+      go info
+    catch _ => return none
+  else go info
+where go info :=
   Meta.MetaM.run' do
     Meta.forallTelescopeReducing info.type fun xs _ => do
       let mut result := #[]
@@ -43,6 +51,8 @@ Computes `some fieldIdx` if `declName` is the name of an inductive datatype s.t.
 - It does not have builtin support in the runtime.
 - It has only one constructor.
 - This constructor has only one computationally relevant field.
+- This information is stable across modules, i.e. the type is private or that field does not
+  access private information.
 -/
 def Irrelevant.computeHasTrivialStructure?
     (trivialType : Expr → MetaM Bool) (declName : Name) : CoreM (Option TrivialStructureInfo) := do
@@ -52,7 +62,8 @@ def Irrelevant.computeHasTrivialStructure?
   let [ctorName] := info.ctors | return none
   let ctorType ← getOtherDeclBaseType ctorName []
   if ctorType.isErased then return none
-  let mask ← getRelevantCtorFields ctorName trivialType
+  let some mask ← getRelevantCtorFields? ctorName trivialType
+    | return none
   let mut result := none
   for h : i in *...mask.size do
     if mask[i] then

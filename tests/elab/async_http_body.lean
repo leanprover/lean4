@@ -808,6 +808,18 @@ def responseBuilderStream : Async Unit := do
 
 #eval responseBuilderStream.block
 
+-- Test Response.Builder.stream marks the streaming body as chunked
+
+def responseBuilderStreamKnownSize : Async Unit := do
+  let res ← Response.ok
+    |>.stream fun _ => do
+      pure ()
+
+  let size ← res.body.getKnownSize
+  assert! size == some .chunked
+
+#eval responseBuilderStreamKnownSize.block
+
 -- Test Response.Builder.noBody body is always closed and returns none
 
 def responseBuilderNoBodyAlwaysClosed : Async Unit := do
@@ -840,7 +852,16 @@ def blockedRecvSurfacesCloseError : Async Unit := do
 
 #eval blockedRecvSurfacesCloseError.block
 
--- Test closeWithError: non-blocking Body.tryRecv surfaces terminal errors at EOF.
+-- Test closeWithError: non-blocking Stream.tryRecv surfaces terminal errors at EOF.
+
+def tryRecvSurfacesCloseError : Async Unit := do
+  let stream ← Body.mkStream
+  stream.closeWithError (IO.userError "boom")
+  assertThrows stream.tryRecv
+
+#eval tryRecvSurfacesCloseError.block
+
+-- Test closeWithError: non-blocking Stream.tryRecvBody surfaces terminal errors at EOF.
 
 def tryRecvBodySurfacesCloseError : Async Unit := do
   let stream ← Body.mkStream

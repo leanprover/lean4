@@ -56,9 +56,9 @@ extern "C" LEAN_EXPORT uint8 lean_internal_get_default_verbose(obj_arg) {
     return LEAN_DEFAULT_VERBOSE;
 }
 
-/* getDefaultOptions (_ : Unit) : Options */
-extern "C" LEAN_EXPORT obj_res lean_internal_get_default_options(obj_arg) {
-    return get_default_options().steal();
+/* getOptionOverrides (_ : Unit) : Options */
+extern "C" LEAN_EXPORT obj_res lean_internal_get_option_overrides(obj_arg) {
+    return get_option_overrides().steal();
 }
 
 extern "C" LEAN_EXPORT obj_res lean_options_get_empty(obj_arg u);

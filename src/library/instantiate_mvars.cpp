@@ -6,12 +6,14 @@ Authors: Joachim Breitner
 */
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include "util/name_set.h"
 #include "util/name_hash_map.h"
 #include "runtime/option_ref.h"
 #include "runtime/array_ref.h"
 #include "kernel/instantiate.h"
 #include "kernel/expr.h"
+#include "kernel/replace_fn.h"
 #include "library/scope_cache.h"
 
 /*
@@ -71,6 +73,16 @@ Pass 2 (`instantiate_delayed_fn`):
   A special-crafted caching data structure, the `scope_cache`, ensures that
   sharing is preserved even across different delayed-assigned MVars (and hence
   with different substitutions), when possible.
+
+  Fusing has one exception (see `visit_delayed`): when an argument of a
+  delayed-assigned MVar application is a composite term containing loose
+  bvars, carrying it in the substitution would create a lifted copy of it per
+  occurrence, and such copies compound multiplicatively along chains of
+  delayed-assigned MVars (issue #14329). Such applications are resolved the
+  classic way instead: the pending MVar's value is resolved with the
+  substitution stashed away ("closed-with-fvars", memoized and written back to
+  the mctx), the arguments are substituted with `replace_fvars`, and the
+  enclosing substitution is applied to the result.
 */
 
 namespace lean {
@@ -112,6 +124,31 @@ static array_ref<expr> delayed_assignment_fvars(delayed_assignment const & d) {
 
 static name delayed_assignment_mvar_id_pending(delayed_assignment const & d) {
     return name(lean_delayed_mvar_assignment_mvar_id_pending(d.to_obj_arg()));
+}
+
+/* Replace the free variables `fvars` in `e` with the argument expressions
+   `rev_args` (in reverse order, i.e. `rev_args[sz - i - 1]` replaces
+   `fvars[i]`). Occurrences under binders lift the inserted argument; the
+   per-call (ptr, offset) cache of `replace` preserves sharing. */
+static expr replace_fvars(expr const & e, array_ref<expr> const & fvars, expr const * rev_args) {
+    size_t sz = fvars.size();
+    if (sz == 0)
+        return e;
+    return replace(e, [=](expr const & m, unsigned offset) -> optional<expr> {
+            if (!has_fvar(m))
+                return some_expr(m); // expression m does not contain free variables
+            if (is_fvar(m)) {
+                size_t i = sz;
+                name const & fid = fvar_name(m);
+                while (i > 0) {
+                    --i;
+                    if (fvar_name(fvars[i]) == fid) {
+                        return some_expr(lift_loose_bvars(rev_args[sz - i - 1], offset));
+                    }
+                }
+            }
+            return none_expr();
+        });
 }
 
 /* Level metavariable instantiation. */
@@ -359,25 +396,50 @@ struct fvar_subst_entry {
     expr     value;
 };
 
-class instantiate_delayed_fn {
-    metavar_ctx & m_mctx;
-    name_hash_map<fvar_subst_entry> m_fvar_subst;
-    unsigned m_depth;
+struct instantiate_delayed_key_hasher {
+    std::size_t operator()(std::pair<lean_object *, unsigned> const & p) const {
+        return hash((size_t)p.first >> 3, p.second);
+    }
+};
+typedef std::pair<lean_object *, unsigned> instantiate_delayed_cache_key;
 
-    /* Scope-aware cache for (ptr, depth) → expr with lazy staleness detection. */
-    struct key_hasher {
-        std::size_t operator()(std::pair<lean_object *, unsigned> const & p) const {
-            return hash((size_t)p.first >> 3, p.second);
-        }
-    };
-    typedef std::pair<lean_object *, unsigned> cache_key;
-    scope_cache<cache_key, expr, key_hasher> m_cache;
+/* Caches and bookkeeping of pass 2 that do not depend on the current fvar
+   substitution. They are shared between the primary traversal and the
+   substitution-free sub-traversals spawned by `resolve_pending_closed`.
+   Per-traversal state (fvar substitution, binder depth, scope cache) lives in
+   each `instantiate_delayed_fn` instance instead: in particular, scope-cache
+   entries of a sub-traversal (computed with fvars kept) must not be visible
+   to the enclosing substituting traversal, or vice versa. */
+struct instantiate_delayed_shared {
+    typedef instantiate_delayed_cache_key cache_key;
+    typedef instantiate_delayed_key_hasher key_hasher;
 
-    /* After visit() returns, this holds the maximum fvar-substitution
-       scope that contributed to the result — i.e., the outermost scope at which the
-       result is valid and can be cached. Updated monotonically (via max) through
-       the save/reset/restore pattern in visit(). */
-    unsigned m_result_scope;
+    /* Cache for outer-mode visits (empty fvar substitution — fvars are
+       kept). Outer-mode results do not depend on the binder depth or any
+       substitution scope, so a plain pointer-keyed map suffices, and entries
+       are shared across all traversals (the primary one and the
+       `resolve_pending_closed` sub-traversals). Kept separate from the
+       scope-tracked inner-mode caches: the classic resolution path makes
+       pending-value subterms reachable from both outer-mode visits (fvars
+       kept) and inner-mode visits (fvars substituted), so the two kinds of
+       results must not be conflated. */
+    lean::unordered_map<lean_object *, expr> m_outer_cache;
+
+    /* Memo for `lift_loose_bvars(value, d)` applied to fvar-substitution
+       values in `lookup_fvar`; see comment there. `lift_loose_bvars` is a pure
+       function of (value, d), so entries are context-independent. Keeps the
+       keyed exprs alive for the lifetime of the pass, so raw-pointer keys
+       remain valid. */
+    std::unordered_map<cache_key, expr, key_hasher> m_lift_cache;
+
+    /* Memo for `resolve_pending_closed` results. */
+    name_hash_map<expr> m_closed_memo;
+
+    /* Per pending MVar: the fvars that occur more than once (counting one
+       occurrence per physical parent edge, and including occurrences in the
+       values of nested resolvable pending MVars, which a fused traversal
+       would visit under the same substitution). See `is_multi_occ_fvar`. */
+    name_hash_map<name_hash_map<unsigned>> m_fvar_occ_cache;
 
     /* Write-back support: in outer mode, normalize and write back direct MVar
        assignments. Downstream code (e.g. MutualDef.mkInitialUsedFVarsMap) reads
@@ -392,33 +454,54 @@ class instantiate_delayed_fn {
        enough arguments, whose own pending MVars are also resolvable. */
     lean::unordered_map<lean_object *, bool> m_resolvable_expr_cache;
     name_hash_map<unsigned> m_resolvable_pending_cache; /* 0 = in-progress, 1 = yes, 2 = no */
+};
+
+class instantiate_delayed_fn {
+    typedef instantiate_delayed_cache_key cache_key;
+    typedef instantiate_delayed_key_hasher key_hasher;
+
+    metavar_ctx & m_mctx;
+    instantiate_delayed_shared & m_shared;
+    name_hash_map<fvar_subst_entry> m_fvar_subst;
+    unsigned m_depth;
+
+    /* Scope-aware cache for (ptr, depth) → expr with lazy staleness detection.
+       Entries depend on the current fvar substitution (via their recorded
+       scopes), so this cache is per-traversal. */
+    scope_cache<cache_key, expr, key_hasher> m_cache;
+
+    /* After visit() returns, this holds the maximum fvar-substitution
+       scope that contributed to the result — i.e., the outermost scope at which the
+       result is valid and can be cached. Updated monotonically (via max) through
+       the save/reset/restore pattern in visit(). */
+    unsigned m_result_scope;
 
     bool is_resolvable_pending(name const & pending) {
-        auto it = m_resolvable_pending_cache.find(pending);
-        if (it != m_resolvable_pending_cache.end())
+        auto it = m_shared.m_resolvable_pending_cache.find(pending);
+        if (it != m_shared.m_resolvable_pending_cache.end())
             return it->second == 1;
         /* Mark in-progress (cycle guard — shouldn't happen). */
-        m_resolvable_pending_cache[pending] = 0;
+        m_shared.m_resolvable_pending_cache[pending] = 0;
         option_ref<expr> r = get_mvar_assignment(m_mctx, pending);
         if (!r) {
-            m_resolvable_pending_cache[pending] = 2;
+            m_shared.m_resolvable_pending_cache[pending] = 2;
             return false;
         }
         bool ok = is_resolvable_expr(expr(r.get_val()));
-        m_resolvable_pending_cache[pending] = ok ? 1 : 2;
+        m_shared.m_resolvable_pending_cache[pending] = ok ? 1 : 2;
         return ok;
     }
 
     bool is_resolvable_expr(expr const & e) {
         if (!has_expr_mvar(e)) return true;
         if (is_shared(e)) {
-            auto it = m_resolvable_expr_cache.find(e.raw());
-            if (it != m_resolvable_expr_cache.end())
+            auto it = m_shared.m_resolvable_expr_cache.find(e.raw());
+            if (it != m_shared.m_resolvable_expr_cache.end())
                 return it->second;
         }
         bool r = is_resolvable_expr_core(e);
         if (is_shared(e))
-            m_resolvable_expr_cache[e.raw()] = r;
+            m_shared.m_resolvable_expr_cache[e.raw()] = r;
         return r;
     }
 
@@ -481,7 +564,23 @@ class instantiate_delayed_fn {
         unsigned d = m_depth - it->second.depth;
         if (d == 0)
             return optional<expr>(it->second.value);
-        return optional<expr>(lift_loose_bvars(it->second.value, d));
+        expr const & v = it->second.value;
+        if (!has_loose_bvars(v))
+            return optional<expr>(v);
+        if (is_bvar(v)) /* single node: lifting directly is cheaper than the memo */
+            return optional<expr>(mk_bvar(bvar_idx(v) + nat(d)));
+        /* Memoize lifted copies: without this, every occurrence of the fvar at
+           a deeper binder depth creates a fresh copy of the (open) substituted
+           value, and such copies compound multiplicatively along chains of
+           delayed-assigned MVars (issue #14329). `lift_loose_bvars` is a pure
+           function of (value, d), so a global memo is sound. */
+        auto key = std::make_pair(v.raw(), d);
+        auto lit = m_shared.m_lift_cache.find(key);
+        if (lit != m_shared.m_lift_cache.end())
+            return optional<expr>(lit->second);
+        expr lifted = lift_loose_bvars(v, d);
+        m_shared.m_lift_cache.insert(mk_pair(key, lifted));
+        return optional<expr>(lifted);
     }
 
     /* Get a direct MVar assignment. Visit it to resolve delayed-assigned
@@ -497,17 +596,132 @@ class instantiate_delayed_fn {
             return optional<expr>();
         expr a(r.get_val());
         if (in_outer_mode()) {
-            if (m_already_normalized.contains(mid))
+            if (m_shared.m_already_normalized.contains(mid))
                 return optional<expr>(a);
-            m_already_normalized.insert(mid);
+            m_shared.m_already_normalized.insert(mid);
             expr a_new = visit(a);
             if (!is_eqp(a, a_new)) {
-                m_saved.push_back(a);
+                m_shared.m_saved.push_back(a);
                 assign_mvar(m_mctx, mid, a_new);
             }
             return optional<expr>(a_new);
         } else {
             return optional<expr>(visit(a));
+        }
+    }
+
+    /* Resolve the pending MVar's value without any fvar substitution, i.e. in
+       outer mode: nested delayed-assigned MVars are resolved, but fvars are
+       kept. The result is valid in the pending MVar's own context
+       ("closed-with-fvars"), so it is written back to the mctx and memoized,
+       computing it only once per pending MVar.
+
+       This runs in a fresh sub-traversal (empty substitution, own scope
+       cache): scope-cache entries computed with fvars kept must not be mixed
+       with entries of the surrounding substituting traversal. The
+       substitution-independent caches are shared via `m_shared`. */
+    expr resolve_pending_closed(name const & mid_pending) {
+        auto mit = m_shared.m_closed_memo.find(mid_pending);
+        if (mit != m_shared.m_closed_memo.end())
+            return mit->second;
+        option_ref<expr> a = get_mvar_assignment(m_mctx, mid_pending);
+        lean_assert(a);
+        expr a_val(a.get_val());
+        instantiate_delayed_fn sub(m_mctx, m_shared);
+        expr r = sub.visit(a_val);
+        if (!is_eqp(a_val, r)) {
+            m_shared.m_saved.push_back(a_val);
+            assign_mvar(m_mctx, mid_pending, r);
+        }
+        m_shared.m_closed_memo.insert(mk_pair(mid_pending, r));
+        return r;
+    }
+
+    /* Count fvar occurrences in the pending MVar's value: one per physical
+       parent edge (shared interior nodes are counted once — a fused traversal
+       visits them once), accumulated transitively through nested resolvable
+       delayed-assigned MVar sites (their values are visited under the same
+       substitution). Memoized per pending MVar. */
+    name_hash_map<unsigned> const & fvar_occs(name const & mid_pending) {
+        auto it = m_shared.m_fvar_occ_cache.find(mid_pending);
+        if (it != m_shared.m_fvar_occ_cache.end())
+            return it->second;
+        /* Insert first (empty) to terminate on (impossible) cycles. */
+        name_hash_map<unsigned> & counts = m_shared.m_fvar_occ_cache[mid_pending];
+        option_ref<expr> a = get_mvar_assignment(m_mctx, mid_pending);
+        if (!a)
+            return counts;
+        name_hash_map<unsigned> acc;
+        std::unordered_set<lean_object *> visited;
+        count_fvar_occs(expr(a.get_val()), acc, visited);
+        counts.swap(acc);
+        return m_shared.m_fvar_occ_cache[mid_pending];
+    }
+
+    unsigned fvar_occ_count(name const & mid_pending, name const & fid) {
+        name_hash_map<unsigned> const & occs = fvar_occs(mid_pending);
+        auto it = occs.find(fid);
+        return it == occs.end() ? 0 : it->second;
+    }
+
+    void count_fvar_occs(expr const & e, name_hash_map<unsigned> & acc,
+                         std::unordered_set<lean_object *> & visited) {
+        if (!has_fvar(e) && !has_expr_mvar(e))
+            return;
+        if (is_fvar(e)) {
+            acc[fvar_name(e)]++; /* count every parent edge, do not dedup */
+            return;
+        }
+        if (is_shared(e)) {
+            if (!visited.insert(e.raw()).second)
+                return;
+        }
+        switch (e.kind()) {
+        case expr_kind::App: {
+            expr const & f = get_app_fn(e);
+            if (is_mvar(f)) {
+                option_ref<delayed_assignment> d =
+                    get_delayed_mvar_assignment(m_mctx, mvar_name(f));
+                if (d) {
+                    /* Accumulate the nested pending value's occurrences, minus
+                       the fvars abstracted at this site. */
+                    name mid_nested = delayed_assignment_mvar_id_pending(d.get_val());
+                    array_ref<expr> nested_fvars = delayed_assignment_fvars(d.get_val());
+                    for (auto const & kv : fvar_occs(mid_nested)) {
+                        bool abstracted = false;
+                        for (size_t i = 0; i < nested_fvars.size() && !abstracted; i++)
+                            abstracted = fvar_name(nested_fvars[i]) == kv.first;
+                        if (!abstracted)
+                            acc[kv.first] += kv.second;
+                    }
+                }
+            }
+            expr const * curr = &e;
+            while (is_app(*curr)) {
+                count_fvar_occs(app_arg(*curr), acc, visited);
+                curr = &app_fn(*curr);
+            }
+            if (!is_mvar(*curr))
+                count_fvar_occs(*curr, acc, visited);
+            return;
+        }
+        case expr_kind::Lambda: case expr_kind::Pi:
+            count_fvar_occs(binding_domain(e), acc, visited);
+            count_fvar_occs(binding_body(e), acc, visited);
+            return;
+        case expr_kind::Let:
+            count_fvar_occs(let_type(e), acc, visited);
+            count_fvar_occs(let_value(e), acc, visited);
+            count_fvar_occs(let_body(e), acc, visited);
+            return;
+        case expr_kind::MData:
+            count_fvar_occs(mdata_expr(e), acc, visited);
+            return;
+        case expr_kind::Proj:
+            count_fvar_occs(proj_expr(e), acc, visited);
+            return;
+        default:
+            return;
         }
     }
 
@@ -522,6 +736,49 @@ class instantiate_delayed_fn {
 
         size_t fvar_count = fvars.size();
         size_t extra_count = args.size() - fvar_count;
+
+        /* If a substituted argument is a composite term containing loose
+           bvars (of enclosing binders), and its fvar occurs more than once in
+           the pending MVar's value, fusing it into the substitution would
+           insert a fresh `lift_loose_bvars` copy of it at every occurrence at
+           a deeper binder depth. What makes this exponential (issue #14329):
+           fused substitution values have all enclosing substitutions applied,
+           so they embed the (already lifted) copies made for earlier
+           arguments, and lifting them copies those again — the copies
+           compound multiplicatively along chains of delayed-assigned MVars.
+
+           For such arguments, resolve this site the classic way instead:
+           obtain the pending value closed-with-fvars, substitute the
+           arguments with `replace_fvars`, and apply the enclosing
+           substitution to the result. `replace_fvars` also lift-copies an
+           open argument at occurrences under binders (bvar-closed arguments
+           are inserted by reference), but such copies cannot compound: this
+           site's chain interior was resolved *without* a substitution, so all
+           values inserted within it are closed-with-fvars (by reference), and
+           the open argument copied here is a value of the enclosing
+           traversal, which never embeds copies made below this site. The
+           per-site cost is #occurrences × argument size, as in the
+           pre-fusing implementation.
+
+           Bare bvar arguments are harmless (their lifted copies are single
+           nodes), and single-occurrence arguments are copied at most once
+           either way; both stay on the fused path, keeping the linear
+           behavior for the intro/apply chains this pass was built for. */
+        bool open_args = false;
+        for (size_t i = 0; i < fvar_count && !open_args; i++) {
+            expr const & a = args[extra_count + i];
+            if (!is_bvar(a) && has_loose_bvars(a) &&
+                fvar_occ_count(mid_pending, fvar_name(fvars[i])) >= 2)
+                open_args = true;
+        }
+        if (open_args) {
+            expr v = resolve_pending_closed(mid_pending);
+            expr r = replace_fvars(v, fvars, args.data() + extra_count);
+            r = visit(r);
+            bool preserve_data = false;
+            bool zeta = true;
+            return apply_beta(r, extra_count, args.data(), preserve_data, zeta);
+        }
 
         /* Push a new scope and extend the fvar substitution. */
         m_cache.push();
@@ -624,8 +881,8 @@ class instantiate_delayed_fn {
     }
 
 public:
-    instantiate_delayed_fn(metavar_ctx & mctx)
-        : m_mctx(mctx), m_depth(0), m_result_scope(0) {}
+    instantiate_delayed_fn(metavar_ctx & mctx, instantiate_delayed_shared & shared)
+        : m_mctx(mctx), m_shared(shared), m_depth(0), m_result_scope(0) {}
 
     expr visit(expr const & e) {
         if ((!has_fvar(e) || in_outer_mode()) && !has_expr_mvar(e))
@@ -633,8 +890,14 @@ public:
 
         bool shared = false;
         if (is_shared(e)) {
-            if (auto r = m_cache.lookup(cache_key(e.raw(), m_depth), m_result_scope))
-                return *r;
+            if (in_outer_mode()) {
+                auto it = m_shared.m_outer_cache.find(e.raw());
+                if (it != m_shared.m_outer_cache.end())
+                    return it->second;
+            } else {
+                if (auto r = m_cache.lookup(cache_key(e.raw(), m_depth), m_result_scope))
+                    return *r;
+            }
             shared = true;
         }
 
@@ -695,7 +958,11 @@ public:
         }
         }
         if (shared) {
-            r = m_cache.insert(cache_key(e.raw(), m_depth), r, m_result_scope);
+            if (in_outer_mode()) {
+                m_shared.m_outer_cache.insert(mk_pair(e.raw(), r));
+            } else {
+                r = m_cache.insert(cache_key(e.raw(), m_depth), r, m_result_scope);
+            }
         }
 
     done:
@@ -724,7 +991,8 @@ static object * run_instantiate_all(object * m, object * e) {
     if (!pass1.has_updateable_delayed()) {
         e2 = e1;
     } else {
-        instantiate_delayed_fn pass2(mctx);
+        instantiate_delayed_shared shared;
+        instantiate_delayed_fn pass2(mctx, shared);
         e2 = pass2(e1);
     }
 

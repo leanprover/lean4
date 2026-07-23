@@ -350,6 +350,28 @@ structure InfoCacheKey where
 instance : Hashable InfoCacheKey where
   hash := private fun { configKey, expr, nargs? } => mixHash (hash configKey) <| mixHash (hash expr) (hash nargs?)
 
+/--
+The result-relevant options (`isSynthRelevantOption`) as a canonical sequence (in `Options`
+iteration order, which is sorted) for use in the type class resolution cache key. Options left
+unset are omitted rather than resolved to their defaults, so setting an option explicitly to its
+default value creates a fresh cache partition; this only costs a re-derivation.
+-/
+def synthRelevantOptions (opts : Options) : Array (Name × DataValue) := Id.run do
+  let mut entries := #[]
+  for (n, v) in opts do
+    if isSynthRelevantOption n then
+      entries := entries.push (n, v)
+  return entries
+
+private instance : Hashable DataValue where
+  hash
+    | .ofString v => mixHash 11 (hash v)
+    | .ofBool v   => mixHash 13 (hash v)
+    | .ofName v   => mixHash 17 (hash v)
+    | .ofNat v    => mixHash 19 (hash v)
+    | .ofInt v    => mixHash 23 (hash v)
+    | .ofSyntax _ => 29  -- syntax values are distinguished by `BEq` only
+
 -- Remark: we don't need to store `Config.toKey` because typeclass resolution uses a fixed configuration.
 structure SynthInstanceCacheKey where
   localInsts        : LocalInstances
@@ -378,16 +400,13 @@ structure SynthInstanceCacheKey where
   different size limit must not be reused.
   -/
   maxResultSize     : Nat
-  /-- Value of `backward.synthInstance.canonInstances`. -/
-  canonInstances    : Bool
   /--
-  Values of `backward.isDefEq.respectTransparency` and `backward.isDefEq.respectTransparency.types`.
-  They control whether `isDefEq` bumps the transparency when assigning a metavariable, and hence
-  which of several definitionally equal terms an instance's implicit arguments are assigned. The
-  cache persists across commands, which may set them differently.
+  The result-relevant options (`synthRelevantOptions`) the query runs under. The search observes
+  no other options, as it runs under `Options.restrict .tcResolution`, so together with the
+  remaining fields the key captures every input that can affect the result. The cache persists
+  across commands, which may set these options differently.
   -/
-  respectTransparency      : Bool
-  respectTransparencyTypes : Bool
+  relevantOptions   : Array (Name × DataValue)
   /--
   Value of `Environment.isExporting`: in the exporting state, fewer definitions can be unfolded,
   which can change the result of typeclass resolution.

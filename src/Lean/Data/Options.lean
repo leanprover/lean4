@@ -15,6 +15,65 @@ public section
 
 namespace Lean
 
+/--
+Returns whether the option `name` can affect the result of type class resolution: the limits and
+compatibility flags of the search itself (`synthInstance.*`, `maxSynthPendingDepth`) and the
+options steering definitional equality and unfolding inside it (`backward.*`, `smartUnfolding`).
+
+Type class resolution runs under `Options` restricted to these options plus the inert ones
+(`OptionsRestriction.tcResolution`) and keys its cache by their values, so any option not listed
+here cannot influence the result by construction. A new option read on the search path only
+takes effect there once it is included here, which also keys the cache by it.
+-/
+def isSynthRelevantOption (name : Name) : Bool :=
+  -- `backward` first: the `backward.isDefEq.*` reads inside `isDefEq` are the hottest
+  -- accesses under the `tcResolution` restriction
+  Name.isPrefixOf `backward name || Name.isPrefixOf `synthInstance name ||
+  name == `smartUnfolding || name == `maxSynthPendingDepth
+
+/--
+Returns whether the option `name` is observable by type class resolution without affecting its
+result: tracing, pretty printing and formatting (of messages and trace nodes, which capture the
+ambient options object and are rendered later), profiling, diagnostics, debugging, resource
+limits (exceeding them throws, and exceptions are not cached), and the elaboration/kernel
+options read by constant realization triggered from the search (whose results are registered in
+the environment on first use and thus shared regardless of options).
+-/
+def isSynthInertOption (name : Name) : Bool :=
+  Name.isPrefixOf `trace name || Name.isPrefixOf `pp name || Name.isPrefixOf `format name ||
+  Name.isPrefixOf `profiler name || Name.isPrefixOf `diagnostics name ||
+  Name.isPrefixOf `debug name || Name.isPrefixOf `Elab name || Name.isPrefixOf `Kernel name ||
+  Name.isPrefixOf `interpreter name || Name.isPrefixOf `server name ||
+  Name.isPrefixOf `internal name ||
+  -- limits: exceeding them throws (`Lean.checkExponent` is reached from `Meta.check` during
+  -- cached-result application), and exceptions are not cached
+  name == `maxHeartbeats || name == `maxRecDepth ||
+  Name.isPrefixOf `exponentiation name ||
+  -- pseudo-option marking pattern-printing mode, read by the delaborator when rendering
+  -- messages that captured a restricted options object (`Options.getInPattern`)
+  name == `_inPattern
+
+/--
+Access restriction on an `Options` object, enforced by the by-name accessors (`Options.find?`,
+`Options.get?`, `Options.contains` and everything built on them): accessing an option outside
+the allowed set panics and behaves as if the option were unset. Restricting is a constant-time
+flag update (`Options.restrict`) that keeps the underlying entries, so iteration (e.g. `ForIn`)
+is unaffected.
+-/
+inductive OptionsRestriction where
+  /-- No restriction. -/
+  | none
+  /--
+  Only options observable by type class resolution are accessible (`isSynthRelevantOption`,
+  `isSynthInertOption`); see `Lean.Meta.SynthInstanceCacheKey.relevantOptions`.
+  -/
+  | tcResolution
+
+/-- Returns whether accessing the option `name` is allowed under the restriction. -/
+def OptionsRestriction.allows : OptionsRestriction → Name → Bool
+  | .none, _ => true
+  | .tcResolution, name => isSynthRelevantOption name || isSynthInertOption name
+
 structure Options where
   private map : NameMap DataValue
   /--
@@ -22,6 +81,8 @@ structure Options where
   set to `true` but it does capture the most common case that no such option has ever been touched.
   -/
   hasTrace : Bool
+  /-- Access restriction enforced by the by-name accessors; see `OptionsRestriction`. -/
+  restriction : OptionsRestriction := .none
 
 namespace Options
 
@@ -44,13 +105,17 @@ instance : EmptyCollection Options where
   emptyCollection := .empty
 
 @[inline] def find? (o : Options) (k : Name) : Option DataValue :=
-  o.map.find? k
+  if o.restriction.allows k then
+    o.map.find? k
+  else
+    panic! s!"option `{k}` is not observable under the current options restriction; \
+      see `Lean.OptionsRestriction`"
 
 @[deprecated find? (since := "2026-01-15")]
 def find := find?
 
 @[inline] def get? {α : Type} [KVMap.Value α] (o : Options) (k : Name) : Option α :=
-  o.map.find? k |>.bind KVMap.Value.ofDataValue?
+  o.find? k |>.bind KVMap.Value.ofDataValue?
 
 @[inline] def get {α : Type} [KVMap.Value α] (o : Options) (k : Name) (defVal : α) : α :=
   o.get? k |>.getD defVal
@@ -59,11 +124,20 @@ def find := find?
   o.get k defVal
 
 @[inline] def contains (o : Options) (k : Name) : Bool :=
-  o.map.contains k
+  if o.restriction.allows k then
+    o.map.contains k
+  else
+    panic! s!"option `{k}` is not observable under the current options restriction; \
+      see `Lean.OptionsRestriction`"
+
+/-- Restricts by-name access to the options allowed by `r`; see `OptionsRestriction`. -/
+@[inline] def restrict (o : Options) (r : OptionsRestriction) : Options :=
+  { o with restriction := r }
 
 @[inline] def insert (o : Options) (k : Name) (v : DataValue) : Options where
   map := o.map.insert k v
   hasTrace := o.hasTrace || (`trace).isPrefixOf k
+  restriction := o.restriction
 
 def set {α : Type} [KVMap.Value α] (o : Options) (k : Name) (v : α) : Options :=
   o.insert k (KVMap.Value.toDataValue v)
@@ -75,10 +149,12 @@ def erase (o : Options) (k : Name) : Options where
   map := o.map.erase k
   -- `erase` is expected to be used even more rarely than `set` so O(n) is fine
   hasTrace := o.map.keys.any (`trace).isPrefixOf
+  restriction := o.restriction
 
 def mergeBy (f : Name → DataValue → DataValue → DataValue) (o1 o2 : Options) : Options where
   map := o1.map.mergeWith f o2.map
   hasTrace := o1.hasTrace || o2.hasTrace
+  restriction := o1.restriction
 
 end Options
 

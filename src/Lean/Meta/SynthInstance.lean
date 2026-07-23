@@ -1004,6 +1004,10 @@ private def cacheResult (cacheKey : SynthInstanceCacheKey) (kind : PreprocessKin
 def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do
   let opts ← getOptions
   let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
+  -- Restrict the ambient options to those the search may observe and key the cache by the
+  -- result-relevant subset: any other option is invisible to the search by construction (its
+  -- access panics), so the key does not need to mention it. See `isSynthRelevantOption`.
+  withOptions (·.restrict .tcResolution) do
   withTraceNode `Meta.synthInstance
     (fun _ => return m!"{← instantiateMVars type}") do
   withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.instances,
@@ -1015,12 +1019,7 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     let cacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth,
                       activeScopedInsts := instanceExtension.getActiveScopesWithEntries (← getEnv),
                       localAttrInsts := instanceExtension.getState (← getEnv) |>.localInstanceNames,
-                      maxResultSize,
-                      canonInstances := backward.synthInstance.canonInstances.get opts,
-                      -- read by name: importing `Lean.Meta.ExprDefEq` here would be a cycle
-                      respectTransparency := opts.getBool `backward.isDefEq.respectTransparency true,
-                      respectTransparencyTypes :=
-                        opts.getBool `backward.isDefEq.respectTransparency.types true,
+                      maxResultSize, relevantOptions := synthRelevantOptions opts,
                       isExporting := (← getEnv).isExporting }
     match ← findCachedResult? cacheKey with
     | some abstResult? =>

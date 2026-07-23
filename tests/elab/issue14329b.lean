@@ -17,6 +17,10 @@ times, from several different binder depths. Memoizing the lifted copies (see
 are fresh objects the memo has no key for, so they still compound. With
 sharing preserved this elaborates instantly; otherwise it needs an exponential
 number of expression nodes and runs out of memory.
+
+The second theorem references the previous hypothesis from inside lambdas, so
+its lifted copies sit under binders within the substituted value; this checks
+that sharing is preserved for copies embedded at nonzero binder depth as well.
 -/
 
 open Lean Elab Tactic in
@@ -120,4 +124,51 @@ theorem test2 (s0 : S) : True := by
   note_ ha := comb ha hb ha
   obtain ⟨t, ht⟩ := ex t
   note_ hb := comb ha hb hb
+  trivial
+
+axiom comb2 : ∀ {a b : S}, (S → Rel a b) → (S → S → Rel a b) → Rel a b → Rel a b
+
+theorem test3 (s0 : S) : True := by
+  obtain ⟨t, ht⟩ := ex s0
+  note_ h := comb2 (fun _ => ht) (fun _ _ => ht) ht
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
+  obtain ⟨t, ht⟩ := ex t
+  note_ h := comb2 (fun _ => h) (fun _ _ => h) h
   trivial

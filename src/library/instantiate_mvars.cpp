@@ -375,13 +375,16 @@ public:
      hypotheses produce) would re-copy those embedded copies at every level,
      and the copies compound multiplicatively.
 
-   The origin redirect requires all loose bvars of `r` to be shifted, which
-   holds iff the cutoff at the redirect is ≤ s (a whole-value lift by `s` has
-   all its loose bvars ≥ s). Since substitution values always stem from
-   enclosing scopes, their embedded copies sit at binder depths ≤ their
-   accumulated shift, so the condition always holds in this pass; if it does
-   not, the code falls back to the structural copy, which is correct but
-   unshared — the redirect is a pure sharing optimization.
+   Correctness of the origin redirect is local: `r = lift_loose_bvars(v, s)`
+   has all its loose bvars ≥ s, so if the cutoff at the redirect is ≤ s — the
+   guard checks this — the shift applies to all of them and the composition
+   is exact. The redirect must also fire at cutoff > 0: an occurrence under a
+   binder within a substituted value places its lifted copy at the
+   corresponding depth inside the value, and skipping the redirect there
+   would re-copy the copy at every level again. When the guard fails
+   (substitution values always stem from enclosing scopes, so it should not),
+   the code falls back to the structural copy, which is correct but
+   unshared.
    ============================================================================ */
 
 class lift_fn {
@@ -418,8 +421,10 @@ class lift_fn {
         if (is_bvar(e)) /* range check guarantees bvar_idx(e) ≥ cutoff */
             return mk_bvar(bvar_idx(e) + nat(amount));
 
-        /* Origin redirect; see the class comment. */
-        {
+        /* Origin redirect; see the class comment. Registered nodes are also
+           cached, so their reference count is at least 2 once they are
+           embedded anywhere; this makes the lookup free for unshared nodes. */
+        if (!is_likely_unshared(e)) {
             auto it = m_origin.find(e.raw());
             if (it != m_origin.end() && cutoff <= it->second.second)
                 return apply(it->second.first, 0, it->second.second + amount);

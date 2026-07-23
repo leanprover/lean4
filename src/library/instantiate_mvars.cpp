@@ -413,8 +413,6 @@ class lift_fn {
     std::vector<expr> m_saved;
 
     expr apply(expr const & e, unsigned cutoff, unsigned amount) {
-        /* No loose bvars at or above the cutoff — also covers closed
-           subterms. (`get_loose_bvar_range` is cached in the header.) */
         if (cutoff >= get_loose_bvar_range(e))
             return e;
         if (is_bvar(e)) /* range check guarantees bvar_idx(e) ≥ cutoff */
@@ -612,9 +610,6 @@ class instantiate_delayed_fn {
         unsigned d = m_depth - it->second.depth;
         if (d == 0)
             return optional<expr>(it->second.value);
-        /* Lift through the pass-lifetime cache so that every lift of a
-           substitution value is materialized only once (issue #14329);
-           see `lift_fn`. */
         return optional<expr>(m_lift(it->second.value, d));
     }
 

@@ -353,6 +353,133 @@ public:
    values cannot be written back.
    ============================================================================ */
 
+/* ============================================================================
+   Lifting of fvar-substitution values, with pass-lifetime caching and origin
+   tracking (issue #14329).
+
+   Pass 2 substitutes fvars by values that may contain loose bvars of
+   enclosing binders; every occurrence of such an fvar at a deeper binder
+   depth needs the value lifted by the depth difference. This class
+   encapsulates `lift_loose_bvars` for these values such that each lift is
+   materialized only once:
+
+   * Results are cached for the lifetime of the pass, keyed by
+     (node, cutoff, amount), so all occurrences at the same depth — also of
+     values shared between substitution entries — share one copy.
+
+   * Whole-value results are indexed back to their origin (`m_origin`):
+     `r ↦ (v, s)` records `r = lift_loose_bvars(v, s)`. Lifting `r` again by
+     `d` then redirects to the canonical lift of `v` by `s + d` instead of
+     copying the copy. Without this, substitution values that embed lifted
+     copies of earlier values (as chains of `MVarId.assert`-introduced
+     hypotheses produce) would re-copy those embedded copies at every level,
+     and the copies compound multiplicatively.
+
+   The origin redirect requires all loose bvars of `r` to be shifted, which
+   holds iff the cutoff at the redirect is ≤ s (a whole-value lift by `s` has
+   all its loose bvars ≥ s). Since substitution values always stem from
+   enclosing scopes, their embedded copies sit at binder depths ≤ their
+   accumulated shift, so the condition always holds in this pass; if it does
+   not, the code falls back to the structural copy, which is correct but
+   unshared — the redirect is a pure sharing optimization.
+   ============================================================================ */
+
+class lift_fn {
+    struct key {
+        lean_object * m_ptr;
+        unsigned      m_cutoff;
+        unsigned      m_amount;
+        bool operator==(key const & other) const {
+            return m_ptr == other.m_ptr && m_cutoff == other.m_cutoff && m_amount == other.m_amount;
+        }
+    };
+    struct key_hasher {
+        std::size_t operator()(key const & k) const {
+            return hash(hash((size_t)k.m_ptr >> 3, k.m_cutoff), k.m_amount);
+        }
+    };
+    lean::unordered_map<key, expr, key_hasher> m_cache;
+
+    /* result node ↦ (origin, amount), for whole-value (cutoff 0) results
+       only: interior results leave their sub-cutoff bvars alone, so they have
+       no context-free identity to index. Keys are retained by the
+       corresponding `m_cache` entries, origins by the map values. */
+    lean::unordered_map<lean_object *, std::pair<expr, unsigned>> m_origin;
+
+    /* Retain inputs of raw-pointer keys: a substitution value can be dropped
+       while its cache entry lives on, and address reuse would make a later
+       lookup return an unrelated expression. */
+    std::vector<expr> m_saved;
+
+    expr apply(expr const & e, unsigned cutoff, unsigned amount) {
+        /* No loose bvars at or above the cutoff — also covers closed
+           subterms. (`get_loose_bvar_range` is cached in the header.) */
+        if (cutoff >= get_loose_bvar_range(e))
+            return e;
+        if (is_bvar(e)) /* range check guarantees bvar_idx(e) ≥ cutoff */
+            return mk_bvar(bvar_idx(e) + nat(amount));
+
+        /* Origin redirect; see the class comment. */
+        {
+            auto it = m_origin.find(e.raw());
+            if (it != m_origin.end() && cutoff <= it->second.second)
+                return apply(it->second.first, 0, it->second.second + amount);
+        }
+
+        key k{e.raw(), cutoff, amount};
+        /* Whole-value results are looked up once per occurrence of the
+           corresponding fvar regardless of the node's reference count, so
+           always cache them; gate interior nodes on sharing as usual. */
+        bool cache_it = cutoff == 0 || !is_likely_unshared(e);
+        if (cache_it) {
+            auto it = m_cache.find(k);
+            if (it != m_cache.end())
+                return it->second;
+        }
+
+        expr r;
+        switch (e.kind()) {
+        case expr_kind::Const: case expr_kind::Sort:
+        case expr_kind::BVar:  case expr_kind::Lit:
+        case expr_kind::MVar:  case expr_kind::FVar:
+            lean_unreachable(); /* no loose bvars, or handled above */
+        case expr_kind::MData:
+            r = update_mdata(e, apply(mdata_expr(e), cutoff, amount));
+            break;
+        case expr_kind::Proj:
+            r = update_proj(e, apply(proj_expr(e), cutoff, amount));
+            break;
+        case expr_kind::App:
+            r = update_app(e, apply(app_fn(e), cutoff, amount),
+                              apply(app_arg(e), cutoff, amount));
+            break;
+        case expr_kind::Pi: case expr_kind::Lambda:
+            r = update_binding(e, apply(binding_domain(e), cutoff, amount),
+                                  apply(binding_body(e), cutoff + 1, amount));
+            break;
+        case expr_kind::Let:
+            r = update_let(e, apply(let_type(e), cutoff, amount),
+                              apply(let_value(e), cutoff, amount),
+                              apply(let_body(e), cutoff + 1, amount));
+            break;
+        }
+        if (cache_it) {
+            m_saved.push_back(e);
+            m_cache.insert(mk_pair(k, r));
+        }
+        if (cutoff == 0)
+            m_origin.insert(mk_pair(r.raw(), mk_pair(e, amount)));
+        return r;
+    }
+
+public:
+    expr operator()(expr const & e, unsigned amount) {
+        if (amount == 0)
+            return e;
+        return apply(e, 0, amount);
+    }
+};
+
 struct fvar_subst_entry {
     unsigned depth;
     unsigned scope;
@@ -373,12 +500,8 @@ class instantiate_delayed_fn {
     typedef std::pair<lean_object *, unsigned> cache_key;
     scope_cache<cache_key, expr, key_hasher> m_cache;
 
-    /* Memo for `lift_loose_bvars(value, d)` applied to fvar-substitution
-       values in `lookup_fvar`; see comment there. `lift_loose_bvars` is a
-       pure function of (value, d), so a global memo is sound. The keyed
-       exprs are retained via `m_saved`, so the raw-pointer keys remain
-       valid. */
-    std::unordered_map<cache_key, expr, key_hasher> m_lift_cache;
+    /* Lift cache for fvar-substitution values; see `lift_fn`. */
+    lift_fn m_lift;
 
     /* After visit() returns, this holds the maximum fvar-substitution
        scope that contributed to the result — i.e., the outermost scope at which the
@@ -488,31 +611,10 @@ class instantiate_delayed_fn {
         unsigned d = m_depth - it->second.depth;
         if (d == 0)
             return optional<expr>(it->second.value);
-        expr const & v = it->second.value;
-        if (!has_loose_bvars(v))
-            return optional<expr>(v);
-        if (is_bvar(v)) /* single node: lifting directly is cheaper than the memo */
-            return optional<expr>(mk_bvar(bvar_idx(v) + nat(d)));
-        /* Memoize lifted copies: without this, every occurrence of the fvar at
-           a deeper binder depth creates a fresh copy of the (open) substituted
-           value. Occurrences of a hypothesis introduced via `MVarId.assert` +
-           `intro` (e.g. `MVarId.note`, `replaceLocalDecl`, `simp at h`)
-           produce exactly this shape, and the copies can compound
-           multiplicatively along chains of delayed-assigned MVars
-           (issue #14329). With the memo, all occurrences at the same binder
-           depth share one lifted copy. */
-        auto key = std::make_pair(v.raw(), d);
-        auto lit = m_lift_cache.find(key);
-        if (lit != m_lift_cache.end())
-            return optional<expr>(lit->second);
-        expr lifted = lift_loose_bvars(v, d);
-        /* Retain the input: the raw-pointer key must not dangle. The
-           substitution entry holding `v` can be dropped while the cache
-           entry lives on, and only lifted copies of `v` may survive in the
-           output. */
-        m_saved.push_back(v);
-        m_lift_cache.insert(mk_pair(key, lifted));
-        return optional<expr>(lifted);
+        /* Lift through the pass-lifetime cache so that every lift of a
+           substitution value is materialized only once (issue #14329);
+           see `lift_fn`. */
+        return optional<expr>(m_lift(it->second.value, d));
     }
 
     /* Get a direct MVar assignment. Visit it to resolve delayed-assigned

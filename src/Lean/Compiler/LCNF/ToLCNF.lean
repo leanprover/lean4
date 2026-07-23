@@ -456,7 +456,7 @@ Given a motive `fun ... => ∀ (h₁ : p₁) ... (hₙ : pₙ), ...` where all `
 returns `min maxArgs n`.
 -/
 def countProofOverApp (motive : Expr) (maxArgs : Nat) : MetaM Nat := do
-  Meta.lambdaTelescope motive fun vars body => do
+  Meta.lambdaTelescope motive fun _ body => do
     Meta.forallTelescope body fun forallVars _ => do
       let n := min maxArgs forallVars.size
       for h : i in *...n do

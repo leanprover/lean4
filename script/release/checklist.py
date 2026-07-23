@@ -162,21 +162,17 @@ class DownstreamChecker(RepoChecker):
     def _bump_toolchain_cslib(self) -> None:
         self._bump_toolchain(self.lrepo.path)
 
-        mathlib_sha = util.find_merged_toolchain_bump_sha(
-            repos.MATHLIB4.local, self.version
-        )
-
         util.edit(
             self.lrepo.path / "lakefile.toml",
             r'(name = "mathlib"\nscope = "leanprover-community"\nrev =) ".+?"',
-            rf'\1 "{mathlib_sha}"',
+            rf'\1 "{self.version}"',
         )
 
         # For rc1 PRs
         util.edit(
             self.lrepo.path / "lakefile.toml",
             r'name = "mathlib"\ngit = ".*"\nrev = ".+?"',
-            f'name = "mathlib"\nscope = "leanprover-community"\nrev = "{mathlib_sha}"',
+            f'name = "mathlib"\nscope = "leanprover-community"\nrev = "{self.version}"',
         )
 
         self._bump_toolchain_deps(self.lrepo.path)

@@ -67,6 +67,11 @@ There are also places where we deviate from strict call-by-value semantics:
 - Dependent projections that cannot be rewritten via `congrArg` are reduced
   directly when possible. As a last resort, if the types on which the projection
   function depends are definitionally equal, we use `HCongr` to build the proof.
+  For a stuck tower of projections `base.π₁.…​.πₙ` over a base that is only
+  propositionally a constructor, we additionally try `congrArg` with the composite
+  projection function: even when the intermediate levels are dependent, the
+  composite is often non-dependent (e.g. `fun p => p.snd.len : … → Nat`) and the
+  whole spine can be rewritten in one step.
 
 ## Attributes
 
@@ -188,11 +193,51 @@ def zetaReduce : Simproc := fun e => do
   trace[Debug.Meta.Tactic.cbv.reduce] "zeta:{indentExpr e}\n==>{indentExpr new}"
   return .step new (← Sym.mkEqRefl new)
 
+/-- Peels nested projections: for `e = base.proj₁.....projₙ` returns the projection nodes
+outermost-first together with the innermost non-projection `base`. -/
+def peelProjSpine (e : Expr) (acc : Array Expr := #[]) : Array Expr × Expr :=
+  match e with
+  | .proj _ _ struct => peelProjSpine struct (acc.push e)
+  | _ => (acc, e)
+
+/--
+Last resort for nested dependent projections, whose composite is non-dependent.
+-/
+def trySpineCongrArg (e : Expr) (cd : Bool) : Sym.Simp.SimpM Result := do
+  let (projs, base) := peelProjSpine e
+  -- A single projection over an unchanged struct was already handled by `handleProj`.
+  if projs.size < 2 then
+    return .rfl (done := true) cd
+  let res ← simp base
+  let .step base' proof _ cd' := res
+    | return .rfl (done := true) (cd || res.isContextDependent)
+  let cd := cd || cd'
+  let mut congrArgFunBody := Expr.bvar 0
+  for p in projs.reverse do
+    let .proj typeName idx _ := p | unreachable!
+    congrArgFunBody := .proj typeName idx congrArgFunBody
+  let congrArgFun := mkLambda `x .default (← Sym.inferType base') congrArgFunBody
+  let congrArgFunType ← Sym.inferType congrArgFun
+  unless congrArgFunType.isArrow do
+    return .rfl (done := true) cd
+  let .forallE _ α β _ := congrArgFunType | unreachable!
+  let u ← Sym.getLevel α
+  let v ← Sym.getLevel β
+  let newProof := mkApp6 (mkConst ``congrArg [u, v]) α β base base' congrArgFun proof
+  let mut newE := base'
+  for p in projs.reverse do
+    newE ← p.updateProjS! newE
+  if Sym.isSameExpr newE e then
+    return .rfl (done := true) cd
+  return .step newE newProof cd
+
 /--
 Recursively simplifies the struct inside a projection, then reduces the projection.
 For non-dependent projection types, uses `congrArg` to lift the proof.
 For dependent projection types, tries direct reduction first; if that fails and
 the original and rewritten struct are definitionally equal, falls back to `HCongr`.
+For a stuck composite of projections, tries `congrArg` with the composite projection
+function via `trySpineCongrArg`.
 -/
 def handleProj : Simproc := fun e => do
   let Expr.proj typeName idx struct := e | return .rfl
@@ -205,8 +250,9 @@ def handleProj : Simproc := fun e => do
   let res ← simp struct
   match res with
   | .rfl _ cd =>
+    -- if we get stuck, we try if we have a composite of dependent projections, which is non-dependent
     let some reduced ← withCbvOpaqueGuard <| withDefault <| reduceProj? <| .proj typeName idx struct | do
-      return .rfl (done := true) cd
+      trySpineCongrArg e cd
 
     let reduced ← Sym.share reduced
     return .step reduced (← Sym.mkEqRefl reduced) cd

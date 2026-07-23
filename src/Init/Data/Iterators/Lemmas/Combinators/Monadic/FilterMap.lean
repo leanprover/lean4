@@ -296,8 +296,6 @@ private theorem bind_eq_bind_subtypeCasesOn'_optionPelim' [Monad m] [LawfulMonad
 
 end Internal
 
-open Internal
-
 theorem IterM.toList_mapWithPostcondition_eq_toList_filterMapWithPostcondition {α β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]

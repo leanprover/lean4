@@ -32,6 +32,27 @@ do
     t✝
   else
     e✝
+do
+  for x✝ in xs✝ do
+    pure✝ ()
+do
+  let mut acc✝ := 0;
+  for x✝ in xs✝ do
+    acc✝ := acc✝ + x✝;
+    return acc✝
+do
+  while c✝ do
+    pure✝ ()
+do
+  unless c✝ do
+    pure✝ ()
+do
+  for x✝ in xs✝ invariant cur✝ => 0 ≤ acc✝ do
+    pure✝ ()
+def clampLow✝ (n✝ lo✝ : Nat✝) : Id✝ Nat✝ require lo✝ ≤ n✝ ensures r✝ => r✝ = n✝ :=
+  pure✝ n✝
+def g✝ (x✝ : Nat✝) require x✝ > 0 ensures r✝ => r✝ ≥ x✝ :=
+  pure✝ x✝
 def foo✝ := by
   · skip; skip
   · skip; skip

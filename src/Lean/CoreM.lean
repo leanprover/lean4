@@ -173,7 +173,9 @@ namespace Core
 builtin_initialize registerTraceClass `Kernel
 
 def getMaxHeartbeats (opts : Options) : Nat :=
-  maxHeartbeats.get opts * 1000
+  -- unrestricted read: the limit is part of the resolution cache key
+  -- (`Lean.Meta.SynthInstanceCacheKey.limits`)
+  maxHeartbeats.getUnrestricted opts * 1000
 
 abbrev InstantiateLevelCache := PersistentHashMap Name (List Level × Expr)
 
@@ -277,7 +279,9 @@ instance : MonadOptions CoreM where
 instance : MonadWithOptions CoreM where
   withOptions f x := do
     let options := f (← read).options
-    let diag := diagnostics.get options
+    -- unrestricted reads below: diagnostics counters are instrumentation, and `maxRecDepth` is
+    -- part of the resolution cache key (`Lean.Meta.SynthInstanceCacheKey.limits`)
+    let diag := diagnostics.getUnrestricted options
     if Kernel.isDiagnosticsEnabled (← getEnv) != diag then
       modifyEnv fun env => Kernel.enableDiag env diag
     withReader
@@ -285,7 +289,7 @@ instance : MonadWithOptions CoreM where
         { ctx with
           options
           diag
-          maxRecDepth := maxRecDepth.get options })
+          maxRecDepth := maxRecDepth.getUnrestricted options })
       x
 
 -- Helper function for ensuring fields derived from e.g. options have the correct value.
@@ -477,7 +481,8 @@ register_builtin_option debug.moduleNameAtTimeout : Bool := {
 }
 
 def throwMaxHeartbeat (moduleName : Name) (optionName : Name) (max : Nat) : CoreM Unit := do
-  let includeModuleName := debug.moduleNameAtTimeout.get (← getOptions)
+  -- unrestricted read: only reached when the heartbeat limit throws, which is never cached
+  let includeModuleName := debug.moduleNameAtTimeout.getUnrestricted (← getOptions)
   let atModuleName := if includeModuleName then s!" at `{moduleName}`" else ""
   throw <| Exception.error (← getRef) <| .tagged `runtime.maxHeartbeats m!"\
     (deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\
@@ -768,7 +773,8 @@ def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
   compileDecls (Compiler.getDeclNamesForCodeGen decl) logErrors
 
 def getDiag (opts : Options) : Bool :=
-  diagnostics.get opts
+  -- unrestricted read: diagnostics counters are instrumentation
+  diagnostics.getUnrestricted opts
 
 /-- Return `true` if diagnostic information collection is enabled. -/
 def isDiagnosticsEnabled : CoreM Bool :=

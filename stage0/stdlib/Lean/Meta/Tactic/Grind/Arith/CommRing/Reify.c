@@ -5930,15 +5930,15 @@ v_a_2016_ = lean_ctor_get(v___x_2015_, 0);
 lean_inc(v_a_2016_);
 lean_dec_ref_known(v___x_2015_, 1);
 v___x_2017_ = l_Lean_Meta_Sym_shareCommon(v_a_2016_, v___y_2006_, v___y_2007_, v___y_2008_, v___y_2009_, v___y_2010_, v___y_2011_);
-v___y_1961_ = v___y_2005_;
-v___y_1962_ = v___y_2004_;
+v___y_1961_ = v___y_2004_;
+v___y_1962_ = v___y_2005_;
 v___y_1963_ = v___x_2017_;
 goto v___jp_1960_;
 }
 else
 {
-v___y_1961_ = v___y_2005_;
-v___y_1962_ = v___y_2004_;
+v___y_1961_ = v___y_2004_;
+v___y_1962_ = v___y_2005_;
 v___y_1963_ = v___x_2015_;
 goto v___jp_1960_;
 }
@@ -5997,7 +5997,7 @@ lean_inc_n(v_a_1964_, 2);
 lean_dec_ref_known(v___y_1963_, 1);
 v___f_1965_ = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_CommRing_getIntCastFn___at___00Lean_Meta_Grind_Arith_CommRing_isIntCastInst___at___00Lean_Meta_Grind_Arith_CommRing_reifyCore_x3f___at___00Lean_Meta_Grind_Arith_CommRing_reify_x3f_spec__0_spec__7_spec__15___lam__0), 2, 1);
 lean_closure_set(v___f_1965_, 0, v_a_1964_);
-v___x_1966_ = l_Lean_Meta_Grind_Arith_CommRing_RingM_modifyCommRing___redArg(v___f_1965_, v___y_1962_, v___y_1961_);
+v___x_1966_ = l_Lean_Meta_Grind_Arith_CommRing_RingM_modifyCommRing___redArg(v___f_1965_, v___y_1961_, v___y_1962_);
 if (lean_obj_tag(v___x_1966_) == 0)
 {
 lean_object* v___x_1968_; uint8_t v_isShared_1969_; uint8_t v_isSharedCheck_1973_; 
@@ -36540,11 +36540,13 @@ return v_res_10497_;
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_NonCommRingM(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_NonCommSemiringM(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Reify(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_NonCommRingM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

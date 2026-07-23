@@ -704,8 +704,8 @@ return v___x_209_;
 else
 {
 lean_object* v___x_211_; 
-lean_dec_ref_known(v___x_209_, 1);
 lean_dec(v_a_210_);
+lean_dec_ref_known(v___x_209_, 1);
 v___x_211_ = l_Lean_Meta_matchHEq_x3f(v_e_203_, v_a_204_, v_a_205_, v_a_206_, v_a_207_);
 if (lean_obj_tag(v___x_211_) == 0)
 {
@@ -2210,11 +2210,13 @@ return v_res_595_;
 }
 lean_object* runtime_initialize_Lean_Util_Recognizers(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_CtorRecognizer(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_MatchUtil(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Util_Recognizers(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

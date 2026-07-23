@@ -180,9 +180,11 @@ structure TagAttribute where
 def registerTagAttribute (name : Name) (descr : String)
     (validate : Name → AttrM Unit := fun _ => pure ()) (ref : Name := by exact decl_name%)
     (applicationTime := AttributeApplicationTime.afterTypeChecking)
-    (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO TagAttribute := do
+    (asyncMode : EnvExtension.AsyncMode := .mainOnly)
+    (synthCovered : Bool := false) : IO TagAttribute := do
   let ext : PersistentEnvExtension Name Name NameSet ← registerPersistentEnvExtension {
     name            := ref
+    synthCovered    := synthCovered
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameSet) n => s.insert n
@@ -210,7 +212,11 @@ def registerTagAttribute (name : Name) (descr : String)
       unless ext.toEnvExtension.asyncMayModify env decl do
         throwAttrNotInAsyncCtx name decl env.asyncPrefix?
       validate decl
-      modifyEnv fun env => ext.addEntry (asyncDecl := decl) env decl
+      modifyEnv fun env =>
+        -- a post-hoc application some recording query could have observed must be recorded for
+        -- covered attributes; see `Environment.synthChangeLog`
+        let env := if synthCovered then env.logSynthChange decl else env
+        ext.addEntry (asyncDecl := decl) env decl
   }
   registerBuiltinAttribute attrImpl
   return { attr := attrImpl, ext := ext }
@@ -260,22 +266,31 @@ structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
   filterExport : Environment → Name → α → Bool := fun env n _ =>
     env.contains (skipRealize := false) n
 
-def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
-  let ext : PersistentEnvExtension (Name × α) (Name × α) (List Name × NameMap α) ← registerPersistentEnvExtension {
-    name            := impl.ref
+def registerParametricAttributeExt (ref : Name) (preserveOrder : Bool := false)
+    (filterExport : Environment → Name → α → Bool := fun env n _ =>
+      env.contains (skipRealize := false) n)
+    (synthCovered : Bool := false) :
+    IO (PersistentEnvExtension (Name × α) (Name × α) (List Name × NameMap α)) :=
+  registerPersistentEnvExtension {
+    name            := ref
+    synthCovered    := synthCovered
     mkInitial       := pure ([], {})
     addImportedFn   := fun _ => pure ([], {})
     addEntryFn      := fun (decls, m) (p : Name × α) => (p.1 :: decls, m.insert p.1 p.2)
     exportEntriesFnEx := fun env (decls, m) => Id.run do
-      let all := if impl.preserveOrder then
+      let all := if preserveOrder then
         decls.toArray.reverse.filterMap (fun n => return (n, ← m.find? n))
       else
         let r := m.foldl (fun a n p => a.push (n, p)) #[]
         r.qsort (fun a b => Name.quickLt a.1 b.1)
-      let exported := all.filter (fun ⟨n, a⟩ => impl.filterExport env n a)
+      let exported := all.filter (fun ⟨n, a⟩ => filterExport env n a)
       { exported, server := exported, «private» := all }
     statsFn         := fun (_, m) => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format m.size
   }
+
+def registerParametricAttributeForExt (impl : ParametricAttributeImpl α)
+    (ext : PersistentEnvExtension (Name × α) (Name × α) (List Name × NameMap α)) :
+    IO (ParametricAttribute α) := do
   let attrImpl : AttributeImpl := {
     impl.toAttributeImplCore with
     add   := fun decl stx kind => do
@@ -290,27 +305,40 @@ def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (Parame
   registerBuiltinAttribute attrImpl
   pure { attr := attrImpl, ext, preserveOrder := impl.preserveOrder }
 
+def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
+  let ext ← registerParametricAttributeExt (α := α) impl.ref impl.preserveOrder impl.filterExport
+  registerParametricAttributeForExt impl ext
+
 namespace ParametricAttribute
 
-def getParam? [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
+def getParamFromExt? [Inhabited α]
+    (ext : PersistentEnvExtension (Name × α) (Name × α) (List Name × NameMap α))
+    (preserveOrder : Bool) (env : Environment) (decl : Name) : Option α :=
   match env.getModuleIdxFor? decl with
   | some modIdx =>
-    let entry? := if attr.preserveOrder then
-      (attr.ext.getModuleEntries env modIdx).find? (·.1 == decl)
+    let entry? := if preserveOrder then
+      (ext.getModuleEntries env modIdx).find? (·.1 == decl)
     else
-      (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1)
+      (ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1)
     match entry? with
     | some (_, val) => some val
     | none          => none
-  | none        => (attr.ext.getState env).2.find? decl
+  | none        => (ext.getState env).2.find? decl
+
+def getParam? [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
+  getParamFromExt? attr.ext attr.preserveOrder env decl
+
+def setParamFromExt
+  (ext : PersistentEnvExtension (Name × α) (Name × α) (List Name × NameMap α)) (attr : AttributeImpl) (env : Environment) (decl : Name) (param : α) : Except String Environment :=
+  if (env.getModuleIdxFor? decl).isSome then
+    Except.error (s!"Failed to add parametric attribute `[{attr.name}]` to `{decl}`: Declaration is in an imported module")
+  else if ((ext.getState env).2.find? decl).isSome then
+    Except.error (s!"Failed to add parametric attribute `[{attr.name}]` to `{decl}`: Attribute has already been set")
+  else
+    Except.ok (ext.addEntry env (decl, param))
 
 def setParam (attr : ParametricAttribute α) (env : Environment) (decl : Name) (param : α) : Except String Environment :=
-  if (env.getModuleIdxFor? decl).isSome then
-    Except.error (s!"Failed to add parametric attribute `[{attr.attr.name}]` to `{decl}`: Declaration is in an imported module")
-  else if ((attr.ext.getState env).2.find? decl).isSome then
-    Except.error (s!"Failed to add parametric attribute `[{attr.attr.name}]` to `{decl}`: Attribute has already been set")
-  else
-    Except.ok (attr.ext.addEntry env (decl, param))
+  setParamFromExt attr.ext attr.attr env decl param
 
 end ParametricAttribute
 

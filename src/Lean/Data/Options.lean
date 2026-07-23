@@ -15,6 +15,34 @@ public section
 
 namespace Lean
 
+/--
+Access restriction on by-name option reads during a type class resolution query: the result of
+a query may only depend on options it recorded (`Lean.Meta.getRecordedOption`), so a plain
+by-name read panics. The frameworks whose reads cannot influence cached results (trace and
+profiler collection, diagnostics counters, recursion/heartbeat limits whose excess throws and
+is never cached) read through `Options.findUnrestricted?`/`Lean.Option.getUnrestricted` at
+their single accessor, each carrying its one-line argument.
+-/
+inductive OptionsRestriction where
+  /-- No restriction. -/
+  | none
+  /--
+  No option may be read by name: type class resolution records every result-relevant option
+  lookup as a dependency of the cache entry it is computing (see `Lean.Meta.getRecordedOption`),
+  so reads on the search path must go through the recording accessors, which bypass this
+  restriction via `Options.findUnrestricted?`. The few frameworks whose reads cannot influence
+  a cached result (trace and profiler collection, diagnostics counters, recursion and heartbeat
+  limits whose excess throws and is never cached) read through
+  `Options.findUnrestricted?`/`Lean.Option.getUnrestricted` at their accessor, each carrying its
+  one-line argument. Any other by-name read under this restriction panics.
+  -/
+  | tcResolution
+
+/-- Returns whether accessing the option `name` is allowed under the restriction. -/
+def OptionsRestriction.allows : OptionsRestriction → Name → Bool
+  | .none, _ => true
+  | .tcResolution, _ => false
+
 structure Options where
   private map : NameMap DataValue
   /--
@@ -22,6 +50,8 @@ structure Options where
   set to `true` but it does capture the most common case that no such option has ever been touched.
   -/
   hasTrace : Bool
+  /-- Access restriction enforced by the by-name accessors; see `OptionsRestriction`. -/
+  restriction : OptionsRestriction := .none
 
 namespace Options
 
@@ -43,14 +73,27 @@ instance : BEq Options where
 instance : EmptyCollection Options where
   emptyCollection := .empty
 
-@[inline] def find? (o : Options) (k : Name) : Option DataValue :=
+/--
+Reads the raw entry for `k`, bypassing the access restriction. Callers are responsible for
+recording the access as a dependency where required; see `OptionsRestriction.tcResolution` and
+`Lean.Meta.getRecordedOption`.
+-/
+@[inline] def findUnrestricted? (o : Options) (k : Name) : Option DataValue :=
   o.map.find? k
+
+@[inline] def find? (o : Options) (k : Name) : Option DataValue :=
+  if o.restriction.allows k then
+    o.map.find? k
+  else
+    panic! s!"unrecorded access to option `{k}` under the current options restriction; \
+      reads on the type class resolution path must use the recording accessors, \
+      see `Lean.OptionsRestriction`"
 
 @[deprecated find? (since := "2026-01-15")]
 def find := find?
 
 @[inline] def get? {α : Type} [KVMap.Value α] (o : Options) (k : Name) : Option α :=
-  o.map.find? k |>.bind KVMap.Value.ofDataValue?
+  o.find? k |>.bind KVMap.Value.ofDataValue?
 
 @[inline] def get {α : Type} [KVMap.Value α] (o : Options) (k : Name) (defVal : α) : α :=
   o.get? k |>.getD defVal
@@ -59,11 +102,21 @@ def find := find?
   o.get k defVal
 
 @[inline] def contains (o : Options) (k : Name) : Bool :=
-  o.map.contains k
+  if o.restriction.allows k then
+    o.map.contains k
+  else
+    panic! s!"unrecorded access to option `{k}` under the current options restriction; \
+      reads on the type class resolution path must use the recording accessors, \
+      see `Lean.OptionsRestriction`"
+
+/-- Restricts by-name access to the options allowed by `r`; see `OptionsRestriction`. -/
+@[inline] def restrict (o : Options) (r : OptionsRestriction) : Options :=
+  { o with restriction := r }
 
 @[inline] def insert (o : Options) (k : Name) (v : DataValue) : Options where
   map := o.map.insert k v
   hasTrace := o.hasTrace || (`trace).isPrefixOf k
+  restriction := o.restriction
 
 def set {α : Type} [KVMap.Value α] (o : Options) (k : Name) (v : α) : Options :=
   o.insert k (KVMap.Value.toDataValue v)
@@ -75,16 +128,20 @@ def erase (o : Options) (k : Name) : Options where
   map := o.map.erase k
   -- `erase` is expected to be used even more rarely than `set` so O(n) is fine
   hasTrace := o.map.keys.any (`trace).isPrefixOf
+  restriction := o.restriction
 
 def mergeBy (f : Name → DataValue → DataValue → DataValue) (o1 o2 : Options) : Options where
   map := o1.map.mergeWith f o2.map
   hasTrace := o1.hasTrace || o2.hasTrace
+  restriction := o1.restriction
 
 end Options
 
 structure OptionDeprecation where
   since    : String
   text?    : Option String := none
+  /-- The option to use instead, taken from the `@[deprecated <name>]` attribute. -/
+  newName? : Option Name := none
   deriving Inhabited
 
 structure OptionDecl where
@@ -191,6 +248,14 @@ protected structure Decl (α : Type) where
   descr    : String := ""
   deprecation? : Option OptionDeprecation := none
 
+/--
+Reads the option bypassing the access restriction, without recording the access; only for reads
+that provably cannot influence a type class resolution cache entry, e.g. limits whose exceedance
+throws (exceptions are not cached). See `OptionsRestriction.tcResolution`.
+-/
+protected def getUnrestricted [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : α :=
+  ((opts.findUnrestricted? opt.name).bind KVMap.Value.ofDataValue?).getD opt.defValue
+
 protected def get? [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : Option α :=
   opts.get? opt.name
 
@@ -228,7 +293,28 @@ protected def register [KVMap.Value α] (name : Name) (decl : Lean.Option.Decl �
 macro (name := registerBuiltinOption) doc?:(docComment)? vis?:(visibility)? "register_builtin_option" name:ident " : " type:term " := " decl:term : command =>
   `($[$doc?]? $[$vis?:visibility]? builtin_initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
 
-macro (name := registerOption) mods:declModifiers "register_option" name:ident " : " type:term " := " decl:term : command =>
+private meta def declWithDeprecation (attr : Syntax) (type decl : Term) : MacroM Term := do
+  let `(attr| deprecated $[$id?]? $[$text?]? $[$_typeChanged?]? $[(since := $since?)]?) := attr | return decl
+  let since : Term ← match since? with | some s => pure s | none => `("")
+  let text : Term ← match text? with | some text => `(some $text) | none => `(none)
+  let newName : Term ← match id? with | some id => `(some ($id).name) | none => `(none)
+  `({ ($decl : Lean.Option.Decl $type) with
+      deprecation? := some { since := $since, text? := $text, newName? := $newName } })
+
+macro (name := registerOption) mods:declModifiers "register_option" name:ident " : " type:term " := " decl:term : command => do
+  let attr? := mods.raw.find? (·.isOfKind ``Lean.deprecated)
+  -- The `deprecation?` field is internal: it is populated from the `@[deprecated]` attribute below.
+  let field? := decl.raw.find? (·.getId == `deprecation?)
+  let decl ← match attr?, field? with
+    | some _, some field =>
+      Macro.throwErrorAt field "remove the `deprecation?` field: it is populated automatically from \
+        the option's `@[deprecated]` attribute"
+    | none, some field =>
+      Macro.throwErrorAt field "do not set the `deprecation?` field directly; it is an internal \
+        implementation detail. Deprecate the option with a `@[deprecated \"...\" (since := \"...\")]` \
+        attribute instead"
+    | some attr, none => declWithDeprecation attr type decl
+    | none, none => pure decl
   `($mods:declModifiers initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
 
 end Option

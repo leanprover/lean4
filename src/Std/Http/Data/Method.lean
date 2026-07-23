@@ -336,6 +336,25 @@ def ofString! (s : String) : Method :=
   | some m => m
   | none => panic! s!"invalid HTTP method: {s.quote}"
 
+/--
+Returns `true` for HTTP methods that RFC 9110 §9.2.2 designates as idempotent —
+methods that can be safely retried because repeating the request has the same
+effect as issuing it once.
+
+Reference: https://httpwg.org/specs/rfc9110.html#idempotent.methods
+-/
+def isIdempotent (m : Method) : Bool :=
+  m == .get || m == .head || m == .put || m == .delete || m == .options || m == .trace
+
+/--
+Returns `true` for HTTP methods that RFC 9110 §9.2.1 designates as safe —
+read-only methods that do not modify resource state.
+
+Reference: https://httpwg.org/specs/rfc9110.html#safe.methods
+-/
+def isSafe (m : Method) : Bool :=
+  m == .get || m == .head || m == .options || m == .trace
+
 instance : ToString Method where
   toString
     | .acl => "ACL"

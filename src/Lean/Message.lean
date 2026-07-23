@@ -811,15 +811,18 @@ instance (m n) [MonadLift m n] [AddMessageContext m] : AddMessageContext n where
   addMessageContext := fun msg => liftM (addMessageContext msg : m _)
 
 def addMessageContextPartial {m} [Monad m] [MonadEnv m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
-  let env ← getEnv
-  let opts ← getOptions
+  -- A message context is a display context: drop the resolution-path access restriction
+  -- (`OptionsRestriction`) and recording marker so that later reads by message consumers do
+  -- not trip them.
+  let env := (← getEnv).setSynthRecording false
+  let opts := (← getOptions).restrict .none
   return MessageData.withContext { env := env, mctx := {}, lctx := {}, opts := opts } msgData
 
 def addMessageContextFull {m} [Monad m] [MonadEnv m] [MonadMCtx m] [MonadLCtx m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
-  let env ← getEnv
+  let env := (← getEnv).setSynthRecording false
   let mctx ← getMCtx
   let lctx ← getLCtx
-  let opts ← getOptions
+  let opts := (← getOptions).restrict .none
   return MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } msgData
 
 class ToMessageData (α : Type) where
@@ -862,7 +865,8 @@ def toMessageList (msgs : Array MessageData) : MessageData :=
 namespace Kernel.Exception
 
 private def mkCtx (env : Environment) (lctx : LocalContext) (opts : Options) (msg : MessageData) : MessageData :=
-  MessageData.withContext { env := .ofKernelEnv env, mctx := {}, lctx := lctx, opts := opts } msg
+  MessageData.withContext
+    { env := .ofKernelEnv env, mctx := {}, lctx := lctx, opts := opts.restrict .none } msg
 
 def toMessageData (e : Kernel.Exception) (opts : Options) : MessageData :=
   match e with

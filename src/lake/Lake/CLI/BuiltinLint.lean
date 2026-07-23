@@ -321,7 +321,7 @@ public def run (args : Args) : IO UInt32 := do
           let fmtResults ←
             Linter.EnvLinter.formatLinterResults results decls
               (groupByFilename := true) (useErrorFormat := true)
-              s!"in {mod}" .medium linters.size
+              s!"in {mod}" linters.size
           IO.print (← fmtResults.toString)
         else unless textFailed do
           IO.println s!"-- Linting passed for {mod}."

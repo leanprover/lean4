@@ -124,7 +124,7 @@ public def addDefaultTypeAnalysisLemmas (lemmas : SimpTheoremsArray) : PreProces
 
   let relevantNames := #[
     ``ne_eq,
-    ``dif_eq_if,
+    ``dite_eq_ite,
     ``Std.Tactic.BVDecide.Normalize.BitVec.getElem_eq_getLsbD,
   ]
   for name in relevantNames do

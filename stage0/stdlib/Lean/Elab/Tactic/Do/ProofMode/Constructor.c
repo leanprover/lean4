@@ -1447,8 +1447,8 @@ goto v___jp_306_;
 }
 else
 {
-lean_dec_ref_known(v_pre_325_, 2);
 lean_dec(v_pre_326_);
+lean_dec_ref_known(v_pre_325_, 2);
 lean_dec_ref_known(v_pre_324_, 2);
 lean_dec_ref_known(v_declName_323_, 2);
 lean_dec_ref_known(v_fn_321_, 2);
@@ -1482,8 +1482,8 @@ goto v___jp_306_;
 }
 else
 {
-lean_dec_ref_known(v_declName_323_, 2);
 lean_dec(v_pre_324_);
+lean_dec_ref_known(v_declName_323_, 2);
 lean_dec_ref_known(v_fn_321_, 2);
 lean_dec_ref_known(v_fn_320_, 2);
 lean_dec_ref_known(v_target_319_, 2);
@@ -1527,8 +1527,8 @@ goto v___jp_306_;
 }
 else
 {
-lean_dec_ref_known(v_fn_320_, 2);
 lean_dec_ref(v_fn_321_);
+lean_dec_ref_known(v_fn_320_, 2);
 lean_dec_ref_known(v_target_319_, 2);
 lean_dec(v_val_318_);
 lean_dec(v_mvar_300_);
@@ -1541,8 +1541,8 @@ goto v___jp_306_;
 }
 else
 {
-lean_dec_ref(v_fn_320_);
 lean_dec_ref_known(v_target_319_, 2);
+lean_dec_ref(v_fn_320_);
 lean_dec(v_val_318_);
 lean_dec(v_mvar_300_);
 v___y_307_ = v_a_301_;
@@ -2109,11 +2109,13 @@ return v_res_695_;
 }
 lean_object* runtime_initialize_Std_Tactic_Do_Syntax(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Do_ProofMode_MGoal(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic_Do_ProofMode_Constructor(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Tactic_Do_Syntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

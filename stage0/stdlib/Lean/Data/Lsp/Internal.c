@@ -10584,9 +10584,9 @@ goto v___jp_2646_;
 v___jp_2635_:
 {
 lean_object* v___x_2639_; lean_object* v___x_2641_; 
-v___x_2639_ = lean_nat_add(v___y_2637_, v___y_2638_);
+v___x_2639_ = lean_nat_add(v___y_2636_, v___y_2638_);
 lean_dec(v___y_2638_);
-lean_dec(v___y_2637_);
+lean_dec(v___y_2636_);
 if (v_isShared_2632_ == 0)
 {
 lean_ctor_set(v___x_2631_, 4, v_r_2609_);
@@ -10615,7 +10615,7 @@ lean_object* v___x_2643_;
 if (v_isShared_2620_ == 0)
 {
 lean_ctor_set(v___x_2619_, 4, v___x_2641_);
-lean_ctor_set(v___x_2619_, 3, v___y_2636_);
+lean_ctor_set(v___x_2619_, 3, v___y_2637_);
 lean_ctor_set(v___x_2619_, 2, v_v_2623_);
 lean_ctor_set(v___x_2619_, 1, v_k_2622_);
 lean_ctor_set(v___x_2619_, 0, v___x_2634_);
@@ -10629,7 +10629,7 @@ v_reuseFailAlloc_2644_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_2644_, 0, v___x_2634_);
 lean_ctor_set(v_reuseFailAlloc_2644_, 1, v_k_2622_);
 lean_ctor_set(v_reuseFailAlloc_2644_, 2, v_v_2623_);
-lean_ctor_set(v_reuseFailAlloc_2644_, 3, v___y_2636_);
+lean_ctor_set(v_reuseFailAlloc_2644_, 3, v___y_2637_);
 lean_ctor_set(v_reuseFailAlloc_2644_, 4, v___x_2641_);
 v___x_2643_ = v_reuseFailAlloc_2644_;
 goto v_reusejp_2642_;
@@ -10674,8 +10674,8 @@ if (lean_obj_tag(v_r_2625_) == 0)
 lean_object* v_size_2652_; 
 v_size_2652_ = lean_ctor_get(v_r_2625_, 0);
 lean_inc(v_size_2652_);
-v___y_2636_ = v___x_2650_;
-v___y_2637_ = v___x_2651_;
+v___y_2636_ = v___x_2651_;
+v___y_2637_ = v___x_2650_;
 v___y_2638_ = v_size_2652_;
 goto v___jp_2635_;
 }
@@ -10683,8 +10683,8 @@ else
 {
 lean_object* v___x_2653_; 
 v___x_2653_ = lean_unsigned_to_nat(0u);
-v___y_2636_ = v___x_2650_;
-v___y_2637_ = v___x_2651_;
+v___y_2636_ = v___x_2651_;
+v___y_2637_ = v___x_2650_;
 v___y_2638_ = v___x_2653_;
 goto v___jp_2635_;
 }
@@ -19536,11 +19536,13 @@ lean_object* runtime_initialize_Lean_Data_JsonRpc(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_DeclarationRange(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_GetLit(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Data_Lsp_Internal(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Data_Lsp_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -29,6 +29,9 @@ structure SimplePersistentEnvExtensionDescr (α σ : Type) where
     Option (Environment → σ → List α → OLeanEntries (Array α)) := none
   asyncMode     : EnvExtension.AsyncMode := .mainOnly
   replay?       : Option ((newEntries : List α) → (newState : σ) → σ → List α × σ) := none
+  /-- See `EnvExtension.trackGen`. -/
+  synthCovered  : Bool := false
+
 
 /--
 Returns a function suitable for `SimplePersistentEnvExtensionDescr.replay?` that replays all new
@@ -53,6 +56,7 @@ def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : 
       | none    => .uniform (descr.toArrayFn s.1.reverse)
     statsFn := fun s => format "number of local entries: " ++ format s.1.length
     asyncMode := descr.asyncMode
+    synthCovered := descr.synthCovered
     replay? := descr.replay?.map fun replay oldState newState _ (entries, s) =>
       let newEntries := newState.1.take (newState.1.length - oldState.1.length)
       let (newEntries, s) := replay newEntries newState.2 s
@@ -90,9 +94,11 @@ end SimplePersistentEnvExtension
 @[expose] def TagDeclarationExtension := SimplePersistentEnvExtension Name NameSet
 
 def mkTagDeclarationExtension (name : Name := by exact decl_name%)
-  (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO TagDeclarationExtension :=
+  (asyncMode : EnvExtension.AsyncMode := .mainOnly)
+  (synthCovered : Bool := false) : IO TagDeclarationExtension :=
   registerSimplePersistentEnvExtension {
     name          := name,
+    synthCovered  := synthCovered,
     addImportedFn := fun _ => {},
     addEntryFn    := fun s n => s.insert n,
     toArrayFn     := fun es => es.toArray.qsort Name.quickLt
@@ -113,7 +119,12 @@ def tag (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : 
   else
     have : Inhabited Environment := ⟨env⟩
     assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `TagDeclarationExtension`
-    ext.addEntry (asyncDecl := declName) env declName
+    if ext.getState (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl := declName) env
+        |>.contains declName then
+      env -- idempotent re-tag: no observable change, nothing to record
+    else
+      let env := if ext.toEnvExtension.synthCovered then env.logSynthChange declName else env
+      ext.addEntry (asyncDecl := declName) env declName
 
 def isTagged (ext : TagDeclarationExtension) (env : Environment) (declName : Name)
     (asyncMode := ext.toEnvExtension.asyncMode) : Bool :=
@@ -131,14 +142,17 @@ deriving Inhabited
 
 def mkMapDeclarationExtension (name : Name := by exact decl_name%)
     (asyncMode : EnvExtension.AsyncMode := .async .mainEnv)
+    (synthCovered : Bool := false)
     (exportEntriesFn : Environment → NameMap α → OLeanEntries (Array (Name × α)) :=
       -- Do not export info for private defs by default
       fun env s =>
         let all := s.toArray.filter (fun (n, _) => env.contains (skipRealize := false) n)
-        .uniform all) :
+        .uniform all)
+    :
     IO (MapDeclarationExtension α) :=
   .mk <$> registerPersistentEnvExtension {
     name            := name,
+    synthCovered    := synthCovered,
     mkInitial       := pure {}
     addImportedFn   := fun _ => pure {}
     addEntryFn      := fun s (n, v) => s.insert n v
@@ -153,15 +167,29 @@ def mkMapDeclarationExtension (name : Name := by exact decl_name%)
 
 namespace MapDeclarationExtension
 
-def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) (val : α) : Environment :=
+def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) (val : α)
+    (allowOverwrite := false) : Environment :=
   have : Inhabited Environment := ⟨env⟩
   if let some modIdx := env.getModuleIdxFor? declName then -- See comment at `MapDeclarationExtension`
     panic! s!"cannot insert `{declName}` into `{ext.name}`, it is not defined in the current module but in `{env.allImportedModuleNames[modIdx]!}`"
+  -- Write-once guard: type class resolution cache coverage claims for declaration-keyed
+  -- extensions rest on entries being immutable once written (`EnvExtension.trackGen`). Sites
+  -- that legitimately update an entry must say so (`allowOverwrite`), with a justification.
+  else if !allowOverwrite &&
+      (ext.toPersistentEnvExtension.getState (asyncDecl := declName) env
+        |>.contains declName) then
+    panic! s!"cannot insert `{declName}` into `{ext.name}`, it is already present; \
+      declaration-keyed extension entries are immutable once written (pass \
+      `allowOverwrite := true` with a justification if this update is intended)"
   else
+    -- only covered extensions participate in resolution-cache validation; see
+    -- `Environment.synthChangeLog`
+    let env := if ext.toEnvExtension.synthCovered then env.logSynthChange declName else env
     ext.addEntry (asyncDecl := declName) env (declName, val)
 
 def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name)
-    (asyncMode := ext.toEnvExtension.asyncMode) (level := OLeanLevel.exported) : Option α :=
+    (asyncMode := ext.toEnvExtension.asyncMode) (level := OLeanLevel.exported)
+    : Option α :=
   match env.getModuleIdxFor? declName with
   | some modIdx =>
     match (ext.getModuleEntries (level := level) env modIdx).binSearch (declName, default) (fun a b => Name.quickLt a.1 b.1) with
@@ -169,7 +197,8 @@ def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) 
     | none   => none
   | none => (ext.getState (asyncMode := asyncMode) (asyncDecl := declName) env).find? declName
 
-def contains [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Bool :=
+def contains [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name)
+    : Bool :=
   match env.getModuleIdxFor? declName with
   | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains (declName, default) (fun a b => Name.quickLt a.1 b.1)
   | none        => (ext.getState (asyncDecl := declName) env).contains declName

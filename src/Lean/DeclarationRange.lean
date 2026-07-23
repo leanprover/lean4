@@ -29,7 +29,9 @@ def addDeclarationRanges [Monad m] [MonadEnv m] (declName : Name) (declRanges : 
   if declName.isAnonymous then
     -- This can happen on elaboration of partial syntax and would panic in `modifyState` otherwise
     return
-  modifyEnv fun env => declRangeExt.insert env declName declRanges
+  -- position metadata, not resolution-relevant: later writes legitimately refine earlier ones
+  -- (e.g. structure elaboration re-reports its generated declarations)
+  modifyEnv fun env => declRangeExt.insert env declName declRanges (allowOverwrite := true)
 
 def findDeclarationRangesCore? [Monad m] [MonadEnv m] (declName : Name) : m (Option DeclarationRanges) :=
   -- In the case of private definitions imported via `import all`, looking in `.olean.server` is not

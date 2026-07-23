@@ -14,7 +14,7 @@ public section
 namespace Std
 namespace Time
 
-open Internal
+open Time.Internal
 
 /--
 Represents a date and time with timezone information.

@@ -106,7 +106,8 @@ def resetTraceState : m Unit :=
   opts.hasTrace && go (`trace ++ cls)
 where
   go (opt : Name) : Bool :=
-    if let some enabled := opts.get? opt then
+    -- unrestricted read: trace collection cannot influence a cached resolution result
+    if let some enabled := (opts.findUnrestricted? opt).bind KVMap.Value.ofDataValue? then
       enabled
     else if let .str parent _ := opt then
       inherited.contains opt && go parent
@@ -211,7 +212,7 @@ True if the `trace.profiler` data should be retained for export - either to a fi
 that would otherwise consume the trace state as messages must leave it intact.
 -/
 @[inline] def trace.profiler.isExporting (opts : Options) : Bool :=
-  (trace.profiler.output.get? opts).isSome || trace.profiler.serve.get opts
+  (opts.findUnrestricted? trace.profiler.output.name).isSome || trace.profiler.serve.getUnrestricted opts
 
 register_builtin_option trace.profiler.output.pp : Bool := {
   defValue := false
@@ -224,7 +225,7 @@ invocations, which is the common case."
 
 @[inline] private def withStartStop [Monad m] [MonadLiftT BaseIO m] (opts : Options) (act : m α) :
     m (α × Float × Float) := do
-  if trace.profiler.useHeartbeats.get opts then
+  if trace.profiler.useHeartbeats.getUnrestricted opts then
     let start ← IO.getNumHeartbeats
     let a ← act
     let stop ← IO.getNumHeartbeats
@@ -236,11 +237,11 @@ invocations, which is the common case."
     return (a, start.toFloat / 1000000000, stop.toFloat / 1000000000)
 
 @[inline] def trace.profiler.threshold.unitAdjusted (o : Options) : Float :=
-  if trace.profiler.useHeartbeats.get o then
-    (trace.profiler.threshold.get o).toFloat
+  if trace.profiler.useHeartbeats.getUnrestricted o then
+    (trace.profiler.threshold.getUnrestricted o).toFloat
   else
     -- milliseconds to seconds
-    (trace.profiler.threshold.get o).toFloat / 1000
+    (trace.profiler.threshold.getUnrestricted o).toFloat / 1000
 
 /--
 `MonadExcept` variant that is expected to catch all exceptions of the given type in case the
@@ -336,7 +337,7 @@ def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m]
   if !opts.hasTrace then
     return (← k)
   let clsEnabled ← isTracingEnabledFor cls
-  unless clsEnabled || trace.profiler.get opts do
+  unless clsEnabled || trace.profiler.getUnrestricted opts do
     return (← k)
   let oldTraces ← getResetTraces
   let resStartStop ← withStartStop opts <| let _ := always.except; observing k
@@ -345,7 +346,7 @@ where
   postCallback (opts : Options) (clsEnabled oldTraces msg resStartStop) : m α := do
     let _ := always.except
     let (res, start, stop) := resStartStop
-    let aboveThresh := trace.profiler.get opts &&
+    let aboveThresh := trace.profiler.getUnrestricted opts &&
       stop - start > trace.profiler.threshold.unitAdjusted opts
     unless clsEnabled || aboveThresh do
       modifyTraces (oldTraces ++ ·)
@@ -354,7 +355,7 @@ where
     let mut m ← try msg res catch _ => pure m!"<exception thrown while producing trace node message>"
     let result := res.toTraceResult
     let mut data : TraceData := { cls, collapsed, tag, result? := some result }
-    if trace.profiler.get opts then
+    if trace.profiler.getUnrestricted opts then
       data := { data with startTime := start, stopTime := stop }
     addTraceNode oldTraces data ref m
     MonadExcept.ofExcept res
@@ -419,7 +420,7 @@ def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
   if !opts.hasTrace then
     return (← k)
   let clsEnabled ← isTracingEnabledFor cls
-  unless clsEnabled || trace.profiler.get opts do
+  unless clsEnabled || trace.profiler.getUnrestricted opts do
     return (← k)
   let oldTraces ← getResetTraces
   let ref ← getRef
@@ -431,7 +432,7 @@ where
   postCallback (opts : Options) (clsEnabled oldTraces ref msg resStartStop) : m α := do
     let _ := always.except
     let (res, start, stop) := resStartStop
-    let aboveThresh := trace.profiler.get opts &&
+    let aboveThresh := trace.profiler.getUnrestricted opts &&
       stop - start > trace.profiler.threshold.unitAdjusted opts
     unless clsEnabled || aboveThresh do
       modifyTraces (oldTraces ++ ·)
@@ -439,7 +440,7 @@ where
     let result := res.toTraceResult
     let mut msg := msg
     let mut data : TraceData := { cls, collapsed, tag, result? := some result }
-    if trace.profiler.get opts then
+    if trace.profiler.getUnrestricted opts then
       data := { data with startTime := start, stopTime := stop }
     addTraceNode oldTraces data ref msg
     MonadExcept.ofExcept res

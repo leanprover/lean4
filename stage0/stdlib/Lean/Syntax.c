@@ -3927,8 +3927,8 @@ return v___x_1053_;
 }
 else
 {
-lean_dec_ref_known(v_x_1019_, 4);
 lean_dec(v_info_1040_);
+lean_dec_ref_known(v_x_1019_, 4);
 v___y_1022_ = v_a_1020_;
 goto v___jp_1021_;
 }
@@ -7780,8 +7780,8 @@ v___x_2293_ = ((lean_object*)(l_Lean_Syntax_mkAntiquotNode___closed__2));
 v___x_2294_ = l_Lean_Name_append(v___x_2292_, v___x_2293_);
 v___x_2295_ = lean_obj_once(&l_Lean_Syntax_mkAntiquotNode___closed__3, &l_Lean_Syntax_mkAntiquotNode___closed__3_once, _init_l_Lean_Syntax_mkAntiquotNode___closed__3);
 v___x_2296_ = lean_array_push(v___x_2295_, v_nesting_2287_);
-v___x_2297_ = lean_array_push(v___x_2296_, v___y_2289_);
-v___x_2298_ = lean_array_push(v___x_2297_, v___y_2290_);
+v___x_2297_ = lean_array_push(v___x_2296_, v___y_2290_);
+v___x_2298_ = lean_array_push(v___x_2297_, v___y_2289_);
 v___x_2299_ = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(v___x_2299_, 0, v___x_2286_);
 lean_ctor_set(v___x_2299_, 1, v___x_2294_);
@@ -7794,8 +7794,8 @@ if (v_isPseudoKind_2282_ == 0)
 {
 lean_object* v___x_2303_; 
 v___x_2303_ = lean_box(0);
-v___y_2289_ = v___y_2301_;
-v___y_2290_ = v___y_2302_;
+v___y_2289_ = v___y_2302_;
+v___y_2290_ = v___y_2301_;
 v___y_2291_ = v___x_2303_;
 goto v___jp_2288_;
 }
@@ -7803,8 +7803,8 @@ else
 {
 lean_object* v___x_2304_; 
 v___x_2304_ = ((lean_object*)(l_Lean_Syntax_mkAntiquotNode___closed__5));
-v___y_2289_ = v___y_2301_;
-v___y_2290_ = v___y_2302_;
+v___y_2289_ = v___y_2302_;
+v___y_2290_ = v___y_2301_;
 v___y_2291_ = v___x_2304_;
 goto v___jp_2288_;
 }
@@ -9154,11 +9154,13 @@ lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t bu
 lean_object* runtime_initialize_Init_Data_ToString_Macro(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 lean_object* runtime_initialize_Init_Syntax(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Syntax(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Slice(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

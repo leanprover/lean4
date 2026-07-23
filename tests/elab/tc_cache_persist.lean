@@ -3,9 +3,9 @@ Tests that the type class resolution cache persists across commands, is reset wh
 added or erased, and keys entries by the set of activated scoped instances and of local
 instances.
 
-Since cache fills mutate a ref instead of the environment, they survive environment rollbacks;
-in particular `example`s (which are elaborated inside `withoutModifyingEnv`) contribute entries
-as well.
+Persistent cache fills are environment modifications, so they are rolled back together with the
+environment; in particular `example`s (which are elaborated inside `withoutModifyingEnv`) can
+read the cache but do not contribute new entries to it.
 -/
 
 set_option trace.Meta.synthInstance.cache true
@@ -151,8 +151,8 @@ trace: [Meta.synthInstance.cache] new: Eoo Nat
 #guard_msgs in
 def e3 : Unit := let _ : Eoo Nat := inferInstance; ()
 
--- `example`s contribute cache entries: their environment changes are reverted, but cache fills
--- survive.
+-- `example`s do not contribute cache entries: their environment changes, including cache fills,
+-- are reverted.
 class Foo (α : Type) where
 
 instance : Foo Nat := ⟨⟩
@@ -161,9 +161,13 @@ instance : Foo Nat := ⟨⟩
 #guard_msgs in
 example : Foo Nat := inferInstance
 
-/-- trace: [Meta.synthInstance.cache] cached: Foo Nat -/
+/-- trace: [Meta.synthInstance.cache] new: Foo Nat -/
 #guard_msgs in
 def f1 : Unit := let _ : Foo Nat := inferInstance; ()
+
+/-- trace: [Meta.synthInstance.cache] cached: Foo Nat -/
+#guard_msgs in
+def f2 : Unit := let _ : Foo Nat := inferInstance; ()
 
 -- `synthInstance.maxSize` is part of the cache key, so cached results (in particular failures)
 -- obtained under a different size limit are not reused.

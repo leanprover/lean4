@@ -1057,10 +1057,10 @@ and do not affect subsequent commands.
 *Warning:* when using this from `MetaM` monads, the `Meta.Cache` caches are *not* reset.
 While the `modifyEnv` function for `MetaM` clears its caches entirely,
 `liftCommandElabM` has no way to reset these caches.
-The type class resolution cache is reset automatically if the command adds or erases instances,
-and scoped instance activation is accounted for in the cache key, but for other changes affecting
-typeclass resolution (e.g. reducibility attributes of pre-existing declarations) you should use
-`Lean.Meta.resetSynthInstanceCache`.
+The type class resolution cache is unaffected by this: its entries record their dependencies
+and self-invalidate when the command changes them (e.g. by adding instances or changing
+reducibility attributes). Other `Meta.Cache` components (e.g. the `whnf` and `isDefEq` caches)
+can however retain results invalidated by the command's environment changes.
 -/
 def liftCommandElabM (cmd : CommandElabM α) (throwOnError : Bool := true) : CoreM α := do
   -- `observing` ensures that if `cmd` throws an exception we still thread state back to `CoreM`.

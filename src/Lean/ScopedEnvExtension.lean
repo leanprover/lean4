@@ -40,6 +40,8 @@ structure Descr (α : Type) (β : Type) (σ : Type) where
   addEntry       : σ → β → σ
   finalizeImport : σ → σ := id
   exportEntry?   : Environment → α → OLeanEntries (Option α) := fun _ a => .uniform (some a)
+  /-- See `EnvExtension.tcResolutionAccess`. -/
+  tcResolutionAccess : EnvExtension.TCResolutionAccess := .deny
 
 instance [Inhabited α] : Inhabited (Descr α β σ) where
   default := {
@@ -135,6 +137,7 @@ unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (Scope
     -- `AsyncMode.local` below). Allowing the latter is important for tactics such as -- `classical`
     -- or `open in`.
     asyncMode       := .mainOnly
+    tcResolutionAccess := descr.tcResolutionAccess
   }
   let ext := { descr := descr, ext := ext : ScopedEnvExtension α β σ }
   scopedEnvExtensionsRef.modify fun exts => exts.push (unsafeCast ext)
@@ -143,14 +146,22 @@ unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (Scope
 @[implemented_by registerScopedEnvExtensionUnsafe]
 opaque registerScopedEnvExtension (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ)
 
+/-
+The scope-stack operations (`pushScope`/`popScope`/`setDelimitsLocal`/`activateScoped`) preserve
+the generation of `.recorded` extensions (`keepTCGen`): for the type class resolution cache,
+scope activation state is part of the cache key (`SynthInstanceCacheKey.activeScopedInsts`),
+and entries computed with local entries in scope are keyed or documented as requiring an
+explicit reset (see `Lean.Meta.resetSynthInstanceCache`). Content changes (`addEntry` and
+friends) bump the generation as usual.
+-/
 def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
-  ext.ext.modifyState (asyncMode := .local) env fun s =>
+  ext.ext.modifyState (asyncMode := .local) (keepTCGen := true) env fun s =>
     match s.stateStack with
     | [] => s
     | state :: stack => { s with stateStack := { state with delimitsLocal := true } :: state :: stack }
 
 def ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
-  ext.ext.modifyState (asyncMode := .local) env fun s =>
+  ext.ext.modifyState (asyncMode := .local) (keepTCGen := true) env fun s =>
     match s.stateStack with
     | _      :: state₂ :: stack => { s with stateStack := state₂ :: stack }
     | _ => s
@@ -160,7 +171,7 @@ to turn off delimiting of local entries across multiple implicit scope levels
 (e.g. those introduced by compound `namespace A.B.C` expansions).
 -/
 def ScopedEnvExtension.setDelimitsLocal (ext : ScopedEnvExtension α β σ) (env : Environment) (depth : Nat) : Environment :=
-  ext.ext.modifyState (asyncMode := .local) env fun s =>
+  ext.ext.modifyState (asyncMode := .local) (keepTCGen := true) env fun s =>
     {s with stateStack := go depth s.stateStack}
 where
   go : Nat → List (State σ) → List (State σ)
@@ -222,7 +233,7 @@ def ScopedEnvExtension.getActiveScopesWithEntries (ext : ScopedEnvExtension α �
   | _ => #[]
 
 def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) : Environment :=
-  ext.ext.modifyState (asyncMode := .local) env fun s =>
+  ext.ext.modifyState (asyncMode := .local) (keepTCGen := true) env fun s =>
     match s.stateStack with
     | top :: stack =>
       if top.activeScopes.contains namespaceName then
@@ -274,6 +285,8 @@ structure SimpleScopedEnvExtension.Descr (α : Type) (σ : Type) where
   initial        : σ
   finalizeImport : σ → σ := id
   exportEntry?   : Environment → α → OLeanEntries (Option α) := fun _ a => .uniform (some a)
+  /-- See `EnvExtension.tcResolutionAccess`. -/
+  tcResolutionAccess : EnvExtension.TCResolutionAccess := .deny
 
 def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α σ) : IO (SimpleScopedEnvExtension α σ) := do
   registerScopedEnvExtension {
@@ -284,6 +297,7 @@ def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α 
     ofOLeanEntry   := fun _ a => return a
     finalizeImport := descr.finalizeImport
     exportEntry?   := descr.exportEntry?
+    tcResolutionAccess := descr.tcResolutionAccess
   }
 
 end Lean

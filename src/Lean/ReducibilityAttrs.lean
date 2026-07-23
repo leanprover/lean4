@@ -51,6 +51,8 @@ def ReducibilityStatus.toAttrString : ReducibilityStatus → String
 builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × ReducibilityStatus) (Name × ReducibilityStatus) (NameMap ReducibilityStatus) ←
   registerPersistentEnvExtension {
     name            := `reducibilityCore
+    -- resolution-path reads are recorded per declaration by `getReducibilityStatusCore`
+    tcResolutionAccess := .exempt
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameMap ReducibilityStatus) (p : Name × ReducibilityStatus) => s.insert p.1 p.2
@@ -71,21 +73,101 @@ builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × Reducib
 builtin_initialize reducibilityExtraExt : SimpleScopedEnvExtension (Name × ReducibilityStatus) (SMap Name ReducibilityStatus) ←
   registerSimpleScopedEnvExtension {
     name := `reducibilityExtra
+    -- resolution-path reads are recorded per declaration by `getReducibilityStatusCore`
+    tcResolutionAccess := .exempt
     initial := {}
     addEntry := fun d (declName, status) => d.insert declName status
     finalizeImport := fun d => d.switch
   }
 
+/--
+Log of declarations whose reducibility status was changed by a reducibility attribute
+application (`addAttr`), in application order; this includes declaration-time applications
+(`@[reducible] def f`). A type class resolution query captures the log's size when it starts
+(`SynthEnvDeps.reducibilityGen`) and summarizes the declarations whose status it observes in a
+Bloom filter (`SynthEnvDeps.reducibilityBloom0` and friends). Cache entry validation tests the
+declarations the log gained since the entry's captured size against the entry's filter: a clear
+bit proves the changed declaration was not consulted by the entry's search, so the entry
+revalidates and is re-stamped with the current size; a set bit (in particular for a genuinely
+consulted declaration) conservatively invalidates the entry.
+
+Branch-local (`AsyncMode.local`), like the resolution cache itself. Declaration-time status
+assignments via `setReducibilityStatus` do not append to it: a declaration's initial status
+cannot have been observed by any pre-existing cache entry, as no query can have asked about the
+declaration before it existed.
+-/
+builtin_initialize reducibilityChangeLogExt : EnvExtension (Array Name) ←
+  registerEnvExtension (pure #[]) (asyncMode := .local) (name := `reducibilityChangeLog)
+    (tcResolutionAccess := .exempt)
+
+/-- The Bloom filter bit for `declName`: `(word index, bit mask)`; see `reducibilityChangeLogExt`. -/
+@[inline] def reducibilityDepBloom (declName : Name) : Nat × UInt64 :=
+  let h := declName.hash
+  ((h >>> 6).toNat &&& 3, 1 <<< (h &&& 63))
+
+private unsafe def recordStatusUnsafe (env : Environment) (declName : Name) (status : ReducibilityStatus) : ReducibilityStatus :=
+  match env.synthEnvDepsRef? with
+  | none => status
+  | some sink =>
+    -- benign effect: recording the observed declaration into the armed query's accumulator
+    unsafeBaseIO do
+      let d ← sink.get
+      let (w, bit) := reducibilityDepBloom declName
+      match w with
+      | 0 => unless d.reducibilityBloom0 &&& bit != 0 do sink.set { d with reducibilityBloom0 := d.reducibilityBloom0 ||| bit }
+      | 1 => unless d.reducibilityBloom1 &&& bit != 0 do sink.set { d with reducibilityBloom1 := d.reducibilityBloom1 ||| bit }
+      | 2 => unless d.reducibilityBloom2 &&& bit != 0 do sink.set { d with reducibilityBloom2 := d.reducibilityBloom2 ||| bit }
+      | _ => unless d.reducibilityBloom3 &&& bit != 0 do sink.set { d with reducibilityBloom3 := d.reducibilityBloom3 ||| bit }
+      return status
+
+/--
+Records `declName ↦ status` as a dependency of the type class resolution query in progress, if
+any; see `reducibilityChangedExt`. Returns `status` so the recording cannot be optimized away.
+-/
+@[implemented_by recordStatusUnsafe]
+private opaque recordStatus (env : Environment) (declName : Name) (status : ReducibilityStatus) : ReducibilityStatus
+
 def getReducibilityStatusCore (env : Environment) (declName : Name) : ReducibilityStatus :=
-  let m := reducibilityExtraExt.getState env
-  if let some status := m.find? declName then
+  let status :=
+    let m := reducibilityExtraExt.getState env
+    if let some status := m.find? declName then
+      status
+    else match env.getModuleIdxFor? declName with
+    | some modIdx =>
+      match (reducibilityCoreExt.getModuleEntries env modIdx).binSearch (declName, .semireducible) (fun a b => Name.quickLt a.1 b.1) with
+      | some (_, status) => status
+      | none => .semireducible
+    | none => (reducibilityCoreExt.getState (asyncDecl := declName) env).find? declName |>.getD .semireducible
+  -- fast path: outside a resolution query (no armed sink), skip the out-of-line recorder
+  if env.synthEnvDepsRef?.isSome then
+    recordStatus env declName status
+  else
     status
-  else match env.getModuleIdxFor? declName with
-  | some modIdx =>
-    match (reducibilityCoreExt.getModuleEntries env modIdx).binSearch (declName, .semireducible) (fun a b => Name.quickLt a.1 b.1) with
-    | some (_, status) => status
-    | none => .semireducible
-  | none => (reducibilityCoreExt.getState (asyncDecl := declName) env).find? declName |>.getD .semireducible
+
+/--
+Validates the reducibility dependencies of a type class resolution cache entry: given the log
+size the entry was stamped with and its Bloom filter words, returns the current log size if the
+entry is still valid (the caller re-stamps the entry when it grew), or `none` if a declaration
+appended since the stamp hits the filter; see `reducibilityChangeLogExt`.
+-/
+def checkReducibilityDeps? (env : Environment) (fromGen : Nat)
+    (bloom0 bloom1 bloom2 bloom3 : UInt64) : Option Nat := Id.run do
+  let log := reducibilityChangeLogExt.getState env
+  if fromGen == log.size then
+    return some fromGen
+  if fromGen > log.size then
+    -- cannot happen (the log and the cache roll back together); be conservative
+    return none
+  for declName in log[fromGen:log.size] do
+    let (w, bit) := reducibilityDepBloom declName
+    let word := match w with
+      | 0 => bloom0
+      | 1 => bloom1
+      | 2 => bloom2
+      | _ => bloom3
+    if word &&& bit != 0 then
+      return none
+  return some log.size
 
 private def setReducibilityStatusCore (env : Environment) (declName : Name) (status : ReducibilityStatus) (attrKind : AttributeKind) (currNamespace : Name) : Environment :=
   if attrKind matches .global then
@@ -182,6 +264,11 @@ private def addAttr (status : ReducibilityStatus) (declName : Name) (stx : Synta
   validate declName status attrKind
   let ns ← getCurrNamespace
   modifyEnv fun env => setReducibilityStatusCore env declName status attrKind ns
+  -- Reducibility determines what `isDefEq` may unfold, so a status change can invalidate cached
+  -- type class resolution results computed under the old status. Appending to the change log
+  -- makes cache entries whose search may have observed the declaration invalid, and all other
+  -- entries re-validate on next use; see `reducibilityChangeLogExt`.
+  modifyEnv (reducibilityChangeLogExt.modifyState · (·.push declName))
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -256,7 +343,13 @@ builtin_initialize
 def getReducibilityStatus [Monad m] [MonadEnv m] (declName : Name) : m ReducibilityStatus := do
   return getReducibilityStatusCore (← getEnv) declName
 
-/-- Set the reducibility attribute for the given declaration. -/
+/--
+Set the reducibility attribute for the given declaration.
+
+Note: does not bump the reducibility change counter (`reducibilityChangedExt`). Use only for
+declarations created by the caller itself (before other code can have cached results about
+them); status changes to pre-existing declarations must go through the reducibility attributes.
+-/
 def setReducibilityStatus [MonadEnv m] (declName : Name) (s : ReducibilityStatus) : m Unit :=
   modifyEnv fun env => setReducibilityStatusCore env declName s .global .anonymous
 

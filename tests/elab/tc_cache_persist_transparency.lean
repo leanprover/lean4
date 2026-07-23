@@ -1,9 +1,10 @@
 /-!
-Tests that the type class resolution cache keys entries by the `backward.isDefEq.respectTransparency`
-options. They decide whether `isDefEq` bumps the transparency when assigning a metavariable, and so
-which of several definitionally equal terms an instance's implicit arguments are assigned. Since the
-cache persists across commands, entries synthesized under one setting must not be reused under
-another.
+Tests option-dependency recording on the `backward.isDefEq.respectTransparency` options, which
+decide whether `isDefEq` bumps the transparency when assigning a metavariable. They belong to the
+per-query resolved flags (`Lean.Meta.SynthDefEqFlags`): every query records them up front, so
+toggling them partitions the cache regardless of whether the search reached the corresponding
+reads. See `tc_cache_options_key.lean` for a lazily recorded option that only partitions the
+queries that read it.
 -/
 
 set_option trace.Meta.synthInstance.cache true
@@ -16,7 +17,7 @@ instance fooNat : Foo Nat := ⟨⟩
 #guard_msgs in
 def a1 : Unit := let _ : Foo Nat := inferInstance; ()
 
--- A different `backward.isDefEq.respectTransparency` partitions the key.
+-- A different `backward.isDefEq.respectTransparency` partitions the cache.
 set_option backward.isDefEq.respectTransparency false in
 /-- trace: [Meta.synthInstance.cache] new: Foo Nat -/
 #guard_msgs in
@@ -28,12 +29,11 @@ set_option backward.isDefEq.respectTransparency.types false in
 #guard_msgs in
 def a3 : Unit := let _ : Foo Nat := inferInstance; ()
 
--- Back at the default settings, `a1`'s entry is reused.
+-- The entries of all partitions remain valid.
 /-- trace: [Meta.synthInstance.cache] cached: Foo Nat -/
 #guard_msgs in
 def a4 : Unit := let _ : Foo Nat := inferInstance; ()
 
--- And the scoped settings above are reachable again.
 set_option backward.isDefEq.respectTransparency false in
 /-- trace: [Meta.synthInstance.cache] cached: Foo Nat -/
 #guard_msgs in

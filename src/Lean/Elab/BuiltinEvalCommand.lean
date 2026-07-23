@@ -155,7 +155,6 @@ private def mkFormat (e : Expr) : MetaM Expr := do
         try
           trace[Elab.eval] "Attempting to derive a `Repr` instance for `{.ofConstName name}`"
           liftCommandElabM do applyDerivingHandlers ``Repr #[name]
-          resetSynthInstanceCache
           return ← mkRepr e
         catch ex =>
           trace[Elab.eval] "Failed to use derived `Repr` instance. Exception: {ex.toMessageData}"

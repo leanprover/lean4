@@ -55,15 +55,7 @@ theorem frames_mkFreshNat [Monad m] [Assertion Pred] [Assertion EPred]
     (h : ∀ s a, P { s with fst := a } = P s) :
     WP.Frames (· ⊓ ·) (mkFreshNat : StateT AppState m Nat) P := by
   refine .of_conjunctive (fun E => ?_)
-  -- FIXME: use `vcgen [bumpSnd] with finish` here once the Pattern.match? level bug is fixed
-  intro s
-  unfold mkFreshNat
-  simp only [StateT.wp_apply_eq, StateT.run_bind, StateT.run_get, StateT.run_modify,
-    StateT.run_map, bind_pure_comp, map_pure]
-  refine PartialOrder.rel_trans ?_
-    (WPMonad.pure_le_wp_pure (m := m) (s.fst, s.fst + 1, s.snd) (fun x => P x.snd) E)
-  show P s ⊑ P (s.fst + 1, s.snd)
-  rw [h s (s.fst + 1)]
+  vcgen [mkFreshNat] with finish
 
 /-- `Id`-specialized `frames_mkFreshNat`. With the base monad ground, `grind` can derive a
 usable pattern, so registering it lets `finish` discharge the preservation VC. -/
@@ -114,15 +106,7 @@ theorem frames_mkFreshSnd [Monad m] [Assertion Pred] [Assertion EPred]
     (h : ∀ s a, P { s with snd := a } = P s) :
     WP.Frames (· ⊓ ·) (mkFreshSnd : StateT AppState m Nat) P := by
   refine .of_conjunctive (fun E => ?_)
-  -- FIXME: use `vcgen [bumpSnd] with finish` here once the Pattern.match? level bug is fixed
-  intro s
-  unfold mkFreshSnd
-  simp only [StateT.wp_apply_eq, StateT.run_bind, StateT.run_get, StateT.run_modify,
-    StateT.run_map, bind_pure_comp, map_pure]
-  refine PartialOrder.rel_trans ?_
-    (WPMonad.pure_le_wp_pure (m := m) (s.snd, s.fst, s.snd + 1) (fun x => P x.snd) E)
-  show P s ⊑ P (s.fst, s.snd + 1)
-  rw [h s (s.snd + 1)]
+  vcgen [mkFreshSnd] with finish
 
 /-- `Id`-specialized `frames_mkFreshSnd`, registered so `finish` discharges the preservation VC. -/
 @[grind .]
@@ -180,15 +164,7 @@ theorem frames_addFst [Monad m] [Assertion Pred] [Assertion EPred]
     (h : ∀ s a, P { s with fst := a } = P s) :
     WP.Frames (· ⊓ ·) (addFst k : StateT AppState m Nat) P := by
   refine .of_conjunctive (fun E => ?_)
-  -- FIXME: use `vcgen [bumpSnd] with finish` here once the Pattern.match? level bug is fixed
-  intro s
-  unfold addFst
-  simp only [StateT.wp_apply_eq, StateT.run_bind, StateT.run_get, StateT.run_modify,
-    StateT.run_map, bind_pure_comp, map_pure]
-  refine PartialOrder.rel_trans ?_
-    (WPMonad.pure_le_wp_pure (m := m) (s.fst, s.fst + k, s.snd) (fun x => P x.snd) E)
-  show P s ⊑ P (s.fst + k, s.snd)
-  rw [h s (s.fst + k)]
+  vcgen [addFst] with finish
 
 /-- `Id`-specialized `frames_addFst`, registered so `finish` discharges the preservation VC. -/
 @[grind .]
@@ -230,15 +206,7 @@ theorem frames_bumpSnd {σ : Type} [Monad m] [Assertion Pred] [Assertion EPred]
     (h : ∀ s a, P { s with snd := a } = P s) :
     WP.Frames (· ⊓ ·) (bumpSnd : StateT (σ × Nat) m Nat) P := by
   refine .of_conjunctive (fun E => ?_)
-  -- FIXME: use `vcgen [bumpSnd] with finish` here once the Pattern.match? level bug is fixed
-  intro s
-  unfold bumpSnd
-  simp only [StateT.wp_apply_eq, StateT.run_bind, StateT.run_get, StateT.run_modify,
-    StateT.run_map, bind_pure_comp, map_pure]
-  refine PartialOrder.rel_trans ?_
-    (WPMonad.pure_le_wp_pure (m := m) (s.snd, s.fst, s.snd + 1) (fun x => P x.snd) E)
-  show P s ⊑ P (s.fst, s.snd + 1)
-  rw [h s (s.snd + 1)]
+  vcgen [bumpSnd] with finish
 
 /-- `Id`-specialized `frames_bumpSnd` over an abstract state `σ`, registered so `finish`
 discharges the preservation VC. -/

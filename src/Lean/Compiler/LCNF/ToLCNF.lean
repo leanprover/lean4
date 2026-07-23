@@ -459,8 +459,8 @@ def countProofOverApp (motive : Expr) (maxArgs : Nat) : MetaM Nat := do
   Meta.lambdaTelescope motive fun _ body => do
     Meta.forallTelescope body fun forallVars _ => do
       let n := min maxArgs forallVars.size
-      for h : i in *...n do
-        have h : i < min maxArgs forallVars.size := h
+      for h : i in 0...n do
+        have h : i < min maxArgs forallVars.size := h.2
         unless ← Meta.isProof forallVars[i] do
           return i
       return n

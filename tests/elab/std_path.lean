@@ -42,6 +42,8 @@ section PosixRoundtrip
 #guard Path.ofPosixString "" = none
 -- null byte → none (invalid on every platform)
 #guard Path.ofPosixString "a\x00b" = none
+-- ofPosixString! agrees with ofPosixString on valid input
+#guard Path.ofPosixString! "/usr/local/bin" == posix "/usr/local/bin"
 
 end PosixRoundtrip
 
@@ -80,6 +82,8 @@ section WindowsRoundtrip
 #guard Path.ofWindowsString "" = none
 -- null byte → none (parity with ofPosixString)
 #guard Path.ofWindowsString "a\x00b" = none
+-- ofWindowsString! agrees with ofWindowsString on valid input
+#guard Path.ofWindowsString! "C:\\Users\\foo" == win "C:\\Users\\foo"
 -- UNC paths are not specially recognized: a leading "\\" collapses to a single root
 #guard (win "\\\\server\\share").toWindowsString = "\\server\\share"
 
@@ -251,8 +255,8 @@ end ParentsIter
 section FileInfo
 
 -- fileName
-#guard (posix "/usr/local/bin/lean").fileName = some "lean"
-#guard (posix "archive.tar.gz").fileName = some "archive.tar.gz"
+#guard (posix "/usr/local/bin/lean").fileName = some (Path.Filename.mk "lean")
+#guard (posix "archive.tar.gz").fileName = some (Path.Filename.mk "archive.tar.gz")
 #guard (posix "/").fileName = none
 #guard (posix "a/..").fileName = none
 #guard (posix "a/.").fileName = none
@@ -267,11 +271,11 @@ section FileInfo
 #guard (posix "/").fileStem = none
 
 -- extension
-#guard (posix "Main.lean").extension = some "lean"
-#guard (posix "archive.tar.gz").extension = some "gz"
+#guard (posix "Main.lean").extension = some (Path.Extension.mk "lean")
+#guard (posix "archive.tar.gz").extension = some (Path.Extension.mk "gz")
 #guard (posix "Makefile").extension = none
 #guard (posix ".gitignore").extension = none
-#guard (posix ".hidden.lean").extension = some "lean"
+#guard (posix ".hidden.lean").extension = some (Path.Extension.mk "lean")
 #guard (posix "/").extension = none
 
 -- hasExtension
@@ -280,7 +284,71 @@ section FileInfo
 #guard (posix ".gitignore").hasExtension = false
 #guard (posix "/").hasExtension = false
 
+-- isHidden
+#guard (posix ".gitignore").isHidden = true
+#guard (posix "a/.hidden").isHidden = true
+#guard (posix "foo.txt").isHidden = false
+#guard (posix "Makefile").isHidden = false
+#guard (posix "/").isHidden = false  -- no file name
+#guard (Path.Filename.mk ".gitignore").isHidden = true
+#guard (Path.Filename.mk "foo").isHidden = false
+
 end FileInfo
+
+
+-- ---------------------------------------------------------------------------
+-- Section: Filename.ofString? / ofString! / Extension.ofString? / ofString!
+-- ---------------------------------------------------------------------------
+
+section OfString
+
+-- Filename.ofString?
+#guard Path.Filename.ofString? "lean" = some (Path.Filename.mk "lean")
+#guard Path.Filename.ofString? "" = none
+#guard Path.Filename.ofString? "." = none
+#guard Path.Filename.ofString? ".." = none
+#guard Path.Filename.ofString? "a/b" = none
+#guard Path.Filename.ofString? "a\\b" = none
+#guard Path.Filename.ofString? "a\x00b" = none
+
+-- Filename.ofString!
+#guard Path.Filename.ofString! "lean" = Path.Filename.mk "lean"
+
+-- Extension.ofString?
+#guard Path.Extension.ofString? "lean" = some (Path.Extension.mk "lean")
+#guard Path.Extension.ofString? "" = none
+#guard Path.Extension.ofString? "a.b" = none
+#guard Path.Extension.ofString? "a/b" = none
+#guard Path.Extension.ofString? "a\\b" = none
+#guard Path.Extension.ofString? "a\x00b" = none
+
+-- Extension.ofString!
+#guard Path.Extension.ofString! "lean" = Path.Extension.mk "lean"
+
+end OfString
+
+
+-- ---------------------------------------------------------------------------
+-- Section: Ord instances (Filename, Extension, Path)
+-- ---------------------------------------------------------------------------
+
+section OrdInstances
+
+#guard compare (Path.Filename.mk "a") (Path.Filename.mk "b") = Ordering.lt
+#guard compare (Path.Filename.mk "b") (Path.Filename.mk "a") = Ordering.gt
+#guard compare (Path.Filename.mk "a") (Path.Filename.mk "a") = Ordering.eq
+
+#guard compare (Path.Extension.mk "gz") (Path.Extension.mk "tar") = Ordering.lt
+#guard compare (Path.Extension.mk "tar") (Path.Extension.mk "tar") = Ordering.eq
+
+#guard compare (posix "a") (posix "b") = Ordering.lt
+#guard compare (posix "a/b") (posix "a") = Ordering.gt  -- longer array, common prefix
+#guard compare (posix "a") (posix "a") = Ordering.eq
+
+-- sorting a list of paths
+#guard ((#[posix "c", posix "a", posix "b"]).qsort (compare · · = .lt) |>.map (·.toPosixString)) = #["a", "b", "c"]
+
+end OrdInstances
 
 
 -- ---------------------------------------------------------------------------
@@ -297,16 +365,16 @@ section Suffixes
 #guard (posix "/").suffixes = #[]
 
 -- withStem
-#guard ((posix "a/archive.tar.gz").withStem "backup").toPosixString = "a/backup.tar.gz"
-#guard ((posix "a/foo.txt").withStem "bar").toPosixString = "a/bar.txt"
-#guard ((posix "a/Makefile").withStem "GNUmakefile").toPosixString = "a/GNUmakefile"
+#guard ((posix "a/archive.tar.gz").withStem (Path.Filename.mk "backup")).toPosixString = "a/backup.tar.gz"
+#guard ((posix "a/foo.txt").withStem (.mk "bar")).toPosixString = "a/bar.txt"
+#guard ((posix "a/Makefile").withStem (.mk "GNUmakefile")).toPosixString = "a/GNUmakefile"
 -- invariant: suffixes unchanged
-#guard ((posix "archive.tar.gz").withStem "backup").suffixes =
+#guard ((posix "archive.tar.gz").withStem (Path.Filename.mk "backup")).suffixes =
        (posix "archive.tar.gz").suffixes
 -- dotfile: stem is the whole name (including dot), so withStem replaces entirely
-#guard ((posix ".gitignore").withStem "profile").toPosixString = "profile"
+#guard ((posix ".gitignore").withStem (.mk "profile")).toPosixString = "profile"
 -- dotfile: withExtension appends since fileStem is the whole name and there's no extension
-#guard ((posix ".gitignore").withExtension "bak").toPosixString = ".gitignore.bak"
+#guard ((posix ".gitignore").withExtension (.mk "bak")).toPosixString = ".gitignore.bak"
 
 end Suffixes
 
@@ -317,23 +385,23 @@ end Suffixes
 
 section Modification
 
--- withFileName
-#guard ((posix "a/b/c").withFileName "d").toPosixString = "a/b/d"
-#guard ((posix "/").withFileName "d").toPosixString = "/"  -- no-op on root
-#guard ((posix "a/..").withFileName "d").toPosixString = "a/.."  -- no-op on parent component
+-- setFileName
+#guard ((posix "a/b/c").setFileName (Path.Filename.mk "d")).toPosixString = "a/b/d"
+#guard ((posix "/").setFileName (Path.Filename.mk "d")).toPosixString = "/"  -- no-op on root
+#guard ((posix "a/..").setFileName (Path.Filename.mk "d")).toPosixString = "a/.."  -- no-op on parent component
 -- single-segment relative path: result has no parent prefix
-#guard ((posix "foo").withFileName "bar").toPosixString = "bar"
+#guard ((posix "foo").setFileName (Path.Filename.mk "bar")).toPosixString = "bar"
 
 -- withExtension
-#guard ((posix "a/b.tar.gz").withExtension "xz").toPosixString = "a/b.tar.xz"
-#guard ((posix "a/b.txt").withExtension "lean").toPosixString = "a/b.lean"
-#guard ((posix "a/Makefile").withExtension "bak").toPosixString = "a/Makefile.bak"
-#guard ((posix "/").withExtension "bak").toPosixString = "/"  -- no-op
+#guard ((posix "a/b.tar.gz").withExtension (Path.Extension.mk "xz")).toPosixString = "a/b.tar.xz"
+#guard ((posix "a/b.txt").withExtension (Path.Extension.mk "lean")).toPosixString = "a/b.lean"
+#guard ((posix "a/Makefile").withExtension (Path.Extension.mk "bak")).toPosixString = "a/Makefile.bak"
+#guard ((posix "/").withExtension (Path.Extension.mk "bak")).toPosixString = "/"  -- no-op
 
 -- addExtension
-#guard ((posix "a/b.tar.gz").addExtension "bak").toPosixString = "a/b.tar.gz.bak"
-#guard ((posix "a/Makefile").addExtension "bak").toPosixString = "a/Makefile.bak"
-#guard ((posix "/").addExtension "bak").toPosixString = "/"  -- no-op
+#guard ((posix "a/b.tar.gz").addExtension (Path.Extension.mk "bak")).toPosixString = "a/b.tar.gz.bak"
+#guard ((posix "a/Makefile").addExtension (Path.Extension.mk "bak")).toPosixString = "a/Makefile.bak"
+#guard ((posix "/").addExtension (Path.Extension.mk "bak")).toPosixString = "/"  -- no-op
 
 -- removeExtension
 #guard ((posix "a/b.tar.gz").removeExtension).toPosixString = "a/b.tar"  -- only the last extension
@@ -343,7 +411,7 @@ section Modification
 #guard ((posix ".hidden.lean").removeExtension).toPosixString = ".hidden"
 #guard ((posix "/").removeExtension).toPosixString = "/"  -- no file name: no-op
 -- inverse of addExtension
-#guard ((posix "a/b.txt").addExtension "bak" |>.removeExtension).toPosixString = "a/b.txt"
+#guard ((posix "a/b.txt").addExtension (Path.Extension.mk "bak") |>.removeExtension).toPosixString = "a/b.txt"
 
 end Modification
 

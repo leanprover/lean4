@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Path.Basic
+public import Std.Path.Component
 public import Std.Internal.Parsec.String
 
 public section

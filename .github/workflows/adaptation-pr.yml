@@ -3,7 +3,6 @@ name: Adaptation PR
 
 on:
   pull_request_target:
-    branches: [master]
     types:
       - labeled
       - closed

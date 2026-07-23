@@ -363,9 +363,7 @@ structure SpecTheorems where
   erased : PHashSet SpecProof := {}
   deriving Inhabited
 
-/-- Insert `e`, keeping the higher priority when a spec with the same proof is already stored, so
-re-inserting a spec at a lower band never demotes it. The stored `SpecTheorem` is the single source
-of truth for the priority; `Sym.getMatch` retrieves the current entries for `e`'s program. -/
+/-- Insert `e`, keeping the higher priority when a spec with the same proof is already stored. -/
 def SpecTheorems.insert (d : SpecTheorems) (e : SpecTheorem) : SpecTheorems :=
   let priority := (Sym.getMatch d.specs e.pattern.pattern).foldl (init := e.priority) fun pr s =>
     if s.proof == e.proof then max pr s.priority else pr

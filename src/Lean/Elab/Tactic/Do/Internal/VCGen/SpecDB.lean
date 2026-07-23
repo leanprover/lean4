@@ -104,7 +104,7 @@ public def addSimpSpecs (database : SpecTheorems) (simpThms : SimpTheorems) :
     ++ simpThms.toUnfold.toList.toArray.map (SimpEntry.toUnfold ·)
   for newSpec in ← simpSpecTheorems entries (eval_prio default) do
     specs := Sym.insertPattern specs newSpec.pattern newSpec
-  return { database with specs, erased }
+  return { specs, erased }
 
 end VCGen
 

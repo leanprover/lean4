@@ -62,10 +62,11 @@ each in `State.invariants` (1-based stable index) and try to inline-elaborate
 its matching user alt. Returns the remaining non-invariant subgoals for `work`
 to enqueue. Eager handling here ensures dependent VCs see `?inv` assigned by
 the time they reach `emitVC`. -/
-private def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVarId) := do
+private def handleInvariantSubgoals (subgoals : List (Scope × MVarId)) :
+    VCGenM (Array (Scope × MVarId)) := do
   let env ← getEnv
-  let mut others : Array MVarId := #[]
-  for sg in subgoals do
+  let mut others : Array (Scope × MVarId) := #[]
+  for (scope, sg) in subgoals do
     if isSpecInvariantType env (← sg.getType) then
       let n := (← get).invariants.size + 1
       modify fun s => { s with invariants := s.invariants.push sg }
@@ -74,7 +75,7 @@ private def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVa
       else
         sg.setKind .syntheticOpaque
     else
-      others := others.push sg
+      others := others.push (scope, sg)
   return others
 
 /--
@@ -115,14 +116,13 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
       -- Handle invariant subgoals eagerly here, so that VC subgoals popped
       -- from the worklist later see the invariant MVar already assigned.
       -- Non-invariant subgoals go to the worklist as usual and will eventually go through `emitVC`.
-      let mvarIds ← handleInvariantSubgoals (scopedSubgoals.map Prod.snd)
+      let kept ← handleInvariantSubgoals scopedSubgoals
       let goal ←
-        if mvarIds.size > 1 then
+        if kept.size > 1 then
           processHypotheses goal
         else
           pure goal
-      let kept := scopedSubgoals.filter (fun (_, mv) => mvarIds.contains mv)
-      worklist := worklist ++ kept.reverse.toArray.map (fun (scope, mv) =>
+      worklist := worklist ++ kept.reverse.map (fun (scope, mv) =>
         { goal := { goal with mvarId := mv }, scope })
   finalizeJPs
 

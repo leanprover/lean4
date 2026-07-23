@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Elab.Tactic.Do.VCGen.Basic
-public import Lean.Elab.Tactic.Do.VCGen.Split
 public import Lean.Elab.Tactic.Do.Internal.VCGen.SpecDB
 public import Lean.Elab.Tactic.Do.Internal.VCGen.FrameProc
 public import Lean.Meta.Sym.Apply
@@ -165,19 +164,11 @@ public structure JPDefInfo where
   /-- Per-alt synthetic-opaque precondition mvars. Each has type
   `(joinParams ++ altParams) → Prop`, assigned by `finalizeJPs`. -/
   hypsMVars : Array MVarId
-  /-- The join point's continuation splitter; its discriminant selects the alt at each jump site. -/
-  splitInfo : Lean.Elab.Tactic.Do.SplitInfo
   /-- Size of the local context at the JP definition site. Locals introduced beyond this index
   are alt-local and get existentially closed when building the jump-site `φ`. -/
   outerLCtxSize : Nat
   /-- Per-alt binder layouts, aligned with `hypsMVars`. -/
   altLayouts : Array JPAltLayout
-  /-- The postcondition lattice, `wp`'s `Pred` argument. Each jump's precondition proof lives here. -/
-  Pred : Expr
-  /-- Universe level of `Pred` (the `l : Type u` of `le_ofProp`/`ofProp`), for instantiating `le_ofProp`. -/
-  predLevel : Level
-  /-- The `CompleteLattice Pred` instance, for instantiating `le_ofProp`. -/
-  instCL : Expr
   deriving Inhabited
 
 public structure VCGen.Scope where
@@ -192,27 +183,24 @@ public structure VCGen.Scope where
   nextDeclIdx : Nat := 0
   deriving Inhabited
 
-/-- A deferred join-point jump: the alt-precondition mvar it targets, its open precondition
-subgoal, the payload proposition (abstracted over the mvar's binders), the witnesses for the
-payload's existentials, the reduction of the subgoal's precondition match to the applicable alt,
-and the data needed to close the subgoal `pre ⊑ ⌜match discrs => ?Hᵢ⌝ ss` by construction.
-Resolved by `finalizeJPs`. -/
-public structure DeferredJump where
-  /-- The join point this jump targets, supplying the `Pred`/`predLevel`/`instCL`/`stateTys` shared
-  by all of its jumps. -/
-  jpInfo : JPDefInfo
-  hypsMVar : MVarId
-  goal : MVarId
+/-- The applicable alternative of a JP jump: its index, the payload proposition (an existential
+closure of the join-argument equalities, abstracted over the alt-precondition mvar's binders), the
+witnesses for the payload's existentials, and the reduction `redProof : matchExpr = redExpr` of the
+precondition match to the alternative. -/
+public structure ResolvedJump where
+  altIdx : Nat
   payload : Expr
   witnesses : Array Expr
   redExpr : Expr
   redProof : Expr
-  /-- The proposition `match discrs => ?Hᵢ` the jump's precondition embeds via `⌜·⌝`. -/
-  matchExpr : Expr
-  /-- The jump's precondition; `le_ofProp` at the constant function `fun _ => pre` reproduces it. -/
-  pre : Expr
-  /-- The state arguments the postcondition lattice is applied to. -/
-  ss : Array Expr
+
+/-- A deferred join-point jump: its resolved alternative, the alt-precondition mvar it targets, and
+its open precondition subgoal `pre ⊑ ⌜match discrs => ?Hᵢ⌝ ss`. Resolved by `finalizeJPs`, which
+recovers everything else from the subgoal's type. -/
+public structure DeferredJump where
+  jump : ResolvedJump
+  hypsMVar : MVarId
+  goal : MVarId
 
 public structure VCGen.State where
   /--
@@ -304,7 +292,7 @@ public def Scope.collectLocalSpecs (scope : Scope) (goal : MVarId) : VCGenM Scop
       -- Skip implementation-detail hypotheses (e.g. the `+jp` body proof `__do_jpProof`, the
       -- `__do_jp` continuation): they are never user specs, and building a spec pattern from one
       -- runs `preprocessType` over its post, scaling with the continuation.
-      if decl.isAuxDecl || decl.userName.isImplementationDetail then return scope
+      if decl.isImplementationDetail then return scope
       try
         if let some thm ← mkSpecTheoremFromLocal decl.fvarId (eval_prio low) then
           return scope.insertSpec thm

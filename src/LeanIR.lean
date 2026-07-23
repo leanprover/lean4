@@ -105,6 +105,14 @@ public def main (args : List String) : IO UInt32 := do
   let some modIdx := env.getModuleIdx? modName
     | throw <| IO.userError s!"module '{modName}' not found"
 
+  -- Drop stale loaded LCNF/IR entries for the current module. `lean` elab may have written
+  -- partial/stale state (e.g. specialization auxiliaries with different arity than leanir would
+  -- produce); leanir re-runs the full pipeline, so its in-session state must be authoritative.
+  let env := Lean.IR.declMapExt.clearModuleEntries env modIdx
+  let env := baseExt.clearModuleEntries env modIdx
+  let env := monoExt.clearModuleEntries env modIdx
+  let env := impureSigExt.clearModuleEntries env modIdx
+
   let decls := impureSigExt.getModuleEntries env modIdx
   let decls := decls.filter (isExtern env ·.name)
   let env := decls.foldl (fun env decl => impureSigExt.addEntry env decl) env

@@ -1682,6 +1682,24 @@ def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env :
     (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := Name.anonymous) : Environment :=
   ext.toEnvExtension.modifyState (asyncMode := asyncMode) (asyncDecl := asyncDecl) env fun ps => { ps with state := f (ps.state) }
 
+/--
+Clears the `importedEntries` slot for module index `m` across all persistent extension state
+arrays (`extensions`, `irBaseExts`, `serverBaseExts`). Used by `leanir` to drop the stale loaded
+entries for the current main module so its fresh in-session outputs are authoritative.
+-/
+def clearModuleEntries {α β σ : Type} [Inhabited σ]
+    (ext : PersistentEnvExtension α β σ) (env : Environment) (m : ModuleIdx) : Environment :=
+  let clearArr (exts : Array EnvExtensionState) : Array EnvExtensionState :=
+    unsafe ext.toEnvExtension.modifyStateImpl exts fun ps =>
+      if m.toNat < ps.importedEntries.size then
+        { ps with importedEntries := ps.importedEntries.set! m.toNat #[] }
+      else
+        ps
+  let env := env.modifyCheckedAsync fun e => { e with
+    extensions := clearArr e.extensions
+    irBaseExts := clearArr e.irBaseExts }
+  { env with serverBaseExts := clearArr env.serverBaseExts }
+
 end PersistentEnvExtension
 
 builtin_initialize persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtension EnvExtensionEntry EnvExtensionEntry EnvExtensionState)) ← IO.mkRef #[]

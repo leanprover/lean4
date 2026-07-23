@@ -58,10 +58,14 @@ The simplifier is used to perform steps 2 (using simprocs) and 3 (using rewrite 
 
 open Lean Meta
 
+namespace Lean
+
 register_builtin_option wf.preprocess : Bool := {
   defValue := true
   descr := "pre-process definitions defined by well-founded recursion with the `wf_preprocess` simp set"
 }
+
+end Lean
 
 namespace Lean.Elab.WF
 

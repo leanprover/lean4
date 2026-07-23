@@ -36,7 +36,7 @@ namespace Std.Http
 
 set_option linter.all true
 
-open Internal Char
+open Std.Http.Internal _root_.Char Std.Http.Internal.Char
 
 namespace URI
 
@@ -564,6 +564,13 @@ instance : ToString Query where
         Query.formatQueryParam key value
       "?" ++ String.intercalate "&" encodedParams
 
+/--
+Formats an optional query component, preserving `some .empty` as an explicit empty query delimiter.
+-/
+def formatOption : Option Query → String
+  | none => ""
+  | some q => if q.isEmpty then "?" else toString q
+
 end Query
 
 end URI
@@ -591,9 +598,9 @@ structure URI where
   path : URI.Path
 
   /--
-  Optional query string as key-value pairs.
+  Optional query string as key-value pairs. `some .empty` preserves an explicit empty query delimiter.
   -/
-  query : URI.Query
+  query : Option URI.Query := none
 
   /--
   Optional fragment identifier (the part after '#'), percent-encoded.
@@ -608,7 +615,7 @@ instance : ToString URI where
       | none => ""
       | some auth => s!"//{toString auth}"
     let pathPart := toString uri.path
-    let queryPart := toString uri.query
+    let queryPart := URI.Query.formatOption uri.query
     let fragmentPart := uri.fragment.map (fun f => "#" ++ toString (URI.EncodedFragment.encode f)) |>.getD ""
     s!"{schemePart}:{authorityPart}{pathPart}{queryPart}{fragmentPart}"
 
@@ -795,7 +802,7 @@ def build (b : Builder) : URI :=
     scheme
     authority := authority
     path
-    query := query
+    query := if query.isEmpty then none else some query
     fragment := b.fragment
   }
 
@@ -823,7 +830,7 @@ def withPath (uri : URI) (path : URI.Path) : URI :=
 Returns a new URI with the query replaced.
 -/
 def withQuery (uri : URI) (query : URI.Query) : URI :=
-  { uri with query }
+  { uri with query := some query }
 
 /--
 Returns a new URI with the fragment replaced.
@@ -907,9 +914,9 @@ structure URI.RelativeRef where
   path : URI.Path
 
   /--
-  Optional query string as key-value pairs.
+  Optional query string as key-value pairs. `some .empty` preserves an explicit empty query delimiter.
   -/
-  query : URI.Query
+  query : Option URI.Query := none
 
   /--
   Optional fragment identifier (the part after `'#'`), decoded.
@@ -921,7 +928,7 @@ instance : ToString URI.RelativeRef where
   toString ref :=
     let authorityPart := ref.authority.map (fun a => s!"//{toString a}") |>.getD ""
     let pathPart      := toString ref.path
-    let queryPart     := toString ref.query
+    let queryPart     := URI.Query.formatOption ref.query
     let fragmentPart  := ref.fragment.map (fun f => "#" ++ toString (URI.EncodedFragment.encode f)) |>.getD ""
     s!"{authorityPart}{pathPart}{queryPart}{fragmentPart}"
 
@@ -1001,7 +1008,7 @@ Returns an empty array for targets without a query.
 -/
 def query : RequestTarget → URI.Query
   | .originForm _ q => q.getD URI.Query.empty
-  | .absoluteForm uri => uri.query
+  | .absoluteForm uri => uri.query.getD URI.Query.empty
   | _ => URI.Query.empty
 
 /--
@@ -1016,7 +1023,7 @@ instance : ToString RequestTarget where
   toString
     | .originForm path query =>
         let pathStr := toString path
-        let queryStr := query.map toString |>.getD ""
+        let queryStr := URI.Query.formatOption query
         s!"{pathStr}{queryStr}"
     | .absoluteForm uri => toString uri
     | .authorityForm auth => toString auth

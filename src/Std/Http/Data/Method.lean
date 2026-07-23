@@ -29,7 +29,7 @@ namespace Std.Http
 
 set_option linter.all true
 
-open Internal
+open Std.Http.Internal
 
 /--
 A method is a verb that describes the action to be performed.

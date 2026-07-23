@@ -197,7 +197,7 @@ unsafe builtin_initialize combinatorParenthesizerAttribute : ParserCompiler.Comb
 namespace Parenthesizer
 
 open Lean.Core Parser
-open Std.Format
+open _root_.Std.Format
 
 def throwBacktrack {α} : ParenthesizerM α :=
 throw $ Exception.internal backtrackExceptionId

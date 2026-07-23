@@ -84,7 +84,7 @@ private def mkCandidate (a b : ArgInfo) (i : Nat) : GoalM SplitInfo := do
 /-- Returns `true` if `f` is a type class instance -/
 private def isFnInstance (f : Expr) : CoreM Bool := do
   let .const declName _ := f | return false
-  isImplicitReducible declName
+  isInstanceReducible declName
 
 /-- Model-based theory combination. -/
 def mbtc (ctx : MBTC.Context) : GoalM Bool := do

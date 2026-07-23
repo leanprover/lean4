@@ -404,8 +404,11 @@ def elabInvariants (stx : Syntax) (invariants : Array MVarId) (suggestInvariant 
         let mv := invariants[i]!
         if ← mv.isAssigned then
           continue
-        let invariant ← suggestInvariant mv
-        suggestions := suggestions.push (← `(invariantDotAlt| · $invariant))
+        -- A failing suggestion (e.g. an invariant shape the analysis does not understand)
+        -- degrades to "no suggestion" rather than failing the tactic.
+        let invariant? ← try some <$> suggestInvariant mv catch _ => pure none
+        if let some invariant := invariant? then
+          suggestions := suggestions.push (← `(invariantDotAlt| · $invariant))
       let alts' := alts ++ suggestions
       let stx' ← `(invariantAlts|invariants $alts'*)
       if suggestions.size > 0 then

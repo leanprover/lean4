@@ -67,6 +67,7 @@ structure Any where
 
   /--
   Reset action for a body that can be re-read after being consumed.
+  `none` when the underlying body has no way to rewind.
   -/
   reset? : Option (Async Unit) := none
 

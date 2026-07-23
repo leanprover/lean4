@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Meta_Sym_Simp_Result_withContextDependent(lean_object*);
-lean_object* l_Lean_Meta_Sym_Simp_mkEqTrans___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_Simp_mkEqTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_Simproc_andThen(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -317,7 +317,7 @@ v_resetjp_59_:
 {
 lean_object* v___x_62_; 
 lean_inc_ref(v_e_x27_55_);
-v___x_62_ = l_Lean_Meta_Sym_Simp_mkEqTrans___redArg(v_e_u2081_3_, v_e_x27_34_, v_proof_35_, v_e_x27_55_, v_proof_56_, v_a_8_, v_a_9_, v_a_10_, v_a_11_, v_a_12_);
+v___x_62_ = l_Lean_Meta_Sym_Simp_mkEqTrans(v_e_u2081_3_, v_e_x27_34_, v_proof_35_, v_e_x27_55_, v_proof_56_, v_a_7_, v_a_8_, v_a_9_, v_a_10_, v_a_11_, v_a_12_);
 if (lean_obj_tag(v___x_62_) == 0)
 {
 lean_object* v_a_63_; lean_object* v___x_65_; uint8_t v_isShared_66_; uint8_t v_isSharedCheck_75_; 
@@ -771,7 +771,7 @@ v_resetjp_160_:
 {
 lean_object* v___x_163_; 
 lean_inc_ref(v_e_x27_156_);
-v___x_163_ = l_Lean_Meta_Sym_Simp_mkEqTrans___redArg(v___y_103_, v_e_x27_135_, v_proof_136_, v_e_x27_156_, v_proof_157_, v___y_108_, v___y_109_, v___y_110_, v___y_111_, v___y_112_);
+v___x_163_ = l_Lean_Meta_Sym_Simp_mkEqTrans(v___y_103_, v_e_x27_135_, v_proof_136_, v_e_x27_156_, v_proof_157_, v___y_107_, v___y_108_, v___y_109_, v___y_110_, v___y_111_, v___y_112_);
 if (lean_obj_tag(v___x_163_) == 0)
 {
 lean_object* v_a_164_; lean_object* v___x_166_; uint8_t v_isShared_167_; uint8_t v_isSharedCheck_176_; 

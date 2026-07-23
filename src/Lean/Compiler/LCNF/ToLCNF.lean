@@ -339,7 +339,7 @@ def withNewScope (x : M α) : M α := do
     }
     set saved
 
-/-
+/--
 Replace free variables in `type'` that occur in `toAny` into `◾`.
 Recall that we populate `toAny` with the free variable ids of fields that
 are type formers. This can happen when we have a field whose type is, for example, `Type u`.

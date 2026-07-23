@@ -11,6 +11,7 @@ import Lean.Meta.CtorRecognizer
 public section
 open Lean Meta Simp
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc ↓ [simp, seval] reduceIte (ite _ _ _) := fun e => do
   let_expr f@ite α c i tb eb ← e | return .continue
   let r ← simp c
@@ -22,6 +23,7 @@ builtin_simproc ↓ [simp, seval] reduceIte (ite _ _ _) := fun e => do
     return .visit { expr := eb, proof? := pr }
   return .continue
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc ↓ [simp, seval] reduceDIte (dite _ _ _) := fun e => do
   let_expr f@dite α c i tb eb ← e | return .continue
   let r ← simp c
@@ -39,6 +41,7 @@ builtin_simproc ↓ [simp, seval] reduceDIte (dite _ _ _) := fun e => do
     return .visit { expr := eNew, proof? := prNew }
   return .continue
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc ↓ [simp, seval] dreduceIte (ite _ _ _) := fun e => do
   unless (← inDSimp) do
     -- If `simp` is not in `dsimp` mode, we should use `reduceIte`
@@ -64,6 +67,7 @@ builtin_dsimproc ↓ [simp, seval] dreduceIte (ite _ _ _) := fun e => do
     | _ => return .continue
   return .continue
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc ↓ [simp, seval] dreduceDIte (dite _ _ _) := fun e => do
   unless (← inDSimp) do
     -- If `simp` is not in `dsimp` mode, we should use `reduceDIte`
@@ -78,6 +82,7 @@ builtin_dsimproc ↓ [simp, seval] dreduceDIte (dite _ _ _) := fun e => do
     | _ => return .continue
   return .continue
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc [simp, seval] reduceCtorEq (_ = _) := fun e => withReducibleAndInstances do
   let_expr Eq _ lhs rhs ← e | return .continue
   match (← constructorApp'? lhs), (← constructorApp'? rhs) with

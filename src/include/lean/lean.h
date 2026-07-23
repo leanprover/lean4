@@ -236,7 +236,8 @@ typedef struct {
     struct lean_task *   m_head_dep;
     struct lean_task *   m_next_dep;
     unsigned             m_prio;
-    uint8_t              m_canceled;
+    // This field is atomic as we access it both with and without holding the task_manager mutex.
+    _Atomic(uint8_t)     m_canceled;
     // If true, task will not be freed until finished
     uint8_t              m_keep_alive;
     uint8_t              m_deleted;
@@ -294,9 +295,10 @@ typedef struct {
      * invariant: m_imp == nullptr
      * transition: RC becomes 0 ==> freed (`deactivate_task` lock) */
 typedef struct lean_task {
-    lean_object            m_header;
-    _Atomic(lean_object *) m_value;
-    lean_task_imp *        m_imp;
+    lean_object              m_header;
+    _Atomic(lean_object *)   m_value;
+    // This field is atomic as we access it both with and without holding the task_manager mutex.
+    _Atomic(lean_task_imp *) m_imp;
 } lean_task_object;
 
 typedef struct lean_promise {
@@ -397,9 +399,6 @@ static inline unsigned lean_get_slot_idx(unsigned sz) {
     return sz / LEAN_OBJECT_SIZE_DELTA - 1;
 }
 
-LEAN_EXPORT void * lean_alloc_small(unsigned sz, unsigned slot_idx);
-LEAN_EXPORT void lean_free_small(void * p);
-LEAN_EXPORT unsigned lean_small_mem_size(void * p);
 LEAN_EXPORT void lean_inc_heartbeat(void);
 
 #ifndef __cplusplus
@@ -407,17 +406,12 @@ void * malloc(size_t);  // avoid including big `stdlib.h`
 #endif
 
 static inline lean_object * lean_alloc_small_object(unsigned sz) {
-#ifdef LEAN_SMALL_ALLOCATOR
-    sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
-    unsigned slot_idx = lean_get_slot_idx(sz);
-    assert(sz <= LEAN_MAX_SMALL_OBJECT_SIZE);
-    return (lean_object*)lean_alloc_small(sz, slot_idx);
-#else
     lean_inc_heartbeat();
 #ifdef LEAN_MIMALLOC
     // HACK: emulate behavior of small allocator to avoid `leangz` breakage for now
+    // NOTE: `sz` is known at compile time for most callers
     sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
-    void * mem = mi_malloc_small(sz);
+    void * mem = sz <= MI_SMALL_SIZE_MAX ? mi_malloc_small(sz) : mi_malloc(sz);
     if (mem == 0) lean_internal_panic_out_of_memory();
     lean_object * o = (lean_object*)mem;
     o->m_cs_sz = sz;
@@ -428,15 +422,12 @@ static inline lean_object * lean_alloc_small_object(unsigned sz) {
     *(size_t*)mem = sz;
     return (lean_object*)((size_t*)mem + 1);
 #endif
-#endif
 }
 
 static inline lean_object * lean_alloc_ctor_memory(unsigned sz) {
-#ifdef LEAN_SMALL_ALLOCATOR
+#ifdef LEAN_MIMALLOC
     unsigned sz1 = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
-    unsigned slot_idx = lean_get_slot_idx(sz1);
-    assert(sz1 <= LEAN_MAX_SMALL_OBJECT_SIZE);
-    lean_object* r = (lean_object*)lean_alloc_small(sz1, slot_idx);
+    lean_object* r = lean_alloc_small_object(sz);
     if (sz1 > sz) {
         /* Initialize last word.
            In our runtime `lean_object_byte_size` is always
@@ -451,23 +442,13 @@ static inline lean_object * lean_alloc_ctor_memory(unsigned sz) {
         end[-1] = 0;
     }
     return r;
-#elif defined(LEAN_MIMALLOC)
-    unsigned sz1 = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
-    lean_object* r = lean_alloc_small_object(sz);
-    if (sz1 > sz) {
-        size_t * end = (size_t*)(((char*)r) + sz1);
-        end[-1] = 0;
-    }
-    return r;
 #else
     return lean_alloc_small_object(sz);
 #endif
 }
 
 static inline unsigned lean_small_object_size(lean_object * o) {
-#ifdef LEAN_SMALL_ALLOCATOR
-    return lean_small_mem_size(o);
-#elif defined(LEAN_MIMALLOC)
+#ifdef LEAN_MIMALLOC
     return o->m_cs_sz;
 #else
     return *((size_t*)o - 1);
@@ -488,9 +469,7 @@ void free_sized(void* ptr, size_t);
 #endif
 
 static inline void lean_free_small_object(lean_object * o) {
-#ifdef LEAN_SMALL_ALLOCATOR
-    lean_free_small(o);
-#elif defined(LEAN_MIMALLOC)
+#ifdef LEAN_MIMALLOC
     // We must NOT use `m_cs_sz` here as it is repurposed for the deletion list; as `mi_free_size`
     // is no different from `mi_free` at the time of writing, we don't lose anything from that.
     mi_free((void *)o);
@@ -1239,6 +1218,9 @@ static inline uint8_t lean_string_get_byte_fast(b_lean_obj_arg s, b_lean_obj_arg
   char const * str = lean_string_cstr(s);
   size_t idx = lean_unbox(i);
   return str[idx];
+}
+static inline uint8_t lean_string_uget_byte_fast(b_lean_obj_arg s, size_t i) {
+  return (uint8_t)lean_string_cstr(s)[i];
 }
 
 LEAN_EXPORT lean_obj_res lean_string_utf8_next(b_lean_obj_arg s, b_lean_obj_arg i);
@@ -2920,7 +2902,7 @@ static inline float lean_unbox_float32(b_lean_obj_arg o) {
 
 LEAN_EXPORT lean_object * lean_dbg_trace(lean_obj_arg s, lean_obj_arg fn);
 LEAN_EXPORT lean_object * lean_dbg_sleep(uint32_t ms, lean_obj_arg fn);
-LEAN_EXPORT lean_object * lean_dbg_trace_if_shared(lean_obj_arg s, lean_obj_arg a);
+LEAN_EXPORT lean_object * lean_dbg_trace_if_shared(b_lean_obj_arg s, lean_obj_arg a);
 
 /* IO Helper functions */
 

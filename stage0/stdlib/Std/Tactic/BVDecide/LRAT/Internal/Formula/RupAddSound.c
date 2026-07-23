@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddSound
-// Imports: public import Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddResult import Init.ByCases import Init.Data.Array.Bootstrap import Init.Data.Int.OfNat import Init.Data.Nat.Linear import Init.Data.Nat.Simproc
+// Imports: public import Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddResult import Init.ByCases import Init.Data.Array.Bootstrap import Init.Data.Int.OfNat import Init.Data.Nat.Internal.Linear import Init.Data.Nat.Simproc
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -81,9 +81,9 @@ return v___x_13_;
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddSound_0__Std_Tactic_BVDecide_LRAT_Internal_Assignment_instToString_match__1_splitter___redArg___boxed(lean_object* v_a_14_, lean_object* v_h__1_15_, lean_object* v_h__2_16_, lean_object* v_h__3_17_, lean_object* v_h__4_18_){
 _start:
 {
-uint8_t v_a_46__boxed_19_; lean_object* v_res_20_; 
-v_a_46__boxed_19_ = lean_unbox(v_a_14_);
-v_res_20_ = l___private_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddSound_0__Std_Tactic_BVDecide_LRAT_Internal_Assignment_instToString_match__1_splitter___redArg(v_a_46__boxed_19_, v_h__1_15_, v_h__2_16_, v_h__3_17_, v_h__4_18_);
+uint8_t v_a_42__boxed_19_; lean_object* v_res_20_; 
+v_a_42__boxed_19_ = lean_unbox(v_a_14_);
+v_res_20_ = l___private_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddSound_0__Std_Tactic_BVDecide_LRAT_Internal_Assignment_instToString_match__1_splitter___redArg(v_a_42__boxed_19_, v_h__1_15_, v_h__2_16_, v_h__3_17_, v_h__4_18_);
 return v_res_20_;
 }
 }
@@ -138,9 +138,9 @@ return v___x_34_;
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddSound_0__Std_Tactic_BVDecide_LRAT_Internal_Assignment_instToString_match__1_splitter___boxed(lean_object* v_motive_35_, lean_object* v_a_36_, lean_object* v_h__1_37_, lean_object* v_h__2_38_, lean_object* v_h__3_39_, lean_object* v_h__4_40_){
 _start:
 {
-uint8_t v_a_65__boxed_41_; lean_object* v_res_42_; 
-v_a_65__boxed_41_ = lean_unbox(v_a_36_);
-v_res_42_ = l___private_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddSound_0__Std_Tactic_BVDecide_LRAT_Internal_Assignment_instToString_match__1_splitter(v_motive_35_, v_a_65__boxed_41_, v_h__1_37_, v_h__2_38_, v_h__3_39_, v_h__4_40_);
+uint8_t v_a_61__boxed_41_; lean_object* v_res_42_; 
+v_a_61__boxed_41_ = lean_unbox(v_a_36_);
+v_res_42_ = l___private_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddSound_0__Std_Tactic_BVDecide_LRAT_Internal_Assignment_instToString_match__1_splitter(v_motive_35_, v_a_61__boxed_41_, v_h__1_37_, v_h__2_38_, v_h__3_39_, v_h__4_40_);
 return v_res_42_;
 }
 }
@@ -304,9 +304,9 @@ return v___x_91_;
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddSound_0__Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce__fold__fn_match__1_splitter___redArg___boxed(lean_object* v_x_92_, lean_object* v_h__1_93_, lean_object* v_h__2_94_, lean_object* v_h__3_95_, lean_object* v_h__4_96_){
 _start:
 {
-uint8_t v_x_46__boxed_97_; lean_object* v_res_98_; 
-v_x_46__boxed_97_ = lean_unbox(v_x_92_);
-v_res_98_ = l___private_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddSound_0__Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce__fold__fn_match__1_splitter___redArg(v_x_46__boxed_97_, v_h__1_93_, v_h__2_94_, v_h__3_95_, v_h__4_96_);
+uint8_t v_x_42__boxed_97_; lean_object* v_res_98_; 
+v_x_42__boxed_97_ = lean_unbox(v_x_92_);
+v_res_98_ = l___private_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddSound_0__Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce__fold__fn_match__1_splitter___redArg(v_x_42__boxed_97_, v_h__1_93_, v_h__2_94_, v_h__3_95_, v_h__4_96_);
 return v_res_98_;
 }
 }
@@ -361,9 +361,9 @@ return v___x_112_;
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddSound_0__Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce__fold__fn_match__1_splitter___boxed(lean_object* v_motive_113_, lean_object* v_x_114_, lean_object* v_h__1_115_, lean_object* v_h__2_116_, lean_object* v_h__3_117_, lean_object* v_h__4_118_){
 _start:
 {
-uint8_t v_x_65__boxed_119_; lean_object* v_res_120_; 
-v_x_65__boxed_119_ = lean_unbox(v_x_114_);
-v_res_120_ = l___private_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddSound_0__Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce__fold__fn_match__1_splitter(v_motive_113_, v_x_65__boxed_119_, v_h__1_115_, v_h__2_116_, v_h__3_117_, v_h__4_118_);
+uint8_t v_x_61__boxed_119_; lean_object* v_res_120_; 
+v_x_61__boxed_119_ = lean_unbox(v_x_114_);
+v_res_120_ = l___private_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddSound_0__Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce__fold__fn_match__1_splitter(v_motive_113_, v_x_61__boxed_119_, v_h__1_115_, v_h__2_116_, v_h__3_117_, v_h__4_118_);
 return v_res_120_;
 }
 }
@@ -579,7 +579,7 @@ lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAdd
 lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Int_OfNat(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Simproc(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddSound(uint8_t builtin) {
@@ -598,7 +598,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Int_OfNat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_Simproc(builtin);
@@ -617,7 +617,7 @@ lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddResult(u
 lean_object* initialize_Init_ByCases(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_OfNat(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Simproc(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddSound(uint8_t builtin) {
@@ -636,7 +636,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Int_OfNat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Simproc(builtin);

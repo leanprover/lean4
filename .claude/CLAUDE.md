@@ -52,6 +52,16 @@ When asked to implement new features:
 * write comprehensive tests first (expecting that these will initially fail)
 * and then iterate on the implementation until the tests pass.
 
+## Comments
+
+Inline comments should be concise. Use them for important, non-obvious facts about the code at hand. Avoid comments that:
+
+- restate the code, repeat a type signature, or describe a general API contract;
+- document old behavior, rejected alternatives, or the history of the change (that belongs in the PR body or commit message);
+- explain API usage that belongs with the API definition instead of this call site.
+
+Rewrite a stale comment instead of adding a new one beside it. If a fact applies generally, document it at the definition.
+
 ## Success Criteria
 
 *Never* report success on a task unless you have verified both a clean build without errors, and that the relevant tests pass.

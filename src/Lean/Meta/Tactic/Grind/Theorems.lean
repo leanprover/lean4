@@ -184,10 +184,19 @@ abbrev TheoremsArray (α : Type) := Array (Theorems α)
 
 @[specialize]
 def TheoremsArray.retrieve? (s : TheoremsArray α) (sym : Name) : Option (List α × TheoremsArray α) := Id.run do
-  for h : i in *...s.size do
-    if let some (thms, a) ← s[i].retrieve? sym then
-      return some (thms, s.set i a)
-  return none
+  /-
+  We must scan all elements. Multiple elements may contain theorems associated with `sym`.
+  Moreover, `TheoremsArray.insert` always reinserts partially activated theorems into the
+  first element, and they may shadow entries with the same key in later elements. See issue #13725.
+  -/
+  let mut result := []
+  let mut s := s
+  for i in *...s.size do
+    if let some (thms, a) := s[i]!.retrieve? sym then
+      result := result ++ thms
+      s := s.set! i a
+  if result.isEmpty then return none
+  return some (result, s)
 
 def TheoremsArray.insert [TheoremLike α] (s : TheoremsArray α) (thm : α) : TheoremsArray α := Id.run do
   if s.isEmpty then

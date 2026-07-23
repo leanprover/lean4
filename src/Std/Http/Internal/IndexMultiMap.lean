@@ -235,7 +235,7 @@ Removes multiple keys and all their associated values from the map.
 Keys not present in the map are ignored.
 -/
 @[inline]
-def eraseKeys [EquivBEq α] [LawfulHashable α] (map : IndexMultiMap α β) (keys : Array α) : IndexMultiMap α β :=
+def eraseMany [EquivBEq α] [LawfulHashable α] (map : IndexMultiMap α β) (keys : Array α) : IndexMultiMap α β :=
   map.entries.foldl (fun acc (k,v) => if ¬(keys.contains k) then acc.insert k v else acc) empty
 
 /--

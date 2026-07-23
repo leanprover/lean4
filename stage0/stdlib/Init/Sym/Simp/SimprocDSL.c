@@ -334,6 +334,21 @@ static const lean_object* l_Lean_Parser_Sym_Simp_dischParen___closed__3 = (const
 static const lean_ctor_object l_Lean_Parser_Sym_Simp_dischParen___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Parser_Sym_Simp_dischParen___closed__1_value),((lean_object*)(((size_t)(1024) << 1) | 1)),((lean_object*)&l_Lean_Parser_Sym_Simp_dischParen___closed__3_value)}};
 static const lean_object* l_Lean_Parser_Sym_Simp_dischParen___closed__4 = (const lean_object*)&l_Lean_Parser_Sym_Simp_dischParen___closed__4_value;
 LEAN_EXPORT const lean_object* l_Lean_Parser_Sym_Simp_dischParen = (const lean_object*)&l_Lean_Parser_Sym_Simp_dischParen___closed__4_value;
+static const lean_string_object l_Lean_Parser_Sym_Simp_dischGrind___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "dischGrind"};
+static const lean_object* l_Lean_Parser_Sym_Simp_dischGrind___closed__0 = (const lean_object*)&l_Lean_Parser_Sym_Simp_dischGrind___closed__0_value;
+static const lean_ctor_object l_Lean_Parser_Sym_Simp_dischGrind___closed__1_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Parser_Sym_Simp_sym__simproc_quot___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
+static const lean_ctor_object l_Lean_Parser_Sym_Simp_dischGrind___closed__1_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Parser_Sym_Simp_dischGrind___closed__1_value_aux_0),((lean_object*)&l_Lean_Parser_Sym_Simp_sym__simproc_quot___closed__1_value),LEAN_SCALAR_PTR_LITERAL(103, 136, 125, 166, 167, 98, 71, 111)}};
+static const lean_ctor_object l_Lean_Parser_Sym_Simp_dischGrind___closed__1_value_aux_2 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Parser_Sym_Simp_dischGrind___closed__1_value_aux_1),((lean_object*)&l_Lean_Parser_Sym_Simp_ground___closed__0_value),LEAN_SCALAR_PTR_LITERAL(234, 243, 118, 39, 175, 170, 127, 242)}};
+static const lean_ctor_object l_Lean_Parser_Sym_Simp_dischGrind___closed__1_value_aux_3 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Parser_Sym_Simp_dischGrind___closed__1_value_aux_2),((lean_object*)&l_Lean_Parser_Sym_Simp_ground___closed__1_value),LEAN_SCALAR_PTR_LITERAL(46, 183, 106, 149, 74, 106, 130, 246)}};
+static const lean_ctor_object l_Lean_Parser_Sym_Simp_dischGrind___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Parser_Sym_Simp_dischGrind___closed__1_value_aux_3),((lean_object*)&l_Lean_Parser_Sym_Simp_dischGrind___closed__0_value),LEAN_SCALAR_PTR_LITERAL(110, 252, 131, 28, 134, 139, 79, 43)}};
+static const lean_object* l_Lean_Parser_Sym_Simp_dischGrind___closed__1 = (const lean_object*)&l_Lean_Parser_Sym_Simp_dischGrind___closed__1_value;
+static const lean_string_object l_Lean_Parser_Sym_Simp_dischGrind___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "grind"};
+static const lean_object* l_Lean_Parser_Sym_Simp_dischGrind___closed__2 = (const lean_object*)&l_Lean_Parser_Sym_Simp_dischGrind___closed__2_value;
+static const lean_ctor_object l_Lean_Parser_Sym_Simp_dischGrind___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 8, .m_other = 1, .m_tag = 6}, .m_objs = {((lean_object*)&l_Lean_Parser_Sym_Simp_dischGrind___closed__2_value),LEAN_SCALAR_PTR_LITERAL(0, 0, 0, 0, 0, 0, 0, 0)}};
+static const lean_object* l_Lean_Parser_Sym_Simp_dischGrind___closed__3 = (const lean_object*)&l_Lean_Parser_Sym_Simp_dischGrind___closed__3_value;
+static const lean_ctor_object l_Lean_Parser_Sym_Simp_dischGrind___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Parser_Sym_Simp_dischGrind___closed__1_value),((lean_object*)(((size_t)(1024) << 1) | 1)),((lean_object*)&l_Lean_Parser_Sym_Simp_dischGrind___closed__3_value)}};
+static const lean_object* l_Lean_Parser_Sym_Simp_dischGrind___closed__4 = (const lean_object*)&l_Lean_Parser_Sym_Simp_dischGrind___closed__4_value;
+LEAN_EXPORT const lean_object* l_Lean_Parser_Sym_Simp_dischGrind = (const lean_object*)&l_Lean_Parser_Sym_Simp_dischGrind___closed__4_value;
 static const lean_string_object l_Lean_Parser_Command_sym__simp__field_quot___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 15, .m_capacity = 15, .m_length = 14, .m_data = "sym_simp_field"};
 static const lean_object* l_Lean_Parser_Command_sym__simp__field_quot___closed__0 = (const lean_object*)&l_Lean_Parser_Command_sym__simp__field_quot___closed__0_value;
 static const lean_ctor_object l_Lean_Parser_Command_sym__simp__field_quot___closed__1_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Parser_Command_sym__simp__field_quot___closed__0_value),LEAN_SCALAR_PTR_LITERAL(47, 107, 220, 116, 148, 163, 214, 175)}};
@@ -498,9 +513,9 @@ return v___x_75_;
 static lean_object* _init_l_Lean_Parser_Category_sym__simp__field(void){
 _start:
 {
-lean_object* v___x_397_; 
-v___x_397_ = lean_box(0);
-return v___x_397_;
+lean_object* v___x_413_; 
+v___x_413_ = lean_box(0);
+return v___x_413_;
 }
 }
 lean_object* runtime_initialize_Init_Tactics(uint8_t builtin);

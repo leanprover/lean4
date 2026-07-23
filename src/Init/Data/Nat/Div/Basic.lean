@@ -36,7 +36,7 @@ private theorem div.go.fuel_congr (x y fuel1 fuel2 : Nat) (hy : 0 < y) (h1 : x <
     next => rfl
 termination_by structural fuel1
 
-theorem div_eq (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 := by
+theorem div_eq_ite (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 := by
   change Nat.div _ _ = ite _ (Nat.div _ _ + 1) _
   unfold Nat.div
   split
@@ -51,6 +51,10 @@ theorem div_eq (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 e
       simp only [and_false, ↓reduceIte, *]
   next =>
     simp only [false_and, ↓reduceIte, *]
+
+@[deprecated div_eq_ite (since := "2026-07-20")]
+theorem div_eq (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 :=
+  Nat.div_eq_ite x y
 
 /--
 An induction principle customized for reasoning about the recursion pattern of natural number
@@ -71,7 +75,7 @@ decreasing_by apply div_rec_lemma; assumption
 theorem div_le_self (n k : Nat) : n / k ≤ n := by
   induction n using Nat.strongRecOn with
   | ind n ih =>
-    rw [div_eq]
+    rw [div_eq_ite]
     -- Note: manual split to avoid Classical.em which is not yet defined
     cases (inferInstance : Decidable (0 < k ∧ k ≤ n)) with
     | isFalse h => simp [h]
@@ -83,7 +87,7 @@ theorem div_le_self (n k : Nat) : n / k ≤ n := by
       exact succ_le_of_lt (Nat.lt_of_le_of_lt this hSub)
 
 theorem div_lt_self {n k : Nat} (hLtN : 0 < n) (hLtK : 1 < k) : n / k < n := by
-  rw [div_eq]
+  rw [div_eq_ite]
   cases (inferInstance : Decidable (0 < k ∧ k ≤ n)) with
   | isFalse h => simp [hLtN, h]
   | isTrue h =>
@@ -155,8 +159,12 @@ protected theorem modCore_eq_mod (n m : Nat) : Nat.modCore n m = n % m := by
     rw [Nat.modCore_eq]
     exact if_neg fun ⟨_hlt, hle⟩ => h hle
 
-theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x := by
+theorem mod_eq_ite (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x := by
   rw [←Nat.modCore_eq_mod, ←Nat.modCore_eq_mod, Nat.modCore_eq]
+
+@[deprecated mod_eq_ite (since := "2026-07-20")]
+theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x :=
+  Nat.mod_eq_ite x y
 
 /--
 An induction principle customized for reasoning about the recursion pattern of `Nat.mod`.
@@ -173,13 +181,13 @@ def mod.inductionOn.{u}
   have : (if 0 < 0 ∧ 0 ≤ a then (a - 0) % 0 else a) = a :=
     have h : ¬ (0 < 0 ∧ 0 ≤ a) := fun ⟨h₁, _⟩ => absurd h₁ (Nat.lt_irrefl _)
     if_neg h
-  (mod_eq a 0).symm ▸ this
+  (mod_eq_ite a 0).symm ▸ this
 
 theorem mod_eq_of_lt {a b : Nat} (h : a < b) : a % b = a :=
   have : (if 0 < b ∧ b ≤ a then (a - b) % b else a) = a :=
     have h' : ¬(0 < b ∧ b ≤ a) := fun ⟨_, h₁⟩ => absurd h₁ (Nat.not_le_of_gt h)
     if_neg h'
-  (mod_eq a b).symm ▸ this
+  (mod_eq_ite a b).symm ▸ this
 
 @[simp] theorem one_mod_eq_zero_iff {n : Nat} : 1 % n = 0 ↔ n = 1 := by
   match n with
@@ -197,7 +205,7 @@ theorem mod_eq_of_lt {a b : Nat} (h : a < b) : a % b = a :=
 theorem mod_eq_sub_mod {a b : Nat} (h : a ≥ b) : a % b = (a - b) % b :=
   match eq_zero_or_pos b with
   | Or.inl h₁ => h₁.symm ▸ (Nat.sub_zero a).symm ▸ rfl
-  | Or.inr h₁ => (mod_eq a b).symm ▸ if_pos ⟨h₁, h⟩
+  | Or.inr h₁ => (mod_eq_ite a b).symm ▸ if_pos ⟨h₁, h⟩
 
 @[simp] protected theorem sub_mod_add_mod_cancel (a b : Nat) [NeZero a] : a - b % a + b % a = a := by
   rw [Nat.sub_add_cancel]
@@ -231,7 +239,7 @@ theorem mod_one (x : Nat) : x % 1 = 0 := by
   exact this _ h
 
 theorem div_add_mod (m n : Nat) : n * (m / n) + m % n = m := by
-  rw [div_eq, mod_eq]
+  rw [div_eq_ite, mod_eq_ite]
   have h : Decidable (0 < n ∧ n ≤ m) := inferInstance
   cases h with
   | isFalse h => simp [h]
@@ -242,10 +250,10 @@ theorem div_add_mod (m n : Nat) : n * (m / n) + m % n = m := by
 decreasing_by apply div_rec_lemma; assumption
 
 theorem div_eq_sub_div (h₁ : 0 < b) (h₂ : b ≤ a) : a / b = (a - b) / b + 1 := by
- rw [div_eq a, if_pos]; constructor <;> assumption
+ rw [div_eq_ite a, if_pos]; constructor <;> assumption
 
 theorem mod_add_div (m k : Nat) : m % k + k * (m / k) = m := by
-  induction m, k using mod.inductionOn with rw [div_eq, mod_eq]
+  induction m, k using mod.inductionOn with rw [div_eq_ite, mod_eq_ite]
   | base x y h => simp [h]
   | ind x y h IH => simp [h]; rw [Nat.mul_succ, ← Nat.add_assoc, IH, Nat.sub_add_cancel h.2]
 
@@ -263,14 +271,14 @@ theorem mod_eq_sub_div_mul {x k : Nat} : x % k = x - (x / k) * k := by
   rwa [mod_one, Nat.zero_add, Nat.one_mul] at this
 
 @[simp] protected theorem div_zero (n : Nat) : n / 0 = 0 := by
-  rw [div_eq]; simp [Nat.lt_irrefl]
+  rw [div_eq_ite]; simp [Nat.lt_irrefl]
 
 @[simp] protected theorem zero_div (b : Nat) : 0 / b = 0 :=
-  (div_eq 0 b).trans <| if_neg <| And.rec Nat.not_le_of_gt
+  (div_eq_ite 0 b).trans <| if_neg <| And.rec Nat.not_le_of_gt
 
 theorem le_div_iff_mul_le (k0 : 0 < k) : x ≤ y / k ↔ x * k ≤ y := by
   induction y, k using mod.inductionOn generalizing x with
-    (rw [div_eq]; simp [h]; cases x with | zero => simp [zero_le] | succ x => ?_)
+    (rw [div_eq_ite]; simp [h]; cases x with | zero => simp [zero_le] | succ x => ?_)
   | base y k h =>
     simp only [add_one, succ_mul, false_iff, Nat.not_le, Nat.succ_ne_zero]
     refine Nat.lt_of_lt_of_le ?_ (Nat.le_add_left ..)
@@ -412,7 +420,7 @@ theorem mul_mod_mul_left (z x y : Nat) : (z * x) % (z * y) = z * (x % y) :=
         exact IH _ (sub_lt (Nat.lt_of_lt_of_le y0 yn) y0)
 
 theorem div_eq_of_lt (h₀ : a < b) : a / b = 0 := by
-  rw [div_eq a, if_neg]
+  rw [div_eq_ite a, if_neg]
   intro h₁
   apply Nat.not_le_of_gt h₀ h₁.right
 

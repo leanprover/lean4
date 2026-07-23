@@ -93,7 +93,7 @@ builtin_initialize backwardDefeqAttr : TagAttribute ←
 /--
 Marks the theorem as a definitional equality that can be used by `dsimp`.
 
-The theorem must be an equality that holds at `.instances` transparency. A theorem
+The theorem must be an equality that holds at `.implicit` transparency. A theorem
 with a definition that is (syntactically) `:= rfl` is implicitly marked `@[defeq]`
 (and also `@[backward_defeq]`, since the latter is a superset); write `:= (rfl)`
 instead to suppress this.
@@ -146,7 +146,7 @@ private partial def isRflProofCore (type : Expr) (proof : Expr) : CoreM Bool := 
 For automatically generated theorems (equational theorems etc.), we tag the theorem with
 the `defeq`/`backward_defeq` attributes based on its `rfl` proof:
 
-* If the equation holds at `.instances` transparency (matching the transparency at which
+* If the equation holds at `.implicit` transparency (matching the transparency at which
   `dsimp` operates), we tag it with `@[defeq]`.
 * Independently, if the equation holds under the more permissive legacy check (equivalent
   to `validateDefEqAttr`, i.e. at `.default` or `.all` transparency), we tag it with
@@ -165,9 +165,9 @@ def inferDefEqAttr (declName : Name) : MetaM Unit := do
       else
         pure false
     unless isRfl do return
-    -- Strict check: defeq at instance transparency (as used by `dsimp`).
+    -- Strict check: defeq at implicit transparency (as used by `dsimp`).
     let strict ← withEqLhsRhs info.type fun lhs rhs =>
-      withReducibleAndInstances (isDefEq lhs rhs)
+      withImplicit (isDefEq lhs rhs)
     -- Sanity-check: is the theorem also defeq at the permissive (`.default`/`.all`)
     -- transparency we use for `@[backward_defeq]`? If not, log the error that the
     -- legacy inference would have emitted — but still proceed to tag

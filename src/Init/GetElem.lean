@@ -319,6 +319,7 @@ theorem getElem_cons_drop_succ_eq_drop {as : List α} {i : Nat} (h : i < as.leng
 
 /-- Internal implementation of `as[i]?`. Do not use directly. -/
 -- We still keep it public for reduction purposes
+@[implicit_reducible]
 def get?Internal : (as : List α) → (i : Nat) → Option α
   | a::_,  0   => some a
   | _::as, n+1 => get?Internal as n
@@ -405,7 +406,7 @@ instance : LawfulGetElem (Array α) Nat α fun xs i => i < xs.size where
     split <;> rfl
 
 @[simp] theorem getInternal_eq_getElem (a : Array α) (i : Nat) (h) :
-    a.getInternal i h = a[i] := rfl
+    a.getInternal i h = a[i] := id rfl
 
 @[simp] theorem get!Internal_eq_getElem! [Inhabited α] (a : Array α) (i : Nat) :
     a.get!Internal i = a[i]! := by

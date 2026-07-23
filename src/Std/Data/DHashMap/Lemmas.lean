@@ -4549,7 +4549,7 @@ end Const
 end Equiv
 
 /-- Internal implementation detail of the hash map. -/
-@[implicit_reducible]
+@[instance_reducible]
 def isSetoid (α β) [BEq α] [Hashable α] : Setoid (DHashMap α β) where
   r := Equiv
   iseqv := {

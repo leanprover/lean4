@@ -39,6 +39,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include <string>
 #include <cstdlib>
 #include <cctype>
+#include <cmath>
 #include <sys/stat.h>
 #include <uv.h>
 #include "util/io.h"
@@ -728,7 +729,9 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
             return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to get next transition")));
         }
 
-        tm = (int64_t)(nextTransition / 1000.0);
+        // Round up to whole seconds: Windows models midnight transitions as 23:59:59.999 on the
+        // preceding day, and truncation would move such transitions a full second early.
+        tm = (int64_t)std::ceil(nextTransition / 1000.0);
     }
 
     int32_t dst_offset = ucal_get(cal, UCAL_DST_OFFSET, &status);

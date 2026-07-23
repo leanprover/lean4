@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.SInt.Float
-// Imports: public import Init.Data.Float public import Init.Data.SInt.Basic
+// Imports: public import Init.Data.Float.Float public import Init.Data.SInt.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -141,14 +141,14 @@ v_r_50_ = lean_box_float(v_res_49_);
 return v_r_50_;
 }
 }
-lean_object* runtime_initialize_Init_Data_Float(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Float_Float(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_SInt_Basic(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_SInt_Float(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Float(builtin);
+res = runtime_initialize_Init_Data_Float_Float(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_SInt_Basic(builtin);
@@ -163,14 +163,14 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* initialize_Init_Data_Float(uint8_t builtin);
+lean_object* initialize_Init_Data_Float_Float(uint8_t builtin);
 lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_SInt_Float(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Float(builtin);
+res = initialize_Init_Data_Float_Float(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_SInt_Basic(builtin);

@@ -988,10 +988,10 @@ return v___x_310_;
 LEAN_EXPORT lean_object* l___private_Init_Data_BitVec_Bitblast_0__BitVec_sdiv__eq_match__1_splitter___redArg___boxed(lean_object* v_x_311_, lean_object* v_x_312_, lean_object* v_h__1_313_, lean_object* v_h__2_314_, lean_object* v_h__3_315_, lean_object* v_h__4_316_){
 _start:
 {
-uint8_t v_x_50__boxed_317_; uint8_t v_x_51__boxed_318_; lean_object* v_res_319_; 
-v_x_50__boxed_317_ = lean_unbox(v_x_311_);
-v_x_51__boxed_318_ = lean_unbox(v_x_312_);
-v_res_319_ = l___private_Init_Data_BitVec_Bitblast_0__BitVec_sdiv__eq_match__1_splitter___redArg(v_x_50__boxed_317_, v_x_51__boxed_318_, v_h__1_313_, v_h__2_314_, v_h__3_315_, v_h__4_316_);
+uint8_t v_x_46__boxed_317_; uint8_t v_x_47__boxed_318_; lean_object* v_res_319_; 
+v_x_46__boxed_317_ = lean_unbox(v_x_311_);
+v_x_47__boxed_318_ = lean_unbox(v_x_312_);
+v_res_319_ = l___private_Init_Data_BitVec_Bitblast_0__BitVec_sdiv__eq_match__1_splitter___redArg(v_x_46__boxed_317_, v_x_47__boxed_318_, v_h__1_313_, v_h__2_314_, v_h__3_315_, v_h__4_316_);
 return v_res_319_;
 }
 }
@@ -1045,10 +1045,10 @@ return v___x_334_;
 LEAN_EXPORT lean_object* l___private_Init_Data_BitVec_Bitblast_0__BitVec_sdiv__eq_match__1_splitter___boxed(lean_object* v_motive_335_, lean_object* v_x_336_, lean_object* v_x_337_, lean_object* v_h__1_338_, lean_object* v_h__2_339_, lean_object* v_h__3_340_, lean_object* v_h__4_341_){
 _start:
 {
-uint8_t v_x_72__boxed_342_; uint8_t v_x_73__boxed_343_; lean_object* v_res_344_; 
-v_x_72__boxed_342_ = lean_unbox(v_x_336_);
-v_x_73__boxed_343_ = lean_unbox(v_x_337_);
-v_res_344_ = l___private_Init_Data_BitVec_Bitblast_0__BitVec_sdiv__eq_match__1_splitter(v_motive_335_, v_x_72__boxed_342_, v_x_73__boxed_343_, v_h__1_338_, v_h__2_339_, v_h__3_340_, v_h__4_341_);
+uint8_t v_x_68__boxed_342_; uint8_t v_x_69__boxed_343_; lean_object* v_res_344_; 
+v_x_68__boxed_342_ = lean_unbox(v_x_336_);
+v_x_69__boxed_343_ = lean_unbox(v_x_337_);
+v_res_344_ = l___private_Init_Data_BitVec_Bitblast_0__BitVec_sdiv__eq_match__1_splitter(v_motive_335_, v_x_68__boxed_342_, v_x_69__boxed_343_, v_h__1_338_, v_h__2_339_, v_h__3_340_, v_h__4_341_);
 return v_res_344_;
 }
 }
@@ -1102,10 +1102,10 @@ return v___x_358_;
 LEAN_EXPORT lean_object* l___private_Init_Data_BitVec_Bitblast_0__BitVec_sdiv_match__1_splitter___redArg___boxed(lean_object* v_x_359_, lean_object* v_x_360_, lean_object* v_h__1_361_, lean_object* v_h__2_362_, lean_object* v_h__3_363_, lean_object* v_h__4_364_){
 _start:
 {
-uint8_t v_x_50__boxed_365_; uint8_t v_x_51__boxed_366_; lean_object* v_res_367_; 
-v_x_50__boxed_365_ = lean_unbox(v_x_359_);
-v_x_51__boxed_366_ = lean_unbox(v_x_360_);
-v_res_367_ = l___private_Init_Data_BitVec_Bitblast_0__BitVec_sdiv_match__1_splitter___redArg(v_x_50__boxed_365_, v_x_51__boxed_366_, v_h__1_361_, v_h__2_362_, v_h__3_363_, v_h__4_364_);
+uint8_t v_x_46__boxed_365_; uint8_t v_x_47__boxed_366_; lean_object* v_res_367_; 
+v_x_46__boxed_365_ = lean_unbox(v_x_359_);
+v_x_47__boxed_366_ = lean_unbox(v_x_360_);
+v_res_367_ = l___private_Init_Data_BitVec_Bitblast_0__BitVec_sdiv_match__1_splitter___redArg(v_x_46__boxed_365_, v_x_47__boxed_366_, v_h__1_361_, v_h__2_362_, v_h__3_363_, v_h__4_364_);
 return v_res_367_;
 }
 }
@@ -1159,10 +1159,10 @@ return v___x_382_;
 LEAN_EXPORT lean_object* l___private_Init_Data_BitVec_Bitblast_0__BitVec_sdiv_match__1_splitter___boxed(lean_object* v_motive_383_, lean_object* v_x_384_, lean_object* v_x_385_, lean_object* v_h__1_386_, lean_object* v_h__2_387_, lean_object* v_h__3_388_, lean_object* v_h__4_389_){
 _start:
 {
-uint8_t v_x_72__boxed_390_; uint8_t v_x_73__boxed_391_; lean_object* v_res_392_; 
-v_x_72__boxed_390_ = lean_unbox(v_x_384_);
-v_x_73__boxed_391_ = lean_unbox(v_x_385_);
-v_res_392_ = l___private_Init_Data_BitVec_Bitblast_0__BitVec_sdiv_match__1_splitter(v_motive_383_, v_x_72__boxed_390_, v_x_73__boxed_391_, v_h__1_386_, v_h__2_387_, v_h__3_388_, v_h__4_389_);
+uint8_t v_x_68__boxed_390_; uint8_t v_x_69__boxed_391_; lean_object* v_res_392_; 
+v_x_68__boxed_390_ = lean_unbox(v_x_384_);
+v_x_69__boxed_391_ = lean_unbox(v_x_385_);
+v_res_392_ = l___private_Init_Data_BitVec_Bitblast_0__BitVec_sdiv_match__1_splitter(v_motive_383_, v_x_68__boxed_390_, v_x_69__boxed_391_, v_h__1_386_, v_h__2_387_, v_h__3_388_, v_h__4_389_);
 return v_res_392_;
 }
 }
@@ -1216,10 +1216,10 @@ return v___x_406_;
 LEAN_EXPORT lean_object* l___private_Init_Data_BitVec_Bitblast_0__BitVec_getElem__sdiv_match__1_splitter___redArg___boxed(lean_object* v_x_407_, lean_object* v_x_408_, lean_object* v_h__1_409_, lean_object* v_h__2_410_, lean_object* v_h__3_411_, lean_object* v_h__4_412_){
 _start:
 {
-uint8_t v_x_50__boxed_413_; uint8_t v_x_51__boxed_414_; lean_object* v_res_415_; 
-v_x_50__boxed_413_ = lean_unbox(v_x_407_);
-v_x_51__boxed_414_ = lean_unbox(v_x_408_);
-v_res_415_ = l___private_Init_Data_BitVec_Bitblast_0__BitVec_getElem__sdiv_match__1_splitter___redArg(v_x_50__boxed_413_, v_x_51__boxed_414_, v_h__1_409_, v_h__2_410_, v_h__3_411_, v_h__4_412_);
+uint8_t v_x_46__boxed_413_; uint8_t v_x_47__boxed_414_; lean_object* v_res_415_; 
+v_x_46__boxed_413_ = lean_unbox(v_x_407_);
+v_x_47__boxed_414_ = lean_unbox(v_x_408_);
+v_res_415_ = l___private_Init_Data_BitVec_Bitblast_0__BitVec_getElem__sdiv_match__1_splitter___redArg(v_x_46__boxed_413_, v_x_47__boxed_414_, v_h__1_409_, v_h__2_410_, v_h__3_411_, v_h__4_412_);
 return v_res_415_;
 }
 }
@@ -1273,10 +1273,10 @@ return v___x_430_;
 LEAN_EXPORT lean_object* l___private_Init_Data_BitVec_Bitblast_0__BitVec_getElem__sdiv_match__1_splitter___boxed(lean_object* v_motive_431_, lean_object* v_x_432_, lean_object* v_x_433_, lean_object* v_h__1_434_, lean_object* v_h__2_435_, lean_object* v_h__3_436_, lean_object* v_h__4_437_){
 _start:
 {
-uint8_t v_x_72__boxed_438_; uint8_t v_x_73__boxed_439_; lean_object* v_res_440_; 
-v_x_72__boxed_438_ = lean_unbox(v_x_432_);
-v_x_73__boxed_439_ = lean_unbox(v_x_433_);
-v_res_440_ = l___private_Init_Data_BitVec_Bitblast_0__BitVec_getElem__sdiv_match__1_splitter(v_motive_431_, v_x_72__boxed_438_, v_x_73__boxed_439_, v_h__1_434_, v_h__2_435_, v_h__3_436_, v_h__4_437_);
+uint8_t v_x_68__boxed_438_; uint8_t v_x_69__boxed_439_; lean_object* v_res_440_; 
+v_x_68__boxed_438_ = lean_unbox(v_x_432_);
+v_x_69__boxed_439_ = lean_unbox(v_x_433_);
+v_res_440_ = l___private_Init_Data_BitVec_Bitblast_0__BitVec_getElem__sdiv_match__1_splitter(v_motive_431_, v_x_68__boxed_438_, v_x_69__boxed_439_, v_h__1_434_, v_h__2_435_, v_h__3_436_, v_h__4_437_);
 return v_res_440_;
 }
 }

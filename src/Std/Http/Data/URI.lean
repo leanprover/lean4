@@ -75,7 +75,7 @@ def setQueryParam (target : RequestTarget) (key value : String) : RequestTarget 
   | .originForm path query =>
     .originForm path (some ((query.getD URI.Query.empty).insert key value))
   | .absoluteForm af =>
-    .absoluteForm { af with query := af.query.insert key value }
+    .absoluteForm { af with query := some ((af.query.getD URI.Query.empty).insert key value) }
   | other => other
 
 end RequestTarget
@@ -132,12 +132,12 @@ def host? (uri : URI) : Option URI.Host :=
 
 /--
 Returns the origin-form request target corresponding to this URI, dropping the scheme, authority,
-user-info, and fragment. An empty query is reported as `none` so the target stays canonical.
+user-info, and fragment while preserving the query component.
 
 Reference: https://httpwg.org/specs/rfc9112.html#section-3.2.1
 -/
 def originTarget (uri : URI) : RequestTarget :=
-  .originForm uri.path (if uri.query.isEmpty then none else some uri.query)
+  .originForm uri.path uri.query
 
 /--
 Attempts to parse a `URI` from the given string.

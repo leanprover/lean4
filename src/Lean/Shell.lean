@@ -199,12 +199,9 @@ private builtin_initialize timeout : Lean.Option Nat ←
 private builtin_initialize verbose : Lean.Option Bool ←
   Lean.Option.register `verbose {defValue := Internal.getDefaultVerbose ()}
 
-/--
-Returns the default options Lean was built with
-(i.e., those set in `stdlib_flags.h`).
--/
-@[extern "lean_internal_get_default_options"]
-opaque Internal.getDefaultOptions (_ : Unit) : Options
+/-- Returns any option overrides Lean was built with (i.e., those set in `stdlib_flags.h`). -/
+@[extern "lean_internal_get_option_overrides"]
+opaque Internal.getOptionOverrides (_ : Unit) : Options
 
 /--
 Returns the believer trust level of the Lean environment (i.e., `LEAN_BELIEVER_TRUST_LEVEL`).
@@ -226,7 +223,7 @@ def defaultNumThreads : UInt32 :=
   else 0
 
 structure ShellOptions where
-  leanOpts : Options := Internal.getDefaultOptions ()
+  leanOpts : Options := {}
   forwardedArgs : Array String := #[]
   component : ShellComponent := .frontend
   printPrefix : Bool := false
@@ -469,6 +466,7 @@ where
 
 @[export lean_shell_main]
 def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
+  let opts := { opts with leanOpts := opts.leanOpts.mergeBy (fun _ _ v => v) (Internal.getOptionOverrides ()) }
   if opts.printPrefix then
     IO.println (← getBuildDir)
     return 0

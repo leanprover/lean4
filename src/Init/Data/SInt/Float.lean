@@ -6,7 +6,7 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.Float
+public import Init.Data.Float.Float
 public import Init.Data.SInt.Basic
 
 public section

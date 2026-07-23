@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_st_ref_get(lean_object*);
-uint8_t lean_get_reducibility_status(lean_object*, lean_object*);
+uint8_t l_Lean_getReducibilityStatusCore(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -986,7 +986,7 @@ v___x_296_ = lean_st_ref_get(v___y_294_);
 v_env_297_ = lean_ctor_get(v___x_296_, 0);
 lean_inc_ref(v_env_297_);
 lean_dec(v___x_296_);
-v___x_298_ = lean_get_reducibility_status(v_env_297_, v_declName_293_);
+v___x_298_ = l_Lean_getReducibilityStatusCore(v_env_297_, v_declName_293_);
 v___x_299_ = lean_box(v___x_298_);
 v___x_300_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_300_, 0, v___x_299_);

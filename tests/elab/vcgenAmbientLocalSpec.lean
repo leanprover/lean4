@@ -6,13 +6,9 @@ import Std.Tactic.Do
 from an ambient hypothesis. The call-site bands sit just above `high`, so an `@[spec high]` used to
 outrank default specs does not shadow a call-site spec, while a priority above the band still does.
 
-`viaBinder`, `viaHave`, and `viaStar` prove the same goal from the same sub-specs. In `viaHave`/
-`viaStar` the concrete `item` spec is a local `have` derived from the quantified hypothesis `H`,
-which is also collected as an ambient spec for `item`. The named `hItem` must be chosen over `H`:
-selecting `H` instantiates its precondition `s = enc b ++ rest` with a fresh `rest` metavariable, and
-matching it against the post-`+` state leaves a frame metavariable `¬ cs = enc b ++ ?vc` that `grind`
-cannot solve through the opaque `enc b`. The recursive, fuel-matched `tail` places the `item` call
-where such a frame arises. `namedBeatsAmbient` and `specAnnotationWins` isolate the banding.
+`viaBinder`, `viaHave`, and `viaStar` prove one goal three ways, checking that a named spec wins over
+the ambient spec collected from the same hypothesis. `namedBeatsSpec`, `specHighLoses`, and
+`specHighestWins` isolate the banding against `@[spec]`, `@[spec high]`, and a priority above the band.
 -/
 
 open Std.Internal.Do Lean.Order

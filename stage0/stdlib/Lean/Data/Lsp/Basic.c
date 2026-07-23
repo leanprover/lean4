@@ -10561,9 +10561,9 @@ goto v___jp_2624_;
 v___jp_2612_:
 {
 lean_object* v___x_2616_; lean_object* v___x_2618_; 
-v___x_2616_ = lean_nat_add(v___y_2614_, v___y_2615_);
+v___x_2616_ = lean_nat_add(v___y_2613_, v___y_2615_);
 lean_dec(v___y_2615_);
-lean_dec(v___y_2614_);
+lean_dec(v___y_2613_);
 if (v_isShared_2609_ == 0)
 {
 lean_ctor_set(v___x_2608_, 4, v_r_2573_);
@@ -10592,7 +10592,7 @@ lean_object* v___x_2620_;
 if (v_isShared_2597_ == 0)
 {
 lean_ctor_set(v___x_2596_, 4, v___x_2618_);
-lean_ctor_set(v___x_2596_, 3, v___y_2613_);
+lean_ctor_set(v___x_2596_, 3, v___y_2614_);
 lean_ctor_set(v___x_2596_, 2, v_v_2601_);
 lean_ctor_set(v___x_2596_, 1, v_k_2600_);
 lean_ctor_set(v___x_2596_, 0, v___x_2611_);
@@ -10606,7 +10606,7 @@ v_reuseFailAlloc_2621_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_2621_, 0, v___x_2611_);
 lean_ctor_set(v_reuseFailAlloc_2621_, 1, v_k_2600_);
 lean_ctor_set(v_reuseFailAlloc_2621_, 2, v_v_2601_);
-lean_ctor_set(v_reuseFailAlloc_2621_, 3, v___y_2613_);
+lean_ctor_set(v_reuseFailAlloc_2621_, 3, v___y_2614_);
 lean_ctor_set(v_reuseFailAlloc_2621_, 4, v___x_2618_);
 v___x_2620_ = v_reuseFailAlloc_2621_;
 goto v_reusejp_2619_;
@@ -10654,8 +10654,8 @@ if (lean_obj_tag(v_r_2603_) == 0)
 lean_object* v_size_2630_; 
 v_size_2630_ = lean_ctor_get(v_r_2603_, 0);
 lean_inc(v_size_2630_);
-v___y_2613_ = v___x_2628_;
-v___y_2614_ = v___x_2629_;
+v___y_2613_ = v___x_2629_;
+v___y_2614_ = v___x_2628_;
 v___y_2615_ = v_size_2630_;
 goto v___jp_2612_;
 }
@@ -10663,8 +10663,8 @@ else
 {
 lean_object* v___x_2631_; 
 v___x_2631_ = lean_unsigned_to_nat(0u);
-v___y_2613_ = v___x_2628_;
-v___y_2614_ = v___x_2629_;
+v___y_2613_ = v___x_2629_;
+v___y_2614_ = v___x_2628_;
 v___y_2615_ = v___x_2631_;
 goto v___jp_2612_;
 }
@@ -18655,11 +18655,13 @@ return v___x_4910_;
 lean_object* runtime_initialize_Lean_Data_Json(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_Lsp_BasicAux(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Option_Coe(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Data_Lsp_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Data_Json(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

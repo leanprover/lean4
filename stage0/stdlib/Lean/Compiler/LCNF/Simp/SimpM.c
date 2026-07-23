@@ -3013,7 +3013,7 @@ return v___x_980_;
 v___jp_983_:
 {
 lean_object* v___x_992_; 
-v___x_992_ = l_Lean_Compiler_LCNF_getPhase___redArg(v___y_989_);
+v___x_992_ = l_Lean_Compiler_LCNF_getPhase___redArg(v___y_988_);
 if (lean_obj_tag(v___x_992_) == 0)
 {
 lean_object* v_a_993_; uint8_t v___x_994_; lean_object* v___x_995_; 
@@ -3044,9 +3044,9 @@ lean_dec(v_val_999_);
 v___y_907_ = v___x_998_;
 v_inlineIfReduce_908_ = v___x_1000_;
 v___y_909_ = v___y_984_;
-v___y_910_ = v___y_990_;
-v___y_911_ = v___y_988_;
-v___y_912_ = v___y_989_;
+v___y_910_ = v___y_989_;
+v___y_911_ = v___y_990_;
+v___y_912_ = v___y_988_;
 v___y_913_ = v___y_985_;
 v___y_914_ = v___y_987_;
 v___y_915_ = v___y_986_;
@@ -3060,9 +3060,9 @@ v___x_1001_ = 0;
 v___y_907_ = v___x_998_;
 v_inlineIfReduce_908_ = v___x_1001_;
 v___y_909_ = v___y_984_;
-v___y_910_ = v___y_990_;
-v___y_911_ = v___y_988_;
-v___y_912_ = v___y_989_;
+v___y_910_ = v___y_989_;
+v___y_911_ = v___y_990_;
+v___y_912_ = v___y_988_;
 v___y_913_ = v___y_985_;
 v___y_914_ = v___y_987_;
 v___y_915_ = v___y_986_;
@@ -3170,9 +3170,9 @@ v___y_984_ = v___y_1019_;
 v___y_985_ = v___y_1023_;
 v___y_986_ = v___y_1025_;
 v___y_987_ = v___y_1024_;
-v___y_988_ = v___y_1021_;
-v___y_989_ = v___y_1022_;
-v___y_990_ = v___y_1020_;
+v___y_988_ = v___y_1022_;
+v___y_989_ = v___y_1020_;
+v___y_990_ = v___y_1021_;
 v___y_991_ = v___x_1028_;
 goto v___jp_983_;
 }
@@ -3186,9 +3186,9 @@ v___y_984_ = v___y_1019_;
 v___y_985_ = v___y_1023_;
 v___y_986_ = v___y_1025_;
 v___y_987_ = v___y_1024_;
-v___y_988_ = v___y_1021_;
-v___y_989_ = v___y_1022_;
-v___y_990_ = v___y_1020_;
+v___y_988_ = v___y_1022_;
+v___y_989_ = v___y_1020_;
+v___y_990_ = v___y_1021_;
 v___y_991_ = v_val_1029_;
 goto v___jp_983_;
 }
@@ -6148,11 +6148,13 @@ lean_object* runtime_initialize_Lean_Compiler_LCNF_PrettyPrinter(uint8_t builtin
 lean_object* runtime_initialize_Lean_Compiler_LCNF_Simp_JpCases(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_LCNF_Simp_FunDeclInfo(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_LCNF_Simp_Config(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF_Simp_SimpM(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Compiler_ImplementedByAttr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

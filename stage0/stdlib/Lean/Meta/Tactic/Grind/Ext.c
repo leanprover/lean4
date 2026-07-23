@@ -2697,18 +2697,18 @@ lean_dec(v_a_985_);
 if (v___x_986_ == 0)
 {
 lean_dec_ref(v___y_983_);
-lean_dec_ref(v___y_982_);
+lean_dec_ref(v___y_981_);
 lean_dec(v_a_978_);
-v___y_953_ = v___y_981_;
+v___y_953_ = v___y_982_;
 goto v___jp_952_;
 }
 else
 {
 lean_object* v___x_987_; lean_object* v___x_988_; lean_object* v___x_989_; lean_object* v___x_990_; lean_object* v___x_991_; size_t v_sz_992_; size_t v___x_993_; lean_object* v___x_994_; 
-lean_dec_ref(v___y_981_);
+lean_dec_ref(v___y_982_);
 v___x_987_ = lean_unsigned_to_nat(0u);
-v___x_988_ = lean_array_get_size(v___y_982_);
-v___x_989_ = l_Array_toSubarray___redArg(v___y_982_, v___x_987_, v___x_988_);
+v___x_988_ = lean_array_get_size(v___y_981_);
+v___x_989_ = l_Array_toSubarray___redArg(v___y_981_, v___x_987_, v___x_988_);
 v___x_990_ = lean_box(0);
 v___x_991_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_991_, 0, v___x_990_);
@@ -3155,8 +3155,8 @@ lean_dec_ref(v_arg_1062_);
 lean_dec_ref(v_arg_836_);
 lean_dec_ref(v_arg_833_);
 v___y_980_ = v___x_1070_;
-v___y_981_ = v_snd_1059_;
-v___y_982_ = v_fst_1058_;
+v___y_981_ = v_fst_1058_;
+v___y_982_ = v_snd_1059_;
 v___y_983_ = v_fst_1057_;
 v___y_984_ = v___x_1071_;
 goto v___jp_979_;
@@ -3189,8 +3189,8 @@ else
 lean_object* v___x_1077_; 
 v___x_1077_ = l_Lean_Meta_Grind_instantiateExtTheorem___lam__0(v___x_1070_, v_arg_1062_, v_arg_833_, v___y_796_, v___y_797_, v___y_798_, v___y_799_, v___y_800_, v___y_801_, v___y_802_, v___y_803_, v___y_804_, v___y_805_);
 v___y_980_ = v___x_1070_;
-v___y_981_ = v_snd_1059_;
-v___y_982_ = v_fst_1058_;
+v___y_981_ = v_fst_1058_;
+v___y_982_ = v_snd_1059_;
 v___y_983_ = v_fst_1057_;
 v___y_984_ = v___x_1077_;
 goto v___jp_979_;
@@ -3254,8 +3254,8 @@ lean_dec_ref(v_arg_1062_);
 lean_dec_ref(v_arg_836_);
 lean_dec_ref(v_arg_833_);
 v___y_980_ = v___x_1070_;
-v___y_981_ = v_snd_1059_;
-v___y_982_ = v_fst_1058_;
+v___y_981_ = v_fst_1058_;
+v___y_982_ = v_snd_1059_;
 v___y_983_ = v_fst_1057_;
 v___y_984_ = v___x_1071_;
 goto v___jp_979_;
@@ -3329,7 +3329,7 @@ lean_dec(v_a_858_);
 v___x_861_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_861_, 0, v_declName_843_);
 v___x_862_ = lean_box(1);
-v___x_863_ = l_Lean_Meta_Grind_addNewRawFact(v___y_845_, v___y_846_, v___x_860_, v___x_861_, v___x_862_, v___y_847_, v___y_848_, v___y_849_, v___y_850_, v___y_851_, v___y_852_, v___y_853_, v___y_854_, v___y_855_, v___y_856_);
+v___x_863_ = l_Lean_Meta_Grind_addNewRawFact(v___y_846_, v___y_845_, v___x_860_, v___x_861_, v___x_862_, v___y_847_, v___y_848_, v___y_849_, v___y_850_, v___y_851_, v___y_852_, v___y_853_, v___y_854_, v___y_855_, v___y_856_);
 return v___x_863_;
 }
 else
@@ -3432,8 +3432,8 @@ v___x_883_ = lean_obj_once(&l_Lean_Meta_Grind_instantiateExtTheorem___lam__1___c
 v___x_884_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_884_, 0, v___x_882_);
 lean_ctor_set(v___x_884_, 1, v___x_883_);
-lean_inc_ref(v___y_874_);
-v___x_885_ = l_Lean_MessageData_ofExpr(v___y_874_);
+lean_inc_ref(v___y_873_);
+v___x_885_ = l_Lean_MessageData_ofExpr(v___y_873_);
 v___x_886_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_886_, 0, v___x_884_);
 lean_ctor_set(v___x_886_, 1, v___x_885_);
@@ -3596,15 +3596,15 @@ if (v___x_921_ == 0)
 {
 uint8_t v___x_922_; 
 v___x_922_ = l_Lean_Expr_hasMVar(v_a_920_);
-v___y_873_ = v_a_918_;
-v___y_874_ = v_a_920_;
+v___y_873_ = v_a_920_;
+v___y_874_ = v_a_918_;
 v___y_875_ = v___x_922_;
 goto v___jp_872_;
 }
 else
 {
-v___y_873_ = v_a_918_;
-v___y_874_ = v_a_920_;
+v___y_873_ = v_a_920_;
+v___y_874_ = v_a_918_;
 v___y_875_ = v___y_910_;
 goto v___jp_872_;
 }
@@ -4238,11 +4238,13 @@ return v___x_1358_;
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_SynthInstance(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Ext(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Grind_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

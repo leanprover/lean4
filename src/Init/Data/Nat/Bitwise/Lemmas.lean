@@ -461,10 +461,10 @@ theorem bitwise_lt_two_pow (left : x < 2^n) (right : y < 2^n) : (Nat.bitwise f x
   | succ n hyp =>
     unfold bitwise
     if x_zero : x = 0 then
-      simp only [x_zero, if_pos]
+      simp only [x_zero, ite_eq_left]
       by_cases p : f false true = true <;> simp [p, right]
     else if y_zero : y = 0 then
-      simp only [x_zero, y_zero, if_pos]
+      simp only [x_zero, y_zero, ite_eq_left]
       by_cases p : f true false = true <;> simp [p, left]
     else
       simp only [x_zero, y_zero]

@@ -175,7 +175,15 @@ def doIfCond    :=
 @[builtin_doElem_parser] def doUnless := leading_parser
   "unless " >> withForbidden "do" termParser >> " do " >> doSeq
 def doForDecl := leading_parser
-  optional (atomic (ident >> " : ")) >> termParser >> " in " >> withForbidden "do" termParser
+  optional (atomic (ident >> " : ")) >> termParser >> " in " >>
+    withForbiddens #["do", "invariant"] termParser
+/--
+The optional `invariant cur => e` clause of a `for` loop. The invariant annotates the loop so
+`vcgen` reads it from the program, with `cur` bound to the iteration cursor and mutable variables
+referenced by name.
+-/
+def doForInvariant := leading_parser
+  ppSpace >> nonReservedSymbol "invariant" >> withForbidden "do" basicFun
 /--
 `for x in e do s` iterates over `e` assuming `e`'s type has an instance of the `ForIn` typeclass.
 `break` and `continue` are supported inside `for` loops.
@@ -184,7 +192,7 @@ until at least one of them is exhausted.
 The types of `e2` etc. must implement the `Std.ToStream` typeclass.
 -/
 @[builtin_doElem_parser] def doFor    := leading_parser
-  "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
+  "for " >> sepBy1 doForDecl ", " >> optional doForInvariant >> " do " >> doSeq
 
 def dependentParam := leading_parser
   atomic ("(" >> nonReservedSymbol "dependent") >> " := " >>
@@ -334,7 +342,7 @@ They expand into `do unless ...`, `do for ...`, `do try ...`, and `do return ...
 @[builtin_term_parser] def termUnless := leading_parser
   "unless " >> withForbidden "do" termParser >> " do " >> doSeq
 @[builtin_term_parser] def termFor := leading_parser
-  "for " >> sepBy1 doForDecl ", " >> " do " >> doSeq
+  "for " >> sepBy1 doForDecl ", " >> optional doForInvariant >> " do " >> doSeq
 @[builtin_term_parser] def termTry    := leading_parser
   "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
 /--

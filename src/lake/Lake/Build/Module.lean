@@ -213,12 +213,24 @@ def computeModuleDeps
     else
       dynlibs := dynlibs.push impLib
   /-
-  On MacOS, Lake must be loaded as a plugin for
-  `import Lake` to work with precompiled modules.
-  https://github.com/leanprover/lean4/issues/7388
+  On Linux, dynlibs that use Lake symbols are linked against `libLake_shared.so` (`--as-needed`).
+  The runtime linker is not able to find `lib/lean/libLake_shared.so` on disk
+  because we do not set `LD_LIBRARY_PATH`,
+  and the `DT_RUNPATH` entry on `bin/lean` pointing to `lib/lean`
+  is ignored when resolving transitive dependencies.
+  So we load `libLake_shared.so` eagerly *in case it might be needed*
+  (we don't know whether it is needed because an imported `Lake.*` module
+  will not be present in `Module.transImports`).
+  TODO: load as dynlib instead of as plugin,
+  see https://github.com/leanprover/lean4/pull/14326
+
+  MacOS *can* resolve the dylib but needs a plugin to run initializers,
+  see https://github.com/leanprover/lean4/issues/7388
+  TODO: remove macOS case once initializers are compiled correctly,
+  see https://github.com/leanprover/lean4/issues/14359
   -/
-  if Platform.isOSX && !(plugins.isEmpty && dynlibs.isEmpty) then
-    plugins := plugins.push (← getLakeInstall).sharedDynlib
+  if (Platform.isLinux || Platform.isOSX) && !(plugins.isEmpty && dynlibs.isEmpty) then
+    plugins := plugins.insertIdx 0 (← getLakeInstall).sharedDynlib
   return {dynlibs, plugins}
 
 structure TransImportEntry where

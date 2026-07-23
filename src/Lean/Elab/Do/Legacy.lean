@@ -1563,7 +1563,7 @@ mutual
      `doFor` is of the form
      ```
      def doForDecl := leading_parser termParser >> " in " >> withForbidden "do" termParser
-     def doFor := leading_parser "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
+     def doFor := leading_parser "for " >> sepBy1 doForDecl ", " >> optional doForInvariant >> " do " >> doSeq
      ```
   -/
   partial def doForToCode (doFor : Syntax) (doElems : List Syntax) : M CodeBlock := do
@@ -1593,7 +1593,7 @@ mutual
       let y  := doForDecl[1]
       let ys := doForDecl[3]
       let doForDecls := doForDecls.eraseIdx 1
-      let body := doFor[3]
+      let body := doFor[4]
       withFreshMacroScope do
         /- Recall that `@` (explicit) disables `coeAtOutParam`.
            We used `@` at `Stream` functions to make sure `resultIsOutParamSupport` is not used. -/
@@ -1612,7 +1612,7 @@ mutual
       let x         := doForDecls[0]![1]
       withRef x <| checkNotShadowingMutable (← getPatternVarsEx x)
       let xs        := doForDecls[0]![3]
-      let forElems  := getDoSeqElems doFor[3]
+      let forElems  := getDoSeqElems doFor[4]
       let forInBodyCodeBlock ← withFor (doSeqToCode forElems)
       let ⟨uvars, forInBody⟩ ← mkForInBody x forInBodyCodeBlock
       let ctx ← read

@@ -1365,7 +1365,7 @@ return v___x_467_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey(lean_object* v_e_468_, uint8_t v_a_469_, lean_object* v_a_470_, lean_object* v_a_471_, lean_object* v_a_472_, lean_object* v_a_473_, lean_object* v_a_474_){
 _start:
 {
-lean_object* v_t_477_; lean_object* v_b_478_; uint8_t v___y_479_; lean_object* v___y_480_; lean_object* v___y_481_; lean_object* v___y_482_; lean_object* v___y_483_; lean_object* v___y_484_; uint64_t v___y_501_; lean_object* v___y_502_; lean_object* v_snd_503_; uint64_t v_key_508_; lean_object* v___y_509_; lean_object* v___y_529_; lean_object* v_info_530_; uint8_t v___y_531_; lean_object* v___y_532_; lean_object* v___y_533_; lean_object* v___y_534_; lean_object* v___y_535_; lean_object* v___y_536_; lean_object* v___y_544_; uint8_t v___y_545_; lean_object* v___y_546_; lean_object* v___y_547_; lean_object* v___y_548_; lean_object* v___y_549_; lean_object* v___y_550_; lean_object* v___x_564_; lean_object* v_cache_652_; lean_object* v_buckets_653_; lean_object* v___x_654_; lean_object* v___x_655_; uint8_t v___x_656_; 
+lean_object* v_t_477_; lean_object* v_b_478_; uint8_t v___y_479_; lean_object* v___y_480_; lean_object* v___y_481_; lean_object* v___y_482_; lean_object* v___y_483_; lean_object* v___y_484_; lean_object* v___y_501_; uint64_t v___y_502_; lean_object* v_snd_503_; uint64_t v_key_508_; lean_object* v___y_509_; lean_object* v___y_529_; lean_object* v_info_530_; uint8_t v___y_531_; lean_object* v___y_532_; lean_object* v___y_533_; lean_object* v___y_534_; lean_object* v___y_535_; lean_object* v___y_536_; lean_object* v___y_544_; uint8_t v___y_545_; lean_object* v___y_546_; lean_object* v___y_547_; lean_object* v___y_548_; lean_object* v___y_549_; lean_object* v___y_550_; lean_object* v___x_564_; lean_object* v_cache_652_; lean_object* v_buckets_653_; lean_object* v___x_654_; lean_object* v___x_655_; uint8_t v___x_656_; 
 v___x_564_ = lean_st_ref_get(v_a_470_);
 v_cache_652_ = lean_ctor_get(v___x_564_, 0);
 lean_inc_ref(v_cache_652_);
@@ -1507,8 +1507,8 @@ return v___x_485_;
 v___jp_500_:
 {
 lean_object* v___x_504_; lean_object* v___x_505_; lean_object* v___x_506_; 
-v___x_504_ = lean_st_ref_set(v___y_502_, v_snd_503_);
-v___x_505_ = lean_box_uint64(v___y_501_);
+v___x_504_ = lean_st_ref_set(v___y_501_, v_snd_503_);
+v___x_505_ = lean_box_uint64(v___y_502_);
 v___x_506_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_506_, 0, v___x_505_);
 return v___x_506_;
@@ -1530,8 +1530,8 @@ if (v___x_516_ == 0)
 lean_dec_ref(v_keyToExprs_512_);
 lean_dec_ref(v_cache_511_);
 lean_dec_ref(v_e_468_);
-v___y_501_ = v_key_508_;
-v___y_502_ = v___y_509_;
+v___y_501_ = v___y_509_;
+v___y_502_ = v_key_508_;
 v_snd_503_ = v___x_510_;
 goto v___jp_500_;
 }
@@ -1579,8 +1579,8 @@ goto v_reusejp_522_;
 }
 v_reusejp_522_:
 {
-v___y_501_ = v_key_508_;
-v___y_502_ = v___y_509_;
+v___y_501_ = v___y_509_;
+v___y_502_ = v_key_508_;
 v_snd_503_ = v___x_523_;
 goto v___jp_500_;
 }
@@ -3707,11 +3707,13 @@ lean_object* runtime_initialize_Lean_Util_ShareCommon(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_FunInfo(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_HashMap_Raw(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Canonicalizer(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Util_ShareCommon(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

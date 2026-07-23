@@ -708,7 +708,8 @@ theorem incr_id (amounts : List Nat) :
 error: unsolved goals
 case vc1
 m : Type → Type u
-Pred EPred : Type
+Pred : Type u_1
+EPred : Type u_2
 inst✝³ : Monad m
 inst✝² : Assertion Pred
 inst✝¹ : Assertion EPred

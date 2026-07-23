@@ -3113,8 +3113,8 @@ goto v___jp_1114_;
 v___jp_1049_:
 {
 lean_object* v___x_1053_; 
-lean_inc(v___y_1051_);
-v___x_1053_ = l___private_Lean_Util_Trace_0__Lean_addTraceNode___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00__private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_Elab_WF_copyPrivateUnfoldTheorem_spec__4_spec__5(v_oldTraces_1039_, v_data_1052_, v___y_1051_, v___y_1050_, v___y_1042_, v___y_1043_, v___y_1044_, v___y_1045_);
+lean_inc(v___y_1050_);
+v___x_1053_ = l___private_Lean_Util_Trace_0__Lean_addTraceNode___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00__private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_Elab_WF_copyPrivateUnfoldTheorem_spec__4_spec__5(v_oldTraces_1039_, v_data_1052_, v___y_1050_, v___y_1051_, v___y_1042_, v___y_1043_, v___y_1044_, v___y_1045_);
 if (lean_obj_tag(v___x_1053_) == 0)
 {
 lean_object* v___x_1054_; 
@@ -3190,8 +3190,8 @@ lean_dec(v_snd_1064_);
 lean_dec(v_fst_1063_);
 lean_dec_ref(v_tag_1036_);
 lean_dec(v_cls_1034_);
-v___y_1050_ = v_a_1069_;
-v___y_1051_ = v___y_1068_;
+v___y_1050_ = v___y_1068_;
+v___y_1051_ = v_a_1069_;
 v_data_1052_ = v_data_1074_;
 goto v___jp_1049_;
 }
@@ -3210,8 +3210,8 @@ v___x_1077_ = lean_unbox_float(v_snd_1064_);
 lean_dec(v_snd_1064_);
 lean_ctor_set_float(v_data_1075_, sizeof(void*)*3 + 8, v___x_1077_);
 lean_ctor_set_uint8(v_data_1075_, sizeof(void*)*3 + 16, v_collapsed_1035_);
-v___y_1050_ = v_a_1069_;
-v___y_1051_ = v___y_1068_;
+v___y_1050_ = v___y_1068_;
+v___y_1051_ = v_a_1069_;
 v_data_1052_ = v_data_1075_;
 goto v___jp_1049_;
 }
@@ -5133,11 +5133,13 @@ return v_res_1662_;
 }
 lean_object* runtime_initialize_Lean_Elab_PreDefinition_FixedParams(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_ArgsPacker_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_PreDefinition_WF_Eqns(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Elab_PreDefinition_FixedParams(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

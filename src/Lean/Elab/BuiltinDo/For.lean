@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.BuiltinDo.Basic
 meta import Lean.Parser.Do
 import Init.Control.Do
+import Init.While
 import Lean.Meta.ProdN
 
 public section
@@ -20,10 +21,13 @@ open Lean.Meta
 
 @[builtin_macro Lean.Parser.Term.doFor] def expandDoFor : Macro := fun stx => do
   match stx with
-  | `(doFor| for $[$_ : ]? $_:ident in $_ do $_) =>
+  | `(doFor| for $[$_ : ]? $_:ident in $_ $[$_inv:doForInvariant]? do $_) =>
     -- This is the target form of the expander, handled by `elabDoFor` below.
     Macro.throwUnsupported
-  | `(doFor| for%$tk $decls:doForDecl,* do $body) =>
+  | `(doFor| for%$tk $decls:doForDecl,* $[$inv:doForInvariant]? do $body) =>
+    if let some inv := inv then
+      Macro.throwErrorAt inv "The `invariant` clause is only supported on `for x in xs do …` \
+        with a single identifier binder."
     let decls := decls.getElems
     let `(doForDecl| $[$h? : ]? $pattern in $xs) := decls[0]! | Macro.throwUnsupported
     let mut doElems := #[]
@@ -78,8 +82,40 @@ open Lean.Meta
     `(doElem| do $doElems*)
   | _ => Macro.throwUnsupported
 
+/-- Rebuild the already-elaborated loop as a `forInWithInvariant` call carrying the `invariant`
+clause: `ForIn.forInWithInvariant`, or `ForIn'.forInWithInvariant'` for a membership-proof binder
+(`for h : x in xs`). The state tuple's layout is `[return?, mutVars…, unit?]`, so the invariant can
+name the loop's mutable variables directly; the early-return slot becomes a wildcard. -/
+private def mkForInWithInvariant (invClause : Syntax) (h? : Option Syntax)
+    (xs preS body σ : Expr) (loopMutVars : Array MutVar) (returnsEarly : Bool)
+    (mi : MonadInfo) : DoElabM Expr := do
+  let `(doForInvariant| invariant $cursorBinders* => $invBody) := invClause | throwUnsupportedSyntax
+  let hole ← `(_)
+  let mut binders : Array Term := #[]
+  if returnsEarly then binders := binders.push hole
+  for mv in loopMutVars do binders := binders.push ⟨mv.ident.raw⟩
+  if returnsEarly && loopMutVars.isEmpty then binders := binders.push hole
+  let statePat : Term ← match binders with
+    | #[]  => `(_)
+    | #[b] => pure b
+    | _    => `(⟨$binders,*⟩)
+  let stateId := mkIdentFrom invClause (← mkFreshUserName `__s)
+  let invLam ← `(fun $cursorBinders* $stateId:ident =>
+    match $stateId:ident with | $statePat => $invBody)
+  -- The `forInWithInvariant` gadgets live downstream of this module, so they are referenced by an
+  -- unresolved name that resolves in the user's context (which imports the metatheory).
+  let gadget := if h?.isSome then `Std.Internal.Do.ForIn'.forInWithInvariant'
+    else `Std.Internal.Do.ForIn.forInWithInvariant
+  unless (← getEnv).contains gadget do
+    throwErrorAt invClause
+      "the `invariant` clause elaborates to a `vcgen` gadget; add `import Std.Internal.Do` to use it."
+  let call ← `($(mkIdent gadget)
+    $(← Term.exprToSyntax xs) $(← Term.exprToSyntax preS) $(← Term.exprToSyntax body) $invLam)
+  Term.elabTermEnsuringType call (mkApp mi.m σ)
+
 @[builtin_doElem_elab Lean.Parser.Term.doFor] def elabDoFor : DoElab := fun stx dec => do
-  let `(doFor| for%$tk $[$h? : ]? $x:ident in $xs do $body) := stx | throwUnsupportedSyntax
+  let `(doFor| for%$tk $[$h? : ]? $x:ident in $xs $[$inv?:doForInvariant]? do $body) := stx
+    | throwUnsupportedSyntax
   let dec ← dec.ensureUnitAt tk
   checkMutVarsForShadowing #[x]
   let uα ← mkFreshLevelMVar
@@ -176,7 +212,9 @@ open Lean.Meta
     -- Elaborate the loop body, which must have result type `PUnit`, just like the whole `for` loop.
     elabDoSeq body { dec with k := continueCont, kind := .duplicable }
 
-  let forIn := mkApp app body
+  let forIn ← match inv? with
+    | none => pure (mkApp app body)
+    | some invClause => mkForInWithInvariant invClause h? xs preS body σ loopMutVars info.returnsEarly mi
 
   let γ := (← read).doBlockResultType
   let rest ←

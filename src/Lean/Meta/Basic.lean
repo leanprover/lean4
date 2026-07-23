@@ -350,6 +350,43 @@ structure InfoCacheKey where
 instance : Hashable InfoCacheKey where
   hash := private fun { configKey, expr, nargs? } => mixHash (hash configKey) <| mixHash (hash expr) (hash nargs?)
 
+/--
+The option lookups a type class resolution cache entry was computed under, deduplicated by name;
+a lookup may only use an entry whose recorded accesses give the same answers in the current
+context. See `SynthInstanceCache`.
+-/
+abbrev SynthOptionAccessLog := Array RecordedOptionAccess
+
+/--
+Resource limits a type class resolution query runs under; part of the cache key, see
+`SynthInstanceCacheKey.limits`.
+-/
+structure SynthLimits where
+  maxHeartbeats           : Nat
+  synthInstanceHeartbeats : Nat
+  maxRecDepth             : Nat
+  exponentiationThreshold : Nat
+  deriving Hashable, BEq, Inhabited
+
+/--
+The definitional-equality and unfolding compatibility flags, resolved and recorded once per type
+class resolution query (`synthInstanceCore?`) so that their per-step reads inside the search
+avoid the recording accessors; see `getSynthDefEqFlag`. Being resolved up front, they are part
+of the cache key (`SynthInstanceCacheKey.defEqFlags`) rather than recorded dependencies: every
+query partitions on all of them, whether its search reaches the corresponding reads or not.
+They are global compatibility settings, so the sharing lost to this over-approximation is
+negligible.
+-/
+structure SynthDefEqFlags where
+  respectTransparency      : Bool
+  respectTransparencyTypes : Bool
+  implicitBump             : Bool
+  reducibleClassField      : Bool
+  lazyProjDelta            : Bool
+  lazyWhnfCore             : Bool
+  smartUnfolding           : Bool
+  deriving Inhabited, BEq, Hashable
+
 -- Remark: we don't need to store `Config.toKey` because typeclass resolution uses a fixed configuration.
 structure SynthInstanceCacheKey where
   localInsts        : LocalInstances
@@ -387,26 +424,38 @@ structure SynthInstanceCacheKey where
   -/
   localAttrInsts    : Array Name
   /--
+  Instances currently erased via `attribute [-instance]` (`Instances.erased`), in canonical
+  order. Erasure is delimited by its surrounding scope like local instances, and entries are
+  keyed by it for the same reason: an entry (in particular a cached failure) computed under an
+  erasure must not be served once the surrounding scope ends and restores the instance.
+  -/
+  erasedInsts       : Array Name
+  /--
   Effective maximum result size (`synthInstance.maxSize` unless overridden by the caller).
   The cache persists across commands, so results (in particular failures) obtained under a
   different size limit must not be reused.
   -/
   maxResultSize     : Nat
-  /-- Value of `backward.synthInstance.canonInstances`. -/
-  canonInstances    : Bool
   /--
-  Values of `backward.isDefEq.respectTransparency` and `backward.isDefEq.respectTransparency.types`.
-  They control whether `isDefEq` bumps the transparency when assigning a metavariable, and hence
-  which of several definitionally equal terms an instance's implicit arguments are assigned. The
-  cache persists across commands, which may set them differently.
+  The definitional-equality flags the query runs under, resolved up front; see
+  `SynthDefEqFlags`. Options read lazily during the search are recorded per entry instead
+  (`SynthOptionAccessLog`).
   -/
-  respectTransparency      : Bool
-  respectTransparencyTypes : Bool
+  defEqFlags        : SynthDefEqFlags
   /--
   Value of `Environment.isExporting`: in the exporting state, fewer definitions can be unfolded,
   which can change the result of typeclass resolution.
   -/
   isExporting       : Bool
+  /--
+  The resource limits in effect for the query (`maxHeartbeats`, `synthInstance.maxHeartbeats`,
+  `maxRecDepth`, `exponentiation.threshold`). Exceeding a limit throws, and results are only
+  cached on the success path, so a limit cannot influence a stored result; keying by them
+  nevertheless makes that a structural property rather than an argument about exception paths,
+  and lets their (frequent, mostly out-of-query) reads be plain unrestricted reads. Limits are
+  effectively constant per module, so this does not partition the cache in practice.
+  -/
+  limits            : SynthLimits
   deriving Hashable, BEq
 
 /-- Resulting type for `abstractMVars` -/
@@ -419,7 +468,20 @@ structure AbstractMVarsResult where
 def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
   r.mvars.size
 
-abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option AbstractMVarsResult)
+/--
+Type class resolution cache. Each key holds one entry per observed combination of dependencies:
+the search records every result-relevant option lookup (`getRecordedOption`) and every observed
+environment dependency (accessed `.recorded` extensions and reducibility statuses; see
+`Lean.EnvExtension.TCResolutionAccess`) into the entry's `SynthDepLog`, and a lookup may only
+use an entry whose recorded dependencies give the same answers in the current context.
+Dependencies the search never observed do not partition the cache. The search observes no other
+options or extensions, as it runs with `Core.Context.recordingDeps` set, which diverts option
+acquisitions to the recording
+`Core.Context.recordingDeps` set, which divert by-name option reads to the recording
+accessors and panic on `.deny` extension accesses.
+-/
+abbrev SynthInstanceCache :=
+  PersistentHashMap SynthInstanceCacheKey (List (RecordedDeps × Option AbstractMVarsResult))
 
 -- Key for `InferType` and `WHNF` caches
 structure ExprConfigCacheKey where
@@ -492,11 +554,11 @@ structure SynthNormClosureMemo where
 /--
 Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
 
-The `synthInstance` field is only the *transient* tier of the type class resolution cache: it
-holds context-sensitive entries (keys containing metavariables, or results with abstracted
-metavariables), whose validity is tied to the current elaboration context. Context-free entries
-are stored in an environment extension instead so that they persist across commands (see
-`synthInstanceCacheExt`).
+The `synthInstance` field is the *transient* tier of the type class resolution cache: it has
+the lifetime of the current `Meta.State` and holds all entries, including context-sensitive ones
+(keys containing metavariables, or results with abstracted metavariables) whose validity is tied
+to the current elaboration context. Context-free entries are additionally stored in an
+environment extension so that they persist across commands (see `synthInstanceCacheExt`).
 -/
 structure Cache where
   inferType      : InferTypeCache := {}
@@ -618,6 +680,8 @@ structure Context where
   Remark: `synthPending` fails if `synthPendingDepth > maxSynthPendingDepth`.
   -/
   synthPendingDepth : Nat                  := 0
+  /-- Set per type class resolution query; see `SynthDefEqFlags`. -/
+  synthDefEqFlags?  : Option SynthDefEqFlags := none
   /--
   A predicate to control whether a constant can be unfolded or not at `whnf`.
   If set, overrides `Config.canUnfoldPredicateConfig`.
@@ -1300,6 +1364,19 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 
 @[inline] def withIncSynthPending : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with synthPendingDepth := ctx.synthPendingDepth + 1 })
+
+/--
+Reads a definitional-equality compatibility flag: from the per-query resolved flags inside a
+type class resolution query, and via `fallback` from the ambient options otherwise. Inside a
+query the flags are always armed and already recorded (`SynthDefEqFlags`), so the read costs a
+context projection; per-step read sites in `isDefEq`/`whnf` use this instead of the recording
+accessors.
+-/
+@[inline] def getSynthDefEqFlag (proj : SynthDefEqFlags → Bool) (fallback : Options → Bool) :
+    MetaM Bool := do
+  match (← read).synthDefEqFlags? with
+  | some flags => return proj flags
+  | none       => return fallback (← getOptions)
 
 @[inline] def withInTypeClassResolution : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with inTypeClassResolution := true })
@@ -2359,7 +2436,8 @@ def instantiateLambdaWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnot
   return (res, e)
 
 def getPPContext : MetaM PPContext := do
-  return { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions),
+  -- unrestricted acquisition: a message context is a display context, see `addMessageContextFull`
+  return { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptionsUnrestricted),
            currNamespace := (← getCurrNamespace), openDecls := (← getOpenDecls) }
 
 /-- Pretty-print the given expression. -/
@@ -2680,7 +2758,8 @@ def instantiateMVarsIfMVarApp (e : Expr) : MetaM Expr := do
     return e
 
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
-  profileitM Exception s!"instantiate metavars" (← getOptions) do
+  -- unrestricted acquisition: profiler collection cannot influence a cached resolution result
+  profileitM Exception s!"instantiate metavars" (← getOptionsUnrestricted) do
   withTraceNode `Meta.instantiateMVars (fun _ => pure e) do
     instantiateMVars e
 
@@ -2834,7 +2913,8 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
     let exAct ← Core.wrapAsyncAsSnapshot (cancelTk? := none) fun
       | none => return
       | some ex => do
-        logError <| ex.toMessageData (← getOptions)
+        -- unrestricted acquisition: rendering an exception, which is never cached
+        logError <| ex.toMessageData (← getOptionsUnrestricted)
     Core.logSnapshotTask {
       stx? := none
       task := (← BaseIO.mapTask (t := exTask) exAct)

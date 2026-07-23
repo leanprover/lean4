@@ -1750,7 +1750,7 @@ return v___x_446_;
 LEAN_EXPORT lean_object* l_Lean_Level_max___override(lean_object* v_a_447_, lean_object* v_a_448_){
 _start:
 {
-uint64_t v___x_449_; uint64_t v___x_450_; uint64_t v___x_451_; uint64_t v___x_452_; uint64_t v___x_453_; uint64_t v___x_454_; uint64_t v___x_455_; lean_object* v___y_457_; uint8_t v___y_458_; uint8_t v___y_459_; lean_object* v___y_463_; uint8_t v___y_464_; lean_object* v___y_468_; uint32_t v___x_473_; lean_object* v___x_474_; uint32_t v___x_475_; lean_object* v___x_476_; uint8_t v___x_477_; 
+uint64_t v___x_449_; uint64_t v___x_450_; uint64_t v___x_451_; uint64_t v___x_452_; uint64_t v___x_453_; uint64_t v___x_454_; uint64_t v___x_455_; uint8_t v___y_457_; lean_object* v___y_458_; uint8_t v___y_459_; lean_object* v___y_463_; uint8_t v___y_464_; lean_object* v___y_468_; uint32_t v___x_473_; lean_object* v___x_474_; uint32_t v___x_475_; lean_object* v___x_476_; uint8_t v___x_477_; 
 v___x_449_ = 2251ULL;
 v___x_450_ = l_Lean_Level_data___override(v_a_447_);
 v___x_451_ = l_Lean_Level_Data_hash(v___x_450_);
@@ -1778,7 +1778,7 @@ goto v___jp_467_;
 v___jp_456_:
 {
 uint64_t v___x_460_; lean_object* v___x_461_; 
-v___x_460_ = lean_level_mk_data(v___x_455_, v___y_457_, v___y_458_, v___y_459_);
+v___x_460_ = lean_level_mk_data(v___x_455_, v___y_458_, v___y_457_, v___y_459_);
 v___x_461_ = lean_alloc_ctor(2, 2, 8);
 lean_ctor_set(v___x_461_, 0, v_a_447_);
 lean_ctor_set(v___x_461_, 1, v_a_448_);
@@ -1793,15 +1793,15 @@ if (v___x_465_ == 0)
 {
 uint8_t v___x_466_; 
 v___x_466_ = l_Lean_Level_Data_hasParam(v___x_452_);
-v___y_457_ = v___y_463_;
-v___y_458_ = v___y_464_;
+v___y_457_ = v___y_464_;
+v___y_458_ = v___y_463_;
 v___y_459_ = v___x_466_;
 goto v___jp_456_;
 }
 else
 {
-v___y_457_ = v___y_463_;
-v___y_458_ = v___y_464_;
+v___y_457_ = v___y_464_;
+v___y_458_ = v___y_463_;
 v___y_459_ = v___x_465_;
 goto v___jp_456_;
 }
@@ -9582,11 +9582,13 @@ lean_object* runtime_initialize_Lean_Data_PersistentHashSet(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Hygiene(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Option_Coe(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Level(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Array_QSort(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

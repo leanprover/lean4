@@ -2515,8 +2515,8 @@ if (lean_obj_tag(v_a_719_) == 0)
 {
 lean_dec_ref_known(v_a_719_, 0);
 lean_dec_ref(v_arg_715_);
-lean_dec_ref_known(v_e_700_, 2);
 lean_dec_ref(v_fn_714_);
+lean_dec_ref_known(v_e_700_, 2);
 return v___x_718_;
 }
 else
@@ -2537,8 +2537,8 @@ return v___x_724_;
 else
 {
 lean_dec_ref(v_arg_715_);
-lean_dec_ref_known(v_e_700_, 2);
 lean_dec_ref(v_fn_714_);
+lean_dec_ref_known(v_e_700_, 2);
 return v___x_718_;
 }
 }
@@ -4826,8 +4826,8 @@ if (lean_obj_tag(v_a_1412_) == 0)
 {
 uint8_t v_contextDependent_1418_; lean_object* v___x_1419_; lean_object* v___x_1421_; 
 lean_dec_ref(v_arg_1408_);
-lean_dec_ref_known(v_e_1394_, 2);
 lean_dec_ref(v_fn_1407_);
+lean_dec_ref_known(v_e_1394_, 2);
 v_contextDependent_1418_ = lean_ctor_get_uint8(v_a_1412_, 1);
 lean_dec_ref_known(v_a_1412_, 0);
 v___x_1419_ = l_Lean_Meta_Sym_Simp_mkRflResultCD(v_contextDependent_1418_);
@@ -4893,8 +4893,8 @@ else
 {
 lean_dec(v_a_1412_);
 lean_dec_ref(v_arg_1408_);
-lean_dec_ref_known(v_e_1394_, 2);
 lean_dec_ref(v_fn_1407_);
+lean_dec_ref_known(v_e_1394_, 2);
 return v___x_1428_;
 }
 }
@@ -7443,8 +7443,8 @@ if (lean_obj_tag(v_a_2311_) == 0)
 {
 uint8_t v_contextDependent_2313_; 
 lean_dec_ref(v_arg_2307_);
-lean_dec_ref(v_fn_2306_);
 lean_dec_ref_known(v_e_2288_, 2);
+lean_dec_ref(v_fn_2306_);
 v_contextDependent_2313_ = lean_ctor_get_uint8(v_a_2311_, 1);
 lean_dec_ref_known(v_a_2311_, 0);
 v_cd_2301_ = v_contextDependent_2313_;
@@ -7504,8 +7504,8 @@ if (lean_obj_tag(v_a_2311_) == 0)
 {
 uint8_t v_contextDependent_2342_; 
 lean_dec_ref(v_arg_2307_);
-lean_dec_ref(v_fn_2306_);
 lean_dec_ref_known(v_e_2288_, 2);
+lean_dec_ref(v_fn_2306_);
 v_contextDependent_2342_ = lean_ctor_get_uint8(v_a_2311_, 1);
 lean_dec_ref_known(v_a_2311_, 0);
 v_cd_2301_ = v_contextDependent_2342_;
@@ -7588,8 +7588,8 @@ else
 lean_object* v_a_2333_; lean_object* v___x_2335_; uint8_t v_isShared_2336_; uint8_t v_isSharedCheck_2340_; 
 lean_dec(v_a_2311_);
 lean_dec_ref(v_arg_2307_);
-lean_dec_ref(v_fn_2306_);
 lean_dec_ref_known(v_e_2288_, 2);
+lean_dec_ref(v_fn_2306_);
 v_a_2333_ = lean_ctor_get(v___x_2325_, 0);
 v_isSharedCheck_2340_ = !lean_is_exclusive(v___x_2325_);
 if (v_isSharedCheck_2340_ == 0)
@@ -7636,8 +7636,8 @@ lean_object* v___x_2347_; lean_object* v___x_2348_;
 lean_dec(v_a_2321_);
 lean_dec(v_a_2311_);
 lean_dec_ref(v_arg_2307_);
-lean_dec_ref(v_fn_2306_);
 lean_dec_ref_known(v_e_2288_, 2);
+lean_dec_ref(v_fn_2306_);
 v___x_2347_ = lean_obj_once(&l___private_Lean_Meta_Sym_Simp_App_0__Lean_Meta_Sym_Simp_simpAppArgRange_visit___closed__1, &l___private_Lean_Meta_Sym_Simp_App_0__Lean_Meta_Sym_Simp_simpAppArgRange_visit___closed__1_once, _init_l___private_Lean_Meta_Sym_Simp_App_0__Lean_Meta_Sym_Simp_simpAppArgRange_visit___closed__1);
 v___x_2348_ = l_panic___at___00__private_Lean_Meta_Sym_Simp_App_0__Lean_Meta_Sym_Simp_simpOverApplied_visit_spec__0(v___x_2347_, v_a_2290_, v_a_2291_, v_a_2292_, v_a_2293_, v_a_2294_, v_a_2295_, v_a_2296_, v_a_2297_, v_a_2298_);
 return v___x_2348_;
@@ -7648,8 +7648,8 @@ else
 lean_object* v_a_2349_; lean_object* v___x_2351_; uint8_t v_isShared_2352_; uint8_t v_isSharedCheck_2356_; 
 lean_dec(v_a_2311_);
 lean_dec_ref(v_arg_2307_);
-lean_dec_ref(v_fn_2306_);
 lean_dec_ref_known(v_e_2288_, 2);
+lean_dec_ref(v_fn_2306_);
 v_a_2349_ = lean_ctor_get(v___x_2320_, 0);
 v_isSharedCheck_2356_ = !lean_is_exclusive(v___x_2320_);
 if (v_isSharedCheck_2356_ == 0)
@@ -7694,8 +7694,8 @@ else
 lean_object* v_a_2357_; lean_object* v___x_2359_; uint8_t v_isShared_2360_; uint8_t v_isSharedCheck_2364_; 
 lean_dec(v_a_2311_);
 lean_dec_ref(v_arg_2307_);
-lean_dec_ref(v_fn_2306_);
 lean_dec_ref_known(v_e_2288_, 2);
+lean_dec_ref(v_fn_2306_);
 v_a_2357_ = lean_ctor_get(v___x_2318_, 0);
 v_isSharedCheck_2364_ = !lean_is_exclusive(v___x_2318_);
 if (v_isSharedCheck_2364_ == 0)
@@ -7740,8 +7740,8 @@ else
 {
 lean_dec(v_i_2309_);
 lean_dec_ref(v_arg_2307_);
-lean_dec_ref(v_fn_2306_);
 lean_dec_ref_known(v_e_2288_, 2);
+lean_dec_ref(v_fn_2306_);
 return v___x_2310_;
 }
 }
@@ -7872,11 +7872,13 @@ lean_object* runtime_initialize_Lean_Meta_Sym_AlphaShareBuilder(uint8_t builtin)
 lean_object* runtime_initialize_Lean_Meta_Sym_InferType(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_Simp_CongrInfo(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Sym_Simp_App(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Sym_Simp_SimpM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

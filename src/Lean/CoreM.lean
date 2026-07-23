@@ -200,6 +200,16 @@ structure State where
   traceState      : TraceState     := {}
   /-- Cache for instantiating universe polymorphic declarations. -/
   cache           : Cache          := {}
+  /--
+  Dependencies observed by the computation currently recording, if any
+  (`Core.Context.recordingDeps`); becomes the dependency log of the entry it caches, see
+  `Lean.Meta.SynthInstanceCache` for the only current client. Deliberately *not* backtrackable:
+  `SavedState.restore` does not restore it, so dependencies observed on a path that is later
+  rolled back are kept. Recording more than the surviving path observed is benign
+  over-approximation; losing an observation would not be. For the same reason it does not live
+  in `Meta.Cache`, which `Meta.modifyEnv` clears wholesale.
+  -/
+  recordedDeps    : RecordedDeps   := {}
   /-- Message log. -/
   messages        : MessageLog     := {}
   /-- Info tree. We have the info tree here because we want to update it while adding attributes. -/
@@ -243,6 +253,13 @@ structure Context where
   suppressElabErrors : Bool := false
   /-- Cache of `Lean.inheritedTraceOptions`. -/
   inheritedTraceOptions : Std.HashSet Name := {}
+  /--
+  True while this computation is recording its dependencies into `Core.State.recordedDeps`:
+  by-name option reads are then restricted to the recording accessors, see
+  `Lean.getRecordedOption`. Scoped to the computation rather than carried by the environment,
+  which outlives it in captured display contexts.
+  -/
+  recordingDeps : Bool := false
   deriving Nonempty
 
 /-- CoreM is a monad for manipulating the Lean environment.
@@ -272,11 +289,25 @@ instance : MonadEnv CoreM where
   modifyEnv f := modify fun s => { s with env := f s.env, cache := {} }
 
 instance : MonadOptions CoreM where
-  getOptions := return (← read).options
+  getOptions := do
+    let ctx ← read
+    let options := ctx.options
+    if ctx.recordingDeps then
+      -- The options are returned from the panic so that a violation reports once instead of
+      -- cascading through code that would otherwise see every option unset.
+      have : Inhabited Options := ⟨options⟩
+      return panic! "options acquired inside a computation recording its dependencies; \
+        result-relevant reads must go through `Lean.getRecordedOption`, all others through \
+        `getOptionsUnrestricted`"
+    return options
+  getOptionsUnrestricted := return (← read).options
 
 instance : MonadWithOptions CoreM where
   withOptions f x := do
-    let options := f (← read).options
+    -- unrestricted acquisition: the reads below see either an unchanged value or a write by `f`
+    -- done during recording, and both are part of the resolution cache key
+    -- (`Lean.Meta.SynthInstanceCacheKey.limits`)
+    let options := f (← getOptionsUnrestricted)
     let diag := diagnostics.get options
     if Kernel.isDiagnosticsEnabled (← getEnv) != diag then
       modifyEnv fun env => Kernel.enableDiag env diag
@@ -328,8 +359,12 @@ instance : Elab.MonadInfoTree CoreM where
   modifyInfoState f := modify fun s => { s with infoState := f s.infoState }
 
 @[inline] def modifyCache (f : Cache → Cache) : CoreM Unit :=
-  modify fun ⟨env, next, ngen, auxDeclNGen, trace, cache, messages, infoState, snaps⟩ =>
-   ⟨env, next, ngen, auxDeclNGen, trace, f cache, messages, infoState, snaps⟩
+  modify fun ⟨env, next, ngen, auxDeclNGen, trace, cache, deps, messages, infoState, snaps⟩ =>
+   ⟨env, next, ngen, auxDeclNGen, trace, f cache, deps, messages, infoState, snaps⟩
+
+@[inline] def modifyRecordedDeps (f : RecordedDeps → RecordedDeps) : CoreM Unit :=
+  modify fun ⟨env, next, ngen, auxDeclNGen, trace, cache, deps, messages, infoState, snaps⟩ =>
+   ⟨env, next, ngen, auxDeclNGen, trace, cache, f deps, messages, infoState, snaps⟩
 
 @[inline] def modifyInstLevelTypeCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
   modifyCache fun ⟨c₁, c₂⟩ => ⟨f c₁, c₂⟩
@@ -393,6 +428,9 @@ itself after calling `act` as well as by reuse-handling code such as the one sup
 @[specialize] def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
     (act : CoreM α) : CoreM (α × SavedState) := do
   if let some (val, state) := reusableResult? then
+    -- Restoring a full state rolls back `State.recordedDeps`, which must not happen while a
+    -- computation is recording; incremental reuse operates between commands.
+    assert! !(← read).recordingDeps
     set state.toState
     IO.addHeartbeats state.passedHeartbeats
     return (val, state)
@@ -477,7 +515,8 @@ register_builtin_option debug.moduleNameAtTimeout : Bool := {
 }
 
 def throwMaxHeartbeat (moduleName : Name) (optionName : Name) (max : Nat) : CoreM Unit := do
-  let includeModuleName := debug.moduleNameAtTimeout.get (← getOptions)
+  -- unrestricted acquisition: only reached when the heartbeat limit throws, which is never cached
+  let includeModuleName := debug.moduleNameAtTimeout.get (← getOptionsUnrestricted)
   let atModuleName := if includeModuleName then s!" at `{moduleName}`" else ""
   throw <| Exception.error (← getRef) <| .tagged `runtime.maxHeartbeats m!"\
     (deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\
@@ -566,6 +605,10 @@ def wrapAsync {α : Type} (act : α → CoreM β) (cancelTk? : Option IO.CancelT
   let (childDeclNGen, parentDeclNGen) := (← getDeclNGen).mkChild
   setDeclNGen parentDeclNGen
   let st ← get
+  -- The forked action's final state is discarded below, so anything it records into
+  -- `State.recordedDeps` is lost: a recording computation must not fork. To be revisited when it
+  -- becomes necessary.
+  assert! !(← read).recordingDeps
   let st := { st with auxDeclNGen := childDeclNGen, ngen := childNGen }
   let ctx ← read
   let ctx := { ctx with cancelTk? }
@@ -766,6 +809,48 @@ where doCompile := do
 
 def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
   compileDecls (Compiler.getDeclNamesForCodeGen decl) logErrors
+
+/-- Records the lookup `access` in the recording computation's accumulator, if any; see `getRecordedOption`. -/
+private def recordOptionAccess (access : RecordedOptionAccess) : CoreM Unit := do
+  if (← read).recordingDeps then
+    -- Read-before-write: repeated lookups of the same option dominate (e.g. per `isDefEq` step),
+    -- and the membership test avoids the state update for them.
+    let d := (← get).recordedDeps
+    unless d.options.any (·.name == access.name) do
+      Core.modifyRecordedDeps fun ⟨options, extGens, g, p, w⟩ =>
+        ⟨options.push access, extGens, g, p, w⟩
+
+/--
+Records the current generation of the generation-tracked extension with registration index
+`extIdx` in the recording computation's accumulator, if any; the read-side counterpart of the
+`EnvExtension.trackGen` bump. Call sites record the generation through this accessor and then
+read the state itself with `(recorded := true)`.
+-/
+def recordExtGenAccess (extIdx : Nat) : CoreM Unit := do
+  if (← read).recordingDeps then
+    let d := (← get).recordedDeps
+    unless d.extGens.any (·.1 == extIdx) do
+      let gen ← EnvExtension.getRecordedGen (← getEnv) extIdx
+      Core.modifyRecordedDeps fun ⟨options, extGens, g, p, w⟩ =>
+        ⟨options, extGens.push (extIdx, gen), g, p, w⟩
+
+/--
+Reads an option inside a recording computation, recording the lookup as an option dependency
+of the entry being computed (`Core.State.recordedDeps`); see `Lean.Meta.SynthInstanceCache` for
+the only current client. The read bypasses the options restriction, which exists to divert
+result-relevant by-name reads to this function; outside a recording computation it behaves like
+`Lean.Option.get`.
+-/
+def getRecordedOption [KVMap.Value α] (opt : Lean.Option α) : CoreM α := do
+  let raw := (← getOptionsUnrestricted).find? opt.name
+  recordOptionAccess { name := opt.name, value := raw }
+  return (raw.bind KVMap.Value.ofDataValue?).getD opt.defValue
+
+/-- By-name variant of `getRecordedOption`, for options that cannot be referenced directly. -/
+def getRecordedBoolOption (name : Name) (defVal := false) : CoreM Bool := do
+  let raw := (← getOptionsUnrestricted).find? name
+  recordOptionAccess { name, value := raw }
+  return (raw.bind KVMap.Value.ofDataValue?).getD defVal
 
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts

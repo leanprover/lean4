@@ -26,24 +26,24 @@ def rwIfWith (hc : Expr) (e : Expr) : MetaM Simp.Result := do
     if (← isDefEq c (← inferType hc)) then
       return {
         expr := t
-        proof? := (mkAppN (mkConst ``if_pos us) #[c, h, hc, α, t, f])
+        proof? := (mkAppN (mkConst ``ite_eq_left us) #[c, h, hc, α, t, f])
       }
     if (← isDefEq (mkNot c) (← inferType hc)) then
       return {
         expr := f
-        proof? := (mkAppN (mkConst ``if_neg us) #[c, h, hc, α, t, f])
+        proof? := (mkAppN (mkConst ``ite_eq_right us) #[c, h, hc, α, t, f])
       }
   | dite@dite α c h t f =>
     let us := dite.constLevels!
     if (← isDefEq c (← inferType hc)) then
       return {
         expr := t.beta #[hc]
-        proof? := (mkAppN (mkConst ``dif_pos us) #[c, h, hc, α, t, f])
+        proof? := (mkAppN (mkConst ``dite_eq_left us) #[c, h, hc, α, t, f])
       }
     if (← isDefEq (mkNot c) (← inferType hc)) then
       return {
         expr := f.beta #[hc]
-        proof? := (mkAppN (mkConst ``dif_neg us) #[c, h, hc, α, t, f])
+        proof? := (mkAppN (mkConst ``dite_eq_right us) #[c, h, hc, α, t, f])
       }
   | cond@cond α c t f =>
     let us := cond.constLevels!

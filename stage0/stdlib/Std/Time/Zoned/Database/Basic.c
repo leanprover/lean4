@@ -146,7 +146,7 @@ return v___x_24_;
 }
 else
 {
-lean_object* v___x_25_; lean_object* v_gmtOffset_26_; uint8_t v_isDst_27_; lean_object* v___y_29_; uint8_t v___y_30_; uint8_t v___y_31_; lean_object* v___y_36_; uint8_t v___y_37_; lean_object* v___y_44_; lean_object* v___x_49_; uint8_t v___x_50_; 
+lean_object* v___x_25_; lean_object* v_gmtOffset_26_; uint8_t v_isDst_27_; uint8_t v___y_29_; lean_object* v___y_30_; uint8_t v___y_31_; lean_object* v___y_36_; uint8_t v___y_37_; lean_object* v___y_44_; lean_object* v___x_49_; uint8_t v___x_50_; 
 v___x_25_ = lean_array_fget_borrowed(v_localTimeTypes_18_, v_index_15_);
 v_gmtOffset_26_ = lean_ctor_get(v___x_25_, 0);
 v_isDst_27_ = lean_ctor_get_uint8(v___x_25_, sizeof(void*)*1);
@@ -175,10 +175,10 @@ v___x_32_ = l_Std_Time_TimeZone_convertUt(v___y_31_);
 lean_inc(v_gmtOffset_26_);
 v___x_33_ = lean_alloc_ctor(0, 3, 3);
 lean_ctor_set(v___x_33_, 0, v_gmtOffset_26_);
-lean_ctor_set(v___x_33_, 1, v___y_29_);
+lean_ctor_set(v___x_33_, 1, v___y_30_);
 lean_ctor_set(v___x_33_, 2, v_identifier_17_);
 lean_ctor_set_uint8(v___x_33_, sizeof(void*)*3, v_isDst_27_);
-lean_ctor_set_uint8(v___x_33_, sizeof(void*)*3 + 1, v___y_30_);
+lean_ctor_set_uint8(v___x_33_, sizeof(void*)*3 + 1, v___y_29_);
 lean_ctor_set_uint8(v___x_33_, sizeof(void*)*3 + 2, v___x_32_);
 v___x_34_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_34_, 0, v___x_33_);
@@ -192,8 +192,8 @@ v___x_39_ = lean_array_get_size(v_utLocalIndicators_21_);
 v___x_40_ = lean_nat_dec_lt(v_index_15_, v___x_39_);
 if (v___x_40_ == 0)
 {
-v___y_29_ = v___y_36_;
-v___y_30_ = v___x_38_;
+v___y_29_ = v___x_38_;
+v___y_30_ = v___y_36_;
 v___y_31_ = v___x_23_;
 goto v___jp_28_;
 }
@@ -202,8 +202,8 @@ else
 lean_object* v___x_41_; uint8_t v___x_42_; 
 v___x_41_ = lean_array_fget_borrowed(v_utLocalIndicators_21_, v_index_15_);
 v___x_42_ = lean_unbox(v___x_41_);
-v___y_29_ = v___y_36_;
-v___y_30_ = v___x_38_;
+v___y_29_ = v___x_38_;
+v___y_30_ = v___y_36_;
 v___y_31_ = v___x_42_;
 goto v___jp_28_;
 }
@@ -926,11 +926,13 @@ return v___x_281_;
 lean_object* runtime_initialize_Std_Time_Zoned_ZoneRules(uint8_t builtin);
 lean_object* runtime_initialize_Std_Time_Zoned_Database_TzIf(uint8_t builtin);
 lean_object* runtime_initialize_Std_Time_Zoned_Database_PosixTz(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Time_Zoned_Database_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Time_Zoned_ZoneRules(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

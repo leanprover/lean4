@@ -1850,8 +1850,8 @@ return v___x_652_;
 else
 {
 lean_object* v___x_653_; 
-lean_dec(v_pre_634_);
 lean_dec_ref_known(v_fst_633_, 2);
+lean_dec(v_pre_634_);
 lean_dec_ref(v___x_632_);
 v___x_653_ = l_Lean_Expr_nat_x3f(v_n_631_);
 return v___x_653_;
@@ -2015,8 +2015,8 @@ return v___x_688_;
 else
 {
 lean_object* v___x_689_; 
-lean_dec_ref_known(v_fst_659_, 2);
 lean_dec(v_pre_660_);
+lean_dec_ref_known(v_fst_659_, 2);
 lean_dec_ref(v___x_658_);
 v___x_689_ = l_Lean_Expr_int_x3f(v_n_657_);
 return v___x_689_;
@@ -4653,8 +4653,8 @@ goto v___jp_1228_;
 }
 else
 {
-lean_dec_ref_known(v_fst_1313_, 2);
 lean_dec(v_pre_1314_);
+lean_dec_ref_known(v_fst_1313_, 2);
 lean_dec_ref(v___x_1312_);
 lean_dec(v___x_1298_);
 goto v___jp_1228_;
@@ -5551,8 +5551,8 @@ return v___x_1732_;
 else
 {
 lean_object* v___x_1733_; 
-lean_dec(v_pre_1695_);
 lean_dec_ref_known(v_fst_1694_, 2);
+lean_dec(v_pre_1695_);
 lean_dec_ref(v___x_1693_);
 lean_del_object(v___x_1240_);
 v___x_1733_ = lean_alloc_ctor(0, 1, 0);
@@ -7512,11 +7512,13 @@ return v___x_2346_;
 lean_object* runtime_initialize_Lean_Meta_AppBuilder(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Canonicalizer(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic_Omega_OmegaM(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_AppBuilder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

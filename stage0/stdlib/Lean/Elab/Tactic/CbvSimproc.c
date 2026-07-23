@@ -2168,8 +2168,8 @@ goto v___jp_605_;
 }
 else
 {
-lean_dec_ref_known(v_pre_621_, 2);
 lean_dec(v_pre_622_);
+lean_dec_ref_known(v_pre_621_, 2);
 lean_dec_ref_known(v_pre_620_, 2);
 lean_dec_ref_known(v_pre_619_, 2);
 lean_dec_ref_known(v_declName_618_, 2);
@@ -2204,8 +2204,8 @@ goto v___jp_605_;
 }
 else
 {
-lean_dec(v_pre_619_);
 lean_dec_ref_known(v_declName_618_, 2);
+lean_dec(v_pre_619_);
 lean_del_object(v___x_603_);
 v___y_606_ = v_a_597_;
 v___y_607_ = v_a_598_;
@@ -3219,11 +3219,13 @@ return v_res_1133_;
 lean_object* runtime_initialize_Init_CbvSimproc(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Cbv_CbvSimproc(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Command(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic_CbvSimproc(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_CbvSimproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

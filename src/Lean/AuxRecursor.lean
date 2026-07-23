@@ -23,7 +23,9 @@ def mkRecOnName (indDeclName : Name) : Name   := Name.mkStr indDeclName recOnSuf
 def mkBRecOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName brecOnSuffix
 def mkBelowName (indDeclName : Name) : Name := Name.mkStr indDeclName belowSuffix
 
-builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExtension (asyncMode := .async .mainEnv)
+builtin_initialize auxRecExt : TagDeclarationExtension ←
+  -- covered: aux-recursor status is an immutable per-declaration fact
+  mkTagDeclarationExtension (asyncMode := .async .mainEnv) (declCovered := true)
 
 def markAuxRecursor (env : Environment) (declName : Name) : Environment :=
   auxRecExt.tag env declName
@@ -50,7 +52,9 @@ def isRecOnRecursor (env : Environment) (declName : Name) : Bool :=
 def isBRecOnRecursor (env : Environment) (declName : Name) : Bool :=
   isAuxRecursorWithSuffix env declName brecOnSuffix
 
-private builtin_initialize sparseCasesOnExt : TagDeclarationExtension ← mkTagDeclarationExtension (asyncMode := .async .mainEnv)
+private builtin_initialize sparseCasesOnExt : TagDeclarationExtension ←
+  -- covered: sparse-`casesOn` status is an immutable per-declaration fact
+  mkTagDeclarationExtension (asyncMode := .async .mainEnv) (declCovered := true)
 
 def markSparseCasesOn (env : Environment) (declName : Name) : Environment :=
   sparseCasesOnExt.tag env declName
@@ -79,7 +83,9 @@ def NoConfusionInfo.arity : NoConfusionInfo → Nat
   | .regular arity _ _ => arity
   | .perCtor arity _   => arity
 
-builtin_initialize noConfusionExt : MapDeclarationExtension NoConfusionInfo ← mkMapDeclarationExtension (asyncMode := .mainOnly)
+builtin_initialize noConfusionExt : MapDeclarationExtension NoConfusionInfo ←
+  -- covered: `noConfusion` facts are immutable per declaration and monotone
+  mkMapDeclarationExtension (asyncMode := .mainOnly) (declCovered := true)
 
 def markNoConfusion (env : Environment) (n : Name) (info : NoConfusionInfo) : Environment :=
   noConfusionExt.insert env n info

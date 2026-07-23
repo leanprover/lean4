@@ -2713,8 +2713,8 @@ goto v___jp_786_;
 }
 else
 {
-lean_dec(v_pre_825_);
 lean_dec_ref_known(v_declName_824_, 2);
+lean_dec(v_pre_825_);
 lean_dec_ref_known(v_fn_823_, 2);
 lean_del_object(v___x_812_);
 goto v___jp_786_;
@@ -2722,8 +2722,8 @@ goto v___jp_786_;
 }
 else
 {
-lean_dec(v_declName_824_);
 lean_dec_ref_known(v_fn_823_, 2);
+lean_dec(v_declName_824_);
 lean_del_object(v___x_812_);
 goto v___jp_786_;
 }
@@ -2747,24 +2747,24 @@ goto v___jp_786_;
 else
 {
 lean_dec_ref_known(v_typeName_814_, 2);
-lean_del_object(v___x_812_);
 lean_dec_ref_known(v_a_785_, 3);
+lean_del_object(v___x_812_);
 goto v___jp_786_;
 }
 }
 else
 {
 lean_dec(v_typeName_814_);
-lean_del_object(v___x_812_);
 lean_dec_ref_known(v_a_785_, 3);
+lean_del_object(v___x_812_);
 goto v___jp_786_;
 }
 }
 }
 default: 
 {
-lean_dec_ref_known(v___x_784_, 1);
 lean_dec(v_a_785_);
+lean_dec_ref_known(v___x_784_, 1);
 goto v___jp_786_;
 }
 }
@@ -7964,11 +7964,13 @@ lean_object* runtime_initialize_Lean_Compiler_BorrowedAnnotation(uint8_t builtin
 lean_object* runtime_initialize_Lean_Meta_InferType(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 lean_object* runtime_initialize_Lean_OriginalConstKind(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF_Types(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Compiler_BorrowedAnnotation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

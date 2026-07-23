@@ -299,6 +299,11 @@ theorem true_le_of_top_le (x : Prop) : ((⊤ : Prop) ⊑ x) → (True : Prop) �
   · intro hall
     exact (le_iInf f (x := ∀ i, f i) (fun i h => h i)) hall
 
+/-- Introduction rule for a `∀` on the RHS of a `Prop` entailment. -/
+theorem le_forall {α : Sort u} (p : Prop) (q : α → Prop)
+    (h : ∀ x, p ⊑ q x) : p ⊑ (∀ x, q x) :=
+  fun hp x => h x hp
+
 @[simp] theorem iSup_prop_eq_exists {ι : Type u} (f : ι → Prop) :
     (iSup f : Prop) = (∃ i, f i) := by
   apply propext

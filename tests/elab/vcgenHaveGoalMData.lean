@@ -2,11 +2,12 @@ import Std.Internal.Do
 import Std.Tactic.Do
 
 /-! A tactic `have`/`let`/`suffices` wraps the goal in `noImplicitLambda` `mdata` (via
-`refine_lift no_implicit_lambda% …`). `vcgen` must read the program type through that annotation. -/
+`refine_lift no_implicit_lambda% …`). `vcgen` must read the program type through that annotation.
+Also checks that `⦃…⦄` elaborates with only `open Std.Internal.Do` (no `open Lean.Order`). -/
 
 set_option mvcgen.warning false
 
-open Std.Internal.Do Lean.Order
+open Std.Internal.Do
 
 example : ⦃fun _ => True⦄ (pure 1 : StateM Nat Nat) ⦃fun _ _ => True⦄ := by
   have _h : True := trivial

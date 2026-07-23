@@ -184,7 +184,7 @@ until at least one of them is exhausted.
 The types of `e2` etc. must implement the `Std.ToStream` typeclass.
 -/
 @[builtin_doElem_parser] def doFor    := leading_parser
-  "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
+  "for " >> sepBy1 doForDecl ", " >> " do " >> doSeq
 
 def dependentParam := leading_parser
   atomic ("(" >> nonReservedSymbol "dependent") >> " := " >>

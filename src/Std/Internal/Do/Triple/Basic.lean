@@ -61,6 +61,10 @@ private meta def hintProgram (c : Term) (m? : Option Term) : MacroM Term :=
   | some m => `(($c : $m _))
   | none => if isSplitProgram c.raw then `(($c : (_ : _ → _) _)) else pure c
 
+-- Make `CompleteLattice → CCPO` (hence `⊥` / `Lean.Order.bot`) available under
+-- `open Std.Internal.Do`, so Hoare triple notation does not require `open Lean.Order`.
+attribute [scoped instance] Lean.Order.instCCPO_std
+
 /-- Hoare triple notation without exception postcondition (defaults to `⊥`). An optional `(m := …)`
 after the precondition ascribes the program to monad `…`. -/
 scoped syntax:60 (name := tripleNotation)

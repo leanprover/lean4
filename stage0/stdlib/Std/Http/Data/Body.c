@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Http.Data.Body
-// Imports: public import Std.Http.Data.Body.Basic public import Std.Http.Data.Body.Length public import Std.Http.Data.Body.Any public import Std.Http.Data.Body.Stream public import Std.Http.Data.Body.Empty public import Std.Http.Data.Body.Full
+// Imports: public import Std.Http.Data.Body.Basic public import Std.Http.Data.Body.Length public import Std.Http.Data.Body.Any public import Std.Http.Data.Body.Stream public import Std.Http.Data.Body.Empty public import Std.Http.Data.Body.Full public import Std.Http.Data.Body.Replayable
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,6 +19,7 @@ lean_object* runtime_initialize_Std_Http_Data_Body_Any(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Data_Body_Stream(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Data_Body_Empty(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Data_Body_Full(uint8_t builtin);
+lean_object* runtime_initialize_Std_Http_Data_Body_Replayable(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Http_Data_Body(uint8_t builtin) {
 lean_object * res;
@@ -42,6 +43,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Std_Http_Data_Body_Full(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Std_Http_Data_Body_Replayable(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -57,6 +61,7 @@ lean_object* initialize_Std_Http_Data_Body_Any(uint8_t builtin);
 lean_object* initialize_Std_Http_Data_Body_Stream(uint8_t builtin);
 lean_object* initialize_Std_Http_Data_Body_Empty(uint8_t builtin);
 lean_object* initialize_Std_Http_Data_Body_Full(uint8_t builtin);
+lean_object* initialize_Std_Http_Data_Body_Replayable(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Http_Data_Body(uint8_t builtin) {
 lean_object * res;
@@ -78,6 +83,9 @@ res = initialize_Std_Http_Data_Body_Empty(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Http_Data_Body_Full(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Http_Data_Body_Replayable(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Http_Data_Body(builtin);

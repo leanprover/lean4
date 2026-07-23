@@ -11,7 +11,7 @@ public import Lean.AddDecl
 import Lean.Util.FoldConsts
 
 /-!
-# `Lean.Environment.replay`
+# `Lean.Kernel.Environment.replay`
 
 `replay env constantMap` will "replay" all the constants in `constantMap : HashMap Name ConstantInfo` into `env`,
 sending each declaration to the kernel for checking.
@@ -21,12 +21,12 @@ but rather checks that they are identical to constructors or recursors generated
 after replaying any inductive definitions occurring in `constantMap`.
 
 `replay` can be used either as:
-* a verifier for an `Environment`, by sending everything to the kernel, or
-* a mechanism to safely transfer constants from one `Environment` to another.
+* a verifier for a `Kernel.Environment`, by sending everything to the kernel, or
+* a mechanism to safely transfer constants from one `Kernel.Environment` to another.
 
 -/
 
-namespace Lean.Environment
+namespace Lean.Kernel.Environment
 
 namespace Replay
 
@@ -168,22 +168,30 @@ end Replay
 open Replay
 
 /--
-"Replay" some constants into an `Environment`, sending them to the kernel for checking.
+"Replay" some constants into a `Kernel.Environment`, sending them to the kernel for checking.
 
 Throws a `IO.userError` if the kernel rejects a constant,
 or if there are malformed recursors or constructors for inductive types.
 -/
-public def replay (newConstants : Std.HashMap Name ConstantInfo) (env : Environment) : IO Environment := do
+public def replay (newConstants : Std.HashMap Name ConstantInfo) (env : Kernel.Environment) :
+    IO Kernel.Environment := do
   let mut remaining : NameSet := ∅
   for (n, ci) in newConstants.toList do
     -- We skip unsafe constants, and also partial constants.
     -- Later we may want to handle partial constants.
     if !ci.isUnsafe && !ci.isPartial then
       remaining := remaining.insert n
-  let (_, s) ← StateRefT'.run (s := { env := env.toKernelEnv, remaining }) do
+  let (_, s) ← StateRefT'.run (s := { env, remaining }) do
     ReaderT.run (r := { newConstants }) do
       for n in remaining do
         replayConstant n
       checkPostponedConstructors
       checkPostponedRecursors
-  return .ofKernelEnv s.env
+  return s.env
+
+end Kernel.Environment
+
+@[deprecated Kernel.Environment.replay (since := "2026-07-14")]
+public def Environment.replay (newConstants : Std.HashMap Name ConstantInfo) (env : Environment) :
+    IO Environment := do
+  return .ofKernelEnv (← env.toKernelEnv.replay newConstants)

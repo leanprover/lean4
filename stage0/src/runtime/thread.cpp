@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "runtime/exception.h"
 #include "runtime/alloc.h"
 #include "runtime/stack_overflow.h"
+#include "runtime/sstream.h"
 
 #ifndef LEAN_DEFAULT_THREAD_STACK_SIZE
 #ifdef LEAN_EMSCRIPTEN
@@ -61,12 +62,10 @@ extern "C" LEAN_EXPORT void lean_finalize_thread() {
 
 static void thread_main(void * p) {
     lean_initialize_thread();
-    std::unique_ptr<runnable> f;
-    f.reset(reinterpret_cast<runnable *>(p));
-
-    (*f)();
-    f.reset();
-
+    {
+        std::unique_ptr<runnable> f(reinterpret_cast<runnable *>(p));
+        (*f)();
+    }
     lean_finalize_thread();
 }
 
@@ -97,14 +96,15 @@ struct lthread::imp {
     }
 
     imp(runnable const & p) {
-        runnable * f = new std::function<void()>(mk_thread_proc(p, get_max_heartbeat()));
+        std::unique_ptr<runnable> f = std::make_unique<runnable>(mk_thread_proc(p, get_max_heartbeat()));
         // Without `IS_A_RESERVATION`, `m_thread_stack_size` would be the initial *commit* size,
         // quickly exhausting the available address space with our large default stack size.
         m_thread = CreateThread(nullptr, m_thread_stack_size,
-                                _main, f, STACK_SIZE_PARAM_IS_A_RESERVATION, nullptr);
+                                _main, f.get(), STACK_SIZE_PARAM_IS_A_RESERVATION, nullptr);
         if (m_thread == NULL) {
-            throw exception("failed to create thread");
+            throw exception((sstream() << "failed to create thread: " << GetLastError()).str());
         }
+        f.release();  // Now owned by thread_main
     }
 
     ~imp() {
@@ -132,13 +132,14 @@ struct lthread::imp {
 
     imp(runnable const & p) {
         pthread_attr_init(&m_attr);
-        if (pthread_attr_setstacksize(&m_attr, m_thread_stack_size)) {
-            throw exception("failed to set thread stack size");
+        if (int err = pthread_attr_setstacksize(&m_attr, m_thread_stack_size); err != 0) {
+            throw exception((sstream() << "failed to set thread stack size: " << strerror(err)).str());
         }
-        runnable * f = new std::function<void()>(mk_thread_proc(p, get_max_heartbeat()));
-        if (pthread_create(&m_thread, &m_attr, _main, f)) {
-            throw exception("failed to create thread");
+        std::unique_ptr<runnable> f = std::make_unique<runnable>(mk_thread_proc(p, get_max_heartbeat()));
+        if (int err = pthread_create(&m_thread, &m_attr, _main, f.get()); err != 0) {
+            throw exception((sstream() << "failed to create thread: " << strerror(err)).str());
         }
+        f.release();  // Now owned by thread_main
     }
 
     ~imp() {

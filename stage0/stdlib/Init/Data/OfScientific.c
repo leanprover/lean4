@@ -28,13 +28,13 @@ uint64_t lean_uint64_of_nat(lean_object*);
 float lean_uint64_to_float32(uint64_t);
 float lean_float32_mul(float, float);
 float lean_float32_div(float, float);
+uint8_t lean_int_dec_lt(lean_object*, lean_object*);
+lean_object* lean_nat_abs(lean_object*);
 uint64_t l_Float_Model_ofScientific(lean_object*, lean_object*);
 double lean_float_of_bits(uint64_t);
 double lean_uint64_to_float(uint64_t);
 double lean_float_mul(double, double);
 double lean_float_div(double, double);
-uint8_t lean_int_dec_lt(lean_object*, lean_object*);
-lean_object* lean_nat_abs(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 double lean_float_negate(double);
@@ -126,6 +126,8 @@ LEAN_EXPORT double l_instOfNatFloat(lean_object*);
 LEAN_EXPORT lean_object* l_instOfNatFloat___boxed(lean_object*);
 LEAN_EXPORT double l_Nat_toFloat(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_toFloat___boxed(lean_object*);
+LEAN_EXPORT double l_Int_toFloat(lean_object*);
+LEAN_EXPORT lean_object* l_Int_toFloat___boxed(lean_object*);
 static lean_once_cell_t l_Float32_exactlyRepresentablePowersOfTen___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static float l_Float32_exactlyRepresentablePowersOfTen___closed__0;
 static lean_once_cell_t l_Float32_exactlyRepresentablePowersOfTen___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
@@ -175,6 +177,8 @@ LEAN_EXPORT float l_instOfNatFloat32(lean_object*);
 LEAN_EXPORT lean_object* l_instOfNatFloat32___boxed(lean_object*);
 LEAN_EXPORT float l_Nat_toFloat32(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_toFloat32___boxed(lean_object*);
+LEAN_EXPORT float l_Int_toFloat32(lean_object*);
+LEAN_EXPORT lean_object* l_Int_toFloat32___boxed(lean_object*);
 static double _init_l_Float_exactlyRepresentablePowersOfTen___closed__0(void){
 _start:
 {
@@ -837,403 +841,404 @@ v_r_206_ = lean_box_float(v_res_205_);
 return v_r_206_;
 }
 }
+LEAN_EXPORT double l_Int_toFloat(lean_object* v_n_207_){
+_start:
+{
+double v___x_208_; 
+v___x_208_ = l_Float_ofInt(v_n_207_);
+return v___x_208_;
+}
+}
+LEAN_EXPORT lean_object* l_Int_toFloat___boxed(lean_object* v_n_209_){
+_start:
+{
+double v_res_210_; lean_object* v_r_211_; 
+v_res_210_ = l_Int_toFloat(v_n_209_);
+lean_dec(v_n_209_);
+v_r_211_ = lean_box_float(v_res_210_);
+return v_r_211_;
+}
+}
 static float _init_l_Float32_exactlyRepresentablePowersOfTen___closed__0(void){
 _start:
 {
-uint32_t v___x_207_; float v___x_208_; 
-v___x_207_ = 1065353216;
-v___x_208_ = lean_float32_of_bits(v___x_207_);
-return v___x_208_;
+uint32_t v___x_212_; float v___x_213_; 
+v___x_212_ = 1065353216;
+v___x_213_ = lean_float32_of_bits(v___x_212_);
+return v___x_213_;
 }
 }
 static float _init_l_Float32_exactlyRepresentablePowersOfTen___closed__1(void){
 _start:
 {
-uint32_t v___x_209_; float v___x_210_; 
-v___x_209_ = 1092616192;
-v___x_210_ = lean_float32_of_bits(v___x_209_);
-return v___x_210_;
+uint32_t v___x_214_; float v___x_215_; 
+v___x_214_ = 1092616192;
+v___x_215_ = lean_float32_of_bits(v___x_214_);
+return v___x_215_;
 }
 }
 static float _init_l_Float32_exactlyRepresentablePowersOfTen___closed__2(void){
 _start:
 {
-uint32_t v___x_211_; float v___x_212_; 
-v___x_211_ = 1120403456;
-v___x_212_ = lean_float32_of_bits(v___x_211_);
-return v___x_212_;
+uint32_t v___x_216_; float v___x_217_; 
+v___x_216_ = 1120403456;
+v___x_217_ = lean_float32_of_bits(v___x_216_);
+return v___x_217_;
 }
 }
 static float _init_l_Float32_exactlyRepresentablePowersOfTen___closed__3(void){
 _start:
 {
-uint32_t v___x_213_; float v___x_214_; 
-v___x_213_ = 1148846080;
-v___x_214_ = lean_float32_of_bits(v___x_213_);
-return v___x_214_;
+uint32_t v___x_218_; float v___x_219_; 
+v___x_218_ = 1148846080;
+v___x_219_ = lean_float32_of_bits(v___x_218_);
+return v___x_219_;
 }
 }
 static float _init_l_Float32_exactlyRepresentablePowersOfTen___closed__4(void){
 _start:
 {
-uint32_t v___x_215_; float v___x_216_; 
-v___x_215_ = 1176256512;
-v___x_216_ = lean_float32_of_bits(v___x_215_);
-return v___x_216_;
+uint32_t v___x_220_; float v___x_221_; 
+v___x_220_ = 1176256512;
+v___x_221_ = lean_float32_of_bits(v___x_220_);
+return v___x_221_;
 }
 }
 static float _init_l_Float32_exactlyRepresentablePowersOfTen___closed__5(void){
 _start:
 {
-uint32_t v___x_217_; float v___x_218_; 
-v___x_217_ = 1203982336;
-v___x_218_ = lean_float32_of_bits(v___x_217_);
-return v___x_218_;
+uint32_t v___x_222_; float v___x_223_; 
+v___x_222_ = 1203982336;
+v___x_223_ = lean_float32_of_bits(v___x_222_);
+return v___x_223_;
 }
 }
 static float _init_l_Float32_exactlyRepresentablePowersOfTen___closed__6(void){
 _start:
 {
-uint32_t v___x_219_; float v___x_220_; 
-v___x_219_ = 1232348160;
-v___x_220_ = lean_float32_of_bits(v___x_219_);
-return v___x_220_;
+uint32_t v___x_224_; float v___x_225_; 
+v___x_224_ = 1232348160;
+v___x_225_ = lean_float32_of_bits(v___x_224_);
+return v___x_225_;
 }
 }
 static float _init_l_Float32_exactlyRepresentablePowersOfTen___closed__7(void){
 _start:
 {
-uint32_t v___x_221_; float v___x_222_; 
-v___x_221_ = 1259902592;
-v___x_222_ = lean_float32_of_bits(v___x_221_);
-return v___x_222_;
+uint32_t v___x_226_; float v___x_227_; 
+v___x_226_ = 1259902592;
+v___x_227_ = lean_float32_of_bits(v___x_226_);
+return v___x_227_;
 }
 }
 static float _init_l_Float32_exactlyRepresentablePowersOfTen___closed__8(void){
 _start:
 {
-uint32_t v___x_223_; float v___x_224_; 
-v___x_223_ = 1287568416;
-v___x_224_ = lean_float32_of_bits(v___x_223_);
-return v___x_224_;
+uint32_t v___x_228_; float v___x_229_; 
+v___x_228_ = 1287568416;
+v___x_229_ = lean_float32_of_bits(v___x_228_);
+return v___x_229_;
 }
 }
 static float _init_l_Float32_exactlyRepresentablePowersOfTen___closed__9(void){
 _start:
 {
-uint32_t v___x_225_; float v___x_226_; 
-v___x_225_ = 1315859240;
-v___x_226_ = lean_float32_of_bits(v___x_225_);
-return v___x_226_;
+uint32_t v___x_230_; float v___x_231_; 
+v___x_230_ = 1315859240;
+v___x_231_ = lean_float32_of_bits(v___x_230_);
+return v___x_231_;
 }
 }
 static float _init_l_Float32_exactlyRepresentablePowersOfTen___closed__10(void){
 _start:
 {
-uint32_t v___x_227_; float v___x_228_; 
-v___x_227_ = 1343554297;
-v___x_228_ = lean_float32_of_bits(v___x_227_);
-return v___x_228_;
+uint32_t v___x_232_; float v___x_233_; 
+v___x_232_ = 1343554297;
+v___x_233_ = lean_float32_of_bits(v___x_232_);
+return v___x_233_;
 }
 }
 static lean_object* _init_l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__1(void){
 _start:
 {
-float v___x_229_; lean_object* v___x_230_; 
-v___x_229_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__10, &l_Float32_exactlyRepresentablePowersOfTen___closed__10_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__10);
-v___x_230_ = lean_box_float32(v___x_229_);
-return v___x_230_;
+float v___x_234_; lean_object* v___x_235_; 
+v___x_234_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__10, &l_Float32_exactlyRepresentablePowersOfTen___closed__10_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__10);
+v___x_235_ = lean_box_float32(v___x_234_);
+return v___x_235_;
 }
 }
 static lean_object* _init_l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__2(void){
 _start:
 {
-float v___x_231_; lean_object* v___x_232_; 
-v___x_231_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__9, &l_Float32_exactlyRepresentablePowersOfTen___closed__9_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__9);
-v___x_232_ = lean_box_float32(v___x_231_);
-return v___x_232_;
+float v___x_236_; lean_object* v___x_237_; 
+v___x_236_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__9, &l_Float32_exactlyRepresentablePowersOfTen___closed__9_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__9);
+v___x_237_ = lean_box_float32(v___x_236_);
+return v___x_237_;
 }
 }
 static lean_object* _init_l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__3(void){
 _start:
 {
-float v___x_233_; lean_object* v___x_234_; 
-v___x_233_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__8, &l_Float32_exactlyRepresentablePowersOfTen___closed__8_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__8);
-v___x_234_ = lean_box_float32(v___x_233_);
-return v___x_234_;
+float v___x_238_; lean_object* v___x_239_; 
+v___x_238_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__8, &l_Float32_exactlyRepresentablePowersOfTen___closed__8_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__8);
+v___x_239_ = lean_box_float32(v___x_238_);
+return v___x_239_;
 }
 }
 static lean_object* _init_l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__4(void){
 _start:
 {
-float v___x_235_; lean_object* v___x_236_; 
-v___x_235_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__7, &l_Float32_exactlyRepresentablePowersOfTen___closed__7_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__7);
-v___x_236_ = lean_box_float32(v___x_235_);
-return v___x_236_;
+float v___x_240_; lean_object* v___x_241_; 
+v___x_240_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__7, &l_Float32_exactlyRepresentablePowersOfTen___closed__7_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__7);
+v___x_241_ = lean_box_float32(v___x_240_);
+return v___x_241_;
 }
 }
 static lean_object* _init_l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__5(void){
 _start:
 {
-float v___x_237_; lean_object* v___x_238_; 
-v___x_237_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__6, &l_Float32_exactlyRepresentablePowersOfTen___closed__6_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__6);
-v___x_238_ = lean_box_float32(v___x_237_);
-return v___x_238_;
+float v___x_242_; lean_object* v___x_243_; 
+v___x_242_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__6, &l_Float32_exactlyRepresentablePowersOfTen___closed__6_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__6);
+v___x_243_ = lean_box_float32(v___x_242_);
+return v___x_243_;
 }
 }
 static lean_object* _init_l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__6(void){
 _start:
 {
-float v___x_239_; lean_object* v___x_240_; 
-v___x_239_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__5, &l_Float32_exactlyRepresentablePowersOfTen___closed__5_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__5);
-v___x_240_ = lean_box_float32(v___x_239_);
-return v___x_240_;
+float v___x_244_; lean_object* v___x_245_; 
+v___x_244_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__5, &l_Float32_exactlyRepresentablePowersOfTen___closed__5_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__5);
+v___x_245_ = lean_box_float32(v___x_244_);
+return v___x_245_;
 }
 }
 static lean_object* _init_l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__7(void){
 _start:
 {
-float v___x_241_; lean_object* v___x_242_; 
-v___x_241_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__4, &l_Float32_exactlyRepresentablePowersOfTen___closed__4_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__4);
-v___x_242_ = lean_box_float32(v___x_241_);
-return v___x_242_;
+float v___x_246_; lean_object* v___x_247_; 
+v___x_246_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__4, &l_Float32_exactlyRepresentablePowersOfTen___closed__4_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__4);
+v___x_247_ = lean_box_float32(v___x_246_);
+return v___x_247_;
 }
 }
 static lean_object* _init_l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__8(void){
 _start:
 {
-float v___x_243_; lean_object* v___x_244_; 
-v___x_243_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__3, &l_Float32_exactlyRepresentablePowersOfTen___closed__3_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__3);
-v___x_244_ = lean_box_float32(v___x_243_);
-return v___x_244_;
+float v___x_248_; lean_object* v___x_249_; 
+v___x_248_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__3, &l_Float32_exactlyRepresentablePowersOfTen___closed__3_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__3);
+v___x_249_ = lean_box_float32(v___x_248_);
+return v___x_249_;
 }
 }
 static lean_object* _init_l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__9(void){
 _start:
 {
-float v___x_245_; lean_object* v___x_246_; 
-v___x_245_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__2, &l_Float32_exactlyRepresentablePowersOfTen___closed__2_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__2);
-v___x_246_ = lean_box_float32(v___x_245_);
-return v___x_246_;
+float v___x_250_; lean_object* v___x_251_; 
+v___x_250_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__2, &l_Float32_exactlyRepresentablePowersOfTen___closed__2_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__2);
+v___x_251_ = lean_box_float32(v___x_250_);
+return v___x_251_;
 }
 }
 static lean_object* _init_l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__10(void){
 _start:
 {
-float v___x_247_; lean_object* v___x_248_; 
-v___x_247_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__1, &l_Float32_exactlyRepresentablePowersOfTen___closed__1_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__1);
-v___x_248_ = lean_box_float32(v___x_247_);
-return v___x_248_;
+float v___x_252_; lean_object* v___x_253_; 
+v___x_252_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__1, &l_Float32_exactlyRepresentablePowersOfTen___closed__1_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__1);
+v___x_253_ = lean_box_float32(v___x_252_);
+return v___x_253_;
 }
 }
 static lean_object* _init_l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__11(void){
 _start:
 {
-float v___x_249_; lean_object* v___x_250_; 
-v___x_249_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__0, &l_Float32_exactlyRepresentablePowersOfTen___closed__0_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__0);
-v___x_250_ = lean_box_float32(v___x_249_);
-return v___x_250_;
+float v___x_254_; lean_object* v___x_255_; 
+v___x_254_ = lean_float32_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__0, &l_Float32_exactlyRepresentablePowersOfTen___closed__0_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__0);
+v___x_255_ = lean_box_float32(v___x_254_);
+return v___x_255_;
 }
 }
 static lean_object* _init_l_Float32_exactlyRepresentablePowersOfTen___closed__11(void){
 _start:
 {
-lean_object* v___x_251_; lean_object* v___x_252_; lean_object* v___x_253_; lean_object* v___x_254_; lean_object* v___x_255_; lean_object* v___x_256_; lean_object* v___x_257_; lean_object* v___x_258_; lean_object* v___x_259_; lean_object* v___x_260_; lean_object* v___x_261_; lean_object* v___x_262_; lean_object* v___x_263_; lean_object* v___x_264_; lean_object* v___x_265_; lean_object* v___x_266_; lean_object* v___x_267_; lean_object* v___x_268_; lean_object* v___x_269_; lean_object* v___x_270_; lean_object* v___x_271_; lean_object* v___x_272_; lean_object* v___x_273_; lean_object* v___x_274_; 
-v___x_251_ = lean_unsigned_to_nat(11u);
-v___x_252_ = lean_mk_empty_array_with_capacity(v___x_251_);
-v___x_253_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__11;
-v___x_254_ = lean_array_push(v___x_252_, v___x_253_);
-v___x_255_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__10;
-v___x_256_ = lean_array_push(v___x_254_, v___x_255_);
-v___x_257_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__9;
-v___x_258_ = lean_array_push(v___x_256_, v___x_257_);
-v___x_259_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__8;
-v___x_260_ = lean_array_push(v___x_258_, v___x_259_);
-v___x_261_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__7;
-v___x_262_ = lean_array_push(v___x_260_, v___x_261_);
-v___x_263_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__6;
-v___x_264_ = lean_array_push(v___x_262_, v___x_263_);
-v___x_265_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__5;
-v___x_266_ = lean_array_push(v___x_264_, v___x_265_);
-v___x_267_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__4;
-v___x_268_ = lean_array_push(v___x_266_, v___x_267_);
-v___x_269_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__3;
-v___x_270_ = lean_array_push(v___x_268_, v___x_269_);
-v___x_271_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__2;
-v___x_272_ = lean_array_push(v___x_270_, v___x_271_);
-v___x_273_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__1;
-v___x_274_ = lean_array_push(v___x_272_, v___x_273_);
-return v___x_274_;
+lean_object* v___x_256_; lean_object* v___x_257_; lean_object* v___x_258_; lean_object* v___x_259_; lean_object* v___x_260_; lean_object* v___x_261_; lean_object* v___x_262_; lean_object* v___x_263_; lean_object* v___x_264_; lean_object* v___x_265_; lean_object* v___x_266_; lean_object* v___x_267_; lean_object* v___x_268_; lean_object* v___x_269_; lean_object* v___x_270_; lean_object* v___x_271_; lean_object* v___x_272_; lean_object* v___x_273_; lean_object* v___x_274_; lean_object* v___x_275_; lean_object* v___x_276_; lean_object* v___x_277_; lean_object* v___x_278_; lean_object* v___x_279_; 
+v___x_256_ = lean_unsigned_to_nat(11u);
+v___x_257_ = lean_mk_empty_array_with_capacity(v___x_256_);
+v___x_258_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__11;
+v___x_259_ = lean_array_push(v___x_257_, v___x_258_);
+v___x_260_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__10;
+v___x_261_ = lean_array_push(v___x_259_, v___x_260_);
+v___x_262_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__9;
+v___x_263_ = lean_array_push(v___x_261_, v___x_262_);
+v___x_264_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__8;
+v___x_265_ = lean_array_push(v___x_263_, v___x_264_);
+v___x_266_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__7;
+v___x_267_ = lean_array_push(v___x_265_, v___x_266_);
+v___x_268_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__6;
+v___x_269_ = lean_array_push(v___x_267_, v___x_268_);
+v___x_270_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__5;
+v___x_271_ = lean_array_push(v___x_269_, v___x_270_);
+v___x_272_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__4;
+v___x_273_ = lean_array_push(v___x_271_, v___x_272_);
+v___x_274_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__3;
+v___x_275_ = lean_array_push(v___x_273_, v___x_274_);
+v___x_276_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__2;
+v___x_277_ = lean_array_push(v___x_275_, v___x_276_);
+v___x_278_ = l_Float32_exactlyRepresentablePowersOfTen___closed__11___boxed__const__1;
+v___x_279_ = lean_array_push(v___x_277_, v___x_278_);
+return v___x_279_;
 }
 }
 static lean_object* _init_l_Float32_exactlyRepresentablePowersOfTen(void){
 _start:
 {
-lean_object* v___x_275_; 
-v___x_275_ = lean_obj_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__11, &l_Float32_exactlyRepresentablePowersOfTen___closed__11_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__11);
-return v___x_275_;
+lean_object* v___x_280_; 
+v___x_280_ = lean_obj_once(&l_Float32_exactlyRepresentablePowersOfTen___closed__11, &l_Float32_exactlyRepresentablePowersOfTen___closed__11_once, _init_l_Float32_exactlyRepresentablePowersOfTen___closed__11);
+return v___x_280_;
 }
 }
-LEAN_EXPORT float l_Float32_ofScientific(lean_object* v_m_276_, uint8_t v_s_277_, lean_object* v_e_278_){
+LEAN_EXPORT float l_Float32_ofScientific(lean_object* v_m_281_, uint8_t v_s_282_, lean_object* v_e_283_){
 _start:
 {
-lean_object* v___y_280_; lean_object* v___x_286_; uint8_t v___x_287_; 
-v___x_286_ = lean_unsigned_to_nat(8388608u);
-v___x_287_ = lean_nat_dec_lt(v_m_276_, v___x_286_);
-if (v___x_287_ == 0)
+lean_object* v___y_285_; lean_object* v___x_291_; uint8_t v___x_292_; 
+v___x_291_ = lean_unsigned_to_nat(8388608u);
+v___x_292_ = lean_nat_dec_lt(v_m_281_, v___x_291_);
+if (v___x_292_ == 0)
 {
-goto v___jp_283_;
+goto v___jp_288_;
 }
 else
 {
-lean_object* v___x_288_; uint8_t v___x_289_; 
-v___x_288_ = lean_unsigned_to_nat(10u);
-v___x_289_ = lean_nat_dec_le(v_e_278_, v___x_288_);
-if (v___x_289_ == 0)
+lean_object* v___x_293_; uint8_t v___x_294_; 
+v___x_293_ = lean_unsigned_to_nat(10u);
+v___x_294_ = lean_nat_dec_le(v_e_283_, v___x_293_);
+if (v___x_294_ == 0)
 {
-goto v___jp_283_;
+goto v___jp_288_;
 }
 else
 {
-lean_object* v___x_290_; lean_object* v_powerOfTen_291_; 
-v___x_290_ = l_Float32_exactlyRepresentablePowersOfTen;
-v_powerOfTen_291_ = lean_array_fget_borrowed(v___x_290_, v_e_278_);
-lean_dec(v_e_278_);
-if (v_s_277_ == 0)
+lean_object* v___x_295_; lean_object* v_powerOfTen_296_; 
+v___x_295_ = l_Float32_exactlyRepresentablePowersOfTen;
+v_powerOfTen_296_ = lean_array_fget_borrowed(v___x_295_, v_e_283_);
+lean_dec(v_e_283_);
+if (v_s_282_ == 0)
 {
-uint64_t v___x_292_; float v___x_293_; float v___x_294_; float v___x_295_; 
-v___x_292_ = lean_uint64_of_nat(v_m_276_);
-lean_dec(v_m_276_);
-v___x_293_ = lean_uint64_to_float32(v___x_292_);
-v___x_294_ = lean_unbox_float32(v_powerOfTen_291_);
-v___x_295_ = lean_float32_mul(v___x_293_, v___x_294_);
-return v___x_295_;
+uint64_t v___x_297_; float v___x_298_; float v___x_299_; float v___x_300_; 
+v___x_297_ = lean_uint64_of_nat(v_m_281_);
+lean_dec(v_m_281_);
+v___x_298_ = lean_uint64_to_float32(v___x_297_);
+v___x_299_ = lean_unbox_float32(v_powerOfTen_296_);
+v___x_300_ = lean_float32_mul(v___x_298_, v___x_299_);
+return v___x_300_;
 }
 else
 {
-uint64_t v___x_296_; float v___x_297_; float v___x_298_; float v___x_299_; 
-v___x_296_ = lean_uint64_of_nat(v_m_276_);
-lean_dec(v_m_276_);
-v___x_297_ = lean_uint64_to_float32(v___x_296_);
-v___x_298_ = lean_unbox_float32(v_powerOfTen_291_);
-v___x_299_ = lean_float32_div(v___x_297_, v___x_298_);
-return v___x_299_;
+uint64_t v___x_301_; float v___x_302_; float v___x_303_; float v___x_304_; 
+v___x_301_ = lean_uint64_of_nat(v_m_281_);
+lean_dec(v_m_281_);
+v___x_302_ = lean_uint64_to_float32(v___x_301_);
+v___x_303_ = lean_unbox_float32(v_powerOfTen_296_);
+v___x_304_ = lean_float32_div(v___x_302_, v___x_303_);
+return v___x_304_;
 }
 }
 }
-v___jp_279_:
+v___jp_284_:
 {
-uint32_t v___x_281_; float v___x_282_; 
-v___x_281_ = l_Float32_Model_ofScientific(v_m_276_, v___y_280_);
-lean_dec(v___y_280_);
-v___x_282_ = lean_float32_of_bits(v___x_281_);
-return v___x_282_;
+uint32_t v___x_286_; float v___x_287_; 
+v___x_286_ = l_Float32_Model_ofScientific(v_m_281_, v___y_285_);
+lean_dec(v___y_285_);
+v___x_287_ = lean_float32_of_bits(v___x_286_);
+return v___x_287_;
 }
-v___jp_283_:
+v___jp_288_:
 {
-if (v_s_277_ == 0)
+if (v_s_282_ == 0)
 {
-lean_object* v___x_284_; 
-v___x_284_ = lean_nat_to_int(v_e_278_);
-v___y_280_ = v___x_284_;
-goto v___jp_279_;
+lean_object* v___x_289_; 
+v___x_289_ = lean_nat_to_int(v_e_283_);
+v___y_285_ = v___x_289_;
+goto v___jp_284_;
 }
 else
 {
-lean_object* v___x_285_; 
-v___x_285_ = l_Int_negOfNat(v_e_278_);
-lean_dec(v_e_278_);
-v___y_280_ = v___x_285_;
-goto v___jp_279_;
+lean_object* v___x_290_; 
+v___x_290_ = l_Int_negOfNat(v_e_283_);
+lean_dec(v_e_283_);
+v___y_285_ = v___x_290_;
+goto v___jp_284_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Float32_ofScientific___boxed(lean_object* v_m_300_, lean_object* v_s_301_, lean_object* v_e_302_){
+LEAN_EXPORT lean_object* l_Float32_ofScientific___boxed(lean_object* v_m_305_, lean_object* v_s_306_, lean_object* v_e_307_){
 _start:
 {
-uint8_t v_s_boxed_303_; float v_res_304_; lean_object* v_r_305_; 
-v_s_boxed_303_ = lean_unbox(v_s_301_);
-v_res_304_ = l_Float32_ofScientific(v_m_300_, v_s_boxed_303_, v_e_302_);
-v_r_305_ = lean_box_float32(v_res_304_);
-return v_r_305_;
+uint8_t v_s_boxed_308_; float v_res_309_; lean_object* v_r_310_; 
+v_s_boxed_308_ = lean_unbox(v_s_306_);
+v_res_309_ = l_Float32_ofScientific(v_m_305_, v_s_boxed_308_, v_e_307_);
+v_r_310_ = lean_box_float32(v_res_309_);
+return v_r_310_;
 }
 }
-LEAN_EXPORT float lean_float32_of_nat(lean_object* v_n_308_){
+LEAN_EXPORT float lean_float32_of_nat(lean_object* v_n_313_){
 _start:
 {
-uint8_t v___x_309_; lean_object* v___x_310_; float v___x_311_; 
-v___x_309_ = 0;
-v___x_310_ = lean_unsigned_to_nat(0u);
-v___x_311_ = l_Float32_ofScientific(v_n_308_, v___x_309_, v___x_310_);
-return v___x_311_;
+uint8_t v___x_314_; lean_object* v___x_315_; float v___x_316_; 
+v___x_314_ = 0;
+v___x_315_ = lean_unsigned_to_nat(0u);
+v___x_316_ = l_Float32_ofScientific(v_n_313_, v___x_314_, v___x_315_);
+return v___x_316_;
 }
 }
-LEAN_EXPORT lean_object* l_Float32_ofNat___boxed(lean_object* v_n_312_){
+LEAN_EXPORT lean_object* l_Float32_ofNat___boxed(lean_object* v_n_317_){
 _start:
 {
-float v_res_313_; lean_object* v_r_314_; 
-v_res_313_ = lean_float32_of_nat(v_n_312_);
-v_r_314_ = lean_box_float32(v_res_313_);
-return v_r_314_;
+float v_res_318_; lean_object* v_r_319_; 
+v_res_318_ = lean_float32_of_nat(v_n_317_);
+v_r_319_ = lean_box_float32(v_res_318_);
+return v_r_319_;
 }
 }
-LEAN_EXPORT float l_Float32_ofInt(lean_object* v_x_315_){
+LEAN_EXPORT float l_Float32_ofInt(lean_object* v_x_320_){
 _start:
 {
-lean_object* v_intZero_316_; uint8_t v_isNeg_317_; 
-v_intZero_316_ = lean_obj_once(&l_Float_ofInt___closed__0, &l_Float_ofInt___closed__0_once, _init_l_Float_ofInt___closed__0);
-v_isNeg_317_ = lean_int_dec_lt(v_x_315_, v_intZero_316_);
-if (v_isNeg_317_ == 0)
+lean_object* v_intZero_321_; uint8_t v_isNeg_322_; 
+v_intZero_321_ = lean_obj_once(&l_Float_ofInt___closed__0, &l_Float_ofInt___closed__0_once, _init_l_Float_ofInt___closed__0);
+v_isNeg_322_ = lean_int_dec_lt(v_x_320_, v_intZero_321_);
+if (v_isNeg_322_ == 0)
 {
-lean_object* v_a_318_; float v___x_319_; 
-v_a_318_ = lean_nat_abs(v_x_315_);
-v___x_319_ = lean_float32_of_nat(v_a_318_);
-return v___x_319_;
+lean_object* v_a_323_; float v___x_324_; 
+v_a_323_ = lean_nat_abs(v_x_320_);
+v___x_324_ = lean_float32_of_nat(v_a_323_);
+return v___x_324_;
 }
 else
 {
-lean_object* v_abs_320_; lean_object* v_one_321_; lean_object* v_a_322_; lean_object* v___x_323_; float v___x_324_; float v___x_325_; 
-v_abs_320_ = lean_nat_abs(v_x_315_);
-v_one_321_ = lean_unsigned_to_nat(1u);
-v_a_322_ = lean_nat_sub(v_abs_320_, v_one_321_);
-lean_dec(v_abs_320_);
-v___x_323_ = lean_nat_add(v_a_322_, v_one_321_);
-lean_dec(v_a_322_);
-v___x_324_ = lean_float32_of_nat(v___x_323_);
-v___x_325_ = lean_float32_negate(v___x_324_);
-return v___x_325_;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Float32_ofInt___boxed(lean_object* v_x_326_){
-_start:
-{
-float v_res_327_; lean_object* v_r_328_; 
-v_res_327_ = l_Float32_ofInt(v_x_326_);
-lean_dec(v_x_326_);
-v_r_328_ = lean_box_float32(v_res_327_);
-return v_r_328_;
-}
-}
-LEAN_EXPORT float l_instOfNatFloat32(lean_object* v_n_329_){
-_start:
-{
-float v___x_330_; 
-v___x_330_ = lean_float32_of_nat(v_n_329_);
+lean_object* v_abs_325_; lean_object* v_one_326_; lean_object* v_a_327_; lean_object* v___x_328_; float v___x_329_; float v___x_330_; 
+v_abs_325_ = lean_nat_abs(v_x_320_);
+v_one_326_ = lean_unsigned_to_nat(1u);
+v_a_327_ = lean_nat_sub(v_abs_325_, v_one_326_);
+lean_dec(v_abs_325_);
+v___x_328_ = lean_nat_add(v_a_327_, v_one_326_);
+lean_dec(v_a_327_);
+v___x_329_ = lean_float32_of_nat(v___x_328_);
+v___x_330_ = lean_float32_negate(v___x_329_);
 return v___x_330_;
 }
 }
-LEAN_EXPORT lean_object* l_instOfNatFloat32___boxed(lean_object* v_n_331_){
+}
+LEAN_EXPORT lean_object* l_Float32_ofInt___boxed(lean_object* v_x_331_){
 _start:
 {
 float v_res_332_; lean_object* v_r_333_; 
-v_res_332_ = l_instOfNatFloat32(v_n_331_);
+v_res_332_ = l_Float32_ofInt(v_x_331_);
+lean_dec(v_x_331_);
 v_r_333_ = lean_box_float32(v_res_332_);
 return v_r_333_;
 }
 }
-LEAN_EXPORT float l_Nat_toFloat32(lean_object* v_n_334_){
+LEAN_EXPORT float l_instOfNatFloat32(lean_object* v_n_334_){
 _start:
 {
 float v___x_335_; 
@@ -1241,13 +1246,48 @@ v___x_335_ = lean_float32_of_nat(v_n_334_);
 return v___x_335_;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_toFloat32___boxed(lean_object* v_n_336_){
+LEAN_EXPORT lean_object* l_instOfNatFloat32___boxed(lean_object* v_n_336_){
 _start:
 {
 float v_res_337_; lean_object* v_r_338_; 
-v_res_337_ = l_Nat_toFloat32(v_n_336_);
+v_res_337_ = l_instOfNatFloat32(v_n_336_);
 v_r_338_ = lean_box_float32(v_res_337_);
 return v_r_338_;
+}
+}
+LEAN_EXPORT float l_Nat_toFloat32(lean_object* v_n_339_){
+_start:
+{
+float v___x_340_; 
+v___x_340_ = lean_float32_of_nat(v_n_339_);
+return v___x_340_;
+}
+}
+LEAN_EXPORT lean_object* l_Nat_toFloat32___boxed(lean_object* v_n_341_){
+_start:
+{
+float v_res_342_; lean_object* v_r_343_; 
+v_res_342_ = l_Nat_toFloat32(v_n_341_);
+v_r_343_ = lean_box_float32(v_res_342_);
+return v_r_343_;
+}
+}
+LEAN_EXPORT float l_Int_toFloat32(lean_object* v_n_344_){
+_start:
+{
+float v___x_345_; 
+v___x_345_ = l_Float32_ofInt(v_n_344_);
+return v___x_345_;
+}
+}
+LEAN_EXPORT lean_object* l_Int_toFloat32___boxed(lean_object* v_n_346_){
+_start:
+{
+float v_res_347_; lean_object* v_r_348_; 
+v_res_347_ = l_Int_toFloat32(v_n_346_);
+lean_dec(v_n_346_);
+v_r_348_ = lean_box_float32(v_res_347_);
+return v_r_348_;
 }
 }
 lean_object* runtime_initialize_Init_Data_OfScientific_Basic(uint8_t builtin);

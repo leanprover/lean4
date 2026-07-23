@@ -72,6 +72,10 @@ jobs:
         with:
           # the default is to use a virtual merge commit between the PR and master: just use the PR
           ref: ${{ github.event.pull_request.head.sha }}
+          # The Lake cache job walks git history to resolve a cached ancestor revision, so on
+          # push/merge_group it needs more than the default single commit. (PRs instead get depth
+          # from the "CI Merge Checkout" step below.)
+          fetch-depth: ${{ (matrix.name == 'Linux Lake (Cached)' && github.event_name != 'pull_request') && 10 || 1 }}
       - name: Open Nix shell once
         run: true
         if: runner.os == 'Linux'
@@ -169,8 +173,22 @@ jobs:
         run: |
           ulimit -c unlimited  # coredumps
           time make -C build stage1-configure -j$NPROC
-      - name: Download Lake Cache
+      - name: Check for stage0 update
+        id: check-stage0
+        # A stage0 update replaces the bootstrap compiler, which invalidates every Lake artifact
+        # (Lake does not track stage0), so there is nothing reusable in the cache to download.
+        # `github.sha` is the pushed commit (push/merge_group) or the virtual merge commit (PRs),
+        # so `github.sha^1` is the parent / PR base to diff `stage0` against in both cases.
         if: matrix.name == 'Linux Lake (Cached)'
+        run: |
+          sha='${{ github.sha }}'
+          if git rev-parse --verify --quiet "$sha^1" >/dev/null && ! git diff --quiet "$sha^1" "$sha" -- stage0; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Download Lake Cache
+        if: matrix.name == 'Linux Lake (Cached)' && steps.check-stage0.outputs.changed != 'true'
         run: |
           cd src
           ../build/stage0/bin/lake cache get --repo=${{ github.repository }}

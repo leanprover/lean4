@@ -64,22 +64,25 @@ instance : OfScientific Float where
 Converts a natural number into the closest-possible 64-bit floating-point number, or an infinite
 floating-point value if the range of `Float` is exceeded.
 -/
-@[export lean_float_of_nat]
-def Float.ofNat (n : Nat) : Float :=
+@[export lean_float_of_nat, expose]
+protected def Float.ofNat (n : Nat) : Float :=
   OfScientific.ofScientific n false 0
 
 /--
 Converts an integer into the closest-possible 64-bit floating-point number, or positive or negative
 infinite floating-point value if the range of `Float` is exceeded.
 -/
-def Float.ofInt : Int → Float
+@[expose] protected def Float.ofInt : Int → Float
   | Int.ofNat n => Float.ofNat n
   | Int.negSucc n => Float.neg (Float.ofNat (Nat.succ n))
 
-instance : OfNat Float n   := ⟨Float.ofNat n⟩
+instance : OfNat Float n := ⟨Float.ofNat n⟩
 
 @[inherit_doc Float.ofNat] abbrev Nat.toFloat (n : Nat) : Float :=
   Float.ofNat n
+
+@[inherit_doc Float.ofInt] abbrev Int.toFloat (n : Int) : Float :=
+  Float.ofInt n
 
 /--
 Precomputed values of `10 ^ e` for `0 ≤ e ≤ 10 `. In this range, the values can be represented
@@ -91,7 +94,7 @@ exactly.
    Float32.ofBits 0x49742400, Float32.ofBits 0x4B189680, Float32.ofBits 0x4CBEBC20,
    Float32.ofBits 0x4E6E6B28, Float32.ofBits 0x501502F9]
 
-@[expose] protected def Float32.ofScientific (m :Nat) (s : Bool) (e : Nat) : Float32 :=
+@[expose] protected def Float32.ofScientific (m : Nat) (s : Bool) (e : Nat) : Float32 :=
   -- See comments on `Float.ofScientific`.
   if h : m < 2 ^ 23 ∧ e ≤ 10 then
     let powerOfTen : Float32 :=
@@ -111,19 +114,22 @@ instance : OfScientific Float32 where
 Converts a natural number into the closest-possible 32-bit floating-point number, or an infinite
 floating-point value if the range of `Float32` is exceeded.
 -/
-@[export lean_float32_of_nat]
-def Float32.ofNat (n : Nat) : Float32 :=
+@[export lean_float32_of_nat, expose]
+protected def Float32.ofNat (n : Nat) : Float32 :=
   OfScientific.ofScientific n false 0
 
 /--
 Converts an integer into the closest-possible 32-bit floating-point number, or positive or negative
 infinite floating-point value if the range of `Float32` is exceeded.
 -/
-def Float32.ofInt : Int → Float32
+@[expose] protected def Float32.ofInt : Int → Float32
   | Int.ofNat n => Float32.ofNat n
   | Int.negSucc n => Float32.neg (Float32.ofNat (Nat.succ n))
 
-instance : OfNat Float32 n   := ⟨Float32.ofNat n⟩
+instance : OfNat Float32 n := ⟨Float32.ofNat n⟩
 
 @[inherit_doc Float32.ofNat] abbrev Nat.toFloat32 (n : Nat) : Float32 :=
   Float32.ofNat n
+
+@[inherit_doc Float32.ofInt] abbrev Int.toFloat32 (n : Int) : Float32 :=
+  Float32.ofInt n

@@ -58,7 +58,9 @@ jobs:
         uses: actions/checkout@v6
         if: env.IS_NIGHTLY != 'true' && env.IS_LEAN4_REPO_TAG != 'true'
         with:
-          sparse-checkout: src/stdlib_flags.h,stage0/src/stdlib_flags.h
+          sparse-checkout: |
+            src/stdlib_flags.h
+            stage0/src/stdlib_flags.h
       - name: Set Nightly
         if: env.IS_NIGHTLY == 'true'
         id: set-nightly

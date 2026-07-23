@@ -400,9 +400,10 @@ class lift_fn {
     };
     lean::unordered_map<key, expr, key_hasher> m_cache;
 
-    /* result node ↦ (origin, amount), for whole-value (cutoff 0) results
-       only: interior results leave their sub-cutoff bvars alone, so they have
-       no context-free identity to index. Keys are retained by the
+    /* result node ↦ (origin, amount): records `result = lift(origin, amount)`.
+       We could also record interior (cutoff > 0) results, including their
+       cutoff and using them only on a matching cutoff, but we only need this
+       for cutoff 0, and it is simpler this way. Keys are retained by the
        corresponding `m_cache` entries, origins by the map values. */
     lean::unordered_map<lean_object *, std::pair<expr, unsigned>> m_origin;
 

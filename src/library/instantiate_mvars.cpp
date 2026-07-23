@@ -373,6 +373,13 @@ class instantiate_delayed_fn {
     typedef std::pair<lean_object *, unsigned> cache_key;
     scope_cache<cache_key, expr, key_hasher> m_cache;
 
+    /* Memo for `lift_loose_bvars(value, d)` applied to fvar-substitution
+       values in `lookup_fvar`; see comment there. `lift_loose_bvars` is a
+       pure function of (value, d), so a global memo is sound. Keeps the keyed
+       exprs alive for the lifetime of the pass, so raw-pointer keys remain
+       valid. */
+    std::unordered_map<cache_key, expr, key_hasher> m_lift_cache;
+
     /* After visit() returns, this holds the maximum fvar-substitution
        scope that contributed to the result — i.e., the outermost scope at which the
        result is valid and can be cached. Updated monotonically (via max) through
@@ -481,7 +488,26 @@ class instantiate_delayed_fn {
         unsigned d = m_depth - it->second.depth;
         if (d == 0)
             return optional<expr>(it->second.value);
-        return optional<expr>(lift_loose_bvars(it->second.value, d));
+        expr const & v = it->second.value;
+        if (!has_loose_bvars(v))
+            return optional<expr>(v);
+        if (is_bvar(v)) /* single node: lifting directly is cheaper than the memo */
+            return optional<expr>(mk_bvar(bvar_idx(v) + nat(d)));
+        /* Memoize lifted copies: without this, every occurrence of the fvar at
+           a deeper binder depth creates a fresh copy of the (open) substituted
+           value. Occurrences of a hypothesis introduced via `MVarId.assert` +
+           `intro` (e.g. `MVarId.note`, `replaceLocalDecl`, `simp at h`)
+           produce exactly this shape, and the copies can compound
+           multiplicatively along chains of delayed-assigned MVars
+           (issue #14329). With the memo, all occurrences at the same binder
+           depth share one lifted copy. */
+        auto key = std::make_pair(v.raw(), d);
+        auto lit = m_lift_cache.find(key);
+        if (lit != m_lift_cache.end())
+            return optional<expr>(lit->second);
+        expr lifted = lift_loose_bvars(v, d);
+        m_lift_cache.insert(mk_pair(key, lifted));
+        return optional<expr>(lifted);
     }
 
     /* Get a direct MVar assignment. Visit it to resolve delayed-assigned

@@ -1840,6 +1840,8 @@ variable {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Ty
 variable [Monad m] [Lean.Order.MonadTail m] [Assertion Pred] [Assertion EPred]
   [WPMonad m Pred EPred]
 
+open Assertion
+
 /--
 An invariant for a `repeatM` loop, given as a predicate over the `α ⊕ β` cursor:
 `.inl a` is the `continue` case at `a`; `.inr b` is the `break` case with result `b`.
@@ -1848,28 +1850,40 @@ An invariant for a `repeatM` loop, given as a predicate over the `α ⊕ β` cur
 def RepeatInvariant (α β : Type u) (Pred : Type uₚ) :=
   α ⊕ β → Pred
 
-/-- A termination measure for a `repeatM` loop. -/
-@[spec_invariant_type]
-def RepeatVariant (α : Type u) :=
-  α → Nat
-
 /--
-Specification for `repeatM`. The user supplies a termination `measure`, an invariant, and a step
-`Triple` whose post either continues with a strictly smaller measure or finishes with the `.inr`
-invariant.
+A termination measure for a `repeatM` loop. The measure may depend on monadic state when `Pred`
+supports nondeterministic functions into `Nat` via `Assertion.NondetFun` (e.g. `σ → Nat` for
+`Pred = σ → Prop`).
+-/
+@[spec_invariant_type]
+def RepeatVariant (α : Type u) (Pred : Type u) {Fun : Type u}
+    [Assertion Pred] [NondetFun Pred Nat Fun] :=
+  α → Fun
+
+/-- Evaluate a `RepeatVariant` to a pure `Nat` inside the assertion lattice. -/
+abbrev RepeatVariant.eval {Fun : Type u} [inst : NondetFun Pred Nat Fun]
+    (measure : RepeatVariant α Pred) (a : α) (n : Nat) : Pred :=
+  inst.evalsTo (measure a) n
+
+open Std.Internal.Do.CompleteLattice in
+/--
+Specification for `repeatM`. The user supplies a (possibly state-dependent) termination
+`measure`, an invariant, and a step `Triple` whose pre asserts the variant evaluates to `ma`
+and the in-progress invariant holds, and whose post either continues with a strictly smaller
+variant value (the invariant still holding) or finishes with the `.inr` invariant.
 -/
 @[spec]
 theorem Spec.repeatM
-    {init : α} {f : α → m (α ⊕ β)} [Nonempty β]
-    (measure : RepeatVariant α)
+    {init : α} {f : α → m (α ⊕ β)} [Nonempty β] {Fun : Type u} [NondetFun Pred Nat Fun]
+    (measure : RepeatVariant α Pred)
     (inv : RepeatInvariant α β Pred)
     (einv : EPred)
-    (step : ∀ a,
+    (step : ∀ a ma,
       Triple
         (f a)
-        (inv (.inl a))
+        (RepeatVariant.eval measure a ma ⊓ inv (.inl a))
         (fun r => match r with
-          | .inl a' => ⌜measure a' < measure a⌝ ⊓ inv (.inl a')
+          | .inl a' => ⨆ ma', RepeatVariant.eval measure a' ma' ⊓ ⌜ma' < ma⌝ ⊓ inv (.inl a')
           | .inr b => inv (.inr b))
         einv) :
     Triple
@@ -1877,30 +1891,41 @@ theorem Spec.repeatM
       (inv (.inl init))
       (fun b => inv (.inr b))
       einv := by
-  suffices key : ∀ (n : Nat) (a : α), measure a ≤ n →
+  refine Triple.intro <| NondetFun.le_of_total_le (α := Nat) (measure init) ?_
+  refine iSup_le _ _ fun minit => ?_
+  suffices key : ∀ (n : Nat) (a : α),
       Triple
         (_root_.repeatM f a)
-        (inv (.inl a))
+        (RepeatVariant.eval measure a n ⊓ inv (.inl a))
         (fun b => inv (.inr b))
         einv
-    from key (measure init) init (Nat.le_refl _)
+    from (key minit init).le_wp
   intro n
   induction n using Nat.strongRecOn with
   | _ n ih =>
-    intro a hle
+    intro a
     rw [_root_.repeatM.Internal.eq_of_monadTail (f := f) a]
     refine Triple.bind (f := fun x => match x with
       | .inl a' => _root_.repeatM f a'
       | .inr b => Pure.pure b)
       (f a) (fun r => match r with
-        | .inl a' => ⌜measure a' < measure a⌝ ⊓ inv (.inl a')
+        | .inl a' => ⨆ ma', RepeatVariant.eval measure a' ma' ⊓ ⌜ma' < n⌝ ⊓ inv (.inl a')
         | .inr b => inv (.inr b))
-      (step a) ?_
+      (step a n) ?_
     rintro (a' | b)
     · refine Triple.intro ?_
-      refine CompleteLattice.ofProp_meet_le_left ?_
-      intro hlt
-      exact (ih (measure a') (Nat.lt_of_lt_of_le hlt hle) a' (Nat.le_refl _)).le_wp
+      refine iSup_le _ _ fun ma' => ?_
+      refine PartialOrder.rel_trans ?_ (ofProp_meet_le_left fun hlt =>
+        (ih ma' hlt a').le_wp)
+      have hrearr :
+          RepeatVariant.eval measure a' ma' ⊓ ⌜ma' < n⌝ ⊓ inv (.inl a') =
+          ⌜ma' < n⌝ ⊓ (RepeatVariant.eval measure a' ma' ⊓ inv (.inl a')) := by
+        calc RepeatVariant.eval measure a' ma' ⊓ ⌜ma' < n⌝ ⊓ inv (.inl a')
+            = (⌜ma' < n⌝ ⊓ RepeatVariant.eval measure a' ma') ⊓ inv (.inl a') := by
+                rw [meet_comm (P := RepeatVariant.eval measure a' ma')]
+          _ = ⌜ma' < n⌝ ⊓ (RepeatVariant.eval measure a' ma' ⊓ inv (.inl a')) := by
+                rw [meet_assoc]
+      exact hrearr ▸ PartialOrder.rel_refl
     · exact Triple.pure b Lean.Order.PartialOrder.rel_refl
 
 /--
@@ -1924,15 +1949,16 @@ Specification for `forIn` over a `Lean.Loop`. The cursor is `β ⊕ β`: `.inl b
 @[spec]
 theorem Spec.forIn_loop
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
-    (measure : RepeatVariant β)
+    {Fun : Type u} [NondetFun Pred Nat Fun]
+    (measure : RepeatVariant β Pred)
     (inv : RepeatInvariant β β Pred)
     (einv : EPred)
-    (step : ∀ b,
+    (step : ∀ b mb,
       Triple
         (f () b)
-        (inv (.inl b))
+        (RepeatVariant.eval measure b mb ⊓ inv (.inl b))
         (fun r => match r with
-          | .yield b' => ⌜measure b' < measure b⌝ ⊓ inv (.inl b')
+          | .yield b' => ⨆ mb', RepeatVariant.eval measure b' mb' ⊓ ⌜mb' < mb⌝ ⊓ inv (.inl b')
           | .done b' => inv (.inr b'))
         einv) :
     Triple
@@ -1945,9 +1971,9 @@ theorem Spec.forIn_loop
     (fun b => inv (.inr b)) einv
   simp only [_root_.Lean.Loop.forIn]
   apply Spec.repeatM (measure := measure) (inv := inv) (einv := einv)
-  intro b
+  intro b mb
   apply Triple.bind
-  · exact step b
+  · exact step b mb
   · intro r
     cases r with
     | yield b' => exact Triple.pure (Sum.inl b') Lean.Order.PartialOrder.rel_refl

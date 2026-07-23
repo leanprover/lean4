@@ -746,7 +746,25 @@ theorem countdown_spec (n : Nat) :
     ⦃ fun s => s = 0 ⦄ countdown n ⦃ fun _ s => s = n ⦄ := by
   vcgen [countdown]
   case inv1 => exact RepeatInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i _ => i = 0)
-  case inv2 => exact fun i => i
+  case inv2 => exact fun i _ => i
+  any_goals simp at *
+  all_goals grind
+
+/-- Like `countdown`, but termination is measured from the monadic state rather than the loop cursor. -/
+def countdownStateful (n : Nat) : StateT Nat Id Unit := do
+  set 0
+  while (← get) ≠ n do
+    modify (· + 1)
+  return
+
+theorem countdownStateful_spec (n : Nat) :
+    ⦃ fun _ => True ⦄ countdownStateful n ⦃ fun _ s => s = n ⦄ := by
+  vcgen [countdownStateful]
+  case inv1 =>
+    exact RepeatInvariant.ofInvariantAndBreak
+      (fun _ s => s ≤ n)
+      (fun _ s => s = n)
+  case inv2 => exact fun _ s => n - s
   any_goals simp at *
   all_goals grind
 

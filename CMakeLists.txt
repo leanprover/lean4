@@ -108,7 +108,13 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
         DOWNLOAD
           https://github.com/digama0/leangz/releases/download/${LEANTAR_VERSION}/leantar-${LEANTAR_VERSION}-${LEANTAR_TARGET}${LEANTAR_ARCHIVE_SUFFIX}
         ${CMAKE_BINARY_DIR}/leantar${LEANTAR_ARCHIVE_SUFFIX}
+        STATUS LEANTAR_DOWNLOAD_STATUS
       )
+      list(GET LEANTAR_DOWNLOAD_STATUS 0 LEANTAR_DOWNLOAD_CODE)
+      if(NOT LEANTAR_DOWNLOAD_CODE EQUAL 0)
+        list(GET LEANTAR_DOWNLOAD_STATUS 1 LEANTAR_DOWNLOAD_ERROR)
+        message(FATAL_ERROR "Failed to download leantar: ${LEANTAR_DOWNLOAD_ERROR}")
+      endif()
       file(
         ARCHIVE_EXTRACT
         INPUT ${CMAKE_BINARY_DIR}/leantar${LEANTAR_ARCHIVE_SUFFIX}

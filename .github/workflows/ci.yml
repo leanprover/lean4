@@ -343,10 +343,8 @@ jobs:
               },
               {
                 "name": "Linux tsanitize",
-                // Always run on large if available, more reliable regarding timeouts.
-                // Building stage 2 with tsanitize needs > 32GB.
-                "os": large ? (target_stage >= 2 ? "nscloud-ubuntu-24.04-amd64-32x64" : "nscloud-ubuntu-24.04-amd64-8x16") : "ubuntu-latest",
-                "enabled": level >= 2 || fsanitize,
+                "os": large ? "nscloud-ubuntu-24.04-amd64-8x16" : "ubuntu-latest",
+                "enabled": (level >= 2 || fsanitize) && target_stage < 2,
                 "test": true,
                 // turn off custom allocator & symbolic functions to make TSAN do its magic
                 "CMAKE_PRESET": "sanitize-thread",

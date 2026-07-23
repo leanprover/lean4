@@ -340,23 +340,14 @@ static inline size_t lean_unbox(lean_object * o) { return (size_t)(o) >> 1; }
 Under TSan we access `m_rc` through sequentially consistent atomics so that the otherwise
 non-atomic single-threaded fast paths are not flagged as data races.
 */
-#ifdef LEAN_TSAN
-#ifdef __cplusplus
-#define LEAN_RC_ATOMIC_LOAD(o)      std::atomic_load_explicit((_Atomic(int)*)(&(o)->m_rc), std::memory_order_seq_cst)
-#define LEAN_RC_ATOMIC_STORE(o, v)  std::atomic_store_explicit((_Atomic(int)*)(&(o)->m_rc), v, std::memory_order_seq_cst)
-#define LEAN_RC_ATOMIC_ADD(o, v)    std::atomic_fetch_add_explicit((_Atomic(int)*)(&(o)->m_rc), v, std::memory_order_seq_cst)
-#define LEAN_RC_ATOMIC_SUB(o, v)    std::atomic_fetch_sub_explicit((_Atomic(int)*)(&(o)->m_rc), v, std::memory_order_seq_cst)
-#else
-#define LEAN_RC_ATOMIC_LOAD(o)      atomic_load_explicit((_Atomic(int)*)(&(o)->m_rc), memory_order_seq_cst)
-#define LEAN_RC_ATOMIC_STORE(o, v)  atomic_store_explicit((_Atomic(int)*)(&(o)->m_rc), v, memory_order_seq_cst)
-#define LEAN_RC_ATOMIC_ADD(o, v)    atomic_fetch_add_explicit((_Atomic(int)*)(&(o)->m_rc), v, memory_order_seq_cst)
-#define LEAN_RC_ATOMIC_SUB(o, v)    atomic_fetch_sub_explicit((_Atomic(int)*)(&(o)->m_rc), v, memory_order_seq_cst)
-#endif
-#endif
 
 static inline int lean_internal_get_rc(lean_object* o) {
 #ifdef LEAN_TSAN
-    return LEAN_RC_ATOMIC_LOAD(o);
+#ifdef __cplusplus
+    return std::atomic_load_explicit((_Atomic(int)*)(&(o)->m_rc), std::memory_order_seq_cst);
+#else
+    return atomic_load_explicit((_Atomic(int)*)(&(o)->m_rc), memory_order_seq_cst);
+#endif
 #else
     return o->m_rc;
 #endif
@@ -364,7 +355,11 @@ static inline int lean_internal_get_rc(lean_object* o) {
 
 static inline void lean_internal_set_rc(lean_object* o, int rc) {
 #ifdef LEAN_TSAN
-    LEAN_RC_ATOMIC_STORE(o, rc);
+#ifdef __cplusplus
+    std::atomic_store_explicit((_Atomic(int)*)(&(o)->m_rc), rc, std::memory_order_seq_cst);
+#else
+    atomic_store_explicit((_Atomic(int)*)(&(o)->m_rc), rc, memory_order_seq_cst);
+#endif
 #else
     o->m_rc = rc;
 #endif
@@ -372,7 +367,11 @@ static inline void lean_internal_set_rc(lean_object* o, int rc) {
 
 static inline void lean_internal_add_rc(lean_object* o, int add) {
 #ifdef LEAN_TSAN
-    LEAN_RC_ATOMIC_ADD(o, add);
+#ifdef __cplusplus
+    std::atomic_fetch_add_explicit((_Atomic(int)*)(&(o)->m_rc), add, std::memory_order_seq_cst);
+#else
+    atomic_fetch_add_explicit((_Atomic(int)*)(&(o)->m_rc), add, memory_order_seq_cst);
+#endif
 #else
     o->m_rc += add;
 #endif
@@ -380,16 +379,15 @@ static inline void lean_internal_add_rc(lean_object* o, int add) {
 
 static inline void lean_internal_sub_rc(lean_object* o, int sub) {
 #ifdef LEAN_TSAN
-    LEAN_RC_ATOMIC_SUB(o, sub);
+#ifdef __cplusplus
+    std::atomic_fetch_sub_explicit((_Atomic(int)*)(&(o)->m_rc), sub, std::memory_order_seq_cst);
+#else
+    atomic_fetch_sub_explicit((_Atomic(int)*)(&(o)->m_rc), sub, memory_order_seq_cst);
+#endif
 #else
     o->m_rc -= sub;
 #endif
 }
-
-#undef LEAN_RC_ATOMIC_LOAD
-#undef LEAN_RC_ATOMIC_STORE
-#undef LEAN_RC_ATOMIC_ADD
-#undef LEAN_RC_ATOMIC_SUB
 
 LEAN_EXPORT void lean_set_exit_on_panic(bool flag);
 /* Enable/disable panic messages */

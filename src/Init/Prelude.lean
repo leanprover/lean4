@@ -1080,6 +1080,8 @@ class Decidable (p : Prop) where
   -/
   reflects_decide (p) : decide.Reflects p
 
+attribute [implicit_reducible] Decidable.decide
+
 /-- Proves that `p` is decidable by supplying a proof of `¬p` -/
 @[match_pattern] abbrev Decidable.isFalse (h : Not p) : Decidable p := ⟨false, h⟩
 
@@ -3037,6 +3039,7 @@ instance {α} : Inhabited (List α) where
 Checks whether two lists have the same length and their elements are pairwise `BEq`. Normally used
 via the `==` operator.
 -/
+@[implicit_reducible]
 protected def List.beq {α : Type u} [BEq α] : (a b : List α) → Bool
   | nil,       nil       => true
   | cons _ _,  nil       => false
@@ -3044,6 +3047,7 @@ protected def List.beq {α : Type u} [BEq α] : (a b : List α) → Bool
   | cons a as, cons b bs => and (beq a b) (List.beq as bs)
 
 /-- Implements decidable equality for `List α`, assuming `α` has decidable equality. -/
+@[instance_reducible]
 protected def List.hasDecEq {α : Type u} [d : DecidableEq α] (a b : List α) : Decidable (Eq a b) where
   decide := a.beq b
   reflects_decide := go a b
@@ -3621,7 +3625,7 @@ Decides whether two strings are equal. Normally used via the `DecidableEq String
 
 At runtime, this function is overridden with an efficient native implementation.
 -/
-@[extern "lean_string_dec_eq", implicit_reducible]
+@[extern "lean_string_dec_eq", instance_reducible]
 def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
   match s₁, s₂ with
   | ⟨⟨⟨s₁⟩⟩, _⟩, ⟨⟨⟨s₂⟩⟩, _⟩ =>

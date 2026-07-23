@@ -270,9 +270,10 @@ jobs:
       - name: Restore Build
         if: steps.upload-lake-cache.outcome == 'success'
         run: |
-          build/stage0/bin/lake cache clean
           rm -rf build/stage1
           mv build/stage1.bak build/stage1
+          cd src
+          ../build/stage0/bin/lake cache clean
       - name: Install
         run: |
           make -C build/$TARGET_STAGE install

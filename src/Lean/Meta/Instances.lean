@@ -135,16 +135,28 @@ builtin_initialize synthInstanceCacheExt : EnvExtension SynthInstanceCache ←
   registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep local
 
 /--
-Resets the type class resolution cache.
+Resets the persistent tier of the type class resolution cache. Use `resetSynthInstanceCache`
+instead from `MetaM`, which also clears the transient `Meta.Cache.synthInstance` tier;
+context-free entries are written to both tiers (see `Lean.Meta.SynthInstance.insertCachedResult`).
+-/
+def resetSynthInstanceCacheCore : CoreM Unit :=
+  modify fun s => { s with env := synthInstanceCacheExt.setState s.env {} }
+
+/--
+Resets the type class resolution cache (both the persistent tier and the transient
+`Meta.Cache.synthInstance` tier).
 
 The cache is reset automatically when an instance is added via `addInstance` or erased, and
 activation of scoped instances is accounted for in the cache key
-(`SynthInstanceCacheKey.activeScopedInsts`). Other changes that may affect typeclass resolution,
-e.g. closing a section containing local instances or changing the reducibility status of a
-pre-existing declaration, require calling this function explicitly.
+(`SynthInstanceCacheKey.activeScopedInsts`). Other changes that may affect typeclass resolution
+require calling this function explicitly, e.g. closing a section containing local instances,
+changing the reducibility status of a pre-existing declaration, or adding instances through an
+environment modification the current `Meta.State` cannot observe, such as running a command via
+`liftCommandElabM` (which threads the environment back but cannot clear `Meta.Cache`).
 -/
-def resetSynthInstanceCache : CoreM Unit :=
-  modify fun s => { s with env := synthInstanceCacheExt.setState s.env {} }
+def resetSynthInstanceCache : MetaM Unit := do
+  resetSynthInstanceCacheCore
+  modifyCache fun c => { c with synthInstance := {} }
 
 private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
   let type ← inferType e
@@ -397,7 +409,7 @@ builtin_initialize
       let s := instanceExtension.getState (← getEnv)
       let s ← s.erase declName
       modifyEnv fun env => instanceExtension.modifyState env fun _ => s
-      resetSynthInstanceCache
+      resetSynthInstanceCacheCore
   }
 
 def getGlobalInstancesIndex : CoreM (DiscrTree InstanceEntry) :=

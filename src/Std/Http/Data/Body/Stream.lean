@@ -759,3 +759,24 @@ def stream
   return Response.Builder.body builder s
 
 end Response.Builder
+
+namespace Response
+open Async
+
+/--
+Reads the entire response body and decodes it as a UTF-8 string.
+When `maximumSize` is given, reading more than that many bytes throws an error.
+-/
+def text (response : Response Body.Stream)
+    (maximumSize : Option UInt64 := none) : Async String :=
+  response.body.readAll (maximumSize := maximumSize)
+
+/--
+Reads the entire response body as raw bytes.
+When `maximumSize` is given, reading more than that many bytes throws an error.
+-/
+def bytes (response : Response Body.Stream)
+    (maximumSize : Option UInt64 := none) : Async ByteArray :=
+  response.body.readAll (maximumSize := maximumSize)
+
+end Response

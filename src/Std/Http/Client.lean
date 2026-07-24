@@ -6,7 +6,12 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Http.Server
-public import Std.Http.Client
+public import Std.Http.Client.Config
 
 public section
+
+namespace Std.Http
+
+set_option linter.all true
+
+end Std.Http

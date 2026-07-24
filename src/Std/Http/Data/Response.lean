@@ -102,6 +102,18 @@ instance : Encode .v11 Head where
     buffer.writeString "\r\n"
 
 /--
+The response's status code.
+-/
+def status {β : Type} (response : Response β) : Status :=
+  response.line.status
+
+/--
+`true` if the response status is a 2xx success code.
+-/
+def isSuccess {β : Type} (response : Response β) : Bool :=
+  response.line.status.isSuccess
+
+/--
 Creates a new HTTP Response builder with default head (status: 200 OK, version: HTTP/1.1).
 -/
 def new : Builder := { }

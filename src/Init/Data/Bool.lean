@@ -660,13 +660,13 @@ section
 
 open Internal
 
-@[simp] theorem Bool.and'_eq_and (a b : Bool) : a.and' b = a.and b := by
+@[simp] theorem Internal.Bool.and'_eq_and (a b : Bool) : a.and' b = a.and b := by
   cases a <;> simp [Bool.and']
 
-@[simp] theorem Bool.or'_eq_or (a b : Bool) : a.or' b = a.or b := by
+@[simp] theorem Internal.Bool.or'_eq_or (a b : Bool) : a.or' b = a.or b := by
   cases a <;> simp [Bool.or']
 
-@[simp] theorem Bool.not'_eq_not (a : Bool) : a.not' = a.not := by
+@[simp] theorem Internal.Bool.not'_eq_not (a : Bool) : a.not' = a.not := by
   cases a <;> simp [Bool.not']
 
 end

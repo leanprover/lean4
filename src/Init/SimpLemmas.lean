@@ -234,10 +234,10 @@ theorem dite_cond_congr {α} {b c : Prop} {s : Decidable b} [Decidable c]
 
 @[simp] theorem ne_eq (a b : α) : (a ≠ b) = ¬(a = b) := rfl
 norm_cast_add_elim ne_eq
-@[simp] theorem ite_true (a b : α) : (if True then a else b) = a := rfl
-@[simp] theorem ite_false (a b : α) : (if False then a else b) = b := rfl
-@[simp] theorem dite_true {α : Sort u} {t : True → α} {e : ¬ True → α} : (dite True t e) = t True.intro := rfl
-@[simp] theorem dite_false {α : Sort u} {t : False → α} {e : ¬ False → α} : (dite False t e) = e not_false := rfl
+@[simp] theorem ite_true {_ : Decidable True} (a b : α) : (if True then a else b) = a := ite_eq_left trivial
+@[simp] theorem ite_false {_ : Decidable False} (a b : α) : (if False then a else b) = b := ite_eq_right id
+@[simp] theorem dite_true {α : Sort u} {_ : Decidable True} {t : True → α} {e : ¬ True → α} : (dite True t e) = t True.intro := dite_eq_left trivial
+@[simp] theorem dite_false {α : Sort u} {_ : Decidable False} {t : False → α} {e : ¬ False → α} : (dite False t e) = e not_false := dite_eq_right id
 section SimprocHelperLemmas
 set_option simprocs false
 theorem ite_cond_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = True) : (if c then a else b) = a := by simp [h]

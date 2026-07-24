@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Http.Client.Agent
+public import Std.Http.Client.Pool
 
 public section
 

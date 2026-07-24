@@ -249,3 +249,22 @@ h : f 2
 #guard_msgs in
 example (h : @f (@myId 1) 2) : @f (myId (x := one)) 2 := by
   with_reducible apply h
+
+/-!
+`@[defeq]` diagnoses at the configuration of its defeq check (transparency `.all`), so the
+diff is not attributed to `one'` vs. `1`, which are defeq at that transparency.
+-/
+axiom testSorry : α
+@[irreducible] def one' : Nat := 1
+opaque a : Nat
+opaque b : Nat
+opaque g : {_ : Nat} → Nat → Nat
+
+/--
+error: Not a definitional equality: the left-hand side
+  @g a one'
+is not definitionally equal to the right-hand side
+  @g b 1
+-/
+#guard_msgs in
+@[defeq] theorem gEq : @g a one' = @g b 1 := testSorry

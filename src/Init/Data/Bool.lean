@@ -667,3 +667,21 @@ but may be used locally.
 
 theorem Bool.rec_eq {α : Sort _} (b : Bool) {x y : α} : Bool.rec y x b = if b then x else y := by
   cases b <;> simp
+
+/-! ### Deprecations -/
+
+@[deprecated Bool.eq_false_of_ne_true (since := "2026-07-24")]
+theorem eq_false_of_ne_true {b : Bool} : b ≠ true → b = false :=
+  Bool.eq_false_of_ne_true
+
+@[deprecated Bool.eq_true_of_ne_false (since := "2026-07-24")]
+theorem eq_true_of_ne_false {b : Bool} : b ≠ false → b = true :=
+  Bool.eq_true_of_ne_false
+
+@[deprecated Bool.ne_false_of_eq_true (since := "2026-07-24")]
+theorem ne_false_of_eq_true {b : Bool} : b = true → b ≠ false :=
+  Bool.ne_false_of_eq_true
+
+@[deprecated Bool.ne_true_of_eq_false (since := "2026-07-24")]
+theorem ne_true_of_eq_false {b : Bool} : b = false → b ≠ true :=
+  Bool.ne_true_of_eq_false

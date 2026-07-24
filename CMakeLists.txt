@@ -125,7 +125,12 @@ if(USE_MIMALLOC)
     mimalloc
     GIT_REPOSITORY https://github.com/microsoft/mimalloc
     GIT_BRANCH dev3
-    GIT_TAG v3.4.1
+    # Pinned to the parent of f211b370 (the v3.4.0/v3.4.1 TLS-slot move to 126/127) because those
+    # slots collide with CoreFoundation's undocumented TLS reservations, corrupting the heap at
+    # thread exit on macOS/arm64 whenever CoreFoundation is linked (microsoft/mimalloc#1333). This
+    # commit keeps the dev3 fixes over v3.3.2 while avoiding the collision; revert to v3.4.x once
+    # upstream ships a fix.
+    GIT_TAG 41dd408d80236e8a5c9e979ec91fb7e2b18d561f
     # Unnecessarily deep directory structure, but it saves us from a complicated
     # stage0 update for now. If we ever update the other dependencies like
     # cadical, it might be worth reorganizing the directory structure.

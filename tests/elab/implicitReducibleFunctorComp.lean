@@ -145,9 +145,9 @@ Full error:
   Application type mismatch: The argument
     G.map (F.map f)
   has type
-    @Quiver.Hom E inst✝.toQuiver (G.obj (F.obj X)) (G.obj (F.obj Y))
+    G.obj (F.obj X) ⟶ G.obj (F.obj Y)
   but is expected to have type
-    @Quiver.Hom E inst✝.toQuiver ((F ⋙ G).obj X) ((F ⋙ G).obj Y)
+    (F ⋙ G).obj X ⟶ (F ⋙ G).obj Y
   in the application
     Category.comp (G.map (F.map f))
 -/

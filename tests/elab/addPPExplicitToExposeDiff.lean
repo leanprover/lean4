@@ -180,3 +180,56 @@ but is expected to have type
 #guard_msgs in example (p : Nat → Prop) (d1 d2 : DecidablePred p) :
     {x : Nat // @decide _ (d1 x) = true} :=
   (sorry : {x : Nat // @decide _ (d2 x) = true})
+
+/-!
+`change` diagnoses at the transparency of the failed check.
+-/
+/--
+error: 'change' tactic failed, pattern
+  @f (@myId 1) 2
+is not definitionally equal to target
+  @f (@myId one) 2
+-/
+#guard_msgs in
+example : @f (myId (x := one)) 2 := by
+  with_reducible change @f (myId (x := 1)) 2
+
+/-!
+`#check_tactic` diagnoses at the reducible transparency of its check.
+-/
+/--
+error: Term reduces to
+  @myId one
+but is expected to reduce to ⏎
+  @myId 1
+-/
+#guard_msgs in
+#check_tactic (myId (x := one)) ~> myId (x := 1) by skip
+
+/-!
+`#check_tactic` diagnoses at the reducible transparency of its check.
+-/
+/--
+error: Term reduces to
+  @f (@myId one) 2
+but is expected to reduce to ⏎
+  @f (@myId 1) 2
+-/
+#guard_msgs in
+#check_tactic @f (myId (x := one)) 2 ~> @f (myId (x := 1)) 2 by skip
+
+/-!
+`rewrite` diagnoses at the transparency `kabstract` matched at.
+-/
+/--
+error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+  @f (@myId 1) 2
+in the target expression
+  @f (@myId one) 2
+
+h : f 2 = True
+⊢ f 2
+-/
+#guard_msgs in
+example (h : @f (@myId 1) 2 = True) : @f (myId (x := one)) 2 := by
+  rewrite [h]

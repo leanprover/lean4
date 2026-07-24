@@ -227,6 +227,10 @@ CSLIB = ReleaseRepo(
     rc1_pr_base="bump",
     release_tag="lean",
     stable_branch="stable",
+    # If there's a tagged mathlib patch release, there should be an equivalent
+    # tagged cslib release with bumped mathlib. All the other deps should stay
+    # the same.
+    patch_release=True,
     strong_deps=[MATHLIB4],
 )
 _register(CSLIB)

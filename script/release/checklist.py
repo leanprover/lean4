@@ -159,14 +159,16 @@ class DownstreamChecker(RepoChecker):
 
         self._bump_toolchain_deps(self.lrepo.path)
 
-    def _bump_toolchain_cslib(self) -> None:
-        self._bump_toolchain(self.lrepo.path)
-
+    def _bump_cslib_mathlib_rev(self, path: Path) -> None:
         util.edit(
-            self.lrepo.path / "lakefile.toml",
+            path / "lakefile.toml",
             r'(name = "mathlib"\nscope = "leanprover-community"\nrev =) ".+?"',
             rf'\1 "{self.version}"',
         )
+
+    def _bump_toolchain_cslib(self) -> None:
+        self._bump_toolchain(self.lrepo.path)
+        self._bump_cslib_mathlib_rev(self.lrepo.path)
 
         # For rc1 PRs
         util.edit(
@@ -447,6 +449,9 @@ class DownstreamChecker(RepoChecker):
         self.lrepo.prepare()
         self.lrepo.git("checkout", "--detach", self.version.prev.tag)
         util.set_toolchain(self.lrepo.path, self.version.tag)
+        if self.rrepo.gh_full_name == repos.CSLIB.gh_full_name:
+            self._bump_cslib_mathlib_rev(self.lrepo.path)
+            util.run("lake", "update", "mathlib", cwd=self.lrepo.path)
         self.lrepo.commit(util.get_toolchain_bump_message(self.version))
         sha = self.lrepo.git_stdout("rev-parse", "HEAD").strip()
         self.lrepo.create_tag(tag_name, sha)

@@ -279,23 +279,19 @@ private def eqSpecToWp? (info : WPApp) (eqPrf eqType : Expr) :
     OptionT MetaM (Expr × Expr) := do
   let_expr Eq eqα _lhs _rhs := eqType
     | throwError "simp spec is not an equation: {eqType}"
-  -- Recover the value type `α` and confirm the equation is in the goal's monad. `α` is typed at the
-  -- monad's domain sort so the equation's element type stays well-formed.
-  let α ← mkFreshExprMVar (← inferType info.M).bindingDomain!
-  guard <| ← isDefEqGuarded eqα (mkApp info.M α)
-  -- Reusing the goal's `WP` instance below pins the program and value types it is typed at. That
-  -- unification must happen at the current metavariable depth: `mkAppOptM` raises the depth, so the
-  -- equation's type metavariables are read-only there.
-  guard <| ← isDefEqGuarded (mkApp info.M α) info.Prog
+  -- Unify the equation's type with the goal's program type. First-order approximation decomposes
+  -- flex-headed equation types (e.g. class projection unfold equations quantified over the monad,
+  -- like `MonadState.modifyGet.eq_1`, where `eqα = ?m ?β`). The unification must happen at the
+  -- current metavariable depth: `mkAppOptM` raises the depth, so the equation's type metavariables
+  -- are read-only there.
+  guard <| ← withReducible <| approxDefEq <| isDefEqGuarded eqα info.Prog
   -- `post`/`epost` are schematic metavariables (their VCs collapse downstream).
-  let post ← mkFreshExprMVar (userName := `Q) (← mkArrow α info.Pred)
+  let post ← mkFreshExprMVar (userName := `Q) (← mkArrow info.Value info.Pred)
   let epost ← mkFreshExprMVar (userName := `E) info.EPred
-  -- Pin the monad and assertion instances from the goal's `wp` arguments. Inferring the monad from
-  -- the equation type alone would leave `m β =?= info.M γ` as an underdetermined flex-rigid problem,
-  -- so non-monadic equations like `Option.getD.eq_1` would fail to unify.
+  -- The goal's leading `wp` arguments `#[Prog, Value, Pred, EPred, instAL, instEAL, instWP]` are
+  -- exactly the leading arguments of `wp_le_wp_of_eq`.
   let specProof ← mkAppOptM ``Std.Internal.Do.wp_le_wp_of_eq <|
-    #[some (mkApp info.M α), some α] ++ (info.args.extract 2 7).map some
-      ++ #[none, none, some eqPrf, some post, some epost]
+    (info.args.take 7).map some ++ #[none, none, some eqPrf, some post, some epost]
   return (specProof, ← instantiateMVars (← Meta.inferType specProof))
 
 /--

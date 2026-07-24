@@ -417,12 +417,18 @@ private def handleRecvEvent
       let (newMachine, newRespStream) ← applyResponse config state.machine res
 
       -- Eagerly consume one chunk if immediately available (avoids a Selectable.one round-trip).
-      let (drainedMachine, drainedRespStream) ←
+      let (drainedMachine, drainedRespStream, shouldClose) ←
         match newRespStream with
-        | none => pure (newMachine, none)
-        | some body => tryDrainBody newMachine body
+        | none => pure (newMachine, none, false)
+        | some body =>
+          try
+            let (machine, body) ← tryDrainBody newMachine body
+            pure (machine, body, false)
+          catch e =>
+            Handler.onFailure handler e
+            pure (newMachine, some body, true)
 
-      return ({ state with machine := drainedMachine, handlerDispatched := false, respStream := drainedRespStream }, false)
+      return ({ state with machine := drainedMachine, handlerDispatched := false, respStream := drainedRespStream }, shouldClose)
 
 /--
 Computes the active `PollSources` for the current connection state.

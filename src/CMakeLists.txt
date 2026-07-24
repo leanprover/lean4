@@ -621,6 +621,58 @@ if(MULTI_THREAD AND NOT MSVC AND NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " -pthread")
 endif()
 
+# The stage0 tree hash. For non-release builds this is embedded as `Lean.githash`.
+# It is also the githash Lake always needs to use for its traces. It is passed via `LEAN_GITHASH`
+# in `stdlib.make` and propagated to the cache steps by CI. This esnures that stage1 `.olean`s stay
+# reusable across commits that do not touch stage0.
+execute_process(
+  COMMAND git rev-parse HEAD:stage0
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+  OUTPUT_VARIABLE LAKE_LEAN_GITHASH
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  # Failure is handled below (jj fallback, then a fatal error when the cache needs it).
+  ERROR_QUIET
+)
+# Fallback for jj workspaces where git cannot find .git directly.
+# Use `jj git root` to find the backing git repo, then `jj log` to
+# resolve the current workspace's commit (git HEAD points to the root
+# workspace, not the current one).
+if("${LAKE_LEAN_GITHASH}" STREQUAL "")
+  find_program(JJ_EXECUTABLE jj)
+  if(JJ_EXECUTABLE)
+    execute_process(
+      COMMAND "${JJ_EXECUTABLE}" git root
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+      OUTPUT_VARIABLE _jj_git_dir
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+      RESULT_VARIABLE _jj_git_root_result
+    )
+    execute_process(
+      COMMAND "${JJ_EXECUTABLE}" log -r @ --no-graph -T "commit_id"
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+      OUTPUT_VARIABLE _jj_commit
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+      RESULT_VARIABLE _jj_rev_result
+    )
+    if(_jj_git_root_result EQUAL 0 AND _jj_rev_result EQUAL 0)
+      execute_process(
+        COMMAND git --git-dir "${_jj_git_dir}" rev-parse "${_jj_commit}:stage0"
+        OUTPUT_VARIABLE LAKE_LEAN_GITHASH
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+      )
+    endif()
+  endif()
+endif()
+# A missing or wrong hash would silently break cache correctness (misses, or worse, mismatched
+# reuse), so fail loudly when the cache is enabled.
+if(USE_LAKE_CACHE AND "${LAKE_LEAN_GITHASH}" STREQUAL "")
+  message(FATAL_ERROR "Failed to determine the stage0 tree hash required to key the Lake artifact cache")
+endif()
+# Emitted so CI can propagate the same value to the standalone cache upload/download steps.
+file(WRITE "${CMAKE_BINARY_DIR}/lake-githash" "${LAKE_LEAN_GITHASH}")
+
 # Git HASH
 if(USE_GITHASH)
   include(GetGitRevisionDescription)
@@ -633,48 +685,9 @@ if(USE_GITHASH)
   endif()
 else()
   if(USE_LAKE AND STAGE EQUAL 0)
-    # we need to embed *some* hash for Lake to invalidate stage 1 on stage 0 changes
-    execute_process(
-      COMMAND git ls-tree HEAD "${CMAKE_CURRENT_SOURCE_DIR}/../../stage0" --object-only
-      OUTPUT_VARIABLE GIT_SHA1
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-    # Fallback for jj workspaces where git cannot find .git directly.
-    # Use `jj git root` to find the backing git repo, then `jj log` to
-    # resolve the current workspace's commit (git HEAD points to the root
-    # workspace, not the current one).
-    if("${GIT_SHA1}" STREQUAL "")
-      find_program(JJ_EXECUTABLE jj)
-      if(JJ_EXECUTABLE)
-        execute_process(
-          COMMAND "${JJ_EXECUTABLE}" git root
-          WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-          OUTPUT_VARIABLE _jj_git_dir
-          OUTPUT_STRIP_TRAILING_WHITESPACE
-          ERROR_QUIET
-          RESULT_VARIABLE _jj_git_root_result
-        )
-        execute_process(
-          COMMAND "${JJ_EXECUTABLE}" log -r @ --no-graph -T "commit_id"
-          WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-          OUTPUT_VARIABLE _jj_commit
-          OUTPUT_STRIP_TRAILING_WHITESPACE
-          ERROR_QUIET
-          RESULT_VARIABLE _jj_rev_result
-        )
-        if(_jj_git_root_result EQUAL 0 AND _jj_rev_result EQUAL 0)
-          execute_process(
-            COMMAND git --git-dir "${_jj_git_dir}" ls-tree "${_jj_commit}" stage0 --object-only
-            OUTPUT_VARIABLE GIT_SHA1
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-          )
-        endif()
-      endif()
-    endif()
+    # Embed the stage0 tree hash so Lake invalidates stage 1 on stage 0 changes.
+    set(GIT_SHA1 "${LAKE_LEAN_GITHASH}")
     message(STATUS "stage0 sha1: ${GIT_SHA1}")
-    # Now that we've prepared the information for the next stage, we can forget that we will use
-    # Lake in the future as we won't use it in this stage
-    set(USE_LAKE OFF)
   else()
     set(GIT_SHA1 "")
   endif()

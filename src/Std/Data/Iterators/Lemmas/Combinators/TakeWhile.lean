@@ -88,14 +88,14 @@ theorem Iter.atIdxSlow?_takeWhile {α β}
     · simp [ih]
       split
       · rename_i h
-        rw [if_pos]
+        rw [ite_eq_left]
         intro k hk
         split
         · exact hP
         · simp at hk
           exact h _ hk
       · rename_i hl
-        rw [if_neg]
+        rw [ite_eq_right]
         intro hl'
         apply hl
         intro k hk
@@ -119,13 +119,13 @@ private theorem List.getElem?_takeWhile {l : List α} {P : α → Bool} {k} :
       · simp [*]
       · simp [ih]
         split
-        · rw [if_pos]
+        · rw [ite_eq_left]
           intro k' hk'
           cases k'
           · simp [*]
           · simp_all
         · rename_i hP
-          rw [if_neg]
+          rw [ite_eq_right]
           intro hP'
           apply hP
           intro k' hk'

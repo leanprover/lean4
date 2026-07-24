@@ -274,7 +274,7 @@ example (a b : BitVec 16) :
     BitVec.extractLsb' 1 12 (~~~(a &&& b)) = ~~~(BitVec.extractLsb' 1 12 a &&& BitVec.extractLsb' 1 12 b) := by
   bv_normalize
 
--- extractLsb'_if
+-- extractLsb'_ite
 example (a b : BitVec 16) (c : Bool) :
     BitVec.extractLsb' 1 12 (if c then a else b) = if c then BitVec.extractLsb' 1 12 a else BitVec.extractLsb' 1 12 b := by
   bv_normalize

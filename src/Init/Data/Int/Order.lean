@@ -1304,7 +1304,7 @@ theorem natAbs_sign (z : Int) : z.sign.natAbs = if z = 0 then 0 else 1 :=
   match z with | 0 | succ _ | -[_+1] => rfl
 
 theorem natAbs_sign_of_ne_zero {z : Int} (hz : z ≠ 0) : z.sign.natAbs = 1 := by
-  rw [Int.natAbs_sign, if_neg hz]
+  rw [Int.natAbs_sign, ite_eq_right hz]
 
 theorem sign_natCast_of_ne_zero {n : Nat} (hn : n ≠ 0) : Int.sign n = 1 :=
   match n, Nat.exists_eq_succ_of_ne_zero hn with

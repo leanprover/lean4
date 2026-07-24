@@ -379,19 +379,25 @@ public instance {α : Type u} [LE α] [Min α] [IsLinearOrder α] [LawfulOrderMi
     Std.Associative (min : α → α → α) where
   assoc a b c := by apply le_antisymm <;> simp [min_le, le_min_iff, le_refl]
 
-public theorem min_eq_if {α : Type u} [LE α] [DecidableLE α] {_ : Min α}
+public theorem min_eq_ite {α : Type u} [LE α] [DecidableLE α] {_ : Min α}
     [LawfulOrderLeftLeaningMin α] {a b : α} :
     min a b = if a ≤ b then a else b := by
   split <;> rename_i h
   · simp [LawfulOrderLeftLeaningMin.min_eq_left _ _ h]
   · simp [LawfulOrderLeftLeaningMin.min_eq_right _ _ h]
 
-public theorem max_eq_if {α : Type u} [LE α] [DecidableLE α] {_ : Max α}
+@[deprecated Std.min_eq_ite (since := "2026-07-21")]
+public theorem min_eq_if {α : Type u} [LE α] [DecidableLE α] {_ : Min α} [Std.LawfulOrderLeftLeaningMin α] {a : α} {b : α} : Min.min a b = if a ≤ b then a else b := Std.min_eq_ite
+
+public theorem max_eq_ite {α : Type u} [LE α] [DecidableLE α] {_ : Max α}
     [LawfulOrderLeftLeaningMax α] {a b : α} :
     max a b = if b ≤ a then a else b := by
   split <;> rename_i h
   · simp [LawfulOrderLeftLeaningMax.max_eq_left _ _ h]
   · simp [LawfulOrderLeftLeaningMax.max_eq_right _ _ h]
+
+@[deprecated Std.max_eq_ite (since := "2026-07-21")]
+public theorem max_eq_if {α : Type u} [LE α] [DecidableLE α] {_ : Max α} [Std.LawfulOrderLeftLeaningMax α] {a : α} {b : α} : Max.max a b = if b ≤ a then a else b := Std.max_eq_ite
 
 public instance {α : Type u} [LE α] [Min α] [IsLinearOrder α] [LawfulOrderInf α] :
     LawfulOrderLeftLeaningMin α where

@@ -352,13 +352,24 @@ instance : BEq SpecTheorem where
 
 abbrev SpecEntry := SpecTheorem
 
+-- Call-site priority bands, all above `@[spec high]`, ordered named > `*` > unfold.
+/-- Priority for a spec named in a `vcgen [...]` argument list. -/
+def explicitSpecPrio : Nat := eval_prio high + 3000
+/-- Priority for a local hypothesis pulled into `vcgen`'s spec set by `*`. -/
+def starSpecPrio : Nat := eval_prio high + 2000
+/-- Priority for the equational and unfold specs a bracketed definition in a `vcgen [...]` list contributes. -/
+def unfoldSpecPrio : Nat := eval_prio high + 1000
+
 structure SpecTheorems where
   specs : DiscrTree SpecTheorem := DiscrTree.empty
   erased : PHashSet SpecProof := {}
   deriving Inhabited
 
+/-- Insert `e`, keeping the higher priority when a spec with the same proof is already stored. -/
 def SpecTheorems.insert (d : SpecTheorems) (e : SpecTheorem) : SpecTheorems :=
-  { d with specs := Sym.insertPattern d.specs e.pattern e }
+  let priority := (Sym.getMatch d.specs e.pattern.pattern).foldl (init := e.priority) fun pr s =>
+    if s.proof == e.proof then max pr s.priority else pr
+  { d with specs := Sym.insertPattern d.specs e.pattern { e with priority } }
 
 def SpecTheorems.isErased (d : SpecTheorems) (thmId : SpecProof) : Bool :=
   d.erased.contains thmId

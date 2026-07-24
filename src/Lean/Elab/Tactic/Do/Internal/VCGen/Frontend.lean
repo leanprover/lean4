@@ -80,14 +80,14 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
       match ← Term.resolveId? term (withInfo := true) <|> Term.elabCDotFunctionAlias? ⟨term⟩ with
       | some (.const declName _) =>
         try
-          let some thm ← mkSpecTheoremFromConst declName
+          let some thm ← mkSpecTheoremFromConst declName explicitSpecPrio
             | throwError "not a spec theorem"
           specThms := specThms.insert thm
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
       | some (.fvar fvar) =>
         try
-          let some thm ← mkSpecTheoremFromLocal fvar
+          let some thm ← mkSpecTheoremFromLocal fvar explicitSpecPrio
             | throwError "not a spec theorem"
           specThms := specThms.insert thm
         catch _ =>
@@ -109,7 +109,7 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
           else
             return some (#[], e)
         if let some (levelParams, proof) := thm? then
-          if let some thm ← mkSpecTheoremFromStx term proof then
+          if let some thm ← mkSpecTheoremFromStx term proof explicitSpecPrio then
             specThms := specThms.insert thm
           else
             let thms ← mkSimpTheoremFromExpr (.stx (← mkFreshId) arg) levelParams proof
@@ -136,7 +136,7 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
     for fvar in fvars do
       unless specThms.isErased (.local fvar) do
         try
-          if let some thm ← mkSpecTheoremFromLocal fvar then
+          if let some thm ← mkSpecTheoremFromLocal fvar starSpecPrio then
             specThms := specThms.insert thm
         catch _ => continue
   let backwardRules ← VCGen.mkBackwardRules

@@ -108,9 +108,9 @@ builtin_cbv_simproc ↓ simpIteCbv (@ite _ _ _ _ _) := fun e => do
         simpAndMatchIteDecidable f α c inst a b do return mkRflResult (done := true) (contextDependent := cd)
     | .step c' h _ cd =>
       if (← isTrueExpr c') then
-        return .step a (mkApp (e.replaceFn ``ite_cond_eq_true) h) (contextDependent := cd)
+        return .step a (mkApp (e.replaceFn ``ite_eq_left_of_eq_true) h) (contextDependent := cd)
       else if (← isFalseExpr c') then
-        return .step b (mkApp (e.replaceFn ``ite_cond_eq_false) h) (contextDependent := cd)
+        return .step b (mkApp (e.replaceFn ``ite_eq_right_of_eq_false) h) (contextDependent := cd)
       else
         -- If we got stuck with simplifying `p` then let's try evaluating the original instance
         simpAndMatchIteDecidable f α c inst a b do
@@ -188,11 +188,11 @@ builtin_cbv_simproc ↓ simpDIteCbv (@dite _ _ _ _ _) := fun e => do
       if (← isTrueExpr c') then
         let h' ← shareCommon <| mkOfEqTrueCore c h
         let a ← share <| a.betaRev #[h']
-        return .step a (mkApp (e.replaceFn ``dite_cond_eq_true) h) (contextDependent := cd)
+        return .step a (mkApp (e.replaceFn ``dite_eq_left_of_eq_true) h) (contextDependent := cd)
       else if (← isFalseExpr c') then
         let h' ← shareCommon <| mkOfEqFalseCore c h
         let b ← share <| b.betaRev #[h']
-        return .step b (mkApp (e.replaceFn ``dite_cond_eq_false) h) (contextDependent := cd)
+        return .step b (mkApp (e.replaceFn ``dite_eq_right_of_eq_false) h) (contextDependent := cd)
       else
         -- If we get stuck after simplifying `p` to `p'`, then we try to evaluate the original instance
         simpAndMatchDIteDecidable f α c inst a b do

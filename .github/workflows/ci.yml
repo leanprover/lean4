@@ -28,6 +28,10 @@ jobs:
   # This job determines various settings for the following CI runs; see the `outputs` for details
   configure:
     runs-on: ubuntu-latest
+    env:
+      # don't schedule nightlies on forks
+      IS_NIGHTLY: ${{ (github.event_name == 'schedule' && github.repository == 'leanprover/lean4') || inputs.action == 'release nightly' }}
+      IS_LEAN4_REPO_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.repository == 'leanprover/lean4' }}
     outputs:
       # The build matrix, dynamically generated here
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -47,12 +51,18 @@ jobs:
       RELEASE_TAG: ${{ steps.set-release.outputs.RELEASE_TAG }}
 
     steps:
-      - name: Checkout
+      - name: Checkout (full)
         uses: actions/checkout@v6
-        # don't schedule nightlies on forks
-        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly' || (startsWith(github.ref, 'refs/tags/') && github.repository == 'leanprover/lean4')
+        if: env.IS_NIGHTLY == 'true' || env.IS_LEAN4_REPO_TAG == 'true'
+      - name: Checkout (sparse)
+        uses: actions/checkout@v6
+        if: env.IS_NIGHTLY != 'true' && env.IS_LEAN4_REPO_TAG != 'true'
+        with:
+          sparse-checkout: |
+            src/stdlib_flags.h
+            stage0/src/stdlib_flags.h
       - name: Set Nightly
-        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly'
+        if: env.IS_NIGHTLY == 'true'
         id: set-nightly
         run: |
           if [[ -n '${{ secrets.PUSH_NIGHTLY_TOKEN }}' ]]; then
@@ -340,6 +350,18 @@ jobs:
                 // * `kernelMaxRecDepth` stack-overflows in the interpreter.
                 // * `elab_bench` is too expensive to run with fsanitize (also can e.g. stack overflow).
                 "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|elab_bench/'"
+              },
+              {
+                "name": "Linux tsanitize",
+                "os": large ? "nscloud-ubuntu-24.04-amd64-32x64" : "ubuntu-latest",
+                "enabled": (level >= 2 || fsanitize) && target_stage < 2,
+                "test": true,
+                // turn off custom allocator & symbolic functions to make TSAN do its magic
+                "CMAKE_PRESET": "sanitize-thread",
+                // We take a small subset of tests for tsan and run with reduced test parallelism.
+                // This is necessary as running tsan in parallel on all of our test suite would
+                // easily OOM the runner.
+                "CTEST_OPTIONS": "-j2 -E 'async_http_body|async_http_dispatch|async_http_encode|async_http_fuzz|async_http_response_framing|async_http_hang_regressions|task_iterators' -R '(compile/534)|(elab/(async.*|sync_.*|task.*|bv_bitwise|net_addr|networkInterfaces|openssl|idbg.*|Process|handleLocking|ioNulBytes|ioRandomBytes|libuv|readDir|realPath|st_test|stateRef|grind_list_count|vcgenSymBlock|doControlInfoAggregate))'"
               },
               {
                 "name": "macOS",

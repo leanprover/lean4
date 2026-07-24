@@ -65,6 +65,21 @@
       "binaryDir": "${sourceDir}/build/sanitize"
     },
     {
+      "name": "sanitize-thread",
+      "displayName": "Thread Sanitize build config",
+      "cacheVariables": {
+        "LEAN_EXTRA_CXX_FLAGS": "-g3 -fsanitize=thread",
+        "LEANC_EXTRA_CC_FLAGS": "-g3 -fsanitize=thread",
+        "LEAN_EXTRA_LINKER_FLAGS": "-fsanitize=thread -fuse-ld=lld",
+        "STRIP_BINARIES": "OFF",
+        "SMALL_ALLOCATOR": "OFF",
+        "USE_MIMALLOC": "OFF",
+        "BSYMBOLIC": "OFF"
+      },
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/sanitize-thread"
+    },
+    {
       "name": "sandebug",
       "inherits": ["sanitize", "debug"],
       "displayName": "Sanitize+debug build config",
@@ -121,6 +136,11 @@
     {
       "name": "sanitize",
       "configurePreset": "sanitize",
+      "inherits": "release"
+    },
+    {
+      "name": "sanitize-thread",
+      "configurePreset": "sanitize-thread",
       "inherits": "release"
     },
     {

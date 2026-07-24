@@ -11,6 +11,8 @@ import Init.LawfulBEqTactics
 public import Init.Data.RArray
 import Init.Classical
 
+open Internal
+
 @[expose] public section
 
 namespace Lean.Grind.AC

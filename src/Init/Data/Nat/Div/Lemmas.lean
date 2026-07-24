@@ -192,7 +192,7 @@ theorem mod_add_mod_lt_of_add_mod_eq_sub_one (w : 0 < c) (h : (a + b) % c = c - 
 theorem add_div_of_dvd_add_add_one (h : c ∣ a + b + 1) : (a + b) / c = a / c + b / c := by
   have w : c ≠ 0 := by rintro rfl; simp at h
   replace w : 0 < c := by omega
-  rw [Nat.add_div w, if_neg, Nat.add_zero]
+  rw [Nat.add_div w, ite_eq_right, Nat.add_zero]
   have := mod_add_mod_lt_of_add_mod_eq_sub_one w ((mod_eq_sub_iff Nat.zero_lt_one w).mpr h)
   omega
 

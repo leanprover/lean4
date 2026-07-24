@@ -228,8 +228,8 @@ private def tryMarkJP? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) :
   unless Lean.Elab.Tactic.Do.isJP name do return none
   unless val.isLambda do return none
   if body.getAppFn.isConstOf ``Std.Internal.Do.jpGadget then return none
-  let uα ← liftMetaM <| Meta.getLevel info.Prog
-  let uβ ← liftMetaM <| Meta.getLevel ty
+  let uα ← Sym.getLevel info.Prog
+  let uβ ← Sym.getLevel ty
   let wrapped := Expr.letE name ty val
     (mkAppN (mkConst ``Std.Internal.Do.jpGadget [uα, uβ]) #[info.Prog, ty, .bvar 0, body]) nondep
   return some (← replaceProgDefEq goal info (← mkAppRevS wrapped info.prog.getAppRevArgs))
@@ -447,7 +447,8 @@ private def mkJPJumpPayload? (jpInfo : JPDefInfo) (e matchExpr : Expr) :
   let hypsMVar := jpInfo.hypsMVars[altIdx]!
   trace[Elab.Tactic.Do.vcgen] "JP jump: alt {altIdx} args={joinArgs}"
   let layout := jpInfo.altLayouts[altIdx]!
-  Meta.forallTelescopeReducing (← liftMetaM hypsMVar.getType) fun allBinders _ => do
+  -- The mvar type is the syntactic `∀`-chain built at registration, so no reducing telescope.
+  Meta.forallTelescope (← liftMetaM hypsMVar.getType) fun allBinders _ => do
       let numJP := joinArgs.size
       unless numJP ≤ allBinders.size do return none
       let jpBinders := allBinders.extract 0 numJP
@@ -472,7 +473,9 @@ private def mkJPJumpPayload? (jpInfo : JPDefInfo) (e matchExpr : Expr) :
       let matchedLocals := (slice.extract 0 pairedFields ++ slice.extract eqStart (eqStart + pairedEqs))
         |>.map LocalDecl.toExpr
       let matchedBinders := altBinders.extract 0 (pairedFields + pairedEqs)
-      let eqs ← liftMetaM <| jpBinders.mapIdxM fun i jp => Meta.mkEq jp joinArgs[i]!
+      let eqs ← jpBinders.mapIdxM fun i jp => do
+        let τ ← Sym.inferType jp
+        return mkApp3 (mkConst ``Eq [← Sym.getLevel τ]) τ jp joinArgs[i]!
       -- Locals past the telescope are `∃`/`let`-closed. Implementation-detail decls (compiler
       -- internal) must never become `∃` binders or witnesses, so drop them here.
       let restDecls := slice.filter (fun decl => !decl.isImplementationDetail)
@@ -489,7 +492,7 @@ private def mkJPJumpPayload? (jpInfo : JPDefInfo) (e matchExpr : Expr) :
           let val := (← instantiateMVarsS v).abstract locals
           return (locals, Lean.mkLet decl.userName type val φ (nondep := decl.isNondep))
         | none =>
-          let typeLevel ← liftMetaM <| Meta.getLevel decl.type
+          let typeLevel ← Sym.getLevel decl.type
           return (locals, mkApp2 (mkConst ``Exists [typeLevel]) type (Expr.lam decl.userName type φ .default))
       let φPropClosed := φPropClosed.replaceFVars matchedLocals matchedBinders
       -- The `∃` binders are exactly the non-let rest locals, in order; hand them back as witnesses.
@@ -577,7 +580,7 @@ public def finalizeJPs : VCGenM Unit := do
   for mv in s.jpHypsMVars do
     let records := grouped.getD mv #[]
     unless ← mv.isAssigned do
-      liftMetaM <| Meta.forallTelescopeReducing (← mv.getType) fun bs _ => do
+      liftMetaM <| Meta.forallTelescope (← mv.getType) fun bs _ => do
         let props := records.map (·.jump.payload.beta bs)
         let φ := match props.back? with
           | none => mkConst ``False

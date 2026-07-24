@@ -121,7 +121,7 @@ theorem CNF.unsat_of_convertLRAT_unsat (cnf : CNF Nat) :
   intro assignment
   unfold CNF.convertLRAT at h1
   replace h1 := (unsat_of_cons_none_unsat _ h1) assignment
-  apply eq_false_of_ne_true
+  apply Bool.eq_false_of_ne_true
   intro h2
   apply h1
   simp only [Formula.formulaEntails_def, List.all_eq_true, decide_eq_true_eq]

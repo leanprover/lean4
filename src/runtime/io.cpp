@@ -159,208 +159,217 @@ static FILE * io_get_handle(lean_object * hfile) {
     return static_cast<FILE *>(lean_get_external_data(hfile));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_decode_io_error(int errnum, b_lean_obj_arg fname) {
-    object * details = mk_string(strerror(errnum));
-    // Keep in sync with lean_decode_uv_error below
-    switch (errnum) {
-    case EINTR:
-        lean_assert(fname != nullptr);
-        inc_ref(fname);
-        return lean_mk_io_error_interrupted(fname, errnum, details);
-    case ELOOP: case ENAMETOOLONG: case EDESTADDRREQ:
-    case EBADF: case EDOM: case EINVAL: case EILSEQ:
-    case ENOEXEC: case ENOSTR: case ENOTCONN:
-    case ENOTSOCK:
-        if (fname == nullptr) {
-            return lean_mk_io_error_invalid_argument(errnum, details);
-        } else {
-            inc_ref(fname);
-            return lean_mk_io_error_invalid_argument_file(fname, errnum, details);
-        }
-    case ENOENT:
-        lean_assert(fname != nullptr);
-        inc_ref(fname);
-        return lean_mk_io_error_no_file_or_directory(fname, errnum, details);
-    case EACCES: case EROFS: case ECONNABORTED: case EFBIG:
-    case EPERM:
-        if (fname == nullptr) {
-            return lean_mk_io_error_permission_denied(errnum, details);
-        } else {
-            inc_ref(fname);
-            return lean_mk_io_error_permission_denied_file(fname, errnum, details);
-        }
-    case EMFILE: case ENFILE: case ENOSPC:
-    case E2BIG:  case EAGAIN: case EMLINK:
-    case EMSGSIZE: case ENOBUFS: case ENOLCK:
-    case ENOMEM: case ENOSR:
-        if (fname == nullptr) {
-            return lean_mk_io_error_resource_exhausted(errnum, details);
-        } else {
-            inc_ref(fname);
-            return lean_mk_io_error_resource_exhausted_file(fname, errnum, details);
-        }
-    case EISDIR: case EBADMSG: case ENOTDIR:
-        if (fname == nullptr) {
-            return lean_mk_io_error_inappropriate_type(errnum, details);
-        } else {
-            inc_ref(fname);
-            return lean_mk_io_error_inappropriate_type_file(fname, errnum, details);
-        }
-    case ENXIO: case EHOSTUNREACH: case ENETUNREACH:
-    case ECHILD: case ECONNREFUSED: case ENODATA:
-    case ENOMSG: case ESRCH:
-        if (fname == nullptr) {
-            return lean_mk_io_error_no_such_thing(errnum, details);
-        } else {
-            inc_ref(fname);
-            return lean_mk_io_error_no_such_thing_file(fname, errnum, details);
-        }
-    case EEXIST: case EINPROGRESS: case EISCONN:
-        if (fname == nullptr) {
-            return lean_mk_io_error_already_exists(errnum, details);
-        } else {
-            inc_ref(fname);
-            return lean_mk_io_error_already_exists_file(fname, errnum, details);
-        }
-    case EIO:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_hardware_fault(errnum, details);
-    case ENOTEMPTY:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_unsatisfied_constraints(errnum, details);
-    case ENOTTY:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_illegal_operation(errnum, details);
-    case ECONNRESET: case EIDRM: case ENETDOWN: case ENETRESET:
-    case ENOLINK: case EPIPE:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_resource_vanished(errnum, details);
-    case EPROTO: case EPROTONOSUPPORT: case EPROTOTYPE:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_protocol_error(errnum, details);
-    case ETIME: case ETIMEDOUT:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_time_expired(errnum, details);
-    case EADDRINUSE: case EBUSY: case EDEADLK: case ETXTBSY:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_resource_busy(errnum, details);
-    case EADDRNOTAVAIL: case EAFNOSUPPORT: case ENODEV:
-    case ENOPROTOOPT: case ENOSYS: case EOPNOTSUPP:
-    case ERANGE: case ESPIPE: case EXDEV:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_unsupported_operation(errnum, details);
-    case EFAULT:
-    default:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_other_error(errnum, details);
+/* Translates a CRT `errno` value into the corresponding libuv error code.
+   (`uv_translate_sys_error` is unsuitable for this: on Windows it expects Win32 system error
+   codes, not CRT `errno` values.) `errno` values libuv cannot represent are translated to the
+   closest libuv error code; unrecognized values are negated, which `decode_uv_error_impl`
+   treats as an unknown error. */
+static int lean_crt_to_uv_err(int err) {
+    switch (err) {
+    case E2BIG:           return UV_E2BIG;
+    case EACCES:          return UV_EACCES;
+    case EADDRINUSE:      return UV_EADDRINUSE;
+    case EADDRNOTAVAIL:   return UV_EADDRNOTAVAIL;
+    case EAFNOSUPPORT:    return UV_EAFNOSUPPORT;
+    case EAGAIN:          return UV_EAGAIN;
+    case EBADF:           return UV_EBADF;
+    case EBUSY:           return UV_EBUSY;
+    case ECONNABORTED:    return UV_ECONNABORTED;
+    case ECONNREFUSED:    return UV_ECONNREFUSED;
+    case ECONNRESET:      return UV_ECONNRESET;
+    case EDESTADDRREQ:    return UV_EDESTADDRREQ;
+    case EEXIST:          return UV_EEXIST;
+    case EFAULT:          return UV_EFAULT;
+    case EFBIG:           return UV_EFBIG;
+    case EHOSTUNREACH:    return UV_EHOSTUNREACH;
+    case EILSEQ:          return UV_EILSEQ;
+    case EINTR:           return UV_EINTR;
+    case EINVAL:          return UV_EINVAL;
+    case EIO:             return UV_EIO;
+    case EISCONN:         return UV_EISCONN;
+    case EISDIR:          return UV_EISDIR;
+    case ELOOP:           return UV_ELOOP;
+    case EMFILE:          return UV_EMFILE;
+    case EMLINK:          return UV_EMLINK;
+    case EMSGSIZE:        return UV_EMSGSIZE;
+    case ENAMETOOLONG:    return UV_ENAMETOOLONG;
+    case ENETDOWN:        return UV_ENETDOWN;
+    case ENETUNREACH:     return UV_ENETUNREACH;
+    case ENFILE:          return UV_ENFILE;
+    case ENOBUFS:         return UV_ENOBUFS;
+    case ENODEV:          return UV_ENODEV;
+    case ENOENT:          return UV_ENOENT;
+    case ENOMEM:          return UV_ENOMEM;
+    case ENOPROTOOPT:     return UV_ENOPROTOOPT;
+    case ENOSPC:          return UV_ENOSPC;
+    case ENOSYS:          return UV_ENOSYS;
+    case ENOTCONN:        return UV_ENOTCONN;
+    case ENOTDIR:         return UV_ENOTDIR;
+    case ENOTEMPTY:       return UV_ENOTEMPTY;
+    case ENOTSOCK:        return UV_ENOTSOCK;
+    case ENOTTY:          return UV_ENOTTY;
+    case ENXIO:           return UV_ENXIO;
+    case EOPNOTSUPP:      return UV_ENOTSUP;
+    case EPERM:           return UV_EPERM;
+    case EPIPE:           return UV_EPIPE;
+    case EPROTO:          return UV_EPROTO;
+    case EPROTONOSUPPORT: return UV_EPROTONOSUPPORT;
+    case EPROTOTYPE:      return UV_EPROTOTYPE;
+    case ERANGE:          return UV_ERANGE;
+    case EROFS:           return UV_EROFS;
+    case ESPIPE:          return UV_ESPIPE;
+    case ESRCH:           return UV_ESRCH;
+    case ETIMEDOUT:       return UV_ETIMEDOUT;
+    case ETXTBSY:         return UV_ETXTBSY;
+    case EXDEV:           return UV_EXDEV;
+#if UV_VERSION_HEX >= 0x012D00 /* libuv maps ENODATA since 1.45.0 */
+    case ENODATA:         return UV_ENODATA;
+    case ENOMSG:          return UV_ENODATA;
+#else
+    case ENODATA:         return UV_ENXIO;
+    case ENOMSG:          return UV_ENXIO;
+#endif
+#if UV_VERSION_HEX >= 0x013200 /* libuv maps ENOEXEC since 1.50.0 */
+    case ENOEXEC:         return UV_ENOEXEC;
+#else
+    case ENOEXEC:         return UV_EINVAL;
+#endif
+    /* approximations for `errno` values libuv cannot represent */
+    case EBADMSG:         return UV_EPROTO;
+    case ECHILD:          return UV_ESRCH;
+    case EDEADLK:         return UV_EBUSY;
+    case EDOM:            return UV_EINVAL;
+    case EIDRM:           return UV_EPIPE;
+    case EINPROGRESS:     return UV_EISCONN;
+    case ENETRESET:       return UV_ECONNRESET;
+    case ENOLCK:          return UV_EAGAIN;
+    case ENOLINK:         return UV_ECONNRESET;
+    case ENOSR:           return UV_ENOBUFS;
+    case ENOSTR:          return UV_EINVAL;
+    case ETIME:           return UV_ETIMEDOUT;
+    default:              return -err;
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_lean_obj_arg fname) {
+/* `errnum` is the libuv error code used for classification and the error message; `posix_errnum`
+   is the `errno`-style value stored in the resulting `IO.Error`. */
+static obj_res decode_uv_error_impl(int errnum, int posix_errnum, b_lean_obj_arg fname) {
     object * details = mk_string(uv_strerror(errnum));
-    // Keep in sync with lean_decode_io_error above
     switch (errnum) {
     case UV_EINTR:
         lean_assert(fname != nullptr);
         inc_ref(fname);
-        return lean_mk_io_error_interrupted(fname, errnum, details);
-    /* LibUV does not map EDOM, ENOEXEC and ENOSTR as of version 1.48.0 */
+        return lean_mk_io_error_interrupted(fname, posix_errnum, details);
+    /* LibUV does not map EDOM and ENOSTR as of version 1.52.1 */
     case UV_ELOOP: case UV_ENAMETOOLONG: case UV_EDESTADDRREQ:
     case UV_EBADF: case UV_EINVAL: case UV_EILSEQ:
     case UV_ENOTCONN: case UV_ENOTSOCK:
+#if UV_VERSION_HEX >= 0x013200 /* libuv maps ENOEXEC since 1.50.0 */
+    case UV_ENOEXEC:
+#endif
         if (fname == nullptr) {
-            return lean_mk_io_error_invalid_argument(errnum, details);
+            return lean_mk_io_error_invalid_argument(posix_errnum, details);
         } else {
             inc_ref(fname);
-            return lean_mk_io_error_invalid_argument_file(fname, errnum, details);
+            return lean_mk_io_error_invalid_argument_file(fname, posix_errnum, details);
         }
     case UV_ENOENT:
         lean_assert(fname != nullptr);
         inc_ref(fname);
-        return lean_mk_io_error_no_file_or_directory(fname, errnum, details);
+        return lean_mk_io_error_no_file_or_directory(fname, posix_errnum, details);
     case UV_EACCES: case UV_EROFS: case UV_ECONNABORTED: case UV_EFBIG:
     case UV_EPERM:
         if (fname == nullptr) {
-            return lean_mk_io_error_permission_denied(errnum, details);
+            return lean_mk_io_error_permission_denied(posix_errnum, details);
         } else {
             inc_ref(fname);
-            return lean_mk_io_error_permission_denied_file(fname, errnum, details);
+            return lean_mk_io_error_permission_denied_file(fname, posix_errnum, details);
         }
-    /* LibUV does not map ENOLCK and ENOSR as of version 1.48.0 */
+    /* LibUV does not map ENOLCK and ENOSR as of version 1.52.1 */
     case UV_EMFILE: case UV_ENFILE: case UV_ENOSPC:
     case UV_E2BIG:  case UV_EAGAIN: case UV_EMLINK:
     case UV_EMSGSIZE: case UV_ENOBUFS:
     case UV_ENOMEM:
         if (fname == nullptr) {
-            return lean_mk_io_error_resource_exhausted(errnum, details);
+            return lean_mk_io_error_resource_exhausted(posix_errnum, details);
         } else {
             inc_ref(fname);
-            return lean_mk_io_error_resource_exhausted_file(fname, errnum, details);
+            return lean_mk_io_error_resource_exhausted_file(fname, posix_errnum, details);
         }
-    /* LibUV does not map EBADMSG as of version 1.48.0 */
+    /* LibUV does not map EBADMSG as of version 1.52.1 */
     case UV_EISDIR: case UV_ENOTDIR:
         if (fname == nullptr) {
-            return lean_mk_io_error_inappropriate_type(errnum, details);
+            return lean_mk_io_error_inappropriate_type(posix_errnum, details);
         } else {
             inc_ref(fname);
-            return lean_mk_io_error_inappropriate_type_file(fname, errnum, details);
+            return lean_mk_io_error_inappropriate_type_file(fname, posix_errnum, details);
         }
-    /* LibUV does not map ECHILD as of version 1.48.0 */
+    /* LibUV does not map ECHILD as of version 1.52.1 */
     case UV_ENXIO: case UV_EHOSTUNREACH: case UV_ENETUNREACH:
     case UV_ECONNREFUSED:
-#if UV_VERSION_HEX >= 0x012D00
+#if UV_VERSION_HEX >= 0x012D00 /* libuv maps ENODATA since 1.45.0 */
     case UV_ENODATA:
 #endif
     case UV_ESRCH:
         if (fname == nullptr) {
-            return lean_mk_io_error_no_such_thing(errnum, details);
+            return lean_mk_io_error_no_such_thing(posix_errnum, details);
         } else {
             inc_ref(fname);
-            return lean_mk_io_error_no_such_thing_file(fname, errnum, details);
+            return lean_mk_io_error_no_such_thing_file(fname, posix_errnum, details);
         }
-    /* LibUV does not map EINPROGRESS as of version 1.48.0 */
+    /* LibUV does not map EINPROGRESS as of version 1.52.1 */
     case UV_EEXIST: case UV_EISCONN:
         if (fname == nullptr) {
-            return lean_mk_io_error_already_exists(errnum, details);
+            return lean_mk_io_error_already_exists(posix_errnum, details);
         } else {
             inc_ref(fname);
-            return lean_mk_io_error_already_exists_file(fname, errnum, details);
+            return lean_mk_io_error_already_exists_file(fname, posix_errnum, details);
         }
     case UV_EIO:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_hardware_fault(errnum, details);
+        return lean_mk_io_error_hardware_fault(posix_errnum, details);
     case UV_ENOTEMPTY:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_unsatisfied_constraints(errnum, details);
+        return lean_mk_io_error_unsatisfied_constraints(posix_errnum, details);
     case UV_ENOTTY:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_illegal_operation(errnum, details);
-    /* LibUV does not map EIDRM, ENETRESET and ENOLINK as of version 1.48.0 */
+        return lean_mk_io_error_illegal_operation(posix_errnum, details);
+    /* LibUV does not map EIDRM, ENETRESET and ENOLINK as of version 1.52.1 */
     case UV_ECONNRESET: case UV_ENETDOWN:
     case UV_EPIPE:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_resource_vanished(errnum, details);
+        return lean_mk_io_error_resource_vanished(posix_errnum, details);
     case UV_EPROTO: case UV_EPROTONOSUPPORT: case UV_EPROTOTYPE:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_protocol_error(errnum, details);
-    /* LibUV does not map ETIME as of version 1.48.0 */
+        return lean_mk_io_error_protocol_error(posix_errnum, details);
+    /* LibUV does not map ETIME as of version 1.52.1 */
     case UV_ETIMEDOUT:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_time_expired(errnum, details);
-    /* LibUV does not map EDEADLK as of version 1.48.0 */
+        return lean_mk_io_error_time_expired(posix_errnum, details);
+    /* LibUV does not map EDEADLK as of version 1.52.1 */
     case UV_EADDRINUSE: case UV_EBUSY: case UV_ETXTBSY:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_resource_busy(errnum, details);
+        return lean_mk_io_error_resource_busy(posix_errnum, details);
     case UV_EADDRNOTAVAIL: case UV_EAFNOSUPPORT: case UV_ENODEV:
     case UV_ENOPROTOOPT: case UV_ENOSYS: case UV_ENOTSUP:
     case UV_ERANGE: case UV_ESPIPE: case UV_EXDEV:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_unsupported_operation(errnum, details);
+        return lean_mk_io_error_unsupported_operation(posix_errnum, details);
     case UV_EFAULT:
     default:
         lean_assert(fname == nullptr);
-        return lean_mk_io_error_other_error(errnum, details);
+        return lean_mk_io_error_other_error(posix_errnum, details);
     }
+}
+
+extern "C" LEAN_EXPORT obj_res lean_decode_io_error(int errnum, b_lean_obj_arg fname) {
+    return decode_uv_error_impl(lean_crt_to_uv_err(errnum), errnum, fname);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_lean_obj_arg fname) {
+    /* On Unix libuv error codes are negated `errno` values, so this approximately reconstructs
+       the value C library calls would report. */
+    return decode_uv_error_impl(errnum, -errnum, fname);
 }
 
 // Used for when you try to convert a string with NUL bytes into a C string

@@ -291,7 +291,7 @@ builtin_simproc [bv_normalize] extractLsb' (BitVec.extractLsb' _ _ _) := fun e =
     let newTy := mkApp (mkConst ``BitVec) lenExpr
     let expr := mkApp4 (mkConst ``cond [1]) newTy discr thenExpr' elseExpr'
     let proof :=
-      mkApp6 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.extractLsb'_if)
+      mkApp6 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.extractLsb'_ite)
         wExpr
         discr
         thenExpr
@@ -728,7 +728,7 @@ builtin_simproc [bv_normalize] cond_simplify (cond _ _ _) := fun e => do
       if c != c2 then return none
       let expr := mkApp4 (mkConst ``cond [lvl]) α c tThenExpr elseExpr
       let proof :=
-        mkApp5 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.ite_then_ite [lvl])
+        mkApp5 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.ite_ite_left [lvl])
           α
           c
           tThenExpr
@@ -741,7 +741,7 @@ builtin_simproc [bv_normalize] cond_simplify (cond _ _ _) := fun e => do
       if c != c2 then return none
       let expr := mkApp4 (mkConst ``cond [lvl]) α c thenExpr eElseExpr
       let proof :=
-        mkApp5 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.ite_else_ite [lvl])
+        mkApp5 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.ite_ite_right [lvl])
           α
           c
           thenExpr
@@ -754,7 +754,7 @@ builtin_simproc [bv_normalize] cond_simplify (cond _ _ _) := fun e => do
       if tThenExpr != elseExpr then return none
       let expr := mkApp4 (mkConst ``cond [lvl]) α (Bool.mkAnd c (Bool.mkNot c2)) tElseExpr elseExpr
       let proof :=
-        mkApp5 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.ite_then_ite' [lvl])
+        mkApp5 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.ite_ite_left' [lvl])
           α
           c
           c2
@@ -772,7 +772,7 @@ builtin_simproc [bv_normalize] cond_simplify (cond _ _ _) := fun e => do
           eElseExpr
           thenExpr
       let proof :=
-        mkApp5 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.ite_else_ite' [lvl])
+        mkApp5 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.ite_ite_right' [lvl])
           α
           c
           c2
@@ -785,7 +785,7 @@ builtin_simproc [bv_normalize] cond_simplify (cond _ _ _) := fun e => do
       if tElseExpr != elseExpr then return none
       let expr := mkApp4 (mkConst ``cond [lvl]) α (Bool.mkAnd c c2) tThenExpr elseExpr
       let proof :=
-        mkApp5 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.ite_then_ite'' [lvl])
+        mkApp5 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.ite_ite_left'' [lvl])
           α
           c
           c2
@@ -803,7 +803,7 @@ builtin_simproc [bv_normalize] cond_simplify (cond _ _ _) := fun e => do
           eThenExpr
           thenExpr
       let proof :=
-        mkApp5 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.ite_else_ite'' [lvl])
+        mkApp5 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.ite_ite_right'' [lvl])
           α
           c
           c2

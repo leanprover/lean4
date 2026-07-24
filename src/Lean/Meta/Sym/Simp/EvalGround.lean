@@ -530,7 +530,6 @@ macro "declare_eval_bin_bool_pred" id:ident op:term : command =>
 declare_eval_bin_bool_pred evalBEq (· == ·)
 declare_eval_bin_bool_pred evalBNe (· != ·)
 
-open Internal in
 def evalNot (a : Expr) : SimpM Result :=
   /-
   **Note**: We added `evalNot` because some abbreviations expanded into `Not`s.

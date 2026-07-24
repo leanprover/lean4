@@ -414,3 +414,18 @@ theorem isqrt_call_correct (N : Nat) :
     ⦃ fun Φ s => Φ = Δ ∧ s "n" = N ⦄ ⟦ call isqrt ⟧
       ⦃ fun _ _ s => s "r" * s "r" ≤ N ∧ N < (s "r" + 1) * (s "r" + 1) ⦄ := by
   vcgen with finish
+
+/-! ## Equation specs at the deep-embedded program type
+
+`countdown` produces a `Cmd` by recursion on `Nat`, so it carries equation lemmas.
+`vcgen [countdown]` consumes them as equation specs, which `eqSpecToWp?` normalizes at the
+program type `Cmd` itself. -/
+
+def countdown : Nat → Cmd
+  | 0 => .skip
+  | n + 1 => .seq (.assign "x" (.lit n)) (countdown n)
+
+/-- `vcgen [countdown]` unfolds `countdown 2` through its equations and chains the
+`seq`/`assign`/`skip` specs. -/
+example : ⦃ fun _ _ => True ⦄ countdown 2 ⦃ fun _ _ s => s "x" = 0 ⦄ := by
+  vcgen [countdown] with finish

@@ -60,7 +60,7 @@ A compiled glob pattern: a sequence of segments separated by `/`.
 -/
 abbrev Glob := Array GlobSegment
 
-open Std Internal Parsec String
+open Std Path.Internal Std.Internal Parsec String
 
 /--
 Parse the body of a `[...]` character class, after the opening `[`.

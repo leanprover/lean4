@@ -659,6 +659,7 @@ jobs:
           fetch-depth: 0
 
       - name: Create adaptation PR
+        id: create-adaptation-pr
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         uses: leanprover/downstream-lean4/.downstream/actions/adaptation-pr-create@master
         with:
@@ -669,3 +670,10 @@ jobs:
           downstream-repo: leanprover/downstream-lean4
           downstream-clone: downstream
           override-toolchain: leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${{ env.SHORT_SHA }}
+
+      - name: Add toolchain-available label to adaptation PR
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' && steps.create-adaptation-pr.outputs.number != '' }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          ADAPTATION_PR: ${{ steps.create-adaptation-pr.outputs.number }}
+        run: gh pr edit "$ADAPTATION_PR" --repo leanprover/downstream-lean4 --add-label toolchain-available

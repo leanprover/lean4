@@ -81,7 +81,8 @@ def inlineCandidate? (e : LetValue .pure) : SimpM (Option InlineCandidateInfo) :
         aux decls bearing `[instance_reducible]` without `[instance]` should not count.
         -/
         if (← Meta.isInstance decl.name) then
-          return false
+          if decl.name != ``instDecidableEqBool then
+            return false
         -- This is done to avoid inlining `_override` implementations for computed fields in the
         -- base phase, since `cases` constructs have not yet been replaced by their underlying
         -- implementation, and thus inlining `_override` implementations for computed fields will

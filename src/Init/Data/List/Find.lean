@@ -634,7 +634,7 @@ theorem not_of_lt_findIdx {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs
     have ho := h
     rw [findIdx_cons] at h
     have npx : p x = false := by
-      apply eq_false_of_ne_true
+      apply Bool.eq_false_of_ne_true
       intro y
       rw [y, cond_true] at h
       simp at h

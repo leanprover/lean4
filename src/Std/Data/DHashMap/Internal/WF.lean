@@ -1038,7 +1038,7 @@ theorem toListModel_eraseₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashabl
   split
   · exact toListModel_eraseₘaux m a h
   next h' =>
-    exact toListModel_perm_eraseKey_of_containsₘ_eq_false _ _ h (eq_false_of_ne_true h')
+    exact toListModel_perm_eraseKey_of_containsₘ_eq_false _ _ h (Bool.eq_false_of_ne_true h')
 
 theorem wfImp_eraseₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β} {a : α}
     (h : Raw.WFImp m.1) : Raw.WFImp (m.eraseₘ a).1 := by

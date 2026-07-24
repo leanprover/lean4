@@ -26,6 +26,8 @@ import Init.Data.Int.Repr
 
 @[expose] public section
 
+open Internal
+
 namespace Lean.Grind.CommRing
 /-!
 Data-structures, definitions and theorems for implementing the

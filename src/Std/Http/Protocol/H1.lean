@@ -32,8 +32,7 @@ namespace Std.Http.Protocol.H1
 
 set_option linter.all true
 
-open Std Internal Parsec ByteArray
-open Internal
+open Std Std.Internal Http.Internal Parsec ByteArray
 
 /--
 Results from a single step of the state machine.

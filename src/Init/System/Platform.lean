@@ -45,6 +45,11 @@ Is the current platform [Emscripten](https://emscripten.org/)?
 def isEmscripten : Bool := getIsEmscripten ()
 
 /--
+Is the current platform Linux?
+-/
+def isLinux : Bool := !isWindows && !isOSX && !isEmscripten
+
+/--
 Gets the LLVM target triple of the current platform, or `""` if this was missing when Lean was
 compiled.
 -/

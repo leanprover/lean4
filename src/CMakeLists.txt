@@ -559,9 +559,13 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC -ftls-model=initial-exec")
   string(APPEND LEANC_EXTRA_CC_FLAGS " -fPIC")
   string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,-rpath=\\$$ORIGIN/..:\\$$ORIGIN")
+  string(APPEND INIT_SHARED_LINKER_FLAGS " -Wl,-soname=libInit_shared.so")
+  string(APPEND LEANSHARED_1_LINKER_FLAGS " -Wl,-soname=libleanshared_1.so")
+  string(APPEND LEANSHARED_2_LINKER_FLAGS " -Wl,-soname=libleanshared_2.so")
+  string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,-soname=libleanshared.so")
   string(
     APPEND LAKESHARED_LINKER_FLAGS
-    " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive"
+    " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive -Wl,-soname=libLake_shared.so"
   )
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath=$ORIGIN/../lib:$ORIGIN/../lib/lean")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")

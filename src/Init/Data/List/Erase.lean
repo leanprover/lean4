@@ -335,13 +335,13 @@ variable [BEq α]
   simp [erase_cons]
 
 @[simp] theorem erase_cons_tail {a b : α} {l : List α} (h : ¬(b == a)) :
-    (b :: l).erase a = b :: l.erase a := by simp only [erase_cons, if_neg h]
+    (b :: l).erase a = b :: l.erase a := by simp only [erase_cons, ite_eq_right h]
 
 theorem erase_of_not_mem [LawfulBEq α] {a : α} : ∀ {l : List α}, a ∉ l → l.erase a = l
   | [], _ => rfl
   | b :: l, h => by
     rw [mem_cons, not_or] at h
-    simp only [erase_cons, if_neg, erase_of_not_mem h.2, beq_iff_eq, Ne.symm h.1, not_false_eq_true]
+    simp only [erase_cons, ite_eq_right, erase_of_not_mem h.2, beq_iff_eq, Ne.symm h.1, not_false_eq_true]
 
 -- The arguments are intentionally explicit.
 theorem erase_eq_eraseP' (a : α) (l : List α) : l.erase a = l.eraseP (· == a) := by
@@ -706,7 +706,7 @@ theorem erase_eq_eraseIdx_of_idxOf [BEq α] [LawfulBEq α]
   · right
     obtain ⟨as, bs, rfl, h'⟩ := eq_append_cons_of_mem h
     refine ⟨as, bs, h', by simp, ?_⟩
-    rw [idxOf_append, if_neg h', idxOf_cons_self, eraseIdx_append_of_length_le] <;>
+    rw [idxOf_append, ite_eq_right h', idxOf_cons_self, eraseIdx_append_of_length_le] <;>
       simp
   · left
     refine ⟨h, ?_⟩

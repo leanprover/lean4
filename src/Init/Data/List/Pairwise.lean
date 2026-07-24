@@ -390,7 +390,7 @@ theorem Nodup.count [BEq α] [LawfulBEq α] {a : α} {l : List α} (h : Nodup l)
     l.count a = if a ∈ l then 1 else 0 := nodup_iff_count_eq_ite.mp h _
 
 theorem Nodup.count_of_mem [BEq α] [LawfulBEq α] {a : α} {l : List α} (h : Nodup l) (ha : a ∈ l) :
-    l.count a = 1 := h.count ▸ if_pos ha
+    l.count a = 1 := h.count ▸ ite_eq_left ha
 
 grind_pattern Nodup.count => count a l, Nodup l
 

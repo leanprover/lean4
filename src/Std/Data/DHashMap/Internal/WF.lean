@@ -754,7 +754,7 @@ theorem wfImp_alterₘ [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} 
     split
     next h₁ =>
       rw [containsₘ_eq_containsKey h] at h₁
-      simp only [length_alterKey, h.size_eq, dif_pos h₁]
+      simp only [length_alterKey, h.size_eq, dite_eq_left h₁]
       rw [containsₘ_eq_containsKey (by apply wfImp_updateBucket_alter h)]
       simp only [buckets_withComputedSize]
       simp only [containsKey_of_perm <| toListModel_updateBucket_alter h]
@@ -766,9 +766,9 @@ theorem wfImp_alterₘ [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} 
       rw [getValueCast?_eq_none <| Bool.not_eq_true _ ▸ h₁]
       split
       next heq =>
-        rw [heq, h.size_eq, length_eraseKey, if_neg h₁]
+        rw [heq, h.size_eq, length_eraseKey, ite_eq_right h₁]
       next heq =>
-        rw [heq, size_expandIfNecessary, consₘ, length_insertEntry, if_neg h₁, h.size_eq]
+        rw [heq, size_expandIfNecessary, consₘ, length_insertEntry, ite_eq_right h₁, h.size_eq]
 
 theorem wfImp_alter [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β}
     (h : Raw.WFImp m.1) {a : α} {f : Option (β a) → Option (β a)} : Raw.WFImp (m.alter a f).1 := by
@@ -852,7 +852,7 @@ theorem wfImp_alterₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] 
     split
     next h₁ =>
       rw [containsₘ_eq_containsKey h] at h₁
-      simp only [Const.length_alterKey, h.size_eq, dif_pos h₁]
+      simp only [Const.length_alterKey, h.size_eq, dite_eq_left h₁]
       rw [containsₘ_eq_containsKey (by apply wfImp_updateBucket_alter h)]
       simp only [buckets_withComputedSize]
       simp only [containsKey_of_perm <| toListModel_updateBucket_alter h]
@@ -864,9 +864,9 @@ theorem wfImp_alterₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] 
       rw [getValue?_eq_none.mpr <| Bool.not_eq_true _ ▸ h₁]
       split
       next heq =>
-        rw [heq, h.size_eq, length_eraseKey, if_neg h₁]
+        rw [heq, h.size_eq, length_eraseKey, ite_eq_right h₁]
       next heq =>
-        rw [heq, size_expandIfNecessary, consₘ, length_insertEntry, if_neg h₁, h.size_eq]
+        rw [heq, size_expandIfNecessary, consₘ, length_insertEntry, ite_eq_right h₁, h.size_eq]
 
 theorem wfImp_alter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α (fun _ => β)}
     (h : Raw.WFImp m.1) {a : α} {f : Option β → Option β} : Raw.WFImp (Const.alter m a f).1 := by

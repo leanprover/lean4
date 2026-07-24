@@ -121,11 +121,11 @@ example [LE α] [DecidableLE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] {a 
     max a b = if b ≤ a then a else b :=
   letI : LE α := LE.opposite inferInstance
   letI : Max α := (inferInstance : Min α).oppositeMax
-  Std.max_eq_if
+  Std.max_eq_ite
 ```
 
 Without the `open scoped` command, Lean would not find the {lit}`LawfulOrderLeftLeaningMax α`
-instance for the opposite order that is required by {name}`max_eq_if`.
+instance for the opposite order that is required by {name}`max_eq_ite`.
 -/
 @[instance_reducible]
 def Min.oppositeMax (min : Min α) : Max α where
@@ -158,11 +158,11 @@ example [LE α] [DecidableLE α] [Max α] [Std.LawfulOrderLeftLeaningMax α] {a 
     min a b = if a ≤ b then a else b :=
   letI : LE α := LE.opposite inferInstance
   letI : Min α := (inferInstance : Max α).oppositeMin
-  Std.min_eq_if
+  Std.min_eq_ite
 ```
 
 Without the `open scoped` command, Lean would not find the {lit}`LawfulOrderLeftLeaningMin α`
-instance for the opposite order that is required by {name}`min_eq_if`.
+instance for the opposite order that is required by {name}`min_eq_ite`.
 -/
 @[instance_reducible]
 def Max.oppositeMin (max : Max α) : Min α where

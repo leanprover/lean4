@@ -36,8 +36,11 @@ attribute [bv_normalize] Bool.not_not
 attribute [bv_normalize] Bool.cond_not
 
 @[bv_normalize]
-theorem if_eq_cond {b : Bool} {x y : α} : (if b = true then x else y) = (bif b then x else y) := by
+theorem ite_eq_cond {b : Bool} {x y : α} : (if b = true then x else y) = (bif b then x else y) := by
   rw [cond_eq_ite]
+
+@[deprecated Std.Tactic.BVDecide.Normalize.ite_eq_cond (since := "2026-07-21")]
+theorem if_eq_cond {α : Sort u_1} {b : Bool} {x : α} {y : α} : (if b = Bool.true then x else y) = bif b then x else y := Std.Tactic.BVDecide.Normalize.ite_eq_cond
 
 @[bv_normalize]
 theorem Bool.not_xor : ∀ (a b : Bool), (!(a ^^ b)) = (a == b) := by decide
@@ -59,129 +62,207 @@ theorem Bool.not_zero_beq : ∀ (a : BitVec 1), (!(0#1 == a)) = (a == 1#1) := by
   decide
 
 @[bv_normalize]
-theorem Bool.ite_same_then : ∀ (c t e : Bool), ((bif c then t else e) == t) = (c || (t == e)) := by
+theorem Bool.ite_same_left : ∀ (c t e : Bool), ((bif c then t else e) == t) = (c || (t == e)) := by
   decide
 
-@[bv_normalize]
-theorem Bool.ite_same_then' : ∀ (c t e : Bool), (t == (bif c then t else e)) = (c || (t == e)) := by
-  decide
+@[deprecated Std.Tactic.BVDecide.Normalize.Bool.ite_same_left (since := "2026-07-21")]
+theorem Bool.ite_same_then (c : Bool) (t : Bool) (e : Bool) : ((bif c then t else e) == t) = (c || t == e) := Std.Tactic.BVDecide.Normalize.Bool.ite_same_left c t e
 
 @[bv_normalize]
-theorem Bool.ite_same_else : ∀ (c t e : Bool), ((bif c then t else e) == e) = (!c || (t == e)) := by
+theorem Bool.ite_same_left' : ∀ (c t e : Bool), (t == (bif c then t else e)) = (c || (t == e)) := by
   decide
 
+@[deprecated Std.Tactic.BVDecide.Normalize.Bool.ite_same_left' (since := "2026-07-21")]
+theorem Bool.ite_same_then' (c : Bool) (t : Bool) (e : Bool) : (t == bif c then t else e) = (c || t == e) := Std.Tactic.BVDecide.Normalize.Bool.ite_same_left' c t e
+
 @[bv_normalize]
-theorem Bool.ite_same_else' :
+theorem Bool.ite_same_right : ∀ (c t e : Bool), ((bif c then t else e) == e) = (!c || (t == e)) := by
+  decide
+
+@[deprecated Std.Tactic.BVDecide.Normalize.Bool.ite_same_right (since := "2026-07-21")]
+theorem Bool.ite_same_else (c : Bool) (t : Bool) (e : Bool) : ((bif c then t else e) == e) = (!c || t == e) := Std.Tactic.BVDecide.Normalize.Bool.ite_same_right c t e
+
+@[bv_normalize]
+theorem Bool.ite_same_right' :
     ∀ (c t e : Bool), (e == (bif c then t else e)) = (!c || (t == e)) := by
   decide
 
+@[deprecated Std.Tactic.BVDecide.Normalize.Bool.ite_same_right' (since := "2026-07-21")]
+theorem Bool.ite_same_else' (c : Bool) (t : Bool) (e : Bool) : (e == bif c then t else e) = (!c || t == e) := Std.Tactic.BVDecide.Normalize.Bool.ite_same_right' c t e
+
 @[bv_normalize]
-theorem BitVec.ite_same_then :
+theorem BitVec.ite_same_left :
     ∀ (c : Bool) (t e : BitVec w), ((bif c then t else e) == t) = (c || (t == e)) := by
   intro c t e
   cases c <;> simp [BEq.comm (a := t) (b := e)]
 
+@[deprecated Std.Tactic.BVDecide.Normalize.BitVec.ite_same_left (since := "2026-07-21")]
+theorem BitVec.ite_same_then {w : Nat} (c : Bool) (t : BitVec w) (e : BitVec w) : ((bif c then t else e) == t) = (c || t == e) := Std.Tactic.BVDecide.Normalize.BitVec.ite_same_left c t e
+
 @[bv_normalize]
-theorem BitVec.ite_same_then' :
+theorem BitVec.ite_same_left' :
     ∀ (c : Bool) (t e : BitVec w), (t == (bif c then t else e)) = (c || (t == e)) := by
   intro c t e
   cases c <;> simp
 
+@[deprecated Std.Tactic.BVDecide.Normalize.BitVec.ite_same_left' (since := "2026-07-21")]
+theorem BitVec.ite_same_then' {w : Nat} (c : Bool) (t : BitVec w) (e : BitVec w) : (t == bif c then t else e) = (c || t == e) := Std.Tactic.BVDecide.Normalize.BitVec.ite_same_left' c t e
+
 @[bv_normalize]
-theorem BitVec.ite_same_else :
+theorem BitVec.ite_same_right :
     ∀ (c : Bool) (t e : BitVec w), ((bif c then t else e) == e) = (!c || (t == e)) := by
   intro c t e
   cases c <;> simp
 
+@[deprecated Std.Tactic.BVDecide.Normalize.BitVec.ite_same_right (since := "2026-07-21")]
+theorem BitVec.ite_same_else {w : Nat} (c : Bool) (t : BitVec w) (e : BitVec w) : ((bif c then t else e) == e) = (!c || t == e) := Std.Tactic.BVDecide.Normalize.BitVec.ite_same_right c t e
+
 @[bv_normalize]
-theorem BitVec.ite_same_else' :
+theorem BitVec.ite_same_right' :
     ∀ (c : Bool) (t e : BitVec w), (e == (bif c then t else e)) = (!c || (t == e)) := by
   intro c t e
   cases c <;> simp [BEq.comm (a := t) (b := e)]
 
-theorem Bool.ite_then_ite (cond : Bool) {a b c : α} :
+@[deprecated Std.Tactic.BVDecide.Normalize.BitVec.ite_same_right' (since := "2026-07-21")]
+theorem BitVec.ite_same_else' {w : Nat} (c : Bool) (t : BitVec w) (e : BitVec w) : (e == bif c then t else e) = (!c || t == e) := Std.Tactic.BVDecide.Normalize.BitVec.ite_same_right' c t e
+
+theorem Bool.ite_ite_left (cond : Bool) {a b c : α} :
     (bif cond then (bif cond then a else b) else c) = (bif cond then a else c) := by
   cases cond <;> simp
 
+@[deprecated Std.Tactic.BVDecide.Normalize.Bool.ite_ite_left (since := "2026-07-21")]
+theorem Bool.ite_then_ite {α : Sort u_1} (cond : Bool) {a : α} {b : α} {c : α} : (bif cond then bif cond then a else b else c) = bif cond then a else c := Std.Tactic.BVDecide.Normalize.Bool.ite_ite_left cond
+
 @[bv_normalize]
-theorem Bool.ite_then_not_ite (cond : Bool) {a b c : Bool} :
+theorem Bool.ite_not_ite_left (cond : Bool) {a b c : Bool} :
     (bif cond then !(bif cond then a else b) else c) = (bif cond then !a else c) := by
   cases cond <;> simp
 
+@[deprecated Std.Tactic.BVDecide.Normalize.Bool.ite_not_ite_left (since := "2026-07-21")]
+theorem Bool.ite_then_not_ite (cond : Bool) {a : Bool} {b : Bool} {c : Bool} : (bif cond then !bif cond then a else b else c) = bif cond then !a else c := Std.Tactic.BVDecide.Normalize.Bool.ite_not_ite_left cond
+
 @[bv_normalize]
-theorem BitVec.ite_then_not_ite (cond : Bool) {a b c : BitVec w} :
+theorem BitVec.ite_not_ite_left (cond : Bool) {a b c : BitVec w} :
     (bif cond then ~~~(bif cond then a else b) else c) = (bif cond then ~~~a else c) := by
   cases cond <;> simp
 
-theorem Bool.ite_else_ite (cond : Bool) {a b c : α} :
+@[deprecated Std.Tactic.BVDecide.Normalize.BitVec.ite_not_ite_left (since := "2026-07-21")]
+theorem BitVec.ite_then_not_ite {w : Nat} (cond : Bool) {a : BitVec w} {b : BitVec w} {c : BitVec w} : (bif cond then ~~~bif cond then a else b else c) = bif cond then ~~~a else c := Std.Tactic.BVDecide.Normalize.BitVec.ite_not_ite_left cond
+
+theorem Bool.ite_ite_right (cond : Bool) {a b c : α} :
     (bif cond then a else (bif cond then b else c)) = (bif cond then a else c) := by
   cases cond <;> simp
 
+@[deprecated Std.Tactic.BVDecide.Normalize.Bool.ite_ite_right (since := "2026-07-21")]
+theorem Bool.ite_else_ite {α : Sort u_1} (cond : Bool) {a : α} {b : α} {c : α} : (bif cond then a else bif cond then b else c) = bif cond then a else c := Std.Tactic.BVDecide.Normalize.Bool.ite_ite_right cond
+
 @[bv_normalize]
-theorem Bool.ite_else_not_ite (cond : Bool) {a b c : Bool} :
+theorem Bool.ite_not_ite_right (cond : Bool) {a b c : Bool} :
     (bif cond then a else !(bif cond then b else c)) = (bif cond then a else !c) := by
   cases cond <;> simp
 
+@[deprecated Std.Tactic.BVDecide.Normalize.Bool.ite_not_ite_right (since := "2026-07-21")]
+theorem Bool.ite_else_not_ite (cond : Bool) {a : Bool} {b : Bool} {c : Bool} : (bif cond then a else !bif cond then b else c) = bif cond then a else !c := Std.Tactic.BVDecide.Normalize.Bool.ite_not_ite_right cond
+
 @[bv_normalize]
-theorem BitVec.ite_else_not_ite (cond : Bool) {a b c : BitVec w} :
+theorem BitVec.ite_not_ite_right (cond : Bool) {a b c : BitVec w} :
     (bif cond then a else ~~~(bif cond then b else c)) = (bif cond then a else ~~~c) := by
   cases cond <;> simp
 
-theorem Bool.ite_then_ite' (c0 c1 : Bool) {a b : α} :
+@[deprecated Std.Tactic.BVDecide.Normalize.BitVec.ite_not_ite_right (since := "2026-07-21")]
+theorem BitVec.ite_else_not_ite {w : Nat} (cond : Bool) {a : BitVec w} {b : BitVec w} {c : BitVec w} : (bif cond then a else ~~~bif cond then b else c) = bif cond then a else ~~~c := Std.Tactic.BVDecide.Normalize.BitVec.ite_not_ite_right cond
+
+theorem Bool.ite_ite_left' (c0 c1 : Bool) {a b : α} :
     (bif c0 then (bif c1 then a else b) else a) = (bif c0 && !c1 then b else a) := by
   cases c0 <;> cases c1 <;> simp
 
+@[deprecated Std.Tactic.BVDecide.Normalize.Bool.ite_ite_left' (since := "2026-07-21")]
+theorem Bool.ite_then_ite' {α : Sort u_1} (c0 : Bool) (c1 : Bool) {a : α} {b : α} : (bif c0 then bif c1 then a else b else a) = bif c0 && !c1 then b else a := Std.Tactic.BVDecide.Normalize.Bool.ite_ite_left' c0 c1
+
 @[bv_normalize]
-theorem Bool.ite_then_not_ite' (c0 c1 : Bool) {a b : Bool} :
+theorem Bool.ite_not_ite_left' (c0 c1 : Bool) {a b : Bool} :
     (bif c0 then !(bif c1 then !a else b) else a) = (bif c0 && !c1 then !b else a) := by
   cases c0 <;> cases c1 <;> simp
 
+@[deprecated Std.Tactic.BVDecide.Normalize.Bool.ite_not_ite_left' (since := "2026-07-21")]
+theorem Bool.ite_then_not_ite' (c0 : Bool) (c1 : Bool) {a : Bool} {b : Bool} : (bif c0 then !bif c1 then !a else b else a) = bif c0 && !c1 then !b else a := Std.Tactic.BVDecide.Normalize.Bool.ite_not_ite_left' c0 c1
+
 @[bv_normalize]
-theorem BitVec.ite_then_not_ite' (c0 c1 : Bool) {a b : BitVec w} :
+theorem BitVec.ite_not_ite_left' (c0 c1 : Bool) {a b : BitVec w} :
     (bif c0 then ~~~(bif c1 then ~~~a else b) else a) = (bif c0 && !c1 then ~~~b else a) := by
   cases c0 <;> cases c1 <;> simp
 
-theorem Bool.ite_else_ite' (c0 c1 : Bool) {a b : α} :
+@[deprecated Std.Tactic.BVDecide.Normalize.BitVec.ite_not_ite_left' (since := "2026-07-21")]
+theorem BitVec.ite_then_not_ite' {w : Nat} (c0 : Bool) (c1 : Bool) {a : BitVec w} {b : BitVec w} : (bif c0 then ~~~bif c1 then ~~~a else b else a) = bif c0 && !c1 then ~~~b else a := Std.Tactic.BVDecide.Normalize.BitVec.ite_not_ite_left' c0 c1
+
+theorem Bool.ite_ite_right' (c0 c1 : Bool) {a b : α} :
     (bif c0 then a else (bif c1 then a else b)) = (bif !c0 && !c1 then b else a) := by
   cases c0 <;> cases c1 <;> simp
 
+@[deprecated Std.Tactic.BVDecide.Normalize.Bool.ite_ite_right' (since := "2026-07-21")]
+theorem Bool.ite_else_ite' {α : Sort u_1} (c0 : Bool) (c1 : Bool) {a : α} {b : α} : (bif c0 then a else bif c1 then a else b) = bif !c0 && !c1 then b else a := Std.Tactic.BVDecide.Normalize.Bool.ite_ite_right' c0 c1
+
 @[bv_normalize]
-theorem Bool.ite_else_not_ite' (c0 c1 : Bool) {a b : Bool} :
+theorem Bool.ite_not_ite_right' (c0 c1 : Bool) {a b : Bool} :
     (bif c0 then a else !(bif c1 then !a else b)) = (bif !c0 && !c1 then !b else a) := by
   cases c0 <;> cases c1 <;> simp
 
+@[deprecated Std.Tactic.BVDecide.Normalize.Bool.ite_not_ite_right' (since := "2026-07-21")]
+theorem Bool.ite_else_not_ite' (c0 : Bool) (c1 : Bool) {a : Bool} {b : Bool} : (bif c0 then a else !bif c1 then !a else b) = bif !c0 && !c1 then !b else a := Std.Tactic.BVDecide.Normalize.Bool.ite_not_ite_right' c0 c1
+
 @[bv_normalize]
-theorem BitVec.ite_else_not_ite' (c0 c1 : Bool) {a b : BitVec w} :
+theorem BitVec.ite_not_ite_right' (c0 c1 : Bool) {a b : BitVec w} :
     (bif c0 then a else ~~~(bif c1 then ~~~a else b)) = (bif !c0 && !c1 then ~~~b else a) := by
   cases c0 <;> cases c1 <;> simp
 
-theorem Bool.ite_then_ite'' (c0 c1 : Bool) {a b : α} :
+@[deprecated Std.Tactic.BVDecide.Normalize.BitVec.ite_not_ite_right' (since := "2026-07-21")]
+theorem BitVec.ite_else_not_ite' {w : Nat} (c0 : Bool) (c1 : Bool) {a : BitVec w} {b : BitVec w} : (bif c0 then a else ~~~bif c1 then ~~~a else b) = bif !c0 && !c1 then ~~~b else a := Std.Tactic.BVDecide.Normalize.BitVec.ite_not_ite_right' c0 c1
+
+theorem Bool.ite_ite_left'' (c0 c1 : Bool) {a b : α} :
     (bif c0 then (bif c1 then b else a) else a) = (bif c0 && c1 then b else a) := by
   cases c0 <;> cases c1 <;> simp
 
+@[deprecated Std.Tactic.BVDecide.Normalize.Bool.ite_ite_left'' (since := "2026-07-21")]
+theorem Bool.ite_then_ite'' {α : Sort u_1} (c0 : Bool) (c1 : Bool) {a : α} {b : α} : (bif c0 then bif c1 then b else a else a) = bif c0 && c1 then b else a := Std.Tactic.BVDecide.Normalize.Bool.ite_ite_left'' c0 c1
+
 @[bv_normalize]
-theorem Bool.ite_then_not_ite'' (c0 c1 : Bool) {a b : Bool} :
+theorem Bool.ite_not_ite_left'' (c0 c1 : Bool) {a b : Bool} :
     (bif c0 then !(bif c1 then b else !a) else a) = (bif c0 && c1 then !b else a) := by
   cases c0 <;> cases c1 <;> simp
 
+@[deprecated Std.Tactic.BVDecide.Normalize.Bool.ite_not_ite_left'' (since := "2026-07-21")]
+theorem Bool.ite_then_not_ite'' (c0 : Bool) (c1 : Bool) {a : Bool} {b : Bool} : (bif c0 then !bif c1 then b else !a else a) = bif c0 && c1 then !b else a := Std.Tactic.BVDecide.Normalize.Bool.ite_not_ite_left'' c0 c1
+
 @[bv_normalize]
-theorem BitVec.ite_then_not_ite'' (c0 c1 : Bool) {a b : BitVec w} :
+theorem BitVec.ite_not_ite_left'' (c0 c1 : Bool) {a b : BitVec w} :
     (bif c0 then ~~~(bif c1 then b else ~~~a) else a) = (bif c0 && c1 then ~~~b else a) := by
   cases c0 <;> cases c1 <;> simp
 
-theorem Bool.ite_else_ite'' (c0 c1 : Bool) {a b : α} :
+@[deprecated Std.Tactic.BVDecide.Normalize.BitVec.ite_not_ite_left'' (since := "2026-07-21")]
+theorem BitVec.ite_then_not_ite'' {w : Nat} (c0 : Bool) (c1 : Bool) {a : BitVec w} {b : BitVec w} : (bif c0 then ~~~bif c1 then b else ~~~a else a) = bif c0 && c1 then ~~~b else a := Std.Tactic.BVDecide.Normalize.BitVec.ite_not_ite_left'' c0 c1
+
+theorem Bool.ite_ite_right'' (c0 c1 : Bool) {a b : α} :
     (bif c0 then a else (bif c1 then b else a)) = (bif !c0 && c1 then b else a) := by
   cases c0 <;> cases c1 <;> simp
 
+@[deprecated Std.Tactic.BVDecide.Normalize.Bool.ite_ite_right'' (since := "2026-07-21")]
+theorem Bool.ite_else_ite'' {α : Sort u_1} (c0 : Bool) (c1 : Bool) {a : α} {b : α} : (bif c0 then a else bif c1 then b else a) = bif !c0 && c1 then b else a := Std.Tactic.BVDecide.Normalize.Bool.ite_ite_right'' c0 c1
+
 @[bv_normalize]
-theorem Bool.ite_else_not_ite'' (c0 c1 : Bool) {a b : Bool} :
+theorem Bool.ite_not_ite_right'' (c0 c1 : Bool) {a b : Bool} :
     (bif c0 then a else !(bif c1 then b else !a)) = (bif !c0 && c1 then !b else a) := by
   cases c0 <;> cases c1 <;> simp
 
+@[deprecated Std.Tactic.BVDecide.Normalize.Bool.ite_not_ite_right'' (since := "2026-07-21")]
+theorem Bool.ite_else_not_ite'' (c0 : Bool) (c1 : Bool) {a : Bool} {b : Bool} : (bif c0 then a else !bif c1 then b else !a) = bif !c0 && c1 then !b else a := Std.Tactic.BVDecide.Normalize.Bool.ite_not_ite_right'' c0 c1
+
 @[bv_normalize]
-theorem BitVec.ite_else_not_ite'' (c0 c1 : Bool) {a b : BitVec w} :
+theorem BitVec.ite_not_ite_right'' (c0 c1 : Bool) {a b : BitVec w} :
     (bif c0 then a else ~~~(bif c1 then b else ~~~a )) = (bif !c0 && c1 then ~~~b else a) := by
   cases c0 <;> cases c1 <;> simp
+
+@[deprecated Std.Tactic.BVDecide.Normalize.BitVec.ite_not_ite_right'' (since := "2026-07-21")]
+theorem BitVec.ite_else_not_ite'' {w : Nat} (c0 : Bool) (c1 : Bool) {a : BitVec w} {b : BitVec w} : (bif c0 then a else ~~~bif c1 then b else ~~~a) = bif !c0 && c1 then ~~~b else a := Std.Tactic.BVDecide.Normalize.BitVec.ite_not_ite_right'' c0 c1
 
 @[bv_normalize]
 theorem BitVec.mul_ite_zero {c : Bool} {a e : BitVec w} :

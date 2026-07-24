@@ -76,9 +76,9 @@ theorem toList_eq {α : Type u} {it : Iter (α := SubarrayIterator α) α} :
       · simp [Subarray.array, Subarray.stop]
     · simp only [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIteratorSubarrayIteratorId, -- TODO
       IterStep.mapIterator_yield, SubarrayIterator.step]
-      rw [dif_pos]; rotate_left; exact h
+      rw [dite_eq_left]; rotate_left; exact h
       rfl
-  · rw [dif_neg]; rotate_left; exact h
+  · rw [dite_eq_right]; rotate_left; exact h
     simp_all [it.internalState.xs.stop_le_array_size]
 
 theorem length_eq {α : Type u} {it : Iter (α := SubarrayIterator α) α} :
@@ -161,7 +161,7 @@ public theorem Array.toSubarray_eq_toSubarray_of_min_eq_min {xs : Array α}
   · split
     · have h₁ : start ≤ xs.size := by omega
       have h₂ : start ≤ stop' := by omega
-      simp only [dif_pos h₁, dif_pos h₂]
+      simp only [dite_eq_left h₁, dite_eq_left h₂]
       split
       · simp_all
       · simp_all [Nat.min_eq_right (Nat.le_of_lt _)]

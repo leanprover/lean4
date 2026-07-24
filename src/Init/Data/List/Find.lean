@@ -1164,9 +1164,9 @@ theorem idxOf_append [BEq α] [LawfulBEq α] {l₁ l₂ : List α} {a : α} :
     (l₁ ++ l₂).idxOf a = if a ∈ l₁ then l₁.idxOf a else l₂.idxOf a + l₁.length := by
   rw [idxOf, findIdx_append]
   split <;> rename_i h
-  · rw [if_pos]
+  · rw [ite_eq_left]
     simpa using h
-  · rw [if_neg]
+  · rw [ite_eq_right]
     simpa using h
 
 theorem idxOf_eq_length [BEq α] [LawfulBEq α] {l : List α} (h : a ∉ l) : l.idxOf a = l.length := by

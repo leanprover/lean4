@@ -9,11 +9,12 @@ prelude
 public import Lean.Data.Json
 public import Lake.Util.Date
 public import Init.Control.Do
-import Init.Data.String.TakeDrop
 import Lean.Data.Trie
+import Init.Data.String.TakeDrop
 import Init.Data.String.Search
-import Init.Omega
 import Init.Data.String.Length
+import Init.Data.String.Lemmas.Order
+import Init.Data.String.OrderInstances
 
 /-! # Version
 
@@ -26,30 +27,30 @@ namespace Lake
 
 /-! ## Parser Utils -/
 
+abbrev ParseM (s : String.Slice) (α) :=
+   EStateM String s.Pos α
+
 /--
 Parses version components separated by a `.` from the head of the string.
 
 Components are composed of alphanumerics or a `*`.
 -/
-@[inline] def parseVerComponents
-  (s : String)
-: EStateM String s.Pos (Array String.Slice) :=
-  fun p => go #[] p p (String.Pos.le_refl _)
+@[inline] def parseVerComponents (s : String.Slice) : ParseM s (Array String.Slice) :=
+  fun p => go #[] p p p.le_refl
 where
   go cs iniPos p (iniPos_le : iniPos ≤ p) :=
-    if h : p = s.endPos then
-      let c := String.Slice.mk s iniPos p iniPos_le
+    if h : p.IsAtEnd then
+      let c := s.slice iniPos p iniPos_le
       .ok (cs.push c) p
     else
       let c := p.get h
       if c == '.' then
-        let c := String.Slice.mk s iniPos p iniPos_le
+        let c := s.slice iniPos p iniPos_le
         go (cs.push c) (p.next h) (p.next h) (Nat.le_refl _)
       else if c.isAlphanum || c == '*' then
-        go cs iniPos (p.next h)
-          (String.Pos.le_trans iniPos_le (String.Pos.le_of_lt p.lt_next))
+        go cs iniPos (p.next h) (Std.le_trans iniPos_le p.le_next)
       else
-        let c := String.Slice.mk s iniPos p iniPos_le
+        let c := s.slice iniPos p iniPos_le
         .ok (cs.push c) p
   termination_by p
 
@@ -80,47 +81,46 @@ def parseVerComponent {σ} (what : String) (s? : Option String.Slice) : EStateM 
       | throw s!"invalid {what} version: expected numeral or wildcard, got '{s.copy}'"
     return .nat n
 
-def parseSpecialDescr? (s : String) : EStateM String s.Pos (Option String) := do
+def parseSpecialDescr? (s : String.Slice) : ParseM s (Option String.Slice) := do
   let p ← get
-  if h : p = s.endPos then
+  if h : p.IsAtEnd then
     return none
   else
     let c := p.get h
     if c == '-' then
       let p := p.next h
-      let p' := nextUntilWhitespace p
+      let ⟨p', h⟩ := nextUntilWhitespace p p p.le_refl
       set p'
-      let specialDescr := s.extract p p'
+      let specialDescr := s.slice p p' h
       return some specialDescr
     else
       return none
 where
-  nextUntilWhitespace p :=
-    if h : p = s.endPos then
-      p
+  nextUntilWhitespace p iniPos (iniPos_le : iniPos ≤ p) :=
+    if h : p.IsAtEnd then
+      Subtype.mk p iniPos_le
     else if (p.get h).isWhitespace then
-      p
+      Subtype.mk p iniPos_le
     else
-      nextUntilWhitespace (p.next h)
+      nextUntilWhitespace (p.next h) iniPos (Std.le_trans iniPos_le p.le_next)
   termination_by p
 
-def parseSpecialDescr (s : String) : EStateM String s.Pos String := do
+def parseSpecialDescr (s : String.Slice) : ParseM s String := do
   let some specialDescr ← parseSpecialDescr? s
     | return ""
   if specialDescr.isEmpty then
     throw "invalid version: '-' suffix cannot be empty"
-  return specialDescr
+  return specialDescr.copy
 
 @[inline] def runVerParse
-  (s : String) (x : (s : String) → EStateM String s.Pos α)
-  (startPos := s.startPos) (endPos := s.endPos)
+  (s : String.Slice) (x : (s : String.Slice) → ParseM s α)
 : Except String α :=
-  match x s startPos with
+  match x s s.startPos with
   | .ok v p =>
-    if p = endPos then
+    if p.IsAtEnd then
       return v
     else
-      let tail := p.offset.extract s endPos.offset
+      let tail := s.sliceFrom p
       throw s!"unexpected characters at end of version: {tail}"
   | .error e _ => throw e
 
@@ -140,7 +140,7 @@ public instance : LE SemVerCore := leOfOrd
 public instance : Min SemVerCore := minOfLe
 public instance : Max SemVerCore := maxOfLe
 
-def parseM (s : String) : EStateM String s.Pos SemVerCore := do
+def parseM (s : String.Slice) : ParseM s SemVerCore := do
   try
     let cs ← parseVerComponents s
     if h : cs.size = 3 then
@@ -204,12 +204,12 @@ public instance : LE StdVer := leOfOrd
 public instance : Min StdVer := minOfLe
 public instance : Max StdVer := maxOfLe
 
-public def parseM (s : String) : EStateM String s.Pos StdVer := do
+def parseM (s : String.Slice) : ParseM s StdVer := do
   let core ← SemVerCore.parseM s
   let specialDescr ← parseSpecialDescr s
   return {toSemVerCore := core, specialDescr}
 
-public def parse (s : String) : Except String StdVer := do
+@[inline] public def parse (s : String.Slice) : Except String StdVer := do
   runVerParse s parseM
 
 public protected def toString (ver : StdVer) : String :=
@@ -220,7 +220,7 @@ public protected def toString (ver : StdVer) : String :=
 
 public instance : ToString StdVer := ⟨StdVer.toString⟩
 public instance : ToJson StdVer := ⟨(·.toString)⟩
-public instance : FromJson StdVer := ⟨(do StdVer.parse <| ← fromJson? ·)⟩
+public instance : FromJson StdVer := ⟨(StdVer.parse =<< String.toSlice <$> fromJson? ·)⟩
 
 end StdVer
 
@@ -254,28 +254,26 @@ namespace ToolchainVer
 
 public instance : Coe LeanVer ToolchainVer := ⟨ToolchainVer.release⟩
 
-public def ofString (ver : String) : ToolchainVer := Id.run do
+public def ofString (ver : String.Slice) : ToolchainVer := Id.run do
   let colonPos := ver.find ':'
   let (origin, tag) :=
     if h : ¬colonPos.IsAtEnd then
-      let pos := colonPos.next h
-      (ver.extract ver.startPos colonPos, ver.extract pos ver.endPos)
+      (ver.sliceTo colonPos, ver.sliceFrom <| colonPos.next h)
     else
       ("", ver)
   let noOrigin := origin.isEmpty
-  if tag.startsWith "v" then
-    if let .ok ver := StdVer.parse (tag.drop 1).copy then
-      if noOrigin|| origin == defaultOrigin then
+  if let some ver := tag.dropPrefix? "v" then
+    if let .ok ver := StdVer.parse ver then
+      if noOrigin || origin == defaultOrigin then
         return .release ver
   else if let some rest := tag.dropPrefix? "nightly-" then
-    let rest := rest.toString
     -- Dates are exactly 10 characters (YYYY-MM-DD); anything after must be a -revK suffix
-    if let some date := Date.ofString? (rest.take 10).toString then
+    if let some date := Date.ofString? (rest.take 10) then
       let rev? : Option Nat := do
         let suffix ← (rest.drop 10).dropPrefix? "-rev"
-        suffix.toString.toNat?
+        suffix.toNat?
       -- Accept if no suffix (plain nightly) or valid -revK suffix
-      if rest.chars.length ≤ 10 || rev?.isSome then
+      if (rest.drop 10).isEmpty || rev?.isSome then
         if noOrigin then
           return .nightly date rev?
         else if let some suffix := origin.dropPrefix? defaultOrigin then
@@ -288,7 +286,7 @@ public def ofString (ver : String) : ToolchainVer := Id.run do
   else if let .ok ver := StdVer.parse ver then
     if noOrigin || origin == defaultOrigin then
       return .release ver
-  return .other ver
+  return .other ver.copy
 
 /-- Parse a toolchain from a `lean-toolchain` file. -/
 public def ofFile? (toolchainFile : FilePath) : IO (Option ToolchainVer) := do
@@ -306,7 +304,7 @@ public def ofFile? (toolchainFile : FilePath) : IO (Option ToolchainVer) := do
 
 public instance : ToString ToolchainVer := ⟨ToolchainVer.toString⟩
 public instance : ToJson ToolchainVer := ⟨(·.toString)⟩
-public instance : FromJson ToolchainVer := ⟨(ToolchainVer.ofString <$> fromJson? ·)⟩
+public instance : FromJson ToolchainVer := ⟨(ToolchainVer.ofString <$> String.toSlice <$> fromJson? ·)⟩
 
 public def blt (a b : ToolchainVer) : Bool :=
   match a, b with
@@ -335,7 +333,7 @@ public instance decLe (a b : ToolchainVer) : Decidable (a ≤ b) :=
 end ToolchainVer
 
 /-- Converts a toolchain version to its normal form (e.g., with an origin). -/
-public def normalizeToolchain (s : String) : String :=
+public def normalizeToolchain (s : String.Slice) : String :=
   ToolchainVer.ofString s |>.toString
 
 /-! ## DecodeVersion -/
@@ -347,7 +345,7 @@ public class DecodeVersion (α : Type u) where
 export DecodeVersion (decodeVersion)
 
 public instance : DecodeVersion SemVerCore := ⟨SemVerCore.parse⟩
-@[default_instance] public instance : DecodeVersion StdVer := ⟨StdVer.parse⟩
+@[default_instance] public instance : DecodeVersion StdVer := ⟨(StdVer.parse ·)⟩
 public instance : DecodeVersion ToolchainVer := ⟨(pure <| ToolchainVer.ofString ·)⟩
 
 /-! ## VerRange -/
@@ -358,17 +356,19 @@ deriving Repr, Inhabited
 
 namespace ComparatorOp
 
-def parseM
-  (s : String)
-: EStateM String s.Pos ComparatorOp := fun p =>
-  if let some (tk, op) := trie.matchPrefix s p.offset then
+def parseM (s : String.Slice) : ParseM s ComparatorOp := do
+  let p ← get
+  let r? := trie.matchPrefix s.str p.offset s.endExclusive.offset.byteIdx <|
+    String.byteIdx_rawEndPos ▸ String.Pos.Raw.le_iff.mp s.endExclusive.isValid.le_rawEndPos
+  if let some (tk, op) := r? then
     let p' := p.offset + tk
-    if h : p'.IsValid s then
-      .ok op (.mk p' h)
+    if h : p'.IsValidForSlice s then
+      set (s.pos p' h)
+      return op
     else
-      .error "(internal) comparison operator parse produced invalid position" p
+      throw "(internal) comparison operator parse produced invalid position"
   else
-    .error "expected comparison operator" p
+    throw "expected comparison operator"
 where trie :=
   let add sym cmp t := t.insert sym (sym, cmp)
   (∅ : Lean.Data.Trie (String × ComparatorOp))
@@ -382,9 +382,9 @@ where trie :=
   |> add "!=" .ne
   |> add "≠"  .ne
 
-public def ofString? (s : String) : Option ComparatorOp :=
+public def ofString? (s : String.Slice) : Option ComparatorOp :=
   match parseM s s.startPos with
-  | .ok op p => if p = s.endPos then some op else none
+  | .ok op p => if p.IsAtEnd then some op else none
   | .error .. => none
 
 public protected def toString (self : ComparatorOp) : String :=
@@ -419,17 +419,17 @@ public def wild : VerComparator :=
 
 public instance : Inhabited VerComparator := ⟨.wild⟩
 
-def parseM (s : String) : EStateM String s.Pos VerComparator := do
+def parseM (s : String.Slice) : ParseM s VerComparator := do
   let iniPos ← get
   let op ← ComparatorOp.parseM s
   if (← get) = s.endPos then
     throw s!"invalid comparison: expected version after `{s.sliceFrom iniPos}`"
   let core ← SemVerCore.parseM s
   if let some specialDescr ← parseSpecialDescr? s then
-    if  specialDescr.isEmpty then
+    if specialDescr.isEmpty then
       return {ver := .ofSemVerCore core, op, includeSuffixes := true}
     else
-      return {ver := .mk core specialDescr, op}
+      return {ver := .mk core specialDescr.copy, op}
   else
     return {ver := .ofSemVerCore core, op}
 
@@ -500,79 +500,76 @@ where
       ands.foldl (init := ands[0].toString) (start := 1) fun s v =>
         s!"{s}, {v}"
 
-@[inline] partial def parseM (s : String) : EStateM String s.Pos VerRange := do
-  let clauses ← go true #[] #[]
-  return {toString := s, clauses}
+partial def parseM (s : String.Slice) : ParseM s (Array (Array VerComparator)) := do
+  go true #[] #[]
 where
-  go needsRange ors (ands : Array VerComparator) p :=
-    if h : p = s.endPos then
+  go needsRange ors (ands : Array VerComparator) := do
+    let p ← get
+    if h : p.IsAtEnd then
       if needsRange || ands.size == 0 then
-        .error "expected version range" p
+        throw "expected version range"
       else
-        .ok (ors.push ands) p
+        return ors.push ands
     else
       let c := p.get h
       if c.isAlphanum || c == '*' then
-        match parseWild s ands p with
-        | .ok ands p =>
-          go false ors ands p
-        | .error e p => .error e p
+        let cs ← parseVerComponents s
+        -- Components are parsed first so their errors take precedence (e.g., on `v1-rc1`)
+        let ands ← parseWildComponents cs ands
+        if (← get).get?.any (· == '-') then
+          throw s!"invalid wildcard range: wildcard versions do not support suffixes"
+        go false ors ands
       else if c == '^' then
         let p := p.next h
-        if p = s.endPos then
-          .error  "invalid caret range: expected version after `^`" p
+        if p.IsAtEnd then
+          throw "invalid caret range: expected version after `^`"
         else
-          match parseCaret s ands p with
-          | .ok ands p =>
-            go false ors ands p
-          | .error e p => .error e p
+          set p
+          let ands ← parseCaret s ands
+          go false ors ands
       else if c == '~' then
         let p := p.next h
-        if p = s.endPos then
-          .error "invalid tilde range: expected version after `~`" p
+        if p.IsAtEnd then
+          throw "invalid tilde range: expected version after `~`"
         else
-          match parseTilde s ands p with
-          | .ok ands p =>
-            go false ors ands p
-          | .error e p => .error e p
+          set p
+          let ands ← parseTilde s ands
+          go false ors ands
       else if c.isWhitespace then
-        go needsRange ors ands (p.next h)
+        set (p.next h)
+        go needsRange ors ands
       else if c == ',' then
         if needsRange then
-          .error "expected version range" p
+          throw "expected version range"
         else
-          go true ors ands (p.next h)
+          set (p.next h)
+          go true ors ands
       else if c == '|' then
-        let p := p.next h
-        if h : p = s.endPos then
-          .error "expected '|' after first '|'" p
-        else if p.get h = '|' then
+        let p' := p.next h; set p'
+        if h : p'.IsAtEnd then
+          throw "expected '|' after first '|'"
+        else if p'.get h = '|' then
           if ands.size = 0 then
-            .error "expected version range" p
+            throw "expected version range"
           else
-            go true (ors.push ands) #[] (p.next h)
+            set (p'.next h)
+            go true (ors.push ands) #[]
         else
-          .error "expected '|' after first '|'" p
+          throw "expected '|' after first '|'"
       else
-        match VerComparator.parseM s p with
-        | .ok cmp p =>
-          go false ors (ands.push cmp) p
-        | .error e p => .error e p
+        let cmp ← VerComparator.parseM s
+        go false ors (ands.push cmp)
   @[inline] appendRange ands minVer maxVer (specialDescr := "") :=
     let minVer := StdVer.mk minVer specialDescr
     let maxVer := StdVer.ofSemVerCore maxVer
     ands.push {op := .ge, ver := minVer} |>.push {op := .lt, ver := maxVer, includeSuffixes := true}
-  parseWild (s : String) ands : EStateM String s.Pos _ := do
-    let cs ← parseVerComponents s -- `cs.size ≠ 0` due to how `parseWild` is called
-    -- Parsed first so its error is seen on arbitrary alphanumeric versions (e.g., `v1`, `1.o`, `beta`)
-    let major? ← parseVerComponent "major" cs[0]?
-    let minor? ← parseVerComponent "minor" cs[1]?
-    let patch? ← parseVerComponent "patch" cs[2]?
-    if (← get).get?.any (· == '-') then
-      throw "invalid wildcard range: wildcard versions do not support suffixes"
-    else if cs.size > 3 then
+  parseWildComponents {σ} (cs : Array String.Slice) ands : EStateM String σ  _ := do
+    if cs.size = 0 ∨ cs.size > 3 then
       throw s!"invalid wildcard range: incorrect number of components: got {cs.size}, expected 1-3"
     else
+      let major? ← parseVerComponent "major" cs[0]?
+      let minor? ← parseVerComponent "minor" cs[1]?
+      let patch? ← parseVerComponent "patch" cs[2]?
       match major?, minor?, patch? with
       | .nat major, .nat minor, .wild =>
         return appendRange ands {major, minor} {major, minor := minor + 1}
@@ -588,7 +585,7 @@ where
           otherwise, use '≥' to support it and future versions"
       | _, _, _ =>
         return ands.push .wild
-  parseCaret (s : String) ands : EStateM String s.Pos _ := do
+  parseCaret (s : String.Slice) ands : ParseM s _ := do
     let cs ← parseVerComponents s
     let specialDescr ← parseSpecialDescr s
     if h : cs.size = 1 then
@@ -617,7 +614,7 @@ where
         return appendRange ands {major, minor, patch}  {major := major + 1} specialDescr
     else
       throw s!"invalid caret range: incorrect number of components: got {cs.size}, expected 1-3"
-  parseTilde (s : String) ands : EStateM String s.Pos _ := do
+  parseTilde (s : String.Slice) ands : ParseM s _ := do
     let cs ← parseVerComponents s
     let specialDescr ← parseSpecialDescr s
     if h : cs.size = 1 then
@@ -635,8 +632,9 @@ where
     else
       throw s!"invalid tilde range: incorrect number of components: got {cs.size}, expected 1-3"
 
-public def parse (s : String) : Except String VerRange := do
-  runVerParse s parseM
+@[inline] public def parse (s : String) : Except String VerRange := do
+  let clauses ← runVerParse s parseM
+  return {toString := s, clauses}
 
 public instance : DecodeVersion VerRange := ⟨VerRange.parse⟩
 

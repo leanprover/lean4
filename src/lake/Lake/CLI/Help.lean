@@ -769,3 +769,5 @@ public def help : (cmd : String) → String
 | "lean"                => helpLean
 | "translate-config"    => helpTranslateConfig
 | _                     => usage
+
+@[simp] public theorem help_empty : help "" = usage := by rfl

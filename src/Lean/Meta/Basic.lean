@@ -2830,7 +2830,11 @@ Turns a `MetaM MessageData` into a `MessageData.lazy` which will run the monadic
 The optional array of expressions is used to set the `hasSyntheticSorry` fields, and should
 comprise the expressions that are included in the message data.
 -/
-def MessageData.ofLazyM (f : MetaM MessageData) (es : Array Expr := #[]) : MessageData :=
+def MessageData.ofLazyM (f : MetaM MessageData) (es : Array Expr := #[])
+    (config? : Option Meta.Config := none) : MessageData :=
+  let f := match config? with
+    | some config => withConfig (fun _ => config) f
+    | none => f
   .lazy
     (f := fun ppctxt => do
       match (← ppctxt.runMetaM f |>.toBaseIO) with

@@ -224,7 +224,8 @@ function. Any expressions appearing in the trailing message should be included i
 def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr)
     (trailing? : Option MessageData := none) (trailingExprs : Array Expr := #[])
     : MetaM MessageData := do
-  return MessageData.ofLazyM (es := #[givenType, expectedType] ++ trailingExprs) do
+  return MessageData.ofLazyM (es := #[givenType, expectedType] ++ trailingExprs)
+      (config? := some (← getConfig)) do
     let mut msg ← (try
       let givenTypeType ← inferType givenType
       let expectedTypeType ← inferType expectedType

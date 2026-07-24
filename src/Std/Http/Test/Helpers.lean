@@ -312,4 +312,30 @@ def drainRequest (mockClient : Mock.Client) : Async ByteArray := do
       bytes := bytes ++ chunk
   pure bytes
 
-end Std.Http.Internal.Test.ClientHelpers
+/-- Create an HTTP client agent over a mock transport. -/
+def mkAgent (mockServer : Mock.Server) (config : Client.Config := {})
+    (port : UInt16 := 80) (scheme : String := "http") : Async Client.Agent := do
+  let session ← Client.Session.new mockServer config
+  let some domain := URI.DomainName.ofString? "example.com"
+    | throw (IO.userError "DomainName parse failed")
+  pure {
+    session
+    origin := { scheme := URI.Scheme.ofString! scheme, host := .name domain, port }
+  }
+
+/-- Send a client request in the background and expose its result through a promise. -/
+def sendInBackground {β : Type} [Coe β Body.Any]
+    (agent : Client.Agent) (request : Request β)
+    : Async (IO.Promise (Except String (Response Body.Stream))) := do
+  let resultPromise : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
+  background do
+    let result ← try
+        let resp ← Client.Agent.send agent request
+        pure (Except.ok resp)
+      catch e => pure (Except.error (toString e))
+    discard <| resultPromise.resolve result
+  pure resultPromise
+
+end ClientHelpers
+
+end Std.Http.Internal.Test

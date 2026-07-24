@@ -240,10 +240,22 @@ norm_cast_add_elim ne_eq
 @[simp] theorem dite_false {α : Sort u} {_ : Decidable False} {t : False → α} {e : ¬ False → α} : (dite False t e) = e not_false := dite_eq_right id
 section SimprocHelperLemmas
 set_option simprocs false
-theorem ite_cond_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = True) : (if c then a else b) = a := by simp [h]
-theorem ite_cond_eq_false {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = False) : (if c then a else b) = b := by simp [h]
-theorem dite_cond_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} {t : c → α} {e : ¬ c → α} (h : c = True) : (dite c t e) = t (of_eq_true h) := by simp [h]
-theorem dite_cond_eq_false {α : Sort u} {c : Prop} {_ : Decidable c} {t : c → α} {e : ¬ c → α} (h : c = False) : (dite c t e) = e (of_eq_false h) := by simp [h]
+theorem ite_eq_left_of_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = True) : (if c then a else b) = a := by simp [h]
+theorem ite_eq_right_of_eq_false {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = False) : (if c then a else b) = b := by simp [h]
+theorem dite_eq_left_of_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} {t : c → α} {e : ¬ c → α} (h : c = True) : (dite c t e) = t (of_eq_true h) := by simp [h]
+theorem dite_eq_right_of_eq_false {α : Sort u} {c : Prop} {_ : Decidable c} {t : c → α} {e : ¬ c → α} (h : c = False) : (dite c t e) = e (of_eq_false h) := by simp [h]
+
+@[deprecated ite_eq_left_of_eq_true (since := "2026-07-24")]
+theorem ite_cond_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = True) : (if c then a else b) = a := ite_eq_left_of_eq_true a b h
+
+@[deprecated ite_eq_right_of_eq_false (since := "2026-07-24")]
+theorem ite_cond_eq_false {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = False) : (if c then a else b) = b := ite_eq_right_of_eq_false a b h
+
+@[deprecated dite_eq_left_of_eq_true (since := "2026-07-24")]
+theorem dite_cond_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} {t : c → α} {e : ¬ c → α} (h : c = True) : (dite c t e) = t (of_eq_true h) := dite_eq_left_of_eq_true h
+
+@[deprecated dite_eq_right_of_eq_false (since := "2026-07-24")]
+theorem dite_cond_eq_false {α : Sort u} {c : Prop} {_ : Decidable c} {t : c → α} {e : ¬ c → α} (h : c = False) : (dite c t e) = e (of_eq_false h) := dite_eq_right_of_eq_false h
 end SimprocHelperLemmas
 @[simp] theorem ite_self {α : Sort u} {c : Prop} {d : Decidable c} (a : α) : ite c a a = a := by cases d <;> rfl
 

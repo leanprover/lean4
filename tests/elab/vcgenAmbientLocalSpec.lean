@@ -2,15 +2,18 @@ import Std.Internal.Do
 import Std.Tactic.Do
 
 /-! `vcgen` ranks the specs available at a call site into priority bands: a spec named in the
-`vcgen [...]` list outranks a local hypothesis pulled in by `*`, which outranks a spec collected
-from an ambient hypothesis. The call-site bands sit just above `high`, so an `@[spec high]` used to
-outrank default specs does not shadow a call-site spec, while a priority above the band still does.
+`vcgen [...]` list outranks a local hypothesis pulled in by `*`, which outranks a bracketed
+definition's unfolding, which outranks a spec collected from an ambient hypothesis. The call-site
+bands sit just above `high`, so an `@[spec high]` used to outrank default specs does not shadow a
+call-site spec, while a priority above the band still does.
 
 `viaBinder`, `viaHave`, and `viaStar` prove one goal three ways, checking that a named spec wins over
 the ambient spec collected from the same hypothesis. `namedBeatsSpec`, `specHighLoses`, and
 `specHighestWins` isolate the banding against `@[spec]`, `@[spec high]`, and a priority above the band.
 `unfoldBeatsSpec` checks that a bracketed definition is unfolded ahead of a lossy `@[spec]` keyed on
-the same program, including when the program's state type is a variable.
+the same program, including when the program's state type is a variable. `namedStopBeatsUnfold` and
+`starStopBeatsUnfold` check that a spec for the definition, named or pulled by `*`, outranks its
+unfolding at a recursive call.
 -/
 
 open Std.Internal.Do Lean.Order
@@ -94,7 +97,7 @@ theorem termBeatsSpecHigh (hNamed : ⦃ fun _ => True ⦄ leaf ⦃ fun r _ => r 
     ⦃ fun _ => True ⦄ leaf ⦃ fun r _ => r = 7 ⦄ := by
   vcgen [show ⦃ fun _ => True ⦄ leaf ⦃ fun r _ => r = 7 ⦄ from hNamed] <;> grind
 
-@[spec high + 30] axiom leaf_above : ⦃ fun _ => True ⦄ leaf ⦃ fun r _ => r = 7 ⦄
+@[spec high + 3001] axiom leaf_above : ⦃ fun _ => True ⦄ leaf ⦃ fun r _ => r = 7 ⦄
 
 -- A priority above the call-site band still overrides a named local.
 theorem specHighestWins (hNamed : ⦃ fun _ => True ⦄ leaf ⦃ fun _ _ => True ⦄) :
@@ -116,3 +119,21 @@ theorem unfoldBeatsSpec {σ : Type} (a : σ) :
     ⦃ fun s => s.1 = a ⦄ (bumpSnd : StateM (σ × Nat) Nat) ⦃ fun _ s => s.1 = a ⦄ := by
   fail_if_success (vcgen <;> grind)
   vcgen [bumpSnd] <;> grind
+
+-- `tail` is bracketed to unfold, and the named `hstop` outranks its unfolding at the recursive call.
+theorem namedStopBeatsUnfold (b : Nat) (rest : List Char) (f : Nat)
+    (hItem : ⦃ fun s => s = enc b ++ rest ⦄ item f ⦃ fun r s => r = b ∧ s = rest ⦄)
+    (hstop : ∀ acc, ⦃ fun s => s = rest ⦄ tail f acc ⦃ fun r s => r = acc ∧ s = rest ⦄) :
+    ∀ acc, ⦃ fun s => s = '+' :: (enc b ++ rest) ⦄ tail (f + 1) acc
+      ⦃ fun r s => r = acc + b ∧ s = rest ⦄ := by
+  intro acc
+  vcgen [tail, hItem, hstop] <;> grind
+
+-- As `namedStopBeatsUnfold`, but the spec is pulled by `*`; its band still outranks the unfolding.
+theorem starStopBeatsUnfold (b : Nat) (rest : List Char) (f : Nat)
+    (hItem : ⦃ fun s => s = enc b ++ rest ⦄ item f ⦃ fun r s => r = b ∧ s = rest ⦄)
+    (hstop : ∀ acc, ⦃ fun s => s = rest ⦄ tail f acc ⦃ fun r s => r = acc ∧ s = rest ⦄) :
+    ∀ acc, ⦃ fun s => s = '+' :: (enc b ++ rest) ⦄ tail (f + 1) acc
+      ⦃ fun r s => r = acc + b ∧ s = rest ⦄ := by
+  intro acc
+  vcgen [tail, *] <;> grind

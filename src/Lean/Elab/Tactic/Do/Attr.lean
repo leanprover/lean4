@@ -352,11 +352,13 @@ instance : BEq SpecTheorem where
 
 abbrev SpecEntry := SpecTheorem
 
-/-- Priority for a spec named explicitly in a `vcgen [...]` argument list. -/
-def explicitSpecPrio : Nat := eval_prio high + 20
-
+-- Call-site priority bands, all above `@[spec high]`, ordered named > `*` > unfold.
+/-- Priority for a spec named in a `vcgen [...]` argument list. -/
+def explicitSpecPrio : Nat := eval_prio high + 3000
 /-- Priority for a local hypothesis pulled into `vcgen`'s spec set by `*`. -/
-def starSpecPrio : Nat := eval_prio high + 10
+def starSpecPrio : Nat := eval_prio high + 2000
+/-- Priority for the equational and unfold specs a bracketed definition in a `vcgen [...]` list contributes. -/
+def unfoldSpecPrio : Nat := eval_prio high + 1000
 
 structure SpecTheorems where
   specs : DiscrTree SpecTheorem := DiscrTree.empty

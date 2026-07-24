@@ -24,7 +24,7 @@ namespace Std.Http
 
 set_option linter.all true
 
-open Std Internal
+open Std Std.Internal Http.Internal
 
 /--
 A structure for managing HTTP headers as key-value pairs.

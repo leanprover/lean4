@@ -647,14 +647,18 @@ but may be used locally.
 
 /-! ### Proof by reflection support  -/
 
-@[expose] protected noncomputable def Bool.and' (a b : Bool) : Bool :=
+@[expose] protected noncomputable def Internal.Bool.and' (a b : Bool) : Bool :=
   Bool.rec false b a
 
-@[expose] protected noncomputable def Bool.or' (a b : Bool) : Bool :=
+@[expose] protected noncomputable def Internal.Bool.or' (a b : Bool) : Bool :=
   Bool.rec b true a
 
-@[expose] protected noncomputable def Bool.not' (a : Bool) : Bool :=
+@[expose] protected noncomputable def Internal.Bool.not' (a : Bool) : Bool :=
   Bool.rec true false a
+
+section
+
+open Internal
 
 @[simp] theorem Bool.and'_eq_and (a b : Bool) : a.and' b = a.and b := by
   cases a <;> simp [Bool.and']
@@ -664,6 +668,8 @@ but may be used locally.
 
 @[simp] theorem Bool.not'_eq_not (a : Bool) : a.not' = a.not := by
   cases a <;> simp [Bool.not']
+
+end
 
 theorem Bool.rec_eq {α : Sort _} (b : Bool) {x y : α} : Bool.rec y x b = if b then x else y := by
   cases b <;> simp

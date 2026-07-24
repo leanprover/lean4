@@ -341,6 +341,8 @@ extern "C" LEAN_EXPORT uint64_t lean_io_get_tid() {
     uint64_t tid;
 #ifdef __APPLE__
     lean_always_assert(pthread_threadid_np(NULL, &tid) == 0);
+#elif defined(__NetBSD__)
+    tid = (uint64_t)pthread_self();
 #elif defined(LEAN_EMSCRIPTEN)
     tid = 0;
 #else

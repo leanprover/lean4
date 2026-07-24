@@ -80,9 +80,9 @@ def inlineCandidate? (e : LetValue .pure) : SimpM (Option InlineCandidateInfo) :
         want the TC-scoped notion: declarations active as instances during elaboration. Manual
         aux decls bearing `[instance_reducible]` without `[instance]` should not count.
         -/
-        /-if (← Meta.isInstance decl.name) then
-          if decl.name != ``instDecidableEqBool then
-            return false-/
+        if (← Meta.isInstance decl.name) then
+          unless decl.type.isAppOf ``Decidable do
+            return false
         -- This is done to avoid inlining `_override` implementations for computed fields in the
         -- base phase, since `cases` constructs have not yet been replaced by their underlying
         -- implementation, and thus inlining `_override` implementations for computed fields will

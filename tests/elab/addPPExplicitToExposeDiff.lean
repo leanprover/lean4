@@ -64,6 +64,24 @@ but is expected to have type
 example : @f 1 2 := by
   exact (sorry : @f 0 _)
 
+def myId {x : Nat} : Nat := x
+def one : Nat := 1
+
+/-!
+TODO: comment
+-/
+/--
+error: Type mismatch
+  sorry
+has type
+  @f (@myId 1) 2
+but is expected to have type
+  @f (@myId one) 2
+-/
+#guard_msgs in
+example : @f (myId (x := one)) 2 := by
+  with_implicit exact (sorry : @f (myId (x := 1)) 2)
+
 /-!
 Add type ascriptions for numerals if they have different types.
 -/

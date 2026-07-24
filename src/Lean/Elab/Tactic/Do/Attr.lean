@@ -355,6 +355,11 @@ abbrev SpecEntry := SpecTheorem
 /-- Priority for a spec named explicitly in a `vcgen [...]` argument list. -/
 def explicitSpecPrio : Nat := eval_prio high + 20
 
+/-- Priority for the equational and unfold specs a bracketed definition in a `vcgen [...]` argument
+list contributes. Below `explicitSpecPrio` so a spec named in the same list outranks a call's
+unfolding, above `eval_prio high` so the unfolding still outranks an ambient `@[spec]`. -/
+def unfoldSpecPrio : Nat := eval_prio high + 10
+
 /-- Priority for a local hypothesis pulled into `vcgen`'s spec set by `*`. -/
 def starSpecPrio : Nat := eval_prio high + 10
 

@@ -10,7 +10,10 @@ outrank default specs does not shadow a call-site spec, while a priority above t
 the ambient spec collected from the same hypothesis. `namedBeatsSpec`, `specHighLoses`, and
 `specHighestWins` isolate the banding against `@[spec]`, `@[spec high]`, and a priority above the band.
 `unfoldBeatsSpec` checks that a bracketed definition is unfolded ahead of a lossy `@[spec]` keyed on
-the same program, including when the program's state type is a variable.
+the same program, including when the program's state type is a variable. `namedStopBeatsUnfold`
+checks that when the same list brackets a self-recursive definition to unfold and names a spec for it,
+the named spec outranks the unfolding at the recursive call, so `vcgen` stops there instead of
+unfolding the definition again into a branch whose sibling call has no matching spec.
 -/
 
 open Std.Internal.Do Lean.Order
@@ -116,3 +119,14 @@ theorem unfoldBeatsSpec {σ : Type} (a : σ) :
     ⦃ fun s => s.1 = a ⦄ (bumpSnd : StateM (σ × Nat) Nat) ⦃ fun _ s => s.1 = a ⦄ := by
   fail_if_success (vcgen <;> grind)
   vcgen [bumpSnd] <;> grind
+
+-- `tail` is bracketed to unfold and `hstop` names a spec for it in the same list. At the recursive
+-- `tail f` call `hstop` outranks `tail`'s unfold equation, so `vcgen` stops rather than unfolding
+-- `tail` again into a branch whose `item` call `hItem` no longer matches.
+theorem namedStopBeatsUnfold (b : Nat) (rest : List Char) (f : Nat)
+    (hItem : ⦃ fun s => s = enc b ++ rest ⦄ item f ⦃ fun r s => r = b ∧ s = rest ⦄)
+    (hstop : ∀ acc, ⦃ fun s => s = rest ⦄ tail f acc ⦃ fun r s => r = acc ∧ s = rest ⦄) :
+    ∀ acc, ⦃ fun s => s = '+' :: (enc b ++ rest) ⦄ tail (f + 1) acc
+      ⦃ fun r s => r = acc + b ∧ s = rest ⦄ := by
+  intro acc
+  vcgen [tail, hItem, hstop] <;> grind

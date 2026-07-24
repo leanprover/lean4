@@ -169,6 +169,9 @@ public structure JPDefInfo where
   outerLCtxSize : Nat
   /-- Per-alt binder layouts, aligned with `hypsMVars`. -/
   altLayouts : Array JPAltLayout
+  /-- The largest `bodyTeleLen` over `altLayouts`: the length of the assumption-search window each
+  jump uses to discharge its branch hypotheses. -/
+  maxBodyTeleLen : Nat
   deriving Inhabited
 
 public structure VCGen.Scope where
@@ -289,7 +292,7 @@ public def Scope.collectLocalSpecs (scope : Scope) (goal : MVarId) : VCGenM Scop
     let lctx ← getLCtx
     if scope.nextDeclIdx == lctx.decls.size then return scope
     let scope ← lctx.foldlM (init := scope) (start := scope.nextDeclIdx) fun scope decl => do
-      -- Skip implementation-detail hypotheses (e.g. the `+jp` body proof `__do_jpProof`, the
+      -- Skip implementation-detail hypotheses (e.g. the `+jp` body proof `__do_jp_spec`, the
       -- `__do_jp` continuation): they are never user specs, and building a spec pattern from one
       -- runs `preprocessType` over its post, scaling with the continuation.
       if decl.isImplementationDetail then return scope

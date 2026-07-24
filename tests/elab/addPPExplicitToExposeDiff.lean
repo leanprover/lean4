@@ -233,3 +233,19 @@ h : f 2 = True
 #guard_msgs in
 example (h : @f (@myId 1) 2 = True) : @f (myId (x := one)) 2 := by
   rewrite [h]
+
+/-!
+`apply` diagnoses at the configuration of the failed check.
+-/
+/--
+error: Tactic `apply` failed: could not unify the type of `h`
+  @f (@myId 1) 2
+with the goal
+  @f (@myId one) 2
+
+h : f 2
+⊢ f 2
+-/
+#guard_msgs in
+example (h : @f (@myId 1) 2) : @f (myId (x := one)) 2 := by
+  with_reducible apply h

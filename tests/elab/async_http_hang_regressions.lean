@@ -328,14 +328,18 @@ def stressResponseHandler (n : Nat) : TestHandler := fun _ => do
 
     client.send "GET /stream HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n".toUTF8
 
-    let mut early : Option ByteArray := none
+    -- The head is encoded as many tiny segments and each mock `send` is a separate
+    -- channel message, so a single `tryRecv?` can observe a partial head (e.g. just
+    -- "HTTP/1.1 200"). Accumulate across drains until the first body chunk appears;
+    -- the 5×40ms window stays well under the producer's 300ms pause before "bbb".
+    let mut earlyBytes : ByteArray := ByteArray.empty
     for _ in [0:5] do
-      if early.isNone then
+      unless (String.fromUTF8! earlyBytes).contains "aaa" do
         let sleep ← Sleep.mk 40
         sleep.wait
-        early ← client.tryRecv?
+        if let some chunk ← client.tryRecv? then
+          earlyBytes := earlyBytes ++ chunk
 
-    let earlyBytes := early.getD ByteArray.empty
     if earlyBytes.isEmpty then
       throw <| IO.userError "Test '22_keepalive_unknown_size_flushes_early' failed:\nExpected early streamed bytes before producer EOF"
 

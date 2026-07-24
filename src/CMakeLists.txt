@@ -621,65 +621,95 @@ if(MULTI_THREAD AND NOT MSVC AND NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " -pthread")
 endif()
 
-# Git HASH
+# Source content hash. `LEAN_GITHASH` is a SHA-256 of the on-disk contents of
+# the directory the current stage actually depends on (see `USE_GITHASH`),
+# computed via `ComputeSourceHash.cmake` on every build. Because it reflects
+# dirty working-tree state, a build with uncommitted edits embeds a different
+# value than a clean build at the same commit, and Lake correctly invalidates
+# stage 1 when stage 0 changes.
 if(USE_GITHASH)
-  include(GetGitRevisionDescription)
-  get_git_head_revision(GIT_REFSPEC GIT_SHA1 ALLOW_LOOKING_ABOVE_CMAKE_SOURCE_DIR)
-  if(GIT_SHA1 MATCHES "GITDIR-NOTFOUND")
-    message(STATUS "Failed to read git_sha1")
+  set(GITHASH_SRC_DIR "${LEAN_SOURCE_DIR}")
+elseif(USE_LAKE AND STAGE EQUAL 0)
+  # Embed *some* hash so Lake invalidates stage 1 on stage 0 changes.
+  # Note: `LEAN_SOURCE_DIR` is `<repo>/stage0/src` in a stage 0 build, so its
+  # parent is the stage0 root.
+  set(GITHASH_SRC_DIR "${LEAN_SOURCE_DIR}/..")
+  # Now that we've prepared the information for the next stage, we can forget
+  # that we will use Lake in the future as we won't use it in this stage.
+  set(USE_LAKE OFF)
+else()
+  set(GITHASH_SRC_DIR "")
+endif()
+
+if(GITHASH_SRC_DIR)
+  get_filename_component(GITHASH_SRC_DIR "${GITHASH_SRC_DIR}" ABSOLUTE)
+  set(GITHASH_HEADER "${LEAN_BINARY_DIR}/githash.h")
+  set(GITHASH_STAMP "${LEAN_BINARY_DIR}/githash.stamp")
+  set(GITHASH_SCRIPT "${LEAN_SOURCE_DIR}/cmake/Modules/ComputeSourceHash.cmake")
+  set(GITHASH_TEMPLATE "${LEAN_SOURCE_DIR}/githash.h.in")
+
+  # Enumerate the files to hash via `file(GLOB_RECURSE CONFIGURE_DEPENDS)`.
+  # `CONFIGURE_DEPENDS` adds a build-time check that auto-reruns cmake when
+  # the glob result changes (i.e., a file was added or removed), so the
+  # `DEPENDS` list below stays in sync without manual `cmake` reruns.
+  # Lake outputs go to `${CMAKE_BINARY_DIR}` (see `lakefile.toml.in`), not
+  # to `src/`, so normal builds do not modify any file matched by this
+  # glob and the auto-reconfigure check is cheap. We still filter out any
+  # stray `.lake/` content from the `DEPENDS` list — if a developer ran
+  # Lake manually inside `src/lake/`, we do not want its build artifacts
+  # to force the (read-only) hash to re-run.
+  file(GLOB_RECURSE _githash_deps CONFIGURE_DEPENDS "${GITHASH_SRC_DIR}/*")
+  list(FILTER _githash_deps EXCLUDE REGEX "/\\.lake/")
+  # A removal-only reconfigure (a file disappeared) shortens `_githash_deps`,
+  # but none of the surviving files are newer than the stamp — so make would
+  # not re-invoke the hash script and the embedded hash would go stale.
+  # Maintain a digest of the file list as an extra dependency: it changes
+  # mtime exactly when the *set* of dependency files changes (adds or
+  # removes), which forces a re-hash.
+  list(SORT _githash_deps)
+  string(SHA256 _githash_filelist_digest "${_githash_deps}")
+  set(_githash_filelist_file "${LEAN_BINARY_DIR}/githash.filelist.sha")
+  set(_prev_digest "")
+  if(EXISTS "${_githash_filelist_file}")
+    file(READ "${_githash_filelist_file}" _prev_digest)
+    string(STRIP "${_prev_digest}" _prev_digest)
+  endif()
+  if(NOT "${_prev_digest}" STREQUAL "${_githash_filelist_digest}")
+    file(WRITE "${_githash_filelist_file}" "${_githash_filelist_digest}\n")
+  endif()
+
+  add_custom_command(
+    OUTPUT "${GITHASH_STAMP}"
+    COMMAND "${CMAKE_COMMAND}"
+      "-DHASH_DIR=${GITHASH_SRC_DIR}"
+      "-DTEMPLATE=${GITHASH_TEMPLATE}"
+      "-DOUTPUT=${GITHASH_HEADER}.tmp"
+      -P "${GITHASH_SCRIPT}"
+    # `copy_if_different` keeps the header's mtime stable when the hash
+    # didn't change, so downstream object files do not relink.
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GITHASH_HEADER}.tmp" "${GITHASH_HEADER}"
+    # Touching the stamp records "we have considered the current src/
+    # state", so make does not re-invoke the script on subsequent builds
+    # unless one of the DEPENDS files actually changed.
+    COMMAND "${CMAKE_COMMAND}" -E touch "${GITHASH_STAMP}"
+    DEPENDS ${_githash_deps} "${_githash_filelist_file}"
+            "${GITHASH_SCRIPT}" "${GITHASH_TEMPLATE}"
+            "${LEAN_SOURCE_DIR}/cmake/Modules/SourceFileList.cmake"
+    COMMENT "Hashing ${GITHASH_SRC_DIR}"
+    VERBATIM
+  )
+  add_custom_target(update_githash ALL DEPENDS "${GITHASH_STAMP}")
+
+  # Seed an initial header so first-time configure does not leave dependents
+  # without one before `update_githash` runs.
+  if(NOT EXISTS "${GITHASH_HEADER}")
     set(GIT_SHA1 "")
-  else()
-    message(STATUS "git commit sha1: ${GIT_SHA1}")
+    configure_file("${GITHASH_TEMPLATE}" "${GITHASH_HEADER}")
   endif()
 else()
-  if(USE_LAKE AND STAGE EQUAL 0)
-    # we need to embed *some* hash for Lake to invalidate stage 1 on stage 0 changes
-    execute_process(
-      COMMAND git ls-tree HEAD "${CMAKE_CURRENT_SOURCE_DIR}/../../stage0" --object-only
-      OUTPUT_VARIABLE GIT_SHA1
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-    # Fallback for jj workspaces where git cannot find .git directly.
-    # Use `jj git root` to find the backing git repo, then `jj log` to
-    # resolve the current workspace's commit (git HEAD points to the root
-    # workspace, not the current one).
-    if("${GIT_SHA1}" STREQUAL "")
-      find_program(JJ_EXECUTABLE jj)
-      if(JJ_EXECUTABLE)
-        execute_process(
-          COMMAND "${JJ_EXECUTABLE}" git root
-          WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-          OUTPUT_VARIABLE _jj_git_dir
-          OUTPUT_STRIP_TRAILING_WHITESPACE
-          ERROR_QUIET
-          RESULT_VARIABLE _jj_git_root_result
-        )
-        execute_process(
-          COMMAND "${JJ_EXECUTABLE}" log -r @ --no-graph -T "commit_id"
-          WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-          OUTPUT_VARIABLE _jj_commit
-          OUTPUT_STRIP_TRAILING_WHITESPACE
-          ERROR_QUIET
-          RESULT_VARIABLE _jj_rev_result
-        )
-        if(_jj_git_root_result EQUAL 0 AND _jj_rev_result EQUAL 0)
-          execute_process(
-            COMMAND git --git-dir "${_jj_git_dir}" ls-tree "${_jj_commit}" stage0 --object-only
-            OUTPUT_VARIABLE GIT_SHA1
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-          )
-        endif()
-      endif()
-    endif()
-    message(STATUS "stage0 sha1: ${GIT_SHA1}")
-    # Now that we've prepared the information for the next stage, we can forget that we will use
-    # Lake in the future as we won't use it in this stage
-    set(USE_LAKE OFF)
-  else()
-    set(GIT_SHA1 "")
-  endif()
+  set(GIT_SHA1 "")
+  configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
 endif()
-configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
 
 if(USE_LAKE AND STAGE EQUAL 0)
   # Now that we've prepared the information for the next stage, we can forget that we will use
@@ -812,6 +842,20 @@ else()
   )
   add_library(leancpp STATIC ${LEAN_OBJS} $<TARGET_OBJECTS:initialize>)
   set_target_properties(leancpp PROPERTIES OUTPUT_NAME leancpp)
+endif()
+
+if(TARGET update_githash)
+  # All targets compiling sources that `#include "githash.h"` must wait for
+  # the header to be (re)written: `leanshell` is always built; the rest only
+  # when this stage compiles C++ from source. The sub-make recursion this
+  # introduces is cheap — the stamp's `DEPENDS` are pure file mtime checks,
+  # not a script invocation.
+  add_dependencies(leanshell update_githash)
+  if(NOT STAGE GREATER 1)
+    add_dependencies(library update_githash)
+    add_dependencies(leanrt update_githash)
+    add_dependencies(leanrt_initial-exec update_githash)
+  endif()
 endif()
 
 if(STAGE GREATER 0 AND CADICAL AND INSTALL_CADICAL)

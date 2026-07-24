@@ -141,15 +141,6 @@ The standardized "medium" priority `mid = 500`. This is lower than `default`, an
 macro "mid"     : prio => `(prio| 500)
 /-- The standardized "high" priority `high = 10000`, for things that should be higher than default priority. -/
 macro "high"    : prio => `(prio| 10000)
-/-- The standardized "unfold" priority `unfold = high + 1000`, for the specs a definition unfolded at a
-call site contributes. Above `high`, below `star`. -/
-macro "unfold"  : prio => `(prio| high + 1000)
-/-- The standardized "star" priority `star = high + 2000`, for a hypothesis pulled into a call site by
-`*`. Above `unfold`, below `arg`. -/
-macro "star"    : prio => `(prio| high + 2000)
-/-- The standardized "arg" priority `arg = high + 3000`, for a spec named explicitly in a call-site
-argument list. Above `star`. -/
-macro "arg"     : prio => `(prio| high + 3000)
 /-- Parentheses are used for grouping priority expressions. -/
 macro "(" p:prio ")" : prio => return p
 

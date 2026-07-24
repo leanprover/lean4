@@ -4,18 +4,16 @@ import Std.Tactic.Do
 /-! `vcgen` ranks the specs available at a call site into priority bands: a spec named in the
 `vcgen [...]` list outranks a local hypothesis pulled in by `*`, which outranks a bracketed
 definition's unfolding, which outranks a spec collected from an ambient hypothesis. The call-site
-bands all sit above `high`, so an `@[spec high]` used to outrank default specs does not shadow a
-call-site spec, while a priority above the whole band still does.
+bands sit just above `high`, so an `@[spec high]` used to outrank default specs does not shadow a
+call-site spec, while a priority above the band still does.
 
 `viaBinder`, `viaHave`, and `viaStar` prove one goal three ways, checking that a named spec wins over
 the ambient spec collected from the same hypothesis. `namedBeatsSpec`, `specHighLoses`, and
 `specHighestWins` isolate the banding against `@[spec]`, `@[spec high]`, and a priority above the band.
 `unfoldBeatsSpec` checks that a bracketed definition is unfolded ahead of a lossy `@[spec]` keyed on
 the same program, including when the program's state type is a variable. `namedStopBeatsUnfold` and
-`starStopBeatsUnfold` check that when the same list brackets a self-recursive definition to unfold and
-also supplies a spec for it, once as a named argument and once pulled by `*`, the spec outranks the
-unfolding at the recursive call, so `vcgen` stops there instead of unfolding the definition again into
-a branch whose sibling call has no matching spec.
+`starStopBeatsUnfold` check that a spec for the definition, named or pulled by `*`, outranks its
+unfolding at a recursive call.
 -/
 
 open Std.Internal.Do Lean.Order
@@ -122,9 +120,7 @@ theorem unfoldBeatsSpec {σ : Type} (a : σ) :
   fail_if_success (vcgen <;> grind)
   vcgen [bumpSnd] <;> grind
 
--- `tail` is bracketed to unfold and `hstop` names a spec for it in the same list. At the recursive
--- `tail f` call `hstop` outranks `tail`'s unfold equation, so `vcgen` stops rather than unfolding
--- `tail` again into a branch whose `item` call `hItem` no longer matches.
+-- `tail` is bracketed to unfold, and the named `hstop` outranks its unfolding at the recursive call.
 theorem namedStopBeatsUnfold (b : Nat) (rest : List Char) (f : Nat)
     (hItem : ⦃ fun s => s = enc b ++ rest ⦄ item f ⦃ fun r s => r = b ∧ s = rest ⦄)
     (hstop : ∀ acc, ⦃ fun s => s = rest ⦄ tail f acc ⦃ fun r s => r = acc ∧ s = rest ⦄) :
@@ -133,8 +129,7 @@ theorem namedStopBeatsUnfold (b : Nat) (rest : List Char) (f : Nat)
   intro acc
   vcgen [tail, hItem, hstop] <;> grind
 
--- The same as `namedStopBeatsUnfold`, but the spec for `tail` is pulled by `*` rather than named. The
--- `*` band still outranks `tail`'s unfold equation at the recursive call, so `vcgen` stops there.
+-- As `namedStopBeatsUnfold`, but the spec is pulled by `*`; its band still outranks the unfolding.
 theorem starStopBeatsUnfold (b : Nat) (rest : List Char) (f : Nat)
     (hItem : ⦃ fun s => s = enc b ++ rest ⦄ item f ⦃ fun r s => r = b ∧ s = rest ⦄)
     (hstop : ∀ acc, ⦃ fun s => s = rest ⦄ tail f acc ⦃ fun r s => r = acc ∧ s = rest ⦄) :

@@ -352,19 +352,13 @@ instance : BEq SpecTheorem where
 
 abbrev SpecEntry := SpecTheorem
 
-/-- Priority for a spec named explicitly in a `vcgen [...]` argument list. Top of the call-site band:
-outranks a `*` hypothesis, a bracketed definition's unfolding, and any ambient `@[spec]`. -/
-def explicitSpecPrio : Nat := eval_prio arg
-
-/-- Priority for a local hypothesis pulled into `vcgen`'s spec set by `*`. Between `explicitSpecPrio`
-and `unfoldSpecPrio`: a named spec outranks it, and it outranks a bracketed definition's unfolding. -/
-def starSpecPrio : Nat := eval_prio star
-
-/-- Priority for the equational and unfold specs a bracketed definition in a `vcgen [...]` argument
-list contributes. Bottom of the call-site band: ranks strictly below both a named spec and a `*`
-hypothesis, so either stops a recursion the definition would otherwise keep unfolding, and above
-`eval_prio high` so the unfolding still outranks an ambient `@[spec]` or `@[spec high]`. -/
-def unfoldSpecPrio : Nat := eval_prio unfold
+-- Call-site priority bands, all above `@[spec high]`, ordered named > `*` > unfold.
+/-- Priority for a spec named in a `vcgen [...]` argument list. -/
+def explicitSpecPrio : Nat := eval_prio high + 3000
+/-- Priority for a local hypothesis pulled into `vcgen`'s spec set by `*`. -/
+def starSpecPrio : Nat := eval_prio high + 2000
+/-- Priority for the equational and unfold specs a bracketed definition in a `vcgen [...]` list contributes. -/
+def unfoldSpecPrio : Nat := eval_prio high + 1000
 
 structure SpecTheorems where
   specs : DiscrTree SpecTheorem := DiscrTree.empty

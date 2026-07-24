@@ -37,6 +37,11 @@ theorem Spec.assertGadget (name : Name) (as : Pred) [∀ a : Pred, PreservesSup 
     (Triple.pure (m := m) (pre := as ⊓ (as ⇨ post ⟨⟩)) (post := post) (epost := epost)
       (a := ⟨⟩) (h := meet_himp_le))
 
+set_option linter.unusedVariables false in
+/-- The identity on `x`, tagging it with the join-point function `fv` so `vcgen +jp` can recognize
+the continuation `x` of a shared join point. -/
+def jpGadget.{ua, ub} {α : Sort ua} {β : Sort ub} (fv : β) (x : α) : α := x
+
 end Std.Internal.Do
 
 end -- public section

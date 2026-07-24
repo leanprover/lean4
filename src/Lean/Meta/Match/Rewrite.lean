@@ -72,7 +72,12 @@ equation theorem cannot be discharged by assumption or reflixivity.
 See `Lean.Meta.Tactic.FunInd.buildInductionBody` and `Lean.Elab.Tactic.Do.VCGen.Split` for examples
 of how to coerce `MatherApp.transform` into doing the substitution on the motive for you.
 -/
-def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
+def rwMatcher (altIdx : Nat) (e : Expr) (assumptionLowerBound : Nat := 0)
+    (assumptionUpperBound : Nat := 0) : MetaM Simp.Result := do
+  -- Close `g` by an assumption at context index in `[assumptionLowerBound, assumptionUpperBound)`, so
+  -- the search for the congruence-equation hypotheses is confined to a window of the local context.
+  let assumptionProc (g : MVarId) : MetaM Bool :=
+    g.assumptionCore assumptionLowerBound assumptionUpperBound
   if e.isAppOf ``PSum.casesOn || e.isAppOf ``PSigma.casesOn then
     let mut e := e
     while true do
@@ -95,6 +100,17 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
       trace[Meta.Match.debug] "When trying to reduce arm {altIdx}, only {eqns.size} equations for {.ofConstName matcherDeclName}"
       return { expr := e }
     let eqnThm := eqns[altIdx]!
+    -- Close an `Eq`/`HEq` hypothesis `h` by reflexivity without throwing when it is not reflexive.
+    let tryRefl (h : MVarId) (hType : Expr) : MetaM Bool := do
+      if let some (_, a, b) := hType.eq? then
+        unless ← isDefEq a b do return false
+        h.assign (← mkEqRefl a)
+        return true
+      if let some (α, a, β, b) := hType.heq? then
+        unless ← (isDefEq α β <&&> isDefEq a b) do return false
+        h.assign (← mkHEqRefl a)
+        return true
+      return false
     try
       withTraceNode `Meta.Match.debug (fun _ => pure m!"rewriting with {.ofConstName eqnThm} in{indentExpr e}") do
       let eqProof := mkAppN (mkConst eqnThm e.getAppFn.constLevels!) e.getAppArgs
@@ -106,8 +122,10 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
         if let some (_, lhs, _, rhs) := eqType.heq? then pure (true, lhs, rhs) else
         if let some (_, lhs, rhs) := eqType.eq? then pure (false, lhs, rhs) else
         throwError m!"Type of `{.ofConstName eqnThm}` is not an equality"
-      if !(← isDefEq e lhs) then
-        throwError m!"Left-hand side `{lhs}` of `{.ofConstName eqnThm}` does not apply to `{e}`"
+      -- The alternative not applying here (`isDefEq`/discharge failure below) is a normal outcome
+      -- reported via `proof? := none`, not an error: callers probing alternatives must not pay for
+      -- exception handling on each miss.
+      if !(← isDefEq e lhs) then return { expr := e }
       /-
       Here we instantiate the hypotheses of the congruence equation theorem
       There are two sets of hypotheses to instantiate:
@@ -121,17 +139,18 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
       for h in hyps do
         unless (← h.isAssigned) do
           let hType ← h.getType
-          if Simp.isEqnThmHypothesis hType then
-            -- Using unrestricted h.substVars here does not work well; it could
-            -- even introduce a dependency on the `oldIH` we want to eliminate
-            h.assumption <|> throwError "Failed to discharge `{h}`"
-          else if hType.isEq then
-            h.assumption <|> h.refl <|> throwError m!"Failed to resolve `{h}`"
-          else if hType.isHEq then
-            h.assumption <|> h.hrefl <|> throwError m!"Failed to resolve `{h}`"
-      let unassignedHyps ← hyps.filterM fun h => return !(← h.isAssigned)
-      unless unassignedHyps.isEmpty do
-        throwError m!"Not all hypotheses of `{.ofConstName eqnThm}` could be discharged: {unassignedHyps}"
+          let discharged ←
+            if Simp.isEqnThmHypothesis hType then
+              -- Using unrestricted h.substVars here does not work well; it could
+              -- even introduce a dependency on the `oldIH` we want to eliminate
+              assumptionProc h
+            else if hType.isEq || hType.isHEq then
+              assumptionProc h <||> tryRefl h hType
+            else
+              pure true
+          unless discharged do return { expr := e }
+      if ← hyps.anyM fun h => return !(← h.isAssigned) then
+        return { expr := e }
       let rhs ← instantiateMVars rhs
       let proof ← instantiateMVars proof
       let proof ← if isHeq then

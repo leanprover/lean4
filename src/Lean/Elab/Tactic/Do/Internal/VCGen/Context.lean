@@ -134,17 +134,76 @@ public structure VCGen.Context where
   once the program in `wp⟦e⟧` matches `pat`, before applying a spec. -/
   untilPat? : Option Sym.Pattern := none
 
+/-- Per-alt binder layout of a join point's split: the segment sizes of the alt telescope the body
+split introduces at each jump site (`fields ++ overlaps ++ discrEqs ++ extraEqs`, per
+`MatcherApp.TransformAltFVars.all`), and the number of alt binders of the synthetic spec (the
+matcher alt's own parameters: fields, then discriminant equations, or a single thunk parameter).
+Positions the spec binders within the jump-site telescope without unification. -/
+public structure JPAltLayout where
+  bodyFields : Nat
+  bodyOverlaps : Nat
+  bodyDiscrEqs : Nat
+  bodyExtraEqs : Nat
+  specBinders : Nat
+  deriving Inhabited
+
+/-- Length of the alt telescope the body split introduces at a jump site. -/
+public def JPAltLayout.bodyTeleLen (l : JPAltLayout) : Nat :=
+  l.bodyFields + l.bodyOverlaps + l.bodyDiscrEqs + l.bodyExtraEqs
+
+/-- Definition-site info for a `__do_jp` join point, indexed by the JP's let-fvar. Recorded when the
+JP is registered and consulted at each jump site to build the jump's payload for the alt-specific
+precondition mvar `hypsMVars[altIdx]`. -/
+public structure JPDefInfo where
+  /-- The join point's body proof, `∀ joinParams, Triple ⌜match discrs => ?Hᵢ⌝ (fv joinParams) Q`,
+  bound as a local hypothesis. Each jump is closed by `rel_trans` against `jpProof joinArgs`. -/
+  jpProof : Expr
+  /-- The precondition abstracted over the join params, `fun joinParams => ⌜match discrs => ?Hᵢ⌝`.
+  Applied at each jump to form the mid-point of the `rel_trans`, avoiding a walk over the post `Q`. -/
+  pjpBodyAbs : Expr
+  /-- Per-alt synthetic-opaque precondition mvars. Each has type
+  `(joinParams ++ altParams) → Prop`, assigned by `finalizeJPs`. -/
+  hypsMVars : Array MVarId
+  /-- Size of the local context at the JP definition site. Locals introduced beyond this index
+  are alt-local and get existentially closed when building the jump-site `φ`. -/
+  outerLCtxSize : Nat
+  /-- Per-alt binder layouts, aligned with `hypsMVars`. -/
+  altLayouts : Array JPAltLayout
+  /-- The largest `bodyTeleLen` over `altLayouts`: the length of the assumption-search window each
+  jump uses to discharge its branch hypotheses. -/
+  maxBodyTeleLen : Nat
+  deriving Inhabited
+
 public structure VCGen.Scope where
   /-- Spec database in scope: globals plus locals from in-scope hypotheses. -/
   specs : SpecTheorems
-  /-- `__do_jp` fvars currently in scope. -/
-  jps : FVarIdMap JumpSiteInfo := {}
+  /-- `__do_jp` fvars currently in scope, mapped to their def-site info. -/
+  jps : FVarIdMap JPDefInfo := {}
   /-- The most recently lifted pure precondition. `tryLiftedHyp` closes handoff VCs against
   it without walking the local context. -/
   lastLiftedPre? : Option FVarId := none
   /-- Index of the next local declaration to consider for local specs. -/
   nextDeclIdx : Nat := 0
   deriving Inhabited
+
+/-- The applicable alternative of a JP jump: its index, the payload proposition (an existential
+closure of the join-argument equalities, abstracted over the alt-precondition mvar's binders), the
+witnesses for the payload's existentials, and the reduction `redProof : matchExpr = redExpr` of the
+precondition match to the alternative. -/
+public structure ResolvedJump where
+  altIdx : Nat
+  payload : Expr
+  witnesses : Array Expr
+  redExpr : Expr
+  redProof : Expr
+
+/-- A deferred join-point jump: its resolved alternative, the alt-precondition mvar it targets, and
+its open precondition subgoal `pre ⊑ ⌜match discrs => ?Hᵢ⌝ ss`. Resolved by `finalizeJPs`, which
+recovers everything else from the subgoal's type. -/
+public structure DeferredJump where
+  jump : ResolvedJump
+  hypsMVar : MVarId
+  goal : MVarId
 
 public structure VCGen.State where
   /--
@@ -207,15 +266,19 @@ public structure VCGen.State where
   this to know which user-provided alts have already been consumed (so it doesn't
   warn about them). -/
   inlineHandledInvariants : Std.HashSet Nat := {}
+  /-- All join-point alt-precondition mvars, in registration order. Assigned by `finalizeJPs`. -/
+  jpHypsMVars : Array MVarId := #[]
+  /-- Deferred join-point jumps, in jump order. Discharged by `finalizeJPs`. -/
+  jpJumps : Array DeferredJump := #[]
 
 public abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State Grind.GrindM)
 
 namespace VCGen
 
-public def Scope.registerJP (s : Scope) (fv : FVarId) (info : JumpSiteInfo) : Scope :=
+public def Scope.registerJP (s : Scope) (fv : FVarId) (info : JPDefInfo) : Scope :=
   { s with jps := s.jps.insert fv info }
 
-public def Scope.knownJP? (s : Scope) (fv : FVarId) : Option JumpSiteInfo :=
+public def Scope.knownJP? (s : Scope) (fv : FVarId) : Option JPDefInfo :=
   s.jps.get? fv
 
 public def Scope.insertSpec (s : Scope) (thm : SpecTheorem) : Scope :=
@@ -229,7 +292,10 @@ public def Scope.collectLocalSpecs (scope : Scope) (goal : MVarId) : VCGenM Scop
     let lctx ← getLCtx
     if scope.nextDeclIdx == lctx.decls.size then return scope
     let scope ← lctx.foldlM (init := scope) (start := scope.nextDeclIdx) fun scope decl => do
-      if decl.isAuxDecl then return scope
+      -- Skip implementation-detail hypotheses (e.g. the `+jp` body proof `__do_jp_spec`, the
+      -- `__do_jp` continuation): they are never user specs, and building a spec pattern from one
+      -- runs `preprocessType` over its post, scaling with the continuation.
+      if decl.isImplementationDetail then return scope
       try
         if let some thm ← mkSpecTheoremFromLocal decl.fvarId (eval_prio low) then
           return scope.insertSpec thm

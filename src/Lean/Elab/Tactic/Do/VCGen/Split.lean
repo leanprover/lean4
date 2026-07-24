@@ -188,12 +188,20 @@ def getSplitInfo? (e : Expr) : MetaM (Option SplitInfo) := do
   else
     return none
 
-def rwIfOrMatcher (idx : Nat) (e : Expr) : MetaM Simp.Result := do
+/-- Rewrite the `ite`/`dite`/matcher `e` to its `idx`-th alternative, returning a `Simp.Result` whose
+`proof?` is `none` when the alternative does not apply here (the `ite`/`dite` branch condition or the
+matcher congruence hypotheses cannot be discharged), never throwing on that account. With a
+`[assumptionLowerBound, assumptionUpperBound)` window those hypotheses are discharged by an assumption
+search confined to that window of the local context rather than the whole of it (an
+`assumptionUpperBound` of `0` means the end of the context). -/
+def rwIfOrMatcher (idx : Nat) (e : Expr) (assumptionLowerBound : Nat := 0)
+    (assumptionUpperBound : Nat := 0) : MetaM Simp.Result := do
   if e.isAppOf ``ite || e.isAppOf ``dite then
     let c := e.getArg! 1
     let c := if idx = 0 then c else mkNot c
-    let .some fv ← findLocalDeclWithType? c
-      | throwError "Failed to find proof for if condition {c}"
+    let some fv ← findLocalDeclWithType? c (lowerBound := assumptionLowerBound)
+        (upperBound := assumptionUpperBound)
+      | return { expr := e }
     rwIfWith (mkFVar fv) e
   else
-    rwMatcher idx e
+    rwMatcher idx e assumptionLowerBound assumptionUpperBound

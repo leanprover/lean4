@@ -433,15 +433,15 @@ theorem ofProp_le [CompleteLattice l] (p : Prop) (rhs : l) :
   (CompleteLattice.ofProp_intro p rhs).mpr
 
 /-- Entailment between functions is pointwise. -/
-theorem le_iff_forall_le {σ α : Type u} [PartialOrder α] {f g : σ → α} :
+theorem le_iff_forall_le {σ : Type u} {α : Type v} [PartialOrder α] {f g : σ → α} :
     (f ⊑ g) ↔ (∀ s, f s ⊑ g s) := Iff.rfl
 
 /-- Entailment between functions follows from pointwise entailment. -/
-theorem le_of_forall_le {σ α : Type u} [PartialOrder α] {f g : σ → α} :
+theorem le_of_forall_le {σ : Type u} {α : Type v} [PartialOrder α] {f g : σ → α} :
     (∀ s, f s ⊑ g s) → f ⊑ g := le_iff_forall_le.mpr
 
 /-- `⊤ ⊑ g` for a function `g` follows from pointwise `⊤ ⊑ g s`. -/
-theorem top_le_of_forall_top_le {σ α : Type u} [CompleteLattice α] {g : σ → α} :
+theorem top_le_of_forall_top_le {σ : Type u} {α : Type v} [CompleteLattice α] {g : σ → α} :
     (∀ s, (⊤ : α) ⊑ g s) → (⊤ : σ → α) ⊑ g := by
   intro h s
   rw [top_apply]

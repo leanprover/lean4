@@ -27,13 +27,13 @@ It is thus defined in terms of an instance `WPMonad m Pred EPred`.
 
 namespace Std.Internal.Do
 
-universe u v
-variable {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
+universe u v w w'
+variable {Pred : Type w} {EPred : Type w'}
 
 /-- A Hoare triple for reasoning about programs. A Hoare triple `Triple x pre post epost`
 is a *specification* for `x`: if assertion `pre` holds before `x`, then postcondition `post` holds
 after running `x` (and `epost` handles any errors). -/
-structure Triple {Prog : Type v} {Value : Type u} [Assertion Pred] [Assertion EPred] (x : Prog) [WP Prog Value Pred EPred] (pre : Pred) (post : Value → Pred) (epost : EPred) : Prop where
+structure Triple {Prog : Type u} {Value : Type v} [Assertion Pred] [Assertion EPred] (x : Prog) [WP Prog Value Pred EPred] (pre : Pred) (post : Value → Pred) (epost : EPred) : Prop where
   /-- Construct a triple from a weakest precondition entailment. -/
   intro ::
   /-- The weakest precondition entailment witnessing the triple. -/
@@ -101,7 +101,7 @@ meta def unexpandTriple : Lean.PrettyPrinter.Unexpander
 
 namespace Triple
 
-variable {Prog : Type v} {Value : Type u} [Assertion Pred] [Assertion EPred]
+variable {Prog : Type u} {Value : Type v} [Assertion Pred] [Assertion EPred]
   [WP Prog Value Pred EPred]
 
 theorem iff {x : Prog} {pre : Pred} {post : Value → Pred} {epost : EPred} :
@@ -133,7 +133,7 @@ theorem entails_wp_of_post {x : Prog} {pre : Pred} {post post' : Value → Pred}
   iff_conseq.mp h _ _ PartialOrder.rel_refl hpost
 
 section Monad
-variable [Monad m] [WPMonad m Pred EPred]
+variable {m : Type v → Type u} [Monad m] [WPMonad m Pred EPred]
 
 theorem pure (a : α) (h : pre ⊑ post a) :
     Triple (pure (f := m) a) pre post epost :=

@@ -431,7 +431,7 @@ static optional<pipe> setup_stdio(stdio cfg) {
     lean_unreachable();
 }
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__NetBSD__)
 extern "C" char **environ;
 #endif
 
@@ -454,7 +454,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
 
     if (pid == 0) {
         if (!inherit_env) {
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__NetBSD__)
             environ = NULL;
 #else
             clearenv();

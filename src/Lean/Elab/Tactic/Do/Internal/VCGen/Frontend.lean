@@ -109,7 +109,7 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
           else
             return some (#[], e)
         if let some (levelParams, proof) := thm? then
-          if let some thm ← mkSpecTheoremFromStx term proof then
+          if let some thm ← mkSpecTheoremFromStx term proof explicitSpecPrio then
             specThms := specThms.insert thm
           else
             let thms ← mkSimpTheoremFromExpr (.stx (← mkFreshId) arg) levelParams proof

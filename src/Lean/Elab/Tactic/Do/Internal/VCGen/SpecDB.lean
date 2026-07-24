@@ -102,7 +102,7 @@ public def addSimpSpecs (database : SpecTheorems) (simpThms : SimpTheorems) :
   -- entry; feed both back to `simpSpecTheorems` as the `SimpEntry`s the definition would produce.
   let entries := simpThms.post.values.map (SimpEntry.thm ·)
     ++ simpThms.toUnfold.toList.toArray.map (SimpEntry.toUnfold ·)
-  for newSpec in ← simpSpecTheorems entries (eval_prio default) do
+  for newSpec in ← simpSpecTheorems entries explicitSpecPrio do
     specs := Sym.insertPattern specs newSpec.pattern newSpec
   return { specs, erased }
 

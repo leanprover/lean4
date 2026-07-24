@@ -175,7 +175,7 @@ where
     withExistingLocalDecls lhs.fvarDecls do
       let mut notAlt := mkConst ``False
       for discr in discrs.reverse, pattern in lhs.patterns.reverse do
-        notAlt ← mkArrow (← withReducible <| mkEqHEq discr (← pattern.toExpr)) notAlt
+        notAlt ← mkArrow (← mkEqHEq discr (← pattern.toExpr)) notAlt
       notAlt ← mkForallFVars (discrs ++ xs) notAlt
       return notAlt
 

@@ -42,7 +42,7 @@ def elabChange (e : Expr) (p : Term) (mkDefeqError : Expr → Expr → MetaM Mes
     pure p
   withAssignableSyntheticOpaque do
     unless ← isDefEq p e do
-      throwError MessageData.ofLazyM (es := #[p, e]) do
+      throwError MessageData.ofLazyM (es := #[p, e]) (config? := some (← getConfig)) do
         let (p, tgt) ← addPPExplicitToExposeDiff p e
         mkDefeqError p tgt
     instantiateMVars p

@@ -301,7 +301,7 @@ private def tryJPGadget? (scope : Scope) (goal : MVarId) (info : WPApp) :
   let some resTy := sinfo.resTy
     | return some (.goalsInScope scope [restGoal])
   let Q := info.post
-  let joinTy ← liftMetaM <| Meta.inferType fv
+  let joinTy ← Sym.inferType fv
   let numJoinParams ← liftMetaM <| Lean.Elab.Tactic.Do.getNumJoinParams joinTy resTy
 
   -- Create the `?Hᵢ` mvars in the outer local context so they stay shared across jump sites.
@@ -711,13 +711,15 @@ private def elabFrame (resourceTy : Expr) (entry : FrameEntry) (res : Sym.MatchU
   for h : i in [0:entry.varNames.size] do
     if let some nm := entry.varNames[i] then
       if h2 : i < res.args.size then
-        decls := decls.push (nm, ← Meta.inferType res.args[i]!, res.args[i]!)
+        decls := decls.push (nm, ← Sym.inferType res.args[i]!, res.args[i]!)
   Meta.withDefault <| withLetDeclsDND decls fun fvs => do
     let frameExpr ← Lean.Elab.Term.TermElabM.run' do
       let e ← Lean.Elab.Term.elabTermEnsuringType entry.frameStx (some resourceTy)
       Lean.Elab.Term.synthesizeSyntheticMVarsNoPostponing
       mkLetFVars fvs e
-    instantiateMVarsS frameExpr
+    -- The elaborated frame enters the goals, so hash-cons it; `instantiateMVarsS` alone returns an
+    -- mvar-free elaboration unshared.
+    shareCommon (← liftMetaM <| instantiateMVars frameExpr)
 
 /-- Find an unretired `frames` alternative matching the program (earliest source order wins),
 elaborate its frame at the resource type `resourceTy`, and retire it so it applies at most once. -/
@@ -809,8 +811,9 @@ private def applyFrameOrSpec (scope : VCGen.Scope) (goal : MVarId) (pre : Expr) 
     | none => pure none
   let some F := frame? | return .goals scopedSubgoals
   -- Capture the frame before rolling back: `saved.restore` un-assigns the speculative metavariables,
-  -- so instantiate `F` against them now (and reshare).
-  let F ← instantiateMVarsS F
+  -- so instantiate `F` against them now. `shareCommonInc` hash-conses the frame even when it carried
+  -- no metavariables (which `instantiateMVarsS` returns unshared).
+  let F ← shareCommonInc (← instantiateMVarsS F)
   trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` matched {info.prog}; frame:{indentExpr F}"
   saved.restore
   return .goalsInScope scope (← applyFrameRule goal info fp F)

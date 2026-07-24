@@ -345,10 +345,10 @@ theorem or_iff_left_of_imp  (hb : b → a) : (a ∨ b) ↔ a  := Iff.intro (Or.r
 @[simp] theorem Bool.or_false (b : Bool) : (b || false) = b  := by cases b <;> rfl
 @[simp] theorem Bool.or_true (b : Bool) : (b || true) = true := by cases b <;> rfl
 @[simp] theorem Bool.false_or (b : Bool) : (false || b) = b  := by cases b <;> rfl
+@[simp] theorem Bool.true_or (b : Bool) : (true || b) = true := by cases b <;> rfl
 instance : Std.LawfulIdentity (· || ·) false where
   left_id := Bool.false_or
   right_id := Bool.or_false
-@[simp] theorem Bool.true_or (b : Bool) : (true || b) = true := by cases b <;> rfl
 @[simp] theorem Bool.or_self (b : Bool) : (b || b) = b       := by cases b <;> rfl
 instance : Std.IdempotentOp (· || ·) := ⟨Bool.or_self⟩
 @[simp] theorem Bool.or_eq_true (a b : Bool) : ((a || b) = true) = (a = true ∨ b = true) := by
@@ -366,19 +366,32 @@ instance : Std.IdempotentOp (· && ·) := ⟨Bool.and_self⟩
 @[simp] theorem Bool.and_eq_true (a b : Bool) : ((a && b) = true) = (a = true ∧ b = true) := by
   cases a <;> cases b <;> decide
 
+@[simp] theorem Bool.not_not (b : Bool) : (!!b) = b             := by cases b <;> rfl
+@[simp] theorem Bool.not_true  : (!true) = false := by decide
+@[simp] theorem Bool.not_false : (!false) = true := by decide
+@[simp] theorem beq_true  (b : Bool) : (b == true)  =  b        := by cases b <;> rfl
+@[simp] theorem beq_false (b : Bool) : (b == false) = !b        := by cases b <;> rfl
+
+@[simp] theorem Bool.true_xor (b : Bool) : (true ^^ b) = !b          := by cases b <;> rfl
+@[simp] theorem Bool.false_xor (b : Bool) : (false ^^ b) = b         := by cases b <;> rfl
+@[simp] theorem Bool.xor_true (b : Bool) : (b ^^ true) = !b          := by cases b <;> rfl
+@[simp] theorem Bool.xor_false (b : Bool) : (b ^^ false) = b         := by cases b <;> rfl
+instance : Std.LawfulIdentity (· ^^ ·) false where
+  left_id := Bool.false_xor
+  right_id := Bool.xor_false
+@[simp] theorem Bool.xor_self (b : Bool) : (b ^^ b) = false          := by cases b <;> rfl
+@[simp] theorem Bool.xor_eq_true (a b : Bool) : ((a ^^ b) = true) = (a ≠ b) := by
+  cases a <;> cases b <;> decide
+
 theorem Bool.and_assoc (a b c : Bool) : (a && b && c) = (a && (b && c)) := by
   cases a <;> cases b <;> cases c <;> decide
 instance : Std.Associative (· && ·) := ⟨Bool.and_assoc⟩
 theorem Bool.or_assoc (a b c : Bool) : (a || b || c) = (a || (b || c)) := by
   cases a <;> cases b <;> cases c <;> decide
 instance : Std.Associative (· || ·) := ⟨Bool.or_assoc⟩
-
-@[simp] theorem Bool.not_not (b : Bool) : (!!b) = b := by cases b <;> rfl
-@[simp] theorem Bool.not_true  : (!true) = false := by decide
-@[simp] theorem Bool.not_false : (!false) = true := by decide
-@[simp] theorem beq_true  (b : Bool) : (b == true)  =  b := by cases b <;> rfl
-@[simp] theorem beq_false (b : Bool) : (b == false) = !b := by cases b <;> rfl
-
+theorem Bool.xor_assoc (a b c : Bool) : ((a ^^ b) ^^ c) = (a ^^ (b ^^ c)) := by
+  cases a <;> cases b <;> cases c <;> decide
+instance : Std.Associative (· ^^ ·) := ⟨Bool.xor_assoc⟩
 
 /--
 We move `!` from the left hand side of an equality to the right hand side.

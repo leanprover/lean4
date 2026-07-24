@@ -134,7 +134,7 @@ theorem denote_mkGate {aig : AIG α} {input : BinaryInput aig} :
   next heq =>
     rw [mkGate, Array.getElem_push_eq] at heq
     injection heq with hl hr
-    simp only [← hl, Fanin.gate_mk, mkGate, Fanin.invert_mk, ← hr, Bool.bne_false]
+    simp only [← hl, Fanin.gate_mk, mkGate, Fanin.invert_mk, ← hr, Bool.xor_false]
     congr 2
     all_goals
       apply denote.go_eq_of_isPrefix
@@ -290,7 +290,7 @@ theorem denote_congr (assign1 assign2 : α → Bool) (aig : AIG α) (idx : Nat) 
   · intro heq
     simp [denote_idx_false heq]
   · intro a heq
-    simp only [denote_idx_atom heq, Bool.bne_left_inj]
+    simp only [denote_idx_atom heq, Bool.xor_left_inj]
     apply h
     simp [mem_def, ← heq]
   · intro lhs rhs heq

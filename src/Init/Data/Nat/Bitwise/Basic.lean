@@ -63,7 +63,7 @@ Bitwise exclusive or. Usually accessed via the `^^^` operator.
 Each bit of the resulting value is set if the corresponding bit is set in exactly one of the inputs.
 -/
 @[extern "lean_nat_lxor"]
-def xor  : @& Nat → @& Nat → Nat := bitwise bne
+def xor  : @& Nat → @& Nat → Nat := bitwise Bool.xor
 
 /--
 Shifts the binary representation of a value left by the specified number of bits. Usually accessed

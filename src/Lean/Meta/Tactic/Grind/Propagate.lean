@@ -457,4 +457,34 @@ builtin_grind_propagator propagateBoolNotDown ↓Bool.not := fun e => do
   else if (← isEqv e a) then
     closeGoal <| mkApp2 (mkConst ``Grind.Bool.false_of_not_eq_self) a (← mkEqProof e a)
 
+/-- Propagates `Bool.xor` upwards -/
+builtin_grind_propagator propagateBoolXorUp ↑Bool.xor := fun e => do
+  let_expr Bool.xor a b := e | return ()
+  if (← isEqBoolFalse a) then
+    pushEq e b <| mkApp3 (mkConst ``Grind.Bool.xor_eq_of_eq_false_left) a b (← mkEqBoolFalseProof a)
+  else if (← isEqBoolFalse b) then
+    pushEq e a <| mkApp3 (mkConst ``Grind.Bool.xor_eq_of_eq_false_right) a b (← mkEqBoolFalseProof b)
+  else if (← isEqBoolTrue a) then
+    let nb ← shareCommon (mkApp (mkConst ``Bool.not) b)
+    internalize nb (← getGeneration e)
+    pushEq e nb <| mkApp3 (mkConst ``Grind.Bool.xor_eq_of_eq_true_left) a b (← mkEqBoolTrueProof a)
+  else if (← isEqBoolTrue b) then
+    let na ← shareCommon (mkApp (mkConst ``Bool.not) a)
+    internalize na (← getGeneration e)
+    pushEq e na <| mkApp3 (mkConst ``Grind.Bool.xor_eq_of_eq_true_right) a b (← mkEqBoolTrueProof b)
+  else if (← isEqv a b) then
+    pushEqBoolFalse e <| mkApp3 (mkConst ``Grind.Bool.xor_eq_false_of_eq) a b (← mkEqProof a b)
+  else if let some h ← mkDiseqProof? a b then
+    pushEqBoolTrue e <| mkApp3 (mkConst ``Grind.Bool.xor_eq_true_of_ne) a b h
+
+/-- Propagates `Bool.xor` downwards -/
+builtin_grind_propagator propagateBoolXorDown ↓Bool.xor := fun e => do
+  let_expr Bool.xor a b := e | return ()
+  if (← isEqBoolFalse e) then
+    pushEq a b <| mkApp3 (mkConst ``Grind.Bool.eq_of_xor_eq_false) a b (← mkEqBoolFalseProof e)
+  else if (← isEqBoolTrue e) then
+    let eq ← shareCommon (← mkEq a b)
+    internalize eq (← getGeneration e)
+    pushEqFalse eq <| mkApp3 (mkConst ``Grind.Bool.ne_of_xor_eq_true) a b (← mkEqBoolTrueProof e)
+
 end Lean.Meta.Grind

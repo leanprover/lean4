@@ -1602,7 +1602,8 @@ theorem and_or_distrib_right {x y z : BitVec w} : (x ||| y) &&& z = (x &&& z) ||
 theorem xor_assoc (x y z : BitVec w) :
     x ^^^ y ^^^ z = x ^^^ (y ^^^ z) := by
   ext i
-  simp
+  simp [Bool.xor_assoc]
+
 instance : Std.Associative (fun (x y : BitVec w) => x ^^^ y) := ⟨BitVec.xor_assoc⟩
 
 theorem xor_comm (x y : BitVec w) :
@@ -1681,7 +1682,7 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
     rw [Nat.testBit_two_pow_sub_succ (isLt _)]
     · cases w : decide (i < v)
       · simp only [decide_eq_false_iff_not, Nat.not_lt] at w
-        simp only [Bool.false_bne, Bool.false_and]
+        simp only [Bool.false_xor, Bool.false_and]
         rw [Nat.testBit_lt_two_pow]
         calc BitVec.toNat x < 2 ^ v := isLt _
           _ ≤ 2 ^ i := Nat.pow_le_pow_right Nat.zero_lt_two w

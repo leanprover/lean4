@@ -35,7 +35,7 @@ theorem denote_mkFullAdderOut (assign : α → Bool) (aig : AIG α) (input : Ful
       =
     ((⟦aig, input.lhs, assign⟧ ^^ ⟦aig, input.rhs, assign⟧) ^^ ⟦aig, input.cin, assign⟧)
     := by
-  simp only [mkFullAdderOut, Ref.cast_eq, denote_mkXorCached, denote_projected_entry, Bool.bne_assoc,
+  simp only [mkFullAdderOut, Ref.cast_eq, denote_mkXorCached, denote_projected_entry, Bool.xor_assoc,
     ]
   rw [LawfulOperator.denote_mem_prefix (f := mkXorCached)]
 
@@ -170,7 +170,7 @@ theorem go_denote_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref
       simp only [← heq]
       rw [go_denote_mem_prefix]
       · unfold mkFullAdder
-        simp [hcin]
+        simp [hcin, Bool.xor_assoc]
       · simp only [Ref.gate_cast]
         apply Ref.hgate
     | inr hlt =>

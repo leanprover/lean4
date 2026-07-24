@@ -91,7 +91,7 @@ theorem denote.eq_of_isPrefix (entry : Entrypoint α) (newAIG : AIG α)
     ⟦entry, assign⟧
     := by
   unfold denote
-  rw [Bool.bne_left_inj]
+  rw [Bool.xor_left_inj]
   apply denote.go_eq_of_isPrefix
   assumption
 

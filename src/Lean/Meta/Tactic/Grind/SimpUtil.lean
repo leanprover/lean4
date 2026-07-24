@@ -181,7 +181,6 @@ def getNormTheorems : MetaM SimpTheorems := do
   thms ← addDeclToUnfold thms ``GE.ge
   thms ← addDeclToUnfold thms ``GT.gt
   thms ← addDeclToUnfold thms ``Nat.cast
-  thms ← addDeclToUnfold thms ``Bool.xor
   thms ← addDeclToUnfold thms ``Ne
   return thms
 

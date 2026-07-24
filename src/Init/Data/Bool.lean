@@ -12,25 +12,6 @@ public section
 
 namespace Bool
 
-/--
-Boolean “exclusive or”. `xor x y` can be written `x ^^ y`.
-
-`x ^^ y` is `true` when precisely one of `x` or `y` is `true`. Unlike `and` and `or`, it does not
-have short-circuiting behavior, because one argument's value never determines the final value. Also
-unlike `and` and `or`, there is no commonly-used corresponding propositional connective.
-
-Examples:
- * `false ^^ false = false`
- * `true ^^ false = true`
- * `false ^^ true = true`
- * `true ^^ true = false`
--/
-abbrev xor : Bool → Bool → Bool := bne
-
-@[inherit_doc] infixl:33 " ^^ " => xor
-
-recommended_spelling "xor" for "^^" in [xor, «term_^^_»]
-
 instance (p : Bool → Prop) [inst : DecidablePred p] : Decidable (∀ x, p x) :=
   match inst true, inst false with
   | isFalse ht, _ => isFalse fun h => absurd (h _) ht
@@ -252,11 +233,29 @@ theorem not_eq_self : ∀(b : Bool), ((!b) = b) ↔ False := by simp
 
 theorem not_bne_not : ∀ (x y : Bool), ((!x) != (!y)) = (x != y) := by simp
 
-@[simp] theorem bne_assoc : ∀ (x y z : Bool), ((x != y) != z) = (x != (y != z)) := by decide
+theorem bne_assoc : ∀ (x y z : Bool), ((x != y) != z) = (x != (y != z)) := by decide
 instance : Std.Associative (· != ·) := ⟨bne_assoc⟩
 
 @[simp] theorem bne_right_inj  : ∀ {x y z : Bool}, (x != y) = (x != z) ↔ y = z := by decide
 @[simp] theorem bne_left_inj : ∀ {x y z : Bool}, (x != z) = (y != z) ↔ x = y := by decide
+
+theorem bne_comm : ∀ (x y : Bool), (x != y) = (y != x) := by decide
+theorem bne_left_comm : ∀ (x y z : Bool), (x != (y != z)) = (y != (x != z)) := by decide
+theorem bne_right_comm : ∀ (x y z : Bool), ((x != y) != z) = ((x != z) != y) := by decide
+instance : Std.Commutative (· != ·) := ⟨bne_comm⟩
+
+@[simp] theorem bne_eq_left : ∀ {a b : Bool}, ((a != b) = a) ↔ (b = false) := by decide
+@[simp] theorem bne_eq_right : ∀ {a b : Bool}, ((a != b) = b) ↔ (a = false) := by decide
+@[simp] theorem eq_self_bne : ∀ {a b : Bool}, (a = (a != b)) ↔ (b = false) := by decide
+@[simp] theorem eq_bne_self : ∀ {a b : Bool}, (b = (a != b)) ↔ (a = false) := by decide
+
+@[simp] theorem bne_eq_not_left : ∀ {a b : Bool}, ((a != b) = !a) ↔ (b = true) := by decide
+@[simp] theorem bne_eq_not_right : ∀ {a b : Bool}, ((a != b) = !b) ↔ (a = true) := by decide
+@[simp] theorem eq_not_self_bne : ∀ {a b : Bool}, (a = !(a != b)) ↔ (b = true) := by decide
+@[simp] theorem eq_not_bne_self : ∀ {a b : Bool}, (b = !(a != b)) ↔ (a = true) := by decide
+
+theorem bne_eq_or_and_not_or_not : ∀ (x y : Bool), (x != y) = ((x || y) && (!x || !y)) := by decide
+theorem bne_eq_and_not_or_not_and : ∀ (x y : Bool), (x != y) = ((x && !y) || (!x && y)) := by decide
 
 theorem eq_not_of_ne : ∀ {x y : Bool}, x ≠ y → x = !y := by decide
 
@@ -284,37 +283,43 @@ theorem beq_comm {α} [BEq α] [LawfulBEq α] {a b : α} : (a == b) = (b == a) :
 
 /-! ### xor -/
 
-theorem false_xor : ∀ (x : Bool), (false ^^ x) = x := false_bne
+@[simp] theorem not_xor : ∀ (x y : Bool), (!x ^^ y) = !(x ^^ y) := by decide
+@[simp] theorem xor_not : ∀ (x y : Bool), (x ^^ !y) = !(x ^^ y) := by decide
 
-theorem xor_false : ∀ (x : Bool), (x ^^ false) = x := bne_false
+theorem not_xor_self : ∀ (x : Bool), (!x ^^ x) = true := by decide
+theorem xor_not_self : ∀ (x : Bool), (x ^^ !x) = true := by decide
 
-theorem true_xor : ∀ (x : Bool), (true ^^ x) = !x := true_bne
+theorem xor_eq_true_iff : ∀ {x y : Bool}, (x ^^ y) = true ↔ x ≠ y := by simp
+@[simp] theorem xor_eq_false_iff : ∀ {x y : Bool}, (x ^^ y) = false ↔ x = y := by decide
 
-theorem xor_true : ∀ (x : Bool), (x ^^ true) = !x := bne_true
+@[simp] theorem xor_self_left  : ∀ (x y : Bool), (x ^^ (x ^^ y)) = y := by decide
+@[simp] theorem xor_self_right : ∀ (x y : Bool), ((x ^^ y) ^^ y) = x := by decide
 
-theorem not_xor_self : ∀ (x : Bool), (!x ^^ x) = true := not_bne_self
+theorem not_xor_not : ∀ (x y : Bool), (!x ^^ !y) = (x ^^ y) := by simp
 
-theorem xor_not_self : ∀ (x : Bool), (x ^^ !x) = true := bne_not_self
-
-theorem not_xor : ∀ (x y : Bool), (!x ^^ y) = !(x ^^ y) := by decide
-
-theorem xor_not : ∀ (x y : Bool), (x ^^ !y) = !(x ^^ y) := by decide
-
-theorem not_xor_not : ∀ (x y : Bool), (!x ^^ !y) = (x ^^ y) := not_bne_not
-
-theorem xor_self : ∀ (x : Bool), (x ^^ x) = false := by decide
+@[simp] theorem xor_right_inj : ∀ {x y z : Bool}, (x ^^ y) = (x ^^ z) ↔ y = z := by decide
+@[simp] theorem xor_left_inj : ∀ {x y z : Bool}, (x ^^ z) = (y ^^ z) ↔ x = y := by decide
 
 theorem xor_comm : ∀ (x y : Bool), (x ^^ y) = (y ^^ x) := by decide
-
 theorem xor_left_comm : ∀ (x y z : Bool), (x ^^ (y ^^ z)) = (y ^^ (x ^^ z)) := by decide
-
 theorem xor_right_comm : ∀ (x y z : Bool), ((x ^^ y) ^^ z) = ((x ^^ z) ^^ y) := by decide
+instance : Std.Commutative (· ^^ ·) := ⟨xor_comm⟩
 
-theorem xor_assoc : ∀ (x y z : Bool), ((x ^^ y) ^^ z) = (x ^^ (y ^^ z)) := bne_assoc
+@[simp] theorem xor_eq_left : ∀ {a b : Bool}, ((a ^^ b) = a) ↔ (b = false) := by decide
+@[simp] theorem xor_eq_right : ∀ {a b : Bool}, ((a ^^ b) = b) ↔ (a = false) := by decide
+@[simp] theorem eq_self_xor : ∀ {a b : Bool}, (a = (a ^^ b)) ↔ (b = false) := by decide
+@[simp] theorem eq_xor_self : ∀ {a b : Bool}, (b = (a ^^ b)) ↔ (a = false) := by decide
 
-theorem xor_right_inj : ∀ {x y z : Bool}, (x ^^ y) = (x ^^ z) ↔ y = z := bne_right_inj
+@[simp] theorem xor_eq_not_left : ∀ {a b : Bool}, ((a ^^ b) = !a) ↔ (b = true) := by decide
+@[simp] theorem xor_eq_not_right : ∀ {a b : Bool}, ((a ^^ b) = !b) ↔ (a = true) := by decide
+@[simp] theorem eq_not_self_xor : ∀ {a b : Bool}, (a = !(a ^^ b)) ↔ (b = true) := by decide
+@[simp] theorem eq_not_xor_self : ∀ {a b : Bool}, (b = !(a ^^ b)) ↔ (a = true) := by decide
 
-theorem xor_left_inj : ∀ {x y z : Bool}, (x ^^ z) = (y ^^ z) ↔ x = y := bne_left_inj
+theorem xor_eq_or_and_not_or_not : ∀ (x y : Bool), (x ^^ y) = ((x || y) && (!x || !y)) := by decide
+
+theorem xor_eq_and_not_or_not_and : ∀ (x y : Bool), (x ^^ y) = ((x && !y) || (!x && y)) := by decide
+
+theorem xor_eq_bne : ∀ (x y : Bool), (x ^^ y) = (x != y) := by decide
 
 /-! ### le/lt -/
 
@@ -613,7 +618,7 @@ theorem decide_beq_decide (p q : Prop) [dpq : Decidable (p ↔ q)] [dp : Decidab
 
 end Bool
 
-export Bool (cond_eq_if cond_eq_ite xor and or not)
+export Bool (cond_eq_if cond_eq_ite)
 
 /-! ### decide -/
 
@@ -630,7 +635,7 @@ This should not be turned on globally as an instance because it degrades perform
 but may be used locally.
 -/
 @[instance_reducible]
-def boolPredToPred : Coe (α → Bool) (α  → Prop) where
+def boolPredToPred : Coe (α → Bool) (α → Prop) where
   coe r := fun a => Eq (r a) true
 
 /--

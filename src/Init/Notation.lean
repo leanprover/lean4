@@ -412,10 +412,12 @@ recommended_spelling "not" for "¬" in [Not, «term¬_»]
 @[inherit_doc] infixl:35 " && " => and
 @[inherit_doc] infixl:30 " || " => or
 @[inherit_doc] notation:max "!" b:40 => not b
+@[inherit_doc] infixl:33 " ^^ " => xor
 
 recommended_spelling "and" for "&&" in [and, «term_&&_»]
-recommended_spelling "or" for "||" in [and, «term_||_»]
+recommended_spelling "or" for "||" in [or, «term_||_»]
 recommended_spelling "not" for "!" in [not, «term!_»]
+recommended_spelling "xor" for "^^" in [xor, «term_^^_»]
 
 @[inherit_doc] notation:50 a:50 " ∈ " b:50 => Membership.mem b a
 /-- `a ∉ b` is negated elementhood. It is notation for `¬ (a ∈ b)`. -/

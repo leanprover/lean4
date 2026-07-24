@@ -337,7 +337,7 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
             at htip heval
           have hleval := cache.inv assign heval.left lhs.gate (by omega) hl
           have hreval := cache.inv assign heval.left rhs.gate (by omega) hr
-          simp only [denote_idx_gate htip, Bool.bne_false, projectRightAssign_property, heval]
+          simp only [denote_idx_gate htip, Bool.xor_false, projectRightAssign_property, heval]
           generalize lhs.invert = linv
           generalize rhs.invert = rinv
           cases linv <;> cases rinv <;> simp [hleval, hreval]

@@ -118,7 +118,8 @@ where
     checkpointDefEq do
       -- the unification hint might only be imported privately and thus not available
       -- in the public context
-      let some cinfo := (← getEnv).find? candidate | return false
+      let some cinfo := (← getEnv).find? candidate |
+        throwUnknownConstant candidate
       let us ← cinfo.levelParams.mapM fun _ => mkFreshLevelMVar
       let val ← instantiateValueLevelParams cinfo us
       let (xs, bis, body) ← lambdaMetaTelescope val

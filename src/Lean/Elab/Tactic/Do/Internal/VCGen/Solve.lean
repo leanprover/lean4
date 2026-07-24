@@ -500,29 +500,21 @@ private def mkJPJumpPayload? (jpInfo : JPDefInfo) (e matchExpr : Expr) :
 
 /-- Build the proof of `∃ locals, ⋀ joinParams = joinArgs`, supplying each `∃` binder from
 `witnesses` (the actual locals) and closing the residual equalities by `rfl`. Every node of the
-payload is built by `mkJPJumpPayload?`, so its shape is matched syntactically (`let`-closed locals
-zeta-reduce as they are passed) and the universe levels are read off the payload's own constants;
-`whnfR` remains only as a fallback for a node reached through reduction. -/
+payload is built by `mkJPJumpPayload?`, so its shape is matched syntactically: `let`-closed locals
+zeta-reduce as they are passed and the universe levels are read off the payload's own constants. -/
 private partial def mkJPWitness (ty : Expr) (witnesses : List Expr) : MetaM Expr := do
-  match ty with
-  | .letE _ _ v b _ => mkJPWitness (b.instantiate1 v) witnesses
-  | .mdata _ b => mkJPWitness b witnesses
-  | _ =>
-    match_expr ty with
-    | Exists α p =>
-      let w :: ws := witnesses | throwError "JP witness underflow"
-      return mkApp4 (mkConst ``Exists.intro ty.getAppFn.constLevels!) α p w
-        (← mkJPWitness (p.beta #[w]) ws)
-    | And a b =>
-      return mkApp4 (mkConst ``And.intro) a b (← mkJPWitness a witnesses) (← mkJPWitness b witnesses)
-    | True => return mkConst ``True.intro
-    | Eq α lhs _ => return mkApp2 (mkConst ``Eq.refl ty.getAppFn.constLevels!) α lhs
-    | _ =>
-      let ty' ← Meta.whnfR ty
-      if ty' != ty then
-        mkJPWitness ty' witnesses
-      else
-        throwError "JP witness: unexpected residual{indentExpr ty}"
+  if let .letE _ _ v b _ := ty then
+    return ← mkJPWitness (b.instantiate1 v) witnesses
+  match_expr ty with
+  | Exists α p =>
+    let w :: ws := witnesses | throwError "JP witness underflow"
+    return mkApp4 (mkConst ``Exists.intro ty.getAppFn.constLevels!) α p w
+      (← mkJPWitness (p.beta #[w]) ws)
+  | And a b =>
+    return mkApp4 (mkConst ``And.intro) a b (← mkJPWitness a witnesses) (← mkJPWitness b witnesses)
+  | True => return mkConst ``True.intro
+  | Eq α lhs _ => return mkApp2 (mkConst ``Eq.refl ty.getAppFn.constLevels!) α lhs
+  | _ => throwError "JP witness: unexpected residual{indentExpr ty}"
 
 /-- Prove disjunct `idx` of the `count`-fold right-nested disjunction `φ`, witnessing the selected
 disjunct via `mkJPWitness`. -/

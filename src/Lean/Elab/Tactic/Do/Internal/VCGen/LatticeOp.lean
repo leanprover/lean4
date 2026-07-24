@@ -28,7 +28,7 @@ fires on the reduced form, and any state arguments the terminal leaves over-appl
 onto the precondition.
 
 A frame operator contributes its own rewrites and terminals through its `@[frameproc]`; the built-in
-seeds cover the lattice connectives `⊓`/`⇨`/`⌜·⌝`/`⊤` and the magic-wand residual `upperAdjoint`.
+seeds cover the lattice connectives `⊓`/`⇨`/`⌜·⌝`/`⊤`/`iInf` and the magic-wand residual `upperAdjoint`.
 -/
 
 /-- The lattice meet `⊓`: distributes via `meet_apply`, closes with `le_meet`. -/
@@ -49,10 +49,14 @@ public def LatticeOp.top : LatticeOp :=
 public def LatticeOp.upperAdjoint : LatticeOp :=
   { head := ``Lean.Order.PreservesSup.upperAdjoint,
     terminal? := ``Lean.Order.PreservesSup.le_upperAdjoint }
+/-- Indexed infimum `iInf`/`⨅`: distributes via `iInf_apply`, closes with `le_iInf`. -/
+public def LatticeOp.iInf : LatticeOp :=
+  { head := ``Lean.Order.iInf, numConst := 3,
+    rewrites := #[``Lean.Order.iInf_apply], terminal? := ``Lean.Order.le_iInf }
 
 /-- The built-in connective splits, whose rewrites and terminals seed every saturation. -/
 public def builtinLatticeOps : Array LatticeOp :=
-  #[.meet, .himp, .ofProp, .top, .upperAdjoint]
+  #[.meet, .himp, .ofProp, .top, .upperAdjoint, .iInf]
 
 /-- The lattice-split table keyed by operator head, merging the built-in connectives with the
 registered frame operators' splits. -/
@@ -176,7 +180,6 @@ public def mkLatticeOpRule (rhs : Expr) (op : LatticeOp) : SymM BackwardRule := 
         pure (mkApp eqMp termProof)
     let res ← abstractMVars prf
     mkBackwardRuleFromExpr res.expr res.paramNames.toList
-
 
 end VCGen
 end Lean.Elab.Tactic.Do.Internal

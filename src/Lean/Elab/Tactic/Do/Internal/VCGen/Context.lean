@@ -74,6 +74,8 @@ public structure VCGen.BackwardRules where
   /-- The backward rule for `meet_top_le_of_le`. Cancels a redundant `⊓ ⊤` on the left of an
   entailment, turning `P ⊓ ⊤ ⊑ Q` into `P ⊑ Q`. -/
   meetTop : BackwardRule
+  /-- The backward rule for `le_forall`. Splits a `∀`/`→` on the RHS of a `Prop` entailment. -/
+  forallIntro : BackwardRule
 
 /-- Build the backward rules used by `solve` from their underlying lemmas. -/
 public def VCGen.mkBackwardRules : MetaM VCGen.BackwardRules := do
@@ -87,6 +89,7 @@ public def VCGen.mkBackwardRules : MetaM VCGen.BackwardRules := do
     andIntro := ← mkBackwardRuleFromDecl ``And.intro
     refl := ← mkBackwardRuleFromDecl ``Lean.Order.PartialOrder.rel_refl
     meetTop := ← mkBackwardRuleFromDecl ``Std.Internal.Do.CompleteLattice.meet_top_le_of_le
+    forallIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_forall
   }
 
 public structure VCGen.Context where

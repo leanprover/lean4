@@ -180,7 +180,7 @@ theorem drop_set {l : List α} {i j : Nat} {a : α} :
 
 theorem set_drop {l : List α} {i j : Nat} {a : α} :
     (l.drop i).set j a = (l.set (i + j) a).drop i := by
-  rw [drop_set, if_neg, add_sub_self_left]
+  rw [drop_set, ite_eq_right, add_sub_self_left]
   exact (Nat.not_lt).2 (le_add_right ..)
 
 theorem take_concat_get {l : List α} {i : Nat} (h : i < l.length) :

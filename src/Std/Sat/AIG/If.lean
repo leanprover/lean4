@@ -86,16 +86,19 @@ instance : LawfulOperator α TernaryInput mkIfCached where
       apply LawfulOperator.lt_size_of_lt_aig_size (f := mkAndCached)
       omega
 
-theorem if_as_bool (d l r : Bool) : (if d then l else r) = ((d && l) || (!d && r))  := by
+theorem ite_as_bool (d l r : Bool) : (if d then l else r) = ((d && l) || (!d && r))  := by
   revert d l r
   decide
+
+@[deprecated Std.Sat.AIG.ite_as_bool (since := "2026-07-21")]
+theorem if_as_bool (d : Bool) (l : Bool) (r : Bool) : (if d = Bool.true then l else r) = (d && l || !d && r) := Std.Sat.AIG.ite_as_bool d l r
 
 @[simp]
 theorem denote_mkIfCached {aig : AIG α} {input : TernaryInput aig} :
     ⟦aig.mkIfCached input, assign⟧
       =
     if ⟦aig, input.discr, assign⟧ then ⟦aig, input.lhs, assign⟧ else ⟦aig, input.rhs, assign⟧ := by
-  rw [if_as_bool]
+  rw [ite_as_bool]
   simp only [mkIfCached]
   simp only [TernaryInput.cast, Ref.cast_eq, Ref.cast, denote_mkOrCached, denote_projected_entry,
     denote_mkAndCached, denote_mkNotCached]

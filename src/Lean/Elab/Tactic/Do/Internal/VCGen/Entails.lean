@@ -82,7 +82,7 @@ private def refoldHimpUpperAdjoint? (goal : MVarId) (rhs : Expr) :
     return some (← goal.replaceTargetDefEqFast newTarget, rhs')
 
 /--
-Decompose a supported lattice connective (`⊓`, `⇨`, `⌜p⌝`, `⊤`) or a registered frame operator on the
+Decompose a supported lattice connective (`⊓`, `⇨`, `⌜p⌝`, `⊤`, `iInf`) or a registered frame operator on the
 RHS of `pre ⊑ rhs` by saturating it with the built-in and `@[frameproc]` rewrites, closing it with a
 terminal, and point-framing any excess state arguments. Returns `none` if the head is neither a
 built-in connective nor a frame operator, or its rule does not apply.
@@ -99,6 +99,14 @@ public def splitLatticeOp? (goal : MVarId) (rhs : Expr) :
   let some op := (← read).latticeOps[headName]? | return none
   let rule ← mkLatticeOpRuleCached rhs op
   match ← rule.applyChecked goal with
+  | .goals goals => return some goals
+  | .failed => return none
+
+/-- Decompose a `∀`/`→` on the RHS of `pre ⊑ (∀ x, q x)` via `le_forall`. -/
+public def splitForallLe? (goal : MVarId) (rhs : Expr) :
+    VCGenM (Option (List MVarId)) := do
+  unless rhs.isForall do return none
+  match ← (← read).backwardRules.forallIntro.applyChecked goal with
   | .goals goals => return some goals
   | .failed => return none
 

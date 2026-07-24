@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_nat_to_int(lean_object*);
-uint8_t l_Float_Model_UnpackedFloat_instBEqSign_beq(uint8_t, uint8_t);
+uint8_t l_Float_Model_UnpackedFloat_instDecidableEqSign(uint8_t, uint8_t);
 lean_object* l_Float_Model_UnpackedFloat_decreaseExponent(lean_object*, lean_object*, lean_object*);
 lean_object* l_Float_Model_UnpackedFloat_Sign_apply(uint8_t, lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
@@ -53,7 +53,7 @@ uint8_t v_sign_8_; uint8_t v_sign_9_; uint8_t v___x_10_;
 v_sign_8_ = lean_ctor_get_uint8(v_x_6_, 0);
 v_sign_9_ = lean_ctor_get_uint8(v_x_7_, 0);
 lean_dec_ref_known(v_x_7_, 0);
-v___x_10_ = l_Float_Model_UnpackedFloat_instBEqSign_beq(v_sign_8_, v_sign_9_);
+v___x_10_ = l_Float_Model_UnpackedFloat_instDecidableEqSign(v_sign_8_, v_sign_9_);
 if (v___x_10_ == 0)
 {
 lean_object* v___x_11_; 
@@ -103,7 +103,7 @@ uint8_t v_sign_12_; uint8_t v_sign_13_; uint8_t v___x_14_;
 v_sign_12_ = lean_ctor_get_uint8(v_x_6_, 0);
 v_sign_13_ = lean_ctor_get_uint8(v_x_7_, 0);
 lean_dec_ref_known(v_x_7_, 0);
-v___x_14_ = l_Float_Model_UnpackedFloat_instBEqSign_beq(v_sign_12_, v_sign_13_);
+v___x_14_ = l_Float_Model_UnpackedFloat_instDecidableEqSign(v_sign_12_, v_sign_13_);
 if (v___x_14_ == 0)
 {
 lean_object* v___x_15_; 

@@ -10,6 +10,10 @@ def fmt (stx : CoreM Syntax) : CoreM Format := do PrettyPrinter.ppTerm ⟨← st
 #eval fmt `(if c then do t else if c then do t else do e) -- FIXME: make this cascade better?
 #eval fmt `(do if c then t else e)
 #eval fmt `(do if c then t else if c then t else e)
+#eval fmt `(do for x in xs do pure ())
+#eval fmt `(do let mut acc := 0; for x in xs do acc := acc + x; return acc)
+#eval fmt `(do while c do pure ())
+#eval fmt `(do unless c do pure ())
 
 #eval fmt `(def foo := by
   · skip; skip

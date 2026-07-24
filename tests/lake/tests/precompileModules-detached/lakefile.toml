@@ -1,0 +1,8 @@
+name = "precompileModules-detached"
+precompileModules = true
+
+[[lean_lib]]
+name = "Upstream"
+
+[[lean_lib]]
+name = "Downstream"

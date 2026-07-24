@@ -34,7 +34,7 @@ Collect the local modules of a library.
 That is, the modules from `getModuleArray` plus their local transitive imports.
 -/
 partial def LeanLib.recCollectLocalModules
-  (self : LeanLib) : FetchM (Job (Array Module))
+  (self : LeanLib) : FetchM (Job OrdModuleSet)
 := ensureJob do
   let mut col : ModuleCollection := {}
   for mod in (← self.getModuleArray) do
@@ -43,7 +43,7 @@ partial def LeanLib.recCollectLocalModules
     -- This is not considered a fatal error because we want the modules
     -- built to provide better error categorization in the monitor.
     logError s!"{self.name}: some modules have bad imports"
-  return Job.pure col.mods
+  return Job.pure ⟨col.modSet, col.mods⟩
 where
   go root col := do
     let mut col := col
@@ -83,7 +83,7 @@ public def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
       ""
   withRegisterJob s!"{self.name}:static{suffix}" <| withCurrPackage self.pkg do
   let mods ← (← self.modules.fetch).await
-  let oJobs ← mods.flatMapM fun mod =>
+  let oJobs ← mods.toArray.flatMapM fun mod =>
     mod.nativeFacets shouldExport |>.mapM (·.fetch mod)
   let moreOJobs ← self.moreLinkObjs.mapM (·.fetchIn self.pkg)
   let libFile := if shouldExport then self.staticExportLibFile else self.staticLibFile
@@ -126,7 +126,7 @@ public def LeanLib.staticExportFacetConfig : LibraryFacetConfig staticExportFace
 def LeanLib.recBuildShared (self : LeanLib) : FetchM (Job Dynlib) := do
   withRegisterJob s!"{self.name}:shared" <| withCurrPackage self.pkg do
   let mods ← (← self.modules.fetch).await
-  let objJobs ← mods.flatMapM fun mod =>
+  let objJobs ← mods.toArray.flatMapM fun mod =>
     mod.nativeFacets true |>.mapM (·.fetch mod)
   let objJobs ← self.moreLinkObjs.foldlM (init := objJobs)
     (·.push <$> ·.fetchIn self.pkg)

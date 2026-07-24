@@ -124,40 +124,58 @@ def Module.recComputePrecompileImports (mod : Module) : FetchM (Job (Array Modul
 public def Module.precompileImportsFacetConfig : ModuleFacetConfig precompileImportsFacet :=
   mkFacetJobConfig recComputePrecompileImports (buildable := false)
 
+/-- Whether this module is included in `lib.modules` for its parent library `lib`.
+This is false of "orphaned" modules not imported by their parent library's root module. -/
+def Module.containedInLibModules (mod : Module) : FetchM Bool := do
+  return (← (← mod.lib.modules.fetch).await).contains mod
+
 /--
-Computes the transitive dynamic libraries of a module's imports.
-Modules from the same library are loaded individually, while modules
-from other libraries are loaded as part of the whole library.
--/
+Computes the dynamic libraries of `self`'s transitive imports `imps`.
+Modules from the same library as `self` are loaded individually,
+while modules from other libraries are
+- loaded through their library's shared target if they are included in this target,
+- otherwise also individually. -/
 def Module.fetchImportLibs
   (self : Module) (imps : Array Module) (compileSelf : Bool)
 : FetchM (Array (Job Dynlib)) := do
   let (_, jobs) ← imps.foldlM (init := (({} : NameSet), #[])) fun (libs, jobs) imp => do
-    if libs.contains imp.lib.name then
-      return (libs, jobs)
-    else if compileSelf && self.lib.name = imp.lib.name then
+    if compileSelf && self.lib.name = imp.lib.name then
       let job ← imp.dynlib.fetch
       return (libs, jobs.push job)
     else if compileSelf || imp.shouldPrecompile then
-      let jobs ← jobs.push <$> imp.lib.shared.fetch
-      return (libs.insert imp.lib.name, jobs)
+      if ← imp.containedInLibModules then
+        if libs.contains imp.lib.name then
+          return (libs, jobs)
+        else
+          let job ← imp.lib.shared.fetch
+          return (libs.insert imp.lib.name, jobs.push job)
+      else
+        -- TODO: consider linting for orphaned modules
+        let job ← imp.dynlib.fetch
+        return (libs, jobs.push job)
     else
       return (libs, jobs)
   return jobs
 
 /--
-Fetches the library dynlibs of a list of non-local imports.
-Modules are loaded as part of their whole library.
+Fetches the dynamic libraries of a list `mods` of non-local imports.
+Modules are loaded through their library's shared target if they are included in this target,
+otherwise individually.
 -/
 def fetchImportLibs
   (mods : Array Module) : FetchM (Job (Array Dynlib))
 := do
   let (_, jobs) ← mods.foldlM (init := (({} : NameSet), #[])) fun (libs, jobs) imp => do
-    if libs.contains imp.lib.name then
-      return (libs, jobs)
-    else if imp.shouldPrecompile then
-      let jobs ← jobs.push <$> imp.lib.shared.fetch
-      return (libs.insert imp.lib.name, jobs)
+    if imp.shouldPrecompile then
+      if ← imp.containedInLibModules then
+        if libs.contains imp.lib.name then
+          return (libs, jobs)
+        else
+          let job ← imp.lib.shared.fetch
+          return (libs.insert imp.lib.name, jobs.push job)
+      else
+        let job ← imp.dynlib.fetch
+        return (libs, jobs.push job)
     else
       return (libs, jobs)
   return Job.collectArray jobs "import dynlibs"
@@ -206,17 +224,19 @@ def computeModuleDeps
   -/
   let impLibs ← mkLoadOrder impLibs
   let mut dynlibs := externLibs ++ dynlibs
-  let mut plugins := plugins
   for impLib in impLibs do
-    if impLib.plugin then
-      plugins := plugins.push impLib
-    else
-      dynlibs := dynlibs.push impLib
+    /- Load as dynlib (not plugin) because:
+    - imported modules will be initialized in `importModules` anyway; and
+    - since imports from a different `pkg` are loaded together through `pkg:shared`,
+      passing `pkg:shared` as a plugin would initialize too much,
+      namely all modules in `pkg` rather than just the ones we have imported. -/
+    dynlibs := dynlibs.push impLib
   /-
   On MacOS, Lake must be loaded as a plugin for
   `import Lake` to work with precompiled modules.
   https://github.com/leanprover/lean4/issues/7388
   -/
+  let mut plugins := plugins
   if Platform.isOSX && !(plugins.isEmpty && dynlibs.isEmpty) then
     plugins := plugins.push (← getLakeInstall).sharedDynlib
   return {dynlibs, plugins}

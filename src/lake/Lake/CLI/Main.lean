@@ -74,6 +74,7 @@ public structure LakeOptions where
   toolchain? : Option CacheToolchain := none
   rev? : Option GitRev := none
   maxRevs : Nat := 100
+  summary : Bool := false
   shake : Shake.Args := {}
   builtinLint : BuiltinLint.Args := {}
   /-- Whether `lake lint` should also run builtin lints (via `--builtin-lint`). -/
@@ -140,6 +141,7 @@ def LakeOptions.mkBuildConfig
   outLv := opts.outLv
   ansiMode := opts.ansiMode
   outputsFile? := opts.outputsFile?
+  summary := opts.summary
   out; showSuccess
 
 export LakeOptions (mkLoadConfig mkBuildConfig)
@@ -339,6 +341,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
   let configFile ← takeOptArg "--file" "path"
   modifyThe LakeOptions ({· with configFile})
 | "--help"        => modifyThe LakeOptions ({· with wantsHelp := true})
+| "--summary"     => modifyThe LakeOptions ({· with summary := true})
 | "--"            => do
   let subArgs ← takeArgs
   modifyThe LakeOptions ({· with subArgs})

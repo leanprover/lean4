@@ -2587,11 +2587,13 @@ extern "C" LEAN_EXPORT obj_res lean_byte_array_push(obj_arg a, uint8 b) {
     return r;
 }
 
-    extern "C" LEAN_EXPORT obj_res lean_byte_array_copy_slice(b_obj_arg src, obj_arg o_src_off, obj_arg dest, obj_arg o_dest_off, obj_arg o_len, bool exact) {
+extern "C" LEAN_EXPORT obj_res lean_byte_array_copy_slice(b_obj_arg src, obj_arg o_src_off, obj_arg dest, obj_arg o_dest_off, obj_arg o_len, bool exact) {
     size_t ssz = lean_sarray_size(src);
     size_t dsz = lean_sarray_size(dest);
     size_t src_off = lean_nat_to_size_t(o_src_off);
     if (src_off > ssz) {
+        lean_dec(o_dest_off);
+        lean_dec(o_len);
         return dest;
     }
     size_t len = std::min(lean_nat_to_size_t(o_len), ssz - src_off);

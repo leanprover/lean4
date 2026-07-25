@@ -55,9 +55,11 @@ def isDeclMeta (env : Environment) (declName : Name) : Bool :=
     let inferFor := match declName with
       | .str n "_boxed" => n
       | n               => n
-    match env.getModuleIdxFor? declName with
-    | some idx => declMetaExt.getModuleEntries env idx |>.binSearchContains inferFor Name.quickLt
-    | none => declMetaExt.getState env |>.contains inferFor
+    -- Check both imported entries and local state (same pattern as `LCNF.findExtEntry?`):
+    -- `setDeclMeta` adds to local state, which must be visible even for imported decls.
+    (env.getModuleIdxFor? declName |>.bind fun idx =>
+      guard <| declMetaExt.getModuleEntries env idx |>.binSearchContains inferFor Name.quickLt).isSome ||
+    (declMetaExt.getState env).contains inferFor
 
 /-- Marks a declaration to be exported for interpretation. -/
 def setDeclMeta (env : Environment) (declName : Name) : Environment :=

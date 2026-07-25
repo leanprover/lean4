@@ -2587,15 +2587,26 @@ extern "C" LEAN_EXPORT obj_res lean_byte_array_push(obj_arg a, uint8 b) {
     return r;
 }
 
-    extern "C" LEAN_EXPORT obj_res lean_byte_array_copy_slice(b_obj_arg src, obj_arg o_src_off, obj_arg dest, obj_arg o_dest_off, obj_arg o_len, bool exact) {
+// Reads a borrowed `Nat` as a `size_t`, saturating to `SIZE_MAX` when it does not fit.
+// The offsets and length passed to `lean_byte_array_copy_slice` are clamped against the array
+// sizes, so an out-of-range value only needs to compare greater than every real size.
+static inline size_t lean_nat_to_size_t_saturating(b_obj_arg n) {
+    if (lean_is_scalar(n)) {
+        return lean_unbox(n);
+    }
+    mpz const & v = mpz_value(n);
+    return v.is_size_t() ? v.get_size_t() : std::numeric_limits<size_t>::max();
+}
+
+extern "C" LEAN_EXPORT obj_res lean_byte_array_copy_slice(b_obj_arg src, b_obj_arg o_src_off, obj_arg dest, b_obj_arg o_dest_off, b_obj_arg o_len, bool exact) {
     size_t ssz = lean_sarray_size(src);
     size_t dsz = lean_sarray_size(dest);
-    size_t src_off = lean_nat_to_size_t(o_src_off);
+    size_t src_off = lean_nat_to_size_t_saturating(o_src_off);
     if (src_off > ssz) {
         return dest;
     }
-    size_t len = std::min(lean_nat_to_size_t(o_len), ssz - src_off);
-    size_t dest_off = lean_nat_to_size_t(o_dest_off);
+    size_t len = std::min(lean_nat_to_size_t_saturating(o_len), ssz - src_off);
+    size_t dest_off = lean_nat_to_size_t_saturating(o_dest_off);
     if (dest_off > dsz) {
         dest_off = dsz;
     }

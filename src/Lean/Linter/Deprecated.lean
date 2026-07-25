@@ -21,14 +21,31 @@ register_builtin_option linter.deprecated : Bool := {
   descr := "if true, generate deprecation warnings"
 }
 
+register_builtin_option linter.deprecated.deprecatedTarget : Bool := {
+  defValue := true
+  descr := "if true, warn when a `@[deprecated]` attribute points at a declaration that is \
+    itself deprecated"
+}
+
 structure DeprecationEntry where
   newName? : Option Name := none
   text? : Option String := none
   since? : Option String := none
   deriving Inhabited
 
-builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ←
-  registerParametricAttribute {
+open Meta in
+def deprecationTypeMismatchNote? (oldName newName : Name) : CoreM (Option MessageData) := do
+  let env ← getEnv
+  let some old := env.find? oldName | return none
+  let some new := env.find? newName | return none
+  if ← MetaM.run' <| withReducible <| isDefEqGuarded old.type new.type then
+    return none
+  return some <| .note m!"The suggested replacement has a different type:{indentExpr new.type}\
+    \ninstead of{indentExpr old.type}"
+
+builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ← do
+  let ext ← registerParametricAttributeExt (α := DeprecationEntry) `Lean.Linter.deprecatedAttr
+  registerParametricAttributeForExt (ext := ext) {
     name := `deprecated
     descr := "mark declaration as deprecated",
     getParam := fun declName stx => do
@@ -39,6 +56,27 @@ builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ←
         throwError "Invalid `[deprecated]` attribute: `{.ofConstName declName true}` cannot be deprecated in favor of itself"
       if let some newName := newName? then
         recordExtraModUseFromDecl (isMeta := false) newName
+        if getLinterValue linter.deprecated (← getLinterOptions)
+            && linter.deprecated.deprecatedTarget.get (← getOptions) then
+          let env ← getEnv
+          match ParametricAttribute.getParamFromExt? ext (preserveOrder := false) env newName with
+          | none => pure ()
+          | some entry =>
+            let disableNote : MessageData := .note m!"This warning can be disabled with \
+              `set_option {linter.deprecated.deprecatedTarget.name} false`"
+            match entry.newName? with
+            | some next =>
+              if next != newName && next != declName then
+                let mut msg := m!"`{.ofConstName newName true}` is itself deprecated in favor of \
+                  `{.ofConstName next true}`; consider deprecating `{.ofConstName declName true}` \
+                  in favor of `{.ofConstName next true}` instead"
+                if let some note ← deprecationTypeMismatchNote? declName next then
+                  msg := msg ++ note
+                logWarning <| msg ++ disableNote
+            | none =>
+              logWarning <| m!"`{.ofConstName newName true}` is itself deprecated, but without an \
+                explicit replacement; `{.ofConstName declName true}` is being deprecated in favor \
+                of a deprecated declaration" ++ disableNote
       let text? := text?.map TSyntax.getString
       let since? := since?.map TSyntax.getString
       if id?.isNone && text?.isNone then

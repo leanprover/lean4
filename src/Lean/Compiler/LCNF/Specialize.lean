@@ -9,6 +9,7 @@ public import Lean.Compiler.LCNF.SpecInfo
 public import Lean.Compiler.LCNF.MonadScope
 public import Lean.Compiler.LCNF.FVarUtil
 import Lean.Compiler.LCNF.Simp
+import Lean.Compiler.Options
 import Lean.Compiler.LCNF.ToExpr
 import Lean.Compiler.LCNF.Level
 import Lean.Compiler.LCNF.Closure
@@ -31,18 +32,54 @@ builtin_initialize specCacheExt : SimplePersistentEnvExtension CacheEntry Cache 
   registerSimplePersistentEnvExtension {
     addEntryFn    := addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries addEntry {} es).switch
-    exportEntriesFnEx? := some fun _ _ entries =>
-      { exported := #[], server := #[], «private» := entries.toArray }
+    exportEntriesFnEx? := some fun env _ entries =>
+      -- Under the module system `leanir` is authoritative for spec decl names: its `mkSpecDecl`
+      -- numbering differs from the frontend's (the counter depends on compilation order), so the
+      -- frontend's `.olean` names disagree with the actual IR leanir writes to `.ir`. Exporting the
+      -- cache here would leak the frontend's stale names to importers, leaving them with dangling
+      -- references. Instead leanir writes the cache into `.ir` via `exportSpecCacheIREntries`.
+      if env.header.isModule then
+        .uniform #[]
+      else
+        { exported := #[], server := #[], «private» := entries.toArray }
     asyncMode     := .sync
     replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
       (!·.contains ·.key) addEntry
   }
+
+/--
+IR export entry for the specialization cache, written into `.ir` by `leanir` so importers read the
+authoritative leanir-generated spec names (see the exporter on `specCacheExt`). Returns the local
+(leanir-session) cache entries only.
+-/
+public def exportSpecCacheIREntries (env : Environment) : Name × Array EnvExtensionEntry :=
+  -- safety: cast to erased type, mirroring `IR.exportIREntries`
+  (specCacheExt.name, unsafe unsafeCast (specCacheExt.getEntries env).toArray)
 
 public def cacheSpec (key : Expr) (declName : Name) : CoreM Unit :=
   modifyEnv fun env => specCacheExt.addEntry env { key, declName }
 
 public def findSpecCache? (key : Expr) : CoreM (Option Name) :=
   return specCacheExt.getState (← getEnv) |>.find? key
+
+/--
+Whether the cached spec `declName` may be reused at the current point. In a module build, reusing a
+spec defined in a non-exported (privately/`meta`-only imported) module would create a reference that
+`checkMeta`/`checkTemplateVisibility` reject (and that may fail to link); the caller re-specializes
+locally instead. `leanir` is authoritative for spec names and performs the accessibility check
+itself, so it always reuses.
+-/
+def canReuseSpec (declName : Name) : CoreM Bool := do
+  let env ← getEnv
+  if !env.header.isModule then return true
+  if (← compiler.inLeanIR.getM) then return true
+  let some modIdx := env.getModuleIdxFor? declName | return true
+  return !(env.header.modules[modIdx]?.any (!·.isExported))
+
+/-- Like `findSpecCache?` but only returns a cached spec that may be reused here (`canReuseSpec`). -/
+def findReusableSpecCache? (key : Expr) : CoreM (Option Name) := do
+  let some declName ← findSpecCache? key | return none
+  if ← canReuseSpec declName then return some declName else return none
 
 structure Context where
   /--
@@ -413,7 +450,7 @@ mutual
     assert! !key.hasFVar
     let usNew := levelParamsNew.map mkLevelParam
     let argsNew := params.map (.fvar ·.fvarId) ++ getRemainingArgs paramsInfo args
-    if let some declName ← findSpecCache? key then
+    if let some declName ← findReusableSpecCache? key then
       trace[Compiler.specialize.step] "cached: {declName}"
       return some (.const declName usNew argsNew)
     else

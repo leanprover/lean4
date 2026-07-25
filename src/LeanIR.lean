@@ -17,6 +17,7 @@ import Lean.Compiler.LCNF.EmitC
 import Lean.Language.Lean
 import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.LCNF.Main
+import Lean.Compiler.LCNF.Specialize
 
 /-! Lean codegen as a separate process. -/
 
@@ -34,8 +35,9 @@ def mkIRData (env : Environment) : IO ModuleData := do
 
   -- `exportIREntries` provides full IR for `declMapExt` and `regularInitAttr`; filter them from
   -- `mkModuleData` to prevent the latter's opaque-extern entries from overwriting the full IR
-  -- in `setImportedEntries`
-  let irEntries := exportIREntries env
+  -- in `setImportedEntries`. The spec cache is appended likewise so importers read leanir's
+  -- authoritative spec names rather than the frontend's stale `.olean` names.
+  let irEntries := exportIREntries env |>.push (Specialize.exportSpecCacheIREntries env)
   let irExtNames := irEntries.map (·.1)
   let modEntries := (← mkModuleData env .private).entries.filter (!irExtNames.contains ·.1)
   return { env.header with
@@ -84,8 +86,10 @@ public def main (args : List String) : IO UInt32 := do
   let env ← profileitIO "import" opts <| withImporting do
     -- `importAll` so we have access to all private data
     let imports := #[{ module := modName, importAll := true : Import }]
-    let (_, s) ← importModulesCore (globalLevel := .exported) (loadIRSig := true)
-      (arts := setup.importArts) imports |>.run
+    -- Do NOT pass `setup.importArts`: Lake's elab-oriented setup only has IR paths for
+    -- meta/importAll deps. leanir needs `.ir.sig` for ALL deps, found via `findIRParts` on disk
+    -- (deps' `leanIR` has already run per `depBarrier` in `recBuildLeanIR`).
+    let (_, s) ← importModulesCore (globalLevel := .exported) (loadIRSig := true) imports |>.run
     let s := { s with moduleNameMap := s.moduleNameMap.modify modName fun m => { m with irPhases := .runtime } }
     -- level exported because otherwise we would try to load the current module's `.ir`
     finalizeImport (leakEnv := true) (loadExts := false) (level := .exported) (loadIRSig := true) s imports opts
@@ -104,10 +108,24 @@ public def main (args : List String) : IO UInt32 := do
   let some modIdx := env.getModuleIdx? modName
     | throw <| IO.userError s!"module '{modName}' not found"
 
+  -- leanir loads the target module as an import, so the *current* module's package
+  -- (`getModulePackage?`) is unset. Restore it from the imported module data so that locally
+  -- re-generated symbols — the module's initialization function and freshly created decls such as
+  -- `_boxed` wrappers and specializations — get the same package-qualified mangling that importers
+  -- use (see `getSymbolStem`/`mkModuleInitializationFunctionName`); otherwise they fail to link.
+  let env := env.setModulePackage (env.getModulePackageByIdx? modIdx)
+
   let decls := impureSigExt.getModuleEntries env modIdx
   let decls := decls.filter (isExtern env ·.name)
   let env := decls.foldl (fun env decl => impureSigExt.addEntry env decl) env
   let env := decls.foldl (fun env decl => setDeclPublic env decl.name) env
+
+  -- Re-localize the target module's `[init]` entries so `mkIRData`/`exportIREntries` writes them
+  -- into the `.ir`. Non-`meta` `initialize`s are excluded from `.olean` (`filterExport`) and are
+  -- meant to live in the `.ir`; without this, a module loaded only via `.ir` (transitive
+  -- `meta import`) has no initializers to run, and the interpreter then hits a dummy `Unreachable`.
+  let initEntries := regularInitAttr.ext.getModuleEntries env modIdx
+  let env := initEntries.foldl (fun env e => regularInitAttr.ext.addEntry env e) env
 
   -- Fill `declMapExt` with functions compiled already in `lean` so the set of "local" decls is
   -- unchanged and also for calculation of `extraConstNames` above
@@ -118,6 +136,15 @@ public def main (args : List String) : IO UInt32 := do
     | f => f
   let newState :=  is.importedEntries[modIdx]!.foldl (fun (decls, m) d => if isExtern env (unbox d.name) then (d::decls, m.insert d.name d) else (decls, m)) is.state
   let env := Lean.IR.declMapExt.toEnvExtension.setState (asyncMode := .sync) env { is with state := newState }
+
+  -- Drop stale loaded LCNF/IR entries for the current module. `lean` elab may have written
+  -- partial/stale state (e.g. specialization auxiliaries with different arity than leanir would
+  -- produce); leanir re-runs the full pipeline, so its in-session state must be authoritative.
+  -- Must happen AFTER the extern re-add above which reads from the imported entries.
+  let env := Lean.IR.declMapExt.clearModuleEntries env modIdx
+  let env := baseExt.clearModuleEntries env modIdx
+  let env := monoExt.clearModuleEntries env modIdx
+  let env := impureSigExt.clearModuleEntries env modIdx
 
   let some mod := env.header.moduleData[modIdx]? | unreachable!
   -- Make sure we record the actual IR dependencies, not ourselves

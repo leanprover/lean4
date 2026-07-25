@@ -546,6 +546,14 @@ structure Context where
   -/
   inTypeClassResolution : Bool := false
   /--
+  Metavariables that `isDefEq` must treat as non-assignable even at the current depth, so that a
+  would-be assignment instead triggers synthesis via `unstuckMVar`. Used by type class resolution to
+  stop unification from supplying instance arguments for the wrong expected type. Like `zetaDeltaSet`,
+  it is not part of `Config` (and hence not part of the defeq cache key) even though it affects
+  `isDefEq` results; see `withSynthesizableNonAssignable` for why this is sound.
+  -/
+  synthesizableNonAssignableMVars : MVarIdSet := {}
+  /--
   When `cacheInferType := true`, the `inferType` results are cached if the input term does not contain
   metavariables
   -/
@@ -1010,6 +1018,8 @@ def _root_.Lean.MVarId.isReadOnlyOrSyntheticOpaque (mvarId : MVarId) : MetaM Boo
   let mvarDecl ← mvarId.getDecl
   if mvarDecl.depth != (← getMCtx).depth then
     return true
+  else if (← read).synthesizableNonAssignableMVars.contains mvarId then
+    return true
   else
     match mvarDecl.kind with
     | MetavarKind.syntheticOpaque => return !(← getConfig).assignSyntheticOpaque
@@ -1344,6 +1354,28 @@ Recall that `.none < .reducible < .instances < .implicit < .default < .all`.
 /-- Execute `x` allowing `isDefEq` to assign synthetic opaque metavariables. -/
 @[inline] def withAssignableSyntheticOpaque (x : n α) : n α :=
   withConfig (fun config => { config with assignSyntheticOpaque := true }) x
+
+/--
+Execute `x` with `mvars` treated as non-assignable by `isDefEq`, even at the current depth, so that a
+would-be assignment triggers synthesis (via `unstuckMVar`) instead. See
+`Context.synthesizableNonAssignableMVars`.
+
+`mvars` must be freshly created metavariables: the set is not part of the defeq cache key, so no
+pre-existing transient cache entry may mention them. Entries created while the set is active can
+depend on it, but only the transient defeq cache can hold such entries (the other caches only store
+results for metavariable-free terms, or results computed at a fresh metavariable context depth where
+the set has no additional effect). `checkpointDefEq` clears the transient cache at the start of every
+top-level `isDefEq` call; we clear it on exit as well so that set-dependent entries cannot leak into
+an enclosing in-flight `isDefEq`.
+-/
+@[inline] def withSynthesizableNonAssignable (mvars : MVarIdSet) : n α → n α :=
+  mapMetaM fun x =>
+    if mvars.isEmpty then x
+    else
+      try
+        withReader (fun ctx => { ctx with synthesizableNonAssignableMVars := mvars }) x
+      finally
+        modifyDefEqTransientCache fun _ => {}
 
 /-- Save cache, execute `x`, restore cache -/
 @[inline] private def savingCacheImpl (x : MetaM α) : MetaM α := do

@@ -53,7 +53,7 @@ public instance [Ord α] [LE α] [LawfulOrderOrd α] :
     rw [← isLE_compare, ← isGE_compare]
     cases compare a b <;> simp
 
-public instance {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] [Antisymm (α := α) (· ≤ ·)] :
+public instance {α : Type u} {_ : Ord α} [LE α] [LawfulOrderOrd α] [Antisymm (α := α) (· ≤ ·)] :
     LawfulEqOrd α where
   eq_of_compare := by
     open Classical.Order in

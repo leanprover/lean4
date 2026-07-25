@@ -25,6 +25,10 @@ Checks whether the current platform is macOS.
 -/
 @[extern "lean_system_platform_osx"] opaque getIsOSX : Unit → Bool
 /--
+Checks whether the current platform is Linux.
+-/
+@[extern "lean_system_platform_linux"] opaque getIsLinux : Unit → Bool
+/--
 Checks whether the current platform is [Emscripten](https://emscripten.org/).
 -/
 @[extern "lean_system_platform_emscripten"] opaque getIsEmscripten : Unit → Bool
@@ -40,14 +44,14 @@ Is the current platform macOS?
 def isOSX : Bool := getIsOSX ()
 
 /--
+Is the current platform Linux?
+-/
+def isLinux : Bool := getIsLinux ()
+
+/--
 Is the current platform [Emscripten](https://emscripten.org/)?
 -/
 def isEmscripten : Bool := getIsEmscripten ()
-
-/--
-Is the current platform Linux?
--/
-def isLinux : Bool := !isWindows && !isOSX && !isEmscripten
 
 /--
 Gets the LLVM target triple of the current platform, or `""` if this was missing when Lean was

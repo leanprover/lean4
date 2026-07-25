@@ -724,16 +724,17 @@ struct scoped_current_task_object : flet<lean_task_object *> {
 
 class task_manager {
     mutex                                         m_mutex;
-    std::vector<std::unique_ptr<lthread>>         m_std_workers;
+    unsigned                                      m_num_std_workers{0};
     unsigned                                      m_idle_std_workers{0};
     unsigned                                      m_max_std_workers{0};
     unsigned                                      m_num_dedicated_workers{0};
     std::deque<lean_task_object *>                m_queues[LEAN_MAX_PRIO+1];
     unsigned                                      m_queues_size{0};
     unsigned                                      m_max_prio{0};
-    condition_variable                            m_queue_cv;
+    condition_variable                            m_queue_cv;            // notified on work arrival or shutdown
     condition_variable                            m_task_finished_cv;
-    condition_variable                            m_dedicated_finished_cv;
+    condition_variable                            m_capacity_cv;         // notified when std-worker capacity may have opened up, or shutdown
+    condition_variable                            m_worker_finished_cv;  // notified on std/dedicated worker exit or shutdown
     bool                                          m_shutting_down{false};
 
     lean_task_object * dequeue() {
@@ -769,7 +770,7 @@ class task_manager {
             m_max_prio = prio;
         m_queues[prio].push_back(t);
         m_queues_size++;
-        if (!m_idle_std_workers && m_std_workers.size() < m_max_std_workers)
+        if (!m_idle_std_workers && m_num_std_workers < m_max_std_workers)
             spawn_worker();
         else
             m_queue_cv.notify_one();
@@ -795,22 +796,29 @@ class task_manager {
         lock.lock();
     }
 
+    static constexpr unsigned WORKER_IDLE_TIMEOUT_MS = 5000;
+
     void spawn_worker() {
         if (m_shutting_down)
             return;
 
-        m_std_workers.emplace_back(new lthread([this]() {
+        // NOTE: always called inside lock
+        m_num_std_workers++;
+        // The `lthread` object is immediately destroyed, which detaches the thread.
+        lthread([this]() {
             save_stack_info(false);
             unique_lock<mutex> lock(m_mutex);
             m_idle_std_workers++;
             while (true) {
                 if (m_queues_size == 0) {
                     if (m_shutting_down) {
-                        // We're done
                         break;
                     }
-                    // Wait for new tasks
-                    m_queue_cv.wait(lock);
+                    // Wait for new tasks, with a timeout so idle threads can exit
+                    if (!m_queue_cv.wait_for(lock, chrono::milliseconds(WORKER_IDLE_TIMEOUT_MS),
+                            [&]() { return m_queues_size > 0 || m_shutting_down; })) {
+                        break;  // Exit due to timeout
+                    }
                     continue;
                 }
 
@@ -818,12 +826,14 @@ class task_manager {
                 // If we have reached the maximum number of standard workers (because the
                 // maximum was decreased by `task_get`), wait for someone else to become
                 // idle before picking up new work.
-                // But during shutdown, we skip this throttling:
-                // because the finalizer might have called m_queue_cv.notify_all() for the last
-                // time, we don't want to get stuck behind the wait().
+                // During shutdown we skip this throttling so remaining queued work drains
+                // promptly rather than blocking on capacity that will not free up.
                 if (!m_shutting_down &&
-                    m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
-                    m_queue_cv.wait(lock);
+                    m_num_std_workers - m_idle_std_workers >= m_max_std_workers) {
+                    m_capacity_cv.wait(lock, [&]() {
+                        return m_shutting_down ||
+                               m_num_std_workers - m_idle_std_workers < m_max_std_workers;
+                    });
                     continue;
                 }
 
@@ -831,10 +841,13 @@ class task_manager {
                 m_idle_std_workers--;
                 run_task(lock, t);
                 m_idle_std_workers++;
+                m_capacity_cv.notify_one();
                 reset_heartbeat();
             }
             m_idle_std_workers--;
-        }));
+            m_num_std_workers--;
+            m_worker_finished_cv.notify_all();
+        });
     }
 
     void spawn_dedicated_worker(lean_task_object * t) {
@@ -844,7 +857,7 @@ class task_manager {
             unique_lock<mutex> lock(m_mutex);
             run_task(lock, t);
             m_num_dedicated_workers--;
-            m_dedicated_finished_cv.notify_all();
+            m_worker_finished_cv.notify_all();
         });
         // `lthread` will be implicitly freed, which frees up its control resources but does not terminate the thread
     }
@@ -940,16 +953,17 @@ public:
         {
             unique_lock<mutex> lock(m_mutex);
             m_shutting_down = true;
-            // we can assume that `m_std_workers` will not be changed after this line
         }
         m_queue_cv.notify_all();
+        m_capacity_cv.notify_all();
 #ifndef LEAN_EMSCRIPTEN
         // wait for all workers to finish
-        for (auto & t : m_std_workers)
-            t->join();
-
-        unique_lock<mutex> lock(m_mutex);
-        m_dedicated_finished_cv.wait(lock, [&]() { return m_num_dedicated_workers == 0; });
+        {
+            unique_lock<mutex> lock(m_mutex);
+            m_worker_finished_cv.wait(lock, [&]() {
+                return m_num_std_workers == 0 && m_num_dedicated_workers == 0;
+            });
+        }
         // never seems to terminate under Emscripten
 #endif
     }
@@ -1006,6 +1020,7 @@ public:
                 spawn_worker();
             else
                 m_queue_cv.notify_one();
+            m_capacity_cv.notify_one();
         }
         m_task_finished_cv.wait(lock, [&]() { return t->m_value != nullptr; });
         if (in_pool) {

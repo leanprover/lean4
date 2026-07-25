@@ -24,16 +24,19 @@ partial def makeStringMatcher (discr : Ident) (cases : Array (String × Term)) (
   build 0 cases.size cases
 where
   build (start stop : Nat) (cases : Array (String × Term)) : TermElabM Term := do
-    if stop - start ≤ 5 then
+    if stop - start ≤ 2 then
       -- Switch to if/else chains once we get to a small number of options.
       cases[start:stop].foldrM (init := onFail) fun (s, body) res =>
         `(if $discr == $(quote s) then $body else $res)
     else
       let mid := (start + stop) / 2
-      let (s, _) := cases[mid]!
+      let (s, body) := cases[mid]!
       let low ← build start mid cases
-      let high ← build mid stop cases
-      `(if $discr < $(quote s) then $low else $high)
+      let high ← build (mid + 1) stop cases
+      `(match String.compare $discr $(quote s) with
+        | Ordering.lt => $low
+        | Ordering.eq => $body
+        | Ordering.gt => $high)
 
 /--
 Returns a list of types that are are missing `cls` instances such that

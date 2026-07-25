@@ -95,6 +95,11 @@ structure BVDecideConfig where
   for `bv_decide`.
   -/
   solverMode : SolverMode := .proof
+  /--
+  Whether to use native code compilation to verify the LRAT certificate. When set to `false`,
+  the certificate is verified by call-by-value reduction (`cbv`) instead.
+  -/
+  native : Bool := true
 
 end Lean.Elab.Tactic.BVDecide
 

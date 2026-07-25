@@ -2187,16 +2187,19 @@ private def getSuccesses (candidates : Array (TermElabResult Expr)) : TermElabM 
   Throw an error message that describes why each possible interpretation for the overloaded notation and symbols did not work.
   We use a nested error message to aggregate the exceptions produced by each failure.
 -/
-private def mergeFailures (failures : Array (TermElabResult Expr)) : TermElabM α := do
+private def mergeFailures (failures : Array (TermElabResult Expr)) (expectedType? : Option Expr) : TermElabM α := do
   let exs := failures.map fun | .error ex _ => ex | _ => unreachable!
-  let trees := failures.map (fun | .error _ s => s.meta.core.infoState.trees | _ => unreachable!)
-    |>.filterMap (·[0]?)
   -- Retain partial `InfoTree` subtrees in an `.ofChoiceInfo` node in case of multiple failures.
   -- This ensures that the language server still has `Info` to work with when multiple overloaded
   -- elaborators fail.
-  withInfoContext (mkInfo := pure <| .ofChoiceInfo { elaborator := .anonymous, stx := ← getRef }) do
-    for tree in trees do
-      pushInfoTree tree
+  withInfoContext (mkInfo := pure <| .ofChoiceInfo { elaborator := .anonymous, stx := (← getRef) }) do
+    for failure in failures do
+      let .error _ s := failure | unreachable!
+      withoutModifyingStateWithInfoAndMessages do
+        s.restore
+        withSaveInfoContext do
+          pushInfoTree <| .node s.meta.core.infoState.trees
+            (i := .ofPartialTermInfo { elaborator := .anonymous, stx := (← getRef), lctx := (← getLCtx), expectedType? })
   throwErrorWithNestedErrors "overloaded" exs
 
 private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (ellipsis : Bool) (expectedType? : Option Expr) : TermElabM Expr := do
@@ -2210,13 +2213,21 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
       have : 0 < successes.size := by rw [h]; decide
       applyResult successes[0]
     else if successes.size > 1 then
-      let msgs : Array MessageData ← successes.mapM fun success => do
-        match success with
-        | .ok e s => withMCtx s.meta.meta.mctx <| withEnv s.meta.core.env do addMessageContext m!"{e} : {← inferType e}"
-        | _       => unreachable!
-      throwErrorAt f "Ambiguous term{indentD f}\nPossible interpretations:{toMessageList msgs}"
+      -- Retain `InfoTree` subtrees in an `.ofChoiceInfo` node in case of ambiguity.
+      withInfoContext (mkInfo := pure <| .ofChoiceInfo { elaborator := .anonymous, stx := ← getRef }) do
+        let mut msgs : Array MessageData := #[]
+        for success in successes do
+          let .ok e s := success | unreachable!
+          let msg ← withoutModifyingStateWithInfoAndMessages do
+            s.restore
+            withSaveInfoContext do
+              pushInfoTree <| .node s.meta.core.infoState.trees
+                (i := .ofTermInfo { elaborator := .anonymous, stx := (← getRef), lctx := (← getLCtx), expectedType?, expr := e })
+            addMessageContext m!"{e} : {← inferType e}"
+          msgs := msgs.push msg
+        throwErrorAt f "Ambiguous term{indentD f}\nPossible interpretations:{toMessageList msgs}"
     else
-      withRef f <| mergeFailures candidates
+      withRef f <| mergeFailures candidates expectedType?
 
 /--
   We annotate recursive applications with their `Syntax` node to make sure we can produce error messages with

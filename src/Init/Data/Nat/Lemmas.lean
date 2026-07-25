@@ -1365,6 +1365,12 @@ theorem lt_log2_self : n < 2 ^ (n.log2 + 1) :=
   | 0 => by simp
   | n+1 => (log2_lt n.succ_ne_zero).1 (Nat.le_refl _)
 
+theorem log2.simp_eval {a b : Nat} (hl : ((nat_lit 1).shiftLeft b).ble a = true)
+    (hr : ((nat_lit 1).shiftLeft b.succ).ble a = false) : a.log2 = b := by
+  simp only [Nat.shiftLeft_eq', Nat.one_shiftLeft, Nat.ble_eq, Nat.succ_eq_add_one,
+    ← Bool.not_eq_true, Nat.not_le] at hl hr
+  exact Nat.log2_eq_iff (Nat.ne_of_gt (Nat.lt_of_lt_of_le (Nat.two_pow_pos b) hl)) |>.mpr ⟨hl, hr⟩
+
 /-! ### mod, dvd -/
 
 theorem pow_dvd_pow_iff_pow_le_pow {k l : Nat} :

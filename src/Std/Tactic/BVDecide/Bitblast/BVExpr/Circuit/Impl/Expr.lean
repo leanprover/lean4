@@ -205,21 +205,27 @@ where
           apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastRotateLeft)
           dsimp only at heaig
           assumption
-        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastRotateLeft) ..)⟩
+        ⟨⟨res, this⟩, cache.cast (by
+          simp only [res]
+          exact AIG.LawfulVecOperator.le_size (f := bitblast.blastRotateLeft) ..)⟩
       | .rotateRight distance =>
         let res := bitblast.blastRotateRight eaig ⟨evec, distance⟩
         have := by
           apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastRotateRight)
           dsimp only at heaig
           assumption
-        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastRotateRight) ..)⟩
+        ⟨⟨res, this⟩, cache.cast (by
+          simp only [res]
+          exact AIG.LawfulVecOperator.le_size (f := bitblast.blastRotateRight) ..)⟩
       | .arithShiftRightConst distance =>
         let res := bitblast.blastArithShiftRightConst eaig ⟨evec, distance⟩
         have := by
           apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastArithShiftRightConst)
           dsimp only at heaig
           assumption
-        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastArithShiftRightConst) ..)⟩
+        ⟨⟨res, this⟩, cache.cast (by
+          simp only [res]
+          exact AIG.LawfulVecOperator.le_size (f := bitblast.blastArithShiftRightConst) ..)⟩
       | .reverse =>
         let res := bitblast.blastReverse eaig evec
         have := by
@@ -250,7 +256,9 @@ where
         apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastAppend)
         dsimp only at hlaig hraig
         omega
-      ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastAppend) ..)⟩
+      ⟨⟨res, this⟩, cache.cast (by
+        simp only [res]
+        exact AIG.LawfulVecOperator.le_size (f := bitblast.blastAppend) ..)⟩
     | .replicate n expr h =>
       let ⟨⟨⟨aig, expr⟩, haig⟩, cache⟩ := goCache aig expr cache
       let res := bitblast.blastReplicate aig ⟨n, expr, h⟩
@@ -258,7 +266,9 @@ where
         apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastReplicate)
         dsimp only at haig
         assumption
-      ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastReplicate) ..)⟩
+      ⟨⟨res, this⟩, cache.cast (by
+        simp only [res]
+        exact AIG.LawfulVecOperator.le_size (f := bitblast.blastReplicate) ..)⟩
     | .extract start len expr =>
       let ⟨⟨⟨eaig, evec⟩, heaig⟩, cache⟩ := goCache aig expr cache
       let res := bitblast.blastExtract eaig ⟨evec, start⟩
@@ -266,7 +276,9 @@ where
         apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastExtract)
         dsimp only at heaig
         exact heaig
-      ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastExtract) ..)⟩
+      ⟨⟨res, this⟩, cache.cast (by
+        simp only [res]
+        exact AIG.LawfulVecOperator.le_size (f := bitblast.blastExtract) ..)⟩
     | .shiftLeft lhs rhs =>
       let ⟨⟨⟨aig, lhs⟩, hlaig⟩, cache⟩ := goCache aig lhs cache
       let ⟨⟨⟨aig, rhs⟩, hraig⟩, cache⟩ := goCache aig rhs cache

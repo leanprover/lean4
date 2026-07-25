@@ -14,10 +14,9 @@ public section
 
 namespace Lean.Meta
 
-/-- Abstracts the given proof into an auxiliary theorem, suitably pre-processing its type. -/
-def abstractProof [Monad m] [MonadLiftT MetaM m] [MonadEnv m] [MonadOptions m] [MonadFinally m]
-    (proof : Expr) (cache := true) (postprocessType : Expr → m Expr := pure) : m Expr := do
-  let type ← withoutExporting do inferType proof
+private def abstractProofAt [Monad m] [MonadLiftT MetaM m] [MonadEnv m] [MonadOptions m]
+    [MonadFinally m] (proof type : Expr) (cache := true)
+    (postprocessType : Expr → m Expr := pure) : m Expr := do
   let type ← (Core.betaReduce type : MetaM _)
   let type ← zetaReduce type
   let type ← postprocessType type
@@ -29,6 +28,12 @@ def abstractProof [Monad m] [MonadLiftT MetaM m] [MonadEnv m] [MonadOptions m] [
     identify which let-decls can be abstracted. If we design a more efficient test, we can avoid the eager zetaDelta expansion step.
     In a benchmark created by @selsam, The extra `check` step was a bottleneck. -/
   mkAuxTheorem (cache := cache) type proof (zetaDelta := true)
+
+/-- Abstracts the given proof into an auxiliary theorem, suitably pre-processing its type. -/
+def abstractProof [Monad m] [MonadLiftT MetaM m] [MonadEnv m] [MonadOptions m] [MonadFinally m]
+    (proof : Expr) (cache := true) (postprocessType : Expr → m Expr := pure) : m Expr := do
+  let type ← withoutExporting do inferType proof
+  abstractProofAt proof type cache postprocessType
 
 namespace AbstractNestedProofs
 
@@ -69,7 +74,7 @@ structure Context where
 
 abbrev M := ReaderT Context $ MonadCacheT ExprStructEq Expr MetaM
 
-partial def visit (e : Expr) : M Expr := do
+partial def visit (e : Expr) (expectedType? : Option Expr := none) : M Expr := do
   checkSystem "abstract nested proofs"
   if e.isAtomic then
     pure e
@@ -87,22 +92,44 @@ partial def visit (e : Expr) : M Expr := do
            | none       => pure localDecl
         lctx := lctx.modifyLocalDecl xFVarId fun _ => localDecl
       withLCtx lctx localInstances k
-    checkCache { val := e : ExprStructEq } fun _ => do
-      if (← isNonTrivialProof e) && !e.hasSorry then
-        /- Ensure proofs nested in type are also abstracted.
-           We skip abstraction for proofs containing `sorry` to avoid generating extra
-           "declaration uses sorry" warnings for auxiliary theorems: one per abstracted proof
-           instead of a single warning for the main declaration. Additionally, the `zetaDelta`
-           expansion in `mkAuxTheorem` can inline let-bound sorry values, causing warnings
-           even for proofs that only transitively reference sorry-containing definitions. -/
-        abstractProof e (← read).cache visit
-      else match e with
+    if (← isNonTrivialProof e) && !e.hasSorry then
+      /- Ensure proofs nested in type are also abstracted.
+         We skip abstraction for proofs containing `sorry` to avoid generating extra
+         "declaration uses sorry" warnings for auxiliary theorems: one per abstracted proof
+         instead of a single warning for the main declaration. Additionally, the `zetaDelta`
+         expansion in `mkAuxTheorem` can inline let-bound sorry values, causing warnings
+         even for proofs that only transitively reference sorry-containing definitions. -/
+      let type ← withoutExporting do
+        match expectedType? with
+        | some type => pure type
+        | none => inferType e
+      abstractProofAt e type (← read).cache (fun type => visit type)
+    else
+      checkCache { val := e : ExprStructEq } fun _ => do
+        match e with
         | .lam ..
         | .letE ..     => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false) (generalizeNondepLet := false)
         | .forallE ..  => forallTelescope e fun xs b => visitBinders xs do mkForallFVars xs (← visit b)
         | .mdata _ b   => return e.updateMData! (← visit b)
         | .proj _ _ b  => return e.updateProj! (← visit b)
-        | .app ..      => e.withApp fun f args => return mkAppN (← visit f) (← args.mapM visit)
+        | .app ..      => e.withApp fun f args => do
+          let mut result ← visit f
+          let mut resultType ← inferType result
+          let mut useExpectedType := true
+          for arg in args do
+            let mut argExpectedType? := none
+            let mut body? := none
+            if useExpectedType then
+              match ← whnf resultType with
+              | .forallE _ type body _ =>
+                argExpectedType? := some type
+                body? := some body
+              | _ => useExpectedType := false
+            let arg ← visit arg argExpectedType?
+            if let some body := body? then
+              resultType := body.instantiate1 arg
+            result := .app result arg
+          return result
         | _            => pure e
 
 end AbstractNestedProofs

@@ -279,10 +279,24 @@ def «structure»          := leading_parser
     ppIndent (optDeclSig >> optional «extends») >>
     optional ((symbol " := " <|> " where ") >> optional structCtor >> structFields) >>
     optDeriving
+/--
+If the just-parsed `declModifiers` node on the stack contains a `meta` modifier and we are not
+already inside a quotation, wrap `p` with `suppressInsideQuot`. This matches the behavior that
+`macro_rules`/`macro`/`elab_rules`/`elab` get unconditionally: their quotations are evaluated in
+the current stage and should be ignored when preparing the next stage for a builtin syntax change.
+-/
+private def suppressInsideQuotIfMeta : Parser → Parser := withFn fun f c s =>
+  let mods := s.stxStack.back
+  let isMeta := mods[4][0].getKind == ``Lean.Parser.Command.«meta»
+  adaptCacheableContextFn
+    (fun c => if isMeta && c.quotDepth == 0 then { c with suppressInsideQuot := true } else c)
+    f c s
+
 @[builtin_command_parser] def declaration := leading_parser
   declModifiers false >>
-  («abbrev» <|> definition <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
-   «inductive» <|> «coinductive» <|> classInductive <|> «structure»)
+  suppressInsideQuotIfMeta
+    («abbrev» <|> definition <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
+     «inductive» <|> «coinductive» <|> classInductive <|> «structure»)
 @[builtin_command_parser] def «deriving»     := leading_parser
   "deriving " >> optional "noncomputable " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover termParser skip) ", "
 def sectionHeader := leading_parser

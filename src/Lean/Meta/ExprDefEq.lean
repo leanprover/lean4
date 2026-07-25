@@ -2222,7 +2222,7 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
     if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then
       return true
     if t.isConst && s.isConst then
-      if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
+      if  then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
     else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqApp t s) then
       return true
     else

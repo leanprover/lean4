@@ -131,6 +131,7 @@ structure ServerCapabilities where
   renameProvider?           : Option RenameOptions           := none
   workspaceSymbolProvider   : Bool                           := false
   foldingRangeProvider      : Bool                           := false
+  selectionRangeProvider    : Bool                           := false
   semanticTokensProvider?   : Option SemanticTokensOptions   := none
   codeActionProvider?       : Option CodeActionOptions       := none
   inlayHintProvider?        : Option InlayHintOptions        := none

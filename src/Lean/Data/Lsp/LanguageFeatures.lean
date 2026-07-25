@@ -550,6 +550,43 @@ structure FoldingRange where
   kind?     : Option FoldingRangeKind := none
   deriving ToJson
 
+structure SelectionRangeAux (Self : Type) where
+  range   : Range
+  parent? : Option Self := none
+  deriving FromJson, ToJson
+
+/-- Selection range result for `textDocument/selectionRange`. Each `SelectionRange` is a linked
+list from innermost to outermost via `parent?`. -/
+inductive SelectionRange where
+  | mk (sr : SelectionRangeAux SelectionRange)
+
+partial instance : ToJson SelectionRange where
+  toJson :=
+    let rec go
+      | SelectionRange.mk sr =>
+        have : ToJson SelectionRange := ⟨go⟩
+        toJson sr
+    go
+
+/-- Required for `Array.getD` and similar operations on `SelectionRange`. -/
+instance : Inhabited SelectionRange where
+  default := .mk { range := default }
+
+/-- Mirrors the `ToJson` instance: uses a `let rec` to provide the recursive instance locally,
+avoiding an attempt to synthesize `FromJson SelectionRange` globally before it is defined. -/
+partial instance : FromJson SelectionRange where
+  fromJson? :=
+    let rec go j : Except String SelectionRange := do
+      have : FromJson SelectionRange := ⟨go⟩
+      let sr : SelectionRangeAux SelectionRange ← fromJson? j
+      return .mk sr
+    go
+
+structure SelectionRangeParams where
+  textDocument : TextDocumentIdentifier
+  positions    : Array Position
+  deriving FromJson, ToJson
+
 structure RenameOptions where
   prepareProvider : Bool := false
   deriving FromJson, ToJson

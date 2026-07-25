@@ -662,8 +662,12 @@ Returns the stream immediately and runs `gen` in a detached task.
 The channel is closed when `gen` returns. If `gen` throws, the channel is closed with that terminal
 error so consumers observe the failure instead of a clean end-of-stream.
 -/
-def stream (gen : Stream → Async Unit) : Async Stream := do
+def stream
+    (gen : Stream → Async Unit)
+    (knownSize : Option Body.Length := none) :
+    Async Stream := do
   let s ← mkStream
+  s.setKnownSize knownSize
   background <| do
     try
       gen s
@@ -736,8 +740,7 @@ def stream
     (builder : Builder)
     (gen : Body.Stream → Async Unit) :
     Async (Request Body.Stream) := do
-  let s ← Body.stream gen
-  s.setKnownSize (some .chunked)
+  let s ← Body.stream gen (knownSize := some .chunked)
 
   return Request.Builder.body builder s
 
@@ -753,8 +756,7 @@ def stream
     (builder : Builder)
     (gen : Body.Stream → Async Unit) :
     Async (Response Body.Stream) := do
-  let s ← Body.stream gen
-  s.setKnownSize (some .chunked)
+  let s ← Body.stream gen (knownSize := some .chunked)
 
   return Response.Builder.body builder s
 

@@ -95,6 +95,11 @@ structure Ctx where
   The result type of the declaration we are currently operating on.
   -/
   currDeclResultType : Expr
+  /--
+  Cache for reusing already boxed values.
+  -/
+  boxCache : PersistentHashMap (FVarId × Expr) (LetDecl .impure) := {}
+
 
 structure State where
   /--
@@ -182,56 +187,62 @@ def mkCast (fvarId : FVarId) (fvarIdType : Expr) (expectedType : Expr) :
         return auxConst
 
 @[inline]
+def withCheckBoxCache (fvarId : FVarId) (fvarIdType : Expr) (expectedType : Expr)
+    (k : LetDecl .impure → BoxM (Code .impure)) : BoxM (Code .impure) := do
+  let key := (fvarId, expectedType)
+  match (← read).boxCache.find? key with
+  | some decl => k decl
+  | none =>
+    let v ← mkCast fvarId fvarIdType expectedType
+    let decl ← mkLetDecl .anonymous expectedType v
+    withReader (fun ctx => { ctx with boxCache := ctx.boxCache.insert key decl }) do
+      return .let decl (← k decl)
+
+@[inline]
 def castVarIfNeeded (fvarId : FVarId) (expectedType : Expr) (k : FVarId → BoxM (Code .impure)) :
     BoxM (Code .impure) := do
   let fvarIdType ← getType fvarId
   if typesEqvForBoxing fvarIdType expectedType then
     k fvarId
   else
-    let v ← mkCast fvarId fvarIdType expectedType
-    let castDecl ← mkLetDecl .anonymous expectedType v
-    return .let castDecl (← k castDecl.fvarId)
+    withCheckBoxCache fvarId fvarIdType expectedType fun decl => k decl.fvarId
 
-@[inline]
-def castArgIfNeeded (arg : Arg .impure) (expectedType : Expr)
-    (k : Arg .impure → BoxM (Code .impure)) : BoxM (Code .impure) := do
-  match arg with
-  | .fvar fvarId => castVarIfNeeded fvarId expectedType (fun x => k (arg.updateFVar! x))
-  | .erased => k arg
-
-def castArgsIfNeededAux (args : Array (Arg .impure)) (typeFromIdx : Nat → Expr) :
-    BoxM (Array (Arg .impure) × Array (CodeDecl .impure)) := do
-  let mut newArgs := Array.emptyWithCapacity args.size
-  let mut casters := #[]
-  for h : i in 0...args.size do
-    let arg := args[i]
-    let expectedType := typeFromIdx i
-    match arg with
-    | .erased => newArgs := newArgs.push arg
-    | .fvar fvarId =>
-      let fvarIdType ← getType fvarId
-      if typesEqvForBoxing fvarIdType expectedType then
-        newArgs := newArgs.push arg
-      else
-        let v ← mkCast fvarId fvarIdType expectedType
-        let decl ← mkLetDecl .anonymous expectedType v
-        newArgs := newArgs.push <| .fvar decl.fvarId
-        casters := casters.push (.let decl)
-   return (newArgs, casters)
+partial def castArgsIfNeededAux (args : Array (Arg .impure)) (typeFromIdx : Nat → Expr)
+    (k : Array (Arg .impure) → BoxM (Code .impure)) :
+    BoxM (Code .impure) := do
+  let newArgs := Array.emptyWithCapacity args.size
+  go newArgs 0
+where
+  go (newArgs : Array (Arg .impure)) (i : Nat) :
+      BoxM (Code .impure) := do
+    if h : i < args.size then
+      let arg := args[i]
+      let expectedType := typeFromIdx i
+      match arg with
+      | .erased =>
+        let newArgs := newArgs.push arg
+        go newArgs (i + 1)
+      | .fvar fvarId =>
+        let fvarIdType ← getType fvarId
+        if typesEqvForBoxing fvarIdType expectedType then
+          let newArgs := newArgs.push arg
+          go newArgs (i + 1)
+        else
+          withCheckBoxCache fvarId fvarIdType expectedType fun decl => do
+            let newArgs := newArgs.push <| .fvar decl.fvarId
+            go newArgs (i + 1)
+    else
+      k newArgs
 
 @[inline]
 def castArgsIfNeeded (args : Array (Arg .impure)) (ps : Array (Param .impure))
     (k : Array (Arg .impure) → BoxM (Code .impure)) : BoxM (Code .impure) := do
-  let (args, decls) ← castArgsIfNeededAux args fun i => ps[i]!.type
-  let k ← k args
-  return attachCodeDecls decls k
+  castArgsIfNeededAux args (fun i => ps[i]!.type) k
 
 @[inline]
 def boxArgsIfNeeded (args : Array (Arg .impure)) (k : Array (Arg .impure) → BoxM (Code .impure)) :
     BoxM (Code .impure) := do
-  let (args, decls) ← castArgsIfNeededAux args (fun _ => tobject)
-  let k ← k args
-  return attachCodeDecls decls k
+  castArgsIfNeededAux args (fun _ => tobject) k
 
 def unboxResultIfNeeded (code : Code .impure) (decl : LetDecl .impure) (k : Code .impure) :
     BoxM (Code .impure) := do
@@ -318,37 +329,43 @@ where
   visitLet (code : Code .impure) (decl : LetDecl .impure) (k : Code .impure) : BoxM (Code .impure) := do
     let type ← tryCorrectLetDeclType decl.type decl.value
     let decl ← decl.update type decl.value
-    let k ← k.explicitBoxing
     match decl.value with
     | .ctor i args =>
       if i.isScalar && type.isScalar then
         let decl ← decl.updateValue (.lit (.impureTypeScalarNumLit type i.cidx))
+        let k ← k.explicitBoxing
         return code.updateLet! decl k
       else
         boxArgsIfNeeded args fun args => do
           let decl ← decl.updateValue (decl.value.updateArgs! args)
+          let k ← k.explicitBoxing
           return code.updateLet! decl k
     | .reuse _ _ _ args _ =>
       boxArgsIfNeeded args fun args => do
         let decl ← decl.updateValue (decl.value.updateArgs! args)
+        let k ← k.explicitBoxing
         return code.updateLet! decl k
     | .fap f args =>
       let some sig ← getImpureSignature? f | unreachable!
       castArgsIfNeeded args sig.params fun args => do
         let decl ← decl.updateValue (decl.value.updateArgs! args)
+        let k ← k.explicitBoxing
         castResultIfNeeded code decl sig.type k
     | .pap f args =>
       let some sig ← getImpureSignature? f | unreachable!
       let f := if ← requiresBoxedVersion sig then mkBoxedName f else f
       boxArgsIfNeeded args fun args => do
         let decl ← decl.updateValue (decl.value.updatePap! f args)
+        let k ← k.explicitBoxing
         return code.updateLet! decl k
     | .fvar _ args =>
       boxArgsIfNeeded args fun args => do
         let decl ← decl.updateValue (decl.value.updateArgs! args)
+        let k ← k.explicitBoxing
         unboxResultIfNeeded code decl k
     | .erased | .reset .. | .sproj .. | .uproj .. | .oproj .. | .lit .. =>
       let decl ← decl.update type decl.value
+      let k ← k.explicitBoxing
       return code.updateLet! decl k
     | .box .. | .unbox .. | .isShared .. => unreachable!
 

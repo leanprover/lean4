@@ -1094,11 +1094,8 @@ where
     if ps.size != 1 && ps.size != 2 then
       throwError "invalid main function, incorrect arity when generating code"
     let env ← getEnv
-    -- Full initialization of the `Lean` package is done by the initializer of each module using
-    -- it, so `main` itself only needs to initialize the runtime.
     emitLns [
       "char ** lean_setup_args(int argc, char ** argv);",
-      "void lean_initialize_runtime_module();",
       "#if defined(WIN32) || defined(_WIN32)",
       "#include <windows.h>",
       "#endif",
@@ -1127,7 +1124,6 @@ where
       "#endif",
       "  lean_object* res;",
       "  argv = lean_setup_args(argc, argv);",
-      "  lean_initialize_runtime_module();",
       s!"  res = {← getModInitFn (phases := if env.header.isModule then .runtime else .all)}(1 /* builtin */);",
       "  lean_io_mark_end_initialization();",
       "  if (lean_io_result_is_ok(res)) {",

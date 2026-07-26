@@ -224,10 +224,25 @@ private def cleanupNatOffsetMajor (e : Expr) : MetaM Expr := do
   else
     return mkNatSucc (mkNatAdd e (toExpr (k - 1)))
 
+@[inline]
+private def reduceK (recVal : RecursorVal) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α := do
+  let minor := recArgs[recVal.getFirstMinorIdx]!
+  let minorType ← inferType minor
+  let motive := recArgs[recVal.numParams]!
+  let recType := mkAppN motive recArgs[recVal.getFirstIndexIdx:recVal.getMajorIdx + 1]
+  if ← withAtLeastTransparency TransparencyMode.default <| withNewMCtxDepth <| isDefEq minorType recType then
+    let majorIdx := recVal.getMajorIdx
+    let rhs := minor
+    let rhs := mkAppRange rhs (majorIdx + 1) recArgs.size recArgs
+    successK rhs
+  else failK ()
+
 /-- Auxiliary function for reducing recursor applications. -/
-private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
+private def reduceRec(recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let majorIdx := recVal.getMajorIdx
   if h : majorIdx < recArgs.size then do
+    if recVal.k then
+      return ← reduceK recVal recArgs failK successK
     let major := recArgs[majorIdx]
     let mut major ← if isWFRec recVal.name && (← getTransparency) == .default then
       -- If recursor is `Acc.rec` or `WellFounded.rec` and transparency is default,
@@ -237,8 +252,6 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
       withTransparency .all <| whnf major
     else
       whnf major
-    if recVal.k then
-      major ← toCtorWhenK recVal major
     major ← major.toCtorIfLit
     major ← cleanupNatOffsetMajor major
     major ← toCtorWhenStructure recVal.getMajorInduct major

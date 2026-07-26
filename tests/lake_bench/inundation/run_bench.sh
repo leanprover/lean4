@@ -16,15 +16,15 @@ lake -R clean
 "$TEST_DIR/measure.py" -t "$PREFIX/build/clean" -d -a -- \
   lake build
 
-echo "Running $PREFIX/build/precompile+no-op"
+echo "Running $PREFIX/build/precompile/no-op"
 lake -R -K precompile=true clean
 lake build
-"$TEST_DIR/measure.py" -t "$PREFIX/build/precompile+no-op" -d -a -- \
+"$TEST_DIR/measure.py" -t "$PREFIX/build/precompile/no-op" -d -a -- \
   lake build
 
-echo "Running $PREFIX/build/precompile+clean"
+echo "Running $PREFIX/build/precompile/clean"
 lake -R -K precompile=true clean
-"$TEST_DIR/measure.py" -t "$PREFIX/build/precompile+clean" -d -a -- \
+"$TEST_DIR/measure.py" -t "$PREFIX/build/precompile/clean" -d -a -- \
   lake build
 
 echo "Running $PREFIX/config/elab"

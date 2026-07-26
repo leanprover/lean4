@@ -1015,6 +1015,21 @@ def emitInitFn (phases : IRPhases) : EmitM Unit := do
     let fn := mkModuleInitializationFunctionName (phases := if phases == .all then .all else if imp.isMeta then .runtime else phases) imp.module pkg?
     emitLn s!"lean_object* {fn}(uint8_t builtin);"
     return some fn
+  -- Every module initializes the runtime for itself so that external users of a Lean library do
+  -- not have to. Modules using the `Lean` package call the full `lean_initialize` instead as
+  -- module visibility can hide such an import from downstream modules (including the final
+  -- executable's root); the `Lean` modules themselves are initialized by `lean_initialize` and so
+  -- must not call it themselves.
+  let modName ← getModName
+  let leanInitFn? :=
+    if phases == .comptime then
+      none
+    else if usesModuleFrom env `Lean && !(`Lean).isPrefixOf modName then
+      some "lean_initialize"
+    else
+      some "lean_initialize_runtime_module"
+  if let some fn := leanInitFn? then
+    emitLn s!"void {fn}();"
   let initialized := s!"_G_{mkModuleInitializationPrefix phases}initialized"
   emitLns [
     s!"static bool {initialized} = false;",
@@ -1023,6 +1038,8 @@ def emitInitFn (phases : IRPhases) : EmitM Unit := do
     s!"if ({initialized}) return lean_io_result_mk_ok(lean_box(0));",
     s!"{initialized} = true;"
   ]
+  if let some fn := leanInitFn? then
+    emitLn s!"{fn}();"
   impInitFns.forM fun fn => do
     withErrRet do
       emit s!"{fn}(builtin)"
@@ -1077,10 +1094,8 @@ where
     if ps.size != 1 && ps.size != 2 then
       throwError "invalid main function, incorrect arity when generating code"
     let env ← getEnv
-    let usesLeanAPI := usesModuleFrom env `Lean
     emitLns [
       "char ** lean_setup_args(int argc, char ** argv);",
-      if usesLeanAPI then "void lean_initialize();" else "void lean_initialize_runtime_module();",
       "#if defined(WIN32) || defined(_WIN32)",
       "#include <windows.h>",
       "#endif",
@@ -1109,7 +1124,6 @@ where
       "#endif",
       "  lean_object* res;",
       "  argv = lean_setup_args(argc, argv);",
-      if usesLeanAPI then "  lean_initialize();" else "  lean_initialize_runtime_module();",
       s!"  res = {← getModInitFn (phases := if env.header.isModule then .runtime else .all)}(1 /* builtin */);",
       "  lean_io_mark_end_initialization();",
       "  if (lean_io_result_is_ok(res)) {",

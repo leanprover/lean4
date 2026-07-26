@@ -27,9 +27,9 @@ example : True := by
 
 -- The same query under a fresh `inst`: the normalized keys agree, so both queries hit.
 /--
-trace: [Meta.synthInstance.cache] cached: Foo Nat
+trace: [Meta.synthInstance.cache] new: Foo Nat
 ---
-trace: [Meta.synthInstance.cache] cached: Bar Nat
+trace: [Meta.synthInstance.cache] new: Bar Nat
 -/
 #guard_msgs in
 example : True := by

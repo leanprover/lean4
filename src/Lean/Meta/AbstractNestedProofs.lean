@@ -72,7 +72,7 @@ def isNonTrivialProof (e : Expr) : MetaM Bool := do
 structure Context where
   cache    : Bool
 
-abbrev M := ReaderT Context $ MonadCacheT ExprStructEq Expr MetaM
+abbrev M := ReaderT Context $ MonadCacheT (ExprStructEq × Option ExprStructEq) Expr MetaM
 
 partial def visit (e : Expr) (expectedType? : Option Expr := none) : M Expr := do
   checkSystem "abstract nested proofs"
@@ -92,20 +92,24 @@ partial def visit (e : Expr) (expectedType? : Option Expr := none) : M Expr := d
            | none       => pure localDecl
         lctx := lctx.modifyLocalDecl xFVarId fun _ => localDecl
       withLCtx lctx localInstances k
-    if (← isNonTrivialProof e) && !e.hasSorry then
-      /- Ensure proofs nested in type are also abstracted.
-         We skip abstraction for proofs containing `sorry` to avoid generating extra
-         "declaration uses sorry" warnings for auxiliary theorems: one per abstracted proof
-         instead of a single warning for the main declaration. Additionally, the `zetaDelta`
-         expansion in `mkAuxTheorem` can inline let-bound sorry values, causing warnings
-         even for proofs that only transitively reference sorry-containing definitions. -/
-      let type ← withoutExporting do
-        match expectedType? with
-        | some type => pure type
-        | none => inferType e
-      abstractProofAt e type (← read).cache (fun type => visit type)
-    else
-      checkCache { val := e : ExprStructEq } fun _ => do
+    let isNonTrivialProof := (← isNonTrivialProof e) && !e.hasSorry
+    let expectedTypeKey? :=
+      if isNonTrivialProof then expectedType?.map fun type => { val := type : ExprStructEq }
+      else none
+    checkCache ({ val := e : ExprStructEq }, expectedTypeKey?) fun _ => do
+      if isNonTrivialProof then
+        /- Ensure proofs nested in type are also abstracted.
+           We skip abstraction for proofs containing `sorry` to avoid generating extra
+           "declaration uses sorry" warnings for auxiliary theorems: one per abstracted proof
+           instead of a single warning for the main declaration. Additionally, the `zetaDelta`
+           expansion in `mkAuxTheorem` can inline let-bound sorry values, causing warnings
+           even for proofs that only transitively reference sorry-containing definitions. -/
+        let type ← withoutExporting do
+          match expectedType? with
+          | some type => pure type
+          | none => inferType e
+        abstractProofAt e type (← read).cache (fun type => visit type)
+      else
         match e with
         | .lam ..
         | .letE ..     => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false) (generalizeNondepLet := false)

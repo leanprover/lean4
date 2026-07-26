@@ -53,6 +53,11 @@ but it should still be visible from non-module files.
 
 So we create a unfold equation generator that aliases an existing private `eq_def` to
 wherever the current module expects it.
+
+We also handle the converse case (#14558): an exposed wfrec definition `foo` from a module
+imported without `public import` has its `foo.eq_def` stored under the public name, but
+the realization environment may compute a private name for the lookup. In that case,
+we alias the public theorem to wherever the current module expects it.
 -/
 def copyPrivateUnfoldTheorem : GetUnfoldEqnFn := fun declName => do
   withTraceNode `ReservedNameAction (fun _ => pure m!"copyPrivateUnfoldTheorem running for {declName}") do
@@ -68,6 +73,23 @@ def copyPrivateUnfoldTheorem : GetUnfoldEqnFn := fun declName => do
           levelParams := info.levelParams
         }
       return name
+    -- Also handle the case where the eq_def was stored under the public name (for exposed
+    -- definitions from modules imported without `public import`). In this case,
+    -- `hasExposedBody` returns false in the realization environment (the defining module is
+    -- not in the public view), so `mkEqLikeNameFor` computes a private name while the actual
+    -- theorem is stored publicly.
+    let unfoldNamePub := .str (privateToUserName declName) unfoldThmSuffix
+    if unfoldNamePub != unfoldName' then
+      if let some info := (← getEnv).find? unfoldNamePub then
+        if info matches .thmInfo _ | .axiomInfo _ then
+          realizeConst declName name do
+            addDecl <| Declaration.thmDecl {
+              name
+              type := info.type
+              value := .const unfoldNamePub (info.levelParams.map mkLevelParam)
+              levelParams := info.levelParams
+            }
+          return name
   return none
 
 builtin_initialize

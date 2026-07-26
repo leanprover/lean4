@@ -94,7 +94,7 @@ def builtinPassManager : PassManager := {
     init,
     pullInstances,
     cse (shouldElimFunDecls := false),
-    simp { simpCtor := false },
+    simp,
     floatLetIn,
     findJoinPoints,
     pullFunDecls,

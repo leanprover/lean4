@@ -32,6 +32,11 @@ register_builtin_option backward.synthInstance.canonInstances : Bool := {
   descr := "use optimization that relies on 'morally canonical' instances during type class resolution"
 }
 
+register_builtin_option backward.synthInstance.rawKeyCache : Bool := {
+  defValue := true
+  descr := "additionally memoize type class resolution results under the unnormalized cache key, so that repeated queries in one context return the same result object"
+}
+
 namespace SynthInstance
 
 def getMaxHeartbeats (opts : Options) : Nat :=
@@ -1391,9 +1396,33 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
                         else insts.erased.fold (init := #[]) (·.push ·) |>.qsort Name.quickLt,
                       maxResultSize, defEqFlags := flags,
                       isExporting := (← getEnv).isExporting }
+    let rawKey := cacheKey
     let cacheKey := match normCtx? with
       | some c => { cacheKey with localInsts := c.canonLocalInsts, type := c.normType, normFVarTypes := c.fvarTypes, normFVarValues := c.fvarValues }
       | none   => cacheKey
+    let rawKeyCache := getB `backward.synthInstance.rawKeyCache true
+    -- Raw-key front-cache: repeated queries in one context must return the *same* result object.
+    -- A normalized hit re-instantiates the stored schema (`SynthNorm.reopen`), which allocates a
+    -- fresh copy per hit; consumers that rely on pointer identity for sharing (e.g. `grind`'s
+    -- alpha-sharing) would pay deep structural work for every copy. The transient tier therefore
+    -- additionally memoizes the reopened result under the unnormalized key, with the query's
+    -- effective option dependencies.
+    let insertRawKey (abstResult? : Option AbstractMVarsResult) : MetaM Unit := do
+      let log : SynthEnvDeps ← envSink.get
+      modifyCache fun c => { c with synthInstance := c.synthInstance.insert rawKey <|
+        (log, abstResult?) :: (c.synthInstance.find? rawKey |>.getD [] |>.filter fun e => !sameDepIdentity e.1 log) }
+    if rawKeyCache && normCtx?.isSome then
+      if let some entries := (← get).cache.synthInstance.find? rawKey then
+        let env ← getEnv
+        for (entryLog, abstResult?) in entries do
+          -- Front-cache entries are transient (per command), so serving skips the re-stamp.
+          if let some (entryLog, _) ← validateDeps? opts env entryLog then
+            trace[Meta.synthInstance.cache] "cached: {type}"
+            -- The used entry's dependencies become dependencies of this query.
+            envSink.modify (entryLog.mergeInto ·)
+            let result? ← applyCachedAbstractResult? type abstResult?
+            trace[Meta.synthInstance] "result {result?} (cached)"
+            return result?
     match ← findCachedResult? cacheKey with
     | some (entryLog, abstResult?) =>
       trace[Meta.synthInstance.cache] "cached: {type}"
@@ -1403,6 +1432,8 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       let abstResult? := match normCtx? with
         | some c => abstResult?.map fun a => { a with expr := SynthNorm.reopen c.order a.expr }
         | none   => abstResult?
+      if rawKeyCache && normCtx?.isSome then
+        insertRawKey abstResult?
       let result? ← applyCachedAbstractResult? type abstResult?
       trace[Meta.synthInstance] "result {result?} (cached)"
       return result?
@@ -1439,6 +1470,10 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       match normCtx? with
       | none   => cacheResult cacheKey log kind (normalized := false) abstResult? result?
       | some c =>
+        -- The context-level result goes under the raw key (see the front-cache above), including
+        -- when the abstraction below fails: an escaping result is still valid in this context.
+        if rawKeyCache then
+          insertRawKey abstResult?
         -- Store the result over the canonical closure variables; skip caching (this query only) if
         -- the result escapes the closure and so is not context-free.
         match SynthNorm.abstractValue? c abstResult? result? with

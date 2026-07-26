@@ -14,7 +14,7 @@ import Lean.Meta.Reduce
 import Lean.Elab.Tactic.Doc
 import Lean.Data.EditDistance
 public import Lean.Elab.DocString.Builtin.Keywords
-import Lean.Server.InfoUtils
+import Lean.Elab.InfoTree.Util
 import Init.Omega
 
 

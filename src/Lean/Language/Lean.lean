@@ -13,6 +13,7 @@ module
 prelude
 public import Lean.Language.Util
 public import Lean.Language.Lean.Types
+public import Lean.Language.Lean.Util
 public import Lean.Elab.Import
 
 public section

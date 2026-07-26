@@ -152,7 +152,7 @@ jobs:
           # opt into `LEAN_HEADER_SNAPSHOTS` as suspected issue with incremental builds does not
           # affect CI
           OPTIONS=(-DWFAIL=ON -DLEAN_HEADER_SNAPSHOTS=ON)
-          if [[ -n '${{ matrix.release }}' ]]; then
+          if [[ '${{ matrix.release }}' == true ]]; then
             # Embeds the githash into stage 1 library and checks it.
             # This prohibits reusing `.olean`s from any build not so stamped,
             # so we don't do it in the fast non-release CI.
@@ -173,10 +173,10 @@ jobs:
             cp -r stage1 stage3
             eval "OPTIONS+=($PREPARE)"
           fi
-          if [[ -n '${{ matrix.release }}' && -n '${{ inputs.nightly }}' ]]; then
+          if [[ '${{ matrix.release }}' == true && -n '${{ inputs.nightly }}' ]]; then
             OPTIONS+=(-DLEAN_SPECIAL_VERSION_DESC=${{ inputs.nightly }})
           fi
-          if [[ -n '${{ matrix.release }}' && -n '${{ inputs.RELEASE_TAG }}' ]]; then
+          if [[ '${{ matrix.release }}' == true && -n '${{ inputs.RELEASE_TAG }}' ]]; then
             OPTIONS+=(-DLEAN_VERSION_MAJOR=${{ inputs.LEAN_VERSION_MAJOR }})
             OPTIONS+=(-DLEAN_VERSION_MINOR=${{ inputs.LEAN_VERSION_MINOR }})
             OPTIONS+=(-DLEAN_VERSION_PATCH=${{ inputs.LEAN_VERSION_PATCH }})
@@ -258,6 +258,11 @@ jobs:
         timeout-minutes: 20 # prevent excessive hanging from network issues
       - name: Verify Lake Cache
         if: steps.upload-lake-cache.outcome == 'success'
+        # `lake cache clean` deletes the entire configured cache directory, which for a build using
+        # the system-wide cache would be the one shared with every other job on the runner, so give
+        # the round trip a throwaway directory of its own.
+        env:
+          LAKE_CACHE_DIR: ${{ github.workspace }}/build/verify-lake-cache
         run: |
           cp -r build/stage1 build/stage1.bak
           rm -rf build/stage1/lib
@@ -268,6 +273,8 @@ jobs:
         continue-on-error: true
       - name: Restore Build
         if: steps.upload-lake-cache.outcome == 'success'
+        env:
+          LAKE_CACHE_DIR: ${{ github.workspace }}/build/verify-lake-cache
         run: |
           rm -rf build/stage1
           mv build/stage1.bak build/stage1
@@ -300,7 +307,7 @@ jobs:
             ${{ matrix.tar || 'tar' }} cf - $dir | zstd -T0 --no-progress -o pack/$dir.tar.zst
           fi
       - uses: actions/upload-artifact@v7
-        if: matrix.release
+        if: matrix.release || matrix.upload
         with:
           name: build-${{ matrix.name }}
           path: pack/*

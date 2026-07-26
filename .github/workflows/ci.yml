@@ -266,6 +266,11 @@ jobs:
             const macos_arm = ${{ steps.set-level.outputs.macos-arm }};
             const target_stage = ${{ steps.set-level.outputs.target-stage }};
             const lakeCi = "${{ steps.set-level.outputs.lake-ci }}" == "true";
+            // A release build stamps the commit githash into its `.olean`s and enforces it, which
+            // makes every artifact commit-specific and thus unusable to the caches. Only what we
+            // actually ship is built that way; everything below it builds unstamped so that it can
+            // reuse cached artifacts.
+            const stamped = level >= 2;
             console.log(`level: ${level}, fast: ${fast}`);
             // use large runners where available (original repo)
             let large = ${{ github.repository == 'leanprover/lean4' }};
@@ -290,7 +295,10 @@ jobs:
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
                 "os": large ? chonk : "ubuntu-latest",
-                "release": true,
+                "release": stamped,
+                // Unstamped builds are published too (`pr-release.yml`, `grove.yml`), so always pack
+                // and upload the artifact.
+                "upload": true,
                 "enabled": true,
                 "check-rebootstrap": level >= 1,
                 // Done as part of test-bench

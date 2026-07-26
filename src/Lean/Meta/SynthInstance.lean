@@ -37,11 +37,6 @@ register_builtin_option debug.synthInstance.checkCacheHits : Bool := {
   descr := "differentially validate type class resolution cache hits: re-run every served query from scratch and panic if the recomputed result differs from the cached one, which means a dependency of the entry was not recorded (development soak check; roughly doubles resolution cost)"
 }
 
-register_builtin_option backward.synthInstance.rawKeyCache : Bool := {
-  defValue := true
-  descr := "additionally memoize type class resolution results under the unnormalized cache key, so that repeated queries in one context return the same result object"
-}
-
 namespace SynthInstance
 
 def getMaxHeartbeats (opts : Options) : Nat :=
@@ -1402,7 +1397,6 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     let cacheKey := match normCtx? with
       | some c => { cacheKey with localInsts := c.canonLocalInsts, type := c.normType, normFVarTypes := c.fvarTypes, normFVarValues := c.fvarValues }
       | none   => cacheKey
-    let rawKeyCache := getB `backward.synthInstance.rawKeyCache true
     let runSearch : MetaM (Option AbstractMVarsResult) :=
       withNewMCtxDepth (allowLevelAssignments := true) do
         match kind with
@@ -1474,7 +1468,7 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       let log : SynthEnvDeps := (← get).cache.synthEnvDeps
       modifyCache fun c => { c with synthInstance := c.synthInstance.insert rawKey <|
         (log, abstResult?) :: (c.synthInstance.find? rawKey |>.getD [] |>.filter fun e => !sameDepIdentity e.1 log) }
-    if rawKeyCache && normCtx?.isSome then
+    if normCtx?.isSome then
       if let some entries := (← get).cache.synthInstance.find? rawKey then
         let env ← getEnv
         for (entryLog, abstResult?) in entries do
@@ -1496,7 +1490,7 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       let abstResult? := match normCtx? with
         | some c => abstResult?.map fun a => { a with expr := SynthNorm.reopen c.order a.expr }
         | none   => abstResult?
-      if rawKeyCache && normCtx?.isSome then
+      if normCtx?.isSome then
         insertRawKey abstResult?
       checkHit abstResult?
       let result? ← applyCachedAbstractResult? type abstResult?
@@ -1513,8 +1507,7 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       | some c =>
         -- The context-level result goes under the raw key (see the front-cache above), including
         -- when the abstraction below fails: an escaping result is still valid in this context.
-        if rawKeyCache then
-          insertRawKey abstResult?
+        insertRawKey abstResult?
         -- Store the result over the canonical closure variables; skip caching (this query only) if
         -- the result escapes the closure and so is not context-free.
         match SynthNorm.abstractValue? c abstResult? result? with

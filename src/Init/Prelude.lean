@@ -1195,7 +1195,7 @@ support.
     | true, false => Bool.noConfusion
     | true, true => rfl
 
-@[inline] instance : DecidableEq Bool :=
+@[macro_inline] instance : DecidableEq Bool :=
   Bool.decEq
 
 /--

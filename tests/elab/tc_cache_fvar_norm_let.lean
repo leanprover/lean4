@@ -23,9 +23,9 @@ example : True := by
 
 -- The same context up to the identity of `n`: the normalized keys agree, so both queries hit.
 /--
-trace: [Meta.synthInstance.cache] cached: OfNat Nat 1
+trace: [Meta.synthInstance.cache] new: OfNat Nat 1
 ---
-trace: [Meta.synthInstance.cache] cached: Bar n
+trace: [Meta.synthInstance.cache] new: Bar n
 -/
 #guard_msgs in
 example : True := by

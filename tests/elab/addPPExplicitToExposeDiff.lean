@@ -270,3 +270,18 @@ is not definitionally equal to the right-hand side
 -/
 #guard_msgs in
 @[defeq] theorem gEq : @g a one' = @g b 1 := testSorry
+
+/-!
+`clear_value` diagnoses with assignable synthetic opaque metavariables, matching its check, so
+the diff is attributed to `a` vs. `b` rather than to the assignable `?_`.
+-/
+/--
+error: Provided term
+  f ?_ ∧ @f b 2
+is not definitionally equal to
+  x := f 1 ∧ @f a 2
+-/
+#guard_msgs in
+example : True := by
+  let x : Prop := @f 1 1 ∧ @f a 2
+  clear_value (h : x = (@f 1 ?_ ∧ @f b 2))

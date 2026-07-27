@@ -737,19 +737,19 @@ of other errors because the desired term was not constructed.
 @[extern "lean_sorry", never_extract]
 axiom sorryAx (α : Sort u) (synthetic : Bool) : α
 
-theorem eq_false_of_ne_true : {b : Bool} → Not (Eq b true) → Eq b false
+theorem Bool.eq_false_of_ne_true : {b : Bool} → Not (Eq b true) → Eq b false
   | true, h => False.elim (h rfl)
   | false, _ => rfl
 
-theorem eq_true_of_ne_false : {b : Bool} → Not (Eq b false) → Eq b true
+theorem Bool.eq_true_of_ne_false : {b : Bool} → Not (Eq b false) → Eq b true
   | true, _ => rfl
   | false, h => False.elim (h rfl)
 
-theorem ne_false_of_eq_true : {b : Bool} → Eq b true → Not (Eq b false)
+theorem Bool.ne_false_of_eq_true : {b : Bool} → Eq b true → Not (Eq b false)
   | true, _  => fun h => Bool.noConfusion h
   | false, h => Bool.noConfusion h
 
-theorem ne_true_of_eq_false : {b : Bool} → Eq b false → Not (Eq b true)
+theorem Bool.ne_true_of_eq_false : {b : Bool} → Eq b false → Not (Eq b true)
   | true, h  => Bool.noConfusion h
   | false, _ => fun h => Bool.noConfusion h
 
@@ -1021,11 +1021,11 @@ theorem decide_eq_false : [Decidable p] → Not p → Eq (decide p) false
 theorem of_decide_eq_true [inst : Decidable p] : Eq (decide p) true → p := fun h =>
   match (generalizing := false) inst with
   | isTrue  h₁ => h₁
-  | isFalse h₁ => absurd h (ne_true_of_eq_false (decide_eq_false h₁))
+  | isFalse h₁ => absurd h (Bool.ne_true_of_eq_false (decide_eq_false h₁))
 
 theorem of_decide_eq_false [inst : Decidable p] : Eq (decide p) false → Not p := fun h =>
   match (generalizing := false) inst with
-  | isTrue  h₁ => absurd h (ne_false_of_eq_true (decide_eq_true h₁))
+  | isTrue  h₁ => absurd h (Bool.ne_false_of_eq_true (decide_eq_true h₁))
   | isFalse h₁ => h₁
 
 theorem of_decide_eq_self_eq_true [inst : DecidableEq α] (a : α) : Eq (decide (Eq a a)) true :=

@@ -1262,7 +1262,7 @@ grind_pattern map_map => map g (map f l) where
     filter p (a :: l) = a :: filter p l := by rw [filter, pa]
 
 @[simp] theorem filter_cons_of_neg {p : α → Bool} {a : α} {l} (pa : ¬ p a) :
-    filter p (a :: l) = filter p l := by rw [filter, eq_false_of_ne_true pa]
+    filter p (a :: l) = filter p l := by rw [filter, Bool.eq_false_of_ne_true pa]
 
 @[grind =] theorem filter_cons :
     (x :: xs : List α).filter p = if p x then x :: (xs.filter p) else xs.filter p := by

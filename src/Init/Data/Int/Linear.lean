@@ -14,6 +14,9 @@ public import Init.Data.RArray
 import Init.Data.Int.Cooper
 import Init.Data.Int.LemmasAux
 public section
+
+open Internal
+
 namespace Int.Internal.Linear
 
 /-! Helper definitions and theorems for constructing linear arithmetic proofs. -/

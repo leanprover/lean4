@@ -2,8 +2,6 @@ module
 
 meta import Init.Data.String
 
-/-
-
 /-!
 # Tests for `String` functions
 -/
@@ -201,4 +199,3 @@ Behavior of `String.next` (`lean_string_utf8_next`) in special cases (see issue 
 #test ("L∃∀N".pos ⟨1⟩ (by decide)).prev?.map (·.offset) = some ⟨0⟩
 #test ("L∃∀N".pos ⟨0⟩ (by decide)).prev? = none
 #test ("L∃∀N".pos ⟨1⟩ (by decide)).prev!.offset = ⟨0⟩
--/

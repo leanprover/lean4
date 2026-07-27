@@ -333,7 +333,7 @@ def matchDecideDecidable (p inst instToMatch : Expr) (fallback : SimpM Result) :
   match_expr instToMatch with
   | Decidable.intro _ bool hp =>
     match_expr bool with
-    | Bool.false =>
+    | Bool.true =>
       return .step (← getBoolTrueExpr) <| mkApp3 (mkConst ``Sym.decide_isTrue) p inst hp
     | Bool.false =>
       return .step (← getBoolFalseExpr) <| mkApp3 (mkConst ``Sym.decide_isFalse) p inst hp

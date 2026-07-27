@@ -13533,23 +13533,23 @@ return v___x_5171_;
 v___jp_5172_:
 {
 uint8_t v___x_5176_; 
-v___x_5176_ = lean_nat_dec_lt(v___y_5173_, v___y_5175_);
+v___x_5176_ = lean_nat_dec_lt(v___y_5174_, v___y_5175_);
 if (v___x_5176_ == 0)
 {
 lean_dec(v___y_5175_);
-lean_dec_ref(v___y_5174_);
-lean_dec(v___y_5173_);
+lean_dec(v___y_5174_);
+lean_dec_ref(v___y_5173_);
 return v_xs_5165_;
 }
 else
 {
 size_t v___x_5177_; size_t v___x_5178_; uint8_t v___x_5179_; 
-v___x_5177_ = lean_usize_of_nat(v___y_5173_);
-lean_dec(v___y_5173_);
+v___x_5177_ = lean_usize_of_nat(v___y_5174_);
+lean_dec(v___y_5174_);
 v___x_5178_ = lean_usize_of_nat(v___y_5175_);
 lean_dec(v___y_5175_);
-v___x_5179_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Elab_PreDefinition_FixedParams_0__Lean_Elab_FixedParamPerm_buildArgs_go_spec__0(v___y_5174_, v___x_5177_, v___x_5178_);
-lean_dec_ref(v___y_5174_);
+v___x_5179_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Elab_PreDefinition_FixedParams_0__Lean_Elab_FixedParamPerm_buildArgs_go_spec__0(v___y_5173_, v___x_5177_, v___x_5178_);
+lean_dec_ref(v___y_5173_);
 if (v___x_5179_ == 0)
 {
 return v_xs_5165_;
@@ -13591,15 +13591,15 @@ v___x_5191_ = lean_nat_dec_le(v_stop_5188_, v___x_5190_);
 if (v___x_5191_ == 0)
 {
 lean_dec(v_stop_5188_);
-v___y_5173_ = v_start_5187_;
-v___y_5174_ = v_array_5186_;
+v___y_5173_ = v_array_5186_;
+v___y_5174_ = v_start_5187_;
 v___y_5175_ = v___x_5190_;
 goto v___jp_5172_;
 }
 else
 {
-v___y_5173_ = v_start_5187_;
-v___y_5174_ = v_array_5186_;
+v___y_5173_ = v_array_5186_;
+v___y_5174_ = v_start_5187_;
 v___y_5175_ = v_stop_5188_;
 goto v___jp_5172_;
 }
@@ -16337,11 +16337,13 @@ return v_res_6161_;
 }
 lean_object* runtime_initialize_Lean_Elab_PreDefinition_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_PreDefinition_FixedParams(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Elab_PreDefinition_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

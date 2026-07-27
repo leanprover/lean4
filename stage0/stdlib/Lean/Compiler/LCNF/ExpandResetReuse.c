@@ -582,9 +582,9 @@ v___jp_99_:
 lean_object* v___x_103_; lean_object* v___x_104_; 
 v___x_103_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_103_, 0, v___y_102_);
-lean_ctor_set(v___x_103_, 1, v___y_101_);
+lean_ctor_set(v___x_103_, 1, v___y_100_);
 v___x_104_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_104_, 0, v___y_100_);
+lean_ctor_set(v___x_104_, 0, v___y_101_);
 lean_ctor_set(v___x_104_, 1, v___x_103_);
 v_a_93_ = v___x_104_;
 goto _start;
@@ -1156,8 +1156,8 @@ v_reusejp_227_:
 {
 lean_object* v___x_229_; 
 v___x_229_ = lean_array_push(v___x_224_, v___x_228_);
-v___y_100_ = v___x_221_;
-v___y_101_ = v___x_223_;
+v___y_100_ = v___x_223_;
+v___y_101_ = v___x_221_;
 v___y_102_ = v___x_229_;
 goto v___jp_99_;
 }
@@ -1167,8 +1167,8 @@ else
 lean_del_object(v___x_218_);
 lean_dec(v_n_192_);
 lean_dec(v_fvarId_191_);
-v___y_100_ = v___x_221_;
-v___y_101_ = v___x_223_;
+v___y_100_ = v___x_223_;
+v___y_101_ = v___x_221_;
 v___y_102_ = v___x_224_;
 goto v___jp_99_;
 }
@@ -8994,11 +8994,13 @@ return v_res_2641_;
 }
 lean_object* runtime_initialize_Lean_Compiler_LCNF_PassManager(uint8_t builtin);
 lean_object* runtime_initialize_Init_While(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF_ExpandResetReuse(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Compiler_LCNF_PassManager(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

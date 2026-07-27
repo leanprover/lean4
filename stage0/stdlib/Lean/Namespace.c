@@ -2224,7 +2224,7 @@ return v_res_609_;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_alter___at___00__private_Lean_Namespace_0__Lean_initFn_00___x40_Lean_Namespace_1373626441____hygCtx___hyg_2__spec__1(uint8_t v___y_610_, lean_object* v_m_611_, lean_object* v_a_612_){
 _start:
 {
-size_t v___y_614_; lean_object* v___y_615_; lean_object* v___y_616_; lean_object* v___y_617_; lean_object* v_size_620_; lean_object* v_buckets_621_; lean_object* v___x_623_; uint8_t v_isShared_624_; uint8_t v_isSharedCheck_667_; 
+lean_object* v___y_614_; size_t v___y_615_; lean_object* v___y_616_; lean_object* v___y_617_; lean_object* v_size_620_; lean_object* v_buckets_621_; lean_object* v___x_623_; uint8_t v_isShared_624_; uint8_t v_isSharedCheck_667_; 
 v_size_620_ = lean_ctor_get(v_m_611_, 0);
 v_buckets_621_ = lean_ctor_get(v_m_611_, 1);
 v_isSharedCheck_667_ = !lean_is_exclusive(v_m_611_);
@@ -2246,7 +2246,7 @@ goto v_resetjp_622_;
 v___jp_613_:
 {
 lean_object* v___x_618_; lean_object* v___x_619_; 
-v___x_618_ = lean_array_uset(v___y_615_, v___y_614_, v___y_616_);
+v___x_618_ = lean_array_uset(v___y_616_, v___y_615_, v___y_614_);
 v___x_619_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_619_, 0, v___y_617_);
 lean_ctor_set(v___x_619_, 1, v___x_618_);
@@ -2374,17 +2374,17 @@ lean_object* v___x_663_; lean_object* v___x_664_;
 v___x_663_ = lean_unsigned_to_nat(1u);
 v___x_664_ = lean_nat_sub(v_size_620_, v___x_663_);
 lean_dec(v_size_620_);
-v___y_614_ = v___x_638_;
-v___y_615_ = v_buckets_x27_660_;
-v___y_616_ = v_bkt_x27_661_;
+v___y_614_ = v_bkt_x27_661_;
+v___y_615_ = v___x_638_;
+v___y_616_ = v_buckets_x27_660_;
 v___y_617_ = v___x_664_;
 goto v___jp_613_;
 }
 else
 {
-v___y_614_ = v___x_638_;
-v___y_615_ = v_buckets_x27_660_;
-v___y_616_ = v_bkt_x27_661_;
+v___y_614_ = v_bkt_x27_661_;
+v___y_615_ = v___x_638_;
+v___y_616_ = v_buckets_x27_660_;
 v___y_617_ = v_size_620_;
 goto v___jp_613_;
 }
@@ -4261,11 +4261,13 @@ return v___x_1517_;
 }
 }
 lean_object* runtime_initialize_Lean_EnvExtension(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Namespace(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_EnvExtension(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -3494,8 +3494,8 @@ v___x_1120_ = l_Lean_executeReservedNameAction(v___x_1118_, v___y_956_, v___y_95
 if (lean_obj_tag(v___x_1120_) == 0)
 {
 lean_dec_ref_known(v___x_1120_, 1);
-v___y_968_ = v___y_1026_;
-v___y_969_ = v___x_1118_;
+v___y_968_ = v___x_1118_;
+v___y_969_ = v___y_1026_;
 v___y_970_ = v___y_948_;
 v___y_971_ = v___y_949_;
 v___y_972_ = v___y_950_;
@@ -3520,8 +3520,8 @@ return v___x_1120_;
 }
 else
 {
-v___y_968_ = v___y_1026_;
-v___y_969_ = v___x_1118_;
+v___y_968_ = v___x_1118_;
+v___y_969_ = v___y_1026_;
 v___y_970_ = v___y_948_;
 v___y_971_ = v___y_949_;
 v___y_972_ = v___y_950_;
@@ -4026,8 +4026,8 @@ return v___x_1206_;
 v___jp_967_:
 {
 lean_object* v___x_980_; lean_object* v___x_981_; lean_object* v___x_982_; lean_object* v___x_983_; 
-lean_inc(v___y_969_);
-v___x_980_ = l_Lean_mkConst(v___y_969_, v_us_966_);
+lean_inc(v___y_968_);
+v___x_980_ = l_Lean_mkConst(v___y_968_, v_us_966_);
 v___x_981_ = l_Lean_mkAppN(v___x_980_, v_args_u2081_942_);
 lean_dec_ref(v_args_u2081_942_);
 v___x_982_ = l_Lean_mkAppN(v___x_981_, v_x_946_);
@@ -4045,11 +4045,11 @@ v_a_984_ = lean_ctor_get(v___x_983_, 0);
 lean_inc(v_a_984_);
 lean_dec_ref_known(v___x_983_, 1);
 v___x_985_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_985_, 0, v___y_969_);
+lean_ctor_set(v___x_985_, 0, v___y_968_);
 v___x_986_ = lean_alloc_ctor(7, 1, 0);
 lean_ctor_set(v___x_986_, 0, v___x_985_);
 v___x_987_ = lean_box(1);
-v___x_988_ = l_Lean_Meta_Grind_addNewRawFact(v___x_982_, v_a_984_, v___y_968_, v___x_986_, v___x_987_, v___y_970_, v___y_971_, v___y_972_, v___y_973_, v___y_974_, v___y_975_, v___y_976_, v___y_977_, v___y_978_, v___y_979_);
+v___x_988_ = l_Lean_Meta_Grind_addNewRawFact(v___x_982_, v_a_984_, v___y_969_, v___x_986_, v___x_987_, v___y_970_, v___y_971_, v___y_972_, v___y_973_, v___y_974_, v___y_975_, v___y_976_, v___y_977_, v___y_978_, v___y_979_);
 return v___x_988_;
 }
 else
@@ -4640,11 +4640,13 @@ return v_res_1458_;
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Injective(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Simp(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Ctor(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Grind_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

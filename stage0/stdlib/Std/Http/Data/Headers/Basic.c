@@ -2125,7 +2125,7 @@ return v_r_654_;
 LEAN_EXPORT uint8_t l_Std_Http_Header_TransferEncoding_Validate(lean_object* v_codings_659_){
 _start:
 {
-lean_object* v___y_661_; uint8_t v___y_662_; uint8_t v___y_663_; lean_object* v___y_664_; uint8_t v___y_671_; uint8_t v___y_672_; lean_object* v___y_673_; uint8_t v___y_683_; lean_object* v___x_697_; lean_object* v___x_698_; uint8_t v___x_699_; 
+uint8_t v___y_661_; lean_object* v___y_662_; uint8_t v___y_663_; lean_object* v___y_664_; uint8_t v___y_671_; uint8_t v___y_672_; lean_object* v___y_673_; uint8_t v___y_683_; lean_object* v___x_697_; lean_object* v___x_698_; uint8_t v___x_699_; 
 v___x_697_ = lean_array_get_size(v_codings_659_);
 v___x_698_ = lean_unsigned_to_nat(0u);
 v___x_699_ = lean_nat_dec_eq(v___x_697_, v___x_698_);
@@ -2165,12 +2165,12 @@ v___jp_660_:
 {
 lean_object* v___x_665_; uint8_t v___x_666_; 
 v___x_665_ = lean_unsigned_to_nat(1u);
-v___x_666_ = lean_nat_dec_lt(v___x_665_, v___y_661_);
+v___x_666_ = lean_nat_dec_lt(v___x_665_, v___y_662_);
 if (v___x_666_ == 0)
 {
 uint8_t v___x_667_; 
-v___x_667_ = lean_nat_dec_eq(v___y_661_, v___x_665_);
-lean_dec(v___y_661_);
+v___x_667_ = lean_nat_dec_eq(v___y_662_, v___x_665_);
+lean_dec(v___y_662_);
 if (v___x_667_ == 0)
 {
 lean_dec(v___y_664_);
@@ -2180,7 +2180,7 @@ return v___y_663_;
 }
 else
 {
-return v___y_662_;
+return v___y_661_;
 }
 }
 else
@@ -2197,7 +2197,7 @@ return v___y_663_;
 }
 else
 {
-return v___y_662_;
+return v___y_661_;
 }
 }
 else
@@ -2209,8 +2209,8 @@ return v___y_663_;
 else
 {
 lean_dec(v___y_664_);
-lean_dec(v___y_661_);
-return v___y_662_;
+lean_dec(v___y_662_);
+return v___y_661_;
 }
 }
 v___jp_670_:
@@ -2227,8 +2227,8 @@ if (v___x_678_ == 0)
 lean_object* v___x_679_; 
 lean_dec(v___x_677_);
 v___x_679_ = lean_box(0);
-v___y_661_ = v_chunkedCount_674_;
-v___y_662_ = v___y_671_;
+v___y_661_ = v___y_671_;
+v___y_662_ = v_chunkedCount_674_;
 v___y_663_ = v___y_672_;
 v___y_664_ = v___x_679_;
 goto v___jp_660_;
@@ -2241,8 +2241,8 @@ lean_dec(v___x_677_);
 lean_inc(v___x_680_);
 v___x_681_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_681_, 0, v___x_680_);
-v___y_661_ = v_chunkedCount_674_;
-v___y_662_ = v___y_671_;
+v___y_661_ = v___y_671_;
+v___y_662_ = v_chunkedCount_674_;
 v___y_663_ = v___y_672_;
 v___y_664_ = v___x_681_;
 goto v___jp_660_;
@@ -3989,11 +3989,13 @@ lean_object* runtime_initialize_Std_Http_Data_Headers_Name(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Data_Headers_Value(uint8_t builtin);
 lean_object* runtime_initialize_Std_Internal_Parsec_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Search(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Http_Data_Headers_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Http_Data_URI(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

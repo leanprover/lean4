@@ -3671,8 +3671,8 @@ lean_object* v___x_933_; lean_object* v___x_934_; lean_object* v___x_935_; lean_
 v___x_933_ = l_Lean_Option_toJson___at___00Lean_Widget_instRpcEncodableInfoPopup_enc_00___x40_Lean_Server_FileWorker_WidgetRequests_2734021171____hygCtx___hyg_1__spec__0(v_fst_931_);
 lean_dec(v_fst_931_);
 v___x_934_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_934_, 0, v___y_929_);
-lean_ctor_set(v___x_934_, 1, v___y_930_);
+lean_ctor_set(v___x_934_, 0, v___y_930_);
+lean_ctor_set(v___x_934_, 1, v___y_929_);
 lean_ctor_set(v___x_934_, 2, v___x_933_);
 v___x_935_ = l_Lean_Widget_instToJsonRpcEncodablePacket_toJson_00___x40_Lean_Server_FileWorker_WidgetRequests_1691946469____hygCtx___hyg_32_(v___x_934_);
 lean_dec_ref_known(v___x_934_, 3);
@@ -3690,8 +3690,8 @@ if (lean_obj_tag(v_doc_939_) == 0)
 {
 lean_object* v___x_945_; 
 v___x_945_ = lean_box(0);
-v___y_929_ = v___y_941_;
-v___y_930_ = v___x_944_;
+v___y_929_ = v___x_944_;
+v___y_930_ = v___y_941_;
 v_fst_931_ = v___x_945_;
 v_snd_932_ = v_snd_943_;
 goto v___jp_928_;
@@ -3736,8 +3736,8 @@ goto v_reusejp_951_;
 }
 v_reusejp_951_:
 {
-v___y_929_ = v___y_941_;
-v___y_930_ = v___x_944_;
+v___y_929_ = v___x_944_;
+v___y_930_ = v___y_941_;
 v_fst_931_ = v___x_952_;
 v_snd_932_ = v_snd_943_;
 goto v___jp_928_;
@@ -5122,8 +5122,8 @@ if (lean_obj_tag(v_a_1279_) == 0)
 {
 lean_object* v___x_1280_; 
 v___x_1280_ = lean_box(0);
-v___y_1257_ = v___y_1276_;
-v___y_1258_ = v_____do__lift_1277_;
+v___y_1257_ = v_____do__lift_1277_;
+v___y_1258_ = v___y_1276_;
 v_____do__lift_1259_ = v___x_1280_;
 goto v___jp_1256_;
 }
@@ -5216,8 +5216,8 @@ goto v_reusejp_1295_;
 }
 v_reusejp_1295_:
 {
-v___y_1257_ = v___y_1276_;
-v___y_1258_ = v_____do__lift_1277_;
+v___y_1257_ = v_____do__lift_1277_;
+v___y_1258_ = v___y_1276_;
 v_____do__lift_1259_ = v___x_1296_;
 goto v___jp_1256_;
 }
@@ -5395,8 +5395,8 @@ v___jp_1256_:
 {
 lean_object* v___x_1260_; lean_object* v___x_1261_; 
 v___x_1260_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_1260_, 0, v___y_1257_);
-lean_ctor_set(v___x_1260_, 1, v___y_1258_);
+lean_ctor_set(v___x_1260_, 0, v___y_1258_);
+lean_ctor_set(v___x_1260_, 1, v___y_1257_);
 lean_ctor_set(v___x_1260_, 2, v_____do__lift_1259_);
 v___x_1261_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_1261_, 0, v___x_1260_);
@@ -11312,13 +11312,13 @@ goto v___jp_3471_;
 v___jp_3458_:
 {
 uint8_t v___x_3462_; 
-v___x_3462_ = lean_unbox(v___y_3460_);
-lean_dec(v___y_3460_);
+v___x_3462_ = lean_unbox(v___y_3459_);
+lean_dec(v___y_3459_);
 if (v___x_3462_ == 0)
 {
 lean_object* v___x_3463_; 
 lean_dec_ref(v_r_3461_);
-lean_dec(v___y_3459_);
+lean_dec(v___y_3460_);
 v___x_3463_ = lean_box(0);
 return v___x_3463_;
 }
@@ -11331,7 +11331,7 @@ v___x_3466_ = lean_nat_dec_eq(v___x_3464_, v___x_3465_);
 if (v___x_3466_ == 0)
 {
 lean_object* v___x_3467_; lean_object* v___x_3468_; 
-lean_dec(v___y_3459_);
+lean_dec(v___y_3460_);
 v___x_3467_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_3467_, 0, v_r_3461_);
 v___x_3468_ = lean_alloc_ctor(1, 1, 0);
@@ -11341,8 +11341,8 @@ return v___x_3468_;
 else
 {
 lean_object* v___x_3469_; lean_object* v___x_3470_; 
-v___x_3469_ = lean_array_fget(v_r_3461_, v___y_3459_);
-lean_dec(v___y_3459_);
+v___x_3469_ = lean_array_fget(v_r_3461_, v___y_3460_);
+lean_dec(v___y_3460_);
 lean_dec_ref(v_r_3461_);
 v___x_3470_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_3470_, 0, v___x_3469_);
@@ -11400,16 +11400,16 @@ v_val_3489_ = lean_ctor_get(v___x_3488_, 0);
 lean_inc(v_val_3489_);
 lean_dec_ref_known(v___x_3488_, 1);
 v___x_3490_ = lean_array_push(v_fst_3485_, v_val_3489_);
-v___y_3459_ = v_p_3474_;
-v___y_3460_ = v_fst_3484_;
+v___y_3459_ = v_fst_3484_;
+v___y_3460_ = v_p_3474_;
 v_r_3461_ = v___x_3490_;
 goto v___jp_3458_;
 }
 else
 {
 lean_dec(v___x_3488_);
-v___y_3459_ = v_p_3474_;
-v___y_3460_ = v_fst_3484_;
+v___y_3459_ = v_fst_3484_;
+v___y_3460_ = v_p_3474_;
 v_r_3461_ = v_fst_3485_;
 goto v___jp_3458_;
 }
@@ -20126,11 +20126,13 @@ lean_object* runtime_initialize_Lean_Server_Rpc_RequestHandling(uint8_t builtin)
 lean_object* runtime_initialize_Lean_Server_FileWorker_RequestHandling(uint8_t builtin);
 lean_object* runtime_initialize_Lean_PrettyPrinter_Delaborator_Builtins(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_FileWorker_WidgetRequests(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Server_Rpc_RequestHandling(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

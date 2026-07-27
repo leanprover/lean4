@@ -2192,8 +2192,8 @@ return v___x_721_;
 }
 else
 {
-lean_dec_ref_known(v___x_708_, 2);
 lean_dec(v_tail_709_);
+lean_dec_ref_known(v___x_708_, 2);
 lean_del_object(v___x_706_);
 lean_del_object(v___x_702_);
 goto v___jp_696_;
@@ -5124,11 +5124,13 @@ return v_res_1874_;
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Char(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_StringLitProof(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_String(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Char(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

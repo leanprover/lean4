@@ -36,47 +36,47 @@ lean_object* l_BitVec_rotateRight(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkNumeral(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t l_Nat_testBit(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_BitVec_append___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_shiftLeft(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
 lean_object* l_BitVec_extractLsb___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_lxor(lean_object*, lean_object*);
+lean_object* l_BitVec_not(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(lean_object*, lean_object*);
 lean_object* lean_nat_land(lean_object*, lean_object*);
-lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 lean_object* l_BitVec_signExtend(lean_object*, lean_object*, lean_object*);
+lean_object* l_BitVec_setWidth(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_lor(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 uint8_t l_Lean_Expr_isApp(lean_object*);
 lean_object* l_Lean_Expr_appFnCleanup___redArg(lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+uint8_t l_Nat_testBit(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constLevels_x21(lean_object*);
 lean_object* l_Lean_mkApp5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_headBeta(lean_object*);
 lean_object* l_Lean_mkLambda(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_BitVec_rotateLeft(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_clz(lean_object*, lean_object*);
-lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
-lean_object* l_BitVec_cpop(lean_object*, lean_object*);
-lean_object* lean_nat_mul(lean_object*, lean_object*);
-lean_object* l_BitVec_replicate(lean_object*, lean_object*, lean_object*);
-lean_object* l_BitVec_setWidth(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_getIntValue_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_BitVec_ofInt(lean_object*, lean_object*);
-lean_object* l_BitVec_extractLsb_x27___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_BitVec_sshiftRight(lean_object*, lean_object*, lean_object*);
-lean_object* l_BitVec_not(lean_object*, lean_object*);
 lean_object* l_BitVec_toInt(lean_object*, lean_object*);
 lean_object* l_Lean_mkIntLit(lean_object*);
+lean_object* lean_nat_shiftr(lean_object*, lean_object*);
+lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
+lean_object* lean_nat_mul(lean_object*, lean_object*);
+lean_object* l_BitVec_replicate(lean_object*, lean_object*, lean_object*);
+lean_object* l_BitVec_cpop(lean_object*, lean_object*);
+lean_object* l_BitVec_extractLsb_x27___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_BitVec_sshiftRight(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_getIntValue_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_BitVec_ofInt(lean_object*, lean_object*);
 static const lean_string_object l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_mkBVLit___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "BitVec"};
 static const lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_mkBVLit___redArg___closed__0 = (const lean_object*)&l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_mkBVLit___redArg___closed__0_value;
 static const lean_ctor_object l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_mkBVLit___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_mkBVLit___redArg___closed__0_value),LEAN_SCALAR_PTR_LITERAL(108, 178, 58, 132, 143, 189, 222, 74)}};
@@ -189,8 +189,8 @@ static const lean_closure_object l_Lean_Meta_Grind_propagateBVNot___closed__3_va
 static const lean_object* l_Lean_Meta_Grind_propagateBVNot___closed__3 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVNot___closed__3_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVNot(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVNot___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVNot___regBuiltin_Lean_Meta_Grind_propagateBVNot_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_524020944____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVNot___regBuiltin_Lean_Meta_Grind_propagateBVNot_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_524020944____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVNot___regBuiltin_Lean_Meta_Grind_propagateBVNot_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_524020944____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVNot___regBuiltin_Lean_Meta_Grind_propagateBVNot_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_524020944____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVClz___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVClz___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVClz___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "clz"};
@@ -202,8 +202,8 @@ static const lean_closure_object l_Lean_Meta_Grind_propagateBVClz___closed__2_va
 static const lean_object* l_Lean_Meta_Grind_propagateBVClz___closed__2 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVClz___closed__2_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVClz(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVClz___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVClz___regBuiltin_Lean_Meta_Grind_propagateBVClz_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3163129259____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVClz___regBuiltin_Lean_Meta_Grind_propagateBVClz_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3163129259____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVClz___regBuiltin_Lean_Meta_Grind_propagateBVClz_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3163129259____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVClz___regBuiltin_Lean_Meta_Grind_propagateBVClz_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3163129259____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVCpop___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVCpop___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVCpop___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "cpop"};
@@ -215,8 +215,8 @@ static const lean_closure_object l_Lean_Meta_Grind_propagateBVCpop___closed__2_v
 static const lean_object* l_Lean_Meta_Grind_propagateBVCpop___closed__2 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVCpop___closed__2_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVCpop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVCpop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVCpop___regBuiltin_Lean_Meta_Grind_propagateBVCpop_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4094280043____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVCpop___regBuiltin_Lean_Meta_Grind_propagateBVCpop_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4094280043____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVCpop___regBuiltin_Lean_Meta_Grind_propagateBVCpop_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4094280043____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVCpop___regBuiltin_Lean_Meta_Grind_propagateBVCpop_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4094280043____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVMsb___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVMsb___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVMsb___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "msb"};
@@ -228,8 +228,8 @@ static const lean_closure_object l_Lean_Meta_Grind_propagateBVMsb___closed__2_va
 static const lean_object* l_Lean_Meta_Grind_propagateBVMsb___closed__2 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVMsb___closed__2_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVMsb(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVMsb___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVMsb___regBuiltin_Lean_Meta_Grind_propagateBVMsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1379739246____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVMsb___regBuiltin_Lean_Meta_Grind_propagateBVMsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1379739246____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVMsb___regBuiltin_Lean_Meta_Grind_propagateBVMsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1379739246____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVMsb___regBuiltin_Lean_Meta_Grind_propagateBVMsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1379739246____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVToNat___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVToNat___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVToNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "toNat"};
@@ -241,8 +241,8 @@ static const lean_closure_object l_Lean_Meta_Grind_propagateBVToNat___closed__2_
 static const lean_object* l_Lean_Meta_Grind_propagateBVToNat___closed__2 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVToNat___closed__2_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVToNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVToNat___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToNat___regBuiltin_Lean_Meta_Grind_propagateBVToNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1265925494____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToNat___regBuiltin_Lean_Meta_Grind_propagateBVToNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1265925494____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToNat___regBuiltin_Lean_Meta_Grind_propagateBVToNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1265925494____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToNat___regBuiltin_Lean_Meta_Grind_propagateBVToNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1265925494____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVToInt___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVToInt___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVToInt___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "toInt"};
@@ -254,8 +254,8 @@ static const lean_closure_object l_Lean_Meta_Grind_propagateBVToInt___closed__2_
 static const lean_object* l_Lean_Meta_Grind_propagateBVToInt___closed__2 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVToInt___closed__2_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVToInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVToInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToInt___regBuiltin_Lean_Meta_Grind_propagateBVToInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2998338308____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToInt___regBuiltin_Lean_Meta_Grind_propagateBVToInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2998338308____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToInt___regBuiltin_Lean_Meta_Grind_propagateBVToInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2998338308____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToInt___regBuiltin_Lean_Meta_Grind_propagateBVToInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2998338308____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVOfNat___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVOfNat___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVOfNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "ofNat"};
@@ -265,8 +265,8 @@ static const lean_ctor_object l_Lean_Meta_Grind_propagateBVOfNat___closed__1_val
 static const lean_object* l_Lean_Meta_Grind_propagateBVOfNat___closed__1 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVOfNat___closed__1_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVOfNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVOfNat___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfNat___regBuiltin_Lean_Meta_Grind_propagateBVOfNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1693823724____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfNat___regBuiltin_Lean_Meta_Grind_propagateBVOfNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1693823724____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfNat___regBuiltin_Lean_Meta_Grind_propagateBVOfNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1693823724____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfNat___regBuiltin_Lean_Meta_Grind_propagateBVOfNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1693823724____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVOfInt___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVOfInt___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVOfInt___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "ofInt"};
@@ -276,8 +276,8 @@ static const lean_ctor_object l_Lean_Meta_Grind_propagateBVOfInt___closed__1_val
 static const lean_object* l_Lean_Meta_Grind_propagateBVOfInt___closed__1 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVOfInt___closed__1_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVOfInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVOfInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfInt___regBuiltin_Lean_Meta_Grind_propagateBVOfInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_16048587____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfInt___regBuiltin_Lean_Meta_Grind_propagateBVOfInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_16048587____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfInt___regBuiltin_Lean_Meta_Grind_propagateBVOfInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_16048587____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfInt___regBuiltin_Lean_Meta_Grind_propagateBVOfInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_16048587____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVSetWidth___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVSetWidth___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVSetWidth___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "setWidth"};
@@ -287,8 +287,8 @@ static const lean_ctor_object l_Lean_Meta_Grind_propagateBVSetWidth___closed__1_
 static const lean_object* l_Lean_Meta_Grind_propagateBVSetWidth___closed__1 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVSetWidth___closed__1_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVSetWidth(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVSetWidth___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSetWidth___regBuiltin_Lean_Meta_Grind_propagateBVSetWidth_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_860079827____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSetWidth___regBuiltin_Lean_Meta_Grind_propagateBVSetWidth_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_860079827____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSetWidth___regBuiltin_Lean_Meta_Grind_propagateBVSetWidth_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_860079827____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSetWidth___regBuiltin_Lean_Meta_Grind_propagateBVSetWidth_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_860079827____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVSignExtend___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVSignExtend___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVSignExtend___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "signExtend"};
@@ -298,8 +298,8 @@ static const lean_ctor_object l_Lean_Meta_Grind_propagateBVSignExtend___closed__
 static const lean_object* l_Lean_Meta_Grind_propagateBVSignExtend___closed__1 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVSignExtend___closed__1_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVSignExtend(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVSignExtend___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSignExtend___regBuiltin_Lean_Meta_Grind_propagateBVSignExtend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3709470554____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSignExtend___regBuiltin_Lean_Meta_Grind_propagateBVSignExtend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3709470554____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSignExtend___regBuiltin_Lean_Meta_Grind_propagateBVSignExtend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3709470554____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSignExtend___regBuiltin_Lean_Meta_Grind_propagateBVSignExtend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3709470554____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVExtractLsb_x27___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVExtractLsb_x27___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVExtractLsb_x27___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 12, .m_capacity = 12, .m_length = 11, .m_data = "extractLsb'"};
@@ -309,8 +309,8 @@ static const lean_ctor_object l_Lean_Meta_Grind_propagateBVExtractLsb_x27___clos
 static const lean_object* l_Lean_Meta_Grind_propagateBVExtractLsb_x27___closed__1 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVExtractLsb_x27___closed__1_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVExtractLsb_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVExtractLsb_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb_x27___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_x27_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4241407876____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb_x27___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_x27_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4241407876____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb_x27___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_x27_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4241407876____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb_x27___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_x27_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4241407876____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVExtractLsb___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVExtractLsb___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVExtractLsb___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "extractLsb"};
@@ -320,8 +320,8 @@ static const lean_ctor_object l_Lean_Meta_Grind_propagateBVExtractLsb___closed__
 static const lean_object* l_Lean_Meta_Grind_propagateBVExtractLsb___closed__1 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVExtractLsb___closed__1_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVExtractLsb(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVExtractLsb___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3429100332____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3429100332____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3429100332____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3429100332____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVReplicate___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVReplicate___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVReplicate___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "replicate"};
@@ -331,8 +331,8 @@ static const lean_ctor_object l_Lean_Meta_Grind_propagateBVReplicate___closed__1
 static const lean_object* l_Lean_Meta_Grind_propagateBVReplicate___closed__1 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVReplicate___closed__1_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVReplicate(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVReplicate___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVReplicate___regBuiltin_Lean_Meta_Grind_propagateBVReplicate_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3327375609____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVReplicate___regBuiltin_Lean_Meta_Grind_propagateBVReplicate_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3327375609____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVReplicate___regBuiltin_Lean_Meta_Grind_propagateBVReplicate_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3327375609____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVReplicate___regBuiltin_Lean_Meta_Grind_propagateBVReplicate_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3327375609____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVAnd___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVAnd___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVAnd___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "HAnd"};
@@ -346,8 +346,8 @@ static const lean_closure_object l_Lean_Meta_Grind_propagateBVAnd___closed__3_va
 static const lean_object* l_Lean_Meta_Grind_propagateBVAnd___closed__3 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVAnd___closed__3_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVAnd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVAnd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAnd___regBuiltin_Lean_Meta_Grind_propagateBVAnd_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_317501673____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAnd___regBuiltin_Lean_Meta_Grind_propagateBVAnd_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_317501673____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAnd___regBuiltin_Lean_Meta_Grind_propagateBVAnd_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_317501673____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAnd___regBuiltin_Lean_Meta_Grind_propagateBVAnd_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_317501673____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVOr___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVOr___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVOr___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "HOr"};
@@ -361,8 +361,8 @@ static const lean_closure_object l_Lean_Meta_Grind_propagateBVOr___closed__3_val
 static const lean_object* l_Lean_Meta_Grind_propagateBVOr___closed__3 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVOr___closed__3_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVOr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVOr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOr___regBuiltin_Lean_Meta_Grind_propagateBVOr_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4272827602____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOr___regBuiltin_Lean_Meta_Grind_propagateBVOr_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4272827602____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOr___regBuiltin_Lean_Meta_Grind_propagateBVOr_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4272827602____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOr___regBuiltin_Lean_Meta_Grind_propagateBVOr_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4272827602____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVXor___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVXor___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVXor___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "HXor"};
@@ -376,8 +376,8 @@ static const lean_closure_object l_Lean_Meta_Grind_propagateBVXor___closed__3_va
 static const lean_object* l_Lean_Meta_Grind_propagateBVXor___closed__3 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVXor___closed__3_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVXor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVXor___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVXor___regBuiltin_Lean_Meta_Grind_propagateBVXor_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1120302969____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVXor___regBuiltin_Lean_Meta_Grind_propagateBVXor_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1120302969____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVXor___regBuiltin_Lean_Meta_Grind_propagateBVXor_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1120302969____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVXor___regBuiltin_Lean_Meta_Grind_propagateBVXor_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1120302969____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVAppend___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVAppend___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVAppend___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "HAppend"};
@@ -391,8 +391,8 @@ static const lean_closure_object l_Lean_Meta_Grind_propagateBVAppend___closed__3
 static const lean_object* l_Lean_Meta_Grind_propagateBVAppend___closed__3 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVAppend___closed__3_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVAppend(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVAppend___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAppend___regBuiltin_Lean_Meta_Grind_propagateBVAppend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4057925374____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAppend___regBuiltin_Lean_Meta_Grind_propagateBVAppend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4057925374____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAppend___regBuiltin_Lean_Meta_Grind_propagateBVAppend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4057925374____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAppend___regBuiltin_Lean_Meta_Grind_propagateBVAppend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4057925374____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVShiftLeft___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVShiftLeft___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVShiftLeft___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "shiftLeft"};
@@ -404,8 +404,8 @@ static const lean_closure_object l_Lean_Meta_Grind_propagateBVShiftLeft___closed
 static const lean_object* l_Lean_Meta_Grind_propagateBVShiftLeft___closed__2 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVShiftLeft___closed__2_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVShiftLeft(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVShiftLeft___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3262547096____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3262547096____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3262547096____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3262547096____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVUShiftRight___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVUShiftRight___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVUShiftRight___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 12, .m_capacity = 12, .m_length = 11, .m_data = "ushiftRight"};
@@ -417,8 +417,8 @@ static const lean_closure_object l_Lean_Meta_Grind_propagateBVUShiftRight___clos
 static const lean_object* l_Lean_Meta_Grind_propagateBVUShiftRight___closed__2 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVUShiftRight___closed__2_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVUShiftRight(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVUShiftRight___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVUShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVUShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1878785357____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVUShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVUShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1878785357____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVUShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVUShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1878785357____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVUShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVUShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1878785357____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVSShiftRight___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVSShiftRight___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVSShiftRight___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 12, .m_capacity = 12, .m_length = 11, .m_data = "sshiftRight"};
@@ -430,8 +430,8 @@ static const lean_closure_object l_Lean_Meta_Grind_propagateBVSShiftRight___clos
 static const lean_object* l_Lean_Meta_Grind_propagateBVSShiftRight___closed__2 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVSShiftRight___closed__2_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVSShiftRight(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVSShiftRight___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVSShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3342532823____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVSShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3342532823____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVSShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3342532823____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVSShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3342532823____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVRotateLeft___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVRotateLeft___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVRotateLeft___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "rotateLeft"};
@@ -443,8 +443,8 @@ static const lean_closure_object l_Lean_Meta_Grind_propagateBVRotateLeft___close
 static const lean_object* l_Lean_Meta_Grind_propagateBVRotateLeft___closed__2 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVRotateLeft___closed__2_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVRotateLeft(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVRotateLeft___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateLeft___regBuiltin_Lean_Meta_Grind_propagateBVRotateLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1541346404____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateLeft___regBuiltin_Lean_Meta_Grind_propagateBVRotateLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1541346404____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateLeft___regBuiltin_Lean_Meta_Grind_propagateBVRotateLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1541346404____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateLeft___regBuiltin_Lean_Meta_Grind_propagateBVRotateLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1541346404____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVRotateRight___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVRotateRight___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVRotateRight___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 12, .m_capacity = 12, .m_length = 11, .m_data = "rotateRight"};
@@ -456,8 +456,8 @@ static const lean_closure_object l_Lean_Meta_Grind_propagateBVRotateRight___clos
 static const lean_object* l_Lean_Meta_Grind_propagateBVRotateRight___closed__2 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVRotateRight___closed__2_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVRotateRight(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVRotateRight___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateRight___regBuiltin_Lean_Meta_Grind_propagateBVRotateRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2456321972____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateRight___regBuiltin_Lean_Meta_Grind_propagateBVRotateRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2456321972____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateRight___regBuiltin_Lean_Meta_Grind_propagateBVRotateRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2456321972____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateRight___regBuiltin_Lean_Meta_Grind_propagateBVRotateRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2456321972____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_hShiftBV___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_hShiftBV___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_hShiftBV(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -475,8 +475,8 @@ static const lean_closure_object l_Lean_Meta_Grind_propagateBVHShiftLeft___close
 static const lean_object* l_Lean_Meta_Grind_propagateBVHShiftLeft___closed__3 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVHShiftLeft___closed__3_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVHShiftLeft(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVHShiftLeft___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVHShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2458924947____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVHShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2458924947____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVHShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2458924947____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVHShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2458924947____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVHShiftRight___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVHShiftRight___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVHShiftRight___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 12, .m_capacity = 12, .m_length = 11, .m_data = "HShiftRight"};
@@ -490,8 +490,8 @@ static const lean_closure_object l_Lean_Meta_Grind_propagateBVHShiftRight___clos
 static const lean_object* l_Lean_Meta_Grind_propagateBVHShiftRight___closed__3 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVHShiftRight___closed__3_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVHShiftRight(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVHShiftRight___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVHShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1131064821____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVHShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1131064821____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVHShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1131064821____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVHShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1131064821____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVGetLsbD___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVGetLsbD___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVGetLsbD___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "getLsbD"};
@@ -503,8 +503,8 @@ static const lean_closure_object l_Lean_Meta_Grind_propagateBVGetLsbD___closed__
 static const lean_object* l_Lean_Meta_Grind_propagateBVGetLsbD___closed__2 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVGetLsbD___closed__2_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVGetLsbD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVGetLsbD___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetLsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetLsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1075602488____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetLsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetLsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1075602488____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetLsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetLsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1075602488____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetLsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetLsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1075602488____hygCtx___hyg_9____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVGetMsbD___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVGetMsbD___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVGetMsbD___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "getMsbD"};
@@ -516,8 +516,8 @@ static const lean_closure_object l_Lean_Meta_Grind_propagateBVGetMsbD___closed__
 static const lean_object* l_Lean_Meta_Grind_propagateBVGetMsbD___closed__2 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVGetMsbD___closed__2_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVGetMsbD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVGetMsbD___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetMsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetMsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1507361668____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetMsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetMsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1507361668____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetMsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetMsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1507361668____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetMsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetMsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1507361668____hygCtx___hyg_9____boxed(lean_object*);
 static const lean_string_object l_Lean_Meta_Grind_propagateBVGetElem___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "GetElem"};
 static const lean_object* l_Lean_Meta_Grind_propagateBVGetElem___closed__0 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVGetElem___closed__0_value;
 static const lean_string_object l_Lean_Meta_Grind_propagateBVGetElem___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "getElem"};
@@ -542,8 +542,8 @@ static const lean_ctor_object l_Lean_Meta_Grind_propagateBVGetElem___closed__8_v
 static const lean_object* l_Lean_Meta_Grind_propagateBVGetElem___closed__8 = (const lean_object*)&l_Lean_Meta_Grind_propagateBVGetElem___closed__8_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVGetElem(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateBVGetElem___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetElem___regBuiltin_Lean_Meta_Grind_propagateBVGetElem_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2454187461____hygCtx___hyg_8_();
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetElem___regBuiltin_Lean_Meta_Grind_propagateBVGetElem_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2454187461____hygCtx___hyg_8____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetElem___regBuiltin_Lean_Meta_Grind_propagateBVGetElem_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2454187461____hygCtx___hyg_9_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetElem___regBuiltin_Lean_Meta_Grind_propagateBVGetElem_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2454187461____hygCtx___hyg_9____boxed(lean_object*);
 static lean_object* _init_l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_mkBVLit___redArg___closed__2(void){
 _start:
 {
@@ -4657,7 +4657,7 @@ lean_dec(v_a_1343_);
 return v_res_1354_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVNot___regBuiltin_Lean_Meta_Grind_propagateBVNot_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_524020944____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVNot___regBuiltin_Lean_Meta_Grind_propagateBVNot_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_524020944____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_1356_; lean_object* v___x_1357_; lean_object* v___x_1358_; 
@@ -4667,11 +4667,11 @@ v___x_1358_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_1356_, v__
 return v___x_1358_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVNot___regBuiltin_Lean_Meta_Grind_propagateBVNot_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_524020944____hygCtx___hyg_8____boxed(lean_object* v_a_1359_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVNot___regBuiltin_Lean_Meta_Grind_propagateBVNot_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_524020944____hygCtx___hyg_9____boxed(lean_object* v_a_1359_){
 _start:
 {
 lean_object* v_res_1360_; 
-v_res_1360_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVNot___regBuiltin_Lean_Meta_Grind_propagateBVNot_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_524020944____hygCtx___hyg_8_();
+v_res_1360_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVNot___regBuiltin_Lean_Meta_Grind_propagateBVNot_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_524020944____hygCtx___hyg_9_();
 return v_res_1360_;
 }
 }
@@ -4966,7 +4966,7 @@ lean_dec(v_a_1457_);
 return v_res_1468_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVClz___regBuiltin_Lean_Meta_Grind_propagateBVClz_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3163129259____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVClz___regBuiltin_Lean_Meta_Grind_propagateBVClz_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3163129259____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_1470_; lean_object* v___x_1471_; lean_object* v___x_1472_; 
@@ -4976,11 +4976,11 @@ v___x_1472_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_1470_, v__
 return v___x_1472_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVClz___regBuiltin_Lean_Meta_Grind_propagateBVClz_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3163129259____hygCtx___hyg_8____boxed(lean_object* v_a_1473_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVClz___regBuiltin_Lean_Meta_Grind_propagateBVClz_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3163129259____hygCtx___hyg_9____boxed(lean_object* v_a_1473_){
 _start:
 {
 lean_object* v_res_1474_; 
-v_res_1474_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVClz___regBuiltin_Lean_Meta_Grind_propagateBVClz_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3163129259____hygCtx___hyg_8_();
+v_res_1474_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVClz___regBuiltin_Lean_Meta_Grind_propagateBVClz_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3163129259____hygCtx___hyg_9_();
 return v_res_1474_;
 }
 }
@@ -5275,7 +5275,7 @@ lean_dec(v_a_1571_);
 return v_res_1582_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVCpop___regBuiltin_Lean_Meta_Grind_propagateBVCpop_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4094280043____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVCpop___regBuiltin_Lean_Meta_Grind_propagateBVCpop_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4094280043____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_1584_; lean_object* v___x_1585_; lean_object* v___x_1586_; 
@@ -5285,11 +5285,11 @@ v___x_1586_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_1584_, v__
 return v___x_1586_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVCpop___regBuiltin_Lean_Meta_Grind_propagateBVCpop_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4094280043____hygCtx___hyg_8____boxed(lean_object* v_a_1587_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVCpop___regBuiltin_Lean_Meta_Grind_propagateBVCpop_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4094280043____hygCtx___hyg_9____boxed(lean_object* v_a_1587_){
 _start:
 {
 lean_object* v_res_1588_; 
-v_res_1588_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVCpop___regBuiltin_Lean_Meta_Grind_propagateBVCpop_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4094280043____hygCtx___hyg_8_();
+v_res_1588_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVCpop___regBuiltin_Lean_Meta_Grind_propagateBVCpop_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4094280043____hygCtx___hyg_9_();
 return v_res_1588_;
 }
 }
@@ -5574,7 +5574,7 @@ lean_dec(v_a_1685_);
 return v_res_1696_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVMsb___regBuiltin_Lean_Meta_Grind_propagateBVMsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1379739246____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVMsb___regBuiltin_Lean_Meta_Grind_propagateBVMsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1379739246____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_1698_; lean_object* v___x_1699_; lean_object* v___x_1700_; 
@@ -5584,11 +5584,11 @@ v___x_1700_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_1698_, v__
 return v___x_1700_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVMsb___regBuiltin_Lean_Meta_Grind_propagateBVMsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1379739246____hygCtx___hyg_8____boxed(lean_object* v_a_1701_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVMsb___regBuiltin_Lean_Meta_Grind_propagateBVMsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1379739246____hygCtx___hyg_9____boxed(lean_object* v_a_1701_){
 _start:
 {
 lean_object* v_res_1702_; 
-v_res_1702_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVMsb___regBuiltin_Lean_Meta_Grind_propagateBVMsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1379739246____hygCtx___hyg_8_();
+v_res_1702_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVMsb___regBuiltin_Lean_Meta_Grind_propagateBVMsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1379739246____hygCtx___hyg_9_();
 return v_res_1702_;
 }
 }
@@ -5880,7 +5880,7 @@ lean_dec(v_a_1798_);
 return v_res_1809_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToNat___regBuiltin_Lean_Meta_Grind_propagateBVToNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1265925494____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToNat___regBuiltin_Lean_Meta_Grind_propagateBVToNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1265925494____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_1811_; lean_object* v___x_1812_; lean_object* v___x_1813_; 
@@ -5890,11 +5890,11 @@ v___x_1813_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_1811_, v__
 return v___x_1813_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToNat___regBuiltin_Lean_Meta_Grind_propagateBVToNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1265925494____hygCtx___hyg_8____boxed(lean_object* v_a_1814_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToNat___regBuiltin_Lean_Meta_Grind_propagateBVToNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1265925494____hygCtx___hyg_9____boxed(lean_object* v_a_1814_){
 _start:
 {
 lean_object* v_res_1815_; 
-v_res_1815_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToNat___regBuiltin_Lean_Meta_Grind_propagateBVToNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1265925494____hygCtx___hyg_8_();
+v_res_1815_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToNat___regBuiltin_Lean_Meta_Grind_propagateBVToNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1265925494____hygCtx___hyg_9_();
 return v_res_1815_;
 }
 }
@@ -6191,7 +6191,7 @@ lean_dec(v_a_1913_);
 return v_res_1924_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToInt___regBuiltin_Lean_Meta_Grind_propagateBVToInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2998338308____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToInt___regBuiltin_Lean_Meta_Grind_propagateBVToInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2998338308____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_1926_; lean_object* v___x_1927_; lean_object* v___x_1928_; 
@@ -6201,11 +6201,11 @@ v___x_1928_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_1926_, v__
 return v___x_1928_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToInt___regBuiltin_Lean_Meta_Grind_propagateBVToInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2998338308____hygCtx___hyg_8____boxed(lean_object* v_a_1929_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToInt___regBuiltin_Lean_Meta_Grind_propagateBVToInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2998338308____hygCtx___hyg_9____boxed(lean_object* v_a_1929_){
 _start:
 {
 lean_object* v_res_1930_; 
-v_res_1930_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToInt___regBuiltin_Lean_Meta_Grind_propagateBVToInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2998338308____hygCtx___hyg_8_();
+v_res_1930_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToInt___regBuiltin_Lean_Meta_Grind_propagateBVToInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2998338308____hygCtx___hyg_9_();
 return v_res_1930_;
 }
 }
@@ -6604,7 +6604,7 @@ lean_dec(v_a_2049_);
 return v_res_2060_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfNat___regBuiltin_Lean_Meta_Grind_propagateBVOfNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1693823724____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfNat___regBuiltin_Lean_Meta_Grind_propagateBVOfNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1693823724____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_2062_; lean_object* v___x_2063_; lean_object* v___x_2064_; 
@@ -6614,11 +6614,11 @@ v___x_2064_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_2062_, v__
 return v___x_2064_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfNat___regBuiltin_Lean_Meta_Grind_propagateBVOfNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1693823724____hygCtx___hyg_8____boxed(lean_object* v_a_2065_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfNat___regBuiltin_Lean_Meta_Grind_propagateBVOfNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1693823724____hygCtx___hyg_9____boxed(lean_object* v_a_2065_){
 _start:
 {
 lean_object* v_res_2066_; 
-v_res_2066_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfNat___regBuiltin_Lean_Meta_Grind_propagateBVOfNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1693823724____hygCtx___hyg_8_();
+v_res_2066_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfNat___regBuiltin_Lean_Meta_Grind_propagateBVOfNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1693823724____hygCtx___hyg_9_();
 return v_res_2066_;
 }
 }
@@ -7016,7 +7016,7 @@ lean_dec(v_a_2185_);
 return v_res_2196_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfInt___regBuiltin_Lean_Meta_Grind_propagateBVOfInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_16048587____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfInt___regBuiltin_Lean_Meta_Grind_propagateBVOfInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_16048587____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_2198_; lean_object* v___x_2199_; lean_object* v___x_2200_; 
@@ -7026,11 +7026,11 @@ v___x_2200_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_2198_, v__
 return v___x_2200_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfInt___regBuiltin_Lean_Meta_Grind_propagateBVOfInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_16048587____hygCtx___hyg_8____boxed(lean_object* v_a_2201_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfInt___regBuiltin_Lean_Meta_Grind_propagateBVOfInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_16048587____hygCtx___hyg_9____boxed(lean_object* v_a_2201_){
 _start:
 {
 lean_object* v_res_2202_; 
-v_res_2202_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfInt___regBuiltin_Lean_Meta_Grind_propagateBVOfInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_16048587____hygCtx___hyg_8_();
+v_res_2202_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfInt___regBuiltin_Lean_Meta_Grind_propagateBVOfInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_16048587____hygCtx___hyg_9_();
 return v_res_2202_;
 }
 }
@@ -7436,7 +7436,7 @@ lean_dec(v_a_2324_);
 return v_res_2335_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSetWidth___regBuiltin_Lean_Meta_Grind_propagateBVSetWidth_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_860079827____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSetWidth___regBuiltin_Lean_Meta_Grind_propagateBVSetWidth_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_860079827____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_2337_; lean_object* v___x_2338_; lean_object* v___x_2339_; 
@@ -7446,11 +7446,11 @@ v___x_2339_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_2337_, v__
 return v___x_2339_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSetWidth___regBuiltin_Lean_Meta_Grind_propagateBVSetWidth_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_860079827____hygCtx___hyg_8____boxed(lean_object* v_a_2340_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSetWidth___regBuiltin_Lean_Meta_Grind_propagateBVSetWidth_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_860079827____hygCtx___hyg_9____boxed(lean_object* v_a_2340_){
 _start:
 {
 lean_object* v_res_2341_; 
-v_res_2341_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSetWidth___regBuiltin_Lean_Meta_Grind_propagateBVSetWidth_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_860079827____hygCtx___hyg_8_();
+v_res_2341_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSetWidth___regBuiltin_Lean_Meta_Grind_propagateBVSetWidth_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_860079827____hygCtx___hyg_9_();
 return v_res_2341_;
 }
 }
@@ -7855,7 +7855,7 @@ lean_dec(v_a_2463_);
 return v_res_2474_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSignExtend___regBuiltin_Lean_Meta_Grind_propagateBVSignExtend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3709470554____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSignExtend___regBuiltin_Lean_Meta_Grind_propagateBVSignExtend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3709470554____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_2476_; lean_object* v___x_2477_; lean_object* v___x_2478_; 
@@ -7865,11 +7865,11 @@ v___x_2478_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_2476_, v__
 return v___x_2478_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSignExtend___regBuiltin_Lean_Meta_Grind_propagateBVSignExtend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3709470554____hygCtx___hyg_8____boxed(lean_object* v_a_2479_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSignExtend___regBuiltin_Lean_Meta_Grind_propagateBVSignExtend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3709470554____hygCtx___hyg_9____boxed(lean_object* v_a_2479_){
 _start:
 {
 lean_object* v_res_2480_; 
-v_res_2480_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSignExtend___regBuiltin_Lean_Meta_Grind_propagateBVSignExtend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3709470554____hygCtx___hyg_8_();
+v_res_2480_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSignExtend___regBuiltin_Lean_Meta_Grind_propagateBVSignExtend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3709470554____hygCtx___hyg_9_();
 return v_res_2480_;
 }
 }
@@ -8383,7 +8383,7 @@ lean_dec(v_a_2626_);
 return v_res_2637_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb_x27___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_x27_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4241407876____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb_x27___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_x27_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4241407876____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_2639_; lean_object* v___x_2640_; lean_object* v___x_2641_; 
@@ -8393,11 +8393,11 @@ v___x_2641_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_2639_, v__
 return v___x_2641_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb_x27___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_x27_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4241407876____hygCtx___hyg_8____boxed(lean_object* v_a_2642_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb_x27___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_x27_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4241407876____hygCtx___hyg_9____boxed(lean_object* v_a_2642_){
 _start:
 {
 lean_object* v_res_2643_; 
-v_res_2643_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb_x27___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_x27_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4241407876____hygCtx___hyg_8_();
+v_res_2643_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb_x27___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_x27_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4241407876____hygCtx___hyg_9_();
 return v_res_2643_;
 }
 }
@@ -8915,7 +8915,7 @@ lean_dec(v_a_2793_);
 return v_res_2804_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3429100332____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3429100332____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_2806_; lean_object* v___x_2807_; lean_object* v___x_2808_; 
@@ -8925,11 +8925,11 @@ v___x_2808_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_2806_, v__
 return v___x_2808_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3429100332____hygCtx___hyg_8____boxed(lean_object* v_a_2809_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3429100332____hygCtx___hyg_9____boxed(lean_object* v_a_2809_){
 _start:
 {
 lean_object* v_res_2810_; 
-v_res_2810_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3429100332____hygCtx___hyg_8_();
+v_res_2810_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3429100332____hygCtx___hyg_9_();
 return v_res_2810_;
 }
 }
@@ -9335,7 +9335,7 @@ lean_dec(v_a_2933_);
 return v_res_2944_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVReplicate___regBuiltin_Lean_Meta_Grind_propagateBVReplicate_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3327375609____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVReplicate___regBuiltin_Lean_Meta_Grind_propagateBVReplicate_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3327375609____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_2946_; lean_object* v___x_2947_; lean_object* v___x_2948_; 
@@ -9345,11 +9345,11 @@ v___x_2948_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_2946_, v__
 return v___x_2948_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVReplicate___regBuiltin_Lean_Meta_Grind_propagateBVReplicate_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3327375609____hygCtx___hyg_8____boxed(lean_object* v_a_2949_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVReplicate___regBuiltin_Lean_Meta_Grind_propagateBVReplicate_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3327375609____hygCtx___hyg_9____boxed(lean_object* v_a_2949_){
 _start:
 {
 lean_object* v_res_2950_; 
-v_res_2950_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVReplicate___regBuiltin_Lean_Meta_Grind_propagateBVReplicate_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3327375609____hygCtx___hyg_8_();
+v_res_2950_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVReplicate___regBuiltin_Lean_Meta_Grind_propagateBVReplicate_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3327375609____hygCtx___hyg_9_();
 return v_res_2950_;
 }
 }
@@ -9786,7 +9786,7 @@ lean_dec(v_a_3076_);
 return v_res_3087_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAnd___regBuiltin_Lean_Meta_Grind_propagateBVAnd_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_317501673____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAnd___regBuiltin_Lean_Meta_Grind_propagateBVAnd_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_317501673____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_3089_; lean_object* v___x_3090_; lean_object* v___x_3091_; 
@@ -9796,11 +9796,11 @@ v___x_3091_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_3089_, v__
 return v___x_3091_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAnd___regBuiltin_Lean_Meta_Grind_propagateBVAnd_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_317501673____hygCtx___hyg_8____boxed(lean_object* v_a_3092_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAnd___regBuiltin_Lean_Meta_Grind_propagateBVAnd_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_317501673____hygCtx___hyg_9____boxed(lean_object* v_a_3092_){
 _start:
 {
 lean_object* v_res_3093_; 
-v_res_3093_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAnd___regBuiltin_Lean_Meta_Grind_propagateBVAnd_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_317501673____hygCtx___hyg_8_();
+v_res_3093_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAnd___regBuiltin_Lean_Meta_Grind_propagateBVAnd_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_317501673____hygCtx___hyg_9_();
 return v_res_3093_;
 }
 }
@@ -10237,7 +10237,7 @@ lean_dec(v_a_3219_);
 return v_res_3230_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOr___regBuiltin_Lean_Meta_Grind_propagateBVOr_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4272827602____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOr___regBuiltin_Lean_Meta_Grind_propagateBVOr_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4272827602____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_3232_; lean_object* v___x_3233_; lean_object* v___x_3234_; 
@@ -10247,11 +10247,11 @@ v___x_3234_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_3232_, v__
 return v___x_3234_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOr___regBuiltin_Lean_Meta_Grind_propagateBVOr_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4272827602____hygCtx___hyg_8____boxed(lean_object* v_a_3235_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOr___regBuiltin_Lean_Meta_Grind_propagateBVOr_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4272827602____hygCtx___hyg_9____boxed(lean_object* v_a_3235_){
 _start:
 {
 lean_object* v_res_3236_; 
-v_res_3236_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOr___regBuiltin_Lean_Meta_Grind_propagateBVOr_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4272827602____hygCtx___hyg_8_();
+v_res_3236_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOr___regBuiltin_Lean_Meta_Grind_propagateBVOr_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4272827602____hygCtx___hyg_9_();
 return v_res_3236_;
 }
 }
@@ -10688,7 +10688,7 @@ lean_dec(v_a_3362_);
 return v_res_3373_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVXor___regBuiltin_Lean_Meta_Grind_propagateBVXor_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1120302969____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVXor___regBuiltin_Lean_Meta_Grind_propagateBVXor_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1120302969____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_3375_; lean_object* v___x_3376_; lean_object* v___x_3377_; 
@@ -10698,11 +10698,11 @@ v___x_3377_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_3375_, v__
 return v___x_3377_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVXor___regBuiltin_Lean_Meta_Grind_propagateBVXor_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1120302969____hygCtx___hyg_8____boxed(lean_object* v_a_3378_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVXor___regBuiltin_Lean_Meta_Grind_propagateBVXor_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1120302969____hygCtx___hyg_9____boxed(lean_object* v_a_3378_){
 _start:
 {
 lean_object* v_res_3379_; 
-v_res_3379_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVXor___regBuiltin_Lean_Meta_Grind_propagateBVXor_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1120302969____hygCtx___hyg_8_();
+v_res_3379_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVXor___regBuiltin_Lean_Meta_Grind_propagateBVXor_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1120302969____hygCtx___hyg_9_();
 return v_res_3379_;
 }
 }
@@ -11213,7 +11213,7 @@ lean_dec(v_a_3521_);
 return v_res_3532_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAppend___regBuiltin_Lean_Meta_Grind_propagateBVAppend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4057925374____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAppend___regBuiltin_Lean_Meta_Grind_propagateBVAppend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4057925374____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_3534_; lean_object* v___x_3535_; lean_object* v___x_3536_; 
@@ -11223,11 +11223,11 @@ v___x_3536_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_3534_, v__
 return v___x_3536_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAppend___regBuiltin_Lean_Meta_Grind_propagateBVAppend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4057925374____hygCtx___hyg_8____boxed(lean_object* v_a_3537_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAppend___regBuiltin_Lean_Meta_Grind_propagateBVAppend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4057925374____hygCtx___hyg_9____boxed(lean_object* v_a_3537_){
 _start:
 {
 lean_object* v_res_3538_; 
-v_res_3538_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAppend___regBuiltin_Lean_Meta_Grind_propagateBVAppend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4057925374____hygCtx___hyg_8_();
+v_res_3538_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAppend___regBuiltin_Lean_Meta_Grind_propagateBVAppend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4057925374____hygCtx___hyg_9_();
 return v_res_3538_;
 }
 }
@@ -11625,7 +11625,7 @@ lean_dec(v_a_3656_);
 return v_res_3667_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3262547096____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3262547096____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_3669_; lean_object* v___x_3670_; lean_object* v___x_3671_; 
@@ -11635,11 +11635,11 @@ v___x_3671_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_3669_, v__
 return v___x_3671_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3262547096____hygCtx___hyg_8____boxed(lean_object* v_a_3672_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3262547096____hygCtx___hyg_9____boxed(lean_object* v_a_3672_){
 _start:
 {
 lean_object* v_res_3673_; 
-v_res_3673_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3262547096____hygCtx___hyg_8_();
+v_res_3673_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3262547096____hygCtx___hyg_9_();
 return v_res_3673_;
 }
 }
@@ -12037,7 +12037,7 @@ lean_dec(v_a_3791_);
 return v_res_3802_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVUShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVUShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1878785357____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVUShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVUShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1878785357____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_3804_; lean_object* v___x_3805_; lean_object* v___x_3806_; 
@@ -12047,11 +12047,11 @@ v___x_3806_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_3804_, v__
 return v___x_3806_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVUShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVUShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1878785357____hygCtx___hyg_8____boxed(lean_object* v_a_3807_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVUShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVUShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1878785357____hygCtx___hyg_9____boxed(lean_object* v_a_3807_){
 _start:
 {
 lean_object* v_res_3808_; 
-v_res_3808_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVUShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVUShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1878785357____hygCtx___hyg_8_();
+v_res_3808_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVUShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVUShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1878785357____hygCtx___hyg_9_();
 return v_res_3808_;
 }
 }
@@ -12448,7 +12448,7 @@ lean_dec(v_a_3926_);
 return v_res_3937_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVSShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3342532823____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVSShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3342532823____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_3939_; lean_object* v___x_3940_; lean_object* v___x_3941_; 
@@ -12458,11 +12458,11 @@ v___x_3941_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_3939_, v__
 return v___x_3941_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVSShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3342532823____hygCtx___hyg_8____boxed(lean_object* v_a_3942_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVSShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3342532823____hygCtx___hyg_9____boxed(lean_object* v_a_3942_){
 _start:
 {
 lean_object* v_res_3943_; 
-v_res_3943_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVSShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3342532823____hygCtx___hyg_8_();
+v_res_3943_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVSShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3342532823____hygCtx___hyg_9_();
 return v_res_3943_;
 }
 }
@@ -12860,7 +12860,7 @@ lean_dec(v_a_4061_);
 return v_res_4072_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateLeft___regBuiltin_Lean_Meta_Grind_propagateBVRotateLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1541346404____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateLeft___regBuiltin_Lean_Meta_Grind_propagateBVRotateLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1541346404____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_4074_; lean_object* v___x_4075_; lean_object* v___x_4076_; 
@@ -12870,11 +12870,11 @@ v___x_4076_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_4074_, v__
 return v___x_4076_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateLeft___regBuiltin_Lean_Meta_Grind_propagateBVRotateLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1541346404____hygCtx___hyg_8____boxed(lean_object* v_a_4077_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateLeft___regBuiltin_Lean_Meta_Grind_propagateBVRotateLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1541346404____hygCtx___hyg_9____boxed(lean_object* v_a_4077_){
 _start:
 {
 lean_object* v_res_4078_; 
-v_res_4078_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateLeft___regBuiltin_Lean_Meta_Grind_propagateBVRotateLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1541346404____hygCtx___hyg_8_();
+v_res_4078_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateLeft___regBuiltin_Lean_Meta_Grind_propagateBVRotateLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1541346404____hygCtx___hyg_9_();
 return v_res_4078_;
 }
 }
@@ -13272,7 +13272,7 @@ lean_dec(v_a_4196_);
 return v_res_4207_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateRight___regBuiltin_Lean_Meta_Grind_propagateBVRotateRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2456321972____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateRight___regBuiltin_Lean_Meta_Grind_propagateBVRotateRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2456321972____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_4209_; lean_object* v___x_4210_; lean_object* v___x_4211_; 
@@ -13282,11 +13282,11 @@ v___x_4211_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_4209_, v__
 return v___x_4211_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateRight___regBuiltin_Lean_Meta_Grind_propagateBVRotateRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2456321972____hygCtx___hyg_8____boxed(lean_object* v_a_4212_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateRight___regBuiltin_Lean_Meta_Grind_propagateBVRotateRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2456321972____hygCtx___hyg_9____boxed(lean_object* v_a_4212_){
 _start:
 {
 lean_object* v_res_4213_; 
-v_res_4213_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateRight___regBuiltin_Lean_Meta_Grind_propagateBVRotateRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2456321972____hygCtx___hyg_8_();
+v_res_4213_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateRight___regBuiltin_Lean_Meta_Grind_propagateBVRotateRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2456321972____hygCtx___hyg_9_();
 return v_res_4213_;
 }
 }
@@ -14467,7 +14467,7 @@ lean_dec(v_a_4535_);
 return v_res_4546_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVHShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2458924947____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVHShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2458924947____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_4548_; lean_object* v___x_4549_; lean_object* v___x_4550_; 
@@ -14477,11 +14477,11 @@ v___x_4550_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_4548_, v__
 return v___x_4550_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVHShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2458924947____hygCtx___hyg_8____boxed(lean_object* v_a_4551_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVHShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2458924947____hygCtx___hyg_9____boxed(lean_object* v_a_4551_){
 _start:
 {
 lean_object* v_res_4552_; 
-v_res_4552_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVHShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2458924947____hygCtx___hyg_8_();
+v_res_4552_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVHShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2458924947____hygCtx___hyg_9_();
 return v_res_4552_;
 }
 }
@@ -15071,7 +15071,7 @@ lean_dec(v_a_4708_);
 return v_res_4719_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVHShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1131064821____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVHShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1131064821____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_4721_; lean_object* v___x_4722_; lean_object* v___x_4723_; 
@@ -15081,11 +15081,11 @@ v___x_4723_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_4721_, v__
 return v___x_4723_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVHShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1131064821____hygCtx___hyg_8____boxed(lean_object* v_a_4724_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVHShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1131064821____hygCtx___hyg_9____boxed(lean_object* v_a_4724_){
 _start:
 {
 lean_object* v_res_4725_; 
-v_res_4725_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVHShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1131064821____hygCtx___hyg_8_();
+v_res_4725_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVHShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1131064821____hygCtx___hyg_9_();
 return v_res_4725_;
 }
 }
@@ -15479,7 +15479,7 @@ lean_dec(v_a_4842_);
 return v_res_4853_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetLsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetLsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1075602488____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetLsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetLsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1075602488____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_4855_; lean_object* v___x_4856_; lean_object* v___x_4857_; 
@@ -15489,11 +15489,11 @@ v___x_4857_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_4855_, v__
 return v___x_4857_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetLsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetLsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1075602488____hygCtx___hyg_8____boxed(lean_object* v_a_4858_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetLsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetLsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1075602488____hygCtx___hyg_9____boxed(lean_object* v_a_4858_){
 _start:
 {
 lean_object* v_res_4859_; 
-v_res_4859_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetLsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetLsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1075602488____hygCtx___hyg_8_();
+v_res_4859_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetLsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetLsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1075602488____hygCtx___hyg_9_();
 return v_res_4859_;
 }
 }
@@ -15919,7 +15919,7 @@ lean_dec(v_a_4983_);
 return v_res_4994_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetMsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetMsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1507361668____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetMsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetMsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1507361668____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_4996_; lean_object* v___x_4997_; lean_object* v___x_4998_; 
@@ -15929,11 +15929,11 @@ v___x_4998_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_4996_, v__
 return v___x_4998_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetMsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetMsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1507361668____hygCtx___hyg_8____boxed(lean_object* v_a_4999_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetMsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetMsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1507361668____hygCtx___hyg_9____boxed(lean_object* v_a_4999_){
 _start:
 {
 lean_object* v_res_5000_; 
-v_res_5000_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetMsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetMsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1507361668____hygCtx___hyg_8_();
+v_res_5000_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetMsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetMsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1507361668____hygCtx___hyg_9_();
 return v_res_5000_;
 }
 }
@@ -16825,7 +16825,7 @@ lean_dec(v_a_5181_);
 return v_res_5192_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetElem___regBuiltin_Lean_Meta_Grind_propagateBVGetElem_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2454187461____hygCtx___hyg_8_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetElem___regBuiltin_Lean_Meta_Grind_propagateBVGetElem_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2454187461____hygCtx___hyg_9_(){
 _start:
 {
 lean_object* v___x_5194_; lean_object* v___x_5195_; lean_object* v___x_5196_; 
@@ -16835,11 +16835,11 @@ v___x_5196_ = l_Lean_Meta_Grind_registerBuiltinUpwardPropagator(v___x_5194_, v__
 return v___x_5196_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetElem___regBuiltin_Lean_Meta_Grind_propagateBVGetElem_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2454187461____hygCtx___hyg_8____boxed(lean_object* v_a_5197_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetElem___regBuiltin_Lean_Meta_Grind_propagateBVGetElem_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2454187461____hygCtx___hyg_9____boxed(lean_object* v_a_5197_){
 _start:
 {
 lean_object* v_res_5198_; 
-v_res_5198_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetElem___regBuiltin_Lean_Meta_Grind_propagateBVGetElem_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2454187461____hygCtx___hyg_8_();
+v_res_5198_ = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetElem___regBuiltin_Lean_Meta_Grind_propagateBVGetElem_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2454187461____hygCtx___hyg_9_();
 return v_res_5198_;
 }
 }
@@ -16874,85 +16874,85 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_Grind_PropagatorAttr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVNot___regBuiltin_Lean_Meta_Grind_propagateBVNot_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_524020944____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVNot___regBuiltin_Lean_Meta_Grind_propagateBVNot_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_524020944____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVClz___regBuiltin_Lean_Meta_Grind_propagateBVClz_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3163129259____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVClz___regBuiltin_Lean_Meta_Grind_propagateBVClz_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3163129259____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVCpop___regBuiltin_Lean_Meta_Grind_propagateBVCpop_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4094280043____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVCpop___regBuiltin_Lean_Meta_Grind_propagateBVCpop_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4094280043____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVMsb___regBuiltin_Lean_Meta_Grind_propagateBVMsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1379739246____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVMsb___regBuiltin_Lean_Meta_Grind_propagateBVMsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1379739246____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToNat___regBuiltin_Lean_Meta_Grind_propagateBVToNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1265925494____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToNat___regBuiltin_Lean_Meta_Grind_propagateBVToNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1265925494____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToInt___regBuiltin_Lean_Meta_Grind_propagateBVToInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2998338308____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVToInt___regBuiltin_Lean_Meta_Grind_propagateBVToInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2998338308____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfNat___regBuiltin_Lean_Meta_Grind_propagateBVOfNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1693823724____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfNat___regBuiltin_Lean_Meta_Grind_propagateBVOfNat_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1693823724____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfInt___regBuiltin_Lean_Meta_Grind_propagateBVOfInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_16048587____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOfInt___regBuiltin_Lean_Meta_Grind_propagateBVOfInt_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_16048587____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSetWidth___regBuiltin_Lean_Meta_Grind_propagateBVSetWidth_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_860079827____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSetWidth___regBuiltin_Lean_Meta_Grind_propagateBVSetWidth_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_860079827____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSignExtend___regBuiltin_Lean_Meta_Grind_propagateBVSignExtend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3709470554____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSignExtend___regBuiltin_Lean_Meta_Grind_propagateBVSignExtend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3709470554____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb_x27___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_x27_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4241407876____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb_x27___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_x27_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4241407876____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3429100332____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVExtractLsb___regBuiltin_Lean_Meta_Grind_propagateBVExtractLsb_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3429100332____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVReplicate___regBuiltin_Lean_Meta_Grind_propagateBVReplicate_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3327375609____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVReplicate___regBuiltin_Lean_Meta_Grind_propagateBVReplicate_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3327375609____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAnd___regBuiltin_Lean_Meta_Grind_propagateBVAnd_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_317501673____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAnd___regBuiltin_Lean_Meta_Grind_propagateBVAnd_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_317501673____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOr___regBuiltin_Lean_Meta_Grind_propagateBVOr_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4272827602____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVOr___regBuiltin_Lean_Meta_Grind_propagateBVOr_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4272827602____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVXor___regBuiltin_Lean_Meta_Grind_propagateBVXor_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1120302969____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVXor___regBuiltin_Lean_Meta_Grind_propagateBVXor_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1120302969____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAppend___regBuiltin_Lean_Meta_Grind_propagateBVAppend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4057925374____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVAppend___regBuiltin_Lean_Meta_Grind_propagateBVAppend_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_4057925374____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3262547096____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3262547096____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVUShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVUShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1878785357____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVUShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVUShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1878785357____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVSShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3342532823____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVSShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVSShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_3342532823____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateLeft___regBuiltin_Lean_Meta_Grind_propagateBVRotateLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1541346404____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateLeft___regBuiltin_Lean_Meta_Grind_propagateBVRotateLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1541346404____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateRight___regBuiltin_Lean_Meta_Grind_propagateBVRotateRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2456321972____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVRotateRight___regBuiltin_Lean_Meta_Grind_propagateBVRotateRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2456321972____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVHShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2458924947____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftLeft___regBuiltin_Lean_Meta_Grind_propagateBVHShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2458924947____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVHShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1131064821____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVHShiftRight___regBuiltin_Lean_Meta_Grind_propagateBVHShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1131064821____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetLsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetLsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1075602488____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetLsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetLsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1075602488____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetMsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetMsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1507361668____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetMsbD___regBuiltin_Lean_Meta_Grind_propagateBVGetMsbD_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_1507361668____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetElem___regBuiltin_Lean_Meta_Grind_propagateBVGetElem_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2454187461____hygCtx___hyg_8_();
+res = l___private_Lean_Meta_Tactic_Grind_BitVec_0__Lean_Meta_Grind_propagateBVGetElem___regBuiltin_Lean_Meta_Grind_propagateBVGetElem_declare__1_00___x40_Lean_Meta_Tactic_Grind_BitVec_2454187461____hygCtx___hyg_9_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

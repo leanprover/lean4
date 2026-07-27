@@ -1001,6 +1001,18 @@ private def cacheResult (cacheKey : SynthInstanceCacheKey) (kind : PreprocessKin
     (value?.all fun r => r.numMVars == 0 && r.paramNames.isEmpty && !r.expr.hasFVar)
   insertCachedResult cacheKey value? (persist := persist)
 
+/--
+The `Meta.Config` used for all type class resolution. The ambient configuration is replaced
+wholesale rather than adjusted: resolution results are cached across contexts and commands with no
+configuration component in the cache key, so any ambient configuration that influenced the search
+(e.g. `canUnfoldPredicateConfig` set by `simp`) would leak between contexts through the cache.
+Search-relevant state that must flow in from the caller is context, not configuration, and is part
+of the cache key (e.g. `synthPendingDepth`, the relevant options).
+-/
+private def synthInstanceConfig : Config :=
+  { isDefEqStuckEx := true, transparency := .instances,
+    foApprox := true, ctxApprox := true, constApprox := false, univApprox := false }
+
 def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do
   let opts ← getOptions
   let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
@@ -1010,8 +1022,7 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
   withOptions (·.restrict .tcResolution) do
   withTraceNode `Meta.synthInstance
     (fun _ => return m!"{← instantiateMVars type}") do
-  withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.instances,
-                                          foApprox := true, ctxApprox := true, constApprox := false, univApprox := false }) do
+  withConfig (fun _ => synthInstanceConfig) do
   withInTypeClassResolution do
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type

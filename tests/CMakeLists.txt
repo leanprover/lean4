@@ -325,7 +325,7 @@ add_test_pile(
   ${ELAB_FIXTURES}
 )
 add_test_pile(elab_bench *.lean BENCH PART2 ${ELAB_FIXTURES})
-add_test_pile
+add_test_pile(
   elab_fail
   *.lean
   EXCEPT

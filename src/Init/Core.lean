@@ -817,6 +817,7 @@ instance [DecidableEq α] : LawfulBEq α where
 Non-instance for `DecidableEq` from `LawfulBEq`.
 To use this, add `attribute [local instance 5] instDecidableEqOfLawfulBEq` at the top of a file.
 -/
+@[instance_reducible]
 def instDecidableEqOfLawfulBEq [BEq α] [LawfulBEq α] : DecidableEq α := fun x y =>
   Decidable.intro (x == y)
     (match h : x == y with

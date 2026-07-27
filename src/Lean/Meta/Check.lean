@@ -78,7 +78,10 @@ partial def addPPExplicitToExposeDiff (a b : Expr) : MetaM (Expr × Expr) := do
     -- but we don't want these assignments to leak out of the function.
     -- Note: we shouldn't instantiate mvars in `visit` to prevent leakage.
     withoutModifyingState do
-      visit (← instantiateMVars a) (← instantiateMVars b)
+      let traceState ← getTraceState
+      let r ← visit (← instantiateMVars a) (← instantiateMVars b)
+      setTraceState traceState
+      return r
 where
   visit (a b : Expr) : MetaM (Expr × Expr) := do
     try

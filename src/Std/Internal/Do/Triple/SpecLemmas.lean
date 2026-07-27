@@ -720,8 +720,6 @@ theorem Spec.forIn_list
   simp only [← forIn'_eq_forIn]
   exact Spec.forIn'_list inv step
 
-
-
 theorem Spec.forIn_list_const_inv
     {xs : List α} {init : β} {f : α → β → m (ForInStep β)}
     {inv : (β → Pred)}

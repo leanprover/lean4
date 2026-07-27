@@ -30,7 +30,8 @@ private def throwApplyError {α} (mvarId : MVarId)
     (eType : Expr) (conclusionType? : Option Expr) (targetType : Expr)
     (term? : Option MessageData) (approx : Bool) : MetaM α := do
   let config ← if approx then approxDefEq getConfig else getConfig
-  throwTacticEx `apply mvarId <| MessageData.ofLazyM (es := #[eType, targetType]) (config? := some config) do
+  throwTacticEx `apply mvarId <| MessageData.ofLazyM (es := #[eType, targetType]) <|
+      withConfig (fun _ => config) do
     let conclusionType := conclusionType?.getD eType
     let note := if conclusionType?.isSome then .note m!"The full type of {term?.getD "the term"} is{indentExpr eType}" else m!""
     let (conclusionType, targetType) ← addPPExplicitToExposeDiff conclusionType targetType

@@ -54,7 +54,8 @@ def validateDefEqAttr (declName : Name) : AttrM Unit := do
   MetaM.run' do withEqLhsRhs info.type fun lhs rhs => do
     let ok ← isDefEqCareful lhs rhs
     unless ok do
-      let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) (config? := some (← getConfig)) do
+      let config ← getConfig
+      let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) <| withConfig (fun _ => config) do
         -- match the `smartUnfolding` setting of `isDefEqCareful`
         let (lhs, rhs) ← withOptions (smartUnfolding.set · false) <|
           addPPExplicitToExposeDiff lhs rhs

@@ -66,17 +66,22 @@ def checkDeprecatedImports
     : MessageLog := Id.run do
   let mut opts := opts
   let mut ignoreDeprecatedImports : NameSet := {}
+  -- Position of each `import` statement, so warnings point at the offending import rather than
+  -- the start of the header.
+  let mut importPositions : NameMap String.Pos.Raw := {}
   if let some headerStx := origHeaderStx? <|> headerStx? then
     match headerStx with
     | `(Parser.Module.header| $[module%$moduleTk]? $[prelude%$_]? $importsStx*) =>
       if moduleTk.any (·.getTrailing?.any (·.toString.contains "deprecated_module: ignore")) then
         opts := linter.deprecated.module.set opts false
       for impStx in importsStx do
-        if impStx.raw.getTrailing?.any (·.toString.contains "deprecated_module: ignore") then
-          match impStx with
-          | `(Parser.Module.import| $[public%$_]? $[meta%$_]? import $[all%$_]? $n) =>
+        match impStx with
+        | `(Parser.Module.import| $[public%$_]? $[meta%$_]? import $[all%$_]? $n) =>
+          if impStx.raw.getTrailing?.any (·.toString.contains "deprecated_module: ignore") then
             ignoreDeprecatedImports := ignoreDeprecatedImports.insert n.getId
-          | _ => pure ()
+          if let some pos := impStx.raw.getPos? then
+            importPositions := importPositions.insert n.getId pos
+        | _ => pure ()
     | _ => pure ()
   if !linter.deprecated.module.get opts then
     return messages
@@ -88,10 +93,10 @@ def checkDeprecatedImports
     | some idx =>
       match env.getDeprecatedModuleByIdx? idx with
       | some entry =>
-        let pos := inputCtx.fileMap.toPosition startPos
+        let pos := importPositions.find? imp.module |>.getD startPos
         messages.add {
           fileName := inputCtx.fileName
-          pos := pos
+          pos := inputCtx.fileMap.toPosition pos
           severity := .warning
           data := .tagged ``deprecatedModuleExt <| formatDeprecatedModuleWarning env idx imp.module entry
         }

@@ -447,7 +447,7 @@ where
         let e := (← fvarId.getValue?).get!
         let e' ← Tactic.elabTermEnsuringType v (← fvarId.getType)
         unless ← withAssignableSyntheticOpaque <| isDefEq e e' do
-          let (e, e') ← addPPExplicitToExposeDiff e e'
+          let (e, e') ← withAssignableSyntheticOpaque <| addPPExplicitToExposeDiff e e'
           throwErrorAt v "Provided term{indentExpr e'}\n\
             is not definitionally equal to{indentD m!"{Expr.fvar fvarId} := {e}"}"
         let mvars ← filterOldMVars (← getMVars e') mvarCounterSaved

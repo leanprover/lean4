@@ -68,7 +68,9 @@ def myId {x : Nat} : Nat := x
 def one : Nat := 1
 
 /-!
-TODO: comment
+Exposes an implicit argument nested inside an outer implicit argument because
+the out explicit arguments can be unified, but the outer implicit argument
+cannot, and its nested explicit arguments can be unified.
 -/
 /--
 error: Type mismatch

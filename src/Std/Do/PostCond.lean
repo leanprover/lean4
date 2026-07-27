@@ -104,7 +104,7 @@ example : ExceptConds (.arg σ (.except ε .pure)) = ((ε → ULift Prop) × Uni
 example : ExceptConds (.except ε (.arg σ .pure)) = ((ε → σ → ULift Prop) × Unit) := rfl
 ```
 -/
-def ExceptConds : PostShape.{u} → Type u
+@[implicit_reducible] def ExceptConds : PostShape.{u} → Type u
   | .pure => PUnit
   | .arg _ ps => ExceptConds ps
   | .except ε ps => (ε → Assertion ps) × ExceptConds ps
@@ -176,6 +176,8 @@ theorem ExceptConds.entails.refl {ps : PostShape} (x : ExceptConds ps) : x ⊢�
   induction ps <;> simp [entails, *]
 
 theorem ExceptConds.entails.rfl {ps : PostShape} {x : ExceptConds ps} : x ⊢ₑ x := refl x
+
+theorem ExceptConds.entails.pure {x y : ExceptConds PostShape.pure} : x ⊢ₑ y := True.intro
 
 theorem ExceptConds.entails.trans {ps : PostShape} {x y z : ExceptConds ps} : (x ⊢ₑ y) → (y ⊢ₑ z) → x ⊢ₑ z := by
   induction ps

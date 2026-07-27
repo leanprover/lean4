@@ -251,7 +251,7 @@ Examples:
  * {lean}`("coffee tea water".split Char.isWhitespace).toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
  * {lean}`("coffee tea water".split ' ').toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
  * {lean}`("coffee tea water".split " tea ").toList == ["coffee".toSlice, "water".toSlice]`
- * {lean}`("ababababa".split "aba").toList == ["coffee".toSlice, "water".toSlice]`
+ * {lean}`("ababababa".split "aba").toList == ["".toSlice, "b".toSlice, "ba".toSlice]`
  * {lean}`("baaab".split "aa").toList == ["b".toSlice, "ab".toSlice]`
 -/
 @[inline]
@@ -310,23 +310,6 @@ def Internal.containsImpl (s : String) (c : Char) : Bool :=
 @[export lean_string_any]
 def Internal.anyImpl (s : String) (p : Char → Bool) :=
   String.any s p
-
-/--
-Checks whether a slice only consists of matches of the pattern {name}`pat`.
-
-Short-circuits at the first pattern mis-match.
-
-This function is generic over all currently supported patterns.
-
-Examples:
- * {lean}`"brown".all Char.isLower = true`
- * {lean}`"brown and orange".all Char.isLower = false`
- * {lean}`"aaaaaa".all 'a' = true`
- * {lean}`"aaaaaa".all "aa" = true`
- * {lean}`"aaaaaaa".all "aa" = false`
--/
-@[inline, suggest_for String.every] def all (s : String) (pat : ρ) [ForwardPattern pat] : Bool :=
-  s.toSlice.all pat
 
 /--
 Checks whether the string can be interpreted as the decimal representation of a natural number.

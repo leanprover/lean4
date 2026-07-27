@@ -1,9 +1,9 @@
-import Std.Internal.Async.System
-import Std.Internal.Async.Process
+import Std.Async.System
+import Std.Async.Process
 import Lean.Runtime
 
-open Std.Internal.IO.Async.System
-open Std.Internal.IO.Process
+open Std.Async.System
+open Std.IO.Process
 
 #eval do
   assert! (← getUpTime) > 0

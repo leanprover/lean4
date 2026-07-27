@@ -20,13 +20,13 @@ line parsing. Called from the C runtime via `@[export]` for backtrace display. -
 namespace Lean.Name.Demangle
 
 /-- `String.dropPrefix?` returning a `String` instead of a `Slice`. -/
-private def dropPrefix? (s : String) (pre : String) : Option String :=
+def dropPrefix? (s : String) (pre : String) : Option String :=
   (s.dropPrefix? pre).map (·.toString)
 
-private def isAllDigits (s : String) : Bool :=
+def isAllDigits (s : String) : Bool :=
   !s.isEmpty && s.all (·.isDigit)
 
-private def nameToNameParts (n : Name) : Array NamePart :=
+def nameToNameParts (n : Name) : Array NamePart :=
   go n [] |>.toArray
 where
   go : Name → List NamePart → List NamePart
@@ -34,17 +34,17 @@ where
     | .str pre s, acc => go pre (NamePart.str s :: acc)
     | .num pre n, acc => go pre (NamePart.num n :: acc)
 
-private def namePartsToName (parts : Array NamePart) : Name :=
+def namePartsToName (parts : Array NamePart) : Name :=
   parts.foldl (fun acc p =>
     match p with
     | .str s => acc.mkStr s
     | .num n => acc.mkNum n) .anonymous
 
 /-- Format name parts using `Name.toString` for correct escaping. -/
-private def formatNameParts (comps : Array NamePart) : String :=
+def formatNameParts (comps : Array NamePart) : String :=
   if comps.isEmpty then "" else (namePartsToName comps).toString
 
-private def matchSuffix (c : NamePart) : Option String :=
+def matchSuffix (c : NamePart) : Option String :=
   match c with
   | NamePart.str s =>
     if s == "_redArg" then some "arity↓"
@@ -58,12 +58,12 @@ private def matchSuffix (c : NamePart) : Option String :=
     else none
   | _ => none
 
-private def isSpecIndex (c : NamePart) : Bool :=
+def isSpecIndex (c : NamePart) : Bool :=
   match c with
   | NamePart.str s => (dropPrefix? s "spec_").any isAllDigits
   | _ => false
 
-private def stripPrivate (comps : Array NamePart) (start stop : Nat) :
+def stripPrivate (comps : Array NamePart) (start stop : Nat) :
     Nat × Bool :=
   if stop - start >= 3 && comps[start]? == some (NamePart.str "_private") then
     Id.run do
@@ -75,11 +75,11 @@ private def stripPrivate (comps : Array NamePart) (start stop : Nat) :
   else
     (start, false)
 
-private structure SpecEntry where
+structure SpecEntry where
   name : String
   flags : Array String
 
-private def processSpecContext (comps : Array NamePart) : SpecEntry := Id.run do
+def processSpecContext (comps : Array NamePart) : SpecEntry := Id.run do
   let mut begin_ := 0
   if comps.size >= 3 && comps[0]? == some (NamePart.str "_private") then
     for i in [1:comps.size] do
@@ -99,7 +99,7 @@ private def processSpecContext (comps : Array NamePart) : SpecEntry := Id.run do
       else parts := parts.push c
   { name := formatNameParts parts, flags }
 
-private def postprocessNameParts (components : Array NamePart) : String := Id.run do
+def postprocessNameParts (components : Array NamePart) : String := Id.run do
   if components.isEmpty then return ""
 
   let (privStart, isPrivate) := stripPrivate components 0 components.size
@@ -206,14 +206,14 @@ private def postprocessNameParts (components : Array NamePart) : String := Id.ru
 
   return result
 
-private def demangleBody (body : String) : String :=
+def demangleBody (body : String) : String :=
   let name := Name.demangle body
   postprocessNameParts (nameToNameParts name)
 
 /-- Split a `lp_`-prefixed symbol into (demangled body, package name).
 Tries each underscore as a split point; the first valid split (shortest single-component
 package where the remainder is a valid mangled name) is correct. -/
-private def demangleWithPkg (s : String) : Option (String × String) := do
+def demangleWithPkg (s : String) : Option (String × String) := do
   for ⟨pos, h⟩ in s.positions do
     if pos.get h == '_' && pos ≠ s.startPos then
       let nextPos := pos.next h
@@ -230,12 +230,12 @@ private def demangleWithPkg (s : String) : Option (String × String) := do
         return (demangleBody body, pkgName)
   none
 
-private def stripColdSuffix (s : String) : String × String :=
+def stripColdSuffix (s : String) : String × String :=
   match s.find? ".cold" with
   | some pos => (s.extract s.startPos pos, s.extract pos s.endPos)
   | none => (s, "")
 
-private def demangleCore (s : String) : Option String := do
+def demangleCore (s : String) : Option String := do
   -- _init_l_
   if let some body := dropPrefix? s "_init_l_" then
     if !body.isEmpty then return s!"[init] {demangleBody body}"
@@ -291,17 +291,17 @@ public def demangleSymbol (symbol : String) : Option String := do
   if coldSuffix.isEmpty then return result
   else return s!"{result} {coldSuffix}"
 
-private def skipWhile (s : String) (pos : s.Pos) (pred : Char → Bool) : s.Pos :=
+def skipWhile (s : String) (pos : s.Pos) (pred : Char → Bool) : s.Pos :=
   if h : pos = s.endPos then pos
   else if pred (pos.get h) then skipWhile s (pos.next h) pred
   else pos
 termination_by pos
 
-private def splitAt₂ (s : String) (p₁ p₂ : s.Pos) : String × String × String :=
+def splitAt₂ (s : String) (p₁ p₂ : s.Pos) : String × String × String :=
   (s.extract s.startPos p₁, s.extract p₁ p₂, s.extract p₂ s.endPos)
 
 /-- Extract the symbol from a backtrace line (Linux glibc or macOS format). -/
-private def extractSymbol (line : String) :
+def extractSymbol (line : String) :
     Option (String × String × String) :=
   tryLinux line |>.orElse (fun _ => tryMacOS line)
 where

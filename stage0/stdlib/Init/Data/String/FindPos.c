@@ -214,7 +214,7 @@ lean_ctor_set(v___x_56_, 0, v_s_52_);
 lean_ctor_set(v___x_56_, 1, v___x_54_);
 lean_ctor_set(v___x_56_, 2, v___x_55_);
 v___x_57_ = l_String_Slice_posGE___redArg(v___x_56_, v_offset_53_);
-lean_dec_ref(v___x_56_);
+lean_dec_ref_known(v___x_56_, 3);
 return v___x_57_;
 }
 }
@@ -229,7 +229,7 @@ lean_ctor_set(v___x_63_, 0, v_s_58_);
 lean_ctor_set(v___x_63_, 1, v___x_61_);
 lean_ctor_set(v___x_63_, 2, v___x_62_);
 v___x_64_ = l_String_Slice_posGE___redArg(v___x_63_, v_offset_59_);
-lean_dec_ref(v___x_63_);
+lean_dec_ref_known(v___x_63_, 3);
 return v___x_64_;
 }
 }
@@ -246,7 +246,7 @@ lean_ctor_set(v___x_69_, 2, v___x_68_);
 v___x_70_ = lean_unsigned_to_nat(1u);
 v___x_71_ = lean_nat_add(v_offset_66_, v___x_70_);
 v___x_72_ = l_String_Slice_posGE___redArg(v___x_69_, v___x_71_);
-lean_dec_ref(v___x_69_);
+lean_dec_ref_known(v___x_69_, 3);
 return v___x_72_;
 }
 }
@@ -272,7 +272,7 @@ lean_ctor_set(v___x_81_, 2, v___x_80_);
 v___x_82_ = lean_unsigned_to_nat(1u);
 v___x_83_ = lean_nat_add(v_offset_77_, v___x_82_);
 v___x_84_ = l_String_Slice_posGE___redArg(v___x_81_, v___x_83_);
-lean_dec_ref(v___x_81_);
+lean_dec_ref_known(v___x_81_, 3);
 return v___x_84_;
 }
 }
@@ -365,7 +365,7 @@ lean_ctor_set(v___x_120_, 0, v_s_116_);
 lean_ctor_set(v___x_120_, 1, v___x_118_);
 lean_ctor_set(v___x_120_, 2, v___x_119_);
 v___x_121_ = l_String_Slice_posLE(v___x_120_, v_offset_117_);
-lean_dec_ref(v___x_120_);
+lean_dec_ref_known(v___x_120_, 3);
 return v___x_121_;
 }
 }
@@ -382,7 +382,7 @@ lean_ctor_set(v___x_126_, 2, v___x_125_);
 v___x_127_ = lean_unsigned_to_nat(1u);
 v___x_128_ = lean_nat_sub(v_offset_123_, v___x_127_);
 v___x_129_ = l_String_Slice_posLE(v___x_126_, v___x_128_);
-lean_dec_ref(v___x_126_);
+lean_dec_ref_known(v___x_126_, 3);
 return v___x_129_;
 }
 }
@@ -408,7 +408,7 @@ lean_ctor_set(v___x_138_, 2, v___x_137_);
 v___x_139_ = lean_unsigned_to_nat(1u);
 v___x_140_ = lean_nat_sub(v_offset_134_, v___x_139_);
 v___x_141_ = l_String_Slice_posLE(v___x_138_, v___x_140_);
-lean_dec_ref(v___x_138_);
+lean_dec_ref_known(v___x_138_, 3);
 return v___x_141_;
 }
 }
@@ -580,7 +580,7 @@ lean_ctor_set(v___x_210_, 2, v___x_209_);
 v___x_211_ = lean_unsigned_to_nat(1u);
 v___x_212_ = lean_nat_sub(v_pos_207_, v___x_211_);
 v___x_213_ = l_String_Slice_posLE(v___x_210_, v___x_212_);
-lean_dec_ref(v___x_210_);
+lean_dec_ref_known(v___x_210_, 3);
 return v___x_213_;
 }
 }
@@ -606,7 +606,7 @@ lean_ctor_set(v___x_222_, 2, v___x_221_);
 v___x_223_ = lean_unsigned_to_nat(1u);
 v___x_224_ = lean_nat_sub(v_pos_218_, v___x_223_);
 v___x_225_ = l_String_Slice_posLE(v___x_222_, v___x_224_);
-lean_dec_ref(v___x_222_);
+lean_dec_ref_known(v___x_222_, 3);
 return v___x_225_;
 }
 }
@@ -630,7 +630,7 @@ lean_ctor_set(v___x_234_, 0, v_s_230_);
 lean_ctor_set(v___x_234_, 1, v___x_232_);
 lean_ctor_set(v___x_234_, 2, v___x_233_);
 v___x_235_ = l_String_Slice_Pos_prev_x3f(v___x_234_, v_pos_231_);
-lean_dec_ref(v___x_234_);
+lean_dec_ref_known(v___x_234_, 3);
 if (lean_obj_tag(v___x_235_) == 0)
 {
 lean_object* v___x_236_; 
@@ -700,7 +700,7 @@ lean_ctor_set(v___x_252_, 0, v_s_248_);
 lean_ctor_set(v___x_252_, 1, v___x_250_);
 lean_ctor_set(v___x_252_, 2, v___x_251_);
 v___x_253_ = l_String_Slice_Pos_prev_x21(v___x_252_, v_pos_249_);
-lean_dec_ref(v___x_252_);
+lean_dec_ref_known(v___x_252_, 3);
 return v___x_253_;
 }
 }
@@ -780,7 +780,7 @@ lean_ctor_set(v___x_278_, 0, v_s_273_);
 lean_ctor_set(v___x_278_, 1, v___x_276_);
 lean_ctor_set(v___x_278_, 2, v___x_277_);
 v___x_279_ = l_String_Slice_Pos_prevn(v___x_278_, v_p_274_, v_n_275_);
-lean_dec_ref(v___x_278_);
+lean_dec_ref_known(v___x_278_, 3);
 return v___x_279_;
 }
 }

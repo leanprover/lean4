@@ -10,6 +10,8 @@ public import Std.Do.Triple.Basic
 public import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic
 public import Init.Data.Slice.Array
+public import Init.While
+public import Init.Internal.Order.While
 
 -- This public import is a workaround for #10652.
 -- Without it, adding the `spec` attribute for `instMonadLiftTOfMonadLift` will fail.
@@ -159,7 +161,7 @@ theorem eq_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
 theorem length_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
     n = xs.length + ys.length + 1 := by
   have : n = (range' s n step).length := by simp
-  simpa [h] using this
+  simpa [h] using! this
 
 @[grind →]
 theorem mem_of_range'_eq_append_cons (h : range' s n step = xs ++ i :: ys) :
@@ -236,6 +238,7 @@ theorem Spec.seq [Monad m] [WPMonad m ps] {α β} {x : m (α → β)} {y : m α}
 
 /-! # `MonadLift` -/
 
+
 @[spec]
 theorem Spec.monadLift_StateT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond α (.arg σ ps)) :
   Triple (MonadLift.monadLift x : StateT σ m α) (spred(fun s => wp⟦x⟧ (fun a => Q.1 a s, Q.2))) Q := by simp [Triple.iff, SPred.entails.refl]
@@ -257,6 +260,11 @@ theorem Spec.monadLift_OptionT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond
     (MonadLift.monadLift x : OptionT m α)
     (wp⟦x⟧ (fun a => Q.1 a, Q.2.2))
     Q := by simp [Triple.iff, SPred.entails.refl]
+
+@[spec]
+theorem Spec.monadLift_Id [Monad m] [WPMonad m ps] {α} (x : Id α) (Q : PostCond α ps) :
+    Triple (@MonadLiftT.monadLift Id m Id.instMonadLiftTOfPure α x) (spred(Q.1 x.run)) Q :=
+  Spec.pure' .rfl
 
 /-! # `MonadLiftT` -/
 
@@ -697,10 +705,11 @@ After leaving the loop, the cursor's prefix is `xs` and the suffix is empty.
 During the induction step, the invariant holds for a suffix with head element `x`.
 After running the loop body, the invariant then holds after shifting `x` to the prefix.
 -/
-@[spec_invariant_type]
-abbrev Invariant {α : Type u₁} (xs : List α) (β : Type u₂) (ps : PostShape.{max u₁ u₂}) :=
+@[spec_invariant_type, simp, grind =]
+def Invariant {α : Type u₁} (xs : List α) (β : Type u₂) (ps : PostShape.{max u₁ u₂}) :=
   PostCond (List.Cursor xs × β) ps
 
+set_option linter.checkUnivs false in
 /--
 Helper definition for specifying loop invariants for loops with early return.
 
@@ -729,6 +738,7 @@ abbrev Invariant.withEarlyReturn {α} {xs : List α} {γ : Type (max u₁ u₂)}
       ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜xs.suffix = []⌝ ∧ onReturn r b)),
    onExcept⟩
 
+set_option linter.checkUnivs false in
 /-- Like `Invariant.withEarlyReturn`, but for the new `do` elaborator which uses `Prod`
 instead of `MProd` for the state tuple. -/
 abbrev Invariant.withEarlyReturnNewDo {α} {xs : List α} {γ : Type (max u₁ u₂)}
@@ -2027,10 +2037,11 @@ A loop invariant is a `PostCond` that takes as parameters
 * A state tuple of type `β`, which will be a nesting of `MProd`s representing the elaboration of
   `let mut` variables and early return.
 -/
-@[spec_invariant_type]
-abbrev StringInvariant (s : String) (β : Type u) (ps : PostShape.{u}) :=
+@[spec_invariant_type, simp, grind =]
+def StringInvariant (s : String) (β : Type u) (ps : PostShape.{u}) :=
   PostCond (s.Pos × β) ps
 
+set_option linter.checkUnivs false in
 /--
 Helper definition for specifying loop invariants for loops with early return.
 
@@ -2060,6 +2071,7 @@ abbrev StringInvariant.withEarlyReturn {s : String}
       ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜pos = s.endPos⌝ ∧ onReturn r b)),
    onExcept⟩
 
+set_option linter.checkUnivs false in
 /-- Like `StringInvariant.withEarlyReturn`, but for the new `do` elaborator which uses `Prod`
 instead of `MProd` for the state tuple. -/
 abbrev StringInvariant.withEarlyReturnNewDo {s : String}
@@ -2112,10 +2124,11 @@ A loop invariant is a `PostCond` that takes as parameters
 * A state tuple of type `β`, which will be a nesting of `MProd`s representing the elaboration of
   `let mut` variables and early return.
 -/
-@[spec_invariant_type]
-abbrev StringSliceInvariant (s : String.Slice) (β : Type u) (ps : PostShape.{u}) :=
+@[spec_invariant_type, simp, grind =]
+def StringSliceInvariant (s : String.Slice) (β : Type u) (ps : PostShape.{u}) :=
   PostCond (s.Pos × β) ps
 
+set_option linter.checkUnivs false in
 /--
 Helper definition for specifying loop invariants for loops with early return.
 
@@ -2145,6 +2158,7 @@ abbrev StringSliceInvariant.withEarlyReturn {s : String.Slice}
       ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜pos = s.endPos⌝ ∧ onReturn r b)),
    onExcept⟩
 
+set_option linter.checkUnivs false in
 /-- Like `StringSliceInvariant.withEarlyReturn`, but for the new `do` elaborator which uses `Prod`
 instead of `MProd` for the state tuple. -/
 abbrev StringSliceInvariant.withEarlyReturnNewDo {s : String.Slice}
@@ -2188,3 +2202,114 @@ theorem Spec.forIn_stringSlice
       next => apply Triple.pure; simp
       next b => simp [ih _ _ hsp.next]
   | endPos => simpa using Triple.pure _ (by simp)
+
+section While
+
+open Std.Do
+
+variable {α β : Type u} {m : Type u → Type v} {ps : PostShape.{u}}
+
+/--
+An invariant for a `repeatM` loop, given as a `PostCond` over the `α ⊕ β` cursor:
+`.inl a` is the `continue` case at `a`; `.inr b` is the `break` case with result `b`.
+-/
+@[spec_invariant_type]
+def WhileInvariant (α β : Type u) (ps : PostShape.{u}) :=
+  PostCond (α ⊕ β) ps
+
+/-- A termination measure for a `repeatM` loop, SVal-typed so it can read monadic state. -/
+@[spec_invariant_type]
+def WhileVariant (α : Type u) (ps : PostShape.{u}) :=
+  α → SVal ps.args (ULift Nat)
+
+set_option linter.missingDocs false in
+abbrev WhileVariant.eval {α} {ps} (variant : WhileVariant α ps) (a : α) (n : Nat) : SPred ps.args :=
+  SVal.evalsTo (variant a) ⟨n⟩
+
+private theorem WhileVariant.eval_total {P : SPred ps.args} (variant : WhileVariant α ps) (a : α) :
+    P ⊢ₛ ∃ m, WhileVariant.eval variant a m := by
+  refine SPred.entails.trans (SVal.evalsTo_total (variant a)) ?_
+  refine SPred.exists_elim fun (m : ULift Nat) => ?_
+  exact SPred.exists_intro (Ψ := fun n => WhileVariant.eval variant a n) m.down
+
+private theorem WhileVariant.add_eval {P Q : SPred ps.args} (variant : WhileVariant α ps) (a : α)
+    (h : spred(∃ m, WhileVariant.eval variant a m ∧ P) ⊢ₛ Q) : P ⊢ₛ Q := by
+  refine SPred.entails.trans' (WhileVariant.eval_total variant a) ?_
+  refine SPred.entails.trans (SPred.Tactic.Cases.exists fun n => ?_) h
+  exact SPred.and_symm.trans
+    (SPred.exists_intro (Ψ := fun n => spred(WhileVariant.eval variant a n ∧ P)) n)
+
+variable [Monad m] [Lean.Order.MonadTail m] [WPMonad m ps]
+
+/--
+Specification for `repeatM`. The user supplies a (possibly state-dependent) termination
+`measure`, an invariant, and a step `Triple` whose pre asserts the variant evaluates to `ma`
+and the in-progress invariant holds, and whose post either continues with a strictly smaller
+variant value (the invariant still holding) or finishes with the `.inr` invariant.
+-/
+@[spec]
+theorem Spec.repeatM
+    {init : α} {f : α → m (α ⊕ β)} [Nonempty β]
+    (measure : WhileVariant α ps)
+    (inv : WhileInvariant α β ps)
+    (step : ∀ a ma,
+      Triple (f a)
+        spred(WhileVariant.eval measure a ma ∧ inv.1 (.inl a))
+        (fun r => match r with
+          | .inl a' => spred(∃ ma', WhileVariant.eval measure a' ma' ∧ ⌜ma' < ma⌝ ∧ inv.1 (.inl a'))
+          | .inr b  => inv.1 (.inr b),
+         inv.2)) :
+    Triple (repeatM f init) spred(inv.1 (.inl init))
+      (fun b => inv.1 (.inr b), inv.2) := by
+  apply WhileVariant.add_eval measure init
+  apply SPred.exists_elim
+  intro minit
+  suffices key : ∀ (n : Nat) (a : α),
+      (spred(WhileVariant.eval measure a n ∧ inv.1 (.inl a)) ⊢ₛ
+       wp⟦(_root_.repeatM f a : m β)⟧ (fun b => inv.1 (.inr b), inv.2)) from
+    key minit init
+  intro n
+  induction n using Nat.strongRecOn with
+  | _ n ih =>
+    intro a
+    rw [_root_.repeatM.Internal.eq_of_monadTail (f := f) a]
+    refine Triple.bind (f := fun x => match x with
+      | .inl a' => _root_.repeatM f a' | .inr a' => Pure.pure a')
+      (f a) (step a n) ?_
+    rintro (a' | b)
+    · refine Triple.iff.mpr ?_
+      refine SPred.exists_elim fun ma' => ?_
+      refine SPred.pure_elim (SPred.and_elim_r.trans SPred.and_elim_l) fun hlt => ?_
+      refine SPred.entails.trans ?_ (ih ma' hlt a')
+      exact SPred.and_intro SPred.and_elim_l (SPred.and_elim_r.trans SPred.and_elim_r)
+    · apply Triple.pure
+      simp
+
+/--
+Specification for `forIn` over a `Lean.Loop`. The cursor is `β ⊕ β`: `.inl b` means
+"still iterating with `b`", `.inr b` means "finished with result `b`".
+-/
+@[spec]
+theorem Spec.forIn_loop
+    {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
+    (measure : WhileVariant β ps)
+    (inv : WhileInvariant β β ps)
+    (step : ∀ b mb,
+      Triple (f () b)
+        spred(WhileVariant.eval measure b mb ∧ inv.1 (.inl b))
+        (fun r => match r with
+          | .yield b' => spred(∃ mb', WhileVariant.eval measure b' mb' ∧ ⌜mb' < mb⌝ ∧ inv.1 (.inl b'))
+          | .done b'  => inv.1 (.inr b'),
+         inv.2)) :
+    Triple (forIn l init f) spred(inv.1 (.inl init))
+      (fun b => inv.1 (.inr b), inv.2) := by
+  haveI : Nonempty β := ⟨init⟩
+  change Triple (_root_.Lean.Loop.forIn l init f) _ _
+  simp only [_root_.Lean.Loop.forIn]
+  apply Spec.repeatM (β := β) (measure := measure) (inv := inv)
+  intro b mb
+  apply Triple.bind
+  · exact step b mb
+  · rintro (b' | b') <;> apply Triple.pure <;> simp
+
+end While

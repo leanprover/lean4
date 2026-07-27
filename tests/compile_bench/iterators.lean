@@ -10,7 +10,7 @@ The benchmark is run in three settings.
 * The time taken to interpret the script, including running `main`, is measured in
   `iterators (interpreted)`.
 * The time taken to interpret the script, without running `main`, is measured in
-  `interators (elab)`.
+  `iterators (elab)`.
 -/
 
 /- definitions -/

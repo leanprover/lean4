@@ -185,7 +185,9 @@ private def mkENode' (e : Expr) (generation : Nat) (funCC := false) : GoalM Unit
 private partial def internalizePattern (pattern : Expr) (generation : Nat) (origin : Origin) : GoalM Expr := do
   -- Recall that it is important to ensure patterns are maximally shared since
   -- we assume that in functions such as `getAppsOf` in `EMatch.lean`
-  go (← shareCommon pattern)
+  -- **Note**: We disable `shareCommonChecks` because patterns contain
+  -- loose bound variables and repair cannot be performed.
+  go (← Sym.shareCommonWithoutChecks pattern)
 where
   go (pattern : Expr) : GoalM Expr := do
     if pattern.isBVar || isPatternDontCare pattern then
@@ -317,7 +319,7 @@ def activateInjectiveTheorem (injThm : InjectiveTheorem) (generation : Nat) : Go
     let some thm := thm? | reportIssue! "failed to assert injectivity theorem `{injThm.origin.pp}`"
     activateTheorem thm generation
   else
-    addNewRawFact injThm.proof type generation (.inj injThm.origin)
+    addNewRawFact injThm.proof type generation (.inj injThm.origin) .other
 
 private def activateInjectiveTheorems (declName : Name) (generation : Nat) : GoalM Unit := do
   if (← getConfig).inj then
@@ -443,7 +445,7 @@ Returns `true` if we should use `funCC` for applications of the given constant s
 private def useFunCongrAtDecl (declName : Name) : GrindM Bool := do
   if (← hasFunCCModifier declName) then
     return true
-  if (← isImplicitReducible declName) then
+  if (← isInstanceReducible declName) then
     /- **Note**: Instances are support elements. No `funCC` -/
     return false
   if let some projInfo ← getProjectionFnInfo? declName then
@@ -610,7 +612,6 @@ where
         mkENode e generation (funCC := funCC)
         updateAppMap e
         checkAndAddSplitCandidate e
-        pushCastHEqs e
         addMatchEqns f generation
         if args.size == 2 && f.isConstOf ``Grind.nestedProof then
           -- We only internalize the proposition. We can skip the proof because of
@@ -656,6 +657,7 @@ where
               let arg := args[i]
               internalizeImpl arg generation e
               registerParent e arg
+        pushCastHEqs e
         addCongrTable e
         Solvers.internalize e parent?
         propagateUp e

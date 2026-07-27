@@ -136,7 +136,7 @@ public def compileStaticLib
   let args := args.push libFile.toString ++ (← mkArgs libFile <| oFiles.map toString)
   proc {cmd := ar.toString, args}
 
-private def getMacOSXDeploymentEnv : BaseIO (Array (String × Option String)) := do
+def getMacOSXDeploymentEnv : BaseIO (Array (String × Option String)) := do
   -- It is difficult to identify the correct minor version here, leading to linking warnings like:
   -- `ld64.lld: warning: /usr/lib/system/libsystem_kernel.dylib has version 13.5.0, which is newer than target minimum of 13.0.0`
   -- In order to suppress these we set the MACOSX_DEPLOYMENT_TARGET variable into the far future.

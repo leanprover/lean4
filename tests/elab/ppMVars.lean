@@ -13,9 +13,14 @@ Default values
 /-- info: ?a : Nat -/
 #guard_msgs in #check (?a : Nat)
 
-/-- trace: ⊢ Sort ?u.1 -/
+/--
+trace: this : PUnit.{?u.4}
+⊢ True
+-/
 #guard_msgs (trace, drop all) in
-example : (by_elab do return .sort (.mvar (.mk (.num `_uniq 1)))) := by
+set_option pp.universes true in
+example : True := by
+  have : PUnit := PUnit.unit
   trace_state
   sorry
 

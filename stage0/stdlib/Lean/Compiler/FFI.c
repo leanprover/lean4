@@ -22,7 +22,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
@@ -293,7 +293,7 @@ lean_ctor_set(v___x_22_, 0, v_s_10_);
 lean_ctor_set(v___x_22_, 1, v_startInclusive_17_);
 lean_ctor_set(v___x_22_, 2, v_endExclusive_18_);
 v___x_23_ = l_String_Slice_toString(v___x_22_);
-lean_dec_ref(v___x_22_);
+lean_dec_ref_known(v___x_22_, 3);
 v___x_24_ = lean_array_push(v_b_14_, v___x_23_);
 v_a_13_ = v_it_16_;
 v_b_14_ = v___x_24_;
@@ -332,7 +332,7 @@ lean_ctor_set(v___x_66_, 2, v___x_65_);
 v___x_67_ = l_String_Slice_splitToSubslice___at___00__private_Lean_Compiler_FFI_0__Lean_Compiler_FFI_flagsStringToArray_spec__0(v___x_66_);
 v___x_68_ = ((lean_object*)(l___private_Lean_Compiler_FFI_0__Lean_Compiler_FFI_flagsStringToArray___closed__0));
 v___x_69_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00__private_Lean_Compiler_FFI_0__Lean_Compiler_FFI_flagsStringToArray_spec__1___redArg(v_s_63_, v___x_66_, v___x_65_, v___x_67_, v___x_68_);
-lean_dec_ref(v___x_66_);
+lean_dec_ref_known(v___x_66_, 3);
 return v___x_69_;
 }
 }
@@ -580,7 +580,7 @@ lean_dec(v_needlePos_158_);
 lean_dec(v_stackPos_157_);
 lean_dec_ref(v_table_156_);
 lean_dec_ref(v_needle_155_);
-v___x_173_ = l_String_instDecidableLtRaw___aux__1(v_basePos_168_, v___x_171_);
+v___x_173_ = lean_nat_dec_lt(v_basePos_168_, v___x_171_);
 if (v___x_173_ == 0)
 {
 lean_dec(v___x_171_);

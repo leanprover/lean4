@@ -9,14 +9,13 @@ x y : Nat
 case x
 x y : Nat
 ⊢ x + y = y.add x
-case a
 a b : Nat
 | foo (0 + a) (b + 0)
-case a.x
+case x
 a b : Nat
 | 0 + a
 
-case a.y
+case y
 a b : Nat
 | b + 0
 a b : Nat
@@ -55,13 +54,10 @@ x y : Nat
 ⊢ f x (x.add y) y = y + x
 x y : Nat
 | x + y
-case h.h
 a b : Nat
 | 0 + a + b
-case h.h
 a b : Nat
 | a + b
-case h.h
 a b : Nat
 | 0 + a + b
 p : Nat → Prop
@@ -83,7 +79,6 @@ x : Nat
 p : Prop
 x : Nat
 ⊢ (True → p) → p
-case h
 x : Nat
 | 0 + x
 p : Prop

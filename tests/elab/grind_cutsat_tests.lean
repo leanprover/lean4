@@ -8,7 +8,7 @@ example (w x y z : Int) :
   3*w - 2*x + y + z = 7 →
   4*w + x - y - z = 3 →
   w = 2 := by
-cutsat
+  cutsat
 
 abbrev test1 (a b c d e : Int) :=
   1337*a + 424242*b - 23*c + 17*d - 101*e ≤ 12345 →

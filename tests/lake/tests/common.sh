@@ -254,10 +254,11 @@ check_diff() {
 
 test_out_diff() {
   expected=$1; shift
-  cat "$expected" > produced.expected.out
+  # We avoid a `.expected.out` name here so `lint.py` does not pick up these orphaned files
+  cat "$expected" > produced.expected
   echo '$' lake "$@"
   if "$LAKE" "$@" >produced.out 2>&1; then rc=$?; else rc=$?; fi
-  if check_diff_core produced.expected.out produced.out; then
+  if check_diff_core produced.expected produced.out; then
     if [ $rc != 0 ]; then
       echo "FAILURE: Program exited with code $rc"
       return 1
@@ -272,10 +273,10 @@ test_out_diff() {
 
 test_err_diff() {
   expected=$1; shift
-  cat "$expected" > produced.expected.out
+  cat "$expected" > produced.expected
   echo '$' lake "$@"
   if "$LAKE" "$@" >produced.out 2>&1; then rc=$?; else rc=$?; fi
-  if check_diff_core produced.expected.out produced.out; then
+  if check_diff_core produced.expected produced.out; then
     if [ $rc == 0 ]; then
       echo "FAILURE: Lake unexpectedly succeeded"
       return 1

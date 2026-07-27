@@ -18,11 +18,15 @@ import Lean.Meta.Tactic.Generalize
 
 public section
 
+namespace Lean
+
 register_builtin_option tactic.customEliminators : Bool := {
   defValue := true
   descr    := "enable using custom eliminators in the 'induction' and 'cases' tactics \
     defined using the '@[induction_eliminator]' and '@[cases_eliminator]' attributes"
 }
+
+end Lean
 
 end
 
@@ -307,20 +311,19 @@ def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : TacticM Unit 
       else
         throwOrLogErrorAt altStx m!"Invalid alternative name `{altName}`: {msg}"
 
-/-- Given the goal `altMVarId` for a given alternative that introduces `numFields` new variables,
-    return the number of explicit variables. Recall that when the `@` is not used, only the explicit variables can
-    be named by the user. -/
-def getNumExplicitFields (altMVarId : MVarId) (numFields : Nat) : MetaM Nat := altMVarId.withContext do
-  let target ← altMVarId.getType
+/-- Given the goal `altMVarId` for an alternative that introduces `numFields` new variables, return
+    how many the user can name when the `@` modifier is absent: the explicit and the `let`-bound
+    ones (`introN` names `let`-bound binders as explicit). -/
+def getNumExplicitFields (altMVarId : MVarId) (numFields : Nat) : MetaM Nat :=
   withoutModifyingState do
-    -- The `numFields` count includes explicit, implicit and let-bound variables.
-    -- `forallMetaBoundTelescope` will reduce let-bindings, so we don't just count how many
-    -- explicit binders are in `bis`, but how many implicit ones.
-    -- If this turns out to be insufficient, then the real (and complicated) logic for which
-    -- arguments are explicit or implicit can be found in `introNImp`,
-    let (_, bis, _) ← forallMetaBoundedTelescope target numFields
-    let numImplicits := (bis.filter (!·.isExplicit)).size
-    return numFields - numImplicits
+    -- Introduce the fields as the subsequent `introN` will, so the two agree on which are nameable.
+    let (fvarIds, altMVarId) ← altMVarId.introN numFields
+    altMVarId.withContext do
+      let mut numExplicit := 0
+      for fvarId in fvarIds do
+        if (← fvarId.getDecl).binderInfo.isExplicit then
+          numExplicit := numExplicit + 1
+      return numExplicit
 
 def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Array FVarId) : TermElabM Unit :=
   withSaveInfoContext <| altMVarId.withContext do
@@ -361,15 +364,17 @@ where
         let altPromises ← altStxs.mapM fun _ => IO.Promise.new
         let cancelTk? := (← readThe Core.Context).cancelTk?
         tacSnap.new.resolve {
-          -- save all relevant syntax here for comparison with next document version
-          stx := mkNullNode altStxs
-          diagnostics := .empty
-          inner? := none
-          finished := {
-            stx? := mkNullNode altStxs, task := finished.resultD default, cancelTk?
-            -- Do not cover up progress from `next` as no significant work happens after `next` and
-            -- before `finished` is resolved.
-            reportingRange := .skip
+          transformed.raw := {
+            -- save all relevant syntax here for comparison with next document version
+            stx := mkNullNode altStxs
+            diagnostics := .empty
+            inner? := none
+            finished := {
+              stx? := mkNullNode altStxs, task := finished.resultD default, cancelTk?
+              -- Do not cover up progress from `next` as no significant work happens after `next` and
+              -- before `finished` is resolved.
+              reportingRange := .skip
+            }
           }
           next := Array.zipWith
             (fun stx prom => { stx? := some stx, task := prom.resultD default, cancelTk? })
@@ -380,10 +385,12 @@ where
             let old ← tacSnap.old?
             -- waiting is fine here: this is the old version of the snapshot resolved above
             -- immediately at the beginning of the tactic
-            let old := old.val.get
+            -- (access to `raw` is fine here as there should be no transformation in this case
+            -- anyway, see `resolve` above)
+            let oldParsed := old.val.get.transformed.raw
             -- use old version of `mkNullNode altsSyntax` as guard, will be compared with new
             -- version and picked apart in `applyAltStx`
-            return ⟨old.stx, (← old.next[i]?)⟩
+            return ⟨oldParsed.stx, (← old.val.get.next[i]?)⟩
           new := prom
         }
         finished.resolve {
@@ -1024,7 +1031,7 @@ Elaborates the `foo args` of `fun_induction` or `fun_cases`, inferring the args 
 def elabFunTargetCall (cases : Bool) (stx : Syntax) : TacticM Expr := do
   match stx with
   | `($id:ident) =>
-    let fnName ← realizeGlobalConstNoOverload id
+    let fnName ← realizeGlobalConstNoOverloadWithInfo id
     let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
     let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
       let theoremKind := if cases then "cases" else "induction"

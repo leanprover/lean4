@@ -50,7 +50,7 @@ instance ltTrans : Trans (· < · : Char → Char → Prop) (· < ·) (· < ·) 
   trans := Char.lt_trans
 
 -- This instance is useful while setting up instances for `String`.
-@[implicit_reducible]
+@[instance_reducible]
 def notLTTrans : Trans (¬ · < · : Char → Char → Prop) (¬ · < ·) (¬ · < ·) where
   trans h₁ h₂ := by simpa using Char.le_trans (by simpa using h₂) (by simpa using h₁)
 
@@ -77,7 +77,7 @@ theorem notLTTotal : Std.Total (¬ · < · : Char → Char → Prop) where
   total := fun x y => by simpa using Char.le_total y x
 
 @[simp] theorem ofNat_toNat (c : Char) : Char.ofNat c.toNat = c := by
-  rw [Char.ofNat, dif_pos]
+  rw [Char.ofNat, dite_eq_left]
   rfl
 
 @[simp]

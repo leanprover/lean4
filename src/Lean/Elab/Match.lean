@@ -1042,7 +1042,16 @@ def mkRedundantAlternativeMsg (altName? : Option Name) (altMsg? : Option Message
 
 def reportMatcherResultErrors (altLHSS : List AltLHS) (result : MatcherResult) : TermElabM Unit := do
   unless result.counterExamples.isEmpty do
-    withHeadRefOnly <| logError m!"Missing cases:\n{Meta.Match.counterExamplesToMessageData result.counterExamples}"
+    let maxCEx := Meta.Match.match.maxCounterExamples.get (← getOptions)
+    let (shown, truncated) :=
+      if result.counterExamples.size > maxCEx then
+        (result.counterExamples.take maxCEx, true)
+      else
+        (result.counterExamples, false)
+    let mut msg := m!"Missing cases:\n{Meta.Match.counterExamplesToMessageData shown}"
+    if truncated then
+      msg := msg ++ m!"\n(further cases omitted, increase `set_option match.maxCounterExamples {maxCEx}` to see more)"
+    withHeadRefOnly <| logError msg
     return ()
   unless match.ignoreUnusedAlts.get (← getOptions) || result.unusedAltIdxs.isEmpty do
     let mut i := 0

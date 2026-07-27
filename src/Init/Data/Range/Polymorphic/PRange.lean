@@ -202,7 +202,7 @@ macro_rules
   | `($a<...$b) => ``(Roo.mk $a $b)
 
 /--
-This type class ensures that right-closed ranges (i.e., for bounds {given}`a` and {given}`b`,
+This type class ensures that right-closed ranges (i.e., for bounds {given (type := "α")}`a` and {given (type := "α")}`b`,
 {lean}`a...=b`, {lean}`a<...=b` and {lean}`*...=b`) are always finite.
 This is a prerequisite for many functions and instances, such as
 {name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Rcc.toList` or {name}`ForIn'`.
@@ -216,7 +216,7 @@ class Rxc.IsAlwaysFinite (α : Type u) [UpwardEnumerable α] [LE α] : Prop wher
     ∃ n, (UpwardEnumerable.succMany? n init).elim True (¬ · ≤ hi)
 
 /--
-This type class ensures that right-open ranges (i.e., for bounds {given}`a` and {given}`b`,
+This type class ensures that right-open ranges (i.e., for bounds {given (type := "α")}`a` and {given (type := "α")}`b`,
 {lean}`a...b`, {lean}`a<...b` and {lean}`*...b`) are always finite.
 This is a prerequisite for many functions and instances, such as
 {name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Rco.toList` or {name}`ForIn'`.
@@ -230,7 +230,7 @@ class Rxo.IsAlwaysFinite (α : Type u) [UpwardEnumerable α] [LT α] : Prop wher
     ∃ n, (UpwardEnumerable.succMany? n init).elim True (¬ · < hi)
 
 /--
-This type class ensures that right-unbounded ranges (i.e., for a bound {given}`a`,
+This type class ensures that right-unbounded ranges (i.e., for a bound {given (type := "α")}`a`,
 {lean}`a...*`, {lean}`a<...*` and {lean}`*...*`) are always finite.
 This is a prerequisite for many functions and instances, such as
 {name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Rci.toList` or {name}`ForIn'`.

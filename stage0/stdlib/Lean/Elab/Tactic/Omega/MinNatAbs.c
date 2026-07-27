@@ -188,7 +188,7 @@ else
 lean_object* v_val_40_; 
 v_val_40_ = lean_ctor_get(v___x_38_, 0);
 lean_inc(v_val_40_);
-lean_dec_ref(v___x_38_);
+lean_dec_ref_known(v___x_38_, 1);
 return v_val_40_;
 }
 }
@@ -351,7 +351,7 @@ else
 lean_object* v_val_82_; 
 v_val_82_ = lean_ctor_get(v___x_80_, 0);
 lean_inc(v_val_82_);
-lean_dec_ref(v___x_80_);
+lean_dec_ref_known(v___x_80_, 1);
 return v_val_82_;
 }
 }

@@ -256,12 +256,12 @@ abbrev CounterExample := List Example
 def counterExampleToMessageData (cex : CounterExample) : MessageData :=
   examplesToMessageData cex
 
-def counterExamplesToMessageData (cexs : List CounterExample) : MessageData :=
-  MessageData.joinSep (cexs.map counterExampleToMessageData) Format.line
+def counterExamplesToMessageData (cexs : Array CounterExample) : MessageData :=
+  MessageData.joinSep (cexs.toList.map counterExampleToMessageData) Format.line
 
 structure MatcherResult where
   matcher         : Expr -- The matcher. It is not just `Expr.const matcherName` because the type of the major premises may contain free variables.
-  counterExamples : List CounterExample
+  counterExamples : Array CounterExample
   unusedAltIdxs   : List Nat
   addMatcher      : MetaM Unit
 
@@ -314,6 +314,6 @@ example : congrEqn1ThmSuffix = "congr_eq_1" := rfl
 
 /-- Returns `true` if `s` is of the form `congr_eq_<idx>` -/
 def isCongrEqnReservedNameSuffix (s : String) : Bool :=
-  congrEqnThmSuffixBasePrefix.isPrefixOf s && (s.drop congrEqnThmSuffixBasePrefix.length).isNat
+  (s.dropPrefix? congrEqnThmSuffixBasePrefix).any (·.isNat)
 
 end Lean.Meta.Match

@@ -29,15 +29,16 @@ constructor:
 
 /-! Structure with private field, imported -/
 /--
-info: structure IO.CancelToken : Type
-number of parameters: 0
+info: structure IO.Promise (α : Type) : Type
+number of parameters: 1
 fields:
-  private IO.CancelToken.ref✝ : IO.Ref Bool
+  private IO.Promise.prom✝ : IO.PromisePointed✝.type
+  private IO.Promise.h✝ : Nonempty α
 constructor:
-  private IO.CancelToken.mk✝ (ref : IO.Ref Bool) : IO.CancelToken
+  private IO.Promise.mk✝ {α : Type} (prom : IO.PromisePointed✝.type) (h : Nonempty α) : IO.Promise α
 -/
 #guard_msgs in
-#print IO.CancelToken
+#print IO.Promise
 
 /-! Structure with private field, current module -/
 structure PrivField where

@@ -207,7 +207,7 @@ def emitLns [EmitToString α] (as : List α) : EmitM Unit :=
   emitLn "}"
   return ret
 
-def toHexDigit (c : Nat) : String :=
+def toDigit (c : Nat) : String :=
   String.singleton c.digitChar
 
 def quoteString (s : String) : String :=
@@ -221,7 +221,11 @@ def quoteString (s : String) : String :=
       else if c == '\"' then "\\\""
       else if c == '?' then "\\?" -- avoid trigraphs
       else if c.toNat <= 31 then
-        "\\x" ++ toHexDigit (c.toNat / 16) ++ toHexDigit (c.toNat % 16)
+        -- Use octal escapes instead of hex escapes because C hex escapes are
+        -- greedy: "\x01abc" would be parsed as the single escape \x01abc rather
+        -- than \x01 followed by "abc".  Octal escapes consume at most 3 digits.
+        let n := c.toNat
+        "\\" ++ toDigit (n / 64) ++ toDigit ((n / 8) % 8) ++ toDigit (n % 8)
       -- TODO(Leo): we should use `\unnnn` for escaping unicode characters.
       else String.singleton c)
     q;
@@ -416,7 +420,6 @@ where
       for h : idx in 0...chunks do
         have : idx * 8 + 7 < scalarArgs.size := by
           have : idx < scalarArgs.size / 8 := Std.Rco.lt_upper_of_mem h
-          simp at this
           omega
         let b1 := scalarArgs[idx * 8]
         let b2 := scalarArgs[idx * 8 + 1]
@@ -774,7 +777,7 @@ where
 
 mutual
 
-private partial def emitBasicBlock (code : Code .impure) : EmitM Unit := do
+partial def emitBasicBlock (code : Code .impure) : EmitM Unit := do
   match code with
   | .jp (k := k) .. => emitBasicBlock k
   | .let decl k =>
@@ -786,8 +789,8 @@ private partial def emitBasicBlock (code : Code .impure) : EmitM Unit := do
   | .inc fvarId n check persistent k =>
     unless persistent do emitInc fvarId n check
     emitBasicBlock k
-  | .dec fvarId n check persistent k =>
-    unless persistent do emitDec fvarId n check
+  | .dec fvarId n check persistent objs? k =>
+    unless persistent do emitDec fvarId n check objs?
     emitBasicBlock k
   | .del fvarId k =>
     emitDel fvarId
@@ -818,11 +821,15 @@ where
       emitCApp2 incFn fvarId n
     emitLn ";"
 
-  emitDec (fvarId : FVarId) (n : Nat) (check : Bool) : EmitM Unit := do
+  emitDec (fvarId : FVarId) (n : Nat) (check : Bool) (objs? : Option Nat) : EmitM Unit := do
     -- Anything else is unsupported at the moment
     assert! n == 1
-    let decFn := if check then "lean_dec" else "lean_dec_ref"
-    emitCApp1 decFn fvarId
+    match objs? with
+    | some objs =>
+      emitCApp2 "lean_dec_ref_known" fvarId objs
+    | none =>
+      let decFn := if check then "lean_dec" else "lean_dec_ref"
+      emitCApp1 decFn fvarId
     emitLn ";"
 
   emitDel (fvarId : FVarId) : EmitM Unit := do
@@ -896,7 +903,7 @@ where
   emitUnreach : EmitM Unit := do
     emitLn "lean_internal_panic_unreachable();"
 
-private partial def emitJoinPoints (code : Code .impure) : EmitM Unit := do
+partial def emitJoinPoints (code : Code .impure) : EmitM Unit := do
   match code with
   | .jp decl k =>
     emit decl.binderName; emitLn ":"
@@ -906,7 +913,7 @@ private partial def emitJoinPoints (code : Code .impure) : EmitM Unit := do
   | .sset (k := k) .. | .uset (k := k) .. | .oset (k := k) .. => emitJoinPoints k
   | .cases .. | .return .. | .jmp .. | .unreach .. => return ()
 
-private partial def emitCode (code : Code .impure) : EmitM Unit := do
+partial def emitCode (code : Code .impure) : EmitM Unit := do
   withEmitBlock do
     let declared ← declareVars code
     if declared then emitLn ""
@@ -1008,6 +1015,21 @@ def emitInitFn (phases : IRPhases) : EmitM Unit := do
     let fn := mkModuleInitializationFunctionName (phases := if phases == .all then .all else if imp.isMeta then .runtime else phases) imp.module pkg?
     emitLn s!"lean_object* {fn}(uint8_t builtin);"
     return some fn
+  -- Every module initializes the runtime for itself so that external users of a Lean library do
+  -- not have to. Modules using the `Lean` package call the full `lean_initialize` instead as
+  -- module visibility can hide such an import from downstream modules (including the final
+  -- executable's root); the `Lean` modules themselves are initialized by `lean_initialize` and so
+  -- must not call it themselves.
+  let modName ← getModName
+  let leanInitFn? :=
+    if phases == .comptime then
+      none
+    else if usesModuleFrom env `Lean && !(`Lean).isPrefixOf modName then
+      some "lean_initialize"
+    else
+      some "lean_initialize_runtime_module"
+  if let some fn := leanInitFn? then
+    emitLn s!"void {fn}();"
   let initialized := s!"_G_{mkModuleInitializationPrefix phases}initialized"
   emitLns [
     s!"static bool {initialized} = false;",
@@ -1016,6 +1038,8 @@ def emitInitFn (phases : IRPhases) : EmitM Unit := do
     s!"if ({initialized}) return lean_io_result_mk_ok(lean_box(0));",
     s!"{initialized} = true;"
   ]
+  if let some fn := leanInitFn? then
+    emitLn s!"{fn}();"
   impInitFns.forM fun fn => do
     withErrRet do
       emit s!"{fn}(builtin)"
@@ -1070,10 +1094,8 @@ where
     if ps.size != 1 && ps.size != 2 then
       throwError "invalid main function, incorrect arity when generating code"
     let env ← getEnv
-    let usesLeanAPI := usesModuleFrom env `Lean
     emitLns [
       "char ** lean_setup_args(int argc, char ** argv);",
-      if usesLeanAPI then "void lean_initialize();" else "void lean_initialize_runtime_module();",
       "#if defined(WIN32) || defined(_WIN32)",
       "#include <windows.h>",
       "#endif",
@@ -1102,7 +1124,6 @@ where
       "#endif",
       "  lean_object* res;",
       "  argv = lean_setup_args(argc, argv);",
-      if usesLeanAPI then "  lean_initialize();" else "  lean_initialize_runtime_module();",
       s!"  res = {← getModInitFn (phases := if env.header.isModule then .runtime else .all)}(1 /* builtin */);",
       "  lean_io_mark_end_initialization();",
       "  if (lean_io_result_is_ok(res)) {",

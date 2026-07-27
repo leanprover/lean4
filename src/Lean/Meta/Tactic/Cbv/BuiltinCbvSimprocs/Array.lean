@@ -17,7 +17,7 @@ import Init.GetElem
 namespace Lean.Meta.Tactic.Cbv
 
 /-- Extract elements from an array literal (`Array.mk` applied to a list literal). -/
-private def getArrayLitElems? (e : Expr) : Option <| Array Expr :=
+def getArrayLitElems? (e : Expr) : Option <| Array Expr :=
   match_expr e with
   | Array.mk _ as => getListLitElems as
   | _ => none

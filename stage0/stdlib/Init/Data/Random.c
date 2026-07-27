@@ -26,12 +26,12 @@ uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* l_Int_toNat(lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
+lean_object* lean_string_length(lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
 lean_object* lean_io_get_random_bytes(size_t);
 uint64_t l_ByteArray_toUInt64LE_x21(lean_object*);
 lean_object* lean_uint64_to_nat(uint64_t);
 lean_object* lean_st_mk_ref(lean_object*);
-lean_object* lean_string_length(lean_object*);
-lean_object* l_Nat_reprFast(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_mkStdGen(lean_object*);
@@ -108,8 +108,8 @@ LEAN_EXPORT lean_object* l_randNat(lean_object*, lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* l_randNat___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_randBool___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_randBool(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_initFn_00___x40_Init_Data_Random_2456098205____hygCtx___hyg_2_();
-LEAN_EXPORT lean_object* l_initFn_00___x40_Init_Data_Random_2456098205____hygCtx___hyg_2____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Random_0__initFn_00___x40_Init_Data_Random_2456098205____hygCtx___hyg_2_();
+LEAN_EXPORT lean_object* l___private_Init_Data_Random_0__initFn_00___x40_Init_Data_Random_2456098205____hygCtx___hyg_2____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_IO_stdGenRef;
 LEAN_EXPORT lean_object* l_IO_setRandSeed(lean_object*);
 LEAN_EXPORT lean_object* l_IO_setRandSeed___boxed(lean_object*, lean_object*);
@@ -420,8 +420,8 @@ v___jp_86_:
 {
 lean_object* v___x_90_; lean_object* v___x_91_; 
 v___x_90_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_90_, 0, v___y_88_);
-lean_ctor_set(v___x_90_, 1, v___y_87_);
+lean_ctor_set(v___x_90_, 0, v___y_87_);
+lean_ctor_set(v___x_90_, 1, v___y_88_);
 v___x_91_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_91_, 0, v___y_89_);
 lean_ctor_set(v___x_91_, 1, v___x_90_);
@@ -447,8 +447,8 @@ lean_dec(v_z_97_);
 v___x_101_ = lean_unsigned_to_nat(2147483562u);
 v___x_102_ = lean_nat_mod(v___x_100_, v___x_101_);
 lean_dec(v___x_100_);
-v___y_87_ = v___y_94_;
-v___y_88_ = v___y_93_;
+v___y_87_ = v___y_93_;
+v___y_88_ = v___y_94_;
 v___y_89_ = v___x_102_;
 goto v___jp_86_;
 }
@@ -460,8 +460,8 @@ v___x_104_ = lean_int_add(v_z_97_, v___x_103_);
 lean_dec(v_z_97_);
 v___x_105_ = l_Int_toNat(v___x_104_);
 lean_dec(v___x_104_);
-v___y_87_ = v___y_94_;
-v___y_88_ = v___y_93_;
+v___y_87_ = v___y_93_;
+v___y_88_ = v___y_94_;
 v___y_89_ = v___x_105_;
 goto v___jp_86_;
 }
@@ -1008,7 +1008,7 @@ v___x_318_ = l_randBool___redArg(v_inst_316_, v_g_317_);
 return v___x_318_;
 }
 }
-LEAN_EXPORT lean_object* l_initFn_00___x40_Init_Data_Random_2456098205____hygCtx___hyg_2_(){
+LEAN_EXPORT lean_object* l___private_Init_Data_Random_0__initFn_00___x40_Init_Data_Random_2456098205____hygCtx___hyg_2_(){
 _start:
 {
 size_t v___x_320_; lean_object* v___x_321_; 
@@ -1105,11 +1105,11 @@ return v___x_339_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_initFn_00___x40_Init_Data_Random_2456098205____hygCtx___hyg_2____boxed(lean_object* v_a_342_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Random_0__initFn_00___x40_Init_Data_Random_2456098205____hygCtx___hyg_2____boxed(lean_object* v_a_342_){
 _start:
 {
 lean_object* v_res_343_; 
-v_res_343_ = l_initFn_00___x40_Init_Data_Random_2456098205____hygCtx___hyg_2_();
+v_res_343_ = l___private_Init_Data_Random_0__initFn_00___x40_Init_Data_Random_2456098205____hygCtx___hyg_2_();
 return v_res_343_;
 }
 }
@@ -1371,7 +1371,7 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_instInhabitedStdGen = _init_l_instInhabitedStdGen();
 lean_mark_persistent(l_instInhabitedStdGen);
-res = l_initFn_00___x40_Init_Data_Random_2456098205____hygCtx___hyg_2_();
+res = l___private_Init_Data_Random_0__initFn_00___x40_Init_Data_Random_2456098205____hygCtx___hyg_2_();
 if (lean_io_result_is_error(res)) return res;
 l_IO_stdGenRef = lean_io_result_get_value(res);
 lean_mark_persistent(l_IO_stdGenRef);

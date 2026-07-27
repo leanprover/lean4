@@ -727,9 +727,9 @@ return v___x_191_;
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_Assignment_0__Std_Tactic_BVDecide_LRAT_Internal_Assignment_instToString_match__1_splitter___redArg___boxed(lean_object* v_a_192_, lean_object* v_h__1_193_, lean_object* v_h__2_194_, lean_object* v_h__3_195_, lean_object* v_h__4_196_){
 _start:
 {
-uint8_t v_a_46__boxed_197_; lean_object* v_res_198_; 
-v_a_46__boxed_197_ = lean_unbox(v_a_192_);
-v_res_198_ = l___private_Std_Tactic_BVDecide_LRAT_Internal_Assignment_0__Std_Tactic_BVDecide_LRAT_Internal_Assignment_instToString_match__1_splitter___redArg(v_a_46__boxed_197_, v_h__1_193_, v_h__2_194_, v_h__3_195_, v_h__4_196_);
+uint8_t v_a_42__boxed_197_; lean_object* v_res_198_; 
+v_a_42__boxed_197_ = lean_unbox(v_a_192_);
+v_res_198_ = l___private_Std_Tactic_BVDecide_LRAT_Internal_Assignment_0__Std_Tactic_BVDecide_LRAT_Internal_Assignment_instToString_match__1_splitter___redArg(v_a_42__boxed_197_, v_h__1_193_, v_h__2_194_, v_h__3_195_, v_h__4_196_);
 return v_res_198_;
 }
 }
@@ -784,9 +784,9 @@ return v___x_212_;
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_Assignment_0__Std_Tactic_BVDecide_LRAT_Internal_Assignment_instToString_match__1_splitter___boxed(lean_object* v_motive_213_, lean_object* v_a_214_, lean_object* v_h__1_215_, lean_object* v_h__2_216_, lean_object* v_h__3_217_, lean_object* v_h__4_218_){
 _start:
 {
-uint8_t v_a_65__boxed_219_; lean_object* v_res_220_; 
-v_a_65__boxed_219_ = lean_unbox(v_a_214_);
-v_res_220_ = l___private_Std_Tactic_BVDecide_LRAT_Internal_Assignment_0__Std_Tactic_BVDecide_LRAT_Internal_Assignment_instToString_match__1_splitter(v_motive_213_, v_a_65__boxed_219_, v_h__1_215_, v_h__2_216_, v_h__3_217_, v_h__4_218_);
+uint8_t v_a_61__boxed_219_; lean_object* v_res_220_; 
+v_a_61__boxed_219_ = lean_unbox(v_a_214_);
+v_res_220_ = l___private_Std_Tactic_BVDecide_LRAT_Internal_Assignment_0__Std_Tactic_BVDecide_LRAT_Internal_Assignment_instToString_match__1_splitter(v_motive_213_, v_a_61__boxed_219_, v_h__1_215_, v_h__2_216_, v_h__3_217_, v_h__4_218_);
 return v_res_220_;
 }
 }

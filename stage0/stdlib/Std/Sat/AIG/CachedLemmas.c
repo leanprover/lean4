@@ -46,7 +46,7 @@ lean_dec(v_h__3_4_);
 lean_dec(v_h__1_2_);
 v_idx_6_ = lean_ctor_get(v_x_1_, 0);
 lean_inc(v_idx_6_);
-lean_dec_ref(v_x_1_);
+lean_dec_ref_known(v_x_1_, 1);
 v___x_7_ = lean_apply_2(v_h__2_3_, v_idx_6_, lean_box(0));
 return v___x_7_;
 }
@@ -59,7 +59,7 @@ v_l_8_ = lean_ctor_get(v_x_1_, 0);
 lean_inc(v_l_8_);
 v_r_9_ = lean_ctor_get(v_x_1_, 1);
 lean_inc(v_r_9_);
-lean_dec_ref(v_x_1_);
+lean_dec_ref_known(v_x_1_, 2);
 v___x_10_ = lean_apply_3(v_h__3_4_, v_l_8_, v_r_9_, lean_box(0));
 return v___x_10_;
 }
@@ -86,7 +86,7 @@ lean_dec(v_h__3_16_);
 lean_dec(v_h__1_14_);
 v_idx_18_ = lean_ctor_get(v_x_13_, 0);
 lean_inc(v_idx_18_);
-lean_dec_ref(v_x_13_);
+lean_dec_ref_known(v_x_13_, 1);
 v___x_19_ = lean_apply_2(v_h__2_15_, v_idx_18_, lean_box(0));
 return v___x_19_;
 }
@@ -99,7 +99,7 @@ v_l_20_ = lean_ctor_get(v_x_13_, 0);
 lean_inc(v_l_20_);
 v_r_21_ = lean_ctor_get(v_x_13_, 1);
 lean_inc(v_r_21_);
-lean_dec_ref(v_x_13_);
+lean_dec_ref_known(v_x_13_, 2);
 v___x_22_ = lean_apply_3(v_h__3_16_, v_l_20_, v_r_21_, lean_box(0));
 return v___x_22_;
 }
@@ -159,7 +159,7 @@ lean_object* v_val_49_; lean_object* v___x_50_;
 lean_dec(v_h__2_46_);
 v_val_49_ = lean_ctor_get(v_x_44_, 0);
 lean_inc(v_val_49_);
-lean_dec_ref(v_x_44_);
+lean_dec_ref_known(v_x_44_, 1);
 v___x_50_ = lean_apply_1(v_h__1_45_, v_val_49_);
 return v___x_50_;
 }
@@ -182,7 +182,7 @@ lean_object* v_val_60_; lean_object* v___x_61_;
 lean_dec(v_h__2_57_);
 v_val_60_ = lean_ctor_get(v_x_55_, 0);
 lean_inc(v_val_60_);
-lean_dec_ref(v_x_55_);
+lean_dec_ref_known(v_x_55_, 1);
 v___x_61_ = lean_apply_1(v_h__1_56_, v_val_60_);
 return v___x_61_;
 }
@@ -211,7 +211,7 @@ v___x_78_ = lean_unbox(v_val_77_);
 if (v___x_78_ == 0)
 {
 lean_object* v___x_79_; 
-lean_dec_ref(v_lhsVal_70_);
+lean_dec_ref_known(v_lhsVal_70_, 1);
 lean_dec(v_h__3_74_);
 lean_dec(v_h__2_73_);
 v___x_79_ = lean_apply_1(v_h__1_72_, v_rhsVal_71_);
@@ -228,7 +228,7 @@ v___x_81_ = lean_unbox(v_val_80_);
 if (v___x_81_ == 0)
 {
 lean_object* v___x_82_; 
-lean_dec_ref(v_rhsVal_71_);
+lean_dec_ref_known(v_rhsVal_71_, 1);
 lean_dec(v_h__3_74_);
 v___x_82_ = lean_apply_2(v_h__2_73_, v_lhsVal_70_, lean_box(0));
 return v___x_82_;
@@ -236,7 +236,7 @@ return v___x_82_;
 else
 {
 lean_object* v___x_83_; 
-lean_dec_ref(v_lhsVal_70_);
+lean_dec_ref_known(v_lhsVal_70_, 1);
 lean_dec(v_h__2_73_);
 v___x_83_ = lean_apply_2(v_h__3_74_, v_rhsVal_71_, lean_box(0));
 return v___x_83_;
@@ -245,7 +245,7 @@ return v___x_83_;
 else
 {
 lean_object* v___x_84_; 
-lean_dec_ref(v_lhsVal_70_);
+lean_dec_ref_known(v_lhsVal_70_, 1);
 lean_dec(v_h__2_73_);
 v___x_84_ = lean_apply_2(v_h__3_74_, v_rhsVal_71_, lean_box(0));
 return v___x_84_;
@@ -262,7 +262,7 @@ lean_object* v_val_85_; uint8_t v___x_86_;
 lean_dec(v_h__5_76_);
 v_val_85_ = lean_ctor_get(v_rhsVal_71_, 0);
 lean_inc(v_val_85_);
-lean_dec_ref(v_rhsVal_71_);
+lean_dec_ref_known(v_rhsVal_71_, 1);
 v___x_86_ = lean_unbox(v_val_85_);
 lean_dec(v_val_85_);
 if (v___x_86_ == 0)
@@ -304,7 +304,7 @@ v___x_99_ = lean_unbox(v_val_98_);
 if (v___x_99_ == 0)
 {
 lean_object* v___x_100_; 
-lean_dec_ref(v_lhsVal_91_);
+lean_dec_ref_known(v_lhsVal_91_, 1);
 lean_dec(v_h__3_95_);
 lean_dec(v_h__2_94_);
 v___x_100_ = lean_apply_1(v_h__1_93_, v_rhsVal_92_);
@@ -321,7 +321,7 @@ v___x_102_ = lean_unbox(v_val_101_);
 if (v___x_102_ == 0)
 {
 lean_object* v___x_103_; 
-lean_dec_ref(v_rhsVal_92_);
+lean_dec_ref_known(v_rhsVal_92_, 1);
 lean_dec(v_h__3_95_);
 v___x_103_ = lean_apply_2(v_h__2_94_, v_lhsVal_91_, lean_box(0));
 return v___x_103_;
@@ -329,7 +329,7 @@ return v___x_103_;
 else
 {
 lean_object* v___x_104_; 
-lean_dec_ref(v_lhsVal_91_);
+lean_dec_ref_known(v_lhsVal_91_, 1);
 lean_dec(v_h__2_94_);
 v___x_104_ = lean_apply_2(v_h__3_95_, v_rhsVal_92_, lean_box(0));
 return v___x_104_;
@@ -338,7 +338,7 @@ return v___x_104_;
 else
 {
 lean_object* v___x_105_; 
-lean_dec_ref(v_lhsVal_91_);
+lean_dec_ref_known(v_lhsVal_91_, 1);
 lean_dec(v_h__2_94_);
 v___x_105_ = lean_apply_2(v_h__3_95_, v_rhsVal_92_, lean_box(0));
 return v___x_105_;
@@ -355,7 +355,7 @@ lean_object* v_val_106_; uint8_t v___x_107_;
 lean_dec(v_h__5_97_);
 v_val_106_ = lean_ctor_get(v_rhsVal_92_, 0);
 lean_inc(v_val_106_);
-lean_dec_ref(v_rhsVal_92_);
+lean_dec_ref_known(v_rhsVal_92_, 1);
 v___x_107_ = lean_unbox(v_val_106_);
 lean_dec(v_val_106_);
 if (v___x_107_ == 0)

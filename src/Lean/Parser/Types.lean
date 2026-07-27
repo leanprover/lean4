@@ -183,7 +183,7 @@ structure CacheableParserContext where
   quotDepth          : Nat := 0
   suppressInsideQuot : Bool := false
   savedPos?          : Option String.Pos.Raw := none
-  forbiddenTk?       : Option Token := none
+  forbiddenTks       : Array Token := #[]
   deriving BEq
 
 /-- Parser context updateable in `adaptUncacheableContextFn`. -/
@@ -469,6 +469,7 @@ def seq : FirstTokens → FirstTokens → FirstTokens
   | epsilon,      tks          => tks
   | optTokens s₁, optTokens s₂ => optTokens (s₁ ++ s₂)
   | optTokens s₁, tokens s₂    => tokens (s₁ ++ s₂)
+  | optTokens _,  unknown      => unknown
   | tks,          _            => tks
 
 def toOptional : FirstTokens → FirstTokens

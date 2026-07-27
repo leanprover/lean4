@@ -84,7 +84,7 @@ Explicitly providing a resulting universe with no metavariables will silence thi
 Note: The elaborated resulting universe after constructor elaboration is
   Type _
 The inference algorithm attempts to compute the smallest level for `_` such that all universe constraints for all constructor fields are satisfied, with some approximations. The following derived constraint(s) are the cause of this possible unnecessarily high universe:
-  v ≤ _+1
+  v ≤ _ + 1
 For example, if the resulting universe is of the form `Sort (?r + 1)` and a constructor field is in universe `Sort u`, the constraint `u ≤ ?r + 1` leads to the unnecessarily high resulting universe `Sort (u + 1)`. Using `Sort (max 1 u)` avoids this universe bump, if using it is possible.
 -/
 #guard_msgs in

@@ -400,7 +400,7 @@ lean_dec_ref(v_inst_104_);
 lean_dec(v_inst_103_);
 v_head_108_ = lean_ctor_get(v_x_105_, 0);
 lean_inc(v_head_108_);
-lean_dec_ref(v_x_105_);
+lean_dec_ref_known(v_x_105_, 2);
 return v_head_108_;
 }
 else
@@ -413,10 +413,10 @@ if (lean_obj_tag(v_tail_109_) == 0)
 lean_object* v_head_110_; lean_object* v_head_111_; lean_object* v_and_112_; lean_object* v___x_113_; lean_object* v___x_114_; 
 v_head_110_ = lean_ctor_get(v_x_105_, 0);
 lean_inc(v_head_110_);
-lean_dec_ref(v_x_105_);
+lean_dec_ref_known(v_x_105_, 2);
 v_head_111_ = lean_ctor_get(v_tail_107_, 0);
 lean_inc(v_head_111_);
-lean_dec_ref(v_tail_107_);
+lean_dec_ref_known(v_tail_107_, 2);
 v_and_112_ = lean_ctor_get(v_inst_104_, 1);
 lean_inc(v_and_112_);
 lean_dec_ref(v_inst_104_);
@@ -435,13 +435,13 @@ lean_object* v_head_116_; lean_object* v_head_117_; lean_object* v_head_118_; le
 lean_inc_ref(v_tail_109_);
 v_head_116_ = lean_ctor_get(v_x_105_, 0);
 lean_inc(v_head_116_);
-lean_dec_ref(v_x_105_);
+lean_dec_ref_known(v_x_105_, 2);
 v_head_117_ = lean_ctor_get(v_tail_107_, 0);
 lean_inc(v_head_117_);
-lean_dec_ref(v_tail_107_);
+lean_dec_ref_known(v_tail_107_, 2);
 v_head_118_ = lean_ctor_get(v_tail_109_, 0);
 lean_inc(v_head_118_);
-lean_dec_ref(v_tail_109_);
+lean_dec_ref_known(v_tail_109_, 2);
 v_comma_119_ = lean_ctor_get(v_inst_104_, 2);
 lean_inc(v_comma_119_);
 v_commaAnd_120_ = lean_ctor_get(v_inst_104_, 3);
@@ -459,7 +459,7 @@ else
 lean_object* v_head_125_; lean_object* v_comma_126_; lean_object* v___x_127_; lean_object* v___x_128_; lean_object* v___x_129_; 
 v_head_125_ = lean_ctor_get(v_x_105_, 0);
 lean_inc(v_head_125_);
-lean_dec_ref(v_x_105_);
+lean_dec_ref_known(v_x_105_, 2);
 v_comma_126_ = lean_ctor_get(v_inst_104_, 2);
 lean_inc_n(v_inst_103_, 2);
 lean_inc(v_comma_126_);

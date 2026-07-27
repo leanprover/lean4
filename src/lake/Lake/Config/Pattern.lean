@@ -36,7 +36,7 @@ mutual
 A pattern. Matches some subset of the values of a type.
 May also include a declarative description.
 -/
-public structure Pattern (α : Type u) (β : Type v) where
+structure Pattern (α : Type u) (β : Type v) where
   /-- Returns whether the value matches the pattern. -/
   filter : α → Bool
    /-- An optional name for the filter. -/
@@ -49,7 +49,7 @@ public structure Pattern (α : Type u) (β : Type v) where
 An abstract declarative pattern.
 Augments another pattern description `β` with logical connectives.
 -/
-public inductive PatternDescr (α : Type u) (β : Type v)
+inductive PatternDescr (α : Type u) (β : Type v)
 /-- Matches a value that does not satisfy the pattern. -/
 | not (p : Pattern α β)
 /-- Matches a value that satisfies every pattern. Short-circuits. -/

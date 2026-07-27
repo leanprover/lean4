@@ -814,7 +814,7 @@ struct elim_nested_inductive_result {
         name auxI_name = info->to_constructor_val().get_induct();
         expr const * nested = m_aux2nested.find(auxI_name);
         if (!nested) return optional<pair<expr, name>>();
-        return optional<pair<expr, name>>(*nested, auxI_name);
+        return optional<pair<expr, name>>(std::in_place, *nested, auxI_name);
     }
 
     name restore_constructor_name(environment const & aux_env, name const & cnstr_name) const {

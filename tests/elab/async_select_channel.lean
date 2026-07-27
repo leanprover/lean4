@@ -1,6 +1,6 @@
 import Std.Sync.Channel
 
-open Std Internal IO Async
+open Std Async
 
 namespace A
 

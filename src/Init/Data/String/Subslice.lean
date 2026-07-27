@@ -23,7 +23,7 @@ Given a {name}`Slice` {name}`s`, the type {lean}`s.Subslice` is the type of half
 in {name}`s` delineated by a valid position on both sides.
 
 This type is useful to track regions of interest within some larger slice that is also of interest.
-In contrast, {name}`Slice` is used to track regions of interest whithin some larger string that is
+In contrast, {name}`Slice` is used to track regions of interest within some larger string that is
 not or no longer relevant.
 
 Equality on {name}`Subslice` is somewhat better behaved than on {name}`Slice`, but note that there

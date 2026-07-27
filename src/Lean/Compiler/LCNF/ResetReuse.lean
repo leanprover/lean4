@@ -28,7 +28,7 @@ inserts addition instructions to attempt to reuse the memory right away instead 
 allocator.
 
 For this the paper defines three functions:
-- `R` (called `Decl.insertResetReuse` here) which looks for candidates that might be elligible for
+- `R` (called `Decl.insertResetReuse` here) which looks for candidates that might be eligible for
   reuse. For these variables it invokes `D`.
 - `D` which looks for code regions in which the target variable is dead (i.e. no longer read from),
   it then invokes `S`. If `S` succeeds it inserts a `reset` instruction to match the `reuse`

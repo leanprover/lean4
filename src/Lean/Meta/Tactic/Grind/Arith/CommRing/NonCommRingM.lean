@@ -8,7 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
-
+open Sym.Arith
 structure NonCommRingM.Context where
   ringId : Nat
 

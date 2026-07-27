@@ -19,7 +19,7 @@ that fulfill the requirements of `shouldGenerateCode`.
 def compile (declNames : Array Name) : CoreM Unit := do profileitM Exception "compiler new" (← getOptions) do
   withOptions (compiler.postponeCompile.set · false) do
   withTraceNode `Compiler (fun _ => return m!"compiling: {declNames}") do
-    LCNF.main declNames
+    LCNF.main declNames {}
 
 builtin_initialize
   registerTraceClass `Compiler

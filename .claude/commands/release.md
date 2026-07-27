@@ -157,6 +157,16 @@ Note: `gh pr checks --watch` exits as soon as ALL checks complete (pass or fail)
 fail while others are still running, `--watch` will continue until everything settles, then exit
 with a non-zero code. So a background `--watch` finishing = all checks done; check which failed.
 
+## Mathlib Bump Branches
+
+Mathlib `bump/v4.X.0` branches live on the **fork** `leanprover-community/mathlib4-nightly-testing`,
+NOT on `leanprover-community/mathlib4`.
+
+## Never Force-Update Remote Refs Without Confirmation
+
+Never force-update an existing remote branch or tag via `git push --force` or the GitHub API
+without explicit user confirmation.
+
 ## Error Handling
 
 **CRITICAL**: If something goes wrong or a command fails:

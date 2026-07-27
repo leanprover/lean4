@@ -131,7 +131,7 @@ else
 lean_object* v_val_12_; lean_object* v___x_13_; 
 v_val_12_ = lean_ctor_get(v___x_9_, 0);
 lean_inc(v_val_12_);
-lean_dec_ref(v___x_9_);
+lean_dec_ref_known(v___x_9_, 1);
 v___x_13_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_13_, 0, v_val_12_);
 lean_ctor_set(v___x_13_, 1, v_a_7_);
@@ -278,7 +278,7 @@ else
 lean_object* v_val_70_; lean_object* v___x_71_; lean_object* v___x_72_; 
 v_val_70_ = lean_ctor_get(v___x_69_, 0);
 lean_inc(v_val_70_);
-lean_dec_ref(v___x_69_);
+lean_dec_ref_known(v___x_69_, 1);
 v___x_71_ = lean_apply_1(v_f_53_, v_val_70_);
 v___x_72_ = l_Std_DHashMap_Internal_Raw_u2080_insert___redArg(v_inst_50_, v_inst_51_, v_data_57_, v_a_52_, v___x_71_);
 v___y_64_ = v___x_72_;
@@ -506,7 +506,7 @@ return v___x_127_;
 }
 else
 {
-lean_dec_ref(v_v_105_);
+lean_dec_ref_known(v_v_105_, 1);
 return v_d_106_;
 }
 }
@@ -805,7 +805,7 @@ return v___f_268_;
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg(lean_object* v_inst_269_, lean_object* v_inst_270_, lean_object* v_successorsOf_271_, lean_object* v_a_272_, lean_object* v_a_273_){
 _start:
 {
-lean_object* v___x_274_; lean_object* v___x_275_; lean_object* v_snd_276_; lean_object* v___f_277_; lean_object* v___x_278_; lean_object* v___x_1009__overap_279_; lean_object* v___x_280_; lean_object* v_snd_281_; lean_object* v___x_282_; lean_object* v_fst_283_; lean_object* v_snd_284_; lean_object* v___x_286_; uint8_t v_isShared_287_; uint8_t v_isSharedCheck_297_; 
+lean_object* v___x_274_; lean_object* v___x_275_; lean_object* v_snd_276_; lean_object* v___f_277_; lean_object* v___x_278_; lean_object* v___x_1010__overap_279_; lean_object* v___x_280_; lean_object* v_snd_281_; lean_object* v___x_282_; lean_object* v_fst_283_; lean_object* v_snd_284_; lean_object* v___x_286_; uint8_t v_isShared_287_; uint8_t v_isSharedCheck_297_; 
 v___x_274_ = ((lean_object*)(l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__19));
 lean_inc_n(v_a_272_, 4);
 lean_inc_ref_n(v_inst_270_, 3);
@@ -821,8 +821,8 @@ lean_closure_set(v___f_277_, 1, v_inst_270_);
 lean_closure_set(v___f_277_, 2, v_successorsOf_271_);
 lean_closure_set(v___f_277_, 3, v_a_272_);
 v___x_278_ = lean_apply_1(v_successorsOf_271_, v_a_272_);
-v___x_1009__overap_279_ = l_List_forM___redArg(v___x_274_, v___x_278_, v___f_277_);
-v___x_280_ = lean_apply_1(v___x_1009__overap_279_, v_snd_276_);
+v___x_1010__overap_279_ = l_List_forM___redArg(v___x_274_, v___x_278_, v___f_277_);
+v___x_280_ = lean_apply_1(v___x_1010__overap_279_, v_snd_276_);
 v_snd_281_ = lean_ctor_get(v___x_280_, 1);
 lean_inc(v_snd_281_);
 lean_dec_ref(v___x_280_);
@@ -940,7 +940,7 @@ lean_dec(v_fst_305_);
 if (v_onStack_315_ == 0)
 {
 lean_object* v_snd_316_; lean_object* v___x_318_; uint8_t v_isShared_319_; uint8_t v_isSharedCheck_324_; 
-lean_dec_ref(v_index_x3f_306_);
+lean_dec_ref_known(v_index_x3f_306_, 1);
 lean_dec(v_a_301_);
 lean_dec_ref(v_inst_299_);
 lean_dec_ref(v_inst_298_);
@@ -1033,7 +1033,7 @@ return v___x_344_;
 else
 {
 lean_object* v_snd_345_; lean_object* v___x_347_; uint8_t v_isShared_348_; uint8_t v_isSharedCheck_353_; 
-lean_dec_ref(v_index_x3f_342_);
+lean_dec_ref_known(v_index_x3f_342_, 1);
 lean_dec(v_a_338_);
 lean_dec_ref(v_successorsOf_337_);
 lean_dec_ref(v_inst_336_);
@@ -1124,15 +1124,15 @@ return v___x_364_;
 LEAN_EXPORT lean_object* l_Lean_SCC_scc___redArg(lean_object* v_inst_365_, lean_object* v_inst_366_, lean_object* v_vertices_367_, lean_object* v_successorsOf_368_){
 _start:
 {
-lean_object* v___f_369_; lean_object* v___x_370_; lean_object* v___x_371_; lean_object* v___x_384__overap_372_; lean_object* v___x_373_; lean_object* v_snd_374_; lean_object* v_sccs_375_; lean_object* v___x_376_; 
+lean_object* v___f_369_; lean_object* v___x_370_; lean_object* v___x_371_; lean_object* v___x_385__overap_372_; lean_object* v___x_373_; lean_object* v_snd_374_; lean_object* v_sccs_375_; lean_object* v___x_376_; 
 v___f_369_ = lean_alloc_closure((void*)(l_Lean_SCC_scc___redArg___lam__0), 5, 3);
 lean_closure_set(v___f_369_, 0, v_inst_365_);
 lean_closure_set(v___f_369_, 1, v_inst_366_);
 lean_closure_set(v___f_369_, 2, v_successorsOf_368_);
 v___x_370_ = ((lean_object*)(l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___redArg___closed__19));
 v___x_371_ = lean_obj_once(&l_Lean_SCC_scc___redArg___closed__2, &l_Lean_SCC_scc___redArg___closed__2_once, _init_l_Lean_SCC_scc___redArg___closed__2);
-v___x_384__overap_372_ = l_List_forM___redArg(v___x_370_, v_vertices_367_, v___f_369_);
-v___x_373_ = lean_apply_1(v___x_384__overap_372_, v___x_371_);
+v___x_385__overap_372_ = l_List_forM___redArg(v___x_370_, v_vertices_367_, v___f_369_);
+v___x_373_ = lean_apply_1(v___x_385__overap_372_, v___x_371_);
 v_snd_374_ = lean_ctor_get(v___x_373_, 1);
 lean_inc(v_snd_374_);
 lean_dec_ref(v___x_373_);

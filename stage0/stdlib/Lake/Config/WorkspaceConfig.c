@@ -34,7 +34,6 @@ lean_object* l_String_quote(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-extern lean_object* l_System_instInhabitedFilePath_default;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedWorkspaceConfig_default;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedWorkspaceConfig;
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Lake_instReprWorkspaceConfig_repr_spec__0(lean_object*);
@@ -146,7 +145,7 @@ static lean_object* _init_l_Lake_instInhabitedWorkspaceConfig_default(void){
 _start:
 {
 lean_object* v___x_1_; 
-v___x_1_ = l_System_instInhabitedFilePath_default;
+v___x_1_ = l_Lake_defaultPackagesDir;
 return v___x_1_;
 }
 }
@@ -154,7 +153,7 @@ static lean_object* _init_l_Lake_instInhabitedWorkspaceConfig(void){
 _start:
 {
 lean_object* v___x_2_; 
-v___x_2_ = l_System_instInhabitedFilePath_default;
+v___x_2_ = l_Lake_defaultPackagesDir;
 return v___x_2_;
 }
 }

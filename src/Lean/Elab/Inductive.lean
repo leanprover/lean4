@@ -54,7 +54,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (isCoi
         if ctorModifiers.docString?.isSome then
           logErrorAt leadingDocComment "Duplicate doc string"
         ctorModifiers := { ctorModifiers with
-          docString? := some (⟨leadingDocComment⟩, doc.verso.get (← getOptions)) }
+          docString? := some ⟨leadingDocComment⟩ }
       if ctorModifiers.isPrivate && modifiers.isPrivate then
         let hint ← do
           let .original .. := modifiersStx.getHeadInfo | pure .nil
@@ -73,6 +73,8 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (isCoi
         throwError "Constructor cannot be `protected` because it is in a `private` inductive datatype"
       checkValidCtorModifier ctorModifiers
       let ctorName := ctor.getIdAt 3
+      if ctorName.hasMacroScopes && isCoinductive then
+        throwError "Coinductive predicates are not allowed inside of macro scopes"
       let ctorName := declName ++ ctorName
       let ctorName ← withRef ctor[3] <| applyVisibility ctorModifiers ctorName
       let (binders, type?) := expandOptDeclSig ctor[4]

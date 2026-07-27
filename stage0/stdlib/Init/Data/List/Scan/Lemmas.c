@@ -33,7 +33,7 @@ v_head_7_ = lean_ctor_get(v_x_1_, 0);
 lean_inc(v_head_7_);
 v_tail_8_ = lean_ctor_get(v_x_1_, 1);
 lean_inc(v_tail_8_);
-lean_dec_ref(v_x_1_);
+lean_dec_ref_known(v_x_1_, 2);
 v___x_9_ = lean_apply_4(v_h__2_5_, v_head_7_, v_tail_8_, v_x_2_, v_x_3_);
 return v___x_9_;
 }
@@ -57,7 +57,7 @@ v_head_19_ = lean_ctor_get(v_x_13_, 0);
 lean_inc(v_head_19_);
 v_tail_20_ = lean_ctor_get(v_x_13_, 1);
 lean_inc(v_tail_20_);
-lean_dec_ref(v_x_13_);
+lean_dec_ref_known(v_x_13_, 2);
 v___x_21_ = lean_apply_4(v_h__2_17_, v_head_19_, v_tail_20_, v_x_14_, v_x_15_);
 return v___x_21_;
 }

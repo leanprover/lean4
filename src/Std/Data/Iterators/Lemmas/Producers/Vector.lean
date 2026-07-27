@@ -148,6 +148,6 @@ theorem Vector.iterFromIdx_equiv_iter_drop_toList {α : Type w} {xs : Vector α 
 theorem Vector.iter_equiv_iter_toList {α : Type w} {xs : Vector α n} :
     xs.iter.Equiv xs.toList.iter := by
   rw [Vector.iter_eq_iterFromIdx]
-  simpa using iterFromIdx_equiv_iter_drop_toList
+  simpa using! iterFromIdx_equiv_iter_drop_toList
 
 end Equivalence

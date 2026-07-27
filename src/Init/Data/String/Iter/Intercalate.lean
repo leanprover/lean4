@@ -17,6 +17,7 @@ namespace Std
 /--
 Appends all the elements in the iterator, in order.
 -/
+@[inline]
 public def Iter.joinString {α β : Type} [Iterator α Id β] [ToString β]
     (it : Std.Iter (α := α) β) : String :=
   (it.map toString).fold (init := "") (· ++ ·)

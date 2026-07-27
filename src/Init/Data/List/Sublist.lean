@@ -603,8 +603,8 @@ theorem sublist_flatten_iff {L : List (List α)} {l} :
       | nil =>
         exact ⟨[], [], by simp, by simp, [], by simp, fun i x => by cases x⟩
       | cons l₁ L' =>
-        exact ⟨l₁, L'.flatten, by simp, by simpa using h 0 (by simp), L', rfl,
-          fun i lt => by simpa using h (i+1) (Nat.add_lt_add_right lt 1)⟩
+        exact ⟨l₁, L'.flatten, by simp, by simpa using! h 0 (by simp), L', rfl,
+          fun i lt => by simpa using! h (i+1) (Nat.add_lt_add_right lt 1)⟩
 
 theorem flatten_sublist_iff {L : List (List α)} {l} :
     L.flatten <+ l ↔
@@ -626,11 +626,11 @@ theorem flatten_sublist_iff {L : List (List α)} {l} :
     · rintro ⟨L', rfl, h⟩
       cases L' with
       | nil =>
-        exact ⟨[], [], by simp, by simpa using h 0 (by simp), [], by simp,
-          fun i x => by simpa using h (i+1) (Nat.add_lt_add_right x 1)⟩
+        exact ⟨[], [], by simp, by simpa using! h 0 (by simp), [], by simp,
+          fun i x => by simpa using! h (i+1) (Nat.add_lt_add_right x 1)⟩
       | cons l₁ L' =>
-        exact ⟨l₁, L'.flatten, by simp, by simpa using h 0 (by simp), L', rfl,
-          fun i lt => by simpa using h (i+1) (Nat.add_lt_add_right lt 1)⟩
+        exact ⟨l₁, L'.flatten, by simp, by simpa using! h 0 (by simp), L', rfl,
+          fun i lt => by simpa using! h (i+1) (Nat.add_lt_add_right lt 1)⟩
 
 @[simp, grind =] theorem isSublist_iff_sublist [BEq α] [LawfulBEq α] {l₁ l₂ : List α} :
     l₁.isSublist l₂ ↔ l₁ <+ l₂ := by

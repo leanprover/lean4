@@ -1,7 +1,7 @@
-import Std.Internal.Async
+import Std.Async
 import Std.Sync
 
-open Std.Internal.IO Async
+open Std Async
 
 def cancellableSelector [Monad m] [MonadLift IO m] [MonadAsync AsyncTask m] (fn : Std.CancellationToken → m α) : m (Selector (Except IO.Error α)) := do
   let signal ← Std.CancellationToken.new

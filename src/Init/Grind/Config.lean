@@ -35,6 +35,11 @@ structure Config where
   The input goal terms have generation 0. When we instantiate a theorem using a term from generation `n`,
   the new terms have generation `n+1`. Thus, this parameter limits the length of an instantiation chain. -/
   gen : Nat := 8
+  /--
+  Maximum term generation for local theorems (e.g., hypotheses).
+  See `gen`.
+  -/
+  genLocal : Nat := 8
   /-- Maximum number of theorem instances generated using E-matching in a proof search tree branch. -/
   instances : Nat := 1000
   /-- If `matchEqs` is `true`, `grind` uses `match`-equations as E-matching theorems. -/
@@ -116,6 +121,10 @@ structure Config where
   -/
   ringSteps := 100000
   /--
+  Maximum degree of polynomials processed by the `ring` solver.
+  -/
+  ringMaxDegree := 1024
+  /--
   When `true` (default: `true`), uses procedure for handling linear arithmetic for `IntModule`, and
   `CommRing`.
   -/
@@ -124,6 +133,15 @@ structure Config where
   When `true` (default: `true`), uses procedure for handling linear integer arithmetic for `Int` and `Nat`.
   -/
   lia := true
+  /--
+  Maximum number of steps performed by the `lia` solver while searching for an assignment
+  satisfying the linear integer arithmetic constraints.
+  A step is counted for each variable processed during the search. This threshold prevents
+  case-split explosion in examples that require enumerating a huge number of cases
+  (e.g., Cooper conflict resolution with large coefficients).
+  When the threshold is reached, the search is interrupted, and the solver becomes incomplete.
+  -/
+  liaSteps : Nat := 10000
   /--
   When `true` (default: `true`), uses procedure for handling associative (and commutative) operators.
   -/
@@ -258,17 +276,28 @@ structure NoopConfig extends Config where
   ac        := false
   order     := false
 
+  -- Disable model-based theory combination
+  mbtc      := false
+
 /--
-A `grind` configuration that only uses `cutsat` and splitting.
+A `grind` configuration that only uses `cutsat`, splitting, and the `@[lia]` lemma set.
 
 Note: `cutsat` benefits from some amount of instantiation, e.g. `Nat.max_def`.
-We don't currently have a mechanism to enable only a small set of lemmas.
+Lemmas tagged with the `@[lia]` attribute are instantiated via E-matching when running
+`lia`, while the much larger `@[grind]` lemma set is left disabled. Tag lemmas with
+`@[lia =] theorem ...` (or `attribute [lia =] ...`) to add them to this set.
 -/
 -- This is a `structure` rather than `def` so we can use `declare_config_elab`.
 structure CutsatConfig extends NoopConfig where
   lia := true
   -- Allow the default number of splits.
   splits := ({} : Config).splits
+  -- Re-enable E-matching, so the `@[lia]` lemma set is instantiated.
+  -- The active theorem set is restricted to lemmas tagged `@[lia]`, not the full `@[grind]` set.
+  ematch := ({} : Config).ematch
+  -- despite having e-matching for @[lia] we do not want (potentially runaway) local theorem
+  -- instantiation
+  genLocal := 0
 
 /--
 A `grind` configuration that only uses `linarith`.

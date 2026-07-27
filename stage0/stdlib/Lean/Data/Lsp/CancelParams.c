@@ -127,7 +127,7 @@ v_head_15_ = lean_ctor_get(v_a_12_, 0);
 lean_inc(v_head_15_);
 v_tail_16_ = lean_ctor_get(v_a_12_, 1);
 lean_inc(v_tail_16_);
-lean_dec_ref(v_a_12_);
+lean_dec_ref_known(v_a_12_, 2);
 v___x_17_ = l_List_foldl___at___00Array_appendList_spec__0___redArg(v_a_13_, v_head_15_);
 v_a_12_ = v_tail_16_;
 v_a_13_ = v___x_17_;
@@ -252,6 +252,7 @@ lean_ctor_set(v___x_29_, 1, v___x_27_);
 v___x_30_ = ((lean_object*)(l_Lean_Lsp_instToJsonCancelParams_toJson___closed__1));
 v___x_31_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonCancelParams_toJson_spec__0(v___x_29_, v___x_30_);
 v___x_32_ = l_Lean_Json_mkObj(v___x_31_);
+lean_dec(v___x_31_);
 return v___x_32_;
 }
 }

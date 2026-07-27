@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.BVDecide
-// Imports: public import Lean.Elab.Tactic.BVDecide.LRAT public import Lean.Elab.Tactic.BVDecide.External public import Lean.Elab.Tactic.BVDecide.Frontend
+// Imports: public import Lean.Elab.Tactic.BVDecide.BVDecide public import Lean.Elab.Tactic.BVDecide.Normalize public import Lean.Elab.Tactic.BVDecide.BVTrace public import Lean.Elab.Tactic.BVDecide.BVCheck
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,21 +13,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* runtime_initialize_Lean_Elab_Tactic_BVDecide_LRAT(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Elab_Tactic_BVDecide_External(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Elab_Tactic_BVDecide_Frontend(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_BVDecide_BVDecide(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_BVDecide_Normalize(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_BVDecide_BVTrace(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_BVDecide_BVCheck(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic_BVDecide(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Lean_Elab_Tactic_BVDecide_LRAT(builtin);
+res = runtime_initialize_Lean_Elab_Tactic_BVDecide_BVDecide(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_BVDecide_External(builtin);
+res = runtime_initialize_Lean_Elab_Tactic_BVDecide_Normalize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_BVDecide_Frontend(builtin);
+res = runtime_initialize_Lean_Elab_Tactic_BVDecide_BVTrace(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_BVDecide_BVCheck(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -39,21 +43,25 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* initialize_Lean_Elab_Tactic_BVDecide_LRAT(uint8_t builtin);
-lean_object* initialize_Lean_Elab_Tactic_BVDecide_External(uint8_t builtin);
-lean_object* initialize_Lean_Elab_Tactic_BVDecide_Frontend(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_BVDecide_BVDecide(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_BVDecide_Normalize(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_BVDecide_BVTrace(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_BVDecide_BVCheck(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_BVDecide(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Tactic_BVDecide_LRAT(builtin);
+res = initialize_Lean_Elab_Tactic_BVDecide_BVDecide(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_BVDecide_External(builtin);
+res = initialize_Lean_Elab_Tactic_BVDecide_Normalize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_BVDecide_Frontend(builtin);
+res = initialize_Lean_Elab_Tactic_BVDecide_BVTrace(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_BVDecide_BVCheck(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Tactic_BVDecide(builtin);

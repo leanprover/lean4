@@ -1,9 +1,9 @@
 inductionErrors.lean:11:12-11:27: error: unsolved goals
-case lower.h
+case lower
 p d : Nat
 ⊢ p ≤ p + d.succ
 inductionErrors.lean:12:12-12:27: error: unsolved goals
-case upper.h
+case upper
 q d : Nat
 ⊢ q + d.succ > q
 inductionErrors.lean:16:19-16:26: error(lean.unknownIdentifier): Unknown identifier `elimEx2`

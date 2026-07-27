@@ -368,20 +368,40 @@ theorem Slice.Pos.ofSliceTo_ne_endPos {s : Slice} {p₀ : s.Pos} {p : (s.sliceTo
   refine (lt_endPos_iff _).1 (Std.lt_of_lt_of_le ?_ (le_endPos p₀))
   simpa [← lt_endPos_iff, ← ofSliceTo_lt_ofSliceTo_iff] using h
 
+theorem Slice.Pos.ne_endPos_of_sliceTo_ne_endPos {s : Slice} {p p₀ : s.Pos} {h₀}
+    (h : Pos.sliceTo p₀ p h₀ ≠ Slice.endPos _) : p ≠ s.endPos := by
+  rw [← Pos.ofSliceTo_sliceTo (h := h₀)]
+  apply Pos.ofSliceTo_ne_endPos h
+
 theorem Slice.Pos.ofSliceFrom_ne_startPos {s : Slice} {p₀ : s.Pos} {p : (s.sliceFrom p₀).Pos}
     (h : p ≠ (s.sliceFrom p₀).startPos) : Pos.ofSliceFrom p ≠ s.startPos := by
   refine (startPos_lt_iff _).1 (Std.lt_of_le_of_lt (startPos_le p₀) ?_)
   simpa [← startPos_lt_iff, ← ofSliceFrom_lt_ofSliceFrom_iff] using h
+
+theorem Slice.Pos.ne_startPos_of_sliceFrom_ne_startPos {s : Slice} {p p₀ : s.Pos} {h₀}
+    (h : Pos.sliceFrom p₀ p h₀ ≠ Slice.startPos _) : p ≠ s.startPos := by
+  rw [← Pos.ofSliceFrom_sliceFrom (h := h₀)]
+  apply Pos.ofSliceFrom_ne_startPos h
 
 theorem Pos.ofSliceTo_ne_endPos {s : String} {p₀ : s.Pos} {p : (s.sliceTo p₀).Pos}
     (h : p ≠ (s.sliceTo p₀).endPos) : Pos.ofSliceTo p ≠ s.endPos := by
   refine (lt_endPos_iff _).1 (Std.lt_of_lt_of_le ?_ (le_endPos p₀))
   simpa [← Slice.Pos.lt_endPos_iff, ← ofSliceTo_lt_ofSliceTo_iff] using h
 
+theorem Pos.ne_endPos_of_sliceTo_ne_endPos {s : String} {p p₀ : s.Pos} {h₀}
+    (h : Pos.sliceTo p₀ p h₀ ≠ Slice.endPos _) : p ≠ s.endPos := by
+  rw [← Pos.ofSliceTo_sliceTo (h := h₀)]
+  apply Pos.ofSliceTo_ne_endPos h
+
 theorem Pos.ofSliceFrom_ne_startPos {s : String} {p₀ : s.Pos} {p : (s.sliceFrom p₀).Pos}
     (h : p ≠ (s.sliceFrom p₀).startPos) : Pos.ofSliceFrom p ≠ s.startPos := by
   refine (startPos_lt_iff _).1 (Std.lt_of_le_of_lt (startPos_le p₀) ?_)
   simpa [← Slice.Pos.startPos_lt_iff, ← ofSliceFrom_lt_ofSliceFrom_iff] using h
+
+theorem Pos.ne_startPos_of_sliceFrom_ne_startPos {s : String} {p p₀ : s.Pos} {h₀}
+    (h : Pos.sliceFrom p₀ p h₀ ≠ Slice.startPos _) : p ≠ s.startPos := by
+  rw [← Pos.ofSliceFrom_sliceFrom (h := h₀)]
+  apply Pos.ofSliceFrom_ne_startPos h
 
 theorem Slice.Pos.ofSliceTo_next {s : Slice} {p₀ : s.Pos} {p : (s.sliceTo p₀).Pos} {h} :
     Pos.ofSliceTo (p.next h) = (Pos.ofSliceTo p).next (ofSliceTo_ne_endPos h) := by
@@ -514,20 +534,40 @@ theorem Slice.Pos.ofSlice_ne_endPos {s : Slice} {p₀ p₁ : s.Pos} {h} {p : (s.
   refine (lt_endPos_iff _).1 (Std.lt_of_lt_of_le ?_ (le_endPos p₁))
   simpa [← lt_endPos_iff, ← ofSlice_lt_ofSlice_iff] using h
 
+theorem Slice.Pos.ne_endPos_of_slice_ne_endPos {s : Slice} {p p₀ p₁ : s.Pos} {h₁ h₂}
+    (h : Pos.slice p p₀ p₁ h₁ h₂ ≠ Slice.endPos _) : p ≠ s.endPos := by
+  rw [← Pos.ofSlice_slice (h₁ := h₁) (h₂ := h₂)]
+  apply Pos.ofSlice_ne_endPos h
+
 theorem Slice.Pos.ofSlice_ne_startPos {s : Slice} {p₀ p₁ : s.Pos} {h} {p : (s.slice p₀ p₁ h).Pos}
     (h : p ≠ (s.slice p₀ p₁ h).startPos) : Pos.ofSlice p ≠ s.startPos := by
   refine (startPos_lt_iff _).1 (Std.lt_of_le_of_lt (startPos_le p₀) ?_)
   simpa [← startPos_lt_iff, ← ofSlice_lt_ofSlice_iff] using h
+
+theorem Slice.Pos.ne_startPos_of_slice_ne_startPos {s : Slice} {p p₀ p₁ : s.Pos} {h₁ h₂}
+    (h : Pos.slice p p₀ p₁ h₁ h₂ ≠ Slice.startPos _) : p ≠ s.startPos := by
+  rw [← Pos.ofSlice_slice (h₁ := h₁) (h₂ := h₂)]
+  apply Pos.ofSlice_ne_startPos h
 
 theorem Pos.ofSlice_ne_endPos {s : String} {p₀ p₁ : s.Pos} {h} {p : (s.slice p₀ p₁ h).Pos}
     (h : p ≠ (s.slice p₀ p₁ h).endPos) : Pos.ofSlice p ≠ s.endPos := by
   refine (lt_endPos_iff _).1 (Std.lt_of_lt_of_le ?_ (le_endPos p₁))
   simpa [← Slice.Pos.lt_endPos_iff, ← ofSlice_lt_ofSlice_iff] using h
 
+theorem Pos.ne_endPos_of_slice_ne_endPos {s : String} {p p₀ p₁ : s.Pos} {h₁ h₂}
+    (h : Pos.slice p p₀ p₁ h₁ h₂ ≠ Slice.endPos _) : p ≠ s.endPos := by
+  rw [← Pos.ofSlice_slice (h₁ := h₁) (h₂ := h₂)]
+  apply Pos.ofSlice_ne_endPos h
+
 theorem Pos.ofSlice_ne_startPos {s : String} {p₀ p₁ : s.Pos} {h} {p : (s.slice p₀ p₁ h).Pos}
     (h : p ≠ (s.slice p₀ p₁ h).startPos) : Pos.ofSlice p ≠ s.startPos := by
   refine (startPos_lt_iff _).1 (Std.lt_of_le_of_lt (startPos_le p₀) ?_)
   simpa [← Slice.Pos.startPos_lt_iff, ← ofSlice_lt_ofSlice_iff] using h
+
+theorem Pos.ne_startPos_of_slice_ne_startPos {s : String} {p p₀ p₁ : s.Pos} {h₁ h₂}
+    (h : Pos.slice p p₀ p₁ h₁ h₂ ≠ Slice.startPos _) : p ≠ s.startPos := by
+  rw [← Pos.ofSlice_slice (h₁ := h₁) (h₂ := h₂)]
+  apply Pos.ofSlice_ne_startPos h
 
 @[simp]
 theorem Slice.Pos.offset_le_rawEndPos {s : Slice} {p : s.Pos} :
@@ -581,20 +621,36 @@ theorem Slice.Pos.get_eq_get_ofSliceTo {s : Slice} {p₀ : s.Pos} {pos : (s.slic
     pos.get h = (ofSliceTo pos).get (ofSliceTo_ne_endPos h) := by
   simp [Slice.Pos.get]
 
+theorem Slice.Pos.get_sliceTo {s : Slice} {p₀ p : s.Pos} {h h'} :
+    (Pos.sliceTo p₀ p h).get h' = p.get (ne_endPos_of_sliceTo_ne_endPos h') := by
+  simp [get_eq_get_ofSliceTo]
+
 theorem Pos.get_eq_get_ofSliceTo {s : String} {p₀ : s.Pos}
     {pos : (s.sliceTo p₀).Pos} {h} :
     pos.get h = (ofSliceTo pos).get (ofSliceTo_ne_endPos h) := by
   simp [Pos.get, Slice.Pos.get]
+
+theorem Pos.get_sliceTo {s : String} {p₀ p : s.Pos} {h h'} :
+    (Pos.sliceTo p₀ p h).get h' = p.get (ne_endPos_of_sliceTo_ne_endPos h') := by
+  simp [get_eq_get_ofSliceTo]
 
 theorem Slice.Pos.get_eq_get_ofSlice {s : Slice} {p₀ p₁ : s.Pos} {h}
     {pos : (s.slice p₀ p₁ h).Pos} {h'} :
     pos.get h' = (ofSlice pos).get (ofSlice_ne_endPos h') := by
   simp [Slice.Pos.get, Nat.add_assoc]
 
+theorem Slice.Pos.get_slice {s : Slice} {p p₀ p₁ : s.Pos} {h₁ h₂ h} :
+    (Pos.slice p p₀ p₁ h₁ h₂).get h = p.get (ne_endPos_of_slice_ne_endPos h) := by
+  simp [get_eq_get_ofSlice]
+
 theorem Pos.get_eq_get_ofSlice {s : String} {p₀ p₁ : s.Pos} {h}
     {pos : (s.slice p₀ p₁ h).Pos} {h'} :
     pos.get h' = (ofSlice pos).get (ofSlice_ne_endPos h') := by
   simp [Pos.get, Slice.Pos.get]
+
+theorem Pos.get_slice {s : String} {p p₀ p₁ : s.Pos} {h₁ h₂ h} :
+    (Pos.slice p p₀ p₁ h₁ h₂).get h = p.get (ne_endPos_of_slice_ne_endPos h) := by
+  simp [get_eq_get_ofSlice]
 
 theorem Slice.Pos.ofSlice_next {s : Slice} {p₀ p₁ : s.Pos} {h}
     {p : (s.slice p₀ p₁ h).Pos} {h'} :

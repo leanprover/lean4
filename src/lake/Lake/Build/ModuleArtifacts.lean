@@ -20,6 +20,7 @@ public structure ModuleOutputDescrs where
   oleanServer? : Option ArtifactDescr := none
   oleanPrivate? : Option ArtifactDescr := none
   ilean : ArtifactDescr
+  irSig? : Option ArtifactDescr := none
   ir? : Option ArtifactDescr := none
   c : ArtifactDescr
   bc? : Option ArtifactDescr := none
@@ -38,6 +39,8 @@ public protected def ModuleOutputDescrs.toJson (self : ModuleOutputDescrs) : Jso
   obj := obj.insert "m" self.isModule
   obj := obj.insert "o" self.oleanParts
   obj := obj.insert "i" self.ilean
+  if let some irSig := self.irSig? then
+    obj := obj.insert "rs" irSig
   if let some ir := self.ir? then
     obj := obj.insert "r" ir
   obj := obj.insert "c" self.c
@@ -60,6 +63,7 @@ public protected def ModuleOutputDescrs.fromJson? (val : Json) : Except String M
     oleanServer? := oleanHashes[1]?
     oleanPrivate? := oleanHashes[2]?
     ilean := ← obj.get "i"
+    irSig? := ← obj.get? "rs"
     ir? := ← obj.get? "r"
     c := ← obj.get "c"
     bc? := ← obj.get? "b"
@@ -75,6 +79,7 @@ public structure ModuleOutputArtifacts where
   oleanServer? : Option Artifact := none
   oleanPrivate? : Option Artifact := none
   ilean : Artifact
+  irSig? : Option Artifact := none
   ir? : Option Artifact := none
   c : Artifact
   bc? : Option Artifact := none
@@ -87,6 +92,7 @@ public def ModuleOutputArtifacts.descrs (arts : ModuleOutputArtifacts) : ModuleO
   oleanServer? := arts.oleanServer?.map (·.descr)
   oleanPrivate? := arts.oleanPrivate?.map (·.descr)
   ilean := arts.ilean.descr
+  irSig? := arts.irSig?.map (·.descr)
   ir? := arts.ir?.map (·.descr)
   c := arts.c.descr
   bc? := arts.bc?.map (·.descr)

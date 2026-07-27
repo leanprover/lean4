@@ -634,7 +634,7 @@ theorem not_of_lt_findIdx {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs
     have ho := h
     rw [findIdx_cons] at h
     have npx : p x = false := by
-      apply eq_false_of_ne_true
+      apply Bool.eq_false_of_ne_true
       intro y
       rw [y, cond_true] at h
       simp at h
@@ -980,7 +980,6 @@ theorem IsInfix.findIdx?_eq_none {l₁ l₂ : List α} {p : α → Bool} (h : l�
 grind_pattern IsInfix.findIdx?_eq_none => l₁ <:+: l₂, l₁.findIdx? p
 grind_pattern IsInfix.findIdx?_eq_none => l₁ <:+: l₂, l₂.findIdx? p
 
-@[grind =]
 theorem findIdx_eq_getD_findIdx? {xs : List α} {p : α → Bool} :
     xs.findIdx p = (xs.findIdx? p).getD xs.length := by
   induction xs with
@@ -988,6 +987,8 @@ theorem findIdx_eq_getD_findIdx? {xs : List α} {p : α → Bool} :
   | cons x xs ih =>
     simp only [findIdx_cons, findIdx?_cons]
     split <;> simp_all
+
+grind_pattern findIdx_eq_getD_findIdx? => xs.findIdx p, xs.findIdx? p
 
 @[simp] theorem findIdx?_subtype {p : α → Prop} {l : List { x // p x }}
     {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
@@ -1143,14 +1144,29 @@ theorem idxOf_cons [BEq α] :
 @[simp] theorem idxOf_cons_self [BEq α] [ReflBEq α] {l : List α} : (a :: l).idxOf a = 0 := by
   simp [idxOf_cons]
 
+/-- Indexing a list at the position `idxOf x` recovers `x`, provided `x` occurs
+in the list. -/
+@[simp, grind =]
+theorem getElem_idxOf [BEq α] [LawfulBEq α] {x : α} {xs : List α}
+    (h : idxOf x xs < xs.length) : xs[xs.idxOf x] = x := by
+  induction xs with
+  | nil => simp at h
+  | cons a l ih =>
+    cases hax : a == x with
+    | true => simp only [idxOf_cons, hax, cond_true, getElem_cons_zero]; exact eq_of_beq hax
+    | false =>
+      simp only [idxOf_cons, hax, cond_false, getElem_cons_succ]
+      rw [idxOf_cons, hax, cond_false, length_cons] at h
+      exact ih (by omega)
+
 @[grind =]
 theorem idxOf_append [BEq α] [LawfulBEq α] {l₁ l₂ : List α} {a : α} :
     (l₁ ++ l₂).idxOf a = if a ∈ l₁ then l₁.idxOf a else l₂.idxOf a + l₁.length := by
   rw [idxOf, findIdx_append]
   split <;> rename_i h
-  · rw [if_pos]
+  · rw [ite_eq_left]
     simpa using h
-  · rw [if_neg]
+  · rw [ite_eq_right]
     simpa using h
 
 theorem idxOf_eq_length [BEq α] [LawfulBEq α] {l : List α} (h : a ∉ l) : l.idxOf a = l.length := by

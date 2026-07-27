@@ -2,8 +2,7 @@
   2 * a
 
 /--
-trace: case h
-x : Nat
+trace: x : Nat
 ⊢ 2 * x = x + x
 -/
 #guard_msgs in
@@ -19,8 +18,7 @@ by
   | a => 2 * a
 
 /--
-trace: case h
-x : Nat
+trace: x : Nat
 ⊢ 2 * x = x + x
 -/
 #guard_msgs in

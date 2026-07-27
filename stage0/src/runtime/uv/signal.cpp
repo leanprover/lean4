@@ -39,7 +39,7 @@ void initialize_libuv_signal() {
 }
 
 static bool signal_promise_is_finished(lean_uv_signal_object * signal) {
-    return signal->m_promise == NULL || lean_io_get_task_state_core((lean_object *)lean_to_promise(signal->m_promise)->m_result) == 2;
+    return signal->m_promise == NULL || promise_is_resolved(signal->m_promise);
 }
 
 void handle_signal_event(uv_signal_t* handle, int signum) {
@@ -100,12 +100,19 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
     }
 
     lean_uv_signal_object * signal = (lean_uv_signal_object*)malloc(sizeof(lean_uv_signal_object));
+    if (signal == nullptr) {
+        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+    }
     signal->m_signum = signum;
     signal->m_repeating = repeating;
     signal->m_state = SIGNAL_STATE_INITIAL;
     signal->m_promise = NULL;
 
     uv_signal_t * uv_signal = (uv_signal_t*)malloc(sizeof(uv_signal_t));
+    if (uv_signal == nullptr) {
+        free(signal);
+        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+    }
 
     event_loop_lock(&global_ev);
     int result = uv_signal_init(global_ev.loop, uv_signal);

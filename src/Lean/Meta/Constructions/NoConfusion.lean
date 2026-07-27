@@ -159,7 +159,7 @@ where
       | _, _, eqs => k eqs
 
 
-/-
+/--
 Variant of `withEqTelescope`, but when `xi = yi`, no variable is introduced, and `Eq.refl` is used
 for the expression, unless this is the last one. (This special case could be dropped if we do not
 generate no-confusion principles for constructors with only prop-valued fields.)

@@ -116,7 +116,7 @@ theorem isEmpty_eq_size_beq_zero : t.isEmpty = (t.size == 0) :=
 
 theorem eq_empty_iff_size_eq_zero [TransCmp cmp] : t = ∅ ↔ t.size = 0 := by
   cases t with | mk t
-  simpa only [← isEmpty_iff, ← decide_eq_decide, Bool.decide_eq_true] using isEmpty_eq_size_beq_zero
+  simpa only [← isEmpty_iff, ← decide_eq_decide, Bool.decide_eq_true] using! isEmpty_eq_size_beq_zero
 
 @[grind =] theorem size_insert [TransCmp cmp] {k : α} {v : β k} :
     (t.insert k v).size = if t.contains k then t.size else t.size + 1 :=
@@ -871,7 +871,7 @@ theorem getKeyD_eq_of_mem [TransCmp cmp] [LawfulEqCmp cmp] {k fallback : α} (h'
 theorem insertIfNew_ne_empty [TransCmp cmp] {k : α} {v : β k} :
     t.insertIfNew k v ≠ ∅ := by
   cases t with | mk t
-  simpa only [← isEmpty_iff, ne_eq, Bool.not_eq_true] using DTreeMap.isEmpty_insertIfNew
+  simpa only [← isEmpty_iff, ne_eq, Bool.not_eq_true] using! DTreeMap.isEmpty_insertIfNew
 
 @[simp, grind =]
 theorem contains_insertIfNew [TransCmp cmp] {k a : α} {v : β k} :
@@ -2133,7 +2133,7 @@ grind_pattern size_ofList_le => (ofList l cmp).size
 @[simp]
 theorem ofList_eq_empty_iff [TransCmp cmp] {l : List ((a : α) × β a)} :
     ofList l cmp = ∅ ↔ l = [] := by
-  simpa [← isEmpty_iff, ← List.isEmpty_iff] using DTreeMap.isEmpty_ofList
+  simpa [← isEmpty_iff, ← List.isEmpty_iff] using! DTreeMap.isEmpty_ofList
 
 theorem ofList_eq_foldl [TransCmp cmp] {l : List ((a : α) × β a)} :
     ofList l cmp = l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2 := by
@@ -2283,7 +2283,7 @@ grind_pattern size_ofList_le => (ofList l cmp).size
 @[simp]
 theorem ofList_eq_empty_iff [TransCmp cmp] {l : List (α × β)} :
     ofList l cmp = ∅ ↔ l = [] := by
-  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using DTreeMap.Const.isEmpty_ofList
+  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using! DTreeMap.Const.isEmpty_ofList
 
 theorem ofList_eq_foldl [TransCmp cmp] {l : List (α × β)} :
     ofList l cmp = l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2 := by
@@ -2376,7 +2376,7 @@ theorem size_unitOfList_le [TransCmp cmp] {l : List α} :
 @[simp]
 theorem unitOfList_eq_empty_iff [TransCmp cmp] {l : List α} :
     unitOfList l cmp = ∅ ↔ l = [] := by
-  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using DTreeMap.Const.isEmpty_unitOfList
+  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using! DTreeMap.Const.isEmpty_unitOfList
 
 @[simp]
 theorem get?_unitOfList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List α} {k : α} :
@@ -3340,7 +3340,7 @@ theorem alter_eq_empty_iff_erase_eq_empty [TransCmp cmp] [LawfulEqCmp cmp] {k : 
     {f : Option (β k) → Option (β k)} :
     t.alter k f = ∅ ↔ t.erase k = ∅ ∧ f (t.get? k) = none := by
   cases t with | mk t
-  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using
+  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using!
     DTreeMap.isEmpty_alter_eq_isEmpty_erase
 
 @[simp]
@@ -3559,7 +3559,7 @@ theorem alter_eq_empty_iff_erase_eq_empty [TransCmp cmp] {k : α}
     {f : Option β → Option β} :
     alter t k f = ∅ ↔ t.erase k = ∅ ∧ f (get? t k) = none := by
   cases t with | mk t
-  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using
+  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using!
     DTreeMap.Const.isEmpty_alter_eq_isEmpty_erase
 
 @[simp]
@@ -3780,7 +3780,7 @@ variable [LawfulEqCmp cmp]
 theorem modify_eq_empty_iff {k : α} {f : β k → β k} :
     t.modify k f = ∅ ↔ t = ∅ := by
   cases t with | mk t
-  simpa only [← isEmpty_iff, Bool.coe_iff_coe] using DTreeMap.isEmpty_modify
+  simpa only [← isEmpty_iff, Bool.coe_iff_coe] using! DTreeMap.isEmpty_modify
 
 @[grind =]
 theorem contains_modify {k k' : α} {f : β k → β k} :
@@ -3921,7 +3921,7 @@ variable {β : Type v} {t : ExtDTreeMap α β cmp}
 theorem modify_eq_empty_iff {k : α} {f : β → β} :
     modify t k f = ∅ ↔ t = ∅ := by
   cases t with | mk t
-  simpa only [← isEmpty_iff, Bool.coe_iff_coe] using DTreeMap.Const.isEmpty_modify
+  simpa only [← isEmpty_iff, Bool.coe_iff_coe] using! DTreeMap.Const.isEmpty_modify
 
 @[grind =]
 theorem contains_modify {k k' : α} {f : β → β} :

@@ -146,7 +146,7 @@ Similar to the default `Lean.withIncRecDepth`, but include the `inlineStack` in 
 @[inline] def withIncRecDepth (x : SimpM α) : SimpM α := do
   let curr ← MonadRecDepth.getRecDepth
   let max  ← MonadRecDepth.getMaxRecDepth
-  if curr == max then
+  if max != 0 && curr == max then
     throwMaxRecDepth
   else
     MonadRecDepth.withRecDepth (curr+1) x

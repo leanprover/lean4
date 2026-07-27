@@ -128,6 +128,13 @@ structure Struct where
   propagate          : List ToPropagate := []
   deriving Inhabited
 
+/-- Entry/Value for the map `termMap` in `State` -/
+structure TermMapEntry where
+  e : Expr
+  h : Expr
+  α : Expr
+deriving Inhabited
+
 /-- State for all order types detected by `grind`. -/
 structure State where
   /-- Order structures detected. -/
@@ -143,7 +150,7 @@ structure State where
   Example: given `x y : Nat`, `x ≤ y + 1` is mapped to `Int.ofNat x ≤ Int.ofNat y + 1`, and proof
   of equivalence.
   -/
-  termMap    : PHashMap ExprPtr (Expr × Expr) := {}
+  termMap    : PHashMap ExprPtr TermMapEntry := {}
   /-- `termMap` inverse -/
   termMapInv : PHashMap ExprPtr (Expr × Expr) := {}
   deriving Inhabited

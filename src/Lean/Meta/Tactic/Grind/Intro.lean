@@ -12,7 +12,7 @@ import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
-import Lean.Meta.Tactic.Grind.RevertAll
+import Lean.Meta.Tactic.Grind.MarkAccessible
 import Init.Grind.Util
 public section
 namespace Lean.Meta.Grind
@@ -289,6 +289,7 @@ def assertNext : Action := fun goal kna kp => do
     | kna goal
   let goal := { goal with newRawFacts }
   withSplitSource fact.splitSource do
+  withEmatchDiagSource fact.ematchDiagSource do
     assertAt fact.proof fact.prop fact.generation goal kna kp
 
 /--

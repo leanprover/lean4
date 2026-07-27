@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 extern lean_object* l_Lake_instInhabitedJobState_default;
-extern lean_object* l_Lake_Log_instInhabitedPos_default;
 lean_object* lean_task_pure(lean_object*);
 static lean_once_cell_t l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__0;
@@ -37,7 +36,7 @@ _start:
 {
 lean_object* v___x_1_; lean_object* v___x_2_; lean_object* v___x_3_; 
 v___x_1_ = l_Lake_instInhabitedJobState_default;
-v___x_2_ = l_Lake_Log_instInhabitedPos_default;
+v___x_2_ = lean_unsigned_to_nat(0u);
 v___x_3_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_3_, 0, v___x_2_);
 lean_ctor_set(v___x_3_, 1, v___x_1_);
@@ -86,7 +85,7 @@ lean_dec_ref(v_x_14_);
 return v_res_15_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instInhabitedExternLibConfig_default(lean_object* v_a_17_, lean_object* v_a_18_){
+LEAN_EXPORT lean_object* l_Lake_instInhabitedExternLibConfig_default(lean_object* v_pkgName_17_, lean_object* v_name_18_){
 _start:
 {
 lean_object* v___f_19_; 
@@ -94,13 +93,13 @@ v___f_19_ = ((lean_object*)(l_Lake_instInhabitedExternLibConfig_default___closed
 return v___f_19_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instInhabitedExternLibConfig_default___boxed(lean_object* v_a_20_, lean_object* v_a_21_){
+LEAN_EXPORT lean_object* l_Lake_instInhabitedExternLibConfig_default___boxed(lean_object* v_pkgName_20_, lean_object* v_name_21_){
 _start:
 {
 lean_object* v_res_22_; 
-v_res_22_ = l_Lake_instInhabitedExternLibConfig_default(v_a_20_, v_a_21_);
-lean_dec(v_a_21_);
-lean_dec(v_a_20_);
+v_res_22_ = l_Lake_instInhabitedExternLibConfig_default(v_pkgName_20_, v_name_21_);
+lean_dec(v_name_21_);
+lean_dec(v_pkgName_20_);
 return v_res_22_;
 }
 }

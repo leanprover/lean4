@@ -92,7 +92,7 @@ theorem SetSizeResult.getElem_setSize {b : ByteArray} {sz origSz h exact} {i : N
   rw [setSize]
   simp only [Array.take_eq_extract, getElem_mk, getElem_eq_getElem_data]
   rw [Array.getElem_append_left (by simp; omega)]
-  simp; rfl
+  simp
 
 /-- Given the knowledge that `sz ≤ origSz`, extract the byte array out of `x`. -/
 @[inline]
@@ -100,7 +100,6 @@ def SetSizeResult.toByteArrayOfLe (x : SetSizeResult origSz sz) (h : sz ≤ orig
   x.lift (fun b _ => b) ?_
 where finally
   intro a ha b hb hab
-  dsimp only
   ext i hi
   · simp [ha, hb]
   · apply hab
@@ -123,7 +122,6 @@ def SetSizeResult.toByteArray (x : SetSizeResult origSz sz) : ByteArray :=
   x.lift (fun b hb => (b.setSize (min origSz sz) _ hb).toByteArrayOfLe (by omega)) ?_
 where finally
   intro a ha b hb hab
-  dsimp only
   apply ext_getElem
   · simp
   · simp only [size_toByteArrayOfLe, getElem_toByteArrayOfLe, getElem_setSize]
@@ -241,7 +239,6 @@ def SetSizeResult.fill (x : SetSizeResult origSz sz) (b : UInt8) (h : origSz ≤
   x.lift (fun x _ => x.fill origSz (sz - origSz) b) ?_
 where finally
   intro a ha b hb hab
-  dsimp only
   apply ext_getElem
   · simp [ha, hb]
   · intro i hi hi'
@@ -282,7 +279,7 @@ theorem getElem_setSizeD {bs : ByteArray} {size : Nat} {exact : Bool} {i : Nat}
   simp only [setSizeD]
   split
   · simp [SetSizeResult.getElem_fill]
-  · rw [dif_pos (c := i < _) (by omega)]
+  · rw [dite_eq_left (c := i < _) (by omega)]
     simp
 
 /-- Creates an array that contains n repetitions of the byte v. -/

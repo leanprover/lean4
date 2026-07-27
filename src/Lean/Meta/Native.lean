@@ -22,9 +22,9 @@ of that computation as an axiom towards the logic.
 -/
 
 public inductive NativeEqTrueResult where
-  /-- The given expression `e` evalutes to true. `prf` is a proof of `e = true`. -/
+  /-- The given expression `e` evaluates to true. `prf` is a proof of `e = true`. -/
   | success (prf : Expr)
-  /-- The given expression `e` evalutes to false. -/
+  /-- The given expression `e` evaluates to false. -/
   | notTrue
 
 /--

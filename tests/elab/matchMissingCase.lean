@@ -2,8 +2,8 @@ inductive Enum where | a | b | c | d
 
 /--
 error: Missing cases:
-Enum.d
 Enum.c
+Enum.d
 -/
 #guard_msgs in
 def test : Enum → Nat

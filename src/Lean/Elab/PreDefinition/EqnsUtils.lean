@@ -49,7 +49,7 @@ public def tryContradiction (mvarId : MVarId) : MetaM Bool := do
   mvarId.contradictionCore { genDiseq := true }
 
 partial def whnfAux (e : Expr) : MetaM Expr := do
-  let e ← whnfI e -- Must reduce instances too, otherwise it will not be able to reduce `(Nat.rec ... ... (OfNat.ofNat 0))`
+  let e ← whnfR e
   let f := e.getAppFn
   match f with
   | .proj _ _ s => return mkAppN (f.updateProj! (← whnfAux s)) e.getAppArgs

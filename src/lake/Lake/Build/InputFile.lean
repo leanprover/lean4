@@ -21,7 +21,7 @@ namespace Lake
 
 /-! ## Input File -/
 
-private def InputFile.recFetch (t : InputFile) : FetchM (Job FilePath) :=
+def InputFile.recFetch (t : InputFile) : FetchM (Job FilePath) :=
   withRegisterJob s!"{t.name}" do
   inputFile t.path t.text
 
@@ -39,7 +39,7 @@ public def InputFile.initFacetConfigs : DNameMap (KFacetConfig InputFile.facetKi
 
 /-! ## Input Directory -/
 
-private def InputDir.recFetch (t : InputDir) : FetchM (Job (Array FilePath)) :=
+def InputDir.recFetch (t : InputDir) : FetchM (Job (Array FilePath)) :=
   withRegisterJob s!"{t.name}" do
   inputDir t.path t.text t.filter
 

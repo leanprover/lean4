@@ -27,7 +27,7 @@ v_startPos_4_ = lean_ctor_get(v_x_1_, 0);
 lean_inc(v_startPos_4_);
 v_endPos_5_ = lean_ctor_get(v_x_1_, 1);
 lean_inc(v_endPos_5_);
-lean_dec_ref(v_x_1_);
+lean_dec_ref_known(v_x_1_, 2);
 v___x_6_ = lean_apply_2(v_h__1_2_, v_startPos_4_, v_endPos_5_);
 return v___x_6_;
 }
@@ -51,7 +51,7 @@ v_startPos_13_ = lean_ctor_get(v_x_10_, 0);
 lean_inc(v_startPos_13_);
 v_endPos_14_ = lean_ctor_get(v_x_10_, 1);
 lean_inc(v_endPos_14_);
-lean_dec_ref(v_x_10_);
+lean_dec_ref_known(v_x_10_, 2);
 v___x_15_ = lean_apply_2(v_h__1_11_, v_startPos_13_, v_endPos_14_);
 return v___x_15_;
 }

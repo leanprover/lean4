@@ -9,6 +9,7 @@ prelude
 public import Std.Do
 public import Std.Tactic.Do.ProofMode -- For (meta) importing `mgoalStx`; otherwise users might experience
 public import Init.Data.Array.GetLit
+public import Init.Grind.Interactive
                                       -- a broken goal view due to the builtin delaborator for `MGoalEntails`
 
 @[expose] public section
@@ -45,6 +46,28 @@ structure Config where
   This is helpful for bisecting bugs in `mvcgen` and tracing its execution.
   -/
   stepLimit : Option Nat := none
+  /--
+  If `true` (the default), report a hard error when no `@[spec]` theorem matches the
+  current program head. If `false`, leave such goals as unsolved VCs for the user to
+  discharge manually. This is the behaviour that `mvcgen` exhibits implicitly;
+  the new prototypical `vcgen` opts into it via `(errorOnMissingSpec := false)`.
+  -/
+  errorOnMissingSpec : Bool := true
+  /--
+  If `true`, `vcgen` checks failed `BackwardRule.apply` calls by retrying after
+  `unfoldReducible`-normalizing the goal. If the rule then succeeds, an earlier step
+  forgot a normalization; `vcgen` raises a hard error pointing at the offending
+  rule and the missing reduction. Off by default; only consulted by `vcgen`.
+  -/
+  debug : Bool := false
+  /--
+  If `true` (the default in grind mode), `vcgen` calls `Grind.processHypotheses` on
+  each emitted VC, internalising local hypotheses into the parent's E-graph so that
+  downstream grind steps share context. The tactic-level entry point disables this
+  when there is no `with` clause (no grind step will consume the E-graph anyway).
+  Ignored by `mvcgen`.
+  -/
+  internalize : Bool := true
 end Lean.Elab.Tactic.Do.VCGen
 
 namespace Lean.Parser
@@ -390,6 +413,14 @@ docstring for `mvcgen`.
 syntax invariantAlts := invariantsKW withPosition((colGe (invariantDotAlt <|> invariantCaseAlt))*)
 
 /--
+A single `frames` alternative `| f a _ c => frame`: a program pattern (a head identifier applied to
+binder or `_` arguments, matched like the `until` pattern) and the frame assertion to apply when the
+spec for that program is used during VC generation. The named binders (e.g. `a`, `c`) are in scope
+in `frame`, bound to the matched arguments.
+-/
+syntax frameAlt := ppDedent(ppLine) "| " ident (ppSpace colGt binderIdent)* " => " (colGe term)
+
+/--
 In induction alternative, which can have 1 or more cases on the left
 and `_`, `?_`, or a tactic sequence after the `=>`.
 -/
@@ -411,3 +442,43 @@ A hint tactic that expands to `mvcgen invariants?`.
 -/
 syntax (name := mvcgenHint) "mvcgen?" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")? : tactic
+
+-- Prototypical Sym-based variant of `mvcgen`; see `mvcgen` for documentation.
+-- Same surface syntax modulo `vcAlts`, replaced by `simplifying_assumptions … with …`.
+-- The optional `with $g` form is sugar for `sym => vcgen … <;> $g`: it enters grind
+-- mode to share the internalised goal context with the user-supplied grind step (the only
+-- way to do so from tactic mode). `$g` is a single grind-mode step, so passing a
+-- multi-step sequence requires explicit grouping (e.g. `with (s₁; s₂)`).
+
+/--
+The discharging step in `vcgen … with`. It is a single `grind`-mode tactic (e.g. `finish`,
+`intro`) so it can share `vcgen`'s internalised E-graph. The `tactic` alternative is a
+lower-priority catch-all so that a non-`grind` step (e.g. `with grind`, `with simp`) still parses
+and the elaborator can report a helpful error instead of a raw `expected grind` parser error.
+-/
+declare_syntax_cat vcgenDischarge
+syntax (name := vcgenDischargeGrind) grind : vcgenDischarge
+syntax (name := vcgenDischargeTactic) (priority := low) tactic : vcgenDischarge
+
+@[tactic_alt Lean.Parser.Tactic.vcgenMacro]
+syntax (name := vcgen) "vcgen" optConfig
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
+  (&" until " term)?
+  (&" frames " withPosition((colGe frameAlt)+))?
+  (invariantAlts)?
+  (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
+  (&" with " vcgenDischarge)? : tactic
+
+namespace Grind
+
+/-- `vcgen` step for `sym => …` blocks. No `with` clause: compose with subsequent grind
+steps using `<;>` instead. -/
+syntax (name := vcgen) "vcgen" optConfig
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
+  (&" until " term)?
+  (&" frames " withPosition((colGe frameAlt)+))?
+  (invariantAlts)?
+  (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
+  : grind
+
+end Grind

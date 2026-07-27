@@ -93,7 +93,7 @@ if (lean_obj_tag(v_tail_30_) == 0)
 lean_object* v_head_31_; lean_object* v___f_32_; lean_object* v___x_33_; 
 v_head_31_ = lean_ctor_get(v_x_23_, 0);
 lean_inc(v_head_31_);
-lean_dec_ref(v_x_23_);
+lean_dec_ref_known(v_x_23_, 2);
 v___f_32_ = lean_alloc_closure((void*)(l___private_Init_Task_0__Task_mapList_go___redArg___lam__1), 3, 2);
 lean_closure_set(v___f_32_, 0, v_x_24_);
 lean_closure_set(v___f_32_, 1, v_f_20_);
@@ -106,7 +106,7 @@ lean_object* v_head_34_; lean_object* v___x_35_; lean_object* v___f_36_; lean_ob
 lean_inc(v_tail_30_);
 v_head_34_ = lean_ctor_get(v_x_23_, 0);
 lean_inc(v_head_34_);
-lean_dec_ref(v_x_23_);
+lean_dec_ref_known(v_x_23_, 2);
 v___x_35_ = lean_box(v_sync_22_);
 lean_inc(v_prio_21_);
 v___f_36_ = lean_alloc_closure((void*)(l___private_Init_Task_0__Task_mapList_go___redArg___lam__2___boxed), 6, 5);

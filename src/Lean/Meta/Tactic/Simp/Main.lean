@@ -714,7 +714,6 @@ where
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_simp]
 def simpImpl (e : Expr) : SimpM Result := withIncRecDepth do
-  checkSystem "simp"
   if (← isProof e) then
     return { expr := e }
   trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"

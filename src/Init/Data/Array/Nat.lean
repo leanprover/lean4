@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Array.MinMax
 import Init.Data.List.Nat.Sum
+import Init.Data.List.Nat.Prod
 import Init.Data.Array.Lemmas
 
 public section
@@ -80,5 +81,25 @@ theorem sum_div_length_le_max_of_max?_eq_some_nat {xs : Array Nat} (h : xs.max? 
   rcases xs with ⟨l⟩
   simpa [List.max?_toArray, List.sum_toArray] using
     List.sum_div_length_le_max_of_max?_eq_some_nat (by simpa using h)
+
+protected theorem prod_pos_iff_forall_pos_nat {xs : Array Nat} : 0 < xs.prod ↔ ∀ x ∈ xs, 0 < x := by
+  simp [← prod_toList, List.prod_pos_iff_forall_pos_nat]
+
+protected theorem prod_eq_zero_iff_exists_zero_nat {xs : Array Nat} :
+    xs.prod = 0 ↔ ∃ x ∈ xs, x = 0 := by
+  simp [← prod_toList, List.prod_eq_zero_iff_exists_zero_nat]
+
+@[simp] theorem prod_replicate_nat {n : Nat} {a : Nat} : (replicate n a).prod = a ^ n := by
+  rw [← List.toArray_replicate, List.prod_toArray]
+  simp
+
+theorem prod_append_nat {as₁ as₂ : Array Nat} : (as₁ ++ as₂).prod = as₁.prod * as₂.prod := by
+  simp [prod_append]
+
+theorem prod_reverse_nat (xs : Array Nat) : xs.reverse.prod = xs.prod := by
+  simp [prod_reverse]
+
+theorem prod_eq_foldl_nat {xs : Array Nat} : xs.prod = xs.foldl (init := 1) (· * ·) := by
+  simp only [foldl_eq_foldr_reverse, Nat.mul_comm, ← prod_eq_foldr, prod_reverse_nat]
 
 end Array

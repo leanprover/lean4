@@ -2450,7 +2450,7 @@ theorem isEmpty_inter_right [EquivBEq α] [LawfulHashable α] (h : m₂.isEmpty)
 
 theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] :
     (m₁ ∩ m₂).isEmpty ↔ ∀ k, k ∈ m₁ → k ∉ m₂ := by
-  simpa only [mem_iff_contains, Bool.not_eq_true] using
+  simpa only [mem_iff_contains, Bool.not_eq_true] using!
     @Raw₀.isEmpty_inter_iff _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.wf m₂.wf
 
 end Inter
@@ -2768,7 +2768,7 @@ theorem isEmpty_diff_left [EquivBEq α] [LawfulHashable α] (h : m₁.isEmpty) :
 
 theorem isEmpty_diff_iff [EquivBEq α] [LawfulHashable α] :
     (m₁ \ m₂).isEmpty ↔ ∀ k, k ∈ m₁ → k ∈ m₂ := by
-  simpa only [mem_iff_contains] using
+  simpa only [mem_iff_contains] using!
     @Raw₀.isEmpty_diff_iff _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.wf m₂.wf
 
 end Diff
@@ -3712,7 +3712,7 @@ theorem mem_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)
 
 theorem mem_alter_of_beq [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} (h : k == k') :
     k' ∈ m.alter k f ↔ (f (m.get? k)).isSome := by
-  rw [mem_alter, if_pos h]
+  rw [mem_alter, ite_eq_left h]
 
 @[simp]
 theorem contains_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
@@ -3914,7 +3914,7 @@ theorem mem_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β �
 
 theorem mem_alter_of_beq [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β → Option β}
     (h : k == k') : k' ∈ Const.alter m k f ↔ (f (Const.get? m k)).isSome := by
-  rw [mem_alter, if_pos h]
+  rw [mem_alter, ite_eq_left h]
 
 @[simp]
 theorem contains_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} :
@@ -4549,7 +4549,7 @@ end Const
 end Equiv
 
 /-- Internal implementation detail of the hash map. -/
-@[implicit_reducible]
+@[instance_reducible]
 def isSetoid (α β) [BEq α] [Hashable α] : Setoid (DHashMap α β) where
   r := Equiv
   iseqv := {

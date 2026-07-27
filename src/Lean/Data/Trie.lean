@@ -60,7 +60,7 @@ instance : EmptyCollection (Trie α) :=
 instance : Inhabited (Trie α) where
   default := empty
 
-/-- Insert or update the value at a the given key `s`.  -/
+/-- Insert or update the value at the given key `s`.  -/
 partial def upsert (t : Trie α) (s : String) (f : Option α → α) : Trie α :=
   let rec insertEmpty (i : Nat) : Trie α :=
     if h : i < s.utf8ByteSize then
@@ -100,7 +100,7 @@ partial def upsert (t : Trie α) (s : String) (f : Option α → α) : Trie α :
         node (f v) cs ts
   loop 0 t
 
-/-- Inserts a value at a the given key `s`, overriding an existing value if present. -/
+/-- Inserts a value at the given key `s`, overriding an existing value if present. -/
 partial def insert (t : Trie α) (s : String) (val : α) : Trie α :=
   upsert t s (fun _ => val)
 
@@ -131,9 +131,9 @@ partial def find? (t : Trie α) (s : String) : Option α :=
   loop 0 t
 
 /-- Returns an `Array` of all values in the trie, in no particular order. -/
-partial def values (t : Trie α) : Array α := go t |>.run #[] |>.2
+partial def values (t : @&Trie α) : Array α := go t |>.run #[] |>.2
   where
-    go : Trie α → StateM (Array α) Unit
+    go : @&Trie α → StateM (Array α) Unit
       | leaf a? => do
         if let some a := a? then
           modify (·.push a)

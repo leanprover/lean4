@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Sym
-// Imports: public import Init.Sym.Lemmas public import Init.Sym.Simp.SimprocDSL
+// Imports: public import Init.Sym.Lemmas public import Init.Sym.Simp.SimprocDSL public import Init.Sym.DSimp.DSimprocDSL
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* runtime_initialize_Init_Sym_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Sym_Simp_SimprocDSL(uint8_t builtin);
+lean_object* runtime_initialize_Init_Sym_DSimp_DSimprocDSL(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Sym(uint8_t builtin) {
 lean_object * res;
@@ -24,6 +25,9 @@ res = runtime_initialize_Init_Sym_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Sym_Simp_SimprocDSL(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Sym_DSimp_DSimprocDSL(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -37,6 +41,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Sym_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Sym_Simp_SimprocDSL(uint8_t builtin);
+lean_object* initialize_Init_Sym_DSimp_DSimprocDSL(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Sym(uint8_t builtin) {
 lean_object * res;
@@ -46,6 +51,9 @@ res = initialize_Init_Sym_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Sym_Simp_SimprocDSL(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Sym_DSimp_DSimprocDSL(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Sym(builtin);

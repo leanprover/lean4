@@ -1,7 +1,7 @@
 /--
 error: unsolved goals
 A : Nat
-⊢ Sort ?u.3
+⊢ Sort ?u.2
 -/
 #guard_msgs in
 variable (A : Nat) (B : by skip)

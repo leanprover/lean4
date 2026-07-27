@@ -101,7 +101,7 @@ v_l_19_ = lean_ctor_get(v_t_14_, 3);
 lean_inc(v_l_19_);
 v_r_20_ = lean_ctor_get(v_t_14_, 4);
 lean_inc(v_r_20_);
-lean_dec_ref(v_t_14_);
+lean_dec_ref_known(v_t_14_, 5);
 v___x_21_ = lean_apply_5(v_k_15_, v_size_16_, v_k_17_, v_v_18_, v_l_19_, v_r_20_);
 return v___x_21_;
 }
@@ -160,7 +160,7 @@ v___x_57_ = l_Std_DTreeMap_Internal_Impl_ctorElim___redArg(v_t_54_, v_leaf_56_);
 return v___x_57_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_instInhabitedImpl_default(lean_object* v_a_58_, lean_object* v_a_59_){
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_instInhabitedImpl_default(lean_object* v_00_u03b1_58_, lean_object* v_00_u03b2_59_){
 _start:
 {
 lean_object* v___x_60_; 

@@ -517,7 +517,7 @@ lean_ctor_set(v___x_153_, 13, v_inheritedTraceOptions_151_);
 lean_ctor_set_uint8(v___x_153_, sizeof(void*)*14, v_diag_148_);
 lean_ctor_set_uint8(v___x_153_, sizeof(void*)*14 + 1, v_suppressElabErrors_150_);
 v___x_154_ = l_Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lean_Elab_Tactic_Grind_Filter_0__Lean_Elab_Tactic_Grind_elabFilter_go_spec__1_spec__1___redArg(v_msg_126_, v___y_131_, v___y_132_, v___x_153_, v___y_134_);
-lean_dec_ref(v___x_153_);
+lean_dec_ref_known(v___x_153_, 14);
 return v___x_154_;
 }
 }
@@ -963,7 +963,7 @@ if (lean_obj_tag(v___x_400_) == 0)
 lean_object* v_a_401_; lean_object* v___x_402_; lean_object* v_b_403_; lean_object* v___x_404_; 
 v_a_401_ = lean_ctor_get(v___x_400_, 0);
 lean_inc(v_a_401_);
-lean_dec_ref(v___x_400_);
+lean_dec_ref_known(v___x_400_, 1);
 v___x_402_ = lean_unsigned_to_nat(2u);
 v_b_403_ = l_Lean_Syntax_getArg(v_filter_272_, v___x_402_);
 lean_dec(v_filter_272_);
@@ -1037,7 +1037,7 @@ if (lean_obj_tag(v___x_416_) == 0)
 lean_object* v_a_417_; lean_object* v___x_418_; lean_object* v_b_419_; lean_object* v___x_420_; 
 v_a_417_ = lean_ctor_get(v___x_416_, 0);
 lean_inc(v_a_417_);
-lean_dec_ref(v___x_416_);
+lean_dec_ref_known(v___x_416_, 1);
 v___x_418_ = lean_unsigned_to_nat(2u);
 v_b_419_ = l_Lean_Syntax_getArg(v_filter_272_, v___x_418_);
 lean_dec(v_filter_272_);
@@ -1174,7 +1174,7 @@ lean_object* v_declName_457_; lean_object* v___x_459_;
 lean_dec(v___x_431_);
 v_declName_457_ = lean_ctor_get(v_val_453_, 0);
 lean_inc(v_declName_457_);
-lean_dec_ref(v_val_453_);
+lean_dec_ref_known(v_val_453_, 2);
 if (v_isShared_456_ == 0)
 {
 lean_ctor_set(v___x_455_, 0, v_declName_457_);
@@ -1218,7 +1218,7 @@ lean_object* v_fvarId_464_; lean_object* v___x_466_;
 lean_dec(v___x_431_);
 v_fvarId_464_ = lean_ctor_get(v_val_453_, 0);
 lean_inc(v_fvarId_464_);
-lean_dec_ref(v_val_453_);
+lean_dec_ref_known(v_val_453_, 1);
 if (v_isShared_456_ == 0)
 {
 lean_ctor_set_tag(v___x_455_, 2);
@@ -1418,7 +1418,7 @@ if (lean_obj_tag(v_filter_x3f_542_) == 1)
 lean_object* v_val_552_; lean_object* v___x_553_; 
 v_val_552_ = lean_ctor_get(v_filter_x3f_542_, 0);
 lean_inc(v_val_552_);
-lean_dec_ref(v_filter_x3f_542_);
+lean_dec_ref_known(v_filter_x3f_542_, 1);
 v___x_553_ = l___private_Lean_Elab_Tactic_Grind_Filter_0__Lean_Elab_Tactic_Grind_elabFilter_go(v_val_552_, v_a_543_, v_a_544_, v_a_545_, v_a_546_, v_a_547_, v_a_548_, v_a_549_, v_a_550_);
 return v___x_553_;
 }

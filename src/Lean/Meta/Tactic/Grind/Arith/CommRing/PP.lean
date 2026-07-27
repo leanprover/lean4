@@ -10,6 +10,7 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Init.Omega
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
+open Sym.Arith
 
 private abbrev M := StateT CommRing MetaM
 

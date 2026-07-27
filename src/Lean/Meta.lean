@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Basic
+public import Lean.Meta.HasAssignableMVar
 public import Lean.Meta.LevelDefEq
 public import Lean.Meta.WHNF
 public import Lean.Meta.InferType

@@ -20,25 +20,16 @@ make -C "$BUILD_ROOT" -j"$(nproc)" "$STAGE_NEXT-configure"
 
 echo
 echo ">"
-echo "> Warming up $STAGE_NEXT..."
-echo ">"
-
-make -C "$BUILD_NEXT" -j"$(nproc)"
-find "$BUILD_NEXT/lib" -name "*.olean" -delete
-rm -f measurements.jsonl
-
-
-
-echo
-echo ">"
 echo "> Building $STAGE_NEXT..."
 echo ">"
+
+make -C "$BUILD_NEXT" clean-stdlib
 
 LAKE_OVERRIDE_LEAN=true LEAN="$(realpath fake_root/bin/lean)" \
 WRAPPER_PREFIX="$(realpath fake_root)" WRAPPER_OUT="$OUT" \
   lakeprof record -- \
   "$TEST_DIR/measure.py" -t build -d -a -- \
-  make -C "$BUILD_NEXT" -j"$(nproc)"
+  make -C "$BUILD_NEXT" -j"$(nproc)" make_stdlib LAKE_EXTRA_ARGS="+Init:olean +Std:olean +Lean:olean +Lake:olean +LakeMain:olean +LeanIR:olean +Leanc:olean +LeanChecker:olean"
 
 
 
@@ -52,6 +43,5 @@ echo ">"
 mv lakeprof.log "$SRC_DIR"
 pushd "$SRC_DIR"
 lakeprof report -prc > lakeprof_report.txt
-lakeprof report -pj | jq '{metric: "build/lakeprof/longest build path//wall-clock", value: .[-1][2], unit: "s"}' -c >> "$OUT"
-lakeprof report -rj | jq '{metric: "build/lakeprof/longest rebuild path//wall-clock", value: .[-1][2], unit: "s"}' -c >> "$OUT"
+"$TEST_DIR/bench/build/lakeprof_measurements.py" "$OUT"
 popd

@@ -1,6 +1,6 @@
 module
 public import Init.Grind.Ring.CommSolver
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
+public import Lean.Meta.Sym.Arith.Poly
 open Lean.Grind.CommRing
 
 def w : Var := 0

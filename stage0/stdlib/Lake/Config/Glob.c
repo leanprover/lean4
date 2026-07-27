@@ -369,7 +369,7 @@ case 0:
 lean_object* v_a_75_; lean_object* v___y_77_; lean_object* v___x_86_; uint8_t v___x_87_; 
 v_a_75_ = lean_ctor_get(v_x_73_, 0);
 lean_inc(v_a_75_);
-lean_dec_ref(v_x_73_);
+lean_dec_ref_known(v_x_73_, 1);
 v___x_86_ = lean_unsigned_to_nat(1024u);
 v___x_87_ = lean_nat_dec_le(v___x_86_, v_prec_74_);
 if (v___x_87_ == 0)
@@ -412,7 +412,7 @@ case 1:
 lean_object* v_a_90_; lean_object* v___y_92_; lean_object* v___x_101_; uint8_t v___x_102_; 
 v_a_90_ = lean_ctor_get(v_x_73_, 0);
 lean_inc(v_a_90_);
-lean_dec_ref(v_x_73_);
+lean_dec_ref_known(v_x_73_, 1);
 v___x_101_ = lean_unsigned_to_nat(1024u);
 v___x_102_ = lean_nat_dec_le(v___x_101_, v_prec_74_);
 if (v___x_102_ == 0)
@@ -455,7 +455,7 @@ default:
 lean_object* v_a_105_; lean_object* v___y_107_; lean_object* v___x_116_; uint8_t v___x_117_; 
 v_a_105_ = lean_ctor_get(v_x_73_, 0);
 lean_inc(v_a_105_);
-lean_dec_ref(v_x_73_);
+lean_dec_ref_known(v_x_73_, 1);
 v___x_116_ = lean_unsigned_to_nat(1024u);
 v___x_117_ = lean_nat_dec_le(v___x_116_, v_prec_74_);
 if (v___x_117_ == 0)
@@ -769,7 +769,7 @@ case 0:
 lean_object* v_a_344_; uint8_t v___x_345_; lean_object* v___x_346_; 
 v_a_344_ = lean_ctor_get(v_x_343_, 0);
 lean_inc(v_a_344_);
-lean_dec_ref(v_x_343_);
+lean_dec_ref_known(v_x_343_, 1);
 v___x_345_ = 1;
 v___x_346_ = l_Lean_Name_toString(v_a_344_, v___x_345_);
 return v___x_346_;
@@ -779,7 +779,7 @@ case 1:
 lean_object* v_a_347_; uint8_t v___x_348_; lean_object* v___x_349_; lean_object* v___x_350_; lean_object* v___x_351_; 
 v_a_347_ = lean_ctor_get(v_x_343_, 0);
 lean_inc(v_a_347_);
-lean_dec_ref(v_x_343_);
+lean_dec_ref_known(v_x_343_, 1);
 v___x_348_ = 1;
 v___x_349_ = l_Lean_Name_toString(v_a_347_, v___x_348_);
 v___x_350_ = ((lean_object*)(l_Lake_term_____x2e_x2b___closed__2));
@@ -791,7 +791,7 @@ default:
 lean_object* v_a_352_; uint8_t v___x_353_; lean_object* v___x_354_; lean_object* v___x_355_; lean_object* v___x_356_; 
 v_a_352_ = lean_ctor_get(v_x_343_, 0);
 lean_inc(v_a_352_);
-lean_dec_ref(v_x_343_);
+lean_dec_ref_known(v_x_343_, 1);
 v___x_353_ = 1;
 v___x_354_ = l_Lean_Name_toString(v_a_352_, v___x_353_);
 v___x_355_ = ((lean_object*)(l_Lake_term_____x2e_x2a___closed__15));
@@ -900,7 +900,7 @@ lean_dec(v_inst_396_);
 lean_dec_ref(v_inst_395_);
 v_a_400_ = lean_ctor_get(v_x_399_, 0);
 lean_inc(v_a_400_);
-lean_dec_ref(v_x_399_);
+lean_dec_ref_known(v_x_399_, 1);
 v___x_401_ = lean_apply_1(v_f_398_, v_a_400_);
 return v___x_401_;
 }
@@ -909,7 +909,7 @@ case 1:
 lean_object* v_a_402_; lean_object* v___f_403_; lean_object* v___x_404_; lean_object* v___x_405_; lean_object* v___x_406_; 
 v_a_402_ = lean_ctor_get(v_x_399_, 0);
 lean_inc_n(v_a_402_, 2);
-lean_dec_ref(v_x_399_);
+lean_dec_ref_known(v_x_399_, 1);
 v___f_403_ = lean_alloc_closure((void*)(l_Lake_Glob_forEachModuleIn___redArg___lam__0), 3, 2);
 lean_closure_set(v___f_403_, 0, v_a_402_);
 lean_closure_set(v___f_403_, 1, v_f_398_);
@@ -927,7 +927,7 @@ v_toSeqRight_408_ = lean_ctor_get(v_toApplicative_407_, 4);
 lean_inc(v_toSeqRight_408_);
 v_a_409_ = lean_ctor_get(v_x_399_, 0);
 lean_inc_n(v_a_409_, 3);
-lean_dec_ref(v_x_399_);
+lean_dec_ref_known(v_x_399_, 1);
 lean_inc(v_f_398_);
 v___f_410_ = lean_alloc_closure((void*)(l_Lake_Glob_forEachModuleIn___redArg___lam__0), 3, 2);
 lean_closure_set(v___f_410_, 0, v_a_409_);
@@ -958,7 +958,7 @@ lean_dec(v_inst_416_);
 lean_dec_ref(v_inst_415_);
 v_a_420_ = lean_ctor_get(v_x_419_, 0);
 lean_inc(v_a_420_);
-lean_dec_ref(v_x_419_);
+lean_dec_ref_known(v_x_419_, 1);
 v___x_421_ = lean_apply_1(v_f_418_, v_a_420_);
 return v___x_421_;
 }
@@ -967,7 +967,7 @@ case 1:
 lean_object* v_a_422_; lean_object* v___f_423_; lean_object* v___x_424_; lean_object* v___x_425_; lean_object* v___x_426_; 
 v_a_422_ = lean_ctor_get(v_x_419_, 0);
 lean_inc_n(v_a_422_, 2);
-lean_dec_ref(v_x_419_);
+lean_dec_ref_known(v_x_419_, 1);
 v___f_423_ = lean_alloc_closure((void*)(l_Lake_Glob_forEachModuleIn___redArg___lam__0), 3, 2);
 lean_closure_set(v___f_423_, 0, v_a_422_);
 lean_closure_set(v___f_423_, 1, v_f_418_);
@@ -985,7 +985,7 @@ v_toSeqRight_428_ = lean_ctor_get(v_toApplicative_427_, 4);
 lean_inc(v_toSeqRight_428_);
 v_a_429_ = lean_ctor_get(v_x_419_, 0);
 lean_inc_n(v_a_429_, 3);
-lean_dec_ref(v_x_419_);
+lean_dec_ref_known(v_x_419_, 1);
 lean_inc(v_f_418_);
 v___f_430_ = lean_alloc_closure((void*)(l_Lake_Glob_forEachModuleIn___redArg___lam__0), 3, 2);
 lean_closure_set(v___f_430_, 0, v_a_429_);

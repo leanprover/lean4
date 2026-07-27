@@ -678,7 +678,7 @@ else
 lean_object* v_val_218_; uint8_t v___x_219_; 
 v_val_218_ = lean_ctor_get(v_fst_216_, 0);
 lean_inc(v_val_218_);
-lean_dec_ref(v_fst_216_);
+lean_dec_ref_known(v_fst_216_, 1);
 v___x_219_ = lean_unbox(v_val_218_);
 lean_dec(v_val_218_);
 return v___x_219_;

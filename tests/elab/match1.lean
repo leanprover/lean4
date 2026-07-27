@@ -158,7 +158,7 @@ partial def natToBin' : (n : Nat) → List Bool
 
 -- This used to be bad until we used sparse matchers,
 -- which meant that the `0` pattern does not cause the remaining
--- to have `n = .succ _`, whic breaks dependent pattern matching
+-- to have `n = .succ _`, which breaks dependent pattern matching
 partial def natToBinBad (n : Nat) : List Bool :=
 match n, parity n with
 | 0, _             => []

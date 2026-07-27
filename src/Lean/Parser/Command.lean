@@ -122,7 +122,9 @@ def declModifiers (inline : Bool) := leading_parser
 /-- `declId` matches `foo` or `foo.{u,v}`: an identifier possibly followed by a list of universe names -/
 -- @[builtin_doc] -- FIXME: suppress the hover
 def declId := leading_parser
-  ident >> optional (".{" >> sepBy1 (recover ident (skipUntil (fun c => c.isWhitespace || c ∈ [',', '}']))) ", " >> "}")
+  ident >>
+  optional (checkNoWsBefore "no space before '.{'" >> ".{" >>
+    sepBy1 (recover ident (skipUntil (fun c => c.isWhitespace || c ∈ [',', '}']))) ", " >> "}")
 /-- `declSig` matches the signature of a declaration with required type: a list of binders and then `: type` -/
 -- @[builtin_doc] -- FIXME: suppress the hover
 def declSig := leading_parser
@@ -340,10 +342,11 @@ namespace InternalSyntax
   This command is for internal use only. It is intended for macros that implicitly introduce new
   scopes, such as `expandInCmd` and `expandNamespacedDeclaration`. It allows local attributes to remain
   accessible beyond those implicit scopes, even though they would normally be hidden from the user.
+  The numeric argument specifies how many scope levels to mark as non-delimiting.
   -/
-  scoped syntax (name := end_local_scope) "end_local_scope" : command
+  scoped syntax (name := end_local_scope) "end_local_scope" num : command
 
-  def endLocalScopeSyntax : Command := Unhygienic.run `(end_local_scope)
+  def endLocalScopeSyntax (depth : Nat) : Command := Unhygienic.run `(end_local_scope $(Syntax.mkNumLit (toString depth)))
 end InternalSyntax
 
 /-- Declares one or more typed variables, or modifies whether already-declared variables are
@@ -557,7 +560,8 @@ Use `#check_assertions!` to only show unsatisfied assertions.
 @[builtin_command_parser] def checkAssertions := leading_parser
   "#check_assertions" >> optional "!"
 /--
-`#eval e` evaluates the expression `e` by compiling and evaluating it.
+`#eval e` evaluates the expression `e` by compiling it and running the compiled code. It then
+prints the resulting value.
 
 * The command attempts to use `ToExpr`, `Repr`, or `ToString` instances to print the result.
 * If `e` is a monadic value of type `m ty`, then the command tries to adapt the monad `m`
@@ -622,6 +626,15 @@ declaration signatures.
 /-- Debugging command: Prints the result of `Environment.dumpAsyncEnvState`. -/
 @[builtin_command_parser] def dumpAsyncEnvState := leading_parser
   "#dump_async_env_state"
+/--
+Mark a syntax kind as deprecated. When this syntax is elaborated, a warning will be emitted.
+
+```
+deprecated_syntax Lean.Parser.Term.let_fun "use `have` instead" (since := "2026-03-18")
+```
+-/
+@[builtin_command_parser] def deprecatedSyntax := leading_parser
+  "deprecated_syntax " >> ident >> optional (ppSpace >> strLit) >> optional (" (" >> nonReservedSymbol "since" >> " := " >> strLit >> ")")
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
 /--
@@ -629,6 +642,27 @@ An internal bootstrapping command that reinterprets a Markdown docstring as Vers
 -/
 @[builtin_command_parser] def «docs_to_verso»    := leading_parser
   "docs_to_verso " >> sepBy1 ident ", "
+/--
+`deprecated_module` marks the current module as deprecated.
+When another module imports a deprecated module, a warning is emitted during elaboration.
+
+```
+deprecated_module "use NewModule instead" (since := "2026-03-19")
+```
+
+The warning message is optional but recommended.
+The warning can be disabled with `set_option linter.deprecated.module false` or
+`-Dlinter.deprecated.module=false`.
+-/
+@[builtin_command_parser] def «deprecated_module» := leading_parser
+  "deprecated_module" >> optional (ppSpace >> strLit) >> optional (" (" >> nonReservedSymbol "since" >> " := " >> strLit >> ")")
+
+/--
+`#show_deprecated_modules` displays all modules in the current environment that have been
+marked with `deprecated_module`.
+-/
+@[builtin_command_parser] def showDeprecatedModules := leading_parser
+  "#show_deprecated_modules"
 
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit
 /--
@@ -648,6 +682,12 @@ only in a single term or tactic.
 -/
 @[builtin_command_parser] def «set_option»   := leading_parser
   "set_option " >> identWithPartialTrailingDot >> ppSpace >> optionValue
+/--
+`unlock_limits` disables all built-in resource limit options (currently `maxRecDepth`,
+`maxHeartbeats`, and `synthInstance.maxHeartbeats`) in the current scope by setting them to 0.
+-/
+@[builtin_command_parser] def «unlock_limits» := leading_parser
+  "unlock_limits"
 def eraseAttr := leading_parser
   "-" >> rawIdent
 @[builtin_command_parser] def «attribute»    := leading_parser
@@ -823,7 +863,7 @@ def initializeKeyword := leading_parser
   optional (atomic (ident >> Term.typeSpec >> ppSpace >> Term.leftArrow)) >> Term.doSeq
 
 @[builtin_command_parser] def «in»  := trailing_parser
-  withOpen (ppDedent (" in" >> ppLine >> commandParser))
+  withOpen (withSetOption (ppDedent (" in" >> ppLine >> commandParser)))
 
 /--
 Adds a docstring to an existing declaration, replacing any existing docstring.
@@ -984,7 +1024,8 @@ It makes the given namespaces available in the term `e`.
 It sets the option `opt` to the value `val` in the term `e`.
 -/
 @[builtin_term_parser] def «set_option» := leading_parser:leadPrec
-  "set_option " >> identWithPartialTrailingDot >> ppSpace >> Command.optionValue >> " in " >> termParser
+  "set_option " >> identWithPartialTrailingDot >> ppSpace >> Command.optionValue >>
+    withSetOptionValue (" in " >> termParser)
 end Term
 
 namespace Tactic
@@ -996,7 +1037,8 @@ but it opens a namespace only within the tactics `tacs`. -/
 /-- `set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,
 but it sets the option only within the tactics `tacs`. -/
 @[builtin_tactic_parser] def «set_option» := leading_parser:leadPrec
-  "set_option " >> identWithPartialTrailingDot >> ppSpace >> Command.optionValue >> " in " >> tacticSeq
+  "set_option " >> identWithPartialTrailingDot >> ppSpace >> Command.optionValue >>
+    withSetOptionValue (" in " >> tacticSeq)
 end Tactic
 
 end Parser

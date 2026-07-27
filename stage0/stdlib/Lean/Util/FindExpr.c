@@ -110,7 +110,7 @@ return v___x_23_;
 else
 {
 uint8_t v___x_24_; 
-lean_dec_ref(v___x_22_);
+lean_dec_ref_known(v___x_22_, 1);
 v___x_24_ = 1;
 return v___x_24_;
 }

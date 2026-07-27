@@ -10,6 +10,7 @@ import Init.Control.Lawful.MonadAttach.Lemmas
 public import Init.Control.Lawful.Basic
 public import Init.Control.State
 public import Init.Control.StateRef
+public import Init.Control.EState
 public import Init.Ext
 
 public instance [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] :
@@ -77,6 +78,31 @@ public instance [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAtta
 public instance [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] :
     LawfulMonadAttach (StateRefT' ω σ m) :=
   inferInstanceAs (LawfulMonadAttach (ReaderT (ST.Ref ω σ) m))
+
+public instance {ε σ : Type u} : WeaklyLawfulMonadAttach (EStateM ε σ) where
+  map_attach {α} {x} := by
+    funext s
+    show EStateM.map Subtype.val (MonadAttach.attach x) s = x s
+    simp only [EStateM.map, MonadAttach.attach]
+    split
+    · next a s' h =>
+      split at h
+      · next a₀ s₀ h_eq =>
+        injection h with ha hs_eq; subst hs_eq; cases ha; exact h_eq.symm
+      · cases h
+    · next e s' h =>
+      split at h
+      · cases h
+      · next e₀ s₀ h_eq =>
+        injection h with he hs_eq; subst he; subst hs_eq; exact h_eq.symm
+
+public instance {ε σ : Type u} : LawfulMonadAttach (EStateM ε σ) where
+  canReturn_map_imp {α P x a} h := by
+    simp only [MonadAttach.CanReturn, Functor.map, EStateM.map, EStateM.run] at h
+    obtain ⟨s, s', heq⟩ := h
+    split at heq
+    · next a₀ _ _ => injection heq with ha _; cases ha; exact a₀.property
+    · cases heq
 
 section
 

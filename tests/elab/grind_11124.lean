@@ -136,9 +136,9 @@ h_10 : ¬(w_2 ∈ s₁.entries.kunion s₂.entries → decide (w_1.fst = w_2.fst
 w_3 : Sigma β
 h_12 : ¬(w_3 ∈ s₁.entries.kunion s₂.entries → decide (w_2.fst = w_3.fst) = false)
 h_13 : (fun s => decide (w_1.fst = s.fst)) = fun s => decide (x = s.fst)
-left_4 : ⟨x, cast ⋯ w_1.snd⟩ ∈ ⟨x, w⟩ :: s₂.entries.kunion s₁.entries
-right_4 : ⟨x, cast ⋯ w_1.snd⟩ = ⟨x, w⟩ ∨ ⟨x, cast ⋯ w_1.snd⟩ ∈ s₂.entries.kunion s₁.entries
-h_15 : (fun s => decide (w_2.fst = s.fst)) = fun s => decide (x = s.fst)
+h_14 : (fun s => decide (w_2.fst = s.fst)) = fun s => decide (x = s.fst)
+left_4 : ⟨x, w⟩ ∈ w_1 :: s₂.entries.kunion s₁.entries
+right_4 : ⟨x, w⟩ = w_1 ∨ ⟨x, w⟩ ∈ s₂.entries.kunion s₁.entries
 ⊢ False
 -/
 #guard_msgs in

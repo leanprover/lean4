@@ -269,7 +269,7 @@ return v___x_65_;
 else
 {
 uint8_t v___x_66_; 
-lean_dec_ref(v___x_64_);
+lean_dec_ref_known(v___x_64_, 1);
 v___x_66_ = 1;
 return v___x_66_;
 }
@@ -300,7 +300,7 @@ return v___x_74_;
 else
 {
 uint8_t v___x_75_; 
-lean_dec_ref(v___x_73_);
+lean_dec_ref_known(v___x_73_, 1);
 v___x_75_ = 1;
 return v___x_75_;
 }
@@ -331,7 +331,7 @@ return v___x_83_;
 else
 {
 uint8_t v___x_84_; 
-lean_dec_ref(v___x_82_);
+lean_dec_ref_known(v___x_82_, 1);
 v___x_84_ = 1;
 return v___x_84_;
 }

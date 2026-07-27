@@ -37,14 +37,14 @@ corresponding branch.
 -/
 
 namespace Lean.Meta.Sym.Simp
-open Internal
+open Lean.Meta.Sym.Internal
 
 def isCbvNoncomputable (p : Name) : CoreM Bool := do
   let evalLemmas ← Tactic.Cbv.getCbvEvalLemmas p
   return evalLemmas.isNone && Lean.isNoncomputable (← getEnv) p
 
 /--
-Attemps to synthesize `Decidable p` instance and guards against picking up a `noncomputable` instance
+Attempts to synthesize `Decidable p` instance and guards against picking up a `noncomputable` instance
 -/
 def trySynthComputableInstance (p : Expr) : SymM <| Option Expr := do
   let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) p) | return .none
@@ -108,11 +108,11 @@ builtin_cbv_simproc ↓ simpIteCbv (@ite _ _ _ _ _) := fun e => do
         simpAndMatchIteDecidable f α c inst a b do return mkRflResult (done := true) (contextDependent := cd)
     | .step c' h _ cd =>
       if (← isTrueExpr c') then
-        return .step a (mkApp (e.replaceFn ``ite_cond_eq_true) h) (contextDependent := cd)
+        return .step a (mkApp (e.replaceFn ``ite_eq_left_of_eq_true) h) (contextDependent := cd)
       else if (← isFalseExpr c') then
-        return .step b (mkApp (e.replaceFn ``ite_cond_eq_false) h) (contextDependent := cd)
+        return .step b (mkApp (e.replaceFn ``ite_eq_right_of_eq_false) h) (contextDependent := cd)
       else
-        -- If we got stuck with simplifying `p` then let's try evaluating the original isntance
+        -- If we got stuck with simplifying `p` then let's try evaluating the original instance
         simpAndMatchIteDecidable f α c inst a b do
           -- If we get stuck here, maybe the problem is that we need to look at `Decidable c'`
           let inst' := mkApp4 (mkConst ``decidable_of_decidable_of_eq) c c' inst h
@@ -188,11 +188,11 @@ builtin_cbv_simproc ↓ simpDIteCbv (@dite _ _ _ _ _) := fun e => do
       if (← isTrueExpr c') then
         let h' ← shareCommon <| mkOfEqTrueCore c h
         let a ← share <| a.betaRev #[h']
-        return .step a (mkApp (e.replaceFn ``dite_cond_eq_true) h) (contextDependent := cd)
+        return .step a (mkApp (e.replaceFn ``dite_eq_left_of_eq_true) h) (contextDependent := cd)
       else if (← isFalseExpr c') then
         let h' ← shareCommon <| mkOfEqFalseCore c h
         let b ← share <| b.betaRev #[h']
-        return .step b (mkApp (e.replaceFn ``dite_cond_eq_false) h) (contextDependent := cd)
+        return .step b (mkApp (e.replaceFn ``dite_eq_right_of_eq_false) h) (contextDependent := cd)
       else
         -- If we get stuck after simplifying `p` to `p'`, then we try to evaluate the original instance
         simpAndMatchDIteDecidable f α c inst a b do
@@ -290,22 +290,16 @@ This prevents kernel-level reduction (used by `reduceRecMatcher?` and `reducePro
 from bypassing the `@[cbv_opaque]` attribute.
 -/
 public def withCbvOpaqueGuard (x : MetaM α) : MetaM α := do
-  let prev := (← readThe Meta.Context).canUnfold?
+  let prevCustomCanUnfoldPredicate? := (← readThe Meta.Context).customCanUnfoldPredicate?
+  let prevCanUnfoldPredicateConfig := (← readThe Meta.Context).config.canUnfoldPredicateConfig
   withCanUnfoldPred (fun cfg info => do
     if (← isCbvOpaque info.name) then return false
-    match prev with
-    | some f => f cfg info
-    | none =>
-      -- Duplicates `canUnfoldDefault` from `Lean.Meta.GetUnfoldableConst` (private).
-      match cfg.transparency with
-      | .none => return false
-      | .all  => return true
-      | .default => return !(← isIrreducible info.name)
-      | m =>
-        let status ← getReducibilityStatus info.name
-        if status == .reducible then return true
-        else if m == .instances && status == .implicitReducible then return true
-        else return false
+    match prevCustomCanUnfoldPredicate? with
+    | .some f => f cfg info
+    | .none =>
+      match prevCanUnfoldPredicateConfig with
+      | .default => canUnfoldDefault cfg info
+      | .atMatcher => canUnfoldAtMatcher cfg info
   ) x
 
 builtin_cbv_simproc ↓ simpCbvCond (@cond _ _ _) := simpCond
@@ -317,7 +311,7 @@ public def reduceRecMatcher : Simproc := fun e => do
   else
     return .rfl
 
-builtin_cbv_simproc ↓ simpDecidableRec (@Decidable.rec _ _ _ _ _) := 
+builtin_cbv_simproc ↓ simpDecidableRec (@Decidable.rec _ _ _ _ _) :=
   (simpInterlaced · #[false,false,false,false,true]) >> reduceRecMatcher
 
 def tryMatchEquations (appFn : Name) : Simproc := fun e => do

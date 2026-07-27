@@ -127,7 +127,7 @@ v_head_19_ = lean_ctor_get(v_a_3_, 0);
 lean_inc(v_head_19_);
 v_tail_20_ = lean_ctor_get(v_a_3_, 1);
 lean_inc(v_tail_20_);
-lean_dec_ref(v_a_3_);
+lean_dec_ref_known(v_a_3_, 2);
 lean_inc(v_f_2_);
 lean_inc(v_a_4_);
 v___f_21_ = lean_alloc_closure((void*)(l___private_Init_Data_List_Scan_Basic_0__List_scanAuxM_go___redArg___lam__0), 6, 5);

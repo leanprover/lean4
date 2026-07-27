@@ -252,7 +252,7 @@ v_key_68_ = lean_ctor_get(v_x_66_, 0);
 lean_inc(v_key_68_);
 v_tail_69_ = lean_ctor_get(v_x_66_, 2);
 lean_inc(v_tail_69_);
-lean_dec_ref(v_x_66_);
+lean_dec_ref_known(v_x_66_, 3);
 v___x_70_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_instDecidableEqBVBit___boxed), 2, 0);
 lean_inc(v_a_65_);
 v___x_71_ = l_Std_Sat_AIG_instDecidableEqDecl_decEq___redArg(v___x_70_, v_key_68_, v_a_65_);
@@ -536,7 +536,7 @@ v_value_148_ = lean_ctor_get(v_x_145_, 1);
 lean_inc(v_value_148_);
 v_tail_149_ = lean_ctor_get(v_x_145_, 2);
 lean_inc(v_tail_149_);
-lean_dec_ref(v_x_145_);
+lean_dec_ref_known(v_x_145_, 3);
 v___x_150_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_instDecidableEqBVBit___boxed), 2, 0);
 lean_inc(v_a_144_);
 v___x_151_ = l_Std_Sat_AIG_instDecidableEqDecl_decEq___redArg(v___x_150_, v_key_147_, v_a_144_);
@@ -659,10 +659,10 @@ return v___x_191_;
 else
 {
 lean_object* v_val_193_; lean_object* v___x_195_; 
-lean_dec_ref(v_decl_182_);
+lean_dec_ref_known(v_decl_182_, 1);
 v_val_193_ = lean_ctor_get(v___x_183_, 0);
 lean_inc(v_val_193_);
-lean_dec_ref(v___x_183_);
+lean_dec_ref_known(v___x_183_, 1);
 if (v_isShared_181_ == 0)
 {
 v___x_195_ = v___x_180_;

@@ -36,9 +36,6 @@ private local instance : ToString Int where
 private local instance : Repr Int where
   reprPrec i prec := if i < 0 then Repr.addAppParen (toString i) prec else toString i
 
-private local instance : Append String where
-  append := String.Internal.append
-
 /-- Internal representation of a linear combination of atoms, and a constant term. -/
 structure LinearCombo where
   /-- Constant term. -/

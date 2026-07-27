@@ -206,7 +206,7 @@ return v___x_74_;
 else
 {
 uint8_t v___x_75_; 
-lean_dec_ref(v_toList_73_);
+lean_dec_ref_known(v_toList_73_, 2);
 v___x_75_ = 0;
 return v___x_75_;
 }
@@ -214,7 +214,7 @@ return v___x_75_;
 else
 {
 lean_object* v_toList_76_; 
-lean_dec_ref(v_toList_72_);
+lean_dec_ref_known(v_toList_72_, 2);
 lean_inc_ref(v_ys_71_);
 v_toList_76_ = lean_array_to_list(v_ys_71_);
 if (lean_obj_tag(v_toList_76_) == 0)
@@ -229,7 +229,7 @@ return v___x_77_;
 else
 {
 uint8_t v___x_78_; 
-lean_dec_ref(v_toList_76_);
+lean_dec_ref_known(v_toList_76_, 2);
 v___x_78_ = l_Array_instDecidableEqImpl___redArg(v_inst_69_, v_xs_70_, v_ys_71_);
 lean_dec_ref(v_ys_71_);
 lean_dec_ref(v_xs_70_);
@@ -278,7 +278,7 @@ return v___x_97_;
 else
 {
 uint8_t v___x_98_; 
-lean_dec_ref(v_toList_96_);
+lean_dec_ref_known(v_toList_96_, 2);
 v___x_98_ = 0;
 return v___x_98_;
 }
@@ -324,7 +324,7 @@ return v___x_111_;
 else
 {
 uint8_t v___x_112_; 
-lean_dec_ref(v_toList_110_);
+lean_dec_ref_known(v_toList_110_, 2);
 v___x_112_ = 0;
 return v___x_112_;
 }

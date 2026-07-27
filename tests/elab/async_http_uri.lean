@@ -3,8 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
-import Std.Internal.Http.Data.URI
-import Std.Internal.Http.Data.URI.Encoding
+import Std.Http.Data.URI
+import Std.Http.Data.URI.Encoding
 
 open Std.Http
 open Std.Http.URI
@@ -212,6 +212,7 @@ info: some " "
 #eval parseCheck "https://user:pass@secure.example.com/private"
 #eval parseCheck "/double//slash//path"
 #eval parseCheck "http://user%40example:pass%3Aword@host.com"
+#eval parseCheck "http://[::ffff:192.168.1.1]/path"
 #eval parseCheck "http://example.com:/"
 #eval parseCheck "http://example.com:/?q=1"
 #eval parseCheck "///////"
@@ -261,6 +262,8 @@ info: some " "
 #eval parseCheckFail ""
 #eval parseCheckFail "[::1"
 #eval parseCheckFail "[:::1]:80"
+#eval parseCheckFail "http://exa_mple.com/path"
+#eval parseCheckFail "http://[fe80::1%25eth0]/path"
 #eval parseCheckFail "#frag"
 #eval parseCheckFail "/path/\n"
 #eval parseCheckFail "/path/\u0000"
@@ -352,7 +355,7 @@ info: Std.Http.RequestTarget.absoluteForm
                    host := Std.Http.URI.Host.name "example.com",
                    port := Std.Http.URI.Port.value 8080 },
     path := { segments := #["ata"], absolute := true },
-    query := #[],
+    query := none,
     fragment := none }
 -/
 #guard_msgs in
@@ -367,7 +370,7 @@ info: Std.Http.RequestTarget.absoluteForm
                    host := Std.Http.URI.Host.ipv6 2001:db8::1,
                    port := Std.Http.URI.Port.value 8080 },
     path := { segments := #["path"], absolute := true },
-    query := #[],
+    query := none,
     fragment := none }
 -/
 #guard_msgs in
@@ -382,7 +385,7 @@ info: Std.Http.RequestTarget.absoluteForm
                    host := Std.Http.URI.Host.name "secure.example.com",
                    port := Std.Http.URI.Port.omitted },
     path := { segments := #["private"], absolute := true },
-    query := #[],
+    query := none,
     fragment := none }
 -/
 #guard_msgs in
@@ -903,7 +906,7 @@ info: Std.Http.RequestTarget.absoluteForm
                    host := Std.Http.URI.Host.name "1example.com",
                    port := Std.Http.URI.Port.omitted },
     path := { segments := #["path"], absolute := true },
-    query := #[],
+    query := none,
     fragment := none }
 -/
 #guard_msgs in
@@ -918,10 +921,111 @@ info: Std.Http.RequestTarget.absoluteForm
                    host := Std.Http.URI.Host.name "123abc.example.com",
                    port := Std.Http.URI.Port.omitted },
     path := { segments := #["page"], absolute := true },
-    query := #[],
+    query := none,
     fragment := none }
 -/
 #guard_msgs in
 #eval show IO _ from do
   let result ← runParser parseRequestTarget "http://123abc.example.com/page"
   IO.println (repr result)
+
+-- parseScheme: first byte uses `satisfy isAlphaByte` (not `takeWhile1AtMost`).
+-- Schemes that start with a non-alpha byte must be rejected.
+#eval parseCheckFail "1http://example.com/path"
+#eval parseCheckFail "+http://example.com/path"
+#eval parseCheckFail "-http://example.com/path"
+#eval parseCheckFail ".http://example.com/path"
+
+-- Scheme body allows '+', '-', '.'.
+#eval parseCheck "coap+tcp://example.com/path"
+#eval parseCheck "svn+ssh://example.com/path"
+#eval parseCheck "my.scheme://example.com/path"
+#eval parseCheck "a-b://example.com/path"
+
+-- Single-letter scheme is valid.
+#eval parseCheck "a://example.com/path"
+
+-- parsePortNumber now uses `takeWhileAtMost` (succeeds at EOF) instead of
+-- `takeWhileUpTo1` (would fail with .eof). Verify a port at the very end of
+-- the input still parses correctly.
+#guard
+  match (parseRequestTarget <* Std.Internal.Parsec.eof).run "example.com:8080".toUTF8 with
+  | .ok (.authorityForm auth) => auth.port == .value 8080
+  | _ => false
+
+-- Port 0 is technically valid (toNat? succeeds).
+#guard
+  match (parseRequestTarget <* Std.Internal.Parsec.eof).run "example.com:0".toUTF8 with
+  | .ok (.authorityForm auth) => auth.port == .value 0
+  | _ => false
+
+-- Port > 65535 must be rejected. Use an unambiguous authority URL so the
+-- number is definitely parsed as a port, not as a path segment.
+#eval parseCheckFail "http://example.com:65536/path"
+#eval parseCheckFail "http://example.com:99999/path"
+
+-- parseQuery now uses `split '&'` instead of `splitOn "&"`.
+-- A trailing `&` is accepted and produces an empty-key entry; it is not a
+-- parse failure.
+#guard
+  match (parseRequestTarget <* Std.Internal.Parsec.eof).run "/path?key=val&".toUTF8 with
+  | .ok result => result.query.size == 2
+  | .error _ => false
+
+-- parseQuery uses `split '='` instead of `splitOn "="`.
+-- A pair containing more than one unencoded `=` must be rejected because the
+-- three-element split falls into the error branch.
+#eval parseCheckFail "/path?key=a=b"
+
+-- A percent-encoded `=` in the value is fine; `%3D` is preserved as-is in
+-- the EncodedQueryParam.
+/--
+info: some (some "a%3Db")
+-/
+#guard_msgs in
+#eval show IO _ from do
+  let result ← runParser parseRequestTarget "/path?key=a%3Db"
+  IO.println (repr (result.query.find? "key"))
+
+-- IPv4/IPv6 parsing now uses `takeWhile1AtMost` (still requires ≥1 byte).
+-- Both types continue to work at the very end of the input.
+#guard
+  match (parseRequestTarget <* Std.Internal.Parsec.eof).run "192.168.0.1:80".toUTF8 with
+  | .ok (.authorityForm auth) => toString auth.host == "192.168.0.1"
+  | _ => false
+
+#guard
+  match (parseRequestTarget <* Std.Internal.Parsec.eof).run "http://[::1]/".toUTF8 with
+  | .ok (.absoluteForm uri) => uri.authority.any fun a => match a.host with | .ipv6 _ => true | _ => false
+  | _ => false
+
+-- RFC 3986 §3.2 allows an empty reg-name, so `file:///path` (empty authority)
+-- must parse as an absolute URI, not fall back to a relative reference.
+-- This ensures the non-http(s) scheme guard in redirect logic fires correctly.
+#guard
+  match URIReference.parse? "file:///etc/passwd" with
+  | some (.absolute af) => af.scheme.val == "file" && af.authority.isNone
+  | _ => false
+
+-- `none` means no query delimiter, while `some .empty` means an explicit empty query.
+#guard (URI.parse! "http://example.com/path").query.isNone
+
+#guard
+  match (URI.parse! "http://example.com/path?").query with
+  | some q => q.isEmpty && toString (URI.parse! "http://example.com/path?") == "http://example.com/path?"
+  | none => false
+
+#guard
+  match RequestTarget.parse? "/path?" with
+  | some (.originForm _ (some q)) => q.isEmpty && toString (RequestTarget.parse! "/path?") == "/path?"
+  | _ => false
+
+#guard
+  match URIReference.parse? "?" with
+  | some (.relative ref) => ref.query.isSome && toString (URIReference.parse! "?") == "?"
+  | _ => false
+
+#guard
+  match URIReference.parse? "#frag" with
+  | some (.relative ref) => ref.query.isNone && toString (URIReference.parse! "#frag") == "#frag"
+  | _ => false

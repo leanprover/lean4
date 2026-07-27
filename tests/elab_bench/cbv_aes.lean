@@ -279,6 +279,7 @@ namespace AESArm
 open BitVec
 
 def WordSize := 32
+@[instance_reducible]
 def BlockSize := 128
 
 def Rcon : List (BitVec WordSize) :=
@@ -306,6 +307,7 @@ structure KBR where
   h : block_size = BlockSize
 deriving DecidableEq, Repr
 
+@[instance_reducible]
 def AES128KBR : KBR :=
   {key_len := 128, block_size := BlockSize, Nr := 10, h := by decide}
 def AES192KBR : KBR :=
@@ -316,7 +318,7 @@ def AES256KBR : KBR :=
 def KeySchedule : Type := List (BitVec WordSize)
 
 -- Declare KeySchedule to be an instance HAppend
--- so we can apply `++` to KeySchedules propertly
+-- so we can apply `++` to KeySchedules properly
 instance : HAppend KeySchedule KeySchedule KeySchedule where
   hAppend := List.append
 

@@ -10,7 +10,7 @@ public import Init.Data.List.MinMax
 import Init.Data.Bool
 import Init.Data.List.Count
 import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Nat.MinMax
 import Init.Data.Option.Lemmas
 import Init.Omega

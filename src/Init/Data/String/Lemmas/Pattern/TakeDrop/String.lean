@@ -30,11 +30,7 @@ theorem skipPrefix?_slice_of_isEmpty {pat s : Slice} (hpat : pat.isEmpty = true)
 @[simp]
 theorem skipPrefix?_slice_eq_some_iff {pat s : Slice} {pos : s.Pos} :
     s.skipPrefix? pat = some pos ↔ ∃ t, pos.Splits pat.copy t := by
-  match h : pat.isEmpty with
-  | false =>
-    have := ForwardSliceSearcher.lawfulForwardPatternModel h
-    rw [Pattern.Model.skipPrefix?_eq_some_iff, ForwardSliceSearcher.isLongestMatch_iff_splits h]
-  | true => simp [skipPrefix?_slice_of_isEmpty h, (show pat.copy = "" by simpa), eq_comm]
+  rw [Pattern.Model.skipPrefix?_eq_some_iff, ForwardSliceSearcher.isLongestMatch_iff_splits]
 
 theorem startsWith_slice_of_isEmpty {pat s : Slice} (hpat : pat.isEmpty = true) :
     s.startsWith pat = true := by
@@ -43,14 +39,10 @@ theorem startsWith_slice_of_isEmpty {pat s : Slice} (hpat : pat.isEmpty = true) 
 @[simp]
 theorem startsWith_slice_iff {pat s : Slice} :
     s.startsWith pat ↔ pat.copy.toList <+: s.copy.toList := by
-  match h : pat.isEmpty with
-  | false =>
-    have := ForwardSliceSearcher.lawfulForwardPatternModel h
-    simp only [Model.startsWith_iff, ForwardSliceSearcher.matchesAt_iff_splits h,
-      splits_startPos_iff, exists_and_left, exists_eq_left]
-    simp only [← toList_inj, toList_append, List.prefix_iff_exists_append_eq]
-    exact ⟨fun ⟨t, ht⟩ => ⟨t.toList, by simp [ht]⟩, fun ⟨t, ht⟩ => ⟨String.ofList t, by simp [← ht]⟩⟩
-  | true => simp [startsWith_slice_of_isEmpty h, (show pat.copy = "" by simpa)]
+  simp only [Model.startsWith_iff, ForwardSliceSearcher.matchesAt_iff_splits,
+    splits_startPos_iff, exists_and_left, exists_eq_left]
+  simp only [← toList_inj, toList_append, List.prefix_iff_exists_append_eq]
+  exact ⟨fun ⟨t, ht⟩ => ⟨t.toList, by simp [ht]⟩, fun ⟨t, ht⟩ => ⟨String.ofList t, by simp [← ht]⟩⟩
 
 @[simp]
 theorem startsWith_slice_eq_false_iff {pat s : Slice} :
@@ -63,14 +55,18 @@ theorem dropPrefix?_slice_of_isEmpty {pat s : Slice} (hpat : pat.isEmpty = true)
 
 theorem eq_append_of_dropPrefix?_slice_eq_some {pat s res : Slice} (h : s.dropPrefix? pat = some res) :
     s.copy = pat.copy ++ res.copy := by
-  match hpat : pat.isEmpty with
-  | false =>
-    have := ForwardSliceSearcher.lawfulForwardPatternModel hpat
-    have := Pattern.Model.eq_append_of_dropPrefix?_eq_some h
-    simp only [PatternModel.Matches] at this
-    obtain ⟨_, ⟨-, rfl⟩, h⟩ := this
-    exact h
-  | true => simp [Option.some.inj (h ▸ dropPrefix?_slice_of_isEmpty hpat), (show pat.copy = "" by simpa)]
+  have := Pattern.Model.eq_append_of_dropPrefix?_eq_some h
+  simp only [PatternModel.Matches] at this
+  obtain ⟨_, ⟨-, rfl⟩, h⟩ := this
+  exact h
+
+@[simp]
+theorem all_slice_iff {pat s : Slice} : s.all pat ↔ ∃ n, s.copy = String.join (List.replicate n pat.copy) := by
+  simp [Pattern.Model.all_eq_true_iff, ForwardSliceSearcher.isLongestMatchAtChain_startPos_endPos_iff]
+
+@[simp]
+theorem revAll_slice_iff {pat s : Slice} : s.revAll pat ↔ ∃ n, s.copy = String.join (List.replicate n pat.copy) := by
+  simp [Pattern.Model.revAll_eq_true_iff, ForwardSliceSearcher.isLongestRevMatchAtChain_startPos_endPos_iff]
 
 @[simp]
 theorem skipPrefix?_string_eq_some_iff {pat : String} {s : Slice} {pos : s.Pos} :
@@ -104,6 +100,7 @@ theorem eq_append_of_dropPrefix?_string_eq_some {pat : String} {s res : Slice} (
   rw [dropPrefix?_string_eq_dropPrefix?_toSlice] at h
   simpa using eq_append_of_dropPrefix?_slice_eq_some h
 
+
 theorem skipSuffix?_slice_of_isEmpty {pat s : Slice} (hpat : pat.isEmpty = true) :
     s.skipSuffix? pat = some s.endPos := by
   rw [skipSuffix?_eq_backwardPatternSkipSuffix?, BackwardSliceSearcher.skipSuffix?_of_isEmpty hpat]
@@ -111,11 +108,7 @@ theorem skipSuffix?_slice_of_isEmpty {pat s : Slice} (hpat : pat.isEmpty = true)
 @[simp]
 theorem skipSuffix?_slice_eq_some_iff {pat s : Slice} {pos : s.Pos} :
     s.skipSuffix? pat = some pos ↔ ∃ t, pos.Splits t pat.copy := by
-  match h : pat.isEmpty with
-  | false =>
-    have := BackwardSliceSearcher.lawfulBackwardPatternModel h
-    rw [Pattern.Model.skipSuffix?_eq_some_iff, ForwardSliceSearcher.isLongestRevMatch_iff_splits h]
-  | true => simp [skipSuffix?_slice_of_isEmpty h, (show pat.copy = "" by simpa), eq_comm]
+  rw [Pattern.Model.skipSuffix?_eq_some_iff, ForwardSliceSearcher.isLongestRevMatch_iff_splits]
 
 theorem endsWith_slice_of_isEmpty {pat s : Slice} (hpat : pat.isEmpty = true) :
     s.endsWith pat = true := by
@@ -124,14 +117,10 @@ theorem endsWith_slice_of_isEmpty {pat s : Slice} (hpat : pat.isEmpty = true) :
 @[simp]
 theorem endsWith_slice_iff {pat s : Slice} :
     s.endsWith pat ↔ pat.copy.toList <:+ s.copy.toList := by
-  match h : pat.isEmpty with
-  | false =>
-    have := BackwardSliceSearcher.lawfulBackwardPatternModel h
-    simp only [Model.endsWith_iff, ForwardSliceSearcher.revMatchesAt_iff_splits h,
-      splits_endPos_iff, exists_eq_right]
-    simp only [← toList_inj, toList_append, List.suffix_iff_exists_append_eq]
-    exact ⟨fun ⟨t, ht⟩ => ⟨t.toList, by simp [ht]⟩, fun ⟨t, ht⟩ => ⟨String.ofList t, by simp [← ht]⟩⟩
-  | true => simp [endsWith_slice_of_isEmpty h, (show pat.copy = "" by simpa)]
+  simp only [Model.endsWith_iff, ForwardSliceSearcher.revMatchesAt_iff_splits,
+    splits_endPos_iff, exists_eq_right]
+  simp only [← toList_inj, toList_append, List.suffix_iff_exists_append_eq]
+  exact ⟨fun ⟨t, ht⟩ => ⟨t.toList, by simp [ht]⟩, fun ⟨t, ht⟩ => ⟨String.ofList t, by simp [← ht]⟩⟩
 
 @[simp]
 theorem endsWith_slice_eq_false_iff {pat s : Slice} :
@@ -144,14 +133,10 @@ theorem dropSuffix?_slice_of_isEmpty {pat s : Slice} (hpat : pat.isEmpty = true)
 
 theorem eq_append_of_dropSuffix?_slice_eq_some {pat s res : Slice} (h : s.dropSuffix? pat = some res) :
     s.copy = res.copy ++ pat.copy := by
-  match hpat : pat.isEmpty with
-  | false =>
-    have := BackwardSliceSearcher.lawfulBackwardPatternModel hpat
-    have := Pattern.Model.eq_append_of_dropSuffix?_eq_some h
-    simp only [PatternModel.Matches] at this
-    obtain ⟨_, ⟨-, rfl⟩, h⟩ := this
-    exact h
-  | true => simp [Option.some.inj (h ▸ dropSuffix?_slice_of_isEmpty hpat), (show pat.copy = "" by simpa)]
+  have := Pattern.Model.eq_append_of_dropSuffix?_eq_some h
+  simp only [PatternModel.Matches] at this
+  obtain ⟨_, ⟨-, rfl⟩, h⟩ := this
+  exact h
 
 @[simp]
 theorem skipSuffix?_string_eq_some_iff' {pat : String} {s : Slice} {pos : s.Pos} :
@@ -208,12 +193,12 @@ theorem startsWith_slice_of_isEmpty {pat : Slice} {s : String} (hpat : pat.isEmp
 @[simp]
 theorem startsWith_slice_iff {pat : Slice} {s : String} :
     s.startsWith pat ↔ pat.copy.toList <+: s.toList := by
-  simp [startsWith_eq_startsWith_toSlice]
+  simp [← startsWith_toSlice]
 
 @[simp]
 theorem startsWith_slice_eq_false_iff {pat : Slice} {s : String} :
     s.startsWith pat = false ↔ ¬ (pat.copy.toList <+: s.toList) := by
-  simp [startsWith_eq_startsWith_toSlice]
+  simp [← startsWith_toSlice]
 
 theorem dropPrefix?_slice_of_isEmpty {pat : Slice} {s : String} (hpat : pat.isEmpty = true) :
     s.dropPrefix? pat = some s.toSlice := by
@@ -239,21 +224,21 @@ theorem skipPrefix?_string_eq_some_iff {pat s : String} {pos : s.Pos} :
 
 @[simp]
 theorem startsWith_string_empty {s : String} : s.startsWith "" = true := by
-  simp [startsWith_eq_startsWith_toSlice]
+  simp [← startsWith_toSlice]
 
 @[simp]
 theorem startsWith_string_iff {pat s : String} :
     s.startsWith pat ↔ pat.toList <+: s.toList := by
-  simp [startsWith_eq_startsWith_toSlice]
+  simp [← startsWith_toSlice]
 
 @[simp]
 theorem startsWith_string_eq_false_iff {pat s : String} :
     s.startsWith pat = false ↔ ¬ (pat.toList <+: s.toList) := by
-  simp [startsWith_eq_startsWith_toSlice]
+  simp [← startsWith_toSlice]
 
 @[simp]
 theorem dropPrefix?_string_empty {s : String} : s.dropPrefix? "" = some s.toSlice := by
-  simp [dropPrefix?_eq_dropPrefix?_toSlice]
+  simp [← dropPrefix?_toSlice]
 
 theorem eq_append_of_dropPrefix?_string_eq_some {s pat : String} {res : Slice} (h : s.dropPrefix? pat = some res) :
     s = pat ++ res.copy := by

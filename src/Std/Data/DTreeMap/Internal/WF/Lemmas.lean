@@ -9,7 +9,7 @@ prelude
 public import Std.Data.DTreeMap.Internal.Model
 import all Std.Data.Internal.List.Associative
 import Init.Data.List.Impl
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Option.List
 import Init.Data.Subtype.Basic
 
@@ -1119,7 +1119,7 @@ theorem filter_eq_filterMap [Ord α] {t : Impl α β} {h} {f : (a : α) → β a
 theorem toListModel_filter [Ord α] {t : Impl α β} {h} {f : (a : α) → β a → Bool} :
     (t.filter f h).impl.toListModel = t.toListModel.filter (fun e => f e.1 e.2) := by
   rw [filter_eq_filterMap, toListModel_filterMap, ← List.filterMap_eq_filter]
-  congr; simp only [Option.map_if, Option.guard_def]
+  congr; simp only [Option.map_ite, Option.guard_def]
 
 theorem ordered_filter [Ord α] {t : Impl α β} {h} {f : (a : α) → β a → Bool} (hto : t.Ordered) :
     (t.filter f h).impl.Ordered := by

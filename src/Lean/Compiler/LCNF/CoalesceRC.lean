@@ -21,7 +21,7 @@ Within a basic block, it is always safe to:
   until the later inc) and thus doing all relevant `inc` in the beginning doesn't change
   semantics.
 - Move all decrements on a variable to the last `dec` location (summing the counts). Because the
-  value is guaranteed to stay alive until at least the last `dec` anyway so a similiar argument to
+  value is guaranteed to stay alive until at least the last `dec` anyway so a similar argument to
   `inc` holds.
 
 Crucially this pass must be placed after `expandResetReuse` as that one relies on `inc`s still being
@@ -63,13 +63,13 @@ where
         return .inc fvarId s.incTotal[fvarId]! check persistent k
       else
         return k
-    | .dec fvarId n check persistent k _ =>
+    | .dec fvarId n check persistent objs? k _ =>
       modify fun s => { s with decTotal := s.decTotal.alter fvarId (fun v? => some ((v?.getD 0) + n)) }
       let k ← go k
       let s ← get
       if !s.decPlaced.contains fvarId then
         modify fun s => { s with decPlaced := s.decPlaced.insert fvarId }
-        return .dec fvarId s.decTotal[fvarId]! check persistent k
+        return .dec fvarId s.decTotal[fvarId]! check persistent objs? k
       else
         return k
     | .let _ k =>

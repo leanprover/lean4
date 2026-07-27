@@ -1,0 +1,20 @@
+name = "deprecated_module"
+defaultTargets = ["Main"]
+
+[[lean_lib]]
+name = "Main"
+roots = [
+  "DeprecatedModule.New",
+  "DeprecatedModule.Old",
+  "DeprecatedModule.OldNoMessage",
+  "DeprecatedModule.OldDouble",
+  "DeprecatedModule.Transitive",
+  "DeprecatedModule.Consumer",
+  "DeprecatedModule.TransitiveConsumer",
+  "DeprecatedModule.ConsumerIgnoreAll",
+  "DeprecatedModule.ConsumerIgnoreOne",
+  "DeprecatedModule.ConsumerIgnoreWhitespace",
+  "DeprecatedModule.ConsumerIgnoreOnlyImport",
+  "DeprecatedModule.ConsumerIgnoreLastImport",
+  "DeprecatedModule.ConsumerShowDeprecated",
+]

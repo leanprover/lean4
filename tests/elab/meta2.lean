@@ -569,14 +569,14 @@ pure ()
 
 /--
 trace: [Meta.debug] ----- tst29 -----
-[Meta.debug] u+1
-[Meta.debug] u+1
-[Meta.debug] max (max 1 (u+2)) 2
-[Meta.debug] u+2
-[Meta.debug] max (max (u+3) (u+2)) 2
-[Meta.debug] u+3
-[Meta.debug] max (max (v+1) (u+2)) 2
-[Meta.debug] max (u+2) (v+1)
+[Meta.debug] u + 1
+[Meta.debug] u + 1
+[Meta.debug] max (max 1 (u + 2)) 2
+[Meta.debug] u + 2
+[Meta.debug] max (max (u + 3) (u + 2)) 2
+[Meta.debug] u + 3
+[Meta.debug] max (max (v + 1) (u + 2)) 2
+[Meta.debug] max (u + 2) (v + 1)
 -/
 #guard_msgs in
 #eval tst29

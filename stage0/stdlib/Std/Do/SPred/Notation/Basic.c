@@ -814,9 +814,9 @@ return v___x_363_;
 LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg___lam__3___boxed(lean_object* v___x_364_, lean_object* v_toPure_365_, lean_object* v_____do__lift_366_){
 _start:
 {
-uint8_t v___x_9843__boxed_367_; lean_object* v_res_368_; 
-v___x_9843__boxed_367_ = lean_unbox(v___x_364_);
-v_res_368_ = l_Std_Do_SPred_Notation_unpack___redArg___lam__3(v___x_9843__boxed_367_, v_toPure_365_, v_____do__lift_366_);
+uint8_t v___x_9844__boxed_367_; lean_object* v_res_368_; 
+v___x_9844__boxed_367_ = lean_unbox(v___x_364_);
+v_res_368_ = l_Std_Do_SPred_Notation_unpack___redArg___lam__3(v___x_9844__boxed_367_, v_toPure_365_, v_____do__lift_366_);
 lean_dec(v_____do__lift_366_);
 return v_res_368_;
 }
@@ -978,9 +978,9 @@ return v___x_476_;
 LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg___lam__7___boxed(lean_object* v_inst_477_, lean_object* v_toApplicative_478_, lean_object* v_inst_479_, lean_object* v___x_480_, lean_object* v___x_481_, lean_object* v___x_482_, lean_object* v___x_483_, lean_object* v___x_484_, lean_object* v___x_485_, lean_object* v___x_486_, lean_object* v___x_487_, lean_object* v___x_488_, lean_object* v_toBind_489_, lean_object* v___x_490_, lean_object* v_____do__lift_491_){
 _start:
 {
-uint8_t v___x_10033__boxed_492_; lean_object* v_res_493_; 
-v___x_10033__boxed_492_ = lean_unbox(v___x_490_);
-v_res_493_ = l_Std_Do_SPred_Notation_unpack___redArg___lam__7(v_inst_477_, v_toApplicative_478_, v_inst_479_, v___x_480_, v___x_481_, v___x_482_, v___x_483_, v___x_484_, v___x_485_, v___x_486_, v___x_487_, v___x_488_, v_toBind_489_, v___x_10033__boxed_492_, v_____do__lift_491_);
+uint8_t v___x_10034__boxed_492_; lean_object* v_res_493_; 
+v___x_10034__boxed_492_ = lean_unbox(v___x_490_);
+v_res_493_ = l_Std_Do_SPred_Notation_unpack___redArg___lam__7(v_inst_477_, v_toApplicative_478_, v_inst_479_, v___x_480_, v___x_481_, v___x_482_, v___x_483_, v___x_484_, v___x_485_, v___x_486_, v___x_487_, v___x_488_, v_toBind_489_, v___x_10034__boxed_492_, v_____do__lift_491_);
 return v_res_493_;
 }
 }
@@ -1098,9 +1098,9 @@ return v___x_562_;
 LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg___lam__10___boxed(lean_object* v_inst_563_, lean_object* v_toApplicative_564_, lean_object* v_inst_565_, lean_object* v___x_566_, lean_object* v_xs_567_, lean_object* v___x_568_, lean_object* v___x_569_, lean_object* v_toBind_570_, lean_object* v___x_571_, lean_object* v_b_572_){
 _start:
 {
-uint8_t v___x_10143__boxed_573_; lean_object* v_res_574_; 
-v___x_10143__boxed_573_ = lean_unbox(v___x_571_);
-v_res_574_ = l_Std_Do_SPred_Notation_unpack___redArg___lam__10(v_inst_563_, v_toApplicative_564_, v_inst_565_, v___x_566_, v_xs_567_, v___x_568_, v___x_569_, v_toBind_570_, v___x_10143__boxed_573_, v_b_572_);
+uint8_t v___x_10144__boxed_573_; lean_object* v_res_574_; 
+v___x_10144__boxed_573_ = lean_unbox(v___x_571_);
+v_res_574_ = l_Std_Do_SPred_Notation_unpack___redArg___lam__10(v_inst_563_, v_toApplicative_564_, v_inst_565_, v___x_566_, v_xs_567_, v___x_568_, v___x_569_, v_toBind_570_, v___x_10144__boxed_573_, v_b_572_);
 return v_res_574_;
 }
 }
@@ -1191,9 +1191,9 @@ return v___x_626_;
 LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg___lam__13___boxed(lean_object* v_inst_627_, lean_object* v_toApplicative_628_, lean_object* v_inst_629_, lean_object* v___x_630_, lean_object* v___x_631_, lean_object* v_t_632_, lean_object* v_toBind_633_, lean_object* v___x_634_, lean_object* v_e_635_){
 _start:
 {
-uint8_t v___x_10215__boxed_636_; lean_object* v_res_637_; 
-v___x_10215__boxed_636_ = lean_unbox(v___x_634_);
-v_res_637_ = l_Std_Do_SPred_Notation_unpack___redArg___lam__13(v_inst_627_, v_toApplicative_628_, v_inst_629_, v___x_630_, v___x_631_, v_t_632_, v_toBind_633_, v___x_10215__boxed_636_, v_e_635_);
+uint8_t v___x_10216__boxed_636_; lean_object* v_res_637_; 
+v___x_10216__boxed_636_ = lean_unbox(v___x_634_);
+v_res_637_ = l_Std_Do_SPred_Notation_unpack___redArg___lam__13(v_inst_627_, v_toApplicative_628_, v_inst_629_, v___x_630_, v___x_631_, v_t_632_, v_toBind_633_, v___x_10216__boxed_636_, v_e_635_);
 return v_res_637_;
 }
 }
@@ -1345,9 +1345,9 @@ return v___x_735_;
 LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg___lam__18___boxed(lean_object* v_inst_736_, lean_object* v_toApplicative_737_, lean_object* v_inst_738_, lean_object* v___x_739_, lean_object* v___x_740_, lean_object* v___x_741_, lean_object* v___x_742_, lean_object* v___x_743_, lean_object* v___x_744_, lean_object* v___x_745_, lean_object* v___x_746_, lean_object* v_toBind_747_, lean_object* v___x_748_, lean_object* v_____do__lift_749_){
 _start:
 {
-uint8_t v___x_10394__boxed_750_; lean_object* v_res_751_; 
-v___x_10394__boxed_750_ = lean_unbox(v___x_748_);
-v_res_751_ = l_Std_Do_SPred_Notation_unpack___redArg___lam__18(v_inst_736_, v_toApplicative_737_, v_inst_738_, v___x_739_, v___x_740_, v___x_741_, v___x_742_, v___x_743_, v___x_744_, v___x_745_, v___x_746_, v_toBind_747_, v___x_10394__boxed_750_, v_____do__lift_749_);
+uint8_t v___x_10395__boxed_750_; lean_object* v_res_751_; 
+v___x_10395__boxed_750_ = lean_unbox(v___x_748_);
+v_res_751_ = l_Std_Do_SPred_Notation_unpack___redArg___lam__18(v_inst_736_, v_toApplicative_737_, v_inst_738_, v___x_739_, v___x_740_, v___x_741_, v___x_742_, v___x_743_, v___x_744_, v___x_745_, v___x_746_, v_toBind_747_, v___x_10395__boxed_750_, v_____do__lift_749_);
 return v_res_751_;
 }
 }
@@ -1390,9 +1390,9 @@ return v_res_767_;
 LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___redArg___lam__11___boxed(lean_object* v_inst_768_, lean_object* v_toApplicative_769_, lean_object* v_inst_770_, lean_object* v___x_771_, lean_object* v___x_772_, lean_object* v_toBind_773_, lean_object* v___x_774_, lean_object* v_inst_775_, lean_object* v_e_776_, lean_object* v_t_777_){
 _start:
 {
-uint8_t v___x_10506__boxed_778_; lean_object* v_res_779_; 
-v___x_10506__boxed_778_ = lean_unbox(v___x_774_);
-v_res_779_ = l_Std_Do_SPred_Notation_unpack___redArg___lam__11(v_inst_768_, v_toApplicative_769_, v_inst_770_, v___x_771_, v___x_772_, v_toBind_773_, v___x_10506__boxed_778_, v_inst_775_, v_e_776_, v_t_777_);
+uint8_t v___x_10507__boxed_778_; lean_object* v_res_779_; 
+v___x_10507__boxed_778_ = lean_unbox(v___x_774_);
+v_res_779_ = l_Std_Do_SPred_Notation_unpack___redArg___lam__11(v_inst_768_, v_toApplicative_769_, v_inst_770_, v___x_771_, v___x_772_, v_toBind_773_, v___x_10507__boxed_778_, v_inst_775_, v_e_776_, v_t_777_);
 return v_res_779_;
 }
 }

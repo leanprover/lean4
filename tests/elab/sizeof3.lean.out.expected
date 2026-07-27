@@ -1,11 +1,10 @@
-@[defeq] theorem AList.nil.sizeOf_spec.{u} : ∀ {α β : Type u} [inst : SizeOf α] [inst_1 : SizeOf β],
-  sizeOf AList.nil = 1 :=
+theorem AList.nil.sizeOf_spec.{u} : ∀ {α β : Type u} [inst : SizeOf α] [inst_1 : SizeOf β], sizeOf AList.nil = 1 :=
 fun {α β} [SizeOf α] [SizeOf β] => Eq.refl 1
-@[defeq] theorem AList.cons.sizeOf_spec.{u} : ∀ {α β : Type u} [inst : SizeOf α] [inst_1 : SizeOf β] (a : α)
-  (t : BList α β), sizeOf (AList.cons a t) = 1 + sizeOf a + sizeOf t :=
+theorem AList.cons.sizeOf_spec.{u} : ∀ {α β : Type u} [inst : SizeOf α] [inst_1 : SizeOf β] (a : α) (t : BList α β),
+  sizeOf (AList.cons a t) = 1 + sizeOf a + sizeOf t :=
 fun {α β} [SizeOf α] [SizeOf β] a t => Eq.refl (1 + sizeOf a + sizeOf t)
-@[defeq] theorem BList.cons.sizeOf_spec.{u} : ∀ {α β : Type u} [inst : SizeOf α] [inst_1 : SizeOf β] (b : β)
-  (t : AList α β), sizeOf (BList.cons b t) = 1 + sizeOf b + sizeOf t :=
+theorem BList.cons.sizeOf_spec.{u} : ∀ {α β : Type u} [inst : SizeOf α] [inst_1 : SizeOf β] (b : β) (t : AList α β),
+  sizeOf (BList.cons b t) = 1 + sizeOf b + sizeOf t :=
 fun {α β} [SizeOf α] [SizeOf β] b t => Eq.refl (1 + sizeOf b + sizeOf t)
 theorem Boo.mk.sizeOf_spec.{u} : ∀ {α : Type u} [inst : SizeOf α] (a : α) (cs : BList (Foo α) (Boo α)),
   sizeOf (Boo.mk a cs) = 1 + sizeOf a + sizeOf cs :=

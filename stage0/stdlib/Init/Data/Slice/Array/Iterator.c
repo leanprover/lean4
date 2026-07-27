@@ -355,7 +355,7 @@ lean_dec_ref(v_it_69_);
 lean_dec(v_recur_68_);
 v_a_71_ = lean_ctor_get(v_____do__lift_70_, 0);
 lean_inc(v_a_71_);
-lean_dec_ref(v_____do__lift_70_);
+lean_dec_ref_known(v_____do__lift_70_, 1);
 v___x_72_ = lean_apply_2(v_toPure_67_, lean_box(0), v_a_71_);
 return v___x_72_;
 }
@@ -365,7 +365,7 @@ lean_object* v_a_73_; lean_object* v___x_74_;
 lean_dec(v_toPure_67_);
 v_a_73_ = lean_ctor_get(v_____do__lift_70_, 0);
 lean_inc(v_a_73_);
-lean_dec_ref(v_____do__lift_70_);
+lean_dec_ref_known(v_____do__lift_70_, 1);
 v___x_74_ = lean_apply_4(v_recur_68_, v_it_69_, v_a_73_, lean_box(0), lean_box(0));
 return v___x_74_;
 }
@@ -383,7 +383,7 @@ v_it_81_ = lean_ctor_get(v_s_80_, 0);
 lean_inc(v_it_81_);
 v_out_82_ = lean_ctor_get(v_s_80_, 1);
 lean_inc(v_out_82_);
-lean_dec_ref(v_s_80_);
+lean_dec_ref_known(v_s_80_, 2);
 v___f_83_ = lean_alloc_closure((void*)(l_instIteratorLoopSubarrayIteratorIdOfMonad___redArg___lam__0), 4, 3);
 lean_closure_set(v___f_83_, 0, v_toPure_75_);
 lean_closure_set(v___f_83_, 1, v_recur_76_);
@@ -400,7 +400,7 @@ lean_dec(v___y_77_);
 lean_dec(v_toPure_75_);
 v_it_86_ = lean_ctor_get(v_s_80_, 0);
 lean_inc(v_it_86_);
-lean_dec_ref(v_s_80_);
+lean_dec_ref_known(v_s_80_, 1);
 v___x_87_ = lean_apply_4(v_recur_76_, v_it_86_, v_acc_78_, lean_box(0), lean_box(0));
 return v___x_87_;
 }
@@ -600,7 +600,7 @@ lean_dec_ref(v___x_153_);
 lean_dec(v_recur_152_);
 v_a_155_ = lean_ctor_get(v_____do__lift_154_, 0);
 lean_inc(v_a_155_);
-lean_dec_ref(v_____do__lift_154_);
+lean_dec_ref_known(v_____do__lift_154_, 1);
 v___x_156_ = lean_apply_2(v_toPure_151_, lean_box(0), v_a_155_);
 return v___x_156_;
 }
@@ -610,7 +610,7 @@ lean_object* v_a_157_; lean_object* v___x_158_;
 lean_dec(v_toPure_151_);
 v_a_157_ = lean_ctor_get(v_____do__lift_154_, 0);
 lean_inc(v_a_157_);
-lean_dec_ref(v_____do__lift_154_);
+lean_dec_ref_known(v_____do__lift_154_, 1);
 v___x_158_ = lean_apply_4(v_recur_152_, v___x_153_, v_a_157_, lean_box(0), lean_box(0));
 return v___x_158_;
 }

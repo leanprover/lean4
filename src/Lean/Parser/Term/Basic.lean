@@ -84,11 +84,12 @@ Delimiter-free indentation is determined by the *first* tactic of the sequence. 
   tacticSeqBracketed <|> tacticSeq1Indented
 
 /-- Same as [`tacticSeq`] but requires delimiter-free tactic sequence to have strict indentation.
-The strict indentation requirement only apply to *nested* `by`s, as top-level `by`s do not have a
-position set. -/
+Falls back to an empty tactic sequence when no appropriately indented content follows, producing
+an elaboration error (unsolved goals) rather than a parse error. -/
 @[builtin_doc, run_builtin_parser_attribute_hooks]
 def tacticSeqIndentGt := withAntiquot (mkAntiquot "tacticSeq" ``tacticSeq) <| node ``tacticSeq <|
-  tacticSeqBracketed <|> (checkColGt "indented tactic sequence" >> tacticSeq1Indented)
+  tacticSeqBracketed <|> (checkColGt "indented tactic sequence" >> tacticSeq1Indented) <|>
+  node ``tacticSeq1Indented pushNone
 
 /- Raw sequence for quotation and grouping -/
 @[run_builtin_parser_attribute_hooks]

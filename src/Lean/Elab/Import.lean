@@ -66,8 +66,6 @@ def checkDeprecatedImports
     : MessageLog := Id.run do
   let mut opts := opts
   let mut ignoreDeprecatedImports : NameSet := {}
-  -- Position of each `import` statement, so warnings point at the offending import rather than
-  -- the start of the header.
   let mut importPositions : NameMap String.Pos.Raw := {}
   if let some headerStx := origHeaderStx? <|> headerStx? then
     match headerStx with

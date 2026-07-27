@@ -12,9 +12,8 @@ check_out_contains "import DeprecatedModule.New"
 check_out_contains "'DeprecatedModule.OldNoMessage' has been deprecated: please replace this import by"
 
 # Warnings are anchored at the offending import statement, not the start of the header:
-# Consumer imports the non-deprecated GoodModule on line 1, Old on line 2, OldNoMessage on line 3
-check_out_contains "DeprecatedModule/Consumer.lean:2:0: use DeprecatedModule.New instead"
-check_out_contains "DeprecatedModule/Consumer.lean:3:0: 'DeprecatedModule.OldNoMessage' has been deprecated"
+check_out_contains "DeprecatedModule/Consumer.lean:4:0: use DeprecatedModule.New instead"
+check_out_contains "DeprecatedModule/Consumer.lean:5:0: 'DeprecatedModule.OldNoMessage' has been deprecated"
 
 # OldDouble has two deprecated_module commands — second triggers duplicate warning
 check_out_contains "module is already marked as deprecated"

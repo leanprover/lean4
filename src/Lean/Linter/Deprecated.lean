@@ -43,8 +43,9 @@ builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ←
       let since? := since?.map TSyntax.getString
       if id?.isNone && text?.isNone then
         logWarning "`[deprecated]` attribute should specify either a new name or a deprecation message"
-      if since?.isNone then
-        logWarning "`[deprecated]` attribute should specify the date or library version at which the deprecation was introduced, using `(since := \"...\")`"
+      -- TODO: reenable after bootstrapping dance.
+      -- if since?.isNone then
+      --   logWarning "`[deprecated]` attribute should specify the date or library version at which the deprecation was introduced, using `(since := \"...\")`"
       return { newName?, text?, since? }
   }
 

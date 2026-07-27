@@ -321,10 +321,17 @@ add_test_pile(
   EXCEPT
     async_select_channel.lean # Flaky
     sync_mutex.lean # Flaky
+    4636.lean # #14566
   ${ELAB_FIXTURES}
 )
 add_test_pile(elab_bench *.lean BENCH PART2 ${ELAB_FIXTURES})
-add_test_pile(elab_fail *.lean ${ELAB_FIXTURES})
+add_test_pile(
+  elab_fail
+  *.lean
+  EXCEPT
+    deprecated.lean # #14566
+  ${ELAB_FIXTURES}
+)
 add_test_pile(misc *.sh)
 add_test_pile(misc_bench *.sh BENCH PART2)
 add_test_pile(server *.lean)

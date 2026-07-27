@@ -304,7 +304,9 @@ public def withCbvOpaqueGuard (x : MetaM α) : MetaM α := do
 
 builtin_cbv_simproc ↓ simpCbvCond (@cond _ _ _) := simpCond
 
-public def reduceRecMatcher : Simproc := fun e => do
+public def reduceRecMatcher (reduceMatchers : Bool := true) : Simproc := fun e => do
+  if (← isMatcherApp e) && !reduceMatchers  then
+    return .rfl
   if let some e' ← withCbvOpaqueGuard <| reduceRecMatcher? e then
     trace[Meta.Tactic.cbv.rewrite] "recMatcher:{indentExpr e}\n==>{indentExpr e'}"
     return .step e' (← Sym.mkEqRefl e')

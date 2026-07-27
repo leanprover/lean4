@@ -146,17 +146,24 @@ def resetSynthInstanceCacheCore : CoreM Unit :=
 Resets the type class resolution cache (both the persistent tier and the transient
 `Meta.Cache.synthInstance` tier).
 
-The cache is reset automatically when an instance is added via `addInstance` or erased, and
-activation of scoped instances is accounted for in the cache key
+The cache is reset automatically when an instance is added via `addInstance` or erased, when the
+reducibility status of a pre-existing declaration changes (via `reducibilityChangeHook`), or when
+a unification hint is added; activation of scoped instances is accounted for in the cache key
 (`SynthInstanceCacheKey.activeScopedInsts`). Other changes that may affect typeclass resolution
 require calling this function explicitly, e.g. closing a section containing local instances,
-changing the reducibility status of a pre-existing declaration, or adding instances through an
+local reducibility changes, or scoped unification hints, or adding instances through an
 environment modification the current `Meta.State` cannot observe, such as running a command via
 `liftCommandElabM` (which threads the environment back but cannot clear `Meta.Cache`).
 -/
 def resetSynthInstanceCache : MetaM Unit := do
   resetSynthInstanceCacheCore
   modifyCache fun c => { c with synthInstance := {} }
+
+builtin_initialize
+  -- Resolution unfolds `[reducible]` and `[instance_reducible]` declarations during `isDefEq`, so
+  -- cached results (in particular failures) computed under the old status of a declaration are
+  -- invalid after a post-hoc change.
+  reducibilityChangeHook.set fun _ => resetSynthInstanceCacheCore
 
 private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
   let type ← inferType e

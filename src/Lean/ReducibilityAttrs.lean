@@ -177,11 +177,26 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
         unless statusOld matches .irreducible do
           throwError "failed to set `[local semireducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[irreducible]` expected{suffix}"
 
+/--
+Callback invoked when the reducibility status of a pre-existing declaration changes, i.e. through
+an `attribute` command rather than as part of the declaration's own elaboration. Reducibility
+determines what `isDefEq` may unfold, so such a change can invalidate cached definitional
+equality results computed under the old status; the type class resolution cache registers its
+reset here (see `Lean.Meta.resetSynthInstanceCacheCore`).
+-/
+builtin_initialize reducibilityChangeHook : IO.Ref (Name → CoreM Unit) ← IO.mkRef fun _ => pure ()
+
 private def addAttr (status : ReducibilityStatus) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
   Attribute.Builtin.ensureNoArgs stx
   validate declName status attrKind
   let ns ← getCurrNamespace
   modifyEnv fun env => setReducibilityStatusCore env declName status attrKind ns
+  -- An attribute that is part of the declaration's own elaboration (`@[reducible] def f`) cannot
+  -- invalidate anything: consumers cannot have cached results about `f` before `f` existed. See
+  -- `Attribute.declTimeOptionName`; an absent option means the origin is unknown and is treated
+  -- conservatively as a change to a pre-existing declaration.
+  unless (← getOptions).getBool Attribute.declTimeOptionName do
+    (← reducibilityChangeHook.get) declName
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -256,7 +271,13 @@ builtin_initialize
 def getReducibilityStatus [Monad m] [MonadEnv m] (declName : Name) : m ReducibilityStatus := do
   return getReducibilityStatusCore (← getEnv) declName
 
-/-- Set the reducibility attribute for the given declaration. -/
+/--
+Set the reducibility attribute for the given declaration.
+
+Note: does not notify `reducibilityChangeHook`. Use only for declarations created by the caller
+itself (before other code can have cached results about them); status changes to pre-existing
+declarations must go through the reducibility attributes.
+-/
 def setReducibilityStatus [MonadEnv m] (declName : Name) (s : ReducibilityStatus) : m Unit :=
   modifyEnv fun env => setReducibilityStatusCore env declName s .global .anonymous
 

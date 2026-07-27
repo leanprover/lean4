@@ -94,6 +94,10 @@ builtin_initialize
     add   := fun declName stx kind => do
       Attribute.Builtin.ensureNoArgs stx
       discard <| addUnificationHint declName kind |>.run
+      -- Unification hints participate in `isDefEq` during type class resolution, so a new hint
+      -- can invalidate cached results, in particular cached failures. Unlike reducibility there
+      -- is no declaration-time exemption: the hint applies to pre-existing terms.
+      resetSynthInstanceCacheCore
   }
 
 def tryUnificationHints (t s : Expr) : MetaM Bool := do

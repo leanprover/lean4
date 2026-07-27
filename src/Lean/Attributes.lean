@@ -19,6 +19,18 @@ inductive AttributeApplicationTime where
 
 abbrev AttrM := CoreM
 
+/--
+Name of an internal option set on the elaborator options while attributes are applied as part of a
+declaration's own elaboration (see `Lean.Elab.Term.applyAttributes`), and explicitly set to `false`
+by the `attribute` command. An attribute whose effect invalidates caches about pre-existing
+declarations may consult it via `Options.getBool` and skip the invalidation when it is `true`: the
+attribute then targets a declaration that did not exist before the current elaboration, which no
+cached information can concern. When the option is absent, the origin of the application is
+unknown (e.g. a direct `Attribute.add` from meta code) and must be treated like a change to a
+pre-existing declaration. See e.g. `Lean.reducibilityChangeHook`.
+-/
+def Attribute.declTimeOptionName : Name := `internal.Attribute.declTime
+
 instance : MonadLift ImportM AttrM where
   monadLift x := do liftM (m := IO) (x { env := (← getEnv), opts := (← getOptions) })
 

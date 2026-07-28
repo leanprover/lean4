@@ -6,3 +6,4 @@ Authors: Sofia Rodrigues
 module
 prelude
 public import Std.Internal.SSL.Context
+public import Std.Internal.SSL.Session

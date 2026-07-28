@@ -187,7 +187,11 @@ def mkAuxFunction (ctx : Context) (auxFunName : Name) (indVal : InductiveVal): T
     then `(Parser.Termination.suffix|termination_by structural $target₁)
     else `(Parser.Termination.suffix|)
   let type    ← `(Decidable ($target₁ = $target₂))
-  `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term
+  -- `@[expose]` so that `decide`/`rfl` over derived `DecidableEq` instances reduces in
+  -- the kernel for consumers built with the module system. Without it the generated
+  -- `decEq` is a plain `def` whose body is opaque across a module boundary, and every
+  -- derived instance stalls downstream.
+  `(@[expose] def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term
     $termSuffix:suffix)
 
 def mkAuxFunctions (ctx : Context) : TermElabM (TSyntax `command) := do

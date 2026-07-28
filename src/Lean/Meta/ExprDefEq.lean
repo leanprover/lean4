@@ -2208,13 +2208,23 @@ private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
   The `whnf` procedure has support for unfolding class projections when the
   transparency mode is set to `.instances` or `.implicit`. This method ensures the
   behavior of `whnf` and `isDefEq` is consistent in those transparency modes.
+
+  A failed comparison of the unfolded terms is conclusive only if neither term contains
+  metavariables: unfolding the class projections removes the shape `getStuckMVar?` needs to
+  detect an unsynthesized instance in an argument, so a failure may just mean that we are stuck.
+  We therefore report it as `.undef` and let `isDefEqOnFailure` inspect the original terms.
 -/
 private def isDefEqProjInst (t : Expr) (s : Expr) : MetaM LBool := do
   unless (← getTransparency) matches .instances | .implicit do return .undef
   let t? ← unfoldProjInstWhenInstances? t
   let s? ← unfoldProjInstWhenInstances? s
   if t?.isSome || s?.isSome then
-    toLBoolM <| Meta.isExprDefEqAux (t?.getD t) (s?.getD s)
+    if !t.hasExprMVar && !s.hasExprMVar then
+      toLBoolM <| Meta.isExprDefEqAux (t?.getD t) (s?.getD s)
+    else if (← checkpointDefEq (Meta.isExprDefEqAux (t?.getD t) (s?.getD s))) then
+      return .true
+    else
+      return .undef
   else
     return .undef
 

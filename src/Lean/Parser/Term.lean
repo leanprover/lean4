@@ -732,12 +732,12 @@ def whereFinallySubsection := leading_parser
   ppLine >> "| " >> ident >> darrow >> Tactic.tacticSeq
 
 /--
-The `spec` subsection of `where ... finally` supplies a `grind`-mode step that discharges residual
-verification conditions of the definition's `require`/`ensures` contract. Group multiple steps
-with parentheses, e.g. `| spec => (instantiate [h]; finish)`.
+The `spec` subsection of `where ... finally` supplies `grind`-mode steps that discharge residual
+verification conditions of the definition's `require`/`ensures` contract.
 -/
 def whereFinallySpecSubsection := leading_parser
-  ppLine >> atomic ("| " >> nonReservedSymbol "spec") >> darrow >> categoryParser `grind 0
+  ppLine >> atomic ("| " >> nonReservedSymbol "spec") >> darrow >>
+  sepBy1Indent (categoryParser `grind 0) "; " (allowTrailingSep := true)
 
 /--
 The `finally` section trailing a `where` opens a tactic block to fill in `?hole`s in the definition body.

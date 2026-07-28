@@ -51,8 +51,8 @@ private def setPath (s : Syntax) : List Nat → Syntax → Syntax
   | [], r => r
   | i :: p, r => s.setArg i (setPath s[i] p r)
 
-/-- Extracts the grind-mode step of a `where finally | spec => step` section from a `declVal`
-alternative, returning the step and the `declVal` with the section removed. -/
+/-- Extracts the grind-mode steps of a `where finally | spec => steps` section from a `declVal`
+alternative, returning the steps and the `declVal` with the section removed. -/
 private def extractSpecSection (v : Syntax) : MacroM (Option Syntax × Syntax) := do
   let some path := whereDeclsPath? v | return (none, v)
   let optWd := getPath v path
@@ -63,19 +63,13 @@ private def extractSpecSection (v : Syntax) : MacroM (Option Syntax × Syntax) :
   let optWf := wd[2]
   if optWf.isNone then return (none, v)
   let wf := optWf[0]
-  let subs := wf[2].getArgs
-  let specs := subs.filter (·.isOfKind ``Lean.Parser.Term.whereFinallySpecSubsection)
+  let (specs, others) := wf[2].getArgs.partition (·.isOfKind ``Lean.Parser.Term.whereFinallySpecSubsection)
   if specs.isEmpty then return (none, v)
   if h : 1 < specs.size then
     Macro.throwErrorAt specs[1] "duplicate `spec` section"
-  -- `whereFinallySpecSubsection = "| "(0) >> "spec"(1) >> "=>"(2) >> grind(3)`
-  let step := specs[0]![3]
-  let others := subs.filter (!·.isOfKind ``Lean.Parser.Term.whereFinallySpecSubsection)
-  let dropWf := wf[1].isNone && others.isEmpty
-  let optWf' := if dropWf then mkNullNode else mkNullNode #[wf.setArg 2 (mkNullNode others)]
-  let dropWd := dropWf && wd[1].getArgs.isEmpty
-  let optWd' := if dropWd then mkNullNode else mkNullNode #[wd.setArg 2 optWf']
-  return (some step, setPath v path optWd')
+  -- `whereFinallySpecSubsection = "| "(0) >> "spec"(1) >> "=>"(2) >> sepBy1Indent grind(3)`
+  let wf' := wf.setArg 2 (mkNullNode others)
+  return (some specs[0]![3], setPath v path (mkNullNode #[wd.setArg 2 (mkNullNode #[wf'])]))
 
 /-- Expand a `def` carrying `require`/`ensures` clauses into the plain `def` plus a spec theorem
 `@[spec] theorem f.spec : ⦃P⦄ f args ⦃fun b => Q⦄` proved by `vcgen`. A
@@ -115,20 +109,31 @@ add `import Std.Internal.Do` to use them."
     match ensuresStx[0] with
     | `(ensuresClause| ensures $bs* => $q) => `(fun $bs* => $q)
     | _ => Macro.throwUnsupported
-  let msg : TSyntax `str := ⟨Syntax.mkStrLit
-    s!"unproved verification condition for the contract of `{fId.getId}`; \
+  let msg : TSyntax `str := ⟨Syntax.mkStrLit <|
+    if specStep?.isSome then
+      s!"unproved verification condition for the contract of `{fId.getId}`; \
+the `where finally | spec => ...` section does not discharge it"
+    else
+      s!"unproved verification condition for the contract of `{fId.getId}`; \
 discharge it in a `where finally | spec => ...` section of the definition"⟩
+  -- The section's steps become a `first` alternative tried per verification condition; without a
+  -- section, `done` fails on the open goal and control reaches the reporting alternative.
+  let toStep (g : Syntax) : TSyntax ``Lean.Parser.Tactic.Grind.grindStep :=
+    ⟨mkNode ``Lean.Parser.Tactic.Grind.grindStep #[g, mkNullNode]⟩
+  let steps ← match specStep? with
+    | some seq => do
+        let mut arr := #[]
+        for h : i in [0:seq.getArgs.size] do
+          if i % 2 == 0 then
+            arr := arr.push (toStep seq.getArgs[i])
+        pure arr
+    | none => do pure #[toStep (← `(grind| done))]
   -- `open scoped` activates `Std.Internal.Do`'s scoped instances for the spec theorem without
   -- adding names to the user's scope.
-  let thm ← match specStep? with
-    | some step => `(command|
-        open scoped Std.Internal.Do in
-        @[spec] theorem $specId $binders* : ⦃ $pre ⦄ $fId $args* ⦃ $post ⦄ := by
-          vcgen [$fId:ident] with first (finish) ($(⟨step⟩):grind) (tactic => fail $msg))
-    | none => `(command|
-        open scoped Std.Internal.Do in
-        @[spec] theorem $specId $binders* : ⦃ $pre ⦄ $fId $args* ⦃ $post ⦄ := by
-          vcgen [$fId:ident] with first (finish) (tactic => fail $msg))
+  let thm ← `(command|
+    open scoped Std.Internal.Do in
+    @[spec] theorem $specId $binders* : ⦃ $pre ⦄ $fId $args* ⦃ $post ⦄ := by
+      vcgen [$fId:ident] with first (finish) ($[$steps];*) (tactic => fail $msg))
   return mkNullNode #[cleanDeclaration, thm]
 
 end Lean.Elab.Tactic.Do

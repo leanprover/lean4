@@ -134,13 +134,16 @@ where finally
 #guard_msgs in
 #check @residualWithSection.spec
 
-/-! The section's step runs per verification condition: both branch VCs use the same step. -/
+/-! The section's steps run per verification condition: both branch VCs use the same steps, and
+steps sequence across lines. -/
 
 def residualTwoVCs (b : Bool) (n : Nat) : Id Nat
     ensures r => Opq r
   := if b then pure n else pure (n + 1)
 where finally
-  | spec => exact opq_ax _
+  | spec =>
+    skip
+    exact opq_ax _
 
 /--
 info: residualTwoVCs.spec : ∀ (b : Bool) (n : Nat), ⦃ ⊤ ⦄ residualTwoVCs b n ⦃ fun r => Opq r ⦄
@@ -170,3 +173,20 @@ def residualDupSection (n : Nat) : Id Nat
 where finally
   | spec => exact opq_ax _
   | spec => finish
+
+/-! A verification condition the section does not discharge reports itself. -/
+
+opaque Opq2 : Nat → Prop
+
+/--
+error: unproved verification condition for the contract of `residualSectionMiss`; the `where finally | spec => ...` section does not discharge it
+case vc1
+n : Nat
+⊢ Opq2 n
+-/
+#guard_msgs in
+def residualSectionMiss (n : Nat) : Id Nat
+    ensures r => Opq2 r
+  := pure n
+where finally
+  | spec => lia

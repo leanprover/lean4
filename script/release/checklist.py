@@ -506,16 +506,15 @@ class DownstreamChecker(RepoChecker):
             self.cl.success(f"{what} points to toolchain tag")
             return
 
-        if self.version.patch > 0:
-            # Patch releases may be on older stable releases, so we have to be a
-            # bit careful here
-            if not self.prompt(
-                f"Is [b]{e(self.version.tag)}[/b] the latest stable release?"
-            ):
-                self.cl.success(
-                    f"{what} not updated, {e(self.version.tag)} is not the latest"
-                )
-                return
+        # Patch releases may be on older stable releases, so we have to be a bit
+        # careful here
+        if self.version.patch > 0 and not self.prompt(
+            f"Is [b]{e(self.version.tag)}[/b] the latest stable release?"
+        ):
+            self.cl.success(
+                f"{what} not updated, {e(self.version.tag)} is not the latest"
+            )
+            return
 
         if not self.prompt(f"{what} does not point to toolchain tag. Update?"):
             self.cl.fail(f"{what} does not point to toolchain tag")

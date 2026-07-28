@@ -9,7 +9,7 @@ include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4 CACHE STRING "")
 set(LEAN_VERSION_MINOR 32 CACHE STRING "")
-set(LEAN_VERSION_PATCH 1 CACHE STRING "")
+set(LEAN_VERSION_PATCH 2 CACHE STRING "")
 set(LEAN_VERSION_IS_RELEASE 1 CACHE STRING "") # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
 # project(LEAN) above implicitly creates empty LEAN_VERSION_{MAJOR,MINOR,PATCH}

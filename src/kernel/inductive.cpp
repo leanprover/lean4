@@ -796,11 +796,12 @@ static name * g_nested_fresh = nullptr;
 struct elim_nested_inductive_result {
     name_generator           m_ngen;
     buffer<expr>             m_params;
+    local_ctx                m_params_lctx; /* local context declaring the free vars in `m_params` (and in the `m_aux2nested` values). */
     name_map<expr>           m_aux2nested; /* mapping from auxiliary type to nested inductive type. */
     declaration              m_aux_decl;
 
-    elim_nested_inductive_result(name_generator const & ngen, buffer<expr> const & params, buffer<pair<expr, name>> const & nested_aux, declaration const & d):
-        m_ngen(ngen), m_params(params), m_aux_decl(d) {
+    elim_nested_inductive_result(name_generator const & ngen, buffer<expr> const & params, local_ctx const & params_lctx, buffer<pair<expr, name>> const & nested_aux, declaration const & d):
+        m_ngen(ngen), m_params(params), m_params_lctx(params_lctx), m_aux_decl(d) {
         for (pair<expr, name> const & p : nested_aux) {
             m_aux2nested.insert(p.second, p.first);
         }
@@ -1072,7 +1073,7 @@ struct elim_nested_inductive_fn {
             qhead++;
         }
         declaration aux_decl = mk_inductive_decl(ind_d.get_lparams(), ind_d.get_nparams(), inductive_types(m_new_types), ind_d.is_unsafe());
-        return elim_nested_inductive_result(m_ngen, m_params, m_nested_aux, aux_decl);
+        return elim_nested_inductive_result(m_ngen, m_params, m_params_lctx, m_nested_aux, aux_decl);
     }
 };
 
@@ -1122,6 +1123,16 @@ environment environment::add_inductive(declaration const & d) const {
         /* `d` did not contain nested inductive types. */
         return diag.update(aux_env);
     } else {
+        /* Type check the nested inductive applications `I Ds` that were replaced by auxiliary types.
+           The parametric arguments `Ds` do not appear in the auxiliary declaration, so they would
+           otherwise escape type checking. We check them now that the (mutual) inductive types being
+           declared are available in `aux_env`. */
+        {
+            type_checker tc(aux_env, res.m_params_lctx, diag.get(), inductive_decl(d).is_unsafe() ? definition_safety::unsafe : definition_safety::safe);
+            res.m_aux2nested.for_each([&](name const &, expr const & nested) {
+                    tc.check(nested, inductive_decl(d).get_lparams());
+                });
+        }
         /* Restore nested inductives. */
         inductive_decl ind_d(d);
         names all_ind_names = get_all_inductive_names(ind_d);

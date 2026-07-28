@@ -5356,7 +5356,7 @@ lean_ctor_set(v___x_1666_, 1, v___x_1665_);
 v___x_1667_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_1667_, 0, v___x_1666_);
 lean_ctor_set(v___x_1667_, 1, v_suffix_1626_);
-v___x_1668_ = l_Lean_throwError___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__1___redArg(v___x_1667_, v___y_1660_, v___y_1661_);
+v___x_1668_ = l_Lean_throwError___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__1___redArg(v___x_1667_, v___y_1661_, v___y_1660_);
 return v___x_1668_;
 }
 v___jp_1669_:
@@ -5412,8 +5412,8 @@ case 1:
 {
 if (v___y_1670_ == 1)
 {
-v___y_1660_ = v___y_1671_;
-v___y_1661_ = v___y_1672_;
+v___y_1660_ = v___y_1672_;
+v___y_1661_ = v___y_1671_;
 goto v___jp_1659_;
 }
 else
@@ -5438,8 +5438,8 @@ return v___x_1691_;
 }
 else
 {
-v___y_1660_ = v___y_1671_;
-v___y_1661_ = v___y_1672_;
+v___y_1660_ = v___y_1672_;
+v___y_1661_ = v___y_1671_;
 goto v___jp_1659_;
 }
 }
@@ -7351,11 +7351,13 @@ return v___x_2560_;
 }
 }
 lean_object* runtime_initialize_Lean_ScopedEnvExtension(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_ReducibilityAttrs(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_ScopedEnvExtension(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -1479,8 +1479,8 @@ goto v_reusejp_391_;
 }
 v_reusejp_391_:
 {
-v___y_319_ = v___x_387_;
-v___y_320_ = v___y_386_;
+v___y_319_ = v___y_386_;
+v___y_320_ = v___x_387_;
 v___y_321_ = v___x_392_;
 goto v___jp_318_;
 }
@@ -1510,8 +1510,8 @@ v_reusejp_396_:
 {
 lean_object* v___x_398_; 
 v___x_398_ = l_Repr_addAppParen(v___x_397_, v___x_394_);
-v___y_319_ = v___x_387_;
-v___y_320_ = v___y_386_;
+v___y_319_ = v___y_386_;
+v___y_320_ = v___x_387_;
 v___y_321_ = v___x_398_;
 goto v___jp_318_;
 }
@@ -1991,13 +1991,13 @@ return v___x_535_;
 v___jp_318_:
 {
 lean_object* v___x_322_; lean_object* v___x_323_; uint8_t v___x_324_; lean_object* v___x_325_; lean_object* v___x_326_; 
-lean_inc(v___y_319_);
-v___x_322_ = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(v___x_322_, 0, v___y_319_);
-lean_ctor_set(v___x_322_, 1, v___y_321_);
 lean_inc(v___y_320_);
+v___x_322_ = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(v___x_322_, 0, v___y_320_);
+lean_ctor_set(v___x_322_, 1, v___y_321_);
+lean_inc(v___y_319_);
 v___x_323_ = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(v___x_323_, 0, v___y_320_);
+lean_ctor_set(v___x_323_, 0, v___y_319_);
 lean_ctor_set(v___x_323_, 1, v___x_322_);
 v___x_324_ = 0;
 v___x_325_ = lean_alloc_ctor(6, 1, 1);
@@ -12740,11 +12740,13 @@ lean_object* runtime_initialize_Init_Grind_Ordered_Order(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 lean_object* runtime_initialize_Init_WFTactics(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Int_Repr(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Grind_Ring_CommSolver(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Ord_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

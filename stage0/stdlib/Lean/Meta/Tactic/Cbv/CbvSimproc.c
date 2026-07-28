@@ -8015,8 +8015,8 @@ goto v___jp_2466_;
 }
 else
 {
-lean_dec_ref_known(v_declName_2484_, 2);
 lean_dec(v_pre_2485_);
+lean_dec_ref_known(v_declName_2484_, 2);
 goto v___jp_2466_;
 }
 }
@@ -10531,8 +10531,8 @@ goto v___jp_3602_;
 v___jp_3537_:
 {
 lean_object* v___x_3541_; 
-lean_inc(v___y_3538_);
-v___x_3541_ = l___private_Lean_Util_Trace_0__Lean_addTraceNode___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Meta_Tactic_Cbv_cbvSimprocDispatch_spec__2_spec__2___redArg(v_oldTraces_3522_, v_data_3540_, v___y_3538_, v___y_3539_, v___y_3530_, v___y_3531_, v___y_3532_, v___y_3533_);
+lean_inc(v___y_3539_);
+v___x_3541_ = l___private_Lean_Util_Trace_0__Lean_addTraceNode___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Meta_Tactic_Cbv_cbvSimprocDispatch_spec__2_spec__2___redArg(v_oldTraces_3522_, v_data_3540_, v___y_3539_, v___y_3538_, v___y_3530_, v___y_3531_, v___y_3532_, v___y_3533_);
 if (lean_obj_tag(v___x_3541_) == 0)
 {
 lean_object* v___x_3542_; 
@@ -10608,8 +10608,8 @@ lean_dec(v_snd_3552_);
 lean_dec(v_fst_3551_);
 lean_dec_ref(v_tag_3519_);
 lean_dec(v_cls_3517_);
-v___y_3538_ = v___y_3556_;
-v___y_3539_ = v_a_3557_;
+v___y_3538_ = v_a_3557_;
+v___y_3539_ = v___y_3556_;
 v_data_3540_ = v_data_3562_;
 goto v___jp_3537_;
 }
@@ -10628,8 +10628,8 @@ v___x_3565_ = lean_unbox_float(v_snd_3552_);
 lean_dec(v_snd_3552_);
 lean_ctor_set_float(v_data_3563_, sizeof(void*)*3 + 8, v___x_3565_);
 lean_ctor_set_uint8(v_data_3563_, sizeof(void*)*3 + 16, v_collapsed_3518_);
-v___y_3538_ = v___y_3556_;
-v___y_3539_ = v_a_3557_;
+v___y_3538_ = v_a_3557_;
+v___y_3539_ = v___y_3556_;
 v_data_3540_ = v_data_3563_;
 goto v___jp_3537_;
 }
@@ -11302,7 +11302,7 @@ v___jp_3868_:
 {
 lean_object* v___x_3872_; double v___x_3873_; double v___x_3874_; lean_object* v___x_3875_; lean_object* v___x_3876_; lean_object* v___x_3877_; lean_object* v___x_3878_; lean_object* v___x_3879_; 
 v___x_3872_ = lean_io_get_num_heartbeats();
-v___x_3873_ = lean_float_of_nat(v___y_3869_);
+v___x_3873_ = lean_float_of_nat(v___y_3870_);
 v___x_3874_ = lean_float_of_nat(v___x_3872_);
 v___x_3875_ = lean_box_float(v___x_3873_);
 v___x_3876_ = lean_box_float(v___x_3874_);
@@ -11312,7 +11312,7 @@ lean_ctor_set(v___x_3877_, 1, v___x_3876_);
 v___x_3878_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_3878_, 0, v_a_3871_);
 lean_ctor_set(v___x_3878_, 1, v___x_3877_);
-v___x_3879_ = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Meta_Tactic_Cbv_cbvSimprocDispatch_spec__2(v___x_3849_, v_hasTrace_3839_, v___x_3850_, v_options_3837_, v___x_3852_, v___y_3870_, v___f_3848_, v___x_3878_, v___y_3773_, v___y_3774_, v___y_3775_, v___y_3776_, v___y_3777_, v___y_3778_, v___y_3779_, v___y_3780_, v___y_3781_);
+v___x_3879_ = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Meta_Tactic_Cbv_cbvSimprocDispatch_spec__2(v___x_3849_, v_hasTrace_3839_, v___x_3850_, v_options_3837_, v___x_3852_, v___y_3869_, v___f_3848_, v___x_3878_, v___y_3773_, v___y_3774_, v___y_3775_, v___y_3776_, v___y_3777_, v___y_3778_, v___y_3779_, v___y_3780_, v___y_3781_);
 v___y_3813_ = v___x_3879_;
 goto v___jp_3812_;
 }
@@ -11471,8 +11471,8 @@ goto v_reusejp_3909_;
 }
 v_reusejp_3909_:
 {
-v___y_3869_ = v___x_3903_;
-v___y_3870_ = v_a_3882_;
+v___y_3869_ = v_a_3882_;
+v___y_3870_ = v___x_3903_;
 v_a_3871_ = v___x_3910_;
 goto v___jp_3868_;
 }
@@ -11516,8 +11516,8 @@ goto v_reusejp_3917_;
 }
 v_reusejp_3917_:
 {
-v___y_3869_ = v___x_3903_;
-v___y_3870_ = v_a_3882_;
+v___y_3869_ = v_a_3882_;
+v___y_3870_ = v___x_3903_;
 v_a_3871_ = v___x_3918_;
 goto v___jp_3868_;
 }
@@ -12047,11 +12047,13 @@ lean_object* runtime_initialize_Lean_Meta_Sym_Simp_Result(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_Simp_App(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_Simp_DiscrTree(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_Pattern(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Cbv_CbvSimproc(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Compiler_InitAttr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

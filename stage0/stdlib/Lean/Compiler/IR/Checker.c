@@ -1467,9 +1467,9 @@ goto v___jp_339_;
 v___jp_327_:
 {
 lean_object* v___x_331_; lean_object* v___x_333_; 
-v___x_331_ = lean_nat_add(v___y_328_, v___y_330_);
+v___x_331_ = lean_nat_add(v___y_329_, v___y_330_);
 lean_dec(v___y_330_);
-lean_dec(v___y_328_);
+lean_dec(v___y_329_);
 if (v_isShared_324_ == 0)
 {
 lean_ctor_set(v___x_323_, 4, v_r_150_);
@@ -1498,7 +1498,7 @@ lean_object* v___x_335_;
 if (v_isShared_312_ == 0)
 {
 lean_ctor_set(v___x_311_, 4, v___x_333_);
-lean_ctor_set(v___x_311_, 3, v___y_329_);
+lean_ctor_set(v___x_311_, 3, v___y_328_);
 lean_ctor_set(v___x_311_, 2, v_v_316_);
 lean_ctor_set(v___x_311_, 1, v_k_315_);
 lean_ctor_set(v___x_311_, 0, v___x_326_);
@@ -1512,7 +1512,7 @@ v_reuseFailAlloc_336_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_336_, 0, v___x_326_);
 lean_ctor_set(v_reuseFailAlloc_336_, 1, v_k_315_);
 lean_ctor_set(v_reuseFailAlloc_336_, 2, v_v_316_);
-lean_ctor_set(v_reuseFailAlloc_336_, 3, v___y_329_);
+lean_ctor_set(v_reuseFailAlloc_336_, 3, v___y_328_);
 lean_ctor_set(v_reuseFailAlloc_336_, 4, v___x_333_);
 v___x_335_ = v_reuseFailAlloc_336_;
 goto v_reusejp_334_;
@@ -1560,8 +1560,8 @@ if (lean_obj_tag(v_r_318_) == 0)
 lean_object* v_size_345_; 
 v_size_345_ = lean_ctor_get(v_r_318_, 0);
 lean_inc(v_size_345_);
-v___y_328_ = v___x_344_;
-v___y_329_ = v___x_343_;
+v___y_328_ = v___x_343_;
+v___y_329_ = v___x_344_;
 v___y_330_ = v_size_345_;
 goto v___jp_327_;
 }
@@ -1569,8 +1569,8 @@ else
 {
 lean_object* v___x_346_; 
 v___x_346_ = lean_unsigned_to_nat(0u);
-v___y_328_ = v___x_344_;
-v___y_329_ = v___x_343_;
+v___y_328_ = v___x_343_;
+v___y_329_ = v___x_344_;
 v___y_330_ = v___x_346_;
 goto v___jp_327_;
 }
@@ -5870,11 +5870,13 @@ return v_res_1774_;
 }
 }
 lean_object* runtime_initialize_Lean_Compiler_IR_CompilerM(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_IR_Checker(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Compiler_IR_CompilerM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

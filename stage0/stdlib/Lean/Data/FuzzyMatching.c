@@ -1333,7 +1333,7 @@ return v_res_390_;
 LEAN_EXPORT uint8_t l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_iterateLookaround___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_stringInfo_spec__0___lam__0(lean_object* v_prev_x3f_391_, uint32_t v_curr_392_, lean_object* v_next_x3f_393_){
 _start:
 {
-uint8_t v___y_395_; lean_object* v___y_396_; lean_object* v___y_397_; lean_object* v___y_412_; 
+lean_object* v___y_395_; uint8_t v___y_396_; lean_object* v___y_397_; lean_object* v___y_412_; 
 if (lean_obj_tag(v_prev_x3f_391_) == 0)
 {
 lean_object* v___x_426_; 
@@ -1390,17 +1390,17 @@ goto v___jp_411_;
 }
 v___jp_394_:
 {
-if (v___y_395_ == 2)
+if (v___y_396_ == 2)
 {
 uint8_t v___x_398_; 
 lean_dec(v___y_397_);
-lean_dec(v___y_396_);
+lean_dec(v___y_395_);
 v___x_398_ = 2;
 return v___x_398_;
 }
 else
 {
-if (lean_obj_tag(v___y_396_) == 0)
+if (lean_obj_tag(v___y_395_) == 0)
 {
 uint8_t v___x_399_; 
 lean_dec(v___y_397_);
@@ -1410,9 +1410,9 @@ return v___x_399_;
 else
 {
 lean_object* v_val_400_; uint8_t v___x_401_; 
-v_val_400_ = lean_ctor_get(v___y_396_, 0);
+v_val_400_ = lean_ctor_get(v___y_395_, 0);
 lean_inc(v_val_400_);
-lean_dec_ref_known(v___y_396_, 1);
+lean_dec_ref_known(v___y_395_, 1);
 v___x_401_ = lean_unbox(v_val_400_);
 if (v___x_401_ == 2)
 {
@@ -1424,7 +1424,7 @@ return v___x_402_;
 }
 else
 {
-if (v___y_395_ == 0)
+if (v___y_396_ == 0)
 {
 uint8_t v___x_403_; 
 lean_dec(v_val_400_);
@@ -1488,8 +1488,8 @@ if (lean_obj_tag(v_next_x3f_393_) == 0)
 {
 lean_object* v___x_414_; 
 v___x_414_ = lean_box(0);
-v___y_395_ = v___x_413_;
-v___y_396_ = v___y_412_;
+v___y_395_ = v___y_412_;
+v___y_396_ = v___x_413_;
 v___y_397_ = v___x_414_;
 goto v___jp_394_;
 }
@@ -1535,8 +1535,8 @@ goto v_reusejp_422_;
 }
 v_reusejp_422_:
 {
-v___y_395_ = v___x_413_;
-v___y_396_ = v___y_412_;
+v___y_395_ = v___y_412_;
+v___y_396_ = v___x_413_;
 v___y_397_ = v___x_423_;
 goto v___jp_394_;
 }
@@ -2606,7 +2606,7 @@ goto v_resetjp_885_;
 }
 v_resetjp_885_:
 {
-uint8_t v___x_888_; uint16_t v_matchScore_889_; lean_object* v___x_890_; uint16_t v___y_892_; lean_object* v_runLengths_893_; uint16_t v_matchScore_894_; lean_object* v___y_912_; uint16_t v___y_913_; uint16_t v___y_914_; uint16_t v___y_917_; uint8_t v___x_979_; 
+uint8_t v___x_888_; uint16_t v_matchScore_889_; lean_object* v___x_890_; uint16_t v___y_892_; lean_object* v_runLengths_893_; uint16_t v_matchScore_894_; uint16_t v___y_912_; lean_object* v___y_913_; uint16_t v___y_914_; uint16_t v___y_917_; uint8_t v___x_979_; 
 v___x_888_ = 0;
 v_matchScore_889_ = lean_uint16_once(&l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_awful___closed__1, &l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_awful___closed__1_once, _init_l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_awful___closed__1);
 v___x_890_ = lean_unsigned_to_nat(1u);
@@ -2711,8 +2711,8 @@ v___jp_911_:
 {
 uint16_t v___x_915_; 
 v___x_915_ = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_map___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_spec__2(v___x_876_, v_i_879_, v___y_914_);
-v___y_892_ = v___y_913_;
-v_runLengths_893_ = v___y_912_;
+v___y_892_ = v___y_912_;
+v_runLengths_893_ = v___y_913_;
 v_matchScore_894_ = v___x_915_;
 goto v___jp_891_;
 }
@@ -2842,15 +2842,15 @@ v___x_977_ = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_map
 v___x_978_ = lean_int16_dec_le(v___x_970_, v___x_977_);
 if (v___x_978_ == 0)
 {
-v___y_912_ = v___x_959_;
-v___y_913_ = v___y_917_;
+v___y_912_ = v___y_917_;
+v___y_913_ = v___x_959_;
 v___y_914_ = v___x_970_;
 goto v___jp_911_;
 }
 else
 {
-v___y_912_ = v___x_959_;
-v___y_913_ = v___y_917_;
+v___y_912_ = v___y_917_;
+v___y_913_ = v___x_959_;
 v___y_914_ = v___x_977_;
 goto v___jp_911_;
 }
@@ -3951,11 +3951,13 @@ lean_object* runtime_initialize_Init_Data_OfScientific(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Option_Coe(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Range(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Server_Completion_CompletionUtils(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Data_FuzzyMatching(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

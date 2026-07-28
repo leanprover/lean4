@@ -34,12 +34,7 @@ structure Vector (α : Type u) (n : Nat) where
   toArray : Array α
   /-- Array size. -/
   size_toArray : toArray.size = n
-deriving Repr, DecidableEq
-
--- `@[expose]` so that `decide`/`rfl` over `Vector` equality reduces in the kernel for
--- consumers built with the module system. The derived `decEq` is a plain `def`, so
--- without exposure its body is opaque downstream and reduction stalls.
-attribute [expose] instDecidableEqVector.decEq
+deriving Repr, @[expose] DecidableEq
 
 attribute [simp, grind =] Vector.size_toArray
 

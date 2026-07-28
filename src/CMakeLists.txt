@@ -627,7 +627,7 @@ endif()
 
 # The stage0 tree hash. For non-release builds this is embedded as `Lean.githash`.
 # It is also the githash Lake always needs to use for its traces. It is passed via `LEAN_GITHASH`
-# in `stdlib.make` and propagated to the cache steps by CI. This esnures that stage1 `.olean`s stay
+# in `stdlib.make` and propagated to the cache steps by CI. This ensures that stage1 `.olean`s stay
 # reusable across commits that do not touch stage0.
 execute_process(
   COMMAND git rev-parse HEAD:stage0

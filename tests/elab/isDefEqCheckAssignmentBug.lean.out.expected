@@ -176,6 +176,7 @@
           [Meta.isDefEq] ❌️ fun α =>
                 ReaderT (ST.Ref IO.RealWorld Elab.Term.State) MetaM
                   α =?= fun α => ReaderT Context (StateRefT' IO.RealWorld State CoreM) α
+            [Meta.isDefEq.transparency] raising transparency instances → implicit
             [Meta.isDefEq] ✅️ Type =?= Type
             [Meta.isDefEq] ❌️ ReaderT (ST.Ref IO.RealWorld Elab.Term.State) MetaM
                   α =?= ReaderT Context (StateRefT' IO.RealWorld State CoreM) α

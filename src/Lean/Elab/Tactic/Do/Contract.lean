@@ -116,26 +116,25 @@ the `where finally | spec => ...` section does not discharge it"
     else
       s!"unproved verification condition for the contract of `{fId.getId}`; \
 discharge it in a `where finally | spec => ...` section of the definition"⟩
-  -- The discharger runs per verification condition: `try finish`, then the section's steps
-  -- (defaulting to `skip`). A failing step reports its own error; conditions left open flow out
-  -- of `vcgen` and are reported in one aggregate error.
+  -- The discharger tries `finish`, then the section's steps, then `skip` on each verification
+  -- condition, so conditions the steps do not close flow out of `vcgen`; the trailing `first`
+  -- reports them in one aggregate error.
   let toStep (g : Syntax) : TSyntax ``Lean.Parser.Tactic.Grind.grindStep :=
     ⟨mkNode ``Lean.Parser.Tactic.Grind.grindStep #[g, mkNullNode]⟩
-  let userSteps ← match specStep? with
+  let steps ← match specStep? with
     | some seq => do
         let mut arr := #[]
         for h : i in [0:seq.getArgs.size] do
           if i % 2 == 0 then
             arr := arr.push (toStep seq.getArgs[i])
         pure arr
-    | none => do pure #[toStep (← `(grind| skip))]
-  let steps := #[toStep (← `(grind| try finish))] ++ userSteps
+    | none => do pure #[toStep (← `(grind| done))]
   -- `open scoped` activates `Std.Internal.Do`'s scoped instances for the spec theorem without
   -- adding names to the user's scope.
   let thm ← `(command|
     open scoped Std.Internal.Do in
     @[spec] theorem $specId $binders* : ⦃ $pre ⦄ $fId $args* ⦃ $post ⦄ := by
-      vcgen [$fId:ident] with ($[$steps];*)
+      vcgen [$fId:ident] with first (finish) ($[$steps];*) (skip)
       first
       | done
       | fail $msg)

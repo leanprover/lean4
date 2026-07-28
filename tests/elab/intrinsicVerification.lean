@@ -212,9 +212,14 @@ def residualSectionMiss (n : Nat) : Id Nat
 where finally
   | spec => skip
 
-/-! A failing section step reports its own error rather than the generic report. -/
+/-! A section step failing on a verification condition leaves it to the aggregate report. -/
 
-/-- error: `lia` failed -/
+/--
+error: unproved verification condition for the contract of `residualSectionStepFails`; the `where finally | spec => ...` section does not discharge it
+case vc1
+n : Nat
+⊢ Opq2 n
+-/
 #guard_msgs in
 def residualSectionStepFails (n : Nat) : Id Nat
     ensures r => Opq2 r

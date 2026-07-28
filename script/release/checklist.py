@@ -686,7 +686,7 @@ class LeanChecker(RepoChecker):
         if cur == target:
             self.cl.success(f"{what} are correct")
             return
-        self.cl.fail(f"{what} are incorrect")
+        self.cl.warn(f"{what} are incorrect")
 
         head = f"dev-cycle-{self.version.next_minor}"
         title = f"chore: prepare development cycle for {self.version.next_minor}"

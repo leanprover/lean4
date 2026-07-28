@@ -107,22 +107,66 @@ def specNoType (x : Nat)
 #guard_msgs in
 #check @specNoType.spec
 
-/-! ## A `vcgen` discharger built from grind-mode `first` and the `tactic => fail` escape reports
-the verification condition it could not discharge -/
+/-! ## Residual verification conditions and `where finally | spec => …` sections -/
 
 opaque Opq : Nat → Prop
 
-def residualProg (n : Nat) : Id Nat := pure n
+axiom opq_ax (n : Nat) : Opq n
 
 /--
-error: unproved verification condition; discharge it in a `where finally | spec => ...` section of the definition
+error: unproved verification condition for the contract of `residualNoSection`; discharge it in a `where finally | spec => ...` section of the definition
 case vc1
 n : Nat
 ⊢ Opq n
 -/
 #guard_msgs in
-theorem residualProg_spec (n : Nat) :
-    ⦃ True ⦄
-    residualProg n
-    ⦃ fun r => Opq r ⦄ := by
-  vcgen [residualProg] with first (finish) (tactic => fail "unproved verification condition; discharge it in a `where finally | spec => ...` section of the definition")
+def residualNoSection (n : Nat) : Id Nat
+    ensures r => Opq r
+  := pure n
+
+def residualWithSection (n : Nat) : Id Nat
+    ensures r => Opq r
+  := pure n
+where finally
+  | spec => exact opq_ax _
+
+/-- info: residualWithSection.spec : ∀ (n : Nat), ⦃ ⊤ ⦄ residualWithSection n ⦃ fun r => Opq r ⦄ -/
+#guard_msgs in
+#check @residualWithSection.spec
+
+/-! The section's step runs per verification condition: both branch VCs use the same step. -/
+
+def residualTwoVCs (b : Bool) (n : Nat) : Id Nat
+    ensures r => Opq r
+  := if b then pure n else pure (n + 1)
+where finally
+  | spec => exact opq_ax _
+
+/--
+info: residualTwoVCs.spec : ∀ (b : Bool) (n : Nat), ⦃ ⊤ ⦄ residualTwoVCs b n ⦃ fun r => Opq r ⦄
+-/
+#guard_msgs in
+#check @residualTwoVCs.spec
+
+/-! A hole in the body is filled by the unnamed `finally` block while the `spec` section
+discharges the contract. -/
+
+def residualWithHole (n : Nat) : Id Nat
+    ensures r => Opq r
+  := pure ?x
+where finally
+  exact n
+  | spec => exact opq_ax _
+
+/-- info: residualWithHole.spec : ∀ (n : Nat), ⦃ ⊤ ⦄ residualWithHole n ⦃ fun r => Opq r ⦄ -/
+#guard_msgs in
+#check @residualWithHole.spec
+
+/-- error: duplicate `spec` section -/
+#guard_msgs in
+def residualDupSection (n : Nat) : Id Nat
+    ensures r => Opq r
+  := pure n
+where finally
+  | spec => exact opq_ax _
+  | spec => finish

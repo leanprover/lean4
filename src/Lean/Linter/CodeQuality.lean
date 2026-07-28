@@ -7,3 +7,4 @@ module
 
 prelude
 public import Lean.Linter.CodeQuality.Basic
+public import Lean.Linter.CodeQuality.Frontend

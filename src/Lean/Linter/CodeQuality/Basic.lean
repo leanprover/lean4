@@ -13,6 +13,8 @@ public import Std.Data.TreeMap
 public import Init.Data.Ord
 public import Lean.Data.Json
 
+public section
+
 namespace Lean.Linter.CodeQuality
 
 inductive Source where

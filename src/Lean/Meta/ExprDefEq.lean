@@ -82,6 +82,18 @@ register_builtin_option backward.isDefEq.implicitBump : Bool := {
   not just instance-implicit ones"
 }
 
+/--
+When `true`, `isDefEqApp` invokes `isDefEqOnFailure` itself, in addition to the invocation at the
+end of `isExprDefEqExpensive`. This also means that `isDefEqProjInst`, `isDefEqStringLit` and
+`isDefEqUnitLike` run between the two invocations instead of before the single one.
+-/
+register_builtin_option backward.isDefEq.appOnFailure : Bool := {
+  defValue := false
+  descr    := "if true, run the `isDefEq` failure fallback (stuck-metavariable resolution and \
+  unification hints) once inside `isDefEqApp` and once more at the end of `isExprDefEqExpensive`, \
+  instead of only once"
+}
+
 register_builtin_option trace.Meta.isDefEq.printTransparency : Bool := {
   defValue := false
   descr    := "if true, prefix `Meta.isDefEq` `=?=` trace messages with the current transparency level"
@@ -2162,16 +2174,24 @@ where
 /--
   Given applications `t` and `s` that are in WHNF (modulo the current transparency setting),
   check whether they are definitionally equal or not by comparing functions and arguments.
-  On failure, the caller is responsible for invoking `isDefEqOnFailure`.
+  On failure, the caller is responsible for invoking `isDefEqOnFailure`, unless
+  `backward.isDefEq.appOnFailure` is set.
 -/
 private def isDefEqApp (t s : Expr) : MetaM Bool := do
   let tFn := t.getAppFn
   let sFn := s.getAppFn
-  if tFn.isConst && sFn.isConst && tFn.constName! == sFn.constName! then
-    /- See comment at `tryHeuristic` explaining why we process arguments before universe levels. -/
-    checkpointDefEq (isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)
+  let result ←
+    if tFn.isConst && sFn.isConst && tFn.constName! == sFn.constName! then
+      /- See comment at `tryHeuristic` explaining why we process arguments before universe levels. -/
+      checkpointDefEq (isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)
+    else
+      checkpointDefEq (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)
+  if result then
+    return true
+  else if backward.isDefEq.appOnFailure.get (← getOptions) then
+    isDefEqOnFailure t s
   else
-    checkpointDefEq (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)
+    return false
 
 /-- Return `true` if the type of the given expression is an inductive datatype with a single constructor with no fields. -/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do

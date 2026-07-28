@@ -8,11 +8,10 @@ module
 prelude
 public import Std.Data
 public import Init.Data.Queue
-public import Std.Async.IO
+public import Std.IO.Stream
 
 public section
 
-open Std.Async.IO
 open Std.Async
 
 /-!
@@ -23,16 +22,16 @@ It allows for dynamic management of multiple named streams with async operations
 namespace Std
 
 /--
-This is an existential wrapper for AsyncStream that is used for the `.ofArray` function
+This is an existential wrapper for `Std.IO.Stream` that is used for the `.ofArray` function
 with `CoeDep` so it's easier and we keep StreamMap on `Type 0`.
 -/
 inductive AnyAsyncStream (α : Type) where
-  | mk : {t : Type} → [AsyncStream t α] → t → AnyAsyncStream α
+  | mk : {t : Type} → [Std.IO.Stream IO t α] → t → AnyAsyncStream α
 
 def AnyAsyncStream.getSelector : AnyAsyncStream α → Selector α × IO Unit
-  | AnyAsyncStream.mk stream => (AsyncStream.next stream, AsyncStream.stop stream)
+  | AnyAsyncStream.mk stream => (Std.IO.Stream.next stream, Std.IO.Stream.stop stream)
 
-instance [AsyncStream t α] : CoeDep t x (AnyAsyncStream α) where
+instance [Std.IO.Stream IO t α] : CoeDep t x (AnyAsyncStream α) where
   coe := AnyAsyncStream.mk x
 
 /--
@@ -54,10 +53,11 @@ def empty {α} : StreamMap α β :=
 /--
 Register a new async stream with the given name
 -/
-def register [BEq α] [AsyncStream t β] (sm : StreamMap α β) (name : α) (reader : t) : StreamMap α β :=
-  let newSelector := AsyncStream.next reader
+def register [BEq α] [Std.IO.Stream IO t β] (sm : StreamMap α β) (name : α) (reader : t) :
+    StreamMap α β :=
+  let newSelector := Std.IO.Stream.next reader
   let filteredStreams := sm.streams.filter (fun (n, _) => n != name)
-  { sm with streams := filteredStreams.push (name, newSelector, AsyncStream.stop reader) }
+  { sm with streams := filteredStreams.push (name, newSelector, Std.IO.Stream.stop reader) }
 
 /--
 Create a StreamMap from an array of named streams

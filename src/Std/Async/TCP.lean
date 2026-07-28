@@ -9,6 +9,7 @@ prelude
 public import Std.Time
 public import Std.Internal.UV.TCP
 public import Std.Async.Select
+public import Std.IO.Basic
 
 public section
 
@@ -253,6 +254,24 @@ def keepAlive (s : Client) (enable : Bool) (delay : Std.Time.Second.Offset) (_ :
   s.native.keepAlive enable.toInt8 delay.val.toNat.toUInt32
 
 end Client
+
+/--
+Reading yields no bytes once the peer has closed its end. Reads on one socket must not overlap: the
+underlying `recv?` does not support concurrent use.
+-/
+instance : Std.IO.Read Async Client where
+  read s n _ := return (← Client.recv? s n.toUInt64).getD .empty
+
+instance : Std.IO.Write Async Client where
+  write s bytes := Client.send s bytes
+
+/--
+Closing shuts down the write side, signalling end-of-stream to the peer. The socket itself is
+released when it becomes unreachable.
+-/
+instance : Std.IO.Close Async Client where
+  close s := Client.shutdown s
+
 end Socket
 end TCP
 end Async

@@ -16,4 +16,3 @@ public import Std.Async.Select
 public import Std.Async.Process
 public import Std.Async.System
 public import Std.Async.Signal
-public import Std.Async.IO

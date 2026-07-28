@@ -10,13 +10,12 @@ public import Std.Data
 public import Init.Data.Queue
 public import Init.Data.Vector
 public import Std.Sync.Mutex
-public import Std.Async.IO
+public import Std.IO.Stream
 
 public section
 
 namespace Std
 
-open Std.Async.IO
 open Std.Async
 
 /-!
@@ -562,17 +561,15 @@ partial def forAsync (f : α → BaseIO Unit) (ch : Broadcast.Receiver α)
     (prio : Task.Priority := .default) : BaseIO (Task Unit) := do
   ch.inner.forAsync f prio
 
-instance [Inhabited α] : AsyncStream (Broadcast.Receiver α) (Option α) where
+instance [Inhabited α] : Std.IO.Stream IO (Broadcast.Receiver α) (Option α) where
   next channel := channel.recvSelector
   stop channel := channel.unsubscribe
 
-instance [Inhabited α] : AsyncRead (Broadcast.Receiver α) (Option α) where
-  read receiver := Async.ofIOTask receiver.recv
-
-instance [Inhabited α] : AsyncWrite (Broadcast α) α where
+instance [Inhabited α] : Std.IO.Sink Async (Broadcast α) α where
   write receiver x := do
     let task ← receiver.send x
     discard <| Async.ofTask <| task
+
 
 end Receiver
 

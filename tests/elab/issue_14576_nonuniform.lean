@@ -26,7 +26,7 @@ meta def build : CommandElabM Unit := do
 elab "mkbug" : command => build
 
 /--
-error: (kernel) invalid occurrence of datatype 'E' being declared: it must be applied to the parameters of the mutual declaration
+error: (kernel) invalid occurrence of datatype 'E' being declared: it must be applied to the parameters and universe levels of the mutual declaration
 -/
 #guard_msgs in
 mkbug
@@ -51,7 +51,7 @@ meta def buildPhantom : CommandElabM Unit := do
 elab "mkbug2" : command => buildPhantom
 
 /--
-error: (kernel) invalid occurrence of datatype 'F' being declared: it must be applied to the parameters of the mutual declaration
+error: (kernel) invalid occurrence of datatype 'F' being declared: it must be applied to the parameters and universe levels of the mutual declaration
 -/
 #guard_msgs in
 mkbug2
@@ -71,7 +71,7 @@ meta def buildIndex : CommandElabM Unit := do
 elab "mkbug3" : command => buildIndex
 
 /--
-error: (kernel) invalid occurrence of datatype 'G' being declared: it must be applied to the parameters of the mutual declaration
+error: (kernel) invalid occurrence of datatype 'G' being declared: it must be applied to the parameters and universe levels of the mutual declaration
 -/
 #guard_msgs in
 mkbug3

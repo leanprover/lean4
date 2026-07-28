@@ -120,26 +120,29 @@ optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr cons
     return optional<recursor_rule>();
 }
 
-/* Check that every occurrence of a datatype being declared in `e` (per `is_decl`) is applied to the
-   parameters `params`. Applications with more than `params.size()` arguments are descended into, so
-   that occurrences inside the indices are checked too; the parameter application itself is validated
-   and pruned. */
-template<typename Pred>
-static void check_uniform_params(environment const & env, expr const & e, buffer<expr> const & params,
-                                 Pred const & is_decl) {
+/* Return true iff `e` is a constant naming one of the datatypes being declared (`ind_names`). */
+static bool is_ind_occ(expr const & e, buffer<name> const & ind_names) {
+    return is_constant(e) && std::find(ind_names.begin(), ind_names.end(), const_name(e)) != ind_names.end();
+}
+
+/* Check that every occurrence of a datatype being declared (`ind_names`) in `e` is applied to the
+   universe levels `lvls` and the parameters `params`. Applications with more than `params.size()`
+   arguments are descended into, so that occurrences inside the indices are checked too; the parameter
+   application itself is validated and pruned. */
+static void check_uniform_params(environment const & env, expr const & e, buffer<name> const & ind_names,
+                                 levels const & lvls, buffer<expr> const & params) {
     for_each(e, [&](expr const & t, unsigned) {
             buffer<expr> args;
             expr const & fn = get_app_args(t, args);
-            if (!is_decl(fn))
+            if (!is_ind_occ(fn, ind_names))
                 return true;
             if (args.size() > params.size())
                 return true;
-            bool ok = args.size() == params.size();
-            for (unsigned i = 0; ok && i < params.size(); i++)
-                ok = args[i] == params[i];
-            if (!ok)
+            if (args.size() != params.size() || const_levels(fn) != lvls
+                    || !std::equal(params.begin(), params.end(), args.begin()))
                 throw kernel_exception(env, sstream() << "invalid occurrence of datatype '" << const_name(fn)
-                                       << "' being declared: it must be applied to the parameters of the mutual declaration");
+                                       << "' being declared: it must be applied to the parameters and universe "
+                                       "levels of the mutual declaration");
             return false;
         });
 }
@@ -163,8 +166,8 @@ class add_inductive_fn {
     bool                   m_is_not_zero;
     /* A free variable for each parameter */
     buffer<expr>           m_params;
-    /* A constant for each inductive type */
-    buffer<expr>           m_ind_cnsts;
+    /* The name of each inductive type being declared */
+    buffer<name>           m_ind_names;
 
     level                  m_elim_level;
     bool                   m_K_target;
@@ -228,7 +231,7 @@ public:
        - m_levels
        - m_result_level
        - m_nindices
-       - m_ind_cnsts
+       - m_ind_names
        - m_params
 
        \remark The local context m_lctx contains the free variables in m_params. */
@@ -275,13 +278,13 @@ public:
                 throw kernel_exception(m_env, "mutually inductive types must live in the same universe");
             }
 
-            m_ind_cnsts.push_back(mk_constant(ind_type.get_name(), m_levels));
+            m_ind_names.push_back(ind_type.get_name());
             first = false;
         }
 
         lean_assert(length(m_levels) == length(m_lparams));
         lean_assert(m_nindices.size() == m_ind_types.size());
-        lean_assert(m_ind_cnsts.size() == m_ind_types.size());
+        lean_assert(m_ind_names.size() == m_ind_types.size());
         lean_assert(m_params.size() == m_nparams);
     }
 
@@ -292,16 +295,8 @@ public:
             for (constructor const & cnstr : ind_type.get_cnstrs()) {
                 expr t = constructor_type(cnstr);
                 while (is_pi(t)) {
-                    if (find(binding_domain(t), [&](expr const & e, unsigned) {
-                                if (is_constant(e)) {
-                                    for (expr const & I : m_ind_cnsts)
-                                        if (const_name(I) == const_name(e))
-                                            return true;
-                                }
-                                return false;
-                            })) {
+                    if (has_ind_occ(binding_domain(t)))
                         return true;
-                    }
                     t = binding_body(t);
                 }
             }
@@ -356,12 +351,12 @@ public:
     }
 
     /** \brief Return true iff `t` is a term of the form `I As is` where `I` is the inductive datatype
-        at position `i` being declared. Parameter uniformity is checked once per constructor by
-        `check_uniform_params`, so it is not rechecked here. */
+        at position `i` being declared. Parameter and universe-level uniformity are checked once per
+        constructor by `check_uniform_params`, so they are not rechecked here. */
     bool is_ind_app(expr const & t, unsigned i) {
         buffer<expr> args;
         expr I = get_app_args(t, args);
-        return I == m_ind_cnsts[i] && args.size() == m_nparams + m_nindices[i];
+        return is_constant(I) && const_name(I) == m_ind_names[i] && args.size() == m_nparams + m_nindices[i];
     }
 
     /** \brief Return some(i) iff `t` is of the form `I As is` where `I` the inductive `i`-th datatype being defined. */
@@ -373,17 +368,9 @@ public:
         return optional<unsigned>();
     }
 
-    /** \brief Return true iff `e` is one of the inductive datatype being declared. */
-    bool is_ind_occ(expr const & e) {
-        return
-            is_constant(e) &&
-            std::any_of(m_ind_cnsts.begin(), m_ind_cnsts.end(),
-                        [&](expr const & c) { return const_name(e) == const_name(c); });
-    }
-
-    /** \brief Return true iff `t` does not contain any occurrence of a datatype being declared. */
+    /** \brief Return true iff `t` contains an occurrence of a datatype being declared. */
     bool has_ind_occ(expr const & t) {
-        return static_cast<bool>(find(t, [&](expr const & e, unsigned) { return is_ind_occ(e); }));
+        return static_cast<bool>(find(t, [&](expr const & e, unsigned) { return is_ind_occ(e, m_ind_names); }));
     }
 
     /** \brief Check that the indices of the ind-app `t` (its arguments after the parameters) do not
@@ -449,7 +436,7 @@ public:
                     expr b = t;
                     for (unsigned k = 0; k < m_nparams && is_pi(b); k++)
                         b = instantiate(binding_body(b), m_params[k]);
-                    check_uniform_params(m_env, b, m_params, [&](expr const & c) { return is_ind_occ(c); });
+                    check_uniform_params(m_env, b, m_ind_names, m_levels, m_params);
                 }
                 unsigned i = 0;
                 while (is_pi(t)) {
@@ -634,7 +621,7 @@ public:
                 i++;
                 t = whnf(t);
             }
-            info.m_major = mk_local_decl("t", mk_app(mk_app(m_ind_cnsts[d_idx], m_params), info.m_indices));
+            info.m_major = mk_local_decl("t", mk_app(mk_app(mk_constant(m_ind_names[d_idx], m_levels), m_params), info.m_indices));
             expr C_ty = mk_sort(m_elim_level);
             C_ty      = mk_pi(info.m_major, C_ty);
             C_ty      = mk_pi(info.m_indices, C_ty);
@@ -942,16 +929,6 @@ struct elim_nested_inductive_fn {
         return instantiate_rev(abstract(e, As.size(), As.data()), m_params.size(), m_params.data());
     }
 
-    /* Return true iff `e` is (the constant naming) one of the datatypes being declared. */
-    bool is_ind_occ(expr const & e) {
-        if (!is_constant(e))
-            return false;
-        for (inductive_type const & ind_type : m_new_types)
-            if (const_name(e) == ind_type.get_name())
-                return true;
-        return false;
-    }
-
     /* IF `e` is of the form `I Ds is` where
           1) `I` is a nested inductive datatype (i.e., a previously declared inductive datatype),
           2) the parametric arguments `Ds` do not contain loose bound variables, and do contain inductive datatypes in `m_new_types`
@@ -967,18 +944,21 @@ struct elim_nested_inductive_fn {
         get_app_args(e, args);
         unsigned nparams = info->to_inductive_val().get_nparams();
         if (nparams > args.size()) return optional<inductive_val>();
+        buffer<name> ind_names;
+        for (inductive_type const & ind_type : m_new_types)
+            ind_names.push_back(ind_type.get_name());
         bool is_nested   = false;
         bool loose_bvars = false;
         for (unsigned i = 0; i < nparams; i++) {
             if (has_loose_bvars(args[i])) {
                 loose_bvars = true;
             }
-            if (find(args[i], [&](expr const & t, unsigned) { return is_ind_occ(t); }))
+            if (find(args[i], [&](expr const & t, unsigned) { return is_ind_occ(t, ind_names); }))
                 is_nested = true;
             /* The parametric arguments `Ds` are dropped from the generated auxiliary declaration, so a
                datatype being declared occurring non-uniformly here (e.g. `E ⟨false⟩`, or hidden behind a
                redex in a phantom argument) would otherwise escape checking and is unsound. */
-            check_uniform_params(m_env, args[i], As, [&](expr const & c) { return is_ind_occ(c); });
+            check_uniform_params(m_env, args[i], ind_names, m_lvls, As);
         }
         if (!is_nested) return optional<inductive_val>();
         if (loose_bvars)

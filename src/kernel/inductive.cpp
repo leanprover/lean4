@@ -1123,16 +1123,6 @@ environment environment::add_inductive(declaration const & d) const {
         /* `d` did not contain nested inductive types. */
         return diag.update(aux_env);
     } else {
-        /* Type check the nested inductive applications `I Ds` that were replaced by auxiliary types.
-           The parametric arguments `Ds` do not appear in the auxiliary declaration, so they would
-           otherwise escape type checking. We check them now that the (mutual) inductive types being
-           declared are available in `aux_env`. */
-        {
-            type_checker tc(aux_env, res.m_params_lctx, diag.get(), inductive_decl(d).is_unsafe() ? definition_safety::unsafe : definition_safety::safe);
-            res.m_aux2nested.for_each([&](name const &, expr const & nested) {
-                    tc.check(nested, inductive_decl(d).get_lparams());
-                });
-        }
         /* Restore nested inductives. */
         inductive_decl ind_d(d);
         names all_ind_names = get_all_inductive_names(ind_d);
@@ -1187,6 +1177,16 @@ environment environment::add_inductive(declaration const & d) const {
         }
         for (name const & aux_rec : aux_rec_names) {
             process_rec(aux_rec);
+        }
+        /* Type check the nested inductive applications `I Ds` that were replaced by auxiliary types.
+           The parametric arguments `Ds` do not appear in the auxiliary declaration, so they would
+           otherwise escape type checking. We check them at the end, using `new_env`, to avoid
+           type checking terms in an environment containing auxiliary declarations. */
+        {
+            type_checker tc(new_env, res.m_params_lctx, diag.get(), inductive_decl(d).is_unsafe() ? definition_safety::unsafe : definition_safety::safe);
+            res.m_aux2nested.for_each([&](name const &, expr const & nested) {
+                    tc.check(nested, inductive_decl(d).get_lparams());
+                });
         }
         return diag.update(new_env);
     }

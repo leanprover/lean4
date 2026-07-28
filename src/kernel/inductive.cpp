@@ -120,6 +120,30 @@ optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr cons
     return optional<recursor_rule>();
 }
 
+/* Check that every occurrence of a datatype being declared in `e` (per `is_decl`) is applied to the
+   parameters `params`. Applications with more than `params.size()` arguments are descended into, so
+   that occurrences inside the indices are checked too; the parameter application itself is validated
+   and pruned. */
+template<typename Pred>
+static void check_uniform_params(environment const & env, expr const & e, buffer<expr> const & params,
+                                 Pred const & is_decl) {
+    for_each(e, [&](expr const & t, unsigned) {
+            buffer<expr> args;
+            expr const & fn = get_app_args(t, args);
+            if (!is_decl(fn))
+                return true;
+            if (args.size() > params.size())
+                return true;
+            bool ok = args.size() == params.size();
+            for (unsigned i = 0; ok && i < params.size(); i++)
+                ok = args[i] == params[i];
+            if (!ok)
+                throw kernel_exception(env, sstream() << "invalid occurrence of datatype '" << const_name(fn)
+                                       << "' being declared: it must be applied to the parameters of the mutual declaration");
+            return false;
+        });
+}
+
 /* Auxiliary class for adding a mutual inductive datatype declaration. */
 class add_inductive_fn {
     environment            m_env;
@@ -331,35 +355,19 @@ public:
         }
     }
 
-    /** \brief Return true iff `t` is a term of the form `I As t`
-        where `I` is the inductive datatype at position `i` being declared,
-        `As` are the global parameters of this declaration,
-        and `t` does not contain any inductive datatype being declared. */
-    bool is_valid_ind_app(expr const & t, unsigned i) {
+    /** \brief Return true iff `t` is a term of the form `I As is` where `I` is the inductive datatype
+        at position `i` being declared. Parameter uniformity is checked once per constructor by
+        `check_uniform_params`, so it is not rechecked here. */
+    bool is_ind_app(expr const & t, unsigned i) {
         buffer<expr> args;
         expr I = get_app_args(t, args);
-        if (I != m_ind_cnsts[i] || args.size() != m_nparams + m_nindices[i])
-            return false;
-        for (unsigned i = 0; i < m_nparams; i++) {
-            if (m_params[i] != args[i])
-                return false;
-        }
-        /*
-        Ensure that `t` does not contain the inductive datatype that is being declared.
-        Such occurrences are unsound in general. https://github.com/leanprover/lean4/issues/2125
-        We also used to reject them in Lean 3.
-        */
-        for (unsigned i = m_nparams; i < args.size(); i++) {
-            if (has_ind_occ(args[i]))
-                return false;
-        }
-        return true;
+        return I == m_ind_cnsts[i] && args.size() == m_nparams + m_nindices[i];
     }
 
-    /** \brief Return some(i) iff `t` is of the form `I As t` where `I` the inductive `i`-th datatype being defined. */
-    optional<unsigned> is_valid_ind_app(expr const & t) {
+    /** \brief Return some(i) iff `t` is of the form `I As is` where `I` the inductive `i`-th datatype being defined. */
+    optional<unsigned> is_ind_app(expr const & t) {
         for (unsigned i = 0; i < m_ind_types.size(); i++) {
-            if (is_valid_ind_app(t, i))
+            if (is_ind_app(t, i))
                 return optional<unsigned>(i);
         }
         return optional<unsigned>();
@@ -378,6 +386,17 @@ public:
         return static_cast<bool>(find(t, [&](expr const & e, unsigned) { return is_ind_occ(e); }));
     }
 
+    /** \brief Check that the indices of the ind-app `t` (its arguments after the parameters) do not
+        mention a datatype being declared (see https://github.com/leanprover/lean4/issues/2125). */
+    void check_ind_app_idxs(expr const & t) {
+        buffer<expr> args;
+        get_app_args(t, args);
+        for (unsigned i = m_nparams; i < args.size(); i++)
+            if (has_ind_occ(args[i]))
+                throw kernel_exception(m_env, sstream() << "invalid occurrence of a datatype being declared "
+                                       "in an index of the mutual declaration");
+    }
+
     /** \brief Return `some(d_idx)` iff `t` is a recursive argument, `d_idx` is the index of the
         recursive inductive datatype. Otherwise, return `none`. */
     optional<unsigned> is_rec_argument(expr t) {
@@ -386,7 +405,7 @@ public:
             expr local = mk_local_decl_for(t);
             t = whnf(instantiate(binding_body(t), local));
         }
-        return is_valid_ind_app(t);
+        return is_ind_app(t);
     }
 
     /** \brief Check if \c t contains only positive occurrences of the inductive datatypes being declared. */
@@ -400,8 +419,9 @@ public:
                                        "has a non positive occurrence of the datatypes being declared");
             expr local = mk_local_decl_for(t);
             check_positivity(instantiate(binding_body(t), local), cnstr_name, arg_idx);
-        } else if (is_valid_ind_app(t)) {
-            // recursive argument
+        } else if (is_ind_app(t)) {
+            // recursive argument; its indices must not mention the datatypes being declared (#2125)
+            check_ind_app_idxs(t);
         } else {
             throw kernel_exception(m_env, sstream() << "arg #" << (arg_idx + 1) << " of '" << cnstr_name << "' "
                                    "contains a non valid occurrence of the datatypes being declared");
@@ -424,6 +444,13 @@ public:
                 m_env.check_name(n);
                 check_no_metavar_no_fvar(m_env, n, t);
                 tc().check(t, m_lparams);
+                /* Every occurrence of a datatype being declared must be applied to the parameters. */
+                {
+                    expr b = t;
+                    for (unsigned k = 0; k < m_nparams && is_pi(b); k++)
+                        b = instantiate(binding_body(b), m_params[k]);
+                    check_uniform_params(m_env, b, m_params, [&](expr const & c) { return is_ind_occ(c); });
+                }
                 unsigned i = 0;
                 while (is_pi(t)) {
                     if (i < m_nparams) {
@@ -447,8 +474,10 @@ public:
                     }
                     i++;
                 }
-                if (!is_valid_ind_app(t, idx))
+                if (!is_ind_app(t, idx))
                     throw kernel_exception(m_env, sstream() << "invalid return type for '" << n << "'");
+                /* The indices of the return type must not mention the datatypes being declared (#2125). */
+                check_ind_app_idxs(t);
             }
         }
     }
@@ -576,7 +605,7 @@ public:
         As are the global parameters, and is the actual indices provided to it.
         Return the index of `I`, and store is in the argument `indices`. */
     unsigned get_I_indices(expr const & t, buffer<expr> & indices) {
-        optional<unsigned> r = is_valid_ind_app(t);
+        optional<unsigned> r = is_ind_app(t);
         lean_assert(r);
         buffer<expr> all_args;
         get_app_args(t, all_args);
@@ -913,12 +942,22 @@ struct elim_nested_inductive_fn {
         return instantiate_rev(abstract(e, As.size(), As.data()), m_params.size(), m_params.data());
     }
 
+    /* Return true iff `e` is (the constant naming) one of the datatypes being declared. */
+    bool is_ind_occ(expr const & e) {
+        if (!is_constant(e))
+            return false;
+        for (inductive_type const & ind_type : m_new_types)
+            if (const_name(e) == ind_type.get_name())
+                return true;
+        return false;
+    }
+
     /* IF `e` is of the form `I Ds is` where
           1) `I` is a nested inductive datatype (i.e., a previously declared inductive datatype),
           2) the parametric arguments `Ds` do not contain loose bound variables, and do contain inductive datatypes in `m_new_types`
        THEN return the `inductive_val` in the `constant_info` associated with `I`.
        Otherwise, return none. */
-    optional<inductive_val> is_nested_inductive_app(expr const & e) {
+    optional<inductive_val> is_nested_inductive_app(expr const & e, buffer<expr> const & As) {
         if (!is_app(e)) return optional<inductive_val>();
         expr const & fn = get_app_fn(e);
         if (!is_constant(fn)) return optional<inductive_val>();
@@ -934,17 +973,12 @@ struct elim_nested_inductive_fn {
             if (has_loose_bvars(args[i])) {
                 loose_bvars = true;
             }
-            if (find(args[i], [&](expr const & t, unsigned) {
-                        if (is_constant(t)) {
-                            for (inductive_type const & ind_type : m_new_types) {
-                                if (const_name(t) == ind_type.get_name())
-                                    return true;
-                            }
-                        }
-                        return false;
-                    })) {
+            if (find(args[i], [&](expr const & t, unsigned) { return is_ind_occ(t); }))
                 is_nested = true;
-            }
+            /* The parametric arguments `Ds` are dropped from the generated auxiliary declaration, so a
+               datatype being declared occurring non-uniformly here (e.g. `E ⟨false⟩`, or hidden behind a
+               redex in a phantom argument) would otherwise escape checking and is unsound. */
+            check_uniform_params(m_env, args[i], As, [&](expr const & c) { return is_ind_occ(c); });
         }
         if (!is_nested) return optional<inductive_val>();
         if (loose_bvars)
@@ -962,7 +996,7 @@ struct elim_nested_inductive_fn {
 
     /* If `e` is a nested occurrence `I Ds is`, return `Iaux As is` */
     optional<expr> replace_if_nested(local_ctx const & lctx, buffer<expr> const & As, expr const & e) {
-        optional<inductive_val> I_val = is_nested_inductive_app(e);
+        optional<inductive_val> I_val = is_nested_inductive_app(e, As);
         if (!I_val) return none_expr();
         /* `e` is of the form `I As is` where `As` are the parameters and `is` the indices */
         buffer<expr> args;

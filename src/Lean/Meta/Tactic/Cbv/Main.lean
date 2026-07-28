@@ -193,7 +193,7 @@ def zetaReduce : Simproc := fun e => do
   trace[Debug.Meta.Tactic.cbv.reduce] "zeta:{indentExpr e}\n==>{indentExpr new}"
   return .step new (← Sym.mkEqRefl new)
 
-/-- Peels nested projections: for `e = base.π₁.…​.πₙ` returns the projection nodes
+/-- Peels nested projections: for `e = base.proj₁.....projₙ` returns the projection nodes
 outermost-first together with the innermost non-projection `base`. -/
 def peelProjSpine (e : Expr) (acc : Array Expr := #[]) : Array Expr × Expr :=
   match e with
@@ -201,13 +201,7 @@ def peelProjSpine (e : Expr) (acc : Array Expr := #[]) : Array Expr × Expr :=
   | _ => (acc, e)
 
 /--
-Last resort for a stuck projection tower `e = base.π₁.…​.πₙ` whose base only reaches
-constructor form through a propositional rewrite: no single projection level admits a
-homogeneous `Eq` proof, because the type of each intermediate dependent projection
-mentions the stuck base. But when the composite projection function `fun x => x.π₁.…​.πₙ`
-is non-dependent, `base.π₁.…​.πₙ = base'.π₁.…​.πₙ` is well-typed and provable by
-`congrArg` on the whole spine at once; the rewritten tower over the constructor form
-then collapses via `reduceProj?` on the next visit.
+Last resort for nested dependent projections, whose composite is non-dependent.
 -/
 def trySpineCongrArg (e : Expr) (cd : Bool) : Sym.Simp.SimpM Result := do
   let (projs, base) := peelProjSpine e
@@ -242,7 +236,7 @@ Recursively simplifies the struct inside a projection, then reduces the projecti
 For non-dependent projection types, uses `congrArg` to lift the proof.
 For dependent projection types, tries direct reduction first; if that fails and
 the original and rewritten struct are definitionally equal, falls back to `HCongr`.
-For a stuck tower of projections, tries `congrArg` with the composite projection
+For a stuck composite of projections, tries `congrArg` with the composite projection
 function via `trySpineCongrArg`.
 -/
 def handleProj : Simproc := fun e => do
@@ -256,6 +250,7 @@ def handleProj : Simproc := fun e => do
   let res ← simp struct
   match res with
   | .rfl _ cd =>
+    -- if we get stuck, we try if we have a composite of dependent projections, which is non-dependent
     let some reduced ← withCbvOpaqueGuard <| withDefault <| reduceProj? <| .proj typeName idx struct | do
       trySpineCongrArg e cd
 

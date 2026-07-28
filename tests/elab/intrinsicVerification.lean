@@ -174,6 +174,27 @@ where finally
   | spec => exact opq_ax _
   | spec => finish
 
+/-! All verification conditions left open are reported in one aggregate error. -/
+
+/--
+error: unproved verification condition for the contract of `residualNoSectionTwoVCs`; discharge it in a `where finally | spec => ...` section of the definition
+case vc1
+b : Bool
+n : Nat
+h✝ : b = true
+⊢ Opq n
+
+case vc2
+b : Bool
+n : Nat
+h✝ : ¬b = true
+⊢ Opq (n + 1)
+-/
+#guard_msgs in
+def residualNoSectionTwoVCs (b : Bool) (n : Nat) : Id Nat
+    ensures r => Opq r
+  := if b then pure n else pure (n + 1)
+
 /-! A verification condition the section leaves open reports itself. -/
 
 opaque Opq2 : Nat → Prop

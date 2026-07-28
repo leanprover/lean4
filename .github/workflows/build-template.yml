@@ -348,6 +348,8 @@ jobs:
           git config user.name "update-stage0"
           make -C build update-stage0
           git commit --allow-empty -m "chore: update-stage0"
+          # with a new stage0, the old stage0 githash no longer applies
+          unset LEAN_GITHASH
           time make -C build -j$NPROC
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC
         if: matrix.check-rebootstrap

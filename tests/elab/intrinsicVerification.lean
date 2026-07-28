@@ -174,7 +174,7 @@ where finally
   | spec => exact opq_ax _
   | spec => finish
 
-/-! A verification condition the section does not discharge reports itself. -/
+/-! A verification condition the section leaves open reports itself. -/
 
 opaque Opq2 : Nat → Prop
 
@@ -189,4 +189,29 @@ def residualSectionMiss (n : Nat) : Id Nat
     ensures r => Opq2 r
   := pure n
 where finally
+  | spec => skip
+
+/-! A failing section step reports its own error rather than the generic report. -/
+
+/-- error: `lia` failed -/
+#guard_msgs in
+def residualSectionStepFails (n : Nat) : Id Nat
+    ensures r => Opq2 r
+  := pure n
+where finally
   | spec => lia
+
+/--
+error: Type mismatch
+  opq_ax 0
+has type
+  Opq 0
+but is expected to have type
+  Opq2 n
+-/
+#guard_msgs in
+def residualSectionIllTyped (n : Nat) : Id Nat
+    ensures r => Opq2 r
+  := pure n
+where finally
+  | spec => exact opq_ax 0

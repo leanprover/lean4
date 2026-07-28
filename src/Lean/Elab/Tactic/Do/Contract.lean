@@ -116,24 +116,27 @@ the `where finally | spec => ...` section does not discharge it"
     else
       s!"unproved verification condition for the contract of `{fId.getId}`; \
 discharge it in a `where finally | spec => ...` section of the definition"⟩
-  -- The section's steps become a `first` alternative tried per verification condition; without a
-  -- section, `done` fails on the open goal and control reaches the reporting alternative.
+  -- The discharger runs per verification condition: `try finish`, then the section's steps
+  -- (defaulting to `skip`), then the guarded report on a goal that is still open. A failing step
+  -- reports its own error.
   let toStep (g : Syntax) : TSyntax ``Lean.Parser.Tactic.Grind.grindStep :=
     ⟨mkNode ``Lean.Parser.Tactic.Grind.grindStep #[g, mkNullNode]⟩
-  let steps ← match specStep? with
+  let userSteps ← match specStep? with
     | some seq => do
         let mut arr := #[]
         for h : i in [0:seq.getArgs.size] do
           if i % 2 == 0 then
             arr := arr.push (toStep seq.getArgs[i])
         pure arr
-    | none => do pure #[toStep (← `(grind| done))]
+    | none => do pure #[toStep (← `(grind| skip))]
+  let steps := #[toStep (← `(grind| try finish))] ++ userSteps
+    ++ #[toStep (← `(grind| first (done) (tactic => fail $msg)))]
   -- `open scoped` activates `Std.Internal.Do`'s scoped instances for the spec theorem without
   -- adding names to the user's scope.
   let thm ← `(command|
     open scoped Std.Internal.Do in
     @[spec] theorem $specId $binders* : ⦃ $pre ⦄ $fId $args* ⦃ $post ⦄ := by
-      vcgen [$fId:ident] with first (finish) ($[$steps];*) (tactic => fail $msg))
+      vcgen [$fId:ident] with ($[$steps];*))
   return mkNullNode #[cleanDeclaration, thm]
 
 end Lean.Elab.Tactic.Do

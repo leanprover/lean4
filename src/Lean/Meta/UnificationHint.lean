@@ -38,6 +38,8 @@ builtin_initialize unificationHintExtension : SimpleScopedEnvExtension Unificati
   registerSimpleScopedEnvExtension {
     addEntry := UnificationHints.add
     initial  := {}
+    -- new hints reset the resolution cache (see the attribute below)
+    tcResolutionAccess := true
   }
 
 structure UnificationConstraint where

@@ -1013,6 +1013,20 @@ private def synthInstanceConfig : Config :=
   { isDefEqStuckEx := true, transparency := .instances,
     foApprox := true, ctxApprox := true, constApprox := false, univApprox := false }
 
+/--
+Runs `x` with environment extension access restricted to extensions registered with
+`tcResolutionAccess := true`; see `EnvExtensionAccessRestriction`. Environment modifications made
+by `x` (in particular cache fills) are kept; only the restriction flag is scoped.
+-/
+private def withExtAccessRestriction (x : MetaM α) : MetaM α := do
+  -- Modify the environment directly instead of via `Meta.modifyEnv`, which would reset
+  -- `Meta.Cache`.
+  let set (r : EnvExtensionAccessRestriction) : MetaM Unit :=
+    modifyThe Core.State fun s => { s with env := s.env.setExtAccessRestriction r }
+  let old := (← getEnv).extAccessRestriction
+  set .tcResolution
+  try x finally set old
+
 def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do
   let opts ← getOptions
   let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
@@ -1023,6 +1037,9 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
   withTraceNode `Meta.synthInstance
     (fun _ => return m!"{← instantiateMVars type}") do
   withConfig (fun _ => synthInstanceConfig) do
+  -- Restrict extension access analogously: any extension the search consults must be covered by
+  -- the cache key or by cache invalidation, so access to any other extension panics.
+  withExtAccessRestriction do
   withInTypeClassResolution do
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type

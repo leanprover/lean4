@@ -112,6 +112,8 @@ builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry In
     exportEntry? := fun _ e =>
       if e.globalName?.any (!isPrivateName ·) then .uniform (some e)
       else ⟨none, none, some e⟩
+    -- keyed via `SynthInstanceCacheKey.activeScopedInsts`/`localAttrInsts`, reset on add/erase
+    tcResolutionAccess := true
   }
 
 /--
@@ -132,7 +134,9 @@ transient tier compensates, as `Meta.Cache` is deliberately not restored by
 `Meta.SavedState.restore` (see `Lean.Meta.SynthInstance.insertCachedResult`).
 -/
 builtin_initialize synthInstanceCacheExt : EnvExtension SynthInstanceCache ←
-  registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep local
+  -- mere cache, keep local; `tcResolutionAccess` as this *is* the resolution cache
+  registerEnvExtension (pure {}) (asyncMode := .local) (name := `synthInstanceCache)
+    (tcResolutionAccess := true)
 
 /--
 Resets the persistent tier of the type class resolution cache. Use `resetSynthInstanceCache`

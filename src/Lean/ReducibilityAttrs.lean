@@ -51,6 +51,8 @@ def ReducibilityStatus.toAttrString : ReducibilityStatus → String
 builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × ReducibilityStatus) (Name × ReducibilityStatus) (NameMap ReducibilityStatus) ←
   registerPersistentEnvExtension {
     name            := `reducibilityCore
+    -- post-hoc changes reset the resolution cache via `reducibilityChangeHook`
+    tcResolutionAccess := true
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameMap ReducibilityStatus) (p : Name × ReducibilityStatus) => s.insert p.1 p.2
@@ -71,6 +73,8 @@ builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × Reducib
 builtin_initialize reducibilityExtraExt : SimpleScopedEnvExtension (Name × ReducibilityStatus) (SMap Name ReducibilityStatus) ←
   registerSimpleScopedEnvExtension {
     name := `reducibilityExtra
+    -- post-hoc changes reset the resolution cache via `reducibilityChangeHook`
+    tcResolutionAccess := true
     initial := {}
     addEntry := fun d (declName, status) => d.insert declName status
     finalizeImport := fun d => d.switch

@@ -29,6 +29,8 @@ structure SimplePersistentEnvExtensionDescr (α σ : Type) where
     Option (Environment → σ → List α → OLeanEntries (Array α)) := none
   asyncMode     : EnvExtension.AsyncMode := .mainOnly
   replay?       : Option ((newEntries : List α) → (newState : σ) → σ → List α × σ) := none
+  /-- See `EnvExtension.tcResolutionAccess`. -/
+  tcResolutionAccess : Bool := false
 
 /--
 Returns a function suitable for `SimplePersistentEnvExtensionDescr.replay?` that replays all new
@@ -57,6 +59,7 @@ def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : 
       let newEntries := newState.1.take (newState.1.length - oldState.1.length)
       let (newEntries, s) := replay newEntries newState.2 s
       (newEntries ++ entries, s)
+    tcResolutionAccess := descr.tcResolutionAccess
   }
 
 namespace SimplePersistentEnvExtension
@@ -90,9 +93,11 @@ end SimplePersistentEnvExtension
 @[expose] def TagDeclarationExtension := SimplePersistentEnvExtension Name NameSet
 
 def mkTagDeclarationExtension (name : Name := by exact decl_name%)
-  (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO TagDeclarationExtension :=
+  (asyncMode : EnvExtension.AsyncMode := .mainOnly)
+  (tcResolutionAccess : Bool := false) : IO TagDeclarationExtension :=
   registerSimplePersistentEnvExtension {
     name          := name,
+    tcResolutionAccess := tcResolutionAccess,
     addImportedFn := fun _ => {},
     addEntryFn    := fun s n => s.insert n,
     toArrayFn     := fun es => es.toArray.qsort Name.quickLt
@@ -135,10 +140,12 @@ def mkMapDeclarationExtension (name : Name := by exact decl_name%)
       -- Do not export info for private defs by default
       fun env s =>
         let all := s.toArray.filter (fun (n, _) => env.contains (skipRealize := false) n)
-        .uniform all) :
+        .uniform all)
+    (tcResolutionAccess : Bool := false) :
     IO (MapDeclarationExtension α) :=
   .mk <$> registerPersistentEnvExtension {
     name            := name,
+    tcResolutionAccess := tcResolutionAccess,
     mkInitial       := pure {}
     addImportedFn   := fun _ => pure {}
     addEntryFn      := fun s (n, v) => s.insert n v

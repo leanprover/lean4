@@ -192,9 +192,11 @@ structure TagAttribute where
 def registerTagAttribute (name : Name) (descr : String)
     (validate : Name → AttrM Unit := fun _ => pure ()) (ref : Name := by exact decl_name%)
     (applicationTime := AttributeApplicationTime.afterTypeChecking)
-    (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO TagAttribute := do
+    (asyncMode : EnvExtension.AsyncMode := .mainOnly)
+    (tcResolutionAccess : Bool := false) : IO TagAttribute := do
   let ext : PersistentEnvExtension Name Name NameSet ← registerPersistentEnvExtension {
     name            := ref
+    tcResolutionAccess := tcResolutionAccess
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameSet) n => s.insert n

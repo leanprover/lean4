@@ -40,6 +40,8 @@ structure Descr (α : Type) (β : Type) (σ : Type) where
   addEntry       : σ → β → σ
   finalizeImport : σ → σ := id
   exportEntry?   : Environment → α → OLeanEntries (Option α) := fun _ a => .uniform (some a)
+  /-- See `EnvExtension.tcResolutionAccess`. -/
+  tcResolutionAccess : Bool := false
 
 instance [Inhabited α] : Inhabited (Descr α β σ) where
   default := {
@@ -135,6 +137,7 @@ unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (Scope
     -- `AsyncMode.local` below). Allowing the latter is important for tactics such as -- `classical`
     -- or `open in`.
     asyncMode       := .mainOnly
+    tcResolutionAccess := descr.tcResolutionAccess
   }
   let ext := { descr := descr, ext := ext : ScopedEnvExtension α β σ }
   scopedEnvExtensionsRef.modify fun exts => exts.push (unsafeCast ext)
@@ -274,6 +277,8 @@ structure SimpleScopedEnvExtension.Descr (α : Type) (σ : Type) where
   initial        : σ
   finalizeImport : σ → σ := id
   exportEntry?   : Environment → α → OLeanEntries (Option α) := fun _ a => .uniform (some a)
+  /-- See `EnvExtension.tcResolutionAccess`. -/
+  tcResolutionAccess : Bool := false
 
 def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α σ) : IO (SimpleScopedEnvExtension α σ) := do
   registerScopedEnvExtension {
@@ -284,6 +289,7 @@ def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α 
     ofOLeanEntry   := fun _ a => return a
     finalizeImport := descr.finalizeImport
     exportEntry?   := descr.exportEntry?
+    tcResolutionAccess := descr.tcResolutionAccess
   }
 
 end Lean

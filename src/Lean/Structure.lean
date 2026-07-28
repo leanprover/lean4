@@ -85,6 +85,8 @@ private structure StructureState where
   deriving Inhabited
 
 private builtin_initialize structureExt : PersistentEnvExtension StructureInfo StructureInfo (Unit × StructureState) ← registerPersistentEnvExtension {
+  -- structure facts are immutable per declaration and monotone
+  tcResolutionAccess := true
   mkInitial       := pure ((), {})
   addImportedFn   := fun _ => pure ((), {})
   addEntryFn      := fun (_, s) e => ((), { s with map := s.map.insert e.structName e })

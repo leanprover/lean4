@@ -27,7 +27,9 @@ structure ProjectionFunctionInfo where
   fromClass : Bool
   deriving Inhabited, Repr
 
-builtin_initialize projectionFnInfoExt : MapDeclarationExtension ProjectionFunctionInfo ← mkMapDeclarationExtension
+builtin_initialize projectionFnInfoExt : MapDeclarationExtension ProjectionFunctionInfo ←
+  -- projection facts are immutable per declaration and monotone
+  mkMapDeclarationExtension (tcResolutionAccess := true)
 
 def addProjectionFnInfo (env : Environment) (projName : Name) (ctorName : Name) (numParams : Nat) (i : Nat) (fromClass : Bool) : Environment :=
   projectionFnInfoExt.insert env projName { ctorName, numParams, i, fromClass }
@@ -70,7 +72,9 @@ structure AuxParentProjectionInfo where
   fromClass : Bool
   deriving Inhabited, Repr
 
-builtin_initialize auxParentProjInfoExt : MapDeclarationExtension AuxParentProjectionInfo ← mkMapDeclarationExtension
+builtin_initialize auxParentProjInfoExt : MapDeclarationExtension AuxParentProjectionInfo ←
+  -- parent-projection facts are immutable per declaration and monotone
+  mkMapDeclarationExtension (tcResolutionAccess := true)
 
 def addAuxParentProjectionInfo (env : Environment) (projName : Name) (numParams : Nat) (fromClass : Bool) : Environment :=
   auxParentProjInfoExt.insert env projName { numParams, fromClass }

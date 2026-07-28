@@ -541,6 +541,24 @@ private structure RealizationContext where
   realizeMapRef : IO.Ref (NameMap NonScalar /- PHashMap α (Task Dynamic) -/)
 
 /--
+Access restriction on an environment's extension state, enforced by `EnvExtension.getState`,
+`EnvExtension.modifyState`, and `PersistentEnvExtension.getModuleEntries`; see
+`Environment.extAccessRestriction`.
+-/
+inductive EnvExtensionAccessRestriction where
+  /-- No restriction. -/
+  | none
+  /--
+  Restriction during type class resolution: only extensions registered with
+  `tcResolutionAccess := true` may be accessed. Resolution results are cached across contexts and
+  commands, so every extension the search consults must be covered by the cache key or its
+  invalidation; access to any other extension panics instead of silently introducing cache
+  staleness. See `Lean.Meta.SynthInstance`.
+  -/
+  | tcResolution
+  deriving Inhabited, BEq
+
+/--
 Elaboration-specific extension of `Kernel.Environment` that adds tracking of asynchronously
 elaborated declarations.
 -/
@@ -612,6 +630,8 @@ structure Environment where
   `elabMutualDef` may switch from public to private when e.g. entering the proof of a theorem.
   -/
   isExporting : Bool := false
+  /-- Access restriction on extension state; see `EnvExtensionAccessRestriction`. -/
+  extAccessRestriction : EnvExtensionAccessRestriction := .none
 deriving Nonempty
 
 @[inline] private def VisibilityMap.get (m : VisibilityMap α) (env : Environment) : α :=
@@ -655,6 +675,10 @@ def setExporting (env : Environment) (isExporting : Bool) : Environment :=
     env
   else
     { env with isExporting }
+
+/-- Updates `env.extAccessRestriction`; see `EnvExtensionAccessRestriction`. -/
+def setExtAccessRestriction (env : Environment) (r : EnvExtensionAccessRestriction) : Environment :=
+  if env.extAccessRestriction == r then env else { env with extAccessRestriction := r }
 
 /-- Consistently updates synchronous and (private) asynchronous parts of the environment without blocking. -/
 private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → Kernel.Environment) : Environment :=
@@ -1322,6 +1346,14 @@ structure EnvExtension (σ : Type) where private mk ::
   present.
   -/
   replay?   : Option (ReplayFn σ)
+  /-- Name for diagnostics; set automatically for persistent extensions. -/
+  name      : Name
+  /--
+  Whether this extension may be accessed under `EnvExtensionAccessRestriction.tcResolution`: its
+  contribution to type class resolution results must be covered by the resolution cache key or by
+  cache invalidation; see `EnvExtensionAccessRestriction`.
+  -/
+  tcResolutionAccess : Bool
   deriving Inhabited
 
 namespace EnvExtension
@@ -1396,6 +1428,16 @@ def asyncMayModify (ext : EnvExtension σ) (env : Environment) (asyncDecl : Name
       (ctx.mayContain asyncDecl && (env.findAsyncConst? asyncDecl).any (·.exts?.isNone))
     | _ => true
 
+/-- Whether the extension may be accessed on `env`; see `EnvExtensionAccessRestriction`. -/
+private def allowsAccess {σ : Type} (ext : EnvExtension σ) (env : Environment) : Bool :=
+  env.extAccessRestriction matches .none || ext.tcResolutionAccess
+
+private def accessErrorMsg {σ : Type} (ext : EnvExtension σ) : String :=
+  s!"environment extension `{ext.name}` (index {ext.idx}) is not accessible under the current \
+    extension access restriction: an extension consulted during type class resolution must be \
+    covered by the resolution cache key or by cache invalidation, and registered with \
+    `tcResolutionAccess := true`; see `Lean.EnvExtensionAccessRestriction`"
+
 /--
 Applies the given function to the extension state. See `AsyncMode` for details on how modifications
 from different environment branches are reconciled.
@@ -1407,6 +1449,8 @@ def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ 
     (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : Environment := Id.run do
   -- for panics
   let _ : Inhabited Environment := ⟨env⟩
+  unless ext.allowsAccess env do
+    return panic! ext.accessErrorMsg
   -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
   match asyncMode with
   | .mainOnly =>
@@ -1441,6 +1485,8 @@ def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) (a
 -- `unsafe` fails to infer `Nonempty` here
 private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension σ)
     (env : Environment) (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : σ := Id.run do
+  unless ext.allowsAccess env do
+    return panic! ext.accessErrorMsg
   -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
   match asyncMode with
   | .sync => ext.getStateImpl env.checked.get.extensions
@@ -1515,12 +1561,14 @@ end EnvExtension
    For that, you need to register a persistent environment extension. -/
 def registerEnvExtension {σ : Type} (mkInitial : IO σ)
     (replay? : Option (ReplayFn σ) := none)
-    (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO (EnvExtension σ) := do
+    (asyncMode : EnvExtension.AsyncMode := .mainOnly)
+    (name : Name := .anonymous)
+    (tcResolutionAccess : Bool := false) : IO (EnvExtension σ) := do
   unless (← initializing) do
     throw (IO.userError "failed to register environment, extensions can only be registered during initialization")
   let exts ← EnvExtension.envExtensionsRef.get
   let idx := exts.size
-  let ext : EnvExtension σ := { idx, mkInitial, asyncMode, replay? }
+  let ext : EnvExtension σ := { idx, mkInitial, asyncMode, replay?, name, tcResolutionAccess }
   -- safety: `EnvExtensionState` is opaque, so we can upcast to it
   EnvExtension.envExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
   pure ext
@@ -1669,12 +1717,14 @@ but is limited to the maximum level actually imported: `exported` on the cmdline
 language server. Higher levels will return the data of the maximum imported level.
 -/
 def getModuleEntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ)
-    (env : Environment) (m : ModuleIdx) (level := OLeanLevel.exported) : Array α :=
+    (env : Environment) (m : ModuleIdx) (level := OLeanLevel.exported) : Array α := Id.run do
+  unless ext.toEnvExtension.allowsAccess env do
+    return panic! ext.toEnvExtension.accessErrorMsg
   let exts := match level with
     | .exported => env.base.private.extensions
     | _         => env.serverBaseExts
   -- safety: as in `getStateUnsafe`
-  unsafe (ext.toEnvExtension.getStateImpl exts).importedEntries[m]!
+  return unsafe (ext.toEnvExtension.getStateImpl exts).importedEntries[m]!
 
 /-- Retrieves additional IR extension state for the interpreter. -/
 def getModuleIREntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ)
@@ -1716,6 +1766,8 @@ structure PersistentEnvExtensionDescrCore (α β σ : Type) where
   statsFn           : σ → Format := fun _ => Format.nil
   asyncMode         : EnvExtension.AsyncMode := .mainOnly
   replay?           : Option (ReplayFn σ) := none
+  /-- See `EnvExtension.tcResolutionAccess`. -/
+  tcResolutionAccess : Bool := false
 
 attribute [inherit_doc PersistentEnvExtension.exportEntriesFn]
   PersistentEnvExtensionDescrCore.exportEntriesFnEx
@@ -1742,7 +1794,8 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
   if pExts.any (fun ext => ext.name == descr.name) then throw (IO.userError s!"invalid environment extension, '{descr.name}' has already been used")
   let replay? := descr.replay?.map fun replay =>
     fun oldState newState newConsts s => { s with state := replay oldState.state newState.state newConsts s.state }
-  let ext ← registerEnvExtension (asyncMode := descr.asyncMode) (replay? := replay?) do
+  let ext ← registerEnvExtension (asyncMode := descr.asyncMode) (replay? := replay?)
+      (name := descr.name) (tcResolutionAccess := descr.tcResolutionAccess) do
     let initial ← descr.mkInitial
     let s : PersistentEnvExtensionState α σ := {
       importedEntries := #[],

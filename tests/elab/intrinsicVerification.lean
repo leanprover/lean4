@@ -106,3 +106,23 @@ def specNoType (x : Nat)
 /-- info: specNoType.spec : ∀ (x : Nat), ⦃ x > 0 ⦄ specNoType x ⦃ fun r => r ≥ x ⦄ -/
 #guard_msgs in
 #check @specNoType.spec
+
+/-! ## A `vcgen` discharger built from grind-mode `first` and the `tactic => fail` escape reports
+the verification condition it could not discharge -/
+
+opaque Opq : Nat → Prop
+
+def residualProg (n : Nat) : Id Nat := pure n
+
+/--
+error: unproved verification condition; discharge it in a `where finally | spec => ...` section of the definition
+case vc1
+n : Nat
+⊢ Opq n
+-/
+#guard_msgs in
+theorem residualProg_spec (n : Nat) :
+    ⦃ True ⦄
+    residualProg n
+    ⦃ fun r => Opq r ⦄ := by
+  vcgen [residualProg] with first (finish) (tactic => fail "unproved verification condition; discharge it in a `where finally | spec => ...` section of the definition")

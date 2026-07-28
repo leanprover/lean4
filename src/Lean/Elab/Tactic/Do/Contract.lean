@@ -55,7 +55,7 @@ def expandDefContract : Macro := fun stx => do
   unless (← Macro.hasDecl ``Std.Internal.Do.Triple) do
     Macro.throwErrorAt (if requireStx.isNone then ensuresStx else requireStx)
       "`require`/`ensures` contracts elaborate to a `vcgen`-proved specification theorem; \
-add `import Std.Internal.Do` and `import Std.Tactic.Do` to use them."
+add `import Std.Internal.Do` to use them."
   let sig := decl[2]
   let fId : Ident := ⟨decl[1][0]⟩
   let specId := mkIdentFrom fId (fId.getId ++ `spec)
@@ -71,7 +71,10 @@ add `import Std.Internal.Do` and `import Std.Tactic.Do` to use them."
     match ensuresStx[0] with
     | `(ensuresClause| ensures $bs* => $q) => `(fun $bs* => $q)
     | _ => Macro.throwUnsupported
+  -- `open scoped` activates `Std.Internal.Do`'s scoped instances for the spec theorem without
+  -- adding names to the user's scope.
   let thm ← `(command|
+    open scoped Std.Internal.Do in
     @[spec] theorem $specId $binders* : ⦃ $pre ⦄ $fId $args* ⦃ $post ⦄ := by
       vcgen [$fId:ident] with finish)
   return mkNullNode #[cleanDeclaration, thm]

@@ -3,11 +3,12 @@ import re
 import shlex
 import subprocess
 import urllib.parse
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from os import PathLike
 from pathlib import Path
 from re import Match, Pattern
-from typing import Callable, Literal, NoReturn, Self
+from typing import Literal, NoReturn, Self
 
 from github import Auth, Github
 from github.GithubException import UnknownObjectException
@@ -256,7 +257,7 @@ class LocalRepo:
         self.git("add", ".")
         try:
             self.git("diff", "--cached", "--quiet")
-        except Exception:
+        except Exception:  # noqa: BLE001
             self.git("commit", "-m", message)
 
     def push(self, branch: str, remote: str = "origin", upstream: bool = True) -> None:
@@ -310,7 +311,7 @@ def get_github_instance() -> Github:
         token = run_stdout("gh", "auth", "token").strip()
         print("Using GitHub token from `gh auth token`")
         return Github(auth=Auth.Token(token))
-    except Exception:
+    except Exception:  # noqa: BLE001
         Checklist().fatal("Failed to get GitHub token from `gh auth token`")
 
 

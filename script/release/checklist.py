@@ -550,7 +550,7 @@ class DownstreamChecker(RepoChecker):
         try:
             self.lrepo.run("python", script, self.version.tag)
             self.cl.success(f"Version tags verified by [b]{e(script)}[/b]")
-        except Exception:
+        except Exception:  # noqa: BLE001
             self.cl.fatal(f"Version tag verification by [b]{e(script)}[/b] failed")
 
     def check(self) -> None:

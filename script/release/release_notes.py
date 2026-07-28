@@ -189,9 +189,8 @@ def load_commits(version: Version, repo: Repo, grepo: Repository) -> list[Commit
             description = title
 
         category = get_category(labels)
-        if not category:
-            if warn:
-                print("[yellow]No changelog-* label found[/]")
+        if category is None and warn:
+            print("[yellow]No changelog-* label found[/]")
         if category is not None and category not in SECTIONS:
             print(f"[yellow]Unknown category {category!r}[/]")
             category = "Uncategorised"

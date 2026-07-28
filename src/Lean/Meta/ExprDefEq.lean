@@ -82,6 +82,26 @@ register_builtin_option backward.isDefEq.implicitBump : Bool := {
   not just instance-implicit ones"
 }
 
+/--
+Controls the transparency used to compare the types of two proofs when checking definitional
+equality by proof irrelevance.
+
+When `true`, the types are compared at (at least) `TransparencyMode.implicit`, so
+`[implicit_reducible]` definitions are unfolded in addition to `[reducible]`/`[instance_reducible]`
+ones. This mirrors the transparency bump applied to implicit arguments: proof terms are usually not
+written by the user directly, so Lean should try harder to make their types match.
+
+When `false`, the types are compared at the caller's transparency.
+
+This option only has an effect when `backward.isDefEq.respectTransparency` is `true`; otherwise the
+types are compared at `.default` transparency.
+-/
+register_builtin_option backward.isDefEq.proofIrrelBump : Bool := {
+  defValue := true
+  descr    := "if true, bump transparency to `.implicit` when comparing the types of two proofs \
+  during a proof-irrelevance check"
+}
+
 register_builtin_option trace.Meta.isDefEq.printTransparency : Bool := {
   defValue := false
   descr    := "if true, prefix `Meta.isDefEq` `=?=` trace messages with the current transparency level"
@@ -1754,12 +1774,19 @@ private def etaEq (t s : Expr) : Bool :=
   ```
   So, unless we can unfold `List.length`, it fails.
 
-  We used to bump the transparency level always to address the issue above, but this is a
-  performance foot-gun. Users can use the backward compatibility flag to restore the old behavior.
+  We used to bump the transparency level always to `.default` to address the issue above, but this
+  is a performance foot-gun (`backward.isDefEq.respectTransparency := false` restores that
+  behavior). Instead, we bump to `.implicit`, mirroring the bump applied when comparing implicit
+  arguments and metavariable assignment types: only `[reducible]`/`[instance_reducible]`/
+  `[implicit_reducible]` definitions get unfolded, not arbitrary semireducible ones.
+  `backward.isDefEq.proofIrrelBump := false` disables this bump.
 -/
 private def withProofIrrelTransparency (k : MetaM α) : MetaM α := do
   if backward.isDefEq.respectTransparency.get (← getOptions) then
-    k
+    if backward.isDefEq.proofIrrelBump.get (← getOptions) then
+      withImplicitConfig k
+    else
+      k
   else
     withInferTypeConfig k
 

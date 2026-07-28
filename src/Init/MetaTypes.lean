@@ -82,6 +82,9 @@ Each level unfolds everything the previous level does, plus more:
     be implicit-reducible, at least as soon as `backward.isDefEq.respectTransparency.types` is
     enabled, because types during metavariable assignments are then compared at implicit
     transparency.
+  - Propositions are compared at (at least) implicit transparency when two of their proofs are
+    checked for definitional equality by proof irrelevance (see
+    `backward.isDefEq.proofIrrelBump`).
   - The left-hand side and right-hand side of a `rfl` lemma should be definitionally equal at
     implicit transparency. Marking constants as `[implicit_reducible]` allows for more `rfl` lemmas.
 

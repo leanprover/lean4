@@ -77,15 +77,21 @@ structure Instances where
   discrTree     : InstanceTree := DiscrTree.empty
   instanceNames : PHashMap Name InstanceEntry := {}
   erased        : PHashSet Name := {}
+  /--
+  Counter incremented on every instance addition or erasure. Consumers such as
+  `Lean.Elab.Command.SectionVarsCache` compare revisions to detect that the instance table
+  is unchanged.
+  -/
+  revision      : Nat := 0
   deriving Inhabited
 
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
   match e.globalName? with
-  | some n => { d with discrTree := d.discrTree.insertKeyValue e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
-  | none   => { d with discrTree := d.discrTree.insertKeyValue e.keys e }
+  | some n => { d with discrTree := d.discrTree.insertKeyValue e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n, revision := d.revision + 1 }
+  | none   => { d with discrTree := d.discrTree.insertKeyValue e.keys e, revision := d.revision + 1 }
 
 def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
-  { d with erased := d.erased.insert declName, instanceNames := d.instanceNames.erase declName }
+  { d with erased := d.erased.insert declName, instanceNames := d.instanceNames.erase declName, revision := d.revision + 1 }
 
 def Instances.erase [Monad m] [MonadError m] (d : Instances) (declName : Name) : m Instances := do
   unless d.instanceNames.contains declName do

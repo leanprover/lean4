@@ -134,27 +134,21 @@ opaque Opq : Nat → Prop
 axiom opq_ax (n : Nat) : Opq n
 
 /-! The case binders name a condition's inaccessible variables, here the loop's final state and its
-invariant. -/
+invariant. The witness is the one `grind` will not invent. -/
 
-opaque Certified : Nat → Prop
-
-axiom certify (n : Nat) : 0 ≤ n → Certified n
-
-def sumCertified (xs : List Nat) : Id Nat
-    ensures r => ∃ k, r = k ∧ Certified k
+def sumEvens (xs : List Nat) : Id Nat
+    ensures r => ∃ k, r = 2 * k
   := do
   let mut acc := 0
-  for x in xs invariant _cur => 0 ≤ acc do
-    acc := acc + x
+  for x in xs invariant _cur => acc % 2 = 0 do
+    acc := acc + 2 * x
   return acc
 where finally
-  | spec => case vc2 acc h => exact ⟨acc, rfl, certify acc h⟩
+  | spec => case vc1 acc h => exact ⟨acc / 2, by omega⟩
 
-/--
-info: sumCertified.spec : ∀ (xs : List Nat), ⦃ ⊤ ⦄ sumCertified xs ⦃ fun r => ∃ k, r = k ∧ Certified k ⦄
--/
+/-- info: sumEvens.spec : ∀ (xs : List Nat), ⦃ ⊤ ⦄ sumEvens xs ⦃ fun r => ∃ k, r = 2 * k ⦄ -/
 #guard_msgs in
-#check @sumCertified.spec
+#check @sumEvens.spec
 
 /-! The section is an ordinary tactic block over the conditions left open, so several of them are
 addressed by their case names. -/

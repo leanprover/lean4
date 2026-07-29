@@ -21,12 +21,12 @@ open Lean.Meta
 
 @[builtin_macro Lean.Parser.Term.doFor] def expandDoFor : Macro := fun stx => do
   match stx with
-  | `(doFor| for $[$_ : ]? $_:ident in $_ $[$_inv:doForInvariant]? do $_) =>
+  | `(doFor| for $[$_ : ]? $_:ident in $_ $_:doForInvariant* do $_) =>
     -- This is the target form of the expander, handled by `elabDoFor` below.
     Macro.throwUnsupported
-  | `(doFor| for%$tk $decls:doForDecl,* $[$inv:doForInvariant]? do $body) =>
-    if let some inv := inv then
-      Macro.throwErrorAt inv "The `invariant` clause is only supported on `for x in xs do …` \
+  | `(doFor| for%$tk $decls:doForDecl,* $invs:doForInvariant* do $body) =>
+    if let some inv := invs[0]? then
+      Macro.throwErrorAt inv.raw "The `invariant` clause is only supported on `for x in xs do …` \
         with a single identifier binder."
     let decls := decls.getElems
     let `(doForDecl| $[$h? : ]? $pattern in $xs) := decls[0]! | Macro.throwUnsupported
@@ -114,8 +114,11 @@ private def mkForInWithInvariant (invClause : Syntax) (h? : Option Syntax)
   Term.elabTermEnsuringType call (mkApp mi.m σ)
 
 @[builtin_doElem_elab Lean.Parser.Term.doFor] def elabDoFor : DoElab := fun stx dec => do
-  let `(doFor| for%$tk $[$h? : ]? $x:ident in $xs $[$inv?:doForInvariant]? do $body) := stx
+  let `(doFor| for%$tk $[$h? : ]? $x:ident in $xs $invs:doForInvariant* do $body) := stx
     | throwUnsupportedSyntax
+  if let some inv := invs[1]? then
+    throwErrorAt inv.raw "At most one `invariant` clause is allowed on a `for` loop."
+  let inv? := invs[0]?.map (·.raw)
   let dec ← dec.ensureUnitAt tk
   checkMutVarsForShadowing #[x]
   let uα ← mkFreshLevelMVar

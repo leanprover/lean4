@@ -86,6 +86,19 @@ def sumRangeMem (n : Nat) : Id Nat
 #guard_msgs (drop info) in
 #check @sumRangeMem.spec
 
+/-! ## A `for` loop carries at most one `invariant` clause -/
+
+/-- error: At most one `invariant` clause is allowed on a `for` loop. -/
+#guard_msgs in
+example (xs : List Nat) : Id Nat := do
+  let mut acc := 0
+  for x in xs
+      invariant cur => 0 ≤ acc
+      invariant cur => acc ≤ acc
+    do
+    acc := acc + x
+  return acc
+
 /-! ## The contract telescope is transplanted faithfully to `f.spec`
 
 `f.spec` re-binds the definition's telescope verbatim, applies `f` to exactly the explicit arguments,

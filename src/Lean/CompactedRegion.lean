@@ -108,4 +108,49 @@ undefined behavior on use.
 public unsafe opaque CompactedRegion.read {α : Type} (fname : @& System.FilePath)
     (depRegions : @& Array CompactedRegion) : IO (α × CompactedRegion)
 
+private opaque RcCompactedRegion.Pointed : NonemptyType.{0}
+
+/-- A structure similar to `CompactedRegion`, but subject to reference counting.
+It can thus be automatically unmapped when it is no longer needed. -/
+public structure RcCompactedRegion (α : Type) : Type where
+  private data : RcCompactedRegion.Pointed.type
+  private h    : Nonempty α
+
+namespace RcCompactedRegion
+
+instance [s : Nonempty α] : Nonempty (RcCompactedRegion α) :=
+  by exact Nonempty.intro { data := Classical.choice RcCompactedRegion.Pointed.property, h := s }
+
+/-- Same as `CompactedRegion.read`. Does not support `depRegions`. -/
+@[extern "lean_rc_compacted_region_read"]
+public unsafe opaque read (α : Type) (fname : @& System.FilePath) : IO (RcCompactedRegion α)
+
+/-- The value stored in the compacted region.
+
+Safety: `scr` must remain alive for any use of the output value
+(or of any object in the compacted region reachable from the output value).
+This can be ensured in practice using `Runtime.hold`. -/
+@[extern "lean_rc_compacted_region_val"]
+private unsafe opaque val (scr : @& RcCompactedRegion α) : α :=
+  Classical.choice scr.h
+
+/-- Pass the value of the compacted region to `fn` and return the result.
+The result is *deep copied*,
+so no references to the compacted region may escape through the result.
+Deep copying is an expensive operation -
+the intended mode of use is to do heavy processing directly on compacted region data in `fn`,
+and return a small result at the end.
+
+Safety: no reference to `fn`'s input
+(or to any object in the compacted region reachable from the input)
+may survive past `fn`'s execution.
+`fn` must not capture these values via `Task.spawn`,
+or store them in a `Ref` via `unsafePerformIO`. -/
+public unsafe def map (scr : RcCompactedRegion α) (fn : α → β) : IO β := do
+  let ret ← Runtime.deepCopy (fn scr.val)
+  Runtime.hold scr
+  return ret
+
+end RcCompactedRegion
+
 end Lean

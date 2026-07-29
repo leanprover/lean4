@@ -645,4 +645,45 @@ extern "C" LEAN_EXPORT obj_res lean_compacted_region_free(obj_arg region, object
     return lean_io_result_mk_ok(lean_box(0));
 }
 
+static lean_external_class * g_rc_compacted_region_class = nullptr;
+
+static void rc_compacted_region_finalizer(void * data) {
+    auto region = static_cast<object *>(data);
+    object * res = lean_compacted_region_free(region, io_mk_world());
+    lean_dec_ref(res);
+}
+
+static void rc_compacted_region_foreach(void * data, b_lean_obj_arg fn) {
+    auto region = static_cast<object *>(data);
+    lean_inc_ref(fn);
+    lean_inc_ref(region);
+    lean_dec(lean_apply_1(fn, region));
+}
+
+static void ensure_rc_compacted_region_class() {
+    if (!g_rc_compacted_region_class) {
+        g_rc_compacted_region_class = lean_register_external_class(rc_compacted_region_finalizer, rc_compacted_region_foreach);
+    }
+}
+
+/* RcCompactedRegion.read (α : Type) (fname : @& System.FilePath) : IO (RcCompactedRegion α) */
+extern "C" LEAN_EXPORT object * lean_rc_compacted_region_read(b_obj_arg fname, object *) {
+    ensure_rc_compacted_region_class();
+    object * dep_regions = lean_alloc_array(0, 0);
+    object * res = lean_compacted_region_read(fname, dep_regions, io_mk_world());
+    lean_dec_ref(dep_regions);
+    if (!lean_io_result_is_ok(res)) return res;
+    object * pair = lean_io_result_get_value(res);
+    object * region = cnstr_get(pair, 1);
+    lean_inc_ref(region); lean_dec_ref(res);
+    return lean_io_result_mk_ok(lean_alloc_external(g_rc_compacted_region_class, region));
+}
+
+/* RcCompactedRegion.val {α : Type} (scr : @& RcCompactedRegion) : α */
+extern "C" LEAN_EXPORT object * lean_rc_compacted_region_val(b_obj_arg scr) {
+    auto region = static_cast<object *>(lean_get_external_data(scr));
+    object * root = lean_ctor_get(region, 1);
+    // Root has no RC, no need to inc here despite it coming from a borrow.
+    return root;
+}
 }

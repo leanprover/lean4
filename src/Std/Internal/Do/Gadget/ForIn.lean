@@ -17,8 +17,8 @@ import Init.Data.List.Monadic
 `ForIn.forInWithInvariant` and `ForIn'.forInWithInvariant'` annotate a `forIn`/`forIn'` loop with its
 invariant so that `vcgen` reads the invariant from the program. The gadgets come first, then the
 classes `DeterministicForIn`/`DeterministicForIn'` identifying the containers that enumerate the
-elements of `ForIn.toList`, and finally the `@[spec]` specifications that restate
-`Spec.forIn_list`/`Spec.forIn'_list` for every such container.
+elements of `ForIn.toList` and the membership transport `LawfulMemForIn`, and finally the `@[spec]`
+specifications that restate `Spec.forIn_list`/`Spec.forIn'_list` for every such container.
 -/
 
 @[expose] public section
@@ -60,14 +60,20 @@ class DeterministicForIn (m : Type u → Type v) (ρ : Type w) (α : Type u₁) 
   forIn_eq {β : Type u} (xs : ρ) (init : β) (f : α → β → m (ForInStep β)) :
     forIn xs init f = forIn (ForIn.toList xs) init f
 
-/-- Containers whose `ForIn'` loop is the loop over `ForIn.toList xs`. -/
-class DeterministicForIn' (m : Type u → Type v) (ρ : Type w) (α : Type u₁) [Monad m]
-    {d : Membership α ρ} [ForIn' m ρ α d] [ForIn Id ρ α] : Prop where
+/-- Containers whose `Membership` agrees with the elements `ForIn` enumerates. -/
+class LawfulMemForIn (ρ : Type w) (α : Type u₁) [d : Membership α ρ] [ForIn Id ρ α] :
+    Prop where
   /-- Every element of `ForIn.toList xs` is a member of `xs`. -/
   mem_of_mem_toList {a : α} {xs : ρ} : a ∈ ForIn.toList xs → a ∈ xs
+
+/-- Containers whose `ForIn'` loop is the loop over `ForIn.toList xs`. -/
+class DeterministicForIn' (m : Type u → Type v) (ρ : Type w) (α : Type u₁) [Monad m]
+    {d : Membership α ρ} [ForIn' m ρ α d] [ForIn Id ρ α]
+    [LawfulMemForIn ρ α] : Prop where
   /-- Iterating over `xs` is iterating over `ForIn.toList xs`. -/
   forIn'_eq {β : Type u} (xs : ρ) (init : β) (f : (a : α) → a ∈ xs → β → m (ForInStep β)) :
-    forIn' xs init f = forIn' (ForIn.toList xs) init fun a h b => f a (mem_of_mem_toList h) b
+    forIn' xs init f = forIn' (ForIn.toList xs) init fun a h b =>
+      f a (LawfulMemForIn.mem_of_mem_toList h) b
 
 /-! ## Bridge lemmas
 
@@ -93,12 +99,12 @@ private theorem foldl_push_toList {γ : Type u₁} (xs : List γ) (acc : Array �
   rw [foldl_push_toList]; simp
 
 @[simp, grind =] theorem ForIn.toList_range (r : Std.Legacy.Range) :
-    ForIn.toList r = List.range' r.start ((r.stop - r.start + r.step - 1) / r.step) r.step := by
+    ForIn.toList r = List.range' r.start r.size r.step := by
   simp only [ForIn.toList, ForIn.toArray, Id.run, Std.Legacy.Range.forIn_eq_forIn_range',
     List.forIn_pure_yield_eq_foldl]
   change (List.foldl (fun acc a => acc.push a) #[]
     (List.range' r.start r.size r.step)).toList = _
-  rw [foldl_push_toList]; simp [Std.Legacy.Range.size]
+  rw [foldl_push_toList]; simp
 
 /-! ## Instances -/
 
@@ -117,18 +123,24 @@ instance {m : Type u → Type v} [Monad m] : DeterministicForIn m Std.Legacy.Ran
   forIn_eq r init f := by
     rw [ForIn.toList_range]; exact Std.Legacy.Range.forIn_eq_forIn_range' ..
 
-instance {m : Type u → Type v} [Monad m] {α : Type u₁} : DeterministicForIn' m (List α) α where
+instance {α : Type u₁} : LawfulMemForIn (List α) α where
   mem_of_mem_toList h := by rwa [ForIn.toList_list] at h
+
+instance {α : Type u₁} : LawfulMemForIn (Array α) α where
+  mem_of_mem_toList h := Array.mem_toList_iff.mp (by rwa [ForIn.toList_array] at h)
+
+instance : LawfulMemForIn Std.Legacy.Range Nat where
+  mem_of_mem_toList h := Std.Legacy.Range.mem_of_mem_range' (by rwa [ForIn.toList_range] at h)
+
+instance {m : Type u → Type v} [Monad m] {α : Type u₁} : DeterministicForIn' m (List α) α where
   forIn'_eq xs init f := (forIn'_cast (ForIn.toList_list xs) init f).symm
 
 instance {m : Type u → Type v} [Monad m] {α : Type u₁} : DeterministicForIn' m (Array α) α where
-  mem_of_mem_toList h := Array.mem_toList_iff.mp (by rwa [ForIn.toList_array] at h)
   forIn'_eq xs init f :=
     ((forIn'_cast (ForIn.toList_array xs) init
       (fun a ha b => f a (Array.mem_toList_iff.mp ha) b)).trans Array.forIn'_toList).symm
 
 instance {m : Type u → Type v} [Monad m] : DeterministicForIn' m Std.Legacy.Range Nat where
-  mem_of_mem_toList h := Std.Legacy.Range.mem_of_mem_range' (by rwa [ForIn.toList_range] at h)
   forIn'_eq r init f := by
     rw [Std.Legacy.Range.forIn'_eq_forIn'_range']
     exact (forIn'_cast (ForIn.toList_range r) init
@@ -161,13 +173,13 @@ theorem Spec.forInWithInvariant_det {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ �
 
 @[spec]
 theorem Spec.forInWithInvariant'_det {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
-    [ForIn Id ρ α] [DeterministicForIn' m ρ α]
+    [ForIn Id ρ α] [LawfulMemForIn ρ α] [DeterministicForIn' m ρ α]
     {xs : ρ} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     (inv : Invariant α β Pred)
     {epost : EPred}
     (step : ∀ pref cur suff (h : ForIn.toList xs = pref ++ cur :: suff) b,
       Triple
-        (f cur (DeterministicForIn'.mem_of_mem_toList m (by simp [h])) b)
+        (f cur (LawfulMemForIn.mem_of_mem_toList (by simp [h])) b)
         (inv pref (cur :: suff) b)
         (fun r => match r with
           | .yield b' => inv (pref ++ [cur]) suff b'

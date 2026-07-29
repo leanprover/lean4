@@ -1,13 +1,43 @@
 import Std.Internal.Do
-import Std.Tactic.Do
 
 /-! Tests for `def` contracts. A `def` carrying `require`/`ensures` clauses elaborates to the
 definition plus an `@[spec]`-tagged `f.spec` Hoare triple that `vcgen` proves automatically; a
 `for … invariant` clause inside the body supplies the loop invariant it needs. New cases go here. -/
 
-open Std.Internal.Do Lean.Order
-
 set_option mvcgen.warning false
+
+/-! ## Contracts elaborate with nothing opened
+
+The cases up to the `open` below see neither namespace, so they pin what the spec theorem must
+activate by itself. A clause left out defaults to `⊤`, which prints as the constant it denotes
+while its notation is out of scope. -/
+
+def clampLow (n lo : Nat) : Id Nat
+    require lo ≤ n
+    ensures r => r = n
+  := pure n
+
+/-- info: clampLow.spec : ∀ (n lo : Nat), ⦃ lo ≤ n ⦄ clampLow n lo ⦃ fun r => r = n ⦄ -/
+#guard_msgs in
+#check @clampLow.spec
+
+def onlyEnsures (n : Nat) : Id Nat
+    ensures r => r = n
+  := pure n
+
+/-- info: onlyEnsures.spec : ∀ (n : Nat), ⦃ Lean.Order.top ⦄ onlyEnsures n ⦃ fun r => r = n ⦄ -/
+#guard_msgs in
+#check @onlyEnsures.spec
+
+def onlyRequire (n : Nat) : Id Nat
+    require 0 ≤ n
+  := pure n
+
+/-- info: onlyRequire.spec : ∀ (n : Nat), ⦃ 0 ≤ n ⦄ onlyRequire n ⦃ fun x => Lean.Order.top ⦄ -/
+#guard_msgs in
+#check @onlyRequire.spec
+
+open Std.Internal.Do Lean.Order
 
 /-! ## An `ensures` contract with a `for … invariant` loop, proved with no manual steps -/
 

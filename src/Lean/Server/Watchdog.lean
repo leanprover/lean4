@@ -1689,7 +1689,7 @@ def startLoadingReferences (referenceData : Std.Mutex ReferenceData) : IO Unit :
       visitedPaths := visitedPaths.insert realPath
 
       let compactedIlean : Option Ilean ← try
-          let .some compactedIlean ← CompactedIlean.load path | pure .none
+          let .some compactedIlean ← Ilean.loadCompacted path | pure .none
           compactedIleanCount := compactedIleanCount + 1
           pure compactedIlean
         catch _ =>
@@ -1713,7 +1713,7 @@ def startLoadingReferences (referenceData : Std.Mutex ReferenceData) : IO Unit :
         -- when we add logging to the server
         pure ()
     if compactedIleanErrors > 0 then
-      (← getStderr).putStrLn s!"Attempted to load {compactedIleanCount} .{CompactedIlean.ext} {compactedIleanCount.plural "file"}, but failed to load {compactedIleanErrors} of them"
+      (← getStderr).putStrLn s!"Attempted to load {compactedIleanCount} .{Ilean.compactedExt} {compactedIleanCount.plural "file"}, but failed to load {compactedIleanErrors} of them"
   referenceData.atomically <| modify fun rd =>
     { rd with loadingTask := task.mapCheap fun _ => () }
 

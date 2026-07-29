@@ -20,7 +20,7 @@ def fmt (stx : CoreM Syntax) : CoreM Format := do PrettyPrinter.ppTerm ⟨← st
 #eval fmt `(command| def g (x : Nat) require x > 0 ensures r => r ≥ x := pure x)
 #eval fmt `(command| def h (x : Nat) : Id Nat ensures r => r = x := pure x
 where finally
-  | spec => finish)
+  | spec => skip)
 
 #eval fmt `(def foo := by
   · skip; skip

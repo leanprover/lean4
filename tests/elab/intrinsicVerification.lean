@@ -156,16 +156,16 @@ info: sumCertified.spec : ∀ (xs : List Nat), ⦃ ⊤ ⦄ sumCertified xs ⦃ f
 #guard_msgs in
 #check @sumCertified.spec
 
-/-! The section's steps run per verification condition: both branch VCs use the same steps, and
-steps sequence across lines. -/
+/-! The section is an ordinary tactic block over the conditions left open, so several of them are
+addressed by their case names. -/
 
 def residualTwoVCs (b : Bool) (n : Nat) : Id Nat
     ensures r => Opq r
   := if b then pure n else pure (n + 1)
 where finally
   | spec =>
-    skip
-    exact opq_ax _
+    case vc1 => exact opq_ax _
+    case vc2 => exact opq_ax _
 
 /--
 info: residualTwoVCs.spec : ∀ (b : Bool) (n : Nat), ⦃ ⊤ ⦄ residualTwoVCs b n ⦃ fun r => Opq r ⦄
@@ -194,7 +194,7 @@ def residualDupSection (n : Nat) : Id Nat
   := pure n
 where finally
   | spec => exact opq_ax _
-  | spec => finish
+  | spec => skip
 
 /-! All verification conditions left open are reported in one aggregate error. -/
 
@@ -219,21 +219,33 @@ def residualNoSectionTwoVCs (b : Bool) (n : Nat) : Id Nat
 
 opaque Opq2 : Nat → Prop
 
-/-! A step that fails on a verification condition leaves it to the report, as does one that
-succeeds without closing it. -/
+/-! A tactic leaving a condition open reaches the report. -/
 
 /--
-error: unproved verification conditions for the contract of `residualSectionStepFails`; the `where finally | spec => ...` section does not discharge them
+error: unproved verification conditions for the contract of `residualSectionMiss`; the `where finally | spec => ...` section does not discharge them
 case vc1
 n : Nat
 ⊢ Opq2 n
 -/
 #guard_msgs in
-def residualSectionStepFails (n : Nat) : Id Nat
+def residualSectionMiss (n : Nat) : Id Nat
     ensures r => Opq2 r
   := pure n
 where finally
-  | spec => lia
+  | spec => skip
+
+/-! A tactic that fails reports its own error. -/
+
+/--
+error: omega could not prove the goal:
+No usable constraints found. You may need to unfold definitions so `omega` can see linear arithmetic facts about `Nat` and `Int`, which may also involve multiplication, division, and modular remainder by constants.
+-/
+#guard_msgs in
+def residualSectionTacticFails (n : Nat) : Id Nat
+    ensures r => Opq2 r
+  := pure n
+where finally
+  | spec => omega
 
 /--
 error: Type mismatch

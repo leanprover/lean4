@@ -52,34 +52,25 @@ private def setPath (s : Syntax) : List Nat → Syntax → Syntax
   | [], r => r
   | i :: p, r => s.setArg i (setPath s[i] p r)
 
-/-- Extracts the grind-mode steps of a `where finally | spec => steps` section from a `declVal`
-alternative, returning the steps and the `declVal` with the section removed. -/
+/-- Extracts the tactics of a `where finally | spec => tacs` section from a `declVal` alternative,
+returning them and the `declVal` with the section removed. -/
 private def extractSpecSection (v : Syntax) : MacroM (Option Syntax × Syntax) := do
   let some path := whereDeclsPath? v | return (none, v)
   let optWd := getPath v path
   if optWd.isNone then return (none, v)
   -- `whereDecls = "where"(0) >> letRecDecls(1) >> optional whereFinally(2)`
   -- `whereFinally = "finally"(0) >> optional tacticSeq(1) >> subsections(2)`
+  -- `whereFinallySubsection = "| "(0) >> ident(1) >> "=>"(2) >> tacticSeq(3)`
   let wd := optWd[0]
   let optWf := wd[2]
   if optWf.isNone then return (none, v)
   let wf := optWf[0]
-  let (specs, others) := wf[2].getArgs.partition (·.isOfKind ``Lean.Parser.Term.whereFinallySpecSubsection)
+  let (specs, others) := wf[2].getArgs.partition (·[1].getId.eraseMacroScopes == `spec)
   if specs.isEmpty then return (none, v)
   if h : 1 < specs.size then
     Macro.throwErrorAt specs[1] "duplicate `spec` section"
-  -- `whereFinallySpecSubsection = "| "(0) >> "spec"(1) >> "=>"(2) >> sepBy1Indent grind(3)`
   let wf' := wf.setArg 2 (mkNullNode others)
   return (some specs[0]![3], setPath v path (mkNullNode #[wd.setArg 2 (mkNullNode #[wf'])]))
-
-/-- The steps of a `spec` section as a `grind`-mode sequence, defaulting to `done` for a definition
-without such a section. -/
-private def toGrindSeq (specSteps? : Option Syntax) :
-    MacroM (Array (TSyntax ``Lean.Parser.Tactic.Grind.grindStep)) := do
-  let toStep (g : Syntax) : TSyntax ``Lean.Parser.Tactic.Grind.grindStep :=
-    ⟨mkNode ``Lean.Parser.Tactic.Grind.grindStep #[g, mkNullNode]⟩
-  let some steps := specSteps? | return #[toStep (← `(grind| done))]
-  return steps.getSepArgs.map toStep
 
 /-- Expand a `def` carrying `require`/`ensures` clauses into the plain `def` plus a spec theorem
 `@[spec] theorem f.spec : ⦃P⦄ f args ⦃fun b => Q⦄` proved by `vcgen`. A
@@ -126,13 +117,18 @@ the `where finally | spec => ...` section does not discharge them"
     else
       s!"unproved verification conditions for the contract of `{fId.getId}`; \
 discharge them in a `where finally | spec => ...` section of the definition"⟩
-  let steps ← toGrindSeq specStep?
+  -- The section's tactics run on the verification conditions `finish` leaves open; the trailing
+  -- `first` reports those that survive them.
+  let specTac : TSyntax `tactic ← match specStep? with
+    | some tacs => `(tactic| ($(⟨tacs⟩):tacticSeq))
+    | none => `(tactic| skip)
   -- `open scoped` activates the instances of `Std.Internal.Do` and the `⊤` notation of
   -- `Lean.Order` for the spec theorem without adding names to the user's scope.
   let thm ← `(command|
     open scoped Std.Internal.Do Lean.Order in
     @[spec] theorem $specId $binders* : ⦃ $pre ⦄ $fId $args* ⦃ $post ⦄ := by
-      vcgen [$fId:ident] with first (finish) ($[$steps];*) (skip)
+      vcgen [$fId:ident] with (try finish)
+      $specTac:tactic
       first
       | done
       | fail $msg)

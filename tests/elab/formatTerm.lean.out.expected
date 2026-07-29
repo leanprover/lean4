@@ -57,7 +57,7 @@ def h✝ (x✝ : Nat✝) : Id✝ Nat✝ ensures r✝ => r✝ = x✝ :=
   pure✝ x✝
 where
 finally
-  | spec => finish
+  | spec✝ => skip
 def foo✝ := by
   · skip; skip
   · skip; skip

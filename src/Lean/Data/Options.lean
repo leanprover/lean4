@@ -16,22 +16,6 @@ public section
 namespace Lean
 
 /--
-Returns whether the option `name` can affect the result of type class resolution: the limits and
-compatibility flags of the search itself (`synthInstance.*`, `maxSynthPendingDepth`) and the
-options steering definitional equality and unfolding inside it (`backward.*`, `smartUnfolding`).
-
-Type class resolution runs under `Options` restricted to these options plus the inert ones
-(`OptionsRestriction.tcResolution`) and keys its cache by their values, so any option not listed
-here cannot influence the result by construction. A new option read on the search path only
-takes effect there once it is included here, which also keys the cache by it.
--/
-def isSynthRelevantOption (name : Name) : Bool :=
-  -- `backward` first: the `backward.isDefEq.*` reads inside `isDefEq` are the hottest
-  -- accesses under the `tcResolution` restriction
-  Name.isPrefixOf `backward name || Name.isPrefixOf `synthInstance name ||
-  name == `smartUnfolding || name == `maxSynthPendingDepth
-
-/--
 Returns whether the option `name` is observable by type class resolution without affecting its
 result: tracing, pretty printing and formatting (of messages and trace nodes, which capture the
 ambient options object and are rendered later), profiling, diagnostics, debugging, resource
@@ -64,15 +48,18 @@ inductive OptionsRestriction where
   /-- No restriction. -/
   | none
   /--
-  Only options observable by type class resolution are accessible (`isSynthRelevantOption`,
-  `isSynthInertOption`); see `Lean.Meta.SynthInstanceCacheKey.relevantOptions`.
+  Only inert options (`isSynthInertOption`) may be read by name: type class resolution records
+  every result-relevant option lookup as a dependency of the cache entry it is computing (see
+  `Lean.Meta.getRecordedOption`), so reads on the search path must go through the recording
+  accessors, which bypass this restriction via `Options.findUnrestricted?`. A pure by-name read
+  under this restriction is an unrecorded access and panics.
   -/
   | tcResolution
 
 /-- Returns whether accessing the option `name` is allowed under the restriction. -/
 def OptionsRestriction.allows : OptionsRestriction → Name → Bool
   | .none, _ => true
-  | .tcResolution, name => isSynthRelevantOption name || isSynthInertOption name
+  | .tcResolution, name => isSynthInertOption name
 
 structure Options where
   private map : NameMap DataValue
@@ -104,11 +91,20 @@ instance : BEq Options where
 instance : EmptyCollection Options where
   emptyCollection := .empty
 
+/--
+Reads the raw entry for `k`, bypassing the access restriction. Callers are responsible for
+recording the access as a dependency where required; see `OptionsRestriction.tcResolution` and
+`Lean.Meta.getRecordedOption`.
+-/
+@[inline] def findUnrestricted? (o : Options) (k : Name) : Option DataValue :=
+  o.map.find? k
+
 @[inline] def find? (o : Options) (k : Name) : Option DataValue :=
   if o.restriction.allows k then
     o.map.find? k
   else
-    panic! s!"option `{k}` is not observable under the current options restriction; \
+    panic! s!"unrecorded access to option `{k}` under the current options restriction; \
+      reads on the type class resolution path must use the recording accessors, \
       see `Lean.OptionsRestriction`"
 
 @[deprecated find? (since := "2026-01-15")]
@@ -127,7 +123,8 @@ def find := find?
   if o.restriction.allows k then
     o.map.contains k
   else
-    panic! s!"option `{k}` is not observable under the current options restriction; \
+    panic! s!"unrecorded access to option `{k}` under the current options restriction; \
+      reads on the type class resolution path must use the recording accessors, \
       see `Lean.OptionsRestriction`"
 
 /-- Restricts by-name access to the options allowed by `r`; see `OptionsRestriction`. -/
@@ -266,6 +263,14 @@ protected structure Decl (α : Type) where
   defValue : α
   descr    : String := ""
   deprecation? : Option OptionDeprecation := none
+
+/--
+Reads the option bypassing the access restriction, without recording the access; only for reads
+that provably cannot influence a type class resolution cache entry, e.g. limits whose exceedance
+throws (exceptions are not cached). See `OptionsRestriction.tcResolution`.
+-/
+protected def getUnrestricted [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : α :=
+  ((opts.findUnrestricted? opt.name).bind KVMap.Value.ofDataValue?).getD opt.defValue
 
 protected def get? [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : Option α :=
   opts.get? opt.name

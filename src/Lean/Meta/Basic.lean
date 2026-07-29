@@ -351,26 +351,21 @@ instance : Hashable InfoCacheKey where
   hash := private fun { configKey, expr, nargs? } => mixHash (hash configKey) <| mixHash (hash expr) (hash nargs?)
 
 /--
-The result-relevant options (`isSynthRelevantOption`) as a canonical sequence (in `Options`
-iteration order, which is sorted) for use in the type class resolution cache key. Options left
-unset are omitted rather than resolved to their defaults, so setting an option explicitly to its
-default value creates a fresh cache partition; this only costs a re-derivation.
+One option lookup observed during a type class resolution search: the raw `Options.find?` result,
+so that validation is default-independent and covers set↔unset transitions exactly. See
+`getRecordedOption`.
 -/
-def synthRelevantOptions (opts : Options) : Array (Name × DataValue) := Id.run do
-  let mut entries := #[]
-  for (n, v) in opts do
-    if isSynthRelevantOption n then
-      entries := entries.push (n, v)
-  return entries
+structure SynthOptionAccess where
+  name  : Name
+  value : Option DataValue
+  deriving BEq
 
-private instance : Hashable DataValue where
-  hash
-    | .ofString v => mixHash 11 (hash v)
-    | .ofBool v   => mixHash 13 (hash v)
-    | .ofName v   => mixHash 17 (hash v)
-    | .ofNat v    => mixHash 19 (hash v)
-    | .ofInt v    => mixHash 23 (hash v)
-    | .ofSyntax _ => 29  -- syntax values are distinguished by `BEq` only
+/--
+The option lookups a type class resolution cache entry was computed under, deduplicated by name;
+a lookup may only use an entry whose recorded accesses give the same answers in the current
+context. See `SynthInstanceCache`.
+-/
+abbrev SynthOptionAccessLog := Array SynthOptionAccess
 
 -- Remark: we don't need to store `Config.toKey` because typeclass resolution uses a fixed configuration.
 structure SynthInstanceCacheKey where
@@ -401,13 +396,6 @@ structure SynthInstanceCacheKey where
   -/
   maxResultSize     : Nat
   /--
-  The result-relevant options (`synthRelevantOptions`) the query runs under. The search observes
-  no other options, as it runs under `Options.restrict .tcResolution`, so together with the
-  remaining fields the key captures every input that can affect the result. The cache persists
-  across commands, which may set these options differently.
-  -/
-  relevantOptions   : Array (Name × DataValue)
-  /--
   Value of `Environment.isExporting`: in the exporting state, fewer definitions can be unfolded,
   which can change the result of typeclass resolution.
   -/
@@ -424,7 +412,16 @@ structure AbstractMVarsResult where
 def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
   r.mvars.size
 
-abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option AbstractMVarsResult)
+/--
+Type class resolution cache. Each key holds one entry per observed combination of option
+dependencies: the search records every result-relevant option lookup (`getRecordedOption`) into
+the entry's `SynthOptionAccessLog`, and a lookup may only use an entry whose recorded lookups
+give the same answers in the current context. Options the search never read do not partition the
+cache. The search observes no other options, as it runs under `Options.restrict .tcResolution`,
+which diverts by-name reads on the search path to the recording accessors.
+-/
+abbrev SynthInstanceCache :=
+  PersistentHashMap SynthInstanceCacheKey (List (SynthOptionAccessLog × Option AbstractMVarsResult))
 
 -- Key for `InferType` and `WHNF` caches
 structure ExprConfigCacheKey where
@@ -585,6 +582,12 @@ structure Context where
   Remark: `synthPending` fails if `synthPendingDepth > maxSynthPendingDepth`.
   -/
   synthPendingDepth : Nat                  := 0
+  /--
+  When set, option lookups made through the recording accessors (`getRecordedOption`) are
+  appended here. Armed per query by `synthInstanceCore?` to collect the option dependencies of
+  the cache entry being computed; see `SynthInstanceCache`.
+  -/
+  synthOptionLog?   : Option (IO.Ref SynthOptionAccessLog) := none
   /--
   A predicate to control whether a constant can be unfolded or not at `whnf`.
   If set, overrides `Config.canUnfoldPredicateConfig`.
@@ -1267,6 +1270,28 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 
 @[inline] def withIncSynthPending : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with synthPendingDepth := ctx.synthPendingDepth + 1 })
+
+/-- Records the lookup `access` in the armed option-access log, if any; see `getRecordedOption`. -/
+private def recordOptionAccess (access : SynthOptionAccess) : MetaM Unit := do
+  if let some log := (← read).synthOptionLog? then
+    log.modify fun l => if l.any (·.name == access.name) then l else l.push access
+
+/--
+Reads an option on the type class resolution path, recording the lookup as an option dependency
+of the cache entry being computed (`Meta.Context.synthOptionLog?`); see `SynthInstanceCache`.
+The read bypasses the options restriction, which exists to divert result-relevant by-name reads
+on the search path to this function; outside the search it behaves like `Lean.Option.get`.
+-/
+def getRecordedOption [KVMap.Value α] (opt : Lean.Option α) : MetaM α := do
+  let raw := (← getOptions).findUnrestricted? opt.name
+  recordOptionAccess { name := opt.name, value := raw }
+  return (raw.bind KVMap.Value.ofDataValue?).getD opt.defValue
+
+/-- By-name variant of `getRecordedOption`, for options that cannot be referenced directly. -/
+def getRecordedBoolOption (name : Name) (defVal := false) : MetaM Bool := do
+  let raw := (← getOptions).findUnrestricted? name
+  recordOptionAccess { name, value := raw }
+  return (raw.bind KVMap.Value.ofDataValue?).getD defVal
 
 @[inline] def withInTypeClassResolution : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with inTypeClassResolution := true })

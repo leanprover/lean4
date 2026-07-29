@@ -1902,7 +1902,7 @@ def Pos.Raw.utf8GetAux? : List Char → Pos.Raw → Pos.Raw → Option Char
   | [],    _, _ => none
   | c::cs, i, p => if i = p then some c else utf8GetAux? cs (i + c) p
 
-@[deprecated Pos.Raw.utf8GetAux (since := "2025-10-09")]
+@[deprecated Pos.Raw.utf8GetAux +typeChanged (since := "2025-10-09")]
 abbrev utf8GetAux? : List Char → Pos.Raw → Pos.Raw → Option Char :=
   Pos.Raw.utf8GetAux?
 

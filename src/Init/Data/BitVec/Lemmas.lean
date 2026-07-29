@@ -177,7 +177,7 @@ theorem getLsbD_eq_getMsbD (x : BitVec w) (i : Nat) : x.getLsbD i = (decide (i <
     apply getLsbD_of_ge
     omega
 
-@[deprecated getElem?_eq_none (since := "2025-10-29")]
+@[deprecated getElem?_eq_none +typeChanged (since := "2025-10-29")]
 theorem getElem?_of_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : x[i]? = none := by
   simp [ge]
 

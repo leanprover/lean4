@@ -508,7 +508,7 @@ theorem forall_mem_iff_forall_getElem {P : α → Prop} {xs : Array α} :
     (∀ x ∈ xs, P x) ↔ ∀ (i : Nat) (hi : i < xs.size), P (xs[i]) := by
   cases xs; simp [List.forall_mem_iff_forall_getElem]
 
-@[deprecated forall_mem_iff_forall_getElem (since := "2026-01-29")]
+@[deprecated forall_mem_iff_forall_getElem +typeChanged (since := "2026-01-29")]
 theorem forall_getElem {xs : Array α} {p : α → Prop} :
     (∀ (i : Nat) h, p (xs[i]'h)) ↔ ∀ a, a ∈ xs → p a := by
   exact forall_mem_iff_forall_getElem.symm
@@ -1879,7 +1879,7 @@ theorem getElem_of_append {xs ys zs : Array α} (eq : xs = ys.push a ++ zs) (h :
 
 theorem push_eq_append {a : α} {as : Array α} : as.push a = as ++ #[a] := rfl
 
-@[deprecated push_eq_append (since := "2025-10-26")]
+@[deprecated push_eq_append +typeChanged (since := "2025-10-26")]
 theorem push_eq_append_singleton {as : Array α} {x : α} : as.push x = as ++ #[x] := rfl
 
 theorem append_inj {xs₁ xs₂ ys₁ ys₂ : Array α} (h : xs₁ ++ ys₁ = xs₂ ++ ys₂) (hl : xs₁.size = xs₂.size) :
@@ -4034,7 +4034,7 @@ theorem getElem_swap {xs : Array α} {i j : Nat} (hi hj) {k : Nat} (hk : k < (xs
     (xs.swap i j hi hj)[k] = xs[k]'(by simp_all) := by
   simp [getElem_swap, hi', hj']
 
-@[deprecated getElem_swap (since := "2025-10-10")]
+@[deprecated getElem_swap +typeChanged (since := "2025-10-10")]
 theorem getElem_swap' {xs : Array α} {i j : Nat} {hi hj} {k : Nat} (hk : k < xs.size) :
     (xs.swap i j hi hj)[k]'(by simp_all) = if k = i then xs[j] else if k = j then xs[i] else xs[k] :=
   getElem_swap _ _ _
@@ -4466,7 +4466,7 @@ theorem getElem_fin_eq_getElem_toList {xs : Array α} {i : Fin xs.size} : xs[i] 
 @[simp] theorem ugetElem_eq_getElem {xs : Array α} {i : USize} (h : i.toNat < xs.size) :
   xs[i] = xs[i.toNat] := rfl
 
-@[deprecated getElem?_eq_none (since := "2025-10-26")]
+@[deprecated getElem?_eq_none +typeChanged (since := "2025-10-26")]
 theorem getElem?_size_le {xs : Array α} {i : Nat} (h : xs.size ≤ i) : xs[i]? = none := by
   simp [getElem?_neg, h]
 

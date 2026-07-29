@@ -503,7 +503,7 @@ theorem forall_mem_iff_forall_getElem {P : α → Prop} {l : List α} :
   · rintro h _ ⟨i, hi, rfl⟩
     exact h i hi
 
-@[deprecated forall_mem_iff_forall_getElem (since := "2026-01-29")]
+@[deprecated forall_mem_iff_forall_getElem +typeChanged (since := "2026-01-29")]
 theorem forall_getElem {l : List α} {p : α → Prop} :
     (∀ (i : Nat) h, p (l[i]'h)) ↔ ∀ a, a ∈ l → p a :=
   forall_mem_iff_forall_getElem.symm

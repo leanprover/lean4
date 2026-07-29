@@ -191,7 +191,7 @@ public def replay (newConstants : Std.HashMap Name ConstantInfo) (env : Kernel.E
 
 end Kernel.Environment
 
-@[deprecated Kernel.Environment.replay (since := "2026-07-14")]
+@[deprecated Kernel.Environment.replay +typeChanged (since := "2026-07-14")]
 public def Environment.replay (newConstants : Std.HashMap Name ConstantInfo) (env : Environment) :
     IO Environment := do
   return .ofKernelEnv (← env.toKernelEnv.replay newConstants)

@@ -6,6 +6,7 @@ Authors: Wojciech Różowski
 module
 
 prelude
+public import Init.System.FilePath
 public import Lean.Linter.CodeQuality.Basic
 public import Lean.Elab.InfoTree.Main
 import Lean.CoreM
@@ -27,7 +28,12 @@ by `runChecks`, which combines all results into a single array of entries.
 -/
 
 
-abbrev Check := MetaM (Array Entry)
+/-- Global inputs provided by the driver to every code quality check. -/
+structure CheckContext where
+  pkgRoot : Name
+  srcSearchPath : System.SearchPath := {}
+
+abbrev Check := CheckContext → MetaM (Array Entry)
 
 structure NamedCheck where
   declName : Name
@@ -66,10 +72,10 @@ def getChecks : CoreM (Array NamedCheck) := do
   (checkExt.getState (← getEnv)).mapM fun declName =>
     return { declName, run := ← getCheck declName }
 
-def runChecks (checks : Array NamedCheck) : CoreM (Array Entry) := do
+def runChecks (checks : Array NamedCheck) (ctx : CheckContext) : CoreM (Array Entry) := do
   let tasks ← checks.mapM fun check => do
     (check.declName, ·) <$> (EIO.asTask <| (← Core.wrapAsync (fun _ =>
-      check.run.run' Elab.Command.mkMetaContext
+      check.run ctx |>.run' Elab.Command.mkMetaContext
     ) (cancelTk? := none)) ())
   let mut entries := #[]
   for (declName, task) in tasks do

@@ -25,7 +25,7 @@ Use `finishElabRewrite` once elaboration is complete to make final updates to `R
 def elabRewrite (mvarId : MVarId) (e : Expr) (stx : Syntax)
     (symm : Bool := false) (config := { : Rewrite.Config }) : TacticM RewriteResult := do
   let mvarCounterSaved := (← getMCtx).mvarCounter
-  let thm ← elabTerm stx none true
+  let thm ← elabTermForApply stx
   if thm.hasSyntheticSorry then
     throwAbortTactic
   unless ← occursCheck mvarId thm do

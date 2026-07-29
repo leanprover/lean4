@@ -72,9 +72,18 @@ private def extractSpecSection (v : Syntax) : MacroM (Option Syntax × Syntax) :
   let wf' := wf.setArg 2 (mkNullNode others)
   return (some specs[0]![3], setPath v path (mkNullNode #[wd.setArg 2 (mkNullNode #[wf'])]))
 
+/-- The steps of a `spec` section as a `grind`-mode sequence, defaulting to `done` for a definition
+without such a section. -/
+private def toGrindSeq (specSteps? : Option Syntax) :
+    MacroM (Array (TSyntax ``Lean.Parser.Tactic.Grind.grindStep)) := do
+  let toStep (g : Syntax) : TSyntax ``Lean.Parser.Tactic.Grind.grindStep :=
+    ⟨mkNode ``Lean.Parser.Tactic.Grind.grindStep #[g, mkNullNode]⟩
+  let some steps := specSteps? | return #[toStep (← `(grind| done))]
+  return steps.getSepArgs.map toStep
+
 /-- Expand a `def` carrying `require`/`ensures` clauses into the plain `def` plus a spec theorem
 `@[spec] theorem f.spec : ⦃P⦄ f args ⦃fun b => Q⦄` proved by `vcgen`. A
-`where finally | spec => step` section supplies a `grind`-mode step for the verification
+`where finally | spec => steps` section supplies `grind`-mode steps for the verification
 conditions `finish` leaves open. -/
 @[builtin_macro Lean.Parser.Command.declaration]
 def expandDefContract : Macro := fun stx => do
@@ -117,19 +126,7 @@ the `where finally | spec => ...` section does not discharge them"
     else
       s!"unproved verification conditions for the contract of `{fId.getId}`; \
 discharge them in a `where finally | spec => ...` section of the definition"⟩
-  -- The discharger tries `finish`, then the section's steps, then `skip` on each verification
-  -- condition, so conditions the steps do not close flow out of `vcgen`; the trailing `first`
-  -- reports them in one aggregate error.
-  let toStep (g : Syntax) : TSyntax ``Lean.Parser.Tactic.Grind.grindStep :=
-    ⟨mkNode ``Lean.Parser.Tactic.Grind.grindStep #[g, mkNullNode]⟩
-  let steps ← match specStep? with
-    | some seq => do
-        let mut arr := #[]
-        for h : i in [0:seq.getArgs.size] do
-          if i % 2 == 0 then
-            arr := arr.push (toStep seq.getArgs[i])
-        pure arr
-    | none => do pure #[toStep (← `(grind| done))]
+  let steps ← toGrindSeq specStep?
   -- `open scoped` activates the instances of `Std.Internal.Do` and the `⊤` notation of
   -- `Lean.Order` for the spec theorem without adding names to the user's scope.
   let thm ← `(command|

@@ -7,7 +7,6 @@ module
 
 prelude
 public import Std.FS.Types
-public import Std.Internal.FS
 public import Std.IO.Basic
 public import Std.IO.Buffered
 public import Std.Path
@@ -18,6 +17,8 @@ public import Init.While
 public import Init.Data.Option.BasicAux
 public import Init.Data.Iterators.Producers
 public import Init.Data.Iterators.Consumers
+
+import Std.Internal.FS
 
 public section
 
@@ -81,16 +82,16 @@ An open file: a thin wrapper around an OS file handle. Not thread-safe by defaul
 must be explicitly synchronized using `Mutex`.
 -/
 structure File where
-  private mk ::
-  private toInternal : Internal.FS.File
+  private ofNative ::
+    private native : Internal.FS.File
 
-  /--
-  The path the file was opened at, as it was given rather than resolved.
+    /--
+    The path the file was opened at, as it was given rather than resolved.
 
-  Recorded once at open time: it still names the original path after the file is renamed or deleted,
-  and two `File`s reached through different links to the same file report different paths.
-  -/
-  path : Path
+    Recorded once at open time: it still names the original path after the file is renamed or deleted,
+    and two `File`s reached through different links to the same file report different paths.
+    -/
+    path : Path
 
 private def OpenMode.rawFlags (mode : OpenMode) : UInt32 :=
   Internal.FS.openFlags mode.read mode.write mode.append mode.truncate mode.create mode.createNew |||
@@ -127,27 +128,27 @@ def withFile (path : Path) (mode : OpenMode := .readOnly) (f : File → IO α) :
   try
     f file
   finally
-    Internal.FS.close file.toInternal
+    Internal.FS.close file.native
 
 /--
 Explicitly close the file. Closing does not call `fsync`; use `syncAll` before closing for
 durability. Prefer `withFile`, which closes the file however the block is left.
 -/
 def close (file : File) : IO Unit :=
-  Internal.FS.close file.toInternal
+  Internal.FS.close file.native
 
 /--
 Flush data and metadata to the device (`fsync`).
 -/
 def syncAll (file : File) : IO Unit :=
-  Internal.FS.syncAll file.toInternal
+  Internal.FS.syncAll file.native
 
 /--
 Flush data only, skipping metadata (`fdatasync`). Cheaper when durability of timestamps and size is
 not required.
 -/
 def syncData (file : File) : IO Unit :=
-  Internal.FS.syncData file.toInternal
+  Internal.FS.syncData file.native
 
 /--
 Copy up to `length` bytes from `src`, starting at `srcOffset`, into `dst` at its current cursor
@@ -157,25 +158,25 @@ actually copied, which is less than `length` when `src` ends first.
 Reads from `src` are positional, so its cursor is left alone.
 -/
 def sendFile (src dst : File) (srcOffset : UInt64) (length : USize) : IO USize :=
-  Internal.FS.sendFile dst.toInternal src.toInternal srcOffset.toInt64 length
+  Internal.FS.sendFile dst.native src.native srcOffset.toInt64 length
 
 /--
 Acquire a shared or exclusive lock, blocking until it is available.
 -/
 def lock (file : File) (exclusive : Bool := true) : IO Unit :=
-  Internal.FS.lock file.toInternal exclusive
+  Internal.FS.lock file.native exclusive
 
 /--
 Try to acquire a lock without blocking. Returns `false` immediately if it is held by another process.
 -/
 def tryLock (file : File) (exclusive : Bool := true) : IO Bool :=
-  Internal.FS.tryLock file.toInternal exclusive
+  Internal.FS.tryLock file.native exclusive
 
 /--
 Release the lock. Idempotent; succeeds even if no lock is held.
 -/
 def unlock (file : File) : IO Unit :=
-  Internal.FS.unlock file.toInternal
+  Internal.FS.unlock file.native
 
 /--
 Lock the file, run `action`, and unlock it in a `finally` block.
@@ -196,14 +197,14 @@ Returns the filled slice; use the return value, not `buf`, after the call. A sho
 indicates end-of-file.
 -/
 def read (file : File) (n : USize) (buf : ByteArray := .empty) : IO ByteArray :=
-  Internal.FS.read file.toInternal n (-1) buf
+  Internal.FS.read file.native n (-1) buf
 
 /--
 Read up to `n` bytes at `offset` into `buf` without moving the cursor (`pread`). Returns the filled
 slice; use the return value, not `buf`, after the call.
 -/
 def readAt (file : File) (offset : UInt64) (n : USize) (buf : ByteArray := .empty) : IO ByteArray :=
-  Internal.FS.read file.toInternal n offset.toInt64 buf
+  Internal.FS.read file.native n offset.toInt64 buf
 
 private def utf8OrThrow (caller : String) (bytes : ByteArray) : IO String :=
   match String.fromUTF8? bytes with
@@ -259,7 +260,7 @@ def writeAt (file : File) (offset : UInt64) (bytes : ByteArray) : IO Unit := do
   let mut pos : Nat := 0
   let mut off := offset
   while pos < bytes.size do
-    let n ← Internal.FS.write file.toInternal (bytes.extract pos bytes.size) off.toInt64
+    let n ← Internal.FS.write file.native (bytes.extract pos bytes.size) off.toInt64
     if n == 0 then
       throw <| IO.userError "Std.FS.File.writeAt: write returned 0 bytes"
     pos := pos + n.toNat
@@ -271,7 +272,7 @@ Write `bytes` at the current cursor position, retrying until every byte is writt
 def write (file : File) (bytes : ByteArray) : IO Unit := do
   let mut pos : Nat := 0
   while pos < bytes.size do
-    let n ← Internal.FS.write file.toInternal (bytes.extract pos bytes.size) (-1)
+    let n ← Internal.FS.write file.native (bytes.extract pos bytes.size) (-1)
     if n == 0 then
       throw <| IO.userError "Std.FS.File.write: write returned 0 bytes"
     pos := pos + n.toNat
@@ -292,13 +293,13 @@ def putStrLn (file : File) (s : String) : IO Unit :=
 Truncate or extend the file to exactly `len` bytes.
 -/
 def setLength (file : File) (len : UInt64) : IO Unit :=
-  Internal.FS.setLength file.toInternal len
+  Internal.FS.setLength file.native len
 
 /--
 Return metadata for the open file. Avoids the TOCTOU window of `FS.metadata`.
 -/
 def metadata (file : File) : IO Metadata := do
-  return metadataOfStat (← Internal.FS.fileMetadata file.toInternal)
+  return metadataOfStat (← Internal.FS.fileMetadata file.native)
 
 /--
 Return the open file's current permission bits.
@@ -310,20 +311,20 @@ def getPermissions (file : File) : IO FileRight := do
 Set the file's permission bits.
 -/
 def setPermissions (file : File) (perm : FileRight) : IO Unit :=
-  Internal.FS.setFilePermissions file.toInternal perm.flags
+  Internal.FS.setFilePermissions file.native perm.flags
 
 /--
 Set the file's access and modification timestamps.
 -/
 def setTimes (file : File) (accessed modified : Timestamp) : IO Unit :=
-  Internal.FS.setFileTimes file.toInternal (timestampToFloatSeconds accessed) (timestampToFloatSeconds modified)
+  Internal.FS.setFileTimes file.native (timestampToFloatSeconds accessed) (timestampToFloatSeconds modified)
 
 /--
 Change the owner and group of the open file. On Windows this is a no-op.
 -/
 def chown (file : File) (uid gid : UInt32) : IO Unit := do
   unless System.Platform.isWindows do
-    Internal.FS.setFileOwner file.toInternal uid gid
+    Internal.FS.setFileOwner file.native uid gid
 
 /-!
 `Read`/`Write` drive the OS-level cursor the descriptor already tracks, while `ReadAt`/`WriteAt`

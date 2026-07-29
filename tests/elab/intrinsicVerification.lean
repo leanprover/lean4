@@ -1,13 +1,43 @@
 import Std.Internal.Do
-import Std.Tactic.Do
 
 /-! Tests for `def` contracts. A `def` carrying `require`/`ensures` clauses elaborates to the
 definition plus an `@[spec]`-tagged `f.spec` Hoare triple that `vcgen` proves automatically; a
 `for … invariant` clause inside the body supplies the loop invariant it needs. New cases go here. -/
 
-open Std.Internal.Do Lean.Order
-
 set_option mvcgen.warning false
+
+/-! ## Contracts elaborate with nothing opened
+
+The cases up to the `open` below see neither namespace, so they pin what the spec theorem must
+activate by itself. A clause left out defaults to `⊤`, which prints as the constant it denotes
+while its notation is out of scope. -/
+
+def clampLow (n lo : Nat) : Id Nat
+    require lo ≤ n
+    ensures r => r = n
+  := pure n
+
+/-- info: clampLow.spec : ∀ (n lo : Nat), ⦃ lo ≤ n ⦄ clampLow n lo ⦃ fun r => r = n ⦄ -/
+#guard_msgs in
+#check @clampLow.spec
+
+def onlyEnsures (n : Nat) : Id Nat
+    ensures r => r = n
+  := pure n
+
+/-- info: onlyEnsures.spec : ∀ (n : Nat), ⦃ Lean.Order.top ⦄ onlyEnsures n ⦃ fun r => r = n ⦄ -/
+#guard_msgs in
+#check @onlyEnsures.spec
+
+def onlyRequire (n : Nat) : Id Nat
+    require 0 ≤ n
+  := pure n
+
+/-- info: onlyRequire.spec : ∀ (n : Nat), ⦃ 0 ≤ n ⦄ onlyRequire n ⦃ fun x => Lean.Order.top ⦄ -/
+#guard_msgs in
+#check @onlyRequire.spec
+
+open Std.Internal.Do Lean.Order
 
 /-! ## An `ensures` contract with a `for … invariant` loop, proved with no manual steps -/
 
@@ -32,16 +62,6 @@ def findSmallest (s : Array Nat) : Id (Option Nat)
 -- The contract synthesizes an `@[spec]`-tagged `findSmallest.spec` Hoare triple.
 #guard_msgs (drop info) in
 #check @findSmallest.spec
-
-/-! ## `require` + `ensures` -/
-
-def clampLow (n lo : Nat) : Id Nat
-    require lo ≤ n
-    ensures r => r = n
-  := do return n
-
-#guard_msgs (drop info) in
-#check @clampLow.spec
 
 /-! ## A contract over a membership-proof binder (`for h : x in xs invariant …`) -/
 
@@ -106,3 +126,132 @@ def specNoType (x : Nat)
 /-- info: specNoType.spec : ∀ (x : Nat), ⦃ x > 0 ⦄ specNoType x ⦃ fun r => r ≥ x ⦄ -/
 #guard_msgs in
 #check @specNoType.spec
+
+/-! ## Residual verification conditions and `where finally | spec => …` sections -/
+
+opaque Opq : Nat → Prop
+
+axiom opq_ax (n : Nat) : Opq n
+
+/-! The case binders name a condition's inaccessible variables, here the loop's final state and its
+invariant. The witness is the one `grind` will not invent. -/
+
+def sumEvens (xs : List Nat) : Id Nat
+    ensures r => ∃ k, r = 2 * k
+  := do
+  let mut acc := 0
+  for x in xs invariant _cur => acc % 2 = 0 do
+    acc := acc + 2 * x
+  return acc
+where finally
+  | spec => case vc1 acc h => exact ⟨acc / 2, by omega⟩
+
+/-- info: sumEvens.spec : ∀ (xs : List Nat), ⦃ ⊤ ⦄ sumEvens xs ⦃ fun r => ∃ k, r = 2 * k ⦄ -/
+#guard_msgs in
+#check @sumEvens.spec
+
+/-! The section is an ordinary tactic block over the conditions left open, so several of them are
+addressed by their case names. -/
+
+def residualTwoVCs (b : Bool) (n : Nat) : Id Nat
+    ensures r => Opq r
+  := if b then pure n else pure (n + 1)
+where finally
+  | spec =>
+    case vc1 => exact opq_ax _
+    case vc2 => exact opq_ax _
+
+/--
+info: residualTwoVCs.spec : ∀ (b : Bool) (n : Nat), ⦃ ⊤ ⦄ residualTwoVCs b n ⦃ fun r => Opq r ⦄
+-/
+#guard_msgs in
+#check @residualTwoVCs.spec
+
+/-! A hole in the body is filled by the unnamed `finally` block while the `spec` section
+discharges the contract. -/
+
+def residualWithHole (n : Nat) : Id Nat
+    ensures r => Opq r
+  := pure ?x
+where finally
+  exact n
+  | spec => exact opq_ax _
+
+/-- info: residualWithHole.spec : ∀ (n : Nat), ⦃ ⊤ ⦄ residualWithHole n ⦃ fun r => Opq r ⦄ -/
+#guard_msgs in
+#check @residualWithHole.spec
+
+/-- error: duplicate `spec` section -/
+#guard_msgs in
+def residualDupSection (n : Nat) : Id Nat
+    ensures r => Opq r
+  := pure n
+where finally
+  | spec => exact opq_ax _
+  | spec => skip
+
+/-! All verification conditions left open are reported in one aggregate error. -/
+
+/--
+error: unproved verification conditions for the contract of `residualNoSectionTwoVCs`; discharge them in a `where finally | spec => ...` section of the definition
+case vc1
+b : Bool
+n : Nat
+h✝ : b = true
+⊢ Opq n
+
+case vc2
+b : Bool
+n : Nat
+h✝ : ¬b = true
+⊢ Opq (n + 1)
+-/
+#guard_msgs in
+def residualNoSectionTwoVCs (b : Bool) (n : Nat) : Id Nat
+    ensures r => Opq r
+  := if b then pure n else pure (n + 1)
+
+opaque Opq2 : Nat → Prop
+
+/-! A tactic leaving a condition open reaches the report. -/
+
+/--
+error: unproved verification conditions for the contract of `residualSectionMiss`; the `where finally | spec => ...` section does not discharge them
+case vc1
+n : Nat
+⊢ Opq2 n
+-/
+#guard_msgs in
+def residualSectionMiss (n : Nat) : Id Nat
+    ensures r => Opq2 r
+  := pure n
+where finally
+  | spec => skip
+
+/-! A tactic that fails reports its own error. -/
+
+/--
+error: omega could not prove the goal:
+No usable constraints found. You may need to unfold definitions so `omega` can see linear arithmetic facts about `Nat` and `Int`, which may also involve multiplication, division, and modular remainder by constants.
+-/
+#guard_msgs in
+def residualSectionTacticFails (n : Nat) : Id Nat
+    ensures r => Opq2 r
+  := pure n
+where finally
+  | spec => omega
+
+/--
+error: Type mismatch
+  opq_ax 0
+has type
+  Opq 0
+but is expected to have type
+  Opq2 n
+-/
+#guard_msgs in
+def residualSectionIllTyped (n : Nat) : Id Nat
+    ensures r => Opq2 r
+  := pure n
+where finally
+  | spec => exact opq_ax 0

@@ -2,7 +2,7 @@
 helpful error naming the missing import, rather than a downstream elaboration failure. -/
 
 /--
-error: `require`/`ensures` contracts elaborate to a `vcgen`-proved specification theorem; add `import Std.Internal.Do` and `import Std.Tactic.Do` to use them.
+error: `require`/`ensures` contracts elaborate to a `vcgen`-proved specification theorem; add `import Std.Internal.Do` to use them.
 -/
 #guard_msgs in
 def f (x : Nat) : Id Nat require x > 0 ensures r => r ≥ x := pure x

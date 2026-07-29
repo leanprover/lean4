@@ -290,23 +290,30 @@ structure WalkIterator where
 
   /--
   Directories that have been yielded but not descended into yet, most recently discovered first.
+  Only their paths are kept, so descending is deferred until the current directory is exhausted and
+  the walk never holds more than one stream open.
   -/
   private pending : Array Path
 
   /--
-  The entries of the directory currently being yielded from.
+  The directory currently being yielded from, or `none` once it is exhausted and the next pending
+  one has yet to be opened.
   -/
-  private current : Array DirEntry
-
-  /--
-  Index into `current` of the entry to yield next.
-  -/
-  private idx : Nat
+  private current : Option Dir
 
   /--
   Whether a subdirectory that cannot be read is skipped rather than aborting the walk.
   -/
   private ignoreErrors : Bool
+
+/--
+Run `action`, mapping a failure to `none` when `ignoreErrors` is set.
+-/
+private def runOptional (ignoreErrors : Bool) (action : IO (Option α)) : IO (Option α) :=
+  if ignoreErrors then
+    try action catch _ => pure none
+  else
+    action
 
 @[no_expose]
 instance : Iterator WalkIterator IO DirEntry where
@@ -314,22 +321,23 @@ instance : Iterator WalkIterator IO DirEntry where
 
   step it := do
     let state := it.internalState
-    if h : state.idx < state.current.size then
-      let entry := state.current[state.idx]
-      -- Only the path is kept, so a walk holds no directory stream open between steps.
-      let descend ← if state.ignoreErrors then entry.isDir.toBaseIO.map (·.toOption.getD false) else entry.isDir
-      let pending := if descend then state.pending.push entry.path else state.pending
-      return .deflate ⟨.yield ⟨{ state with pending, idx := state.idx + 1 }⟩ entry, trivial⟩
-    else
+    match state.current with
+    | some dir =>
+      match ← runOptional state.ignoreErrors dir.next with
+      | some entry =>
+        let descend ← if state.ignoreErrors then entry.isDir.toBaseIO.map (·.toOption.getD false) else entry.isDir
+        let pending := if descend then state.pending.push entry.path else state.pending
+
+        return .deflate ⟨.yield ⟨{ state with pending }⟩ entry, trivial⟩
+      | none =>
+        runIgnoring state.ignoreErrors dir.close
+        return .deflate ⟨.skip ⟨{ state with current := none }⟩, trivial⟩
+    | none =>
       match state.pending.back? with
       | none => return .deflate ⟨.done, trivial⟩
-      | some dir =>
-        let entries ←
-          try
-            readDir dir
-          catch e =>
-            if state.ignoreErrors then pure #[] else throw e
-        return .deflate ⟨.skip ⟨{ state with pending := state.pending.pop, current := entries, idx := 0 }⟩, trivial⟩
+      | some path =>
+        let current ← runOptional state.ignoreErrors (some <$> Dir.open path)
+        return .deflate ⟨.skip ⟨{ state with pending := state.pending.pop, current }⟩, trivial⟩
 
 instance [Monad n] : IteratorLoop WalkIterator IO n := .defaultImplementation
 
@@ -338,25 +346,64 @@ Every entry beneath `dir`, recursively, pulled as the iterator is stepped. Where
 single level, this descends into each subdirectory it yields. Symlinks are yielded but not followed,
 so the traversal cannot cycle.
 
-Each directory is read in full as it is reached, but only one is held open at a time. `dir` itself is
-read eagerly, so a `dir` that cannot be read fails here rather than on the first step.
+Entries are read from the stream one at a time, so a directory with very many entries is never held
+in memory at once, and only one stream is open at a time. `dir` itself is opened eagerly, so a `dir`
+that cannot be opened fails here rather than on the first step. An iterator that is abandoned before
+it runs out leaves its open directory to be closed when it is collected.
 
 With `ignoreErrors` set, subdirectories that cannot be read are skipped instead of aborting the walk.
 -/
 def walk (dir : Path) (ignoreErrors : Bool := false) : IO (IterM (α := WalkIterator) IO DirEntry) := do
-  let current ← readDir dir
-  return IterM.mk { pending := #[], current, idx := 0, ignoreErrors }
+  let current ← Dir.open dir
+  return IterM.mk { pending := #[], current := some current, ignoreErrors }
 
 /--
-Every entry beneath `dir` whose full path matches the `/`-separated glob `pattern`. See
-`Path.matchGlob` for the pattern syntax and `walk` for the traversal and `ignoreErrors`.
+Implementation detail: the state behind the iterator returned by `glob`.
 -/
-def glob (dir : Path) (pattern : String) (ignoreErrors : Bool := false) : IO (Array DirEntry) := do
-  let mut acc := #[]
-  for entry in ← walk dir ignoreErrors do
-    if entry.path.matchGlob pattern then
-      acc := acc.push entry
-  return acc
+structure GlobIterator where
+
+  /--
+  The walk the entries are drawn from. Every entry of the tree is visited; the pattern only decides
+  which ones are yielded.
+  -/
+  private inner : IterM (α := WalkIterator) IO DirEntry
+
+  /--
+  The pattern entries are tested against, parsed once when the iterator is created, or `none` for a
+  syntactically invalid pattern, which matches nothing.
+  -/
+  private pattern : Option Path.Internal.Glob
+
+@[no_expose]
+instance : Iterator GlobIterator IO DirEntry where
+  IsPlausibleStep _ _ := True
+
+  step it := do
+    let state := it.internalState
+    match (← state.inner.step).inflate with
+    | ⟨.yield inner entry, _⟩ =>
+      let state := { state with inner }
+      if state.pattern.any (entry.path.matchParsedGlob ·) then
+        return .deflate ⟨.yield ⟨state⟩ entry, trivial⟩
+      else
+        return .deflate ⟨.skip ⟨state⟩, trivial⟩
+    | ⟨.skip inner, _⟩ => return .deflate ⟨.skip ⟨{ state with inner }⟩, trivial⟩
+    | ⟨.done, _⟩ => return .deflate ⟨.done, trivial⟩
+
+instance [Monad n] : IteratorLoop GlobIterator IO n := .defaultImplementation
+
+/--
+Every entry beneath `dir` whose full path matches the `/`-separated glob `pattern`, pulled as the
+iterator is stepped. See `Path.matchGlob` for the pattern syntax and `walk` for the traversal and
+`ignoreErrors`.
+
+The whole tree is still traversed, since a `**` pattern can match at any depth; only the entries
+reported are filtered.
+-/
+def glob (dir : Path) (pattern : String) (ignoreErrors : Bool := false) :
+    IO (IterM (α := GlobIterator) IO DirEntry) := do
+  let inner ← walk dir ignoreErrors
+  return IterM.mk { inner, pattern := Path.Internal.parseGlob pattern }
 
 /--
 Create a uniquely named directory inside `dir`. The caller is responsible for removing it.

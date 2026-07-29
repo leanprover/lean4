@@ -147,7 +147,7 @@ for entry in ← walk "src" do
     IO.println (← entry.path.toString)
 
 -- Recursively, keeping only the paths matching a glob
-let sources ← glob "src" "**/*.lean"
+let sources ← (← glob "src" "**/*.lean").toArray
 ```
 
 `walk` yields symlinks without following them, so a traversal cannot cycle. Passing

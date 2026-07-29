@@ -168,10 +168,19 @@ private def testWalk (root : Path) : IO Unit := do
   assertFails (walk (root / path("missing")))
   assertFails (walk (root / path("missing")) (ignoreErrors := true))
 
-  let matched ← glob root "**/*.txt"
+  let matched ← (← glob root "**/*.txt").toArray
   assert! names matched == #["deep.txt", "top.txt"]
-  assert! (← glob root "**/deep.*").size == 1
-  assert! (← glob root "**/*.none").isEmpty
+  assert! (← (← glob root "**/deep.*").toArray).size == 1
+  assert! (← (← glob root "**/*.none").toArray).isEmpty
+  -- An invalid pattern matches nothing rather than failing, as in `Path.matchGlob`.
+  assert! (← (← glob root "**/[unterminated").toArray).isEmpty
+
+  -- Like `walk`, the glob is lazy: stopping early does not read the rest of the tree.
+  let mut globbed := #[]
+  for entry in ← glob root "**/*.txt" do
+    globbed := globbed.push entry.fileName.value
+    break
+  assert! globbed.size == 1
 
 private def testWalkSymlinks (root : Path) : IO Unit := do
   -- Symlink creation needs a privilege on Windows that the test environment may not have.

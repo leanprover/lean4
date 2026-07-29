@@ -134,6 +134,29 @@ where finally
 #guard_msgs in
 #check @residualWithSection.spec
 
+/-! A verification condition mentioning the loop state: `next` names the state and the invariant,
+which the witness and its proof are built from. -/
+
+opaque Certified : Nat → Prop
+
+axiom certify (n : Nat) : 0 ≤ n → Certified n
+
+def sumCertified (xs : List Nat) : Id Nat
+    ensures r => ∃ k, r = k ∧ Certified k
+  := do
+  let mut acc := 0
+  for x in xs invariant _cur => 0 ≤ acc do
+    acc := acc + x
+  return acc
+where finally
+  | spec => next acc h => exact ⟨acc, rfl, certify acc h⟩
+
+/--
+info: sumCertified.spec : ∀ (xs : List Nat), ⦃ ⊤ ⦄ sumCertified xs ⦃ fun r => ∃ k, r = k ∧ Certified k ⦄
+-/
+#guard_msgs in
+#check @sumCertified.spec
+
 /-! The section's steps run per verification condition: both branch VCs use the same steps, and
 steps sequence across lines. -/
 

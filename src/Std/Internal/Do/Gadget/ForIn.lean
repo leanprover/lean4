@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Internal.Do.Triple.SpecLemmas
+public import Init.BinderNameHint
 import Init.Data.Array.Bootstrap
 import Init.Data.List.Monadic
 
@@ -72,7 +73,11 @@ theorem ForIn.toList_range (r : Std.Legacy.Range) : ForIn.toList r = r.toList :=
     (List.range' r.start r.size r.step)).toList = r.toList
   rw [foldl_push_toList]; simp [Std.Legacy.Range.toList, Std.Legacy.Range.size]
 
-/-! ## Specifications -/
+/-! ## Specifications
+
+The `binderNameHint`s take the element and accumulator binder names from the loop body `f` and the
+invariant `inv`. Both closures carry the source program's names, so `vcgen` presents its verification
+conditions under those names. -/
 
 @[spec]
 theorem Spec.forInWithInvariant_list
@@ -80,6 +85,8 @@ theorem Spec.forInWithInvariant_list
     (inv : Invariant (ForIn.toList xs) β Pred)
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs = pref ++ cur :: suff) b,
+      binderNameHint cur f <|
+      binderNameHint b (inv ⟨pref, cur::suff, by simp [ForIn.toList_list, h]⟩) <|
       Triple
         (f cur b)
         (inv ⟨pref, cur::suff, by simp [ForIn.toList_list, h]⟩ b)
@@ -90,7 +97,8 @@ theorem Spec.forInWithInvariant_list
     Triple
       (ForIn.forInWithInvariant xs init f inv)
       (inv ⟨[], xs, by simp [ForIn.toList_list]⟩ init)
-      (fun b => inv ⟨xs, [], by simp [ForIn.toList_list]⟩ b)
+      (fun b => binderNameHint b (inv ⟨xs, [], by simp [ForIn.toList_list]⟩) <|
+        inv ⟨xs, [], by simp [ForIn.toList_list]⟩ b)
       epost := by
   have key : ForIn.toList xs = xs := ForIn.toList_list xs
   unfold ForIn.forInWithInvariant
@@ -103,6 +111,8 @@ theorem Spec.forInWithInvariant_range {β : Type u} {m : Type u → Type v} {Pre
     (inv : Invariant (ForIn.toList xs) β Pred)
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+      binderNameHint cur f <|
+      binderNameHint b (inv ⟨pref, cur::suff, by simp [ForIn.toList_range, h]⟩) <|
       Triple
         (f cur b)
         (inv ⟨pref, cur::suff, by simp [ForIn.toList_range, h]⟩ b)
@@ -113,7 +123,8 @@ theorem Spec.forInWithInvariant_range {β : Type u} {m : Type u → Type v} {Pre
     Triple
       (ForIn.forInWithInvariant xs init f inv)
       (inv ⟨[], xs.toList, by simp [ForIn.toList_range]⟩ init)
-      (fun b => inv ⟨xs.toList, [], by simp [ForIn.toList_range]⟩ b)
+      (fun b => binderNameHint b (inv ⟨xs.toList, [], by simp [ForIn.toList_range]⟩) <|
+        inv ⟨xs.toList, [], by simp [ForIn.toList_range]⟩ b)
       epost := by
   have key : ForIn.toList xs = xs.toList := ForIn.toList_range xs
   unfold ForIn.forInWithInvariant
@@ -127,6 +138,8 @@ theorem Spec.forInWithInvariant'_list
     (inv : Invariant (ForIn.toList xs) β Pred)
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs = pref ++ cur :: suff) b,
+      binderNameHint cur f <|
+      binderNameHint b (inv ⟨pref, cur::suff, by simp [ForIn.toList_list, h]⟩) <|
       Triple
         (f cur (by simp [h]) b)
         (inv ⟨pref, cur::suff, by simp [ForIn.toList_list, h]⟩ b)
@@ -137,7 +150,8 @@ theorem Spec.forInWithInvariant'_list
     Triple
       (ForIn'.forInWithInvariant' xs init f inv)
       (inv ⟨[], xs, by simp [ForIn.toList_list]⟩ init)
-      (fun b => inv ⟨xs, [], by simp [ForIn.toList_list]⟩ b)
+      (fun b => binderNameHint b (inv ⟨xs, [], by simp [ForIn.toList_list]⟩) <|
+        inv ⟨xs, [], by simp [ForIn.toList_list]⟩ b)
       epost := by
   have key : ForIn.toList xs = xs := ForIn.toList_list xs
   unfold ForIn'.forInWithInvariant'
@@ -150,6 +164,8 @@ theorem Spec.forInWithInvariant'_range {β : Type u} {m : Type u → Type v} {Pr
     (inv : Invariant (ForIn.toList xs) β Pred)
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
+      binderNameHint cur f <|
+      binderNameHint b (inv ⟨pref, cur::suff, by simp [ForIn.toList_range, h]⟩) <|
       Triple
         (f cur (by simp [Std.Legacy.Range.mem_of_mem_range', h]) b)
         (inv ⟨pref, cur::suff, by simp [ForIn.toList_range, h]⟩ b)
@@ -160,7 +176,8 @@ theorem Spec.forInWithInvariant'_range {β : Type u} {m : Type u → Type v} {Pr
     Triple
       (ForIn'.forInWithInvariant' xs init f inv)
       (inv ⟨[], xs.toList, by simp [ForIn.toList_range]⟩ init)
-      (fun b => inv ⟨xs.toList, [], by simp [ForIn.toList_range]⟩ b)
+      (fun b => binderNameHint b (inv ⟨xs.toList, [], by simp [ForIn.toList_range]⟩) <|
+        inv ⟨xs.toList, [], by simp [ForIn.toList_range]⟩ b)
       epost := by
   have key : ForIn.toList xs = xs.toList := ForIn.toList_range xs
   unfold ForIn'.forInWithInvariant'

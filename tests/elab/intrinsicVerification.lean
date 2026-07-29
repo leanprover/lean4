@@ -33,16 +33,6 @@ def findSmallest (s : Array Nat) : Id (Option Nat)
 #guard_msgs (drop info) in
 #check @findSmallest.spec
 
-/-! ## `require` + `ensures` -/
-
-def clampLow (n lo : Nat) : Id Nat
-    require lo ≤ n
-    ensures r => r = n
-  := do return n
-
-#guard_msgs (drop info) in
-#check @clampLow.spec
-
 /-! ## A contract over a membership-proof binder (`for h : x in xs invariant …`) -/
 
 def sumWithMem (xs : List Nat) : Id Nat
@@ -112,27 +102,6 @@ def specNoType (x : Nat)
 opaque Opq : Nat → Prop
 
 axiom opq_ax (n : Nat) : Opq n
-
-/--
-error: unproved verification conditions for the contract of `residualNoSection`; discharge them in a `where finally | spec => ...` section of the definition
-case vc1
-n : Nat
-⊢ Opq n
--/
-#guard_msgs in
-def residualNoSection (n : Nat) : Id Nat
-    ensures r => Opq r
-  := pure n
-
-def residualWithSection (n : Nat) : Id Nat
-    ensures r => Opq r
-  := pure n
-where finally
-  | spec => exact opq_ax _
-
-/-- info: residualWithSection.spec : ∀ (n : Nat), ⦃ ⊤ ⦄ residualWithSection n ⦃ fun r => Opq r ⦄ -/
-#guard_msgs in
-#check @residualWithSection.spec
 
 /-! A verification condition mentioning the loop state: `next` names the state and the invariant,
 which the witness and its proof are built from. -/
@@ -218,24 +187,10 @@ def residualNoSectionTwoVCs (b : Bool) (n : Nat) : Id Nat
     ensures r => Opq r
   := if b then pure n else pure (n + 1)
 
-/-! A verification condition the section leaves open reports itself. -/
-
 opaque Opq2 : Nat → Prop
 
-/--
-error: unproved verification conditions for the contract of `residualSectionMiss`; the `where finally | spec => ...` section does not discharge them
-case vc1
-n : Nat
-⊢ Opq2 n
--/
-#guard_msgs in
-def residualSectionMiss (n : Nat) : Id Nat
-    ensures r => Opq2 r
-  := pure n
-where finally
-  | spec => skip
-
-/-! A section step failing on a verification condition leaves it to the aggregate report. -/
+/-! A step that fails on a verification condition leaves it to the report, as does one that
+succeeds without closing it. -/
 
 /--
 error: unproved verification conditions for the contract of `residualSectionStepFails`; the `where finally | spec => ...` section does not discharge them

@@ -177,6 +177,28 @@ example (xs : List Nat) : Id Nat := do
     acc := acc + x
   return acc
 
+/-! ## A loop over an `Array`, with and without a membership-proof binder -/
+
+def sumArray (xs : Array Nat) : Id Nat
+    ensures r => r = xs.toList.sum := do
+  let mut acc := 0
+  for x in xs invariant pref _ => acc = pref.sum do
+    acc := acc + x
+  return acc
+
+#guard_msgs (drop info) in
+#check @sumArray.spec
+
+def sumArrayMem (xs : Array Nat) : Id Nat
+    ensures r => r = xs.toList.sum := do
+  let mut acc := 0
+  for h : x in xs invariant pref _ => acc = pref.sum do
+    acc := acc + x
+  return acc
+
+#guard_msgs (drop info) in
+#check @sumArrayMem.spec
+
 /-! ## The contract telescope is transplanted faithfully to `f.spec`
 
 `f.spec` re-binds the definition's telescope verbatim, applies `f` to exactly the explicit arguments,

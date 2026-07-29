@@ -649,11 +649,12 @@ static lean_external_class * g_rc_compacted_region_class = nullptr;
 
 static void rc_compacted_region_finalizer(void * data) {
     auto region = static_cast<object *>(data);
+    // We own `region` at this point, `region_free` consumes ownership.
     object * res = lean_compacted_region_free(region, io_mk_world());
     lean_dec_ref(res);
 }
 
-static void rc_compacted_region_foreach(void * data, b_lean_obj_arg fn) {
+static void rc_compacted_region_foreach(void * data, b_obj_arg fn) {
     auto region = static_cast<object *>(data);
     lean_inc_ref(fn);
     lean_inc_ref(region);

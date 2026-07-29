@@ -66,6 +66,39 @@ def sumRangeMem (n : Nat) : Id Nat
 #guard_msgs (drop info) in
 #check @sumRangeMem.spec
 
+/-! ## Several `invariant` clauses are conjoined into the loop's invariant -/
+
+def countAndDouble (xs : List Nat) : Id (Nat × Nat)
+    ensures r => r.1 = xs.length ∧ r.2 = 2 * xs.length := do
+  let mut n := 0
+  let mut twice := 0
+  for x in xs
+      invariant cur => n = cur.prefix.length
+      invariant cur => twice = 2 * cur.prefix.length
+    do
+    n := n + 1
+    twice := twice + 2
+  return (n, twice)
+
+#guard_msgs (drop info) in
+#check @countAndDouble.spec
+
+-- Each clause binds its own cursor and may name the loop's mutable variables.
+def sumSteps (xs : List Nat) : Id Nat
+    ensures r => 0 ≤ r := do
+  let mut acc := 0
+  let mut steps := 0
+  for h : x in xs
+      invariant cur => 0 ≤ acc
+      invariant seen => steps = seen.prefix.length
+    do
+    acc := acc + x
+    steps := steps + 1
+  return acc
+
+#guard_msgs (drop info) in
+#check @sumSteps.spec
+
 /-! ## The contract telescope is transplanted faithfully to `f.spec`
 
 `f.spec` re-binds the definition's telescope verbatim, applies `f` to exactly the explicit arguments,

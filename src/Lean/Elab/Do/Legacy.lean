@@ -1563,7 +1563,7 @@ mutual
      `doFor` is of the form
      ```
      def doForDecl := leading_parser termParser >> " in " >> withForbidden "do" termParser
-     def doFor := leading_parser "for " >> sepBy1 doForDecl ", " >> optional doForInvariant >> " do " >> doSeq
+     def doFor := leading_parser "for " >> sepBy1 doForDecl ", " >> many doForInvariant >> " do " >> doSeq
      ```
   -/
   partial def doForToCode (doFor : Syntax) (doElems : List Syntax) : M CodeBlock := do

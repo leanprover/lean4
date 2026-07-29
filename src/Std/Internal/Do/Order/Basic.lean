@@ -313,7 +313,7 @@ theorem le_forall {α : Sort u} (p : Prop) (q : α → Prop)
   · intro ⟨i, hi⟩
     exact (le_iSup f i) hi
 
-@[simp] theorem meet_prop_eq_and (a b : Prop) : (a ⊓ b : Prop) = (a ∧ b) := by
+@[grind =, simp] theorem meet_prop_eq_and (a b : Prop) : (a ⊓ b : Prop) = (a ∧ b) := by
   apply propext
   constructor
   · intro hab

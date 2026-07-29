@@ -1,6 +1,6 @@
 import Std.Internal.Do
 
-/-! Tests for `def` contracts. A `def` carrying `require`/`ensures` clauses elaborates to the
+/-! Tests for `def` contracts. A `def` carrying `requires`/`ensures` clauses elaborates to the
 definition plus an `@[spec]`-tagged `f.spec` Hoare triple that `vcgen` proves automatically; a
 `for … invariant` clause inside the body supplies the loop invariant it needs. New cases go here. -/
 
@@ -13,7 +13,7 @@ activate by itself. A clause left out defaults to `⊤`, which prints as the con
 while its notation is out of scope. -/
 
 def clampLow (n lo : Nat) : Id Nat
-    require lo ≤ n
+    requires lo ≤ n
     ensures r => r = n
   := pure n
 
@@ -30,7 +30,7 @@ def onlyEnsures (n : Nat) : Id Nat
 #check @onlyEnsures.spec
 
 def onlyRequire (n : Nat) : Id Nat
-    require 0 ≤ n
+    requires 0 ≤ n
   := pure n
 
 /-- info: onlyRequire.spec : ∀ (n : Nat), ⦃ 0 ≤ n ⦄ onlyRequire n ⦃ fun x => Lean.Order.top ⦄ -/
@@ -89,11 +89,11 @@ def sumRangeMem (n : Nat) : Id Nat
 /-! ## The contract telescope is transplanted faithfully to `f.spec`
 
 `f.spec` re-binds the definition's telescope verbatim, applies `f` to exactly the explicit arguments,
-and uses `⊤` for an omitted `require`. These cover implicit, instance, strict-implicit, and autobound
+and uses `⊤` for an omitted `requires`. These cover implicit, instance, strict-implicit, and autobound
 binders, and a contract written without a `: type` ascription. -/
 
 def specImplicit {α : Type} [Inhabited α] (x : α) (n : Nat) : Id α
-    require n > 0
+    requires n > 0
     ensures r => r = x :=
   pure x
 
@@ -102,7 +102,7 @@ def specImplicit {α : Type} [Inhabited α] (x : α) (n : Nat) : Id α
 #check @specImplicit.spec
 
 def specAutobound (v : Vector Nat n) : Id Nat
-    require n > 0
+    requires n > 0
     ensures r => r = n :=
   pure v.size
 
@@ -119,7 +119,7 @@ def specStrict ⦃α : Type⦄ [Inhabited α] (x : α) : Id α
 #check @specStrict.spec
 
 def specNoType (x : Nat)
-    require x > 0
+    requires x > 0
     ensures r => r ≥ x :=
   (pure x : Id Nat)
 

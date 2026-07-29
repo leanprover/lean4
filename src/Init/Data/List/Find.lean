@@ -544,7 +544,7 @@ private theorem findIdx?_go_eq {p : α → Bool} {xs : List α} {i : Nat} :
 
 @[grind =]
 theorem findIdx_cons {p : α → Bool} {b : α} {l : List α} :
-    (b :: l).findIdx p = bif p b then 0 else (l.findIdx p) + 1 := by
+    (b :: l).findIdx p = if p b then 0 else (l.findIdx p) + 1 := by
   cases H : p b with
   | true => simp [H, findIdx, findIdx.go]
   | false => simp [H, findIdx, findIdx.go, findIdx_go_succ]
@@ -596,7 +596,6 @@ theorem findIdx_eq_length {p : α → Bool} {xs : List α} :
   | nil => simp_all
   | cons x xs ih =>
     rw [findIdx_cons, length_cons]
-    simp only [cond_eq_ite]
     split <;> simp_all
 
 theorem findIdx_eq_length_of_false {p : α → Bool} {xs : List α} (h : ∀ x ∈ xs, p x = false) :

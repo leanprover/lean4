@@ -5016,8 +5016,8 @@ theorem getLsbD_rotateLeftAux_of_ge {x : BitVec w} {r : Nat} {i : Nat} (hi : i �
 /-- When `r < w`, we give a formula for `(x.rotateLeft r).getLsbD i`. -/
 theorem getLsbD_rotateLeft_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
     (x.rotateLeft r).getLsbD i =
-      cond (i < r)
-      (x.getLsbD (w - r + i))
+      if i < r then
+      (x.getLsbD (w - r + i)) else
       (decide (i < w) && x.getLsbD (i - r)) := by
   · rw [rotateLeft_eq_rotateLeftAux_of_lt hr]
     by_cases h : i < r
@@ -5027,8 +5027,8 @@ theorem getLsbD_rotateLeft_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
 @[simp, grind =]
 theorem getLsbD_rotateLeft {x : BitVec w} {r i : Nat}  :
     (x.rotateLeft r).getLsbD i =
-      cond (i < r % w)
-      (x.getLsbD (w - (r % w) + i))
+      if i < r % w then
+      (x.getLsbD (w - (r % w) + i)) else
       (decide (i < w) && x.getLsbD (i - (r % w))) := by
   rcases w with ⟨rfl, w⟩
   · simp
@@ -5184,8 +5184,8 @@ theorem rotateRight_mod_eq_rotateRight {x : BitVec w} {r : Nat} :
 /-- When `r < w`, we give a formula for `(x.rotateRight r).getLsb i`. -/
 theorem getLsbD_rotateRight_of_lt {x : BitVec w} {r i : Nat} (hr: r < w) :
     (x.rotateRight r).getLsbD i =
-      cond (i < w - r)
-      (x.getLsbD (r + i))
+      if i < w - r then
+      (x.getLsbD (r + i)) else
       (decide (i < w) && x.getLsbD (i - (w - r))) := by
   · rw [rotateRight_eq_rotateRightAux_of_lt hr]
     by_cases h : i < w - r
@@ -5195,8 +5195,8 @@ theorem getLsbD_rotateRight_of_lt {x : BitVec w} {r i : Nat} (hr: r < w) :
 @[simp, grind =]
 theorem getLsbD_rotateRight {x : BitVec w} {r i : Nat} :
     (x.rotateRight r).getLsbD i =
-      cond (i < w - (r % w))
-      (x.getLsbD ((r % w) + i))
+      if i < w - (r % w) then
+      (x.getLsbD ((r % w) + i)) else
       (decide (i < w) && x.getLsbD (i - (w - (r % w)))) := by
   rcases w with ⟨rfl, w⟩
   · simp

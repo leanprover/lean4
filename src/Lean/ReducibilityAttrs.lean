@@ -51,8 +51,8 @@ def ReducibilityStatus.toAttrString : ReducibilityStatus → String
 builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × ReducibilityStatus) (Name × ReducibilityStatus) (NameMap ReducibilityStatus) ←
   registerPersistentEnvExtension {
     name            := `reducibilityCore
-    -- post-hoc changes reset the resolution cache via `reducibilityChangeHook`
-    tcResolutionAccess := true
+    -- resolution-path reads are recorded per declaration by `getReducibilityStatusCore`
+    tcResolutionAccess := .exempt
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameMap ReducibilityStatus) (p : Name × ReducibilityStatus) => s.insert p.1 p.2
@@ -73,23 +73,77 @@ builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × Reducib
 builtin_initialize reducibilityExtraExt : SimpleScopedEnvExtension (Name × ReducibilityStatus) (SMap Name ReducibilityStatus) ←
   registerSimpleScopedEnvExtension {
     name := `reducibilityExtra
-    -- post-hoc changes reset the resolution cache via `reducibilityChangeHook`
-    tcResolutionAccess := true
+    -- resolution-path reads are recorded per declaration by `getReducibilityStatusCore`
+    tcResolutionAccess := .exempt
     initial := {}
     addEntry := fun d (declName, status) => d.insert declName status
     finalizeImport := fun d => d.switch
   }
 
+/--
+Change counter for reducibility statuses, bumped by every reducibility attribute application
+(including scoped and local ones). A type class resolution query captures its value when it
+starts (`SynthEnvDeps.reducibilityGen`); while it is unchanged, the per-declaration statuses a
+cache entry recorded cannot have changed, so validation skips re-asking them and the entry
+revalidates with a single comparison. When the counter has moved, validation re-asks each
+recorded status (`validReducibilityDeps`) and, on success, re-stamps the entry with the current
+value.
+
+Branch-local (`AsyncMode.local`), like the resolution cache itself. Declaration-time status
+assignments via `setReducibilityStatus` do not bump it: a declaration's initial status cannot be
+recorded in any pre-existing cache entry, as no query can have asked about the declaration
+before it existed.
+-/
+builtin_initialize reducibilityChangedExt : EnvExtension Unit ←
+  registerEnvExtension (pure ()) (asyncMode := .local) (name := `reducibilityChanged)
+    (tcResolutionAccess := .recorded)
+
+/-- Stable encoding of `ReducibilityStatus` for `SynthEnvDeps.reducibility`. -/
+private def statusIdx : ReducibilityStatus → Nat
+  | .reducible         => 0
+  | .semireducible     => 1
+  | .irreducible       => 2
+  | .implicitReducible => 3
+  | .instanceReducible => 4
+
+private unsafe def recordStatusUnsafe (env : Environment) (declName : Name) (status : ReducibilityStatus) : ReducibilityStatus :=
+  match env.synthEnvDepsRef? with
+  | none => status
+  | some sink =>
+    -- benign effect: recording the observed status into the armed query's accumulator
+    unsafeBaseIO do
+      sink.modify fun d =>
+        if d.reducibility.contains declName then d
+        else { d with reducibility := d.reducibility.insert declName (statusIdx status) }
+      return status
+
+/--
+Records `declName ↦ status` as a dependency of the type class resolution query in progress, if
+any; see `reducibilityChangedExt`. Returns `status` so the recording cannot be optimized away.
+-/
+@[implemented_by recordStatusUnsafe]
+private opaque recordStatus (env : Environment) (declName : Name) (status : ReducibilityStatus) : ReducibilityStatus
+
 def getReducibilityStatusCore (env : Environment) (declName : Name) : ReducibilityStatus :=
-  let m := reducibilityExtraExt.getState env
-  if let some status := m.find? declName then
-    status
-  else match env.getModuleIdxFor? declName with
-  | some modIdx =>
-    match (reducibilityCoreExt.getModuleEntries env modIdx).binSearch (declName, .semireducible) (fun a b => Name.quickLt a.1 b.1) with
-    | some (_, status) => status
-    | none => .semireducible
-  | none => (reducibilityCoreExt.getState (asyncDecl := declName) env).find? declName |>.getD .semireducible
+  let status :=
+    let m := reducibilityExtraExt.getState env
+    if let some status := m.find? declName then
+      status
+    else match env.getModuleIdxFor? declName with
+    | some modIdx =>
+      match (reducibilityCoreExt.getModuleEntries env modIdx).binSearch (declName, .semireducible) (fun a b => Name.quickLt a.1 b.1) with
+      | some (_, status) => status
+      | none => .semireducible
+    | none => (reducibilityCoreExt.getState (asyncDecl := declName) env).find? declName |>.getD .semireducible
+  recordStatus env declName status
+
+/--
+Returns whether every reducibility status recorded in `deps` gives the same answer in `env`.
+Used to validate a type class resolution cache entry once the reducibility change counter has
+moved; see `reducibilityChangedExt`.
+-/
+def validReducibilityDeps (env : Environment) (deps : NameMap Nat) : Bool :=
+  deps.all fun declName idx => statusIdx (getReducibilityStatusCore env declName) == idx
 
 private def setReducibilityStatusCore (env : Environment) (declName : Name) (status : ReducibilityStatus) (attrKind : AttributeKind) (currNamespace : Name) : Environment :=
   if attrKind matches .global then
@@ -181,26 +235,16 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
         unless statusOld matches .irreducible do
           throwError "failed to set `[local semireducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[irreducible]` expected{suffix}"
 
-/--
-Callback invoked when the reducibility status of a pre-existing declaration changes, i.e. through
-an `attribute` command rather than as part of the declaration's own elaboration. Reducibility
-determines what `isDefEq` may unfold, so such a change can invalidate cached definitional
-equality results computed under the old status; the type class resolution cache registers its
-reset here (see `Lean.Meta.resetSynthInstanceCacheCore`).
--/
-builtin_initialize reducibilityChangeHook : IO.Ref (Name → CoreM Unit) ← IO.mkRef fun _ => pure ()
-
 private def addAttr (status : ReducibilityStatus) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
   Attribute.Builtin.ensureNoArgs stx
   validate declName status attrKind
   let ns ← getCurrNamespace
   modifyEnv fun env => setReducibilityStatusCore env declName status attrKind ns
-  -- An attribute that is part of the declaration's own elaboration (`@[reducible] def f`) cannot
-  -- invalidate anything: consumers cannot have cached results about `f` before `f` existed. See
-  -- `Attribute.declTimeOptionName`; an absent option means the origin is unknown and is treated
-  -- conservatively as a change to a pre-existing declaration.
-  unless (← getOptions).getBool Attribute.declTimeOptionName do
-    (← reducibilityChangeHook.get) declName
+  -- Reducibility determines what `isDefEq` may unfold, so a status change can invalidate cached
+  -- type class resolution results computed under the old status. Bumping the change counter
+  -- makes cache entries re-validate their recorded statuses on next use; see
+  -- `reducibilityChangedExt`.
+  modifyEnv (reducibilityChangedExt.modifyState · id)
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -278,9 +322,9 @@ def getReducibilityStatus [Monad m] [MonadEnv m] (declName : Name) : m Reducibil
 /--
 Set the reducibility attribute for the given declaration.
 
-Note: does not notify `reducibilityChangeHook`. Use only for declarations created by the caller
-itself (before other code can have cached results about them); status changes to pre-existing
-declarations must go through the reducibility attributes.
+Note: does not bump the reducibility change counter (`reducibilityChangedExt`). Use only for
+declarations created by the caller itself (before other code can have cached results about
+them); status changes to pre-existing declarations must go through the reducibility attributes.
 -/
 def setReducibilityStatus [MonadEnv m] (declName : Name) (s : ReducibilityStatus) : m Unit :=
   modifyEnv fun env => setReducibilityStatusCore env declName s .global .anonymous

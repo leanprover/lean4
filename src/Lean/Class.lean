@@ -72,7 +72,7 @@ builtin_initialize classExtension : SimplePersistentEnvExtension ClassEntry Clas
     addEntryFn    := ClassState.addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries ClassState.addEntry {} es).switch
     -- class facts are immutable per declaration and monotone
-    tcResolutionAccess := true
+    tcResolutionAccess := .exempt
   }
 
 /-- Return `true` if `n` is the name of type class in the given environment. -/

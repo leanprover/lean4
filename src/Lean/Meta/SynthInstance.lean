@@ -928,19 +928,30 @@ private def validOptionAccesses (opts : Options) (log : SynthOptionAccessLog) : 
   log.all fun a => opts.findUnrestricted? a.name == a.value
 
 /--
-Returns the type class resolution cache entry for `key` from the transient
-(`Meta.Cache.synthInstance`) or persistent (`synthInstanceCacheExt`) tier, together with its
-recorded option dependencies. Only entries whose recorded option lookups give the same answers
-under the current options are considered; see `SynthInstanceCache`.
+Merges the environment dependencies observed by a nested query (or served from a used cache
+entry) into the enclosing query's accumulator. The enclosing query keeps its own
+`reducibilityGen`: it was captured when that query started, and the merged reducibility
+answers are validated against it like its own.
 -/
-private def findCachedResult? (key : SynthInstanceCacheKey) :
-    MetaM (Option (SynthOptionAccessLog × Option AbstractMVarsResult)) := do
-  let opts ← getOptions
-  let find? (c : SynthInstanceCache) : Option (SynthOptionAccessLog × Option AbstractMVarsResult) := do
-    (← c.find? key).find? fun (log, _) => validOptionAccesses opts log
-  if let some r := find? (← get).cache.synthInstance then
-    return some r
-  return find? (synthInstanceCacheExt.getState (← getEnv))
+private def _root_.Lean.SynthEnvDeps.mergeInto (child parent : SynthEnvDeps) : SynthEnvDeps :=
+  let extGens := child.extGens.foldl (init := parent.extGens) fun l d =>
+    if l.any (·.1 == d.1) then l else l.push d
+  let reducibility := child.reducibility.foldl (init := parent.reducibility) fun m n i =>
+    if m.contains n then m else m.insert n i
+  { parent with extGens, reducibility }
+
+/--
+Identity of two dependency logs for entry replacement in `insertCachedResult`: same option
+answers and same dependency *shape* (same extensions and reducibility declarations observed).
+The observed generations and statuses are deliberately not part of the identity: a fresh
+observation with the same shape supersedes the old entry, whose generations can never recur.
+-/
+private def sameDepIdentity (a b : SynthDepLog) : Bool :=
+  a.options == b.options
+  && a.envDeps.extGens.size == b.envDeps.extGens.size
+  && a.envDeps.extGens.all (fun d => b.envDeps.extGens.any (·.1 == d.1))
+  && a.envDeps.reducibility.size == b.envDeps.reducibility.size
+  && a.envDeps.reducibility.all (fun n _ => b.envDeps.reducibility.contains n)
 
 /--
 Inserts a result into the type class resolution cache: always into the transient
@@ -959,17 +970,66 @@ command, as `Meta.SavedState.restore` deliberately does not restore `Meta.Cache`
 backtracking-heavy elaboration (e.g. tactics trying alternatives) would re-run every failed
 attempt's typeclass queries from scratch.
 -/
-private def insertCachedResult (key : SynthInstanceCacheKey) (log : SynthOptionAccessLog)
+private def insertCachedResult (key : SynthInstanceCacheKey) (log : SynthDepLog)
     (result? : Option AbstractMVarsResult) (persist : Bool) : MetaM Unit := do
-  -- One entry per observed option-dependency combination; replace an entry with the same log.
+  -- One entry per observed dependency combination; replace an entry with the same identity.
   let upsert (c : SynthInstanceCache) : SynthInstanceCache :=
-    c.insert key <| (log, result?) :: (c.find? key |>.getD [] |>.filter fun e => e.1 != log)
+    c.insert key <| (log, result?) :: (c.find? key |>.getD [] |>.filter fun e => !sameDepIdentity e.1 log)
   if persist then
     -- Modify the environment directly instead of via `Meta.modifyEnv`, which would reset the
     -- `Meta.Cache` caches.
     modifyThe Core.State fun s =>
       { s with env := synthInstanceCacheExt.modifyState s.env upsert }
   modifyCache fun c => { c with synthInstance := upsert c.synthInstance }
+
+/--
+Validates a cache entry's recorded dependencies against the current context. Returns `none` if
+any recorded answer has changed; otherwise the entry may be used, and the returned Boolean
+indicates the log was *re-stamped*: the reducibility change counter had moved, all recorded
+statuses re-answered identically, and the log now carries the current counter value so that
+subsequent validations are again a single comparison. The caller re-inserts a re-stamped entry.
+
+The status re-asks may record into the armed query's accumulator, which is benign: it
+over-approximates the current query's dependencies.
+-/
+private def validateDeps? (opts : Options) (env : Environment) (curReducibilityGen : Nat)
+    (log : SynthDepLog) : BaseIO (Option (SynthDepLog × Bool)) := do
+  unless validOptionAccesses opts log.options do return none
+  for (idx, gen) in log.envDeps.extGens do
+    unless (← EnvExtension.getRecordedGen env idx) == gen do return none
+  if log.envDeps.reducibilityGen == curReducibilityGen then
+    return some (log, false)
+  unless validReducibilityDeps env log.envDeps.reducibility do return none
+  return some ({ log with envDeps.reducibilityGen := curReducibilityGen }, true)
+
+/--
+Returns the type class resolution cache entry for `key` from the transient
+(`Meta.Cache.synthInstance`) or persistent (`synthInstanceCacheExt`) tier, together with its
+recorded dependencies. Only entries whose recorded dependencies give the same answers in the
+current context are considered (`validateDeps?`); a re-stamped entry is re-inserted into its
+tier. See `SynthInstanceCache`.
+-/
+private def findCachedResult? (key : SynthInstanceCacheKey) :
+    MetaM (Option (SynthDepLog × Option AbstractMVarsResult)) := do
+  let opts ← getOptions
+  let env ← getEnv
+  let curGen ← EnvExtension.getRecordedGen env reducibilityChangedExt.idx
+  let findIn (c : SynthInstanceCache) :
+      BaseIO (Option (SynthDepLog × Option AbstractMVarsResult × Bool)) := do
+    let some entries := c.find? key | return none
+    for (log, val?) in entries do
+      if let some (log, restamped) ← validateDeps? opts env curGen log then
+        return some (log, val?, restamped)
+    return none
+  if let some (log, val?, restamped) ← findIn (← get).cache.synthInstance then
+    if restamped then
+      insertCachedResult key log val? (persist := false)
+    return some (log, val?)
+  if let some (log, val?, restamped) ← findIn (synthInstanceCacheExt.getState env) then
+    if restamped then
+      insertCachedResult key log val? (persist := true)
+    return some (log, val?)
+  return none
 
 /--
 Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.
@@ -990,7 +1050,7 @@ private def applyCachedAbstractResult? (type : Expr) (abstResult? : Option Abstr
     applyAbstractResult? type abstResult?
 
 /-- Helper function for caching synthesized type class instances. -/
-private def cacheResult (cacheKey : SynthInstanceCacheKey) (log : SynthOptionAccessLog) (kind : PreprocessKind) (abstResult? : Option AbstractMVarsResult) (result? : Option Expr) : MetaM Unit := do
+private def cacheResult (cacheKey : SynthInstanceCacheKey) (log : SynthDepLog) (kind : PreprocessKind) (abstResult? : Option AbstractMVarsResult) (result? : Option Expr) : MetaM Unit := do
   -- The stored value: for a closed result we store the concrete `result` expr with an empty
   -- `AbstractMVarsResult` so that `applyCachedAbstractResult?` can skip re-`check`ing it.
   let value? :=
@@ -1028,17 +1088,19 @@ private def synthInstanceConfig : Config :=
     foApprox := true, ctxApprox := true, constApprox := false, univApprox := false }
 
 /--
-Runs `x` with environment extension access restricted to extensions registered with
-`tcResolutionAccess := true`; see `EnvExtensionAccessRestriction`. Environment modifications made
-by `x` (in particular cache fills) are kept; only the restriction flag is scoped.
+Runs `x` with `Environment.synthEnvDepsRef?` armed to `sink`: every environment dependency the
+search observes (`.recorded` extension generations, reducibility statuses) is recorded into
+`sink`, and access to `.deny` extensions panics; see `EnvExtension.TCResolutionAccess`.
+Environment modifications made by `x` (in particular cache fills) are kept; only the sink field
+is scoped.
 -/
-private def withExtAccessRestriction (x : MetaM α) : MetaM α := do
+private def withSynthEnvDepSink (sink : IO.Ref SynthEnvDeps) (x : MetaM α) : MetaM α := do
   -- Modify the environment directly instead of via `Meta.modifyEnv`, which would reset
   -- `Meta.Cache`.
-  let set (r : EnvExtensionAccessRestriction) : MetaM Unit :=
-    modifyThe Core.State fun s => { s with env := s.env.setExtAccessRestriction r }
-  let old := (← getEnv).extAccessRestriction
-  set .tcResolution
+  let set (r? : Option (IO.Ref SynthEnvDeps)) : MetaM Unit :=
+    modifyThe Core.State fun s => { s with env := s.env.setSynthEnvDepsRef? r? }
+  let old := (← getEnv).synthEnvDepsRef?
+  set (some sink)
   try x finally set old
 
 def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do
@@ -1047,17 +1109,25 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
   let maxResultSize ← match maxResultSize? with
     | some n => pure n
     | none   => getRecordedOption synthInstance.maxSize
-  -- The query's option dependencies: result-relevant option lookups on the search path go
-  -- through the recording accessors (`getRecordedOption`) into this log, which becomes part of
-  -- the cache entry; see `SynthInstanceCache`. A nested query's effective dependencies are
-  -- merged into the log of the enclosing query (`propagate` below), which observed its result.
+  -- The query's dependencies: result-relevant option lookups on the search path go through the
+  -- recording accessors (`getRecordedOption`) into `depLog`, and observed environment
+  -- dependencies are recorded into `envSink`, which is armed on the environment
+  -- (`withSynthEnvDepSink` below); together they become part of the cache entry, see
+  -- `SynthInstanceCache`. A nested query's effective dependencies are merged into the
+  -- accumulators of the enclosing query (`propagate` below), which observed its result.
   let parentLog? := (← readThe Meta.Context).synthOptionLog?
   let depLog ← IO.mkRef (#[] : SynthOptionAccessLog)
+  let parentEnvSink? := (← getEnv).synthEnvDepsRef?
+  let envSink : IO.Ref SynthEnvDeps ← IO.mkRef
+    { reducibilityGen := ← EnvExtension.getRecordedGen (← getEnv) reducibilityChangedExt.idx }
   let propagate : MetaM Unit := do
     if let some parent := parentLog? then
       let log ← depLog.get
       parent.modify fun l => log.foldl (init := l) fun l a =>
         if l.any (·.name == a.name) then l else l.push a
+    if let some parent := parentEnvSink? then
+      let deps ← envSink.get
+      parent.modify (deps.mergeInto ·)
   try
   withReader (fun ctx => { ctx with synthOptionLog? := some depLog }) do
   -- Restrict the ambient options: result-relevant by-name reads on the search path are diverted
@@ -1082,9 +1152,9 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
   withTraceNode `Meta.synthInstance
     (fun _ => return m!"{← instantiateMVars type}") do
   withConfig (fun _ => synthInstanceConfig) do
-  -- Restrict extension access analogously: any extension the search consults must be covered by
-  -- the cache key or by cache invalidation, so access to any other extension panics.
-  withExtAccessRestriction do
+  -- Arm the environment-dependency sink: any extension the search consults must be covered by
+  -- the cache key or by the recorded dependencies, so access to any other extension panics.
+  withSynthEnvDepSink envSink do
   withInTypeClassResolution do
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type
@@ -1098,8 +1168,9 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     | some (entryLog, abstResult?) =>
       trace[Meta.synthInstance.cache] "cached: {type}"
       -- The used entry's dependencies become dependencies of this query.
-      depLog.modify fun l => entryLog.foldl (init := l) fun l a =>
+      depLog.modify fun l => entryLog.options.foldl (init := l) fun l a =>
         if l.any (·.name == a.name) then l else l.push a
+      envSink.modify (entryLog.envDeps.mergeInto ·)
       let result? ← applyCachedAbstractResult? type abstResult?
       trace[Meta.synthInstance] "result {result?} (cached)"
       return result?
@@ -1132,7 +1203,7 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
         | .mvarsOutputParams => SynthInstance.main (← preprocessOutParam type) maxResultSize
       let result? ← applyAbstractResult? type abstResult?
       trace[Meta.synthInstance] "result {result?}"
-      cacheResult cacheKey (← depLog.get) kind abstResult? result?
+      cacheResult cacheKey { options := (← depLog.get), envDeps := (← envSink.get) } kind abstResult? result?
       return result?
   finally
     propagate

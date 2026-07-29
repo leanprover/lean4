@@ -330,9 +330,7 @@ def elabMutual : CommandElab := fun stx => do
     let declName ← ensureNonAmbiguous ident declNames
     withExporting (isExporting := !isPrivateName declName && attrs.any (·.kind != .local)) do
       recordExtraModUseFromDecl (isMeta := false) declName
-    -- These applications target pre-existing declarations; see `Attribute.declTimeOptionName`.
-    withOptions (·.setBool Attribute.declTimeOptionName false) do
-      Term.applyAttributes declName attrs
+    Term.applyAttributes declName attrs
     for attrName in toErase do
       Attribute.erase declName attrName
     if (← getEnv).isImportedConst declName then

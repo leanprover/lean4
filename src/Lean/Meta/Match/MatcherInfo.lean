@@ -128,7 +128,7 @@ builtin_initialize extension : SimplePersistentEnvExtension Entry State ←
     addImportedFn := fun es => (mkStateFromImportedEntries State.addEntry {} es).switch
     asyncMode     := .async .mainEnv
     -- matcher facts are immutable per declaration and monotone
-    tcResolutionAccess := true
+    tcResolutionAccess := .exempt
     exportEntriesFnEx? := some fun env _ entries =>
       let all := entries.toArray
       -- Do not export info for private defs at exported/server levels

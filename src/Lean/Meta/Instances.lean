@@ -112,14 +112,16 @@ builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry In
     exportEntry? := fun _ e =>
       if e.globalName?.any (!isPrivateName ·) then .uniform (some e)
       else ⟨none, none, some e⟩
-    -- keyed via `SynthInstanceCacheKey.activeScopedInsts`/`localAttrInsts`, reset on add/erase
-    tcResolutionAccess := true
+    -- adding or erasing an instance bumps the generation, invalidating resolution cache
+    -- entries that consulted the instance table; scope activation is covered by the cache key
+    -- (`SynthInstanceCacheKey.activeScopedInsts`/`localAttrInsts`) instead
+    tcResolutionAccess := .recorded
   }
 
 /--
 Persistent tier of the `synthInstance` result cache; see `Lean.Meta.SynthInstance`. It is stored
 in an environment extension so that it persists across commands; it is not stored in `.olean`
-files. It is registered in this module so that `addInstance` can invalidate it.
+files.
 
 Only *context-free* entries are stored here: keys without metavariables and closed results.
 Context-sensitive entries (whose validity depends on the ambient metavariable context) live in
@@ -134,9 +136,9 @@ transient tier compensates, as `Meta.Cache` is deliberately not restored by
 `Meta.SavedState.restore` (see `Lean.Meta.SynthInstance.insertCachedResult`).
 -/
 builtin_initialize synthInstanceCacheExt : EnvExtension SynthInstanceCache ←
-  -- mere cache, keep local; `tcResolutionAccess` as this *is* the resolution cache
+  -- mere cache, keep local; `.exempt` as this *is* the resolution cache
   registerEnvExtension (pure {}) (asyncMode := .local) (name := `synthInstanceCache)
-    (tcResolutionAccess := true)
+    (tcResolutionAccess := .exempt)
 
 /--
 Resets the persistent tier of the type class resolution cache. Use `resetSynthInstanceCache`
@@ -150,24 +152,18 @@ def resetSynthInstanceCacheCore : CoreM Unit :=
 Resets the type class resolution cache (both the persistent tier and the transient
 `Meta.Cache.synthInstance` tier).
 
-The cache is reset automatically when an instance is added via `addInstance` or erased, when the
-reducibility status of a pre-existing declaration changes (via `reducibilityChangeHook`), or when
-a unification hint is added; activation of scoped instances is accounted for in the cache key
-(`SynthInstanceCacheKey.activeScopedInsts`). Other changes that may affect typeclass resolution
-require calling this function explicitly, e.g. closing a section containing local instances,
-local reducibility changes, or scoped unification hints, or adding instances through an
-environment modification the current `Meta.State` cannot observe, such as running a command via
-`liftCommandElabM` (which threads the environment back but cannot clear `Meta.Cache`).
+Calling this function is normally unnecessary: cache entries record the dependencies of their
+search (relevant options, instances, unification hints, reducibility statuses; see
+`Lean.Meta.SynthInstance`) and are automatically invalidated when a dependency changes,
+including through environment modifications the current `Meta.State` cannot observe (e.g.
+running a command via `liftCommandElabM`). Known remaining gaps that do require an explicit
+reset: deactivation of *scoped* unification hints (ending the surrounding scope or section),
+and dropping *local* unification hints at the end of a section, neither of which is covered by
+the cache key or the recorded dependencies.
 -/
 def resetSynthInstanceCache : MetaM Unit := do
   resetSynthInstanceCacheCore
   modifyCache fun c => { c with synthInstance := {} }
-
-builtin_initialize
-  -- Resolution unfolds `[reducible]` and `[instance_reducible]` declarations during `isDefEq`, so
-  -- cached results (in particular failures) computed under the old status of a declaration are
-  -- invalid after a post-hoc change.
-  reducibilityChangeHook.set fun _ => resetSynthInstanceCacheCore
 
 private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
   let type ← inferType e
@@ -370,7 +366,6 @@ this warning can be disabled with `set_option warn.classDefReducibility false`."
   let projInfo? ← getProjectionFnInfo? declName
   let synthOrder ← computeSynthOrder c projInfo?
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
-  resetSynthInstanceCache
 
 /-
 Adds instance **and** marks it with reducibility status `@[instance_reducible]`. We use this function
@@ -420,7 +415,6 @@ builtin_initialize
       let s := instanceExtension.getState (← getEnv)
       let s ← s.erase declName
       modifyEnv fun env => instanceExtension.modifyState env fun _ => s
-      resetSynthInstanceCacheCore
   }
 
 def getGlobalInstancesIndex : CoreM (DiscrTree InstanceEntry) :=

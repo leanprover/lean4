@@ -63,8 +63,19 @@ def r4 : Unit := let _ : R MyNat := inferInstance; ()
 #guard_msgs in
 def r5 : Unit := let _ : R MyNat := inferInstance; ()
 
--- Adding a unification hint resets the cache: `R Nat` was cached before the hint and is searched
--- anew after. The hint itself is irrelevant to the query; only the reset is observable.
+-- All declarations happen up front so that no instance addition (which invalidates every entry
+-- that consulted the instance table) interferes with the queries below.
+class OP (α : Type) (β : outParam Type) where
+
+instance : OP Nat Bool := ⟨⟩
+
+def NotBool := List Nat
+
+def YetAnotherNat := Nat
+
+-- The `R Nat` search succeeds without any failing unification, so it never consults the
+-- unification hints and records no dependency on them: adding a hint below must not invalidate
+-- this entry.
 /-- trace: [Meta.synthInstance.cache] new: R Nat -/
 #guard_msgs in
 def q1 : Unit := let _ : R Nat := inferInstance; ()
@@ -73,10 +84,45 @@ def q1 : Unit := let _ : R Nat := inferInstance; ()
 #guard_msgs in
 def q2 : Unit := let _ : R Nat := inferInstance; ()
 
-def YetAnotherNat := Nat
+-- A query whose output parameter fails to unify does consult the hints on the failure path and
+-- records the dependency; the failure is cached with it.
+/--
+error: failed to synthesize instance of type class
+  OP Nat NotBool
 
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+---
+trace: [Meta.synthInstance.cache] new: OP Nat NotBool
+-/
+#guard_msgs in
+def q3 : Unit := let _ : OP Nat NotBool := inferInstance; ()
+
+/--
+error: failed to synthesize instance of type class
+  OP Nat NotBool
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+---
+trace: [Meta.synthInstance.cache] cached: OP Nat NotBool
+-/
+#guard_msgs in
+def q4 : Unit := let _ : OP Nat NotBool := inferInstance; ()
+
+-- The hint is irrelevant to both cached queries, but only the `OP` search consulted the hint
+-- table: adding the hint invalidates exactly that entry.
 @[unification_hint] def yetAnotherHint : Prop := YetAnotherNat = Nat
 
-/-- trace: [Meta.synthInstance.cache] new: R Nat -/
+/--
+error: failed to synthesize instance of type class
+  OP Nat NotBool
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+---
+trace: [Meta.synthInstance.cache] new: OP Nat NotBool
+-/
 #guard_msgs in
-def q3 : Unit := let _ : R Nat := inferInstance; ()
+def q5 : Unit := let _ : OP Nat NotBool := inferInstance; ()
+
+/-- trace: [Meta.synthInstance.cache] cached: R Nat -/
+#guard_msgs in
+def q6 : Unit := let _ : R Nat := inferInstance; ()

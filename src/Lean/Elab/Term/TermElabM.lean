@@ -1090,12 +1090,6 @@ private def applyAttributesCore
   if declName == .anonymous then
     return
   withDeclName declName do
-  -- Mark the applications as part of the declaration's own elaboration (see
-  -- `Attribute.declTimeOptionName`), unless a caller such as the `attribute` command already
-  -- marked them otherwise.
-  withOptions (fun opts =>
-    if opts.contains Attribute.declTimeOptionName then opts
-    else opts.setBool Attribute.declTimeOptionName true) do
     for attr in attrs do
       -- Use same visibility as for other signature elements, independent of call site
       withExporting (isExporting := attr.kind != .local && !isPrivateName declName) do

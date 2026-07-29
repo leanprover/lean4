@@ -25,7 +25,7 @@ def mkBelowName (indDeclName : Name) : Name := Name.mkStr indDeclName belowSuffi
 
 builtin_initialize auxRecExt : TagDeclarationExtension ←
   -- aux-recursor status is an immutable per-declaration fact
-  mkTagDeclarationExtension (asyncMode := .async .mainEnv) (tcResolutionAccess := true)
+  mkTagDeclarationExtension (asyncMode := .async .mainEnv) (tcResolutionAccess := .exempt)
 
 def markAuxRecursor (env : Environment) (declName : Name) : Environment :=
   auxRecExt.tag env declName

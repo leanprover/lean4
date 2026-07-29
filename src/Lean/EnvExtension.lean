@@ -30,7 +30,7 @@ structure SimplePersistentEnvExtensionDescr (α σ : Type) where
   asyncMode     : EnvExtension.AsyncMode := .mainOnly
   replay?       : Option ((newEntries : List α) → (newState : σ) → σ → List α × σ) := none
   /-- See `EnvExtension.tcResolutionAccess`. -/
-  tcResolutionAccess : Bool := false
+  tcResolutionAccess : EnvExtension.TCResolutionAccess := .deny
 
 /--
 Returns a function suitable for `SimplePersistentEnvExtensionDescr.replay?` that replays all new
@@ -94,7 +94,7 @@ end SimplePersistentEnvExtension
 
 def mkTagDeclarationExtension (name : Name := by exact decl_name%)
   (asyncMode : EnvExtension.AsyncMode := .mainOnly)
-  (tcResolutionAccess : Bool := false) : IO TagDeclarationExtension :=
+  (tcResolutionAccess : EnvExtension.TCResolutionAccess := .deny) : IO TagDeclarationExtension :=
   registerSimplePersistentEnvExtension {
     name          := name,
     tcResolutionAccess := tcResolutionAccess,
@@ -141,7 +141,7 @@ def mkMapDeclarationExtension (name : Name := by exact decl_name%)
       fun env s =>
         let all := s.toArray.filter (fun (n, _) => env.contains (skipRealize := false) n)
         .uniform all)
-    (tcResolutionAccess : Bool := false) :
+    (tcResolutionAccess : EnvExtension.TCResolutionAccess := .deny) :
     IO (MapDeclarationExtension α) :=
   .mk <$> registerPersistentEnvExtension {
     name            := name,

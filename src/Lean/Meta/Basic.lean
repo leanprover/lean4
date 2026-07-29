@@ -368,6 +368,17 @@ context. See `SynthInstanceCache`.
 abbrev SynthOptionAccessLog := Array SynthOptionAccess
 
 /--
+The dependencies a type class resolution cache entry was computed under: the recorded option
+lookups (`getRecordedOption`) and the recorded environment dependencies
+(`Environment.synthEnvDepsRef?`). A lookup may only use an entry whose recorded dependencies
+give the same answers in the current context; see `SynthInstanceCache`.
+-/
+structure SynthDepLog where
+  options : SynthOptionAccessLog := #[]
+  envDeps : SynthEnvDeps := {}
+  deriving Inhabited
+
+/--
 The definitional-equality and unfolding compatibility flags, resolved and recorded once per type
 class resolution query (`synthInstanceCore?`) so that their per-step reads inside the search
 avoid the recording accessors; see `getSynthDefEqFlag`. Being resolved up front, they are part
@@ -438,15 +449,18 @@ def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
   r.mvars.size
 
 /--
-Type class resolution cache. Each key holds one entry per observed combination of option
-dependencies: the search records every result-relevant option lookup (`getRecordedOption`) into
-the entry's `SynthOptionAccessLog`, and a lookup may only use an entry whose recorded lookups
-give the same answers in the current context. Options the search never read do not partition the
-cache. The search observes no other options, as it runs under `Options.restrict .tcResolution`,
-which diverts by-name reads on the search path to the recording accessors.
+Type class resolution cache. Each key holds one entry per observed combination of dependencies:
+the search records every result-relevant option lookup (`getRecordedOption`) and every observed
+environment dependency (accessed `.recorded` extensions and reducibility statuses; see
+`Lean.EnvExtension.TCResolutionAccess`) into the entry's `SynthDepLog`, and a lookup may only
+use an entry whose recorded dependencies give the same answers in the current context.
+Dependencies the search never observed do not partition the cache. The search observes no other
+options or extensions, as it runs under `Options.restrict .tcResolution` and with
+`Environment.synthEnvDepsRef?` armed, which divert by-name option reads to the recording
+accessors and panic on `.deny` extension accesses.
 -/
 abbrev SynthInstanceCache :=
-  PersistentHashMap SynthInstanceCacheKey (List (SynthOptionAccessLog × Option AbstractMVarsResult))
+  PersistentHashMap SynthInstanceCacheKey (List (SynthDepLog × Option AbstractMVarsResult))
 
 -- Key for `InferType` and `WHNF` caches
 structure ExprConfigCacheKey where

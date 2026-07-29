@@ -698,7 +698,7 @@ theorem findIdx_append {p : α → Bool} {l₁ l₂ : List α} :
     simp only [findIdx_cons, length_cons, cons_append]
     by_cases h : p x
     · simp [h]
-    · simp only [h, ih, cond_eq_ite, Bool.false_eq_true, ↓reduceIte, add_one_lt_add_one_iff]
+    · simp only [h, ih, Bool.false_eq_true, ↓reduceIte, add_one_lt_add_one_iff]
       split <;> simp [Nat.add_assoc]
 
 theorem IsPrefix.findIdx_le {l₁ l₂ : List α} {p : α → Bool} (h : l₁ <+: l₂) :
@@ -728,7 +728,7 @@ theorem findIdx_le_findIdx {l : List α} {p q : α → Bool} (h : ∀ x ∈ l, p
   induction l with
   | nil => simp
   | cons x xs ih =>
-    simp only [findIdx_cons, cond_eq_ite]
+    simp only [findIdx_cons]
     split
     · simp
     · split
@@ -781,10 +781,10 @@ theorem findIdx?_eq_some_iff_findIdx_eq {xs : List α} {p : α → Bool} {i : Na
   | cons x xs ih =>
     simp only [findIdx?_cons, findIdx_cons]
     split
-    · simp_all [cond_eq_ite]
+    · simp_all
       rintro rfl
       exact zero_lt_succ xs.length
-    · simp_all [cond_eq_ite, and_assoc]
+    · simp_all [and_assoc]
       constructor
       · rintro ⟨a, lt, rfl, rfl⟩
         simp_all [Nat.succ_lt_succ_iff]

@@ -645,18 +645,6 @@ instance : HDiv Path Filename Path where
   hDiv p name := p.join (ofFilename name)
 
 /--
-Test `p` against a glob pattern that `Internal.parseGlob` has already parsed. See `matchGlob` for
-the pattern syntax and the meaning of `matchDrivePrefix`; this variant is for testing one pattern
-against many paths, where parsing it once up front is worth the extra step.
--/
-def matchParsedGlob (p : Path) (glob : Internal.Glob) (matchDrivePrefix : Bool := false) : Bool :=
-  let comps := p.components.filter fun
-    | .drivePrefix _ => matchDrivePrefix
-    | _ => true
-
-  Internal.matchSegments glob comps 0 0
-
-/--
 Test `p` against a glob pattern.
 
 The pattern always uses `/` to separate segments, regardless of platform. By default, Windows

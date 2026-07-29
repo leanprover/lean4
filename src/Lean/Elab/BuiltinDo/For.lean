@@ -95,13 +95,18 @@ private def mkForInWithInvariant (invClause : Syntax) (h? : Option Syntax)
   if returnsEarly then binders := binders.push hole
   for mv in loopMutVars do binders := binders.push ⟨mv.ident.raw⟩
   if returnsEarly && loopMutVars.isEmpty then binders := binders.push hole
-  let statePat : Term ← match binders with
-    | #[]  => `(_)
-    | #[b] => pure b
-    | _    => `(⟨$binders,*⟩)
-  let stateId := mkIdentFrom invClause (← mkFreshUserName `__s)
-  let invLam ← `(fun $cursorBinders* $stateId:ident =>
-    match $stateId:ident with | $statePat => $invBody)
+  -- A lone mutable variable binds as the invariant's state parameter itself, so the closure's
+  -- binder carries the source name and `vcgen` can name the loop's verification conditions after it.
+  let invLam ←
+    if binders.size == 1 && binders[0]!.raw.isIdent then
+      `(fun $cursorBinders* $(binders[0]!) => $invBody)
+    else
+      let statePat : Term ← match binders with
+        | #[]  => `(_)
+        | _    => `(⟨$binders,*⟩)
+      let stateId := mkIdentFrom invClause (← mkFreshUserName `__s)
+      `(fun $cursorBinders* $stateId:ident =>
+        match $stateId:ident with | $statePat => $invBody)
   -- The `forInWithInvariant` gadgets live downstream of this module, so they are referenced by an
   -- unresolved name that resolves in the user's context (which imports the metatheory).
   let gadget := if h?.isSome then `Std.Internal.Do.ForIn'.forInWithInvariant'

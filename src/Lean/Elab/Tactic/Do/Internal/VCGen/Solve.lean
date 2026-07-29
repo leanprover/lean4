@@ -12,6 +12,7 @@ public import Lean.Elab.Tactic.Do.Internal.VCGen.Entails
 public import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.InstantiateMVarsS
+import Lean.Meta.BinderNameHint
 
 open Lean Meta Elab Tactic Sym Sym.Internal
 open Lean.Elab.Tactic.Do.Internal.SpecAttr
@@ -61,9 +62,25 @@ private def consumeMData? (goal : MVarId) (target : Expr) : VCGenM (Option MVarI
   unless target.isMData do return none
   return some (← goal.replaceTargetDefEqFast target.consumeMData)
 
+/--
+Rename the target's binders after the `binderNameHint`s a spec theorem attached to them and drop
+those hints, so the binders `introsHygienic` introduces carry the names of the program's own
+closures. Returns the goal unchanged when the target carries no hint.
+
+Runs ahead of the target `simp`, which erases `binderNameHint` outright.
+-/
+private def resolveBinderNameHints (goal : MVarId) (target : Expr) : VCGenM MVarId := do
+  unless target.hasBinderNameHint do return goal
+  -- The hinted closures reach the goal as spec-rule parameters, so they are metavariables until the
+  -- rule application assigns them.
+  let target ← instantiateMVarsS target
+  let target' ← Expr.resolveBinderNameHint target
+  goal.replaceTargetDefEqFast (← shareCommon target')
+
 /-- Strategy 1: simp the target, then introduce binders if the target is a `∀`. -/
 private def forallIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
   unless target.isForall do return none
+  let goal ← resolveBinderNameHints goal target
   let (goal, simped) ← match ← simpGoalTelescope goal with
     | .closed => return some []
     | .goal goal' => pure (goal', true)

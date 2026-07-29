@@ -232,10 +232,11 @@ def Ilean.loadCompacted (ileanPath : System.FilePath) : IO (Option Ilean) := do
   if ileanPath.extension ≠ .some "ilean" then throw (.userError s!"Ilean.loadCompacted: '{ileanPath}' not an .ilean")
 
   let compactedIleanPath := ileanPath.withExtension Ilean.compactedExt
-  if not (← compactedIleanPath.pathExists) then return .none
+  let .ok compactedModified := (← compactedIleanPath.metadata.toBaseIO) |>.map FS.Metadata.modified
+    | return .none -- assume file does not exist
 
   -- The strict inequality is important on systems like Nix that reset all timestamps to the epoch: we don't want that to be an error
-  if (← compactedIleanPath.metadata).modified < (← ileanPath.metadata).modified then
+  if compactedModified < (← ileanPath.metadata).modified then
     throw (.userError s!"Ilean.loadCompacted: {compactedIleanPath} is out of date compared to {ileanPath}")
 
   -- nb: ignoring the region means we can't unmap this ilean later

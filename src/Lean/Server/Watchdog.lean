@@ -1683,12 +1683,13 @@ def startLoadingReferences (referenceData : Std.Mutex ReferenceData) : IO Unit :
     let mut compactedIleanErrors := 0
     let mut visitedPaths : Std.HashSet System.FilePath := {}
     for path in ← oleanSearchPath.findAllWithExt "ilean" do
-      -- Avoid loading an ilean twice
-      let realPath ← FS.realPath path
-      if visitedPaths.contains realPath then continue
-      visitedPaths := visitedPaths.insert realPath
+      try
+        -- Avoid loading an ilean twice
+        let realPath ← FS.realPath path
+        if visitedPaths.contains realPath then continue
+        visitedPaths := visitedPaths.insert realPath
 
-      let compactedIlean : Option Ilean ← try
+        let compactedIlean : Option Ilean ← try
           let .some compactedIlean ← Ilean.loadCompacted path | pure .none
           compactedIleanCount := compactedIleanCount + 1
           pure compactedIlean
@@ -1699,7 +1700,6 @@ def startLoadingReferences (referenceData : Std.Mutex ReferenceData) : IO Unit :
           compactedIleanCount := compactedIleanCount + 1 -- errors mean there *was* a `.ilean.mmap` file, but something went wrong
           pure .none
 
-      try
         let ilean ← match compactedIlean with
           | .none => Ilean.load path
           | .some il => pure il

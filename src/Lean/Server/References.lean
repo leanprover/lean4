@@ -216,6 +216,76 @@ structure Ilean where
   decls         : Lsp.Decls
   deriving FromJson, ToJson
 
+/--
+The contents of an `.ilean` file together with metadata.
+This data structure is intended to be stored on disk
+as a memory-mappable `CompactedRegion` file with an `.ilean.mmap` extension.
+
+(This is like an `.olean` file and unlike an `.ilean` file, which is JSON.)
+
+The `.ilean.hash` value is stored in a `CompactedIlean`
+so that any update that Lake makes to the `.ilean` file
+will cause the server to treat the contents of the `.ilean.mmap` file as stale.
+-/
+structure CompactedIlean extends Ilean where
+  /--
+  The `.ilean.hash` value for the stored `.ilean`, if it existed when the `CompactedIlean` was created.
+  The `.none` side of the `Option` is relevant for toolchain-distributed `.ilean` files do not have a corresponding `.ilean.hash` file.
+  -/
+  hash : Option UInt64
+
+/--
+Given `<path>.hash`, attempt to read the 64-bit hex value it contains.
+Duplicates, and needs to be kept functionally in sync with, `Lake.Hash.load?`.
+-/
+private def loadHash (hashFile : System.FilePath) : IO UInt64 := do
+  let contents ← FS.readBinFile hashFile
+  if contents.size != 16 then throw (.userError s!"hash file does not have expected form")
+
+  let mut result: UInt64 := 0
+  for byte in contents do
+    result := result.shiftLeft 4
+    if '0'.toUInt8 ≤ byte && byte ≤ '9'.toUInt8 then result := result + (byte - '0'.toUInt8).toUInt64
+    else if 'a'.toUInt8 ≤ byte && byte ≤ 'f'.toUInt8 then result := result + (byte - 'a'.toUInt8 + 10).toUInt64
+    else if 'A'.toUInt8 ≤ byte && byte ≤ 'F'.toUInt8 then result := result + (byte - 'A'.toUInt8 + 10).toUInt64
+    else throw (.userError s!"unexpected byte {byte} in hash")
+  return result
+
+/--
+The extension for a memory-mappable ilean file
+-/
+def CompactedIlean.ext := "ilean.mmap"
+
+/--
+Given a path `<path>.ilean`, attempt to read `<path>.ilean.mmap` as a `CompactedRegion` file
+that contains a `CompactedIlean`.
+
+This function uses the existence and contents of the `<path>.ilean.hash` file
+to avoid returning a value that does not represent the current contents of `<path>.ilean`.
+If `<path>.ilean.hash` does not exist, the `CompactedIlean` must include a hash value `.none`.
+If `<path>.ilean.hash` does exist, the `CompactedIlean` must include a hash value `.some h`,
+where `h` is the value in `<path>.ilean.hash`.
+
+Returns `.none` if the file does not exist,
+`.some ilean` if the file can be loaded as a `CompactedIlean` with the expected hash value.
+-/
+def CompactedIlean.load (ileanPath : System.FilePath) : IO (Option Ilean) := do
+  if ileanPath.extension ≠ .some "ilean" then throw (.userError s!"CompactedIlean.load: '{ileanPath}' not an .ilean")
+  let compactedIleanPath := ileanPath.withExtension CompactedIlean.ext
+  if not (← compactedIleanPath.pathExists) then return .none
+
+  let hashPath := ileanPath.addExtension "hash"
+
+  -- nb: ignoring the region means we can't unmap this ilean later
+  let (compactedIlean, _region) ← unsafe CompactedRegion.read (α := CompactedIlean) compactedIleanPath #[]
+  if let .some memHash := compactedIlean.hash then
+    if not (← hashPath.pathExists) then throw (.userError s!"CompactedIlean.load: '{compactedIleanPath}' expected '{hashPath}' to exist, but that file does not exist")
+    let fsHash ← loadHash hashPath
+    if memHash ≠ fsHash then throw (.userError s!"CompactedIlean.load: '{compactedIleanPath}' expects a .ilean.hash value {String.ofList <| Nat.toDigits 16 memHash.toNat}, but .ilean.hash contains {String.ofList <| Nat.toDigits 16 fsHash.toNat}")
+  else
+    if (← hashPath.pathExists) then throw (.userError s!"CompactedIlean.load: '{compactedIleanPath}' expected no '{hashPath}' to exist, but that file does exist")
+  return compactedIlean.toIlean
+
 namespace Ilean
 
 open Lean.IO

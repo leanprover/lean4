@@ -184,7 +184,16 @@ partial def ofElem (stx : DoElem) : TermElabM ControlInfo := do
     return thenInfo.alternative info
   | `(doElem| unless $_ do $elseSeq) =>
     ControlInfo.alternative {} <$> ofSeq elseSeq
-  -- For/Repeat
+  -- For/While/Repeat
+  | `(doElem| while $_:doIfCond $[$_:doWhileInvariant]? do $bodySeq) =>
+    -- Only an annotated `while` reaches here; the plain form is expanded by `expandDoWhile` above.
+    let info ← ofSeq bodySeq
+    return { info with  -- keep only reassigns and returnsEarly
+      numRegularExits := 1,
+      continues := false,
+      breaks := false,
+      noFallthrough := false,
+    }
   | `(doElem| for $[$[$_ :]? $_ in $_],* $[$_:doForInvariant]? do $bodySeq) =>
     let info ← ofSeq bodySeq
     return { info with  -- keep only reassigns and returnsEarly

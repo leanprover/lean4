@@ -3,7 +3,8 @@ import Std.Tactic.Do
 
 /-! Tests for `def` contracts. A `def` carrying `require`/`ensures` clauses elaborates to the
 definition plus an `@[spec]`-tagged `f.spec` Hoare triple that `vcgen` proves automatically; a
-`for … invariant` clause inside the body supplies the loop invariant it needs. New cases go here. -/
+`for … invariant` or `while … invariant` clause inside the body supplies the loop invariant it
+needs. New cases go here. -/
 
 open Std.Internal.Do Lean.Order
 
@@ -32,6 +33,67 @@ def findSmallest (s : Array Nat) : Id (Option Nat)
 -- The contract synthesizes an `@[spec]`-tagged `findSmallest.spec` Hoare triple.
 #guard_msgs (drop info) in
 #check @findSmallest.spec
+
+/-! ## A `while … invariant … decreasing` loop, proved with no manual steps
+
+The invariant holds before every test of the loop condition. What holds after the loop is the
+invariant together with the negated condition, which is how `i = n` becomes available below. -/
+
+def countUp (n : Nat) : Id Nat
+    ensures r => r = n
+  := do
+  let mut i := 0
+  while i < n invariant i ≤ n decreasing n - i do
+    i := i + 1
+  return i
+
+#guard_msgs (drop info) in
+#check @countUp.spec
+
+def differenceMinMax (a : Array Int) : Id Int
+    require a.size ≠ 0
+    ensures r => 0 ≤ r
+  := do
+  let mut mn := a[0]!
+  let mut mx := a[0]!
+  let mut i := 1
+  while i < a.size invariant mn ≤ mx decreasing a.size - i do
+    if a[i]! < mn then mn := a[i]!
+    if a[i]! > mx then mx := a[i]!
+    i := i + 1
+  return mx - mn
+
+#guard_msgs (drop info) in
+#check @differenceMinMax.spec
+
+-- The annotation is erased at runtime, and the loop elaborates outside `Id` as well.
+def sumUpTo (n : Nat) : StateM Nat Unit := do
+  let mut i := 0
+  while i < n invariant i ≤ n decreasing n - i do
+    modify (· + i)
+    i := i + 1
+
+#guard ((sumUpTo 5).run 0).2 = 10
+#guard Id.run (differenceMinMax #[3, 1, 4, 1, 5]) = 4
+
+/-- error: A `while` loop's `invariant` clause needs a termination measure. Append `decreasing e`, where `e : Nat` strictly decreases on every iteration. -/
+#guard_msgs in
+example (n : Nat) : Id Nat := do
+  let mut i := 0
+  while i < n invariant i ≤ n do
+    i := i + 1
+  return i
+
+/--
+error: The assertion that holds after a `while` loop with an `invariant` clause is the invariant together with the negated loop condition, so control has to leave the loop through a failing condition. Restructure the body to leave through the loop condition, or drop the `invariant` clause.
+-/
+#guard_msgs in
+example (n : Nat) : Id Nat := do
+  let mut i := 0
+  while i < n invariant i ≤ n decreasing n - i do
+    if i = 3 then break
+    i := i + 1
+  return i
 
 /-! ## `require` + `ensures` -/
 

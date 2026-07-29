@@ -40,6 +40,35 @@ remove the following code without breaking the do block's type.
   | `(doElem| while%$tk $cond:doIfCond do $seq) => `(doElem| repeat%$tk if $cond:doIfCond then $seq else break)
   | _ => Macro.throwUnsupported
 
+/--
+Builtin do-element elaborator for `while … invariant` (syntax kind `Lean.Parser.Term.doWhile`).
+
+A `while` without an `invariant` clause is expanded by the macro `expandDoWhile`. The annotated form
+expands the same way, but hands the annotation to `elabForLoop`, which rebuilds the loop as the
+`Loop.forInWithInvariant` gadget that `vcgen` reads. What holds after such a loop is the invariant
+together with the negated loop condition, so control must leave the loop through a failing
+condition; `break` and early `return` in the body are rejected.
+-/
+@[builtin_doElem_elab Lean.Parser.Term.doWhile] def elabDoWhile : DoElab := fun stx dec => do
+  let `(doElem| while%$tk $cond:doIfCond $inv:doWhileInvariant do $seq) := stx
+    | throwUnsupportedSyntax
+  let guard : Term ← match cond with
+    | `(doIfProp| $[$_ :]? $guard:term) => pure guard
+    | _ => throwErrorAt inv "The `invariant` clause is only supported on a `while` loop whose \
+        condition is a proposition."
+  let info ← inferControlInfoSeq seq
+  if info.breaks || info.returnsEarly then
+    throwErrorAt inv "The assertion that holds after a `while` loop with an `invariant` clause is \
+      the invariant together with the negated loop condition, so control has to leave the loop \
+      through a failing condition. Restructure the body to leave through the loop condition, or \
+      drop the `invariant` clause."
+  let x ← Term.mkFreshIdent tk
+  let body ← `(doSeq| if $cond:doIfCond then $seq else break)
+  let expanded ← `(doElem| for%$tk $x:ident in Loop.mk do $body)
+  Term.withMacroExpansion stx expanded <| withRef expanded <|
+    elabForLoop tk none x (← `(Loop.mk)) body
+      (some fun args => mkWhileWithInvariant inv guard args) dec
+
 @[builtin_macro Lean.Parser.Term.doRepeatUntil] def expandDoRepeatUntil : Macro
   | `(doElem| repeat%$tk $seq until $cond) => `(doElem| repeat%$tk do $seq:doSeq; if $cond then break)
   | _ => Macro.throwUnsupported

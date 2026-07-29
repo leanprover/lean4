@@ -302,8 +302,22 @@ with debug assertions enabled (see the `debugAssertions` option).
 
 @[builtin_doElem_parser] def doRepeat      := leading_parser
   "repeat " >> doSeq
+/-- The `decreasing m` part of a `while` loop's `invariant` clause, supplying the termination
+measure `m`. -/
+def doWhileDecreasing := leading_parser
+  ppSpace >> nonReservedSymbol "decreasing" >> withForbidden "do" termParser
+/--
+The optional `invariant e decreasing m` clause of a `while` loop. The clause annotates the loop so
+`vcgen` reads it from the program. The invariant `e` holds before every test of the loop condition
+and refers to mutable variables by name; what holds after the loop is `e` together with the negated
+loop condition. The measure `m` is a `Nat` that strictly decreases on every iteration.
+-/
+def doWhileInvariant := leading_parser
+  ppSpace >> nonReservedSymbol "invariant" >>
+    withForbiddens #["do", "decreasing"] termParser >> optional doWhileDecreasing
 @[builtin_doElem_parser] def doWhile       := leading_parser
-  "while " >> withForbidden "do" doIfCond >> " do " >> doSeq
+  "while " >> withForbiddens #["do", "invariant"] doIfCond >> optional doWhileInvariant >>
+  " do " >> doSeq
 @[builtin_doElem_parser] def doRepeatUntil := leading_parser
   "repeat " >> doSeq >> ppDedent ppLine >> "until " >> termParser
 

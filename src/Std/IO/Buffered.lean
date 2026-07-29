@@ -7,6 +7,9 @@ module
 
 prelude
 public import Init.System.IO
+public import Init.Data.Iterators.Producers
+public import Init.Data.Iterators.Consumers
+public import Init.Data.ToString.Macro
 public import Std.IO.Basic
 
 public section
@@ -34,18 +37,18 @@ private structure BufReaderState where
 namespace BufReaderState
 
 /--
-The currently buffered, not-yet-consumed bytes (`data[pos:cap]`), without consuming them.
+The number of buffered bytes that have not been consumed yet.
 -/
-private def available (s : BufReaderState) : ByteArray :=
-  s.data.extract s.pos s.cap
+private def remaining (s : BufReaderState) : Nat :=
+  s.cap - s.pos
 
 /--
-Take up to `n` bytes from the currently buffered region, advancing `pos`. Returns fewer than `n`
-bytes if the buffer holds less; the caller is responsible for writing the returned state back.
+Append the first `n` unconsumed bytes to `acc` and advance past them; `n` must not exceed
+`remaining`. The bytes go straight from the buffer into `acc`, so the buffered region is never
+materialized on its own. The caller is responsible for writing the returned state back.
 -/
-private def take (s : BufReaderState) (n : Nat) : ByteArray × BufReaderState :=
-  let k := min n (s.cap - s.pos)
-  (s.data.extract s.pos (s.pos + k), { s with pos := s.pos + k })
+private def takeInto (s : BufReaderState) (acc : ByteArray) (n : Nat) : ByteArray × BufReaderState :=
+  (s.data.copySlice s.pos acc acc.size n false, { s with pos := s.pos + n })
 
 end BufReaderState
 
@@ -98,57 +101,74 @@ for at least `capacity` bytes bypasses the buffer and reads directly from the so
 partial def read [Read m α] (reader : BufferedReader α) (n : USize) : m ByteArray :=
   go n .empty
 where
-  go (remaining : USize) (acc : ByteArray) : m ByteArray := do
-    if remaining == 0 then
+  go (want : USize) (acc : ByteArray) : m ByteArray := do
+    if want == 0 then
       return acc
     let s ← reader.state.get
-    if s.pos < s.cap then
-      let (chunk, s') := s.take remaining.toNat
-      reader.state.set s'
-      go (remaining - chunk.size.toUSize) (acc ++ chunk)
-    else if remaining >= reader.capacity then
-      let chunk ← Read.read reader.inner remaining .empty
+    if s.remaining > 0 then
+      let k := min want.toNat s.remaining
+      let (acc, s) := s.takeInto acc k
+      reader.state.set s
+      go (want - k.toUSize) acc
+    else if want >= reader.capacity then
+      let chunk ← Read.read reader.inner want .empty
       if chunk.isEmpty then
         return acc
       else
-        go (remaining - chunk.size.toUSize) (acc ++ chunk)
+        go (want - chunk.size.toUSize) (acc ++ chunk)
     else
       reader.fill
-      let s' ← reader.state.get
-      if s'.pos == s'.cap then
+      let s ← reader.state.get
+      if s.remaining == 0 then
         return acc
       else
-        go remaining acc
+        go want acc
+
+/--
+Read a single line as raw bytes, or `none` at end-of-file. The line terminator is included only if
+`keepTerminator` is set; dropping it here rather than afterwards keeps the bytes from being copied
+again just to shorten them.
+-/
+private partial def readLineBytes [Read m α] (reader : BufferedReader α) (keepTerminator : Bool) :
+    m (Option ByteArray) :=
+  go .empty
+where
+  go (acc : ByteArray) : m (Option ByteArray) := do
+    reader.fill
+    let s ← reader.state.get
+    -- `fill` keeps `cap` equal to `data.size`, so searching from `pos` to the end of `data` covers
+    -- exactly the unconsumed window.
+    match (s.data.idxOfByte? 10 s.pos.toUSize).map USize.toNat with
+    | some nl =>
+      let acc := s.data.copySlice s.pos acc acc.size (if keepTerminator then nl + 1 - s.pos else nl - s.pos) false
+      reader.state.set { s with pos := nl + 1 }
+      if !keepTerminator && acc.size > 0 && acc[acc.size - 1]! == 13 then
+        -- The `\r` of a `\r\n`; it is only reachable here once per line, so the copy is not on the
+        -- hot path for files with Unix line endings.
+        return some (acc.extract 0 (acc.size - 1))
+      else
+        return some acc
+    | none =>
+      if s.remaining == 0 then
+        return if acc.isEmpty then none else some acc
+      else
+        let (acc, s) := s.takeInto acc s.remaining
+        reader.state.set s
+        go acc
+
+private def decodeUtf8 [MonadExceptOf IO.Error m] (caller : String) (bytes : ByteArray) : m String :=
+  match String.fromUTF8? bytes with
+  | some s => pure s
+  | none => throw <| IO.userError s!"{caller}: invalid UTF-8"
 
 /--
 Read a single line including the trailing newline, or `none` at end-of-file.
 -/
-partial def readLine [Read m α] [MonadExceptOf IO.Error m] (reader : BufferedReader α) :
-    m (Option String) :=
-  go .empty
-where
-  go (acc : ByteArray) : m (Option String) := do
-    reader.fill
-    let s ← reader.state.get
-    let avail := s.available
-    match avail.findIdx? (· == 10) with
-    | some idx =>
-      let (line, s') := s.take (idx + 1)
-      reader.state.set s'
-      match String.fromUTF8? (acc ++ line) with
-      | some line => return some line
-      | none => throw <| IO.userError "Std.IO.BufferedReader.readLine: invalid UTF-8"
-    | none =>
-      if avail.isEmpty then
-        if acc.isEmpty then
-          return none
-        else
-          match String.fromUTF8? acc with
-          | some line => return some line
-          | none => throw <| IO.userError "Std.IO.BufferedReader.readLine: invalid UTF-8"
-      else
-        reader.state.set { s with pos := s.cap }
-        go (acc ++ avail)
+def readLine [Read m α] [MonadExceptOf IO.Error m] (reader : BufferedReader α) :
+    m (Option String) := do
+  match ← reader.readLineBytes (keepTerminator := true) with
+  | none => return none
+  | some bytes => return some (← decodeUtf8 "Std.IO.BufferedReader.readLine" bytes)
 
 /--
 Read the remainder of the source into a single `ByteArray`.
@@ -159,12 +179,12 @@ where
   go (acc : ByteArray) : m ByteArray := do
     reader.fill
     let s ← reader.state.get
-    if s.pos == s.cap then
+    if s.remaining == 0 then
       return acc
     else
-      let avail := s.available
-      reader.state.set { s with pos := s.cap }
-      go (acc ++ avail)
+      let (acc, s) := s.takeInto acc s.remaining
+      reader.state.set s
+      go acc
 
 /--
 Close the underlying source. Any bytes still sitting in the read buffer are discarded.
@@ -173,6 +193,45 @@ def close [Close m α] (reader : BufferedReader α) : m Unit :=
   Close.close reader.inner
 
 end BufferedReader
+
+/--
+Implementation detail: the state behind the iterator returned by `BufferedReader.lines`.
+-/
+structure LineIterator (m : Type → Type) (α : Type) where
+
+  /--
+  The reader the lines are pulled from. Its buffer holds all the position state, so stepping the
+  iterator leaves this unchanged.
+  -/
+  private reader : BufferedReader α
+
+namespace LineIterator
+
+@[no_expose]
+instance [Read m α] [MonadExceptOf IO.Error m] : Iterator (LineIterator m α) m String where
+  IsPlausibleStep _ _ := True
+  step it := do
+    match ← it.internalState.reader.readLineBytes (keepTerminator := false) with
+    | none => return .deflate ⟨.done, trivial⟩
+    | some bytes =>
+      let line ← BufferedReader.decodeUtf8 "Std.IO.BufferedReader.lines" bytes
+      return .deflate ⟨.yield ⟨it.internalState⟩ line, trivial⟩
+
+instance [Monad n] [Read m α] [MonadExceptOf IO.Error m] :
+    IteratorLoop (LineIterator m α) m n := .defaultImplementation
+
+end LineIterator
+
+/--
+The lines of `reader`, decoded as UTF-8 and pulled one at a time as the iterator is stepped.
+
+Both `"\n"` and `"\r\n"` end a line, and the terminator is not part of the line. A final terminator
+does not produce a trailing empty line. Stepping reads from the underlying source and fails if the
+bytes are not valid UTF-8.
+-/
+def BufferedReader.lines [Read m α] (reader : BufferedReader α) :
+    IterM (α := LineIterator m α) m String :=
+  IterM.mk ⟨reader⟩
 
 instance [Close m α] : Close m (BufferedReader α) where
   close := BufferedReader.close

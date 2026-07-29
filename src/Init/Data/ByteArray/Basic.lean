@@ -221,6 +221,19 @@ The variant {name}`findFinIdx?` additionally returns a proof that the found inde
   loop start
 
 /--
+Finds the index of the first occurrence of {name}`b` in {name}`a` at or after {name}`start`. If
+{name}`b` does not occur there, then the result is {name}`none`.
+
+In compiled code this is the platform's {lit}`memchr`, which is typically vectorized. Prefer it over the
+equivalent {name}`findIdx?`, which compares one byte at a time.
+-/
+@[extern "lean_byte_array_idx_of_byte"]
+def idxOfByte? (a : @& ByteArray) (b : UInt8) (start : USize := 0) : Option USize :=
+  match a.findIdx? (· == b) start.toNat with
+  | some i => some i.toUSize
+  | none => none
+
+/--
 An efficient implementation of {name}`ForIn.forIn` for {name}`ByteArray` that uses {name}`USize`
 rather than {name}`Nat` for indices.
 

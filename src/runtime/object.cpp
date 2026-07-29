@@ -2607,6 +2607,21 @@ extern "C" LEAN_EXPORT obj_res lean_byte_array_push(obj_arg a, uint8 b) {
     return r;
 }
 
+extern "C" LEAN_EXPORT obj_res lean_byte_array_idx_of_byte(b_obj_arg a, uint8 b, size_t start) {
+    size_t sz = lean_sarray_size(a);
+    if (start >= sz) {
+        return lean_box(0); // none
+    }
+    uint8 * base = lean_sarray_cptr(a);
+    void * found = memchr(base + start, b, sz - start);
+    if (found == nullptr) {
+        return lean_box(0); // none
+    }
+    object * r = lean_alloc_ctor(1, 1, 0); // some
+    lean_ctor_set(r, 0, lean_box_usize(static_cast<uint8 *>(found) - base));
+    return r;
+}
+
 extern "C" LEAN_EXPORT uint64_t lean_byte_array_hash(b_obj_arg a) {
     return hash_str(lean_sarray_size(a), lean_sarray_cptr(a), 11);
 }

@@ -1064,15 +1064,19 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
   -- to the recording accessors by construction (a plain read panics), so the recorded log
   -- captures every option that can affect the result. See `OptionsRestriction.tcResolution`.
   withOptions (·.restrict .tcResolution) do
-  -- Resolve and record the per-step definitional-equality flags once; see `SynthDefEqFlags`.
+  -- Resolve the per-step definitional-equality flags once; they are part of the cache key
+  -- rather than recorded dependencies, so the raw reads are not logged. See `SynthDefEqFlags`.
+  let opts ← getOptions
+  let getB (n : Name) (d : Bool) : Bool :=
+    ((opts.findUnrestricted? n).bind KVMap.Value.ofDataValue?).getD d
   let flags : SynthDefEqFlags := {
-    respectTransparency      := ← getRecordedBoolOption `backward.isDefEq.respectTransparency true
-    respectTransparencyTypes := ← getRecordedBoolOption `backward.isDefEq.respectTransparency.types true
-    implicitBump             := ← getRecordedBoolOption `backward.isDefEq.implicitBump true
-    reducibleClassField      := ← getRecordedBoolOption `backward.whnf.reducibleClassField true
-    lazyProjDelta            := ← getRecordedBoolOption `backward.isDefEq.lazyProjDelta true
-    lazyWhnfCore             := ← getRecordedBoolOption `backward.isDefEq.lazyWhnfCore true
-    smartUnfolding           := ← getRecordedBoolOption `smartUnfolding true
+    respectTransparency      := getB `backward.isDefEq.respectTransparency true
+    respectTransparencyTypes := getB `backward.isDefEq.respectTransparency.types true
+    implicitBump             := getB `backward.isDefEq.implicitBump true
+    reducibleClassField      := getB `backward.whnf.reducibleClassField true
+    lazyProjDelta            := getB `backward.isDefEq.lazyProjDelta true
+    lazyWhnfCore             := getB `backward.isDefEq.lazyWhnfCore true
+    smartUnfolding           := getB `smartUnfolding true
   }
   withReader (fun ctx => { ctx with synthDefEqFlags? := some flags }) do
   withTraceNode `Meta.synthInstance
@@ -1088,7 +1092,7 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     let cacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth,
                       activeScopedInsts := instanceExtension.getActiveScopesWithEntries (← getEnv),
                       localAttrInsts := instanceExtension.getState (← getEnv) |>.localInstanceNames,
-                      maxResultSize,
+                      maxResultSize, defEqFlags := flags,
                       isExporting := (← getEnv).isExporting }
     match ← findCachedResult? cacheKey with
     | some (entryLog, abstResult?) =>

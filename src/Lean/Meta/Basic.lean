@@ -370,9 +370,11 @@ abbrev SynthOptionAccessLog := Array SynthOptionAccess
 /--
 The definitional-equality and unfolding compatibility flags, resolved and recorded once per type
 class resolution query (`synthInstanceCore?`) so that their per-step reads inside the search
-avoid the recording accessors; see `getSynthDefEqFlag`. Every query records all of them as
-dependencies, whether its search reaches the corresponding reads or not: they are global
-compatibility settings, so the sharing lost to this over-approximation is negligible.
+avoid the recording accessors; see `getSynthDefEqFlag`. Being resolved up front, they are part
+of the cache key (`SynthInstanceCacheKey.defEqFlags`) rather than recorded dependencies: every
+query partitions on all of them, whether its search reaches the corresponding reads or not.
+They are global compatibility settings, so the sharing lost to this over-approximation is
+negligible.
 -/
 structure SynthDefEqFlags where
   respectTransparency      : Bool
@@ -382,6 +384,7 @@ structure SynthDefEqFlags where
   lazyProjDelta            : Bool
   lazyWhnfCore             : Bool
   smartUnfolding           : Bool
+  deriving Inhabited, BEq, Hashable
 
 -- Remark: we don't need to store `Config.toKey` because typeclass resolution uses a fixed configuration.
 structure SynthInstanceCacheKey where
@@ -411,6 +414,12 @@ structure SynthInstanceCacheKey where
   different size limit must not be reused.
   -/
   maxResultSize     : Nat
+  /--
+  The definitional-equality flags the query runs under, resolved up front; see
+  `SynthDefEqFlags`. Options read lazily during the search are recorded per entry instead
+  (`SynthOptionAccessLog`).
+  -/
+  defEqFlags        : SynthDefEqFlags
   /--
   Value of `Environment.isExporting`: in the exporting state, fewer definitions can be unfolded,
   which can change the result of typeclass resolution.

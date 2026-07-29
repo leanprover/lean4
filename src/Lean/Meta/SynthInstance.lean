@@ -930,15 +930,17 @@ private def validOptionAccesses (opts : Options) (log : SynthOptionAccessLog) : 
 /--
 Merges the environment dependencies observed by a nested query (or served from a used cache
 entry) into the enclosing query's accumulator. The enclosing query keeps its own
-`reducibilityGen`: it was captured when that query started, and the merged reducibility
-answers are validated against it like its own.
+`reducibilityGen`: it was captured when that query started, and the merged Bloom filter is
+validated against it like the query's own observations.
 -/
 private def _root_.Lean.SynthEnvDeps.mergeInto (child parent : SynthEnvDeps) : SynthEnvDeps :=
   let extGens := child.extGens.foldl (init := parent.extGens) fun l d =>
     if l.any (·.1 == d.1) then l else l.push d
-  let reducibility := child.reducibility.foldl (init := parent.reducibility) fun m n i =>
-    if m.contains n then m else m.insert n i
-  { parent with extGens, reducibility }
+  { parent with extGens
+                reducibilityBloom0 := parent.reducibilityBloom0 ||| child.reducibilityBloom0
+                reducibilityBloom1 := parent.reducibilityBloom1 ||| child.reducibilityBloom1
+                reducibilityBloom2 := parent.reducibilityBloom2 ||| child.reducibilityBloom2
+                reducibilityBloom3 := parent.reducibilityBloom3 ||| child.reducibilityBloom3 }
 
 /--
 Identity of two dependency logs for entry replacement in `insertCachedResult`: same option
@@ -950,8 +952,10 @@ private def sameDepIdentity (a b : SynthDepLog) : Bool :=
   a.options == b.options
   && a.envDeps.extGens.size == b.envDeps.extGens.size
   && a.envDeps.extGens.all (fun d => b.envDeps.extGens.any (·.1 == d.1))
-  && a.envDeps.reducibility.size == b.envDeps.reducibility.size
-  && a.envDeps.reducibility.all (fun n _ => b.envDeps.reducibility.contains n)
+  && a.envDeps.reducibilityBloom0 == b.envDeps.reducibilityBloom0
+  && a.envDeps.reducibilityBloom1 == b.envDeps.reducibilityBloom1
+  && a.envDeps.reducibilityBloom2 == b.envDeps.reducibilityBloom2
+  && a.envDeps.reducibilityBloom3 == b.envDeps.reducibilityBloom3
 
 /--
 Inserts a result into the type class resolution cache: always into the transient
@@ -992,15 +996,20 @@ subsequent validations are again a single comparison. The caller re-inserts a re
 The status re-asks may record into the armed query's accumulator, which is benign: it
 over-approximates the current query's dependencies.
 -/
-private def validateDeps? (opts : Options) (env : Environment) (curReducibilityGen : Nat)
+private def validateDeps? (opts : Options) (env : Environment)
     (log : SynthDepLog) : BaseIO (Option (SynthDepLog × Bool)) := do
   unless validOptionAccesses opts log.options do return none
   for (idx, gen) in log.envDeps.extGens do
     unless (← EnvExtension.getRecordedGen env idx) == gen do return none
-  if log.envDeps.reducibilityGen == curReducibilityGen then
-    return some (log, false)
-  unless validReducibilityDeps env log.envDeps.reducibility do return none
-  return some ({ log with envDeps.reducibilityGen := curReducibilityGen }, true)
+  match checkReducibilityDeps? env log.envDeps.reducibilityGen
+      log.envDeps.reducibilityBloom0 log.envDeps.reducibilityBloom1
+      log.envDeps.reducibilityBloom2 log.envDeps.reducibilityBloom3 with
+  | none => return none
+  | some cur =>
+    if cur == log.envDeps.reducibilityGen then
+      return some (log, false)
+    else
+      return some ({ log with envDeps.reducibilityGen := cur }, true)
 
 /--
 Returns the type class resolution cache entry for `key` from the transient
@@ -1013,12 +1022,11 @@ private def findCachedResult? (key : SynthInstanceCacheKey) :
     MetaM (Option (SynthDepLog × Option AbstractMVarsResult)) := do
   let opts ← getOptions
   let env ← getEnv
-  let curGen ← EnvExtension.getRecordedGen env reducibilityChangedExt.idx
   let findIn (c : SynthInstanceCache) :
       BaseIO (Option (SynthDepLog × Option AbstractMVarsResult × Bool)) := do
     let some entries := c.find? key | return none
     for (log, val?) in entries do
-      if let some (log, restamped) ← validateDeps? opts env curGen log then
+      if let some (log, restamped) ← validateDeps? opts env log then
         return some (log, val?, restamped)
     return none
   if let some (log, val?, restamped) ← findIn (← get).cache.synthInstance then
@@ -1119,7 +1127,7 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
   let depLog ← IO.mkRef (#[] : SynthOptionAccessLog)
   let parentEnvSink? := (← getEnv).synthEnvDepsRef?
   let envSink : IO.Ref SynthEnvDeps ← IO.mkRef
-    { reducibilityGen := ← EnvExtension.getRecordedGen (← getEnv) reducibilityChangedExt.idx }
+    { reducibilityGen := (reducibilityChangeLogExt.getState (← getEnv)).size }
   let propagate : MetaM Unit := do
     if let some parent := parentLog? then
       let log ← depLog.get

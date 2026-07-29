@@ -554,18 +554,23 @@ structure SynthEnvDeps where
   -/
   extGens : Array (Nat × Nat) := #[]
   /--
-  Value of the reducibility change counter (`Lean.reducibilityChangedExt`) when the query
-  started. While it is unchanged, the recorded `reducibility` answers cannot have changed and
-  validation need not re-ask them.
+  Size of the reducibility change log (`Lean.reducibilityChangeLogExt`) when the query started.
+  While the log has not grown past it, no reducibility status the query observed can have
+  changed and validation is a single comparison.
   -/
   reducibilityGen : Nat := 0
   /--
-  Reducibility statuses observed by the query: declaration name ↦ `ReducibilityStatus`
-  constructor index (the concrete type is not available in this module; see
-  `Lean.getReducibilityStatusCore`). Validated by re-asking the status when `reducibilityGen`
-  has moved.
+  256-bit Bloom filter over the declarations whose reducibility status the query observed
+  (`Lean.getReducibilityStatusCore`); bit selection via `Lean.reducibilityDepBloom`. Validation
+  tests the declarations the change log gained since `reducibilityGen` against the filter: a
+  clear bit proves the changed declaration was not consulted; a set bit conservatively
+  invalidates the entry. The filter is cheap enough to update on every status read during a
+  search, unlike a set of names.
   -/
-  reducibility : NameMap Nat := {}
+  reducibilityBloom0 : UInt64 := 0
+  reducibilityBloom1 : UInt64 := 0
+  reducibilityBloom2 : UInt64 := 0
+  reducibilityBloom3 : UInt64 := 0
   deriving Inhabited
 
 /--
@@ -1470,9 +1475,15 @@ private unsafe def getStateImpl {σ} [Inhabited σ] (ext : EnvExtension σ) (ext
       | some sink =>
         -- benign effect: recording the observed generation into the armed query's accumulator
         unsafeBaseIO do
-          sink.modify fun d =>
-            if d.extGens.any (·.1 == ext.idx) then d
-            else { d with extGens := d.extGens.push (ext.idx, gen) }
+          let d ← sink.get
+          -- closure-free containment scan; the array holds at most a handful of entries
+          let rec containsIdx (i : Nat) : Bool :=
+            if h : i < d.extGens.size then
+              d.extGens[i].1 == ext.idx || containsIdx (i + 1)
+            else
+              false
+          unless containsIdx 0 do
+            sink.set { d with extGens := d.extGens.push (ext.idx, gen) }
           return s
     else
       unsafeCast exts[ext.idx]

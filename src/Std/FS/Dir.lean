@@ -8,13 +8,14 @@ module
 prelude
 public import Std.FS.Types
 public import Std.FS.File
-public import Std.Internal.FS
 public import Std.IO.Basic
 public import Std.Path
 public import Init.Data.Array.QSort.Basic
 public import Init.Data.Iterators.Producers
 public import Init.Data.Iterators.Consumers
 public import Init.While
+
+import Std.Internal.FS
 
 public section
 
@@ -34,13 +35,13 @@ An open directory stream. Not thread-safe by default; concurrent access must be 
 synchronized using `Mutex`.
 -/
 structure Dir where
-  private mk ::
-  private toInternal : Internal.FS.Dir
+  private ofNative ::
+    private native : Internal.FS.Dir
 
-  /--
-  The path the directory was opened at.
-  -/
-  path : Path
+    /--
+    The path the directory was opened at.
+    -/
+    path : Path
 
 /--
 A single entry of a directory. Entries are produced by reading a directory and describe one name
@@ -118,7 +119,7 @@ namespace Dir
 Open a directory for reading its entries. Fails if `path` does not name a directory.
 -/
 def «open» (path : Path) : IO Dir := do
-  return ⟨← Internal.FS.openDir (← path.toString), path⟩
+  return .ofNative (← Internal.FS.openDir (← path.toString)) path
 
 /--
 Open a directory, run `f`, and close the directory in a `finally` block.
@@ -128,20 +129,20 @@ def withDir (path : Path) (f : Dir → IO α) : IO α := do
   try
     f dir
   finally
-    Internal.FS.closeDir dir.toInternal
+    Internal.FS.closeDir dir.native
 
 /--
 Explicitly close the directory stream. Prefer `withDir`, which closes it however the block is left.
 -/
 def close (dir : Dir) : IO Unit :=
-  Internal.FS.closeDir dir.toInternal
+  Internal.FS.closeDir dir.native
 
 /--
 Read the next entry, or `none` once the directory is exhausted. `.` and `..` are never reported, and
 the order is whatever the filesystem uses.
 -/
 def next (dir : Dir) : IO (Option DirEntry) := do
-  let some ent ← Internal.FS.readDirEntry dir.toInternal | return none
+  let some ent ← Internal.FS.readDirEntry dir.native | return none
   let some fileName := Path.Filename.ofString? ent.name
     | throw <| IO.userError s!"Std.FS.Dir.next: {ent.name.quote} is not a valid file name"
   return some ⟨dir.path, fileName, FileType.ofDirentType ent.type⟩

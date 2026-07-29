@@ -1,0 +1,107 @@
+import Std.Internal.FS
+
+/-!
+Exercises the raw filesystem primitives that back `Std.FS.File`.
+-/
+
+namespace UVFS
+
+open Std.Internal.FS
+
+private def assertFails (action : IO α) : IO Unit := do
+  let failed ← try
+    discard action
+    pure false
+  catch _ =>
+    pure true
+  assert! failed
+
+private def testDescriptorOps (dirString : String) : IO Unit := do
+  let (fd, path) ← createTempFile (dirString ++ "/item-XXXXXX")
+  let data := "abcdef".toUTF8
+  assert! (← write fd data 0) == data.size.toUSize
+  syncAll fd
+  syncData fd
+  let fileStat ← fileMetadata fd
+  assert! fileStat.size == 6
+  setFilePermissions fd 0o600
+  unless System.Platform.isWindows do
+    setFileOwner fd fileStat.uid.toUInt32 fileStat.gid.toUInt32
+  setFileTimes fd 1.0 2.0
+  assert! (← read fd 6 0 ByteArray.empty) == data
+  -- `-1` reads at the descriptor's own cursor, which the positioned read above left untouched.
+  assert! (← read fd 6 (-1) ByteArray.empty) == data
+  setLength fd 3
+  assert! (← fileMetadata fd).size == 3
+  lock fd true
+  unlock fd
+  assert! ← tryLock fd false
+  unlock fd
+  close fd
+  -- Operating on a closed descriptor fails rather than reusing a stale fd.
+  assertFails (fileMetadata fd)
+
+  let readFd ← openFile path 0 0
+  assert! (← read readFd 8 0 ByteArray.empty) == "abc".toUTF8
+  close readFd
+  removeFile path
+
+private def testSendfile (dirString : String) : IO Unit := do
+  let (srcFd, srcPath) ← createTempFile (dirString ++ "/send-XXXXXX")
+  discard <| write srcFd "abc".toUTF8 0
+  close srcFd
+  let src ← openFile srcPath 0 0
+  let (dstFd, dstPath) ← createTempFile (dirString ++ "/sent-XXXXXX")
+  assert! (← sendFile dstFd src 0 3) == 3
+  close src
+  close dstFd
+  assert! (← IO.FS.readBinFile dstPath) == "abc".toUTF8
+  removeFile srcPath
+  removeFile dstPath
+
+private def testPathOps (dirString : String) : IO Unit := do
+  let (fd, path) ← createTempFile (dirString ++ "/item-XXXXXX")
+  discard <| write fd "abc".toUTF8 0
+  close fd
+
+  let copy := dirString ++ "/copy"
+  let hardLinkPath := dirString ++ "/hard-link"
+  let renamed := dirString ++ "/renamed"
+  copyFile path copy 0
+  hardLink copy hardLinkPath
+  rename hardLinkPath renamed
+  let renamedStat ← metadata renamed
+  assert! renamedStat.size == 3
+  assert! (← symlinkMetadata renamed).size == 3
+  assert! (← filesystemStats renamed).blockSize > 0
+  setPermissions renamed 0o600
+  setTimes renamed 3.0 4.0
+
+  unless System.Platform.isWindows do
+    setOwner renamed renamedStat.uid.toUInt32 renamedStat.gid.toUInt32
+    let symlinkPath := dirString ++ "/symlink"
+    createSymlink "renamed" symlinkPath 0
+    setSymlinkOwner symlinkPath renamedStat.uid.toUInt32 renamedStat.gid.toUInt32
+    setSymlinkTimes symlinkPath 3.0 4.0
+    assert! (← readSymlink symlinkPath) == "renamed"
+    removeFile symlinkPath
+
+  removeFile path
+  removeFile copy
+  removeFile renamed
+  assert! !(← access renamed 0)
+  assertFails (metadata renamed)
+  assertFails (metadata (dirString ++ "/bad\x00path"))
+  assertFails (rename (dirString ++ "/bad\x00path") renamed)
+
+def test : IO Unit :=
+  IO.FS.withTempDir fun root => do
+    let dirString := root.toString
+    assert! ← access dirString 0
+    testDescriptorOps dirString
+    testSendfile dirString
+    testPathOps dirString
+
+end UVFS
+
+#eval UVFS.test

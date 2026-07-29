@@ -14,5 +14,6 @@ public import Std.Time
 public import Std.Tactic
 public import Std.Internal
 public import Std.Net
+public import Std.FS
 public import Std.Path
 public import Std.IO

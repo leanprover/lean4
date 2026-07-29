@@ -43,6 +43,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include <sys/stat.h>
 #include <uv.h>
 #include "util/io.h"
+#include "util/alloc.h"
 #include "runtime/alloc.h"
 #include "runtime/io.h"
 #include "runtime/utf8.h"
@@ -1619,6 +1620,93 @@ extern "C" LEAN_EXPORT obj_res lean_runtime_mark_multi_threaded(obj_arg a) {
 extern "C" LEAN_EXPORT obj_res lean_runtime_mark_persistent(obj_arg a) {
     lean_mark_persistent(a);
     return a;
+}
+
+/* def Runtime.deepCopy : {α : Type} → α → IO α := fun {α} a => pure a */
+extern "C" LEAN_EXPORT obj_res lean_runtime_deep_copy(b_obj_arg o) {
+    object * root = lean_box(0);
+    // maps source objects to their copies so that sharing in the input graph is preserved
+    lean::unordered_map<object *, object *> copies;
+    // pairs of source object and destination slot to store its copy in
+    buffer<std::pair<object *, object **>> todo;
+    todo.push_back({o, &root});
+    while (!todo.empty()) {
+        auto [src, slot] = todo.back();
+        todo.pop_back();
+        if (lean_is_scalar(src)) {
+            *slot = src;
+            continue;
+        }
+        auto it = copies.find(src);
+        if (it != copies.end()) {
+            lean_inc(it->second);
+            *slot = it->second;
+            continue;
+        }
+        object * new_o;
+        uint8_t tag = lean_ptr_tag(src);
+        if (tag <= LeanMaxCtorTag) {
+            size_t sz = lean_object_byte_size(src);
+            unsigned num_objs = lean_ctor_num_objs(src);
+            new_o = lean_alloc_ctor_memory(sz);
+            lean_set_st_header(new_o, tag, num_objs);
+            size_t scalars_off = sizeof(lean_ctor_object) + num_objs * sizeof(object *);
+            memcpy(reinterpret_cast<char *>(new_o) + scalars_off,
+                   reinterpret_cast<char *>(src) + scalars_off, sz - scalars_off);
+            object ** src_objs = lean_ctor_obj_cptr(src);
+            object ** new_objs = lean_ctor_obj_cptr(new_o);
+            for (unsigned i = 0; i < num_objs; i++) {
+                // keep the partial copy a valid object graph so it can be freed on error
+                new_objs[i] = lean_box(0);
+                todo.push_back({src_objs[i], &new_objs[i]});
+            }
+        } else {
+            switch (tag) {
+            case LeanArray: {
+                size_t sz = lean_array_size(src);
+                // shrinking the capacity does not violate the spec,
+                // as capacities are not observable by Lean code
+                new_o = lean_alloc_array(sz, sz);
+                object ** src_elems = lean_array_cptr(src);
+                object ** new_elems = lean_array_cptr(new_o);
+                for (size_t i = 0; i < sz; i++) {
+                    new_elems[i] = lean_box(0);
+                    todo.push_back({src_elems[i], &new_elems[i]});
+                }
+                break;
+            }
+            case LeanScalarArray: {
+                size_t sz = lean_sarray_size(src);
+                unsigned elem_sz = lean_sarray_elem_size(src);
+                new_o = lean_alloc_sarray(elem_sz, sz, sz);
+                memcpy(lean_sarray_cptr(new_o), lean_sarray_cptr(src), elem_sz * sz);
+                break;
+            }
+            case LeanString: {
+                size_t sz = lean_string_size(src);
+                new_o = lean_alloc_string(sz, sz, lean_string_len(src));
+                memcpy(lean_to_string(new_o)->m_data, lean_to_string(src)->m_data, sz);
+                break;
+            }
+            case LeanMPZ:
+                new_o = alloc_mpz(mpz_value(src));
+                break;
+            case LeanExternal:
+            case LeanTask:
+            case LeanPromise:
+            case LeanClosure:
+            case LeanThunk:
+            case LeanRef:
+                lean_dec(root);
+                return io_result_mk_error("only inductive types, arrays, strings, and numbers can be copied");
+            default:
+                lean_internal_panic_unreachable();
+            }
+        }
+        copies.insert({src, new_o});
+        *slot = new_o;
+    }
+    return lean_io_result_mk_ok(root);
 }
 
 #if defined(__has_feature)

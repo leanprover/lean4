@@ -1,0 +1,26 @@
+small Nat: ok
+neg Int: ok
+Char: ok
+Float: ok
+UInt64: ok
+big Nat: ok
+big Int: ok
+String: ok
+empty String: ok
+Array: ok
+empty Array: ok
+nested Array: ok
+ByteArray: ok
+FloatArray: ok
+List: ok
+Option: ok
+structure: ok
+long list: ok
+sharing: ok
+closure: only inductive types, arrays, strings, and numbers can be copied
+thunk: only inductive types, arrays, strings, and numbers can be copied
+task: only inductive types, arrays, strings, and numbers can be copied
+ref: only inductive types, arrays, strings, and numbers can be copied
+promise: only inductive types, arrays, strings, and numbers can be copied
+external: only inductive types, arrays, strings, and numbers can be copied
+nested closure: only inductive types, arrays, strings, and numbers can be copied

@@ -114,7 +114,10 @@ partial def visit (e : Expr) (expectedType? : Option Expr := none) : M Expr := d
         | .proj _ _ b  => return e.updateProj! (← visit b)
         | .app ..      => e.withApp fun f args => do
           let mut result ← visit f
-          let mut resultType ← inferType result
+          -- Compute expected argument types along the original application spine. Using the
+          -- transformed arguments here can change dependent domains before later proofs are
+          -- abstracted.
+          let mut resultType ← inferType f
           let mut useExpectedType := true
           for arg in args do
             let mut argExpectedType? := none
@@ -125,10 +128,10 @@ partial def visit (e : Expr) (expectedType? : Option Expr := none) : M Expr := d
                 argExpectedType? := some type
                 body? := some body
               | _ => useExpectedType := false
-            let arg ← visit arg argExpectedType?
+            let arg' ← visit arg argExpectedType?
             if let some body := body? then
               resultType := body.instantiate1 arg
-            result := .app result arg
+            result := .app result arg'
           return result
         | _            => pure e
 

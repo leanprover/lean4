@@ -176,7 +176,8 @@ def isEmpty (p : Path) : Bool :=
   p.components.isEmpty
 
 /--
-True if the first component of `p` is `root` (or `drivePrefix` followed by `root`).
+True if `p` is anchored: its first component is a `root`, a prefix followed by a `root`, or a prefix
+that is absolute on its own (see `Prefix.hasImplicitRoot`, e.g. `\\server\share`).
 
 This is purely component-based and does not depend on the host platform. Note this differs from
 Python and Rust on Windows: a rooted path with no drive letter (e.g. `\foo`) is treated as absolute
@@ -186,7 +187,8 @@ here, whereas they treat it as drive-relative (resolved against the current driv
 def isAbsolute (p : Path) : Bool :=
   match p.get 0, p.get 1 with
   | some (.root _), _ => true
-  | some (.drivePrefix _), some (.root _) => true
+  | some (.winPrefix _), some (.root _) => true
+  | some (.winPrefix pfx), _ => pfx.hasImplicitRoot
   | _, _ => false
 
 /--
@@ -200,8 +202,8 @@ def isRelative (p : Path) : Bool :=
 /--
 Append `other` to `p`.
 
-If `other` is an absolute path (its first component is `root` or `drivePrefix`), `other` replaces
-`p` entirely — same semantics as Python's `PurePath.__truediv__` and Rust's `Path::join`.
+If `other` is an absolute path (see `isAbsolute`), `other` replaces `p` entirely — same semantics as
+Python's `PurePath.__truediv__` and Rust's `Path::join`.
 -/
 @[inline]
 def join (p p₂ : Path) : Path :=
@@ -209,29 +211,42 @@ def join (p p₂ : Path) : Path :=
   else { components := p.components ++ p₂.components }
 
 /--
-The drive-letter prefix as a string (e.g. `"C:"`).
+The Windows prefix of `p`, if it has one.
 
-Returns `none` on POSIX paths and relative Windows paths that have no drive letter.
+Returns `none` on POSIX paths and on Windows paths with no prefix (e.g. `foo\bar` or `\foo`).
 -/
-def drive? (p : Path) : Option String :=
+def winPrefix? (p : Path) : Option Prefix :=
   match p.get 0 with
-  | some (.drivePrefix v) => some v
+  | some (.winPrefix pfx) => some pfx
   | _ => none
 
 /--
-The root separator string (`"/"` or `"\\"`) if the path is absolute; `none` otherwise.
+The drive-letter prefix as a string (e.g. `"C:"`).
+
+Returns `none` on POSIX paths, on relative Windows paths that have no drive letter, and on prefixes
+that name no drive (e.g. `\\server\share`) — use `winPrefix?` to see those.
+-/
+def drive? (p : Path) : Option String :=
+  p.winPrefix?.bind Prefix.drive?
+
+/--
+The root separator string (`"/"` or `"\\"`) if the path has one written out; `none` otherwise.
+
+A path can be absolute without a root of its own, when its prefix supplies one (e.g.
+`\\server\share`); `isAbsolute` accounts for that, this does not.
 -/
 def root? (p : Path) : Option String :=
   match p.get 0, p.get 1 with
-  | some (.drivePrefix _), some (.root root) => some root
+  | some (.winPrefix _), some (.root root) => some root
   | some (.root root), _ => some root
   | _, _ => none
 
 /--
-Drive concatenated with root (e.g. `"C:\\"`, `"/"`, or `""` for a relative path).
+Prefix concatenated with root (e.g. `"C:\\"`, `"\\\\server\\share\\"`, `"/"`, or `""` for a relative
+path).
 -/
 def anchor (p : Path) : String :=
-  (p.drive?.getD "") ++ (p.root?.getD "")
+  (p.winPrefix?.elim "" Prefix.toWindowsString) ++ (p.root?.getD "")
 
 /--
 The number of `normal` components in `p` (drive prefix, root, `.`, and `..` are not counted).
@@ -258,9 +273,9 @@ def normalize (p : Path) : Path where
         match acc.back? with
         | some (.normal _) => acc.pop
         | some .parent => acc.push .parent
-        -- A drive prefix with no root is drive-relative, so a leading ".." is kept like in any
-        -- other relative path.
-        | some (.drivePrefix _) => acc.push .parent
+        -- A prefix with no root of its own is drive-relative, so a leading ".." is kept like in any
+        -- other relative path. One that is absolute on its own has nothing above it to ascend to.
+        | some (.winPrefix pfx) => if pfx.hasImplicitRoot then acc else acc.push .parent
         | none => acc.push .parent -- relative path: preserve leading ".."
         | _ => acc -- root: drop ".."
       | other => acc.push other
@@ -279,7 +294,7 @@ Returns `none` for root paths and empty paths. For a relative path whose parent 
 def parent (path : Path) : Option Path :=
   match path.components.back? with
   | none => none
-  | some (.root _) | some (.drivePrefix _) => none
+  | some (.root _) | some (.winPrefix _) => none
   | _ =>
     let cs := path.components.pop
     if cs.isEmpty then some { components := #[.current] }
@@ -563,11 +578,11 @@ The result is purely syntactic: it does not consult the file system and treats e
 component of `base` as a directory to ascend from (so `base` should usually be `normalize`d first if
 it contains `.` or `..`).
 
-Returns `none` if `base` and `target` have different roots (e.g. different drive letters on Windows,
-or one absolute and one relative).
+Returns `none` if `base` and `target` have different roots (e.g. different drive letters or network
+shares on Windows, or one absolute and one relative).
 -/
 def relativeTo? (base target : Path) : Option Path :=
-  if base.drive? != target.drive? then
+  if base.winPrefix? != target.winPrefix? then
     none
   else if base.isAbsolute != target.isAbsolute then
     none
@@ -586,13 +601,13 @@ def relativeTo? (base target : Path) : Option Path :=
 /--
 Render `p` to a POSIX-style string using `/` as the separator. Pure.
 
-`drivePrefix` components (Windows-only) are silently dropped; all other components are joined with
+Prefix components (Windows-only) are silently dropped; all other components are joined with
 `/`. A path consisting of just a root renders as `"/"`.
 -/
 def toPosixString (p : Path) : String :=
   let (result, _) := p.components.foldl (fun (acc, sep) c =>
     match c with
-    | .drivePrefix _ => (acc, sep)
+    | .winPrefix _ => (acc, sep)
     | .root _ => ("/", "")
     | .current => (acc ++ sep ++ ".", "/")
     | .parent => (acc ++ sep ++ "..", "/")
@@ -603,13 +618,13 @@ def toPosixString (p : Path) : String :=
 /--
 Render `p` to a Windows-style string using `\\` as the separator. Pure.
 
-Drive prefixes are written without a trailing separator (the `root` component provides it). All
-components are joined with `\\`.
+Prefixes are written without a trailing separator (the `root` component provides it, so
+`\\server\share` and `\\server\share\` stay distinct). All components are joined with `\\`.
 -/
 def toWindowsString (p : Path) : String :=
   let (result, _) := p.components.foldl fun (acc, sep) c =>
     match c with
-    | .drivePrefix v => (acc ++ v, "")
+    | .winPrefix v => (acc ++ v.toWindowsString, "")
     | .root _ => (acc ++ "\\", "")
     | .current => (acc ++ sep ++ ".", "\\")
     | .parent => (acc ++ sep ++ "..", "\\")
@@ -632,10 +647,10 @@ instance : HDiv Path Filename Path where
 /--
 Test `p` against a glob pattern.
 
-The pattern always uses `/` to separate segments, regardless of platform. By default, drive
+The pattern always uses `/` to separate segments, regardless of platform. By default, Windows
 prefixes are ignored and an absolute root matches an empty leading segment (so use a leading
 `**/` or `/` to match absolute paths); pass `matchDrivePrefix := true` to instead require the
-pattern to match the drive prefix (e.g. `"C:"`) as its own leading segment.
+pattern to match the prefix (e.g. `"C:"` or `"\\\\server\\share"`) as its own leading segment.
 
 Supported wildcards:
 - `*` — matches any sequence of characters within a single component (not `/`)
@@ -652,7 +667,7 @@ def matchGlob (p : Path) (pattern : String) (matchDrivePrefix : Bool := false) :
   | none => false
   | some glob =>
     let comps := p.components.filter fun
-      | .drivePrefix _ => matchDrivePrefix
+      | .winPrefix _ => matchDrivePrefix
       | _ => true
 
     Internal.matchSegments glob comps 0 0
@@ -682,9 +697,12 @@ def ofPosixString! (s : String) : Path :=
 Parse a Windows-formatted string into a `Path`. Pure; accepts both `\` and `/`,
 and an optional drive-letter prefix such as `"C:"`.
 
-Returns `none` for the empty string or input containing a null byte (`\x00`). UNC paths
-(`\\server\share`) are not specially recognized: a leading `\\` collapses to a single `root`, so the
-server and share become ordinary components.
+Returns `none` for the empty string or input containing a null byte (`\x00`).
+
+A leading `\\` introduces a prefix: a UNC share (`\\server\share`), a device path (`\\.\COM42`), or a
+verbatim path (`\\?\C:\foo`, `\\?\UNC\server\share`). See `Path.Prefix`. A bare `\\` with nothing
+after it is a plain root instead. Verbatim paths are recognized but not otherwise treated specially —
+`normalize` still resolves `.` and `..` in them, which Windows itself would leave to the filesystem.
 -/
 def ofWindowsString (s : String) : Option Path :=
   if s.isEmpty || s.contains '\x00' then none
@@ -741,8 +759,9 @@ directory is not available. No symlinks are resolved; use `resolve` for that.
 def toAbsoluteCwd (p : Path) : IO Path := do
   if p.isAbsolute then return p
   let cwdPath ← fromString (← Internal.UV.System.cwd)
+  -- Only a drive prefix can reach here: every other prefix is absolute on its own.
   let rel := match p.get 0 with
-    | some (.drivePrefix _) => { p with components := p.components.extract 1 p.components.size }
+    | some (.winPrefix _) => { p with components := p.components.extract 1 p.components.size }
     | _ => p
   return cwdPath.join rel |>.normalize
 

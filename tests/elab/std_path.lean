@@ -84,10 +84,100 @@ section WindowsRoundtrip
 #guard Path.ofWindowsString "a\x00b" = none
 -- ofWindowsString! agrees with ofWindowsString on valid input
 #guard Path.ofWindowsString! "C:\\Users\\foo" == win "C:\\Users\\foo"
--- UNC paths are not specially recognized: a leading "\\" collapses to a single root
-#guard (win "\\\\server\\share").toWindowsString = "\\server\\share"
+-- a leading "\\" introduces a prefix rather than collapsing to a root (see the Prefix section)
+#guard (win "\\\\server\\share").toWindowsString = "\\\\server\\share"
 
 end WindowsRoundtrip
+
+
+-- ---------------------------------------------------------------------------
+-- Section: Windows prefixes (UNC, device, verbatim)
+-- ---------------------------------------------------------------------------
+
+section Prefix
+
+-- UNC: `\\server\share` parses as one prefix, not as a root plus two segments.
+#guard (win "\\\\server\\share").winPrefix? == some (.unc "server" "share")
+#guard (win "\\\\server\\share\\dir\\file.txt").winPrefix? == some (.unc "server" "share")
+#guard (win "\\\\server\\share\\dir\\file.txt").toWindowsString = "\\\\server\\share\\dir\\file.txt"
+-- a server with no share
+#guard (win "\\\\server").winPrefix? == some (.unc "server" "")
+#guard (win "\\\\server").toWindowsString = "\\\\server"
+-- forward slashes introduce a prefix too, as on Windows itself
+#guard (win "//server/share/x").toWindowsString = "\\\\server\\share\\x"
+-- a bare `\\` is a root, keeping `\\` and `\` equivalent
+#guard (win "\\\\").winPrefix? == none
+#guard (win "\\\\").toWindowsString = "\\"
+
+-- Device namespace: only the first segment after `\\.\` belongs to the prefix.
+#guard (win "\\\\.\\COM42").winPrefix? == some (.deviceNS "COM42")
+#guard (win "\\\\.\\COM42").toWindowsString = "\\\\.\\COM42"
+#guard (win "\\\\.\\pipe\\name").winPrefix? == some (.deviceNS "pipe")
+#guard (win "\\\\.\\pipe\\name").toWindowsString = "\\\\.\\pipe\\name"
+
+-- Verbatim forms.
+#guard (win "\\\\?\\C:\\foo").winPrefix? == some (.verbatimDisk "C:")
+#guard (win "\\\\?\\C:\\foo").toWindowsString = "\\\\?\\C:\\foo"
+#guard (win "\\\\?\\cat_pics").winPrefix? == some (.verbatim "cat_pics")
+#guard (win "\\\\?\\cat_pics").toWindowsString = "\\\\?\\cat_pics"
+#guard (win "\\\\?\\UNC\\server\\share").winPrefix? == some (.verbatimUNC "server" "share")
+#guard (win "\\\\?\\UNC\\server\\share").toWindowsString = "\\\\?\\UNC\\server\\share"
+-- a verbatim segment that merely starts with "UNC" is not a verbatim UNC share
+#guard (win "\\\\?\\UNCLE").winPrefix? == some (.verbatim "UNCLE")
+-- the `?` and `.` markers are never re-read as a server name, even with nothing after them
+#guard (win "\\\\?\\").winPrefix? == some (.verbatim "")
+#guard (win "\\\\?\\").toWindowsString = "\\\\?\\"
+#guard (win "\\\\.\\").winPrefix? == some (.deviceNS "")
+
+-- Prefix predicates.
+#guard (Path.Prefix.unc "server" "share").hasImplicitRoot = true
+#guard (Path.Prefix.disk "C:").hasImplicitRoot = false
+#guard (Path.Prefix.verbatimDisk "C:").hasImplicitRoot = false
+#guard (Path.Prefix.verbatim "x").isVerbatim = true
+#guard (Path.Prefix.unc "server" "share").isVerbatim = false
+#guard (Path.Prefix.verbatimUNC "server" "share").drive? = none
+#guard (Path.Prefix.verbatimDisk "C:").drive? = some "C:"
+
+-- A prefix that names an absolute location is absolute with no root of its own; a drive letter is
+-- not, since `C:foo` is relative to that drive's working directory.
+#guard (win "\\\\server\\share").isAbsolute = true
+#guard (win "\\\\.\\COM42").isAbsolute = true
+#guard (win "\\\\?\\cat_pics").isAbsolute = true
+#guard (win "\\\\?\\C:\\foo").isAbsolute = true
+#guard (win "\\\\?\\C:foo").isAbsolute = false
+
+-- drive? / root? / anchor across the prefix kinds.
+#guard (win "\\\\server\\share").drive? = none
+#guard (win "\\\\?\\C:\\foo").drive? = some "C:"
+-- the root is only present when written out, so these two stay distinct
+#guard (win "\\\\server\\share").root? = none
+#guard (win "\\\\server\\share").anchor = "\\\\server\\share"
+#guard (win "\\\\server\\share\\").root? = some "\\"
+#guard (win "\\\\server\\share\\").anchor = "\\\\server\\share\\"
+#guard (win "\\\\server\\share\\").toWindowsString = "\\\\server\\share\\"
+
+-- The prefix is the top of the tree: it has no parent, and `..` cannot climb past it.
+#guard (win "\\\\server\\share").parent = none
+#guard (win "\\\\server\\share\\").parent = none
+#guard (win "\\\\server\\share\\dir\\f").parent == some (win "\\\\server\\share\\dir")
+#guard (win "\\\\server\\share\\..\\x").normalize == win "\\\\server\\share\\x"
+#guard ((win "\\\\server\\share") / (win "..")).normalize == win "\\\\server\\share"
+-- a drive letter with no root keeps a leading `..`, like any other relative path
+#guard (win "C:..\\x").normalize == win "C:..\\x"
+
+-- `relativeTo?` compares whole prefixes, so different shares are unrelatable.
+#guard (win "\\\\server\\share\\a").relativeTo? (win "\\\\server\\share\\a\\b") == some (win "b")
+#guard (win "\\\\server\\share\\a").relativeTo? (win "\\\\other\\share\\a\\b") = none
+#guard (win "C:\\a").relativeTo? (win "\\\\server\\share\\a") = none
+
+-- Rendering to POSIX drops the prefix, as it does for a drive letter.
+#guard (win "\\\\server\\share\\x").toPosixString = "/x"
+
+-- Globs ignore the prefix unless asked to match it.
+#guard (win "\\\\server\\share\\src\\Main.lean").matchGlob "**/*.lean" = true
+#guard (win "\\\\server\\share\\src\\Main.lean").matchGlob "**/*.lean" (matchDrivePrefix := true) = true
+
+end Prefix
 
 
 -- ---------------------------------------------------------------------------

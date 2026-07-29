@@ -29,17 +29,73 @@ private def classifySegment (s : String) : Path.Component :=
 private def isWinSep (c : Char) : Bool :=
   c == '\\' || c == '/'
 
-private def parseDrive : Parser (Option String) :=
-  attempt (do
+private def parseDrive : Parser String :=
+  attempt do
     let c ← satisfy Char.isAlpha
     discard <| pchar ':'
-    return some (String.singleton c ++ ":")) <|> pure none
+    return String.singleton c ++ ":"
 
 private def posixSeg : Parser Path.Component :=
   many1Chars (satisfy (· != '/')) <&> classifySegment
 
+private def winSegString : Parser String :=
+  many1Chars (satisfy (fun c => !isWinSep c))
+
+/--
+Like `winSegString` but also matches an empty segment, for the prefix bodies that are already
+identified by the marker introducing them.
+-/
+private def winSegStringOpt : Parser String :=
+  manyChars (satisfy (fun c => !isWinSep c))
+
 private def winSeg : Parser Path.Component :=
-  many1Chars (satisfy (fun c => !isWinSep c)) <&> classifySegment
+  winSegString <&> classifySegment
+
+/--
+Parse the `server` and optional `share` of a UNC prefix, after whatever introduces it.
+-/
+private def parseShare : Parser (String × String) := do
+  let server ← winSegString
+  let share ← attempt (satisfy isWinSep *> winSegString) <|> pure ""
+  return (server, share)
+
+/--
+Parse the body of a verbatim prefix, after the introducing `\\?\`.
+-/
+private def parseVerbatimBody : Parser Path.Prefix :=
+  attempt (do
+    discard <| pstring "UNC"
+    discard <| satisfy isWinSep
+    let (server, share) ← parseShare
+    return .verbatimUNC server share) <|>
+  attempt (.verbatimDisk <$> parseDrive) <|>
+  (.verbatim <$> winSegStringOpt)
+
+/--
+Parse a `\\`-introduced prefix: a verbatim path, a device path, or a UNC share.
+
+A bare `\\` is not one, and is left to be parsed as a root, keeping `\\` and `\` equivalent as they
+are on Windows itself.
+-/
+private def parseDoubleSepPrefix : Parser Path.Prefix := do
+  discard <| satisfy isWinSep
+  discard <| satisfy isWinSep
+  attempt (do
+    discard <| pchar '?'
+    discard <| satisfy isWinSep
+    parseVerbatimBody) <|>
+  attempt (do
+    discard <| pchar '.'
+    discard <| satisfy isWinSep
+    .deviceNS <$> winSegStringOpt) <|>
+  (do
+    let (server, share) ← parseShare
+    return .unc server share)
+
+private def parsePrefix : Parser (Option Path.Prefix) :=
+  attempt (some <$> parseDoubleSepPrefix) <|>
+  attempt (some <$> (.disk <$> parseDrive)) <|>
+  pure none
 
 def posixPathParser : Parser (Array Path.Component) := do
   let hasRoot ← flag (pchar '/')
@@ -56,12 +112,12 @@ def posixPathParser : Parser (Array Path.Component) := do
     return init ++ #[first] ++ rest
 
 def windowsPathParser : Parser (Array Path.Component) := do
-  let drive ← parseDrive
-  let driveInit := drive.elim #[] (#[.drivePrefix ·])
+  let pfx ← parsePrefix
+  let prefixInit := pfx.elim #[] (#[.winPrefix ·])
   let hasRoot ← flag (satisfy isWinSep)
   discard <| manyChars (attempt (satisfy isWinSep))
 
-  let init := if hasRoot then driveInit.push (.root "\\") else driveInit
+  let init := if hasRoot then prefixInit.push (.root "\\") else prefixInit
 
   match ← optional winSeg with
   | none =>

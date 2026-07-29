@@ -132,7 +132,7 @@ private def matchParts (parts : Array GlobPart) (s : String) : Bool :=
 
 /-- The string a glob pattern segment is matched against for a given path component. -/
 private def componentSegment : Path.Component → String
-  | .drivePrefix v => v
+  | .winPrefix v => v.toWindowsString
   | .root _ => ""
   | .current => "."
   | .parent => ".."

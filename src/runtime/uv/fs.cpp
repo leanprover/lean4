@@ -14,6 +14,24 @@ Author: Sofia Rodrigues
 #include <windows.h>
 #else
 #include <sys/file.h>
+#include <unistd.h>
+#endif
+
+// `uv_fs_access` takes its mode as a combination of `F_OK`, `R_OK`, `W_OK` and `X_OK`, which POSIX
+// declares in `<unistd.h>`. Windows has no such header; libuv reads the same bits out of the mode it
+// is handed and only honours `W_OK`, so the fallbacks below are the values POSIX fixes and MSVC's
+// `_access` documents.
+#ifndef F_OK
+#define F_OK 0
+#endif
+#ifndef R_OK
+#define R_OK 4
+#endif
+#ifndef W_OK
+#define W_OK 2
+#endif
+#ifndef X_OK
+#define X_OK 1
 #endif
 
 // MSVC's `<sys/stat.h>` ships the `_S_IF*` constants but almost none of the `S_IS*` macros, and has
@@ -64,6 +82,14 @@ extern "C" LEAN_EXPORT uint8_t lean_uv_fs_file_type_of_mode(uint64_t mode) {
     if (S_ISSOCK(mode)) return FILE_TYPE_SOCKET;
 #endif
     return FILE_TYPE_UNKNOWN;
+}
+
+extern "C" LEAN_EXPORT uint32_t lean_uv_fs_access_flags(uint8_t read, uint8_t write, uint8_t execution) {
+    int mode = F_OK;
+    if (read) mode |= R_OK;
+    if (write) mode |= W_OK;
+    if (execution) mode |= X_OK;
+    return static_cast<uint32_t>(mode);
 }
 
 #ifndef LEAN_EMSCRIPTEN

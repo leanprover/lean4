@@ -40,6 +40,7 @@ static inline lean_uv_file_object* lean_to_uv_file(lean_object* o) { return (lea
 // the request completes. Open files are identified by the opaque `File` external object.
 
 extern "C" LEAN_EXPORT uint32_t lean_uv_fs_open_flags(uint8_t read, uint8_t write, uint8_t append, uint8_t truncate, uint8_t create, uint8_t create_new);
+extern "C" LEAN_EXPORT uint32_t lean_uv_fs_access_flags(uint8_t read, uint8_t write, uint8_t execution);
 extern "C" LEAN_EXPORT uint8_t lean_uv_fs_file_type_of_mode(uint64_t mode);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_fs_open(b_obj_arg path, uint32_t flags, uint32_t mode);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_fs_close(b_obj_arg file);

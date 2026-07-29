@@ -80,6 +80,16 @@ was compiled on.
 opaque openFlags (read write append truncate create createNew : Bool) : UInt32
 
 /--
+Compute the mode bitmask that `access` expects for the given permission booleans. All false asks
+only whether the path exists.
+
+As with `openFlags`, the numeric values differ between platforms, so the translation is done by the
+runtime.
+-/
+@[extern "lean_uv_fs_access_flags"]
+opaque accessFlags (read write execution : Bool) : UInt32
+
+/--
 Open the file at `path` with the given `flags` (see `openFlags`) and the permissions `mode` to give
 it if it is created.
 -/

@@ -82,6 +82,24 @@ Read the entry kind out of a raw file mode, as reported by the metadata queries.
 @[extern "lean_uv_fs_file_type_of_mode"]
 opaque ofMode (mode : UInt64) : FileType
 
+/--
+Whether this is a regular file.
+-/
+def isFile (type : FileType) : Bool :=
+  type matches .file
+
+/--
+Whether this is a directory.
+-/
+def isDir (type : FileType) : Bool :=
+  type matches .dir
+
+/--
+Whether this is a symbolic link.
+-/
+def isSymlink (type : FileType) : Bool :=
+  type matches .symlink
+
 end FileType
 
 /--
@@ -234,9 +252,9 @@ end FileRight
 /--
 Filesystem metadata for a file, directory, or special entry.
 
-Timestamps use `Std.Time.Timestamp`. `creationTime` is `Option` because Linux does not expose a file
-creation time. `inode`, `device`, `uid`, and `gid` are `Option` because they are unavailable on some
-filesystems (FAT32, network mounts) or platforms (Windows).
+Timestamps use `Std.Time.Timestamp`. `creationTime` is `Option` because not every platform and
+filesystem records one. `inode`, `device`, `uid`, and `gid` are `Option` because they are unavailable
+on some filesystems (FAT32, network mounts) or platforms (Windows).
 -/
 structure Metadata where
 
@@ -307,6 +325,27 @@ def sameFile (a b : Metadata) : Bool :=
   match a.inode, a.device, b.inode, b.device with
   | some ai, some ad, some bi, some bd => ai == bi && ad == bd
   | _, _, _, _ => false
+
+/--
+Whether the entry is a regular file.
+-/
+def isFile (m : Metadata) : Bool :=
+  m.type.isFile
+
+/--
+Whether the entry is a directory.
+-/
+def isDir (m : Metadata) : Bool :=
+  m.type.isDir
+
+/--
+Whether the entry is a symbolic link.
+
+Only ever true for metadata obtained without following symlinks, since the queries that follow them
+report on the link's target instead.
+-/
+def isSymlink (m : Metadata) : Bool :=
+  m.type.isSymlink
 
 end Metadata
 

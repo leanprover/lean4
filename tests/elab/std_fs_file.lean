@@ -196,6 +196,22 @@ private def testMetadata (root : Path) : IO Unit := do
   assert! !(← pathExists (root / path("missing")))
   assert! (← fileSystemStats file).blockSize > 0
 
+  -- The type predicates agree with the `type` field they read.
+  assert! md.isFile
+  assert! !md.isDir
+  assert! !md.isSymlink
+  assert! (← metadata root).isDir
+  assert! FileType.file.isFile
+  assert! FileType.dir.isDir
+  assert! FileType.symlink.isSymlink
+  assert! !FileType.unknown.isFile
+
+  -- A birth time is either reported or absent. Platforms and filesystems that do not record one
+  -- report an all-zero timespec, which must not surface as a timestamp at the epoch.
+  match md.creationTime with
+  | none => pure ()
+  | some created => assert! created != Time.Timestamp.ofNanosecondsSinceUnixEpoch 0
+
   -- `FileType.ofMode` classifies the entry kind in C, so check a kind other than regular
   -- files, directories and symlinks. Windows has no character-device path to point at.
   assert! (← metadata root).type == .dir
@@ -289,6 +305,54 @@ private def testTempFiles : IO Unit := do
   let inRoot ← withTempFileIn root fun _ path => pure path
   assert! !(← pathExists inRoot)
 
+private def testHandlePath (root : Path) : IO Unit := do
+  let file := root / path("named.txt")
+  writeFile file "named"
+
+  -- The handle reports the path it was opened at, verbatim rather than resolved.
+  File.withFile file .readOnly fun handle => do
+    assert! handle.path == file
+  let handle ← File.open file
+  assert! handle.path == file
+  handle.close
+
+  -- The path is kept as given rather than resolved, so two spellings of one file report back the
+  -- spelling each was opened with.
+  let spelled := root / path("./named.txt")
+  File.withFile spelled .readOnly fun handle => do
+    assert! handle.path == spelled
+    assert! handle.path != file
+
+  -- A path is recorded once, so it still names the original after the file moves away.
+  let moved := root / path("moved-away.txt")
+  let handle ← File.open file
+  rename file moved
+  assert! handle.path == file
+  handle.close
+  removeFile moved
+
+  -- Temporary files report the path that was created for them.
+  let (temp, tempPath) ← createTempFile
+  assert! temp.path == tempPath
+  temp.close
+  removeFile tempPath
+
+private def testAccess (root : Path) : IO Unit := do
+  let file := root / path("access.txt")
+  writeFile file "readable"
+
+  assert! ← access file
+  assert! ← access root
+  assert! !(← access (root / path("missing")))
+
+  assert! ← access file { read := true }
+  assert! !(← access (root / path("missing")) { read := true })
+
+  assert! ← access root { read := true, execution := true }
+  assert! !(← access (file / path("under-a-file")) { read := true })
+
+  removeFile file
+
 private def testSendFile (root : Path) : IO Unit := do
   let src := root / path("send-src.bin")
   let dst := root / path("send-dst.bin")
@@ -353,6 +417,8 @@ def test : IO Unit := do
   withRoot testStructural
   withRoot testSymlinks
   testTempFiles
+  withRoot testHandlePath
+  withRoot testAccess
   withRoot testSendFile
   withRoot testIOClasses
 

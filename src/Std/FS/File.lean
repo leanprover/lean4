@@ -44,7 +44,7 @@ private def timestampToFloatSeconds (t : Timestamp) : Float :=
 private def metadataOfStat (s : Internal.FS.Stat) : Metadata where
   accessed := timestampOfTimespec s.atim
   modified := timestampOfTimespec s.mtim
-  creationTime := some (timestampOfTimespec s.birthtim)
+  creationTime := if s.birthtim.sec == 0 && s.birthtim.nsec == 0 then none else some (timestampOfTimespec s.birthtim)
   byteSize := s.size
   type := FileType.ofMode s.mode
   numLinks := s.nlink
@@ -84,6 +84,14 @@ structure File where
   private mk ::
   private toInternal : Internal.FS.File
 
+  /--
+  The path the file was opened at, as it was given rather than resolved.
+
+  Recorded once at open time: it still names the original path after the file is renamed or deleted,
+  and two `File`s reached through different links to the same file report different paths.
+  -/
+  path : Path
+
 private def OpenMode.rawFlags (mode : OpenMode) : UInt32 :=
   Internal.FS.openFlags mode.read mode.write mode.append mode.truncate mode.create mode.createNew |||
     mode.custom.getD 0
@@ -101,7 +109,7 @@ Use `setPermissions` afterwards to set them exactly.
 Fails if `path` names a directory or any other non-regular entry, such as a device or a FIFO.
 -/
 def «open» (path : Path) (mode : OpenMode := .readOnly) (perm : FileRight := .default) : IO File := do
-  return ⟨← Internal.FS.openFile (← path.toString) mode.rawFlags perm.flags⟩
+  return ⟨← Internal.FS.openFile (← path.toString) mode.rawFlags perm.flags, path⟩
 
 /--
 Create a regular file for writing, truncating it if it already exists, and apply `perm` to it if it
@@ -455,7 +463,8 @@ Create a secure temporary file inside `dir`. The caller is responsible for delet
 def createTempFileIn (dir : Path) : IO (File × Path) := do
   let template := dir / (Path.ofPosixString "lean-XXXXXX").get!
   let (internal, resultPath) ← Internal.FS.createTempFile (← template.toString)
-  return (⟨internal⟩, ← Path.fromString resultPath)
+  let path ← Path.fromString resultPath
+  return (⟨internal, path⟩, path)
 
 /--
 Create a secure temporary file in `Std.FS.tempDir`. The caller is responsible for deleting the file.
@@ -532,6 +541,15 @@ def pathExists (path : Path) : BaseIO Bool := do
   match ← (metadata path).toBaseIO with
   | .ok _ => pure true
   | .error _ => pure false
+
+/--
+Return `true` if the calling process may access `path` in every way `rights` selects. The default
+asks only whether the path exists. Follows symlinks, and returns `false` rather than failing when the
+path is missing or the check is refused.
+-/
+def access (path : Path) (rights : AccessRight := {}) : IO Bool := do
+  Internal.FS.access (← path.toString)
+    (Internal.FS.accessFlags rights.read rights.write rights.execution)
 
 /--
 Return permission bits by path. Follows symlinks.

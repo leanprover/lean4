@@ -1,7 +1,7 @@
 import Std.Internal.FS
 
 /-!
-Exercises the raw filesystem primitives that back `Std.FS.File`.
+Exercises the raw filesystem primitives that back `Std.FS.File` and `Std.FS.Dir`.
 -/
 
 namespace UVFS
@@ -94,6 +94,34 @@ private def testPathOps (dirString : String) : IO Unit := do
   assertFails (metadata (dirString ++ "/bad\x00path"))
   assertFails (rename (dirString ++ "/bad\x00path") renamed)
 
+private def testDirOps (dirString : String) : IO Unit := do
+  -- `createTempDir` fills in the trailing `XXXXXX`, so the created path is not the template.
+  let nested ← createTempDir (dirString ++ "/dir-XXXXXX")
+  assert! nested != dirString ++ "/dir-XXXXXX"
+  assert! ← access nested 0
+
+  createDir (nested ++ "/inner") 0o755
+  close (← openFile (nested ++ "/entry") (openFlags false true false false true false) 0o644)
+
+  let dir ← openDir nested
+  let mut names := #[]
+  repeat
+    let some ent ← readDirEntry dir | break
+    names := names.push ent.name
+  closeDir dir
+  -- `.` and `..` are filtered out, leaving exactly the two entries created above.
+  assert! names.qsort (· < ·) == #["entry", "inner"]
+  -- Operating on a closed stream fails rather than reusing a stale handle.
+  assertFails (readDirEntry dir)
+
+  -- A directory has to be empty before it can be removed.
+  assertFails (removeDir nested)
+  removeFile (nested ++ "/entry")
+  removeDir (nested ++ "/inner")
+  removeDir nested
+  assertFails (removeDir nested)
+  assertFails (openDir nested)
+
 def test : IO Unit :=
   IO.FS.withTempDir fun root => do
     let dirString := root.toString
@@ -101,6 +129,7 @@ def test : IO Unit :=
     testDescriptorOps dirString
     testSendfile dirString
     testPathOps dirString
+    testDirOps dirString
 
 end UVFS
 

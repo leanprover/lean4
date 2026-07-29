@@ -105,10 +105,24 @@ static void lean_uv_file_finalizer(void* ptr) {
     free(f);
 }
 
-static void lean_uv_file_foreach(void*, lean_object*) {}
+static void lean_uv_dir_finalizer(void* ptr) {
+    lean_uv_dir_object* d = (lean_uv_dir_object*)ptr;
+    if (d->m_dir != nullptr) {
+        uv_fs_t req;
+        uv_fs_closedir(nullptr, &req, d->m_dir, nullptr);
+        uv_fs_req_cleanup(&req);
+    }
+    uv_mutex_destroy(&d->m_mutex);
+    free(d);
+}
+
+// Neither external object holds owned `lean_object*` fields, so there is nothing for the `foreach`
+// callback (used for cycle collection) to visit.
+static void lean_uv_fs_foreach(void*, lean_object*) {}
 
 void initialize_libuv_fs() {
-    g_uv_file_external_class = lean_register_external_class(lean_uv_file_finalizer, lean_uv_file_foreach);
+    g_uv_file_external_class = lean_register_external_class(lean_uv_file_finalizer, lean_uv_fs_foreach);
+    g_uv_dir_external_class = lean_register_external_class(lean_uv_dir_finalizer, lean_uv_fs_foreach);
 }
 
 static lean_object* lean_uv_file_of_fd(uv_file fd) {
@@ -126,6 +140,25 @@ static lean_object* lean_uv_file_of_fd(uv_file fd) {
     f->m_busy = false;
 
     lean_object* obj = lean_uv_file_new(f);
+    lean_mark_mt(obj);
+    return obj;
+}
+
+static lean_object* lean_uv_dir_of_raw(uv_dir_t* dir) {
+    lean_uv_dir_object* d = (lean_uv_dir_object*)malloc(sizeof(lean_uv_dir_object));
+
+    if (d == nullptr) {
+        uv_fs_t req;
+        uv_fs_closedir(nullptr, &req, dir, nullptr);
+        uv_fs_req_cleanup(&req);
+        return nullptr;
+    }
+
+    d->m_dir = dir;
+    uv_mutex_init(&d->m_mutex);
+    d->m_busy = false;
+
+    lean_object* obj = lean_uv_dir_new(d);
     lean_mark_mt(obj);
     return obj;
 }
@@ -155,6 +188,33 @@ static void lean_uv_file_release(lean_uv_file_object* f) {
     uv_mutex_lock(&f->m_mutex);
     f->m_busy = false;
     uv_mutex_unlock(&f->m_mutex);
+}
+
+static int lean_uv_dir_claim(lean_uv_dir_object* d, uv_dir_t** out_dir) {
+    uv_mutex_lock(&d->m_mutex);
+    if (d->m_dir == nullptr) { uv_mutex_unlock(&d->m_mutex); return UV_EBADF; }
+    if (d->m_busy) { uv_mutex_unlock(&d->m_mutex); return UV_EALREADY; }
+    d->m_busy = true;
+    *out_dir = d->m_dir;
+    uv_mutex_unlock(&d->m_mutex);
+    return 0;
+}
+
+static int lean_uv_dir_claim_close(lean_uv_dir_object* d, uv_dir_t** out_dir) {
+    uv_mutex_lock(&d->m_mutex);
+    if (d->m_dir == nullptr) { uv_mutex_unlock(&d->m_mutex); return UV_EBADF; }
+    if (d->m_busy) { uv_mutex_unlock(&d->m_mutex); return UV_EALREADY; }
+    d->m_busy = true;
+    *out_dir = d->m_dir;
+    d->m_dir = nullptr;
+    uv_mutex_unlock(&d->m_mutex);
+    return 0;
+}
+
+static void lean_uv_dir_release(lean_uv_dir_object* d) {
+    uv_mutex_lock(&d->m_mutex);
+    d->m_busy = false;
+    uv_mutex_unlock(&d->m_mutex);
 }
 
 template<typename Body>
@@ -590,6 +650,95 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_fs_access(b_obj_arg path, uint32_t m
     return lean_io_result_mk_ok(lean_box(result == 0 ? 1 : 0));
 }
 
+// =======================================
+// Directories.
+
+extern "C" LEAN_EXPORT uint8_t lean_uv_fs_file_type_of_dirent(uint8_t type) {
+    switch ((uv_dirent_type_t)type) {
+        case UV_DIRENT_FILE: return FILE_TYPE_FILE;
+        case UV_DIRENT_DIR: return FILE_TYPE_DIR;
+        case UV_DIRENT_LINK: return FILE_TYPE_SYMLINK;
+        case UV_DIRENT_BLOCK: return FILE_TYPE_BLOCK_DEVICE;
+        case UV_DIRENT_CHAR: return FILE_TYPE_CHAR_DEVICE;
+        case UV_DIRENT_FIFO: return FILE_TYPE_FIFO;
+        case UV_DIRENT_SOCKET: return FILE_TYPE_SOCKET;
+        default: return FILE_TYPE_UNKNOWN;
+    }
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_fs_mkdir(b_obj_arg path, uint32_t mode) {
+    return fs_path_op(path,
+        [=](uv_fs_t* req, const char* path_cstr) { return uv_fs_mkdir(nullptr, req, path_cstr, (int)mode, nullptr); },
+        fs_unit);
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_fs_rmdir(b_obj_arg path) {
+    return fs_path_op(path,
+        [](uv_fs_t* req, const char* path_cstr) { return uv_fs_rmdir(nullptr, req, path_cstr, nullptr); },
+        fs_unit);
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_fs_mkdtemp(b_obj_arg tmpl) {
+    return fs_path_op(tmpl,
+        // `req->path` is the template with its trailing `XXXXXX` filled in, i.e. the created directory.
+        [](uv_fs_t* req, const char* tmpl_cstr) { return uv_fs_mkdtemp(nullptr, req, tmpl_cstr, nullptr); },
+        [](uv_fs_t* req, int) { return lean_mk_string(req->path); });
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_fs_opendir(b_obj_arg path) {
+    return fs_path_op(path,
+        [](uv_fs_t* req, const char* path_cstr) { return uv_fs_opendir(nullptr, req, path_cstr, nullptr); },
+        // `uv_fs_req_cleanup` deliberately leaves an `opendir` request's `ptr` alone, so the stream
+        // outlives the request that produced it.
+        [](uv_fs_t* req, int) { return lean_uv_dir_of_raw((uv_dir_t*)req->ptr); });
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_fs_closedir(b_obj_arg dir) {
+    lean_uv_dir_object* d = lean_to_uv_dir(dir);
+    uv_dir_t* raw;
+    int claim = lean_uv_dir_claim_close(d, &raw);
+    if (claim < 0) return lean_io_result_mk_error(lean_decode_uv_error(claim, nullptr));
+
+    uv_fs_t req;
+    int result = uv_fs_closedir(nullptr, &req, raw, nullptr);
+    uv_fs_req_cleanup(&req);
+    if (result < 0) return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+    return lean_io_result_mk_ok(lean_box(0));
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_fs_readdir(b_obj_arg dir) {
+    lean_uv_dir_object* d = lean_to_uv_dir(dir);
+    uv_dir_t* raw;
+    int claim = lean_uv_dir_claim(d, &raw);
+    if (claim < 0) return lean_io_result_mk_error(lean_decode_uv_error(claim, nullptr));
+
+    // `uv_fs_readdir` fills entries the caller hands it through the stream itself; one at a time
+    // keeps the entry on the stack and the ownership question with libuv.
+    uv_dirent_t ent;
+    raw->dirents = &ent;
+    raw->nentries = 1;
+
+    uv_fs_t req;
+    int result = uv_fs_readdir(nullptr, &req, raw, nullptr);
+
+    lean_obj_res res;
+    if (result < 0) {
+        res = lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+    } else if (result == 0) {
+        res = lean_io_result_mk_ok(mk_option_none());
+    } else {
+        // `ent.name` is owned by the request, so it has to be copied before the cleanup below.
+        lean_object* o = lean_alloc_ctor(0, 1, 1);
+        lean_ctor_set(o, 0, lean_mk_string(ent.name));
+        lean_ctor_set_uint8(o, sizeof(void*), (uint8_t)ent.type);
+        res = lean_io_result_mk_ok(mk_option_some(o));
+    }
+
+    uv_fs_req_cleanup(&req);
+    lean_uv_dir_release(d);
+    return res;
+}
+
 #else
 
 #define LEAN_UV_FS_NO_LIBUV \
@@ -629,6 +778,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_fs_lstat(b_obj_arg path) { LEAN_UV_F
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_fs_statfs(b_obj_arg path) { LEAN_UV_FS_NO_LIBUV; }
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_fs_access(b_obj_arg path, uint32_t mode) { LEAN_UV_FS_NO_LIBUV; }
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_fs_mkstemp(b_obj_arg tmpl) { LEAN_UV_FS_NO_LIBUV; }
+extern "C" LEAN_EXPORT uint8_t lean_uv_fs_file_type_of_dirent(uint8_t type) { LEAN_UV_FS_NO_LIBUV; }
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_fs_mkdtemp(b_obj_arg tmpl) { LEAN_UV_FS_NO_LIBUV; }
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_fs_mkdir(b_obj_arg path, uint32_t mode) { LEAN_UV_FS_NO_LIBUV; }
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_fs_rmdir(b_obj_arg path) { LEAN_UV_FS_NO_LIBUV; }
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_fs_opendir(b_obj_arg path) { LEAN_UV_FS_NO_LIBUV; }
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_fs_closedir(b_obj_arg dir) { LEAN_UV_FS_NO_LIBUV; }
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_fs_readdir(b_obj_arg dir) { LEAN_UV_FS_NO_LIBUV; }
 
 #endif
 

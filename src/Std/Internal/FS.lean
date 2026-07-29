@@ -59,6 +59,16 @@ structure StatFS where
   filesFree : UInt64
 deriving Repr, Inhabited
 
+/--
+A single entry reported by a directory read, in the shape the operating system reports it. `type` is
+a raw type code that `Std.FS.FileType.ofDirentType` translates; filesystems that do not track entry
+types report the code standing for "unknown" rather than omitting the entry.
+-/
+structure DirEnt where
+  name : String
+  type : UInt8
+deriving Repr, Inhabited
+
 private opaque FileImpl : NonemptyType.{0}
 
 /--
@@ -67,6 +77,15 @@ A handle to an open file.
 def File : Type := FileImpl.type
 
 instance : Nonempty File := FileImpl.property
+
+private opaque DirImpl : NonemptyType.{0}
+
+/--
+A handle to an open directory stream.
+-/
+def Dir : Type := DirImpl.type
+
+instance : Nonempty Dir := DirImpl.property
 
 /--
 Compute the flag bitmask that `openFile` expects for the given open-mode booleans. `createNew`
@@ -289,5 +308,42 @@ the path that was created.
 -/
 @[extern "lean_uv_fs_mkstemp"]
 opaque createTempFile (template : @& String) : IO (File × String)
+
+/--
+Create a uniquely named directory derived from `template`, returning the path that was created.
+-/
+@[extern "lean_uv_fs_mkdtemp"]
+opaque createTempDir (template : @& String) : IO String
+
+/--
+Create the directory `path` with the permissions `mode`. The parent must already exist.
+-/
+@[extern "lean_uv_fs_mkdir"]
+opaque createDir (path : @& String) (mode : UInt32) : IO Unit
+
+/--
+Remove the empty directory `path`.
+-/
+@[extern "lean_uv_fs_rmdir"]
+opaque removeDir (path : @& String) : IO Unit
+
+/--
+Open the directory at `path` for iteration.
+-/
+@[extern "lean_uv_fs_opendir"]
+opaque openDir (path : @& String) : IO Dir
+
+/--
+Close `dir`, releasing the stream.
+-/
+@[extern "lean_uv_fs_closedir"]
+opaque closeDir (dir : @& Dir) : IO Unit
+
+/--
+Read the next entry from `dir`, or `none` once the stream is exhausted. `.` and `..` are not
+reported.
+-/
+@[extern "lean_uv_fs_readdir"]
+opaque readDirEntry (dir : @& Dir) : IO (Option DirEnt)
 
 end Std.Internal.FS

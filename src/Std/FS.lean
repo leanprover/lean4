@@ -8,6 +8,7 @@ module
 prelude
 public import Std.FS.Types
 public import Std.FS.File
+public import Std.FS.Dir
 
 /-!
 # Filesystem Library
@@ -18,6 +19,7 @@ and the metadata and permission types shared across them.
 ## Overview
 
 - `File` — an open file, a thin unbuffered wrapper around an OS file handle.
+- `Dir` / `DirEntry` — an open directory and the entries read from it.
 - `Metadata` / `FileType` / `FileRight` — the values that describe a filesystem entry.
 
 Two parallel styles are offered throughout: **handle-based** operations that act on an already-open
@@ -129,6 +131,42 @@ File.withFile "shared.db" .readWrite fun file =>
 
 The locks are advisory: a process that never locks the file can still read and write it.
 
+## Directories
+
+`readDir` lists one level of a directory, `readDirSorted` does the same in name order, and `walk`
+descends recursively. All three produce `DirEntry` values, which name one entry within a parent
+directory and answer `path`, `fileType`, and `metadata` about it.
+
+```lean
+for entry in ← readDir "src" do
+  IO.println (← entry.path.toString)
+
+-- Recursively, descending into subdirectories as they are reached
+for entry in ← walk "src" do
+  if (← entry.fileType) == .file then
+    IO.println (← entry.path.toString)
+
+-- Recursively, keeping only the paths matching a glob
+let sources ← glob "src" "**/*.lean"
+```
+
+`walk` yields symlinks without following them, so a traversal cannot cycle. Passing
+`ignoreErrors := true` skips subdirectories that cannot be read (e.g. permission denied) rather than
+aborting the whole walk; the same flag is accepted by `removeDirAll` and `copyDir`.
+
+For step-by-step control, open a `Dir` and read from it directly. Entries arrive one at a time, so a
+directory with very many entries never has to be held in memory at once:
+
+```lean
+Dir.withDir "src" fun dir => do
+  while let some entry ← dir.next do
+    IO.println entry.fileName
+```
+
+Directories are created with `createDir` (the parent must exist) or `createDirAll` (which creates
+the whole chain), and removed with `removeDir` (which requires them to be empty) or `removeDirAll`.
+`copyDir` copies a tree, and `isDir` checks a path without throwing.
+
 ## Metadata and Permissions
 
 `metadata` returns a `Metadata` record (size, timestamps, type, permission bits, and platform-
@@ -156,11 +194,15 @@ Path-keyed mutations live alongside the `File` type: `copyFile`, `rename`, `remo
 inspected, without resolving, via `readSymlink` (contrast `Path.resolve`, which follows the full
 chain).
 
-Temporary files are created securely and cleaned up with the `with*` helpers:
+Temporary files and directories are created securely and cleaned up with the `with*` helpers:
 
 ```lean
 File.withTempFile fun file path => do
   file.putStrLn "scratch data"
   -- file is deleted when this block exits
+
+withTempDir fun dir => do
+  writeFile (dir / path("scratch.txt")) "scratch data"
+  -- dir is removed, along with its contents, when this block exits
 ```
 -/

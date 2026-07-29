@@ -33,16 +33,4 @@ structure Entry where
   value : Value
   deriving ToJson
 
-structure Failure where
-  name : String
-  message : String
-  deriving ToJson
-
-structure Report where
-  entries : Array Entry
-  failures : Array Failure
-  deriving ToJson
-
-abbrev Check := Unit → IO (Array Entry)
-
 end Lean.Linter.CodeQuality

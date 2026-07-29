@@ -8,6 +8,8 @@ module
 prelude
 public import Lean.Linter.CodeQuality.Basic
 public import Lean.Elab.InfoTree.Main
+import Lean.CoreM
+import Lean.Elab.Command
 
 public section
 
@@ -21,8 +23,11 @@ namespace Lean.Linter.CodeQuality
 A code quality check is a declaration of type `Check` tagged with the
 `@[code_quality_check]` attribute. Registered checks are tracked by the
 `checkExt` environment extension and are run concurrently, one task per check,
-by `runChecks`, which combines all results into a single `Report`.
+by `runChecks`, which combines all results into a single array of entries.
 -/
+
+
+abbrev Check := MetaM (Array Entry)
 
 structure NamedCheck where
   declName : Name
@@ -61,15 +66,17 @@ def getChecks : CoreM (Array NamedCheck) := do
   (checkExt.getState (← getEnv)).mapM fun declName =>
     return { declName, run := ← getCheck declName }
 
-def runChecks (checks : Array NamedCheck) : BaseIO Report := do
-  let tasks ← checks.mapM fun check =>
-    (check.declName, ·) <$> IO.asTask (check.run ())
+def runChecks (checks : Array NamedCheck) : CoreM (Array Entry) := do
+  let tasks ← checks.mapM fun check => do
+    (check.declName, ·) <$> (EIO.asTask <| (← Core.wrapAsync (fun _ =>
+      check.run.run' Elab.Command.mkMetaContext
+    ) (cancelTk? := none)) ())
   let mut entries := #[]
-  let mut failures := #[]
   for (declName, task) in tasks do
     match task.get with
     | .ok checkEntries => entries := entries ++ checkEntries
-    | .error err => failures := failures.push { name := toString declName, message := toString err }
-  return { entries, failures }
+    | .error err =>
+      IO.eprintln s!"code quality check `{declName}` failed: {← err.toMessageData.toString}"
+  return entries
 
 end Lean.Linter.CodeQuality

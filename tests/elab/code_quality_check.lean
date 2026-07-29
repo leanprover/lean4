@@ -3,7 +3,8 @@ import Lean
 /-!
 Tests the code-quality check framework (`Lean.Linter.CodeQuality`): the
 `code_quality_check` attribute, the backing `checkExt` environment extension,
-and the concurrent `runChecks` driver producing a combined report.
+and the concurrent `runChecks` driver producing a combined entry array. A check
+that throws is reported on stderr and contributes no entries.
 -/
 
 open Lean Linter CodeQuality
@@ -11,20 +12,16 @@ open Lean Linter CodeQuality
 /-! ## Dummy checks for testing -/
 
 @[code_quality_check]
-public meta def dummyMetric : Check := fun _ =>
+public meta def dummyMetric : Check :=
   return #[
     { name := "dummyMetric", source := .module `MyModule, value := .scalar 42.0 },
     { name := "dummyMetric", source := .declaration `MyModule.foo, value := .scalar 1.0 }]
 
 @[code_quality_check]
-public meta def dictMetric : Check := fun _ =>
+public meta def dictMetric : Check :=
   return #[
     { name := "dictMetric", source := .module `MyModule,
       value := .dict (Std.TreeMap.empty.insert "a" 1.0 |>.insert "b" 2.0) }]
-
-@[code_quality_check]
-public meta def failingMetric : Check := fun _ =>
-  throw (IO.userError "boom")
 
 /-! ## Test: the extension tracks registered checks -/
 
@@ -44,18 +41,32 @@ def testExtContains (name : Name) : CoreM Bool := do
 def testGetChecks : CoreM (Array Name) := do
   return (← getChecks).map (·.declName)
 
-/-- info: #[`dummyMetric, `dictMetric, `failingMetric] -/
+/-- info: #[`dummyMetric, `dictMetric] -/
 #guard_msgs in
 #eval testGetChecks
 
-/-! ## Test: runChecks combines all results into one report, with failures recorded -/
+/-! ## Test: runChecks combines all results into one entry array -/
 
 def testRunChecks : CoreM String := do
-  let report ← runChecks (← getChecks)
-  return (toJson report).compress
+  let entries ← runChecks (← getChecks)
+  return (toJson entries).compress
 
 /--
-info: "{\"entries\":[{\"name\":\"dummyMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"scalar\":{\"value\":42}}},{\"name\":\"dummyMetric\",\"source\":{\"declaration\":{\"name\":\"MyModule.foo\"}},\"value\":{\"scalar\":{\"value\":1}}},{\"name\":\"dictMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"dict\":{\"dictionary\":{\"a\":1,\"b\":2}}}}],\"failures\":[{\"message\":\"boom\",\"name\":\"failingMetric\"}]}"
+info: "[{\"name\":\"dummyMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"scalar\":{\"value\":42}}},{\"name\":\"dummyMetric\",\"source\":{\"declaration\":{\"name\":\"MyModule.foo\"}},\"value\":{\"scalar\":{\"value\":1}}},{\"name\":\"dictMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"dict\":{\"dictionary\":{\"a\":1,\"b\":2}}}}]"
+-/
+#guard_msgs in
+#eval testRunChecks
+
+/-! ## Test: a failing check is reported on stderr and skipped; other checks still run -/
+
+@[code_quality_check]
+public meta def failingMetric : Check :=
+  throwError "boom"
+
+/--
+info: code quality check `failingMetric` failed: boom
+---
+info: "[{\"name\":\"dummyMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"scalar\":{\"value\":42}}},{\"name\":\"dummyMetric\",\"source\":{\"declaration\":{\"name\":\"MyModule.foo\"}},\"value\":{\"scalar\":{\"value\":1}}},{\"name\":\"dictMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"dict\":{\"dictionary\":{\"a\":1,\"b\":2}}}}]"
 -/
 #guard_msgs in
 #eval testRunChecks
@@ -66,7 +77,7 @@ info: "{\"entries\":[{\"name\":\"dummyMetric\",\"source\":{\"module\":{\"name\":
 error: invalid attribute `code_quality_check`, declaration `notMeta` must be marked as `public` and `meta` but is only marked `public`
 -/
 #guard_msgs in
-@[code_quality_check] public def notMeta : Check := fun _ => return #[]
+@[code_quality_check] public def notMeta : Check := return #[]
 
 /-! ## Test: a declaration of the wrong type is rejected -/
 

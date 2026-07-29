@@ -133,8 +133,8 @@ opaque Opq : Nat → Prop
 
 axiom opq_ax (n : Nat) : Opq n
 
-/-! A verification condition mentioning the loop state: `next` names the state and the invariant,
-which the witness and its proof are built from. -/
+/-! The case binders name a condition's inaccessible variables, here the loop's final state and its
+invariant. -/
 
 opaque Certified : Nat → Prop
 
@@ -148,7 +148,7 @@ def sumCertified (xs : List Nat) : Id Nat
     acc := acc + x
   return acc
 where finally
-  | spec => next acc h => exact ⟨acc, rfl, certify acc h⟩
+  | spec => case vc2 acc h => exact ⟨acc, rfl, certify acc h⟩
 
 /--
 info: sumCertified.spec : ∀ (xs : List Nat), ⦃ ⊤ ⦄ sumCertified xs ⦃ fun r => ∃ k, r = k ∧ Certified k ⦄

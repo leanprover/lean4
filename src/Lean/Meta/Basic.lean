@@ -1274,7 +1274,10 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 /-- Records the lookup `access` in the armed option-access log, if any; see `getRecordedOption`. -/
 private def recordOptionAccess (access : SynthOptionAccess) : MetaM Unit := do
   if let some log := (← read).synthOptionLog? then
-    log.modify fun l => if l.any (·.name == access.name) then l else l.push access
+    -- Read-before-write: repeated lookups of the same option dominate (e.g. per `isDefEq` step),
+    -- and the pure membership test avoids allocating a closure and writing the ref for them.
+    unless (← log.get).any (·.name == access.name) do
+      log.modify (·.push access)
 
 /--
 Reads an option on the type class resolution path, recording the lookup as an option dependency

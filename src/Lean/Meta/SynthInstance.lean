@@ -1064,6 +1064,17 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
   -- to the recording accessors by construction (a plain read panics), so the recorded log
   -- captures every option that can affect the result. See `OptionsRestriction.tcResolution`.
   withOptions (·.restrict .tcResolution) do
+  -- Resolve and record the per-step definitional-equality flags once; see `SynthDefEqFlags`.
+  let flags : SynthDefEqFlags := {
+    respectTransparency      := ← getRecordedBoolOption `backward.isDefEq.respectTransparency true
+    respectTransparencyTypes := ← getRecordedBoolOption `backward.isDefEq.respectTransparency.types true
+    implicitBump             := ← getRecordedBoolOption `backward.isDefEq.implicitBump true
+    reducibleClassField      := ← getRecordedBoolOption `backward.whnf.reducibleClassField true
+    lazyProjDelta            := ← getRecordedBoolOption `backward.isDefEq.lazyProjDelta true
+    lazyWhnfCore             := ← getRecordedBoolOption `backward.isDefEq.lazyWhnfCore true
+    smartUnfolding           := ← getRecordedBoolOption `smartUnfolding true
+  }
+  withReader (fun ctx => { ctx with synthDefEqFlags? := some flags }) do
   withTraceNode `Meta.synthInstance
     (fun _ => return m!"{← instantiateMVars type}") do
   withConfig (fun _ => synthInstanceConfig) do

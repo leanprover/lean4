@@ -822,7 +822,7 @@ private def unfoldDefault (fInfo : ConstantInfo) (us : List Level) (e : Expr) : 
   if fInfo.hasValue then
     recordUnfold fInfo.name
     deltaBetaDefinition fInfo us e.getAppRevArgs (fun _ => pure none) fun e => do
-      if !(← getRecordedOption backward.whnf.reducibleClassField) then
+      if !(← getSynthDefEqFlag (·.reducibleClassField) (backward.whnf.reducibleClassField.get ·)) then
         return some e
       else if !(← getTransparency) matches .reducible then
         return some e
@@ -850,7 +850,7 @@ mutual
         else
           let unfoldDefault (_ : Unit) : MetaM (Option Expr) :=
             unfoldDefault fInfo fLvls e
-          if (← getRecordedOption smartUnfolding) then
+          if (← getSynthDefEqFlag (·.smartUnfolding) (smartUnfolding.get ·)) then
             match ((← getEnv).find? (skipRealize := true) (mkSmartUnfoldingNameFor fInfo.name)) with
             | some fAuxInfo@(.defnInfo _) =>
               -- We use `preserveMData := true` to make sure the smart unfolding annotation are not erased in an over-application.
@@ -915,7 +915,7 @@ mutual
       let some cinfo ← getConstInfoNoEx? declName ignoreTransparency | pure none
       -- check smart unfolding only after `getUnfoldableConstNoEx?` because smart unfoldings have a
       -- significant chance of not existing and `Environment.contains` misses are more costly
-      if (← getRecordedOption smartUnfolding) && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then
+      if (← getSynthDefEqFlag (·.smartUnfolding) (smartUnfolding.get ·)) && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then
         return none
       else
         unless cinfo.hasValue do

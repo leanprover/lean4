@@ -367,6 +367,22 @@ context. See `SynthInstanceCache`.
 -/
 abbrev SynthOptionAccessLog := Array SynthOptionAccess
 
+/--
+The definitional-equality and unfolding compatibility flags, resolved and recorded once per type
+class resolution query (`synthInstanceCore?`) so that their per-step reads inside the search
+avoid the recording accessors; see `getSynthDefEqFlag`. Every query records all of them as
+dependencies, whether its search reaches the corresponding reads or not: they are global
+compatibility settings, so the sharing lost to this over-approximation is negligible.
+-/
+structure SynthDefEqFlags where
+  respectTransparency      : Bool
+  respectTransparencyTypes : Bool
+  implicitBump             : Bool
+  reducibleClassField      : Bool
+  lazyProjDelta            : Bool
+  lazyWhnfCore             : Bool
+  smartUnfolding           : Bool
+
 -- Remark: we don't need to store `Config.toKey` because typeclass resolution uses a fixed configuration.
 structure SynthInstanceCacheKey where
   localInsts        : LocalInstances
@@ -588,6 +604,8 @@ structure Context where
   the cache entry being computed; see `SynthInstanceCache`.
   -/
   synthOptionLog?   : Option (IO.Ref SynthOptionAccessLog) := none
+  /-- Set per type class resolution query; see `SynthDefEqFlags`. -/
+  synthDefEqFlags?  : Option SynthDefEqFlags := none
   /--
   A predicate to control whether a constant can be unfolded or not at `whnf`.
   If set, overrides `Config.canUnfoldPredicateConfig`.
@@ -1295,6 +1313,19 @@ def getRecordedBoolOption (name : Name) (defVal := false) : MetaM Bool := do
   let raw := (← getOptions).findUnrestricted? name
   recordOptionAccess { name, value := raw }
   return (raw.bind KVMap.Value.ofDataValue?).getD defVal
+
+/--
+Reads a definitional-equality compatibility flag: from the per-query resolved flags inside a
+type class resolution query, and via `fallback` from the ambient options otherwise. Inside a
+query the flags are always armed and already recorded (`SynthDefEqFlags`), so the read costs a
+context projection; per-step read sites in `isDefEq`/`whnf` use this instead of the recording
+accessors.
+-/
+@[inline] def getSynthDefEqFlag (proj : SynthDefEqFlags → Bool) (fallback : Options → Bool) :
+    MetaM Bool := do
+  match (← read).synthDefEqFlags? with
+  | some flags => return proj flags
+  | none       => return fallback (← getOptions)
 
 @[inline] def withInTypeClassResolution : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with inTypeClassResolution := true })

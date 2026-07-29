@@ -73,7 +73,8 @@ during type class resolution): rendering happens outside the restricted computat
 contaminate its caches. Lift the restriction from the captured environment.
 -/
 private def PPContext.unrestricted (ctx : PPContext) : PPContext :=
-  { ctx with env := ctx.env.setExtAccessRestriction .none }
+  { ctx with env  := ctx.env.setExtAccessRestriction .none
+             opts := ctx.opts.restrict .none }
 
 def ppExprWithInfos (ctx : PPContext) (e : Expr) : BaseIO FormatWithInfos := do
   let ctx := ctx.unrestricted

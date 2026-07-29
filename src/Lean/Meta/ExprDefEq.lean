@@ -376,8 +376,8 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
   for i in finfo.paramInfo.size...args₁.size do
     unless (← Meta.isExprDefEqAux args₁[i]! args₂[i]!) do
       return false
-  let respectTransparency ← getRecordedOption backward.isDefEq.respectTransparency
-  let implicitBump ← getRecordedOption backward.isDefEq.implicitBump
+  let respectTransparency ← getSynthDefEqFlag (·.respectTransparency) (backward.isDefEq.respectTransparency.get ·)
+  let implicitBump ← getSynthDefEqFlag (·.implicitBump) (backward.isDefEq.implicitBump.get ·)
   for i in postponedImplicit do
     /- Second pass: unify implicit arguments.
        When `respectTransparency` is `false` (old behavior), we bump to `.default` so that
@@ -486,8 +486,8 @@ If `backward.isDefEq.respectTransparency` is `false`, then we automatically disa
 `backward.isDefEq.respectTransparency.types` too.
 -/
 abbrev respectTransparencyAtTypes : MetaM Bool := do
-  return (← getRecordedOption backward.isDefEq.respectTransparency.types)
-    && (← getRecordedOption backward.isDefEq.respectTransparency)
+  return (← getSynthDefEqFlag (·.respectTransparencyTypes) (backward.isDefEq.respectTransparency.types.get ·))
+    && (← getSynthDefEqFlag (·.respectTransparency) (backward.isDefEq.respectTransparency.get ·))
 
 private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
   withTraceNodeBefore `Meta.isDefEq.assign.checkTypes (fun _ => return m!"({mvar} : {← inferType mvar}) := ({v} : {← inferType v})") do
@@ -1445,7 +1445,7 @@ private def isNonTrivialRegular (info : DefinitionVal) : MetaM Bool := do
          only applies there. At higher transparency levels, the normal unfolding behavior is
          sufficient, and running the heuristic adds overhead without benefit.
          See https://github.com/leanprover/lean4/pull/12650 -/
-      return projInfo.fromClass && (← getRecordedOption backward.whnf.reducibleClassField) && (← getTransparency) == .reducible
+      return projInfo.fromClass && (← getSynthDefEqFlag (·.reducibleClassField) (backward.whnf.reducibleClassField.get ·)) && (← getTransparency) == .reducible
     return false
   | .opaque => return false
 where
@@ -1758,7 +1758,7 @@ private def etaEq (t s : Expr) : Bool :=
   performance foot-gun. Users can use the backward compatibility flag to restore the old behavior.
 -/
 private def withProofIrrelTransparency (k : MetaM α) : MetaM α := do
-  if (← getRecordedOption backward.isDefEq.respectTransparency) then
+  if (← getSynthDefEqFlag (·.respectTransparency) (backward.isDefEq.respectTransparency.get ·)) then
     k
   else
     withInferTypeConfig k
@@ -2112,7 +2112,7 @@ private def isDefEqProj : Expr → Expr → MetaM Bool
     if (← read).inTypeClassResolution then
       -- See comment at `inTypeClassResolution`
       pure (i == j && m == n) <&&> isDefEqStructArgs (Meta.isExprDefEqAux t s)
-    else if !(← getRecordedOption backward.isDefEq.lazyProjDelta) then
+    else if !(← getSynthDefEqFlag (·.lazyProjDelta) (backward.isDefEq.lazyProjDelta.get ·)) then
       pure (i == j && m == n) <&&> isDefEqStructArgs (Meta.isExprDefEqAux t s)
     else if i == j && m == n then
       isDefEqStructArgs (isDefEqProjDelta t s i)
@@ -2275,7 +2275,7 @@ private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Un
     modifyDefEqTransientCache fun c => c.insert key result
 
 private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
-  if (← getRecordedOption backward.isDefEq.lazyWhnfCore) then
+  if (← getSynthDefEqFlag (·.lazyWhnfCore) (backward.isDefEq.lazyWhnfCore.get ·)) then
     withConfig (fun ctx => { ctx with proj := .yesWithDeltaI }) <| whnfCore e
   else
     whnfCore e

@@ -114,7 +114,7 @@ opaque Opq : Nat → Prop
 axiom opq_ax (n : Nat) : Opq n
 
 /--
-error: unproved verification condition for the contract of `residualNoSection`; discharge it in a `where finally | spec => ...` section of the definition
+error: unproved verification conditions for the contract of `residualNoSection`; discharge them in a `where finally | spec => ...` section of the definition
 case vc1
 n : Nat
 ⊢ Opq n
@@ -200,7 +200,7 @@ where finally
 /-! All verification conditions left open are reported in one aggregate error. -/
 
 /--
-error: unproved verification condition for the contract of `residualNoSectionTwoVCs`; discharge it in a `where finally | spec => ...` section of the definition
+error: unproved verification conditions for the contract of `residualNoSectionTwoVCs`; discharge them in a `where finally | spec => ...` section of the definition
 case vc1
 b : Bool
 n : Nat
@@ -223,7 +223,7 @@ def residualNoSectionTwoVCs (b : Bool) (n : Nat) : Id Nat
 opaque Opq2 : Nat → Prop
 
 /--
-error: unproved verification condition for the contract of `residualSectionMiss`; the `where finally | spec => ...` section does not discharge it
+error: unproved verification conditions for the contract of `residualSectionMiss`; the `where finally | spec => ...` section does not discharge them
 case vc1
 n : Nat
 ⊢ Opq2 n
@@ -238,7 +238,7 @@ where finally
 /-! A section step failing on a verification condition leaves it to the aggregate report. -/
 
 /--
-error: unproved verification condition for the contract of `residualSectionStepFails`; the `where finally | spec => ...` section does not discharge it
+error: unproved verification conditions for the contract of `residualSectionStepFails`; the `where finally | spec => ...` section does not discharge them
 case vc1
 n : Nat
 ⊢ Opq2 n

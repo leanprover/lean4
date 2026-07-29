@@ -36,7 +36,8 @@ def contractBinderIdents (binder : Syntax) : Array Ident :=
   | _ =>
       if binder.isIdent then #[⟨binder⟩] else #[]
 
-/-- The path from a `declVal` alternative to its `optional whereDecls` child. -/
+/-- The path from a `declVal` alternative to its `optional whereDecls` child. `declValToWhereFinally`
+in `Lean.Elab.MutualDef` walks the same indices to reach the section this one strips. -/
 private def whereDeclsPath? (v : Syntax) : Option (List Nat) :=
   if v.isOfKind ``Lean.Parser.Command.declValSimple then some [3]
   else if v.isOfKind ``Lean.Parser.Command.whereStructInst then some [2]
@@ -85,11 +86,11 @@ def expandDefContract : Macro := fun stx => do
   unless val.isOfKind ``Lean.Parser.Command.contractDeclVal do Macro.throwUnsupported
   let requireStx := val[0]
   let ensuresStx := val[1]
-  let (specStep?, strippedVal) ← extractSpecSection val[2]
   -- Replace the contract-carrying value with its inner `declVal` so the `def` elaborates normally.
-  let cleanDeclaration := stx.setArg 1 (decl.setArg 3 strippedVal)
   if requireStx.isNone && ensuresStx.isNone then
-    return cleanDeclaration
+    return stx.setArg 1 (decl.setArg 3 val[2])
+  let (specStep?, strippedVal) ← extractSpecSection val[2]
+  let cleanDeclaration := stx.setArg 1 (decl.setArg 3 strippedVal)
   unless (← Macro.hasDecl ``Std.Internal.Do.Triple) do
     Macro.throwErrorAt (if requireStx.isNone then ensuresStx else requireStx)
       "`require`/`ensures` contracts elaborate to a `vcgen`-proved specification theorem; \
@@ -111,11 +112,11 @@ add `import Std.Internal.Do` to use them."
     | _ => Macro.throwUnsupported
   let msg : TSyntax `str := ⟨Syntax.mkStrLit <|
     if specStep?.isSome then
-      s!"unproved verification condition for the contract of `{fId.getId}`; \
-the `where finally | spec => ...` section does not discharge it"
+      s!"unproved verification conditions for the contract of `{fId.getId}`; \
+the `where finally | spec => ...` section does not discharge them"
     else
-      s!"unproved verification condition for the contract of `{fId.getId}`; \
-discharge it in a `where finally | spec => ...` section of the definition"⟩
+      s!"unproved verification conditions for the contract of `{fId.getId}`; \
+discharge them in a `where finally | spec => ...` section of the definition"⟩
   -- The discharger tries `finish`, then the section's steps, then `skip` on each verification
   -- condition, so conditions the steps do not close flow out of `vcgen`; the trailing `first`
   -- reports them in one aggregate error.
@@ -129,10 +130,10 @@ discharge it in a `where finally | spec => ...` section of the definition"⟩
             arr := arr.push (toStep seq.getArgs[i])
         pure arr
     | none => do pure #[toStep (← `(grind| done))]
-  -- `open scoped` activates `Std.Internal.Do`'s scoped instances for the spec theorem without
-  -- adding names to the user's scope.
+  -- `open scoped` activates the instances of `Std.Internal.Do` and the `⊤` notation of
+  -- `Lean.Order` for the spec theorem without adding names to the user's scope.
   let thm ← `(command|
-    open scoped Std.Internal.Do in
+    open scoped Std.Internal.Do Lean.Order in
     @[spec] theorem $specId $binders* : ⦃ $pre ⦄ $fId $args* ⦃ $post ⦄ := by
       vcgen [$fId:ident] with first (finish) ($[$steps];*) (skip)
       first

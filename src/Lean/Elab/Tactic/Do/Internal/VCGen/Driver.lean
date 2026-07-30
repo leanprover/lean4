@@ -41,8 +41,8 @@ public def elabInvariant (invariantAlts : Std.HashMap Nat Syntax) (n : Nat) (mv 
           `(tactic| (rename_i $args*; exact $rhs))
       | _ => return false
     -- `withDefault`: the surrounding grind context forces reducible transparency,
-    -- under which the invariant's binder type (e.g. `List.Cursor _`) isn't
-    -- resolved enough for term elaboration of `xs.suffix.length` to succeed.
+    -- under which the invariant's type isn't resolved enough for term elaboration
+    -- of the alternative's right-hand side to succeed.
     withRef alt <| discard <| Meta.withDefault <| Lean.Elab.runTactic mv tac {} {}
     -- The tactic runs without throwing even when it fails to close the goal;
     -- check explicitly that the MVar got assigned.

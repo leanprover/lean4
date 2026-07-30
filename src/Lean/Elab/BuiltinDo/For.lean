@@ -84,12 +84,16 @@ open Lean.Meta
 
 /-- Rebuild the already-elaborated loop as a `forInWithInvariant` call carrying the `invariant`
 clause: `ForIn.forInWithInvariant`, or `ForIn'.forInWithInvariant'` for a membership-proof binder
-(`for h : x in xs`). The state tuple's layout is `[return?, mutVars…, unit?]`, so the invariant can
-name the loop's mutable variables directly; the early-return slot becomes a wildcard. -/
+(`for h : x in xs`). The clause binds the elements consumed so far and the elements remaining. The
+state tuple's layout is `[return?, mutVars…, unit?]`, so the invariant can name the loop's mutable
+variables directly; the early-return slot becomes a wildcard. -/
 private def mkForInWithInvariant (invClause : Syntax) (h? : Option Syntax)
     (xs preS body σ : Expr) (loopMutVars : Array MutVar) (returnsEarly : Bool)
     (mi : MonadInfo) : DoElabM Expr := do
-  let `(doForInvariant| invariant $cursorBinders* => $invBody) := invClause | throwUnsupportedSyntax
+  let `(doForInvariant| invariant $listBinders* => $invBody) := invClause | throwUnsupportedSyntax
+  unless listBinders.size == 2 do
+    throwErrorAt invClause "The `invariant` clause takes two binders: the elements consumed so far \
+      and the elements remaining."
   let hole ← `(_)
   let mut binders : Array Term := #[]
   if returnsEarly then binders := binders.push hole
@@ -100,7 +104,7 @@ private def mkForInWithInvariant (invClause : Syntax) (h? : Option Syntax)
     | #[b] => pure b
     | _    => `(⟨$binders,*⟩)
   let stateId := mkIdentFrom invClause (← mkFreshUserName `__s)
-  let invLam ← `(fun $cursorBinders* $stateId:ident =>
+  let invLam ← `(fun $listBinders* $stateId:ident =>
     match $stateId:ident with | $statePat => $invBody)
   -- The `forInWithInvariant` gadgets live downstream of this module, so they are referenced by an
   -- unresolved name that resolves in the user's context (which imports the metatheory).

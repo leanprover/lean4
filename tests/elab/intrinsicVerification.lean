@@ -52,8 +52,8 @@ def findSmallest (s : Array Nat) : Id (Option Nat)
   else
     let mut minIndex := 0
     for i in [1:s.size]
-        invariant xs => minIndex < s.size ∧ s[minIndex]! ≤ s[0]! ∧
-                        ∀ j, j ∈ xs.prefix → s[minIndex]! ≤ s[j]!
+        invariant pref _ => minIndex < s.size ∧ s[minIndex]! ≤ s[0]! ∧
+                            ∀ j, j ∈ pref → s[minIndex]! ≤ s[j]!
       do
       if s[i]! < s[minIndex]! then
         minIndex := i
@@ -68,7 +68,7 @@ def findSmallest (s : Array Nat) : Id (Option Nat)
 def sumWithMem (xs : List Nat) : Id Nat
     ensures r => 0 ≤ r := do
   let mut acc := 0
-  for h : x in xs invariant cur => 0 ≤ acc do
+  for h : x in xs invariant _pref _suff => 0 ≤ acc do
     acc := acc + x
   return acc
 
@@ -79,7 +79,7 @@ def sumWithMem (xs : List Nat) : Id Nat
 def sumRangeMem (n : Nat) : Id Nat
     ensures r => 0 ≤ r := do
   let mut acc := 0
-  for h : i in [0:n] invariant cur => 0 ≤ acc do
+  for h : i in [0:n] invariant _pref _suff => 0 ≤ acc do
     acc := acc + i
   return acc
 
@@ -140,7 +140,7 @@ def sumEvens (xs : List Nat) : Id Nat
     ensures r => ∃ k, r = 2 * k
   := do
   let mut acc := 0
-  for x in xs invariant _cur => acc % 2 = 0 do
+  for x in xs invariant _pref _suff => acc % 2 = 0 do
     acc := acc + 2 * x
   return acc
 where finally

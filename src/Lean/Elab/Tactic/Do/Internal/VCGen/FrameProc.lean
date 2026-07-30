@@ -96,12 +96,9 @@ public def VCGen.FrameInferenceInfo.specPre? (i : FrameInferenceInfo) : SymM (Op
     let some specPre ← subgoals.findSomeM? fun g => do
         let ty ← g.getType
         let_expr Lean.Order.PartialOrder.rel _ _ _ specPre := ty | return none
-        -- An assigned head metavariable would hide `specPre`'s operator from the procedure, which
-        -- dispatches on the head (e.g. flattening a `∗` chain); nested metavariables are resolved
-        -- by the procedure's own unification.
-        return some (← instantiateMVarsIfMVarAppS specPre)
+        return some specPre
       | return none
-    some <$> Meta.abstractMVars (← instantiateMVarsS specPre)
+    some <$> Meta.abstractMVars (← instantiateMVars specPre)
   let some abs := abs? | return none
   let (_, _, specPre) ← Meta.openAbstractMVarsResult abs
   return some (← shareCommon specPre)

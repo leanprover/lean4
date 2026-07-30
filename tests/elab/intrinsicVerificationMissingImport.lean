@@ -1,5 +1,6 @@
-/-! A `def` contract or a `for … invariant` clause used without the `Std` metatheory reports a
-helpful error naming the missing import, rather than a downstream elaboration failure. -/
+/-! A `def` contract, a `for … invariant` clause or an `assert` element used without the `Std`
+metatheory reports a helpful error naming the missing import, rather than a downstream elaboration
+failure. -/
 
 /--
 error: `requires`/`ensures` contracts elaborate to a `vcgen`-proved specification theorem; add `import Std.Internal.Do` to use them.
@@ -14,3 +15,9 @@ def g (xs : List Nat) : Id Nat := do
   for x in xs invariant pref suff => 0 ≤ acc do
     acc := acc + x
   return acc
+
+/-- error: the `assert` element elaborates to a `vcgen` gadget; add `import Std.Internal.Do` to use it. -/
+#guard_msgs in
+def h (n : Nat) : Id Nat := do
+  assert n > 0
+  return n

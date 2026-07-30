@@ -47,6 +47,10 @@ do
   unless c✝ do
     pure✝ ()
 do
+  assert 0 ≤ acc✝
+do
+  assert s✝ => s✝ ≤ acc✝
+do
   for x✝ in xs✝ invariant pref✝ suff✝ => 0 ≤ acc✝ do
     pure✝ ()
 do

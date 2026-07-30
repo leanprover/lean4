@@ -313,7 +313,7 @@ theorem le_forall {α : Sort u} (p : Prop) (q : α → Prop)
   · intro ⟨i, hi⟩
     exact (le_iSup f i) hi
 
-@[simp] theorem meet_prop_eq_and (a b : Prop) : (a ⊓ b : Prop) = (a ∧ b) := by
+@[grind =, simp] theorem meet_prop_eq_and (a b : Prop) : (a ⊓ b : Prop) = (a ∧ b) := by
   apply propext
   constructor
   · intro hab
@@ -431,6 +431,11 @@ theorem le_ofProp [CompleteLattice l] (x : l) (p : Prop) : p → x ⊑ ⌜p⌝ :
 theorem ofProp_le [CompleteLattice l] (p : Prop) (rhs : l) :
     (p → (⊤ : l) ⊑ rhs) → ⌜p⌝ ⊑ rhs :=
   (CompleteLattice.ofProp_intro p rhs).mpr
+
+/-- `⌜p⌝ ⊓ x ⊑ rhs` reduces to assuming `p` and proving `x ⊑ rhs`. -/
+theorem ofProp_meet_le [CompleteLattice l] (p : Prop) (x rhs : l) :
+    (p → x ⊑ rhs) → ⌜p⌝ ⊓ x ⊑ rhs :=
+  (CompleteLattice.ofProp_intro_r p x rhs).mpr
 
 /-- Entailment between functions is pointwise. -/
 theorem le_iff_forall_le {σ : Type u} {α : Type v} [PartialOrder α] {f g : σ → α} :

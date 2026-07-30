@@ -3792,7 +3792,7 @@ return v___x_1294_;
 v___jp_1295_:
 {
 lean_object* v___x_1300_; 
-v___x_1300_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Meta_Tactic_BVDecide_M_atoms_spec__1___redArg(v___y_1298_, v___y_1296_, v___y_1297_, v___y_1299_);
+v___x_1300_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Meta_Tactic_BVDecide_M_atoms_spec__1___redArg(v___y_1298_, v___y_1297_, v___y_1296_, v___y_1299_);
 lean_dec(v___y_1299_);
 lean_dec(v___y_1298_);
 v___y_1290_ = v___x_1300_;
@@ -3801,23 +3801,23 @@ goto v___jp_1289_;
 v___jp_1301_:
 {
 uint8_t v___x_1306_; 
-v___x_1306_ = lean_nat_dec_le(v___y_1305_, v___y_1303_);
+v___x_1306_ = lean_nat_dec_le(v___y_1305_, v___y_1302_);
 if (v___x_1306_ == 0)
 {
-lean_dec(v___y_1303_);
+lean_dec(v___y_1302_);
 lean_inc(v___y_1305_);
-v___y_1296_ = v___y_1302_;
-v___y_1297_ = v___y_1305_;
-v___y_1298_ = v___y_1304_;
+v___y_1296_ = v___y_1305_;
+v___y_1297_ = v___y_1304_;
+v___y_1298_ = v___y_1303_;
 v___y_1299_ = v___y_1305_;
 goto v___jp_1295_;
 }
 else
 {
-v___y_1296_ = v___y_1302_;
-v___y_1297_ = v___y_1305_;
-v___y_1298_ = v___y_1304_;
-v___y_1299_ = v___y_1303_;
+v___y_1296_ = v___y_1305_;
+v___y_1297_ = v___y_1304_;
+v___y_1298_ = v___y_1303_;
+v___y_1299_ = v___y_1302_;
 goto v___jp_1295_;
 }
 }
@@ -3836,17 +3836,17 @@ v___x_1314_ = lean_nat_dec_le(v___x_1310_, v___x_1313_);
 if (v___x_1314_ == 0)
 {
 lean_inc(v___x_1313_);
-v___y_1302_ = v___y_1308_;
-v___y_1303_ = v___x_1313_;
-v___y_1304_ = v___x_1309_;
+v___y_1302_ = v___x_1313_;
+v___y_1303_ = v___x_1309_;
+v___y_1304_ = v___y_1308_;
 v___y_1305_ = v___x_1313_;
 goto v___jp_1301_;
 }
 else
 {
-v___y_1302_ = v___y_1308_;
-v___y_1303_ = v___x_1313_;
-v___y_1304_ = v___x_1309_;
+v___y_1302_ = v___x_1313_;
+v___y_1303_ = v___x_1309_;
+v___y_1304_ = v___y_1308_;
 v___y_1305_ = v___x_1310_;
 goto v___jp_1301_;
 }
@@ -6359,11 +6359,13 @@ lean_object* runtime_initialize_Std_Data_HashMap(uint8_t builtin);
 lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_AppBuilder(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_RArray(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_BVDecide_Reflect_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Data_HashMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

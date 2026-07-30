@@ -361,7 +361,7 @@ def channelStreamHelper : Async Unit := do
 -- Test Body.stream initializes known-size metadata before starting the producer
 
 def channelStreamInitialKnownSize : Async Unit := do
-  let stream ← Body.stream (knownSize := some .chunked) fun s => do
+  let stream ← Body.stream fun s => do
     assert! (← s.getKnownSize) == some .chunked
     s.setKnownSize (some (.fixed 42))
 

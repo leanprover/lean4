@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Meta.Tactic.Cbv
 public import Lean.Meta.Tactic
-public import Lean.Elab.Tactic.Location
 
 public section
 
@@ -19,11 +18,8 @@ open Lean.Meta.Tactic.Cbv
 @[builtin_tactic Lean.Parser.Tactic.cbv] def evalCbv : Tactic := fun stx => withMainContext do
   if cbv.warning.get (← getOptions) then
     logWarningAt stx "The `cbv` usage warning option is enabled. Disable it by setting `set_option cbv.warning false`."
-  let (fvarIds, simplifyTarget) ← match expandOptLocation stx[1] with
-    | Location.targets hyps simplifyTarget => pure (← getFVarIds hyps, simplifyTarget)
-    | Location.wildcard => pure (← (← getMainGoal).getNondepPropHyps, true)
   liftMetaTactic fun mvar => do
-    match (← cbvGoal mvar (simplifyTarget := simplifyTarget) (fvarIdsToSimp := fvarIds)) with
+    match (← cbvGoal mvar) with
     | .none => return []
     | .some newGoal => return [newGoal]
 

@@ -3472,10 +3472,10 @@ v_fvarId_1261_ = lean_ctor_get(v_localDecl_1255_, 1);
 lean_inc_ref(v_localDecl_1255_);
 lean_inc(v_fvarId_1261_);
 v___x_1262_ = l_Lean_PersistentHashMap_insert___at___00Lean_Meta_AbstractNestedProofs_visit_spec__4___redArg(v_fvarIdToDecl_1256_, v_fvarId_1261_, v_localDecl_1255_);
-v___y_1242_ = v_decls_1257_;
-v___y_1243_ = v_auxDeclToFullName_1258_;
-v___y_1244_ = v___x_1262_;
-v___y_1245_ = v_localDecl_1255_;
+v___y_1242_ = v_localDecl_1255_;
+v___y_1243_ = v___x_1262_;
+v___y_1244_ = v_auxDeclToFullName_1258_;
+v___y_1245_ = v_decls_1257_;
 v___y_1246_ = v_index_1260_;
 goto v___jp_1241_;
 }
@@ -3494,13 +3494,13 @@ v___jp_1241_:
 {
 lean_object* v___x_1247_; lean_object* v___x_1248_; lean_object* v___x_1249_; 
 v___x_1247_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_1247_, 0, v___y_1245_);
-v___x_1248_ = l_Lean_PersistentArray_set___redArg(v___y_1242_, v___y_1246_, v___x_1247_);
+lean_ctor_set(v___x_1247_, 0, v___y_1242_);
+v___x_1248_ = l_Lean_PersistentArray_set___redArg(v___y_1245_, v___y_1246_, v___x_1247_);
 lean_dec(v___y_1246_);
 v___x_1249_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_1249_, 0, v___y_1244_);
+lean_ctor_set(v___x_1249_, 0, v___y_1243_);
 lean_ctor_set(v___x_1249_, 1, v___x_1248_);
-lean_ctor_set(v___x_1249_, 2, v___y_1243_);
+lean_ctor_set(v___x_1249_, 2, v___y_1244_);
 v_a_1237_ = v___x_1249_;
 goto v___jp_1236_;
 }
@@ -4795,11 +4795,13 @@ return v_res_1850_;
 lean_object* runtime_initialize_Init_Grind_Util(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Closure(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Transform(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_AbstractNestedProofs(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Grind_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

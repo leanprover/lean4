@@ -230,12 +230,15 @@ environment environment::add_mutual(declaration const & d, bool check) const {
     definition_safety safety = head(vs).get_safety();
     if (safety == definition_safety::safe)
         throw kernel_exception(*this, "invalid mutual definition, declaration is not tagged as unsafe/partial");
+    names const & lparams = head(vs).get_lparams();
     /* Check declarations header */
     if (check) {
         type_checker checker(*this, diag.get(), safety);
         for (definition_val const & v : vs) {
             if (v.get_safety() != safety)
                 throw kernel_exception(*this, "invalid mutual definition, declarations must have the same safety annotation");
+            if (v.get_lparams() != lparams)
+                throw kernel_exception(*this, "invalid mutual definition, declarations must have the same universe level parameters");
             check_constant_val(*this, v.to_constant_val(), checker);
         }
     }

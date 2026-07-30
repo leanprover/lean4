@@ -4265,8 +4265,8 @@ goto v___jp_1537_;
 v___jp_1503_:
 {
 lean_object* v___x_1506_; 
-v___x_1506_ = lean_find_expr(v___y_1504_, v_type_1497_);
-lean_dec_ref(v___y_1504_);
+v___x_1506_ = lean_find_expr(v___y_1505_, v_type_1497_);
+lean_dec_ref(v___y_1505_);
 if (lean_obj_tag(v___x_1506_) == 1)
 {
 lean_object* v_val_1507_; lean_object* v___x_1508_; 
@@ -4282,8 +4282,8 @@ v_declName_1509_ = lean_ctor_get(v___x_1508_, 0);
 lean_inc(v_declName_1509_);
 lean_dec_ref_known(v___x_1508_, 2);
 v___x_1510_ = l_Lean_Meta_Grind_homoPredExt;
-v___x_1511_ = lean_array_get_size(v___y_1505_);
-lean_dec_ref(v___y_1505_);
+v___x_1511_ = lean_array_get_size(v___y_1504_);
+lean_dec_ref(v___y_1504_);
 v___x_1512_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1512_, 0, v_declName_1494_);
 lean_ctor_set(v___x_1512_, 1, v___x_1511_);
@@ -4297,7 +4297,7 @@ else
 {
 lean_object* v___x_1515_; lean_object* v___x_1516_; 
 lean_dec_ref(v___x_1508_);
-lean_dec_ref(v___y_1505_);
+lean_dec_ref(v___y_1504_);
 lean_dec(v_declName_1494_);
 v___x_1515_ = lean_obj_once(&l_Lean_Meta_Grind_addHomoPredAttr___lam__1___closed__3, &l_Lean_Meta_Grind_addHomoPredAttr___lam__1___closed__3_once, _init_l_Lean_Meta_Grind_addHomoPredAttr___lam__1___closed__3);
 v___x_1516_ = l_panic___at___00Lean_Meta_Grind_addHomoPredAttr_spec__1(v___x_1515_, v___y_1498_, v___y_1499_, v___y_1500_, v___y_1501_);
@@ -4308,7 +4308,7 @@ else
 {
 lean_object* v___x_1517_; uint8_t v___x_1518_; lean_object* v___x_1519_; lean_object* v___x_1520_; lean_object* v___x_1521_; lean_object* v___x_1522_; lean_object* v___x_1523_; 
 lean_dec(v___x_1506_);
-lean_dec_ref(v___y_1505_);
+lean_dec_ref(v___y_1504_);
 v___x_1517_ = lean_obj_once(&l_Lean_Meta_Grind_addHomoPredAttr___lam__1___closed__5, &l_Lean_Meta_Grind_addHomoPredAttr___lam__1___closed__5_once, _init_l_Lean_Meta_Grind_addHomoPredAttr___lam__1___closed__5);
 v___x_1518_ = 0;
 v___x_1519_ = l_Lean_MessageData_ofConstName(v_declName_1494_, v___x_1518_);
@@ -4334,8 +4334,8 @@ v___x_1528_ = lean_unsigned_to_nat(0u);
 v___x_1529_ = lean_nat_dec_eq(v___x_1527_, v___x_1528_);
 if (v___x_1529_ == 0)
 {
-v___y_1504_ = v___f_1526_;
-v___y_1505_ = v_a_1525_;
+v___y_1504_ = v_a_1525_;
+v___y_1505_ = v___f_1526_;
 goto v___jp_1503_;
 }
 else
@@ -4910,11 +4910,13 @@ return v_res_1767_;
 lean_object* runtime_initialize_Lean_Meta_Sym_Simp_Theorems(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_Simp_Attr(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_AppBuilder(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Homo(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Sym_Simp_Theorems(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

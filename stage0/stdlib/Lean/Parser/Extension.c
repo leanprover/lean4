@@ -11825,8 +11825,8 @@ goto v___jp_3692_;
 }
 else
 {
-lean_dec(v_pre_3716_);
 lean_dec_ref_known(v_pre_3715_, 2);
+lean_dec(v_pre_3716_);
 lean_dec_ref_known(v_declName_3714_, 2);
 lean_dec(v_a_3707_);
 lean_dec(v_catName_3679_);
@@ -11838,8 +11838,8 @@ goto v___jp_3692_;
 }
 else
 {
-lean_dec_ref_known(v_declName_3714_, 2);
 lean_dec(v_pre_3715_);
+lean_dec_ref_known(v_declName_3714_, 2);
 lean_dec(v_a_3707_);
 lean_dec(v_catName_3679_);
 v___y_3693_ = v_a_3712_;
@@ -13708,16 +13708,16 @@ goto v___jp_4464_;
 }
 else
 {
-lean_dec(v_tail_4467_);
 lean_dec_ref_known(v_head_4466_, 1);
+lean_dec(v_tail_4467_);
 lean_dec(v_ref_4462_);
 goto v___jp_4464_;
 }
 }
 else
 {
-lean_dec(v_head_4466_);
 lean_dec_ref_known(v_args_4463_, 2);
+lean_dec(v_head_4466_);
 lean_dec(v_ref_4462_);
 goto v___jp_4464_;
 }
@@ -15711,8 +15711,8 @@ return v___x_5156_;
 else
 {
 lean_object* v___x_5157_; 
-lean_dec(v_pre_5119_);
 lean_dec_ref_known(v_declName_5118_, 2);
+lean_dec(v_pre_5119_);
 lean_del_object(v___x_5115_);
 v___x_5157_ = lean_box(0);
 return v___x_5157_;
@@ -16759,11 +16759,13 @@ return v___x_5482_;
 lean_object* runtime_initialize_Lean_Parser_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_ScopedEnvExtension(uint8_t builtin);
 lean_object* runtime_initialize_Lean_BuiltinDocAttr(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Parser_Extension(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Parser_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

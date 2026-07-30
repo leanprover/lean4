@@ -185,7 +185,7 @@ partial def ofElem (stx : DoElem) : TermElabM ControlInfo := do
   | `(doElem| unless $_ do $elseSeq) =>
     ControlInfo.alternative {} <$> ofSeq elseSeq
   -- For/Repeat
-  | `(doElem| for $[$[$_ :]? $_ in $_],* do $bodySeq) =>
+  | `(doElem| for $[$[$_ :]? $_ in $_],* $[$_:doForInvariant]? do $bodySeq) =>
     let info ← ofSeq bodySeq
     return { info with  -- keep only reassigns and returnsEarly
       numRegularExits := 1,
@@ -225,6 +225,8 @@ partial def ofElem (stx : DoElem) : TermElabM ControlInfo := do
   | `(doElem| dbg_trace $_) => return .pure
   | `(doElem| assert! $_) => return .pure
   | `(doElem| debug_assert! $_) => return .pure
+  -- Names the parser directly because stage0's `doElem` category has no `assert` element.
+  | `(doAssertion| assert $_) => return .pure
   -- match_expr and let_expr
   | `(doElem| match_expr $[(meta := false)]? $_ with $[| $_:matchExprPat => $rhsSeqs]* | _ => $elseSeq) =>
     let mut info ← ofSeq elseSeq

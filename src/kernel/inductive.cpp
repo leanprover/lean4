@@ -796,11 +796,12 @@ static name * g_nested_fresh = nullptr;
 struct elim_nested_inductive_result {
     name_generator           m_ngen;
     buffer<expr>             m_params;
+    local_ctx                m_params_lctx; /* local context declaring the free vars in `m_params` (and in the `m_aux2nested` values). */
     name_map<expr>           m_aux2nested; /* mapping from auxiliary type to nested inductive type. */
     declaration              m_aux_decl;
 
-    elim_nested_inductive_result(name_generator const & ngen, buffer<expr> const & params, buffer<pair<expr, name>> const & nested_aux, declaration const & d):
-        m_ngen(ngen), m_params(params), m_aux_decl(d) {
+    elim_nested_inductive_result(name_generator const & ngen, buffer<expr> const & params, local_ctx const & params_lctx, buffer<pair<expr, name>> const & nested_aux, declaration const & d):
+        m_ngen(ngen), m_params(params), m_params_lctx(params_lctx), m_aux_decl(d) {
         for (pair<expr, name> const & p : nested_aux) {
             m_aux2nested.insert(p.second, p.first);
         }
@@ -1072,7 +1073,7 @@ struct elim_nested_inductive_fn {
             qhead++;
         }
         declaration aux_decl = mk_inductive_decl(ind_d.get_lparams(), ind_d.get_nparams(), inductive_types(m_new_types), ind_d.is_unsafe());
-        return elim_nested_inductive_result(m_ngen, m_params, m_nested_aux, aux_decl);
+        return elim_nested_inductive_result(m_ngen, m_params, m_params_lctx, m_nested_aux, aux_decl);
     }
 };
 
@@ -1114,6 +1115,15 @@ static pair<names, name_map<name>> mk_aux_rec_name_map(environment const & aux_e
 }
 
 environment environment::add_inductive(declaration const & d) const {
+    /* Reject metavariables and free variables in declaration. */
+    {
+        inductive_decl ind_d(d);
+        for (inductive_type const & ind_type : ind_d.get_types()) {
+            check_no_metavar_no_fvar(*this, ind_type.get_name(), ind_type.get_type());
+            for (constructor const & cnstr : ind_type.get_cnstrs())
+                check_no_metavar_no_fvar(*this, constructor_name(cnstr), constructor_type(cnstr));
+        }
+    }
     elim_nested_inductive_result res = elim_nested_inductive_fn(*this, d)();
     unsigned nnested = res.m_aux2nested.size();
     scoped_diagnostics diag(*this, true);
@@ -1176,6 +1186,16 @@ environment environment::add_inductive(declaration const & d) const {
         }
         for (name const & aux_rec : aux_rec_names) {
             process_rec(aux_rec);
+        }
+        /* Type check the nested inductive applications `I Ds` that were replaced by auxiliary types.
+           The parametric arguments `Ds` do not appear in the auxiliary declaration, so they would
+           otherwise escape type checking. We check them at the end, using `new_env`, to avoid
+           type checking terms in an environment containing auxiliary declarations. */
+        {
+            type_checker tc(new_env, res.m_params_lctx, diag.get(), inductive_decl(d).is_unsafe() ? definition_safety::unsafe : definition_safety::safe);
+            res.m_aux2nested.for_each([&](name const &, expr const & nested) {
+                    tc.check(nested, inductive_decl(d).get_lparams());
+                });
         }
         return diag.update(new_env);
     }

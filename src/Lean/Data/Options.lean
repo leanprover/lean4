@@ -231,7 +231,7 @@ macro (name := registerBuiltinOption) doc?:(docComment)? vis?:(visibility)? "reg
   `($[$doc?]? $[$vis?:visibility]? builtin_initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
 
 private meta def declWithDeprecation (attr : Syntax) (type decl : Term) : MacroM Term := do
-  let `(attr| deprecated $[$id?]? $[$text?]? $[(since := $since?)]?) := attr | return decl
+  let `(attr| deprecated $[$id?]? $[$text?]? $[$_typeChanged?]? $[(since := $since?)]?) := attr | return decl
   let since : Term ← match since? with | some s => pure s | none => `("")
   let text : Term ← match text? with | some text => `(some $text) | none => `(none)
   let newName : Term ← match id? with | some id => `(some ($id).name) | none => `(none)

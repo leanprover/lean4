@@ -3158,8 +3158,8 @@ return v___x_858_;
 else
 {
 lean_object* v___x_859_; 
-lean_dec_ref_known(v_declName_806_, 2);
 lean_dec(v_pre_807_);
+lean_dec_ref_known(v_declName_806_, 2);
 lean_del_object(v___x_803_);
 lean_dec_ref(v_inst_793_);
 v___x_859_ = l___private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFailedToEval___redArg(v_a_801_, v_a_795_, v_a_796_, v_a_797_, v_a_798_);
@@ -4290,8 +4290,8 @@ return v___x_1226_;
 else
 {
 lean_object* v___x_1227_; 
-lean_dec_ref_known(v_pre_1185_, 2);
 lean_dec(v_pre_1186_);
+lean_dec_ref_known(v_pre_1185_, 2);
 lean_dec_ref_known(v_val_1184_, 2);
 lean_del_object(v___x_1181_);
 v___x_1227_ = l___private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFailedToEval___redArg(v_e_1172_, v_a_1173_, v_a_1174_, v_a_1175_, v_a_1176_);
@@ -5700,11 +5700,13 @@ return v_res_1641_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Offset(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_ReduceEval(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Offset(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -347,8 +347,14 @@ jobs:
           git config user.email "stage0@lean-fro.org"
           git config user.name "update-stage0"
           make -C build update-stage0
-          git commit --allow-empty -m "chore: update-stage0"
+          # An empty commit changes `Lean.githash` without changing the stage0 tree hash that keys
+          # Lake's traces, leaving stage 1 `.olean`s stale with respect to the rebuilt binaries. If
+          # stage0 is unchanged, there is nothing to rebootstrap anyway, so exit early.
+          git diff --cached --quiet -- stage0 && exit 0 || git commit -m "chore: update-stage0"
           time make -C build -j$NPROC
+          # Set Lake's githash to the new stage0 hash used during the build (for the tests).
+          # Updating `GITHUB_ENV` would only apply to future steps (which do not need it).
+          export LEAN_GITHASH=$(cat build/stage1/lake-githash)
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC
         if: matrix.check-rebootstrap
       - name: CCache stats

@@ -76,6 +76,13 @@ public def SpecAttr.SpecTheorem.instantiate (specThm : SpecTheorem) :
 public def SpecAttr.SpecTheorem.global? (specThm : SpecTheorem) : Option Name :=
   match specThm.proof with | .global decl => some decl | _ => none
 
+/-- True iff the spec's pattern unifies with the program, mirroring the match performed in
+`findSpecs`. Distinguishes a spurious discrimination-tree candidate, whose pattern does not unify,
+from a spec whose pattern matches yet whose backward rule fails to apply. -/
+public def SpecAttr.SpecTheorem.patternMatches (specThm : SpecTheorem) (prog : Expr) : SymM Bool :=
+  withNewMCtxDepth do
+    return (← specThm.pattern.match? prog).isSome
+
 namespace VCGen
 
 /--

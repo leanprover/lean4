@@ -104,6 +104,7 @@ add `import Std.Internal.Do` to use them."
   let args := sigBinders.flatMap contractBinderIdents
   let pre : Term ← if requiresStx.isNone then `(⊤) else
     match requiresStx[0] with
+    | `(requiresClause| requires $bs* => $p) => `(fun $bs* => $p)
     | `(requiresClause| requires $p) => pure p
     | _ => Macro.throwUnsupported
   let post : Term ← if ensuresStx.isNone then `(fun _ => ⊤) else

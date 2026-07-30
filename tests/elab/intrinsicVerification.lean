@@ -91,14 +91,26 @@ def sumRangeMem (n : Nat) : Id Nat
 The invariant need not mention a mutable variable: here it constrains the `StateM` state. -/
 
 def sumIntoState (xs : List Nat) : StateM Nat Unit
-    requires (fun s => s = 0)
+    requires s => s = 0
     ensures _ s => s = xs.sum
   := do
-  for x in xs invariant pref _ => (fun s => s = pref.sum) do
+  for x in xs invariant pref _ s => s = pref.sum do
     modify (· + x)
 
 #guard_msgs (drop info) in
 #check @sumIntoState.spec
+
+/-! ## The `invariant` clause needs at least two binders -/
+
+/--
+error: The `invariant` clause takes at least two binders: the elements consumed so far and the elements remaining.
+-/
+#guard_msgs in
+example (xs : List Nat) : Id Nat := do
+  let mut acc := 0
+  for x in xs invariant _pref => 0 ≤ acc do
+    acc := acc + x
+  return acc
 
 /-! ## The contract telescope is transplanted faithfully to `f.spec`
 

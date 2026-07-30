@@ -178,9 +178,10 @@ def doForDecl := leading_parser
   optional (atomic (ident >> " : ")) >> termParser >> " in " >>
     withForbiddens #["do", "invariant"] termParser
 /--
-The optional `invariant pref suff => e` clause of a `for` loop. The invariant annotates the loop so
-`vcgen` reads it from the program, with `pref` bound to the elements consumed so far, `suff` to the
-elements remaining, and mutable variables referenced by name.
+The optional `invariant pref suff a b c => e` clause of a `for` loop. The invariant annotates the
+loop so `vcgen` reads it from the program, with `pref` bound to the elements consumed so far, `suff`
+to the elements remaining, and mutable variables referenced by name. Any further binders, here
+`a b c`, bind the arguments of the assertion itself, such as the state of a state monad.
 -/
 def doForInvariant := leading_parser
   ppSpace >> nonReservedSymbol "invariant" >> withForbidden "do" basicFun

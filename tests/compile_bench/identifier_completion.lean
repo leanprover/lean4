@@ -7,7 +7,7 @@ def mkCompletionRequest (id : Nat) : JsonRpc.Request Json :=
   { id, method := "textDocument/completion", param }
 
 def main : IO Unit := do
-  Ipc.runWith "lean" #["--server"] do
+  Ipc.runWith "lean" #["--server", "-Dbootstrap.prelude=true"] do
     let hIn ← Ipc.stdin
     hIn.write (← FS.readBinFile "identifier_completion.lean.dir/initialization.log")
     hIn.flush

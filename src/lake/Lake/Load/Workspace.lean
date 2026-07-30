@@ -54,6 +54,27 @@ public def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   }
 
 /--
+Module name roots owned by the Lean toolchain.
+
+A workspace library providing one of these shadows the toolchain's own modules for every module in
+the workspace, because Lake resolves imports against the workspace before the search path. In the
+case of `Init` that replaces the prelude implicitly imported by every module, so only packages that
+are Lean itself (`bootstrap`) may declare them.
+-/
+def reservedModuleRoots : Array Name := #[`Init, `Std, `Lean, `Lake]
+
+/-- Errors if a non-`bootstrap` package declares a library rooted at a reserved module name. -/
+def Workspace.validateModuleRoots (self : Workspace) : LoggerIO PUnit := do
+  for pkg in self.packages do
+    if pkg.bootstrap then
+      continue
+    for lib in pkg.leanLibs do
+      for root in lib.roots do
+        if reservedModuleRoots.contains root.getRoot then
+          error s!"{pkg.prettyName}: library '{lib.name}' is rooted at '{root}', which is reserved \
+            for the Lean toolchain"
+
+/--
 Load a `Workspace` for a Lake package by
 elaborating its configuration file and resolving its dependencies.
 If `updateDeps` is true, updates the manifest before resolving dependencies.
@@ -61,12 +82,15 @@ If `updateDeps` is true, updates the manifest before resolving dependencies.
 public def loadWorkspace (config : LoadConfig) : LoggerIO Workspace := do
   let {reconfigure, leanOpts, updateDeps, updateToolchain, packageOverrides, ..} := config
   let ws ← loadWorkspaceRoot config
-  if updateDeps then
-    ws.updateAndMaterialize {} leanOpts updateToolchain
-  else if let some manifest ← Manifest.load? ws.manifestFile then
-    ws.materializeDeps manifest leanOpts reconfigure packageOverrides
-  else
-    ws.updateAndMaterialize {} leanOpts updateToolchain
+  let ws ←
+    if updateDeps then
+      ws.updateAndMaterialize {} leanOpts updateToolchain
+    else if let some manifest ← Manifest.load? ws.manifestFile then
+      ws.materializeDeps manifest leanOpts reconfigure packageOverrides
+    else
+      ws.updateAndMaterialize {} leanOpts updateToolchain
+  ws.validateModuleRoots
+  return ws
 
 /-- Updates the manifest for the loaded Lake workspace (see `updateAndMaterialize`). -/
 public def updateManifest

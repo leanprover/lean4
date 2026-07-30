@@ -6,7 +6,7 @@ maybe_use_lean_header_snapshot "$1"
 # Elab.inServer to allow for arbitrary `#eval`
 # compiler.postponeCompile for immediate trace output
 capture_only "$1" \
-  lean --root=.. -DprintMessageEndPos=true -Dlinter.all=false -DElab.inServer=true -Dcompiler.postponeCompile=false "${TEST_LEAN_ARGS[@]}" "$1"
+  lean --root=.. -DprintMessageEndPos=true -Dlinter.all=false -DElab.inServer=true -Dcompiler.postponeCompile=false -Dbootstrap.prelude=true "${TEST_LEAN_ARGS[@]}" "$1"
 normalize_mvar_suffixes
 normalize_reference_urls
 normalize_measurements

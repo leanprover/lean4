@@ -46,6 +46,11 @@ moreLeanArgs = [${LEAN_EXTRA_OPTS_TOML}]
 # Enable core-only linters
 leanOptions.linter.coreInternal = true
 
+# Core is the only code allowed to use `prelude`. A `leanOption` rather than a `moreLeanArg` so that
+# it also reaches the language server, which is configured from the module setup. `weak` because
+# stage 0 does not know the option yet; it can be dropped after the next `update-stage0`.
+leanOptions.weak.bootstrap.prelude = true
+
 # Uncomment to limit number of reported errors further in case of overwhelming cmdline output
 #weakLeanArgs = ["-DmaxErrors=1"]
 

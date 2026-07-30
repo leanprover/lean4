@@ -8,6 +8,7 @@ import Lean
 set_option internal.cmdlineSnapshots false
 set_option printMessageEndPos false
 set_option Elab.inServer false
+set_option bootstrap.prelude false
 
 /-- info: -- In root namespace with initial scope -/
 #guard_msgs in #where

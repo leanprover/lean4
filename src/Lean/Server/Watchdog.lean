@@ -1712,6 +1712,9 @@ def startLoadingReferences (referenceData : Std.Mutex ReferenceData) : IO Unit :
         -- ilean load errors should not be fatal, but we *should* log them
         -- when we add logging to the server
         pure ()
+
+    -- This warning message only makes sense if we're only building .ilean.mmap files for read-only toolchain and library files.
+    -- For other use cases, this will be too noisy.
     if compactedIleanErrors > 0 then
       (← getStderr).putStrLn s!"Attempted to load {compactedIleanCount} .{Ilean.compactedExt} {compactedIleanCount.plural "file"}, but failed to load {compactedIleanErrors} of them"
   referenceData.atomically <| modify fun rd =>

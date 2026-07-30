@@ -21,6 +21,10 @@ namespace lean {
 
 static std::unique_ptr<lthread> g_libuv_thread;
 
+// How long `finalize_libuv` waits for outstanding threadpool requests before abandoning them. Only
+// reached when a request is stuck in an uninterruptible syscall; the common case exits immediately.
+#define LEAN_UV_TEARDOWN_DRAIN_NS (100ull * 1000ull * 1000ull)
+
 extern "C" void initialize_libuv() {
     initialize_libuv_timer();
     initialize_libuv_tcp_socket();
@@ -99,11 +103,37 @@ extern "C" void finalize_libuv() {
     // `event_loop_wait_finalized` stay blocked until teardown fully completes.
     event_loop_mark_finalized(&global_ev);
 
-    uv_run(global_ev.loop, UV_RUN_DEFAULT);
+    // Requests bound to the loop rather than to a handle (DNS, `uv_random`) are invisible to the
+    // walk above, so cancel them explicitly. Whatever is still queued completes promptly during the
+    // drain; whatever already reached a threadpool worker cannot be interrupted at all.
+    event_loop_cancel_requests(&global_ev);
 
-    int close_result = uv_loop_close(global_ev.loop);
-    lean_assert(close_result == 0);
-    (void)close_result;
+    // Drain with `UV_RUN_NOWAIT` rather than `UV_RUN_DEFAULT`. The close callbacks queued by the
+    // walk, and the connect/send/shutdown callbacks libuv cancels along with them, all complete in
+    // a bounded number of iterations. `UV_RUN_DEFAULT` would additionally block until every
+    // threadpool request finished, which an unresponsive resolver can delay indefinitely.
+    uint64_t const deadline = uv_hrtime() + LEAN_UV_TEARDOWN_DRAIN_NS;
+
+    while (uv_run(global_ev.loop, UV_RUN_NOWAIT) != 0) {
+        if (uv_hrtime() >= deadline) {
+            break;
+        }
+
+        // Only an outstanding threadpool request can keep the loop alive for long; yield to it
+        // instead of spinning. Handle work needs no wait and falls out of the loop immediately.
+        if (event_loop_has_requests(&global_ev)) {
+            uv_sleep(1);
+        }
+    }
+
+    size_t abandoned = event_loop_detach_requests(&global_ev);
+
+    // With requests abandoned the loop still owns them, so `uv_loop_close` would return `UV_EBUSY`.
+    // Leaving the loop open at process exit is harmless; it is a static.
+    if (abandoned == 0) {
+        int close_result = uv_loop_close(global_ev.loop);
+        lean_always_assert(close_result == 0);
+    }
 
     // Release the references the loop held on the surviving wrappers. Deferred until now because
     // these `lean_dec`s can run wrapper finalizers, which must observe the finalized loop.

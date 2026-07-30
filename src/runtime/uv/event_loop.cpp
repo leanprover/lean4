@@ -64,6 +64,7 @@ void event_loop_init(event_loop_t * event_loop) {
     event_loop->n_waiters = 0;
     event_loop->n_active = 0;
     event_loop->state = EVENT_LOOP_RUNNING;
+    event_loop->requests = nullptr;
 }
 
 // Leaves the drain region entered in `event_loop_lock`. While finalizing, the last requester to
@@ -154,6 +155,73 @@ void event_loop_wait_finalized(event_loop_t * event_loop) {
         uv_cond_wait(&event_loop->finalize_cond, &event_loop->mutex);
     }
     uv_mutex_unlock(&event_loop->mutex);
+}
+
+void event_loop_register_request(event_loop_t * event_loop, uv_pending_req * pending, uv_req_t * req,
+                                 lean_object * promise) {
+    pending->req = req;
+    pending->promise = promise;
+    pending->prev = nullptr;
+    pending->next = event_loop->requests;
+
+    if (event_loop->requests != nullptr) {
+        event_loop->requests->prev = pending;
+    }
+
+    event_loop->requests = pending;
+}
+
+void event_loop_unregister_request(event_loop_t * event_loop, uv_pending_req * pending) {
+    if (pending->prev != nullptr) {
+        pending->prev->next = pending->next;
+    } else {
+        event_loop->requests = pending->next;
+    }
+
+    if (pending->next != nullptr) {
+        pending->next->prev = pending->prev;
+    }
+
+    pending->prev = nullptr;
+    pending->next = nullptr;
+}
+
+// Asks libuv to cancel every tracked request. This only succeeds for requests still queued in the
+// threadpool; those complete promptly with `UV_ECANCELED` through their normal callback. Requests
+// already executing in a worker (a `getaddrinfo` inside the OS resolver) cannot be interrupted and
+// are left for `event_loop_detach_requests`.
+void event_loop_cancel_requests(event_loop_t * event_loop) {
+    for (uv_pending_req * pending = event_loop->requests; pending != nullptr; pending = pending->next) {
+        uv_cancel(pending->req);
+    }
+}
+
+bool event_loop_has_requests(event_loop_t * event_loop) {
+    return event_loop->requests != nullptr;
+}
+
+// Abandons the requests that outlived the teardown drain, returning how many there were.
+//
+// Their promises are resolved with `UV_ECANCELED` so nothing waits on them forever, but neither the
+// request nor its buffers are freed: a threadpool worker may still be writing into them (`uv_random`
+// fills a `ByteArray` in place), and there is no way to wait for it. Leaking a bounded number of
+// requests at process exit is the price of not blocking on an uninterruptible syscall. This is safe
+// only because the loop is never run again after `finalize_libuv`, so the completion callbacks
+// cannot fire and double-release the promise.
+size_t event_loop_detach_requests(event_loop_t * event_loop) {
+    size_t abandoned = 0;
+
+    for (uv_pending_req * pending = event_loop->requests; pending != nullptr; pending = pending->next) {
+        if (pending->promise != nullptr) {
+            lean_promise_resolve_with_code(UV_ECANCELED, pending->promise);
+            lean_dec(pending->promise);
+            pending->promise = nullptr;
+        }
+
+        abandoned++;
+    }
+
+    return abandoned;
 }
 
 lean_obj_res lean_uv_loop_unavailable_error() {

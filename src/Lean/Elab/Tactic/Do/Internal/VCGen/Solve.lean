@@ -325,19 +325,6 @@ private def stopOrErrorOnMissingSpec (prog monad : Expr) (thms : Array SpecTheor
     throwError "No spec matching the monad {monad} found for program {prog}. \
       Candidates were {thms.map (·.proof)}."
 
-/-- Select the highest-priority `@[spec]` theorem matching `prog`, or a stop result when none matches.
-Hands `findSpecs` the sole reference to the spec database so its in-place pattern internalization does
-not copy the discrimination tree, then threads the updated database back into the returned scope. -/
-private def findSpec (scope : VCGen.Scope) (prog monad : Expr) :
-    VCGenM (VCGen.Scope × Except SolveResult SpecTheorem) := do
-  let specs := scope.specs
-  let scope := { scope with specs := default }
-  let (result, specs) ← SpecTheorems.findSpecs specs prog
-  let scope := { scope with specs }
-  match result with
-  | .ok thm => return (scope, .ok thm)
-  | .error thms => return (scope, .error (← stopOrErrorOnMissingSpec prog monad thms))
-
 /-- True iff the spec's pattern unifies with the program, mirroring the match performed in
 `findSpecs`. Distinguishes a spurious discrimination-tree candidate, whose pattern does not unify,
 from a spec whose pattern matches yet whose backward rule fails to apply. -/
@@ -345,18 +332,32 @@ private def specPatternMatches (thm : SpecTheorem) (prog : Expr) : SymM Bool :=
   withNewMCtxDepth do
     return (← thm.pattern.match? prog).isSome
 
-/-- The backward rule of the `@[spec]` theorem `thm` for the goal (construction is cached), or
-`none` when no rule matches the goal's monad. -/
-private def compileSpecRule (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
-    VCGenM (Option BackwardRule) := do
-  try
-    mkBackwardRuleFromSpecCached thm info |>.run
-  catch ex =>
-    throwError "Failed to construct rule {thm.proof} for {indentExpr info.prog}\n\
-      error: {ex.toMessageData}\n\
-      target:{indentExpr (← goal.getType)}\n\
-      Pred:{indentExpr info.Pred}\n\
-      excessArgs: {info.excessArgs}"
+/-- Select the highest-priority `@[spec]` theorem matching `info.prog` and compile its backward rule
+(construction is cached), or a stop result when no spec matches or no rule fits the goal's monad.
+Hands `findSpecs` the sole reference to the spec database so its in-place pattern internalization
+does not copy the discrimination tree, then threads the updated database back into the returned
+scope. -/
+private def compileSpecRule (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) :
+    VCGenM (VCGen.Scope × Except SolveResult (SpecTheorem × BackwardRule)) := do
+  let specs := scope.specs
+  let scope := { scope with specs := default }
+  let (result, specs) ← SpecTheorems.findSpecs specs info.prog
+  let scope := { scope with specs }
+  let thm ← match result with
+    | .ok thm => pure thm
+    | .error thms => return (scope, .error (← stopOrErrorOnMissingSpec info.prog info.M thms))
+  let rule? ←
+    try
+      mkBackwardRuleFromSpecCached thm info |>.run
+    catch ex =>
+      throwError "Failed to construct rule {thm.proof} for {indentExpr info.prog}\n\
+        error: {ex.toMessageData}\n\
+        target:{indentExpr (← goal.getType)}\n\
+        Pred:{indentExpr info.Pred}\n\
+        excessArgs: {info.excessArgs}"
+  let some rule := rule?
+    | return (scope, .error (← stopOrErrorOnMissingSpec info.prog info.M #[thm]))
+  return (scope, .ok (thm, rule))
 
 /-- Apply the backward `rule` of the selected `@[spec]` theorem `thm`, returning its subgoals.
 Reached from `applySpec`. -/
@@ -486,12 +487,10 @@ Handle a spec-ready program `info.prog`: select its `@[spec]` theorem and either
 -/
 private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) :
     VCGenM SolveResult := goal.withContext do
-  let (scope, spec) ← findSpec scope info.prog info.M
-  let thm ← match spec with
-    | .ok thm => pure thm
+  let (scope, spec) ← compileSpecRule scope goal info
+  let (thm, specRule) ← match spec with
+    | .ok res => pure res
     | .error res => return res
-  let some specRule ← compileSpecRule goal info thm
-    | return ← stopOrErrorOnMissingSpec info.prog info.M #[thm]
   if thm.conjunctivePre || isFramedPost info.post then
     return ← applySpecRule scope goal info thm specRule
   let procs := (← read).frameProcs.byProg

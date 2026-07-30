@@ -196,6 +196,10 @@ def isInductiveOverrideSimpleCore? (env : Environment) (declName : Name) :
   | _ => none
 
 @[inline]
+def isInductiveOverride (declName : Name) : CoreM Bool := do
+  return (isInductiveOverrideSimpleCore? (← getEnv) declName).isSome
+
+@[inline]
 def isInductiveOverrideSimple? (declName : Name) : CoreM (Option InductiveOverrideInfo) := do
   return isInductiveOverrideSimpleCore? (← getEnv) declName
 

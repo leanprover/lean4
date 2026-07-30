@@ -95,8 +95,7 @@ public def splitLatticeOp? (goal : MVarId) (rhs : Expr) :
   -- Refold a meet upper adjoint to `F ⇨ Q` up front, so the dispatch below takes the clean `⇨` path.
   let (goal, rhs) := (← refoldHimpUpperAdjoint? goal rhs).getD (goal, rhs)
   let some headName := rhs.getAppFn.constName? | return none
-  -- A split applies only for a built-in connective or a registered frame operator.
-  let some op := (← read).latticeOps[headName]? | return none
+  let some op := latticeOps[headName]? | return none
   let rule ← mkLatticeOpRuleCached rhs op
   match ← rule.applyChecked goal with
   | .goals goals => return some goals

@@ -30,10 +30,12 @@ structure MatchEqnsExtState where
 
 /- We generate the equations and splitter on demand, and do not save them on .olean files. -/
 builtin_initialize matchEqnsExt : EnvExtension MatchEqnsExtState ←
+  -- consulted during match-equation realization, which can happen inside a resolution search;
+  -- a mere name mapping for realized equation theorems (monotone)
   -- Using `local` allows us to use the extension in `realizeConst` without specifying `replay?`.
   -- The resulting state can still be accessed on the generated declarations using `.asyncEnv`;
   -- see below
-  registerEnvExtension (pure {}) (asyncMode := .local)
+  registerEnvExtension (pure {}) (asyncMode := .local) (tcResolutionAccess := .exempt)
 
 def registerMatchEqns (matchDeclName : Name) (matchEqns : MatchEqns) : CoreM Unit := do
   modifyEnv fun env => matchEqnsExt.modifyState env fun { map, eqns } => {

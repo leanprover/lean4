@@ -3055,7 +3055,9 @@ This is consulted for all definitions regardless of their reducibility hints. Cu
 structural recursion to ensure that parent definitions get the correct height even though the
 `_f` helper definitions are marked as `.abbrev` (which `getMaxHeight` would otherwise ignore). -/
 builtin_initialize defHeightOverrideExt : EnvExtension (NameMap UInt32) ←
-  registerEnvExtension (pure {}) (asyncMode := .local)
+  -- read when auxiliary declarations are created during realization, which can happen inside a
+  -- resolution search; overrides are set only for declarations being created (monotone)
+  registerEnvExtension (pure {}) (asyncMode := .local) (tcResolutionAccess := .exempt)
 
 /-- Register a height override for a definition so that `getMaxHeight` uses it. -/
 def setDefHeightOverride (env : Environment) (declName : Name) (height : UInt32) : Environment :=

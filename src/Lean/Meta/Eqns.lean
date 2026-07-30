@@ -47,7 +47,9 @@ def eqnAffectingOptions : Array (Lean.Option Bool) :=
 keyed by declaration name. Only populated when at least one option has a non-default value.
 Stores an association list of (option name, value) pairs for options that differ from defaults. -/
 builtin_initialize eqnOptionsExt : MapDeclarationExtension (Array (Name × DataValue)) ←
-  mkMapDeclarationExtension (asyncMode := .local)
+  -- consulted during equation realization, which can happen inside a resolution search;
+  -- populated only when the declaration is created (monotone)
+  mkMapDeclarationExtension (asyncMode := .local) (tcResolutionAccess := .exempt)
 
 def eqnThmSuffixBase := "eq"
 def eqnThmSuffixBasePrefix := eqnThmSuffixBase ++ "_"
@@ -157,7 +159,9 @@ structure EqnsExtState where
 
 /-- A mapping from equational theorem to the declaration it was derived from.  -/
 builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
-  registerEnvExtension (pure {}) (asyncMode := .local)
+  -- consulted during equation realization, which can happen inside a resolution search;
+  -- a mere name mapping for realized equation theorems (monotone)
+  registerEnvExtension (pure {}) (asyncMode := .local) (tcResolutionAccess := .exempt)
 
 /--
 Runs `act` with the equation-affecting options restored to the values stored for `declName`

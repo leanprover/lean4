@@ -112,12 +112,41 @@ overloaded `Cls.op` operation, and similarly `instClsT.op_spec_<n>` based on the
 `opImpl.eq_<n>`.
 -/
 @[builtin_doc]
-builtin_initialize methodSpecsAttr : ParametricAttribute MethodSpecsAttrData ←
-  registerParametricAttribute {
+builtin_initialize methodSpecsAttr : ParametricAttribute MethodSpecsAttrData ← do
+  -- `registerParametricAttribute` inlined so that the extension can be registered with
+  -- `tcResolutionAccess := .exempt`: it is consulted (via the reserved-name machinery) when
+  -- specification theorems are realized, which can happen inside a resolution search, and the
+  -- attribute is applied when the method implementation is declared (monotone).
+  let impl : ParametricAttributeImpl MethodSpecsAttrData := {
     name := `method_specs
     descr := "generate method specification theorems"
     getParam
   }
+  let ext : PersistentEnvExtension (Name × MethodSpecsAttrData) (Name × MethodSpecsAttrData) (List Name × NameMap MethodSpecsAttrData) ← registerPersistentEnvExtension {
+    name            := impl.ref
+    tcResolutionAccess := .exempt
+    mkInitial       := pure ([], {})
+    addImportedFn   := fun _ => pure ([], {})
+    addEntryFn      := fun (decls, m) p => (p.1 :: decls, m.insert p.1 p.2)
+    exportEntriesFnEx := fun env (decls, m) => Id.run do
+      let all := (m.foldl (fun a n p => a.push (n, p)) #[]).qsort (fun a b => Name.quickLt a.1 b.1)
+      let exported := all.filter fun (n, a) => impl.filterExport env n a
+      { exported, server := exported, «private» := all }
+    statsFn         := fun (_, m) => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format m.size
+  }
+  let attrImpl : AttributeImpl := {
+    impl.toAttributeImplCore with
+    add := fun decl stx kind => do
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal impl.name kind
+      let env ← getEnv
+      unless (env.getModuleIdxFor? decl).isNone do
+        throwAttrDeclInImportedModule impl.name decl
+      let val ← impl.getParam decl stx
+      modifyEnv fun env => ext.addEntry (asyncDecl := decl) env (decl, val)
+      try impl.afterSet decl val catch _ => setEnv env
+  }
+  registerBuiltinAttribute attrImpl
+  pure { attr := attrImpl, ext, preserveOrder := impl.preserveOrder }
 
 builtin_initialize methodSpecsSimpExtension : SimpExtension ←
   registerSimpAttr `method_specs_simp

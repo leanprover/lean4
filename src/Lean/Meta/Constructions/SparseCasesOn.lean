@@ -24,7 +24,9 @@ structure SparseCasesOnKey where
 deriving BEq, Hashable
 
 builtin_initialize sparseCasesOnCacheExt : EnvExtension (PHashMap SparseCasesOnKey Name) ←
-  registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep it local
+  -- mere cache, keep it local; may be consulted on resolution search paths via the reserved-name
+  -- machinery (monotone realization cache)
+  registerEnvExtension (pure {}) (asyncMode := .local) (tcResolutionAccess := .exempt)
 
 /-- Information necessary to recognize and split on sparse casesOn (in particular in MatchEqs) -/
 public structure SparseCasesOnInfo where
@@ -35,7 +37,9 @@ public structure SparseCasesOnInfo where
 deriving Inhabited
 
 builtin_initialize sparseCasesOnInfoExt : MapDeclarationExtension SparseCasesOnInfo ←
-  mkMapDeclarationExtension (exportEntriesFn := fun env s =>
+  -- consulted by the reserved-name predicate for `else_eq` names, so also on resolution search
+  -- paths; populated only when the declaration is created (monotone)
+  mkMapDeclarationExtension (tcResolutionAccess := .exempt) (exportEntriesFn := fun env s =>
     let all := s.toArray
     -- Do not export for non-exposed defs at exported/server levels
     let exported := s.filter (fun n _ => env.hasExposedBody n) |>.toArray

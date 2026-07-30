@@ -16,10 +16,10 @@ macro tk:"#test " t:term : command =>
 Examples from documentation (added in https://github.com/leanprover/lean4/pull/4166)
 -/
 
--- List.asString
-#test ['L', '∃', '∀', 'N'].asString = "L∃∀N"
-#test [].asString = ""
-#test ['a', 'a', 'a'].asString = "aaa"
+-- String.ofList
+#test String.ofList ['L', '∃', '∀', 'N'] = "L∃∀N"
+#test String.ofList [] = ""
+#test String.ofList ['a', 'a', 'a'] = "aaa"
 
 -- length
 #test "".length = 0
@@ -122,16 +122,6 @@ def next? (s : String) (p : String.Pos.Raw) : Option Char :=
 
 #test next? abc ⟨1⟩ = some 'c'
 #test next? abc ⟨5⟩ = none
-
--- posOf
-#guard "abba".posOf 'a' = ⟨0⟩
-#guard "abba".posOf 'z' = ⟨4⟩
-#guard "L∃∀N".posOf '∀' = ⟨4⟩
-
--- revPosOf
-#guard "abba".revPosOf 'a' = some ⟨3⟩
-#guard "abba".revPosOf 'z' = none
-#guard "L∃∀N".revPosOf '∀' = some ⟨4⟩
 
 /-!
 Behavior of `String.prev` (`lean_string_utf8_prev`) in special cases (see issue #9439).

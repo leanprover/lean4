@@ -14,10 +14,8 @@ using namespace std;
 void lean_uv_timer_finalizer(void* ptr) {
     lean_uv_timer_object* timer = (lean_uv_timer_object*) ptr;
 
-    if (timer->m_promise != NULL) {
-        lean_dec(timer->m_promise);
-    }
-
+    // `m_promise` must only be released once the loop state is known: if the loop is gone,
+    // `lean_uv_timer_shutdown` has already released it during the teardown walk.
     if (!event_loop_lock(&global_ev)) {
         event_loop_wait_finalized(&global_ev);
         if (timer->m_uv_timer != nullptr) {
@@ -25,6 +23,10 @@ void lean_uv_timer_finalizer(void* ptr) {
         }
         free(timer);
         return;
+    }
+
+    if (timer->m_promise != NULL) {
+        lean_dec(timer->m_promise);
     }
 
     uv_close((uv_handle_t*) timer->m_uv_timer, [](uv_handle_t* handle) {
@@ -170,7 +172,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
         );
 
         if (result != 0) {
+            // Restore the pre-call state: leaving `RUNNING` behind would make the teardown walk
+            // believe the loop still holds the reference released just below.
+            timer->m_state = TIMER_STATE_INITIAL;
+            timer->m_promise = NULL;
+
+            lean_dec(promise); // The structure does not own it.
+            lean_dec(promise); // We are not going to return it.
             lean_dec(obj);
+
             event_loop_unlock(&global_ev);
             return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
         }
@@ -286,9 +296,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj) {
 
     if (timer->m_state == TIMER_STATE_RUNNING) {
         uv_timer_stop(timer->m_uv_timer);
-        event_loop_unlock(&global_ev);
-
         timer->m_state = TIMER_STATE_FINISHED;
+
+        event_loop_unlock(&global_ev);
 
         // The loop does not need to keep the timer alive anymore.
         lean_dec(obj);

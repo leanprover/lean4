@@ -76,7 +76,6 @@ lean_obj_res lean_uv_loop_unavailable_error();
 void event_loop_register_request(event_loop_t *event_loop, uv_pending_req *pending, uv_req_t *req, lean_object *promise);
 void event_loop_unregister_request(event_loop_t *event_loop, uv_pending_req *pending);
 void event_loop_cancel_requests(event_loop_t *event_loop);
-bool event_loop_has_requests(event_loop_t *event_loop);
 bool event_loop_abandon_requests(event_loop_t *event_loop);
 void event_loop_run_loop(event_loop_t *event_loop);
 

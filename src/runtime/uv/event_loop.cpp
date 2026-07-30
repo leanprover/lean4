@@ -208,10 +208,6 @@ void event_loop_cancel_requests(event_loop_t * event_loop) {
     }
 }
 
-bool event_loop_has_requests(event_loop_t * event_loop) {
-    return event_loop->requests != nullptr;
-}
-
 // Abandons the requests that outlived the teardown drain, returning whether there were any.
 bool event_loop_abandon_requests(event_loop_t * event_loop) {
     bool abandoned = false;

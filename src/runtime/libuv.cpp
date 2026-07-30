@@ -4,10 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Markus Himmel, Sofia Rodrigues
  */
-#include <iostream>
 #include <memory>
-#include <utility>
-#include <vector>
 #include "runtime/libuv.h"
 #include "runtime/object.h"
 #include "runtime/thread.h"
@@ -111,14 +108,8 @@ extern "C" void finalize_libuv() {
 
     uint64_t const deadline = uv_hrtime() + LEAN_UV_TEARDOWN_DRAIN_NS;
 
-    while (uv_run(global_ev.loop, UV_RUN_NOWAIT) != 0) {
-        if (uv_hrtime() >= deadline) {
-            break;
-        }
-
-        if (event_loop_has_requests(&global_ev)) {
-            uv_sleep(1);
-        }
+    while (uv_run(global_ev.loop, UV_RUN_NOWAIT) != 0 && uv_hrtime() < deadline) {
+        uv_sleep(1);
     }
 
     bool abandoned = event_loop_abandon_requests(&global_ev);

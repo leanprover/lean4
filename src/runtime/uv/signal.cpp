@@ -14,10 +14,8 @@ using namespace std;
 void lean_uv_signal_finalizer(void* ptr) {
     lean_uv_signal_object* signal = (lean_uv_signal_object*) ptr;
 
-    if (signal->m_promise != NULL) {
-        lean_dec(signal->m_promise);
-    }
-
+    // `m_promise` must only be released once the loop state is known: if the loop is gone,
+    // `lean_uv_signal_shutdown` has already released it during the teardown walk.
     if (!event_loop_lock(&global_ev)) {
         event_loop_wait_finalized(&global_ev);
         if (signal->m_uv_signal != nullptr) {
@@ -25,6 +23,10 @@ void lean_uv_signal_finalizer(void* ptr) {
         }
         free(signal);
         return;
+    }
+
+    if (signal->m_promise != NULL) {
+        lean_dec(signal->m_promise);
     }
 
     uv_close((uv_handle_t*)signal->m_uv_signal, [](uv_handle_t* handle) {
@@ -199,8 +201,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
         }
 
         if (result != 0) {
+            // Restore the pre-call state: leaving `RUNNING` behind would make the teardown walk
+            // believe the loop still holds the reference released just below.
+            signal->m_state = SIGNAL_STATE_INITIAL;
+            signal->m_promise = NULL;
+
+            lean_dec(promise); // The structure does not own it.
+            lean_dec(promise); // We are not going to return it.
             lean_dec(obj);
-            lean_dec(promise);
+
             event_loop_unlock(&global_ev);
             return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
         }
@@ -270,7 +279,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
             return lean_io_result_mk_ok(lean_box(0));
         }
         int result = uv_signal_stop(signal->m_uv_signal);
-        event_loop_unlock(&global_ev);
 
         if (signal->m_promise != NULL) {
             lean_dec(signal->m_promise);
@@ -278,6 +286,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
         }
 
         signal->m_state = SIGNAL_STATE_FINISHED;
+
+        event_loop_unlock(&global_ev);
 
         // The loop does not need to keep the signal alive anymore.
         lean_dec(obj);

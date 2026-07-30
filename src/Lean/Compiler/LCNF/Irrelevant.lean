@@ -10,6 +10,7 @@ public import Lean.EnvExtension
 public import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.BaseTypes
 import Lean.Compiler.LCNF.Util
+import Lean.Compiler.InductiveOverride
 
 namespace Lean.Compiler.LCNF
 
@@ -18,10 +19,9 @@ Given a constructor, return a bitmask `m` s.t. `m[i]` is true if field `i` is
 computationally relevant. Returns `none` if the constructor is not sufficiently public for the
 result to be stable across modules.
 -/
-def getRelevantCtorFields? (ctorName : Name) (trivialType : Expr → MetaM Bool) :
+def getRelevantCtorFields? (info : ConstructorVal) (trivialType : Expr → MetaM Bool) :
     CoreM (Option (Array Bool)) := do
-  let .ctorInfo info ← getConstInfo ctorName | unreachable!
-  if !isPrivateName info.induct && isPrivateName ctorName then
+  if !isPrivateName info.induct && isPrivateName info.name then
     try
       withExporting do
       go info
@@ -56,19 +56,18 @@ Computes `some fieldIdx` if `declName` is the name of an inductive datatype s.t.
 -/
 def Irrelevant.computeHasTrivialStructure?
     (trivialType : Expr → MetaM Bool) (declName : Name) : CoreM (Option TrivialStructureInfo) := do
-  if isRuntimeBuiltinType declName then return none
-  let .inductInfo info ← getConstInfo declName | return none
-  if info.isUnsafe || info.isRec then return none
+  let some info ← isInductiveOverrideSimple? declName | return none
   let [ctorName] := info.ctors | return none
   let ctorType ← getOtherDeclBaseType ctorName []
   if ctorType.isErased then return none
-  let some mask ← getRelevantCtorFields? ctorName trivialType
+  let ctorInfo ← getConstInfoCtorOverride ctorName
+  let some mask ← getRelevantCtorFields? ctorInfo trivialType
     | return none
   let mut result := none
   for h : i in *...mask.size do
     if mask[i] then
       if result.isSome then return none
-      result := some { ctorName, fieldIdx := i, numParams := info.numParams }
+      result := some { ctorName, fieldIdx := i, numParams := ctorInfo.numParams }
   return result
 
 /-- Eagerly computes and persists the trivial-structure info for `declName`; see `compileDecls`. -/
@@ -83,8 +82,7 @@ have been run for inductive `declName`. -/
 public def Irrelevant.hasTrivialStructure?
     (infoExt : MapDeclarationExtension (Option TrivialStructureInfo))
     (declName : Name) : CoreM (Option TrivialStructureInfo) := do
-  if isRuntimeBuiltinType declName then return none
-  let .inductInfo _ ← getConstInfo declName | return none
+  let some _ ← isInductiveOverrideSimple? declName | return none
   let some info? := infoExt.find? (← getEnv) declName
     | throwError "`{declName}` was not compiled; `compileDecls` must run on inductive types first"
   return info?

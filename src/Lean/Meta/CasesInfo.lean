@@ -53,8 +53,7 @@ public structure CasesInfo where
 public def CasesInfo.numAlts (c : CasesInfo) : Nat :=
   c.altNumParams.size
 
-public def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
-  unless isCasesOnLike (← getEnv) declName do return none
+public def getCasesInfo (declName : Name) : CoreM CasesInfo := do
   let info ← getConstVal declName
   MetaM.run' <|
     forallTelescope info.type fun xs r => do
@@ -80,8 +79,11 @@ public def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
           else
             -- Else we have a normal case
             let some ctorName := motiveArg.getAppFn.constName? | unreachable!
-            let ctorVal ← getConstInfoCtor ctorName
-            return .ctor ctorName ctorVal.numFields
-      return some { declName, indName, arity, discrPos, altsRange, altNumParams }
+            return .ctor ctorName ys.size
+      return { declName, indName, arity, discrPos, altsRange, altNumParams }
+
+public def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
+  unless isCasesOnLike (← getEnv) declName do return none
+  return some (← getCasesInfo declName)
 
 end Lean

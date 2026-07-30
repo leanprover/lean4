@@ -21,7 +21,7 @@ Inline constants tagged with the `[macro_inline]` attribute occurring in `e`.
 -/
 def macroInline (e : Expr) : CoreM Expr :=
   Core.transform e fun e => do
-    let .const declName us := e.getAppFn | return .continue
+    let .const declName us ← CSimp.replaceConstant (← getEnv) e.getAppFn | return .continue
     unless hasMacroInlineAttribute (← getEnv) declName do return .continue
     let val ← Core.instantiateValueLevelParams (← getConstInfo declName) us
     return .visit <| val.beta e.getAppArgs

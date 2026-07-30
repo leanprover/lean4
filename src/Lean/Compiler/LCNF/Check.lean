@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Compiler.LCNF.PrettyPrinter
 public import Lean.Compiler.LCNF.CompatibleTypes
+public import Lean.Compiler.InductiveOverride
 
 public section
 
@@ -108,7 +109,7 @@ def checkFVar (fvarId : FVarId) : CheckM Unit :=
 /-- Return true `f` is a constructor and `i` is less than its number of parameters. -/
 def isCtorParam (f : Expr) (i : Nat) : CoreM Bool := do
   let .const declName _ := f | return false
-  let .ctorInfo info ← getConstInfo declName | return false
+  let some info := isCtorOverrideSimple? (← getEnv) declName | return false
   return i < info.numParams
 
 def checkAppArgs (f : Expr) (args : Array (Arg .pure)) : CheckM Unit := do
@@ -224,7 +225,7 @@ partial def checkCases (c : Cases .pure) : CheckM Unit := do
       if ctorNames.contains ctorName then
         throwError "invalid LCNF `cases`, alternative `{ctorName}` occurs more than once"
       ctorNames := ctorNames.insert ctorName
-      let .ctorInfo val ← getConstInfo ctorName | throwError "invalid LCNF `cases`, `{ctorName}` is not a constructor name"
+      let some val := isCtorOverrideSimple? (← getEnv) ctorName | throwError "invalid LCNF `cases`, `{ctorName}` is not a constructor name"
       unless val.induct == c.typeName do
         throwError "invalid LCNF `cases`, `{ctorName}` is not a constructor of `{c.typeName}`"
       unless params.size == val.numFields do

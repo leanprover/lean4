@@ -19,9 +19,7 @@ Try to simplify projections `.proj _ i s` where `s` is constructor.
 def simpProj? (e : LetValue .pure) : OptionT SimpM (LetValue .pure) := do
   let .proj _ i s := e | failure
   let some ctorInfo ← findCtor? s | failure
-  match ctorInfo with
-  | .ctor ctorVal args => return args[ctorVal.numParams + i]!.toLetValue
-  | .natVal .. => failure
+  return ctorInfo.args[ctorInfo.val.numParams + i]!.toLetValue
 
 /--
 Application over application.
@@ -48,7 +46,7 @@ def simpAppApp? (e : LetValue .pure) : OptionT SimpM (LetValue .pure) := do
 
 def simpCtorDiscr? (e : LetValue .pure) : OptionT SimpM (LetValue .pure) := do
   let .const declName _ _ := e | failure
-  let some (.ctorInfo _) := (← getEnv).find? declName | failure
+  let some _ := isCtorOverrideSimple? (← getEnv) declName | failure
   let some fvarId ← simpCtorDiscrCore? e.toExpr | failure
   return .fvar fvarId #[]
 

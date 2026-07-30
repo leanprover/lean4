@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Compiler.LCNF.LCtx
 public import Lean.Compiler.LCNF.ConfigOptions
+public import Lean.Compiler.InductiveOverride
 
 public section
 
@@ -109,7 +110,7 @@ def findLetValue? (fvarId : FVarId) : CompilerM (Option (LetValue pu)) := do
 
 def isConstructorApp (fvarId : FVarId) : CompilerM Bool := do
   let some (.const declName _ _) ← findLetValue? fvarId | return false
-  return (← getEnv).find? declName matches some (.ctorInfo ..)
+  return (isCtorOverrideSimple? (← getEnv) declName).isSome
 
 def Arg.isConstructorApp (arg : Arg pu) : CompilerM Bool := do
   let .fvar fvarId := arg | return false

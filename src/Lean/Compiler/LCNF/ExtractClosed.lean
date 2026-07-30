@@ -13,6 +13,7 @@ public import Lean.Compiler.LCNF.ToExpr
 import Lean.Compiler.LCNF.ElimDead
 import Lean.Compiler.LCNF.DependsOn
 meta import Init.Data.FloatArray.Basic
+import Lean.OriginalConstKind
 
 public section
 
@@ -78,12 +79,11 @@ partial def shouldExtractLetValue (isRoot : Bool) (v : LetValue .pure) : M Bool 
     if hasNeverExtractAttribute (← getEnv) name then
       return false
     if isRoot then
-      if let some constInfo := (← getEnv).find? name then
-        let shouldExtract := match constInfo with
-        | .defnInfo val => val.type.isForall
-        | .ctorInfo _ => !(args.all isIrrelevantArg)
-        | _ => true
-        if !shouldExtract then
+      if let some _ := isCtorOverrideSimple? (← getEnv) name then
+        if args.all isIrrelevantArg then
+          return false
+      else if getOriginalConstKind? (← getEnv) name matches some .defn then
+        unless (← getConstVal name).type.isForall do
           return false
       if let some decl ← LCNF.getMonoDecl? name then
         -- We don't want to extract constants as root terms

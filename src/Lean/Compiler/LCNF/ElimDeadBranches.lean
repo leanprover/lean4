@@ -68,11 +68,6 @@ protected partial def toFormat : Value → Format
 instance : Repr Value where
   reprPrec v _ := Value.toFormat v
 
-def inductValOfCtor (ctorName : Name) (env : Environment) : InductiveVal := Id.run do
-  let some (.ctorInfo info) ← env.find? ctorName | unreachable!
-  let some (.inductInfo info) ← env.find? info.induct | unreachable!
-  return info
-
 mutual
 
 /--
@@ -128,8 +123,9 @@ where
       choice vs
 
   inductHasNumCtors (ctorName : Name) (env : Environment) (n : Nat) : Bool := Id.run do
-    let induct := inductValOfCtor ctorName env
-    n == induct.numCtors
+    let some info := isCtorOverrideSimple? env ctorName | unreachable!
+    let some info := isInductiveOverrideSimpleCore? env info.induct | unreachable!
+    n == info.ctors.length
 
   @[inline]
   eligible (value : Value) : Bool := Id.run do
@@ -147,20 +143,21 @@ Recall the widening functions is used to ensure termination in abstract interpre
 partial def truncate (env : Environment) (v : Value) : Value :=
   go v {} maxValueDepth
 where
-  go (v : Value) (forbiddenTypes : NameSet) (remainingDepth : Nat) :=
+  go (v : Value) (forbiddenTypes : NameSet) (remainingDepth : Nat) := Id.run do
     match remainingDepth with
     | 0 => top
     | remainingDepth + 1 =>
       match v with
-      | ctor i vs =>
-        let induct := inductValOfCtor i env
-        if forbiddenTypes.contains induct.name then
+      | ctor nm vs =>
+        let some cinfo := isCtorOverrideSimple? env nm | unreachable!
+        let some iinfo := isInductiveOverrideSimpleCore? env cinfo.induct | unreachable!
+        if forbiddenTypes.contains cinfo.induct then
           top
         else
           let cont forbiddenTypes' :=
-            ctor i (vs.map (go · forbiddenTypes' remainingDepth))
-          if induct.isRec then
-            cont <| forbiddenTypes.insert induct.name
+            ctor nm (vs.map (go · forbiddenTypes' remainingDepth))
+          if iinfo.isRec then
+            cont <| forbiddenTypes.insert cinfo.induct
           else
             cont forbiddenTypes
       | choice vs =>
@@ -255,7 +252,7 @@ where
     let decl ← mkAuxLetDecl <| .lit <| .nat <| val
     return (#[.let decl], decl.fvarId)
   | .ctor ctorName vs => do
-    let some (.ctorInfo ctorInfo) := (← getEnv).find? ctorName | unreachable!
+    let some ctorInfo := isCtorOverrideSimple? (← getEnv) ctorName | unreachable!
     let fields ← vs.mapM go
     let flatten acc := fun (decls, var) => (acc.fst ++ decls, acc.snd.push <| .fvar var)
     let (decls, args) :=
@@ -519,7 +516,7 @@ where
         else
           return .top
       | none =>
-        let some (.ctorInfo info) := env.find? declName | return .top
+        let some info := isCtorOverrideSimple? (← getEnv) declName | return .top
         let args := args[info.numParams...*].toArray
         if info.numFields == args.size then
           return .ctor declName (← args.mapM findArgValue)

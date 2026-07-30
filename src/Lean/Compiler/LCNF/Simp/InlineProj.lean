@@ -58,7 +58,7 @@ where
     | .proj _ i s => visit s (i :: projs)
     | .fvar .. | .lit .. | .erased => failure
     | .const declName us args =>
-      if let some (.ctorInfo ctorVal) := (← getEnv).find? declName then
+      if let some ctorVal := isCtorOverrideSimple? (← getEnv) declName then
         let i :: projs := projs | unreachable!
         let arg := args[ctorVal.numParams + i]!
         let fvarId ← match arg with

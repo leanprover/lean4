@@ -46,7 +46,7 @@ def inlineCandidate? (e : LetValue .pure) : SimpM (Option InlineCandidateInfo) :
     else if let some decl ← findLetDecl? argFVarId then
       e := decl.value
       if let .const declName _ _ := e then
-        if (← isCtor? declName).isSome then
+        if (← isCtorOverride? declName).isSome then
           throwError m!"`inline` applied to constructor '{declName}' is invalid"
         else if (← getLocalDecl? declName).isNone then
           throwError m!"`inline` applied to non-local declaration '{declName}' is invalid"

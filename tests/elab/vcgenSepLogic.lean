@@ -541,9 +541,10 @@ def mkSepFrameSplit (i : FrameInferenceInfo) (frame footprint : Expr) : SymM Fra
   | some hcl =>
     let le ← i.le
     let residualPre ← i.mkResidualPre
-    let sepFR := (← i.mkSplitVCS frame residualPre).appArg!
-    let sub ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[footprint, residualPre])
-    let mono ← mkAppNS (← mkConstS ``sepConj_mono_right) #[frame, footprint, residualPre, sub]
+    let residualPreE := mkMVar residualPre
+    let sepFR := (← i.mkSplitVCS frame residualPreE).appArg!
+    let sub ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[footprint, residualPreE])
+    let mono ← mkAppNS (← mkConstS ``sepConj_mono_right) #[frame, footprint, residualPreE, sub]
     let args := le.getAppArgs
     let proof ← mkAppNS (← mkConstS ``PartialOrder.rel_trans le.getAppFn.constLevels!)
       #[args[0]!, args[1]!, ← i.pre, sepFF, sepFR, hcl, mono]

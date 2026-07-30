@@ -456,7 +456,7 @@ private def applyFrameRule (goal : MVarId) (info : WPApp) (fp : FrameProc)
   let vcType ← goals[frule.splitVCIdx]!.getType
   let_expr Lean.Order.PartialOrder.rel _ _ _ rhs := vcType
     | throwError "frame: split VC is not an entailment{indentExpr vcType}"
-  split.residualPre.mvarId!.assign (rhs.stripArgsN info.excessArgs.size).appArg!
+  split.residualPre.assign (rhs.stripArgsN info.excessArgs.size).appArg!
   goals[frule.splitVCIdx]!.assign split.splitVCProof
   return goals.toList ++ split.subgoals
 
@@ -483,7 +483,8 @@ private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) :
   let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
   let providedFrame? ← matchFrame? fp info
   let inferInfo : FrameInferenceInfo :=
-    { info with goal, providedFrame?, spec? := thm.global?, specRule, mkOp := fp.mkOpAppM }
+    { info with goal, providedFrame?, spec? := thm.global?, specRule,
+                mkOpApp := do shareCommon (← fp.mkOpAppM info) }
   match ← fp.proc inferInfo with
   | none => applySpecRule scope goal info thm specRule
   | some split =>

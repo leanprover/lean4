@@ -202,7 +202,7 @@ public structure VCGen.State where
   /--
   Remaining VC-generation steps. Initialized from `Context.config.stepLimit` (or
   `.unlimited` when no limit is set). Decremented at each successful program-shape
-  step (`tryLetHoist`, `trySplit`, `tryFvarZeta`, `applySpecRule`). When exhausted,
+  step (`tryLetHoist`, `trySplit`, `tryFvarZeta`, `applySpec`). When exhausted,
   `solve` short-circuits and emits the current goal as a VC.
   -/
   fuel : Lean.Elab.Tactic.Do.Fuel := .unlimited

@@ -40,5 +40,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_free_memory();
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_total_memory();
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_constrained_memory();
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_available_memory();
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_realpath(b_obj_arg path);
 
 }

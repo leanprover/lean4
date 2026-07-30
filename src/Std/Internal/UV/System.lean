@@ -260,6 +260,13 @@ Returns the available memory for allocation in bytes.
 @[extern "lean_uv_get_available_memory"]
 opaque availableMemory : IO UInt64
 
+/--
+Resolve the canonical absolute path of `path`, expanding all symlinks. Fails if any component
+does not exist on the file system.
+-/
+@[extern "lean_uv_realpath"]
+opaque realPath : @& String → IO String
+
 end System
 end UV
 end Internal

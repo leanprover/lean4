@@ -554,6 +554,28 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_available_memory() {
 #endif
 }
 
+// Std.Internal.UV.System.realPath : @& String → IO String
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_realpath(b_obj_arg path) {
+    const char* path_str = lean_string_cstr(path);
+    if (strlen(path_str) != lean_string_size(path) - 1) {
+        return mk_embedded_nul_error(path);
+    }
+
+    uv_fs_t req;
+    int result = uv_fs_realpath(nullptr, &req, path_str, nullptr);
+
+    if (result < 0) {
+        lean_inc(path);
+        lean_obj_res err = lean_io_result_mk_error(lean_decode_uv_error(result, path));
+        uv_fs_req_cleanup(&req);
+        return err;
+    }
+
+    lean_object* resolved = lean_mk_string((const char*)req.ptr);
+    uv_fs_req_cleanup(&req);
+    return lean_io_result_mk_ok(resolved);
+}
+
 #else
 
 // Std.Internal.UV.System.getProcessTitle : IO String
@@ -742,6 +764,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_constrained_memory() {
 }
 // Std.Internal.UV.System.availableMemory : IO UInt64
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_available_memory() {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
+
+// Std.Internal.UV.System.realPath : @& String → IO String
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_realpath(b_obj_arg path) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );

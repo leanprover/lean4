@@ -160,6 +160,20 @@ def many (p : Parsec ι α) : Parsec ι <| Array α := manyCore p #[]
 def many1 (p : Parsec ι α) : Parsec ι <| Array α := do manyCore p #[← p]
 
 /--
+Try `p`, returning `true` if it succeeds or `false` if it fails without consuming input.
+-/
+@[inline]
+def flag (p : Parsec ι α) : Parsec ι Bool :=
+  (attempt p *> pure true) <|> pure false
+
+/--
+Parse `p` one or more times separated by `sep`, returning the results as an array.
+-/
+@[inline]
+def sepBy1 (sep : Parsec ι α) (p : Parsec ι β) : Parsec ι (Array β) := do
+  return #[← p] ++ (← many (sep *> p))
+
+/--
 Gets the next input element.
 -/
 @[inline]

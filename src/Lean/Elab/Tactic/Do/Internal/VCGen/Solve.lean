@@ -338,14 +338,14 @@ Hands `findSpecs` the sole reference to the spec database so its in-place patter
 does not copy the discrimination tree, then threads the updated database back into the returned
 scope. -/
 private def compileSpecRule (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) :
-    VCGenM (VCGen.Scope × Except SolveResult (SpecTheorem × BackwardRule)) := do
+    VCGenM (Except SolveResult (VCGen.Scope × SpecTheorem × BackwardRule)) := do
   let specs := scope.specs
   let scope := { scope with specs := default }
   let (result, specs) ← SpecTheorems.findSpecs specs info.prog
   let scope := { scope with specs }
   let thm ← match result with
     | .ok thm => pure thm
-    | .error thms => return (scope, .error (← stopOrErrorOnMissingSpec info.prog info.M thms))
+    | .error thms => return .error (← stopOrErrorOnMissingSpec info.prog info.M thms)
   let rule? ←
     try
       mkBackwardRuleFromSpecCached thm info |>.run
@@ -356,8 +356,8 @@ private def compileSpecRule (scope : VCGen.Scope) (goal : MVarId) (info : WPApp)
         Pred:{indentExpr info.Pred}\n\
         excessArgs: {info.excessArgs}"
   let some rule := rule?
-    | return (scope, .error (← stopOrErrorOnMissingSpec info.prog info.M #[thm]))
-  return (scope, .ok (thm, rule))
+    | return .error (← stopOrErrorOnMissingSpec info.prog info.M #[thm])
+  return .ok (scope, thm, rule)
 
 /-- Apply the backward `rule` of the selected `@[spec]` theorem `thm`, returning its subgoals.
 Reached from `applySpec`. -/
@@ -487,8 +487,7 @@ Handle a spec-ready program `info.prog`: select its `@[spec]` theorem and either
 -/
 private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) :
     VCGenM SolveResult := goal.withContext do
-  let (scope, spec) ← compileSpecRule scope goal info
-  let (thm, specRule) ← match spec with
+  let (scope, thm, specRule) ← match ← compileSpecRule scope goal info with
     | .ok res => pure res
     | .error res => return res
   if thm.conjunctivePre || isFramedPost info.post then

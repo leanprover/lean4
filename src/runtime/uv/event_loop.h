@@ -29,10 +29,16 @@ enum event_loop_state {
     EVENT_LOOP_FINALIZED,
 };
 
-// Lean references whose `lean_dec`s are deferred by `finalize_libuv` until after the loop has been
-// marked finalized. Deferring is required for references whose finalizers call
-// `event_loop_wait_finalized`: running such a finalizer before the loop is marked finalized would
-// block the teardown thread forever. Each entry releases `second` references on `first`.
+// Lean references whose `lean_dec`s are deferred by `finalize_libuv` until after the teardown walk
+// has finished. Each entry releases `second` references on `first`.
+//
+// Deferring is required for any reference that could reach a uv wrapper finalizer, and the reason is
+// memory safety rather than deadlock: `uv_walk` iterates the handle queue through the intrusive
+// `handle_queue` node embedded in each `uv_handle_t`. A finalizer running mid-walk takes the
+// `event_loop_lock` failure path, and since it runs on the teardown thread
+// `event_loop_wait_finalized` lets it through immediately -- but the walk has not necessarily
+// reached its handle yet, so `m_uv_*` is still set and the finalizer would `free` a handle the walk
+// is about to step through. Deferring past the walk is what guarantees `m_uv_*` is already null.
 typedef std::vector<std::pair<lean_object *, size_t>> uv_deferred_releases;
 
 // A libuv request that is bound to the loop rather than to a handle: DNS resolution and
@@ -56,14 +62,13 @@ typedef struct {
     uv_loop_t  * loop;          // The libuv event loop.
     uv_mutex_t   mutex;         // Mutex for protecting `loop`.
     uv_cond_t    cond_var;      // Condition variable for signaling that `loop` is free.
+    uv_cond_t    drain_cond;    // Condition variable for signaling that `n_active` reached zero.
     uv_cond_t    finalize_cond; // Condition variable broadcast once the loop has been finalized.
     uv_async_t   async;         // Async handle to interrupt `loop`.
     _Atomic(int) n_waiters;     // Atomic counter for managing waiters for `loop`.
     _Atomic(int) n_active;      // Requesters currently in `event_loop_lock` that may interrupt `async`.
     _Atomic(int) state;         // Current event_loop_state.
     uv_pending_req * requests;  // Loop-bound requests not visible to `uv_walk`; guarded by `mutex`.
-    uv_thread_t  teardown_thread;   // Thread running `finalize_libuv`; valid once `teardown_active`.
-    _Atomic(int) teardown_active;   // Publishes `teardown_thread` to other threads.
 } event_loop_t;
 
 // The multithreaded event loop object for all tasks in the task manager.
@@ -77,7 +82,7 @@ void event_loop_lock_internal(event_loop_t *event_loop);
 void event_loop_unlock(event_loop_t *event_loop);
 void event_loop_request_stop(event_loop_t *event_loop);
 void event_loop_drain_active(event_loop_t *event_loop);
-void event_loop_begin_teardown(event_loop_t *event_loop);
+void event_loop_begin_teardown();
 void event_loop_mark_finalized(event_loop_t *event_loop);
 void event_loop_wait_finalized(event_loop_t *event_loop);
 lean_obj_res lean_uv_loop_unavailable_error();
@@ -88,7 +93,7 @@ void event_loop_register_request(event_loop_t *event_loop, uv_pending_req *pendi
 void event_loop_unregister_request(event_loop_t *event_loop, uv_pending_req *pending);
 void event_loop_cancel_requests(event_loop_t *event_loop);
 bool event_loop_has_requests(event_loop_t *event_loop);
-size_t event_loop_detach_requests(event_loop_t *event_loop);
+bool event_loop_abandon_requests(event_loop_t *event_loop);
 void event_loop_run_loop(event_loop_t *event_loop);
 
 #endif

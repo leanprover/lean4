@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Markus Himmel, Sofia Rodrigues
  */
+#include <iostream>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -46,7 +47,7 @@ extern "C" void finalize_libuv() {
 
     // Must precede any `lean_dec` below that could reach a handle finalizer: those run on this
     // thread and rely on being recognised so they do not wait for a state we have not reached yet.
-    event_loop_begin_teardown(&global_ev);
+    event_loop_begin_teardown();
 
     event_loop_lock_internal(&global_ev);
     event_loop_request_stop(&global_ev);
@@ -90,7 +91,11 @@ extern "C" void finalize_libuv() {
                     releases = lean_uv_signal_shutdown(lean_to_uv_signal(obj));
                     break;
                 default:
-                    lean_assert(false);
+                    // Unrecognised handle type: skip the `uv_close` below rather than freeing a
+                    // handle whose wrapper still points at it, which its finalizer would free again.
+                    // The loop then stays open, which only leaks a static; assert loudly so the
+                    // diagnostic names the missing case instead of surfacing as a later failure.
+                    lean_always_assert(false);
                     return;
             }
 
@@ -134,17 +139,23 @@ extern "C" void finalize_libuv() {
         }
     }
 
-    size_t abandoned = event_loop_detach_requests(&global_ev);
+    bool abandoned = event_loop_abandon_requests(&global_ev);
 
     // With requests abandoned the loop still owns them, so `uv_loop_close` would return `UV_EBUSY`.
     // Leaving the loop open at process exit is harmless; it is a static.
-    if (abandoned == 0) {
+    if (!abandoned) {
         int close_result = uv_loop_close(global_ev.loop);
-        lean_always_assert(close_result == 0);
+
+        if (close_result != 0) {
+            lean_assert(false && "libuv loop failed to exit");
+        }
     }
 
-    // Release the references the loop held on the surviving wrappers. Deferred until now because
-    // these `lean_dec`s can run wrapper finalizers, which must observe the finalized loop.
+    // Release the references the loop held on the surviving wrappers. Deferring these `lean_dec`s
+    // past the walk is required for memory safety, not just ordering: a wrapper finalizer reached
+    // from one of them runs on this thread, so `event_loop_wait_finalized` lets it straight through,
+    // and it must find its `m_uv_*` already detached by the walk. Running them earlier would free a
+    // handle that `uv_walk` is still iterating over. See `uv_deferred_releases` in `event_loop.h`.
     for (auto & release : pending_releases) {
         for (size_t i = 0; i < release.second; i++) {
             lean_dec(release.first);

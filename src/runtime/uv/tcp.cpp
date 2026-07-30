@@ -108,12 +108,6 @@ size_t lean_uv_tcp_socket_shutdown(lean_uv_tcp_socket_object * tcp_socket, uv_de
         tcp_socket->m_promise_accept = nullptr;
 
         if (tcp_socket->m_client != nullptr) {
-            // The pending client is a freshly-initialized socket whose handle is registered in the
-            // loop but which the loop holds no reference to: `m_client` is its only owner. Its own
-            // handle is visited and closed by the teardown walk, so we only need to drop that single
-            // reference. That `lean_dec` is deferred to `finalize_libuv` (after the loop is marked
-            // finalized) because running the client finalizer now, mid-walk, would block in
-            // `event_loop_wait_finalized` and deadlock the teardown thread.
             deferred.emplace_back(tcp_socket->m_client, 1);
             tcp_socket->m_client = nullptr;
         }
@@ -632,7 +626,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
 
-    lean_object* client = lean_io_result_take_value(lean_uv_tcp_new());
+    lean_object* client_res = lean_uv_tcp_new();
+    if (lean_io_result_is_error(client_res)) {
+        event_loop_unlock(&global_ev);
+        lean_dec(promise);
+        return client_res;
+    }
+    lean_object* client = lean_io_result_take_value(client_res);
 
     lean_uv_tcp_socket_object* client_socket = lean_to_uv_tcp_socket(client);
 
@@ -673,7 +673,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_try_accept(b_obj_arg socket) {
         return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, mk_string("parallel accept is not allowed! consider binding multiple sockets to the same address and accepting on them instead")));
     }
 
-    lean_object* client = lean_io_result_take_value(lean_uv_tcp_new());
+    lean_object* client_res = lean_uv_tcp_new();
+    if (lean_io_result_is_error(client_res)) {
+        event_loop_unlock(&global_ev);
+        return client_res;
+    }
+    lean_object* client = lean_io_result_take_value(client_res);
     lean_uv_tcp_socket_object* client_socket = lean_to_uv_tcp_socket(client);
 
     int result = uv_accept((uv_stream_t*)tcp_socket->m_uv_tcp, (uv_stream_t*)client_socket->m_uv_tcp);

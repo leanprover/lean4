@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues, Henrik Böving
 */
 #include "runtime/uv/event_loop.h"
+#include "runtime/thread.h"
 
 
 /*
@@ -22,6 +23,10 @@ namespace lean {
 using namespace std;
 
 event_loop_t global_ev;
+
+// True on the thread currently running `finalize_libuv`. Used by `event_loop_wait_finalized` to
+// recognise a re-entrant call from teardown itself.
+static LEAN_THREAD_LOCAL bool g_in_teardown = false;
 
 // Helpers
 
@@ -59,13 +64,13 @@ void event_loop_init(event_loop_t * event_loop) {
     event_loop->loop = uv_default_loop();
     check_uv(uv_mutex_init_recursive(&event_loop->mutex), "Failed to initialize mutex");
     check_uv(uv_cond_init(&event_loop->cond_var), "Failed to initialize condition variable");
+    check_uv(uv_cond_init(&event_loop->drain_cond), "Failed to initialize drain condition variable");
     check_uv(uv_cond_init(&event_loop->finalize_cond), "Failed to initialize finalize condition variable");
     check_uv(uv_async_init(event_loop->loop, &event_loop->async, NULL), "Failed to initialize async");
     event_loop->n_waiters = 0;
     event_loop->n_active = 0;
     event_loop->state = EVENT_LOOP_RUNNING;
     event_loop->requests = nullptr;
-    event_loop->teardown_active = 0;
 }
 
 // Leaves the drain region entered in `event_loop_lock`. While finalizing, the last requester to
@@ -73,7 +78,7 @@ void event_loop_init(event_loop_t * event_loop) {
 static void event_loop_active_release(event_loop_t * event_loop) {
     if (--event_loop->n_active == 0 && event_loop->state != EVENT_LOOP_RUNNING) {
         uv_mutex_lock(&event_loop->mutex);
-        uv_cond_signal(&event_loop->cond_var);
+        uv_cond_signal(&event_loop->drain_cond);
         uv_mutex_unlock(&event_loop->mutex);
     }
 }
@@ -135,18 +140,15 @@ void event_loop_drain_active(event_loop_t * event_loop) {
     uv_mutex_lock(&event_loop->mutex);
 
     while (event_loop->n_active != 0) {
-        uv_cond_wait(&event_loop->cond_var, &event_loop->mutex);
+        uv_cond_wait(&event_loop->drain_cond, &event_loop->mutex);
     }
 
     uv_mutex_unlock(&event_loop->mutex);
 }
 
-// Records the thread running `finalize_libuv`, so `event_loop_wait_finalized` can recognise a
-// re-entrant call from teardown itself. Writing the id before publishing the flag pairs with the
-// acquire in `event_loop_wait_finalized`.
-void event_loop_begin_teardown(event_loop_t * event_loop) {
-    event_loop->teardown_thread = uv_thread_self();
-    event_loop->teardown_active = 1;
+// Marks the calling thread as the one running `finalize_libuv`.
+void event_loop_begin_teardown() {
+    g_in_teardown = true;
 }
 
 void event_loop_mark_finalized(event_loop_t * event_loop) {
@@ -160,15 +162,16 @@ void event_loop_mark_finalized(event_loop_t * event_loop) {
 // walk.
 void event_loop_wait_finalized(event_loop_t * event_loop) {
     // A finalizer reached from a `lean_dec` inside teardown runs on the teardown thread itself, and
-    // must never wait: between the walk and `event_loop_mark_finalized` the state is still STOPPING,
-    // and `uv_cond_wait` on the recursively-held mutex would release only one nesting level, leaving
-    // the mutex held and hanging the process. Such a caller is safe to proceed regardless: the walk
-    // has already detached its handle by the time any of these `lean_dec`s run.
-    if (event_loop->teardown_active) {
-        uv_thread_t self = uv_thread_self();
-        if (uv_thread_equal(&self, &event_loop->teardown_thread)) {
-            return;
-        }
+    // must never wait: `uv_cond_wait` on the recursively-held mutex would release only one nesting
+    // level, leaving the mutex held and hanging the process.
+    //
+    // Letting such a caller through is safe *only* because `finalize_libuv` defers every `lean_dec`
+    // that could reach a wrapper finalizer into `uv_deferred_releases`, which runs after the
+    // teardown walk. That is what guarantees the caller's `m_uv_*` has already been detached
+    // (nulled) so it does not free a handle the walk is still stepping through. Any new `lean_dec`
+    // added inside a `*_shutdown` hook must be deferred the same way.
+    if (g_in_teardown) {
+        return;
     }
 
     uv_mutex_lock(&event_loop->mutex);
@@ -210,7 +213,7 @@ void event_loop_unregister_request(event_loop_t * event_loop, uv_pending_req * p
 // Asks libuv to cancel every tracked request. This only succeeds for requests still queued in the
 // threadpool; those complete promptly with `UV_ECANCELED` through their normal callback. Requests
 // already executing in a worker (a `getaddrinfo` inside the OS resolver) cannot be interrupted and
-// are left for `event_loop_detach_requests`.
+// are left for `event_loop_abandon_requests`.
 void event_loop_cancel_requests(event_loop_t * event_loop) {
     for (uv_pending_req * pending = event_loop->requests; pending != nullptr; pending = pending->next) {
         uv_cancel(pending->req);
@@ -221,7 +224,7 @@ bool event_loop_has_requests(event_loop_t * event_loop) {
     return event_loop->requests != nullptr;
 }
 
-// Abandons the requests that outlived the teardown drain, returning how many there were.
+// Abandons the requests that outlived the teardown drain, returning whether there were any.
 //
 // Their promises are resolved with `UV_ECANCELED` so nothing waits on them forever, but neither the
 // request nor its buffers are freed: a threadpool worker may still be writing into them (`uv_random`
@@ -229,8 +232,8 @@ bool event_loop_has_requests(event_loop_t * event_loop) {
 // requests at process exit is the price of not blocking on an uninterruptible syscall. This is safe
 // only because the loop is never run again after `finalize_libuv`, so the completion callbacks
 // cannot fire and double-release the promise.
-size_t event_loop_detach_requests(event_loop_t * event_loop) {
-    size_t abandoned = 0;
+bool event_loop_abandon_requests(event_loop_t * event_loop) {
+    bool abandoned = false;
 
     for (uv_pending_req * pending = event_loop->requests; pending != nullptr; pending = pending->next) {
         if (pending->promise != nullptr) {
@@ -239,7 +242,7 @@ size_t event_loop_detach_requests(event_loop_t * event_loop) {
             pending->promise = nullptr;
         }
 
-        abandoned++;
+        abandoned = true;
     }
 
     return abandoned;

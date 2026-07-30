@@ -1103,10 +1103,16 @@ function(toml_escape IN OUTVAR)
 endfunction()
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_CC "${LEANC_CC}")
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_FLAGS "${LEANC_INTERNAL_FLAGS}")
-string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_LINKER_FLAGS "${LEANC_INTERNAL_LINKER_FLAGS}")
 
 toml_escape("${LEAN_EXTRA_OPTS}" LEAN_EXTRA_OPTS_TOML)
-toml_escape("${LEANC_EXTRA_CC_FLAGS} ${LEANC_INTERNAL_FLAGS} ${LEANC_INTERNAL_LINKER_FLAGS}" LEAN_MORE_LEANC_ARGS_TOML)
+toml_escape("${LEANC_EXTRA_CC_FLAGS}" LEAN_MORE_LEANC_ARGS_TOML)
+# These are passed as untraced arguments because they include the sysroot path.
+# However, as they are untraced, Lake will not invalidate build artifacts if the sysroot changes.
+# As such, care must be taken when changing sysroots. Locally, artifacts can be manually cleaned via
+# `clean-stdlib` and `lake cache clean`. In CI, this behavior is currently desirable. The portable
+# release build populates the cache, and non-release builds using the host sysroot consume it.
+# If this changed or reversed, the setup here would also need changing.
+toml_escape("${LEANC_INTERNAL_FLAGS}" LEAN_WEAK_LEANC_ARGS_TOML)
 
 if(CMAKE_BUILD_TYPE MATCHES "Debug|Release|RelWithDebInfo|MinSizeRel")
   set(CMAKE_BUILD_TYPE_TOML "${CMAKE_BUILD_TYPE}")

@@ -1001,8 +1001,7 @@ The library will statically link in `linkObjs` (e.g., object files or
 static libraries) and, if `linkDeps := true`, dynamically link to `linkLibs`
 (and their transitive `deps`).
 
-Additional arguments to the linker can be provided via `weakArgs` and `traceArgs`.
-`traceArgs` will be included in the build's input trace, `weakArgs` will not.
+Additional arguments to the linker can be provided via `args`.
 
 If `plugin := true`, the resulting `Dynlib` will be marked as a Lean plugin.
 This means it is expected to have a `initialize_<libName>` symbol.

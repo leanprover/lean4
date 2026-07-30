@@ -26,8 +26,6 @@ void lean_uv_udp_socket_finalizer(void* ptr) {
     lean_always_assert(udp_socket->m_byte_array == nullptr);
 
     if (!event_loop_lock(&global_ev)) {
-        // The loop is being torn down. Wait for finalization to free and detach our handle, then
-        // release only the struct.
         event_loop_wait_finalized(&global_ev);
         if (udp_socket->m_uv_udp != nullptr) {
             free(udp_socket->m_uv_udp);
@@ -119,9 +117,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_new() {
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
 
-    // Set `data` before unlocking: once `uv_udp_init` registers the handle in the loop, a concurrent
-    // `finalize_libuv` walk (which runs under the same lock) could otherwise observe the handle with
-    // an uninitialized `data`.
     udp_socket->m_uv_udp = uv_udp;
 
     lean_object* obj = lean_uv_udp_socket_new(udp_socket);
@@ -487,8 +482,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_cancel_recv(b_obj_arg socket) {
         udp_socket->m_byte_array = nullptr;
     }
 
-    // The event loop does not own the object anymore. `uv_udp_recv_stop` prevents the recv callback
-    // from firing, so we must release the reference `lean_uv_udp_recv` handed to the loop here.
     lean_dec(socket);
 
     event_loop_unlock(&global_ev);

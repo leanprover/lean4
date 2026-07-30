@@ -30,26 +30,13 @@ enum event_loop_state {
 };
 
 // Lean references whose `lean_dec`s are deferred by `finalize_libuv` until after the teardown walk
-// has finished. Each entry releases `second` references on `first`.
-//
-// Deferring is required for any reference that could reach a uv wrapper finalizer, and the reason is
-// memory safety rather than deadlock: `uv_walk` iterates the handle queue through the intrusive
-// `handle_queue` node embedded in each `uv_handle_t`. A finalizer running mid-walk takes the
-// `event_loop_lock` failure path, and since it runs on the teardown thread
-// `event_loop_wait_finalized` lets it through immediately -- but the walk has not necessarily
-// reached its handle yet, so `m_uv_*` is still set and the finalizer would `free` a handle the walk
-// is about to step through. Deferring past the walk is what guarantees `m_uv_*` is already null.
+// has finished.
 typedef std::vector<std::pair<lean_object *, size_t>> uv_deferred_releases;
 
 // A libuv request that is bound to the loop rather than to a handle: DNS resolution and
 // `uv_random`. `uv_walk` only visits handles, so these are tracked in an intrusive list in order to
 // be cancelled during teardown; without it `finalize_libuv` would block until they complete, which
 // a slow resolver can delay indefinitely.
-//
-// The node is embedded in the request's owner struct, so registering never allocates. Every field,
-// and the list itself, is guarded by `event_loop_t::mutex`: requests are submitted from arbitrary
-// Lean threads inside `event_loop_lock`, the completion callbacks run on the loop thread which
-// holds the mutex across `uv_run`, and teardown holds it via `event_loop_lock_internal`.
 typedef struct uv_pending_req {
     uv_req_t *              req;
     lean_object *           promise;
@@ -86,10 +73,7 @@ void event_loop_begin_teardown();
 void event_loop_mark_finalized(event_loop_t *event_loop);
 void event_loop_wait_finalized(event_loop_t *event_loop);
 lean_obj_res lean_uv_loop_unavailable_error();
-
-// Loop-bound request tracking. All of these must be called with `mutex` held.
-void event_loop_register_request(event_loop_t *event_loop, uv_pending_req *pending, uv_req_t *req,
-                                 lean_object *promise);
+void event_loop_register_request(event_loop_t *event_loop, uv_pending_req *pending, uv_req_t *req, lean_object *promise);
 void event_loop_unregister_request(event_loop_t *event_loop, uv_pending_req *pending);
 void event_loop_cancel_requests(event_loop_t *event_loop);
 bool event_loop_has_requests(event_loop_t *event_loop);

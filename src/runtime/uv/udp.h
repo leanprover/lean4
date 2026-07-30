@@ -33,9 +33,6 @@ typedef struct {
 static inline lean_object* lean_uv_udp_socket_new(lean_uv_udp_socket_object * s) { return lean_alloc_external(g_uv_udp_socket_external_class, s); }
 static inline lean_uv_udp_socket_object* lean_to_uv_udp_socket(lean_object * o) { return (lean_uv_udp_socket_object*)(lean_get_external_data(o)); }
 
-// Detaches the socket from the event loop during shutdown: stops reads, resolves the pending promise
-// with `UV_ECANCELED` and clears the handle pointer. Returns the number of references the loop held
-// on the wrapping object, which the caller must drop once the handle has been freed.
 size_t lean_uv_udp_socket_shutdown(lean_uv_udp_socket_object * socket);
 
 #endif

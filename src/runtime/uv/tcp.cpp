@@ -162,9 +162,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new() {
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
 
-    // Set `data` before unlocking: once `uv_tcp_init` registers the handle in the loop, a concurrent
-    // `finalize_libuv` walk (which runs under the same lock) could otherwise observe the handle with
-    // an uninitialized `data`.
     tcp_socket->m_uv_tcp = uv_tcp;
 
     lean_object* obj = lean_uv_tcp_socket_new(tcp_socket);
@@ -498,7 +495,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_recv(b_obj_arg socket) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
     if (!event_loop_lock(&global_ev)) {
-        // Noop for cleanup paths like `Selectable.one`.
         return lean_io_result_mk_ok(lean_box(0));
     }
 
@@ -567,7 +563,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
             lean_dec(promise);
             tcp_socket->m_promise_accept = nullptr;
 
-            // The pending client allocated by `accept` is never handed out on this error path.
             if (tcp_socket->m_client != nullptr) {
                 lean_dec(tcp_socket->m_client);
                 tcp_socket->m_client = nullptr;
@@ -704,7 +699,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_accept(b_obj_arg socket) 
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
     if (!event_loop_lock(&global_ev)) {
-        // The loop is being finalized, which cancels every pending accept; see lean_uv_tcp_cancel_recv`.
         return lean_io_result_mk_ok(lean_box(0));
     }
 

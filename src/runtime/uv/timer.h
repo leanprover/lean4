@@ -43,9 +43,6 @@ typedef struct {
 static inline lean_object* lean_uv_timer_new(lean_uv_timer_object * s) { return lean_alloc_external(g_uv_timer_external_class, s); }
 static inline lean_uv_timer_object* lean_to_uv_timer(lean_object * o) { return (lean_uv_timer_object*)(lean_get_external_data(o)); }
 
-// Detaches the timer from the event loop during shutdown: stops it, resolves the pending promise and
-// clears the handle pointer. Returns the number of references the loop held on the wrapping object,
-// which the caller must drop once the handle has been freed.
 size_t lean_uv_timer_shutdown(lean_uv_timer_object * timer);
 
 #else

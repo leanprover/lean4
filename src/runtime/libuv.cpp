@@ -45,8 +45,6 @@ extern "C" void finalize_libuv() {
         return;
     }
 
-    // Must precede any `lean_dec` below that could reach a handle finalizer: those run on this
-    // thread and rely on being recognised so they do not wait for a state we have not reached yet.
     event_loop_begin_teardown();
 
     event_loop_lock_internal(&global_ev);
@@ -107,24 +105,10 @@ extern "C" void finalize_libuv() {
         uv_close(handle, [](uv_handle_t * handle) { free(handle); });
     }, &pending_releases);
 
-    // Mark the loop finalized before draining it. The walk above detached every wrapper's handle and
-    // requested its close, which makes libuv cancel in-flight stream requests (connect/send/shutdown)
-    // and fire their callbacks during the `uv_run` below. Those callbacks may drop the last reference
-    // to a socket; marking finalized first ensures the resulting finalizer sees the loop gone and
-    // frees its already-detached wrapper immediately instead of blocking in
-    // `event_loop_wait_finalized`. We still hold the mutex, so finalizers on other threads waiting in
-    // `event_loop_wait_finalized` stay blocked until teardown fully completes.
-    event_loop_mark_finalized(&global_ev);
 
-    // Requests bound to the loop rather than to a handle (DNS, `uv_random`) are invisible to the
-    // walk above, so cancel them explicitly. Whatever is still queued completes promptly during the
-    // drain; whatever already reached a threadpool worker cannot be interrupted at all.
+    event_loop_mark_finalized(&global_ev);
     event_loop_cancel_requests(&global_ev);
 
-    // Drain with `UV_RUN_NOWAIT` rather than `UV_RUN_DEFAULT`. The close callbacks queued by the
-    // walk, and the connect/send/shutdown callbacks libuv cancels along with them, all complete in
-    // a bounded number of iterations. `UV_RUN_DEFAULT` would additionally block until every
-    // threadpool request finished, which an unresponsive resolver can delay indefinitely.
     uint64_t const deadline = uv_hrtime() + LEAN_UV_TEARDOWN_DRAIN_NS;
 
     while (uv_run(global_ev.loop, UV_RUN_NOWAIT) != 0) {
@@ -132,8 +116,6 @@ extern "C" void finalize_libuv() {
             break;
         }
 
-        // Only an outstanding threadpool request can keep the loop alive for long; yield to it
-        // instead of spinning. Handle work needs no wait and falls out of the loop immediately.
         if (event_loop_has_requests(&global_ev)) {
             uv_sleep(1);
         }
@@ -141,8 +123,6 @@ extern "C" void finalize_libuv() {
 
     bool abandoned = event_loop_abandon_requests(&global_ev);
 
-    // With requests abandoned the loop still owns them, so `uv_loop_close` would return `UV_EBUSY`.
-    // Leaving the loop open at process exit is harmless; it is a static.
     if (!abandoned) {
         int close_result = uv_loop_close(global_ev.loop);
 
@@ -151,11 +131,6 @@ extern "C" void finalize_libuv() {
         }
     }
 
-    // Release the references the loop held on the surviving wrappers. Deferring these `lean_dec`s
-    // past the walk is required for memory safety, not just ordering: a wrapper finalizer reached
-    // from one of them runs on this thread, so `event_loop_wait_finalized` lets it straight through,
-    // and it must find its `m_uv_*` already detached by the walk. Running them earlier would free a
-    // handle that `uv_walk` is still iterating over. See `uv_deferred_releases` in `event_loop.h`.
     for (auto & release : pending_releases) {
         for (size_t i = 0; i < release.second; i++) {
             lean_dec(release.first);

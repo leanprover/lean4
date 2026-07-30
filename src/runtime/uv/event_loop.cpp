@@ -161,15 +161,6 @@ void event_loop_mark_finalized(event_loop_t * event_loop) {
 // (nulled) and closed their `uv_handle_t`, so they can free the wrapping struct without racing the
 // walk.
 void event_loop_wait_finalized(event_loop_t * event_loop) {
-    // A finalizer reached from a `lean_dec` inside teardown runs on the teardown thread itself, and
-    // must never wait: `uv_cond_wait` on the recursively-held mutex would release only one nesting
-    // level, leaving the mutex held and hanging the process.
-    //
-    // Letting such a caller through is safe *only* because `finalize_libuv` defers every `lean_dec`
-    // that could reach a wrapper finalizer into `uv_deferred_releases`, which runs after the
-    // teardown walk. That is what guarantees the caller's `m_uv_*` has already been detached
-    // (nulled) so it does not free a handle the walk is still stepping through. Any new `lean_dec`
-    // added inside a `*_shutdown` hook must be deferred the same way.
     if (g_in_teardown) {
         return;
     }
@@ -181,8 +172,7 @@ void event_loop_wait_finalized(event_loop_t * event_loop) {
     uv_mutex_unlock(&event_loop->mutex);
 }
 
-void event_loop_register_request(event_loop_t * event_loop, uv_pending_req * pending, uv_req_t * req,
-                                 lean_object * promise) {
+void event_loop_register_request(event_loop_t * event_loop, uv_pending_req * pending, uv_req_t * req, lean_object * promise) {
     pending->req = req;
     pending->promise = promise;
     pending->prev = nullptr;
@@ -211,9 +201,7 @@ void event_loop_unregister_request(event_loop_t * event_loop, uv_pending_req * p
 }
 
 // Asks libuv to cancel every tracked request. This only succeeds for requests still queued in the
-// threadpool; those complete promptly with `UV_ECANCELED` through their normal callback. Requests
-// already executing in a worker (a `getaddrinfo` inside the OS resolver) cannot be interrupted and
-// are left for `event_loop_abandon_requests`.
+// threadpool; those complete promptly with `UV_ECANCELED` through their normal callback.
 void event_loop_cancel_requests(event_loop_t * event_loop) {
     for (uv_pending_req * pending = event_loop->requests; pending != nullptr; pending = pending->next) {
         uv_cancel(pending->req);
@@ -225,13 +213,6 @@ bool event_loop_has_requests(event_loop_t * event_loop) {
 }
 
 // Abandons the requests that outlived the teardown drain, returning whether there were any.
-//
-// Their promises are resolved with `UV_ECANCELED` so nothing waits on them forever, but neither the
-// request nor its buffers are freed: a threadpool worker may still be writing into them (`uv_random`
-// fills a `ByteArray` in place), and there is no way to wait for it. Leaking a bounded number of
-// requests at process exit is the price of not blocking on an uninterruptible syscall. This is safe
-// only because the loop is never run again after `finalize_libuv`, so the completion callbacks
-// cannot fire and double-release the promise.
 bool event_loop_abandon_requests(event_loop_t * event_loop) {
     bool abandoned = false;
 
@@ -241,7 +222,6 @@ bool event_loop_abandon_requests(event_loop_t * event_loop) {
             lean_dec(pending->promise);
             pending->promise = nullptr;
         }
-
         abandoned = true;
     }
 
@@ -249,7 +229,6 @@ bool event_loop_abandon_requests(event_loop_t * event_loop) {
 }
 
 lean_obj_res lean_uv_loop_unavailable_error() {
-    // `lean_decode_uv_error` borrows the message.
     lean_object * msg = lean_mk_string("libuv event loop is not available");
     lean_obj_res res = lean_io_result_mk_error(lean_decode_uv_error(UV_ECANCELED, msg));
     lean_dec_ref(msg);
@@ -265,8 +244,6 @@ void event_loop_run_loop(event_loop_t * event_loop) {
             uv_cond_wait(&event_loop->cond_var, &event_loop->mutex);
         }
 
-        // The interrupt async is always active, so `uv_loop_alive` never becomes false; the loop only
-        // exits once finalization moves it out of the RUNNING state.
         if (event_loop->state != EVENT_LOOP_RUNNING) {
             uv_mutex_unlock(&event_loop->mutex);
             break;

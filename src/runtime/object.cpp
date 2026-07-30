@@ -1066,7 +1066,6 @@ public:
 
 static task_manager * g_task_manager = nullptr;
 
-// Defined in libuv.cpp; see `lean_finalize_task_manager` for why it is called from there.
 extern "C" void finalize_libuv();
 
 extern "C" LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers) {
@@ -1098,11 +1097,7 @@ extern "C" LEAN_EXPORT void lean_init_task_manager() {
 
 extern "C" LEAN_EXPORT void lean_finalize_task_manager() {
     if (g_task_manager) {
-        // The libuv event loop holds Lean references (promises) that it resolves and drops during
-        // teardown, which requires a live task manager. So tear the loop down here, before deleting
-        // the manager, rather than at static-destructor time (`finalize_runtime_module`), when the
-        // manager would already be gone. If no task manager was ever created, this is skipped and
-        // `finalize_runtime_module` tears the loop down instead.
+        // It needs to run before the task_manager is deleted. This is the best place to do that.
         finalize_libuv();
         delete g_task_manager;
         g_task_manager = nullptr;

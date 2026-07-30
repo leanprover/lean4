@@ -44,9 +44,6 @@ typedef struct {
 static inline lean_object* lean_uv_signal_new(lean_uv_signal_object * s) { return lean_alloc_external(g_uv_signal_external_class, s); }
 static inline lean_uv_signal_object* lean_to_uv_signal(lean_object * o) { return (lean_uv_signal_object*)(lean_get_external_data(o)); }
 
-// Detaches the signal from the event loop during shutdown: stops it, resolves the pending promise and
-// clears the handle pointer. Returns the number of references the loop held on the wrapping object,
-// which the caller must drop once the handle has been freed.
 size_t lean_uv_signal_shutdown(lean_uv_signal_object * signal);
 
 #endif

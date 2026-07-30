@@ -390,8 +390,7 @@ public meta def dyLeanFrameProc : FrameInferenceProc := fun i => do
           let last :: initRev := (preds.map (fun p => (mkApp p tr).headBeta)).reverse | unreachable!
           Meta.mkLambdaFVars #[tr] (initRev.foldl (fun acc x => mkApp (mkApp (mkConst ``And) x) acc) last)
         pure (← shareCommon (mkApp a.appFn! combined))
-  let op ← shareCommon (← Lean.Meta.mkAppOptM ``Lean.Order.meet #[i.Pred, none])
-  return some (← FrameSplit.withDeferredSplitVC i op frame)
+  return some (← FrameSplit.withDeferredSplitVC i frame)
 
 @[frameproc] public meta def dyLeanFP : FrameProc where
   prog := ``Traceful

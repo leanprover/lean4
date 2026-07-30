@@ -247,17 +247,18 @@ def tickFrameProc : FrameInferenceProc := fun i => do
   -- Emit the split VC `pre ⊑ (costConj shift residualPre ticks) s⃗` in its `costConj_apply`-reduced
   -- meet form `pre ⊑ (⌜shift ≤ ticks⌝ ⊓ residualPre (ticks - shift)) s⃗` (definitionally equal), so the
   -- built-in meet split decomposes it: the tick guard closes by `grind`, the residual re-applies.
-  let op ← shareCommon (← Meta.mkAppOptM ``costConj #[some i.Pred.bindingBody!, none])
+  let op ← i.op
   let costL := op.getAppArgs[0]!
   let costInst := op.getAppArgs[1]!
   let us := op.getAppFn.constLevels!
+  let residualPre ← i.mkResidualPre
   let guard ← mkAppNS (← mkConstS ``CompleteLattice.ofProp us)
     #[costL, costInst, ← mkAppNS (← mkConstS ``Nat.le) #[shift, ticks]]
-  let residual ← mkAppNS i.residualPre #[← mkAppNS (← mkConstS ``Nat.sub) #[ticks, shift]]
+  let residual ← mkAppNS residualPre #[← mkAppNS (← mkConstS ``Nat.sub) #[ticks, shift]]
   let meet ← mkAppNS (← mkConstS ``Lean.Order.meet us) #[costL, costInst, guard, residual]
   let rhs ← mkAppNS meet (i.excessArgs.extract 1 i.excessArgs.size)
   let m ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS (← i.le) #[← i.pre, rhs])
-  return some (FrameSplit.withDischargedSplitVC shift m [m.mvarId!])
+  return some (FrameSplit.withDischargedSplitVC shift residualPre m [m.mvarId!])
 
 /-- Register the cost frame inference procedure for `vcgen`, indexed by the `TickT` program type. The
 frame operator `costConj` is built at the base lattice `L` read off the assertion type `Nat → L`, so it

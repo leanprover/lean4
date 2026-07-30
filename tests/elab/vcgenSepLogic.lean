@@ -534,20 +534,20 @@ def proveSepConjLe (pre rhs : Expr) : MetaM (Option Expr) := do
 is `pre ⊑ frame ∗ footprint` (proved by AC-rearrangement of `∗`) composed by right-monotonicity with
 the emitted subgoal `footprint ⊑ residualPre`. -/
 def mkSepFrameSplit (i : FrameInferenceInfo) (frame footprint : Expr) : SymM FrameSplit := do
-  let op ← mkConstS ``sepConj
-  -- `.appArg!` reads the `frame ∗ ·` right-hand side off the split VC `mkSplitVC` builds.
-  let sepFF := (← i.mkSplitVCS op frame footprint).appArg!
+  -- `.appArg!` reads the `frame ∗ ·` right-hand side off the split VC `mkSplitVCS` builds.
+  let sepFF := (← i.mkSplitVCS frame footprint).appArg!
   match ← proveSepConjLe (← i.pre) sepFF with
-  | none => FrameSplit.withDeferredSplitVC i op frame
+  | none => FrameSplit.withDeferredSplitVC i frame
   | some hcl =>
     let le ← i.le
-    let sepFR := (← i.mkSplitVCS op frame i.residualPre).appArg!
-    let sub ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[footprint, i.residualPre])
-    let mono ← mkAppNS (← mkConstS ``sepConj_mono_right) #[frame, footprint, i.residualPre, sub]
+    let residualPre ← i.mkResidualPre
+    let sepFR := (← i.mkSplitVCS frame residualPre).appArg!
+    let sub ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[footprint, residualPre])
+    let mono ← mkAppNS (← mkConstS ``sepConj_mono_right) #[frame, footprint, residualPre, sub]
     let args := le.getAppArgs
     let proof ← mkAppNS (← mkConstS ``PartialOrder.rel_trans le.getAppFn.constLevels!)
       #[args[0]!, args[1]!, ← i.pre, sepFF, sepFR, hcl, mono]
-    return FrameSplit.withDischargedSplitVC frame proof [sub.mvarId!]
+    return FrameSplit.withDischargedSplitVC frame residualPre proof [sub.mvarId!]
 
 /-- Automatic frame inference by domain difference: the spec's precondition's atoms (its footprint)
 are cancelled from the goal precondition's; the leftover atoms are the frame. A pinned `frames`
@@ -560,7 +560,7 @@ def sepConjFrameProc : FrameInferenceProc := fun i => do
   match i.providedFrame? with
   | some frame =>
     match ← matchSepAtoms (← i.pre) frame with
-    | none => return some (← FrameSplit.withDeferredSplitVC i (← mkConstS ``sepConj) frame)
+    | none => return some (← FrameSplit.withDeferredSplitVC i frame)
     | some (rest, _) => return some (← mkSepFrameSplit i frame (← sepConjOfAtoms rest))
   | none =>
     let some specPre ← i.specPre? | return none

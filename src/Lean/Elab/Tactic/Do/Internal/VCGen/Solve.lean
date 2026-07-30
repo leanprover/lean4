@@ -349,7 +349,7 @@ private def compileSpecRule (scope : VCGen.Scope) (goal : MVarId) (info : WPApp)
         Pred:{indentExpr info.Pred}\n\
         excessArgs: {info.excessArgs}"
     | return (#[thm], none)
-  return (#[thm], some (scope, thm, rule))
+  return (#[], some (scope, thm, rule))
 
 /-- Apply the backward `rule` of the selected `@[spec]` theorem `thm`, returning its subgoals.
 Reached from `applySpec`. -/

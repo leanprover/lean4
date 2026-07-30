@@ -100,6 +100,71 @@ def sumIntoState (xs : List Nat) : StateM Nat Unit
 #guard_msgs (drop info) in
 #check @sumIntoState.spec
 
+/-! ## `assert` states a property at a point in the program
+
+The bare form asserts a term; the binder form binds the assertion's own arguments, such as the
+state of a state monad. -/
+
+def assertDouble (n : Nat) : Id Nat
+    requires n > 0
+    ensures r => r ≥ 2
+  := do
+  let d := 2 * n
+  assert d ≥ 2
+  return d
+
+#guard_msgs (drop info) in
+#check @assertDouble.spec
+
+def assertIntoState (xs : List Nat) : StateM Nat Unit
+    requires s => s = 0
+    ensures _ s => s = xs.sum
+  := do
+  assert s => s = 0
+  for x in xs invariant pref _ s => s = pref.sum do
+    modify (· + x)
+
+#guard_msgs (drop info) in
+#check @assertIntoState.spec
+
+/-! The binders accept a type ascription, as in `fun`. -/
+
+def assertAscribed (xs : List Nat) : StateM Nat Unit
+    requires s => s = 0
+    ensures _ s => s = xs.sum
+  := do
+  assert s : Nat => s = 0
+  for x in xs invariant pref _ s => s = pref.sum do
+    modify (· + x)
+
+#guard_msgs (drop info) in
+#check @assertAscribed.spec
+
+/-! An assertion that does not follow is reported like any other undischarged condition. -/
+
+/--
+error: unproved verification conditions for the contract of `assertUnprovable`; discharge them in a `where finally | spec => ...` section of the definition
+case vc1
+n : Nat
+⊢ 0 < n
+-/
+#guard_msgs in
+def assertUnprovable (n : Nat) : Id Nat
+    ensures r => r = n
+  := do
+  assert n > 0
+  return n
+
+/-! `assert!` keeps its runtime meaning: it tests a `Bool` and panics, with no gadget involved. -/
+
+def runtimeAssert (n : Nat) : Id Nat := do
+  assert! n > 0
+  return n
+
+/-- info: 3 -/
+#guard_msgs in
+#eval runtimeAssert 3
+
 /-! ## The `invariant` clause needs at least two binders -/
 
 /--

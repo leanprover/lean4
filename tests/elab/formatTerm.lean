@@ -15,6 +15,8 @@ def fmt (stx : CoreM Syntax) : CoreM Format := do PrettyPrinter.ppTerm ⟨← st
 #eval fmt `(do while c do pure ())
 #eval fmt `(do unless c do pure ())
 -- intrinsic-verification clauses: `invariant` inline with the loop, `requires`/`ensures` inline with `def`
+#eval fmt `(do assert 0 ≤ acc)
+#eval fmt `(do assert s => s ≤ acc)
 #eval fmt `(do for x in xs invariant pref suff => 0 ≤ acc do pure ())
 #eval fmt `(do for x in xs invariant pref suff s => s ≤ acc do pure ())
 #eval fmt `(command| def clampLow (n lo : Nat) : Id Nat requires lo ≤ n ensures r => r = n := pure n)

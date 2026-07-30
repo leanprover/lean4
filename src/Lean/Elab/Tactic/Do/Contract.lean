@@ -9,17 +9,20 @@ prelude
 public import Std.Tactic.Do.Syntax
 public import Std.Internal.Do
 public import Lean.Elab.Util
+public import Lean.Elab.Do.Basic
 import Lean.DocString.Extension
 meta import Lean.Parser.Command
 meta import Lean.Parser.Term
+meta import Lean.Parser.Do
 import Init.Syntax
 import Init.Grind.Interactive
 
 /-!
-# `requires`/`ensures` contracts on `def`
+# Intrinsic verification syntax
 
 A definition carrying `requires P` / `ensures b => Q` clauses expands to the plain definition plus a
-`vcgen`-proven, `@[spec]`-tagged specification theorem `f.spec`.
+`vcgen`-proven, `@[spec]`-tagged specification theorem `f.spec`. An `assert` element in a `do` block
+elaborates to the assertion gadget that `vcgen` proves in the course of that theorem.
 -/
 
 public section
@@ -134,5 +137,20 @@ discharge them in a `where finally | spec => ...` section of the definition"⟩
       | done
       | fail $msg)
   return mkNullNode #[cleanDeclaration, thm]
+
+open Lean.Elab.Do Lean.Parser.Term in
+@[builtin_doElem_elab Lean.Parser.Term.doAssertion]
+def elabDoAssertion : DoElab := fun stx dec => do
+  let tk := stx.raw[0]
+  let as : Term ← match stx with
+    | `(doAssertion| assert $f:basicFun) => `(fun $f:basicFun)
+    | `(doAssertion| assert $p:term) => pure p
+    | _ => throwUnsupportedSyntax
+  unless (← getEnv).contains ``assertGadget do
+    throwErrorAt tk
+      "the `assert` element elaborates to a `vcgen` gadget; add `import Std.Internal.Do` to use it."
+  let dec ← dec.ensureUnitAt tk
+  let e ← Term.elabTermEnsuringType (← `($(mkCIdent ``assertGadget) $as)) (← mkMonadApp (← mkPUnit))
+  dec.mkBindUnlessPure e
 
 end Lean.Elab.Tactic.Do

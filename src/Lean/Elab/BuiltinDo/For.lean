@@ -84,24 +84,27 @@ open Lean.Meta
 
 /-- Rebuild the already-elaborated loop as a `forInWithInvariant` call carrying the `invariant`
 clause: `ForIn.forInWithInvariant`, or `ForIn'.forInWithInvariant'` for a membership-proof binder
-(`for h : x in xs`). The state tuple's layout is `[return?, mutVars…, unit?]`, so the invariant can
+(`for h : x in xs`). The mut tuple's layout is `[return?, mutVars…, unit?]`, so the invariant can
 name the loop's mutable variables directly; the early-return slot becomes a wildcard. -/
 private def mkForInWithInvariant (invClause : Syntax) (h? : Option Syntax)
     (xs preS body σ : Expr) (loopMutVars : Array MutVar) (returnsEarly : Bool)
     (mi : MonadInfo) : DoElabM Expr := do
-  let `(doForInvariant| invariant $cursorBinders* => $invBody) := invClause | throwUnsupportedSyntax
+  let `(doForInvariant| invariant $binders* => $invBody) := invClause | throwUnsupportedSyntax
+  unless binders.size == 2 do
+    throwErrorAt invClause "The `invariant` clause takes two binders: the elements consumed so far \
+      and the elements remaining."
   let hole ← `(_)
-  let mut binders : Array Term := #[]
-  if returnsEarly then binders := binders.push hole
-  for mv in loopMutVars do binders := binders.push ⟨mv.ident.raw⟩
-  if returnsEarly && loopMutVars.isEmpty then binders := binders.push hole
-  let statePat : Term ← match binders with
+  let mut mutBinders : Array Term := #[]
+  if returnsEarly then mutBinders := mutBinders.push hole
+  for mv in loopMutVars do mutBinders := mutBinders.push ⟨mv.ident.raw⟩
+  if returnsEarly && loopMutVars.isEmpty then mutBinders := mutBinders.push hole
+  let mutTuplePat : Term ← match mutBinders with
     | #[]  => `(_)
     | #[b] => pure b
-    | _    => `(⟨$binders,*⟩)
-  let stateId := mkIdentFrom invClause (← mkFreshUserName `__s)
-  let invLam ← `(fun $cursorBinders* $stateId:ident =>
-    match $stateId:ident with | $statePat => $invBody)
+    | _    => `(⟨$mutBinders,*⟩)
+  let mutTupleBinder := mkIdentFrom invClause (← mkFreshUserName `__s)
+  let invLam ← `(fun $binders* $mutTupleBinder:ident =>
+    match $mutTupleBinder:ident with | $mutTuplePat => $invBody)
   -- The `forInWithInvariant` gadgets live downstream of this module, so they are referenced by an
   -- unresolved name that resolves in the user's context (which imports the metatheory).
   let gadget := if h?.isSome then `Std.Internal.Do.ForIn'.forInWithInvariant'

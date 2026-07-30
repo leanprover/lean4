@@ -11,6 +11,6 @@ def f (x : Nat) : Id Nat requires x > 0 ensures r => r ≥ x := pure x
 #guard_msgs in
 def g (xs : List Nat) : Id Nat := do
   let mut acc := 0
-  for x in xs invariant cur => 0 ≤ acc do
+  for x in xs invariant pref suff => 0 ≤ acc do
     acc := acc + x
   return acc

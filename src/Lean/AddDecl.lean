@@ -118,7 +118,7 @@ private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :
     | .defnDecl defn | .mutualDefnDecl [defn] =>
       if !forceExpose && (← getEnv).header.isModule && !(← getEnv).isExporting then
         trace[addDecl] "exporting definition {defn.name} as axiom"
-        exportedInfo? := some <| .axiomInfo { defn with isUnsafe := defn.safety == .unsafe }
+        exportedInfo? := some <| .axiomInfo { defn with isUnsafe := defn.safety != .safe }
       pure (defn.name, .defnInfo defn, .defn)
     | .opaqueDecl op =>
       if !forceExpose && (← getEnv).header.isModule && !(← getEnv).isExporting then

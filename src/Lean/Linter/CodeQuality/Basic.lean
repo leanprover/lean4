@@ -13,6 +13,8 @@ public import Std.Data.TreeMap
 public import Init.Data.Ord
 public import Lean.Data.Json
 
+public section
+
 namespace Lean.Linter.CodeQuality
 
 inductive Source where
@@ -30,17 +32,5 @@ structure Entry where
   source : Source
   value : Value
   deriving ToJson
-
-structure Failure where
-  name : String
-  message : String
-  deriving ToJson
-
-structure Report where
-  entries : Array Entry
-  failures : Array Failure
-  deriving ToJson
-
-abbrev Check := Unit → IO (Array Entry)
 
 end Lean.Linter.CodeQuality

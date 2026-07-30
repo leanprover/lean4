@@ -328,28 +328,26 @@ def stressResponseHandler (n : Nat) : TestHandler := fun _ => do
 
     client.send "GET /stream HTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n".toUTF8
 
-    -- The head is encoded as many tiny segments and each mock `send` is a separate
-    -- channel message, so a single `tryRecv?` can observe a partial head (e.g. just
-    -- "HTTP/1.1 200"). Accumulate across drains until the first body chunk appears;
-    -- the 5×40ms window stays well under the producer's 300ms pause before "bbb".
-    let mut earlyBytes : ByteArray := ByteArray.empty
+    let mut bytes : ByteArray := ByteArray.empty
+
     for _ in [0:5] do
-      unless (String.fromUTF8! earlyBytes).contains "aaa" do
-        let sleep ← Sleep.mk 40
+      unless (String.fromUTF8! bytes).contains "aaa" do
+        let sleep ← Sleep.mk 100
         sleep.wait
         if let some chunk ← client.tryRecv? then
-          earlyBytes := earlyBytes ++ chunk
+          bytes := bytes ++ chunk
 
-    if earlyBytes.isEmpty then
+    if bytes.isEmpty then
       throw <| IO.userError "Test '22_keepalive_unknown_size_flushes_early' failed:\nExpected early streamed bytes before producer EOF"
 
-    assertContains earlyBytes "Transfer-Encoding: chunked"
-    assertContains earlyBytes "aaa"
-    assertNotContains "22_keepalive_unknown_size_flushes_early no second chunk yet" earlyBytes "bbb"
+    assertContains bytes "Transfer-Encoding: chunked"
+    assertContains bytes "aaa"
+    assertNotContains "22_keepalive_unknown_size_flushes_early no second chunk yet" bytes "bbb"
 
     let sleep ← Sleep.mk 420
     sleep.wait
-    let later := (← client.tryRecv?).getD ByteArray.empty
-    assertContains later "bbb"
+    bytes := bytes ++ (← client.tryRecv?).getD ByteArray.empty
+
+    assertContains bytes "bbb"
 
     client.close

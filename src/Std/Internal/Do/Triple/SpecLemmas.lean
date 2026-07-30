@@ -622,8 +622,7 @@ variable [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
 
 /-- The type of loop invariants used by the specifications of `for ... in ...` loops.
 A loop invariant maps the elements consumed so far, the elements remaining, and the accumulator
-state to an assertion. The exception postcondition is specified separately as the spec's `epost`
-parameter. -/
+state to an assertion. -/
 @[spec_invariant_type, simp, grind =]
 def Invariant (α : Type u₁) (β : Type u₂) (Pred : Type uₚ) :=
   List α → List α → β → Pred

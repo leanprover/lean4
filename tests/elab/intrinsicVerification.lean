@@ -86,6 +86,20 @@ def sumRangeMem (n : Nat) : Id Nat
 #guard_msgs (drop info) in
 #check @sumRangeMem.spec
 
+/-! ## An invariant over the monad's own state
+
+The invariant need not mention a mutable variable: here it constrains the `StateM` state. -/
+
+def sumIntoState (xs : List Nat) : StateM Nat Unit
+    requires (fun s => s = 0)
+    ensures _ => (fun s => s = xs.sum)
+  := do
+  for x in xs invariant pref _ => (fun s => s = pref.sum) do
+    modify (· + x)
+
+#guard_msgs (drop info) in
+#check @sumIntoState.spec
+
 /-! ## The contract telescope is transplanted faithfully to `f.spec`
 
 `f.spec` re-binds the definition's telescope verbatim, applies `f` to exactly the explicit arguments,

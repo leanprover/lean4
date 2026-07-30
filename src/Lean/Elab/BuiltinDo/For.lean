@@ -84,9 +84,8 @@ open Lean.Meta
 
 /-- Rebuild the already-elaborated loop as a `forInWithInvariant` call carrying the `invariant`
 clause: `ForIn.forInWithInvariant`, or `ForIn'.forInWithInvariant'` for a membership-proof binder
-(`for h : x in xs`). The clause binds the elements consumed so far and the elements remaining. The
-state tuple's layout is `[return?, mutVars…, unit?]`, so the invariant can name the loop's mutable
-variables directly; the early-return slot becomes a wildcard. -/
+(`for h : x in xs`). The state tuple's layout is `[return?, mutVars…, unit?]`, so the invariant can
+name the loop's mutable variables directly; the early-return slot becomes a wildcard. -/
 private def mkForInWithInvariant (invClause : Syntax) (h? : Option Syntax)
     (xs preS body σ : Expr) (loopMutVars : Array MutVar) (returnsEarly : Bool)
     (mi : MonadInfo) : DoElabM Expr := do

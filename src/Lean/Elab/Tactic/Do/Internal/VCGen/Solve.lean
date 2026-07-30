@@ -345,21 +345,24 @@ private def specPatternMatches (thm : SpecTheorem) (prog : Expr) : SymM Bool :=
   withNewMCtxDepth do
     return (← thm.pattern.match? prog).isSome
 
-/-- Apply the cached backward rule of the selected `@[spec]` theorem `thm`, returning its subgoals, or
-a stop result when no rule matches the goal's monad. Reached from `applyFrameOrSpec`. -/
-private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
-    VCGenM SolveResult := do
+/-- The backward rule of the `@[spec]` theorem `thm` for the goal (construction is cached), or
+`none` when no rule matches the goal's monad. -/
+private def compileSpecRule (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
+    VCGenM (Option BackwardRule) := do
+  try
+    mkBackwardRuleFromSpecCached thm info |>.run
+  catch ex =>
+    throwError "Failed to construct rule {thm.proof} for {indentExpr info.prog}\n\
+      error: {ex.toMessageData}\n\
+      target:{indentExpr (← goal.getType)}\n\
+      Pred:{indentExpr info.Pred}\n\
+      excessArgs: {info.excessArgs}"
+
+/-- Apply the backward `rule` of the selected `@[spec]` theorem `thm`, returning its subgoals.
+Reached from `applyFrameOrSpec`. -/
+private def applySpecRule (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem)
+    (rule : BackwardRule) : VCGenM SolveResult := do
   trace[Elab.Tactic.Do.vcgen] "Applying spec {thm.proof} for {info.prog}. Excess args: {info.excessArgs}"
-  let some rule ←
-    try
-      mkBackwardRuleFromSpecCached thm info |>.run
-    catch ex =>
-      throwError "Failed to construct rule {thm.proof} for {indentExpr info.prog}\n\
-        error: {ex.toMessageData}\n\
-        target:{indentExpr (← goal.getType)}\n\
-        Pred:{indentExpr info.Pred}\n\
-        excessArgs: {info.excessArgs}"
-    | return ← stopOrErrorOnMissingSpec info.prog info.M #[thm]
   let .goals goals ← rule.applyChecked goal m!"spec rule for{indentExpr info.prog}"
     | do
       -- The discrimination tree over-approximates, so a selected spec may not unify with the program
@@ -487,22 +490,19 @@ private def applyFrameOrSpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp
   let thm ← match spec with
     | .ok thm => pure thm
     | .error res => return res
+  let some specRule ← compileSpecRule goal info thm
+    | return ← stopOrErrorOnMissingSpec info.prog info.M #[thm]
   if thm.conjunctivePre || isFramedPost info.post then
-    return ← applySpec scope goal info thm
+    return ← applySpecRule scope goal info thm specRule
   let procs := (← read).frameProcs.byProg
   let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
   let resourceTy ← fp.mkResourceTy info
   let providedFrame? ← matchFrame? resourceTy info
-  -- The spec's backward rule, so the procedure can speculatively apply it (construction is cached;
-  -- the direct application below reuses it). A spec whose rule cannot be built has no frame to
-  -- infer; `applySpec` reports it.
-  let specRule? ← try mkBackwardRuleFromSpecCached thm info |>.run catch _ => pure none
-  let some specRule := specRule? | return ← applySpec scope goal info thm
   -- The solver-owned metavariable for the residual precondition: the procedure builds the split VC
   -- proof against it, and `applyFrameRule` fills it once the frame rule fixes the footprint.
   let residualPre ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar info.Pred
   match ← fp.proc { info with goal, providedFrame?, spec? := thm.global?, specRule, residualPre } with
-  | none => applySpec scope goal info thm
+  | none => applySpecRule scope goal info thm specRule
   | some split =>
     trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` matched {info.prog}; frame:{indentExpr split.frame}"
     return .goals scope (← applyFrameRule goal info fp residualPre (← instantiateFrameSplit split))
@@ -556,7 +556,7 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
   if let some (scope, gs) ← normalizePre? scope goal α pre target then return .goals scope gs
 
   -- Collect new local specs before any strategy that may emit multiple subgoals
-  -- (`wpMatch?`, `splitLatticeOp?`) or apply a registered spec (`applySpec`).
+  -- (`wpMatch?`, `splitLatticeOp?`) or apply a registered spec (`applySpecRule`).
   let scope ← scope.collectLocalSpecs goal
 
   -- Phase 3: shape the `rhs` (reduce an EPost projection, decompose a lattice connective or a

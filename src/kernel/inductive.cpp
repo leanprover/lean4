@@ -1115,6 +1115,15 @@ static pair<names, name_map<name>> mk_aux_rec_name_map(environment const & aux_e
 }
 
 environment environment::add_inductive(declaration const & d) const {
+    /* Reject metavariables and free variables in declaration. */
+    {
+        inductive_decl ind_d(d);
+        for (inductive_type const & ind_type : ind_d.get_types()) {
+            check_no_metavar_no_fvar(*this, ind_type.get_name(), ind_type.get_type());
+            for (constructor const & cnstr : ind_type.get_cnstrs())
+                check_no_metavar_no_fvar(*this, constructor_name(cnstr), constructor_type(cnstr));
+        }
+    }
     elim_nested_inductive_result res = elim_nested_inductive_fn(*this, d)();
     unsigned nnested = res.m_aux2nested.size();
     scoped_diagnostics diag(*this, true);

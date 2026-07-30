@@ -420,9 +420,6 @@ theorem not_decide_eq_true [h : Decidable p] : ((!decide p) = true) = ¬ p := by
 
 @[simp] theorem heq_eq_eq (a b : α) : (a ≍ b) = (a = b) := propext <| Iff.intro eq_of_heq heq_of_eq
 
-@[simp] theorem cond_true (a b : α) : cond true a b = a := rfl
-@[simp] theorem cond_false (a b : α) : cond false a b = b := rfl
-
 theorem beq_self_eq_true [BEq α] [ReflBEq α] (a : α) : (a == a) = true := BEq.rfl
 theorem beq_self_eq_true' [DecidableEq α] (a : α) : (a == a) = true := BEq.rfl
 

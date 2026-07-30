@@ -92,7 +92,7 @@ The invariant need not mention a mutable variable: here it constrains the `State
 
 def sumIntoState (xs : List Nat) : StateM Nat Unit
     requires (fun s => s = 0)
-    ensures _ => (fun s => s = xs.sum)
+    ensures _ s => s = xs.sum
   := do
   for x in xs invariant pref _ => (fun s => s = pref.sum) do
     modify (· + x)

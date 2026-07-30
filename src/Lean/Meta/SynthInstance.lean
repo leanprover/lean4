@@ -1167,9 +1167,12 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type
     let { type, cacheKeyType, kind } ← preprocess type
+    let insts := instanceExtension.getState (← getEnv)
     let cacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth,
                       activeScopedInsts := instanceExtension.getActiveScopesWithEntries (← getEnv),
-                      localAttrInsts := instanceExtension.getState (← getEnv) |>.localInstanceNames,
+                      localAttrInsts := insts.localInstanceNames,
+                      erasedInsts := if insts.erased.isEmpty then #[]
+                        else insts.erased.fold (init := #[]) (·.push ·) |>.qsort Name.quickLt,
                       maxResultSize, defEqFlags := flags,
                       isExporting := (← getEnv).isExporting }
     match ← findCachedResult? cacheKey with

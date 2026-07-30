@@ -508,6 +508,10 @@ Examples:
 def dropPrefix (s : String) (pat : ρ) [ForwardPattern pat] : String.Slice :=
   s.toSlice.dropPrefix pat
 
+@[deprecated String.dropPrefix +typeChanged (since := "2025-11-17")]
+def stripPrefix (s pre : String) : String :=
+  (s.dropPrefix pre).toString
+
 /--
 If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {name}`s` unmodified
 otherwise.

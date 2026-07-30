@@ -339,7 +339,7 @@ private def compileSpecRule (scope : VCGen.Scope) (goal : MVarId) (info : WPApp)
   let thm ← match result with
     | .ok thm => pure thm
     | .error thms => return (thms, none)
-  let rule? ←
+  let some rule ←
     try
       mkBackwardRuleFromSpecCached thm info |>.run
     catch ex =>
@@ -348,7 +348,7 @@ private def compileSpecRule (scope : VCGen.Scope) (goal : MVarId) (info : WPApp)
         target:{indentExpr (← goal.getType)}\n\
         Pred:{indentExpr info.Pred}\n\
         excessArgs: {info.excessArgs}"
-  let some rule := rule? | return (#[thm], none)
+    | return (#[thm], none)
   return (#[thm], some (scope, thm, rule))
 
 /-- Apply the backward `rule` of the selected `@[spec]` theorem `thm`, returning its subgoals.

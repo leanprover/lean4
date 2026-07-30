@@ -55,11 +55,14 @@ builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ←
         throwError "Invalid `[deprecated]` attribute: `{.ofConstName declName true}` cannot be deprecated in favor of itself"
       if let some newName := newName? then
         recordExtraModUseFromDecl (isMeta := false) newName
-        if typeChanged?.isNone && getLinterValue linter.deprecated (← getLinterOptions) then
+        if getLinterValue linter.deprecated (← getLinterOptions) then
           let env ← getEnv
           if let some oldDecl := env.find? declName then
             if let some newDecl := env.find? newName then
-              unless (← MetaM.run' <| areTypesReduciblyDefEq oldDecl newDecl) do
+              if ← MetaM.run' <| areTypesReduciblyDefEq oldDecl newDecl then
+                if typeChanged?.isSome then
+                  logWarning "The `+typeChanged` marker is not needed because the updated constant has the same type."
+              else if typeChanged?.isNone then
                 let insertPos? := text?.bind (·.raw.getTailPos? (canonicalOnly := true)) <|>
                   id?.bind (·.raw.getTailPos? (canonicalOnly := true))
                 let hint ← if let some insertPos := insertPos? then

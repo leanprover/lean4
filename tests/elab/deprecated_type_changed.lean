@@ -1,8 +1,7 @@
 module
 
 /-!
-Tests warnings for type changes in `@[deprecated]` replacement declarations and both suppression
-syntaxes.
+Tests warnings for missing and unnecessary type-change markers in `@[deprecated]` attributes.
 -/
 
 set_option linter.deprecated true
@@ -53,3 +52,17 @@ def typeChangedShort : Bool := false
 #guard_msgs in
 @[deprecated newDecl (typeChanged := true) (since := "2026-07-27")]
 def typeChangedLong : Bool := false
+
+/--
+warning: The `+typeChanged` marker is not needed because the updated constant has the same type.
+-/
+#guard_msgs in
+@[deprecated reduciblyDefEqNew +typeChanged (since := "2026-07-30")]
+def unnecessaryTypeChangedShort : Nat := 0
+
+/--
+warning: The `+typeChanged` marker is not needed because the updated constant has the same type.
+-/
+#guard_msgs in
+@[deprecated reduciblyDefEqNew (typeChanged := true) (since := "2026-07-30")]
+def unnecessaryTypeChangedLong : Nat := 0

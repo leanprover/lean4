@@ -214,6 +214,40 @@ Hint: Type class instance resolution failures can be inspected with the `set_opt
 example (s : String) : Id Unit := do
   for _c in s invariant _ _ => True do pure ()
 
+/-! ## The `invariant` clause ascribes types per binder
+
+An ascription after the binder list would cover the loop binders and the assertion binders alike. -/
+
+/--
+error: The `invariant` clause takes no type ascription covering all its binders; ascribe the type on an individual binder, as in `invariant (pref : List α) suff => ...`.
+-/
+#guard_msgs in
+example (xs : List Nat) : Id Nat := do
+  let mut acc := 0
+  for x in xs invariant pref suff : List Nat => 0 ≤ acc do
+    acc := acc + x
+  return acc
+
+/-! ## The clause binders accept a type ascription, as in `fun` -/
+
+def requiresAscribed (xs : List Nat) : StateM Nat Unit
+    requires s : Nat => s = 0
+    ensures _ s => s = xs.sum
+  := do
+  for x in xs invariant pref _ s => s = pref.sum do
+    modify (· + x)
+
+#guard_msgs (drop info) in
+#check @requiresAscribed.spec
+
+def ensuresAscribed (n : Nat) : Id Nat
+    ensures r : Nat => r ≥ n
+  := pure n
+
+/-- info: ensuresAscribed.spec : ∀ (n : Nat), ⦃ ⊤ ⦄ ensuresAscribed n ⦃ fun r => r ≥ n ⦄ -/
+#guard_msgs in
+#check @ensuresAscribed.spec
+
 /-! ## The contract telescope is transplanted faithfully to `f.spec`
 
 `f.spec` re-binds the definition's telescope verbatim, applies `f` to exactly the explicit arguments,

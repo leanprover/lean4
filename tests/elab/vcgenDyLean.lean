@@ -378,9 +378,9 @@ public meta partial def collectAlways (e : Expr) : Array Expr :=
 single `Always'` over their conjunction, `Always' (fun tr => p₁ tr ∧ … ∧ pₙ tr)`. -/
 public meta def dyLeanFrameProc : FrameInferenceProc := fun i => do
   let frame ← do
-    match i.hint with
-    | .explicit frame => pure frame
-    | .implicit _ => match (collectAlways i.pre).toList with
+    match i.providedFrame? with
+    | some frame => pure frame
+    | none => match (collectAlways (← i.pre)).toList with
       | [] => return none
       | [single] => pure single
       | a :: rest =>
@@ -395,7 +395,7 @@ public meta def dyLeanFrameProc : FrameInferenceProc := fun i => do
 @[frameproc] public meta def dyLeanFP : FrameProc where
   prog := ``Traceful
   mkOpAppM := fun info => Meta.mkAppOptM ``Lean.Order.meet #[info.Pred, none]
-  resourceTy := fun info => pure info.Pred
+  mkResourceTy := fun info => pure info.Pred
   opHead := ``Lean.Order.meet
   proc := dyLeanFrameProc
 end DyLeanFrameProc

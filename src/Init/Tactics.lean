@@ -2373,9 +2373,17 @@ It reduces terms by unfolding definitions using their defining equations and
 applying matcher equations. The unfolding is propositional, so `cbv` also works
 with functions defined via well-founded recursion or partial fixpoints.
 
-`cbv` reduces the goal type using call-by-value evaluation. For equation goals
-(`lhs = rhs`), `cbv` automatically attempts `refl` after reduction to close the
-goal.
+`cbv` reduces the goal type (and optionally hypothesis types) using call-by-value
+evaluation. For equation goals (`lhs = rhs`), `cbv` automatically attempts `refl`
+after reduction to close the goal.
+
+`cbv` supports the standard `at` location syntax:
+- `cbv` — reduce the goal target
+- `cbv at h` — reduce hypothesis `h`
+- `cbv at h |-` — reduce hypothesis `h` and the goal target
+- `cbv at *` — reduce the goal target and all non-dependent propositional hypotheses
+
+If a hypothesis reduces to `False`, the goal is closed immediately.
 
 `cbv` is not a finishing tactic in general: it may leave a new (simpler) goal.
 
@@ -2383,7 +2391,7 @@ The proofs produced by `cbv` only use the three standard axioms.
 In particular, they do not require trust in the correctness of the code
 generator.
 -/
-syntax (name := cbv) "cbv" : tactic
+syntax (name := cbv) "cbv" (location)? : tactic
 
 /--
 `decide_cbv` is a finishing tactic that closes goals of the form `p`, where `p`

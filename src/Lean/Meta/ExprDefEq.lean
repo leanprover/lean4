@@ -2221,8 +2221,8 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
     -- which is very costly because it requires us to unify the fields.
     if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then
       return true
-    if t.isConst && s.isConst then
-      if  then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
+    if t.isConst && s.isConst && t.constName! == s.constName! then
+      isListLevelDefEqAux t.constLevels! s.constLevels!
     else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqApp t s) then
       return true
     else

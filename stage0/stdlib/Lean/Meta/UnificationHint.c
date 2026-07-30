@@ -8324,8 +8324,8 @@ goto v___jp_2668_;
 v___jp_2603_:
 {
 lean_object* v___x_2607_; 
-lean_inc(v___y_2605_);
-v___x_2607_ = l___private_Lean_Util_Trace_0__Lean_addTraceNode___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00__private_Lean_Meta_UnificationHint_0__Lean_Meta_tryUnificationHints_tryCandidate_spec__7_spec__7(v_oldTraces_2593_, v_data_2606_, v___y_2605_, v___y_2604_, v___y_2596_, v___y_2597_, v___y_2598_, v___y_2599_);
+lean_inc(v___y_2604_);
+v___x_2607_ = l___private_Lean_Util_Trace_0__Lean_addTraceNode___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00__private_Lean_Meta_UnificationHint_0__Lean_Meta_tryUnificationHints_tryCandidate_spec__7_spec__7(v_oldTraces_2593_, v_data_2606_, v___y_2604_, v___y_2605_, v___y_2596_, v___y_2597_, v___y_2598_, v___y_2599_);
 if (lean_obj_tag(v___x_2607_) == 0)
 {
 lean_object* v___x_2608_; 
@@ -8401,8 +8401,8 @@ lean_dec(v_snd_2618_);
 lean_dec(v_fst_2617_);
 lean_dec_ref(v_tag_2590_);
 lean_dec(v_cls_2588_);
-v___y_2604_ = v_a_2623_;
-v___y_2605_ = v___y_2622_;
+v___y_2604_ = v___y_2622_;
+v___y_2605_ = v_a_2623_;
 v_data_2606_ = v_data_2628_;
 goto v___jp_2603_;
 }
@@ -8421,8 +8421,8 @@ v___x_2631_ = lean_unbox_float(v_snd_2618_);
 lean_dec(v_snd_2618_);
 lean_ctor_set_float(v_data_2629_, sizeof(void*)*3 + 8, v___x_2631_);
 lean_ctor_set_uint8(v_data_2629_, sizeof(void*)*3 + 16, v_collapsed_2589_);
-v___y_2604_ = v_a_2623_;
-v___y_2605_ = v___y_2622_;
+v___y_2604_ = v___y_2622_;
+v___y_2605_ = v_a_2623_;
 v_data_2606_ = v_data_2629_;
 goto v___jp_2603_;
 }
@@ -9553,11 +9553,13 @@ return v_res_3018_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_SynthInstance(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_UnificationHint(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_SynthInstance(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

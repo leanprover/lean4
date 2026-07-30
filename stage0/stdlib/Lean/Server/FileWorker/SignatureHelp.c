@@ -1890,15 +1890,15 @@ lean_dec(v_line_649_);
 lean_dec(v_line_647_);
 if (v___x_650_ == 0)
 {
-v___y_635_ = v___y_644_;
-v___y_636_ = v___y_645_;
+v___y_635_ = v___y_645_;
+v___y_636_ = v___y_644_;
 v___y_637_ = v___x_639_;
 goto v___jp_634_;
 }
 else
 {
-v___y_635_ = v___y_644_;
-v___y_636_ = v___y_645_;
+v___y_635_ = v___y_645_;
+v___y_636_ = v___y_644_;
 v___y_637_ = v___x_642_;
 goto v___jp_634_;
 }
@@ -2330,9 +2330,9 @@ goto v___jp_535_;
 }
 v___jp_634_:
 {
-if (v___y_635_ == 0)
-{
 if (v___y_636_ == 0)
+{
+if (v___y_635_ == 0)
 {
 if (v___y_637_ == 0)
 {
@@ -3289,11 +3289,13 @@ lean_object* runtime_initialize_Lean_Server_InfoUtils(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_Lsp(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Sort_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_PrettyPrinter_Delaborator(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_FileWorker_SignatureHelp(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Server_InfoUtils(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

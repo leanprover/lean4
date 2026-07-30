@@ -46,6 +46,18 @@ do
 do
   unless c✝ do
     pure✝ ()
+do
+  for x✝ in xs✝ invariant cur✝ => 0 ≤ acc✝ do
+    pure✝ ()
+def clampLow✝ (n✝ lo✝ : Nat✝) : Id✝ Nat✝ require lo✝ ≤ n✝ ensures r✝ => r✝ = n✝ :=
+  pure✝ n✝
+def g✝ (x✝ : Nat✝) require x✝ > 0 ensures r✝ => r✝ ≥ x✝ :=
+  pure✝ x✝
+def h✝ (x✝ : Nat✝) : Id✝ Nat✝ ensures r✝ => r✝ = x✝ :=
+  pure✝ x✝
+where
+finally
+  | spec✝ => skip
 def foo✝ := by
   · skip; skip
   · skip; skip

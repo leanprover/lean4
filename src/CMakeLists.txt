@@ -559,9 +559,13 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC -ftls-model=initial-exec")
   string(APPEND LEANC_EXTRA_CC_FLAGS " -fPIC")
   string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,-rpath=\\$$ORIGIN/..:\\$$ORIGIN")
+  string(APPEND INIT_SHARED_LINKER_FLAGS " -Wl,-soname=libInit_shared.so")
+  string(APPEND LEANSHARED_1_LINKER_FLAGS " -Wl,-soname=libleanshared_1.so")
+  string(APPEND LEANSHARED_2_LINKER_FLAGS " -Wl,-soname=libleanshared_2.so")
+  string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,-soname=libleanshared.so")
   string(
     APPEND LAKESHARED_LINKER_FLAGS
-    " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive"
+    " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive -Wl,-soname=libLake_shared.so"
   )
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath=$ORIGIN/../lib:$ORIGIN/../lib/lean")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
@@ -623,7 +627,7 @@ endif()
 
 # The stage0 tree hash. For non-release builds this is embedded as `Lean.githash`.
 # It is also the githash Lake always needs to use for its traces. It is passed via `LEAN_GITHASH`
-# in `stdlib.make` and propagated to the cache steps by CI. This esnures that stage1 `.olean`s stay
+# in `stdlib.make` and propagated to the cache steps by CI. This ensures that stage1 `.olean`s stay
 # reusable across commits that do not touch stage0.
 execute_process(
   COMMAND git rev-parse HEAD:stage0

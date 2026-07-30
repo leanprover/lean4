@@ -1826,7 +1826,8 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     withTraceNode `Elab.step (fun _ => return m!"expected type: {expectedType?}, term\n{stx}")
       (tag := stx.getKind.toString) do
     checkSystem "elaborator"
-    checkDeprecatedSyntax stx (← read).macroStack
+    if (← read).checkDeprecated then
+      checkDeprecatedSyntax stx (← read).macroStack
     let env ← getEnv
     let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
     | some (decl, stxNew?) =>

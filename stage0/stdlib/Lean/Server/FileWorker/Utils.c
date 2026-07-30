@@ -2520,11 +2520,13 @@ lean_object* runtime_initialize_Lean_Language_Lean_Types(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Server_Snapshots(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Server_AsyncList(uint8_t builtin);
 lean_object* runtime_initialize_Std_Sync_Mutex(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_FileWorker_Utils(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Language_Lean_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

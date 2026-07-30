@@ -77,7 +77,7 @@ private inductive CacheKey where
   | proof (e type : ExprStructEq)
   deriving BEq, Hashable
 
-abbrev M := ReaderT Context $ MonadCacheT CacheKey Expr MetaM
+private abbrev M := ReaderT Context $ MonadCacheT CacheKey Expr MetaM
 
 partial def visit (e : Expr) (expectedType? : Option Expr := none) : M Expr := do
   checkSystem "abstract nested proofs"

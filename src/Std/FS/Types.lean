@@ -83,6 +83,13 @@ Read the entry kind out of a raw file mode, as reported by the metadata queries.
 opaque ofMode (mode : UInt64) : FileType
 
 /--
+Read the entry kind out of the raw type code reported by a directory read. Codes the platform does
+not report a kind for translate to `unknown`.
+-/
+@[extern "lean_uv_fs_file_type_of_dirent"]
+opaque ofDirentType (type : UInt8) : FileType
+
+/--
 Whether this is a regular file.
 -/
 def isFile (type : FileType) : Bool :=

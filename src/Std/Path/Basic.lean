@@ -645,6 +645,18 @@ instance : HDiv Path Filename Path where
   hDiv p name := p.join (ofFilename name)
 
 /--
+Test `p` against an already-parsed glob pattern. See `matchGlob` for the pattern syntax and the
+meaning of `matchDrivePrefix`; parsing once and matching many paths against the result avoids
+reparsing the pattern for each of them.
+-/
+def matchParsedGlob (p : Path) (glob : Internal.Glob) (matchDrivePrefix : Bool := false) : Bool :=
+  let comps := p.components.filter fun
+    | .winPrefix _ => matchDrivePrefix
+    | _ => true
+
+  Internal.matchSegments glob comps 0 0
+
+/--
 Test `p` against a glob pattern.
 
 The pattern always uses `/` to separate segments, regardless of platform. By default, Windows
@@ -665,12 +677,7 @@ unterminated `[...]` class) matches nothing.
 def matchGlob (p : Path) (pattern : String) (matchDrivePrefix : Bool := false) : Bool :=
   match Internal.parseGlob pattern with
   | none => false
-  | some glob =>
-    let comps := p.components.filter fun
-      | .winPrefix _ => matchDrivePrefix
-      | _ => true
-
-    Internal.matchSegments glob comps 0 0
+  | some glob => p.matchParsedGlob glob matchDrivePrefix
 
 /--
 Parse a POSIX-formatted string into a `Path`. Pure; uses `/` as the only separator.

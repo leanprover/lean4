@@ -359,7 +359,7 @@ private def compileSpecRule (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
       excessArgs: {info.excessArgs}"
 
 /-- Apply the backward `rule` of the selected `@[spec]` theorem `thm`, returning its subgoals.
-Reached from `applyFrameOrSpec`. -/
+Reached from `applySpec`. -/
 private def applySpecRule (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem)
     (rule : BackwardRule) : VCGenM SolveResult := do
   trace[Elab.Tactic.Do.vcgen] "Applying spec {thm.proof} for {info.prog}. Excess args: {info.excessArgs}"
@@ -480,11 +480,11 @@ Handle a spec-ready program `info.prog`: select its `@[spec]` theorem and either
   program type, or the default meet frame). The choice is per node, since sub-programs may reach a
   different monad (e.g. a `monadLift`ed base call).
 - An explicit `frames` clause elaborates a frame and passes it to the procedure.
-- Failing that, the spec is applied speculatively and its precondition VC's right-hand side is
-  handed to the procedure: no split keeps the application; a split rolls it back and applies the
-  frame rule instead, so the spec re-applies against the framed residual where its VCs are solvable.
+- Failing that, the procedure may read the spec's precondition through
+  `FrameInferenceInfo.specPre?`: no split applies the spec directly; a split applies the frame rule
+  instead, so the spec re-applies against the framed residual where its VCs are solvable.
 -/
-private def applyFrameOrSpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) :
+private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) :
     VCGenM SolveResult := goal.withContext do
   let (scope, spec) ← findSpec scope info.prog info.M
   let thm ← match spec with
@@ -590,7 +590,7 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
     let f := info.prog.getAppFn
     if f.isConst || f.isFVar then
       VCGen.burnOne
-      return ← applyFrameOrSpec scope goal info
+      return ← applySpec scope goal info
     throwError "Failed to decompose weakest precondition for {info.prog}. This should not happen."
 
   return .stop (.noProgress pre rhs)

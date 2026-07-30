@@ -233,9 +233,9 @@ meet split turns this into the tick guard (closed by `grind`) and the shifted re
 def tickFrameProc : FrameInferenceProc := fun i => do
   unless i.Pred.isArrow && i.Pred.bindingDomain!.isConstOf ``Nat do return none
   let some ticks := i.excessArgs[0]? | return none
-  let shift ← match i.hint with
-    | .explicit r => pure r
-    | .implicit _ => do
+  let shift ← match i.providedFrame? with
+    | some r => pure r
+    | none => do
       -- Shifting by the whole tick count leaves `ticks - ticks`; skip when that normalizes to `0` so
       -- the proc does not re-fire on its own residual.
       let ticks ← instantiateMVarsS ticks
@@ -247,15 +247,16 @@ def tickFrameProc : FrameInferenceProc := fun i => do
   -- Emit the split VC `pre ⊑ (costConj shift residualPre ticks) s⃗` in its `costConj_apply`-reduced
   -- meet form `pre ⊑ (⌜shift ≤ ticks⌝ ⊓ residualPre (ticks - shift)) s⃗` (definitionally equal), so the
   -- built-in meet split decomposes it: the tick guard closes by `grind`, the residual re-applies.
-  let costL := i.op.getAppArgs[0]!
-  let costInst := i.op.getAppArgs[1]!
-  let us := i.op.getAppFn.constLevels!
+  let op ← shareCommon (← Meta.mkAppOptM ``costConj #[some i.Pred.bindingBody!, none])
+  let costL := op.getAppArgs[0]!
+  let costInst := op.getAppArgs[1]!
+  let us := op.getAppFn.constLevels!
   let guard ← mkAppNS (← mkConstS ``CompleteLattice.ofProp us)
     #[costL, costInst, ← mkAppNS (← mkConstS ``Nat.le) #[shift, ticks]]
   let residual ← mkAppNS i.residualPre #[← mkAppNS (← mkConstS ``Nat.sub) #[ticks, shift]]
   let meet ← mkAppNS (← mkConstS ``Lean.Order.meet us) #[costL, costInst, guard, residual]
   let rhs ← mkAppNS meet (i.excessArgs.extract 1 i.excessArgs.size)
-  let m ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS i.le #[i.pre, rhs])
+  let m ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS (← i.le) #[← i.pre, rhs])
   return some (FrameSplit.withDischargedSplitVC shift m [m.mvarId!])
 
 /-- Register the cost frame inference procedure for `vcgen`, indexed by the `TickT` program type. The
@@ -265,7 +266,7 @@ frames the cost over any base monad. `costConj_apply` unfolds `costConj r b n` t
 @[frameproc] def tickFP : FrameProc where
   prog := ``TickT
   mkOpAppM := fun info => Meta.mkAppOptM ``costConj #[some info.Pred.bindingBody!, none]
-  resourceTy := fun _ => pure (mkConst ``Nat)
+  mkResourceTy := fun _ => pure (mkConst ``Nat)
   opHead := ``costConj
   proc := tickFrameProc
 

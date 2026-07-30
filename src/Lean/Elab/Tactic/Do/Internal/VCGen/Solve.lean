@@ -463,17 +463,6 @@ private def applyFrameRule (goal : MVarId) (info : WPApp) (fp : FrameProc)
   goals[frule.splitVCIdx]!.assign split.splitVCProof
   return goals.toList ++ split.subgoals
 
-/-- The spec precondition instantiated at the call site: the right-hand side of the bare `pre ⊑ specPre`
-premise among a spec rule's subgoals. The post and exception VCs are `∀`-quantified, so the bare
-entailment is the precondition VC. -/
-private def specPreOf? (subgoals : List MVarId) : VCGenM (Option Expr) := do
-  for g in subgoals do
-    if let some (_, _, _, specPre) := (← g.getType).app4? ``Lean.Order.PartialOrder.rel then
-      -- Resolve only an assigned head mvar so the procedure's head test (`isAppOf`) sees the real
-      -- operator; nested mvars are resolved by the procedure's own unification.
-      return some (← instantiateMVarsIfMVarAppS specPre)
-  return none
-
 /-- Instantiate a `FrameSplit`'s data against the current metavariable context (and reshare). -/
 private def instantiateFrameSplit (split : FrameSplit) : VCGenM FrameSplit := do
   return { split with
@@ -492,7 +481,7 @@ Handle a spec-ready program `info.prog`: select its `@[spec]` theorem and either
   handed to the procedure: no split keeps the application; a split rolls it back and applies the
   frame rule instead, so the spec re-applies against the framed residual where its VCs are solvable.
 -/
-private def applyFrameOrSpec (scope : VCGen.Scope) (goal : MVarId) (pre : Expr) (info : WPApp) :
+private def applyFrameOrSpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) :
     VCGenM SolveResult := goal.withContext do
   let (scope, spec) ← findSpec scope info.prog info.M
   let thm ← match spec with
@@ -502,29 +491,17 @@ private def applyFrameOrSpec (scope : VCGen.Scope) (goal : MVarId) (pre : Expr) 
     return ← applySpec scope goal info thm
   let procs := (← read).frameProcs.byProg
   let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
-  let resourceTy ← fp.resourceTy info
-  let op ← fp.mkOpAppM info
+  let resourceTy ← fp.mkResourceTy info
+  let providedFrame? ← matchFrame? resourceTy info
+  -- The spec's backward rule, so the procedure can speculatively apply it (construction is cached;
+  -- the direct application below reuses it). A spec whose rule cannot be built has no frame to
+  -- infer; `applySpec` reports it.
+  let specRule? ← try mkBackwardRuleFromSpecCached thm info |>.run catch _ => pure none
+  let some specRule := specRule? | return ← applySpec scope goal info thm
   -- The solver-owned metavariable for the residual precondition: the procedure builds the split VC
   -- proof against it, and `applyFrameRule` fills it once the frame rule fixes the footprint.
   let residualPre ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar info.Pred
-  -- The goal's entailment relation `PartialOrder.rel α inst`, its two operands stripped.
-  let le := (← goal.getType).stripArgsN 2
-  -- The frame hint: `explicit` from a `frames` clause, otherwise `implicit`, reading the spec
-  -- precondition off a speculative spec application. That application is rolled back so the procedure
-  -- runs against the original goal; its `specPre` metavariables are frozen into a telescope and
-  -- reopened fresh in the restored context so they outlive the rollback.
-  let hint : FrameInferenceHint ← match ← matchFrame? resourceTy info with
-    | some frame => pure (.explicit frame)
-    | none =>
-      let saved ← Meta.saveState
-      let .goals _ subgoals ← applySpec scope goal info thm
-        | throwError "vcgen: speculative spec application for{indentExpr info.prog} did not produce goals"
-      let some specPre ← specPreOf? subgoals | return .goals scope subgoals
-      let specPreAbs ← Meta.abstractMVars (← instantiateMVarsS specPre)
-      saved.restore
-      let (_, _, specPre) ← Meta.openAbstractMVarsResult specPreAbs
-      pure (.implicit (← shareCommon specPre))
-  match ← fp.proc { info with op, pre, le, hint, spec? := thm.global?, residualPre } with
+  match ← fp.proc { info with goal, providedFrame?, spec? := thm.global?, specRule, residualPre } with
   | none => applySpec scope goal info thm
   | some split =>
     trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` matched {info.prog}; frame:{indentExpr split.frame}"
@@ -613,7 +590,7 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
     let f := info.prog.getAppFn
     if f.isConst || f.isFVar then
       VCGen.burnOne
-      return ← applyFrameOrSpec scope goal pre info
+      return ← applyFrameOrSpec scope goal info
     throwError "Failed to decompose weakest precondition for {info.prog}. This should not happen."
 
   return .stop (.noProgress pre rhs)

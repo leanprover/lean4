@@ -493,9 +493,11 @@ partial def sepAtoms.go (e : Expr) : Array Expr :=
 def sepAtoms (e : Expr) : MetaM (Array Expr) :=
   return sepAtoms.go (← instantiateMVars e)
 
-def sepConjOfAtoms (atoms : Array Expr) : Expr :=
-  if atoms.isEmpty then mkConst ``emp
-  else atoms[1:].foldl (fun acc a => mkApp2 (mkConst ``sepConj) acc a) atoms[0]!
+def sepConjOfAtoms (atoms : Array Expr) : SymM Expr := do
+  if atoms.isEmpty then mkConstS ``emp
+  else
+    let op ← mkConstS ``sepConj
+    atoms[1:].foldlM (fun acc a => mkAppNS op #[acc, a]) atoms[0]!
 
 /-- Match and remove `cancel` atoms from `pre`. Returns `(remaining, matched)` or `none`.
 
@@ -532,17 +534,19 @@ def proveSepConjLe (pre rhs : Expr) : MetaM (Option Expr) := do
 is `pre ⊑ frame ∗ footprint` (proved by AC-rearrangement of `∗`) composed by right-monotonicity with
 the emitted subgoal `footprint ⊑ residualPre`. -/
 def mkSepFrameSplit (i : FrameInferenceInfo) (frame footprint : Expr) : SymM FrameSplit := do
+  let op ← mkConstS ``sepConj
   -- `.appArg!` reads the `frame ∗ ·` right-hand side off the split VC `mkSplitVC` builds.
-  let sepFF := (← i.mkSplitVC frame footprint).appArg!
-  match ← proveSepConjLe i.pre sepFF with
-  | none => FrameSplit.withDeferredSplitVC i frame
+  let sepFF := (← i.mkSplitVCS op frame footprint).appArg!
+  match ← proveSepConjLe (← i.pre) sepFF with
+  | none => FrameSplit.withDeferredSplitVC i op frame
   | some hcl =>
-    let sepFR := (← i.mkSplitVC frame i.residualPre).appArg!
-    let sub ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS i.le #[footprint, i.residualPre])
+    let le ← i.le
+    let sepFR := (← i.mkSplitVCS op frame i.residualPre).appArg!
+    let sub ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[footprint, i.residualPre])
     let mono ← mkAppNS (← mkConstS ``sepConj_mono_right) #[frame, footprint, i.residualPre, sub]
-    let args := i.le.getAppArgs
-    let proof ← mkAppNS (← mkConstS ``PartialOrder.rel_trans i.le.getAppFn.constLevels!)
-      #[args[0]!, args[1]!, i.pre, sepFF, sepFR, hcl, mono]
+    let args := le.getAppArgs
+    let proof ← mkAppNS (← mkConstS ``PartialOrder.rel_trans le.getAppFn.constLevels!)
+      #[args[0]!, args[1]!, ← i.pre, sepFF, sepFR, hcl, mono]
     return FrameSplit.withDischargedSplitVC frame proof [sub.mvarId!]
 
 /-- Automatic frame inference by domain difference: the spec's precondition's atoms (its footprint)
@@ -553,20 +557,21 @@ def sepConjFrameProc : FrameInferenceProc := fun i => do
   -- name. `probe_spec` isolates the report to the one test example below.
   if i.spec? == some `probe_spec then
     logInfo m!"framing for spec {i.spec?}"
-  match i.hint with
-  | .explicit frame =>
-    match ← matchSepAtoms i.pre frame with
-    | none => return some (← FrameSplit.withDeferredSplitVC i frame)
-    | some (rest, _) => return some (← mkSepFrameSplit i frame (sepConjOfAtoms rest))
-  | .implicit specPre =>
-    let some (rest, matched) ← matchSepAtoms i.pre specPre | return none
+  match i.providedFrame? with
+  | some frame =>
+    match ← matchSepAtoms (← i.pre) frame with
+    | none => return some (← FrameSplit.withDeferredSplitVC i (← mkConstS ``sepConj) frame)
+    | some (rest, _) => return some (← mkSepFrameSplit i frame (← sepConjOfAtoms rest))
+  | none =>
+    let some specPre ← i.specPre? | return none
+    let some (rest, matched) ← matchSepAtoms (← i.pre) specPre | return none
     if rest.isEmpty then return none
-    return some (← mkSepFrameSplit i (sepConjOfAtoms rest) (sepConjOfAtoms matched))
+    return some (← mkSepFrameSplit i (← sepConjOfAtoms rest) (← sepConjOfAtoms matched))
 
 @[frameproc] def heapFP : FrameProc where
   prog := ``HeapM
   mkOpAppM := fun _ => pure (mkConst ``sepConj)
-  resourceTy := fun _ => pure (mkConst ``HProp)
+  mkResourceTy := fun _ => pure (mkConst ``HProp)
   opHead := ``sepConj
   proc := sepConjFrameProc
 

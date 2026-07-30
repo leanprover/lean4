@@ -778,6 +778,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
         free(shutdown_req);
         lean_dec(tcp_socket->m_promise_shutdown);
         tcp_socket->m_promise_shutdown = nullptr;
+        lean_dec(promise);
         lean_dec(socket);
         event_loop_unlock(&global_ev);
 

@@ -62,6 +62,8 @@ typedef struct {
     _Atomic(int) n_active;      // Requesters currently in `event_loop_lock` that may interrupt `async`.
     _Atomic(int) state;         // Current event_loop_state.
     uv_pending_req * requests;  // Loop-bound requests not visible to `uv_walk`; guarded by `mutex`.
+    uv_thread_t  teardown_thread;   // Thread running `finalize_libuv`; valid once `teardown_active`.
+    _Atomic(int) teardown_active;   // Publishes `teardown_thread` to other threads.
 } event_loop_t;
 
 // The multithreaded event loop object for all tasks in the task manager.
@@ -75,6 +77,7 @@ void event_loop_lock_internal(event_loop_t *event_loop);
 void event_loop_unlock(event_loop_t *event_loop);
 void event_loop_request_stop(event_loop_t *event_loop);
 void event_loop_drain_active(event_loop_t *event_loop);
+void event_loop_begin_teardown(event_loop_t *event_loop);
 void event_loop_mark_finalized(event_loop_t *event_loop);
 void event_loop_wait_finalized(event_loop_t *event_loop);
 lean_obj_res lean_uv_loop_unavailable_error();

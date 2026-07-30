@@ -35,10 +35,18 @@ extern "C" void initialize_libuv() {
     g_libuv_thread.reset(new lthread([]() { event_loop_run_loop(&global_ev); }));
 }
 
+// Tears the event loop down. This is terminal: `initialize_libuv` is only ever called from
+// `initialize_runtime_module`, so the loop is not restarted afterwards and every subsequent uv
+// operation fails with `UV_ECANCELED`. Embedders that construct more than one `scoped_task_manager`
+// in a process therefore get a working loop only for the first one.
 extern "C" void finalize_libuv() {
     if (g_libuv_thread == nullptr) {
         return;
     }
+
+    // Must precede any `lean_dec` below that could reach a handle finalizer: those run on this
+    // thread and rely on being recognised so they do not wait for a state we have not reached yet.
+    event_loop_begin_teardown(&global_ev);
 
     event_loop_lock_internal(&global_ev);
     event_loop_request_stop(&global_ev);
@@ -83,7 +91,7 @@ extern "C" void finalize_libuv() {
                     break;
                 default:
                     lean_assert(false);
-                    break;
+                    return;
             }
 
             if (releases > 0) {

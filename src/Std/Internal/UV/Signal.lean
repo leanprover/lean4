@@ -64,7 +64,8 @@ This function has different behavior depending on the state and configuration of
 
 The resolved `IO.Promise` contains the signal number that was received. If the event loop is torn
 down (at process exit) while the promise is still pending, it is resolved with an `UV_ECANCELED`
-error.
+error. Once the loop is gone this function itself fails with `UV_ECANCELED` rather than returning a
+promise.
 -/
 @[extern "lean_uv_signal_next"]
 opaque next (signal : @& Signal) : IO (IO.Promise (Except IO.Error Int))

@@ -109,7 +109,7 @@ example :
     ⦃ fun r => r < 30 ⦄ := by
   sym =>
     vcgen invariants
-      · fun xs r => r + xs.suffix.length * 5 ≤ 25
+      · fun _pref suff r => r + suff.length * 5 ≤ 25
     <;> finish
 
 /-! ## `invariants?` (suggest mode) inside `sym =>` -/
@@ -143,7 +143,7 @@ example :
     ⦃ fun r => r < 30 ⦄ := by
   sym =>
     vcgen invariants
-      · fun xs r => r + xs.suffix.length * 5 ≤ 25
+      · fun _pref suff r => r + suff.length * 5 ≤ 25
     case vc3 b a x => finish
     case vc1 => tactic => simp +arith
     case vc2 x _ =>

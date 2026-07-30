@@ -313,7 +313,7 @@ local macro_rules
 @[spec] theorem tickList_spec {α : Type} (xs : List α) : tickList xs ⏱ xs.length := by
   unfold tickList
   vcgen invariants
-  | inv1 => fun cursor _ n _ => n = cursor.pos
+  | inv1 => fun pref _ _ n _ => n = pref.length
   with finish
 
 /-- Two loops in sequence: `vcgen` infers and frames the second call by the cost the first accrued,

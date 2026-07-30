@@ -72,7 +72,12 @@ def isNonTrivialProof (e : Expr) : MetaM Bool := do
 structure Context where
   cache    : Bool
 
-abbrev M := ReaderT Context $ MonadCacheT ExprStructEq Expr MetaM
+private inductive CacheKey where
+  | expr (e : ExprStructEq)
+  | proof (e type : ExprStructEq)
+  deriving BEq, Hashable
+
+abbrev M := ReaderT Context $ MonadCacheT CacheKey Expr MetaM
 
 partial def visit (e : Expr) (expectedType? : Option Expr := none) : M Expr := do
   checkSystem "abstract nested proofs"
@@ -103,9 +108,10 @@ partial def visit (e : Expr) (expectedType? : Option Expr := none) : M Expr := d
         match expectedType? with
         | some type => pure type
         | none => inferType e
-      abstractProofAt e type (← read).cache (fun type => visit type)
+      checkCache (.proof { val := e } { val := type }) fun _ =>
+        abstractProofAt e type (← read).cache (fun type => visit type)
     else
-      checkCache { val := e : ExprStructEq } fun _ => do
+      checkCache (.expr { val := e }) fun _ => do
         match e with
         | .lam ..
         | .letE ..     => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false) (generalizeNondepLet := false)

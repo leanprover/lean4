@@ -23,6 +23,10 @@ public inductive Mode where
   /-- Record linter warnings as `set_option <linter> false in` exceptions by editing the
   source files in place. -/
   | recordExceptions
+  /--
+  Record linter warnings as code quality checks and run the registered code quality checks
+  -/
+  | codeQuality
   deriving BEq
 
 /-- Arguments for builtin linting via `lake lint --builtin-lint`. -/
@@ -71,6 +75,16 @@ private structure ExceptionRecord where
   option : Name
   deriving Inhabited
 
+private inductive EnvironmentLintingOutcome where
+  /-- Reporting mode: failures were printed, and `failed` determines the exit code. -/
+  | reported (failed : Bool)
+  /--
+  Recording mode: `records` are the exceptions to write, and `unlocated` indicates that there were
+  failures whose position could not be resolved.
+  -/
+  | recorded (records : Array ExceptionRecord) (unlocated : Bool)
+
+  | codeQualityChecks
 private def collectTextLints
     (env : Environment) (pkgRoot : Name) :
     Array (Name × Array Linter.LintEntry) :=
@@ -292,15 +306,16 @@ public def run (args : Args) : IO UInt32 := do
                 warning: could not determine the command position of a `{e.linter}` text-linter \
                 warning in `{m}`; skipping its exception"
               anyUnlocated := true
+      | .codeQuality => pure ()
 
-    let ((declFailed, envRecords, envUnlocated), _) ←
+    let (environmentLintingOutcome, _) : EnvironmentLintingOutcome × Core.State ←
         CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do
       let decls ← Linter.EnvLinter.getDeclsInPackage mod.getRoot
       let linters ← Linter.EnvLinter.getEnvLinters (if args.lintOnly then some linterOpts else none)
       if linters.isEmpty then
         unless args.mode == .recordExceptions do
           IO.println s!"-- No environment linters were run for {mod}."
-        return (false, #[], false)
+        return .reported false
       let results ← Linter.EnvLinter.lintCore decls linters
       let failed := results.any (!·.2.isEmpty)
       match args.mode with
@@ -313,7 +328,7 @@ public def run (args : Args) : IO UInt32 := do
             IO.print (← fmtResults.toString)
           else unless textFailed do
             IO.println s!"-- Linting passed for {mod}."
-          return (failed, #[], false)
+          return .reported failed
       | .recordExceptions =>
         let mainModule := (← getEnv).mainModule
         let mut recs : Array ExceptionRecord := #[]
@@ -336,13 +351,16 @@ public def run (args : Args) : IO UInt32 := do
                 warning: no declaration range for `{declName}`; \
                 cannot record a `{linter.optName}` exception"
               unlocated := true
-        return (failed, recs, unlocated)
+        return .recorded recs unlocated
+      | .codeQuality => return .codeQualityChecks
 
-    records := records ++ envRecords
-    if envUnlocated then
-      anyUnlocated := true
-    if textFailed || declFailed then
-      anyFailed := true
+    match environmentLintingOutcome with
+    | .reported declFailed =>
+      anyFailed := anyFailed || textFailed || declFailed
+    | .recorded envRecords envUnlocated =>
+      records := records ++ envRecords
+      anyUnlocated := anyUnlocated || envUnlocated
+    | .codeQualityChecks => pure ()
 
     let deferredResults ← runDeferredChecks args linterOpts sp env mod.getRoot docCheckedModules
     docCheckedModules := deferredResults.checkedModules
@@ -359,5 +377,7 @@ public def run (args : Args) : IO UInt32 := do
   | .recordExceptions =>
     recordExceptionsToFiles records
     return if anyUnlocated then 1 else 0
+  | .codeQuality =>
+    return 0
 
 end Lake.BuiltinLint

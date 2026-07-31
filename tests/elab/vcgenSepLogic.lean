@@ -456,7 +456,6 @@ theorem le_sepConj_wand_refl₂ (X Y A : HProp) : X ∗ Y ⊑ X ∗ Y ∗ (A -�
     (PartialOrder.rel_of_eq (sepConj_assoc X Y (A -∗ A)))
 
 /-- Attach the trivial wand at an `emp`-framed residual post. -/
-@[grind ←]
 theorem le_sepConj_wand_emp_wand_refl (X A : HProp) : X ⊑ X ∗ (A -∗ (emp -∗ A)) :=
   PartialOrder.rel_trans (PartialOrder.rel_of_eq (sepConj_emp X).symm)
     (sepConj_mono_right X (le_wand A emp (emp -∗ A)
@@ -726,11 +725,24 @@ def mkEmpFrameSplit (i : FrameInferenceInfo) (matched : Array Expr) (wandAtom : 
   let empFoot ← mkAppNS sepConjE #[empE, footprint]
   let empRes ← mkAppNS sepConjE #[empE, mkMVar residualPre]
   let sub1 ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[footprint, mkMVar residualPre])
-  let sub2 ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[← i.pre, empFoot])
   let mono ← mkAppNS (← mkConstS ``sepConj_mono_right) #[empE, footprint, mkMVar residualPre, sub1]
   let args := le.getAppArgs
-  let proof ← mkAppNS (← mkConstS ``PartialOrder.rel_trans le.getAppFn.constLevels!)
-    #[args[0]!, args[1]!, ← i.pre, empFoot, empRes, sub2, mono]
+  let relTrans ← mkConstS ``PartialOrder.rel_trans le.getAppFn.constLevels!
+  let mkTrans (x y z h₁ h₂ : Expr) : SymM Expr :=
+    mkAppNS relTrans #[args[0]!, args[1]!, x, y, z, h₁, h₂]
+  let pre ← i.pre
+  -- A trivial continuation (the wand's argument is the residual post itself) discharges
+  -- `pre ⊑ emp ∗ footprint` in place: attach the trivial wand, then reassociate.
+  let G := sepConjG.appArg!
+  if isSameExpr G b then
+    let preW ← mkAppNS sepConjE #[pre, wrapped]
+    if let some q3 ← proveSepConjLe preW empFoot then
+      let q2 ← mkAppNS (← mkConstS ``le_sepConj_wand_emp_wand_refl) #[pre, G]
+      let toFoot ← mkTrans pre preW empFoot q2 q3
+      let proof ← mkTrans pre empFoot empRes toFoot mono
+      return some (FrameSplit.withDischargedSplitVC empE residualPre proof [sub1.mvarId!])
+  let sub2 ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[pre, empFoot])
+  let proof ← mkTrans pre empFoot empRes sub2 mono
   return some (FrameSplit.withDischargedSplitVC empE residualPre proof
     [sub2.mvarId!, sub1.mvarId!])
 

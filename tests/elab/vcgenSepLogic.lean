@@ -778,8 +778,12 @@ def mkEmpFrameSplit (i : FrameInferenceInfo) (matched : Array Expr) (wandAtom : 
     [sub2.mvarId!, sub1.mvarId!])
 
 /-- Automatic frame inference by domain difference: the spec's precondition's atoms (its footprint)
-are cancelled from the goal precondition's; the leftover atoms are the frame. A pinned `frames`
-resource cancels its own atoms instead, leaving the split VC open when they are missing. -/
+are cancelled from the goal precondition's, and the leftover atoms are the frame. Example: goal
+precondition `l1 ↦ a ∗ l2 ↦ b` against `store_spec`'s `?l ↦ ?v` cancels `l1 ↦ a` (pinning
+`?l := l1`, `?v := a`), frames `l2 ↦ b`, and proves the split VC by AC-rearrangement. A pinned
+`frames` resource cancels its own atoms instead, leaving the split VC open when they are missing.
+A spec whose only uncancelled atom is a wand `?G -∗ Q ⟨⟩` is ramified and goes to
+`mkEmpFrameSplit`. -/
 def sepConjFrameProc : FrameInferenceProc := fun i => do
   -- Exercises `FrameInferenceInfo.spec?`: a real frameproc keys a footprint off the applied spec's
   -- name. `probe_spec` isolates the report to the one test example below.

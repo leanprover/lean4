@@ -156,9 +156,6 @@ def reverse.go (fuel : Nat) (curr prev : Addr) : HeapM Addr :=
 def reverse (fuel : Nat) (head : Addr) : HeapM Addr :=
   reverse.go fuel head null
 
-/-- Write the prev field of the node at `q`. -/
-def storePrev (q c : Addr) : HeapM Unit := store (q + 1) c
-
 /-- Fuel-bounded in-place append: walk to the last node of the list at `curr`, link its next
 pointer to `q`, and point `q`'s prev field back at it. -/
 def append (fuel : Nat) (curr q : Addr) : HeapM Unit :=
@@ -168,7 +165,7 @@ def append (fuel : Nat) (curr q : Addr) : HeapM Unit :=
     let next ← load curr
     if next = null then
       store curr q
-      storePrev q curr
+      store (q + 1) curr
     else
       append fuel next q
 
@@ -601,7 +598,7 @@ theorem append_step_le (v v' w : Nat) (rest' ws : List Nat) (back qb curr next q
 
 /-- Rebuild a cons cell around a rewritten prev field; the loaded next-pointer is the witness. -/
 @[grind ←]
-theorem storePrev_handoff (w : Nat) (ws : List Nat) (q c n : Addr) :
+theorem store_prev_handoff (w : Nat) (ws : List Nat) (q c n : Addr) :
     ((q ↦ n ∗ (q + 2) ↦ w) ∗ IsList ws q n) ∗ (q + 1) ↦ c ⊑
       ⨆ n', q ↦ n' ∗ (q + 1) ↦ c ∗ (q + 2) ↦ w ∗ IsList ws q n' := by
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq ?_) (le_iSup _ n)
@@ -839,10 +836,11 @@ node into the wand (`wand_absorb`), and linking the last node discharges it by t
 lists are nonempty; the appended segment's head prev field is rewritten to the last node. -/
 
 /-- Rewrite the back-pointer of a cons cell by storing into its prev field. Not `@[spec]`: its
-program pattern would also match the exposed-node prev writes in `reverse.go`. -/
-theorem storePrev_IsList (w : Nat) (ws : List Nat) (qb q c : Addr) :
-    ⦃ IsList (w :: ws) qb q ⦄ storePrev q c ⦃ fun _ => IsList (w :: ws) c q ⦄ := by
-  simp only [storePrev, IsList_cons_eq]
+program pattern would also match the exposed-node prev write in `reverse.go`. Passed to `vcgen`
+where needed; the call-site priority ranks it above the global `store_spec`. -/
+theorem store_prev_IsList (w : Nat) (ws : List Nat) (qb q c : Addr) :
+    ⦃ IsList (w :: ws) qb q ⦄ store (q + 1) c ⦃ fun _ => IsList (w :: ws) c q ⦄ := by
+  simp only [IsList_cons_eq]
   vcgen [store_spec] with finish
 
 /-- Wand-style append specification: the continuation `R` receives the concatenated list once the
@@ -860,7 +858,7 @@ theorem append_spec (fuel : Nat) (v w : Nat) (rest ws : List Nat) (back qb curr 
       simp only [append, List.cons_append, List.nil_append]
       -- The `next ≠ null` arm is unreachable under `IsList []`; its recursive call takes the
       -- `⊥`-precondition spec and the arm closes by contradiction.
-      vcgen [-load_spec, load_next_IsList, store_spec, storePrev_IsList,
+      vcgen [-load_spec, load_next_IsList, store_prev_IsList,
         fun next => HeapM.triple_of_bot_pre (Q := fun _ => R) (append fuel next q)] with
         finish
   | cons v' rest' ih =>
@@ -870,7 +868,7 @@ theorem append_spec (fuel : Nat) (v w : Nat) (rest ws : List Nat) (back qb curr 
       simp only [append, List.cons_append]
       -- The `next = null` arm is unreachable under `IsList (v' :: rest')`; the recursive call
       -- takes the IH at the absorbed wand.
-      vcgen [-load_spec, load_next_IsList, store_spec, storePrev_IsList,
+      vcgen [-load_spec, load_next_IsList, store_prev_IsList,
         fun next => ih fuel v' curr next R (Nat.lt_of_succ_lt_succ hle)] with finish
 
 /-- Plain append specification, from `append_spec` at the trivial continuation. -/

@@ -541,6 +541,30 @@ private structure RealizationContext where
   realizeMapRef : IO.Ref (NameMap NonScalar /- PHashMap α (Task Dynamic) -/)
 
 /--
+One option lookup observed by a recording computation: the raw `Options.find?` result, so that
+validation is default-independent and covers set↔unset transitions exactly. See
+`Lean.getRecordedOption`.
+-/
+structure RecordedOptionAccess where
+  name  : Name
+  value : Option DataValue
+  deriving BEq
+
+/--
+What a recording computation observed about its environment and options, accumulated in
+`Lean.Core.State.recordedDeps` while it runs; replaying the observations decides whether a
+result cached by that computation is still valid. Type class resolution is currently the only
+client, see `Lean.Meta.SynthInstance`.
+-/
+structure RecordedDeps where
+  /--
+  The option lookups performed, deduplicated by name; a cached result may only be reused when
+  these lookups give the same answers in the current context.
+  -/
+  options : Array RecordedOptionAccess := #[]
+  deriving Inhabited
+
+/--
 Elaboration-specific extension of `Kernel.Environment` that adds tracking of asynchronously
 elaborated declarations.
 -/

@@ -166,7 +166,6 @@ def append (fuel : Nat) (curr q : Addr) : HeapM Unit :=
     if next = null then
       store curr q
       store (q + 1) curr
-      pure ()
     else
       append fuel next q
 
@@ -847,7 +846,7 @@ through the wand once the traversal ends. The prefix walked so far lives in the 
 theorem append_spec (fuel : Nat) (v w : Nat) (rest ws : List Nat) (back qb curr q : Addr)
     (Q : Unit → HProp) (hle : rest.length < fuel) :
     ⦃ IsList (v :: rest) back curr ∗ IsList (w :: ws) qb q ∗
-        (IsList ((v :: rest) ++ w :: ws) back curr -∗ Q ()) ⦄
+        (IsList ((v :: rest) ++ w :: ws) back curr -∗ Q ⟨⟩) ⦄
       append fuel curr q
     ⦃ Q ⦄ := by
   induction rest generalizing v fuel curr back Q with

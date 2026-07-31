@@ -541,12 +541,26 @@ private structure RealizationContext where
   realizeMapRef : IO.Ref (NameMap NonScalar /- PHashMap α (Task Dynamic) -/)
 
 /--
-Environment-state dependencies of an in-progress type class resolution query, accumulated in
-`Environment.synthEnvDepsRef?` while the query is running. Together with the recorded option
-lookups they determine when a cached resolution result is still valid; see
-`Lean.Meta.SynthInstance`.
+One option lookup observed during a type class resolution search: the raw `Options.find?`
+result, so that validation is default-independent and covers set↔unset transitions exactly. See
+`Lean.Meta.getRecordedOption`.
+-/
+structure SynthOptionAccess where
+  name  : Name
+  value : Option DataValue
+  deriving BEq
+
+/--
+Dependencies of an in-progress type class resolution query, accumulated in
+`Environment.synthEnvDepsRef?` while the query is running; they determine when a cached
+resolution result is still valid. See `Lean.Meta.SynthInstance`.
 -/
 structure SynthEnvDeps where
+  /--
+  The option lookups the search performed, deduplicated by name; an entry may only be used when
+  its recorded accesses give the same answers in the current context.
+  -/
+  options : Array SynthOptionAccess := #[]
   /--
   Per accessed `.recorded` extension (see `EnvExtension.TCResolutionAccess`), the state
   generation that was observed: `(extension index, generation)`. The dependency is stale once

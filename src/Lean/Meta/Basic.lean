@@ -351,32 +351,11 @@ instance : Hashable InfoCacheKey where
   hash := private fun { configKey, expr, nargs? } => mixHash (hash configKey) <| mixHash (hash expr) (hash nargs?)
 
 /--
-One option lookup observed during a type class resolution search: the raw `Options.find?` result,
-so that validation is default-independent and covers set↔unset transitions exactly. See
-`getRecordedOption`.
--/
-structure SynthOptionAccess where
-  name  : Name
-  value : Option DataValue
-  deriving BEq
-
-/--
 The option lookups a type class resolution cache entry was computed under, deduplicated by name;
 a lookup may only use an entry whose recorded accesses give the same answers in the current
 context. See `SynthInstanceCache`.
 -/
 abbrev SynthOptionAccessLog := Array SynthOptionAccess
-
-/--
-The dependencies a type class resolution cache entry was computed under: the recorded option
-lookups (`getRecordedOption`) and the recorded environment dependencies
-(`Environment.synthEnvDepsRef?`). A lookup may only use an entry whose recorded dependencies
-give the same answers in the current context; see `SynthInstanceCache`.
--/
-structure SynthDepLog where
-  options : SynthOptionAccessLog := #[]
-  envDeps : SynthEnvDeps := {}
-  deriving Inhabited
 
 /--
 The definitional-equality and unfolding compatibility flags, resolved and recorded once per type
@@ -467,7 +446,7 @@ options or extensions, as it runs under `Options.restrict .tcResolution` and wit
 accessors and panic on `.deny` extension accesses.
 -/
 abbrev SynthInstanceCache :=
-  PersistentHashMap SynthInstanceCacheKey (List (SynthDepLog × Option AbstractMVarsResult))
+  PersistentHashMap SynthInstanceCacheKey (List (SynthEnvDeps × Option AbstractMVarsResult))
 
 -- Key for `InferType` and `WHNF` caches
 structure ExprConfigCacheKey where
@@ -628,12 +607,6 @@ structure Context where
   Remark: `synthPending` fails if `synthPendingDepth > maxSynthPendingDepth`.
   -/
   synthPendingDepth : Nat                  := 0
-  /--
-  When set, option lookups made through the recording accessors (`getRecordedOption`) are
-  appended here. Armed per query by `synthInstanceCore?` to collect the option dependencies of
-  the cache entry being computed; see `SynthInstanceCache`.
-  -/
-  synthOptionLog?   : Option (IO.Ref SynthOptionAccessLog) := none
   /-- Set per type class resolution query; see `SynthDefEqFlags`. -/
   synthDefEqFlags?  : Option SynthDefEqFlags := none
   /--
@@ -1319,17 +1292,18 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 @[inline] def withIncSynthPending : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with synthPendingDepth := ctx.synthPendingDepth + 1 })
 
-/-- Records the lookup `access` in the armed option-access log, if any; see `getRecordedOption`. -/
+/-- Records the lookup `access` in the armed query's accumulator, if any; see `getRecordedOption`. -/
 private def recordOptionAccess (access : SynthOptionAccess) : MetaM Unit := do
-  if let some log := (← read).synthOptionLog? then
+  if let some sink := (← getEnv).synthEnvDepsRef? then
     -- Read-before-write: repeated lookups of the same option dominate (e.g. per `isDefEq` step),
-    -- and the pure membership test avoids allocating a closure and writing the ref for them.
-    unless (← log.get).any (·.name == access.name) do
-      log.modify (·.push access)
+    -- and the membership test avoids writing the ref for them.
+    let d ← sink.get
+    unless d.options.any (·.name == access.name) do
+      sink.set { d with options := d.options.push access }
 
 /--
 Reads an option on the type class resolution path, recording the lookup as an option dependency
-of the cache entry being computed (`Meta.Context.synthOptionLog?`); see `SynthInstanceCache`.
+of the cache entry being computed (`Environment.synthEnvDepsRef?`); see `SynthInstanceCache`.
 The read bypasses the options restriction, which exists to divert result-relevant by-name reads
 on the search path to this function; outside the search it behaves like `Lean.Option.get`.
 -/

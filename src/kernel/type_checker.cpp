@@ -326,7 +326,11 @@ expr type_checker::ensure_pi(expr const & e, expr const & s) {
 
 /** \brief Return true iff \c e is a proposition */
 bool type_checker::is_prop(expr const & e) {
-    return whnf(infer_type(e)) == mk_Prop();
+    expr s = whnf(infer_type(e));
+    // The level must be tested for zero up to normalization: `imax 1 0` denotes `Prop` without
+    // being syntactically `zero`. Comparing `s` against `Prop` syntactically instead would let
+    // `infer_proj` extract non-proof data out of a proof, contradicting proof irrelevance.
+    return is_sort(s) && normalizes_to_zero(sort_level(s));
 }
 
 /** \brief Apply normalizer extensions to \c e.

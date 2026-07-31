@@ -67,7 +67,9 @@ inline expr to_cnstr_when_structure(environment const & env, name const & induct
     expr e_type = whnf(infer_type(e));
     if (!is_constant(get_app_fn(e_type), induct_name))
         return e;
-    if (whnf(infer_type(e_type)) == mk_Prop())
+    expr s = whnf(infer_type(e_type));
+    // See `type_checker::is_prop`: zero must be tested up to normalization, e.g. `imax 1 0` is `Prop`.
+    if (is_sort(s) && normalizes_to_zero(sort_level(s)))
         return e;
     return expand_eta_struct(env, e_type, e);
 }

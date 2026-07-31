@@ -318,9 +318,9 @@ def mkComputedFieldOverrides (declName : Name) (compFields : Array Name) : MetaM
       ReaderT.run (r := ctx) do
         validateComputedFields
         mkImpls
+        overrideComputedFields
         overrideCasesOn
         overrideConstructors
-        overrideComputedFields
 
 /--
 Sets the computed fields for a block of mutual inductives, adding the implementation via

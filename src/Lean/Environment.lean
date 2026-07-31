@@ -651,6 +651,15 @@ structure Environment where
   registered as `.deny` (the default) panic when accessed. See `EnvExtension.TCResolutionAccess`.
   -/
   synthEnvDepsRef? : Option (IO.Ref SynthEnvDeps) := none
+  /--
+  Persistent tier of the type class resolution cache, `none` for empty. The value is a
+  `Lean.Meta.SynthInstanceCache` (not nameable in this module; accessed with confined casts in
+  `Lean.Meta.Instances`). It lives in a plain field rather than an environment extension so that
+  a cache fill costs one structure copy instead of copying the extension state array, while
+  keeping the same branch-local value semantics: fills roll back with the environment, and
+  parallel elaboration branches never observe each other's fills.
+  -/
+  synthCacheRaw? : Option NonScalar := none
 deriving Nonempty
 
 @[inline] private def VisibilityMap.get (m : VisibilityMap α) (env : Environment) : α :=
@@ -694,6 +703,10 @@ def setExporting (env : Environment) (isExporting : Bool) : Environment :=
     env
   else
     { env with isExporting }
+
+/-- Updates `env.synthCacheRaw?`; see there. -/
+def setSynthCacheRaw? (env : Environment) (v? : Option NonScalar) : Environment :=
+  { env with synthCacheRaw? := v? }
 
 /-- Updates `env.synthEnvDepsRef?`; see there. -/
 def setSynthEnvDepsRef? (env : Environment) (ref? : Option (IO.Ref SynthEnvDeps)) : Environment :=

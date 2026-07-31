@@ -118,10 +118,15 @@ builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry In
     tcResolutionAccess := .recorded
   }
 
+private unsafe def getSynthCacheUnsafe (env : Environment) : SynthInstanceCache :=
+  match env.synthCacheRaw? with
+  | some v => unsafeCast v
+  | none   => {}
+
 /--
-Persistent tier of the `synthInstance` result cache; see `Lean.Meta.SynthInstance`. It is stored
-in an environment extension so that it persists across commands; it is not stored in `.olean`
-files.
+Persistent tier of the `synthInstance` result cache, stored in `Environment.synthCacheRaw?`;
+see there and `Lean.Meta.SynthInstance`. It persists across commands and is not stored in
+`.olean` files.
 
 Only *context-free* entries are stored here: keys without metavariables and closed results.
 Context-sensitive entries (whose validity depends on the ambient metavariable context) live in
@@ -135,10 +140,15 @@ Entries persisted within a rolled-back region are lost with it; within a single 
 transient tier compensates, as `Meta.Cache` is deliberately not restored by
 `Meta.SavedState.restore` (see `Lean.Meta.SynthInstance.insertCachedResult`).
 -/
-builtin_initialize synthInstanceCacheExt : EnvExtension SynthInstanceCache ←
-  -- mere cache, keep local; `.exempt` as this *is* the resolution cache
-  registerEnvExtension (pure {}) (asyncMode := .local) (name := `synthInstanceCache)
-    (tcResolutionAccess := .exempt)
+@[implemented_by getSynthCacheUnsafe]
+opaque _root_.Lean.Environment.synthCache (env : Environment) : SynthInstanceCache
+
+private unsafe def setSynthCacheUnsafe (env : Environment) (c : SynthInstanceCache) : Environment :=
+  env.setSynthCacheRaw? (some (unsafeCast c))
+
+/-- Replaces the persistent tier of the `synthInstance` result cache; see `Environment.synthCache`. -/
+@[implemented_by setSynthCacheUnsafe]
+opaque _root_.Lean.Environment.setSynthCache (env : Environment) (c : SynthInstanceCache) : Environment
 
 /--
 Resets the persistent tier of the type class resolution cache. Use `resetSynthInstanceCache`
@@ -146,7 +156,7 @@ instead from `MetaM`, which also clears the transient `Meta.Cache.synthInstance`
 context-free entries are written to both tiers (see `Lean.Meta.SynthInstance.insertCachedResult`).
 -/
 def resetSynthInstanceCacheCore : CoreM Unit :=
-  modify fun s => { s with env := synthInstanceCacheExt.setState s.env {} }
+  modify fun s => { s with env := s.env.setSynthCacheRaw? none }
 
 /--
 Resets the type class resolution cache (both the persistent tier and the transient

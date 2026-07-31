@@ -969,7 +969,7 @@ by the key, cf. `Small`) are resolved by ambient constraints, so reusing them in
 context can produce incorrectly instantiated terms.
 
 A persistent insertion is rolled back together with the environment (see
-`synthInstanceCacheExt`); the transient copy then still serves the entry for the rest of the
+`Environment.synthCache`); the transient copy then still serves the entry for the rest of the
 command, as `Meta.SavedState.restore` deliberately does not restore `Meta.Cache`. Without it,
 backtracking-heavy elaboration (e.g. tactics trying alternatives) would re-run every failed
 attempt's typeclass queries from scratch.
@@ -983,7 +983,7 @@ private def insertCachedResult (key : SynthInstanceCacheKey) (log : SynthDepLog)
     -- Modify the environment directly instead of via `Meta.modifyEnv`, which would reset the
     -- `Meta.Cache` caches.
     modifyThe Core.State fun s =>
-      { s with env := synthInstanceCacheExt.modifyState s.env upsert }
+      { s with env := s.env.setSynthCache (upsert s.env.synthCache) }
   modifyCache fun c => { c with synthInstance := upsert c.synthInstance }
 
 /--
@@ -1013,7 +1013,7 @@ private def validateDeps? (opts : Options) (env : Environment)
 
 /--
 Returns the type class resolution cache entry for `key` from the transient
-(`Meta.Cache.synthInstance`) or persistent (`synthInstanceCacheExt`) tier, together with its
+(`Meta.Cache.synthInstance`) or persistent (`Environment.synthCache`) tier, together with its
 recorded dependencies. Only entries whose recorded dependencies give the same answers in the
 current context are considered (`validateDeps?`); a re-stamped entry is re-inserted into its
 tier. See `SynthInstanceCache`.
@@ -1033,7 +1033,7 @@ private def findCachedResult? (key : SynthInstanceCacheKey) :
     if restamped then
       insertCachedResult key log val? (persist := false)
     return some (log, val?)
-  if let some (log, val?, restamped) ← findIn (synthInstanceCacheExt.getState env) then
+  if let some (log, val?, restamped) ← findIn env.synthCache then
     if restamped then
       insertCachedResult key log val? (persist := true)
     return some (log, val?)

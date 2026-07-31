@@ -81,7 +81,7 @@ theorem Spec.forInWithInvariant'_det {ρ : Type w} {d : Membership α ρ} [ForIn
     {epost : EPred}
     (step : ∀ pref cur suff (h : ForIn.toList xs = pref ++ cur :: suff) b,
       Triple
-        (f cur (LawfulMemForIn.mem_of_mem_toList (by simp [h])) b)
+        (f cur ((LawfulMemForIn.mem_toList_iff).mp (by simp [h])) b)
         (inv pref (cur :: suff) b)
         (fun r => match r with
           | .yield b' => inv (pref ++ [cur]) suff b'

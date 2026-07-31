@@ -1157,6 +1157,7 @@ environment environment::add_inductive(declaration const & d) const {
         names aux_rec_names; name_map<name> aux_rec_name_map;
         std::tie(aux_rec_names, aux_rec_name_map) = mk_aux_rec_name_map(aux_env, d);
         environment new_env = *this;
+        buffer<name> new_rec_names;
         auto process_rec = [&](name const & rec_name) {
             name new_rec_name      = rec_name;
             if (name const * new_name = aux_rec_name_map.find(rec_name))
@@ -1180,6 +1181,7 @@ environment environment::add_inductive(declaration const & d) const {
                                                         all_ind_names, rec_val.get_nparams(), rec_val.get_nindices(), rec_val.get_nmotives(),
                                                         rec_val.get_nminors(), recursor_rules(new_rules),
                                                         rec_val.is_k(), rec_val.is_unsafe())));
+            new_rec_names.push_back(new_rec_name);
         };
         for (inductive_type const & ind_type : ind_d.get_types()) {
             constant_info ind_info = aux_env.get(ind_type.get_name());
@@ -1215,6 +1217,26 @@ environment environment::add_inductive(declaration const & d) const {
             res.m_aux2nested.for_each([&](name const &, expr const & nested) {
                     tc.check(nested, inductive_decl(d).get_lparams());
                 });
+        }
+        /* Re-check everything `restore_nested` rewrote: the constructor types, and the recursor
+           types and computation rules. The rewritten terms are not otherwise checked in `new_env`.
+           The preceding checks are expected to make this redundant; it is cheap and it keeps a
+           mistake in the restoration from reaching the environment. Note that the inductive types
+           themselves are added unchanged, so they need no check here. */
+        {
+            type_checker tc(new_env, diag.get(), inductive_decl(d).is_unsafe() ? definition_safety::unsafe : definition_safety::safe);
+            for (inductive_type const & ind_type : ind_d.get_types()) {
+                for (constructor const & cnstr : ind_type.get_cnstrs()) {
+                    tc.check(new_env.get(constructor_name(cnstr)).get_type(), inductive_decl(d).get_lparams());
+                }
+            }
+            for (name const & rec_name : new_rec_names) {
+                constant_info rec_info = new_env.get(rec_name);
+                tc.check(rec_info.get_type(), rec_info.get_lparams());
+                for (recursor_rule const & rule : rec_info.to_recursor_val().get_rules()) {
+                    tc.check(rule.get_rhs(), rec_info.get_lparams());
+                }
+            }
         }
         return diag.update(new_env);
     }

@@ -100,29 +100,6 @@ register_builtin_option backward.isDefEq.appOnFailure : Bool := {
 }
 
 /--
-Controls whether the transparency bump for implicit arguments is also applied in the first pass
-of `isDefEqArgs`, where an argument pair is unified eagerly because one side is an unassigned
-metavariable (the "easy cases" of `isDefEqArgsFirstPass`).
-
-Without the bump, such pairs are unified at the caller's transparency: inside type class
-resolution, the metavariable assignment — including the type check and the
-`backward.isDefEq.instanceTypes` fallbacks it triggers — then runs at `.instances`, even though
-the same argument pair would have been checked at `.implicit` had it been postponed to the
-second pass. Whether an argument gets the bump should not depend on which side happens to be an
-unassigned metavariable.
-
-Which arguments are bumped follows the same rules as the second pass: instance-implicit
-arguments always (when `backward.isDefEq.respectTransparency` is `true`), other implicit
-arguments only if `backward.isDefEq.implicitBump` is `true`. This option only has an effect when
-`backward.isDefEq.respectTransparency` is `true`.
--/
-register_builtin_option backward.isDefEq.firstPassBump : Bool := {
-  defValue := true
-  descr    := "if true, apply the `.implicit` transparency bump for implicit arguments also in \
-  the eager (unassigned-metavariable) cases of the first pass of `isDefEqArgs`"
-}
-
-/--
 Controls whether assignments to instance-typed metavariables (see
 `MetavarContext.instanceTypedMVars`) are restricted so that the final value of a
 metavariable created for an instance-implicit argument has the type the metavariable was
@@ -399,8 +376,7 @@ least `.implicit`, so both `[instance_reducible]` and `[implicit_reducible]` unf
 private def isDefEqArgsFirstPass
     (paramInfo : Array ParamInfo) (args₁ args₂ : Array Expr) : MetaM DefEqArgsFirstPassResult := do
   let opts ← getOptions
-  let firstPassBump := backward.isDefEq.respectTransparency.get opts
-    && backward.isDefEq.firstPassBump.get opts
+  let respectTransparency := backward.isDefEq.respectTransparency.get opts
   let implicitBump := backward.isDefEq.implicitBump.get opts
   let mut postponedImplicit := #[]
   let mut postponedHO := #[]
@@ -427,7 +403,7 @@ private def isDefEqArgsFirstPass
          should not depend on which side happens to be an unassigned metavariable. In particular,
          the assignment triggered here — including the type check and `instanceTypes` fallbacks
          run by `checkTypesAndAssign` — sees the bumped ambient transparency. -/
-      if firstPassBump && (info.binderInfo.isInstImplicit || implicitBump) then
+      if respectTransparency && (info.binderInfo.isInstImplicit || implicitBump) then
         unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do
           return .failed
       else

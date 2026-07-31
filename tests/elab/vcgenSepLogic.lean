@@ -204,8 +204,13 @@ def pointsTo (l : Addr) (v : Nat) : HProp := HProp.mk fun h => h = Heap.single l
 def sepConj (P Q : HProp) : HProp :=
   HProp.mk fun h => ∃ h₁ h₂, h₁.disjoint h₂ ∧ h = h₁.union h₂ ∧ P.get h₁ ∧ Q.get h₂
 
+/-- Magic wand: the upper adjoint of the separating conjunction `P ∗ ·`. The adjoint construction
+is an implementation detail; `wand_def` is the interface. -/
+noncomputable def wand (P Q : HProp) : HProp := PreservesSup.upperAdjoint (sepConj P) Q
+
 @[inherit_doc pointsTo] local notation:70 l:max " ↦ " v:max => pointsTo l v
 @[inherit_doc sepConj] local infixr:65 " ∗ " => sepConj
+@[inherit_doc wand] local infixr:60 " -∗ " => wand
 
 @[simp, grind =] theorem emp_get (h : Heap) : emp.get h = ∀ n, h n = none := rfl
 @[simp, grind =] theorem pointsTo_get (l : Addr) (v : Nat) (h : Heap) :
@@ -215,6 +220,37 @@ def sepConj (P Q : HProp) : HProp :=
 -- unfolding. The focusing lemma `pointsTo_sepConj_get` is the `grind`-facing characterization of `∗`.
 theorem sepConj_get (P Q : HProp) (h : Heap) :
     (P ∗ Q).get h = ∃ h₁ h₂, h₁.disjoint h₂ ∧ h = h₁.union h₂ ∧ P.get h₁ ∧ Q.get h₂ := rfl
+
+/-- The wand's interface: extending by any disjoint `P` heap yields a `Q` heap. -/
+theorem wand_def (P Q : HProp) :
+    (P -∗ Q) = HProp.mk fun h => ∀ h', h.disjoint h' → P.get h' → Q.get (h.union h') := by
+  apply PartialOrder.rel_antisymm
+  · unfold wand PreservesSup.upperAdjoint
+    apply sup_le
+    intro x hx h hxh h' hdisj hF
+    exact hx (h.union h') ⟨h', h, Heap.disjoint_comm hdisj, Heap.union_comm hdisj, hF, hxh⟩
+  · unfold wand PreservesSup.upperAdjoint
+    refine le_sup (c := fun x => sepConj P x ⊑ Q) ?_
+    rintro k ⟨h₁, h₂, hd, rfl, hP, hx⟩
+    have := hx h₁ (Heap.disjoint_comm hd) hP
+    rwa [Heap.union_comm (Heap.disjoint_comm hd)] at this
+
+theorem wand_get (P Q : HProp) (h : Heap) :
+    (P -∗ Q).get h = ∀ h', h.disjoint h' → P.get h' → Q.get (h.union h') := by
+  rw [wand_def]; rfl
+
+/-- The counit of the adjunction `F ∗ · ⊣ F -∗ ·`. -/
+theorem sepConj_wand_le (F b : HProp) : (F ∗ (F -∗ b)) ⊑ b := by
+  rw [wand_def]
+  rintro h ⟨h₁, h₂, hd, rfl, hF, hw⟩
+  have := hw h₁ (Heap.disjoint_comm hd) hF
+  rwa [Heap.union_comm (Heap.disjoint_comm hd)] at this
+
+/-- Adjunction introduction: to land below a wand, frame its argument onto the entailment. -/
+theorem le_wand (F X G : HProp) (h : F ∗ X ⊑ G) : X ⊑ F -∗ G := by
+  rw [wand_def]
+  intro k hX h' hdisj hF
+  exact h (k.union h') ⟨h', k, Heap.disjoint_comm hdisj, Heap.union_comm hdisj, hF, hX⟩
 
 /-! ## The separation algebra laws -/
 
@@ -338,36 +374,6 @@ instance (F : HProp) : PreservesSup (sepConj F) where
       exact ⟨sepConj F x, ⟨x, hx, rfl⟩, h₁, h₂, hd, rfl, hF, hxh₂⟩
     · rintro ⟨f, ⟨x, hx, rfl⟩, h₁, h₂, hd, rfl, hF, hxh₂⟩
       exact ⟨h₁, h₂, hd, rfl, hF, x, hx, hxh₂⟩
-
-/-- Magic wand: the upper adjoint of the separating conjunction `P ∗ ·`. An abbreviation, so
-`vcgen`'s built-in `upperAdjoint` decomposition applies to it on the right-hand side of an
-entailment. -/
-noncomputable abbrev wand (P Q : HProp) : HProp := PreservesSup.upperAdjoint (sepConj P) Q
-
-@[inherit_doc wand] local infixr:60 " -∗ " => wand
-
-/-- The counit of the adjunction `F ∗ · ⊣ F -∗ ·`. -/
-theorem sepConj_wand_le (F b : HProp) : (F ∗ (F -∗ b)) ⊑ b :=
-  PreservesSup.upperAdjoint_le (sepConj F) b
-
-/-- Adjunction introduction: to land below a wand, frame its argument onto the entailment. -/
-theorem le_wand (F X G : HProp) (h : F ∗ X ⊑ G) : X ⊑ F -∗ G :=
-  PreservesSup.le_upperAdjoint (sepConj F) h
-
-/-- Pointwise characterization of the wand, from the adjunction laws. -/
-theorem wand_get (P Q : HProp) (h : Heap) :
-    (P -∗ Q).get h = ∀ h', h.disjoint h' → P.get h' → Q.get (h.union h') := by
-  apply propext
-  constructor
-  · intro hw h' hdisj hP
-    exact sepConj_wand_le P Q (h.union h')
-      ⟨h', h, Heap.disjoint_comm hdisj, Heap.union_comm hdisj, hP, hw⟩
-  · intro hw
-    refine le_wand P (HProp.mk fun k => ∀ h', k.disjoint h' → P.get h' → Q.get (k.union h')) Q
-      ?_ h hw
-    rintro k ⟨h₁, h₂, hd, rfl, hP, hx⟩
-    have := hx h₁ (Heap.disjoint_comm hd) hP
-    rwa [Heap.union_comm (Heap.disjoint_comm hd)] at this
 
 /-! ## The frame-internalizing weakest precondition -/
 
@@ -731,14 +737,19 @@ subgoal in place of `q₂`/`q₃`. -/
 def mkEmpFrameSplit (i : FrameInferenceInfo) (matched : Array Expr) (wandAtom : Expr) :
     SymM (Option FrameSplit) := do
   let wandAtom ← instantiateMVarsS wandAtom
-  -- `wandAtom = upperAdjoint (sepConj G) b`; rewrap `b` as `emp -∗ b` to mirror the residual post.
-  let #[alpha, instCL, sepConjG, b] := wandAtom.getAppArgs | return none
+  -- `wandAtom = G -∗ b`; rewrap `b` at the `emp`-framed residual post.
+  unless wandAtom.isAppOfArity ``wand 2 do return none
   if wandAtom.hasExprMVar then return none
-  let uaFn := wandAtom.getAppFn
+  let G := wandAtom.appFn!.appArg!
+  let b := wandAtom.appArg!
   let empE ← mkConstS ``emp
+  -- The inner wrapper mirrors the residual post the frame rule builds, in the frame rule's own
+  -- spelling (`PreservesSup.upperAdjoint`), so the re-application's precondition VC closes by
+  -- unification.
   let sepConjEmp ← mkAppNS (← mkConstS ``sepConj) #[empE]
-  let inner ← mkAppNS uaFn #[alpha, instCL, sepConjEmp, b]
-  let wrapped ← mkAppNS uaFn #[alpha, instCL, sepConjG, inner]
+  let inner ← shareCommon (← Meta.mkAppOptM ``Lean.Order.PreservesSup.upperAdjoint
+    #[none, none, some sepConjEmp, some b])
+  let wrapped ← mkAppNS (← mkConstS ``wand) #[G, inner]
   let footprint ← sepConjOfAtoms (matched.push wrapped)
   let le ← i.le
   let residualPre ← i.mkResidualPre
@@ -754,7 +765,6 @@ def mkEmpFrameSplit (i : FrameInferenceInfo) (matched : Array Expr) (wandAtom : 
   let pre ← i.pre
   -- A trivial continuation (the wand's argument is the residual post itself) discharges
   -- `pre ⊑ emp ∗ footprint` in place: attach the trivial wand, then reassociate.
-  let G := sepConjG.appArg!
   if isSameExpr G b then
     let preW ← mkAppNS sepConjE #[pre, wrapped]
     if let some q3 ← proveSepConjLe preW empFoot then

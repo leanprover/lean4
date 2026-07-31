@@ -703,10 +703,31 @@ def mkSepFrameSplit (i : FrameInferenceInfo) (frame footprint : Expr) : SymM Fra
       #[args[0]!, args[1]!, ← i.pre, sepFF, sepFR, hcl, mono]
     return FrameSplit.withDischargedSplitVC frame residualPre proof [sub.mvarId!]
 
-/-- Frame `emp` for a spec precondition that adds a wand to the goal's atoms: the footprint mirrors
-the spec precondition (matched goal atoms in spec order, then the wand with its conclusion rewrapped
-at the `emp`-framed residual post). The split VC `pre ⊑ emp ∗ residualPre` factors through
-`pre ⊑ emp ∗ footprint`, left as a subgoal. -/
+/-- Frame `emp` for a *ramified* spec: a spec with schematic postcondition `Q` that auto-frames by
+receiving `Q` through a wand in its precondition, `⦃ P ∗ (G -∗ Q ⟨⟩) ⦄ x ⦃ Q ⦄`. The goal
+precondition has no wand atom, so such a spec never matches outright.
+
+Worked example: goal `A ∗ B ⊑ wp (append n curr q) Q` against the ramified append spec, whose
+precondition is `?A ∗ ?B ∗ (?G -∗ Q ⟨⟩)` after the schematic post unifies.
+- `matchSepAtoms` pairs `?A`/`?B` with `A`/`B`, committing the assignments (which also pin `?G`),
+  and reports the wand `G -∗ Q ⟨⟩` unmatched; it arrives here as `wandAtom`.
+- The `footprint` mirrors the spec precondition at the `emp`-framed residual post:
+  `A ∗ B ∗ (G -∗ (emp -∗ Q ⟨⟩))`.
+- The split VC `A ∗ B ⊑ emp ∗ residualPre` is discharged as
+  `rel_trans (rel_trans q₂ q₃) (sepConj_mono_right sub₁)`:
+  `q₂ : A ∗ B ⊑ (A ∗ B) ∗ (G -∗ (emp -∗ G))` attaches the trivial wand
+  (`le_sepConj_wand_emp_wand_refl`; valid because `G` is the post at `⟨⟩`),
+  `q₃` reassociates and inserts `emp` (AC with identity), and
+  `sub₁ : footprint ⊑ residualPre` is the sole surviving subgoal.
+- The solver fills `residualPre` with the residual weakest precondition, whose post is the
+  `emp`-framed `fun a => emp -∗ Q a`. On `sub₁` the spec applies directly, and its precondition VC
+  pits the footprint against the spec precondition at that same post: the same term up to the
+  spec's schematics, so it closes by unification, pinning the schematics to the goal's values.
+- What remains for the user: the spec's side premises (for append, `rest.length < fuel`) and the
+  `WP.Frames` condition for `emp`, both closed by `finish`.
+
+A wand whose argument differs from the post at `⟨⟩` leaves `pre ⊑ emp ∗ footprint` as a second
+subgoal in place of `q₂`/`q₃`. -/
 def mkEmpFrameSplit (i : FrameInferenceInfo) (matched : Array Expr) (wandAtom : Expr) :
     SymM (Option FrameSplit) := do
   let wandAtom ← instantiateMVarsS wandAtom
@@ -766,10 +787,7 @@ def sepConjFrameProc : FrameInferenceProc := fun i => do
       if rest.isEmpty then return none
       return some (← mkSepFrameSplit i (← sepConjOfAtoms rest) (← sepConjOfAtoms matched))
     | (#[], matched, #[wandAtom]) =>
-      -- Everything matched except a wand: frame `emp` and mirror the spec's precondition as the
-      -- footprint, with the wand's conclusion rewrapped at the `emp`-framed residual post. The
-      -- re-application against the residual then closes its precondition VC by unification,
-      -- instantiating the spec's schematics at the goal's values.
+      -- Everything matched except a wand: a ramified spec.
       mkEmpFrameSplit i matched wandAtom
     | _ => return none
 

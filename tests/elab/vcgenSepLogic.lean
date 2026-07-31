@@ -522,11 +522,10 @@ theorem reverse_store_handoff_le (v : Nat) (rest acc : List Nat) (curr next prev
 
 /-- Discharge the append wand at the last node: rebuild the cons cell onto the relinked appended
 segment (`IsList_cons_intro` with the new next-pointer `q`) and apply the counit. -/
-@[grind ←]
 theorem append_link_le (v w : Nat) (ws : List Nat) (back curr q next : Addr) (R : HProp)
     (hcn : curr ≠ null) (hnext : next = null) :
-    (((((IsList (v :: w :: ws) back curr -∗ R) ∗ (curr + 1) ↦ back) ∗ (curr + 2) ↦ v) ∗
-          IsList [] curr next) ∗ curr ↦ q) ∗ IsList (w :: ws) curr q
+    (IsList (v :: w :: ws) back curr -∗ R) ∗ (curr + 1) ↦ back ∗ (curr + 2) ↦ v ∗
+        IsList [] curr next ∗ curr ↦ q ∗ IsList (w :: ws) curr q
       ⊑ R := by
   subst hnext
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq ?_)
@@ -535,16 +534,20 @@ theorem append_link_le (v w : Nat) (ws : List Nat) (back curr q next : Addr) (R 
       (sepConj_wand_le _ R))
   grind
 
+grind_pattern append_link_le => IsList (v :: w :: ws) back curr -∗ R, curr ↦ q, IsList [] curr next
+
 /-- Absorption of `⊥` by `∗`. -/
 theorem sepConj_bot_le (X : HProp) : X ∗ (⊥ : HProp) ⊑ ⊥ := by
   intro h hh
   obtain ⟨_, h₂, _, _, _, hb⟩ := hh
   exact ((bot_le (x := (fun _ => False : HProp))) h₂ hb).elim
 
-/-- Any entailment holds when the right `∗`-factor is contradictory. -/
-theorem sepConj_le_of_right_le_bot (A : HProp) {B : HProp} (h : B ⊑ ⊥) (C : HProp) : A ∗ B ⊑ C :=
-  PartialOrder.rel_trans
-    (PartialOrder.rel_trans (sepConj_mono_right A h) (sepConj_bot_le A)) (bot_le C)
+/-- Absorb a contradictory right `∗`-factor; forward saturation climbs the `∗` spine from a
+contradictory atom to the whole precondition. -/
+theorem sepConj_le_bot_of_right (A : HProp) {B : HProp} (h : B ⊑ ⊥) : A ∗ B ⊑ ⊥ :=
+  PartialOrder.rel_trans (sepConj_mono_right A h) (sepConj_bot_le A)
+
+grind_pattern sepConj_le_bot_of_right => B ⊑ ⊥, A ∗ B
 
 /-- An empty segment pins its root to `null`. -/
 theorem IsList_nil_le_bot (curr next : Addr) (hne : next ≠ null) : IsList [] curr next ⊑ ⊥ := by
@@ -552,32 +555,27 @@ theorem IsList_nil_le_bot (curr next : Addr) (hne : next ≠ null) : IsList [] c
   rw [IsList_nil_eq] at hh
   exact (hne ((sepPure_apply _ _).mp hh).1).elim
 
+grind_pattern IsList_nil_le_bot => IsList [] curr next
+
 /-- A cons segment cannot be rooted at `null`. -/
 theorem IsList_cons_null_le_bot (v : Nat) (vs : List Nat) (back : Addr) :
     IsList (v :: vs) back null ⊑ ⊥ := by
   intro h hh
   exact ((IsList_cons_elim hh).1 rfl).elim
 
-/-- A precondition holding `IsList [] curr next` is contradictory when `next ≠ null`;
-`grind`'s AC theory for `∗` isolates the segment on the right. -/
-@[grind ←]
-theorem sepConj_IsList_nil_ne_le (A : HProp) (curr next : Addr) (hne : next ≠ null) (C : HProp) :
-    A ∗ IsList [] curr next ⊑ C :=
-  sepConj_le_of_right_le_bot A (IsList_nil_le_bot curr next hne) C
+grind_pattern IsList_cons_null_le_bot => IsList (v :: vs) back null
 
-/-- A precondition holding a cons segment rooted at `null` is contradictory;
-`grind`'s AC theory for `∗` isolates the segment on the right. -/
+/-- A contradictory precondition entails anything; the premise is closed by the facts the forward
+saturation asserts. -/
 @[grind ←]
-theorem sepConj_IsList_cons_null_le (A : HProp) (v : Nat) (vs : List Nat) (back : Addr)
-    (C : HProp) : A ∗ IsList (v :: vs) back null ⊑ C :=
-  sepConj_le_of_right_le_bot A (IsList_cons_null_le_bot v vs back) C
+theorem le_of_le_bot {X : HProp} (h : X ⊑ ⊥) (C : HProp) : X ⊑ C :=
+  PartialOrder.rel_trans h (bot_le C)
 
 /-- The append induction step: absorb the visited node into the wand (`wand_absorb` via
 `IsList_cons_intro`), matching the recursive call's precondition. -/
-@[grind ←]
 theorem append_step_le (v v' w : Nat) (rest' ws : List Nat) (back qb curr next q : Addr)
     (R : HProp) (hcn : curr ≠ null) :
-    (IsList (w :: ws) qb q ∗ (IsList (v :: v' :: (rest' ++ w :: ws)) back curr -∗ R)) ∗
+    IsList (w :: ws) qb q ∗ (IsList (v :: v' :: (rest' ++ w :: ws)) back curr -∗ R) ∗
         curr ↦ next ∗ (curr + 1) ↦ back ∗ (curr + 2) ↦ v ∗ IsList (v' :: rest') curr next
       ⊑ IsList (v' :: rest') curr next ∗ IsList (w :: ws) qb q ∗
         (IsList (v' :: rest' ++ w :: ws) curr next -∗ R) := by
@@ -594,13 +592,18 @@ theorem append_step_le (v v' w : Nat) (rest' ws : List Nat) (back qb curr next q
       (PartialOrder.rel_of_eq ?_)) <;>
     grind
 
+grind_pattern append_step_le =>
+  IsList (v :: v' :: (rest' ++ w :: ws)) back curr -∗ R, IsList (w :: ws) qb q,
+  IsList (v' :: rest') curr next
+
 /-- Rebuild a cons cell around a rewritten prev field; the loaded next-pointer is the witness. -/
-@[grind ←]
 theorem store_prev_handoff (w : Nat) (ws : List Nat) (q c n : Addr) :
-    ((q ↦ n ∗ (q + 2) ↦ w) ∗ IsList ws q n) ∗ (q + 1) ↦ c
+    q ↦ n ∗ (q + 2) ↦ w ∗ IsList ws q n ∗ (q + 1) ↦ c
       ⊑ ⨆ n', q ↦ n' ∗ (q + 1) ↦ c ∗ (q + 2) ↦ w ∗ IsList ws q n' := by
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq ?_) (le_iSup _ n)
   grind
+
+grind_pattern store_prev_handoff => (q + 1) ↦ c, (q + 2) ↦ w, IsList ws q n
 
 /-- When the remaining segment is empty, `curr = null` and the accumulator is the whole result. -/
 @[grind .] theorem IsList_nil_acc_le (acc : List Nat) (curr prev : Addr) :

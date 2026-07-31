@@ -95,9 +95,8 @@ until they have had their chance, and re-raised if they all decline.
 -/
 register_builtin_option backward.isDefEq.appOnFailure : Bool := {
   defValue := false
-  descr    := "if true, run the `isDefEq` failure fallback (stuck-metavariable resolution and \
-  unification hints) both before and after the remaining `isExprDefEqExpensive` heuristics, \
-  instead of only before them"
+  descr    := "if true, run the stuck-metavariable and unification-hint pass both before and \
+  after the remaining `isExprDefEqExpensive` heuristics, instead of only before them"
 }
 
 /--
@@ -2445,7 +2444,7 @@ where
 /--
   Given applications `t` and `s` that are in WHNF (modulo the current transparency setting),
   check whether they are definitionally equal or not by comparing functions and arguments.
-  On failure, the caller is responsible for invoking `isDefEqOnFailure`.
+  On failure, the caller is responsible for invoking `isDefEqAppFallback`.
 -/
 private def isDefEqApp (t s : Expr) : MetaM Bool := do
   let tFn := t.getAppFn
@@ -2482,27 +2481,46 @@ private def isDefEqProjInst (t : Expr) (s : Expr) : MetaM LBool := do
     return .undef
 
 /--
-Remaining heuristics for a failing comparison of two applications.
+The special cases tried *after* the main `isExprDefEqExpensive` machinery has failed, as opposed
+to the early ones (`isDefEqNative`, `isDefEqNat`, `isDefEqOffset`).
 
-`isDefEqOnFailure` runs before `isDefEqProjInst`, `isDefEqStringLit` and `isDefEqUnitLike` because
-those unfold the class projections that `getStuckMVar?` needs to see an unsynthesized instance in
-an argument position. A stuck abort is not authoritative here — one of the three may still close
-the goal — so it is deferred and re-raised only if they all decline.
+`.false` means one of them decided the terms are *not* definitionally equal, and must not be read
+as "declined". `.undef` means they all declined — note that `isDefEqUnitLike` returning `false`
+is a decline (the rule does not apply), not a negative verdict, hence `.undef`.
 -/
-private def isDefEqAppOnFailure (t : Expr) (s : Expr) : MetaM Bool := do
-  let saved ← saveState
-  -- `none` records a deferred `isDefEqStuck`
-  let r? ← catchInternalId isDefEqStuckExceptionId (some <$> isDefEqOnFailure t s) fun _ => do
-    saved.restore
-    return none
-  if r? == some true then return true
-  if (← whenUndefDo (isDefEqProjInst t s) do
-        whenUndefDo (isDefEqStringLit t s) do
-        isDefEqUnitLike t s) then
-    return true
-  if r?.isNone then
-    Meta.throwIsDefEqStuck
-  return false
+private def isDefEqLateSpecialCases (t s : Expr) : MetaM LBool := do
+  match (← isDefEqProjInst t s) with
+  | .undef =>
+    match (← isDefEqStringLit t s) with
+    | .undef => return if (← isDefEqUnitLike t s) then .true else .undef
+    | r      => return r
+  | r => return r
+
+/--
+Fallback for a failing comparison of two applications; see `backward.isDefEq.appOnFailure`
+for the two behaviors.
+
+In the new behavior, `isDefEqOnFailure` runs before `isDefEqLateSpecialCases` because those
+unfold the class projections that `getStuckMVar?` needs to see an unsynthesized instance in an
+argument position. A stuck abort is not authoritative here — one of the late special cases may
+still close the goal — so it is deferred and re-raised only if they all decline.
+-/
+private def isDefEqAppFallback (t : Expr) (s : Expr) : MetaM Bool := do
+  if backward.isDefEq.appOnFailure.get (← getOptions) then
+    if (← isDefEqOnFailure t s) then return true
+    whenUndefDo (isDefEqLateSpecialCases t s) do
+    isDefEqOnFailure t s
+  else
+    let saved ← saveState
+    -- `none` records a deferred `isDefEqStuck`
+    let r? ← catchInternalId isDefEqStuckExceptionId (some <$> isDefEqOnFailure t s) fun _ => do
+      saved.restore
+      return none
+    if r? == some true then return true
+    if (← isDefEqLateSpecialCases t s) matches .true then return true
+    if r?.isNone then
+      Meta.throwIsDefEqStuck
+    return false
 
 private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   whenUndefDo (isDefEqEta t s) do
@@ -2527,18 +2545,9 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
       if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
     else if (← pure t.isApp <&&> pure s.isApp) then
       if (← isDefEqApp t s) then return true
-      if backward.isDefEq.appOnFailure.get (← getOptions) then
-        if (← isDefEqOnFailure t s) then return true
-        whenUndefDo (isDefEqProjInst t s) do
-        whenUndefDo (isDefEqStringLit t s) do
-        if (← isDefEqUnitLike t s) then return true else
-        isDefEqOnFailure t s
-      else
-        isDefEqAppOnFailure t s
+      isDefEqAppFallback t s
     else
-      whenUndefDo (isDefEqProjInst t s) do
-      whenUndefDo (isDefEqStringLit t s) do
-      if (← isDefEqUnitLike t s) then return true else
+      whenUndefDo (isDefEqLateSpecialCases t s) do
       isDefEqOnFailure t s
 
 inductive DefEqCacheKind where

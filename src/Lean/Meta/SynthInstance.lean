@@ -957,16 +957,32 @@ private def sameDepIdentity (a b : SynthEnvDeps) : Bool :=
   && a.extGens.all (fun d => b.extGens.any (·.1 == d.1))
 
 /--
-Inserts a result into the type class resolution cache (`Meta.Cache.synthInstance`), which has
-the lifetime of the current `Meta.State`; note that `Meta.SavedState.restore` deliberately does
-not restore `Meta.Cache`, so entries survive backtracking (e.g. tactics trying alternatives)
-within a command.
+Inserts a result into the type class resolution cache: always into the transient
+`Meta.Cache.synthInstance` tier, which has the lifetime of the current `Meta.State`, and
+additionally into the persistent tier if `persist` is true.
+
+Only context-free entries may be persisted: the key must not contain metavariables and the result
+must be closed. Results with abstracted metavariables are only valid relative to the elaboration
+context that created them: their degrees of freedom (e.g. universe metavariables not determined
+by the key, cf. `Small`) are resolved by ambient constraints, so reusing them in a different
+context can produce incorrectly instantiated terms.
+
+A persistent insertion is rolled back together with the environment (see
+`Environment.synthCache`); the transient copy then still serves the entry for the rest of the
+command, as `Meta.SavedState.restore` deliberately does not restore `Meta.Cache`. Without it,
+backtracking-heavy elaboration (e.g. tactics trying alternatives) would re-run every failed
+attempt's typeclass queries from scratch.
 -/
 private def insertCachedResult (key : SynthInstanceCacheKey) (log : SynthEnvDeps)
-    (result? : Option AbstractMVarsResult) : MetaM Unit := do
+    (result? : Option AbstractMVarsResult) (persist : Bool) : MetaM Unit := do
   -- One entry per observed dependency combination; replace an entry with the same identity.
   let upsert (c : SynthInstanceCache) : SynthInstanceCache :=
     c.insert key <| (log, result?) :: (c.find? key |>.getD [] |>.filter fun e => !sameDepIdentity e.1 log)
+  if persist then
+    -- Modify the environment directly instead of via `Meta.modifyEnv`, which would reset the
+    -- `Meta.Cache` caches.
+    modifyThe Core.State fun s =>
+      { s with env := s.env.setSynthCache (upsert s.env.synthCache) }
   modifyCache fun c => { c with synthInstance := upsert c.synthInstance }
 
 /--
@@ -997,9 +1013,10 @@ private def validateDeps? (opts : Options) (env : Environment)
 
 /--
 Returns the type class resolution cache entry for `key` from the transient
-(`Meta.Cache.synthInstance`), together with its recorded dependencies. Only entries whose
-recorded dependencies give the same answers in the current context are considered
-(`validateDeps?`); a re-stamped entry is re-inserted. See `SynthInstanceCache`.
+(`Meta.Cache.synthInstance`) or persistent (`Environment.synthCache`) tier, together with its
+recorded dependencies. Only entries whose recorded dependencies give the same answers in the
+current context are considered (`validateDeps?`); a re-stamped entry is re-inserted into its
+tier. See `SynthInstanceCache`.
 -/
 private def findCachedResult? (key : SynthInstanceCacheKey) :
     MetaM (Option (SynthEnvDeps × Option AbstractMVarsResult)) := do
@@ -1014,7 +1031,11 @@ private def findCachedResult? (key : SynthInstanceCacheKey) :
     return none
   if let some (log, val?, restamped) ← findIn (← get).cache.synthInstance then
     if restamped then
-      insertCachedResult key log val?
+      insertCachedResult key log val? (persist := false)
+    return some (log, val?)
+  if let some (log, val?, restamped) ← findIn env.synthCache then
+    if restamped then
+      insertCachedResult key log val? (persist := true)
     return some (log, val?)
   return none
 
@@ -1048,7 +1069,19 @@ private def cacheResult (cacheKey : SynthInstanceCacheKey) (log : SynthEnvDeps) 
         result?.map fun result => { expr := result, paramNames := #[], mvars := #[] }
       else
         some abstResult
-  insertCachedResult cacheKey log value?
+  -- Only context-free entries may be persisted: a mvar-free key (`.noMVars`), no free variable in
+  -- the key or the value, and a closed value (no abstracted metavariables); see
+  -- `insertCachedResult`.
+  --
+  -- A free variable identifies a variable only within the `NameGenerator` that created it, and the
+  -- cache outlives any of them: the pretty printer and the info tree each run with a fresh
+  -- generator (`PPContext.runCoreM`), so a delaborator that synthesizes an instance produces the
+  -- very same `FVarId`s in every command. An entry keyed by one would then be served to an
+  -- unrelated query over an identically named but differently typed variable.
+  let persist := kind matches .noMVars &&
+    cacheKey.localInsts.isEmpty && !cacheKey.type.hasFVar &&
+    (value?.all fun r => r.numMVars == 0 && r.paramNames.isEmpty && !r.expr.hasFVar)
+  insertCachedResult cacheKey log value? (persist := persist)
 
 /--
 The `Meta.Config` used for all type class resolution. The ambient configuration is replaced

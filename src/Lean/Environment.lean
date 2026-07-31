@@ -681,6 +681,15 @@ structure Environment where
   -/
   recordArmBirthGen : Nat := 0
   /--
+  Persistent tier of the type class resolution cache, `none` for empty. The value is a
+  `Lean.Meta.SynthInstanceCache` (not nameable in this module; accessed with confined casts in
+  `Lean.Meta.Instances`). It lives in a plain field rather than an environment extension so that
+  a cache fill costs one structure copy instead of copying the extension state array, while
+  keeping the same branch-local value semantics: fills roll back with the environment, and
+  parallel elaboration branches never observe each other's fills.
+  -/
+  synthCacheRaw? : Option NonScalar := none
+  /--
   Counter bumped by every modification a recorded dependency could refer to: any
   state change of a generation-tracked extension and every post-hoc reducibility change. Cache
   entries are stamped with it (`RecordedDeps.recordGen`); while it is unchanged, validation skips
@@ -780,6 +789,10 @@ target a declaration born after the watermark; see `Environment.declChangeLog`.
 def checkDeclChangeLog (env : Environment) (fromPos birthW : Nat) : Bool :=
   fromPos ≤ env.declChangeLog.size &&
     env.declChangeLog.all (fun d => env.constBirthIdx d > birthW) (start := fromPos)
+
+/-- Updates `env.synthCacheRaw?`; see there. -/
+def setSynthCacheRaw? (env : Environment) (v? : Option NonScalar) : Environment :=
+  { env with synthCacheRaw? := v? }
 
 /-- Updates `env.isRecordingDeps`; arming also stamps `Environment.recordArmBirthGen`. -/
 def setRecordingDeps (env : Environment) (recording : Bool) : Environment :=

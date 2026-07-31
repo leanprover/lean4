@@ -98,22 +98,4 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
         modifyEnv (markMeta · declName)
       enableRealizationsForConst declName
 
-      -- Deprecated alias for enumeration types (which used to have `toCtorIdx`)
-      if (← isEnumType indName) then
-        let aliasName := mkToCtorIdxName indName
-        addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
-          (name        := aliasName)
-          (levelParams := info.levelParams)
-          (type        := declType)
-          (value       := mkConst declName us)
-          (hints       := ReducibilityHints.abbrev)
-        ))
-        if isMarkedMeta (← getEnv) indName then
-          modifyEnv (markMeta · aliasName)
-        compileDecls #[aliasName]
-        modifyEnv fun env => addToCompletionBlackList env aliasName
-        modifyEnv fun env => addProtected env aliasName
-        setReducibleAttribute aliasName
-        Lean.Linter.setDeprecated aliasName { newName? := some declName, since? := "2025-08-25" }
-
 end Lean

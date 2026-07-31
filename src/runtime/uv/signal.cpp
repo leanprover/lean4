@@ -79,10 +79,14 @@ size_t lean_uv_signal_shutdown(lean_uv_signal_object * signal) {
     size_t release_refs = 0;
 
     if (signal->m_state == SIGNAL_STATE_RUNNING) {
+        // `cancel` on a repeating signal leaves it running without a promise, in which case the loop
+        // has already given its reference back.
+        if (signal->m_promise != NULL) {
+            release_refs += 1;
+        }
+
         uv_signal_stop(signal->m_uv_signal);
         signal->m_state = SIGNAL_STATE_FINISHED;
-
-        release_refs += 1;
     }
 
     if (signal->m_promise != NULL) {
@@ -231,8 +235,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
             case SIGNAL_STATE_RUNNING:
                 {
                     if (signal_promise_is_finished(signal)) {
-                         if (signal->m_promise != NULL) {
+                        if (signal->m_promise != NULL) {
                             lean_dec(signal->m_promise);
+                        } else {
+                            // Re-arming after `cancel`: the loop owes a promise again, so it takes
+                            // its reference on the signal back.
+                            lean_inc(obj);
                         }
 
                         signal->m_promise = lean_io_promise_new();
@@ -280,6 +288,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
         }
         int result = uv_signal_stop(signal->m_uv_signal);
 
+        // `cancel` on a repeating signal leaves it running without a promise, in which case the loop
+        // has already given its reference back and must not be charged for it twice.
+        bool loop_owns_signal = signal->m_promise != NULL;
+
         if (signal->m_promise != NULL) {
             lean_dec(signal->m_promise);
             signal->m_promise = NULL;
@@ -289,8 +301,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
 
         event_loop_unlock(&global_ev);
 
-        // The loop does not need to keep the signal alive anymore.
-        lean_dec(obj);
+        if (loop_owns_signal) {
+            // The loop does not need to keep the signal alive anymore.
+            lean_dec(obj);
+        }
 
         if (result != 0) {
             return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
@@ -315,6 +329,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_cancel(b_obj_arg obj) {
         if (signal->m_repeating) {
             lean_dec(signal->m_promise);
             signal->m_promise = NULL;
+
+            // The handler stays installed, but it no longer owes anyone a promise, so the loop gives
+            // its reference back. Otherwise a dropped repeating signal could never be reclaimed: the
+            // reference kept it alive and only it could have released the reference.
+            lean_dec(obj);
         } else {
             uv_signal_stop(signal->m_uv_signal);
             lean_dec(signal->m_promise);

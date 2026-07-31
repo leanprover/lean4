@@ -85,10 +85,14 @@ size_t lean_uv_timer_shutdown(lean_uv_timer_object * timer) {
     size_t release_refs = 0;
 
     if (timer->m_state == TIMER_STATE_RUNNING) {
+        // `cancel` on a repeating timer leaves it running without a promise, in which case the loop
+        // has already given its reference back.
+        if (timer->m_promise != NULL) {
+            release_refs += 1;
+        }
+
         uv_timer_stop(timer->m_uv_timer);
         timer->m_state = TIMER_STATE_FINISHED;
-
-        release_refs += 1;
     }
 
     if (timer->m_promise != NULL) {
@@ -205,6 +209,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
                     if (timer->m_promise == NULL || timer_promise_is_finished(timer)) {
                         if (timer->m_promise != NULL) {
                             lean_dec(timer->m_promise);
+                        } else {
+                            // Re-arming after `cancel`: the loop owes a promise again, so it takes
+                            // its reference on the timer back.
+                            lean_inc(obj);
                         }
 
                         timer->m_promise = create_promise();
@@ -289,6 +297,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj) {
         return lean_io_result_mk_ok(lean_box(0));
     }
 
+    // `cancel` on a repeating timer leaves it running without a promise, in which case the loop has
+    // already given its reference back and must not be charged for it twice.
+    bool loop_owns_timer = timer->m_state == TIMER_STATE_RUNNING && timer->m_promise != NULL;
+
     if (timer->m_promise != NULL) {
         lean_dec(timer->m_promise);
         timer->m_promise = NULL;
@@ -300,8 +312,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj) {
 
         event_loop_unlock(&global_ev);
 
-        // The loop does not need to keep the timer alive anymore.
-        lean_dec(obj);
+        if (loop_owns_timer) {
+            // The loop does not need to keep the timer alive anymore.
+            lean_dec(obj);
+        }
 
         return lean_io_result_mk_ok(lean_box(0));
     }
@@ -323,6 +337,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_cancel(b_obj_arg obj) {
         if (timer->m_repeating) {
             lean_dec(timer->m_promise);
             timer->m_promise = NULL;
+
+            // The timer keeps ticking, but it no longer owes anyone a promise, so the loop gives
+            // its reference back. Otherwise a dropped repeating timer could never be reclaimed:
+            // the reference kept it alive and only it could have released the reference.
+            lean_dec(obj);
         } else {
             uv_timer_stop(timer->m_uv_timer);
 

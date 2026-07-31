@@ -23,6 +23,11 @@ private opaque SocketImpl : NonemptyType.{0}
 
 /--
 Represents a TCP socket.
+
+The event loop is torn down at process exit. Any promise still pending at that point is resolved
+with an `UV_ECANCELED` error, and every operation below then fails with `UV_ECANCELED` instead of
+starting new work. The exceptions are `cancelRecv` and `cancelAccept`, which succeed as no-ops
+because a loop that is gone already satisfies their postcondition.
 -/
 def Socket : Type := SocketImpl.type
 

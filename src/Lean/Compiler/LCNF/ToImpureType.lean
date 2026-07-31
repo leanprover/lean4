@@ -279,4 +279,11 @@ public def compileInductives (typeNames : Array Name) : CoreM Unit := do
       setOtherDeclMonoType ctorName
       setCtorLayout ctorName
 
+/--
+Returns true iff `compileInductives` was run with `name` included.
+-/
+public def didCompileInductive (name : Name) : CoreM Bool := do
+  -- we need *some* check here, any other would work fine as well
+  return ctorLayoutExt.contains (← getEnv) name
+
 end Lean.Compiler.LCNF

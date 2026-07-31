@@ -95,7 +95,7 @@ def mkCtorElimType (indName : Name) : MetaM Unit := do
       mkLambdaFVars (params ++ #[motive, ctorIdx]) e
 
   let declName := mkCtorElimTypeName indName
-  addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+  addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
     (name        := declName)
     (levelParams := casesOnInfo.levelParams)
     (type        := (← inferType e))
@@ -243,4 +243,5 @@ builtin_initialize registerBuiltinAttribute {
     unless kind == .global do throwAttrMustBeGlobal `gen_constructor_elims kind
     mkCtorIdx decl
     mkCtorElim decl
+    compileDecls #[mkCtorIdxName decl]
 }

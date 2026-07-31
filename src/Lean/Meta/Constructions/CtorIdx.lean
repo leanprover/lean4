@@ -88,6 +88,7 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
         (value       := declValue)
         (hints       := hints)
       )
+      -- we are going to compile this later
       addDecl decl
       modifyEnv fun env => addToCompletionBlackList env declName
       modifyEnv fun env => addProtected env declName
@@ -95,7 +96,6 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
         setInlineAttribute declName .macroInline
       if isMarkedMeta (← getEnv) indName then
         modifyEnv (markMeta · declName)
-      compileDecl decl
       enableRealizationsForConst declName
 
       -- Deprecated alias for enumeration types (which used to have `toCtorIdx`)

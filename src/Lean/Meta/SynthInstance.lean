@@ -602,7 +602,7 @@ def generate : SynthM Unit := do
     let mctx := gNode.mctx
     let mvar := gNode.mvar
     /- See comment at `typeHasMVars` -/
-    if backward.synthInstance.canonInstances.get (← getOptions) then
+    if (← getRecordedOption backward.synthInstance.canonInstances) then
       unless gNode.typeHasMVars do
         if let some entry := (← get).tableEntries[key]? then
           if entry.answers.any fun answer => answer.result.numMVars == 0 then
@@ -684,7 +684,8 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
        newSubgoal (← getMCtx) key mvar Waiter.root
        synth
      tryCatchRuntimeEx
-       (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {})
+       -- unrestricted: a limit, exceeding it throws
+       (action.run { maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptionsUnrestricted) } |>.run' {})
        fun ex =>
          if ex.isRuntime then
            throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}{useDiagnosticMsg}"
@@ -925,6 +926,12 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
   check result
   return some result
 
+/-- Adds the dependencies of a nested query to those of the enclosing query. -/
+private def _root_.Lean.RecordedDeps.mergeInto (child parent : RecordedDeps) : RecordedDeps :=
+  let options := child.options.foldl (init := parent.options) fun l a =>
+    if l.any (·.name == a.name) then l else l.push a
+  { parent with options }
+
 /--
 Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.
 This function tries to avoid the potentially expensive `check` at `applyCachedAbstractResult?`.
@@ -960,8 +967,19 @@ private def cacheResult (cacheKey : SynthInstanceCacheKey) (kind : PreprocessKin
       modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey (some abstResult) }
 
 def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do
-  let opts ← getOptions
-  let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
+  -- Inside an enclosing query, this lookup is recorded as its dependency.
+  let maxResultSize ← match maxResultSize? with
+    | some n => pure n
+    | none   => getRecordedOption synthInstance.maxSize
+  -- The options read by the search are recorded into `Core.State.recordedDeps`. The enclosing
+  -- query's log, if any, is saved here and merged with this query's on exit, as it observed the
+  -- result.
+  let parentDeps := (← getThe Core.State).recordedDeps
+  let parentRecording := (← readThe Core.Context).isRecordingDeps
+  modifyThe Core.State fun s => { s with recordedDeps := {} }
+  try
+  -- The marker is scoped to the search, so only the accumulator has to be restored below.
+  withTheReader Core.Context (fun ctx => { ctx with isRecordingDeps := true }) do
   withTraceNode `Meta.synthInstance
     (fun _ => return m!"{← instantiateMVars type}") do
   withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.instances,
@@ -1008,8 +1026,15 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       trace[Meta.synthInstance] "result {result?}"
       cacheResult cacheKey kind abstResult? result?
       return result?
+  finally
+    -- Restore the enclosing accumulator, merging this query's dependencies into it.
+    let childDeps := (← getThe Core.State).recordedDeps
+    modifyThe Core.State fun s => { s with recordedDeps :=
+      if parentRecording then childDeps.mergeInto parentDeps else parentDeps }
 
-def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do
+def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do
+  -- unrestricted: profiler collection only
+  profileitM Exception "typeclass inference" (← getOptionsUnrestricted) (decl := type.getAppFn.constName?.getD .anonymous) do
   synthInstanceCore? type maxResultSize?
 
 /--
@@ -1045,7 +1070,7 @@ private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <|
     | none   =>
       return false
     | some _ =>
-      let max := maxSynthPendingDepth.get (← getOptions)
+      let max ← getRecordedOption maxSynthPendingDepth
       if (← read).synthPendingDepth > max then
         trace[Meta.synthPending] "too many nested synthPending invocations"
         recordSynthPendingFailure mvarDecl.type

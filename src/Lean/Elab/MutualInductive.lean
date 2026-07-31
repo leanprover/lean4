@@ -1541,24 +1541,25 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
 
 private def mkAuxConstructionsPreCompile (declNames : Array Name) : MetaM Unit := do
   let env ← getEnv
-  let hasEq   := env.contains ``Eq
-  let hasHEq  := env.contains ``HEq
   let hasUnit := env.contains ``PUnit
   let hasProd := env.contains ``Prod
   for n in declNames do
     mkRecOn n
     if hasUnit then mkCasesOn n
-    if hasUnit && hasEq && hasHEq then mkNoConfusion n
     if hasUnit && hasProd then mkBelow n
   for n in declNames do
     if hasUnit && hasProd then mkBRecOn n
 
 private def mkAuxConstructionsPostCompile (declNames : Array Name) : MetaM Unit := do
   let env ← getEnv
+  let hasEq   := env.contains ``Eq
+  let hasHEq  := env.contains ``HEq
+  let hasUnit := env.contains ``PUnit
   let hasNat  := env.contains ``Nat
   for n in declNames do
     if hasNat then mkCtorIdx n
     if hasNat then mkCtorElim n
+    if hasUnit && hasEq && hasHEq then mkNoConfusion n
 
 def updateViewWithFunctorName (view : InductiveView) : InductiveView :=
   let newCtors := view.ctors.map (fun ctor => {ctor with declName := ctor.declName.updatePrefix (addFunctorPostfix ctor.declName.getPrefix)})

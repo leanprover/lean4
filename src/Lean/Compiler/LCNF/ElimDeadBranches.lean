@@ -123,9 +123,12 @@ where
       choice vs
 
   inductHasNumCtors (ctorName : Name) (env : Environment) (n : Nat) : Bool := Id.run do
-    let some info := isCtorOverrideSimple? env ctorName | unreachable!
-    let some info := isInductiveOverrideSimpleCore? env info.induct | unreachable!
-    n == info.ctors.length
+    match ctorName with
+    | ``Nat.zero | ``Nat.succ => return false
+    | _ =>
+      let some info := isCtorOverrideSimple? env ctorName | unreachable!
+      let some info := isInductiveOverrideSimpleCore? env info.induct | unreachable!
+      n == info.ctors.length
 
   @[inline]
   eligible (value : Value) : Bool := Id.run do
@@ -149,15 +152,23 @@ where
     | remainingDepth + 1 =>
       match v with
       | ctor nm vs =>
-        let some cinfo := isCtorOverrideSimple? env nm | unreachable!
-        let some iinfo := isInductiveOverrideSimpleCore? env cinfo.induct | unreachable!
-        if forbiddenTypes.contains cinfo.induct then
+        let mut inductName : Name := .anonymous
+        let mut inductRec : Bool := false
+        if nm == ``Nat.zero || nm == ``Nat.succ then
+          inductName := ``Nat
+          inductRec := true
+        else
+          let some cinfo := isCtorOverrideSimple? env nm | unreachable!
+          let some iinfo := isInductiveOverrideSimpleCore? env cinfo.induct | unreachable!
+          inductName := cinfo.induct
+          inductRec := iinfo.isRec
+        if forbiddenTypes.contains inductName then
           top
         else
           let cont forbiddenTypes' :=
             ctor nm (vs.map (go · forbiddenTypes' remainingDepth))
-          if iinfo.isRec then
-            cont <| forbiddenTypes.insert cinfo.induct
+          if inductRec then
+            cont <| forbiddenTypes.insert inductName
           else
             cont forbiddenTypes
       | choice vs =>

@@ -764,7 +764,7 @@ where
     let args := e.getAppArgs
     assert! casesInfo.numAlts == 1
     let discr := args[casesInfo.discrPos]!
-    let fieldArgs : Array Expr ← Meta.MetaM.run' <| structInfo.fieldNames.mapM fun fieldName => do
+    let fieldArgs : Array Expr ← liftMetaM <| structInfo.fieldNames.mapM fun fieldName => do
       macroInlineHead <| ← Meta.mkProjection discr fieldName
     let f := args[casesInfo.altsRange.lower]!
     let arity := casesInfo.arity

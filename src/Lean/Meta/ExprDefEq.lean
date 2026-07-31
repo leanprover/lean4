@@ -579,43 +579,20 @@ abbrev respectTransparencyAtTypes : CoreM Bool := do
   return backward.isDefEq.respectTransparency.types.get opts && backward.isDefEq.respectTransparency.get opts
 
 /--
-Mark the metavariables in type-determining (spine) positions of `e` as instance-typed
-(see `MetavarContext.instanceTypedMVars`).
-
-Only spine metavariables need the marking to preserve the instance-typed invariant:
-`inferType` consults the type of a subterm only in spine positions (the head of an
-application, the body of a lambda or `let`, the structure of a projection). A metavariable
-in argument position enters the inferred type only by substitution, so instantiating it
-changes the value's type and its occurrences in the already-checked expected type in the
-same way.
--/
-partial def markInstanceTypedSpineMVars (e : Expr) : MetaM Unit := go e
-where
-  go (e : Expr) : MetaM Unit := do
-    unless e.hasExprMVar do return ()
-    match e with
-    | .mvar mvarId =>
-      mvarId.markInstanceTyped
-      -- The value of a delayed-assigned metavariable is determined by its pending metavariable.
-      if let some d ← getDelayedMVarAssignment? mvarId then
-        go (mkMVar d.mvarIdPending)
-    | .app f _ => go f
-    | .lam _ _ b _ => go b
-    | .letE _ _ v b _ => go v; go b
-    | .proj _ _ s => go s
-    | .mdata _ b => go b
-    | _ => return ()
-
-/--
 Return `true` if all metavariables in type-determining (spine) positions of `e` are
 admissible in a value assigned to an instance-typed metavariable under
-`backward.isDefEq.instanceTypes` (see `markInstanceTypedSpineMVars` for why only spine
-positions matter). Admissible are:
+`backward.isDefEq.instanceTypes` (see `MetavarContext.instanceTypedMVars`). Admissible are:
 - instance-typed metavariables: their own assignments are subject to the same restriction;
 - metavariables `isDefEq` cannot assign (from an outer `MetavarContext` depth, or synthetic
   opaque): the current instance search cannot commit them to a wrong-typed value, and their
   eventual assignment is governed by whoever created them (e.g. the elaborator's pending
   instance metavariables, which are synthesized against their recorded type).
+
+Only spine positions matter: `inferType` consults the type of a subterm only there (the head
+of an application, the body of a lambda or `let`, the structure of a projection). A
+metavariable in argument position enters the inferred type only by substitution, so
+instantiating it changes the value's type and its occurrences in the already-checked
+expected type in the same way.
 
 A delayed-assigned spine metavariable need not be admissible itself — it will never be
 assigned directly — but the spine of its pending metavariable is checked instead.

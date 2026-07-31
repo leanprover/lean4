@@ -359,6 +359,18 @@ structure SynthInstanceCacheKey where
   See issue #2522.
   -/
   synthPendingDepth : Nat
+  /--
+  The maximum result size (`synthInstance.maxSize` unless overridden by the caller). It prunes
+  answers during the search, so a result, success or failure, obtained under a different limit must
+  not be reused.
+  -/
+  maxResultSize     : Nat
+  /--
+  The definitional-equality and unfolding flags in effect for the query
+  (`Core.Context.optionFlags`). Being part of the key, the search reads them without recording;
+  other options are recorded per entry (`SynthInstanceCacheEntry.deps`).
+  -/
+  optionFlags       : OptionFlags
   deriving Hashable, BEq
 
 /-- Resulting type for `abstractMVars` -/
@@ -371,7 +383,21 @@ structure AbstractMVarsResult where
 def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
   r.mvars.size
 
-abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option AbstractMVarsResult)
+/-- A type class resolution result together with the dependencies it was computed under. -/
+structure SynthInstanceCacheEntry where
+  deps    : RecordedDeps
+  result? : Option AbstractMVarsResult
+
+/--
+Type class resolution cache. Each key holds one entry per observed set of dependencies: the search
+records what it observes as the entry's `RecordedDeps`, and a lookup only uses an entry whose
+recorded dependencies still hold in the current context. What the search never observes does not
+partition the cache. Options are currently the only recorded dependencies: the search reads them
+through `getRecordedOption` and runs with `Core.Context.isRecordingDeps` set, so an unrecorded
+option read panics.
+-/
+abbrev SynthInstanceCache :=
+  PersistentHashMap SynthInstanceCacheKey (List SynthInstanceCacheEntry)
 
 -- Key for `InferType` and `WHNF` caches
 structure ExprConfigCacheKey where

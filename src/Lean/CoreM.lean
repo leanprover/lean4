@@ -238,7 +238,7 @@ by type class resolution, see `Lean.Meta.SynthInstance`.
 structure RecordedDeps where
   /-- The option lookups, deduplicated by name. -/
   options : Array RecordedOptionAccess := #[]
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 namespace Core
 
@@ -911,12 +911,6 @@ def getRecordedOption [KVMap.Value α] (opt : Lean.Option α) : CoreM α := do
   let raw := (← getOptionsUnrestricted).find? opt.name
   recordOptionAccess { name := opt.name, value := raw }
   return (raw.bind KVMap.Value.ofDataValue?).getD opt.defValue
-
-/-- `getRecordedOption` for a `Bool` option given by name. -/
-def getRecordedBoolOption (name : Name) (defVal := false) : CoreM Bool := do
-  let raw := (← getOptionsUnrestricted).find? name
-  recordOptionAccess { name, value := raw }
-  return (raw.bind KVMap.Value.ofDataValue?).getD defVal
 
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts

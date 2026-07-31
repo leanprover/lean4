@@ -123,7 +123,9 @@ private def casesEliminatorInduct (type : Expr) : Name := Id.run do
 def getCasesInfoOverride? (declName : Name) : CoreM (Option CasesInfo) := do
   if let some (.isCases _) := getInductiveOverride? (← getEnv) declName then
     return ← getCasesInfo declName
-  unless isCasesOnLike (← getEnv) declName do
+  if isSparseCasesOn (← getEnv) declName then
+    return ← getCasesInfo declName
+  unless isCasesOnRecursor (← getEnv) declName do
     return none
   let info ← getCasesInfo declName
   if hasInductiveOverride (← getEnv) info.indName && !isStructure (← getEnv) info.indName then
@@ -134,7 +136,9 @@ def getCasesInfoOverride? (declName : Name) : CoreM (Option CasesInfo) := do
 def isCasesOnLikeOverride (env : Environment) (declName : Name) : Bool := Id.run do
   if let some (.isCases _) := getInductiveOverride? env declName then
     return true
-  unless isCasesOnLike env declName do
+  if isSparseCasesOn env declName then
+    return true
+  unless isCasesOnRecursor env declName do
     return false
   let some val := env.findConstVal? declName | return false
   let indName := casesEliminatorInduct val.type
@@ -221,7 +225,7 @@ name `declName` should fulfill at least one of the following criteria:
 With overrides, however, some of the declarations without `isNoncomputable` become noncomputable,
 specifically:
 1. Constructors of types with overridden runtime representation
-2. `casesOn`-likes on types with overridden runtime representation (with the exception of structure
+2. `casesOn` on types with overridden runtime representation (with the exception of structure
    types, which get special treatmenmt)
 3. Projections on types with overridden runtime representation
 
@@ -234,7 +238,8 @@ def hasNoncomputableOverride (env : Environment) (declName : Name) : Bool := Id.
     let .ctorInfo c := info.toConstantInfo | unreachable!
     return hasInductiveOverride env c.induct
   | .defn =>
-    if isCasesOnLike env declName then
+    -- we let sparse `casesOn`s be computable since we can desugar them to `casesOn`
+    if isCasesOnRecursor env declName then
       let type := info.toConstantVal.type
       let indTypeName := casesEliminatorInduct type
       return hasInductiveOverride env indTypeName && !isStructure env indTypeName

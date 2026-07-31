@@ -21,6 +21,27 @@ import Lean.OriginalConstKind
 
 public section
 namespace Lean.Compiler.LCNF
+
+/--
+Inline constants tagged with the `[macro_inline]` attribute occurring in `e`.
+-/
+def macroInline (e : Expr) : CoreM Expr :=
+  Core.transform e fun e => do
+    let .const declName us ← CSimp.replaceConstant (← getEnv) e.getAppFn | return .continue
+    unless hasMacroInlineAttribute (← getEnv) declName do return .continue
+    let val ← Core.instantiateValueLevelParams (← getConstInfo declName) us
+    return .visit <| val.beta e.getAppArgs
+
+/--
+If `e` is an application of a `[macro_inline]` declaration, inline it.
+-/
+def macroInlineHead (e : Expr) : CoreM Expr := do
+  let .const declName us ← CSimp.replaceConstant (← getEnv) e.getAppFn | return e
+  unless hasMacroInlineAttribute (← getEnv) declName do return e
+  let val ← Core.instantiateValueLevelParams (← getConstInfo declName) us
+  let val ← macroInline val
+  return val.beta e.getAppArgs
+
 namespace ToLCNF
 
 /--
@@ -450,11 +471,95 @@ private def checkComputable (ref : Name) : M Unit := do
   -- `noncomputable section`, where the failure to compile the `_unsafe_rec` version is tolerated and
   -- only that auxiliary is marked `noncomputable`, leaving `ref` itself unmarked.
   if isNoncomputable (← getEnv) ref || isNoncomputable (← getEnv) (mkUnsafeRecName ref) then
-    throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{.ofConstName ref}', which is 'noncomputable'"
+    throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, \
+      consider marking it as `noncomputable` because it depends on `{.ofConstName ref}`, which is `noncomputable`"
   else if getOriginalConstKind? (← getEnv) ref matches some .axiom | some .quot | some .induct | some .thm then
     throwNamedError lean.dependsOnNoncomputable f!"`{ref}` not supported by code generator; consider marking definition as `noncomputable`"
   else if hasNoncomputableOverride (← getEnv) ref then
-    throwNamedError lean.dependsOnNoncomputable f!"`{ref}` is ; consider marking definition as `noncomputable`"
+    throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, \
+      consider marking it as `noncomputable` because it depends on `{.ofConstName ref}`,\n\
+      which had a special meaning to the compiler that was lost because of an inductive override"
+
+/--
+Given `e : ∀ (h₁ : p₁) ... (hₙ : pₙ), b h₁ ... hₙ`,
+returns the beta reduced `e (lcProof p₁) ... (lcProof pₙ)`.
+-/
+def mkProofOverApp (e : Expr) (n : Nat) : MetaM Expr := do
+  let mut type ← Meta.inferType e
+  if type.getNumHeadForalls < n then
+    type ← Meta.forallBoundedTelescope type n Meta.mkForallFVars
+  go type n #[]
+where
+  go (type : Expr) (n : Nat) (vars : Array Expr) : MetaM Expr :=
+    match n with
+    | 0 => return e.beta vars
+    | k + 1 =>
+      match type with
+      | .forallE _ t b _ =>
+        let t := t.instantiateRev vars
+        go b k (vars.push (mkLcProof t))
+      | .mdata _ type => go type n vars
+      | _ => Meta.throwFunctionExpected (e.beta vars)
+
+def sparseCasesToCasesOn (casesInfo : CasesInfo) (e : Expr) : MetaM Expr := do
+  let args := e.getAppArgs
+  let indInfo ← getConstInfoInduct casesInfo.indName
+  let mut altsByCtorIdx : NameMap Expr := {}
+  let mut defaultAlt? : Option Expr := none
+  for i in casesInfo.altsRange, info in casesInfo.altNumParams do
+    match info with
+    | .default nhyps =>
+      defaultAlt? ← mkProofOverApp args[i]! nhyps
+    | .ctor nm _ =>
+      altsByCtorIdx := altsByCtorIdx.insert nm args[i]!
+  -- parameters, motive, indices, major
+  let params := args[0...indInfo.numParams].toArray
+  let motive := args[indInfo.numParams]!
+  let indices := args[(indInfo.numParams+1)...(indInfo.numParams+1+indInfo.numIndices)].toArray
+  let major := args[indInfo.numParams+1+indInfo.numIndices]!
+  let levelParams := e.getAppFn.constLevels!.tail
+  let newCases := .const (mkCasesOnName casesInfo.indName) levelParams
+  let mut newCases := mkAppN newCases params
+  let indWithParams := mkAppN (.const casesInfo.indName levelParams) params
+  let indTypeType ← Meta.inferType indWithParams
+  match defaultAlt? with
+  | some dflt =>
+    let newMotive ← Meta.forallTelescope indTypeType fun indexVars _ => do
+      Meta.withLocalDeclD `t (mkAppN indWithParams indexVars) fun var => do
+        let motiveApp := mkAppN motive (indexVars.push var)
+        Meta.mkLambdaFVars (indexVars.push var) <|
+          .forallE `«else» (mkSimpleThunkType motiveApp) motiveApp .default
+    newCases := (mkAppN (newCases.app newMotive) indices).app major
+    for ctor in indInfo.ctors do
+      let ctorWithParams := mkAppN (.const ctor levelParams) params
+      let ctorType ← Meta.inferType ctorWithParams
+      let alt ← Meta.forallTelescope ctorType fun fields resTy => do
+        let resIndices := resTy.getAppArgsN indInfo.numIndices
+        let ctorApp := mkAppN ctorWithParams fields
+        let motiveApp := (mkAppN motive resIndices).app ctorApp
+        Meta.withLocalDeclD `t (mkSimpleThunkType motiveApp) fun var => do
+          match altsByCtorIdx.find? ctor with
+          | some alt => Meta.mkLambdaFVars (fields.push var) (alt.beta fields)
+          | none => Meta.mkLambdaFVars (fields.push var) (var.app (.const ``Unit.unit []))
+      newCases := newCases.app alt
+    newCases := newCases.app (mkSimpleThunk dflt)
+    return newCases
+  | none =>
+    for ctor in indInfo.ctors do
+      if let some alt := altsByCtorIdx.find? ctor then
+        newCases := newCases.app alt
+        continue
+      let ctorWithParams := mkAppN (.const ctor levelParams) params
+      let ctorType ← Meta.inferType ctorWithParams
+      let alt ← Meta.forallTelescope ctorType fun fields resTy => do
+        let resIndices := resTy.getAppArgsN indInfo.numIndices
+        let ctorApp := mkAppN ctorWithParams fields
+        let motiveApp := (mkAppN motive resIndices).app ctorApp
+        let unreach := mkApp2 (.const ``False.rec [← Meta.getLevel motiveApp]) motiveApp
+          (mkLcProof (.const ``False []))
+        Meta.mkLambdaFVars fields unreach
+      newCases := newCases.app alt
+    return newCases
 
 /--
 Eta reduce implicits. We use this function to eliminate introduced by the implicit lambda feature,
@@ -660,7 +765,7 @@ where
     assert! casesInfo.numAlts == 1
     let discr := args[casesInfo.discrPos]!
     let fieldArgs : Array Expr ← Meta.MetaM.run' <| structInfo.fieldNames.mapM fun fieldName => do
-      Meta.mkProjection discr fieldName
+      macroInlineHead <| ← Meta.mkProjection discr fieldName
     let f := args[casesInfo.altsRange.lower]!
     let arity := casesInfo.arity
     if args.size == arity then
@@ -676,7 +781,10 @@ where
       if let some (.inductInfo indVal) := (← getEnv).find? typeName then
         if casesInfo.numAlts == 1 && (← Meta.MetaM.run' <| Meta.isInductivePredicateVal indVal) then
           return ← visitIndPredCases casesInfo e indVal
-      if hasInductiveOverride (← getEnv) typeName then
+      if hasInductiveOverride (← getEnv) typeName &&
+          !hasInductiveOverride (← getEnv) casesInfo.declName then
+        if isSparseCasesOn (← getEnv) casesInfo.declName then
+          return ← visit (← liftMetaM do macroInlineHead <| ← sparseCasesToCasesOn casesInfo e)
         let some info := getStructureInfo? (← getEnv) typeName | unreachable!
         return ← visitOverrideStructureCases casesInfo e info
       let args := e.getAppArgs
@@ -911,6 +1019,7 @@ where
         throwError "Unsupported projection on `{.ofConstName s}` which has an overridden \
           runtime representation"
       let projExpr ← liftMetaM <| Meta.mkProjection e structInfo.fieldNames[i]!
+      let projExpr ← macroInlineHead projExpr
       visitApp projExpr
     else
       match (← withoutExpectedType do visit e) with

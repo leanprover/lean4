@@ -9,6 +9,7 @@ public import Lean.AddDecl
 public import Lean.Meta.AppBuilder
 public import Lean.DefEqAttrib
 import Lean.Meta.WHNF
+import Lean.Compiler.NoncomputableAttr
 public section
 namespace Lean.Meta
 
@@ -157,6 +158,7 @@ partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
             safety      := DefinitionSafety.safe
             hints       := ReducibilityHints.abbrev
           }
+          modifyEnv (addNoncomputable · declName)
           enableRealizationsForConst declName
 
 /--
@@ -524,6 +526,7 @@ def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
                         safety      := .safe
                         hints       := .abbrev
                       }
+                    modifyEnv (addNoncomputable · instDeclName)
                     registerInstance instDeclName AttributeKind.global (eval_prio default)
                     enableRealizationsForConst instDeclName
           if genSizeOfSpec.get (← getOptions) then

@@ -12,6 +12,7 @@ import Lean.Meta.CompletionName
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.NatTable
 import Lean.Elab.App
+import Lean.Compiler.NoncomputableAttr
 
 namespace Lean
 
@@ -147,13 +148,14 @@ def mkIndCtorElim (indName : Name) : MetaM Unit := do
     mkLambdaFVars (params ++ #[motive, ctorIdx] ++ ism ++ #[h, k]) e
 
   let declName := mkCtorElimName indName
-  addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+  addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
     (name        := declName)
     (levelParams := casesOnInfo.levelParams)
     (type        := (← inferType e))
     (value       := e)
     (hints       := ReducibilityHints.abbrev)
   ))
+  modifyEnv fun env => addNoncomputable env declName
   modifyEnv fun env => markAuxRecursor env declName
   modifyEnv fun env => addToCompletionBlackList env declName
   modifyEnv fun env => addProtected env declName
@@ -195,7 +197,7 @@ def mkConstructorElim (indName : Name) : MetaM Unit := do
         mkLambdaFVars (params ++ #[motive] ++ ism ++ #[h, alt]) e
     let declType ← inferType e
 
-    addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+    addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
       (name        := declName)
       (levelParams := casesOnInfo.levelParams)
       (type        := declType)

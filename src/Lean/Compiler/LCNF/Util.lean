@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.FloatArray.Basic
-public import Lean.CoreM
-public import Lean.Util.Recognizers
+public import Lean.Expr
 
 public section
 

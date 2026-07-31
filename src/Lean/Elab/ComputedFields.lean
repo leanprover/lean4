@@ -128,17 +128,26 @@ def mkCasesOnImpl : M Unit := do
   let motiveType ← mkForallFVars ctx.indices (.forallE `t inductApp (.sort (.param motiveUniv)) .default)
   withLocalDecl `motive .implicit motiveType fun motive => do
   withLocalDeclD `t inductApp fun major => do
-  let mut altInfos := #[]
+  let altInfos ← ctx.ctors.toArray.mapM fun ctorName => do
+    let shortName := ctorName.replacePrefix ctx.name .anonymous
+    let ctorWithParams := mkAppN (.const (mkCtorImplName ctorName) ctx.lparams) ctx.params
+    let ctorType ← inferType ctorWithParams
+    let type ← forallTelescope ctorType fun fields resTy => do
+      let indices := resTy.getAppArgs.drop ctx.numParams
+      let ctorApp := mkAppN ctorWithParams fields
+      mkForallFVars fields ((mkAppN motive indices).app ctorApp)
+    return (shortName, type)
   withLocalDeclsDND altInfos fun minors => do
-  let res := mkAppN motive ctx.indices
+  let res := (mkAppN motive ctx.indices).app major
   let type ← mkForallFVars (ctx.params ++ #[motive] ++ ctx.indices ++ #[major] ++ minors) res
-  addDecl <| .opaqueDecl {
+  addDecl <| .defnDecl {
     name := mkCasesOnImplName ctx.name
     levelParams := motiveUniv :: ctx.levelParams
     type
     -- We don't care about the value since the compiler will not look at it because of the override
     value := .app (.const ``lcUnreachable [← getLevel type]) type
-    isUnsafe := true
+    hints := .opaque
+    safety := .unsafe
   }
   let override := .isCases (mkCasesOnImplName ctx.name)
   modifyEnv (Compiler.addInductiveOverride · override)
@@ -182,20 +191,22 @@ def mkImpls : M Unit := do
   }
   modifyEnv (Compiler.addInductiveOverride · override)
   mkCasesOnImpl
+  compileDecls #[ctx.name]
 
 def overrideCasesOn : M Unit := do
   let ctx ← read
   let casesOn ← getConstVal (mkCasesOnName ctx.name)
   let lparams := casesOn.levelParams.map .param
   let value ← forallTelescope (← instantiateForall casesOn.type ctx.params) fun xs _ => do
-    let nonMinors := xs[0...(ctx.numIndices+2)].toArray -- parameters, indices and major premise
+    let nonMinors := xs[0...(ctx.numIndices+2)].toArray -- motive, indices and major premise
     let minors := xs[(ctx.numIndices+2)...*].toArray
     let newMinors ← minors.zipWithM (bs := ctx.ctors.toArray) fun minor ctor => do
-      forallTelescope (← inferType minor) fun args _ => do
-        let newVars := if ← isScalarField ctor then #[] else ctx.compFieldVars
-        mkLambdaFVars newVars <| mkAppN minor args
+      if ← isScalarField ctor then
+        pure minor
+      else
+        mkLambdaFVars ctx.compFieldVars minor
     let casesOnApp := .const (mkCasesOnImplName ctx.name) lparams
-    let casesOnApp := mkAppN (mkAppN casesOnApp nonMinors) newMinors
+    let casesOnApp := mkAppN (mkAppN (mkAppN casesOnApp ctx.params) nonMinors) newMinors
     mkLambdaFVars (ctx.params ++ xs) casesOnApp
   -- we don't need to compile this one because we use `macro_inline`
   addDecl <| .defnDecl {

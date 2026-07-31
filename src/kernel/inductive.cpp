@@ -436,7 +436,7 @@ public:
                         // the sort is ok IF
                         //   1- its level is <= inductive datatype level, OR
                         //   2- is an inductive predicate
-                        if (!(is_geq(m_result_level, sort_level(s)) || is_zero(m_result_level))) {
+                        if (!(is_geq(m_result_level, sort_level(s)) || normalizes_to_zero(m_result_level))) {
                             throw kernel_exception(m_env, sstream() << "universe level of type_of(arg #" << (i + 1) << ") "
                                                    << "of '" << n << "' is too big for the corresponding inductive datatype");
                         }
@@ -514,7 +514,7 @@ public:
             expr fvar = mk_local_decl_for(type);
             if (i >= m_nparams) {
                 expr s = tc().ensure_type(binding_domain(type));
-                if (!is_zero(sort_level(s))) {
+                if (!normalizes_to_zero(sort_level(s))) {
                     /* Current argument is not in Prop (i.e., condition 1 failed).
                        We save it in to_check to be able to try condition 2 above. */
                     to_check.push_back(fvar);
@@ -554,7 +554,7 @@ public:
            In the following for-loop we check if the intro rule has 0 fields. */
         m_K_target =
             m_ind_types.size() == 1 &&              /* It is not a mutual declaration (for simplicity, we don't gain anything by supporting K in mutual declarations. */
-            is_zero(m_result_level) &&              /* It is an inductive predicate. */
+            normalizes_to_zero(m_result_level) &&   /* It is an inductive predicate. */
             length(m_ind_types[0].get_cnstrs()) == 1; /* Inductive datatype has only one constructor. */
         if (!m_K_target)
             return;

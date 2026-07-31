@@ -955,30 +955,50 @@ private def _root_.Lean.RecordedDeps.mergeInto (child parent : RecordedDeps) : R
   { parent with options, extGens }
 
 /--
-Adds `entry` to the cache, replacing the entries for `key` that recorded the same option lookups with
-the same answers: those did not hold in the current environment, or were superseded by `entry`.
+Adds `entry` to `c`, replacing the entries for `key` that recorded the same option lookups with the
+same answers: those did not hold in the current environment, or were superseded by `entry`.
 -/
-private def insertCacheEntry (key : SynthInstanceCacheKey) (entry : SynthInstanceCacheEntry) :
-    MetaM Unit :=
-  modifyCache fun c => { c with synthInstance := c.synthInstance.alter key fun entries? =>
+private def SynthInstanceCache.insertEntry (c : SynthInstanceCache) (key : SynthInstanceCacheKey)
+    (entry : SynthInstanceCacheEntry) : SynthInstanceCache :=
+  c.alter key fun entries? =>
     some <| entry :: (entries?.getD [] |>.filter fun e =>
-      e.deps.options != entry.deps.options || e.deps.base != entry.deps.base) }
+      e.deps.options != entry.deps.options || e.deps.base != entry.deps.base)
+
+/-- Adds `entry` to the transient tier, and to the persistent tier if `persist` is set. -/
+private def insertCacheEntry (key : SynthInstanceCacheKey) (entry : SynthInstanceCacheEntry)
+    (persist : Bool) : MetaM Unit := do
+  if persist then
+    -- not `Meta.modifyEnv`, which would clear `Meta.Cache`
+    modifyThe Core.State fun s =>
+      { s with env := s.env.setSynthCache (s.env.synthCache.insertEntry key entry) }
+  modifyCache fun c => { c with synthInstance := c.synthInstance.insertEntry key entry }
 
 /--
-Returns the entry for `key` whose recorded dependencies hold in the current context, if any.
+Returns the entry for `key` whose recorded dependencies hold in the current context, if any, from the
+transient tier or else the persistent one.
 -/
 private def findCachedResult? (key : SynthInstanceCacheKey) : MetaM (Option SynthInstanceCacheEntry) := do
   -- unrestricted: compared against the recorded lookups
   let opts ← getOptionsUnrestricted
   let env ← getEnv
-  let some entries := (← get).cache.synthInstance.find? key | return none
-  let some entry := entries.find? fun e => validOptionAccesses opts e.deps && validEnvDeps env e.deps
-    | return none
+  let find? (c : SynthInstanceCache) := c.find? key |>.bind fun entries =>
+    entries.find? fun e => validOptionAccesses opts e.deps && validEnvDeps env e.deps
+  let (entry, persistent) ← if let some entry := find? (← get).cache.synthInstance then
+      pure (entry, false)
+    else if let some entry := find? env.synthCache then
+      pure (entry, true)
+    else
+      return none
   if entry.deps.baseTrackedGen != env.trackedGen ||
       entry.deps.baseChangeLogPos != env.declChangeLog.size then
     -- Re-stamped, so that later lookups skip the environment checks just done.
-    insertCacheEntry key { entry with deps := { entry.deps with
+    let entry := { entry with deps := { entry.deps with
       baseTrackedGen := env.trackedGen, baseChangeLogPos := env.declChangeLog.size } }
+    if persistent then
+      modifyThe Core.State fun s =>
+        { s with env := s.env.setSynthCache (s.env.synthCache.insertEntry key entry) }
+    else
+      modifyCache fun c => { c with synthInstance := c.synthInstance.insertEntry key entry }
   return entry
 
 /--
@@ -1014,7 +1034,14 @@ private def cacheResult (cacheKey : SynthInstanceCacheKey) (log : RecordedDeps) 
   let base := options.foldl (init := {}) fun b n => match log.base.find? n with
     | some v => b.insert n v
     | none   => b
-  insertCacheEntry cacheKey { deps := { log with options, base }, result? := value? }
+  -- Only context-free entries are persisted. A query with local instances or free variables cannot
+  -- recur in a later command, so persisting it would only grow the cache, and would be wrong where
+  -- a name generator is restarted and a `FVarId` thus denotes another variable. Results with
+  -- metavariables are only valid relative to the metavariable context that created them (e.g.
+  -- universe metavariables not determined by the key are resolved by ambient constraints).
+  let persist := kind matches .noMVars && cacheKey.localInsts.isEmpty && !cacheKey.type.hasFVar &&
+    value?.all fun r => r.numMVars == 0 && r.paramNames.isEmpty && !r.expr.hasFVar
+  insertCacheEntry cacheKey { deps := { log with options, base }, result? := value? } persist
 
 /--
 The `Meta.Config` of every type class resolution query. It replaces the ambient configuration,
@@ -1054,7 +1081,8 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     -- Recorded once per query, covering every read of the instance table on the search path.
     recordExtGenAccess instanceExtension.ext.toEnvExtension
     let cacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth,
-                      maxResultSize, optionFlags := (← getOptionFlags) }
+                      maxResultSize, optionFlags := (← getOptionFlags),
+                      tracing := (← isTracingEnabledFor `Meta.synthInstance) }
     let runSearch : MetaM (Option AbstractMVarsResult) :=
       withNewMCtxDepth (allowLevelAssignments := true) do
         match kind with

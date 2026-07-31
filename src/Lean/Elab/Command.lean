@@ -1156,8 +1156,6 @@ only have an effect for the remainder of the `CommandElabM` computation passed h
 and do not affect subsequent commands.
 
 *Warning:* when using this from `MetaM` monads, the caches are *not* reset.
-If the command defines new instances for example, you should use `Lean.Meta.resetSynthInstanceCache`
-to reset the instance cache.
 While the `modifyEnv` function for `MetaM` clears its caches entirely,
 `liftCommandElabM` has no way to reset these caches.
 -/

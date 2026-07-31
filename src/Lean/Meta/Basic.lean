@@ -14,6 +14,7 @@ public import Lean.Util.MonadBacktrack
 public import Lean.Compiler.InlineAttrs
 public import Lean.Meta.TransparencyMode
 import Init.Data.Range.Polymorphic.Iterators
+import all Lean.Environment  -- for accessing `Environment.synthCacheRaw?`
 import Init.While
 
 public section
@@ -371,6 +372,11 @@ structure SynthInstanceCacheKey where
   other options are recorded per entry (`SynthInstanceCacheEntry.deps`).
   -/
   optionFlags       : OptionFlags
+  /--
+  Whether `trace.Meta.synthInstance` is enabled. With the trace enabled, a query is thus only served
+  from the cache if it was already traced.
+  -/
+  tracing           : Bool
   deriving Hashable, BEq
 
 /-- Resulting type for `abstractMVars` -/
@@ -399,9 +405,14 @@ against whose later changes of declaration-keyed state the entry is validated. T
 `Core.Context.isRecordingDeps` set, so an unrecorded read of an option or an environment extension
 panics.
 
+The cache has two tiers. The transient tier, `Meta.Cache.synthInstance`, lives as long as the
+current `Meta.State`. Context-free entries are also stored in the persistent tier,
+`Environment.synthCache`, which serves them in later commands. The persistent tier rolls back
+together with the environment, and thus with the counters its entries are validated against.
+
 These counters roll back with the environment, after which a different change can bring them back.
-The entries in `Meta.Cache` survive `SavedState.restore`, which therefore drops those the rollback
-invalidates (`SynthInstanceCache.rollBack`) and carries the latest recording start
+The entries in the transient tier survive `SavedState.restore`, which therefore drops those the
+rollback invalidates (`SynthInstanceCache.rollBack`) and carries the latest recording start
 (`Environment.raiseRecordingConstGen`) over, so that changes the surviving entries depend on stay
 logged. Restoring a state with constants the current environment lacks, such as `Term.observing`
 followed by `applyResult`, instead takes the cache saved with that state, which is consistent with
@@ -414,6 +425,22 @@ as otherwise a stale entry can be revalidated.
 -/
 abbrev SynthInstanceCache :=
   PersistentHashMap SynthInstanceCacheKey (List SynthInstanceCacheEntry)
+
+/--
+Persistent tier of the type class resolution cache, which survives the current command. It holds
+only context-free entries (see `Lean.Meta.SynthInstance`), and as it is part of the environment, it
+rolls back together with the counters its entries are validated against.
+-/
+def _root_.Lean.Environment.synthCache (env : Environment) : SynthInstanceCache :=
+  match env.synthCacheRaw? with
+  -- safety: only `setSynthCache` stores a value
+  | some v => unsafe unsafeCast v
+  | none   => {}
+
+/-- Replaces the persistent tier of the type class resolution cache; see `Environment.synthCache`. -/
+def _root_.Lean.Environment.setSynthCache (env : Environment) (c : SynthInstanceCache) :
+    Environment :=
+  { env with synthCacheRaw? := some (unsafe unsafeCast c) }
 
 -- Key for `InferType` and `WHNF` caches
 structure ExprConfigCacheKey where
@@ -779,7 +806,9 @@ def mkInfoCacheKey (expr : Expr) (nargs? : Option Nat) : MetaM InfoCacheKey :=
 @[inline] def resetDefEqPermCaches : MetaM Unit :=
   modifyDefEqPermCache fun _ => {}
 
-@[inline] def resetSynthInstanceCache : MetaM Unit :=
+/-- Resets both tiers of the type class resolution cache; see `SynthInstanceCache`. -/
+def resetSynthInstanceCache : MetaM Unit := do
+  modifyThe Core.State fun s => { s with env := { s.env with synthCacheRaw? := none } }
   modifyCache fun c => {c with synthInstance := {}}
 
 @[inline] def modifyDiag (f : Diagnostics → Diagnostics) : MetaM Unit := do

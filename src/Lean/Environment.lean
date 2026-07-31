@@ -541,6 +541,29 @@ private structure RealizationContext where
   realizeMapRef : IO.Ref (NameMap NonScalar /- PHashMap α (Task Dynamic) -/)
 
 /--
+One option lookup observed during a type class resolution search: the raw `Options.find?`
+result, so that validation is default-independent and covers set↔unset transitions exactly. See
+`Lean.Meta.getRecordedOption`.
+-/
+structure SynthOptionAccess where
+  name  : Name
+  value : Option DataValue
+  deriving BEq
+
+/--
+Dependencies of an in-progress type class resolution query, accumulated in
+`Lean.Meta.Cache.synthEnvDeps` while the query is running; they determine when a cached
+resolution result is still valid. See `Lean.Meta.SynthInstance`.
+-/
+structure SynthEnvDeps where
+  /--
+  The option lookups the search performed, deduplicated by name; an entry may only be used when
+  its recorded accesses give the same answers in the current context.
+  -/
+  options : Array SynthOptionAccess := #[]
+  deriving Inhabited
+
+/--
 Elaboration-specific extension of `Kernel.Environment` that adds tracking of asynchronously
 elaborated declarations.
 -/
@@ -612,6 +635,12 @@ structure Environment where
   `elabMutualDef` may switch from public to private when e.g. entering the proof of a theorem.
   -/
   isExporting : Bool := false
+  /--
+  True while a type class resolution query is recording its dependencies on this environment
+  branch (`Lean.Meta.Cache.synthEnvDeps`): by-name option reads on the search path are then
+  restricted to the recording accessors; see `Lean.Meta.getRecordedOption`.
+  -/
+  synthRecording : Bool := false
 deriving Nonempty
 
 @[inline] private def VisibilityMap.get (m : VisibilityMap α) (env : Environment) : α :=
@@ -655,6 +684,11 @@ def setExporting (env : Environment) (isExporting : Bool) : Environment :=
     env
   else
     { env with isExporting }
+
+/-- Updates `env.synthRecording`; see there. -/
+def setSynthRecording (env : Environment) (recording : Bool) : Environment :=
+  if env.synthRecording == recording then env
+  else { env with synthRecording := recording }
 
 /-- Consistently updates synchronous and (private) asynchronous parts of the environment without blocking. -/
 private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → Kernel.Environment) : Environment :=

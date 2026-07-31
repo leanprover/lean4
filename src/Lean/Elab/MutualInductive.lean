@@ -1667,15 +1667,24 @@ private def applyDerivingHandlers (views : Array InductiveView) : CommandElabM U
 
 private def elabInductiveViewsFinalize (views : Array InductiveView) (res : FinalizeContext) :
     CommandElabM Unit := do
+  for view in views do
+    liftTermElabM <|
+      Term.applyAttributesAt view.declName
+        (view.modifiers.attrs.filter fun attr => attr.name == `override_runtime_type)
+        .afterTypeChecking
+
   -- NOTE: any generated code before this line is invalid
-  liftTermElabM <| withMCtx res.mctx <| withLCtx res.lctx res.localInsts do
-    let finalizers ← res.elabs.mapM fun elab' => elab'.prefinalize res.levelParams res.params res.replaceIndFVars
-    for view in views do withRef view.declId <|
-      Term.applyAttributesAt view.declName view.modifiers.attrs .afterTypeChecking
-    for elab' in finalizers do elab'.finalize
   unless ← applyComputedFields views do
     liftCoreM <| compileDecls (views.map (·.declName))
   liftTermElabM <| compileAuxConstructions (views.map (·.declName))
+  liftTermElabM <| withMCtx res.mctx <| withLCtx res.lctx res.localInsts do
+    let finalizers ← res.elabs.mapM fun elab' => elab'.prefinalize res.levelParams res.params res.replaceIndFVars
+    for view in views do
+      withRef view.declId <|
+        Term.applyAttributesAt view.declName
+          (view.modifiers.attrs.filter fun attr => attr.name != `override_runtime_type)
+          .afterTypeChecking
+    for elab' in finalizers do elab'.finalize
 
 private def elabInductiveViewsPostprocessing (views : Array InductiveView) :
     CommandElabM Unit := do

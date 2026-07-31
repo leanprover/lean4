@@ -331,6 +331,9 @@ of the name of the inductive and the names of the associated computed fields.
 -/
 def setComputedFields (computedFields : Array (Name × Array Name)) : MetaM Unit := do
   for (indName, computedFieldNames) in computedFields do
+    if Compiler.hasInductiveOverride (← getEnv) indName then
+      logError m!"Invalid computed field, the inductive type already has an override"
+      return
     for computedFieldName in computedFieldNames do
       unless computedFieldAttr.hasTag (← getEnv) computedFieldName do
         logError m!"'{computedFieldName}' must be tagged with @[computed_field]"

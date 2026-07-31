@@ -1666,14 +1666,14 @@ private def applyDerivingHandlers (views : Array InductiveView) : CommandElabM U
 private def elabInductiveViewsFinalize (views : Array InductiveView) (res : FinalizeContext) :
     CommandElabM Unit := do
   -- NOTE: any generated code before this line is invalid
-  unless ← applyComputedFields views do
-    liftCoreM <| compileDecls (views.map (·.declName))
-  liftTermElabM <| mkAuxConstructionsPostCompile (views.map (·.declName))
   liftTermElabM <| withMCtx res.mctx <| withLCtx res.lctx res.localInsts do
     let finalizers ← res.elabs.mapM fun elab' => elab'.prefinalize res.levelParams res.params res.replaceIndFVars
     for view in views do withRef view.declId <|
       Term.applyAttributesAt view.declName view.modifiers.attrs .afterTypeChecking
     for elab' in finalizers do elab'.finalize
+  unless ← applyComputedFields views do
+    liftCoreM <| compileDecls (views.map (·.declName))
+  liftTermElabM <| mkAuxConstructionsPostCompile (views.map (·.declName))
 
 private def elabInductiveViewsPostprocessing (views : Array InductiveView) :
     CommandElabM Unit := do

@@ -14,8 +14,7 @@ public import Std.Internal.ForIn
 
 `ForIn.forInWithInvariant` and `ForIn'.forInWithInvariant'` annotate a `forIn`/`forIn'` loop with its
 invariant so that `vcgen` reads the invariant from the program. Their `@[spec]` specifications
-restate `Spec.forIn_list`/`Spec.forIn'_list` for every container with a `DeterministicForIn`
-instance.
+restate `Spec.forIn_list`/`Spec.forIn'_list` for every container with a `PureForIn` instance.
 -/
 
 @[expose] public section
@@ -51,8 +50,8 @@ invariant ranges over the elements consumed so far, the elements remaining, and 
 /-! ## Specifications -/
 
 @[spec]
-theorem Spec.forInWithInvariant_det {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
-    [DeterministicForIn m ρ α]
+theorem Spec.forInWithInvariant {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
+    [PureForIn m ρ α]
     {xs : ρ} {init : β} {f : α → β → m (ForInStep β)}
     (inv : Invariant α β Pred)
     {epost : EPred}
@@ -70,18 +69,18 @@ theorem Spec.forInWithInvariant_det {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ �
       (fun b => inv (ForIn.toList xs) [] b)
       epost := by
   unfold ForIn.forInWithInvariant
-  rw [DeterministicForIn.forIn_eq]
+  rw [PureForIn.forIn_eq]
   exact Spec.forIn_list inv step
 
 @[spec]
-theorem Spec.forInWithInvariant'_det {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
-    [ForIn Id ρ α] [LawfulMemForIn ρ α] [DeterministicForIn' m ρ α]
+theorem Spec.forInWithInvariant' {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
+    [ForIn Id ρ α] [LawfulMemForInId ρ α] [PureForIn' m ρ α]
     {xs : ρ} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     (inv : Invariant α β Pred)
     {epost : EPred}
     (step : ∀ pref cur suff (h : ForIn.toList xs = pref ++ cur :: suff) b,
       Triple
-        (f cur ((LawfulMemForIn.mem_toList_iff).mp (by simp [h])) b)
+        (f cur ((LawfulMemForInId.mem_toList_iff).mp (by simp [h])) b)
         (inv pref (cur :: suff) b)
         (fun r => match r with
           | .yield b' => inv (pref ++ [cur]) suff b'
@@ -93,7 +92,7 @@ theorem Spec.forInWithInvariant'_det {ρ : Type w} {d : Membership α ρ} [ForIn
       (fun b => inv (ForIn.toList xs) [] b)
       epost := by
   unfold ForIn'.forInWithInvariant'
-  rw [DeterministicForIn'.forIn'_eq]
+  rw [PureForIn'.forIn'_eq]
   exact Spec.forIn'_list inv step
 
 end Std.Internal.Do

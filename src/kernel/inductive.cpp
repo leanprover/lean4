@@ -1114,14 +1114,33 @@ static pair<names, name_map<name>> mk_aux_rec_name_map(environment const & aux_e
     return mk_pair(names(old_rec_names), rec_map);
 }
 
+/* The auxiliary types created by `elim_nested_inductive_fn` live under `_nested` and exist only in the
+   temporary environment used to eliminate nested inductives. A declaration naming one is reaching into
+   that environment, where it can be given a type it does not have once the nested types are restored. */
+static void check_no_nested_aux(environment const & env, name const & n, expr const & e) {
+    /* `proj` is included because its structure name is resolved too: the kernel rewrites nested
+       occurrences in the constructor to the auxiliary type, so a projection naming that type matches
+       without the declaration ever mentioning it as a constant. */
+    if (find(e, [](expr const & e, unsigned) {
+                return (is_constant(e) && is_prefix_of(*g_nested, const_name(e))) ||
+                       (is_proj(e) && is_prefix_of(*g_nested, proj_sname(e)));
+            })) {
+        throw kernel_exception(env, sstream() << "invalid declaration '" << n
+                               << "', it uses the reserved prefix '" << *g_nested << "'");
+    }
+}
+
 environment environment::add_inductive(declaration const & d) const {
-    /* Reject metavariables and free variables in declaration. */
+    /* Reject metavariables, free variables, and references to auxiliary declarations. */
     {
         inductive_decl ind_d(d);
         for (inductive_type const & ind_type : ind_d.get_types()) {
             check_no_metavar_no_fvar(*this, ind_type.get_name(), ind_type.get_type());
-            for (constructor const & cnstr : ind_type.get_cnstrs())
+            check_no_nested_aux(*this, ind_type.get_name(), ind_type.get_type());
+            for (constructor const & cnstr : ind_type.get_cnstrs()) {
                 check_no_metavar_no_fvar(*this, constructor_name(cnstr), constructor_type(cnstr));
+                check_no_nested_aux(*this, constructor_name(cnstr), constructor_type(cnstr));
+            }
         }
     }
     elim_nested_inductive_result res = elim_nested_inductive_fn(*this, d)();

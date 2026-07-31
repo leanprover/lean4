@@ -4,10 +4,9 @@ that is different at instance-resolution time (e.g. across a semireducible type 
 which used to happen when unification assigned an instance metavariable a value of the
 wrong type.
 
-Tests the modes of `backward.isDefEq.instanceTypes`:
-- `"none"`: no restriction (the buggy pre-#9077-fix behavior),
-- `"mark"`: reject wrong-typed assignments, propagate the restriction to spine mvars,
-- `"synth"`/`"markOrSynth"`: reject, but fall back to synthesizing the instance and
+Tests both settings of `backward.isDefEq.instanceTypes`:
+- `false`: no restriction (the buggy pre-#9077-fix behavior),
+- `true`: reject wrong-typed assignments, falling back to synthesizing the instance and
   unifying the candidate value with the result.
 -/
 
@@ -25,16 +24,16 @@ instance pCopy [P E] : P (Copy E) := (inferInstance : P E)
 
 /-!
 Scenario 1 (the original repro shape): `inst : N (H (Copy E) rfl)` needs `Q (Copy E)`, but
-we only have `iQ : Q E`, and these types are not instance-reducibly equal. In `"none"` mode,
+we only have `iQ : Q E`, and these types are not instance-reducibly equal. With `false`,
 after `synthPending` fails to synthesize `?q : Q (Copy E)`, unification assigns it anyway:
 `pCopy (inst := iQ.toP) =?= ?q.toP` unfolds `pCopy`, giving `iQ.toP =?= ?q.toP` and finally
-`(?q : Q (Copy E)) := (iQ : Q E)`. All other modes reject this assignment, and since no
-`Q (Copy E)` instance exists, the synthesis fallback of `"synth"`/`"markOrSynth"` fails too.
+`(?q : Q (Copy E)) := (iQ : Q E)`. With `true` this assignment is rejected, and since no
+`Q (Copy E)` instance exists, the synthesis fallback fails too.
 -/
 
 /-- info: inst (Copy E) -/
 #guard_msgs in
-set_option backward.isDefEq.instanceTypes "none" in
+set_option backward.isDefEq.instanceTypes false in
 variable (E : Type) [iQ : Q E] in
 #synth N (H (Copy E) rfl)
 
@@ -45,36 +44,14 @@ error: failed to synthesize
 Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
-set_option backward.isDefEq.instanceTypes "mark" in
-variable (E : Type) [iQ : Q E] in
-#synth N (H (Copy E) rfl)
-
-/--
-error: failed to synthesize
-  N (H (Copy E) ⋯)
-
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
--/
-#guard_msgs in
-set_option backward.isDefEq.instanceTypes "synth" in
-variable (E : Type) [iQ : Q E] in
-#synth N (H (Copy E) rfl)
-
-/--
-error: failed to synthesize
-  N (H (Copy E) ⋯)
-
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
--/
-#guard_msgs in
-set_option backward.isDefEq.instanceTypes "markOrSynth" in
+set_option backward.isDefEq.instanceTypes true in
 variable (E : Type) [iQ : Q E] in
 #synth N (H (Copy E) rfl)
 
 /-!
 Scenario 2: unification directly proposes `(?q : Q (Copy E)) := (iQ : Q E)` because the
-instance value occurs in the goal type. Without a `Q (Copy E)` instance, `"none"` exhibits
-the bug and the other modes fail.
+instance value occurs in the goal type. Without a `Q (Copy E)` instance, `false` exhibits
+the bug and `true` fails.
 -/
 
 structure G (α : Type) (q : Q α) where
@@ -83,7 +60,7 @@ instance instG (α : Type) [q : Q α] : M (G α q) where
 
 /-- info: instG (Copy E) -/
 #guard_msgs in
-set_option backward.isDefEq.instanceTypes "none" in
+set_option backward.isDefEq.instanceTypes false in
 variable (E : Type) [iQ : Q E] in
 #synth M (G (Copy E) iQ)
 
@@ -94,67 +71,28 @@ error: failed to synthesize
 Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
-set_option backward.isDefEq.instanceTypes "mark" in
-variable (E : Type) [iQ : Q E] in
-#synth M (G (Copy E) iQ)
-
-/--
-error: failed to synthesize
-  M (G (Copy E) iQ)
-
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
--/
-#guard_msgs in
-set_option backward.isDefEq.instanceTypes "synth" in
-variable (E : Type) [iQ : Q E] in
-#synth M (G (Copy E) iQ)
-
-/--
-error: failed to synthesize
-  M (G (Copy E) iQ)
-
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
--/
-#guard_msgs in
-set_option backward.isDefEq.instanceTypes "markOrSynth" in
+set_option backward.isDefEq.instanceTypes true in
 variable (E : Type) [iQ : Q E] in
 #synth M (G (Copy E) iQ)
 
 /-!
 Scenario 3: like scenario 2, but the correct instance `qCopy : Q (Copy E)` exists and is
-definitionally equal to the rejected candidate `iQ`. `"mark"` still fails — this is the
-brittleness the synthesis fallback addresses — while `"synth"` and `"markOrSynth"`
-synthesize `qCopy`, unify it with the candidate, and succeed.
+definitionally equal to the rejected candidate `iQ`. Merely rejecting the assignment would
+fail here — this is the brittleness the synthesis fallback addresses: `true` synthesizes
+`qCopy`, unifies it with the candidate, and succeeds.
 -/
 
 instance qCopy [Q E] : Q (Copy E) := ‹Q E›
 
 /-- info: instG (Copy E) -/
 #guard_msgs in
-set_option backward.isDefEq.instanceTypes "none" in
-variable (E : Type) [iQ : Q E] in
-#synth M (G (Copy E) iQ)
-
-/--
-error: failed to synthesize
-  M (G (Copy E) iQ)
-
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
--/
-#guard_msgs in
-set_option backward.isDefEq.instanceTypes "mark" in
+set_option backward.isDefEq.instanceTypes false in
 variable (E : Type) [iQ : Q E] in
 #synth M (G (Copy E) iQ)
 
 /-- info: instG (Copy E) -/
 #guard_msgs in
-set_option backward.isDefEq.instanceTypes "synth" in
-variable (E : Type) [iQ : Q E] in
-#synth M (G (Copy E) iQ)
-
-/-- info: instG (Copy E) -/
-#guard_msgs in
-set_option backward.isDefEq.instanceTypes "markOrSynth" in
+set_option backward.isDefEq.instanceTypes true in
 variable (E : Type) [iQ : Q E] in
 #synth M (G (Copy E) iQ)
 
@@ -163,12 +101,9 @@ Scenario 4 (minimized from `let x : Std.HashSet _ := ∅` in Mathlib): the goal 
 the *caller's* pending instance metavariables (created for the instance-implicit arguments
 of `Box` while its type argument is still undetermined), and unification assigns them to the
 search's subgoal metavariables. These caller metavariables are not assignable during the
-search, so `"markOrSynth"` accepts them in the spine; the elaborator synthesizes them later,
-once `useBox x` determines the type argument. `"synth"` cannot accept the assignment (the
-value is not mvar-free) and its fallback cannot synthesize `R ?α` with `?α` undetermined, so
-it fails. The `"synthOrStuck"`/`"markOrSynthOrStuck"` variants instead report the
-not-yet-determined problem as stuck, so the whole synthesis is postponed and succeeds when
-retried with `?α := Nat`.
+search, so `true` accepts them in the spine rather than demanding an mvar-free value it
+could not synthesize; the elaborator synthesizes them later, once `useBox x` determines the
+type argument.
 -/
 
 class R (α : Type) where
@@ -180,53 +115,13 @@ instance instInitBox (α : Type) [R α] : Init (Box α) := ⟨⟨⟩⟩
 def useBox (_b : Box Nat) : Nat := 0
 
 #guard_msgs in
-set_option backward.isDefEq.instanceTypes "none" in
+set_option backward.isDefEq.instanceTypes false in
 example : Nat :=
   let x : Box _ := Init.init
   useBox x
 
 #guard_msgs in
-set_option backward.isDefEq.instanceTypes "mark" in
+set_option backward.isDefEq.instanceTypes true in
 example : Nat :=
   let x : Box _ := Init.init
   useBox x
-
-/--
-error: failed to synthesize instance of type class
-  Init (Box ?m.1)
-
-Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
--/
-#guard_msgs in
-set_option backward.isDefEq.instanceTypes "synth" in
-example : Nat :=
-  let x : Box _ := Init.init
-  useBox x
-
-#guard_msgs in
-set_option backward.isDefEq.instanceTypes "markOrSynth" in
-example : Nat :=
-  let x : Box _ := Init.init
-  useBox x
-
-#guard_msgs in
-set_option backward.isDefEq.instanceTypes "synthOrStuck" in
-example : Nat :=
-  let x : Box _ := Init.init
-  useBox x
-
-#guard_msgs in
-set_option backward.isDefEq.instanceTypes "markOrSynthOrStuck" in
-example : Nat :=
-  let x : Box _ := Init.init
-  useBox x
-
-/-! An invalid option value is reported when the check is first consulted. -/
-
-/--
-error: invalid value `bogus` for option `backward.isDefEq.instanceTypes`, valid values are "none", "mark", "synth", "markOrSynth", "synthOrStuck", and "markOrSynthOrStuck"
--/
-#guard_msgs in
-set_option backward.isDefEq.instanceTypes "bogus" in
-variable (E : Type) [iQ : Q E] in
-#synth M (G (Copy E) iQ)

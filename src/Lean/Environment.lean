@@ -657,6 +657,17 @@ structure Environment where
   -/
   isRecordingDeps : Bool := false
   /--
+  Persistent tier of the type class resolution cache, `none` for empty. The value is a
+  `Lean.Meta.SynthInstanceCache`, which is not nameable in this module; see
+  `Lean.Environment.synthCache`. It lives in a plain field rather than an environment extension so
+  that adding an entry costs one structure copy, while keeping value semantics: new entries roll
+  back with the environment, and parallel elaboration branches never observe each other's entries.
+
+  If `CommandElabM` is changed to be based on top of `CoreM`, `Core.State` may become the better
+  home for this field.
+  -/
+  private synthCacheRaw? : Option NonScalar := none
+  /--
   Log of declaration-keyed state changes some recording computation could have observed
   (`logDeclChange`): a write about a declaration is appended when the declaration was added before
   the latest recording started (`recordingConstGen`), as writes about younger declarations cannot

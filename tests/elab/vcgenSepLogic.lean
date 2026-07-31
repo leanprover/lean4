@@ -204,24 +204,17 @@ def pointsTo (l : Addr) (v : Nat) : HProp := HProp.mk fun h => h = Heap.single l
 def sepConj (P Q : HProp) : HProp :=
   HProp.mk fun h => ∃ h₁ h₂, h₁.disjoint h₂ ∧ h = h₁.union h₂ ∧ P.get h₁ ∧ Q.get h₂
 
-/-- Magic wand: extending by any disjoint `P` heap yields a `Q` heap. -/
-def wand (P Q : HProp) : HProp :=
-  HProp.mk fun h => ∀ h', h.disjoint h' → P.get h' → Q.get (h.union h')
-
 @[inherit_doc pointsTo] local notation:70 l:max " ↦ " v:max => pointsTo l v
 @[inherit_doc sepConj] local infixr:65 " ∗ " => sepConj
-@[inherit_doc wand] local infixr:60 " -∗ " => wand
 
 @[simp, grind =] theorem emp_get (h : Heap) : emp.get h = ∀ n, h n = none := rfl
 @[simp, grind =] theorem pointsTo_get (l : Addr) (v : Nat) (h : Heap) :
     (pointsTo l v).get h = (h = Heap.single l v) := rfl
--- `sepConj_get`/`wand_get` unfold a connective into its existential-and-disjointness body, which
--- `grind` cannot productively use; they stay plain lemmas, cited explicitly where a proof wants the
+-- `sepConj_get` unfolds the connective into its existential-and-disjointness body, which `grind`
+-- cannot productively use; it stays a plain lemma, cited explicitly where a proof wants the
 -- unfolding. The focusing lemma `pointsTo_sepConj_get` is the `grind`-facing characterization of `∗`.
 theorem sepConj_get (P Q : HProp) (h : Heap) :
     (P ∗ Q).get h = ∃ h₁ h₂, h₁.disjoint h₂ ∧ h = h₁.union h₂ ∧ P.get h₁ ∧ Q.get h₂ := rfl
-theorem wand_get (P Q : HProp) (h : Heap) :
-    (P -∗ Q).get h = ∀ h', h.disjoint h' → P.get h' → Q.get (h.union h') := rfl
 
 /-! ## The separation algebra laws -/
 
@@ -346,22 +339,35 @@ instance (F : HProp) : PreservesSup (sepConj F) where
     · rintro ⟨f, ⟨x, hx, rfl⟩, h₁, h₂, hd, rfl, hF, hxh₂⟩
       exact ⟨h₁, h₂, hd, rfl, hF, x, hx, hxh₂⟩
 
-/-- The counit of the adjunction `F ∗ · ⊣ F -∗ ·`. -/
-theorem sepConj_wand_le (F b : HProp) : (F ∗ (F -∗ b)) ⊑ b := by
-  rintro h ⟨h₁, h₂, hd, rfl, hF, hw⟩
-  have := hw h₁ (Heap.disjoint_comm hd) hF
-  rwa [Heap.union_comm (Heap.disjoint_comm hd)] at this
+/-- Magic wand: the upper adjoint of the separating conjunction `P ∗ ·`. An abbreviation, so
+`vcgen`'s built-in `upperAdjoint` decomposition applies to it on the right-hand side of an
+entailment. -/
+noncomputable abbrev wand (P Q : HProp) : HProp := PreservesSup.upperAdjoint (sepConj P) Q
 
-/-- The upper adjoint of `F ∗ ·` is the magic wand `F -∗ ·`. -/
-theorem sepConj_upperAdjoint (F b : HProp) :
-    PreservesSup.upperAdjoint (sepConj F) b = (F -∗ b) := by
-  apply PartialOrder.rel_antisymm
-  · unfold PreservesSup.upperAdjoint
-    apply sup_le
-    intro x hx h hxh h' hdisj hF
-    apply hx (h.union h')
-    exact ⟨h', h, Heap.disjoint_comm hdisj, Heap.union_comm hdisj, hF, hxh⟩
-  · exact PreservesSup.le_upperAdjoint (sepConj F) (sepConj_wand_le F b)
+@[inherit_doc wand] local infixr:60 " -∗ " => wand
+
+/-- The counit of the adjunction `F ∗ · ⊣ F -∗ ·`. -/
+theorem sepConj_wand_le (F b : HProp) : (F ∗ (F -∗ b)) ⊑ b :=
+  PreservesSup.upperAdjoint_le (sepConj F) b
+
+/-- Adjunction introduction: to land below a wand, frame its argument onto the entailment. -/
+theorem le_wand (F X G : HProp) (h : F ∗ X ⊑ G) : X ⊑ F -∗ G :=
+  PreservesSup.le_upperAdjoint (sepConj F) h
+
+/-- Pointwise characterization of the wand, from the adjunction laws. -/
+theorem wand_get (P Q : HProp) (h : Heap) :
+    (P -∗ Q).get h = ∀ h', h.disjoint h' → P.get h' → Q.get (h.union h') := by
+  apply propext
+  constructor
+  · intro hw h' hdisj hP
+    exact sepConj_wand_le P Q (h.union h')
+      ⟨h', h, Heap.disjoint_comm hdisj, Heap.union_comm hdisj, hP, hw⟩
+  · intro hw
+    refine le_wand P (HProp.mk fun k => ∀ h', k.disjoint h' → P.get h' → Q.get (k.union h')) Q
+      ?_ h hw
+    rintro k ⟨h₁, h₂, hd, rfl, hP, hx⟩
+    have := hx h₁ (Heap.disjoint_comm hd) hP
+    rwa [Heap.union_comm (Heap.disjoint_comm hd)] at this
 
 /-! ## The frame-internalizing weakest precondition -/
 
@@ -432,11 +438,6 @@ theorem sepConj_mono_left {a a' : HProp} (b : HProp) (h : a ⊑ a') : a ∗ b �
 
 /-! ## Wand algebra -/
 
-/-- Adjunction introduction: to land below a wand, frame its argument onto the entailment. -/
-theorem le_wand (F X G : HProp) (h : F ∗ X ⊑ G) : X ⊑ F -∗ G := by
-  rw [← sepConj_upperAdjoint]
-  exact PreservesSup.le_upperAdjoint (sepConj F) h
-
 /-- Absorb a resource into a wand: `C` extends the wand's argument from `B` down to `A`. -/
 theorem wand_absorb {A B C G : HProp} (h : A ∗ C ⊑ B) : C ∗ (B -∗ G) ⊑ A -∗ G := by
   refine le_wand _ _ _ ?_
@@ -453,6 +454,14 @@ theorem le_sepConj_wand_refl (X A : HProp) : X ⊑ X ∗ (A -∗ A) :=
 theorem le_sepConj_wand_refl₂ (X Y A : HProp) : X ∗ Y ⊑ X ∗ Y ∗ (A -∗ A) :=
   PartialOrder.rel_trans (le_sepConj_wand_refl (X ∗ Y) A)
     (PartialOrder.rel_of_eq (sepConj_assoc X Y (A -∗ A)))
+
+/-- Attach the trivial wand at an `emp`-framed residual post. -/
+@[grind ←]
+theorem le_sepConj_wand_emp_wand_refl (X A : HProp) : X ⊑ X ∗ (A -∗ (emp -∗ A)) :=
+  PartialOrder.rel_trans (PartialOrder.rel_of_eq (sepConj_emp X).symm)
+    (sepConj_mono_right X (le_wand A emp (emp -∗ A)
+      (le_wand emp (A ∗ emp) A
+        (PartialOrder.rel_of_eq (by rw [emp_sepConj, sepConj_emp])))))
 
 /-! ## Doubly-linked lists
 
@@ -637,23 +646,28 @@ def sepConjOfAtoms (atoms : Array Expr) : SymM Expr := do
   if atoms.isEmpty then mkConstS ``emp
   else
     let op ← mkConstS ``sepConj
-    atoms[1:].foldlM (fun acc a => mkAppNS op #[acc, a]) atoms[0]!
+    atoms.pop.foldrM (fun a acc => mkAppNS op #[a, acc]) atoms.back!
 
-/-- Match and remove `cancel` atoms from `pre`. Returns `(remaining, matched)` or `none`.
+/-- Match and remove `cancel` atoms from `pre`. Returns the remaining `pre` atoms, the matched
+`pre` atoms in `cancel` order, and the unmatched `cancel` atoms. Successful pairings are committed,
+so the caller sees the schematics of the matched `cancel` atoms instantiated at the goal's values.
 
 Naïve by design: atoms match only up to `isDefEq`, so a footprint cancels a cell only when its address
 and value are already defeq to one in `pre`. A comprehensive frameproc would also match `pointsTo`s by
 address label with a non-defeq value. This suffices for the demo. -/
-def matchSepAtoms (pre cancel : Expr) : MetaM (Option (Array Expr × Array Expr)) := do
+def matchSepAtoms (pre cancel : Expr) : MetaM (Array Expr × Array Expr × Array Expr) := do
   let mut rest ← sepAtoms pre
   let mut matched : Array Expr := #[]
+  let mut unmatched : Array Expr := #[]
   for atom in (← sepAtoms cancel) do
     -- `withoutModifyingMCtx`: a failed near-miss must not pin schematic mvars.
-    let some i ← rest.findIdxM? fun cand => withoutModifyingMCtx (isDefEq atom cand)
-      | return none
-    matched := matched.push rest[i]!
-    rest := rest.eraseIdxIfInBounds i
-  return some (rest, matched)
+    match ← rest.findIdxM? fun cand => withoutModifyingMCtx (isDefEq atom cand) with
+    | some i =>
+      discard <| isDefEq atom rest[i]!
+      matched := matched.push rest[i]!
+      rest := rest.eraseIdxIfInBounds i
+    | none => unmatched := unmatched.push atom
+  return (rest, matched, unmatched)
 
 -- This demo's frame procedure runs in `SymM` but leans on `MetaM` here: `Meta.AC` closes the
 -- `∗`-rearrangement, and `isDefEq` matches atoms that may carry spec metavariables. It is worth it
@@ -690,6 +704,36 @@ def mkSepFrameSplit (i : FrameInferenceInfo) (frame footprint : Expr) : SymM Fra
       #[args[0]!, args[1]!, ← i.pre, sepFF, sepFR, hcl, mono]
     return FrameSplit.withDischargedSplitVC frame residualPre proof [sub.mvarId!]
 
+/-- Frame `emp` for a spec precondition that adds a wand to the goal's atoms: the footprint mirrors
+the spec precondition (matched goal atoms in spec order, then the wand with its conclusion rewrapped
+at the `emp`-framed residual post). The split VC `pre ⊑ emp ∗ residualPre` factors through
+`pre ⊑ emp ∗ footprint`, left as a subgoal. -/
+def mkEmpFrameSplit (i : FrameInferenceInfo) (matched : Array Expr) (wandAtom : Expr) :
+    SymM (Option FrameSplit) := do
+  let wandAtom ← instantiateMVarsS wandAtom
+  -- `wandAtom = upperAdjoint (sepConj G) b`; rewrap `b` as `emp -∗ b` to mirror the residual post.
+  let #[alpha, instCL, sepConjG, b] := wandAtom.getAppArgs | return none
+  if wandAtom.hasExprMVar then return none
+  let uaFn := wandAtom.getAppFn
+  let empE ← mkConstS ``emp
+  let sepConjEmp ← mkAppNS (← mkConstS ``sepConj) #[empE]
+  let inner ← mkAppNS uaFn #[alpha, instCL, sepConjEmp, b]
+  let wrapped ← mkAppNS uaFn #[alpha, instCL, sepConjG, inner]
+  let footprint ← sepConjOfAtoms (matched.push wrapped)
+  let le ← i.le
+  let residualPre ← i.mkResidualPre
+  let sepConjE ← mkConstS ``sepConj
+  let empFoot ← mkAppNS sepConjE #[empE, footprint]
+  let empRes ← mkAppNS sepConjE #[empE, mkMVar residualPre]
+  let sub1 ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[footprint, mkMVar residualPre])
+  let sub2 ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[← i.pre, empFoot])
+  let mono ← mkAppNS (← mkConstS ``sepConj_mono_right) #[empE, footprint, mkMVar residualPre, sub1]
+  let args := le.getAppArgs
+  let proof ← mkAppNS (← mkConstS ``PartialOrder.rel_trans le.getAppFn.constLevels!)
+    #[args[0]!, args[1]!, ← i.pre, empFoot, empRes, sub2, mono]
+  return some (FrameSplit.withDischargedSplitVC empE residualPre proof
+    [sub2.mvarId!, sub1.mvarId!])
+
 /-- Automatic frame inference by domain difference: the spec's precondition's atoms (its footprint)
 are cancelled from the goal precondition's; the leftover atoms are the frame. A pinned `frames`
 resource cancels its own atoms instead, leaving the split VC open when they are missing. -/
@@ -701,13 +745,21 @@ def sepConjFrameProc : FrameInferenceProc := fun i => do
   match i.providedFrame? with
   | some frame =>
     match ← matchSepAtoms (← i.pre) frame with
-    | none => return some (← FrameSplit.withDeferredSplitVC i frame)
-    | some (rest, _) => return some (← mkSepFrameSplit i frame (← sepConjOfAtoms rest))
+    | (rest, _, #[]) => return some (← mkSepFrameSplit i frame (← sepConjOfAtoms rest))
+    | _ => return some (← FrameSplit.withDeferredSplitVC i frame)
   | none =>
     let some specPre ← i.specPre? | return none
-    let some (rest, matched) ← matchSepAtoms (← i.pre) specPre | return none
-    if rest.isEmpty then return none
-    return some (← mkSepFrameSplit i (← sepConjOfAtoms rest) (← sepConjOfAtoms matched))
+    match ← matchSepAtoms (← i.pre) specPre with
+    | (rest, matched, #[]) =>
+      if rest.isEmpty then return none
+      return some (← mkSepFrameSplit i (← sepConjOfAtoms rest) (← sepConjOfAtoms matched))
+    | (#[], matched, #[wandAtom]) =>
+      -- Everything matched except a wand: frame `emp` and mirror the spec's precondition as the
+      -- footprint, with the wand's conclusion rewrapped at the `emp`-framed residual post. The
+      -- re-application against the residual then closes its precondition VC by unification,
+      -- instantiating the spec's schematics at the goal's values.
+      mkEmpFrameSplit i matched wandAtom
+    | _ => return none
 
 @[frameproc] def heapFP : FrameProc where
   prog := ``HeapM
@@ -877,7 +929,7 @@ theorem append_spec (fuel : Nat) (v w : Nat) (rest ws : List Nat) (back qb curr 
     ⦃ IsList (v :: rest) back curr ∗ IsList (w :: ws) qb q ⦄
       append (rest.length + 1) curr q
     ⦃ fun _ => IsList ((v :: rest) ++ w :: ws) back curr ⦄ := by
-  vcgen [append_spec (rest.length + 1) v w rest ws back qb] with finish
+  vcgen [append_spec] with finish
 
 /-- Framing an unrelated cell across the whole append. -/
 example (l : Addr) (z v w : Nat) (rest ws : List Nat) (back qb curr q : Addr) :

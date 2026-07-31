@@ -222,7 +222,8 @@ where
           -- This branch can happen under `backward.privateInPublic`; restore original behavior of
           -- failing here, which is caught and ignored above by `observing`.
           throwError "internal compiler error: private in public"
-        let some _ ← isInductiveOverrideSimple? declName | return anyExpr
+        unless ← isCompilerRelevantType declName do
+          return anyExpr
         pure <| .const declName us
       | .fvar .. => pure f
       | _ => return anyExpr

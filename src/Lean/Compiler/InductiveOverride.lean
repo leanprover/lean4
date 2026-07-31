@@ -207,6 +207,13 @@ def isInductiveOverride (declName : Name) : CoreM Bool := do
 def isInductiveOverrideSimple? (declName : Name) : CoreM (Option InductiveOverrideInfo) := do
   return isInductiveOverrideSimpleCore? (← getEnv) declName
 
+def isCompilerRelevantType (declName : Name) : CoreM Bool := do
+  match getInductiveOverride? (← getEnv) declName with
+  | some (.inductiveType ..) => return true
+  | some (.simpleType ..) => return true
+  | none => isInductive declName
+  | _ => return false
+
 /--
 Without overrides, there is a contract that every `opaque` and `def` in the environment with the
 name `declName` should fulfill at least one of the following criteria:

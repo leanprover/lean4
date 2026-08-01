@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Elab.InfoTree
+import Lean.Compiler.InductiveOverride
 
 public section
 
@@ -49,6 +50,7 @@ builtin_initialize implementedByAttr : ParametricAttribute Name ← registerPara
   getParam := fun declName stx => do
     let decl ← getConstInfo declName
     let fnNameStx ← Attribute.Builtin.getIdent stx
+    Compiler.checkNoSpecialMeaning `implemented_by declName
     -- IR is (currently) exported always, so access to private decls is fine here.
     withoutExporting do
       let fnName ← Elab.realizeGlobalConstNoOverloadWithInfo fnNameStx

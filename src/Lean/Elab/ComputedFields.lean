@@ -12,6 +12,7 @@ import Lean.Compiler.CSimpAttr
 import Lean.Compiler.ImplementedByAttr
 import Lean.Compiler.ExternAttr
 import Lean.Compiler.InductiveOverride
+import Lean.Compiler.InlineAttrs
 
 public section
 
@@ -191,7 +192,6 @@ def mkImpls : M Unit := do
   }
   modifyEnv (Compiler.addInductiveOverride · override)
   mkCasesOnImpl
-  compileDecls #[ctx.name]
 
 def overrideCasesOn : M Unit := do
   let ctx ← read
@@ -260,14 +260,14 @@ def overrideConstructors : M Unit := do
       addDecl decl
       setImplementedBy ctor (mkCtorOverrideName ctor)
       if ← isScalarField ctor then setInlineAttribute (mkCtorOverrideName ctor)
-      compileDecl decl
 
 def overrideComputedFields : M Unit := do
   let ctx ← read
   for compFieldName in ctx.compFields, compFieldVar in ctx.compFieldVars do
     if isExtern (← getEnv) compFieldName then
-      compileDecls #[compFieldName]
-      continue
+      throwError "Invalid `[extern]` attribute on `{.ofConstName compFieldName}`"
+    if (Compiler.getImplementedBy? (← getEnv) compFieldName).isSome then
+      throwError "Invalid `[implemented_by]` attribute on `{.ofConstName compFieldName}`"
     let minors ←
       -- elaborating a non-exposed def body
       withoutExporting do
@@ -291,7 +291,7 @@ def overrideComputedFields : M Unit := do
     let value := (mkAppN value ctx.indices).app ctx.val
     let value := mkAppN value minors
     let value ← mkLambdaFVars allVars value
-    addAndCompile <| .defnDecl {
+    addDecl <| .defnDecl {
       name := overrideName
       levelParams := ctx.levelParams
       type, value
@@ -338,3 +338,11 @@ def setComputedFields (computedFields : Array (Name × Array Name)) : MetaM Unit
       unless computedFieldAttr.hasTag (← getEnv) computedFieldName do
         logError m!"'{computedFieldName}' must be tagged with @[computed_field]"
     mkComputedFieldOverrides indName computedFieldNames
+  compileDecls (computedFields.map (·.1))
+  let mut decls := #[]
+  for (indName, fieldNames) in computedFields do
+    for field in fieldNames do
+      decls := decls.push (mkComputedFieldOverrideName field)
+    for ctor in (← getConstInfoInduct indName).ctors do
+      decls := decls.push (mkCtorOverrideName ctor)
+  compileDecls decls

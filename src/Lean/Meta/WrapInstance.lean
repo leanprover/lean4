@@ -12,6 +12,7 @@ public import Lean.Meta.CtorRecognizer
 public import Lean.Meta.AppBuilder
 import Lean.Structure
 import Lean.ExtraModUses
+import Lean.Compiler.InlineAttrs
 
 /-!
 # Instance Wrapping

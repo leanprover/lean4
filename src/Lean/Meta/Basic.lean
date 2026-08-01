@@ -11,7 +11,7 @@ public import Lean.Data.LOption
 public import Lean.Class
 public import Lean.ReducibilityAttrs
 public import Lean.Util.MonadBacktrack
-public import Lean.Compiler.InlineAttrs
+--public import Lean.Compiler.InlineAttrs
 public import Lean.Meta.TransparencyMode
 import Init.Data.Range.Polymorphic.Iterators
 import Init.While
@@ -2159,18 +2159,6 @@ def whnfAtMostI (e : Expr) : MetaM Expr := do
   match (← getTransparency) with
   | .all | .default | .implicit => withTransparency TransparencyMode.instances <| whnf e
   | _ => whnf e
-
-/--
-  Mark declaration `declName` with the attribute `[inline]`.
-  This method does not check whether the given declaration is a definition.
-
-  Recall that this attribute can only be set in the same module where `declName` has been declared.
--/
-def setInlineAttribute (declName : Name) (kind := Compiler.InlineAttributeKind.inline): MetaM Unit := do
-  let env ← getEnv
-  match Compiler.setInlineAttribute env declName kind with
-  | .ok env    => setEnv env
-  | .error msg => throwError msg
 
 private partial def instantiateForallAux (ps : Array Expr) (i : Nat) (e : Expr) : MetaM Expr := do
   if h : i < ps.size then

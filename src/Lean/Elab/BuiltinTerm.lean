@@ -12,6 +12,7 @@ public import Lean.Elab.Open
 public import Lean.Elab.SetOption
 public import Lean.Elab.Eval
 import Lean.Compiler.NoncomputableAttr
+import Lean.Compiler.InlineAttrs
 
 public section
 

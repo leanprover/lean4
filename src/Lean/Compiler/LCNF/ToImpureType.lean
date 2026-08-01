@@ -62,7 +62,10 @@ this walks the constructor field types, so it must run in the defining module, w
 (including private ones) are accessible.
 -/
 def computeImpureType (name : Name) : CoreM Expr := do
-  if let some (.simpleType _ type) := getInductiveOverride? (← getEnv) name then return type
+  if let some (.simpleType _ type incomplete) := getInductiveOverride? (← getEnv) name then
+    if incomplete then
+      modifyEnv (incompleteRefExt.modifyState · (·.insert name))
+    return type
   let some inductiveVal ← isInductiveOverrideSimple? name | return ImpureType.tobject
   let ctorNames := inductiveVal.ctors
   let numCtors := ctorNames.length
@@ -97,7 +100,10 @@ Returns the IR (impure) type representation of `name`. Requires `compileDecls` t
 inductive type `name`.
 -/
 public def nameToImpureType (name : Name) : CoreM Expr := do
-  if let some (.simpleType _ type) := getInductiveOverride? (← getEnv) name then return type
+  if let some (.simpleType _ type incomplete) := getInductiveOverride? (← getEnv) name then
+    if incomplete then
+      modifyEnv (incompleteRefExt.modifyState · (·.insert name))
+    return type
   let some _ ← isInductiveOverrideSimple? name | return ImpureType.tobject
   let some type := impureTypeExt.find? (← getEnv) name
     | throwError "`{name}` was not compiled; `compileDecls` must run on inductive types first"

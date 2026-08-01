@@ -33,14 +33,25 @@ structure CtorOverrideInfo where
 deriving Inhabited
 
 /--
+The set of types with override `.simpleType (incomplete := true)` that were referred to during
+compilation. We use this information to determine whether an inductive override is recursive.
+-/
+builtin_initialize incompleteRefExt : EnvExtension NameSet ←
+  registerEnvExtension (pure {}) (asyncMode := .sync)
+    (replay? := pure fun old new _ _ => old.merge new)
+
+/--
 Description of how the purpose of a declaration deviates from its default purpose.
 -/
 inductive InductiveOverride where
   /--
   If `typeName` is an inductive, make it instead behave like an `opaque`.
   Also, use the provided `impureType` as the impure type instead of just `tobject`.
+
+  In addition to that, `incomplete` indicates that this override will be replaced with an inductive
+  type override.
   -/
-  | simpleType (typeName : Name) (impureType : Expr)
+  | simpleType (typeName : Name) (impureType : Expr) (incomplete : Bool)
   /--
   Make `typeName` behave like an inductive type with the specified constructors. The specified
   constructors may themselves be ordinary functions but should have `constructor` overrides.
@@ -100,7 +111,7 @@ def getInductiveOverride? (env : Environment) (declName : Name) : Option Inducti
   match env.getModuleIdxFor? declName with
   | some modIdx =>
     let entries := inductiveOverrideExt.getModuleEntries (level := .exported) env modIdx
-    entries.binSearch (.simpleType declName default) (fun a b => Name.quickLt a.name b.name)
+    entries.binSearch (.isCases declName) (fun a b => Name.quickLt a.name b.name)
   | none =>
     (inductiveOverrideExt.getState (asyncDecl := declName) env).find? declName
 
@@ -108,7 +119,7 @@ def hasInductiveOverride (env : Environment) (declName : Name) : Bool :=
   match env.getModuleIdxFor? declName with
   | some modIdx =>
     let entries := inductiveOverrideExt.getModuleEntries (level := .exported) env modIdx
-    entries.binSearchContains (.simpleType declName default) (fun a b => Name.quickLt a.name b.name)
+    entries.binSearchContains (.isCases declName) (fun a b => Name.quickLt a.name b.name)
   | none =>
     (inductiveOverrideExt.getState (asyncDecl := declName) env).contains declName
 
@@ -143,6 +154,16 @@ def isCasesOnLikeOverride (env : Environment) (declName : Name) : Bool := Id.run
   let some val := env.findConstVal? declName | return false
   let indName := casesEliminatorInduct val.type
   return !hasInductiveOverride env indName || isStructure env indName
+
+@[inline]
+def isCasesOnLikeOverrideStrict (env : Environment) (declName : Name) : Bool := Id.run do
+  if let some (.isCases _) := getInductiveOverride? env declName then
+    return true
+  unless isCasesOnLike env declName do
+    return false
+  let some val := env.findConstVal? declName | return false
+  let indName := casesEliminatorInduct val.type
+  return !hasInductiveOverride env indName
 
 @[inline]
 def getProjectionFnInfoOverride? (env : Environment) (declName : Name) : Option ProjectionFunctionInfo := do
@@ -224,10 +245,12 @@ name `declName` should fulfill at least one of the following criteria:
 3. `isNoncomputable declName` is true
 4. The declaration is tagged `@[implemented_by]`, i.e.
    `(getImplementedBy? (← getEnv) declName).isSome`
-5. The declaration is tagged `@[extern]`, i.e. `isExtern (← getEnv) ref`
-6. `isCasesOnLike (← getEnv) declName` is true
-7. `isNoConfusion (← getEnv) declName` is true
-8. `← isProjectionFn declName` is true
+5. The declaration is tagged `@[extern]`, i.e. `isExtern (← getEnv) declName`
+6. The declaration has `@[macro_inline]`, i.e. `hasMacroInlineAttribute (← getEnv) declName`
+7. The declaration has a `@[csimp]` lemma
+8. `isCasesOnLike (← getEnv) declName` is true
+9. `isNoConfusion (← getEnv) declName` is true
+10. `← isProjectionFn declName` is true
 
 With overrides, however, some of the declarations without `isNoncomputable` become noncomputable,
 specifically:
@@ -255,5 +278,14 @@ def hasNoncomputableOverride (env : Environment) (declName : Name) : Bool := Id.
       return hasInductiveOverride env info.induct
     return false
   | _ => return false
+
+def hasSpecialCompilerMeaning (env : Environment) (declName : Name) : Bool :=
+  isProjectionFnOverride env declName || isCasesOnLikeOverrideStrict env declName ||
+    isNoConfusion env declName || (isCtorOverrideSimple? env declName).isSome
+
+def checkNoSpecialMeaning (attr : Name) (declName : Name) : CoreM Unit := do
+  if hasSpecialCompilerMeaning (← getEnv) declName then
+    throwError "Invalid `[{attr}]` attribute, the declaration `{declName}` has a \
+      special meaning to the compiler"
 
 end Lean.Compiler

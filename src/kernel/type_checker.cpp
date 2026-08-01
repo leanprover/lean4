@@ -1105,7 +1105,7 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     if (is_fvar(t_n) && is_fvar(s_n) && fvar_name(t_n) == fvar_name(s_n))
         return true;
 
-    if (is_proj(t_n) && is_proj(s_n) && proj_idx(t_n) == proj_idx(s_n)) {
+    if (is_proj(t_n) && is_proj(s_n) && proj_sname(t_n) == proj_sname(s_n) && proj_idx(t_n) == proj_idx(s_n)) {
         expr t_c = proj_expr(t_n);
         expr s_c = proj_expr(s_n);
         if (lazy_delta_proj_reduction(t_c, s_c, proj_idx(t_n)))

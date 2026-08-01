@@ -82,6 +82,24 @@ register_builtin_option backward.isDefEq.implicitBump : Bool := {
   not just instance-implicit ones"
 }
 
+/--
+Controls how a failing comparison of two applications invokes `isDefEqOnFailure`.
+
+**Original behavior (`true`):** once before `isDefEqProjInst`, `isDefEqStringLit` and
+`isDefEqUnitLike`, and once again after them, querying the unification hint discrimination tree
+four times instead of two. A stuck abort raised by the first invocation escapes immediately, so
+the three heuristics in between never run.
+
+**New behavior (`false`, the default):** once, before those heuristics. A stuck abort is deferred
+until they have had their chance, and re-raised if they all decline.
+-/
+register_builtin_option backward.isDefEq.appOnFailure : Bool := {
+  defValue := false
+  descr    := "if true, run the `isDefEq` failure fallback (stuck-metavariable resolution and \
+  unification hints) both before and after the remaining `isExprDefEqExpensive` heuristics, \
+  instead of only before them"
+}
+
 register_builtin_option trace.Meta.isDefEq.printTransparency : Bool := {
   defValue := false
   descr    := "if true, prefix `Meta.isDefEq` `=?=` trace messages with the current transparency level"
@@ -2161,21 +2179,17 @@ where
 
 /--
   Given applications `t` and `s` that are in WHNF (modulo the current transparency setting),
-  check whether they are definitionally equal or not.
+  check whether they are definitionally equal or not by comparing functions and arguments.
+  On failure, the caller is responsible for invoking `isDefEqOnFailure`.
 -/
 private def isDefEqApp (t s : Expr) : MetaM Bool := do
   let tFn := t.getAppFn
   let sFn := s.getAppFn
   if tFn.isConst && sFn.isConst && tFn.constName! == sFn.constName! then
     /- See comment at `tryHeuristic` explaining why we process arguments before universe levels. -/
-    if (← checkpointDefEq (isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)) then
-      return true
-    else
-      isDefEqOnFailure t s
-  else if (← checkpointDefEq (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)) then
-    return true
+    checkpointDefEq (isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)
   else
-    isDefEqOnFailure t s
+    checkpointDefEq (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)
 
 /-- Return `true` if the type of the given expression is an inductive datatype with a single constructor with no fields. -/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
@@ -2202,6 +2216,29 @@ private def isDefEqProjInst (t : Expr) (s : Expr) : MetaM LBool := do
   else
     return .undef
 
+/--
+Remaining heuristics for a failing comparison of two applications.
+
+`isDefEqOnFailure` runs before `isDefEqProjInst`, `isDefEqStringLit` and `isDefEqUnitLike` because
+those unfold the class projections that `getStuckMVar?` needs to see an unsynthesized instance in
+an argument position. A stuck abort is not authoritative here — one of the three may still close
+the goal — so it is deferred and re-raised only if they all decline.
+-/
+private def isDefEqAppOnFailure (t : Expr) (s : Expr) : MetaM Bool := do
+  let saved ← saveState
+  -- `none` records a deferred `isDefEqStuck`
+  let r? ← catchInternalId isDefEqStuckExceptionId (some <$> isDefEqOnFailure t s) fun _ => do
+    saved.restore
+    return none
+  if r? == some true then return true
+  if (← whenUndefDo (isDefEqProjInst t s) do
+        whenUndefDo (isDefEqStringLit t s) do
+        isDefEqUnitLike t s) then
+    return true
+  if r?.isNone then
+    Meta.throwIsDefEqStuck
+  return false
+
 private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   whenUndefDo (isDefEqEta t s) do
   whenUndefDo (isDefEqEta s t) do
@@ -2223,8 +2260,16 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
       return true
     if t.isConst && s.isConst then
       if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
-    else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqApp t s) then
-      return true
+    else if (← pure t.isApp <&&> pure s.isApp) then
+      if (← isDefEqApp t s) then return true
+      if backward.isDefEq.appOnFailure.get (← getOptions) then
+        if (← isDefEqOnFailure t s) then return true
+        whenUndefDo (isDefEqProjInst t s) do
+        whenUndefDo (isDefEqStringLit t s) do
+        if (← isDefEqUnitLike t s) then return true else
+        isDefEqOnFailure t s
+      else
+        isDefEqAppOnFailure t s
     else
       whenUndefDo (isDefEqProjInst t s) do
       whenUndefDo (isDefEqStringLit t s) do

@@ -9,7 +9,8 @@ source ../common.sh
 
 echo "# TEST: elide exit-code noise on ordinary type errors"
 lake_out build TypeError || true
-match_text "Type mismatch" produced.outno_match_text "Lean exited with code 1" produced.out
+match_text "Type mismatch" produced.out
+no_match_text "Lean exited with code 1" produced.out
 # Build should still fail
 test_fails build TypeError
 

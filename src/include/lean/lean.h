@@ -463,12 +463,29 @@ static inline unsigned lean_get_slot_idx(unsigned sz) {
 
 LEAN_EXPORT void lean_inc_heartbeat(void);
 
+/* The heartbeat counter is bumped on every small-object allocation, so the increment is exposed
+   here rather than paid for as a call. `initial-exec` reduces it to a `%fs`-relative add and lets
+   the compiler share the thread-pointer load between the allocations of a single function; it is
+   valid because the counter lives in the runtime, which is never itself dynamically loaded late. */
+#if (defined(__GNUC__) || defined(__clang__)) && !defined(_WIN32) && !defined(__EMSCRIPTEN__)
+#define LEAN_HEARTBEAT_TLS __attribute__((tls_model("initial-exec")))
+LEAN_EXPORT extern __thread uint64_t lean_heartbeat LEAN_HEARTBEAT_TLS;
+#endif
+
+static inline void lean_inc_heartbeat_inline(void) {
+#ifdef LEAN_HEARTBEAT_TLS
+    lean_heartbeat++;
+#else
+    lean_inc_heartbeat();
+#endif
+}
+
 #ifndef __cplusplus
 void * malloc(size_t);  // avoid including big `stdlib.h`
 #endif
 
 static inline lean_object * lean_alloc_small_object(unsigned sz) {
-    lean_inc_heartbeat();
+    lean_inc_heartbeat_inline();
 #ifdef LEAN_MIMALLOC
     // HACK: emulate behavior of small allocator to avoid `leangz` breakage for now
     // NOTE: `sz` is known at compile time for most callers

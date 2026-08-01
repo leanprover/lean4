@@ -80,16 +80,16 @@ public def compileLeanModule
       logInfo s!"stdout:\n{txt}"
   unless out.stderr.isEmpty do
     logInfo s!"stderr:\n{out.stderr.trimAscii}"
-  if out.exitCode ≠ 0 then
-    -- Elide the generic "Lean exited with code 1" when Lean already reported
-    -- errors (the usual compiler-failure case). Keep it for other exit codes
-    -- (e.g. `#eval IO.Process.exit 3`) and when no error diagnostics appeared.
-    -- See https://github.com/leanprover/lean4/issues/10825
-    let hasErrors := (← getLog).takeFrom outLogPos |>.any (·.level matches .error)
-    if out.exitCode = 1 && hasErrors then
-      failure
-    else
-      error s!"Lean exited with code {out.exitCode}"
+  -- Elide the generic "Lean exited with code 1" when Lean already
+  -- reported errors (the usual compiler-failure case). Keep it for other
+  -- nonzero codes, for code 1 without diagnostics, and for the anomalous
+  -- case where Lean logs errors but exits successfully.
+  -- See https://github.com/leanprover/lean4/issues/10825
+  let hasErrors := (← getLog).takeFrom outLogPos |>.any (·.level matches .error)
+  if out.exitCode = 1 && hasErrors then
+    failure
+  else if out.exitCode ≠ 0 || hasErrors then
+    error s!"Lean exited with code {out.exitCode}"
   if postponeCompile then
     if let (some irFile, some cFile) := (arts.ir?, arts.c?) then
       createParentDirs irFile

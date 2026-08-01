@@ -361,7 +361,7 @@ expr type_checker::whnf_fvar(expr const & e, bool cheap_rec, bool cheap_proj) {
 }
 
 /* Auxiliary method for `reduce_proj` */
-optional<expr> type_checker::reduce_proj_core(expr c, unsigned idx) {
+optional<expr> type_checker::reduce_proj_core(expr c, name const & sname, unsigned idx) {
     if (is_string_lit(c))
         c = whnf(string_lit_to_constructor(c));
     buffer<expr> args;
@@ -371,7 +371,13 @@ optional<expr> type_checker::reduce_proj_core(expr c, unsigned idx) {
     constant_info mk_info = env().get(const_name(mk));
     if (!mk_info.is_constructor())
         return none_expr();
-    unsigned nparams = mk_info.to_constructor_val().get_nparams();
+    constructor_val mk_val = mk_info.to_constructor_val();
+    /* `sname` selects which structure's field layout `idx` refers to, so a constructor of any other
+       inductive must not be projected. Only an ill-typed projection can reach this, since
+       `infer_proj` rejects a `sname` that disagrees with the projected expression's type. */
+    if (mk_val.get_induct() != sname)
+        return none_expr();
+    unsigned nparams = mk_val.get_nparams();
     if (nparams + idx < args.size())
         return some_expr(args[nparams + idx]);
     else
@@ -388,7 +394,7 @@ optional<expr> type_checker::reduce_proj(expr const & e, bool cheap_rec, bool ch
         c = whnf_core(proj_expr(e), cheap_rec, cheap_proj);
     else
         c = whnf(proj_expr(e));
-    return reduce_proj_core(c, idx);
+    return reduce_proj_core(c, proj_sname(e), idx);
 }
 
 static bool is_let_fvar(local_ctx const & lctx, expr const & e) {
@@ -1011,7 +1017,7 @@ Recall that the simpler approach used at `Meta.ExprDefEq` cannot be used in the
 kernel since it does not have access to reducibility annotations.
 The approach used here is more complicated, but it is also more powerful.
 */
-bool type_checker::lazy_delta_proj_reduction(expr & t_n, expr & s_n, nat const & idx) {
+bool type_checker::lazy_delta_proj_reduction(expr & t_n, expr & s_n, name const & sname, nat const & idx) {
     while (true) {
         switch (lazy_delta_reduction_step(t_n, s_n)) {
         case reduction_status::Continue:   break;
@@ -1020,8 +1026,8 @@ bool type_checker::lazy_delta_proj_reduction(expr & t_n, expr & s_n, nat const &
         case reduction_status::DefDiff:
             if (idx.is_small()) {
                 unsigned i = idx.get_small_value();
-                if (auto t = reduce_proj_core(t_n, i)) {
-                if (auto s = reduce_proj_core(s_n, i)) {
+                if (auto t = reduce_proj_core(t_n, sname, i)) {
+                if (auto s = reduce_proj_core(s_n, sname, i)) {
                     return is_def_eq_core(*t, *s);
                 }}
             }
@@ -1108,7 +1114,7 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     if (is_proj(t_n) && is_proj(s_n) && proj_sname(t_n) == proj_sname(s_n) && proj_idx(t_n) == proj_idx(s_n)) {
         expr t_c = proj_expr(t_n);
         expr s_c = proj_expr(s_n);
-        if (lazy_delta_proj_reduction(t_c, s_c, proj_idx(t_n)))
+        if (lazy_delta_proj_reduction(t_c, s_c, proj_sname(t_n), proj_idx(t_n)))
             return true;
     }
 

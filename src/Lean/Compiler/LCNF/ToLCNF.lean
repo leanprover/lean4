@@ -517,6 +517,7 @@ def sparseCasesToCasesOn (casesInfo : CasesInfo) (e : Expr) : MetaM Expr := do
   let motive := args[indInfo.numParams]!
   let indices := args[(indInfo.numParams+1)...(indInfo.numParams+1+indInfo.numIndices)].toArray
   let major := args[indInfo.numParams+1+indInfo.numIndices]!
+  let overArgs := args.drop casesInfo.arity
   let levelParams := e.getAppFn.constLevels!
   let indLevelParams := levelParams.tail
   let newCases := .const (mkCasesOnName casesInfo.indName) levelParams
@@ -544,7 +545,7 @@ def sparseCasesToCasesOn (casesInfo : CasesInfo) (e : Expr) : MetaM Expr := do
           | none => Meta.mkLambdaFVars (fields.push var) (var.app (.const ``Unit.unit []))
       newCases := newCases.app alt
     newCases := newCases.app (mkSimpleThunk dflt)
-    Meta.check newCases
+    newCases := mkAppN newCases overArgs
     return newCases
   | none =>
     for ctor in indInfo.ctors do
@@ -561,7 +562,7 @@ def sparseCasesToCasesOn (casesInfo : CasesInfo) (e : Expr) : MetaM Expr := do
           (mkLcProof (.const ``False []))
         Meta.mkLambdaFVars fields unreach
       newCases := newCases.app alt
-    Meta.check newCases
+    newCases := mkAppN newCases overArgs
     return newCases
 
 /--

@@ -40,6 +40,17 @@ def Sequence.tail (seq : Sequence α) : Sequence α :=
 def Sequence.cons (head : α) (tail : Sequence α) : Sequence α :=
   .consThunk head tail
 
+def Sequence.getImpl (seq : Sequence α) : Nat → α
+  | 0 => seq.head
+  | k + 1 => seq.tail.getImpl k
+
+@[csimp]
+theorem Sequence.get_eq_getImpl : @Sequence.get = @Sequence.getImpl := by
+  funext α seq n
+  induction n generalizing seq with
+  | zero => rfl
+  | succ k ih => simp [Sequence.getImpl, Sequence.tail, casesOnImpl, Thunk.get, ← ih]
+
 def Sequence.take (seq : Sequence α) : Nat → List α
   | 0 => []
   | k + 1 => seq.head :: seq.tail.take k
@@ -73,11 +84,28 @@ theorem Sequence.corec_eq_corecImpl : @Sequence.corec = @Sequence.corecImpl := b
   funext α β head tail init
   apply Subtype.property
 
-def Sequence.nats : Sequence Nat :=
-  .corec id .succ 0
+@[inline]
+def Sequence.mkImpl (fn : Nat → α) : Sequence α :=
+  corec fn Nat.succ 0
+
+@[csimp]
+theorem Sequence.mk_eq_mkImpl : @Sequence.mk = @Sequence.mkImpl := by
+  ext α f i
+  suffices ∀ n i, (corec f Nat.succ n).get i = f (n + i) by
+    simpa [mkImpl] using (this 0 i).symm
+  intro n i
+  simp only [corec]
+  induction i generalizing n with
+  | zero => rfl
+  | succ k ih => simp +arith [corec.go, ih]
+
+def Sequence.nats : Sequence Nat := .mk id
 
 /-- info: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] -/
 #guard_msgs in #eval Sequence.nats.take 10
+
+/-- info: 20 -/
+#guard_msgs in #eval Sequence.nats.get 20
 
 /-!
 Defining `Shrink` in a computable way.

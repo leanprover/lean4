@@ -120,11 +120,12 @@ expr type_checker::infer_lambda(expr const & _e, bool infer_only) {
     expr e = _e;
     while (is_lambda(e)) {
         expr d    = instantiate_rev(binding_domain(e), fvars.size(), fvars.data());
-        expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(e), d, binding_info(e));
-        fvars.push_back(fvar);
         if (!infer_only) {
             ensure_sort_core(infer_type_core(d, infer_only), d);
         }
+        /* Extend the local context only after `d` has been checked, as `infer_pi` does. */
+        expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(e), d, binding_info(e));
+        fvars.push_back(fvar);
         e = binding_body(e);
     }
     expr r = infer_type_core(instantiate_rev(e, fvars.size(), fvars.data()), infer_only);
@@ -203,8 +204,6 @@ expr type_checker::infer_let(expr const & _e, bool infer_only) {
     while (is_let(e)) {
         expr type = instantiate_rev(let_type(e), fvars.size(), fvars.data());
         expr val  = instantiate_rev(let_value(e), fvars.size(), fvars.data());
-        expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, let_name(e), type, val);
-        fvars.push_back(fvar);
         if (!infer_only) {
             ensure_sort_core(infer_type_core(type, infer_only), type);
             expr val_type = infer_type_core(val, infer_only);
@@ -212,6 +211,9 @@ expr type_checker::infer_let(expr const & _e, bool infer_only) {
                 throw def_type_mismatch_exception(env(), m_lctx, let_name(e), val_type, type);
             }
         }
+        /* Extend the local context only after `type` and `val` have been checked, as `infer_pi` does. */
+        expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, let_name(e), type, val);
+        fvars.push_back(fvar);
         e = let_body(e);
     }
     expr r = infer_type_core(instantiate_rev(e, fvars.size(), fvars.data()), infer_only);

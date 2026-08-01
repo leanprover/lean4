@@ -517,10 +517,11 @@ def sparseCasesToCasesOn (casesInfo : CasesInfo) (e : Expr) : MetaM Expr := do
   let motive := args[indInfo.numParams]!
   let indices := args[(indInfo.numParams+1)...(indInfo.numParams+1+indInfo.numIndices)].toArray
   let major := args[indInfo.numParams+1+indInfo.numIndices]!
-  let levelParams := e.getAppFn.constLevels!.tail
+  let levelParams := e.getAppFn.constLevels!
+  let indLevelParams := levelParams.tail
   let newCases := .const (mkCasesOnName casesInfo.indName) levelParams
   let mut newCases := mkAppN newCases params
-  let indWithParams := mkAppN (.const casesInfo.indName levelParams) params
+  let indWithParams := mkAppN (.const casesInfo.indName indLevelParams) params
   let indTypeType ← Meta.inferType indWithParams
   match defaultAlt? with
   | some dflt =>
@@ -531,7 +532,7 @@ def sparseCasesToCasesOn (casesInfo : CasesInfo) (e : Expr) : MetaM Expr := do
           .forallE `«else» (mkSimpleThunkType motiveApp) motiveApp .default
     newCases := (mkAppN (newCases.app newMotive) indices).app major
     for ctor in indInfo.ctors do
-      let ctorWithParams := mkAppN (.const ctor levelParams) params
+      let ctorWithParams := mkAppN (.const ctor indLevelParams) params
       let ctorType ← Meta.inferType ctorWithParams
       let alt ← Meta.forallTelescope ctorType fun fields resTy => do
         let resIndices := resTy.getAppArgsN indInfo.numIndices
@@ -543,13 +544,14 @@ def sparseCasesToCasesOn (casesInfo : CasesInfo) (e : Expr) : MetaM Expr := do
           | none => Meta.mkLambdaFVars (fields.push var) (var.app (.const ``Unit.unit []))
       newCases := newCases.app alt
     newCases := newCases.app (mkSimpleThunk dflt)
+    Meta.check newCases
     return newCases
   | none =>
     for ctor in indInfo.ctors do
       if let some alt := altsByCtorIdx.find? ctor then
         newCases := newCases.app alt
         continue
-      let ctorWithParams := mkAppN (.const ctor levelParams) params
+      let ctorWithParams := mkAppN (.const ctor indLevelParams) params
       let ctorType ← Meta.inferType ctorWithParams
       let alt ← Meta.forallTelescope ctorType fun fields resTy => do
         let resIndices := resTy.getAppArgsN indInfo.numIndices
@@ -559,6 +561,7 @@ def sparseCasesToCasesOn (casesInfo : CasesInfo) (e : Expr) : MetaM Expr := do
           (mkLcProof (.const ``False []))
         Meta.mkLambdaFVars fields unreach
       newCases := newCases.app alt
+    Meta.check newCases
     return newCases
 
 /--

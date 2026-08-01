@@ -5,7 +5,9 @@ source ../common.sh
 
 # https://github.com/leanprover/lean4/issues/10825
 # When Lean already printed errors and exited with code 1, Lake should not
-# add the redundant "Lean exited with code 1" line.
+# add the redundant "Lean exited with code 1" line. Other exit codes remain
+# visible; if Lean ever logs errors while exiting 0, Lake reports code 0 to
+# distinguish that anomalous state from the intentionally elided code-1 case.
 
 echo "# TEST: elide exit-code noise on ordinary type errors"
 lake_out build TypeError || true

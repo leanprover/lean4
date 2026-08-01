@@ -19,6 +19,14 @@ test_err "unknown package \`missing\`" update dep missing
 
 # Valid selective update and bare update still succeed
 test_run update dep --keep-toolchain
+
+# A package already in the manifest remains a valid selective target after its
+# require is removed; the update then removes it from the manifest.
+cp lakefile.toml lakefile.toml.bak
+printf 'name = "test"\n' > lakefile.toml
+test_run update dep --keep-toolchain
+mv lakefile.toml.bak lakefile.toml
+
 test_run update --keep-toolchain
 
 # Cleanup

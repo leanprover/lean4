@@ -414,8 +414,10 @@ Updates the workspace, materializing and reconfiguring dependencies.
 Dependencies are updated to latest specific revision matching that in `require`
 (e.g., if the `require` is `@master`, update to latest commit on master) or
 removed if the `require` is removed.
-If `tuUpdate` is empty, all direct dependencies of the workspace's root will be
-updated and/or remove. Otherwise, only those specified will be updated.
+If `toUpdate` is empty, all direct dependencies of the workspace's root will be
+updated and/or removed. Otherwise, only those specified will be updated.
+Each name in a non-empty `toUpdate` must be a direct dependency of the root;
+unknown names (matching is case-sensitive) are rejected by `updateAndMaterialize`.
 
 If `updateToolchain := true`, the workspace's toolchain is also updated to the
 latest toolchain compatible with the root and its direct dependencies.
@@ -527,6 +529,9 @@ def Package.runPostUpdateHooks (pkg : Package) : LakeT LoggerIO PUnit := do
 Updates the workspace, writes the new Lake manifest, and runs package
 post-update hooks.
 
+If `toUpdate` is non-empty, each name must be a direct dependency of the root
+package (matching is case-sensitive). Unknown names produce an error.
+
 See `Workspace.updateAndMaterializeCore` for details on the update process.
 -/
 public def Workspace.updateAndMaterialize
@@ -534,6 +539,12 @@ public def Workspace.updateAndMaterialize
   (toUpdate : NameSet := {}) (leanOpts : Options := {})
   (updateToolchain := true)
 : LoggerIO Workspace := do
+  unless toUpdate.isEmpty do
+    let depNames : NameSet :=
+      ws.root.depConfigs.foldl (fun s d => s.insert d.name) {}
+    for name in toUpdate do
+      unless depNames.contains name do
+        error s!"unknown package `{name.toString (escape := false)}`"
   let (ws, entries) ←
     ws.updateAndMaterializeCore toUpdate leanOpts updateToolchain
   ws.writeManifest entries

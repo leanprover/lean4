@@ -33,6 +33,11 @@ test_out '"options":{}' setup-file ImportFoo.lean
 # Lake can identify the module corresponding to the path.
 test_out '"options":{"weak.foo":"bar"}' setup-file Test.lean
 
+# Test that a trailing separator in srcDir does not prevent Lake from
+# identifying an edited precompiled module. The file deliberately fails to
+# elaborate, so setup-file would fail if it tried to build the module itself.
+test_run setup-file slash/Slash/Foo.lean
+
 # Test that `setup-file` on an invalid Lean configuration file succeeds.
 test_run -f invalid.lean setup-file invalid.lean
 

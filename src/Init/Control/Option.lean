@@ -88,7 +88,7 @@ instance : Alternative (OptionT m) where
 Converts a computation from the underlying monad into one that could fail, even though it does not.
 
 This function is typically implicitly accessed via a `MonadLiftT` instance as part of [automatic
-lifting](lean-manual://section/monad-lifting).
+lifting](lean-manual://section/lifting-monads).
 -/
 @[always_inline, inline, expose] protected def lift (x : m α) : OptionT m α := OptionT.mk do
   return some (← x)

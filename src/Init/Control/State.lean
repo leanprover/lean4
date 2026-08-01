@@ -147,7 +147,7 @@ protected def modifyGet (f : σ → α × σ) : StateT σ m α :=
 Runs an action from the underlying monad in the monad with state. The state is not modified.
 
 This function is typically implicitly accessed via a `MonadLiftT` instance as part of [automatic
-lifting](lean-manual://section/monad-lifting).
+lifting](lean-manual://section/lifting-monads).
 -/
 @[always_inline, inline, expose]
 protected def lift {α : Type u} (t : m α) : StateT σ m α :=

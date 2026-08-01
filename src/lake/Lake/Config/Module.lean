@@ -49,7 +49,8 @@ For example, in a library with a source directory of `src`,
 -/
 public def LeanLib.findModuleBySrc? (path : FilePath) (self : LeanLib) : Option Module := do
   let modPath ← path.toString.dropPrefix? self.srcDir.toString
-  let modPath := (modPath.drop 1).toString -- remove leading `/`
+  let modPath :=
+    (modPath.dropPrefix? FilePath.pathSeparator.toString).getD modPath
   let modPath ← modPath.dropSuffix? ".lean" <|> modPath.dropSuffix? FilePath.pathSeparator.toString
   let modName := FilePath.components modPath.toString |>.foldl .str .anonymous
   self.findModule? modName

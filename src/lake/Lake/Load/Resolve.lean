@@ -416,8 +416,10 @@ Dependencies are updated to latest specific revision matching that in `require`
 removed if the `require` is removed.
 If `toUpdate` is empty, all direct dependencies of the workspace's root will be
 updated and/or removed. Otherwise, only those specified will be updated.
-Each name in a non-empty `toUpdate` must be a direct dependency of the root;
-unknown names (matching is case-sensitive) are rejected by `updateAndMaterialize`.
+Each name in a non-empty `toUpdate` must be a current root dependency or a
+package already present in the workspace manifest (so selective update can still
+remove a dependency after its `require` is deleted). Unknown names (matching is
+case-sensitive) are rejected by `updateAndMaterialize`.
 
 If `updateToolchain := true`, the workspace's toolchain is also updated to the
 latest toolchain compatible with the root and its direct dependencies.
@@ -529,8 +531,11 @@ def Package.runPostUpdateHooks (pkg : Package) : LakeT LoggerIO PUnit := do
 Updates the workspace, writes the new Lake manifest, and runs package
 post-update hooks.
 
-If `toUpdate` is non-empty, each name must be a direct dependency of the root
-package (matching is case-sensitive). Unknown names produce an error.
+If `toUpdate` is non-empty, each name must be a current root dependency or a
+package already present in the workspace manifest (matching is case-sensitive).
+Unknown names produce an error. Accepting manifest packages (in addition to
+current requires) preserves `lake update <pkg>` after a `require` is removed,
+which drops the package from the manifest.
 
 See `Workspace.updateAndMaterializeCore` for details on the update process.
 -/
@@ -540,10 +545,18 @@ public def Workspace.updateAndMaterialize
   (updateToolchain := true)
 : LoggerIO Workspace := do
   unless toUpdate.isEmpty do
-    let depNames : NameSet :=
+    -- Known = current root requires ∪ packages already in the manifest.
+    -- Manifest entries matter so `lake update c` still works after deleting
+    -- `require c` (used e.g. by tests/lake/tests/depTree).
+    let mut known : NameSet :=
       ws.root.depConfigs.foldl (fun s d => s.insert d.name) {}
+    match (← Manifest.load ws.manifestFile |>.toBaseIO) with
+    | .ok manifest =>
+      for entry in manifest.packages do
+        known := known.insert entry.name
+    | _ => pure ()
     for name in toUpdate do
-      unless depNames.contains name do
+      unless known.contains name do
         error s!"unknown package `{name.toString (escape := false)}`"
   let (ws, entries) ←
     ws.updateAndMaterializeCore toUpdate leanOpts updateToolchain

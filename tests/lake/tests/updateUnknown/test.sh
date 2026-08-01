@@ -2,8 +2,9 @@
 source ../common.sh
 ./clean.sh
 
-# Test that `lake update <pkg>` errors on package names that are not
-# direct dependencies of the root (including typos and case mismatches).
+# Test that `lake update <pkg>` errors on unknown package names (typos and
+# case mismatches). Names that are current root requires or already in the
+# manifest are accepted (so selective update can still drop a removed require).
 # https://github.com/leanprover/lean4/issues/12005
 # https://github.com/leanprover/lean4/issues/2772
 

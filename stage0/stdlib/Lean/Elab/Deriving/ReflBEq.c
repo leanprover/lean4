@@ -2216,9 +2216,9 @@ return v___x_789_;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_ReflBEq_0__Lean_Elab_Deriving_ReflBEq_mkReflBEqInstanceHandler___lam__0___boxed(lean_object* v_____do__lift_790_, lean_object* v___y_791_, lean_object* v___y_792_, lean_object* v___y_793_){
 _start:
 {
-uint8_t v_____do__lift_1736__boxed_794_; lean_object* v_res_795_; 
-v_____do__lift_1736__boxed_794_ = lean_unbox(v_____do__lift_790_);
-v_res_795_ = l___private_Lean_Elab_Deriving_ReflBEq_0__Lean_Elab_Deriving_ReflBEq_mkReflBEqInstanceHandler___lam__0(v_____do__lift_1736__boxed_794_, v___y_791_, v___y_792_);
+uint8_t v_____do__lift_1737__boxed_794_; lean_object* v_res_795_; 
+v_____do__lift_1737__boxed_794_ = lean_unbox(v_____do__lift_790_);
+v_res_795_ = l___private_Lean_Elab_Deriving_ReflBEq_0__Lean_Elab_Deriving_ReflBEq_mkReflBEqInstanceHandler___lam__0(v_____do__lift_1737__boxed_794_, v___y_791_, v___y_792_);
 lean_dec(v___y_792_);
 lean_dec_ref(v___y_791_);
 return v_res_795_;
@@ -2614,11 +2614,13 @@ return v_res_983_;
 lean_object* runtime_initialize_Lean_Elab_Deriving_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Deriving_Util(uint8_t builtin);
 lean_object* runtime_initialize_Init_LawfulBEqTactics(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Deriving_ReflBEq(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Elab_Deriving_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

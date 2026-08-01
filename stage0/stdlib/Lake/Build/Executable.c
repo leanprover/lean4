@@ -1132,9 +1132,9 @@ goto v___jp_415_;
 v___jp_403_:
 {
 lean_object* v___x_407_; lean_object* v___x_409_; 
-v___x_407_ = lean_nat_add(v___y_405_, v___y_406_);
+v___x_407_ = lean_nat_add(v___y_404_, v___y_406_);
 lean_dec(v___y_406_);
-lean_dec(v___y_405_);
+lean_dec(v___y_404_);
 if (v_isShared_400_ == 0)
 {
 lean_ctor_set(v___x_399_, 4, v_r_365_);
@@ -1163,7 +1163,7 @@ lean_object* v___x_411_;
 if (v_isShared_388_ == 0)
 {
 lean_ctor_set(v___x_387_, 4, v___x_409_);
-lean_ctor_set(v___x_387_, 3, v___y_404_);
+lean_ctor_set(v___x_387_, 3, v___y_405_);
 lean_ctor_set(v___x_387_, 2, v_v_392_);
 lean_ctor_set(v___x_387_, 1, v_k_391_);
 lean_ctor_set(v___x_387_, 0, v___x_402_);
@@ -1177,7 +1177,7 @@ v_reuseFailAlloc_412_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_412_, 0, v___x_402_);
 lean_ctor_set(v_reuseFailAlloc_412_, 1, v_k_391_);
 lean_ctor_set(v_reuseFailAlloc_412_, 2, v_v_392_);
-lean_ctor_set(v_reuseFailAlloc_412_, 3, v___y_404_);
+lean_ctor_set(v_reuseFailAlloc_412_, 3, v___y_405_);
 lean_ctor_set(v_reuseFailAlloc_412_, 4, v___x_409_);
 v___x_411_ = v_reuseFailAlloc_412_;
 goto v_reusejp_410_;
@@ -1225,8 +1225,8 @@ if (lean_obj_tag(v_r_394_) == 0)
 lean_object* v_size_421_; 
 v_size_421_ = lean_ctor_get(v_r_394_, 0);
 lean_inc(v_size_421_);
-v___y_404_ = v___x_419_;
-v___y_405_ = v___x_420_;
+v___y_404_ = v___x_420_;
+v___y_405_ = v___x_419_;
 v___y_406_ = v_size_421_;
 goto v___jp_403_;
 }
@@ -1234,8 +1234,8 @@ else
 {
 lean_object* v___x_422_; 
 v___x_422_ = lean_unsigned_to_nat(0u);
-v___y_404_ = v___x_419_;
-v___y_405_ = v___x_420_;
+v___y_404_ = v___x_420_;
+v___y_405_ = v___x_419_;
 v___y_406_ = v___x_422_;
 goto v___jp_403_;
 }
@@ -1793,9 +1793,9 @@ goto v___jp_554_;
 v___jp_543_:
 {
 lean_object* v___x_547_; lean_object* v___x_549_; 
-v___x_547_ = lean_nat_add(v___y_545_, v___y_546_);
+v___x_547_ = lean_nat_add(v___y_544_, v___y_546_);
 lean_dec(v___y_546_);
-lean_dec(v___y_545_);
+lean_dec(v___y_544_);
 if (v_isShared_540_ == 0)
 {
 lean_ctor_set(v___x_539_, 4, v_r_517_);
@@ -1824,7 +1824,7 @@ lean_object* v___x_551_;
 if (v_isShared_528_ == 0)
 {
 lean_ctor_set(v___x_527_, 4, v___x_549_);
-lean_ctor_set(v___x_527_, 3, v___y_544_);
+lean_ctor_set(v___x_527_, 3, v___y_545_);
 lean_ctor_set(v___x_527_, 2, v_v_531_);
 lean_ctor_set(v___x_527_, 1, v_k_530_);
 lean_ctor_set(v___x_527_, 0, v___x_542_);
@@ -1838,7 +1838,7 @@ v_reuseFailAlloc_552_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_552_, 0, v___x_542_);
 lean_ctor_set(v_reuseFailAlloc_552_, 1, v_k_530_);
 lean_ctor_set(v_reuseFailAlloc_552_, 2, v_v_531_);
-lean_ctor_set(v_reuseFailAlloc_552_, 3, v___y_544_);
+lean_ctor_set(v_reuseFailAlloc_552_, 3, v___y_545_);
 lean_ctor_set(v_reuseFailAlloc_552_, 4, v___x_549_);
 v___x_551_ = v_reuseFailAlloc_552_;
 goto v_reusejp_550_;
@@ -1883,8 +1883,8 @@ if (lean_obj_tag(v_r_533_) == 0)
 lean_object* v_size_560_; 
 v_size_560_ = lean_ctor_get(v_r_533_, 0);
 lean_inc(v_size_560_);
-v___y_544_ = v___x_558_;
-v___y_545_ = v___x_559_;
+v___y_544_ = v___x_559_;
+v___y_545_ = v___x_558_;
 v___y_546_ = v_size_560_;
 goto v___jp_543_;
 }
@@ -1892,8 +1892,8 @@ else
 {
 lean_object* v___x_561_; 
 v___x_561_ = lean_unsigned_to_nat(0u);
-v___y_544_ = v___x_558_;
-v___y_545_ = v___x_559_;
+v___y_544_ = v___x_559_;
+v___y_545_ = v___x_558_;
 v___y_546_ = v___x_561_;
 goto v___jp_543_;
 }
@@ -2323,11 +2323,13 @@ lean_object* runtime_initialize_Lake_Build_Job_Register(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Build_Target_Fetch(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Build_Common(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Build_Infos(uint8_t builtin);
+void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Build_Executable(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize();
 res = runtime_initialize_Lake_Config_FacetConfig(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

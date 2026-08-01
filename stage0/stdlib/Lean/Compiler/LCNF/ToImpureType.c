@@ -1395,8 +1395,8 @@ return v___x_289_;
 else
 {
 lean_object* v___x_292_; 
-lean_dec(v_pre_266_);
 lean_dec_ref_known(v_declName_265_, 2);
+lean_dec(v_pre_266_);
 lean_dec_ref_known(v_fn_264_, 2);
 if (v_isShared_248_ == 0)
 {
@@ -1421,8 +1421,8 @@ return v___x_292_;
 else
 {
 lean_object* v___x_295_; 
-lean_dec_ref_known(v_fn_264_, 2);
 lean_dec(v_declName_265_);
+lean_dec_ref_known(v_fn_264_, 2);
 if (v_isShared_248_ == 0)
 {
 lean_ctor_set(v___x_247_, 0, v_a_242_);
@@ -1521,8 +1521,8 @@ return v___x_304_;
 else
 {
 lean_object* v___x_307_; 
-lean_dec(v_typeName_249_);
 lean_dec_ref_known(v_a_245_, 3);
+lean_dec(v_typeName_249_);
 if (v_isShared_248_ == 0)
 {
 lean_ctor_set(v___x_247_, 0, v_a_242_);
@@ -8685,11 +8685,13 @@ return v_res_2760_;
 lean_object* runtime_initialize_Lean_Compiler_LCNF_Irrelevant(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_LCNF_MonoTypes(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Format_Macro(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF_ToImpureType(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Compiler_LCNF_Irrelevant(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

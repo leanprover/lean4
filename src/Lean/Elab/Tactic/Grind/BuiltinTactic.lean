@@ -252,7 +252,7 @@ where
         elabEMatchTheorem declName (.default false) minIndexable
       else
         return thms.toArray
-    | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC | .norm .. | .unfold | .homo =>
+    | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC | .norm .. | .unfold | .homo | .homoPred =>
       throwError "invalid modifier"
 
 def logAnchor (c : SplitInfo) : TermElabM Unit := do

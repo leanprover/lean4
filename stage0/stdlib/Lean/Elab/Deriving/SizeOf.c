@@ -118,9 +118,9 @@ return v___x_32_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_SizeOf_mkSizeOfHandler___lam__0___boxed(lean_object* v_____do__lift_33_, lean_object* v___y_34_, lean_object* v___y_35_, lean_object* v___y_36_){
 _start:
 {
-uint8_t v_____do__lift_1887__boxed_37_; lean_object* v_res_38_; 
-v_____do__lift_1887__boxed_37_ = lean_unbox(v_____do__lift_33_);
-v_res_38_ = l_Lean_Elab_Deriving_SizeOf_mkSizeOfHandler___lam__0(v_____do__lift_1887__boxed_37_, v___y_34_, v___y_35_);
+uint8_t v_____do__lift_1888__boxed_37_; lean_object* v_res_38_; 
+v_____do__lift_1888__boxed_37_ = lean_unbox(v_____do__lift_33_);
+v_res_38_ = l_Lean_Elab_Deriving_SizeOf_mkSizeOfHandler___lam__0(v_____do__lift_1888__boxed_37_, v___y_34_, v___y_35_);
 lean_dec(v___y_35_);
 lean_dec_ref(v___y_34_);
 return v_res_38_;
@@ -530,11 +530,13 @@ return v_res_180_;
 lean_object* runtime_initialize_Lean_Meta_SizeOf(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Deriving_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Deriving_Util(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Deriving_SizeOf(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_SizeOf(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

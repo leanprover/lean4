@@ -1544,8 +1544,8 @@ goto v___jp_347_;
 }
 else
 {
-lean_dec(v_tail_361_);
 lean_dec_ref_known(v_fst_360_, 2);
+lean_dec(v_tail_361_);
 lean_dec(v_tail_346_);
 lean_dec(v_head_345_);
 v___y_348_ = v___y_339_;
@@ -11693,8 +11693,8 @@ goto v___jp_3507_;
 }
 else
 {
-lean_dec_ref_known(v_a_3558_, 2);
 lean_dec(v_tail_3559_);
+lean_dec_ref_known(v_a_3558_, 2);
 lean_dec(v_fst_3552_);
 lean_dec(v_a_3548_);
 lean_dec(v_snd_3535_);
@@ -12180,11 +12180,13 @@ lean_object* runtime_initialize_Lean_Meta_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Apply(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Cases(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_MkIffOfInductiveProp(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

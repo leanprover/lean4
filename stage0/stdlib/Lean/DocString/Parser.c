@@ -16020,8 +16020,8 @@ goto v___jp_5790_;
 }
 else
 {
-lean_dec_ref_known(v_kind_5806_, 2);
 lean_dec(v_pre_5807_);
+lean_dec_ref_known(v_kind_5806_, 2);
 lean_dec(v___x_5802_);
 lean_dec_ref(v_a_5788_);
 lean_dec_ref(v_p_5787_);
@@ -20447,11 +20447,13 @@ return v_res_7971_;
 }
 lean_object* runtime_initialize_Lean_DocString_Syntax(uint8_t builtin);
 lean_object* runtime_initialize_Init_While(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_DocString_Parser(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_DocString_Syntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

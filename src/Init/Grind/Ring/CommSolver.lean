@@ -26,6 +26,8 @@ import Init.Data.Int.Repr
 
 @[expose] public section
 
+open Internal
+
 namespace Lean.Grind.CommRing
 /-!
 Data-structures, definitions and theorems for implementing the
@@ -358,7 +360,7 @@ theorem Mon.revlex_k_eq_revlex (m₁ m₂ : Mon) : m₁.revlex_k m₂ = m₁.rev
   induction fuel generalizing m₁ m₂
   next => rfl
   next =>
-    simp [revlexFuel]; split <;> try rfl
+    simp [revlexFuel, -cond_eq_ite]; split <;> try rfl
     next ih _ _ pw₁ m₁ pw₂ m₂ =>
       simp only [cond_eq_ite, beq_iff_eq]
       split

@@ -25,9 +25,10 @@ When it is a definition, its equation theorems are added.
 `attrName` is only used in error messages.
 -/
 def addSymSimpDecl (ext : SymSimpExtension) (attrName : String) (declName : Name)
-    (attrKind : AttributeKind) : MetaM Unit := do
+    (attrKind : AttributeKind) (validate : Name → MetaM Unit := fun _ => pure ()) : MetaM Unit := do
   let info ← getAsyncConstInfo declName
   if (← isProp info.sig.get.type) then
+    validate declName
     addSymSimpTheorem ext declName attrKind
   else if info.kind matches .defn then
     if (← Simp.ignoreEquations declName) then
@@ -35,6 +36,7 @@ def addSymSimpDecl (ext : SymSimpExtension) (attrName : String) (declName : Name
         It is a reducible definition or projection. `Sym.simp` does not support unfolding."
     else if let some eqns ← getEqnsFor? declName then
       for eqn in eqns do
+        validate eqn
         addSymSimpTheorem ext eqn attrKind
     else
       throwError "Cannot add `{attrName}` attribute to `{.ofConstName declName}`: \

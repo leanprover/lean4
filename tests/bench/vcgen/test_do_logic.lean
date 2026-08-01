@@ -97,20 +97,20 @@ open Code
 theorem fib_triple : ⦃ True ⦄ fib_impl n ⦃ fun r => r = fib_spec n ⦄ := by
   unfold fib_impl
   vcgen
-  case inv1 => exact fun xs ⟨a, b⟩ =>
-    a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)
+  case inv1 => exact fun pref _ ⟨a, b⟩ =>
+    a = fib_spec pref.length ∧ b = fib_spec (pref.length + 1)
   all_goals grind
 
 theorem fib_triple_finish : ⦃ True ⦄ fib_impl n ⦃ fun r => r = fib_spec n ⦄ := by
   vcgen [fib_impl] invariants
-  | inv1 => fun xs ⟨a, b⟩ => a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)
+  | inv1 => fun pref _ ⟨a, b⟩ => a = fib_spec pref.length ∧ b = fib_spec (pref.length + 1)
   with finish
 
 theorem fib_triple_step : ⦃ True ⦄ fib_impl n ⦃ fun r => r = fib_spec n ⦄ := by
   unfold fib_impl
   vcgen (stepLimit := some 14)
-  case inv1 => exact fun xs ⟨a, b⟩ =>
-    a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)
+  case inv1 => exact fun pref _ ⟨a, b⟩ =>
+    a = fib_spec pref.length ∧ b = fib_spec (pref.length + 1)
   all_goals grind
 
 attribute [local spec] fib_triple in
@@ -127,12 +127,12 @@ theorem fib_impl_vcs
     (Q : Nat → Nat → Prop)
     (E : EPost.Nil)
     (I : (n : Nat) → (_ : ¬n = 0) →
-      Invariant [1:n].toList (Prod Nat Nat) Prop)
+      Invariant Nat (Prod Nat Nat) Prop)
     (ret : Q 0 0)
-    (loop_pre : ∀ n (hn : ¬n = 0), (I n hn) ⟨[], [1:n].toList, rfl⟩ (0, 1))
-    (loop_post : ∀ n (hn : ¬n = 0) r, (I n hn) ⟨[1:n].toList, [], by simp⟩ r ⊑ Q n r.2)
-    (loop_step : ∀ n (hn : ¬n = 0) r pref cur suff (h : [1:n].toList = pref ++ cur :: suff),
-                  (I n hn) ⟨pref, cur::suff, by simp[h]⟩ r ⊑ (I n hn) ⟨pref ++ [cur], suff, by simp[h]⟩ (r.2, r.1+r.2))
+    (loop_pre : ∀ n (hn : ¬n = 0), (I n hn) [] [1:n].toList (0, 1))
+    (loop_post : ∀ n (hn : ¬n = 0) r, (I n hn) [1:n].toList [] r ⊑ Q n r.2)
+    (loop_step : ∀ n (hn : ¬n = 0) r pref cur suff (_h : [1:n].toList = pref ++ cur :: suff),
+                  (I n hn) pref (cur::suff) r ⊑ (I n hn) (pref ++ [cur]) suff (r.2, r.1+r.2))
     : wp (fib_impl n) (Q n) E := by
   vcgen [fib_impl]
   case inv1 h => exact I n h
@@ -170,7 +170,7 @@ theorem mkFreshPair_triple :
 
 theorem sum_loop_spec : ⦃ True ⦄ sum_loop ⦃ fun r => r < 30 ⦄ := by
   vcgen [sum_loop]
-  case inv1 => exact fun c x => x = c.«prefix».sum
+  case inv1 => exact fun pref _ x => x = pref.sum
   all_goals grind
 
 theorem throwing_loop_spec :
@@ -179,19 +179,19 @@ theorem throwing_loop_spec :
   ⦃fun _ _ => False;
   epost⟨fun e s => e = 42 ∧ s = 4⟩⦄ := by
   vcgen [throwing_loop]
-  case inv1 => exact fun xs r s => r ≤ 4 ∧ s = 4 ∧ r + xs.suffix.sum > 4
+  case inv1 => exact fun _ suff r s => r ≤ 4 ∧ s = 4 ∧ r + suff.sum > 4
   all_goals (simp_all; try grind)
 
 theorem test_loop_break :
     ⦃ fun s => s = 42 ⦄ breaking_loop ⦃ fun r s => r > 4 ∧ s = 1 ⦄ := by
   vcgen [breaking_loop]
-  case inv1 => exact fun xs r s => (r ≤ 4 ∧ r = xs.prefix.sum ∨ r > 4) ∧ s = 42
+  case inv1 => exact fun pref _ r s => (r ≤ 4 ∧ r = pref.sum ∨ r > 4) ∧ s = 42
   all_goals grind
 
 theorem test_loop_early_return :
     ⦃ fun s => s = 4 ⦄ returning_loop ⦃ fun r s => r = 42 ∧ s = 4 ⦄ := by
   vcgen [returning_loop]
-  case inv1 => exact fun xs r s => (r.1 = none ∧ r.2 = xs.prefix.sum ∧ r.2 ≤ 4 ∨ r.1 = some 42 ∧ r.2 > 4) ∧ s = 4
+  case inv1 => exact fun pref _ r s => (r.1 = none ∧ r.2 = pref.sum ∧ r.2 ≤ 4 ∨ r.1 = some 42 ∧ r.2 > 4) ∧ s = 4
   all_goals grind
 
 theorem unfold_to_expose_match_spec :
@@ -217,7 +217,7 @@ theorem test_sum :
       pure x : Id _)
     ⦃ fun r => r < 30 ⦄ := by
   vcgen
-  case inv1 => exact fun c x => x = c.«prefix».sum
+  case inv1 => exact fun pref _ x => x = pref.sum
   all_goals grind
 
 theorem mspec_forwards_mvars {n : Nat} :
@@ -245,7 +245,7 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
   case inv1 =>
     exact Invariant.withEarlyReturnNewDo
       (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
-      (onContinue := fun xs _ => ⌜∀ i, i ∈ xs.prefix → p i⌝)
+      (onContinue := fun pref _ _ => ⌜∀ i, i ∈ pref → p i⌝)
   all_goals simp_all [-Classical.not_forall]; try grind
 
 end Automated
@@ -279,7 +279,7 @@ theorem max_and_sum_spec (xs : Array Nat) :
     ⦃ ∀ i, (h : i < xs.size) → xs[i] ≥ 0 ⦄
     max_and_sum xs ⦃ fun (m, s) => s ≤ m * xs.size ⦄ := by
   vcgen [max_and_sum]
-  case inv1 => exact fun c ⟨mx, s⟩ => s ≤ mx * c.pos
+  case inv1 => exact fun pref _ ⟨mx, s⟩ => s ≤ mx * pref.length
   all_goals simp_all +zetaDelta
   case vc3 =>
     rename_i hle hlt
@@ -378,7 +378,7 @@ theorem subarraySum_correct {xs : Subarray Nat} : subarraySum xs = xs.toList.sum
   generalize h : subarraySum xs = r
   apply Id.of_wp_run_eq h
   vcgen
-  case inv1 => exact fun c s => s = c.«prefix».sum
+  case inv1 => exact fun pref _ s => s = pref.sum
   all_goals simp_all +zetaDelta
 
 end Slices
@@ -412,14 +412,14 @@ theorem naive_expo_correct (x n : Nat) : naive_expo x n = x ^ n := by
   generalize h : naive_expo x n = r
   apply Id.of_wp_run_eq h
   vcgen
-  case inv1 => exact fun c y => y = x ^ c.pos
+  case inv1 => exact fun pref _ y => y = x ^ pref.length
   all_goals simp_all +zetaDelta [Nat.pow_add_one]
 
 theorem fast_expo_correct (x n : Nat) : fast_expo x n = x ^ n := by
   generalize h : fast_expo x n = r
   apply Id.of_wp_run_eq h
   vcgen
-  case inv1 => exact fun xs ⟨x', y, e⟩ => x' ^ e * y = x ^ n ∧ e ≤ n - xs.pos
+  case inv1 => exact fun pref _ ⟨x', y, e⟩ => x' ^ e * y = x ^ n ∧ e ≤ n - pref.length
   all_goals simp_all +zetaDelta
   case vc2 ih =>
     rw [← ih.1, ih.2, Nat.pow_zero, Nat.one_mul]
@@ -454,7 +454,7 @@ theorem forIn_eq_sum (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion 
       return sum : m _)
     ⦃ fun r => ⌜r = xs.sum⌝ ⦄ := by
   vcgen
-  case inv1 => exact fun cur n => ⌜n = cur.prefix.sum⌝
+  case inv1 => exact fun pref _ n => ⌜n = pref.sum⌝
   all_goals grind
 
 theorem forIn_map_eq_sum_add_size' (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPred]
@@ -465,7 +465,7 @@ theorem forIn_map_eq_sum_add_size' (xs : Array Nat) {m} [Monad m] [Assertion Pre
         sum := sum + n
       return sum) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
   vcgen
-  case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
+  case inv1 => exact fun pref _ n => ⌜n = pref.sum + pref.length⌝
   all_goals grind
 
 theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPred]
@@ -476,7 +476,7 @@ theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [Assertion Pred
         sum := sum + n
       return sum) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
   vcgen
-  case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
+  case inv1 => exact fun pref _ n => ⌜n = pref.sum + pref.length⌝
   all_goals grind
 
 
@@ -488,7 +488,7 @@ theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [MonadAttach m
         sum := sum + n
       return sum) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
   vcgen
-  case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
+  case inv1 => exact fun pref _ n => ⌜n = pref.sum + pref.length⌝
   all_goals grind
 
 theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m}
@@ -499,14 +499,14 @@ theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m}
         sum := sum + n
       return sum) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
   vcgen
-  case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
+  case inv1 => exact fun pref _ n => ⌜n = pref.sum + pref.length⌝
   all_goals grind
 
 theorem foldM_eq_sum (xs : Array Nat) {m} [Monad m] [LawfulMonad m]
     [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
     ⦃ ⊤ ⦄ (xs.iter.foldM (m := m) (init := 0) (pure <| · + ·)) ⦃ fun r => ⌜r = xs.sum⌝ ⦄ := by
   vcgen
-  case inv1 => exact fun cur n => ⌜n = cur.prefix.sum⌝
+  case inv1 => exact fun pref _ n => ⌜n = pref.sum⌝
   all_goals grind
 
 end IteratorTests
@@ -571,7 +571,7 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
   vcgen invariants
     · Invariant.withEarlyReturnNewDo
       (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
-      (onContinue := fun xs _ => ⌜∀ i, i ∈ xs.prefix → p i⌝)
+      (onContinue := fun pref _ _ => ⌜∀ i, i ∈ pref → p i⌝)
   all_goals simp_all [-Classical.not_forall]; try grind
 
 -- Labelled form: `| inv1 => …`.
@@ -582,7 +582,7 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
   vcgen invariants
     | inv1 => Invariant.withEarlyReturnNewDo
       (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
-      (onContinue := fun xs _ => ⌜∀ i, i ∈ xs.prefix → p i⌝)
+      (onContinue := fun pref _ _ => ⌜∀ i, i ∈ pref → p i⌝)
   all_goals simp_all [-Classical.not_forall]; try grind
 
 end InvariantSyntaxTests
@@ -708,7 +708,8 @@ theorem incr_id (amounts : List Nat) :
 error: unsolved goals
 case vc1
 m : Type → Type u
-Pred EPred : Type
+Pred : Type u_1
+EPred : Type u_2
 inst✝³ : Monad m
 inst✝² : Assertion Pred
 inst✝¹ : Assertion EPred

@@ -279,23 +279,19 @@ private def eqSpecToWp? (info : WPApp) (eqPrf eqType : Expr) :
     OptionT MetaM (Expr × Expr) := do
   let_expr Eq eqα _lhs _rhs := eqType
     | throwError "simp spec is not an equation: {eqType}"
-  -- Recover the value type `α` and confirm the equation is in the goal's monad. `α` is typed at the
-  -- monad's domain sort so the equation's element type stays well-formed.
-  let α ← mkFreshExprMVar (← inferType info.M).bindingDomain!
-  guard <| ← isDefEqGuarded eqα (mkApp info.M α)
-  -- Reusing the goal's `WP` instance below pins the program and value types it is typed at. That
-  -- unification must happen at the current metavariable depth: `mkAppOptM` raises the depth, so the
-  -- equation's type metavariables are read-only there.
-  guard <| ← isDefEqGuarded (mkApp info.M α) info.Prog
+  -- Unify the equation's type with the goal's program type. First-order approximation decomposes
+  -- flex-headed equation types (e.g. class projection unfold equations quantified over the monad,
+  -- like `MonadState.modifyGet.eq_1`, where `eqα = ?m ?β`). The unification must happen at the
+  -- current metavariable depth: `mkAppOptM` raises the depth, so the equation's type metavariables
+  -- are read-only there.
+  guard <| ← withReducible <| approxDefEq <| isDefEqGuarded eqα info.Prog
   -- `post`/`epost` are schematic metavariables (their VCs collapse downstream).
-  let post ← mkFreshExprMVar (userName := `Q) (← mkArrow α info.Pred)
+  let post ← mkFreshExprMVar (userName := `Q) (← mkArrow info.Value info.Pred)
   let epost ← mkFreshExprMVar (userName := `E) info.EPred
-  -- Pin the monad and assertion instances from the goal's `wp` arguments. Inferring the monad from
-  -- the equation type alone would leave `m β =?= info.M γ` as an underdetermined flex-rigid problem,
-  -- so non-monadic equations like `Option.getD.eq_1` would fail to unify.
+  -- The goal's leading `wp` arguments `#[Prog, Value, Pred, EPred, instAL, instEAL, instWP]` are
+  -- exactly the leading arguments of `wp_le_wp_of_eq`.
   let specProof ← mkAppOptM ``Std.Internal.Do.wp_le_wp_of_eq <|
-    #[some (mkApp info.M α), some α] ++ (info.args.extract 2 7).map some
-      ++ #[none, none, some eqPrf, some post, some epost]
+    (info.args.take 7).map some ++ #[none, none, some eqPrf, some post, some epost]
   return (specProof, ← instantiateMVars (← Meta.inferType specProof))
 
 /--
@@ -407,36 +403,51 @@ public def mkBackwardRuleForSplit
 
 /-! ## Frame rules -/
 
-/-- Move the frame variable to the front of a frame rule's subgoals. The frame is the sole subgoal
-another subgoal (the pre-VC and the `WP.Frames` condition) depends on, so applying the rule surfaces
-it first, ready to be assigned the inferred frame. -/
-private def hoistFrameVar (rule : BackwardRule) : MetaM BackwardRule := do
-  let p := rule.pattern
-  let aux := p.varTypes.mapIdx fun i _ => mkFVar ⟨.num `_frame_hoist i⟩
-  let dependsOn (i : Nat) : Bool := rule.resultPos.any fun j =>
-    j != i && (p.varTypes[j]!.instantiateRevRange 0 j aux).containsFVar aux[i]!.fvarId!
-  let some fIdx := rule.resultPos.find? dependsOn
-    | throwError "frame: could not locate the frame variable in the frame rule"
-  return { rule with resultPos := fIdx :: rule.resultPos.filter (· != fIdx) }
+/-- Locate the assignable subgoal positions of a frame backward rule: the split VC (the premise
+`pre ⊑ (op F W) s⃗`, found by `opHead`) and the frame `F` read off its right-hand side. -/
+private def analyzeFrameRule (rule : BackwardRule) (opHead : Name) (numExcess : Nat) :
+    MetaM FrameBackwardRule := do
+  -- The binder telescope of the rule type is the pattern telescope, so `xs` is indexed by the
+  -- entries of `resultPos`, which reorders the subgoal binders (non-dependent first) into the
+  -- applied rule's goal list.
+  let resultPos := rule.resultPos.toArray
+  forallTelescope (← Meta.inferType rule.expr) fun xs _ => do
+    let premiseType (listIdx : Nat) : MetaM Expr :=
+      Meta.inferType xs[resultPos[listIdx]!]!
+    let mut found := none
+    -- Find the opApp `op F W` in the split VC that looks like `pre ⊑ (op F W) s`
+    for i in [0:resultPos.size] do
+      let_expr Lean.Order.PartialOrder.rel _ _ _ rhs := (← premiseType i) | continue
+      let opApp := rhs.stripArgsN numExcess
+      if opApp.isAppOf opHead then
+        found := some (i, opApp)
+        break
+    let some (splitVCIdx, opApp) := found
+      | throwError "frame: could not locate the split VC in the frame rule for `{opHead}`"
+    let frameIdx := resultPos.idxOf (xs.idxOf opApp.appFn!.appArg!)
+    return { rule, splitVCIdx, frameIdx }
 
 /--
-The `F`-abstract upper-adjoint frame rule for a frame operator `op : R → Pred → Pred`.
+The frame backward rule for a frame operator `op : R → Pred → Pred`, built from the frame rule
+`WP.Frames.op_wp_upperAdjoint_le_wp`.
 
-The rule concludes `pre ⊑ wp prog Q E s⃗` from the framed precondition
-`pre ⊑ op F (wp prog (fun a => upperAdjoint (op F) (Q a)) E) s⃗` and the frame condition
-`WP.Frames op prog F`, with the frame `F` left schematic so a single rule serves every inferred frame.
-Its subgoals lead with `F`, so the caller assigns the inferred frame before decomposing the rest.
+The rule concludes `pre ⊑ wp prog Q E s⃗` from the split VC `pre ⊑ (op F W) s⃗` and the frame
+condition `WP.Frames op prog F`, with the frame `F` left schematic and the weakest footprint
+`W = wp prog (fun a => upperAdjoint (op F) (Q a)) E` baked in, so a single rule serves every inferred
+frame. `analyzeFrameRule` records the positions of the schematic slots.
 -/
-public def mkFrameBackwardRule (op : Expr) (info : WPApp) : MetaM BackwardRule := do
-  -- Pin the monad and the operator, leaving the frame `F`, program, and postconditions schematic;
-  -- `tryMkBackwardRuleFromSpec` turns them into rule parameters and `hoistFrameVar` surfaces `F`.
+public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
+    MetaM FrameBackwardRule := do
+  -- Pin the program and the operator, leaving everything else schematic;
+  -- `tryMkBackwardRuleFromSpec` turns the unassigned metavariables into rule parameters.
+  let op ← fp.mkOpAppM info
   let specProof ← mkAppOptM ``Std.Internal.Do.WP.Frames.op_wp_upperAdjoint_le_wp
     ((info.args.take 7).map some ++ #[none, some op, none])
   let some specThm ← mkSpecTheoremFromStx (← getRef) specProof
-    | throwError "frame: could not build the upper-adjoint frame spec for operator{indentExpr op}"
+    | throwError "frame: could not build the frame spec for operator{indentExpr op}"
   let some rule ← (tryMkBackwardRuleFromSpec specThm info).run
     | throwError "frame: could not build the frame rule for operator{indentExpr op}"
-  hoistFrameVar rule
+  analyzeFrameRule rule fp.opHead info.excessArgs.size
 
 end VCGen
 end Lean.Elab.Tactic.Do.Internal

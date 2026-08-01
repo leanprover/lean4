@@ -1523,6 +1523,7 @@ can be used to:
 * `splitNatSub`: for each appearance of `((a - b : Nat) : Int)`, split on `a ≤ b` if necessary.
 * `splitNatAbs`: for each appearance of `Int.natAbs a`, split on `0 ≤ a` if necessary.
 * `splitMinMax`: for each occurrence of `min a b`, split on `min a b = a ∨ min a b = b`
+
 Currently, all of these are on by default.
 -/
 syntax (name := omega) "omega" optConfig : tactic
@@ -2380,7 +2381,9 @@ after reduction to close the goal.
 - `cbv` — reduce the goal target
 - `cbv at h` — reduce hypothesis `h`
 - `cbv at h |-` — reduce hypothesis `h` and the goal target
-- `cbv at *` — reduce all non-dependent propositional hypotheses and the goal target
+- `cbv at *` — reduce the goal target and all non-dependent propositional hypotheses
+
+If a hypothesis reduces to `False`, the goal is closed immediately.
 
 `cbv` is not a finishing tactic in general: it may leave a new (simpler) goal.
 

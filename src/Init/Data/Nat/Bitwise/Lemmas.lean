@@ -261,7 +261,7 @@ private theorem succ_mod_two : succ x % 2 = 1 - x % 2 := by
     trivial
   | succ x hyp =>
     have p : 2 ≤ x + 2 := Nat.le_add_left _ _
-    simp [Nat.mod_eq (x+2) 2, p, hyp]
+    simp [Nat.mod_eq_ite (x+2) 2, p, hyp]
     cases Nat.mod_two_eq_zero_or_one x with | _ p => simp [p]
 
 private theorem testBit_succ_zero : testBit (x + 1) 0 = !(testBit x 0) := by
@@ -302,7 +302,7 @@ theorem testBit_two_pow_add_gt {i j : Nat} (j_lt_i : j < i) (x : Nat) :
     testBit (x % 2^j) i = (decide (i < j) && testBit x i) := by
   induction x using Nat.strongRecOn generalizing j i with
   | ind x hyp =>
-    rw [mod_eq]
+    rw [mod_eq_ite]
     rcases Nat.lt_or_ge x (2^j) with x_lt_j | x_ge_j
     · have not_j_le_x := Nat.not_le_of_gt x_lt_j
       simp [not_j_le_x]
@@ -461,10 +461,10 @@ theorem bitwise_lt_two_pow (left : x < 2^n) (right : y < 2^n) : (Nat.bitwise f x
   | succ n hyp =>
     unfold bitwise
     if x_zero : x = 0 then
-      simp only [x_zero, if_pos]
+      simp only [x_zero, ite_eq_left]
       by_cases p : f false true = true <;> simp [p, right]
     else if y_zero : y = 0 then
-      simp only [x_zero, y_zero, if_pos]
+      simp only [x_zero, y_zero, ite_eq_left]
       by_cases p : f true false = true <;> simp [p, left]
     else
       simp only [x_zero, y_zero]

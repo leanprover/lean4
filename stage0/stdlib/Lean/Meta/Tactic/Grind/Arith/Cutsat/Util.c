@@ -5287,9 +5287,9 @@ goto v___jp_2007_;
 v___jp_1995_:
 {
 lean_object* v___x_1999_; lean_object* v___x_2001_; 
-v___x_1999_ = lean_nat_add(v___y_1997_, v___y_1998_);
+v___x_1999_ = lean_nat_add(v___y_1996_, v___y_1998_);
 lean_dec(v___y_1998_);
-lean_dec(v___y_1997_);
+lean_dec(v___y_1996_);
 if (v_isShared_1992_ == 0)
 {
 lean_ctor_set(v___x_1991_, 4, v_r_1818_);
@@ -5318,7 +5318,7 @@ lean_object* v___x_2003_;
 if (v_isShared_1980_ == 0)
 {
 lean_ctor_set(v___x_1979_, 4, v___x_2001_);
-lean_ctor_set(v___x_1979_, 3, v___y_1996_);
+lean_ctor_set(v___x_1979_, 3, v___y_1997_);
 lean_ctor_set(v___x_1979_, 2, v_v_1984_);
 lean_ctor_set(v___x_1979_, 1, v_k_1983_);
 lean_ctor_set(v___x_1979_, 0, v___x_1994_);
@@ -5332,7 +5332,7 @@ v_reuseFailAlloc_2004_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_2004_, 0, v___x_1994_);
 lean_ctor_set(v_reuseFailAlloc_2004_, 1, v_k_1983_);
 lean_ctor_set(v_reuseFailAlloc_2004_, 2, v_v_1984_);
-lean_ctor_set(v_reuseFailAlloc_2004_, 3, v___y_1996_);
+lean_ctor_set(v_reuseFailAlloc_2004_, 3, v___y_1997_);
 lean_ctor_set(v_reuseFailAlloc_2004_, 4, v___x_2001_);
 v___x_2003_ = v_reuseFailAlloc_2004_;
 goto v_reusejp_2002_;
@@ -5380,8 +5380,8 @@ if (lean_obj_tag(v_r_1986_) == 0)
 lean_object* v_size_2013_; 
 v_size_2013_ = lean_ctor_get(v_r_1986_, 0);
 lean_inc(v_size_2013_);
-v___y_1996_ = v___x_2011_;
-v___y_1997_ = v___x_2012_;
+v___y_1996_ = v___x_2012_;
+v___y_1997_ = v___x_2011_;
 v___y_1998_ = v_size_2013_;
 goto v___jp_1995_;
 }
@@ -5389,8 +5389,8 @@ else
 {
 lean_object* v___x_2014_; 
 v___x_2014_ = lean_unsigned_to_nat(0u);
-v___y_1996_ = v___x_2011_;
-v___y_1997_ = v___x_2012_;
+v___y_1996_ = v___x_2012_;
+v___y_1997_ = v___x_2011_;
 v___y_1998_ = v___x_2014_;
 goto v___jp_1995_;
 }
@@ -8356,11 +8356,13 @@ return v_res_3065_;
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Simp_Arith_Int_Simp(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Util(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

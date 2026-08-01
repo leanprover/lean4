@@ -287,7 +287,7 @@ theorem le_or_le_of_add_eq_add_pred (h : a + c = b + d - 1) : b ≤ a ∨ d ≤ 
 
 protected theorem one_sub : ∀ n, 1 - n = if n = 0 then 1 else 0
   | 0 => rfl
-  | _+1 => by rw [if_neg (Nat.succ_ne_zero _), Nat.succ_sub_succ, Nat.zero_sub]
+  | _+1 => by rw [ite_eq_right (Nat.succ_ne_zero _), Nat.succ_sub_succ, Nat.zero_sub]
 
 theorem succ_sub_sub_succ (n m k) : succ n - m - succ k = n - m - k := by
   rw [Nat.sub_sub, Nat.sub_sub, add_succ, succ_sub_succ]
@@ -1529,10 +1529,10 @@ theorem add_mod_eq_ite {m n : Nat} :
   | succ k =>
     rw [Nat.add_mod]
     by_cases h : k + 1 ≤ m % (k + 1) + n % (k + 1)
-    · rw [if_pos h, Nat.mod_eq_sub_mod h, Nat.mod_eq_of_lt]
+    · rw [ite_eq_left h, Nat.mod_eq_sub_mod h, Nat.mod_eq_of_lt]
       exact (Nat.sub_lt_iff_lt_add h).mpr (Nat.add_lt_add (m.mod_lt (zero_lt_succ _))
         (n.mod_lt (zero_lt_succ _)))
-    · rw [if_neg h]
+    · rw [ite_eq_right h]
       exact Nat.mod_eq_of_lt (Nat.lt_of_not_ge h)
 
 -- TODO: Replace `Nat.dvd_add_iff_left`
@@ -1564,7 +1564,7 @@ theorem mul_add_div {m : Nat} (m_pos : m > 0) (x y : Nat) : (m * x + y) / m = x 
   match x with
   | 0 => simp
   | x + 1 =>
-    rw [Nat.mul_succ, Nat.add_assoc _ m, mul_add_div m_pos x (m+y), div_eq]
+    rw [Nat.mul_succ, Nat.add_assoc _ m, mul_add_div m_pos x (m+y), div_eq_ite]
     simp +arith [m_pos]
 
 theorem mul_add_mod (m x y : Nat) : (m * x + y) % m = y % m := by

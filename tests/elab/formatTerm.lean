@@ -10,6 +10,21 @@ def fmt (stx : CoreM Syntax) : CoreM Format := do PrettyPrinter.ppTerm ⟨← st
 #eval fmt `(if c then do t else if c then do t else do e) -- FIXME: make this cascade better?
 #eval fmt `(do if c then t else e)
 #eval fmt `(do if c then t else if c then t else e)
+#eval fmt `(do for x in xs do pure ())
+#eval fmt `(do let mut acc := 0; for x in xs do acc := acc + x; return acc)
+#eval fmt `(do while c do pure ())
+#eval fmt `(do unless c do pure ())
+-- intrinsic-verification clauses: `invariant` inline with the loop, `requires`/`ensures` inline with `def`
+#eval fmt `(do assert 0 ≤ acc)
+#eval fmt `(do assert s => s ≤ acc)
+#eval fmt `(do for x in xs invariant pref suff => 0 ≤ acc do pure ())
+#eval fmt `(do for x in xs invariant pref suff s => s ≤ acc do pure ())
+#eval fmt `(command| def clampLow (n lo : Nat) : Id Nat requires lo ≤ n ensures r => r = n := pure n)
+#eval fmt `(command| def k (x : Nat) requires s => s > x ensures r => r ≥ x := pure x)
+#eval fmt `(command| def g (x : Nat) requires x > 0 ensures r => r ≥ x := pure x)
+#eval fmt `(command| def h (x : Nat) : Id Nat ensures r => r = x := pure x
+where finally
+  | spec => skip)
 
 #eval fmt `(def foo := by
   · skip; skip

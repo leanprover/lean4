@@ -8,3 +8,4 @@ module
 prelude
 public import Std.Internal.Do.WP
 public import Std.Internal.Do.Triple
+public import Std.Internal.Do.Gadget.ForIn

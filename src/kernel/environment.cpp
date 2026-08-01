@@ -214,6 +214,7 @@ environment environment::add_opaque(declaration const & d, bool check) const {
     if (check) {
         type_checker checker(*this, diag.get());
         check_constant_val(*this, v.to_constant_val(), checker);
+        check_no_metavar_no_fvar(*this, v.get_name(), v.get_value());
         expr val_type = checker.check(v.get_value(), v.get_lparams());
         if (!checker.is_def_eq(val_type, v.get_type()))
             throw definition_type_mismatch_exception(*this, d, val_type);
@@ -229,12 +230,15 @@ environment environment::add_mutual(declaration const & d, bool check) const {
     definition_safety safety = head(vs).get_safety();
     if (safety == definition_safety::safe)
         throw kernel_exception(*this, "invalid mutual definition, declaration is not tagged as unsafe/partial");
+    names const & lparams = head(vs).get_lparams();
     /* Check declarations header */
     if (check) {
         type_checker checker(*this, diag.get(), safety);
         for (definition_val const & v : vs) {
             if (v.get_safety() != safety)
                 throw kernel_exception(*this, "invalid mutual definition, declarations must have the same safety annotation");
+            if (v.get_lparams() != lparams)
+                throw kernel_exception(*this, "invalid mutual definition, declarations must have the same universe level parameters");
             check_constant_val(*this, v.to_constant_val(), checker);
         }
     }

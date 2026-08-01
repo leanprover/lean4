@@ -41,8 +41,8 @@ public def elabInvariant (invariantAlts : Std.HashMap Nat Syntax) (n : Nat) (mv 
           `(tactic| (rename_i $args*; exact $rhs))
       | _ => return false
     -- `withDefault`: the surrounding grind context forces reducible transparency,
-    -- under which the invariant's binder type (e.g. `List.Cursor _`) isn't
-    -- resolved enough for term elaboration of `xs.suffix.length` to succeed.
+    -- under which the invariant's type isn't resolved enough for term elaboration
+    -- of the alternative's right-hand side to succeed.
     withRef alt <| discard <| Meta.withDefault <| Lean.Elab.runTactic mv tac {} {}
     -- The tactic runs without throwing even when it fails to close the goal;
     -- check explicitly that the MVar got assigned.
@@ -106,7 +106,8 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
   let mut worklist : Array WorkItem := #[{ goal := { goal with mvarId }, scope }]
   while let some s := worklist.back? do
     worklist := worklist.pop
-    let goal := s.goal
+    if ← s.goal.mvarId.isAssigned then continue
+    let goal ← processHypotheses s.goal
     if goal.inconsistent then continue
     match ← solve s.scope goal.mvarId with
     | .stop _reason =>
@@ -116,11 +117,6 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
       -- from the worklist later see the invariant MVar already assigned.
       -- Non-invariant subgoals go to the worklist as usual and will eventually go through `emitVC`.
       let subgoals ← handleInvariantSubgoals subgoals
-      let goal ←
-        if subgoals.size > 1 then
-          processHypotheses goal
-        else
-          pure goal
       worklist := worklist ++ subgoals.reverse.map (fun mv =>
         { goal := { goal with mvarId := mv }, scope })
 

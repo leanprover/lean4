@@ -271,14 +271,14 @@ private theorem ByteArray.utf8Decode?go_eq_utf8Decode?go_extract {b : ByteArray}
     rw [utf8Decode?.go]
     simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Nat.zero_add, List.push_toArray,
       List.nil_append]
-    rw [if_pos (by omega)]
+    rw [ite_eq_left (by omega)]
     rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h₂
     split <;> simp_all
   | case2 h₁ c h₂ =>
     conv => rhs; rw [utf8Decode?.go]
     simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Nat.zero_add, List.push_toArray,
       List.nil_append]
-    rw [if_pos (by omega)]
+    rw [ite_eq_left (by omega)]
     rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h₂
     split
     · simp_all
@@ -295,14 +295,14 @@ private theorem ByteArray.utf8Decode?go_eq_utf8Decode?go_extract {b : ByteArray}
       rw [utf8Decode?.go]
       simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Nat.zero_add, List.push_toArray,
         List.nil_append]
-      rw [if_neg (by omega)]
+      rw [ite_eq_right (by omega)]
       simp
 termination_by b.size - i
 
 theorem ByteArray.utf8Decode?_utf8Encode_singleton_append {l : ByteArray} {c : Char} :
     ([c].utf8Encode ++ l).utf8Decode? = l.utf8Decode?.map (#[c] ++ ·) := by
   rw [utf8Decode?, utf8Decode?.go,
-    if_pos (by simp [List.utf8Encode_singleton]; have := c.utf8Size_pos; omega)]
+    ite_eq_left (by simp [List.utf8Encode_singleton]; have := c.utf8Size_pos; omega)]
   split
   · simp_all [List.utf8DecodeChar?_utf8Encode_singleton_append]
   · rename_i d h
@@ -3060,7 +3060,7 @@ def Internal.offsetOfPosImpl (s : String) (pos : Pos.Raw) : Nat :=
 theorem Pos.Raw.utf8SetAux_of_gt (c' : Char) : ∀ (cs : List Char) {i p : Pos.Raw}, i > p → utf8SetAux c' cs i p = cs
   | [],    _, _, _ => rfl
   | c::cs, i, p, h => by
-    rw [utf8SetAux, if_neg (mt (congrArg (·.1)) (Ne.symm <| Nat.ne_of_lt h)), utf8SetAux_of_gt c' cs]
+    rw [utf8SetAux, ite_eq_right (mt (congrArg (·.1)) (Ne.symm <| Nat.ne_of_lt h)), utf8SetAux_of_gt c' cs]
     exact Nat.lt_of_lt_of_le h (Nat.le_add_right ..)
 
 /--

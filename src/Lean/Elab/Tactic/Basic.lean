@@ -202,7 +202,8 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
         Term.withoutTacticIncrementality true <| withTacticInfoContext stx do
           stx.getArgs.forM evalTactic
       else withTraceNode `Elab.step (fun _ => return stx) (tag := stx.getKind.toString) do
-        checkDeprecatedSyntax stx (← readThe Term.Context).macroStack
+        if (← readThe Term.Context).checkDeprecated then
+          checkDeprecatedSyntax stx (← readThe Term.Context).macroStack
         let evalFns := tacticElabAttribute.getEntries (← getEnv) stx.getKind
         let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
         if evalFns.isEmpty && macros.isEmpty then

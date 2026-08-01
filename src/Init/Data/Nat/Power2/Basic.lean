@@ -46,6 +46,7 @@ A natural number `n` is a power of two if there exists some `k : Nat` such that 
 -/
 def isPowerOfTwo (n : Nat) := ∃ k, n = 2 ^ k
 
+@[simp]
 theorem isPowerOfTwo_one : isPowerOfTwo 1 :=
   ⟨0, by decide⟩
 
@@ -58,17 +59,5 @@ theorem pos_of_isPowerOfTwo (h : isPowerOfTwo n) : n > 0 := by
   rw [h]
   apply Nat.pow_pos
   decide
-
-theorem isPowerOfTwo_nextPowerOfTwo (n : Nat) : n.nextPowerOfTwo.isPowerOfTwo := by
-  apply isPowerOfTwo_go
-  apply isPowerOfTwo_one
-where
-  isPowerOfTwo_go (power : Nat) (h₁ : power > 0) (h₂ : power.isPowerOfTwo) : (nextPowerOfTwo.go n power h₁).isPowerOfTwo := by
-    unfold nextPowerOfTwo.go
-    split
-    . exact isPowerOfTwo_go (power*2) (Nat.mul_pos h₁ (by decide)) (Nat.isPowerOfTwo_mul_two_of_isPowerOfTwo h₂)
-    . assumption
-  termination_by n - power
-  decreasing_by simp_wf; apply nextPowerOfTwo_dec <;> assumption
 
 end Nat

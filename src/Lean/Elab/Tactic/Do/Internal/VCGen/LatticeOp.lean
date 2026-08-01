@@ -27,8 +27,8 @@ operator is saturated with distribution and unfolding rewrites, a terminal `⊑`
 fires on the reduced form, and any state arguments the terminal leaves over-applied are point-framed
 onto the precondition.
 
-A frame operator contributes its own rewrites and terminals through its `@[frameproc]`; the built-in
-seeds cover the lattice connectives `⊓`/`⇨`/`⌜·⌝`/`⊤` and the magic-wand residual `upperAdjoint`.
+The built-in splits cover the lattice connectives `⊓`/`⇨`/`⌜·⌝`/`⊤`/`iInf` and the magic-wand
+residual `upperAdjoint`.
 -/
 
 /-- The lattice meet `⊓`: distributes via `meet_apply`, closes with `le_meet`. -/
@@ -49,16 +49,19 @@ public def LatticeOp.top : LatticeOp :=
 public def LatticeOp.upperAdjoint : LatticeOp :=
   { head := ``Lean.Order.PreservesSup.upperAdjoint,
     terminal? := ``Lean.Order.PreservesSup.le_upperAdjoint }
+/-- Indexed infimum `iInf`/`⨅`: distributes via `iInf_apply`, closes with `le_iInf`. -/
+public def LatticeOp.iInf : LatticeOp :=
+  { head := ``Lean.Order.iInf, numConst := 3,
+    rewrites := #[``Lean.Order.iInf_apply], terminal? := ``Lean.Order.le_iInf }
 
 /-- The built-in connective splits, whose rewrites and terminals seed every saturation. -/
 public def builtinLatticeOps : Array LatticeOp :=
-  #[.meet, .himp, .ofProp, .top, .upperAdjoint]
+  #[.meet, .himp, .ofProp, .top, .upperAdjoint, .iInf]
 
-/-- The lattice-split table keyed by operator head, merging the built-in connectives with the
-registered frame operators' splits. -/
-public def mkLatticeOpTable (frameSplits : Std.HashMap Name LatticeOp) :
-    Std.HashMap Name LatticeOp :=
-  builtinLatticeOps.foldl (fun t s => t.insert s.head s) frameSplits
+/-- Lattice splits of the built-in connectives, keyed by operator head. `splitLatticeOp?` looks a
+head up here. -/
+public def latticeOps : Std.HashMap Name LatticeOp :=
+  builtinLatticeOps.foldl (fun t s => t.insert s.head s) {}
 
 /-- Index terminal lemmas by the head constant of their conclusion's RHS, recording the RHS argument
 count so a split can size the excess state arguments to point-frame. -/
@@ -89,8 +92,8 @@ private def saturateLatticeOp (rewrites : Array Name) (e : Expr) (fuel : Nat := 
   go step e₀ e₀ none fuel
 where
   go (step : Simp.Simproc) (e₀ cur : Expr) (proof? : Option Expr) : Nat → SymM (Expr × Option Expr)
-    | 0 => throwError "lattice saturation did not terminate; a registered `@[frameproc]` rewrite \
-        set is likely non-terminating on{indentExpr cur}"
+    | 0 => throwError "lattice saturation did not terminate; the rewrite set is likely \
+        non-terminating on{indentExpr cur}"
     | fuel + 1 => do
       match ← (step cur).run' with
       | .rfl .. => return (cur, proof?)
@@ -140,8 +143,7 @@ For `⊓`, produces `∀ a b s⃗ pre, pre ⊑ a s⃗ → pre ⊑ b s⃗ → pre
 -/
 public def mkLatticeOpRule (rhs : Expr) (op : LatticeOp) : SymM BackwardRule := do
   -- Merge the operator's own rewrites and terminal with the built-in connective seeds: saturation can
-  -- reduce to any built-in connective, so its rewrites and terminals are always in scope. On a head
-  -- clash the operator's own contribution wins: its rewrite is tried first, its terminal inserted last.
+  -- reduce to any built-in connective, so its rewrites and terminals are always in scope.
   let rewrites := builtinLatticeOps.foldl (· ++ ·.rewrites) op.rewrites
   let terminals ← mkLatticeTerminals
     (builtinLatticeOps.foldl (fun ts s => ts ++ s.terminal?.toArray) #[] ++ op.terminal?.toArray)
@@ -164,8 +166,8 @@ public def mkLatticeOpRule (rhs : Expr) (op : LatticeOp) : SymM BackwardRule := 
     let prf ←
       match (termProof?, eqProof?) with
       | (none, none) =>
-        throwError "frame operator `{op.head}` neither reduces nor has a registered terminal; its \
-          lattice split rule would be the identity"
+        throwError "lattice operator `{op.head}` neither reduces nor has a registered terminal; its \
+          split rule would be the identity"
       | (some termProof, none) => pure termProof
       | (_, some eqProof) =>
         -- Lift the saturation equality `rhs' = reduced` through `pre ⊑ ·`, turning the terminal proof of
@@ -176,7 +178,6 @@ public def mkLatticeOpRule (rhs : Expr) (op : LatticeOp) : SymM BackwardRule := 
         pure (mkApp eqMp termProof)
     let res ← abstractMVars prf
     mkBackwardRuleFromExpr res.expr res.paramNames.toList
-
 
 end VCGen
 end Lean.Elab.Tactic.Do.Internal

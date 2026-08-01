@@ -10,20 +10,20 @@ trace: [Compiler.explicitRc] size: 17
         inc snd;
         let _x.4 := ctor_0[Prod.mk] fst.2 snd;
         return _x.4;
-      let zero := 0;
-      let isZero := Nat.decEq n zero;
-      cases isZero : obj
-      | Bool.true =>
-        let _x.5 := 123;
-        goto _jp.1 _x.5 p
+      let _x.5 := 0;
+      let _x.6 := Nat.decEq n _x.5;
+      cases _x.6 : obj
       | Bool.false =>
-        let one := 1;
-        let n.6 := Nat.sub n one;
-        let _x.7 := Nat.add n.6 one;
-        let _x.8 := Nat.mul n.6 _x.7;
-        dec _x.7;
-        dec n.6;
-        goto _jp.1 _x.8 q
+        let _x.7 := 1;
+        let _x.8 := Nat.sub n _x.7;
+        let _x.9 := Nat.add _x.8 _x.7;
+        let _x.10 := Nat.mul _x.8 _x.9;
+        dec _x.9;
+        dec _x.8;
+        goto _jp.1 _x.10 q
+      | Bool.true =>
+        let _x.11 := 123;
+        goto _jp.1 _x.11 p
 [Compiler.explicitRc] size: 4
     def testWithAnnotation._boxed n p q : obj :=
       let res := testWithAnnotation n p q;
@@ -51,22 +51,22 @@ trace: [Compiler.explicitRc] size: 20
         let _x.4 := reset[2] snd.3;
         let _x.5 := reuse _x.4 in ctor_0[Prod.mk] fst.2 snd;
         return _x.5;
-      let zero := 0;
-      let isZero := Nat.decEq n zero;
-      cases isZero : obj
-      | Bool.true =>
-        dec[ref] q;
-        let _x.6 := 123;
-        goto _jp.1 _x.6 p
+      let _x.6 := 0;
+      let _x.7 := Nat.decEq n _x.6;
+      cases _x.7 : obj
       | Bool.false =>
         dec[ref] p;
-        let one := 1;
-        let n.7 := Nat.sub n one;
-        let _x.8 := Nat.add n.7 one;
-        let _x.9 := Nat.mul n.7 _x.8;
-        dec _x.8;
-        dec n.7;
-        goto _jp.1 _x.9 q
+        let _x.8 := 1;
+        let _x.9 := Nat.sub n _x.8;
+        let _x.10 := Nat.add _x.9 _x.8;
+        let _x.11 := Nat.mul _x.9 _x.10;
+        dec _x.10;
+        dec _x.9;
+        goto _jp.1 _x.11 q
+      | Bool.true =>
+        dec[ref] q;
+        let _x.12 := 123;
+        goto _jp.1 _x.12 p
 [Compiler.explicitRc] size: 2
     def testWithoutAnnotation._boxed n p q : obj :=
       let res := testWithoutAnnotation n p q;
@@ -172,7 +172,7 @@ trace: [Compiler.inferBorrow] own y: result of function call y
 [Compiler.inferBorrow] own y: result of function call y
 [Compiler.inferBorrow] own y: result of function call y
 [Compiler.inferBorrow] own y: result of function call y
-[Compiler.inferBorrow] own isZero: result of function call isZero
+[Compiler.inferBorrow] own _x.92: result of function call _x.92
 [Compiler.inferBorrow] size: 15
     def arrayConstReader @&x @&y @&ys : tobj :=
       let _x.1 := 0;
@@ -185,13 +185,13 @@ trace: [Compiler.inferBorrow] own y: result of function call y
         let y := Nat.add y _x.4;
         let _x.5 := Array.get!Internal ◾ _x.1 _y.3 y;
         return _x.5;
-      let isZero := Nat.decEq x _x.1;
-      cases isZero : tobj
-      | Bool.true =>
-        let _x.6 := arrayConst;
-        goto _jp.2 _x.6
+      let _x.6 := Nat.decEq x _x.1;
+      cases _x.6 : tobj
       | Bool.false =>
         goto _jp.2 ys
+      | Bool.true =>
+        let _x.7 := arrayConst;
+        goto _jp.2 _x.7
 -/
 #guard_msgs in
 set_option trace.Compiler.inferBorrow true in
@@ -206,4 +206,3 @@ def arrayConstReader (x y : Nat) (ys : @Array Nat) : Nat :=
   let y := y + 1
   let y := y + 1
   arr[y]!
-

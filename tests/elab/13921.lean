@@ -30,13 +30,13 @@ end
 
 -- Using such a definition in a computable context reports a clean error rather than panicking.
 /--
-error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'fWF', which is 'noncomputable'
+error: failed to compile definition, consider marking it as `noncomputable` because it depends on `fWF`, which is `noncomputable`
 -/
 #guard_msgs in
 def useWF (n : Nat) : Nat := fWF n
 
 /--
-error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'fStruct', which is 'noncomputable'
+error: failed to compile definition, consider marking it as `noncomputable` because it depends on `fStruct`, which is `noncomputable`
 -/
 #guard_msgs in
 def useStruct (n : Nat) : Nat := fStruct n

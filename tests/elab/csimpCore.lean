@@ -48,7 +48,6 @@ info: (Acc.rec, Acc.recC)
 (Nat.rec, Nat.recCompiled)
 (Nat.repeat, Nat.repeatTR)
 (String.utf8EncodeChar, String.utf8EncodeCharFast)
-(Thunk.fn, Thunk.fnImpl)
 (Vector.pmap, Vector.pmapImpl)
 (String.Slice.Pos.next, String.Slice.Pos.nextFast)
 -/
@@ -56,5 +55,5 @@ info: (Acc.rec, Acc.recC)
 run_elab do
   let env ← getEnv
   for (l, e) in CSimp.ext.getState env |>.map.toList.mergeSort (le := (·.1.lt ·.1)) do
-    if !isNoncomputable env l then
+    if !isNoncomputable env l && !hasNoncomputableOverride env l then
       IO.println (l, e.toDeclName)

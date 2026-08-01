@@ -2244,7 +2244,6 @@ private def elabAtom : TermElab := fun stx expectedType? => do
   annotateIfRec stx (← elabAppAux stx #[] #[] (ellipsis := false) expectedType?)
 
 @[builtin_term_elab ident] def elabIdent : TermElab := elabAtom
-@[builtin_term_elab namedPattern] def elabNamedPattern : TermElab := elabAtom
 @[builtin_term_elab dotIdent] def elabDotIdent : TermElab := elabAtom
 @[builtin_term_elab explicitUniv] def elabExplicitUniv : TermElab := elabAtom
 @[builtin_term_elab pipeProj] def elabPipeProj : TermElab

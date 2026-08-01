@@ -64,12 +64,12 @@ builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
   registerParametricAttribute {
     name := `extern
     descr := "builtin and foreign functions"
-    getParam := fun _ stx => syntaxToExternAttrData stx
-    afterSet := fun declName externAttrData => do
+    getParam := fun declName stx => do
       Compiler.checkNoSpecialMeaning `extern declName
-      if isNoncomputable (← getEnv) declName then
-        throwError "Declarations tagged `[extern]` should not be noncomputable"
-      if Compiler.hasNoncomputableOverride (← getEnv) declName then
+      syntaxToExternAttrData stx
+    afterSet := fun declName externAttrData => do
+      if isNoncomputable (← getEnv) declName ||
+          Compiler.hasNoncomputableOverride (← getEnv) declName then
         compileDecls #[declName]
   }
 

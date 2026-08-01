@@ -33,19 +33,19 @@ end Foo
 end
 
 /--
-error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'Classical.choose', which is 'noncomputable'
+error: failed to compile definition, consider marking it as `noncomputable` because it depends on `Classical.choose`, which is `noncomputable`
 -/
 #guard_msgs in
 def i : Nat := Classical.choose ex
 
 /--
-error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'g', which is 'noncomputable'
+error: failed to compile definition, consider marking it as `noncomputable` because it depends on `g`, which is `noncomputable`
 -/
 #guard_msgs in
 def j : Nat := g
 
 /--
-error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'i', which is 'noncomputable'
+error: failed to compile definition, consider marking it as `noncomputable` because it depends on `i`, which is `noncomputable`
 -/
 #guard_msgs in
 def k : Nat := i

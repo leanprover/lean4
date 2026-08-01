@@ -1,75 +1,90 @@
-[Compiler.simp] size: 9
+[Compiler.simp] size: 11
     def f x b : Bool :=
       jp _jp.1 _y.2 : Bool :=
-        let _x.3 := instDecidableEqNat x _y.2;
-        let _x.4 := decide ◾ _x.3;
-        return _x.4;
+        let _x.3 := 1;
+        let _x.4 := Nat.add _y.2 _x.3;
+        let _x.5 := instDecidableEqNat x _x.4;
+        let _x.6 := decide ◾ _x.5;
+        return _x.6;
       cases b : Bool
       | Bool.false =>
-        let _x.5 := 1;
-        goto _jp.1 _x.5
+        let _x.7 := 0;
+        goto _jp.1 _x.7
       | Bool.true =>
-        let _x.6 := 2;
-        goto _jp.1 _x.6
-[Compiler.simp] size: 9
+        let _x.8 := 1;
+        goto _jp.1 _x.8
+[Compiler.simp] size: 11
     def f x b : Bool :=
       jp _jp.1 _y.2 : Bool :=
-        let _x.3 := instDecidableEqNat x _y.2;
-        let _x.4 := decide ◾ _x.3;
-        return _x.4;
+        let _x.3 := 1;
+        let _x.4 := Nat.add _y.2 _x.3;
+        let _x.5 := instDecidableEqNat x _x.4;
+        let _x.6 := decide ◾ _x.5;
+        return _x.6;
       cases b : Bool
       | Bool.false =>
-        let _x.5 := 1;
-        goto _jp.1 _x.5
+        let _x.7 := 0;
+        goto _jp.1 _x.7
       | Bool.true =>
-        let _x.6 := 2;
-        goto _jp.1 _x.6
-[Compiler.simp] size: 9
+        let _x.8 := 1;
+        goto _jp.1 _x.8
+[Compiler.simp] size: 11
     def f x b : Bool :=
       jp _jp.1 _y.2 : Bool :=
-        let _x.3 := instDecidableEqNat x _y.2;
-        let _x.4 := decide ◾ _x.3;
-        return _x.4;
+        let _x.3 := 1;
+        let _x.4 := Nat.add _y.2 _x.3;
+        let _x.5 := instDecidableEqNat x _x.4;
+        let _x.6 := decide ◾ _x.5;
+        return _x.6;
       cases b : Bool
       | Bool.false =>
-        let _x.5 := 1;
-        goto _jp.1 _x.5
+        let _x.7 := 0;
+        goto _jp.1 _x.7
       | Bool.true =>
-        let _x.6 := 2;
+        let _x.8 := 1;
+        goto _jp.1 _x.8
+[Compiler.simp] size: 10
+    def f x b : Bool :=
+      jp _jp.1 _y.2 : Bool :=
+        let _x.3 := 1;
+        let _x.4 := Nat.add _y.2 _x.3;
+        let _x.5 := Nat.decEq x _x.4;
+        return _x.5;
+      cases b : Bool
+      | Bool.false =>
+        let _x.6 := 0;
         goto _jp.1 _x.6
-[Compiler.simp] size: 7
+      | Bool.true =>
+        let _x.7 := 1;
+        goto _jp.1 _x.7
+[Compiler.simp] size: 10
     def f x b : Bool :=
+      jp _jp.1 _y.2 : Bool :=
+        let _x.3 := 1;
+        let _x.4 := Nat.add _y.2 _x.3;
+        let _x.5 := Nat.decEq x _x.4;
+        return _x.5;
       cases b : Bool
       | Bool.false =>
-        let _x.1 := 1;
-        let _x.2 := Nat.decEq x _x.1;
-        return _x.2
+        let _x.6 := 0;
+        goto _jp.1 _x.6
       | Bool.true =>
-        let _x.3 := 2;
-        let _x.4 := Nat.decEq x _x.3;
-        return _x.4
-[Compiler.simp] size: 7
+        let _x.7 := 1;
+        goto _jp.1 _x.7
+[Compiler.simp] size: 10
     def f x b : Bool :=
+      jp _jp.1 _y.2 : Bool :=
+        let _x.3 := 1;
+        let _x.4 := Nat.add _y.2 _x.3;
+        let _x.5 := Nat.decEq x _x.4;
+        return _x.5;
       cases b : Bool
       | Bool.false =>
-        let _x.1 := 1;
-        let _x.2 := Nat.decEq x _x.1;
-        return _x.2
+        let _x.6 := 0;
+        goto _jp.1 _x.6
       | Bool.true =>
-        let _x.3 := 2;
-        let _x.4 := Nat.decEq x _x.3;
-        return _x.4
-[Compiler.simp] size: 7
-    def f x b : Bool :=
-      cases b : Bool
-      | Bool.false =>
-        let _x.1 := 1;
-        let _x.2 := Nat.decEq x _x.1;
-        return _x.2
-      | Bool.true =>
-        let _x.3 := 2;
-        let _x.4 := Nat.decEq x _x.3;
-        return _x.4
+        let _x.7 := 1;
+        goto _jp.1 _x.7
 [Compiler.simp] size: 12
     def _private.elab.attachJp.0._eval @&a @&a a.1 : EST.Out Lean.Exception lcAny PUnit :=
       let _x.2 := "f";

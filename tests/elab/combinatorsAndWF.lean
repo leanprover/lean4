@@ -25,6 +25,9 @@ inductive Expr where
   | app (f : String) (args : List Expr)
   | var (n : String)
 
+-- TODO: this is a more general compiler problem that we still compile irrelevant positions
+attribute [extern "idk"] Expr._sizeOf_inst
+
 -- TODO: `WF.lean` should replace `List.foldl` with `List.foldl_wf`, and then apply `List.foldl_wf_eq` when proving equation theorems.
 @[simp] def Expr.numVars : Expr → Nat
   | app f args => args.foldl_wf 0 fun sum arg h =>

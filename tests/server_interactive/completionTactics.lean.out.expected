@@ -11,18 +11,18 @@
     "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 23, 21, 0]},
-  {"label": "match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 23, 21, 0]},
   {"label": "set_option",
    "kind": 14,
    "documentation":
    {"value":
     "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data": ["file:///completionTactics.lean", 23, 21, 0]},
+  {"label": "match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 23, 21, 0]},
   {"label": "skip",
@@ -48,20 +48,20 @@ Resolution of open:
   "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 23, 21, 0]}
-Resolution of match:
-{"label": "match",
- "kind": 14,
- "documentation":
- {"value":
-  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 23, 21, 0]}
 Resolution of set_option:
 {"label": "set_option",
  "kind": 14,
  "documentation":
  {"value":
   "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+  "kind": "markdown"},
+ "data": ["file:///completionTactics.lean", 23, 21, 0]}
+Resolution of match:
+{"label": "match",
+ "kind": 14,
+ "documentation":
+ {"value":
+  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 23, 21, 0]}
 Resolution of skip:
@@ -92,18 +92,18 @@ Resolution of intro:
     "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 26, 24, 0]},
-  {"label": "match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 26, 24, 0]},
   {"label": "set_option",
    "kind": 14,
    "documentation":
    {"value":
     "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data": ["file:///completionTactics.lean", 26, 24, 0]},
+  {"label": "match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 26, 24, 0]},
   {"label": "skip",
@@ -129,20 +129,20 @@ Resolution of open:
   "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 26, 24, 0]}
-Resolution of match:
-{"label": "match",
- "kind": 14,
- "documentation":
- {"value":
-  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 26, 24, 0]}
 Resolution of set_option:
 {"label": "set_option",
  "kind": 14,
  "documentation":
  {"value":
   "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+  "kind": "markdown"},
+ "data": ["file:///completionTactics.lean", 26, 24, 0]}
+Resolution of match:
+{"label": "match",
+ "kind": 14,
+ "documentation":
+ {"value":
+  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 26, 24, 0]}
 Resolution of skip:
@@ -176,18 +176,18 @@ Resolution of intro:
     "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 32, 26, 0]},
-  {"label": "match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 32, 26, 0]},
   {"label": "set_option",
    "kind": 14,
    "documentation":
    {"value":
     "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data": ["file:///completionTactics.lean", 32, 26, 0]},
+  {"label": "match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 32, 26, 0]},
   {"label": "skip",
@@ -213,20 +213,20 @@ Resolution of open:
   "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 32, 26, 0]}
-Resolution of match:
-{"label": "match",
- "kind": 14,
- "documentation":
- {"value":
-  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 32, 26, 0]}
 Resolution of set_option:
 {"label": "set_option",
  "kind": 14,
  "documentation":
  {"value":
   "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+  "kind": "markdown"},
+ "data": ["file:///completionTactics.lean", 32, 26, 0]}
+Resolution of match:
+{"label": "match",
+ "kind": 14,
+ "documentation":
+ {"value":
+  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 32, 26, 0]}
 Resolution of skip:
@@ -257,18 +257,18 @@ Resolution of intro:
     "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 35, 27, 0]},
-  {"label": "match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 35, 27, 0]},
   {"label": "set_option",
    "kind": 14,
    "documentation":
    {"value":
     "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data": ["file:///completionTactics.lean", 35, 27, 0]},
+  {"label": "match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 35, 27, 0]},
   {"label": "skip",
@@ -294,20 +294,20 @@ Resolution of open:
   "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 35, 27, 0]}
-Resolution of match:
-{"label": "match",
- "kind": 14,
- "documentation":
- {"value":
-  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 35, 27, 0]}
 Resolution of set_option:
 {"label": "set_option",
  "kind": 14,
  "documentation":
  {"value":
   "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+  "kind": "markdown"},
+ "data": ["file:///completionTactics.lean", 35, 27, 0]}
+Resolution of match:
+{"label": "match",
+ "kind": 14,
+ "documentation":
+ {"value":
+  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 35, 27, 0]}
 Resolution of skip:
@@ -338,18 +338,18 @@ Resolution of intro:
     "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 40, 7, 0]},
-  {"label": "match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 40, 7, 0]},
   {"label": "set_option",
    "kind": 14,
    "documentation":
    {"value":
     "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data": ["file:///completionTactics.lean", 40, 7, 0]},
+  {"label": "match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 40, 7, 0]},
   {"label": "skip",
@@ -375,20 +375,20 @@ Resolution of open:
   "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 40, 7, 0]}
-Resolution of match:
-{"label": "match",
- "kind": 14,
- "documentation":
- {"value":
-  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 40, 7, 0]}
 Resolution of set_option:
 {"label": "set_option",
  "kind": 14,
  "documentation":
  {"value":
   "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+  "kind": "markdown"},
+ "data": ["file:///completionTactics.lean", 40, 7, 0]}
+Resolution of match:
+{"label": "match",
+ "kind": 14,
+ "documentation":
+ {"value":
+  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 40, 7, 0]}
 Resolution of skip:
@@ -419,18 +419,18 @@ Resolution of intro:
     "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 44, 2, 0]},
-  {"label": "match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 44, 2, 0]},
   {"label": "set_option",
    "kind": 14,
    "documentation":
    {"value":
     "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data": ["file:///completionTactics.lean", 44, 2, 0]},
+  {"label": "match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 44, 2, 0]},
   {"label": "skip",
@@ -456,20 +456,20 @@ Resolution of open:
   "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 44, 2, 0]}
-Resolution of match:
-{"label": "match",
- "kind": 14,
- "documentation":
- {"value":
-  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 44, 2, 0]}
 Resolution of set_option:
 {"label": "set_option",
  "kind": 14,
  "documentation":
  {"value":
   "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+  "kind": "markdown"},
+ "data": ["file:///completionTactics.lean", 44, 2, 0]}
+Resolution of match:
+{"label": "match",
+ "kind": 14,
+ "documentation":
+ {"value":
+  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 44, 2, 0]}
 Resolution of skip:
@@ -500,18 +500,18 @@ Resolution of intro:
     "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 49, 2, 0]},
-  {"label": "match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 49, 2, 0]},
   {"label": "set_option",
    "kind": 14,
    "documentation":
    {"value":
     "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data": ["file:///completionTactics.lean", 49, 2, 0]},
+  {"label": "match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 49, 2, 0]},
   {"label": "skip",
@@ -537,20 +537,20 @@ Resolution of open:
   "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 49, 2, 0]}
-Resolution of match:
-{"label": "match",
- "kind": 14,
- "documentation":
- {"value":
-  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 49, 2, 0]}
 Resolution of set_option:
 {"label": "set_option",
  "kind": 14,
  "documentation":
  {"value":
   "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+  "kind": "markdown"},
+ "data": ["file:///completionTactics.lean", 49, 2, 0]}
+Resolution of match:
+{"label": "match",
+ "kind": 14,
+ "documentation":
+ {"value":
+  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 49, 2, 0]}
 Resolution of skip:
@@ -581,18 +581,18 @@ Resolution of intro:
     "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 53, 2, 0]},
-  {"label": "match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 53, 2, 0]},
   {"label": "set_option",
    "kind": 14,
    "documentation":
    {"value":
     "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data": ["file:///completionTactics.lean", 53, 2, 0]},
+  {"label": "match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 53, 2, 0]},
   {"label": "skip",
@@ -618,20 +618,20 @@ Resolution of open:
   "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 53, 2, 0]}
-Resolution of match:
-{"label": "match",
- "kind": 14,
- "documentation":
- {"value":
-  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 53, 2, 0]}
 Resolution of set_option:
 {"label": "set_option",
  "kind": 14,
  "documentation":
  {"value":
   "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+  "kind": "markdown"},
+ "data": ["file:///completionTactics.lean", 53, 2, 0]}
+Resolution of match:
+{"label": "match",
+ "kind": 14,
+ "documentation":
+ {"value":
+  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 53, 2, 0]}
 Resolution of skip:
@@ -662,18 +662,18 @@ Resolution of intro:
     "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 59, 4, 0]},
-  {"label": "match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 59, 4, 0]},
   {"label": "set_option",
    "kind": 14,
    "documentation":
    {"value":
     "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data": ["file:///completionTactics.lean", 59, 4, 0]},
+  {"label": "match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 59, 4, 0]},
   {"label": "skip",
@@ -699,20 +699,20 @@ Resolution of open:
   "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 59, 4, 0]}
-Resolution of match:
-{"label": "match",
- "kind": 14,
- "documentation":
- {"value":
-  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 59, 4, 0]}
 Resolution of set_option:
 {"label": "set_option",
  "kind": 14,
  "documentation":
  {"value":
   "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+  "kind": "markdown"},
+ "data": ["file:///completionTactics.lean", 59, 4, 0]}
+Resolution of match:
+{"label": "match",
+ "kind": 14,
+ "documentation":
+ {"value":
+  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 59, 4, 0]}
 Resolution of skip:
@@ -743,18 +743,18 @@ Resolution of intro:
     "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 64, 2, 0]},
-  {"label": "match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 64, 2, 0]},
   {"label": "set_option",
    "kind": 14,
    "documentation":
    {"value":
     "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data": ["file:///completionTactics.lean", 64, 2, 0]},
+  {"label": "match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 64, 2, 0]},
   {"label": "skip",
@@ -780,20 +780,20 @@ Resolution of open:
   "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 64, 2, 0]}
-Resolution of match:
-{"label": "match",
- "kind": 14,
- "documentation":
- {"value":
-  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 64, 2, 0]}
 Resolution of set_option:
 {"label": "set_option",
  "kind": 14,
  "documentation":
  {"value":
   "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+  "kind": "markdown"},
+ "data": ["file:///completionTactics.lean", 64, 2, 0]}
+Resolution of match:
+{"label": "match",
+ "kind": 14,
+ "documentation":
+ {"value":
+  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 64, 2, 0]}
 Resolution of skip:
@@ -824,18 +824,18 @@ Resolution of intro:
     "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 70, 4, 0]},
-  {"label": "match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 70, 4, 0]},
   {"label": "set_option",
    "kind": 14,
    "documentation":
    {"value":
     "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data": ["file:///completionTactics.lean", 70, 4, 0]},
+  {"label": "match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 70, 4, 0]},
   {"label": "skip",
@@ -861,20 +861,20 @@ Resolution of open:
   "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 70, 4, 0]}
-Resolution of match:
-{"label": "match",
- "kind": 14,
- "documentation":
- {"value":
-  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 70, 4, 0]}
 Resolution of set_option:
 {"label": "set_option",
  "kind": 14,
  "documentation":
  {"value":
   "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+  "kind": "markdown"},
+ "data": ["file:///completionTactics.lean", 70, 4, 0]}
+Resolution of match:
+{"label": "match",
+ "kind": 14,
+ "documentation":
+ {"value":
+  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 70, 4, 0]}
 Resolution of skip:
@@ -905,18 +905,18 @@ Resolution of intro:
     "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 76, 2, 0]},
-  {"label": "match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 76, 2, 0]},
   {"label": "set_option",
    "kind": 14,
    "documentation":
    {"value":
     "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data": ["file:///completionTactics.lean", 76, 2, 0]},
+  {"label": "match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 76, 2, 0]},
   {"label": "skip",
@@ -942,20 +942,20 @@ Resolution of open:
   "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 76, 2, 0]}
-Resolution of match:
-{"label": "match",
- "kind": 14,
- "documentation":
- {"value":
-  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 76, 2, 0]}
 Resolution of set_option:
 {"label": "set_option",
  "kind": 14,
  "documentation":
  {"value":
   "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+  "kind": "markdown"},
+ "data": ["file:///completionTactics.lean", 76, 2, 0]}
+Resolution of match:
+{"label": "match",
+ "kind": 14,
+ "documentation":
+ {"value":
+  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 76, 2, 0]}
 Resolution of skip:
@@ -989,18 +989,18 @@ Resolution of intro:
     "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 86, 2, 0]},
-  {"label": "match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 86, 2, 0]},
   {"label": "set_option",
    "kind": 14,
    "documentation":
    {"value":
     "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data": ["file:///completionTactics.lean", 86, 2, 0]},
+  {"label": "match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 86, 2, 0]},
   {"label": "skip",
@@ -1026,20 +1026,20 @@ Resolution of open:
   "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 86, 2, 0]}
-Resolution of match:
-{"label": "match",
- "kind": 14,
- "documentation":
- {"value":
-  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 86, 2, 0]}
 Resolution of set_option:
 {"label": "set_option",
  "kind": 14,
  "documentation":
  {"value":
   "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+  "kind": "markdown"},
+ "data": ["file:///completionTactics.lean", 86, 2, 0]}
+Resolution of match:
+{"label": "match",
+ "kind": 14,
+ "documentation":
+ {"value":
+  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 86, 2, 0]}
 Resolution of skip:
@@ -1070,18 +1070,18 @@ Resolution of intro:
     "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 91, 4, 0]},
-  {"label": "match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 91, 4, 0]},
   {"label": "set_option",
    "kind": 14,
    "documentation":
    {"value":
     "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data": ["file:///completionTactics.lean", 91, 4, 0]},
+  {"label": "match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 91, 4, 0]},
   {"label": "skip",
@@ -1107,20 +1107,20 @@ Resolution of open:
   "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 91, 4, 0]}
-Resolution of match:
-{"label": "match",
- "kind": 14,
- "documentation":
- {"value":
-  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 91, 4, 0]}
 Resolution of set_option:
 {"label": "set_option",
  "kind": 14,
  "documentation":
  {"value":
   "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+  "kind": "markdown"},
+ "data": ["file:///completionTactics.lean", 91, 4, 0]}
+Resolution of match:
+{"label": "match",
+ "kind": 14,
+ "documentation":
+ {"value":
+  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 91, 4, 0]}
 Resolution of skip:
@@ -1154,18 +1154,18 @@ Resolution of intro:
     "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 102, 4, 0]},
-  {"label": "match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 102, 4, 0]},
   {"label": "set_option",
    "kind": 14,
    "documentation":
    {"value":
     "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data": ["file:///completionTactics.lean", 102, 4, 0]},
+  {"label": "match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 102, 4, 0]},
   {"label": "skip",
@@ -1191,20 +1191,20 @@ Resolution of open:
   "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 102, 4, 0]}
-Resolution of match:
-{"label": "match",
- "kind": 14,
- "documentation":
- {"value":
-  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 102, 4, 0]}
 Resolution of set_option:
 {"label": "set_option",
  "kind": 14,
  "documentation":
  {"value":
   "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+  "kind": "markdown"},
+ "data": ["file:///completionTactics.lean", 102, 4, 0]}
+Resolution of match:
+{"label": "match",
+ "kind": 14,
+ "documentation":
+ {"value":
+  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 102, 4, 0]}
 Resolution of skip:
@@ -1238,18 +1238,18 @@ Resolution of intro:
     "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 112, 2, 0]},
-  {"label": "match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 112, 2, 0]},
   {"label": "set_option",
    "kind": 14,
    "documentation":
    {"value":
     "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data": ["file:///completionTactics.lean", 112, 2, 0]},
+  {"label": "match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 112, 2, 0]},
   {"label": "skip",
@@ -1275,20 +1275,20 @@ Resolution of open:
   "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 112, 2, 0]}
-Resolution of match:
-{"label": "match",
- "kind": 14,
- "documentation":
- {"value":
-  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 112, 2, 0]}
 Resolution of set_option:
 {"label": "set_option",
  "kind": 14,
  "documentation":
  {"value":
   "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+  "kind": "markdown"},
+ "data": ["file:///completionTactics.lean", 112, 2, 0]}
+Resolution of match:
+{"label": "match",
+ "kind": 14,
+ "documentation":
+ {"value":
+  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 112, 2, 0]}
 Resolution of skip:
@@ -1319,18 +1319,18 @@ Resolution of intro:
     "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 118, 4, 0]},
-  {"label": "match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 118, 4, 0]},
   {"label": "set_option",
    "kind": 14,
    "documentation":
    {"value":
     "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data": ["file:///completionTactics.lean", 118, 4, 0]},
+  {"label": "match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 118, 4, 0]},
   {"label": "skip",
@@ -1356,20 +1356,20 @@ Resolution of open:
   "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 118, 4, 0]}
-Resolution of match:
-{"label": "match",
- "kind": 14,
- "documentation":
- {"value":
-  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 118, 4, 0]}
 Resolution of set_option:
 {"label": "set_option",
  "kind": 14,
  "documentation":
  {"value":
   "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+  "kind": "markdown"},
+ "data": ["file:///completionTactics.lean", 118, 4, 0]}
+Resolution of match:
+{"label": "match",
+ "kind": 14,
+ "documentation":
+ {"value":
+  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 118, 4, 0]}
 Resolution of skip:
@@ -1400,18 +1400,18 @@ Resolution of intro:
     "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 133, 2, 0]},
-  {"label": "match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 133, 2, 0]},
   {"label": "set_option",
    "kind": 14,
    "documentation":
    {"value":
     "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data": ["file:///completionTactics.lean", 133, 2, 0]},
+  {"label": "match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
     "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 133, 2, 0]},
   {"label": "skip",
@@ -1445,20 +1445,20 @@ Resolution of open:
   "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 133, 2, 0]}
-Resolution of match:
-{"label": "match",
- "kind": 14,
- "documentation":
- {"value":
-  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 133, 2, 0]}
 Resolution of set_option:
 {"label": "set_option",
  "kind": 14,
  "documentation":
  {"value":
   "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+  "kind": "markdown"},
+ "data": ["file:///completionTactics.lean", 133, 2, 0]}
+Resolution of match:
+{"label": "match",
+ "kind": 14,
+ "documentation":
+ {"value":
+  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
   "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 133, 2, 0]}
 Resolution of skip:

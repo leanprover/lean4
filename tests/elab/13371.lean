@@ -7,7 +7,7 @@ structure Hom [Inhabited Unit] where
 noncomputable instance inst : Inhabited Unit := ⟨Classical.choice ⟨()⟩⟩
 
 /--
-error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'inst', which is 'noncomputable'
+error: failed to compile definition, consider marking it as `noncomputable` because it depends on `inst`, which is `noncomputable`
 -/
 #guard_msgs in
 def test : Hom := ⟨default⟩

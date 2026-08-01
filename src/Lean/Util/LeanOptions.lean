@@ -95,7 +95,7 @@ instance : Append LeanOptions := ⟨LeanOptions.append⟩
 
 /-- Add the options from `new`, overriding those in `self`. -/
 def LeanOptions.appendArray (self : LeanOptions) (new : Array LeanOption) : LeanOptions :=
-  ⟨new.foldl (fun m {name, value} => m.insert name optionValue) self.values⟩
+  ⟨new.foldl (fun m {name, value} => m.insert name value) self.values⟩
 
 instance : HAppend LeanOptions (Array LeanOption) LeanOptions := ⟨LeanOptions.appendArray⟩
 

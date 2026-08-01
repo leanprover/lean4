@@ -42,7 +42,7 @@ larger numbers use a fast arbitrary-precision arithmetic library (usually
 than the platform's pointer size (i.e. 63 bits on 64-bit architectures and 31 bits on 32-bit
 architectures).
 -/
-@[suggest_for ℤ]
+@[suggest_for ℤ, override_runtime_type]
 inductive Int : Type where
   /--
   A natural number is an integer.
@@ -330,6 +330,26 @@ def natAbs (m : @& Int) : Nat :=
   match m with
   | ofNat m => m
   | -[m +1] => m.succ
+
+/-- The implementation for `casesOn` for the compiler. -/
+@[macro_inline]
+def casesOnImpl {motive : Int → Sort u} (t : Int) (ofNat : (n : Nat) → motive (ofNat n))
+    (negSucc : (n : Nat) → motive -[n+1]) : motive t :=
+  (decNonneg t).casesOn
+    (fun h =>
+      haveI : t = -[(t.natAbs - 1)+1] :=
+      t.casesOn (fun a => absurd (.mk a)) (fun _ _ => rfl) h
+      this ▸ negSucc (t.natAbs - 1))
+    (fun h =>
+      haveI : t = .ofNat t.natAbs := h.casesOn fun _ => rfl
+      this ▸ ofNat t.natAbs)
+
+@[csimp]
+theorem casesOn_eq_casesOnImpl : @Int.casesOn = @Int.casesOnImpl :=
+  funext fun _motive => funext fun t => funext fun _ofNat => funext fun _negSucc =>
+    match t with
+    | ofNat _ => rfl
+    | -[_+1] => rfl
 
 attribute [gen_constructor_elims] Int
 

@@ -34,6 +34,7 @@ Like other low-level types, `Float32` is special-cased by the Lean compiler to c
 Some of the operations on `Float32` are defined in terms of their `Float32.Model` counterparts,
 while others are opaque to Lean's kernel.
 -/
+@[override_runtime_type Float32]
 structure Float32 where
   /-- Constructs a `Float32` from a `Float32.Model`. -/
   ofModel ::

@@ -61,7 +61,7 @@ instance : ToJson LeanOptionValue where
 
 /-- Formats the lean option value as a CLI flag argument. -/
 def LeanOptionValue.asCliFlagValue : (v : LeanOptionValue) → String
-  | (s : String) => s!"\"{s}\""
+  | (s : String) => s
   | (b : Bool)   => toString b
   | (n : Nat)    => toString n
 
@@ -95,7 +95,7 @@ instance : Append LeanOptions := ⟨LeanOptions.append⟩
 
 /-- Add the options from `new`, overriding those in `self`. -/
 def LeanOptions.appendArray (self : LeanOptions) (new : Array LeanOption) : LeanOptions :=
-  ⟨new.foldl (fun m {name, value} => m.insert name value) self.values⟩
+  ⟨new.foldl (fun m {name, value} => m.insert name optionValue) self.values⟩
 
 instance : HAppend LeanOptions (Array LeanOption) LeanOptions := ⟨LeanOptions.appendArray⟩
 

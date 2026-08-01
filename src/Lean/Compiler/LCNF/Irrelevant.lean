@@ -58,6 +58,8 @@ def Irrelevant.computeHasTrivialStructure?
     (trivialType : Expr → MetaM Bool) (declName : Name) : CoreM (Option TrivialStructureInfo) := do
   let some info ← isInductiveOverrideSimple? declName | return none
   let [ctorName] := info.ctors | return none
+  if info.isRec then return none
+  if (← getConstInfo declName).isUnsafe then return none
   let ctorType ← getOtherDeclBaseType ctorName []
   if ctorType.isErased then return none
   let ctorInfo ← getConstInfoCtorOverride ctorName

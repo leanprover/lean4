@@ -1093,6 +1093,68 @@ theorem wfImp_filter [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m
   rw [filter_eq_filterₘ]
   exact wfImp_filterₘ h
 
+/-! # `partitionₘ` -/
+
+-- Note that there is no toList model here as we dont use the list model
+-- to prove theorems about partition, but instead use the theorems of the functions
+-- used in its definition
+
+theorem wfImp_fst_partitionₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    {f : (a : α) → β a → Bool} : Raw.WFImp (m.partitionₘ f).1.1 := by
+  simp only [partitionₘ, Raw.fold_eq_foldl_toListModel]
+  let p : Raw₀ α β × Raw₀ α β → List ((a : α) × β a) → Raw₀ α β × Raw₀ α β :=
+    fun pair l => List.foldl (fun a b => if f b.1 b.2 = true
+      then (a.1.insert b.1 b.2, a.2) else (a.1, a.2.insert b.1 b.2)) pair l
+  suffices ∀ (l : List ((a : α) × β a)) (m₁ m₂ : Raw₀ α β) (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1),
+    Raw.WFImp (p (m₁, m₂) l).1.1 from this _ _ _ wfImp_emptyWithCapacity wfImp_emptyWithCapacity
+  intro l
+  induction l with
+  | nil =>
+    simp only [List.foldl_nil, p]
+    intro m₁ _ h₁ _
+    apply h₁
+  | cons hd tl ih =>
+    intro m₁ m₂ h₁ h₂
+    simp only [List.foldl_cons, p]
+    by_cases hhd : f hd.fst hd.snd = true
+    · simp only [hhd, ↓reduceIte]
+      apply ih _ _ (wfImp_insert h₁) h₂
+    · simp only [hhd, Bool.false_eq_true, ↓reduceIte]
+      apply ih _ _ h₁ (wfImp_insert h₂)
+
+theorem wfImp_snd_partitionₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    {f : (a : α) → β a → Bool} : Raw.WFImp (m.partitionₘ f).2.1 := by
+  simp only [partitionₘ, Raw.fold_eq_foldl_toListModel]
+  let p : Raw₀ α β × Raw₀ α β → List ((a : α) × β a) → Raw₀ α β × Raw₀ α β :=
+    fun pair l => List.foldl (fun a b => if f b.1 b.2 = true
+      then (a.1.insert b.1 b.2, a.2) else (a.1, a.2.insert b.1 b.2)) pair l
+  suffices ∀ (l : List ((a : α) × β a)) (m₁ m₂ : Raw₀ α β) (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1),
+    Raw.WFImp (p (m₁, m₂) l).2.1 from this _ _ _ wfImp_emptyWithCapacity wfImp_emptyWithCapacity
+  intro l
+  induction l with
+  | nil =>
+    simp only [List.foldl_nil, p]
+    intro _ m₂ _ h₂
+    apply h₂
+  | cons hd tl ih =>
+    intro m₁ m₂ h₁ h₂
+    simp only [List.foldl_cons, p]
+    by_cases hhd : f hd.fst hd.snd = true
+    · simp only [hhd, ↓reduceIte]
+      apply ih _ _ (wfImp_insert h₁) h₂
+    · simp only [hhd, Bool.false_eq_true, ↓reduceIte]
+      apply ih _ _ h₁ (wfImp_insert h₂)
+
+/-! # `partition` -/
+
+theorem wfImp_fst_partition [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    {f : (a : α) → β a → Bool} : Raw.WFImp (m.partition f).1.1 := by
+  simpa [partition_eq_partitionₘ] using wfImp_fst_partitionₘ
+
+theorem wfImp_snd_partition [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β}
+    {f : (a : α) → β a → Bool} : Raw.WFImp (m.partition f).2.1 := by
+  simpa [partition_eq_partitionₘ] using wfImp_snd_partitionₘ
+
 /-! # `insertListₘ` -/
 
 theorem toListModel_insertListₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
@@ -1234,6 +1296,8 @@ theorem WF.out [BEq α] [Hashable α] [i₁ : EquivBEq α] [i₂ : LawfulHashabl
   | alter₀ _ h => exact Raw₀.wfImp_alter (by apply h)
   | constAlter₀ _ h => exact Raw₀.Const.wfImp_alter (by apply h)
   | inter₀ _ _ h _  => exact Raw₀.wfImp_inter (by apply h)
+  | fst_partition₀ => exact Raw₀.wfImp_fst_partition
+  | snd_partition₀ => exact Raw₀.wfImp_snd_partition
 
 end Raw
 

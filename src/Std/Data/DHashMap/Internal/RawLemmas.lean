@@ -1056,6 +1056,21 @@ theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.toList.Pairwise (fun a b => (a.1 == b.1) = false) := by
   simp_to_model [toList] using List.pairwise_fst_eq_false
 
+theorem nodup_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.toList.Nodup := by
+  simp_to_model [toList] using List.nodup_of_distinctKeys
+
+theorem toList_insert_perm_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {k : α} {v : β k} :
+    m.contains k = false → (m.insert k v).1.toList.Perm (⟨k, v⟩ :: m.1.toList) := by
+  simp_to_model using fun h' => (toListModel_insert _).trans (List.Perm.of_eq (List.insertEntry_of_containsKey_eq_false h'))
+  simp [Raw.WF.out h]
+
+theorem mem_toList_insert_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {k : α} {v : β k} {x : (a : α) × β a} (h' : m.contains k = false) :
+    x ∈ (m.insert k v).1.toList ↔ x = ⟨k, v⟩ ∨ x ∈ m.1.toList := by
+  simp [(toList_insert_perm_of_contains_eq_false _ h h').mem_iff]
+
 namespace Const
 
 variable {β : Type v} (m : Raw₀ α (fun _ => β))
@@ -1104,6 +1119,19 @@ theorem mem_toList_iff_getKey?_eq_some_and_get?_eq_some [EquivBEq α] [LawfulHas
 theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     (Raw.Const.toList m.1).Pairwise (fun a b => (a.1 == b.1) = false) := by
   simp_to_model [Const.toList] using List.pairwise_fst_eq_false_map_toProd
+
+theorem nodup_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    (Raw.Const.toList m.1).Nodup := by
+  simp_to_model [Const.toList] using List.nodup_map_of_distinctKeys
+
+theorem mem_toList_insert_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {k : α} {v : β} {x : α × β} (h' : m.contains k = false) :
+    x ∈ (Raw.Const.toList (m.insert k v).1) ↔ x = ⟨k, v⟩ ∨ x ∈ Raw.Const.toList m.1 := by
+  have : List.filter (fun x => !k == x.fst) (Raw.Const.toList m.val) = Raw.Const.toList m.val := by
+    simp only [← find?_toList_eq_none_iff_contains_eq_false m h, BEq.comm, List.find?_eq_none,
+      Bool.not_eq_true, Prod.forall] at h'
+    simpa
+  simp [List.Perm.mem_iff (Const.toList_insert_perm m h), this]
 
 end Const
 
@@ -5188,6 +5216,124 @@ theorem toList_map {α : Type u} (m : Raw₀ α fun _ => β)
 end Const
 
 end map
+
+section partition
+
+theorem fst_partition_not_eq_snd_partition [EquivBEq α] [LawfulHashable α]
+    {p : (a : α) → β a → Bool} :
+    (m.partition (fun a b => ! p a b)).fst = (m.partition p).snd := by
+  simp only [partition, Bool.not_eq_eq_eq_not, Bool.not_true, fold_eq_foldl_toList]
+  generalize m.val.toList = l
+  let f : Raw₀ α β × Raw₀ α β → List ((a : α) × β a) → Raw₀ α β × Raw₀ α β :=
+    fun pair l => List.foldl (fun a b => if p b.1 b.2 = true
+      then (a.1.insert b.1 b.2, a.2) else (a.1, a.2.insert b.1 b.2)) pair l
+  let f' : Raw₀ α β × Raw₀ α β → List ((a : α) × β a) → Raw₀ α β × Raw₀ α β :=
+    fun pair l => List.foldl (fun a b => if p b.1 b.2 = false
+      then (a.1.insert b.1 b.2, a.2) else (a.1, a.2.insert b.1 b.2)) pair l
+  suffices ∀ (l : List ((a : α) × β a)) (m₁ m₂ : Raw₀ α β),
+    (f' (m₁, m₂) l).fst = (f (m₂, m₁) l).snd from
+      this _ _ _
+  intro l
+  induction l with
+  | nil => simp [f, f']
+  | cons hd tl ih =>
+    intro m₁ m₂
+    simp only [List.foldl_cons, f', f]
+    by_cases hhd : p hd.fst hd.snd = true
+    · simp only [hhd, Bool.true_eq_false, ↓reduceIte]
+      rw [ih]
+    · simp only [hhd, ↓reduceIte, Bool.false_eq_true]
+      rw [ih]
+
+theorem snd_partition_not_eq_fst_partition [EquivBEq α] [LawfulHashable α]
+    {p : (a : α) → β a → Bool} :
+    (m.partition (fun a b => ! p a b)).snd = (m.partition p).fst := by
+  simp [← fst_partition_not_eq_snd_partition]
+
+private theorem mem_toList_fst_partition [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {p : (a : α) → β a → Bool} (x : (a : α) × β a) :
+    x ∈ (m.partition p).1.1.toList ↔ x ∈ m.1.toList ∧ p x.1 x.2 = true := by
+  simp only [partition, fold_eq_foldl_toList]
+  let f : Raw₀ α β × Raw₀ α β → List ((a : α) × β a) → Raw₀ α β × Raw₀ α β :=
+    fun pair l => List.foldl (fun a b => if p b.1 b.2 = true
+      then (a.1.insert b.1 b.2, a.2) else (a.1, a.2.insert b.1 b.2)) pair l
+  suffices ∀ (l : List ((a : α) × β a)) (m₁ m₂ : Raw₀ α β) (h₁ : m₁.1.WF) (h₂ : m₂.1.WF)
+    (h₃ : ∀ x ∈ l, m₁.contains x.1 = false)
+    (h₄ : l.Pairwise (fun a b => (a.1 == b.1) = false)),
+      x ∈ (f (m₁, m₂) l).1.1.toList ↔ (x ∈ l ∧ p x.1 x.2 = true) ∨ x ∈ m₁.1.toList by
+    specialize this m.1.toList emptyWithCapacity emptyWithCapacity Raw.WF.emptyWithCapacity₀
+      Raw.WF.emptyWithCapacity₀ (by simp ) (distinct_keys_toList _ h)
+    rw [this]
+    simp
+  intro l
+  induction l with
+  | nil =>
+    simp [f]
+  | cons hd tl ih =>
+    intro m₁ m₂ h₁ h₂ h₃ h₄
+    simp only [List.foldl_cons, List.mem_cons, f]
+    by_cases hhd : p hd.1 hd.2
+    · simp only [hhd, ↓reduceIte]
+      rw [ih _ _ (Raw.WF.insert₀ h₁) h₂]
+      · simp only [mem_toList_insert_of_contains_eq_false _ h₁ (h₃ hd (by simp)), or_and_right]
+        have : x = ⟨hd.1, hd.2⟩ ↔ x = hd ∧ p x.1 x.2 := by
+          simp only [iff_self_and]
+          intro h
+          rw [h]
+          simp [hhd]
+        conv => lhs; rw [this]
+        rw [← or_assoc, or_comm (a := x ∈ tl ∧ p x.fst x.snd = true)]
+      · intro x hx
+        simp only [contains_insert _ h₁, Bool.or_eq_false_iff]
+        constructor
+        · simp only [List.pairwise_cons] at h₄
+          apply h₄.1 x hx
+        · apply h₃ x (by simp [hx])
+      · simp only [List.pairwise_cons] at h₄
+        apply h₄.2
+    · simp only [hhd, Bool.false_eq_true, ↓reduceIte]
+      rw [ih _ _ h₁ (Raw.WF.insert₀ h₂)]
+      · have : ¬ (x = hd ∧ p x.fst x.snd = true) := by
+          intro h
+          obtain ⟨h, h'⟩ := h
+          rw [h] at h'
+          apply hhd
+          exact h'
+        simp [or_and_right, this]
+      · simp only [List.mem_cons, forall_eq_or_imp] at h₃
+        apply h₃.2
+      · simp only [List.pairwise_cons] at h₄
+        apply h₄.2
+
+theorem fst_partition_equiv_filter [EquivBEq α] [LawfulHashable α]
+    {p : (a : α) → β a → Bool} (h : m.1.WF)  :
+    (m.partition p).1.1.Equiv (m.filter p).1 := by
+  rw [equiv_iff_toList_perm_toList]
+  refine List.Perm.trans ?_ (toList_filter m).symm
+  rw [List.perm_ext_iff_of_nodup]
+  · intro a
+    simp [mem_toList_fst_partition _ h]
+  · apply nodup_toList _ Raw.WF.fst_partition₀
+  · apply List.Sublist.nodup List.filter_sublist (nodup_toList m h)
+
+theorem snd_partition_equiv_filter_not [EquivBEq α] [LawfulHashable α]
+    {p : (a : α) → β a → Bool} (h : m.1.WF)  :
+    (m.partition p).2.1.Equiv (m.filter (fun a b => ! p a b)).1 := by
+  rw [← fst_partition_not_eq_snd_partition]
+  apply fst_partition_equiv_filter _ h
+
+theorem size_partition [EquivBEq α] [LawfulHashable α] {p : (a : α) → β a → Bool} (h : m.1.WF) :
+    (m.partition p).1.1.size + (m.partition p).2.1.size = m.1.size := by
+  simp [size_eq_of_equiv _ _ Raw.WF.fst_partition₀ (Raw.WF.filter₀ h)
+        (fst_partition_equiv_filter m h),
+    Raw.WF.filter₀ h, ← length_toList, List.Perm.length_eq (toList_filter m (f := p)),
+    ← List.countP_eq_length_filter,
+    size_eq_of_equiv _ _ Raw.WF.snd_partition₀ (Raw.WF.filter₀ h)
+        (snd_partition_equiv_filter_not m h),
+    List.Perm.length_eq (toList_filter m (f := fun a b => !p a b)), h,
+    List.length_eq_countP_add_countP (l := m.val.toList) (fun x => p x.1 x.2)]
+
+end partition
 
 end Raw₀
 

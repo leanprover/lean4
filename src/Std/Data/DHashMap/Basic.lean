@@ -377,14 +377,10 @@ section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
 
-/-- Partition a hash map into two hash map based on a predicate. -/
-@[inline] def partition (f : (a : α) → β a → Bool)
+@[inline, inherit_doc Raw.partition] def partition (f : (a : α) → β a → Bool)
     (m : DHashMap α β) : DHashMap α β × DHashMap α β :=
-  m.fold (init := (∅, ∅)) fun ⟨l, r⟩  a b =>
-    if f a b then
-      (l.insert a b, r)
-    else
-      (l, r.insert a b)
+  ⟨⟨(Raw₀.partition f ⟨m.1, m.2.size_buckets_pos⟩).1, Raw.WF.fst_partition₀⟩,
+    ⟨(Raw₀.partition f ⟨m.1, m.2.size_buckets_pos⟩).2, Raw.WF.snd_partition₀⟩⟩
 
 @[inline, inherit_doc Raw.values] def values {β : Type v}
     (m : DHashMap α (fun _ => β)) : List β :=

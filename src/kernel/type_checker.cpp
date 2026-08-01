@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include <vector>
+#include <limits>
 #include "runtime/interrupt.h"
 #include "runtime/sstream.h"
 #include "runtime/flet.h"
@@ -218,11 +219,26 @@ expr type_checker::infer_let(expr const & _e, bool infer_only) {
     return m_lctx.mk_pi(fvars, r, true);
 }
 
+/*
+Store the projection index in `result`, and return `false` if it does not fit.
+`nat::is_small` admits up to 63 bits, but projection indices are consumed as `unsigned`, so
+without the upper bound `.proj S 2^32 c` would be silently truncated into `.proj S 0 c`.
+*/
+static bool to_proj_idx(nat const & idx, unsigned & result) {
+    if (!idx.is_small())
+        return false;
+    size_t v = idx.get_small_value();
+    if (v > std::numeric_limits<unsigned>::max())
+        return false;
+    result = static_cast<unsigned>(v);
+    return true;
+}
+
 expr type_checker::infer_proj(expr const & e, bool infer_only) {
     expr type = whnf(infer_type_core(proj_expr(e), infer_only));
-    if (!proj_idx(e).is_small())
+    unsigned idx;
+    if (!to_proj_idx(proj_idx(e), idx))
         throw invalid_proj_exception(env(), m_lctx, e);
-    unsigned idx = proj_idx(e).get_small_value();
     buffer<expr> args;
     expr const & I = get_app_args(type, args);
     if (!is_constant(I))
@@ -386,9 +402,9 @@ optional<expr> type_checker::reduce_proj_core(expr c, name const & sname, unsign
 
 /* If `cheap == true`, then we don't perform delta-reduction when reducing major premise. */
 optional<expr> type_checker::reduce_proj(expr const & e, bool cheap_rec, bool cheap_proj) {
-    if (!proj_idx(e).is_small())
+    unsigned idx;
+    if (!to_proj_idx(proj_idx(e), idx))
         return none_expr();
-    unsigned idx = proj_idx(e).get_small_value();
     expr c;
     if (cheap_proj)
         c = whnf_core(proj_expr(e), cheap_rec, cheap_proj);
@@ -1024,8 +1040,8 @@ bool type_checker::lazy_delta_proj_reduction(expr & t_n, expr & s_n, name const 
         case reduction_status::DefEqual:   return true;
         case reduction_status::DefUnknown:
         case reduction_status::DefDiff:
-            if (idx.is_small()) {
-                unsigned i = idx.get_small_value();
+            unsigned i;
+            if (to_proj_idx(idx, i)) {
                 if (auto t = reduce_proj_core(t_n, sname, i)) {
                 if (auto s = reduce_proj_core(s_n, sname, i)) {
                     return is_def_eq_core(*t, *s);

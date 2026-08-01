@@ -57,39 +57,21 @@ public def hasTrivialImpureStructure? (declName : Name) : CoreM (Option TrivialS
   Irrelevant.hasTrivialStructure? impureTrivialStructureInfoExt declName
 
 /--
-IR representations that are fixed independently of the environment: builtin scalar types and the
-compiler's pseudo-constants (`lcErased`/`lcVoid`, which are not inductives). These never need to be
-persisted in `impureTypeExt`.
--/
-def builtinImpureType? : Name → Option Expr
-  | ``UInt8 => some ImpureType.uint8
-  | ``UInt16 => some ImpureType.uint16
-  | ``UInt32 => some ImpureType.uint32
-  | ``UInt64 => some ImpureType.uint64
-  | ``USize => some ImpureType.usize
-  | ``Float => some ImpureType.float
-  | ``Float32 => some ImpureType.float32
-  | ``lcErased => some ImpureType.erased
-  -- `Int` is specified as an inductive type with two constructors that have relevant arguments,
-  -- but it has the same runtime representation as `Nat` and thus needs to be special-cased here.
-  | ``Int => some ImpureType.tobject
-  | ``lcVoid => some ImpureType.void
-  | _ => none
-
-/--
 Computes the IR (impure) type of `name` from scratch by inspecting its constructors. For inductives
 this walks the constructor field types, so it must run in the defining module, where those types
 (including private ones) are accessible.
 -/
 def computeImpureType (name : Name) : CoreM Expr := do
-  if let some type := builtinImpureType? name then return type
-  let env ← Lean.getEnv
-  let some (.inductInfo inductiveVal) := env.find? name | return ImpureType.tobject
+  if let some (.simpleType _ type incomplete) := getInductiveOverride? (← getEnv) name then
+    if incomplete then
+      modifyEnv (incompleteRefExt.modifyState · (·.insert name))
+    return type
+  let some inductiveVal ← isInductiveOverrideSimple? name | return ImpureType.tobject
   let ctorNames := inductiveVal.ctors
   let numCtors := ctorNames.length
   let mut numScalarCtors := 0
   for ctorName in ctorNames do
-    let some (.ctorInfo ctorInfo) := env.find? ctorName | unreachable!
+    let some ctorInfo ← isCtorOverride? ctorName | unreachable!
     let hasRelevantField ← Meta.MetaM.run' <|
                            Meta.forallTelescope ctorInfo.type fun params _ => do
       for field in params[ctorInfo.numParams...*] do
@@ -109,7 +91,7 @@ def computeImpureType (name : Name) : CoreM Expr := do
 
 /-- Eagerly computes and persists the IR type of inductive `name`; see `compileDecls`. -/
 public def setImpureType (name : Name) : CoreM Unit := do
-  if (builtinImpureType? name).isSome then return
+  if let some (.simpleType ..) := getInductiveOverride? (← getEnv) name then return
   unless (impureTypeExt.find? (← getEnv) name).isSome do
     modifyEnv (impureTypeExt.insert · name (← computeImpureType name))
 
@@ -118,8 +100,11 @@ Returns the IR (impure) type representation of `name`. Requires `compileDecls` t
 inductive type `name`.
 -/
 public def nameToImpureType (name : Name) : CoreM Expr := do
-  if let some type := builtinImpureType? name then return type
-  let some (.inductInfo _) := (← getEnv).find? name | return ImpureType.tobject
+  if let some (.simpleType _ type incomplete) := getInductiveOverride? (← getEnv) name then
+    if incomplete then
+      modifyEnv (incompleteRefExt.modifyState · (·.insert name))
+    return type
+  let some _ ← isInductiveOverrideSimple? name | return ImpureType.tobject
   let some type := impureTypeExt.find? (← getEnv) name
     | throwError "`{name}` was not compiled; `compileDecls` must run on inductive types first"
   return type
@@ -191,7 +176,7 @@ public def setCtorLayout (ctorName : Name) : CoreM Unit := do
   unless (ctorLayoutExt.find? (← getEnv) ctorName).isSome do
     modifyEnv (ctorLayoutExt.insert · ctorName (← fillCache))
 where fillCache := do
-  let .some (.ctorInfo ctorInfo) := (← getEnv).find? ctorName | unreachable!
+  let ctorInfo ← getConstInfoCtorOverride ctorName
   Meta.MetaM.run' <| Meta.forallTelescopeReducing ctorInfo.type fun params _ => do
     let mut fields : Array CtorFieldInfo := .emptyWithCapacity ctorInfo.numFields
     let mut nextIdx := 0
@@ -285,7 +270,7 @@ Eagerly computes and persists all cross-module compiler caches for the inductive
 (and their constructors) in their defining module; run from `compileDecls`.
 -/
 public def compileInductives (typeNames : Array Name) : CoreM Unit := do
-  let inductiveNames ← typeNames.filterM fun n => return (← getEnv).find? n matches some (.inductInfo _)
+  let inductiveNames ← typeNames.filterM fun n => return (← isInductiveOverrideSimple? n).isSome
   -- The readers are strict, so we fill in dependency phases across the whole (possibly mutual)
   -- block: each phase only reads caches filled by an earlier phase or an imported module.
   for typeName in inductiveNames do
@@ -295,9 +280,16 @@ public def compileInductives (typeNames : Array Name) : CoreM Unit := do
     setOtherDeclMonoType typeName
     setImpureType typeName
   for typeName in inductiveNames do  -- reads the type-level info above
-    let .inductInfo iv ← getConstInfo typeName | unreachable!
+    let some iv ← isInductiveOverrideSimple? typeName | unreachable!
     for ctorName in iv.ctors do
       setOtherDeclMonoType ctorName
       setCtorLayout ctorName
+
+/--
+Returns true iff `compileInductives` was run with `name` included.
+-/
+public def didCompileInductive (name : Name) : CoreM Bool := do
+  -- we need *some* check here, any other would work fine as well
+  return ctorLayoutExt.contains (← getEnv) name
 
 end Lean.Compiler.LCNF

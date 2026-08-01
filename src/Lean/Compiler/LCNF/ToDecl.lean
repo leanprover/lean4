@@ -16,15 +16,6 @@ import Lean.Compiler.ExportAttr
 public section
 
 namespace Lean.Compiler.LCNF
-/--
-Inline constants tagged with the `[macro_inline]` attribute occurring in `e`.
--/
-def macroInline (e : Expr) : CoreM Expr :=
-  Core.transform e fun e => do
-    let .const declName us := e.getAppFn | return .continue
-    unless hasMacroInlineAttribute (← getEnv) declName do return .continue
-    let val ← Core.instantiateValueLevelParams (← getConstInfo declName) us
-    return .visit <| val.beta e.getAppArgs
 
 private def normalizeAlt (e : Expr) (numParams : Nat) : MetaM Expr :=
   Meta.lambdaTelescope e fun xs body => do

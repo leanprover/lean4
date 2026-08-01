@@ -9,6 +9,7 @@ import Lean.CoreM
 import Lean.Util.ForEachExpr
 import all Lean.Util.Path
 import all Lean.Environment
+public import Lean.Environment
 import Lean.Compiler.Options
 import Lean.Compiler.IR.CompilerM
 

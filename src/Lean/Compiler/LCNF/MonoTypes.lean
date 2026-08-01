@@ -114,7 +114,7 @@ signature on demand and cached for the current module.
 def getOtherDeclMonoType (declName : Name) : CoreM Expr := do
   if let some type := monoTypeExt.find? (← getEnv) declName then
     return type
-  if (← getEnv).find? declName matches some (.inductInfo _) | some (.ctorInfo _) then
+  if ← Option.isSome <$> isInductiveOverrideSimple? declName <||> Option.isSome <$> isCtorOverride? declName then
     throwError "`{declName}` was not compiled; `compileDecls` must run on inductive types first"
   let type ← toMonoType (← getOtherDeclBaseType declName [])
   -- avoid `addEntry` for local-only caching

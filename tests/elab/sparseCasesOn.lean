@@ -40,14 +40,14 @@ set_option trace.Compiler.saveBase true
 trace: [Compiler.saveBase] size: 7
     def testDecl motive t fvar sort else.1 : motive lcAny :=
       cases t : motive lcAny
-      | Lean.Expr.fvar fvarId =>
+      | Lean.Expr.fvar._impl data fvarId =>
         let _x.2 := fvar fvarId;
         return _x.2
-      | Lean.Expr.sort u =>
+      | Lean.Expr.sort._impl data u =>
         let _x.3 := sort u;
         return _x.3
       | _ =>
-        let _x.4 := else.1 _;
+        let _x.4 := else.1 ◾;
         return _x.4
 -/
 #guard_msgs in

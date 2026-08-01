@@ -14,6 +14,7 @@ public import Init.Data.ToString.Extra
 public section
 universe u
 
+@[override_runtime_type obj]
 structure FloatArray where
   data : Array Float
 

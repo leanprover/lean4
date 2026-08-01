@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Compiler.LCNF.PrettyPrinter
 public import Lean.Compiler.LCNF.MonoTypes
+public import Lean.Compiler.InductiveOverride
 
 public section
 
@@ -15,9 +16,9 @@ namespace Lean.Compiler.LCNF
 namespace StructProjCases
 
 def findStructCtorInfo? (typeName : Name) : CoreM (Option ConstructorVal) := do
-  let .inductInfo info ← getConstInfo typeName | return none
+  let some info ← isInductiveOverrideSimple? typeName | return none
   let [ctorName] := info.ctors | return none
-  let some (.ctorInfo ctorInfo) := (← getEnv).find? ctorName | return none
+  let some ctorInfo ← isCtorOverride? ctorName | return none
   return ctorInfo
 
 def mkFieldParamsForCtorType (ctorType : Expr) (numParams : Nat) (numFields : Nat) :

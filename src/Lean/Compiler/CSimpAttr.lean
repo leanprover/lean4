@@ -9,6 +9,7 @@ prelude
 public import Lean.ScopedEnvExtension
 public import Lean.Util.Recognizers
 import Lean.ExtraModUses
+import Lean.Compiler.InductiveOverride
 
 public section
 
@@ -41,6 +42,7 @@ private def isConstantReplacement? (declName : Name) : CoreM (Option Entry) := d
   let info ← getConstVal declName
   match info.type.eq? with
   | some (_, Expr.const fromDeclName us, Expr.const toDeclName vs) =>
+    checkNoSpecialMeaning `csimp fromDeclName
     let set := Std.HashSet.ofList us
     if set.size == us.length && set.all Level.isParam && us == vs then
       return some { fromDeclName, toDeclName, thmName := declName }

@@ -16,6 +16,7 @@ import Lean.Meta.Match.SimpH
 import Lean.Meta.Match.AltTelescopes
 import Lean.Meta.Match.NamedPatterns
 import Lean.Meta.SplitSparseCasesOn
+import Lean.Compiler.InlineAttrs
 
 public section
 

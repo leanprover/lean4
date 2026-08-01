@@ -187,30 +187,20 @@ partial def simpCasesOnCtor? (cases : Cases .pure) : SimpM (Option (Code .pure))
     return some ret
   | .fvar discr =>
     let some ctorInfo ← findCtor? discr | return none
-    let some (.ctorInfo ctorVal) := (← getEnv).find? ctorInfo.getName | return none
-    unless cases.typeName == ctorVal.induct do
+    unless cases.typeName == ctorInfo.val.induct do
       return none
-    let (alt, cases) := cases.extractAlt! ctorInfo.getName
+    let (alt, cases) := cases.extractAlt! ctorInfo.val.name
     eraseCode (.cases cases)
     markSimplified
     match alt with
     | .default k => simp k
     | .alt _ params k =>
-      match ctorInfo with
-      | .ctor ctorVal ctorArgs =>
-        let fields := ctorArgs[ctorVal.numParams...*]
-        for param in params, field in fields do
-          addSubst param.fvarId field
-        let k ← simp k
-        eraseParams params
-        return k
-      | .natVal 0 => simp k
-      | .natVal (n+1) =>
-        let auxDecl ← mkAuxLetDecl (.lit (.nat n))
-        addFVarSubst params[0]!.fvarId auxDecl.fvarId
-        let k ← simp k
-        eraseParams params
-        return some <| .let auxDecl k
+      let fields := ctorInfo.args[ctorInfo.val.numParams...*]
+      for param in params, field in fields do
+        addSubst param.fvarId field
+      let k ← simp k
+      eraseParams params
+      return k
 
 /--
 Simplify `code`

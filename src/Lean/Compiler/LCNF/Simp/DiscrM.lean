@@ -14,24 +14,9 @@ public section
 namespace Lean.Compiler.LCNF
 namespace Simp
 
-inductive CtorInfo where
-  | ctor (val : ConstructorVal) (args : Array (Arg .pure))
-  | /-- Natural numbers are morally constructor applications -/
-    natVal (n : Nat)
-
-def CtorInfo.getName : CtorInfo → Name
-  | .ctor val _ => val.name
-  | .natVal 0   => ``Nat.zero
-  | .natVal _   => ``Nat.succ
-
-def CtorInfo.getNumParams : CtorInfo → Nat
-  | .ctor val _ => val.numParams
-  | .natVal _ => 0
-
-def CtorInfo.getNumFields : CtorInfo → Nat
-  | .ctor val _ => val.numFields
-  | .natVal 0   => 0
-  | .natVal _   => 1
+structure CtorInfo where
+  val : ConstructorVal
+  args : Array (Arg .pure)
 
 structure DiscrM.Context where
   /--
@@ -56,16 +41,14 @@ Remark: We use this method when simplifying projections and cases-constructor.
 -/
 def findCtor? (fvarId : FVarId) : DiscrM (Option CtorInfo) := do
   match (← findLetDecl? fvarId) with
-  | some { value := .lit (.nat n), .. } =>
-    return some <| .natVal n
   | some { value := .const declName _ args, .. } =>
-    let some (.ctorInfo val) := (← getEnv).find? declName | return none
-    return some <| .ctor val args
+    let some val ← isCtorOverride? declName | return none
+    return some <| { val, args }
   | _ => return (← read).discrCtorMap.get? fvarId
 
 def findCtorName? (fvarId : FVarId) : DiscrM (Option Name) := do
   let some ctorInfo ← findCtor? fvarId | return none
-  return ctorInfo.getName
+  return ctorInfo.val.name
 
 /--
 If `type` is an application of the inductive type `ind`, return its universe levels and parameters.
@@ -74,7 +57,7 @@ def getIndInfo? (type : Expr) (ind : Name) : CoreM (Option (List Level × Array 
   let type := type.headBeta
   let .const declName us := type.getAppFn | return none
   unless declName == ind do return none
-  let .inductInfo info ← getConstInfo declName | return none
+  let some info ← isInductiveOverrideSimple? declName | return none
   unless type.getAppNumArgs >= info.numParams do return none
   let args := type.getAppArgs[*...info.numParams].toArray.map fun
     | .fvar fvarId => .fvar fvarId
@@ -91,17 +74,17 @@ We use this information to simplify nested cases on the same discriminant.
   withReader (fun _ => ctx) x
 where
   updateCtx : DiscrM DiscrM.Context := do
-    let ctorVal ← getConstInfoCtor ctorName
+    let ctorVal ← getConstInfoCtorOverride ctorName
     let fieldArgs := ctorFields.map (Arg.fvar ·.fvarId)
     let ctx ← read
     if let some (us, params) ← getIndInfo? (← getType discr) ctorVal.induct then
       let ctorArgs := params ++ fieldArgs
-      let ctorInfo := .ctor ctorVal ctorArgs
+      let ctorInfo := { val := ctorVal, args := ctorArgs }
       let ctor := LetValue.const ctorVal.name us ctorArgs
       return { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctorInfo, ctorDiscrMap := ctx.ctorDiscrMap.insert ctor.toExpr discr }
     else
       -- For the discrCtor map, the constructor parameters are irrelevant for optimizations that use this information
-      let ctorInfo := .ctor ctorVal (.replicate ctorVal.numParams Arg.erased ++ fieldArgs)
+      let ctorInfo := { val := ctorVal, args := .replicate ctorVal.numParams Arg.erased ++ fieldArgs }
       return { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctorInfo }
 
 @[inline, inherit_doc withDiscrCtorImp]

@@ -1539,7 +1539,7 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
     let res ← mkInductiveDeclCore addAndFinalizeInductiveDecl vars elabs rs scopeLevelNames
     return res
 
-private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
+private def mkAuxConstructionsPreCompile (declNames : Array Name) : MetaM Unit := do
   let env ← getEnv
   let hasEq   := env.contains ``Eq
   let hasHEq  := env.contains ``HEq
@@ -1556,6 +1556,12 @@ private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
   for n in declNames do
     if hasUnit && hasProd then mkBRecOn n
 
+private def compileAuxConstructions (declNames : Array Name) : MetaM Unit := do
+  let env ← getEnv
+  for n in declNames do
+    if env.contains (mkCtorIdxName n) then
+      compileDecls #[mkCtorIdxName n]
+
 def updateViewWithFunctorName (view : InductiveView) : InductiveView :=
   let newCtors := view.ctors.map (fun ctor => {ctor with declName := ctor.declName.updatePrefix (addFunctorPostfix ctor.declName.getPrefix)})
   {view with declName := addFunctorPostfix view.declName, ctors := newCtors}
@@ -1566,11 +1572,9 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
   Term.withDeclName view0.declName do withRef ref do
   withExporting (isExporting := !isPrivateName view0.declName) do
     let res ← mkInductiveDecl vars elabs
-    -- Must happen *before* `sizeOf` etc are compiled below
-    Lean.compileDecls (elabs.map (·.view.declName))
     -- This might be too coarse, consider reconsidering on construction-by-construction basis
     withoutExporting (when := view0.ctors.any (isPrivateName ·.declName)) do
-      mkAuxConstructions (elabs.map (·.view.declName))
+      mkAuxConstructionsPreCompile (elabs.map (·.view.declName))
       unless view0.isClass do
         mkSizeOfInstances view0.declName
         IndPredBelow.mkBelow view0.declName
@@ -1589,10 +1593,11 @@ private def elabFlatInductiveViews (vars : Array Expr) (elabs : Array InductiveE
   withExporting (isExporting := !isPrivateName view0.declName) do
     withElaboratedHeaders vars elabs <| mkInductiveDeclCore (fun context =>
      mkFlatInductive context.views context.indFVars context.levelParams context.numVars context.numParams context.indTypes)
-    Lean.compileDecls (elabs.map (·.view.declName))
     -- This might be too coarse, consider reconsidering on construction-by-construction basis
     withoutExporting (when := view0.ctors.any (isPrivateName ·.declName)) do
-      mkAuxConstructions (elabs.map (·.view.declName))
+      mkAuxConstructionsPreCompile (elabs.map (·.view.declName))
+      Lean.compileDecls (elabs.map (·.view.declName))
+      compileAuxConstructions (elabs.map (·.view.declName))
     -- Note that the below applies to the flat inductive
     for e in elabs do
       enableRealizationsForConst e.view.declName
@@ -1619,8 +1624,8 @@ private def checkNoInductiveNameConflicts (elabs : Array InductiveElabStep1) (is
         throwErrorsAt prevRef ctor.declId m!"Cannot define {declKinds} with the same name `{ctorName}`"
       uniqueNames := uniqueNames.insert ctorName (false, ctor.declId)
 
-private def applyComputedFields (indViews : Array InductiveView) : CommandElabM Unit := do
-  if indViews.all (·.computedFields.isEmpty) then return
+private def applyComputedFields (indViews : Array InductiveView) : CommandElabM Bool := do
+  if indViews.all (·.computedFields.isEmpty) then return false
 
   let mut computedFields := #[]
   let mut computedFieldDefs := #[]
@@ -1645,6 +1650,7 @@ private def applyComputedFields (indViews : Array InductiveView) : CommandElabM 
 
   liftTermElabM do Term.withDeclName indViews[0]!.declName do
     ComputedFields.setComputedFields computedFields
+  return true
 
 private def applyDerivingHandlers (views : Array InductiveView) : CommandElabM Unit := do
   let mut processed : NameSet := {}
@@ -1661,11 +1667,16 @@ private def applyDerivingHandlers (views : Array InductiveView) : CommandElabM U
 
 private def elabInductiveViewsFinalize (views : Array InductiveView) (res : FinalizeContext) :
     CommandElabM Unit := do
-  applyComputedFields views -- NOTE: any generated code before this line is invalid
+  let anyComputedFields ← applyComputedFields views
   liftTermElabM <| withMCtx res.mctx <| withLCtx res.lctx res.localInsts do
     let finalizers ← res.elabs.mapM fun elab' => elab'.prefinalize res.levelParams res.params res.replaceIndFVars
-    for view in views do withRef view.declId <|
-      Term.applyAttributesAt view.declName view.modifiers.attrs .afterTypeChecking
+    for view in views do
+      withRef view.declId <|
+        Term.applyAttributesAt view.declName view.modifiers.attrs .afterTypeChecking
+    -- NOTE: any generated code before this line is invalid
+    unless anyComputedFields do
+      compileDecls (views.map (·.declName))
+    (compileAuxConstructions (views.map (·.declName))).run'
     for elab' in finalizers do elab'.finalize
 
 private def elabInductiveViewsPostprocessing (views : Array InductiveView) :

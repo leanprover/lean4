@@ -10,6 +10,7 @@ import Lean.Compiler.LCNF.ToImpureType
 public import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.PhaseExt
 import Init.Data.Format.Macro
+import Lean.OriginalConstKind
 
 namespace Lean.Compiler.LCNF
 
@@ -112,7 +113,7 @@ partial def lowerLet (decl : LetDecl .pure) (k : Code .pure) : ToImpureM (Code .
     else
       match (← normFVar fvarId) with
       | .fvar fvarId =>
-        let some (.inductInfo { ctors := [ctorName], .. }) := (← Lean.getEnv).find? typeName
+        let some { ctors := [ctorName], .. } ← isInductiveOverrideSimple? typeName
           | panic! "projection of non-structure type"
         let ⟨ctorInfo, fields⟩ ← getCtorLayout ctorName
         let ⟨result, type⟩ := lowerProj fvarId ctorInfo fields[i]!
@@ -129,9 +130,8 @@ partial def lowerLet (decl : LetDecl .pure) (k : Code .pure) : ToImpureM (Code .
     if let some decl ← getMonoDecl? name then
       return (← mkApplication name decl.params.size irArgs)
 
-    let env ← Lean.getEnv
-    match env.find? name with
-    | some (.ctorInfo ctorVal) =>
+    let env ← getEnv
+    if let some ctorVal := isCtorOverrideSimple? env name then
       if let some info ← hasTrivialImpureStructure? ctorVal.induct then
         let arg := args[info.numParams + info.fieldIdx]!
         LCNF.addSubst decl.fvarId arg
@@ -176,13 +176,15 @@ partial def lowerLet (decl : LetDecl .pure) (k : Code .pure) : ToImpureM (Code .
         let decl := ⟨decl.fvarId, decl.binderName, ctorInfo.type, .ctor ctorInfo objArgs⟩
         modifyLCtx fun lctx => lctx.addLetDecl decl
         return .let decl (← lowerNonObjectFields)
-    | some (.defnInfo ..) | some (.opaqueInfo ..) => mkFap name irArgs
-    | some (.axiomInfo ..) | .some (.quotInfo ..) | .some (.inductInfo ..) | .some (.thmInfo ..) =>
-      -- Should have been caught by `ToLCNF`
-      throwError f!"ToImpure: unexpected use of noncomputable declaration `{name}`; please report this issue"
-    | some (.recInfo ..) =>
-      throwError f!"code generator does not support recursor `{name}` yet, consider using 'match ... with' and/or structural recursion"
-    | none => panic! "reference to unbound name"
+    else
+      match getOriginalConstKind? env name with
+      | some .defn | some .opaque => mkFap name irArgs
+      | some .axiom | .some .quot | .some .induct | .some .thm | some .ctor =>
+        -- Should have been caught by `ToLCNF`
+        throwError f!"ToImpure: unexpected use of noncomputable declaration `{name}`; please report this issue"
+      | some .recursor =>
+        throwError f!"code generator does not support recursor `{name}` yet, consider using 'match ... with' and/or structural recursion"
+      | none => panic! "reference to unbound name"
   | .fvar fvarId irArgs =>
     let irArgs ← irArgs.mapM (·.toImpure)
     let type := (← toImpureType decl.type).boxed

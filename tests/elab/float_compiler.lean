@@ -12,13 +12,13 @@ namespace F
 /--
 trace: [Compiler.result] size: 1
     def F.f x.1 : UInt64 :=
-      let toModel.2 := Float.toModel x.1;
-      return toModel.2
+      let _x.2 := Float.toModel x.1;
+      return _x.2
 [Compiler.result] size: 4
     def F.f._boxed x.1 : obj :=
-      let x.10.boxed := unbox x.1;
+      let x.13.boxed := unbox x.1;
       dec[ref] x.1;
-      let res := F.f x.10.boxed;
+      let res := F.f x.13.boxed;
       let r := box res;
       return r
 -/
@@ -69,13 +69,13 @@ namespace F32
 /--
 trace: [Compiler.result] size: 1
     def F32.f x.1 : UInt32 :=
-      let toModel.2 := Float32.toModel x.1;
-      return toModel.2
+      let _x.2 := Float32.toModel x.1;
+      return _x.2
 [Compiler.result] size: 4
     def F32.f._boxed x.1 : tobj :=
-      let x.10.boxed := unbox x.1;
+      let x.13.boxed := unbox x.1;
       dec[ref] x.1;
-      let res := F32.f x.10.boxed;
+      let res := F32.f x.13.boxed;
       let r := box res;
       return r
 -/

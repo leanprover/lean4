@@ -19,6 +19,7 @@ import Lean.Meta.HasNotBit
 import Lean.Meta.Match.CaseArraySizes
 import Lean.Meta.Match.CaseValues
 import Lean.Meta.Match.NamedPatterns
+import Lean.Compiler.InlineAttrs
 
 /-!
 This module implements the backend of match compilation. The elaborator has already elaborated

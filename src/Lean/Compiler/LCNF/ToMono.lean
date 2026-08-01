@@ -102,12 +102,7 @@ partial def LetValue.toMono (e : LetValue .pure) : ToMonoM (LetValue .pure) := d
         return .fvar fvarId extraArgs
       | .erased | .type _ =>
         return .erased
-    else if declName == ``Nat.zero then
-      return .lit (.nat 0)
-    else if declName == ``Nat.succ then
-      -- This should have been handled in Code.toMono.
-      unreachable!
-    else if let some (.ctorInfo ctorInfo) := (← getEnv).find? declName then
+    else if let some ctorInfo ← isCtorOverride? declName then
       if let some info ← hasTrivialStructure? ctorInfo.induct then
         args[ctorInfo.numParams + info.fieldIdx]!.toLetValue.toMono
       else
@@ -267,18 +262,6 @@ partial def casesByteArrayToMono (c : Cases .pure) (_ : c.typeName == ``ByteArra
   let k ← k.toMono
   return .let decl k
 
-/-- Eliminate `cases` for `FloatArray. -/
-partial def casesFloatArrayToMono (c : Cases .pure) (_ : c.typeName == ``FloatArray) :
-    ToMonoM (Code .pure) := do
-  assert! c.alts.size == 1
-  let .alt _ ps k := c.alts[0]! | unreachable!
-  eraseParams ps
-  let p := ps[0]!
-  let decl := { fvarId := p.fvarId, binderName := p.binderName, type := anyExpr, value := .const ``FloatArray.data [] #[.fvar c.discr] }
-  modifyLCtx fun lctx => lctx.addLetDecl decl
-  let k ← k.toMono
-  return .let decl k
-
 /-- Eliminate `cases` for `String`. -/
 partial def casesStringToMono (c : Cases .pure) (_ : c.typeName == ``String) : ToMonoM (Code .pure) := do
   assert! c.alts.size == 1
@@ -359,15 +342,7 @@ partial def trivialStructToMono (info : TrivialStructureInfo) (c : Cases .pure) 
 
 partial def Code.toMono (code : Code .pure) : ToMonoM (Code .pure) := do
   match code with
-  | .let decl k =>
-    match decl.value with
-    | .const ``Nat.succ _ args =>
-      let #[arg] := args | unreachable!
-      let oneDecl ← mkAuxLetDecl (.lit (.nat 1))
-      let decl ← decl.update decl.type (.const ``Nat.add [] #[arg, .fvar oneDecl.fvarId])
-      return .let oneDecl (.let decl (← k.toMono))
-    | _ =>
-      return code.updateLet! (← decl.toMono) (← k.toMono)
+  | .let decl k => return code.updateLet! (← decl.toMono) (← k.toMono)
   | .fun decl k | .jp decl k => return code.updateFun! (← decl.toMono) (← k.toMono)
   | .unreach type => return .unreach (← toMonoType type)
   | .jmp fvarId args => return code.updateJmp! fvarId (← args.mapM argToMono)
@@ -375,61 +350,15 @@ partial def Code.toMono (code : Code .pure) : ToMonoM (Code .pure) := do
   | .cases c =>
     if h : c.typeName == ``Decidable then
       decToMono c h
-    else if h : c.typeName == ``Nat then
-      casesNatToMono c h
-    else if h : c.typeName == ``Int then
-      casesIntToMono c h
-    else if h : c.typeName == ``UInt8 then
-      casesUIntToMono c ``UInt8 h
-    else if h : c.typeName == ``UInt16 then
-      casesUIntToMono c ``UInt16 h
-    else if h : c.typeName == ``UInt32 then
-      casesUIntToMono c ``UInt32 h
-    else if h : c.typeName == ``UInt64 then
-      casesUIntToMono c ``UInt64 h
-    else if h : c.typeName == ``Array then
-      casesArrayToMono c h
-    else if h : c.typeName == ``ByteArray then
-      casesByteArrayToMono c h
-    else if h : c.typeName == ``FloatArray then
-      casesFloatArrayToMono c h
-    else if h : c.typeName == ``String then
-      casesStringToMono c h
-    else if h : c.typeName == ``Float then
-      casesFloatToMono c h
-    else if h : c.typeName == ``Float32 then
-      casesFloat32ToMono c h
-    else if h : c.typeName == ``Thunk then
-      casesThunkToMono c h
-    else if h : c.typeName == ``Task then
-      casesTaskToMono c h
     else if let some info ← hasTrivialStructure? c.typeName then
       trivialStructToMono info c
     else
       let resultType ← toMonoType c.resultType
-      let env ← getEnv
-      let some (.inductInfo inductInfo) := env.find? c.typeName | panic! "expected inductive type"
-      let casesOnName := mkCasesOnName inductInfo.name
-      if (getImplementedBy? env casesOnName).isSome then
-        -- TODO: Enforce that this is only used for computed fields.
-        let typeName := c.typeName ++ `_impl
-        let alts ← c.alts.mapM fun alt => do
-          match alt with
-          | .default k => return alt.updateCode (← k.toMono)
-          | .alt ctorName ps k =>
-            let implCtorName := ctorName ++ `_impl
-            let some (.ctorInfo ctorInfo) := env.find? implCtorName | panic! "expected constructor"
-            let numNewFields := ctorInfo.numFields - ps.size
-            let ps ← mkFieldParamsForComputedFields ctorInfo.type ctorInfo.numParams numNewFields ps
-            let k ← k.toMono
-            return .alt implCtorName ps k
-        return .cases ⟨typeName, resultType, c.discr, alts⟩
-      else
-        let alts ← c.alts.mapM fun alt =>
-          match alt with
-          | .default k => return alt.updateCode (← k.toMono)
-          | .alt _ ps k => return alt.updateAlt! (← ps.mapM (·.toMono)) (← k.toMono)
-        return code.updateCases! resultType c.discr alts
+      let alts ← c.alts.mapM fun alt =>
+        match alt with
+        | .default k => return alt.updateCode (← k.toMono)
+        | .alt _ ps k => return alt.updateAlt! (← ps.mapM (·.toMono)) (← k.toMono)
+      return code.updateCases! resultType c.discr alts
 
 end
 

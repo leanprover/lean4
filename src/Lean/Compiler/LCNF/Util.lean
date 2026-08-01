@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.FloatArray.Basic
-public import Lean.CoreM
-public import Lean.Util.Recognizers
+public import Lean.Expr
 
 public section
 
@@ -29,27 +27,5 @@ def isLcCast? (e : Expr) : Option Expr :=
     some e.appArg!
   else
     none
-
-def getCtorArity? (declName : Name) : CoreM (Option Nat) := do
-  let .ctorInfo val ← getConstInfo declName | return none
-  return val.numParams + val.numFields
-
-/--
-List of types that have builtin runtime support
--/
-def builtinRuntimeTypes : Array Name := #[
-  ``String,
-  ``UInt8, ``UInt16, ``UInt32, ``UInt64, ``USize,
-  ``Float, ``Float32,
-  ``Thunk, ``Task,
-  ``Array, ``ByteArray, ``FloatArray,
-  ``Nat, ``Int
-]
-
-/--
-Return `true` iff `declName` is the name of a type with builtin support in the runtime.
--/
-def isRuntimeBuiltinType (declName : Name) : Bool :=
-  builtinRuntimeTypes.contains declName
 
 end Lean.Compiler.LCNF

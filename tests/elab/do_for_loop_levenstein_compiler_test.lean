@@ -158,23 +158,23 @@ trace: [Compiler.saveMono] size: 13
               goto _jp.17
 [Compiler.saveMono] size: 15
     def deletions n s : Array String :=
-      let zero := 0;
-      let isZero := Nat.decEq n zero;
-      cases isZero : Array String
-      | Bool.true =>
-        let _x.1 := 1;
-        let _x.2 := Array.mkEmpty ◾ _x.1;
-        let _x.3 := Array.push ◾ _x.2 s;
-        return _x.3
+      let _x.1 := 0;
+      let _x.2 := Nat.decEq n _x.1;
+      cases _x.2 : Array String
       | Bool.false =>
-        let one := 1;
-        let n.4 := Nat.sub n one;
-        let out := Array.mkEmpty ◾ zero;
-        let _x.5 := deletions n.4 s;
+        let _x.3 := 1;
+        let _x.4 := Nat.sub n _x.3;
+        let out := Array.mkEmpty ◾ _x.1;
+        let _x.5 := deletions _x.4 s;
         let sz := Array.usize ◾ _x.5;
         let _x.6 := 0;
         let _x.7 := Array.forInNew'Unsafe.loop._at_.deletions.spec_2 _x.5 sz _x.6 out;
         return _x.7
+      | Bool.true =>
+        let _x.8 := 1;
+        let _x.9 := Array.mkEmpty ◾ _x.8;
+        let _x.10 := Array.push ◾ _x.9 s;
+        return _x.10
 [Compiler.saveMono] size: 31
     def Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._redArg s' _x.1 kcontinue range i a.2 : Array String :=
       cases range : Array String

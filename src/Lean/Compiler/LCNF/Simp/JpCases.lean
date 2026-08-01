@@ -284,23 +284,14 @@ where
     let some info := (← read).get? fvarId | return none
     let .fvar argFVarId := args[info.paramIdx]! | return none
     let some ctorInfo ← findCtor? argFVarId | return none
-    let some jpAlt := ctorJpAltMap.find? ctorInfo.getName | return none
+    let some jpAlt := ctorJpAltMap.find? ctorInfo.val.name | return none
     if jpAlt.default then
       let argsNew := mkJmpNewArgs args info.paramIdx #[] jpAlt.dependsOnDiscr
       return some <| .jmp jpAlt.decl.fvarId argsNew
     else
-      match ctorInfo with
-      | .ctor ctorVal ctorArgs =>
-         let fields := ctorArgs[ctorVal.numParams...*]
-         let argsNew := mkJmpNewArgs args info.paramIdx fields jpAlt.dependsOnDiscr
-         return some <| .jmp jpAlt.decl.fvarId argsNew
-      | .natVal 0 =>
-        let argsNew := mkJmpNewArgs args info.paramIdx #[] jpAlt.dependsOnDiscr
-        return some <| .jmp jpAlt.decl.fvarId argsNew
-      | .natVal (n+1) =>
-        let auxDecl ← mkAuxLetDecl (.lit (.nat n))
-        let argsNew := mkJmpNewArgs args info.paramIdx #[.fvar auxDecl.fvarId] jpAlt.dependsOnDiscr
-        return some <| .let auxDecl (.jmp jpAlt.decl.fvarId argsNew)
+      let fields := ctorInfo.args[ctorInfo.val.numParams...*]
+      let argsNew := mkJmpNewArgs args info.paramIdx fields jpAlt.dependsOnDiscr
+      return some <| .jmp jpAlt.decl.fvarId argsNew
 
 end Simp
 

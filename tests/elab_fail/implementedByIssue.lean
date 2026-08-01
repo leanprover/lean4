@@ -1,5 +1,6 @@
 namespace Hidden
 
+@[override_runtime_type obj]
 structure Array (α : Type u) (n : Nat) : Type u where
   data : (i : Fin n) → α
 

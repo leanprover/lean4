@@ -57,14 +57,14 @@ elimTest3 : forall (α : Type.{u_1}) (β : Type.{u_2}) (motive : (List.{u_1} α)
               ((a₁ a₂ : α) → (as : List α) → (b₁ b₂ : β) → (bs : List β) → motive (a₁ :: a₂ :: as) (b₁ :: b₂ :: bs)) →
                 ((as : List α) → (bs : List β) → motive as bs) → motive x y :=
 fun α β motive x y h_1 h_2 h_3 h_4 =>
-  List.casesOn x (_sparseCasesOn_112 y (h_1 ()) fun h => h_4 [] y) fun head tail =>
+  List.casesOn x (_sparseCasesOn_128 y (h_1 ()) fun h => h_4 [] y) fun head tail =>
     List.casesOn tail
-      (_sparseCasesOn_113 y
-        (fun head_1 tail => _sparseCasesOn_112 tail (h_2 head head_1) fun h => h_4 [head] (head_1 :: tail)) fun h =>
+      (_sparseCasesOn_129 y
+        (fun head_1 tail => _sparseCasesOn_128 tail (h_2 head head_1) fun h => h_4 [head] (head_1 :: tail)) fun h =>
         h_4 [head] y)
       fun head_1 tail =>
-      _sparseCasesOn_113 y
+      _sparseCasesOn_129 y
         (fun head_2 tail_1 =>
-          _sparseCasesOn_113 tail_1 (fun head_3 tail_2 => h_3 head head_1 tail head_2 head_3 tail_2) fun h =>
+          _sparseCasesOn_129 tail_1 (fun head_3 tail_2 => h_3 head head_1 tail head_2 head_3 tail_2) fun h =>
             h_4 (head :: head_1 :: tail) (head_2 :: tail_1))
         fun h => h_4 (head :: head_1 :: tail) y

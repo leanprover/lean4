@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Compiler.BorrowedAnnotation
 public import Lean.Meta.InferType
+import Lean.Compiler.InductiveOverride
 import Init.Omega
 import Lean.OriginalConstKind
 
@@ -221,7 +222,8 @@ where
           -- This branch can happen under `backward.privateInPublic`; restore original behavior of
           -- failing here, which is caught and ignored above by `observing`.
           throwError "internal compiler error: private in public"
-        let .inductInfo _ ← getConstInfo declName | return anyExpr
+        unless ← isCompilerRelevantType declName do
+          return anyExpr
         pure <| .const declName us
       | .fvar .. => pure f
       | _ => return anyExpr
@@ -350,8 +352,8 @@ partial def getArrowArity (e : Expr) :=
 /-- Return `true` if `type` is an inductive datatype with 0 constructors. -/
 def isInductiveWithNoCtors (type : Expr) : CoreM Bool := do
   let .const declName _ := type.getAppFn | return false
-  let some (.inductInfo info) := (← getEnv).find? declName | return false
-  return info.numCtors == 0
+  let some info ← isInductiveOverrideSimple? declName | return false
+  return info.ctors.isEmpty
 
 def mkBoxedName (n : Name) : Name :=
   Name.mkStr n "_boxed"
@@ -491,6 +493,24 @@ def Lean.Expr.boxed : Expr → Expr
     ImpureType.object
   | ImpureType.void | ImpureType.tagged | ImpureType.uint8 | ImpureType.uint16 => ImpureType.tagged
   | _ => ImpureType.tobject
+
+/--
+Returns true if the input is a valid impure type.
+-/
+def Lean.Expr.isValidImpureType : Expr → Bool
+  | ImpureType.float
+  | ImpureType.float32
+  | ImpureType.uint8
+  | ImpureType.uint16
+  | ImpureType.uint32
+  | ImpureType.uint64
+  | ImpureType.usize
+  | ImpureType.erased
+  | ImpureType.object
+  | ImpureType.tobject
+  | ImpureType.tagged
+  | ImpureType.void => true
+  | _ => false
 
 end ImpureType
 

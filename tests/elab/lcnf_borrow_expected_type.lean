@@ -231,23 +231,23 @@ public def mkNewProd (x : Prod Nat Nat) (a : Nat) := { x with fst := a }
 /--
 trace: [Compiler.explicitRc] size: 15
     def preserveTailCall x a : tobj :=
-      let zero := 0;
-      let isZero := Nat.decEq a zero;
-      cases isZero : tobj
+      let _x.1 := 0;
+      let _x.2 := Nat.decEq a _x.1;
+      cases _x.2 : tobj
+      | Bool.false =>
+        let _x.3 := 1;
+        let _x.4 := Nat.sub a _x.3;
+        dec a;
+        inc _x.4;
+        let _x.5 := mkNewProd x _x.4;
+        let _x.6 := preserveTailCall _x.5 _x.4;
+        return _x.6
       | Bool.true =>
         dec a;
         let fst := oproj[0] x;
         inc fst;
         dec[ref] x;
         return fst
-      | Bool.false =>
-        let one := 1;
-        let n.1 := Nat.sub a one;
-        dec a;
-        inc n.1;
-        let _x.2 := mkNewProd x n.1;
-        let _x.3 := preserveTailCall _x.2 n.1;
-        return _x.3
 -/
 #guard_msgs in
 set_option trace.Compiler.explicitRc true in

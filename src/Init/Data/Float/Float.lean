@@ -34,6 +34,7 @@ the functions `Float.toModel` and `Float.ofModel`), which is itself a subtype of
 the operations on `Float` are defined in terms of their `Float.Model` counterparts, while others
 are opaque to Lean's kernel.
 -/
+@[override_runtime_type Float]
 structure Float where
   /-- Constructs a `Float` from a `Float.Model`. -/
   ofModel ::

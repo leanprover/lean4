@@ -13,6 +13,7 @@ import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CtorElim
 import Lean.Elab.App
 import Lean.Meta.SameCtorUtils
+import Lean.Compiler.InlineAttrs
 
 /-!
 See `mkCasesOnSameCtor` below.

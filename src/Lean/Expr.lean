@@ -468,7 +468,7 @@ inductive Expr where
   -/
   | proj (typeName : Name) (idx : Nat) (struct : Expr)
 with
-  @[computed_field, extern "lean_expr_data"]
+  @[computed_field]
   data : @& Expr → Data
     | .const n lvls => mkData (mixHash 5 <| mixHash (hash n) (hash lvls)) 0 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
     | .bvar idx => mkData (mixHash 7 <| hash idx) (idx+1)

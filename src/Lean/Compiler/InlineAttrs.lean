@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Attributes
 import Lean.Meta.RecExt
+import Lean.Compiler.InductiveOverride
 
 public section
 
@@ -73,6 +74,7 @@ builtin_initialize inlineAttrs : EnumAttributes InlineAttributeKind ←
           throwError "invalid `[macro_inline]` attribute, `{.ofConstName declName}` must be an exposed definition"
         unless (← isValidMacroInline declName) do
           throwError "Cannot add `[macro_inline]` attribute to `{.ofConstName declName}`: This attribute does not support this kind of declaration; only non-recursive definitions are supported"
+        checkNoSpecialMeaning `macro_inline declName
       else
         ofExcept <| (checkIsDefinition (← withoutExporting <| getEnv) declName).mapError fun e =>
           s!"Cannot add attribute `[{kind.toAttrString}]`: {e}"
@@ -103,4 +105,18 @@ def hasMacroInlineAttribute (env : Environment) (declName : Name) : Bool :=
 @[inline] def hasAlwaysInlineAttribute (env : Environment) (declName : Name) : Bool :=
   hasInlineAttrCore env .alwaysInline declName
 
-end Lean.Compiler
+end Compiler
+
+/--
+  Mark declaration `declName` with the attribute `[inline]`.
+  This method does not check whether the given declaration is a definition.
+
+  Recall that this attribute can only be set in the same module where `declName` has been declared.
+-/
+def setInlineAttribute (declName : Name) (kind := Compiler.InlineAttributeKind.inline) : CoreM Unit := do
+  let env ← getEnv
+  match Compiler.setInlineAttribute env declName kind with
+  | .ok env    => setEnv env
+  | .error msg => throwError msg
+
+end Lean

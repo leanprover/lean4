@@ -127,7 +127,7 @@ partial def run (declNames : Array Name) (baseOpts : Options) : CompilerM Unit :
   Moreover, some declarations get very big during simplification.
   -/
 
-  if (← declNames.anyM isInductive) then
+  if (← declNames.anyM fun nm => isInductiveOverride nm) then
     -- Eagerly compute and persist the cross-module inductive infos for these inductive types in
     -- their defining module. The computation walks each constructor's field types, which can
     -- reference constants from non-transitively (privately) imported modules; the defining module is

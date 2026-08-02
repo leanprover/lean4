@@ -4,21 +4,30 @@ source ../common.sh
 ./clean.sh
 
 # https://github.com/leanprover/lean4/issues/10825
-# When Lean already printed errors and exited with code 1, Lake should not
-# add the redundant "Lean exited with code 1" line. Other exit codes remain
-# visible; if Lean ever logs errors while exiting 0, Lake reports code 0 to
-# distinguish that anomalous state from the intentionally elided code-1 case.
+# Lake elides exit code 1 only when Lean already emitted error diagnostics.
+# Every other exit/diagnostic combination keeps an explicit exit-code message.
 
-echo "# TEST: elide exit-code noise on ordinary type errors"
+echo "# TEST: elide exit code 1 after diagnostics"
 lake_out build TypeError || true
 match_text "Type mismatch" produced.out
 no_match_text "Lean exited with code 1" produced.out
-# Build should still fail
 test_fails build TypeError
 
-echo "# TEST: keep exit-code message for non-1 exit codes"
+echo "# TEST: report exit code 1 without diagnostics"
+lake_out build Exit1NoError || true
+match_text "Lean exited with code 1" produced.out
+no_match_text "Type mismatch" produced.out
+test_fails build Exit1NoError
+
+echo "# TEST: report exit code 0 when diagnostics were emitted"
+lake_out build ErrorExit0 || true
+match_text "Type mismatch" produced.out
+match_text "Lean exited with code 0" produced.out
+test_fails build ErrorExit0
+
+echo "# TEST: report non-1 exit codes"
 lake_out build Exit3 || true
 match_text "Lean exited with code 3" produced.out
+test_fails build Exit3
 
-# Cleanup
 rm -f produced.out

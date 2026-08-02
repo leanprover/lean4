@@ -41,8 +41,8 @@ example : P5868 a5868 b5868 := by simp
 
 attribute [-simp] a5868_eq_b5868
 
-/-- error: simp made no progress -/
-#guard_msgs in
+/-- error: `simp` made no progress -/
+#guard_msgs (error) in
 example : P5868 a5868 b5868 := by simp
 
 attribute [simp] a5868_eq_b5868

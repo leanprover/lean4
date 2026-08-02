@@ -7,3 +7,4 @@ module
 
 prelude
 public import Init.Data.Array.QSort.Basic
+public import Init.Data.Array.QSort.Lemmas

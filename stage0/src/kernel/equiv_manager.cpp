@@ -100,7 +100,8 @@ bool equiv_manager::is_equiv_core(expr const & a, expr const & b) {
         result = is_equiv_core(mdata_expr(a), mdata_expr(b));
         break;
     case expr_kind::Proj:
-        result = is_equiv_core(proj_expr(a), proj_expr(b)) && proj_idx(a) == proj_idx(b);
+        result = proj_sname(a) == proj_sname(b) && proj_idx(a) == proj_idx(b) &&
+            is_equiv_core(proj_expr(a), proj_expr(b));
         break;
     case expr_kind::Let:
         result =

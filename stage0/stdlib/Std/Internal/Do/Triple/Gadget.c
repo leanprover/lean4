@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_Internal_Do_assertGadget___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_Do_assertGadget(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_Do_assertGadget___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_Do_assertGadget(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_Do_assertGadget___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Do_assertGadget___redArg(lean_object* v_inst_1_){
 _start:
 {
@@ -31,23 +31,22 @@ v___x_5_ = lean_apply_2(v_toPure_3_, lean_box(0), v___x_4_);
 return v___x_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_Do_assertGadget(lean_object* v_m_6_, lean_object* v_Pred_7_, lean_object* v_EPred_8_, lean_object* v_inst_9_, lean_object* v_inst_10_, lean_object* v_inst_11_, lean_object* v_inst_12_, lean_object* v_name_13_, lean_object* v_as_14_){
+LEAN_EXPORT lean_object* l_Std_Internal_Do_assertGadget(lean_object* v_m_6_, lean_object* v_Pred_7_, lean_object* v_EPred_8_, lean_object* v_inst_9_, lean_object* v_inst_10_, lean_object* v_inst_11_, lean_object* v_inst_12_, lean_object* v_as_13_){
 _start:
 {
-lean_object* v___x_15_; 
-v___x_15_ = l_Std_Internal_Do_assertGadget___redArg(v_inst_9_);
-return v___x_15_;
+lean_object* v___x_14_; 
+v___x_14_ = l_Std_Internal_Do_assertGadget___redArg(v_inst_9_);
+return v___x_14_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_Do_assertGadget___boxed(lean_object* v_m_16_, lean_object* v_Pred_17_, lean_object* v_EPred_18_, lean_object* v_inst_19_, lean_object* v_inst_20_, lean_object* v_inst_21_, lean_object* v_inst_22_, lean_object* v_name_23_, lean_object* v_as_24_){
+LEAN_EXPORT lean_object* l_Std_Internal_Do_assertGadget___boxed(lean_object* v_m_15_, lean_object* v_Pred_16_, lean_object* v_EPred_17_, lean_object* v_inst_18_, lean_object* v_inst_19_, lean_object* v_inst_20_, lean_object* v_inst_21_, lean_object* v_as_22_){
 _start:
 {
-lean_object* v_res_25_; 
-v_res_25_ = l_Std_Internal_Do_assertGadget(v_m_16_, v_Pred_17_, v_EPred_18_, v_inst_19_, v_inst_20_, v_inst_21_, v_inst_22_, v_name_23_, v_as_24_);
-lean_dec(v_as_24_);
-lean_dec(v_name_23_);
-lean_dec(v_inst_22_);
-return v_res_25_;
+lean_object* v_res_23_; 
+v_res_23_ = l_Std_Internal_Do_assertGadget(v_m_15_, v_Pred_16_, v_EPred_17_, v_inst_18_, v_inst_19_, v_inst_20_, v_inst_21_, v_as_22_);
+lean_dec(v_as_22_);
+lean_dec(v_inst_21_);
+return v_res_23_;
 }
 }
 lean_object* runtime_initialize_Std_Internal_Do_Triple_Basic(uint8_t builtin);

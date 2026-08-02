@@ -818,11 +818,18 @@ struct elim_nested_inductive_result {
         return optional<pair<expr, name>>(std::in_place, *nested, auxI_name);
     }
 
+    /* The conditions checked below are established by `elim_nested_inductive_fn`. They are tested
+       rather than asserted because violating them is not a wrong answer but an out-of-bounds read:
+       `binding_*` and `const_name` would fetch a field the expression does not have, and
+       `args.size() - m_params.size()` would underflow into the argument count of `mk_app`. */
     name restore_constructor_name(environment const & aux_env, name const & cnstr_name) const {
         optional<pair<expr, name>> p = get_nested_if_aux_constructor(aux_env, cnstr_name);
-        lean_assert(p);
+        if (!p)
+            throw kernel_exception(aux_env, sstream() << "failed to restore nested inductive types, '"
+                                   << cnstr_name << "' is not a constructor of an auxiliary type");
         expr const & I = get_app_fn(p->first);
-        lean_assert(is_constant(I));
+        if (!is_constant(I))
+            throw kernel_exception(aux_env, "failed to restore nested inductive types, nested occurrence is not an inductive type application");
         return cnstr_name.replace_prefix(p->second, const_name(I));
     }
 
@@ -831,7 +838,8 @@ struct elim_nested_inductive_result {
         buffer<expr> As;
         bool pi = is_pi(e);
         for (unsigned i = 0; i < m_params.size(); i++) {
-            lean_assert(is_pi(e) || is_lambda(e));
+            if (!is_pi(e) && !is_lambda(e))
+                throw kernel_exception(aux_env, "failed to restore nested inductive types, fewer binders than parameters");
             As.push_back(lctx.mk_local_decl(m_ngen, binding_name(e), binding_domain(e), binding_info(e)));
             e = instantiate(binding_body(e), As.back());
         }
@@ -846,7 +854,8 @@ struct elim_nested_inductive_result {
                     if (expr const * nested = m_aux2nested.find(const_name(fn))) {
                         buffer<expr> args;
                         get_app_args(t, args);
-                        lean_assert(args.size() >= m_params.size());
+                        if (args.size() < m_params.size())
+                            throw kernel_exception(aux_env, "failed to restore nested inductive types, auxiliary type is not applied to all parameters");
                         expr new_t = instantiate_rev(abstract(*nested, m_params.size(), m_params.data()), As.size(), As.data());
                         return some_expr(mk_app(new_t, args.size() - m_params.size(), args.data() + m_params.size()));
                     }
@@ -856,11 +865,13 @@ struct elim_nested_inductive_result {
                         /* `t` is a constructor-application of an auxiliary inductive type */
                         buffer<expr> args;
                         get_app_args(t, args);
-                        lean_assert(args.size() >= m_params.size());
+                        if (args.size() < m_params.size())
+                            throw kernel_exception(aux_env, "failed to restore nested inductive types, auxiliary constructor is not applied to all parameters");
                         expr new_nested = instantiate_rev(abstract(nested, m_params.size(), m_params.data()), As.size(), As.data());
                         buffer<expr> I_args;
                         expr I = get_app_args(new_nested, I_args);
-                        lean_assert(is_constant(I));
+                        if (!is_constant(I))
+                            throw kernel_exception(aux_env, "failed to restore nested inductive types, nested occurrence is not an inductive type application");
                         name new_fn_name = const_name(fn).replace_prefix(auxI_name, const_name(I));
                         expr new_fn = mk_constant(new_fn_name, const_levels(I));
                         expr new_t  = mk_app(mk_app(new_fn, I_args), args.size() - m_params.size(), args.data() + m_params.size());

@@ -2361,6 +2361,7 @@ else
 {
 lean_dec(v_a_560_);
 lean_dec_ref(v_leanOpts_555_);
+lean_dec(v_toUpdate_549_);
 return v___x_587_;
 }
 }
@@ -2381,6 +2382,7 @@ else
 {
 lean_dec(v_a_560_);
 lean_dec_ref(v_leanOpts_555_);
+lean_dec(v_toUpdate_549_);
 return v___x_590_;
 }
 }
@@ -2480,6 +2482,7 @@ else
 {
 lean_object* v_a_591_; lean_object* v___x_592_; uint8_t v___x_593_; 
 lean_dec_ref(v_leanOpts_555_);
+lean_dec(v_toUpdate_549_);
 v_a_591_ = lean_ctor_get(v___x_559_, 1);
 lean_inc(v_a_591_);
 lean_dec_ref_known(v___x_559_, 2);
@@ -2559,7 +2562,6 @@ _start:
 lean_object* v_res_608_; 
 v_res_608_ = l_Lake_updateManifest(v_config_604_, v_toUpdate_605_, v_a_606_);
 lean_dec_ref(v_a_606_);
-lean_dec(v_toUpdate_605_);
 return v_res_608_;
 }
 }

@@ -10,6 +10,9 @@ public section
 namespace Lean.Meta
 open Simp
 
+private def uneraseSimpOrigin (ext : SimpExtension) (origin : Origin) : CoreM Unit := do
+  modifyEnv fun env => ext.modifyState env fun s => s.unerase origin
+
 /--
 Marks `declName` to be unfolded in the given `SimpExtension`.
 -/
@@ -19,10 +22,12 @@ def addDeclToUnfold (ext : SimpExtension) (declName : Name) (post inv : Bool) (p
       throwError m!"Invalid `←` modifier: `{.ofConstName declName}` is a declaration name to be unfolded"
         ++ .note m!"The simplifier will automatically unfold definitions marked with the `[simp]` \
                     attribute, but it will not \"refold\" them"
+    uneraseSimpOrigin ext (.decl declName)
     if (← Simp.ignoreEquations declName) then
       ext.add (SimpEntry.toUnfold declName) attrKind
     else if let some eqns ← getEqnsFor? declName then
       for eqn in eqns do
+        uneraseSimpOrigin ext (.decl eqn post false)
         addSimpTheorem ext eqn post (inv := false) attrKind prio
       ext.add (SimpEntry.toUnfoldThms declName eqns) attrKind
       if (← Simp.unfoldEvenWithEqns declName) then
@@ -51,6 +56,7 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
           let inv := !stx[2].isNone
           let prio ← getAttrParamOptPrio stx[3]
           if (← isProp info.sig.get.type) then
+            uneraseSimpOrigin ext (.decl declName post inv)
             addSimpTheorem ext declName post (inv := inv) attrKind prio
           else unless (← addDeclToUnfold ext declName post inv prio attrKind) do
             throwError m!"Cannot add `simp` attribute to `{.ofConstName declName}`: It is not a proposition nor a definition (to unfold)"

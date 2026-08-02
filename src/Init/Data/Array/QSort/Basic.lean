@@ -49,14 +49,7 @@ def qpartition {n} (as : Vector α n) (cmp : α → α → Ordering) (lo hi : Na
       match cmp as[k] pivot with
       | .lt => eqLoop (as.swap i k) (i + 1) (k + 1) j
       | .eq => eqLoop as i (k + 1) j
-      | .gt =>
-        if h' : k + 1 < j then
-          match cmp as[j - 1] pivot with
-          | .lt => eqLoop ((as.swap k (j - 1)).swap i k) (i + 1) (k + 1) (j - 1)
-          | .eq => eqLoop (as.swap k (j - 1)) i (k + 1) (j - 1)
-          | .gt => eqLoop as i k (j - 1)
-        else
-          eqLoop as i k (j - 1)
+      | .gt => eqLoop (as.swap k (j - 1)) i k (j - 1)
     else
       (⟨(i, j + 1), ilo, by omega⟩, as.swap j hi)
   -- Before seeing an equal element, collect only smaller elements. This keeps the hot path for

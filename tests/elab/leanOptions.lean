@@ -1,5 +1,9 @@
-/-- String-valued Lean options are passed as direct subprocess arguments, so their CLI values must not contain shell quotes. -/
 import Lean.Util.LeanOptions
+
+/-!
+String-valued Lean options are passed as direct subprocess arguments, so their CLI values must not
+contain shell quotes.
+-/
 
 open Lean
 

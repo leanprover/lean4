@@ -49,8 +49,8 @@ where
     let mut col := col
     unless col.modSet.contains root do
       col := {col with modSet := col.modSet.insert root}
-      -- `wait?` discards the failure log. An imported module's failure is reported
-      -- by its importer; otherwise, keep the module so its build job reports it.
+      -- Importers report failures reached through imports. Directly reached modules
+      -- stay in the collection so their build jobs report those failures.
       let some imps ← (← root.imports.fetch).wait?
         | let col' := {col with hasErrors := true}
           return if viaImport then col' else {col' with mods := col'.mods.push root}

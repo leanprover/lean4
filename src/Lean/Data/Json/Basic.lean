@@ -169,7 +169,7 @@ def fromFloat? (x : Float): Sum String JsonNumber :=
   else if x == 0.0 then
     Sum.inr 0 -- special case to avoid -0.0
   else if x < 0.0 then
-    Sum.inr <| Neg.neg <| fromPositiveFloat! <| x
+    Sum.inr <| Neg.neg <| fromPositiveFloat! <| Neg.neg <| x
   else
     Sum.inr <| fromPositiveFloat! <| x
 

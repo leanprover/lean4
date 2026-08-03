@@ -769,7 +769,7 @@ When `maximumSize` is given, reading more than that many bytes throws an error.
 -/
 def text (response : Response Body.Stream)
     (maximumSize : Option UInt64 := none) : Async String :=
-  response.body.readAll (maximumSize := maximumSize)
+  response.body.readAll maximumSize
 
 /--
 Reads the entire response body as raw bytes.
@@ -777,6 +777,6 @@ When `maximumSize` is given, reading more than that many bytes throws an error.
 -/
 def bytes (response : Response Body.Stream)
     (maximumSize : Option UInt64 := none) : Async ByteArray :=
-  response.body.readAll (maximumSize := maximumSize)
+  response.body.readAll maximumSize
 
 end Response

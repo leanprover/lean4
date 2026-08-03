@@ -38,8 +38,8 @@ public inductive SolveResult.StopReason where
   | noEntailment (target : Expr)
   /-- The target was of the form `pre ⊑ rhs`, but we couldn't make further progress. -/
   | noProgress (pre rhs : Expr)
-  /-- No spec was found for the program `e` in `pre ⊑ wp e post epost s₁ ... sₙ`. Candidates
-  were `thms`, but none matched the monad. Reached only when `errorOnMissingSpec` is `false`. -/
+  /-- No spec applicable to the program `e` in `pre ⊑ wp e post epost s₁ ... sₙ` was found; `thms`
+  are the candidates that were tried. Reached only when `errorOnMissingSpec` is `false`. -/
   | noSpecFound (e : Expr) (monad : Expr) (thms : Array SpecTheorem)
 
 /-- The result of one `solve` step of VC generation. -/
@@ -313,8 +313,8 @@ private def wpHeadReduce? (goal : MVarId) (info : WPApp) :
   let prog ← betaRevS f' info.prog.getAppRevArgs
   return some (← replaceProgDefEq goal info prog)
 
-/-- Stop or raise on a program with no matching spec. With `errorOnMissingSpec` (default), raise a
-hard error naming the program and any candidate specs; otherwise stop and emit the goal as a VC. -/
+/-- Stop or raise on a program with no applicable spec. With `errorOnMissingSpec` (default), raise a
+hard error naming the program and the candidate specs; otherwise stop and emit the goal as a VC. -/
 private def stopOrErrorOnMissingSpec (prog monad : Expr) (thms : Array SpecTheorem) :
     VCGenM SolveResult := do
   unless (← read).errorOnMissingSpec do
@@ -322,54 +322,30 @@ private def stopOrErrorOnMissingSpec (prog monad : Expr) (thms : Array SpecTheor
   if thms.isEmpty then
     throwError "No spec found for program {prog}."
   else
-    throwError "No spec matching the monad {monad} found for program {prog}. \
+    throwError "No spec applicable to program {prog} in monad {monad}. \
       Candidates were {thms.map (·.proof)}."
 
-/-- Select the highest-priority `@[spec]` theorem matching `info.prog` and compile its backward rule
-(construction is cached), or a stop result when no spec matches or no rule fits the goal's monad.
-Hands `findSpecs` the sole reference to the spec database so its in-place pattern internalization
-does not copy the discrimination tree, then threads the updated database back into the returned
-scope. -/
-private def compileSpecRule (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) :
-    VCGenM (Except SolveResult (VCGen.Scope × SpecTheorem × BackwardRule)) := do
-  let specs := scope.specs
-  let scope := { scope with specs := default }
-  let (result, specs) ← SpecTheorems.findSpecs specs info.prog
-  let scope := { scope with specs }
-  let thm ← match result with
-    | .ok thm => pure thm
-    | .error thms => return .error (← stopOrErrorOnMissingSpec info.prog info.M thms)
-  let some rule ←
-    try
-      mkBackwardRuleFromSpecCached thm info |>.run
-    catch ex =>
-      throwError "Failed to construct rule {thm.proof} for {indentExpr info.prog}\n\
-        error: {ex.toMessageData}\n\
-        target:{indentExpr (← goal.getType)}\n\
-        Pred:{indentExpr info.Pred}\n\
-        excessArgs: {info.excessArgs}"
-    | return .error (← stopOrErrorOnMissingSpec info.prog info.M #[thm])
-  return .ok (scope, thm, rule)
+/-- Compile the backward rule of the `@[spec]` theorem `thm` for the goal's `wp` application
+(construction is cached), or `none` when no rule fits the goal's monad. -/
+private def compileSpecRule (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
+    VCGenM (Option BackwardRule) := do
+  try
+    mkBackwardRuleFromSpecCached thm info |>.run
+  catch ex =>
+    throwError "Failed to construct rule {thm.proof} for {indentExpr info.prog}\n\
+      error: {ex.toMessageData}\n\
+      target:{indentExpr (← goal.getType)}\n\
+      Pred:{indentExpr info.Pred}\n\
+      excessArgs: {info.excessArgs}"
 
-/-- Apply the backward `rule` of the selected `@[spec]` theorem `thm`, returning its subgoals.
-Reached from `applySpec`. -/
-private def applySpecRule (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem)
-    (rule : BackwardRule) : VCGenM SolveResult := do
+/-- Apply the backward `rule` of the selected `@[spec]` theorem `thm`, returning its subgoals, or
+`none` when the rule does not apply. Reached from `applySpec`. -/
+private def applySpecRule? (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem)
+    (rule : BackwardRule) : VCGenM (Option SolveResult) := do
   trace[Elab.Tactic.Do.vcgen] "Applying spec {thm.proof} for {info.prog}. Excess args: {info.excessArgs}"
   let .goals goals ← rule.applyChecked goal m!"spec rule for{indentExpr info.prog}"
-    | do
-      -- The discrimination tree over-approximates, so a selected spec may not unify with the program
-      -- (e.g. an offset-keyed equation against a variable discriminant). That is no matching spec, not
-      -- a rule failure. A spec whose pattern does match yet whose rule fails to apply is a genuine bug.
-      unless ← thm.patternMatches info.prog do
-        return ← stopOrErrorOnMissingSpec info.prog info.M #[thm]
-      let ruleType ← Meta.inferType rule.expr
-      throwError "Failed to apply rule {thm.proof} for {indentExpr info.prog}\n\
-        target:{indentExpr (← goal.getType)}\n\
-        Pred:{indentExpr info.Pred}\n\
-        excessArgs: {info.excessArgs}\n\
-        rule type:{indentExpr ruleType}"
-  return .goals scope goals
+    | return none
+  return some (.goals scope goals)
 
 /-- True iff the program matches the `until` pattern, in which case VC generation stops at this
 goal. -/
@@ -460,7 +436,8 @@ private def applyFrameRule (goal : MVarId) (info : WPApp) (fp : FrameProc)
   return goals.toList ++ split.subgoals
 
 /--
-Handle a spec-ready program `info.prog`: select its `@[spec]` theorem and either frame or apply it.
+Apply the selected `@[spec]` theorem `thm` to a spec-ready program `info.prog`, framing first when a
+frame procedure produces a split.
 
 - A spec with a conjunctive precondition, or an already-framed residual, applies its spec directly.
 - Otherwise the frame procedure for the monad is selected (the `@[frameproc]` registered for the
@@ -471,13 +448,10 @@ Handle a spec-ready program `info.prog`: select its `@[spec]` theorem and either
   `FrameInferenceInfo.specPre?`: no split applies the spec directly; a split applies the frame rule
   instead, so the spec re-applies against the framed residual where its VCs are solvable.
 -/
-private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) :
-    VCGenM SolveResult := goal.withContext do
-  let (scope, thm, specRule) ← match ← compileSpecRule scope goal info with
-    | .ok res => pure res
-    | .error res => return res
+private def frameOrApplySpec? (scope : VCGen.Scope) (goal : MVarId) (info : WPApp)
+    (thm : SpecTheorem) (specRule : BackwardRule) : VCGenM (Option SolveResult) := do
   if thm.conjunctivePre || isFramedPost info.post then
-    return ← applySpecRule scope goal info thm specRule
+    return ← applySpecRule? scope goal info thm specRule
   let procs := (← read).frameProcs.byProg
   let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
   let providedFrame? ← matchFrame? fp info
@@ -485,10 +459,28 @@ private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) :
     { info with goal, providedFrame?, spec? := thm.global?, specRule,
                 mkOpApp := do shareCommon (← fp.mkOpAppM info) }
   match ← fp.proc inferInfo with
-  | none => applySpecRule scope goal info thm specRule
+  | none => applySpecRule? scope goal info thm specRule
   | some split =>
     trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` matched {info.prog}; frame:{indentExpr split.frame}"
-    return .goals scope (← applyFrameRule goal info fp (← split.instantiateMVarsS))
+    return some (.goals scope (← applyFrameRule goal info fp (← split.instantiateMVarsS)))
+
+/--
+Handle a spec-ready program `info.prog`: apply the highest-priority `@[spec]` theorem whose backward
+rule applies to the goal.
+
+A candidate is passed over when no rule fits the goal's monad or when the rule does not apply, so a
+spec guarded by an instance the call site does not provide gives way to a less general one, as does a
+spurious candidate of the over-approximating discrimination tree.
+-/
+private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) :
+    VCGenM SolveResult := goal.withContext do
+  let candidates ← SpecTheorems.findSpecs scope.specs info.prog
+  for thm in candidates do
+    if let some rule ← compileSpecRule goal info thm then
+      if let some res ← frameOrApplySpec? scope goal info thm rule then
+        return res
+    trace[Elab.Tactic.Do.vcgen] "Failed to apply spec {thm.proof} for {info.prog}"
+  stopOrErrorOnMissingSpec info.prog info.M candidates
 
 /--
 The main VC generation step. Operates on a plain `MVarId` with no knowledge of grind.

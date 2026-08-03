@@ -526,6 +526,24 @@ theorem IsList_cons_intro (v : Nat) (n back : Addr) (vs : List Nat) (p : Addr) (
   intro h hh
   exact (ofProp_meet_apply _ _ _).mpr ⟨hp, (iSup_hprop_apply _ _).mpr ⟨n, hh⟩⟩
 
+/-- Open a segment known to be non-empty: the head node's three cells and the tail segment.
+Mirror of `IsList_cons_intro`. -/
+theorem IsList_ne_le (rest : List Nat) (back curr : Addr) (hcn : curr ≠ null) :
+    IsList rest back curr ⊑
+      ⨆ v, ⨆ vs, ⨆ n, sepPure (rest = v :: vs) ∗
+        (curr ↦ n ∗ (curr + 1) ↦ back ∗ (curr + 2) ↦ v ∗ IsList vs curr n) := by
+  match rest with
+  | [] =>
+    refine PartialOrder.rel_trans ?_ (bot_le _)
+    intro h hh
+    exact (hcn ((sepPure_apply _ _).mp hh).1).elim
+  | v :: vs =>
+    rw [IsList_cons_eq]
+    refine ofProp_meet_le_left fun _ => iSup_le _ _ fun n => ?_
+    refine le_iSup_of_le v (le_iSup_of_le vs (le_iSup_of_le n (PartialOrder.rel_of_eq ?_)))
+    rw [show (v :: vs = v :: vs) = True from propext ⟨fun _ => trivial, fun _ => rfl⟩,
+      sepPure_true_eq_emp, emp_sepConj]
+
 /-- A segment rooted at `null` is empty. -/
 @[grind =] theorem IsList_null_eq (rest : List Nat) (back : Addr) :
     IsList rest back null = sepPure (rest = []) := by
@@ -832,17 +850,15 @@ theorem load_next_IsList_ne (rest : List Nat) (back curr : Addr) (hcn : curr ≠
       load curr
     ⦃ fun next => ⨆ v, ⨆ vs, ⌜rest = v :: vs⌝ ⊓
         (curr ↦ next ∗ (curr + 1) ↦ back ∗ (curr + 2) ↦ v ∗ IsList vs curr next) ⦄ := by
-  match rest with
-  | [] =>
-    exact ⟨PartialOrder.rel_trans (IsList_nil_le_bot back curr hcn)
-      (PartialOrder.rel_trans (bot_le _) (HeapM.triple_of_bot_pre (Q := _) (load curr)).le_wp)⟩
-  | v :: vs =>
-    simp only [IsList_cons_eq]
-    vcgen [load_spec] with (try finish)
-    refine PartialOrder.rel_trans ?_
-      (le_iSup_of_le v (le_iSup_of_le vs
-        (le_meet _ _ _ (le_ofProp _ _ rfl) PartialOrder.rel_refl)))
-    grind
+  refine ⟨PartialOrder.rel_trans (IsList_ne_le rest back curr hcn) ?_⟩
+  refine iSup_le _ _ fun v => iSup_le _ _ fun vs => iSup_le _ _ fun n => ?_
+  refine sepPure_sepConj_le_of _ _ _ fun hrest => ?_
+  subst hrest
+  vcgen [load_spec] with (try finish)
+  refine PartialOrder.rel_trans ?_
+    (le_iSup_of_le v (le_iSup_of_le vs
+      (le_meet _ _ _ (le_ofProp _ _ rfl) PartialOrder.rel_refl)))
+  grind
 
 /-- Loop invariant for `reverse` at loop state `(prev, curr)`: the unvisited segment `rest` hangs
 off `curr` with back-pointer `prev`, the reversed prefix `acc` sits at `prev` with back-pointer
@@ -923,31 +939,11 @@ the precondition, at the known result `if x = null then y else x`. The loop inva
 last visited node and carries a wand absorbing the visited prefix (`wand_absorb`); linking the
 last node discharges the prefix wand and the continuation wand by the counit. -/
 
-/-- Rebuild a cons cell around a rewritten prev field; the loaded next-pointer is the witness. -/
-theorem store_prev_handoff (w : Nat) (ws : List Nat) (q c n : Addr) :
-    q ↦ n ∗ (q + 2) ↦ w ∗ IsList ws q n ∗ (q + 1) ↦ c
-      ⊑ ⨆ n', q ↦ n' ∗ (q + 1) ↦ c ∗ (q + 2) ↦ w ∗ IsList ws q n' := by
-  refine PartialOrder.rel_trans (PartialOrder.rel_of_eq ?_) (le_iSup _ n)
-  grind
-
-grind_pattern store_prev_handoff => (q + 1) ↦ c, (q + 2) ↦ w, IsList ws q n
-
-/-- Rewrite the back-pointer of a cons cell by storing into its prev field. -/
-theorem store_prev_IsList (w : Nat) (ws : List Nat) (qb q c : Addr) :
-    ⦃ IsList (w :: ws) qb q ⦄ store (q + 1) c ⦃ fun _ => IsList (w :: ws) c q ⦄ := by
-  simp only [IsList_cons_eq]
-  vcgen [store_spec] with finish
-
-/-- Rewrite the back-pointer of a list head known to be non-null. The shape hypothesis reaches
-`finish` from the branch condition in scope. -/
+/-- Rewrite the back-pointer of a list head known to be non-null. -/
 theorem store_prev_IsList_ne (ys : List Nat) (qb y c : Addr) (hy : y ≠ null) :
     ⦃ IsList ys qb y ⦄ store (y + 1) c ⦃ fun _ => IsList ys c y ⦄ := by
-  match ys with
-  | [] =>
-    exact ⟨PartialOrder.rel_trans (IsList_nil_le_bot qb y hy)
-      (PartialOrder.rel_trans (bot_le _)
-        (HeapM.triple_of_bot_pre (Q := _) (store (y + 1) c)).le_wp)⟩
-  | w :: ws => exact store_prev_IsList w ws qb y c
+  refine ⟨PartialOrder.rel_trans (IsList_ne_le ys qb y hy) ?_⟩
+  vcgen [store_spec] with finish
 
 /-- Loop invariant for `append` at loop state `(t, u)`: `t` is the last visited node with
 next-pointer `u` and some prev-pointer `pt`, the unvisited segment `rest` hangs off `u`, a wand

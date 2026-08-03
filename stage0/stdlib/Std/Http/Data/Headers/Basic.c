@@ -339,7 +339,6 @@ static const lean_object* l_Std_Http_Header_Host_inst___closed__1 = (const lean_
 static const lean_ctor_object l_Std_Http_Header_Host_inst___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l_Std_Http_Header_Host_inst___closed__0_value),((lean_object*)&l_Std_Http_Header_Host_inst___closed__1_value)}};
 static const lean_object* l_Std_Http_Header_Host_inst___closed__2 = (const lean_object*)&l_Std_Http_Header_Host_inst___closed__2_value;
 LEAN_EXPORT const lean_object* l_Std_Http_Header_Host_inst = (const lean_object*)&l_Std_Http_Header_Host_inst___closed__2_value;
-LEAN_EXPORT lean_object* l_Std_Http_Header_Expect_toCtorIdx(lean_object*);
 static const lean_ctor_object l_Std_Http_Header_instReprExpect_repr___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 5}, .m_objs = {((lean_object*)&l_Std_Http_Header_instReprContentLength_repr___redArg___closed__11_value),((lean_object*)(((size_t)(0) << 1) | 1))}};
 static const lean_object* l_Std_Http_Header_instReprExpect_repr___closed__0 = (const lean_object*)&l_Std_Http_Header_instReprExpect_repr___closed__0_value;
 static const lean_ctor_object l_Std_Http_Header_instReprExpect_repr___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 5}, .m_objs = {((lean_object*)&l_Std_Http_Header_instReprExpect_repr___closed__0_value),((lean_object*)&l_Std_Http_Header_instReprContentLength_repr___redArg___closed__12_value)}};
@@ -3858,130 +3857,122 @@ goto v___jp_1199_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Header_Expect_toCtorIdx(lean_object* v_x_1257_){
-_start:
-{
-lean_object* v___x_1258_; 
-v___x_1258_ = lean_unsigned_to_nat(0u);
-return v___x_1258_;
-}
-}
 static lean_object* _init_l_Std_Http_Header_instReprExpect_repr___closed__2(void){
 _start:
 {
-lean_object* v___x_1265_; lean_object* v___x_1266_; lean_object* v___x_1267_; 
-v___x_1265_ = ((lean_object*)(l_Std_Http_Header_instReprExpect_repr___closed__1));
-v___x_1266_ = lean_obj_once(&l_Std_Http_Header_instReprContentLength_repr___redArg___closed__10, &l_Std_Http_Header_instReprContentLength_repr___redArg___closed__10_once, _init_l_Std_Http_Header_instReprContentLength_repr___redArg___closed__10);
-v___x_1267_ = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(v___x_1267_, 0, v___x_1266_);
-lean_ctor_set(v___x_1267_, 1, v___x_1265_);
-return v___x_1267_;
+lean_object* v___x_1263_; lean_object* v___x_1264_; lean_object* v___x_1265_; 
+v___x_1263_ = ((lean_object*)(l_Std_Http_Header_instReprExpect_repr___closed__1));
+v___x_1264_ = lean_obj_once(&l_Std_Http_Header_instReprContentLength_repr___redArg___closed__10, &l_Std_Http_Header_instReprContentLength_repr___redArg___closed__10_once, _init_l_Std_Http_Header_instReprContentLength_repr___redArg___closed__10);
+v___x_1265_ = lean_alloc_ctor(4, 2, 0);
+lean_ctor_set(v___x_1265_, 0, v___x_1264_);
+lean_ctor_set(v___x_1265_, 1, v___x_1263_);
+return v___x_1265_;
 }
 }
 static lean_object* _init_l_Std_Http_Header_instReprExpect_repr___closed__3(void){
 _start:
 {
-uint8_t v___x_1268_; lean_object* v___x_1269_; lean_object* v___x_1270_; 
-v___x_1268_ = 0;
-v___x_1269_ = lean_obj_once(&l_Std_Http_Header_instReprExpect_repr___closed__2, &l_Std_Http_Header_instReprExpect_repr___closed__2_once, _init_l_Std_Http_Header_instReprExpect_repr___closed__2);
-v___x_1270_ = lean_alloc_ctor(6, 1, 1);
-lean_ctor_set(v___x_1270_, 0, v___x_1269_);
-lean_ctor_set_uint8(v___x_1270_, sizeof(void*)*1, v___x_1268_);
-return v___x_1270_;
+uint8_t v___x_1266_; lean_object* v___x_1267_; lean_object* v___x_1268_; 
+v___x_1266_ = 0;
+v___x_1267_ = lean_obj_once(&l_Std_Http_Header_instReprExpect_repr___closed__2, &l_Std_Http_Header_instReprExpect_repr___closed__2_once, _init_l_Std_Http_Header_instReprExpect_repr___closed__2);
+v___x_1268_ = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(v___x_1268_, 0, v___x_1267_);
+lean_ctor_set_uint8(v___x_1268_, sizeof(void*)*1, v___x_1266_);
+return v___x_1268_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Header_instReprExpect_repr(lean_object* v_x_1271_, lean_object* v_prec_1272_){
+LEAN_EXPORT lean_object* l_Std_Http_Header_instReprExpect_repr(lean_object* v_x_1269_, lean_object* v_prec_1270_){
 _start:
 {
-lean_object* v___x_1273_; 
-v___x_1273_ = lean_obj_once(&l_Std_Http_Header_instReprExpect_repr___closed__3, &l_Std_Http_Header_instReprExpect_repr___closed__3_once, _init_l_Std_Http_Header_instReprExpect_repr___closed__3);
-return v___x_1273_;
+lean_object* v___x_1271_; 
+v___x_1271_ = lean_obj_once(&l_Std_Http_Header_instReprExpect_repr___closed__3, &l_Std_Http_Header_instReprExpect_repr___closed__3_once, _init_l_Std_Http_Header_instReprExpect_repr___closed__3);
+return v___x_1271_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Header_instReprExpect_repr___boxed(lean_object* v_x_1274_, lean_object* v_prec_1275_){
+LEAN_EXPORT lean_object* l_Std_Http_Header_instReprExpect_repr___boxed(lean_object* v_x_1272_, lean_object* v_prec_1273_){
 _start:
 {
-lean_object* v_res_1276_; 
-v_res_1276_ = l_Std_Http_Header_instReprExpect_repr(v_x_1274_, v_prec_1275_);
-lean_dec(v_prec_1275_);
-return v_res_1276_;
+lean_object* v_res_1274_; 
+v_res_1274_ = l_Std_Http_Header_instReprExpect_repr(v_x_1272_, v_prec_1273_);
+lean_dec(v_prec_1273_);
+return v_res_1274_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Http_Header_instBEqExpect_beq(lean_object* v_x_1279_, lean_object* v_y_1280_){
+LEAN_EXPORT uint8_t l_Std_Http_Header_instBEqExpect_beq(lean_object* v_x_1277_, lean_object* v_y_1278_){
 _start:
 {
-uint8_t v___x_1281_; 
-v___x_1281_ = 1;
-return v___x_1281_;
+uint8_t v___x_1279_; 
+v___x_1279_ = 1;
+return v___x_1279_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Header_instBEqExpect_beq___boxed(lean_object* v_x_1282_, lean_object* v_y_1283_){
+LEAN_EXPORT lean_object* l_Std_Http_Header_instBEqExpect_beq___boxed(lean_object* v_x_1280_, lean_object* v_y_1281_){
 _start:
 {
-uint8_t v_res_1284_; lean_object* v_r_1285_; 
-v_res_1284_ = l_Std_Http_Header_instBEqExpect_beq(v_x_1282_, v_y_1283_);
-v_r_1285_ = lean_box(v_res_1284_);
-return v_r_1285_;
+uint8_t v_res_1282_; lean_object* v_r_1283_; 
+v_res_1282_ = l_Std_Http_Header_instBEqExpect_beq(v_x_1280_, v_y_1281_);
+v_r_1283_ = lean_box(v_res_1282_);
+return v_r_1283_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Header_Expect_parse(lean_object* v_v_1291_){
+LEAN_EXPORT lean_object* l_Std_Http_Header_Expect_parse(lean_object* v_v_1289_){
 _start:
 {
-lean_object* v___x_1292_; lean_object* v___x_1293_; lean_object* v___x_1294_; lean_object* v___x_1295_; lean_object* v___x_1296_; lean_object* v_normalized_1297_; lean_object* v___x_1298_; uint8_t v___x_1299_; 
-v___x_1292_ = lean_unsigned_to_nat(0u);
-v___x_1293_ = lean_string_utf8_byte_size(v_v_1291_);
-v___x_1294_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_1294_, 0, v_v_1291_);
-lean_ctor_set(v___x_1294_, 1, v___x_1292_);
-lean_ctor_set(v___x_1294_, 2, v___x_1293_);
-v___x_1295_ = l_String_Slice_trimAscii(v___x_1294_);
-v___x_1296_ = l_String_Slice_toString(v___x_1295_);
-lean_dec_ref(v___x_1295_);
-v_normalized_1297_ = l_String_mapAux___at___00__private_Std_Http_Data_Headers_Basic_0__Std_Http_Header_parseTokenList_spec__0(v___x_1296_, v___x_1292_);
-v___x_1298_ = ((lean_object*)(l_Std_Http_Header_Expect_parse___closed__0));
-v___x_1299_ = lean_string_dec_eq(v_normalized_1297_, v___x_1298_);
-lean_dec_ref(v_normalized_1297_);
-if (v___x_1299_ == 0)
+lean_object* v___x_1290_; lean_object* v___x_1291_; lean_object* v___x_1292_; lean_object* v___x_1293_; lean_object* v___x_1294_; lean_object* v_normalized_1295_; lean_object* v___x_1296_; uint8_t v___x_1297_; 
+v___x_1290_ = lean_unsigned_to_nat(0u);
+v___x_1291_ = lean_string_utf8_byte_size(v_v_1289_);
+v___x_1292_ = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(v___x_1292_, 0, v_v_1289_);
+lean_ctor_set(v___x_1292_, 1, v___x_1290_);
+lean_ctor_set(v___x_1292_, 2, v___x_1291_);
+v___x_1293_ = l_String_Slice_trimAscii(v___x_1292_);
+v___x_1294_ = l_String_Slice_toString(v___x_1293_);
+lean_dec_ref(v___x_1293_);
+v_normalized_1295_ = l_String_mapAux___at___00__private_Std_Http_Data_Headers_Basic_0__Std_Http_Header_parseTokenList_spec__0(v___x_1294_, v___x_1290_);
+v___x_1296_ = ((lean_object*)(l_Std_Http_Header_Expect_parse___closed__0));
+v___x_1297_ = lean_string_dec_eq(v_normalized_1295_, v___x_1296_);
+lean_dec_ref(v_normalized_1295_);
+if (v___x_1297_ == 0)
 {
-lean_object* v___x_1300_; 
-v___x_1300_ = lean_box(0);
-return v___x_1300_;
+lean_object* v___x_1298_; 
+v___x_1298_ = lean_box(0);
+return v___x_1298_;
 }
 else
 {
-lean_object* v___x_1301_; 
-v___x_1301_ = ((lean_object*)(l_Std_Http_Header_Expect_parse___closed__1));
-return v___x_1301_;
+lean_object* v___x_1299_; 
+v___x_1299_ = ((lean_object*)(l_Std_Http_Header_Expect_parse___closed__1));
+return v___x_1299_;
 }
 }
 }
 static lean_object* _init_l_Std_Http_Header_Expect_serialize___closed__0(void){
 _start:
 {
-lean_object* v___x_1302_; lean_object* v___x_1303_; 
-v___x_1302_ = ((lean_object*)(l_Std_Http_Header_Expect_parse___closed__0));
-v___x_1303_ = l_Std_Http_Header_Value_ofString_x21(v___x_1302_);
-return v___x_1303_;
+lean_object* v___x_1300_; lean_object* v___x_1301_; 
+v___x_1300_ = ((lean_object*)(l_Std_Http_Header_Expect_parse___closed__0));
+v___x_1301_ = l_Std_Http_Header_Value_ofString_x21(v___x_1300_);
+return v___x_1301_;
 }
 }
 static lean_object* _init_l_Std_Http_Header_Expect_serialize___closed__1(void){
 _start:
 {
-lean_object* v___x_1304_; lean_object* v___x_1305_; lean_object* v___x_1306_; 
-v___x_1304_ = lean_obj_once(&l_Std_Http_Header_Expect_serialize___closed__0, &l_Std_Http_Header_Expect_serialize___closed__0_once, _init_l_Std_Http_Header_Expect_serialize___closed__0);
-v___x_1305_ = l_Std_Http_Header_Name_expect;
-v___x_1306_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_1306_, 0, v___x_1305_);
-lean_ctor_set(v___x_1306_, 1, v___x_1304_);
-return v___x_1306_;
+lean_object* v___x_1302_; lean_object* v___x_1303_; lean_object* v___x_1304_; 
+v___x_1302_ = lean_obj_once(&l_Std_Http_Header_Expect_serialize___closed__0, &l_Std_Http_Header_Expect_serialize___closed__0_once, _init_l_Std_Http_Header_Expect_serialize___closed__0);
+v___x_1303_ = l_Std_Http_Header_Name_expect;
+v___x_1304_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_1304_, 0, v___x_1303_);
+lean_ctor_set(v___x_1304_, 1, v___x_1302_);
+return v___x_1304_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Header_Expect_serialize(lean_object* v_x_1307_){
+LEAN_EXPORT lean_object* l_Std_Http_Header_Expect_serialize(lean_object* v_x_1305_){
 _start:
 {
-lean_object* v___x_1308_; 
-v___x_1308_ = lean_obj_once(&l_Std_Http_Header_Expect_serialize___closed__1, &l_Std_Http_Header_Expect_serialize___closed__1_once, _init_l_Std_Http_Header_Expect_serialize___closed__1);
-return v___x_1308_;
+lean_object* v___x_1306_; 
+v___x_1306_ = lean_obj_once(&l_Std_Http_Header_Expect_serialize___closed__1, &l_Std_Http_Header_Expect_serialize___closed__1_once, _init_l_Std_Http_Header_Expect_serialize___closed__1);
+return v___x_1306_;
 }
 }
 lean_object* runtime_initialize_Std_Http_Data_URI(uint8_t builtin);

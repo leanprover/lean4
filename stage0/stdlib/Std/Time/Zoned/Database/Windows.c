@@ -51,7 +51,6 @@ LEAN_EXPORT lean_object* l_Nat_cast___at___00Nat_cast___at___00Std_Time_Database
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_Database_Windows_getZoneRules_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00Std_Time_Database_Windows_getZoneRules_spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00Std_Time_Database_Windows_getZoneRules_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_default;
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -700,104 +699,96 @@ lean_dec_ref(v_id_167_);
 return v_res_171_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_toCtorIdx(lean_object* v_x_172_){
-_start:
-{
-lean_object* v___x_173_; 
-v___x_173_ = lean_unsigned_to_nat(0u);
-return v___x_173_;
-}
-}
 static lean_object* _init_l_Std_Time_Database_WindowsDb_default(void){
 _start:
 {
-lean_object* v___x_174_; 
-v___x_174_ = lean_box(0);
-return v___x_174_;
+lean_object* v___x_172_; 
+v___x_172_ = lean_box(0);
+return v___x_172_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__0(lean_object* v_x_175_, lean_object* v_id_176_){
+LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__0(lean_object* v_x_173_, lean_object* v_id_174_){
 _start:
 {
-lean_object* v___x_178_; 
-v___x_178_ = l_Std_Time_Database_Windows_getZoneRules(v_id_176_);
-return v___x_178_;
+lean_object* v___x_176_; 
+v___x_176_ = l_Std_Time_Database_Windows_getZoneRules(v_id_174_);
+return v___x_176_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__0___boxed(lean_object* v_x_179_, lean_object* v_id_180_, lean_object* v___y_181_){
+LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__0___boxed(lean_object* v_x_177_, lean_object* v_id_178_, lean_object* v___y_179_){
 _start:
 {
-lean_object* v_res_182_; 
-v_res_182_ = l_Std_Time_Database_WindowsDb_inst___lam__0(v_x_179_, v_id_180_);
-lean_dec_ref(v_id_180_);
-return v_res_182_;
+lean_object* v_res_180_; 
+v_res_180_ = l_Std_Time_Database_WindowsDb_inst___lam__0(v_x_177_, v_id_178_);
+lean_dec_ref(v_id_178_);
+return v_res_180_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__1(lean_object* v_x_183_){
+LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__1(lean_object* v_x_181_){
 _start:
 {
-uint64_t v___x_185_; lean_object* v___x_186_; 
-v___x_185_ = lean_uint64_once(&l_Std_Time_Database_Windows_getZoneRules___closed__1, &l_Std_Time_Database_Windows_getZoneRules___closed__1_once, _init_l_Std_Time_Database_Windows_getZoneRules___closed__1);
-v___x_186_ = lean_get_windows_local_timezone_id_at(v___x_185_);
-if (lean_obj_tag(v___x_186_) == 0)
+uint64_t v___x_183_; lean_object* v___x_184_; 
+v___x_183_ = lean_uint64_once(&l_Std_Time_Database_Windows_getZoneRules___closed__1, &l_Std_Time_Database_Windows_getZoneRules___closed__1_once, _init_l_Std_Time_Database_Windows_getZoneRules___closed__1);
+v___x_184_ = lean_get_windows_local_timezone_id_at(v___x_183_);
+if (lean_obj_tag(v___x_184_) == 0)
 {
-lean_object* v_a_187_; lean_object* v___x_188_; 
-v_a_187_ = lean_ctor_get(v___x_186_, 0);
+lean_object* v_a_185_; lean_object* v___x_186_; 
+v_a_185_ = lean_ctor_get(v___x_184_, 0);
+lean_inc(v_a_185_);
+lean_dec_ref_known(v___x_184_, 1);
+v___x_186_ = l_Std_Time_Database_Windows_getZoneRules(v_a_185_);
+lean_dec(v_a_185_);
+return v___x_186_;
+}
+else
+{
+lean_object* v_a_187_; lean_object* v___x_189_; uint8_t v_isShared_190_; uint8_t v_isSharedCheck_194_; 
+v_a_187_ = lean_ctor_get(v___x_184_, 0);
+v_isSharedCheck_194_ = !lean_is_exclusive(v___x_184_);
+if (v_isSharedCheck_194_ == 0)
+{
+v___x_189_ = v___x_184_;
+v_isShared_190_ = v_isSharedCheck_194_;
+goto v_resetjp_188_;
+}
+else
+{
 lean_inc(v_a_187_);
-lean_dec_ref_known(v___x_186_, 1);
-v___x_188_ = l_Std_Time_Database_Windows_getZoneRules(v_a_187_);
-lean_dec(v_a_187_);
-return v___x_188_;
+lean_dec(v___x_184_);
+v___x_189_ = lean_box(0);
+v_isShared_190_ = v_isSharedCheck_194_;
+goto v_resetjp_188_;
+}
+v_resetjp_188_:
+{
+lean_object* v___x_192_; 
+if (v_isShared_190_ == 0)
+{
+v___x_192_ = v___x_189_;
+goto v_reusejp_191_;
 }
 else
 {
-lean_object* v_a_189_; lean_object* v___x_191_; uint8_t v_isShared_192_; uint8_t v_isSharedCheck_196_; 
-v_a_189_ = lean_ctor_get(v___x_186_, 0);
-v_isSharedCheck_196_ = !lean_is_exclusive(v___x_186_);
-if (v_isSharedCheck_196_ == 0)
+lean_object* v_reuseFailAlloc_193_; 
+v_reuseFailAlloc_193_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_193_, 0, v_a_187_);
+v___x_192_ = v_reuseFailAlloc_193_;
+goto v_reusejp_191_;
+}
+v_reusejp_191_:
 {
-v___x_191_ = v___x_186_;
-v_isShared_192_ = v_isSharedCheck_196_;
-goto v_resetjp_190_;
-}
-else
-{
-lean_inc(v_a_189_);
-lean_dec(v___x_186_);
-v___x_191_ = lean_box(0);
-v_isShared_192_ = v_isSharedCheck_196_;
-goto v_resetjp_190_;
-}
-v_resetjp_190_:
-{
-lean_object* v___x_194_; 
-if (v_isShared_192_ == 0)
-{
-v___x_194_ = v___x_191_;
-goto v_reusejp_193_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_195_; 
-v_reuseFailAlloc_195_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_195_, 0, v_a_189_);
-v___x_194_ = v_reuseFailAlloc_195_;
-goto v_reusejp_193_;
-}
-v_reusejp_193_:
-{
-return v___x_194_;
+return v___x_192_;
 }
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__1___boxed(lean_object* v_x_197_, lean_object* v___y_198_){
+LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__1___boxed(lean_object* v_x_195_, lean_object* v___y_196_){
 _start:
 {
-lean_object* v_res_199_; 
-v_res_199_ = l_Std_Time_Database_WindowsDb_inst___lam__1(v_x_197_);
-return v_res_199_;
+lean_object* v_res_197_; 
+v_res_197_ = l_Std_Time_Database_WindowsDb_inst___lam__1(v_x_195_);
+return v_res_197_;
 }
 }
 lean_object* runtime_initialize_Init_Data_SInt_Basic(uint8_t builtin);

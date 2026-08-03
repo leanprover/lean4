@@ -102,9 +102,15 @@ attribute [bv_normalize] BitVec.neg_eq
 attribute [bv_normalize] BitVec.mul_eq
 attribute [bv_normalize] BitVec.udiv_eq
 attribute [bv_normalize] BitVec.umod_eq
-attribute [bv_normalize ←] BitVec.shiftLeft_eq'
-attribute [bv_normalize ←] BitVec.sshiftRight_eq'
-attribute [bv_normalize ←] BitVec.ushiftRight_eq'
+
+@[bv_normalize]
+theorem BitVec.shiftLeft_eq' {x : BitVec w₁} {y : BitVec w₂} :  x <<< y.toNat = x <<< y := rfl
+
+@[bv_normalize]
+theorem BitVec.sshiftRight_eq' (x : BitVec w) : x.sshiftRight y.toNat = x.sshiftRight' y  := rfl
+
+@[bv_normalize]
+theorem BitVec.ushiftRight_eq' (x : BitVec w₁) (y : BitVec w₂) : x >>> y.toNat = x >>> y := rfl
 
 end Normalize
 end Std.Tactic.BVDecide

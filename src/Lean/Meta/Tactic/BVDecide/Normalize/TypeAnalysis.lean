@@ -8,7 +8,11 @@ module
 prelude
 public import Std.Tactic.BVDecide.Normalize.BitVec
 public import Lean.Meta.Tactic.BVDecide.Normalize.Basic
+public import Lean.Meta.Sym.Simp.SimpM
 import Init.ByCases
+import Lean.Meta.Sym.Simp.Theorems
+import Lean.Meta.Sym.Simp.Rewrite
+import Lean.Meta.Sym.InstantiateMVarsS
 
 /-!
 This file implements the type analysis pass for the structures and enum inductives pass. It figures
@@ -119,34 +123,37 @@ def builtinTypes : Array Name :=
 @[inline]
 def isBuiltIn (n : Name) : Bool := builtinTypes.contains n
 
-public def addDefaultTypeAnalysisLemmas (lemmas : SimpTheoremsArray) : PreProcessM SimpTheoremsArray := do
-  let mut lemmas := lemmas
-
+public def addDefaultTypeAnalysisLemmas (methods : Sym.Simp.Methods) :
+    PreProcessM Sym.Simp.Methods := do
+  let mut lemmas : Sym.Simp.Theorems := {}
   let relevantNames := #[
-    ``ne_eq,
     ``dite_eq_ite,
     ``Std.Tactic.BVDecide.Normalize.BitVec.getElem_eq_getLsbD,
   ]
   for name in relevantNames do
-    lemmas ← lemmas.addTheorem (.decl name) (mkConst name)
+    lemmas := lemmas.insert (← Sym.Simp.mkTheoremFromDecl name)
 
-  return lemmas
+  return { methods with pre := methods.pre >> lemmas.rewrite }
 
 public partial def typeAnalysisPass : Pass where
   name := `typeAnalysis
-  run' goal := do
-    checkContext goal
+  run' := do
+    checkContext (← PreProcessM.getGoal)
     let analysis ← PreProcessM.getTypeAnalysis
     trace[Meta.Tactic.bv] m!"Type analysis found structures: {analysis.interestingStructures.toList}"
     trace[Meta.Tactic.bv] m!"Type analysis found enums: {analysis.interestingEnums.toList}"
     trace[Meta.Tactic.bv] m!"Type analysis found matchers: {analysis.interestingMatchers.keys}"
-    return goal
+    return false
 where
   checkContext (goal : MVarId) : PreProcessM Unit := do
     goal.withContext do
       for decl in ← getLCtx do
         if !decl.isLet && !decl.isImplementationDetail then
-          analyzeType (← instantiateMVars decl.type)
+          if ← Meta.isProp decl.type then continue
+          analyzeType (← Sym.instantiateMVarsS decl.type)
+
+      for hyp in ← PreProcessM.getHyps do
+        analyzeType hyp.type
 
   analyzeType (expr : Expr) : PreProcessM Unit := do
     expr.forEachWhere Expr.isConst fun e => do

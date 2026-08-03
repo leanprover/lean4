@@ -8,6 +8,7 @@ prelude
 
 public import Lean.Meta.Tactic.BVDecide.Prover.Bitblast
 import Lean.Meta.Tactic.BVDecide.Normalize
+import Lean.Meta.Sym.Util
 
 
 /-!
@@ -15,8 +16,10 @@ This module provides the implementation of the `bv_decide` frontend itself.
 -/
 namespace Lean.Meta.Tactic.BVDecide
 
-def bvUnsat (g : MVarId) (ctx : TacticContext) : MetaM (Except CounterExample LratCert) := M.run do
-  closeWithBVReflection g (lratBitblaster ctx)
+def bvUnsat (g : MVarId) (hypotheses : Array Normalize.Hyp) (ctx : TacticContext) :
+    Sym.SymM (Except CounterExample LratCert) :=
+  M.run (hypotheses := hypotheses) do
+    closeWithBVReflection g (lratBitblaster ctx)
 
 /--
 The result of calling `bv_decide`.
@@ -33,11 +36,14 @@ Try to close `g` using a bitblaster. Return either a `CounterExample` if one is 
 if `g` is proven.
 -/
 public def bvDecide' (g : MVarId) (ctx : TacticContext) : MetaM (Except CounterExample Result) := do
-  let g? ← Normalize.bvNormalize g ctx.config
-  let some g := g? | return .ok ⟨none⟩
-  match ← bvUnsat g ctx with
-  | .ok lratCert => return .ok ⟨some lratCert⟩
-  | .error counterExample => return .error counterExample
+  Sym.SymM.run do
+    Normalize.PreProcessM.run' ctx.config g do
+      let solved ← Normalize.bvNormalize
+      if solved then return .ok ⟨none⟩
+
+      match ← bvUnsat (← Normalize.PreProcessM.getGoal) (← Normalize.PreProcessM.getHyps) ctx with
+      | .ok lratCert => return .ok ⟨some lratCert⟩
+      | .error counterExample => return .error counterExample
 
 /--
 Call `bvDecide'` and throw a pretty error if a counter example ends up being produced.

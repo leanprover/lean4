@@ -6,6 +6,7 @@ Authors: Henrik Böving
 module
 prelude
 public import Lean.Meta.Tactic.BVDecide.Normalize
+import Lean.Meta.Sym.Util
 
 namespace Lean.Elab.Tactic.BVDecide
 namespace Normalize
@@ -15,9 +16,19 @@ def evalBVNormalize : Tactic := fun
   | `(tactic| bv_normalize $cfg:optConfig) => do
     let cfg ← Meta.Tactic.BVDecide.elabBVDecideConfig cfg
     let g ← getMainGoal
-    match ← Meta.Tactic.BVDecide.Normalize.bvNormalize g cfg with
-    | some newGoal => replaceMainGoal [newGoal]
-    | none => replaceMainGoal []
+    let (_, state) ← Meta.Sym.SymM.run do
+      Meta.Tactic.BVDecide.Normalize.bvNormalize.run cfg g
+    if ← state.goal.isAssigned then
+      replaceMainGoal []
+    else
+      let hyps := state.hypotheses.map fun hyp => {
+        userName := hyp.name
+        type := hyp.type
+        value := hyp.value
+      }
+      let (_, goal) ← MVarId.assertHypotheses state.goal hyps
+      replaceMainGoal [goal]
+
   | _ => throwUnsupportedSyntax
 
 end Normalize

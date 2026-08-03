@@ -119,7 +119,7 @@ structure RequestOverrides where
   /--
   Overrides `Config.requestTimeout` for this request.
   -/
-  timeout : Option Timeout := none
+  requestTimeout : Option Timeout := none
 
   /--
   Overrides `Config.maxRedirects` for this request. `some 0` disables redirect following.
@@ -155,7 +155,7 @@ structure Config where
   This is a per-read idle timeout, not a wall-clock limit on the total request duration; use
   `requestTimeout` to bound the full exchange.
   -/
-  readTimeout : Time.Millisecond.Offset := 30000
+  readTimeout : Timeout := ⟨30000, by decide⟩
 
   /--
   How long an idle connection may sit in the pool before it is closed. Only relevant when

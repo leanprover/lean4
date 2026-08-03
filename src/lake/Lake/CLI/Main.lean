@@ -346,7 +346,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--builtin-lint" => modifyThe LakeOptions ({· with runBuiltinLint := true})
 | "--builtin-only" => modifyThe LakeOptions ({· with runBuiltinLint := true, builtinOnly := true})
 | "--record-exceptions" =>
-  modifyThe LakeOptions ({· with runBuiltinLint := true, builtinLint.recordExceptions := true})
+  modifyThe LakeOptions ({· with runBuiltinLint := true, builtinLint.mode := .recordExceptions})
 | "--linters" => do
   let opts ← getThe LakeOptions
   if opts.builtinLint.lintOnly then

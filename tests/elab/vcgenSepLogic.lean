@@ -950,13 +950,6 @@ theorem store_prev_IsList_ne (ys : List Nat) (qb y c : Addr) (hy : y ≠ null) :
         (HeapM.triple_of_bot_pre (Q := _) (store (y + 1) c)).le_wp)⟩
   | w :: ws => exact store_prev_IsList w ws qb y c
 
-/-- The ramified continuation of `append_spec`: `Q` received through a wand at the known result
-and back-pointer. -/
-noncomputable abbrev appendCont (xs ys : List Nat) (back qb x y : Addr) (Q : Addr → HProp) :
-    HProp :=
-  IsList (xs ++ ys) (if x = null then qb else back) (if x = null then y else x) -∗
-    Q (if x = null then y else x)
-
 /-- Loop invariant for `append` at loop state `(t, u)`: `t` is the last visited node with
 next-pointer `u` and some prev-pointer `pt`, the unvisited segment `rest` hangs off `u`, a wand
 absorbs the visited prefix back into the whole first list, the second list and the continuation
@@ -1127,19 +1120,21 @@ grind_pattern append_link_null_le =>
 the known result and back-pointer. -/
 theorem append_spec (fuel : Nat) (xs ys : List Nat) (back qb x y : Addr) (Q : Addr → HProp)
     (hle : xs.length ≤ fuel) :
-    ⦃ IsList xs back x ∗ IsList ys qb y ∗ appendCont xs ys back qb x y Q ⦄
+    ⦃ IsList xs back x ∗ IsList ys qb y ∗
+        (IsList (xs ++ ys) (if x = null then qb else back) (if x = null then y else x) -∗
+          Q (if x = null then y else x)) ⦄
       append fuel x y
     ⦃ Q ⦄ := by
   by_cases hx : x = null
   · subst hx
     have hb : (if null = null then qb else back) = qb := by grind
     have hr : (if null = null then y else null) = y := by grind
-    rw [appendCont, hb, hr]
+    rw [hb, hr]
     simp only [append, reduceIte]
     vcgen with finish
   · have hb : (if x = null then qb else back) = back := by grind
     have hr : (if x = null then y else x) = x := by grind
-    rw [appendCont, hb, hr]
+    rw [hb, hr]
     have hlen' : xs.length ≤ ([:fuel] : Std.Legacy.Range).toList.length := by grind
     vcgen [append, -Spec.forIn_range,
       Spec.forIn_range (m := HeapM)

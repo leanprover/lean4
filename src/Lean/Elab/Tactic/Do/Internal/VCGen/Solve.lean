@@ -338,15 +338,6 @@ private def compileSpecRule (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
       Pred:{indentExpr info.Pred}\n\
       excessArgs: {info.excessArgs}"
 
-/-- Apply the backward `rule` of the selected `@[spec]` theorem `thm`, returning its subgoals, or
-`none` when the rule does not apply. Reached from `applySpec`. -/
-private def applySpecRule? (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem)
-    (rule : BackwardRule) : VCGenM (Option SolveResult) := do
-  trace[Elab.Tactic.Do.vcgen] "Applying spec {thm.proof} for {info.prog}. Excess args: {info.excessArgs}"
-  let .goals goals ← rule.applyChecked goal m!"spec rule for{indentExpr info.prog}"
-    | return none
-  return some (.goals scope goals)
-
 /-- True iff the program matches the `until` pattern, in which case VC generation stops at this
 goal. -/
 private def matchesUntilPattern (prog : Expr) : VCGenM Bool := do
@@ -437,7 +428,7 @@ private def applyFrameRule (goal : MVarId) (info : WPApp) (fp : FrameProc)
 
 /--
 Apply the selected `@[spec]` theorem `thm` to a spec-ready program `info.prog`, framing first when a
-frame procedure produces a split.
+frame procedure produces a split. `none` when `thm`'s backward rule does not apply.
 
 - A spec with a conjunctive precondition, or an already-framed residual, applies its spec directly.
 - Otherwise the frame procedure for the monad is selected (the `@[frameproc]` registered for the
@@ -448,21 +439,22 @@ frame procedure produces a split.
   `FrameInferenceInfo.specPre?`: no split applies the spec directly; a split applies the frame rule
   instead, so the spec re-applies against the framed residual where its VCs are solvable.
 -/
-private def frameOrApplySpec? (scope : VCGen.Scope) (goal : MVarId) (info : WPApp)
-    (thm : SpecTheorem) (specRule : BackwardRule) : VCGenM (Option SolveResult) := do
-  if thm.conjunctivePre || isFramedPost info.post then
-    return ← applySpecRule? scope goal info thm specRule
-  let procs := (← read).frameProcs.byProg
-  let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
-  let providedFrame? ← matchFrame? fp info
-  let inferInfo : FrameInferenceInfo :=
-    { info with goal, providedFrame?, spec? := thm.global?, specRule,
-                mkOpApp := do shareCommon (← fp.mkOpAppM info) }
-  match ← fp.proc inferInfo with
-  | none => applySpecRule? scope goal info thm specRule
-  | some split =>
-    trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` matched {info.prog}; frame:{indentExpr split.frame}"
-    return some (.goals scope (← applyFrameRule goal info fp (← split.instantiateMVarsS)))
+private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem)
+    (specRule : BackwardRule) : VCGenM (Option SolveResult) := do
+  unless thm.conjunctivePre || isFramedPost info.post do
+    let procs := (← read).frameProcs.byProg
+    let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
+    let providedFrame? ← matchFrame? fp info
+    let inferInfo : FrameInferenceInfo :=
+      { info with goal, providedFrame?, spec? := thm.global?, specRule,
+                  mkOpApp := do shareCommon (← fp.mkOpAppM info) }
+    if let some split ← fp.proc inferInfo then
+      trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` matched {info.prog}; frame:{indentExpr split.frame}"
+      return some (.goals scope (← applyFrameRule goal info fp (← split.instantiateMVarsS)))
+  trace[Elab.Tactic.Do.vcgen] "Applying spec {thm.proof} for {info.prog}. Excess args: {info.excessArgs}"
+  let .goals goals ← specRule.applyChecked goal m!"spec rule for{indentExpr info.prog}"
+    | return none
+  return some (.goals scope goals)
 
 /--
 Handle a spec-ready program `info.prog`: apply the highest-priority `@[spec]` theorem whose backward
@@ -472,12 +464,12 @@ A candidate is passed over when no rule fits the goal's monad or when the rule d
 spec guarded by an instance the call site does not provide gives way to a less general one, as does a
 spurious candidate of the over-approximating discrimination tree.
 -/
-private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) :
+private def applySpecs (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) :
     VCGenM SolveResult := goal.withContext do
   let candidates ← SpecTheorems.findSpecs scope.specs info.prog
   for thm in candidates do
     if let some rule ← compileSpecRule goal info thm then
-      if let some res ← frameOrApplySpec? scope goal info thm rule then
+      if let some res ← applySpec scope goal info thm rule then
         return res
     trace[Elab.Tactic.Do.vcgen] "Failed to apply spec {thm.proof} for {info.prog}"
   stopOrErrorOnMissingSpec info.prog info.M candidates
@@ -531,7 +523,7 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
   if let some (scope, gs) ← normalizePre? scope goal α pre target then return .goals scope gs
 
   -- Collect new local specs before any strategy that may emit multiple subgoals
-  -- (`wpMatch?`, `splitLatticeOp?`) or apply a registered spec (`applySpecRule`).
+  -- (`wpMatch?`, `splitLatticeOp?`) or apply a registered spec (`applySpec`).
   let scope ← scope.collectLocalSpecs goal
 
   -- Phase 3: shape the `rhs` (reduce an EPost projection, decompose a lattice connective or a
@@ -565,7 +557,7 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
     let f := info.prog.getAppFn
     if f.isConst || f.isFVar then
       VCGen.burnOne
-      return ← applySpec scope goal info
+      return ← applySpecs scope goal info
     throwError "Failed to decompose weakest precondition for {info.prog}. This should not happen."
 
   return .stop (.noProgress pre rhs)

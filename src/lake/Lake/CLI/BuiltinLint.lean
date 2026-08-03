@@ -245,6 +245,54 @@ private def runDeferredChecks (args : Args) (linterOpts : Linter.LinterOptions) 
       checkedModules := checkedModules.insert m
   return { outcome, checkedModules }
 
+private def runEnvironmentLinters (args : Args) (linterOpts : Linter.LinterOptions) (sp : SearchPath)
+    (env : Environment) (mod : Name) : IO EnvironmentLintingOutcome := do
+  let (outcome, _) ← CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do
+    let decls ← Linter.EnvLinter.getDeclsInPackage mod.getRoot
+    let linters ← Linter.EnvLinter.getEnvLinters (if args.lintOnly then some linterOpts else none)
+    if linters.isEmpty then
+      unless args.mode == .recordExceptions do
+        IO.println s!"-- No environment linters were run for {mod}."
+      return .reported false
+    let results ← Linter.EnvLinter.lintCore decls linters
+    let failed := results.any (!·.2.isEmpty)
+    match args.mode with
+    | .report =>
+        if failed then
+          let fmtResults ←
+            Linter.EnvLinter.formatLinterResults results decls
+              (groupByFilename := true) (useErrorFormat := true)
+              s!"in {mod}" linters.size
+          IO.print (← fmtResults.toString)
+        else
+          IO.println s!"-- Environment linting passed for {mod}."
+        return .reported failed
+    | .recordExceptions =>
+      let mainModule := (← getEnv).mainModule
+      let mut recs : Array ExceptionRecord := #[]
+      let mut unlocated := false
+      for (linter, msgs) in results do
+        for (declName, _) in msgs.toArray do
+          match ← findDeclarationRanges? declName with
+          | some ranges =>
+            let declMod := (← findModuleOf? declName).getD mainModule
+            match ← sp.findWithExt "lean" declMod with
+            | some file =>
+              recs := recs.push { file, pos := ranges.range.pos, option := linter.optName }
+            | none =>
+              IO.eprintln s!"\
+                warning: could not locate source file for `{declMod}` \
+                to record a `{linter.optName}` exception"
+              unlocated := true
+          | none =>
+            IO.eprintln s!"\
+              warning: no declaration range for `{declName}`; \
+              cannot record a `{linter.optName}` exception"
+            unlocated := true
+      return .recorded recs unlocated
+    | .codeQuality => return .codeQualityChecks
+  return outcome
+
 public def run (args : Args) : IO UInt32 := do
   let mods := args.mods
   if mods.isEmpty then
@@ -308,51 +356,7 @@ public def run (args : Args) : IO UInt32 := do
               anyUnlocated := true
       | .codeQuality => pure ()
 
-    let (environmentLintingOutcome, _) : EnvironmentLintingOutcome × Core.State ←
-        CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do
-      let decls ← Linter.EnvLinter.getDeclsInPackage mod.getRoot
-      let linters ← Linter.EnvLinter.getEnvLinters (if args.lintOnly then some linterOpts else none)
-      if linters.isEmpty then
-        unless args.mode == .recordExceptions do
-          IO.println s!"-- No environment linters were run for {mod}."
-        return .reported false
-      let results ← Linter.EnvLinter.lintCore decls linters
-      let failed := results.any (!·.2.isEmpty)
-      match args.mode with
-      | .report =>
-          if failed then
-            let fmtResults ←
-              Linter.EnvLinter.formatLinterResults results decls
-                (groupByFilename := true) (useErrorFormat := true)
-                s!"in {mod}" linters.size
-            IO.print (← fmtResults.toString)
-          else unless textFailed do
-            IO.println s!"-- Linting passed for {mod}."
-          return .reported failed
-      | .recordExceptions =>
-        let mainModule := (← getEnv).mainModule
-        let mut recs : Array ExceptionRecord := #[]
-        let mut unlocated := false
-        for (linter, msgs) in results do
-          for (declName, _) in msgs.toArray do
-            match ← findDeclarationRanges? declName with
-            | some ranges =>
-              let declMod := (← findModuleOf? declName).getD mainModule
-              match ← sp.findWithExt "lean" declMod with
-              | some file =>
-                recs := recs.push { file, pos := ranges.range.pos, option := linter.optName }
-              | none =>
-                IO.eprintln s!"\
-                  warning: could not locate source file for `{declMod}` \
-                  to record a `{linter.optName}` exception"
-                unlocated := true
-            | none =>
-              IO.eprintln s!"\
-                warning: no declaration range for `{declName}`; \
-                cannot record a `{linter.optName}` exception"
-              unlocated := true
-        return .recorded recs unlocated
-      | .codeQuality => return .codeQualityChecks
+    let environmentLintingOutcome ← runEnvironmentLinters args linterOpts sp env mod
 
     match environmentLintingOutcome with
     | .reported declFailed =>

@@ -907,10 +907,9 @@ invariant holds at any remaining budget. -/
 @[spec] theorem reverse_spec (fuel : Nat) (xs : List Nat) (head : Addr)
     (hle : xs.length ≤ fuel) :
     ⦃ IsList xs null head ⦄ reverse fuel head ⦃ fun r => IsList xs.reverse null r ⦄ := by
-  vcgen [reverse, -Spec.forIn_range,
-    Spec.forIn_range (m := HeapM)
-      (inv := fun _ suff b => reverseLoopInv xs suff.length b),
-    -load_spec, load_next_IsList_ne] with finish
+  vcgen [reverse, load_next_IsList_ne] invariants
+    | inv1 => fun _ suff b => reverseLoopInv xs suff.length b
+    with finish
 
 example (xs : List Nat) (head l : Addr) (v : Nat) :
     ⦃ l ↦ v ∗ IsList xs null head ⦄ (reverse xs.length head)
@@ -1136,11 +1135,10 @@ theorem append_spec (fuel : Nat) (xs ys : List Nat) (back qb x y : Addr) (Q : Ad
     have hr : (if x = null then y else x) = x := by grind
     rw [hb, hr]
     have hlen' : xs.length ≤ ([:fuel] : Std.Legacy.Range).toList.length := by grind
-    vcgen [append, -Spec.forIn_range,
-      Spec.forIn_range (m := HeapM)
-        (inv := fun _ suff b =>
-          appendLoopInv xs ys back qb x y (IsList (xs ++ ys) back x -∗ Q x) suff.length b),
-      -load_spec, load_next_IsList_ne, store_prev_IsList_ne] with finish
+    vcgen [append, load_next_IsList_ne, store_prev_IsList_ne] invariants
+      | inv1 => fun _ suff b =>
+          appendLoopInv xs ys back qb x y (IsList (xs ++ ys) back x -∗ Q x) suff.length b
+      with finish
 
 /-- Plain append specification, from `append_spec` at the trivial continuation. -/
 @[spec] theorem append_concat (xs ys : List Nat) (back qb x y : Addr) :

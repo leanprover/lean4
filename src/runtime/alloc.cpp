@@ -18,6 +18,13 @@ Author: Leonardo de Moura
 namespace lean {
 
 void initialize_alloc() {
+#ifdef LEAN_MIMALLOC
+    // Raise the minimal purge size to the platform's large page size: a `MADV_DONTNEED` over a
+    // smaller range shatters a transparent-huge-page-backed region back into base pages, and Lean
+    // frees far more than it returns to the OS. `set_default` keeps `MIMALLOC_ALLOW_THP` in the
+    // environment authoritative.
+    mi_option_set_default(mi_option_allow_thp, 2);
+#endif
 }
 
 void finalize_alloc() {

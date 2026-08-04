@@ -2611,6 +2611,30 @@ extern "C" LEAN_EXPORT obj_res lean_byte_array_push(obj_arg a, uint8 b) {
     return r;
 }
 
+extern "C" LEAN_EXPORT obj_res lean_byte_array_copy_within(obj_arg a, obj_arg o_src_off, obj_arg o_dest_off, obj_arg o_len, bool exact) {
+    size_t sz = lean_sarray_size(a);
+    size_t src_off = lean_nat_to_size_t(o_src_off);
+    if (src_off > sz) {
+        lean_dec(o_dest_off);
+        lean_dec(o_len);
+        return a;
+    }
+    size_t len = std::min(lean_nat_to_size_t(o_len), sz - src_off);
+    size_t dest_off = lean_nat_to_size_t(o_dest_off);
+    if (dest_off > sz) {
+        dest_off = sz;
+    }
+    if (len > SIZE_MAX - dest_off)
+        lean_internal_panic_out_of_memory();
+    size_t new_sz = std::max(sz, dest_off + len);
+    // `a` is owned, so when it is exclusive it can be modified (and grown) in place.
+    object * r = lean_sarray_ensure_exclusive(lean_sarray_ensure_capacity(a, new_sz, exact));
+    lean_to_sarray(r)->m_size = new_sz;
+    // The source and destination ranges may overlap, so use `memmove`.
+    memmove(lean_sarray_cptr(r) + dest_off, lean_sarray_cptr(r) + src_off, len);
+    return r;
+}
+
 extern "C" LEAN_EXPORT uint64_t lean_byte_array_hash(b_obj_arg a) {
     return hash_str(lean_sarray_size(a), lean_sarray_cptr(a), 11);
 }

@@ -245,9 +245,7 @@ def chunkEnd : String := "0\x0d\n\x0d\n"
 
 namespace ClientHelpers
 
-/--
-Run a client test action with a wall-clock timeout.
--/
+/-- Run a client test action with a wall-clock timeout. -/
 def runWithTimeout (name : String) (timeoutMs : Nat := 3000) (action : IO Unit) : IO Unit := do
   let task ← IO.asTask action
   let ticks := (timeoutMs + 9) / 10
@@ -266,17 +264,13 @@ def runWithTimeout (name : String) (timeoutMs : Nat := 3000) (action : IO Unit) 
         loop n
   loop ticks
 
-/--
-Build a raw HTTP/1.1 response.
--/
+/-- Build a raw HTTP/1.1 response. -/
 def rawResp
     (status : String) (hdrs : Array (String × String)) (body : String) : ByteArray :=
   let hdrLines := hdrs.foldl (fun s (k, v) => s ++ s!"{k}: {v}\r\n") ""
   s!"HTTP/1.1 {status}\r\n{hdrLines}\r\n{body}".toUTF8
 
-/--
-Parse `Content-Length` from a raw HTTP header block. Returns 0 when absent.
--/
+/-- Parse `Content-Length` from a raw HTTP header block. Returns 0 when absent. -/
 private def parseContentLength (headerText : String) : Nat := Id.run do
   let lines := headerText.splitOn "\r\n"
   for line in lines do
@@ -318,9 +312,7 @@ def drainRequest (mockClient : Mock.Client) : Async ByteArray := do
       bytes := bytes ++ chunk
   pure bytes
 
-/--
-Create an HTTP client agent over a mock transport.
--/
+/-- Create an HTTP client agent over a mock transport. -/
 def mkAgent (mockServer : Mock.Server) (config : Client.Config := {})
     (port : UInt16 := 80) (scheme : String := "http") : Async Client.Agent := do
   let connection ← Client.Connection.new mockServer config
@@ -331,16 +323,15 @@ def mkAgent (mockServer : Mock.Server) (config : Client.Config := {})
     origin := { scheme := URI.Scheme.ofString! scheme, host := .name domain, port }
   }
 
-/--
-Send a client request in the background and expose its result through a promise.
--/
+/-- Send a client request in the background and expose its result through a promise. -/
 def sendInBackground {β : Type} [Coe β Body.Any]
     (agent : Client.Agent) (request : Request β)
-    : Async (IO.Promise (Except String (Response Body.Stream))) := do
+    (overrides : Client.RequestOverrides := {}) :
+    Async (IO.Promise (Except String (Response Body.Stream))) := do
   let resultPromise : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
   background do
     let result ← try
-        let resp ← Client.Agent.send agent request
+        let resp ← Client.Agent.send agent request overrides
         pure (Except.ok resp)
       catch e => pure (Except.error (toString e))
     discard <| resultPromise.resolve result

@@ -2,11 +2,11 @@ module
 
 import Std.Http.Test.Helpers
 
+/-! HTTP client wire-protocol, framing, response-limit, and body-stream edge cases. -/
+
 open Std.Async
 open Std Http Internal
 open Test.ClientHelpers
-
-/-! HTTP client wire-protocol, framing, response-limit, and body-stream edge cases. -/
 
 -- ============================================================
 -- Section 4 — Expect: 100-continue
@@ -14,7 +14,8 @@ open Test.ClientHelpers
 
 -- Happy path: server sends 100, client pumps body, server sends 200.
 
-#eval show IO _ from runWithTimeout "Expect: 100-continue happy path sends body after 100" 4000 <| Async.block do
+#eval show IO _ from runWithTimeout "Expect: 100-continue happy path sends body after 100" 4000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let agent ← mkAgent mockServer
 
@@ -63,7 +64,8 @@ open Test.ClientHelpers
 
 -- 4xx rejection: server rejects with 417 before reading body; body must not be sent.
 
-#eval show IO _ from runWithTimeout "Expect: 100-continue 417 rejection discards body" 4000 <| Async.block do
+#eval show IO _ from runWithTimeout "Expect: 100-continue 417 rejection discards body" 4000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let agent ← mkAgent mockServer
 
@@ -123,7 +125,9 @@ open Test.ClientHelpers
 -- before the body has been pumped. The pending body must be discarded so the
 -- connection is not stuck.
 
-#eval show IO _ from runWithTimeout "Expect: 100-continue bypass with early 200 discards pending body" 4000 <| Async.block do
+#eval show IO _ from
+  runWithTimeout "Expect: 100-continue bypass with early 200 discards pending body" 4000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let agent ← mkAgent mockServer
 
@@ -222,7 +226,8 @@ open Test.ClientHelpers
 -- The body must be reported via the body stream; reading it should see the error
 -- bubble up through the agent.send promise.
 
-#eval show IO _ from runWithTimeout "maxResponseBodySize exceeded errors the request" 4000 <| Async.block do
+#eval show IO _ from runWithTimeout "maxResponseBodySize exceeded errors the request" 4000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let agent ← mkAgent mockServer (config := { maxResponseBodySize := some 4 })
 
@@ -258,7 +263,8 @@ open Test.ClientHelpers
 
 -- The response-body limit is inclusive: exactly `maxResponseBodySize` bytes are accepted, while
 -- the first byte beyond the limit fails the stream.
-#eval show IO _ from runWithTimeout "maxResponseBodySize exact boundary is inclusive" 4000 <| Async.block do
+#eval show IO _ from runWithTimeout "maxResponseBodySize exact boundary is inclusive" 4000 <|
+  Async.block do
   let (atLimitClient, atLimitServer) ← Mock.new
   let atLimitAgent ← mkAgent atLimitServer (config := { maxResponseBodySize := some 4 })
   let atLimitRequest ← Request.new |>.method .get |>.uri! "/exact-limit"
@@ -301,7 +307,8 @@ open Test.ClientHelpers
 -- is checked against its own size, not the cumulative bytes from the previous
 -- response.
 
-#eval show IO _ from runWithTimeout "maxResponseBodySize resets between keep-alive requests" 4000 <| Async.block do
+#eval show IO _ from runWithTimeout "maxResponseBodySize resets between keep-alive requests" 4000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let agent ← mkAgent mockServer (config := { maxResponseBodySize := some 4 })
 
@@ -338,7 +345,8 @@ open Test.ClientHelpers
 -- An unfollowed 3xx response is caller-facing, so its body must still respect
 -- `maxResponseBodySize` rather than the internal redirect drain limit.
 
-#eval show IO _ from runWithTimeout "maxResponseBodySize applies to unfollowed 302 body" 4000 <| Async.block do
+#eval show IO _ from runWithTimeout "maxResponseBodySize applies to unfollowed 302 body" 4000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let agent ← mkAgent mockServer (config := { maxRedirects := 0, maxResponseBodySize := some 5 })
 
@@ -366,12 +374,14 @@ open Test.ClientHelpers
     | Except.error _ => pure ()
     | Except.ok s =>
       if s.toUTF8.size > 5 then
-        throw (IO.userError s!"unfollowed 302 ignored maxResponseBodySize and returned {s.toUTF8.size} bytes")
+        throw (IO.userError
+          s!"unfollowed 302 ignored maxResponseBodySize and returned {s.toUTF8.size} bytes")
 
 -- A status rejection that drains the body must not strand unread body bytes on the connection.
 -- After the error, the same keep-alive connection should still handle the next request.
 
-#eval show IO _ from runWithTimeout "status rejection preserves keep-alive reuse" 4000 <| Async.block do
+#eval show IO _ from runWithTimeout "status rejection preserves keep-alive reuse" 4000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let agent ← mkAgent mockServer
 
@@ -421,7 +431,8 @@ open Test.ClientHelpers
 -- body bytes (RFC 9110 §8.6); the response should be delivered and the connection
 -- reusable.
 
-#eval show IO _ from runWithTimeout "HEAD response with Content-Length has no body" 4000 <| Async.block do
+#eval show IO _ from runWithTimeout "HEAD response with Content-Length has no body" 4000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let agent ← mkAgent mockServer
 
@@ -516,7 +527,8 @@ open Test.ClientHelpers
       if s.toUTF8.size == 10 then
         pure ()
       else
-        throw (IO.userError s!"partial body silently returned ({s.toUTF8.size} of 10 bytes, expected error)")
+        throw (IO.userError
+          s!"partial body silently returned ({s.toUTF8.size} of 10 bytes, expected error)")
     | Except.error _ => pure ()
 
 -- ============================================================
@@ -552,7 +564,8 @@ open Test.ClientHelpers
 -- A request body whose size is not known in advance (`.stream`) must be framed
 -- with `Transfer-Encoding: chunked`, not a bogus Content-Length.
 
-#eval show IO _ from runWithTimeout "stream body uses Transfer-Encoding: chunked" 4000 <| Async.block do
+#eval show IO _ from runWithTimeout "stream body uses Transfer-Encoding: chunked" 4000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let agent ← mkAgent mockServer
 

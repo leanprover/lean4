@@ -147,8 +147,7 @@ private def toAbsoluteForm {t : Type} (request : Request t)
 private def toOriginForm {t : Type} (request : Request t) : Request t :=
   match request.line.uri with
   | .absoluteForm af =>
-    let query := af.query
-    { request with line := { request.line with uri := .originForm af.path query } }
+    { request with line := { request.line with uri := .originForm af.path af.query } }
   | _ => request
 
 private def rewriteForProxy (agent : Agent) (request : Request Body.Any) : Request Body.Any :=
@@ -159,8 +158,8 @@ private def rewriteForProxy (agent : Agent) (request : Request Body.Any) : Reque
 
 /--
 Performs one request/response hop through the middleware chain. Failures flow through the
-chain as a typed `Except Client.Error`; an exception thrown by a middleware itself is wrapped
-as `Client.Error.io`.
+chain as a typed `Except Error`; an exception thrown by a middleware itself is wrapped
+as `Error.io`.
 
 Connection cleanup is owned entirely by this function: on a failed hop the connection is handed to
 `agent.release` exactly once, and on a successful hop a background task watches the exchange
@@ -169,9 +168,9 @@ The completion promise of the innermost send is captured in a ref because middle
 the response: a hop that short-circuits without sending has no completion to watch.
 -/
 private def dispatchHop (agent : Agent) (request : Request Body.Any)
-    (overrides : RequestOverrides) : Async (Except Client.Error (Response Body.Stream)) := do
-  let completionRef ← IO.mkRef (none : Option (IO.Promise (Except Client.Error Unit)))
-  let inner : Request Body.Any → Async (Except Client.Error (Response Body.Stream)) :=
+    (overrides : RequestOverrides) : Async (Except Error (Response Body.Stream)) := do
+  let completionRef ← IO.mkRef (none : Option (IO.Promise (Except Error Unit)))
+  let inner : Request Body.Any → Async (Except Error (Response Body.Stream)) :=
       fun req => do
     match ← agent.connection.sendTracked req overrides with
     | .ok (response, completion) =>
@@ -190,11 +189,6 @@ private def dispatchHop (agent : Agent) (request : Request Body.Any)
     agent.release agent.connection agent.origin
     return .error e
 
-private inductive RedirectStep where
-  | final
-  | stop
-  | follow (plan : RedirectPlan)
-
 /--
 Canonical string key for a request target used by cycle detection. The origin is tracked
 separately in the history tuple, so this drops the authority and keys only on the path and query.
@@ -203,46 +197,38 @@ that alternates between direct (origin-form) and cross-origin (absolute-form) ho
 as a cycle.
 -/
 private def targetKey : RequestTarget → String
-  | .absoluteForm af =>
-    toString (RequestTarget.originForm af.path (af.query))
+  | .absoluteForm af => toString (RequestTarget.originForm af.path af.query)
   | t => toString t
 
-private def evaluateRedirect
-    (agent : Agent) (request : Request Body.Any)
+/--
+Decides whether `response` continues the redirect chain, given the effective `config` for this
+request. Returns the plan to follow, or `none` when the response is delivered to the caller as-is:
+the hop budget is spent, the response is not a followable redirect, the target was already visited,
+or it is cross-origin and `agent.crossOrigin` is `.stop`.
+-/
+private def evaluateRedirect (agent : Agent) (config : Config) (request : Request Body.Any)
     (response : Response Body.Stream) (remaining : Nat)
-    (history : Array (URI.Origin × String)) : RedirectStep := Id.run do
+    (history : Array (URI.Origin × String)) : Option RedirectPlan := Id.run do
+  if remaining = 0 then return none
 
-  if remaining = 0 then
-    .final
-  else
-    let decide :=
-      decideRedirect agent.origin
-        request.line request.body.reset?.isSome agent.connection.config.onlySafeRedirects
-          response.line.version response.line.status response.line.headers
+  let .follow plan :=
+      decideRedirect agent.origin request.line request.body.reset?.isSome config.onlySafeRedirects
+        response.line.version response.line.status response.line.headers
+    | return none
 
-    match decide with
-    | .done => return .final
-    | .follow plan =>
+  if history.contains (plan.origin, targetKey plan.target) then return none
 
-      -- Gate 1: cycle detection.
-      let nextKey := (plan.origin, targetKey plan.target)
+  if plan.isCrossOrigin then
+    if let .stop := agent.crossOrigin then return none
 
-      if history.contains nextKey then
-        return .stop
-
-      -- Gate 2: cross-origin redirects need a `.follow` policy.
-      if plan.isCrossOrigin then
-        if let .stop := agent.crossOrigin then
-          return .stop
-
-      return .follow plan
+  return some plan
 
 /--
 Swaps the agent to the redirect target's origin: releases the outgoing connection and acquires
 one for the new origin via the `.follow` policy. Same-origin hops keep the agent unchanged.
 -/
 private def advanceAgent (agent : Agent) (plan : RedirectPlan) :
-    Async (Except Client.Error Agent) := do
+    Async (Except Error Agent) := do
   if !plan.isCrossOrigin then return .ok agent
 
   let .follow acquire := agent.crossOrigin
@@ -258,22 +244,23 @@ private partial def sendWithRedirects
     (agent : Agent) (request : Request Body.Any)
     (remaining : Nat) (overrides : RequestOverrides)
     (history : Array (URI.Origin × String) := #[]) :
-    Async (Except Client.Error (Response Body.Stream)) := do
+    Async (Except Error (Response Body.Stream)) := do
 
+  -- Recomputed per hop: a cross-origin swap may land on a connection with a different `Config`.
+  let config := overrides.apply agent.connection.config
   let history := history.push (agent.origin, targetKey request.line.uri)
   let request := rewriteForProxy agent request
 
   match ← dispatchHop agent request overrides with
   | .error e => return .error e
   | .ok response =>
-    match evaluateRedirect agent request response remaining history with
-    | .final | .stop =>
-      return .ok response
-    | .follow plan =>
+    match evaluateRedirect agent config request response remaining history with
+    | none => return .ok response
+    | some plan =>
       -- Draining the redirect body and rebuilding the request run user-supplied `Body` code;
       -- an exception thrown there must still hand the checked-out connection to `release`.
-      let drainLimit := agent.connection.config.redirectBodyDrainLimit.toUInt64
-      let next : Except Client.Error (Agent × Request Body.Any) ←
+      let drainLimit := config.redirectBodyDrainLimit.toUInt64
+      let next : Except Error (Agent × Request Body.Any) ←
         try
           response.body.drain (drainLimit := some drainLimit)
             (closeStream := response.body.close)
@@ -302,23 +289,23 @@ def ofTransport [Transport α] (socket : α) (origin : URI.Origin)
   pure { connection, origin }
 
 /--
-Sends a request, automatically following redirects up to `config.maxRedirects` hops
-(or `overrides.maxRedirects` when set), returning the response or the typed `Error`
-that ended the exchange. Middlewares are applied around every hop. Connection cleanup
-is handled internally: any failed hop hands its connection to `agent.release`.
+Sends a request, automatically following redirects up to the effective `maxRedirects` hops,
+returning the response or the typed `Error` that ended the exchange. Middlewares are applied
+around every hop. Connection cleanup is handled internally: any failed hop hands its connection
+to `agent.release`.
 -/
 def trySend (agent : Agent) (request : Request Body.Any)
-    (overrides : RequestOverrides := {}) : Async (Except Client.Error (Response Body.Stream)) :=
-  Agent.Impl.sendWithRedirects agent request
-    (overrides.maxRedirects.getD agent.connection.config.maxRedirects) overrides
+    (overrides : RequestOverrides := {}) : Async (Except Error (Response Body.Stream)) :=
+  let config := overrides.apply agent.connection.config
+  Agent.Impl.sendWithRedirects agent request config.maxRedirects overrides
 
 /--
-Sends a request, automatically following redirects up to `config.maxRedirects` hops
-(or `overrides.maxRedirects` when set). Middlewares are applied around every hop.
+Sends a request, automatically following redirects up to the effective `maxRedirects` hops.
+Middlewares are applied around every hop.
 Use `trySend` to receive failures as a typed `Error` instead of a thrown exception.
 -/
 def send {β : Type} [Coe β Body.Any] (agent : Agent) (request : Request β)
     (overrides : RequestOverrides := {}) : Async (Response Body.Stream) :=
-  agent.trySend { request with } overrides >>= Client.Error.throwOrPure
+  agent.trySend { request with } overrides >>= Error.throwOrPure
 
 end Std.Http.Client.Agent

@@ -17,6 +17,23 @@ public section
 namespace Lean.Elab.Tactic
 open Meta
 
+/-- `elabTermForRewrite` is just like `elabTermForApply`, except it falls back to
+usual elaboration for constants that have `optParam`s. -/
+def elabTermForRewrite (stx : Syntax) (mayPostpone := true) : TacticM Expr := do
+  if stx.isIdent then
+    match (← Term.resolveId? stx (withInfo := true)) with
+    | some e =>
+      let mut t ← inferType e
+      repeat do
+        if let .forallE _ d t' _ := t then
+          if d.isOptParam then
+            break
+          t := t'
+        else
+          return e
+    | _      => pure ()
+  elabTerm stx none mayPostpone
+
 /--
 Runs `Lean.MVarId.rewrite`, and also handles filtering out the old metavariables in the rewrite result.
 This should be used from within `withSynthesize`.
@@ -25,7 +42,7 @@ Use `finishElabRewrite` once elaboration is complete to make final updates to `R
 def elabRewrite (mvarId : MVarId) (e : Expr) (stx : Syntax)
     (symm : Bool := false) (config := { : Rewrite.Config }) : TacticM RewriteResult := do
   let mvarCounterSaved := (← getMCtx).mvarCounter
-  let thm ← elabTerm stx none true
+  let thm ← elabTermForRewrite stx
   if thm.hasSyntheticSorry then
     throwAbortTactic
   unless ← occursCheck mvarId thm do

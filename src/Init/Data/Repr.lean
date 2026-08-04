@@ -205,14 +205,17 @@ def toDigitsCore (base : Nat) : Nat → Nat → List Char → List Char
     else toDigitsCore base fuel n' (d::ds)
 
 /--
-Returns the decimal representation of a natural number as a list of digit characters in the given
-base. If the base is greater than `16` then `'*'` is returned for digits greater than `0xf`.
+Returns a natural number as a list of digit characters in the given base. Conventional positional
+representations require `base > 1`. For `base = 1`, the implementation returns `n + 1` zero
+characters, which is not unary notation. If the base is greater than `16` then `'*'` is returned for
+digits greater than `0xf`.
 
 Examples:
 * `Nat.toDigits 10 0xff = ['2', '5', '5']`
 * `Nat.toDigits 8 0xc = ['1', '4']`
 * `Nat.toDigits 16 0xcafe = ['c', 'a', 'f', 'e']`
 * `Nat.toDigits 80 200 = ['2', '*']`
+* `Nat.toDigits 1 2 = ['0', '0', '0']`
 -/
 def toDigits (base : Nat) (n : Nat) : List Char :=
   toDigitsCore base (n+1) n []

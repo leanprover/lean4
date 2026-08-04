@@ -602,11 +602,13 @@ theorem IsList_cons_null_le_bot (v : Nat) (vs : List Nat) (back : Addr) :
 
 grind_pattern IsList_cons_null_le_bot => IsList (v :: vs) back null
 
-/-- A contradictory precondition entails anything; the premise is closed by the facts the forward
-saturation asserts. -/
-@[grind ←]
+/-- A contradictory precondition entails anything. Both patterns are needed: the conclusion alone
+matches every entailment goal, so the rule fires only once forward saturation has asserted `X ⊑ ⊥`
+for the goal's own precondition. -/
 theorem le_of_le_bot {X : HProp} (h : X ⊑ ⊥) (C : HProp) : X ⊑ C :=
   PartialOrder.rel_trans h (bot_le C)
+
+grind_pattern _root_.le_of_le_bot => X ⊑ ⊥, X ⊑ C
 
 @[grind =] theorem IsList_append_nil (xs : List Nat) (back r : Addr) :
     IsList (xs ++ ([] : List Nat)) back r = IsList xs back r := by
@@ -691,32 +693,49 @@ def mkSepFrameSplit (i : FrameInferenceInfo) (frame footprint : Expr) : SymM Fra
       #[args[0]!, args[1]!, ← i.pre, sepFF, sepFR, hcl, mono]
     return FrameSplit.withDischargedSplitVC frame residualPre proof [sub.mvarId!]
 
-/-- Frame `emp` for a *ramified* spec: a spec with schematic postcondition `Q` that auto-frames by
-receiving `Q` through a wand in its precondition, `⦃ P ∗ (G -∗ Q r₀) ⦄ x ⦃ Q ⦄` with `r₀` the
-spec's known result. The goal precondition has no wand atom, so such a spec never matches
-outright.
+/-- Note [Framing a ramified spec]
 
-Worked example: goal `A ∗ B ⊑ wp (append fuel x y) Q` against `append_spec`, whose precondition
-is `?A ∗ ?B ∗ (?G -∗ Q ?r₀)` after the schematic post unifies.
-- `matchSepAtoms` pairs `?A`/`?B` with `A`/`B`, committing the assignments (which also pin `?G`
-  and `?r₀`), and reports the wand `G -∗ Q r₀` unmatched; it arrives here as `wandAtom`.
-- The `footprint` mirrors the spec precondition at the `emp`-framed residual post:
-  `A ∗ B ∗ (G -∗ (emp -∗ Q r₀))`.
-- The split VC `A ∗ B ⊑ emp ∗ residualPre` is discharged as
-  `rel_trans (rel_trans q₂ q₃) (sepConj_mono_right sub₁)`:
-  `q₂ : A ∗ B ⊑ (A ∗ B) ∗ (G -∗ (emp -∗ G))` attaches the trivial wand
-  (`le_sepConj_wand_emp_wand_refl`; valid because `G` is the post at `r₀`),
-  `q₃` reassociates and inserts `emp` (AC with identity), and
-  `sub₁ : footprint ⊑ residualPre` is the sole surviving subgoal.
-- The solver fills `residualPre` with the residual weakest precondition, whose post is the
-  `emp`-framed `fun a => emp -∗ Q a`. On `sub₁` the spec applies directly, and its precondition VC
-  pits the footprint against the spec precondition at that same post: the same term up to the
-  spec's schematics, so it closes by unification, pinning the schematics to the goal's values.
-- What remains for the user: the spec's side premises (for append, `xs.length ≤ fuel`) and the
-  `WP.Frames` condition for `emp`, both closed by `finish`.
+A ramified spec does not state its postcondition. It takes a schematic `Q`, states what it really
+establishes as a resource `G`, and hands `G` to `Q` through a wand sitting in its own precondition:
 
-A wand whose argument differs from the post at `r₀` leaves `pre ⊑ emp ∗ footprint` as a second
-subgoal in place of `q₂`/`q₃`. -/
+    ⦃ P ∗ (G -∗ Q r₀) ⦄ x ⦃ Q ⦄
+
+Here `P` is what the spec consumes, `G` is what it produces (for `append_spec`, the concatenated
+list), and `r₀` is the result it returns. The point of writing a spec this way is that it frames
+itself: whatever the caller owns besides `P` can be carried into `Q` by the caller's own proof of
+the wand, so no frame ever has to be named.
+
+That is also why the ordinary cancellation path cannot apply such a spec. Frame inference works by
+cancelling the spec's precondition atoms against the goal's, and the wand atom `G -∗ Q r₀` has no
+counterpart in the goal: it is not a resource the caller holds, it is an obligation the caller
+discharges. Cancellation therefore leaves exactly one uncancelled atom, and it is always the wand.
+
+The way out is to frame nothing at all. `emp` is a legitimate frame, and framing it still routes the
+application through the frame rule, which is what we want, because the frame rule replaces the goal's
+post `Q` by the `emp`-framed residual post and then re-applies the spec against it. If the footprint
+we hand back is the spec's own precondition spelled at that residual post, the re-application closes
+by unification, and unification is what pins the spec's schematics to the goal's values.
+
+Worked example. The goal is `A ∗ B ⊑ wp (append fuel x y) Q` and the spec's precondition, once the
+schematic post has unified, is `?A ∗ ?B ∗ (?G -∗ Q ?r₀)`.
+
+* `matchSepAtoms` pairs `?A`/`?B` with `A`/`B` and commits the assignments, which also pins `?G` and
+  `?r₀`. It reports the wand unmatched, and it arrives here as `wandAtom`.
+* We build `footprint = A ∗ B ∗ (G -∗ (emp -∗ Q r₀))`, the spec precondition with its wand rewrapped
+  at the `emp`-framed post.
+* The split VC `A ∗ B ⊑ emp ∗ residualPre` is proved by
+  `rel_trans (rel_trans q₂ q₃) (sepConj_mono_right sub₁)`, where `q₂` attaches the trivial wand
+  `G -∗ (emp -∗ G)` (`le_sepConj_wand_emp_wand_refl`, applicable because `G` coincides with the post
+  at `r₀`), `q₃` reassociates and inserts the `emp`, and `sub₁ : footprint ⊑ residualPre` is left
+  over.
+* The solver fills `residualPre` with the residual weakest precondition, whose post is
+  `fun a => emp -∗ Q a`. On `sub₁` the spec applies directly and its precondition VC is the footprint
+  against that same spelling, identical up to the spec's schematics, so it closes by unification.
+* The user is left with the spec's side premises, for `append` that is `xs.length ≤ fuel`, and the
+  `WP.Frames` condition for `emp`. `finish` closes both.
+
+When the wand's argument is not the post at `r₀` the trivial wand is unavailable, and `q₂`/`q₃` are
+replaced by a second subgoal `pre ⊑ emp ∗ footprint`. -/
 def mkEmpFrameSplit (i : FrameInferenceInfo) (matched : Array Expr) (wandAtom : Expr) :
     SymM (Option FrameSplit) := do
   let wandAtom ← instantiateMVarsS wandAtom
@@ -840,7 +859,10 @@ example (l1 l2 : Addr) (a b : Nat) :
     ⦃ l1 ↦ a ∗ l2 ↦ b ⦄ (probe l1) ⦃ fun _ => l1 ↦ 0 ∗ l2 ↦ b ⦄ := by
   vcgen [probe_spec] with finish
 
-/-! ## In-place reverse -/
+/-! ## `IsList` node access
+
+Both loops reach a cell through an `IsList` segment rather than through a points-to atom, so each
+one opens the node with `IsList_ne_le` and then applies the primitive spec. -/
 
 /-- Load the next-pointer of a list node known to be non-null: the segment must then be a cons,
 and the loaded value is its `IsList` witness. The shape hypothesis reaches `finish` from the
@@ -860,17 +882,25 @@ theorem load_next_IsList_ne (rest : List Nat) (back curr : Addr) (hcn : curr ≠
       (le_meet _ _ _ (le_ofProp _ _ rfl) PartialOrder.rel_refl)))
   grind
 
+/-- Rewrite the back-pointer of a list head known to be non-null. -/
+theorem store_prev_IsList_ne (ys : List Nat) (qb y c : Addr) (hy : y ≠ null) :
+    ⦃ IsList ys qb y ⦄ store (y + 1) c ⦃ fun _ => IsList ys c y ⦄ := by
+  refine ⟨PartialOrder.rel_trans (IsList_ne_le ys qb y hy) ?_⟩
+  vcgen [store_spec] with finish
+
+/-! ## In-place reverse -/
+
 /-- Loop invariant for `reverse` at loop state `(prev, curr)`: the unvisited segment `rest` hangs
 off `curr` with back-pointer `prev`, the reversed prefix `acc` sits at `prev` with back-pointer
 `curr`, and the remaining iteration budget `n` bounds `rest`. -/
-noncomputable abbrev reverseLoopInv (xs : List Nat) (n : Nat) (b : Addr × Addr) : HProp :=
+noncomputable abbrev ReverseLoopInv (xs : List Nat) (n : Nat) (b : Addr × Addr) : HProp :=
   ⨆ rest, ⨆ acc, ⌜rest.length ≤ n ∧ rest.reverse ++ acc = xs.reverse⌝ ⊓
     (IsList rest b.1 b.2 ∗ IsList acc b.2 b.1)
 
 /-- Enter the reverse loop: the whole list is unvisited and the accumulator is empty. -/
 @[grind .] theorem reverse_entry_le (xs : List Nat) (n : Nat) (head : Addr)
     (hle : xs.length ≤ n) :
-    IsList xs null head ⊑ reverseLoopInv xs n (null, head) := by
+    IsList xs null head ⊑ ReverseLoopInv xs n (null, head) := by
   refine le_iSup_of_le xs (le_iSup_of_le [] ?_)
   refine le_meet _ _ _ (le_ofProp _ _ ⟨hle, by simp⟩) ?_
   show IsList xs null head ⊑ IsList xs null head ∗ IsList [] head null
@@ -883,7 +913,7 @@ noncomputable abbrev reverseLoopInv (xs : List Nat) (n : Nat) (b : Addr × Addr)
     (hrev : (v :: vs).reverse ++ acc = xs.reverse) :
     (IsList acc curr prev ∗ (curr + 2) ↦ v ∗ IsList vs curr next ∗ curr ↦ prev) ∗
       (curr + 1) ↦ next
-      ⊑ reverseLoopInv xs n (curr, next) := by
+      ⊑ ReverseLoopInv xs n (curr, next) := by
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
       IsList acc curr prev ∗ IsList vs curr next ∗ curr ↦ prev ∗ (curr + 1) ↦ next ∗
         (curr + 2) ↦ v)) ?_
@@ -897,7 +927,7 @@ invariant holds at any remaining budget. -/
 @[grind .] theorem reverse_done_le (xs rest acc : List Nat) (prev curr : Addr)
     (hcn : curr = null) (hrev : rest.reverse ++ acc = xs.reverse) :
     IsList rest prev curr ∗ IsList acc curr prev
-      ⊑ reverseLoopInv xs ([] : List Nat).length (prev, curr) := by
+      ⊑ ReverseLoopInv xs ([] : List Nat).length (prev, curr) := by
   subst hcn
   rw [IsList_null_eq]
   refine sepPure_sepConj_le_of _ _ _ fun hrest => ?_
@@ -924,7 +954,7 @@ invariant holds at any remaining budget. -/
     (hle : xs.length ≤ fuel) :
     ⦃ IsList xs null head ⦄ reverse fuel head ⦃ fun r => IsList xs.reverse null r ⦄ := by
   vcgen [reverse, load_next_IsList_ne] invariants
-    | inv1 => fun _ suff b => reverseLoopInv xs suff.length b
+    | inv1 => fun _ suff b => ReverseLoopInv xs suff.length b
     with finish
 
 example (xs : List Nat) (head l : Addr) (v : Nat) :
@@ -939,17 +969,11 @@ the precondition, at the known result `if x = null then y else x`. The loop inva
 last visited node and carries a wand absorbing the visited prefix (`wand_absorb`); linking the
 last node discharges the prefix wand and the continuation wand by the counit. -/
 
-/-- Rewrite the back-pointer of a list head known to be non-null. -/
-theorem store_prev_IsList_ne (ys : List Nat) (qb y c : Addr) (hy : y ≠ null) :
-    ⦃ IsList ys qb y ⦄ store (y + 1) c ⦃ fun _ => IsList ys c y ⦄ := by
-  refine ⟨PartialOrder.rel_trans (IsList_ne_le ys qb y hy) ?_⟩
-  vcgen [store_spec] with finish
-
 /-- Loop invariant for `append` at loop state `(t, u)`: `t` is the last visited node with
 next-pointer `u` and some prev-pointer `pt`, the unvisited segment `rest` hangs off `u`, a wand
 absorbs the visited prefix back into the whole first list, the second list and the continuation
 `K` ride along untouched, and the remaining iteration budget `n` bounds `rest`. -/
-noncomputable abbrev appendLoopInv (xs ys : List Nat) (back qb x y : Addr) (K : HProp)
+noncomputable abbrev AppendLoopInv (xs ys : List Nat) (back qb x y : Addr) (K : HProp)
     (n : Nat) (b : Addr × Addr) : HProp :=
   ⨆ v, ⨆ rest, ⨆ pt,
     ⌜rest.length ≤ n ∧ b.1 ≠ null⌝ ⊓
@@ -962,7 +986,7 @@ identity. -/
 @[grind .] theorem append_entry_le (v : Nat) (rest xs ys : List Nat) (back qb x y u₀ : Addr)
     (K : HProp) (n : Nat) (hxs : xs = v :: rest) (hx : x ≠ null) (hlen : xs.length ≤ n) :
     (IsList ys qb y ∗ K) ∗ x ↦ u₀ ∗ (x + 1) ↦ back ∗ (x + 2) ↦ v ∗ IsList rest x u₀
-      ⊑ appendLoopInv xs ys back qb x y K n (x, u₀) := by
+      ⊑ AppendLoopInv xs ys back qb x y K n (x, u₀) := by
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
       x ↦ u₀ ∗ (x + 1) ↦ back ∗ (x + 2) ↦ v ∗ IsList rest x u₀ ∗ IsList ys qb y ∗ K)) ?_
   · grind
@@ -986,7 +1010,7 @@ re-establish the loop invariant on the rest. -/
     (t ↦ u ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗
         (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) back x) ∗ IsList ys qb y ∗ K) ∗
       u ↦ u' ∗ (u + 1) ↦ t ∗ (u + 2) ↦ w ∗ IsList rest' u u'
-      ⊑ appendLoopInv xs ys back qb x y K n (u, u') := by
+      ⊑ AppendLoopInv xs ys back qb x y K n (u, u') := by
   subst hrest
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
       t ↦ u ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗ u ↦ u' ∗ (u + 1) ↦ t ∗ (u + 2) ↦ w ∗
@@ -1014,7 +1038,7 @@ holds at the exhausted budget. -/
     (K : HProp) (ht : t ≠ null) (hu : u = null) :
     t ↦ u ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗ IsList rest t u ∗
         (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) back x) ∗ IsList ys qb y ∗ K
-      ⊑ appendLoopInv xs ys back qb x y K ([] : List Nat).length (t, u) := by
+      ⊑ AppendLoopInv xs ys back qb x y K ([] : List Nat).length (t, u) := by
   subst hu
   rw [IsList_null_eq]
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
@@ -1133,7 +1157,7 @@ theorem append_spec (fuel : Nat) (xs ys : List Nat) (back qb x y : Addr) (Q : Ad
     have hlen' : xs.length ≤ ([:fuel] : Std.Legacy.Range).toList.length := by grind
     vcgen [append, load_next_IsList_ne, store_prev_IsList_ne] invariants
       | inv1 => fun _ suff b =>
-          appendLoopInv xs ys back qb x y (IsList (xs ++ ys) back x -∗ Q x) suff.length b
+          AppendLoopInv xs ys back qb x y (IsList (xs ++ ys) back x -∗ Q x) suff.length b
       with finish
 
 /-- Plain append specification, from `append_spec` at the trivial continuation. -/

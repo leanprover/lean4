@@ -301,6 +301,8 @@ def ShellOptions.process (opts : ShellOptions)
     let arg ← checkOptArg "j" optArg?
     let some numThreads := arg.toNat?
       | throwExpectedNumeric "j"
+    if numThreads == 0 then
+      throwExpectedPositive "j"
     if h : numThreads < UInt32.size then
       let numThreads := UInt32.ofNatLT numThreads h
       let forwardedArgs := opts.forwardedArgs.push s!"-j{arg}";
@@ -459,6 +461,9 @@ where
       throw 1
   @[inline] throwExpectedNumeric opt := do
     eprint s!"error: expected numeric argument for option '-{opt}'\n"
+    throw 1
+  @[inline] throwExpectedPositive opt := do
+    eprint s!"error: expected positive numeric argument for option '-{opt}'\n"
     throw 1
   @[inline] throwTooLarge opt := do
     eprint s!"error: argument value for '-{opt}' is too large\n"

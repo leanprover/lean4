@@ -34,7 +34,7 @@ structure Vector (α : Type u) (n : Nat) where
   toArray : Array α
   /-- Array size. -/
   size_toArray : toArray.size = n
-deriving Repr, DecidableEq
+deriving Repr, @[expose] DecidableEq
 
 attribute [simp, grind =] Vector.size_toArray
 

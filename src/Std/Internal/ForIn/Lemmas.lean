@@ -37,10 +37,10 @@ namespace Std.Internal
 
 universe u u₁ v w
 
-/-! ## Bridge lemmas
+/-! ## Shared steps
 
-`ForIn.toList xs` computes the concrete list of each container, in the spelling that carries the
-membership lemmas the verification conditions need. -/
+Both helpers serve every container below: `ForIn.toList` accumulates into an array, and the
+`ForIn'` instances transport the membership proof along their bridge lemma. -/
 
 private theorem foldl_push_toList {γ : Type u₁} (xs : List γ) (acc : Array γ) :
     (xs.foldl (fun acc a => acc.push a) acc).toList = acc.toList ++ xs := by
@@ -48,10 +48,35 @@ private theorem foldl_push_toList {γ : Type u₁} (xs : List γ) (acc : Array �
   | nil => simp
   | cons a xs ih => rw [List.foldl_cons, ih, Array.toList_push]; simp
 
+private theorem forIn'_cast {γ : Type u₁} {δ : Type u} {n : Type u → Type v} [Monad n]
+    {l l' : List γ} (hl : l = l') (init : δ) (f : (a : γ) → a ∈ l' → δ → n (ForInStep δ)) :
+    forIn' l init (fun a ha b => f a (hl ▸ ha) b) = forIn' l' init f :=
+  List.forIn'_congr hl rfl fun _ _ _ => rfl
+
+/-! ## Containers
+
+Each container states its `ForIn.toList` bridge lemma first, then its instances in the order the
+classes are declared. -/
+
+section List
+
 @[simp, grind =] theorem ForIn.toList_list {γ : Type u₁} (xs : List γ) : ForIn.toList xs = xs := by
   simp only [ForIn.toList, ForIn.toArray, Id.run, List.forIn_pure_yield_eq_foldl]
   change (List.foldl (fun acc a => acc.push a) #[] xs).toList = xs
   rw [foldl_push_toList]; simp
+
+instance {α : Type u₁} : LawfulMemForInId (List α) α where
+  mem_toList_iff {_a _xs} := by rw [ForIn.toList_list]
+
+instance {m : Type u → Type v} [Monad m] {α : Type u₁} : PureForIn' m (List α) α where
+  forIn'_eq xs init f := (forIn'_cast (ForIn.toList_list xs) init f).symm
+
+instance {m : Type u → Type v} [Monad m] {α : Type u₁} : PureForIn m (List α) α where
+  forIn_eq xs init f := by rw [ForIn.toList_list]
+
+end List
+
+section Array
 
 @[simp, grind =] theorem ForIn.toList_array {γ : Type u₁} (xs : Array γ) :
     ForIn.toList xs = xs.toList := by
@@ -60,6 +85,21 @@ private theorem foldl_push_toList {γ : Type u₁} (xs : List γ) (acc : Array �
   change (List.foldl (fun acc a => acc.push a) #[] xs.toList).toList = xs.toList
   rw [foldl_push_toList]; simp
 
+instance {α : Type u₁} : LawfulMemForInId (Array α) α where
+  mem_toList_iff {_a _xs} := by rw [ForIn.toList_array]; exact Array.mem_toList_iff
+
+instance {m : Type u → Type v} [Monad m] {α : Type u₁} : PureForIn' m (Array α) α where
+  forIn'_eq xs init f :=
+    ((forIn'_cast (ForIn.toList_array xs) init
+      (fun a ha b => f a (Array.mem_toList_iff.mp ha) b)).trans Array.forIn'_toList).symm
+
+instance {m : Type u → Type v} [Monad m] {α : Type u₁} : PureForIn m (Array α) α where
+  forIn_eq xs init f := by rw [ForIn.toList_array, Array.forIn_toList]
+
+end Array
+
+section LegacyRange
+
 @[simp, grind =] theorem ForIn.toList_range (r : Std.Legacy.Range) :
     ForIn.toList r = List.range' r.start r.size r.step := by
   simp only [ForIn.toList, ForIn.toArray, Id.run, Std.Legacy.Range.forIn_eq_forIn_range',
@@ -67,64 +107,6 @@ private theorem foldl_push_toList {γ : Type u₁} (xs : List γ) (acc : Array �
   change (List.foldl (fun acc a => acc.push a) #[]
     (List.range' r.start r.size r.step)).toList = _
   rw [foldl_push_toList]; simp
-
-open Std.Iterators in
-/-- `ForIn.toList` on an iterator is the iterator's own `toList`, so every container whose `ForIn`
-loop iterates its `Std.ToIterator` reaches the iterator lemmas through this one step. -/
-@[simp, grind =] theorem ForIn.toList_iter {α γ : Type w} [Iterator α Id γ]
-    [Finite α Id] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id] (it : Iter (α := α) γ) :
-    ForIn.toList it = it.toList := by
-  simp only [ForIn.toList, ForIn.toArray, Id.run, ← Iter.forIn_toList,
-    List.forIn_pure_yield_eq_foldl]
-  change (List.foldl (fun acc a => acc.push a) #[] it.toList).toList = it.toList
-  rw [foldl_push_toList]; simp
-
-open Std.Iterators in
-/-- `ForIn.toList` on a pure monadic iterator is the iterator's own `toList`. -/
-@[simp, grind =] theorem ForIn.toList_iterM_id {α γ : Type w} [Iterator α Id γ] [Finite α Id]
-    [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id] (it : IterM (α := α) Id γ) :
-    ForIn.toList it = it.toList.run := by
-  simp only [ForIn.toList, ForIn.toArray, Id.run, ← IterM.forIn_toList,
-    List.forIn_pure_yield_eq_foldl]
-  change (List.foldl (fun acc a => acc.push a) #[] it.toList.run).toList = it.toList.run
-  rw [foldl_push_toList]; simp
-
-/-! ## Instances -/
-
-private theorem forIn'_cast {γ : Type u₁} {δ : Type u} {n : Type u → Type v} [Monad n]
-    {l l' : List γ} (hl : l = l') (init : δ) (f : (a : γ) → a ∈ l' → δ → n (ForInStep δ)) :
-    forIn' l init (fun a ha b => f a (hl ▸ ha) b) = forIn' l' init f :=
-  List.forIn'_congr hl rfl fun _ _ _ => rfl
-
-instance {m : Type u → Type v} [Monad m] {α : Type u₁} : PureForIn m (List α) α where
-  forIn_eq xs init f := by rw [ForIn.toList_list]
-
-instance {m : Type u → Type v} [Monad m] {α : Type u₁} : PureForIn m (Array α) α where
-  forIn_eq xs init f := by rw [ForIn.toList_array, Array.forIn_toList]
-
-instance {m : Type u → Type v} [Monad m] : PureForIn m Std.Legacy.Range Nat where
-  forIn_eq r init f := by
-    rw [ForIn.toList_range]; exact Std.Legacy.Range.forIn_eq_forIn_range' ..
-
-open Std.Iterators in
-instance {α γ : Type w} {m : Type w → Type v} [Monad m] [LawfulMonad m]
-    [Iterator α Id γ] [Finite α Id] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
-    [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id] :
-    PureForIn m (Iter (α := α) γ) γ where
-  forIn_eq it init f := by rw [ForIn.toList_iter]; exact Iter.forIn_toList.symm
-
-open Std.Iterators in
-instance {α γ : Type w} {m : Type w → Type v} [Monad m] [LawfulMonad m]
-    [Iterator α Id γ] [Finite α Id] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
-    [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id] :
-    PureForIn m (IterM (α := α) Id γ) γ where
-  forIn_eq it init f := by rw [ForIn.toList_iterM_id]; exact IterM.forIn_toList.symm
-
-instance {α : Type u₁} : LawfulMemForInId (List α) α where
-  mem_toList_iff {_a _xs} := by rw [ForIn.toList_list]
-
-instance {α : Type u₁} : LawfulMemForInId (Array α) α where
-  mem_toList_iff {_a _xs} := by rw [ForIn.toList_array]; exact Array.mem_toList_iff
 
 instance : LawfulMemForInId Std.Legacy.Range Nat where
   mem_toList_iff {a r} := by
@@ -146,19 +128,62 @@ instance : LawfulMemForInId Std.Legacy.Range Nat where
       omega
     · rw [Nat.mul_comm, hdvd]; omega
 
-instance {m : Type u → Type v} [Monad m] {α : Type u₁} : PureForIn' m (List α) α where
-  forIn'_eq xs init f := (forIn'_cast (ForIn.toList_list xs) init f).symm
-
-instance {m : Type u → Type v} [Monad m] {α : Type u₁} : PureForIn' m (Array α) α where
-  forIn'_eq xs init f :=
-    ((forIn'_cast (ForIn.toList_array xs) init
-      (fun a ha b => f a (Array.mem_toList_iff.mp ha) b)).trans Array.forIn'_toList).symm
-
 instance {m : Type u → Type v} [Monad m] : PureForIn' m Std.Legacy.Range Nat where
   forIn'_eq r init f := by
     rw [Std.Legacy.Range.forIn'_eq_forIn'_range']
     exact (forIn'_cast (ForIn.toList_range r) init
       (fun a ha b => f a (Std.Legacy.Range.mem_of_mem_range' ha) b)).symm
+
+instance {m : Type u → Type v} [Monad m] : PureForIn m Std.Legacy.Range Nat where
+  forIn_eq r init f := by
+    rw [ForIn.toList_range]; exact Std.Legacy.Range.forIn_eq_forIn_range' ..
+
+end LegacyRange
+
+section Iter
+
+open Std.Iterators in
+/-- `ForIn.toList` on an iterator is the iterator's own `toList`, so every container whose `ForIn`
+loop iterates its `Std.ToIterator` reaches the iterator lemmas through this one step. -/
+@[simp, grind =] theorem ForIn.toList_iter {α γ : Type w} [Iterator α Id γ]
+    [Finite α Id] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id] (it : Iter (α := α) γ) :
+    ForIn.toList it = it.toList := by
+  simp only [ForIn.toList, ForIn.toArray, Id.run, ← Iter.forIn_toList,
+    List.forIn_pure_yield_eq_foldl]
+  change (List.foldl (fun acc a => acc.push a) #[] it.toList).toList = it.toList
+  rw [foldl_push_toList]; simp
+
+
+
+open Std.Iterators in
+instance {α γ : Type w} {m : Type w → Type v} [Monad m] [LawfulMonad m]
+    [Iterator α Id γ] [Finite α Id] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
+    [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id] :
+    PureForIn m (Iter (α := α) γ) γ where
+  forIn_eq it init f := by rw [ForIn.toList_iter]; exact Iter.forIn_toList.symm
+
+end Iter
+
+section IterM
+
+open Std.Iterators in
+/-- `ForIn.toList` on a pure monadic iterator is the iterator's own `toList`. -/
+@[simp, grind =] theorem ForIn.toList_iterM_id {α γ : Type w} [Iterator α Id γ] [Finite α Id]
+    [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id] (it : IterM (α := α) Id γ) :
+    ForIn.toList it = it.toList.run := by
+  simp only [ForIn.toList, ForIn.toArray, Id.run, ← IterM.forIn_toList,
+    List.forIn_pure_yield_eq_foldl]
+  change (List.foldl (fun acc a => acc.push a) #[] it.toList.run).toList = it.toList.run
+  rw [foldl_push_toList]; simp
+
+open Std.Iterators in
+instance {α γ : Type w} {m : Type w → Type v} [Monad m] [LawfulMonad m]
+    [Iterator α Id γ] [Finite α Id] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
+    [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id] :
+    PureForIn m (IterM (α := α) Id γ) γ where
+  forIn_eq it init f := by rw [ForIn.toList_iterM_id]; exact IterM.forIn_toList.symm
+
+end IterM
 
 /-! ## Polymorphic ranges -/
 

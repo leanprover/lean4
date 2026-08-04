@@ -13,6 +13,7 @@ import Lean.Compiler.LCNF.ToImpureType
 import Lean.Compiler.LCNF.Check
 import Lean.Meta.Match.MatcherInfo
 import Lean.Compiler.LCNF.SplitSCC
+import Lean.Compiler.ComputableExt
 public import Lean.Compiler.IR.Basic
 public import Lean.Compiler.LCNF.CompilerM
 
@@ -160,6 +161,11 @@ partial def run (declNames : Array Name) (baseOpts : Options) : CompilerM Unit :
       if let some info ← getDeclInfo? declName then
         if !(isValidMainType info.type) then
           throwError "`main` function must have type `(List String →)? IO (UInt32 | Unit | PUnit)`"
+
+  -- We do this before compilation since the environment will be reverted if compilation fails
+  modifyEnv (declNames.foldl fun env nm => addComputable env nm)
+  modifyEnv (declNames.foldl fun env nm =>
+    if let some n := isUnsafeRecName? nm then addComputable env n else env)
 
   let decls ← declNames.mapM toDecl
   for decl in decls do

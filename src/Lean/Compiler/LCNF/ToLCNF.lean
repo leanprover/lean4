@@ -12,7 +12,7 @@ public import Lean.Compiler.LCNF.Bind
 public import Lean.Compiler.NeverExtractAttr
 import Lean.Meta.CasesInfo
 import Lean.Meta.WHNF
-import Lean.Compiler.NoncomputableAttr
+import Lean.Compiler.ComputableExt
 import Lean.Compiler.LCNF.Util
 import Init.Data.Format.Macro
 import Init.Omega
@@ -440,16 +440,18 @@ def etaExpandN (e : Expr) (n : Nat) : M Expr := do
 private def checkComputable (ref : Name) : M Unit := do
   if (← read).ignoreNoncomputable then
     return
-  if ref matches ``Quot.mk | ``Quot.lift || isExtern (← getEnv) ref || (getImplementedBy? (← getEnv) ref).isSome then
-    return
-  -- The executable code of a recursive definition comes from its `_unsafe_rec` implementation (see
-  -- `getDeclInfo?`), so `ref` is noncomputable whenever that implementation is. This case arises in a
-  -- `noncomputable section`, where the failure to compile the `_unsafe_rec` version is tolerated and
-  -- only that auxiliary is marked `noncomputable`, leaving `ref` itself unmarked.
-  if isNoncomputable (← getEnv) ref || isNoncomputable (← getEnv) (mkUnsafeRecName ref) then
-    throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{.ofConstName ref}', which is 'noncomputable'"
-  else if getOriginalConstKind? (← getEnv) ref matches some .axiom | some .quot | some .induct | some .thm then
-    throwNamedError lean.dependsOnNoncomputable f!"`{ref}` not supported by code generator; consider marking definition as `noncomputable`"
+  unless isComputable (← getEnv) ref do
+    if isExtern (← getEnv) ref then
+      throwNamedError lean.dependsOnNoncomputable
+        m!"Failed to compile definition, it depends on `{.ofConstName ref}` which is `@[extern]` but also `noncomputable`.\n\
+          Consider removing `noncomputable` from `{.ofConstName ref}`"
+    match getOriginalConstKind? (← getEnv) ref with
+    | some .axiom | some .quot | some .induct | some .thm =>
+      throwNamedError lean.dependsOnNoncomputable m!"`{.ofConstName ref}` not supported by code generator; consider marking definition as `noncomputable`"
+    | some .recursor =>
+      throwNamedError lean.dependsOnNoncomputable m!"code generator does not support recursor `{.ofConstName ref}` yet, consider using 'match ... with' and/or structural recursion"
+    | _ =>
+      throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{.ofConstName ref}', which is 'noncomputable'"
 
 /--
 Eta reduce implicits. We use this function to eliminate introduced by the implicit lambda feature,
@@ -817,6 +819,7 @@ where
   visitApp (e : Expr) : M (Arg .pure) := do
     if let .const declName us ← CSimp.replaceConstant (← getEnv) e.getAppFn then
       checkComputable declName
+      -- keep in sync with `hardcodedSpecialCases` in `Lean.Compiler.ComputableExt`
       if declName == ``Quot.lift then
         visitQuotLift e
       else if declName == ``Quot.mk then

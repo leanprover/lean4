@@ -617,7 +617,7 @@ open Lean.Order
 
 universe u₁ u₂ v uₚ uₑ
 
-variable {α : Type u₁} {β : Type (max u₁ u₂)} {m : Type (max u₁ u₂) → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
+variable {α : Type u₁} {β : Type u₂} {m : Type u₂ → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
 variable [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
 
 /-- The type of loop invariants used by the specifications of `for ... in ...` loops.

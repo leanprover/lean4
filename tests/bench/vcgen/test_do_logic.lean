@@ -129,9 +129,10 @@ theorem fib_impl_vcs
     (I : (n : Nat) → (_ : ¬n = 0) →
       Invariant Nat (Prod Nat Nat) Prop)
     (ret : Q 0 0)
-    (loop_pre : ∀ n (hn : ¬n = 0), (I n hn) [] [1:n].toList (0, 1))
-    (loop_post : ∀ n (hn : ¬n = 0) r, (I n hn) [1:n].toList [] r ⊑ Q n r.2)
-    (loop_step : ∀ n (hn : ¬n = 0) r pref cur suff (_h : [1:n].toList = pref ++ cur :: suff),
+    (loop_pre : ∀ n (hn : ¬n = 0), (I n hn) [] (ForIn.toList [1:n]) (0, 1))
+    (loop_post : ∀ n (hn : ¬n = 0) r, (I n hn) (ForIn.toList [1:n]) [] r ⊑ Q n r.2)
+    (loop_step : ∀ n (hn : ¬n = 0) r pref cur suff
+                    (_h : ForIn.toList [1:n] = pref ++ cur :: suff),
                   (I n hn) pref (cur::suff) r ⊑ (I n hn) (pref ++ [cur]) suff (r.2, r.1+r.2))
     : wp (fib_impl n) (Q n) E := by
   vcgen [fib_impl]

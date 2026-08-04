@@ -325,19 +325,6 @@ private def stopOrErrorOnMissingSpec (prog monad : Expr) (thms : Array SpecTheor
     throwError "No spec applicable to program {prog} in monad {monad}. \
       Candidates were {thms.map (·.proof)}."
 
-/-- Compile the backward rule of the `@[spec]` theorem `thm` for the goal's `wp` application
-(construction is cached), or `none` when no rule fits the goal's monad. -/
-private def compileSpecRule (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
-    VCGenM (Option BackwardRule) := do
-  try
-    mkBackwardRuleFromSpecCached thm info |>.run
-  catch ex =>
-    throwError "Failed to construct rule {thm.proof} for {indentExpr info.prog}\n\
-      error: {ex.toMessageData}\n\
-      target:{indentExpr (← goal.getType)}\n\
-      Pred:{indentExpr info.Pred}\n\
-      excessArgs: {info.excessArgs}"
-
 /-- True iff the program matches the `until` pattern, in which case VC generation stops at this
 goal. -/
 private def matchesUntilPattern (prog : Expr) : VCGenM Bool := do
@@ -428,7 +415,8 @@ private def applyFrameRule (goal : MVarId) (info : WPApp) (fp : FrameProc)
 
 /--
 Apply the selected `@[spec]` theorem `thm` to a spec-ready program `info.prog`, framing first when a
-frame procedure produces a split. `none` when `thm`'s backward rule does not apply.
+frame procedure produces a split. `none` when no backward rule fits the goal's monad, or when the
+rule does not apply.
 
 - A spec with a conjunctive precondition, or an already-framed residual, applies its spec directly.
 - Otherwise the frame procedure for the monad is selected (the `@[frameproc]` registered for the
@@ -439,8 +427,19 @@ frame procedure produces a split. `none` when `thm`'s backward rule does not app
   `FrameInferenceInfo.specPre?`: no split applies the spec directly; a split applies the frame rule
   instead, so the spec re-applies against the framed residual where its VCs are solvable.
 -/
-private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem)
-    (specRule : BackwardRule) : VCGenM (Option SolveResult) := do
+private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
+    VCGenM (Option SolveResult) := do
+  -- Rule construction is cached.
+  let some specRule ←
+    try
+      mkBackwardRuleFromSpecCached thm info |>.run
+    catch ex =>
+      throwError "Failed to construct rule {thm.proof} for {indentExpr info.prog}\n\
+        error: {ex.toMessageData}\n\
+        target:{indentExpr (← goal.getType)}\n\
+        Pred:{indentExpr info.Pred}\n\
+        excessArgs: {info.excessArgs}"
+    | return none
   unless thm.conjunctivePre || isFramedPost info.post do
     let procs := (← read).frameProcs.byProg
     let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
@@ -468,9 +467,8 @@ private def applySpecs (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) :
     VCGenM SolveResult := goal.withContext do
   let candidates ← SpecTheorems.findSpecs scope.specs info.prog
   for thm in candidates do
-    if let some rule ← compileSpecRule goal info thm then
-      if let some res ← applySpec scope goal info thm rule then
-        return res
+    if let some res ← applySpec scope goal info thm then
+      return res
     trace[Elab.Tactic.Do.vcgen] "Failed to apply spec {thm.proof} for {info.prog}"
   stopOrErrorOnMissingSpec info.prog info.M candidates
 

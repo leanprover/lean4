@@ -6,4 +6,9 @@ Author: Sofia Rodrigues
 #pragma once
 #include <lean/lean.h>
 
+namespace lean {
+void initialize_openssl();
+void finalize_openssl();
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_openssl_version(lean_obj_arg);

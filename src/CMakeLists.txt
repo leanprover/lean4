@@ -378,6 +378,16 @@ if(NOT "${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
   string(JOIN " " OPENSSL_LIBRARIES_STR ${OPENSSL_LIBRARIES})
   if(NOT LEAN_STANDALONE)
     string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${OPENSSL_LIBRARIES_STR}")
+    # macOS reads its trust store from the Keychain via the Security framework rather than from
+    # OpenSSL's default certificate paths, so link it (and its CoreFoundation dependency).
+    if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+      string(APPEND LEAN_EXTRA_LINKER_FLAGS " -framework CoreFoundation -framework Security")
+    endif()
+
+    # Windows reads its trust store via the CryptoAPI (CertOpenSystemStore et al.) in crypt32.
+    if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+      string(APPEND LEAN_EXTRA_LINKER_FLAGS " -lcrypt32")
+    endif()
   endif()
 endif()
 

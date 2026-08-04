@@ -435,7 +435,7 @@ jobs:
       # Checkout the Batteries repository with all branches
       - name: Checkout Batteries repository
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: leanprover-community/batteries
           token: ${{ steps.mathlib-app-token.outputs.token }}
@@ -494,7 +494,7 @@ jobs:
       # Checkout the mathlib4 repository with all branches
       - name: Checkout mathlib4 repository
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: leanprover-community/mathlib4-nightly-testing
           token: ${{ steps.mathlib-app-token.outputs.token }}
@@ -577,7 +577,7 @@ jobs:
       # Checkout the reference manual repository with all branches
       - name: Checkout mathlib4 repository
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.reference-manual-ready.outputs.manual_ready == 'true'
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: leanprover/reference-manual
           token: ${{ secrets.MANUAL_PR_BOT }}
@@ -649,7 +649,7 @@ jobs:
 
       - name: Checkout downstream repo
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: leanprover/downstream-lean4
           ref: green

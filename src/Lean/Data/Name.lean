@@ -120,18 +120,24 @@ def hasNum : Name → Bool
   | .str p _ => p.hasNum
   | .num _ _ => true
 
-/-- The frontend does not allow user declarations to start with `_` in any of its parts.
-   We use name parts starting with `_` internally to create auxiliary names (e.g., `_private`). -/
+/--
+Returns `true` when any string component of the name starts with `_`.
+
+Lean-generated auxiliary names commonly follow this convention (for example, `_private`), but user
+code may also declare such names. Thus this predicate classifies a name's shape; it does not prove
+that the name was generated internally.
+-/
 def isInternal : Name → Bool
   | str p s => s.front == '_' || isInternal p
   | num p _ => isInternal p
   | _       => false
 
 /--
-The frontend does not allow user declarations to start with `_` in any of its parts.
-We use name parts starting with `_` internally to create auxiliary names (e.g., `_private`).
+Returns `true` when any component of the name starts with `_` or is numeric.
 
-This function checks if any component of the name starts with `_`, or is numeric.
+Lean-generated auxiliary names commonly contain such components, but user code may also declare
+names starting with `_`. Thus this predicate classifies a name's shape; it does not prove that the
+name was generated internally.
 -/
 def isInternalOrNum : Name → Bool
   | .str p s => s.front == '_' || isInternalOrNum p

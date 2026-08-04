@@ -1694,9 +1694,10 @@ def Occurrences.isAll : Occurrences → Bool
 
 /--
 Controls which new mvars are turned in to goals by the `apply` tactic.
-- `nonDependentFirst`  mvars that don't depend on other goals appear first in the goal list.
-- `nonDependentOnly` only mvars that don't depend on other goals are added to goal list.
-- `all` all unassigned mvars are added to the goal list.
+- `nonDependentFirst`: metavariables that no other new goal depends on appear first in the goal list.
+  These goals may themselves depend on other new metavariables.
+- `nonDependentOnly`: only metavariables that no other new goal depends on are added to the goal list.
+- `all`: all unassigned metavariables are added to the goal list.
 -/
 -- TODO: Consider renaming to `Apply.NewGoals`
 inductive ApplyNewGoals where

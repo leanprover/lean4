@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Data.DHashMap.Lemmas
 public import Std.Data.HashMap.AdditionalOperations
+public import Std.Internal.ForIn.Basic
 import all Std.Data.DHashMap.Basic
 import Init.Data.List.Pairwise
 
@@ -1069,6 +1070,14 @@ theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
     {f : α × β → δ → m' (ForInStep δ)} {init : δ} :
     ForIn.forIn m init f = ForIn.forIn m.toList init f :=
   DHashMap.Const.forInUncurried_eq_forIn_toList
+
+@[simp, grind =]
+theorem forIn_toList (c : HashMap α β) : ForIn.toList c = c.toList :=
+  Std.Internal.ForIn.toList_eq_of_forIn_eq fun _ _ => forIn_eq_forIn_toList
+
+instance [Monad m'] [LawfulMonad m'] :
+    Std.Internal.PureForIn m' (HashMap α β) (α × β) where
+  forIn_eq _ _ _ := by rw [forIn_toList]; exact forIn_eq_forIn_toList
 
 theorem foldM_eq_foldlM_keys [Monad m'] [LawfulMonad m']
     {f : δ → α → m' δ} {init : δ} :

@@ -1,4 +1,5 @@
 import Std.Internal.Do
+import Std.Data.HashMap
 
 /-! Tests for `def` contracts. A `def` carrying `requires`/`ensures` clauses elaborates to the
 definition plus an `@[spec]`-tagged `f.spec` Hoare triple that `vcgen` proves automatically; a
@@ -176,6 +177,43 @@ example (xs : List Nat) : Id Nat := do
   for x in xs invariant _pref => 0 ≤ acc do
     acc := acc + x
   return acc
+
+/-! ## A loop over an `Array`, with and without a membership-proof binder -/
+
+def sumArray (xs : Array Nat) : Id Nat
+    ensures r => r = xs.toList.sum := do
+  let mut acc := 0
+  for x in xs invariant pref _ => acc = pref.sum do
+    acc := acc + x
+  return acc
+
+#guard_msgs (drop info) in
+#check @sumArray.spec
+
+def sumArrayMem (xs : Array Nat) : Id Nat
+    ensures r => r = xs.toList.sum := do
+  let mut acc := 0
+  for h : x in xs invariant pref _ => acc = pref.sum do
+    acc := acc + x
+  return acc
+
+#guard_msgs (drop info) in
+#check @sumArrayMem.spec
+
+/-! ## A loop over a `HashMap`, through its `PureForIn` instance
+
+The container needs no specification of its own: stating that its loop is effect-free is enough
+for the `invariant` clause to work. -/
+
+def sumValues (m : Std.HashMap Nat Nat) : Id Nat
+    ensures r => 0 ≤ r := do
+  let mut s := 0
+  for kv in m invariant _pref _suff => 0 ≤ s do
+    s := s + kv.2
+  return s
+
+#guard_msgs (drop info) in
+#check @sumValues.spec
 
 /-! ## The contract telescope is transplanted faithfully to `f.spec`
 

@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Http.Client.Session
+public import Std.Http.Client.Connection
 import Std.Async.DNS
 
 public section
@@ -28,7 +28,7 @@ open Time
 set_option linter.all true
 
 /--
-Opens a new transport connection to a target `(scheme, host, port)` and wraps it in a `Session`.
+Opens a new transport connection to a target `(scheme, host, port)` and wraps it in a `Connection`.
 
 Supply your own function to customize DNS resolution or transport selection (plain TCP, TLS,
 Unix socket). `scheme` is provided so implementations can dispatch between plain and encrypted
@@ -37,7 +37,7 @@ transports; `config.proxy` is available for proxy routing.
 Failures are reported as a typed `Error` (usually `Error.connect`). An exception thrown by a
 connector is also treated as a connect failure by the pool.
 -/
-abbrev Connector := URI.Scheme → URI.Host → UInt16 → Config → Async (Except Error Session)
+abbrev Connector := URI.Scheme → URI.Host → UInt16 → Config → Async (Except Error Connection)
 
 /--
 The default connector: resolves `host` via the system DNS, iterates over the returned
@@ -52,7 +52,8 @@ def Connector.tcp : Connector := fun scheme host port config => do
     return .error (.connect "default TCP connector does not support https.")
 
   if scheme.val != "http" then
-    return .error (.connect s!"default TCP connector only supports http, got scheme {scheme.val.quote}")
+    return .error (.connect
+      s!"default TCP connector only supports http, got scheme {scheme.val.quote}")
 
   let (connectHost, connectPort) := config.proxy.getD (toString host, port)
   let addrs ←
@@ -71,7 +72,7 @@ def Connector.tcp : Connector := fun scheme host port config => do
     try
       let socket ← Socket.Client.mk
       socket.connect socketAddr
-      return .ok (← Session.new socket config)
+      return .ok (← Connection.new socket config)
     catch err =>
       lastErr := .connect (toString err)
 

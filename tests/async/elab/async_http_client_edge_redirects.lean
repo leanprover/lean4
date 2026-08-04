@@ -2,11 +2,11 @@ module
 
 import Std.Http.Test.Helpers
 
+/-! HTTP client redirect rewriting, security, policy, and target-resolution edge cases. -/
+
 open Std.Async
 open Std Http Internal
 open Test.ClientHelpers
-
-/-! HTTP client redirect rewriting, security, policy, and target-resolution edge cases. -/
 
 -- ============================================================
 -- Section 1 — Redirect method/body rewrites (RFC 9110 §15.4)
@@ -15,7 +15,8 @@ open Test.ClientHelpers
 -- 303 See Other: any method → GET, body dropped.
 -- The existing tests cover 302 POST→GET; this one covers the non-POST path.
 
-#eval show IO _ from runWithTimeout "303 See Other converts PUT to GET and drops body" 3000 <| Async.block do
+#eval show IO _ from runWithTimeout "303 See Other converts PUT to GET and drops body" 3000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let agent ← mkAgent mockServer
 
@@ -55,7 +56,8 @@ open Test.ClientHelpers
 -- practice). PUT, PATCH, DELETE, etc. must not be silently redirected; the 301 is
 -- returned to the caller unchanged.
 
-#eval show IO _ from runWithTimeout "301 on PUT is not auto-followed (RFC 9110 §15.4.2)" 3000 <| Async.block do
+#eval show IO _ from runWithTimeout "301 on PUT is not auto-followed (RFC 9110 §15.4.2)" 3000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let agent ← mkAgent mockServer
 
@@ -84,7 +86,8 @@ open Test.ClientHelpers
 -- This is the distinguishing behavior vs. 301: with a replayable full body the
 -- bytes must be sent again on the redirected request.
 
-#eval show IO _ from runWithTimeout "308 Permanent Redirect replays body for PUT" 4000 <| Async.block do
+#eval show IO _ from runWithTimeout "308 Permanent Redirect replays body for PUT" 4000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let agent ← mkAgent mockServer
 
@@ -187,7 +190,8 @@ open Test.ClientHelpers
 -- Cookie header set explicitly on the request must be stripped on cross-origin redirects.
 -- (Jar cookies are per-host anyway; this tests the explicit Cookie header path.)
 
-#eval show IO _ from runWithTimeout "cross-origin strips explicit Cookie header" 4000 <| Async.block do
+#eval show IO _ from runWithTimeout "cross-origin strips explicit Cookie header" 4000 <|
+  Async.block do
   let (mockClient1, mockServer1) ← Mock.new
   let (mockClient2, mockServer2) ← Mock.new
   let connection1 ← Client.Connection.new mockServer1 (config := {})
@@ -294,7 +298,8 @@ open Test.ClientHelpers
 -- The agent records each (host, port, uri) tuple in its history and stops when
 -- it would revisit a tuple it already served in the current chain.
 
-#eval show IO _ from runWithTimeout "redirect cycle detection stops and returns last 3xx" 4000 <| Async.block do
+#eval show IO _ from runWithTimeout "redirect cycle detection stops and returns last 3xx" 4000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let agent ← mkAgent mockServer
 
@@ -334,9 +339,11 @@ open Test.ClientHelpers
 -- Cycle that passes through a cross-origin hop before self-looping. The redirected request lands on
 -- the new origin in absolute-form, then the origin redirects to itself in origin-form. Cycle
 -- detection must normalize both forms to the same key, otherwise the self-loop is missed and the
--- agent keeps requesting the same target until `maxRedirects` (or, here, until it blocks waiting for
+-- agent keeps requesting the same target until `maxRedirects` (or, here, until it blocks waiting
 -- a response that never comes and the test times out).
-#eval show IO _ from runWithTimeout "cross-origin then same-origin self-redirect is detected as a cycle" 4000 <| Async.block do
+#eval show IO _ from
+  runWithTimeout "cross-origin then same-origin self-redirect is detected as a cycle" 4000 <|
+  Async.block do
   let (mockClient1, mockServer1) ← Mock.new
   let (mockClient2, mockServer2) ← Mock.new
   let connection1 ← Client.Connection.new mockServer1 (config := {})
@@ -371,7 +378,7 @@ open Test.ClientHelpers
       ("Content-Length", "0"),
       ("Connection", "keep-alive")] "")
 
-  -- If the cycle were missed, the agent would send a second request to B; drain it so the test fails
+  -- If the cycle were missed, the agent would send a second request to B; drain it so the test
   -- with a clear message instead of hanging.
   background do
     let _ ← mockClient2.recv?
@@ -420,7 +427,8 @@ open Test.ClientHelpers
 -- RFC 9110 §15.4.3: same MUST NOT rule for 302. PATCH is not GET/HEAD/POST, so 302
 -- on PATCH is returned to the caller as-is without sending a second request.
 
-#eval show IO _ from runWithTimeout "302 on PATCH is not auto-followed (RFC 9110 §15.4.3)" 3000 <| Async.block do
+#eval show IO _ from runWithTimeout "302 on PATCH is not auto-followed (RFC 9110 §15.4.3)" 3000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let agent ← mkAgent mockServer
 
@@ -447,7 +455,8 @@ open Test.ClientHelpers
 -- A `Location: /path` (relative) must not change the request's scheme, host or
 -- port. The earlier redirect tests implicitly rely on this but none asserts it.
 
-#eval show IO _ from runWithTimeout "relative Location preserves host and scheme" 3000 <| Async.block do
+#eval show IO _ from runWithTimeout "relative Location preserves host and scheme" 3000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let agent ← mkAgent mockServer
 
@@ -478,3 +487,67 @@ open Test.ClientHelpers
   unless redirectText.startsWith "GET /new" do
     throw <| IO.userError
       s!"expected GET /new, got:\n{redirectText.quote}"
+
+-- ============================================================
+-- Section 11 — Per-request `onlySafeRedirects` override
+-- ============================================================
+-- `RequestOverrides.onlySafeRedirects` gates automatic following for unsafe methods
+-- on a single request without changing the client-wide `Config`. The two tests below
+-- send the identical POST/302 exchange and differ only in the override.
+
+-- Control: with the default policy (`onlySafeRedirects := false`) a 302 on POST is
+-- followed with the RFC 9110 §15.4.4 POST→GET downgrade.
+
+#eval show IO _ from runWithTimeout "302 on POST is followed under the default policy" 3000 <|
+  Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let agent ← mkAgent mockServer
+
+  let req ← Request.new |>.method .post |>.uri! "/submit"
+    |>.header! "Host" "example.com" |>.text "payload"
+  let p ← sendInBackground agent req
+
+  let _ ← drainRequest mockClient
+  mockClient.send (rawResp "302 Found"
+    #[("Location", "/done"),
+      ("Content-Length", "0"),
+      ("Connection", "keep-alive")] "")
+
+  let redirectBytes ← drainRequest mockClient
+  mockClient.send (rawResp "200 OK"
+    #[("Content-Length", "0"), ("Connection", "close")] "")
+
+  match ← await p.result! with
+  | Except.error e => throw (IO.userError s!"agent error: {e}")
+  | Except.ok resp =>
+    unless resp.line.status == .ok do
+      throw <| IO.userError s!"expected the redirect to be followed, got {resp.line.status.toCode}"
+
+  let redirectText := String.fromUTF8! redirectBytes
+  unless redirectText.startsWith "GET /done" do
+    throw <| IO.userError s!"expected GET /done after POST downgrade, got:\n{redirectText.quote}"
+
+-- With `onlySafeRedirects := some true` the same exchange stops at the 302: POST is not
+-- a safe method, so the response is handed to the caller and no second request is sent.
+
+#eval show IO _ from runWithTimeout "onlySafeRedirects override stops a 302 on POST" 3000 <|
+  Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let agent ← mkAgent mockServer
+
+  let req ← Request.new |>.method .post |>.uri! "/submit"
+    |>.header! "Host" "example.com" |>.text "payload"
+  let p ← sendInBackground agent req { onlySafeRedirects := some true }
+
+  let _ ← drainRequest mockClient
+  mockClient.send (rawResp "302 Found"
+    #[("Location", "/done"),
+      ("Content-Length", "0"),
+      ("Connection", "close")] "")
+
+  match ← await p.result! with
+  | Except.error e => throw (IO.userError s!"agent error: {e}")
+  | Except.ok resp =>
+    unless resp.line.status == .found do
+      throw <| IO.userError
+        s!"expected the 302 returned as-is under onlySafeRedirects, got {resp.line.status.toCode}"

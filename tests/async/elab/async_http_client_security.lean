@@ -1,11 +1,6 @@
 module
 
-import Std.Http
-import Std.Async
-import Std.Async.Timer
-
-open Std.Async
-open Std Http Internal
+import Std.Http.Test.Helpers
 
 /-!
 # HTTP Client Security Tests
@@ -20,29 +15,9 @@ Tests for security properties of the HTTP client:
   A channel-backed body is consumed on first use; retrying would send an empty body.
 -/
 
-private def runWithTimeout (name : String) (timeoutMs : Nat := 3000) (action : IO Unit) : IO Unit := do
-  let task ← IO.asTask action
-  let ticks := (timeoutMs + 9) / 10
-  let rec loop (remaining : Nat) : IO Unit := do
-    if (← IO.getTaskState task) == .finished then
-      match (← IO.wait task) with
-      | .ok x => pure x
-      | .error err => throw err
-    else
-      match remaining with
-      | 0 =>
-        IO.cancel task
-        throw <| IO.userError s!"Test '{name}' timed out after {timeoutMs}ms"
-      | n + 1 =>
-        IO.sleep 10
-        loop n
-  loop ticks
-
--- Build a raw HTTP/1.1 response byte string.
-private def rawResp
-    (status : String) (hdrs : Array (String × String)) (body : String) : ByteArray :=
-  let hdrLines := hdrs.foldl (fun s (k, v) => s ++ s!"{k}: {v}\r\n") ""
-  s!"HTTP/1.1 {status}\r\n{hdrLines}\r\n{body}".toUTF8
+open Std.Async
+open Std Http Internal
+open Test.ClientHelpers
 
 -- ============================================================
 -- Redirect: Authorization stripped on scheme-change redirect
@@ -117,14 +92,7 @@ private def rawResp
 
 #eval show IO _ from runWithTimeout "same-origin preserves Authorization" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let connection ← Client.Connection.new mockServer (config := {})
-  let some domain := URI.DomainName.ofString? "example.com"
-    | throw (IO.userError "DomainName parse failed")
-
-  let agent : Client.Agent := {
-    connection
-    origin := { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
-  }
+  let agent ← mkAgent mockServer
 
   let request ← Request.new
     |>.method .get
@@ -197,14 +165,7 @@ private def rawResp
 
 #eval show IO _ from runWithTimeout "ftp:// redirect not followed" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let connection ← Client.Connection.new mockServer (config := {})
-  let some domain := URI.DomainName.ofString? "example.com"
-    | throw (IO.userError "DomainName parse failed")
-
-  let agent : Client.Agent := {
-    connection
-    origin := { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
-  }
+  let agent ← mkAgent mockServer
 
   let request ← Request.new
     |>.method .get
@@ -236,14 +197,7 @@ private def rawResp
 
 #eval show IO _ from runWithTimeout "file:// redirect not followed" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let connection ← Client.Connection.new mockServer (config := {})
-  let some domain := URI.DomainName.ofString? "example.com"
-    | throw (IO.userError "DomainName parse failed")
-
-  let agent : Client.Agent := {
-    connection
-    origin := { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
-  }
+  let agent ← mkAgent mockServer
 
   let request ← Request.new
     |>.method .get
@@ -281,16 +235,9 @@ private def rawResp
 
 #eval show IO _ from runWithTimeout "https:// redirect is followed" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let connection ← Client.Connection.new mockServer (config := {})
-  let some domain := URI.DomainName.ofString? "example.com"
-    | throw (IO.userError "DomainName parse failed")
-
   -- Agent with connectTo = none; cross-host redirects return the 3xx as-is.
   -- We use the same-host case: http://example.com:80/target (same host+port, scheme changes).
-  let agent : Client.Agent := {
-    connection
-    origin := { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
-  }
+  let agent ← mkAgent mockServer
 
   let request ← Request.new
     |>.method .get
@@ -345,14 +292,7 @@ private def rawResp
 
 #eval show IO _ from runWithTimeout "streaming body dropped on 307 redirect" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let connection ← Client.Connection.new mockServer (config := {})
-  let some domain := URI.DomainName.ofString? "example.com"
-    | throw (IO.userError "DomainName parse failed")
-
-  let agent : Client.Agent := {
-    connection
-    origin := { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
-  }
+  let agent ← mkAgent mockServer
 
   let request ← Request.new
     |>.method .put

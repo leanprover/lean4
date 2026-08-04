@@ -544,19 +544,6 @@ theorem IsList_ne_le (rest : List Nat) (back curr : Addr) (hcn : curr ≠ null) 
     rw [show (v :: vs = v :: vs) = True from propext ⟨fun _ => trivial, fun _ => rfl⟩,
       sepPure_true_eq_emp, emp_sepConj]
 
-/-- Choose the witness of a `⨆`-shaped precondition out of a non-empty segment: opening the node
-exposes its next-pointer, which is the value the cell holds. The `⨆` body stays schematic, so this
-serves `load` and `store` alike. -/
-theorem IsList_le_iSup (rest : List Nat) (back curr : Addr) (f : Addr → HProp)
-    (hcn : curr ≠ null)
-    (h : ∀ v vs n, rest = v :: vs →
-      (curr ↦ n ∗ (curr + 1) ↦ back ∗ (curr + 2) ↦ v ∗ IsList vs curr n) ⊑ f n) :
-    IsList rest back curr ⊑ ⨆ n, f n := by
-  refine PartialOrder.rel_trans (IsList_ne_le rest back curr hcn) ?_
-  refine iSup_le _ _ fun v => iSup_le _ _ fun vs => iSup_le _ _ fun n => ?_
-  refine sepPure_sepConj_le_of _ _ _ fun hrest => ?_
-  exact le_iSup_of_le n (h v vs n hrest)
-
 /-- A segment rooted at `null` is empty. -/
 @[grind =] theorem IsList_null_eq (rest : List Nat) (back : Addr) :
     IsList rest back null = sepPure (rest = []) := by
@@ -813,61 +800,38 @@ def sepConjFrameProc : FrameInferenceProc := fun i => do
 /-! ## Primitive specs -/
 
 /-- Storing overwrites the cell, framing every disjoint heap by construction. -/
-@[spec] theorem store_spec_default (l : Addr) (v w : Nat) :
+@[spec] theorem store_spec (l : Addr) (v w : Nat) :
     ⦃ l ↦ v ⦄ (store l w) ⦃ fun _ => l ↦ w ⦄ := by
   refine HeapM.triple_of_triple_StateM_run fun F => ?_
   simp only [store, HeapM.run_mk]
   vcgen with finish
 
 /-- Loading returns the stored value and leaves the cell in place. -/
-@[spec] theorem load_spec_default (l : Addr) (v : Nat) :
+@[spec] theorem load_spec (l : Addr) (v : Nat) :
     ⦃ l ↦ v ⦄ (load l) ⦃ fun r => sepPure (r = v) ∗ l ↦ v ⦄ := by
   refine HeapM.triple_of_triple_StateM_run fun F => ?_
   simp only [load, HeapM.run_mk]
   vcgen with finish
 
-/-- Weakest precondition of `store`. The cell's current value is bound by the `⨆`, so an entailment
-proof chooses it per heap rather than having to name it up front, and the continuation receives the
-updated cell through the wand. -/
-theorem store_spec (l : Addr) (w : Nat) (Q : Unit → HProp) :
-    ⦃ ⨆ v, l ↦ v ∗ (l ↦ w -∗ Q ⟨⟩) ⦄ (store l w) ⦃ Q ⦄ := by
-  refine ⟨iSup_le _ _ fun v => ?_⟩
-  vcgen [store_spec_default l v w] with (try finish)
-  exact PartialOrder.rel_trans (PartialOrder.rel_of_eq (sepConj_comm _ _)) (sepConj_wand_le _ _)
-
-/-- Weakest precondition of `load`. The stored value is bound by the `⨆`, and the continuation
-receives the cell back through the wand at that value. -/
-theorem load_spec (l : Addr) (Q : Nat → HProp) :
-    ⦃ ⨆ v, l ↦ v ∗ (l ↦ v -∗ Q v) ⦄ (load l) ⦃ Q ⦄ := by
-  refine ⟨iSup_le _ _ fun v => ?_⟩
-  vcgen [load_spec_default l v] with (try finish)
-  rename_i r
-  refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
-    sepPure (r = v) ∗ (l ↦ v ∗ (l ↦ v -∗ Q v)))) ?_
-  · grind
-  refine sepPure_sepConj_le_of _ _ _ fun hr => ?_
-  subst hr
-  exact sepConj_wand_le _ _
-
 /-! ## Framing examples -/
 
 example (l1 l2 : Addr) (a b x : Nat) :
     ⦃ l1 ↦ a ∗ l2 ↦ b ⦄ (store l1 x) ⦃ fun _ => l1 ↦ x ∗ l2 ↦ b ⦄ := by
-  vcgen [store_spec_default] with finish
+  vcgen [store_spec] with finish
 
 example (l1 l2 : Addr) (a b x : Nat) :
     ⦃ l1 ↦ a ∗ l2 ↦ b ⦄ (store l1 x) ⦃ fun _ => l1 ↦ x ∗ l2 ↦ b ⦄ := by
-  vcgen [store_spec_default] frames | store l1 x => (l2 ↦ b) with finish
+  vcgen [store_spec] frames | store l1 x => (l2 ↦ b) with finish
 
 example (l1 l2 : Addr) (a b : Nat) :
     ⦃ l1 ↦ a ∗ l2 ↦ b ⦄ (load l1) ⦃ fun r => l2 ↦ b ∗ sepPure (r = a) ∗ l1 ↦ a ⦄ := by
-  vcgen [load_spec_default] with finish
+  vcgen [load_spec] with finish
 
 /-- A probe program with its own spec, used only to exercise `FrameInferenceInfo.spec`. -/
 def probe (l : Addr) : HeapM Unit := store l 0
 
 @[spec] theorem probe_spec (l : Addr) (v : Nat) : ⦃ l ↦ v ⦄ probe l ⦃ fun _ => l ↦ 0 ⦄ :=
-  store_spec_default l v 0
+  store_spec l v 0
 
 -- Framing `probe l1` reports the applied spec `probe_spec`, read off `FrameInferenceInfo.spec`.
 /-- info: framing for spec some (probe_spec) -/
@@ -879,21 +843,22 @@ example (l1 l2 : Addr) (a b : Nat) :
 /-! ## In-place reverse -/
 
 /-- Load the next-pointer of a list node known to be non-null: the segment must then be a cons,
-and the loaded value is its `IsList` witness. A specialization of `load_spec`, whose `⨆` witness
-`IsList_le_iSup` reads off the opened node. -/
+and the loaded value is its `IsList` witness. The shape hypothesis reaches `finish` from the
+branch condition in scope. -/
 theorem load_next_IsList_ne (rest : List Nat) (back curr : Addr) (hcn : curr ≠ null) :
     ⦃ IsList rest back curr ⦄
       load curr
     ⦃ fun next => ⨆ v, ⨆ vs, ⌜rest = v :: vs⌝ ⊓
         (curr ↦ next ∗ (curr + 1) ↦ back ∗ (curr + 2) ↦ v ∗ IsList vs curr next) ⦄ := by
-  refine ⟨PartialOrder.rel_trans (IsList_le_iSup rest back curr _ hcn fun v vs n hrest => ?_)
-    (load_spec curr _).le_wp⟩
-  refine sepConj_mono_right _ (le_wand _ _ _ ?_)
-  refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
-    curr ↦ n ∗ (curr + 1) ↦ back ∗ (curr + 2) ↦ v ∗ IsList vs curr n)) ?_
-  · grind
-  exact le_iSup_of_le v (le_iSup_of_le vs
-    (le_meet _ _ _ (le_ofProp _ _ hrest) PartialOrder.rel_refl))
+  refine ⟨PartialOrder.rel_trans (IsList_ne_le rest back curr hcn) ?_⟩
+  refine iSup_le _ _ fun v => iSup_le _ _ fun vs => iSup_le _ _ fun n => ?_
+  refine sepPure_sepConj_le_of _ _ _ fun hrest => ?_
+  subst hrest
+  vcgen [load_spec] with (try finish)
+  refine PartialOrder.rel_trans ?_
+    (le_iSup_of_le v (le_iSup_of_le vs
+      (le_meet _ _ _ (le_ofProp _ _ rfl) PartialOrder.rel_refl)))
+  grind
 
 /-- Loop invariant for `reverse` at loop state `(prev, curr)`: the unvisited segment `rest` hangs
 off `curr` with back-pointer `prev`, the reversed prefix `acc` sits at `prev` with back-pointer
@@ -974,24 +939,11 @@ the precondition, at the known result `if x = null then y else x`. The loop inva
 last visited node and carries a wand absorbing the visited prefix (`wand_absorb`); linking the
 last node discharges the prefix wand and the continuation wand by the counit. -/
 
-/-- Rewrite the back-pointer of a list head known to be non-null. A specialization of
-`store_spec`, whose `⨆` witness is the node's current prev field. -/
+/-- Rewrite the back-pointer of a list head known to be non-null. -/
 theorem store_prev_IsList_ne (ys : List Nat) (qb y c : Addr) (hy : y ≠ null) :
     ⦃ IsList ys qb y ⦄ store (y + 1) c ⦃ fun _ => IsList ys c y ⦄ := by
-  refine ⟨PartialOrder.rel_trans ?_ (store_spec (y + 1) c _).le_wp⟩
-  refine PartialOrder.rel_trans (IsList_ne_le ys qb y hy) ?_
-  refine iSup_le _ _ fun v => iSup_le _ _ fun vs => iSup_le _ _ fun n => ?_
-  refine sepPure_sepConj_le_of _ _ _ fun hys => ?_
-  refine le_iSup_of_le qb ?_
-  refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
-    (y + 1) ↦ qb ∗ (y ↦ n ∗ (y + 2) ↦ v ∗ IsList vs y n))) ?_
-  · grind
-  refine sepConj_mono_right _ (le_wand _ _ _ ?_)
-  subst hys
-  refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
-    y ↦ n ∗ (y + 1) ↦ c ∗ (y + 2) ↦ v ∗ IsList vs y n)) ?_
-  · grind
-  exact IsList_cons_intro v n c vs y hy
+  refine ⟨PartialOrder.rel_trans (IsList_ne_le ys qb y hy) ?_⟩
+  vcgen [store_spec] with finish
 
 /-- Loop invariant for `append` at loop state `(t, u)`: `t` is the last visited node with
 next-pointer `u` and some prev-pointer `pt`, the unvisited segment `rest` hangs off `u`, a wand

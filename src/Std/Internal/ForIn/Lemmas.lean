@@ -37,11 +37,6 @@ namespace Std.Internal
 
 universe u u₁ v w
 
-/-! ## Shared steps
-
-Both helpers serve every container below: `ForIn.toList` accumulates into an array, and the
-`ForIn'` instances transport the membership proof along their bridge lemma. -/
-
 private theorem foldl_push_toList {γ : Type u₁} (xs : List γ) (acc : Array γ) :
     (xs.foldl (fun acc a => acc.push a) acc).toList = acc.toList ++ xs := by
   induction xs generalizing acc with
@@ -52,11 +47,6 @@ private theorem forIn'_cast {γ : Type u₁} {δ : Type u} {n : Type u → Type 
     {l l' : List γ} (hl : l = l') (init : δ) (f : (a : γ) → a ∈ l' → δ → n (ForInStep δ)) :
     forIn' l init (fun a ha b => f a (hl ▸ ha) b) = forIn' l' init f :=
   List.forIn'_congr hl rfl fun _ _ _ => rfl
-
-/-! ## Containers
-
-Each container states its `ForIn.toList` bridge lemma first, then its instances in the order the
-classes are declared. -/
 
 section List
 
@@ -153,8 +143,6 @@ loop iterates its `Std.ToIterator` reaches the iterator lemmas through this one 
   change (List.foldl (fun acc a => acc.push a) #[] it.toList).toList = it.toList
   rw [foldl_push_toList]; simp
 
-
-
 open Std.Iterators in
 instance {α γ : Type w} {m : Type w → Type v} [Monad m] [LawfulMonad m]
     [Iterator α Id γ] [Finite α Id] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
@@ -184,8 +172,6 @@ instance {α γ : Type w} {m : Type w → Type v} [Monad m] [LawfulMonad m]
   forIn_eq it init f := by rw [ForIn.toList_iterM_id]; exact IterM.forIn_toList.symm
 
 end IterM
-
-/-! ## Polymorphic ranges -/
 
 section PRange
 open Std.PRange
@@ -456,8 +442,7 @@ end Rii
 
 end PRange
 
-
-/-! ## Slices -/
+section Slice
 
 open Std.Iterators in
 /-- `ForIn.toList` on a slice is the slice's own `toList`. -/
@@ -477,5 +462,7 @@ instance {γ : Type u} {α γ' : Type w} {m : Type w → Type v} [Monad m] [Lawf
     [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id] :
     PureForIn m (Slice γ) γ' where
   forIn_eq s init f := by rw [ForIn.toList_slice]; exact Slice.forIn_toList.symm
+
+end Slice
 
 end Std.Internal

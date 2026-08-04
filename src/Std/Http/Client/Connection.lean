@@ -17,8 +17,13 @@ public section
 /-!
 # Connection
 
-This module defines the `Connection.handle` loop, used to manage one persistent HTTP/1.1 client
-connection and handle sequential request/response exchanges over it.
+This module defines `Connection`, an HTTP/1.1 client connection that owns a single persistent
+transport and dispatches sequential request/response exchanges over it. A background task drives
+the processing loop; callers interact through a channel and receive their results on promises.
+
+`Connection` is transport-agnostic at the type level: the transport type is consumed at construction
+time (`Connection.new`) but is not stored in the struct, so `Connection` values are uniform
+regardless of the underlying socket type.
 -/
 
 namespace Std.Http.Client
@@ -29,9 +34,9 @@ open Time
 set_option linter.all true
 
 /--
-A request packet queued to the background connection loop.
+A request queued to the background connection loop, paired with the promises that deliver its outcome.
 -/
-structure RequestPacket where
+structure PendingRequest where
   /--
   The request to send.
   -/
@@ -49,32 +54,65 @@ structure RequestPacket where
   completionPromise : IO.Promise (Except Error Unit)
 
   /--
-  Overrides `Config.requestTimeout` for this exchange.
+  Per-request overrides applied on top of the client `Config` for this exchange.
   -/
-  timeout? : Option Timeout := none
+  requestOverrides : RequestOverrides := {}
 
-namespace RequestPacket
-
-/--
-Resolve the packet with an error.
--/
-def onError (packet : RequestPacket) (error : Error) : BaseIO Unit := do
-  discard <| packet.responsePromise.resolve (.error error)
-  discard <| packet.completionPromise.resolve (.error error)
+namespace PendingRequest
 
 /--
-Resolve the packet with a response.
+Resolve the request with an error.
 -/
-def onResponse (packet : RequestPacket) (response : Response Body.Stream) : BaseIO Unit :=
-  discard <| packet.responsePromise.resolve (.ok response)
+def onError (pending : PendingRequest) (error : Error) : BaseIO Unit := do
+  discard <| pending.responsePromise.resolve (.error error)
+  discard <| pending.completionPromise.resolve (.error error)
 
 /--
-Resolve the packet as completed successfully.
+Resolve the request with a response.
 -/
-def onComplete (packet : RequestPacket) : BaseIO Unit :=
-  discard <| packet.completionPromise.resolve (.ok ())
+def onResponse (pending : PendingRequest) (response : Response Body.Stream) : BaseIO Unit :=
+  discard <| pending.responsePromise.resolve (.ok response)
 
-end RequestPacket
+/--
+Resolve the request as completed successfully.
+-/
+def onComplete (pending : PendingRequest) : BaseIO Unit :=
+  discard <| pending.completionPromise.resolve (.ok ())
+
+end PendingRequest
+
+/--
+An HTTP client connection that sends sequential requests over a persistent transport.
+-/
+structure Connection where
+
+  /--
+  Queue of requests sent by callers.
+  -/
+  requestChannel : Std.CloseableChannel PendingRequest
+
+  /--
+  Resolves when the background loop exits.
+  -/
+  shutdown : IO.Promise Unit
+
+  /--
+  Configuration for this connection.
+  -/
+  config : Config
+
+  /--
+  Cancellation context driving the background loop. Cancelling it aborts any in-flight exchange (the
+  loop treats cancellation as a shutdown), which is how `close` interrupts a request that is blocked
+  waiting on the socket rather than parked on the request channel.
+  -/
+  context : CancellationContext
+
+  /--
+  Unique identifier assigned by the pool when this connection is registered.
+  Zero for connections created outside a pool.
+  -/
+  id : UInt64 := 0
 
 namespace Connection
 
@@ -86,21 +124,27 @@ private inductive Recv
   | bytes (x : Option ByteArray)
   | requestBody (x : Option Chunk)
   | bodyInterest (x : Bool)
-  | packet (x : Option RequestPacket)
+  | request (x : Option PendingRequest)
   | timeout
   | shutdown
   | close
 
+@[inline]
+private def requestHasExpectContinue (request : Request Body.Any) : Bool :=
+  match request.line.headers.getAll? Header.Name.expect with
+  | some values => values.any (fun v => Header.Expect.parse v |>.isSome)
+  | none => false
+
 /--
-Mutable state that belongs to a single in-flight request/response exchange.
+State that belongs to a single in-flight request/response exchange.
 Kept in one struct so a `.next` transition can reset every per-request field
 at once (impossible to forget one) and so `closeAll` has a self-contained target.
 -/
 structure InFlightState where
   /--
-  The request packet whose promise is pending (or just resolved).
+  The queued request whose promise is pending (or just resolved).
   -/
-  packet : RequestPacket
+  pending : PendingRequest
 
   /--
   Body the writer pump is currently consuming. `none` while waiting for
@@ -137,16 +181,17 @@ structure InFlightState where
 namespace InFlightState
 
 /--
-Builds the initial `InFlightState` for a packet that has just arrived, given
+Builds the initial `InFlightState` for a request that has just arrived, given
 its pre-fetched body-size probe and the stream allocated for the response.
 -/
-def ofPacket (packet : RequestPacket) (responseStream : Body.Stream) (hasExpect : Bool) : InFlightState where
-  packet := packet
-  requestBody := if hasExpect then none else some packet.request.body
-  pendingRequestBody := if hasExpect then some packet.request.body else none
-  responseStream := some responseStream
-  waitingForContinue := hasExpect
-  isInformationalResponse := false
+def ofPending (pending : PendingRequest) (responseStream : Body.Stream) : InFlightState :=
+  let hasExpect := requestHasExpectContinue pending.request
+  { pending := pending
+    requestBody := if hasExpect then none else some pending.request.body
+    pendingRequestBody := if hasExpect then some pending.request.body else none
+    responseStream := some responseStream
+    waitingForContinue := hasExpect
+    isInformationalResponse := false }
 
 /--
 Closes every open resource tied to this in-flight exchange: both request
@@ -181,6 +226,16 @@ structure ConnectionState where
   machine : H1.Machine .sending
 
   /--
+  The configuration governing the current exchange: the connection's `Config` with the in-flight
+  request's `RequestOverrides` applied, or that `Config` unchanged while idle. Every setting
+  consulted while running an exchange is read from here, so a new `RequestOverrides` field takes
+  effect everywhere without hunting down call sites. The connection-wide config is passed
+  explicitly to the two places that need the un-overridden values: applying a new request's
+  overrides, and resetting to idle on `.next`.
+  -/
+  config : Config
+
+  /--
   The timeout currently armed for the next blocking wait.
   -/
   currentTimeout : Millisecond.Offset
@@ -212,7 +267,7 @@ structure ConnectionState where
 namespace ConnectionState
 
 /--
-`true` when the connection is waiting for the next request packet.
+`true` when the connection is waiting for the next request.
 -/
 @[inline]
 def waitingForRequest (s : ConnectionState) : Bool :=
@@ -226,11 +281,11 @@ def mapInFlight (s : ConnectionState) (f : InFlightState → InFlightState) : Co
   { s with inFlight := s.inFlight.map f }
 
 /--
-The packet currently bound to the in-flight exchange, if any.
+The request currently bound to the in-flight exchange, if any.
 -/
 @[inline]
-def currentRequest (s : ConnectionState) : Option RequestPacket :=
-  s.inFlight.map (·.packet)
+def currentRequest (s : ConnectionState) : Option PendingRequest :=
+  s.inFlight.map (·.pending)
 
 /--
 The request body currently being pumped to the wire, if any.
@@ -278,12 +333,6 @@ def finished (s : ConnectionState) : Bool :=
 
 end ConnectionState
 
-@[inline]
-private def requestHasExpectContinue (request : Request Body.Any) : Bool :=
-  match request.line.headers.getAll? Header.Name.expect with
-  | some values => values.any (fun v => Header.Expect.parse v |>.isSome)
-  | none => false
-
 /--
 Closes every open per-request resource held by `state`. Idempotent.
 -/
@@ -293,14 +342,13 @@ private def closeAllRequestState (state : ConnectionState) : Async Unit :=
   | none => pure ()
 
 /--
-Waits for the next I/O event across all sources relevant to `state`. Computes
-the socket recv size from `config`, then races all active selectables. Returns
-`.close` on transport errors.
+Waits for the next I/O event across all sources relevant to `state`, racing every active selectable.
+Returns `.close` on transport errors.
 -/
 private def pollNextEvent
     [Transport α]
-    (config : Config) (socket : α)
-    (requestChannel : Std.CloseableChannel RequestPacket)
+    (socket : α)
+    (requestChannel : Std.CloseableChannel PendingRequest)
     (connectionContext : CancellationContext)
     (state : ConnectionState) : Async Recv := do
 
@@ -317,13 +365,13 @@ private def pollNextEvent
 
   -- Poll the socket whenever the reader can still produce input. In particular an *idle*
   -- (keep-alive parked) connection must keep watching the socket: a server-initiated close
-  -- must be observed promptly so the session shuts down and the pool retires it, instead of
-  -- the dead session accepting a request it can no longer deliver.
+  -- must be observed promptly so the connection shuts down and is retired, instead of a dead
+  -- connection accepting a request it can no longer deliver.
   let pollSocket := !state.machine.reader.noMoreInput
 
   let expectedBytes := state.expectData
-    |>.getD config.defaultRequestBufferSize
-    |>.min config.maxRecvChunkSize
+    |>.getD state.config.defaultRequestBufferSize
+    |>.min state.config.maxRecvChunkSize
     |>.toUInt64
 
   -- The connection context is an external shutdown hook; the client never cancels it with a
@@ -353,7 +401,7 @@ private def pollNextEvent
     selectables := selectables.push (.case requestBody.recvSelector (Recv.requestBody · |> pure))
 
   if state.waitingForRequest then
-    selectables := selectables.push (.case requestChannel.recvSelector (Recv.packet · |> pure))
+    selectables := selectables.push (.case requestChannel.recvSelector (Recv.request · |> pure))
 
   if let some responseBody := responseBodySource then
     selectables := selectables.push (.case responseBody.interestSelector (Recv.bodyInterest · |> pure))
@@ -372,7 +420,7 @@ that tells the main loop to exit. Handles keep-alive resets, body-size
 tracking, `Expect: 100-continue`, and parse errors.
 -/
 private def processH1Events
-    (config : Config)
+    (baseConfig : Config)
     (events : Array (H1.Event .sending))
     (state : ConnectionState) : Async (ConnectionState × Bool) := do
 
@@ -402,13 +450,10 @@ private def processH1Events
             }
       else
         st := { st with
-          currentTimeout := config.readTimeout
+          currentTimeout := st.config.readTimeout
           keepAliveTimeout := none
         }
-        st := st.mapInFlight fun flight =>
-          { flight with
-            isInformationalResponse := false
-          }
+        st := st.mapInFlight ({ · with isInformationalResponse := false })
 
         -- A non-informational response while we were still waiting for
         -- `100 Continue`: the server rejected (or bypassed) the expectation.
@@ -423,9 +468,9 @@ private def processH1Events
           if let some length := head.getSize true then
             Body.setKnownSize body (some length)
 
-        if let some packet := st.currentRequest then
+        if let some pending := st.currentRequest then
           if let some incoming := st.responseStream then
-            packet.onResponse { line := head, body := incoming, extensions := Extensions.empty }
+            pending.onResponse { line := head, body := incoming, extensions := Extensions.empty }
 
     | .closeBody =>
       -- Skip closing for informational (1xx) responses; the channel stays
@@ -436,21 +481,24 @@ private def processH1Events
           st := st.mapInFlight fun flight => { flight with responseStream := none }
 
     | .next =>
-      -- Reset all per-request state for the next pipelined request.
-      if let some packet := st.currentRequest then
-        packet.onComplete
+      -- Reset all per-request state for the next pipelined request, including the effective
+      -- config: the next request's overrides must apply to the connection config, not to the
+      -- one the finished request left behind.
+      if let some pending := st.currentRequest then
+        pending.onComplete
       closeAllRequestState st
       st := { st with
         inFlight := none
         requestDeadline := none
-        keepAliveTimeout := some config.keepAliveTimeout.val
-        currentTimeout := config.keepAliveTimeout.val
+        config := baseConfig
+        keepAliveTimeout := some baseConfig.keepAliveTimeout.val
+        currentTimeout := baseConfig.keepAliveTimeout.val
       }
 
     | .failed err =>
       let clientErr : Error := .protocol err
-      if let some packet := st.currentRequest then
-        packet.onError clientErr
+      if let some pending := st.currentRequest then
+        pending.onError clientErr
 
       if let some body := st.responseStream then
         if ¬(← Body.isClosed body) then body.closeWithError clientErr.toIOError
@@ -468,8 +516,8 @@ Rejects any in-flight request, closes all per-request resources, and parks
 the H1 machine.
 -/
 private def abortState (state : ConnectionState) (err : Error) : Async ConnectionState := do
-  if let some packet := state.currentRequest then
-    packet.onError err
+  if let some pending := state.currentRequest then
+    pending.onError err
 
   -- Close the response stream with the error so that a caller blocked in
   -- `readAll` receives a thrown exception rather than a silent short read.
@@ -483,38 +531,39 @@ private def abortState (state : ConnectionState) (err : Error) : Async Connectio
     requestDeadline := none }
 
 /--
-Pure transition for a new request packet that has already had its known body
+Pure transition for a new request that has already had its known body
 size resolved and its response stream allocated by the async caller.
 -/
-private def onNewPacket
-    (packet : RequestPacket) (knownSize : Option Body.Length)
-    (responseStream : Body.Stream) (requestTimeout : Timeout)
+private def onNewRequest
+    (pending : PendingRequest) (knownSize : Option Body.Length)
+    (responseStream : Body.Stream) (requestConfig : Config) (deadline : Timestamp)
     (state : ConnectionState) : ConnectionState :=
-  let machine := state.machine.send packet.request.line
-  let hasExpect := requestHasExpectContinue packet.request
+  let machine := state.machine.send pending.request.line
   let machine1 := match knownSize with
     | some size => machine.setKnownSize size
     | none => machine
   { state with
     machine := machine1
-    currentTimeout := requestTimeout.val
+    config := requestConfig
+    currentTimeout := requestConfig.requestTimeout.val
     keepAliveTimeout := none
-    inFlight := some <| InFlightState.ofPacket packet responseStream hasExpect
+    requestDeadline := some deadline
+    inFlight := some <| InFlightState.ofPending pending responseStream
   }
 
 /--
 Transition for a `.bodyInterest true` event: pulls the next chunk out of
 the H1 machine, enforces `maxResponseBodySize`, and publishes the chunk.
 -/
-private def onBodyInterest (config : Config) (state : ConnectionState) : Async ConnectionState := do
+private def onBodyInterest (state : ConnectionState) : Async ConnectionState := do
   let (newMachine, pulledChunk) := state.machine.pullBody
   let mut st := { state with machine := newMachine }
 
   if let some pulled := pulledChunk then
-    match config.maxResponseBodySize with
+    match state.config.maxResponseBodySize with
     | some maxSize => do
       let chunkSize : UInt64 := pulled.chunk.data.size.toUInt64
-      let prevBytes : UInt64 := st.inFlight.map (fun (f : InFlightState) => f.downloadBodyBytes) |>.getD 0
+      let prevBytes : UInt64 := st.inFlight.map (·.downloadBodyBytes) |>.getD 0
       let newBodyBytes : UInt64 := prevBytes + chunkSize
       st := st.mapInFlight fun flight => { flight with downloadBodyBytes := newBodyBytes }
       if newBodyBytes > maxSize.toUInt64 then
@@ -537,7 +586,7 @@ private def onBodyInterest (config : Config) (state : ConnectionState) : Async C
 Processes a single async I/O event, returning the updated state and a `shouldClose` flag
 that tells the main loop to exit.
 -/
-private def handleRecvEvent (config : Config) (state : ConnectionState) : Recv → Async (ConnectionState × Bool)
+private def handleRecvEvent (baseConfig : Config) (state : ConnectionState) : Recv → Async (ConnectionState × Bool)
   | .bytes (some bytes) => do
     return ({ state with machine := state.machine.feed bytes }, false)
 
@@ -559,17 +608,16 @@ private def handleRecvEvent (config : Config) (state : ConnectionState) : Recv �
     return (st.mapInFlight ({ · with requestBody := none }), false)
 
   | .bodyInterest interested => do
-    return (← if interested then onBodyInterest config state else pure state, false)
+    return (← if interested then onBodyInterest state else pure state, false)
 
-  | .packet (some packet) => do
-    let knownSize ← packet.request.body.getKnownSize
+  | .request (some pending) => do
+    let knownSize ← pending.request.body.getKnownSize
     let responseStream ← Body.mkStream
-    let requestTimeout := packet.timeout?.getD config.requestTimeout
-    let deadline := (← Timestamp.now) + requestTimeout.val
-    let state := onNewPacket packet knownSize responseStream requestTimeout state
-    return ({ state with requestDeadline := some deadline }, false)
+    let requestConfig := pending.requestOverrides.apply baseConfig
+    let deadline := (← Timestamp.now) + requestConfig.requestTimeout.val
+    return (onNewRequest pending knownSize responseStream requestConfig deadline state, false)
 
-  | .packet none => do
+  | .request none => do
     return (state, true)
 
   | .close => do
@@ -582,20 +630,21 @@ private def handleRecvEvent (config : Config) (state : ConnectionState) : Recv �
     return (← abortState state (.closed "connection shutdown"), true)
 
 /--
-Runs the main request/response processing loop for a single connection.
-Drives the HTTP/1.1 state machine through four phases each iteration:
+Runs the main request/response processing loop for a single connection, as the background task
+behind `Connection.new`. Drives the HTTP/1.1 state machine through four phases each iteration:
 close finished readers, send buffered output, process H1 events, poll for I/O.
 -/
-protected def handle
+private def run
     [Transport α]
     (socket : α)
     (machine : H1.Machine .sending)
     (config : Config)
     (connectionContext : CancellationContext)
-    (requestChannel : Std.CloseableChannel RequestPacket) : Async Unit := do
+    (requestChannel : Std.CloseableChannel PendingRequest) : Async Unit := do
 
   let mut state : ConnectionState := {
     machine := machine
+    config := config
     currentTimeout := config.keepAliveTimeout.val
     keepAliveTimeout := some config.keepAliveTimeout.val
     expectData := none
@@ -656,7 +705,7 @@ protected def handle
     if state.finished then
       break
 
-    let event ← pollNextEvent config socket requestChannel connectionContext state
+    let event ← pollNextEvent socket requestChannel connectionContext state
     let (newState, shouldClose) ← handleRecvEvent config state event
     state := newState
     if shouldClose then break
@@ -673,12 +722,83 @@ protected def handle
 
   discard <| EIO.toBaseIO requestChannel.close
 
-  -- Drain any remaining queued packets.
+  -- Drain any remaining queued requests.
   repeat do
     match ← requestChannel.tryRecv with
-    | some packet => packet.onError (.closed "connection closed")
+    | some pending => pending.onError (.closed "connection closed")
     | none => break
 
   Transport.close socket
+
+/--
+Queue a request and await its response, together with a completion promise that
+resolves when the connection is ready for the next request.
+
+Failures are reported as a typed `Client.Error` so callers (e.g. the pool's retry
+policy) can distinguish connection-level failures from application-level ones.
+-/
+def sendTracked (connection : Connection) (request : Request Body.Any)
+    (requestOverrides : RequestOverrides := {}) :
+    Async (Except Error (Response Body.Stream × IO.Promise (Except Error Unit))) := do
+  let responsePromise ← IO.Promise.new
+  let completionPromise ← IO.Promise.new
+
+  let task ← connection.requestChannel.send
+    { request, responsePromise, completionPromise, requestOverrides }
+
+  let .ok _ ← await task
+    | return .error (.closed "connection closed before request could be sent")
+
+  match ← await responsePromise.result! with
+  | .ok response => return .ok (response, completionPromise)
+  | .error e => return .error e
+
+/--
+Queue a request and await its response.
+Use `sendTracked` to receive failures as a typed `Error` instead of a thrown exception.
+-/
+def send {β : Type} [Coe β Body.Any] (connection : Connection) (request : Request β)
+    (requestOverrides : RequestOverrides := {}) : Async (Response Body.Stream) := do
+  let (response, _) ← Error.throwOrPure (← connection.sendTracked { request with } requestOverrides)
+  return response
+
+/--
+`true` once the connection can no longer accept requests: its request channel was closed, either by
+`close` or by the background loop shutting down (server EOF, idle timeout, protocol error). Any
+subsequent `send` fails immediately.
+-/
+def isClosed (connection : Connection) : BaseIO Bool :=
+  connection.requestChannel.isClosed
+
+/--
+Wait for the background loop to exit.
+-/
+def waitShutdown (connection : Connection) : Async Unit :=
+  await connection.shutdown
+
+/--
+Close the connection: cancels the background loop's context (aborting any in-flight exchange) and
+closes the request channel so queued and future sends fail promptly.
+-/
+def close (connection : Connection) : Async Unit := do
+  connection.context.cancel .shutdown
+  discard <| EIO.toBaseIO connection.requestChannel.close
+
+/--
+Creates an HTTP client connection over the given transport and starts its background loop.
+The transport type `t` is used only during construction and is not stored in `Connection`.
+-/
+def new [Transport t] (client : t) (config : Config := {}) : Async Connection := do
+  let requestChannel ← Std.CloseableChannel.new
+  let shutdown ← IO.Promise.new
+  let context ← CancellationContext.new
+
+  background do
+    try
+      run client ({ config := config.toH1Config } : H1.Machine .sending) config context requestChannel
+    finally
+      discard <| shutdown.resolve ()
+
+  pure { requestChannel, shutdown, config, context }
 
 end Std.Http.Client.Connection

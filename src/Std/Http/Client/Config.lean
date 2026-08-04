@@ -113,6 +113,8 @@ end Error
 /--
 Per-request overrides for settings that otherwise come from the client-wide `Config`.
 A `none` field defers to the configured value.
+
+Every field must be handled in `apply`; one added here and forgotten there silently has no effect.
 -/
 structure RequestOverrides where
 
@@ -233,6 +235,19 @@ structure Config where
   before the redirected request is sent.
   -/
   redirectBodyDrainLimit : Nat := 1024 * 1024
+
+namespace RequestOverrides
+
+/--
+Applies these overrides on top of `config`, producing the effective configuration for a single
+request. Fields left `none` keep their configured value.
+-/
+def apply (overrides : RequestOverrides) (config : Config) : Config :=
+  { config with
+    requestTimeout := overrides.requestTimeout.getD config.requestTimeout
+    maxRedirects := overrides.maxRedirects.getD config.maxRedirects }
+
+end RequestOverrides
 
 namespace Config
 

@@ -429,7 +429,6 @@ rule does not apply.
 -/
 private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
     VCGenM (Option SolveResult) := do
-  -- Rule construction is cached.
   let some specRule ←
     try
       mkBackwardRuleFromSpecCached thm info |>.run

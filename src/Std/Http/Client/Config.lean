@@ -179,6 +179,13 @@ structure Config where
   connectTimeout : Timeout := ⟨30000, by decide⟩
 
   /--
+  How long a request carrying `Expect: 100-continue` waits for the interim response before sending
+  its body anyway. RFC 9110 §10.1.1 requires a client not to wait indefinitely, since a server is
+  free to ignore the expectation entirely.
+  -/
+  expectContinueTimeout : Timeout := ⟨1000, by decide⟩
+
+  /--
   Whether to enable keep-alive connections.
   -/
   enableKeepAlive : Bool := true

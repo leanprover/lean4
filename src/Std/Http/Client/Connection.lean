@@ -34,7 +34,8 @@ open Time
 set_option linter.all true
 
 /--
-A request queued to the background connection loop, paired with the promises that deliver its outcome.
+A request queued to the background connection loop, paired with the promises that deliver its
+outcome.
 -/
 structure PendingRequest where
   /--
@@ -61,23 +62,23 @@ structure PendingRequest where
 namespace PendingRequest
 
 /--
-Resolve the request with an error.
+Resolves the request with an error.
 -/
 def onError (pending : PendingRequest) (error : Error) : BaseIO Unit := do
-  discard <| pending.responsePromise.resolve (.error error)
-  discard <| pending.completionPromise.resolve (.error error)
+  pending.responsePromise.resolve (.error error)
+  pending.completionPromise.resolve (.error error)
 
 /--
-Resolve the request with a response.
+Resolves the request with a response.
 -/
 def onResponse (pending : PendingRequest) (response : Response Body.Stream) : BaseIO Unit :=
-  discard <| pending.responsePromise.resolve (.ok response)
+  pending.responsePromise.resolve (.ok response)
 
 /--
-Resolve the request as completed successfully.
+Resolves the request as completed successfully.
 -/
 def onComplete (pending : PendingRequest) : BaseIO Unit :=
-  discard <| pending.completionPromise.resolve (.ok ())
+  pending.completionPromise.resolve (.ok ())
 
 end PendingRequest
 
@@ -85,7 +86,6 @@ end PendingRequest
 An HTTP client connection that sends sequential requests over a persistent transport.
 -/
 structure Connection where
-
   /--
   Queue of requests sent by callers.
   -/
@@ -102,7 +102,7 @@ structure Connection where
   config : Config
 
   /--
-  Cancellation context driving the background loop. Cancelling it aborts any in-flight exchange (the
+  Cancellation context driving the background loop. Canceling it aborts any in-flight exchange (the
   loop treats cancellation as a shutdown), which is how `close` interrupts a request that is blocked
   waiting on the socket rather than parked on the request channel.
   -/
@@ -126,14 +126,9 @@ private inductive Recv
   | bodyInterest (x : Bool)
   | request (x : Option PendingRequest)
   | timeout
+  | continueTimeout
   | shutdown
   | close
-
-@[inline]
-private def requestHasExpectContinue (request : Request Body.Any) : Bool :=
-  match request.line.headers.getAll? Header.Name.expect with
-  | some values => values.any (fun v => Header.Expect.parse v |>.isSome)
-  | none => false
 
 /--
 State that belongs to a single in-flight request/response exchange.
@@ -169,29 +164,48 @@ structure InFlightState where
   waitingForContinue : Bool
 
   /--
-  `true` if the most recent `endHeaders` event was an informational 1xx.
+  Absolute deadline after which the body is sent without having seen `100 Continue`.
+  `none` unless the request carries `Expect: 100-continue` and is still waiting.
   -/
-  isInformationalResponse : Bool
+  continueDeadline : Option Timestamp := none
 
   /--
   Cumulative response-body bytes pulled from the machine. Used to enforce `maxResponseBodySize`.
   -/
   downloadBodyBytes : UInt64 := 0
 
+  /--
+  `true` once the whole response body has been handed to the caller. The exchange succeeded from
+  the caller's point of view even if the connection cannot be reused afterwards.
+  -/
+  responseComplete : Bool := false
+
 namespace InFlightState
 
 /--
-Builds the initial `InFlightState` for a request that has just arrived, given
-its pre-fetched body-size probe and the stream allocated for the response.
+Builds the initial `InFlightState` for a request that has just been handed to the machine, given the
+stream allocated for the response. `awaitsContinue` comes from the machine and decides whether the
+body is sent right away or parked until the server answers the expectation.
 -/
-def ofPending (pending : PendingRequest) (responseStream : Body.Stream) : InFlightState :=
-  let hasExpect := requestHasExpectContinue pending.request
-  { pending := pending
-    requestBody := if hasExpect then none else some pending.request.body
-    pendingRequestBody := if hasExpect then some pending.request.body else none
-    responseStream := some responseStream
-    waitingForContinue := hasExpect
-    isInformationalResponse := false }
+def ofPending (pending : PendingRequest) (responseStream : Body.Stream)
+    (continueDeadline : Timestamp) (awaitsContinue : Bool) : InFlightState where
+  pending := pending
+  requestBody := if awaitsContinue then none else some pending.request.body
+  pendingRequestBody := if awaitsContinue then some pending.request.body else none
+  responseStream := some responseStream
+  waitingForContinue := awaitsContinue
+  continueDeadline := if awaitsContinue then some continueDeadline else none
+
+/--
+Releases a body parked behind `Expect: 100-continue` so the writer pump starts sending it.
+-/
+def releasePendingBody (s : InFlightState) : InFlightState :=
+  { s with
+    requestBody := s.pendingRequestBody
+    pendingRequestBody := none
+    waitingForContinue := false
+    continueDeadline := none
+  }
 
 /--
 Closes every open resource tied to this in-flight exchange: both request
@@ -250,6 +264,12 @@ structure ConnectionState where
   Preferred socket recv size from the most recent `.needMoreData` event.
   -/
   expectData : Option Nat
+
+  /--
+  `true` when the last step emitted `.needMoreData`, i.e. the parser ran out of input and cannot
+  advance until more bytes arrive. Cleared before each poll and re-derived by the next step.
+  -/
+  requiresData : Bool := false
 
   /--
   `none` when the connection is idle (waiting for the next request).
@@ -317,19 +337,25 @@ def waitingForContinue (s : ConnectionState) : Bool :=
   s.inFlight.map (·.waitingForContinue) |>.getD false
 
 /--
-`true` when the most recent header block was informational (1xx).
+The deadline at which a body parked behind `Expect: 100-continue` is sent regardless.
 -/
 @[inline]
-def isInformationalResponse (s : ConnectionState) : Bool :=
-  s.inFlight.map (·.isInformationalResponse) |>.getD false
+def continueDeadline (s : ConnectionState) : Option Timestamp :=
+  s.inFlight.bind (·.continueDeadline)
 
 /--
-`true` when the connection loop has nothing left to do: the machine halted, or the
-transport reached EOF and no buffered body data remains to hand to the caller.
+`true` when the loop depends on an external event to advance, which is exactly the set of sources
+`pollNextEvent` races: bytes from the socket, the next request from the channel, the next chunk of
+the outgoing body, or the caller pulling response body bytes. Events left on the machine by the
+previous step are work in hand, so they take priority over parking.
+
+Anything else means the last step left buffered work behind and the loop steps again rather than
+waiting for an event that may never come.
 -/
 @[inline]
-def finished (s : ConnectionState) : Bool :=
-  s.machine.halted || (s.machine.reader.noMoreInput && !s.machine.canPullBodyNow)
+def waitingOnIO (s : ConnectionState) : Bool :=
+  !s.machine.hasPendingEvents &&
+    (s.requiresData || s.waitingForRequest || s.requestBody.isSome || s.machine.canPullBody)
 
 end ConnectionState
 
@@ -351,7 +377,6 @@ private def pollNextEvent
     (requestChannel : Std.CloseableChannel PendingRequest)
     (connectionContext : CancellationContext)
     (state : ConnectionState) : Async Recv := do
-
   let responseStreamClosed ← match state.responseStream with
     | some body => Body.isClosed body
     | none => pure true
@@ -363,53 +388,56 @@ private def pollNextEvent
       | none => none
     else none
 
-  -- Poll the socket whenever the reader can still produce input. In particular an *idle*
-  -- (keep-alive parked) connection must keep watching the socket: a server-initiated close
-  -- must be observed promptly so the connection shuts down and is retired, instead of a dead
-  -- connection accepting a request it can no longer deliver.
-  let pollSocket := !state.machine.reader.noMoreInput
+  let pollSocket := state.machine.needsInput
 
   let expectedBytes := state.expectData
     |>.getD state.config.defaultRequestBufferSize
     |>.min state.config.maxRecvChunkSize
     |>.toUInt64
 
-  -- The connection context is an external shutdown hook; the client never cancels it with a
-  -- `.deadline` reason (request timeouts are enforced via `requestDeadline` below), so any
-  -- cancellation is treated as a shutdown.
   let mut selectables : Array (Selectable Recv) := #[
     .case connectionContext.doneSelector (fun _ => pure .shutdown)
   ]
 
   if pollSocket then
-    selectables := selectables.push (.case (Transport.recvSelector socket expectedBytes) (Recv.bytes · |> pure))
+    selectables := selectables.push
+      (.case (Transport.recvSelector socket expectedBytes) (fun bytes => pure (Recv.bytes bytes)))
 
     let timeout := state.keepAliveTimeout.getD state.currentTimeout
     selectables := selectables.push (.case (← Selector.sleep timeout) (fun _ => pure .timeout))
 
-    -- Bound the whole exchange, not just the idle gap: `currentTimeout` is re-armed on every
-    -- event, so on its own it never caps total duration (a server that dribbles bytes could keep
-    -- the exchange alive indefinitely). The absolute `requestDeadline` closes that gap.
     if let some deadline := state.requestDeadline then
+      let remaining := (deadline - (← Timestamp.now)).toMilliseconds
       selectables := selectables.push
-        (.case (← Selector.sleep (deadline - (← Timestamp.now)).toMilliseconds) (fun _ => pure .timeout))
+        (.case (← Selector.sleep remaining) (fun _ => pure .timeout))
 
   else if let some idleTimeout := state.keepAliveTimeout then
-      selectables := selectables.push (.case (← Selector.sleep idleTimeout) (fun _ => pure .timeout))
+    selectables := selectables.push
+      (.case (← Selector.sleep idleTimeout) (fun _ => pure .timeout))
 
   if let some requestBody := state.requestBody then
-    selectables := selectables.push (.case requestBody.recvSelector (Recv.requestBody · |> pure))
+    selectables := selectables.push
+      (.case requestBody.recvSelector (fun chunk => pure (Recv.requestBody chunk)))
+
+  -- RFC 9110 §10.1.1: a server may ignore `Expect: 100-continue` entirely, so the wait for the
+  -- interim response is bounded; on expiry the body is sent as if `100 Continue` had arrived.
+  if state.waitingForContinue then
+    if let some deadline := state.continueDeadline then
+      selectables := selectables.push
+        (.case (← Selector.sleep (deadline - (← Timestamp.now)).toMilliseconds)
+          (fun _ => pure .continueTimeout))
 
   if state.waitingForRequest then
-    selectables := selectables.push (.case requestChannel.recvSelector (Recv.request · |> pure))
+    selectables := selectables.push
+      (.case requestChannel.recvSelector (fun request => pure (Recv.request request)))
 
   if let some responseBody := responseBodySource then
-    selectables := selectables.push (.case responseBody.interestSelector (Recv.bodyInterest · |> pure))
+    selectables := selectables.push
+      (.case responseBody.interestSelector (fun interested => pure (Recv.bodyInterest interested)))
 
-    -- When body data is fully buffered (noMoreInput) but no consumer has arrived,
-    -- add a timeout so an abandoned body does not stall the connection indefinitely.
-    if state.machine.reader.noMoreInput && !pollSocket then
-      selectables := selectables.push (.case (← Selector.sleep state.currentTimeout) (fun _ => pure .timeout))
+    if !pollSocket then
+      selectables := selectables.push
+        (.case (← Selector.sleep state.currentTimeout) (fun _ => pure .timeout))
 
   try Selectable.one selectables catch _ => pure .close
 
@@ -423,37 +451,28 @@ private def processH1Events
     (baseConfig : Config)
     (events : Array (H1.Event .sending))
     (state : ConnectionState) : Async (ConnectionState × Bool) := do
-
   let mut st := state
   let mut sawFailure := false
 
   for event in events do
     match event with
     | .needMoreData expect =>
-      st := { st with expectData := expect }
+      st := { st with requiresData := true, expectData := expect }
 
     | .needAnswer =>
       pure ()
 
     | .endHeaders head =>
       if head.status.isInformational then
-        st := st.mapInFlight ({ · with isInformationalResponse := true })
-
-        -- A `100 Continue` response authorises the body: move it from the
+        -- A `100 Continue` response authorizes the body: move it from the
         -- pending slot into `requestBody` so the pump loop starts sending.
         if head.status == .continue && st.waitingForContinue then
-          st := st.mapInFlight fun flight =>
-            { flight with
-              requestBody := flight.pendingRequestBody
-              pendingRequestBody := none
-              waitingForContinue := false
-            }
+          st := st.mapInFlight (·.releasePendingBody)
       else
         st := { st with
           currentTimeout := st.config.readTimeout
           keepAliveTimeout := none
         }
-        st := st.mapInFlight ({ · with isInformationalResponse := false })
 
         -- A non-informational response while we were still waiting for
         -- `100 Continue`: the server rejected (or bypassed) the expectation.
@@ -461,11 +480,15 @@ private def processH1Events
         if st.waitingForContinue then
           if let some body := st.pendingRequestBody then
             if ¬(← body.isClosed) then body.close
-          st := st.mapInFlight fun flight =>
-            { flight with pendingRequestBody := none, waitingForContinue := false }
+          st := { st with machine := st.machine.abandonOutgoingBody }
+          st := st.mapInFlight ({ · with
+            pendingRequestBody := none
+            waitingForContinue := false
+            continueDeadline := none
+          })
 
         if let some body := st.responseStream then
-          if let some length := head.getSize true then
+          if let some length := head.getSize false then
             Body.setKnownSize body (some length)
 
         if let some pending := st.currentRequest then
@@ -473,12 +496,26 @@ private def processH1Events
             pending.onResponse { line := head, body := incoming, extensions := Extensions.empty }
 
     | .closeBody =>
-      -- Skip closing for informational (1xx) responses; the channel stays
-      -- open for the real response body that follows.
-      if !st.isInformationalResponse then
-        if let some body := st.responseStream then
-          if ¬(← Body.isClosed body) then Body.close body
-          st := st.mapInFlight fun flight => { flight with responseStream := none }
+      if let some body := st.responseStream then
+        if ¬(← Body.isClosed body) then Body.close body
+      st := st.mapInFlight fun flight =>
+        { flight with responseStream := none, responseComplete := true }
+
+      -- Drop the rest of the request body: the producer is told it is done and the writer
+      -- completes, rather than pumping into a peer that has stopped reading.
+      if st.machine.peerWillNotReadBody then
+        if let some body := st.requestBody then
+          if ¬(← body.isClosed) then body.close
+        if let some body := st.pendingRequestBody then
+          if ¬(← body.isClosed) then body.close
+        st := { st with machine := st.machine.abandonOutgoingBody }
+        st := st.mapInFlight fun flight =>
+          { flight with
+            requestBody := none
+            pendingRequestBody := none
+            waitingForContinue := false
+            continueDeadline := none
+          }
 
     | .next =>
       -- Reset all per-request state for the next pipelined request, including the effective
@@ -505,7 +542,11 @@ private def processH1Events
       sawFailure := true
 
     | .«continue» => pure ()
-    | .close => pure ()
+
+    | .close =>
+      if let some flight := st.inFlight then
+        if flight.responseComplete then
+          flight.pending.onComplete
 
   return (st, sawFailure)
 
@@ -516,8 +557,11 @@ Rejects any in-flight request, closes all per-request resources, and parks
 the H1 machine.
 -/
 private def abortState (state : ConnectionState) (err : Error) : Async ConnectionState := do
-  if let some pending := state.currentRequest then
-    pending.onError err
+  if let some flight := state.inFlight then
+    if flight.responseComplete then
+      flight.pending.onComplete
+    else
+      flight.pending.onError err
 
   -- Close the response stream with the error so that a caller blocked in
   -- `readAll` receives a thrown exception rather than a silent short read.
@@ -526,9 +570,10 @@ private def abortState (state : ConnectionState) (err : Error) : Async Connectio
 
   closeAllRequestState state
   return { state with
-    machine := state.machine.closeWriter.closeReader.noMoreInput
+    machine := state.machine.shutdown
     inFlight := none
-    requestDeadline := none }
+    requestDeadline := none
+  }
 
 /--
 Pure transition for a new request that has already had its known body
@@ -537,18 +582,16 @@ size resolved and its response stream allocated by the async caller.
 private def onNewRequest
     (pending : PendingRequest) (knownSize : Option Body.Length)
     (responseStream : Body.Stream) (requestConfig : Config) (deadline : Timestamp)
-    (state : ConnectionState) : ConnectionState :=
-  let machine := state.machine.send pending.request.line
-  let machine1 := match knownSize with
-    | some size => machine.setKnownSize size
-    | none => machine
+    (continueDeadline : Timestamp) (state : ConnectionState) : ConnectionState :=
+  let machine := state.machine.sendRequest pending.request.line knownSize
   { state with
-    machine := machine1
+    machine
     config := requestConfig
-    currentTimeout := requestConfig.requestTimeout.val
+    currentTimeout := requestConfig.readTimeout.val
     keepAliveTimeout := none
     requestDeadline := some deadline
-    inFlight := some <| InFlightState.ofPending pending responseStream
+    inFlight := some <|
+      InFlightState.ofPending pending responseStream continueDeadline machine.awaitsContinue
   }
 
 /--
@@ -565,12 +608,12 @@ private def onBodyInterest (state : ConnectionState) : Async ConnectionState := 
       let chunkSize : UInt64 := pulled.chunk.data.size.toUInt64
       let prevBytes : UInt64 := st.inFlight.map (·.downloadBodyBytes) |>.getD 0
       let newBodyBytes : UInt64 := prevBytes + chunkSize
-      st := st.mapInFlight fun flight => { flight with downloadBodyBytes := newBodyBytes }
+      st := st.mapInFlight ({ · with downloadBodyBytes := newBodyBytes })
       if newBodyBytes > maxSize.toUInt64 then
         let err : Error := .bodyLimitExceeded
         if let some body := st.responseStream then
           if ¬(← Body.isClosed body) then body.closeWithError err.toIOError
-        return ← abortState (st.mapInFlight fun flight => { flight with responseStream := none }) err
+        return ← abortState (st.mapInFlight ({ · with responseStream := none })) err
     | none => pure ()
 
     if let some body := st.responseStream then
@@ -578,7 +621,7 @@ private def onBodyInterest (state : ConnectionState) : Async ConnectionState := 
 
       if pulled.final then
         if ¬(← Body.isClosed body) then Body.close body
-        st := st.mapInFlight fun flight => { flight with responseStream := none }
+        st := st.mapInFlight ({ · with responseStream := none, responseComplete := true })
 
   return st
 
@@ -586,14 +629,15 @@ private def onBodyInterest (state : ConnectionState) : Async ConnectionState := 
 Processes a single async I/O event, returning the updated state and a `shouldClose` flag
 that tells the main loop to exit.
 -/
-private def handleRecvEvent (baseConfig : Config) (state : ConnectionState) : Recv → Async (ConnectionState × Bool)
+private def handleRecvEvent (baseConfig : Config) (state : ConnectionState) :
+    Recv → Async (ConnectionState × Bool)
   | .bytes (some bytes) => do
     return ({ state with machine := state.machine.feed bytes }, false)
 
   | .bytes none => do
 
     -- Signal EOF to the machine so it can finish parsing any buffered data.
-    -- The end-of-loop guard `reader.noMoreInput && !canPullBodyNow` will exit
+    -- The end-of-loop `machine.exhausted` guard will exit
     -- the loop once the machine drains; do NOT set shouldClose here or we skip
     -- the Phase 2/3 drain that delivers the final body chunk to the caller.
     return ({ state with machine := state.machine.noMoreInput }, false)
@@ -604,6 +648,7 @@ private def handleRecvEvent (baseConfig : Config) (state : ConnectionState) : Re
   | .requestBody none => do
     if let some body := state.requestBody then
       if ¬(← body.isClosed) then body.close
+
     let st := { state with machine := state.machine.userClosedBody }
     return (st.mapInFlight ({ · with requestBody := none }), false)
 
@@ -611,11 +656,18 @@ private def handleRecvEvent (baseConfig : Config) (state : ConnectionState) : Re
     return (← if interested then onBodyInterest state else pure state, false)
 
   | .request (some pending) => do
-    let knownSize ← pending.request.body.getKnownSize
-    let responseStream ← Body.mkStream
-    let requestConfig := pending.requestOverrides.apply baseConfig
-    let deadline := (← Timestamp.now) + requestConfig.requestTimeout.val
-    return (onNewRequest pending knownSize responseStream requestConfig deadline state, false)
+    try
+      let knownSize ← pending.request.body.getKnownSize
+      let responseStream ← Body.mkStream
+      let requestConfig := pending.requestOverrides.apply baseConfig
+      let now ← Timestamp.now
+      let deadline := now + requestConfig.requestTimeout.val
+      let continueDeadline := now + requestConfig.expectContinueTimeout.val
+      return (onNewRequest pending knownSize responseStream requestConfig deadline continueDeadline
+        state, false)
+    catch e =>
+      pending.onError (.io e)
+      return (state, false)
 
   | .request none => do
     return (state, true)
@@ -625,6 +677,14 @@ private def handleRecvEvent (baseConfig : Config) (state : ConnectionState) : Re
 
   | .timeout => do
     return (← abortState state .timeout, true)
+
+  | .continueTimeout => do
+    -- The server never answered the expectation; send the body as if it had said `100 Continue`.
+    -- Guarded so a fired timer can never clear a body the interim response already released.
+    if state.waitingForContinue then
+      return (state.mapInFlight (·.releasePendingBody), false)
+    else
+      return (state, false)
 
   | .shutdown => do
     return (← abortState state (.closed "connection shutdown"), true)
@@ -641,7 +701,6 @@ private def run
     (config : Config)
     (connectionContext : CancellationContext)
     (requestChannel : Std.CloseableChannel PendingRequest) : Async Unit := do
-
   let mut state : ConnectionState := {
     machine := machine
     config := config
@@ -656,65 +715,66 @@ private def run
   -- in-flight request and closes the request channel and socket — otherwise callers awaiting
   -- the response would hang forever.
   try
-   while ¬state.machine.halted do
+    while ¬state.machine.halted do
 
-    -- Phase 1: close any reader that the user has signalled is done.
-    if let some body := state.requestBody then
-      if ← body.isClosed then
-        let newState := { state with machine := state.machine.userClosedBody }
-        state := newState.mapInFlight fun flight => { flight with requestBody := none }
+      -- Phase 1: close any reader that the user has signaled is done.
+      if let some body := state.requestBody then
+        let closed? ← try
+          pure <| some (← body.isClosed)
+        catch e =>
+          state ← abortState state (.io e)
+          pure none
+        let some closed := closed? | break
+        if closed then
+          let newState := { state with machine := state.machine.userClosedBody }
+          state := newState.mapInFlight fun flight => { flight with requestBody := none }
 
-    -- Auto-drain buffered response body bytes when the caller closed
-    -- the response stream without consuming them. Without this, `canPullBody`
-    -- stays true, `pollSocket` stays true, and the connection never reaches
-    -- the idle keep-alive state needed to fire the idle timeout.
-    -- It's HTTP/1.1 so to receive a new request we need to dump the last one
-    let responseBodyClosed ← match state.responseStream with
-      | some body => Body.isClosed body
-      | none => pure true
+      let responseBodyClosed ← match state.responseStream with
+        | some body => Body.isClosed body
+        | none => pure true
 
-    -- Unblocks the machine by removing all pending chunks that are in the machine.
-    if state.machine.canPullBodyNow && responseBodyClosed then
-      let mut m := state.machine
-      while m.canPullBodyNow do
-        let (m', _chunk) := m.pullBody
-        m := m'
-      state := { state with machine := m }
+      if responseBodyClosed then
+        state := { state with machine := state.machine.drainBody }
 
-    -- Phase 2: advance the state machine and flush any output.
-    let (newMachine, step) := state.machine.step
-    state := { state with machine := newMachine }
+      -- Phase 2: advance the state machine and flush any output.
+      let (newMachine, step) := state.machine.step
+      state := { state with machine := newMachine }
 
-    if step.output.size > 0 then
-      try Transport.sendAll socket #[step.output.toByteArray]
-      catch _ =>
-        state ← abortState state (.closed "connection write failed")
+      if step.output.size > 0 then
+        try Transport.sendAll socket #[step.output.toByteArray]
+        catch _ =>
+          state ← abortState state (.closed "connection write failed")
+          break
+
+      -- Phase 3: process all events emitted by this step.
+      let (newState, sawFailure) ← processH1Events config step.events state
+
+      state := newState
+
+      if sawFailure then
         break
 
-    -- Phase 3: process all events emitted by this step.
-    let (newState, sawFailure) ← processH1Events config step.events state
+      -- Phase 4: wait for the next IO event.
+      -- Skip if the machine has already halted or if the transport is closed and
+      -- there is nothing left to wait for (no body to consume, no new requests).
+      if state.machine.exhausted then
+        break
 
-    state := newState
+      if state.waitingOnIO then
+        state := { state with requiresData := false }
+        let event ← pollNextEvent socket requestChannel connectionContext state
+        let (newState, shouldClose) ← handleRecvEvent config state event
+        state := newState
+        if shouldClose then break
 
-    if sawFailure then
-      break
+      if state.machine.exhausted then
+        break
 
-    -- Phase 4: wait for the next IO event.
-    -- Skip if the machine has already halted or if the transport is closed and
-    -- there is nothing left to wait for (no body to consume, no new requests).
-    if state.finished then
-      break
-
-    let event ← pollNextEvent socket requestChannel connectionContext state
-    let (newState, shouldClose) ← handleRecvEvent config state event
-    state := newState
-    if shouldClose then break
-
-    if state.finished then
-      break
-
-  catch _ =>
-    pure ()
+  catch e =>
+    try
+      state ← abortState state (.io e)
+    catch _ =>
+      pure ()
 
   -- Clean up: notify any in-flight request and close all open streams.
   try discard <| abortState state (.closed "connection closed")
@@ -731,7 +791,7 @@ private def run
   Transport.close socket
 
 /--
-Queue a request and await its response, together with a completion promise that
+Queues a request and awaits its response, together with a completion promise that
 resolves when the connection is ready for the next request.
 
 Failures are reported as a typed `Client.Error` so callers (e.g. the pool's retry
@@ -754,12 +814,13 @@ def sendTracked (connection : Connection) (request : Request Body.Any)
   | .error e => return .error e
 
 /--
-Queue a request and await its response.
+Queues a request and awaits its response.
 Use `sendTracked` to receive failures as a typed `Error` instead of a thrown exception.
 -/
 def send {β : Type} [Coe β Body.Any] (connection : Connection) (request : Request β)
     (requestOverrides : RequestOverrides := {}) : Async (Response Body.Stream) := do
-  let (response, _) ← Error.throwOrPure (← connection.sendTracked { request with } requestOverrides)
+  let sent ← connection.sendTracked { request with } requestOverrides
+  let (response, _) ← Error.throwOrPure sent
   return response
 
 /--
@@ -771,13 +832,13 @@ def isClosed (connection : Connection) : BaseIO Bool :=
   connection.requestChannel.isClosed
 
 /--
-Wait for the background loop to exit.
+Waits for the background loop to exit.
 -/
 def waitShutdown (connection : Connection) : Async Unit :=
   await connection.shutdown
 
 /--
-Close the connection: cancels the background loop's context (aborting any in-flight exchange) and
+Closes the connection: cancels the background loop's context (aborting any in-flight exchange) and
 closes the request channel so queued and future sends fail promptly.
 -/
 def close (connection : Connection) : Async Unit := do
@@ -792,10 +853,11 @@ def new [Transport t] (client : t) (config : Config := {}) : Async Connection :=
   let requestChannel ← Std.CloseableChannel.new
   let shutdown ← IO.Promise.new
   let context ← CancellationContext.new
+  let machine : H1.Machine .sending := { config := config.toH1Config }
 
   background do
     try
-      run client ({ config := config.toH1Config } : H1.Machine .sending) config context requestChannel
+      run client machine config context requestChannel
     finally
       discard <| shutdown.resolve ()
 

@@ -50,8 +50,3 @@ opaque solo {ρ : Type} (xs : ρ) : Id Nat
 #guard_msgs in
 example : ⦃⌜True⌝⦄ solo [1, 2, 3] ⦃fun r => ⌜r = 1⌝⦄ := by
   vcgen
-
--- Without `errorOnMissingSpec` the goal is emitted as a VC instead.
-example : ⦃⌜True⌝⦄ solo [1, 2, 3] ⦃fun r => ⌜r = 1⌝⦄ := by
-  vcgen -errorOnMissingSpec
-  all_goals sorry

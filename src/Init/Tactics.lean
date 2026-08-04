@@ -1872,6 +1872,16 @@ The suggestions are printed in the order of their confidence, from highest to lo
 syntax (name := suggestions) "suggestions" : tactic
 
 /--
+This tactic works just like `bv_decide` but skips calling a SAT solver by using a proof that is
+already stored on disk. It is called with the name of an LRAT file in the same directory as the
+current Lean file:
+```
+bv_check "proof.lrat"
+```
+-/
+syntax (name := bvCheck) "bv_check " optConfig str : tactic
+
+/--
 Close fixed-width `BitVec` and `Bool` goals by obtaining a proof from an external SAT solver and
 verifying it inside Lean. The solvable goals are currently limited to
 - the Lean equivalent of [`QF_BV`](https://smt-lib.org/logics-all.shtml#QF_BV)
@@ -1898,18 +1908,14 @@ Note: `bv_decide` trusts the correctness of the code generator and adds a axioms
 
 Note: include `import Std.Tactic.BVDecide`
 -/
-macro (name := bvDecideMacro) (priority:=low) "bv_decide" optConfig : tactic =>
-  Macro.throwError "to use `bv_decide`, please include `import Std.Tactic.BVDecide`"
-
+syntax (name := bvDecide) "bv_decide" optConfig : tactic
 
 /--
 Suggest a proof script for a `bv_decide` tactic call. Useful for caching LRAT proofs.
 
 Note: include `import Std.Tactic.BVDecide`
 -/
-macro (name := bvTraceMacro) (priority:=low) "bv_decide?" optConfig : tactic =>
-  Macro.throwError "to use `bv_decide?`, please include `import Std.Tactic.BVDecide`"
-
+syntax (name := bvTrace) "bv_decide?" optConfig : tactic
 
 /--
 Run the normalization procedure of `bv_decide` only. Sometimes this is enough to solve basic
@@ -1917,9 +1923,7 @@ Run the normalization procedure of `bv_decide` only. Sometimes this is enough to
 
 Note: include `import Std.Tactic.BVDecide`
 -/
-macro (name := bvNormalizeMacro) (priority:=low) "bv_normalize" optConfig : tactic =>
-  Macro.throwError "to use `bv_normalize`, please include `import Std.Tactic.BVDecide`"
-
+syntax (name := bvNormalize) "bv_normalize" optConfig : tactic
 
 /--
 `massumption` is like `assumption`, but operating on a stateful `Std.Do.SPred` goal.

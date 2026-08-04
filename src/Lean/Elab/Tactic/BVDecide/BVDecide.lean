@@ -18,14 +18,20 @@ namespace Lean.Elab.Tactic.BVDecide
 
 open Meta.Tactic.BVDecide
 
+def ensureBvDecide : CoreM Unit := do
+  let env ← getEnv
+  if (env.getModuleIdx? `Std.Tactic.BVDecide).isNone then
+    throwError "to use `bv_decide`, please include `import Std.Tactic.BVDecide`"
+
 @[builtin_tactic Lean.Parser.Tactic.bvDecide]
 def evalBvDecide : Tactic := fun
   | `(tactic| bv_decide $cfg:optConfig) => do
+    ensureBvDecide
     let cfg ← elabBVDecideConfig cfg
     IO.FS.withTempFile fun _ lratFile => do
       let cfg ← TacticContext.new lratFile cfg
       liftMetaFinishingTactic fun g => do
-        discard <| bvDecide g cfg
+        discard <| Meta.Sym.SymM.run <| bvDecide g cfg
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.BVDecide

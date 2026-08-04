@@ -97,31 +97,3 @@ structure BVDecideConfig where
   solverMode : SolverMode := .proof
 
 end Lean.Elab.Tactic.BVDecide
-
-
-namespace Lean.Parser
-
-namespace Tactic
-
-/--
-This tactic works just like `bv_decide` but skips calling a SAT solver by using a proof that is
-already stored on disk. It is called with the name of an LRAT file in the same directory as the
-current Lean file:
-```
-bv_check "proof.lrat"
-```
--/
-syntax (name := bvCheck) "bv_check " optConfig str : tactic
-
-@[tactic_alt bvDecideMacro]
-syntax (name := bvDecide) "bv_decide" optConfig : tactic
-
-
-@[tactic_alt bvTraceMacro]
-syntax (name := bvTrace) "bv_decide?" optConfig : tactic
-
-@[tactic_alt bvNormalizeMacro]
-syntax (name := bvNormalize) "bv_normalize" optConfig : tactic
-
-end Tactic
-end Lean.Parser

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.FunInfo
+import Lean.Meta.ExprTraverse
 import Init.Data.Range.Polymorphic.Iterators
 
 public section
@@ -39,8 +40,8 @@ partial def reduce (e : Expr) (explicitOnly skipTypes skipProofs := true) : Meta
             return mkRawNatLit (args[0]!.rawNatLit?.get! + 1)
           else
             return mkAppN f args
-        | Expr.lam ..        => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← visit b)
-        | Expr.forallE ..    => forallTelescope e fun xs b => do mkForallFVars xs (← visit b)
+        | Expr.lam ..        => traverseLambda visit e
+        | Expr.forallE ..    => traverseForall visit e
         | Expr.proj n i s .. => return mkProj n i (← visit s)
         | _                  => return e
   visit e |>.run

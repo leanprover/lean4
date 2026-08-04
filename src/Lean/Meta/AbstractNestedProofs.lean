@@ -79,7 +79,7 @@ private inductive CacheKey where
 
 private abbrev M := ReaderT Context $ MonadCacheT CacheKey Expr MetaM
 
-partial def visit (e : Expr) (expectedType? : Option Expr := none) : M Expr := do
+private partial def visit (e : Expr) (expectedType? : Option Expr := none) : M Expr := do
   checkSystem "abstract nested proofs"
   if e.isAtomic then
     pure e
@@ -104,14 +104,24 @@ partial def visit (e : Expr) (expectedType? : Option Expr := none) : M Expr := d
          instead of a single warning for the main declaration. Additionally, the `zetaDelta`
          expansion in `mkAuxTheorem` can inline let-bound sorry values, causing warnings
          even for proofs that only transitively reference sorry-containing definitions. -/
-      let type ← withoutExporting do
-        match expectedType? with
-        | some type => pure type
-        | none => inferType e
-      checkCache (.proof { val := e } { val := type }) fun _ =>
-        abstractProofAt e type (← read).cache (fun type => visit type)
+    let type ← withoutExporting do
+      match expectedType? with
+      | some type =>
+        let type ← instantiateMVars type
+        let inferredType ← inferType e
+        /- Prefer the proof's inferred type when it is compatible at implicit transparency.
+           Structure-field default tactics may elaborate against a more refined goal than the
+           application-spine type. Keep the expected type only when it preserves an otherwise
+           opaque interface, as required by tactic type-correctness checks. -/
+        if type.hasMVar || (← isDefEqI type inferredType) then
+          pure inferredType
+        else
+          pure type
+      | none => inferType e
+    checkCache (CacheKey.proof { val := e } { val := type }) fun _ => do
+      abstractProofAt e type (← read).cache (fun type => visit type)
     else
-      checkCache (.expr { val := e }) fun _ => do
+      checkCache (CacheKey.expr { val := e }) fun _ => do
         match e with
         | .lam ..
         | .letE ..     => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false) (generalizeNondepLet := false)

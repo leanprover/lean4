@@ -16,3 +16,13 @@ set_option linter.tacticCheckInstances true
 example (len : Nat) : bar len = bar len := by
   unfold bar
   rfl
+
+structure DeferredWitness (α : Type) where
+  values : List α
+  WF : values.length = values.length := by simp
+
+#guard_msgs in
+def DeferredWitness.branch (w : DeferredWitness α) : DeferredWitness α :=
+  match w.values with
+  | [] => { values := [] }
+  | x :: xs => { values := x :: xs }

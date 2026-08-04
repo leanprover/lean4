@@ -387,5 +387,18 @@ generator.
 This is a variant of `cbv` that only works in `sym =>` mode.
 -/
 syntax (name := symCbv) "cbv" : grind
+
+@[inherit_doc Lean.Parser.Tactic.bvNormalize]
+syntax (name := bvNormalize) "bv_normalize" optConfig : grind
+
+@[inherit_doc Lean.Parser.Tactic.bvDecide]
+syntax (name := bvDecide) "bv_decide" optConfig : grind
+
+@[inherit_doc Lean.Parser.Tactic.bvTrace]
+syntax (name := bvTrace) "bv_decide?" optConfig : grind
+
+@[inherit_doc Lean.Parser.Tactic.bvCheck]
+syntax (name := bvCheck) "bv_check " optConfig str : grind
+
 end Grind
 end Lean.Parser.Tactic

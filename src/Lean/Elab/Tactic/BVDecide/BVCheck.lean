@@ -45,22 +45,26 @@ def bvCheck (g : MVarId) (hypotheses : Array Normalize.Hyp) (ctx : TacticContext
   M.run (hypotheses := hypotheses) do
     discard <| closeWithBVReflection g (lratChecker ctx)
 
+def evalBvCheck (g : MVarId) (ctx : TacticContext) (warn : MetaM Unit) :
+    Meta.Sym.SymM Unit := do
+  Normalize.PreProcessM.run' ctx.config g do
+    if ← Normalize.bvNormalize then
+      warn
+    else
+      bvCheck (← Normalize.PreProcessM.getGoal) (← Normalize.PreProcessM.getHyps) ctx
 
 open Lean.Meta.Tactic in
 @[builtin_tactic Lean.Parser.Tactic.bvCheck]
-def evalBvCheck : Tactic := fun
+def evalBvCheckTactic : Tactic := fun
   | `(tactic| bv_check%$tk $cfgStx:optConfig $path:str) => do
+    ensureBvDecide
     let cfg ← elabBVDecideConfig cfgStx
     let ctx ← mkContext path.getString cfg
-    liftMetaFinishingTactic fun g => do
-      Meta.Sym.SymM.run do
-        Normalize.PreProcessM.run' cfg g do
-          if ← Normalize.bvNormalize then
-            let bvNormalizeStx ← `(tactic| bv_normalize $cfgStx)
-            logWarning m!"This goal can be closed by only applying bv_normalize, no need to keep the LRAT proof around."
-            TryThis.addSuggestion tk bvNormalizeStx (origSpan? := ← getRef)
-          else
-            bvCheck (← Normalize.PreProcessM.getGoal) (← Normalize.PreProcessM.getHyps) ctx
+    let g ← getMainGoal
+    Meta.Sym.SymM.run <| evalBvCheck g ctx do
+      let bvNormalizeStx ← `(tactic| bv_normalize $cfgStx)
+      logWarning m!"This goal can be closed by only applying bv_normalize, no need to keep the LRAT proof around."
+      TryThis.addSuggestion tk bvNormalizeStx (origSpan? := ← getRef)
   | _ => throwUnsupportedSyntax
 
 end BVCheck

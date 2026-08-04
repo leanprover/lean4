@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.BVDecide.Normalize
 import Lean.Meta.Sym.Util
+import Lean.Elab.Tactic.BVDecide.BVDecide
 
 namespace Lean.Elab.Tactic.BVDecide
 namespace Normalize
@@ -14,6 +15,7 @@ namespace Normalize
 @[builtin_tactic Lean.Parser.Tactic.bvNormalize]
 def evalBVNormalize : Tactic := fun
   | `(tactic| bv_normalize $cfg:optConfig) => do
+    ensureBvDecide
     let cfg ← Meta.Tactic.BVDecide.elabBVDecideConfig cfg
     let g ← getMainGoal
     let (_, state) ← Meta.Sym.SymM.run do

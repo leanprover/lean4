@@ -79,10 +79,10 @@ example : (match 1 - 1 with | 0 => 1 | _ => 2) = 1 := by
 /--
 trace: c : Bool
 h : c = false
-⊢ (match 0, c with
-    | 0, true => 1 + 0
-    | 0, false => 2 + 1
-    | x, x_1 => 3 + 1) =
+⊢ (match 0, c, h with
+    | 0, true, h => 1 + 0
+    | 0, false, h => 2 + 1
+    | x, x_1, h => 3 + 1) =
     3
 -/
 #guard_msgs in
@@ -95,10 +95,10 @@ example (h : c = false) : (match 1 - 1, c with | 0, true => 1+0 | 0, false => 2+
 /--
 trace: a : Nat
 h : a = 0
-⊢ (match a, false with
-    | 0, true => 1 + 0
-    | 0, false => 2 + 1
-    | x, x_1 => 3 + 1) =
+⊢ (match a, false, h with
+    | 0, true, h => 1 + 0
+    | 0, false, h => 2 + 1
+    | x, x_1, h => 3 + 1) =
     3
 -/
 #guard_msgs in

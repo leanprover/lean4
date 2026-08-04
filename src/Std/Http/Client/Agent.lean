@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Http.Client.Session
+public import Std.Http.Client.Connection
 public import Std.Http.Protocol.H1.Redirect
 import Init.Data.Array
 
@@ -15,7 +15,7 @@ public section
 /-!
 # Agent
 
-A transport-agnostic HTTP user-agent that wraps a `Session` and adds automatic redirect
+A transport-agnostic HTTP user-agent that wraps a `Connection` and adds automatic redirect
 following.
 
 `Agent` contains no TCP-specific code. Use `Agent.ofTransport` to create an `Agent` from
@@ -65,22 +65,22 @@ inductive CrossOriginPolicy where
 
   /--
   Follow cross-origin redirects, calling `acquire` to open (or borrow from a
-  pool) a session to each new origin.
+  pool) a connection to each new origin.
   -/
-  | follow (acquire : URI.Origin → Async (Except Error Session))
+  | follow (acquire : URI.Origin → Async (Except Error Connection))
 
 /--
 An HTTP user-agent that manages a connection to a host and follows redirects.
 
-The agent owns its session's lifecycle: any hop that fails, any cross-origin
-swap, and any connection error after a delivered response hands the session to
+The agent owns its connection's lifecycle: any hop that fails, any cross-origin
+swap, and any transport error after a delivered response hands the connection to
 `release` exactly once.
 -/
 structure Agent where
   /--
-  The underlying HTTP session.
+  The underlying HTTP connection.
   -/
-  session : Session
+  connection : Connection
 
   /--
   The origin (scheme, host, port) this agent is currently connected to.
@@ -88,17 +88,17 @@ structure Agent where
   origin : URI.Origin
 
   /--
-  Returns a session the agent is done with: one that broke during a hop or was
-  swapped out for a cross-origin redirect. A pool reclaims sessions here; the
-  default closes the session.
+  Returns a connection the agent is done with: one that broke during a hop or was
+  swapped out for a cross-origin redirect. A pool reclaims connections here; the
+  default closes the connection.
   -/
-  release : Session → URI.Origin → Async Unit := fun session _ => session.close
+  release : Connection → URI.Origin → Async Unit := fun connection _ => connection.close
 
   /--
   Policy for cross-origin redirects. With `.stop` (the default) they end the
   redirect chain and the 3xx response is returned as-is; a pool supplies
-  `.follow` with its session acquisition so the chain continues on a fresh
-  session.
+  `.follow` with its connection acquisition so the chain continues on a fresh
+  connection.
   -/
   crossOrigin : CrossOriginPolicy := .stop
 
@@ -152,7 +152,7 @@ private def toOriginForm {t : Type} (request : Request t) : Request t :=
   | _ => request
 
 private def rewriteForProxy (agent : Agent) (request : Request Body.Any) : Request Body.Any :=
-  if agent.session.config.proxy.isSome then
+  if agent.connection.config.proxy.isSome then
     toAbsoluteForm request agent.origin.scheme agent.origin.host agent.origin.port
   else
     toOriginForm request
@@ -162,17 +162,18 @@ Performs one request/response hop through the middleware chain. Failures flow th
 chain as a typed `Except Client.Error`; an exception thrown by a middleware itself is wrapped
 as `Client.Error.io`.
 
-Session cleanup is owned entirely by this function: on a failed hop the session is handed to
+Connection cleanup is owned entirely by this function: on a failed hop the connection is handed to
 `agent.release` exactly once, and on a successful hop a background task watches the exchange
-completion and releases the session if the connection errors after the response was delivered.
+completion and releases the connection if the transport errors after the response was delivered.
 The completion promise of the innermost send is captured in a ref because middlewares only see
 the response: a hop that short-circuits without sending has no completion to watch.
 -/
 private def dispatchHop (agent : Agent) (request : Request Body.Any)
-    (timeout? : Option Timeout) : Async (Except Client.Error (Response Body.Stream)) := do
+    (overrides : RequestOverrides) : Async (Except Client.Error (Response Body.Stream)) := do
   let completionRef ← IO.mkRef (none : Option (IO.Promise (Except Client.Error Unit)))
-  let inner : Request Body.Any → Async (Except Client.Error (Response Body.Stream)) := fun req => do
-    match ← agent.session.sendTracked req timeout? with
+  let inner : Request Body.Any → Async (Except Client.Error (Response Body.Stream)) :=
+      fun req => do
+    match ← agent.connection.sendTracked req overrides with
     | .ok (response, completion) =>
       completionRef.set (some completion)
       return .ok response
@@ -183,10 +184,10 @@ private def dispatchHop (agent : Agent) (request : Request Body.Any)
     if let some completion ← completionRef.get then
       background do
         if let .error _ ← await completion.result! then
-          agent.release agent.session agent.origin
+          agent.release agent.connection agent.origin
     return .ok response
   | .error e =>
-    agent.release agent.session agent.origin
+    agent.release agent.connection agent.origin
     return .error e
 
 private inductive RedirectStep where
@@ -216,7 +217,7 @@ private def evaluateRedirect
   else
     let decide :=
       decideRedirect agent.origin
-        request.line request.body.reset?.isSome agent.session.config.onlySafeRedirects
+        request.line request.body.reset?.isSome agent.connection.config.onlySafeRedirects
           response.line.version response.line.status response.line.headers
 
     match decide with
@@ -237,29 +238,32 @@ private def evaluateRedirect
       return .follow plan
 
 /--
-Swaps the agent to the redirect target's origin: releases the outgoing session and acquires
+Swaps the agent to the redirect target's origin: releases the outgoing connection and acquires
 one for the new origin via the `.follow` policy. Same-origin hops keep the agent unchanged.
 -/
-private def advanceAgent (agent : Agent) (plan : RedirectPlan) : Async (Except Client.Error Agent) := do
+private def advanceAgent (agent : Agent) (plan : RedirectPlan) :
+    Async (Except Client.Error Agent) := do
   if !plan.isCrossOrigin then return .ok agent
 
   let .follow acquire := agent.crossOrigin
     | return .ok agent
 
-  agent.release agent.session agent.origin
+  agent.release agent.connection agent.origin
   match ← acquire plan.origin with
   | .error e => return .error e
-  | .ok newSession => return .ok { agent with session := newSession, origin := plan.origin }
+  | .ok newConnection =>
+    return .ok { agent with connection := newConnection, origin := plan.origin }
 
 private partial def sendWithRedirects
     (agent : Agent) (request : Request Body.Any)
-    (remaining : Nat) (timeout? : Option Timeout)
-    (history : Array (URI.Origin × String) := #[]) : Async (Except Client.Error (Response Body.Stream)) := do
+    (remaining : Nat) (overrides : RequestOverrides)
+    (history : Array (URI.Origin × String) := #[]) :
+    Async (Except Client.Error (Response Body.Stream)) := do
 
   let history := history.push (agent.origin, targetKey request.line.uri)
   let request := rewriteForProxy agent request
 
-  match ← dispatchHop agent request timeout? with
+  match ← dispatchHop agent request overrides with
   | .error e => return .error e
   | .ok response =>
     match evaluateRedirect agent request response remaining history with
@@ -267,22 +271,23 @@ private partial def sendWithRedirects
       return .ok response
     | .follow plan =>
       -- Draining the redirect body and rebuilding the request run user-supplied `Body` code;
-      -- an exception thrown there must still hand the checked-out session to `release`.
+      -- an exception thrown there must still hand the checked-out connection to `release`.
+      let drainLimit := agent.connection.config.redirectBodyDrainLimit.toUInt64
       let next : Except Client.Error (Agent × Request Body.Any) ←
         try
-          response.body.drain (drainLimit := some agent.session.config.redirectBodyDrainLimit.toUInt64)
+          response.body.drain (drainLimit := some drainLimit)
             (closeStream := response.body.close)
           let newRequest ← buildRedirectRequest plan request
           match ← advanceAgent agent plan with
           | .error e => pure (.error e)
           | .ok agent => pure (.ok (agent, newRequest))
         catch err =>
-          agent.release agent.session agent.origin
+          agent.release agent.connection agent.origin
           pure (.error (.io err))
       match next with
       | .error e => return .error e
       | .ok (agent, newRequest) =>
-        sendWithRedirects agent newRequest (remaining - 1) timeout? history
+        sendWithRedirects agent newRequest (remaining - 1) overrides history
 
 end Agent.Impl
 
@@ -293,19 +298,19 @@ Creates an `Agent` from an already-connected transport `socket`.
 -/
 def ofTransport [Transport α] (socket : α) (origin : URI.Origin)
     (config : Config := {}) : Async Agent := do
-  let session ← Session.new socket config
-  pure { session, origin }
+  let connection ← Connection.new socket config
+  pure { connection, origin }
 
 /--
 Sends a request, automatically following redirects up to `config.maxRedirects` hops
 (or `overrides.maxRedirects` when set), returning the response or the typed `Error`
-that ended the exchange. Middlewares are applied around every hop. Session cleanup
-is handled internally: any failed hop hands its session to `agent.release`.
+that ended the exchange. Middlewares are applied around every hop. Connection cleanup
+is handled internally: any failed hop hands its connection to `agent.release`.
 -/
 def trySend (agent : Agent) (request : Request Body.Any)
     (overrides : RequestOverrides := {}) : Async (Except Client.Error (Response Body.Stream)) :=
   Agent.Impl.sendWithRedirects agent request
-    (overrides.maxRedirects.getD agent.session.config.maxRedirects) overrides.timeout
+    (overrides.maxRedirects.getD agent.connection.config.maxRedirects) overrides
 
 /--
 Sends a request, automatically following redirects up to `config.maxRedirects` hops

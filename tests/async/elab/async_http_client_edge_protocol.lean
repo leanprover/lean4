@@ -368,7 +368,7 @@ open Test.ClientHelpers
       if s.toUTF8.size > 5 then
         throw (IO.userError s!"unfollowed 302 ignored maxResponseBodySize and returned {s.toUTF8.size} bytes")
 
--- A status rejection that drains the body must not strand unread body bytes on the session.
+-- A status rejection that drains the body must not strand unread body bytes on the connection.
 -- After the error, the same keep-alive connection should still handle the next request.
 
 #eval show IO _ from runWithTimeout "status rejection preserves keep-alive reuse" 4000 <| Async.block do

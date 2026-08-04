@@ -55,18 +55,18 @@ private def rawResp
 #eval show IO _ from runWithTimeout "scheme-change strips Authorization" 4000 <| Async.block do
   let (mockClient1, mockServer1) ← Mock.new
   let (mockClient2, mockServer2) ← Mock.new
-  let session1 ← Client.Session.new mockServer1 (config := {})
+  let connection1 ← Client.Connection.new mockServer1 (config := {})
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
 
   -- Agent with scheme=http on port 443. Redirect target https://example.com:443/r
   -- has same host+port but different scheme → crossOrigin is true and the agent
-  -- opens a fresh session via its connector.
+  -- opens a fresh connection via its connector.
   let agent : Client.Agent := {
-    session := session1
+    connection := connection1
     origin := { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 443 }
     crossOrigin := .follow fun _ => do
-      return .ok (← Client.Session.new mockServer2 (config := {}))
+      return .ok (← Client.Connection.new mockServer2 (config := {}))
   }
 
   let request ← Request.new
@@ -91,7 +91,7 @@ private def rawResp
       ("Content-Length", "0"),
       ("Connection", "close")] "")
 
-  -- Second exchange on mock 2: the redirected request reaches the fresh session.
+  -- Second exchange on mock 2: the redirected request reaches the fresh connection.
   let some redirectBytes ← mockClient2.recv?
     | throw (IO.userError "Test failed: no redirect request received")
   mockClient2.send (rawResp "200 OK"
@@ -117,12 +117,12 @@ private def rawResp
 
 #eval show IO _ from runWithTimeout "same-origin preserves Authorization" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let session ← Client.Session.new mockServer (config := {})
+  let connection ← Client.Connection.new mockServer (config := {})
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
 
   let agent : Client.Agent := {
-    session
+    connection
     origin := { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
   }
 
@@ -197,12 +197,12 @@ private def rawResp
 
 #eval show IO _ from runWithTimeout "ftp:// redirect not followed" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let session ← Client.Session.new mockServer (config := {})
+  let connection ← Client.Connection.new mockServer (config := {})
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
 
   let agent : Client.Agent := {
-    session
+    connection
     origin := { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
   }
 
@@ -236,12 +236,12 @@ private def rawResp
 
 #eval show IO _ from runWithTimeout "file:// redirect not followed" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let session ← Client.Session.new mockServer (config := {})
+  let connection ← Client.Connection.new mockServer (config := {})
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
 
   let agent : Client.Agent := {
-    session
+    connection
     origin := { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
   }
 
@@ -281,14 +281,14 @@ private def rawResp
 
 #eval show IO _ from runWithTimeout "https:// redirect is followed" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let session ← Client.Session.new mockServer (config := {})
+  let connection ← Client.Connection.new mockServer (config := {})
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
 
   -- Agent with connectTo = none; cross-host redirects return the 3xx as-is.
   -- We use the same-host case: http://example.com:80/target (same host+port, scheme changes).
   let agent : Client.Agent := {
-    session
+    connection
     origin := { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
   }
 
@@ -327,7 +327,7 @@ private def rawResp
   match ← await resultPromise.result! with
   | Except.error e => throw (IO.userError s!"agent error: {e}")
   | Except.ok resp =>
-    -- We accept either 302 (no connectTo for cross-host) or 200 (same-session follow).
+    -- We accept either 302 (no connectTo for cross-host) or 200 (same-connection follow).
     let code := resp.line.status.toCode
     unless code == 200 || code == 302 do
       throw <| IO.userError
@@ -345,12 +345,12 @@ private def rawResp
 
 #eval show IO _ from runWithTimeout "streaming body dropped on 307 redirect" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let session ← Client.Session.new mockServer (config := {})
+  let connection ← Client.Connection.new mockServer (config := {})
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
 
   let agent : Client.Agent := {
-    session
+    connection
     origin := { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
   }
 

@@ -208,12 +208,36 @@ for the `invariant` clause to work. -/
 def sumValues (m : Std.HashMap Nat Nat) : Id Nat
     ensures r => 0 ≤ r := do
   let mut s := 0
-  for kv in m invariant _pref _suff => 0 ≤ s do
-    s := s + kv.2
+  for (_k, v) in m invariant _pref _suff => 0 ≤ s do
+    s := s + v
   return s
 
 #guard_msgs (drop info) in
 #check @sumValues.spec
+
+/-! The binder may destructure, here over a list of pairs. -/
+
+def sumSnd (xs : List (Nat × Nat)) : Id Nat
+    ensures r => 0 ≤ r := do
+  let mut s := 0
+  for (_a, b) in xs invariant _pref _suff => 0 ≤ s do
+    s := s + b
+  return s
+
+#guard_msgs (drop info) in
+#check @sumSnd.spec
+
+/-! A loop over several collections takes no invariant. -/
+
+/--
+error: The `invariant` clause takes a `for` loop over a single collection.
+-/
+#guard_msgs in
+example (xs ys : List Nat) : Id Nat := do
+  let mut n := 0
+  for x in xs, y in ys invariant _pref _suff => 0 ≤ n do
+    n := n + x + y
+  return n
 
 /-! ## The contract telescope is transplanted faithfully to `f.spec`
 

@@ -25,10 +25,10 @@ open Lean.Meta
     -- This is the target form of the expander, handled by `elabDoFor` below.
     Macro.throwUnsupported
   | `(doFor| for%$tk $decls:doForDecl,* $[$inv:doForInvariant]? do $body) =>
-    if let some inv := inv then
-      Macro.throwErrorAt inv "The `invariant` clause is only supported on `for x in xs do …` \
-        with a single identifier binder."
     let decls := decls.getElems
+    if let some inv := inv then
+      if decls.size > 1 then
+        Macro.throwErrorAt inv "The `invariant` clause takes a `for` loop over a single collection."
     let `(doForDecl| $[$h? : ]? $pattern in $xs) := decls[0]! | Macro.throwUnsupported
     let mut doElems := #[]
     let mut body := body
@@ -78,7 +78,8 @@ open Lean.Meta
           | some ($y, s') =>
             $s:ident := s'
             do $body)
-    doElems := doElems.push (← `(doSeqItem| for%$tk $[$h? : ]? $x:ident in $xs do $body))
+    doElems := doElems.push
+      (← `(doSeqItem| for%$tk $[$h? : ]? $x:ident in $xs $[$inv:doForInvariant]? do $body))
     `(doElem| do $doElems*)
   | _ => Macro.throwUnsupported
 

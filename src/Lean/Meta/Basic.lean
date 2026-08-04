@@ -1807,9 +1807,9 @@ where
       finalize ()
     else
       match type with
-      | .lam _ d b bi =>
+      | .lam n d b bi =>
         let d     := d.instantiateRevRange j mvars.size mvars
-        let mvar ← mkFreshExprMVar d
+        let mvar ← mkFreshExprMVar d (userName := n)
         let mvars := mvars.push mvar
         let bis   := bis.push bi
         process mvars bis j b

@@ -2,21 +2,23 @@ module
 
 import Std.Http.Test.Helpers
 
+/-! HTTP client connection-pool, keep-alive, timeout, shutdown, and retry edge cases. -/
+
 open Std.Async
 open Std Http Internal
 open Test.ClientHelpers
-
-/-! HTTP client connection-pool, keep-alive, timeout, shutdown, and retry edge cases. -/
 
 -- ============================================================
 -- Section 7 — Keep-alive and Connection: close
 -- ============================================================
 
--- The simplified pool keeps one session at a time. A same-origin request sent
--- while the previous response body is unread queues on that session and reaches
+-- The simplified pool keeps one connection at a time. A same-origin request sent
+-- while the previous response body is unread queues on that connection and reaches
 -- the wire only after the caller closes or drains the previous body.
 
-#eval show IO _ from runWithTimeout "single-connection pool queues behind unread response body" 4000 <| Async.block do
+#eval show IO _ from
+  runWithTimeout "single-connection pool queues behind unread response body" 4000 <|
+  Async.block do
   let (mockClient1, mockServer1) ← Mock.new
   let connectCount ← IO.mkRef 0
 
@@ -24,8 +26,8 @@ open Test.ClientHelpers
     let n ← connectCount.get
     connectCount.set (n + 1)
     match n with
-    | 0 => return .ok (← Client.Session.new mockServer1 (config := config))
-    | _ => throw (IO.userError "pool opened more sessions than expected")
+    | 0 => return .ok (← Client.Connection.new mockServer1 (config := config))
+    | _ => throw (IO.userError "pool opened more connections than expected")
 
   let pool ← Client.Pool.new {} connect
   let some domain := URI.DomainName.ofString? "example.com"
@@ -68,12 +70,14 @@ open Test.ClientHelpers
   unless (← connectCount.get) == 1 do
     resp1.body.close
     mockClient1.close
-    throw (IO.userError "single-connection pool opened a second same-origin session")
+    throw (IO.userError "single-connection pool opened a second same-origin connection")
 
   if let some bytes ← mockClient1.tryRecv? then
     resp1.body.close
     mockClient1.close
-    throw (IO.userError s!"queued request reached the wire before the first body was closed:\n{(String.fromUTF8! bytes).quote}")
+    let text := String.fromUTF8! bytes
+    throw (IO.userError
+      s!"queued request reached the wire before the first body was closed:\n{text.quote}")
 
   resp1.body.close
 
@@ -93,10 +97,12 @@ open Test.ClientHelpers
     throw <| IO.userError s!"second request did not use the queued connection:\n{secondText.quote}"
 
 -- Once the caller closes an unread pooled response body, the connection loop
--- drains the wire body and reports completion. The pool should then return the
--- session to idle instead of opening another available connection.
+-- drains the wire body and reports completion. The pool should then park the
+-- connection as idle instead of opening a new one.
 
-#eval show IO _ from runWithTimeout "pool reuses session after unread response body is closed" 4000 <| Async.block do
+#eval show IO _ from
+  runWithTimeout "pool reuses connection after unread response body is closed" 4000 <|
+  Async.block do
   let (mockClient1, mockServer1) ← Mock.new
   let (_mockClient2, mockServer2) ← Mock.new
   let connectCount ← IO.mkRef 0
@@ -105,9 +111,9 @@ open Test.ClientHelpers
     let n ← connectCount.get
     connectCount.set (n + 1)
     match n with
-    | 0 => return .ok (← Client.Session.new mockServer1 (config := config))
-    | 1 => return .ok (← Client.Session.new mockServer2 (config := config))
-    | _ => throw (IO.userError "pool opened more sessions than expected")
+    | 0 => return .ok (← Client.Connection.new mockServer1 (config := config))
+    | 1 => return .ok (← Client.Connection.new mockServer2 (config := config))
+    | _ => throw (IO.userError "pool opened more connections than expected")
 
   let pool ← Client.Pool.new {} connect
   let some domain := URI.DomainName.ofString? "example.com"
@@ -152,7 +158,7 @@ open Test.ClientHelpers
   IO.sleep 50
   if (← connectCount.get) != 1 then
     mockClient1.close
-    throw (IO.userError "pool opened a second session after the first response body was closed")
+    throw (IO.userError "pool opened a second connection after the first response body was closed")
 
   let secondBytes ← drainRequest mockClient1
   mockClient1.send (rawResp "200 OK"
@@ -170,9 +176,11 @@ open Test.ClientHelpers
     throw <| IO.userError s!"second request did not reuse the first connection:\n{secondText.quote}"
 
 -- A zero-length pooled response still needs to drive the connection through
--- completion so the session is returned to idle.
+-- completion so the connection is returned to idle.
 
-#eval show IO _ from runWithTimeout "pool reuses session after zero-length response body completes" 4000 <| Async.block do
+#eval show IO _ from
+  runWithTimeout "pool reuses connection after zero-length response body completes" 4000 <|
+  Async.block do
   let (mockClient1, mockServer1) ← Mock.new
   let (_mockClient2, mockServer2) ← Mock.new
   let connectCount ← IO.mkRef 0
@@ -181,9 +189,9 @@ open Test.ClientHelpers
     let n ← connectCount.get
     connectCount.set (n + 1)
     match n with
-    | 0 => return .ok (← Client.Session.new mockServer1 (config := config))
-    | 1 => return .ok (← Client.Session.new mockServer2 (config := config))
-    | _ => throw (IO.userError "pool opened more sessions than expected")
+    | 0 => return .ok (← Client.Connection.new mockServer1 (config := config))
+    | 1 => return .ok (← Client.Connection.new mockServer2 (config := config))
+    | _ => throw (IO.userError "pool opened more connections than expected")
 
   let pool ← Client.Pool.new {} connect
   let some domain := URI.DomainName.ofString? "example.com"
@@ -230,7 +238,7 @@ open Test.ClientHelpers
   IO.sleep 50
   if (← connectCount.get) != 1 then
     mockClient1.close
-    throw (IO.userError "pool opened a second session after a zero-length response completed")
+    throw (IO.userError "pool opened a second connection after a zero-length response completed")
 
   let secondBytes ← drainRequest mockClient1
   mockClient1.send (rawResp "200 OK"
@@ -247,9 +255,11 @@ open Test.ClientHelpers
   unless secondText.startsWith "GET /two" do
     throw <| IO.userError s!"second request did not reuse the first connection:\n{secondText.quote}"
 
--- A different origin replaces the pool's single current session.
+-- A different origin replaces the pool's single current connection.
 
-#eval show IO _ from runWithTimeout "single-connection pool replaces session on origin change" 4000 <| Async.block do
+#eval show IO _ from
+  runWithTimeout "single-connection pool replaces connection on origin change" 4000 <|
+  Async.block do
   let (mockClient1, mockServer1) ← Mock.new
   let (mockClient2, mockServer2) ← Mock.new
   let connectCount ← IO.mkRef 0
@@ -258,9 +268,9 @@ open Test.ClientHelpers
     let n ← connectCount.get
     connectCount.set (n + 1)
     match n with
-    | 0 => return .ok (← Client.Session.new mockServer1 (config := config))
-    | 1 => return .ok (← Client.Session.new mockServer2 (config := config))
-    | _ => throw (IO.userError "pool opened more sessions than expected")
+    | 0 => return .ok (← Client.Connection.new mockServer1 (config := config))
+    | 1 => return .ok (← Client.Connection.new mockServer2 (config := config))
+    | _ => throw (IO.userError "pool opened more connections than expected")
 
   let pool ← Client.Pool.new {} connect
   let some domain1 := URI.DomainName.ofString? "example.com"
@@ -316,7 +326,8 @@ open Test.ClientHelpers
   | some bytes =>
     mockClient1.close
     mockClient2.close
-    throw (IO.userError s!"old-origin connection stayed open after origin change:\n{(String.fromUTF8! bytes).quote}")
+    throw (IO.userError
+      s!"old-origin connection stayed open after origin change:\n{(String.fromUTF8! bytes).quote}")
 
   let secondBytes ← drainRequest mockClient2
   mockClient2.send (rawResp "200 OK"
@@ -330,17 +341,20 @@ open Test.ClientHelpers
       throw (IO.userError s!"expected second body 'two', got {body.quote}")
 
   unless (← connectCount.get) == 2 do
-    throw (IO.userError "origin change did not open exactly one replacement session")
+    throw (IO.userError "origin change did not open exactly one replacement connection")
   let secondText := String.fromUTF8! secondBytes
   unless secondText.startsWith "GET /two" do
-    throw <| IO.userError s!"second-origin request did not use the replacement connection:\n{secondText.quote}"
+    throw <| IO.userError
+      s!"second-origin request did not use the replacement connection:\n{secondText.quote}"
 
 -- If a pooled cross-origin redirect leaves the original origin, the outgoing
--- session is retired instead of being returned idle. A target-acquire failure
--- must close that old session and leave the pool able to open a clean
+-- connection is retired instead of being returned idle. A target-acquire failure
+-- must close that old connection and leave the pool able to open a clean
 -- replacement for the original origin.
 
-#eval show IO _ from runWithTimeout "failed cross-origin redirect retires old session and keeps pool usable" 4000 <| Async.block do
+#eval show IO _ from
+  runWithTimeout "failed cross-origin redirect retires old connection and keeps pool usable" 4000 <|
+  Async.block do
   let (mockClient1, mockServer1) ← Mock.new
   let (mockClient2, mockServer2) ← Mock.new
   let originalConnectCount ← IO.mkRef 0
@@ -352,9 +366,9 @@ open Test.ClientHelpers
       let n ← originalConnectCount.get
       originalConnectCount.set (n + 1)
       match n with
-      | 0 => return .ok (← Client.Session.new mockServer1 (config := config))
-      | 1 => return .ok (← Client.Session.new mockServer2 (config := config))
-      | _ => throw (IO.userError "opened too many original-origin sessions")
+      | 0 => return .ok (← Client.Connection.new mockServer1 (config := config))
+      | 1 => return .ok (← Client.Connection.new mockServer2 (config := config))
+      | _ => throw (IO.userError "opened too many original-origin connections")
 
   -- Retries are disabled: this test asserts the state the pool is left in after a
   -- single failed cross-origin acquire, not the retry policy.
@@ -399,7 +413,8 @@ open Test.ClientHelpers
   | some bytes =>
     mockClient1.close
     mockClient2.close
-    throw (IO.userError s!"retired redirect source connection stayed readable:\n{(String.fromUTF8! bytes).quote}")
+    throw (IO.userError
+      s!"retired redirect source connection stayed readable:\n{(String.fromUTF8! bytes).quote}")
 
   let req2 ← Request.new |>.method .get |>.uri! "/again"
     |>.header! "Host" "example.com" |>.empty
@@ -415,14 +430,17 @@ open Test.ClientHelpers
   if (← originalConnectCount.get) != 2 then
     mockClient1.close
     mockClient2.close
-    throw (IO.userError "pool did not open a replacement original-origin session for the follow-up request")
+    throw (IO.userError
+      "pool did not open a replacement original-origin connection for the follow-up request")
 
   let secondBytes ← drainRequest mockClient2
   mockClient2.send (rawResp "200 OK"
     #[("Content-Length", "2"), ("Connection", "close")] "ok")
 
   match ← await p2.result! with
-  | Except.error e => throw (IO.userError s!"original session was not reused after failed redirect acquire: {e}")
+  | Except.error e =>
+    throw (IO.userError
+      s!"original connection was not reused after failed redirect acquire: {e}")
   | Except.ok resp =>
     let body ← resp.body.readAll (α := String)
     unless body == "ok" do
@@ -430,12 +448,14 @@ open Test.ClientHelpers
 
   let secondText := String.fromUTF8! secondBytes
   unless secondText.startsWith "GET /again" do
-    throw <| IO.userError s!"second request did not use the replacement connection:\n{secondText.quote}"
+    throw <| IO.userError
+      s!"second request did not use the replacement connection:\n{secondText.quote}"
 
--- Two sequential requests on the same session must both succeed, exercising the
+-- Two sequential requests on the same connection must both succeed, exercising the
 -- `.next` reset path in the connection state machine.
 
-#eval show IO _ from runWithTimeout "two sequential GETs on keep-alive succeed" 4000 <| Async.block do
+#eval show IO _ from runWithTimeout "two sequential GETs on keep-alive succeed" 4000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let agent ← mkAgent mockServer
 
@@ -455,7 +475,7 @@ open Test.ClientHelpers
     unless body == "one" do
       throw (IO.userError s!"expected 'one', got {body.quote}")
 
-  -- Second request on same session must succeed.
+  -- Second request on same connection must succeed.
   let req2 ← Request.new |>.method .get |>.uri! "/two"
     |>.header! "Host" "example.com" |>.empty
   let p2 ← sendInBackground agent req2
@@ -471,8 +491,8 @@ open Test.ClientHelpers
     unless body == "two" do
       throw (IO.userError s!"expected 'two', got {body.quote}")
 
--- `Connection: close` on the response must close the session; a follow-up request
--- on the same session must error out rather than hang.
+-- `Connection: close` on the response must close the connection; a follow-up request
+-- on the same connection must error out rather than hang.
 
 #eval show IO _ from runWithTimeout "Connection: close prevents reuse" 4000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
@@ -491,10 +511,10 @@ open Test.ClientHelpers
   | Except.ok resp =>
     let _ ← resp.body.readAll (α := String)
 
-  -- Close the mock's receive side so the session observes EOF.
+  -- Close the mock's receive side so the connection observes EOF.
   mockClient.close
 
-  -- Second send must not hang; it must fail because the session is closed.
+  -- Second send must not hang; it must fail because the connection is closed.
   let req2 ← Request.new |>.method .get |>.uri! "/"
     |>.header! "Host" "example.com" |>.empty
   let p2 ← sendInBackground agent req2
@@ -505,13 +525,14 @@ open Test.ClientHelpers
   | Except.error _ => pure ()
 
 -- ============================================================
--- Section 12 — Request deadline and session close
+-- Section 12 — Request deadline and connection close
 -- ============================================================
 
 -- The absolute `requestTimeout` deadline must abort a response whose body stalls after the headers
 -- arrive, surfacing the error to a caller blocked reading the body (rather than hanging until the
 -- much larger per-read idle timeout).
-#eval show IO _ from runWithTimeout "request deadline aborts a stalled response body" 4000 <| Async.block do
+#eval show IO _ from runWithTimeout "request deadline aborts a stalled response body" 4000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let agent ← mkAgent mockServer (config := { requestTimeout := ⟨300, by decide⟩ })
 
@@ -544,7 +565,8 @@ open Test.ClientHelpers
 
 -- Incoming progress must not re-arm the whole-request timeout. A server can keep the idle timer
 -- alive by dripping bytes, but the absolute request deadline must still end the exchange.
-#eval show IO _ from runWithTimeout "request deadline aborts a slow-drip response body" 4000 <| Async.block do
+#eval show IO _ from runWithTimeout "request deadline aborts a slow-drip response body" 4000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let agent ← mkAgent mockServer (config := { requestTimeout := ⟨250, by decide⟩ })
 
@@ -571,11 +593,12 @@ open Test.ClientHelpers
     | Except.ok body =>
       throw (IO.userError s!"slow-drip response escaped request deadline with {body.quote}")
 
--- `Session.close` must abort an in-flight exchange promptly (via the connection's cancellation
--- context), not leave the caller blocked until the request timeout. The request timeout below is set
--- far beyond the test budget so that only `close` can end the request; without the context wiring the
--- background loop stays parked on the socket and this test times out.
-#eval show IO _ from runWithTimeout "session close aborts an in-flight request" 4000 <| Async.block do
+-- `Connection.close` must abort an in-flight exchange promptly (via the connection's cancellation
+-- context), not leave the caller blocked until the request timeout. The request timeout below is
+-- set far beyond the test budget so that only `close` can end the request; without the context
+-- wiring the background loop stays parked on the socket and this test times out.
+#eval show IO _ from runWithTimeout "connection close aborts an in-flight request" 4000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let agent ← mkAgent mockServer (config := { requestTimeout := ⟨60000, by decide⟩ })
 
@@ -589,16 +612,17 @@ open Test.ClientHelpers
 
   -- Server receives the request but never responds; only close should end it.
   let _ ← drainRequest mockClient
-  agent.session.close
+  agent.connection.close
 
   match ← await resultPromise.result! with
   | Except.error _ => pure ()
   | Except.ok _ =>
-    throw (IO.userError "expected in-flight request to abort when the session is closed")
+    throw (IO.userError "expected in-flight request to abort when the connection is closed")
 
 -- Opening a transport must not hold the pool state mutex. The first connector is deliberately
 -- blocked; a second-origin acquisition must enter its connector before the first is released.
-#eval show IO _ from runWithTimeout "pool does not hold state mutex while connecting" 4000 <| Async.block do
+#eval show IO _ from runWithTimeout "pool does not hold state mutex while connecting" 4000 <|
+  Async.block do
   let (_mockClient1, mockServer1) ← Mock.new
   let (_mockClient2, mockServer2) ← Mock.new
   let calls ← Std.Mutex.new 0
@@ -612,10 +636,10 @@ open Test.ClientHelpers
     if callNo == 0 then
       discard <| firstStarted.resolve ()
       await releaseFirst.result!
-      return .ok (← Client.Session.new mockServer1 (config := config))
+      return .ok (← Client.Connection.new mockServer1 (config := config))
     else
       secondSawReleased.set (← released.get)
-      return .ok (← Client.Session.new mockServer2 (config := config))
+      return .ok (← Client.Connection.new mockServer2 (config := config))
 
   let pool ← Client.Pool.new {} connect
   let some domainA := URI.DomainName.ofString? "a.example"
@@ -631,16 +655,16 @@ open Test.ClientHelpers
   let secondDone : IO.Promise Unit ← IO.Promise.new
 
   background do
-    let .ok session ← pool.getOrCreateSession originA
-      | throw (IO.userError "first-origin session acquisition failed")
+    let .ok connection ← pool.getOrCreateConnection originA
+      | throw (IO.userError "first-origin connection acquisition failed")
     discard <| firstDone.resolve ()
-    session.close
+    connection.close
   await firstStarted.result!
   background do
-    let .ok session ← pool.getOrCreateSession originB
-      | throw (IO.userError "second-origin session acquisition failed")
+    let .ok connection ← pool.getOrCreateConnection originB
+      | throw (IO.userError "second-origin connection acquisition failed")
     discard <| secondDone.resolve ()
-    session.close
+    connection.close
   background do
     IO.sleep 300
     released.set true
@@ -651,8 +675,9 @@ open Test.ClientHelpers
     throw (IO.userError "second connection was blocked behind the pool state mutex")
   await firstDone.result!
 
--- Idempotent requests retry a connector failure, including a failure before a `Session` exists.
-#eval show IO _ from runWithTimeout "GET retries after the first connection attempt fails" 4000 <| Async.block do
+-- Idempotent requests retry a connector failure, including a failure before a `Connection` exists.
+#eval show IO _ from runWithTimeout "GET retries after the first connection attempt fails" 4000 <|
+  Async.block do
   let (mockClient, mockServer) ← Mock.new
   let calls ← IO.mkRef 0
   let connect : Client.Connector := fun _ _ _ config => do
@@ -660,7 +685,7 @@ open Test.ClientHelpers
     calls.set (callNo + 1)
     if callNo == 0 then
       throw (IO.userError "synthetic first connect failure")
-    return .ok (← Client.Session.new mockServer (config := config))
+    return .ok (← Client.Connection.new mockServer (config := config))
   let pool ← Client.Pool.new {} connect (maxRetries := 1)
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
@@ -690,14 +715,16 @@ open Test.ClientHelpers
     throw (IO.userError s!"expected two connection attempts, got {← calls.get}")
 
 -- A non-idempotent request is never retried after the peer drops the first connection mid-flight.
-#eval show IO _ from runWithTimeout "POST is not retried after a mid-flight connection drop" 4000 <| Async.block do
+#eval show IO _ from runWithTimeout "POST is not retried after a mid-flight connection drop" 4000 <|
+  Async.block do
   let (mockClient1, mockServer1) ← Mock.new
   let (_mockClient2, mockServer2) ← Mock.new
   let calls ← IO.mkRef 0
   let connect : Client.Connector := fun _ _ _ config => do
     let callNo ← calls.get
     calls.set (callNo + 1)
-    return .ok (← Client.Session.new (if callNo == 0 then mockServer1 else mockServer2) (config := config))
+    let mockServer := if callNo == 0 then mockServer1 else mockServer2
+    return .ok (← Client.Connection.new mockServer (config := config))
   let pool ← Client.Pool.new {} connect (maxRetries := 3)
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
@@ -722,19 +749,21 @@ open Test.ClientHelpers
     throw (IO.userError s!"POST was retried; expected one connection attempt, got {← calls.get}")
 
 -- ============================================================
--- Section 14 — Retry body integrity and dead-session detection
+-- Section 14 — Retry body integrity and dead-connection detection
 -- ============================================================
 
 -- An idempotent request whose streaming body was consumed by the failed attempt must NOT be
 -- retried: the body cannot be replayed, so a retry would silently send an empty body.
-#eval show IO _ from runWithTimeout "PUT with non-replayable stream body is not retried" 4000 <| Async.block do
+#eval show IO _ from runWithTimeout "PUT with non-replayable stream body is not retried" 4000 <|
+  Async.block do
   let (mockClient1, mockServer1) ← Mock.new
   let (mockClient2, mockServer2) ← Mock.new
   let calls ← IO.mkRef 0
   let connect : Client.Connector := fun _ _ _ config => do
     let callNo ← calls.get
     calls.set (callNo + 1)
-    return .ok (← Client.Session.new (if callNo == 0 then mockServer1 else mockServer2) (config := config))
+    let mockServer := if callNo == 0 then mockServer1 else mockServer2
+    return .ok (← Client.Connection.new mockServer (config := config))
   let pool ← Client.Pool.new {} connect (maxRetries := 3)
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
@@ -775,20 +804,23 @@ open Test.ClientHelpers
   | Except.ok _ =>
     throw (IO.userError "PUT with a consumed stream body unexpectedly succeeded via retry")
   | Except.error _ => pure ()
-  unless (← calls.get) == 1 do
+  let attempts ← calls.get
+  unless attempts == 1 do
     throw (IO.userError
-      s!"PUT with non-replayable body was retried; expected 1 connection attempt, got {← calls.get}")
+      s!"PUT with non-replayable body was retried; expected 1 attempt, got {attempts}")
 
 -- A replayable (`Body.Full`) request body must be reset before a retry so the second attempt
 -- sends the complete payload again, not the consumed remainder.
-#eval show IO _ from runWithTimeout "retried PUT resends the full replayable body" 4000 <| Async.block do
+#eval show IO _ from runWithTimeout "retried PUT resends the full replayable body" 4000 <|
+  Async.block do
   let (mockClient1, mockServer1) ← Mock.new
   let (mockClient2, mockServer2) ← Mock.new
   let calls ← IO.mkRef 0
   let connect : Client.Connector := fun _ _ _ config => do
     let callNo ← calls.get
     calls.set (callNo + 1)
-    return .ok (← Client.Session.new (if callNo == 0 then mockServer1 else mockServer2) (config := config))
+    let mockServer := if callNo == 0 then mockServer1 else mockServer2
+    return .ok (← Client.Connection.new mockServer (config := config))
   let pool ← Client.Pool.new {} connect (maxRetries := 1)
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
@@ -824,24 +856,28 @@ open Test.ClientHelpers
     throw <| IO.userError
       s!"retried PUT did not resend the request body:\n{retryText.quote}"
 
--- A pooled session whose connection has already shut down (idle timeout, server EOF) must not be
+-- A pooled connection whose background loop has already shut down (idle timeout, server EOF) must
+-- not be
 -- handed to the next request: the request was never written to the wire, so the pool can safely
 -- open a fresh connection — even for non-idempotent methods and with retries disabled.
-#eval show IO _ from runWithTimeout "pool discards a dead session instead of failing the next request" 4000 <| Async.block do
+#eval show IO _ from
+  runWithTimeout "pool discards a dead connection instead of failing the next request" 4000 <|
+  Async.block do
   let (mockClient1, mockServer1) ← Mock.new
   let (mockClient2, mockServer2) ← Mock.new
   let calls ← IO.mkRef 0
   let connect : Client.Connector := fun _ _ _ config => do
     let callNo ← calls.get
     calls.set (callNo + 1)
-    return .ok (← Client.Session.new (if callNo == 0 then mockServer1 else mockServer2) (config := config))
+    let mockServer := if callNo == 0 then mockServer1 else mockServer2
+    return .ok (← Client.Connection.new mockServer (config := config))
   let pool ← Client.Pool.new {} connect (maxRetries := 0)
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
   let origin : URI.Origin := {
     scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
 
-  -- First exchange completes cleanly; the session is parked in the pool.
+  -- First exchange completes cleanly; the connection is parked in the pool.
   let req1 ← Request.new |>.method .get |>.uri! "/one"
     |>.header! "Host" "example.com" |>.empty
   let p1 : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
@@ -864,7 +900,7 @@ open Test.ClientHelpers
   IO.sleep 200
 
   -- The next request (a POST: retries disabled and non-idempotent anyway) must transparently get
-  -- a fresh connection rather than an error from the dead parked session.
+  -- a fresh connection rather than an error from the dead parked connection.
   let req2 ← Request.new |>.method .post |>.uri! "/two"
     |>.header! "Host" "example.com" |>.text "data"
   let p2 : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
@@ -879,7 +915,7 @@ open Test.ClientHelpers
     #[("Content-Length", "2"), ("Connection", "close")] "ok")
 
   match ← await p2.result! with
-  | Except.error e => throw (IO.userError s!"POST after dead parked session failed: {e}")
+  | Except.error e => throw (IO.userError s!"POST after dead parked connection failed: {e}")
   | Except.ok resp =>
     let _ ← resp.body.readAll (α := String)
   unless (← calls.get) == 2 do

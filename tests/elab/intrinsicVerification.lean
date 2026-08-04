@@ -1,4 +1,5 @@
 import Std.Internal.Do
+import Std.Data.HashMap
 
 /-! Tests for `def` contracts. A `def` carrying `requires`/`ensures` clauses elaborates to the
 definition plus an `@[spec]`-tagged `f.spec` Hoare triple that `vcgen` proves automatically; a
@@ -198,6 +199,21 @@ def sumArrayMem (xs : Array Nat) : Id Nat
 
 #guard_msgs (drop info) in
 #check @sumArrayMem.spec
+
+/-! ## A loop over a `HashMap`, through its `PureForIn` instance
+
+The container needs no specification of its own: stating that its loop is effect-free is enough
+for the `invariant` clause to work. -/
+
+def sumValues (m : Std.HashMap Nat Nat) : Id Nat
+    ensures r => 0 ≤ r := do
+  let mut s := 0
+  for kv in m invariant _pref _suff => 0 ≤ s do
+    s := s + kv.2
+  return s
+
+#guard_msgs (drop info) in
+#check @sumValues.spec
 
 /-! ## The contract telescope is transplanted faithfully to `f.spec`
 

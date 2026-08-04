@@ -37,12 +37,6 @@ namespace Std.Internal
 
 universe u u₁ v w
 
-private theorem foldl_push_toList {γ : Type u₁} (xs : List γ) (acc : Array γ) :
-    (xs.foldl (fun acc a => acc.push a) acc).toList = acc.toList ++ xs := by
-  induction xs generalizing acc with
-  | nil => simp
-  | cons a xs ih => rw [List.foldl_cons, ih, Array.toList_push]; simp
-
 private theorem forIn'_cast {γ : Type u₁} {δ : Type u} {n : Type u → Type v} [Monad n]
     {l l' : List γ} (hl : l = l') (init : δ) (f : (a : γ) → a ∈ l' → δ → n (ForInStep δ)) :
     forIn' l init (fun a ha b => f a (hl ▸ ha) b) = forIn' l' init f :=

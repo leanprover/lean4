@@ -352,18 +352,16 @@ def mergeWithAll (m₁ m₂ : ExtTreeMap α β cmp) (f : α → Option β → Op
           r := r.insert a b
     return r
 
--- Originally a demo that `Id.of_wp_run_eq` applies despite universe polymorphism.
--- Neither `mvcgen` nor `vcgen` can find a triple spec for `forIn` on the
--- universe-polymorphic `ExtTreeMap`; both fall back to simp, which simplifies
--- the body but doesn't fully discharge. With `(errorOnMissingSpec := false)`,
--- `vcgen` matches legacy `mvcgen`'s behaviour of leaving an unsolved VC.
+-- A demo that `Id.of_wp_run_eq` applies despite universe polymorphism. The `ExtTreeMap`
+-- loops are decomposed by the `PureForIn` specification; the invariants relating the merge
+-- to its two arguments are left open.
 theorem mem_mergeWithAll [LawfulEqCmp cmp] {m₁ m₂ : ExtTreeMap α β cmp}
     {f : α → Option β → Option β → Option β} {a : α} :
     a ∈ mergeWithAll m₁ m₂ f ↔ (a ∈ m₁ ∨ a ∈ m₂) ∧ (f a m₁[a]? m₂[a]?).isSome := by
   generalize h : mergeWithAll m₁ m₂ f = x
   apply Id.of_wp_run_eq h
-  vcgen (errorOnMissingSpec := false) [mergeWithAll]
-  admit
+  vcgen [mergeWithAll]
+  all_goals admit
 
 end KimsUnivPolyUseCase
 

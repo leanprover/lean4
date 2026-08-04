@@ -9,6 +9,10 @@ prelude
 public import Init.Control.Id
 public import Init.Data.List.Basic
 public import Init.Data.List.Control
+public import Init.Data.Array.Basic
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Lemmas
+import Init.Data.List.Monadic
 
 /-!
 # Effect-free `ForIn` containers
@@ -50,5 +54,23 @@ class PureForIn' (m : Type u → Type v) (ρ : Type w) (α : Type u₁) [Monad m
     forIn' xs init f = forIn' (ForIn.toList xs) init fun a h b =>
       f a (LawfulMemForInId.mem_toList_iff.mp h) b
 
+
+/-- Every element `ForIn.toList` collects is pushed onto the accumulator in order. -/
+theorem foldl_push_toList {γ : Type u₁} (xs : List γ) (acc : Array γ) :
+    (xs.foldl (fun acc a => acc.push a) acc).toList = acc.toList ++ xs := by
+  induction xs generalizing acc with
+  | nil => simp
+  | cons a xs ih => rw [List.foldl_cons, ih, Array.toList_push]; simp
+
+/-- Computes `ForIn.toList` from the container's own equation between its loop and the loop over
+`l`. -/
+theorem ForIn.toList_eq_of_forIn_eq {ρ : Type w} {α : Type u₁} [ForIn Id ρ α] {xs : ρ}
+    {l : List α}
+    (h : ∀ (init : Array α) (f : α → Array α → Id (ForInStep (Array α))),
+      forIn xs init f = forIn l init f) :
+    ForIn.toList xs = l := by
+  simp only [ForIn.toList, ForIn.toArray, Id.run, h, List.forIn_pure_yield_eq_foldl]
+  change (List.foldl (fun acc a => acc.push a) #[] l).toList = l
+  rw [foldl_push_toList]; simp
 
 end Std.Internal

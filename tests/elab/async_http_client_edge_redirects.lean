@@ -139,19 +139,19 @@ open Test.ClientHelpers
 
 -- Setup: two mocks — the agent redirects from http://example.com:443 to
 -- https://example.com:443 (scheme change) and opens the follow-up on a fresh
--- session via the `connectTo` factory. The second mock carries the redirected
+-- connection via the `connectTo` factory. The second mock carries the redirected
 -- request and lets us inspect the headers the agent actually sent.
 #eval show IO _ from runWithTimeout "cross-origin strips Proxy-Authorization" 4000 <| Async.block do
   let (mockClient1, mockServer1) ← Mock.new
   let (mockClient2, mockServer2) ← Mock.new
-  let session1 ← Client.Session.new mockServer1 (config := {})
+  let connection1 ← Client.Connection.new mockServer1 (config := {})
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
   let agent : Client.Agent := {
-    session := session1
+    connection := connection1
     origin := { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 443 }
     crossOrigin := .follow fun _ => do
-      return .ok (← Client.Session.new mockServer2 (config := {}))
+      return .ok (← Client.Connection.new mockServer2 (config := {}))
   }
 
   let request ← Request.new
@@ -190,14 +190,14 @@ open Test.ClientHelpers
 #eval show IO _ from runWithTimeout "cross-origin strips explicit Cookie header" 4000 <| Async.block do
   let (mockClient1, mockServer1) ← Mock.new
   let (mockClient2, mockServer2) ← Mock.new
-  let session1 ← Client.Session.new mockServer1 (config := {})
+  let connection1 ← Client.Connection.new mockServer1 (config := {})
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
   let agent : Client.Agent := {
-    session := session1
+    connection := connection1
     origin := { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 443 }
     crossOrigin := .follow fun _ => do
-      return .ok (← Client.Session.new mockServer2 (config := {}))
+      return .ok (← Client.Connection.new mockServer2 (config := {}))
   }
 
   let request ← Request.new
@@ -339,14 +339,14 @@ open Test.ClientHelpers
 #eval show IO _ from runWithTimeout "cross-origin then same-origin self-redirect is detected as a cycle" 4000 <| Async.block do
   let (mockClient1, mockServer1) ← Mock.new
   let (mockClient2, mockServer2) ← Mock.new
-  let session1 ← Client.Session.new mockServer1 (config := {})
+  let connection1 ← Client.Connection.new mockServer1 (config := {})
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
   let agent : Client.Agent := {
-    session := session1
+    connection := connection1
     origin := { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
     crossOrigin := .follow fun _ => do
-      return .ok (← Client.Session.new mockServer2 (config := {}))
+      return .ok (← Client.Connection.new mockServer2 (config := {}))
   }
 
   let request ← Request.new

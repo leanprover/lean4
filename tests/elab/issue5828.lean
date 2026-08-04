@@ -22,19 +22,20 @@ attribute [-simp] a_eq_b
 /-- error: `simp` made no progress -/
 #guard_msgs in example : P a b := by simp
 
--- Re-adding an attribute after [-simp] does not work, see
+-- Re-adding an attribute after `[-simp]` restores it, see
 -- https://github.com/leanprover/lean4/issues/5868
 
 attribute [simp] a_eq_b
 
-/-- error: `simp` made no progress -/
+/--
+error: unsolved goals
+⊢ P b b
+-/
 #guard_msgs in example : P a b := by simp
 
--- so this test use new copies of `a_eq_b` for now
+-- Re-adding the converse direction replaces the current direction
 
-axiom a_eq_b_2 : a = b
-
-attribute [simp ←] a_eq_b_2
+attribute [simp ←] a_eq_b
 
 /--
 error: unsolved goals
@@ -44,17 +45,15 @@ error: unsolved goals
 
 -- Removing the attribute works, no matter the direction
 
-attribute [-simp] a_eq_b_2
+attribute [-simp] a_eq_b
 
 /-- error: `simp` made no progress -/
 #guard_msgs in example : P a b := by simp
 
--- Setting one should erase the other
+-- Setting one direction should erase the other
 
-axiom a_eq_b_3 : a = b
-
-attribute [simp ←] a_eq_b_3
-attribute [simp] a_eq_b_3
+attribute [simp ←] a_eq_b
+attribute [simp] a_eq_b
 
 /--
 error: unsolved goals
@@ -62,16 +61,9 @@ error: unsolved goals
 -/
 #guard_msgs in example : P a b := by simp
 
+-- The converse can be restored after it was erased
 
--- The erasure is sticky:
-attribute [simp ←] a_eq_b_3
-/-- error: `simp` made no progress -/
-#guard_msgs in example : P a b := by simp
-
-axiom a_eq_b_4 : a = b
-
-attribute [simp] a_eq_b_4
-attribute [simp ←] a_eq_b_4
+attribute [simp ←] a_eq_b
 
 /--
 error: unsolved goals
@@ -79,6 +71,7 @@ error: unsolved goals
 -/
 #guard_msgs in example : P a b := by simp
 
+attribute [-simp] a_eq_b
 
 -- Some more error conditions
 

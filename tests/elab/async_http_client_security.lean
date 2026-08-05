@@ -59,16 +59,17 @@ open Test.ClientHelpers
       catch e => pure (Except.error (toString e))
     discard <| resultPromise.resolve result
 
-  -- First exchange on mock 1: reply with 302 redirecting to HTTPS same host+port.
-  let _ ← mockClient1.recv?
+  -- Drain the whole request: reading a single chunk could leave the tail of request 1 to be
+  -- picked up below as if it were the redirected request, and the strip check would then pass
+  -- against bytes that never carried a header block at all.
+  let _ ← drainRequest mockClient1
   mockClient1.send (rawResp "302 Found"
     #[("Location", "https://example.com:443/redirected"),
       ("Content-Length", "0"),
       ("Connection", "close")] "")
 
   -- Second exchange on mock 2: the redirected request reaches the fresh connection.
-  let some redirectBytes ← mockClient2.recv?
-    | throw (IO.userError "Test failed: no redirect request received")
+  let redirectBytes ← drainRequest mockClient2
   mockClient2.send (rawResp "200 OK"
     #[("Content-Length", "2"), ("Connection", "close")] "ok")
 
@@ -110,15 +111,14 @@ open Test.ClientHelpers
     discard <| resultPromise.resolve result
 
   -- First exchange: reply with 302 to same scheme+host+port.
-  let _ ← mockClient.recv?
+  let _ ← drainRequest mockClient
   mockClient.send (rawResp "302 Found"
     #[("Location", "http://example.com/same-origin"),
       ("Content-Length", "0"),
       ("Connection", "keep-alive")] "")
 
   -- Second exchange: receive the redirected request.
-  let some redirectBytes ← mockClient.recv?
-    | throw (IO.userError "Test failed: no redirect request received")
+  let redirectBytes ← drainRequest mockClient
   mockClient.send (rawResp "200 OK"
     #[("Content-Length", "2"), ("Connection", "close")] "ok")
 
@@ -163,9 +163,18 @@ open Test.ClientHelpers
 -- else returns the 3xx response as-is.
 -- ============================================================
 
+-- Both tests give the agent a `.follow` policy that records the origin it is asked to dial and
+-- refuses. The default `.stop` would return any cross-host 3xx unfollowed on its own, so the
+-- status alone proves nothing about the scheme guard — the SSRF regression is a *dial* that must
+-- never happen, and only a policy that could have dialled can witness its absence.
+
 #eval show IO _ from runWithTimeout "ftp:// redirect not followed" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let dialed ← IO.mkRef (none : Option String)
+  let agent := { ← mkAgent mockServer with
+    crossOrigin := .follow fun origin => do
+      dialed.set (some s!"{origin.scheme.val}://{origin.host}:{origin.port}")
+      return .error (.connect "the redirect target must never be dialled") }
 
   let request ← Request.new
     |>.method .get
@@ -173,31 +182,32 @@ open Test.ClientHelpers
     |>.header! "Host" "example.com"
     |>.empty
 
-  let resultPromise : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
-  background do
-    let result ← try
-        let resp ← Client.Agent.send agent request
-        pure (Except.ok resp)
-      catch e => pure (Except.error (toString e))
-    discard <| resultPromise.resolve result
+  let resultPromise ← sendInBackground agent request
 
   -- Server replies with a redirect to ftp:// (non-HTTP scheme).
-  let _ ← mockClient.recv?
+  let _ ← drainRequest mockClient
   mockClient.send (rawResp "302 Found"
     #[("Location", "ftp://internal-host/secret"),
-      ("Content-Length", "0")] "")
+      ("Content-Length", "0"), ("Connection", "keep-alive")] "")
 
   match ← await resultPromise.result! with
   | Except.error e => throw (IO.userError s!"agent error: {e}")
   | Except.ok resp =>
+    resp.body.close
     -- The agent must return the 302 as-is, not follow it.
     unless resp.line.status == .found do
       throw <| IO.userError
         s!"Test 'ftp:// redirect not followed' FAILED: expected 302, got {resp.line.status.toCode}"
+  if let some target ← dialed.get then
+    throw <| IO.userError s!"an ftp:// redirect target was dialled: {target}"
 
 #eval show IO _ from runWithTimeout "file:// redirect not followed" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let dialed ← IO.mkRef (none : Option String)
+  let agent := { ← mkAgent mockServer with
+    crossOrigin := .follow fun origin => do
+      dialed.set (some s!"{origin.scheme.val}://{origin.host}:{origin.port}")
+      return .error (.connect "the redirect target must never be dialled") }
 
   let request ← Request.new
     |>.method .get
@@ -205,38 +215,36 @@ open Test.ClientHelpers
     |>.header! "Host" "example.com"
     |>.empty
 
-  let resultPromise : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
-  background do
-    let result ← try
-        let resp ← Client.Agent.send agent request
-        pure (Except.ok resp)
-      catch e => pure (Except.error (toString e))
-    discard <| resultPromise.resolve result
+  let resultPromise ← sendInBackground agent request
 
-  let _ ← mockClient.recv?
+  let _ ← drainRequest mockClient
   mockClient.send (rawResp "301 Moved Permanently"
     #[("Location", "file:///etc/passwd"),
-      ("Content-Length", "0"),
-      ("Connection", "close")] "")
+      ("Content-Length", "0"), ("Connection", "keep-alive")] "")
 
   match ← await resultPromise.result! with
   | Except.error e => throw (IO.userError s!"agent error: {e}")
   | Except.ok resp =>
+    resp.body.close
     unless resp.line.status == .movedPermanently do
       throw <| IO.userError
         s!"Test 'file:// redirect not followed' FAILED: expected 301, got {resp.line.status.toCode}"
+  if let some target ← dialed.get then
+    throw <| IO.userError s!"a file:// redirect target was dialled: {target}"
 
 -- ============================================================
--- Redirect: https:// redirect IS followed (sanity check)
+-- Redirect: https:// is not blocked by the scheme guard
 -- ============================================================
--- Verify that the scheme restriction doesn't accidentally block legitimate
--- https:// redirects (same host, different scheme from http to https).
+-- The SSRF guard in `decideRedirect` admits exactly http and https, so an `https://` Location must
+-- reach the redirect machinery. Whether it is then followed is the cross-origin policy's call:
+-- `https://example.com/page` resolves to port 443, so it leaves an agent's `http://example.com:80`
+-- origin. These two tests pin down both halves — a standalone agent stops and reports the 3xx, and
+-- a policy that can open a connection carries the hop through to the https origin.
 -- ============================================================
 
-#eval show IO _ from runWithTimeout "https:// redirect is followed" 3000 <| Async.block do
+#eval show IO _ from
+  runWithTimeout "https:// redirect stops at a standalone agent" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  -- Agent with connectTo = none; cross-host redirects return the 3xx as-is.
-  -- We use the same-host case: http://example.com:80/target (same host+port, scheme changes).
   let agent ← mkAgent mockServer
 
   let request ← Request.new
@@ -245,40 +253,82 @@ open Test.ClientHelpers
     |>.header! "Host" "example.com"
     |>.empty
 
-  let resultPromise : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
-  background do
-    let result ← try
-        let resp ← Client.Agent.send agent request
-        pure (Except.ok resp)
-      catch e => pure (Except.error (toString e))
-    discard <| resultPromise.resolve result
+  let resultPromise ← sendInBackground agent request
 
-  -- 302 to https://example.com/page — same host+port, scheme differs from http.
-  -- No connectTo factory means cross-origin redirect returns 302 as-is, but at least
-  -- the scheme check must not block it before that point; the 302 must be attempted.
-  let _ ← mockClient.recv?
+  let _ ← drainRequest mockClient
   mockClient.send (rawResp "302 Found"
-    #[("Location", "https://example.com/page"),
-      ("Content-Length", "0")] "")
-
-  -- https://example.com/page resolves to port 443, which differs from port 80, so
-  -- this is a cross-origin redirect.  With connectTo = none the agent returns the 302
-  -- as-is without issuing a second request.  Run the optional mock service in the
-  -- background so the main fiber is not blocked when no second request arrives.
-  background do
-    let redirectReqOpt ← mockClient.recv?
-    if redirectReqOpt.isSome then
-      mockClient.send (rawResp "200 OK"
-        #[("Content-Length", "2"), ("Connection", "close")] "ok")
+    #[("Location", "https://example.com/page"), ("Content-Length", "0")] "")
 
   match ← await resultPromise.result! with
   | Except.error e => throw (IO.userError s!"agent error: {e}")
   | Except.ok resp =>
-    -- We accept either 302 (no connectTo for cross-host) or 200 (same-connection follow).
-    let code := resp.line.status.toCode
-    unless code == 200 || code == 302 do
+    resp.body.close
+    unless resp.line.status.toCode == 302 do
       throw <| IO.userError
-        s!"Test 'https:// redirect is followed' FAILED: unexpected status {code}"
+        s!"expected the cross-origin 302 back unfollowed, got {resp.line.status.toCode}"
+
+  -- Nothing may go out on the old connection: the hop needs one of its own.
+  IO.sleep 100
+  if let some bytes ← mockClient.tryRecv? then
+    throw <| IO.userError
+      s!"a cross-origin hop was written to the http connection:\n{(String.fromUTF8! bytes).quote}"
+
+#eval show IO _ from
+  runWithTimeout "https:// redirect is followed when a connection can be opened" 5000 <|
+  Async.block do
+  let (mockClient1, mockServer1) ← Mock.new
+  let (mockClient2, mockServer2) ← Mock.new
+  let targetScheme ← IO.mkRef ""
+  let targetPort ← IO.mkRef (0 : UInt16)
+  let connectCount ← IO.mkRef 0
+
+  let connect : Client.Connector := fun scheme _ port config => do
+    let n ← connectCount.get
+    connectCount.set (n + 1)
+    match n with
+    | 0 => return .ok (← Client.Connection.new mockServer1 (config := config))
+    | 1 =>
+      targetScheme.set scheme.val
+      targetPort.set port
+      return .ok (← Client.Connection.new mockServer2 (config := config))
+    | _ => throw (IO.userError "pool opened more connections than expected")
+
+  let pool ← Client.Pool.new {} connect
+  let some domain := URI.DomainName.ofString? "example.com"
+    | throw (IO.userError "DomainName parse failed")
+  let origin : URI.Origin :=
+    { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
+
+  let request ← Request.new |>.method .get |>.uri! "/"
+    |>.header! "Host" "example.com" |>.empty
+  let resultPromise : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
+  background do
+    let result ← try pure (Except.ok (← pool.send origin request))
+      catch e => pure (Except.error (toString e))
+    discard <| resultPromise.resolve result
+
+  let _ ← drainRequest mockClient1
+  mockClient1.send (rawResp "302 Found"
+    #[("Location", "https://example.com/page"), ("Content-Length", "0"),
+      ("Connection", "keep-alive")] "")
+
+  let secondBytes ← drainRequest mockClient2
+  mockClient2.send (rawResp "200 OK" #[("Content-Length", "2"), ("Connection", "close")] "ok")
+
+  match ← await resultPromise.result! with
+  | Except.error e => throw (IO.userError s!"https redirect failed: {e}")
+  | Except.ok resp =>
+    let body ← resp.body.readAll (α := String)
+    unless body == "ok" do throw <| IO.userError s!"expected 'ok', got {body.quote}"
+
+  -- The hop must target the https origin, and carry its Host and path.
+  unless (← targetScheme.get) == "https" do
+    throw <| IO.userError s!"second connection used scheme {(← targetScheme.get).quote}"
+  unless (← targetPort.get) == 443 do
+    throw <| IO.userError s!"second connection used port {← targetPort.get}, expected 443"
+  let secondText := String.fromUTF8! secondBytes
+  unless secondText.startsWith "GET /page" do
+    throw <| IO.userError s!"second hop did not request /page:\n{secondText.quote}"
 
 -- ============================================================
 -- Redirect: non-replayable body blocks auto-follow of 307

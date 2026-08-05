@@ -19,11 +19,10 @@ namespace lean {
 
 void initialize_alloc() {
 #ifdef LEAN_MIMALLOC
-    // Raise the minimal purge size to the platform's large page size: a `MADV_DONTNEED` over a
-    // smaller range shatters a transparent-huge-page-backed region back into base pages, and Lean
-    // frees far more than it returns to the OS. `set_default` keeps `MIMALLOC_ALLOW_THP` in the
-    // environment authoritative.
-    mi_option_set_default(mi_option_allow_thp, 2);
+    // MEASUREMENT PROBE, DO NOT MERGE: `0` disables transparent huge pages for Lean entirely, so a
+    // benchmark run compares THP-off against the stock THP-on baseline. Locally that costs 2.7% of
+    // cycles; no regression means the benchmark machine has no THP and this option is inert there.
+    mi_option_set_default(mi_option_allow_thp, 0);
 #endif
 }
 

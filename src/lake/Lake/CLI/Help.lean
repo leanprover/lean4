@@ -287,8 +287,12 @@ OPTIONS:
                         `set_option <linter> false in` exception by editing the
                         offending source files in place, silencing the warning
                         for that declaration. Implies `--builtin-lint`.
-  --code-quality        records each linter warning as a code quality check result
-                        and runs the registered code quality checks.
+  --code-quality        emit each linter warning as a code quality entry on
+                        stdout and run the code quality checks tagged
+                        `@[package_code_quality_check]` that are reachable from
+                        the lint target's imports. Linter warnings are data and
+                        do not fail the run; a check that throws is reported on
+                        stderr and exits nonzero.
                         Setting this flag will skip lint driver.
 
 A lint driver can be configured by either setting the `lintDriver` package

@@ -1,4 +1,5 @@
 import Linters
+import Checks
 import Violations.Sub
 
 -- Two `linter.unusedVariables` warnings (a text linter, default-on) in this

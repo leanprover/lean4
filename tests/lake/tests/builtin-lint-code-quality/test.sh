@@ -57,6 +57,13 @@ no_match_text 'suppressedDummyMarker' produced.json
 # Nothing outside the linted package leaks in (`Linters.lean` defines the linter).
 no_match_text '"module":"Linters"' produced.json
 
+# Registered checks reachable from the lint target's import closure (`Checks.lean`,
+# imported by `Violations.lean`) run alongside the linters:
+# `modules` holds the two package modules, not the imported `Linters`/`Checks`...
+match_text '{"value":{"scalar":{"value":2}},"source":{"module":{"name":"Violations"}},"name":"moduleCount"}' produced.json
+# ...and `srcSearchPath` resolves the package's sources.
+match_text '{"value":{"scalar":{"value":1}},"source":{"module":{"name":"Violations"}},"name":"sourceReachable"}' produced.json
+
 # --- Linter selection. ---
 # `--lint-only` restricts the output to the explicitly enabled linters.
 lake_out lint --code-quality --lint-only=linter.dummyMarker Violations
@@ -70,7 +77,21 @@ collect_json
 no_match_text 'linter.unusedVariables' produced.json
 match_text 'fooDummyMarker' produced.json
 
-# --- No violations means no entries. ---
+# --- Checks are not gated by the linter selection. ---
+# Disabling every linter leaves exactly the entries of the registered checks.
 lake_out lint --code-quality --lint-only=-linter.all Violations
 collect_json
-test_cmd test ! -s produced.json
+no_match_text '"name":"linter.' produced.json
+match_text '"name":"moduleCount"' produced.json
+
+# --- A check that throws. ---
+# `FailingCheck` is a separate lint target whose closure adds a check that throws.
+# The failure is reported on stderr and makes `lake lint` exit 1, but the entries
+# of the checks that succeeded are still emitted.
+rc=0
+lake_out lint --code-quality FailingCheck || rc=$?
+test_cmd test "$rc" -eq 1
+match_text 'error: code quality check `failingCheck` failed: boom' produced.out
+collect_json
+# The package root is the lint target, so only its own module is counted.
+match_text '{"value":{"scalar":{"value":1}},"source":{"module":{"name":"FailingCheck"}},"name":"moduleCount"}' produced.json

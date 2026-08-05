@@ -5,5 +5,11 @@ defaultTargets = ["Violations"]
 name = "Linters"
 
 [[lean_lib]]
+name = "Checks"
+
+[[lean_lib]]
+name = "FailingCheck"
+
+[[lean_lib]]
 name = "Violations"
 globs = "Violations.*"

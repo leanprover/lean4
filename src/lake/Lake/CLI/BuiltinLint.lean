@@ -383,6 +383,41 @@ private def runEnvironmentLinters (args : Args) (linterOpts : Linter.LinterOptio
       return .codeQualityChecks codeQualityEntries
   return outcome
 
+/-- The result of running the registered code quality checks for one package. -/
+private structure PackageCheckOutcome where
+  /-- The entries produced by the checks that succeeded. -/
+  entries : Array CodeQuality.Entry
+  /-- Whether any check threw; such a check contributes no entries. -/
+  failed : Bool
+
+/--
+Runs the code quality checks registered with `@[package_code_quality_check]` over the package
+rooted at `pkgRoot`. Only checks reachable from the lint target's import closure are visible, the
+same constraint that applies to environment linters.
+
+Every check receives the package's modules and declarations, computed once here rather than by
+each check, along with the linter options and source search path in effect. Checks that throw are
+reported on stderr and make the caller exit nonzero; the entries of the remaining checks are still
+emitted.
+-/
+private def runCodeQualityChecks (linterOpts : Linter.LinterOptions) (sp : SearchPath)
+    (env : Environment) (pkgRoot : Name) : IO PackageCheckOutcome := do
+  let (outcome, _) ← CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do
+    let checkNames ← CodeQuality.getPackageCheckNames
+    if checkNames.isEmpty then
+      return { entries := #[], failed := false }
+    let results ← CodeQuality.runPackageChecks checkNames {
+      pkgRoot
+      modules := env.header.moduleNames.filter pkgRoot.isPrefixOf
+      decls := ← Linter.EnvLinter.getDeclsInPackage pkgRoot
+      linterOptions := linterOpts
+      srcSearchPath := sp
+    }
+    for (declName, err) in results.failures do
+      IO.eprintln s!"error: code quality check `{declName}` failed: {err}"
+    return { entries := results.entries, failed := !results.failures.isEmpty }
+  return outcome
+
 public def run (args : Args) : IO UInt32 := do
   let mods := args.mods
   if mods.isEmpty then
@@ -394,6 +429,12 @@ public def run (args : Args) : IO UInt32 := do
 
   let mut anyFailed := false
   let mut anyUnlocated := false
+  -- Whether a registered code quality check threw (only meaningful in `codeQuality` mode, where
+  -- linter warnings are data rather than failures).
+  let mut anyCheckFailed := false
+  -- Package roots whose code quality checks have already been run. A check is per package, so
+  -- running it for two lint targets under the same root would emit duplicate entries.
+  let mut checkedRoots : NameSet := {}
 
   -- Accumulated exceptions to record (only populated when `args.recordExceptions` is set).
   let mut records : Array ExceptionRecord := #[]
@@ -442,7 +483,13 @@ public def run (args : Args) : IO UInt32 := do
     | .codeQualityChecks entries =>
       codeQualityEntries := codeQualityEntries ++ entries
 
-    unless args.mode == .codeQuality do
+    if args.mode == .codeQuality then
+      unless checkedRoots.contains mod.getRoot do
+        checkedRoots := checkedRoots.insert mod.getRoot
+        let checkOutcome ← runCodeQualityChecks linterOpts sp env mod.getRoot
+        codeQualityEntries := codeQualityEntries ++ checkOutcome.entries
+        if checkOutcome.failed then anyCheckFailed := true
+    else
       let deferredResults ← runDeferredChecks args linterOpts sp env mod.getRoot docCheckedModules
       docCheckedModules := deferredResults.checkedModules
       match deferredResults.outcome with
@@ -461,6 +508,6 @@ public def run (args : Args) : IO UInt32 := do
   | .codeQuality =>
     for entry in codeQualityEntries do
       IO.println <| toJson entry
-    return 0
+    return if anyCheckFailed then 1 else 0
 
 end Lake.BuiltinLint

@@ -80,7 +80,7 @@ trace: [Compiler.saveMono] size: 13
         | Bool.true =>
           let _x.12 := Array.reverse._redArg s;
           return _x.12
-[Compiler.saveMono] size: 31
+[Compiler.saveMono] size: 30
     def Std.Legacy.Range.forInNew'.loop._at_.Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.1 as sz _x.2 range i a.3 : Array
       String :=
       cases range : Array String
@@ -101,24 +101,23 @@ trace: [Compiler.saveMono] size: 13
           let _x.13 := @String.extract s' _x.7 _x.12;
           let _x.14 := Nat.add i _x.6;
           let _x.15 := @String.Slice.Pos.nextn _x.11 _x.7 _x.14;
-          let _x.16 := @String.extract s' _x.15 _x.10;
-          let d := String.append _x.13 _x.16;
-          jp _jp.17 : Array String :=
+          let d := String.Slice.copyAppend _x.13 s' _x.15 _x.10 ◾;
+          jp _jp.16 : Array String :=
             let out := Array.push ◾ a.3 d;
-            let _x.18 := Std.Legacy.Range.forInNew'.loop._at_.Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.1 as sz _x.2 range _x.9 out;
-            return _x.18;
-          let _x.19 := Array.contains._at_.deletions.spec_0 a.3 d;
-          cases _x.19 : Array String
+            let _x.17 := Std.Legacy.Range.forInNew'.loop._at_.Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.1 as sz _x.2 range _x.9 out;
+            return _x.17;
+          let _x.18 := Array.contains._at_.deletions.spec_0 a.3 d;
+          cases _x.18 : Array String
           | Bool.false =>
-            goto _jp.17
+            goto _jp.16
           | Bool.true =>
             cases _x.8 : Array String
             | Bool.false =>
-              let _x.20 := Std.Legacy.Range.forInNew'.loop._at_.Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.1 as sz _x.2 range _x.9 a.3;
-              return _x.20
+              let _x.19 := Std.Legacy.Range.forInNew'.loop._at_.Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.1 as sz _x.2 range _x.9 a.3;
+              return _x.19
             | Bool.true =>
-              goto _jp.17
-[Compiler.saveMono] size: 31
+              goto _jp.16
+[Compiler.saveMono] size: 30
     def Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4._redArg as sz _x.1 s' _x.2 range i a.3 : Array
       String :=
       cases range : Array String
@@ -139,23 +138,22 @@ trace: [Compiler.saveMono] size: 13
           let _x.13 := @String.extract s' _x.7 _x.12;
           let _x.14 := Nat.add i _x.6;
           let _x.15 := @String.Slice.Pos.nextn _x.11 _x.7 _x.14;
-          let _x.16 := @String.extract s' _x.15 _x.10;
-          let d := String.append _x.13 _x.16;
-          jp _jp.17 : Array String :=
+          let d := String.Slice.copyAppend _x.13 s' _x.15 _x.10 ◾;
+          jp _jp.16 : Array String :=
             let out := Array.push ◾ a.3 d;
-            let _x.18 := Std.Legacy.Range.forInNew'.loop._at_.Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.2 as sz _x.1 range _x.9 out;
-            return _x.18;
-          let _x.19 := Array.contains._at_.deletions.spec_0 a.3 d;
-          cases _x.19 : Array String
+            let _x.17 := Std.Legacy.Range.forInNew'.loop._at_.Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.2 as sz _x.1 range _x.9 out;
+            return _x.17;
+          let _x.18 := Array.contains._at_.deletions.spec_0 a.3 d;
+          cases _x.18 : Array String
           | Bool.false =>
-            goto _jp.17
+            goto _jp.16
           | Bool.true =>
             cases _x.8 : Array String
             | Bool.false =>
-              let _x.20 := Std.Legacy.Range.forInNew'.loop._at_.Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.2 as sz _x.1 range _x.9 a.3;
-              return _x.20
+              let _x.19 := Std.Legacy.Range.forInNew'.loop._at_.Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._at_.Array.forInNew'Unsafe.loop._at_.deletions.spec_2.spec_4.spec_4._redArg s' _x.2 as sz _x.1 range _x.9 a.3;
+              return _x.19
             | Bool.true =>
-              goto _jp.17
+              goto _jp.16
 [Compiler.saveMono] size: 15
     def deletions n s : Array String :=
       let zero := 0;
@@ -175,7 +173,7 @@ trace: [Compiler.saveMono] size: 13
         let _x.6 := 0;
         let _x.7 := Array.forInNew'Unsafe.loop._at_.deletions.spec_2 _x.5 sz _x.6 out;
         return _x.7
-[Compiler.saveMono] size: 31
+[Compiler.saveMono] size: 30
     def Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._redArg s' _x.1 kcontinue range i a.2 : Array String :=
       cases range : Array String
       | Std.Legacy.Range.mk start stop step step_pos =>
@@ -195,23 +193,22 @@ trace: [Compiler.saveMono] size: 13
           let _x.12 := @String.extract s' _x.6 _x.11;
           let _x.13 := Nat.add i _x.5;
           let _x.14 := @String.Slice.Pos.nextn _x.10 _x.6 _x.13;
-          let _x.15 := @String.extract s' _x.14 _x.9;
-          let d := String.append _x.12 _x.15;
-          jp _jp.16 : Array String :=
+          let d := String.Slice.copyAppend _x.12 s' _x.14 _x.9 ◾;
+          jp _jp.15 : Array String :=
             let out := Array.push ◾ a.2 d;
-            let _x.17 := Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._redArg s' _x.1 kcontinue range _x.8 out;
-            return _x.17;
-          let _x.18 := Array.contains._at_.deletions.spec_0 a.2 d;
-          cases _x.18 : Array String
+            let _x.16 := Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._redArg s' _x.1 kcontinue range _x.8 out;
+            return _x.16;
+          let _x.17 := Array.contains._at_.deletions.spec_0 a.2 d;
+          cases _x.17 : Array String
           | Bool.false =>
-            goto _jp.16
+            goto _jp.15
           | Bool.true =>
             cases _x.7 : Array String
             | Bool.false =>
-              let _x.19 := Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._redArg s' _x.1 kcontinue range _x.8 a.2;
-              return _x.19
+              let _x.18 := Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._redArg s' _x.1 kcontinue range _x.8 a.2;
+              return _x.18
             | Bool.true =>
-              goto _jp.16
+              goto _jp.15
 [Compiler.saveMono] size: 1
     def Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1 s' _x.1 kcontinue range this i hs hl a.2 : Array String :=
       let _x.3 := Std.Legacy.Range.forInNew'.loop._at_.deletions.spec_1._redArg s' _x.1 kcontinue range i a.2;

@@ -1264,6 +1264,7 @@ static inline size_t lean_string_len(b_lean_obj_arg o) { return lean_to_string(o
 static inline size_t lean_string_data_byte_size(lean_object * o) { return sizeof(lean_string_object) + lean_string_size(o); }
 LEAN_EXPORT lean_obj_res lean_string_push(lean_obj_arg s, uint32_t c);
 LEAN_EXPORT lean_obj_res lean_string_append(lean_obj_arg s1, b_lean_obj_arg s2);
+LEAN_EXPORT lean_obj_res lean_string_copy_append_slice(lean_obj_arg dest, b_lean_obj_arg src, b_lean_obj_arg start, b_lean_obj_arg end);
 static inline lean_obj_res lean_string_length(b_lean_obj_arg s) { return lean_box(lean_string_len(s)); }
 LEAN_EXPORT lean_obj_res lean_string_mk(lean_obj_arg cs);
 LEAN_EXPORT lean_obj_res lean_string_data(lean_obj_arg s);

@@ -45,11 +45,13 @@ public section
 
 namespace String.Slice
 
+@[extern "lean_string_copy_append_slice", expose]
+def copyAppend (dest : String) (src : @& String) (startInclusive endExclusive : @& src.Pos)
+    (startInclusive_le_endExclusive : startInclusive ≤ endExclusive) : String :=
+  dest ++ (Slice.mk src startInclusive endExclusive startInclusive_le_endExclusive).copy
+
 instance : HAppend String String.Slice String where
-  -- This implementation performs an unnecessary copy which could be avoided by providing a custom
-  -- C++ implementation for this instance. Note: if `String` had no custom runtime representation
-  -- at all, then this would be very easy to get right from Lean using `ByteArray.copySlice`.
-  hAppend s t := s ++ t.copy
+  hAppend s t := copyAppend s t.str t.startInclusive t.endExclusive t.startInclusive_le_endExclusive
 
 open Pattern
 

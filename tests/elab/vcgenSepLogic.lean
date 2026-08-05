@@ -143,6 +143,49 @@ def load (l : Addr) : HeapM Nat :=
 def store (l : Addr) (w : Nat) : HeapM Unit :=
   HeapM.mk <| modifyGet fun h => ((), h.update l w)
 
+/-- Release the cell at `l`. -/
+def free (l : Addr) : HeapM Unit :=
+  HeapM.mk <| modifyGet fun h => ((), h.erase l)
+
+/-- The cell the allocator keeps its bump pointer in. -/
+def allocPtr : Addr := 1
+
+/-- Hand out the next address and bump the pointer. -/
+def alloc : HeapM Addr := do
+  let k ← load allocPtr
+  store allocPtr (k + 1)
+  pure k
+
+/-- Hand out three consecutive addresses, the layout one `IsList` node takes. -/
+def allocNode : HeapM Addr := do
+  let p ← alloc
+  let _ ← alloc
+  let _ ← alloc
+  pure p
+
+/-- Push `v`: take a node from the allocator, link it in front of `hd`, and return the new head.
+The old head's prev field is retargeted unless the stack was empty. -/
+def push (hd : Addr) (v : Nat) : HeapM Addr := do
+  let p ← allocNode
+  store p hd
+  store (p + 1) null
+  store (p + 2) v
+  if hd ≠ null then
+    store (hd + 1) p
+  pure p
+
+/-- Pop the head node: read its payload and successor, release its three cells, and return both.
+The new head's prev field is cleared unless the stack is now empty. -/
+def pop (hd : Addr) : HeapM (Nat × Addr) := do
+  let next ← load hd
+  let v ← load (hd + 2)
+  free hd
+  free (hd + 1)
+  free (hd + 2)
+  if next ≠ null then
+    store (next + 1) null
+  pure (v, next)
+
 /-- In-place reverse: walk the spine, swapping each node's next/prev links (`next := prev`,
 `prev := old next`). The loop is fuel-bounded; `xs.length` iterations suffice. -/
 def reverse (fuel : Nat) (head : Addr) : HeapM Addr := do
@@ -369,6 +412,19 @@ theorem sepPure_sepConj_iff (P : Prop) (Q : HProp) (h : Heap) :
   · rintro ⟨_, ⟨a, rfl⟩, ha⟩; exact ⟨a, ha⟩
   · rintro ⟨a, ha⟩; exact ⟨P a, ⟨a, rfl⟩, ha⟩
 
+/-- Pointwise characterization of an embedded-guard assertion. -/
+theorem ofProp_meet_apply (φ : Prop) (P : HProp) (h : Heap) : (⌜φ⌝ ⊓ P) h ↔ φ ∧ P h := by
+  constructor
+  · intro hp
+    refine ⟨?_, (meet_le_right (⌜φ⌝ : HProp) P) h hp⟩
+    have hφ : (⌜φ⌝ : HProp) h := (meet_le_left (⌜φ⌝ : HProp) P) h hp
+    simp only [CompleteLattice.ofProp] at hφ
+    split at hφ
+    · assumption
+    · exact False.elim <| (bot_le (x := (fun _ => False : HProp))) h hφ
+  · intro ⟨hφ, hP⟩
+    exact (le_meet P ⌜φ⌝ P (le_ofProp P φ hφ) PartialOrder.rel_refl) h hP
+
 /-! ## The magic wand as upper adjoint -/
 
 instance (F : HProp) : PreservesSup (sepConj F) where
@@ -477,6 +533,55 @@ theorem le_sepConj_wand_emp_wand_refl (X A : HProp) : X ⊑ X ∗ (A -∗ (emp -
       (le_wand emp (A ∗ emp) A
         (PartialOrder.rel_of_eq (by rw [emp_sepConj, sepConj_emp])))))
 
+/-! ## The allocator's resource
+
+`Pool k` is what the allocator owns: its bump cell, holding `k`, and every address from `k` on.
+`alloc` splits one cell off the front of that suffix, so a caller holding `Pool k` gets `k ↦ 0` and
+`Pool (k + 1)` back. `free` erases a cell, which the pool never reclaims. -/
+
+/-- Every address from `k` on, each holding `0`. -/
+def Unallocated (k : Addr) : HProp := HProp.mk fun h => ∀ n, h n = if k ≤ n then some 0 else none
+
+/-- What the allocator owns when its next address is `k`. -/
+def Pool (k : Addr) : HProp := allocPtr ↦ k ∗ Unallocated k
+
+@[simp, grind =] theorem Pool_eq (k : Addr) : Pool k = allocPtr ↦ k ∗ Unallocated k := rfl
+
+/-- An address the allocator hands out is above its bump cell, hence not `null`. -/
+theorem ne_null_of_allocPtr_lt {a : Addr} (h : allocPtr < a) : a ≠ null :=
+  fun e => absurd (e ▸ h : allocPtr < null) (by decide)
+
+/-- The bump cell lies below the suffix the pool owns, so the next address it hands out is past
+`allocPtr`, and in particular is not `null`. -/
+theorem Pool_gt (k : Addr) : Pool k ⊑ ⌜allocPtr < k⌝ ⊓ Pool k := by
+  intro h hh
+  obtain ⟨h₁, h₂, hdis, rfl, h1, h2⟩ := hh
+  refine (ofProp_meet_apply _ _ _).mpr ⟨?_, ⟨h₁, h₂, hdis, rfl, h1, h2⟩⟩
+  rcases Nat.lt_or_ge allocPtr k with hlt | hle
+  · exact hlt
+  · exfalso
+    have e1 : h₁ allocPtr = some k := by
+      rw [show h₁ = Heap.single allocPtr k from h1]; simp [Heap.single]
+    have e2 := h2 allocPtr
+    rw [ite_eq_left hle] at e2
+    rcases hdis allocPtr with h' | h' <;> grind
+
+/-- The front cell of the unallocated suffix splits off. -/
+theorem Unallocated_eq (k : Addr) : Unallocated k = k ↦ 0 ∗ Unallocated (k + 1) := by
+  apply PartialOrder.rel_antisymm <;> intro h hh
+  · refine ⟨Heap.single k 0, fun n => if k + 1 ≤ n then some 0 else none, ?_, ?_, rfl, ?_⟩
+    · intro n; by_cases hn : n = k <;> simp [Heap.single, hn] <;> grind
+    · funext n
+      rw [hh n]
+      by_cases hn : n = k <;> simp [Heap.union, Heap.single, hn] <;> grind
+    · intro n; rfl
+  · obtain ⟨h₁, h₂, _, rfl, h1, h2⟩ := hh
+    intro n
+    have e1 : h₁ = Heap.single k 0 := h1
+    have e2 := h2 n
+    subst e1
+    by_cases hn : n = k <;> simp [Heap.union, Heap.single, hn] at e2 ⊢ <;> grind
+
 /-! ## Doubly-linked lists
 
 `IsList xs prev hd` asserts that `hd` roots a null-terminated doubly-linked list whose **payloads**
@@ -487,19 +592,6 @@ The two address arguments name what the head node points at and what points at i
 segment starts, `prev` is the node before it. So the recursive occurrence reads
 `IsList vs hd next`, the tail starting at `next` with `hd` before it. The program `reverse` takes
 only a head pointer; `xs` is ghost in the specification. -/
-
-/-- Pointwise characterization of an embedded-guard assertion. -/
-theorem ofProp_meet_apply (φ : Prop) (P : HProp) (h : Heap) : (⌜φ⌝ ⊓ P) h ↔ φ ∧ P h := by
-  constructor
-  · intro hp
-    refine ⟨?_, (meet_le_right (⌜φ⌝ : HProp) P) h hp⟩
-    have hφ : (⌜φ⌝ : HProp) h := (meet_le_left (⌜φ⌝ : HProp) P) h hp
-    simp only [CompleteLattice.ofProp] at hφ
-    split at hφ
-    · assumption
-    · exact False.elim <| (bot_le (x := (fun _ => False : HProp))) h hφ
-  · intro ⟨hφ, hP⟩
-    exact (le_meet P ⌜φ⌝ P (le_ofProp P φ hφ) PartialOrder.rel_refl) h hP
 
 /-- Doubly-linked list segment: payloads `xs`, head node at `hd`, preceded by `prev`.
 Node layout: `hd ↦ next ∗ (hd+1) ↦ prev ∗ (hd+2) ↦ payload`. -/
@@ -823,6 +915,29 @@ def sepConjFrameProc : FrameInferenceProc := fun i => do
   refine HeapM.triple_of_triple_StateM_run fun F => ?_
   simp only [load, HeapM.run_mk]
   vcgen with finish
+
+/-- Releasing a cell destroys its ownership. -/
+@[spec] theorem free_spec (l : Addr) (v : Nat) :
+    ⦃ l ↦ v ⦄ (free l) ⦃ fun _ => emp ⦄ := by
+  refine HeapM.triple_of_triple_StateM_run fun F => ?_
+  simp only [free, HeapM.run_mk]
+  vcgen with finish
+
+/-- One `alloc` takes the front cell of the pool and bumps the pointer. -/
+@[spec] theorem alloc_spec (k : Addr) :
+    ⦃ Pool k ⦄ alloc ⦃ fun l => ⌜l = k ∧ l ≠ null⌝ ⊓ (l ↦ 0 ∗ Pool (k + 1)) ⦄ := by
+  refine ⟨PartialOrder.rel_trans (Pool_gt k) (ofProp_meet_le_left fun hk => ?_)⟩
+  have hkn : k ≠ null := ne_null_of_allocPtr_lt hk
+  rw [Pool, Unallocated_eq]
+  refine Triple.le_wp ?_
+  vcgen [alloc] with finish
+
+/-- Three `alloc`s hand back consecutive addresses, so they cover one node. -/
+@[spec] theorem allocNode_spec (k : Addr) :
+    ⦃ Pool k ⦄
+      allocNode
+    ⦃ fun p => ⌜p = k ∧ p ≠ null⌝ ⊓ ((p ↦ 0 ∗ (p + 1) ↦ 0 ∗ (p + 2) ↦ 0) ∗ Pool (k + 3)) ⦄ := by
+  vcgen [allocNode] with finish
 
 /-! ## Framing examples -/
 
@@ -1165,3 +1280,66 @@ example (l : Addr) (z : Nat) (xs ys : List Nat) (xprev yprev x y : Addr) :
       append xs.length x y
     ⦃ fun r => l ↦ z ∗ IsList (xs ++ ys) (if x = null then yprev else xprev) r ⦄ := by
   vcgen [append_concat] with finish
+
+/-! ## A stack
+
+`push` and `pop` over the same `IsList` predicate, with `null` as the head's prev field. These are
+the only programs here whose footprint changes size: `push` takes three cells from `Pool` and `pop`
+releases three, so the frame rule has to carry a resource that the operation creates or destroys. -/
+
+/-- Assemble the pushed node in front of a non-empty stack: the three fresh cells plus the old
+stack, whose prev field now points at the new node. -/
+@[grind .] theorem push_node_le (v : Nat) (xs : List Nat) (p hd : Addr) (R : HProp)
+    (hp : p ≠ null) :
+    (R ∗ p ↦ hd ∗ (p + 1) ↦ null ∗ (p + 2) ↦ v) ∗ IsList xs p hd
+      ⊑ IsList (v :: xs) null p ∗ R := by
+  refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
+    (p ↦ hd ∗ (p + 1) ↦ null ∗ (p + 2) ↦ v ∗ IsList xs p hd) ∗ R)) ?_
+  · grind
+  exact sepConj_mono_left _ (IsList_cons_intro v hd null xs p hp)
+
+/-- Assemble the pushed node in front of an empty stack. -/
+@[grind .] theorem push_node_nil_le (v : Nat) (xs : List Nat) (p hd : Addr) (R : HProp)
+    (hp : p ≠ null) (hd0 : hd = null) :
+    (IsList xs null hd ∗ R ∗ p ↦ hd ∗ (p + 1) ↦ null) ∗ (p + 2) ↦ v
+      ⊑ IsList (v :: xs) null p ∗ R := by
+  subst hd0
+  rw [IsList_null_eq]
+  refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
+    sepPure (xs = []) ∗ (R ∗ p ↦ null ∗ (p + 1) ↦ null ∗ (p + 2) ↦ v))) ?_
+  · grind
+  refine sepPure_sepConj_le_of _ _ _ fun hxs => ?_
+  subst hxs
+  refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
+    (p ↦ null ∗ (p + 1) ↦ null ∗ (p + 2) ↦ v ∗ IsList [] p null) ∗ R)) ?_
+  · rw [IsList_nil_null]; grind
+  exact sepConj_mono_left _ (IsList_cons_intro v null null [] p hp)
+
+/-- Pushing prepends to the payload list and consumes three cells of the pool. -/
+theorem push_spec (xs : List Nat) (hd : Addr) (v : Nat) (k : Addr) :
+    ⦃ IsList xs null hd ∗ Pool k ⦄
+      push hd v
+    ⦃ fun p => IsList (v :: xs) null p ∗ Pool (k + 3) ⦄ := by
+  vcgen [push, store_prev_IsList_ne xs null hd] with finish
+
+/-- Popping returns the head payload and the rest of the stack. The released cells stay out of the
+pool. -/
+theorem pop_spec (v : Nat) (xs : List Nat) (hd : Addr) :
+    ⦃ IsList (v :: xs) null hd ⦄
+      pop hd
+    ⦃ fun r => ⌜r.1 = v⌝ ⊓ IsList xs null r.2 ⦄ := by
+  by_cases hhd : hd = null
+  · -- A cons node is never rooted at `null`, so the precondition is contradictory here.
+    subst hhd
+    exact ⟨PartialOrder.rel_trans (IsList_cons_null_le_bot v xs null)
+      (PartialOrder.rel_trans (bot_le _) (HeapM.triple_of_bot_pre (Q := _) (pop null)).le_wp)⟩
+  · vcgen [pop, load_next_IsList_ne (v :: xs) null hd, store_prev_IsList_ne] with finish
+
+/-- Pushing then popping returns the value and restores the stack, with an unrelated cell framed
+across both. The pool has moved on by the node's three cells, which `pop` released rather than
+returned. -/
+example (l : Addr) (z v : Nat) (xs : List Nat) (hd k : Addr) :
+    ⦃ l ↦ z ∗ (IsList xs null hd ∗ Pool k) ⦄
+      (do let p ← push hd v; pop p)
+    ⦃ fun r => ⌜r.1 = v⌝ ⊓ (l ↦ z ∗ (IsList xs null r.2 ∗ Pool (k + 3))) ⦄ := by
+  vcgen [push_spec, pop_spec] with finish

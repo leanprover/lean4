@@ -156,6 +156,32 @@ private def rewriteForProxy (agent : Agent) (request : Request Body.Any) : Reque
   else
     toOriginForm request
 
+-- RFC 9112 §3.2 requires a `Host` on every HTTP/1.1 request, and only this layer knows the origin
+-- the hop is dispatched to. Redirect planning deliberately rewrites `Host` only when the request
+-- already had one, so a chain that started without it would otherwise reach a new host bare.
+private def withHostHeader (agent : Agent) (request : Request Body.Any) : Request Body.Any :=
+  if request.line.headers.contains .host then
+    request
+  else
+    { request with
+        line := { request.line with
+          headers := request.line.headers.insert .host (.ofString! agent.origin.hostHeader) } }
+
+/--
+`true` when the connection that delivered `head` survives the exchange, so the next hop of a
+redirect chain may reuse it. A response either asks for closure outright or ends its body at the
+close: RFC 9112 §6.3 gives a response carrying neither `Content-Length` nor `Transfer-Encoding` no
+other framing, unless its status forbids content in the first place.
+
+`config` decides this as much as the response does: a client with `enableKeepAlive := false` asked
+for closure itself, and the connection is retired no matter how obliging the server's head is.
+-/
+private def allowsConnectionReuse (config : Config) (head : Response.Head) : Bool :=
+  let bodyless :=
+    head.status.isInformational ∨ head.status == .noContent ∨ head.status == .notModified
+  config.enableKeepAlive ∧ Message.Head.shouldKeepAlive (dir := .sending) head ∧
+    (bodyless ∨ (Message.Head.getSize (dir := .sending) head (allowEOFBody := false)).isSome)
+
 /--
 Performs one request/response hop through the middleware chain. Failures flow through the
 chain as a typed `Except Error`; an exception thrown by a middleware itself is wrapped
@@ -165,10 +191,12 @@ Connection cleanup is owned entirely by this function: on a failed hop the conne
 `agent.release` exactly once, and on a successful hop a background task watches the exchange
 completion and releases the connection if the transport errors after the response was delivered.
 The completion promise of the innermost send is captured in a ref because middlewares only see
-the response: a hop that short-circuits without sending has no completion to watch.
+the response: a hop that short-circuits without sending has no completion to watch. It is also
+returned, so a redirect chain can wait for the exchange to finish before reusing the connection.
 -/
 private def dispatchHop (agent : Agent) (request : Request Body.Any)
-    (overrides : RequestOverrides) : Async (Except Error (Response Body.Stream)) := do
+    (overrides : RequestOverrides) :
+    Async (Except Error (Response Body.Stream × Option (IO.Promise (Except Error Unit)))) := do
   let completionRef ← IO.mkRef (none : Option (IO.Promise (Except Error Unit)))
   let inner : Request Body.Any → Async (Except Error (Response Body.Stream)) :=
       fun req => do
@@ -180,11 +208,12 @@ private def dispatchHop (agent : Agent) (request : Request Body.Any)
   let chain := agent.middlewares.foldr (fun mw next req => mw req next) inner
   match ← try chain request catch err => pure (.error (.io err)) with
   | .ok response =>
-    if let some completion ← completionRef.get then
+    let completion ← completionRef.get
+    if let some completion := completion then
       background do
         if let .error _ ← await completion.result! then
           agent.release agent.connection agent.origin
-    return .ok response
+    return .ok (response, completion)
   | .error e =>
     agent.release agent.connection agent.origin
     return .error e
@@ -204,7 +233,7 @@ private def targetKey : RequestTarget → String
 Decides whether `response` continues the redirect chain, given the effective `config` for this
 request. Returns the plan to follow, or `none` when the response is delivered to the caller as-is:
 the hop budget is spent, the response is not a followable redirect, the target was already visited,
-or it is cross-origin and `agent.crossOrigin` is `.stop`.
+or the hop needs a connection of its own that `agent.crossOrigin` cannot supply.
 -/
 private def evaluateRedirect (agent : Agent) (config : Config) (request : Request Body.Any)
     (response : Response Body.Stream) (remaining : Nat)
@@ -218,18 +247,24 @@ private def evaluateRedirect (agent : Agent) (config : Config) (request : Reques
 
   if history.contains (plan.origin, targetKey plan.target) then return none
 
-  if plan.isCrossOrigin then
+  -- The hop needs a connection of its own when it leaves this origin, and equally when the
+  -- redirect response ended the connection it arrived on. Only a `.follow` policy can open one, so
+  -- a standalone agent hands the 3xx back instead of writing to a connection that is going away.
+  if plan.isCrossOrigin ∨ ¬allowsConnectionReuse config response.line then
     if let .stop := agent.crossOrigin then return none
 
   return some plan
 
 /--
-Swaps the agent to the redirect target's origin: releases the outgoing connection and acquires
-one for the new origin via the `.follow` policy. Same-origin hops keep the agent unchanged.
+Points the agent at the connection the next hop must use: the current one when the hop stays on
+this origin and the redirect response left it usable, otherwise a fresh one from the `.follow`
+policy, with the outgoing connection released first.
 -/
-private def advanceAgent (agent : Agent) (plan : RedirectPlan) :
-    Async (Except Error Agent) := do
-  if !plan.isCrossOrigin then return .ok agent
+private def advanceAgent (agent : Agent) (config : Config) (plan : RedirectPlan)
+    (response : Response Body.Stream) : Async (Except Error Agent) := do
+  if !plan.isCrossOrigin ∧ allowsConnectionReuse config response.line then
+    -- The connection can still have died since the response arrived; falling through re-acquires.
+    if !(← agent.connection.isClosed) then return .ok agent
 
   let .follow acquire := agent.crossOrigin
     | return .ok agent
@@ -249,11 +284,11 @@ private partial def sendWithRedirects
   -- Recomputed per hop: a cross-origin swap may land on a connection with a different `Config`.
   let config := overrides.apply agent.connection.config
   let history := history.push (agent.origin, targetKey request.line.uri)
-  let request := rewriteForProxy agent request
+  let request := withHostHeader agent (rewriteForProxy agent request)
 
   match ← dispatchHop agent request overrides with
   | .error e => return .error e
-  | .ok response =>
+  | .ok (response, completion) =>
     match evaluateRedirect agent config request response remaining history with
     | none => return .ok response
     | some plan =>
@@ -264,8 +299,14 @@ private partial def sendWithRedirects
         try
           response.body.drain (drainLimit := some drainLimit)
             (closeStream := response.body.close)
+          -- Whether the connection carries the next hop is the connection's decision, not one the
+          -- response head can be read for: `maxRequestsPerConnection` and a peer that goes away
+          -- after answering are both invisible there. Waiting for the exchange to be reported
+          -- finished is what makes `advanceAgent`'s check see the outcome rather than race it.
+          if let some completion := completion then
+            discard <| await completion.result!
           let newRequest ← buildRedirectRequest plan request
-          match ← advanceAgent agent plan with
+          match ← advanceAgent agent config plan response with
           | .error e => pure (.error e)
           | .ok agent => pure (.ok (agent, newRequest))
         catch err =>

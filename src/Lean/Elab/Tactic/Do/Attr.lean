@@ -367,7 +367,8 @@ structure SpecTheorems where
 
 /-- Insert `e`, keeping the higher priority when a spec with the same proof is already stored. -/
 def SpecTheorems.insert (d : SpecTheorems) (e : SpecTheorem) : SpecTheorems :=
-  let priority := (Sym.getMatch d.specs e.pattern.pattern).foldl (init := e.priority) fun pr s =>
+  -- Patterns contain no metavariables, so an empty `MetavarContext` suffices.
+  let priority := (Sym.getMatch {} d.specs e.pattern.pattern).foldl (init := e.priority) fun pr s =>
     if s.proof == e.proof then max pr s.priority else pr
   { d with specs := Sym.insertPattern d.specs e.pattern { e with priority } }
 

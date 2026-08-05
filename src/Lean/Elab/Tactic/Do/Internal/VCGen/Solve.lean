@@ -373,7 +373,7 @@ public def matchFrame? (fp : FrameProc) (info : WPApp) : VCGenM (Option Expr) :=
   let db := (← get).frameDB
   if db.entries.isEmpty then return none
   let mut best : Option (FrameEntry × Sym.MatchUnifyResult) := none
-  for srcIdx in Sym.getMatch db.tree info.prog do
+  for srcIdx in Sym.getMatch (← getMCtx) db.tree info.prog do
     let entry := db.entries[srcIdx]!
     if entry.retired then continue
     if let some res ← entry.pat.match? info.prog then

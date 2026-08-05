@@ -29,10 +29,10 @@ def checkMatches : MetaM Unit := do
   withLocalDeclD `x (mkConst ``W) fun x => do
     let thms ← getHomoTheorems
     let add ← mkAppM ``wu #[← mkAppM ``HAdd.hAdd #[x, x]]
-    for thm in thms.getMatch add do
+    for thm in thms.getMatch (← getMCtx) add do
       logInfo m!"{thm.expr}"
     let eq ← mkEq x x
-    for thm in thms.getMatch eq do
+    for thm in thms.getMatch (← getMCtx) eq do
       logInfo m!"{thm.expr}"
 
 /--

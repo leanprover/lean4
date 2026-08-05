@@ -173,8 +173,11 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
 
   let (response, _) ← expectResponse promise
   assertStatusIs response 200
-  unless response.line.headers.get? (.mk "x-trace") |>.isSome do
-    throw <| IO.userError "response header X-Trace was not delivered"
+  match response.line.headers.get? (.mk "x-trace") with
+  | none => throw <| IO.userError "response header X-Trace was not delivered"
+  | some value =>
+    unless value.value == "abc" do
+      throw <| IO.userError s!"expected X-Trace \"abc\", got {value.value.quote}"
 
   let body : String ← response.body.readAll
   unless body == "world" do
@@ -333,7 +336,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
 
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK"
-    #[("X-Big", String.mk (List.replicate 400 'a')), ("Content-Length", "0")] "")
+    #[("X-Big", String.ofList (List.replicate 400 'a')), ("Content-Length", "0")] "")
 
   match ← expectError promise with
   | .protocol _ => pure ()
@@ -350,6 +353,13 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let head ← readHead mockServer
   if head.contains "payload-body" then
     throw <| IO.userError s!"body was sent before 100 Continue:\n{head.quote}"
+
+  -- The head and a wrongly-released body go out in separate writes, so the read above can stop
+  -- between them. Settle well inside the default `expectContinueTimeout` and probe the wire again.
+  sleep 100
+  if let some early ← mockServer.tryRecv? then
+    throw <| IO.userError
+      s!"body was sent before 100 Continue:\n{(String.fromUTF8! early).quote}"
 
   mockServer.send "HTTP/1.1 100 Continue\r\n\r\n".toUTF8
   discard <| readUntil mockServer "payload-body" head
@@ -368,9 +378,9 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let promise ← sendInBackground connection
     (mkStreamRequest "/chunked" stream #[("Expect", "100-continue")])
 
+  -- Nothing has been produced yet, so reaching a complete head is the whole assertion here; the
+  -- body-not-sent-early case is covered where the producer has already handed over bytes.
   let head ← readHead mockServer
-  if head.contains "payload-body" then
-    throw <| IO.userError s!"body was sent before 100 Continue:\n{head.quote}"
 
   mockServer.send "HTTP/1.1 100 Continue\r\n\r\n".toUTF8
   stream.send { data := "payload-body".toUTF8, extensions := #[] }
@@ -398,7 +408,11 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let _ : String ← response.body.readAll
   expectCompleted completion "417 rejection"
 
-#eval show IO _ from runWithTimeout "a second request is sent after a rejected expectation" 6000 <| Async.block do
+-- The head announced `Content-Length` for a body the rejection then abandons, so the peer is still
+-- counting those bytes. Writing the next request onto the same connection would hand it to the
+-- server as the body of this one (RFC 9112 §6.3), so the connection is retired instead and the
+-- queued request comes back retryable for a pool to re-issue on a fresh one.
+#eval show IO _ from runWithTimeout "a rejected expectation retires the connection" 6000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
   let connection ← mkConnection mockClient { requestTimeout := mediumTimeout }
   let first ← sendInBackground connection
@@ -409,14 +423,20 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let (resp1, _) ← expectResponse first
   assertStatusIs resp1 417
   let _ : String ← resp1.body.readAll
+  expectRetiredWithin connection 1000 "417 with an unsent Content-Length body"
 
   let second ← sendInBackground connection (← mkRequest .post "/again" "second-body")
-  let head2 ← readUntil mockServer "second-body"
-  unless head2.contains "POST /again " do
-    throw <| IO.userError s!"second request did not reuse the connection:\n{head2.quote}"
-  mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
-  let (resp2, _) ← expectResponse second
-  assertStatusIs resp2 200
+  expectRetryable (← expectError second) "queued behind a rejected expectation"
+
+  -- Nothing may follow the truncated first request on the wire.
+  connection.close
+  let mut wire := ""
+  repeat
+    let some chunk ← mockServer.recv? | break
+    wire := wire ++ String.fromUTF8! chunk
+  if wire.contains "POST /again " then
+    throw <| IO.userError
+      s!"a second request was written after an abandoned Content-Length body:\n{wire.quote}"
 
 -- An interim response and the final response arriving in one read leave the final response sitting
 -- in the reader's buffer after the 1xx is consumed. The loop has to step again on that buffered
@@ -738,7 +758,10 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
     let mut served : Array String := #[]
     for _ in [0:2] do
       let head ← readHead mockServer
-      let path := if head.startsWith "GET /alpha " then "alpha" else "beta"
+      let path ←
+        if head.startsWith "GET /alpha " then pure "alpha"
+        else if head.startsWith "GET /beta " then pure "beta"
+        else throw <| IO.userError s!"unrecognized request on the wire:\n{head.quote}"
       if served.contains path then
         throw <| IO.userError s!"request /{path} was sent twice"
       served := served.push path
@@ -760,7 +783,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let request : Request Body.Any :=
     { base with body := { emptyAny with isClosed := throw (IO.userError "user body isClosed failed") } }
   let promise ← sendInBackground connection request
-  discard <| await promise.result!
+  discard <| expectError promise
 
 #eval show IO _ from runWithTimeout "a request body whose getKnownSize throws does not hang the caller" 6000 <| Async.block do
   let (mockClient, _mockServer) ← Mock.new
@@ -769,7 +792,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let request : Request Body.Any :=
     { base with body := { emptyAny with getKnownSize := throw (IO.userError "user body getKnownSize failed") } }
   let promise ← sendInBackground connection request
-  discard <| await promise.result!
+  discard <| expectError promise
 
 /-! ### Bodyless responses (RFC 9112 §6.3) -/
 
@@ -1063,23 +1086,31 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
 
 -- HTTP/1.1 has no way to skip an unread body, so the connection has to drain it itself before the
 -- next request can go out.
-#eval show IO _ from runWithTimeout "an unread response body does not block the next request" 5000 <| Async.block do
-  let (mockClient, mockServer) ← Mock.new
-  let connection ← mkConnection mockClient patientConfig
-  let first ← sendInBackground connection (← mkRequest .get "/unread")
-  discard <| readHead mockServer
-  mockServer.send (rawResp "200 OK" #[("Content-Length", "5")] "hello")
-  let (resp1, _) ← expectResponse first
-  assertStatusIs resp1 200
-  resp1.body.close
+--
+-- Repeated, because `close` can land between the loop's own check that the response stream is still
+-- open and the poll that registers the stream as a wake-up source. Land there and that poll carries
+-- nothing but the cancellation selector: the body is drainable, the machine wants no input, and the
+-- exchange never finishes.
+#eval show IO _ from
+  runWithTimeout "an unread response body does not block the next request" 120000 <| Async.block do
+  for _ in [0:40] do
+    let (mockClient, mockServer) ← Mock.new
+    let connection ← mkConnection mockClient patientConfig
+    let first ← sendInBackground connection (← mkRequest .get "/unread")
+    discard <| readHead mockServer
+    mockServer.send (rawResp "200 OK" #[("Content-Length", "5")] "hello")
+    let (resp1, _) ← expectResponse first
+    assertStatusIs resp1 200
+    resp1.body.close
 
-  let second ← sendInBackground connection (← mkRequest .get "/after")
-  let head2 ← readHead mockServer
-  unless head2.startsWith "GET /after " do
-    throw <| IO.userError s!"the connection was not reusable after an unread body:\n{head2.quote}"
-  mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
-  let (resp2, _) ← expectResponse second
-  assertBodyIs resp2 "ok"
+    let second ← sendInBackground connection (← mkRequest .get "/after")
+    let head2 ← readHead mockServer
+    unless head2.startsWith "GET /after " do
+      throw <| IO.userError s!"the connection was not reusable after an unread body:\n{head2.quote}"
+    mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
+    let (resp2, _) ← expectResponse second
+    assertBodyIs resp2 "ok"
+    connection.close
 
 #eval show IO _ from runWithTimeout "junk between responses is never delivered as a response" 5000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
@@ -1258,11 +1289,21 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let promise ← sendInBackground connection
     (mkStreamRequest "/ignored-stream" stream #[("Expect", "100-continue")])
 
+  -- Produce from a background task: `Body.Stream` is a rendezvous channel, so a foreground `send`
+  -- would itself block until the fallback releases the body and could never observe the parking.
+  background do
+    stream.send { data := "payload-body".toUTF8, extensions := #[] }
+    stream.close
+
   let head ← readHead mockServer
   if head.contains "payload-body" then
     throw <| IO.userError s!"the body was sent before the expectation was resolved:\n{head.quote}"
-  stream.send { data := "payload-body".toUTF8, extensions := #[] }
-  stream.close
+
+  -- Well inside the 200ms fallback the produced chunk must still be parked.
+  sleep 60
+  if let some early ← mockServer.tryRecv? then
+    throw <| IO.userError
+      s!"the body was sent before the expectation was resolved:\n{(String.fromUTF8! early).quote}"
 
   discard <| readUntil mockServer "payload-body" head
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")

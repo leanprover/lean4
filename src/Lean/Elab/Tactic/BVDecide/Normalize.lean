@@ -6,18 +6,32 @@ Authors: Henrik Böving
 module
 prelude
 public import Lean.Meta.Tactic.BVDecide.Normalize
+import Lean.Meta.Sym.Util
+import Lean.Elab.Tactic.BVDecide.BVDecide
 
 namespace Lean.Elab.Tactic.BVDecide
 namespace Normalize
 
 @[builtin_tactic Lean.Parser.Tactic.bvNormalize]
 def evalBVNormalize : Tactic := fun
-  | `(tactic| bv_normalize $cfg:optConfig) => do
+  | `(tactic| bv_normalize $cfg:optConfig $[$types:bvTypes]?) => do
+    ensureBvDecide
     let cfg ← Meta.Tactic.BVDecide.elabBVDecideConfig cfg
+    let types ← Meta.Tactic.BVDecide.elabBVDecideTypes types
     let g ← getMainGoal
-    match ← Meta.Tactic.BVDecide.Normalize.bvNormalize g cfg with
-    | some newGoal => replaceMainGoal [newGoal]
-    | none => replaceMainGoal []
+    let (_, state) ← Meta.Sym.SymM.run do
+      Meta.Tactic.BVDecide.Normalize.bvNormalize.run { config := cfg, restrictedTypes := types } g
+    if ← state.goal.isAssigned then
+      replaceMainGoal []
+    else
+      let hyps := state.hypotheses.map fun hyp => {
+        userName := hyp.name
+        type := hyp.type
+        value := hyp.value
+      }
+      let (_, goal) ← MVarId.assertHypotheses state.goal hyps
+      replaceMainGoal [goal]
+
   | _ => throwUnsupportedSyntax
 
 end Normalize

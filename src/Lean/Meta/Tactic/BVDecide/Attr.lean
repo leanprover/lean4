@@ -40,8 +40,36 @@ register_builtin_option sat.solver : String := {
 
 declare_config_elab elabBVDecideConfig Lean.Elab.Tactic.BVDecide.BVDecideConfig
 
-builtin_initialize bvNormalizeExt : Meta.SimpExtension ←
-  Meta.registerSimpAttr `bv_normalize "simp theorems used by bv_normalize"
+/--
+Elaborate the optional `types [T₁, ..., Tₙ]` clause of the `bv_decide` family of tactics. Returns
+`none` if the clause is absent, in which case the structure and enum analysis runs unrestricted.
+-/
+def elabBVDecideTypes (stx : Option (TSyntax ``Lean.Parser.Tactic.bvTypes)) :
+    CoreM (Option (Array Name)) := do
+  let some stx := stx | return none
+  let `(Lean.Parser.Tactic.bvTypes| types [$ids,*]) := stx
+    | throwErrorAt stx "unexpected `types` clause"
+  let mut types := #[]
+  for id in ids.getElems do
+    let declName ← Elab.realizeGlobalConstNoOverloadWithInfo id
+    unless (← isSupportedTypeAnalysisType declName) do
+      throwErrorAt id m!"`{declName}` cannot be used in a `types` clause, only non-recursive \
+        structures and enum inductives are supported"
+    unless types.contains declName do
+      types := types.push declName
+  return some types
+where
+  isSupportedTypeAnalysisType (declName : Name) : CoreM Bool := do
+    if ← isEnumType declName then
+      return true
+    let env ← getEnv
+    if !isStructure env declName then
+      return false
+    let .inductInfo info ← getConstInfo declName | return false
+    return !info.isRec
+
+builtin_initialize bvNormalizeExt : Sym.Simp.SymSimpExtension ←
+  Sym.Simp.registerSymSimpAttr `bv_normalize "simp theorems used by bv_normalize"
 
 def symIntToBitVecName : Name := `int_toBitVec_sym
 def metaIntToBitVecName : Name := `int_toBitVec_meta
@@ -62,38 +90,6 @@ builtin_initialize
       metaImpl.add declName stx attrKind
       let symImpl ← IO.ofExcept <| getAttributeImpl env symIntToBitVecName
       symImpl.add declName stx attrKind
-  }
-
-/-- Builtin `bv_normalize` simprocs. -/
-builtin_initialize builtinBVNormalizeSimprocsRef : IO.Ref Meta.Simp.Simprocs ← IO.mkRef {}
-
-builtin_initialize bvNormalizeSimprocExt : Meta.Simp.SimprocExtension ←
-  Meta.Simp.registerSimprocAttr `bv_normalize_proc "simprocs used by bv_normalize" (some builtinBVNormalizeSimprocsRef)
-
-private def addBuiltin (declName : Name) (stx : Syntax) (addDeclName : Name) : AttrM Unit := do
-  let post := if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
-  let procExpr ← match (← getConstInfo declName).type with
-    | .const ``Simproc _  => pure <| mkApp3 (mkConst ``Sum.inl [0, 0]) (mkConst ``Simproc) (mkConst ``DSimproc) (mkConst declName)
-    | _ => throwError "unexpected type at bv_normalize simproc"
-  let val := mkAppN (mkConst addDeclName) #[toExpr declName, toExpr post, procExpr]
-  let initDeclName ← mkFreshUserName (declName ++ `declare)
-  declareBuiltin initDeclName val
-
-def _root_.Lean.Elab.Tactic.BVDecide.Frontend.addBVNormalizeProcBuiltinAttr (declName : Name)
-    (post : Bool) (proc : Sum Simproc DSimproc) : IO Unit :=
-  addSimprocBuiltinAttrCore builtinBVNormalizeSimprocsRef declName post proc
-
-
-
-builtin_initialize
-  registerBuiltinAttribute {
-    ref             := by exact decl_name%
-    name            := `bvNormalizeProcBuiltinAttr
-    descr           := "Builtin bv_normalize simproc"
-    applicationTime := AttributeApplicationTime.afterCompilation
-    erase           := fun _ => throwError "Not implemented yet, [-builtin_bv_normalize_proc]"
-    add             := fun declName stx _ =>
-      addBuiltin declName stx ``Lean.Elab.Tactic.BVDecide.Frontend.addBVNormalizeProcBuiltinAttr
   }
 
 end Lean.Meta.Tactic.BVDecide

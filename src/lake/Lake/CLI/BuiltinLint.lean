@@ -58,6 +58,7 @@ public def leanOptOverrides (args : Args) : LeanOptions :=
     merged.toArray.map fun (n, b) => ⟨`weak ++ n, .ofBool b⟩
   let base :=
     if args.mode == .recordExceptions then
+    if args.mode == .recordExceptions then
       base.push ⟨`internal.cmdlineSnapshots, .ofBool false⟩
     else base
   LeanOptions.ofArray base
@@ -200,6 +201,7 @@ private def runDeferredChecks (args : Args) (linterOpts : Linter.LinterOptions) 
     else
       Lean.Linter.getLinterValue linter.doc.deferred linterOpts
   unless selected do
+    let outcome := if args.mode == .recordExceptions then .recorded #[] false else .reported false
     let outcome := if args.mode == .recordExceptions then .recorded #[] false else .reported false
     return { outcome, checkedModules := docCheckedModules }
   let (outcome, _) ←
@@ -411,6 +413,10 @@ public def run (args : Args) : IO UInt32 := do
         records := records ++ recs
         if unlocated then anyUnlocated := true
 
+  match args.mode with
+  | .report =>
+    return if anyFailed then 1 else 0
+  | .recordExceptions =>
   match args.mode with
   | .report =>
     return if anyFailed then 1 else 0

@@ -12,10 +12,19 @@ public import Lean.Meta.Tactic.BVDecide.Normalize.Basic
 /-!
 This module contains the implementation of the embedded constraint substitution pass in the fixpoint
 pipeline, substituting hypotheses of the form `h : x = true` in other hypotheses.
+
+
 -/
 
 namespace Lean.Meta.Tactic.BVDecide
 namespace Normalize
+
+def embeddedConstraintProc (minDepth : UInt32) (hypMap : PersistentHashMap Sym.ExprPtr Expr) :
+    Sym.Simp.Simproc := fun e => do
+  if e.approxDepth < minDepth then
+    return .rfl (done := true)
+  let some proof := hypMap.find? ⟨e⟩ | return .rfl
+  return .step (← Sym.share <| toExpr Bool.true) proof (done := true) (contextDependent := true)
 
 /--
 Substitute embedded constraints. That is look for hypotheses of the form `h : x = true` and use
@@ -24,44 +33,44 @@ redundant top level hypotheses.
 -/
 public def embeddedConstraintPass : Pass where
   name := `embeddedConstraintSubstitution
-  run' goal := do
+  run' := do
+    let goal ← PreProcessM.getGoal
     goal.withContext do
-      let hyps ← getPropHyps
-      let mut relevantHyps : SimpTheoremsArray := #[]
-      let mut seen : Std.HashSet Expr := {}
-      let mut duplicates : Array FVarId := #[]
-      for hyp in hyps do
-        let typ ← hyp.getType
-        let_expr Eq _ lhs rhs := typ | continue
+      let hyps ← PreProcessM.getHyps
+      let mut relevantHypsMap : PersistentHashMap Sym.ExprPtr Expr := {}
+      let mut relevantHypsIdxMap : Std.HashMap Nat Sym.ExprPtr := {}
+      let mut seen : Std.HashSet Sym.ExprPtr := {}
+      let mut minDepth := UInt32.size
+      for h : idx in 0...hyps.size do
+        let hyp := hyps[idx]
+        let type := hyp.type
+        let_expr Eq _ lhs rhs := type | continue
         let_expr Bool.true := rhs | continue
-        if seen.contains lhs then
-          duplicates := duplicates.push hyp
-        else
-          seen := seen.insert lhs
-          let localDecl ← hyp.getDecl
-          let proof := localDecl.toExpr
-          relevantHyps ← relevantHyps.addTheorem (.fvar hyp) proof
+        if !seen.contains ⟨lhs⟩ then
+          seen := seen.insert ⟨lhs⟩
+          relevantHypsIdxMap := relevantHypsIdxMap.insert idx ⟨lhs⟩
+          minDepth := minDepth.min lhs.approxDepth.toNat
+          relevantHypsMap := relevantHypsMap.insert ⟨lhs⟩ hyp.value
 
-      let goal ← goal.tryClearMany duplicates
-
-      if relevantHyps.isEmpty then
-        return goal
+      trace[Meta.Tactic.bv] m!"Chose min depth at: {minDepth}"
+      if relevantHypsMap.isEmpty then
+        return false
 
       let cfg ← PreProcessM.getConfig
-      let targets ← goal.withContext getPropHyps
-      let simpCtx ← Simp.mkContext
-        (config := {
-          failIfUnchanged := false,
-          implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
-          maxSteps := cfg.maxSteps,
-          instances := true
-        })
-        (simpTheorems := relevantHyps)
-        (congrTheorems := (← getSimpCongrTheorems))
-      let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := targets)
-      let some (_, newGoal) := result? | return none
-      return newGoal
-
+      let config := {
+        maxSteps := cfg.maxSteps
+      }
+      PreProcessM.mapIdxHyps fun idx hyp => do
+        let relevantHypsMap :=
+          if let some ptr := relevantHypsIdxMap[idx]? then
+            relevantHypsMap.erase ptr
+          else
+            relevantHypsMap
+        let methods := {
+          pre := embeddedConstraintProc minDepth.toUInt32 relevantHypsMap
+        }
+        let res ← Sym.simp hyp.type methods config
+        hyp.applySimpResult res
 
 end Normalize
 end Lean.Meta.Tactic.BVDecide

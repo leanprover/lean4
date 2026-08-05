@@ -8,6 +8,7 @@ prelude
 
 public import Lean.Meta.Tactic.BVDecide.Prover.Bitblast
 import Lean.Meta.Tactic.BVDecide.Normalize
+import Lean.Meta.Sym.Util
 
 
 /-!
@@ -15,8 +16,14 @@ This module provides the implementation of the `bv_decide` frontend itself.
 -/
 namespace Lean.Meta.Tactic.BVDecide
 
-def bvUnsat (g : MVarId) (ctx : TacticContext) : MetaM (Except CounterExample LratCert) := M.run do
-  closeWithBVReflection g (lratBitblaster ctx)
+public def TacticContext.preProcessContext (ctx : TacticContext) : Normalize.PreProcessContext where
+  config := ctx.config
+  restrictedTypes := ctx.restrictedTypes
+
+def bvUnsat (g : MVarId) (hypotheses : Array Normalize.Hyp) (ctx : TacticContext) :
+    Sym.SymM (Except CounterExample LratCert) :=
+  M.run (hypotheses := hypotheses) do
+    closeWithBVReflection g (lratBitblaster ctx)
 
 /--
 The result of calling `bv_decide`.
@@ -32,17 +39,19 @@ public structure Result where
 Try to close `g` using a bitblaster. Return either a `CounterExample` if one is found or a `Result`
 if `g` is proven.
 -/
-public def bvDecide' (g : MVarId) (ctx : TacticContext) : MetaM (Except CounterExample Result) := do
-  let g? ← Normalize.bvNormalize g ctx.config
-  let some g := g? | return .ok ⟨none⟩
-  match ← bvUnsat g ctx with
-  | .ok lratCert => return .ok ⟨some lratCert⟩
-  | .error counterExample => return .error counterExample
+public def bvDecide' (g : MVarId) (ctx : TacticContext) : Sym.SymM (Except CounterExample Result) := do
+  Normalize.PreProcessM.run' ctx.preProcessContext g do
+    let solved ← Normalize.bvNormalize
+    if solved then return .ok ⟨none⟩
+
+    match ← bvUnsat (← Normalize.PreProcessM.getGoal) (← Normalize.PreProcessM.getHyps) ctx with
+    | .ok lratCert => return .ok ⟨some lratCert⟩
+    | .error counterExample => return .error counterExample
 
 /--
 Call `bvDecide'` and throw a pretty error if a counter example ends up being produced.
 -/
-public def bvDecide (g : MVarId) (ctx : TacticContext) : MetaM Result := do
+public def bvDecide (g : MVarId) (ctx : TacticContext) : Sym.SymM Result := do
   match ← bvDecide' g ctx with
   | .ok result => return result
   | .error counterExample =>

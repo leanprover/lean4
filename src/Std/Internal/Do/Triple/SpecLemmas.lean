@@ -29,6 +29,7 @@ public import Init.Data.String.Iterate
 import Init.Data.String.Lemmas.Splits
 import Init.Data.String.Termination
 import Init.Data.String.Lemmas.Iterate
+public import Std.Internal.ForIn
 
 set_option linter.missingDocs true
 
@@ -615,9 +616,9 @@ namespace Std.Internal.Do
 
 open Lean.Order
 
-universe u₁ u₂ v uₚ uₑ
+universe u₁ u₂ v w uₚ uₑ
 
-variable {α : Type u₁} {β : Type (max u₁ u₂)} {m : Type (max u₁ u₂) → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
+variable {α : Type u₁} {β : Type u₂} {m : Type u₂ → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
 variable [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
 
 /-- The type of loop invariants used by the specifications of `for ... in ...` loops.
@@ -771,594 +772,48 @@ theorem Spec.foldlM_list_const_inv
     Spec.foldlM_list (fun _ _ b => inv b) (fun _p c _s _h b => step c b)
 
 
-@[spec]
-theorem Spec.forIn'_range {β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    {xs : Std.Legacy.Range} {init : β} {f : (a : Nat) → a ∈ xs → β → m (ForInStep β)}
-    (inv : Invariant Nat β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur (by simp [Std.Legacy.Range.mem_of_mem_range', h]) b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn' xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [Std.Legacy.Range.forIn'_eq_forIn'_range', Std.Legacy.Range.size, Std.Legacy.Range.size.eq_1]
-  exact Spec.forIn'_list inv (fun c hcur b => step c hcur b)
-
-
-@[spec]
-theorem Spec.forIn_range {β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    {xs : Std.Legacy.Range} {init : β} {f : Nat → β → m (ForInStep β)}
-    (inv : Invariant Nat β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (_h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [Std.Legacy.Range.forIn_eq_forIn_range', Std.Legacy.Range.size]
-  exact Spec.forIn_list inv step
-
-open Std Std.PRange in
-
-@[spec]
-theorem Spec.forIn'_rcc {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [LE α] [DecidableLE α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    {xs : Rcc α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
+/-- Every container with a `PureForIn'` instance iterates over `ForIn.toList`, so one specification
+covers them all. -/
+@[spec low+10]
+theorem Spec.forIn'_pure {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d] [ForIn Id ρ α]
+    [LawfulMemForInId ρ α] [PureForIn' m ρ α]
+    {xs : ρ} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     (inv : Invariant α β Pred)
     {epost : EPred}
-    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur (by simp [← Rcc.mem_toList_iff_mem, h]) b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn' xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [Rcc.forIn'_eq_forIn'_toList]
-  exact Spec.forIn'_list inv step
-
-open Std Std.PRange in
-
-@[spec]
-theorem Spec.forIn_rcc {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [LE α] [DecidableLE α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    {xs : Rcc α} {init : β} {f : α → β → m (ForInStep β)}
-    (inv : Invariant α β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (_h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [forIn]
-  exact Spec.forIn'_rcc inv step
-
-open Std Std.PRange in
-
-@[spec]
-theorem Spec.forIn'_rco {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [LE α] [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
-    {xs : Rco α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
-    (inv : Invariant α β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur (by simp [← Rco.mem_toList_iff_mem, h]) b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn' xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [Rco.forIn'_eq_forIn'_toList]
-  exact Spec.forIn'_list inv step
-
-open Std Std.PRange in
-
-@[spec]
-theorem Spec.forIn_rco {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [LE α] [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
-    {xs : Rco α} {init : β} {f : α → β → m (ForInStep β)}
-    (inv : Invariant α β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (_h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [forIn]
-  exact Spec.forIn'_rco inv step
-
-open Std Std.PRange in
-
-@[spec]
-theorem Spec.forIn'_rci {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [LE α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    {xs : Rci α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
-    (inv : Invariant α β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur (by simp [← Rci.mem_toList_iff_mem, h]) b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn' xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [Rci.forIn'_eq_forIn'_toList]
-  exact Spec.forIn'_list inv step
-
-open Std Std.PRange in
-
-@[spec]
-theorem Spec.forIn_rci {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [LE α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    {xs : Rci α} {init : β} {f : α → β → m (ForInStep β)}
-    (inv : Invariant α β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (_h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [forIn]
-  exact Spec.forIn'_rci inv step
-
-open Std Std.PRange in
-
-@[spec]
-theorem Spec.forIn'_roc {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [LE α] [DecidableLE α] [LT α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
-    {xs : Roc α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
-    (inv : Invariant α β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur (by simp [← Roc.mem_toList_iff_mem, h]) b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn' xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [Roc.forIn'_eq_forIn'_toList]
-  exact Spec.forIn'_list inv step
-
-open Std Std.PRange in
-
-theorem Spec.forIn_roc {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [LE α] [DecidableLE α] [LT α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
-    {xs : Roc α} {init : β} {f : α → β → m (ForInStep β)}
-    (inv : Invariant α β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (_h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [forIn]
-  exact Spec.forIn'_roc inv step
-
-open Std Std.PRange in
-
-@[spec]
-theorem Spec.forIn'_roo {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    {xs : Roo α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
-    (inv : Invariant α β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur (by simp [← Roo.mem_toList_iff_mem, h]) b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn' xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [Roo.forIn'_eq_forIn'_toList]
-  exact Spec.forIn'_list inv step
-
-open Std Std.PRange in
-
-@[spec]
-theorem Spec.forIn_roo {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    {xs : Roo α} {init : β} {f : α → β → m (ForInStep β)}
-    (inv : Invariant α β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (_h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [forIn]
-  exact Spec.forIn'_roo inv step
-
-open Std Std.PRange in
-
-@[spec]
-theorem Spec.forIn'_roi {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    {xs : Roi α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
-    (inv : Invariant α β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur (by simp [← Roi.mem_toList_iff_mem, h]) b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn' xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [Roi.forIn'_eq_forIn'_toList]
-  exact Spec.forIn'_list inv step
-
-open Std Std.PRange in
-
-@[spec]
-theorem Spec.forIn_roi {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    {xs : Roi α} {init : β} {f : α → β → m (ForInStep β)}
-    (inv : Invariant α β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (_h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [forIn]
-  exact Spec.forIn'_roi inv step
-
-open Std Std.PRange in
-
-@[spec]
-theorem Spec.forIn'_ric {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α] [LawfulUpwardEnumerableLE α]
-    {xs : Ric α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
-    (inv : Invariant α β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur (by simp [← Ric.mem_toList_iff_mem, h]) b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn' xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [Ric.forIn'_eq_forIn'_toList]
-  exact Spec.forIn'_list inv step
-
-open Std Std.PRange in
-
-@[spec]
-theorem Spec.forIn_ric {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α] [LawfulUpwardEnumerableLE α]
-    {xs : Ric α} {init : β} {f : α → β → m (ForInStep β)}
-    (inv : Invariant α β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (_h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [forIn]
-  exact Spec.forIn'_ric inv step
-
-open Std Std.PRange in
-
-@[spec]
-theorem Spec.forIn'_rio {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α] [LawfulUpwardEnumerableLT α]
-    {xs : Rio α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
-    (inv : Invariant α β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur (by simp [← Rio.mem_toList_iff_mem, h]) b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn' xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [Rio.forIn'_eq_forIn'_toList]
-  exact Spec.forIn'_list inv step
-
-open Std Std.PRange in
-
-@[spec]
-theorem Spec.forIn_rio {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α] [LawfulUpwardEnumerableLT α]
-    {xs : Rio α} {init : β} {f : α → β → m (ForInStep β)}
-    (inv : Invariant α β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (_h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [forIn]
-  exact Spec.forIn'_rio inv step
-
-open Std Std.PRange in
-
-@[spec]
-theorem Spec.forIn'_rii {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [Least? α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
-    {xs : Rii α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
-    (inv : Invariant α β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (_h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur (by simp [Rii.mem]) b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn' xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [Rii.forIn'_eq_forIn'_toList]
-  exact Spec.forIn'_list inv step
-
-open Std Std.PRange in
-
-@[spec]
-theorem Spec.forIn_rii {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [Least? α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
-    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
-    {xs : Rii α} {init : β} {f : α → β → m (ForInStep β)}
-    (inv : Invariant α β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (_h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | ForInStep.yield b' => inv (pref ++ [cur]) suff b'
-          | ForInStep.done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  simp only [forIn]
-  exact Spec.forIn'_rii inv step
-
-open Std Std.Iterators in
-
-@[spec]
-theorem Spec.forIn_slice {δ : Type u} {m : Type u → Type w} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    {γ : Type u'} {α β : Type u}
-    [ToIterator (Slice γ) Id α β]
-    [Iterator α Id β]
-    [IteratorLoop α Id m]
-    [LawfulIteratorLoop α Id m]
-    [Finite α Id]
-    {init : δ} {f : β → δ → m (ForInStep δ)}
-    {xs : Slice γ}
-    (inv : Invariant β δ Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (_h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur b)
-        (inv pref (cur::suff) b)
+    (step : ∀ pref cur suff (h : ForIn.toList xs = pref ++ cur :: suff) b,
+      Triple (f cur ((LawfulMemForInId.mem_toList_iff).mp (by simp [h])) b)
+        (inv pref (cur :: suff) b)
         (fun r => match r with
           | .yield b' => inv (pref ++ [cur]) suff b'
-          | .done b' => inv xs.toList [] b')
+          | .done b' => inv (ForIn.toList xs) [] b')
         epost) :
-    Triple (forIn xs init f) (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b) epost := by
-  simp only [← Slice.forIn_toList]
+    Triple (forIn' xs init f) (inv [] (ForIn.toList xs) init)
+      (fun b => inv (ForIn.toList xs) [] b) epost := by
+  rw [PureForIn'.forIn'_eq]
+  exact Spec.forIn'_list inv step
+
+/-- Every container with a `PureForIn` instance iterates over `ForIn.toList`, so one specification
+covers them all. -/
+@[spec low+10]
+theorem Spec.forIn_pure {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α] [PureForIn m ρ α]
+    {xs : ρ} {init : β} {f : α → β → m (ForInStep β)}
+    (inv : Invariant α β Pred)
+    {epost : EPred}
+    (step : ∀ pref cur suff (_h : ForIn.toList xs = pref ++ cur :: suff) b,
+      Triple (f cur b)
+        (inv pref (cur :: suff) b)
+        (fun r => match r with
+          | .yield b' => inv (pref ++ [cur]) suff b'
+          | .done b' => inv (ForIn.toList xs) [] b')
+        epost) :
+    Triple (forIn xs init f) (inv [] (ForIn.toList xs) init)
+      (fun b => inv (ForIn.toList xs) [] b) epost := by
+  rw [PureForIn.forIn_eq]
   exact Spec.forIn_list inv step
+
 
 section Iterators
 open Std Std.Iterators
-
-
-@[spec low]
-theorem Spec.forIn_iter {α β γ : Type u} {m : Type u → Type w} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
-    {init : γ} {f : β → γ → m (ForInStep γ)}
-    {it : Iter (α := α) β}
-    (inv : Invariant β γ Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (_h : it.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | .yield b' => inv (pref ++ [cur]) suff b'
-          | .done b' => inv it.toList [] b')
-        epost) :
-    Triple (forIn it init f) (inv [] it.toList init)
-      (fun b => inv it.toList [] b) epost := by
-  simp only [← Iter.forIn_toList]
-  exact Spec.forIn_list inv step
-
-
-@[spec low]
-theorem Spec.forIn_iterM_id {α β γ : Type u} {m : Type u → Type w} {Pred : Type uₚ} {EPred : Type uₑ}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
-    {init : γ} {f : β → γ → m (ForInStep γ)}
-    {it : IterM (α := α) Id β}
-    (inv : Invariant β γ Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (_h : it.toList.run = pref ++ cur :: suff) b,
-      Triple
-        (f cur b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | .yield b' => inv (pref ++ [cur]) suff b'
-          | .done b' => inv it.toList.run [] b')
-        epost) :
-    Triple (forIn it init f) (inv [] it.toList.run init)
-      (fun b => inv it.toList.run [] b) epost := by
-  conv in forIn it init f =>
-    rw [← Iter.toIterM_toIter (it := it), ← Iter.forIn_eq_forIn_toIterM, ← Iter.forIn_toList,
-      IterM.toList_toIter]
-  exact Spec.forIn_list inv step
 
 
 @[spec low]
@@ -2243,46 +1698,6 @@ theorem Spec.Iter.fold_filterM {α β δ : Type w}
 
 end Iterators
 
-
-
-@[spec]
-theorem Spec.forIn'_array {xs : Array α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
-    (inv : Invariant α β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur (by simp [←Array.mem_toList_iff, h]) b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | .yield b' => inv (pref ++ [cur]) suff b'
-          | .done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn' xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  cases xs; simp; apply Spec.forIn'_list inv step
-
-
-@[spec]
-theorem Spec.forIn_array {xs : Array α} {init : β} {f : α → β → m (ForInStep β)}
-    (inv : Invariant α β Pred)
-    {epost : EPred}
-    (step : ∀ pref cur suff (_h : xs.toList = pref ++ cur :: suff) b,
-      Triple
-        (f cur b)
-        (inv pref (cur::suff) b)
-        (fun r => match r with
-          | .yield b' => inv (pref ++ [cur]) suff b'
-          | .done b' => inv xs.toList [] b')
-        epost) :
-    Triple
-      (forIn xs init f)
-      (inv [] xs.toList init)
-      (fun b => inv xs.toList [] b)
-      epost := by
-  cases xs; simp; apply Spec.forIn_list inv step
 
 
 @[spec]

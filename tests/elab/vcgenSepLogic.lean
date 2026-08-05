@@ -479,10 +479,14 @@ theorem le_sepConj_wand_emp_wand_refl (X A : HProp) : X ⊑ X ∗ (A -∗ (emp -
 
 /-! ## Doubly-linked lists
 
-`IsList xs back p` asserts that `p` roots a null-terminated doubly-linked list whose **payloads** are
-`xs`, and that the head cell's prev field equals `back`. A cons node at `p` stores next at `p`,
-prev at `p + 1`, and the head payload at `p + 2` (C field order; and `p ≠ null`). The program
-`reverse` takes only a head pointer; `xs` is ghost in the specification. -/
+`IsList xs prev hd` asserts that `hd` roots a null-terminated doubly-linked list whose **payloads**
+are `xs`, and that `hd`'s prev field holds `prev`. A cons node at `hd` stores next at `hd`, prev at
+`hd + 1`, and the head payload at `hd + 2` (C field order; and `hd ≠ null`).
+
+The two address arguments name what the head node points at and what points at it: `hd` is where the
+segment starts, `prev` is the node before it. So the recursive occurrence reads
+`IsList vs hd next`, the tail starting at `next` with `hd` before it. The program `reverse` takes
+only a head pointer; `xs` is ghost in the specification. -/
 
 /-- Pointwise characterization of an embedded-guard assertion. -/
 theorem ofProp_meet_apply (φ : Prop) (P : HProp) (h : Heap) : (⌜φ⌝ ⊓ P) h ↔ φ ∧ P h := by
@@ -497,57 +501,61 @@ theorem ofProp_meet_apply (φ : Prop) (P : HProp) (h : Heap) : (⌜φ⌝ ⊓ P) 
   · intro ⟨hφ, hP⟩
     exact (le_meet P ⌜φ⌝ P (le_ofProp P φ hφ) PartialOrder.rel_refl) h hP
 
-/-- Doubly-linked list segment: payloads `xs`, head at `p`, head-prev `back`.
-Node layout: `p ↦ next ∗ (p+1) ↦ prev ∗ (p+2) ↦ payload`. -/
+/-- Doubly-linked list segment: payloads `xs`, head node at `hd`, preceded by `prev`.
+Node layout: `hd ↦ next ∗ (hd+1) ↦ prev ∗ (hd+2) ↦ payload`. -/
 noncomputable def IsList : List Nat → Addr → Addr → HProp
-  | [], _back, p => sepPure (p = null)
-  | v :: vs, back, p =>
-      ⌜p ≠ null⌝ ⊓ ⨆ n : Addr, p ↦ n ∗ (p + 1) ↦ back ∗ (p + 2) ↦ v ∗ IsList vs p n
+  | [], _prev, hd => sepPure (hd = null)
+  | v :: vs, prev, hd =>
+      ⌜hd ≠ null⌝ ⊓ ⨆ next : Addr,
+        hd ↦ next ∗ (hd + 1) ↦ prev ∗ (hd + 2) ↦ v ∗ IsList vs hd next
 
-@[grind =] theorem IsList_nil_eq (back p : Addr) : IsList [] back p = sepPure (p = null) := rfl
+@[grind =] theorem IsList_nil_eq (prev hd : Addr) : IsList [] prev hd = sepPure (hd = null) := rfl
 
-@[grind =] theorem IsList_cons_eq (v : Nat) (vs : List Nat) (back p : Addr) :
-    IsList (v :: vs) back p =
-      ⌜p ≠ null⌝ ⊓ ⨆ n : Addr, p ↦ n ∗ (p + 1) ↦ back ∗ (p + 2) ↦ v ∗ IsList vs p n := rfl
+@[grind =] theorem IsList_cons_eq (v : Nat) (vs : List Nat) (prev hd : Addr) :
+    IsList (v :: vs) prev hd =
+      ⌜hd ≠ null⌝ ⊓ ⨆ next : Addr,
+        hd ↦ next ∗ (hd + 1) ↦ prev ∗ (hd + 2) ↦ v ∗ IsList vs hd next := rfl
 
-@[grind =] theorem IsList_nil_null (back : Addr) : IsList [] back null = emp := by
+@[grind =] theorem IsList_nil_null (prev : Addr) : IsList [] prev null = emp := by
   funext h; apply propext
   simp [IsList_nil_eq, sepPure_apply]
 
-theorem IsList_cons_elim {v : Nat} {vs : List Nat} {back p : Addr} {h : Heap}
-    (hl : IsList (v :: vs) back p h) :
-    p ≠ null ∧ ∃ n, (p ↦ n ∗ (p + 1) ↦ back ∗ (p + 2) ↦ v ∗ IsList vs p n) h := by
+theorem IsList_cons_elim {v : Nat} {vs : List Nat} {prev hd : Addr} {h : Heap}
+    (hl : IsList (v :: vs) prev hd h) :
+    hd ≠ null ∧ ∃ next,
+      (hd ↦ next ∗ (hd + 1) ↦ prev ∗ (hd + 2) ↦ v ∗ IsList vs hd next) h := by
   rw [IsList_cons_eq] at hl
   exact ((ofProp_meet_apply _ _ _).mp hl).imp_right fun hh => (iSup_hprop_apply _ _).mp hh
 
 @[grind ←]
-theorem IsList_cons_intro (v : Nat) (n back : Addr) (vs : List Nat) (p : Addr) (hp : p ≠ null) :
-    (p ↦ n ∗ (p + 1) ↦ back ∗ (p + 2) ↦ v ∗ IsList vs p n) ⊑ IsList (v :: vs) back p := by
+theorem IsList_cons_intro (v : Nat) (next prev : Addr) (vs : List Nat) (hd : Addr)
+    (hhd : hd ≠ null) :
+    (hd ↦ next ∗ (hd + 1) ↦ prev ∗ (hd + 2) ↦ v ∗ IsList vs hd next) ⊑ IsList (v :: vs) prev hd := by
   intro h hh
-  exact (ofProp_meet_apply _ _ _).mpr ⟨hp, (iSup_hprop_apply _ _).mpr ⟨n, hh⟩⟩
+  exact (ofProp_meet_apply _ _ _).mpr ⟨hhd, (iSup_hprop_apply _ _).mpr ⟨next, hh⟩⟩
 
 /-- Open a segment known to be non-empty: the head node's three cells and the tail segment.
 Mirror of `IsList_cons_intro`. -/
-theorem IsList_ne_le (rest : List Nat) (back curr : Addr) (hcn : curr ≠ null) :
-    IsList rest back curr ⊑
-      ⨆ v, ⨆ vs, ⨆ n, sepPure (rest = v :: vs) ∗
-        (curr ↦ n ∗ (curr + 1) ↦ back ∗ (curr + 2) ↦ v ∗ IsList vs curr n) := by
-  match rest with
+theorem IsList_ne_le (xs : List Nat) (prev hd : Addr) (hhd : hd ≠ null) :
+    IsList xs prev hd ⊑
+      ⨆ v, ⨆ vs, ⨆ next, sepPure (xs = v :: vs) ∗
+        (hd ↦ next ∗ (hd + 1) ↦ prev ∗ (hd + 2) ↦ v ∗ IsList vs hd next) := by
+  match xs with
   | [] =>
     refine PartialOrder.rel_trans ?_ (bot_le _)
     intro h hh
-    exact (hcn ((sepPure_apply _ _).mp hh).1).elim
+    exact (hhd ((sepPure_apply _ _).mp hh).1).elim
   | v :: vs =>
     rw [IsList_cons_eq]
-    refine ofProp_meet_le_left fun _ => iSup_le _ _ fun n => ?_
-    refine le_iSup_of_le v (le_iSup_of_le vs (le_iSup_of_le n (PartialOrder.rel_of_eq ?_)))
+    refine ofProp_meet_le_left fun _ => iSup_le _ _ fun next => ?_
+    refine le_iSup_of_le v (le_iSup_of_le vs (le_iSup_of_le next (PartialOrder.rel_of_eq ?_)))
     rw [show (v :: vs = v :: vs) = True from propext ⟨fun _ => trivial, fun _ => rfl⟩,
       sepPure_true_eq_emp, emp_sepConj]
 
 /-- A segment rooted at `null` is empty. -/
-@[grind =] theorem IsList_null_eq (rest : List Nat) (back : Addr) :
-    IsList rest back null = sepPure (rest = []) := by
-  cases rest with
+@[grind =] theorem IsList_null_eq (xs : List Nat) (prev : Addr) :
+    IsList xs prev null = sepPure (xs = []) := by
+  cases xs with
   | nil => simp [IsList_nil_eq]
   | cons v vs =>
     refine PartialOrder.rel_antisymm ?_ ?_
@@ -587,20 +595,20 @@ theorem sepConj_le_bot_of_right (A : HProp) {B : HProp} (h : B ⊑ ⊥) : A ∗ 
 grind_pattern sepConj_le_bot_of_right => B ⊑ ⊥, A ∗ B
 
 /-- An empty segment pins its root to `null`. -/
-theorem IsList_nil_le_bot (curr next : Addr) (hne : next ≠ null) : IsList [] curr next ⊑ ⊥ := by
+theorem IsList_nil_le_bot (prev hd : Addr) (hhd : hd ≠ null) : IsList [] prev hd ⊑ ⊥ := by
   intro h hh
   rw [IsList_nil_eq] at hh
-  exact (hne ((sepPure_apply _ _).mp hh).1).elim
+  exact (hhd ((sepPure_apply _ _).mp hh).1).elim
 
-grind_pattern IsList_nil_le_bot => IsList [] curr next
+grind_pattern IsList_nil_le_bot => IsList [] prev hd
 
 /-- A cons segment cannot be rooted at `null`. -/
-theorem IsList_cons_null_le_bot (v : Nat) (vs : List Nat) (back : Addr) :
-    IsList (v :: vs) back null ⊑ ⊥ := by
+theorem IsList_cons_null_le_bot (v : Nat) (vs : List Nat) (prev : Addr) :
+    IsList (v :: vs) prev null ⊑ ⊥ := by
   intro h hh
   exact ((IsList_cons_elim hh).1 rfl).elim
 
-grind_pattern IsList_cons_null_le_bot => IsList (v :: vs) back null
+grind_pattern IsList_cons_null_le_bot => IsList (v :: vs) prev null
 
 /-- A contradictory precondition entails anything. Both patterns are needed: the conclusion alone
 matches every entailment goal, so the rule fires only once forward saturation has asserted `X ⊑ ⊥`
@@ -610,8 +618,8 @@ theorem le_of_le_bot {X : HProp} (h : X ⊑ ⊥) (C : HProp) : X ⊑ C :=
 
 grind_pattern _root_.le_of_le_bot => X ⊑ ⊥, X ⊑ C
 
-@[grind =] theorem IsList_append_nil (xs : List Nat) (back r : Addr) :
-    IsList (xs ++ ([] : List Nat)) back r = IsList xs back r := by
+@[grind =] theorem IsList_append_nil (xs : List Nat) (prev hd : Addr) :
+    IsList (xs ++ ([] : List Nat)) prev hd = IsList xs prev hd := by
   simp
 
 /-! # The frame inference procedure
@@ -851,25 +859,25 @@ one opens the node with `IsList_ne_le` and then applies the primitive spec. -/
 /-- Load the next-pointer of a list node known to be non-null: the segment must then be a cons,
 and the loaded value is its `IsList` witness. The shape hypothesis reaches `finish` from the
 branch condition in scope. -/
-theorem load_next_IsList_ne (rest : List Nat) (back curr : Addr) (hcn : curr ≠ null) :
-    ⦃ IsList rest back curr ⦄
-      load curr
-    ⦃ fun next => ⨆ v, ⨆ vs, ⌜rest = v :: vs⌝ ⊓
-        (curr ↦ next ∗ (curr + 1) ↦ back ∗ (curr + 2) ↦ v ∗ IsList vs curr next) ⦄ := by
-  refine ⟨PartialOrder.rel_trans (IsList_ne_le rest back curr hcn) ?_⟩
-  refine iSup_le _ _ fun v => iSup_le _ _ fun vs => iSup_le _ _ fun n => ?_
-  refine sepPure_sepConj_le_of _ _ _ fun hrest => ?_
-  subst hrest
+theorem load_next_IsList_ne (xs : List Nat) (prev hd : Addr) (hhd : hd ≠ null) :
+    ⦃ IsList xs prev hd ⦄
+      load hd
+    ⦃ fun next => ⨆ v, ⨆ vs, ⌜xs = v :: vs⌝ ⊓
+        (hd ↦ next ∗ (hd + 1) ↦ prev ∗ (hd + 2) ↦ v ∗ IsList vs hd next) ⦄ := by
+  refine ⟨PartialOrder.rel_trans (IsList_ne_le xs prev hd hhd) ?_⟩
+  refine iSup_le _ _ fun v => iSup_le _ _ fun vs => iSup_le _ _ fun next => ?_
+  refine sepPure_sepConj_le_of _ _ _ fun hxs => ?_
+  subst hxs
   vcgen [load_spec] with (try finish)
   refine PartialOrder.rel_trans ?_
     (le_iSup_of_le v (le_iSup_of_le vs
       (le_meet _ _ _ (le_ofProp _ _ rfl) PartialOrder.rel_refl)))
   grind
 
-/-- Rewrite the back-pointer of a list head known to be non-null. -/
-theorem store_prev_IsList_ne (ys : List Nat) (qb y c : Addr) (hy : y ≠ null) :
-    ⦃ IsList ys qb y ⦄ store (y + 1) c ⦃ fun _ => IsList ys c y ⦄ := by
-  refine ⟨PartialOrder.rel_trans (IsList_ne_le ys qb y hy) ?_⟩
+/-- Overwrite the prev field of a list head known to be non-null. -/
+theorem store_prev_IsList_ne (xs : List Nat) (prev hd prev' : Addr) (hhd : hd ≠ null) :
+    ⦃ IsList xs prev hd ⦄ store (hd + 1) prev' ⦃ fun _ => IsList xs prev' hd ⦄ := by
+  refine ⟨PartialOrder.rel_trans (IsList_ne_le xs prev hd hhd) ?_⟩
   vcgen [store_spec] with finish
 
 /-! ## In-place reverse -/

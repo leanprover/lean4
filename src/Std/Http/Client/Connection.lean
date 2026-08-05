@@ -142,10 +142,11 @@ private def closeIfOpen [Body β] (body : Option β) : Async Unit := do
 Stops the connection from accepting further requests. The channel is closed from three racing paths
 — the machine's `.close` event, the loop's cleanup, and `Connection.close` — and
 `CloseableChannel.close` throws on a second close, so an already-closed channel is the expected
-case here rather than an error.
+case here rather than an error. Testing `isClosed` first would not be enough: two callers can both
+observe an open channel and both proceed to close it, so the second close is swallowed instead.
 -/
 private def stopAcceptingRequests (requestChannel : Std.CloseableChannel PendingRequest) : IO Unit := do
-  if ¬ (← requestChannel.isClosed) then requestChannel.close
+  try requestChannel.close catch _ => pure ()
 
 /--
 Fails `stream` with `err` when it is present and still open, so a caller blocked on it sees the

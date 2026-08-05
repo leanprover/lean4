@@ -321,13 +321,15 @@ open Test.ClientHelpers
       catch e => pure (Except.error (toString e))
     discard <| p2.resolve result
 
+  -- `recv?` returns `none` only once the old connection's transport is closed, so this doubles as
+  -- the retirement check: an old connection left open makes the test run out its wall clock here.
   match ← mockClient1.recv? with
   | none => pure ()
   | some bytes =>
     mockClient1.close
     mockClient2.close
     throw (IO.userError
-      s!"old-origin connection stayed open after origin change:\n{(String.fromUTF8! bytes).quote}")
+      s!"the new origin's request was written to the old connection:\n{(String.fromUTF8! bytes).quote}")
 
   let secondBytes ← drainRequest mockClient2
   mockClient2.send (rawResp "200 OK"
@@ -408,13 +410,15 @@ open Test.ClientHelpers
       mockClient2.close
       throw (IO.userError s!"unexpected redirect failure: {e}")
 
+  -- As above, `none` means the transport was closed; a source connection left open instead ends
+  -- this test on its wall clock.
   match ← mockClient1.recv? with
   | none => pure ()
   | some bytes =>
     mockClient1.close
     mockClient2.close
     throw (IO.userError
-      s!"retired redirect source connection stayed readable:\n{(String.fromUTF8! bytes).quote}")
+      s!"a request was written to the retired redirect source connection:\n{(String.fromUTF8! bytes).quote}")
 
   let req2 ← Request.new |>.method .get |>.uri! "/again"
     |>.header! "Host" "example.com" |>.empty
@@ -511,18 +515,31 @@ open Test.ClientHelpers
   | Except.ok resp =>
     let _ ← resp.body.readAll (α := String)
 
-  -- Close the mock's receive side so the connection observes EOF.
-  mockClient.close
+  -- The response itself must retire the connection. Closing the mock here instead would fail the
+  -- second request through a dead transport whether or not `Connection: close` was honoured.
+  let mut retired := false
+  for _ in [0:50] do
+    if ← agent.connection.isClosed then
+      retired := true
+      break
+    IO.sleep 20
+  unless retired do
+    mockClient.close
+    throw (IO.userError "the connection was still open after a Connection: close response")
 
   -- Second send must not hang; it must fail because the connection is closed.
   let req2 ← Request.new |>.method .get |>.uri! "/"
     |>.header! "Host" "example.com" |>.empty
   let p2 ← sendInBackground agent req2
 
+  -- Nothing reaches the wire either: a retired connection *is* one whose request channel is closed
+  -- (`Connection.isClosed` reads that channel), so the send above failed before writing anything.
   match ← await p2.result! with
   | Except.ok _ =>
     throw (IO.userError "second request unexpectedly succeeded after Connection: close")
   | Except.error _ => pure ()
+
+  mockClient.close
 
 -- ============================================================
 -- Section 12 — Request deadline and connection close
@@ -549,10 +566,11 @@ open Test.ClientHelpers
   mockClient.send (rawResp "200 OK"
     #[("Content-Length", "10"), ("Connection", "close")] "")
 
+  -- The head arrives immediately and the deadline is 300ms away, so it must reach the caller;
+  -- accepting an up-front error here would hide a regression that withholds the head.
   match ← await resultPromise.result! with
-  | Except.error _ =>
-    -- Deadline surfaced before the headers were returned — still a valid enforcement.
-    pure ()
+  | Except.error e =>
+    throw (IO.userError s!"the response head was not delivered before the deadline: {e}")
   | Except.ok resp =>
     let got : Except String String ← try
         let s ← resp.body.readAll (α := String)

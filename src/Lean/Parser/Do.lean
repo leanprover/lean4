@@ -184,7 +184,19 @@ to the elements remaining, and mutable variables referenced by name. Any further
 `a b c`, bind the arguments of the assertion itself, such as the state of a state monad.
 -/
 def doForInvariant := leading_parser
-  ppSpace >> nonReservedSymbol "invariant" >> withForbidden "do" basicFun
+  ppSpace >> nonReservedSymbol "invariant" >> withForbiddens #["do", "decreasing"] basicFun
+/--
+A `decreasing` clause gives a `repeat` or `while` loop its termination measure, a natural number
+that every iteration must strictly decrease.
+-/
+def doDecreasing := leading_parser
+  ppSpace >> nonReservedSymbol "decreasing" >> withForbidden "do" basicFun
+/--
+The `invariant` and `decreasing` clauses of a `repeat` or `while` loop, either of which may be
+given on its own. The body follows `do`, which terminates the clause's term.
+-/
+def doLoopClauses := leading_parser
+  ((doForInvariant >> optional doDecreasing) <|> doDecreasing) >> " do "
 /--
 `for x in e do s` iterates over `e` assuming `e`'s type has an instance of the `ForIn` typeclass.
 `break` and `continue` are supported inside `for` loops.
@@ -310,9 +322,10 @@ from the program and proves it; at runtime the element does nothing.
     (atomic basicFun <|> (ppSpace >> termParser))
 
 @[builtin_doElem_parser] def doRepeat      := leading_parser
-  "repeat " >> doSeq
+  "repeat " >> optional doLoopClauses >> doSeq
 @[builtin_doElem_parser] def doWhile       := leading_parser
-  "while " >> withForbidden "do" doIfCond >> " do " >> doSeq
+  "while " >> withForbiddens #["do", "invariant", "decreasing"] doIfCond >>
+    optional doForInvariant >> optional doDecreasing >> " do " >> doSeq
 @[builtin_doElem_parser] def doRepeatUntil := leading_parser
   "repeat " >> doSeq >> ppDedent ppLine >> "until " >> termParser
 

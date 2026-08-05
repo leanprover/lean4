@@ -86,6 +86,7 @@ private inductive LintingOutcome where
   failures whose position could not be resolved.
   -/
   | recorded (records : Array ExceptionRecord) (unlocated : Bool)
+  /-- Code-quality mode: `entries` are the aggregated code quality entries to emit as JSON. -/
   | codeQualityChecks (entries : Array CodeQuality.Entry)
 
 private inductive CheckOutcome where
@@ -255,9 +256,11 @@ overrides applied via `leanOptOverrides`) and are recovered here from the `.olea
 an environment imported at the `server` olean level. With `--lint-only`,
 the recorded entries are additionally filtered to the explicitly enabled linters.
 
-Warnings are printed to stdout, unless `args.mode` is `recordExceptions`, in which case each entry
+In `report` mode the warnings are printed to stdout. In `recordExceptions` mode, each entry
 carrying a command position is turned into an exception record for the caller to write; entries
-without one are reported on stderr and flagged as unlocated.
+without one are reported on stderr and flagged as unlocated. In `codeQuality` mode, the warnings
+are aggregated per module/linter pair into code quality entries whose scalar value is the number
+of warnings, for the caller to emit as JSON.
 -/
 private def runTextLinters (args : Args) (linterOpts : Linter.LinterOptions)
     (env : Environment) (mod : Name) : IO LintingOutcome := do
@@ -294,10 +297,12 @@ private def runTextLinters (args : Args) (linterOpts : Linter.LinterOptions)
     | .codeQuality =>
       let mut codeQualityEntries : Array CodeQuality.Entry := #[]
       for (m, entries) in textGroups do
-        for e in entries do
-          codeQualityEntries := codeQualityEntries.push { name := e.linter.toString
+        let counts : NameMap Nat := entries.foldl (init := {}) fun counts e =>
+          counts.insert e.linter (counts.getD e.linter 0 + 1)
+        for (linter, count) in counts do
+          codeQualityEntries := codeQualityEntries.push { name := linter.toString
                                                           source := .module m
-                                                          value := .scalar 1.0 }
+                                                          value := .scalar count.toFloat }
       return .codeQualityChecks codeQualityEntries
 
 /--
@@ -308,10 +313,12 @@ elaborated declarations, so they run here rather than during the build; per-decl
 By default all registered linters run; with `--lint-only`, only those explicitly enabled by the
 command-line overrides do.
 
-Findings are printed to stdout (grouped by file), unless `args.mode` is `recordExceptions`, in
-which case each flagged declaration is resolved to a source position via its declaration range and
-to a file via `sp`, yielding exception records for the caller to write. Declarations whose range
-or source file cannot be resolved are reported on stderr and flagged as unlocated.
+In `report` mode the findings are printed to stdout (grouped by file). In `recordExceptions` mode,
+each flagged declaration is resolved to a source position via its declaration range and to a file
+via `sp`, yielding exception records for the caller to write; declarations whose range or source
+file cannot be resolved are reported on stderr and flagged as unlocated. In `codeQuality` mode,
+the findings are aggregated per module/declaration/linter triple into code quality entries whose
+scalar value is the number of warnings, for the caller to emit as JSON.
 -/
 private def runEnvironmentLinters (args : Args) (linterOpts : Linter.LinterOptions) (sp : SearchPath)
     (env : Environment) (mod : Name) : IO LintingOutcome := do
@@ -361,11 +368,17 @@ private def runEnvironmentLinters (args : Args) (linterOpts : Linter.LinterOptio
       let mainModule := (← getEnv).mainModule
       let mut codeQualityEntries : Array CodeQuality.Entry := #[]
       for (linter, msgs) in results do
+        -- (module, declaration) → warning count
+        let mut counts : Std.TreeMap (Name × Name) Nat
+            (fun a b => (a.1.quickCmp b.1).then (a.2.quickCmp b.2)) := {}
         for (declName, _) in msgs.toArray do
           let declMod := (← findModuleOf? declName).getD mainModule
+          let key := (declMod, declName)
+          counts := counts.insert key (counts.getD key 0 + 1)
+        for ((declMod, declName), count) in counts do
           codeQualityEntries := codeQualityEntries.push { name := linter.declName.toString
                                                           source := .declaration declMod declName
-                                                          value := .scalar 1.0 }
+                                                          value := .scalar count.toFloat }
       return .codeQualityChecks codeQualityEntries
   return outcome
 

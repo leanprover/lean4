@@ -449,6 +449,7 @@ tracking, `Expect: 100-continue`, and parse errors.
 -/
 private def processH1Events
     (baseConfig : Config)
+    (requestChannel : Std.CloseableChannel PendingRequest)
     (events : Array (H1.Event .sending))
     (state : ConnectionState) : Async (ConnectionState × Bool) := do
   let mut st := state
@@ -544,6 +545,11 @@ private def processH1Events
     | .«continue» => pure ()
 
     | .close =>
+      -- `.close` means the machine will carry no further message, so stop accepting requests
+      -- before reporting this exchange complete. A caller that learns the exchange finished (a
+      -- redirect chain deciding where to send its next hop) then cannot queue onto a connection
+      -- that is on its way out.
+      discard <| EIO.toBaseIO requestChannel.close
       if let some flight := st.inFlight then
         if flight.responseComplete then
           flight.pending.onComplete
@@ -717,10 +723,17 @@ private def run
   try
     while ¬state.machine.halted do
 
-      -- Phase 1: close any reader that the user has signaled is done.
+      -- Phase 1: close any reader that the user has signaled is done. `isClosed` cannot tell a
+      -- body the caller finished from one that failed, and ending the framing of a failed body
+      -- would hand the peer a truncated request that looks complete, so pull once: `recv` on a
+      -- closed body re-raises the error it was closed with.
       if let some body := state.requestBody then
         let closed? ← try
-          pure <| some (← body.isClosed)
+          if ← body.isClosed then
+            discard <| body.recv
+            pure (some true)
+          else
+            pure (some false)
         catch e =>
           state ← abortState state (.io e)
           pure none
@@ -747,7 +760,7 @@ private def run
           break
 
       -- Phase 3: process all events emitted by this step.
-      let (newState, sawFailure) ← processH1Events config step.events state
+      let (newState, sawFailure) ← processH1Events config requestChannel step.events state
 
       state := newState
 

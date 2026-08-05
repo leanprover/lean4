@@ -62,7 +62,8 @@ inductive Format where
   | line                : Format
   /--
   `align` tells the formatter to pad with spaces to the current indentation level, or else add a
-  newline if we are already at or past the indent.
+  newline if we are already at or past the indent. No newline is added at the start of a row that
+  is already at the indentation level, since that would leave a blank row of whitespace.
 
   If `force` is true, then it will pad to the indent even if it is in a flattened group.
 
@@ -249,26 +250,43 @@ private def pushGroup (flb : FlattenBehavior) (items : List WorkItem) (gs : List
   -- Prevent flattening if any item contains a hard line break, except within `fill` if it is ungrouped (=> unflattened)
   return { g with fla := .allow (!r.foundFlattenedHardLine && r'.space <= w-k) }::gs
 
-private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGroup → m Unit
+/--
+The indentation level of the next output-producing work item, if it is a forced `align`.
+Concatenation, nesting, and tags are decomposed the same way as in `be`; anything else stops the
+search. In particular, a `group` stops the search since flattening it can drop the `align`
+instead of breaking.
+-/
+private partial def nextForcedAlign? : List WorkItem → Option Int
+  | [] => none
+  | i :: is =>
+    match i.f with
+    | nil => nextForcedAlign? is
+    | append f₁ f₂ => nextForcedAlign? ({ i with f := f₁ } :: { i with f := f₂ } :: is)
+    | nest n f => nextForcedAlign? ({ i with f, indent := i.indent + n } :: is)
+    | tag _ f => nextForcedAlign? ({ i with f } :: is)
+    | align true => some i.indent
+    | _ => none
+
+private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] (fresh : Bool) : List WorkGroup → m Unit
   | []                           => pure ()
-  |   { items := [],    .. }::gs => be w gs
+  |   { items := [],    .. }::gs => be w fresh gs
   | g@{ items := i::is, .. }::gs => do
     let gs' (is' : List WorkItem) := { g with items := is' }::gs;
     match i.f with
     | nil =>
       endTags i.activeTags
-      be w (gs' is)
+      be w fresh (gs' is)
     | tag t f =>
       startTag t
-      be w (gs' ({ i with f, activeTags := i.activeTags + 1 }::is))
-    | append f₁ f₂ => be w (gs' ({ i with f := f₁, activeTags := 0 }::{ i with f := f₂ }::is))
-    | nest n f => be w (gs' ({ i with f, indent := i.indent + n }::is))
+      be w fresh (gs' ({ i with f, activeTags := i.activeTags + 1 }::is))
+    | append f₁ f₂ => be w fresh (gs' ({ i with f := f₁, activeTags := 0 }::{ i with f := f₂ }::is))
+    | nest n f => be w fresh (gs' ({ i with f, indent := i.indent + n }::is))
     | text s =>
       let p := String.Internal.posOf s '\n'
       if p == s.rawEndPos then
         pushOutput s
         endTags i.activeTags
-        be w (gs' is)
+        be w (fresh && String.Internal.isEmpty s) (gs' is)
       else
         pushOutput (String.Internal.extract s {} p)
         pushNewline i.indent.toNat
@@ -276,35 +294,41 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGrou
         -- after a hard line break, re-evaluate whether to flatten the remaining group
         -- note that we shouldn't start flattening after a hard break outside a group
         if g.fla == .disallow then
-          be w (gs' is)
+          be w true (gs' is)
         else
-          pushGroup g.flb is gs w >>= be w
+          pushGroup g.flb is gs w >>= be w true
     | line =>
+      -- A forced `align` right after a flattened `line` breaks right after the flattened space,
+      -- stranding it as trailing whitespace; break the `line` instead.
+      let k ← currColumn
+      let veto := match nextForcedAlign? is with
+        | some indent => decide (indent ≤ k + 1)
+        | none => false
       match g.flb with
       | FlattenBehavior.allOrNone =>
-        if g.fla.shouldFlatten then
+        if g.fla.shouldFlatten && !veto then
           -- flatten line = text " "
           pushOutput " "
           endTags i.activeTags
-          be w (gs' is)
+          be w false (gs' is)
         else
           pushNewline i.indent.toNat
           endTags i.activeTags
-          be w (gs' is)
+          be w true (gs' is)
       | FlattenBehavior.fill =>
         let breakHere := do
           pushNewline i.indent.toNat
           -- make new `fill` group and recurse
           endTags i.activeTags
-          pushGroup FlattenBehavior.fill is gs w >>= be w
+          pushGroup FlattenBehavior.fill is gs w >>= be w true
         -- if preceding fill item fit in a single line, try to fit next one too
         if g.fla.shouldFlatten then
           let gs'@(g'::_) ← pushGroup FlattenBehavior.fill is gs (w - String.Internal.length " ")
             | panic "unreachable"
-          if g'.fla.shouldFlatten then
+          if g'.fla.shouldFlatten && !veto then
             pushOutput " "
             endTags i.activeTags
-            be w gs'  -- TODO: use `return`
+            be w false gs'  -- TODO: use `return`
           else
             breakHere
         else
@@ -313,23 +337,28 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGrou
       if g.fla.shouldFlatten && !force then
         -- flatten (align false) = nil
         endTags i.activeTags
-        be w (gs' is)
+        be w fresh (gs' is)
       else
         let k ← currColumn
         if k < i.indent then
           pushOutput (String.Internal.pushn "" ' ' (i.indent - k).toNat)
           endTags i.activeTags
-          be w (gs' is)
+          be w false (gs' is)
+        else if k == i.indent && fresh then
+          -- already positioned at the indentation level on a fresh row: padding is a no-op and
+          -- a newline would insert a blank row of whitespace
+          endTags i.activeTags
+          be w fresh (gs' is)
         else
           pushNewline i.indent.toNat
           endTags i.activeTags
-          be w (gs' is)
+          be w true (gs' is)
     | group f flb =>
       if g.fla.shouldFlatten then
         -- flatten (group f) = flatten f
-        be w (gs' ({ i with f }::is))
+        be w fresh (gs' ({ i with f }::is))
       else
-        pushGroup flb [{ i with f }] (gs' is) w >>= be w
+        pushGroup flb [{ i with f }] (gs' is) w >>= be w fresh
 
 /- Render the given `f : Format` with a line width of `w`.
 `indent` is the starting amount to indent each line by. -/
@@ -343,7 +372,7 @@ rendered.
   indentation)
 -/
 def prettyM (f : Format) (w : Nat) (indent : Nat := 0) [Monad m] [MonadPrettyFormat m] : m Unit :=
-  be w [{ flb := FlattenBehavior.allOrNone, fla := .disallow, items := [{ f := f, indent, activeTags := 0 }]}]
+  be w true [{ flb := FlattenBehavior.allOrNone, fla := .disallow, items := [{ f := f, indent, activeTags := 0 }]}]
 
 /--
 Creates a format `l ++ f ++ r` with a flattening group, nesting the contents by the length of `l`.

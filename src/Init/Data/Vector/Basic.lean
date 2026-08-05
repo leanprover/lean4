@@ -34,7 +34,7 @@ structure Vector (α : Type u) (n : Nat) where
   toArray : Array α
   /-- Array size. -/
   size_toArray : toArray.size = n
-deriving Repr, DecidableEq
+deriving DecidableEq
 
 attribute [simp, grind =] Vector.size_toArray
 
@@ -62,6 +62,16 @@ meta def unexpandMk : Lean.PrettyPrinter.Unexpander
 
 recommended_spelling "empty" for "#v[]" in [Vector.mk, «term#v[_,]»]
 recommended_spelling "singleton" for "#v[x]" in [Vector.mk, «term#v[_,]»]
+
+protected def Vector.repr {α : Type u} [Repr α] {n : Nat} (xs : Vector α n) : Std.Format :=
+  let _ : Std.ToFormat α := ⟨repr⟩
+  if xs.size == 0 then
+    "#v[]"
+  else
+    Std.Format.bracketFill "#v[" (Std.Format.joinSep (xs.toArray.toList) ("," ++ Std.Format.line)) "]"
+
+instance Vector.instRepr {α : Type u} [Repr α] {n : Nat} : Repr (Vector α n) where
+  reprPrec xs _ := Vector.repr xs
 
 /-- Convert a vector to a list. -/
 @[expose, implicit_reducible]

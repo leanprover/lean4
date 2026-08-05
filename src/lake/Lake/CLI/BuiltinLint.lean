@@ -376,7 +376,7 @@ private def runEnvironmentLinters (args : Args) (linterOpts : Linter.LinterOptio
           let key := (declMod, declName)
           counts := counts.insert key (counts.getD key 0 + 1)
         for ((declMod, declName), count) in counts do
-          codeQualityEntries := codeQualityEntries.push { name := linter.declName.toString
+          codeQualityEntries := codeQualityEntries.push { name := linter.optName.toString
                                                           source := .declaration declMod declName
                                                           value := .scalar count.toFloat }
       return .codeQualityChecks codeQualityEntries

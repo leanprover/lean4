@@ -239,6 +239,20 @@ example (xs ys : List Nat) : Id Nat := do
     n := n + x + y
   return n
 
+/-! ## A container without a `PureForIn` instance is reported at the clause -/
+
+/--
+error: The `invariant` clause needs Std.Internal.PureForIn for
+  String
+which states that iterating it produces its elements without effects. Loop over a container that provides the instance, or state the invariant in the proof instead.
+-/
+#guard_msgs in
+example (s : String) : Id Nat := do
+  let mut n := 0
+  for _c in s invariant _pref _suff => 0 ≤ n do
+    n := n + 1
+  return n
+
 /-! ## The contract telescope is transplanted faithfully to `f.spec`
 
 `f.spec` re-binds the definition's telescope verbatim, applies `f` to exactly the explicit arguments,

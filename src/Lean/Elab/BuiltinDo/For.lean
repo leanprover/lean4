@@ -83,15 +83,37 @@ open Lean.Meta
     `(doElem| do $doElems*)
   | _ => Macro.throwUnsupported
 
+/-- Synthesize the class that the `invariant` clause's specification is stated over, reporting the
+container that lacks it rather than the gadget that goes unsolved later. -/
+private def checkPureForIn (invClause : Syntax) (h? : Option Syntax) (xs α : Expr) (mi : MonadInfo) :
+    DoElabM Unit := do
+  let cls := if h?.isSome then `Std.Internal.PureForIn' else `Std.Internal.PureForIn
+  unless (← getEnv).contains cls do return
+  let ρ ← instantiateMVars (← inferType xs)
+  let α ← instantiateMVars α
+  let m ← instantiateMVars mi.m
+  if ρ.hasExprMVar || α.hasExprMVar || m.hasExprMVar then return
+  let ok ←
+    try
+      let ty ← Term.elabType <| ←
+        `($(mkIdent cls) $(← Term.exprToSyntax m) $(← Term.exprToSyntax ρ) $(← Term.exprToSyntax α))
+      pure ((← trySynthInstance ty) matches .some _)
+    catch _ => pure false
+  unless ok do
+    throwErrorAt invClause "The `invariant` clause needs {.ofConstName cls} for{indentExpr ρ}\n\
+      which states that iterating it produces its elements without effects. Loop over a container \
+      that provides the instance, or state the invariant in the proof instead."
+
 /-- Rebuild the already-elaborated loop as a `forInWithInvariant` call carrying the `invariant`
 clause: `ForIn.forInWithInvariant`, or `ForIn'.forInWithInvariant'` for a membership-proof binder
 (`for h : x in xs`). The mut tuple's layout is `[return?, mutVars…, unit?]`, so the invariant can
 name the loop's mutable variables directly; the early-return slot becomes a wildcard. Binders past
 the first two bind the arguments of the assertion itself. -/
 private def mkForInWithInvariant (invClause : Syntax) (h? : Option Syntax)
-    (xs preS body σ : Expr) (loopMutVars : Array MutVar) (returnsEarly : Bool)
+    (xs α preS body σ : Expr) (loopMutVars : Array MutVar) (returnsEarly : Bool)
     (mi : MonadInfo) : DoElabM Expr := do
   let `(doForInvariant| invariant $binders* => $invBody) := invClause | throwUnsupportedSyntax
+  checkPureForIn invClause h? xs α mi
   unless binders.size ≥ 2 do
     throwErrorAt invClause "The `invariant` clause takes at least two binders: the elements \
       consumed so far and the elements remaining."
@@ -223,7 +245,8 @@ private def mkForInWithInvariant (invClause : Syntax) (h? : Option Syntax)
 
   let forIn ← match inv? with
     | none => pure (mkApp app body)
-    | some invClause => mkForInWithInvariant invClause h? xs preS body σ loopMutVars info.returnsEarly mi
+    | some invClause =>
+      mkForInWithInvariant invClause h? xs α preS body σ loopMutVars info.returnsEarly mi
 
   let γ := (← read).doBlockResultType
   let rest ←

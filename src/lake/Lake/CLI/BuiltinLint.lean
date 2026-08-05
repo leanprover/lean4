@@ -246,6 +246,18 @@ private def runDeferredChecks (args : Args) (linterOpts : Linter.LinterOptions) 
       checkedModules := checkedModules.insert m
   return { outcome, checkedModules }
 
+/--
+Reports the text-linter warnings recorded for the modules of the package rooted at `mod.getRoot`
+that are imported by `env`. Text linters run during elaboration, so this does not re-run them:
+their warnings were persisted into `lintLogExt` when each module was built (with the linter
+overrides applied via `leanOptOverrides`) and are recovered here from the `.olean`s, which requires
+an environment imported at the `server` olean level. With `--lint-only`,
+the recorded entries are additionally filtered to the explicitly enabled linters.
+
+Warnings are printed to stdout, unless `args.mode` is `recordExceptions`, in which case each entry
+carrying a command position is turned into an exception record for the caller to write; entries
+without one are reported on stderr and flagged as unlocated.
+-/
 private def runTextLinters (args : Args) (linterOpts : Linter.LinterOptions)
     (env : Environment) (mod : Name) : IO LintingOutcome := do
   let textGroups := collectTextLints env mod.getRoot
@@ -281,6 +293,19 @@ private def runTextLinters (args : Args) (linterOpts : Linter.LinterOptions)
     | .codeQuality =>
       return .codeQualityChecks
 
+/--
+Runs the registered environment linters over the declarations of the package rooted at
+`mod.getRoot` that are present in `env`. Unlike text linters, environment linters inspect fully
+elaborated declarations, so they run here rather than during the build; per-declaration
+`set_option` exceptions are honored via the linter option snapshots persisted with each module.
+By default all registered linters run; with `--lint-only`, only those explicitly enabled by the
+command-line overrides do.
+
+Findings are printed to stdout (grouped by file), unless `args.mode` is `recordExceptions`, in
+which case each flagged declaration is resolved to a source position via its declaration range and
+to a file via `sp`, yielding exception records for the caller to write. Declarations whose range
+or source file cannot be resolved are reported on stderr and flagged as unlocated.
+-/
 private def runEnvironmentLinters (args : Args) (linterOpts : Linter.LinterOptions) (sp : SearchPath)
     (env : Environment) (mod : Name) : IO LintingOutcome := do
   let (outcome, _) ← CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do

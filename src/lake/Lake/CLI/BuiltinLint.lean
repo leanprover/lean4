@@ -75,8 +75,19 @@ private structure ExceptionRecord where
   option : Name
   deriving Inhabited
 
-private inductive EnvironmentLintingOutcome where
-  /-- Reporting mode: failures were printed, and `failed` determines the exit code. -/
+
+private inductive LintingOutcome where
+  /-- Reporting mode: failures were printed to stderr, and `failed` determines the exit code. -/
+  | reported (failed : Bool)
+  /--
+  Recording mode: `records` are the exceptions to write, and `unlocated` indicates that there were
+  failures whose position could not be resolved.
+  -/
+  | recorded (records : Array ExceptionRecord) (unlocated : Bool)
+  | codeQualityChecks
+
+private inductive CheckOutcome where
+  /-- Reporting mode: failures were printed to stderr, and `failed` determines the exit code. -/
   | reported (failed : Bool)
   /--
   Recording mode: `records` are the exceptions to write, and `unlocated` indicates that there were
@@ -84,7 +95,6 @@ private inductive EnvironmentLintingOutcome where
   -/
   | recorded (records : Array ExceptionRecord) (unlocated : Bool)
 
-  | codeQualityChecks
 private def collectTextLints
     (env : Environment) (pkgRoot : Name) :
     Array (Name × Array Linter.LintEntry) :=
@@ -157,20 +167,10 @@ private def describeSite : Doc.DeferredCheckSite → String
   | .decl n => s!"the docstring of `{n}`"
   | .moduleDoc i => s!"module docstring #{i + 1}"
 
-/-- The result of the deferred docstring check for one lint target, according to its mode. -/
-private inductive DeferredCheckOutcome where
-  /-- Reporting mode: failures were printed to stderr, and `failed` determines the exit code. -/
-  | reported (failed : Bool)
-  /--
-  Recording mode: `records` are the exceptions to write, and `unlocated` indicates that there were
-  failures whose position could not be resolved.
-  -/
-  | recorded (records : Array ExceptionRecord) (unlocated : Bool)
-
 /-- The result of the deferred docstring check pass for one lint target. -/
 private structure DeferredCheckResults where
   /-- The mode-specific outcome of the pass. -/
-  outcome : DeferredCheckOutcome
+  outcome : CheckOutcome
   /-- Modules whose deferred checks have now been run. -/
   checkedModules : NameSet
 
@@ -227,7 +227,7 @@ private def runDeferredChecks (args : Args) (linterOpts : Linter.LinterOptions) 
             warning: could not determine the position of {describeSite c.site} in `{failMod}`; \
             cannot record a `{linter.doc.deferred.name}` exception"
           unlocated := true
-      return DeferredCheckOutcome.recorded recs unlocated
+      return CheckOutcome.recorded recs unlocated
     else
       for (failMod, c, msg) in failures do
         let context := if c.sourceString.isEmpty then "" else s!" ({c.sourceString})"
@@ -236,7 +236,7 @@ private def runDeferredChecks (args : Args) (linterOpts : Linter.LinterOptions) 
           IO.eprintln s!"{file}: error: in {describeSite c.site}{context}: {← msg.toString}"
         | none =>
           IO.eprintln s!"error: in module `{failMod}`, in {describeSite c.site}{context}: {← msg.toString}"
-      return DeferredCheckOutcome.reported !failures.isEmpty
+      return CheckOutcome.reported !failures.isEmpty
   -- Mark this target's transitive imports that are in the package so later targets don't re-run
   -- their checks.
   let mut checkedModules := docCheckedModules
@@ -245,8 +245,43 @@ private def runDeferredChecks (args : Args) (linterOpts : Linter.LinterOptions) 
       checkedModules := checkedModules.insert m
   return { outcome, checkedModules }
 
+private def runTextLinters (args : Args) (linterOpts : Linter.LinterOptions)
+    (env : Environment) (mod : Name) : IO LintingOutcome := do
+  let textGroups := collectTextLints env mod.getRoot
+  let textGroups :=
+    if args.lintOnly then
+      textGroups.filterMap fun (m, entries) =>
+        let entries := entries.filter fun e =>
+          Lean.Linter.isLinterEnabledByOptions e.linter linterOpts
+        if entries.isEmpty then none else some (m, entries)
+    else textGroups
+  let textFailed := !textGroups.isEmpty
+  match args.mode with
+  | .report =>
+      for (m, entries) in textGroups do
+        IO.println s!"-- Text linter diagnostics in {m}:"
+        for e in entries do
+          IO.print e.message.toString
+      return .reported textFailed
+  | .recordExceptions =>
+      let mut records : Array ExceptionRecord := #[]
+      let mut anyUnlocated := false
+      for (m, entries) in textGroups do
+        for e in entries do
+          match e.position? with
+          | some pos =>
+            records := records.push { file := e.file, pos, option := e.linter }
+          | none =>
+            IO.eprintln s!"\
+              warning: could not determine the command position of a `{e.linter}` text-linter \
+              warning in `{m}`; skipping its exception"
+            anyUnlocated := true
+      return .recorded records anyUnlocated
+    | .codeQuality =>
+      return .codeQualityChecks
+
 private def runEnvironmentLinters (args : Args) (linterOpts : Linter.LinterOptions) (sp : SearchPath)
-    (env : Environment) (mod : Name) : IO EnvironmentLintingOutcome := do
+    (env : Environment) (mod : Name) : IO LintingOutcome := do
   let (outcome, _) ← CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do
     let decls ← Linter.EnvLinter.getDeclsInPackage mod.getRoot
     let linters ← Linter.EnvLinter.getEnvLinters (if args.lintOnly then some linterOpts else none)
@@ -366,14 +401,15 @@ public def run (args : Args) : IO UInt32 := do
       anyUnlocated := anyUnlocated || envUnlocated
     | .codeQualityChecks => pure ()
 
-    let deferredResults ← runDeferredChecks args linterOpts sp env mod.getRoot docCheckedModules
-    docCheckedModules := deferredResults.checkedModules
-    match deferredResults.outcome with
-    | .reported failed =>
-      if failed then anyFailed := true
-    | .recorded recs unlocated =>
-      records := records ++ recs
-      if unlocated then anyUnlocated := true
+    unless args.mode == .codeQuality do
+      let deferredResults ← runDeferredChecks args linterOpts sp env mod.getRoot docCheckedModules
+      docCheckedModules := deferredResults.checkedModules
+      match deferredResults.outcome with
+      | .reported failed =>
+        if failed then anyFailed := true
+      | .recorded recs unlocated =>
+        records := records ++ recs
+        if unlocated then anyUnlocated := true
 
   match args.mode with
   | .report =>

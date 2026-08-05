@@ -209,6 +209,16 @@ def pop (p : Addr) : HeapM Nat := do
   store p r.2
   pure r.1
 
+/-- Sum the first `n` cells from `base`. -/
+def sumarray (base : Addr) (n : Nat) : HeapM Nat := do
+  let mut s := 0
+  let mut i := 0
+  for _ in [0:n] do
+    let x ← load (base + i)
+    s := s + x
+    i := i + 1
+  pure s
+
 /-- In-place reverse: walk the spine, swapping each node's next/prev links (`next := prev`,
 `prev := old next`). The loop is fuel-bounded; `xs.length` iterations suffice. -/
 def reverse (fuel : Nat) (head : Addr) : HeapM Addr := do
@@ -458,6 +468,10 @@ theorem sepConj_iSup {ι : Type} (F : HProp) (g : ι → HProp) :
   · obtain ⟨i, h₁, h₂, hdis, rfl, hF, hg⟩ := (iSup_hprop_apply (fun x => F ∗ g x) h).mp hh
     exact ⟨h₁, h₂, hdis, rfl, hF, (iSup_hprop_apply g h₂).mpr ⟨i, hg⟩⟩
 
+/-- Assert a pure fact alongside a resource that is kept. -/
+@[grind ←] theorem le_ofProp_meet_self {φ : Prop} (X : HProp) (h : φ) : X ⊑ ⌜φ⌝ ⊓ X :=
+  le_meet _ _ _ (le_ofProp _ _ h) PartialOrder.rel_refl
+
 /-! ## The magic wand as upper adjoint -/
 
 instance (F : HProp) : PreservesSup (sepConj F) where
@@ -614,6 +628,47 @@ theorem Unallocated_eq (k : Addr) : Unallocated k = k ↦ 0 ∗ Unallocated (k +
     have e2 := h2 n
     subst e1
     by_cases hn : n = k <;> simp [Heap.union, Heap.single, hn] at e2 ⊢ <;> grind
+
+/-! ## Arrays
+
+`IsArray xs base` owns the cells `base`, `base + 1`, … holding `xs`. Unlike a list, a cell is
+reached by arithmetic rather than by following a pointer, so focusing on one element splits the
+predicate at an index and hands back a wand to close it again. -/
+
+/-- The cells from `base` on, holding `xs`. -/
+noncomputable def IsArray : List Nat → Addr → HProp
+  | [], _base => emp
+  | x :: xs, base => base ↦ x ∗ IsArray xs (base + 1)
+
+@[grind =] theorem IsArray_nil (base : Addr) : IsArray [] base = emp := rfl
+
+@[grind =] theorem IsArray_cons (x : Nat) (xs : List Nat) (base : Addr) :
+    IsArray (x :: xs) base = base ↦ x ∗ IsArray xs (base + 1) := rfl
+
+/-- Focus the `i`th cell, keeping a wand that closes the array back up. -/
+theorem IsArray_focus (xs : List Nat) (base : Addr) (i : Nat) (h : i < xs.length) :
+    IsArray xs base ⊑ (base + i) ↦ xs[i]! ∗ ((base + i) ↦ xs[i]! -∗ IsArray xs base) := by
+  induction xs generalizing base i with
+  | nil => simp at h
+  | cons x xs ih =>
+    match i with
+    | 0 =>
+      rw [IsArray_cons, show base + 0 = base from rfl, show (x :: xs)[0]! = x from rfl]
+      exact sepConj_mono_right _ (le_wand _ _ _ (PartialOrder.rel_of_eq (by grind)))
+    | i + 1 =>
+      have h' : i < xs.length := by simpa using h
+      have harr : base + (i + 1) = (base + 1) + i := by grind
+      have hidx : (x :: xs)[i + 1]! = xs[i]! := by simp
+      rw [IsArray_cons, harr, hidx]
+      refine PartialOrder.rel_trans (sepConj_mono_right _ (ih (base + 1) i h')) ?_
+      refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
+        ((base + 1) + i) ↦ xs[i]! ∗ (base ↦ x ∗ (((base + 1) + i) ↦ xs[i]! -∗ IsArray xs (base + 1))))) ?_
+      · grind
+      refine sepConj_mono_right _ (le_wand _ _ _ ?_)
+      refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
+        base ↦ x ∗ (((base + 1) + i) ↦ xs[i]! ∗ (((base + 1) + i) ↦ xs[i]! -∗ IsArray xs (base + 1))))) ?_
+      · grind
+      exact sepConj_mono_right _ (sepConj_wand_le _ _)
 
 /-! ## Doubly-linked lists
 
@@ -1448,3 +1503,61 @@ example (l : Addr) (z v : Nat) (k : Addr) :
       (do let p ← newstack; push p v; let r ← pop p; freestack p; pure r)
     ⦃ fun r => ⌜r = v⌝ ⊓ (l ↦ z ∗ Pool (k + 4)) ⦄ := by
   vcgen with finish
+
+/-! ## Summing an array
+
+The array is reached by arithmetic, so the loop reads cell `base + i` out of a predicate that owns
+the whole block. `load_array` focuses that one cell and closes the array again, which keeps the
+index arithmetic out of the loop invariant. -/
+
+/-- The range `[:n]` has `n` elements, in the `toList` form the `forIn` specification uses. -/
+@[simp, grind =] theorem length_toList_upTo (n : Nat) :
+    (ForIn.toList [:n] : List Nat).length = n := by grind
+
+/-- The `forIn` specification splits the range at a visited prefix, whose length is the index the
+loop is at, so that index is in bounds. -/
+@[grind →] theorem lt_of_range_split {n cur : Nat} {pref suff : List Nat}
+    (h : ForIn.toList [:n] = pref ++ cur :: suff) : pref.length < n := by
+  have hl := congrArg List.length h
+  rw [length_toList_upTo] at hl
+  simp at hl
+  omega
+
+/-- Extending the prefix by one element adds that element to the sum. -/
+@[grind =] theorem sum_take_succ (xs : List Nat) (i : Nat) (h : i < xs.length) :
+    (xs.take (i + 1)).sum = xs[i]! + (xs.take i).sum := by
+  rw [List.take_succ, List.sum_append, List.getElem?_eq_getElem h]
+  simp [getElem!_pos, h]
+  grind
+
+/-- Read one cell of an array, leaving the array intact. -/
+theorem load_array (xs : List Nat) (base : Addr) (i : Nat) (h : i < xs.length) :
+    ⦃ IsArray xs base ⦄ load (base + i) ⦃ fun r => ⌜r = xs[i]!⌝ ⊓ IsArray xs base ⦄ := by
+  refine ⟨PartialOrder.rel_trans (IsArray_focus xs base i h) ?_⟩
+  vcgen [load_spec] with (try finish)
+  rename_i r
+  refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
+    sepPure (r = xs[i]!) ∗ (base + i) ↦ xs[i]! ∗ ((base + i) ↦ xs[i]! -∗ IsArray xs base))) ?_
+  · grind
+  refine sepPure_sepConj_le_of _ _ _ fun _ => ?_
+  exact sepConj_wand_le _ _
+
+/-- Loop invariant for `sumarray` at loop state `(i, s)`: `i` cells have been read and `s` is their
+sum, and the array is owned in full throughout. -/
+noncomputable abbrev SumLoopInv (xs : List Nat) (base : Addr) (n : Nat) (b : Nat × Nat) : HProp :=
+  ⌜b.2 = n ∧ b.1 = ((xs.take b.2).sum)⌝ ⊓ IsArray xs base
+
+theorem sumarray_spec (xs : List Nat) (base : Addr) :
+    ⦃ IsArray xs base ⦄
+      sumarray base xs.length
+    ⦃ fun s => ⌜s = xs.sum⌝ ⊓ IsArray xs base ⦄ := by
+  vcgen [sumarray, load_array] invariants
+    | inv1 => fun pref _ b => SumLoopInv xs base pref.length b
+    with finish
+
+/-- Framing an unrelated cell across the whole sum. -/
+example (l : Addr) (z : Nat) (xs : List Nat) (base : Addr) :
+    ⦃ l ↦ z ∗ IsArray xs base ⦄
+      sumarray base xs.length
+    ⦃ fun s => ⌜s = xs.sum⌝ ⊓ (l ↦ z ∗ IsArray xs base) ⦄ := by
+  vcgen [sumarray_spec] with finish

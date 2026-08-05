@@ -4696,6 +4696,73 @@ theorem getValue?_alterKey [EquivBEq α] (k k' : α) (f : Option β → Option �
     next hsome =>
       simp only [getValue?_insertEntry, heq, Bool.false_eq_true, reduceIte]
 
+/-- Internal implementation detail of the tree map. -/
+def mergeWith [BEq α] (f : α → β → β → β)
+    (l₁ l₂ : List ((_ : α) × β)) : List ((_ : α) × β) :=
+  l₂.foldl (fun l ⟨k, v₂⟩ => alterKey k (fun
+    | none => some v₂
+    | some v₁ => some (f k v₁ v₂)) l) l₁
+
+/-- Internal implementation detail of the tree map. -/
+theorem mergeWith_of_perm_first [EquivBEq α] (f : α → β → β → β)
+    (l₂ : List ((_ : α) × β)) {l₁ l₁' : List ((_ : α) × β)}
+    (h₁ : DistinctKeys l₁) (h : l₁.Perm l₁') :
+    (mergeWith f l₁ l₂).Perm (mergeWith f l₁' l₂) := by
+  induction l₂ generalizing l₁ l₁' with
+  | nil => exact h
+  | cons hd tl ih =>
+    simp only [mergeWith, List.foldl_cons]
+    apply ih
+    · rw [alterKey]
+      split
+      · exact h₁.eraseKey
+      · exact h₁.insertEntry
+    · exact alterKey_of_perm h₁ h
+
+/-- Internal implementation detail of the tree map. -/
+theorem distinctKeys_mergeWith [EquivBEq α] (f : α → β → β → β)
+    (l₂ : List ((_ : α) × β)) {l₁ : List ((_ : α) × β)} (h₁ : DistinctKeys l₁) :
+    DistinctKeys (mergeWith f l₁ l₂) := by
+  induction l₂ generalizing l₁ with
+  | nil => exact h₁
+  | cons hd tl ih =>
+    simp only [mergeWith, List.foldl_cons]
+    apply ih
+    rw [alterKey]
+    split
+    · exact h₁.eraseKey
+    · exact h₁.insertEntry
+
+/-- Internal implementation detail of the tree map. -/
+theorem getValue?_mergeWith [LawfulBEq α] (f : α → β → β → β)
+    (k : α) {l₁ l₂ : List ((_ : α) × β)}
+    (h₁ : DistinctKeys l₁) (h₂ : DistinctKeys l₂) :
+    getValue? k (mergeWith f l₁ l₂) =
+      Option.merge (f k) (getValue? k l₁) (getValue? k l₂) := by
+  induction l₂ generalizing l₁ with
+  | nil => simp [mergeWith]
+  | cons hd tl ih =>
+    rw [mergeWith, List.foldl_cons]
+    change getValue? k (mergeWith f (alterKey hd.1
+      (fun | none => some hd.2 | some v₁ => some (f hd.1 v₁ hd.2)) l₁) tl) = _
+    have h₁' : DistinctKeys (alterKey hd.1
+        (fun | none => some hd.2 | some v₁ => some (f hd.1 v₁ hd.2)) l₁) := by
+      rw [alterKey]
+      split
+      · exact h₁.eraseKey
+      · exact h₁.insertEntry
+    rw [ih h₁' h₂.tail]
+    rw [getValue?_alterKey hd.1 k _ l₁ h₁]
+    by_cases heq : (hd.1 == k) = true
+    · have htail : getValue? k tl = none := by
+        rw [getValue?_eq_none]
+        have hnot := h₂.containsKey_eq_false
+        simpa [beq_iff_eq.mp heq] using hnot
+      simp [getValue?_cons_of_true heq, htail, beq_iff_eq.mp heq]
+      cases getValue? k l₁ <;> rfl
+    · have heq' : (hd.1 == k) = false := by simpa only [Bool.not_eq_true] using heq
+      simp [getValue?_cons_of_false heq', heq']
+
 theorem getValue_alterKey [EquivBEq α] (k k' : α) (f : Option β → Option β) (l : List ((_ : α) × β))
     (hl : DistinctKeys l) (hc : containsKey k' (alterKey k f l)) :
     getValue k' (alterKey k f l) hc =

@@ -1,0 +1,1 @@
+preludeWithoutOption.lean:3:0-3:7: error: `prelude` is reserved for bootstrapping the Lean standard library (`bootstrap.prelude` must be set)

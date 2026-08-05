@@ -26,6 +26,11 @@ def HeaderSyntax.startPos (header : HeaderSyntax) : String.Pos.Raw :=
 def HeaderSyntax.isModule (header : HeaderSyntax) : Bool :=
   !header.raw[0].isNone
 
+def HeaderSyntax.preludeTk? (header : HeaderSyntax) : Option Syntax :=
+  match header with
+  | `(Parser.Module.header| $[module%$_]? $[prelude%$preludeTk]? $_*) => preludeTk
+  | _ => none
+
 def HeaderSyntax.imports (stx : HeaderSyntax) (includeInit : Bool := true) : Array Import :=
   match stx with
   | `(Parser.Module.header| $[module%$moduleTk]? $[prelude%$preludeTk]? $importsStx*) =>
@@ -138,6 +143,41 @@ where
       go parent messages
     | .num parent _, messages => go parent messages
 
+register_builtin_option bootstrap.prelude : Bool := {
+  defValue := false
+  descr := "allow `prelude` in the module header, which is only safe for bootstrapping as the runtime and kernel rely on specific properties of `Init` declarations."
+}
+
+/--
+Value of `bootstrap.prelude`, also accepting the `weak.` spelling the stage builds must use until
+stage 0 knows the option. `reparseOptions` only canonicalizes that spelling once imports have been
+loaded, which is after this check.
+-/
+private def getBootstrapPrelude (opts : Options) : Bool :=
+  bootstrap.prelude.get opts ||
+    match opts.find? (`weak ++ bootstrap.prelude.name) with
+    | some (.ofBool b)   => b
+    | some (.ofString s) => s == "true"
+    | _                  => false
+
+/-- Reports use of `prelude` unless it has been enabled via `bootstrap.prelude`. -/
+def checkPrelude
+    (header? : Option HeaderSyntax) (opts : Options) (inputCtx : Parser.InputContext)
+    (messages : MessageLog) : MessageLog := Id.run do
+  if getBootstrapPrelude opts then
+    return messages
+  if let some header := header? then
+    if let some tk := header.preludeTk? then
+      let pos := tk.getPos?.getD header.startPos
+      return messages.add {
+        fileName := inputCtx.fileName
+        pos := inputCtx.fileMap.toPosition pos
+        endPos := inputCtx.fileMap.toPosition <| tk.getTailPos?.getD pos
+        severity := .error
+        data := s!"`prelude` is reserved for bootstrapping the Lean standard library (`bootstrap.prelude` must be set)"
+      }
+  return messages
+
 def processHeaderCore
     (startPos : String.Pos.Raw) (imports : Array Import) (isModule : Bool)
     (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext)
@@ -166,6 +206,7 @@ def processHeaderCore
   let env := env.setMainModule mainModule |>.setModulePackage package?
   let messages := checkDeprecatedImports env imports opts inputCtx startPos messages headerStx? origHeaderStx?
   let messages := checkModuleNamePortability mainModule inputCtx startPos messages
+  let messages := checkPrelude headerStx? opts inputCtx messages
   return (env, messages)
 
 /--

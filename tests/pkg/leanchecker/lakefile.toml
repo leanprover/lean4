@@ -4,3 +4,4 @@ defaultTargets = ["LeanCheckerTests"]
 [[lean_lib]]
 name = "LeanCheckerTests"
 globs = ["LeanCheckerTests.+"]
+leanOptions.bootstrap.prelude = true

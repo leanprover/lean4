@@ -18,7 +18,7 @@ if [[ -n $DO_COMPILE ]]; then
   echo "Compiling and executing lean file"
   run_before "$1"
 
-  lean --c="$1.c" -Dcompiler.postponeCompile=false "${TEST_LEAN_ARGS[@]}" "$1" || fail "Failed to compile $1 into $1.c"
+  lean --c="$1.c" -Dcompiler.postponeCompile=false -Dbootstrap.prelude=true "${TEST_LEAN_ARGS[@]}" "$1" || fail "Failed to compile $1 into $1.c"
   leanc ${LEANC_OPTS-} -O3 -DNDEBUG -o "$1.out" "${TEST_LEANC_ARGS[@]}" "$1.c" || fail "Failed to compile $1.c"
 
   capture_only "$1" \
@@ -35,7 +35,7 @@ if [[ -n $DO_INTERPRET ]]; then
   run_before "$1"
 
   capture_only "$1" \
-    lean -Dlinter.all=false "${TEST_LEANI_ARGS[@]}" --run "$1" "${TEST_ARGS[@]}"
+    lean -Dlinter.all=false -Dbootstrap.prelude=true "${TEST_LEANI_ARGS[@]}" --run "$1" "${TEST_ARGS[@]}"
   normalize_measurements
   check_out_file
   check_exit_is "${TEST_EXIT:-0}"

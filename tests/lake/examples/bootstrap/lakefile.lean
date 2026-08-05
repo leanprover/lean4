@@ -3,6 +3,8 @@ open System Lake DSL
 
 package lake where
   srcDir := ".." / ".." / ".." / ".." / "src" / "lake"
+  bootstrap := true
+  leanOptions := #[⟨`bootstrap.prelude, true⟩]
 
 lean_lib Lake
 

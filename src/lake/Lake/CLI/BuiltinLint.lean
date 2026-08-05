@@ -12,8 +12,9 @@ import Lean.CoreM
 import Lean.DocString.Extension
 import Lean.Elab.DocString.Builtin.Postponed
 import Lake.Config.Workspace
+import Lean.Linter.CodeQuality
 
-open Lean Lean.Core Meta
+open Lean Lean.Core Meta Linter
 
 namespace Lake.BuiltinLint
 
@@ -85,7 +86,7 @@ private inductive LintingOutcome where
   failures whose position could not be resolved.
   -/
   | recorded (records : Array ExceptionRecord) (unlocated : Bool)
-  | codeQualityChecks
+  | codeQualityChecks (entries : Array CodeQuality.Entry)
 
 private inductive CheckOutcome where
   /-- Reporting mode: failures were printed to stderr, and `failed` determines the exit code. -/
@@ -291,7 +292,13 @@ private def runTextLinters (args : Args) (linterOpts : Linter.LinterOptions)
             anyUnlocated := true
       return .recorded records anyUnlocated
     | .codeQuality =>
-      return .codeQualityChecks
+      let mut codeQualityEntries : Array CodeQuality.Entry := #[]
+      for (m, entries) in textGroups do
+        for e in entries do
+          codeQualityEntries := codeQualityEntries.push { name := e.linter.toString
+                                                          source := .module m
+                                                          value := .scalar 1.0 }
+      return .codeQualityChecks codeQualityEntries
 
 /--
 Runs the registered environment linters over the declarations of the package rooted at
@@ -311,9 +318,8 @@ private def runEnvironmentLinters (args : Args) (linterOpts : Linter.LinterOptio
   let (outcome, _) ← CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do
     let decls ← Linter.EnvLinter.getDeclsInPackage mod.getRoot
     let linters ← Linter.EnvLinter.getEnvLinters (if args.lintOnly then some linterOpts else none)
-    if linters.isEmpty then
-      unless args.mode == .recordExceptions do
-        IO.println s!"-- No environment linters were run for {mod}."
+    if linters.isEmpty && args.mode == .report then do
+      IO.println s!"-- No environment linters were run for {mod}."
       return .reported false
     let results ← Linter.EnvLinter.lintCore decls linters
     let failed := results.any (!·.2.isEmpty)
@@ -351,7 +357,16 @@ private def runEnvironmentLinters (args : Args) (linterOpts : Linter.LinterOptio
               cannot record a `{linter.optName}` exception"
             unlocated := true
       return .recorded recs unlocated
-    | .codeQuality => return .codeQualityChecks
+    | .codeQuality =>
+      let mainModule := (← getEnv).mainModule
+      let mut codeQualityEntries : Array CodeQuality.Entry := #[]
+      for (linter, msgs) in results do
+        for (declName, _) in msgs.toArray do
+          let declMod := (← findModuleOf? declName).getD mainModule
+          codeQualityEntries := codeQualityEntries.push { name := linter.declName.toString
+                                                          source := .declaration declMod declName
+                                                          value := .scalar 1.0 }
+      return .codeQualityChecks codeQualityEntries
   return outcome
 
 public def run (args : Args) : IO UInt32 := do
@@ -366,6 +381,7 @@ public def run (args : Args) : IO UInt32 := do
   let mut anyFailed := false
   -- Accumulated exceptions to record (only populated when `args.recordExceptions` is set).
   let mut records : Array ExceptionRecord := #[]
+  let mut codeQualityEntries : Array CodeQuality.Entry := #[]
   let mut anyUnlocated := false
   -- Modules whose deferred docstring checks have already been run. A module can appear in
   -- several targets' import closures, so this runs each such module's checks only once.
@@ -395,7 +411,8 @@ public def run (args : Args) : IO UInt32 := do
     | .recorded textRecords unlocated =>
       records := records ++ textRecords
       if unlocated then anyUnlocated := true
-    | .codeQualityChecks => pure ()
+    | .codeQualityChecks entries =>
+      codeQualityEntries := codeQualityEntries ++ entries
 
     let environmentLintingOutcome ← runEnvironmentLinters args linterOpts sp env mod
 
@@ -405,7 +422,8 @@ public def run (args : Args) : IO UInt32 := do
     | .recorded envRecords envUnlocated =>
       records := records ++ envRecords
       if envUnlocated then anyUnlocated := true
-    | .codeQualityChecks => pure ()
+    | .codeQualityChecks entries =>
+      codeQualityEntries := codeQualityEntries ++ entries
 
     unless args.mode == .codeQuality do
       let deferredResults ← runDeferredChecks args linterOpts sp env mod.getRoot docCheckedModules
@@ -424,6 +442,8 @@ public def run (args : Args) : IO UInt32 := do
     recordExceptionsToFiles records
     return if anyUnlocated then 1 else 0
   | .codeQuality =>
+    for entry in codeQualityEntries do
+      IO.println <| toJson entry
     return 0
 
 end Lake.BuiltinLint

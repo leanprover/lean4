@@ -77,7 +77,7 @@ private structure ExceptionRecord where
   option : Name
   deriving Inhabited
 
-
+/-- The result of linting according to its mode. -/
 private inductive LintingOutcome where
   /-- Reporting mode: failures were printed to stderr, and `failed` determines the exit code. -/
   | reported (failed : Bool)
@@ -89,7 +89,8 @@ private inductive LintingOutcome where
   /-- Code-quality mode: `entries` are the aggregated code quality entries to emit as JSON. -/
   | codeQualityChecks (entries : Array CodeQuality.Entry)
 
-private inductive CheckOutcome where
+/-- The result of the deferred docstring check for one lint target, according to its mode. -/
+private inductive DeferredCheckOutcome where
   /-- Reporting mode: failures were printed to stderr, and `failed` determines the exit code. -/
   | reported (failed : Bool)
   /--
@@ -173,7 +174,7 @@ private def describeSite : Doc.DeferredCheckSite → String
 /-- The result of the deferred docstring check pass for one lint target. -/
 private structure DeferredCheckResults where
   /-- The mode-specific outcome of the pass. -/
-  outcome : CheckOutcome
+  outcome : DeferredCheckOutcome
   /-- Modules whose deferred checks have now been run. -/
   checkedModules : NameSet
 

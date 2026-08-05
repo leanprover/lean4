@@ -64,29 +64,6 @@ def findSmallest (s : Array Nat) : Id (Option Nat)
 #guard_msgs (drop info) in
 #check @findSmallest.spec
 
-/-! ## A contract over a membership-proof binder (`for h : x in xs invariant …`) -/
-
-def sumWithMem (xs : List Nat) : Id Nat
-    ensures r => 0 ≤ r := do
-  let mut acc := 0
-  for h : x in xs invariant _pref _suff => 0 ≤ acc do
-    acc := acc + x
-  return acc
-
-#guard_msgs (drop info) in
-#check @sumWithMem.spec
-
--- The membership binder also works over a legacy `Range`.
-def sumRangeMem (n : Nat) : Id Nat
-    ensures r => 0 ≤ r := do
-  let mut acc := 0
-  for h : i in [0:n] invariant _pref _suff => 0 ≤ acc do
-    acc := acc + i
-  return acc
-
-#guard_msgs (drop info) in
-#check @sumRangeMem.spec
-
 /-! ## An invariant over the monad's own state
 
 The invariant need not mention a mutable variable: here it constrains the `StateM` state. -/
@@ -178,7 +155,9 @@ example (xs : List Nat) : Id Nat := do
     acc := acc + x
   return acc
 
-/-! ## A loop over an `Array`, with and without a membership-proof binder -/
+/-! ## A loop over an `Array`, with and without a membership-proof binder
+
+The membership binder (`for h : x in xs`) is covered here rather than per container. -/
 
 def sumArray (xs : Array Nat) : Id Nat
     ensures r => r = xs.toList.sum := do
@@ -203,17 +182,37 @@ def sumArrayMem (xs : Array Nat) : Id Nat
 /-! ## A loop over a `HashMap`, through its `PureForIn` instance
 
 The container needs no specification of its own: stating that its loop is effect-free is enough
-for the `invariant` clause to work. -/
+for the `invariant` clause to work, and the binder may destructure. -/
 
 def sumValues (m : Std.HashMap Nat Nat) : Id Nat
     ensures r => 0 ≤ r := do
   let mut s := 0
-  for kv in m invariant _pref _suff => 0 ≤ s do
-    s := s + kv.2
+  for (_k, v) in m invariant _pref _suff => 0 ≤ s do
+    s := s + v
   return s
 
 #guard_msgs (drop info) in
 #check @sumValues.spec
+
+/-! A loop over several collections takes no invariant. -/
+
+/-- error: The `invariant` clause takes a `for` loop over a single collection. -/
+#guard_msgs in
+example (xs ys : List Nat) : Id Unit := do
+  for _ in xs, _ in ys invariant _ _ => True do pure ()
+
+/-! A container whose loop is not effect-free is reported at the clause. -/
+
+/--
+error: failed to synthesize instance of type class
+  Std.Internal.PureForIn Id String Char
+The `invariant` clause is stated over this class, which says that iterating the container produces its elements without effects.
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+-/
+#guard_msgs in
+example (s : String) : Id Unit := do
+  for _c in s invariant _ _ => True do pure ()
 
 /-! ## The contract telescope is transplanted faithfully to `f.spec`
 

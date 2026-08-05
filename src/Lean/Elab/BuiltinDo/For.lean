@@ -25,10 +25,10 @@ open Lean.Meta
     -- This is the target form of the expander, handled by `elabDoFor` below.
     Macro.throwUnsupported
   | `(doFor| for%$tk $decls:doForDecl,* $[$inv:doForInvariant]? do $body) =>
-    if let some inv := inv then
-      Macro.throwErrorAt inv "The `invariant` clause is only supported on `for x in xs do …` \
-        with a single identifier binder."
     let decls := decls.getElems
+    if let some inv := inv then
+      if decls.size > 1 then
+        Macro.throwErrorAt inv "The `invariant` clause takes a `for` loop over a single collection."
     let `(doForDecl| $[$h? : ]? $pattern in $xs) := decls[0]! | Macro.throwUnsupported
     let mut doElems := #[]
     let mut body := body
@@ -78,9 +78,23 @@ open Lean.Meta
           | some ($y, s') =>
             $s:ident := s'
             do $body)
-    doElems := doElems.push (← `(doSeqItem| for%$tk $[$h? : ]? $x:ident in $xs do $body))
+    doElems := doElems.push
+      (← `(doSeqItem| for%$tk $[$h? : ]? $x:ident in $xs $[$inv:doForInvariant]? do $body))
     `(doElem| do $doElems*)
   | _ => Macro.throwUnsupported
+
+/-- Demand the class that the `invariant` clause's specification is stated over, so that the
+container that lacks it is reported at the clause. -/
+private def checkPureForIn (invClause : Syntax) (h? : Option Syntax) (xs α : Expr) (mi : MonadInfo) :
+    DoElabM Unit := withRef invClause do
+  let cls := if h?.isSome then `Std.Internal.PureForIn' else `Std.Internal.PureForIn
+  unless (← getEnv).contains cls do return
+  let ty ← Term.elabType <| ←
+    `($(mkIdent cls) $(← Term.exprToSyntax mi.m) $(← Term.exprToSyntax (← inferType xs))
+      $(← Term.exprToSyntax α))
+  discard <| Term.mkInstMVar ty
+    (extraErrorMsg? := m!"The `invariant` clause is stated over this class, which says that \
+      iterating the container produces its elements without effects.")
 
 /-- Rebuild the already-elaborated loop as a `forInWithInvariant` call carrying the `invariant`
 clause: `ForIn.forInWithInvariant`, or `ForIn'.forInWithInvariant'` for a membership-proof binder
@@ -88,9 +102,10 @@ clause: `ForIn.forInWithInvariant`, or `ForIn'.forInWithInvariant'` for a member
 name the loop's mutable variables directly; the early-return slot becomes a wildcard. Binders past
 the first two bind the arguments of the assertion itself. -/
 private def mkForInWithInvariant (invClause : Syntax) (h? : Option Syntax)
-    (xs preS body σ : Expr) (loopMutVars : Array MutVar) (returnsEarly : Bool)
+    (xs α preS body σ : Expr) (loopMutVars : Array MutVar) (returnsEarly : Bool)
     (mi : MonadInfo) : DoElabM Expr := do
   let `(doForInvariant| invariant $binders* => $invBody) := invClause | throwUnsupportedSyntax
+  checkPureForIn invClause h? xs α mi
   unless binders.size ≥ 2 do
     throwErrorAt invClause "The `invariant` clause takes at least two binders: the elements \
       consumed so far and the elements remaining."
@@ -222,7 +237,8 @@ private def mkForInWithInvariant (invClause : Syntax) (h? : Option Syntax)
 
   let forIn ← match inv? with
     | none => pure (mkApp app body)
-    | some invClause => mkForInWithInvariant invClause h? xs preS body σ loopMutVars info.returnsEarly mi
+    | some invClause =>
+      mkForInWithInvariant invClause h? xs α preS body σ loopMutVars info.returnsEarly mi
 
   let γ := (← read).doBlockResultType
   let rest ←

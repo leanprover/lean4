@@ -16,6 +16,10 @@ This module provides the implementation of the `bv_decide` frontend itself.
 -/
 namespace Lean.Meta.Tactic.BVDecide
 
+public def TacticContext.preProcessContext (ctx : TacticContext) : Normalize.PreProcessContext where
+  config := ctx.config
+  restrictedTypes := ctx.restrictedTypes
+
 def bvUnsat (g : MVarId) (hypotheses : Array Normalize.Hyp) (ctx : TacticContext) :
     Sym.SymM (Except CounterExample LratCert) :=
   M.run (hypotheses := hypotheses) do
@@ -36,7 +40,7 @@ Try to close `g` using a bitblaster. Return either a `CounterExample` if one is 
 if `g` is proven.
 -/
 public def bvDecide' (g : MVarId) (ctx : TacticContext) : Sym.SymM (Except CounterExample Result) := do
-  Normalize.PreProcessM.run' ctx.config g do
+  Normalize.PreProcessM.run' ctx.preProcessContext g do
     let solved ← Normalize.bvNormalize
     if solved then return .ok ⟨none⟩
 

@@ -14,12 +14,13 @@ namespace Normalize
 
 @[builtin_tactic Lean.Parser.Tactic.bvNormalize]
 def evalBVNormalize : Tactic := fun
-  | `(tactic| bv_normalize $cfg:optConfig) => do
+  | `(tactic| bv_normalize $cfg:optConfig $[$types:bvTypes]?) => do
     ensureBvDecide
     let cfg ← Meta.Tactic.BVDecide.elabBVDecideConfig cfg
+    let types ← Meta.Tactic.BVDecide.elabBVDecideTypes types
     let g ← getMainGoal
     let (_, state) ← Meta.Sym.SymM.run do
-      Meta.Tactic.BVDecide.Normalize.bvNormalize.run cfg g
+      Meta.Tactic.BVDecide.Normalize.bvNormalize.run { config := cfg, restrictedTypes := types } g
     if ← state.goal.isAssigned then
       replaceMainGoal []
     else

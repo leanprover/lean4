@@ -26,43 +26,47 @@ def elabBVDecideConfig (cfg : TSyntax `Lean.Parser.Tactic.optConfig) (goal : MVa
 open Meta.Tactic.BVDecide
 
 @[builtin_grind_tactic Parser.Tactic.Grind.bvDecide] def evalBvDecide : GrindTactic
-  | `(grind| bv_decide $cfg:optConfig) => do
+  | `(grind| bv_decide $cfg:optConfig $[$types:bvTypes]?) => do
     ensureSym
     BVDecide.ensureBvDecide
     let g ← getMainGoal
     let cfg ← elabBVDecideConfig cfg g.mvarId `bv_decide
+    let types ← elabBVDecideTypes types
     IO.FS.withTempFile fun _ lratFile => do
-      let cfg ← TacticContext.new lratFile cfg
+      let cfg ← TacticContext.new lratFile cfg types
       discard <| liftSymM <| bvDecide g.mvarId cfg
       replaceMainGoal []
   | _ => throwUnsupportedSyntax
 
 @[builtin_grind_tactic Parser.Tactic.Grind.bvTrace] def evalBvTrace : GrindTactic
-  | `(grind| bv_decide?%$tk $cfgStx:optConfig) => do
+  | `(grind| bv_decide?%$tk $cfgStx:optConfig $[$typesStx:bvTypes]?) => do
     ensureSym
     BVDecide.ensureBvDecide
     let g ← getMainGoal
     let cfg ← elabBVDecideConfig cfgStx g.mvarId `bv_decide?
-    let ctx ← BVDecide.BVTrace.mkContext cfg
+    let types ← elabBVDecideTypes typesStx
+    let ctx ← BVDecide.BVTrace.mkContext cfg types
     match ← liftSymM <| BVDecide.BVTrace.evalBvTrace g.mvarId ctx with
     | .normalize =>
-      let normalizeStx ← `(grind| bv_normalize $cfgStx:optConfig)
+      let normalizeStx ← `(grind| bv_normalize $cfgStx:optConfig $[$typesStx:bvTypes]?)
       Meta.Tactic.TryThis.addSuggestion tk normalizeStx (origSpan? := ← getRef)
     | .check lratFile =>
-      let bvCheckStx ← `(grind| bv_check $cfgStx:optConfig $(quote lratFile.toString))
+      let bvCheckStx ←
+        `(grind| bv_check $cfgStx:optConfig $[$typesStx:bvTypes]? $(quote lratFile.toString))
       Meta.Tactic.TryThis.addSuggestion tk bvCheckStx (origSpan? := ← getRef)
     replaceMainGoal []
   | _ => throwUnsupportedSyntax
 
 @[builtin_grind_tactic Parser.Tactic.Grind.bvCheck] def evalBvCheck : GrindTactic
-  | `(grind| bv_check%$tk $cfgStx:optConfig $path:str) => do
+  | `(grind| bv_check%$tk $cfgStx:optConfig $[$typesStx:bvTypes]? $path:str) => do
     ensureSym
     BVDecide.ensureBvDecide
     let g ← getMainGoal
     let cfg ← elabBVDecideConfig cfgStx g.mvarId `bv_check
-    let ctx ← BVDecide.BVCheck.mkContext path.getString cfg
+    let types ← elabBVDecideTypes typesStx
+    let ctx ← BVDecide.BVCheck.mkContext path.getString cfg types
     liftSymM <| BVDecide.BVCheck.evalBvCheck g.mvarId ctx do
-      let bvNormalizeStx ← `(grind| bv_normalize $cfgStx)
+      let bvNormalizeStx ← `(grind| bv_normalize $cfgStx $[$typesStx:bvTypes]?)
       logWarning m!"This goal can be closed by only applying bv_normalize, no need to keep the LRAT proof around."
       Meta.Tactic.TryThis.addSuggestion tk bvNormalizeStx (origSpan? := ← getRef)
     replaceMainGoal []
@@ -70,12 +74,14 @@ open Meta.Tactic.BVDecide
 
 @[builtin_grind_tactic Parser.Tactic.Grind.bvNormalize]
 def evalBVNormalize : GrindTactic := fun
-  | `(grind| bv_normalize $cfg:optConfig) => do
+  | `(grind| bv_normalize $cfg:optConfig $[$types:bvTypes]?) => do
     ensureSym
     BVDecide.ensureBvDecide
     let g ← getMainGoal
     let cfg ← elabBVDecideConfig cfg g.mvarId `bv_normalize
-    let (_, state) ← liftSymM <| Meta.Tactic.BVDecide.Normalize.bvNormalize.run cfg g.mvarId
+    let types ← elabBVDecideTypes types
+    let (_, state) ← liftSymM <|
+      Meta.Tactic.BVDecide.Normalize.bvNormalize.run { config := cfg, restrictedTypes := types } g.mvarId
     if ← state.goal.isAssigned then
       replaceMainGoal []
     else

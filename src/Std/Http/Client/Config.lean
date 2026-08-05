@@ -237,6 +237,16 @@ structure Config where
 namespace Config
 
 /--
+Total header-block allowance implied by the client's own limits: `maxResponseHeaders` field lines,
+each as long as `maxHeaderNameSize` and `maxHeaderValueSize` permit, plus the four bytes `": "` and
+`CRLF` contribute per line. Deriving it keeps those three settings jointly reachable — the machine's
+own aggregate default is smaller than they describe, so a response well inside all of them would
+otherwise be rejected.
+-/
+def headerBlockSize (config : Config) : Nat :=
+  config.maxResponseHeaders * (config.maxHeaderNameSize + config.maxHeaderValueSize + 4)
+
+/--
 Converts to HTTP/1.1 protocol configuration.
 -/
 def toH1Config (config : Config) : Std.Http.Protocol.H1.Config where
@@ -244,7 +254,11 @@ def toH1Config (config : Config) : Std.Http.Protocol.H1.Config where
   maxHeaders := config.maxResponseHeaders
   maxHeaderNameLength := config.maxHeaderNameSize
   maxHeaderValueLength := config.maxHeaderValueSize
+  maxHeaderBytes := config.headerBlockSize
   enableKeepAlive := config.enableKeepAlive
   agentName := config.userAgent
+  maxBodySize := 2 ^ 64
+  maxChunkSize := 2 ^ 64
+  maxBufferedBodyBytes := some (64 * 1024 * 1024)
 
 end Std.Http.Client.Config

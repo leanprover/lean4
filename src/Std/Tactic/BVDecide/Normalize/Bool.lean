@@ -35,6 +35,9 @@ attribute [bv_normalize] Bool.xor_not_self
 attribute [bv_normalize] Bool.not_not
 attribute [bv_normalize] Bool.cond_not
 
+theorem Bool.eq_false_of_not_eq_true {b : Bool} (h : (!b) = true) : b = false :=
+  by decide +revert
+
 @[bv_normalize]
 theorem ite_eq_cond {b : Bool} {x y : α} : (if b = true then x else y) = (bif b then x else y) := by
   rw [cond_eq_ite]

@@ -69,18 +69,30 @@ open Test.ClientHelpers
 
   let resultPromise ← sendInBackground agent request
 
+  -- Keep-alive, so the method rule is the only thing that can stop the follow: a 3xx that ends the
+  -- connection is handed back unfollowed on its own, and the test would pass with the rule gone.
   let _ ← drainRequest mockClient
   mockClient.send (rawResp "301 Moved Permanently"
     #[("Location", "/v2/resource"),
       ("Content-Length", "0"),
-      ("Connection", "close")] "")
+      ("Connection", "keep-alive")] "")
+
+  let followed ← IO.mkRef (none : Option ByteArray)
+  background do
+    followed.set (← mockClient.recv?)
 
   match ← await resultPromise.result! with
   | Except.error e => throw (IO.userError s!"agent error: {e}")
   | Except.ok resp =>
+    resp.body.close
     unless resp.line.status == .movedPermanently do
       throw <| IO.userError
         s!"expected 301 returned as-is for PUT, got {resp.line.status.toCode}"
+
+  IO.sleep 100
+  if let some bytes ← followed.get then
+    throw <| IO.userError
+      s!"a 301 on PUT was auto-followed:\n{(String.fromUTF8! bytes).quote}"
 
 -- 308 Permanent Redirect preserves method AND replayable body.
 -- This is the distinguishing behavior vs. 301: with a replayable full body the
@@ -252,22 +264,31 @@ open Test.ClientHelpers
 
   let resultPromise ← sendInBackground agent request
 
-  let _ ← mockClient.recv?
+  -- Drain the whole request: a partial read would leave its tail to be mistaken below for a
+  -- redirect hop that was never sent.
+  let _ ← drainRequest mockClient
   mockClient.send (rawResp "302 Found"
     #[("Location", "/elsewhere"),
       ("Content-Length", "0")] "")
 
-  -- A second recv must not occur. Run it in the background as a safety net.
+  -- A second request must never reach the wire; draining in the background keeps the agent from
+  -- blocking if it wrongly sends one, so the assertion below reports it instead of timing out.
+  let followed ← IO.mkRef (none : Option ByteArray)
   background do
-    let _ ← mockClient.recv?
-    pure ()
+    followed.set (← mockClient.recv?)
 
   match ← await resultPromise.result! with
   | Except.error e => throw (IO.userError s!"agent error: {e}")
   | Except.ok resp =>
+    resp.body.close
     unless resp.line.status == .found do
       throw <| IO.userError
         s!"expected 302 returned unfollowed, got {resp.line.status.toCode}"
+
+  IO.sleep 100
+  if let some bytes ← followed.get then
+    throw <| IO.userError
+      s!"maxRedirects := 0 still followed the redirect:\n{(String.fromUTF8! bytes).quote}"
 
 -- A 3xx response without a Location header must be returned as the final response.
 
@@ -283,7 +304,7 @@ open Test.ClientHelpers
 
   let resultPromise ← sendInBackground agent request
 
-  let _ ← mockClient.recv?
+  let _ ← drainRequest mockClient
   mockClient.send (rawResp "302 Found"
     #[("Content-Length", "0"), ("Connection", "close")] "")
 
@@ -324,17 +345,27 @@ open Test.ClientHelpers
       ("Content-Length", "0"),
       ("Connection", "keep-alive")] "")
 
-  -- Cycle detected: no further requests.
+  -- Cycle detected: no further requests. A missed cycle is both drained *and answered* here, so
+  -- the agent completes and the assertions below name the failure — without the reply the agent
+  -- blocks on a response that never comes and the test dies on the wall clock instead.
+  let looped ← IO.mkRef (none : Option ByteArray)
   background do
-    let _ ← mockClient.recv?
-    pure ()
+    if let some bytes ← mockClient.recv? then
+      looped.set (some bytes)
+      mockClient.send (rawResp "200 OK" #[("Content-Length", "0"), ("Connection", "close")] "")
 
   match ← await resultPromise.result! with
   | Except.error e => throw (IO.userError s!"agent error: {e}")
   | Except.ok resp =>
+    resp.body.close
     unless resp.line.status == .found do
       throw <| IO.userError
         s!"expected 302 (cycle stop), got {resp.line.status.toCode}"
+
+  IO.sleep 100
+  if let some bytes ← looped.get then
+    throw <| IO.userError
+      s!"the redirect cycle was not detected; a third hop went out:\n{(String.fromUTF8! bytes).quote}"
 
 -- Cycle that passes through a cross-origin hop before self-looping. The redirected request lands on
 -- the new origin in absolute-form, then the origin redirects to itself in origin-form. Cycle
@@ -378,18 +409,26 @@ open Test.ClientHelpers
       ("Content-Length", "0"),
       ("Connection", "keep-alive")] "")
 
-  -- If the cycle were missed, the agent would send a second request to B; drain it so the test
-  -- with a clear message instead of hanging.
+  -- If the cycle were missed, the agent would send a second request to B; drain *and answer* it so
+  -- the test fails with a clear message instead of hanging.
+  let looped ← IO.mkRef (none : Option ByteArray)
   background do
-    let _ ← mockClient2.recv?
-    pure ()
+    if let some bytes ← mockClient2.recv? then
+      looped.set (some bytes)
+      mockClient2.send (rawResp "200 OK" #[("Content-Length", "0"), ("Connection", "close")] "")
 
   match ← await resultPromise.result! with
   | Except.error e => throw (IO.userError s!"agent error: {e}")
   | Except.ok resp =>
+    resp.body.close
     unless resp.line.status == .found do
       throw <| IO.userError
         s!"expected 302 (cross-origin→same-origin cycle stop), got {resp.line.status.toCode}"
+
+  IO.sleep 100
+  if let some bytes ← looped.get then
+    throw <| IO.userError
+      s!"the cross-origin self-loop was not detected:\n{(String.fromUTF8! bytes).quote}"
 
 -- ============================================================
 -- Section 9 — 301/302 non-POST methods (RFC 9110 §15.4)
@@ -436,18 +475,29 @@ open Test.ClientHelpers
     |>.header! "Host" "example.com" |>.text "patch-body"
   let p ← sendInBackground agent req
 
+  -- Keep-alive for the same reason as the 301/PUT case above: only the method rule may stop this.
   let _ ← drainRequest mockClient
   mockClient.send (rawResp "302 Found"
     #[("Location", "/res-new"),
       ("Content-Length", "0"),
-      ("Connection", "close")] "")
+      ("Connection", "keep-alive")] "")
+
+  let followed ← IO.mkRef (none : Option ByteArray)
+  background do
+    followed.set (← mockClient.recv?)
 
   match ← await p.result! with
   | Except.error e => throw (IO.userError s!"agent error: {e}")
   | Except.ok resp =>
+    resp.body.close
     unless resp.line.status == .found do
       throw <| IO.userError
         s!"expected 302 returned as-is for PATCH, got {resp.line.status.toCode}"
+
+  IO.sleep 100
+  if let some bytes ← followed.get then
+    throw <| IO.userError
+      s!"a 302 on PATCH was auto-followed:\n{(String.fromUTF8! bytes).quote}"
 
 -- ============================================================
 -- Section 10 — Relative Location preserves scheme and host
@@ -539,15 +589,269 @@ open Test.ClientHelpers
     |>.header! "Host" "example.com" |>.text "payload"
   let p ← sendInBackground agent req { onlySafeRedirects := some true }
 
+  -- Keep-alive: the control test above sends the identical exchange, so the override must be the
+  -- only difference between following and not. A closing 3xx would stop the chain by itself.
   let _ ← drainRequest mockClient
   mockClient.send (rawResp "302 Found"
     #[("Location", "/done"),
       ("Content-Length", "0"),
-      ("Connection", "close")] "")
+      ("Connection", "keep-alive")] "")
+
+  let followed ← IO.mkRef (none : Option ByteArray)
+  background do
+    followed.set (← mockClient.recv?)
 
   match ← await p.result! with
   | Except.error e => throw (IO.userError s!"agent error: {e}")
   | Except.ok resp =>
+    resp.body.close
     unless resp.line.status == .found do
       throw <| IO.userError
         s!"expected the 302 returned as-is under onlySafeRedirects, got {resp.line.status.toCode}"
+
+  IO.sleep 100
+  if let some bytes ← followed.get then
+    throw <| IO.userError
+      s!"onlySafeRedirects did not stop the POST redirect:\n{(String.fromUTF8! bytes).quote}"
+
+-- ============================================================
+-- Section 8 — Redirects across a connection the response ended
+-- ============================================================
+
+-- A same-origin hop used to reuse the connection the 3xx arrived on unconditionally. When the
+-- response says `Connection: close` that connection is already going away, so the next hop could
+-- not be written and the caller saw a transport error instead of the redirect target — with
+-- `Pool.trySend` then retrying the *whole* exchange from the original URL, since `.closed` is
+-- retryable, rather than continuing the chain from `/landing`.
+
+#eval show IO _ from
+  runWithTimeout "same-origin redirect is followed when the 3xx says Connection: close" 5000 <|
+  Async.block do
+  let (mockClient1, mockServer1) ← Mock.new
+  let (mockClient2, mockServer2) ← Mock.new
+  let calls ← IO.mkRef 0
+  let connect : Client.Connector := fun _ _ _ config => do
+    let callNo ← calls.get
+    calls.set (callNo + 1)
+    let mockServer := if callNo == 0 then mockServer1 else mockServer2
+    return .ok (← Client.Connection.new mockServer (config := config))
+  -- Retries off: this asserts the redirect chain continues, not that a retry papers over it.
+  let pool ← Client.Pool.new {} connect (maxRetries := 0)
+  let some domain := URI.DomainName.ofString? "example.com"
+    | throw (IO.userError "DomainName parse failed")
+  let origin : URI.Origin := {
+    scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
+
+  let req ← Request.new |>.method .get |>.uri! "/start"
+    |>.header! "Host" "example.com" |>.empty
+  let result : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
+  background do
+    let attempt ← try
+        pure (Except.ok (← pool.send origin req))
+      catch e => pure (Except.error (toString e))
+    discard <| result.resolve attempt
+
+  let _ ← drainRequest mockClient1
+  mockClient1.send (rawResp "302 Found"
+    #[("Location", "/landing"), ("Content-Length", "0"), ("Connection", "close")] "")
+  mockClient1.close
+
+  -- The redirected hop must land on a fresh connection to the same origin.
+  let redirectBytes ← IO.mkRef (none : Option ByteArray)
+  background do
+    let raw ← try pure (some (← drainRequest mockClient2)) catch _ => pure none
+    if let some raw := raw then
+      redirectBytes.set (some raw)
+      mockClient2.send (rawResp "200 OK"
+        #[("Content-Length", "7"), ("Connection", "close")] "landed!")
+
+  match ← await result.result! with
+  | Except.error e =>
+    throw <| IO.userError
+      s!"redirect on a closing connection failed instead of reconnecting: {e}"
+  | Except.ok resp =>
+    let body ← resp.body.readAll (α := String)
+    unless body == "landed!" do
+      throw <| IO.userError s!"expected redirect target body 'landed!', got {body.quote}"
+  let some raw ← redirectBytes.get
+    | throw (IO.userError "redirect target was never requested")
+  let redirectText := String.fromUTF8! raw
+  unless redirectText.startsWith "GET /landing" do
+    throw <| IO.userError s!"unexpected redirected request:\n{redirectText.quote}"
+
+-- The same situation reached without an explicit `Connection: close`: a 3xx whose body is
+-- delimited by connection close (no Content-Length, no Transfer-Encoding) ends the connection too.
+
+#eval show IO _ from
+  runWithTimeout "same-origin redirect is followed when the 3xx body is close-delimited" 5000 <|
+  Async.block do
+  let (mockClient1, mockServer1) ← Mock.new
+  let (mockClient2, mockServer2) ← Mock.new
+  let calls ← IO.mkRef 0
+  let connect : Client.Connector := fun _ _ _ config => do
+    let callNo ← calls.get
+    calls.set (callNo + 1)
+    let mockServer := if callNo == 0 then mockServer1 else mockServer2
+    return .ok (← Client.Connection.new mockServer (config := config))
+  let pool ← Client.Pool.new {} connect (maxRetries := 0)
+  let some domain := URI.DomainName.ofString? "example.com"
+    | throw (IO.userError "DomainName parse failed")
+  let origin : URI.Origin := {
+    scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
+
+  let req ← Request.new |>.method .get |>.uri! "/start"
+    |>.header! "Host" "example.com" |>.empty
+  let result : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
+  background do
+    let attempt ← try
+        pure (Except.ok (← pool.send origin req))
+      catch e => pure (Except.error (toString e))
+    discard <| result.resolve attempt
+
+  let _ ← drainRequest mockClient1
+  mockClient1.send "HTTP/1.1 302 Found\r\nLocation: /landing\r\n\r\nmoved".toUTF8
+  mockClient1.close
+
+  let redirectBytes ← IO.mkRef (none : Option ByteArray)
+  background do
+    let raw ← try pure (some (← drainRequest mockClient2)) catch _ => pure none
+    if let some raw := raw then
+      redirectBytes.set (some raw)
+      mockClient2.send (rawResp "200 OK"
+        #[("Content-Length", "7"), ("Connection", "close")] "landed!")
+
+  match ← await result.result! with
+  | Except.error e =>
+    throw <| IO.userError s!"close-delimited redirect failed instead of reconnecting: {e}"
+  | Except.ok resp =>
+    let body ← resp.body.readAll (α := String)
+    unless body == "landed!" do
+      throw <| IO.userError s!"expected redirect target body 'landed!', got {body.quote}"
+  let some raw ← redirectBytes.get
+    | throw (IO.userError "redirect target was never requested")
+  let redirectText := String.fromUTF8! raw
+  unless redirectText.startsWith "GET /landing" do
+    throw <| IO.userError s!"unexpected redirected request:\n{redirectText.quote}"
+
+-- `RedirectPlan.rewriteHostHeader` only rewrites a `Host` that is already there; supplying one is
+-- documented as the caller's job, and the caller here is the `Agent`, which knows both origins.
+-- A request sent without `Host` must not reach a *different* host with no `Host` at all.
+
+#eval show IO _ from
+  runWithTimeout "cross-origin redirect supplies Host for the new origin" 5000 <|
+  Async.block do
+  let (mockClient1, mockServer1) ← Mock.new
+  let (mockClient2, mockServer2) ← Mock.new
+  let calls ← IO.mkRef 0
+  let connect : Client.Connector := fun _ _ _ config => do
+    let callNo ← calls.get
+    calls.set (callNo + 1)
+    let mockServer := if callNo == 0 then mockServer1 else mockServer2
+    return .ok (← Client.Connection.new mockServer (config := config))
+  let pool ← Client.Pool.new {} connect
+  let some domain := URI.DomainName.ofString? "example.com"
+    | throw (IO.userError "DomainName parse failed")
+  let origin : URI.Origin := {
+    scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
+
+  let req ← Request.new |>.method .get |>.uri! "/start" |>.empty
+  let result : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
+  background do
+    let attempt ← try
+        pure (Except.ok (← pool.send origin req))
+      catch e => pure (Except.error (toString e))
+    discard <| result.resolve attempt
+
+  let _ ← drainRequest mockClient1
+  mockClient1.send (rawResp "302 Found"
+    #[("Location", "http://other.example/landing"), ("Content-Length", "0"),
+      ("Connection", "keep-alive")] "")
+
+  let redirectBytes ← drainRequest mockClient2
+  mockClient2.send (rawResp "200 OK" #[("Content-Length", "2"), ("Connection", "close")] "ok")
+  let _ ← await result.result!
+
+  let redirectText := String.fromUTF8! redirectBytes
+  unless redirectText.contains "Host: other.example" do
+    throw <| IO.userError
+      s!"redirected request went to other.example without a Host header:\n{redirectText.quote}"
+
+-- ============================================================
+-- A connection retired for a reason the response head does not mention
+-- ============================================================
+
+-- Whether the connection carries the next hop is the connection's decision. Reading it off the
+-- redirect response alone misses every client-side reason the connection is going away: the 3xx
+-- below offers `keep-alive`, but `enableKeepAlive := false` made the client ask for closure, and
+-- `maxRequestsPerConnection := 1` spends the connection's whole budget on the first hop.
+
+#eval show IO _ from
+  runWithTimeout "a keep-alive-disabled client returns the 3xx unfollowed" 6000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let agent ← mkAgent mockServer (config := { enableKeepAlive := false })
+
+  let req ← Request.new |>.method .get |>.uri! "/a"
+    |>.header! "Host" "example.com" |>.empty
+  let p ← sendInBackground agent req
+  let _ ← drainRequest mockClient
+  mockClient.send (rawResp "302 Found"
+    #[("Location", "/b"), ("Content-Length", "0"), ("Connection", "keep-alive")] "")
+
+  match ← await p.result! with
+  | Except.error e =>
+    throw <| IO.userError s!"redirect on a keep-alive-disabled connection failed: {e}"
+  | Except.ok resp =>
+    resp.body.close
+    unless resp.line.status.toCode == 302 do
+      throw <| IO.userError
+        s!"a standalone agent followed a redirect onto a retired connection (got {resp.line.status.toCode})"
+
+/-- Runs a same-origin redirect through a two-connection pool under `config`. -/
+private def pooledRedirect (name : String) (config : Client.Config) : Async Unit := do
+  let (mockClient1, mockServer1) ← Mock.new
+  let (mockClient2, mockServer2) ← Mock.new
+  let connectCount ← IO.mkRef 0
+  let connect : Client.Connector := fun _ _ _ config => do
+    let n ← connectCount.get
+    connectCount.set (n + 1)
+    match n with
+    | 0 => return .ok (← Client.Connection.new mockServer1 (config := config))
+    | 1 => return .ok (← Client.Connection.new mockServer2 (config := config))
+    | _ => throw (IO.userError s!"{name}: pool opened more than two connections")
+
+  let pool ← Client.Pool.new config connect
+  let some domain := URI.DomainName.ofString? "example.com"
+    | throw (IO.userError "DomainName parse failed")
+  let origin : URI.Origin :=
+    { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
+
+  let req ← Request.new |>.method .get |>.uri! "/a"
+    |>.header! "Host" "example.com" |>.empty
+  let p : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
+  background do
+    let result ← try pure (Except.ok (← pool.send origin req))
+      catch e => pure (Except.error (toString e))
+    discard <| p.resolve result
+
+  let _ ← drainRequest mockClient1
+  mockClient1.send (rawResp "302 Found"
+    #[("Location", "/b"), ("Content-Length", "0"), ("Connection", "keep-alive")] "")
+
+  -- The next hop must be the redirect target on the fresh connection, not a replay of `/a`.
+  let second ← drainRequest mockClient2
+  unless (String.fromUTF8! second).startsWith "GET /b" do
+    throw <| IO.userError
+      s!"{name}: second connection did not receive the redirect hop:\n{(String.fromUTF8! second).quote}"
+  mockClient2.send (rawResp "200 OK" #[("Content-Length", "2"), ("Connection", "close")] "ok")
+
+  match ← await p.result! with
+  | Except.error e => throw <| IO.userError s!"{name}: pooled redirect failed: {e}"
+  | Except.ok resp =>
+    let body ← resp.body.readAll (α := String)
+    unless body == "ok" do throw <| IO.userError s!"{name}: expected 'ok', got {body.quote}"
+
+#eval show IO _ from
+  runWithTimeout "a pool follows the redirect on a fresh connection when the old one is retired"
+    8000 <| Async.block do
+  pooledRedirect "enableKeepAlive := false" { enableKeepAlive := false }
+  pooledRedirect "maxRequestsPerConnection := 1" { maxRequestsPerConnection := 1 }

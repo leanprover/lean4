@@ -882,9 +882,9 @@ theorem store_prev_IsList_ne (xs : List Nat) (prev hd prev' : Addr) (hhd : hd �
 
 /-! ## In-place reverse -/
 
-/-- Loop invariant for `reverse` at loop state `(prev, curr)`: the unvisited segment `rest` hangs
-off `curr` with back-pointer `prev`, the reversed prefix `acc` sits at `prev` with back-pointer
-`curr`, and the remaining iteration budget `n` bounds `rest`. -/
+/-- Loop invariant for `reverse` at loop state `(prev, curr)`: the unvisited segment `rest` starts
+at `curr` preceded by `prev`, the reversed prefix `acc` starts at `prev` preceded by `curr`, and the
+remaining iteration budget `n` bounds `rest`. -/
 noncomputable abbrev ReverseLoopInv (xs : List Nat) (n : Nat) (b : Addr × Addr) : HProp :=
   ⨆ rest, ⨆ acc, ⌜rest.length ≤ n ∧ rest.reverse ++ acc = xs.reverse⌝ ⊓
     (IsList rest b.1 b.2 ∗ IsList acc b.2 b.1)
@@ -963,51 +963,51 @@ last node discharges the prefix wand and the continuation wand by the counit. -/
 
 /-- Loop invariant for `append` at loop state `(t, u)`: `t` is the last visited node with
 next-pointer `u` and some prev-pointer `pt`, the unvisited segment `rest` hangs off `u`, a wand
-absorbs the visited prefix back into the whole first list, the second list and the continuation
+absorbs the visited prefix xprev into the whole first list, the second list and the continuation
 `K` ride along untouched, and the remaining iteration budget `n` bounds `rest`. -/
-noncomputable abbrev AppendLoopInv (xs ys : List Nat) (back qb x y : Addr) (K : HProp)
+noncomputable abbrev AppendLoopInv (xs ys : List Nat) (xprev yprev x y : Addr) (K : HProp)
     (n : Nat) (b : Addr × Addr) : HProp :=
   ⨆ v, ⨆ rest, ⨆ pt,
     ⌜rest.length ≤ n ∧ b.1 ≠ null⌝ ⊓
       (b.1 ↦ b.2 ∗ (b.1 + 1) ↦ pt ∗ (b.1 + 2) ↦ v ∗ IsList rest b.1 b.2 ∗
-        (IsList (v :: rest ++ ys) pt b.1 -∗ IsList (xs ++ ys) back x) ∗
-        IsList ys qb y ∗ K)
+        (IsList (v :: rest ++ ys) pt b.1 -∗ IsList (xs ++ ys) xprev x) ∗
+        IsList ys yprev y ∗ K)
 
 /-- Enter the append loop: the head node is the visited prefix and the prefix wand is the
 identity. -/
-@[grind .] theorem append_entry_le (v : Nat) (rest xs ys : List Nat) (back qb x y u₀ : Addr)
+@[grind .] theorem append_entry_le (v : Nat) (rest xs ys : List Nat) (xprev yprev x y u₀ : Addr)
     (K : HProp) (n : Nat) (hxs : xs = v :: rest) (hx : x ≠ null) (hlen : xs.length ≤ n) :
-    (IsList ys qb y ∗ K) ∗ x ↦ u₀ ∗ (x + 1) ↦ back ∗ (x + 2) ↦ v ∗ IsList rest x u₀
-      ⊑ AppendLoopInv xs ys back qb x y K n (x, u₀) := by
+    (IsList ys yprev y ∗ K) ∗ x ↦ u₀ ∗ (x + 1) ↦ xprev ∗ (x + 2) ↦ v ∗ IsList rest x u₀
+      ⊑ AppendLoopInv xs ys xprev yprev x y K n (x, u₀) := by
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
-      x ↦ u₀ ∗ (x + 1) ↦ back ∗ (x + 2) ↦ v ∗ IsList rest x u₀ ∗ IsList ys qb y ∗ K)) ?_
+      x ↦ u₀ ∗ (x + 1) ↦ xprev ∗ (x + 2) ↦ v ∗ IsList rest x u₀ ∗ IsList ys yprev y ∗ K)) ?_
   · grind
-  refine le_iSup_of_le v (le_iSup_of_le rest (le_iSup_of_le back ?_))
+  refine le_iSup_of_le v (le_iSup_of_le rest (le_iSup_of_le xprev ?_))
   refine le_meet _ _ _ (le_ofProp _ _ ⟨by grind, hx⟩) ?_
   refine PartialOrder.rel_trans
-    (le_sepConj_wand_refl _ (IsList (v :: rest ++ ys) back x)) ?_
+    (le_sepConj_wand_refl _ (IsList (v :: rest ++ ys) xprev x)) ?_
   subst hxs
   exact PartialOrder.rel_of_eq (by grind)
 
 grind_pattern append_entry_le =>
-  IsList rest x u₀, (x + 1) ↦ back, (x + 2) ↦ v, IsList ys qb y,
-  IsList (xs ++ ys) back x -∗ K, xs.length ≤ n
+  IsList rest x u₀, (x + 1) ↦ xprev, (x + 2) ↦ v, IsList ys yprev y,
+  IsList (xs ++ ys) xprev x -∗ K, xs.length ≤ n
 
 /-- One append iteration: absorb the visited node into the prefix wand (`wand_absorb`) and
 re-establish the loop invariant on the rest. -/
 @[grind .] theorem append_yield_le (v w : Nat) (rest rest' xs ys : List Nat)
-    (back qb x y pt t u u' : Addr) (K : HProp) (n : Nat)
+    (xprev yprev x y pt t u u' : Addr) (K : HProp) (n : Nat)
     (ht : t ≠ null) (hu : u ≠ null) (hrest : rest = w :: rest')
     (hlen : rest.length ≤ n + 1) :
     (t ↦ u ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗
-        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) back x) ∗ IsList ys qb y ∗ K) ∗
+        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗ IsList ys yprev y ∗ K) ∗
       u ↦ u' ∗ (u + 1) ↦ t ∗ (u + 2) ↦ w ∗ IsList rest' u u'
-      ⊑ AppendLoopInv xs ys back qb x y K n (u, u') := by
+      ⊑ AppendLoopInv xs ys xprev yprev x y K n (u, u') := by
   subst hrest
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
       t ↦ u ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗ u ↦ u' ∗ (u + 1) ↦ t ∗ (u + 2) ↦ w ∗
-        IsList rest' u u' ∗ (IsList (v :: (w :: rest') ++ ys) pt t -∗ IsList (xs ++ ys) back x) ∗
-        IsList ys qb y ∗ K)) ?_
+        IsList rest' u u' ∗ (IsList (v :: (w :: rest') ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗
+        IsList ys yprev y ∗ K)) ?_
   · grind
   refine le_iSup_of_le w (le_iSup_of_le rest' (le_iSup_of_le t ?_))
   refine le_meet _ _ _ (le_ofProp _ _ ⟨by grind, hu⟩) ?_
@@ -1017,25 +1017,25 @@ re-establish the loop invariant on the rest. -/
       (IsList_cons_intro v u pt ((w :: rest') ++ ys) t ht)
     grind
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
-      (u ↦ u' ∗ (u + 1) ↦ t ∗ (u + 2) ↦ w ∗ IsList rest' u u' ∗ IsList ys qb y ∗ K) ∗
+      (u ↦ u' ∗ (u + 1) ↦ t ∗ (u + 2) ↦ w ∗ IsList rest' u u' ∗ IsList ys yprev y ∗ K) ∗
         ((t ↦ u ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v) ∗
-          (IsList (v :: (w :: rest') ++ ys) pt t -∗ IsList (xs ++ ys) back x)))) ?_
+          (IsList (v :: (w :: rest') ++ ys) pt t -∗ IsList (xs ++ ys) xprev x)))) ?_
   · grind
   · refine PartialOrder.rel_trans (sepConj_mono_right _ (wand_absorb habs)) ?_
     exact PartialOrder.rel_of_eq (by grind)
 
 /-- Break out of the append loop: `u = null` forces the unvisited segment empty, so the invariant
 holds at the exhausted budget. -/
-@[grind .] theorem append_done_le (v : Nat) (rest xs ys : List Nat) (back qb x y pt t u : Addr)
+@[grind .] theorem append_done_le (v : Nat) (rest xs ys : List Nat) (xprev yprev x y pt t u : Addr)
     (K : HProp) (ht : t ≠ null) (hu : u = null) :
     t ↦ u ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗ IsList rest t u ∗
-        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) back x) ∗ IsList ys qb y ∗ K
-      ⊑ AppendLoopInv xs ys back qb x y K ([] : List Nat).length (t, u) := by
+        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗ IsList ys yprev y ∗ K
+      ⊑ AppendLoopInv xs ys xprev yprev x y K ([] : List Nat).length (t, u) := by
   subst hu
   rw [IsList_null_eq]
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
       sepPure (rest = []) ∗ (t ↦ null ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗
-        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) back x) ∗ IsList ys qb y ∗ K))) ?_
+        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗ IsList ys yprev y ∗ K))) ?_
   · grind
   refine sepPure_sepConj_le_of _ _ _ fun hrest => ?_
   subst hrest
@@ -1047,11 +1047,11 @@ holds at the exhausted budget. -/
 
 /-- Discharge both wands at the last node: rebuild the cons cell onto the relinked second list,
 apply the prefix wand's counit, then the continuation wand's. -/
-@[grind .] theorem append_link_le (v : Nat) (rest xs ys : List Nat) (back x y pt t u : Addr)
+@[grind .] theorem append_link_le (v : Nat) (rest xs ys : List Nat) (xprev x y pt t u : Addr)
     (K : HProp) (ht : t ≠ null) (hlen : rest.length ≤ 0) :
     ((t + 1) ↦ pt ∗ (t + 2) ↦ v ∗ IsList rest t u ∗
-        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) back x) ∗
-        (IsList (xs ++ ys) back x -∗ K) ∗ t ↦ y) ∗
+        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗
+        (IsList (xs ++ ys) xprev x -∗ K) ∗ t ↦ y) ∗
       IsList ys t y
       ⊑ K := by
   have hrest : rest = [] := by grind
@@ -1059,14 +1059,14 @@ apply the prefix wand's counit, then the continuation wand's. -/
   rw [IsList_nil_eq]
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
       sepPure (u = null) ∗ (t ↦ y ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗
-        (IsList (v :: [] ++ ys) pt t -∗ IsList (xs ++ ys) back x) ∗ IsList ys t y ∗
-        (IsList (xs ++ ys) back x -∗ K)))) ?_
+        (IsList (v :: [] ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗ IsList ys t y ∗
+        (IsList (xs ++ ys) xprev x -∗ K)))) ?_
   · grind
   refine sepPure_sepConj_le_of _ _ _ fun _hu => ?_
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
       ((t ↦ y ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗ IsList ys t y) ∗
-        (IsList (v :: [] ++ ys) pt t -∗ IsList (xs ++ ys) back x)) ∗
-      (IsList (xs ++ ys) back x -∗ K))) ?_
+        (IsList (v :: [] ++ ys) pt t -∗ IsList (xs ++ ys) xprev x)) ∗
+      (IsList (xs ++ ys) xprev x -∗ K))) ?_
   · grind
   · refine PartialOrder.rel_trans
       (sepConj_mono_left _ (PartialOrder.rel_trans
@@ -1076,17 +1076,17 @@ apply the prefix wand's counit, then the continuation wand's. -/
 
 grind_pattern append_link_le =>
   (t + 1) ↦ pt, (t + 2) ↦ v, IsList rest t u,
-  IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) back x,
-  IsList (xs ++ ys) back x -∗ K, IsList ys t y, t ↦ y
+  IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x,
+  IsList (xs ++ ys) xprev x -∗ K, IsList ys t y, t ↦ y
 
 /-- The `y = null` link: the second list is empty, and storing `null` into the last node's next
 field leaves the first list intact. -/
 @[grind .] theorem append_link_null_le (v : Nat) (rest xs ys : List Nat)
-    (back qb x y pt t u : Addr) (K : HProp)
+    (xprev yprev x y pt t u : Addr) (K : HProp)
     (ht : t ≠ null) (hlen : rest.length ≤ 0) (hy : y = null) :
     ((t + 1) ↦ pt ∗ (t + 2) ↦ v ∗ IsList rest t u ∗
-        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) back x) ∗ IsList ys qb y ∗
-        (IsList (xs ++ ys) back x -∗ K)) ∗ t ↦ y
+        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗ IsList ys yprev y ∗
+        (IsList (xs ++ ys) xprev x -∗ K)) ∗ t ↦ y
       ⊑ K := by
   have hrest : rest = [] := by grind
   subst hrest
@@ -1094,15 +1094,15 @@ field leaves the first list intact. -/
   rw [IsList_nil_eq, IsList_null_eq]
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
       sepPure (u = null) ∗ sepPure (ys = []) ∗ (t ↦ null ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗
-        (IsList (v :: [] ++ ys) pt t -∗ IsList (xs ++ ys) back x) ∗
-        (IsList (xs ++ ys) back x -∗ K)))) ?_
+        (IsList (v :: [] ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗
+        (IsList (xs ++ ys) xprev x -∗ K)))) ?_
   · grind
   refine sepPure_sepConj_le_of _ _ _ fun _hu => sepPure_sepConj_le_of _ _ _ fun hys => ?_
   subst hys
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
       ((t ↦ null ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗ IsList [] t null) ∗
-        (IsList (v :: [] ++ []) pt t -∗ IsList (xs ++ []) back x)) ∗
-      (IsList (xs ++ []) back x -∗ K))) ?_
+        (IsList (v :: [] ++ []) pt t -∗ IsList (xs ++ []) xprev x)) ∗
+      (IsList (xs ++ []) xprev x -∗ K))) ?_
   · grind
   · refine PartialOrder.rel_trans
       (sepConj_mono_left _ (PartialOrder.rel_trans
@@ -1112,56 +1112,56 @@ field leaves the first list intact. -/
 
 grind_pattern append_link_null_le =>
   (t + 1) ↦ pt, (t + 2) ↦ v, IsList rest t u,
-  IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) back x,
-  IsList (xs ++ ys) back x -∗ K, IsList ys qb y, t ↦ y
+  IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x,
+  IsList (xs ++ ys) xprev x -∗ K, IsList ys yprev y, t ↦ y
 
 /-- The empty-first-list branch: the continuation receives the second list unchanged. -/
-@[grind .] theorem append_nil_le (xs ys : List Nat) (back qb y : Addr) (K : HProp) :
-    IsList xs back null ∗ IsList ys qb y ∗ (IsList (xs ++ ys) qb y -∗ K)
+@[grind .] theorem append_nil_le (xs ys : List Nat) (xprev yprev y : Addr) (K : HProp) :
+    IsList xs xprev null ∗ IsList ys yprev y ∗ (IsList (xs ++ ys) yprev y -∗ K)
       ⊑ K := by
   rw [IsList_null_eq]
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
-      sepPure (xs = []) ∗ (IsList ys qb y ∗ (IsList (xs ++ ys) qb y -∗ K)))) ?_
+      sepPure (xs = []) ∗ (IsList ys yprev y ∗ (IsList (xs ++ ys) yprev y -∗ K)))) ?_
   · grind
   · refine sepPure_sepConj_le_of _ _ _ fun hxs => ?_
     subst hxs
     exact sepConj_wand_le _ _
 
 /-- Ramified append specification: the schematic postcondition `Q` is received through a wand at
-the known result and back-pointer. -/
-theorem append_spec (fuel : Nat) (xs ys : List Nat) (back qb x y : Addr) (Q : Addr → HProp)
+the returned head and the node preceding it. -/
+theorem append_spec (fuel : Nat) (xs ys : List Nat) (xprev yprev x y : Addr) (Q : Addr → HProp)
     (hle : xs.length ≤ fuel) :
-    ⦃ IsList xs back x ∗ IsList ys qb y ∗
-        (IsList (xs ++ ys) (if x = null then qb else back) (if x = null then y else x) -∗
+    ⦃ IsList xs xprev x ∗ IsList ys yprev y ∗
+        (IsList (xs ++ ys) (if x = null then yprev else xprev) (if x = null then y else x) -∗
           Q (if x = null then y else x)) ⦄
       append fuel x y
     ⦃ Q ⦄ := by
   by_cases hx : x = null
   · subst hx
-    have hb : (if null = null then qb else back) = qb := by grind
+    have hb : (if null = null then yprev else xprev) = yprev := by grind
     have hr : (if null = null then y else null) = y := by grind
     rw [hb, hr]
     simp only [append, reduceIte]
     vcgen with finish
-  · have hb : (if x = null then qb else back) = back := by grind
+  · have hb : (if x = null then yprev else xprev) = xprev := by grind
     have hr : (if x = null then y else x) = x := by grind
     rw [hb, hr]
     have hlen' : xs.length ≤ (ForIn.toList [:fuel]).length := by grind
     vcgen [append, load_next_IsList_ne, store_prev_IsList_ne] invariants
       | inv1 => fun _ suff b =>
-          AppendLoopInv xs ys back qb x y (IsList (xs ++ ys) back x -∗ Q x) suff.length b
+          AppendLoopInv xs ys xprev yprev x y (IsList (xs ++ ys) xprev x -∗ Q x) suff.length b
       with finish
 
 /-- Plain append specification, from `append_spec` at the trivial continuation. -/
-@[spec] theorem append_concat (xs ys : List Nat) (back qb x y : Addr) :
-    ⦃ IsList xs back x ∗ IsList ys qb y ⦄
+@[spec] theorem append_concat (xs ys : List Nat) (xprev yprev x y : Addr) :
+    ⦃ IsList xs xprev x ∗ IsList ys yprev y ⦄
       append xs.length x y
-    ⦃ fun r => IsList (xs ++ ys) (if x = null then qb else back) r ⦄ := by
+    ⦃ fun r => IsList (xs ++ ys) (if x = null then yprev else xprev) r ⦄ := by
   vcgen [append_spec] with finish
 
 /-- Framing an unrelated cell across the whole append. -/
-example (l : Addr) (z : Nat) (xs ys : List Nat) (back qb x y : Addr) :
-    ⦃ l ↦ z ∗ IsList xs back x ∗ IsList ys qb y ⦄
+example (l : Addr) (z : Nat) (xs ys : List Nat) (xprev yprev x y : Addr) :
+    ⦃ l ↦ z ∗ IsList xs xprev x ∗ IsList ys yprev y ⦄
       append xs.length x y
-    ⦃ fun r => l ↦ z ∗ IsList (xs ++ ys) (if x = null then qb else back) r ⦄ := by
+    ⦃ fun r => l ↦ z ∗ IsList (xs ++ ys) (if x = null then yprev else xprev) r ⦄ := by
   vcgen [append_concat] with finish

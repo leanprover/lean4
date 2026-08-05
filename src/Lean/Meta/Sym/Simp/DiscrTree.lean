@@ -241,12 +241,8 @@ where
     | _               => false
 
   go (e : Expr) (numExtra : Nat) (result : Array (α × Nat)) : Array (α × Nat) :=
-<<<<<<< HEAD
-    let result := result ++ (getMatch d e).map (., numExtra)
-    let e := e.consumeMData
-=======
     let result := result ++ (getMatch mctx d e).map (., numExtra)
->>>>>>> f4b5789a1b (fix: handle assigned mvars at `SymM` discr trees)
+    let e := e.consumeMData
     if e.isApp then
       go e.appFn! (numExtra + 1) result
     else

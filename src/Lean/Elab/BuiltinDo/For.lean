@@ -83,26 +83,18 @@ open Lean.Meta
     `(doElem| do $doElems*)
   | _ => Macro.throwUnsupported
 
-/-- Synthesize the class that the `invariant` clause's specification is stated over, reporting the
-container that lacks it rather than the gadget that goes unsolved later. -/
+/-- Demand the class that the `invariant` clause's specification is stated over, so that the
+container that lacks it is reported at the clause. -/
 private def checkPureForIn (invClause : Syntax) (h? : Option Syntax) (xs α : Expr) (mi : MonadInfo) :
-    DoElabM Unit := do
+    DoElabM Unit := withRef invClause do
   let cls := if h?.isSome then `Std.Internal.PureForIn' else `Std.Internal.PureForIn
   unless (← getEnv).contains cls do return
-  let ρ ← instantiateMVars (← inferType xs)
-  let α ← instantiateMVars α
-  let m ← instantiateMVars mi.m
-  if ρ.hasExprMVar || α.hasExprMVar || m.hasExprMVar then return
-  let ok ←
-    try
-      let ty ← Term.elabType <| ←
-        `($(mkIdent cls) $(← Term.exprToSyntax m) $(← Term.exprToSyntax ρ) $(← Term.exprToSyntax α))
-      pure ((← trySynthInstance ty) matches .some _)
-    catch _ => pure false
-  unless ok do
-    throwErrorAt invClause "The `invariant` clause needs {.ofConstName cls} for{indentExpr ρ}\n\
-      which states that iterating it produces its elements without effects. Loop over a container \
-      that provides the instance, or state the invariant in the proof instead."
+  let ty ← Term.elabType <| ←
+    `($(mkIdent cls) $(← Term.exprToSyntax mi.m) $(← Term.exprToSyntax (← inferType xs))
+      $(← Term.exprToSyntax α))
+  discard <| Term.mkInstMVar ty
+    (extraErrorMsg? := m!"The `invariant` clause is stated over this class, which says that \
+      iterating the container produces its elements without effects.")
 
 /-- Rebuild the already-elaborated loop as a `forInWithInvariant` call carrying the `invariant`
 clause: `ForIn.forInWithInvariant`, or `ForIn'.forInWithInvariant'` for a membership-proof binder

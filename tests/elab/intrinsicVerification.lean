@@ -242,9 +242,11 @@ example (xs ys : List Nat) : Id Nat := do
 /-! ## A container without a `PureForIn` instance is reported at the clause -/
 
 /--
-error: The `invariant` clause needs Std.Internal.PureForIn for
-  String
-which states that iterating it produces its elements without effects. Loop over a container that provides the instance, or state the invariant in the proof instead.
+error: failed to synthesize instance of type class
+  Std.Internal.PureForIn Id String Char
+The `invariant` clause is stated over this class, which says that iterating the container produces its elements without effects.
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs in
 example (s : String) : Id Nat := do

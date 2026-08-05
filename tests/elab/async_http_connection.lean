@@ -1087,13 +1087,13 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
 -- HTTP/1.1 has no way to skip an unread body, so the connection has to drain it itself before the
 -- next request can go out.
 --
--- Repeated, because `close` can land between the loop's own check that the response stream is still
--- open and the poll that registers the stream as a wake-up source. Land there and that poll carries
--- nothing but the cancellation selector: the body is drainable, the machine wants no input, and the
--- exchange never finishes.
+-- Repeated with jitter, because `close` can land between the loop's own check that the response
+-- stream is still open and the poll that registers the stream as a wake-up source. Land there and
+-- the poll must still carry the stream, or nothing is left to wake the loop: the body is drainable,
+-- the machine wants no input, and the exchange never finishes.
 #eval show IO _ from
   runWithTimeout "an unread response body does not block the next request" 120000 <| Async.block do
-  for _ in [0:40] do
+  for i in [0:400] do
     let (mockClient, mockServer) ← Mock.new
     let connection ← mkConnection mockClient patientConfig
     let first ← sendInBackground connection (← mkRequest .get "/unread")
@@ -1101,6 +1101,11 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
     mockServer.send (rawResp "200 OK" #[("Content-Length", "5")] "hello")
     let (resp1, _) ← expectResponse first
     assertStatusIs resp1 200
+
+    -- That window is a handful of instructions wide, so shift where `close` falls relative to the
+    -- connection loop by a different amount on every iteration.
+    for _ in [0:i % 64] do
+      discard <| IO.monoNanosNow
     resp1.body.close
 
     let second ← sendInBackground connection (← mkRequest .get "/after")

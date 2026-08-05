@@ -2079,7 +2079,9 @@ private def readModuleDataPartsOfMod (mod : Name) : IO (Array (ModuleData × Com
   let mFile ← findOLean mod
   unless (← mFile.pathExists) do
     throw <| IO.userError s!"object file '{mFile}' of module {mod} does not exist"
-  let main ← unsafe CompactedRegion.read (α := ModuleData) mFile #[]
+  -- `prefault`: the import const-map merge reads most of each main `.olean`, so warming the whole
+  -- region lets that otherwise-serial fault I/O overlap with the merge that follows.
+  let main ← unsafe CompactedRegion.read (α := ModuleData) mFile #[] (prefault := true)
   if !main.1.isModule then
     return #[main]
   -- Opportunistically load all available parts.

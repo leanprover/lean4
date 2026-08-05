@@ -1146,7 +1146,7 @@ theorem append_spec (fuel : Nat) (xs ys : List Nat) (back qb x y : Addr) (Q : Ad
   · have hb : (if x = null then qb else back) = back := by grind
     have hr : (if x = null then y else x) = x := by grind
     rw [hb, hr]
-    have hlen' : xs.length ≤ ([:fuel] : Std.Legacy.Range).toList.length := by grind
+    have hlen' : xs.length ≤ (ForIn.toList [:fuel]).length := by grind
     vcgen [append, load_next_IsList_ne, store_prev_IsList_ne] invariants
       | inv1 => fun _ suff b =>
           AppendLoopInv xs ys back qb x y (IsList (xs ++ ys) back x -∗ Q x) suff.length b

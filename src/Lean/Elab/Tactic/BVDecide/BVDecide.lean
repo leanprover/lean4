@@ -25,11 +25,12 @@ def ensureBvDecide : CoreM Unit := do
 
 @[builtin_tactic Lean.Parser.Tactic.bvDecide]
 def evalBvDecide : Tactic := fun
-  | `(tactic| bv_decide $cfg:optConfig) => do
+  | `(tactic| bv_decide $cfg:optConfig $[$types:bvTypes]?) => do
     ensureBvDecide
     let cfg ← elabBVDecideConfig cfg
+    let types ← elabBVDecideTypes types
     IO.FS.withTempFile fun _ lratFile => do
-      let cfg ← TacticContext.new lratFile cfg
+      let cfg ← TacticContext.new lratFile cfg types
       liftMetaFinishingTactic fun g => do
         discard <| Meta.Sym.SymM.run <| bvDecide g cfg
   | _ => throwUnsupportedSyntax

@@ -1872,6 +1872,14 @@ The suggestions are printed in the order of their confidence, from highest to lo
 syntax (name := suggestions) "suggestions" : tactic
 
 /--
+`types [T₁, ..., Tₙ]` restricts the structure and enum inductive analysis of the `bv_decide` family
+of tactics to `T₁, ..., Tₙ`. Every other structure or enum inductive is treated as an opaque
+variable, even if the analysis would usually pick it up. This is useful to keep preprocessing
+tractable on goals that mention many types of which only a few matter for the proof.
+-/
+syntax bvTypes := &" types" " [" ident,* "]"
+
+/--
 This tactic works just like `bv_decide` but skips calling a SAT solver by using a proof that is
 already stored on disk. It is called with the name of an LRAT file in the same directory as the
 current Lean file:
@@ -1879,7 +1887,7 @@ current Lean file:
 bv_check "proof.lrat"
 ```
 -/
-syntax (name := bvCheck) "bv_check " optConfig str : tactic
+syntax (name := bvCheck) "bv_check" optConfig (bvTypes)? ppSpace str : tactic
 
 /--
 Close fixed-width `BitVec` and `Bool` goals by obtaining a proof from an external SAT solver and
@@ -1904,18 +1912,21 @@ In order to avoid calling a SAT solver every time, the proof can be cached with 
 If solving your problem relies inherently on using associativity or commutativity, consider enabling
 the `bv.ac_nf` option.
 
+`bv_decide types [T₁, ..., Tₙ]` restricts the analysis of structures and enum inductives to
+`T₁, ..., Tₙ`, treating all other ones as opaque variables.
+
 Note: `bv_decide` trusts the correctness of the code generator and adds a axioms asserting its result.
 
 Note: include `import Std.Tactic.BVDecide`
 -/
-syntax (name := bvDecide) "bv_decide" optConfig : tactic
+syntax (name := bvDecide) "bv_decide" optConfig (bvTypes)? : tactic
 
 /--
 Suggest a proof script for a `bv_decide` tactic call. Useful for caching LRAT proofs.
 
 Note: include `import Std.Tactic.BVDecide`
 -/
-syntax (name := bvTrace) "bv_decide?" optConfig : tactic
+syntax (name := bvTrace) "bv_decide?" optConfig (bvTypes)? : tactic
 
 /--
 Run the normalization procedure of `bv_decide` only. Sometimes this is enough to solve basic
@@ -1923,7 +1934,7 @@ Run the normalization procedure of `bv_decide` only. Sometimes this is enough to
 
 Note: include `import Std.Tactic.BVDecide`
 -/
-syntax (name := bvNormalize) "bv_normalize" optConfig : tactic
+syntax (name := bvNormalize) "bv_normalize" optConfig (bvTypes)? : tactic
 
 /--
 `massumption` is like `assumption`, but operating on a stateful `Std.Do.SPred` goal.

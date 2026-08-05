@@ -35,9 +35,10 @@ def getSrcDir : TermElabM System.FilePath := do
     | throwError "cannot compute parent directory of `{srcPath}`"
   return srcDir
 
-def mkContext (lratPath : System.FilePath) (cfg : BVDecideConfig) : TermElabM TacticContext := do
+def mkContext (lratPath : System.FilePath) (cfg : BVDecideConfig)
+    (types : Option (Array Name) := none) : TermElabM TacticContext := do
   let lratPath := (← getSrcDir) / lratPath
-  TacticContext.new lratPath cfg
+  TacticContext.new lratPath cfg types
 
 @[inherit_doc Lean.Parser.Tactic.bvCheck]
 def bvCheck (g : MVarId) (hypotheses : Array Normalize.Hyp) (ctx : TacticContext) :
@@ -47,7 +48,7 @@ def bvCheck (g : MVarId) (hypotheses : Array Normalize.Hyp) (ctx : TacticContext
 
 def evalBvCheck (g : MVarId) (ctx : TacticContext) (warn : MetaM Unit) :
     Meta.Sym.SymM Unit := do
-  Normalize.PreProcessM.run' ctx.config g do
+  Normalize.PreProcessM.run' ctx.preProcessContext g do
     if ← Normalize.bvNormalize then
       warn
     else
@@ -56,13 +57,14 @@ def evalBvCheck (g : MVarId) (ctx : TacticContext) (warn : MetaM Unit) :
 open Lean.Meta.Tactic in
 @[builtin_tactic Lean.Parser.Tactic.bvCheck]
 def evalBvCheckTactic : Tactic := fun
-  | `(tactic| bv_check%$tk $cfgStx:optConfig $path:str) => do
+  | `(tactic| bv_check%$tk $cfgStx:optConfig $[$typesStx:bvTypes]? $path:str) => do
     ensureBvDecide
     let cfg ← elabBVDecideConfig cfgStx
-    let ctx ← mkContext path.getString cfg
+    let types ← elabBVDecideTypes typesStx
+    let ctx ← mkContext path.getString cfg types
     let g ← getMainGoal
     Meta.Sym.SymM.run <| evalBvCheck g ctx do
-      let bvNormalizeStx ← `(tactic| bv_normalize $cfgStx)
+      let bvNormalizeStx ← `(tactic| bv_normalize $cfgStx $[$typesStx:bvTypes]?)
       logWarning m!"This goal can be closed by only applying bv_normalize, no need to keep the LRAT proof around."
       TryThis.addSuggestion tk bvNormalizeStx (origSpan? := ← getRef)
   | _ => throwUnsupportedSyntax

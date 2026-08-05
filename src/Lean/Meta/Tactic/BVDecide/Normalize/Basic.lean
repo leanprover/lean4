@@ -52,6 +52,12 @@ inductive MatchKind
   | enumWithDefault (info : InductiveVal) (ctors : Array ConstructorVal)
 
 /--
+The enum inductive that the match discriminates on.
+-/
+def MatchKind.getEnumInfo : MatchKind → InductiveVal
+  | .simpleEnum info .. | .enumWithDefault info .. => info
+
+/--
 Contains the result of the type analysis to be used in the structures and enums pass.
 -/
 structure TypeAnalysis where
@@ -111,6 +117,20 @@ instance : Hashable Hyp where
 instance : ToMessageData Hyp where
   toMessageData hyp := toMessageData hyp.type
 
+/--
+The immutable context of the `bv_normalize` preprocessing pipeline.
+-/
+structure PreProcessContext where
+  /--
+  The configuration that the tactic was called with.
+  -/
+  config : BVDecideConfig
+  /--
+  The types that the structure and enum analysis is restricted to, as provided by the `types`
+  clause. If this is `none` the analysis discovers the relevant types on its own.
+  -/
+  restrictedTypes : Option (Array Name) := none
+
 structure PreProcessState where
   /--
   Cache for the `Simp` component of the rewriter.
@@ -142,7 +162,7 @@ structure PreProcessState where
   -/
   didChange : Bool := false
 
-abbrev PreProcessM : Type → Type := ReaderT BVDecideConfig StateRefT PreProcessState Sym.SymM
+abbrev PreProcessM : Type → Type := ReaderT PreProcessContext StateRefT PreProcessState Sym.SymM
 
 namespace Hyp
 
@@ -162,7 +182,10 @@ end Hyp
 namespace PreProcessM
 
 @[inline]
-def getConfig : PreProcessM BVDecideConfig := read
+def getConfig : PreProcessM BVDecideConfig := return (← read).config
+
+@[inline]
+def getRestrictedTypes : PreProcessM (Option (Array Name)) := return (← read).restrictedTypes
 
 @[inline]
 def getGoal : PreProcessM MVarId := return (← get).goal
@@ -257,13 +280,13 @@ def markUninterestingConst (n : Name) : PreProcessM Unit := do
   modifyTypeAnalysis (fun s => { s with uninteresting := s.uninteresting.insert n })
 
 @[inline]
-def run (cfg : BVDecideConfig) (goal : MVarId) (x : PreProcessM α) :
+def run (ctx : PreProcessContext) (goal : MVarId) (x : PreProcessM α) :
     Sym.SymM (α × PreProcessState) := do
-  ReaderT.run x cfg |>.run { goal }
+  ReaderT.run x ctx |>.run { goal }
 
 @[inline]
-def run' (cfg : BVDecideConfig) (goal : MVarId) (x : PreProcessM α) : Sym.SymM α := do
-  ReaderT.run x cfg |>.run' { goal }
+def run' (ctx : PreProcessContext) (goal : MVarId) (x : PreProcessM α) : Sym.SymM α := do
+  ReaderT.run x ctx |>.run' { goal }
 
 def collectHypsFromGoal : PreProcessM Unit := do
   setDidChange

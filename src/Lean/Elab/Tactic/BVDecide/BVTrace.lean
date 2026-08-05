@@ -33,9 +33,10 @@ def getLratFileName : TermElabM System.FilePath := do
   let pos := (← getFileMap).toPosition (← getRefPos)
   return s!"{baseName}-{declName}-{pos.line}-{pos.column}.lrat"
 
-def mkContext (cfg : BVDecideConfig) : TermElabM TacticContext := do
+def mkContext (cfg : BVDecideConfig) (types : Option (Array Name) := none) :
+    TermElabM TacticContext := do
   let lratPath ← getLratFileName
-  BVCheck.mkContext lratPath cfg
+  BVCheck.mkContext lratPath cfg types
 
 inductive TraceResult where
   | normalize
@@ -71,18 +72,20 @@ open Lean.Meta.Tactic in
 open Lean.Meta.Tactic.BVDecide in
 @[builtin_tactic Lean.Parser.Tactic.bvTrace]
 def evalBvTraceTactic : Tactic := fun
-  | `(tactic| bv_decide?%$tk $cfgStx:optConfig) => do
+  | `(tactic| bv_decide?%$tk $cfgStx:optConfig $[$typesStx:bvTypes]?) => do
     ensureBvDecide
     let cfg ← elabBVDecideConfig cfgStx
-    let ctx ← mkContext cfg
+    let types ← elabBVDecideTypes typesStx
+    let ctx ← mkContext cfg types
     let g ← getMainGoal
     Meta.Sym.SymM.run do
       match ← evalBvTrace g ctx with
       | .normalize =>
-        let normalizeStx ← `(tactic| bv_normalize $cfgStx:optConfig)
+        let normalizeStx ← `(tactic| bv_normalize $cfgStx:optConfig $[$typesStx:bvTypes]?)
         TryThis.addSuggestion tk normalizeStx (origSpan? := ← getRef)
       | .check lratFile =>
-        let bvCheckStx ← `(tactic| bv_check $cfgStx:optConfig $(quote lratFile.toString))
+        let bvCheckStx ←
+          `(tactic| bv_check $cfgStx:optConfig $[$typesStx:bvTypes]? $(quote lratFile.toString))
         TryThis.addSuggestion tk bvCheckStx (origSpan? := ← getRef)
   | _ => throwUnsupportedSyntax
 

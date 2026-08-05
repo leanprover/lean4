@@ -363,43 +363,23 @@ public def run (args : Args) : IO UInt32 := do
       linterSets := (Lean.Linter.linterSetsExt.getState env).merged
     }
 
-    -- Collects text linter output
-    let textGroups := collectTextLints env mod.getRoot
-    let textGroups :=
-      if args.lintOnly then
-        textGroups.filterMap fun (m, entries) =>
-          let entries := entries.filter fun e =>
-            Lean.Linter.isLinterEnabledByOptions e.linter linterOpts
-          if entries.isEmpty then none else some (m, entries)
-      else textGroups
-    let textFailed := !textGroups.isEmpty
-    match args.mode with
-    | .report =>
-        for (m, entries) in textGroups do
-          IO.println s!"-- Text linter diagnostics in {m}:"
-          for e in entries do
-            IO.print e.message.toString
-    | .recordExceptions =>
-        for (m, entries) in textGroups do
-          for e in entries do
-            match e.position? with
-            | some pos =>
-              records := records.push { file := e.file, pos, option := e.linter }
-            | none =>
-              IO.eprintln s!"\
-                warning: could not determine the command position of a `{e.linter}` text-linter \
-                warning in `{m}`; skipping its exception"
-              anyUnlocated := true
-      | .codeQuality => pure ()
+    let textLintingOutcome ← runTextLinters args linterOpts env mod
+    match textLintingOutcome with
+    | .reported textFailed =>
+      anyFailed := anyFailed || textFailed
+    | .recorded textRecords unlocated =>
+      records := records ++ textRecords
+      if unlocated then anyUnlocated := true
+    | .codeQualityChecks => pure ()
 
     let environmentLintingOutcome ← runEnvironmentLinters args linterOpts sp env mod
 
     match environmentLintingOutcome with
     | .reported declFailed =>
-      anyFailed := anyFailed || textFailed || declFailed
+      if declFailed then anyFailed := true
     | .recorded envRecords envUnlocated =>
       records := records ++ envRecords
-      anyUnlocated := anyUnlocated || envUnlocated
+      if envUnlocated then anyUnlocated := true
     | .codeQualityChecks => pure ()
 
     unless args.mode == .codeQuality do

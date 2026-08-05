@@ -231,7 +231,7 @@ private def runDeferredChecks (args : Args) (linterOpts : Linter.LinterOptions) 
             warning: could not determine the position of {describeSite c.site} in `{failMod}`; \
             cannot record a `{linter.doc.deferred.name}` exception"
           unlocated := true
-      return CheckOutcome.recorded recs unlocated
+      return DeferredCheckOutcome.recorded recs unlocated
     else
       for (failMod, c, msg) in failures do
         let context := if c.sourceString.isEmpty then "" else s!" ({c.sourceString})"
@@ -240,7 +240,7 @@ private def runDeferredChecks (args : Args) (linterOpts : Linter.LinterOptions) 
           IO.eprintln s!"{file}: error: in {describeSite c.site}{context}: {← msg.toString}"
         | none =>
           IO.eprintln s!"error: in module `{failMod}`, in {describeSite c.site}{context}: {← msg.toString}"
-      return CheckOutcome.reported !failures.isEmpty
+      return DeferredCheckOutcome.reported !failures.isEmpty
   -- Mark this target's transitive imports that are in the package so later targets don't re-run
   -- their checks.
   let mut checkedModules := docCheckedModules

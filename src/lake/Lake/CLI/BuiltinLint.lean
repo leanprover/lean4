@@ -392,10 +392,12 @@ public def run (args : Args) : IO UInt32 := do
   let sp := args.srcSearchPath ++ (← getSrcSearchPath)
 
   let mut anyFailed := false
+  let mut anyUnlocated := false
+
   -- Accumulated exceptions to record (only populated when `args.recordExceptions` is set).
   let mut records : Array ExceptionRecord := #[]
+  -- Accumulated code quality entries(only populated when `args.codeQuality` is set).
   let mut codeQualityEntries : Array CodeQuality.Entry := #[]
-  let mut anyUnlocated := false
   -- Modules whose deferred docstring checks have already been run. A module can appear in
   -- several targets' import closures, so this runs each such module's checks only once.
   let mut docCheckedModules : NameSet := {}
@@ -411,6 +413,7 @@ public def run (args : Args) : IO UInt32 := do
     unsafe region.free
     let env ← importModules #[{ module := mod }, envLinterModule] {}
       (trustLevel := 1024) (loadExts := true) (level := level)
+
     -- We create `LinterOptions` out of the passed overrides
     let linterOpts : Lean.Linter.LinterOptions := {
       toOptions := args.linterOverrides.foldl (init := {}) fun o (n, b) => o.setBool n b

@@ -132,10 +132,10 @@ abbrev findKey? (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α
   cs.binSearch (k, default) (fun a b => a.1 < b.1)
 
 def getKey (e : Expr) : Key :=
-  match e.getAppFn with
+  match e.getAppFn' with
   | .lit v            => .lit v
-  | .const declName _ => .const declName e.getAppNumArgs
-  | .fvar fvarId      => .fvar fvarId e.getAppNumArgs
+  | .const declName _ => .const declName e.getAppNumArgs'
+  | .fvar fvarId      => .fvar fvarId e.getAppNumArgs'
   | .forallE ..       => .arrow
   | _ => .other
 
@@ -144,6 +144,7 @@ def pushArgsTodo (todo : Array Expr) (e : Expr) : Array Expr :=
   match e with
   | .app f a => pushArgsTodo (todo.push a) f
   | .forallE _ d b _ => todo.push b |>.push d
+  | .mdata _ e => pushArgsTodo todo e
   | _ => todo
 
 partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) : Array α :=
@@ -198,7 +199,7 @@ This is useful for rewriting: if a pattern matches `f x` but `e` is `f x y z`, w
 still apply the rewrite and return `(value, 2)` indicating 2 extra arguments.
 -/
 public partial def getMatchWithExtra (d : DiscrTree α) (e : Expr) : Array (α × Nat) :=
-  let e := etaReduce e
+  let e := etaReduce e |>.consumeMData
   let result := getMatch d e
   let result := result.map (·, 0)
   if !e.isApp then
@@ -221,6 +222,7 @@ where
 
   go (e : Expr) (numExtra : Nat) (result : Array (α × Nat)) : Array (α × Nat) :=
     let result := result ++ (getMatch d e).map (., numExtra)
+    let e := e.consumeMData
     if e.isApp then
       go e.appFn! (numExtra + 1) result
     else

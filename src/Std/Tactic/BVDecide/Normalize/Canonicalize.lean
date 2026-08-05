@@ -26,7 +26,7 @@ theorem BitVec.eq_to_beq (a b : BitVec w) : (a = b) = ((a == b) = true) := by
   simp
 
 @[bv_normalize]
-theorem BitVec.ne_to_beq (a b : BitVec w) : (a ≠ b) = ((!(a == b)) = true) := by
+theorem BitVec.ne_to_beq (a b : BitVec w) : (¬a = b) = ((!(a == b)) = true) := by
   simp
 
 theorem Bool.eq_to_beq (a b : Bool) : (a = b) = ((a == b) = true) := by simp
@@ -44,7 +44,7 @@ theorem Bool.neg_to_not (a : Bool) : (¬a) = ((!a) = true) := by
   simp
 
 @[bv_normalize]
-theorem Bool.ne_to_beq (a b : Bool) : (a ≠ b) = ((!(a == b)) = true) := by
+theorem Bool.ne_to_beq (a b : Bool) : (¬a = b) = ((!(a == b)) = true) := by
   simp
 
 @[bv_normalize]

@@ -500,6 +500,14 @@ public:
             return false;
         }
 
+        if (is_rec()) {
+            /* Recursive inductive predicates (e.g. `Acc`, `WellFounded`) only
+               eliminate into Prop.  This blocks `large elimination` of proof terms
+               obtained by recursive constructions; subsingleton-style products like
+               `And`, `Eq`, `Unit`, `Iff` are non-recursive and remain unaffected. */
+            return true;
+        }
+
         /* We have only one constructor, the final check is, the type of each argument
            that is not a parameter:
             1- It must live in Prop, *OR*

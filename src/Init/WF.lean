@@ -30,17 +30,6 @@ inductive Acc {α : Sort u} (r : α → α → Prop) : α → Prop where
   -/
   | intro (x : α) (h : (y : α) → r y x → Acc r y) : Acc r x
 
-noncomputable abbrev Acc.ndrec.{u1, u2} {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
-    (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → (a : r y x) → C y) → C x)
-    {a : α} (n : Acc r a) : C a :=
-  n.rec m
-
-noncomputable abbrev Acc.ndrecOn.{u1, u2} {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
-    {a : α} (n : Acc r a)
-    (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → (a : r y x) → C y) → C x)
-    : C a :=
-  n.rec m
-
 namespace Acc
 variable {α : Sort u} {r : α → α → Prop}
 
@@ -81,12 +70,59 @@ namespace WellFounded
 theorem apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
   wf.rec (fun p => p) a
 
+/--
+Graph of a well-founded fixpoint: `FixGraph F x c` holds when `c : C x` is the value
+obtained by unfolding `F` along the accessibility tree. This recursive `Prop` inductive
+is used to define `WellFounded.fix` without large elimination of `Acc`.
+-/
+inductive FixGraph {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
+    (F : (x : α) → ((y : α) → r y x → C y) → C x) : (x : α) → C x → Prop where
+  | mk (x : α) (g : (y : α) → r y x → C y)
+       (ih : ∀ (y : α) (h : r y x), FixGraph F y (g y h))
+       : FixGraph F x (F x g)
+
+theorem FixGraph_nonempty
+    {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
+    (F : (x : α) → ((y : α) → r y x → C y) → C x) {x : α} (acx : Acc r x) :
+    Nonempty {c : C x // FixGraph F x c} := by
+  induction acx with
+  | intro x' _ ih =>
+    refine ⟨?_⟩
+    refine ⟨F x' (fun y h => (Classical.choice (ih y h)).val),
+            FixGraph.mk x' _ (fun y h => ?_)⟩
+    exact (Classical.choice (ih y h)).property
+
+noncomputable def fixFImpl
+    {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
+    (F : (x : α) → ((y : α) → r y x → C y) → C x) (x : α) (acx : Acc r x) : C x :=
+  (Classical.choice (FixGraph_nonempty F acx)).val
+
+theorem fixFImpl_graph
+    {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
+    (F : (x : α) → ((y : α) → r y x → C y) → C x) (x : α) (acx : Acc r x) :
+    FixGraph F x (fixFImpl F x acx) :=
+  (Classical.choice (FixGraph_nonempty F acx)).property
+
+theorem FixGraph_funct
+    {α : Sort u} {r : α → α → Prop} {C : α → Sort v}
+    (F : (x : α) → ((y : α) → r y x → C y) → C x) {x : α} (acx : Acc r x) :
+    ∀ (c₁ c₂ : C x), FixGraph F x c₁ → FixGraph F x c₂ → c₁ = c₂ := by
+  induction acx with
+  | intro x _ ih =>
+    intro c₁ c₂ h₁ h₂
+    cases h₁ with
+    | mk _ g₁ ih₁ =>
+      cases h₂ with
+      | mk _ g₂ ih₂ =>
+        have hg : g₁ = g₂ :=
+          funext fun y => funext fun h => ih y h _ _ (ih₁ y h) (ih₂ y h)
+        exact hg ▸ rfl
+
 section
 variable {α : Sort u} {r : α → α → Prop} (hwf : WellFounded r)
 
-noncomputable def recursion {C : α → Sort v} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a := by
-  induction (apply hwf a) with
-  | intro x₁ _ ih => exact h x₁ ih
+noncomputable def recursion {C : α → Sort v} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a :=
+  fixFImpl h a (apply hwf a)
 
 include hwf in
 theorem induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a :=
@@ -95,13 +131,15 @@ theorem induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, r y x → C y) 
 variable {C : α → Sort v}
 variable (F : ∀ x, (∀ y, r y x → C y) → C x)
 
-noncomputable def fixF (x : α) (a : Acc r x) : C x := by
-  induction a with
-  | intro x₁ _ ih => exact F x₁ ih
+noncomputable def fixF (x : α) (a : Acc r x) : C x :=
+  fixFImpl F x a
 
-theorem fixF_eq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p : r y x) => fixF F y (Acc.inv acx p)) := by
-  induction acx with
-  | intro x r _ => exact rfl
+theorem fixF_eq (x : α) (acx : Acc r x) :
+    fixF F x acx = F x (fun (y : α) (p : r y x) => fixF F y (Acc.inv acx p)) := by
+  have h1 : FixGraph F x (fixF F x acx) := fixFImpl_graph F x acx
+  have h2 : FixGraph F x (F x (fun y p => fixF F y (Acc.inv acx p))) :=
+    FixGraph.mk x _ (fun y h => fixFImpl_graph F y (Acc.inv acx h))
+  exact FixGraph_funct F acx _ _ h1 h2
 
 /-- Attaches to `x` the proof that `x` is accessible in the given well-founded relation.
 This can be used in recursive function definitions to explicitly use a different relation

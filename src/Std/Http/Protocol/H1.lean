@@ -385,7 +385,7 @@ message body of its own: it is part of an exchange whose final response is still
 private def isInterimResponseBody (machine : Machine dir) : Bool :=
   match dir with
   | .receiving => false
-  | .sending => machine.reader.messageHead.status.isInformational
+  | .sending => machine.reader.messageHead.status.isInterim
 
 /--
 Returns `true` when body chunks should be drained internally rather than surfaced to the caller.
@@ -713,7 +713,14 @@ Processes a finished header block:
 -/
 private def processHeaders (machine : Machine dir) : Machine dir :=
   let machine := machine.updateKeepAlive (machine.reader.messageCount + 1 < machine.config.maxMessages)
-  let machine := machine.updateKeepAlive machine.reader.messageHead.shouldKeepAlive
+
+  let notUpgraded :=
+    match dir with
+    | .sending => machine.reader.messageHead.status.toCode != 101
+    | .receiving => true
+
+  let machine :=
+    machine.updateKeepAlive (machine.reader.messageHead.shouldKeepAlive && notUpgraded)
 
   match checkMessageHead machine.reader.messageHead with
   | .error err => machine.setFailure err
@@ -1683,7 +1690,7 @@ private partial def processReaderCompleteState (machine : Machine dir) : Machine
   let reader := machine.reader
   match dir, machine with
   | .sending, machine =>
-    if machine.reader.messageHead.status.isInformational then
+    if machine.reader.messageHead.status.isInterim then
       { machine with reader := {
         state := .needStartLine,
         input := reader.input,

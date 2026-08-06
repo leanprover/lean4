@@ -111,11 +111,6 @@ structure Machine (dir : Direction) where
   keepAlive : Bool := config.enableKeepAlive
 
   /--
-  Whether a forced flush has been requested by the user.
-  -/
-  forcedFlush : Bool := false
-
-  /--
   Set when a previous `pullBody` call could not make progress in `.readBody`.
   Cleared on new input or state reset.
   -/
@@ -537,6 +532,15 @@ Returns `true` when `pullBody` is currently expected to make progress.
 @[inline]
 def canPullBodyNow (machine : Machine dir) : Bool :=
   machine.canPullBody && !machine.pullBodyStalled
+
+/--
+Decoded body bytes accepted for the message the reader is on, reset for every new message. Counts
+bytes the machine drained internally as well as bytes handed out by `pullBody`, so a caller
+enforcing its own body limit gets the same total whether or not the body is being consumed.
+-/
+@[inline]
+def bodyBytesRead (machine : Machine dir) : Nat :=
+  machine.reader.bodyBytesRead
 
 /--
 Returns `true` while the machine can still make use of bytes from the transport, i.e. EOF has not
@@ -1663,12 +1667,6 @@ When upper layers are not pulling body chunks, the machine drains body bytes
 internally to keep parsing/connection progress moving.
 -/
 private partial def processReadBodyState (machine : Machine dir) (bodyState : Reader.BodyState) : Machine dir :=
-  -- Auto-drain when the body is internal (1xx responses on the client), or
-  -- when the client is reading a response with known zero length: `.fixed 0`
-  -- has no bytes to expose, so waiting for a caller `pullBody` would stall the
-  -- connection indefinitely on responses that must not carry a body (204,
-  -- 304, HEAD responses). Server-side (`.receiving`) keeps the existing
-  -- semantics so handlers can observe the body stream explicitly.
   let autoDrain := drainBodyInternally machine || (dir matches .sending ∧ bodyState matches .fixed 0)
 
   if autoDrain then
@@ -1685,11 +1683,6 @@ private partial def processReaderCompleteState (machine : Machine dir) : Machine
   let reader := machine.reader
   match dir, machine with
   | .sending, machine =>
-    -- After an informational (1xx) response, loop back to read the real response
-    -- without resetting the request/writer state (still in the same exchange).
-
-    -- RFC 9110 §15.2: 1xx responses are not final; they must not count against the
-    -- maxMessages quota (messageCount is not incremented here).
     if machine.reader.messageHead.status.isInformational then
       { machine with reader := {
         state := .needStartLine,
@@ -1718,25 +1711,14 @@ body, completion, or failure handling).
 -/
 partial def processRead (machine : Machine dir) : Machine dir :=
   match machine.reader.state with
-  | .pending =>
-    if machine.isWriterClosed then
-      machine.setReaderState .closed
-    else
-      machine
-  | .needStartLine =>
-    processNeedStartLine machine
-  | .needHeader headerCount =>
-    processNeedHeader machine headerCount
-  | .readBody bodyState =>
-    processReadBodyState machine bodyState
-  | Reader.State.«continue» _ =>
-    machine
-  | .complete =>
-    processReaderCompleteState machine
-  | .closed =>
-    machine
-  | .failed error =>
-    handleReaderFailed machine error
+  | .pending => if machine.isWriterClosed then machine.setReaderState .closed else machine
+  | .needStartLine => processNeedStartLine machine
+  | .needHeader headerCount => processNeedHeader machine headerCount
+  | .readBody bodyState => processReadBodyState machine bodyState
+  | .«continue» _ => machine
+  | .complete => processReaderCompleteState machine
+  | .closed => machine
+  | .failed error => handleReaderFailed machine error
 
 end
 

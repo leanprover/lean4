@@ -8,7 +8,7 @@ module
 prelude
 import Lean.Elab.Tactic.Grind.Basic
 import Lean.Meta.Tactic.BVDecide.Main
-import Lean.Elab.Tactic.BVDecide.BVTrace
+import Lean.Elab.Tactic.BVDecide
 import Lean.Meta.Tactic.BVDecide.Normalize
 
 /-!
@@ -27,26 +27,24 @@ open Meta.Tactic.BVDecide
 
 @[builtin_grind_tactic Parser.Tactic.Grind.bvDecide] def evalBvDecide : GrindTactic
   | `(grind| bv_decide $cfg:optConfig $[$types:bvTypes]?) => do
-    ensureSym
     BVDecide.ensureBvDecide
     let g ← getMainGoal
     let cfg ← elabBVDecideConfig cfg g.mvarId `bv_decide
     let types ← elabBVDecideTypes types
     IO.FS.withTempFile fun _ lratFile => do
       let cfg ← TacticContext.new lratFile cfg types
-      discard <| liftSymM <| bvDecide g.mvarId cfg
+      discard <| liftGrindM <| bvDecide (.grindTarget g) cfg
       replaceMainGoal []
   | _ => throwUnsupportedSyntax
 
 @[builtin_grind_tactic Parser.Tactic.Grind.bvTrace] def evalBvTrace : GrindTactic
   | `(grind| bv_decide?%$tk $cfgStx:optConfig $[$typesStx:bvTypes]?) => do
-    ensureSym
     BVDecide.ensureBvDecide
     let g ← getMainGoal
     let cfg ← elabBVDecideConfig cfgStx g.mvarId `bv_decide?
     let types ← elabBVDecideTypes typesStx
     let ctx ← BVDecide.BVTrace.mkContext cfg types
-    match ← liftSymM <| BVDecide.BVTrace.evalBvTrace g.mvarId ctx with
+    match ← liftGrindM <| BVDecide.BVTrace.evalBvTrace (.grindTarget g) ctx with
     | .normalize =>
       let normalizeStx ← `(grind| bv_normalize $cfgStx:optConfig $[$typesStx:bvTypes]?)
       Meta.Tactic.TryThis.addSuggestion tk normalizeStx (origSpan? := ← getRef)
@@ -59,13 +57,12 @@ open Meta.Tactic.BVDecide
 
 @[builtin_grind_tactic Parser.Tactic.Grind.bvCheck] def evalBvCheck : GrindTactic
   | `(grind| bv_check%$tk $cfgStx:optConfig $[$typesStx:bvTypes]? $path:str) => do
-    ensureSym
     BVDecide.ensureBvDecide
     let g ← getMainGoal
     let cfg ← elabBVDecideConfig cfgStx g.mvarId `bv_check
     let types ← elabBVDecideTypes typesStx
     let ctx ← BVDecide.BVCheck.mkContext path.getString cfg types
-    liftSymM <| BVDecide.BVCheck.evalBvCheck g.mvarId ctx do
+    liftGrindM <| BVDecide.BVCheck.evalBvCheck (.grindTarget g) ctx do
       let bvNormalizeStx ← `(grind| bv_normalize $cfgStx $[$typesStx:bvTypes]?)
       logWarning m!"This goal can be closed by only applying bv_normalize, no need to keep the LRAT proof around."
       Meta.Tactic.TryThis.addSuggestion tk bvNormalizeStx (origSpan? := ← getRef)
@@ -75,14 +72,13 @@ open Meta.Tactic.BVDecide
 @[builtin_grind_tactic Parser.Tactic.Grind.bvNormalize]
 def evalBVNormalize : GrindTactic := fun
   | `(grind| bv_normalize $cfg:optConfig $[$types:bvTypes]?) => do
-    ensureSym
     BVDecide.ensureBvDecide
     let g ← getMainGoal
     let cfg ← elabBVDecideConfig cfg g.mvarId `bv_normalize
     let types ← elabBVDecideTypes types
-    let (_, state) ← liftSymM <|
-      Meta.Tactic.BVDecide.Normalize.bvNormalize.run { config := cfg, restrictedTypes := types } g.mvarId
-    if ← state.goal.isAssigned then
+    let (_, state) ← liftGrindM <|
+      Meta.Tactic.BVDecide.Normalize.bvNormalize.run { config := cfg, restrictedTypes := types } (.grindTarget g)
+    if ← state.target.mvarId.isAssigned then
       replaceMainGoal []
     else
       throwError "`bv_normalize` failed to close the goal"

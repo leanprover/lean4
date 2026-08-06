@@ -54,7 +54,7 @@ public def rewriteRulesPass : Pass where
         >> rewriteDsimproc
     }
 
-    let goal ← PreProcessM.getGoal
+    let goal ← PreProcessM.getTargetMVarId
     let changed ← goal.withContext do
       PreProcessM.mapHyps fun hyp => do
         let hyp ← dsimp dsimpMethods dsimpConfig hyp

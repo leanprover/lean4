@@ -334,7 +334,7 @@ public def bvAcNormalizePass : Pass where
       post := bvAcNfpost
     }
 
-    let goal ← PreProcessM.getGoal
+    let goal ← PreProcessM.getTargetMVarId
     goal.withContext do
       PreProcessM.mapHyps fun hyp => do
         simp methods config hyp

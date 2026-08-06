@@ -16,6 +16,7 @@ import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.InstantiateMVarsS
 public import Lean.Meta.Sym.DSimp.DSimpM
 import Lean.Meta.Sym.DSimp.Result
+public import Lean.Meta.Tactic.Grind.Types
 
 public section
 
@@ -35,6 +36,15 @@ def withDoneResult {m : Type → Type} [Monad m] (x : m Sym.Simp.Result) : m Sym
   match x with
   | .rfl _ dep => return .rfl true dep
   | .step e' proof _ dep =>  return .step e' proof true dep
+
+inductive Target where
+  | mvarIdTarget (mvar : MVarId)
+  | grindTarget (goal : Grind.Goal)
+  deriving Inhabited
+
+def Target.mvarId : Target → MVarId
+  | .mvarIdTarget mvar => mvar
+  | .grindTarget goal => goal.mvarId
 
 /--
 The various kinds of matches supported by the match to cond infrastructure.
@@ -83,6 +93,7 @@ inductive HypSource where
   | enumDomain (n : Name)
   | structureProjection (e : Expr)
   | andFlattened (s : HypSource)
+  | grind
   deriving Inhabited, Hashable, BEq
 
 partial instance : ToMessageData HypSource where
@@ -95,6 +106,7 @@ where
     | .enumDomain n => m!"enum domain size lemma for {n}"
     | .structureProjection e => m!"structure lemma projection: {e}"
     | .andFlattened s => m!"and flattening from {go (stripFlatten s)}"
+    | .grind => m!"grind state"
 
   stripFlatten (s : HypSource) : HypSource :=
     match s with
@@ -149,9 +161,9 @@ structure PreProcessState where
   -/
   typeAnalysis : TypeAnalysis := {}
   /--
-  The goal we are operating on.
+  The target we are operating on.
   -/
-  goal : MVarId
+  target : Target
   /--
   The set of hypotheses we are operating on. These should be interpreted from withing the lctx of
   the goal. But they may not necessarily be fvars registered in the goal.
@@ -162,7 +174,7 @@ structure PreProcessState where
   -/
   didChange : Bool := false
 
-abbrev PreProcessM : Type → Type := ReaderT PreProcessContext StateRefT PreProcessState Sym.SymM
+abbrev PreProcessM : Type → Type := ReaderT PreProcessContext StateRefT PreProcessState Grind.GrindM
 
 namespace Hyp
 
@@ -188,11 +200,14 @@ def getConfig : PreProcessM BVDecideConfig := return (← read).config
 def getRestrictedTypes : PreProcessM (Option (Array Name)) := return (← read).restrictedTypes
 
 @[inline]
-def getGoal : PreProcessM MVarId := return (← get).goal
+def getTarget : PreProcessM Target := return (← get).target
 
 @[inline]
-def setGoal (g : MVarId) : PreProcessM Unit :=
-  modify fun s => { s with goal := g, didChange := s.didChange || (g != s.goal) }
+def getTargetMVarId : PreProcessM MVarId := return (← get).target.mvarId
+
+@[inline]
+def setTarget (target : Target) : PreProcessM Unit :=
+  modify fun s => { s with target := target }
 
 @[inline]
 def didChange : PreProcessM Bool := return (← get).didChange
@@ -280,25 +295,13 @@ def markUninterestingConst (n : Name) : PreProcessM Unit := do
   modifyTypeAnalysis (fun s => { s with uninteresting := s.uninteresting.insert n })
 
 @[inline]
-def run (ctx : PreProcessContext) (goal : MVarId) (x : PreProcessM α) :
-    Sym.SymM (α × PreProcessState) := do
-  ReaderT.run x ctx |>.run { goal }
+def run (ctx : PreProcessContext) (target : Target) (x : PreProcessM α) :
+    Grind.GrindM (α × PreProcessState) := do
+  ReaderT.run x ctx |>.run { target }
 
 @[inline]
-def run' (ctx : PreProcessContext) (goal : MVarId) (x : PreProcessM α) : Sym.SymM α := do
-  ReaderT.run x ctx |>.run' { goal }
-
-def collectHypsFromGoal : PreProcessM Unit := do
-  setDidChange
-  (← get).goal.withContext do
-    let hyps ← (← getPropHyps).mapM fun fvarId => do
-      return {
-        name := ← fvarId.getUserName
-        type := ← Sym.instantiateMVarsS (← fvarId.getType)
-        value := mkFVar fvarId
-        source := .lctx fvarId
-      }
-    modify fun s => { s with hypotheses := hyps }
+def run' (ctx : PreProcessContext) (target : Target) (x : PreProcessM α) : Grind.GrindM α := do
+  ReaderT.run x ctx |>.run' { target }
 
 @[inline]
 def pushHyp (hyp : Hyp) : PreProcessM Unit := do
@@ -344,7 +347,7 @@ def mapIdxHyps [Monad m] [MonadLiftT PreProcessM m] [MonadError m] [MonadMCtx m]
     let hyp := hyps[idx]
     let newHyp ← f idx hyp
     if newHyp.type.isFalse then
-      (← PreProcessM.getGoal).assign newHyp.value
+      (← PreProcessM.getTargetMVarId).assign newHyp.value
       return true
     else
       if hyp != newHyp then

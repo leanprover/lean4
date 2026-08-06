@@ -129,11 +129,12 @@ def declId := leading_parser
 -- @[builtin_doc] -- FIXME: suppress the hover
 def declSig := leading_parser
   many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.typeSpec
-/-- The `requires P` precondition clause of a `def` contract. The form `requires s => P s` binds the
-arguments of the assertion itself, such as the state of a state monad. -/
+/-- The `requires P` precondition clause of a `def` contract. The forms `requires s => P s` and
+`requires | pat => P` are written like a `fun`, binding the arguments of the assertion itself, such
+as the state of a state monad. -/
 def requiresClause := leading_parser
   ppIndent (ppSpace >> nonReservedSymbol "requires" >>
-    withForbidden "ensures" (atomic Term.basicFun <|> (ppSpace >> termParser)))
+    withForbidden "ensures" (atomic Term.basicFun <|> Term.matchAlts <|> (ppSpace >> termParser)))
 /-- The `ensures b => Q` postcondition clause of a `def` contract, binding the result `b`. -/
 def ensuresClause := leading_parser
   ppIndent (ppSpace >> nonReservedSymbol "ensures" >> Term.basicFun)

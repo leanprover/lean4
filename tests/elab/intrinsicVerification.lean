@@ -248,6 +248,22 @@ def ensuresAscribed (n : Nat) : Id Nat
 #guard_msgs in
 #check @ensuresAscribed.spec
 
+/-! ## A `requires` clause written with match alternatives
+
+The clause is a `fun`, so it may destructure the arguments of the assertion, here the state of a
+state monad. -/
+
+def requiresMatch (n : Nat) : StateM (Nat × Nat) Nat
+    requires
+      | (a, b) => a = 0 ∧ b = n
+    ensures r _ => r = n
+  := do
+  let (a, b) ← get
+  return a + b
+
+#guard_msgs (drop info) in
+#check @requiresMatch.spec
+
 /-! ## The contract telescope is transplanted faithfully to `f.spec`
 
 `f.spec` re-binds the definition's telescope verbatim, applies `f` to exactly the explicit arguments,

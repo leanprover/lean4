@@ -182,20 +182,25 @@ The optional `invariant` clause of a loop, written like a `fun`: the invariant a
 `vcgen` reads it from the program, and mutable variables are referenced by name.
 
 On a `for` loop the clause is `invariant pref suff a b c => e`, with `pref` bound to the elements
-consumed so far and `suff` to the elements remaining. On a `repeat` or `while` loop it takes a
-`Bool` that says whether the loop has left, so `invariant | false => e | true => e'` states a
-separate assertion for the iterating loop and for the loop that is done. Any further binders, here
-`a b c`, bind the arguments of the assertion itself, such as the state of a state monad.
+consumed so far and `suff` to the elements remaining. On a `repeat` or `while` loop it is
+`invariant exit a b c => e`, with `exit` bound to whether the loop has left. Any further binders,
+here `a b c`, bind the arguments of the assertion itself, such as the state of a state monad.
 -/
 def doForInvariant := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "invariant" >>
-    withForbiddens #["do", "decreasing"] (basicFun <|> ppIndent matchAlts))
+    withForbiddens #["do", "decreasing"] basicFun)
 /--
 A `decreasing` clause gives a `repeat` or `while` loop its termination measure, a natural number
 that every iteration must strictly decrease. It is a term over the loop's mutable variables.
 -/
 def doDecreasing := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "decreasing" >> ppSpace >> withForbidden "do" termParser)
+/--
+The `invariant` and `decreasing` clauses of a `repeat` loop, either of which may be given on its
+own. The body follows `do`, which terminates the clause's term.
+-/
+def doLoopClauses := leading_parser
+  ((doForInvariant >> optional doDecreasing) <|> doDecreasing) >> " do "
 /--
 `for x in e do s` iterates over `e` assuming `e`'s type has an instance of the `ForIn` typeclass.
 `break` and `continue` are supported inside `for` loops.
@@ -322,13 +327,12 @@ from the program and proves it; at runtime the element does nothing.
     (atomic basicFun <|> (ppSpace >> termParser))
 
 @[builtin_doElem_parser] def doRepeat      := leading_parser
-  "repeat " >> optional doForInvariant >> optional doDecreasing >> optional " do " >> doSeq
+  "repeat " >> optional doLoopClauses >> doSeq
 @[builtin_doElem_parser] def doWhile       := leading_parser
   "while " >> withForbiddens #["do", "invariant", "decreasing"] doIfCond >>
     optional doForInvariant >> optional doDecreasing >> " do " >> doSeq
 @[builtin_doElem_parser] def doRepeatUntil := leading_parser
-  "repeat " >> optional doForInvariant >> optional doDecreasing >> optional " do " >> doSeq >>
-    ppDedent ppLine >> "until " >> termParser
+  "repeat " >> optional doLoopClauses >> doSeq >> ppDedent ppLine >> "until " >> termParser
 
 /-
 We use `notFollowedBy` to avoid counterintuitive behavior.

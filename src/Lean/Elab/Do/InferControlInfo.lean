@@ -193,8 +193,7 @@ partial def ofElem (stx : DoElem) : TermElabM ControlInfo := do
       breaks := false,
       noFallthrough := false,
     }
-  | `(doRepeat| repeat $[$_:doForInvariant]? $[$_:doDecreasing]? do $bodySeq)
-  | `(doRepeat| repeat $[$_:doForInvariant]? $[$_:doDecreasing]? $bodySeq:doSeq) =>
+  | `(doRepeat| repeat $[$_:doLoopClauses]? $bodySeq) =>
     -- A break-less `repeat` never falls through; the elaborator injects an `unreachable!` so the
     -- surrounding continuation still has a polymorphic value to hand back, and any dead-code
     -- warning on subsequent elements is actionable.

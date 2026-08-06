@@ -156,9 +156,7 @@ consumed so far and the elements remaining, and binders past them bind the argum
 assertion itself. -/
 private def mkForInPureWithInvariant (g : LoopGadget) (invClause : Syntax) (h? : Option Syntax)
     (α : Expr) : DoElabM Expr := do
-  let `(doForInvariant| invariant $binders* => $invBody) := invClause
-    | throwErrorAt invClause "The `invariant` clause of a `for` loop over a collection takes \
-        binders, not match alternatives."
+  let `(doForInvariant| invariant $binders* => $invBody) := invClause | throwUnsupportedSyntax
   checkPureForIn invClause h? g.xs α (← read).monadInfo
   unless binders.size ≥ 2 do
     throwErrorAt invClause "The `invariant` clause takes at least two binders: the elements \
@@ -187,16 +185,13 @@ private def mkForInLoopWithInvariantAndVariant (g : LoopGadget) (inv? dec? : Opt
     | some invClause =>
       let cursor := mkIdentFrom invClause (← mkFreshUserName `__c)
       let hasLeft ← `($(mkIdent ``Sum.isRight) $cursor:ident)
-      let invBody ← match invClause with
-        | `(doForInvariant| invariant $exitBinder $assertionBinders* => $invBody) =>
-          let invBody ← if assertionBinders.isEmpty then pure invBody else
-            `(fun $assertionBinders* => $invBody)
-          if exitBinder.raw.isOfKind ``hole then pure invBody else
-            let exitPat : Term := ⟨exitBinder.raw⟩
-            `(match $hasLeft:term with | $exitPat => $invBody)
-        | `(doForInvariant| invariant $alts:matchAlts) =>
-          `(match $hasLeft:term with $alts:matchAlts)
-        | _ => throwUnsupportedSyntax
+      let `(doForInvariant| invariant $exitBinder $assertionBinders* => $invBody) := invClause
+        | throwUnsupportedSyntax
+      let invBody ← if assertionBinders.isEmpty then pure invBody else
+        `(fun $assertionBinders* => $invBody)
+      let invBody ← if exitBinder.raw.isOfKind ``hole then pure invBody else
+        let exitPat : Term := ⟨exitBinder.raw⟩
+        `(match $hasLeft:term with | $exitPat => $invBody)
       `(some $(← g.mkRepeatCursorFun cursor invBody))
   let varArg ← match dec? with
     | none => `(none)

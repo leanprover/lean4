@@ -21,7 +21,7 @@ def fmt (stx : CoreM Syntax) : CoreM Format := do PrettyPrinter.ppTerm ⟨← st
 #eval fmt `(do for x in xs invariant pref suff s => s ≤ acc do pure ())
 #eval fmt `(do while i < n invariant _ => i ≤ n decreasing n - i do pure ())
 #eval fmt `(do repeat decreasing n - i do pure ())
-#eval fmt `(do repeat invariant | false => i ≤ n | true => i = n decreasing n - i do pure ())
+#eval fmt `(do repeat invariant exit => if exit then i = n else i ≤ n decreasing n - i do pure ())
 #eval fmt `(do repeat invariant _ => i ≤ n decreasing n - i do pure () until i = n)
 #eval fmt `(command| def clampLow (n lo : Nat) : Id Nat requires lo ≤ n ensures r => r = n := pure n)
 #eval fmt `(command| def k (x : Nat) requires s => s > x ensures r => r ≥ x := pure x)

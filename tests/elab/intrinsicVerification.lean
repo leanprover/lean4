@@ -263,16 +263,16 @@ def halve (n : Nat) : Id (Option Nat)
 
 /-! ## A `repeat` or `while` loop states its invariant over the loop's cursor
 /-! ## A `repeat` or `while` loop states its invariant per iterating and left loop
+/-! ## A `repeat` or `while` loop binds whether it has left
 
-The clause takes a `Bool` that says whether the loop has left, so `false` selects the assertion that
-holds while the loop iterates and `true` the one that holds once it is done. The `decreasing` clause
-gives the termination measure, a term over the loop's mutable variables. -/
+The clause's first binder is a `Bool`: `true` once the loop is done, `false` while it iterates. The
+`decreasing` clause gives the termination measure, a term over the loop's mutable variables. -/
 
 def countDown (n : Nat) : Id Nat
     ensures r => r = 0 := do
   let mut i := n
   while i > 0
-      invariant | false => True | true => i = 0
+      invariant exit => if exit then i = 0 else True
       decreasing i
     do
     i := i - 1
@@ -335,16 +335,7 @@ def countUntil (n : Nat) : Id Nat
 #guard_msgs (drop info) in
 #check @countUntil.spec
 
-/-! A `for` loop over a collection takes neither of the two forms that a `repeat` loop takes: its
-invariant ranges over the elements consumed and remaining rather than over a `Bool`, and the
-collection is what ends it. -/
-
-/--
-error: The `invariant` clause of a `for` loop over a collection takes binders, not match alternatives.
--/
-#guard_msgs in
-example (xs : List Nat) : Id Unit := do
-  for _ in xs invariant | _, _ => True do pure ()
+/-! A `for` loop over a collection ends with the collection. -/
 
 /--
 error: A `for` loop terminates with the collection it iterates; `decreasing` states the termination measure of a `repeat` or `while` loop.

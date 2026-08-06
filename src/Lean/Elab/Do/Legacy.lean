@@ -1798,8 +1798,8 @@ mutual
           else if k == ``Parser.Term.doUnless then
             doUnlessToCode doElem doElems
           else if k == ``Parser.Term.doRepeat then
-            unless doElem[1].isNone && doElem[2].isNone do throwUnsupportedSyntax
-            let seq := doElem[4]
+            unless doElem[1].isNone do throwUnsupportedSyntax
+            let seq := doElem[2]
             let expanded ← `(doElem| for _ in Loop.mk do $seq)
             doSeqToCode (expanded :: doElems)
           else if k == ``Parser.Term.doFor then withFreshMacroScope do

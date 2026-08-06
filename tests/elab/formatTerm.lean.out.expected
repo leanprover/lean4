@@ -62,6 +62,13 @@ def k✝ (x✝ : Nat✝) requires s✝ => s✝ > x✝ ensures r✝ => r✝ ≥ x
   pure✝ x✝
 def g✝ (x✝ : Nat✝) requires x✝ > 0 ensures r✝ => r✝ ≥ x✝ :=
   pure✝ x✝
+def m✝ (x✝ : Nat✝) requires
+    | (a✝, b✝) => a✝ + b✝ = x✝ ensures r✝ => r✝ ≥ x✝ :=
+  pure✝ x✝
+def m2✝ (x✝ : Nat✝) requires
+    | (0, b✝) => b✝ = x✝
+    | (a✝, _) => a✝ = x✝ ensures r✝ => r✝ ≥ x✝ :=
+  pure✝ x✝
 def h✝ (x✝ : Nat✝) : Id✝ Nat✝ ensures r✝ => r✝ = x✝ :=
   pure✝ x✝
 where

@@ -713,19 +713,29 @@ private def run
     -- `exhausted` subsumes `halted`, and also stops the loop once the transport is at EOF with no
     -- buffered body left, which would otherwise spin with no source able to wake it.
     while ¬state.machine.exhausted do
-      -- Phase 1: end the outgoing message once the caller's body producer is done. A user-supplied
-      -- body may raise from `isClosed`, and framing a failed body would hand the peer a truncated
-      -- request that looks complete, so a raise aborts the exchange instead.
+      -- Phase 1: end the outgoing message once the caller's body producer is done. `isClosed` is
+      -- true for a producer that failed just as it is for one that finished, so a closed body is
+      -- probed with `tryRecv`, which raises the terminal error a `closeWithError` recorded. Framing
+      -- a failed body would hand the peer a truncated request that looks complete, so a raise —
+      -- from either call, both being user-supplied code — ends the message where it stands and
+      -- fails the exchange instead.
 
       if let some body := state.requestBody then
-        let closed : Except IO.Error Bool ← try .ok <$> body.isClosed catch e => pure (.error e)
-        match closed with
+        let pulled : Except IO.Error (Option (Option Chunk)) ←
+          try
+            if ← body.isClosed then .ok <$> body.tryRecv else pure (.ok none)
+          catch e => pure (.error e)
+        match pulled with
         | .error e =>
+          state ← abandonRequestBody state
           state ← abortState state (.io e)
           break
-        | .ok closed =>
-          if closed then
-            state := finishRequestBody state
+        -- A chunk left buffered by a producer that has since gone away still belongs on the wire.
+        | .ok (some (some chunk)) =>
+          state := { state with machine := state.machine.sendData #[chunk] }
+        | .ok (some none) =>
+          state := finishRequestBody state
+        | .ok none => pure ()
 
       -- The machine may drain the response body only once the caller's stream is gone or closed.
       -- Those bytes bypass `pullResponseBody`, so the limit is checked here too: abandoning the

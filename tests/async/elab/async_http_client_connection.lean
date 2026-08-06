@@ -1254,7 +1254,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
     assertBodyIs response "hello"
 
 -- Closing the response stream routes the rest of the body through the connection's internal drain
--- instead of `onBodyInterest`. The drain must still charge those bytes against the limit: the
+-- instead of `pullResponseBody`. The drain must still charge those bytes against the limit: the
 -- machine's own `maxBodySize` is unbounded for clients, so if the drain skipped the accounting,
 -- abandoning a body would be a way to make `maxResponseBodySize` unenforceable.
 #eval show IO _ from runWithTimeout "the body limit still applies to a body the caller abandons" 4000 <| Async.block do

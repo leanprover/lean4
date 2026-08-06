@@ -35,7 +35,7 @@ PORT_FILE="$WORK_DIR/port"
 # Copy test data to a working directory to avoid initializing a Git repository
 # inside the checked-in source tree
 mkdir -p "$WORK_DIR"
-cp -r lakefile.toml BadCurl.lean Test.lean Test "$WORK_DIR/"
+cp -r lakefile.toml non-reservoir.toml BadCurl.lean Test.lean Test "$WORK_DIR/"
 cd "$WORK_DIR"
 
 echo "# SETUP"
@@ -63,10 +63,12 @@ echo "URL=$URL"
 
 # Point the configured cache services at the mock server.
 # Copied after the commit above so that it does not dirty the work tree.
-cp "$TEST_DIR/services.toml" services.toml
+cp "$TEST_DIR/services.toml" "$TEST_DIR/no-services.toml" .
 sed_i "s|%URL%|$URL|g" services.toml
 
-export LAKE_CONFIG="$WORK_DIR/services.toml"
+# The option validation below expects no configured service, as in a default
+# installation; the transfer tests switch to the mock services
+export LAKE_CONFIG="$WORK_DIR/no-services.toml"
 export LAKE_CACHE_DIR="$CACHE_DIR"
 export LAKE_CACHE_KEY="mock:key"
 # Point the default (Reservoir) service at the mock server as well,
@@ -81,6 +83,14 @@ export ELAN_TOOLCHAIN=
 NUM_ARTS=2
 NUM_REPLAY_ARTS=8
 
+# Runs a command with the cache endpoints set through the environment,
+# which is the deprecated alternative to a configured service
+with_endpoints() {
+  LAKE_CACHE_ARTIFACT_ENDPOINT="$URL/ok/a0" \
+  LAKE_CACHE_REVISION_ENDPOINT="$URL/ok/r0" \
+  "$@"
+}
+
 # Counts artifacts, ignoring the temporary files a failed transfer leaves behind
 test_artifacts() {
   expected="$1"; dir="${2:-$CACHE_DIR/artifacts}"
@@ -89,7 +99,77 @@ test_artifacts() {
   test "$actual" = "$expected"
 }
 
-echo "# TESTS"
+echo "# VALIDATION TESTS"
+
+# Verify `--repo` validation
+test_err "must contain exactly one '/'" cache get --repo='invalid'
+test_err 'invalid characters in repository name' cache get --repo='!/invalid'
+
+# Verify `--mappings-only` validation
+test_err '`--mappings-only` is not supported' cache get --mappings-only bogus.jsonl
+with_endpoints test_err '`--mappings-only` requires services' cache get --mappings-only
+
+# Verify `--service` validation
+test_err 'service `bogus` not found in system configuration' \
+  cache get --service='bogus'
+test_err 'service `bogus` not found in system configuration' \
+  cache put bogus.jsonl --scope='bogus' --service='bogus'
+
+# Verify `cache get` rejects bad configurations
+test_err '`--no-overwrite` is not supported for `cache get`' \
+  cache get --no-overwrite
+test_err 'the `--platform` and `--toolchain` options do nothing' \
+  cache get bogus.jsonl --scope='bogus' --platform='bogus' --wfail
+test_err 'the `--platform` and `--toolchain` options do nothing' \
+  cache get bogus.jsonl --scope='bogus' --toolchain='bogus' --wfail
+test_err 'a custom endpoint must be set (not Reservoir)' cache get --scope='bogus'
+with_endpoints test_err 'the `--scope` or `--repo` option must be set' cache get
+LAKE_CACHE_ARTIFACT_ENDPOINT=bogus test_err 'both environment variables must be set' cache get
+LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'both environment variables must be set' cache get
+
+# Verify `cache put` rejects bad configurations
+with_endpoints test_err 'the `--scope` or `--repo` option must be set' cache put bogus.jsonl
+test_err 'the `--service` option must be set' \
+  cache put bogus.jsonl --scope='bogus'
+LAKE_CACHE_KEY= test_err 'the `--service` option must be set' \
+  cache put bogus.jsonl --scope='bogus'
+LAKE_CACHE_ARTIFACT_ENDPOINT=bogus test_err 'these environment variables must be set' \
+  cache put bogus.jsonl --scope='bogus'
+LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
+  cache put bogus.jsonl --scope='bogus'
+
+# Verify `cache put-staged` rejects bad configurations
+with_endpoints test_err 'the `--scope` or `--repo` option must be set' \
+  cache put-staged bogus
+test_err 'the `--service` option must be set' \
+  cache put-staged bogus --scope='bogus'
+LAKE_CACHE_KEY= test_err 'the `--service` option must be set' \
+  cache put-staged bogus --scope='bogus'
+LAKE_CACHE_ARTIFACT_ENDPOINT=bogus test_err 'these environment variables must be set' \
+  cache put-staged bogus --scope='bogus'
+LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
+  cache put-staged bogus --scope='bogus'
+
+# Verify `cache add` rejects bad configurations
+test_err '`--scope` and `--repo` require `--service`' \
+  cache add bogus.jsonl --scope='bogus'
+test_err '`--scope` and `--repo` require `--service`' \
+  cache add bogus.jsonl --repo='leanprover/bogus'
+
+# Verify a revision that cannot be resolved or has no outputs is reported
+test_err 'revision not found' cache get --repo='leanprover/bogus' --rev='bogus'
+test_err 'outputs not found for revision' \
+  cache get --repo='leanprover/bogus' --rev="$(git rev-parse HEAD)"
+
+# Verify dependencies that are not on Reservoir are skipped
+test_run -f non-reservoir.toml update
+test_out 'hello: skipping non-Reservoir dependency' -f non-reservoir.toml cache get
+test_run update
+
+echo "# TRANSFER TESTS"
+
+# The remaining tests transfer artifacts through the mock services
+export LAKE_CONFIG="$WORK_DIR/services.toml"
 
 # Build the package and record its outputs
 test_run build Test -o outputs.jsonl

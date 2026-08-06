@@ -90,7 +90,7 @@ theorem isLongestMatchAtChain_iff {p : Char → Bool} {s : Slice} {pos pos' : s.
       · exact isLongestMatchAt_iff.2 ⟨Pos.ne_endPos_of_lt h, rfl, h₂ _ (by simp) h⟩
       · exact ⟨by simpa, fun pos'' hp₁ hp₂ => h₂ _ (Std.le_trans Pos.le_next hp₁) hp₂⟩
   · simpa using fun _ h₁ h₂ => (Std.lt_irrefl (Std.lt_of_le_of_lt h₁ h₂)).elim
-  · simpa [Std.not_le.2 h] using fun h' => (Std.not_le.2 h h'.le).elim
+  · simpa [Std.not_le.2 h] using! fun h' => (Std.not_le.2 h h'.le).elim
 
 theorem isLongestMatchAtChain_iff_toList {p : Char → Bool} {s : Slice} {pos pos' : s.Pos} :
     IsLongestMatchAtChain p pos pos' ↔ ∃ (h : pos ≤ pos'), ∀ c, c ∈ (s.slice pos pos' h).copy.toList → p c := by
@@ -138,7 +138,7 @@ theorem isLongestRevMatchAtChain_iff {p : Char → Bool} {s : Slice} {pos pos' :
       exact ⟨Pos.le_prev_iff_lt.2 h, fun pos'' hp₁ hp₂ =>
         h₂ _ hp₁ (Std.lt_trans hp₂ Pos.prev_lt)⟩
   · simpa using fun _ h₁ h₂ => (Std.lt_irrefl (Std.lt_of_le_of_lt h₁ h₂)).elim
-  · simpa [Std.not_le.2 h] using fun h' => (Std.not_le.2 h h'.le).elim
+  · simpa [Std.not_le.2 h] using! fun h' => (Std.not_le.2 h h'.le).elim
 
 theorem isLongestRevMatchAtChain_iff_toList {p : Char → Bool} {s : Slice} {pos pos' : s.Pos} :
     IsLongestRevMatchAtChain p pos pos' ↔ ∃ (h : pos ≤ pos'), ∀ c, c ∈ (s.slice pos pos' h).copy.toList → p c :=

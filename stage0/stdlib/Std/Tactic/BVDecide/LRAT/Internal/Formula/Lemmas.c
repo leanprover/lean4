@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.LRAT.Internal.Formula.Lemmas
-// Imports: public import Std.Tactic.BVDecide.LRAT.Internal.Formula.Implementation public import Std.Tactic.BVDecide.LRAT.Internal.CNF import Init.ByCases import Init.Data.Array.Bootstrap import Init.Data.Int.OfNat import Init.Data.List.Pairwise import Init.Data.Nat.Linear
+// Imports: public import Std.Tactic.BVDecide.LRAT.Internal.Formula.Implementation public import Std.Tactic.BVDecide.LRAT.Internal.CNF import Init.ByCases import Init.Data.Array.Bootstrap import Init.Data.Int.OfNat import Init.Data.List.Pairwise import Init.Data.Nat.Internal.Linear
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -92,7 +92,7 @@ lean_object* v_val_28_; lean_object* v_snd_29_; uint8_t v___x_30_;
 lean_dec(v_h__1_23_);
 v_val_28_ = lean_ctor_get(v_x_22_, 0);
 lean_inc(v_val_28_);
-lean_dec_ref(v_x_22_);
+lean_dec_ref_known(v_x_22_, 1);
 v_snd_29_ = lean_ctor_get(v_val_28_, 1);
 v___x_30_ = lean_unbox(v_snd_29_);
 if (v___x_30_ == 0)
@@ -136,7 +136,7 @@ lean_object* v_val_43_; lean_object* v_snd_44_; uint8_t v___x_45_;
 lean_dec(v_h__1_38_);
 v_val_43_ = lean_ctor_get(v_x_37_, 0);
 lean_inc(v_val_43_);
-lean_dec_ref(v_x_37_);
+lean_dec_ref_known(v_x_37_, 1);
 v_snd_44_ = lean_ctor_get(v_val_43_, 1);
 v___x_45_ = lean_unbox(v_snd_44_);
 if (v___x_45_ == 0)
@@ -188,7 +188,7 @@ lean_object* v_val_62_; lean_object* v___x_63_;
 lean_dec(v_h__1_58_);
 v_val_62_ = lean_ctor_get(v_cOpt_57_, 0);
 lean_inc(v_val_62_);
-lean_dec_ref(v_cOpt_57_);
+lean_dec_ref_known(v_cOpt_57_, 1);
 v___x_63_ = lean_apply_1(v_h__2_59_, v_val_62_);
 return v___x_63_;
 }
@@ -211,7 +211,7 @@ lean_object* v_val_71_; lean_object* v___x_72_;
 lean_dec(v_h__1_67_);
 v_val_71_ = lean_ctor_get(v_cOpt_66_, 0);
 lean_inc(v_val_71_);
-lean_dec_ref(v_cOpt_66_);
+lean_dec_ref_known(v_cOpt_66_, 1);
 v___x_72_ = lean_apply_1(v_h__2_68_, v_val_71_);
 return v___x_72_;
 }
@@ -324,7 +324,7 @@ lean_object* v_val_123_;
 lean_dec(v_h__1_118_);
 v_val_123_ = lean_ctor_get(v_x_117_, 0);
 lean_inc(v_val_123_);
-lean_dec_ref(v_x_117_);
+lean_dec_ref_known(v_x_117_, 1);
 if (lean_obj_tag(v_val_123_) == 1)
 {
 lean_object* v_tail_124_; 
@@ -335,7 +335,7 @@ lean_object* v_head_125_; lean_object* v___x_126_;
 lean_dec(v_h__3_120_);
 v_head_125_ = lean_ctor_get(v_val_123_, 0);
 lean_inc(v_head_125_);
-lean_dec_ref(v_val_123_);
+lean_dec_ref_known(v_val_123_, 2);
 v___x_126_ = lean_apply_3(v_h__2_119_, v_head_125_, lean_box(0), lean_box(0));
 return v___x_126_;
 }
@@ -375,7 +375,7 @@ lean_object* v_val_137_;
 lean_dec(v_h__1_132_);
 v_val_137_ = lean_ctor_get(v_x_131_, 0);
 lean_inc(v_val_137_);
-lean_dec_ref(v_x_131_);
+lean_dec_ref_known(v_x_131_, 1);
 if (lean_obj_tag(v_val_137_) == 1)
 {
 lean_object* v_tail_138_; 
@@ -386,7 +386,7 @@ lean_object* v_head_139_; lean_object* v___x_140_;
 lean_dec(v_h__3_134_);
 v_head_139_ = lean_ctor_get(v_val_137_, 0);
 lean_inc(v_head_139_);
-lean_dec_ref(v_val_137_);
+lean_dec_ref_known(v_val_137_, 2);
 v___x_140_ = lean_apply_3(v_h__2_133_, v_head_139_, lean_box(0), lean_box(0));
 return v___x_140_;
 }
@@ -423,12 +423,14 @@ lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Int_OfNat(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Pairwise(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_Implementation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -447,7 +449,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_Pairwise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -465,7 +467,7 @@ lean_object* initialize_Init_ByCases(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_OfNat(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_Lemmas(uint8_t builtin) {
 lean_object * res;
@@ -489,7 +491,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_List_Pairwise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_Lemmas(builtin);

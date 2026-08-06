@@ -251,10 +251,16 @@ USAGE:
 By default, runs the package's configured lint driver. If `builtinLint` is
 set to `true` in the package configuration, builtin lints also run.
 
-Builtin linting (`--builtin-lint`, `--builtin-only`, `--extra`, `--lint-all`,
+Builtin linting (`--builtin-lint`, `--builtin-only`, `--linters`,
 `--lint-only`, or `builtinLint = true` in the package configuration) drives a
 build of the targeted modules with the requested linter options enabled.
 The lint driver path on its own does not trigger a build.
+
+Which environment linters run on a declaration is determined by the linter
+options in effect when that declaration was built (e.g. via `set_option` in
+the source, or via `--linters`/`--lint-only` below). Both override those
+options for the lint build; `--lint-only` additionally restricts the reported
+output to exactly the linters its spec enables.
 
 Positional `MODULE` arguments narrow only the builtin lints; if omitted,
 the workspace's default target roots are used. The lint driver is invoked
@@ -264,11 +270,23 @@ with `lintDriverArgs` from the package config plus any arguments after
 OPTIONS:
   --builtin-lint        run builtin environment and text linters
   --builtin-only        run only builtin linters, skip the lint driver
-  --extra               run default builtin linters together with the
-                        non-default (extra) ones
-  --lint-all            run all registered linters, including defaults, extras,
-                        and any other disabled-by-default linters
-  --lint-only <name>    run only the specified linter (repeatable)
+  --linters <spec>      override linter options for the lint build; <spec> is a
+                        comma-separated list of linter option names, each
+                        optionally prefixed with `-` to disable it. A name
+                        beginning with `.` is shorthand for the `linter.`
+                        prefix, so `.foo` means `linter.foo`. E.g.
+                        `--linters=.foo,-linter.bar`. Repeatable; later
+                        entries override earlier ones for the same linter
+  --lint-only <spec>    like `--linters`, but report ONLY the linters the spec
+                        positively enables, suppressing every other linter
+                        (including default-on linters that are not named).
+                        Expands `linter.all` and linter sets. Uses the same
+                        `<spec>` syntax as `--linters`; switching between
+                        `--linters` and `--lint-only` replaces the prior spec
+  --record-exceptions   record each linter warning as a
+                        `set_option <linter> false in` exception by editing the
+                        offending source files in place, silencing the warning
+                        for that declaration. Implies `--builtin-lint`.
 
 A lint driver can be configured by either setting the `lintDriver` package
 configuration option or by tagging a script or executable `@[lint_driver]`.
@@ -437,7 +455,7 @@ artifacts. If no mappings are found, Lake will backtrack the Git history up to
 will search the repository's entire history (or as far as Git will allow).
 
 By default, Lake will download both the input-to-output mappings and the
-output artifacts for a package. By using `--mappings-onlys`, Lake will only
+output artifacts for a package. By using `--mappings-only`, Lake will only
 download the mappings and delay downloading artifacts until they are needed.
 
 If a download for an artifact fails or the download process for a whole
@@ -491,12 +509,16 @@ OPTIONS:
   --service=<name>                cache service to fetch from on demand
   --scope=<remote-scope>          the prefix of artifacts within the service
   --repo=<github-repo>            for Reservoir, a GitHub repository scope
+  --no-overwrite                  do not overwrite existing mappings
 
 Reads a list of input-to-output mappings from the provided file and adds
-them to the local Lake cache. If `--service` is provided, the output artifacts
-can then be fetched lazily from that service during a Lake build. The service
-must either be `reservoir` or  be configured through the Lake system
-configuration (see the help page of `lake cache services` for details).
+them to the local Lake cache. Mappings already in the cache are overwritten
+unless `--no-overwrite` is specified.
+
+If `--service` is provided, the output artifacts can then be fetched lazily
+from that service during a Lake build. The service must either be `reservoir`
+or be configured through the Lake system configuration (see the help page of
+`lake cache services` for details).
 
 Since Lake does not currently use cryptographically secure hashes for
 artifacts and outputs, artifacts in a cache service are prefixed with a scope
@@ -508,25 +530,28 @@ def helpCacheStage :=
 "Copy build outputs from the cache to a staging directory
 
 USAGE:
-  lake cache stage <mappings> <staging-directory>
+  lake cache stage <mappings> <staging-directory> [--force-overwrite]
 
-Creates the staging directory and copies the mappings file to it. Then, it
-copies all artifacts described within the mappings file from the cache to the
-staging directory. Errors if any of the artifacts described cannot be found in
-the cache."
+Creates the staging directory and copies the mappings file to it. Then,
+it copies all artifacts described within the mappings file from the cache to
+the staging directory. Artifacts in the staging directory are not overwritten
+unless `--force-overwrite` is specified. Errors if any of the artifacts
+described cannot be found in the cache."
 
 def helpCacheUnstage :=
 "Cache build outputs from a staging directory
 
 USAGE:
-  lake cache unstage <staging-directory>
+  lake cache unstage <staging-directory> [--force-overwrite]
 
 Copies the mappings and artifacts stored in staging directory (e.g., via
 `lake cache stage`) back into the cache.
 
 Reads the mappings file located at `outputs.jsonl` within the staging
 directory and writes the mappings to the Lake cache. Then, it copies the
-described artifacts from the staging directory into the cache."
+described artifacts from the staging directory into the cache. Mappings and
+artifacts already in the cache are not overwritten unless `--force-overwrite`
+is specified."
 
 def helpCachePutStaged :=
 "Upload build outputs from a staging directory to a remote service

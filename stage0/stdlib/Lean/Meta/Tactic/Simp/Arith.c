@@ -32,7 +32,7 @@ else
 lean_object* v_val_3_; uint8_t v___y_5_; uint8_t v___x_7_; 
 v_val_3_ = lean_ctor_get(v_parent_x3f_1_, 0);
 lean_inc_n(v_val_3_, 2);
-lean_dec_ref(v_parent_x3f_1_);
+lean_dec_ref_known(v_parent_x3f_1_, 1);
 v___x_7_ = l_Lean_Meta_Simp_Arith_isLinearTerm(v_val_3_);
 if (v___x_7_ == 0)
 {
@@ -75,11 +75,13 @@ return v_r_11_;
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_Simp_Arith_Nat(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Simp_Arith_Int(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Simp_Arith(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Simp_Arith_Nat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

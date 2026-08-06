@@ -86,7 +86,7 @@ lean_dec(v_it_18_);
 lean_dec(v_recur_17_);
 v_a_20_ = lean_ctor_get(v_____do__lift_19_, 0);
 lean_inc(v_a_20_);
-lean_dec_ref(v_____do__lift_19_);
+lean_dec_ref_known(v_____do__lift_19_, 1);
 v___x_21_ = lean_apply_2(v_toPure_16_, lean_box(0), v_a_20_);
 return v___x_21_;
 }
@@ -96,7 +96,7 @@ lean_object* v_a_22_; lean_object* v___x_23_;
 lean_dec(v_toPure_16_);
 v_a_22_ = lean_ctor_get(v_____do__lift_19_, 0);
 lean_inc(v_a_22_);
-lean_dec_ref(v_____do__lift_19_);
+lean_dec_ref_known(v_____do__lift_19_, 1);
 v___x_23_ = lean_apply_4(v_recur_17_, v_it_18_, v_a_22_, lean_box(0), lean_box(0));
 return v___x_23_;
 }
@@ -114,7 +114,7 @@ v_it_30_ = lean_ctor_get(v_s_29_, 0);
 lean_inc(v_it_30_);
 v_out_31_ = lean_ctor_get(v_s_29_, 1);
 lean_inc(v_out_31_);
-lean_dec_ref(v_s_29_);
+lean_dec_ref_known(v_s_29_, 2);
 v___f_32_ = lean_alloc_closure((void*)(l_Std_Iterators_Types_RepeatIterator_instIteratorLoop___redArg___lam__0), 4, 3);
 lean_closure_set(v___f_32_, 0, v_toPure_24_);
 lean_closure_set(v___f_32_, 1, v_recur_25_);
@@ -131,7 +131,7 @@ lean_dec(v___y_26_);
 lean_dec(v_toPure_24_);
 v_it_35_ = lean_ctor_get(v_s_29_, 0);
 lean_inc(v_it_35_);
-lean_dec_ref(v_s_29_);
+lean_dec_ref_known(v_s_29_, 1);
 v___x_36_ = lean_apply_4(v_recur_25_, v_it_35_, v_acc_27_, lean_box(0), lean_box(0));
 return v___x_36_;
 }
@@ -242,11 +242,13 @@ return v_res_81_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Monadic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Data_Iterators_Producers_Repeat(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Iterators_Consumers_Monadic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

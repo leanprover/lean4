@@ -214,7 +214,7 @@ LEAN_EXPORT lean_object* l_Lean_FileMap_ofPosition(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_ofPosition___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_lineStart(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_lineStart___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_toFileMap(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_String_toFileMap(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_instDecidableEqPosition_decEq(lean_object* v_x_5_, lean_object* v_x_6_){
 _start:
 {
@@ -449,7 +449,7 @@ v_head_107_ = lean_ctor_get(v_a_104_, 0);
 lean_inc(v_head_107_);
 v_tail_108_ = lean_ctor_get(v_a_104_, 1);
 lean_inc(v_tail_108_);
-lean_dec_ref(v_a_104_);
+lean_dec_ref_known(v_a_104_, 2);
 v___x_109_ = l_List_foldl___at___00Array_appendList_spec__0___redArg(v_a_105_, v_head_107_);
 v_a_104_ = v_tail_108_;
 v_a_105_ = v___x_109_;
@@ -735,7 +735,7 @@ else
 lean_object* v_a_203_; lean_object* v___x_204_; lean_object* v___x_205_; 
 v_a_203_ = lean_ctor_get(v___x_184_, 0);
 lean_inc(v_a_203_);
-lean_dec_ref(v___x_184_);
+lean_dec_ref_known(v___x_184_, 1);
 v___x_204_ = ((lean_object*)(l_Lean_instReprPosition_repr___redArg___closed__10));
 v___x_205_ = l_Lean_Json_getObjValAs_x3f___at___00Lean_instFromJsonPosition_fromJson_spec__0(v_json_182_, v___x_204_);
 if (lean_obj_tag(v___x_205_) == 0)
@@ -1535,7 +1535,7 @@ lean_ctor_set(v___x_473_, 1, v___x_472_);
 lean_ctor_set(v___x_473_, 2, v___x_471_);
 v___x_474_ = l_String_Slice_pos_x21(v___x_473_, v___y_470_);
 v___x_475_ = l_String_Slice_Pos_nextn(v___x_473_, v___x_474_, v_column_466_);
-lean_dec_ref(v___x_473_);
+lean_dec_ref_known(v___x_473_, 3);
 return v___x_475_;
 }
 }
@@ -1600,7 +1600,7 @@ lean_dec_ref(v_map_500_);
 return v_res_502_;
 }
 }
-LEAN_EXPORT lean_object* l_String_toFileMap(lean_object* v_s_503_){
+LEAN_EXPORT lean_object* l_Lean_String_toFileMap(lean_object* v_s_503_){
 _start:
 {
 lean_object* v___x_504_; 
@@ -1610,11 +1610,13 @@ return v___x_504_;
 }
 lean_object* runtime_initialize_Lean_Data_Json_FromToJson_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_ToExpr(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Data_Position(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Data_Json_FromToJson_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

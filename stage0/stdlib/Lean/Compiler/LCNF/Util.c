@@ -480,7 +480,7 @@ lean_ctor_set(v___x_96_, 13, v_inheritedTraceOptions_94_);
 lean_ctor_set_uint8(v___x_96_, sizeof(void*)*14, v_diag_91_);
 lean_ctor_set_uint8(v___x_96_, sizeof(void*)*14 + 1, v_suppressElabErrors_93_);
 v___x_97_ = l_Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Compiler_LCNF_getCtorArity_x3f_spec__0_spec__0_spec__1_spec__2_spec__4_spec__6___redArg(v_msg_75_, v___x_96_, v___y_77_);
-lean_dec_ref(v___x_96_);
+lean_dec_ref_known(v___x_96_, 14);
 return v___x_97_;
 }
 }
@@ -1391,11 +1391,13 @@ return v_r_523_;
 lean_object* runtime_initialize_Init_Data_FloatArray_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_CoreM(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Util_Recognizers(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF_Util(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_FloatArray_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

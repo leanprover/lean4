@@ -118,9 +118,9 @@ return v___x_32_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_SizeOf_mkSizeOfHandler___lam__0___boxed(lean_object* v_____do__lift_33_, lean_object* v___y_34_, lean_object* v___y_35_, lean_object* v___y_36_){
 _start:
 {
-uint8_t v_____do__lift_1887__boxed_37_; lean_object* v_res_38_; 
-v_____do__lift_1887__boxed_37_ = lean_unbox(v_____do__lift_33_);
-v_res_38_ = l_Lean_Elab_Deriving_SizeOf_mkSizeOfHandler___lam__0(v_____do__lift_1887__boxed_37_, v___y_34_, v___y_35_);
+uint8_t v_____do__lift_1888__boxed_37_; lean_object* v_res_38_; 
+v_____do__lift_1888__boxed_37_ = lean_unbox(v_____do__lift_33_);
+v_res_38_ = l_Lean_Elab_Deriving_SizeOf_mkSizeOfHandler___lam__0(v_____do__lift_1888__boxed_37_, v___y_34_, v___y_35_);
 lean_dec(v___y_35_);
 lean_dec_ref(v___y_34_);
 return v_res_38_;
@@ -200,7 +200,7 @@ if (lean_obj_tag(v___x_55_) == 0)
 lean_object* v_a_66_; uint8_t v___x_67_; 
 v_a_66_ = lean_ctor_get(v___x_55_, 0);
 lean_inc(v_a_66_);
-lean_dec_ref(v___x_55_);
+lean_dec_ref_known(v___x_55_, 1);
 v___x_67_ = lean_unbox(v_a_66_);
 lean_dec(v_a_66_);
 v_a_48_ = v___x_67_;
@@ -305,7 +305,7 @@ v___x_110_ = l_Lean_Elab_Deriving_withoutExposeFromCtors___redArg(v_a_107_, v___
 if (lean_obj_tag(v___x_110_) == 0)
 {
 lean_object* v___x_111_; size_t v___x_112_; size_t v___x_113_; 
-lean_dec_ref(v___x_110_);
+lean_dec_ref_known(v___x_110_, 1);
 v___x_111_ = lean_box(0);
 v___x_112_ = ((size_t)1ULL);
 v___x_113_ = lean_usize_add(v_i_100_, v___x_112_);
@@ -366,7 +366,7 @@ if (lean_obj_tag(v___x_162_) == 0)
 lean_object* v_a_163_; uint8_t v___x_164_; lean_object* v___x_165_; 
 v_a_163_ = lean_ctor_get(v___x_162_, 0);
 lean_inc(v_a_163_);
-lean_dec_ref(v___x_162_);
+lean_dec_ref_known(v___x_162_, 1);
 v___x_164_ = lean_unbox(v_a_163_);
 lean_dec(v_a_163_);
 v___x_165_ = l_Lean_Elab_Deriving_SizeOf_mkSizeOfHandler___lam__0(v___x_164_, v_a_126_, v_a_127_);
@@ -487,7 +487,7 @@ return v___y_153_;
 }
 else
 {
-lean_dec_ref(v___y_153_);
+lean_dec_ref_known(v___y_153_, 1);
 goto v___jp_129_;
 }
 }
@@ -530,11 +530,13 @@ return v_res_180_;
 lean_object* runtime_initialize_Lean_Meta_SizeOf(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Deriving_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Deriving_Util(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Deriving_SizeOf(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_SizeOf(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

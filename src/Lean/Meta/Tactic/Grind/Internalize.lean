@@ -185,7 +185,9 @@ private def mkENode' (e : Expr) (generation : Nat) (funCC := false) : GoalM Unit
 private partial def internalizePattern (pattern : Expr) (generation : Nat) (origin : Origin) : GoalM Expr := do
   -- Recall that it is important to ensure patterns are maximally shared since
   -- we assume that in functions such as `getAppsOf` in `EMatch.lean`
-  go (← shareCommon pattern)
+  -- **Note**: We disable `shareCommonChecks` because patterns contain
+  -- loose bound variables and repair cannot be performed.
+  go (← Sym.shareCommonWithoutChecks pattern)
 where
   go (pattern : Expr) : GoalM Expr := do
     if pattern.isBVar || isPatternDontCare pattern then
@@ -443,7 +445,7 @@ Returns `true` if we should use `funCC` for applications of the given constant s
 private def useFunCongrAtDecl (declName : Name) : GrindM Bool := do
   if (← hasFunCCModifier declName) then
     return true
-  if (← isImplicitReducible declName) then
+  if (← isInstanceReducible declName) then
     /- **Note**: Instances are support elements. No `funCC` -/
     return false
   if let some projInfo ← getProjectionFnInfo? declName then

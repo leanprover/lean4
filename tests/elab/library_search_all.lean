@@ -19,7 +19,7 @@ theorem myTrue3 : MyTrue := MyTrue.intro
 -- Test: without +all, we get a single suggestion and the goal is solved
 /--
 info: Try this:
-  [apply] exact myTrue3
+  [apply] exact MyTrue.intro
 -/
 #guard_msgs in
 example : MyTrue := by exact?
@@ -28,10 +28,10 @@ example : MyTrue := by exact?
 -- The goal is admitted (sorry), and all suggestions are shown in one message
 /--
 info: Try these:
-  [apply] exact myTrue3
   [apply] exact MyTrue.intro
   [apply] exact myTrue1
   [apply] exact myTrue2
+  [apply] exact myTrue3
 ---
 warning: declaration uses `sorry`
 -/
@@ -41,10 +41,10 @@ example : MyTrue := by exact? +all
 -- Test: apply? also supports +all
 /--
 info: Try these:
-  [apply] exact myTrue3
   [apply] exact MyTrue.intro
   [apply] exact myTrue1
   [apply] exact myTrue2
+  [apply] exact myTrue3
 ---
 warning: declaration uses `sorry`
 -/

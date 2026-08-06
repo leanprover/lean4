@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Lawful.MonadAttach.Lemmas
-// Imports: import all Init.Control.MonadAttach public import Init.Classical public import Init.Control.Ensures public import Init.Control.Lawful.Basic public import Init.Control.Lawful.MonadLift.Basic import Init.Control.Lawful.MonadLift.Lemmas import Init.RCases
+// Imports: import all Init.Control.MonadAttach public import Init.Classical public import Init.Control.Lawful.Basic public import Init.Control.Lawful.MonadLift.Basic import Init.Control.Lawful.MonadLift.Lemmas import Init.RCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,23 +15,21 @@ extern "C" {
 #endif
 lean_object* runtime_initialize_Init_Control_MonadAttach(uint8_t builtin);
 lean_object* runtime_initialize_Init_Classical(uint8_t builtin);
-lean_object* runtime_initialize_Init_Control_Ensures(uint8_t builtin);
 lean_object* runtime_initialize_Init_Control_Lawful_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Control_Lawful_MonadLift_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Control_Lawful_MonadLift_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_RCases(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Control_Lawful_MonadAttach_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Control_MonadAttach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Classical(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = runtime_initialize_Init_Control_Ensures(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Control_Lawful_Basic(builtin);
@@ -57,7 +55,6 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Control_MonadAttach(uint8_t builtin);
 lean_object* initialize_Init_Classical(uint8_t builtin);
-lean_object* initialize_Init_Control_Ensures(uint8_t builtin);
 lean_object* initialize_Init_Control_Lawful_Basic(uint8_t builtin);
 lean_object* initialize_Init_Control_Lawful_MonadLift_Basic(uint8_t builtin);
 lean_object* initialize_Init_Control_Lawful_MonadLift_Lemmas(uint8_t builtin);
@@ -71,9 +68,6 @@ res = initialize_Init_Control_MonadAttach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Classical(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Ensures(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_Lawful_Basic(builtin);

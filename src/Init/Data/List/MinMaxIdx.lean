@@ -292,12 +292,12 @@ private theorem minIdxOn.go_eq
           simp only [minIdxOn]
           split
           simp only [ih, reduceCtorEq, ↓reduceDIte]
-          rw [if_neg]
+          rw [ite_eq_right]
           · simp [minIdxOn, Nat.add_assoc, Nat.add_comm 1]
           · simp only [not_le] at hlt ⊢
             exact lt_of_lt_of_le hlt ‹_›
     · rename_i hlt
-      rw [if_neg]
+      rw [ite_eq_right]
       · rw [minIdxOn, ih]
         split
         · simp [*, go]
@@ -389,7 +389,7 @@ private theorem combineMinIdxOn_assoc [LE β] [DecidableLE β] [IsLinearPreorder
   · rw [getElem_append_right (by omega)]
     simp only [Nat.add_sub_cancel_left]
     split
-    · rw [getElem_append_left (by omega), if_neg ‹_›]
+    · rw [getElem_append_left (by omega), ite_eq_right ‹_›]
     · rename_i h₁ h₂
       rw [not_le] at h₁ h₂
       rw [getElem_append_right (by omega)]
@@ -652,7 +652,7 @@ protected theorem minIdxOn?_cons_eq_some_minIdxOn
     (x :: xs).minIdxOn? f = some ((x :: xs).minIdxOn f (nomatch ·)) := by
   simp [List.minIdxOn?_eq_some_minIdxOn]
 
-protected theorem minIdxOn?_eq_if
+protected theorem minIdxOn?_eq_ite
     [LE β] [DecidableLE β] {f : α → β} {xs : List α} :
     xs.minIdxOn? f =
       if h : xs ≠ [] then
@@ -660,6 +660,9 @@ protected theorem minIdxOn?_eq_if
       else
         none := by
   cases xs <;> simp [List.minIdxOn?_cons_eq_some_minIdxOn]
+
+@[deprecated List.minIdxOn?_eq_ite (since := "2026-07-21")]
+protected theorem minIdxOn?_eq_if {β : Type u_1} {α : Type u_2} [LE β] [DecidableLE β] {f : α → β} {xs : List α} : List.minIdxOn? f xs = if h : xs ≠ [] then Option.some (List.minIdxOn f xs h) else Option.none := List.minIdxOn?_eq_ite
 
 protected theorem minIdxOn?_cons
     [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} {x : α} {xs : List α} :
@@ -702,7 +705,7 @@ protected theorem minIdxOn?_eq_some_zero_iff [LE β] [DecidableLE β] [IsLinearP
 protected theorem minIdxOn?_replicate [LE β] [DecidableLE β] [Refl (α := β) (· ≤ ·)]
     {n : Nat} {a : α} {f : α → β} :
     (replicate n a).minIdxOn? f = if n = 0 then none else some 0 := by
-  simp [List.minIdxOn?_eq_if]
+  simp [List.minIdxOn?_eq_ite]
 
 @[simp]
 protected theorem minIdxOn?_replicate_of_pos [LE β] [DecidableLE β] [Refl (α := β) (· ≤ ·)]
@@ -770,7 +773,7 @@ protected theorem maxIdxOn?_cons_eq_some_maxIdxOn
   letI : LE β := LE.opposite inferInstance
   exact List.minIdxOn?_cons_eq_some_minIdxOn
 
-protected theorem maxIdxOn?_eq_if
+protected theorem maxIdxOn?_eq_ite
     [LE β] [DecidableLE β] {f : α → β} {xs : List α} :
     xs.maxIdxOn? f =
       if h : xs ≠ [] then
@@ -778,7 +781,10 @@ protected theorem maxIdxOn?_eq_if
       else
         none := by
   letI : LE β := LE.opposite inferInstance
-  exact List.minIdxOn?_eq_if
+  exact List.minIdxOn?_eq_ite
+
+@[deprecated List.maxIdxOn?_eq_ite (since := "2026-07-21")]
+protected theorem maxIdxOn?_eq_if {β : Type u_1} {α : Type u_2} [LE β] [DecidableLE β] {f : α → β} {xs : List α} : List.maxIdxOn? f xs = if h : xs ≠ [] then Option.some (List.maxIdxOn f xs h) else Option.none := List.maxIdxOn?_eq_ite
 
 protected theorem maxIdxOn?_cons
     [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} {x : α} {xs : List α} :
@@ -788,7 +794,7 @@ protected theorem maxIdxOn?_cons
         else (xs.maxIdxOn f h) + 1) := by
   simp only [List.maxIdxOn_eq_minIdxOn, List.maxOn_eq_minOn]
   letI : LE β := LE.opposite inferInstance
-  simpa [LE.le_opposite_iff] using List.minIdxOn?_cons (f := f)
+  simpa [LE.le_opposite_iff] using! List.minIdxOn?_cons (f := f)
 
 protected theorem ne_nil_of_maxIdxOn?_eq_some
     [LE β] [DecidableLE β] {f : α → β} {k : Nat} {xs : List α} (h : xs.maxIdxOn? f = some k) :

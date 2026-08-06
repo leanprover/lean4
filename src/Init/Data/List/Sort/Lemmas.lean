@@ -15,7 +15,7 @@ import Init.Data.List.Pairwise
 import Init.Data.List.Perm
 import Init.Data.List.Range
 import Init.Data.List.Sublist
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Prod
 
 public section
@@ -88,15 +88,9 @@ theorem splitInTwo_fst_pairwise (l : { l : List α // l.length = n }) (h : Pairw
   rw [splitInTwo_fst]
   exact h.take
 
-@[deprecated splitInTwo_fst_pairwise (since := "2025-10-23")]
-abbrev splitInTwo_fst_sorted := @splitInTwo_fst_pairwise
-
 theorem splitInTwo_snd_pairwise (l : { l : List α // l.length = n }) (h : Pairwise le l.1) : Pairwise le (splitInTwo l).2.1 := by
   rw [splitInTwo_snd]
   exact h.drop
-
-@[deprecated splitInTwo_snd_pairwise (since := "2025-10-23")]
-abbrev splitInTwo_snd_sorted := @splitInTwo_fst_pairwise
 
 theorem splitInTwo_fst_le_splitInTwo_snd {l : { l : List α // l.length = n }} (h : Pairwise le l.1) :
     ∀ a b, a ∈ (splitInTwo l).1.1 → b ∈ (splitInTwo l).2.1 → le a b := by
@@ -158,11 +152,11 @@ theorem cons_merge_cons (s : α → α → Bool) (a b l r) :
 
 @[simp] theorem cons_merge_cons_pos (s : α → α → Bool) (l r) (h : s a b) :
     merge (a::l) (b::r) s = a :: merge l (b::r) s := by
-  rw [cons_merge_cons, if_pos h]
+  rw [cons_merge_cons, ite_eq_left h]
 
 @[simp] theorem cons_merge_cons_neg (s : α → α → Bool) (l r) (h : ¬ s a b) :
     merge (a::l) (b::r) s = b :: merge (a::l) r s := by
-  rw [cons_merge_cons, if_neg h]
+  rw [cons_merge_cons, ite_eq_right h]
 
 @[simp] theorem length_merge (s : α → α → Bool) (l r) :
     (merge l r s).length = l.length + r.length := by
@@ -206,7 +200,7 @@ theorem merge_stable : ∀ (xs ys) (_ : ∀ x y, x ∈ xs → y ∈ ys → x.2 �
   | (i, x) :: xs, (j, y) :: ys, h => by
     simp only [merge, zipIdxLE, map_cons]
     split <;> rename_i w
-    · rw [if_pos (by simp [h _ _ (mem_cons_self ..) (mem_cons_self ..)])]
+    · rw [ite_eq_left (by simp [h _ _ (mem_cons_self ..) (mem_cons_self ..)])]
       simp only [map_cons, cons.injEq, true_and]
       rw [merge_stable, map_cons]
       exact fun x' y' mx my => h x' y' (mem_cons_of_mem (i, x) mx) my
@@ -251,16 +245,13 @@ theorem pairwise_merge
           · exact rel_of_pairwise_cons h₂ m
         · exact ih₂ h₂.tail
 
-@[deprecated pairwise_merge (since := "2025-10-23")]
-abbrev sorted_merge := @pairwise_merge
-
 theorem merge_of_le : ∀ {xs ys : List α} (_ : ∀ a b, a ∈ xs → b ∈ ys → le a b),
     merge xs ys le = xs ++ ys
   | [], ys, _
   | xs, [], _ => by simp
   | x :: xs, y :: ys, h => by
     simp only [merge, cons_append]
-    rw [if_pos, merge_of_le]
+    rw [ite_eq_left, merge_of_le]
     · intro a b ma mb
       exact h a b (mem_cons_of_mem _ ma) mb
     · exact h x y mem_cons_self mem_cons_self
@@ -324,9 +315,6 @@ theorem pairwise_mergeSort
     apply pairwise_mergeSort trans total
 termination_by l => l.length
 
-@[deprecated pairwise_mergeSort (since := "2025-10-23")]
-abbrev sorted_mergeSort := @pairwise_mergeSort
-
 /--
 If the input list is already sorted, then `mergeSort` does not change the list.
 -/
@@ -342,9 +330,6 @@ theorem mergeSort_of_pairwise : ∀ {l : List α} (_ : Pairwise le l), mergeSort
     rw [merge_of_le (splitInTwo_fst_le_splitInTwo_snd h)]
     rw [splitInTwo_fst_append_splitInTwo_snd]
 termination_by l => l.length
-
-@[deprecated mergeSort_of_pairwise (since := "2025-10-23")]
-abbrev mergeSort_of_sorted := @mergeSort_of_pairwise
 
 /--
 This merge sort algorithm is stable,
@@ -409,7 +394,7 @@ theorem mergeSort_cons {le : α → α → Bool}
       simp only [mem_mergeSort] at ha
       simp only [← q.mem_iff, mem_mergeSort] at hb
       simp only [zipIdxLE]
-      simp only [Bool.if_false_right, Bool.and_eq_true, Prod.mk.injEq, and_imp]
+      simp only [Bool.ite_false_right, Bool.and_eq_true, Prod.mk.injEq, and_imp]
       intro ab h ba h'
       simp only [Bool.decide_eq_true] at ba
       replace h : i ≤ j := by simpa [ab, ba] using h

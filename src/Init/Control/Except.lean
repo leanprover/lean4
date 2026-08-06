@@ -27,7 +27,7 @@ protected def pure (a : α) : Except ε α :=
 Transforms a successful result with a function, doing nothing when an exception is thrown.
 
 Examples:
- * `(pure 2 : Except String Nat).map toString = pure 2`
+ * `(pure 2 : Except String Nat).map toString = pure "2"`
  * `(throw "Error" : Except String Nat).map toString = throw "Error"`
 -/
 @[always_inline, inline]
@@ -128,7 +128,7 @@ end Except
 /--
 Adds exceptions of type `ε` to a monad `m`.
 -/
-def ExceptT (ε : Type u) (m : Type u → Type v) (α : Type u) : Type v :=
+@[implicit_reducible] def ExceptT (ε : Type u) (m : Type u → Type v) (α : Type u) : Type v :=
   m (Except ε α)
 
 /--
@@ -330,6 +330,7 @@ instance ExceptT.finally {m : Type u → Type v} {ε : Type u} [MonadFinally m] 
     | (_,        .error e) => pure (.error e)  -- second error has precedence
     | (.error e, _)        => pure (.error e)
 
+set_option linter.checkUnivs false in
 instance [Monad m] [MonadAttach m] : MonadAttach (ExceptT ε m) where
   CanReturn x a := MonadAttach.CanReturn (m := m) x (.ok a)
   attach x := show m (Except ε _) from

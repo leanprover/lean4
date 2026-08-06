@@ -890,11 +890,11 @@ v_a_323_ = lean_ctor_get(v___x_276_, 0);
 lean_inc_n(v_a_323_, 2);
 v_a_324_ = lean_ctor_get(v___x_276_, 1);
 lean_inc(v_a_324_);
-lean_dec_ref(v___x_276_);
+lean_dec_ref_known(v___x_276_, 2);
 v___x_325_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_325_, 0, v_a_323_);
 v___x_326_ = l_Lake_ensureJob___redArg___lam__0(v___x_274_, v___x_275_, v___x_325_, v_a_324_);
-lean_dec_ref(v___x_325_);
+lean_dec_ref_known(v___x_325_, 1);
 v_a_327_ = lean_ctor_get(v___x_326_, 1);
 lean_inc(v_a_327_);
 lean_dec_ref(v___x_326_);
@@ -968,7 +968,7 @@ lean_dec(v___x_272_);
 lean_dec_ref(v_a_263_);
 v_a_350_ = lean_ctor_get(v___x_276_, 1);
 lean_inc(v_a_350_);
-lean_dec_ref(v___x_276_);
+lean_dec_ref_known(v___x_276_, 2);
 v___x_351_ = lean_box(0);
 v___x_352_ = l_Lake_ensureJob___redArg___lam__0(v___x_274_, v___x_275_, v___x_351_, v_a_350_);
 v_a_353_ = lean_ctor_get(v___x_352_, 1);
@@ -1134,7 +1134,7 @@ else
 lean_object* v_a_322_; 
 v_a_322_ = lean_ctor_get(v___y_293_, 1);
 lean_inc(v_a_322_);
-lean_dec_ref(v___y_293_);
+lean_dec_ref_known(v___y_293_, 2);
 v_a_279_ = v_a_322_;
 goto v___jp_278_;
 }
@@ -1594,11 +1594,13 @@ return v_res_569_;
 }
 }
 lean_object* runtime_initialize_Lake_Build_Fetch(uint8_t builtin);
+void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Build_Job_Register(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize();
 res = runtime_initialize_Lake_Build_Fetch(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

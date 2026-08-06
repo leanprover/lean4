@@ -21,8 +21,8 @@ builtin_initialize registerBuiltinDynamicParserAttribute `doElem_parser `doElem
 
 namespace Term
 def leftArrow : Parser := unicodeSymbol "← " "<- "
-@[builtin_term_parser] def liftMethod := leading_parser:minPrec
-  leftArrow >> termParser
+@[builtin_term_parser] def nestedAction := leading_parser:minPrec
+  leftArrow >> doElemParser
 
 def doSeqItem      := leading_parser
   ppLine >> doElemParser >> optional "; "
@@ -49,7 +49,7 @@ builtin_initialize
   register_parser_alias doSeq
   register_parser_alias termBeforeDo
 
-def getDoElems (doSeq : TSyntax ``doSeq) : Array (TSyntax `doElem) :=
+def getDoElems (doSeq : DoSeq) : Array DoElem :=
   if doSeq.raw.getKind == ``Parser.Term.doSeqBracketed then
     doSeq.raw[1].getArgs.map fun arg => ⟨arg[0]⟩
   else if doSeq.raw.getKind == ``Parser.Term.doSeqIndent then
@@ -175,16 +175,25 @@ def doIfCond    :=
 @[builtin_doElem_parser] def doUnless := leading_parser
   "unless " >> withForbidden "do" termParser >> " do " >> doSeq
 def doForDecl := leading_parser
-  optional (atomic (ident >> " : ")) >> termParser >> " in " >> withForbidden "do" termParser
+  optional (atomic (ident >> " : ")) >> termParser >> " in " >>
+    withForbiddens #["do", "invariant"] termParser
 /--
-`for x in e do s`  iterates over `e` assuming `e`'s type has an instance of the `ForIn` typeclass.
+The optional `invariant pref suff a b c => e` clause of a `for` loop. The invariant annotates the
+loop so `vcgen` reads it from the program, with `pref` bound to the elements consumed so far, `suff`
+to the elements remaining, and mutable variables referenced by name. Any further binders, here
+`a b c`, bind the arguments of the assertion itself, such as the state of a state monad.
+-/
+def doForInvariant := leading_parser
+  ppSpace >> nonReservedSymbol "invariant" >> withForbidden "do" basicFun
+/--
+`for x in e do s` iterates over `e` assuming `e`'s type has an instance of the `ForIn` typeclass.
 `break` and `continue` are supported inside `for` loops.
-`for x in e, x2 in e2, ... do s` iterates of the given collections in parallel,
+`for x in e, x2 in e2, ... do s` iterates over the given collections in parallel,
 until at least one of them is exhausted.
 The types of `e2` etc. must implement the `Std.ToStream` typeclass.
 -/
 @[builtin_doElem_parser] def doFor    := leading_parser
-  "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
+  "for " >> sepBy1 doForDecl ", " >> optional doForInvariant >> " do " >> doSeq
 
 def dependentParam := leading_parser
   atomic ("(" >> nonReservedSymbol "dependent") >> " := " >>
@@ -208,6 +217,25 @@ def doFinally    := leading_parser
   ppDedent ppLine >> "finally " >> doSeq
 @[builtin_doElem_parser] def doTry    := leading_parser
   "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
+
+/--
+`do← s` (or ASCII `do<- s`) hands `s` to the enclosing wrapper as a body
+whose control-flow effects (`return`, `break`, `continue`, `mut`-variable
+reassignment) target the surrounding `do` block, not the body's local monad.
+
+The syntax is reminiscent of a nested action `(← s)`, but unlike a nested
+action, `s` is not run eagerly in the `do` block context before the wrapping
+function is called. The wrapping function decides when to run `s`, and code
+is inserted to forward `s`'s effects to the outer `do` block.
+
+Only valid as the last argument of a function application that itself appears
+as a statement of an outer `do` block, optionally wrapped in `fun` binders.
+Examples:
+* `f a₁ … aₙ (do← s)`
+* `f a₁ … aₙ (fun b₁ … bₖ => do← s)`
+-/
+@[builtin_term_parser default+1] def doForward := leading_parser
+  atomic ("do" >> checkNoWsBefore >> leftArrow) >> doSeq
 
 /-- `break` exits the surrounding `for` loop. -/
 @[builtin_doElem_parser] def doBreak     := leading_parser "break"
@@ -252,11 +280,11 @@ the program need to be recompiled and restarted.
 
 # Known Limitations
 
-* The program will poll for the server for up to 10 minutes and needs to be killed manually
+* The program will poll the server for up to 10 minutes and needs to be killed manually
   otherwise.
 * Use of multiple `idbg` at once untested, likely too much overhead from overlapping imports without
   further changes.
-* `LEAN_PATH` must be properly set up so compiled program can import its origin module.
+* `LEAN_PATH` must be properly set up so the compiled program can import its origin module.
 * Untested on Windows and macOS.
 -/
 @[builtin_doElem_parser] def doIdbg      := leading_parser:leadPrec
@@ -272,6 +300,14 @@ with debug assertions enabled (see the `debugAssertions` option).
 -/
 @[builtin_doElem_parser] def doDebugAssert := leading_parser:leadPrec
   "debug_assert! " >> termParser
+/--
+`assert P` states that `P` holds at this point in the program. The form `assert s => P s` binds the
+arguments of the assertion itself, such as the state of a state monad. `vcgen` reads the assertion
+from the program and proves it; at runtime the element does nothing.
+-/
+@[builtin_doElem_parser default+10] def doAssertion := leading_parser:leadPrec
+  nonReservedSymbol "assert" (includeIdent := true) >>
+    (atomic basicFun <|> (ppSpace >> termParser))
 
 @[builtin_doElem_parser] def doRepeat      := leading_parser
   "repeat " >> doSeq
@@ -315,7 +351,7 @@ They expand into `do unless ...`, `do for ...`, `do try ...`, and `do return ...
 @[builtin_term_parser] def termUnless := leading_parser
   "unless " >> withForbidden "do" termParser >> " do " >> doSeq
 @[builtin_term_parser] def termFor := leading_parser
-  "for " >> sepBy1 doForDecl ", " >> " do " >> doSeq
+  "for " >> sepBy1 doForDecl ", " >> optional doForInvariant >> " do " >> doSeq
 @[builtin_term_parser] def termTry    := leading_parser
   "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
 /--

@@ -1,11 +1,11 @@
 module
 
-/-! Reducibility of instances should default to `[implicit_reducible]` but be overridable. -/
+/-! Reducibility of instances should default to `[instance_reducible]` but be overridable. -/
 
 instance i1 : Inhabited Nat := inferInstance
 
 /--
-info: @[implicit_reducible] private def i1 : Inhabited Nat :=
+info: @[instance_reducible] private def i1 : Inhabited Nat :=
 inferInstance
 -/
 #guard_msgs in
@@ -20,9 +20,6 @@ inferInstance
 #guard_msgs in
 #print i2
 
-/--
-warning: instance `_private.elab.instanceReducibility.0.i3` must be marked with `@[reducible]` or `@[implicit_reducible]`
--/
 #guard_msgs in
 @[irreducible] instance i3 : Inhabited Nat := inferInstance
 
@@ -32,3 +29,17 @@ inferInstance
 -/
 #guard_msgs in
 #print i3
+
+#guard_msgs in
+set_option warn.classDefReducibility false in
+@[irreducible] instance i4 : Inhabited Nat := inferInstance
+
+set_option allowUnsafeReducibility true in
+/--
+warning: Definition `_private.elab.instanceReducibility.0.i5` of class type is semireducible. Most type class instances should be instance-reducible, so consider marking this
+definition with `@[instance_reducible]`. If it is intentionally semireducible, this warning can be disabled with `set_option warn.classDefReducibility false`.
+-/
+#guard_msgs in
+@[semireducible] instance i5 : Inhabited Nat := inferInstance
+
+-- Why does `i5` not get any warning?

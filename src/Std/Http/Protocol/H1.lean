@@ -16,6 +16,7 @@ public import Std.Http.Protocol.H1.Message
 public import Std.Http.Protocol.H1.Reader
 public import Std.Http.Protocol.H1.Writer
 public import Std.Http.Protocol.H1.Event
+public import Std.Http.Protocol.H1.Redirect
 
 public section
 
@@ -31,8 +32,7 @@ namespace Std.Http.Protocol.H1
 
 set_option linter.all true
 
-open Std Internal Parsec ByteArray
-open Internal
+open Std Std.Internal Http.Internal Parsec ByteArray
 
 /--
 Results from a single step of the state machine.
@@ -103,7 +103,7 @@ structure Machine (dir : Direction) where
   /--
   The timestamp for the `Date` header.
   -/
-  instant : Option (Std.Time.DateTime .UTC) := none
+  instant : Option Std.Time.PlainDateTime := none
 
   /--
   If the connection will be kept alive after the message.
@@ -670,6 +670,17 @@ private def advanceAfterHeaders (machine : Machine dir) (state : Reader.State di
   | .sending, nextState, machine => machine.setReaderState nextState
 
 /--
+HEAD responses have no body, regardless of any framing headers. Override the
+framing mode to `.fixed 0` so the reader doesn't block waiting for body bytes.
+-/
+@[inline]
+private def suppressIncomingBodyIfHead (machine : Machine dir) (mode : BodyMode) : BodyMode :=
+  match dir with
+  | .sending =>
+    if machine.writer.messageHead.method == .head then .fixed 0 else mode
+  | .receiving => mode
+
+/--
 Processes a finished header block:
 1. updates keep-alive policy from config and headers,
 2. validates semantic message framing,
@@ -683,6 +694,7 @@ private def processHeaders (machine : Machine dir) : Machine dir :=
   match checkMessageHead machine.reader.messageHead with
   | .error err => machine.setFailure err
   | .ok mode =>
+    let mode := suppressIncomingBodyIfHead machine mode
     if exceedsBodyLimitForMode machine mode then
       machine.setFailure .entityTooLarge
     else
@@ -1540,7 +1552,15 @@ When upper layers are not pulling body chunks, the machine drains body bytes
 internally to keep parsing/connection progress moving.
 -/
 private partial def processReadBodyState (machine : Machine dir) (bodyState : Reader.BodyState) : Machine dir :=
-  if drainBodyInternally machine then
+  -- Auto-drain when the body is internal (1xx responses on the client), or
+  -- when the client is reading a response with known zero length: `.fixed 0`
+  -- has no bytes to expose, so waiting for a caller `pullBody` would stall the
+  -- connection indefinitely on responses that must not carry a body (204,
+  -- 304, HEAD responses). Server-side (`.receiving`) keeps the existing
+  -- semantics so handlers can observe the body stream explicitly.
+  let autoDrain := drainBodyInternally machine || (dir matches .sending ∧ bodyState matches .fixed 0)
+
+  if autoDrain then
     let (machine, _pulledChunk, shouldContinue) := parseBody machine bodyState
     if shouldContinue then processRead machine else machine
   else

@@ -440,7 +440,7 @@ lean_ctor_set(v___x_30_, 0, v_s_26_);
 lean_ctor_set(v___x_30_, 1, v___x_28_);
 lean_ctor_set(v___x_30_, 2, v___x_29_);
 v___x_31_ = l_String_Slice_Pos_remainingBytes(v___x_30_, v_p_27_);
-lean_dec_ref(v___x_30_);
+lean_dec_ref_known(v___x_30_, 3);
 return v___x_31_;
 }
 }
@@ -1361,11 +1361,13 @@ lean_object* runtime_initialize_Init_Data_Option_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_FindPos(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Termination(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_String_Lemmas_Splits(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

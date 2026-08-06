@@ -286,7 +286,7 @@ if (lean_obj_tag(v___x_82_) == 0)
 lean_object* v_a_83_; uint8_t v___x_84_; 
 v_a_83_ = lean_ctor_get(v___x_82_, 0);
 lean_inc(v_a_83_);
-lean_dec_ref(v___x_82_);
+lean_dec_ref_known(v___x_82_, 1);
 v___x_84_ = lean_unbox(v_a_83_);
 lean_dec(v_a_83_);
 switch(v___x_84_)
@@ -375,11 +375,13 @@ return v_res_104_;
 lean_object* runtime_initialize_Lean_Compiler_LCNF_CompilerM(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_LCNF_MonoTypes(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_LCNF_ToImpureType(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF_OtherDecl(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Compiler_LCNF_CompilerM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

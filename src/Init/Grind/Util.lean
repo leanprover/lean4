@@ -13,7 +13,7 @@ public section
 namespace Lean.Grind
 
 /-- A helper gadget for annotating nested proofs in goals. -/
-def nestedProof (p : Prop) {h : p} : p := h
+theorem nestedProof (p : Prop) {h : p} : p := h
 
 /-- A helper gadget for annotating nested decidable instances in goals. -/
 -- Remark: we currently have special gadgets for the two most common subsingletons in Lean, and are the only

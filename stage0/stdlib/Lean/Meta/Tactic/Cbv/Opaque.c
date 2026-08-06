@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_st_ref_get(lean_object*);
-uint8_t lean_get_reducibility_status(lean_object*, lean_object*);
+uint8_t l_Lean_getReducibilityStatusCore(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -986,7 +986,7 @@ v___x_296_ = lean_st_ref_get(v___y_294_);
 v_env_297_ = lean_ctor_get(v___x_296_, 0);
 lean_inc_ref(v_env_297_);
 lean_dec(v___x_296_);
-v___x_298_ = lean_get_reducibility_status(v_env_297_, v_declName_293_);
+v___x_298_ = l_Lean_getReducibilityStatusCore(v_env_297_, v_declName_293_);
 v___x_299_ = lean_box(v___x_298_);
 v___x_300_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_300_, 0, v___x_299_);
@@ -1118,7 +1118,7 @@ if (lean_obj_tag(v___x_348_) == 0)
 lean_object* v_a_349_; uint8_t v___x_350_; 
 v_a_349_ = lean_ctor_get(v___x_348_, 0);
 lean_inc(v_a_349_);
-lean_dec_ref(v___x_348_);
+lean_dec_ref_known(v___x_348_, 1);
 v___x_350_ = lean_unbox(v_a_349_);
 lean_dec(v_a_349_);
 if (v___x_350_ == 0)
@@ -1805,11 +1805,13 @@ return v_r_630_;
 }
 lean_object* runtime_initialize_Lean_ScopedEnvExtension(uint8_t builtin);
 lean_object* runtime_initialize_Lean_ReducibilityAttrs(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Cbv_Opaque(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_ScopedEnvExtension(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

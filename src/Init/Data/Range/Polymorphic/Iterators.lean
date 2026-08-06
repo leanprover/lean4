@@ -260,7 +260,7 @@ theorem _root_.Std.Rxi.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
     ∃ a, it.internalState.next = some a ∧ UpwardEnumerable.LE a out := by
   have ⟨a, ha⟩ := Option.isSome_iff_exists.mp (isSome_next_of_isPlausibleIndirectOutput hout)
   refine ⟨a, ha, ?_⟩
-  simpa only [isPlausibleIndirectOutput_iff, ha, Option.bind_some] using hout
+  simpa only [isPlausibleIndirectOutput_iff, ha, Option.bind_some] using! hout
 
 @[no_expose]
 instance {m} [UpwardEnumerable α]
@@ -568,7 +568,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
     simp only [Membership.mem, LawfulUpwardEnumerableLE.le_iff]
     cases hr : (Internal.iter r).internalState.next
     · simp [hr] at hn
-    · simpa [LawfulUpwardEnumerableLE.le_iff] using hu
+    · simpa [LawfulUpwardEnumerableLE.le_iff] using! hu
   · intro hu
     obtain ⟨init, hi, hia⟩ := LawfulUpwardEnumerableLeast?.least?_le a
     simpa [iter, hi] using ⟨hia, hu⟩
@@ -642,7 +642,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
     simp only [Membership.mem, LawfulUpwardEnumerableLT.lt_iff]
     cases hr : (Internal.iter r).internalState.next
     · simp [hr] at hn
-    · simpa [LawfulUpwardEnumerableLT.lt_iff] using hu
+    · simpa [LawfulUpwardEnumerableLT.lt_iff] using! hu
   · intro hu
     obtain ⟨init, hi, hia⟩ := LawfulUpwardEnumerableLeast?.least?_le a
     simpa [iter, hi] using ⟨hia, hu⟩
@@ -712,7 +712,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
   constructor
   · simp [Membership.mem]
   · obtain ⟨init, hi, hia⟩ := LawfulUpwardEnumerableLeast?.least?_le a
-    simpa [Membership.mem, iter, hi] using hia
+    simpa [Membership.mem, iter, hi] using! hia
 
 @[no_expose]
 instance {m} [UpwardEnumerable α] [Least? α]

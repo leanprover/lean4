@@ -250,7 +250,7 @@ lean_dec(v_create_83_);
 lean_dec(v_toBind_82_);
 v_val_88_ = lean_ctor_get(v_____do__lift_86_, 0);
 lean_inc(v_val_88_);
-lean_dec_ref(v_____do__lift_86_);
+lean_dec_ref_known(v_____do__lift_86_, 1);
 v___x_89_ = lean_apply_2(v_toPure_85_, lean_box(0), v_val_88_);
 return v___x_89_;
 }
@@ -326,11 +326,13 @@ return v_res_123_;
 }
 }
 lean_object* runtime_initialize_Init_Prelude(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Util_Store(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Prelude(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

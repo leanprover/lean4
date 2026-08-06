@@ -18,13 +18,15 @@ public import Init.Data.RArray
 public import Init.Ext
 import Init.Data.Hashable
 import Init.Data.Int.LemmasAux
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Grind.Ordered.Order
 import Init.Omega
 import Init.WFTactics
 import Init.Data.Int.Repr
 
 @[expose] public section
+
+open Internal
 
 namespace Lean.Grind.CommRing
 /-!
@@ -358,7 +360,7 @@ theorem Mon.revlex_k_eq_revlex (m₁ m₂ : Mon) : m₁.revlex_k m₂ = m₁.rev
   induction fuel generalizing m₁ m₂
   next => rfl
   next =>
-    simp [revlexFuel]; split <;> try rfl
+    simp [revlexFuel, -cond_eq_ite]; split <;> try rfl
     next ih _ _ pw₁ m₁ pw₂ m₂ =>
       simp only [cond_eq_ite, beq_iff_eq]
       split
@@ -1593,7 +1595,7 @@ theorem div {α} [CommRing α] (ctx : Context α) [NoNatZeroDivisors α] (p₁ :
 noncomputable def unsat_eq_cert (p : Poly) (k : Int) : Bool :=
   !Int.beq' k 0 |>.and' (p.beq' (.num k))
 
-def unsat_eq {α} [CommRing α] (ctx : Context α) [IsCharP α 0] (p : Poly) (k : Int)
+theorem unsat_eq {α} [CommRing α] (ctx : Context α) [IsCharP α 0] (p : Poly) (k : Int)
     : unsat_eq_cert p k → p.denote ctx = 0 → False := by
   simp [unsat_eq_cert]; intro h _; subst p; simp [Poly.denote]
   have := IsCharP.intCast_eq_zero_iff (α := α) 0 k
@@ -1658,7 +1660,7 @@ theorem superposeC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k₁ 
 noncomputable def mul_certC (p₁ : Poly) (k : Int) (p : Poly) (c : Nat) : Bool :=
   p₁.mulConstC k c |>.beq' p
 
-def mulC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ : Poly) (k : Int) (p : Poly)
+theorem mulC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ : Poly) (k : Int) (p : Poly)
     : mul_certC p₁ k p c → p₁.denote ctx = 0 → p.denote ctx = 0 := by
   simp [mul_certC]; intro _ h; subst p
   simp [Poly.denote_mulConstC, *, mul_zero]
@@ -1666,7 +1668,7 @@ def mulC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ : Poly) (k
 noncomputable def div_certC (p₁ : Poly) (k : Int) (p : Poly) (c : Nat) : Bool :=
   !Int.beq' k 0 |>.and' ((p.mulConstC k c).beq' p₁)
 
-def divC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) [NoNatZeroDivisors α] (p₁ : Poly) (k : Int) (p : Poly)
+theorem divC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) [NoNatZeroDivisors α] (p₁ : Poly) (k : Int) (p : Poly)
     : div_certC p₁ k p c → p₁.denote ctx = 0 → p.denote ctx = 0 := by
   simp [div_certC]; intro hnz _ h; subst p₁
   simp [Poly.denote_mulConstC, ← zsmul_eq_intCast_mul] at h
@@ -1683,7 +1685,7 @@ theorem simpC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k₁ : Int
 noncomputable def unsat_eq_certC (p : Poly) (k : Int) (c : Nat) : Bool :=
   !Int.beq' (k % c) 0 |>.and' (p.beq' (.num k))
 
-def unsat_eqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p : Poly) (k : Int)
+theorem unsat_eqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p : Poly) (k : Int)
     : unsat_eq_certC p k c → p.denote ctx = 0 → False := by
   simp [unsat_eq_certC]; intro h _; subst p; simp [Poly.denote]
   have := IsCharP.intCast_eq_zero_iff (α := α) c k
@@ -1915,11 +1917,11 @@ theorem eq_normEq0 {α} [CommRing α] (ctx : Context α) (c : Nat) (p₁ p₂ p 
 theorem gcd_eq_0 [CommRing α] (g n m a b : Int) (h : g = a * n + b * m)
     (h₁ : Int.cast (R := α) n = 0) (h₂ : Int.cast (R := α) m = 0) : Int.cast (R := α) g = 0 := by
   rw [← Ring.intCast_ofNat] at *
-  replace h₁ := congrArg (Int.cast (R := α) a * ·) h₁; simp at h₁
+  replace h₁ := congrArg (Int.cast (R := α) a * ·) h₁; try simp at h₁ -- TODO(kmill): remove simp after stage0 update
   rw [← Ring.intCast_mul, Ring.intCast_zero, Semiring.mul_zero] at h₁
-  replace h₂ := congrArg (Int.cast (R := α) b * ·) h₂; simp at h₂
+  replace h₂ := congrArg (Int.cast (R := α) b * ·) h₂; try simp at h₂ -- TODO(kmill): remove simp after stage0 update
   rw [← Ring.intCast_mul, Ring.intCast_zero, Semiring.mul_zero] at h₂
-  replace h₁ := congrArg (· + Int.cast (b * m)) h₁; simp at h₁
+  replace h₁ := congrArg (· + Int.cast (b * m)) h₁; try simp at h₁ -- TODO(kmill): remove simp after stage0 update
   rw [← Ring.intCast_add, h₂, zero_add, ← h] at h₁
   rw [Ring.intCast_zero, h₁]
 

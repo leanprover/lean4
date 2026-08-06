@@ -436,7 +436,7 @@ public:
                         // the sort is ok IF
                         //   1- its level is <= inductive datatype level, OR
                         //   2- is an inductive predicate
-                        if (!(is_geq(m_result_level, sort_level(s)) || is_zero(m_result_level))) {
+                        if (!(is_geq(m_result_level, sort_level(s)) || normalizes_to_zero(m_result_level))) {
                             throw kernel_exception(m_env, sstream() << "universe level of type_of(arg #" << (i + 1) << ") "
                                                    << "of '" << n << "' is too big for the corresponding inductive datatype");
                         }
@@ -514,7 +514,7 @@ public:
             expr fvar = mk_local_decl_for(type);
             if (i >= m_nparams) {
                 expr s = tc().ensure_type(binding_domain(type));
-                if (!is_zero(sort_level(s))) {
+                if (!normalizes_to_zero(sort_level(s))) {
                     /* Current argument is not in Prop (i.e., condition 1 failed).
                        We save it in to_check to be able to try condition 2 above. */
                     to_check.push_back(fvar);
@@ -554,7 +554,7 @@ public:
            In the following for-loop we check if the intro rule has 0 fields. */
         m_K_target =
             m_ind_types.size() == 1 &&              /* It is not a mutual declaration (for simplicity, we don't gain anything by supporting K in mutual declarations. */
-            is_zero(m_result_level) &&              /* It is an inductive predicate. */
+            normalizes_to_zero(m_result_level) &&   /* It is an inductive predicate. */
             length(m_ind_types[0].get_cnstrs()) == 1; /* Inductive datatype has only one constructor. */
         if (!m_K_target)
             return;
@@ -796,11 +796,12 @@ static name * g_nested_fresh = nullptr;
 struct elim_nested_inductive_result {
     name_generator           m_ngen;
     buffer<expr>             m_params;
+    local_ctx                m_params_lctx; /* local context declaring the free vars in `m_params` (and in the `m_aux2nested` values). */
     name_map<expr>           m_aux2nested; /* mapping from auxiliary type to nested inductive type. */
     declaration              m_aux_decl;
 
-    elim_nested_inductive_result(name_generator const & ngen, buffer<expr> const & params, buffer<pair<expr, name>> const & nested_aux, declaration const & d):
-        m_ngen(ngen), m_params(params), m_aux_decl(d) {
+    elim_nested_inductive_result(name_generator const & ngen, buffer<expr> const & params, local_ctx const & params_lctx, buffer<pair<expr, name>> const & nested_aux, declaration const & d):
+        m_ngen(ngen), m_params(params), m_params_lctx(params_lctx), m_aux_decl(d) {
         for (pair<expr, name> const & p : nested_aux) {
             m_aux2nested.insert(p.second, p.first);
         }
@@ -814,14 +815,21 @@ struct elim_nested_inductive_result {
         name auxI_name = info->to_constructor_val().get_induct();
         expr const * nested = m_aux2nested.find(auxI_name);
         if (!nested) return optional<pair<expr, name>>();
-        return optional<pair<expr, name>>(*nested, auxI_name);
+        return optional<pair<expr, name>>(std::in_place, *nested, auxI_name);
     }
 
+    /* The conditions checked below are established by `elim_nested_inductive_fn`. They are tested
+       rather than asserted because violating them is not a wrong answer but an out-of-bounds read:
+       `binding_*` and `const_name` would fetch a field the expression does not have, and
+       `args.size() - m_params.size()` would underflow into the argument count of `mk_app`. */
     name restore_constructor_name(environment const & aux_env, name const & cnstr_name) const {
         optional<pair<expr, name>> p = get_nested_if_aux_constructor(aux_env, cnstr_name);
-        lean_assert(p);
+        if (!p)
+            throw kernel_exception(aux_env, sstream() << "failed to restore nested inductive types, '"
+                                   << cnstr_name << "' is not a constructor of an auxiliary type");
         expr const & I = get_app_fn(p->first);
-        lean_assert(is_constant(I));
+        if (!is_constant(I))
+            throw kernel_exception(aux_env, "failed to restore nested inductive types, nested occurrence is not an inductive type application");
         return cnstr_name.replace_prefix(p->second, const_name(I));
     }
 
@@ -830,7 +838,8 @@ struct elim_nested_inductive_result {
         buffer<expr> As;
         bool pi = is_pi(e);
         for (unsigned i = 0; i < m_params.size(); i++) {
-            lean_assert(is_pi(e) || is_lambda(e));
+            if (!is_pi(e) && !is_lambda(e))
+                throw kernel_exception(aux_env, "failed to restore nested inductive types, fewer binders than parameters");
             As.push_back(lctx.mk_local_decl(m_ngen, binding_name(e), binding_domain(e), binding_info(e)));
             e = instantiate(binding_body(e), As.back());
         }
@@ -845,7 +854,8 @@ struct elim_nested_inductive_result {
                     if (expr const * nested = m_aux2nested.find(const_name(fn))) {
                         buffer<expr> args;
                         get_app_args(t, args);
-                        lean_assert(args.size() >= m_params.size());
+                        if (args.size() < m_params.size())
+                            throw kernel_exception(aux_env, "failed to restore nested inductive types, auxiliary type is not applied to all parameters");
                         expr new_t = instantiate_rev(abstract(*nested, m_params.size(), m_params.data()), As.size(), As.data());
                         return some_expr(mk_app(new_t, args.size() - m_params.size(), args.data() + m_params.size()));
                     }
@@ -855,11 +865,13 @@ struct elim_nested_inductive_result {
                         /* `t` is a constructor-application of an auxiliary inductive type */
                         buffer<expr> args;
                         get_app_args(t, args);
-                        lean_assert(args.size() >= m_params.size());
+                        if (args.size() < m_params.size())
+                            throw kernel_exception(aux_env, "failed to restore nested inductive types, auxiliary constructor is not applied to all parameters");
                         expr new_nested = instantiate_rev(abstract(nested, m_params.size(), m_params.data()), As.size(), As.data());
                         buffer<expr> I_args;
                         expr I = get_app_args(new_nested, I_args);
-                        lean_assert(is_constant(I));
+                        if (!is_constant(I))
+                            throw kernel_exception(aux_env, "failed to restore nested inductive types, nested occurrence is not an inductive type application");
                         name new_fn_name = const_name(fn).replace_prefix(auxI_name, const_name(I));
                         expr new_fn = mk_constant(new_fn_name, const_levels(I));
                         expr new_t  = mk_app(mk_app(new_fn, I_args), args.size() - m_params.size(), args.data() + m_params.size());
@@ -1072,7 +1084,7 @@ struct elim_nested_inductive_fn {
             qhead++;
         }
         declaration aux_decl = mk_inductive_decl(ind_d.get_lparams(), ind_d.get_nparams(), inductive_types(m_new_types), ind_d.is_unsafe());
-        return elim_nested_inductive_result(m_ngen, m_params, m_nested_aux, aux_decl);
+        return elim_nested_inductive_result(m_ngen, m_params, m_params_lctx, m_nested_aux, aux_decl);
     }
 };
 
@@ -1113,7 +1125,35 @@ static pair<names, name_map<name>> mk_aux_rec_name_map(environment const & aux_e
     return mk_pair(names(old_rec_names), rec_map);
 }
 
+/* The auxiliary types created by `elim_nested_inductive_fn` live under `_nested` and exist only in the
+   temporary environment used to eliminate nested inductives. A declaration naming one is reaching into
+   that environment, where it can be given a type it does not have once the nested types are restored. */
+static void check_no_nested_aux(environment const & env, name const & n, expr const & e) {
+    /* `proj` is included because its structure name is resolved too: the kernel rewrites nested
+       occurrences in the constructor to the auxiliary type, so a projection naming that type matches
+       without the declaration ever mentioning it as a constant. */
+    if (find(e, [](expr const & e, unsigned) {
+                return (is_constant(e) && is_prefix_of(*g_nested, const_name(e))) ||
+                       (is_proj(e) && is_prefix_of(*g_nested, proj_sname(e)));
+            })) {
+        throw kernel_exception(env, sstream() << "invalid declaration '" << n
+                               << "', it uses the reserved prefix '" << *g_nested << "'");
+    }
+}
+
 environment environment::add_inductive(declaration const & d) const {
+    /* Reject metavariables, free variables, and references to auxiliary declarations. */
+    {
+        inductive_decl ind_d(d);
+        for (inductive_type const & ind_type : ind_d.get_types()) {
+            check_no_metavar_no_fvar(*this, ind_type.get_name(), ind_type.get_type());
+            check_no_nested_aux(*this, ind_type.get_name(), ind_type.get_type());
+            for (constructor const & cnstr : ind_type.get_cnstrs()) {
+                check_no_metavar_no_fvar(*this, constructor_name(cnstr), constructor_type(cnstr));
+                check_no_nested_aux(*this, constructor_name(cnstr), constructor_type(cnstr));
+            }
+        }
+    }
     elim_nested_inductive_result res = elim_nested_inductive_fn(*this, d)();
     unsigned nnested = res.m_aux2nested.size();
     scoped_diagnostics diag(*this, true);
@@ -1128,6 +1168,8 @@ environment environment::add_inductive(declaration const & d) const {
         names aux_rec_names; name_map<name> aux_rec_name_map;
         std::tie(aux_rec_names, aux_rec_name_map) = mk_aux_rec_name_map(aux_env, d);
         environment new_env = *this;
+        // We collect names to be able to re-check everything later.
+        buffer<name> new_rec_names;
         auto process_rec = [&](name const & rec_name) {
             name new_rec_name      = rec_name;
             if (name const * new_name = aux_rec_name_map.find(rec_name))
@@ -1151,6 +1193,7 @@ environment environment::add_inductive(declaration const & d) const {
                                                         all_ind_names, rec_val.get_nparams(), rec_val.get_nindices(), rec_val.get_nmotives(),
                                                         rec_val.get_nminors(), recursor_rules(new_rules),
                                                         rec_val.is_k(), rec_val.is_unsafe())));
+            new_rec_names.push_back(new_rec_name);
         };
         for (inductive_type const & ind_type : ind_d.get_types()) {
             constant_info ind_info = aux_env.get(ind_type.get_name());
@@ -1176,6 +1219,39 @@ environment environment::add_inductive(declaration const & d) const {
         }
         for (name const & aux_rec : aux_rec_names) {
             process_rec(aux_rec);
+        }
+        /* Type check the nested inductive applications `I Ds` that were replaced by auxiliary types.
+           The parametric arguments `Ds` do not appear in the auxiliary declaration, so they would
+           otherwise escape type checking. We check them at the end, using `new_env`, to avoid
+           type checking terms in an environment containing auxiliary declarations. */
+        {
+            type_checker tc(new_env, res.m_params_lctx, diag.get(), inductive_decl(d).is_unsafe() ? definition_safety::unsafe : definition_safety::safe);
+            res.m_aux2nested.for_each([&](name const &, expr const & nested) {
+                    tc.check(nested, inductive_decl(d).get_lparams());
+                });
+        }
+        /* Re-check everything `restore_nested` rewrote: the constructor types, and the recursor
+           types and computation rules. The rewritten terms are not otherwise checked in `new_env`.
+           The preceding checks are expected to make this redundant; it is cheap and it keeps a
+           mistake in the restoration from reaching the environment. Note that the inductive types
+           themselves are added unchanged, so they need no check here.
+           **Note**: these checks are not necessary. We added them to catch additional bugs and missing
+           checks in the nested inductive handling.
+        */
+        {
+            type_checker tc(new_env, diag.get(), inductive_decl(d).is_unsafe() ? definition_safety::unsafe : definition_safety::safe);
+            for (inductive_type const & ind_type : ind_d.get_types()) {
+                for (constructor const & cnstr : ind_type.get_cnstrs()) {
+                    tc.check(new_env.get(constructor_name(cnstr)).get_type(), inductive_decl(d).get_lparams());
+                }
+            }
+            for (name const & rec_name : new_rec_names) {
+                constant_info rec_info = new_env.get(rec_name);
+                tc.check(rec_info.get_type(), rec_info.get_lparams());
+                for (recursor_rule const & rule : rec_info.to_recursor_val().get_rules()) {
+                    tc.check(rule.get_rhs(), rec_info.get_lparams());
+                }
+            }
         }
         return diag.update(new_env);
     }

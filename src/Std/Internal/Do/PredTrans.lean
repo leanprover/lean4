@@ -159,8 +159,8 @@ Definitions for pushing and lifting exception layers through predicate transform
 /-- Push an `Except ε α` result into separate normal and exception postconditions:
 `ok a` uses `post a`, and `error e` uses `epost.head e`. -/
 @[simp]
-abbrev EPost.cons.pushExcept {α : Type u} {ε : Type v} {Pred : Type w} {EPred : Type z}
-    (post : α → Pred) (epost : EPost.cons (ε → Pred) EPred) : Except ε α → Pred :=
+abbrev EPost.Cons.pushExcept {α : Type u} {ε : Type v} {Pred : Type w} {EPred : Type z}
+    (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) : Except ε α → Pred :=
   fun
   | .ok a => post a
   | .error e => epost.head e
@@ -171,14 +171,14 @@ Given a transformer over `Except ε α`, produces one over `α` with an addition
 exception postcondition for `ε`. The normal and error postconditions are combined
 via `pushExcept`. -/
 def PredTrans.pushExcept {α : Type u} {ε : Type v} {Pred : Type w} {EPred : Type z}
-    (x : PredTrans Pred EPred (Except ε α)) : PredTrans Pred (EPost.cons (ε → Pred) EPred) α :=
+    (x : PredTrans Pred EPred (Except ε α)) : PredTrans Pred (EPost.Cons (ε → Pred) EPred) α :=
   ⟨fun post epost => x.apply (epost.pushExcept post) epost.tail⟩
 
 /-- Push an `Option α` result into separate normal and none postconditions:
 `some a` uses `post a`, and `none` uses `epost.head`. -/
 @[simp]
-abbrev EPost.cons.pushOption {α : Type u} {Pred : Type u} {EPred : Type v}
-    (post : α → Pred) (epost : EPost.cons Pred EPred) : Option α → Pred :=
+abbrev EPost.Cons.pushOption {α : Type u} {Pred : Type u} {EPred : Type v}
+    (post : α → Pred) (epost : EPost.Cons Pred EPred) : Option α → Pred :=
   fun
   | .some a => post a
   | .none => epost.head
@@ -187,14 +187,14 @@ abbrev EPost.cons.pushOption {α : Type u} {Pred : Type u} {EPred : Type v}
 early termination. Given a transformer over `Option α`, produces one over `α` with an
 additional exception postcondition for the `none` case. -/
 def PredTrans.pushOption {α : Type u} {Pred : Type u} {EPred : Type v}
-    (x : PredTrans Pred EPred (Option α)) : PredTrans Pred (EPost.cons Pred EPred) α :=
+    (x : PredTrans Pred EPred (Option α)) : PredTrans Pred (EPost.Cons Pred EPred) α :=
   ⟨fun post epost => x.apply (epost.pushOption post) epost.tail⟩
 
 /-- Unfolding `pushOption` through `apply`. -/
 @[simp, grind =]
 theorem PredTrans.apply_pushOption {α : Type u} {Pred : Type u} {EPred : Type v}
     (x : PredTrans Pred EPred (Option α)) (post : α → Pred)
-    (epost : EPost.cons Pred EPred) :
+    (epost : EPost.Cons Pred EPred) :
     (PredTrans.pushOption x).apply post epost = x.apply (epost.pushOption post) epost.tail := rfl
 
 /-!
@@ -224,7 +224,7 @@ instance {σ : Type u} {Pred : Type v} {EPred : Type w} :
 
 /-- Lift a predicate transformer to one with an additional exception layer (high priority). -/
 instance (priority := high) {ε : Type u} {Pred : Type u} {EPred : Type u} :
-    MonadLift (PredTrans Pred EPred) (PredTrans Pred (EPost.cons (ε → Pred) EPred)) where
+    MonadLift (PredTrans Pred EPred) (PredTrans Pred (EPost.Cons (ε → Pred) EPred)) where
   monadLift x := ⟨fun post epost => x.apply post epost.tail⟩
 
 /-!
@@ -249,7 +249,7 @@ instance {σ : Type u} {Pred : Type v} {EPred : Type w} :
 /-- `MonadExceptOf` instance for the outermost exception layer:
 `throw` invokes the head exception postcondition, `tryCatch` intercepts it. -/
 instance {ε : Type u} {Pred : Type v} {EPred : Type w} :
-    MonadExceptOf ε (PredTrans Pred (EPost.cons (ε → Pred) EPred)) where
+    MonadExceptOf ε (PredTrans Pred (EPost.Cons (ε → Pred) EPred)) where
   throw e := ⟨fun _post epost => epost.head e⟩
   tryCatch x handle := ⟨fun post epost => x.apply post ⟨(fun e => (handle e).apply post epost), epost.tail⟩⟩
 
@@ -270,7 +270,7 @@ instance {ε : Type u} {Pred : Type v} {EPred : Type w} {σ : Type z}
 delegates to the inner instance, threading the extra exception postcondition. -/
 instance {ε : Type u} {Pred : Type v} {EPred : Type w} {ε' : Type u}
     [MonadExceptOf ε (PredTrans Pred EPred)] :
-    MonadExceptOf ε (PredTrans Pred (EPost.cons (ε' → Pred) EPred)) where
+    MonadExceptOf ε (PredTrans Pred (EPost.Cons (ε' → Pred) EPred)) where
   throw x := ⟨fun post epost => (throw (m := PredTrans Pred EPred) x).apply post epost.tail⟩
   tryCatch x handle := ⟨fun post epost =>
     (tryCatch (m := PredTrans Pred EPred)

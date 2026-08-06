@@ -1,6 +1,5 @@
 import Std.Data.TreeMap
 import Std.Tactic.Do
-set_option backward.do.legacy false
 
 /-!
 This test is based on code by Bhavik Mehta.

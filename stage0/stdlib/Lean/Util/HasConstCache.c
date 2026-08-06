@@ -762,7 +762,7 @@ lean_object* v_val_334_; lean_object* v___x_335_;
 lean_dec_ref(v_e_257_);
 v_val_334_ = lean_ctor_get(v___x_333_, 0);
 lean_inc(v_val_334_);
-lean_dec_ref(v___x_333_);
+lean_dec_ref_known(v___x_333_, 1);
 v___x_335_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_335_, 0, v_val_334_);
 lean_ctor_set(v___x_335_, 1, v_a_258_);
@@ -847,7 +847,7 @@ case 4:
 lean_object* v_declName_287_; uint8_t v___x_288_; lean_object* v___x_289_; lean_object* v___x_290_; 
 v_declName_287_ = lean_ctor_get(v_e_257_, 0);
 lean_inc(v_declName_287_);
-lean_dec_ref(v_e_257_);
+lean_dec_ref_known(v_e_257_, 2);
 v___x_288_ = l_Array_contains___at___00Lean_HasConstCache_containsUnsafe_spec__0(v_declNames_256_, v_declName_287_);
 lean_dec(v_declName_287_);
 v___x_289_ = lean_box(v___x_288_);
@@ -1049,11 +1049,13 @@ return v_res_355_;
 }
 lean_object* runtime_initialize_Lean_Expr(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_HashMap_Raw(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Util_HasConstCache(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Expr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

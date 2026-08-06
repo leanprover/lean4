@@ -183,14 +183,14 @@ add_decl_doc IterM.mk
 Converts a pure iterator (`Iter β`) into a monadic iterator (`IterM Id β`) in the
 identity monad `Id`.
 -/
-@[expose]
+@[expose, implicit_reducible]
 def Iter.toIterM {α : Type w} {β : Type w} (it : Iter (α := α) β) : IterM (α := α) Id β :=
   ⟨it.internalState⟩
 
 /--
 Converts a monadic iterator (`IterM Id β`) over `Id` into a pure iterator (`Iter β`).
 -/
-@[expose]
+@[expose, implicit_reducible]
 def IterM.toIter {α : Type w} {β : Type w} (it : IterM (α := α) Id β) : Iter (α := α) β :=
   ⟨it.internalState⟩
 
@@ -394,18 +394,10 @@ theorem IterM.mk_internalState {α m β} (it : IterM (α := α) m β) :
     ⟨it.internalState⟩ = it := by
   simp
 
-set_option linter.missingDocs false in
-@[deprecated IterM.mk_internalState (since := "2025-12-01")]
-def Iterators.toIterM_internalState := @IterM.mk_internalState
-
 @[simp]
 theorem IterM.internalState_mk {α m β} (it : α) :
     (⟨it⟩ : IterM m β).internalState = it :=
   rfl
-
-set_option linter.missingDocs false in
-@[expose, deprecated IterM.internalState_mk (since := "2025-01-29")]
-def internalState_toIterM := @IterM.internalState_mk
 
 @[simp]
 theorem Iter.internalState_toIterM {α β} (it : Std.Iter (α := α) β) :
@@ -564,6 +556,12 @@ Converts an `IterM.Step` into an `Iter.Step`.
 def IterM.Step.toPure {α : Type w} {β : Type w} [Iterator α Id β] {it : IterM (α := α) Id β}
     (step : it.Step) : it.toIter.Step :=
   ⟨step.val.mapIterator IterM.toIter, (by simp [Iter.IsPlausibleStep, step.property])⟩
+
+@[simp]
+theorem IterM.Step.val_toPure {α β : Type w} [Iterator α Id β] {it : IterM (α := α) Id β}
+    {step : it.Step} :
+    step.toPure.val = step.val.mapIterator IterM.toIter :=
+  (rfl)
 
 @[simp]
 theorem IterM.Step.toPure_yield {α β : Type w} [Iterator α Id β] {it : IterM (α := α) Id β}

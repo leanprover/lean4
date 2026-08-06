@@ -3,6 +3,13 @@ source ../common.sh
 
 ./clean.sh
 
+# Copy test data to a working directory to avoid initializing a Git repository
+# inside the checked-in source tree
+WORK_DIR="$PWD/work"
+mkdir -p "$WORK_DIR"
+cp -r dep lakefile.lean Test.lean "$WORK_DIR/"
+cd "$WORK_DIR"
+
 NO_BUILD_CODE=3
 
 # ---
@@ -46,22 +53,27 @@ diff_out() {
   sed "/$1/ s/^[^${1:0:1}]*//" | diff -u --strip-trailing-cr $2 -
 }
 echo "# TEST: Direct fetch"
-($LAKE build dep:release 2>&1 && exit 1 || true) | diff_out "Running" <(cat << 'EOF'
+# `diff_out` runs as the tail of a pipeline, so its expected-output argument
+# must be a real file. Do not inline it via process substitution
+# (e.g. `... | diff_out "Running" <(cat << 'EOF' ... EOF)`): the resulting
+# `/dev/fd` is not reliably inherited by the `diff` inside `diff_out` on macOS,
+# which then fails with `Bad file descriptor`.
+cat << 'EOF' > produced.expected
 Running dep:release
 error: failed to fetch GitHub release (run with '-v' for details)
 Some required targets logged failures:
 - dep:release
 error: build failed
 EOF
-)
+($LAKE build dep:release 2>&1 && exit 1 || true) | diff_out "Running" produced.expected
 
 # Test that an indirect fetch on the release does not cause the build to fail
 echo "# TEST: Indirect fetch"
-$LAKE build Test -q 2>&1 | diff_out "Ran" <(cat << EOF
+cat << EOF > produced.expected
 Ran dep:extraDep
 warning: building from source; failed to fetch GitHub release (run with '-v' for details)
 EOF
-)
+$LAKE build Test -q 2>&1 | diff_out "Ran" produced.expected
 
 # Test download failure
 echo "# TEST: Download failure"
@@ -102,7 +114,3 @@ test_cmd_eq "$INIT_REV" git -C .lake/packages/dep rev-parse HEAD
 test_run update
 test_cmd_eq "$NEW_REV" git -C .lake/packages/dep rev-parse HEAD
 test_run build dep:release
-
-# Cleanup
-rm -rf dep/.git
-rm -f produced*

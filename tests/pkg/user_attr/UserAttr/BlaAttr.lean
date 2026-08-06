@@ -26,7 +26,7 @@ public meta initialize fooAttr : ParametricAttribute (Nat × Bool) ←
 
 syntax (name := trace_add) "trace_add" : attr
 
-public meta initialize registerBuiltinAttribute {
+meta initialize registerBuiltinAttribute {
   name := `trace_add
   descr := "Simply traces when added, to debug double-application bugs"
   add   := fun decl _stx _kind => do
@@ -34,4 +34,34 @@ public meta initialize registerBuiltinAttribute {
   -- applicationTime := .afterCompilation
 }
 
+syntax (name := myattr_beforeElaboration) "myattr_beforeElaboration" : attr
+meta initialize registerBuiltinAttribute {
+  name := `myattr_beforeElaboration
+  descr := "Simply traces when added, to debug application bugs"
+  add decl _ _ := do
+    let c := if (← getEnv).contains decl then m!"already in environment" else m!"not in environment"
+    logInfo m!"declaration `{decl}` tagged `myattr_beforeElaboration`, {c}"
+  applicationTime := .beforeElaboration
+}
+syntax (name := myattr_afterTypeChecking) "myattr_afterTypeChecking" : attr
+meta initialize registerBuiltinAttribute {
+  name := `myattr_afterTypeChecking
+  descr := "Simply traces when added, to debug application bugs"
+  add decl _ _ := do
+    let c := if (← getEnv).contains decl then m!"already in environment" else m!"not in environment"
+    logInfo m!"declaration `{decl}` tagged `myattr_afterTypeChecking`, {c}"
+  applicationTime := .afterTypeChecking
+}
+syntax (name := myattr_afterCompilation) "myattr_afterCompilation" : attr
+meta initialize registerBuiltinAttribute {
+  name := `myattr_afterCompilation
+  descr := "Simply traces when added, to debug application bugs"
+  add decl _ _ := do
+    let c := if (← getEnv).contains decl then m!"already in environment" else m!"not in environment"
+    logInfo m!"declaration `{decl}` tagged `myattr_afterCompilation`, {c}"
+  applicationTime := .afterCompilation
+}
+
 register_grind_attr my_grind
+
+register_grind_attr compact_set

@@ -86,8 +86,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_determineSignatu
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_toCtorIdx(uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorElim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorElim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -108,8 +106,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_pr
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_prio___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_toCtorIdx(uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorElim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorElim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -448,7 +444,7 @@ if (lean_obj_tag(v___x_77_) == 0)
 lean_object* v_a_78_; lean_object* v___x_79_; lean_object* v_a_80_; lean_object* v___x_82_; uint8_t v_isShared_83_; uint8_t v_isSharedCheck_120_; 
 v_a_78_ = lean_ctor_get(v___x_77_, 0);
 lean_inc(v_a_78_);
-lean_dec_ref(v___x_77_);
+lean_dec_ref_known(v___x_77_, 1);
 v___x_79_ = l_Lean_instantiateMVars___at___00Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp_spec__1___redArg(v_a_78_, v___y_73_);
 v_a_80_ = lean_ctor_get(v___x_79_, 0);
 v_isSharedCheck_120_ = !lean_is_exclusive(v___x_79_);
@@ -512,7 +508,7 @@ if (lean_obj_tag(v___x_91_) == 0)
 lean_object* v_a_92_; lean_object* v_fst_93_; lean_object* v___x_94_; 
 v_a_92_ = lean_ctor_get(v___x_91_, 0);
 lean_inc(v_a_92_);
-lean_dec_ref(v___x_91_);
+lean_dec_ref_known(v___x_91_, 1);
 v_fst_93_ = lean_ctor_get(v_a_92_, 0);
 lean_inc(v_fst_93_);
 lean_dec(v_a_92_);
@@ -718,7 +714,7 @@ if (lean_obj_tag(v___x_145_) == 1)
 lean_object* v_val_146_; lean_object* v_snd_147_; 
 v_val_146_ = lean_ctor_get(v___x_145_, 0);
 lean_inc(v_val_146_);
-lean_dec_ref(v___x_145_);
+lean_dec_ref_known(v___x_145_, 1);
 v_snd_147_ = lean_ctor_get(v_val_146_, 1);
 if (lean_obj_tag(v_snd_147_) == 1)
 {
@@ -966,626 +962,592 @@ v_res_202_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorIdx(v_x_bo
 return v_res_202_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_toCtorIdx(uint8_t v_x_203_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorElim___redArg(lean_object* v_k_203_){
 _start:
 {
-lean_object* v___x_204_; 
-v___x_204_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorIdx(v_x_203_);
-return v___x_204_;
+lean_inc(v_k_203_);
+return v_k_203_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_toCtorIdx___boxed(lean_object* v_x_205_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorElim___redArg___boxed(lean_object* v_k_204_){
 _start:
 {
-uint8_t v_x_4__boxed_206_; lean_object* v_res_207_; 
-v_x_4__boxed_206_ = lean_unbox(v_x_205_);
-v_res_207_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_toCtorIdx(v_x_4__boxed_206_);
-return v_res_207_;
+lean_object* v_res_205_; 
+v_res_205_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorElim___redArg(v_k_204_);
+lean_dec(v_k_204_);
+return v_res_205_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorElim___redArg(lean_object* v_k_208_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorElim(lean_object* v_motive_206_, lean_object* v_ctorIdx_207_, uint8_t v_t_208_, lean_object* v_h_209_, lean_object* v_k_210_){
 _start:
 {
-lean_inc(v_k_208_);
-return v_k_208_;
+lean_inc(v_k_210_);
+return v_k_210_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorElim___redArg___boxed(lean_object* v_k_209_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorElim___boxed(lean_object* v_motive_211_, lean_object* v_ctorIdx_212_, lean_object* v_t_213_, lean_object* v_h_214_, lean_object* v_k_215_){
 _start:
 {
-lean_object* v_res_210_; 
-v_res_210_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorElim___redArg(v_k_209_);
-lean_dec(v_k_209_);
-return v_res_210_;
+uint8_t v_t_boxed_216_; lean_object* v_res_217_; 
+v_t_boxed_216_ = lean_unbox(v_t_213_);
+v_res_217_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorElim(v_motive_211_, v_ctorIdx_212_, v_t_boxed_216_, v_h_214_, v_k_215_);
+lean_dec(v_k_215_);
+lean_dec(v_ctorIdx_212_);
+return v_res_217_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorElim(lean_object* v_motive_211_, lean_object* v_ctorIdx_212_, uint8_t v_t_213_, lean_object* v_h_214_, lean_object* v_k_215_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_pipeArg_elim___redArg(lean_object* v_pipeArg_218_){
 _start:
 {
-lean_inc(v_k_215_);
-return v_k_215_;
+lean_inc(v_pipeArg_218_);
+return v_pipeArg_218_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorElim___boxed(lean_object* v_motive_216_, lean_object* v_ctorIdx_217_, lean_object* v_t_218_, lean_object* v_h_219_, lean_object* v_k_220_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_pipeArg_elim___redArg___boxed(lean_object* v_pipeArg_219_){
 _start:
 {
-uint8_t v_t_boxed_221_; lean_object* v_res_222_; 
-v_t_boxed_221_ = lean_unbox(v_t_218_);
-v_res_222_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_ctorElim(v_motive_216_, v_ctorIdx_217_, v_t_boxed_221_, v_h_219_, v_k_220_);
-lean_dec(v_k_220_);
-lean_dec(v_ctorIdx_217_);
-return v_res_222_;
+lean_object* v_res_220_; 
+v_res_220_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_pipeArg_elim___redArg(v_pipeArg_219_);
+lean_dec(v_pipeArg_219_);
+return v_res_220_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_pipeArg_elim___redArg(lean_object* v_pipeArg_223_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_pipeArg_elim(lean_object* v_motive_221_, uint8_t v_t_222_, lean_object* v_h_223_, lean_object* v_pipeArg_224_){
 _start:
 {
-lean_inc(v_pipeArg_223_);
-return v_pipeArg_223_;
+lean_inc(v_pipeArg_224_);
+return v_pipeArg_224_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_pipeArg_elim___redArg___boxed(lean_object* v_pipeArg_224_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_pipeArg_elim___boxed(lean_object* v_motive_225_, lean_object* v_t_226_, lean_object* v_h_227_, lean_object* v_pipeArg_228_){
 _start:
 {
-lean_object* v_res_225_; 
-v_res_225_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_pipeArg_elim___redArg(v_pipeArg_224_);
-lean_dec(v_pipeArg_224_);
-return v_res_225_;
+uint8_t v_t_boxed_229_; lean_object* v_res_230_; 
+v_t_boxed_229_ = lean_unbox(v_t_226_);
+v_res_230_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_pipeArg_elim(v_motive_225_, v_t_boxed_229_, v_h_227_, v_pipeArg_228_);
+lean_dec(v_pipeArg_228_);
+return v_res_230_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_pipeArg_elim(lean_object* v_motive_226_, uint8_t v_t_227_, lean_object* v_h_228_, lean_object* v_pipeArg_229_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_termArg_elim___redArg(lean_object* v_termArg_231_){
 _start:
 {
-lean_inc(v_pipeArg_229_);
-return v_pipeArg_229_;
+lean_inc(v_termArg_231_);
+return v_termArg_231_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_pipeArg_elim___boxed(lean_object* v_motive_230_, lean_object* v_t_231_, lean_object* v_h_232_, lean_object* v_pipeArg_233_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_termArg_elim___redArg___boxed(lean_object* v_termArg_232_){
 _start:
 {
-uint8_t v_t_boxed_234_; lean_object* v_res_235_; 
-v_t_boxed_234_ = lean_unbox(v_t_231_);
-v_res_235_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_pipeArg_elim(v_motive_230_, v_t_boxed_234_, v_h_232_, v_pipeArg_233_);
-lean_dec(v_pipeArg_233_);
-return v_res_235_;
+lean_object* v_res_233_; 
+v_res_233_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_termArg_elim___redArg(v_termArg_232_);
+lean_dec(v_termArg_232_);
+return v_res_233_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_termArg_elim___redArg(lean_object* v_termArg_236_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_termArg_elim(lean_object* v_motive_234_, uint8_t v_t_235_, lean_object* v_h_236_, lean_object* v_termArg_237_){
 _start:
 {
-lean_inc(v_termArg_236_);
-return v_termArg_236_;
+lean_inc(v_termArg_237_);
+return v_termArg_237_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_termArg_elim___redArg___boxed(lean_object* v_termArg_237_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_termArg_elim___boxed(lean_object* v_motive_238_, lean_object* v_t_239_, lean_object* v_h_240_, lean_object* v_termArg_241_){
 _start:
 {
-lean_object* v_res_238_; 
-v_res_238_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_termArg_elim___redArg(v_termArg_237_);
-lean_dec(v_termArg_237_);
-return v_res_238_;
+uint8_t v_t_boxed_242_; lean_object* v_res_243_; 
+v_t_boxed_242_ = lean_unbox(v_t_239_);
+v_res_243_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_termArg_elim(v_motive_238_, v_t_boxed_242_, v_h_240_, v_termArg_241_);
+lean_dec(v_termArg_241_);
+return v_res_243_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_termArg_elim(lean_object* v_motive_239_, uint8_t v_t_240_, lean_object* v_h_241_, lean_object* v_termArg_242_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_appArg_elim___redArg(lean_object* v_appArg_244_){
 _start:
 {
-lean_inc(v_termArg_242_);
-return v_termArg_242_;
+lean_inc(v_appArg_244_);
+return v_appArg_244_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_termArg_elim___boxed(lean_object* v_motive_243_, lean_object* v_t_244_, lean_object* v_h_245_, lean_object* v_termArg_246_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_appArg_elim___redArg___boxed(lean_object* v_appArg_245_){
 _start:
 {
-uint8_t v_t_boxed_247_; lean_object* v_res_248_; 
-v_t_boxed_247_ = lean_unbox(v_t_244_);
-v_res_248_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_termArg_elim(v_motive_243_, v_t_boxed_247_, v_h_245_, v_termArg_246_);
-lean_dec(v_termArg_246_);
-return v_res_248_;
+lean_object* v_res_246_; 
+v_res_246_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_appArg_elim___redArg(v_appArg_245_);
+lean_dec(v_appArg_245_);
+return v_res_246_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_appArg_elim___redArg(lean_object* v_appArg_249_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_appArg_elim(lean_object* v_motive_247_, uint8_t v_t_248_, lean_object* v_h_249_, lean_object* v_appArg_250_){
 _start:
 {
-lean_inc(v_appArg_249_);
-return v_appArg_249_;
+lean_inc(v_appArg_250_);
+return v_appArg_250_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_appArg_elim___redArg___boxed(lean_object* v_appArg_250_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_appArg_elim___boxed(lean_object* v_motive_251_, lean_object* v_t_252_, lean_object* v_h_253_, lean_object* v_appArg_254_){
 _start:
 {
-lean_object* v_res_251_; 
-v_res_251_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_appArg_elim___redArg(v_appArg_250_);
-lean_dec(v_appArg_250_);
-return v_res_251_;
+uint8_t v_t_boxed_255_; lean_object* v_res_256_; 
+v_t_boxed_255_ = lean_unbox(v_t_252_);
+v_res_256_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_appArg_elim(v_motive_251_, v_t_boxed_255_, v_h_253_, v_appArg_254_);
+lean_dec(v_appArg_254_);
+return v_res_256_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_appArg_elim(lean_object* v_motive_252_, uint8_t v_t_253_, lean_object* v_h_254_, lean_object* v_appArg_255_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_prio(uint8_t v_x_257_){
 _start:
 {
-lean_inc(v_appArg_255_);
-return v_appArg_255_;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_appArg_elim___boxed(lean_object* v_motive_256_, lean_object* v_t_257_, lean_object* v_h_258_, lean_object* v_appArg_259_){
-_start:
-{
-uint8_t v_t_boxed_260_; lean_object* v_res_261_; 
-v_t_boxed_260_ = lean_unbox(v_t_257_);
-v_res_261_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_appArg_elim(v_motive_256_, v_t_boxed_260_, v_h_258_, v_appArg_259_);
-lean_dec(v_appArg_259_);
-return v_res_261_;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_prio(uint8_t v_x_262_){
-_start:
-{
-switch(v_x_262_)
+switch(v_x_257_)
 {
 case 0:
 {
-lean_object* v___x_263_; 
-v___x_263_ = lean_unsigned_to_nat(0u);
-return v___x_263_;
+lean_object* v___x_258_; 
+v___x_258_ = lean_unsigned_to_nat(0u);
+return v___x_258_;
 }
 case 1:
 {
-lean_object* v___x_264_; 
-v___x_264_ = lean_unsigned_to_nat(1u);
-return v___x_264_;
+lean_object* v___x_259_; 
+v___x_259_ = lean_unsigned_to_nat(1u);
+return v___x_259_;
 }
 default: 
 {
+lean_object* v___x_260_; 
+v___x_260_ = lean_unsigned_to_nat(2u);
+return v___x_260_;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_prio___boxed(lean_object* v_x_261_){
+_start:
+{
+uint8_t v_x_34__boxed_262_; lean_object* v_res_263_; 
+v_x_34__boxed_262_ = lean_unbox(v_x_261_);
+v_res_263_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_prio(v_x_34__boxed_262_);
+return v_res_263_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorIdx(uint8_t v_x_264_){
+_start:
+{
+if (v_x_264_ == 0)
+{
 lean_object* v___x_265_; 
-v___x_265_ = lean_unsigned_to_nat(2u);
+v___x_265_ = lean_unsigned_to_nat(0u);
 return v___x_265_;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_prio___boxed(lean_object* v_x_266_){
-_start:
-{
-uint8_t v_x_34__boxed_267_; lean_object* v_res_268_; 
-v_x_34__boxed_267_ = lean_unbox(v_x_266_);
-v_res_268_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_prio(v_x_34__boxed_267_);
-return v_res_268_;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorIdx(uint8_t v_x_269_){
-_start:
-{
-if (v_x_269_ == 0)
-{
-lean_object* v___x_270_; 
-v___x_270_ = lean_unsigned_to_nat(0u);
-return v___x_270_;
 }
 else
 {
-lean_object* v___x_271_; 
-v___x_271_ = lean_unsigned_to_nat(1u);
-return v___x_271_;
+lean_object* v___x_266_; 
+v___x_266_ = lean_unsigned_to_nat(1u);
+return v___x_266_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorIdx___boxed(lean_object* v_x_272_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorIdx___boxed(lean_object* v_x_267_){
 _start:
 {
-uint8_t v_x_boxed_273_; lean_object* v_res_274_; 
-v_x_boxed_273_ = lean_unbox(v_x_272_);
-v_res_274_ = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorIdx(v_x_boxed_273_);
-return v_res_274_;
+uint8_t v_x_boxed_268_; lean_object* v_res_269_; 
+v_x_boxed_268_ = lean_unbox(v_x_267_);
+v_res_269_ = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorIdx(v_x_boxed_268_);
+return v_res_269_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_toCtorIdx(uint8_t v_x_275_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorElim___redArg(lean_object* v_k_270_){
 _start:
 {
-lean_object* v___x_276_; 
-v___x_276_ = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorIdx(v_x_275_);
-return v___x_276_;
+lean_inc(v_k_270_);
+return v_k_270_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_toCtorIdx___boxed(lean_object* v_x_277_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorElim___redArg___boxed(lean_object* v_k_271_){
 _start:
 {
-uint8_t v_x_4__boxed_278_; lean_object* v_res_279_; 
-v_x_4__boxed_278_ = lean_unbox(v_x_277_);
-v_res_279_ = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_toCtorIdx(v_x_4__boxed_278_);
-return v_res_279_;
+lean_object* v_res_272_; 
+v_res_272_ = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorElim___redArg(v_k_271_);
+lean_dec(v_k_271_);
+return v_res_272_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorElim___redArg(lean_object* v_k_280_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorElim(lean_object* v_motive_273_, lean_object* v_ctorIdx_274_, uint8_t v_t_275_, lean_object* v_h_276_, lean_object* v_k_277_){
 _start:
 {
-lean_inc(v_k_280_);
-return v_k_280_;
+lean_inc(v_k_277_);
+return v_k_277_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorElim___redArg___boxed(lean_object* v_k_281_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorElim___boxed(lean_object* v_motive_278_, lean_object* v_ctorIdx_279_, lean_object* v_t_280_, lean_object* v_h_281_, lean_object* v_k_282_){
 _start:
 {
-lean_object* v_res_282_; 
-v_res_282_ = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorElim___redArg(v_k_281_);
-lean_dec(v_k_281_);
-return v_res_282_;
+uint8_t v_t_boxed_283_; lean_object* v_res_284_; 
+v_t_boxed_283_ = lean_unbox(v_t_280_);
+v_res_284_ = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorElim(v_motive_278_, v_ctorIdx_279_, v_t_boxed_283_, v_h_281_, v_k_282_);
+lean_dec(v_k_282_);
+lean_dec(v_ctorIdx_279_);
+return v_res_284_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorElim(lean_object* v_motive_283_, lean_object* v_ctorIdx_284_, uint8_t v_t_285_, lean_object* v_h_286_, lean_object* v_k_287_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_continue_elim___redArg(lean_object* v_continue_285_){
 _start:
 {
-lean_inc(v_k_287_);
-return v_k_287_;
+lean_inc(v_continue_285_);
+return v_continue_285_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorElim___boxed(lean_object* v_motive_288_, lean_object* v_ctorIdx_289_, lean_object* v_t_290_, lean_object* v_h_291_, lean_object* v_k_292_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_continue_elim___redArg___boxed(lean_object* v_continue_286_){
 _start:
 {
-uint8_t v_t_boxed_293_; lean_object* v_res_294_; 
-v_t_boxed_293_ = lean_unbox(v_t_290_);
-v_res_294_ = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_ctorElim(v_motive_288_, v_ctorIdx_289_, v_t_boxed_293_, v_h_291_, v_k_292_);
-lean_dec(v_k_292_);
-lean_dec(v_ctorIdx_289_);
-return v_res_294_;
+lean_object* v_res_287_; 
+v_res_287_ = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_continue_elim___redArg(v_continue_286_);
+lean_dec(v_continue_286_);
+return v_res_287_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_continue_elim___redArg(lean_object* v_continue_295_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_continue_elim(lean_object* v_motive_288_, uint8_t v_t_289_, lean_object* v_h_290_, lean_object* v_continue_291_){
 _start:
 {
-lean_inc(v_continue_295_);
-return v_continue_295_;
+lean_inc(v_continue_291_);
+return v_continue_291_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_continue_elim___redArg___boxed(lean_object* v_continue_296_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_continue_elim___boxed(lean_object* v_motive_292_, lean_object* v_t_293_, lean_object* v_h_294_, lean_object* v_continue_295_){
 _start:
 {
-lean_object* v_res_297_; 
-v_res_297_ = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_continue_elim___redArg(v_continue_296_);
-lean_dec(v_continue_296_);
+uint8_t v_t_boxed_296_; lean_object* v_res_297_; 
+v_t_boxed_296_ = lean_unbox(v_t_293_);
+v_res_297_ = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_continue_elim(v_motive_292_, v_t_boxed_296_, v_h_294_, v_continue_295_);
+lean_dec(v_continue_295_);
 return v_res_297_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_continue_elim(lean_object* v_motive_298_, uint8_t v_t_299_, lean_object* v_h_300_, lean_object* v_continue_301_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_stop_elim___redArg(lean_object* v_stop_298_){
 _start:
 {
-lean_inc(v_continue_301_);
-return v_continue_301_;
+lean_inc(v_stop_298_);
+return v_stop_298_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_continue_elim___boxed(lean_object* v_motive_302_, lean_object* v_t_303_, lean_object* v_h_304_, lean_object* v_continue_305_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_stop_elim___redArg___boxed(lean_object* v_stop_299_){
 _start:
 {
-uint8_t v_t_boxed_306_; lean_object* v_res_307_; 
-v_t_boxed_306_ = lean_unbox(v_t_303_);
-v_res_307_ = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_continue_elim(v_motive_302_, v_t_boxed_306_, v_h_304_, v_continue_305_);
-lean_dec(v_continue_305_);
-return v_res_307_;
+lean_object* v_res_300_; 
+v_res_300_ = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_stop_elim___redArg(v_stop_299_);
+lean_dec(v_stop_299_);
+return v_res_300_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_stop_elim___redArg(lean_object* v_stop_308_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_stop_elim(lean_object* v_motive_301_, uint8_t v_t_302_, lean_object* v_h_303_, lean_object* v_stop_304_){
 _start:
 {
-lean_inc(v_stop_308_);
-return v_stop_308_;
+lean_inc(v_stop_304_);
+return v_stop_304_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_stop_elim___redArg___boxed(lean_object* v_stop_309_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_stop_elim___boxed(lean_object* v_motive_305_, lean_object* v_t_306_, lean_object* v_h_307_, lean_object* v_stop_308_){
 _start:
 {
-lean_object* v_res_310_; 
-v_res_310_ = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_stop_elim___redArg(v_stop_309_);
-lean_dec(v_stop_309_);
+uint8_t v_t_boxed_309_; lean_object* v_res_310_; 
+v_t_boxed_309_ = lean_unbox(v_t_306_);
+v_res_310_ = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_stop_elim(v_motive_305_, v_t_boxed_309_, v_h_307_, v_stop_308_);
+lean_dec(v_stop_308_);
 return v_res_310_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_stop_elim(lean_object* v_motive_311_, uint8_t v_t_312_, lean_object* v_h_313_, lean_object* v_stop_314_){
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg(lean_object* v_s_311_, lean_object* v___x_312_, lean_object* v___x_313_, lean_object* v_a_314_, lean_object* v_b_315_){
 _start:
 {
-lean_inc(v_stop_314_);
-return v_stop_314_;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_stop_elim___boxed(lean_object* v_motive_315_, lean_object* v_t_316_, lean_object* v_h_317_, lean_object* v_stop_318_){
-_start:
-{
-uint8_t v_t_boxed_319_; lean_object* v_res_320_; 
-v_t_boxed_319_ = lean_unbox(v_t_316_);
-v_res_320_ = l_Lean_Server_FileWorker_SignatureHelp_SearchControl_stop_elim(v_motive_315_, v_t_boxed_319_, v_h_317_, v_stop_318_);
-lean_dec(v_stop_318_);
-return v_res_320_;
-}
-}
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg(lean_object* v_s_321_, lean_object* v___x_322_, lean_object* v___x_323_, lean_object* v_a_324_, lean_object* v_b_325_){
-_start:
-{
-lean_object* v___x_326_; 
-v___x_326_ = lean_box(0);
-switch(lean_obj_tag(v_a_324_))
+lean_object* v___x_316_; 
+v___x_316_ = lean_box(0);
+switch(lean_obj_tag(v_a_314_))
 {
 case 0:
 {
-lean_object* v_pos_327_; lean_object* v___x_328_; 
-v_pos_327_ = lean_ctor_get(v_a_324_, 0);
-lean_inc(v_pos_327_);
-lean_dec_ref(v_a_324_);
-v___x_328_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_328_, 0, v_pos_327_);
-return v___x_328_;
+lean_object* v_pos_317_; lean_object* v___x_318_; 
+v_pos_317_ = lean_ctor_get(v_a_314_, 0);
+lean_inc(v_pos_317_);
+lean_dec_ref_known(v_a_314_, 1);
+v___x_318_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_318_, 0, v_pos_317_);
+return v___x_318_;
 }
 case 1:
 {
-lean_object* v_pos_329_; lean_object* v___x_331_; uint8_t v_isShared_332_; uint8_t v_isSharedCheck_338_; 
-v_pos_329_ = lean_ctor_get(v_a_324_, 0);
-v_isSharedCheck_338_ = !lean_is_exclusive(v_a_324_);
-if (v_isSharedCheck_338_ == 0)
+lean_object* v_pos_319_; lean_object* v___x_321_; uint8_t v_isShared_322_; uint8_t v_isSharedCheck_328_; 
+v_pos_319_ = lean_ctor_get(v_a_314_, 0);
+v_isSharedCheck_328_ = !lean_is_exclusive(v_a_314_);
+if (v_isSharedCheck_328_ == 0)
 {
-v___x_331_ = v_a_324_;
-v_isShared_332_ = v_isSharedCheck_338_;
-goto v_resetjp_330_;
+v___x_321_ = v_a_314_;
+v_isShared_322_ = v_isSharedCheck_328_;
+goto v_resetjp_320_;
 }
 else
 {
-lean_inc(v_pos_329_);
-lean_dec(v_a_324_);
-v___x_331_ = lean_box(0);
-v_isShared_332_ = v_isSharedCheck_338_;
-goto v_resetjp_330_;
+lean_inc(v_pos_319_);
+lean_dec(v_a_314_);
+v___x_321_ = lean_box(0);
+v_isShared_322_ = v_isSharedCheck_328_;
+goto v_resetjp_320_;
 }
-v_resetjp_330_:
+v_resetjp_320_:
 {
-lean_object* v___x_333_; lean_object* v___x_335_; 
-v___x_333_ = lean_string_utf8_next_fast(v_s_321_, v_pos_329_);
-lean_dec(v_pos_329_);
-if (v_isShared_332_ == 0)
+lean_object* v___x_323_; lean_object* v___x_325_; 
+v___x_323_ = lean_string_utf8_next_fast(v_s_311_, v_pos_319_);
+lean_dec(v_pos_319_);
+if (v_isShared_322_ == 0)
 {
-lean_ctor_set_tag(v___x_331_, 0);
-lean_ctor_set(v___x_331_, 0, v___x_333_);
-v___x_335_ = v___x_331_;
-goto v_reusejp_334_;
+lean_ctor_set_tag(v___x_321_, 0);
+lean_ctor_set(v___x_321_, 0, v___x_323_);
+v___x_325_ = v___x_321_;
+goto v_reusejp_324_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_337_; 
-v_reuseFailAlloc_337_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_337_, 0, v___x_333_);
-v___x_335_ = v_reuseFailAlloc_337_;
-goto v_reusejp_334_;
+lean_object* v_reuseFailAlloc_327_; 
+v_reuseFailAlloc_327_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_327_, 0, v___x_323_);
+v___x_325_ = v_reuseFailAlloc_327_;
+goto v_reusejp_324_;
 }
-v_reusejp_334_:
+v_reusejp_324_:
 {
-v_a_324_ = v___x_335_;
-v_b_325_ = v___x_326_;
+v_a_314_ = v___x_325_;
+v_b_315_ = v___x_316_;
 goto _start;
 }
 }
 }
 case 2:
 {
-lean_object* v_needle_339_; lean_object* v_table_340_; lean_object* v_stackPos_341_; lean_object* v_needlePos_342_; lean_object* v___x_344_; uint8_t v_isShared_345_; uint8_t v_isSharedCheck_393_; 
-v_needle_339_ = lean_ctor_get(v_a_324_, 0);
-v_table_340_ = lean_ctor_get(v_a_324_, 1);
-v_stackPos_341_ = lean_ctor_get(v_a_324_, 2);
-v_needlePos_342_ = lean_ctor_get(v_a_324_, 3);
-v_isSharedCheck_393_ = !lean_is_exclusive(v_a_324_);
-if (v_isSharedCheck_393_ == 0)
+lean_object* v_needle_329_; lean_object* v_table_330_; lean_object* v_stackPos_331_; lean_object* v_needlePos_332_; lean_object* v___x_334_; uint8_t v_isShared_335_; uint8_t v_isSharedCheck_383_; 
+v_needle_329_ = lean_ctor_get(v_a_314_, 0);
+v_table_330_ = lean_ctor_get(v_a_314_, 1);
+v_stackPos_331_ = lean_ctor_get(v_a_314_, 2);
+v_needlePos_332_ = lean_ctor_get(v_a_314_, 3);
+v_isSharedCheck_383_ = !lean_is_exclusive(v_a_314_);
+if (v_isSharedCheck_383_ == 0)
 {
-v___x_344_ = v_a_324_;
-v_isShared_345_ = v_isSharedCheck_393_;
-goto v_resetjp_343_;
+v___x_334_ = v_a_314_;
+v_isShared_335_ = v_isSharedCheck_383_;
+goto v_resetjp_333_;
 }
 else
 {
-lean_inc(v_needlePos_342_);
-lean_inc(v_stackPos_341_);
-lean_inc(v_table_340_);
-lean_inc(v_needle_339_);
-lean_dec(v_a_324_);
-v___x_344_ = lean_box(0);
-v_isShared_345_ = v_isSharedCheck_393_;
-goto v_resetjp_343_;
+lean_inc(v_needlePos_332_);
+lean_inc(v_stackPos_331_);
+lean_inc(v_table_330_);
+lean_inc(v_needle_329_);
+lean_dec(v_a_314_);
+v___x_334_ = lean_box(0);
+v_isShared_335_ = v_isSharedCheck_383_;
+goto v_resetjp_333_;
 }
-v_resetjp_343_:
+v_resetjp_333_:
 {
-lean_object* v_str_346_; lean_object* v_startInclusive_347_; lean_object* v_endExclusive_348_; lean_object* v_basePos_349_; lean_object* v___x_350_; lean_object* v___x_351_; uint8_t v___x_352_; 
-v_str_346_ = lean_ctor_get(v_needle_339_, 0);
-v_startInclusive_347_ = lean_ctor_get(v_needle_339_, 1);
-v_endExclusive_348_ = lean_ctor_get(v_needle_339_, 2);
-v_basePos_349_ = lean_nat_sub(v_stackPos_341_, v_needlePos_342_);
-v___x_350_ = lean_nat_sub(v_endExclusive_348_, v_startInclusive_347_);
-v___x_351_ = lean_nat_add(v_basePos_349_, v___x_350_);
-v___x_352_ = lean_nat_dec_le(v___x_351_, v___x_323_);
-lean_dec(v___x_351_);
-if (v___x_352_ == 0)
+lean_object* v_str_336_; lean_object* v_startInclusive_337_; lean_object* v_endExclusive_338_; lean_object* v_basePos_339_; lean_object* v___x_340_; lean_object* v___x_341_; uint8_t v___x_342_; 
+v_str_336_ = lean_ctor_get(v_needle_329_, 0);
+v_startInclusive_337_ = lean_ctor_get(v_needle_329_, 1);
+v_endExclusive_338_ = lean_ctor_get(v_needle_329_, 2);
+v_basePos_339_ = lean_nat_sub(v_stackPos_331_, v_needlePos_332_);
+v___x_340_ = lean_nat_sub(v_endExclusive_338_, v_startInclusive_337_);
+v___x_341_ = lean_nat_add(v_basePos_339_, v___x_340_);
+v___x_342_ = lean_nat_dec_le(v___x_341_, v___x_313_);
+lean_dec(v___x_341_);
+if (v___x_342_ == 0)
 {
-uint8_t v___x_353_; 
-lean_dec(v___x_350_);
-lean_del_object(v___x_344_);
-lean_dec(v_needlePos_342_);
-lean_dec(v_stackPos_341_);
-lean_dec_ref(v_table_340_);
-lean_dec_ref(v_needle_339_);
-v___x_353_ = lean_nat_dec_lt(v_basePos_349_, v___x_323_);
-lean_dec(v_basePos_349_);
-if (v___x_353_ == 0)
+uint8_t v___x_343_; 
+lean_dec(v___x_340_);
+lean_del_object(v___x_334_);
+lean_dec(v_needlePos_332_);
+lean_dec(v_stackPos_331_);
+lean_dec_ref(v_table_330_);
+lean_dec_ref(v_needle_329_);
+v___x_343_ = lean_nat_dec_lt(v_basePos_339_, v___x_313_);
+lean_dec(v_basePos_339_);
+if (v___x_343_ == 0)
 {
-lean_inc(v_b_325_);
-return v_b_325_;
+lean_inc(v_b_315_);
+return v_b_315_;
 }
 else
 {
-lean_object* v___x_354_; 
-v___x_354_ = lean_box(3);
-v_a_324_ = v___x_354_;
-v_b_325_ = v___x_326_;
+lean_object* v___x_344_; 
+v___x_344_ = lean_box(3);
+v_a_314_ = v___x_344_;
+v_b_315_ = v___x_316_;
 goto _start;
 }
 }
 else
 {
-uint8_t v_stackByte_356_; lean_object* v___x_357_; uint8_t v_patByte_358_; uint8_t v___x_359_; 
-lean_dec(v_basePos_349_);
-lean_inc(v_stackPos_341_);
-v_stackByte_356_ = lean_string_get_byte_fast(v_s_321_, v_stackPos_341_);
-v___x_357_ = lean_nat_add(v_startInclusive_347_, v_needlePos_342_);
-v_patByte_358_ = lean_string_get_byte_fast(v_str_346_, v___x_357_);
-v___x_359_ = lean_uint8_dec_eq(v_stackByte_356_, v_patByte_358_);
-if (v___x_359_ == 0)
+uint8_t v_stackByte_346_; lean_object* v___x_347_; uint8_t v_patByte_348_; uint8_t v___x_349_; 
+lean_dec(v_basePos_339_);
+lean_inc(v_stackPos_331_);
+v_stackByte_346_ = lean_string_get_byte_fast(v_s_311_, v_stackPos_331_);
+v___x_347_ = lean_nat_add(v_startInclusive_337_, v_needlePos_332_);
+v_patByte_348_ = lean_string_get_byte_fast(v_str_336_, v___x_347_);
+v___x_349_ = lean_uint8_dec_eq(v_stackByte_346_, v_patByte_348_);
+if (v___x_349_ == 0)
 {
-lean_object* v___x_360_; uint8_t v___x_361_; 
-lean_dec(v___x_350_);
-v___x_360_ = lean_unsigned_to_nat(0u);
-v___x_361_ = lean_nat_dec_eq(v_needlePos_342_, v___x_360_);
-if (v___x_361_ == 0)
+lean_object* v___x_350_; uint8_t v___x_351_; 
+lean_dec(v___x_340_);
+v___x_350_ = lean_unsigned_to_nat(0u);
+v___x_351_ = lean_nat_dec_eq(v_needlePos_332_, v___x_350_);
+if (v___x_351_ == 0)
 {
-lean_object* v___x_362_; lean_object* v___x_363_; lean_object* v_newNeedlePos_364_; uint8_t v___x_365_; 
-v___x_362_ = lean_unsigned_to_nat(1u);
-v___x_363_ = lean_nat_sub(v_needlePos_342_, v___x_362_);
-lean_dec(v_needlePos_342_);
-v_newNeedlePos_364_ = lean_array_fget_borrowed(v_table_340_, v___x_363_);
-lean_dec(v___x_363_);
-v___x_365_ = lean_nat_dec_eq(v_newNeedlePos_364_, v___x_360_);
-if (v___x_365_ == 0)
+lean_object* v___x_352_; lean_object* v___x_353_; lean_object* v_newNeedlePos_354_; uint8_t v___x_355_; 
+v___x_352_ = lean_unsigned_to_nat(1u);
+v___x_353_ = lean_nat_sub(v_needlePos_332_, v___x_352_);
+lean_dec(v_needlePos_332_);
+v_newNeedlePos_354_ = lean_array_fget_borrowed(v_table_330_, v___x_353_);
+lean_dec(v___x_353_);
+v___x_355_ = lean_nat_dec_eq(v_newNeedlePos_354_, v___x_350_);
+if (v___x_355_ == 0)
 {
-lean_object* v___x_367_; 
-lean_inc(v_newNeedlePos_364_);
-if (v_isShared_345_ == 0)
+lean_object* v___x_357_; 
+lean_inc(v_newNeedlePos_354_);
+if (v_isShared_335_ == 0)
 {
-lean_ctor_set(v___x_344_, 3, v_newNeedlePos_364_);
-v___x_367_ = v___x_344_;
-goto v_reusejp_366_;
+lean_ctor_set(v___x_334_, 3, v_newNeedlePos_354_);
+v___x_357_ = v___x_334_;
+goto v_reusejp_356_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_369_; 
-v_reuseFailAlloc_369_ = lean_alloc_ctor(2, 4, 0);
-lean_ctor_set(v_reuseFailAlloc_369_, 0, v_needle_339_);
-lean_ctor_set(v_reuseFailAlloc_369_, 1, v_table_340_);
-lean_ctor_set(v_reuseFailAlloc_369_, 2, v_stackPos_341_);
-lean_ctor_set(v_reuseFailAlloc_369_, 3, v_newNeedlePos_364_);
-v___x_367_ = v_reuseFailAlloc_369_;
-goto v_reusejp_366_;
+lean_object* v_reuseFailAlloc_359_; 
+v_reuseFailAlloc_359_ = lean_alloc_ctor(2, 4, 0);
+lean_ctor_set(v_reuseFailAlloc_359_, 0, v_needle_329_);
+lean_ctor_set(v_reuseFailAlloc_359_, 1, v_table_330_);
+lean_ctor_set(v_reuseFailAlloc_359_, 2, v_stackPos_331_);
+lean_ctor_set(v_reuseFailAlloc_359_, 3, v_newNeedlePos_354_);
+v___x_357_ = v_reuseFailAlloc_359_;
+goto v_reusejp_356_;
 }
-v_reusejp_366_:
+v_reusejp_356_:
 {
-v_a_324_ = v___x_367_;
-v_b_325_ = v___x_326_;
+v_a_314_ = v___x_357_;
+v_b_315_ = v___x_316_;
 goto _start;
 }
 }
 else
 {
-lean_object* v_nextStackPos_370_; lean_object* v___x_372_; 
-v_nextStackPos_370_ = l_String_Slice_posGE___redArg(v___x_322_, v_stackPos_341_);
-if (v_isShared_345_ == 0)
+lean_object* v_nextStackPos_360_; lean_object* v___x_362_; 
+v_nextStackPos_360_ = l_String_Slice_posGE___redArg(v___x_312_, v_stackPos_331_);
+if (v_isShared_335_ == 0)
 {
-lean_ctor_set(v___x_344_, 3, v___x_360_);
-lean_ctor_set(v___x_344_, 2, v_nextStackPos_370_);
-v___x_372_ = v___x_344_;
-goto v_reusejp_371_;
+lean_ctor_set(v___x_334_, 3, v___x_350_);
+lean_ctor_set(v___x_334_, 2, v_nextStackPos_360_);
+v___x_362_ = v___x_334_;
+goto v_reusejp_361_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_374_; 
-v_reuseFailAlloc_374_ = lean_alloc_ctor(2, 4, 0);
-lean_ctor_set(v_reuseFailAlloc_374_, 0, v_needle_339_);
-lean_ctor_set(v_reuseFailAlloc_374_, 1, v_table_340_);
-lean_ctor_set(v_reuseFailAlloc_374_, 2, v_nextStackPos_370_);
-lean_ctor_set(v_reuseFailAlloc_374_, 3, v___x_360_);
-v___x_372_ = v_reuseFailAlloc_374_;
-goto v_reusejp_371_;
+lean_object* v_reuseFailAlloc_364_; 
+v_reuseFailAlloc_364_ = lean_alloc_ctor(2, 4, 0);
+lean_ctor_set(v_reuseFailAlloc_364_, 0, v_needle_329_);
+lean_ctor_set(v_reuseFailAlloc_364_, 1, v_table_330_);
+lean_ctor_set(v_reuseFailAlloc_364_, 2, v_nextStackPos_360_);
+lean_ctor_set(v_reuseFailAlloc_364_, 3, v___x_350_);
+v___x_362_ = v_reuseFailAlloc_364_;
+goto v_reusejp_361_;
 }
-v_reusejp_371_:
+v_reusejp_361_:
 {
-v_a_324_ = v___x_372_;
-v_b_325_ = v___x_326_;
-goto _start;
-}
-}
-}
-else
-{
-lean_object* v___x_375_; lean_object* v___x_376_; lean_object* v_nextStackPos_377_; lean_object* v___x_379_; 
-lean_dec(v_needlePos_342_);
-v___x_375_ = lean_unsigned_to_nat(1u);
-v___x_376_ = lean_nat_add(v_stackPos_341_, v___x_375_);
-lean_dec(v_stackPos_341_);
-v_nextStackPos_377_ = l_String_Slice_posGE___redArg(v___x_322_, v___x_376_);
-if (v_isShared_345_ == 0)
-{
-lean_ctor_set(v___x_344_, 3, v___x_360_);
-lean_ctor_set(v___x_344_, 2, v_nextStackPos_377_);
-v___x_379_ = v___x_344_;
-goto v_reusejp_378_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_381_; 
-v_reuseFailAlloc_381_ = lean_alloc_ctor(2, 4, 0);
-lean_ctor_set(v_reuseFailAlloc_381_, 0, v_needle_339_);
-lean_ctor_set(v_reuseFailAlloc_381_, 1, v_table_340_);
-lean_ctor_set(v_reuseFailAlloc_381_, 2, v_nextStackPos_377_);
-lean_ctor_set(v_reuseFailAlloc_381_, 3, v___x_360_);
-v___x_379_ = v_reuseFailAlloc_381_;
-goto v_reusejp_378_;
-}
-v_reusejp_378_:
-{
-v_a_324_ = v___x_379_;
-v_b_325_ = v___x_326_;
+v_a_314_ = v___x_362_;
+v_b_315_ = v___x_316_;
 goto _start;
 }
 }
 }
 else
 {
-lean_object* v___x_382_; lean_object* v_nextStackPos_383_; lean_object* v_nextNeedlePos_384_; uint8_t v___x_385_; 
-v___x_382_ = lean_unsigned_to_nat(1u);
-v_nextStackPos_383_ = lean_nat_add(v_stackPos_341_, v___x_382_);
-lean_dec(v_stackPos_341_);
-v_nextNeedlePos_384_ = lean_nat_add(v_needlePos_342_, v___x_382_);
-lean_dec(v_needlePos_342_);
-v___x_385_ = lean_nat_dec_eq(v_nextNeedlePos_384_, v___x_350_);
-lean_dec(v___x_350_);
-if (v___x_385_ == 0)
+lean_object* v___x_365_; lean_object* v___x_366_; lean_object* v_nextStackPos_367_; lean_object* v___x_369_; 
+lean_dec(v_needlePos_332_);
+v___x_365_ = lean_unsigned_to_nat(1u);
+v___x_366_ = lean_nat_add(v_stackPos_331_, v___x_365_);
+lean_dec(v_stackPos_331_);
+v_nextStackPos_367_ = l_String_Slice_posGE___redArg(v___x_312_, v___x_366_);
+if (v_isShared_335_ == 0)
 {
-lean_object* v___x_387_; 
-if (v_isShared_345_ == 0)
-{
-lean_ctor_set(v___x_344_, 3, v_nextNeedlePos_384_);
-lean_ctor_set(v___x_344_, 2, v_nextStackPos_383_);
-v___x_387_ = v___x_344_;
-goto v_reusejp_386_;
+lean_ctor_set(v___x_334_, 3, v___x_350_);
+lean_ctor_set(v___x_334_, 2, v_nextStackPos_367_);
+v___x_369_ = v___x_334_;
+goto v_reusejp_368_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_389_; 
-v_reuseFailAlloc_389_ = lean_alloc_ctor(2, 4, 0);
-lean_ctor_set(v_reuseFailAlloc_389_, 0, v_needle_339_);
-lean_ctor_set(v_reuseFailAlloc_389_, 1, v_table_340_);
-lean_ctor_set(v_reuseFailAlloc_389_, 2, v_nextStackPos_383_);
-lean_ctor_set(v_reuseFailAlloc_389_, 3, v_nextNeedlePos_384_);
-v___x_387_ = v_reuseFailAlloc_389_;
-goto v_reusejp_386_;
+lean_object* v_reuseFailAlloc_371_; 
+v_reuseFailAlloc_371_ = lean_alloc_ctor(2, 4, 0);
+lean_ctor_set(v_reuseFailAlloc_371_, 0, v_needle_329_);
+lean_ctor_set(v_reuseFailAlloc_371_, 1, v_table_330_);
+lean_ctor_set(v_reuseFailAlloc_371_, 2, v_nextStackPos_367_);
+lean_ctor_set(v_reuseFailAlloc_371_, 3, v___x_350_);
+v___x_369_ = v_reuseFailAlloc_371_;
+goto v_reusejp_368_;
 }
-v_reusejp_386_:
+v_reusejp_368_:
 {
-v_a_324_ = v___x_387_;
+v_a_314_ = v___x_369_;
+v_b_315_ = v___x_316_;
+goto _start;
+}
+}
+}
+else
+{
+lean_object* v___x_372_; lean_object* v_nextStackPos_373_; lean_object* v_nextNeedlePos_374_; uint8_t v___x_375_; 
+v___x_372_ = lean_unsigned_to_nat(1u);
+v_nextStackPos_373_ = lean_nat_add(v_stackPos_331_, v___x_372_);
+lean_dec(v_stackPos_331_);
+v_nextNeedlePos_374_ = lean_nat_add(v_needlePos_332_, v___x_372_);
+lean_dec(v_needlePos_332_);
+v___x_375_ = lean_nat_dec_eq(v_nextNeedlePos_374_, v___x_340_);
+lean_dec(v___x_340_);
+if (v___x_375_ == 0)
+{
+lean_object* v___x_377_; 
+if (v_isShared_335_ == 0)
+{
+lean_ctor_set(v___x_334_, 3, v_nextNeedlePos_374_);
+lean_ctor_set(v___x_334_, 2, v_nextStackPos_373_);
+v___x_377_ = v___x_334_;
+goto v_reusejp_376_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_379_; 
+v_reuseFailAlloc_379_ = lean_alloc_ctor(2, 4, 0);
+lean_ctor_set(v_reuseFailAlloc_379_, 0, v_needle_329_);
+lean_ctor_set(v_reuseFailAlloc_379_, 1, v_table_330_);
+lean_ctor_set(v_reuseFailAlloc_379_, 2, v_nextStackPos_373_);
+lean_ctor_set(v_reuseFailAlloc_379_, 3, v_nextNeedlePos_374_);
+v___x_377_ = v_reuseFailAlloc_379_;
+goto v_reusejp_376_;
+}
+v_reusejp_376_:
+{
+v_a_314_ = v___x_377_;
 goto _start;
 }
 }
 else
 {
-lean_object* v___x_390_; lean_object* v___x_391_; lean_object* v___x_392_; 
-lean_del_object(v___x_344_);
-lean_dec_ref(v_table_340_);
-lean_dec_ref(v_needle_339_);
-v___x_390_ = lean_nat_sub(v_nextStackPos_383_, v_nextNeedlePos_384_);
-lean_dec(v_nextNeedlePos_384_);
-lean_dec(v_nextStackPos_383_);
-v___x_391_ = l_String_Slice_pos_x21(v___x_322_, v___x_390_);
-lean_dec(v___x_390_);
-v___x_392_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_392_, 0, v___x_391_);
-return v___x_392_;
+lean_object* v___x_380_; lean_object* v___x_381_; lean_object* v___x_382_; 
+lean_del_object(v___x_334_);
+lean_dec_ref(v_table_330_);
+lean_dec_ref(v_needle_329_);
+v___x_380_ = lean_nat_sub(v_nextStackPos_373_, v_nextNeedlePos_374_);
+lean_dec(v_nextNeedlePos_374_);
+lean_dec(v_nextStackPos_373_);
+v___x_381_ = l_String_Slice_pos_x21(v___x_312_, v___x_380_);
+lean_dec(v___x_380_);
+v___x_382_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_382_, 0, v___x_381_);
+return v___x_382_;
 }
 }
 }
@@ -1593,1707 +1555,1709 @@ return v___x_392_;
 }
 default: 
 {
-lean_inc(v_b_325_);
-return v_b_325_;
+lean_inc(v_b_315_);
+return v_b_315_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg___boxed(lean_object* v_s_394_, lean_object* v___x_395_, lean_object* v___x_396_, lean_object* v_a_397_, lean_object* v_b_398_){
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg___boxed(lean_object* v_s_384_, lean_object* v___x_385_, lean_object* v___x_386_, lean_object* v_a_387_, lean_object* v_b_388_){
 _start:
 {
-lean_object* v_res_399_; 
-v_res_399_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg(v_s_394_, v___x_395_, v___x_396_, v_a_397_, v_b_398_);
-lean_dec(v_b_398_);
-lean_dec(v___x_396_);
-lean_dec_ref(v___x_395_);
-lean_dec_ref(v_s_394_);
-return v_res_399_;
+lean_object* v_res_389_; 
+v_res_389_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg(v_s_384_, v___x_385_, v___x_386_, v_a_387_, v_b_388_);
+lean_dec(v_b_388_);
+lean_dec(v___x_386_);
+lean_dec_ref(v___x_385_);
+lean_dec_ref(v_s_384_);
+return v_res_389_;
 }
 }
 static lean_object* _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__1(void){
 _start:
 {
-lean_object* v___x_401_; lean_object* v___x_402_; 
-v___x_401_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__0));
-v___x_402_ = lean_string_utf8_byte_size(v___x_401_);
-return v___x_402_;
+lean_object* v___x_391_; lean_object* v___x_392_; 
+v___x_391_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__0));
+v___x_392_ = lean_string_utf8_byte_size(v___x_391_);
+return v___x_392_;
 }
 }
 static uint8_t _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__2(void){
 _start:
 {
-lean_object* v___x_403_; lean_object* v___x_404_; uint8_t v___x_405_; 
-v___x_403_ = lean_unsigned_to_nat(0u);
-v___x_404_ = lean_obj_once(&l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__1, &l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__1_once, _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__1);
-v___x_405_ = lean_nat_dec_eq(v___x_404_, v___x_403_);
-return v___x_405_;
+lean_object* v___x_393_; lean_object* v___x_394_; uint8_t v___x_395_; 
+v___x_393_ = lean_unsigned_to_nat(0u);
+v___x_394_ = lean_obj_once(&l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__1, &l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__1_once, _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__1);
+v___x_395_ = lean_nat_dec_eq(v___x_394_, v___x_393_);
+return v___x_395_;
 }
 }
 static lean_object* _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__3(void){
 _start:
 {
-lean_object* v___x_406_; lean_object* v___x_407_; lean_object* v___x_408_; lean_object* v___x_409_; 
-v___x_406_ = lean_obj_once(&l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__1, &l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__1_once, _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__1);
-v___x_407_ = lean_unsigned_to_nat(0u);
-v___x_408_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__0));
-v___x_409_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_409_, 0, v___x_408_);
-lean_ctor_set(v___x_409_, 1, v___x_407_);
-lean_ctor_set(v___x_409_, 2, v___x_406_);
-return v___x_409_;
+lean_object* v___x_396_; lean_object* v___x_397_; lean_object* v___x_398_; lean_object* v___x_399_; 
+v___x_396_ = lean_obj_once(&l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__1, &l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__1_once, _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__1);
+v___x_397_ = lean_unsigned_to_nat(0u);
+v___x_398_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__0));
+v___x_399_ = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(v___x_399_, 0, v___x_398_);
+lean_ctor_set(v___x_399_, 1, v___x_397_);
+lean_ctor_set(v___x_399_, 2, v___x_396_);
+return v___x_399_;
 }
 }
 static lean_object* _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__4(void){
 _start:
 {
-lean_object* v___x_410_; lean_object* v___x_411_; 
-v___x_410_ = lean_obj_once(&l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__3, &l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__3_once, _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__3);
-v___x_411_ = l_String_Slice_Pattern_ForwardSliceSearcher_buildTable(v___x_410_);
-return v___x_411_;
+lean_object* v___x_400_; lean_object* v___x_401_; 
+v___x_400_ = lean_obj_once(&l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__3, &l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__3_once, _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__3);
+v___x_401_ = l_String_Slice_Pattern_ForwardSliceSearcher_buildTable(v___x_400_);
+return v___x_401_;
 }
 }
 static lean_object* _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__5(void){
 _start:
 {
-lean_object* v___x_412_; lean_object* v___x_413_; lean_object* v___x_414_; lean_object* v___x_415_; 
-v___x_412_ = lean_unsigned_to_nat(0u);
-v___x_413_ = lean_obj_once(&l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__4, &l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__4_once, _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__4);
-v___x_414_ = lean_obj_once(&l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__3, &l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__3_once, _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__3);
-v___x_415_ = lean_alloc_ctor(2, 4, 0);
-lean_ctor_set(v___x_415_, 0, v___x_414_);
-lean_ctor_set(v___x_415_, 1, v___x_413_);
-lean_ctor_set(v___x_415_, 2, v___x_412_);
-lean_ctor_set(v___x_415_, 3, v___x_412_);
-return v___x_415_;
+lean_object* v___x_402_; lean_object* v___x_403_; lean_object* v___x_404_; lean_object* v___x_405_; 
+v___x_402_ = lean_unsigned_to_nat(0u);
+v___x_403_ = lean_obj_once(&l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__4, &l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__4_once, _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__4);
+v___x_404_ = lean_obj_once(&l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__3, &l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__3_once, _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__3);
+v___x_405_ = lean_alloc_ctor(2, 4, 0);
+lean_ctor_set(v___x_405_, 0, v___x_404_);
+lean_ctor_set(v___x_405_, 1, v___x_403_);
+lean_ctor_set(v___x_405_, 2, v___x_402_);
+lean_ctor_set(v___x_405_, 3, v___x_402_);
+return v___x_405_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f(lean_object* v_s_418_){
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f(lean_object* v_s_408_){
 _start:
 {
-lean_object* v___x_419_; lean_object* v___x_420_; lean_object* v___x_421_; lean_object* v___y_423_; uint8_t v___x_434_; 
-v___x_419_ = lean_unsigned_to_nat(0u);
-v___x_420_ = lean_string_utf8_byte_size(v_s_418_);
-lean_inc_ref(v_s_418_);
-v___x_421_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_421_, 0, v_s_418_);
-lean_ctor_set(v___x_421_, 1, v___x_419_);
-lean_ctor_set(v___x_421_, 2, v___x_420_);
-v___x_434_ = lean_uint8_once(&l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__2, &l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__2_once, _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__2);
-if (v___x_434_ == 0)
+lean_object* v___x_409_; lean_object* v___x_410_; lean_object* v___x_411_; lean_object* v___y_413_; uint8_t v___x_424_; 
+v___x_409_ = lean_unsigned_to_nat(0u);
+v___x_410_ = lean_string_utf8_byte_size(v_s_408_);
+lean_inc_ref(v_s_408_);
+v___x_411_ = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(v___x_411_, 0, v_s_408_);
+lean_ctor_set(v___x_411_, 1, v___x_409_);
+lean_ctor_set(v___x_411_, 2, v___x_410_);
+v___x_424_ = lean_uint8_once(&l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__2, &l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__2_once, _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__2);
+if (v___x_424_ == 0)
+{
+lean_object* v___x_425_; 
+v___x_425_ = lean_obj_once(&l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__5, &l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__5_once, _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__5);
+v___y_413_ = v___x_425_;
+goto v___jp_412_;
+}
+else
+{
+lean_object* v___x_426_; 
+v___x_426_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__6));
+v___y_413_ = v___x_426_;
+goto v___jp_412_;
+}
+v___jp_412_:
+{
+lean_object* v___x_414_; lean_object* v___x_415_; 
+v___x_414_ = lean_box(0);
+lean_inc(v___y_413_);
+v___x_415_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg(v_s_408_, v___x_411_, v___x_410_, v___y_413_, v___x_414_);
+lean_dec_ref_known(v___x_411_, 3);
+lean_dec_ref(v_s_408_);
+if (lean_obj_tag(v___x_415_) == 0)
+{
+return v___x_414_;
+}
+else
+{
+lean_object* v_val_416_; lean_object* v___x_418_; uint8_t v_isShared_419_; uint8_t v_isSharedCheck_423_; 
+v_val_416_ = lean_ctor_get(v___x_415_, 0);
+v_isSharedCheck_423_ = !lean_is_exclusive(v___x_415_);
+if (v_isSharedCheck_423_ == 0)
+{
+v___x_418_ = v___x_415_;
+v_isShared_419_ = v_isSharedCheck_423_;
+goto v_resetjp_417_;
+}
+else
+{
+lean_inc(v_val_416_);
+lean_dec(v___x_415_);
+v___x_418_ = lean_box(0);
+v_isShared_419_ = v_isSharedCheck_423_;
+goto v_resetjp_417_;
+}
+v_resetjp_417_:
+{
+lean_object* v___x_421_; 
+if (v_isShared_419_ == 0)
+{
+v___x_421_ = v___x_418_;
+goto v_reusejp_420_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_422_; 
+v_reuseFailAlloc_422_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_422_, 0, v_val_416_);
+v___x_421_ = v_reuseFailAlloc_422_;
+goto v_reusejp_420_;
+}
+v_reusejp_420_:
+{
+return v___x_421_;
+}
+}
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0(lean_object* v_s_427_, lean_object* v___x_428_, lean_object* v___x_429_, lean_object* v_inst_430_, lean_object* v_R_431_, lean_object* v_a_432_, lean_object* v_b_433_, lean_object* v_c_434_){
+_start:
 {
 lean_object* v___x_435_; 
-v___x_435_ = lean_obj_once(&l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__5, &l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__5_once, _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__5);
-v___y_423_ = v___x_435_;
-goto v___jp_422_;
-}
-else
-{
-lean_object* v___x_436_; 
-v___x_436_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__6));
-v___y_423_ = v___x_436_;
-goto v___jp_422_;
-}
-v___jp_422_:
-{
-lean_object* v___x_424_; lean_object* v___x_425_; 
-v___x_424_ = lean_box(0);
-lean_inc(v___y_423_);
-v___x_425_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg(v_s_418_, v___x_421_, v___x_420_, v___y_423_, v___x_424_);
-lean_dec_ref(v___x_421_);
-lean_dec_ref(v_s_418_);
-if (lean_obj_tag(v___x_425_) == 0)
-{
-return v___x_424_;
-}
-else
-{
-lean_object* v_val_426_; lean_object* v___x_428_; uint8_t v_isShared_429_; uint8_t v_isSharedCheck_433_; 
-v_val_426_ = lean_ctor_get(v___x_425_, 0);
-v_isSharedCheck_433_ = !lean_is_exclusive(v___x_425_);
-if (v_isSharedCheck_433_ == 0)
-{
-v___x_428_ = v___x_425_;
-v_isShared_429_ = v_isSharedCheck_433_;
-goto v_resetjp_427_;
-}
-else
-{
-lean_inc(v_val_426_);
-lean_dec(v___x_425_);
-v___x_428_ = lean_box(0);
-v_isShared_429_ = v_isSharedCheck_433_;
-goto v_resetjp_427_;
-}
-v_resetjp_427_:
-{
-lean_object* v___x_431_; 
-if (v_isShared_429_ == 0)
-{
-v___x_431_ = v___x_428_;
-goto v_reusejp_430_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_432_; 
-v_reuseFailAlloc_432_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_432_, 0, v_val_426_);
-v___x_431_ = v_reuseFailAlloc_432_;
-goto v_reusejp_430_;
-}
-v_reusejp_430_:
-{
-return v___x_431_;
+v___x_435_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg(v_s_427_, v___x_428_, v___x_429_, v_a_432_, v_b_433_);
+return v___x_435_;
 }
 }
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0(lean_object* v_s_437_, lean_object* v___x_438_, lean_object* v___x_439_, lean_object* v_inst_440_, lean_object* v_R_441_, lean_object* v_a_442_, lean_object* v_b_443_, lean_object* v_c_444_){
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___boxed(lean_object* v_s_436_, lean_object* v___x_437_, lean_object* v___x_438_, lean_object* v_inst_439_, lean_object* v_R_440_, lean_object* v_a_441_, lean_object* v_b_442_, lean_object* v_c_443_){
 _start:
 {
-lean_object* v___x_445_; 
-v___x_445_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg(v_s_437_, v___x_438_, v___x_439_, v_a_442_, v_b_443_);
-return v___x_445_;
+lean_object* v_res_444_; 
+v_res_444_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0(v_s_436_, v___x_437_, v___x_438_, v_inst_439_, v_R_440_, v_a_441_, v_b_442_, v_c_443_);
+lean_dec(v_b_442_);
+lean_dec(v___x_438_);
+lean_dec_ref(v___x_437_);
+lean_dec_ref(v_s_436_);
+return v_res_444_;
 }
 }
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___boxed(lean_object* v_s_446_, lean_object* v___x_447_, lean_object* v___x_448_, lean_object* v_inst_449_, lean_object* v_R_450_, lean_object* v_a_451_, lean_object* v_b_452_, lean_object* v_c_453_){
+LEAN_EXPORT uint8_t l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_isPositionInLineComment(lean_object* v_text_445_, lean_object* v_pos_446_){
 _start:
 {
-lean_object* v_res_454_; 
-v_res_454_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0(v_s_446_, v___x_447_, v___x_448_, v_inst_449_, v_R_450_, v_a_451_, v_b_452_, v_c_453_);
-lean_dec(v_b_452_);
-lean_dec(v___x_448_);
+lean_object* v___x_447_; lean_object* v_line_448_; lean_object* v_source_449_; lean_object* v_lineStartPos_450_; lean_object* v___x_451_; lean_object* v___x_452_; lean_object* v_lineEndPos_453_; lean_object* v_line_454_; lean_object* v___x_455_; 
+lean_inc_ref(v_text_445_);
+v___x_447_ = l_Lean_FileMap_toPosition(v_text_445_, v_pos_446_);
+v_line_448_ = lean_ctor_get(v___x_447_, 0);
+lean_inc(v_line_448_);
 lean_dec_ref(v___x_447_);
-lean_dec_ref(v_s_446_);
-return v_res_454_;
+v_source_449_ = lean_ctor_get(v_text_445_, 0);
+lean_inc_ref(v_source_449_);
+v_lineStartPos_450_ = l_Lean_FileMap_lineStart(v_text_445_, v_line_448_);
+v___x_451_ = lean_unsigned_to_nat(1u);
+v___x_452_ = lean_nat_add(v_line_448_, v___x_451_);
+lean_dec(v_line_448_);
+v_lineEndPos_453_ = l_Lean_FileMap_lineStart(v_text_445_, v___x_452_);
+lean_dec(v___x_452_);
+lean_dec_ref(v_text_445_);
+v_line_454_ = lean_string_utf8_extract(v_source_449_, v_lineStartPos_450_, v_lineEndPos_453_);
+lean_dec(v_lineEndPos_453_);
+lean_dec_ref(v_source_449_);
+v___x_455_ = l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f(v_line_454_);
+if (lean_obj_tag(v___x_455_) == 1)
+{
+lean_object* v_val_456_; lean_object* v___x_457_; uint8_t v___x_458_; 
+v_val_456_ = lean_ctor_get(v___x_455_, 0);
+lean_inc(v_val_456_);
+lean_dec_ref_known(v___x_455_, 1);
+v___x_457_ = lean_nat_add(v_lineStartPos_450_, v_val_456_);
+lean_dec(v_val_456_);
+lean_dec(v_lineStartPos_450_);
+v___x_458_ = lean_nat_dec_le(v___x_457_, v_pos_446_);
+lean_dec(v___x_457_);
+return v___x_458_;
+}
+else
+{
+uint8_t v___x_459_; 
+lean_dec(v___x_455_);
+lean_dec(v_lineStartPos_450_);
+v___x_459_ = 0;
+return v___x_459_;
 }
 }
-LEAN_EXPORT uint8_t l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_isPositionInLineComment(lean_object* v_text_455_, lean_object* v_pos_456_){
+}
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_isPositionInLineComment___boxed(lean_object* v_text_460_, lean_object* v_pos_461_){
 _start:
 {
-lean_object* v___x_457_; lean_object* v_line_458_; lean_object* v_source_459_; lean_object* v_lineStartPos_460_; lean_object* v___x_461_; lean_object* v___x_462_; lean_object* v_lineEndPos_463_; lean_object* v_line_464_; lean_object* v___x_465_; 
-lean_inc_ref(v_text_455_);
-v___x_457_ = l_Lean_FileMap_toPosition(v_text_455_, v_pos_456_);
-v_line_458_ = lean_ctor_get(v___x_457_, 0);
-lean_inc(v_line_458_);
-lean_dec_ref(v___x_457_);
-v_source_459_ = lean_ctor_get(v_text_455_, 0);
-lean_inc_ref(v_source_459_);
-v_lineStartPos_460_ = l_Lean_FileMap_lineStart(v_text_455_, v_line_458_);
-v___x_461_ = lean_unsigned_to_nat(1u);
-v___x_462_ = lean_nat_add(v_line_458_, v___x_461_);
-lean_dec(v_line_458_);
-v_lineEndPos_463_ = l_Lean_FileMap_lineStart(v_text_455_, v___x_462_);
-lean_dec(v___x_462_);
-lean_dec_ref(v_text_455_);
-v_line_464_ = lean_string_utf8_extract(v_source_459_, v_lineStartPos_460_, v_lineEndPos_463_);
-lean_dec(v_lineEndPos_463_);
-lean_dec_ref(v_source_459_);
-v___x_465_ = l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f(v_line_464_);
-if (lean_obj_tag(v___x_465_) == 1)
-{
-lean_object* v_val_466_; lean_object* v___x_467_; uint8_t v___x_468_; 
-v_val_466_ = lean_ctor_get(v___x_465_, 0);
-lean_inc(v_val_466_);
-lean_dec_ref(v___x_465_);
-v___x_467_ = lean_nat_add(v_lineStartPos_460_, v_val_466_);
-lean_dec(v_val_466_);
-lean_dec(v_lineStartPos_460_);
-v___x_468_ = lean_nat_dec_le(v___x_467_, v_pos_456_);
-lean_dec(v___x_467_);
-return v___x_468_;
-}
-else
-{
-uint8_t v___x_469_; 
-lean_dec(v___x_465_);
-lean_dec(v_lineStartPos_460_);
-v___x_469_ = 0;
-return v___x_469_;
+uint8_t v_res_462_; lean_object* v_r_463_; 
+v_res_462_ = l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_isPositionInLineComment(v_text_460_, v_pos_461_);
+lean_dec(v_pos_461_);
+v_r_463_ = lean_box(v_res_462_);
+return v_r_463_;
 }
 }
-}
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_isPositionInLineComment___boxed(lean_object* v_text_470_, lean_object* v_pos_471_){
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind(lean_object* v_text_520_, lean_object* v_ctx_x3f_521_, lean_object* v_requestedPos_522_, lean_object* v_stx_523_, lean_object* v_parent_524_){
 _start:
 {
-uint8_t v_res_472_; lean_object* v_r_473_; 
-v_res_472_ = l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_isPositionInLineComment(v_text_470_, v_pos_471_);
-lean_dec(v_pos_471_);
-v_r_473_ = lean_box(v_res_472_);
-return v_r_473_;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind(lean_object* v_text_530_, lean_object* v_ctx_x3f_531_, lean_object* v_requestedPos_532_, lean_object* v_stx_533_, lean_object* v_parent_534_){
-_start:
+lean_object* v_kind_x3f_526_; uint8_t v___y_625_; uint8_t v___y_626_; uint8_t v___y_627_; uint8_t v___x_629_; lean_object* v___x_630_; 
+v___x_629_ = 1;
+v___x_630_ = l_Lean_Syntax_getTailPos_x3f(v_stx_523_, v___x_629_);
+if (lean_obj_tag(v___x_630_) == 1)
 {
-lean_object* v_kind_x3f_536_; uint8_t v___y_635_; uint8_t v___y_636_; uint8_t v___y_637_; uint8_t v___x_639_; lean_object* v___x_640_; 
-v___x_639_ = 1;
-v___x_640_ = l_Lean_Syntax_getTailPos_x3f(v_stx_533_, v___x_639_);
-if (lean_obj_tag(v___x_640_) == 1)
+lean_object* v_val_631_; uint8_t v___x_632_; uint8_t v___y_634_; uint8_t v___y_635_; uint8_t v___y_642_; 
+v_val_631_ = lean_ctor_get(v___x_630_, 0);
+lean_inc(v_val_631_);
+lean_dec_ref_known(v___x_630_, 1);
+v___x_632_ = lean_nat_dec_lt(v_requestedPos_522_, v_val_631_);
+if (v___x_632_ == 0)
 {
-lean_object* v_val_641_; uint8_t v___x_642_; uint8_t v___y_644_; uint8_t v___y_645_; uint8_t v___y_652_; 
-v_val_641_ = lean_ctor_get(v___x_640_, 0);
-lean_inc(v_val_641_);
-lean_dec_ref(v___x_640_);
-v___x_642_ = lean_nat_dec_lt(v_requestedPos_532_, v_val_641_);
-if (v___x_642_ == 0)
+if (lean_obj_tag(v_ctx_x3f_521_) == 0)
 {
-if (lean_obj_tag(v_ctx_x3f_531_) == 0)
-{
-v___y_652_ = v___x_642_;
-goto v___jp_651_;
+v___y_642_ = v___x_632_;
+goto v___jp_641_;
 }
 else
 {
-lean_object* v_val_655_; uint8_t v_triggerKind_656_; 
-v_val_655_ = lean_ctor_get(v_ctx_x3f_531_, 0);
-v_triggerKind_656_ = lean_ctor_get_uint8(v_val_655_, sizeof(void*)*2);
-if (v_triggerKind_656_ == 0)
+lean_object* v_val_645_; uint8_t v_triggerKind_646_; 
+v_val_645_ = lean_ctor_get(v_ctx_x3f_521_, 0);
+v_triggerKind_646_ = lean_ctor_get_uint8(v_val_645_, sizeof(void*)*2);
+if (v_triggerKind_646_ == 0)
 {
-v___y_652_ = v___x_639_;
-goto v___jp_651_;
+v___y_642_ = v___x_629_;
+goto v___jp_641_;
 }
 else
 {
-v___y_652_ = v___x_642_;
-goto v___jp_651_;
+v___y_642_ = v___x_632_;
+goto v___jp_641_;
 }
 }
 }
 else
 {
-lean_object* v___x_657_; 
-lean_dec(v_val_641_);
-lean_dec(v_parent_534_);
-lean_dec(v_stx_533_);
-lean_dec_ref(v_text_530_);
-v___x_657_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__23));
-return v___x_657_;
+lean_object* v___x_647_; 
+lean_dec(v_val_631_);
+lean_dec(v_parent_524_);
+lean_dec(v_stx_523_);
+lean_dec_ref(v_text_520_);
+v___x_647_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__23));
+return v___x_647_;
 }
-v___jp_643_:
+v___jp_633_:
 {
-lean_object* v___x_646_; lean_object* v_line_647_; lean_object* v___x_648_; lean_object* v_line_649_; uint8_t v___x_650_; 
-lean_inc_ref(v_text_530_);
-v___x_646_ = l_Lean_FileMap_toPosition(v_text_530_, v_requestedPos_532_);
-v_line_647_ = lean_ctor_get(v___x_646_, 0);
-lean_inc(v_line_647_);
-lean_dec_ref(v___x_646_);
-v___x_648_ = l_Lean_FileMap_toPosition(v_text_530_, v_val_641_);
-lean_dec(v_val_641_);
-v_line_649_ = lean_ctor_get(v___x_648_, 0);
-lean_inc(v_line_649_);
-lean_dec_ref(v___x_648_);
-v___x_650_ = lean_nat_dec_eq(v_line_647_, v_line_649_);
-lean_dec(v_line_649_);
-lean_dec(v_line_647_);
-if (v___x_650_ == 0)
+lean_object* v___x_636_; lean_object* v_line_637_; lean_object* v___x_638_; lean_object* v_line_639_; uint8_t v___x_640_; 
+lean_inc_ref(v_text_520_);
+v___x_636_ = l_Lean_FileMap_toPosition(v_text_520_, v_requestedPos_522_);
+v_line_637_ = lean_ctor_get(v___x_636_, 0);
+lean_inc(v_line_637_);
+lean_dec_ref(v___x_636_);
+v___x_638_ = l_Lean_FileMap_toPosition(v_text_520_, v_val_631_);
+lean_dec(v_val_631_);
+v_line_639_ = lean_ctor_get(v___x_638_, 0);
+lean_inc(v_line_639_);
+lean_dec_ref(v___x_638_);
+v___x_640_ = lean_nat_dec_eq(v_line_637_, v_line_639_);
+lean_dec(v_line_639_);
+lean_dec(v_line_637_);
+if (v___x_640_ == 0)
 {
-v___y_635_ = v___y_644_;
-v___y_636_ = v___y_645_;
-v___y_637_ = v___x_639_;
-goto v___jp_634_;
-}
-else
-{
-v___y_635_ = v___y_644_;
-v___y_636_ = v___y_645_;
-v___y_637_ = v___x_642_;
-goto v___jp_634_;
-}
-}
-v___jp_651_:
-{
-if (lean_obj_tag(v_ctx_x3f_531_) == 0)
-{
-v___y_644_ = v___y_652_;
-v___y_645_ = v___x_642_;
-goto v___jp_643_;
+v___y_625_ = v___y_634_;
+v___y_626_ = v___y_635_;
+v___y_627_ = v___x_629_;
+goto v___jp_624_;
 }
 else
 {
-lean_object* v_val_653_; uint8_t v_isRetrigger_654_; 
-v_val_653_ = lean_ctor_get(v_ctx_x3f_531_, 0);
-v_isRetrigger_654_ = lean_ctor_get_uint8(v_val_653_, sizeof(void*)*2 + 1);
-v___y_644_ = v___y_652_;
-v___y_645_ = v_isRetrigger_654_;
-goto v___jp_643_;
+v___y_625_ = v___y_634_;
+v___y_626_ = v___y_635_;
+v___y_627_ = v___x_632_;
+goto v___jp_624_;
 }
 }
-}
-else
+v___jp_641_:
 {
-lean_object* v___x_658_; 
-lean_dec(v___x_640_);
-lean_dec(v_parent_534_);
-lean_dec(v_stx_533_);
-lean_dec_ref(v_text_530_);
-v___x_658_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__22));
-return v___x_658_;
-}
-v___jp_535_:
+if (lean_obj_tag(v_ctx_x3f_521_) == 0)
 {
-uint8_t v___x_537_; lean_object* v___x_538_; lean_object* v___x_539_; 
-v___x_537_ = 0;
-v___x_538_ = lean_box(v___x_537_);
-lean_inc(v_kind_x3f_536_);
-v___x_539_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_539_, 0, v_kind_x3f_536_);
-lean_ctor_set(v___x_539_, 1, v___x_538_);
-return v___x_539_;
-}
-v___jp_540_:
-{
-if (lean_obj_tag(v_stx_533_) == 3)
-{
-lean_object* v___x_541_; uint8_t v___x_542_; 
-lean_dec_ref(v_stx_533_);
-v___x_541_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__4));
-lean_inc(v_parent_534_);
-v___x_542_ = l_Lean_Syntax_isOfKind(v_parent_534_, v___x_541_);
-if (v___x_542_ == 0)
-{
-lean_object* v___x_543_; uint8_t v___x_544_; 
-v___x_543_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__6));
-lean_inc(v_parent_534_);
-v___x_544_ = l_Lean_Syntax_isOfKind(v_parent_534_, v___x_543_);
-if (v___x_544_ == 0)
-{
-lean_object* v___x_545_; uint8_t v___x_546_; 
-v___x_545_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__8));
-lean_inc(v_parent_534_);
-v___x_546_ = l_Lean_Syntax_isOfKind(v_parent_534_, v___x_545_);
-if (v___x_546_ == 0)
-{
-lean_object* v___x_547_; 
-lean_dec(v_parent_534_);
-v___x_547_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
-v_kind_x3f_536_ = v___x_547_;
-goto v___jp_535_;
+v___y_634_ = v___y_642_;
+v___y_635_ = v___x_632_;
+goto v___jp_633_;
 }
 else
 {
-lean_object* v___x_548_; lean_object* v___x_549_; lean_object* v___x_550_; uint8_t v___x_551_; 
-v___x_548_ = lean_unsigned_to_nat(1u);
-v___x_549_ = l_Lean_Syntax_getArg(v_parent_534_, v___x_548_);
-lean_dec(v_parent_534_);
-v___x_550_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__11));
-v___x_551_ = l_Lean_Syntax_isOfKind(v___x_549_, v___x_550_);
-if (v___x_551_ == 0)
-{
-lean_object* v___x_552_; 
-v___x_552_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
-v_kind_x3f_536_ = v___x_552_;
-goto v___jp_535_;
-}
-else
-{
-lean_object* v___x_553_; 
-v___x_553_ = lean_box(0);
-v_kind_x3f_536_ = v___x_553_;
-goto v___jp_535_;
+lean_object* v_val_643_; uint8_t v_isRetrigger_644_; 
+v_val_643_ = lean_ctor_get(v_ctx_x3f_521_, 0);
+v_isRetrigger_644_ = lean_ctor_get_uint8(v_val_643_, sizeof(void*)*2 + 1);
+v___y_634_ = v___y_642_;
+v___y_635_ = v_isRetrigger_644_;
+goto v___jp_633_;
 }
 }
 }
 else
 {
-lean_object* v___x_554_; lean_object* v___x_555_; lean_object* v___x_556_; uint8_t v___x_557_; 
-v___x_554_ = lean_unsigned_to_nat(2u);
-v___x_555_ = l_Lean_Syntax_getArg(v_parent_534_, v___x_554_);
-lean_dec(v_parent_534_);
-v___x_556_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__11));
-v___x_557_ = l_Lean_Syntax_isOfKind(v___x_555_, v___x_556_);
-if (v___x_557_ == 0)
+lean_object* v___x_648_; 
+lean_dec(v___x_630_);
+lean_dec(v_parent_524_);
+lean_dec(v_stx_523_);
+lean_dec_ref(v_text_520_);
+v___x_648_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__22));
+return v___x_648_;
+}
+v___jp_525_:
 {
-lean_object* v___x_558_; 
-v___x_558_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
-v_kind_x3f_536_ = v___x_558_;
-goto v___jp_535_;
+uint8_t v___x_527_; lean_object* v___x_528_; lean_object* v___x_529_; 
+v___x_527_ = 0;
+v___x_528_ = lean_box(v___x_527_);
+lean_inc(v_kind_x3f_526_);
+v___x_529_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_529_, 0, v_kind_x3f_526_);
+lean_ctor_set(v___x_529_, 1, v___x_528_);
+return v___x_529_;
+}
+v___jp_530_:
+{
+if (lean_obj_tag(v_stx_523_) == 3)
+{
+lean_object* v___x_531_; uint8_t v___x_532_; 
+lean_dec_ref_known(v_stx_523_, 4);
+v___x_531_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__4));
+lean_inc(v_parent_524_);
+v___x_532_ = l_Lean_Syntax_isOfKind(v_parent_524_, v___x_531_);
+if (v___x_532_ == 0)
+{
+lean_object* v___x_533_; uint8_t v___x_534_; 
+v___x_533_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__6));
+lean_inc(v_parent_524_);
+v___x_534_ = l_Lean_Syntax_isOfKind(v_parent_524_, v___x_533_);
+if (v___x_534_ == 0)
+{
+lean_object* v___x_535_; uint8_t v___x_536_; 
+v___x_535_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__8));
+lean_inc(v_parent_524_);
+v___x_536_ = l_Lean_Syntax_isOfKind(v_parent_524_, v___x_535_);
+if (v___x_536_ == 0)
+{
+lean_object* v___x_537_; 
+lean_dec(v_parent_524_);
+v___x_537_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
+v_kind_x3f_526_ = v___x_537_;
+goto v___jp_525_;
 }
 else
+{
+lean_object* v___x_538_; lean_object* v___x_539_; lean_object* v___x_540_; uint8_t v___x_541_; 
+v___x_538_ = lean_unsigned_to_nat(1u);
+v___x_539_ = l_Lean_Syntax_getArg(v_parent_524_, v___x_538_);
+lean_dec(v_parent_524_);
+v___x_540_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__11));
+v___x_541_ = l_Lean_Syntax_isOfKind(v___x_539_, v___x_540_);
+if (v___x_541_ == 0)
+{
+lean_object* v___x_542_; 
+v___x_542_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
+v_kind_x3f_526_ = v___x_542_;
+goto v___jp_525_;
+}
+else
+{
+lean_object* v___x_543_; 
+v___x_543_ = lean_box(0);
+v_kind_x3f_526_ = v___x_543_;
+goto v___jp_525_;
+}
+}
+}
+else
+{
+lean_object* v___x_544_; lean_object* v___x_545_; lean_object* v___x_546_; uint8_t v___x_547_; 
+v___x_544_ = lean_unsigned_to_nat(2u);
+v___x_545_ = l_Lean_Syntax_getArg(v_parent_524_, v___x_544_);
+lean_dec(v_parent_524_);
+v___x_546_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__11));
+v___x_547_ = l_Lean_Syntax_isOfKind(v___x_545_, v___x_546_);
+if (v___x_547_ == 0)
+{
+lean_object* v___x_548_; 
+v___x_548_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
+v_kind_x3f_526_ = v___x_548_;
+goto v___jp_525_;
+}
+else
+{
+lean_object* v___x_549_; 
+v___x_549_ = lean_box(0);
+v_kind_x3f_526_ = v___x_549_;
+goto v___jp_525_;
+}
+}
+}
+else
+{
+lean_object* v___x_550_; lean_object* v___x_551_; lean_object* v___x_552_; uint8_t v___x_553_; 
+v___x_550_ = lean_unsigned_to_nat(2u);
+v___x_551_ = l_Lean_Syntax_getArg(v_parent_524_, v___x_550_);
+v___x_552_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__11));
+v___x_553_ = l_Lean_Syntax_isOfKind(v___x_551_, v___x_552_);
+if (v___x_553_ == 0)
+{
+lean_object* v___x_554_; 
+lean_dec(v_parent_524_);
+v___x_554_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
+v_kind_x3f_526_ = v___x_554_;
+goto v___jp_525_;
+}
+else
+{
+lean_object* v___x_555_; lean_object* v___x_556_; lean_object* v___x_557_; uint8_t v___x_558_; 
+v___x_555_ = lean_unsigned_to_nat(0u);
+v___x_556_ = lean_unsigned_to_nat(3u);
+v___x_557_ = l_Lean_Syntax_getArg(v_parent_524_, v___x_556_);
+lean_dec(v_parent_524_);
+v___x_558_ = l_Lean_Syntax_matchesNull(v___x_557_, v___x_555_);
+if (v___x_558_ == 0)
 {
 lean_object* v___x_559_; 
-v___x_559_ = lean_box(0);
-v_kind_x3f_536_ = v___x_559_;
-goto v___jp_535_;
+v___x_559_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
+v_kind_x3f_526_ = v___x_559_;
+goto v___jp_525_;
+}
+else
+{
+lean_object* v___x_560_; 
+v___x_560_ = lean_box(0);
+v_kind_x3f_526_ = v___x_560_;
+goto v___jp_525_;
+}
 }
 }
 }
 else
 {
-lean_object* v___x_560_; lean_object* v___x_561_; lean_object* v___x_562_; uint8_t v___x_563_; 
-v___x_560_ = lean_unsigned_to_nat(2u);
-v___x_561_ = l_Lean_Syntax_getArg(v_parent_534_, v___x_560_);
-v___x_562_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__11));
-v___x_563_ = l_Lean_Syntax_isOfKind(v___x_561_, v___x_562_);
-if (v___x_563_ == 0)
+lean_dec(v_parent_524_);
+if (lean_obj_tag(v_stx_523_) == 1)
 {
-lean_object* v___x_564_; 
-lean_dec(v_parent_534_);
-v___x_564_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
-v_kind_x3f_536_ = v___x_564_;
-goto v___jp_535_;
-}
-else
+lean_object* v_kind_561_; lean_object* v_args_562_; lean_object* v___x_563_; uint8_t v___x_564_; 
+v_kind_561_ = lean_ctor_get(v_stx_523_, 1);
+v_args_562_ = lean_ctor_get(v_stx_523_, 2);
+lean_inc_ref(v_args_562_);
+v___x_563_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__13));
+v___x_564_ = lean_name_eq(v_kind_561_, v___x_563_);
+if (v___x_564_ == 0)
 {
-lean_object* v___x_565_; lean_object* v___x_566_; lean_object* v___x_567_; uint8_t v___x_568_; 
-v___x_565_ = lean_unsigned_to_nat(0u);
-v___x_566_ = lean_unsigned_to_nat(3u);
-v___x_567_ = l_Lean_Syntax_getArg(v_parent_534_, v___x_566_);
-lean_dec(v_parent_534_);
-v___x_568_ = l_Lean_Syntax_matchesNull(v___x_567_, v___x_565_);
+lean_object* v___x_565_; uint8_t v___x_566_; 
+v___x_565_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__15));
+v___x_566_ = lean_name_eq(v_kind_561_, v___x_565_);
+if (v___x_566_ == 0)
+{
+lean_object* v___x_567_; uint8_t v___x_568_; 
+v___x_567_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__17));
+lean_inc_ref(v_stx_523_);
+v___x_568_ = l_Lean_Syntax_isOfKind(v_stx_523_, v___x_567_);
 if (v___x_568_ == 0)
 {
-lean_object* v___x_569_; 
-v___x_569_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
-v_kind_x3f_536_ = v___x_569_;
-goto v___jp_535_;
-}
-else
+lean_object* v___x_569_; uint8_t v___x_570_; 
+v___x_569_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__19));
+lean_inc_ref(v_stx_523_);
+v___x_570_ = l_Lean_Syntax_isOfKind(v_stx_523_, v___x_569_);
+if (v___x_570_ == 0)
 {
-lean_object* v___x_570_; 
-v___x_570_ = lean_box(0);
-v_kind_x3f_536_ = v___x_570_;
-goto v___jp_535_;
-}
-}
-}
-}
-else
+lean_object* v___x_571_; uint8_t v___x_572_; 
+v___x_571_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__4));
+lean_inc_ref(v_stx_523_);
+v___x_572_ = l_Lean_Syntax_isOfKind(v_stx_523_, v___x_571_);
+if (v___x_572_ == 0)
 {
-lean_dec(v_parent_534_);
-if (lean_obj_tag(v_stx_533_) == 1)
-{
-lean_object* v_kind_571_; lean_object* v_args_572_; lean_object* v___x_573_; uint8_t v___x_574_; 
-v_kind_571_ = lean_ctor_get(v_stx_533_, 1);
-v_args_572_ = lean_ctor_get(v_stx_533_, 2);
-lean_inc_ref(v_args_572_);
-v___x_573_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__13));
-v___x_574_ = lean_name_eq(v_kind_571_, v___x_573_);
+lean_object* v___x_573_; uint8_t v___x_574_; 
+v___x_573_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__8));
+lean_inc_ref(v_stx_523_);
+v___x_574_ = l_Lean_Syntax_isOfKind(v_stx_523_, v___x_573_);
 if (v___x_574_ == 0)
 {
 lean_object* v___x_575_; uint8_t v___x_576_; 
-v___x_575_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__15));
-v___x_576_ = lean_name_eq(v_kind_571_, v___x_575_);
+v___x_575_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__6));
+lean_inc_ref(v_stx_523_);
+v___x_576_ = l_Lean_Syntax_isOfKind(v_stx_523_, v___x_575_);
 if (v___x_576_ == 0)
 {
-lean_object* v___x_577_; uint8_t v___x_578_; 
-v___x_577_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__17));
-lean_inc_ref(v_stx_533_);
-v___x_578_ = l_Lean_Syntax_isOfKind(v_stx_533_, v___x_577_);
-if (v___x_578_ == 0)
+lean_object* v___x_577_; lean_object* v___x_578_; uint8_t v___x_579_; 
+lean_dec_ref_known(v_stx_523_, 3);
+v___x_577_ = lean_array_get_size(v_args_562_);
+lean_dec_ref(v_args_562_);
+v___x_578_ = lean_unsigned_to_nat(1u);
+v___x_579_ = lean_nat_dec_le(v___x_577_, v___x_578_);
+if (v___x_579_ == 0)
 {
-lean_object* v___x_579_; uint8_t v___x_580_; 
-v___x_579_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__19));
-lean_inc_ref(v_stx_533_);
-v___x_580_ = l_Lean_Syntax_isOfKind(v_stx_533_, v___x_579_);
-if (v___x_580_ == 0)
+lean_object* v___x_580_; 
+v___x_580_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
+v_kind_x3f_526_ = v___x_580_;
+goto v___jp_525_;
+}
+else
 {
-lean_object* v___x_581_; uint8_t v___x_582_; 
-v___x_581_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__4));
-lean_inc_ref(v_stx_533_);
-v___x_582_ = l_Lean_Syntax_isOfKind(v_stx_533_, v___x_581_);
-if (v___x_582_ == 0)
+lean_object* v___x_581_; 
+v___x_581_ = lean_box(0);
+v_kind_x3f_526_ = v___x_581_;
+goto v___jp_525_;
+}
+}
+else
 {
-lean_object* v___x_583_; uint8_t v___x_584_; 
-v___x_583_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__8));
-lean_inc_ref(v_stx_533_);
-v___x_584_ = l_Lean_Syntax_isOfKind(v_stx_533_, v___x_583_);
-if (v___x_584_ == 0)
+lean_object* v___x_582_; lean_object* v___x_583_; lean_object* v___x_584_; uint8_t v___x_585_; 
+v___x_582_ = lean_unsigned_to_nat(2u);
+v___x_583_ = l_Lean_Syntax_getArg(v_stx_523_, v___x_582_);
+lean_dec_ref_known(v_stx_523_, 3);
+v___x_584_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__11));
+v___x_585_ = l_Lean_Syntax_isOfKind(v___x_583_, v___x_584_);
+if (v___x_585_ == 0)
 {
-lean_object* v___x_585_; uint8_t v___x_586_; 
-v___x_585_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__6));
-lean_inc_ref(v_stx_533_);
-v___x_586_ = l_Lean_Syntax_isOfKind(v_stx_533_, v___x_585_);
-if (v___x_586_ == 0)
+lean_object* v___x_586_; lean_object* v___x_587_; uint8_t v___x_588_; 
+v___x_586_ = lean_unsigned_to_nat(1u);
+v___x_587_ = lean_array_get_size(v_args_562_);
+lean_dec_ref(v_args_562_);
+v___x_588_ = lean_nat_dec_le(v___x_587_, v___x_586_);
+if (v___x_588_ == 0)
 {
-lean_object* v___x_587_; lean_object* v___x_588_; uint8_t v___x_589_; 
-lean_dec_ref(v_stx_533_);
-v___x_587_ = lean_array_get_size(v_args_572_);
-lean_dec_ref(v_args_572_);
-v___x_588_ = lean_unsigned_to_nat(1u);
-v___x_589_ = lean_nat_dec_le(v___x_587_, v___x_588_);
-if (v___x_589_ == 0)
+lean_object* v___x_589_; 
+v___x_589_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
+v_kind_x3f_526_ = v___x_589_;
+goto v___jp_525_;
+}
+else
 {
 lean_object* v___x_590_; 
-v___x_590_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
-v_kind_x3f_536_ = v___x_590_;
-goto v___jp_535_;
+v___x_590_ = lean_box(0);
+v_kind_x3f_526_ = v___x_590_;
+goto v___jp_525_;
+}
 }
 else
 {
 lean_object* v___x_591_; 
-v___x_591_ = lean_box(0);
-v_kind_x3f_536_ = v___x_591_;
-goto v___jp_535_;
+lean_dec_ref(v_args_562_);
+v___x_591_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
+v_kind_x3f_526_ = v___x_591_;
+goto v___jp_525_;
+}
 }
 }
 else
 {
 lean_object* v___x_592_; lean_object* v___x_593_; lean_object* v___x_594_; uint8_t v___x_595_; 
-v___x_592_ = lean_unsigned_to_nat(2u);
-v___x_593_ = l_Lean_Syntax_getArg(v_stx_533_, v___x_592_);
-lean_dec_ref(v_stx_533_);
+v___x_592_ = lean_unsigned_to_nat(1u);
+v___x_593_ = l_Lean_Syntax_getArg(v_stx_523_, v___x_592_);
+lean_dec_ref_known(v_stx_523_, 3);
 v___x_594_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__11));
 v___x_595_ = l_Lean_Syntax_isOfKind(v___x_593_, v___x_594_);
 if (v___x_595_ == 0)
 {
-lean_object* v___x_596_; lean_object* v___x_597_; uint8_t v___x_598_; 
-v___x_596_ = lean_unsigned_to_nat(1u);
-v___x_597_ = lean_array_get_size(v_args_572_);
-lean_dec_ref(v_args_572_);
-v___x_598_ = lean_nat_dec_le(v___x_597_, v___x_596_);
-if (v___x_598_ == 0)
+lean_object* v___x_596_; uint8_t v___x_597_; 
+v___x_596_ = lean_array_get_size(v_args_562_);
+lean_dec_ref(v_args_562_);
+v___x_597_ = lean_nat_dec_le(v___x_596_, v___x_592_);
+if (v___x_597_ == 0)
+{
+lean_object* v___x_598_; 
+v___x_598_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
+v_kind_x3f_526_ = v___x_598_;
+goto v___jp_525_;
+}
+else
 {
 lean_object* v___x_599_; 
-v___x_599_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
-v_kind_x3f_536_ = v___x_599_;
-goto v___jp_535_;
+v___x_599_ = lean_box(0);
+v_kind_x3f_526_ = v___x_599_;
+goto v___jp_525_;
+}
 }
 else
 {
 lean_object* v___x_600_; 
-v___x_600_ = lean_box(0);
-v_kind_x3f_536_ = v___x_600_;
-goto v___jp_535_;
-}
-}
-else
-{
-lean_object* v___x_601_; 
-lean_dec_ref(v_args_572_);
-v___x_601_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
-v_kind_x3f_536_ = v___x_601_;
-goto v___jp_535_;
+lean_dec_ref(v_args_562_);
+v___x_600_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
+v_kind_x3f_526_ = v___x_600_;
+goto v___jp_525_;
 }
 }
 }
 else
 {
-lean_object* v___x_602_; lean_object* v___x_603_; lean_object* v___x_604_; uint8_t v___x_605_; 
-v___x_602_ = lean_unsigned_to_nat(1u);
-v___x_603_ = l_Lean_Syntax_getArg(v_stx_533_, v___x_602_);
-lean_dec_ref(v_stx_533_);
+lean_object* v___x_601_; lean_object* v___x_602_; lean_object* v___x_603_; lean_object* v___x_604_; uint8_t v___x_605_; 
+v___x_601_ = lean_unsigned_to_nat(1u);
+v___x_602_ = lean_unsigned_to_nat(2u);
+v___x_603_ = l_Lean_Syntax_getArg(v_stx_523_, v___x_602_);
 v___x_604_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__11));
 v___x_605_ = l_Lean_Syntax_isOfKind(v___x_603_, v___x_604_);
 if (v___x_605_ == 0)
 {
 lean_object* v___x_606_; uint8_t v___x_607_; 
-v___x_606_ = lean_array_get_size(v_args_572_);
-lean_dec_ref(v_args_572_);
-v___x_607_ = lean_nat_dec_le(v___x_606_, v___x_602_);
+lean_dec_ref_known(v_stx_523_, 3);
+v___x_606_ = lean_array_get_size(v_args_562_);
+lean_dec_ref(v_args_562_);
+v___x_607_ = lean_nat_dec_le(v___x_606_, v___x_601_);
 if (v___x_607_ == 0)
 {
 lean_object* v___x_608_; 
 v___x_608_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
-v_kind_x3f_536_ = v___x_608_;
-goto v___jp_535_;
+v_kind_x3f_526_ = v___x_608_;
+goto v___jp_525_;
 }
 else
 {
 lean_object* v___x_609_; 
 v___x_609_ = lean_box(0);
-v_kind_x3f_536_ = v___x_609_;
-goto v___jp_535_;
+v_kind_x3f_526_ = v___x_609_;
+goto v___jp_525_;
 }
 }
 else
 {
-lean_object* v___x_610_; 
-lean_dec_ref(v_args_572_);
-v___x_610_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
-v_kind_x3f_536_ = v___x_610_;
-goto v___jp_535_;
-}
-}
-}
-else
+lean_object* v___x_610_; lean_object* v___x_611_; lean_object* v___x_612_; uint8_t v___x_613_; 
+v___x_610_ = lean_unsigned_to_nat(0u);
+v___x_611_ = lean_unsigned_to_nat(3u);
+v___x_612_ = l_Lean_Syntax_getArg(v_stx_523_, v___x_611_);
+lean_dec_ref_known(v_stx_523_, 3);
+v___x_613_ = l_Lean_Syntax_matchesNull(v___x_612_, v___x_610_);
+if (v___x_613_ == 0)
 {
-lean_object* v___x_611_; lean_object* v___x_612_; lean_object* v___x_613_; lean_object* v___x_614_; uint8_t v___x_615_; 
-v___x_611_ = lean_unsigned_to_nat(1u);
-v___x_612_ = lean_unsigned_to_nat(2u);
-v___x_613_ = l_Lean_Syntax_getArg(v_stx_533_, v___x_612_);
-v___x_614_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__11));
-v___x_615_ = l_Lean_Syntax_isOfKind(v___x_613_, v___x_614_);
+lean_object* v___x_614_; uint8_t v___x_615_; 
+v___x_614_ = lean_array_get_size(v_args_562_);
+lean_dec_ref(v_args_562_);
+v___x_615_ = lean_nat_dec_le(v___x_614_, v___x_601_);
 if (v___x_615_ == 0)
 {
-lean_object* v___x_616_; uint8_t v___x_617_; 
-lean_dec_ref(v_stx_533_);
-v___x_616_ = lean_array_get_size(v_args_572_);
-lean_dec_ref(v_args_572_);
-v___x_617_ = lean_nat_dec_le(v___x_616_, v___x_611_);
-if (v___x_617_ == 0)
+lean_object* v___x_616_; 
+v___x_616_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
+v_kind_x3f_526_ = v___x_616_;
+goto v___jp_525_;
+}
+else
+{
+lean_object* v___x_617_; 
+v___x_617_ = lean_box(0);
+v_kind_x3f_526_ = v___x_617_;
+goto v___jp_525_;
+}
+}
+else
 {
 lean_object* v___x_618_; 
-v___x_618_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
-v_kind_x3f_536_ = v___x_618_;
-goto v___jp_535_;
+lean_dec_ref(v_args_562_);
+v___x_618_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__20));
+v_kind_x3f_526_ = v___x_618_;
+goto v___jp_525_;
+}
+}
+}
 }
 else
 {
 lean_object* v___x_619_; 
-v___x_619_ = lean_box(0);
-v_kind_x3f_536_ = v___x_619_;
-goto v___jp_535_;
+lean_dec_ref(v_args_562_);
+lean_dec_ref_known(v_stx_523_, 3);
+v___x_619_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__20));
+v_kind_x3f_526_ = v___x_619_;
+goto v___jp_525_;
 }
 }
 else
 {
-lean_object* v___x_620_; lean_object* v___x_621_; lean_object* v___x_622_; uint8_t v___x_623_; 
-v___x_620_ = lean_unsigned_to_nat(0u);
-v___x_621_ = lean_unsigned_to_nat(3u);
-v___x_622_ = l_Lean_Syntax_getArg(v_stx_533_, v___x_621_);
-lean_dec_ref(v_stx_533_);
-v___x_623_ = l_Lean_Syntax_matchesNull(v___x_622_, v___x_620_);
-if (v___x_623_ == 0)
-{
-lean_object* v___x_624_; uint8_t v___x_625_; 
-v___x_624_ = lean_array_get_size(v_args_572_);
-lean_dec_ref(v_args_572_);
-v___x_625_ = lean_nat_dec_le(v___x_624_, v___x_611_);
-if (v___x_625_ == 0)
-{
-lean_object* v___x_626_; 
-v___x_626_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__9));
-v_kind_x3f_536_ = v___x_626_;
-goto v___jp_535_;
+lean_object* v___x_620_; 
+lean_dec_ref(v_args_562_);
+lean_dec_ref_known(v_stx_523_, 3);
+v___x_620_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__20));
+v_kind_x3f_526_ = v___x_620_;
+goto v___jp_525_;
+}
 }
 else
 {
-lean_object* v___x_627_; 
-v___x_627_ = lean_box(0);
-v_kind_x3f_536_ = v___x_627_;
-goto v___jp_535_;
+lean_object* v___x_621_; 
+lean_dec_ref(v_args_562_);
+lean_dec_ref_known(v_stx_523_, 3);
+v___x_621_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__21));
+v_kind_x3f_526_ = v___x_621_;
+goto v___jp_525_;
 }
+}
+else
+{
+lean_object* v___x_622_; 
+lean_dec_ref(v_args_562_);
+lean_dec_ref_known(v_stx_523_, 3);
+v___x_622_ = lean_box(0);
+v_kind_x3f_526_ = v___x_622_;
+goto v___jp_525_;
+}
+}
+else
+{
+lean_object* v___x_623_; 
+lean_dec(v_stx_523_);
+v___x_623_ = lean_box(0);
+v_kind_x3f_526_ = v___x_623_;
+goto v___jp_525_;
+}
+}
+}
+v___jp_624_:
+{
+if (v___y_625_ == 0)
+{
+if (v___y_626_ == 0)
+{
+if (v___y_627_ == 0)
+{
+goto v___jp_530_;
 }
 else
 {
 lean_object* v___x_628_; 
-lean_dec_ref(v_args_572_);
-v___x_628_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__20));
-v_kind_x3f_536_ = v___x_628_;
-goto v___jp_535_;
-}
-}
-}
-}
-else
-{
-lean_object* v___x_629_; 
-lean_dec_ref(v_args_572_);
-lean_dec_ref(v_stx_533_);
-v___x_629_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__20));
-v_kind_x3f_536_ = v___x_629_;
-goto v___jp_535_;
+lean_dec(v_parent_524_);
+lean_dec(v_stx_523_);
+v___x_628_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__22));
+return v___x_628_;
 }
 }
 else
 {
-lean_object* v___x_630_; 
-lean_dec_ref(v_args_572_);
-lean_dec_ref(v_stx_533_);
-v___x_630_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__20));
-v_kind_x3f_536_ = v___x_630_;
-goto v___jp_535_;
+goto v___jp_530_;
 }
 }
 else
 {
-lean_object* v___x_631_; 
-lean_dec_ref(v_args_572_);
-lean_dec_ref(v_stx_533_);
-v___x_631_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__21));
-v_kind_x3f_536_ = v___x_631_;
-goto v___jp_535_;
-}
-}
-else
-{
-lean_object* v___x_632_; 
-lean_dec_ref(v_args_572_);
-lean_dec_ref(v_stx_533_);
-v___x_632_ = lean_box(0);
-v_kind_x3f_536_ = v___x_632_;
-goto v___jp_535_;
-}
-}
-else
-{
-lean_object* v___x_633_; 
-lean_dec(v_stx_533_);
-v___x_633_ = lean_box(0);
-v_kind_x3f_536_ = v___x_633_;
-goto v___jp_535_;
-}
-}
-}
-v___jp_634_:
-{
-if (v___y_635_ == 0)
-{
-if (v___y_636_ == 0)
-{
-if (v___y_637_ == 0)
-{
-goto v___jp_540_;
-}
-else
-{
-lean_object* v___x_638_; 
-lean_dec(v_parent_534_);
-lean_dec(v_stx_533_);
-v___x_638_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__22));
-return v___x_638_;
-}
-}
-else
-{
-goto v___jp_540_;
-}
-}
-else
-{
-goto v___jp_540_;
+goto v___jp_530_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___boxed(lean_object* v_text_659_, lean_object* v_ctx_x3f_660_, lean_object* v_requestedPos_661_, lean_object* v_stx_662_, lean_object* v_parent_663_){
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___boxed(lean_object* v_text_649_, lean_object* v_ctx_x3f_650_, lean_object* v_requestedPos_651_, lean_object* v_stx_652_, lean_object* v_parent_653_){
 _start:
 {
-lean_object* v_res_664_; 
-v_res_664_ = l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind(v_text_659_, v_ctx_x3f_660_, v_requestedPos_661_, v_stx_662_, v_parent_663_);
-lean_dec(v_requestedPos_661_);
-lean_dec(v_ctx_x3f_660_);
-return v_res_664_;
+lean_object* v_res_654_; 
+v_res_654_ = l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind(v_text_649_, v_ctx_x3f_650_, v_requestedPos_651_, v_stx_652_, v_parent_653_);
+lean_dec(v_requestedPos_651_);
+lean_dec(v_ctx_x3f_650_);
+return v_res_654_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__0(uint8_t v___x_665_, lean_object* v_stx_666_){
+LEAN_EXPORT uint8_t l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__0(uint8_t v___x_655_, lean_object* v_stx_656_){
 _start:
 {
-uint8_t v___x_667_; 
-v___x_667_ = l_Lean_Syntax_hasArgs(v_stx_666_);
-if (v___x_667_ == 0)
+uint8_t v___x_657_; 
+v___x_657_ = l_Lean_Syntax_hasArgs(v_stx_656_);
+if (v___x_657_ == 0)
 {
-uint8_t v___x_668_; 
-v___x_668_ = 1;
-return v___x_668_;
+uint8_t v___x_658_; 
+v___x_658_ = 1;
+return v___x_658_;
 }
 else
 {
-return v___x_665_;
+return v___x_655_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__0___boxed(lean_object* v___x_669_, lean_object* v_stx_670_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__0___boxed(lean_object* v___x_659_, lean_object* v_stx_660_){
 _start:
 {
-uint8_t v___x_3193__boxed_671_; uint8_t v_res_672_; lean_object* v_r_673_; 
-v___x_3193__boxed_671_ = lean_unbox(v___x_669_);
-v_res_672_ = l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__0(v___x_3193__boxed_671_, v_stx_670_);
-lean_dec(v_stx_670_);
-v_r_673_ = lean_box(v_res_672_);
-return v_r_673_;
+uint8_t v___x_3193__boxed_661_; uint8_t v_res_662_; lean_object* v_r_663_; 
+v___x_3193__boxed_661_ = lean_unbox(v___x_659_);
+v_res_662_ = l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__0(v___x_3193__boxed_661_, v_stx_660_);
+lean_dec(v_stx_660_);
+v_r_663_ = lean_box(v_res_662_);
+return v_r_663_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__1(uint8_t v___x_674_, lean_object* v_requestedPos_675_, uint8_t v___x_676_, lean_object* v_stx_677_){
+LEAN_EXPORT uint8_t l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__1(uint8_t v___x_664_, lean_object* v_requestedPos_665_, uint8_t v___x_666_, lean_object* v_stx_667_){
 _start:
 {
-lean_object* v___x_678_; 
-v___x_678_ = l_Lean_Syntax_getRangeWithTrailing_x3f(v_stx_677_, v___x_674_);
-if (lean_obj_tag(v___x_678_) == 1)
+lean_object* v___x_668_; 
+v___x_668_ = l_Lean_Syntax_getRangeWithTrailing_x3f(v_stx_667_, v___x_664_);
+if (lean_obj_tag(v___x_668_) == 1)
 {
-lean_object* v_val_679_; uint8_t v___x_680_; 
-v_val_679_ = lean_ctor_get(v___x_678_, 0);
-lean_inc(v_val_679_);
-lean_dec_ref(v___x_678_);
-v___x_680_ = l_Lean_Syntax_Range_contains(v_val_679_, v_requestedPos_675_, v___x_674_);
-lean_dec(v_val_679_);
-return v___x_680_;
+lean_object* v_val_669_; uint8_t v___x_670_; 
+v_val_669_ = lean_ctor_get(v___x_668_, 0);
+lean_inc(v_val_669_);
+lean_dec_ref_known(v___x_668_, 1);
+v___x_670_ = l_Lean_Syntax_Range_contains(v_val_669_, v_requestedPos_665_, v___x_664_);
+lean_dec(v_val_669_);
+return v___x_670_;
 }
 else
 {
-lean_dec(v___x_678_);
-return v___x_676_;
+lean_dec(v___x_668_);
+return v___x_666_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__1___boxed(lean_object* v___x_681_, lean_object* v_requestedPos_682_, lean_object* v___x_683_, lean_object* v_stx_684_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__1___boxed(lean_object* v___x_671_, lean_object* v_requestedPos_672_, lean_object* v___x_673_, lean_object* v_stx_674_){
 _start:
 {
-uint8_t v___x_3200__boxed_685_; uint8_t v___x_3201__boxed_686_; uint8_t v_res_687_; lean_object* v_r_688_; 
-v___x_3200__boxed_685_ = lean_unbox(v___x_681_);
-v___x_3201__boxed_686_ = lean_unbox(v___x_683_);
-v_res_687_ = l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__1(v___x_3200__boxed_685_, v_requestedPos_682_, v___x_3201__boxed_686_, v_stx_684_);
-lean_dec(v_stx_684_);
-lean_dec(v_requestedPos_682_);
-v_r_688_ = lean_box(v_res_687_);
-return v_r_688_;
+uint8_t v___x_3200__boxed_675_; uint8_t v___x_3201__boxed_676_; uint8_t v_res_677_; lean_object* v_r_678_; 
+v___x_3200__boxed_675_ = lean_unbox(v___x_671_);
+v___x_3201__boxed_676_ = lean_unbox(v___x_673_);
+v_res_677_ = l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__1(v___x_3200__boxed_675_, v_requestedPos_672_, v___x_3201__boxed_676_, v_stx_674_);
+lean_dec(v_stx_674_);
+lean_dec(v_requestedPos_672_);
+v_r_678_ = lean_box(v_res_677_);
+return v_r_678_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__2(lean_object* v_c1_689_, lean_object* v_c2_690_){
+LEAN_EXPORT uint8_t l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__2(lean_object* v_c1_679_, lean_object* v_c2_680_){
 _start:
 {
-uint8_t v_kind_691_; uint8_t v_kind_692_; lean_object* v___x_693_; lean_object* v___x_694_; uint8_t v___x_695_; 
-v_kind_691_ = lean_ctor_get_uint8(v_c2_690_, sizeof(void*)*1);
-v_kind_692_ = lean_ctor_get_uint8(v_c1_689_, sizeof(void*)*1);
-v___x_693_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_prio(v_kind_691_);
-v___x_694_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_prio(v_kind_692_);
-v___x_695_ = lean_nat_dec_le(v___x_693_, v___x_694_);
-lean_dec(v___x_694_);
-lean_dec(v___x_693_);
-return v___x_695_;
+uint8_t v_kind_681_; uint8_t v_kind_682_; lean_object* v___x_683_; lean_object* v___x_684_; uint8_t v___x_685_; 
+v_kind_681_ = lean_ctor_get_uint8(v_c2_680_, sizeof(void*)*1);
+v_kind_682_ = lean_ctor_get_uint8(v_c1_679_, sizeof(void*)*1);
+v___x_683_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_prio(v_kind_681_);
+v___x_684_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_prio(v_kind_682_);
+v___x_685_ = lean_nat_dec_le(v___x_683_, v___x_684_);
+lean_dec(v___x_684_);
+lean_dec(v___x_683_);
+return v___x_685_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__2___boxed(lean_object* v_c1_696_, lean_object* v_c2_697_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__2___boxed(lean_object* v_c1_686_, lean_object* v_c2_687_){
 _start:
 {
-uint8_t v_res_698_; lean_object* v_r_699_; 
-v_res_698_ = l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__2(v_c1_696_, v_c2_697_);
-lean_dec_ref(v_c2_697_);
-lean_dec_ref(v_c1_696_);
-v_r_699_ = lean_box(v_res_698_);
-return v_r_699_;
+uint8_t v_res_688_; lean_object* v_r_689_; 
+v_res_688_ = l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__2(v_c1_686_, v_c2_687_);
+lean_dec_ref(v_c2_687_);
+lean_dec_ref(v_c1_686_);
+v_r_689_ = lean_box(v_res_688_);
+return v_r_689_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1(lean_object* v_tree_708_, uint8_t v___y_709_, uint8_t v___x_710_, lean_object* v_as_711_, size_t v_sz_712_, size_t v_i_713_, lean_object* v_b_714_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1(lean_object* v_tree_698_, uint8_t v___y_699_, uint8_t v___x_700_, lean_object* v_as_701_, size_t v_sz_702_, size_t v_i_703_, lean_object* v_b_704_){
 _start:
 {
-uint8_t v___x_716_; 
-v___x_716_ = lean_usize_dec_lt(v_i_713_, v_sz_712_);
-if (v___x_716_ == 0)
+uint8_t v___x_706_; 
+v___x_706_ = lean_usize_dec_lt(v_i_703_, v_sz_702_);
+if (v___x_706_ == 0)
 {
-lean_object* v___x_717_; 
-lean_dec_ref(v_tree_708_);
-v___x_717_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_717_, 0, v_b_714_);
-return v___x_717_;
+lean_object* v___x_707_; 
+lean_dec_ref(v_tree_698_);
+v___x_707_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_707_, 0, v_b_704_);
+return v___x_707_;
 }
 else
 {
-lean_object* v_a_718_; uint8_t v_kind_719_; lean_object* v___x_720_; lean_object* v___x_721_; 
-lean_dec_ref(v_b_714_);
-v_a_718_ = lean_array_uget_borrowed(v_as_711_, v_i_713_);
-v_kind_719_ = lean_ctor_get_uint8(v_a_718_, sizeof(void*)*1);
-v___x_720_ = lean_box(0);
-v___x_721_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1___closed__0));
-if (v_kind_719_ == 1)
+lean_object* v_a_708_; uint8_t v_kind_709_; lean_object* v___x_710_; lean_object* v___x_711_; 
+lean_dec_ref(v_b_704_);
+v_a_708_ = lean_array_uget_borrowed(v_as_701_, v_i_703_);
+v_kind_709_ = lean_ctor_get_uint8(v_a_708_, sizeof(void*)*1);
+v___x_710_ = lean_box(0);
+v___x_711_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1___closed__0));
+if (v_kind_709_ == 1)
 {
-goto v___jp_746_;
+goto v___jp_736_;
 }
 else
 {
-if (v___x_710_ == 0)
+if (v___x_700_ == 0)
 {
-goto v___jp_722_;
+goto v___jp_712_;
 }
 else
 {
-goto v___jp_746_;
+goto v___jp_736_;
 }
 }
-v___jp_722_:
+v___jp_712_:
 {
-lean_object* v_appStx_723_; lean_object* v___x_724_; 
-v_appStx_723_ = lean_ctor_get(v_a_718_, 0);
-lean_inc(v_appStx_723_);
-lean_inc_ref(v_tree_708_);
-v___x_724_ = l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp(v_tree_708_, v_appStx_723_);
-if (lean_obj_tag(v___x_724_) == 0)
+lean_object* v_appStx_713_; lean_object* v___x_714_; 
+v_appStx_713_ = lean_ctor_get(v_a_708_, 0);
+lean_inc(v_appStx_713_);
+lean_inc_ref(v_tree_698_);
+v___x_714_ = l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp(v_tree_698_, v_appStx_713_);
+if (lean_obj_tag(v___x_714_) == 0)
 {
-lean_object* v_a_725_; lean_object* v___x_727_; uint8_t v_isShared_728_; uint8_t v_isSharedCheck_737_; 
-v_a_725_ = lean_ctor_get(v___x_724_, 0);
-v_isSharedCheck_737_ = !lean_is_exclusive(v___x_724_);
-if (v_isSharedCheck_737_ == 0)
+lean_object* v_a_715_; lean_object* v___x_717_; uint8_t v_isShared_718_; uint8_t v_isSharedCheck_727_; 
+v_a_715_ = lean_ctor_get(v___x_714_, 0);
+v_isSharedCheck_727_ = !lean_is_exclusive(v___x_714_);
+if (v_isSharedCheck_727_ == 0)
 {
-v___x_727_ = v___x_724_;
-v_isShared_728_ = v_isSharedCheck_737_;
-goto v_resetjp_726_;
-}
-else
-{
-lean_inc(v_a_725_);
-lean_dec(v___x_724_);
-v___x_727_ = lean_box(0);
-v_isShared_728_ = v_isSharedCheck_737_;
-goto v_resetjp_726_;
-}
-v_resetjp_726_:
-{
-if (lean_obj_tag(v_a_725_) == 1)
-{
-lean_object* v___x_729_; lean_object* v___x_730_; lean_object* v___x_732_; 
-lean_dec_ref(v_tree_708_);
-v___x_729_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_729_, 0, v_a_725_);
-v___x_730_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_730_, 0, v___x_729_);
-lean_ctor_set(v___x_730_, 1, v___x_720_);
-if (v_isShared_728_ == 0)
-{
-lean_ctor_set(v___x_727_, 0, v___x_730_);
-v___x_732_ = v___x_727_;
-goto v_reusejp_731_;
+v___x_717_ = v___x_714_;
+v_isShared_718_ = v_isSharedCheck_727_;
+goto v_resetjp_716_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_733_; 
-v_reuseFailAlloc_733_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_733_, 0, v___x_730_);
-v___x_732_ = v_reuseFailAlloc_733_;
-goto v_reusejp_731_;
+lean_inc(v_a_715_);
+lean_dec(v___x_714_);
+v___x_717_ = lean_box(0);
+v_isShared_718_ = v_isSharedCheck_727_;
+goto v_resetjp_716_;
 }
-v_reusejp_731_:
+v_resetjp_716_:
 {
-return v___x_732_;
+if (lean_obj_tag(v_a_715_) == 1)
+{
+lean_object* v___x_719_; lean_object* v___x_720_; lean_object* v___x_722_; 
+lean_dec_ref(v_tree_698_);
+v___x_719_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_719_, 0, v_a_715_);
+v___x_720_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_720_, 0, v___x_719_);
+lean_ctor_set(v___x_720_, 1, v___x_710_);
+if (v_isShared_718_ == 0)
+{
+lean_ctor_set(v___x_717_, 0, v___x_720_);
+v___x_722_ = v___x_717_;
+goto v_reusejp_721_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_723_; 
+v_reuseFailAlloc_723_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_723_, 0, v___x_720_);
+v___x_722_ = v_reuseFailAlloc_723_;
+goto v_reusejp_721_;
+}
+v_reusejp_721_:
+{
+return v___x_722_;
 }
 }
 else
 {
-size_t v___x_734_; size_t v___x_735_; 
-lean_del_object(v___x_727_);
-lean_dec(v_a_725_);
-v___x_734_ = ((size_t)1ULL);
-v___x_735_ = lean_usize_add(v_i_713_, v___x_734_);
-v_i_713_ = v___x_735_;
-v_b_714_ = v___x_721_;
+size_t v___x_724_; size_t v___x_725_; 
+lean_del_object(v___x_717_);
+lean_dec(v_a_715_);
+v___x_724_ = ((size_t)1ULL);
+v___x_725_ = lean_usize_add(v_i_703_, v___x_724_);
+v_i_703_ = v___x_725_;
+v_b_704_ = v___x_711_;
 goto _start;
 }
 }
 }
 else
 {
-lean_object* v_a_738_; lean_object* v___x_740_; uint8_t v_isShared_741_; uint8_t v_isSharedCheck_745_; 
-lean_dec_ref(v_tree_708_);
-v_a_738_ = lean_ctor_get(v___x_724_, 0);
-v_isSharedCheck_745_ = !lean_is_exclusive(v___x_724_);
-if (v_isSharedCheck_745_ == 0)
+lean_object* v_a_728_; lean_object* v___x_730_; uint8_t v_isShared_731_; uint8_t v_isSharedCheck_735_; 
+lean_dec_ref(v_tree_698_);
+v_a_728_ = lean_ctor_get(v___x_714_, 0);
+v_isSharedCheck_735_ = !lean_is_exclusive(v___x_714_);
+if (v_isSharedCheck_735_ == 0)
 {
-v___x_740_ = v___x_724_;
-v_isShared_741_ = v_isSharedCheck_745_;
-goto v_resetjp_739_;
+v___x_730_ = v___x_714_;
+v_isShared_731_ = v_isSharedCheck_735_;
+goto v_resetjp_729_;
 }
 else
 {
-lean_inc(v_a_738_);
-lean_dec(v___x_724_);
-v___x_740_ = lean_box(0);
-v_isShared_741_ = v_isSharedCheck_745_;
-goto v_resetjp_739_;
+lean_inc(v_a_728_);
+lean_dec(v___x_714_);
+v___x_730_ = lean_box(0);
+v_isShared_731_ = v_isSharedCheck_735_;
+goto v_resetjp_729_;
 }
-v_resetjp_739_:
+v_resetjp_729_:
 {
-lean_object* v___x_743_; 
-if (v_isShared_741_ == 0)
+lean_object* v___x_733_; 
+if (v_isShared_731_ == 0)
 {
-v___x_743_ = v___x_740_;
-goto v_reusejp_742_;
+v___x_733_ = v___x_730_;
+goto v_reusejp_732_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_744_; 
-v_reuseFailAlloc_744_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_744_, 0, v_a_738_);
-v___x_743_ = v_reuseFailAlloc_744_;
-goto v_reusejp_742_;
+lean_object* v_reuseFailAlloc_734_; 
+v_reuseFailAlloc_734_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_734_, 0, v_a_728_);
+v___x_733_ = v_reuseFailAlloc_734_;
+goto v_reusejp_732_;
 }
-v_reusejp_742_:
+v_reusejp_732_:
 {
-return v___x_743_;
+return v___x_733_;
 }
 }
 }
 }
-v___jp_746_:
+v___jp_736_:
 {
-if (v___y_709_ == 0)
+if (v___y_699_ == 0)
 {
-goto v___jp_722_;
+goto v___jp_712_;
 }
 else
 {
-lean_object* v___x_747_; lean_object* v___x_748_; 
-lean_dec_ref(v_tree_708_);
-v___x_747_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1___closed__2));
-v___x_748_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_748_, 0, v___x_747_);
-return v___x_748_;
+lean_object* v___x_737_; lean_object* v___x_738_; 
+lean_dec_ref(v_tree_698_);
+v___x_737_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1___closed__2));
+v___x_738_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_738_, 0, v___x_737_);
+return v___x_738_;
 }
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1___boxed(lean_object* v_tree_749_, lean_object* v___y_750_, lean_object* v___x_751_, lean_object* v_as_752_, lean_object* v_sz_753_, lean_object* v_i_754_, lean_object* v_b_755_, lean_object* v___y_756_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1___boxed(lean_object* v_tree_739_, lean_object* v___y_740_, lean_object* v___x_741_, lean_object* v_as_742_, lean_object* v_sz_743_, lean_object* v_i_744_, lean_object* v_b_745_, lean_object* v___y_746_){
 _start:
 {
-uint8_t v___y_3234__boxed_757_; uint8_t v___x_3235__boxed_758_; size_t v_sz_boxed_759_; size_t v_i_boxed_760_; lean_object* v_res_761_; 
-v___y_3234__boxed_757_ = lean_unbox(v___y_750_);
-v___x_3235__boxed_758_ = lean_unbox(v___x_751_);
-v_sz_boxed_759_ = lean_unbox_usize(v_sz_753_);
-lean_dec(v_sz_753_);
-v_i_boxed_760_ = lean_unbox_usize(v_i_754_);
-lean_dec(v_i_754_);
-v_res_761_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1(v_tree_749_, v___y_3234__boxed_757_, v___x_3235__boxed_758_, v_as_752_, v_sz_boxed_759_, v_i_boxed_760_, v_b_755_);
-lean_dec_ref(v_as_752_);
-return v_res_761_;
+uint8_t v___y_3234__boxed_747_; uint8_t v___x_3235__boxed_748_; size_t v_sz_boxed_749_; size_t v_i_boxed_750_; lean_object* v_res_751_; 
+v___y_3234__boxed_747_ = lean_unbox(v___y_740_);
+v___x_3235__boxed_748_ = lean_unbox(v___x_741_);
+v_sz_boxed_749_ = lean_unbox_usize(v_sz_743_);
+lean_dec(v_sz_743_);
+v_i_boxed_750_ = lean_unbox_usize(v_i_744_);
+lean_dec(v_i_744_);
+v_res_751_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1(v_tree_739_, v___y_3234__boxed_747_, v___x_3235__boxed_748_, v_as_742_, v_sz_boxed_749_, v_i_boxed_750_, v_b_745_);
+lean_dec_ref(v_as_742_);
+return v_res_751_;
 }
 }
 static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2___closed__0(void){
 _start:
 {
-uint8_t v___x_762_; lean_object* v___x_763_; 
-v___x_762_ = 1;
-v___x_763_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_prio(v___x_762_);
-return v___x_763_;
+uint8_t v___x_752_; lean_object* v___x_753_; 
+v___x_752_ = 1;
+v___x_753_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_prio(v___x_752_);
+return v___x_753_;
 }
 }
-LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2(lean_object* v_as_764_, size_t v_i_765_, size_t v_stop_766_){
+LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2(lean_object* v_as_754_, size_t v_i_755_, size_t v_stop_756_){
 _start:
 {
-uint8_t v___x_767_; 
-v___x_767_ = lean_usize_dec_eq(v_i_765_, v_stop_766_);
-if (v___x_767_ == 0)
+uint8_t v___x_757_; 
+v___x_757_ = lean_usize_dec_eq(v_i_755_, v_stop_756_);
+if (v___x_757_ == 0)
 {
-lean_object* v___x_768_; uint8_t v_kind_769_; lean_object* v___x_770_; lean_object* v___x_771_; uint8_t v___x_772_; 
-v___x_768_ = lean_array_uget_borrowed(v_as_764_, v_i_765_);
-v_kind_769_ = lean_ctor_get_uint8(v___x_768_, sizeof(void*)*1);
-v___x_770_ = lean_obj_once(&l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2___closed__0, &l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2___closed__0_once, _init_l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2___closed__0);
-v___x_771_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_prio(v_kind_769_);
-v___x_772_ = lean_nat_dec_lt(v___x_770_, v___x_771_);
-lean_dec(v___x_771_);
-if (v___x_772_ == 0)
+lean_object* v___x_758_; uint8_t v_kind_759_; lean_object* v___x_760_; lean_object* v___x_761_; uint8_t v___x_762_; 
+v___x_758_ = lean_array_uget_borrowed(v_as_754_, v_i_755_);
+v_kind_759_ = lean_ctor_get_uint8(v___x_758_, sizeof(void*)*1);
+v___x_760_ = lean_obj_once(&l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2___closed__0, &l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2___closed__0_once, _init_l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2___closed__0);
+v___x_761_ = l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_prio(v_kind_759_);
+v___x_762_ = lean_nat_dec_lt(v___x_760_, v___x_761_);
+lean_dec(v___x_761_);
+if (v___x_762_ == 0)
 {
-size_t v___x_773_; size_t v___x_774_; 
-v___x_773_ = ((size_t)1ULL);
-v___x_774_ = lean_usize_add(v_i_765_, v___x_773_);
-v_i_765_ = v___x_774_;
+size_t v___x_763_; size_t v___x_764_; 
+v___x_763_ = ((size_t)1ULL);
+v___x_764_ = lean_usize_add(v_i_755_, v___x_763_);
+v_i_755_ = v___x_764_;
 goto _start;
 }
 else
 {
-return v___x_772_;
+return v___x_762_;
 }
 }
 else
 {
-uint8_t v___x_776_; 
-v___x_776_ = 0;
-return v___x_776_;
+uint8_t v___x_766_; 
+v___x_766_ = 0;
+return v___x_766_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2___boxed(lean_object* v_as_777_, lean_object* v_i_778_, lean_object* v_stop_779_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2___boxed(lean_object* v_as_767_, lean_object* v_i_768_, lean_object* v_stop_769_){
 _start:
 {
-size_t v_i_boxed_780_; size_t v_stop_boxed_781_; uint8_t v_res_782_; lean_object* v_r_783_; 
-v_i_boxed_780_ = lean_unbox_usize(v_i_778_);
-lean_dec(v_i_778_);
-v_stop_boxed_781_ = lean_unbox_usize(v_stop_779_);
-lean_dec(v_stop_779_);
-v_res_782_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2(v_as_777_, v_i_boxed_780_, v_stop_boxed_781_);
-lean_dec_ref(v_as_777_);
-v_r_783_ = lean_box(v_res_782_);
-return v_r_783_;
+size_t v_i_boxed_770_; size_t v_stop_boxed_771_; uint8_t v_res_772_; lean_object* v_r_773_; 
+v_i_boxed_770_ = lean_unbox_usize(v_i_768_);
+lean_dec(v_i_768_);
+v_stop_boxed_771_ = lean_unbox_usize(v_stop_769_);
+lean_dec(v_stop_769_);
+v_res_772_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2(v_as_767_, v_i_boxed_770_, v_stop_boxed_771_);
+lean_dec_ref(v_as_767_);
+v_r_773_ = lean_box(v_res_772_);
+return v_r_773_;
 }
 }
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg___lam__0(uint8_t v_snd_784_, uint8_t v___x_785_, lean_object* v_____r_786_, lean_object* v_candidates_787_){
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg___lam__0(uint8_t v_snd_774_, uint8_t v___x_775_, lean_object* v_____r_776_, lean_object* v_candidates_777_){
 _start:
 {
-if (v_snd_784_ == 1)
+if (v_snd_774_ == 1)
 {
-goto v___jp_789_;
+goto v___jp_779_;
 }
 else
 {
-if (v___x_785_ == 0)
+if (v___x_775_ == 0)
 {
-lean_object* v___x_792_; lean_object* v___x_793_; 
-v___x_792_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_792_, 0, v_candidates_787_);
-v___x_793_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_793_, 0, v___x_792_);
-return v___x_793_;
+lean_object* v___x_782_; lean_object* v___x_783_; 
+v___x_782_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_782_, 0, v_candidates_777_);
+v___x_783_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_783_, 0, v___x_782_);
+return v___x_783_;
 }
 else
 {
-goto v___jp_789_;
+goto v___jp_779_;
 }
 }
-v___jp_789_:
+v___jp_779_:
 {
-lean_object* v___x_790_; lean_object* v___x_791_; 
-v___x_790_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_790_, 0, v_candidates_787_);
-v___x_791_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_791_, 0, v___x_790_);
-return v___x_791_;
+lean_object* v___x_780_; lean_object* v___x_781_; 
+v___x_780_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_780_, 0, v_candidates_777_);
+v___x_781_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_781_, 0, v___x_780_);
+return v___x_781_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg___lam__0___boxed(lean_object* v_snd_794_, lean_object* v___x_795_, lean_object* v_____r_796_, lean_object* v_candidates_797_, lean_object* v___y_798_){
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg___lam__0___boxed(lean_object* v_snd_784_, lean_object* v___x_785_, lean_object* v_____r_786_, lean_object* v_candidates_787_, lean_object* v___y_788_){
 _start:
 {
-uint8_t v_snd_3336__boxed_799_; uint8_t v___x_3337__boxed_800_; lean_object* v_res_801_; 
-v_snd_3336__boxed_799_ = lean_unbox(v_snd_794_);
-v___x_3337__boxed_800_ = lean_unbox(v___x_795_);
-v_res_801_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg___lam__0(v_snd_3336__boxed_799_, v___x_3337__boxed_800_, v_____r_796_, v_candidates_797_);
-return v_res_801_;
+uint8_t v_snd_3336__boxed_789_; uint8_t v___x_3337__boxed_790_; lean_object* v_res_791_; 
+v_snd_3336__boxed_789_ = lean_unbox(v_snd_784_);
+v___x_3337__boxed_790_ = lean_unbox(v___x_785_);
+v_res_791_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg___lam__0(v_snd_3336__boxed_789_, v___x_3337__boxed_790_, v_____r_786_, v_candidates_787_);
+return v_res_791_;
 }
 }
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg(lean_object* v_upperBound_802_, lean_object* v_stack_803_, lean_object* v_text_804_, lean_object* v_ctx_x3f_805_, lean_object* v_requestedPos_806_, uint8_t v___x_807_, lean_object* v_a_808_, lean_object* v_b_809_){
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg(lean_object* v_upperBound_792_, lean_object* v_stack_793_, lean_object* v_text_794_, lean_object* v_ctx_x3f_795_, lean_object* v_requestedPos_796_, uint8_t v___x_797_, lean_object* v_a_798_, lean_object* v_b_799_){
 _start:
 {
-lean_object* v___y_812_; uint8_t v___x_834_; 
-v___x_834_ = lean_nat_dec_lt(v_a_808_, v_upperBound_802_);
-if (v___x_834_ == 0)
+lean_object* v___y_802_; uint8_t v___x_824_; 
+v___x_824_ = lean_nat_dec_lt(v_a_798_, v_upperBound_792_);
+if (v___x_824_ == 0)
 {
-lean_object* v___x_835_; 
-lean_dec(v_a_808_);
-lean_dec_ref(v_text_804_);
-v___x_835_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_835_, 0, v_b_809_);
-return v___x_835_;
+lean_object* v___x_825_; 
+lean_dec(v_a_798_);
+lean_dec_ref(v_text_794_);
+v___x_825_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_825_, 0, v_b_799_);
+return v___x_825_;
 }
 else
 {
-lean_object* v___x_836_; lean_object* v___y_838_; lean_object* v___x_853_; lean_object* v___x_854_; lean_object* v___x_855_; uint8_t v___x_856_; 
-v___x_836_ = lean_array_fget_borrowed(v_stack_803_, v_a_808_);
-v___x_853_ = lean_unsigned_to_nat(1u);
-v___x_854_ = lean_nat_add(v_a_808_, v___x_853_);
-v___x_855_ = lean_array_get_size(v_stack_803_);
-v___x_856_ = lean_nat_dec_lt(v___x_854_, v___x_855_);
-if (v___x_856_ == 0)
+lean_object* v___x_826_; lean_object* v___y_828_; lean_object* v___x_843_; lean_object* v___x_844_; lean_object* v___x_845_; uint8_t v___x_846_; 
+v___x_826_ = lean_array_fget_borrowed(v_stack_793_, v_a_798_);
+v___x_843_ = lean_unsigned_to_nat(1u);
+v___x_844_ = lean_nat_add(v_a_798_, v___x_843_);
+v___x_845_ = lean_array_get_size(v_stack_793_);
+v___x_846_ = lean_nat_dec_lt(v___x_844_, v___x_845_);
+if (v___x_846_ == 0)
 {
-lean_object* v___x_857_; 
-lean_dec(v___x_854_);
-v___x_857_ = lean_box(0);
-v___y_838_ = v___x_857_;
-goto v___jp_837_;
+lean_object* v___x_847_; 
+lean_dec(v___x_844_);
+v___x_847_ = lean_box(0);
+v___y_828_ = v___x_847_;
+goto v___jp_827_;
 }
 else
 {
-lean_object* v___x_858_; 
-v___x_858_ = lean_array_fget_borrowed(v_stack_803_, v___x_854_);
-lean_dec(v___x_854_);
-lean_inc(v___x_858_);
-v___y_838_ = v___x_858_;
-goto v___jp_837_;
+lean_object* v___x_848_; 
+v___x_848_ = lean_array_fget_borrowed(v_stack_793_, v___x_844_);
+lean_dec(v___x_844_);
+lean_inc(v___x_848_);
+v___y_828_ = v___x_848_;
+goto v___jp_827_;
 }
-v___jp_837_:
+v___jp_827_:
 {
-lean_object* v___x_839_; lean_object* v_fst_840_; 
-lean_inc(v___x_836_);
-lean_inc_ref(v_text_804_);
-v___x_839_ = l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind(v_text_804_, v_ctx_x3f_805_, v_requestedPos_806_, v___x_836_, v___y_838_);
-v_fst_840_ = lean_ctor_get(v___x_839_, 0);
-lean_inc(v_fst_840_);
-if (lean_obj_tag(v_fst_840_) == 1)
+lean_object* v___x_829_; lean_object* v_fst_830_; 
+lean_inc(v___x_826_);
+lean_inc_ref(v_text_794_);
+v___x_829_ = l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind(v_text_794_, v_ctx_x3f_795_, v_requestedPos_796_, v___x_826_, v___y_828_);
+v_fst_830_ = lean_ctor_get(v___x_829_, 0);
+lean_inc(v_fst_830_);
+if (lean_obj_tag(v_fst_830_) == 1)
 {
-lean_object* v_snd_841_; lean_object* v_val_842_; lean_object* v___x_843_; uint8_t v___x_844_; lean_object* v___x_845_; lean_object* v___x_846_; uint8_t v___x_847_; lean_object* v___x_848_; 
-v_snd_841_ = lean_ctor_get(v___x_839_, 1);
-lean_inc(v_snd_841_);
-lean_dec_ref(v___x_839_);
-v_val_842_ = lean_ctor_get(v_fst_840_, 0);
-lean_inc(v_val_842_);
-lean_dec_ref(v_fst_840_);
-lean_inc(v___x_836_);
-v___x_843_ = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(v___x_843_, 0, v___x_836_);
-v___x_844_ = lean_unbox(v_val_842_);
-lean_dec(v_val_842_);
-lean_ctor_set_uint8(v___x_843_, sizeof(void*)*1, v___x_844_);
-v___x_845_ = lean_array_push(v_b_809_, v___x_843_);
-v___x_846_ = lean_box(0);
-v___x_847_ = lean_unbox(v_snd_841_);
-lean_dec(v_snd_841_);
-v___x_848_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg___lam__0(v___x_847_, v___x_807_, v___x_846_, v___x_845_);
-v___y_812_ = v___x_848_;
-goto v___jp_811_;
-}
-else
-{
-lean_object* v_snd_849_; lean_object* v___x_850_; uint8_t v___x_851_; lean_object* v___x_852_; 
-lean_dec(v_fst_840_);
-v_snd_849_ = lean_ctor_get(v___x_839_, 1);
-lean_inc(v_snd_849_);
-lean_dec_ref(v___x_839_);
-v___x_850_ = lean_box(0);
-v___x_851_ = lean_unbox(v_snd_849_);
-lean_dec(v_snd_849_);
-v___x_852_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg___lam__0(v___x_851_, v___x_807_, v___x_850_, v_b_809_);
-v___y_812_ = v___x_852_;
-goto v___jp_811_;
-}
-}
-}
-v___jp_811_:
-{
-if (lean_obj_tag(v___y_812_) == 0)
-{
-lean_object* v_a_813_; lean_object* v___x_815_; uint8_t v_isShared_816_; uint8_t v_isSharedCheck_825_; 
-v_a_813_ = lean_ctor_get(v___y_812_, 0);
-v_isSharedCheck_825_ = !lean_is_exclusive(v___y_812_);
-if (v_isSharedCheck_825_ == 0)
-{
-v___x_815_ = v___y_812_;
-v_isShared_816_ = v_isSharedCheck_825_;
-goto v_resetjp_814_;
+lean_object* v_snd_831_; lean_object* v_val_832_; lean_object* v___x_833_; uint8_t v___x_834_; lean_object* v___x_835_; lean_object* v___x_836_; uint8_t v___x_837_; lean_object* v___x_838_; 
+v_snd_831_ = lean_ctor_get(v___x_829_, 1);
+lean_inc(v_snd_831_);
+lean_dec_ref(v___x_829_);
+v_val_832_ = lean_ctor_get(v_fst_830_, 0);
+lean_inc(v_val_832_);
+lean_dec_ref_known(v_fst_830_, 1);
+lean_inc(v___x_826_);
+v___x_833_ = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(v___x_833_, 0, v___x_826_);
+v___x_834_ = lean_unbox(v_val_832_);
+lean_dec(v_val_832_);
+lean_ctor_set_uint8(v___x_833_, sizeof(void*)*1, v___x_834_);
+v___x_835_ = lean_array_push(v_b_799_, v___x_833_);
+v___x_836_ = lean_box(0);
+v___x_837_ = lean_unbox(v_snd_831_);
+lean_dec(v_snd_831_);
+v___x_838_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg___lam__0(v___x_837_, v___x_797_, v___x_836_, v___x_835_);
+v___y_802_ = v___x_838_;
+goto v___jp_801_;
 }
 else
 {
-lean_inc(v_a_813_);
-lean_dec(v___y_812_);
-v___x_815_ = lean_box(0);
-v_isShared_816_ = v_isSharedCheck_825_;
-goto v_resetjp_814_;
+lean_object* v_snd_839_; lean_object* v___x_840_; uint8_t v___x_841_; lean_object* v___x_842_; 
+lean_dec(v_fst_830_);
+v_snd_839_ = lean_ctor_get(v___x_829_, 1);
+lean_inc(v_snd_839_);
+lean_dec_ref(v___x_829_);
+v___x_840_ = lean_box(0);
+v___x_841_ = lean_unbox(v_snd_839_);
+lean_dec(v_snd_839_);
+v___x_842_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg___lam__0(v___x_841_, v___x_797_, v___x_840_, v_b_799_);
+v___y_802_ = v___x_842_;
+goto v___jp_801_;
 }
-v_resetjp_814_:
-{
-if (lean_obj_tag(v_a_813_) == 0)
-{
-lean_object* v_a_817_; lean_object* v___x_819_; 
-lean_dec(v_a_808_);
-lean_dec_ref(v_text_804_);
-v_a_817_ = lean_ctor_get(v_a_813_, 0);
-lean_inc(v_a_817_);
-lean_dec_ref(v_a_813_);
-if (v_isShared_816_ == 0)
-{
-lean_ctor_set(v___x_815_, 0, v_a_817_);
-v___x_819_ = v___x_815_;
-goto v_reusejp_818_;
 }
-else
-{
-lean_object* v_reuseFailAlloc_820_; 
-v_reuseFailAlloc_820_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_820_, 0, v_a_817_);
-v___x_819_ = v_reuseFailAlloc_820_;
-goto v_reusejp_818_;
 }
-v_reusejp_818_:
+v___jp_801_:
 {
-return v___x_819_;
-}
+if (lean_obj_tag(v___y_802_) == 0)
+{
+lean_object* v_a_803_; lean_object* v___x_805_; uint8_t v_isShared_806_; uint8_t v_isSharedCheck_815_; 
+v_a_803_ = lean_ctor_get(v___y_802_, 0);
+v_isSharedCheck_815_ = !lean_is_exclusive(v___y_802_);
+if (v_isSharedCheck_815_ == 0)
+{
+v___x_805_ = v___y_802_;
+v_isShared_806_ = v_isSharedCheck_815_;
+goto v_resetjp_804_;
 }
 else
 {
-lean_object* v_a_821_; lean_object* v___x_822_; lean_object* v___x_823_; 
-lean_del_object(v___x_815_);
-v_a_821_ = lean_ctor_get(v_a_813_, 0);
-lean_inc(v_a_821_);
-lean_dec_ref(v_a_813_);
-v___x_822_ = lean_unsigned_to_nat(1u);
-v___x_823_ = lean_nat_add(v_a_808_, v___x_822_);
-lean_dec(v_a_808_);
-v_a_808_ = v___x_823_;
-v_b_809_ = v_a_821_;
+lean_inc(v_a_803_);
+lean_dec(v___y_802_);
+v___x_805_ = lean_box(0);
+v_isShared_806_ = v_isSharedCheck_815_;
+goto v_resetjp_804_;
+}
+v_resetjp_804_:
+{
+if (lean_obj_tag(v_a_803_) == 0)
+{
+lean_object* v_a_807_; lean_object* v___x_809_; 
+lean_dec(v_a_798_);
+lean_dec_ref(v_text_794_);
+v_a_807_ = lean_ctor_get(v_a_803_, 0);
+lean_inc(v_a_807_);
+lean_dec_ref_known(v_a_803_, 1);
+if (v_isShared_806_ == 0)
+{
+lean_ctor_set(v___x_805_, 0, v_a_807_);
+v___x_809_ = v___x_805_;
+goto v_reusejp_808_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_810_; 
+v_reuseFailAlloc_810_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_810_, 0, v_a_807_);
+v___x_809_ = v_reuseFailAlloc_810_;
+goto v_reusejp_808_;
+}
+v_reusejp_808_:
+{
+return v___x_809_;
+}
+}
+else
+{
+lean_object* v_a_811_; lean_object* v___x_812_; lean_object* v___x_813_; 
+lean_del_object(v___x_805_);
+v_a_811_ = lean_ctor_get(v_a_803_, 0);
+lean_inc(v_a_811_);
+lean_dec_ref_known(v_a_803_, 1);
+v___x_812_ = lean_unsigned_to_nat(1u);
+v___x_813_ = lean_nat_add(v_a_798_, v___x_812_);
+lean_dec(v_a_798_);
+v_a_798_ = v___x_813_;
+v_b_799_ = v_a_811_;
 goto _start;
 }
 }
 }
 else
 {
-lean_object* v_a_826_; lean_object* v___x_828_; uint8_t v_isShared_829_; uint8_t v_isSharedCheck_833_; 
-lean_dec(v_a_808_);
-lean_dec_ref(v_text_804_);
-v_a_826_ = lean_ctor_get(v___y_812_, 0);
-v_isSharedCheck_833_ = !lean_is_exclusive(v___y_812_);
-if (v_isSharedCheck_833_ == 0)
+lean_object* v_a_816_; lean_object* v___x_818_; uint8_t v_isShared_819_; uint8_t v_isSharedCheck_823_; 
+lean_dec(v_a_798_);
+lean_dec_ref(v_text_794_);
+v_a_816_ = lean_ctor_get(v___y_802_, 0);
+v_isSharedCheck_823_ = !lean_is_exclusive(v___y_802_);
+if (v_isSharedCheck_823_ == 0)
 {
-v___x_828_ = v___y_812_;
-v_isShared_829_ = v_isSharedCheck_833_;
-goto v_resetjp_827_;
+v___x_818_ = v___y_802_;
+v_isShared_819_ = v_isSharedCheck_823_;
+goto v_resetjp_817_;
 }
 else
 {
-lean_inc(v_a_826_);
-lean_dec(v___y_812_);
-v___x_828_ = lean_box(0);
-v_isShared_829_ = v_isSharedCheck_833_;
-goto v_resetjp_827_;
+lean_inc(v_a_816_);
+lean_dec(v___y_802_);
+v___x_818_ = lean_box(0);
+v_isShared_819_ = v_isSharedCheck_823_;
+goto v_resetjp_817_;
 }
-v_resetjp_827_:
+v_resetjp_817_:
 {
-lean_object* v___x_831_; 
-if (v_isShared_829_ == 0)
+lean_object* v___x_821_; 
+if (v_isShared_819_ == 0)
 {
-v___x_831_ = v___x_828_;
-goto v_reusejp_830_;
+v___x_821_ = v___x_818_;
+goto v_reusejp_820_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_832_; 
-v_reuseFailAlloc_832_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_832_, 0, v_a_826_);
-v___x_831_ = v_reuseFailAlloc_832_;
-goto v_reusejp_830_;
+lean_object* v_reuseFailAlloc_822_; 
+v_reuseFailAlloc_822_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_822_, 0, v_a_816_);
+v___x_821_ = v_reuseFailAlloc_822_;
+goto v_reusejp_820_;
 }
-v_reusejp_830_:
+v_reusejp_820_:
 {
-return v___x_831_;
+return v___x_821_;
 }
 }
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg___boxed(lean_object* v_upperBound_859_, lean_object* v_stack_860_, lean_object* v_text_861_, lean_object* v_ctx_x3f_862_, lean_object* v_requestedPos_863_, lean_object* v___x_864_, lean_object* v_a_865_, lean_object* v_b_866_, lean_object* v___y_867_){
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg___boxed(lean_object* v_upperBound_849_, lean_object* v_stack_850_, lean_object* v_text_851_, lean_object* v_ctx_x3f_852_, lean_object* v_requestedPos_853_, lean_object* v___x_854_, lean_object* v_a_855_, lean_object* v_b_856_, lean_object* v___y_857_){
 _start:
 {
-uint8_t v___x_3359__boxed_868_; lean_object* v_res_869_; 
-v___x_3359__boxed_868_ = lean_unbox(v___x_864_);
-v_res_869_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg(v_upperBound_859_, v_stack_860_, v_text_861_, v_ctx_x3f_862_, v_requestedPos_863_, v___x_3359__boxed_868_, v_a_865_, v_b_866_);
-lean_dec(v_requestedPos_863_);
-lean_dec(v_ctx_x3f_862_);
-lean_dec_ref(v_stack_860_);
-lean_dec(v_upperBound_859_);
-return v_res_869_;
+uint8_t v___x_3359__boxed_858_; lean_object* v_res_859_; 
+v___x_3359__boxed_858_ = lean_unbox(v___x_854_);
+v_res_859_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg(v_upperBound_849_, v_stack_850_, v_text_851_, v_ctx_x3f_852_, v_requestedPos_853_, v___x_3359__boxed_858_, v_a_855_, v_b_856_);
+lean_dec(v_requestedPos_853_);
+lean_dec(v_ctx_x3f_852_);
+lean_dec_ref(v_stack_850_);
+lean_dec(v_upperBound_849_);
+return v_res_859_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0(size_t v_sz_870_, size_t v_i_871_, lean_object* v_bs_872_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0(size_t v_sz_860_, size_t v_i_861_, lean_object* v_bs_862_){
 _start:
 {
-uint8_t v___x_873_; 
-v___x_873_ = lean_usize_dec_lt(v_i_871_, v_sz_870_);
-if (v___x_873_ == 0)
+uint8_t v___x_863_; 
+v___x_863_ = lean_usize_dec_lt(v_i_861_, v_sz_860_);
+if (v___x_863_ == 0)
 {
-return v_bs_872_;
+return v_bs_862_;
 }
 else
 {
-lean_object* v_v_874_; lean_object* v_fst_875_; lean_object* v___x_876_; lean_object* v_bs_x27_877_; size_t v___x_878_; size_t v___x_879_; lean_object* v___x_880_; 
-v_v_874_ = lean_array_uget_borrowed(v_bs_872_, v_i_871_);
-v_fst_875_ = lean_ctor_get(v_v_874_, 0);
-lean_inc(v_fst_875_);
-v___x_876_ = lean_unsigned_to_nat(0u);
-v_bs_x27_877_ = lean_array_uset(v_bs_872_, v_i_871_, v___x_876_);
-v___x_878_ = ((size_t)1ULL);
-v___x_879_ = lean_usize_add(v_i_871_, v___x_878_);
-v___x_880_ = lean_array_uset(v_bs_x27_877_, v_i_871_, v_fst_875_);
-v_i_871_ = v___x_879_;
-v_bs_872_ = v___x_880_;
+lean_object* v_v_864_; lean_object* v_fst_865_; lean_object* v___x_866_; lean_object* v_bs_x27_867_; size_t v___x_868_; size_t v___x_869_; lean_object* v___x_870_; 
+v_v_864_ = lean_array_uget_borrowed(v_bs_862_, v_i_861_);
+v_fst_865_ = lean_ctor_get(v_v_864_, 0);
+lean_inc(v_fst_865_);
+v___x_866_ = lean_unsigned_to_nat(0u);
+v_bs_x27_867_ = lean_array_uset(v_bs_862_, v_i_861_, v___x_866_);
+v___x_868_ = ((size_t)1ULL);
+v___x_869_ = lean_usize_add(v_i_861_, v___x_868_);
+v___x_870_ = lean_array_uset(v_bs_x27_867_, v_i_861_, v_fst_865_);
+v_i_861_ = v___x_869_;
+v_bs_862_ = v___x_870_;
 goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___boxed(lean_object* v_sz_882_, lean_object* v_i_883_, lean_object* v_bs_884_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___boxed(lean_object* v_sz_872_, lean_object* v_i_873_, lean_object* v_bs_874_){
 _start:
 {
-size_t v_sz_boxed_885_; size_t v_i_boxed_886_; lean_object* v_res_887_; 
-v_sz_boxed_885_ = lean_unbox_usize(v_sz_882_);
-lean_dec(v_sz_882_);
-v_i_boxed_886_ = lean_unbox_usize(v_i_883_);
-lean_dec(v_i_883_);
-v_res_887_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0(v_sz_boxed_885_, v_i_boxed_886_, v_bs_884_);
-return v_res_887_;
+size_t v_sz_boxed_875_; size_t v_i_boxed_876_; lean_object* v_res_877_; 
+v_sz_boxed_875_ = lean_unbox_usize(v_sz_872_);
+lean_dec(v_sz_872_);
+v_i_boxed_876_ = lean_unbox_usize(v_i_873_);
+lean_dec(v_i_873_);
+v_res_877_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0(v_sz_boxed_875_, v_i_boxed_876_, v_bs_874_);
+return v_res_877_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f(lean_object* v_text_891_, lean_object* v_ctx_x3f_892_, lean_object* v_cmdStx_893_, lean_object* v_tree_894_, lean_object* v_requestedPos_895_){
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f(lean_object* v_text_881_, lean_object* v_ctx_x3f_882_, lean_object* v_cmdStx_883_, lean_object* v_tree_884_, lean_object* v_requestedPos_885_){
 _start:
 {
-uint8_t v___x_897_; 
-lean_inc_ref(v_text_891_);
-v___x_897_ = l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_isPositionInLineComment(v_text_891_, v_requestedPos_895_);
-if (v___x_897_ == 0)
+uint8_t v___x_887_; 
+lean_inc_ref(v_text_881_);
+v___x_887_ = l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_isPositionInLineComment(v_text_881_, v_requestedPos_885_);
+if (v___x_887_ == 0)
 {
-lean_object* v___x_898_; lean_object* v___f_899_; uint8_t v___x_900_; lean_object* v___x_901_; lean_object* v___x_902_; lean_object* v___f_903_; lean_object* v_stack_x3f_904_; 
-v___x_898_ = lean_box(v___x_897_);
-v___f_899_ = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__0___boxed), 2, 1);
-lean_closure_set(v___f_899_, 0, v___x_898_);
-v___x_900_ = 1;
-v___x_901_ = lean_box(v___x_900_);
-v___x_902_ = lean_box(v___x_897_);
-lean_inc(v_requestedPos_895_);
-v___f_903_ = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__1___boxed), 4, 3);
-lean_closure_set(v___f_903_, 0, v___x_901_);
-lean_closure_set(v___f_903_, 1, v_requestedPos_895_);
-lean_closure_set(v___f_903_, 2, v___x_902_);
-v_stack_x3f_904_ = l_Lean_Syntax_findStack_x3f(v_cmdStx_893_, v___f_903_, v___f_899_);
-if (lean_obj_tag(v_stack_x3f_904_) == 1)
+lean_object* v___x_888_; lean_object* v___f_889_; uint8_t v___x_890_; lean_object* v___x_891_; lean_object* v___x_892_; lean_object* v___f_893_; lean_object* v_stack_x3f_894_; 
+v___x_888_ = lean_box(v___x_887_);
+v___f_889_ = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__0___boxed), 2, 1);
+lean_closure_set(v___f_889_, 0, v___x_888_);
+v___x_890_ = 1;
+v___x_891_ = lean_box(v___x_890_);
+v___x_892_ = lean_box(v___x_887_);
+lean_inc(v_requestedPos_885_);
+v___f_893_ = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__1___boxed), 4, 3);
+lean_closure_set(v___f_893_, 0, v___x_891_);
+lean_closure_set(v___f_893_, 1, v_requestedPos_885_);
+lean_closure_set(v___f_893_, 2, v___x_892_);
+v_stack_x3f_894_ = l_Lean_Syntax_findStack_x3f(v_cmdStx_883_, v___f_893_, v___f_889_);
+if (lean_obj_tag(v_stack_x3f_894_) == 1)
 {
-lean_object* v_val_905_; lean_object* v___x_906_; size_t v_sz_907_; size_t v___x_908_; lean_object* v_stack_909_; lean_object* v___x_910_; lean_object* v___x_911_; lean_object* v_candidates_912_; lean_object* v___x_913_; 
-v_val_905_ = lean_ctor_get(v_stack_x3f_904_, 0);
-lean_inc(v_val_905_);
-lean_dec_ref(v_stack_x3f_904_);
-v___x_906_ = lean_array_mk(v_val_905_);
-v_sz_907_ = lean_array_size(v___x_906_);
-v___x_908_ = ((size_t)0ULL);
-v_stack_909_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0(v_sz_907_, v___x_908_, v___x_906_);
-v___x_910_ = lean_array_get_size(v_stack_909_);
-v___x_911_ = lean_unsigned_to_nat(0u);
-v_candidates_912_ = ((lean_object*)(l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___closed__0));
-v___x_913_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg(v___x_910_, v_stack_909_, v_text_891_, v_ctx_x3f_892_, v_requestedPos_895_, v___x_897_, v___x_911_, v_candidates_912_);
-lean_dec(v_requestedPos_895_);
-lean_dec_ref(v_stack_909_);
-if (lean_obj_tag(v___x_913_) == 0)
+lean_object* v_val_895_; lean_object* v___x_896_; size_t v_sz_897_; size_t v___x_898_; lean_object* v_stack_899_; lean_object* v___x_900_; lean_object* v___x_901_; lean_object* v_candidates_902_; lean_object* v___x_903_; 
+v_val_895_ = lean_ctor_get(v_stack_x3f_894_, 0);
+lean_inc(v_val_895_);
+lean_dec_ref_known(v_stack_x3f_894_, 1);
+v___x_896_ = lean_array_mk(v_val_895_);
+v_sz_897_ = lean_array_size(v___x_896_);
+v___x_898_ = ((size_t)0ULL);
+v_stack_899_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0(v_sz_897_, v___x_898_, v___x_896_);
+v___x_900_ = lean_array_get_size(v_stack_899_);
+v___x_901_ = lean_unsigned_to_nat(0u);
+v_candidates_902_ = ((lean_object*)(l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___closed__0));
+v___x_903_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg(v___x_900_, v_stack_899_, v_text_881_, v_ctx_x3f_882_, v_requestedPos_885_, v___x_887_, v___x_901_, v_candidates_902_);
+lean_dec(v_requestedPos_885_);
+lean_dec_ref(v_stack_899_);
+if (lean_obj_tag(v___x_903_) == 0)
 {
-lean_object* v_a_914_; lean_object* v___f_915_; lean_object* v___x_916_; lean_object* v___x_917_; lean_object* v___x_918_; uint8_t v___y_920_; lean_object* v___x_946_; uint8_t v___x_947_; 
-v_a_914_ = lean_ctor_get(v___x_913_, 0);
-lean_inc(v_a_914_);
-lean_dec_ref(v___x_913_);
-v___f_915_ = ((lean_object*)(l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___closed__1));
-v___x_916_ = lean_array_to_list(v_a_914_);
-v___x_917_ = l_List_mergeSort___redArg(v___x_916_, v___f_915_);
-v___x_918_ = lean_array_mk(v___x_917_);
-v___x_946_ = lean_array_get_size(v___x_918_);
-v___x_947_ = lean_nat_dec_lt(v___x_911_, v___x_946_);
-if (v___x_947_ == 0)
+lean_object* v_a_904_; lean_object* v___f_905_; lean_object* v___x_906_; lean_object* v___x_907_; lean_object* v___x_908_; uint8_t v___y_910_; lean_object* v___x_936_; uint8_t v___x_937_; 
+v_a_904_ = lean_ctor_get(v___x_903_, 0);
+lean_inc(v_a_904_);
+lean_dec_ref_known(v___x_903_, 1);
+v___f_905_ = ((lean_object*)(l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___closed__1));
+v___x_906_ = lean_array_to_list(v_a_904_);
+v___x_907_ = l_List_mergeSort___redArg(v___x_906_, v___f_905_);
+v___x_908_ = lean_array_mk(v___x_907_);
+v___x_936_ = lean_array_get_size(v___x_908_);
+v___x_937_ = lean_nat_dec_lt(v___x_901_, v___x_936_);
+if (v___x_937_ == 0)
 {
-v___y_920_ = v___x_897_;
-goto v___jp_919_;
+v___y_910_ = v___x_887_;
+goto v___jp_909_;
 }
 else
 {
-if (v___x_947_ == 0)
+if (v___x_937_ == 0)
 {
-v___y_920_ = v___x_897_;
-goto v___jp_919_;
+v___y_910_ = v___x_887_;
+goto v___jp_909_;
 }
 else
 {
-size_t v___x_948_; uint8_t v___x_949_; 
-v___x_948_ = lean_usize_of_nat(v___x_946_);
-v___x_949_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2(v___x_918_, v___x_908_, v___x_948_);
-v___y_920_ = v___x_949_;
-goto v___jp_919_;
+size_t v___x_938_; uint8_t v___x_939_; 
+v___x_938_ = lean_usize_of_nat(v___x_936_);
+v___x_939_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2(v___x_908_, v___x_898_, v___x_938_);
+v___y_910_ = v___x_939_;
+goto v___jp_909_;
 }
 }
-v___jp_919_:
+v___jp_909_:
 {
-lean_object* v___x_921_; lean_object* v___x_922_; size_t v_sz_923_; lean_object* v___x_924_; 
-v___x_921_ = lean_box(0);
-v___x_922_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1___closed__0));
-v_sz_923_ = lean_array_size(v___x_918_);
-v___x_924_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1(v_tree_894_, v___y_920_, v___x_897_, v___x_918_, v_sz_923_, v___x_908_, v___x_922_);
-lean_dec_ref(v___x_918_);
-if (lean_obj_tag(v___x_924_) == 0)
+lean_object* v___x_911_; lean_object* v___x_912_; size_t v_sz_913_; lean_object* v___x_914_; 
+v___x_911_ = lean_box(0);
+v___x_912_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1___closed__0));
+v_sz_913_ = lean_array_size(v___x_908_);
+v___x_914_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1(v_tree_884_, v___y_910_, v___x_887_, v___x_908_, v_sz_913_, v___x_898_, v___x_912_);
+lean_dec_ref(v___x_908_);
+if (lean_obj_tag(v___x_914_) == 0)
 {
-lean_object* v_a_925_; lean_object* v___x_927_; uint8_t v_isShared_928_; uint8_t v_isSharedCheck_937_; 
-v_a_925_ = lean_ctor_get(v___x_924_, 0);
-v_isSharedCheck_937_ = !lean_is_exclusive(v___x_924_);
-if (v_isSharedCheck_937_ == 0)
+lean_object* v_a_915_; lean_object* v___x_917_; uint8_t v_isShared_918_; uint8_t v_isSharedCheck_927_; 
+v_a_915_ = lean_ctor_get(v___x_914_, 0);
+v_isSharedCheck_927_ = !lean_is_exclusive(v___x_914_);
+if (v_isSharedCheck_927_ == 0)
 {
-v___x_927_ = v___x_924_;
-v_isShared_928_ = v_isSharedCheck_937_;
-goto v_resetjp_926_;
-}
-else
-{
-lean_inc(v_a_925_);
-lean_dec(v___x_924_);
-v___x_927_ = lean_box(0);
-v_isShared_928_ = v_isSharedCheck_937_;
-goto v_resetjp_926_;
-}
-v_resetjp_926_:
-{
-lean_object* v_fst_929_; 
-v_fst_929_ = lean_ctor_get(v_a_925_, 0);
-lean_inc(v_fst_929_);
-lean_dec(v_a_925_);
-if (lean_obj_tag(v_fst_929_) == 0)
-{
-lean_object* v___x_931_; 
-if (v_isShared_928_ == 0)
-{
-lean_ctor_set(v___x_927_, 0, v___x_921_);
-v___x_931_ = v___x_927_;
-goto v_reusejp_930_;
+v___x_917_ = v___x_914_;
+v_isShared_918_ = v_isSharedCheck_927_;
+goto v_resetjp_916_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_932_; 
-v_reuseFailAlloc_932_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_932_, 0, v___x_921_);
-v___x_931_ = v_reuseFailAlloc_932_;
-goto v_reusejp_930_;
+lean_inc(v_a_915_);
+lean_dec(v___x_914_);
+v___x_917_ = lean_box(0);
+v_isShared_918_ = v_isSharedCheck_927_;
+goto v_resetjp_916_;
 }
-v_reusejp_930_:
+v_resetjp_916_:
 {
-return v___x_931_;
-}
+lean_object* v_fst_919_; 
+v_fst_919_ = lean_ctor_get(v_a_915_, 0);
+lean_inc(v_fst_919_);
+lean_dec(v_a_915_);
+if (lean_obj_tag(v_fst_919_) == 0)
+{
+lean_object* v___x_921_; 
+if (v_isShared_918_ == 0)
+{
+lean_ctor_set(v___x_917_, 0, v___x_911_);
+v___x_921_ = v___x_917_;
+goto v_reusejp_920_;
 }
 else
 {
-lean_object* v_val_933_; lean_object* v___x_935_; 
-v_val_933_ = lean_ctor_get(v_fst_929_, 0);
-lean_inc(v_val_933_);
-lean_dec_ref(v_fst_929_);
-if (v_isShared_928_ == 0)
+lean_object* v_reuseFailAlloc_922_; 
+v_reuseFailAlloc_922_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_922_, 0, v___x_911_);
+v___x_921_ = v_reuseFailAlloc_922_;
+goto v_reusejp_920_;
+}
+v_reusejp_920_:
 {
-lean_ctor_set(v___x_927_, 0, v_val_933_);
-v___x_935_ = v___x_927_;
-goto v_reusejp_934_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_936_; 
-v_reuseFailAlloc_936_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_936_, 0, v_val_933_);
-v___x_935_ = v_reuseFailAlloc_936_;
-goto v_reusejp_934_;
-}
-v_reusejp_934_:
-{
-return v___x_935_;
-}
-}
+return v___x_921_;
 }
 }
 else
 {
-lean_object* v_a_938_; lean_object* v___x_940_; uint8_t v_isShared_941_; uint8_t v_isSharedCheck_945_; 
-v_a_938_ = lean_ctor_get(v___x_924_, 0);
-v_isSharedCheck_945_ = !lean_is_exclusive(v___x_924_);
-if (v_isSharedCheck_945_ == 0)
+lean_object* v_val_923_; lean_object* v___x_925_; 
+v_val_923_ = lean_ctor_get(v_fst_919_, 0);
+lean_inc(v_val_923_);
+lean_dec_ref_known(v_fst_919_, 1);
+if (v_isShared_918_ == 0)
 {
-v___x_940_ = v___x_924_;
-v_isShared_941_ = v_isSharedCheck_945_;
-goto v_resetjp_939_;
+lean_ctor_set(v___x_917_, 0, v_val_923_);
+v___x_925_ = v___x_917_;
+goto v_reusejp_924_;
 }
 else
 {
-lean_inc(v_a_938_);
-lean_dec(v___x_924_);
-v___x_940_ = lean_box(0);
-v_isShared_941_ = v_isSharedCheck_945_;
-goto v_resetjp_939_;
+lean_object* v_reuseFailAlloc_926_; 
+v_reuseFailAlloc_926_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_926_, 0, v_val_923_);
+v___x_925_ = v_reuseFailAlloc_926_;
+goto v_reusejp_924_;
 }
-v_resetjp_939_:
+v_reusejp_924_:
 {
-lean_object* v___x_943_; 
-if (v_isShared_941_ == 0)
-{
-v___x_943_ = v___x_940_;
-goto v_reusejp_942_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_944_; 
-v_reuseFailAlloc_944_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_944_, 0, v_a_938_);
-v___x_943_ = v_reuseFailAlloc_944_;
-goto v_reusejp_942_;
-}
-v_reusejp_942_:
-{
-return v___x_943_;
-}
+return v___x_925_;
 }
 }
 }
 }
 else
 {
-lean_object* v_a_950_; lean_object* v___x_952_; uint8_t v_isShared_953_; uint8_t v_isSharedCheck_957_; 
-lean_dec_ref(v_tree_894_);
-v_a_950_ = lean_ctor_get(v___x_913_, 0);
-v_isSharedCheck_957_ = !lean_is_exclusive(v___x_913_);
-if (v_isSharedCheck_957_ == 0)
+lean_object* v_a_928_; lean_object* v___x_930_; uint8_t v_isShared_931_; uint8_t v_isSharedCheck_935_; 
+v_a_928_ = lean_ctor_get(v___x_914_, 0);
+v_isSharedCheck_935_ = !lean_is_exclusive(v___x_914_);
+if (v_isSharedCheck_935_ == 0)
 {
-v___x_952_ = v___x_913_;
-v_isShared_953_ = v_isSharedCheck_957_;
-goto v_resetjp_951_;
+v___x_930_ = v___x_914_;
+v_isShared_931_ = v_isSharedCheck_935_;
+goto v_resetjp_929_;
 }
 else
 {
-lean_inc(v_a_950_);
-lean_dec(v___x_913_);
-v___x_952_ = lean_box(0);
-v_isShared_953_ = v_isSharedCheck_957_;
-goto v_resetjp_951_;
+lean_inc(v_a_928_);
+lean_dec(v___x_914_);
+v___x_930_ = lean_box(0);
+v_isShared_931_ = v_isSharedCheck_935_;
+goto v_resetjp_929_;
 }
-v_resetjp_951_:
+v_resetjp_929_:
 {
-lean_object* v___x_955_; 
-if (v_isShared_953_ == 0)
+lean_object* v___x_933_; 
+if (v_isShared_931_ == 0)
 {
-v___x_955_ = v___x_952_;
-goto v_reusejp_954_;
+v___x_933_ = v___x_930_;
+goto v_reusejp_932_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_956_; 
-v_reuseFailAlloc_956_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_956_, 0, v_a_950_);
-v___x_955_ = v_reuseFailAlloc_956_;
-goto v_reusejp_954_;
+lean_object* v_reuseFailAlloc_934_; 
+v_reuseFailAlloc_934_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_934_, 0, v_a_928_);
+v___x_933_ = v_reuseFailAlloc_934_;
+goto v_reusejp_932_;
 }
-v_reusejp_954_:
+v_reusejp_932_:
 {
-return v___x_955_;
+return v___x_933_;
 }
 }
 }
-}
-else
-{
-lean_object* v___x_958_; lean_object* v___x_959_; 
-lean_dec(v_stack_x3f_904_);
-lean_dec(v_requestedPos_895_);
-lean_dec_ref(v_tree_894_);
-lean_dec_ref(v_text_891_);
-v___x_958_ = lean_box(0);
-v___x_959_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_959_, 0, v___x_958_);
-return v___x_959_;
 }
 }
 else
 {
-lean_object* v___x_960_; lean_object* v___x_961_; 
-lean_dec(v_requestedPos_895_);
-lean_dec_ref(v_tree_894_);
-lean_dec(v_cmdStx_893_);
-lean_dec_ref(v_text_891_);
-v___x_960_ = lean_box(0);
-v___x_961_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_961_, 0, v___x_960_);
-return v___x_961_;
+lean_object* v_a_940_; lean_object* v___x_942_; uint8_t v_isShared_943_; uint8_t v_isSharedCheck_947_; 
+lean_dec_ref(v_tree_884_);
+v_a_940_ = lean_ctor_get(v___x_903_, 0);
+v_isSharedCheck_947_ = !lean_is_exclusive(v___x_903_);
+if (v_isSharedCheck_947_ == 0)
+{
+v___x_942_ = v___x_903_;
+v_isShared_943_ = v_isSharedCheck_947_;
+goto v_resetjp_941_;
+}
+else
+{
+lean_inc(v_a_940_);
+lean_dec(v___x_903_);
+v___x_942_ = lean_box(0);
+v_isShared_943_ = v_isSharedCheck_947_;
+goto v_resetjp_941_;
+}
+v_resetjp_941_:
+{
+lean_object* v___x_945_; 
+if (v_isShared_943_ == 0)
+{
+v___x_945_ = v___x_942_;
+goto v_reusejp_944_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_946_; 
+v_reuseFailAlloc_946_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_946_, 0, v_a_940_);
+v___x_945_ = v_reuseFailAlloc_946_;
+goto v_reusejp_944_;
+}
+v_reusejp_944_:
+{
+return v___x_945_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___boxed(lean_object* v_text_962_, lean_object* v_ctx_x3f_963_, lean_object* v_cmdStx_964_, lean_object* v_tree_965_, lean_object* v_requestedPos_966_, lean_object* v_a_967_){
+}
+else
+{
+lean_object* v___x_948_; lean_object* v___x_949_; 
+lean_dec(v_stack_x3f_894_);
+lean_dec(v_requestedPos_885_);
+lean_dec_ref(v_tree_884_);
+lean_dec_ref(v_text_881_);
+v___x_948_ = lean_box(0);
+v___x_949_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_949_, 0, v___x_948_);
+return v___x_949_;
+}
+}
+else
+{
+lean_object* v___x_950_; lean_object* v___x_951_; 
+lean_dec(v_requestedPos_885_);
+lean_dec_ref(v_tree_884_);
+lean_dec(v_cmdStx_883_);
+lean_dec_ref(v_text_881_);
+v___x_950_ = lean_box(0);
+v___x_951_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_951_, 0, v___x_950_);
+return v___x_951_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___boxed(lean_object* v_text_952_, lean_object* v_ctx_x3f_953_, lean_object* v_cmdStx_954_, lean_object* v_tree_955_, lean_object* v_requestedPos_956_, lean_object* v_a_957_){
 _start:
 {
-lean_object* v_res_968_; 
-v_res_968_ = l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f(v_text_962_, v_ctx_x3f_963_, v_cmdStx_964_, v_tree_965_, v_requestedPos_966_);
-lean_dec(v_ctx_x3f_963_);
-return v_res_968_;
+lean_object* v_res_958_; 
+v_res_958_ = l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f(v_text_952_, v_ctx_x3f_953_, v_cmdStx_954_, v_tree_955_, v_requestedPos_956_);
+lean_dec(v_ctx_x3f_953_);
+return v_res_958_;
 }
 }
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3(lean_object* v_upperBound_969_, lean_object* v_stack_970_, lean_object* v_text_971_, lean_object* v_ctx_x3f_972_, lean_object* v_requestedPos_973_, uint8_t v___x_974_, lean_object* v_inst_975_, lean_object* v_R_976_, lean_object* v_a_977_, lean_object* v_b_978_, lean_object* v_c_979_){
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3(lean_object* v_upperBound_959_, lean_object* v_stack_960_, lean_object* v_text_961_, lean_object* v_ctx_x3f_962_, lean_object* v_requestedPos_963_, uint8_t v___x_964_, lean_object* v_inst_965_, lean_object* v_R_966_, lean_object* v_a_967_, lean_object* v_b_968_, lean_object* v_c_969_){
 _start:
 {
-lean_object* v___x_981_; 
-v___x_981_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg(v_upperBound_969_, v_stack_970_, v_text_971_, v_ctx_x3f_972_, v_requestedPos_973_, v___x_974_, v_a_977_, v_b_978_);
-return v___x_981_;
+lean_object* v___x_971_; 
+v___x_971_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg(v_upperBound_959_, v_stack_960_, v_text_961_, v_ctx_x3f_962_, v_requestedPos_963_, v___x_964_, v_a_967_, v_b_968_);
+return v___x_971_;
 }
 }
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___boxed(lean_object* v_upperBound_982_, lean_object* v_stack_983_, lean_object* v_text_984_, lean_object* v_ctx_x3f_985_, lean_object* v_requestedPos_986_, lean_object* v___x_987_, lean_object* v_inst_988_, lean_object* v_R_989_, lean_object* v_a_990_, lean_object* v_b_991_, lean_object* v_c_992_, lean_object* v___y_993_){
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___boxed(lean_object* v_upperBound_972_, lean_object* v_stack_973_, lean_object* v_text_974_, lean_object* v_ctx_x3f_975_, lean_object* v_requestedPos_976_, lean_object* v___x_977_, lean_object* v_inst_978_, lean_object* v_R_979_, lean_object* v_a_980_, lean_object* v_b_981_, lean_object* v_c_982_, lean_object* v___y_983_){
 _start:
 {
-uint8_t v___x_3606__boxed_994_; lean_object* v_res_995_; 
-v___x_3606__boxed_994_ = lean_unbox(v___x_987_);
-v_res_995_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3(v_upperBound_982_, v_stack_983_, v_text_984_, v_ctx_x3f_985_, v_requestedPos_986_, v___x_3606__boxed_994_, v_inst_988_, v_R_989_, v_a_990_, v_b_991_, v_c_992_);
-lean_dec(v_requestedPos_986_);
-lean_dec(v_ctx_x3f_985_);
-lean_dec_ref(v_stack_983_);
-lean_dec(v_upperBound_982_);
-return v_res_995_;
+uint8_t v___x_3606__boxed_984_; lean_object* v_res_985_; 
+v___x_3606__boxed_984_ = lean_unbox(v___x_977_);
+v_res_985_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3(v_upperBound_972_, v_stack_973_, v_text_974_, v_ctx_x3f_975_, v_requestedPos_976_, v___x_3606__boxed_984_, v_inst_978_, v_R_979_, v_a_980_, v_b_981_, v_c_982_);
+lean_dec(v_requestedPos_976_);
+lean_dec(v_ctx_x3f_975_);
+lean_dec_ref(v_stack_973_);
+lean_dec(v_upperBound_972_);
+return v_res_985_;
 }
 }
 lean_object* runtime_initialize_Lean_Server_InfoUtils(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_Lsp(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Sort_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_PrettyPrinter_Delaborator(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_FileWorker_SignatureHelp(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Server_InfoUtils(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

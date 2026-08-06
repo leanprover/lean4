@@ -116,7 +116,7 @@ theorem toArray_cons (a : α) (l : List α) : (a :: l).toArray = #[a] ++ l.toArr
   simp
 
 @[simp, grind =] theorem _root_.Array.getLast_toList (xs : Array α) (h) :
-    xs.toList.getLast h = xs.back (by simpa [ne_nil_iff_length_pos] using h) := by
+    xs.toList.getLast h = xs.back (by simpa [ne_nil_iff_length_pos] using! h) := by
   rcases xs with ⟨xs⟩
   simp
 
@@ -372,7 +372,7 @@ theorem isPrefixOfAux_toArray_succ [BEq α] (l₁ l₂ : List α) (hle : l₁.le
       Array.isPrefixOfAux l₁.tail.toArray l₂.tail.toArray (by simp; omega) i := by
   rw [Array.isPrefixOfAux]
   conv => rhs; rw [Array.isPrefixOfAux]
-  simp only [size_toArray, getElem_toArray, Bool.if_false_right, length_tail, getElem_tail]
+  simp only [size_toArray, getElem_toArray, Bool.ite_false_right, length_tail, getElem_tail]
   split <;> rename_i h₁ <;> split <;> rename_i h₂
   · rw [isPrefixOfAux_toArray_succ]
   · omega
@@ -393,7 +393,7 @@ theorem isPrefixOfAux_toArray_zero [BEq α] (l₁ l₂ : List α) (hle : l₁.le
       l₁.isPrefixOf l₂ := by
   rw [Array.isPrefixOfAux]
   match l₁, l₂ with
-  | [], _ => rw [dif_neg] <;> simp
+  | [], _ => rw [dite_eq_right] <;> simp
   | _::_, [] => simp at hle
   | a::l₁, b::l₂ =>
     simp [isPrefixOf_cons_cons, isPrefixOfAux_toArray_succ', isPrefixOfAux_toArray_zero]
@@ -422,11 +422,11 @@ theorem zipWithMAux_toArray_succ {m : Type u → Type v} [Monad m] (as : List α
   simp only [size_toArray, getElem_toArray, length_tail, getElem_tail]
   split <;> rename_i h₁
   · split <;> rename_i h₂
-    · rw [dif_pos (by omega), dif_pos (by omega)]
+    · rw [dite_eq_left (by omega), dite_eq_left (by omega)]
       simp only [zipWithMAux_toArray_succ as bs f (i+1)]
-    · rw [dif_pos (by omega)]
-      rw [dif_neg (by omega)]
-  · rw [dif_neg (by omega)]
+    · rw [dite_eq_left (by omega)]
+      rw [dite_eq_right (by omega)]
+  · rw [dite_eq_right (by omega)]
 
 theorem zipWithMAux_toArray_succ' {m : Type u → Type v} [Monad m] (as : List α) (bs : List β) (f : α → β → m γ) (i : Nat) (xs : Array γ) :
     zipWithMAux as.toArray bs.toArray f (i + 1) xs = zipWithMAux (as.drop (i+1)).toArray (bs.drop (i+1)).toArray f 0 xs := by
@@ -512,8 +512,8 @@ private theorem takeWhile_go_succ (p : α → Bool) (a : α) (l : List α) (i : 
   simp only [size_toArray, length_cons, Nat.add_lt_add_iff_right,
     getElem_toArray, getElem_cons_succ]
   split
-  rw [takeWhile_go_succ]
-  rfl
+  · rw [takeWhile_go_succ]
+  · rfl
 
 private theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
     Array.takeWhile.go p l.toArray i r = r ++ (takeWhile p (l.drop i)).toArray := by
@@ -577,7 +577,7 @@ theorem flatMap_toArray_cons {β} (f : α → Array β) (a : α) (as : List α) 
   suffices ∀ xs, List.foldl (fun ys a => ys ++ f a) (f a ++ xs) as =
       f a ++ List.foldl (fun ys a => ys ++ f a) xs as by
     erw [empty_append] -- Why doesn't this work via `simp`?
-    simpa using this #[]
+    simpa using! this #[]
   intro xs
   induction as generalizing xs <;> simp_all
 
@@ -672,8 +672,8 @@ private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j
       rw [getElem_cons]
       simp
       split <;> rename_i h₄
-      · rw [dif_pos (by omega)]
-      · rw [dif_neg (by omega)]
+      · rw [dite_eq_left (by omega)]
+      · rw [dite_eq_right (by omega)]
         congr
         omega
 
@@ -700,19 +700,19 @@ theorem replace_toArray [BEq α] [LawfulBEq α] (l : List α) (a b : α) :
     · intro j h₁ h₂
       rw [List.getElem_replace, List.getElem_set]
       by_cases h₃ : j < i
-      · rw [if_neg (by omega), if_neg]
+      · rw [ite_eq_right (by omega), ite_eq_right]
         simp only [length_set] at h₁ h₃
         simpa using h.2 ⟨j, by omega⟩ h₃
       · by_cases h₃ : j = i
-        · rw [if_pos (by omega), if_pos, if_neg]
+        · rw [ite_eq_left (by omega), ite_eq_left, ite_eq_right]
           · simp only [mem_take_iff_getElem, not_exists]
             intro k hk
             simpa using h.2 ⟨k, by omega⟩ (by change k < i.1; omega)
           · subst h₃
             simpa using h.1
-        · rw [if_neg (by omega)]
+        · rw [ite_eq_right (by omega)]
           split
-          · rw [if_pos]
+          · rw [ite_eq_left]
             · simp_all
             · simp only [mem_take_iff_getElem]
               simp only [length_set] at h₁

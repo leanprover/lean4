@@ -479,6 +479,9 @@ macro_rules
     let mvar ← Lean.withRef c `(?m)
     `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; dite $mvar (fun _%$h => $t) (fun _%$h => $e))
 
+/-- use `left` for `t` and `right` for `e` -/
+recommended_spelling "dite" for "if h : c then t else e" in [dite, termDepIfThenElse]
+
 @[inherit_doc ite] syntax (name := termIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("if " term " then") ppSpace term)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
@@ -487,6 +490,9 @@ macro_rules
   | `(if $c then $t else $e) => do
     let mvar ← Lean.withRef c `(?m)
     `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; ite $mvar $t $e)
+
+/-- use `left` for `t` and `right` for `e` -/
+recommended_spelling "ite" for "if c then t else e" in [ite, termIfThenElse]
 
 /--
 `if let pat := d then t else e` is a shorthand syntax for:
@@ -514,9 +520,10 @@ macro_rules
   | `(bif $c then $t else $e) => `(cond $c $t $e)
 
 /--
-Haskell-like pipe operator `<|`. `f <| x` means the same as `f x`,
-except that it parses `x` with lower precedence, which means that `f <| g <| x`
-is interpreted as `f (g x)` rather than `(f g) x`.
+A pipe operator that feeds values from the right into functions on the left.
+
+`f <| x` means the same as `f x`, except that it parses `x` with lower precedence, which means that
+`f <| g <| x` is interpreted as `f (g x)` rather than `(f g) x`.
 -/
 syntax:min term " <| " term:min : term
 
@@ -538,8 +545,9 @@ macro_rules
       `($f $a)
 
 /--
-Haskell-like pipe operator `|>`. `x |> f` means the same as `f x`,
-and it chains such that `x |> f |> g` is interpreted as `g (f x)`.
+A pipe operator that feeds values from the left into functions on the right.
+
+`x |> f` means the same as `f x`, and it chains such that `x |> f |> g` is interpreted as `g (f x)`.
 -/
 syntax:min term " |> " term:min1 : term
 
@@ -613,16 +621,26 @@ scoped syntax (name := withAnnotateTerm) "with_annotate_term " rawStx ppSpace te
 syntax (name := modCast) "mod_cast " term : term
 
 /--
+Indicates that a deprecated declaration's replacement intentionally has a different type.
+
+The `configItem` parsers are not available here, so we hand-roll this.
+-/
+syntax deprecatedTypeChanged :=
+  (" +" noWs &"typeChanged") <|> (atomic(" (" &"typeChanged" " := ") &"true" ")")
+
+/--
 The attribute `@[deprecated]` on a declaration indicates that the declaration
 is discouraged for use in new code, and/or should be migrated away from in
 existing code. It may be removed in a future version of the library.
 
 * `@[deprecated myBetterDef]` means that `myBetterDef` is the suggested replacement.
 * `@[deprecated myBetterDef "use myBetterDef instead"]` allows customizing the deprecation message.
+* `@[deprecated myBetterDef +typeChanged]` indicates that the replacement intentionally has a
+  different type. `(typeChanged := true)` is an equivalent syntax.
 * `@[deprecated (since := "2024-04-21")]` records when the deprecation was first applied.
 -/
 syntax (name := deprecated) "deprecated" (ppSpace ident)? (ppSpace str)?
-    (" (" &"since" " := " str ")")? : attr
+    (deprecatedTypeChanged)? (" (" &"since" " := " str ")")? : attr
 
 /--
 The attribute `@[deprecated_arg old new]` marks a named parameter as deprecated.

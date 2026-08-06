@@ -479,7 +479,7 @@ else
 lean_object* v_val_153_; lean_object* v_upper_154_; lean_object* v___x_155_; lean_object* v___x_156_; uint8_t v___x_157_; 
 v_val_153_ = lean_ctor_get(v_stop_145_, 0);
 lean_inc(v_val_153_);
-lean_dec_ref(v_stop_145_);
+lean_dec_ref_known(v_stop_145_, 1);
 v_upper_154_ = lean_ctor_get(v_range_143_, 1);
 v___x_155_ = lean_unsigned_to_nat(1u);
 v___x_156_ = lean_nat_add(v_upper_154_, v___x_155_);
@@ -540,7 +540,7 @@ else
 lean_object* v_val_170_; lean_object* v_upper_171_; uint8_t v___x_172_; 
 v_val_170_ = lean_ctor_get(v_stop_164_, 0);
 lean_inc(v_val_170_);
-lean_dec_ref(v_stop_164_);
+lean_dec_ref_known(v_stop_164_, 1);
 v_upper_171_ = lean_ctor_get(v_range_162_, 1);
 v___x_172_ = lean_nat_dec_le(v_val_170_, v_upper_171_);
 if (v___x_172_ == 0)
@@ -639,7 +639,7 @@ else
 lean_object* v_val_203_; lean_object* v_upper_204_; lean_object* v___x_205_; lean_object* v___x_206_; uint8_t v___x_207_; 
 v_val_203_ = lean_ctor_get(v_stop_193_, 0);
 lean_inc(v_val_203_);
-lean_dec_ref(v_stop_193_);
+lean_dec_ref_known(v_stop_193_, 1);
 v_upper_204_ = lean_ctor_get(v_range_191_, 1);
 v___x_205_ = lean_unsigned_to_nat(1u);
 v___x_206_ = lean_nat_add(v_upper_204_, v___x_205_);
@@ -812,7 +812,7 @@ else
 lean_object* v_val_262_; lean_object* v___x_263_; lean_object* v___x_264_; uint8_t v___x_265_; 
 v_val_262_ = lean_ctor_get(v_stop_255_, 0);
 lean_inc(v_val_262_);
-lean_dec_ref(v_stop_255_);
+lean_dec_ref_known(v_stop_255_, 1);
 v___x_263_ = lean_unsigned_to_nat(1u);
 v___x_264_ = lean_nat_add(v_range_253_, v___x_263_);
 v___x_265_ = lean_nat_dec_le(v_val_262_, v___x_264_);
@@ -937,11 +937,13 @@ return v___f_295_;
 }
 lean_object* runtime_initialize_Init_Data_Slice_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Slice_Notation(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Slice_List_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Slice_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

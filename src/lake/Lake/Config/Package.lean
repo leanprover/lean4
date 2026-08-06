@@ -52,6 +52,8 @@ public structure Package where
   remoteUrl : String
   /-- Dependency configurations for the package. -/
   depConfigs : Array Dependency := #[]
+  /-- **For internal use only.** Workspace indices of the resolved direct dependencies of the package. -/
+  depIdxs : Array Nat := #[]
   /-- **For internal use only.** Resolved direct dependences of the package. -/
   depPkgs : Array Package := #[]
   /-- Target configurations in the order declared by the package. -/
@@ -159,7 +161,7 @@ public def id? (self : Package) : Option PkgId :=
   if self.bootstrap then none else some <| self.origName.toString (escape := false)
 
 /-- The package version. -/
-@[inline] public def version (self : Package) : LeanVer  :=
+@[inline] public def version (self : Package) : StdVer  :=
   self.config.version
 
 /-- The package's `versionTags` configuration. -/
@@ -256,7 +258,7 @@ public def id? (self : Package) : Option PkgId :=
 
 /-- The packages `remoteUrl` as an `Option` (`none` if empty). -/
 @[inline] public def remoteUrl? (self : Package) : Option String :=
-  if self.remoteUrl.isEmpty then some self.remoteUrl else none
+  if self.remoteUrl.isEmpty then none else some self.remoteUrl
 
 /-- The package's `lakeDir` joined with its `buildArchive`. -/
 @[inline] public def buildArchiveFile (self : Package) : FilePath :=
@@ -293,6 +295,14 @@ public def id? (self : Package) : Option PkgId :=
 /-- The package's `allowImportAll` configuration. -/
 @[inline] public def allowImportAll (self : Package) : Bool :=
   self.config.allowImportAll
+
+/-- The package's `requiresModuleSystem` configuration. -/
+@[inline] public def requiresModuleSystem (self : Package) : Bool :=
+  self.config.requiresModuleSystem
+
+/-- The package's `allowNonModules` configuration. -/
+@[inline] public def allowNonModules (self : Package) : Bool :=
+  self.config.allowNonModules
 
 /-- The package's `dynlibs` configuration. -/
 @[inline] public def dynlibs (self : Package) : TargetArray Dynlib :=

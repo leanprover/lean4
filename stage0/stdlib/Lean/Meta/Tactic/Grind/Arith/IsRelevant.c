@@ -163,7 +163,7 @@ return v___x_28_;
 else
 {
 lean_object* v___x_30_; lean_object* v___x_32_; 
-lean_dec_ref(v_a_22_);
+lean_dec_ref_known(v_a_22_, 1);
 v___x_30_ = lean_box(v___x_15_);
 if (v_isShared_25_ == 0)
 {
@@ -231,7 +231,7 @@ return v___x_40_;
 else
 {
 lean_object* v___x_43_; lean_object* v___x_45_; 
-lean_dec_ref(v_a_17_);
+lean_dec_ref_known(v_a_17_, 1);
 lean_dec_ref(v_00_u03b1_1_);
 v___x_43_ = lean_box(v___x_15_);
 if (v_isShared_20_ == 0)
@@ -502,7 +502,7 @@ v___x_138_ = lean_unbox(v_a_137_);
 lean_dec(v_a_137_);
 if (v___x_138_ == 0)
 {
-lean_dec_ref(v___x_136_);
+lean_dec_ref_known(v___x_136_, 1);
 v_e_100_ = v_q_125_;
 v_a_101_ = v___y_126_;
 v_a_102_ = v___y_127_;
@@ -569,11 +569,13 @@ return v_res_176_;
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_ToInt(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Linear_StructId(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_IsRelevant(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Grind_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

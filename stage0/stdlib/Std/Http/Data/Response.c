@@ -798,7 +798,7 @@ else
 lean_object* v_val_213_; 
 v_val_213_ = lean_ctor_get(v___x_211_, 0);
 lean_inc(v_val_213_);
-lean_dec_ref(v___x_211_);
+lean_dec_ref_known(v___x_211_, 1);
 v___y_197_ = v_val_213_;
 goto v___jp_196_;
 }
@@ -1167,7 +1167,7 @@ else
 lean_object* v_val_389_; 
 v_val_389_ = lean_ctor_get(v___x_387_, 0);
 lean_inc(v_val_389_);
-lean_dec_ref(v___x_387_);
+lean_dec_ref_known(v___x_387_, 1);
 v___y_358_ = v_val_389_;
 goto v___jp_357_;
 }
@@ -2519,7 +2519,7 @@ else
 lean_object* v_val_778_; lean_object* v___x_779_; 
 v_val_778_ = lean_ctor_get(v___x_776_, 0);
 lean_inc(v_val_778_);
-lean_dec_ref(v___x_776_);
+lean_dec_ref_known(v___x_776_, 1);
 v___x_779_ = l_Std_Http_Header_Value_ofString_x3f(v_value_775_);
 if (lean_obj_tag(v___x_779_) == 0)
 {
@@ -3049,11 +3049,13 @@ lean_object* runtime_initialize_Std_Http_Data_Extensions(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Data_Status(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Data_Version(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Data_Headers(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Http_Data_Response(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Http_Data_Extensions(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

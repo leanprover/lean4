@@ -226,7 +226,7 @@ structure State where
 
 /-- Gets `s.fType` with all loose bvars instantiated. -/
 @[inline] private def State.getFType (s : State) : Expr :=
-  s.fType.instantiateRevRange 0 s.fArgs.size s.fArgs
+  s.fType.instantiateBetaRevRange 0 s.fArgs.size s.fArgs
 
 abbrev M := ReaderT Context (StateRefT State TermElabM)
 
@@ -240,7 +240,7 @@ private def fTypeIsForall : M Bool := do
   if let Expr.forallE n d b bi := s.fType then
     -- Ensure the domain is instantiated, to ensure validity of `getParamType`
     if d.hasLooseBVars then
-      let d := d.instantiateRevRange 0 s.fArgs.size s.fArgs
+      let d := d.instantiateBetaRevRange 0 s.fArgs.size s.fArgs
       set { s with fType := Expr.forallE n d b bi }
     return true
   else
@@ -1288,7 +1288,7 @@ partial def main : M Expr := do
   let .forallE binderName binderType body binderInfo ← whnfForall (← get).fType |
     finalize
   let addArgAndContinue (arg : Expr) : M Expr := do
-    modify fun s => { s with idx := s.idx + 1, f := mkApp s.f arg, fType := body.instantiate1 arg }
+    modify fun s => { s with idx := s.idx + 1, f := mkApp s.f arg, fType := body.instantiateBetaRevRange 0 1 #[arg] }
     saveArgInfo arg binderName
     main
   let idx := (← get).idx
@@ -1567,10 +1567,15 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     -- Then search the environment
     if let some (baseStructName, fullName) ← findMethod? structName (.mkSimple fieldName) then
       return LValResolution.const baseStructName structName fullName levels
-    throwInvalidFieldAt ref fieldName fullName
-      -- Suggest a potential unreachable private name as hint. This does not cover structure
-      -- inheritance, nor `import all`.
-      (declHint := (mkPrivateName env structName).mkStr fieldName)
+    -- In public scope, retry in private scope as error message hint. Does not cover `import all`.
+    let declHint ← (do
+      if env.isExporting then
+        try
+          if let some (_, n) ← withoutExporting <| findMethod? structName (.mkSimple fieldName) then
+            return n
+        catch _ => pure ()
+      return .anonymous)
+    throwInvalidFieldAt ref fieldName fullName (declHint := declHint)
 
   | .forallE .., LVal.fieldName ref fieldName levels suffix? fullRef =>
     let fullName := Name.str `Function fieldName

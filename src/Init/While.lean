@@ -8,126 +8,77 @@ module
 prelude
 public import Init.Core
 public import Init.Classical
-public import Init.Control.Ensures
-public import Init.Control.Lawful.MonadAttach
 
 /-!
-# `whileM`
+# `repeatM`
 
-`whileM f a` iterates `f : α → m (α ⊕ β)`, recursing on `.inl` and terminating on
-`.inr`. `whileM_eq` exposes the body only at points witnessed accessible by
-`whileM.IsPlausibleStep`.
+`repeatM f a` iterates `f : α → m (α ⊕ β)`, recursing on `.inl` and terminating on `.inr`.
 -/
 
 variable {α : Type u} {m : Type u → Type v} [Monad m]
 
-/-- The body of `whileM`: run `f a`, recurse via `recur` on `.inl`, return on `.inr`. -/
-@[inline] public abbrev whileM.body (f : α → m (α ⊕ β)) (recur : α → m β) (a : α) : m β := do
+/-- The body of `repeatM`: run `f a`, recurse via `recur` on `.inl`, return on `.inr`. -/
+public abbrev repeatM.body (f : α → m (α ⊕ β)) (recur : α → m β) (a : α) : m β := do
   match ← f a with
-  | .inl a' => recur a'
-  | .inr a' => pure a'
+  | .inl a => recur a
+  | .inr b => pure b
 
-/-- `a' ≺ a` iff `f a` may return `.inl a'`. -/
-public abbrev whileM.IsPlausibleStep (f : α → m (α ⊕ β)) : α → α → Prop :=
-  fun a' a => Internal.MayReturn (f a) (.inl a')
-
-/-- One unfolding step of the loop body used by `whileM.fix`. -/
-private noncomputable def whileM.fixF {β : Type u} (f : α → m (α ⊕ β))
-    (hAttach : Exists (Internal.IsAttach (m := m)))
-    (x : α) (ih : ∀ y, whileM.IsPlausibleStep f y x → m β) : m β := do
-  let ⟨s, hp⟩ ← hAttach.choose (f x)
-  match s, hp with
-  | .inl x', hp => ih x' hp
-  | .inr b, _ => pure b
-
-/-- The classical `Acc`-induction defining `whileM`, factored out so it can be referenced from
-`whileM.Pred`, `whileM.impl`, and `whileM_eq` without duplicating the recursion. -/
-private noncomputable def whileM.fix {β : Type u} (f : α → m (α ⊕ β))
-    (hAttach : Exists (Internal.IsAttach (m := m))) {a : α}
-    (h_a : Acc (whileM.IsPlausibleStep f) a) : m β :=
-  WellFounded.fixF (whileM.fixF f hAttach) a h_a
-
-private theorem whileM.fix_eq {β : Type u} (f : α → m (α ⊕ β))
-    (hAttach : Exists (Internal.IsAttach (m := m))) {a : α}
-    (h_a : Acc (whileM.IsPlausibleStep f) a) :
-    whileM.fix f hAttach h_a =
-      whileM.fixF f hAttach a (fun _ p => whileM.fix f hAttach (h_a.inv p)) :=
-  WellFounded.fixF_eq _ a h_a
-
-/-- Pinning predicate for `whileM.impl`: trivial unless we have both an `Acc` and
-an attach for `m`, in which case `v` is pinned to the value computed by `whileM.fix`. -/
-private noncomputable abbrev whileM.Pred (f : α → m (α ⊕ β)) (a : α) (r : m β) : Prop :=
+/-- Pinning predicate for `repeatM.impl`: trivial unless `repeatM.body f` has a fixed point,
+in which case `r` is logically pinned to that fixed point applied to `a`. -/
+-- For monads like `List`, `Multiset`, no fixed point of `repeatM.body f` need exist:
+-- e.g. for `List`, `f a = [.inr 0, .inl a]` forces `g a = [0] ++ g a`, unsatisfiable in
+-- finite lists because `++` isn't idempotent. There this `Pred` collapses to `True`;
+-- a future per-point `Acc` / `MonadAttach` branch could pin `r` for the cases where
+-- execution from `a` is structurally well-founded.
+private abbrev repeatM.Pred (f : α → m (α ⊕ β)) (a : α) (r : m β) : Prop :=
   open scoped Classical in
-  if h : Acc (whileM.IsPlausibleStep f) a ∧ Exists Internal.IsAttach then
-    r = whileM.fix f h.2 h.1
+  if h : ∃ g, repeatM.body f g = g then
+    r = h.choose a
   else
     True
 
-private noncomputable instance [Nonempty β] {f : α → m (α ⊕ β)} {a : α} :
-    Nonempty (Subtype (whileM.Pred f a)) :=
+private instance [Nonempty β] {f : α → m (α ⊕ β)} {a : α} :
+    Nonempty (Subtype (repeatM.Pred f a)) :=
   open scoped Classical in
-  if h : Acc (whileM.IsPlausibleStep f) a ∧ Exists Internal.IsAttach then
-    ⟨⟨whileM.fix f h.2 h.1, by simp only [whileM.Pred, dif_pos h]⟩⟩
+  if h : ∃ g, repeatM.body f g = g then
+    ⟨⟨h.choose a, by simp only [repeatM.Pred, dite_eq_left h]⟩⟩
   else
-    ⟨⟨pure (Classical.choice inferInstance), by simp only [whileM.Pred, dif_neg h]⟩⟩
+    ⟨⟨pure (Classical.choice inferInstance), by simp only [repeatM.Pred, dite_eq_right h]⟩⟩
 
-/-- The body of `whileM` at any `Subtype (whileM.Pred f ·)`-valued recursive call agrees with
-`whileM.fix`, by `Acc` cases plus `Pred`-unfolding at the recursive step. -/
-private theorem whileM.body_eq_fix
-    (f : α → m (α ⊕ β)) (hAttach : Exists (Internal.IsAttach (m := m)))
-    (g : (a : α) → Subtype (whileM.Pred f a))
-    {x : α} (h_x : Acc (whileM.IsPlausibleStep f) x) :
-    whileM.body f (g · |>.val) x = whileM.fix f hAttach h_x := by
-  rw [whileM.fix_eq]
-  simp only [whileM.body, whileM.fixF]
-  rw [← ((hAttach.choose_spec.erases (f x)).bind_eq)]
-  apply bind_congr
-  intro ⟨s, hp⟩
-  cases s with
-  | inr b => rfl
-  | inl x' =>
-    have hp_x' := (g x').property
-    simp only [whileM.Pred,
-      dif_pos (show Acc _ x' ∧ _ from ⟨h_x.inv hp, hAttach⟩)] at hp_x'
-    exact hp_x'
-
-/-- Computational core of `whileM`: returns the loop value paired with its
-`whileM.Pred` proof. -/
-@[specialize] partial def whileM.impl [Nonempty β]
+/-- Computational core of `repeatM`: returns the loop value paired with its
+`repeatM.Pred` proof. -/
+private partial def repeatM.impl [Nonempty β]
     (f : α → m (α ⊕ β)) (a : α) :
-    Subtype (whileM.Pred f a) :=
-  ⟨whileM.body f (whileM.impl f · |>.val) a, by
-    simp only [whileM.Pred]
+    Subtype (repeatM.Pred f a) :=
+  ⟨repeatM.body f (repeatM.impl f · |>.val) a, by
+    simp only [repeatM.Pred]
     split <;> rename_i h
-    · exact whileM.body_eq_fix f h.2 (whileM.impl f) h.1
+    · have key : (fun x => (repeatM.impl f x).val) = h.choose := funext fun x => by
+        simpa only [repeatM.Pred, dite_eq_left h] using (repeatM.impl f x).property
+      rw [key]; exact congrFun h.choose_spec a
     · trivial⟩
 
 /--
-An erased version of `whileM.impl` that eta-expands better in the compiler.
-Can be removed once `whileM.impl` optimizes to the same code.
+An erased version of `repeatM.impl` that eta-expands better in the compiler.
+Can be removed once `repeatM.impl` optimizes to the same code.
 -/
-@[specialize] private partial def whileM.erased [Nonempty β] (f : α → m (α ⊕ β)) (a : α) : m β :=
-  whileM.body f (whileM.erased f ·) a
+@[specialize] private partial def repeatM.erased [Nonempty β] (f : α → m (α ⊕ β)) (a : α) : m β :=
+  repeatM.body f (repeatM.erased f ·) a
 
-/-- `whileM f a` iterates `f` at `a`, recursing on `.inl` and terminating on `.inr`. -/
-@[inline, implemented_by whileM.erased] -- See comment above `whileM.erased`.
-public def whileM [Nonempty β] (f : α → m (α ⊕ β)) (a : α) : m β :=
-  (whileM.impl f a).val
+/-- `repeatM f a` iterates `f` at `a`, recursing on `.inl` and terminating on `.inr`. -/
+@[implemented_by repeatM.erased] -- See comment above `repeatM.erased`.
+public def repeatM [Nonempty β] (f : α → m (α ⊕ β)) (a : α) : m β :=
+  (repeatM.impl f a).val
 
-/-- Under `Acc (whileM.IsPlausibleStep f) a`, `whileM f a` unfolds to one step. -/
--- We only need `MonadAttach` here for the `attach` function; lawfulness gives us that it
--- satisfies `Internal.IsAttach` (cf. `Internal.IsAttach.of_attach`). We could consider adding a
--- separate `HasAttach` type class for this in the future, but decided against it for now to avoid
--- introducing yet another type class for much the same purpose.
-public theorem whileM_eq [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] [Nonempty β]
-    {f : α → m (α ⊕ β)} (a : α) (h : Acc (whileM.IsPlausibleStep f) a) :
-    whileM f a = whileM.body f (whileM f) a := by
-  have hAttach : Exists (Internal.IsAttach (m := m)) := ⟨_, Internal.IsAttach.of_attach⟩
-  have hp_a := (whileM.impl f a).property
-  simp only [whileM.Pred, dif_pos (⟨h, hAttach⟩ : _ ∧ _)] at hp_a
-  show (whileM.impl f a).val = _
-  rw [hp_a]
-  exact (whileM.body_eq_fix f hAttach (whileM.impl f) h).symm
+-- Intentionally private: unfolding `repeatM` needs a `MonadTail m` instance and is done
+-- in `Init.Internal.Order.While`.
+private theorem repeatM_eq [Nonempty β] {f : α → m (α ⊕ β)} (a : α)
+    (h : ∃ g, repeatM.body f g = g) :
+    repeatM f a = repeatM.body f (repeatM f) a := by
+  have key : (fun x => (repeatM.impl f x).val) = h.choose := funext fun x => by
+    simpa only [repeatM.Pred, dite_eq_left h] using (repeatM.impl f x).property
+  show (repeatM.impl f a).val = repeatM.body f (fun x => (repeatM.impl f x).val) a
+  rw [key, congrFun key a]; exact (congrFun h.choose_spec a).symm
 
 namespace Lean
 
@@ -144,10 +95,10 @@ public structure Loop
 @[inline, expose] public protected def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m]
     (_ : Loop) (init : β) (f : Unit → β → m (ForInStep β)) : m β :=
   haveI : Nonempty β := ⟨init⟩
-  whileM (fun b => do
+  repeatM (a := init) fun b => do
     match ← f () b with
     | .done b'  => pure (.inr b')
-    | .yield b' => pure (.inl b')) init
+    | .yield b' => pure (.inl b')
 
 public instance [Monad m] : ForIn m Loop Unit where
   forIn := Loop.forIn

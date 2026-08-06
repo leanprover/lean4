@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Data.HashMap.Lemmas
 public import Std.Data.HashSet.Basic
+public import Std.Internal.ForIn.Basic
 
 @[expose] public section
 
@@ -551,6 +552,14 @@ theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
     ForIn.forIn m init f = ForIn.forIn m.toList init f :=
   HashMap.forIn_eq_forIn_keys
 
+@[simp, grind =]
+theorem forIn_toList (c : HashSet α) : ForIn.toList c = c.toList :=
+  Std.Internal.ForIn.toList_eq_of_forIn_eq fun _ _ => forIn_eq_forIn_toList
+
+instance [Monad m'] [LawfulMonad m'] :
+    Std.Internal.PureForIn m' (HashSet α) α where
+  forIn_eq _ _ _ := by rw [forIn_toList]; exact forIn_eq_forIn_toList
+
 theorem foldM_eq_foldlM_toArray [Monad m'] [LawfulMonad m']
     {f : δ → α → m' δ} {init : δ} :
     m.foldM (fun d a => f d a) init = m.toArray.foldlM f init :=
@@ -589,7 +598,7 @@ theorem any_eq_true_iff_exists_mem_get [LawfulHashable α] [EquivBEq α]
 
 theorem any_eq_true_iff_exists_mem [LawfulBEq α] {p : α → Bool} :
     m.any p = true ↔ ∃ (a : α), a ∈ m ∧ p a := by
-  simpa using @HashMap.any_eq_true_iff_exists_mem_getElem _ _ _ _ _ _ (fun a b => p a)
+  simpa using! @HashMap.any_eq_true_iff_exists_mem_getElem _ _ _ _ _ _ (fun a b => p a)
 
 theorem any_eq_false_iff_forall_mem_get [LawfulHashable α] [EquivBEq α]
     {p : α → Bool} :
@@ -600,7 +609,7 @@ theorem any_eq_false_iff_forall_mem_get [LawfulHashable α] [EquivBEq α]
 theorem any_eq_false_iff_forall_mem [LawfulBEq α] {p : α → Bool} :
     m.any p = false ↔
       ∀ (a : α), a ∈ m → p a = false := by
-  simpa using @HashMap.any_eq_false_iff_forall_mem_getElem _ _ _ _ _ _ (fun a b => p a)
+  simpa using! @HashMap.any_eq_false_iff_forall_mem_getElem _ _ _ _ _ _ (fun a b => p a)
 
 @[simp]
 theorem all_toList [LawfulHashable α] [EquivBEq α] {p : α → Bool} :
@@ -623,7 +632,7 @@ theorem all_eq_false_iff_exists_mem_get [EquivBEq α] [LawfulHashable α]
 
 theorem all_eq_false_iff_exists_mem [LawfulBEq α] {p : α → Bool} :
     m.all p = false ↔ ∃ (a : α), a ∈ m ∧ p a = false := by
-  simpa using @HashMap.all_eq_false_iff_exists_mem_getElem _ _ _ _ _ _ (fun a b => p a)
+  simpa using! @HashMap.all_eq_false_iff_exists_mem_getElem _ _ _ _ _ _ (fun a b => p a)
 
 variable {ρ : Type v} [ForIn Id ρ α]
 

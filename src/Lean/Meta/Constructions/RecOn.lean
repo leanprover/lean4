@@ -13,6 +13,8 @@ public section
 
 open Lean Meta
 
+namespace Lean
+
 def mkRecOn (n : Name) : MetaM Unit := do
   let .recInfo recInfo ← getConstInfo (mkRecName n)
     | throwError "{mkRecName n} not a recinfo"
@@ -35,3 +37,5 @@ def mkRecOn (n : Name) : MetaM Unit := do
   setReducibleAttribute decl.name
   modifyEnv fun env => markAuxRecursor env decl.name
   modifyEnv fun env => addProtected env decl.name
+
+end Lean

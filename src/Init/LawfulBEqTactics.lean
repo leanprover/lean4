@@ -38,11 +38,11 @@ theorem deriving_lawful_beq_helper_dep {x y : α} [BEq α] [ReflBEq α]
   by_cases hxy : x = y
   · subst hxy
     apply k rfl
-    rw [dif_pos (BEq.refl x)] at h
+    rw [dite_eq_left (BEq.refl x)] at h
     exact h
   · by_cases hxy' : x == y
     · exact False.elim <| hxy (inst hxy')
-    · rw [dif_neg hxy'] at h
+    · rw [dite_eq_right hxy'] at h
       contradiction
 
 theorem deriving_lawful_beq_helper_nd {x y : α} [BEq α] [ReflBEq α]

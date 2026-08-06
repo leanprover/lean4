@@ -15,6 +15,7 @@ public import Lean.Meta.ForEachExpr
 public import Lean.Meta.Sorry
 public import Lean.PrivateName
 public import Lean.Server.InfoUtils
+public import Lean.Linter.Util
 
 public section
 
@@ -253,18 +254,6 @@ private def onUnusedInstancesWhere (decl : ConstantVal) (p : Expr → Bool)
             }
           logOnUnused unusedParams
 
-/-- Get the `parentDecl`s of every elaborated body in the infotree. -/
-private def getDeclsByBody (t : InfoTree) : List Name :=
-  t.collectNodesBottomUp fun ctx i _ decls =>
-    match i with
-    | .ofCustomInfo i =>
-      if i.value.typeName == ``Lean.Elab.Term.BodyInfo then
-        if let some decl := ctx.parentDecl? then
-          decl :: decls
-        else decls
-      else decls
-    | _ => decls
-
 /--
 Get the declarations elaborated in the infotree `t` which are theorems according to the
 environment. This includes e.g. `instance`s of `Prop` classes in addition to declarations declared
@@ -286,7 +275,7 @@ private def isDecidableVariant (type : Expr) : Bool :=
 
 @[inherit_doc linter.extra.unusedDecidableInType]
 def unusedDecidableInTypeLinter : Linter where run := withSetOptionIn fun _ => do
-  unless getLinterValueExtra linter.extra.unusedDecidableInType (← getLinterOptions)
+  unless getLinterValue linter.extra.unusedDecidableInType (← getLinterOptions)
       && (← getInfoState).enabled do
     return
   if (← get).messages.hasErrors then
@@ -300,7 +289,7 @@ def unusedDecidableInTypeLinter : Linter where run := withSetOptionIn fun _ => d
         && thm.type.hasInstanceBinderOf isDecidableVariant
     unless thms.isEmpty do liftTermElabM do for thm in thms do
       onUnusedInstancesWhere thm isDecidableVariant fun unusedParams => do
-        logLintIfExtra linter.extra.unusedDecidableInType (← getRef) m!"\
+        logLintIf linter.extra.unusedDecidableInType (← getRef) m!"\
           {unusedInstancesMsg thm.name unusedParams}\n\n\
           Consider removing \
           {if unusedParams.size = 1 then "this hypothesis" else "these hypotheses"} \

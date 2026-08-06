@@ -61,7 +61,7 @@ theorem NoRepetition.append_singleton_of_ne {α : Type u} {a b : α} {l : List �
 
 @[simp]
 theorem noRepetition_singleton {α : Type u} {a b : α} : NoRepetition a [b] := by
-  simpa [noRepetition_iff] using fun h => by simpa using h.length_le
+  simpa [noRepetition_iff] using! fun h => by simpa using! h.length_le
 
 theorem noRepetition_cons_append_append_iff {α : Type u} {a : α} {l : List α} :
     NoRepetition a (a :: (l ++ [a])) ↔
@@ -200,7 +200,7 @@ public theorem toNat?_eq_none {s : String.Slice} (h : s.isNat = false) : s.toNat
 
 public theorem toNat?_eq_some_ofDigitChars {s : String.Slice} (h : s.isNat = true) :
     s.toNat? = some (Nat.ofDigitChars 10 (s.copy.toList.filter (· != '_')) 0) := by
-  rw [toNat?, if_pos h, Option.some.injEq]
+  rw [toNat?, ite_eq_left h, Option.some.injEq]
   simp [Nat.ofDigitChars_eq_foldl, ↓Char.isValue, Char.reduceToNat, foldl_eq_foldl_toList, List.foldl_ite_right,
     bne_eq, Bool.beq_eq_decide_eq, Nat.mul_comm 10]
 
@@ -243,7 +243,7 @@ public theorem Slice.isNat_comp_copy : String.isNat ∘ String.Slice.copy = Stri
 
 @[simp]
 public theorem Slice.toNat?_copy {s : Slice} : s.copy.toNat? = s.toNat? := by
-  simpa [← isNat_toSlice] using Slice.toNat?_congr (by simp)
+  simpa [← isNat_toSlice] using! Slice.toNat?_congr (by simp)
 
 @[simp]
 public theorem Slice.toNat?_comp_copy : String.toNat? ∘ String.Slice.copy = String.Slice.toNat? := by

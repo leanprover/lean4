@@ -3077,7 +3077,7 @@ else
 lean_object* v_val_1209_; uint8_t v___x_1210_; 
 v_val_1209_ = lean_ctor_get(v_fst_1207_, 0);
 lean_inc(v_val_1209_);
-lean_dec_ref(v_fst_1207_);
+lean_dec_ref_known(v_fst_1207_, 1);
 v___x_1210_ = lean_unbox(v_val_1209_);
 lean_dec(v_val_1209_);
 return v___x_1210_;
@@ -3127,7 +3127,7 @@ else
 lean_object* v_val_1229_; uint8_t v___x_1230_; 
 v_val_1229_ = lean_ctor_get(v_fst_1227_, 0);
 lean_inc(v_val_1229_);
-lean_dec_ref(v_fst_1227_);
+lean_dec_ref_known(v_fst_1227_, 1);
 v___x_1230_ = lean_unbox(v_val_1229_);
 lean_dec(v_val_1229_);
 return v___x_1230_;
@@ -3214,7 +3214,7 @@ else
 lean_object* v_val_1268_; uint8_t v___x_1269_; 
 v_val_1268_ = lean_ctor_get(v_fst_1266_, 0);
 lean_inc(v_val_1268_);
-lean_dec_ref(v_fst_1266_);
+lean_dec_ref_known(v_fst_1266_, 1);
 v___x_1269_ = lean_unbox(v_val_1268_);
 lean_dec(v_val_1268_);
 return v___x_1269_;
@@ -3264,7 +3264,7 @@ else
 lean_object* v_val_1288_; uint8_t v___x_1289_; 
 v_val_1288_ = lean_ctor_get(v_fst_1286_, 0);
 lean_inc(v_val_1288_);
-lean_dec_ref(v_fst_1286_);
+lean_dec_ref_known(v_fst_1286_, 1);
 v___x_1289_ = lean_unbox(v_val_1288_);
 lean_dec(v_val_1288_);
 return v___x_1289_;
@@ -3517,11 +3517,13 @@ return v___x_1386_;
 }
 }
 lean_object* runtime_initialize_Std_Data_HashMap_Raw(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Data_HashSet_Raw(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Data_HashMap_Raw(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

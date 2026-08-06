@@ -34,7 +34,7 @@ v_head_3_ = lean_ctor_get(v_x_1_, 0);
 lean_inc(v_head_3_);
 v_tail_4_ = lean_ctor_get(v_x_1_, 1);
 lean_inc(v_tail_4_);
-lean_dec_ref(v_x_1_);
+lean_dec_ref_known(v_x_1_, 2);
 v___x_5_ = lean_array_push(v_x_2_, v_head_3_);
 v_x_1_ = v_tail_4_;
 v_x_2_ = v___x_5_;
@@ -74,11 +74,13 @@ return v___x_19_;
 }
 lean_object* runtime_initialize_Init_Prelude(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_List_ToArrayImpl(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Prelude(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

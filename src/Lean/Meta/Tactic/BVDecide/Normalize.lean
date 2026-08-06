@@ -1,0 +1,103 @@
+/-
+Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Henrik Böving
+-/
+module
+
+prelude
+public import Lean.Elab.Tactic.FalseOrByContra
+public import Lean.Meta.Tactic.BVDecide.Normalize.Basic
+public import Lean.Meta.Tactic.BVDecide.Normalize.ApplyControlFlow
+public import Lean.Meta.Tactic.BVDecide.Normalize.Simproc
+public import Lean.Meta.Tactic.BVDecide.Normalize.Rewrite
+public import Lean.Meta.Tactic.BVDecide.Normalize.AndFlatten
+public import Lean.Meta.Tactic.BVDecide.Normalize.EmbeddedConstraint
+public import Lean.Meta.Tactic.BVDecide.Normalize.AC
+public import Lean.Meta.Tactic.BVDecide.Normalize.Structures
+public import Lean.Meta.Tactic.BVDecide.Normalize.IntToBitVec
+public import Lean.Meta.Tactic.BVDecide.Normalize.Enums
+public import Lean.Meta.Tactic.BVDecide.Normalize.TypeAnalysis
+public import Lean.Meta.Tactic.BVDecide.Normalize.ShortCircuit
+public import Lean.Meta.Tactic.BVDecide.Normalize.Reduction
+import Lean.Meta.Sym.Util
+import Lean.Meta.Sym.Intro
+
+/-!
+This module contains the implementation of `bv_normalize`, the preprocessing tactic for `bv_decide`.
+It is in essence a (slightly reduced) version of the Bitwuzla preprocessor together with Lean
+specific details.
+-/
+
+namespace Lean.Meta.Tactic.BVDecide
+namespace Normalize
+
+def passPipeline : PreProcessM (List Pass) := do
+  let mut passPipeline := [rewriteRulesPass]
+  let cfg ← PreProcessM.getConfig
+
+  if cfg.acNf then
+    passPipeline := passPipeline ++ [bvAcNormalizePass]
+
+  if cfg.embeddedConstraintSubst && cfg.andFlattening then
+    passPipeline := passPipeline ++ [andFlatteningPass]
+
+  if cfg.embeddedConstraintSubst then
+    passPipeline := passPipeline ++ [embeddedConstraintPass]
+
+  return passPipeline
+
+public def bvNormalize : PreProcessM Bool := do
+  withTraceNode `Meta.Tactic.bv (fun _ => return "Preprocessing goal") do
+    let g ← PreProcessM.getGoal
+    -- TODO: consider reimplementing this with SymM
+    let some g ← g.falseOrByContra (useClassical := some true) | return true
+    let g ← Sym.preprocessMVar g
+    PreProcessM.setGoal g
+    PreProcessM.collectHypsFromGoal
+
+    trace[Meta.Tactic.bv] m!"Running preprocessing pipeline on:\n{g}"
+    let cfg ← PreProcessM.getConfig
+
+    if cfg.structures || cfg.enums then
+      if ← typeAnalysisPass.run then return true
+
+    if ← reductionPass.run then return true
+
+    /-
+    There is a tension between the structures and enums pass at play:
+    1. Enums should run before structures as it could convert matches on enums into `cond`
+       chains. This in turn can be used by the structures pass to float projections into control
+       flow which might be necessary.
+    2. Structures should run before enums as it could reveal new facts about enums that we might
+       need to handle. For example a structure might contain a field that contains a fact about
+       some enum. This fact needs to be processed properly by the enums pass
+
+    To resolve this tension we do the following:
+    1. Run the structures pass (if enabled)
+    2. Run the enums pass (if enabled)
+    3. Within the enums pass we rerun the part of the structures pass that could profit from the
+       enums pass as described above. This comes down to adding a few more lemmas to a simp
+       invocation that is going to happen in the enums pass anyway and should thus be cheap.
+    -/
+    if cfg.structures then
+      if ← structuresPass.run then return true
+
+    if cfg.enums then
+      if ← enumsPass.run then return true
+
+    if cfg.fixedInt then
+      if ← intToBitVecPass.run then return true
+
+    let pipeline ← passPipeline
+    if ← Pass.fixpointPipeline pipeline then return true
+    /-
+    Run short circuiting once post fixpoint, as it increases the size of terms with
+    the aim of exposing potential short-circuit reasoning to the solver.
+    -/
+    if cfg.shortCircuit then
+      if ← shortCircuitPass.run then return true
+    return false
+
+end Normalize
+end Lean.Meta.Tactic.BVDecide

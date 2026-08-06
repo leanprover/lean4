@@ -38,7 +38,7 @@ lean_object* l_Lean_getAttributeImpl(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_throwErrorAt___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l_Lean_expandMacros(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_withoutExporting___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
@@ -708,7 +708,7 @@ if (lean_obj_tag(v___x_257_) == 1)
 lean_object* v_val_258_; lean_object* v___f_259_; lean_object* v___x_260_; 
 v_val_258_ = lean_ctor_get(v___x_257_, 0);
 lean_inc(v_val_258_);
-lean_dec_ref(v___x_257_);
+lean_dec_ref_known(v___x_257_, 1);
 lean_inc(v_toBind_253_);
 v___f_259_ = lean_alloc_closure((void*)(l_Lean_Elab_elabAttr___redArg___lam__5___boxed), 8, 7);
 lean_closure_set(v___f_259_, 0, v___f_249_);
@@ -780,7 +780,7 @@ return v___x_292_;
 else
 {
 uint8_t v___x_293_; lean_object* v___x_294_; lean_object* v___f_295_; lean_object* v___f_296_; lean_object* v___f_297_; lean_object* v___x_298_; 
-lean_dec_ref(v___x_290_);
+lean_dec_ref_known(v___x_290_, 1);
 lean_dec(v___f_275_);
 v___x_293_ = 1;
 v___x_294_ = lean_box(v___x_293_);
@@ -828,7 +828,7 @@ if (lean_obj_tag(v___x_312_) == 1)
 lean_object* v_a_313_; lean_object* v___f_314_; lean_object* v___x_315_; 
 v_a_313_ = lean_ctor_get(v___x_312_, 0);
 lean_inc(v_a_313_);
-lean_dec_ref(v___x_312_);
+lean_dec_ref_known(v___x_312_, 1);
 lean_inc(v_getEnv_310_);
 lean_inc(v_toBind_308_);
 v___f_314_ = lean_alloc_closure((void*)(l_Lean_Elab_elabAttr___redArg___lam__6), 14, 13);
@@ -896,7 +896,7 @@ v___x_331_ = l_Lean_getAttributeImpl(v_____do__lift_330_, v_attrName_324_);
 if (lean_obj_tag(v___x_331_) == 1)
 {
 lean_object* v___x_332_; 
-lean_dec_ref(v___x_331_);
+lean_dec_ref_known(v___x_331_, 1);
 lean_dec_ref(v_inst_329_);
 lean_dec_ref(v_inst_328_);
 lean_dec(v_attrName_324_);
@@ -1028,7 +1028,7 @@ lean_dec_ref(v_inst_390_);
 lean_dec_ref(v_inst_389_);
 v_str_402_ = lean_ctor_get(v___x_399_, 1);
 lean_inc_ref(v_str_402_);
-lean_dec_ref(v___x_399_);
+lean_dec_ref_known(v___x_399_, 2);
 v___f_403_ = lean_alloc_closure((void*)(l_Lean_Elab_elabAttr___redArg___lam__10), 2, 1);
 lean_closure_set(v___f_403_, 0, v___f_398_);
 v___x_404_ = lean_box(0);
@@ -1062,7 +1062,8 @@ v___x_413_ = l_Lean_Syntax_getArg(v_attr_396_, v___x_395_);
 lean_dec(v_attr_396_);
 v___x_414_ = l_Lean_Syntax_getId(v___x_413_);
 lean_dec(v___x_413_);
-v___x_415_ = lean_erase_macro_scopes(v___x_414_);
+v___x_415_ = l_Lean_Name_eraseMacroScopes(v___x_414_);
+lean_dec(v___x_414_);
 v___x_416_ = lean_apply_2(v_toPure_387_, lean_box(0), v___x_415_);
 v___x_417_ = lean_apply_4(v_toBind_394_, lean_box(0), lean_box(0), v___x_416_, v___f_412_);
 return v___x_417_;
@@ -1435,11 +1436,13 @@ lean_object* runtime_initialize_Lean_Elab_Util(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_InitAttr(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Parser_Term(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Format_Macro(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Attributes(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Elab_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

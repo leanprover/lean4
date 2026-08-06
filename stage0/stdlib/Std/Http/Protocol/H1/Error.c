@@ -239,7 +239,7 @@ if (lean_obj_tag(v_t_16_) == 11)
 lean_object* v_message_18_; lean_object* v___x_19_; 
 v_message_18_ = lean_ctor_get(v_t_16_, 0);
 lean_inc_ref(v_message_18_);
-lean_dec_ref(v_t_16_);
+lean_dec_ref_known(v_t_16_, 1);
 v___x_19_ = lean_apply_1(v_k_17_, v_message_18_);
 return v___x_19_;
 }
@@ -1096,11 +1096,13 @@ lean_object* runtime_initialize_Std_Http_Internal(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Protocol_H1_Parser(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Protocol_H1_Config(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Protocol_H1_Message(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Http_Protocol_H1_Error(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Time(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

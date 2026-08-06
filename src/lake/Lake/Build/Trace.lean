@@ -68,23 +68,23 @@ export MixTrace (mixTrace)
 section
 variable [MixTrace τ] [NilTrace τ]
 
-/- Combine a `List` of traces (left-to-right). -/
+/-- Combine a `List` of traces (left-to-right). -/
 public def mixTraceList (traces : List τ) : τ :=
   traces.foldl mixTrace nilTrace
 
-/- Combine an `Array` of traces (left-to-right). -/
+/-- Combine an `Array` of traces (left-to-right). -/
 public def mixTraceArray (traces : Array τ) : τ :=
   traces.foldl mixTrace nilTrace
 
 variable [ComputeTrace α m τ]
 
-/- Compute the trace of each element of a `List` and combine them (left-to-right). -/
+/-- Compute the trace of each element of a `List` and combine them (left-to-right). -/
 @[inline] public def computeListTrace [MonadLiftT m n] [Monad n] (as : List α) : n τ :=
   as.foldlM (fun ts t => return mixTrace ts (← computeTrace t)) nilTrace
 
 public instance [Monad m] : ComputeTrace (List α) m τ := ⟨computeListTrace⟩
 
-/- Compute the trace of each element of an `Array` and combine them (left-to-right). -/
+/-- Compute the trace of each element of an `Array` and combine them (left-to-right). -/
 @[inline] public def computeArrayTrace [MonadLiftT m n] [Monad n] (as : Array α) : n τ :=
   as.foldlM (fun ts t => return mixTrace ts (← computeTrace t)) nilTrace
 

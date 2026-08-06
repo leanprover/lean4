@@ -101,7 +101,7 @@ v_l_19_ = lean_ctor_get(v_t_14_, 3);
 lean_inc(v_l_19_);
 v_r_20_ = lean_ctor_get(v_t_14_, 4);
 lean_inc(v_r_20_);
-lean_dec_ref(v_t_14_);
+lean_dec_ref_known(v_t_14_, 5);
 v___x_21_ = lean_apply_5(v_k_15_, v_size_16_, v_k_17_, v_v_18_, v_l_19_, v_r_20_);
 return v___x_21_;
 }
@@ -356,11 +356,13 @@ return v_res_119_;
 }
 }
 lean_object* runtime_initialize_Init_Data_SInt_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_Def(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_SInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

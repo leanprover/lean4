@@ -8,7 +8,7 @@ module
 prelude
 public meta import Init.Grind.Tactics
 public import Init.Grind.Tactics
-import Init.SimpLemmas
+public import Init.SimpLemmas
 
 public section
 
@@ -27,9 +27,11 @@ macro_rules
 
 /-! ## if-then-else -/
 
-@[simp] theorem if_true {_ : Decidable True} (t e : α) : ite True t e = t := if_pos trivial
+@[deprecated ite_true (since := "2026-07-21")]
+theorem if_true {_ : Decidable True} (t e : α) : ite True t e = t := ite_eq_left trivial
 
-@[simp] theorem if_false {_ : Decidable False} (t e : α) : ite False t e = e := if_neg id
+@[deprecated ite_false (since := "2026-07-21")]
+theorem if_false {_ : Decidable False} (t e : α) : ite False t e = e := ite_eq_right id
 
 theorem ite_id [Decidable c] {α} (t : α) : (if c then t else t) = t := by split <;> rfl
 

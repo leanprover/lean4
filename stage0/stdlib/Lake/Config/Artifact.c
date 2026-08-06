@@ -548,7 +548,7 @@ lean_ctor_set(v___x_207_, 1, v_searcher_205_);
 lean_ctor_set(v___x_207_, 2, v___x_206_);
 v___x_208_ = lean_box(0);
 v___x_209_ = l_WellFounded_opaqueFix_u2083___at___00Lake_ArtifactDescr_ofFilePath_x3f_spec__0___redArg(v___x_207_, v_path_171_, v_searcher_205_, v___x_208_);
-lean_dec_ref(v___x_207_);
+lean_dec_ref_known(v___x_207_, 3);
 if (lean_obj_tag(v___x_209_) == 0)
 {
 v___y_173_ = v___x_206_;
@@ -559,7 +559,7 @@ else
 lean_object* v_val_210_; 
 v_val_210_ = lean_ctor_get(v___x_209_, 0);
 lean_inc(v_val_210_);
-lean_dec_ref(v___x_209_);
+lean_dec_ref_known(v___x_209_, 1);
 v___y_173_ = v_val_210_;
 goto v___jp_172_;
 }
@@ -775,7 +775,7 @@ else
 lean_object* v_a_240_; lean_object* v___x_241_; 
 v_a_240_ = lean_ctor_get(v___x_229_, 0);
 lean_inc(v_a_240_);
-lean_dec_ref(v___x_229_);
+lean_dec_ref_known(v___x_229_, 1);
 v___x_241_ = l_Lake_ArtifactDescr_ofFilePath_x3f(v_a_240_);
 return v___x_241_;
 }
@@ -1126,11 +1126,13 @@ return v_res_378_;
 }
 }
 lean_object* runtime_initialize_Lake_Build_Trace(uint8_t builtin);
+void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Config_Artifact(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize();
 res = runtime_initialize_Lake_Build_Trace(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

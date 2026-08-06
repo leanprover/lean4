@@ -337,7 +337,7 @@ lean_dec_ref(v_it_120_);
 lean_dec(v_recur_119_);
 v_a_122_ = lean_ctor_get(v_____do__lift_121_, 0);
 lean_inc(v_a_122_);
-lean_dec_ref(v_____do__lift_121_);
+lean_dec_ref_known(v_____do__lift_121_, 1);
 v___x_123_ = lean_apply_2(v_toPure_118_, lean_box(0), v_a_122_);
 return v___x_123_;
 }
@@ -347,7 +347,7 @@ lean_object* v_a_124_; lean_object* v___x_125_;
 lean_dec(v_toPure_118_);
 v_a_124_ = lean_ctor_get(v_____do__lift_121_, 0);
 lean_inc(v_a_124_);
-lean_dec_ref(v_____do__lift_121_);
+lean_dec_ref_known(v_____do__lift_121_, 1);
 v___x_125_ = lean_apply_4(v_recur_119_, v_it_120_, v_a_124_, lean_box(0), lean_box(0));
 return v___x_125_;
 }
@@ -365,7 +365,7 @@ v_it_132_ = lean_ctor_get(v_s_131_, 0);
 lean_inc(v_it_132_);
 v_out_133_ = lean_ctor_get(v_s_131_, 1);
 lean_inc(v_out_133_);
-lean_dec_ref(v_s_131_);
+lean_dec_ref_known(v_s_131_, 2);
 v___f_134_ = lean_alloc_closure((void*)(l_Std_Iterators_Types_Take_instIteratorLoop___redArg___lam__0), 4, 3);
 lean_closure_set(v___f_134_, 0, v_toPure_126_);
 lean_closure_set(v___f_134_, 1, v_recur_127_);
@@ -382,7 +382,7 @@ lean_dec(v___y_128_);
 lean_dec(v_toPure_126_);
 v_it_137_ = lean_ctor_get(v_s_131_, 0);
 lean_inc(v_it_137_);
-lean_dec_ref(v_s_131_);
+lean_dec_ref_known(v_s_131_, 1);
 v___x_138_ = lean_apply_4(v_recur_127_, v_it_137_, v_acc_129_, lean_box(0), lean_box(0));
 return v___x_138_;
 }
@@ -500,11 +500,13 @@ lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Monadic_Loop(uint8
 lean_object* runtime_initialize_Init_Classical(uint8_t builtin);
 lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Iterators_Combinators_Monadic_Take(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Iterators_Consumers_Monadic_Loop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

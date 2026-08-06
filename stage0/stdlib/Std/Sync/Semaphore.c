@@ -522,7 +522,7 @@ if (lean_obj_tag(v___x_156_) == 1)
 lean_object* v_val_157_; lean_object* v___x_158_; lean_object* v___x_159_; 
 v_val_157_ = lean_ctor_get(v___x_156_, 0);
 lean_inc(v_val_157_);
-lean_dec_ref(v___x_156_);
+lean_dec_ref_known(v___x_156_, 1);
 v___x_158_ = lean_box(0);
 v___x_159_ = lean_io_promise_resolve(v___x_158_, v_val_157_);
 lean_dec(v_val_157_);
@@ -585,11 +585,13 @@ return v_res_178_;
 lean_object* runtime_initialize_Init_Data_Queue(uint8_t builtin);
 lean_object* runtime_initialize_Init_System_Promise(uint8_t builtin);
 lean_object* runtime_initialize_Std_Sync_Mutex(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Sync_Semaphore(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Queue(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -23,7 +23,11 @@ structure IndexMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
   private keys : Array α
   private values : Array β
   private size_keys' : keys.size = values.size := by grind
-  private WF : ∀ (i : Nat) (a : α), keys[i]? = some a ↔ indices[a]? = some i := by grind
+  private WF1 : ∀ (i : Nat) (h1 : i < keys.size) (h2 : keys[i] ∈ indices), indices[keys[i]] = i := by grind
+  private WF2 : ∀ (a : α) (h1 : a ∈ indices) (h2 : indices[a] < keys.size), keys[indices[a]] = a := by grind
+  private WF3 : ∀ (a : α) (h1 : a ∈ indices), indices[a] < keys.size := by grind
+  private WF4 : ∀ (i : Nat) (h1 : i < keys.size), keys[i] ∈ indices := by grind
+
 
 namespace IndexMap
 
@@ -74,10 +78,13 @@ private theorem mem_indices {m : IndexMap α β} {a : α} :
 
 variable [LawfulBEq α] [LawfulHashable α]
 
-attribute [local grind _=_] IndexMap.WF
+local grind_pattern IndexMap.WF1 => self.keys[i]
+local grind_pattern IndexMap.WF2 => self.indices[a]
+attribute [local grind ←] IndexMap.WF3
+attribute [local grind ←] IndexMap.WF4
 
 instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
-  getElem m a h := m.values[m.indices[a]'h]
+  getElem m a h := m.values[m.indices[a]'h]'(by grind)
   getElem? m a  := m.indices[a]?.bind (fun i => (m.values[i]?))
   getElem! m a  := m.indices[a]?.bind (fun i => (m.values[i]?)) |>.getD default
 

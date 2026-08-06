@@ -109,7 +109,7 @@ if (lean_obj_tag(v___x_20_) == 1)
 lean_object* v_val_21_; lean_object* v___f_22_; lean_object* v___x_23_; 
 v_val_21_ = lean_ctor_get(v___x_20_, 0);
 lean_inc(v_val_21_);
-lean_dec_ref(v___x_20_);
+lean_dec_ref_known(v___x_20_, 1);
 v___f_22_ = lean_alloc_closure((void*)(l_Lean_Elab_getDeclarationRange_x3f___redArg___lam__0___boxed), 3, 2);
 lean_closure_set(v___f_22_, 0, v_val_21_);
 lean_closure_set(v___f_22_, 1, v_toPure_18_);
@@ -281,7 +281,7 @@ lean_object* v_val_89_; lean_object* v_map_90_; lean_object* v___f_91_; lean_obj
 lean_dec(v_toPure_87_);
 v_val_89_ = lean_ctor_get(v_____x_88_, 0);
 lean_inc_n(v_val_89_, 2);
-lean_dec_ref(v_____x_88_);
+lean_dec_ref_known(v_____x_88_, 1);
 v_map_90_ = lean_ctor_get(v_toFunctor_80_, 0);
 lean_inc(v_map_90_);
 lean_dec_ref(v_toFunctor_80_);
@@ -401,7 +401,7 @@ lean_ctor_set(v_stx_168_, 1, v___x_166_);
 lean_ctor_set(v_stx_168_, 2, v___x_165_);
 v___x_169_ = l_Lean_Elab_getDeclarationSelectionRef(v_declStx_158_);
 v___x_170_ = l_Lean_Elab_addDeclarationRangesFromSyntax___redArg(v_inst_153_, v_inst_154_, v_inst_155_, v_declName_156_, v_stx_168_, v___x_169_);
-lean_dec_ref(v_stx_168_);
+lean_dec_ref_known(v_stx_168_, 3);
 return v___x_170_;
 }
 else
@@ -433,11 +433,13 @@ return v___x_182_;
 }
 }
 lean_object* runtime_initialize_Lean_Parser_Command(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_DeclarationRange(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Parser_Command(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

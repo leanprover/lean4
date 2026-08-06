@@ -8,61 +8,10 @@ module
 prelude
 import all Init.Control.MonadAttach
 public import Init.Classical
-public import Init.Control.Ensures
 public import Init.Control.Lawful.Basic
 public import Init.Control.Lawful.MonadLift.Basic
 import Init.Control.Lawful.MonadLift.Lemmas
 import Init.RCases
-
-/-- `MonadAttach.attach` is bind-faithful with `x`. -/
-public theorem Internal.ErasesTo.of_attach [Monad m] [LawfulMonad m]
-    [MonadAttach m] [WeaklyLawfulMonadAttach m] {α} {x : m α} :
-    Internal.ErasesTo (MonadAttach.attach x) x := by
-  refine ⟨fun {β} k =>?_⟩
-  rw [← bind_map_left, WeaklyLawfulMonadAttach.map_attach]
-
-/-- Every value returned by `x` satisfies `MonadAttach.CanReturn x`. -/
-public theorem Internal.Ensures.canReturn [Monad m] [LawfulMonad m]
-    [MonadAttach m] [WeaklyLawfulMonadAttach m] {α} {x : m α} :
-    Internal.Ensures (MonadAttach.CanReturn x) x :=
-  ⟨⟨MonadAttach.attach x, Internal.ErasesTo.of_attach⟩⟩
-
-/-- `MonadAttach.CanReturn` implies `Internal.MayReturn` for `LawfulMonadAttach` instances. -/
-public theorem Internal.MayReturn.of_canReturn [Monad m] [LawfulMonad m]
-    [MonadAttach m] [LawfulMonadAttach m] {x : m α} {a : α}
-    (h : MonadAttach.CanReturn x a) : Internal.MayReturn x a := by
-  refine ⟨fun hEns => ?_⟩
-  obtain ⟨y, hy⟩ := hEns.exists_refinement
-  rw [← hy.map_eq] at h
-  exact LawfulMonadAttach.canReturn_map_imp h
-
-/-- `Internal.MayReturn` implies `MonadAttach.CanReturn` for `WeaklyLawfulMonadAttach` instances. -/
-public theorem Internal.MayReturn.canReturn [Monad m] [LawfulMonad m]
-    [MonadAttach m] [WeaklyLawfulMonadAttach m] {x : m α} {a : α}
-    (h : Internal.MayReturn x a) : MonadAttach.CanReturn x a :=
-  h.imp ⟨⟨MonadAttach.attach x, Internal.ErasesTo.of_attach⟩⟩
-
-/-- `Internal.MayReturn` is equivalent to `MonadAttach.CanReturn` for `LawfulMonadAttach` instances. -/
-public theorem Internal.MayReturn.canReturn_iff [Monad m] [LawfulMonad m]
-    [MonadAttach m] [LawfulMonadAttach m] (x : m α) (a : α)
-    : MonadAttach.CanReturn x a ↔ Internal.MayReturn x a :=
-  ⟨Internal.MayReturn.of_canReturn, Internal.MayReturn.canReturn⟩
-
-public theorem Internal.MayReturn.canReturn_eq [Monad m] [LawfulMonad m]
-    [MonadAttach m] [LawfulMonadAttach m] (x : m α)
-    : MonadAttach.CanReturn x = Internal.MayReturn x :=
-  funext fun a => propext (Internal.MayReturn.canReturn_iff (x := x) (a := a))
-
-/-- `MonadAttach.attach`, retagged with `MayReturn` proofs, witnesses `Internal.IsAttach`. -/
-public theorem Internal.IsAttach.of_attach [Monad m] [LawfulMonad m]
-    [MonadAttach m] [LawfulMonadAttach m] :
-    Internal.IsAttach (m := m)
-      (fun {_} (x : m _) =>
-        MonadAttach.attach x >>= fun ⟨a, h⟩ => pure ⟨a, MayReturn.of_canReturn h⟩) := by
-  refine ⟨fun {α} x => ⟨fun {β} k => ?_⟩⟩
-  rw [bind_assoc]
-  simp only [pure_bind]
-  exact Internal.ErasesTo.of_attach.bind_eq k
 
 public theorem LawfulMonadAttach.canReturn_bind_imp' [Monad m] [LawfulMonad m]
     [MonadAttach m] [LawfulMonadAttach m]

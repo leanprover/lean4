@@ -69,6 +69,8 @@ test_err 'service `bogus` not found in system configuration'\
   cache put bogus.jsonl --scope='bogus' --service='bogus'
 
 # Test `cache get` command errors for bad configurations
+test_err '`--no-overwrite` is not supported for `cache get`' \
+  cache get --no-overwrite
 test_err 'the `--platform` and `--toolchain` options do nothing' \
   cache get bogus.jsonl --scope='bogus' --platform='bogus' --wfail
 test_err 'the `--platform` and `--toolchain` options do nothing' \

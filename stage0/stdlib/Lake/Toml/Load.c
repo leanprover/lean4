@@ -24,7 +24,7 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obj
 extern lean_object* l_Lean_diagnostics;
 extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_stringToMessageData(lean_object*);
-lean_object* lean_mk_empty_environment(uint32_t);
+lean_object* l_Lean_mkEmptyEnvironment(uint32_t);
 extern lean_object* l_Lake_Toml_toml;
 lean_object* l_Lean_Parser_mkParserState(lean_object*);
 lean_object* l_Lean_Parser_ParserFn_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -119,12 +119,12 @@ else
 lean_object* v_val_8_; 
 v_val_8_ = lean_ctor_get(v___x_6_, 0);
 lean_inc(v_val_8_);
-lean_dec_ref(v___x_6_);
+lean_dec_ref_known(v___x_6_, 1);
 if (lean_obj_tag(v_val_8_) == 1)
 {
 uint8_t v_v_9_; 
 v_v_9_ = lean_ctor_get_uint8(v_val_8_, 0);
-lean_dec_ref(v_val_8_);
+lean_dec_ref_known(v_val_8_, 0);
 return v_v_9_;
 }
 else
@@ -166,13 +166,13 @@ else
 lean_object* v_val_21_; 
 v_val_21_ = lean_ctor_get(v___x_20_, 0);
 lean_inc(v_val_21_);
-lean_dec_ref(v___x_20_);
+lean_dec_ref_known(v___x_20_, 1);
 if (lean_obj_tag(v_val_21_) == 3)
 {
 lean_object* v_v_22_; 
 v_v_22_ = lean_ctor_get(v_val_21_, 0);
 lean_inc(v_v_22_);
-lean_dec_ref(v_val_21_);
+lean_dec_ref_known(v_val_21_, 1);
 return v_v_22_;
 }
 else
@@ -338,7 +338,7 @@ _start:
 {
 uint32_t v___x_84_; lean_object* v___x_85_; 
 v___x_84_ = 0;
-v___x_85_ = lean_mk_empty_environment(v___x_84_);
+v___x_85_ = l_Lean_mkEmptyEnvironment(v___x_84_);
 if (lean_obj_tag(v___x_85_) == 0)
 {
 lean_object* v_a_86_; lean_object* v___x_88_; uint8_t v_isShared_89_; uint8_t v_isSharedCheck_209_; 
@@ -388,7 +388,7 @@ lean_object* v_val_103_; lean_object* v___x_104_; lean_object* v___x_105_; lean_
 lean_dec(v_a_86_);
 v_val_103_ = lean_ctor_get(v_errorMsg_102_, 0);
 lean_inc(v_val_103_);
-lean_dec_ref(v_errorMsg_102_);
+lean_dec_ref_known(v_errorMsg_102_, 1);
 v___x_104_ = l_Lake_mkParserErrorMessage(v_ictx_82_, v___x_101_, v_val_103_);
 lean_dec_ref(v___x_101_);
 v___x_105_ = l_Lean_MessageLog_empty;
@@ -548,7 +548,7 @@ lean_ctor_set_uint8(v___x_160_, sizeof(void*)*14, v___x_143_);
 lean_ctor_set_uint8(v___x_160_, sizeof(void*)*14 + 1, v_suppressElabErrors_156_);
 v___x_161_ = l_Lake_Toml_elabToml(v___x_142_, v___x_160_, v___y_158_);
 lean_dec(v___y_158_);
-lean_dec_ref(v___x_160_);
+lean_dec_ref_known(v___x_160_, 14);
 if (lean_obj_tag(v___x_161_) == 0)
 {
 lean_object* v_a_162_; lean_object* v___x_164_; uint8_t v_isShared_165_; uint8_t v_isSharedCheck_175_; 
@@ -859,11 +859,13 @@ lean_object* runtime_initialize_Lake_Toml_Data_Value(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Toml_Elab(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Util_Message(uint8_t builtin);
 lean_object* runtime_initialize_Std_Do(uint8_t builtin);
+void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Toml_Load(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize();
 res = runtime_initialize_Lean_Parser_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

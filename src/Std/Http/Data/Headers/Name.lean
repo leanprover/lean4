@@ -26,7 +26,7 @@ namespace Std.Http.Header
 
 set_option linter.all true
 
-open Internal Char
+open Std.Http.Internal
 
 /--
 Proposition asserting that a string is a valid HTTP header name: all characters are valid token
@@ -69,12 +69,17 @@ instance : BEq Name where
 instance : Hashable Name where
   hash x := Hashable.hash x.value
 
-theorem Name.beq_eq {x y : Name} : (x == y) = (x.value == y.value) :=
+theorem beq_eq {x y : Name} : (x == y) = (x.value == y.value) :=
   rfl
 
+set_option linter.extra.dupNamespace false in
+@[deprecated Header.Name.beq_eq (since := "2026-06-04")]
+theorem Name.beq_eq {x y : Name} : (x == y) = (x.value == y.value) :=
+  Header.Name.beq_eq
+
 instance : LawfulBEq Name where
-  rfl {x} := by simp [Name.beq_eq]
-  eq_of_beq {x y} := by grind [Name.beq_eq, Name.ext]
+  rfl {x} := by simp [beq_eq]
+  eq_of_beq {x y} := by grind [beq_eq, Name.ext]
 
 instance : LawfulHashable Name := inferInstance
 
@@ -178,5 +183,70 @@ def date : Header.Name := .mk "date"
 Standard Expect header name
 -/
 def expect : Header.Name := .mk "expect"
+
+/--
+Standard Cookie header name (client → server)
+-/
+def cookie : Header.Name := .mk "cookie"
+
+/--
+Standard Set-Cookie header name (server → client)
+-/
+def setCookie : Header.Name := .mk "set-cookie"
+
+/--
+Standard Location header name
+-/
+def location : Header.Name := .mk "location"
+
+/--
+Standard Proxy-Authorization header name
+-/
+def proxyAuthorization : Header.Name := .mk "proxy-authorization"
+
+/--
+Standard Content-Encoding header name
+-/
+def contentEncoding : Header.Name := .mk "content-encoding"
+
+/--
+Standard Content-Language header name
+-/
+def contentLanguage : Header.Name := .mk "content-language"
+
+/--
+Standard Content-Location header name
+-/
+def contentLocation : Header.Name := .mk "content-location"
+
+/--
+Standard Last-Modified header name
+-/
+def lastModified : Header.Name := .mk "last-modified"
+
+/--
+Standard Referer header name
+-/
+def referer : Header.Name := .mk "referer"
+
+/--
+Standard Origin header name
+-/
+def origin : Header.Name := .mk "origin"
+
+/--
+Standard Keep-Alive header name
+-/
+def keepAlive : Header.Name := .mk "keep-alive"
+
+/--
+Standard If-None-Match header name
+-/
+def ifNoneMatch : Header.Name := .mk "if-none-match"
+
+/--
+Standard If-Modified-Since header name
+-/
+def ifModifiedSince : Header.Name := .mk "if-modified-since"
 
 end Std.Http.Header.Name

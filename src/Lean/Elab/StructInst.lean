@@ -414,6 +414,7 @@ private def mkCtorHeader (ctorVal : ConstructorVal) (structureType? : Option Exp
   for _ in *...ctorVal.numParams do
     let .forallE _ d b bi := type
       | throwError "unexpected constructor type"
+    let d := d.instantiateBetaRevRange 0 params.size params
     let param ←
       if bi.isInstImplicit then
         let mvar ← mkFreshExprMVar d .synthetic
@@ -422,7 +423,8 @@ private def mkCtorHeader (ctorVal : ConstructorVal) (structureType? : Option Exp
       else
         mkFreshExprMVar d
     params := params.push param
-    type := b.instantiate1 param
+    type := b
+  type := type.instantiateBetaRevRange 0 params.size params
   let structType := mkAppN (.const ctorVal.induct us) params
   if let some structureType := structureType? then
     discard <| isDefEq structureType structType
@@ -611,7 +613,8 @@ private structure StructInstContext where
   fieldViews : ExpandedFields
 
 private structure StructInstState where
-  /-- The type of the flat constructor with applied parameters and applied fields. -/
+  /-- Initially the type of the flat constructor after applying parameters. After each field, we
+  replace it with its body. May have bvars; needs to be instantiated with `fields`. -/
   type : Expr
   /-- A set of the structure name and all its parents. -/
   structNameSet : NameSet := {}
@@ -721,7 +724,7 @@ private def normalizeExpr (e : Expr) (zetaDeltaImpl : Bool := true) : StructInst
 private def addStructFieldAux (fieldName : Name) (e : Expr) : StructInstM Unit := do
   trace[Elab.structInst] "field {fieldName} := {.nestD e}"
   modify fun s => { s with
-    type := s.type.bindingBody!.instantiateBetaRevRange 0 1 #[e]
+    type := s.type.bindingBody!
     fields := s.fields.push e
     fieldMap := s.fieldMap.insert fieldName e
   }
@@ -1141,6 +1144,8 @@ private def processNoField (loop : StructInstM α) (fieldName : Name) (binfo : B
 private partial def loop : StructInstM Expr := withViewRef do
   let type := (← get).type
   if let .forallE fieldName fieldType _ binfo := type then
+    let fields := (← get).fields
+    let fieldType := fieldType.instantiateBetaRevRange 0 fields.size fields
     if let some fieldValue := (← get).fieldMap.find? fieldName then
       -- This is a field that was added by `addParentInstanceFields`
       trace[Elab.structInst] "processing inferred field `{fieldName}` : {fieldType}\ninferred value:{inlineExprTrailing fieldValue}"

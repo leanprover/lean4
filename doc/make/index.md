@@ -9,6 +9,7 @@ Requirements
 - [CMake](http://www.cmake.org)
 - [GMP (GNU multiprecision library)](http://gmplib.org/)
 - [LibUV](https://libuv.org/)
+- [OpenSSL](https://www.openssl.org/)
 
 Platform-Specific Setup
 -----------------------

@@ -22,7 +22,7 @@ Appends two byte arrays.
 In compiled code, calls to {name}`ByteArray.append` are replaced with the much more efficient
 {name (scope:="Init.Data.ByteArray.Basic")}`ByteArray.fastAppend`.
 -/
-@[expose]
+@[expose, implicit_reducible]
 protected def append (a b : ByteArray) : ByteArray :=
   ⟨⟨a.data.toList ++ b.data.toList⟩⟩
 
@@ -43,7 +43,7 @@ theorem List.toList_data_toByteArray {l : List UInt8} :
     l.toByteArray.data.toList = l := by
   rw [List.toByteArray]
   suffices ∀ a b, (List.toByteArray.loop a b).data.toList = b.data.toList ++ a by
-    simpa using this l ByteArray.empty
+    simpa using! this l ByteArray.empty
   intro a b
   fun_induction List.toByteArray.loop a b with simp_all [toList_push]
 where

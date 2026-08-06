@@ -52,6 +52,10 @@ This is a current compiler limitation for `module`s that may be lifted in the fu
 #guard_msgs in
 public def Fun.mk (f : Nat → Nat) : Fun := f
 
+public structure UInt8Struct where
+  x : UInt8
+deriving Inhabited
+
 #guard_msgs(drop warning) in
 /-- A theorem. -/
 public theorem t : f = 1 := testSorry
@@ -423,7 +427,7 @@ meta structure Foo where
 deriving TypeName
 
 /--
-info: @[implicit_reducible] private meta def instTypeNameFoo : TypeName Foo :=
+info: @[instance_reducible] private meta def instTypeNameFoo : TypeName Foo :=
 inst✝
 -/
 #guard_msgs in
@@ -499,6 +503,21 @@ Note: A private declaration `S.s` (from the current module) exists but would nee
 -/
 #guard_msgs in
 @[expose] public def useS (s : S) := s.s
+
+/-! Private dot notation access through structure inheritance should still
+identify the private declaration on the base structure. -/
+
+public structure SDerived extends S
+
+/--
+error: Invalid field `s`: The environment does not contain `SDerived.s`, so it is not possible to project the field `s` from an expression
+  s
+of type `SDerived`
+
+Note: A private declaration `S.s` (from the current module) exists but would need to be public to access here.
+-/
+#guard_msgs in
+@[expose] public def useSDerived (s : SDerived) := s.s
 
 /- `meta` should trump `noncomputable`. -/
 

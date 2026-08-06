@@ -320,7 +320,7 @@ theorem Pos.apply_eq_true_of_lt_skipWhile_bool {p : Char → Bool} {s : String} 
     (h₁ : pos ≤ pos') (h₂ : pos' < pos.skipWhile p) : p (pos'.get (ne_endPos_of_lt h₂)) = true := by
   rw [Pos.get_eq_get_toSlice]
   exact Slice.Pos.apply_eq_true_of_lt_skipWhile_bool (toSlice_le_toSlice_iff.2 h₁)
-    (by simpa [skipWhile_eq_skipWhile_toSlice] using h₂)
+    (by simpa [skipWhile_eq_skipWhile_toSlice] using! h₂)
 
 theorem apply_skipPrefixWhile_bool_eq_false {p : Char → Bool} {s : String} {h} :
     p ((s.skipPrefixWhile p).get h) = false := by
@@ -329,7 +329,7 @@ theorem apply_skipPrefixWhile_bool_eq_false {p : Char → Bool} {s : String} {h}
 theorem apply_eq_true_of_lt_skipPrefixWhile_bool {p : Char → Bool} {s : String} {pos : s.Pos} (h : pos < s.skipPrefixWhile p) :
     p (pos.get (Pos.ne_endPos_of_lt h)) = true := by
   rw [Pos.get_eq_get_toSlice]
-  exact Slice.apply_eq_true_of_lt_skipPrefixWhile_bool (by simpa [skipPrefixWhile_eq_skipPrefixWhile_toSlice] using h)
+  exact Slice.apply_eq_true_of_lt_skipPrefixWhile_bool (by simpa [skipPrefixWhile_eq_skipPrefixWhile_toSlice] using! h)
 
 @[simp]
 theorem all_bool_eq {p : Char → Bool} {s : String} : s.all p = s.toList.all p := by
@@ -423,7 +423,7 @@ theorem Pos.apply_of_lt_skipWhile_prop {P : Char → Prop} [DecidablePred P] {s 
     (h₁ : pos ≤ pos') (h₂ : pos' < pos.skipWhile P) : P (pos'.get (ne_endPos_of_lt h₂)) := by
   rw [Pos.get_eq_get_toSlice]
   exact Slice.Pos.apply_of_lt_skipWhile_prop (toSlice_le_toSlice_iff.2 h₁)
-    (by simpa [skipWhile_eq_skipWhile_toSlice] using h₂)
+    (by simpa [skipWhile_eq_skipWhile_toSlice] using! h₂)
 
 theorem apply_skipPrefixWhile_prop {P : Char → Prop} [DecidablePred P] {s : String} {h} :
     ¬ P ((s.skipPrefixWhile P).get h) := by
@@ -432,7 +432,7 @@ theorem apply_skipPrefixWhile_prop {P : Char → Prop} [DecidablePred P] {s : St
 theorem apply_of_lt_skipPrefixWhile_prop {P : Char → Prop} [DecidablePred P] {s : String} {pos : s.Pos}
     (h : pos < s.skipPrefixWhile P) : P (pos.get (Pos.ne_endPos_of_lt h)) := by
   rw [Pos.get_eq_get_toSlice]
-  exact Slice.apply_of_lt_skipPrefixWhile_prop (by simpa [skipPrefixWhile_eq_skipPrefixWhile_toSlice] using h)
+  exact Slice.apply_of_lt_skipPrefixWhile_prop (by simpa [skipPrefixWhile_eq_skipPrefixWhile_toSlice] using! h)
 
 @[simp]
 theorem all_prop_eq {P : Char → Prop} [DecidablePred P] {s : String} :

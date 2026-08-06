@@ -32,7 +32,7 @@ lean_object* v_val_5_; lean_object* v___x_6_;
 lean_dec(v_h__2_3_);
 v_val_5_ = lean_ctor_get(v_x_1_, 0);
 lean_inc(v_val_5_);
-lean_dec_ref(v_x_1_);
+lean_dec_ref_known(v_x_1_, 1);
 v___x_6_ = lean_apply_2(v_h__1_2_, v_val_5_, lean_box(0));
 return v___x_6_;
 }
@@ -54,7 +54,7 @@ lean_object* v_val_13_; lean_object* v___x_14_;
 lean_dec(v_h__2_11_);
 v_val_13_ = lean_ctor_get(v_x_9_, 0);
 lean_inc(v_val_13_);
-lean_dec_ref(v_x_9_);
+lean_dec_ref_known(v_x_9_, 1);
 v___x_14_ = lean_apply_2(v_h__1_10_, v_val_13_, lean_box(0));
 return v___x_14_;
 }
@@ -84,11 +84,13 @@ lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_OrderInstances(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_SplitOn_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Order(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Lemmas_Pattern_Split_Pred(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_String_Slice(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

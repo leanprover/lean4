@@ -83,7 +83,7 @@ def evalGrindSeq : GrindTactic := fun stx =>
 @[builtin_grind_tactic paren] def evalParen : GrindTactic := fun stx =>
   evalGrindTactic stx[1]
 
-open Meta Grind
+open Meta Lean.Meta.Grind
 
 @[builtin_grind_tactic finish] def evalFinish : GrindTactic := fun stx => withMainContext do
   let `(grind| finish $[$configItems]* $[only%$only]? $[[$params?,*]]?) := stx | throwUnsupportedSyntax
@@ -252,7 +252,7 @@ where
         elabEMatchTheorem declName (.default false) minIndexable
       else
         return thms.toArray
-    | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC | .norm .. | .unfold =>
+    | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC | .norm .. | .unfold | .homo | .homoPred =>
       throwError "invalid modifier"
 
 def logAnchor (c : SplitInfo) : TermElabM Unit := do
@@ -287,29 +287,63 @@ def split? (c : SplitInfo) : Action := fun goal kna kp => do
     Action.splitCore c numCases isRec (stopAtFirstFailure := false) (compress := false) >> Action.intros genNew >> Action.assertAll
   a goal kna kp
 
-@[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => do
-  let `(grind| cases #$anchor:hexnum) := stx | throwUnsupportedSyntax
+@[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => withMainContext do
+  let (anchor, ordinal) ← match stx with
+    | `(grind| cases #$anchor:hexnum) => pure ((anchor : TSyntax `hexnum), 1)
+    | `(grind| cases #$anchor:hexnum/$i:num) =>
+      if i.getNat == 0 then
+        throwErrorAt i "invalid anchor ordinal, it must be ≥ 1"
+      pure (anchor, i.getNat)
+    | _ => throwUnsupportedSyntax
   let anchorRef ← elabAnchorRef anchor
+  let c? ← liftGoalM do
+    let mut remaining := ordinal
+    let mut firstMatch? := none
+    for c in (← get).split.candidates do
+      let a ← c.getAnchor
+      if anchorRef.matches a then
+        if firstMatch?.isNone then
+          firstMatch? := some c
+        if (← checkSplitStatus c) matches .ready .. then
+          remaining := remaining - 1
+          if remaining == 0 then
+            return some c
+    if ordinal == 1 then
+      /-
+      **Note**: Fall back to a candidate that is not ready so that `split?` can
+      produce a more informative error message.
+      -/
+      return firstMatch?
+    else
+      return none
+  let some c := c? | throwError "`cases` tactic failed, invalid anchor"
   let goal ← getMainGoal
-  let candidates := goal.split.candidates
-  let c ← liftGrindM <| goal.withContext do
-    for c in candidates do
-      let anchor ← c.getAnchor
-      if anchorRef.matches anchor then
-        return c
-    throwError "`cases` tactic failed, invalid anchor"
   goal.withContext <| withRef anchor <| logAnchor c
   liftAction <| split? c
 
 def mkCasesSuggestions (candidates : Array SplitCandidateWithAnchor) (numDigits : Nat) : MetaM (Array Tactic.TryThis.Suggestion) := do
-  candidates.mapM fun { anchor, e, .. } => do
+  let shift := (64 - 4*numDigits).toUInt64
+  let mut counts : Std.HashMap UInt64 Nat := {}
+  let mut suggestions := #[]
+  for { anchor, e, .. } in candidates do
     let anchorStx ← mkAnchorSyntax numDigits anchor
-    let tac ← `(grind| cases $anchorStx:anchor)
+    /-
+    **Note**: Distinct candidates may have identical anchors (e.g., they differ only in
+    inaccessible variables). We use ordinal references (e.g., `#a56e/2`) to disambiguate them.
+    -/
+    let anchorPrefix := anchor >>> shift
+    let ordinal := counts.getD anchorPrefix 0
+    counts := counts.insert anchorPrefix (ordinal + 1)
+    let tac ← if ordinal == 0 then
+      `(grind| cases $anchorStx:anchor)
+    else
+      `(grind| cases $anchorStx:anchor/$(quote (ordinal + 1)):num)
     let msg ← addMessageContext m!"{tac} for{indentExpr e}"
-    return {
+    suggestions := suggestions.push {
       suggestion   := .tsyntax tac
       messageData? := some msg
     }
+  return suggestions
 
 @[builtin_grind_tactic casesTrace] def evalCasesTrace : GrindTactic := fun stx => withMainContext do
   let `(grind| cases? $[$filter?]?) := stx | throwUnsupportedSyntax
@@ -385,6 +419,7 @@ public def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIden
 @[builtin_grind_tactic «next»] def evalNext : GrindTactic := fun stx => do
   let `(grind| next%$nextTk $hs* =>%$arr $seq:grindSeq) := stx | throwUnsupportedSyntax
   let goal :: goals ← getUnsolvedGoals | throwNoGoalsToBeSolved
+  -- **Note**: `renameInaccessibles` resets cached anchors.
   let mvarId ← renameInaccessibles goal.mvarId hs
   let goal := { goal with mvarId }
   setGoals [goal]
@@ -392,6 +427,53 @@ public def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIden
   withCaseRef arr seq <| closeUsingOrAdmit <| withTacticInfoContext (mkNullNode #[nextTk, arr]) <|
     evalGrindTactic stx[3]
   setGoals goals
+
+/--
+Searches `goals` for one whose case tag matches `tag`, using the same heuristic as the
+standard `case` tactic: prefer an exact match, then a suffix match, then a prefix match.
+-/
+private def findGrindTag? (goals : List Goal) (tag : Name) : GrindTacticM (Option Goal) := do
+  let byName (p : Name → Name → Bool) : GrindTacticM (Option Goal) :=
+    goals.findM? fun g => return p tag (← g.mvarId.getDecl).userName.eraseMacroScopes
+  if let some g ← byName (· == ·) then return some g
+  if let some g ← byName (·.isSuffixOf ·) then return some g
+  byName (·.isPrefixOf ·)
+
+/--
+Returns the goal selected by the case tag `tag` together with the remaining goals.
+If `tag` is a hole (`_`), the main goal is selected.
+-/
+private def getCaseGoal (tag : TSyntax ``binderIdent) : GrindTacticM (Goal × List Goal) := do
+  let gs ← getUnsolvedGoals
+  if let `(binderIdent| $tagId:ident) := tag then
+    let tagId := tagId.getId.eraseMacroScopes
+    let some g ← findGrindTag? gs tagId | notFound gs tagId
+    return (g, gs.filter (·.mvarId != g.mvarId))
+  else
+    let g ← getMainGoal
+    return (g, gs.filter (·.mvarId != g.mvarId))
+where
+  notFound {α} (available : List Goal) (tag : Name) : GrindTacticM α := do
+    let names := (← available.mapM fun g => return (← g.mvarId.getDecl).userName)
+      |>.filter (· != .anonymous) |>.eraseDups
+    let hint := match names with
+      | []      => m!"There are no cases to select."
+      | [name]  => m!"The only available case tag is `{name}`."
+      | names   => m!"Available tags: {MessageData.joinSep (names.map (m!"`{·}`")) ", "}"
+    throwError "Case tag `{tag}` not found.\n{hint}"
+
+@[builtin_grind_tactic «case»] def evalCase : GrindTactic := fun stx => do
+  let `(grind| case%$caseTk $[$tags $hss*]|* =>%$arr $seq:grindSeq) := stx | throwUnsupportedSyntax
+  for tag in tags, hs in hss do
+    let (goal, goals) ← getCaseGoal tag
+    -- **Note**: `renameInaccessibles` resets cached anchors.
+    let mvarId ← renameInaccessibles goal.mvarId hs
+    let goal := { goal with mvarId }
+    setGoals [goal]
+    goal.mvarId.setTag Name.anonymous
+    withCaseRef arr seq <| closeUsingOrAdmit <| withTacticInfoContext (mkNullNode #[caseTk, arr]) <|
+      evalGrindTactic seq
+    setGoals goals
 
 @[builtin_grind_tactic nestedTacticCore] def evalNestedTactic : GrindTactic := fun stx => do
   let `(grind| tactic%$tacticTk =>%$arr $seq:tacticSeq) := stx | throwUnsupportedSyntax

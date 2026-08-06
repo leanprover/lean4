@@ -6,10 +6,9 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time.Zoned.DateTime
 public import Std.Time.Zoned.ZoneRules
-public import Std.Time.Zoned.ZonedDateTime
 public import Std.Time.Zoned.Database
+public import Std.Time.DateTime
 
 public section
 
@@ -22,7 +21,7 @@ namespace PlainDateTime
 
 /--
 Get the current time, in the local timezone.
-To obtain the current time in a specific timezone, use `DateTime.now` or `ZonedDateTime.nowAt`.
+To obtain the current time in a specific timezone, use `DateTime.now` or `DateTime.nowAt`.
 -/
 @[inline]
 def now : IO PlainDateTime := do
@@ -58,92 +57,60 @@ end PlainTime
 namespace DateTime
 
 /--
-Converts a `PlainDate` with a `TimeZone` to a `DateTime`. It assumes `PlainDate` is local time.
+Gets the current `DateTime`.
 -/
 @[inline]
-def ofLocalDate (pd : PlainDate) (tz : TimeZone) : DateTime tz :=
-  DateTime.ofPlainDateTime (PlainDateTime.ofPlainDate pd) tz
+def now : IO DateTime := do
+  let tm ← Timestamp.now
+  let rules ← Database.defaultGetLocalZoneRules
+  return DateTime.ofTimestamp tm rules
 
 /--
-Converts a `DateTime` to a `PlainDate`.
+Gets the current `DateTime` using the identifier of a time zone.
 -/
 @[inline]
-def toPlainDate (dt : DateTime tz) : PlainDate :=
-  dt.toPlainDateTime.toPlainDate
+def nowAt (id : String) : IO DateTime := do
+  let tm ← Timestamp.now
+  let rules ← Database.defaultGetZoneRules id
+  return DateTime.ofTimestamp tm rules
+
+/--
+Converts a `PlainDate` to a `DateTime`.
+-/
+@[inline]
+def ofLocalDate (pd : PlainDate) (zr : TimeZone.ZoneRules) : DateTime :=
+  .ofPlainDateTime (pd.atTime PlainTime.midnight) zr
+
+/--
+Converts a `PlainDate` to a `DateTime` using `TimeZone`.
+-/
+@[inline]
+def ofLocalDateWithZone (pd : PlainDate) (zr : TimeZone) : DateTime :=
+  .ofPlainDateTime (pd.atTime PlainTime.midnight) (TimeZone.ZoneRules.ofTimeZone zr)
+
+/--
+Converts a `DateTime` to a `PlainDate`
+-/
+@[inline]
+def toPlainDate (dt : DateTime) : PlainDate :=
+  dt.toPlainDateTime.date
 
 /--
 Converts a `DateTime` to a `PlainTime`
 -/
 @[inline]
-def toPlainTime (dt : DateTime tz) : PlainTime :=
-  dt.date.get.time
-
-/--
-Gets the current `DateTime`.
--/
-@[inline]
-def now : IO (DateTime tz) := do
-  let tm ← Timestamp.now
-  return DateTime.ofTimestamp tm tz
-
-end DateTime
-namespace ZonedDateTime
-
-/--
-Gets the current `ZonedDateTime`.
--/
-@[inline]
-def now : IO ZonedDateTime := do
-  let tm ← Timestamp.now
-  let rules ← Database.defaultGetLocalZoneRules
-  return ZonedDateTime.ofTimestamp tm rules
-
-/--
-Gets the current `ZonedDateTime` using the identifier of a time zone.
--/
-@[inline]
-def nowAt (id : String) : IO ZonedDateTime := do
-  let tm ← Timestamp.now
-  let rules ← Database.defaultGetZoneRules id
-  return ZonedDateTime.ofTimestamp tm rules
-
-/--
-Converts a `PlainDate` to a `ZonedDateTime`.
--/
-@[inline]
-def ofLocalDate (pd : PlainDate) (zr : TimeZone.ZoneRules) : ZonedDateTime :=
-  .ofPlainDateTime (pd.atTime PlainTime.midnight) zr
-
-/--
-Converts a `PlainDate` to a `ZonedDateTime` using `TimeZone`.
--/
-@[inline]
-def ofLocalDateWithZone (pd : PlainDate) (zr : TimeZone) : ZonedDateTime :=
-  .ofPlainDateTime (pd.atTime PlainTime.midnight) (TimeZone.ZoneRules.ofTimeZone zr)
-
-/--
-Converts a `ZonedDateTime` to a `PlainDate`
--/
-@[inline]
-def toPlainDate (dt : ZonedDateTime) : PlainDate :=
-  dt.toPlainDateTime.date
-
-/--
-Converts a `ZonedDateTime` to a `PlainTime`
--/
-@[inline]
-def toPlainTime (dt : ZonedDateTime) : PlainTime :=
+def toPlainTime (dt : DateTime) : PlainTime :=
   dt.toPlainDateTime.time
 
 /--
-Creates a new `ZonedDateTime` out of a `PlainDateTime` and a time zone identifier.
+Creates a new `DateTime` out of a `PlainDateTime` and a time zone identifier.
 -/
 @[inline]
-def of (pdt : PlainDateTime) (id : String) : IO ZonedDateTime := do
+def of (pdt : PlainDateTime) (id : String) : IO DateTime := do
   let zr ← Database.defaultGetZoneRules id
   return .ofPlainDateTime pdt zr
 
-end ZonedDateTime
+end DateTime
 
 namespace PlainDateTime
 
@@ -152,14 +119,14 @@ Converts a `PlainDateTime` to a `Timestamp` using the `ZoneRules`.
 -/
 @[inline]
 def toTimestamp (pdt : PlainDateTime) (zr : TimeZone.ZoneRules) : Timestamp :=
-  ZonedDateTime.ofPlainDateTime pdt zr |>.toTimestamp
+  DateTime.ofPlainDateTime pdt zr |>.toTimestamp
 
 /--
 Converts a `PlainDateTime` to a `Timestamp` using the `TimeZone`.
 -/
 @[inline]
 def toTimestampWithZone (pdt : PlainDateTime) (tz : TimeZone) : Timestamp :=
-  ZonedDateTime.ofPlainDateTimeWithZone pdt tz |>.toTimestamp
+  DateTime.ofPlainDateTimeWithZone pdt tz |>.toTimestamp
 
 end PlainDateTime
 
@@ -170,13 +137,13 @@ Converts a `PlainDate` to a `Timestamp` using the `ZoneRules`.
 -/
 @[inline]
 def toTimestamp (dt : PlainDate) (zr : TimeZone.ZoneRules) : Timestamp :=
-  ZonedDateTime.ofLocalDate dt zr |>.toTimestamp
+  DateTime.ofLocalDate dt zr |>.toTimestamp
 
 /--
 Converts a `PlainDate` to a `Timestamp` using the `TimeZone`.
 -/
 @[inline]
 def toTimestampWithZone (dt : PlainDate) (tz : TimeZone) : Timestamp :=
-  ZonedDateTime.ofLocalDateWithZone dt tz |>.toTimestamp
+  DateTime.ofLocalDateWithZone dt tz |>.toTimestamp
 
 end PlainDate

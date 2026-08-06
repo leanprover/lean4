@@ -68,7 +68,7 @@ v_package_8_ = lean_ctor_get(v_t_6_, 0);
 lean_inc_ref(v_package_8_);
 v_target_9_ = lean_ctor_get(v_t_6_, 1);
 lean_inc(v_target_9_);
-lean_dec_ref(v_t_6_);
+lean_dec_ref_known(v_t_6_, 2);
 v___x_10_ = lean_apply_2(v_k_7_, v_package_8_, v_target_9_);
 return v___x_10_;
 }
@@ -83,7 +83,7 @@ v_data_13_ = lean_ctor_get(v_t_6_, 2);
 lean_inc(v_data_13_);
 v_facet_14_ = lean_ctor_get(v_t_6_, 3);
 lean_inc(v_facet_14_);
-lean_dec_ref(v_t_6_);
+lean_dec_ref_known(v_t_6_, 4);
 v___x_15_ = lean_apply_4(v_k_7_, v_target_11_, v_kind_12_, v_data_13_, v_facet_14_);
 return v___x_15_;
 }
@@ -238,7 +238,7 @@ v_target_67_ = lean_ctor_get(v_x_56_, 0);
 lean_inc_ref(v_target_67_);
 v_facet_68_ = lean_ctor_get(v_x_56_, 3);
 lean_inc(v_facet_68_);
-lean_dec_ref(v_x_56_);
+lean_dec_ref_known(v_x_56_, 4);
 v___x_69_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_69_, 0, v_target_67_);
 lean_ctor_set(v___x_69_, 1, v_facet_68_);
@@ -256,11 +256,13 @@ return v___x_72_;
 }
 }
 lean_object* runtime_initialize_Lake_Config_Package(uint8_t builtin);
+void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Build_Info(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize();
 res = runtime_initialize_Lake_Config_Package(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -32,7 +32,7 @@ public theorem intercalateString_eq {α β : Type} [Std.Iterator α Id β] [Std.
       (l.foldl (init := if m = [] then none else some (s.intercalate m))
         (fun | none, sl => some sl | some str, sl => some (str ++ s ++ sl))).getD ""
         = s.intercalate (m ++ l) by
-    simpa [-foldl_toList] using this (it.toList.map toString) []
+    simpa [-foldl_toList] using! this (it.toList.map toString) []
   intro l m
   induction l generalizing m with
   | nil => cases m <;> simp
@@ -43,7 +43,7 @@ public theorem intercalateString_eq {α β : Type} [Std.Iterator α Id β] [Std.
     match m with
     | [] => simp
     | x::xs =>
-      simp only [reduceCtorEq, ↓reduceIte, List.cons_append, Option.some.injEq]
+      simp only [List.cons_append, Option.some.injEq, reduceCtorEq, ↓reduceIte]
       rw [← List.cons_append, String.intercalate_append_of_ne_nil (by simp) (by simp),
         String.intercalate_singleton]
 

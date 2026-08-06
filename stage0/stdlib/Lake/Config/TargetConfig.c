@@ -504,7 +504,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findTargetConfig_x3f(lean_object* v_name
 _start:
 {
 lean_object* v_targetDeclMap_160_; lean_object* v___x_161_; 
-v_targetDeclMap_160_ = lean_ctor_get(v_self_159_, 15);
+v_targetDeclMap_160_ = lean_ctor_get(v_self_159_, 16);
 v___x_161_ = l_Std_DTreeMap_Internal_Impl_get_x3f___at___00Lake_Package_findTargetConfig_x3f_spec__0___redArg(v_targetDeclMap_160_, v_name_158_);
 if (lean_obj_tag(v___x_161_) == 0)
 {
@@ -605,11 +605,13 @@ return v_res_187_;
 }
 lean_object* runtime_initialize_Lake_Build_Fetch(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Util_OpaqueType(uint8_t builtin);
+void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Config_TargetConfig(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize();
 res = runtime_initialize_Lake_Build_Fetch(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

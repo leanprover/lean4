@@ -26,7 +26,7 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 size_t lean_array_size(lean_object*);
-lean_object* lean_mk_syntax_ident(lean_object*);
+lean_object* l_Lean_mkIdent(lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -766,7 +766,7 @@ lean_object* v_v_590_; lean_object* v___x_591_; lean_object* v_bs_x27_592_; lean
 v_v_590_ = lean_array_uget(v_bs_588_, v_i_587_);
 v___x_591_ = lean_unsigned_to_nat(0u);
 v_bs_x27_592_ = lean_array_uset(v_bs_588_, v_i_587_, v___x_591_);
-v___x_593_ = lean_mk_syntax_ident(v_v_590_);
+v___x_593_ = l_Lean_mkIdent(v_v_590_);
 v___x_594_ = ((size_t)1ULL);
 v___x_595_ = lean_usize_add(v_i_587_, v___x_594_);
 v___x_596_ = lean_array_uset(v_bs_x27_592_, v_i_587_, v___x_593_);
@@ -1103,7 +1103,7 @@ else
 lean_object* v_val_801_; lean_object* v___x_802_; lean_object* v___x_803_; lean_object* v___x_804_; 
 v_val_801_ = lean_ctor_get(v_using_x3f_728_, 0);
 lean_inc(v_val_801_);
-lean_dec_ref(v_using_x3f_728_);
+lean_dec_ref_known(v_using_x3f_728_, 1);
 v___x_802_ = lean_unsigned_to_nat(1u);
 v___x_803_ = lean_mk_empty_array_with_capacity(v___x_802_);
 v___x_804_ = lean_array_push(v___x_803_, v_val_801_);
@@ -1154,11 +1154,13 @@ lean_object* runtime_initialize_Init_Data_List_Find(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Impl(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Pairwise(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Prod(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Data_DHashMap_RawLemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Data_DHashMap_Internal_Raw(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

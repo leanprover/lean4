@@ -51,7 +51,7 @@ structure MonitorContext where
   /-- How often to poll jobs (in milliseconds). -/
   updateFrequency : Nat
 
-@[inline, implicit_reducible] def MonitorContext.logger (ctx : MonitorContext) : MonadLog BaseIO :=
+@[inline, instance_reducible] def MonitorContext.logger (ctx : MonitorContext) : MonadLog BaseIO :=
   .stream ctx.out ctx.outLv ctx.useAnsi
 
 /-- State of the Lake build monitor. -/

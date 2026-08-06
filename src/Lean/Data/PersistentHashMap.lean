@@ -12,6 +12,7 @@ public import Init.Control.Except
 public import Init.Data.Array.Basic
 import Init.Data.String.Defs
 import Init.Data.ToString.Macro
+import Init.Data.Array.Lemmas
 
 public section
 
@@ -287,6 +288,60 @@ def erase {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → Pe
   | { root }, k =>
     let h := hash k |>.toUSize
     { root := eraseAux root h k }
+
+@[specialize]
+partial def alterAux [BEq α] [Hashable α] (f : Option β → Option β) : Node α β → USize →
+    USize → α → Node α β
+  | n@(Node.collision keys vals heq), h, d, k =>
+    match keys.finIdxOf? k with
+    | some idx =>
+      have : idx < vals.size := heq ▸ idx.isLt
+      let v' := vals[idx]
+      /-
+      This could also be done with more `unsafe` to avoid erase then push but is hopefully not the
+      bottleneck.
+      -/
+      let keys := keys.eraseIdx idx
+      let vals := vals.eraseIdx idx
+      match f (some v') with
+      | some v =>
+        let keys := keys.push k
+        let vals := vals.push v
+        Node.collision keys vals (by simp +zetaDelta [heq])
+      | none   =>
+        Node.collision keys vals (by simp +zetaDelta [heq])
+    | none     =>
+      match f none with
+      | some v => insertAux n h d k v
+      | none   => n
+  | Node.entries entries, h, d, k =>
+    let j     := (mod2Shift h shift).toNat
+    Node.entries <| entries.modify j fun
+      | Entry.null        =>
+        match f none with
+        | some v => Entry.entry k v
+        | none   => Entry.null
+      | Entry.entry k' v' =>
+        if k == k' then
+          match f (some v') with
+          | some v => Entry.entry k v
+          | none   => Entry.null
+        else
+          match f none with
+          | some v => Entry.ref <| mkCollisionNode k' v' k v
+          | none => Entry.entry k' v'
+      | Entry.ref node    =>
+        let newNode := alterAux f node (div2Shift h shift) (d + 1) k
+        match isUnaryNode newNode with
+        | none        => Entry.ref newNode
+        | some (k, v) => Entry.entry k v
+
+@[inline]
+def alter {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → (Option β → Option β) →
+    PersistentHashMap α β
+  | { root }, k, f =>
+    let h := hash k |>.toUSize
+    { root := alterAux f root h 1 k }
 
 section
 variable {m : Type w → Type w'} [Monad m]

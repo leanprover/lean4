@@ -354,23 +354,29 @@ theorem map_inj_right {f : α → β} {o o' : Option α} (w : ∀ x y, f x = f y
     | none => simp
     | some a' => simpa using ⟨fun h => w _ _ h, fun h => congrArg f h⟩
 
-@[simp] theorem map_if {f : α → β} {_ : Decidable c} :
+@[simp] theorem map_ite {f : α → β} {_ : Decidable c} :
      (if c then some a else none).map f = if c then some (f a) else none := by
   split <;> rfl
 
-@[simp] theorem map_dif {f : α → β} {_ : Decidable c} {a : c → α} :
+@[deprecated Option.map_ite (since := "2026-07-21")]
+theorem map_if {α : Type u_1} {β : Type u_2} {c : Prop} {a : α} {f : α → β} {_ : Decidable c} : Option.map f (if c then Option.some a else Option.none) = if c then Option.some (f a) else Option.none := Option.map_ite
+
+@[simp] theorem map_dite {f : α → β} {_ : Decidable c} {a : c → α} :
      (if h : c then some (a h) else none).map f = if h : c then some (f (a h)) else none := by
   split <;> rfl
+
+@[deprecated Option.map_dite (since := "2026-07-21")]
+theorem map_dif {α : Type u_1} {β : Type u_2} {c : Prop} {f : α → β} {_ : Decidable c} {a : c → α} : Option.map f (if h : c then Option.some (a h) else Option.none) = if h : c then Option.some (f (a h)) else Option.none := Option.map_dite
 
 @[simp, grind =] theorem filter_none (p : α → Bool) : none.filter p = none := rfl
 
 @[grind =] theorem filter_some : Option.filter p (some a) = if p a then some a else none := rfl
 
 theorem filter_some_pos (h : p a) : Option.filter p (some a) = some a := by
-  rw [filter_some, if_pos h]
+  rw [filter_some, ite_eq_left h]
 
 theorem filter_some_neg (h : p a = false) : Option.filter p (some a) = none := by
-  rw [filter_some, if_neg] <;> simpa
+  rw [filter_some, ite_eq_right] <;> simpa
 
 theorem isSome_of_isSome_filter (p : α → Bool) (o : Option α) (h : (o.filter p).isSome) :
     o.isSome := by
@@ -776,7 +782,7 @@ noncomputable def choice (α : Type _) : Option α :=
 
 theorem choice_eq_some [Subsingleton α] (a : α) : choice α = some a := by
   simp [choice]
-  rw [dif_pos (⟨a⟩ : Nonempty α)]
+  rw [dite_eq_left (⟨a⟩ : Nonempty α)]
   simp; apply Subsingleton.elim
 
 @[simp]
@@ -792,7 +798,7 @@ theorem isNone_choice_iff_not_nonempty : (choice α).isNone ↔ ¬Nonempty α :=
 grind_pattern isNone_choice_iff_not_nonempty => (choice α).isNone
 
 theorem isSome_choice_iff_nonempty : (choice α).isSome ↔ Nonempty α :=
-  ⟨fun h => ⟨(choice α).get h⟩, fun h => by simp only [choice, dif_pos h, isSome_some]⟩
+  ⟨fun h => ⟨(choice α).get h⟩, fun h => by simp only [choice, dite_eq_left h, isSome_some]⟩
 
 grind_pattern isSome_choice_iff_nonempty => (choice α).isSome
 
@@ -829,6 +835,9 @@ end choice
 theorem or_eq_right_of_none {o o' : Option α} (h : o = none) : o.or o' = o' := by
   cases h; simp
 
+theorem or_eq_left_of_isSome {o o' : Option α} : o.isSome = true → o.or o' = o := by
+  cases o <;> simp
+
 @[simp, grind =] theorem or_some {o : Option α} : o.or (some a) = some (o.getD a) := by
   cases o <;> rfl
 
@@ -836,6 +845,10 @@ theorem or_eq_right_of_none {o o' : Option α} (h : o = none) : o.or o' = o' := 
 theorem or_none : or o none = o := by
   cases o <;> rfl
 
+theorem or_eq_ite : or o o' = if o.isSome then o else o' := by
+  cases o <;> simp
+
+@[deprecated or_eq_ite (since := "2026-07-29")]
 theorem or_eq_bif : or o o' = bif o.isSome then o else o' := by
   cases o <;> rfl
 
@@ -1069,7 +1082,7 @@ theorem mem_ite_none_right {x : α} {_ : Decidable p} {l : Option α} :
 
 @[simp] theorem get_ite {p : Prop} {_ : Decidable p} (h) :
     (if p then some b else none).get h = b := by
-  simpa using get_dite (p := p) (fun _ => b) (by simpa using h)
+  simpa using! get_dite (p := p) (fun _ => b) (by simpa using h)
 
 @[simp] theorem get_dite' {p : Prop} {_ : Decidable p} (b : ¬ p → β) (w) :
     (if h : p then none else some (b h)).get w = b (by simpa using w) := by
@@ -1081,7 +1094,7 @@ theorem mem_ite_none_right {x : α} {_ : Decidable p} {l : Option α} :
 
 @[simp] theorem get_ite' {p : Prop} {_ : Decidable p} (h) :
     (if p then none else some b).get h = b := by
-  simpa using get_dite' (p := p) (fun _ => b) (by simpa using h)
+  simpa using! get_dite' (p := p) (fun _ => b) (by simpa using h)
 
 end ite
 

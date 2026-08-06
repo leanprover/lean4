@@ -61,7 +61,7 @@ v_it_5_ = lean_ctor_get(v_____do__lift_4_, 0);
 lean_inc(v_it_5_);
 v_out_6_ = lean_ctor_get(v_____do__lift_4_, 1);
 lean_inc(v_out_6_);
-lean_dec_ref(v_____do__lift_4_);
+lean_dec_ref_known(v_____do__lift_4_, 2);
 v___x_7_ = lean_array_push(v_acc_1_, v_out_6_);
 v___x_8_ = lean_apply_3(v_recur_2_, v_it_5_, v___x_7_, lean_box(0));
 return v___x_8_;
@@ -72,7 +72,7 @@ lean_object* v_it_9_; lean_object* v___x_10_;
 lean_dec(v_toPure_3_);
 v_it_9_ = lean_ctor_get(v_____do__lift_4_, 0);
 lean_inc(v_it_9_);
-lean_dec_ref(v_____do__lift_4_);
+lean_dec_ref_known(v_____do__lift_4_, 1);
 v___x_10_ = lean_apply_3(v_recur_2_, v_it_9_, v_acc_1_, lean_box(0));
 return v___x_10_;
 }
@@ -326,7 +326,7 @@ lean_object* v_it_122_; lean_object* v___x_123_;
 lean_dec(v_toPure_110_);
 v_it_122_ = lean_ctor_get(v_____do__lift_111_, 0);
 lean_inc(v_it_122_);
-lean_dec_ref(v_____do__lift_111_);
+lean_dec_ref_known(v_____do__lift_111_, 1);
 v___x_123_ = lean_apply_3(v_recur_109_, v_it_122_, v_acc_108_, lean_box(0));
 return v___x_123_;
 }
@@ -699,11 +699,13 @@ lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Monadic_Partial(ui
 lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Monadic_Total(uint8_t builtin);
 lean_object* runtime_initialize_Init_WFExtrinsicFix(uint8_t builtin);
 lean_object* runtime_initialize_Init_Ext(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Monadic_Collect(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Iterators_Consumers_Monadic_Partial(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

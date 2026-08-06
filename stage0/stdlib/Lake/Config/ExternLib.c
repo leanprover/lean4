@@ -106,7 +106,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_externLibs(lean_object* v_self_37_){
 _start:
 {
 lean_object* v_targetDecls_38_; lean_object* v___x_39_; lean_object* v___x_40_; lean_object* v___x_41_; lean_object* v___x_42_; uint8_t v___x_43_; 
-v_targetDecls_38_ = lean_ctor_get(v_self_37_, 14);
+v_targetDecls_38_ = lean_ctor_get(v_self_37_, 15);
 lean_inc_ref(v_targetDecls_38_);
 v___x_39_ = lean_unsigned_to_nat(0u);
 v___x_40_ = ((lean_object*)(l_Lake_Package_externLibs___closed__0));
@@ -300,11 +300,13 @@ return v___x_90_;
 }
 }
 lean_object* runtime_initialize_Lake_Config_ConfigTarget(uint8_t builtin);
+void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Config_ExternLib(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize();
 res = runtime_initialize_Lake_Config_ConfigTarget(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

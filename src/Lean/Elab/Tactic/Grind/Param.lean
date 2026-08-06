@@ -10,7 +10,7 @@ import Lean.Meta.Tactic.Grind.ForallProp
 import Lean.Elab.Tactic.Grind.Anchor
 import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Tactic
-open Meta
+open Lean Meta
 
 /-!
 `grind` parameter elaboration
@@ -147,7 +147,7 @@ def processTermParam (params : Grind.Params)
   checkNoRevert params
   let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
   let kind ← match kind with
-    | .ematch .user | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC | .norm .. | .unfold =>
+    | .ematch .user | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC | .norm .. | .unfold | .homo | .homoPred =>
       throwError "invalid `grind` parameter, only global declarations are allowed with this kind of modifier"
     | .ematch kind => pure kind
     | .infer => pure <| .default false
@@ -212,7 +212,7 @@ def processParam (params : Grind.Params)
       return (← processTermParam params p mod? id minIndexable)
     else
       throw err
-  Linter.checkDeprecated declName
+  Term.checkDeprecatedCore declName
   let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
   match kind with
   | .ematch .user =>
@@ -263,6 +263,8 @@ def processParam (params : Grind.Params)
   | .funCC =>
     params := params.insertFunCC declName
   | .norm .. => throwError "normalization theorems should be registered using the `@[grind norm]` attribute"
+  | .homo => throwError "homomorphism rules should be registered using the `@[grind hom]` attribute"
+  | .homoPred => throwError "homomorphism predicates should be registered using the `@[grind hom_pred]` attribute"
   | .unfold => throwError "declarations to be unfolded during normalization should be registered using the `@[grind unfold]` attribute"
   return params
 
@@ -281,7 +283,7 @@ public def elabGrindParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.T
         if incremental then
           throwErrorAt p "invalid `-` occurrence, it can only used at the `grind` tactic entry point"
         let declName ← realizeGlobalConstNoOverloadWithInfo id
-        Linter.checkDeprecated declName
+        Term.checkDeprecatedCore declName
         if let some declName ← Grind.isCasesAttrCandidate? declName false then
           Grind.ensureNotBuiltinCases declName
           params ← params.eraseCasesTypes declName

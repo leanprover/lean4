@@ -139,7 +139,7 @@ if (lean_obj_tag(v_val_33_) == 5)
 lean_object* v_v_37_; lean_object* v___x_39_; 
 v_v_37_ = lean_ctor_get(v_val_33_, 0);
 lean_inc(v_v_37_);
-lean_dec_ref(v_val_33_);
+lean_dec_ref_known(v_val_33_, 1);
 if (v_isShared_36_ == 0)
 {
 lean_ctor_set(v___x_35_, 0, v_v_37_);
@@ -242,11 +242,13 @@ return v_r_59_;
 }
 }
 lean_object* runtime_initialize_Lean_Expr(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_RecAppSyntax(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Expr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

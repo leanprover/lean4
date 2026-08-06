@@ -48,11 +48,11 @@ LEAN_EXPORT lean_object* l_Lean_instToStringLOption___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToStringLOption(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_toOption___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_toOption(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_toLOption___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Option_toLOption(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_toLOptionM___redArg___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_toLOptionM___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_toLOptionM(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Option_toLOption___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Option_toLOption(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_toLOptionM___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_toLOptionM___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_toLOptionM(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_ctorIdx___redArg(lean_object* v_x_1_){
 _start:
 {
@@ -113,7 +113,7 @@ if (lean_obj_tag(v_t_13_) == 1)
 lean_object* v_a_15_; lean_object* v___x_16_; 
 v_a_15_ = lean_ctor_get(v_t_13_, 0);
 lean_inc(v_a_15_);
-lean_dec_ref(v_t_13_);
+lean_dec_ref_known(v_t_13_, 1);
 v___x_16_ = lean_apply_1(v_k_14_, v_a_15_);
 return v___x_16_;
 }
@@ -234,10 +234,10 @@ if (lean_obj_tag(v_x_64_) == 1)
 lean_object* v_a_67_; lean_object* v_a_68_; lean_object* v___x_69_; uint8_t v___x_70_; 
 v_a_67_ = lean_ctor_get(v_x_63_, 0);
 lean_inc(v_a_67_);
-lean_dec_ref(v_x_63_);
+lean_dec_ref_known(v_x_63_, 1);
 v_a_68_ = lean_ctor_get(v_x_64_, 0);
 lean_inc(v_a_68_);
-lean_dec_ref(v_x_64_);
+lean_dec_ref_known(v_x_64_, 1);
 v___x_69_ = lean_apply_2(v_inst_62_, v_a_67_, v_a_68_);
 v___x_70_ = lean_unbox(v___x_69_);
 return v___x_70_;
@@ -245,7 +245,7 @@ return v___x_70_;
 else
 {
 uint8_t v___x_71_; 
-lean_dec_ref(v_x_63_);
+lean_dec_ref_known(v_x_63_, 1);
 lean_dec(v_x_64_);
 lean_dec_ref(v_inst_62_);
 v___x_71_ = 0;
@@ -335,7 +335,7 @@ case 1:
 lean_object* v_a_102_; lean_object* v___x_103_; lean_object* v___x_104_; lean_object* v___x_105_; lean_object* v___x_106_; lean_object* v___x_107_; 
 v_a_102_ = lean_ctor_get(v_x_100_, 0);
 lean_inc(v_a_102_);
-lean_dec_ref(v_x_100_);
+lean_dec_ref_known(v_x_100_, 1);
 v___x_103_ = ((lean_object*)(l_Lean_instToStringLOption___redArg___lam__0___closed__1));
 v___x_104_ = lean_apply_1(v_inst_99_, v_a_102_);
 v___x_105_ = lean_string_append(v___x_103_, v___x_104_);
@@ -433,7 +433,7 @@ v___x_126_ = l_Lean_LOption_toOption___redArg(v_x_125_);
 return v___x_126_;
 }
 }
-LEAN_EXPORT lean_object* l_Option_toLOption___redArg(lean_object* v_x_127_){
+LEAN_EXPORT lean_object* l_Lean_Option_toLOption___redArg(lean_object* v_x_127_){
 _start:
 {
 if (lean_obj_tag(v_x_127_) == 0)
@@ -485,24 +485,24 @@ return v___x_134_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_toLOption(lean_object* v_00_u03b1_137_, lean_object* v_x_138_){
+LEAN_EXPORT lean_object* l_Lean_Option_toLOption(lean_object* v_00_u03b1_137_, lean_object* v_x_138_){
 _start:
 {
 lean_object* v___x_139_; 
-v___x_139_ = l_Option_toLOption___redArg(v_x_138_);
+v___x_139_ = l_Lean_Option_toLOption___redArg(v_x_138_);
 return v___x_139_;
 }
 }
-LEAN_EXPORT lean_object* l_toLOptionM___redArg___lam__0(lean_object* v_toPure_140_, lean_object* v_b_141_){
+LEAN_EXPORT lean_object* l_Lean_toLOptionM___redArg___lam__0(lean_object* v_toPure_140_, lean_object* v_b_141_){
 _start:
 {
 lean_object* v___x_142_; lean_object* v___x_143_; 
-v___x_142_ = l_Option_toLOption___redArg(v_b_141_);
+v___x_142_ = l_Lean_Option_toLOption___redArg(v_b_141_);
 v___x_143_ = lean_apply_2(v_toPure_140_, lean_box(0), v___x_142_);
 return v___x_143_;
 }
 }
-LEAN_EXPORT lean_object* l_toLOptionM___redArg(lean_object* v_inst_144_, lean_object* v_x_145_){
+LEAN_EXPORT lean_object* l_Lean_toLOptionM___redArg(lean_object* v_inst_144_, lean_object* v_x_145_){
 _start:
 {
 lean_object* v_toApplicative_146_; lean_object* v_toBind_147_; lean_object* v_toPure_148_; lean_object* v___f_149_; lean_object* v___x_150_; 
@@ -514,13 +514,13 @@ lean_dec_ref(v_inst_144_);
 v_toPure_148_ = lean_ctor_get(v_toApplicative_146_, 1);
 lean_inc(v_toPure_148_);
 lean_dec_ref(v_toApplicative_146_);
-v___f_149_ = lean_alloc_closure((void*)(l_toLOptionM___redArg___lam__0), 2, 1);
+v___f_149_ = lean_alloc_closure((void*)(l_Lean_toLOptionM___redArg___lam__0), 2, 1);
 lean_closure_set(v___f_149_, 0, v_toPure_148_);
 v___x_150_ = lean_apply_4(v_toBind_147_, lean_box(0), lean_box(0), v_x_145_, v___f_149_);
 return v___x_150_;
 }
 }
-LEAN_EXPORT lean_object* l_toLOptionM(lean_object* v_00_u03b1_151_, lean_object* v_m_152_, lean_object* v_inst_153_, lean_object* v_x_154_){
+LEAN_EXPORT lean_object* l_Lean_toLOptionM(lean_object* v_00_u03b1_151_, lean_object* v_m_152_, lean_object* v_inst_153_, lean_object* v_x_154_){
 _start:
 {
 lean_object* v_toApplicative_155_; lean_object* v_toBind_156_; lean_object* v_toPure_157_; lean_object* v___f_158_; lean_object* v___x_159_; 
@@ -532,18 +532,20 @@ lean_dec_ref(v_inst_153_);
 v_toPure_157_ = lean_ctor_get(v_toApplicative_155_, 1);
 lean_inc(v_toPure_157_);
 lean_dec_ref(v_toApplicative_155_);
-v___f_158_ = lean_alloc_closure((void*)(l_toLOptionM___redArg___lam__0), 2, 1);
+v___f_158_ = lean_alloc_closure((void*)(l_Lean_toLOptionM___redArg___lam__0), 2, 1);
 lean_closure_set(v___f_158_, 0, v_toPure_157_);
 v___x_159_ = lean_apply_4(v_toBind_156_, lean_box(0), lean_box(0), v_x_154_, v___f_158_);
 return v___x_159_;
 }
 }
 lean_object* runtime_initialize_Init_Data_String_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Data_LOption(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -1440,7 +1440,7 @@ if (lean_obj_tag(v___x_504_) == 1)
 lean_object* v_val_505_; uint8_t v___x_506_; uint8_t v___y_508_; 
 v_val_505_ = lean_ctor_get(v___x_504_, 0);
 lean_inc(v_val_505_);
-lean_dec_ref(v___x_504_);
+lean_dec_ref_known(v___x_504_, 1);
 v___x_506_ = l_System_Platform_isWindows;
 if (v___x_506_ == 0)
 {
@@ -1468,11 +1468,12 @@ else
 uint8_t v___x_545_; lean_object* v___x_546_; lean_object* v___x_547_; lean_object* v___x_548_; 
 v___x_545_ = 0;
 v___x_546_ = ((lean_object*)(l___private_Lake_Build_ExternLib_0__Lake_computeDynlibOfShared___lam__0___closed__2));
-v___x_547_ = lean_alloc_ctor(0, 3, 1);
+v___x_547_ = lean_alloc_ctor(0, 4, 1);
 lean_ctor_set(v___x_547_, 0, v_sharedLib_496_);
 lean_ctor_set(v___x_547_, 1, v_val_505_);
 lean_ctor_set(v___x_547_, 2, v___x_546_);
-lean_ctor_set_uint8(v___x_547_, sizeof(void*)*3, v___x_545_);
+lean_ctor_set(v___x_547_, 3, v___x_546_);
+lean_ctor_set_uint8(v___x_547_, sizeof(void*)*4, v___x_545_);
 v___x_548_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_548_, 0, v___x_547_);
 lean_ctor_set(v___x_548_, 1, v___y_502_);
@@ -1560,16 +1561,17 @@ lean_ctor_set(v___x_533_, 0, v_val_505_);
 lean_ctor_set(v___x_533_, 1, v___x_531_);
 lean_ctor_set(v___x_533_, 2, v___x_532_);
 v___x_534_ = l_String_Slice_Pos_nextn(v___x_533_, v___x_531_, v___x_530_);
-lean_dec_ref(v___x_533_);
+lean_dec_ref_known(v___x_533_, 3);
 v___x_535_ = lean_string_utf8_extract(v_val_505_, v___x_534_, v___x_532_);
 lean_dec(v___x_534_);
 lean_dec(v_val_505_);
 v___x_536_ = ((lean_object*)(l___private_Lake_Build_ExternLib_0__Lake_computeDynlibOfShared___lam__0___closed__2));
-v___x_537_ = lean_alloc_ctor(0, 3, 1);
+v___x_537_ = lean_alloc_ctor(0, 4, 1);
 lean_ctor_set(v___x_537_, 0, v_sharedLib_496_);
 lean_ctor_set(v___x_537_, 1, v___x_535_);
 lean_ctor_set(v___x_537_, 2, v___x_536_);
-lean_ctor_set_uint8(v___x_537_, sizeof(void*)*3, v___x_506_);
+lean_ctor_set(v___x_537_, 3, v___x_536_);
+lean_ctor_set_uint8(v___x_537_, sizeof(void*)*4, v___x_506_);
 v___x_538_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_538_, 0, v___x_537_);
 lean_ctor_set(v___x_538_, 1, v___y_502_);
@@ -2268,9 +2270,9 @@ goto v___jp_810_;
 v___jp_798_:
 {
 lean_object* v___x_802_; lean_object* v___x_804_; 
-v___x_802_ = lean_nat_add(v___y_800_, v___y_801_);
+v___x_802_ = lean_nat_add(v___y_799_, v___y_801_);
 lean_dec(v___y_801_);
-lean_dec(v___y_800_);
+lean_dec(v___y_799_);
 if (v_isShared_795_ == 0)
 {
 lean_ctor_set(v___x_794_, 4, v_r_760_);
@@ -2299,7 +2301,7 @@ lean_object* v___x_806_;
 if (v_isShared_783_ == 0)
 {
 lean_ctor_set(v___x_782_, 4, v___x_804_);
-lean_ctor_set(v___x_782_, 3, v___y_799_);
+lean_ctor_set(v___x_782_, 3, v___y_800_);
 lean_ctor_set(v___x_782_, 2, v_v_787_);
 lean_ctor_set(v___x_782_, 1, v_k_786_);
 lean_ctor_set(v___x_782_, 0, v___x_797_);
@@ -2313,7 +2315,7 @@ v_reuseFailAlloc_807_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_807_, 0, v___x_797_);
 lean_ctor_set(v_reuseFailAlloc_807_, 1, v_k_786_);
 lean_ctor_set(v_reuseFailAlloc_807_, 2, v_v_787_);
-lean_ctor_set(v_reuseFailAlloc_807_, 3, v___y_799_);
+lean_ctor_set(v_reuseFailAlloc_807_, 3, v___y_800_);
 lean_ctor_set(v_reuseFailAlloc_807_, 4, v___x_804_);
 v___x_806_ = v_reuseFailAlloc_807_;
 goto v_reusejp_805_;
@@ -2361,8 +2363,8 @@ if (lean_obj_tag(v_r_789_) == 0)
 lean_object* v_size_816_; 
 v_size_816_ = lean_ctor_get(v_r_789_, 0);
 lean_inc(v_size_816_);
-v___y_799_ = v___x_814_;
-v___y_800_ = v___x_815_;
+v___y_799_ = v___x_815_;
+v___y_800_ = v___x_814_;
 v___y_801_ = v_size_816_;
 goto v___jp_798_;
 }
@@ -2370,8 +2372,8 @@ else
 {
 lean_object* v___x_817_; 
 v___x_817_ = lean_unsigned_to_nat(0u);
-v___y_799_ = v___x_814_;
-v___y_800_ = v___x_815_;
+v___y_799_ = v___x_815_;
+v___y_800_ = v___x_814_;
 v___y_801_ = v___x_817_;
 goto v___jp_798_;
 }
@@ -3481,11 +3483,13 @@ lean_object* runtime_initialize_Lake_Build_Job_Monad(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Build_Job_Register(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Build_Common(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Build_Infos(uint8_t builtin);
+void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Build_ExternLib(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize();
 res = runtime_initialize_Lake_Config_FacetConfig(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

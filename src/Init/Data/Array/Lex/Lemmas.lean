@@ -55,7 +55,7 @@ protected theorem not_le_iff_gt [LT α] {xs ys : Array α} :
   Classical.not_not
 
 @[simp] theorem lex_empty [BEq α] {lt : α → α → Bool} {xs : Array α} : xs.lex #[] lt = false := by
-  simp [lex, Std.Rco.forIn'_eq_if]
+  simp [lex, Std.Rco.forIn'_eq_ite]
 
 private theorem cons_lex_cons.forIn'_congr_aux [Monad m] {as bs : ρ} {_ : Membership α ρ}
     [ForIn' m ρ α inferInstance] (w : as = bs)
@@ -87,10 +87,10 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
     l₁.toArray.lex l₂.toArray lt = l₁.lex l₂ lt := by
   induction l₁ generalizing l₂ with
   | nil =>
-    cases l₂ <;> simp [lex, Std.Rco.forIn'_eq_if]
+    cases l₂ <;> simp [lex, Std.Rco.forIn'_eq_ite]
   | cons x l₁ ih =>
     cases l₂ with
-    | nil => simp [lex, Std.Rco.forIn'_eq_if]
+    | nil => simp [lex, Std.Rco.forIn'_eq_ite]
     | cons y l₂ =>
       rw [List.toArray_cons, List.toArray_cons y, cons_lex_cons, List.lex, ih]
 

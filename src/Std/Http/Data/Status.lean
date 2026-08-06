@@ -591,6 +591,20 @@ def isInformational (c : Status) : Bool :=
   100 ≤ c.toCode ∧ c.toCode < 200
 
 /--
+Checks if the status code is an *interim* response: one that precedes a final response, so a client
+that receives it keeps reading the same exchange.
+
+This is every informational status except `101 Switching Protocols`, which RFC 9110 §15.2.2 makes
+the server's last HTTP/1.1 response on the connection — the protocol changes immediately after it,
+so no final response follows and a client waiting for one waits forever.
+
+Reference: https://httpwg.org/specs/rfc9110.html#status.101
+-/
+@[inline]
+def isInterim (c : Status) : Bool :=
+  c.isInformational ∧ c.toCode != 101
+
+/--
 Checks if the status code is a success status, meaning that the request was successfully received,
 understood, and accepted.
 

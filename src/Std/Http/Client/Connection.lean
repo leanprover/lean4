@@ -517,6 +517,22 @@ private def pollNextEvent
   try Selectable.one selectables catch _ => pure .close
 
 /--
+The size to publish on the stream handed to the caller for a response to `method`.
+
+RFC 9112 §6.3 ends a HEAD response, and any 1xx, 204, or 304, at the header block whatever framing
+fields it carries: their `Content-Length` describes the content the equivalent `GET` would return,
+not bytes on this connection. The machine frames them as empty, so the head's own size must not be
+republished here — a caller sizing a buffer off `getKnownSize` would wait for content that never
+comes.
+-/
+private def responseBodySize (method : Method) (head : Response.Head) : Option Body.Length :=
+  let bodyless :=
+    method == .head ∨ head.status.isInformational ∨ head.status == .noContent ∨
+      head.status == .notModified
+  if bodyless then some (.fixed 0)
+  else H1.Message.Head.getSize (dir := .sending) head (allowEOFBody := false)
+
+/--
 Processes all H1 events from a single machine step, executing side effects
 inline and returning the updated state together with a `sawFailure` flag
 that tells the main loop to exit. Handles keep-alive resets, body-size
@@ -539,7 +555,7 @@ private def processH1Events
       state := { state with requiresData := true, expectData }
 
     | .endHeaders head =>
-      if head.status.isInformational then
+      if head.status.isInterim then
         if head.status == .continue && state.waitingForContinue then
           state := state.mapInFlight (·.releasePendingBody)
       else
@@ -548,8 +564,7 @@ private def processH1Events
 
         if let some flight := state.inFlight then
           if let some incoming := flight.responseStream then
-            if let some length := head.getSize false then
-              Body.setKnownSize incoming (some length)
+            Body.setKnownSize incoming (responseBodySize flight.pending.request.line.method head)
             flight.pending.onResponse
               { line := head, body := incoming, extensions := Extensions.empty }
 
@@ -845,6 +860,18 @@ closes the request channel so queued and future sends fail promptly.
 -/
 def close (connection : Connection) : Async Unit := do
   connection.context.cancel .shutdown
+  stopAcceptingRequests connection.requestChannel
+
+/--
+Retires the connection without disturbing the exchange running on it: no further request is
+accepted, and the background loop shuts down once it next goes idle. `isClosed` reports `true`
+immediately, so a pool stops handing this connection out right away.
+
+Use this instead of `close` whenever the connection is being taken out of service rather than
+aborted — an eviction is a decision about future requests, and a caller still streaming a response
+body has not asked for it to be cut short.
+-/
+def retire (connection : Connection) : Async Unit :=
   stopAcceptingRequests connection.requestChannel
 
 /--

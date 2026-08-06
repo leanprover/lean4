@@ -40,13 +40,16 @@ when, for example, a term had a forward dependency. That is, the term is not dir
 there is a type that depends on it.
 
 - **Eta**: `fun x => f x` → `f`
+- **Beta**: `(fun x => f x) a` → `f a`
 - **Projection**: `⟨a, b⟩.1` → `a` (structure projections, not class projections)
 - **Match/ite/cond**: reduced when discriminant is a constructor or literal
 - **Nat arithmetic**: ground evaluation (`2 + 1` → `3`) and offset normalization
   (`n.succ + 1` → `n + 2`)
 
-**Note**: Eta is applied only if the lambda is occurring inside of a type. For lambdas occurring
-in non type positions, we want to leverage the support in `grind` for lambda-expressions.
+**Note**: Eta and beta are applied only inside of types. They ensure that definitionally equal
+types such as `(fun X => Fin (X.size + 1)) (Vector.singleton 1)` and `Fin 2` become structurally
+identical after canonicalization. For lambdas occurring in non type positions, we want to
+leverage the support in `grind` for lambda-expressions.
 
 ## Instance canonicalization
 
@@ -503,6 +506,11 @@ where
     -- Remark: We currently don't normalize dependent-if-then-else occurring in types.
     | _ =>
       let f := e.getAppFn
+      if f.isLambda && (← read).insideType then
+        -- Beta-reduce redexes inside types so that definitionally equal types are
+        -- structurally identical after canonicalization, e.g.
+        -- `(fun X => Fin (X.size + 1)) (Vector.singleton 1)` and `Fin 2`.
+        return (← canon e.headBeta)
       let .const declName _ := f | canonAppAndPost e
       if (← isMatcher declName) then
         canonMatch e

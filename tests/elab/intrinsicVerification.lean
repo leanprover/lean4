@@ -248,6 +248,19 @@ def ensuresAscribed (n : Nat) : Id Nat
 #guard_msgs in
 #check @ensuresAscribed.spec
 
+/-! ## An `ensures` clause written with match alternatives
+
+The clause is a `fun`, so it may state the postcondition per shape of the result. -/
+
+def halve (n : Nat) : Id (Option Nat)
+    ensures
+      | none => False
+      | some v => 2 * v ≤ n
+  := pure (some (n / 2))
+
+#guard_msgs (drop info) in
+#check @halve.spec
+
 /-! ## The contract telescope is transplanted faithfully to `f.spec`
 
 `f.spec` re-binds the definition's telescope verbatim, applies `f` to exactly the explicit arguments,

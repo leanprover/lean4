@@ -323,6 +323,30 @@ def mkAgent (mockServer : Mock.Server) (config : Client.Config := {})
     origin := { scheme := URI.Scheme.ofString! scheme, host := .name domain, port }
   }
 
+/--
+Create an agent connected to `servers[0]!` whose `.follow` policy hands out the remaining `servers`
+in order, one per hop that needs a connection of its own. The returned ref records the origin each
+of those connections was opened for, so a test can assert where a hop was dialled as well as what
+was written on it. Opening more connections than there are servers fails the test.
+-/
+def mkFollowingAgent (servers : Array Mock.Server) (config : Client.Config := {}) :
+    Async (Client.Agent × IO.Ref (Array URI.Origin)) := do
+  let some first := servers[0]?
+    | throw (IO.userError "mkFollowingAgent needs at least one server")
+  let agent ← mkAgent first config
+  let nextServer ← IO.mkRef 1
+  let dialled ← IO.mkRef (#[] : Array URI.Origin)
+
+  let acquire (origin : URI.Origin) : Async (Except Client.Error Client.Connection) := do
+    let index ← nextServer.modifyGet fun index => (index, index + 1)
+    let some server := servers[index]?
+      | throw <| IO.userError
+          s!"the agent opened more than {servers.size} connections (hop {index + 1} wanted {origin.hostHeader})"
+    dialled.modify (·.push origin)
+    return .ok (← Client.Connection.new server config)
+
+  pure ({ agent with crossOrigin := .follow acquire }, dialled)
+
 /-- Send a client request in the background and expose its result through a promise. -/
 def sendInBackground {β : Type} [Coe β Body.Any]
     (agent : Client.Agent) (request : Request β)

@@ -278,34 +278,11 @@ open Test.ClientHelpers
   Async.block do
   let (mockClient1, mockServer1) ← Mock.new
   let (mockClient2, mockServer2) ← Mock.new
-  let targetScheme ← IO.mkRef ""
-  let targetPort ← IO.mkRef (0 : UInt16)
-  let connectCount ← IO.mkRef 0
-
-  let connect : Client.Connector := fun scheme _ port config => do
-    let n ← connectCount.get
-    connectCount.set (n + 1)
-    match n with
-    | 0 => return .ok (← Client.Connection.new mockServer1 (config := config))
-    | 1 =>
-      targetScheme.set scheme.val
-      targetPort.set port
-      return .ok (← Client.Connection.new mockServer2 (config := config))
-    | _ => throw (IO.userError "pool opened more connections than expected")
-
-  let pool ← Client.Pool.new {} connect
-  let some domain := URI.DomainName.ofString? "example.com"
-    | throw (IO.userError "DomainName parse failed")
-  let origin : URI.Origin :=
-    { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
+  let (agent, dialled) ← mkFollowingAgent #[mockServer1, mockServer2]
 
   let request ← Request.new |>.method .get |>.uri! "/"
     |>.header! "Host" "example.com" |>.empty
-  let resultPromise : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
-  background do
-    let result ← try pure (Except.ok (← pool.send origin request))
-      catch e => pure (Except.error (toString e))
-    discard <| resultPromise.resolve result
+  let resultPromise ← sendInBackground agent request
 
   let _ ← drainRequest mockClient1
   mockClient1.send (rawResp "302 Found"
@@ -321,11 +298,13 @@ open Test.ClientHelpers
     let body ← resp.body.readAll (α := String)
     unless body == "ok" do throw <| IO.userError s!"expected 'ok', got {body.quote}"
 
-  -- The hop must target the https origin, and carry its Host and path.
-  unless (← targetScheme.get) == "https" do
-    throw <| IO.userError s!"second connection used scheme {(← targetScheme.get).quote}"
-  unless (← targetPort.get) == 443 do
-    throw <| IO.userError s!"second connection used port {← targetPort.get}, expected 443"
+  -- The hop must be dialled at the https origin, and carry its path.
+  let some target := (← dialled.get)[0]?
+    | throw (IO.userError "the https hop never opened a connection")
+  unless target.scheme.val == "https" do
+    throw <| IO.userError s!"the hop was dialled with scheme {target.scheme.val.quote}"
+  unless target.port == 443 do
+    throw <| IO.userError s!"the hop was dialled at port {target.port}, expected 443"
   let secondText := String.fromUTF8! secondBytes
   unless secondText.startsWith "GET /page" do
     throw <| IO.userError s!"second hop did not request /page:\n{secondText.quote}"

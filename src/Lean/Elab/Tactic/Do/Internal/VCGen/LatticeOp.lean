@@ -85,13 +85,13 @@ until none applies. Returns the reduced expression and, when a rewrite fired, a 
 -/
 private def saturateLatticeOp (rewrites : Array Name) (e : Expr) (fuel : Nat := 256) :
     SymM (Expr × Option Expr) := do
-  let thms ← rewrites.foldlM (init := ({} : Simp.Theorems)) fun thms n =>
-    return thms.insert (← Simp.mkTheoremFromDecl n)
-  let step : Simp.Simproc := Simp.Theorems.rewrite thms
+  let thms ← rewrites.foldlM (init := ({} : Sym.Simp.Theorems)) fun thms n =>
+    return thms.insert (← Sym.Simp.mkTheoremFromDecl n)
+  let step : Sym.Simp.Simproc := Sym.Simp.Theorems.rewrite thms
   let e₀ ← shareCommon e
   go step e₀ e₀ none fuel
 where
-  go (step : Simp.Simproc) (e₀ cur : Expr) (proof? : Option Expr) : Nat → SymM (Expr × Option Expr)
+  go (step : Sym.Simp.Simproc) (e₀ cur : Expr) (proof? : Option Expr) : Nat → SymM (Expr × Option Expr)
     | 0 => throwError "lattice saturation did not terminate; the rewrite set is likely \
         non-terminating on{indentExpr cur}"
     | fuel + 1 => do
@@ -100,7 +100,7 @@ where
       | .step next h _ _ =>
         let proof ← match proof? with
           | none => pure h
-          | some p => Simp.mkEqTrans e₀ cur p next h
+          | some p => Sym.Simp.mkEqTrans e₀ cur p next h
         go step e₀ next (some proof) fuel
 
 /--

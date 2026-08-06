@@ -372,6 +372,9 @@ theorem sepConj_comm (a b : HProp) : (a ∗ b) = (b ∗ a) := by
     · rintro ⟨h₁, h₂, hd, rfl, hp, hq⟩
       exact ⟨h₂, h₁, Heap.disjoint_comm hd, Heap.union_comm hd, hq, hp⟩
 
+theorem sepConj_left_comm (a b c : HProp) : (a ∗ (b ∗ c)) = (b ∗ (a ∗ c)) := by
+  rw [← sepConj_assoc, sepConj_comm a b, sepConj_assoc]
+
 @[grind =]
 theorem sepConj_emp (a : HProp) : (a ∗ emp) = a := by
   rw [sepConj_comm, emp_sepConj]
@@ -836,43 +839,70 @@ def matchSepAtoms (pre cancel : Expr) : MetaM (Array Expr × Array Expr × Array
 -- This demo's frame procedure runs in `SymM` but leans on `MetaM` here: `Meta.AC` closes the
 -- `∗`-rearrangement, and `isDefEq` matches atoms that may carry spec metavariables. It is worth it
 -- for a self-contained example; a production frameproc would want a `SymM`-native equivalent.
-def proveSepConjLe (pre rhs : Expr) : MetaM (Option Expr) := do
-  if ← isDefEq pre rhs then
-    return some (← mkAppM ``PartialOrder.rel_of_eq #[← mkEqRefl pre])
-  let eqTy ← mkEq pre rhs
+def proveSepConjEq (lhs rhs : Expr) : MetaM (Option Expr) := do
+  -- Probe defeq without committing: a failed `isDefEq` may leave partial metavariable assignments.
+  if ← withoutModifyingMCtx (isDefEq lhs rhs) then
+    discard <| isDefEq lhs rhs
+    return some (← mkEqRefl lhs)
+  let eqTy ← mkEq lhs rhs
   let eqMVar ← mkFreshExprSyntheticOpaqueMVar eqTy
   try
     Lean.Meta.AC.rewriteUnnormalizedRefl eqMVar.mvarId!
-    let eq ← instantiateMVars eqMVar
-    return some (← mkAppM ``PartialOrder.rel_of_eq #[eq])
+    return some (← instantiateMVars eqMVar)
   catch _ =>
     return none
 
-/-- A `FrameSplit` cancelling `frame` off the precondition: the split VC `pre ⊑ frame ∗ residualPre`
-is `pre ⊑ frame ∗ footprint` (proved by AC-rearrangement of `∗`) composed by right-monotonicity with
-the emitted subgoal `footprint ⊑ residualPre`. -/
-def mkSepFrameSplit (i : FrameInferenceInfo) (frame footprint : Expr) : SymM FrameSplit := do
-  -- `.appArg!` reads the `frame ∗ ·` right-hand side off the split VC `mkSplitVCS` builds.
-  let sepFF := (← i.mkSplitVCS frame footprint).appArg!
-  match ← proveSepConjLe (← i.pre) sepFF with
-  | none => FrameSplit.withDeferredSplitVC i frame
-  | some hcl =>
-    let le ← i.le
-    let residualPre ← i.mkResidualPre
-    let residualPreE := mkMVar residualPre
-    let sepFR := (← i.mkSplitVCS frame residualPreE).appArg!
-    let sub ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[footprint, residualPreE])
-    let mono ← mkAppNS (← mkConstS ``sepConj_mono_right) #[frame, footprint, residualPreE, sub]
-    let args := le.getAppArgs
-    let proof ← mkAppNS (← mkConstS ``PartialOrder.rel_trans le.getAppFn.constLevels!)
-      #[args[0]!, args[1]!, ← i.pre, sepFF, sepFR, hcl, mono]
-    return FrameSplit.withDischargedSplitVC frame residualPre proof [sub.mvarId!]
+def proveSepConjLe (pre rhs : Expr) : MetaM (Option Expr) := do
+  let some eq ← proveSepConjEq pre rhs | return none
+  return some (← mkAppM ``PartialOrder.rel_of_eq #[eq])
+
+/-- Discharge as much of the committed split VC `pre ⊑ ?F ∗ specPre` as cancellation determines.
+Pair `pre`'s atoms against `specPre`'s, pinning the spec's parameter metavariables. All of `specPre`
+paired: assign `?F` the leftover atoms and close by AC-rearrangement. Some of `specPre` unpaired:
+cancel what did pair and emit the residual `rest ⊑ ?F ∗ unmatched` with `?F` still schematic. When
+nothing pairs, the whole split VC remains as the subgoal. -/
+def dischargeSplitVC (goals : FrameGoals) : Lean.Meta.Grind.GrindM (List MVarId) := do
+  let ty ← goals.splitVC.getType
+  let_expr Lean.Order.PartialOrder.rel _ _ pre rhs := ty
+    | throwError "sepConj frameproc: split VC is not an entailment{indentExpr ty}"
+  let F := rhs.appFn!.appArg!
+  let specPre := rhs.appArg!
+  let (rest, matched, unmatched) ← matchSepAtoms pre specPre
+  if unmatched.isEmpty then
+    F.mvarId!.assign (← sepConjOfAtoms rest)
+    if let some prf ← proveSepConjLe pre (← instantiateMVars rhs) then
+      goals.splitVC.assign prf
+    return []
+  if matched.isEmpty || rest.isEmpty then
+    -- Nothing to cancel (or nothing left to pay the unmatched footprint): keep the whole split VC.
+    return []
+  let restC ← sepConjOfAtoms rest
+  let matchedC ← sepConjOfAtoms matched
+  let unmatchedC ← sepConjOfAtoms (← unmatched.mapM (instantiateMVars ·))
+  let residualRhs ← mkAppM ``sepConj #[F, unmatchedC]
+  let residual ← mkFreshExprSyntheticOpaqueMVar
+    (← mkAppM ``Lean.Order.PartialOrder.rel #[restC, residualRhs])
+  -- pre ⊑ matched ∗ rest ⊑ matched ∗ (?F ∗ unmatched) = ?F ∗ (matched ∗ unmatched) = ?F ∗ specPre.
+  -- The schematic `?F` never reaches `isDefEq` or AC: it rides through `sepConj_left_comm` and
+  -- `congrArg`, and the AC equation `matched ∗ unmatched = specPre` is between concrete terms.
+  let mono ← mkAppM ``sepConj_mono_right #[matchedC, residual]
+  let some q1 ← proveSepConjLe pre (← mkAppM ``sepConj #[matchedC, restC]) | return []
+  let stepA ← mkAppM ``sepConj_left_comm #[matchedC, F, unmatchedC]
+  let some hEq ← proveSepConjEq (← mkAppM ``sepConj #[matchedC, unmatchedC])
+      (← instantiateMVars specPre) | return []
+  let stepB ← mkAppM ``congrArg #[← mkAppM ``sepConj #[F], hEq]
+  let q2 ← mkAppM ``Lean.Order.PartialOrder.rel_of_eq #[← mkAppM ``Eq.trans #[stepA, stepB]]
+  let prf ← mkAppM ``Lean.Order.PartialOrder.rel_trans
+    #[q1, ← mkAppM ``Lean.Order.PartialOrder.rel_trans #[mono, q2]]
+  goals.splitVC.assign prf
+  return [residual.mvarId!]
 
 /-- Automatic frame inference by domain difference: the spec's precondition's atoms (its footprint)
 are cancelled from the goal precondition's, and the leftover atoms are the frame. Example: goal
 precondition `l1 ↦ a ∗ l2 ↦ b` against `store_spec`'s `?l ↦ ?v` cancels `l1 ↦ a` (pinning
 `?l := l1`, `?v := a`), frames `l2 ↦ b`, and proves the split VC by AC-rearrangement. A pinned
-`frames` resource cancels its own atoms instead, leaving the split VC open when they are missing. -/
+`frames` resource is assigned as the frame directly. A footprint atom with no counterpart in the
+precondition survives cancellation into the residual VC, the frame left schematic. -/
 def sepConjFrameProc : FrameInferenceProc := fun i => do
   -- Exercises `FrameInferenceInfo.spec?`: a real frameproc keys a footprint off the applied spec's
   -- name. `probe_spec` isolates the report to the one test example below.
@@ -880,16 +910,17 @@ def sepConjFrameProc : FrameInferenceProc := fun i => do
     logInfo m!"framing for spec {i.spec?}"
   match i.providedFrame? with
   | some frame =>
-    match ← matchSepAtoms (← i.pre) frame with
-    | (rest, _, #[]) => return some (← mkSepFrameSplit i frame (← sepConjOfAtoms rest))
-    | _ => return some (← FrameSplit.withDeferredSplitVC i frame)
+    let goals ← i.commit
+    goals.F.mvarId!.assign (← shareCommon frame)
+    dischargeSplitVC goals
   | none =>
-    let some specPre ← i.specPre? | return none
-    match ← matchSepAtoms (← i.pre) specPre with
-    | (rest, matched, #[]) =>
-      if rest.isEmpty then return none
-      return some (← mkSepFrameSplit i (← sepConjOfAtoms rest) (← sepConjOfAtoms matched))
-    | _ => return none
+    -- Decide on the peeked precondition: frame only when cancellation pairs some footprint atom
+    -- and leaves some precondition atom over. In particular an unfold equation, whose footprint is
+    -- the whole unfolded `wp`, pairs nothing and applies unframed.
+    let some specPre ← i.peekSpecPre | return []
+    let (rest, matched, _) ← matchSepAtoms (← i.pre) specPre
+    if matched.isEmpty || rest.isEmpty then return []
+    dischargeSplitVC (← i.commit)
 
 @[frameproc] def heapFP : FrameProc where
   prog := ``HeapM
@@ -1451,3 +1482,56 @@ example (l : Addr) (z : Nat) (xs : List Nat) (base : Addr) :
       sumarray base xs.length
     ⦃ fun s => ⌜s = xs.sum⌝ ⊓ (l ↦ z ∗ IsArray xs base) ⦄ := by
   vcgen [sumarray_spec] with finish
+
+/-! # Partial cancellation
+
+Preconditions the domain-difference cancellation cannot pair off completely. The frame procedure
+cancels what does pair, pinning the paired spec parameters, and leaves a residual VC carrying the
+unmatched footprint atoms with the frame schematic. -/
+
+/-- The stack is held in representation (`p ↦ top ∗ IsList …`), so `pop_spec`'s footprint
+`Stack (?v :: ?ys) ?p` pairs with nothing; the `frames` clause pins the frame, the split VC folds
+the representation back into the abstract predicate (assigning the spec's parameters), and `grind`
+closes the rest. -/
+example (p top l : Addr) (z v : Nat) (xs : List Nat) :
+    ⦃ p ↦ top ∗ IsList (v :: xs) null top ∗ l ↦ z ⦄
+      pop p
+    ⦃ fun r => ⌜r = v⌝ ⊓ (Stack xs p ∗ l ↦ z) ⦄ := by
+  vcgen frames | pop p => l ↦ z
+  -- Fill the spec's unpinned parameters, then fold the representation in the split VC.
+  case vc5 => exact v
+  case vc6 => exact xs
+  · exact PartialOrder.rel_trans
+      (PartialOrder.rel_of_eq (by grind :
+        p ↦ top ∗ IsList (v :: xs) null top ∗ l ↦ z =
+          l ↦ z ∗ p ↦ top ∗ IsList (v :: xs) null top))
+      (sepConj_mono_right _ (le_Stack (v :: xs) p top))
+  all_goals grind
+
+/-- The payload list is a cons only through `hxs`; after `subst` the footprint pairs exactly. -/
+example (p l : Addr) (z v : Nat) (xs ys : List Nat) (hxs : xs = v :: ys) :
+    ⦃ Stack xs p ∗ l ↦ z ⦄
+      pop p
+    ⦃ fun r => ⌜r = v⌝ ⊓ (Stack ys p ∗ l ↦ z) ⦄ := by
+  subst hxs
+  vcgen with finish
+
+/-- `push_spec`'s `Pool ?k` pairs (pinning `?k := k`) while `Stack ?xs p` goes unmatched: the
+procedure cancels the pool and emits the residual
+`p ↦ top ∗ IsList xs null top ∗ l ↦ z ⊑ ?F ∗ Stack ?xs p` (the last goal), which folds the
+representation, assigning the frame `l ↦ z`; `grind` closes the rest. -/
+example (p top l : Addr) (z v : Nat) (xs : List Nat) (k : Addr) :
+    ⦃ (p ↦ top ∗ IsList xs null top) ∗ Pool k ∗ l ↦ z ⦄
+      push p v
+    ⦃ fun _ => (Stack (v :: xs) p ∗ Pool (k + 3)) ∗ l ↦ z ⦄ := by
+  vcgen
+  -- Fill the schematic frame and the spec's unpinned parameter, then fold the representation in
+  -- the residual.
+  case vc2 => exact l ↦ z
+  case vc4 => exact xs
+  rotate_right
+  · exact PartialOrder.rel_trans
+      (PartialOrder.rel_of_eq (by grind :
+        p ↦ top ∗ IsList xs null top ∗ l ↦ z = l ↦ z ∗ p ↦ top ∗ IsList xs null top))
+      (sepConj_mono_right _ (le_Stack xs p top))
+  all_goals grind

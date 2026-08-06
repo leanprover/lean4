@@ -88,13 +88,12 @@ Cached version of `mkFrameBackwardRule`.
 Cache key: `(instWP, excessArgs.size)` (the operator is determined by the monad).
 -/
 public def mkFrameBackwardRuleCached (fp : FrameProc) (info : WPApp) :
-    VCGenM FrameBackwardRule := do
+    VCGenM BackwardRule := do
   let key := (ExprPtr.mk info.instWP, info.excessArgs.size)
   if let some rule := (← get).frameBackwardRuleCache[key]? then return rule
-  let frule ← mkFrameBackwardRule fp info
-  let frule := { frule with rule := ← frule.rule.shareCommon }
-  modify fun st => { st with frameBackwardRuleCache := st.frameBackwardRuleCache.insert key frule }
-  return frule
+  let rule ← (← mkFrameBackwardRule fp info).shareCommon
+  modify fun st => { st with frameBackwardRuleCache := st.frameBackwardRuleCache.insert key rule }
+  return rule
 
 end VCGen
 

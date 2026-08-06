@@ -226,13 +226,13 @@ open Lean.Elab.Tactic.Do.Internal Lean.Elab.Tactic.Do.Internal.VCGen
   exact TickT.le_wp_tick' Q E n
 
 /-- The frame inference procedure: shift by the pinned frame's amount, or by the whole current tick
-count (`i.excessArgs[0]`, the first excess state argument of the `Nat → L` cost assertion). It emits
-the split VC in the meet form `pre ⊑ (⌜shift ≤ ticks⌝ ⊓ residualPre (ticks - shift)) s⃗`; the built-in
-meet split turns this into the tick guard (closed by `grind`) and the shifted residual
-`pre ⊑ residualPre (ticks - shift) s⃗`. -/
+count (`i.excessArgs[0]`, the first excess state argument of the `Nat → L` cost assertion). It
+reposts the committed split VC in the meet form `pre ⊑ (⌜shift ≤ ticks⌝ ⊓ W (ticks - shift)) s⃗`;
+the built-in meet split turns this into the tick guard (closed by `grind`) and the shifted residual
+`pre ⊑ W (ticks - shift) s⃗`. -/
 def tickFrameProc : FrameInferenceProc := fun i => do
-  unless i.Pred.isArrow && i.Pred.bindingDomain!.isConstOf ``Nat do return none
-  let some ticks := i.excessArgs[0]? | return none
+  unless i.Pred.isArrow && i.Pred.bindingDomain!.isConstOf ``Nat do return []
+  let some ticks := i.excessArgs[0]? | return []
   let shift ← match i.providedFrame? with
     | some r => pure r
     | none => do
@@ -243,22 +243,27 @@ def tickFrameProc : FrameInferenceProc := fun i => do
         (← Lean.Meta.Sym.Simp.mkTheoremFromDecl ``Nat.sub_self)
       let post := Lean.Meta.Sym.Simp.evalGround >> thms.rewrite
       pure ((← Lean.Meta.Sym.simp ticks { post }).getResultExpr ticks)
-  if shift.nat? == some 0 then return none
-  -- Emit the split VC `pre ⊑ (costConj shift residualPre ticks) s⃗` in its `costConj_apply`-reduced
-  -- meet form `pre ⊑ (⌜shift ≤ ticks⌝ ⊓ residualPre (ticks - shift)) s⃗` (definitionally equal), so the
-  -- built-in meet split decomposes it: the tick guard closes by `grind`, the residual re-applies.
+  if shift.nat? == some 0 then return []
+  let goals ← i.commit
+  goals.F.mvarId!.assign (← shareCommon shift)
+  -- Repost the split VC `pre ⊑ (costConj shift W ticks) s⃗` in its `costConj_apply`-reduced meet
+  -- form `pre ⊑ (⌜shift ≤ ticks⌝ ⊓ W (ticks - shift)) s⃗` (definitionally equal), so the built-in
+  -- meet split decomposes it: the tick guard closes by `grind`, the residual re-applies.
+  let ty ← instantiateMVarsS (← goals.splitVC.getType)
+  let_expr Lean.Order.PartialOrder.rel _ _ pre rhs := ty | throwError "tick: not an entailment {ty}"
+  let W := (rhs.stripArgsN i.excessArgs.size).appArg!
   let op ← i.mkOpApp
   let costL := op.getAppArgs[0]!
   let costInst := op.getAppArgs[1]!
   let us := op.getAppFn.constLevels!
-  let residualPre ← i.mkResidualPre
   let guard ← mkAppNS (← mkConstS ``CompleteLattice.ofProp us)
     #[costL, costInst, ← mkAppNS (← mkConstS ``Nat.le) #[shift, ticks]]
-  let residual ← mkAppNS (mkMVar residualPre) #[← mkAppNS (← mkConstS ``Nat.sub) #[ticks, shift]]
+  let residual ← mkAppNS W #[← mkAppNS (← mkConstS ``Nat.sub) #[ticks, shift]]
   let meet ← mkAppNS (← mkConstS ``Lean.Order.meet us) #[costL, costInst, guard, residual]
-  let rhs ← mkAppNS meet (i.excessArgs.extract 1 i.excessArgs.size)
-  let m ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS (← i.le) #[← i.pre, rhs])
-  return some (FrameSplit.withDischargedSplitVC shift residualPre m [m.mvarId!])
+  let reducedRhs ← mkAppNS meet (i.excessArgs.extract 1 i.excessArgs.size)
+  let m ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS (← i.le) #[pre, reducedRhs])
+  goals.splitVC.assign m
+  return [m.mvarId!]
 
 /-- Register the cost frame inference procedure for `vcgen`, indexed by the `TickT` program type. The
 frame operator `costConj` is built at the base lattice `L` read off the assertion type `Nat → L`, so it

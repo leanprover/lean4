@@ -403,51 +403,27 @@ public def mkBackwardRuleForSplit
 
 /-! ## Frame rules -/
 
-/-- Locate the assignable subgoal positions of a frame backward rule: the split VC (the premise
-`pre ⊑ (op F W) s⃗`, found by `opHead`) and the frame `F` read off its right-hand side. -/
-private def analyzeFrameRule (rule : BackwardRule) (opHead : Name) (numExcess : Nat) :
-    MetaM FrameBackwardRule := do
-  -- The binder telescope of the rule type is the pattern telescope, so `xs` is indexed by the
-  -- entries of `resultPos`, which reorders the subgoal binders (non-dependent first) into the
-  -- applied rule's goal list.
-  let resultPos := rule.resultPos.toArray
-  forallTelescope (← Meta.inferType rule.expr) fun xs _ => do
-    let premiseType (listIdx : Nat) : MetaM Expr :=
-      Meta.inferType xs[resultPos[listIdx]!]!
-    let mut found := none
-    -- Find the opApp `op F W` in the split VC that looks like `pre ⊑ (op F W) s`
-    for i in [0:resultPos.size] do
-      let_expr Lean.Order.PartialOrder.rel _ _ _ rhs := (← premiseType i) | continue
-      let opApp := rhs.stripArgsN numExcess
-      if opApp.isAppOf opHead then
-        found := some (i, opApp)
-        break
-    let some (splitVCIdx, opApp) := found
-      | throwError "frame: could not locate the split VC in the frame rule for `{opHead}`"
-    let frameIdx := resultPos.idxOf (xs.idxOf opApp.appFn!.appArg!)
-    return { rule, splitVCIdx, frameIdx }
-
 /--
 The frame backward rule for a frame operator `op : R → Pred → Pred`, built from the frame rule
-`WP.Frames.op_wp_upperAdjoint_le_wp`.
+`WP.Frames.op_le_wp`.
 
-The rule concludes `pre ⊑ wp prog Q E s⃗` from the split VC `pre ⊑ (op F W) s⃗` and the frame
-condition `WP.Frames op prog F`, with the frame `F` left schematic and the weakest footprint
-`W = wp prog (fun a => upperAdjoint (op F) (Q a)) E` baked in, so a single rule serves every inferred
-frame. `analyzeFrameRule` records the positions of the schematic slots.
+The rule concludes `pre ⊑ wp prog Q E s⃗` from the split VC `pre ⊑ (op F P) s⃗`, the residual premise
+`P ⊑ wp prog (fun a => upperAdjoint (op F) (Q a)) E`, and the frame condition
+`WP.Frames op prog F`, with the frame `F` and the footprint `P` left schematic, so a single rule
+serves every inferred frame.
 -/
 public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
-    MetaM FrameBackwardRule := do
+    MetaM BackwardRule := do
   -- Pin the program and the operator, leaving everything else schematic;
   -- `tryMkBackwardRuleFromSpec` turns the unassigned metavariables into rule parameters.
   let op ← fp.mkOpAppM info
-  let specProof ← mkAppOptM ``Std.Internal.Do.WP.Frames.op_wp_upperAdjoint_le_wp
+  let specProof ← mkAppOptM ``Std.Internal.Do.WP.Frames.op_le_wp
     ((info.args.take 7).map some ++ #[none, some op, none])
   let some specThm ← mkSpecTheoremFromStx (← getRef) specProof
     | throwError "frame: could not build the frame spec for operator{indentExpr op}"
   let some rule ← (tryMkBackwardRuleFromSpec specThm info).run
     | throwError "frame: could not build the frame rule for operator{indentExpr op}"
-  analyzeFrameRule rule fp.opHead info.excessArgs.size
+  return rule
 
 end VCGen
 end Lean.Elab.Tactic.Do.Internal

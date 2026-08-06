@@ -45,6 +45,16 @@ theorem WP.Frames.op_wp_upperAdjoint_le_wp {R : Type t} (op : R → Pred → Pre
   intro
   apply PreservesSup.upperAdjoint_le
 
+/-- `op_wp_upperAdjoint_le_wp` with the residual weakest precondition weakened to any `P`: framing
+`x` by `F` concludes `wp x Q E` from `op F P` for every precondition `P` of the framed residual. -/
+theorem WP.Frames.op_le_wp {R : Type t} (op : R → Pred → Pred)
+    [∀ r, PreservesSup (op r)] {x : Prog} {F : R} (hframes : WP.Frames op x F)
+    {P : Pred} (Q : Value → Pred) (E : EPred)
+    (hP : P ⊑ wp x (fun a => PreservesSup.upperAdjoint (op F) (Q a)) E) :
+    op F P ⊑ wp x Q E :=
+  PartialOrder.rel_trans (PreservesSup.map_mono (op F) hP)
+    (hframes.op_wp_upperAdjoint_le_wp op Q E)
+
 /-- `PreservesSup.le_frameClosure` at the `wp` layer: when `x` frames every resource `r`, landing
 below `wp x Q E` suffices to land below the frame closure of `wp x · E`. -/
 theorem WP.Frames.le_frameClosure {R : Type t} (op : R → Pred → Pred) [∀ r, PreservesSup (op r)]

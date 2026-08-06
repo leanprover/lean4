@@ -179,9 +179,9 @@ public structure VCGen.State where
   sound because it is a subterm of the hash-consed goal target.
   -/
   latticeBackwardRuleCache : Std.HashMap (ExprPtr × Nat) BackwardRule := {}
-  /-- Caches the frame rule (`WP.Frames.op_wp_upperAdjoint_le_wp`), keyed by the `WPMonad` instance
-  and the number of excess state arguments. -/
-  frameBackwardRuleCache : Std.HashMap (ExprPtr × Nat) FrameBackwardRule := {}
+  /-- Caches the frame rule (`WP.Frames.op_le_wp`), keyed by the `WPMonad` instance and the number
+  of excess state arguments. -/
+  frameBackwardRuleCache : Std.HashMap (ExprPtr × Nat) BackwardRule := {}
   /-- The frame database from the `frames` clause. -/
   frameDB : FrameDB := {}
   /--

@@ -1834,7 +1834,7 @@ theorem Spec.forIn_stringSlice
 
 section While
 
-universe u w w' v'
+universe u w w' v' s
 
 variable {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
 variable [Monad m] [Lean.Order.MonadTail m] [Assertion Pred] [Assertion EPred]
@@ -1941,7 +1941,7 @@ open Std.Internal.Do.CompleteLattice in
 
 /-- Pointwise characterization of `EvalsBelow` on a function lattice, for `ofMeasure`
 measures. -/
-@[simp] theorem evalsBelow_ofMeasure_apply {σ : Type u} {Pred : Type u} [Assertion Pred]
+@[simp] theorem evalsBelow_ofMeasure_apply {σ : Type s} {Pred : Type u} [Assertion Pred]
     {γ : Type w'} {Fun : Type v'} [NondetFun Pred Fun γ] [WellFoundedRelation γ]
     (f : α → σ → Fun) (a' : α) (ma : γ) (s : σ) :
     (ofMeasure (Pred := σ → Pred) f).EvalsBelow a' ma s

@@ -10,7 +10,7 @@ public import Init.Internal.Order
 public import Std.Internal.Do.Order.Basic
 public import Std.Internal.Do.Order.Heyting
 public import Std.Internal.Do.Order.Instances
-universe u v w
+universe u v w s
 @[expose] public section
 
 set_option linter.missingDocs true
@@ -74,7 +74,7 @@ Low priority so that the `σ`-indexed instance is preferred when both apply. -/
 
 /-- State-dependent nondeterministic functions: a function for `σ → Pred` is a `σ`-indexed
 function for `Pred`. -/
-@[instance_reducible] instance {σ : Type u} {Pred : Type u} {Fun : Type v} {α : Type w}
+@[instance_reducible] instance {σ : Type s} {Pred : Type u} {Fun : Type v} {α : Type w}
     [Assertion Pred] [inst : NondetFun Pred Fun α] :
     NondetFun (σ → Pred) (σ → Fun) α where
   EvalsTo f a := fun s => inst.EvalsTo (f s) a
@@ -86,7 +86,7 @@ function for `Pred`. -/
     (f a : α) : NondetFun.EvalsTo (Pred := Pred) f a = ⌜f = a⌝ := rfl
 
 /-- Pointwise characterization of `EvalsTo` on a function lattice. -/
-@[simp] theorem NondetFun.evalsTo_apply {σ : Type u} {Pred : Type u} {Fun : Type v}
+@[simp] theorem NondetFun.evalsTo_apply {σ : Type s} {Pred : Type u} {Fun : Type v}
     {α : Type w} [Assertion Pred] [NondetFun Pred Fun α] (f : σ → Fun) (a : α) (s : σ) :
     NondetFun.EvalsTo (Pred := σ → Pred) f a s = NondetFun.EvalsTo (f s) a := rfl
 

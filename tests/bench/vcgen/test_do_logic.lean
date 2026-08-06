@@ -787,7 +787,7 @@ theorem countdownLex_spec (n : Nat) :
   vcgen [countdownLex]
   case inv1 => exact RepeatInvariant.ofInvariantAndBreak (fun _ _ => True) (fun _ _ => True)
   case inv2 => exact .ofMeasure fun (i, j) => (i, j)
-  all_goals simp_all [RepeatVariant.rel_ofMeasure]
+  all_goals simp_all [RepeatVariant.evalsBelow_ofMeasure]
   all_goals subst_vars
   all_goals decreasing_tactic
 

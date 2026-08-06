@@ -14,6 +14,8 @@ a test picks one by pointing an endpoint at it (e.g. `.../corrupt/a0`):
   corrupt   200 with the right length but mutated bytes
   truncate  200 with a full `Content-Length` but half a body, then disconnect
   reset     disconnect without a response (curl writes no output file)
+  empty     200 and a `Content-Length` but no body, for an object that is not
+            in the store, so that curl leaves no output file to read
   badcount  Reservoir artifact URL lookup returns too few URLs
   apierror  Reservoir requests return an API error object
 
@@ -54,6 +56,7 @@ class Mode(StrEnum):
     CORRUPT = "corrupt"
     TRUNCATE = "truncate"
     RESET = "reset"
+    EMPTY = "empty"
     BAD_COUNT = "badcount"
     API_ERROR = "apierror"
 
@@ -125,7 +128,17 @@ class Handler(BaseHTTPRequestHandler):
             with open(path, "rb") as f:
                 data = f.read()
         except FileNotFoundError:
-            self.not_found("no such object: %s" % self.path)
+            if mode == Mode.EMPTY:
+                # Announcing a body that never arrives: curl reports HTTP 200
+                # yet never creates its output file
+                self.send_response(200)
+                self.send_header("Content-Type", ctype or content_type(path))
+                self.send_header("Content-Length", "100")
+                self.end_headers()
+                self.close_connection = True
+                self.log("no body")
+            else:
+                self.not_found("no such object: %s" % self.path)
             return
         ctype = ctype or content_type(path)
         if mode == Mode.CORRUPT:

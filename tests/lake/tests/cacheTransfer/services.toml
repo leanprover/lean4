@@ -47,6 +47,12 @@ artifactEndpoint = "%URL%/reset/a0"
 revisionEndpoint = "%URL%/ok/r0"
 
 [[cache.service]]
+name = "empty"
+type = "s3"
+artifactEndpoint = "%URL%/empty/a0"
+revisionEndpoint = "%URL%/ok/r0"
+
+[[cache.service]]
 name = "badCount"
 type = "reservoir"
 apiEndpoint = "%URL%/badcount/api/v1"

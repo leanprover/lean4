@@ -35,7 +35,7 @@ PORT_FILE="$WORK_DIR/port"
 # Copy test data to a working directory to avoid initializing a Git repository
 # inside the checked-in source tree
 mkdir -p "$WORK_DIR"
-cp -r lakefile.toml Test.lean Test "$WORK_DIR/"
+cp -r lakefile.toml BadCurl.lean Test.lean Test "$WORK_DIR/"
 cd "$WORK_DIR"
 
 echo "# SETUP"
@@ -133,6 +133,20 @@ test_run cache get --scope=test --service=ok
 test_artifacts "$NUM_ARTS"
 test_run build Test --no-build
 
+# Verify an artifact whose response carries no body is reported like any other
+# failed transfer, without discarding the artifacts that did transfer.
+# https://github.com/leanprover/lean4/issues/14698
+test_cmd rm -rf .lake/build "$CACHE_DIR"
+ART="$(ls -1 "$STORE_DIR/a0/test" | head -1)"
+cat > empty-outputs.jsonl << EOF
+"$SCHEMA_VER"
+["aaaaaaaaaaaaaaaa","${ART%.art}.ltar"]
+["bbbbbbbbbbbbbbbb","0123456789abcdef.ltar"]
+EOF
+test_err 'failed to download some artifacts' cache get empty-outputs.jsonl \
+  --scope=test --service=empty
+test_artifacts 1
+
 # Verify a corrupted download is not adopted as an artifact
 test_cmd rm -rf .lake/build "$CACHE_DIR"
 test_err 'hash mismatch' cache get --scope=test --service=corrupt
@@ -156,6 +170,32 @@ test_err 'failed to download artifact' cache get --scope=test --service=reset
 test_artifacts 0
 test_run cache get --scope=test --service=ok
 test_run build Test --no-build
+
+# Verify the transfers that `curl` itself misreports,
+# which no server response can produce.
+# TODO: use a `CURL` environment variable for these if Lake gains one.
+test_run build curl
+BIN_DIR="$WORK_DIR/.lake/build/bin"
+CURL="$(type -P curl)"
+# Nothing reports an error here,
+# but the count of transfers detects it.
+test_cmd rm -rf "$CACHE_DIR"
+PATH="$BIN_DIR:$PATH" BAD_CURL=quiet test_err 'failed to download some artifacts' \
+  cache get outputs.jsonl --scope=test --service=ok
+test_artifacts 0
+# Every artifact arrives complete,
+# but the reported transfer error marks them unusable.
+test_cmd rm -rf "$CACHE_DIR"
+PATH="$BIN_DIR:$PATH" BAD_CURL=exitcode REAL_CURL="$CURL" \
+  test_err 'failed to download artifact' cache get outputs.jsonl --scope=test --service=ok
+test_artifacts 0
+# Every artifact is reported as transferred but none was written,
+# which must be reported rather than abort the batch
+# https://github.com/leanprover/lean4/issues/14698
+test_cmd rm -rf "$CACHE_DIR"
+PATH="$BIN_DIR:$PATH" BAD_CURL=nofile REAL_CURL="$CURL" BAD_CURL_DIR="$CACHE_DIR/artifacts" \
+  test_err 'failed to download some artifacts' cache get outputs.jsonl --scope=test --service=ok
+test_artifacts 0
 
 # Verify an error response is reported along with its body
 test_cmd rm -rf .lake/build "$CACHE_DIR"
@@ -190,6 +230,8 @@ test_run cache get dup-outputs.jsonl --scope=test --service=ok
 test_exp -f "$CACHE_DIR/artifacts/$HASH.o"
 test_exp -f "$CACHE_DIR/artifacts/$HASH.dup"
 test_cmd cmp -s "$CACHE_DIR/artifacts/$HASH.o" "$CACHE_DIR/artifacts/$HASH.dup"
+# Copies, not hard links, which would break cache permissions and pruning
+test_exp "$(stat_ch "$CACHE_DIR/artifacts/$HASH.dup")" = 1
 test_cmd_eq 1 grep -c "GET /ok/a0/test/$ART" "$SERVER_LOG"
 
 # Verify artifacts missing from the local cache are fetched on demand

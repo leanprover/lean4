@@ -314,8 +314,6 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   | .timeout => pure ()
   | e => throw (IO.userError s!"expected .timeout, got {e}")
 
-/-! ### Response header limits -/
-
 #eval show IO _ from runWithTimeout "maxResponseHeaders rejects a header-heavy response" 4000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
   let connection ← mkConnection mockClient { maxResponseHeaders := 3 }
@@ -1254,6 +1252,26 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
     mockServer.send (rawResp "200 OK" #[("Content-Length", "5")] "hello")
     let (response, _) ← expectResponse promise
     assertBodyIs response "hello"
+
+-- Closing the response stream routes the rest of the body through the connection's internal drain
+-- instead of `onBodyInterest`. The drain must still charge those bytes against the limit: the
+-- machine's own `maxBodySize` is unbounded for clients, so if the drain skipped the accounting,
+-- abandoning a body would be a way to make `maxResponseBodySize` unenforceable.
+#eval show IO _ from runWithTimeout "the body limit still applies to a body the caller abandons" 4000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← mkConnection mockClient { patientConfig with maxResponseBodySize := some 4 }
+  let promise ← sendInBackground connection (← mkRequest .get "/abandoned")
+  discard <| readHead mockServer
+  mockServer.send (rawResp "200 OK" #[("Content-Length", "20")] "aaaaaaaaaaaaaaaaaaaa")
+  let (response, completion) ← expectResponse promise
+
+  -- The caller reads nothing and walks away.
+  Body.close response.body
+
+  match ← await completion.result! with
+  | .error .bodyLimitExceeded => pure ()
+  | .error e => throw (IO.userError s!"expected .bodyLimitExceeded on the completion, got {ctorName e}")
+  | .ok () => throw (IO.userError "an abandoned oversized body reported a successful completion")
 
 #eval show IO _ from runWithTimeout "a chunked body crossing the limit is rejected" 4000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new

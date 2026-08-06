@@ -12,6 +12,7 @@ public import Init.Data.Float
 public import Std.Data.TreeMap
 public import Init.Data.Ord
 public import Lean.Data.Json
+public import Lean.Message
 
 public section
 
@@ -32,5 +33,9 @@ structure Entry where
   source : Source
   value : Value
   deriving ToJson
+
+structure CheckResult where
+  entries : Array Entry
+  errors : Array MessageData
 
 end Lean.Linter.CodeQuality

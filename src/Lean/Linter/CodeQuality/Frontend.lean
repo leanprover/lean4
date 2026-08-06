@@ -34,16 +34,16 @@ into a single array of entries.
 /-- Global inputs provided by the driver to every code quality check. -/
 structure PackageCheckContext where
   pkgRoot : Name
-  srcSearchPath : System.SearchPath := {}
+  srcSearchPath : System.SearchPath
 
-abbrev PackageCheck := PackageCheckContext → MetaM (Array Entry)
+structure PackageCheck where
+  run : PackageCheckContext → MetaM (Array Entry)
 
-structure NamedPackageCheck where
+structure NamedPackageCheck extends PackageCheck where
   declName : Name
-  run : PackageCheck
 
-def getPackageCheck (declName : Name) : CoreM PackageCheck := unsafe
-  evalConstCheck PackageCheck ``PackageCheck declName
+def getPackageCheck (declName : Name) : CoreM NamedPackageCheck := unsafe
+  return { ← evalConstCheck PackageCheck ``PackageCheck declName with declName}
 
 builtin_initialize packageCheckExt : SimplePersistentEnvExtension Name (Array Name) ←
   registerSimplePersistentEnvExtension {
@@ -72,21 +72,25 @@ builtin_initialize registerBuiltinAttribute {
 }
 
 def getPackageChecks : CoreM (Array NamedPackageCheck) := do
-  (packageCheckExt.getState (← getEnv)).mapM fun declName =>
-    return { declName, run := ← getPackageCheck declName }
+  let mut result := #[]
+  for declName in packageCheckExt.getState (← getEnv) do
+    let linter ← getPackageCheck declName
+    result := result.binInsert (·.declName.lt ·.declName) linter
+  pure result
 
 def runPackageChecks (checks : Array NamedPackageCheck) (ctx : PackageCheckContext) :
-    CoreM (Array Entry) := do
+    CoreM CheckResult := do
   let tasks ← checks.mapM fun check => do
     (check.declName, ·) <$> (EIO.asTask <| (← Core.wrapAsync (fun _ =>
       check.run ctx |>.run' Elab.Command.mkMetaContext
     ) (cancelTk? := none)) ())
   let mut entries := #[]
+  let mut errors := #[]
   for (declName, task) in tasks do
     match task.get with
     | .ok checkEntries => entries := entries ++ checkEntries
     | .error err =>
-      IO.eprintln s!"code quality check `{declName}` failed: {← err.toMessageData.toString}"
-  return entries
+      errors := errors.push (m!"{declName} has failed: " ++ err.toMessageData)
+  return ⟨entries, errors⟩
 
 end Lean.Linter.CodeQuality

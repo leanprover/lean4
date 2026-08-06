@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Linter.EnvLinter
 public import Lean.Linter.PersistentLintLog
+public import Lean.Message
 import Lean.CoreM
 import Lean.DocString.Extension
 import Lean.Elab.DocString.Builtin.Postponed
@@ -98,6 +99,10 @@ private inductive DeferredCheckOutcome where
   failures whose position could not be resolved.
   -/
   | recorded (records : Array ExceptionRecord) (unlocated : Bool)
+
+private structure PackageCodeQualityCheckOutcome where
+  entries : Array CodeQuality.Entry
+  failed : Bool
 
 private def collectTextLints
     (env : Environment) (pkgRoot : Name) :
@@ -383,6 +388,19 @@ private def runEnvironmentLinters (args : Args) (linterOpts : Linter.LinterOptio
       return .codeQualityChecks codeQualityEntries
   return outcome
 
+private def runPackageCodeQualityChecks (sp : SearchPath) (env : Environment)
+    (mod : Name) : IO PackageCodeQualityCheckOutcome := do
+  let ⟨(outcome, anyFailed), _⟩ ← CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do
+    let mut anyFailed : Bool := false
+    let checks ← CodeQuality.getPackageChecks
+    let ⟨outcome, errors⟩ ← CodeQuality.runPackageChecks checks { pkgRoot := mod, srcSearchPath := sp}
+    if !errors.isEmpty then
+      anyFailed := true
+    for error in errors do
+      IO.eprintln s!"{(← error.format)}"
+    return (outcome, anyFailed)
+  return ⟨outcome, anyFailed⟩
+
 public def run (args : Args) : IO UInt32 := do
   let mods := args.mods
   if mods.isEmpty then
@@ -442,7 +460,9 @@ public def run (args : Args) : IO UInt32 := do
     | .codeQualityChecks entries =>
       codeQualityEntries := codeQualityEntries ++ entries
 
-    unless args.mode == .codeQuality do
+    if args.mode == .codeQuality then
+      let packageCheckResult ← runPackageCodeQualityChecks sp env mod
+    else
       let deferredResults ← runDeferredChecks args linterOpts sp env mod.getRoot docCheckedModules
       docCheckedModules := deferredResults.checkedModules
       match deferredResults.outcome with

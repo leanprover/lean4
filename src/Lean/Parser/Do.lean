@@ -176,21 +176,27 @@ def doIfCond    :=
   "unless " >> withForbidden "do" termParser >> " do " >> doSeq
 def doForDecl := leading_parser
   optional (atomic (ident >> " : ")) >> termParser >> " in " >>
-    withForbiddens #["do", "invariant"] termParser
+    withForbiddens #["do", "invariant", "decreasing"] termParser
 /--
-The optional `invariant pref suff a b c => e` clause of a `for` loop. The invariant annotates the
-loop so `vcgen` reads it from the program, with `pref` bound to the elements consumed so far, `suff`
-to the elements remaining, and mutable variables referenced by name. Any further binders, here
-`a b c`, bind the arguments of the assertion itself, such as the state of a state monad.
+The optional `invariant` clause of a loop, written like a `fun`: the invariant annotates the loop so
+`vcgen` reads it from the program, and mutable variables are referenced by name.
+
+On a `for` loop the clause is `invariant pref suff a b c => e`, with `pref` bound to the elements
+consumed so far and `suff` to the elements remaining. On a `repeat` or `while` loop it takes the
+loop's cursor, `.inl s` while the loop iterates and `.inr s` once it is done, so
+`invariant | .inl _ => e | .inr _ => e'` states a separate assertion for either case. Any further
+binders, here `a b c`, bind the arguments of the assertion itself, such as the state of a state
+monad.
 -/
 def doForInvariant := leading_parser
-  ppSpace >> nonReservedSymbol "invariant" >> withForbiddens #["do", "decreasing"] basicFun
+  ppIndent (ppLine >> nonReservedSymbol "invariant" >>
+    withForbiddens #["do", "decreasing"] (basicFun <|> ppIndent matchAlts))
 /--
 A `decreasing` clause gives a `repeat` or `while` loop its termination measure, a natural number
-that every iteration must strictly decrease.
+that every iteration must strictly decrease. It is a term over the loop's mutable variables.
 -/
 def doDecreasing := leading_parser
-  ppSpace >> nonReservedSymbol "decreasing" >> withForbidden "do" basicFun
+  ppIndent (ppLine >> nonReservedSymbol "decreasing" >> ppSpace >> withForbidden "do" termParser)
 /--
 The `invariant` and `decreasing` clauses of a `repeat` or `while` loop, either of which may be
 given on its own. The body follows `do`, which terminates the clause's term.
@@ -205,7 +211,8 @@ until at least one of them is exhausted.
 The types of `e2` etc. must implement the `Std.ToStream` typeclass.
 -/
 @[builtin_doElem_parser] def doFor    := leading_parser
-  "for " >> sepBy1 doForDecl ", " >> optional doForInvariant >> " do " >> doSeq
+  "for " >> sepBy1 doForDecl ", " >> optional doForInvariant >> optional doDecreasing >>
+    " do " >> doSeq
 
 def dependentParam := leading_parser
   atomic ("(" >> nonReservedSymbol "dependent") >> " := " >>
@@ -364,7 +371,8 @@ They expand into `do unless ...`, `do for ...`, `do try ...`, and `do return ...
 @[builtin_term_parser] def termUnless := leading_parser
   "unless " >> withForbidden "do" termParser >> " do " >> doSeq
 @[builtin_term_parser] def termFor := leading_parser
-  "for " >> sepBy1 doForDecl ", " >> optional doForInvariant >> " do " >> doSeq
+  "for " >> sepBy1 doForDecl ", " >> optional doForInvariant >> optional doDecreasing >>
+    " do " >> doSeq
 @[builtin_term_parser] def termTry    := leading_parser
   "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
 /--

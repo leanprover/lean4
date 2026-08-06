@@ -95,7 +95,12 @@ set_option linter.deprecated true
 -- Enumeration types get a deprecated alias, other types dont
 /-- info: Enum.toCtorIdx : Enum → Nat -/
 #guard_msgs in #check Enum.toCtorIdx
-/-- warning: `Enum.toCtorIdx` has been deprecated: Use `Enum.ctorIdx` instead -/
+/--
+warning: `Enum.toCtorIdx` has been deprecated: Use `Enum.ctorIdx` instead
+
+Hint: Replace the deprecated name:
+  E̵n̵u̵m̵.̵t̵o̵C̵t̵o̵r̵I̵d̵x̵E̲n̲u̲m̲.̲c̲t̲o̲r̲I̲d̲x̲
+-/
 #guard_msgs in example := Enum.toCtorIdx
 /-- error: Unknown identifier `Nonrec.toCtorIdx` -/
 #guard_msgs in #check Nonrec.toCtorIdx

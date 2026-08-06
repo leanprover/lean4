@@ -108,12 +108,12 @@ add `import Std.Internal.Do` to use them."
   let pre : Term ← if requiresStx.isNone then `(⊤) else
     match requiresStx[0] with
     | `(requiresClause| requires $f:basicFun) => `(fun $f:basicFun)
-    | `(requiresClause| requires $alts:matchAlts) => `(fun $alts:matchAlts)
     | `(requiresClause| requires $p:term) => pure p
     | _ => Macro.throwUnsupported
   let post : Term ← if ensuresStx.isNone then `(fun _ => ⊤) else
     match ensuresStx[0] with
     | `(ensuresClause| ensures $f:basicFun) => `(fun $f:basicFun)
+    | `(ensuresClause| ensures $alts:matchAlts) => `(fun $alts:matchAlts)
     | _ => Macro.throwUnsupported
   let msg : TSyntax `str := ⟨Syntax.mkStrLit <|
     if specStep?.isSome then

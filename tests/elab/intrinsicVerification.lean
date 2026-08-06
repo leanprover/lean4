@@ -248,21 +248,18 @@ def ensuresAscribed (n : Nat) : Id Nat
 #guard_msgs in
 #check @ensuresAscribed.spec
 
-/-! ## A `requires` clause written with match alternatives
+/-! ## An `ensures` clause written with match alternatives
 
-The clause is a `fun`, so it may destructure the arguments of the assertion, here the state of a
-state monad. -/
+The clause is a `fun`, so it may state the postcondition per shape of the result. -/
 
-def requiresMatch (n : Nat) : StateM (Nat × Nat) Nat
-    requires
-      | (a, b) => a = 0 ∧ b = n
-    ensures r _ => r = n
-  := do
-  let (a, b) ← get
-  return a + b
+def halve (n : Nat) : Id (Option Nat)
+    ensures
+      | none => False
+      | some v => 2 * v ≤ n
+  := pure (some (n / 2))
 
 #guard_msgs (drop info) in
-#check @requiresMatch.spec
+#check @halve.spec
 
 /-! ## The contract telescope is transplanted faithfully to `f.spec`
 

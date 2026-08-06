@@ -22,11 +22,7 @@ def fmt (stx : CoreM Syntax) : CoreM Format := do PrettyPrinter.ppTerm ⟨← st
 #eval fmt `(command| def clampLow (n lo : Nat) : Id Nat requires lo ≤ n ensures r => r = n := pure n)
 #eval fmt `(command| def k (x : Nat) requires s => s > x ensures r => r ≥ x := pure x)
 #eval fmt `(command| def g (x : Nat) requires x > 0 ensures r => r ≥ x := pure x)
-#eval fmt `(command| def m (x : Nat) requires | (a, b) => a + b = x ensures r => r ≥ x := pure x)
-#eval fmt `(command| def m2 (x : Nat) requires
-  | (0, b) => b = x
-  | (a, _) => a = x
-  ensures r => r ≥ x := pure x)
+#eval fmt `(command| def m (x : Nat) requires x > 0 ensures | 0 => False | (n+1) => n ≥ x := pure x)
 #eval fmt `(command| def h (x : Nat) : Id Nat ensures r => r = x := pure x
 where finally
   | spec => skip)

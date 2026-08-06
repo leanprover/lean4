@@ -51,10 +51,28 @@ do
 do
   assert s✝ => s✝ ≤ acc✝
 do
-  for x✝ in xs✝ invariant pref✝ suff✝ => 0 ≤ acc✝ do
+  for x✝ in xs✝
+      invariant pref✝ suff✝ => 0 ≤ acc✝ do
     pure✝ ()
 do
-  for x✝ in xs✝ invariant pref✝ suff✝ s✝ => s✝ ≤ acc✝ do
+  for x✝ in xs✝
+      invariant pref✝ suff✝ s✝ => s✝ ≤ acc✝ do
+    pure✝ ()
+do
+  while i✝ < n✝
+      invariant _ => i✝ ≤ n✝
+      decreasing n✝ - i✝ do
+    pure✝ ()
+do
+  repeat
+      decreasing n✝ - i✝ do
+    pure✝ ()
+do
+  repeat
+      invariant
+        | .inl✝ _ => i✝ ≤ n✝
+        | .inr✝ _ => i✝ = n✝
+      decreasing n✝ - i✝ do
     pure✝ ()
 def clampLow✝ (n✝ lo✝ : Nat✝) : Id✝ Nat✝
     requires lo✝ ≤ n✝

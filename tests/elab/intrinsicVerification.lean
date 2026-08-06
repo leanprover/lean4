@@ -261,6 +261,83 @@ def halve (n : Nat) : Id (Option Nat)
 #guard_msgs (drop info) in
 #check @halve.spec
 
+/-! ## A `repeat` or `while` loop states its invariant over the loop's cursor
+
+`.inl` is the assertion that holds while the loop iterates, `.inr` the one that holds once it is
+done. The `decreasing` clause gives the termination measure, a term over the loop's mutable
+variables. -/
+
+def countDown (n : Nat) : Id Nat
+    ensures r => r = 0 := do
+  let mut i := n
+  while i > 0
+      invariant | .inl _ => True | .inr _ => i = 0
+      decreasing i
+    do
+    i := i - 1
+  return i
+
+#guard_msgs (drop info) in
+#check @countDown.spec
+
+/-! Binders past the cursor bind the arguments of the assertion itself, such as the state of a state
+monad. -/
+
+def countIntoState (n : Nat) : StateM Nat Unit
+    requires s => s = 0
+    ensures _ s => s = n := do
+  let mut i := 0
+  while i < n
+      invariant
+        | .inl _ => fun s => s = i ∧ i ≤ n
+        | .inr _ => fun s => s = i ∧ i = n
+      decreasing n - i
+    do
+    modify (· + 1)
+    i := i + 1
+
+#guard_msgs (drop info) in
+#check @countIntoState.spec
+
+/-! A single binder takes the cursor, stating one assertion for both cases. A clause left out is a
+condition like any other: the omitted measure is named `inv1` and discharged in the `spec` section,
+which then proves the step that mentions it. -/
+
+def countUp (n : Nat) : Id Nat
+    ensures r => r ≤ n := do
+  let mut i := 0
+  repeat
+      invariant _ => i ≤ n
+    do
+    if i = n then break
+    i := i + 1
+  return i
+where finally
+  | spec =>
+    case inv1 => exact fun i => n - i
+    all_goals simp_all; omega
+
+#guard_msgs (drop info) in
+#check @countUp.spec
+
+/-! A `for` loop over a collection takes neither of the two forms that a `repeat` loop takes: its
+invariant ranges over the elements consumed and remaining rather than over a cursor, and the
+collection is what ends it. -/
+
+/--
+error: The `invariant` clause of a `for` loop over a collection takes binders, not match alternatives.
+-/
+#guard_msgs in
+example (xs : List Nat) : Id Unit := do
+  for _ in xs invariant | _, _ => True do pure ()
+
+/--
+error: A `for` loop terminates with the collection it iterates; `decreasing` states the termination measure of a `repeat` or `while` loop.
+-/
+#guard_msgs in
+example (xs : List Nat) : Id Unit := do
+  for _ in xs invariant _ _ => True decreasing xs.length do pure ()
+
 /-! ## The contract telescope is transplanted faithfully to `f.spec`
 
 `f.spec` re-binds the definition's telescope verbatim, applies `f` to exactly the explicit arguments,

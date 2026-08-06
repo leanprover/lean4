@@ -1851,39 +1851,115 @@ def RepeatInvariant (α β : Type u) (Pred : Type uₚ) :=
   α ⊕ β → Pred
 
 /--
-A termination measure for a `repeatM` loop. The measure may depend on monadic state when `Pred`
-supports nondeterministic functions into `Nat` via `Assertion.NondetFun` (e.g. `σ → Nat` for
-`Pred = σ → Prop`).
+A termination measure for a `repeatM` loop: a type `γ` of measure values equipped with a
+well-founded relation, and a lattice-embedded evaluation of the measure at each cursor.
+Build one from a measure function with `RepeatVariant.ofMeasure`.
 -/
 @[spec_invariant_type]
-def RepeatVariant (α : Type u) (Pred : Type u) {Fun : Type u}
-    [Assertion Pred] [NondetFun Pred Nat Fun] :=
-  α → Fun
+structure RepeatVariant (α : Type u) (Pred : Type u) [Assertion Pred] : Type (u + 1) where
+  /-- The type of measure values. -/
+  {γ : Type u}
+  /-- The well-founded relation that measure values decrease along. -/
+  [wfRel : WellFoundedRelation γ]
+  /-- Relates the measure at cursor `a` to a value `n` inside the assertion lattice. -/
+  eval : α → γ → Pred
+  /-- The measure evaluates to some value: pack `P` under the graph join. -/
+  total : ∀ a P, P ⊑ ⨆ n, eval a n ⊓ P
 
-/-- Evaluate a `RepeatVariant` to a pure `Nat` inside the assertion lattice. -/
-abbrev RepeatVariant.eval {Fun : Type u} [inst : NondetFun Pred Nat Fun]
-    (measure : RepeatVariant α Pred) (a : α) (n : Nat) : Pred :=
-  inst.evalsTo (measure a) n
+namespace RepeatVariant
+
+/-- The relation that measure values decrease along. -/
+def rel (v : RepeatVariant α Pred) : v.γ → v.γ → Prop :=
+  v.wfRel.rel
+
+theorem wf (v : RepeatVariant α Pred) : WellFounded v.rel :=
+  v.wfRel.wf
+
+/-- Eliminate the covering join of `eval` from the left of an entailment. -/
+theorem le_of_total_le (v : RepeatVariant α Pred) (a : α) {P Q : Pred}
+    (h : (⨆ n, v.eval a n ⊓ P) ⊑ Q) : P ⊑ Q :=
+  PartialOrder.rel_trans (v.total a P) h
+
+/--
+Build a `RepeatVariant` from a measure function `f`. The measure's value type `γ` (its codomain
+through any `NondetFun` state layers) provides the well-founded relation, e.g. `<` for `Nat` and
+the lexicographic order for products.
+-/
+@[instance_reducible] def ofMeasure {γ : Type u} {Fun : Type u} [NondetFun Pred Fun γ]
+    [WellFoundedRelation γ] (f : α → Fun) : RepeatVariant α Pred where
+  γ := γ
+  eval a n := NondetFun.evalsTo (f a) n
+  total a P := NondetFun.total (f a) P
+
+@[simp, grind =] theorem γ_ofMeasure {γ : Type u} {Fun : Type u} [NondetFun Pred Fun γ]
+    [WellFoundedRelation γ] (f : α → Fun) :
+    (ofMeasure (Pred := Pred) f).γ = γ := rfl
+
+@[simp, grind =] theorem eval_ofMeasure {γ : Type u} {Fun : Type u} [NondetFun Pred Fun γ]
+    [WellFoundedRelation γ] (f : α → Fun) (a : α) (n : γ) :
+    (ofMeasure (Pred := Pred) f).eval a n = NondetFun.evalsTo (f a) n := rfl
+
+/-- Decrease along `ofMeasure` is decrease of measure values along the well-founded relation of
+`γ`. Rewriting with this lemma brings a decrease proof obligation into the shape produced by
+`termination_by`, so that `decreasing_tactic` applies. -/
+theorem rel_ofMeasure {γ : Type u} {Fun : Type u} [NondetFun Pred Fun γ]
+    [WellFoundedRelation γ] (f : α → Fun) (n' n : γ) :
+    (ofMeasure (Pred := Pred) f).rel n' n ↔ WellFoundedRelation.rel n' n := Iff.rfl
+
+@[simp, grind =] theorem rel_ofMeasure_nat {α : Type} {Pred : Type} [Assertion Pred]
+    {Fun : Type} [NondetFun Pred Fun Nat] (f : α → Fun) (n' n : Nat) :
+    (ofMeasure (Pred := Pred) f).rel n' n ↔ n' < n := Iff.rfl
+
+open Std.Internal.Do.CompleteLattice in
+/-- The continue-case step postcondition of `Spec.repeatM`: some measure value `ma'` below `ma`
+is pinned for the next iteration, and `P` holds. -/
+noncomputable def decreasesTo (v : RepeatVariant α Pred) (ma : v.γ) (a' : α) (P : Pred) : Pred :=
+  ⨆ ma', v.eval a' ma' ⊓ (⌜v.rel ma' ma⌝ ⊓ P)
+
+open Std.Internal.Do.CompleteLattice in
+/-- For a state-independent measure the pinned value is the measure itself, so the join
+collapses to a decrease along the well-founded relation of `γ`. The proof obligation has the
+shape produced by `termination_by`, so `decreasing_tactic` applies. -/
+theorem decreasesTo_ofMeasure {γ : Type u} [WellFoundedRelation γ]
+    (f : α → γ) (ma : γ) (a' : α) (P : Pred) :
+    (ofMeasure (Pred := Pred) f).decreasesTo ma a' P
+      = ⌜WellFoundedRelation.rel (f a') ma⌝ ⊓ P := by
+  refine PartialOrder.rel_antisymm (iSup_le _ _ fun ma' => ?_) (le_iSup_of_le (f a') ?_)
+  · refine ofProp_meet_le_left fun h => ?_
+    subst h
+    exact PartialOrder.rel_refl
+  · refine le_meet _ _ _ ?_ PartialOrder.rel_refl
+    simp only [eval_ofMeasure, NondetFun.evalsTo_pure]
+    rw [ofProp_eq_top trivial]
+    exact le_top _
+
+open Std.Internal.Do.CompleteLattice in
+@[simp, grind =] theorem decreasesTo_ofMeasure_nat {α : Type} {Pred : Type} [Assertion Pred]
+    (f : α → Nat) (ma : Nat) (a' : α) (P : Pred) :
+    (ofMeasure (Pred := Pred) f).decreasesTo ma a' P = ⌜f a' < ma⌝ ⊓ P :=
+  decreasesTo_ofMeasure f ma a' P
+
+end RepeatVariant
 
 open Std.Internal.Do.CompleteLattice in
 /--
-Specification for `repeatM`. The user supplies a (possibly state-dependent) termination
-`measure`, an invariant, and a step `Triple` whose pre asserts the variant evaluates to `ma`
-and the in-progress invariant holds, and whose post either continues with a strictly smaller
-variant value (the invariant still holding) or finishes with the `.inr` invariant.
+Specification for `repeatM`. The user supplies a termination `measure`, an invariant, and a step
+`Triple` whose pre asserts the measure evaluates to `ma` and the in-progress invariant holds, and
+whose post either continues with a measure value below `ma` (the invariant still holding) or
+finishes with the `.inr` invariant.
 -/
 @[spec]
 theorem Spec.repeatM
-    {init : α} {f : α → m (α ⊕ β)} [Nonempty β] {Fun : Type u} [NondetFun Pred Nat Fun]
+    {init : α} {f : α → m (α ⊕ β)} [Nonempty β]
     (measure : RepeatVariant α Pred)
     (inv : RepeatInvariant α β Pred)
     (einv : EPred)
-    (step : ∀ a ma,
+    (step : ∀ a (ma : measure.γ),
       Triple
         (f a)
-        (RepeatVariant.eval measure a ma ⊓ inv (.inl a))
+        (measure.eval a ma ⊓ inv (.inl a))
         (fun r => match r with
-          | .inl a' => ⨆ ma', RepeatVariant.eval measure a' ma' ⊓ ⌜ma' < ma⌝ ⊓ inv (.inl a')
+          | .inl a' => measure.decreasesTo ma a' (inv (.inl a'))
           | .inr b => inv (.inr b))
         einv) :
     Triple
@@ -1891,41 +1967,32 @@ theorem Spec.repeatM
       (inv (.inl init))
       (fun b => inv (.inr b))
       einv := by
-  refine Triple.intro <| NondetFun.le_of_total_le (α := Nat) (measure init) ?_
+  refine Triple.intro <| measure.le_of_total_le init ?_
   refine iSup_le _ _ fun minit => ?_
-  suffices key : ∀ (n : Nat) (a : α),
+  suffices key : ∀ (n : measure.γ), Acc measure.rel n → ∀ (a : α),
       Triple
         (_root_.repeatM f a)
-        (RepeatVariant.eval measure a n ⊓ inv (.inl a))
+        (measure.eval a n ⊓ inv (.inl a))
         (fun b => inv (.inr b))
         einv
-    from (key minit init).le_wp
-  intro n
-  induction n using Nat.strongRecOn with
-  | _ n ih =>
+    from (key minit (measure.wf.apply minit) init).le_wp
+  intro n hacc
+  induction hacc with
+  | intro n _ ih =>
     intro a
     rw [_root_.repeatM.Internal.eq_of_monadTail (f := f) a]
     refine Triple.bind (f := fun x => match x with
       | .inl a' => _root_.repeatM f a'
       | .inr b => Pure.pure b)
       (f a) (fun r => match r with
-        | .inl a' => ⨆ ma', RepeatVariant.eval measure a' ma' ⊓ ⌜ma' < n⌝ ⊓ inv (.inl a')
+        | .inl a' => measure.decreasesTo n a' (inv (.inl a'))
         | .inr b => inv (.inr b))
       (step a n) ?_
     rintro (a' | b)
     · refine Triple.intro ?_
       refine iSup_le _ _ fun ma' => ?_
-      refine PartialOrder.rel_trans ?_ (ofProp_meet_le_left fun hlt =>
-        (ih ma' hlt a').le_wp)
-      have hrearr :
-          RepeatVariant.eval measure a' ma' ⊓ ⌜ma' < n⌝ ⊓ inv (.inl a') =
-          ⌜ma' < n⌝ ⊓ (RepeatVariant.eval measure a' ma' ⊓ inv (.inl a')) := by
-        calc RepeatVariant.eval measure a' ma' ⊓ ⌜ma' < n⌝ ⊓ inv (.inl a')
-            = (⌜ma' < n⌝ ⊓ RepeatVariant.eval measure a' ma') ⊓ inv (.inl a') := by
-                rw [meet_comm (P := RepeatVariant.eval measure a' ma')]
-          _ = ⌜ma' < n⌝ ⊓ (RepeatVariant.eval measure a' ma' ⊓ inv (.inl a')) := by
-                rw [meet_assoc]
-      exact hrearr ▸ PartialOrder.rel_refl
+      rw [meet_left_comm]
+      exact ofProp_meet_le_left fun hlt => (ih ma' hlt a').le_wp
     · exact Triple.pure b Lean.Order.PartialOrder.rel_refl
 
 /--
@@ -1949,16 +2016,15 @@ Specification for `forIn` over a `Lean.Loop`. The cursor is `β ⊕ β`: `.inl b
 @[spec]
 theorem Spec.forIn_loop
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
-    {Fun : Type u} [NondetFun Pred Nat Fun]
     (measure : RepeatVariant β Pred)
     (inv : RepeatInvariant β β Pred)
     (einv : EPred)
-    (step : ∀ b mb,
+    (step : ∀ b (mb : measure.γ),
       Triple
         (f () b)
-        (RepeatVariant.eval measure b mb ⊓ inv (.inl b))
+        (measure.eval b mb ⊓ inv (.inl b))
         (fun r => match r with
-          | .yield b' => ⨆ mb', RepeatVariant.eval measure b' mb' ⊓ ⌜mb' < mb⌝ ⊓ inv (.inl b')
+          | .yield b' => measure.decreasesTo mb b' (inv (.inl b'))
           | .done b' => inv (.inr b'))
         einv) :
     Triple

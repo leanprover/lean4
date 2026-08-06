@@ -5,7 +5,7 @@
 # The radar environment variables must be provided.
 # See also the https://github.com/leanprover/radar readme.
 
-LLVM_RELEASE=22.1.4
+LLVM_RELEASE=23.1.0-rc1
 LLVM_TARBALL="$RADAR_CACHE/llvm/$LLVM_RELEASE.tar.zst"
 
 if [ ! -f "$LLVM_TARBALL" ]; then

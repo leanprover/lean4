@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.BuiltinDo.Basic
 meta import Lean.Parser.Do
 import Init.Control.Do
+import Init.Data.Sum.Basic
 import Init.While
 import Lean.Meta.ProdN
 
@@ -111,8 +112,6 @@ structure LoopGadget where
   loopMutVars : Array MutVar
   /-- Whether the state tuple carries an early-return slot. -/
   returnsEarly : Bool
-  /-- The monad of the surrounding `do` block. -/
-  mi : MonadInfo
 
 /-- The pattern that names the loop's mutable variables in the state tuple, whose layout is
 `[return?, mutVars…, unit?]`; the early-return slot becomes a wildcard. -/
@@ -132,9 +131,10 @@ private def LoopGadget.mkStateFun (g : LoopGadget) (ref : Syntax) (e : Term) : D
   let s := mkIdentFrom ref (← mkFreshUserName `__s)
   `(fun $s:ident => match $s:ident with | $(← g.statePat) => $e)
 
-/-- Abstract `e` over the loop's cursor, so that `e` may name the loop's mutable variables whether
-the loop is iterating or done. -/
-private def LoopGadget.mkCursorFun (g : LoopGadget) (cursor : Ident) (e : Term) : DoElabM Term := do
+/-- Abstract `e` over the cursor of a `repeat` loop, so that `e` may name the loop's mutable
+variables whether the loop is iterating or done. -/
+private def LoopGadget.mkRepeatCursorFun (g : LoopGadget) (cursor : Ident) (e : Term) :
+    DoElabM Term := do
   let pat ← g.statePat
   `(fun $cursor:ident => match $cursor:ident with | .inl $pat | .inr $pat => $e)
 
@@ -147,7 +147,7 @@ private def LoopGadget.mkCall (g : LoopGadget) (ref : Syntax) (gadget : Name)
       add `import Std.Internal.Do` to use it."
   let call ← `($(mkIdent gadget) $(← Term.exprToSyntax g.xs) $(← Term.exprToSyntax g.init)
     $(← Term.exprToSyntax g.body) $annotations*)
-  Term.elabTermEnsuringType call (mkApp g.mi.m g.σ)
+  Term.elabTermEnsuringType call (mkApp (← read).monadInfo.m g.σ)
 
 /-- Rebuild the loop over a collection as a `forInPureWithInvariant` call carrying the `invariant`
 clause, or `forInPureWithInvariant'` for a membership-proof binder (`for h : x in xs`). The
@@ -159,7 +159,7 @@ private def mkForInPureWithInvariant (g : LoopGadget) (invClause : Syntax) (h? :
   let `(doForInvariant| invariant $binders* => $invBody) := invClause
     | throwErrorAt invClause "The `invariant` clause of a `for` loop over a collection takes \
         binders, not match alternatives."
-  checkPureForIn invClause h? g.xs α g.mi
+  checkPureForIn invClause h? g.xs α (← read).monadInfo
   unless binders.size ≥ 2 do
     throwErrorAt invClause "The `invariant` clause takes at least two binders: the elements \
       consumed so far and the elements remaining."
@@ -174,8 +174,9 @@ private def mkForInPureWithInvariant (g : LoopGadget) (invClause : Syntax) (h? :
 
 /-- Rebuild the loop of a `repeat` as a `forInLoopWithInvariantAndVariant` call carrying the
 `invariant` and `decreasing` clauses, either of which may be absent. Both clauses name the loop's
-mutable variables directly. The `invariant` clause is a function of the loop's cursor, `.inl` while
-the loop iterates and `.inr` once it is done. -/
+mutable variables directly. The `invariant` clause is a function of the `Bool` that says whether the
+loop has left; the cursor's own payload is the state tuple, which the mutable variables already
+name. -/
 private def mkForInLoopWithInvariantAndVariant (g : LoopGadget) (inv? dec? : Option Syntax) :
     DoElabM Expr := do
   let ref := inv?.getD (dec?.getD .missing)
@@ -184,24 +185,19 @@ private def mkForInLoopWithInvariantAndVariant (g : LoopGadget) (inv? dec? : Opt
       -- Nothing determines the assertion language of an absent invariant.
       `((none : Option ($(mkIdent `Std.Internal.Do.RepeatInvariant) _ _ Unit)))
     | some invClause =>
-      let fresh := mkIdentFrom invClause (← mkFreshUserName `__c)
-      -- The clause is a `fun` over the cursor: its binder names the cursor and its alternatives
-      -- become those of a `match` on it, nested in the `match` that names the mutable variables.
-      let (cursor, invBody) ← match invClause with
-        | `(doForInvariant| invariant $cursorBinder $assertionBinders* => $invBody) =>
+      let cursor := mkIdentFrom invClause (← mkFreshUserName `__c)
+      let hasLeft ← `($(mkIdent ``Sum.isRight) $cursor:ident)
+      let invBody ← match invClause with
+        | `(doForInvariant| invariant $exitBinder $assertionBinders* => $invBody) =>
           let invBody ← if assertionBinders.isEmpty then pure invBody else
             `(fun $assertionBinders* => $invBody)
-          if cursorBinder.raw.isIdent then
-            pure (⟨cursorBinder.raw⟩, invBody)
-          else if cursorBinder.raw.isOfKind ``hole then
-            pure (fresh, invBody)
-          else
-            let cursorPat : Term := ⟨cursorBinder.raw⟩
-            pure (fresh, ← `(match $fresh:ident with | $cursorPat => $invBody))
+          if exitBinder.raw.isOfKind ``hole then pure invBody else
+            let exitPat : Term := ⟨exitBinder.raw⟩
+            `(match $hasLeft:term with | $exitPat => $invBody)
         | `(doForInvariant| invariant $alts:matchAlts) =>
-          pure (fresh, ← `(match $fresh:ident with $alts:matchAlts))
+          `(match $hasLeft:term with $alts:matchAlts)
         | _ => throwUnsupportedSyntax
-      `(some $(← g.mkCursorFun cursor invBody))
+      `(some $(← g.mkRepeatCursorFun cursor invBody))
   let varArg ← match dec? with
     | none => `(none)
     | some decClause =>
@@ -331,7 +327,7 @@ private def mkLoopGadget (g : LoopGadget) (inv? dec? : Option Syntax) (h? : Opti
     if inv?.isNone && dec?.isNone then
       pure (mkApp app body)
     else
-      mkLoopGadget { xs, init := preS, body, σ, loopMutVars, returnsEarly := info.returnsEarly, mi }
+      mkLoopGadget { xs, init := preS, body, σ, loopMutVars, returnsEarly := info.returnsEarly }
         (inv?.map (·.raw)) (dec?.map (·.raw)) (h?.map (·.raw)) ρ α
 
   let γ := (← read).doBlockResultType

@@ -70,8 +70,8 @@ do
 do
   repeat
       invariant
-        | .inl✝ _ => i✝ ≤ n✝
-        | .inr✝ _ => i✝ = n✝
+        | false✝ => i✝ ≤ n✝
+        | true✝ => i✝ = n✝
       decreasing n✝ - i✝ do
     pure✝ ()
 def clampLow✝ (n✝ lo✝ : Nat✝) : Id✝ Nat✝

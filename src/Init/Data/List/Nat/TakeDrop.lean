@@ -197,6 +197,11 @@ theorem dropLast_take {i : Nat} {l : List α} (h : i < l.length) :
     (l.take i).dropLast = l.take (i - 1) := by
   simp only [dropLast_eq_take, length_take, Nat.le_of_lt h, Nat.min_eq_left, take_take, sub_le]
 
+theorem dropLast_take_eq_take_dropLast {l : List α} {i : Nat} :
+    (l.take i).dropLast = l.dropLast.take (i - 1) := by
+  simp [dropLast_eq_take, take_take, Nat.sub_min_sub_right,
+    Nat.le_trans (sub_le ..) (Nat.min_le_left ..)]
+
 theorem take_eq_dropLast {l : List α} {i : Nat} (h : i + 1 = l.length) :
     l.take i = l.dropLast := by
   induction l generalizing i with
@@ -386,6 +391,14 @@ theorem drop_take : ∀ {i j : Nat} {l : List α}, drop i (take j l) = take (j -
 @[simp, grind =] theorem drop_take_self : drop i (take i l) = [] := by
   rw [drop_take]
   simp
+
+theorem tail_take_eq_take_tail {l : List α} {i : Nat} :
+    (l.take i).tail = l.tail.take (i - 1) := by
+  simp [← drop_one, drop_take]
+
+theorem dropLast_drop_eq_drop_dropLast {l : List α} {i : Nat} :
+    (l.drop i).dropLast = l.dropLast.drop i := by
+  simp [dropLast_eq_take, Nat.sub_right_comm, drop_take]
 
 set_option doc.verso true in
 /--

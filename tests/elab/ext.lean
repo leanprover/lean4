@@ -2,6 +2,18 @@
 set_option linter.missingDocs false
 axiom mySorry {α : Sort _} : α
 
+class Injects (H : Type u) (X : outParam (Type v)) where
+  coe : H → X
+  injective : Function.Injective coe
+
+/--
+warning: Extensionality theorem `ext` has a maximally general pattern and may be tried for every type
+-/
+#guard_msgs in
+@[ext] theorem Injects.ext {H : Type u} {X : Type v} [Injects H X] {a b : H}
+    (h : Injects.coe a = Injects.coe b) : a = b :=
+  Injects.injective h
+
 structure A (n : Nat) where
   a : Nat
 
@@ -140,6 +152,10 @@ info: MyFun.ext_iff.{u_1, u_2} {α : Type u_1} {β : Type u_2} {x y : MyFun α �
 Preserving inst implicits in ext_iff theorem
 -/
 section
+/--
+warning: Extensionality theorem `Subsingleton.elim` has a maximally general pattern and may be tried for every type
+-/
+#guard_msgs in
 attribute [local ext] Subsingleton.elim
 /-- info: Subsingleton.elim_iff.{u} {α : Sort u} [h : Subsingleton α] {a b : α} : a = b ↔ True -/
 #guard_msgs in #check Subsingleton.elim_iff

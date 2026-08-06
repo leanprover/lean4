@@ -862,9 +862,27 @@ open Test.ClientHelpers
 
 -- A body stream closed with an error never produced the content its framing promised. Ending the
 -- chunked body with a zero chunk would hand the peer a truncated request that looks complete, so
--- the request fails instead. The connection loop learned of the failure only through the body
--- pump; a body that had already failed when the loop first looked at it was indistinguishable
--- from one the caller had finished writing.
+-- the request fails instead. The connection loop learns of the failure only through the body pump;
+-- a body that had already failed when the loop first looked at it must not be mistaken for one the
+-- caller had finished writing.
+
+/--
+Collects everything written for a request, stopping at whichever comes first: the connection going
+away (the request was abandoned) or a complete chunked body on the wire (it was not).
+
+Both tests below wait on this rather than on the send's outcome, because a request framed as
+complete leaves the client waiting for a response the peer will never send — awaiting the outcome
+first would report that defect as a bare test timeout. It also makes the bytes checked the full
+ones, instead of whatever a concurrent reader happened to have appended.
+-/
+private def settledRequestWire (mockClient : Mock.Client) : Async String := do
+  let mut bytes := ByteArray.empty
+  repeat
+    if (String.fromUTF8! bytes).contains "0\r\n\r\n" then break
+    match ← mockClient.recv? with
+    | none => break
+    | some chunk => bytes := bytes ++ chunk
+  return String.fromUTF8! bytes
 
 #eval show IO _ from
   runWithTimeout "a request body that failed before dispatch fails the request" 5000 <|
@@ -880,22 +898,16 @@ open Test.ClientHelpers
     (Request.new |>.method .post |>.uri! "/upload" |>.header! "Host" "example.com") stream
   let p ← sendInBackground agent req
 
-  let wire ← IO.mkRef ByteArray.empty
-  background do
-    repeat
-      match ← mockClient.recv? with
-      | none => break
-      | some chunk => wire.modify (· ++ chunk)
+  let text ← settledRequestWire mockClient
+  if text.contains "0\r\n\r\n" then
+    throw <| IO.userError
+      s!"a body that had already failed was terminated as a complete chunked body:\n{text.quote}"
 
   match ← await p.result! with
   | Except.ok resp =>
     resp.body.close
     throw <| IO.userError "a request whose body had already failed reported success"
-  | Except.error _ =>
-    let text := String.fromUTF8! (← wire.get)
-    if text.contains "0\r\n\r\n" then
-      throw <| IO.userError
-        s!"a failed body was terminated as a complete chunked body:\n{text.quote}"
+  | Except.error _ => pure ()
 
 -- The same holds when the producer fails partway through streaming.
 
@@ -911,22 +923,16 @@ open Test.ClientHelpers
       throw (IO.userError "producer failed"))
   let p ← sendInBackground agent req
 
-  let wire ← IO.mkRef ByteArray.empty
-  background do
-    repeat
-      match ← mockClient.recv? with
-      | none => break
-      | some chunk => wire.modify (· ++ chunk)
+  let text ← settledRequestWire mockClient
+  if text.contains "0\r\n\r\n" then
+    throw <| IO.userError
+      s!"a body that failed mid-stream was terminated as a complete chunked body:\n{text.quote}"
 
   match ← await p.result! with
   | Except.ok resp =>
     resp.body.close
     throw <| IO.userError "a request whose body failed reported success"
-  | Except.error _ =>
-    let text := String.fromUTF8! (← wire.get)
-    if text.contains "0\r\n\r\n" then
-      throw <| IO.userError
-        s!"a failed body was terminated as a complete chunked body:\n{text.quote}"
+  | Except.error _ => pure ()
 
 -- ============================================================
 -- Section 20 — The header-block allowance follows the client's own limits

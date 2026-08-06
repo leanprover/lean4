@@ -314,8 +314,6 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   | .timeout => pure ()
   | e => throw (IO.userError s!"expected .timeout, got {e}")
 
-/-! ### Response header limits -/
-
 #eval show IO _ from runWithTimeout "maxResponseHeaders rejects a header-heavy response" 4000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
   let connection ← mkConnection mockClient { maxResponseHeaders := 3 }
@@ -1087,13 +1085,13 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
 -- HTTP/1.1 has no way to skip an unread body, so the connection has to drain it itself before the
 -- next request can go out.
 --
--- Repeated, because `close` can land between the loop's own check that the response stream is still
--- open and the poll that registers the stream as a wake-up source. Land there and that poll carries
--- nothing but the cancellation selector: the body is drainable, the machine wants no input, and the
--- exchange never finishes.
+-- Repeated with jitter, because `close` can land between the loop's own check that the response
+-- stream is still open and the poll that registers the stream as a wake-up source. Land there and
+-- the poll must still carry the stream, or nothing is left to wake the loop: the body is drainable,
+-- the machine wants no input, and the exchange never finishes.
 #eval show IO _ from
   runWithTimeout "an unread response body does not block the next request" 120000 <| Async.block do
-  for _ in [0:40] do
+  for i in [0:400] do
     let (mockClient, mockServer) ← Mock.new
     let connection ← mkConnection mockClient patientConfig
     let first ← sendInBackground connection (← mkRequest .get "/unread")
@@ -1101,6 +1099,11 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
     mockServer.send (rawResp "200 OK" #[("Content-Length", "5")] "hello")
     let (resp1, _) ← expectResponse first
     assertStatusIs resp1 200
+
+    -- That window is a handful of instructions wide, so shift where `close` falls relative to the
+    -- connection loop by a different amount on every iteration.
+    for _ in [0:i % 64] do
+      discard <| IO.monoNanosNow
     resp1.body.close
 
     let second ← sendInBackground connection (← mkRequest .get "/after")
@@ -1249,6 +1252,26 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
     mockServer.send (rawResp "200 OK" #[("Content-Length", "5")] "hello")
     let (response, _) ← expectResponse promise
     assertBodyIs response "hello"
+
+-- Closing the response stream routes the rest of the body through the connection's internal drain
+-- instead of `pullResponseBody`. The drain must still charge those bytes against the limit: the
+-- machine's own `maxBodySize` is unbounded for clients, so if the drain skipped the accounting,
+-- abandoning a body would be a way to make `maxResponseBodySize` unenforceable.
+#eval show IO _ from runWithTimeout "the body limit still applies to a body the caller abandons" 4000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← mkConnection mockClient { patientConfig with maxResponseBodySize := some 4 }
+  let promise ← sendInBackground connection (← mkRequest .get "/abandoned")
+  discard <| readHead mockServer
+  mockServer.send (rawResp "200 OK" #[("Content-Length", "20")] "aaaaaaaaaaaaaaaaaaaa")
+  let (response, completion) ← expectResponse promise
+
+  -- The caller reads nothing and walks away.
+  Body.close response.body
+
+  match ← await completion.result! with
+  | .error .bodyLimitExceeded => pure ()
+  | .error e => throw (IO.userError s!"expected .bodyLimitExceeded on the completion, got {ctorName e}")
+  | .ok () => throw (IO.userError "an abandoned oversized body reported a successful completion")
 
 #eval show IO _ from runWithTimeout "a chunked body crossing the limit is rejected" 4000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new

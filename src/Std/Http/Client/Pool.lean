@@ -215,8 +215,9 @@ def getOrCreateConnection (pool : Pool) (origin : URI.Origin) :
       | none =>
         set (some ({ origin, connection } : Pool.Slot))
         pure (connection, none)
+
     if let some evictedConnection := evicted then
-      evictedConnection.close
+      evictedConnection.retire
     return .ok chosen
 
 /--

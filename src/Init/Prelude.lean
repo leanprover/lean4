@@ -87,7 +87,7 @@ type, and casting `a` across the equality yields `b`, and vice versa.
 You should avoid using this type if you can. Heterogeneous equality does not
 have all the same properties as `Eq`, because the assumption that the types of
 `a` and `b` are equal is often too weak to prove theorems of interest. One
-public important non-theorem is the analogue of `congr`: If `f ≍ g` and `x ≍ y`
+important non-theorem is the analogue of `congr`: If `f ≍ g` and `x ≍ y`
 and `f x` and `g y` are well typed it does not follow that `f x ≍ g y`.
 (This does follow if you have `f = g` instead.) However if `a` and `b` have
 the same type then `a = b` and `a ≍ b` are equivalent.
@@ -100,7 +100,7 @@ inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop where
 The Boolean values, `true` and `false`.
 
 Logically speaking, this is equivalent to `Prop` (the type of propositions). The distinction is
-public important for programming: both propositions and their proofs are erased in the code generator,
+important for programming: both propositions and their proofs are erased in the code generator,
 while `Bool` corresponds to the Boolean type in most programming languages and carries precisely one
 bit of run-time information.
 -/
@@ -346,7 +346,7 @@ Lean by `rfl`, because both sides are the same up to definitional equality.
 @[simp] theorem id_eq (a : α) : Eq (id a) a := rfl
 
 /--
-The substitution principle for equality. If `a = b ` and `P a` holds,
+The substitution principle for equality. If `a = b` and `P a` holds,
 then `P b` also holds. We conventionally use the name `motive` for `P` here,
 so that you can specify it explicitly using e.g.
 `Eq.subst (motive := fun x => x < 5)` if it is not otherwise inferred correctly.
@@ -507,7 +507,7 @@ Lifts a function from an underlying type to a function on a quotient, requiring 
 quotient's relation.
 
 Given a relation `r : α → α → Prop` and a quotient `Quot r`, applying a function `f : α → β`
-requires a proof `a` that `f` respects `r`. In this case, `Quot.lift f a : Quot r → β` computes the
+requires a proof `h` that `f` respects `r`. In this case, `Quot.lift f h : Quot r → β` computes the
 same values as `f`.
 
 Lean's type theory includes a [definitional reduction](lean-manual://section/type-theory) from
@@ -518,8 +518,7 @@ Lean's type theory includes a [definitional reduction](lean-manual://section/typ
  * `Quot.mk` places elements of the underlying type `α` into the quotient.
  * `Quot.sound` asserts the equality of elements related by `r`
  * `Quot.ind` is used to write proofs about quotients by assuming that all elements are constructed
-   with `Quot.mk`; it is analogous to the [recursor](lean-manual://section/recursors) for a
-   structure.
+   with `Quot.mk`.
 -/
 add_decl_doc Quot.lift
 
@@ -930,10 +929,10 @@ instance [Inhabited α] : Inhabited (ULift α) where
 Lifts a type or proposition to a higher universe level.
 
 `PULift α` wraps a value of type `α`. It is a generalization of
-`PLift` that allows lifting values whose type may live in `Sort s`.
+`ULift` that allows lifting values whose type may live in `Sort s`.
 It also subsumes `PLift`.
 -/
--- The universe variable `r` is written first so that `ULift.{r} α` can be used
+-- The universe variable `r` is written first so that `PULift.{r} α` can be used
 -- when `s` can be inferred from the type of `α`.
 structure PULift.{r, s} (α : Sort s) : Sort (max s r 1) where
   /-- Wraps a value to increase its type's universe level. -/
@@ -4875,7 +4874,7 @@ inductive SourceInfo where
   binders, as in the macro expansion for dependent if:
   ```
   `(if $h : $cond then $t else $e) ~>
-  `(dite $cond (fun $h => $t) (fun $h => $t))
+  `(dite $cond (fun $h => $t) (fun $h => $e))
   ```
   In these cases, if the user hovers over `h` they will see information about both binding sites.
   -/
@@ -4935,7 +4934,7 @@ end SourceInfo
 Specifies the interpretation of a `Syntax.node` value. An abbreviation for `Name`.
 
 Node kinds may be any name, and do not need to refer to declarations in the environment.
-Conventionally, however, a node's kind corresponds to the `Parser` or `ParserDesc` declaration that
+Conventionally, however, a node's kind corresponds to the `Parser` or `ParserDescr` declaration that
 produces it. There are also a number of built-in node kinds that are used by the parsing
 infrastructure, such as `nullKind` and `choiceKind`; these do not correspond to parser declarations.
 -/
@@ -5268,7 +5267,7 @@ partial def getHeadInfo? : Syntax → Option SourceInfo
   | node info _ _ => some info
   | _             => none
 
-/-- Retrieve the left-most leaf's info in the Syntax tree, or `none` if there is no token. -/
+/-- Retrieve the left-most node or leaf's info in the Syntax tree, or `none` if there is no token. -/
 partial def getHeadInfo (stx : Syntax) : SourceInfo :=
   match stx.getHeadInfo? with
   | some info => info
@@ -5398,15 +5397,15 @@ inductive ParserDescr where
   /-- Like `node` but for trailing parsers (which start with a nonterminal).
   Assumes the lhs is already on the stack, and parses using `p`, then pops the
   stack including the lhs to create a new node with kind `kind`.
-  The precedence `prec` and `lhsPrec` are used to determine whether the parser
+  The precedences `prec` and `lhsPrec` are used to determine whether the parser
   should apply. -/
   | trailingNode (kind : SyntaxNodeKind) (prec lhsPrec : Nat) (p : ParserDescr)
   /--
-  Parses the literal symbol.
+  Parses an atomic symbol.
 
   The symbol is automatically included in the set of reserved tokens ("keywords").
   Keywords cannot be used as identifiers, unless the identifier is otherwise escaped.
-  For example, `"fun"` reserves `fun` as a keyword; to refer an identifier named `fun` one can write `«fun»`.
+  For example, `"fun"` reserves `fun` as a keyword; to refer to an identifier named `fun` one can write `«fun»`.
   Adding a `&` prefix prevents it from being reserved, for example `&"true"`.
 
   Whitespace before or after the atom is used as a pretty printing hint.
@@ -5415,7 +5414,7 @@ inductive ParserDescr where
   -/
   | symbol (val : String)
   /--
-  Parses a literal symbol. The `&` prefix prevents it from being included in the set of reserved tokens ("keywords").
+  Parses an atomic symbol. The `&` prefix prevents it from being included in the set of reserved tokens ("keywords").
   This means that the symbol can still be recognized as an identifier by other parsers.
 
   Some syntax categories, such as `tactic`, automatically apply `&` to the first symbol.
@@ -5436,7 +5435,7 @@ inductive ParserDescr where
   | parser (declName : Name)
   /-- Like `node`, but also declares that the body can be matched using an antiquotation
   with name `name`. For example, `def $id:declId := 1` uses an antiquotation with
-  name `declId` in the place where a `declId` is expected. -/
+  name `id` in the place where a `declId` is expected. -/
   | nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : ParserDescr)
   /-- A `sepBy(p, sep)` parses 0 or more occurrences of `p` separated by `sep`.
   `psep` is usually the same as `symbol sep`, but it can be overridden.
@@ -5473,8 +5472,8 @@ abbrev TrailingParserDescr := ParserDescr
 
 /-!
 Runtime support for making quotation terms auto-hygienic, by mangling identifiers
-introduced by them with a "macro scope" supplied by the context. Details to appear in a
-paper soon.
+introduced by them with a "macro scope" supplied by the context. Details available
+in the paper [Beyond Notations: Hygienic Macro Expansion for Theorem Proving Languages](https://arxiv.org/pdf/2001.10490).
 -/
 
 /--
@@ -5602,7 +5601,6 @@ file.
 foo.bla._@.Init.Data.List.Basic.2.1.Init.Lean.Expr._hyg.4
 ```
 
-The delimiter `_hyg` is used just to improve the `hasMacroScopes` performance.
 In practice, we further specify the context name down to be unique per declaration so that the
 numeric scopes are not influenced by the elaboration of preceding declarations. This helps both with
 ensuring declaration names are more stable so that `prefer_native` can find the correct native
@@ -5651,7 +5649,7 @@ A `MacroScopesView` represents a parsed hygienic name. `extractMacroScopes`
 will decode it from a `Name`, and `.review` will re-encode it. The grammar of a
 hygienic name is:
 ```
-<name>._@.(<module_name>.<scopes>)*.<mainModule>._hyg.<scopes>
+<name>._@.(<module_name>.<scopes>)*.<mainModule>.<uniq>._hygCtx._hyg.<scopes>
 ```
 -/
 structure MacroScopesView where
@@ -5962,8 +5960,8 @@ The `List String` in each alternative is the deduced list of projections
 (which are ambiguous with name components).
 
 Remark: it will not trigger actions associated with reserved names. Recall that Lean
-has reserved names. For example, a definition `foo` has a reserved name `foo.def` for theorem
-containing stating that `foo` is equal to its definition. The action associated with `foo.def`
+has reserved names. For example, a definition `foo` has a reserved name `foo.eq_def` for a theorem
+stating that `foo` is equal to its definition. The action associated with `foo.eq_def`
 automatically proves the theorem. At the macro level, the name is resolved, but the action is not
 executed. The actions are executed by the elaborator when converting `Syntax` into `Expr`.
 -/

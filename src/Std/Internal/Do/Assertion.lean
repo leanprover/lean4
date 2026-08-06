@@ -56,7 +56,7 @@ fixed-arity specializations rewrite them syntactically.
 `Pred` interprets values of `Fun` as total nondeterministic functions into `α`. The value type
 `α` is an `outParam` computed from `Pred` and `Fun`.
 -/
-class NondetFun (Pred : Type u) (Fun : Type u) (α : outParam (Type v)) [Assertion Pred] where
+class NondetFun (Pred : Type u) (Fun : Type v) (α : outParam (Type w)) [Assertion Pred] where
   /-- Relates a nondeterministic function to a value inside the assertion lattice. -/
   EvalsTo : Fun → α → Pred
   /-- Every function hits some value: pack `P` under the graph join. -/
@@ -64,7 +64,7 @@ class NondetFun (Pred : Type u) (Fun : Type u) (α : outParam (Type v)) [Asserti
 
 /-- Pure (state-independent) nondeterministic functions into `α` are just values of `α`.
 Low priority so that the `σ`-indexed instance is preferred when both apply. -/
-@[instance_reducible] noncomputable instance (priority := low) {Pred : Type u} {α : Type u}
+@[instance_reducible] noncomputable instance (priority := low) {Pred : Type u} {α : Type v}
     [Assertion Pred] : NondetFun Pred α α where
   EvalsTo f a := ⌜f = a⌝
   total f P := by
@@ -74,7 +74,7 @@ Low priority so that the `σ`-indexed instance is preferred when both apply. -/
 
 /-- State-dependent nondeterministic functions: a function for `σ → Pred` is a `σ`-indexed
 function for `Pred`. -/
-@[instance_reducible] instance {σ : Type u} {Pred : Type u} {Fun : Type u} {α : Type v}
+@[instance_reducible] instance {σ : Type u} {Pred : Type u} {Fun : Type v} {α : Type w}
     [Assertion Pred] [inst : NondetFun Pred Fun α] :
     NondetFun (σ → Pred) (σ → Fun) α where
   EvalsTo f a := fun s => inst.EvalsTo (f s) a
@@ -82,12 +82,12 @@ function for `Pred`. -/
     intro s
     simpa [iSup_apply, meet_apply] using inst.total (f s) (P s)
 
-@[simp, grind =] theorem NondetFun.evalsTo_pure {Pred : Type u} {α : Type u} [Assertion Pred]
+@[simp, grind =] theorem NondetFun.evalsTo_pure {Pred : Type u} {α : Type v} [Assertion Pred]
     (f a : α) : NondetFun.EvalsTo (Pred := Pred) f a = ⌜f = a⌝ := rfl
 
 /-- Pointwise characterization of `EvalsTo` on a function lattice. -/
-@[simp] theorem NondetFun.evalsTo_apply {σ : Type u} {Pred : Type u} {Fun : Type u}
-    {α : Type v} [Assertion Pred] [NondetFun Pred Fun α] (f : σ → Fun) (a : α) (s : σ) :
+@[simp] theorem NondetFun.evalsTo_apply {σ : Type u} {Pred : Type u} {Fun : Type v}
+    {α : Type w} [Assertion Pred] [NondetFun Pred Fun α] (f : σ → Fun) (a : α) (s : σ) :
     NondetFun.EvalsTo (Pred := σ → Pred) f a s = NondetFun.EvalsTo (f s) a := rfl
 
 /-! `Prop`-valued, fixed-arity specializations of `NondetFun.evalsTo_apply`: the graph of a
@@ -125,7 +125,7 @@ not. -/
   simp
 
 /-- Eliminate the covering join of `EvalsTo` from the left of an entailment. -/
-theorem NondetFun.le_of_total_le {Pred : Type u} {Fun : Type u} {α : Type v}
+theorem NondetFun.le_of_total_le {Pred : Type u} {Fun : Type v} {α : Type w}
     [Assertion Pred] [inst : NondetFun Pred Fun α] (f : Fun) {P Q : Pred}
     (h : (⨆ a, inst.EvalsTo f a ⊓ P) ⊑ Q) : P ⊑ Q :=
   PartialOrder.rel_trans (inst.total f P) h

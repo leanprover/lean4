@@ -1910,21 +1910,25 @@ theorem rel_ofMeasure {γ : Type u} {Fun : Type u} [NondetFun Pred Fun γ]
     {Fun : Type} [NondetFun Pred Fun Nat] (f : α → Fun) (n' n : Nat) :
     (ofMeasure (Pred := Pred) f).rel n' n ↔ n' < n := Iff.rfl
 
-open Std.Internal.Do.CompleteLattice in
-/-- The continue-case step postcondition of `Spec.repeatM`: some measure value `ma'` below `ma`
-is pinned for the next iteration, and `P` holds. -/
-noncomputable def decreasesTo (v : RepeatVariant α Pred) (ma : v.γ) (a' : α) (P : Pred) : Pred :=
-  ⨆ ma', v.eval a' ma' ⊓ (⌜v.rel ma' ma⌝ ⊓ P)
+/-- The measure at cursor `a` evaluates to some value `ma` with `Ψ ma`. -/
+noncomputable def EvalsTo (v : RepeatVariant α Pred) (a : α) (Ψ : v.γ → Pred) : Pred :=
+  ⨆ ma, v.eval a ma ⊓ Ψ ma
+
+/-- The continue-case step postcondition of `Spec.repeatM`: the measure at the next cursor `a'`
+evaluates to a value below `ma`, and `P` holds. -/
+noncomputable def DecreasesTo (v : RepeatVariant α Pred) (ma : v.γ) (a' : α) (P : Pred) : Pred :=
+  v.EvalsTo a' fun ma' => ⌜v.rel ma' ma⌝ ⊓ P
+
+@[simp, grind =] theorem decreasesTo_def (v : RepeatVariant α Pred) (ma : v.γ) (a' : α)
+    (P : Pred) : v.DecreasesTo ma a' P = v.EvalsTo a' fun ma' => ⌜v.rel ma' ma⌝ ⊓ P := rfl
 
 open Std.Internal.Do.CompleteLattice in
 /-- For a state-independent measure the pinned value is the measure itself, so the join
-collapses to a decrease along the well-founded relation of `γ`. The proof obligation has the
-shape produced by `termination_by`, so `decreasing_tactic` applies. -/
-theorem decreasesTo_ofMeasure {γ : Type u} [WellFoundedRelation γ]
-    (f : α → γ) (ma : γ) (a' : α) (P : Pred) :
-    (ofMeasure (Pred := Pred) f).decreasesTo ma a' P
-      = ⌜WellFoundedRelation.rel (f a') ma⌝ ⊓ P := by
-  refine PartialOrder.rel_antisymm (iSup_le _ _ fun ma' => ?_) (le_iSup_of_le (f a') ?_)
+collapses. -/
+@[simp, grind =] theorem evalsTo_ofMeasure {γ : Type u} [WellFoundedRelation γ]
+    (f : α → γ) (a : α) (Ψ : γ → Pred) :
+    (ofMeasure (Pred := Pred) f).EvalsTo a Ψ = Ψ (f a) := by
+  refine PartialOrder.rel_antisymm (iSup_le _ _ fun ma => ?_) (le_iSup_of_le (f a) ?_)
   · refine ofProp_meet_le_left fun h => ?_
     subst h
     exact PartialOrder.rel_refl
@@ -1933,11 +1937,37 @@ theorem decreasesTo_ofMeasure {γ : Type u} [WellFoundedRelation γ]
     rw [ofProp_eq_top trivial]
     exact le_top _
 
-open Std.Internal.Do.CompleteLattice in
-@[simp, grind =] theorem decreasesTo_ofMeasure_nat {α : Type} {Pred : Type} [Assertion Pred]
-    (f : α → Nat) (ma : Nat) (a' : α) (P : Pred) :
-    (ofMeasure (Pred := Pred) f).decreasesTo ma a' P = ⌜f a' < ma⌝ ⊓ P :=
-  decreasesTo_ofMeasure f ma a' P
+/-- Pointwise characterization of `EvalsTo` on a function lattice, for `ofMeasure` measures. -/
+@[simp] theorem evalsTo_ofMeasure_apply {σ : Type u} {Pred : Type u} [Assertion Pred]
+    {γ : Type u} {Fun : Type u} [NondetFun Pred Fun γ] [WellFoundedRelation γ]
+    (f : α → σ → Fun) (a : α) (Ψ : γ → σ → Pred) (s : σ) :
+    (ofMeasure (Pred := σ → Pred) f).EvalsTo a Ψ s
+      = (ofMeasure (Pred := Pred) (f · s)).EvalsTo a (Ψ · s) := by
+  simp only [EvalsTo, iSup_apply, meet_apply]
+  rfl
+
+/-! `Prop`-valued, fixed-arity specializations of `evalsTo_ofMeasure_apply`, in the manner of
+`CompleteLattice.ofProp_apply_1` and its siblings: fixing the lattice tower to end in `Prop`
+leaves every parameter recoverable from the trigger, so these are usable `@[grind =]` lemmas
+where the general `evalsTo_ofMeasure_apply` is not. -/
+
+@[grind =] theorem evalsTo_ofMeasure_apply_1 {α : Type} {σ₁ : Type} {γ : Type}
+    [WellFoundedRelation γ] (f : α → σ₁ → γ) (a : α) (Ψ : γ → σ₁ → Prop) (s₁ : σ₁) :
+    (ofMeasure (Pred := σ₁ → Prop) f).EvalsTo a Ψ s₁ = Ψ (f a s₁) s₁ := by
+  simp
+
+@[grind =] theorem evalsTo_ofMeasure_apply_2 {α : Type} {σ₁ σ₂ : Type} {γ : Type}
+    [WellFoundedRelation γ] (f : α → σ₁ → σ₂ → γ) (a : α) (Ψ : γ → σ₁ → σ₂ → Prop)
+    (s₁ : σ₁) (s₂ : σ₂) :
+    (ofMeasure (Pred := σ₁ → σ₂ → Prop) f).EvalsTo a Ψ s₁ s₂ = Ψ (f a s₁ s₂) s₁ s₂ := by
+  simp
+
+@[grind =] theorem evalsTo_ofMeasure_apply_3 {α : Type} {σ₁ σ₂ σ₃ : Type} {γ : Type}
+    [WellFoundedRelation γ] (f : α → σ₁ → σ₂ → σ₃ → γ) (a : α) (Ψ : γ → σ₁ → σ₂ → σ₃ → Prop)
+    (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) :
+    (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → Prop) f).EvalsTo a Ψ s₁ s₂ s₃
+      = Ψ (f a s₁ s₂ s₃) s₁ s₂ s₃ := by
+  simp
 
 end RepeatVariant
 
@@ -1959,7 +1989,7 @@ theorem Spec.repeatM
         (f a)
         (measure.eval a ma ⊓ inv (.inl a))
         (fun r => match r with
-          | .inl a' => measure.decreasesTo ma a' (inv (.inl a'))
+          | .inl a' => measure.DecreasesTo ma a' (inv (.inl a'))
           | .inr b => inv (.inr b))
         einv) :
     Triple
@@ -1985,7 +2015,7 @@ theorem Spec.repeatM
       | .inl a' => _root_.repeatM f a'
       | .inr b => Pure.pure b)
       (f a) (fun r => match r with
-        | .inl a' => measure.decreasesTo n a' (inv (.inl a'))
+        | .inl a' => measure.DecreasesTo n a' (inv (.inl a'))
         | .inr b => inv (.inr b))
       (step a n) ?_
     rintro (a' | b)
@@ -2024,7 +2054,7 @@ theorem Spec.forIn_loop
         (f () b)
         (measure.eval b mb ⊓ inv (.inl b))
         (fun r => match r with
-          | .yield b' => measure.decreasesTo mb b' (inv (.inl b'))
+          | .yield b' => measure.DecreasesTo mb b' (inv (.inl b'))
           | .done b' => inv (.inr b'))
         einv) :
     Triple

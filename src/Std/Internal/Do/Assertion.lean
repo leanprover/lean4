@@ -74,7 +74,7 @@ Low priority so that the `σ`-indexed instance is preferred when both apply. -/
 
 /-- State-dependent nondeterministic functions: a function for `σ → Pred` is a `σ`-indexed
 function for `Pred`. -/
-@[reducible] instance {σ : Type u} {Pred : Type u} {Fun : Type u} {α : Type v}
+@[instance_reducible] instance {σ : Type u} {Pred : Type u} {Fun : Type u} {α : Type v}
     [Assertion Pred] [inst : NondetFun Pred Fun α] :
     NondetFun (σ → Pred) (σ → Fun) α where
   evalsTo f a := fun s => inst.evalsTo (f s) a
@@ -84,6 +84,32 @@ function for `Pred`. -/
 
 @[simp, grind =] theorem NondetFun.evalsTo_pure {Pred : Type u} {α : Type u} [Assertion Pred]
     (f a : α) : NondetFun.evalsTo (Pred := Pred) f a = ⌜f = a⌝ := rfl
+
+/-- Pointwise characterization of `evalsTo` on a function lattice. -/
+@[simp] theorem NondetFun.evalsTo_apply {σ : Type u} {Pred : Type u} {Fun : Type u}
+    {α : Type v} [Assertion Pred] [NondetFun Pred Fun α] (f : σ → Fun) (a : α) (s : σ) :
+    NondetFun.evalsTo (Pred := σ → Pred) f a s = NondetFun.evalsTo (f s) a := rfl
+
+/-! `Prop`-valued, fixed-arity specializations of `NondetFun.evalsTo_apply`: the graph of a
+state-dependent function at a state-indexed `Prop` lattice, applied to its states, is an
+equation. Fixing the carrier to `Prop` (a ground instance) leaves every parameter recoverable
+from the trigger, so these are usable `@[grind =]` lemmas where the general `evalsTo_apply` is
+not. -/
+
+@[grind =] theorem NondetFun.evalsTo_apply_1 {σ₁ : Type} {α : Type}
+    (f : σ₁ → α) (a : α) (s₁ : σ₁) :
+    NondetFun.evalsTo (Pred := σ₁ → Prop) f a s₁ = (f s₁ = a) := by
+  simp
+
+@[grind =] theorem NondetFun.evalsTo_apply_2 {σ₁ σ₂ : Type} {α : Type}
+    (f : σ₁ → σ₂ → α) (a : α) (s₁ : σ₁) (s₂ : σ₂) :
+    NondetFun.evalsTo (Pred := σ₁ → σ₂ → Prop) f a s₁ s₂ = (f s₁ s₂ = a) := by
+  simp
+
+@[grind =] theorem NondetFun.evalsTo_apply_3 {σ₁ σ₂ σ₃ : Type} {α : Type}
+    (f : σ₁ → σ₂ → σ₃ → α) (a : α) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) :
+    NondetFun.evalsTo (Pred := σ₁ → σ₂ → σ₃ → Prop) f a s₁ s₂ s₃ = (f s₁ s₂ s₃ = a) := by
+  simp
 
 /-- Eliminate the covering join of `evalsTo` from the left of an entailment. -/
 theorem NondetFun.le_of_total_le {Pred : Type u} {Fun : Type u} {α : Type v}

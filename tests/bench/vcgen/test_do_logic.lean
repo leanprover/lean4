@@ -765,7 +765,7 @@ theorem countdownStateful_spec (n : Nat) :
       (fun _ s => s ≤ n)
       (fun _ s => s = n)
   case inv2 => exact .ofMeasure fun _ s => n - s
-  any_goals simp [Assertion.NondetFun.evalsTo, RepeatVariant.decreasesTo] at *
+  any_goals simp at *
   all_goals grind
 
 /-- Nested countdown driven by a single `while` loop: `i` counts down and resets `j`, so the
@@ -787,7 +787,7 @@ theorem countdownLex_spec (n : Nat) :
   vcgen [countdownLex]
   case inv1 => exact RepeatInvariant.ofInvariantAndBreak (fun _ _ => True) (fun _ _ => True)
   case inv2 => exact .ofMeasure fun (i, j) => (i, j)
-  all_goals simp_all [RepeatVariant.decreasesTo_ofMeasure]
+  all_goals simp_all [RepeatVariant.rel_ofMeasure]
   all_goals subst_vars
   all_goals decreasing_tactic
 

@@ -378,6 +378,13 @@ The package's `buildDir` joined with its `nativeLibDir` configuration.
 @[inline] public def binDir (self : Package) : FilePath :=
   self.buildDir / self.config.binDir.normalize
 
+/--
+The directory of Lean headers a bootstrapping package compiles its C files against,
+replacing the ones of the toolchain building it.
+-/
+@[inline] public def leanIncludeDir? (self : Package) : Option FilePath :=
+  if self.bootstrap then some <| self.buildDir / "include" else none
+
 /-- The package's `buildDir` joined with its `irDir` configuration. -/
 @[inline] public def irDir (self : Package) : FilePath :=
   self.buildDir / self.config.irDir.normalize

@@ -210,7 +210,7 @@ public def dynlibSuffix := "-1"
   self.lib.weakLinkArgs
 
 @[inline] public def leanIncludeDir? (self : Module) : Option FilePath :=
-  if self.pkg.bootstrap then some <| self.pkg.buildDir / "include" else none
+  self.pkg.leanIncludeDir?
 
 @[inline] public def platformIndependent (self : Module) : Option Bool :=
   self.lib.platformIndependent

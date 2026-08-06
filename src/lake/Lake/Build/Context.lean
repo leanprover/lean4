@@ -59,6 +59,11 @@ public def JobQueue := IO.Ref (Array OpaqueJob)
 /-- A Lake context with a build configuration and additional build data. -/
 public structure BuildContext extends BuildConfig, Context where
   leanTrace : BuildTrace
+  /--
+  Traces of the Lean include directories overridden by bootstrapping packages, which
+  `leanTrace` does not identify. Computed once per build as it is the same for every module.
+  -/
+  leanIncludeTraces : Array (FilePath × BuildTrace) := #[]
   registeredJobs : JobQueue
   /--
   Input-to-output(s) map for hashes of the root package's artifacts.
@@ -81,6 +86,11 @@ public instance [Pure m] : MonadLift LakeM (BuildT m) where
 
 @[inline] public def getLeanTrace [Functor m] [MonadBuild m] : m BuildTrace :=
   (·.leanTrace) <$> getBuildContext
+
+@[inline] public def getLeanIncludeTrace?
+  (dir : FilePath) [Functor m] [MonadBuild m]
+: m (Option BuildTrace) :=
+  (·.leanIncludeTraces.find? (·.1 == dir) |>.map (·.2)) <$> getBuildContext
 
 @[inline] public def getBuildConfig [Functor m] [MonadBuild m] : m BuildConfig :=
   (·.toBuildConfig) <$> getBuildContext

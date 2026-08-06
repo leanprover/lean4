@@ -852,6 +852,20 @@ which will be computed in the resulting `Job` before building.
     return art.path
 
 /--
+Computes a trace over the headers in a Lean include directory (e.g., `lean/lean.h`).
+The headers are hashed as binary files; the object files they are traced for are
+platform-dependent anyway, so normalizing line endings would not make any reusable.
+-/
+public def computeLeanIncludeTrace (dir : FilePath) : IO BuildTrace := do
+  unless (← dir.pathExists) do
+    return .nil dir.toString
+  let ps ← (← dir.walkDir).filterM fun p => return !(← p.isDir)
+  -- Makes the order of files consistent across platforms
+  let ps := ps.qsort (toString · < toString ·)
+  ps.foldlM (init := .nil dir.toString) fun trace p =>
+    return trace.mix (← computeTrace p)
+
+/--
 Build an object file from a source fie job (i.e, a `lean -c` output)
 using the Lean toolchain's C compiler.
 -/
@@ -862,6 +876,13 @@ public def buildLeanO
 : SpawnM (Job FilePath) :=
   srcJob.mapM fun srcFile => do
     addLeanTrace
+    if let some dir := leanIncludeDir? then
+      -- The Lean trace identifies the toolchain whose headers a module's C file is compiled
+      -- against. A bootstrapping build overrides the include directory, so those headers are
+      -- traced directly instead.
+      addTrace <| ← match ← getLeanIncludeTrace? dir with
+        | some trace => pure trace
+        | none => computeLeanIncludeTrace dir
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- object files are platform-dependent artifacts
     let art ← buildArtifactUnlessUpToDate oFile (ext := "o") do

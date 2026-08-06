@@ -8,6 +8,7 @@ module
 prelude
 public import Lake.Config.Workspace
 import Lake.Config.Monad
+import Lake.Build.Common
 import Lake.Build.Job.Monad
 import Lake.Build.Index
 import Init.Omega
@@ -345,6 +346,11 @@ def mkBuildContext'
   registeredJobs := jobs
   leanTrace := .ofHash (pureHash ws.lakeEnv.leanGithash)
     s!"Lean {Lean.versionStringCore}, commit {ws.lakeEnv.leanGithash}"
+  -- On failure, no entry is recorded and `buildLeanO` recomputes the trace, reporting the error
+  leanIncludeTraces := ← ws.packages.filterMapM fun pkg => do
+    let some dir := pkg.leanIncludeDir? | return none
+    let .ok trace ← (computeLeanIncludeTrace dir).toBaseIO | return none
+    return some (dir, trace)
 }
 
 def Workspace.startBuild

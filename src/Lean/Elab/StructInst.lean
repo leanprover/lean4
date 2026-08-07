@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Structure
 public import Lean.Elab.App
 public import Lean.Elab.StructInstHint
+public import Lean.Elab.SyntheticMVars
 
 public section
 
@@ -744,7 +745,23 @@ private def addStructField (fieldView : ExpandedField) (e : Expr) : StructInstM 
 private def elabStructField (fieldName : Name) (stx : Term) (fieldType : Expr) : StructInstM Expr := do
   let fieldType ← normalizeExpr fieldType
   withTraceNode `Elab.structInst (fun _ => return m!"elaborating field `{fieldName}` : {fieldType}") do
-    elabTermEnsuringType stx fieldType
+    -- Enter private scope if entering proof, analogous to `Term.runTactic`.
+    let wasExporting := (← getEnv).isExporting
+    let isNoLongerExporting ← pure (wasExporting && !(← backward.proofsInPublic.getM)) <&&> isProp fieldType
+    withExporting (isExporting := wasExporting && !isNoLongerExporting) do
+      let e ← elabTermEnsuringType stx fieldType
+      if isNoLongerExporting then
+        -- Force resolution of nested synthetic mvars (e.g. `by` blocks) so any private references
+        -- inside `e` are concrete before we abstract.
+        synthesizeSyntheticMVarsNoPostponing
+        let e ← instantiateMVars e
+        if e.isFVar then
+          return e
+        else
+          withExporting (isExporting := wasExporting) do
+            mkAuxTheorem (cache := !e.hasSorry) fieldType e (zetaDelta := true)
+      else
+        return e
 
 private def addStructFieldMVar (fieldName : Name) (ty : Expr) (kind : MetavarKind := .natural) : StructInstM Expr := do
   let ty ← normalizeExpr ty

@@ -282,7 +282,7 @@ def getObjValD (j : Json) (k : String) : Json :=
 
 def setObjVal! : Json → String → Json → Json
   | obj kvs, k, v => obj <| kvs.insert k v
-  | _      , _, _ => panic! "Json.setObjVal!: not an object: {j}"
+  | _      , _, _ => panic! "Json.setObjVal!: not an object"
 
 /-- Assuming both inputs `o₁, o₂` are json objects, will compute `{...o₁, ...o₂}`.
 If `o₁` is not a json object, `o₂` will be returned.

@@ -41,9 +41,9 @@ nondeterministic functions `Fun` into `α`. For example, at `Pred = Nat → Prop
 are set up such that `Fun := Nat → α`, a function reading the `Nat` state. The assertion
 `EvalsTo f a` states that `f` evaluates to the value `a`; in the example it is
 `fun s => ⌜f s = a⌝`. The law `total` states that `f` evaluates to some value: every assertion
-`P` entails `⨆ a, EvalsTo f a ⊓ P`. The value type `α` is the `outParam`: elaborating
-`EvalsTo f a` knows `Pred` from the goal and `Fun` from the type of the user-written measure
-`f`, and instance resolution computes the type `α` of pinned values.
+`P` entails `⨆ a, EvalsTo f a ⊓ P`. The value type `α` is the `outParam` because instances are
+synthesized while only the function `f` is at hand: resolution knows `Pred` and `Fun` and
+computes `α`, whose values first occur in the assertions the instance builds.
 -/
 
 /--

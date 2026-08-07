@@ -93,7 +93,9 @@ def isDIte (e : Expr) :=
 
 partial def listLit? (e : Expr) : Option (Expr × List Expr) :=
   let rec loop (e : Expr) (acc : List Expr) :=
-    if e.isAppOfArity' ``List.nil 1 then
+    if let .letE _ _ value body _ := e.consumeMData then
+      loop (body.instantiate1 value) acc
+    else if e.isAppOfArity' ``List.nil 1 then
       some (e.appArg!', acc.reverse)
     else if e.isAppOfArity' ``List.cons 3 then
       loop e.appArg!' (e.appFn!'.appArg!' :: acc)

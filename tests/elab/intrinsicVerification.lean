@@ -261,8 +261,6 @@ def halve (n : Nat) : Id (Option Nat)
 #guard_msgs (drop info) in
 #check @halve.spec
 
-/-! ## A `repeat` or `while` loop states its invariant over the loop's cursor
-/-! ## A `repeat` or `while` loop states its invariant per iterating and left loop
 /-! ## A `repeat` or `while` loop binds whether it has left
 
 The clause's first binder is a `Bool`: `true` once the loop is done, `false` while it iterates. The
@@ -334,6 +332,27 @@ def countUntil (n : Nat) : Id Nat
 
 #guard_msgs (drop info) in
 #check @countUntil.spec
+
+/-! A loop that returns early carries the returned value in a slot of the state tuple that the
+invariant skips over, so a `repeat` with a `return` in its body takes the clauses like any other.
+The invariant cannot name that slot, so what the loop returns is beyond what it can state. -/
+
+def firstZero (xs : Array Nat) : Id (Option Nat)
+    ensures _ => True := do
+  let mut i := 0
+  repeat
+      invariant _ => i ≤ xs.size
+      decreasing xs.size - i
+    do
+    if h : i < xs.size then
+      if xs[i] = 0 then return some i
+      i := i + 1
+    else
+      break
+  return none
+
+#guard_msgs (drop info) in
+#check @firstZero.spec
 
 /-! A `for` loop over a collection ends with the collection. -/
 

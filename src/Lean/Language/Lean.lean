@@ -520,6 +520,8 @@ where
       -- now that imports have been loaded, check options again
       opts ← reparseOptions opts
       let cmdState := Elab.Command.mkState headerEnv msgLog opts
+      -- one shared heartbeat sink per file; all commands and their async tasks record into it
+      let cmdState := { cmdState with heartbeatsRef? := some (← IO.mkRef #[]) }
       let cmdState := { cmdState with
         infoState := {
           enabled := true

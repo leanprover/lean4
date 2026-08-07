@@ -144,6 +144,12 @@ structure DiagnosticWith (α : Type) where
   tags? : Option (Array DiagnosticTag) := none
   /-- Additional Lean-specific metadata about the diagnostic. -/
   leanTags? : Option (Array LeanDiagnosticTag) := none
+  /--
+  Extension: heartbeats used to process the declaration this diagnostic reports on, in
+  `IO.getNumHeartbeats` units (divide by 1000 for the `maxHeartbeats` unit). Currently populated
+  for 'goals accomplished' diagnostics.
+  -/
+  heartbeats? : Option Nat := none
   /-- An array of related diagnostic information, e.g. when symbol-names within a scope collide all definitions can be marked via this property. -/
   relatedInformation? : Option (Array DiagnosticRelatedInformation) := none
   /-- A data entry field that is preserved between a `textDocument/publishDiagnostics` notification and `textDocument/codeAction` request. -/

@@ -9,6 +9,7 @@ prelude
 public import Lean.Util.RecDepth
 public import Lean.ResolveName
 public import Lean.Language.Basic
+public import Lean.Util.Profile
 import Init.While
 import Lean.Compiler.NoncomputableAttr
 
@@ -227,6 +228,17 @@ structure Context where
   openDecls      : List OpenDecl := []
   initHeartbeats : Nat := 0
   maxHeartbeats  : Nat := getMaxHeartbeats options
+  /--
+  Sink for per-declaration heartbeat costs, shared by all elaboration threads of a file; see
+  `HeartbeatEntry`. The language frontend always installs one; contexts without one (e.g.
+  standalone `CoreM.run`) skip recording.
+  -/
+  heartbeats?    : Option (IO.Ref (Array HeartbeatEntry)) := none
+  /--
+  User-written declaration that heartbeats recorded in this scope are attributed to; see
+  `withCostOwner`.
+  -/
+  costOwner      : CostOwner := .unknown
   quotContext    : Name := .anonymous
   currMacroScope : MacroScope := firstFrontendMacroScope
   /--
@@ -546,6 +558,47 @@ instance : MonadLog CoreM where
     let ctx ← read
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls } msg.data };
     modify fun s => { s with messages := s.messages.add msg }
+
+/--
+Attributes `count` raw heartbeats to `declName`, owned by the surrounding `withCostOwner` scope
+(or by `declName` itself when none is set). Entries are pushed to the file's heartbeat sink and
+written to `<module>.hb.json` next to the `.olean`.
+-/
+def recordDeclHeartbeats (declName : Name) (phase : Name) (count : Nat) : CoreM Unit := do
+  let ctx ← read
+  if let some sink := ctx.heartbeats? then
+    let entry := { owner := ctx.costOwner.name?.getD declName, declName, phase, heartbeats := count :
+      HeartbeatEntry }
+    -- `IO.Ref.modify` is atomic, so concurrent elaboration threads can share the sink
+    sink.modify (·.push entry)
+
+/--
+Runs `act`, attributing the heartbeats it uses to `declName`. The counter is thread-local, so
+`act` must not fork off the work being measured; see `wrapAsync`.
+-/
+@[specialize] def withDeclHeartbeats {α : Type} (declName : Name) (phase : Name) (act : CoreM α) :
+    CoreM α := do
+  if (← read).heartbeats?.isNone then return (← act)
+  let startHeartbeats ← IO.getNumHeartbeats
+  let a ← act
+  let stopHeartbeats ← IO.getNumHeartbeats
+  recordDeclHeartbeats declName phase (stopHeartbeats - startHeartbeats)
+  return a
+
+/--
+Attributes heartbeats recorded inside `x` to the user-written declaration `declName`: auxiliary
+declarations processed in the scope report `declName` as their owner.
+
+Establishes an unknown owner and refines a pending approximation to the elaborated (i.e.
+fully qualified) name; a fixed owner is kept, so work a declaration causes to be elaborated in a
+nested command, such as a `deriving`-generated instance, stays with the declaration that caused it.
+-/
+def withCostOwner [Monad m] [MonadControlT CoreM m] (declName : Name) (x : m α) : m α :=
+  controlAt CoreM fun runInBase =>
+    withReader (fun ctx =>
+      match ctx.costOwner with
+      | .unknown | .pending _ => { ctx with costOwner := .fixed declName }
+      | .fixed _ => ctx) (runInBase x)
 
 /--
 Includes a given task (such as from `wrapAsyncAsSnapshot`) in the overall snapshot tree for this

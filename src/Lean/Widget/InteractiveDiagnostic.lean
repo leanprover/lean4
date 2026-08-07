@@ -256,10 +256,20 @@ def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool
     if m.data.hasTag (· == `Tactic.unsolvedGoals) then some #[.unsolvedGoals]
     else if m.data.hasTag (· == `goalsAccomplished) then some #[.goalsAccomplished]
     else none
+  -- data-bearing tag `heartbeats.<n>`, only present on goals-accomplished messages; see
+  -- `Lean.Elab.Term.logGoalsAccomplishedSnapshotTask`
+  let heartbeats? :=
+    if leanTags? == some #[.goalsAccomplished] then
+      m.data.findTag? fun
+        | .num `heartbeats hb => some hb
+        | _ => none
+    else
+      none
   let message := match (← msgToInteractive m.data hasWidgets |>.toBaseIO) with
     | .ok msg => msg
     | .error ex => TaggedText.text s!"[error when printing message: {ex.toString}]"
   let code? := (errorNameOfKind? m.kind).map (.string ·.toString)
-  pure { range, fullRange? := some fullRange, severity?, source?, message, tags?, leanTags?, isSilent?, code? }
+  pure { range, fullRange? := some fullRange, severity?, source?, message, tags?, leanTags?,
+         heartbeats?, isSilent?, code? }
 
 end Lean.Widget

@@ -53,4 +53,53 @@ def profileitM {m : Type → Type} (ε : Type) [MonadFunctorT (EIO ε) m] {α : 
 @[extern "lean_display_cumulative_profiling_times"]
 opaque displayCumulativeProfilingTimes : BaseIO Unit
 
+/-!
+## Per-declaration heartbeat costs
+
+The heartbeat counter is maintained unconditionally by the allocator for `maxHeartbeats`, so
+attributing it to declarations costs only two counter reads and an array push per declaration and
+phase. Collection is always on: compiling a module writes the costs to `<module>.hb.json` next to
+the `.olean`, the way `.ilean` files are always produced. Unlike `trace.profiler`, the data is
+`O(declarations)` rather than `O(trace nodes)`, which is what makes this affordable by default.
+-/
+
+/-- Heartbeats used by one phase of processing one declaration. -/
+structure HeartbeatEntry where
+  /--
+  User-written declaration the cost rolls up to. Auxiliary declarations (matchers, equation
+  lemmas, generated code, `deriving`-generated instances) report the declaration that caused them.
+  Declarations compiled as one mutual clique share the clique's first declaration as the owner of
+  that shared work, while their elaboration is attributed individually.
+  -/
+  owner : Name
+  /-- Declaration the heartbeats were actually spent on, e.g. an auxiliary of `owner`. -/
+  declName : Name
+  /-- Phase that used the heartbeats; `elab` or `kernel`. -/
+  phase : Name
+  /-- Raw heartbeats, i.e. `IO.getNumHeartbeats` units. Divide by 1000 for the `maxHeartbeats` unit. -/
+  heartbeats : Nat
+  deriving Inhabited
+
+/--
+Attribution state for per-declaration heartbeat costs; see `Core.withCostOwner`.
+-/
+inductive CostOwner where
+  /-- No owner established. -/
+  | unknown
+  /--
+  The command elaborator's best-effort approximation of the declaration name, to be refined once
+  by the first declaration elaborator that knows the elaborated name.
+  -/
+  | pending (declName : Name)
+  /--
+  The owner is decided; nested machine-generated elaboration stays attributed to it.
+  -/
+  | fixed (declName : Name)
+  deriving Inhabited
+
+/-- The owner's declaration name, if one is established. -/
+def CostOwner.name? : CostOwner → Option Name
+  | .unknown => none
+  | .pending declName | .fixed declName => some declName
+
 end Lean

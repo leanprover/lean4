@@ -194,6 +194,21 @@ partial def hasTag : MessageData → Bool
   | _                           => false
 
 /--
+Returns the first result of `p` on a `MessageData.tagged tag ..` constructor where `p tag` is
+`some`, traversing like `hasTag`. Allows tags to carry data, e.g. in a numeric name component.
+-/
+partial def findTag? (p : Name → Option α) : MessageData → Option α
+  | withContext _ msg           => findTag? p msg
+  | withNamingContext _ msg     => findTag? p msg
+  | nest _ msg                  => findTag? p msg
+  | group msg                   => findTag? p msg
+  | compose msg₁ msg₂           => findTag? p msg₁ <|> findTag? p msg₂
+  | tagged n msg                => p n <|> findTag? p msg
+  | trace data msg msgs         => p data.cls <|> findTag? p msg <|> msgs.findSome? (findTag? p)
+  | ofOriginatingSyntax _ msg    => findTag? p msg
+  | _                           => none
+
+/--
 Returns the top-level tag of the message.
 If none, returns `Name.anonymous`.
 

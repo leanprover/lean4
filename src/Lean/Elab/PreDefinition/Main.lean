@@ -295,6 +295,8 @@ def addPreDefinitions (docCtx : LocalContext × LocalInstances) (preDefs : Array
       let preDefs ← betaReduceLetRecApps preDefs
       let cliques := partitionPreDefs preDefs
       for preDefs in cliques do
+        -- cost-attribute compilation of the whole clique to its first declaration
+        Core.withCostOwner preDefs[0]!.declName do
         trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
         if preDefs.size == 1 && isNonRecursive preDefs[0]! then
           /-

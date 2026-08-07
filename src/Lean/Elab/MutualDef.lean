@@ -514,6 +514,7 @@ private def useProofAsSorry (k : DefKind) : CoreM Bool := do
 
 private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr) (sc : Command.Scope) : TermElabM (Array Expr) :=
   headers.mapM fun header => do
+    Core.withCostOwner header.declName do
     let mut reusableResult? := none
     if let some snap := header.bodySnap? then
       if let some old := snap.old? then
@@ -582,6 +583,8 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
                 in scope or explicitly omit them:\
               \n  omit {MessageData.joinSep unusedVars.toList " "} in theorem ..."
         return val
+    -- reuses the measurement `withRestoreOrSaveFull` makes anyway, so this adds no counter reads
+    Core.recordDeclHeartbeats header.declName `elab state.«meta».core.passedHeartbeats
     if let some snap := header.bodySnap? then
       snap.new.resolve <| some {
         diagnostics :=
@@ -1317,6 +1320,8 @@ this warning can be disabled with `set_option warn.classDefReducibility false`."
       -- forked correctly.
       withDeprecationContextFromAttrs oldAttrs do
       withDeclName header.declName do
+      -- set the cost owner before going async so the forked context carries it
+      Core.withCostOwner header.declName do
       wrapAsyncAsSnapshot (desc := s!"elaborating proof of {declId.declName}")
         (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
       setEnv async.asyncEnv
@@ -1470,7 +1475,7 @@ Logs a snapshot task that waits for the entire snapshot tree in `defsParsedSnap`
 is error-free and contains no syntactical `sorry`s.
 -/
 private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
-    (defsParsedSnap : DefsParsedSnapshot) : TermElabM Unit := do
+    (defsParsedSnap : DefsParsedSnapshot) (sinkStart : Nat) : TermElabM Unit := do
   if ! Lean.Elab.inServer.get (← getOptions) then
     -- Skip 'goals accomplished' task if we are on the command line.
     -- These messages are only used in the language server.
@@ -1490,10 +1495,37 @@ private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
         msg.severity matches .error || msg.data.hasTag (· == `hasSorry)
     if hasErrorOrSorry then
       return
+    -- All snapshot tasks of the block are finished, so its costs are in the sink, after
+    -- `sinkStart`; entries before it are from other commands or previous elaborations of this one.
+    -- `example`s share one `declName` per namespace, making their costs mutually
+    -- indistinguishable, so they get no count.
+    let blockOwners : Array Name := if views.any (·.2 matches .theorem) then
+      defsParsedSnap.defs.filterMap (·.headerProcessedSnap.get |>.map (·.view.declName))
+    else
+      #[]
+    let ownerCosts : Std.HashMap Name Nat ← do
+      match (← readThe Core.Context).heartbeats? with
+      | some sink =>
+        if blockOwners.isEmpty then pure ∅ else
+          let entries ← sink.get
+          pure <| entries.foldl (init := ∅) (start := sinkStart) fun m e =>
+            if blockOwners.contains e.owner then
+              m.alter e.owner (fun c => some (c.getD 0 + e.heartbeats))
+            else m
+      | none => pure ∅
     for d in defsParsedSnap.defs, (ref, kind) in views do
-      let logGoalsAccomplished :=
-        let msgData := .tagged `goalsAccomplished m!"Goals accomplished!"
-        logAt ref msgData (severity := .information) (isSilent := true)
+      let heartbeats? kind := do
+        guard (kind matches DefKind.theorem)
+        let s ← d.headerProcessedSnap.get
+        ownerCosts[s.view.declName]?
+      let logGoalsAccomplished := do
+        let msg := m!"Goals accomplished!"
+        let msg := match heartbeats? kind with
+          -- data-bearing inner tag read by `msgToInteractiveDiagnostic`; the outer tag must stay
+          -- outermost so `Message.kind` remains `goalsAccomplished`
+          | some hb => MessageData.tagged (.num `heartbeats hb) msg
+          | none => msg
+        logAt ref (.tagged `goalsAccomplished msg) (severity := .information) (isSilent := true)
       match kind with
       | .theorem =>
         logGoalsAccomplished
@@ -1566,9 +1598,13 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
   let sc ← getScope
   -- use hash of all names as stable quot context
   withInitQuotContext (some (hash (views.map (·.declId[0].getId)))) do
+  -- capture the heartbeat sink position before this block records anything
+  let mut sinkStart := 0
+  if let some sink := (← get).heartbeatsRef? then
+    sinkStart := (← sink.get).size
   runTermElabM fun vars => do
     Term.elabMutualDef vars sc views
-    Term.logGoalsAccomplishedSnapshotTask views defsParsedSnap
+    Term.logGoalsAccomplishedSnapshotTask views defsParsedSnap sinkStart
 
 builtin_initialize
   registerTraceClass `Elab.definition.mkClosure

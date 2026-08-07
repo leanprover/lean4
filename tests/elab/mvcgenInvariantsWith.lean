@@ -106,7 +106,6 @@ theorem test_with_cases {m : Option Nat} (h : m = some 4) :
   mvcgen
   with
   | vc1 => grind
-  | vc2 => grind
 
 theorem test_with_pretac_cases {m : Option Nat} (h : m = some 4) :
   ⦃⌜True⌝⦄
@@ -117,7 +116,6 @@ theorem test_with_pretac_cases {m : Option Nat} (h : m = some 4) :
   mvcgen
   with try simp
   | vc1 => grind
-  | vc2 => grind
 
 def nodup_twice (l : List Int) : Bool := Id.run do
   let mut seen : HashSet Int := ∅

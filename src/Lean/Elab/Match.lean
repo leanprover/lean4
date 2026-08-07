@@ -891,7 +891,7 @@ private def generalize (discrs : Array Discr) (matchType : Expr) (altViews : Arr
       let matchType' ← forallBoundedTelescope matchType discrs.size fun ds type => do
         let type ← mkForallFVars ys type
         let (discrs', ds') := Array.unzip <| Array.zip discrExprs ds |>.filter fun (di, _) => di.isFVar
-        let type := type.replaceFVars discrs' ds'
+        let type ← type.replaceFVarsM discrs' ds'
         mkForallFVars ds type
       if (← isTypeCorrect matchType') then
         let discrs := discrs ++  ys.map fun y => { expr := y : Discr }

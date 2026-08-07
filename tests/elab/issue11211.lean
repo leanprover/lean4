@@ -92,8 +92,10 @@ def foo₁ (a : Nat) (ha : a = 37) :=
     (match h : a with | 42 => 23 | n => n) = 37
 
 /--
-info: private def foo₁.match_1.splitter.{u_1} : (motive : Nat → Sort u_1) →
-  (a : Nat) → (a = 42 → motive 42) → ((n : Nat) → (n = 42 → False) → a = n → motive n) → motive a
+info: private def foo₁.match_1.splitter.{u_1} : (motive : (a : Nat) → a = 37 → Sort u_1) →
+  (a : Nat) →
+    (ha : a = 37) →
+      ((ha : 42 = 37) → a = 42 → motive 42 ha) → ((n : Nat) → (ha : n = 37) → a = n → motive n ha) → motive a ha
 -/
 #guard_msgs in
 #print sig foo₁.match_1.splitter

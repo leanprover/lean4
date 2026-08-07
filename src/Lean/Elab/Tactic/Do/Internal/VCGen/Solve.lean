@@ -400,64 +400,45 @@ state reference. -/
 private def toGrindM (x : VCGenM α) : VCGenM (Grind.GrindM α) :=
   fun ctx ref => pure (x ctx ref)
 
-/-- A proof of the reflexive entailment `relTy = (a ⊑ a)`. -/
-private def mkRelReflProof (relTy : Expr) : SymM Expr := do
-  let args := relTy.getAppArgs
-  mkAppNS (← mkConstS ``Lean.Order.PartialOrder.rel_refl relTy.getAppFn.constLevels!)
-    #[args[0]!, args[1]!, args[3]!]
-
-/-- Implementation of `FrameInferenceInfo.commit`: apply the frame rule (assigning `goal`), then
-resolve its residual premise `?P ⊑ W`. When `specRule` applies to it, the spec's postcondition VC
-closes by unification against the upper-adjoint post, `?P` is assigned the spec's instantiated
-precondition, and the spec's precondition VC closes by reflexivity, leaving the split VC
-`pre ⊑ (op ?F specPre) s⃗`. When it does not apply (the premise sits at the unapplied assertion
-type while the rule expects the goal's excess arguments), `?P` is assigned the weakest footprint
-`W` itself, and the split VC re-enters `solve` where the spec applies after state introduction.
-All produced subgoals are recorded in `committed`; the solver collects the unassigned ones. -/
+/-- Implementation of `FrameInferenceInfo.commit`: apply the frame rule (assigning `goal`) and
+resolve its residual premise `?P ⊑ W`. When `specRule` applies to the premise, its postcondition VC
+closes by unification against the upper-adjoint post and its precondition VC `?P ⊑ specPre` closes
+by reflexivity, so the split VC reads `pre ⊑ (op ?F specPre) s⃗`. When it does not (the premise sits
+at the unapplied assertion type while the rule expects the goal's excess arguments), the premise
+itself closes by reflexivity, fixing `?P := W`, and the split VC re-enters `solve` where the spec
+applies after state introduction. -/
 private def commitFrameRule (goal : MVarId) (info : WPApp) (fp : FrameProc)
-    (specRule : Sym.BackwardRule) (committed : IO.Ref (Option (List MVarId))) :
-    VCGenM FrameGoals := do
+    (specRule : Sym.BackwardRule) : VCGenM FrameGoals := do
   let frule ← mkFrameBackwardRuleCached fp info
   let .goals gs ← frule.applyChecked goal m!"frame rule for{indentExpr info.prog}"
     | throwError "frame: failed to apply rule for{indentExpr info.prog}"
+  -- Locate the rule's subgoals by shape: the split VC (`op`-headed right-hand side, carrying the
+  -- schematic `?F`), the residual premise (`wp`-headed), and the frame condition.
   let mut splitVC? := none
   let mut frames? := none
   let mut hP? := none
   for g in gs do
     let ty ← g.getType
     if let some (_, _, _, rhs) := ty.app4? ``Lean.Order.PartialOrder.rel then
-      if (rhs.consumeMData.stripArgsN info.excessArgs.size).isAppOf fp.opHead then
-        splitVC? := some (g, rhs)
-      else if rhs.consumeMData.isAppOf ``Std.Internal.Do.wp then
-        hP? := some g
+      let opApp := rhs.consumeMData.stripArgsN info.excessArgs.size
+      if opApp.isAppOf fp.opHead then splitVC? := some (g, opApp)
+      else if rhs.consumeMData.isAppOf ``Std.Internal.Do.wp then hP? := some g
     else if ty.isAppOf ``Std.Internal.Do.WP.Frames then
       frames? := some g
-  let (some (splitVC, splitRhs), some frames, some hP) := (splitVC?, frames?, hP?)
+  let (some (splitVC, opApp), some frames, some hP) := (splitVC?, frames?, hP?)
     | throwError "frame: could not locate the frame rule's subgoals for{indentExpr info.prog}"
-  let F := (splitRhs.consumeMData.stripArgsN info.excessArgs.size).appFn!.appArg!
-  let mut specGoals := []
-  match ← specRule.apply hP with
-  | .goals sgs =>
-    -- The spec's precondition VC is the sole bare entailment among its subgoals; the `∀`-quantified
-    -- ones are the postcondition VCs.
-    let some preVC ← sgs.findSomeM? (fun g => do
-        let ty ← g.getType
-        if ty.isAppOf ``Lean.Order.PartialOrder.rel then return some g else return none)
-      | throwError "frame: spec rule left no precondition VC for{indentExpr info.prog}"
-    let ty ← preVC.getType
-    let args := ty.getAppArgs
-    unless ← isDefEqS args[2]! args[3]! do
-      throwError "frame: could not fix the spec precondition as the footprint for{indentExpr info.prog}"
-    preVC.assign (← mkRelReflProof (← instantiateMVarsS ty))
-    specGoals := sgs.filter (· != preVC)
-  | .failed =>
-    let ty ← hP.getType
-    let args := ty.getAppArgs
-    unless ← isDefEqS args[2]! args[3]! do
-      throwError "frame: could not fix the weakest footprint for{indentExpr info.prog}"
-    hP.assign (← mkRelReflProof (← instantiateMVarsS ty))
-  committed.set (some (gs ++ specGoals))
-  return { F, splitVC, frames, specGoals }
+  let preVC ← match ← specRule.apply hP with
+    | .goals sgs =>
+      -- The spec's precondition VC is the sole bare entailment among its subgoals; the
+      -- `∀`-quantified ones are the postcondition VCs.
+      let some preVC ← sgs.findM? fun g =>
+          return (← g.getType).isAppOf ``Lean.Order.PartialOrder.rel
+        | throwError "frame: spec rule left no precondition VC for{indentExpr info.prog}"
+      pure preVC
+    | .failed => pure hP
+  unless (← rfl? preVC).isSome do
+    throwError "frame: could not fix the footprint for{indentExpr info.prog}"
+  return { F := opApp.appFn!.appArg!, splitVC, frames }
 
 /--
 Apply the selected `@[spec]` theorem `thm` to a spec-ready program `info.prog`, framing first when
@@ -471,7 +452,7 @@ does not apply.
 - An explicit `frames` clause elaborates a frame and passes it to the procedure.
 - The procedure decides whether to frame (e.g. by pairing the goal precondition against
   `FrameInferenceInfo.peekSpecPre`); committing applies the frame rule and the spec eagerly, and
-  the solver collects the subgoals neither `commit` nor the procedure discharged. Returning without
+  the unassigned metavariables of the resulting proof become the subgoals. Returning without
   committing applies the spec unframed.
 -/
 private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
@@ -489,25 +470,15 @@ private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm 
   unless thm.conjunctivePre || isFramedPost info.post do
     let procs := (← read).frameProcs.byProg
     let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
-    let providedFrame? ← matchFrame? fp info
-    let committed ← IO.mkRef (none : Option (List MVarId))
-    let commit ← toGrindM (commitFrameRule goal info fp specRule committed)
     let inferInfo : FrameInferenceInfo :=
-      { info with goal, providedFrame?, spec? := thm.global?, specRule, commit,
-                  mkOpApp := do shareCommon (← fp.mkOpAppM info) }
-    let saved ← Meta.saveState
-    let procGoals ←
-      try
-        fp.proc inferInfo
-      catch ex =>
-        saved.restore
-        throw ex
-    if let some gs ← committed.get then
+      { info with goal, providedFrame? := ← matchFrame? fp info, spec? := thm.global?, specRule,
+                  mkOpApp := do shareCommon (← fp.mkOpAppM info),
+                  commit := ← toGrindM (commitFrameRule goal info fp specRule) }
+    fp.proc inferInfo
+    if ← goal.isAssigned then
       trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` framed {info.prog}"
-      let gs ← (gs ++ procGoals).filterM fun g => return !(← g.isAssigned)
-      return some (.goals scope gs)
-    unless procGoals.isEmpty do
-      throwError "frame: procedure returned subgoals without committing for{indentExpr info.prog}"
+      let goals ← getMVarsNoDelayed (← instantiateMVars (mkMVar goal))
+      return some (.goals scope goals.toList)
   trace[Elab.Tactic.Do.vcgen] "Applying spec {thm.proof} for {info.prog}. Excess args: {info.excessArgs}"
   let .goals goals ← specRule.applyChecked goal m!"spec rule for{indentExpr info.prog}"
     | return none

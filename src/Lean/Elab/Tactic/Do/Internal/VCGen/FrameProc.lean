@@ -26,10 +26,10 @@ open Lean Meta Sym Sym.Internal
 
 namespace Lean.Elab.Tactic.Do.Internal
 
-/-- The subgoals of a committed frame rule and spec rule application
+/-- The named subgoals of a committed frame rule and spec rule application
 (`FrameInferenceInfo.commit`). -/
 public structure VCGen.FrameGoals where
-  /-- The schematic frame `?F : R`. The procedure assigns it before returning. -/
+  /-- The schematic frame `?F : R`. The procedure assigns it, or leaves it as a hole. -/
   F : Expr
   /-- The split VC `pre ⊑ (op ?F specPre) s⃗`. The spec's parameter metavariables sit in `specPre`,
   so cancelling atoms against it pins them. When no spec rule applied, the second operand is the
@@ -37,8 +37,6 @@ public structure VCGen.FrameGoals where
   splitVC : MVarId
   /-- The frame condition `WP.Frames op prog ?F`. -/
   frames : MVarId
-  /-- The spec rule's remaining subgoals: parameters and side conditions. -/
-  specGoals : List MVarId
 
 /-- The inputs to a `FrameInferenceProc`: the goal, how the frame was requested, and the spec being
 applied. Extends the program's `wp` metadata (`WPApp`), so `Pred`, `excessArgs`, etc. are available
@@ -59,8 +57,8 @@ public structure VCGen.FrameInferenceInfo extends VCGen.WPApp where
   mkOpApp : SymM Expr
   /-- Commits the goal to the frame rule: applies it (assigning `goal`), resolves its residual
   premise by applying `specRule` where it fits (else fixes the weakest footprint), and returns the
-  live subgoals. The point of no return: after this call the procedure must assign the frame and
-  return; the solver collects the unassigned subgoals. -/
+  named subgoals. The point of no return: whatever the procedure leaves unassigned in the goal's
+  proof becomes a subgoal. -/
   commit : Grind.GrindM VCGen.FrameGoals
 
 /-- The goal's entailment relation `PartialOrder.rel α inst` (carrier and order instance applied);
@@ -90,20 +88,18 @@ public def VCGen.FrameInferenceInfo.peekSpecPre (i : FrameInferenceInfo) : SymM 
 /-- A frame inference procedure: from a `FrameInferenceInfo` (whose `providedFrame?` carries the
 frame of a matching `frames` clause, if any), decide whether to frame. Framing means calling
 `i.commit`, assigning the returned schematic frame, and discharging as much of the split VC as the
-procedure can; the returned list carries any subgoals the procedure created doing so. Returning
-without committing applies the spec unframed. -/
+procedure can; whatever it leaves unassigned, including metavariables of its own making, becomes a
+subgoal. Returning without committing applies the spec unframed. -/
 public abbrev VCGen.FrameInferenceProc :=
-  VCGen.FrameInferenceInfo → Grind.GrindM (List MVarId)
+  VCGen.FrameInferenceInfo → Grind.GrindM Unit
 
 /-- The procedure framing `frame` with the whole split VC left as a subgoal for the built-in lattice
 decomposition: commit, assign the schematic frame, discharge nothing. -/
 public def VCGen.FrameInferenceProc.ofFrame?
     (f : VCGen.FrameInferenceInfo → Grind.GrindM (Option Expr)) : VCGen.FrameInferenceProc :=
   fun i => do
-    let some frame ← f i | return []
-    let goals ← i.commit
-    goals.F.mvarId!.assign (← shareCommon frame)
-    return []
+    let some frame ← f i | return
+    (← i.commit).F.mvarId!.assign (← shareCommon frame)
 
 /-- How to decompose a lattice operator `head … s⃗` on the RHS of an entailment: the distribution and
 unfolding `rewrites` that saturate it, and the terminal `⊑`-introduction `terminals` that close the

@@ -861,7 +861,7 @@ Pair `pre`'s atoms against `specPre`'s, pinning the spec's parameter metavariabl
 paired: assign `?F` the leftover atoms and close by AC-rearrangement. Some of `specPre` unpaired:
 cancel what did pair and emit the residual `rest ⊑ ?F ∗ unmatched` with `?F` still schematic. When
 nothing pairs, the whole split VC remains as the subgoal. -/
-def dischargeSplitVC (goals : FrameGoals) : Lean.Meta.Grind.GrindM (List MVarId) := do
+def dischargeSplitVC (goals : FrameGoals) : Lean.Meta.Grind.GrindM Unit := do
   let ty ← goals.splitVC.getType
   let_expr Lean.Order.PartialOrder.rel _ _ pre rhs := ty
     | throwError "sepConj frameproc: split VC is not an entailment{indentExpr ty}"
@@ -872,10 +872,10 @@ def dischargeSplitVC (goals : FrameGoals) : Lean.Meta.Grind.GrindM (List MVarId)
     F.mvarId!.assign (← sepConjOfAtoms rest)
     if let some prf ← proveSepConjLe pre (← instantiateMVars rhs) then
       goals.splitVC.assign prf
-    return []
+    return
   if matched.isEmpty || rest.isEmpty then
     -- Nothing to cancel (or nothing left to pay the unmatched footprint): keep the whole split VC.
-    return []
+    return
   let restC ← sepConjOfAtoms rest
   let matchedC ← sepConjOfAtoms matched
   let unmatchedC ← sepConjOfAtoms (← unmatched.mapM (instantiateMVars ·))
@@ -886,16 +886,15 @@ def dischargeSplitVC (goals : FrameGoals) : Lean.Meta.Grind.GrindM (List MVarId)
   -- The schematic `?F` never reaches `isDefEq` or AC: it rides through `sepConj_left_comm` and
   -- `congrArg`, and the AC equation `matched ∗ unmatched = specPre` is between concrete terms.
   let mono ← mkAppM ``sepConj_mono_right #[matchedC, residual]
-  let some q1 ← proveSepConjLe pre (← mkAppM ``sepConj #[matchedC, restC]) | return []
+  let some q1 ← proveSepConjLe pre (← mkAppM ``sepConj #[matchedC, restC]) | return
   let stepA ← mkAppM ``sepConj_left_comm #[matchedC, F, unmatchedC]
   let some hEq ← proveSepConjEq (← mkAppM ``sepConj #[matchedC, unmatchedC])
-      (← instantiateMVars specPre) | return []
+      (← instantiateMVars specPre) | return
   let stepB ← mkAppM ``congrArg #[← mkAppM ``sepConj #[F], hEq]
   let q2 ← mkAppM ``Lean.Order.PartialOrder.rel_of_eq #[← mkAppM ``Eq.trans #[stepA, stepB]]
   let prf ← mkAppM ``Lean.Order.PartialOrder.rel_trans
     #[q1, ← mkAppM ``Lean.Order.PartialOrder.rel_trans #[mono, q2]]
   goals.splitVC.assign prf
-  return [residual.mvarId!]
 
 /-- Automatic frame inference by domain difference: the spec's precondition's atoms (its footprint)
 are cancelled from the goal precondition's, and the leftover atoms are the frame. Example: goal
@@ -917,9 +916,9 @@ def sepConjFrameProc : FrameInferenceProc := fun i => do
     -- Decide on the peeked precondition: frame only when cancellation pairs some footprint atom
     -- and leaves some precondition atom over. In particular an unfold equation, whose footprint is
     -- the whole unfolded `wp`, pairs nothing and applies unframed.
-    let some specPre ← i.peekSpecPre | return []
+    let some specPre ← i.peekSpecPre | return
     let (rest, matched, _) ← matchSepAtoms (← i.pre) specPre
-    if matched.isEmpty || rest.isEmpty then return []
+    if matched.isEmpty || rest.isEmpty then return
     dischargeSplitVC (← i.commit)
 
 @[frameproc] def heapFP : FrameProc where
@@ -1499,8 +1498,8 @@ example (p top l : Addr) (z v : Nat) (xs : List Nat) :
     ⦃ fun r => ⌜r = v⌝ ⊓ (Stack xs p ∗ l ↦ z) ⦄ := by
   vcgen frames | pop p => l ↦ z
   -- Fill the spec's unpinned parameters, then fold the representation in the split VC.
-  case vc5 => exact v
-  case vc6 => exact xs
+  case vc1 => exact v
+  case vc2 => exact xs
   · exact PartialOrder.rel_trans
       (PartialOrder.rel_of_eq (by grind :
         p ↦ top ∗ IsList (v :: xs) null top ∗ l ↦ z =
@@ -1527,9 +1526,8 @@ example (p top l : Addr) (z v : Nat) (xs : List Nat) (k : Addr) :
   vcgen
   -- Fill the schematic frame and the spec's unpinned parameter, then fold the representation in
   -- the residual.
-  case vc2 => exact l ↦ z
-  case vc4 => exact xs
-  rotate_right
+  case vc1 => exact l ↦ z
+  case vc2 => exact xs
   · exact PartialOrder.rel_trans
       (PartialOrder.rel_of_eq (by grind :
         p ↦ top ∗ IsList xs null top ∗ l ↦ z = l ↦ z ∗ p ↦ top ∗ IsList xs null top))

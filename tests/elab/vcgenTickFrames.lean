@@ -231,8 +231,8 @@ reposts the committed split VC in the meet form `pre ⊑ (⌜shift ≤ ticks⌝ 
 the built-in meet split turns this into the tick guard (closed by `grind`) and the shifted residual
 `pre ⊑ W (ticks - shift) s⃗`. -/
 def tickFrameProc : FrameInferenceProc := fun i => do
-  unless i.Pred.isArrow && i.Pred.bindingDomain!.isConstOf ``Nat do return []
-  let some ticks := i.excessArgs[0]? | return []
+  unless i.Pred.isArrow && i.Pred.bindingDomain!.isConstOf ``Nat do return
+  let some ticks := i.excessArgs[0]? | return
   let shift ← match i.providedFrame? with
     | some r => pure r
     | none => do
@@ -243,7 +243,7 @@ def tickFrameProc : FrameInferenceProc := fun i => do
         (← Lean.Meta.Sym.Simp.mkTheoremFromDecl ``Nat.sub_self)
       let post := Lean.Meta.Sym.Simp.evalGround >> thms.rewrite
       pure ((← Lean.Meta.Sym.simp ticks { post }).getResultExpr ticks)
-  if shift.nat? == some 0 then return []
+  if shift.nat? == some 0 then return
   let goals ← i.commit
   goals.F.mvarId!.assign (← shareCommon shift)
   -- Repost the split VC `pre ⊑ (costConj shift W ticks) s⃗` in its `costConj_apply`-reduced meet
@@ -263,7 +263,6 @@ def tickFrameProc : FrameInferenceProc := fun i => do
   let reducedRhs ← mkAppNS meet (i.excessArgs.extract 1 i.excessArgs.size)
   let m ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS (← i.le) #[pre, reducedRhs])
   goals.splitVC.assign m
-  return [m.mvarId!]
 
 /-- Register the cost frame inference procedure for `vcgen`, indexed by the `TickT` program type. The
 frame operator `costConj` is built at the base lattice `L` read off the assertion type `Nat → L`, so it

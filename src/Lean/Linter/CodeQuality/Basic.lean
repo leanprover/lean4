@@ -8,9 +8,6 @@ module
 
 prelude
 
-public import Init.Data.Float
-public import Std.Data.TreeMap
-public import Init.Data.Ord
 public import Lean.Data.Json
 
 public section
@@ -32,5 +29,9 @@ structure Entry where
   source : Source
   value : Value
   deriving ToJson
+
+structure CheckResult where
+  entries : Array Entry
+  errors : Array String
 
 end Lean.Linter.CodeQuality

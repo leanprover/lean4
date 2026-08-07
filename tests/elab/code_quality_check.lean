@@ -13,20 +13,22 @@ open Lean Linter CodeQuality
 /-! ## Dummy checks for testing -/
 
 @[package_code_quality_check]
-public meta def dummyMetric : PackageCheck := fun _ =>
-  return #[
-    { name := "dummyMetric", source := .module `MyModule, value := .scalar 42.0 },
-    { name := "dummyMetric", source := .declaration `MyModule `MyModule.foo, value := .scalar 1.0 }]
+public meta def dummyMetric : PackageCheck where
+  run _ :=
+    return #[
+      { name := "dummyMetric", source := .module `MyModule, value := .scalar 42.0 },
+      { name := "dummyMetric", source := .declaration `MyModule `MyModule.foo, value := .scalar 1.0 }]
 
 @[package_code_quality_check]
-public meta def dictMetric : PackageCheck := fun _ =>
-  return #[
+public meta def dictMetric : PackageCheck where
+  run _ := return #[
     { name := "dictMetric", source := .module `MyModule,
       value := .dict (Std.TreeMap.empty.insert "a" 1.0 |>.insert "b" 2.0) }]
 
 @[package_code_quality_check]
-public meta def pkgRootMetric : PackageCheck := fun ctx =>
-  return #[{ name := "pkgRootMetric", source := .module ctx.pkgRoot, value := .scalar 0.0 }]
+public meta def pkgRootMetric : PackageCheck where
+  run _ :=
+    return #[{ name := "pkgRootMetric", source := .declaration `hello `world , value := .scalar 0.0 }]
 
 /-! ## Test: the extension tracks registered checks -/
 
@@ -46,18 +48,22 @@ def testExtContains (name : Name) : CoreM Bool := do
 def testGetPackageChecks : CoreM (Array Name) := do
   return (← getPackageChecks).map (·.declName)
 
-/-- info: #[`dummyMetric, `dictMetric, `pkgRootMetric] -/
+/-- info: #[`dictMetric, `dummyMetric, `pkgRootMetric] -/
 #guard_msgs in
 #eval testGetPackageChecks
 
 /-! ## Test: runPackageChecks combines all results into one entry array, threading the context -/
 
 def testRunPackageChecks : CoreM String := do
-  let entries ← runPackageChecks (← getPackageChecks) { pkgRoot := `MyPkg }
+  let ⟨entries, _⟩ ← runPackageChecks (← getPackageChecks) { srcSearchPath := [] }
   return (toJson entries).compress
 
+def testRunPackageErrors : CoreM (Array String) := do
+  let ⟨_, errors⟩ ← runPackageChecks (← getPackageChecks) { srcSearchPath := [] }
+  pure errors
+
 /--
-info: "[{\"name\":\"dummyMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"scalar\":{\"value\":42}}},{\"name\":\"dummyMetric\",\"source\":{\"declaration\":{\"module\":\"MyModule\",\"name\":\"MyModule.foo\"}},\"value\":{\"scalar\":{\"value\":1}}},{\"name\":\"dictMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"dict\":{\"dictionary\":{\"a\":1,\"b\":2}}}},{\"name\":\"pkgRootMetric\",\"source\":{\"module\":{\"name\":\"MyPkg\"}},\"value\":{\"scalar\":{\"value\":0}}}]"
+info: "[{\"name\":\"dictMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"dict\":{\"dictionary\":{\"a\":1,\"b\":2}}}},{\"name\":\"dummyMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"scalar\":{\"value\":42}}},{\"name\":\"dummyMetric\",\"source\":{\"declaration\":{\"module\":\"MyModule\",\"name\":\"MyModule.foo\"}},\"value\":{\"scalar\":{\"value\":1}}},{\"name\":\"pkgRootMetric\",\"source\":{\"declaration\":{\"module\":\"hello\",\"name\":\"world\"}},\"value\":{\"scalar\":{\"value\":0}}}]"
 -/
 #guard_msgs in
 #eval testRunPackageChecks
@@ -65,13 +71,15 @@ info: "[{\"name\":\"dummyMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}
 /-! ## Test: a failing check is reported on stderr and skipped; other checks still run -/
 
 @[package_code_quality_check]
-public meta def failingMetric : PackageCheck := fun _ =>
-  throwError "boom"
+public meta def failingMetric : PackageCheck where
+  run _ := .error "sorry"
+
+/-- info: #["failingMetric has failed: sorry"] -/
+#guard_msgs in
+#eval testRunPackageErrors
 
 /--
-info: code quality check `failingMetric` failed: boom
----
-info: "[{\"name\":\"dummyMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"scalar\":{\"value\":42}}},{\"name\":\"dummyMetric\",\"source\":{\"declaration\":{\"module\":\"MyModule\",\"name\":\"MyModule.foo\"}},\"value\":{\"scalar\":{\"value\":1}}},{\"name\":\"dictMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"dict\":{\"dictionary\":{\"a\":1,\"b\":2}}}},{\"name\":\"pkgRootMetric\",\"source\":{\"module\":{\"name\":\"MyPkg\"}},\"value\":{\"scalar\":{\"value\":0}}}]"
+info: "[{\"name\":\"dictMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"dict\":{\"dictionary\":{\"a\":1,\"b\":2}}}},{\"name\":\"dummyMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"scalar\":{\"value\":42}}},{\"name\":\"dummyMetric\",\"source\":{\"declaration\":{\"module\":\"MyModule\",\"name\":\"MyModule.foo\"}},\"value\":{\"scalar\":{\"value\":1}}},{\"name\":\"pkgRootMetric\",\"source\":{\"declaration\":{\"module\":\"hello\",\"name\":\"world\"}},\"value\":{\"scalar\":{\"value\":0}}}]"
 -/
 #guard_msgs in
 #eval testRunPackageChecks
@@ -82,7 +90,8 @@ info: "[{\"name\":\"dummyMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}
 error: invalid attribute `package_code_quality_check`, declaration `notMeta` must be marked as `public` and `meta` but is only marked `public`
 -/
 #guard_msgs in
-@[package_code_quality_check] public def notMeta : PackageCheck := fun _ => return #[]
+@[package_code_quality_check] public def notMeta : PackageCheck where
+  run _ := return #[]
 
 /-! ## Test: a declaration of the wrong type is rejected -/
 

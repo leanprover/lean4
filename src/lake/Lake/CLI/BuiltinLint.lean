@@ -8,10 +8,7 @@ module
 prelude
 public import Lean.Linter.EnvLinter
 public import Lean.Linter.PersistentLintLog
-import Lean.CoreM
-import Lean.DocString.Extension
 import Lean.Elab.DocString.Builtin.Postponed
-import Lake.Config.Workspace
 import Lean.Linter.CodeQuality
 
 open Lean Lean.Core Meta Linter
@@ -98,6 +95,11 @@ private inductive DeferredCheckOutcome where
   failures whose position could not be resolved.
   -/
   | recorded (records : Array ExceptionRecord) (unlocated : Bool)
+
+private structure PackageCodeQualityCheckOutcome where
+  entries : Array CodeQuality.Entry
+  failed : Bool
+  seenPackageCheckModules : NameSet
 
 private def collectTextLints
     (env : Environment) (pkgRoot : Name) :
@@ -383,6 +385,20 @@ private def runEnvironmentLinters (args : Args) (linterOpts : Linter.LinterOptio
       return .codeQualityChecks codeQualityEntries
   return outcome
 
+private def runPackageCodeQualityChecks (sp : SearchPath) (env : Environment)
+    (seenPackageCheckDecls : NameSet) : IO PackageCodeQualityCheckOutcome := do
+  let ⟨(outcome, anyFailed, checks), _⟩ ← CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do
+    let mut anyFailed : Bool := false
+    let checks ← CodeQuality.getPackageChecks
+    let checks := checks.filter (!seenPackageCheckDecls.contains ·.declName)
+    let ⟨outcome, errors⟩ ← CodeQuality.runPackageChecks checks { srcSearchPath := sp }
+    if !errors.isEmpty then
+      anyFailed := true
+    for error in errors do
+      IO.eprintln error
+    return (outcome, anyFailed, checks)
+  return ⟨outcome, anyFailed, seenPackageCheckDecls.insertMany <| checks.map (·.declName)⟩
+
 public def run (args : Args) : IO UInt32 := do
   let mods := args.mods
   if mods.isEmpty then
@@ -402,6 +418,7 @@ public def run (args : Args) : IO UInt32 := do
   -- Modules whose deferred docstring checks have already been run. A module can appear in
   -- several targets' import closures, so this runs each such module's checks only once.
   let mut docCheckedModules : NameSet := {}
+  let mut seenPackageCheckModules : NameSet := {}
   for mod in mods do
     unsafe Lean.enableInitializersExecution
     -- Peek at the .olean header to learn whether `mod` participates in the module system.
@@ -442,7 +459,12 @@ public def run (args : Args) : IO UInt32 := do
     | .codeQualityChecks entries =>
       codeQualityEntries := codeQualityEntries ++ entries
 
-    unless args.mode == .codeQuality do
+    if args.mode == .codeQuality then
+      let ⟨entries, failed, seen⟩ ← runPackageCodeQualityChecks sp env seenPackageCheckModules
+      codeQualityEntries := codeQualityEntries ++ entries
+      if failed then anyFailed := true
+      seenPackageCheckModules := seen
+    else
       let deferredResults ← runDeferredChecks args linterOpts sp env mod.getRoot docCheckedModules
       docCheckedModules := deferredResults.checkedModules
       match deferredResults.outcome with
@@ -461,6 +483,6 @@ public def run (args : Args) : IO UInt32 := do
   | .codeQuality =>
     for entry in codeQualityEntries do
       IO.println <| toJson entry
-    return 0
+    return if anyFailed then 1 else 0
 
 end Lake.BuiltinLint

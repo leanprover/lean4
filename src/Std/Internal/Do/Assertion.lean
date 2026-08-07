@@ -37,12 +37,13 @@ namespace Assertion
 
 `CompleteLattice` can embed propositions (`⌜_⌝`) but not values of an arbitrary type `α`.
 `NondetFun Pred Fun α` equips an assertion lattice `Pred` with a notion of total
-nondeterministic functions `Fun` into `α`: an `EvalsTo` embedding of the function graph into
-the lattice, with a covering law that packs an arbitrary assertion under the graph join. For
-example, at `Pred = Nat → Prop` the instances are set up such that `Fun := Nat → α`, a function
-reading the `Nat` state. The value type `α` is the `outParam`: elaborating `EvalsTo f a` knows
-`Pred` from the goal and `Fun` from the type of the user-written measure `f`, and instance
-resolution computes the type `α` of pinned values.
+nondeterministic functions `Fun` into `α`. For example, at `Pred = Nat → Prop` the instances
+are set up such that `Fun := Nat → α`, a function reading the `Nat` state. The assertion
+`EvalsTo f a` states that `f` evaluates to the value `a`; in the example it is
+`fun s => ⌜f s = a⌝`. The law `total` states that `f` evaluates to some value: every assertion
+`P` entails `⨆ a, EvalsTo f a ⊓ P`. The value type `α` is the `outParam`: elaborating
+`EvalsTo f a` knows `Pred` from the goal and `Fun` from the type of the user-written measure
+`f`, and instance resolution computes the type `α` of pinned values.
 -/
 
 /--

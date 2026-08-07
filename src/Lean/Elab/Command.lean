@@ -36,6 +36,7 @@ structure State where
   auxDeclNGen    : DeclNameGenerator := .ofPrefix .anonymous
   infoState      : InfoState := {}
   traceState     : TraceState := {}
+  heartbeatsRef? : Option (IO.Ref (Array HeartbeatEntry)) := none
   snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
   prevLinterStates : Option (Task (Array LinterState)) := none
   codeQualityEntryTasks : Array (Task (Array Linter.CodeQualityLogEntry)) := #[]
@@ -68,6 +69,7 @@ structure Context where
   errors; see also `logMessage` below.
   -/
   suppressElabErrors : Bool := false
+  costOwner      : CostOwner := .unknown
 
 abbrev CommandElabM := ReaderT Context $ StateRefT State $ EIO Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
@@ -258,6 +260,23 @@ instance : MonadQuotation CommandElabM where
   getContext          := do (← read).quotContext?.getDM getMainModule
   withFreshMacroScope := Command.withFreshMacroScope
 
+/-- Best-effort qualification of a declaration name as written; see `Core.withCostOwner`. -/
+def approxCostOwnerName (currNamespace shortName : Name) : Name :=
+  if (`_root_).isPrefixOf shortName then
+    shortName.replacePrefix `_root_ .anonymous
+  else currNamespace ++ shortName
+
+/--
+Marks the heartbeat cost owner of a declaration command; a command elaborated while an owner is
+pending or fixed is machine-generated, so that owner is fixed for its whole elaboration.
+-/
+def withCostOwner? (declName? : Option Name) (x : CommandElabM α) : CommandElabM α :=
+  withReader (fun ctx =>
+    match ctx.costOwner, declName? with
+    | .pending declName, _ | .fixed declName, _ => { ctx with costOwner := .fixed declName }
+    | .unknown, some declName => { ctx with costOwner := .pending declName }
+    | .unknown, none => ctx) x
+
 private def runCore (x : CoreM α) : CommandElabM α := do
   let s ← get
   let ctx ← read
@@ -277,7 +296,9 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     currMacroScope     := ctx.currMacroScope
     options            := scope.opts
     cancelTk?          := ctx.cancelTk?
-    suppressElabErrors := ctx.suppressElabErrors }
+    suppressElabErrors := ctx.suppressElabErrors
+    heartbeats?        := s.heartbeatsRef?
+    costOwner          := ctx.costOwner }
   let x : EIO _ _ := x.run coreCtx {
     env
     ngen := s.ngen
@@ -1102,6 +1123,7 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
       snap? := none
       cancelTk? := ctx.cancelTk?
       suppressElabErrors := ctx.suppressElabErrors
+      costOwner := ctx.costOwner
     } |>.run {
       env := s.env
       nextMacroScope := s.nextMacroScope
@@ -1110,6 +1132,7 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
       auxDeclNGen := s.auxDeclNGen
       scopes := [{ header := "", opts := ctx.options }]
       infoState.enabled := s.infoState.enabled
+      heartbeatsRef? := ctx.heartbeats?
     }
   modify fun coreState => { coreState with
     env := commandState.env

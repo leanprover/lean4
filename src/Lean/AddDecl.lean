@@ -182,6 +182,7 @@ private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :
 where
   doAdd := do
     profileitM Exception "type checking" (← getOptions) do
+      Core.withDeclHeartbeats (decl.getTopLevelNames.head?.getD .anonymous) `kernel do
       withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
         warnIfUsesSorry decl
         try

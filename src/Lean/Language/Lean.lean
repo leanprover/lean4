@@ -520,6 +520,8 @@ where
       -- now that imports have been loaded, check options again
       opts ← reparseOptions opts
       let cmdState := Elab.Command.mkState headerEnv msgLog opts
+      -- enables heartbeat recording; `doElab` installs a fresh sink per command
+      let cmdState := { cmdState with heartbeatsRef? := some (← IO.mkRef #[]) }
       let cmdState := { cmdState with
         infoState := {
           enabled := true
@@ -685,8 +687,13 @@ where
       let mut reportedCmdState := cmdState
       let cmdline := internal.cmdlineSnapshots.get scope.opts && !Parser.isTerminalCommand stx
       if cmdline then
-        -- discard all metadata apart from the environment; see `internal.cmdlineSnapshots`
-        reportedCmdState := { env := reportedCmdState.env, maxRecDepth := 0 }
+        -- discard all metadata apart from the environment and heartbeat sink; see
+        -- `internal.cmdlineSnapshots`
+        reportedCmdState := {
+          env := reportedCmdState.env
+          maxRecDepth := 0
+          heartbeatsRef? := reportedCmdState.heartbeatsRef?
+        }
       resultPromise.resolve {
         diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
         traces := cmdState.traceState
@@ -755,9 +762,12 @@ where
       LeanProcessingM Command.State := do
     let ctx ← read
     let scope := cmdState.scopes.head!
+    -- fresh heartbeat sink per command; `runFrontend` aggregates across commands for the sidecar
+    let heartbeatsRef? : Option (IO.Ref (Array HeartbeatEntry)) ←
+      cmdState.heartbeatsRef?.mapM fun _ => IO.mkRef #[]
     -- reset per-command state
     let cmdStateRef ← IO.mkRef { cmdState with
-      messages := .empty, traceState := {}, snapshotTasks := #[] }
+      messages := .empty, traceState := {}, snapshotTasks := #[], heartbeatsRef? }
     let cmdCtx : Elab.Command.Context := { ctx with
       cmdPos       := beginPos
       snap?        := if internal.cmdlineSnapshots.get scope.opts then none else snap
@@ -810,6 +820,22 @@ where goCmd snap :=
     goCmd next.get
   else
     snap.elabSnap.resultSnap.get.cmdState
+
+/-- Waits for and returns the heartbeat entries recorded by all commands. -/
+partial def collectHeartbeatEntries (snap : InitialSnapshot) : BaseIO (Array HeartbeatEntry) := do
+  let some parsed := snap.result? | return #[]
+  let some processed := parsed.processedSnap.get.result? | return #[]
+  goCmd processed.firstCmdSnap.get #[]
+where
+  goCmd (snap : CommandParsedSnapshot) (acc : Array HeartbeatEntry) :
+      BaseIO (Array HeartbeatEntry) := do
+    let mut acc := acc
+    if let some ref := snap.elabSnap.resultSnap.get.cmdState.heartbeatsRef? then
+      acc := acc ++ (← ref.get)
+    if let some next := snap.nextCmdSnap? then
+      goCmd next.get acc
+    else
+      return acc
 
 /--
 Returns `snap` with all elaborated command data discarded, retaining only the imported

@@ -401,6 +401,20 @@ def runFrontend
     }
     IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
 
+  if let some oleanFileName := oleanFileName? then
+    if cmdState.heartbeatsRef?.isSome then
+      let entries ← Language.Lean.collectHeartbeatEntries snap
+      let path := oleanFileName.withExtension "hb.json"
+      IO.FS.writeFile path <| Json.compress <| Json.mkObj [
+        ("module", mainModuleName.toString),
+        ("unit", "raw"),
+        ("entries", Json.arr <| entries.map fun e => Json.mkObj [
+          ("owner", e.owner.toString),
+          ("decl", e.declName.toString),
+          ("phase", e.phase.toString),
+          ("heartbeats", toJson e.heartbeats)])
+      ]
+
   if let some out := trace.profiler.output.get? opts then
     let traceStates := snaps.getAll.map (·.traces)
     let profile ← Firefox.Profile.export mainModuleName.toString startTime traceStates opts

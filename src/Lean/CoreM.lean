@@ -9,6 +9,7 @@ prelude
 public import Lean.Util.RecDepth
 public import Lean.ResolveName
 public import Lean.Language.Basic
+public import Lean.Util.Profile
 import Init.While
 import Lean.Compiler.NoncomputableAttr
 
@@ -242,6 +243,8 @@ structure Context extends Context.Cold where
   openDecls      : List OpenDecl := []
   initHeartbeats : Nat := 0
   maxHeartbeats  : Nat := getMaxHeartbeats options
+  heartbeats?    : Option (IO.Ref (Array HeartbeatEntry)) := none
+  costOwner      : CostOwner := .unknown
   currMacroScope : MacroScope := firstFrontendMacroScope
   /--
   If `diag := true`, different parts of the system collect diagnostics.
@@ -556,6 +559,35 @@ instance : MonadLog CoreM where
     let ctx ← read
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls } msg.data };
     modify fun s => { s with messages := s.messages.add msg }
+
+/-- Attributes `count` raw heartbeats to `declName`, owned by the surrounding `withCostOwner` scope. -/
+def recordDeclHeartbeats (declName : Name) (phase : Name) (count : Nat) : CoreM Unit := do
+  let ctx ← read
+  if let some sink := ctx.heartbeats? then
+    let entry := { owner := ctx.costOwner.name?.getD declName, declName, phase, heartbeats := count :
+      HeartbeatEntry }
+    sink.modify (·.push entry)
+
+/--
+Runs `act`, attributing the heartbeats it uses to `declName`. The counter is thread-local, so
+`act` must not fork off the work being measured.
+-/
+@[specialize] def withDeclHeartbeats {α : Type} (declName : Name) (phase : Name) (act : CoreM α) :
+    CoreM α := do
+  if (← read).heartbeats?.isNone then return (← act)
+  let startHeartbeats ← IO.getNumHeartbeats
+  let a ← act
+  let stopHeartbeats ← IO.getNumHeartbeats
+  recordDeclHeartbeats declName phase (stopHeartbeats - startHeartbeats)
+  return a
+
+/-- Attributes heartbeats recorded inside `x` to `declName`; an already-fixed owner is kept. -/
+def withCostOwner [Monad m] [MonadControlT CoreM m] (declName : Name) (x : m α) : m α :=
+  controlAt CoreM fun runInBase =>
+    withReader (fun ctx =>
+      match ctx.costOwner with
+      | .unknown | .pending _ => { ctx with costOwner := .fixed declName }
+      | .fixed _ => ctx) (runInBase x)
 
 /--
 Includes a given task (such as from `wrapAsyncAsSnapshot`) in the overall snapshot tree for this

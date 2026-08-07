@@ -193,6 +193,18 @@ partial def hasTag : MessageData → Bool
   | ofOriginatingSyntax _ msg   => hasTag msg
   | _                           => false
 
+/-- Returns the first result of `p` on a tag, traversing like `hasTag`. -/
+partial def findTag? (p : Name → Option α) : MessageData → Option α
+  | withContext _ msg           => findTag? p msg
+  | withNamingContext _ msg     => findTag? p msg
+  | nest _ msg                  => findTag? p msg
+  | group msg                   => findTag? p msg
+  | compose msg₁ msg₂           => findTag? p msg₁ <|> findTag? p msg₂
+  | tagged n msg                => p n <|> findTag? p msg
+  | trace data msg msgs         => p data.cls <|> findTag? p msg <|> msgs.findSome? (findTag? p)
+  | ofOriginatingSyntax _ msg    => findTag? p msg
+  | _                           => none
+
 /--
 Returns the top-level tag of the message.
 If none, returns `Name.anonymous`.

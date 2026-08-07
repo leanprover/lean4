@@ -159,6 +159,7 @@ def expandNamespacedDeclaration : Macro := fun stx => do
 
 @[builtin_command_elab declaration, builtin_incremental]
 def elabDeclaration : CommandElab := fun stx => do
+  withCostOwner? ((getDeclName? stx).map (approxCostOwnerName (← getScope).currNamespace)) do
   withExporting (isExporting := (← getScope).isPublic) do
   let modifiers : TSyntax ``Parser.Command.declModifiers := ⟨stx[0]⟩
   let decl     := stx[1]
@@ -287,6 +288,8 @@ def expandMutualPreamble : Macro := fun stx =>
 
 @[builtin_command_elab «mutual», builtin_incremental]
 def elabMutual : CommandElab := fun stx => do
+  withCostOwner? ((stx[1].getArgs[0]? |>.bind getDeclName?).map
+    (approxCostOwnerName (← getScope).currNamespace)) do
   withExporting (isExporting := (← getScope).isPublic) do
   if isMutualDefLike stx then
     -- only case implementing incrementality currently

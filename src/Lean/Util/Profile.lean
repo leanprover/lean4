@@ -53,4 +53,32 @@ def profileitM {m : Type → Type} (ε : Type) [MonadFunctorT (EIO ε) m] {α : 
 @[extern "lean_display_cumulative_profiling_times"]
 opaque displayCumulativeProfilingTimes : BaseIO Unit
 
+/-- Heartbeats used by one phase of processing one declaration. -/
+structure HeartbeatEntry where
+  /--
+  User-written declaration the cost rolls up to; auxiliary declarations report the declaration
+  that caused them, and a mutual clique's shared work its first declaration.
+  -/
+  owner : Name
+  /-- Declaration the heartbeats were actually spent on, e.g. an auxiliary of `owner`. -/
+  declName : Name
+  /-- Phase that used the heartbeats; `elab` or `kernel`. -/
+  phase : Name
+  /-- Raw heartbeats, i.e. `IO.getNumHeartbeats` units. Divide by 1000 for the `maxHeartbeats` unit. -/
+  heartbeats : Nat
+  deriving Inhabited
+
+/-- Attribution state for per-declaration heartbeat costs; see `Core.withCostOwner`. -/
+inductive CostOwner where
+  | unknown
+  /-- Best-effort name, refined once by the first elaborator that knows the elaborated name. -/
+  | pending (declName : Name)
+  /-- Decided; nested machine-generated elaboration stays attributed to it. -/
+  | fixed (declName : Name)
+  deriving Inhabited
+
+def CostOwner.name? : CostOwner → Option Name
+  | .unknown => none
+  | .pending declName | .fixed declName => some declName
+
 end Lean

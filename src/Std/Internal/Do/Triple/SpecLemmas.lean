@@ -1834,7 +1834,7 @@ theorem Spec.forIn_stringSlice
 
 section While
 
-universe u w w' v' s
+universe uα uγ v' s
 
 variable {α β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
 variable [Monad m] [Lean.Order.MonadTail m] [Assertion Pred] [Assertion EPred]
@@ -1856,20 +1856,20 @@ well-founded relation, and a lattice-embedded evaluation of the measure at each 
 Build one from a measure function with `RepeatVariant.ofMeasure`.
 -/
 @[spec_invariant_type]
-structure RepeatVariant (α : Type w) (Pred : Type u) [Assertion Pred] :
-    Type (max w (w' + 1) u) where
+structure RepeatVariant (α : Type uα) (Pred : Type u) [Assertion Pred] :
+    Type (max uα (uγ + 1) u) where
   /-- The type of measure values. -/
-  {γ : Type w'}
+  {γ : Type uγ}
   /-- The well-founded relation that measure values decrease along. -/
   [wfRel : WellFoundedRelation γ]
   /-- Relates the measure at cursor `a` to a value `n` inside the assertion lattice. -/
   EvalsTo : α → γ → Pred
-  /-- The measure evaluates to some value: pack `P` under the graph join. -/
-  total : ∀ a P, P ⊑ ⨆ n, EvalsTo a n ⊓ P
+  /-- The measure evaluates to some value. -/
+  total : ∀ a, (⨆ n, EvalsTo a n) = ⊤
 
 namespace RepeatVariant
 
-variable {α : Type w}
+variable {α : Type uα}
 
 /-- The relation that measure values decrease along. -/
 def rel (v : RepeatVariant α Pred) : v.γ → v.γ → Prop :=
@@ -1880,32 +1880,37 @@ theorem wf (v : RepeatVariant α Pred) : WellFounded v.rel :=
 
 /-- Eliminate the covering join of `EvalsTo` from the left of an entailment. -/
 theorem le_of_total_le (v : RepeatVariant α Pred) (a : α) {P Q : Pred}
-    (h : (⨆ n, v.EvalsTo a n ⊓ P) ⊑ Q) : P ⊑ Q :=
-  PartialOrder.rel_trans (v.total a P) h
+    [PreservesSup (meet P)]
+    (h : (⨆ n, v.EvalsTo a n ⊓ P) ⊑ Q) : P ⊑ Q := by
+  have h1 : P ⊑ (⨆ n, v.EvalsTo a n) ⊓ P := by
+    rw [v.total a, CompleteLattice.top_meet]
+  have h2 : (⨆ n, v.EvalsTo a n) ⊓ P ⊑ ⨆ n, v.EvalsTo a n ⊓ P :=
+    iSup_meet_le fun n => le_iSup (fun n => v.EvalsTo a n ⊓ P) n
+  exact PartialOrder.rel_trans h1 (PartialOrder.rel_trans h2 h)
 
 /--
 Build a `RepeatVariant` from a measure function `f`. The measure's value type `γ` (its codomain
 through any `NondetFun` state layers) provides the well-founded relation, e.g. `<` for `Nat` and
 the lexicographic order for products.
 -/
-@[instance_reducible] def ofMeasure {γ : Type w'} {Fun : Type v'} [NondetFun Pred Fun γ]
+@[instance_reducible] def ofMeasure {γ : Type uγ} {Fun : Type v'} [NondetFun Pred Fun γ]
     [WellFoundedRelation γ] (f : α → Fun) : RepeatVariant α Pred where
   γ := γ
   EvalsTo a n := NondetFun.EvalsTo (f a) n
-  total a P := NondetFun.total (f a) P
+  total a := NondetFun.total (f a)
 
-@[simp, grind =] theorem γ_ofMeasure {γ : Type w'} {Fun : Type v'} [NondetFun Pred Fun γ]
+@[simp, grind =] theorem γ_ofMeasure {γ : Type uγ} {Fun : Type v'} [NondetFun Pred Fun γ]
     [WellFoundedRelation γ] (f : α → Fun) :
     (ofMeasure (Pred := Pred) f).γ = γ := rfl
 
-@[simp, grind =] theorem evalsTo_ofMeasure {γ : Type w'} {Fun : Type v'} [NondetFun Pred Fun γ]
+@[simp, grind =] theorem evalsTo_ofMeasure {γ : Type uγ} {Fun : Type v'} [NondetFun Pred Fun γ]
     [WellFoundedRelation γ] (f : α → Fun) (a : α) (n : γ) :
     (ofMeasure (Pred := Pred) f).EvalsTo a n = NondetFun.EvalsTo (f a) n := rfl
 
 /-- Decrease along `ofMeasure` is decrease of measure values along the well-founded relation of
 `γ`. Rewriting with this lemma brings a decrease proof obligation into the shape produced by
 `termination_by`, so that `decreasing_tactic` applies. -/
-theorem rel_ofMeasure {γ : Type w'} {Fun : Type v'} [NondetFun Pred Fun γ]
+theorem rel_ofMeasure {γ : Type uγ} {Fun : Type v'} [NondetFun Pred Fun γ]
     [WellFoundedRelation γ] (f : α → Fun) (n' n : γ) :
     (ofMeasure (Pred := Pred) f).rel n' n ↔ WellFoundedRelation.rel n' n := Iff.rfl
 
@@ -1921,7 +1926,7 @@ open Std.Internal.Do.CompleteLattice in
 /-- For a state-independent measure the pinned value is the measure itself, so the join
 collapses to a decrease along the well-founded relation of `γ`. The proof obligation has the
 shape produced by `termination_by`, so that `decreasing_tactic` applies. -/
-theorem evalsBelow_ofMeasure {γ : Type w'} [WellFoundedRelation γ]
+theorem evalsBelow_ofMeasure {γ : Type uγ} [WellFoundedRelation γ]
     (f : α → γ) (a' : α) (ma : γ) :
     (ofMeasure (Pred := Pred) f).EvalsBelow a' ma = ⌜WellFoundedRelation.rel (f a') ma⌝ := by
   refine PartialOrder.rel_antisymm (iSup_le _ _ fun ma' => ?_) (le_iSup_of_le (f a') ?_)
@@ -1942,7 +1947,7 @@ open Std.Internal.Do.CompleteLattice in
 /-- Pointwise characterization of `EvalsBelow` on a function lattice, for `ofMeasure`
 measures. -/
 @[simp] theorem evalsBelow_ofMeasure_apply {σ : Type s} {Pred : Type u} [Assertion Pred]
-    {γ : Type w'} {Fun : Type v'} [NondetFun Pred Fun γ] [WellFoundedRelation γ]
+    {γ : Type uγ} {Fun : Type v'} [NondetFun Pred Fun γ] [WellFoundedRelation γ]
     (f : α → σ → Fun) (a' : α) (ma : γ) (s : σ) :
     (ofMeasure (Pred := σ → Pred) f).EvalsBelow a' ma s
       = (ofMeasure (Pred := Pred) (f · s)).EvalsBelow a' ma := by

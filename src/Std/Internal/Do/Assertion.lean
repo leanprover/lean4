@@ -40,8 +40,8 @@ namespace Assertion
 nondeterministic functions `Fun` into `α`. For example, at `Pred = Nat → Prop` the instances
 are set up such that `Fun := Nat → α`, a function reading the `Nat` state. The assertion
 `EvalsTo f a` states that `f` evaluates to the value `a`; in the example it is
-`fun s => ⌜f s = a⌝`. The law `total` states that `f` evaluates to some value: every assertion
-`P` entails `⨆ a, EvalsTo f a ⊓ P`. The value type `α` is the `outParam` because instances are
+`fun s => ⌜f s = a⌝`. The law `total` states that `f` evaluates to some value:
+`(⨆ a, EvalsTo f a) = ⊤`. The value type `α` is the `outParam` because instances are
 synthesized while only the function `f` is at hand: resolution knows `Pred` and `Fun` and
 computes `α`, whose values first occur in the assertions the instance builds.
 -/
@@ -53,18 +53,15 @@ computes `α`, whose values first occur in the assertions the instance builds.
 class NondetFun (Pred : Type u) (Fun : Type v) (α : outParam (Type w)) [Assertion Pred] where
   /-- Relates a nondeterministic function to a value inside the assertion lattice. -/
   EvalsTo : Fun → α → Pred
-  /-- Every function hits some value: pack `P` under the graph join. -/
-  total (f : Fun) (P : Pred) : P ⊑ ⨆ a, EvalsTo f a ⊓ P
+  /-- Every function hits some value. -/
+  total (f : Fun) : (⨆ a, EvalsTo f a) = ⊤
 
 /-- Pure (state-independent) nondeterministic functions into `α` are just values of `α`.
 Low priority so that the `σ`-indexed instance is preferred when both apply. -/
 noncomputable instance (priority := low) {Pred : Type u} {α : Type v}
     [Assertion Pred] : NondetFun Pred α α where
   EvalsTo f a := ⌜f = a⌝
-  total f P := by
-    refine le_iSup_of_le f (le_meet _ _ _ ?_ PartialOrder.rel_refl)
-    rw [ofProp_eq_top rfl]
-    exact le_top P
+  total f := PartialOrder.rel_antisymm (le_top _) (le_iSup_of_le f (le_ofProp _ _ rfl))
 
 /-- State-dependent nondeterministic functions: a function for `σ → Pred` is a `σ`-indexed
 function for `Pred`. -/
@@ -72,9 +69,9 @@ instance {σ : Type s} {Pred : Type u} {Fun : Type v} {α : Type w}
     [Assertion Pred] [inst : NondetFun Pred Fun α] :
     NondetFun (σ → Pred) (σ → Fun) α where
   EvalsTo f a := fun s => inst.EvalsTo (f s) a
-  total f P := by
-    intro s
-    simpa [iSup_apply, meet_apply] using inst.total (f s) (P s)
+  total f := by
+    funext s
+    simpa [iSup_apply, top_apply] using inst.total (f s)
 
 @[simp, grind =] theorem NondetFun.evalsTo_pure {Pred : Type u} {α : Type v} [Assertion Pred]
     (f a : α) : NondetFun.EvalsTo (Pred := Pred) f a = ⌜f = a⌝ := rfl
@@ -121,8 +118,13 @@ not. -/
 /-- Eliminate the covering join of `EvalsTo` from the left of an entailment. -/
 theorem NondetFun.le_of_total_le {Pred : Type u} {Fun : Type v} {α : Type w}
     [Assertion Pred] [inst : NondetFun Pred Fun α] (f : Fun) {P Q : Pred}
-    (h : (⨆ a, inst.EvalsTo f a ⊓ P) ⊑ Q) : P ⊑ Q :=
-  PartialOrder.rel_trans (inst.total f P) h
+    [PreservesSup (meet P)]
+    (h : (⨆ a, inst.EvalsTo f a ⊓ P) ⊑ Q) : P ⊑ Q := by
+  have h1 : P ⊑ (⨆ a, inst.EvalsTo f a) ⊓ P := by
+    rw [inst.total f, top_meet]
+  have h2 : (⨆ a, inst.EvalsTo f a) ⊓ P ⊑ ⨆ a, inst.EvalsTo f a ⊓ P :=
+    iSup_meet_le fun a => le_iSup (fun a => inst.EvalsTo f a ⊓ P) a
+  exact PartialOrder.rel_trans h1 (PartialOrder.rel_trans h2 h)
 
 end Assertion
 

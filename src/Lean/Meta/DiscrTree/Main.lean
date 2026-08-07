@@ -348,6 +348,7 @@ def insertIfSpecific [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (noIndexAtA
     return d.insertKeyValue keys v
 
 private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Expr) := do
+  let origHeadIsMatcher := isMatcherAppCore? (← getEnv) e.consumeMData |>.isSome
   let e ← reduceDT e root
   unless root do
     -- See pushArgs
@@ -375,15 +376,31 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
         -/
         Meta.throwIsDefEqStuck
       else if let some matcherInfo := isMatcherAppCore? (← getEnv) e then
-        -- A matcher application is stuck is one of the discriminants has a metavariable
+        -- A matcher application is stuck if one of the discriminants has a metavariable.
         let args := e.getAppArgs
         for arg in args[matcherInfo.getFirstDiscrPos...(matcherInfo.getFirstDiscrPos + matcherInfo.numDiscrs)] do
           if arg.hasExprMVar then
-            Meta.throwIsDefEqStuck
+            /- If the matcher was exposed by `reduceDT` unfolding a different head (e.g., a
+               `@[reducible]` def), throw to signal postponement — the original def may reduce
+               once its metavariables are assigned. But if the user wrote the matcher directly
+               (the original expression was already a matcher application), treat it as a wildcard
+               so instance resolution can proceed despite the stuck discriminant.
+               See issue #12381. -/
+            if origHeadIsMatcher then
+              return (.star, #[])
+            else
+              Meta.throwIsDefEqStuck
       else if (← isRec c) then
         /- Similar to the previous case, but for `match` and recursor applications. It may be stuck (i.e., did not reduce)
-           because of metavariables. -/
-        Meta.throwIsDefEqStuck
+           because of metavariables.
+           However, if the original expression was already a matcher application (user-written `match`),
+           `reduce` may have unfolded the matcher definition to expose its internal recursor.
+           In that case, treat it as a wildcard rather than throwing, so instance resolution
+           can proceed despite the stuck discriminant. See issue #12381. -/
+        if origHeadIsMatcher then
+          return (.star, #[])
+        else
+          Meta.throwIsDefEqStuck
     let nargs := e.getAppNumArgs
     return (.const c nargs, e.getAppRevArgs)
   | .fvar fvarId   =>

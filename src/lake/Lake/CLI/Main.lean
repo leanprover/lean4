@@ -549,7 +549,7 @@ protected def get : CliM PUnit := do
       -- TODO: Parallelize?
       let ok ← ws.packages.foldlM (start := 1) (init := true) (m := LoggerIO) fun ok pkg => do
         let some remoteScope := pkg.reservoirScope?
-          | logInfo s!"{pkg.prettyName}: skipping non-Reservoir dependency`"
+          | logInfo s!"{pkg.prettyName}: skipping non-Reservoir dependency"
             return ok
         let platform := cachePlatform pkg platform
         let toolchain := cacheToolchain pkg toolchain

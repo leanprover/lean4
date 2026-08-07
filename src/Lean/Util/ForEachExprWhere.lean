@@ -13,11 +13,14 @@ public section
 
 namespace Lean
 /-!
-`forEachWhere p f e` is similar to `forEach f e`, but only applies `f` to subterms that satisfy the
-(pure) predicate `p`.
-It also uses the caching trick used at `FindExpr` and `ReplaceExpr`. This can be very effective
-if the number of subterms satisfying `p` is a small subset of the set of subterms.
-If `p` holds for most subterms, then it is more efficient to use `forEach f e`.
+`forEachWhere p f e` traverses `e` like `forEach f e`, but calls `f` only on subterms satisfying the
+pure predicate `p`. Matching subterms are deduplicated by structural equality, so `f` is called at
+most once for each distinct matching expression even when it occurs in multiple places.
+
+The traversal also uses the pointer cache used by `FindExpr` and `ReplaceExpr`. This can be much more
+efficient than `forEach` when `p` selects a small subset of subterms or when `f` is expensive. If `p`
+holds for most subterms and duplicate suppression is unnecessary, the cache and hash-set overhead can
+make `forEach` faster.
 -/
 
 namespace ForEachExprWhere
@@ -86,9 +89,11 @@ where
 end ForEachExprWhere
 
 /--
-  `e.forEachWhere p f` applies `f` to each subterm that satisfies `p`.
-  If `stopWhenVisited` is `true`, the function doesn't visit subterms of terms
-  which satisfy `p`.
+`e.forEachWhere p f` applies `f` at most once to each structurally distinct subterm of `e` that
+satisfies `p`. In particular, repeated structurally equal occurrences do not cause repeated calls.
+
+If `stopWhenVisited` is `true`, the traversal does not descend below a matching subterm when `f` is
+called for that subterm.
 -/
 @[implemented_by ForEachExprWhere.visit]
 opaque Expr.forEachWhere {ω : Type} {m : Type → Type} [STWorld ω m] [MonadLiftT (ST ω) m] [Monad m] (p : Expr → Bool) (f : Expr → m Unit) (e : Expr) (stopWhenVisited : Bool := false) : m Unit

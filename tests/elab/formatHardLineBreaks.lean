@@ -156,3 +156,103 @@ ab
 #eval do
   IO.println (Format.nest 4 ("ab" ++ Format.align true ++ "cd") |>.pretty 100)
   IO.println (Format.nest 2 ("ab" ++ Format.align true ++ "cd") |>.pretty 100)
+
+-- a forced `align` breaks, but the header in front of it is still flattenable, so a group
+-- containing one flattens as soon as its flattened form fits: the first row here is 10 columns
+-- wide, and `where` stays on it at every width from 10 up.
+/--
+info: head where
+  field
+
+head where
+  field
+
+head where
+  field
+-/
+#guard_msgs (whitespace := exact) in
+#eval
+  let f : Format := .group (
+    "head" ++ .line ++ "where" ++ .nest 2 (Format.align true ++ "field"))
+  do
+  IO.println (f.pretty 10)
+  IO.println ""
+  IO.println (f.pretty 22)
+  IO.println ""
+  IO.println (f.pretty 23)
+
+-- the measurement follows the column across work items, not only within the first one: `aa bb`
+-- fits width 5 exactly, and at width 8 there is room for `dd` after the aligned `cc`.
+/--
+info: aa bb
+   cc
+dd
+ ee
+
+aa bb
+   cc dd
+ ee
+-/
+#guard_msgs (whitespace := exact) in
+#eval
+  let f : Format := .fill (
+    "aa" ++ .line ++ "bb" ++ .nest 3 (Format.align true ++ "cc") ++
+    .line ++ "dd" ++ .nest 1 (Format.align true ++ "ee"))
+  do
+  IO.println (f.pretty 5)
+  IO.println ""
+  IO.println (f.pretty 8)
+
+-- flattening a group drops an unforced `align` but not a forced one, so a forced `align` at the
+-- head of a group still breaks and the `line` in front of it must not flatten into a space:
+/--
+info: yyyy
+   xxxx where
+-/
+#guard_msgs (whitespace := exact) in
+#eval
+  let f : Format := .group (
+    "yyyy" ++ .line ++ .group (.nest 3 (Format.align true ++ "xxxx") ++ .line ++ "where"))
+  IO.println (f.pretty 20)
+
+-- a group is measured only up to its first line break, so the part after a breaking forced `align`
+-- is not covered by that measurement: it gets its own, from the column the `align` broke to. At
+-- width 10 the three fields go on rows of their own; at width 30 they share one.
+/--
+info: head where
+  aaaa
+  bbbb
+  cccc
+
+head where
+  aaaa bbbb cccc
+-/
+#guard_msgs (whitespace := exact) in
+#eval
+  let f : Format := .group (
+    "head" ++ .line ++ "where" ++
+      .nest 2 (Format.align true ++ "aaaa" ++ .line ++ "bbbb" ++ .line ++ "cccc"))
+  do
+  IO.println (f.pretty 10)
+  IO.println ""
+  IO.println (f.pretty 30)
+
+-- a `line` that breaks only because a forced `align` follows it breaks against the group's own
+-- decision, so the rest of that group is measured afresh too -- otherwise `cccccc` would be
+-- flattened onto the `bbbb` row on the strength of a measurement taken two rows earlier.
+/--
+info: aa
+  bbbb
+cccccc
+
+aa
+  bbbb cccccc
+-/
+#guard_msgs (whitespace := exact) in
+#eval
+  let f : Format := .group (
+    "aa" ++ .line ++ .nest 2 (Format.align true ++ "bbbb") ++ .line ++ "cccccc")
+  do
+  IO.println (f.pretty 10)
+  IO.println ""
+  IO.println (f.pretty 30)

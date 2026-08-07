@@ -654,10 +654,6 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
     if f.isConst || f.isFVar then
       burnOne
       return ← applySpecs scope goal info
-    -- The program head is a term no spec keys on: a bare `fun s => …` left by a `monadLift` of an
-    -- anonymous state transformer, whose reflexive lift `monadLift_refl` rewrites to the underlying
-    -- function. Report it as a missing spec, the same result `findSpec` yields for a constant head
-    -- with no registered spec.
     return ← stopOrErrorOnMissingSpec info.prog info.M #[]
 
   return .stop (.noProgress pre rhs)

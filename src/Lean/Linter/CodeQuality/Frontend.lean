@@ -6,11 +6,8 @@ Authors: Wojciech Różowski
 module
 
 prelude
-public import Init.System.FilePath
 public import Lean.Linter.CodeQuality.Basic
 public import Lean.Elab.InfoTree.Main
-import Lean.CoreM
-import Lean.Elab.Command
 
 public section
 
@@ -22,22 +19,19 @@ namespace Lean.Linter.CodeQuality
 # Code quality check registration and driver
 
 A package code quality check is a declaration of type `PackageCheck` tagged with the
-`@[package_code_quality_check]` attribute. The driver runs every registered check once
-per package; each check sees the whole environment and is responsible for restricting
-its metrics to the package named by the `PackageCheckContext` it receives. Registered
-checks are tracked by the `packageCheckExt` environment extension and are run
-concurrently, one task per check, by `runPackageChecks`, which combines all results
-into a single array of entries.
+`@[package_code_quality_check]` attribute. The driver runs every registered check,
+providing it with the data encapsulated in `PackageCheckContext`. All checks are
+tracked by the `packageCheckExt` environment extension and are run concurrently,
+one task per check, by `runPackageChecks`, which combines all results
+into a single array of entries and accumulates all errors.
 -/
-
 
 /-- Global inputs provided by the driver to every code quality check. -/
 structure PackageCheckContext where
-  pkgRoot : Name
   srcSearchPath : System.SearchPath
 
 structure PackageCheck where
-  run : PackageCheckContext → MetaM (Array Entry)
+  run : PackageCheckContext → IO (Array Entry)
 
 structure NamedPackageCheck extends PackageCheck where
   declName : Name
@@ -79,18 +73,16 @@ def getPackageChecks : CoreM (Array NamedPackageCheck) := do
   pure result
 
 def runPackageChecks (checks : Array NamedPackageCheck) (ctx : PackageCheckContext) :
-    CoreM CheckResult := do
+    IO CheckResult := do
   let tasks ← checks.mapM fun check => do
-    (check.declName, ·) <$> (EIO.asTask <| (← Core.wrapAsync (fun _ =>
-      check.run ctx |>.run' Elab.Command.mkMetaContext
-    ) (cancelTk? := none)) ())
+    (check.declName, ·) <$> (IO.asTask <| check.run ctx)
   let mut entries := #[]
   let mut errors := #[]
   for (declName, task) in tasks do
     match task.get with
     | .ok checkEntries => entries := entries ++ checkEntries
     | .error err =>
-      errors := errors.push (m!"{declName} has failed: " ++ err.toMessageData)
+      errors := errors.push (s!"{declName} has failed: " ++ err.toString)
   return ⟨entries, errors⟩
 
 end Lean.Linter.CodeQuality

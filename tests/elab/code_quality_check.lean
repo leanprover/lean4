@@ -27,8 +27,8 @@ public meta def dictMetric : PackageCheck where
 
 @[package_code_quality_check]
 public meta def pkgRootMetric : PackageCheck where
-  run ctx :=
-    return #[{ name := "pkgRootMetric", source := .module ctx.pkgRoot, value := .scalar 0.0 }]
+  run _ :=
+    return #[{ name := "pkgRootMetric", source := .declaration `hello `world , value := .scalar 0.0 }]
 
 /-! ## Test: the extension tracks registered checks -/
 
@@ -55,15 +55,15 @@ def testGetPackageChecks : CoreM (Array Name) := do
 /-! ## Test: runPackageChecks combines all results into one entry array, threading the context -/
 
 def testRunPackageChecks : CoreM String := do
-  let ⟨entries, _⟩ ← runPackageChecks (← getPackageChecks) { pkgRoot := `MyPkg }
+  let ⟨entries, _⟩ ← runPackageChecks (← getPackageChecks) { srcSearchPath := [] }
   return (toJson entries).compress
 
 def testRunPackageErrors : CoreM (Array String) := do
-  let ⟨_, errors⟩ ← runPackageChecks (← getPackageChecks) { pkgRoot := `MyPkg }
-  errors.mapM (·.toString)
+  let ⟨_, errors⟩ ← runPackageChecks (← getPackageChecks) { srcSearchPath := [] }
+  pure errors
 
 /--
-info: "[{\"name\":\"dictMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"dict\":{\"dictionary\":{\"a\":1,\"b\":2}}}},{\"name\":\"dummyMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"scalar\":{\"value\":42}}},{\"name\":\"dummyMetric\",\"source\":{\"declaration\":{\"module\":\"MyModule\",\"name\":\"MyModule.foo\"}},\"value\":{\"scalar\":{\"value\":1}}},{\"name\":\"pkgRootMetric\",\"source\":{\"module\":{\"name\":\"MyPkg\"}},\"value\":{\"scalar\":{\"value\":0}}}]"
+info: "[{\"name\":\"dictMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"dict\":{\"dictionary\":{\"a\":1,\"b\":2}}}},{\"name\":\"dummyMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"scalar\":{\"value\":42}}},{\"name\":\"dummyMetric\",\"source\":{\"declaration\":{\"module\":\"MyModule\",\"name\":\"MyModule.foo\"}},\"value\":{\"scalar\":{\"value\":1}}},{\"name\":\"pkgRootMetric\",\"source\":{\"declaration\":{\"module\":\"hello\",\"name\":\"world\"}},\"value\":{\"scalar\":{\"value\":0}}}]"
 -/
 #guard_msgs in
 #eval testRunPackageChecks
@@ -72,14 +72,14 @@ info: "[{\"name\":\"dictMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}}
 
 @[package_code_quality_check]
 public meta def failingMetric : PackageCheck where
-  run _ := throwError "boom"
+  run _ := .error "sorry"
 
-/-- info: #["failingMetric has failed: boom"] -/
+/-- info: #["failingMetric has failed: sorry"] -/
 #guard_msgs in
 #eval testRunPackageErrors
 
 /--
-info: "[{\"name\":\"dictMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"dict\":{\"dictionary\":{\"a\":1,\"b\":2}}}},{\"name\":\"dummyMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"scalar\":{\"value\":42}}},{\"name\":\"dummyMetric\",\"source\":{\"declaration\":{\"module\":\"MyModule\",\"name\":\"MyModule.foo\"}},\"value\":{\"scalar\":{\"value\":1}}},{\"name\":\"pkgRootMetric\",\"source\":{\"module\":{\"name\":\"MyPkg\"}},\"value\":{\"scalar\":{\"value\":0}}}]"
+info: "[{\"name\":\"dictMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"dict\":{\"dictionary\":{\"a\":1,\"b\":2}}}},{\"name\":\"dummyMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"scalar\":{\"value\":42}}},{\"name\":\"dummyMetric\",\"source\":{\"declaration\":{\"module\":\"MyModule\",\"name\":\"MyModule.foo\"}},\"value\":{\"scalar\":{\"value\":1}}},{\"name\":\"pkgRootMetric\",\"source\":{\"declaration\":{\"module\":\"hello\",\"name\":\"world\"}},\"value\":{\"scalar\":{\"value\":0}}}]"
 -/
 #guard_msgs in
 #eval testRunPackageChecks

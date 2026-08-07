@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.NoncomputableAttr
 public import Lean.Util.NumApps
 public import Lean.Meta.Eqns
 public import Lean.Elab.RecAppSyntax
@@ -153,7 +152,7 @@ private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
       let constOccs ← d.value.numApps (threshold := diagnostics.threshold.get (← getOptions))
       let constOccsMsg ← constOccs.mapM fun (declName, numOccs) => return MessageData.trace { cls := `occs } m!"{.ofConstName declName} ↦ {numOccs}" #[]
       -- let info
-      logInfo <| MessageData.trace { cls := `theorem } m!"{d.name}" (#[sizeMsg] ++ constOccsMsg)
+      logInfo <| MessageData.trace { cls := `«theorem» } m!"{d.name}" (#[sizeMsg] ++ constOccsMsg)
 
 /--
 Adds the docstring, if relevant.
@@ -217,7 +216,6 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
     match preDef.modifiers.computeKind with
     -- Tags may have been added by `elabMutualDef` already, but that is not the only caller
     | .meta          => if !isMarkedMeta (← getEnv) preDef.declName then modifyEnv (markMeta · preDef.declName)
-    | .noncomputable => if !isNoncomputable (asyncMode := .local) (← getEnv) preDef.declName then modifyEnv (addNoncomputable · preDef.declName)
     | _              => pure ()
     if compile && shouldGenCodeFor preDef then
       compileDecl decl

@@ -10,7 +10,6 @@ public import Lean.Util.RecDepth
 public import Lean.ResolveName
 public import Lean.Language.Basic
 import Init.While
-import Lean.Compiler.NoncomputableAttr
 
 public section
 
@@ -759,8 +758,6 @@ where doCompile := do
       compileDeclsImpl decls
     catch e =>
       state.restore
-      for decl in decls do
-        modifyEnv (addNoncomputable · decl)
       if logErrors then
         throw e
 

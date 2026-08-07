@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Compiler.ImplementedByAttr
 public import Lean.Compiler.LCNF.InferType
-public import Lean.Compiler.NoncomputableAttr
 public import Lean.Compiler.LCNF.MonoTypes
 import Init.While
 

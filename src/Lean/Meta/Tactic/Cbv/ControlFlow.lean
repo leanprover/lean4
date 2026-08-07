@@ -20,7 +20,7 @@ import Init.Sym.Lemmas
 import Lean.Meta.Tactic.Cbv.TheoremsLookup
 import Lean.Meta.Tactic.Cbv.Opaque
 import Lean.Meta.Tactic.Cbv.CbvEvalExt
-import Lean.Compiler.NoncomputableAttr
+import Lean.Compiler.ComputableExt
 import Init.CbvSimproc
 import Lean.Meta.Tactic.Cbv.CbvSimproc
 
@@ -39,9 +39,11 @@ corresponding branch.
 namespace Lean.Meta.Sym.Simp
 open Lean.Meta.Sym.Internal
 
-def isCbvNoncomputable (p : Name) : CoreM Bool := do
+def isCbvNoncomputable (p : Name) : MetaM Bool := do
   let evalLemmas ← Tactic.Cbv.getCbvEvalLemmas p
-  return evalLemmas.isNone && Lean.isNoncomputable (← getEnv) p
+  if evalLemmas.isSome then
+    return false
+  notM <| isComputableOrIrrelevant p
 
 /--
 Attempts to synthesize `Decidable p` instance and guards against picking up a `noncomputable` instance

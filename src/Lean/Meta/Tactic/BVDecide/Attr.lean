@@ -40,6 +40,15 @@ register_builtin_option sat.solver : String := {
 
 declare_config_elab elabBVDecideConfig Lean.Elab.Tactic.BVDecide.BVDecideConfig
 
+public def isPotentialTypeAnalysisType (declName : Name) : CoreM Bool := do
+  if ← isEnumType declName then
+    return true
+  let env ← getEnv
+  if !isStructure env declName then
+    return false
+  let .inductInfo info ← getConstInfo declName | return false
+  return !info.isRec
+
 /--
 Elaborate the optional `types [T₁, ..., Tₙ]` clause of the `bv_decide` family of tactics. Returns
 `none` if the clause is absent, in which case the structure and enum analysis runs unrestricted.
@@ -52,21 +61,12 @@ def elabBVDecideTypes (stx : Option (TSyntax ``Lean.Parser.Tactic.bvTypes)) :
   let mut types := #[]
   for id in ids.getElems do
     let declName ← Elab.realizeGlobalConstNoOverloadWithInfo id
-    unless (← isSupportedTypeAnalysisType declName) do
+    unless (← isPotentialTypeAnalysisType declName) do
       throwErrorAt id m!"`{declName}` cannot be used in a `types` clause, only non-recursive \
         structures and enum inductives are supported"
     unless types.contains declName do
       types := types.push declName
   return some types
-where
-  isSupportedTypeAnalysisType (declName : Name) : CoreM Bool := do
-    if ← isEnumType declName then
-      return true
-    let env ← getEnv
-    if !isStructure env declName then
-      return false
-    let .inductInfo info ← getConstInfo declName | return false
-    return !info.isRec
 
 builtin_initialize bvNormalizeExt : Sym.Simp.SymSimpExtension ←
   Sym.Simp.registerSymSimpAttr `bv_normalize "simp theorems used by bv_normalize"

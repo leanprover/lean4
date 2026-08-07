@@ -118,7 +118,7 @@ public def intToBitVecPass : Pass where
   name := `intToBitVec
   run' := do
     let cfg ← PreProcessM.getConfig
-    let goal ← PreProcessM.getGoal
+    let goal ← PreProcessM.getTargetMVarId
 
     let config := {
       maxSteps := cfg.maxSteps

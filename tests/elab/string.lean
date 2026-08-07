@@ -208,7 +208,7 @@ Behavior of `String.next` (`lean_string_utf8_next`) in special cases (see issue 
 #test String.Pos.Raw.extract "red green blue" ⟨0⟩ ⟨2 ^ 100⟩ = "red green blue"
 #test String.Pos.Raw.extract "red green blue" ⟨4⟩ ⟨2 ^ 100⟩ = "green blue"
 #test String.Pos.Raw.extract "L∃∀N" ⟨1⟩ ⟨2⟩ = "∃∀N"
-#test String.Pos.Raw.extract "L∃∀N" ⟨1⟩ ⟨1⟩ = ""
+#test String.Pos.Raw.extract "L∃∀N" ⟨3⟩ ⟨2⟩ = ""
 #test String.Pos.Raw.extract "L∃∀N" ⟨2⟩ ⟨100⟩ = ""
 #test String.Pos.Raw.extract "L∃∀N" ⟨2 ^ 100⟩ ⟨1⟩ = ""
 #test String.Pos.Raw.extract "L∃∀N" ⟨2 ^ 100⟩ ⟨2 ^ 101⟩ = ""

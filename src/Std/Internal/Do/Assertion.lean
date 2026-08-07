@@ -36,20 +36,13 @@ namespace Assertion
 ## Total nondeterministic functions
 
 `CompleteLattice` can embed propositions (`⌜_⌝`) but not values of an arbitrary type `α`.
-`NondetFun` equips an assertion lattice with a notion of total nondeterministic functions into
-`α`: for a function type `Fun`, an `EvalsTo` embedding of the function graph into the lattice,
-with a covering law that packs an arbitrary assertion under the graph join. The value type `α`
-is an outParam computed from `Pred` and `Fun`, so that elaborating `EvalsTo f a` for a
-user-written measure `f` determines the type of the pinned value `a`.
-
-The covering law is the *distributed* pack `P ⊑ ⨆ a, EvalsTo f a ⊓ P`, which is strictly stronger
-than `(⨆ a, EvalsTo f a) = ⊤` on a general complete lattice (the latter does not redistribute the
-meet into the join). It matches the elim form used by stateful `EvalsTo` in the legacy `SPred`
-development.
-
-Both instances are `@[instance_reducible]`: they unfold during type class resolution and
-unification, while the simp and `grind` lemmas `evalsTo_pure`, `evalsTo_apply` and its
-fixed-arity specializations rewrite them syntactically.
+`NondetFun Pred Fun α` equips an assertion lattice `Pred` with a notion of total
+nondeterministic functions `Fun` into `α`: an `EvalsTo` embedding of the function graph into
+the lattice, with a covering law that packs an arbitrary assertion under the graph join. For
+example, at `Pred = Nat → Prop` the instances are set up such that `Fun := Nat → α`, a function
+reading the `Nat` state. The value type `α` is the `outParam`: elaborating `EvalsTo f a` knows
+`Pred` from the goal and `Fun` from the type of the user-written measure `f`, and instance
+resolution computes the type `α` of pinned values.
 -/
 
 /--
@@ -64,7 +57,7 @@ class NondetFun (Pred : Type u) (Fun : Type v) (α : outParam (Type w)) [Asserti
 
 /-- Pure (state-independent) nondeterministic functions into `α` are just values of `α`.
 Low priority so that the `σ`-indexed instance is preferred when both apply. -/
-@[instance_reducible] noncomputable instance (priority := low) {Pred : Type u} {α : Type v}
+noncomputable instance (priority := low) {Pred : Type u} {α : Type v}
     [Assertion Pred] : NondetFun Pred α α where
   EvalsTo f a := ⌜f = a⌝
   total f P := by
@@ -74,7 +67,7 @@ Low priority so that the `σ`-indexed instance is preferred when both apply. -/
 
 /-- State-dependent nondeterministic functions: a function for `σ → Pred` is a `σ`-indexed
 function for `Pred`. -/
-@[instance_reducible] instance {σ : Type s} {Pred : Type u} {Fun : Type v} {α : Type w}
+instance {σ : Type s} {Pred : Type u} {Fun : Type v} {α : Type w}
     [Assertion Pred] [inst : NondetFun Pred Fun α] :
     NondetFun (σ → Pred) (σ → Fun) α where
   EvalsTo f a := fun s => inst.EvalsTo (f s) a

@@ -2,11 +2,13 @@ import Std.Tactic.Do
 import Std.Internal.Do
 
 /-!
-`vcgen [liftMach]` unfolds `liftMach c` to `liftM (fun s => match c s.machine with …)`, a `monadLift`
-of an anonymous state transformer. The `monadLift` spec chain rewrites this down to the bare
-`fun s => match c s.machine with …`, a program whose head is a lambda that no spec keys on. `vcgen`
-reports it as a missing spec, the same result it gives for a constant head with no registered spec,
-rather than a hard "This should not happen" failure.
+`liftMach` coerces the anonymous state transformer `fun s => match c s.machine with …` into
+`EStateM Unit Sys` by definitional unfolding alone: `EStateM` is a reducible function type, so
+no constructor marks the monad boundary. `vcgen [liftMach]` unfolds `liftMach c` to a `monadLift`
+of that bare function, and the `monadLift` spec chain rewrites it down to the lambda itself, a
+program whose head no spec keys on. `vcgen` reports it as a missing spec, the same result it
+gives for a constant head with no registered spec, rather than a hard "This should not happen"
+failure.
 -/
 
 open Std.Internal.Do

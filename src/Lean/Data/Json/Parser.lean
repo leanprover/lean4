@@ -190,7 +190,7 @@ def exponent (value : JsonNumber) : Parser JsonNumber := do
       else
         if c = '+' then skip
         let n ← natMaybeZero
-        if n > USize.size then fail "exp too large"
+        if n ≥ UInt32.size then fail "exp too large"
         return value.shiftl n
     else
       return value

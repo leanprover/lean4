@@ -253,27 +253,28 @@ test_run build Test --no-build
 
 # Verify the transfers that `curl` itself misreports,
 # which no server response can produce.
-# TODO: use a `CURL` environment variable for these if Lake gains one.
+# Lake runs the `CURL` command, if set, which is the only way to reach the mock
+# on Windows, where `PATH` cannot shadow the system `curl`.
 test_run build curl
-BIN_DIR="$WORK_DIR/.lake/build/bin"
-CURL="$(type -P curl)"
+CURL_MOCK="$($LAKE query curl:exe)"
+CURL_REAL="$(type -P curl)"
 # Nothing reports an error here,
 # but the count of transfers detects it.
 test_cmd rm -rf "$CACHE_DIR"
-PATH="$BIN_DIR:$PATH" BAD_CURL=quiet test_err 'failed to download some artifacts' \
+CURL="$CURL_MOCK" BAD_CURL=quiet test_err 'failed to download some artifacts' \
   cache get outputs.jsonl --scope=test --service=ok
 test_artifacts 0
 # Every artifact arrives complete,
 # but the reported transfer error marks them unusable.
 test_cmd rm -rf "$CACHE_DIR"
-PATH="$BIN_DIR:$PATH" BAD_CURL=exitcode REAL_CURL="$CURL" \
+CURL="$CURL_MOCK" BAD_CURL=exitcode REAL_CURL="$CURL_REAL" \
   test_err 'failed to download artifact' cache get outputs.jsonl --scope=test --service=ok
 test_artifacts 0
 # Every artifact is reported as transferred but none was written,
 # which must be reported rather than abort the batch
 # https://github.com/leanprover/lean4/issues/14698
 test_cmd rm -rf "$CACHE_DIR"
-PATH="$BIN_DIR:$PATH" BAD_CURL=nofile REAL_CURL="$CURL" BAD_CURL_DIR="$CACHE_DIR/artifacts" \
+CURL="$CURL_MOCK" BAD_CURL=nofile REAL_CURL="$CURL_REAL" BAD_CURL_DIR="$CACHE_DIR/artifacts" \
   test_err 'failed to download some artifacts' cache get outputs.jsonl --scope=test --service=ok
 test_artifacts 0
 

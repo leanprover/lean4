@@ -10,6 +10,7 @@ public import Lake.Util.Log
 import Lake.Util.Proc
 import Lake.Util.FilePath
 import Lake.Util.IO
+import Lake.Util.Url
 import Init.Data.String.Search
 import Init.Data.String.TakeDrop
 import Init.System.Platform
@@ -186,7 +187,7 @@ public def download
     createParentDirs file
   let args := #["-s", "-S", "-f", "-o", file.toString, "-L", url]
   let args := headers.foldl (init := args) (· ++ #["-H", ·])
-  proc (quiet := true) {cmd := "curl", args}
+  proc (quiet := true) {cmd := ← Internal.getCurl, args}
 
 /-- Unpack an archive `file` using `tar` into the directory `dir`. -/
 public def untar (file : FilePath) (dir : FilePath) (gzip := true) : LogIO PUnit := do

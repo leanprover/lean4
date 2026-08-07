@@ -265,6 +265,55 @@ def ElabSimpArgResult.simpTheorems : ElabSimpArgResult → Array SimpTheorem
     return thms
   | _ => #[]
 
+register_builtin_option linter.blanketSimpArgs : Bool := {
+  defValue := true,
+  descr := "enable the linter that warns about `simp` arguments retrieved at every subterm.\n\
+    \n\
+    Matching the left-hand side of `eq_zero {α} [Zero α] [Subsingleton α] (a : α) : a = 0` against \
+    a subterm assigns `α` to the type of that subterm, so `simp [eq_zero]` synthesizes `Zero` and \
+    `Subsingleton` at every subterm it visits. Write `simp [eq_zero (α := Nat)]` or \
+    `simp [eq_zero n]` to determine them once instead."
+}
+
+/-- The side of `concl` that `simp` rewrites, when `concl` is an equality, an `Iff` or an `HEq`. -/
+private def lhsOf? (concl : Expr) : Option Expr :=
+  if let some (_, lhs, _) := concl.eq? then some lhs
+  else if let some (lhs, _) := concl.iff? then some lhs
+  else if let some (_, lhs, _, _) := concl.heq? then some lhs
+  else none
+
+/--
+Whether `simp` retrieves `thm` at every visited subterm and synthesizes instances at each match.
+
+Matching the left-hand side of `eq_zero {α} [Zero α] [Subsingleton α] (a : α) : a = 0` against a
+subterm assigns `α` to the type of that subterm, so every match succeeds and queries `Zero` and
+`Subsingleton` at a type not seen before.
+-/
+private def isBlanketSimpTheorem (thm : SimpTheorem) : MetaM Bool := do
+  match thm.keys with
+  | #[.star] =>
+    forallTelescope (← inferType (← thm.getValue)) fun xs concl => do
+      let some lhs := lhsOf? concl | return false
+      unless lhs.isFVar && xs.contains lhs do return false
+      let lhsType ← lhs.fvarId!.getType
+      unless lhsType.isSort || (lhsType.isFVar && xs.contains lhsType) do return false
+      xs.anyM fun x => do
+        let decl ← x.fvarId!.getDecl
+        return decl.binderInfo == .instImplicit || (← isProp decl.type)
+  | _ => return false
+
+/-- Warns about each argument in `simpArgs` that `simp` retrieves at every visited subterm. -/
+def warnBlanketSimpArgs (simpArgs : Array (Syntax × ElabSimpArgResult)) : MetaM Unit := do
+  unless Linter.getLinterValue linter.blanketSimpArgs (← Linter.getLinterOptions) do return
+  for (ref, arg) in simpArgs do
+    if ← arg.simpTheorems.anyM isBlanketSimpTheorem then
+      Linter.logLint linter.blanketSimpArgs ref
+        m!"The left-hand side of this theorem is a variable, so `simp` retrieves the theorem \
+          at every visited subterm and synthesizes its instance arguments at each \
+          match:{indentD ref}\n\
+          Fixing the implicit arguments, as in `(α := Nat)`, or applying the theorem to a \
+          term synthesizes those instances once instead, while the theorem is elaborated."
+
 private def elabDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (id : Origin)
     (e : Expr) (post : Bool) (inv : Bool) (kind : SimpKind) : MetaM ElabSimpArgResult := do
   if e.isConst then
@@ -468,6 +517,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
         if !ignoreStarArg && starArg then
           ctx ← applyStarArg ctx
 
+        warnBlanketSimpArgs args
         return { ctx, simprocs, simpArgs := args}
     -- If recovery is disabled, then we want simp argument elaboration failures to be exceptions.
     -- This affects `addSimpTheorem`.

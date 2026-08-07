@@ -106,6 +106,11 @@ structure Config where
   Prevents infinite loops when conditional rewrite rules trigger recursive discharge attempts.
   -/
   maxDischargeDepth : Nat := 2
+  /--
+  Tactic name shown in user-facing error messages (e.g. max-steps exceeded).
+  Callers such as `cbv` set this so errors name the outer tactic rather than `simp`.
+  -/
+  tacticName : Name := `simp
   deriving Inhabited
 
 /--

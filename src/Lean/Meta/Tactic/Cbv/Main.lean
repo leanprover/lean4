@@ -116,6 +116,10 @@ public register_builtin_option cbv.maxSteps : Nat := {
   descr    := "Controls the maximum number of steps for the `cbv` tactic."
 }
 
+/-- `Sym.Simp.Config` for `cbv`, including the correct `tacticName` for error messages. -/
+def getCbvConfig : MetaM Sym.Simp.Config := do
+  return { maxSteps := cbv.maxSteps.get (← getOptions), tacticName := `cbv }
+
 def tryEquations : Simproc := fun e => do
   unless e.isApp do
     return .rfl
@@ -385,7 +389,7 @@ public def cbvEntry (e : Expr) : MetaM Result := do
       | .ok (Result.rfl ..)     => return m!"cbv: no change{indentExpr e}"
       | .error err              => return m!"cbv: {err.toMessageData}") do
   let simprocs ← getCbvSimprocs
-  let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
+  let config ← getCbvConfig
   let methods := mkCbvMethods simprocs
   let e ← Sym.unfoldReducible e
   Sym.SymM.run do
@@ -401,7 +405,7 @@ call-by-value evaluation, within the caller's `SymM` context.
 public def cbvGoalCore (mvarId : MVarId) : Sym.SymM (Option MVarId) := do
   -- See `cbvCore` for why the `shareCommon` invariant checks are disabled.
   Sym.withoutShareCommonChecks do
-  let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
+  let config ← getCbvConfig
   mvarId.withContext do
     let mut mvarIdNew := mvarId
     let target ← mvarIdNew.getType
@@ -432,7 +436,7 @@ public def cbvHyp (mvarId : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) :=
   mvarId.withContext do
     let localDecl ← fvarId.getDecl
     let type ← instantiateMVars localDecl.type
-    let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
+    let config ← getCbvConfig
     let result ← withTraceNode `Meta.Tactic.cbv (fun
         | .ok (Result.step type' ..) => return m!"hypothesis `{localDecl.userName}`:{indentExpr type}\n==>{indentExpr type'}"
         | .ok (Result.rfl ..)        => return m!"hypothesis `{localDecl.userName}`: no change"
@@ -475,7 +479,7 @@ public def cbvDecideGoal (m : MVarId) : MetaM Unit := do
   withTraceNode `Meta.Tactic.cbv (fun
       | .ok ()   => return m!"decide_cbv: closed goal"
       | .error err => return m!"decide_cbv: {err.toMessageData}") do
-  let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
+  let config ← getCbvConfig
   Sym.SymM.run do
     let m ← Sym.preprocessMVar m
     let mType ← m.getType

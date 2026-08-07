@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Http.Client.Config
+public import Std.Http.Client.Connection
 
 public section
 

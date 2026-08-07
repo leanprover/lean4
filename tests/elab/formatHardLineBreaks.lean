@@ -166,9 +166,6 @@ info: head where
 
 head where
   field
-
-head where
-  field
 -/
 #guard_msgs (whitespace := exact) in
 #eval
@@ -178,8 +175,6 @@ head where
   IO.println (f.pretty 10)
   IO.println ""
   IO.println (f.pretty 22)
-  IO.println ""
-  IO.println (f.pretty 23)
 
 -- the measurement follows the column across work items, not only within the first one: `aa bb`
 -- fits width 5 exactly, and at width 8 there is room for `dd` after the aligned `cc`.

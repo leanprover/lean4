@@ -147,16 +147,6 @@ def isNil : Format → Bool
   | nil => true
   | _   => false
 
-/--
-Whether a forced `align` at indentation level `indent` pads rather than breaks, when the next output
-would be emitted at column `col`.
-
-`be` and `spaceUptoLine` must agree on this, or the width a group is measured at is not the width it
-renders at.
--/
-@[inline] private def alignPads (col : Nat) (indent : Int) : Bool :=
-  col < indent
-
 private structure SpaceResult where
   foundLine              : Bool := false
   foundFlattenedHardLine : Bool := false
@@ -171,19 +161,16 @@ private structure SpaceResult where
     let r₂ := r₂ (col + r₁.space);
     { r₂ with space := r₁.space + r₂.space }
 
-/--
-The space a `Format` needs up to its next line break, at line width `w`, when rendered at
-indentation level `indent` starting from column `col`.
-
-`indent` and `col` are the two quantities `be` compares, so the `align` case below is `be`'s own
-test.
--/
+/-- The space `f` needs up to its next line break, at line width `w`, rendered at indentation level
+`indent` starting from column `col` -- the two quantities `be` compares. -/
 private def spaceUptoLine (w : Nat) : Format → Bool → Int → Nat → SpaceResult
   | nil,          _,       _,      _   => {}
   | line,         flatten, _,      _   => if flatten then { space := 1 } else { foundLine := true }
   | align force,  flatten, indent, col =>
     if flatten && !force then {}
-    else if alignPads col indent then
+    -- `be`'s own test, and it must stay that: a group measured as padding here but rendered as a
+    -- break there is measured at a width it never renders at
+    else if col < indent then
       { space := (indent - col).toNat }
     else
       { foundLine := true }
@@ -260,13 +247,10 @@ class MonadPrettyFormat (m : Type → Type) where
   endTags (count : Nat) : m Unit
 open MonadPrettyFormat
 
-/--
-Decides whether the group made of `items` flattens, at line width `w`. `colOffset` is output the
-caller will emit before the group starts, so `fill` can reserve the column its separating space
-takes without shrinking `w` — the group must still be measured against the real line width.
--/
 private def pushGroup (flb : FlattenBehavior) (items : List WorkItem) (gs : List WorkGroup) (w : Nat)
     (colOffset : Nat := 0) [Monad m] [MonadPrettyFormat m] : m (List WorkGroup) := do
+  -- `colOffset` is output the caller emits before the group starts; charging it to the column keeps
+  -- the group measured against the real line width
   let k  := (← currColumn) + colOffset
   -- Flatten group if it + the remainder (gs) fits in the remaining space. For `fill`, measure only up to the next (ungrouped) line break.
   let g  := { fla := .allow (flb == FlattenBehavior.allOrNone), flb := flb, items := items : WorkGroup }
@@ -278,12 +262,10 @@ private def pushGroup (flb : FlattenBehavior) (items : List WorkItem) (gs : List
 /--
 The indentation level of the next output-producing work item, if it is a forced `align`.
 
-Concatenation, nesting, tags, and groups are decomposed the same way as in `be`, and anything that
-emits nothing is skipped; anything else stops the search. In particular the search continues into
-the enclosing groups `gs`, since the next item to render may well be the first item of one of them,
-and past an unforced `align`, which is dropped when flattened and pads to the same level otherwise.
-A `group` does not stop it either: flattening a group drops an unforced `align`, but a forced one
-renders either way.
+Structure is decomposed as in `be` and anything emitting nothing is skipped; anything else stops the
+search. The search crosses into the enclosing groups `gs`, since the next item to render is often
+the first item of one of them, and past a `group`, which drops an unforced `align` when flattened
+but renders a forced one either way.
 -/
 private partial def nextForcedAlign? : List WorkItem → List WorkGroup → Option Int
   | [], [] => none
@@ -306,7 +288,7 @@ Whether a `line` about to be flattened into a space at column `k` must break ins
 -/
 @[inline] private def vetoFlatten (k : Nat) (is : List WorkItem) (gs : List WorkGroup) : Bool :=
   match nextForcedAlign? is gs with
-  | some indent => !alignPads (k + 1) indent
+  | some indent => decide (indent ≤ k + 1)
   | none => false
 
 private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] (fresh : Bool) : List WorkGroup → m Unit
@@ -340,8 +322,6 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] (fresh : Bool) 
         else
           pushGroup g.flb is gs w >>= be w true
     | line =>
-      -- `vetoFlatten` is consulted only on the paths that would flatten, so a `line` that breaks
-      -- anyway pays for neither the lookahead nor `currColumn`.
       match g.flb with
       | FlattenBehavior.allOrNone =>
         if g.fla.shouldFlatten then
@@ -386,7 +366,7 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] (fresh : Bool) 
         be w fresh (gs' is)
       else
         let k ← currColumn
-        if alignPads k i.indent then
+        if k < i.indent then
           -- padding emits only spaces, so a row that was whitespace-only still is
           pushOutput (String.Internal.pushn "" ' ' (i.indent - k).toNat)
           endTags i.activeTags

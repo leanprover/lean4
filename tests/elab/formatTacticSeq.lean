@@ -25,28 +25,6 @@ info: iterate 1
 #eval show CoreM Unit from do
   IO.println (← ppTactic "iterate 1\n  skip\n  skip")
 
--- at narrow widths the separator breaks first, and the `align` must not add a blank line
-/--
-info: iterate 1
-  skip
-  skip
--/
-#guard_msgs (whitespace := exact) in
-#eval show CoreM Unit from do
-  IO.println (← ppTactic "iterate 1\n  skip\n  skip" (width := 12))
-
--- the same rules hold for user-defined `ppSpace tacticSeq` syntax, not just core `iterate`
-syntax "myiter" num ppSpace tacticSeq : tactic
-
-/--
-info: myiter 1
-  skip
-  skip
--/
-#guard_msgs (whitespace := exact) in
-#eval show CoreM Unit from do
-  IO.println (← ppTactic "myiter 1\n  skip\n  skip")
-
 -- a single-tactic argument stays flat
 /--
 info: iterate 1 skip

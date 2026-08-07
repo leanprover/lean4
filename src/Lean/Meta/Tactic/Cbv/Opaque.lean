@@ -20,7 +20,7 @@ public section
 
 namespace Lean.Meta.Tactic.Cbv
 
-abbrev CbvOpaqueExtension := SimpleScopedEnvExtension Name (Std.HashSet Name)
+abbrev CbvOpaqueExtension := SimpleScopedEnvExtension Name NameSet
 
 builtin_initialize cbvOpaqueExt : CbvOpaqueExtension ←
   registerSimpleScopedEnvExtension {
@@ -45,7 +45,7 @@ builtin_initialize
       modifyEnv fun env => cbvOpaqueExt.modifyState env fun _ => s.erase declName
   }
 
-def cbvOpaque : CoreM (Std.HashSet Name) := do
+def cbvOpaque : CoreM NameSet := do
   return cbvOpaqueExt.getState (← getEnv)
 
 def isCbvOpaque (name : Name) : CoreM Bool := do

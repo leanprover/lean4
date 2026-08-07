@@ -56,7 +56,7 @@ private def evalSimpaCore (useReducible : Bool) : Tactic := fun stx => do
         let mkInfo ← mkInitialTacticInfo (mkNullNode #[tk, usingTk?.getD .missing])
         let (some (_, g), stats) ← simpGoal (← getMainGoal) ctx (simprocs := simprocs) (simplifyTarget := true) (discharge? := discharge?)
           | if getLinterUnnecessarySimpa (← getLinterOptions) then
-              logLint linter.unnecessarySimpa (← getRef) "try 'simp' instead of 'simpa'"
+              logLint linter.unnecessarySimpa (← getRef) "try `simp` instead of `simpa`"
             return {}
         -- Replace the goal; captured by `mkInfo` in `using` case below.
         replaceMainGoal [g]

@@ -288,9 +288,14 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_save(b_obj_arg ofname, b_o
         size_t base_addr = name(mod, true).hash();
         // x86-64 user space is currently limited to the lower 47 bits
         // (https://en.wikipedia.org/wiki/X86-64#Virtual_address_space_details).
-        // On Linux at least, the stack grows down from ~0x7fff... followed by shared libraries,
-        // so reserve a bit of space for them (0x7fff...-0x7f00... = 1TB).
-        base_addr = base_addr % 0x7f0000000000;
+        // Restrict the base to [0x080000000000, 0x550000000000). Above that window sit the PIE
+        // executable and heap (from `ELF_ET_DYN_BASE` = 0x5555... on Linux) and the top-down
+        // `mmap` area holding shared libraries, thread stacks, and allocator arenas; with
+        // high-entropy ASLR (`mmap_rnd_bits` = 32) the latter reaches down to ~0x7000....
+        // Below the window sit executable images and platform data such as the macOS dyld
+        // shared cache. A base inside any of those zones makes the load-time `mmap` fail
+        // depending on the run's ASLR offsets, forcing the pointer-relocation fallback.
+        base_addr = 0x080000000000 + base_addr % 0x4d0000000000;
         base_addr = base_addr & ~(ALIGN - 1);
         std::vector<region_view> dep_regions = extract_dep_regions(odep_regions);
         cs_obj = object_ref(mk_compactor(reinterpret_cast<void *>(base_addr),

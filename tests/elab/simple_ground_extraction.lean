@@ -318,27 +318,15 @@ set_option trace.Compiler.simpleGround true in
 def nameTest8 : Name := `A.B.C.D.E.F.G.H
 
 /--
-trace: [Compiler.simpleGround] Marked nameTest9._closed_0 as simple ground expr
-[Compiler.simpleGround] Marked nameTest9._closed_1 as simple ground expr
-[Compiler.simpleGround] Marked nameTest9._closed_2 as simple ground expr
-[Compiler.simpleGround] Marked nameTest9._closed_3 as simple ground expr
-[Compiler.simpleGround] Marked nameTest9._closed_4 as simple ground expr
-[Compiler.simpleGround] Marked nameTest9._closed_5 as simple ground expr
-[Compiler.simpleGround] Marked nameTest9._closed_6 as simple ground expr
-[Compiler.simpleGround] Marked nameTest9._closed_7 as simple ground expr
-[Compiler.simpleGround] Marked nameTest9._closed_8 as simple ground expr
-[Compiler.simpleGround] Marked nameTest9._closed_9 as simple ground expr
-[Compiler.simpleGround] Marked nameTest9 as simple ground expr
-[Compiler.saveImpure] size: 4
+trace: [Compiler.simpleGround] Marked nameTest9._closed_9 as simple ground expr
+[Compiler.saveImpure] size: 2
     def nameTest9._closed_0 : tobj :=
-      let _x.1 := stringTest2._closed_0;
-      let _x.2 := ctor_0[Lean.Name.anonymous._impl];
-      inc[persistent][ref] _x.1;
-      let _x.3 := Lean.Name.str._override _x.2 _x.1;
-      return _x.3
+      let _x.1 := ctor_0[Lean.Name.anonymous._impl];
+      let _x.2 := unsafeCast._redArg _x.1;
+      return _x.2
 [Compiler.saveImpure] size: 5
     def nameTest9._closed_1 : tobj :=
-      let _x.1 := stringTest2._closed_1;
+      let _x.1 := stringTest2._closed_0;
       let _x.2 := nameTest9._closed_0;
       inc[persistent][ref] _x.1;
       inc[persistent] _x.2;
@@ -346,7 +334,7 @@ trace: [Compiler.simpleGround] Marked nameTest9._closed_0 as simple ground expr
       return _x.3
 [Compiler.saveImpure] size: 5
     def nameTest9._closed_2 : tobj :=
-      let _x.1 := stringTest2._closed_2;
+      let _x.1 := stringTest2._closed_1;
       let _x.2 := nameTest9._closed_1;
       inc[persistent][ref] _x.1;
       inc[persistent] _x.2;
@@ -354,7 +342,7 @@ trace: [Compiler.simpleGround] Marked nameTest9._closed_0 as simple ground expr
       return _x.3
 [Compiler.saveImpure] size: 5
     def nameTest9._closed_3 : tobj :=
-      let _x.1 := nameTest4._closed_0;
+      let _x.1 := stringTest2._closed_2;
       let _x.2 := nameTest9._closed_2;
       inc[persistent][ref] _x.1;
       inc[persistent] _x.2;
@@ -362,7 +350,7 @@ trace: [Compiler.simpleGround] Marked nameTest9._closed_0 as simple ground expr
       return _x.3
 [Compiler.saveImpure] size: 5
     def nameTest9._closed_4 : tobj :=
-      let _x.1 := nameTest5._closed_0;
+      let _x.1 := nameTest4._closed_0;
       let _x.2 := nameTest9._closed_3;
       inc[persistent][ref] _x.1;
       inc[persistent] _x.2;
@@ -370,7 +358,7 @@ trace: [Compiler.simpleGround] Marked nameTest9._closed_0 as simple ground expr
       return _x.3
 [Compiler.saveImpure] size: 5
     def nameTest9._closed_5 : tobj :=
-      let _x.1 := nameTest6._closed_0;
+      let _x.1 := nameTest5._closed_0;
       let _x.2 := nameTest9._closed_4;
       inc[persistent][ref] _x.1;
       inc[persistent] _x.2;
@@ -378,7 +366,7 @@ trace: [Compiler.simpleGround] Marked nameTest9._closed_0 as simple ground expr
       return _x.3
 [Compiler.saveImpure] size: 5
     def nameTest9._closed_6 : tobj :=
-      let _x.1 := nameTest7._closed_0;
+      let _x.1 := nameTest6._closed_0;
       let _x.2 := nameTest9._closed_5;
       inc[persistent][ref] _x.1;
       inc[persistent] _x.2;
@@ -386,27 +374,35 @@ trace: [Compiler.simpleGround] Marked nameTest9._closed_0 as simple ground expr
       return _x.3
 [Compiler.saveImpure] size: 5
     def nameTest9._closed_7 : tobj :=
-      let _x.1 := nameTest8._closed_0;
+      let _x.1 := nameTest7._closed_0;
       let _x.2 := nameTest9._closed_6;
       inc[persistent][ref] _x.1;
       inc[persistent] _x.2;
       let _x.3 := Lean.Name.str._override _x.2 _x.1;
       return _x.3
+[Compiler.saveImpure] size: 5
+    def nameTest9._closed_8 : tobj :=
+      let _x.1 := nameTest8._closed_0;
+      let _x.2 := nameTest9._closed_7;
+      inc[persistent][ref] _x.1;
+      inc[persistent] _x.2;
+      let _x.3 := Lean.Name.str._override _x.2 _x.1;
+      return _x.3
 [Compiler.saveImpure] size: 1
-    def nameTest9._closed_8 : obj :=
+    def nameTest9._closed_9 : obj :=
       let _x.1 := "I";
       return _x.1
 [Compiler.saveImpure] size: 5
-    def nameTest9._closed_9 : tobj :=
-      let _x.1 := nameTest9._closed_8;
-      let _x.2 := nameTest9._closed_7;
+    def nameTest9._closed_10 : tobj :=
+      let _x.1 := nameTest9._closed_9;
+      let _x.2 := nameTest9._closed_8;
       inc[persistent][ref] _x.1;
       inc[persistent] _x.2;
       let _x.3 := Lean.Name.str._override _x.2 _x.1;
       return _x.3
 [Compiler.saveImpure] size: 2
     def nameTest9 : tobj :=
-      let _x.1 := nameTest9._closed_9;
+      let _x.1 := nameTest9._closed_10;
       inc[persistent] _x.1;
       return _x.1
 -/

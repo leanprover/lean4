@@ -3,3 +3,8 @@ name = "test"
 [[lean_lib]]
 name = "Test"
 leanOptions.weak.foo = "bar"
+
+[[lean_lib]]
+name = "Slash"
+srcDir = "slash/"
+precompileModules = true

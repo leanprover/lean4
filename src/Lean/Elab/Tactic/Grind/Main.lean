@@ -393,7 +393,9 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
     if let some (_, _ :: _) := (← resolveLocalName id.getId) then
       return true
     else if let some mod := mod? then
-      return (← Grind.getAttrKindCore mod) matches .cases _
+      match ← Grind.getAttrKindCore mod with
+      | .ematch _ => return false
+      | _ => return true
     else
       let declName? ← try pure (some (← realizeGlobalConstNoOverload id)) catch _ => pure none
       if let some declName := declName? then

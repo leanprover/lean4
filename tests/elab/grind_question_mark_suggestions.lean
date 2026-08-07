@@ -21,3 +21,18 @@ info: Try these:
 #guard_msgs in
 example {x y : Nat} (h : x = y) : x = f y := by
   grind? +suggestions [f]
+
+def addThree (n : Nat) := n + 3
+
+theorem addThree_inj : Function.Injective addThree := by
+  intro a b h
+  simp [addThree] at h
+  exact h
+
+/--
+info: Try this:
+  [apply] grind only [inj addThree_inj]
+-/
+#guard_msgs in
+example (a b : Nat) (h : addThree a = addThree b) : a = b := by
+  grind? [inj addThree_inj]

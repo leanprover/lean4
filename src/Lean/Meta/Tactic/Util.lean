@@ -158,6 +158,8 @@ def _root_.Lean.MVarId.inferInstance (mvarId : MVarId) : MetaM Unit := mvarId.wi
   let synthVal ← synthInstance (← mvarId.getType)
   unless (← isDefEq (mkMVar mvarId) synthVal) do
     throwTacticEx `infer_instance mvarId "`infer_instance` tactic failed to assign instance"
+  unless (← mvarId.isAssigned) do
+    mvarId.assign synthVal
 
 inductive TacticResultCNM where
   | closed

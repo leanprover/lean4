@@ -1199,7 +1199,7 @@ theorem all_keys [LawfulHashable α] [EquivBEq α] {p : α → Bool} :
 
 variable {ρ : Type w} [ForIn Id ρ (α × β)]
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem insertMany_nil :
     insertMany m [] = m :=
   ext DHashMap.Const.insertMany_nil
@@ -1209,7 +1209,7 @@ theorem insertMany_list_singleton {k : α} {v : β} :
     insertMany m [⟨k, v⟩] = m.insert k v :=
   ext DHashMap.Const.insertMany_list_singleton
 
-@[grind _=_]
+@[grind _=_, cbv_eval]
 theorem insertMany_cons {l : List (α × β)} {k : α} {v : β} :
     insertMany m (⟨k, v⟩ :: l) = insertMany (m.insert k v) l :=
   ext DHashMap.Const.insertMany_cons
@@ -2425,6 +2425,7 @@ theorem ofList_singleton {k : α} {v : β} :
     ofList (⟨k, v⟩ :: tl) = insertMany ((∅ : HashMap α β).insert k v) tl :=
   ext DHashMap.Const.ofList_cons
 
+@[cbv_eval]
 theorem ofList_eq_insertMany_empty {l : List (α × β)} :
     ofList l = insertMany (∅ : HashMap α β) l :=
   ext DHashMap.Const.ofList_eq_insertMany_empty
@@ -2551,7 +2552,7 @@ theorem size_ofList_le [EquivBEq α] [LawfulHashable α]
 
 grind_pattern size_ofList_le => (ofList l).size
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem ofArray_eq_ofList (a : Array (α × β)) :
     ofArray a = ofList a.toList := by
   apply ext

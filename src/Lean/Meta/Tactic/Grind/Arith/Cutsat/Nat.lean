@@ -80,16 +80,13 @@ private partial def natToInt' (e : Expr) : GoalM (Expr × Expr) := do
     else
       mkNatVar e
   | Fin.val n a =>
-    let type ← shareCommon (mkApp (mkConst ``Fin) n)
-    if let some (a', h) ← toInt? a type then
-      let h := mkApp4 (mkConst ``Nat.ToInt.finVal) n a a' h
-      return (a' , h)
-    else
-      -- `n` is not a numeral, but we can still assert `e < n`
-      let alreadyProcessed := (← get').natToIntMap.contains { expr := e }
-      let r ← mkNatVar e
-      unless alreadyProcessed do pushNewFact <| mkApp2 (mkConst ``Fin.isLt) n a
-      return r
+    -- [ToInt experiment] `toInt?` branch disabled together with the `ToInt` instances;
+    -- it constructed the result via `Nat.ToInt.finVal`, whose statement needs the
+    -- `Fin` instance.
+    let alreadyProcessed := (← get').natToIntMap.contains { expr := e }
+    let r ← mkNatVar e
+    unless alreadyProcessed do pushNewFact <| mkApp2 (mkConst ``Fin.isLt) n a
+    return r
   | _ => mkNatVar e
 
 /--

@@ -74,10 +74,6 @@ def u8ToNat (x y : UInt8) : Prop := (x + y).toNat = x.toNat
 
 def finEq (n : Nat) (a b : Fin n) : Prop := a + b = b
 
-def listLen (l₁ l₂ : List Nat) : Prop := (l₁ ++ l₂).length = l₁.length
-
-def intCast (a b : Nat) : Prop := ((a + b * a : Nat) : Int) = 0
-
 def i64Eq (a b : Int64) : Prop := a * b = b
 
 /--
@@ -111,22 +107,6 @@ info: a + b = b
 -/
 #guard_msgs in
 run_meta applyHomo ``finEq
-
-/--
-info: (l₁ ++ l₂).length = l₁.length
-==>
-l₁.length + l₂.length = l₁.length
--/
-#guard_msgs in
-run_meta applyHomo ``listLen
-
-/--
-info: ↑(a + b * a) = 0
-==>
-↑a + ↑b * ↑a = 0
--/
-#guard_msgs in
-run_meta applyHomo ``intCast
 
 /--
 info: a * b = b

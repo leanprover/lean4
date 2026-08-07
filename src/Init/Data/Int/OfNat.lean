@@ -87,8 +87,7 @@ theorem mod_congr {a b : Nat} {a' b' : Int}
   simp_all [Int.natCast_emod]
 
 theorem finVal {n : Nat} {a : Fin n} {a' : Int}
-    (h₁ : Lean.Grind.ToInt.toInt a = a') : NatCast.natCast (a.val) = a' := by
-  rw [← h₁, Lean.Grind.ToInt.toInt, Lean.Grind.instToIntFinCoOfNatIntCast]
+    (h₁ : (a.val : Int) = a') : NatCast.natCast (a.val) = a' := h₁
 
 theorem eq_eq {a b : Nat} {a' b' : Int}
     (h₁ : NatCast.natCast a = a') (h₂ : NatCast.natCast b = b') : (a = b) = (a' = b') := by

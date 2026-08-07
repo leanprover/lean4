@@ -1,3 +1,7 @@
+-- Note (Robin): I'm not quite sure what the use case for this behavior is
+-- so I disabled the behavior and this test for now
+
+/-
 set_option trace.Meta.Tactic true
 axiom P : Prop
 axiom instDecidableP : Decidable P
@@ -32,3 +36,4 @@ example : decide Q = true := by conv => lhs; cbv
 example : (if Q then true else false) = true := by cbv
 
 example : (if _ : Q then true else false) = true := by cbv
+-/

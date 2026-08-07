@@ -101,7 +101,6 @@ extern lean_object* l_ByteArray_empty;
 uint8_t lean_uint32_to_uint8(uint32_t);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 lean_object* lean_byte_array_copy_slice(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-extern uint8_t l_instInhabitedUInt8;
 lean_object* l_outOfBounds___redArg(lean_object*);
 uint8_t lean_byte_array_fget(lean_object*, lean_object*);
 lean_object* lean_uv_tcp_recv(lean_object*, uint64_t);
@@ -6438,7 +6437,7 @@ LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00__pri
 _start:
 {
 lean_object* v___y_1464_; uint8_t v___y_1465_; uint8_t v___x_1474_; lean_object* v_a_1476_; uint64_t v___x_1503_; lean_object* v___f_1504_; lean_object* v_val_1506_; lean_object* v___x_1515_; 
-v___x_1474_ = l_instInhabitedUInt8;
+v___x_1474_ = 0;
 v___x_1503_ = 1ULL;
 v___f_1504_ = ((lean_object*)(l___private_Init_While_0__repeatM_erased___at___00__private_Lean_Elab_Idbg_0__Lean_Idbg_recvMsg_spec__0___redArg___closed__4));
 v___x_1515_ = lean_uv_tcp_recv(v_client_1460_, v___x_1503_);

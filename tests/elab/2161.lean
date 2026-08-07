@@ -19,10 +19,8 @@ because its `Decidable` instance
   instDecidableEqFoo (((mul 4 1).mul 1).mul 1) 4
 did not reduce to `isTrue` or `isFalse`.
 
-After unfolding the instances `instDecidableEqFoo`, `instDecidableEqNat`, `Nat.decEq`, and `instDecidableEqFoo.decEq`, reduction got stuck at the `Decidable` instance
-  match h : (((mul 4 1).mul 1).mul 1).num.beq 4 with
-  | true => isTrue ⋯
-  | false => isFalse ⋯
+After unfolding the instances `instDecidableEqFoo`, `instDecidableEqNat`, `Nat.decEq`, and `instDecidableEqFoo.decEq`, reduction got stuck at
+  (((mul 4 1).mul 1).mul 1).num.beq 4
 -/
 #guard_msgs in
 example : ((Foo.mul 4 1).mul 1).mul 1 = 4 := by decide
@@ -39,10 +37,8 @@ because its `Decidable` instance
   instDecidableEqFoo (((add 4 1).add 1).add 1) 4
 did not reduce to `isTrue` or `isFalse`.
 
-After unfolding the instances `instDecidableEqFoo`, `instDecidableEqNat`, `Nat.decEq`, and `instDecidableEqFoo.decEq`, reduction got stuck at the `Decidable` instance
-  match h : (((add 4 1).add 1).add 1).num.beq 4 with
-  | true => isTrue ⋯
-  | false => isFalse ⋯
+After unfolding the instances `instDecidableEqFoo`, `instDecidableEqNat`, `Nat.decEq`, and `instDecidableEqFoo.decEq`, reduction got stuck at
+  (((add 4 1).add 1).add 1).num.beq 4
 -/
 #guard_msgs in
 example : ((Foo.add 4 1).add 1).add 1 = 4 := by decide

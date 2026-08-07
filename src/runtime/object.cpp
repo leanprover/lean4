@@ -2393,7 +2393,7 @@ extern "C" LEAN_EXPORT obj_res lean_string_utf8_extract_fast(b_obj_arg s, b_obj_
 extern "C" LEAN_EXPORT obj_res lean_string_utf8_extract(b_obj_arg s, b_obj_arg b0, b_obj_arg e0) {
     /* Replace non-scalar values with SIZE_MAX:
     Non-scalar values are out of bounds here (see comment at string_utf8_get),
-    including SIZE_MAX, and values that are out of bounds all behave the same */
+    including SIZE_MAX, and values that are out of bounds all behave the same here */
     usize b = lean_is_scalar(b0) ? lean_unbox(b0) : SIZE_MAX;
     usize e = lean_is_scalar(e0) ? lean_unbox(e0) : SIZE_MAX;
     char const * str = lean_string_cstr(s);

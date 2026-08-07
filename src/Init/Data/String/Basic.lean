@@ -783,7 +783,7 @@ If `b`'s offset is greater than or equal to that of `e`, then the resulting stri
 
 If possible, prefer `String.slice`, which avoids the allocation.
 -/
-@[extern "lean_string_utf8_extract"]
+@[extern "lean_string_utf8_extract_fast"]
 def extract {s : @& String} (b e : @& s.Pos) : String where
   toByteArray := s.toByteArray.extract b.offset.byteIdx e.offset.byteIdx
   isValidUTF8 := b.isValidUTF8_extract e

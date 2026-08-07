@@ -61,7 +61,7 @@ instance : ToJson LeanOptionValue where
 
 /-- Formats the lean option value as a CLI flag argument. -/
 def LeanOptionValue.asCliFlagValue : (v : LeanOptionValue) → String
-  | (s : String) => s!"\"{s}\""
+  | (s : String) => s
   | (b : Bool)   => toString b
   | (n : Nat)    => toString n
 

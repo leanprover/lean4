@@ -8,6 +8,13 @@ source ../common.sh
 #  See https://github.com/leanprover/lean4/issues/13996.
 #-------------------------------------------------------------------------------
 
+# Copy the package to a working directory so that neither the byproducts below nor
+# the source edit hit the checked-in source tree
+WORK_DIR="$PWD/work"
+mkdir -p "$WORK_DIR"
+cp -r Test Test.lean lakefile.toml "$WORK_DIR/"
+cd "$WORK_DIR"
+
 # Hermetic, workspace-local artifact cache: an empty `LAKE_CACHE_DIR` disables the
 # system cache, so all artifacts and mappings live under `.lake/cache`. The package
 # enables the artifact cache and `restoreAllArtifacts` (see lakefile.toml).
@@ -24,7 +31,6 @@ test_exp -s bundles1.txt
 
 # An input-only edit (comment appended) changes the input hash but no output, so
 # the bundle hashes are unchanged even though the mapping entry moves.
-cp Test/A.lean Test/A.lean.bak
 printf '\n-- a cosmetic comment; does not change any output\n' >> Test/A.lean
 test_run build -o out2.jsonl
 bundles out2.jsonl > bundles2.txt
@@ -46,5 +52,4 @@ if command -v jq > /dev/null; then # skip if no jq found
   match_text "$dep" staging/outputs.jsonl
 fi
 
-./clean.sh
 echo "ltarStable: all checks passed"

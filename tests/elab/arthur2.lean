@@ -214,7 +214,7 @@ def Value.binOp : Value → Value → BinOp → Except String Value
   | l, r, .ne  => l.ne r
 
 def NEList.unfoldStrings (l : NEList String) : String :=
-  l.foldl (init := "") $ fun acc a => acc ++ s!" {a}" |>.trimLeft
+  l.foldl (init := "") $ fun acc a => acc ++ s!" {a}" |>.trimAsciiStart |>.copy
 
 mutual
 

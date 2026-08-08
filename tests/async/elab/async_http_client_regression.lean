@@ -217,12 +217,12 @@ private def poolRequest : Async (Request Body.Empty) :=
   let (clientB, serverB) ← Mock.new
   let opened ← IO.mkRef 0
   -- Retries disabled: a retry would paper over the teardown by re-sending the request.
-  let pool ← Client.Pool.new {} (mockConnector #[serverA, serverB] opened) 0
+  let client ← Client.new {} (mockConnector #[serverA, serverB] opened) 0
   let request ← poolRequest
 
   -- A gets its head and half its body; the caller still holds an open stream.
   let resultA ← IO.Promise.new
-  background do discard <| resultA.resolve (← pool.trySend (testOrigin "a.example") request)
+  background do discard <| resultA.resolve (← client.trySend (testOrigin "a.example") request)
   let _ ← drainRequest clientA
   clientA.send "HTTP/1.1 200 OK\r\nContent-Length: 10\r\n\r\n01234".toUTF8
   let responseA ← match ← await resultA.result! with
@@ -231,7 +231,7 @@ private def poolRequest : Async (Request Body.Empty) :=
 
   -- B targets a different origin, so the pool evicts A's connection.
   let resultB ← IO.Promise.new
-  background do discard <| resultB.resolve (← pool.trySend (testOrigin "b.example") request)
+  background do discard <| resultB.resolve (← client.trySend (testOrigin "b.example") request)
   let _ ← drainRequest clientB
   clientB.send (rawResp "200 OK" #[("Content-Length", "2"), ("Connection", "keep-alive")] "ok")
   match ← await resultB.result! with
@@ -250,21 +250,22 @@ private def poolRequest : Async (Request Body.Empty) :=
   runWithTimeout "concurrent cross-origin pool requests both succeed" 8000 <| Async.block do
   let mocks ← (Array.range 4).mapM fun _ => Mock.new
   let opened ← IO.mkRef 0
-  let pool ← Client.Pool.new {} (mockConnector (mocks.map (·.2)) opened) 1
+  let client ← Client.new {} (mockConnector (mocks.map (·.2)) opened) 1
   let request ← poolRequest
 
   -- Every mock answers every request it sees, so the test never depends on which connection the
   -- pool happens to hand a given request.
-  for (client, _) in mocks do
+  for (mockClient, _) in mocks do
     background do
       repeat
-        let _ ← drainRequest client
-        client.send (rawResp "200 OK" #[("Content-Length", "2"), ("Connection", "keep-alive")] "ok")
+        let _ ← drainRequest mockClient
+        mockClient.send
+          (rawResp "200 OK" #[("Content-Length", "2"), ("Connection", "keep-alive")] "ok")
 
   let resultA ← IO.Promise.new
   let resultB ← IO.Promise.new
-  background do discard <| resultA.resolve (← pool.trySend (testOrigin "a.example") request)
-  background do discard <| resultB.resolve (← pool.trySend (testOrigin "b.example") request)
+  background do discard <| resultA.resolve (← client.trySend (testOrigin "a.example") request)
+  background do discard <| resultB.resolve (← client.trySend (testOrigin "b.example") request)
   for (label, result) in [("a.example", resultA), ("b.example", resultB)] do
     match ← await result.result! with
     | .error e => throw (IO.userError s!"the concurrent request to {label} failed: {e}")

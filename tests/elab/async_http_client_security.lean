@@ -8,8 +8,8 @@ import Std.Http.Test.Helpers
 Tests for security properties of the HTTP client:
 
 - `Authorization` is stripped on cross-scheme redirects (same host+port, different scheme).
-  Before the fix `crossOrigin` checked host+port only; a http→https redirect to the same
-  host+port would silently keep the credential header.
+  Before the fix the cross-origin check compared host+port only; a http→https redirect to the
+  same host+port would silently keep the credential header.
 
 - Streaming (`.outgoing`) request bodies must not be retried on connection failure.
   A channel-backed body is consumed on first use; retrying would send an empty body.
@@ -23,26 +23,18 @@ open Test.ClientHelpers
 -- Redirect: Authorization stripped on scheme-change redirect
 -- ============================================================
 -- A 302 redirect from http://example.com:443/ to https://example.com:443/r has the
--- same host and port but a different scheme.  crossOrigin must be true so that the
+-- same host and port but a different scheme.  The hop must count as cross-origin so that the
 -- Authorization header is stripped before the redirect request is sent.
 -- ============================================================
 
 #eval show IO _ from runWithTimeout "scheme-change strips Authorization" 4000 <| Async.block do
   let (mockClient1, mockServer1) ← Mock.new
   let (mockClient2, mockServer2) ← Mock.new
-  let connection1 ← Client.Connection.new mockServer1 (config := {})
-  let some domain := URI.DomainName.ofString? "example.com"
-    | throw (IO.userError "DomainName parse failed")
 
-  -- Agent with scheme=http on port 443. Redirect target https://example.com:443/r
-  -- has same host+port but different scheme → crossOrigin is true and the agent
+  -- Client with scheme=http on port 443. Redirect target https://example.com:443/r
+  -- has same host+port but different scheme → the hop is cross-origin and the client
   -- opens a fresh connection via its connector.
-  let agent : Client.Agent := {
-    connection := connection1
-    origin := { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 443 }
-    crossOrigin := .follow fun _ => do
-      return .ok (← Client.Connection.new mockServer2 (config := {}))
-  }
+  let (client, _) ← mkFollowingClient #[mockServer1, mockServer2] (port := 443)
 
   let request ← Request.new
     |>.method .get
@@ -54,7 +46,7 @@ open Test.ClientHelpers
   let resultPromise : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
   background do
     let result : Except String (Response Body.Stream) ← try
-        let resp ← Client.Agent.send agent request
+        let resp ← client.send request
         pure (Except.ok resp)
       catch e => pure (Except.error (toString e))
     discard <| resultPromise.resolve result
@@ -73,9 +65,9 @@ open Test.ClientHelpers
   mockClient2.send (rawResp "200 OK"
     #[("Content-Length", "2"), ("Connection", "close")] "ok")
 
-  -- Wait for the agent to finish.
+  -- Wait for the client to finish.
   match ← await resultPromise.result! with
-  | Except.error e => throw (IO.userError s!"agent error: {e}")
+  | Except.error e => throw (IO.userError s!"client error: {e}")
   | Except.ok _ => pure ()
 
   let redirectText := String.fromUTF8! redirectBytes
@@ -93,7 +85,7 @@ open Test.ClientHelpers
 
 #eval show IO _ from runWithTimeout "same-origin preserves Authorization" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let request ← Request.new
     |>.method .get
@@ -105,7 +97,7 @@ open Test.ClientHelpers
   let resultPromise : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
   background do
     let result : Except String (Response Body.Stream) ← try
-        let resp ← Client.Agent.send agent request
+        let resp ← client.send request
         pure (Except.ok resp)
       catch e => pure (Except.error (toString e))
     discard <| resultPromise.resolve result
@@ -123,7 +115,7 @@ open Test.ClientHelpers
     #[("Content-Length", "2"), ("Connection", "close")] "ok")
 
   match ← await resultPromise.result! with
-  | Except.error e => throw (IO.userError s!"agent error: {e}")
+  | Except.error e => throw (IO.userError s!"client error: {e}")
   | Except.ok _ => pure ()
 
   let redirectText := String.fromUTF8! redirectBytes
@@ -163,18 +155,13 @@ open Test.ClientHelpers
 -- else returns the 3xx response as-is.
 -- ============================================================
 
--- Both tests give the agent a `.follow` policy that records the origin it is asked to dial and
--- refuses. The default `.stop` would return any cross-host 3xx unfollowed on its own, so the
--- status alone proves nothing about the scheme guard — the SSRF regression is a *dial* that must
--- never happen, and only a policy that could have dialled can witness its absence.
+-- Both tests give the client a connector that records the origin it is asked to dial and refuses.
+-- The status alone proves nothing about the scheme guard — the SSRF regression is a *dial* that
+-- must never happen, and only a connector that could have dialled can witness its absence.
 
 #eval show IO _ from runWithTimeout "ftp:// redirect not followed" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let dialed ← IO.mkRef (none : Option String)
-  let agent := { ← mkAgent mockServer with
-    crossOrigin := .follow fun origin => do
-      dialed.set (some s!"{origin.scheme.val}://{origin.host}:{origin.port}")
-      return .error (.connect "the redirect target must never be dialled") }
+  let (client, dialed) ← mkRefusingClient mockServer
 
   let request ← Request.new
     |>.method .get
@@ -182,7 +169,7 @@ open Test.ClientHelpers
     |>.header! "Host" "example.com"
     |>.empty
 
-  let resultPromise ← sendInBackground agent request
+  let resultPromise ← sendInBackground client request
 
   -- Server replies with a redirect to ftp:// (non-HTTP scheme).
   let _ ← drainRequest mockClient
@@ -191,23 +178,20 @@ open Test.ClientHelpers
       ("Content-Length", "0"), ("Connection", "keep-alive")] "")
 
   match ← await resultPromise.result! with
-  | Except.error e => throw (IO.userError s!"agent error: {e}")
+  | Except.error e => throw (IO.userError s!"client error: {e}")
   | Except.ok resp =>
     resp.body.close
-    -- The agent must return the 302 as-is, not follow it.
+    -- The client must return the 302 as-is, not follow it.
     unless resp.line.status == .found do
       throw <| IO.userError
         s!"Test 'ftp:// redirect not followed' FAILED: expected 302, got {resp.line.status.toCode}"
   if let some target ← dialed.get then
-    throw <| IO.userError s!"an ftp:// redirect target was dialled: {target}"
+    throw <| IO.userError
+      s!"an ftp:// redirect target was dialled: {target.scheme.val}://{target.host}:{target.port}"
 
 #eval show IO _ from runWithTimeout "file:// redirect not followed" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let dialed ← IO.mkRef (none : Option String)
-  let agent := { ← mkAgent mockServer with
-    crossOrigin := .follow fun origin => do
-      dialed.set (some s!"{origin.scheme.val}://{origin.host}:{origin.port}")
-      return .error (.connect "the redirect target must never be dialled") }
+  let (client, dialed) ← mkRefusingClient mockServer
 
   let request ← Request.new
     |>.method .get
@@ -215,7 +199,7 @@ open Test.ClientHelpers
     |>.header! "Host" "example.com"
     |>.empty
 
-  let resultPromise ← sendInBackground agent request
+  let resultPromise ← sendInBackground client request
 
   let _ ← drainRequest mockClient
   mockClient.send (rawResp "301 Moved Permanently"
@@ -223,66 +207,36 @@ open Test.ClientHelpers
       ("Content-Length", "0"), ("Connection", "keep-alive")] "")
 
   match ← await resultPromise.result! with
-  | Except.error e => throw (IO.userError s!"agent error: {e}")
+  | Except.error e => throw (IO.userError s!"client error: {e}")
   | Except.ok resp =>
     resp.body.close
     unless resp.line.status == .movedPermanently do
       throw <| IO.userError
         s!"Test 'file:// redirect not followed' FAILED: expected 301, got {resp.line.status.toCode}"
   if let some target ← dialed.get then
-    throw <| IO.userError s!"a file:// redirect target was dialled: {target}"
+    throw <| IO.userError
+      s!"a file:// redirect target was dialled: {target.scheme.val}://{target.host}:{target.port}"
 
 -- ============================================================
 -- Redirect: https:// is not blocked by the scheme guard
 -- ============================================================
 -- The SSRF guard in `decideRedirect` admits exactly http and https, so an `https://` Location must
--- reach the redirect machinery. Whether it is then followed is the cross-origin policy's call:
--- `https://example.com/page` resolves to port 443, so it leaves an agent's `http://example.com:80`
--- origin. These two tests pin down both halves — a standalone agent stops and reports the 3xx, and
--- a policy that can open a connection carries the hop through to the https origin.
+-- reach the redirect machinery instead of being rejected with the ftp/file targets above.
+-- `https://example.com/page` resolves to port 443, so it leaves the client's `http://example.com:80`
+-- origin: the hop must be carried to the https origin on a connection of its own, and never written
+-- to the connection the 302 arrived on.
 -- ============================================================
-
-#eval show IO _ from
-  runWithTimeout "https:// redirect stops at a standalone agent" 3000 <| Async.block do
-  let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
-
-  let request ← Request.new
-    |>.method .get
-    |>.uri! "/"
-    |>.header! "Host" "example.com"
-    |>.empty
-
-  let resultPromise ← sendInBackground agent request
-
-  let _ ← drainRequest mockClient
-  mockClient.send (rawResp "302 Found"
-    #[("Location", "https://example.com/page"), ("Content-Length", "0")] "")
-
-  match ← await resultPromise.result! with
-  | Except.error e => throw (IO.userError s!"agent error: {e}")
-  | Except.ok resp =>
-    resp.body.close
-    unless resp.line.status.toCode == 302 do
-      throw <| IO.userError
-        s!"expected the cross-origin 302 back unfollowed, got {resp.line.status.toCode}"
-
-  -- Nothing may go out on the old connection: the hop needs one of its own.
-  IO.sleep 100
-  if let some bytes ← mockClient.tryRecv? then
-    throw <| IO.userError
-      s!"a cross-origin hop was written to the http connection:\n{(String.fromUTF8! bytes).quote}"
 
 #eval show IO _ from
   runWithTimeout "https:// redirect is followed when a connection can be opened" 5000 <|
   Async.block do
   let (mockClient1, mockServer1) ← Mock.new
   let (mockClient2, mockServer2) ← Mock.new
-  let (agent, dialled) ← mkFollowingAgent #[mockServer1, mockServer2]
+  let (client, dialled) ← mkFollowingClient #[mockServer1, mockServer2]
 
   let request ← Request.new |>.method .get |>.uri! "/"
     |>.header! "Host" "example.com" |>.empty
-  let resultPromise ← sendInBackground agent request
+  let resultPromise ← sendInBackground client request
 
   let _ ← drainRequest mockClient1
   mockClient1.send (rawResp "302 Found"
@@ -312,16 +266,16 @@ open Test.ClientHelpers
 -- ============================================================
 -- Redirect: non-replayable body blocks auto-follow of 307
 -- ============================================================
--- RFC 9110 §15.4.8: the user agent MUST NOT automatically redirect a 307 when
+-- RFC 9110 §15.4.8: the user client MUST NOT automatically redirect a 307 when
 -- the request body cannot be repeated.  A streaming channel body (.stream) is
--- consumed on first use and therefore non-replayable.  The agent must surface
+-- consumed on first use and therefore non-replayable.  The client must surface
 -- the 307 response unchanged so the caller can decide what to do next, rather
 -- than silently following the redirect with an empty (or wrong) body.
 -- ============================================================
 
 #eval show IO _ from runWithTimeout "streaming body dropped on 307 redirect" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let request ← Request.new
     |>.method .put
@@ -335,7 +289,7 @@ open Test.ClientHelpers
 
   background do
     let result ← try
-        let resp ← Client.Agent.send agent request
+        let resp ← client.send request
         pure (Except.ok resp)
       catch e => pure (Except.error (toString e))
     discard <| resultPromise.resolve result
@@ -356,11 +310,11 @@ open Test.ClientHelpers
     #[("Location", "/new-upload"),
       ("Content-Length", "0")] "")
 
-  -- RFC 9110 §15.4.8: the agent must NOT follow the 307 automatically because
+  -- RFC 9110 §15.4.8: the client must NOT follow the 307 automatically because
   -- the streaming body cannot be replayed.  The 307 is returned directly to the
   -- caller; no second request reaches the mock server.
   match ← await resultPromise.result! with
-  | Except.error e => throw (IO.userError s!"agent error: {e}")
+  | Except.error e => throw (IO.userError s!"client error: {e}")
   | Except.ok resp =>
     resp.body.close
     unless resp.line.status.toCode == 307 do

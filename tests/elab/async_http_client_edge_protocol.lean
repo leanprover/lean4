@@ -17,7 +17,7 @@ open Test.ClientHelpers
 #eval show IO _ from runWithTimeout "Expect: 100-continue happy path sends body after 100" 4000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let request ← Request.new
     |>.method .post
@@ -26,7 +26,7 @@ open Test.ClientHelpers
     |>.header! "Expect" "100-continue"
     |>.text "actual-body"
 
-  let resultPromise ← sendInBackground agent request
+  let resultPromise ← sendInBackground client request
 
   -- Read the header-only request first: the client must NOT send the body yet.
   let mut headerBytes := ByteArray.empty
@@ -64,7 +64,7 @@ open Test.ClientHelpers
     #[("Content-Length", "2"), ("Connection", "close")] "ok")
 
   match ← await resultPromise.result! with
-  | Except.error e => throw (IO.userError s!"agent error: {e}")
+  | Except.error e => throw (IO.userError s!"client error: {e}")
   | Except.ok resp =>
     unless resp.line.status.toCode == 200 do
       throw <| IO.userError s!"expected 200, got {resp.line.status.toCode}"
@@ -74,7 +74,7 @@ open Test.ClientHelpers
 #eval show IO _ from runWithTimeout "Expect: 100-continue 417 rejection discards body" 4000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let request ← Request.new
     |>.method .post
@@ -83,7 +83,7 @@ open Test.ClientHelpers
     |>.header! "Expect" "100-continue"
     |>.text "rejected-body"
 
-  let resultPromise ← sendInBackground agent request
+  let resultPromise ← sendInBackground client request
 
   -- Read header-only.
   let mut headerBytes := ByteArray.empty
@@ -137,7 +137,7 @@ open Test.ClientHelpers
   runWithTimeout "Expect: 100-continue bypass with early 200 discards pending body" 4000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let request ← Request.new
     |>.method .post
@@ -146,7 +146,7 @@ open Test.ClientHelpers
     |>.header! "Expect" "100-continue"
     |>.text "unused-body"
 
-  let resultPromise ← sendInBackground agent request
+  let resultPromise ← sendInBackground client request
 
   -- Read only headers.
   let mut headerBytes := ByteArray.empty
@@ -157,13 +157,13 @@ open Test.ClientHelpers
     let t := String.fromUTF8! headerBytes
     if t.contains "\r\n\r\n" then break
 
-  -- Send a direct 200 (bypass 100-continue). Close the connection so the agent
+  -- Send a direct 200 (bypass 100-continue). Close the connection so the client
   -- does not hang waiting for more responses.
   mockClient.send (rawResp "200 OK"
     #[("Content-Length", "2"), ("Connection", "close")] "ok")
 
   match ← await resultPromise.result! with
-  | Except.error e => throw (IO.userError s!"agent error on bypass: {e}")
+  | Except.error e => throw (IO.userError s!"client error on bypass: {e}")
   | Except.ok resp =>
     unless resp.line.status.toCode == 200 do
       throw <| IO.userError s!"expected 200 on bypass, got {resp.line.status.toCode}"
@@ -176,7 +176,7 @@ open Test.ClientHelpers
 
 #eval show IO _ from runWithTimeout "103 Early Hints is transparent" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let request ← Request.new
     |>.method .get
@@ -184,7 +184,7 @@ open Test.ClientHelpers
     |>.header! "Host" "example.com"
     |>.empty
 
-  let resultPromise ← sendInBackground agent request
+  let resultPromise ← sendInBackground client request
 
   let _ ← drainRequest mockClient
   -- 103 with a couple of hint headers, then the real 200.
@@ -193,7 +193,7 @@ open Test.ClientHelpers
     #[("Content-Length", "2"), ("Connection", "close")] "ok")
 
   match ← await resultPromise.result! with
-  | Except.error e => throw (IO.userError s!"agent error: {e}")
+  | Except.error e => throw (IO.userError s!"client error: {e}")
   | Except.ok resp =>
     unless resp.line.status.toCode == 200 do
       throw <| IO.userError
@@ -203,7 +203,7 @@ open Test.ClientHelpers
 
 #eval show IO _ from runWithTimeout "multiple 103 responses all skipped" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let request ← Request.new
     |>.method .get
@@ -211,7 +211,7 @@ open Test.ClientHelpers
     |>.header! "Host" "example.com"
     |>.empty
 
-  let resultPromise ← sendInBackground agent request
+  let resultPromise ← sendInBackground client request
 
   let _ ← drainRequest mockClient
   mockClient.send "HTTP/1.1 103 Early Hints\r\nLink: </a.css>; rel=preload\r\n\r\n".toUTF8
@@ -220,7 +220,7 @@ open Test.ClientHelpers
     #[("Content-Length", "2"), ("Connection", "close")] "ok")
 
   match ← await resultPromise.result! with
-  | Except.error e => throw (IO.userError s!"agent error: {e}")
+  | Except.error e => throw (IO.userError s!"client error: {e}")
   | Except.ok resp =>
     unless resp.line.status.toCode == 200 do
       throw <| IO.userError
@@ -232,12 +232,12 @@ open Test.ClientHelpers
 
 -- A response body longer than `maxResponseBodySize` must fail the request with an error.
 -- The body must be reported via the body stream; reading it should see the error
--- bubble up through the agent.send promise.
+-- bubble up through the client.send promise.
 
 #eval show IO _ from runWithTimeout "maxResponseBodySize exceeded errors the request" 4000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer (config := { maxResponseBodySize := some 4 })
+  let client ← mkClient mockServer (config := { maxResponseBodySize := some 4 })
 
   let request ← Request.new
     |>.method .get
@@ -245,7 +245,7 @@ open Test.ClientHelpers
     |>.header! "Host" "example.com"
     |>.empty
 
-  let resultPromise ← sendInBackground agent request
+  let resultPromise ← sendInBackground client request
 
   let _ ← drainRequest mockClient
   -- Advertise 16 bytes (well over the 4-byte limit) and send them all.
@@ -277,7 +277,7 @@ open Test.ClientHelpers
 #eval show IO _ from runWithTimeout "maxResponseBodySize exact boundary is inclusive" 4000 <|
   Async.block do
   let (atLimitClient, atLimitServer) ← Mock.new
-  let atLimitAgent ← mkAgent atLimitServer (config := { maxResponseBodySize := some 4 })
+  let atLimitAgent ← mkClient atLimitServer (config := { maxResponseBodySize := some 4 })
   let atLimitRequest ← Request.new |>.method .get |>.uri! "/exact-limit"
     |>.header! "Host" "example.com" |>.empty
   let atLimitPromise ← sendInBackground atLimitAgent atLimitRequest
@@ -294,7 +294,7 @@ open Test.ClientHelpers
       throw (IO.userError s!"expected exact-limit body '1234', got {body.quote}")
 
   let (overLimitClient, overLimitServer) ← Mock.new
-  let overLimitAgent ← mkAgent overLimitServer (config := { maxResponseBodySize := some 4 })
+  let overLimitAgent ← mkClient overLimitServer (config := { maxResponseBodySize := some 4 })
   let overLimitRequest ← Request.new |>.method .get |>.uri! "/one-over-limit"
     |>.header! "Host" "example.com" |>.empty
   let overLimitPromise ← sendInBackground overLimitAgent overLimitRequest
@@ -323,11 +323,11 @@ open Test.ClientHelpers
 #eval show IO _ from runWithTimeout "maxResponseBodySize resets between keep-alive requests" 4000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer (config := { maxResponseBodySize := some 4 })
+  let client ← mkClient mockServer (config := { maxResponseBodySize := some 4 })
 
   let req1 ← Request.new |>.method .get |>.uri! "/first"
     |>.header! "Host" "example.com" |>.empty
-  let p1 ← sendInBackground agent req1
+  let p1 ← sendInBackground client req1
 
   let _ ← drainRequest mockClient
   mockClient.send (rawResp "200 OK"
@@ -342,7 +342,7 @@ open Test.ClientHelpers
 
   let req2 ← Request.new |>.method .get |>.uri! "/second"
     |>.header! "Host" "example.com" |>.empty
-  let p2 ← sendInBackground agent req2
+  let p2 ← sendInBackground client req2
 
   let _ ← drainRequest mockClient
   mockClient.send (rawResp "200 OK"
@@ -361,12 +361,12 @@ open Test.ClientHelpers
 #eval show IO _ from runWithTimeout "maxResponseBodySize applies to unfollowed 302 body" 4000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer (config := { maxRedirects := 0, maxResponseBodySize := some 5 })
+  let client ← mkClient mockServer (config := { maxRedirects := 0, maxResponseBodySize := some 5 })
 
   let request ← Request.new |>.method .get |>.uri! "/"
     |>.header! "Host" "example.com" |>.empty
 
-  let resultPromise ← sendInBackground agent request
+  let resultPromise ← sendInBackground client request
 
   let _ ← drainRequest mockClient
   mockClient.send (rawResp "302 Found"
@@ -375,7 +375,7 @@ open Test.ClientHelpers
       ("Connection", "close")] "0123456789")
 
   match ← await resultPromise.result! with
-  | Except.error e => throw (IO.userError s!"agent errored before returning 302: {e}")
+  | Except.error e => throw (IO.userError s!"client errored before returning 302: {e}")
   | Except.ok resp =>
     unless resp.line.status.toCode == 302 do
       throw (IO.userError s!"expected 302, got {resp.line.status.toCode}")
@@ -397,11 +397,11 @@ open Test.ClientHelpers
 #eval show IO _ from runWithTimeout "an error status preserves keep-alive reuse" 4000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let badReq ← Request.new |>.method .get |>.uri! "/bad"
     |>.header! "Host" "example.com" |>.empty
-  let badPromise ← sendInBackground agent badReq
+  let badPromise ← sendInBackground client badReq
 
   let _ ← drainRequest mockClient
   mockClient.send (rawResp "404 Not Found"
@@ -418,7 +418,7 @@ open Test.ClientHelpers
 
   let goodReq ← Request.new |>.method .get |>.uri! "/good"
     |>.header! "Host" "example.com" |>.empty
-  let goodPromise ← sendInBackground agent goodReq
+  let goodPromise ← sendInBackground client goodReq
 
   let goodBytes ← drainRequest mockClient
   mockClient.send (rawResp "200 OK"
@@ -448,11 +448,11 @@ open Test.ClientHelpers
 #eval show IO _ from runWithTimeout "HEAD response with Content-Length has no body" 4000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let req ← Request.new |>.method .head |>.uri! "/doc.html"
     |>.header! "Host" "example.com" |>.empty
-  let p ← sendInBackground agent req
+  let p ← sendInBackground client req
 
   let _ ← drainRequest mockClient
   mockClient.send (rawResp "200 OK"
@@ -466,7 +466,7 @@ open Test.ClientHelpers
 
   let req2 ← Request.new |>.method .get |>.uri! "/follow"
     |>.header! "Host" "example.com" |>.empty
-  let p2 ← sendInBackground agent req2
+  let p2 ← sendInBackground client req2
 
   let _ ← drainRequest mockClient
   mockClient.send (rawResp "200 OK"
@@ -481,11 +481,11 @@ open Test.ClientHelpers
 
 #eval show IO _ from runWithTimeout "204 No Content supports keep-alive" 4000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let req ← Request.new |>.method .delete |>.uri! "/item/1"
     |>.header! "Host" "example.com" |>.empty
-  let p ← sendInBackground agent req
+  let p ← sendInBackground client req
 
   let _ ← drainRequest mockClient
   mockClient.send "HTTP/1.1 204 No Content\r\nConnection: keep-alive\r\n\r\n".toUTF8
@@ -498,7 +498,7 @@ open Test.ClientHelpers
 
   let req2 ← Request.new |>.method .get |>.uri! "/other"
     |>.header! "Host" "example.com" |>.empty
-  let p2 ← sendInBackground agent req2
+  let p2 ← sendInBackground client req2
 
   let _ ← drainRequest mockClient
   mockClient.send (rawResp "200 OK"
@@ -518,11 +518,11 @@ open Test.ClientHelpers
 
 #eval show IO _ from runWithTimeout "server close mid-body errors body read" 4000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let req ← Request.new |>.method .get |>.uri! "/short"
     |>.header! "Host" "example.com" |>.empty
-  let p ← sendInBackground agent req
+  let p ← sendInBackground client req
 
   let _ ← drainRequest mockClient
   mockClient.send "HTTP/1.1 200 OK\r\nContent-Length: 10\r\nConnection: close\r\n\r\n".toUTF8
@@ -554,18 +554,18 @@ open Test.ClientHelpers
 
 #eval show IO _ from runWithTimeout "default User-Agent injected" 3000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let req ← Request.new |>.method .get |>.uri! "/"
     |>.header! "Host" "example.com" |>.empty
-  let p ← sendInBackground agent req
+  let p ← sendInBackground client req
 
   let firstBytes ← drainRequest mockClient
   mockClient.send (rawResp "200 OK"
     #[("Content-Length", "0"), ("Connection", "close")] "")
 
   match ← await p.result! with
-  | Except.error e => throw (IO.userError s!"agent error: {e}")
+  | Except.error e => throw (IO.userError s!"client error: {e}")
   | Except.ok _ => pure ()
 
   let reqText := String.fromUTF8! firstBytes
@@ -582,7 +582,7 @@ open Test.ClientHelpers
 #eval show IO _ from runWithTimeout "stream body uses Transfer-Encoding: chunked" 4000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let req ← Request.new |>.method .post |>.uri! "/upload"
     |>.header! "Host" "example.com"
@@ -590,14 +590,14 @@ open Test.ClientHelpers
       out.send (Chunk.ofByteArray "part-1".toUTF8)
       out.send (Chunk.ofByteArray "part-2".toUTF8)
       out.close)
-  let p ← sendInBackground agent req
+  let p ← sendInBackground client req
 
   let firstBytes ← drainRequest mockClient
   mockClient.send (rawResp "200 OK"
     #[("Content-Length", "2"), ("Connection", "close")] "ok")
 
   match ← await p.result! with
-  | Except.error e => throw (IO.userError s!"agent error: {e}")
+  | Except.error e => throw (IO.userError s!"client error: {e}")
   | Except.ok _ => pure ()
 
   let reqText := String.fromUTF8! firstBytes
@@ -627,11 +627,11 @@ open Test.ClientHelpers
   runWithTimeout "maxResponseBodySize none accepts a response above the H1 default" 4000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let req ← Request.new |>.method .get |>.uri! "/big"
     |>.header! "Host" "example.com" |>.empty
-  let p ← sendInBackground agent req
+  let p ← sendInBackground client req
 
   let _ ← drainRequest mockClient
   -- 64 MiB + 1, declared but never sent: the header alone decides.
@@ -650,11 +650,11 @@ open Test.ClientHelpers
   runWithTimeout "explicit maxResponseBodySize above the H1 default is honoured" 4000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer (config := { maxResponseBodySize := some 1073741824 })
+  let client ← mkClient mockServer (config := { maxResponseBodySize := some 1073741824 })
 
   let req ← Request.new |>.method .get |>.uri! "/big"
     |>.header! "Host" "example.com" |>.empty
-  let p ← sendInBackground agent req
+  let p ← sendInBackground client req
 
   let _ ← drainRequest mockClient
   mockClient.send "HTTP/1.1 200 OK\r\nContent-Length: 67108865\r\nConnection: close\r\n\r\n".toUTF8
@@ -675,10 +675,10 @@ open Test.ClientHelpers
   runWithTimeout "client supplies Host from the origin when the request omits it" 4000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let req ← Request.new |>.method .get |>.uri! "/nohost" |>.empty
-  let p ← sendInBackground agent req
+  let p ← sendInBackground client req
 
   let reqBytes ← drainRequest mockClient
   mockClient.send (rawResp "200 OK" #[("Content-Length", "2"), ("Connection", "close")] "ok")
@@ -688,7 +688,7 @@ open Test.ClientHelpers
   unless reqText.contains "Host: example.com" do
     throw <| IO.userError s!"HTTP/1.1 request went out without a Host header:\n{reqText.quote}"
 
--- RFC 9110 §8.6: "A user agent SHOULD NOT send a Content-Length header field when the request
+-- RFC 9110 §8.6: "A user client SHOULD NOT send a Content-Length header field when the request
 -- message does not contain content and the method semantics do not anticipate such data." An empty
 -- POST must still send `Content-Length: 0` — there the method does anticipate content.
 
@@ -696,11 +696,11 @@ open Test.ClientHelpers
   runWithTimeout "bodyless requests do not send Content-Length" 8000 <| Async.block do
   let check (method : Method) (expectContentLength : Bool) : Async Unit := do
     let (mockClient, mockServer) ← Mock.new
-    let agent ← mkAgent mockServer
+    let client ← mkClient mockServer
 
     let req ← Request.new |>.method method |>.uri! "/x"
       |>.header! "Host" "example.com" |>.empty
-    let p ← sendInBackground agent req
+    let p ← sendInBackground client req
 
     let reqBytes ← drainRequest mockClient
     mockClient.send (rawResp "200 OK" #[("Content-Length", "2"), ("Connection", "close")] "ok")
@@ -734,11 +734,11 @@ open Test.ClientHelpers
   let atEverySplit (what : String) (raw : ByteArray) (expected : String) : Async Unit := do
     for split in 0...raw.size do
       let (mockClient, mockServer) ← Mock.new
-      let agent ← mkAgent mockServer
+      let client ← mkClient mockServer
 
       let req ← Request.new |>.method .get |>.uri! "/t"
         |>.header! "Host" "example.com" |>.empty
-      let p ← sendInBackground agent req
+      let p ← sendInBackground client req
       let _ ← drainRequest mockClient
 
       -- The mock joins whatever is already queued, so the second half has to wait for the reader
@@ -771,11 +771,11 @@ open Test.ClientHelpers
 #eval show IO _ from
   runWithTimeout "forbidden trailer field is still rejected" 4000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let req ← Request.new |>.method .get |>.uri! "/t"
     |>.header! "Host" "example.com" |>.empty
-  let p ← sendInBackground agent req
+  let p ← sendInBackground client req
   let _ ← drainRequest mockClient
   mockClient.send
     ("HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n"
@@ -804,11 +804,11 @@ open Test.ClientHelpers
 #eval show IO _ from
   runWithTimeout "a chunk above the H1 default cap is delivered" 30000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let req ← Request.new |>.method .get |>.uri! "/big"
     |>.header! "Host" "example.com" |>.empty
-  let p ← sendInBackground agent req
+  let p ← sendInBackground client req
   let _ ← drainRequest mockClient
 
   let size := 8 * 1024 * 1024 + 1
@@ -836,11 +836,11 @@ open Test.ClientHelpers
 #eval show IO _ from
   runWithTimeout "a chunk size beyond 64 bits is rejected" 4000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let req ← Request.new |>.method .get |>.uri! "/huge"
     |>.header! "Host" "example.com" |>.empty
-  let p ← sendInBackground agent req
+  let p ← sendInBackground client req
   let _ ← drainRequest mockClient
   mockClient.send
     ("HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n"
@@ -888,7 +888,7 @@ private def settledRequestWire (mockClient : Mock.Client) : Async String := do
   runWithTimeout "a request body that failed before dispatch fails the request" 5000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let stream ← Body.mkStream
   stream.setKnownSize (some .chunked)
@@ -896,7 +896,7 @@ private def settledRequestWire (mockClient : Mock.Client) : Async String := do
 
   let req := Request.Builder.body
     (Request.new |>.method .post |>.uri! "/upload" |>.header! "Host" "example.com") stream
-  let p ← sendInBackground agent req
+  let p ← sendInBackground client req
 
   let text ← settledRequestWire mockClient
   if text.contains "0\r\n\r\n" then
@@ -914,14 +914,14 @@ private def settledRequestWire (mockClient : Mock.Client) : Async String := do
 #eval show IO _ from
   runWithTimeout "a request body that fails mid-stream fails the request" 5000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let req ← Request.new |>.method .post |>.uri! "/upload"
     |>.header! "Host" "example.com" |>.stream (fun s => do
       s.send { data := "partial".toUTF8, extensions := #[] } false
       IO.sleep 100
       throw (IO.userError "producer failed"))
-  let p ← sendInBackground agent req
+  let p ← sendInBackground client req
 
   let text ← settledRequestWire mockClient
   if text.contains "0\r\n\r\n" then
@@ -945,11 +945,11 @@ private def settledRequestWire (mockClient : Mock.Client) : Async String := do
 #eval show IO _ from
   runWithTimeout "headers within the client's own limits are accepted" 5000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let req ← Request.new |>.method .get |>.uri! "/big-headers"
     |>.header! "Host" "example.com" |>.empty
-  let p ← sendInBackground agent req
+  let p ← sendInBackground client req
   let _ ← drainRequest mockClient
 
   let value := String.ofList (List.replicate 10000 'v')
@@ -969,11 +969,11 @@ private def settledRequestWire (mockClient : Mock.Client) : Async String := do
 #eval show IO _ from
   runWithTimeout "a header block beyond the client's limits is rejected" 5000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer (config := { maxResponseHeaders := 4, maxHeaderValueSize := 1024 })
+  let client ← mkClient mockServer (config := { maxResponseHeaders := 4, maxHeaderValueSize := 1024 })
 
   let req ← Request.new |>.method .get |>.uri! "/big-headers"
     |>.header! "Host" "example.com" |>.empty
-  let p ← sendInBackground agent req
+  let p ← sendInBackground client req
   let _ ← drainRequest mockClient
 
   let value := String.ofList (List.replicate 1000 'v')

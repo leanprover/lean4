@@ -29,7 +29,7 @@ open Test.ClientHelpers
     | 0 => return .ok (← Client.Connection.new mockServer1 (config := config))
     | _ => throw (IO.userError "pool opened more connections than expected")
 
-  let pool ← Client.Pool.new {} connect
+  let client ← Client.new {} connect
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
   let origin : URI.Origin := {
@@ -43,7 +43,7 @@ open Test.ClientHelpers
   let p1 : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
   background do
     let result ← try
-        let resp ← pool.send origin req1
+        let resp ← client.send origin req1
         pure (Except.ok resp)
       catch e => pure (Except.error (toString e))
     discard <| p1.resolve result
@@ -61,7 +61,7 @@ open Test.ClientHelpers
   let p2 : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
   background do
     let result ← try
-        let resp ← pool.send origin req2
+        let resp ← client.send origin req2
         pure (Except.ok resp)
       catch e => pure (Except.error (toString e))
     discard <| p2.resolve result
@@ -115,7 +115,7 @@ open Test.ClientHelpers
     | 1 => return .ok (← Client.Connection.new mockServer2 (config := config))
     | _ => throw (IO.userError "pool opened more connections than expected")
 
-  let pool ← Client.Pool.new {} connect
+  let client ← Client.new {} connect
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
   let origin : URI.Origin := {
@@ -129,7 +129,7 @@ open Test.ClientHelpers
   let p1 : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
   background do
     let result ← try
-        let resp ← pool.send origin req1
+        let resp ← client.send origin req1
         pure (Except.ok resp)
       catch e => pure (Except.error (toString e))
     discard <| p1.resolve result
@@ -150,7 +150,7 @@ open Test.ClientHelpers
   let p2 : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
   background do
     let result ← try
-        let resp ← pool.send origin req2
+        let resp ← client.send origin req2
         pure (Except.ok resp)
       catch e => pure (Except.error (toString e))
     discard <| p2.resolve result
@@ -193,7 +193,7 @@ open Test.ClientHelpers
     | 1 => return .ok (← Client.Connection.new mockServer2 (config := config))
     | _ => throw (IO.userError "pool opened more connections than expected")
 
-  let pool ← Client.Pool.new {} connect
+  let client ← Client.new {} connect
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
   let origin : URI.Origin := {
@@ -207,7 +207,7 @@ open Test.ClientHelpers
   let p1 : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
   background do
     let result ← try
-        let resp ← pool.send origin req1
+        let resp ← client.send origin req1
         pure (Except.ok resp)
       catch e => pure (Except.error (toString e))
     discard <| p1.resolve result
@@ -230,7 +230,7 @@ open Test.ClientHelpers
   let p2 : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
   background do
     let result ← try
-        let resp ← pool.send origin req2
+        let resp ← client.send origin req2
         pure (Except.ok resp)
       catch e => pure (Except.error (toString e))
     discard <| p2.resolve result
@@ -272,7 +272,7 @@ open Test.ClientHelpers
     | 1 => return .ok (← Client.Connection.new mockServer2 (config := config))
     | _ => throw (IO.userError "pool opened more connections than expected")
 
-  let pool ← Client.Pool.new {} connect
+  let client ← Client.new {} connect
   let some domain1 := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
   let some domain2 := URI.DomainName.ofString? "other.example"
@@ -293,7 +293,7 @@ open Test.ClientHelpers
   let p1 : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
   background do
     let result ← try
-        let resp ← pool.send origin1 req1
+        let resp ← client.send origin1 req1
         pure (Except.ok resp)
       catch e => pure (Except.error (toString e))
     discard <| p1.resolve result
@@ -316,7 +316,7 @@ open Test.ClientHelpers
   let p2 : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
   background do
     let result ← try
-        let resp ← pool.send origin2 req2
+        let resp ← client.send origin2 req2
         pure (Except.ok resp)
       catch e => pure (Except.error (toString e))
     discard <| p2.resolve result
@@ -374,7 +374,7 @@ open Test.ClientHelpers
 
   -- Retries are disabled: this test asserts the state the pool is left in after a
   -- single failed cross-origin acquire, not the retry policy.
-  let pool ← Client.Pool.new {} connect (maxRetries := 0)
+  let client ← Client.new {} connect (maxRetries := 0)
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
   let origin : URI.Origin := {
@@ -388,7 +388,7 @@ open Test.ClientHelpers
   let p1 : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
   background do
     let result ← try
-        let resp ← pool.send origin req1
+        let resp ← client.send origin req1
         pure (Except.ok resp)
       catch e => pure (Except.error (toString e))
     discard <| p1.resolve result
@@ -425,7 +425,7 @@ open Test.ClientHelpers
   let p2 : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
   background do
     let result ← try
-        let resp ← pool.send origin req2
+        let resp ← client.send origin req2
         pure (Except.ok resp)
       catch e => pure (Except.error (toString e))
     discard <| p2.resolve result
@@ -461,12 +461,12 @@ open Test.ClientHelpers
 #eval show IO _ from runWithTimeout "two sequential GETs on keep-alive succeed" 4000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   -- First request.
   let req1 ← Request.new |>.method .get |>.uri! "/one"
     |>.header! "Host" "example.com" |>.empty
-  let p1 ← sendInBackground agent req1
+  let p1 ← sendInBackground client req1
 
   let _ ← drainRequest mockClient
   mockClient.send (rawResp "200 OK"
@@ -482,7 +482,7 @@ open Test.ClientHelpers
   -- Second request on same connection must succeed.
   let req2 ← Request.new |>.method .get |>.uri! "/two"
     |>.header! "Host" "example.com" |>.empty
-  let p2 ← sendInBackground agent req2
+  let p2 ← sendInBackground client req2
 
   let _ ← drainRequest mockClient
   mockClient.send (rawResp "200 OK"
@@ -500,11 +500,11 @@ open Test.ClientHelpers
 
 #eval show IO _ from runWithTimeout "Connection: close prevents reuse" 4000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer
+  let client ← mkClient mockServer
 
   let req1 ← Request.new |>.method .get |>.uri! "/"
     |>.header! "Host" "example.com" |>.empty
-  let p1 ← sendInBackground agent req1
+  let p1 ← sendInBackground client req1
 
   let _ ← drainRequest mockClient
   mockClient.send (rawResp "200 OK"
@@ -519,7 +519,7 @@ open Test.ClientHelpers
   -- second request through a dead transport whether or not `Connection: close` was honoured.
   let mut retired := false
   for _ in [0:50] do
-    if ← agent.connection.isClosed then
+    if ← (← client.connection).isClosed then
       retired := true
       break
     IO.sleep 20
@@ -530,7 +530,7 @@ open Test.ClientHelpers
   -- Second send must not hang; it must fail because the connection is closed.
   let req2 ← Request.new |>.method .get |>.uri! "/"
     |>.header! "Host" "example.com" |>.empty
-  let p2 ← sendInBackground agent req2
+  let p2 ← sendInBackground client req2
 
   -- Nothing reaches the wire either: a retired connection *is* one whose request channel is closed
   -- (`Connection.isClosed` reads that channel), so the send above failed before writing anything.
@@ -551,7 +551,7 @@ open Test.ClientHelpers
 #eval show IO _ from runWithTimeout "request deadline aborts a stalled response body" 4000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer (config := { requestTimeout := ⟨300, by decide⟩ })
+  let client ← mkClient mockServer (config := { requestTimeout := ⟨300, by decide⟩ })
 
   let request ← Request.new
     |>.method .get
@@ -559,7 +559,7 @@ open Test.ClientHelpers
     |>.header! "Host" "example.com"
     |>.empty
 
-  let resultPromise ← sendInBackground agent request
+  let resultPromise ← sendInBackground client request
 
   let _ ← drainRequest mockClient
   -- Promise a 10-byte body but never send it: the exchange must hit the request deadline.
@@ -586,11 +586,11 @@ open Test.ClientHelpers
 #eval show IO _ from runWithTimeout "request deadline aborts a slow-drip response body" 4000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer (config := { requestTimeout := ⟨250, by decide⟩ })
+  let client ← mkClient mockServer (config := { requestTimeout := ⟨250, by decide⟩ })
 
   let request ← Request.new |>.method .get |>.uri! "/slow-drip"
     |>.header! "Host" "example.com" |>.empty
-  let resultPromise ← sendInBackground agent request
+  let resultPromise ← sendInBackground client request
 
   let _ ← drainRequest mockClient
   mockClient.send (rawResp "200 OK"
@@ -618,7 +618,7 @@ open Test.ClientHelpers
 #eval show IO _ from runWithTimeout "connection close aborts an in-flight request" 4000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let agent ← mkAgent mockServer (config := { requestTimeout := ⟨60000, by decide⟩ })
+  let client ← mkClient mockServer (config := { requestTimeout := ⟨60000, by decide⟩ })
 
   let request ← Request.new
     |>.method .get
@@ -626,11 +626,11 @@ open Test.ClientHelpers
     |>.header! "Host" "example.com"
     |>.empty
 
-  let resultPromise ← sendInBackground agent request
+  let resultPromise ← sendInBackground client request
 
   -- Server receives the request but never responds; only close should end it.
   let _ ← drainRequest mockClient
-  agent.connection.close
+  (← client.connection).close
 
   match ← await resultPromise.result! with
   | Except.error _ => pure ()
@@ -659,7 +659,7 @@ open Test.ClientHelpers
       secondSawReleased.set (← released.get)
       return .ok (← Client.Connection.new mockServer2 (config := config))
 
-  let pool ← Client.Pool.new {} connect
+  let client ← Client.new {} connect
   let some domainA := URI.DomainName.ofString? "a.example"
     | throw (IO.userError "DomainName parse failed")
   let some domainB := URI.DomainName.ofString? "b.example"
@@ -673,13 +673,13 @@ open Test.ClientHelpers
   let secondDone : IO.Promise Unit ← IO.Promise.new
 
   background do
-    let .ok connection ← pool.getOrCreateConnection originA
+    let .ok connection ← client.getOrCreateConnection originA
       | throw (IO.userError "first-origin connection acquisition failed")
     discard <| firstDone.resolve ()
     connection.close
   await firstStarted.result!
   background do
-    let .ok connection ← pool.getOrCreateConnection originB
+    let .ok connection ← client.getOrCreateConnection originB
       | throw (IO.userError "second-origin connection acquisition failed")
     discard <| secondDone.resolve ()
     connection.close
@@ -704,7 +704,7 @@ open Test.ClientHelpers
     if callNo == 0 then
       throw (IO.userError "synthetic first connect failure")
     return .ok (← Client.Connection.new mockServer (config := config))
-  let pool ← Client.Pool.new {} connect (maxRetries := 1)
+  let client ← Client.new {} connect (maxRetries := 1)
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
   let origin : URI.Origin := {
@@ -715,7 +715,7 @@ open Test.ClientHelpers
 
   background do
     let attempt ← try
-        pure (Except.ok (← pool.send origin request))
+        pure (Except.ok (← client.send origin request))
       catch e => pure (Except.error (toString e))
     discard <| result.resolve attempt
   background do
@@ -743,7 +743,7 @@ open Test.ClientHelpers
     calls.set (callNo + 1)
     let mockServer := if callNo == 0 then mockServer1 else mockServer2
     return .ok (← Client.Connection.new mockServer (config := config))
-  let pool ← Client.Pool.new {} connect (maxRetries := 3)
+  let client ← Client.new {} connect (maxRetries := 3)
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
   let origin : URI.Origin := {
@@ -754,7 +754,7 @@ open Test.ClientHelpers
 
   background do
     let attempt ← try
-        pure (Except.ok (← pool.send origin request))
+        pure (Except.ok (← client.send origin request))
       catch e => pure (Except.error (toString e))
     discard <| result.resolve attempt
   let _ ← drainRequest mockClient1
@@ -782,7 +782,7 @@ open Test.ClientHelpers
     calls.set (callNo + 1)
     let mockServer := if callNo == 0 then mockServer1 else mockServer2
     return .ok (← Client.Connection.new mockServer (config := config))
-  let pool ← Client.Pool.new {} connect (maxRetries := 3)
+  let client ← Client.new {} connect (maxRetries := 3)
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
   let origin : URI.Origin := {
@@ -796,7 +796,7 @@ open Test.ClientHelpers
 
   background do
     let attempt ← try
-        pure (Except.ok (← pool.send origin request))
+        pure (Except.ok (← client.send origin request))
       catch e => pure (Except.error (toString e))
     discard <| result.resolve attempt
 
@@ -839,7 +839,7 @@ open Test.ClientHelpers
     calls.set (callNo + 1)
     let mockServer := if callNo == 0 then mockServer1 else mockServer2
     return .ok (← Client.Connection.new mockServer (config := config))
-  let pool ← Client.Pool.new {} connect (maxRetries := 1)
+  let client ← Client.new {} connect (maxRetries := 1)
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
   let origin : URI.Origin := {
@@ -850,7 +850,7 @@ open Test.ClientHelpers
 
   background do
     let attempt ← try
-        pure (Except.ok (← pool.send origin request))
+        pure (Except.ok (← client.send origin request))
       catch e => pure (Except.error (toString e))
     discard <| result.resolve attempt
 
@@ -889,7 +889,7 @@ open Test.ClientHelpers
     calls.set (callNo + 1)
     let mockServer := if callNo == 0 then mockServer1 else mockServer2
     return .ok (← Client.Connection.new mockServer (config := config))
-  let pool ← Client.Pool.new {} connect (maxRetries := 0)
+  let client ← Client.new {} connect (maxRetries := 0)
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
   let origin : URI.Origin := {
@@ -901,7 +901,7 @@ open Test.ClientHelpers
   let p1 : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
   background do
     let attempt ← try
-        pure (Except.ok (← pool.send origin req1))
+        pure (Except.ok (← client.send origin req1))
       catch e => pure (Except.error (toString e))
     discard <| p1.resolve attempt
   let _ ← drainRequest mockClient1
@@ -924,7 +924,7 @@ open Test.ClientHelpers
   let p2 : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
   background do
     let attempt ← try
-        pure (Except.ok (← pool.send origin req2))
+        pure (Except.ok (← client.send origin req2))
       catch e => pure (Except.error (toString e))
     discard <| p2.resolve attempt
 

@@ -312,50 +312,130 @@ def drainRequest (mockClient : Mock.Client) : Async ByteArray := do
       bytes := bytes ++ chunk
   pure bytes
 
-/-- Create an HTTP client agent over a mock transport. -/
-def mkAgent (mockServer : Mock.Server) (config : Client.Config := {})
-    (port : UInt16 := 80) (scheme : String := "http") : Async Client.Agent := do
-  let connection ← Client.Connection.new mockServer config
+/--
+A `Client` wired to mock transports, together with the origin its requests target and the
+connections its connector has handed out. Bundling these keeps test bodies free of the `origin`
+argument `Client.send` takes and lets a test reach the transport under test.
+-/
+structure TestClient where
+  /-- The client under test. -/
+  client : Client
+
+  /-- Origin every `TestClient.send` targets. -/
+  origin : URI.Origin
+
+  /-- Connections opened by the client's connector, in the order they were opened. -/
+  opened : IO.Ref (Array Client.Connection)
+
+namespace TestClient
+
+/-- Send a request to the client's origin. -/
+def send {β : Type} [Coe β Body.Any] (self : TestClient) (request : Request β)
+    (overrides : Client.RequestOverrides := {}) : Async (Response Body.Stream) :=
+  self.client.send self.origin request overrides
+
+/-- The connection the client most recently opened. -/
+def connection (self : TestClient) : Async Client.Connection := do
+  let some connection := (← self.opened.get).back?
+    | throw (IO.userError "the client has not opened a connection yet")
+  pure connection
+
+end TestClient
+
+/--
+Create an HTTP client whose connector always dials `mockServer`. Retries are disabled so that a
+transport failure surfaces to the test instead of being replayed on a second connection.
+-/
+def mkClient (mockServer : Mock.Server) (config : Client.Config := {})
+    (port : UInt16 := 80) (scheme : String := "http") : Async TestClient := do
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
+  let opened ← IO.mkRef (#[] : Array Client.Connection)
+  let connect : Client.Connector := fun _ _ _ config => do
+    let connection ← Client.Connection.new mockServer config
+    opened.modify (·.push connection)
+    return .ok connection
+  let client ← Client.new config connect (maxRetries := 0)
   pure {
-    connection
+    client
     origin := { scheme := URI.Scheme.ofString! scheme, host := .name domain, port }
+    opened
   }
 
 /--
-Create an agent connected to `servers[0]!` whose `.follow` policy hands out the remaining `servers`
-in order, one per hop that needs a connection of its own. The returned ref records the origin each
-of those connections was opened for, so a test can assert where a hop was dialled as well as what
-was written on it. Opening more connections than there are servers fails the test.
+Create a client whose connector hands out `servers` in order, one per connection it opens. The
+returned ref records the origin of every connection *after* the first, so a test can assert where a
+hop was dialled as well as what was written on it. Opening more connections than there are servers
+fails the test.
 -/
-def mkFollowingAgent (servers : Array Mock.Server) (config : Client.Config := {}) :
-    Async (Client.Agent × IO.Ref (Array URI.Origin)) := do
-  let some first := servers[0]?
-    | throw (IO.userError "mkFollowingAgent needs at least one server")
-  let agent ← mkAgent first config
-  let nextServer ← IO.mkRef 1
+def mkFollowingClient (servers : Array Mock.Server) (config : Client.Config := {})
+    (port : UInt16 := 80) (scheme : String := "http") :
+    Async (TestClient × IO.Ref (Array URI.Origin)) := do
+  if servers.isEmpty then
+    throw (IO.userError "mkFollowingClient needs at least one server")
+  let some domain := URI.DomainName.ofString? "example.com"
+    | throw (IO.userError "DomainName parse failed")
+  let nextServer ← IO.mkRef 0
   let dialled ← IO.mkRef (#[] : Array URI.Origin)
+  let opened ← IO.mkRef (#[] : Array Client.Connection)
 
-  let acquire (origin : URI.Origin) : Async (Except Client.Error Client.Connection) := do
+  let connect : Client.Connector := fun scheme host port config => do
     let index ← nextServer.modifyGet fun index => (index, index + 1)
     let some server := servers[index]?
       | throw <| IO.userError
-          s!"the agent opened more than {servers.size} connections (hop {index + 1} wanted {origin.hostHeader})"
-    dialled.modify (·.push origin)
-    return .ok (← Client.Connection.new server config)
+          s!"the client opened more than {servers.size} connections (connection {index + 1} wanted {host})"
+    if index > 0 then
+      dialled.modify (·.push { scheme, host, port })
+    let connection ← Client.Connection.new server config
+    opened.modify (·.push connection)
+    return .ok connection
 
-  pure ({ agent with crossOrigin := .follow acquire }, dialled)
+  let client ← Client.new config connect (maxRetries := 0)
+  let testClient : TestClient := {
+    client
+    origin := { scheme := URI.Scheme.ofString! scheme, host := .name domain, port }
+    opened
+  }
+  pure (testClient, dialled)
+
+/--
+Create a client that dials `mockServer` for its first connection and refuses every later one,
+recording the origin it was asked for. A redirect-scheme guard is about a dial that must *never*
+happen, so witnessing its absence needs a connector that could have dialled.
+-/
+def mkRefusingClient (mockServer : Mock.Server) (config : Client.Config := {}) :
+    Async (TestClient × IO.Ref (Option URI.Origin)) := do
+  let some domain := URI.DomainName.ofString? "example.com"
+    | throw (IO.userError "DomainName parse failed")
+  let dialled ← IO.mkRef (none : Option URI.Origin)
+  let opened ← IO.mkRef (#[] : Array Client.Connection)
+  let firstDial ← IO.mkRef true
+
+  let connect : Client.Connector := fun scheme host port config => do
+    if ← firstDial.modifyGet (fun first => (first, false)) then
+      let connection ← Client.Connection.new mockServer config
+      opened.modify (·.push connection)
+      return .ok connection
+    dialled.set (some { scheme, host, port })
+    return .error (.connect "the redirect target must never be dialled")
+
+  let client ← Client.new config connect (maxRetries := 0)
+  let testClient : TestClient := {
+    client
+    origin := { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
+    opened
+  }
+  pure (testClient, dialled)
 
 /-- Send a client request in the background and expose its result through a promise. -/
 def sendInBackground {β : Type} [Coe β Body.Any]
-    (agent : Client.Agent) (request : Request β)
+    (client : TestClient) (request : Request β)
     (overrides : Client.RequestOverrides := {}) :
     Async (IO.Promise (Except String (Response Body.Stream))) := do
   let resultPromise : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
   background do
     let result ← try
-        let resp ← Client.Agent.send agent request overrides
+        let resp ← client.send request overrides
         pure (Except.ok resp)
       catch e => pure (Except.error (toString e))
     discard <| resultPromise.resolve result

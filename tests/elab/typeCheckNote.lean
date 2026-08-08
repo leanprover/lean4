@@ -97,9 +97,9 @@ Full error:
   Application type mismatch: The argument
     h2
   has type
-    @LT.lt Nat instLTNat idx (composed s a b).s.decls.size
+    idx < (composed s a b).s.decls.size
   but is expected to have type
-    @LT.lt Nat instLTNat idx
+    idx <
       (have res := myF s { x := a };
             myF res.s { x := b }).s.decls.size
   in the application

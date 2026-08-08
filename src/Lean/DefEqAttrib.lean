@@ -54,8 +54,11 @@ def validateDefEqAttr (declName : Name) : AttrM Unit := do
   MetaM.run' do withEqLhsRhs info.type fun lhs rhs => do
     let ok ← isDefEqCareful lhs rhs
     unless ok do
-      let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
-        let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
+      let config ← getConfig
+      let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) <| withConfig (fun _ => config) do
+        -- match the `smartUnfolding` setting of `isDefEqCareful`
+        let (lhs, rhs) ← withOptions (smartUnfolding.set · false) <|
+          addPPExplicitToExposeDiff lhs rhs
         let mut msg := m!"Not a definitional equality: the left-hand side{indentExpr lhs}\nis \
           not definitionally equal to the right-hand side{indentExpr rhs}"
         if (← getEnv).isExporting then

@@ -87,7 +87,7 @@ def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
 def Attribute.Builtin.ensureNoArgs (stx : Syntax) : AttrM Unit := do
   if stx.getKind == `Lean.Parser.Attr.simple && stx[1].isNone && stx[2].isNone then
     return ()
-  else if stx.getKind == `Lean.Parser.Attr.«class» then
+  else if stx.getKind == `Lean.Parser.Attr.«class» || stx.getKind == `Lean.Parser.Attr.«attribute» then
     return ()
   else match stx with
     | Syntax.missing => return () -- In the elaborator, we use `Syntax.missing` when creating attribute views for simple attributes such as `class and `inline
@@ -477,6 +477,45 @@ builtin_initialize attributeExtension : AttributeExtension ←
     statsFn         := fun s => format "number of local entries: " ++ format s.newEntries.length
   }
 
+/-!
+  `attributeExt`: a separate environment extension for attributes registered via
+  the `@[attribute]` attribute (i.e., as Lean constants of type `AttributeImpl`).
+  Kept distinct from `attributeExtension` (which serves builtin attributes and
+  parser-category builder entries) so that the two registration mechanisms remain
+  cleanly separated.
+-/
+
+structure CustomAttributeExtensionState where
+  newEntries : Array Name := #[]
+  map : Std.HashMap Name AttributeImpl := {}
+  deriving Inhabited
+
+abbrev CustomAttributeExtension :=
+  PersistentEnvExtension Name (Name × AttributeImpl) CustomAttributeExtensionState
+
+private def CustomAttributeExtension.addImported
+    (es : Array (Array Name)) : ImportM CustomAttributeExtensionState := do
+  let ctx ← read
+  let mut map : Std.HashMap Name AttributeImpl := {}
+  for entries in es do
+    for declName in entries do
+      let attrImpl ← IO.ofExcept <| mkAttributeImplOfConstant ctx.env ctx.opts declName
+      map := map.insert attrImpl.name attrImpl
+  pure { map := map }
+
+private def addCustomAttrEntry
+    (s : CustomAttributeExtensionState) (e : Name × AttributeImpl) : CustomAttributeExtensionState :=
+  { s with map := s.map.insert e.2.name e.2, newEntries := s.newEntries.push e.1 }
+
+builtin_initialize attributeExt : CustomAttributeExtension ←
+  registerPersistentEnvExtension {
+    mkInitial       := pure {}
+    addImportedFn   := CustomAttributeExtension.addImported
+    addEntryFn      := addCustomAttrEntry
+    exportEntriesFn := fun s => s.newEntries
+    statsFn         := fun s => format "number of custom attributes: " ++ format s.newEntries.size
+  }
+
 /-- Return true iff `n` is the name of a registered attribute. -/
 def isBuiltinAttribute (n : Name) : IO Bool := do
   let m ← attributeMapRef.get; pure (m.contains n)
@@ -492,17 +531,21 @@ def getBuiltinAttributeImpl (attrName : Name) : IO AttributeImpl := do
   | none      => throw (IO.userError s!"Unknown attribute `{attrName}`")
 
 def isAttribute (env : Environment) (attrName : Name) : Bool :=
-  (attributeExtension.getState env).map.contains attrName
+  (attributeExtension.getState env).map.contains attrName ||
+  (attributeExt.getState env).map.contains attrName
 
 def getAttributeNames (env : Environment) : List Name :=
-  let m := (attributeExtension.getState env).map
-  m.fold (fun r n _ => n::r) []
+  let m1 := (attributeExtension.getState env).map
+  let m2 := (attributeExt.getState env).map
+  m2.fold (init := m1.fold (init := []) fun r n _ => n::r) (fun r n _ => n::r)
 
 def getAttributeImpl (env : Environment) (attrName : Name) : Except String AttributeImpl :=
-  let m := (attributeExtension.getState env).map
-  match m[attrName]? with
+  match (attributeExtension.getState env).map[attrName]? with
   | some attr => pure attr
-  | none      => throw s!"Unknown attribute `{attrName}`"
+  | none =>
+    match (attributeExt.getState env).map[attrName]? with
+    | some attr => pure attr
+    | none      => throw s!"Unknown attribute `{attrName}`"
 
 def registerAttributeOfBuilder (env : Environment) (builderId ref : Name) (args : List DataValue) : IO Environment := do
   let entry := {builderId, ref, args}
@@ -511,6 +554,19 @@ def registerAttributeOfBuilder (env : Environment) (builderId ref : Name) (args 
     throw (IO.userError s!"Invalid builtin attribute declaration: `{attrImpl.name}` has already been used")
   else
     return attributeExtension.addEntry env (entry, attrImpl)
+
+/--
+  Register a declaration of type `Lean.AttributeImpl` as a custom attribute.
+  Used by the `@[attribute]` attribute to allow attribute registration outside
+  of `initialize` blocks.
+-/
+def registerAttributeOfDecl (declName : Name) : AttrM Unit := do
+  let env ← getEnv
+  let opts ← getOptions
+  let attrImpl ← ofExcept <| mkAttributeImplOfConstant env opts declName
+  if isAttribute env attrImpl.name then
+    throwError m!"Invalid attribute declaration: `{attrImpl.name}` has already been registered"
+  setEnv <| attributeExt.addEntry env (declName, attrImpl)
 
 def Attribute.add (declName : Name) (attrName : Name) (stx : Syntax) (kind := AttributeKind.global) : AttrM Unit := do
   let attr ← ofExcept <| getAttributeImpl (← getEnv) attrName
@@ -535,5 +591,16 @@ def updateEnvAttributesImpl (env : Environment) : IO Environment := do
 /-- `getNumBuiltinAttributes` implementation -/
 @[export lean_get_num_attributes] def getNumBuiltinAttributesImpl : IO Nat :=
   return (← attributeMapRef.get).size
+
+builtin_initialize
+  registerBuiltinAttribute {
+    name  := `attribute
+    descr := "register the tagged declaration (which must have type `Lean.AttributeImpl`) as a custom attribute"
+    applicationTime := .afterCompilation
+    add   := fun declName stx kind => do
+      Attribute.Builtin.ensureNoArgs stx
+      unless kind == .global do throwAttrMustBeGlobal `attribute kind
+      registerAttributeOfDecl declName
+  }
 
 end Lean

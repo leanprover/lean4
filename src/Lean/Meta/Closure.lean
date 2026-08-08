@@ -456,10 +456,15 @@ def mkAuxDefinitionFor (name : Name) (value : Expr) (zetaDelta : Bool := false)
 -/
 def mkAuxTheorem (type : Expr) (value : Expr) (zetaDelta : Bool := false) (kind? : Option Name := none) (cache := true) : MetaM Expr := do
   let result ← Closure.mkValueTypeClosure type value zetaDelta
-  let name ← mkAuxLemma (kind? := kind?) (cache := cache) result.levelParams.toList result.type result.value
+  let (resType, resValue) ← profileitM Exception "share common exprs" (← getOptions) do
+    withTraceNode `Meta.Closure.maxSharing (fun _ => return m!"share common exprs") do
+      let es := ShareCommon.shareCommon' #[result.type, result.value]
+      return (es[0]!, es[1]!)
+  let name ← mkAuxLemma (kind? := kind?) (cache := cache) result.levelParams.toList resType resValue
   return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
 
 builtin_initialize
   registerTraceClass `Meta.Closure
+  registerTraceClass `Meta.Closure.maxSharing
 
 end Lean.Meta

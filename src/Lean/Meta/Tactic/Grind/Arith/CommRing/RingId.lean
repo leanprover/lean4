@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 import Lean.Meta.Tactic.Grind.Arith.Insts
+import Lean.OrderLevel
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 
@@ -95,7 +96,7 @@ where
     return some id
 
   goCore? : GoalM (Option Nat) := do
-    let u ← getDecLevel type
+    let some u ← (if (← leCarrierIsSort) then getDecLevel? type else some <$> getDecLevel type) | return none
     let commRing := mkApp (mkConst ``Grind.CommRing [u]) type
     let some commRingInst ← synthInstance? commRing | return none
     let ringInst := mkApp2 (mkConst ``Grind.CommRing.toRing [u]) type commRingInst
@@ -130,7 +131,7 @@ def getNonCommRingId? (type : Expr) : GoalM (Option Nat) := do
     return id?
 where
   go? : GoalM (Option Nat) := do
-    let u ← getDecLevel type
+    let some u ← (if (← leCarrierIsSort) then getDecLevel? type else some <$> getDecLevel type) | return none
     let ring := mkApp (mkConst ``Grind.Ring [u]) type
     let some ringInst ← synthInstance? ring | return none
     let semiringInst := mkApp2 (mkConst ``Grind.Ring.toSemiring [u]) type ringInst
@@ -155,7 +156,7 @@ def getCommSemiringId? (type : Expr) : GoalM (Option Nat) := do
     return id?
 where
   go? : GoalM (Option Nat) := do
-    let u ← getDecLevel type
+    let some u ← (if (← leCarrierIsSort) then getDecLevel? type else some <$> getDecLevel type) | return none
     let commSemiring := mkApp (mkConst ``Grind.CommSemiring [u]) type
     let some commSemiringInst ← synthInstance? commSemiring | return none
     let semiringInst := mkApp2 (mkConst ``Grind.CommSemiring.toSemiring [u]) type commSemiringInst
@@ -179,7 +180,7 @@ def getNonCommSemiringId? (type : Expr) : GoalM (Option Nat) := do
     return id?
 where
   go? : GoalM (Option Nat) := do
-    let u ← getDecLevel type
+    let some u ← (if (← leCarrierIsSort) then getDecLevel? type else some <$> getDecLevel type) | return none
     let semiring := mkApp (mkConst ``Grind.Semiring [u]) type
     let some semiringInst ← synthInstance? semiring | return none
     let id := (← get').ncSemirings.size

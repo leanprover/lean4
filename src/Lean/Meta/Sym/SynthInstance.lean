@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Sym.SymM
 import Lean.Meta.SynthInstance
+import Lean.OrderLevel
 public section
 namespace Lean.Meta.Sym
 /--
@@ -15,9 +16,10 @@ while others synthesize them using `synthInstance` (e.g., `ring`).
 This inconsistency is problematic, as it may introduce mismatches and result in
 two different representations for the same term.
 
-The following table is used to bypass synthInstance for the builtin cases.
+The following table is used to bypass synthInstance for the builtin cases. It is parameterised by
+`leLvl`, the universe argument `LE` and `LT` take for a carrier in `Type 0`.
 -/
-private def builtinInsts : Std.HashMap Expr Expr :=
+private def mkBuiltinInsts (leLvl : Level) : Std.HashMap Expr Expr :=
   let nat := Nat.mkType
   let int := Int.mkType
   let us  := [Level.zero, Level.zero, Level.zero]
@@ -28,8 +30,8 @@ private def builtinInsts : Std.HashMap Expr Expr :=
     (mkApp3 (mkConst ``HDiv us) nat nat nat, Nat.mkInstHDiv),
     (mkApp3 (mkConst ``HMod us) nat nat nat, Nat.mkInstHMod),
     (mkApp3 (mkConst ``HPow us) nat nat nat, Nat.mkInstHPow),
-    (mkApp  (mkConst ``LT [0]) nat, Nat.mkInstLT),
-    (mkApp  (mkConst ``LE [0]) nat, Nat.mkInstLE),
+    (mkApp  (mkConst ``LT [leLvl]) nat, Nat.mkInstLT),
+    (mkApp  (mkConst ``LE [leLvl]) nat, Nat.mkInstLE),
 
     (mkApp3 (mkConst ``HAdd us) int int int, Int.mkInstHAdd),
     (mkApp3 (mkConst ``HSub us) int int int, Int.mkInstHSub),
@@ -37,21 +39,27 @@ private def builtinInsts : Std.HashMap Expr Expr :=
     (mkApp3 (mkConst ``HDiv us) int int int, Int.mkInstHDiv),
     (mkApp3 (mkConst ``HMod us) int int int, Int.mkInstHMod),
     (mkApp3 (mkConst ``HPow us) int nat int, Int.mkInstHPow),
-    (mkApp  (mkConst ``LT [0]) int, Int.mkInstLT),
-    (mkApp  (mkConst ``LE [0]) int, Int.mkInstLE),
+    (mkApp  (mkConst ``LT [leLvl]) int, Int.mkInstLT),
+    (mkApp  (mkConst ``LE [leLvl]) int, Int.mkInstLE),
   ]
+
+private def builtinInstsTypeCarrier : Std.HashMap Expr Expr := mkBuiltinInsts .zero
+private def builtinInstsSortCarrier : Std.HashMap Expr Expr := mkBuiltinInsts (.succ .zero)
 
 /--
 Some modules in grind use builtin instances defined directly in core (e.g., `lia`).
 Users may provide nonstandard instances that are definitionally equal to the ones in core.
 Given a type, such as `HAdd Int Int Int`, this function returns the instance defined in
 core.
+
+Pass `leCarrierIsSort := ← Lean.leCarrierIsSort`, which selects the table whose `LE` and `LT` keys carry the
+universe argument the `LE` declaration in scope takes.
 -/
-def getBuiltinInstance? (type : Expr) : Option Expr :=
-  builtinInsts[type]?
+def getBuiltinInstance? (leCarrierIsSort : Bool) (type : Expr) : Option Expr :=
+  (if leCarrierIsSort then builtinInstsSortCarrier else builtinInstsTypeCarrier)[type]?
 
 def synthInstanceMeta? (type : Expr) : MetaM (Option Expr) := do profileitM Exception "sym typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do
-  if let some inst := getBuiltinInstance? type then
+  if let some inst := getBuiltinInstance? (← leCarrierIsSort) type then
     return inst
   catchInternalId isDefEqStuckExceptionId
     (synthInstanceCore? type none)

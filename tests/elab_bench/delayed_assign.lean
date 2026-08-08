@@ -1,4 +1,5 @@
 import Lean
+import Lean.OrderLevel
 
 /-!
 This benchmark exercises `instantiateMVars` on a large metavariable
@@ -14,8 +15,8 @@ set_option maxHeartbeats 40000000
 
 open Lean Meta
 
-def mkLE (i : Nat) : Expr :=
-  mkNatLE (mkNatLit 0) (mkBVar i)
+def mkLE (u : Level) (i : Nat) : Expr :=
+  mkNatLE u (mkNatLit 0) (mkBVar i)
 
 partial def solve (mvarId : MVarId) : MetaM Unit := do
   let type ← instantiateMVars (← mvarId.getType)
@@ -32,18 +33,18 @@ partial def solve (mvarId : MVarId) : MetaM Unit := do
     let [] ← mvarId.applyConst ``True.intro | failure
 
 def mkBench (n : Nat) : MetaM MVarId := do
-  let type := mkType n
+  let type := mkType (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) n
   return (← mkFreshExprSyntheticOpaqueMVar type).mvarId!
 where
-  mkResultType (i : Nat) : Expr :=
+  mkResultType (u : Level) (i : Nat) : Expr :=
     match i with
     | 0 => mkConst ``True
-    | i+1 => mkAnd (mkLE i) (mkResultType i)
+    | i+1 => mkAnd (mkLE u i) (mkResultType u i)
 
-  mkType (i : Nat) : Expr :=
+  mkType (u : Level) (i : Nat) : Expr :=
     match i with
-    | 0 => mkResultType n
-    | i+1 => .forallE `x Nat.mkType (mkAnd (mkType i) (mkLE (n - i - 1))) .default
+    | 0 => mkResultType u n
+    | i+1 => .forallE `x Nat.mkType (mkAnd (mkType u i) (mkLE u (n - i - 1))) .default
 
 -- n=200 is calibrated to take roughly 1s total elaboration time.
 -- Use a small n unless TEST_BENCH=1, so that the test suite runs quickly.

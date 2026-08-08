@@ -17,6 +17,7 @@ import Init.Grind.Norm
 public import Init.Grind.Config
 import Init.ByCases
 import Lean.Meta.Tactic.Simp.Main
+import Lean.OrderLevel
 public section
 namespace Lean.Meta.Grind
 
@@ -96,8 +97,8 @@ builtin_simproc_decl pushNot (Not _) := fun e => do
    return .visit { expr, proof? := mkApp2 (mkConst ``Grind.not_exists [u]) α p }
  | LE.le α _ a b =>
    match_expr α with
-   | Int => return .visit { expr := mkIntLE (mkIntAdd b (mkIntLit 1)) a, proof? := some <| mkApp2 (mkConst ``Int.not_le_eq) a b }
-   | Nat => return .visit { expr := mkNatLE (mkNatAdd b (mkNatLit 1)) a, proof? := some <| mkApp2 (mkConst ``Nat.not_le_eq) a b }
+   | Int => return .visit { expr := mkIntLE (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) (mkIntAdd b (mkIntLit 1)) a, proof? := some <| mkApp2 (mkConst ``Int.not_le_eq) a b }
+   | Nat => return .visit { expr := mkNatLE (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) (mkNatAdd b (mkNatLit 1)) a, proof? := some <| mkApp2 (mkConst ``Nat.not_le_eq) a b }
    | _ => return .continue
  | _ =>
   if let .forallE n α b info := e then

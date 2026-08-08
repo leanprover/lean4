@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Simp.Arith.Int.Simp
+import Lean.OrderLevel
 public section
 namespace Int.Internal.Linear
 
@@ -131,7 +132,7 @@ def LeCnstr.pp (c : LeCnstr) : GoalM MessageData := do
   return m!"{← c.p.pp} ≤ 0"
 
 def LeCnstr.denoteExpr (c : LeCnstr) : GoalM Expr := do
-  return mkIntLE (← c.p.denoteExpr') (mkIntLit 0)
+  return mkIntLE (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) (← c.p.denoteExpr') (mkIntLit 0)
 
 def LeCnstr.throwUnexpected (c : LeCnstr) : GoalM α := do
   throwError "`grind` internal error, unexpected{indentD (← c.pp)}"

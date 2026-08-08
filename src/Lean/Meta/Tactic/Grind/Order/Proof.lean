@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Order.OrderM
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
+import Lean.OrderLevel
 import Init.Grind.Order
 namespace Lean.Meta.Grind.Order
 /--
@@ -56,16 +57,28 @@ Returns `declName α leInst ltInst lawfulOrderLtInst isPreorderInst ringInst ord
 -/
 public def mkOrdRingPrefix (declName : Name) : OrderM Expr := do
   let s ← getStruct
-  let h ← mkLeLtPreorderPrefix declName
-  return mkApp2 h s.ringInst?.get! s.orderedRingInst?.get!
+  if (← leCarrierIsSort) then
+    -- the `_k` lemmas constrain their carrier by `[Ring α]`, binding it as a `Type`
+    let u ← decLevel s.u
+    return mkApp7 (mkConst declName [u]) s.type s.leInst s.ltInst?.get! s.lawfulOrderLTInst?.get!
+      s.isPreorderInst s.ringInst?.get! s.orderedRingInst?.get!
+  else
+    let h ← mkLeLtPreorderPrefix declName
+    return mkApp2 h s.ringInst?.get! s.orderedRingInst?.get!
 
 /--
 Returns `declName α leInst ltInst lawfulOrderLtInst isLinearPreorderInst ringInst ordRingInst`
 -/
 public def mkLinearOrdRingPrefix (declName : Name) : OrderM Expr := do
   let s ← getStruct
-  let h ← mkLeLtLinearPrefix declName
-  return mkApp2 h s.ringInst?.get! s.orderedRingInst?.get!
+  if (← leCarrierIsSort) then
+    -- the `_k` lemmas constrain their carrier by `[Ring α]`, binding it as a `Type`
+    let u ← decLevel s.u
+    return mkApp7 (mkConst declName [u]) s.type s.leInst s.ltInst?.get! s.lawfulOrderLTInst?.get!
+      s.isLinearPreInst?.get! s.ringInst?.get! s.orderedRingInst?.get!
+  else
+    let h ← mkLeLtLinearPrefix declName
+    return mkApp2 h s.ringInst?.get! s.orderedRingInst?.get!
 
 def mkTransCoreProof (u v w : Expr) (strict₁ strict₂ : Bool) (h₁ h₂ : Expr) : OrderM Expr := do
   let h ← match strict₁, strict₂ with
@@ -281,9 +294,17 @@ public def mkEqProofOfLeOfLeCore (u v : Expr) (h₁ : Expr) (h₂ : Expr) : Orde
   return mkApp4 h u v h₁ h₂
 
 public def mkEqProofOfLeOfLeOffset (u v : Expr) (h₁ : Expr) (h₂ : Expr) : OrderM Expr := do
-  let h ← mkLePartialPrefix ``Grind.Order.eq_of_le_of_le_0
-  let h := mkApp h (← getStruct).ringInst?.get!
-  return mkApp4 h u v h₁ h₂
+  if (← leCarrierIsSort) then
+    -- `eq_of_le_of_le_0` constrains its carrier by `[Ring α]`, binding it as a `Type`
+    let s ← getStruct
+    let lvl ← decLevel s.u
+    let h := mkApp3 (mkConst ``Grind.Order.eq_of_le_of_le_0 [lvl]) s.type s.leInst s.isPartialInst?.get!
+    let h := mkApp h s.ringInst?.get!
+    return mkApp4 h u v h₁ h₂
+  else
+    let h ← mkLePartialPrefix ``Grind.Order.eq_of_le_of_le_0
+    let h := mkApp h (← getStruct).ringInst?.get!
+    return mkApp4 h u v h₁ h₂
 
 public def mkEqProofOfLeOfLe (u v : Expr) (h₁ : Expr) (h₂ : Expr) : OrderM Expr := do
   if (← isRing) then

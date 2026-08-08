@@ -2264,12 +2264,12 @@ def mkNatMul (a b : Expr) : Expr :=
 def mkNatPow (a b : Expr) : Expr :=
   mkApp2 natPowFn a b
 
-private def natLEPred : Expr :=
-  mkApp2 (mkConst ``LE.le [0]) Nat.mkType Nat.mkInstLE
+private def natLEPred (u : Level) : Expr :=
+  mkApp2 (mkConst ``LE.le [u]) Nat.mkType Nat.mkInstLE
 
 /-- Given `a b : Nat`, return `a ≤ b` -/
-def mkNatLE (a b : Expr) : Expr :=
-  mkApp2 natLEPred a b
+def mkNatLE (u : Level) (a b : Expr) : Expr :=
+  mkApp2 (natLEPred u) a b
 
 private def natEqPred : Expr :=
   mkApp (mkConst ``Eq [1]) Nat.mkType
@@ -2372,19 +2372,19 @@ def mkIntNatCast (a : Expr) : Expr :=
 def mkIntPowNat (a b : Expr) : Expr :=
   mkApp2 intPowNatFn a b
 
-private def intLEPred : Expr :=
-  mkApp2 (mkConst ``LE.le [0]) Int.mkType Int.mkInstLE
+private def intLEPred (u : Level) : Expr :=
+  mkApp2 (mkConst ``LE.le [u]) Int.mkType Int.mkInstLE
 
 /-- Given `a b : Int`, returns `a ≤ b` -/
-def mkIntLE (a b : Expr) : Expr :=
-  mkApp2 intLEPred a b
+def mkIntLE (u : Level) (a b : Expr) : Expr :=
+  mkApp2 (intLEPred u) a b
 
-private def intLTPred : Expr :=
-  mkApp2 (mkConst ``LT.lt [0]) Int.mkType Int.mkInstLT
+private def intLTPred (u : Level) : Expr :=
+  mkApp2 (mkConst ``LT.lt [u]) Int.mkType Int.mkInstLT
 
 /-- Given `a b : Int`, returns `a < b` -/
-def mkIntLT (a b : Expr) : Expr :=
-  mkApp2 intLTPred a b
+def mkIntLT (u : Level) (a b : Expr) : Expr :=
+  mkApp2 (intLTPred u) a b
 
 private def intEqPred : Expr :=
   mkApp (mkConst ``Eq [1]) Int.mkType

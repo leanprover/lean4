@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.Tactic.Omega.OmegaM
 public import Lean.Elab.Tactic.Omega.MinNatAbs
+import Lean.OrderLevel
 
 public section
 
@@ -104,7 +105,7 @@ def bmodProof (m : Nat) (r : Int) (i : Nat) (x : Coeffs) (v : Expr) (w : Expr) :
   let r := toExpr r
   let i := toExpr i
   let x := toExpr x
-  let h ← mkDecideProof (mkApp4 (.const ``LE.le [.zero]) (.const ``Nat []) (.const ``instLENat [])
+  let h ← mkDecideProof (mkApp4 (.const ``LE.le [← if (← leCarrierIsSort) then pure (1 : Level) else pure 0]) (.const ``Nat []) (.const ``instLENat [])
     (.app (.const ``Coeffs.length []) x) i)
   let lhs := mkApp2 (.const ``Coeffs.get []) v i
   let rhs := mkApp3 (.const ``bmod_div_term []) m x v

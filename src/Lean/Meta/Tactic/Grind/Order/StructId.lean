@@ -9,6 +9,8 @@ public import Lean.Meta.Tactic.Grind.Order.Types
 import Lean.Meta.Tactic.Grind.OrderInsts
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
+import Lean.Meta.DecLevel
+import Lean.OrderLevel
 public section
 namespace Lean.Meta.Grind.Order
 
@@ -38,7 +40,8 @@ def getStructId? (type : Expr) : GoalM (Option Nat) := do
     return id?
 where
   go? : GoalM (Option Nat) := do
-    let some u ← getDecLevel? type | return none
+    let some u ← (if (← leCarrierIsSort) then do return some (← normalizeLevel (← getLevel type)) else getDecLevel? type)
+      | return none
     let some leInst ← getInst? ``LE u type | return none
     let some isPreorderInst ← mkIsPreorderInst? u type (some leInst) | return none
     -- **TODO** compute `isPartialInst?` and `isLinearPreInst?` on demand
@@ -60,13 +63,15 @@ where
     else if let some ringId ← getCommRingId? type then
       let ringInst ← RingM.run ringId do return (← getRing).ringInst
       let semiringInst ← RingM.run ringId do return (← getRing).semiringInst
-      let some ordRingInst ← mkOrderedRingInst? u type semiringInst leInst ltInst?.get! isPreorderInst
+      let some uRing ← (if (← leCarrierIsSort) then decLevel? u else pure (some u)) | pure (none, none, none, false)
+      let some ordRingInst ← mkOrderedRingInst? uRing type semiringInst leInst ltInst?.get! isPreorderInst
         | pure (none, none, none, true)
       pure (some ringId, some ringInst, some ordRingInst, true)
     else if let some ringId ← getNonCommRingId? type then
       let semiringInst ← NonCommRingM.run ringId do return (← getRing).semiringInst
       let ringInst ← NonCommRingM.run ringId do return (← getRing).ringInst
-      let some ordRingInst ← mkOrderedRingInst? u type semiringInst leInst ltInst?.get! isPreorderInst
+      let some uRing ← (if (← leCarrierIsSort) then decLevel? u else pure (some u)) | pure (none, none, none, false)
+      let some ordRingInst ← mkOrderedRingInst? uRing type semiringInst leInst ltInst?.get! isPreorderInst
         | pure (none, none, none, true)
       pure (some ringId, some ringInst, some ordRingInst, false)
     else

@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Simp.Arith.Util
 public import Lean.Meta.Tactic.Simp.Arith.Int.Basic
+import Lean.OrderLevel
 public section
 
 def Int.Internal.Linear.Poly.gcdAll : Poly → Nat
@@ -77,7 +78,8 @@ def simpLe? (e : Expr) (checkIfModified : Bool) : MetaM (Option (Expr × Expr)) 
   -- If `e` is not already a `≤`, then we should not check whether it has changed.
   let checkIfModified := e.isAppOf ``LE.le && checkIfModified
   let some (a, b, atoms) ← leCnstr? e | return none
-  let e := mkIntLE (← a.denoteExpr (atoms[·]!)) (← b.denoteExpr (atoms[·]!))
+  let leLvl ← if (← leCarrierIsSort) then pure (1 : Level) else pure 0
+  let e := mkIntLE leLvl (← a.denoteExpr (atoms[·]!)) (← b.denoteExpr (atoms[·]!))
   let p := a.sub b |>.norm
   if p.isUnsatLe then
     let r := mkConst ``False
@@ -92,13 +94,13 @@ def simpLe? (e : Expr) (checkIfModified : Bool) : MetaM (Option (Expr × Expr)) 
   else
     let k := p.gcdCoeffs'
     if k == 1 then
-      let r := mkIntLE (← p.denoteExpr (atoms[·]!)) (mkIntLit 0)
+      let r := mkIntLE leLvl (← p.denoteExpr (atoms[·]!)) (mkIntLit 0)
       let h := mkApp5 (mkConst ``Int.Internal.Linear.norm_le) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr p) eagerReflBoolTrue
       return some (r, mkExpectedPropHint h (mkPropEq e r))
     else
       let tight := p.getConst % k != 0
       let p := p.div k
-      let r := mkIntLE (← p.denoteExpr (atoms[·]!)) (mkIntLit 0)
+      let r := mkIntLE leLvl (← p.denoteExpr (atoms[·]!)) (mkIntLit 0)
       let h ← if tight then
         pure <| mkApp6 (mkConst ``Int.Internal.Linear.norm_le_coeff_tight) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr p) (toExpr (Int.ofNat k)) eagerReflBoolTrue
       else
@@ -109,22 +111,23 @@ def simpRel? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   if let some arg := e.not? then
     let mut eNew? := none
     let mut h₁    := default
+    let leLvl ← if (← leCarrierIsSort) then pure (1 : Level) else pure 0
     match_expr arg with
     | LE.le α _ lhs rhs =>
       let_expr Int ← α | pure ()
-      eNew?   := some (mkIntLE (mkIntAdd rhs (mkIntLit 1)) lhs)
+      eNew?   := some (mkIntLE leLvl (mkIntAdd rhs (mkIntLit 1)) lhs)
       h₁      := mkApp2 (mkConst ``Int.not_le_eq) lhs rhs
     | GE.ge α _ lhs rhs =>
       let_expr Int ← α | pure ()
-      eNew?   := some (mkIntLE (mkIntAdd lhs (mkIntLit 1)) rhs)
+      eNew?   := some (mkIntLE leLvl (mkIntAdd lhs (mkIntLit 1)) rhs)
       h₁      := mkApp2 (mkConst ``Int.not_ge_eq) lhs rhs
     | LT.lt α _ lhs rhs =>
       let_expr Int ← α | pure ()
-      eNew?   := some (mkIntLE rhs lhs)
+      eNew?   := some (mkIntLE leLvl rhs lhs)
       h₁      := mkApp2 (mkConst ``Int.not_lt_eq) lhs rhs
     | GT.gt α _ lhs rhs =>
       let_expr Int ← α | pure ()
-      eNew?   := some (mkIntLE lhs rhs)
+      eNew?   := some (mkIntLE leLvl lhs rhs)
       h₁      := mkApp2 (mkConst ``Int.not_gt_eq) lhs rhs
     | _ => pure ()
     let some eNew := eNew? | return none

@@ -11,6 +11,7 @@ import Lean.Data.RArray
 import Lean.Meta.NatInstTesters
 import Lean.Meta.Offset
 public import Init.Data.Nat.Internal.Linear
+import Lean.OrderLevel
 public section
 namespace Nat.Internal.Linear
 
@@ -74,7 +75,7 @@ def LinearCnstr.toArith (ctx : Array Expr) (c : LinearCnstr) : MetaM Expr := do
   if c.eq then
     return mkNatEq (← LinearExpr.toArith ctx c.lhs) (← LinearExpr.toArith ctx c.rhs)
   else
-    return mkNatLE (← LinearExpr.toArith ctx c.lhs) (← LinearExpr.toArith ctx c.rhs)
+    return mkNatLE (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) (← LinearExpr.toArith ctx c.lhs) (← LinearExpr.toArith ctx c.rhs)
 
 namespace ToLinear
 

@@ -107,12 +107,12 @@ private def bareWPToLe? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId)
 Runs before the precondition lift so a spec handoff `pre ⊑ specPre` closes by unification rather
 than an assumption search. The pattern matcher keeps synthetic-opaque invariant holes rigid, so
 `⊤ ⊑ ?inv args` is left untouched. -/
-private def rfl? (goal : MVarId) : VCGenM (Option (List MVarId)) := do
-  -- Reflexivity is best-effort: the unifier throws on an un-decomposed program-head `let` (e.g. a
-  -- chained `__do_jp`) rather than reporting "not equal". A throw leaves `goal` unassigned, so
-  -- treat it as "not reflexive here" and let `wp` decomposition handle the `let`.
-  let .goals gs ← try (← read).backwardRules.refl.apply goal catch _ => return none
-    | return none
+private def rfl? (goal : MVarId) (rhs : Expr) : VCGenM (Option (List MVarId)) := do
+  -- The structural unifier rejects a `let` rather than reporting "not equal", since it expects
+  -- zeta-reduced terms. Leave an un-decomposed program-head `let`, a chained `__do_jp`, to `wpLet?`.
+  if let some info := isWPApp? rhs then
+    if info.prog.getAppFn.isLet then return none
+  let .goals gs ← (← read).backwardRules.refl.apply goal | return none
   trace[Elab.Tactic.Do.vcgen] "Solved by rfl {goal}"
   return some gs
 
@@ -600,13 +600,13 @@ public def finalizeJPs : VCGenM Unit := do
       m.alter r.hypsMVar (fun rs? => some ((rs?.getD #[]).push r))
   for mv in s.jpHypsMVars do
     let records := grouped.getD mv #[]
-    unless ← mv.isAssigned do
-      liftMetaM <| Meta.forallTelescope (← mv.getType) fun bs _ => do
-        let props := records.map (·.jump.payload.beta bs)
-        let φ := match props.back? with
-          | none => mkConst ``False
-          | some last => props.pop.foldr (init := last) mkOr
-        mv.assign (← Meta.mkLambdaFVars bs φ)
+    liftMetaM <| Meta.forallTelescope (← mv.getType) fun bs _ => do
+      let props := records.map (·.jump.payload.beta bs)
+      let φ := match props.back? with
+        | none => mkConst ``False
+        | some last => props.pop.foldr (init := last) mkOr
+      mv.assign (← Meta.mkLambdaFVars bs φ)
+    -- Each jump proves its own disjunct of the assignment just made, so nothing else may assign it.
     for h : i in [:records.size] do
       dischargeJPJump records[i] i records.size
 
@@ -889,7 +889,7 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
 
   -- Phase 2: close reflexive goals, then drive `pre` toward `⊤`, lifting any pure content so a
   -- later spec application sees a `⊤` precondition.
-  if let some gs ← rfl? goal then return .goalsInScope scope gs
+  if let some gs ← rfl? goal rhs then return .goalsInScope scope gs
   if let some (scope, gs) ← normalizePre? scope goal α pre target then return .goalsInScope scope gs
 
   -- Collect new local specs before any strategy that may emit multiple subgoals

@@ -638,12 +638,6 @@ instance : Std.LawfulIdentity (α := List α) (· ++ ·) [] where
   | nil => rfl
   | cons a as ih => simp [ih]
 
-grind_pattern append_assoc => (as ++ bs) ++ cs where
-  as =/= []; bs =/= []; cs =/= []
-
-grind_pattern append_assoc => as ++ (bs ++ cs) where
-  as =/= []; bs =/= []; cs =/= []
-
 instance : Std.Associative (α := List α) (· ++ ·) := ⟨append_assoc⟩
 
 -- Arguments are explicit as there is often ambiguity inferring the arguments.

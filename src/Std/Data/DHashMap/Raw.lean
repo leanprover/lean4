@@ -546,9 +546,6 @@ This function always iterates through the smaller map, so the expected runtime i
     m₂
 
 instance [BEq α] [Hashable α] : SDiff (Raw α β) := ⟨diff⟩
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
 
 /-- Returns a list of all values present in the hash map in some order. -/
 @[inline] def values {β : Type v} (m : Raw α (fun _ => β)) : List β :=
@@ -557,6 +554,10 @@ section Unverified
 /-- Returns an array of all values present in the hash map in some order. -/
 @[inline] def valuesArray {β : Type v} (m : Raw α (fun _ => β)) : Array β :=
   m.fold (fun acc _ v => acc.push v) (.emptyWithCapacity m.size)
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
 
 /--
 Inserts multiple mappings into the hash map by iterating over the given collection and calling

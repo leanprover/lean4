@@ -324,8 +324,6 @@ def checkValidFieldModifier (modifiers : Modifiers) : TermElabM Unit := do
     throwError "Invalid modifier: Fields cannot be marked as `partial`"
   if modifiers.isUnsafe then
     throwError "Invalid modifier: Fields cannot be marked as `unsafe`"
-  if modifiers.attrs.size != 0 then
-    throwError "Invalid attribute: Attributes cannot be added to fields"
 
 /-
 ```
@@ -1576,6 +1574,11 @@ def elabStructureCommand : InductiveElabDescr where
                         if isClass (← getEnv) parentName then
                           setReducibilityStatus fieldInfo.declName .instanceReducible
                     addParentInstances parentInfos
+                  -- Apply field attributes to projection functions
+                  for field in view.fields do
+                    if (← getEnv).contains field.declName then
+                      withRef field.ref do
+                        Term.applyAttributes field.declName field.modifiers.attrs
                   -- Add field docstrings here (after @[class] attribute is applied)
                   -- so that Verso docstrings can use the class.
                   for field in view.fields do

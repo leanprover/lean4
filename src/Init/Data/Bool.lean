@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.NotationExtra
+public import Init.WF
 
 public section
 
@@ -50,6 +51,20 @@ instance : LT Bool := ⟨(!. && .)⟩
 
 instance (x y : Bool) : Decidable (x ≤ y) := inferInstanceAs (Decidable (x → y))
 instance (x y : Bool) : Decidable (x < y) := inferInstanceAs (Decidable (!x && y))
+
+@[implicit_reducible, expose]
+def lt_wfRel : WellFoundedRelation Bool where
+  rel := (· < ·)
+  wf := ⟨fun
+    | false => ⟨false, nofun⟩
+    | true => ⟨true, fun | false, _ => ⟨false, nofun⟩⟩⟩
+
+@[implicit_reducible, expose]
+def gt_wfRel : WellFoundedRelation Bool where
+  rel := (· > ·)
+  wf := ⟨fun
+    | true => ⟨true, nofun⟩
+    | false => ⟨false, fun | true, _ => ⟨true, nofun⟩⟩⟩
 
 instance : Max Bool := ⟨or⟩
 instance : Min Bool := ⟨and⟩

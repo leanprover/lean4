@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "runtime/buffer.h"
 #include "runtime/io.h"
 #include "runtime/hash.h"
+#include "simdutf.h"
 
 #if defined(__GLIBC__) || defined(__APPLE__)
     #define LEAN_SUPPORTS_BACKTRACE 1
@@ -2014,15 +2015,16 @@ object * lean_mk_string_lossy_recover(char const * s, size_t sz, size_t pos, siz
 
 extern "C" LEAN_EXPORT object * lean_mk_string_from_bytes(char const * s, size_t sz) {
     size_t pos = 0, i = 0;
-    if (validate_utf8((const uint8_t *)s, sz, pos, i)) {
-        return lean_mk_string_unchecked(s, pos, i);
+    simdutf::result res = simdutf::validate_utf8_with_errors(s, sz);
+    if (res.error == simdutf::error_code::SUCCESS) {
+        return lean_mk_string_unchecked(s, sz, res.count);
     } else {
         return lean_mk_string_lossy_recover(s, sz, pos, i);
     }
 }
 
 extern "C" LEAN_EXPORT object * lean_mk_string_from_bytes_unchecked(char const * s, size_t sz) {
-    return lean_mk_string_unchecked(s, sz, utf8_strlen(s, sz));
+    return lean_mk_string_unchecked(s, sz, simdutf::count_utf8(s, sz));
 }
 
 extern "C" LEAN_EXPORT object * lean_mk_string(char const * s) {
@@ -2045,8 +2047,7 @@ extern "C" LEAN_EXPORT obj_res lean_string_from_utf8_unchecked(obj_arg a) {
 }
 
 extern "C" LEAN_EXPORT uint8 lean_string_validate_utf8(b_obj_arg a) {
-    size_t pos = 0, i = 0;
-    return validate_utf8(lean_sarray_cptr(a), lean_sarray_size(a), pos, i);
+    return simdutf::validate_utf8((const char*)lean_sarray_cptr(a), lean_sarray_size(a));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_string_to_utf8(b_obj_arg s) {

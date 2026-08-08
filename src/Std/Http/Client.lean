@@ -123,7 +123,7 @@ Creates a new client with no open connection. Supply a custom `connect` function
 connector or a mock) to customize how transport connections are opened.
 -/
 def new (config : Config := {}) (connect : Connector := Connector.tcp)
-    (maxRetries : Nat := defaultMaxRetries) (middlewares : Array Middleware := #[]) :
+    (maxRetries : Nat := 1) (middlewares : Array Middleware := #[]) :
     Async Client := do
   let state ← Mutex.new (none : Option Slot)
   let nextId ← Mutex.new (1 : UInt64)

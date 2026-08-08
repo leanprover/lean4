@@ -41,5 +41,10 @@ structure Config where
   annotated with inlining attributes.
   -/
   inlineDefs := true
+  /--
+  If `simpCtor` is `true`, then scalar constructor applications with a matching discriminant are
+  replaced with a reference to the discriminant. Otherwise, only non-scalar constructor
+  applications are affected (see `simpCtorDiscr?`).
+  -/
+  simpCtor := true
   deriving Inhabited
-

@@ -36,14 +36,9 @@ tests/with_stage1_test_env.sh tests/elab/run_test.sh grind_indexmap.lean
 tests/lake/run_test.sh tests/ltar
 ```
 
-## Benchmark vs Test Problem Sizes
+## Benchmarks
 
-Benchmarks are also run as tests. Use the `TEST_BENCH` environment variable (unset in tests, set to `1` in benchmarks) to scale problem sizes:
-
-- In `compile_bench` `.init.sh` files: check `$TEST_BENCH` and set `TEST_ARGS` accordingly
-- In `elab_bench` Lean files: use `(← IO.getEnv "TEST_BENCH") == some "1"` to switch between small (test) and large (bench) inputs
-
-See `tests/README.md` for the full benchmark writing guide.
+See the `lean4-benchmarks` skill (`.claude/skills/lean4-benchmarks/SKILL.md`) and `tests/README.md`.
 
 ## New features
 

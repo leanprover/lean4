@@ -77,15 +77,28 @@ structure Instances where
   discrTree     : InstanceTree := DiscrTree.empty
   instanceNames : PHashMap Name InstanceEntry := {}
   erased        : PHashSet Name := {}
+  /--
+  Names of instances added with the `local` attribute kind into this state, in insertion order.
+  Local instances are delimited by their surrounding scope, which restores the previous
+  `Instances` state (and thereby the previous value of this field) when it is closed. The field
+  is part of the type class resolution cache key (`SynthInstanceCacheKey.localAttrInsts`), so
+  cache entries never leak into or out of scopes with local instances.
+  -/
+  localInstanceNames : Array Name := #[]
   deriving Inhabited
 
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
+  let d := if e.attrKind matches .local then
+    { d with localInstanceNames := d.localInstanceNames.push (e.globalName?.getD .anonymous) }
+  else
+    d
   match e.globalName? with
   | some n => { d with discrTree := d.discrTree.insertKeyValue e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
   | none   => { d with discrTree := d.discrTree.insertKeyValue e.keys e }
 
 def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
-  { d with erased := d.erased.insert declName, instanceNames := d.instanceNames.erase declName }
+  { d with erased := d.erased.insert declName, instanceNames := d.instanceNames.erase declName,
+           localInstanceNames := d.localInstanceNames.filter (· != declName) }
 
 def Instances.erase [Monad m] [MonadError m] (d : Instances) (declName : Name) : m Instances := do
   unless d.instanceNames.contains declName do
@@ -99,7 +112,68 @@ builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry In
     exportEntry? := fun _ e =>
       if e.globalName?.any (!isPrivateName ·) then .uniform (some e)
       else ⟨none, none, some e⟩
+    -- adding or erasing an instance bumps the generation, invalidating resolution cache
+    -- entries that consulted the instance table; scope activation is covered by the cache key
+    -- (`SynthInstanceCacheKey.activeScopedInsts`/`localAttrInsts`) instead
+    tcResolutionAccess := .recorded
   }
+
+private unsafe def getSynthCacheUnsafe (env : Environment) : SynthInstanceCache :=
+  match env.synthCacheRaw? with
+  | some v => unsafeCast v
+  | none   => {}
+
+/--
+Persistent tier of the `synthInstance` result cache, stored in `Environment.synthCacheRaw?`;
+see there and `Lean.Meta.SynthInstance`. It persists across commands and is not stored in
+`.olean` files.
+
+Only *context-free* entries are stored here: keys without metavariables and closed results.
+Context-sensitive entries (whose validity depends on the ambient metavariable context) live in
+the transient `Meta.Cache.synthInstance` tier instead.
+
+Both fills and invalidation are plain (branch-local) environment modifications: an entry is
+only ever observable in environments derived from the one it was filled in, so rolling back the
+environment (e.g. discarding a speculatively added instance) also rolls back the entries that
+were computed with it, and parallel elaboration branches never observe each other's fills.
+Entries persisted within a rolled-back region are lost with it; within a single command the
+transient tier compensates, as `Meta.Cache` is deliberately not restored by
+`Meta.SavedState.restore` (see `Lean.Meta.SynthInstance.insertCachedResult`).
+-/
+@[implemented_by getSynthCacheUnsafe]
+opaque _root_.Lean.Environment.synthCache (env : Environment) : SynthInstanceCache
+
+private unsafe def setSynthCacheUnsafe (env : Environment) (c : SynthInstanceCache) : Environment :=
+  env.setSynthCacheRaw? (some (unsafeCast c))
+
+/-- Replaces the persistent tier of the `synthInstance` result cache; see `Environment.synthCache`. -/
+@[implemented_by setSynthCacheUnsafe]
+opaque _root_.Lean.Environment.setSynthCache (env : Environment) (c : SynthInstanceCache) : Environment
+
+/--
+Resets the persistent tier of the type class resolution cache. Use `resetSynthInstanceCache`
+instead from `MetaM`, which also clears the transient `Meta.Cache.synthInstance` tier;
+context-free entries are written to both tiers (see `Lean.Meta.SynthInstance.insertCachedResult`).
+-/
+def resetSynthInstanceCacheCore : CoreM Unit :=
+  modify fun s => { s with env := s.env.setSynthCacheRaw? none }
+
+/--
+Resets the type class resolution cache (both the persistent tier and the transient
+`Meta.Cache.synthInstance` tier).
+
+Calling this function is normally unnecessary: cache entries record the dependencies of their
+search (relevant options, instances, unification hints, reducibility statuses; see
+`Lean.Meta.SynthInstance`) and are automatically invalidated when a dependency changes,
+including through environment modifications the current `Meta.State` cannot observe (e.g.
+running a command via `liftCommandElabM`). Known remaining gaps that do require an explicit
+reset: deactivation of *scoped* unification hints (ending the surrounding scope or section),
+and dropping *local* unification hints at the end of a section, neither of which is covered by
+the cache key or the recorded dependencies.
+-/
+def resetSynthInstanceCache : MetaM Unit := do
+  resetSynthInstanceCacheCore
+  modifyCache fun c => { c with synthInstance := {} }
 
 private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
   let type ← inferType e

@@ -313,7 +313,9 @@ jobs:
         run: |
           ulimit -c unlimited  # coredumps
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/$TARGET_STAGE -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
-        if: matrix.test
+        # `skip-tests`: label for experimental PRs with known-failing tests, so CI still produces
+        # the `pr-release` toolchain (e.g. for Mathlib benchmarking)
+        if: matrix.test && !contains(github.event.pull_request.labels.*.name, 'skip-tests')
       # copy failed tests' output into the `<failure>` elements shown by the test summary
       - name: Embed Test Output
         run: |

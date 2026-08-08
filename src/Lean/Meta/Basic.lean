@@ -350,6 +350,32 @@ structure InfoCacheKey where
 instance : Hashable InfoCacheKey where
   hash := private fun { configKey, expr, nargs? } => mixHash (hash configKey) <| mixHash (hash expr) (hash nargs?)
 
+/--
+The option lookups a type class resolution cache entry was computed under, deduplicated by name;
+a lookup may only use an entry whose recorded accesses give the same answers in the current
+context. See `SynthInstanceCache`.
+-/
+abbrev SynthOptionAccessLog := Array SynthOptionAccess
+
+/--
+The definitional-equality and unfolding compatibility flags, resolved and recorded once per type
+class resolution query (`synthInstanceCore?`) so that their per-step reads inside the search
+avoid the recording accessors; see `getSynthDefEqFlag`. Being resolved up front, they are part
+of the cache key (`SynthInstanceCacheKey.defEqFlags`) rather than recorded dependencies: every
+query partitions on all of them, whether its search reaches the corresponding reads or not.
+They are global compatibility settings, so the sharing lost to this over-approximation is
+negligible.
+-/
+structure SynthDefEqFlags where
+  respectTransparency      : Bool
+  respectTransparencyTypes : Bool
+  implicitBump             : Bool
+  reducibleClassField      : Bool
+  lazyProjDelta            : Bool
+  lazyWhnfCore             : Bool
+  smartUnfolding           : Bool
+  deriving Inhabited, BEq, Hashable
+
 -- Remark: we don't need to store `Config.toKey` because typeclass resolution uses a fixed configuration.
 structure SynthInstanceCacheKey where
   localInsts        : LocalInstances
@@ -359,6 +385,43 @@ structure SynthInstanceCacheKey where
   See issue #2522.
   -/
   synthPendingDepth : Nat
+  /--
+  Namespaces with scoped instances that are currently activated (e.g. via `open`), in canonical
+  order. Keying the cache by this set keeps entries from outside a scope valid after the scope
+  ends, e.g. for the `open Classical in` expansion of `by_cases`.
+  -/
+  activeScopedInsts : Array Name
+  /--
+  Instances currently added with the `local` attribute kind (`Instances.localInstanceNames`).
+  Like `activeScopedInsts`, keying the cache by this set keeps entries from outside a scope
+  containing `attribute [local instance]` valid after the scope ends, and prevents entries
+  computed with the local instance from leaking out of the scope.
+  -/
+  localAttrInsts    : Array Name
+  /--
+  Instances currently erased via `attribute [-instance]` (`Instances.erased`), in canonical
+  order. Erasure is delimited by its surrounding scope like local instances, and entries are
+  keyed by it for the same reason: an entry (in particular a cached failure) computed under an
+  erasure must not be served once the surrounding scope ends and restores the instance.
+  -/
+  erasedInsts       : Array Name
+  /--
+  Effective maximum result size (`synthInstance.maxSize` unless overridden by the caller).
+  The cache persists across commands, so results (in particular failures) obtained under a
+  different size limit must not be reused.
+  -/
+  maxResultSize     : Nat
+  /--
+  The definitional-equality flags the query runs under, resolved up front; see
+  `SynthDefEqFlags`. Options read lazily during the search are recorded per entry instead
+  (`SynthOptionAccessLog`).
+  -/
+  defEqFlags        : SynthDefEqFlags
+  /--
+  Value of `Environment.isExporting`: in the exporting state, fewer definitions can be unfolded,
+  which can change the result of typeclass resolution.
+  -/
+  isExporting       : Bool
   deriving Hashable, BEq
 
 /-- Resulting type for `abstractMVars` -/
@@ -371,7 +434,19 @@ structure AbstractMVarsResult where
 def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
   r.mvars.size
 
-abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option AbstractMVarsResult)
+/--
+Type class resolution cache. Each key holds one entry per observed combination of dependencies:
+the search records every result-relevant option lookup (`getRecordedOption`) and every observed
+environment dependency (accessed `.recorded` extensions and reducibility statuses; see
+`Lean.EnvExtension.TCResolutionAccess`) into the entry's `SynthDepLog`, and a lookup may only
+use an entry whose recorded dependencies give the same answers in the current context.
+Dependencies the search never observed do not partition the cache. The search observes no other
+options or extensions, as it runs under `Options.restrict .tcResolution` and with
+`Environment.synthEnvDepsRef?` armed, which divert by-name option reads to the recording
+accessors and panic on `.deny` extension accesses.
+-/
+abbrev SynthInstanceCache :=
+  PersistentHashMap SynthInstanceCacheKey (List (SynthEnvDeps × Option AbstractMVarsResult))
 
 -- Key for `InferType` and `WHNF` caches
 structure ExprConfigCacheKey where
@@ -411,6 +486,12 @@ abbrev DefEqCache := PersistentHashMap DefEqCacheKey Bool
 
 /--
 Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
+
+The `synthInstance` field is the *transient* tier of the type class resolution cache: it has
+the lifetime of the current `Meta.State` and holds all entries, including context-sensitive ones
+(keys containing metavariables, or results with abstracted metavariables) whose validity is tied
+to the current elaboration context. Context-free entries are additionally stored in an
+environment extension so that they persist across commands (see `synthInstanceCacheExt`).
 -/
 structure Cache where
   inferType      : InferTypeCache := {}
@@ -526,6 +607,8 @@ structure Context where
   Remark: `synthPending` fails if `synthPendingDepth > maxSynthPendingDepth`.
   -/
   synthPendingDepth : Nat                  := 0
+  /-- Set per type class resolution query; see `SynthDefEqFlags`. -/
+  synthDefEqFlags?  : Option SynthDefEqFlags := none
   /--
   A predicate to control whether a constant can be unfolded or not at `whnf`.
   If set, overrides `Config.canUnfoldPredicateConfig`.
@@ -706,9 +789,6 @@ def mkInfoCacheKey (expr : Expr) (nargs? : Option Nat) : MetaM InfoCacheKey :=
 
 @[inline] def resetDefEqPermCaches : MetaM Unit :=
   modifyDefEqPermCache fun _ => {}
-
-@[inline] def resetSynthInstanceCache : MetaM Unit :=
-  modifyCache fun c => {c with synthInstance := {}}
 
 @[inline] def modifyDiag (f : Diagnostics → Diagnostics) : MetaM Unit := do
   if (← isDiagnosticsEnabled) then
@@ -1211,6 +1291,45 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 
 @[inline] def withIncSynthPending : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with synthPendingDepth := ctx.synthPendingDepth + 1 })
+
+/-- Records the lookup `access` in the armed query's accumulator, if any; see `getRecordedOption`. -/
+private def recordOptionAccess (access : SynthOptionAccess) : MetaM Unit := do
+  if let some sink := (← getEnv).synthEnvDepsRef? then
+    -- Read-before-write: repeated lookups of the same option dominate (e.g. per `isDefEq` step),
+    -- and the membership test avoids writing the ref for them.
+    let d ← sink.get
+    unless d.options.any (·.name == access.name) do
+      sink.set { d with options := d.options.push access }
+
+/--
+Reads an option on the type class resolution path, recording the lookup as an option dependency
+of the cache entry being computed (`Environment.synthEnvDepsRef?`); see `SynthInstanceCache`.
+The read bypasses the options restriction, which exists to divert result-relevant by-name reads
+on the search path to this function; outside the search it behaves like `Lean.Option.get`.
+-/
+def getRecordedOption [KVMap.Value α] (opt : Lean.Option α) : MetaM α := do
+  let raw := (← getOptions).findUnrestricted? opt.name
+  recordOptionAccess { name := opt.name, value := raw }
+  return (raw.bind KVMap.Value.ofDataValue?).getD opt.defValue
+
+/-- By-name variant of `getRecordedOption`, for options that cannot be referenced directly. -/
+def getRecordedBoolOption (name : Name) (defVal := false) : MetaM Bool := do
+  let raw := (← getOptions).findUnrestricted? name
+  recordOptionAccess { name, value := raw }
+  return (raw.bind KVMap.Value.ofDataValue?).getD defVal
+
+/--
+Reads a definitional-equality compatibility flag: from the per-query resolved flags inside a
+type class resolution query, and via `fallback` from the ambient options otherwise. Inside a
+query the flags are always armed and already recorded (`SynthDefEqFlags`), so the read costs a
+context projection; per-step read sites in `isDefEq`/`whnf` use this instead of the recording
+accessors.
+-/
+@[inline] def getSynthDefEqFlag (proj : SynthDefEqFlags → Bool) (fallback : Options → Bool) :
+    MetaM Bool := do
+  match (← read).synthDefEqFlags? with
+  | some flags => return proj flags
+  | none       => return fallback (← getOptions)
 
 @[inline] def withInTypeClassResolution : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with inTypeClassResolution := true })

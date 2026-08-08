@@ -15,6 +15,52 @@ public section
 
 namespace Lean
 
+/--
+Returns whether the option `name` is observable by type class resolution without affecting its
+result: tracing, pretty printing and formatting (of messages and trace nodes, which capture the
+ambient options object and are rendered later), profiling, diagnostics, debugging, resource
+limits (exceeding them throws, and exceptions are not cached), and the elaboration/kernel
+options read by constant realization triggered from the search (whose results are registered in
+the environment on first use and thus shared regardless of options).
+-/
+def isSynthInertOption (name : Name) : Bool :=
+  Name.isPrefixOf `trace name || Name.isPrefixOf `pp name || Name.isPrefixOf `format name ||
+  Name.isPrefixOf `profiler name || Name.isPrefixOf `diagnostics name ||
+  Name.isPrefixOf `debug name || Name.isPrefixOf `Elab name || Name.isPrefixOf `Kernel name ||
+  Name.isPrefixOf `interpreter name || Name.isPrefixOf `server name ||
+  Name.isPrefixOf `internal name ||
+  -- limits: exceeding them throws (`Lean.checkExponent` is reached from `Meta.check` during
+  -- cached-result application), and exceptions are not cached
+  name == `maxHeartbeats || name == `maxRecDepth ||
+  Name.isPrefixOf `exponentiation name ||
+  -- pseudo-option marking pattern-printing mode, read by the delaborator when rendering
+  -- messages that captured a restricted options object (`Options.getInPattern`)
+  name == `_inPattern
+
+/--
+Access restriction on an `Options` object, enforced by the by-name accessors (`Options.find?`,
+`Options.get?`, `Options.contains` and everything built on them): accessing an option outside
+the allowed set panics and behaves as if the option were unset. Restricting is a constant-time
+flag update (`Options.restrict`) that keeps the underlying entries, so iteration (e.g. `ForIn`)
+is unaffected.
+-/
+inductive OptionsRestriction where
+  /-- No restriction. -/
+  | none
+  /--
+  Only inert options (`isSynthInertOption`) may be read by name: type class resolution records
+  every result-relevant option lookup as a dependency of the cache entry it is computing (see
+  `Lean.Meta.getRecordedOption`), so reads on the search path must go through the recording
+  accessors, which bypass this restriction via `Options.findUnrestricted?`. A pure by-name read
+  under this restriction is an unrecorded access and panics.
+  -/
+  | tcResolution
+
+/-- Returns whether accessing the option `name` is allowed under the restriction. -/
+def OptionsRestriction.allows : OptionsRestriction → Name → Bool
+  | .none, _ => true
+  | .tcResolution, name => isSynthInertOption name
+
 structure Options where
   private map : NameMap DataValue
   /--
@@ -22,6 +68,8 @@ structure Options where
   set to `true` but it does capture the most common case that no such option has ever been touched.
   -/
   hasTrace : Bool
+  /-- Access restriction enforced by the by-name accessors; see `OptionsRestriction`. -/
+  restriction : OptionsRestriction := .none
 
 namespace Options
 
@@ -43,14 +91,27 @@ instance : BEq Options where
 instance : EmptyCollection Options where
   emptyCollection := .empty
 
-@[inline] def find? (o : Options) (k : Name) : Option DataValue :=
+/--
+Reads the raw entry for `k`, bypassing the access restriction. Callers are responsible for
+recording the access as a dependency where required; see `OptionsRestriction.tcResolution` and
+`Lean.Meta.getRecordedOption`.
+-/
+@[inline] def findUnrestricted? (o : Options) (k : Name) : Option DataValue :=
   o.map.find? k
+
+@[inline] def find? (o : Options) (k : Name) : Option DataValue :=
+  if o.restriction.allows k then
+    o.map.find? k
+  else
+    panic! s!"unrecorded access to option `{k}` under the current options restriction; \
+      reads on the type class resolution path must use the recording accessors, \
+      see `Lean.OptionsRestriction`"
 
 @[deprecated find? (since := "2026-01-15")]
 def find := find?
 
 @[inline] def get? {α : Type} [KVMap.Value α] (o : Options) (k : Name) : Option α :=
-  o.map.find? k |>.bind KVMap.Value.ofDataValue?
+  o.find? k |>.bind KVMap.Value.ofDataValue?
 
 @[inline] def get {α : Type} [KVMap.Value α] (o : Options) (k : Name) (defVal : α) : α :=
   o.get? k |>.getD defVal
@@ -59,11 +120,21 @@ def find := find?
   o.get k defVal
 
 @[inline] def contains (o : Options) (k : Name) : Bool :=
-  o.map.contains k
+  if o.restriction.allows k then
+    o.map.contains k
+  else
+    panic! s!"unrecorded access to option `{k}` under the current options restriction; \
+      reads on the type class resolution path must use the recording accessors, \
+      see `Lean.OptionsRestriction`"
+
+/-- Restricts by-name access to the options allowed by `r`; see `OptionsRestriction`. -/
+@[inline] def restrict (o : Options) (r : OptionsRestriction) : Options :=
+  { o with restriction := r }
 
 @[inline] def insert (o : Options) (k : Name) (v : DataValue) : Options where
   map := o.map.insert k v
   hasTrace := o.hasTrace || (`trace).isPrefixOf k
+  restriction := o.restriction
 
 def set {α : Type} [KVMap.Value α] (o : Options) (k : Name) (v : α) : Options :=
   o.insert k (KVMap.Value.toDataValue v)
@@ -75,10 +146,12 @@ def erase (o : Options) (k : Name) : Options where
   map := o.map.erase k
   -- `erase` is expected to be used even more rarely than `set` so O(n) is fine
   hasTrace := o.map.keys.any (`trace).isPrefixOf
+  restriction := o.restriction
 
 def mergeBy (f : Name → DataValue → DataValue → DataValue) (o1 o2 : Options) : Options where
   map := o1.map.mergeWith f o2.map
   hasTrace := o1.hasTrace || o2.hasTrace
+  restriction := o1.restriction
 
 end Options
 
@@ -192,6 +265,14 @@ protected structure Decl (α : Type) where
   defValue : α
   descr    : String := ""
   deprecation? : Option OptionDeprecation := none
+
+/--
+Reads the option bypassing the access restriction, without recording the access; only for reads
+that provably cannot influence a type class resolution cache entry, e.g. limits whose exceedance
+throws (exceptions are not cached). See `OptionsRestriction.tcResolution`.
+-/
+protected def getUnrestricted [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : α :=
+  ((opts.findUnrestricted? opt.name).bind KVMap.Value.ofDataValue?).getD opt.defValue
 
 protected def get? [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : Option α :=
   opts.get? opt.name

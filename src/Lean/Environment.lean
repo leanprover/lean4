@@ -541,6 +541,53 @@ private structure RealizationContext where
   realizeMapRef : IO.Ref (NameMap NonScalar /- PHashMap α (Task Dynamic) -/)
 
 /--
+One option lookup observed during a type class resolution search: the raw `Options.find?`
+result, so that validation is default-independent and covers set↔unset transitions exactly. See
+`Lean.Meta.getRecordedOption`.
+-/
+structure SynthOptionAccess where
+  name  : Name
+  value : Option DataValue
+  deriving BEq
+
+/--
+Dependencies of an in-progress type class resolution query, accumulated in
+`Environment.synthEnvDepsRef?` while the query is running; they determine when a cached
+resolution result is still valid. See `Lean.Meta.SynthInstance`.
+-/
+structure SynthEnvDeps where
+  /--
+  The option lookups the search performed, deduplicated by name; an entry may only be used when
+  its recorded accesses give the same answers in the current context.
+  -/
+  options : Array SynthOptionAccess := #[]
+  /--
+  Per accessed `.recorded` extension (see `EnvExtension.TCResolutionAccess`), the state
+  generation that was observed: `(extension index, generation)`. The dependency is stale once
+  the extension's generation moves.
+  -/
+  extGens : Array (Nat × Nat) := #[]
+  /--
+  Size of the reducibility change log (`Lean.reducibilityChangeLogExt`) when the query started.
+  While the log has not grown past it, no reducibility status the query observed can have
+  changed and validation is a single comparison.
+  -/
+  reducibilityGen : Nat := 0
+  /--
+  256-bit Bloom filter over the declarations whose reducibility status the query observed
+  (`Lean.getReducibilityStatusCore`); bit selection via `Lean.reducibilityDepBloom`. Validation
+  tests the declarations the change log gained since `reducibilityGen` against the filter: a
+  clear bit proves the changed declaration was not consulted; a set bit conservatively
+  invalidates the entry. The filter is cheap enough to update on every status read during a
+  search, unlike a set of names.
+  -/
+  reducibilityBloom0 : UInt64 := 0
+  reducibilityBloom1 : UInt64 := 0
+  reducibilityBloom2 : UInt64 := 0
+  reducibilityBloom3 : UInt64 := 0
+  deriving Inhabited
+
+/--
 Elaboration-specific extension of `Kernel.Environment` that adds tracking of asynchronously
 elaborated declarations.
 -/
@@ -612,6 +659,21 @@ structure Environment where
   `elabMutualDef` may switch from public to private when e.g. entering the proof of a theorem.
   -/
   isExporting : Bool := false
+  /--
+  When set, a type class resolution query is running on this environment branch and every
+  environment dependency it observes is recorded into the referenced accumulator; extensions
+  registered as `.deny` (the default) panic when accessed. See `EnvExtension.TCResolutionAccess`.
+  -/
+  synthEnvDepsRef? : Option (IO.Ref SynthEnvDeps) := none
+  /--
+  Persistent tier of the type class resolution cache, `none` for empty. The value is a
+  `Lean.Meta.SynthInstanceCache` (not nameable in this module; accessed with confined casts in
+  `Lean.Meta.Instances`). It lives in a plain field rather than an environment extension so that
+  a cache fill costs one structure copy instead of copying the extension state array, while
+  keeping the same branch-local value semantics: fills roll back with the environment, and
+  parallel elaboration branches never observe each other's fills.
+  -/
+  synthCacheRaw? : Option NonScalar := none
 deriving Nonempty
 
 @[inline] private def VisibilityMap.get (m : VisibilityMap α) (env : Environment) : α :=
@@ -655,6 +717,15 @@ def setExporting (env : Environment) (isExporting : Bool) : Environment :=
     env
   else
     { env with isExporting }
+
+/-- Updates `env.synthCacheRaw?`; see there. -/
+def setSynthCacheRaw? (env : Environment) (v? : Option NonScalar) : Environment :=
+  { env with synthCacheRaw? := v? }
+
+/-- Updates `env.synthEnvDepsRef?`; see there. -/
+def setSynthEnvDepsRef? (env : Environment) (ref? : Option (IO.Ref SynthEnvDeps)) : Environment :=
+  if env.synthEnvDepsRef?.isNone && ref?.isNone then env
+  else { env with synthEnvDepsRef? := ref? }
 
 /-- Consistently updates synchronous and (private) asynchronous parts of the environment without blocking. -/
 private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → Kernel.Environment) : Environment :=
@@ -1304,6 +1375,41 @@ inductive EnvExtension.AsyncMode where
   | async (branch : AsyncBranch)
   deriving Inhabited
 
+/--
+How an environment extension may be accessed during type class resolution. Resolution results
+are cached across contexts and commands, so every extension state the search consults must be
+covered by the cache key or by the recorded dependencies that validate a cache entry; see
+`Lean.Meta.SynthInstance`.
+-/
+inductive EnvExtension.TCResolutionAccess where
+  /--
+  Default: accessing the extension while a resolution query is running panics. This is a
+  tripwire against silently introducing cache staleness; a search that legitimately needs the
+  extension must register it as `.exempt` or `.recorded`.
+  -/
+  | deny
+  /--
+  The extension may be accessed without recording a dependency. Valid only when reuse of a
+  cached result can never be invalidated by a change to this state: the state is monotone and
+  keyed by declarations that must exist before any query that could observe them (e.g.
+  projection-function info), the state only affects behavior already covered by the cache key or
+  by other recorded dependencies, or the state is the resolution cache itself.
+  -/
+  | exempt
+  /--
+  Accesses record the extension's state generation as a dependency of the resolution result
+  being computed, and every state modification bumps the generation (the state is stored
+  together with a counter; see `EnvExtension.modifyState`). A cached result is only reused
+  while all its recorded generations are unchanged, so no explicit cache invalidation is
+  needed. Scope-stack operations of `ScopedEnvExtension`s preserve the generation
+  (`keepTCGen`): scope activation state is part of the cache key instead.
+
+  Must use `AsyncMode.local` or `.mainOnly`: generations are branch-local, matching the
+  visibility of the resolution cache itself.
+  -/
+  | recorded
+  deriving Inhabited, BEq
+
 abbrev ReplayFn (σ : Type) :=
   (oldState : σ) → (newState : σ) → (newConsts : List Name) → σ → σ
 
@@ -1322,6 +1428,10 @@ structure EnvExtension (σ : Type) where private mk ::
   present.
   -/
   replay?   : Option (ReplayFn σ)
+  /-- Name for diagnostics; set automatically for persistent extensions. -/
+  name      : Name
+  /-- How this extension may be accessed during type class resolution; see `TCResolutionAccess`. -/
+  tcResolutionAccess : EnvExtension.TCResolutionAccess
   deriving Inhabited
 
 namespace EnvExtension
@@ -1335,13 +1445,23 @@ private builtin_initialize envExtensionsRef : IO.Ref (Array (EnvExtension EnvExt
   user-defined environment extensions. When this happens, we must adjust the size of the `env.extensions`.
   This method is invoked when processing `import`s.
 -/
+private unsafe def mkInitialEntryUnsafe (ext : EnvExtension EnvExtensionState) : IO EnvExtensionState := do
+  let s ← ext.mkInitial
+  if ext.tcResolutionAccess matches .recorded then
+    return unsafeCast ((0, s) : Nat × EnvExtensionState)
+  return s
+
+/-- Creates the state array entry for `ext`; see `modifyStateImpl` for the `.recorded` pairing. -/
+@[implemented_by mkInitialEntryUnsafe]
+private opaque mkInitialEntry (ext : EnvExtension EnvExtensionState) : IO EnvExtensionState
+
 partial def ensureExtensionsArraySize (exts : Array EnvExtensionState) : IO (Array EnvExtensionState) := do
   loop exts.size exts
 where
   loop (i : Nat) (exts : Array EnvExtensionState) : IO (Array EnvExtensionState) := do
     let envExtensions ← envExtensionsRef.get
     if h : i < envExtensions.size then
-      let s ← envExtensions[i].mkInitial
+      let s ← mkInitialEntry envExtensions[i]
       let exts := exts.push s
       loop (i + 1) exts
     else
@@ -1349,34 +1469,57 @@ where
 
 private def invalidExtMsg := "invalid environment extension has been accessed"
 
-private unsafe def setStateImpl {σ} (ext : EnvExtension σ) (exts : Array EnvExtensionState) (s : σ) : Array EnvExtensionState :=
-  if h : ext.idx < exts.size then
-    exts.set ext.idx (unsafeCast s)
-  else
-    -- do not return an empty array on panic, avoiding follow-up out-of-bounds accesses
-    have : Inhabited (Array EnvExtensionState) := ⟨exts⟩
-    panic! invalidExtMsg
+/-
+For `.recorded` extensions the entry stored in the state array is the state paired with its
+generation counter (as `Nat × σ`); all other extensions store the state directly. The pairing is
+confined to `modifyStateImpl`/`getStateImpl` and `mkInitialEntry`, which are the only functions
+creating or reading entries.
+-/
 
-private unsafe def modifyStateImpl {σ : Type} (ext : EnvExtension σ) (exts : Array EnvExtensionState) (f : σ → σ) : Array EnvExtensionState :=
+private unsafe def modifyStateImpl {σ : Type} (ext : EnvExtension σ) (exts : Array EnvExtensionState) (f : σ → σ)
+    (keepTCGen := false) : Array EnvExtensionState :=
   if ext.idx < exts.size then
     exts.modify ext.idx fun s =>
-      let s : σ := unsafeCast s
-      let s : σ := f s
-      unsafeCast s
+      if ext.tcResolutionAccess matches .recorded then
+        let (gen, s) : Nat × σ := unsafeCast s
+        unsafeCast ((if keepTCGen then gen else gen + 1, f s) : Nat × σ)
+      else
+        let s : σ := unsafeCast s
+        let s : σ := f s
+        unsafeCast s
   else
     -- do not return an empty array on panic, avoiding follow-up out-of-bounds accesses
     have : Inhabited (Array EnvExtensionState) := ⟨exts⟩
     panic! invalidExtMsg
 
-private unsafe def getStateImpl {σ} [Inhabited σ] (ext : EnvExtension σ) (exts : Array EnvExtensionState) : σ :=
+private unsafe def getStateImpl {σ} [Inhabited σ] (ext : EnvExtension σ) (exts : Array EnvExtensionState)
+    (sink? : Option (IO.Ref SynthEnvDeps) := none) : σ :=
   if h : ext.idx < exts.size then
-    unsafeCast exts[ext.idx]
+    if ext.tcResolutionAccess matches .recorded then
+      let (gen, s) : Nat × σ := unsafeCast exts[ext.idx]
+      match sink? with
+      | none => s
+      | some sink =>
+        -- benign effect: recording the observed generation into the armed query's accumulator
+        unsafeBaseIO do
+          let d ← sink.get
+          -- closure-free containment scan; the array holds at most a handful of entries
+          let rec containsIdx (i : Nat) : Bool :=
+            if h : i < d.extGens.size then
+              d.extGens[i].1 == ext.idx || containsIdx (i + 1)
+            else
+              false
+          unless containsIdx 0 do
+            sink.set { d with extGens := d.extGens.push (ext.idx, gen) }
+          return s
+    else
+      unsafeCast exts[ext.idx]
   else
     panic! invalidExtMsg
 
 def mkInitialExtStates : IO (Array EnvExtensionState) := do
   let exts ← envExtensionsRef.get
-  exts.mapM fun ext => ext.mkInitial
+  exts.mapM mkInitialEntry
 
 /--
 Checks whether `modifyState (asyncDecl := declName)` may be called on an async environment
@@ -1396,25 +1539,42 @@ def asyncMayModify (ext : EnvExtension σ) (env : Environment) (asyncDecl : Name
       (ctx.mayContain asyncDecl && (env.findAsyncConst? asyncDecl).any (·.exts?.isNone))
     | _ => true
 
+/-- Whether the extension may be accessed on `env`; see `TCResolutionAccess`. -/
+private def allowsAccess {σ : Type} (ext : EnvExtension σ) (env : Environment) : Bool :=
+  env.synthEnvDepsRef?.isNone || !(ext.tcResolutionAccess matches .deny)
+
+private def accessErrorMsg {σ : Type} (ext : EnvExtension σ) : String :=
+  s!"environment extension `{ext.name}` (index {ext.idx}) is not accessible during type class \
+    resolution: an extension consulted during resolution must be covered by the resolution \
+    cache key or by its recorded dependencies, and registered with \
+    `tcResolutionAccess := .exempt` or `.recorded`; see `Lean.EnvExtension.TCResolutionAccess`"
+
 /--
 Applies the given function to the extension state. See `AsyncMode` for details on how modifications
 from different environment branches are reconciled.
+
+For `.recorded` extensions the modification bumps the state's generation counter, invalidating
+type class resolution cache entries that depend on it, unless `keepTCGen` is set; see
+`TCResolutionAccess.recorded`.
 
 Note that in modes `sync` and `async`, `f` will be called twice, on the local and on the `checked`
 state.
 -/
 def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ)
-    (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : Environment := Id.run do
+    (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) (keepTCGen := false) :
+    Environment := Id.run do
   -- for panics
   let _ : Inhabited Environment := ⟨env⟩
+  unless ext.allowsAccess env do
+    return panic! ext.accessErrorMsg
   -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
   match asyncMode with
   | .mainOnly =>
     if let some asyncCtx := env.asyncCtx? then
       return panic! s!"environment extension is marked as `mainOnly` but used in {asyncCtx.descr}"
-    return { env with base.private.extensions := unsafe ext.modifyStateImpl env.base.private.extensions f }
+    return { env with base.private.extensions := unsafe ext.modifyStateImpl env.base.private.extensions f keepTCGen }
   | .local =>
-    return { env with base.private.extensions := unsafe ext.modifyStateImpl env.base.private.extensions f }
+    return { env with base.private.extensions := unsafe ext.modifyStateImpl env.base.private.extensions f keepTCGen }
   | _ =>
     if asyncMode matches .async _ then
       if asyncDecl.isAnonymous then
@@ -1429,7 +1589,7 @@ def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ 
         return panic! s!"environment extension must set `replay?` field to be \
           used in realization context '{n}'"
     env.modifyCheckedAsync fun env =>
-      { env with extensions := unsafe ext.modifyStateImpl env.extensions f }
+      { env with extensions := unsafe ext.modifyStateImpl env.extensions f keepTCGen }
 
 /--
 Sets the extension state to the given value. See `AsyncMode` for details on how modifications from
@@ -1441,9 +1601,13 @@ def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) (a
 -- `unsafe` fails to infer `Nonempty` here
 private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension σ)
     (env : Environment) (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : σ := Id.run do
+  unless ext.allowsAccess env do
+    return panic! ext.accessErrorMsg
+  -- for `.recorded` extensions, an armed query records the observed generation; see `getStateImpl`
+  let sink? := env.synthEnvDepsRef?
   -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
   match asyncMode with
-  | .sync => ext.getStateImpl env.checked.get.extensions
+  | .sync => ext.getStateImpl env.checked.get.extensions sink?
   | .async branch =>
     if asyncDecl.isAnonymous then
       panic! "called on `async` extension, must set `asyncDecl` \
@@ -1452,22 +1616,22 @@ private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension
     -- analogous structure to `findAsync?`; see there
     -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
     if env.base.get env |>.constants.contains asyncDecl then
-      return ext.getStateImpl env.base.private.extensions
+      return ext.getStateImpl env.base.private.extensions sink?
 
     -- specialization of the following branch, nested async decls are rare
     if let some c := env.asyncConsts.find? asyncDecl then
       match branch with
       | .asyncEnv =>
         if let some exts := c.exts? then
-          return ext.getStateImpl exts.get
+          return ext.getStateImpl exts.get sink?
         else
-          return ext.getStateImpl env.base.private.extensions
+          return ext.getStateImpl env.base.private.extensions sink?
       | .mainEnv =>
         if c.isRealized then
           if let some exts := c.exts? then
-            return ext.getStateImpl exts.get
+            return ext.getStateImpl exts.get sink?
         else
-          return ext.getStateImpl env.base.private.extensions
+          return ext.getStateImpl env.base.private.extensions sink?
 
     if let some (c, parent?) := env.asyncConsts.findRecAndParent? asyncDecl then
       -- If `parent?` is `none`, the current branch is the parent
@@ -1481,17 +1645,17 @@ private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension
           -- this specific case, accessing the latter will in particular not block longer than the
           -- former.
           | .mainEnv => if c.isRealized then c.exts? else parentExts?) then
-        return ext.getStateImpl exts.get
+        return ext.getStateImpl exts.get sink?
       -- NOTE: if `exts?` is `none`, we should *not* try the following, more expensive branches that
       -- will just come to the same conclusion
     else if let some c := env.allRealizations.get.find? asyncDecl then
       if let some exts := c.exts? then
-        return ext.getStateImpl exts.get
+        return ext.getStateImpl exts.get sink?
     -- fallback; we could enforce that `asyncDecl` and its extension state always exist but the
     -- upside of doing is unclear and it is not true in e.g. the compiler. One alternative would be
     -- to add a `getState?` that does not panic in such cases.
-    ext.getStateImpl env.base.private.extensions
-  | _         => ext.getStateImpl env.base.private.extensions
+    ext.getStateImpl env.base.private.extensions sink?
+  | _         => ext.getStateImpl env.base.private.extensions sink?
 
 /--
 Returns the current extension state. See `AsyncMode` for details on how modifications from
@@ -1504,6 +1668,30 @@ only for important optimizations.
 opaque getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment)
   (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : σ
 
+private unsafe def getGenUnsafe (ext : EnvExtension EnvExtensionState) (env : Environment) : Nat :=
+  -- `.recorded` extensions are restricted to `.local`/`.mainOnly`, whose state lives in the
+  -- current branch's array.
+  let exts := env.base.private.extensions
+  if h : ext.idx < exts.size then
+    (unsafeCast exts[ext.idx] : Nat × EnvExtensionState).1
+  else 0
+
+@[implemented_by getGenUnsafe]
+private opaque getGen (ext : EnvExtension EnvExtensionState) (env : Environment) : Nat
+
+/--
+Current generation of the `.recorded` extension with registration index `idx` on the current
+branch of `env`, or 0 if `idx` does not denote a `.recorded` extension. Used to validate the
+`SynthEnvDeps.extGens` dependencies of a type class resolution cache entry.
+-/
+def getRecordedGen (env : Environment) (idx : Nat) : BaseIO Nat := do
+  let exts ← envExtensionsRef.get
+  if h : idx < exts.size then
+    let ext := exts[idx]
+    if ext.tcResolutionAccess matches .recorded then
+      return getGen ext env
+  return 0
+
 end EnvExtension
 
 /-- Environment extensions can only be registered during initialization.
@@ -1515,12 +1703,18 @@ end EnvExtension
    For that, you need to register a persistent environment extension. -/
 def registerEnvExtension {σ : Type} (mkInitial : IO σ)
     (replay? : Option (ReplayFn σ) := none)
-    (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO (EnvExtension σ) := do
+    (asyncMode : EnvExtension.AsyncMode := .mainOnly)
+    (name : Name := .anonymous)
+    (tcResolutionAccess : EnvExtension.TCResolutionAccess := .deny) : IO (EnvExtension σ) := do
   unless (← initializing) do
     throw (IO.userError "failed to register environment, extensions can only be registered during initialization")
+  if tcResolutionAccess matches .recorded then
+    unless asyncMode matches .local | .mainOnly do
+      throw (IO.userError "`.recorded` environment extensions must use `AsyncMode.local` or `.mainOnly`; \
+        generations are branch-local (see `EnvExtension.TCResolutionAccess.recorded`)")
   let exts ← EnvExtension.envExtensionsRef.get
   let idx := exts.size
-  let ext : EnvExtension σ := { idx, mkInitial, asyncMode, replay? }
+  let ext : EnvExtension σ := { idx, mkInitial, asyncMode, replay?, name, tcResolutionAccess }
   -- safety: `EnvExtensionState` is opaque, so we can upcast to it
   EnvExtension.envExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
   pure ext
@@ -1669,12 +1863,14 @@ but is limited to the maximum level actually imported: `exported` on the cmdline
 language server. Higher levels will return the data of the maximum imported level.
 -/
 def getModuleEntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ)
-    (env : Environment) (m : ModuleIdx) (level := OLeanLevel.exported) : Array α :=
+    (env : Environment) (m : ModuleIdx) (level := OLeanLevel.exported) : Array α := Id.run do
+  unless ext.toEnvExtension.allowsAccess env do
+    return panic! ext.toEnvExtension.accessErrorMsg
   let exts := match level with
     | .exported => env.base.private.extensions
     | _         => env.serverBaseExts
   -- safety: as in `getStateUnsafe`
-  unsafe (ext.toEnvExtension.getStateImpl exts).importedEntries[m]!
+  return unsafe (ext.toEnvExtension.getStateImpl exts).importedEntries[m]!
 
 /-- Retrieves additional IR extension state for the interpreter. -/
 def getModuleIREntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ)
@@ -1699,8 +1895,10 @@ def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : En
 
 /-- Modify the state of the given extension in the given environment by applying the given function. -/
 def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (f : σ → σ)
-    (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := Name.anonymous) : Environment :=
-  ext.toEnvExtension.modifyState (asyncMode := asyncMode) (asyncDecl := asyncDecl) env fun ps => { ps with state := f (ps.state) }
+    (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := Name.anonymous)
+    (keepTCGen := false) : Environment :=
+  ext.toEnvExtension.modifyState (asyncMode := asyncMode) (asyncDecl := asyncDecl)
+    (keepTCGen := keepTCGen) env fun ps => { ps with state := f (ps.state) }
 
 end PersistentEnvExtension
 
@@ -1716,6 +1914,8 @@ structure PersistentEnvExtensionDescrCore (α β σ : Type) where
   statsFn           : σ → Format := fun _ => Format.nil
   asyncMode         : EnvExtension.AsyncMode := .mainOnly
   replay?           : Option (ReplayFn σ) := none
+  /-- See `EnvExtension.tcResolutionAccess`. -/
+  tcResolutionAccess : EnvExtension.TCResolutionAccess := .deny
 
 attribute [inherit_doc PersistentEnvExtension.exportEntriesFn]
   PersistentEnvExtensionDescrCore.exportEntriesFnEx
@@ -1742,7 +1942,8 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
   if pExts.any (fun ext => ext.name == descr.name) then throw (IO.userError s!"invalid environment extension, '{descr.name}' has already been used")
   let replay? := descr.replay?.map fun replay =>
     fun oldState newState newConsts s => { s with state := replay oldState.state newState.state newConsts s.state }
-  let ext ← registerEnvExtension (asyncMode := descr.asyncMode) (replay? := replay?) do
+  let ext ← registerEnvExtension (asyncMode := descr.asyncMode) (replay? := replay?)
+      (name := descr.name) (tcResolutionAccess := descr.tcResolutionAccess) do
     let initial ← descr.mkInitial
     let s : PersistentEnvExtensionState α σ := {
       importedEntries := #[],
@@ -2881,7 +3082,9 @@ This is consulted for all definitions regardless of their reducibility hints. Cu
 structural recursion to ensure that parent definitions get the correct height even though the
 `_f` helper definitions are marked as `.abbrev` (which `getMaxHeight` would otherwise ignore). -/
 builtin_initialize defHeightOverrideExt : EnvExtension (NameMap UInt32) ←
-  registerEnvExtension (pure {}) (asyncMode := .local)
+  -- read when auxiliary declarations are created during realization, which can happen inside a
+  -- resolution search; overrides are set only for declarations being created (monotone)
+  registerEnvExtension (pure {}) (asyncMode := .local) (tcResolutionAccess := .exempt)
 
 /-- Register a height override for a definition so that `getMaxHeight` uses it. -/
 def setDefHeightOverride (env : Environment) (declName : Name) (height : UInt32) : Environment :=

@@ -64,13 +64,6 @@ structure Slot where
   -/
   connection : Connection
 
-/--
-Default number of connection-level retries. One retry absorbs the stale keep-alive race (the
-server closed a pooled connection just as it was reused) without sending any request more than
-twice.
--/
-def defaultMaxRetries : Nat := 1
-
 end Std.Http.Client
 
 namespace Std.Http
@@ -118,7 +111,7 @@ structure Client where
   returns `false` from `Method.isIdempotent` (e.g. `POST`, `PATCH`) are never retried
   regardless of this value, to prevent unintended duplicate side-effects.
   -/
-  maxRetries : Nat := Client.defaultMaxRetries
+  maxRetries : Nat := 1
 
 namespace Client
 
@@ -205,11 +198,6 @@ opened connection.
 -/
 def getOrCreateConnection (client : Client) (origin : URI.Origin) :
     Async (Except Error Connection) := do
-  -- Fast path: reuse an existing same-origin connection without opening anything. A parked
-  -- connection whose background loop has already shut down (server EOF, idle keep-alive timeout) is
-  -- evicted instead of returned: handing it out would fail the request even though nothing was ever
-  -- written to the wire for it. A connection can still die between this check and the actual send;
-  -- that residual race surfaces as a connection error handled by the retry policy in `trySend`.
   let existing ← client.state.atomically do
     match ← get with
     | some slot =>
@@ -225,14 +213,9 @@ def getOrCreateConnection (client : Client) (origin : URI.Origin) :
   if let some connection := existing then
     return .ok connection
 
-  -- Slow path: open a new connection with the lock released.
   match ← client.openConnection origin with
   | .error e => return .error e
   | .ok connection =>
-
-    -- Install it, retiring whatever is parked. If another task installed a same-origin connection
-    -- while we were connecting, keep theirs and discard ours so the client never holds two live
-    -- connections.
     let (chosen, evicted) ← client.state.atomically do
       match ← get with
       | some slot =>
@@ -415,7 +398,6 @@ with the outgoing connection retired first.
 private def advanceHop (client : Client) (hop : Hop) (config : Config) (plan : RedirectPlan)
     (response : Response Body.Stream) : Async (Except Error Hop) := do
   if !plan.isCrossOrigin ∧ allowsConnectionReuse config response.line then
-    -- The connection can still have died since the response arrived; falling through re-acquires.
     if !(← hop.connection.isClosed) then return .ok hop
 
   client.retireConnection hop.connection hop.origin
@@ -447,10 +429,6 @@ private partial def sendWithRedirects
         try
           response.body.drain (drainLimit := some drainLimit)
             (closeStream := response.body.close)
-          -- Whether the connection carries the next hop is the connection's decision, not one the
-          -- response head can be read for: `maxRequestsPerConnection` and a peer that goes away
-          -- after answering are both invisible there. Waiting for the exchange to be reported
-          -- finished is what makes `advanceHop`'s check see the outcome rather than race it.
           if let some completion := completion then
             discard <| await completion.result!
           let newRequest ← buildRedirectRequest plan request
@@ -481,22 +459,13 @@ the connection, so the client holds at most one live origin at a time.
 def trySend {β : Type} [Coe β Body.Any] (client : Client) (origin : URI.Origin)
     (request : Request β) (overrides : RequestOverrides := {}) :
     Async (Except Error (Response Body.Stream)) := do
-  -- Erase the body type once; every layer below works with `Request Body.Any`.
   let request : Request Body.Any := { request with }
 
-  -- Non-idempotent methods (POST, PATCH, …) must never be retried; a connection
-  -- failure after partial delivery could cause duplicate side-effects.
-  -- The body must also be replayable (`reset?`): the failed attempt may have consumed a
-  -- streaming body, and retrying would silently send an empty or truncated body.
   let reset? := request.body.reset?
   let retries := if request.line.method.isIdempotent && reset?.isSome then client.maxRetries else 0
 
   let attempts := retries + 1
 
-  -- A single attempt: acquire a connection and run the exchange. `sendWithRedirects` owns
-  -- connection cleanup — every failure path inside it retires the connection — so the attempt only
-  -- has to report the typed result to the retry loop below. Connection establishment is part of the
-  -- attempt so that DNS/TCP failures are retried too.
   let attemptOnce : Async (Except Error (Response Body.Stream)) := do
     match ← client.getOrCreateConnection origin with
     | .error e => return .error e
@@ -505,19 +474,16 @@ def trySend {β : Type} [Coe β Body.Any] (client : Client) (origin : URI.Origin
       Impl.sendWithRedirects client { connection, origin } request config.maxRedirects overrides
 
   for attempt in 0...attempts do
-    -- A prior attempt may have consumed (part of) the body; rewind it before resending.
     if attempt > 0 then
       if let some reset := reset? then
         reset
+
     match ← attemptOnce with
     | .ok response => return .ok response
     | .error e =>
-      -- Report on the final attempt or for non-retryable failures;
-      -- retryable failures fall through to the next attempt.
       if ¬e.isRetryable || attempt + 1 ≥ attempts then
         return .error e
 
-  -- Unreachable: the loop runs at least once and the final attempt always returns.
   return .error (.io (IO.userError "HTTP client retry loop exhausted without returning"))
 
 /--

@@ -44,7 +44,7 @@ theorem containsConsecutiveNumbers_spec (a : Array Int) :
     | .inr ⟨i, found⟩ => (i + 1 ≥ a.size ∨ found = true) ∧
         (found = false → ∀ j : Nat, j < i → a[j]! + 1 ≠ a[j + 1]!) ∧
         (found = true → HasConsecutivePair a)
-  | inv2 => fun ⟨i, found⟩ => (a.size + 1 - i) * 2 + (if found = false then 1 else 0)
+  | inv2 => .ofMeasure fun ⟨i, found⟩ => (a.size + 1 - i) * 2 + (if found = false then 1 else 0)
   with finish
 
 end E_containsConsecutiveNumbers
@@ -77,7 +77,7 @@ theorem countSumDivisibleBy_spec (n d : Nat) (_hd : d > 0) :
         count = ((List.range k).countP (divisesDigitSum d))
     | .inr ⟨count, k⟩ => k = n ∧
         count = ((List.range k).countP (divisesDigitSum d))
-  | inv2 => fun ⟨count, k⟩ => n + 1 - k
+  | inv2 => .ofMeasure fun ⟨count, k⟩ => n + 1 - k
   with finish [List.range_succ, Nat.dvd_iff_mod_eq_zero, divisesDigitSum]
 
 end E_countSumDivisibleBy
@@ -106,7 +106,7 @@ theorem cubeElements_spec (a : Array Int) :
         ∀ k, k < i → result[k]! = intCube (a[k]!)
     | .inr ⟨result, i⟩ => i = a.size ∧ result.size = a.size ∧
         ∀ k, k < i → result[k]! = intCube (a[k]!)
-  | inv2 => fun ⟨result, i⟩ => a.size + 1 - i
+  | inv2 => .ofMeasure fun ⟨result, i⟩ => a.size + 1 - i
   with finish
 
 end E_cubeElements
@@ -153,7 +153,7 @@ theorem differenceMinMax_spec (a : Array Int) (hne : a.size ≠ 0) :
     | .inr ⟨mn, mx, i⟩ => i = a.size ∧
         (∃ j : Nat, j < i ∧ a[j]! = mn) ∧ (∀ j : Nat, j < i → mn ≤ a[j]!) ∧
         (∃ j : Nat, j < i ∧ a[j]! = mx) ∧ (∀ j : Nat, j < i → a[j]! ≤ mx)
-  | inv2 => fun ⟨_mn, _mx, i⟩ => a.size - i
+  | inv2 => .ofMeasure fun ⟨_mn, _mx, i⟩ => a.size - i
   with (try finish)
   case vc2 => sorry
 
@@ -184,7 +184,7 @@ theorem elementWiseModulo_spec (a b : Array Int)
         ∀ k, k < i → result[k]! = a[k]! % b[k]!
     | .inr ⟨result, i⟩ => i = a.size ∧ result.size = a.size ∧
         ∀ k, k < i → result[k]! = a[k]! % b[k]!
-  | inv2 => fun ⟨result, i⟩ => a.size + 1 - i
+  | inv2 => .ofMeasure fun ⟨result, i⟩ => a.size + 1 - i
   with finish
 
 end E_elementWiseModulo
@@ -444,7 +444,7 @@ theorem removeElement_spec (s : Array Int) (k : Nat) (hk : k < s.size) :
     | .inr ⟨result, i⟩ => i = result.size ∧ result.size + 1 = s.size ∧
         ∀ (j : Nat), j < result.size →
           (if j < k then result[j]! = s[j]! else result[j]! = s[j + 1]!)
-  | inv2 => fun ⟨result, i⟩ => result.size - i
+  | inv2 => .ofMeasure fun ⟨result, i⟩ => result.size - i
   with finish
 
 end E_removeElement
@@ -894,7 +894,7 @@ theorem differenceMinMax_spec (a : Array Int) :
     | .inr ⟨mn, mx, i⟩ => i = a.size ∧
         (∃ j : Nat, j < i ∧ a[j]! = mn) ∧ (∀ j : Nat, j < i → mn ≤ a[j]!) ∧
         (∃ j : Nat, j < i ∧ a[j]! = mx) ∧ (∀ j : Nat, j < i → a[j]! ≤ mx)
-  | inv2 => fun ⟨_mn, _mx, i⟩ => a.size - i
+  | inv2 => .ofMeasure fun ⟨_mn, _mx, i⟩ => a.size - i
   with (try finish)
   case vc2 => sorry
 

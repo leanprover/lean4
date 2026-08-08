@@ -51,7 +51,7 @@ theorem lt_trans {α : Type u} [LE α] [LT α]
 This typeclass states that the order structure on `α`, represented by an `LE α` instance,
 is a preorder. In other words, the less-or-equal relation is reflexive and transitive.
 -/
-public class IsPreorder (α : Type u) [LE α] where
+public class IsPreorder (α : Sort u) [LE α] where
   le_refl : ∀ a : α, a ≤ a
   le_trans : ∀ a b c : α, a ≤ b → b ≤ c → a ≤ c
 
@@ -60,7 +60,7 @@ This typeclass states that the order structure on `α`, represented by an `LE α
 is a partial order.
 In other words, the less-or-equal relation is reflexive, transitive and antisymmetric.
 -/
-public class IsPartialOrder (α : Type u) [LE α] extends IsPreorder α where
+public class IsPartialOrder (α : Sort u) [LE α] extends IsPreorder α where
   le_antisymm : ∀ a b : α, a ≤ b → b ≤ a → a = b
 
 /--
@@ -68,7 +68,7 @@ This typeclass states that the order structure on `α`, represented by an `LE α
 is a linear preorder.
 In other words, the less-or-equal relation is reflexive, transitive and total.
 -/
-public class IsLinearPreorder (α : Type u) [LE α] extends IsPreorder α where
+public class IsLinearPreorder (α : Sort u) [LE α] extends IsPreorder α where
   le_total : ∀ a b : α, a ≤ b ∨ b ≤ a
 
 /--
@@ -76,7 +76,7 @@ This typeclass states that the order structure on `α`, represented by an `LE α
 is a linear order.
 In other words, the less-or-equal relation is reflexive, transitive, antisymmetric and total.
 -/
-public class IsLinearOrder (α : Type u) [LE α] extends IsPartialOrder α, IsLinearPreorder α
+public class IsLinearOrder (α : Sort u) [LE α] extends IsPartialOrder α, IsLinearPreorder α
 
 section LT
 
@@ -91,7 +91,7 @@ be true simultaneously.
 `LT α` does not uniquely determine the `LE α`: There can be only one compatible order data
 instance that is total, but there can be others that are not total.
 -/
-public class LawfulOrderLT (α : Type u) [LT α] [LE α] where
+public class LawfulOrderLT (α : Sort u) [LT α] [LE α] where
   lt_iff : ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a
 
 end LT

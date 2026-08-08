@@ -12,6 +12,7 @@ import Init.Grind.Ordered.Ring
 import Init.GrindInstances
 import Init.Grind.Ordered.Int
 import Init.Data.Int.Package
+import Lean.CoreM
 public section
 namespace Lean.Meta.Sym
 /--
@@ -20,7 +21,8 @@ while others synthesize them using `synthInstance` (e.g., `ring`).
 This inconsistency is problematic, as it may introduce mismatches and result in
 two different representations for the same term.
 
-The following table is used to bypass synthInstance for the builtin cases.
+The following table is used to bypass synthInstance for the builtin cases. It is parameterised by
+`leLvl`, the universe argument `LE` and `LT` take for a carrier in `Type 0`.
 
 Every builtin instance must be a fixpoint of `canon`. A builtin instance may be visited as a
 plain term, for example as a ground pattern argument of an E-matching theorem, and its
@@ -30,7 +32,7 @@ Otherwise a user instance with higher priority replaces the component, and the r
 cached as the canonical form of the builtin instance, while the same instance in an
 instance-implicit position is still mapped to the builtin one.
 -/
-private def builtinInsts : Std.HashMap Expr Expr :=
+private def mkBuiltinInsts (leLvl : Level) : Std.HashMap Expr Expr :=
   let nat := Nat.mkType
   let int := Int.mkType
   let us  := [Level.zero, Level.zero, Level.zero]
@@ -48,8 +50,8 @@ private def builtinInsts : Std.HashMap Expr Expr :=
     (mkApp  (mkConst ``Mod [0]) nat, Nat.mkInstMod),
     (mkApp2 (mkConst ``Pow [0, 0]) nat nat, Nat.mkInstPow),
     (mkApp  (mkConst ``NatPow [0]) nat, Nat.mkInstNatPow),
-    (mkApp  (mkConst ``LT [0]) nat, Nat.mkInstLT),
-    (mkApp  (mkConst ``LE [0]) nat, Nat.mkInstLE),
+    (mkApp  (mkConst ``LT [leLvl]) nat, Nat.mkInstLT),
+    (mkApp  (mkConst ``LE [leLvl]) nat, Nat.mkInstLE),
 
     (mkApp3 (mkConst ``HAdd us) int int int, Int.mkInstHAdd),
     (mkApp3 (mkConst ``HSub us) int int int, Int.mkInstHSub),
@@ -65,17 +67,24 @@ private def builtinInsts : Std.HashMap Expr Expr :=
     (mkApp2 (mkConst ``Pow [0, 0]) int nat, Int.mkInstPowNat),
     (mkApp  (mkConst ``NatPow [0]) int, Int.mkInstPow),
     (mkApp  (mkConst ``Neg [0]) int, Int.mkInstNeg),
-    (mkApp  (mkConst ``LT [0]) int, Int.mkInstLT),
-    (mkApp  (mkConst ``LE [0]) int, Int.mkInstLE),
+    (mkApp  (mkConst ``LT [leLvl]) int, Int.mkInstLT),
+    (mkApp  (mkConst ``LE [leLvl]) int, Int.mkInstLE),
   ]
+
+private def builtinInstsTypeCarrier : Std.HashMap Expr Expr := mkBuiltinInsts .zero
+private def builtinInstsSortCarrier : Std.HashMap Expr Expr := mkBuiltinInsts (.succ .zero)
 
 /--
 Some modules in grind use builtin instances defined directly in core (e.g., `lia`).
 Users may provide nonstandard instances that are definitionally equal to the ones in core.
 Given a type, such as `HAdd Int Int Int`, this function returns the instance defined in
 core.
+
+Pass `leCarrierIsSort := ← Lean.leCarrierIsSort`, which selects the table whose `LE` and `LT` keys
+carry the universe argument the `LE` declaration in scope takes.
 -/
-def getBuiltinInstance? (type : Expr) : Option Expr :=
+def getBuiltinInstance? (leCarrierIsSort : Bool) (type : Expr) : Option Expr :=
+  let builtinInsts := if leCarrierIsSort then builtinInstsSortCarrier else builtinInstsTypeCarrier
   if let some inst := builtinInsts[type]? then some inst else
   -- Parametric instances: numerals and decidability of `Int`/`Nat` comparisons.
   match_expr type with
@@ -111,12 +120,13 @@ The table ignores local and user-declared instances of these classes: with
 structure on `Prop`. Redeclaring the algebraic structures of `Int`, `Nat` or `Prop` is not
 supported, as for the operator instances of `builtinInsts`.
 -/
-private def builtinAlgebraicInsts : Std.HashMap Expr (Option Expr) :=
+private def mkBuiltinAlgebraicInsts (leLvl : Level) : Std.HashMap Expr (Option Expr) :=
   let nat := Nat.mkType
   let int := Int.mkType
   let prop := mkSort 0
   let z := [Level.zero]
   let app (n : Name) (args : Array Expr) := mkAppN (mkConst n z) args
+  let ord (n : Name) (args : Array Expr) := mkAppN (mkConst n [leLvl]) args
   -- `Int`
   let crI := mkConst ``Grind.instCommRingInt
   let ringI := app ``Grind.CommRing.toRing #[int, crI]
@@ -144,12 +154,12 @@ private def builtinAlgebraicInsts : Std.HashMap Expr (Option Expr) :=
     (app ``Grind.Field #[int], none),
     (app ``Grind.NatModule #[int], some nmI),
     (app ``Grind.NoNatZeroDivisors #[int, nmI], some (mkConst ``Grind.instNoNatZeroDivisorsInt)),
-    (app ``Std.IsPreorder #[int, leI], some preI),
-    (app ``Std.IsPartialOrder #[int, leI], some (app ``Std.PartialOrderPackage.toIsPartialOrder
+    (ord ``Std.IsPreorder #[int, leI], some preI),
+    (ord ``Std.IsPartialOrder #[int, leI], some (app ``Std.PartialOrderPackage.toIsPartialOrder
       #[int, app ``Std.LinearOrderPackage.toPartialOrderPackage #[int, lopI]])),
-    (app ``Std.IsLinearPreorder #[int, leI], some (app ``Std.LinearPreorderPackage.toIsLinearPreorder #[int, lppI])),
-    (app ``Std.IsLinearOrder #[int, leI], some (mkConst ``Grind.instIsLinearOrderInt)),
-    (app ``Std.LawfulOrderLT #[int, ltI, leI], some (mkConst ``Grind.instLawfulOrderLTInt)),
+    (ord ``Std.IsLinearPreorder #[int, leI], some (app ``Std.LinearPreorderPackage.toIsLinearPreorder #[int, lppI])),
+    (ord ``Std.IsLinearOrder #[int, leI], some (mkConst ``Grind.instIsLinearOrderInt)),
+    (ord ``Std.LawfulOrderLT #[int, ltI, leI], some (mkConst ``Grind.instLawfulOrderLTInt)),
     (app ``Grind.OrderedRing #[int, srI, leI, ltI, preI], some (mkConst ``Grind.instOrderedRingInt)),
     (app ``NatCast #[int], some (mkConst ``instNatCastInt)),
     (app ``Max #[int], some (mkConst ``Int.instMax)),
@@ -162,11 +172,11 @@ private def builtinAlgebraicInsts : Std.HashMap Expr (Option Expr) :=
     (app ``Grind.AddRightCancel #[nat, mkConst ``instAddNat], some (mkConst ``Grind.instAddRightCancelNat)),
     (app ``Grind.NatModule #[nat], some nmN),
     (app ``Grind.NoNatZeroDivisors #[nat, nmN], some (mkConst ``Grind.instNoNatZeroDivisorsNat)),
-    (app ``Std.IsPreorder #[nat, leN], some preN),
-    (app ``Std.IsPartialOrder #[nat, leN], some (app ``Std.IsLinearOrder.toIsPartialOrder #[nat, leN, linN])),
-    (app ``Std.IsLinearPreorder #[nat, leN], some (app ``Std.IsLinearOrder.toIsLinearPreorder #[nat, leN, linN])),
-    (app ``Std.IsLinearOrder #[nat, leN], some linN),
-    (app ``Std.LawfulOrderLT #[nat, ltN, leN], some (mkConst ``Grind.instLawfulOrderLTNat)),
+    (ord ``Std.IsPreorder #[nat, leN], some preN),
+    (ord ``Std.IsPartialOrder #[nat, leN], some (ord ``Std.IsLinearOrder.toIsPartialOrder #[nat, leN, linN])),
+    (ord ``Std.IsLinearPreorder #[nat, leN], some (ord ``Std.IsLinearOrder.toIsLinearPreorder #[nat, leN, linN])),
+    (ord ``Std.IsLinearOrder #[nat, leN], some linN),
+    (ord ``Std.LawfulOrderLT #[nat, ltN, leN], some (mkConst ``Grind.instLawfulOrderLTNat)),
     (app ``Grind.OrderedRing #[nat, srN, leN, ltN, preN], some (mkConst ``Grind.instOrderedRingNat)),
     (app ``NatCast #[nat], some (mkConst ``instNatCastNat)),
     (app ``Max #[nat], some (mkConst ``Nat.instMax)),
@@ -176,6 +186,11 @@ private def builtinAlgebraicInsts : Std.HashMap Expr (Option Expr) :=
     (app ``Grind.CommSemiring #[prop], none),
     (app ``Grind.Semiring #[prop], none),
   ]
+
+private def builtinAlgebraicInstsTypeCarrier : Std.HashMap Expr (Option Expr) :=
+  mkBuiltinAlgebraicInsts .zero
+private def builtinAlgebraicInstsSortCarrier : Std.HashMap Expr (Option Expr) :=
+  mkBuiltinAlgebraicInsts (.succ .zero)
 
 /-- The semiring of `Int` that `Sym.Arith` classification derives from its commutative ring. -/
 private def intSemiring : Expr :=
@@ -217,8 +232,11 @@ private def builtinOutParamInst? (type : Expr) : MetaM (Option (Option Expr)) :=
   | _ => return none
 
 def synthInstanceMeta? (type : Expr) : MetaM (Option Expr) := do profileitM Exception "sym typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do
-  if let some inst := getBuiltinInstance? type then
+  let leCarrierIsSort ← leCarrierIsSort
+  if let some inst := getBuiltinInstance? leCarrierIsSort type then
     return inst
+  let builtinAlgebraicInsts :=
+    if leCarrierIsSort then builtinAlgebraicInstsSortCarrier else builtinAlgebraicInstsTypeCarrier
   if let some inst? := builtinAlgebraicInsts[type]? then
     let env ← getEnv
     if inst?.all (isDeclared env) then return inst?

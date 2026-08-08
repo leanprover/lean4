@@ -18,6 +18,7 @@ import Lean.Meta.Sym.Arith.VarRename
 import Lean.Meta.Sym.Arith.ToExpr
 import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas
+import Lean.CoreM
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 deriving instance Hashable for Int.Internal.Linear.Expr
@@ -573,7 +574,9 @@ private partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := cachin
     let h := mkApp4 (mkConst ``Grind.CommRing.norm_int_k) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
     return mkApp6 (mkConst ``Int.Internal.Linear.dvd_norm_poly) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
 
-private partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' <| hoisting c' c'.depth? c'.p (mkIntLE · (mkIntLit 0)) do
+private partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := do
+  let leLvl ← if (← leCarrierIsSort) then pure (1 : Level) else pure 0
+  caching c' <| hoisting c' c'.depth? c'.p (mkIntLE leLvl · (mkIntLit 0)) do
   trace[grind.debug.lia.proof] "{← c'.pp}"
   match c'.h with
   | .core e =>
@@ -634,7 +637,7 @@ private partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching 
   | .ofDiseqSplit c₁ fvarId h _ =>
     let p₂ := c₁.p.addConst 1
     let hFalse ← withReader ({ · with underDecVar := true }) h.toExprProofCore
-    let hNot := mkLambda `h .default (mkIntLE (← p₂.denoteExprUsingCurrVars) (mkIntLit 0)) (hFalse.abstract #[mkFVar fvarId])
+    let hNot := mkLambda `h .default (mkIntLE (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) (← p₂.denoteExprUsingCurrVars) (mkIntLit 0)) (hFalse.abstract #[mkFVar fvarId])
     return mkApp7 (mkConst ``Int.Internal.Linear.diseq_split_resolve)
       (← getContext) (← mkPolyDecl c₁.p) (← mkPolyDecl p₂) (← mkPolyDecl c'.p) eagerReflBoolTrue (← c₁.toExprProof) hNot
   | .cooper s =>
@@ -653,7 +656,7 @@ private partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching 
         (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr coeff) (← mkPolyDecl c'.p) (← s.toExprProof) eagerReflBoolTrue
   | .orHull e alts =>
     let q ← mkPolyDecl c'.p
-    let motive := mkIntLE (mkApp2 (mkConst ``Int.Internal.Linear.Poly.denote') (← getContext) q) (mkIntLit 0)
+    let motive := mkIntLE (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) (mkApp2 (mkConst ``Int.Internal.Linear.Poly.denote') (← getContext) q) (mkIntLit 0)
     mkOrHullProof q motive e (← mkOfEqTrue (← mkEqTrueProof e)) alts.toList
   | .reorder c => withPrevEpoch <| c.toExprProof
   | .commRingNorm c e p =>

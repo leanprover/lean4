@@ -9,6 +9,7 @@ public import Lean.Meta.Sym.Arith.Insts
 import Lean.Meta.Sym.SynthInstance
 import Lean.Meta.Sym.Canon
 import Lean.Meta.DecLevel
+import Lean.CoreM
 import Init.Grind.Ring
 public section
 
@@ -222,7 +223,8 @@ private def mkOrderedRingInst? (u : Level) (type : Expr) (semiringInst : Expr)
   synthInstance? <| mkApp5 (mkConst ``Grind.OrderedRing [u]) type semiringInst leInst ltInst isPreorderInst
 
 private def tryOrder? (type : Expr) : SymM (Option Nat) := do
-  let some u ← getDecLevel? type | return none
+  let some u ← (if (← leCarrierIsSort) then do return some (← normalizeLevel (← getLevel type)) else getDecLevel? type)
+    | return none
   let some leInst ← synthInstance? (mkApp (mkConst ``LE [u]) type) | return none
   let some isPreorderInst ← mkIsPreorderInst? u type (some leInst) | return none
   let isPartialInst? ← mkIsPartialOrderInst? u type (some leInst)
@@ -244,22 +246,30 @@ private def tryOrder? (type : Expr) : SymM (Option Nat) := do
   else match (← classify? type) with
     | .commRing ringId =>
       let ring := (← getArithState).rings[ringId]!
-      let some ordRingInst ← mkOrderedRingInst? u type ring.semiringInst leInst ltInst?.get! isPreorderInst
+      let some uRing ← (if (← leCarrierIsSort) then decLevel? u else pure (some u))
+        | pure (none, none, true, none, none, false)
+      let some ordRingInst ← mkOrderedRingInst? uRing type ring.semiringInst leInst ltInst?.get! isPreorderInst
         | pure (none, none, true, none, none, true)
       pure (some ringId, none, true, some ring.ringInst, some ordRingInst, true)
     | .nonCommRing ringId =>
       let ring := (← getArithState).ncRings[ringId]!
-      let some ordRingInst ← mkOrderedRingInst? u type ring.semiringInst leInst ltInst?.get! isPreorderInst
+      let some uRing ← (if (← leCarrierIsSort) then decLevel? u else pure (some u))
+        | pure (none, none, true, none, none, false)
+      let some ordRingInst ← mkOrderedRingInst? uRing type ring.semiringInst leInst ltInst?.get! isPreorderInst
         | pure (none, none, true, none, none, false)
       pure (some ringId, none, true, some ring.ringInst, some ordRingInst, false)
     | .commSemiring semiringId =>
       let sr := (← getArithState).semirings[semiringId]!
-      let some ordRingInst ← mkOrderedRingInst? u type sr.semiringInst leInst ltInst?.get! isPreorderInst
+      let some uRing ← (if (← leCarrierIsSort) then decLevel? u else pure (some u))
+        | pure (none, none, true, none, none, false)
+      let some ordRingInst ← mkOrderedRingInst? uRing type sr.semiringInst leInst ltInst?.get! isPreorderInst
         | pure (none, none, true, none, none, false)
       pure (none, some semiringId, true, none, some ordRingInst, false)
     | .nonCommSemiring semiringId =>
       let sr := (← getArithState).ncSemirings[semiringId]!
-      let some ordRingInst ← mkOrderedRingInst? u type sr.semiringInst leInst ltInst?.get! isPreorderInst
+      let some uRing ← (if (← leCarrierIsSort) then decLevel? u else pure (some u))
+        | pure (none, none, true, none, none, false)
+      let some ordRingInst ← mkOrderedRingInst? uRing type sr.semiringInst leInst ltInst?.get! isPreorderInst
         | pure (none, none, true, none, none, false)
       pure (none, some semiringId, false, none, some ordRingInst, false)
     | .none => pure (none, none, true, none, none, false)

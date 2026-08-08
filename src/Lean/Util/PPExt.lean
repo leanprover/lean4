@@ -64,13 +64,13 @@ builtin_initialize ppFnsRef : IO.Ref PPFns ←
   }
 
 builtin_initialize ppExt : EnvExtension PPFns ←
-  registerEnvExtension ppFnsRef.get
+  registerEnvExtension ppFnsRef.get (name := `pp)
 
 /--
-Pretty printing is a legitimate consumer of options that were captured inside a region with
-restricted option access (e.g. a trace message constructed during type class resolution):
-rendering happens outside the restricted computation and cannot contaminate its caches. Lift
-the restriction from the captured context.
+Pretty printing is a legitimate consumer of arbitrary extension state even when its context was
+captured inside a region with restricted extension access (e.g. a trace message constructed
+during type class resolution): rendering happens outside the restricted computation and cannot
+contaminate its caches. Lift the restriction from the captured environment.
 -/
 private def PPContext.unrestricted (ctx : PPContext) : PPContext :=
   { ctx with env  := ctx.env.setSynthRecording false

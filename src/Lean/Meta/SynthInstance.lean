@@ -32,6 +32,11 @@ register_builtin_option backward.synthInstance.canonInstances : Bool := {
   descr := "use optimization that relies on 'morally canonical' instances during type class resolution"
 }
 
+register_builtin_option debug.synthInstance.checkCacheHits : Bool := {
+  defValue := false
+  descr := "differentially validate type class resolution cache hits: re-run every served query from scratch and panic if the recomputed result differs from the cached one, which means a dependency of the entry was not recorded (development soak check; roughly doubles resolution cost)"
+}
+
 namespace SynthInstance
 
 def getMaxHeartbeats (opts : Options) : Nat :=
@@ -928,21 +933,28 @@ private def validOptionAccesses (opts : Options) (log : SynthOptionAccessLog) : 
   log.all fun a => opts.findUnrestricted? a.name == a.value
 
 /--
-Merges the dependencies observed by a nested query (or served from a used cache entry) into the
-enclosing query's accumulator: the enclosing query observed the nested result, so it depends on
-whatever the nested one did.
+Merges the environment dependencies observed by a nested query (or served from a used cache
+entry) into the enclosing query's accumulator. The enclosing query keeps its own
+`changeLogPos` and `tcGen`: they were captured when that query started, and the merged
+dependencies are validated against them like the query's own observations.
 -/
 private def _root_.Lean.SynthEnvDeps.mergeInto (child parent : SynthEnvDeps) : SynthEnvDeps :=
   let options := child.options.foldl (init := parent.options) fun l a =>
     if l.any (·.name == a.name) then l else l.push a
-  { parent with options }
+  let extGens := child.extGens.foldl (init := parent.extGens) fun l d =>
+    if l.any (·.1 == d.1) then l else l.push d
+  { parent with options, extGens }
 
 /--
-Identity of two dependency logs for entry replacement in `insertCachedResult`: the same option
-lookups with the same answers.
+Identity of two dependency logs for entry replacement in `insertCachedResult`: same option
+answers and same dependency *shape* (same extensions and reducibility declarations observed).
+The observed generations and statuses are deliberately not part of the identity: a fresh
+observation with the same shape supersedes the old entry, whose generations can never recur.
 -/
 private def sameDepIdentity (a b : SynthEnvDeps) : Bool :=
   a.options == b.options
+  && a.extGens.size == b.extGens.size
+  && a.extGens.all (fun d => b.extGens.any (·.1 == d.1))
 
 /--
 Inserts a result into the type class resolution cache (`Meta.Cache.synthInstance`), which has
@@ -958,13 +970,30 @@ private def insertCachedResult (key : SynthInstanceCacheKey) (log : SynthEnvDeps
   modifyCache fun c => { c with synthInstance := upsert c.synthInstance }
 
 /--
-Validates a cache entry's recorded dependencies against the current context: every recorded
-option lookup must give the same answer. Returns `none` if the entry may not be used.
+Validates a cache entry's recorded dependencies against the current context. Returns `none` if
+any recorded answer has changed; otherwise the entry may be used, and the returned Boolean
+indicates the log was *re-stamped*: `Environment.synthDepGen` had moved, all recorded
+dependencies re-answered identically, and the log now carries the current stamps (including
+the reducibility log position and birth watermark, so each log segment is scanned at most once
+per entry). The caller re-inserts a re-stamped entry.
+
+The status re-asks may record into the armed query's accumulator, which is benign: it
+over-approximates the current query's dependencies.
 -/
-private def validateDeps? (opts : Options) (_env : Environment)
+private def validateDeps? (opts : Options) (env : Environment)
     (log : SynthEnvDeps) : BaseIO (Option (SynthEnvDeps × Bool)) := do
   unless validOptionAccesses opts log.options do return none
-  return some (log, false)
+  -- Global short-circuit: while `Environment.synthDepGen` is unchanged, no recorded environment
+  -- dependency can have changed and the per-dependency checks are skipped.
+  if log.tcGen == env.synthDepGen then
+    return some (log, false)
+  for (idx, gen) in log.extGens do
+    unless (← EnvExtension.getRecordedGen env idx) == gen do return none
+  unless env.checkSynthChangeLog log.changeLogPos log.constBirthW do return none
+  return some ({ log with
+    tcGen := env.synthDepGen
+    changeLogPos := env.synthChangeLog.size
+    constBirthW := env.constBirthGen }, true)
 
 /--
 Returns the type class resolution cache entry for `key` from the transient
@@ -1047,14 +1076,18 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     | some n => pure n
     | none   => getRecordedOption synthInstance.maxSize
   -- The query's dependencies: result-relevant option lookups on the search path go through the
-  -- recording accessors (`getRecordedOption`) and flow into the accumulator
-  -- `Meta.Cache.synthEnvDeps`, which becomes the cache entry's dependency log, see
-  -- `SynthInstanceCache`. The enclosing query's accumulator (if any) is saved here and the
-  -- nested query's effective dependencies are merged into it on exit (`finally` below): the
-  -- enclosing query observed the result.
+  -- recording accessors (`getRecordedOption`), and observed environment dependencies are
+  -- recorded directly; both flow into the accumulator `Meta.Cache.synthEnvDeps`, which becomes
+  -- the cache entry's dependency log, see `SynthInstanceCache`. The enclosing query's
+  -- accumulator (if any) is saved here and the nested query's effective dependencies are
+  -- merged into it on exit (`finally` below): the enclosing query observed the result.
   let parentDeps := (← get).cache.synthEnvDeps
   let parentRecording := (← getEnv).synthRecording
-  modifyCache fun c => { c with synthEnvDeps := {} }
+  let fresh : SynthEnvDeps :=
+    { tcGen := (← getEnv).synthDepGen
+      changeLogPos := (← getEnv).synthChangeLog.size
+      constBirthW := (← getEnv).constBirthGen }
+  modifyCache fun c => { c with synthEnvDeps := fresh }
   setSynthRecording true
   try
   -- Restrict the ambient options: result-relevant by-name reads on the search path are diverted
@@ -1095,8 +1128,17 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type
     let { type, cacheKeyType, kind } ← preprocess type
+    -- The instance-table generation is recorded once per query here, covering every read of
+    -- the table on the search path.
+    recordExtGenAccess instanceExtension.ext.toEnvExtension.idx
+    let insts := instanceExtension.getState (recorded := true) (← getEnv)
     let cacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth,
-                      maxResultSize, defEqFlags := flags, limits }
+                      activeScopedInsts := instanceExtension.getActiveScopesWithEntries (recorded := true) (← getEnv),
+                      localAttrInsts := insts.localInstanceNames,
+                      erasedInsts := if insts.erased.isEmpty then #[]
+                        else insts.erased.fold (init := #[]) (·.push ·) |>.qsort Name.quickLt,
+                      maxResultSize, defEqFlags := flags, limits,
+                      isExporting := (← getEnv).isExporting }
     let runSearch : MetaM (Option AbstractMVarsResult) :=
       withNewMCtxDepth (allowLevelAssignments := true) do
         match kind with
@@ -1123,11 +1165,47 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
           SynthInstance.main (← preprocessOutParam type) maxResultSize
         | .mvarsNoOutputParams => SynthInstance.main type maxResultSize
         | .mvarsOutputParams => SynthInstance.main (← preprocessOutParam type) maxResultSize
+    -- Differential validation of a served hit (`debug.synthInstance.checkCacheHits`): recompute
+    -- the query from scratch and compare against the served result. The recompute bypasses the
+    -- entry under test by construction (the search body performs no cache lookup), and its
+    -- recorded dependencies flow into the current accumulator, which only strengthens the
+    -- entry's log. Raw `toString` is used for reporting: the pretty printer reads options by
+    -- name, which the ambient restriction diverts.
+    let checkHit (served? : Option AbstractMVarsResult) : MetaM Unit := do
+      -- deliberately unrestricted read: purely diagnostic, cannot influence a cached result
+      unless debug.synthInstance.checkCacheHits.getUnrestricted (← getOptions) do return
+      -- Fresh heartbeat budget: the recompute must not consume the query's own allowance. The
+      -- check is observation-only, so recompute exceptions are reported instead of propagated:
+      -- a search that throws where the cache had an answer is itself a divergence.
+      let fresh?? : Except String (Option AbstractMVarsResult) ←
+        try
+          .ok <$> withCurrHeartbeats runSearch
+        catch ex => do
+          let msg ← ex.toMessageData.toString
+          pure <| .error s!"exception: {msg}"
+      let pp : Option AbstractMVarsResult → String
+        | none => "none"
+        | some r => toString r.expr
+      let mismatch? : Option String := match fresh?? with
+        | .error e => some e
+        | .ok fresh? =>
+          let same := match served?, fresh? with
+            | none, none => true
+            | some a, some b => a.numMVars == b.numMVars && a.paramNames == b.paramNames && a.expr == b.expr
+            | _, _ => false
+          if same then none else some (pp fresh?)
+      if let some fresh := mismatch? then
+        -- the panic is the branch result: an unused pure binding would be dead-code-eliminated
+        panic! s!"type class resolution cache hit differs from recomputation for\n  \
+          {toString type}\ncached: {pp served?}\nrecomputed: {fresh}\n\
+          an environment dependency of the served entry was not recorded; see \
+          `Lean.EnvExtension.trackGen`"
     match ← findCachedResult? cacheKey with
     | some (entryLog, abstResult?) =>
       trace[Meta.synthInstance.cache] "cached: {type}"
       -- The used entry's dependencies become dependencies of this query.
       modifyCache fun c => { c with synthEnvDeps := entryLog.mergeInto c.synthEnvDeps }
+      checkHit abstResult?
       let result? ← applyCachedAbstractResult? type abstResult?
       trace[Meta.synthInstance] "result {result?} (cached)"
       return result?

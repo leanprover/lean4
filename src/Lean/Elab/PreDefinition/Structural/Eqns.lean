@@ -148,7 +148,8 @@ where
             throwError "no progress at goal\n{MessageData.ofGoal mvarId}"
 
 public builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ←
-  mkMapDeclarationExtension (exportEntriesFn := fun env s =>
+  -- covered: eqn info is registered when the definition is created (monotone, name-keyed)
+  mkMapDeclarationExtension (synthCovered := true) (exportEntriesFn := fun env s =>
     let all := s.toArray
     -- Do not export for non-exposed defs at exported/server levels
     let exported := s.filter (fun n _ => env.hasExposedBody n) |>.toArray

@@ -397,6 +397,26 @@ structure SynthInstanceCacheKey where
   -/
   synthPendingDepth : Nat
   /--
+  Namespaces with scoped instances that are currently activated (e.g. via `open`), in canonical
+  order. Keying the cache by this set keeps entries from outside a scope valid after the scope
+  ends, e.g. for the `open Classical in` expansion of `by_cases`.
+  -/
+  activeScopedInsts : Array Name
+  /--
+  Instances currently added with the `local` attribute kind (`Instances.localInstanceNames`).
+  Like `activeScopedInsts`, keying the cache by this set keeps entries from outside a scope
+  containing `attribute [local instance]` valid after the scope ends, and prevents entries
+  computed with the local instance from leaking out of the scope.
+  -/
+  localAttrInsts    : Array Name
+  /--
+  Instances currently erased via `attribute [-instance]` (`Instances.erased`), in canonical
+  order. Erasure is delimited by its surrounding scope like local instances, and entries are
+  keyed by it for the same reason: an entry (in particular a cached failure) computed under an
+  erasure must not be served once the surrounding scope ends and restores the instance.
+  -/
+  erasedInsts       : Array Name
+  /--
   Effective maximum result size (`synthInstance.maxSize` unless overridden by the caller).
   The cache persists across commands, so results (in particular failures) obtained under a
   different size limit must not be reused.
@@ -408,6 +428,11 @@ structure SynthInstanceCacheKey where
   (`SynthOptionAccessLog`).
   -/
   defEqFlags        : SynthDefEqFlags
+  /--
+  Value of `Environment.isExporting`: in the exporting state, fewer definitions can be unfolded,
+  which can change the result of typeclass resolution.
+  -/
+  isExporting       : Bool
   /--
   The resource limits in effect for the query (`maxHeartbeats`, `synthInstance.maxHeartbeats`,
   `maxRecDepth`, `exponentiation.threshold`). Exceeding a limit throws, and results are only
@@ -792,9 +817,6 @@ def mkInfoCacheKey (expr : Expr) (nargs? : Option Nat) : MetaM InfoCacheKey :=
 
 @[inline] def resetDefEqPermCaches : MetaM Unit :=
   modifyDefEqPermCache fun _ => {}
-
-@[inline] def resetSynthInstanceCache : MetaM Unit :=
-  modifyCache fun c => {c with synthInstance := {}}
 
 @[inline] def modifyDiag (f : Diagnostics → Diagnostics) : MetaM Unit := do
   if (← isDiagnosticsEnabled) then
@@ -1306,6 +1328,19 @@ private def recordOptionAccess (access : SynthOptionAccess) : MetaM Unit := do
     let d := (← get).cache.synthEnvDeps
     unless d.options.any (·.name == access.name) do
       modifyCache fun c => { c with synthEnvDeps.options := c.synthEnvDeps.options.push access }
+
+/--
+Records the current generation of the generation-tracked extension with registration index
+`extIdx` in the recording query's accumulator, if any; the read-side counterpart of the
+`EnvExtension.trackGen` bump. Call sites record the generation through this accessor and then
+read the state itself with `(recorded := true)`.
+-/
+def recordExtGenAccess (extIdx : Nat) : MetaM Unit := do
+  if (← getEnv).synthRecording then
+    let d := (← get).cache.synthEnvDeps
+    unless d.extGens.any (·.1 == extIdx) do
+      let gen ← EnvExtension.getRecordedGen (← getEnv) extIdx
+      modifyCache fun c => { c with synthEnvDeps.extGens := c.synthEnvDeps.extGens.push (extIdx, gen) }
 
 /--
 Reads an option on the type class resolution path, recording the lookup as an option dependency

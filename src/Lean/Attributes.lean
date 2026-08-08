@@ -180,9 +180,11 @@ structure TagAttribute where
 def registerTagAttribute (name : Name) (descr : String)
     (validate : Name → AttrM Unit := fun _ => pure ()) (ref : Name := by exact decl_name%)
     (applicationTime := AttributeApplicationTime.afterTypeChecking)
-    (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO TagAttribute := do
+    (asyncMode : EnvExtension.AsyncMode := .mainOnly)
+    (synthCovered : Bool := false) : IO TagAttribute := do
   let ext : PersistentEnvExtension Name Name NameSet ← registerPersistentEnvExtension {
     name            := ref
+    synthCovered    := synthCovered
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameSet) n => s.insert n
@@ -210,7 +212,11 @@ def registerTagAttribute (name : Name) (descr : String)
       unless ext.toEnvExtension.asyncMayModify env decl do
         throwAttrNotInAsyncCtx name decl env.asyncPrefix?
       validate decl
-      modifyEnv fun env => ext.addEntry (asyncDecl := decl) env decl
+      modifyEnv fun env =>
+        -- a post-hoc application some recording query could have observed must be recorded for
+        -- covered attributes; see `Environment.synthChangeLog`
+        let env := if synthCovered then env.logSynthChange decl else env
+        ext.addEntry (asyncDecl := decl) env decl
   }
   registerBuiltinAttribute attrImpl
   return { attr := attrImpl, ext := ext }
@@ -262,10 +268,12 @@ structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
 
 def registerParametricAttributeExt (ref : Name) (preserveOrder : Bool := false)
     (filterExport : Environment → Name → α → Bool := fun env n _ =>
-      env.contains (skipRealize := false) n) :
+      env.contains (skipRealize := false) n)
+    (synthCovered : Bool := false) :
     IO (PersistentEnvExtension (Name × α) (Name × α) (List Name × NameMap α)) :=
   registerPersistentEnvExtension {
     name            := ref
+    synthCovered    := synthCovered
     mkInitial       := pure ([], {})
     addImportedFn   := fun _ => pure ([], {})
     addEntryFn      := fun (decls, m) (p : Name × α) => (p.1 :: decls, m.insert p.1 p.2)

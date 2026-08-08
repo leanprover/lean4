@@ -397,6 +397,22 @@ def runFrontend
     }
     IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
 
+  -- Per-declaration heartbeat costs always ride the build, like `.ilean` files: one
+  -- `<module>.hb.json` next to the `.olean`.
+  if let some oleanFileName := oleanFileName? then
+    if let some sink := cmdState.heartbeatsRef? then
+      let entries ← sink.get
+      let path := oleanFileName.withExtension "hb.json"
+      IO.FS.writeFile path <| Json.compress <| Json.mkObj [
+        ("module", mainModuleName.toString),
+        ("unit", "raw"),
+        ("entries", Json.arr <| entries.map fun e => Json.mkObj [
+          ("owner", e.owner.toString),
+          ("decl", e.declName.toString),
+          ("phase", e.phase.toString),
+          ("heartbeats", toJson e.heartbeats)])
+      ]
+
   if let some out := trace.profiler.output.get? opts then
     let traceStates := snaps.getAll.map (·.traces)
     let profile ← Firefox.Profile.export mainModuleName.toString startTime traceStates opts

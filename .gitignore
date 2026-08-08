@@ -1,6 +1,7 @@
 *~
 \#*
 .#*
+*.hb.json
 .lake
 lake-manifest.json
 /build

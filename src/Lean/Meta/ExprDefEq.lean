@@ -61,6 +61,19 @@ register_builtin_option backward.isDefEq.respectTransparency.types : Bool := {
 }
 
 /--
+Controls whether, when checking the type of an assignment to an instance-implicit (`[..]`)
+metavariable, the transparency is capped at `.instances` so an ambient `.default`/`.all`
+does not let semireducible definitions be unfolded.
+
+This option only has an effect when `backward.isDefEq.respectTransparency.types` is `true`.
+-/
+register_builtin_option backward.isDefEq.respectTransparency.instances : Bool := {
+  defValue := true
+  descr    := "if true (the default), cap transparency at `.instances` when checking the type \
+  of an assignment to an instance-implicit metavariable"
+}
+
+/--
 Controls whether non-instance implicit arguments get their transparency bumped to
 `TransparencyMode.implicit` during `isDefEq`.
 
@@ -499,7 +512,21 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
       let mvarType ← inferType mvar
       let vType ← inferType v
       if (← respectTransparencyAtTypes) then
-        withImplicitConfig do
+        -- For instance metavariables — those created for an instance-implicit (`[..]`) parameter,
+        -- identified by `.synthetic` kind together with a class type — cap the transparency at
+        -- exactly `.instances` so an ambient `.default`/`.all` does not let semireducible
+        -- definitions be unfolded while checking the type of an instance assignment. This
+        -- intentionally does not apply to ordinary implicit (`{..}`) metavariables that happen
+        -- to have a class type, which are created with `.natural` kind.
+        let isInstance ←
+          if backward.isDefEq.respectTransparency.instances.get (← getOptions) &&
+              (← mvar.mvarId!.getKind) matches .synthetic then
+            pure (← isClass? mvarType).isSome
+          else
+            pure false
+        let capInstance (x : MetaM Bool) : MetaM Bool :=
+          if isInstance then withTransparency .instances x else x
+        capInstance <| withImplicitConfig do
           if (← Meta.isExprDefEqAux mvarType vType) then
             mvar.mvarId!.assign v
             return true

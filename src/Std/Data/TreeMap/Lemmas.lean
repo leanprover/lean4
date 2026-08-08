@@ -9,6 +9,7 @@ prelude
 import Std.Data.DTreeMap.Lemmas
 public import Std.Data.TreeMap.AdditionalOperations
 public import Init.Data.Array.Perm
+public import Std.Internal.ForIn.Basic
 import Init.Data.List.Pairwise
 
 @[expose] public section
@@ -1018,6 +1019,14 @@ theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m]
     {f : α × β → δ → m (ForInStep δ)} {init : δ} :
     ForIn.forIn t init f = ForIn.forIn t.toList init f :=
   DTreeMap.Const.forInUncurried_eq_forIn_toList
+
+@[simp, grind =]
+theorem forIn_toList (c : TreeMap α β cmp) : ForIn.toList c = c.toList :=
+  Std.Internal.ForIn.toList_eq_of_forIn_eq fun _ _ => forIn_eq_forIn_toList
+
+instance [Monad m] [LawfulMonad m] :
+    Std.Internal.PureForIn m (TreeMap α β cmp) (α × β) where
+  forIn_eq _ _ _ := by rw [forIn_toList]; exact forIn_eq_forIn_toList
 
 theorem forIn_eq_forIn_toArray [Monad m] [LawfulMonad m]
     {f : α × β → δ → m (ForInStep δ)} {init : δ} :

@@ -99,6 +99,7 @@ is marked done regardless of whether a rule fires. Otherwise it tries in order:
 
 - `cbvEntry`: reduces a single expression (used by `conv => cbv`)
 - `cbvGoal`: reduces the goal target (used by the `cbv` tactic)
+- `cbvHyp`: reduces a hypothesis type (used by `cbv at`)
 - `cbvDecideGoal`: reduces `decide P = true` and closes or errors (used by `decide_cbv`)
 -/
 
@@ -421,6 +422,34 @@ public def cbvGoalCore (mvarId : MVarId) : Sym.SymM (Option MVarId) := do
     let s ← Meta.saveState
     try mvarIdNew.refl; return none
     catch _ => s.restore; return some mvarIdNew
+
+/--
+Reduce the type of hypothesis `fvarId` using call-by-value evaluation, in its own
+`SymM` session (like `conv at h => cbv`). The local context is only mutated after
+the session ends, so the `SymM` incrementality invariant is preserved.
+-/
+public def cbvHyp (mvarId : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) :=
+  mvarId.withContext do
+    let localDecl ← fvarId.getDecl
+    let type ← instantiateMVars localDecl.type
+    let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
+    let result ← withTraceNode `Meta.Tactic.cbv (fun
+        | .ok (Result.step type' ..) => return m!"hypothesis `{localDecl.userName}`:{indentExpr type}\n==>{indentExpr type'}"
+        | .ok (Result.rfl ..)        => return m!"hypothesis `{localDecl.userName}`: no change"
+        | .error err                 => return m!"hypothesis `{localDecl.userName}`: {err.toMessageData}") do
+      let type ← Sym.unfoldReducible type
+      Sym.SymM.run do
+        Sym.withoutShareCommonChecks do
+          let type ← Sym.shareCommon type
+          cbvCore type config
+    match result with
+    | .rfl .. => return some mvarId
+    | .step type' proof _ _ =>
+      if type'.isFalse then
+        mvarId.assign (← mkFalseElim (← mvarId.getType) (← mkEqMP proof localDecl.toExpr))
+        return none
+      else
+        return some (← mvarId.replaceLocalDecl fvarId type' proof).mvarId
 
 /--
 Reduce the goal target using call-by-value evaluation.

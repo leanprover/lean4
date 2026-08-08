@@ -47,18 +47,35 @@ do
   unless c✝ do
     pure✝ ()
 do
+  assert 0 ≤ acc✝
+do
+  assert s✝ => s✝ ≤ acc✝
+do
   for x✝ in xs✝ invariant pref✝ suff✝ => 0 ≤ acc✝ do
     pure✝ ()
 do
   for x✝ in xs✝ invariant pref✝ suff✝ s✝ => s✝ ≤ acc✝ do
     pure✝ ()
-def clampLow✝ (n✝ lo✝ : Nat✝) : Id✝ Nat✝ requires lo✝ ≤ n✝ ensures r✝ => r✝ = n✝ :=
+def clampLow✝ (n✝ lo✝ : Nat✝) : Id✝ Nat✝
+    requires lo✝ ≤ n✝
+    ensures r✝ => r✝ = n✝ :=
   pure✝ n✝
-def k✝ (x✝ : Nat✝) requires s✝ => s✝ > x✝ ensures r✝ => r✝ ≥ x✝ :=
+def k✝ (x✝ : Nat✝)
+    requires s✝ => s✝ > x✝
+    ensures r✝ => r✝ ≥ x✝ :=
   pure✝ x✝
-def g✝ (x✝ : Nat✝) requires x✝ > 0 ensures r✝ => r✝ ≥ x✝ :=
+def g✝ (x✝ : Nat✝)
+    requires x✝ > 0
+    ensures r✝ => r✝ ≥ x✝ :=
   pure✝ x✝
-def h✝ (x✝ : Nat✝) : Id✝ Nat✝ ensures r✝ => r✝ = x✝ :=
+def m✝ (x✝ : Nat✝)
+    requires x✝ > 0
+    ensures
+      | 0 => False✝
+      | (n✝ + 1) => n✝ ≥ x✝ :=
+  pure✝ x✝
+def h✝ (x✝ : Nat✝) : Id✝ Nat✝
+    ensures r✝ => r✝ = x✝ :=
   pure✝ x✝
 where
 finally

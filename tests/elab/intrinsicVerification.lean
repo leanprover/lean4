@@ -1,4 +1,5 @@
 import Std.Internal.Do
+import Std.Data.HashMap
 
 /-! Tests for `def` contracts. A `def` carrying `requires`/`ensures` clauses elaborates to the
 definition plus an `@[spec]`-tagged `f.spec` Hoare triple that `vcgen` proves automatically; a
@@ -63,29 +64,6 @@ def findSmallest (s : Array Nat) : Id (Option Nat)
 #guard_msgs (drop info) in
 #check @findSmallest.spec
 
-/-! ## A contract over a membership-proof binder (`for h : x in xs invariant …`) -/
-
-def sumWithMem (xs : List Nat) : Id Nat
-    ensures r => 0 ≤ r := do
-  let mut acc := 0
-  for h : x in xs invariant _pref _suff => 0 ≤ acc do
-    acc := acc + x
-  return acc
-
-#guard_msgs (drop info) in
-#check @sumWithMem.spec
-
--- The membership binder also works over a legacy `Range`.
-def sumRangeMem (n : Nat) : Id Nat
-    ensures r => 0 ≤ r := do
-  let mut acc := 0
-  for h : i in [0:n] invariant _pref _suff => 0 ≤ acc do
-    acc := acc + i
-  return acc
-
-#guard_msgs (drop info) in
-#check @sumRangeMem.spec
-
 /-! ## An invariant over the monad's own state
 
 The invariant need not mention a mutable variable: here it constrains the `StateM` state. -/
@@ -100,6 +78,71 @@ def sumIntoState (xs : List Nat) : StateM Nat Unit
 #guard_msgs (drop info) in
 #check @sumIntoState.spec
 
+/-! ## `assert` states a property at a point in the program
+
+The bare form asserts a term; the binder form binds the assertion's own arguments, such as the
+state of a state monad. -/
+
+def assertDouble (n : Nat) : Id Nat
+    requires n > 0
+    ensures r => r ≥ 2
+  := do
+  let d := 2 * n
+  assert d ≥ 2
+  return d
+
+#guard_msgs (drop info) in
+#check @assertDouble.spec
+
+def assertIntoState (xs : List Nat) : StateM Nat Unit
+    requires s => s = 0
+    ensures _ s => s = xs.sum
+  := do
+  assert s => s = 0
+  for x in xs invariant pref _ s => s = pref.sum do
+    modify (· + x)
+
+#guard_msgs (drop info) in
+#check @assertIntoState.spec
+
+/-! The binders accept a type ascription, as in `fun`. -/
+
+def assertAscribed (xs : List Nat) : StateM Nat Unit
+    requires s => s = 0
+    ensures _ s => s = xs.sum
+  := do
+  assert s : Nat => s = 0
+  for x in xs invariant pref _ s => s = pref.sum do
+    modify (· + x)
+
+#guard_msgs (drop info) in
+#check @assertAscribed.spec
+
+/-! An assertion that does not follow is reported like any other undischarged condition. -/
+
+/--
+error: unproved verification conditions for the contract of `assertUnprovable`; discharge them in a `where finally | spec => ...` section of the definition
+case vc1
+n : Nat
+⊢ 0 < n
+-/
+#guard_msgs in
+def assertUnprovable (n : Nat) : Id Nat
+    ensures r => r = n
+  := do
+  assert n > 0
+  return n
+
+/-! `assert!` keeps its runtime meaning: it tests a `Bool` and panics, with no gadget involved. -/
+
+def runtimeAssert (n : Nat) : Id Nat := do
+  assert! n > 0
+  return n
+
+/-- info: 3 -/
+#guard_msgs in
+#eval runtimeAssert 3
+
 /-! ## The `invariant` clause needs at least two binders -/
 
 /--
@@ -111,6 +154,112 @@ example (xs : List Nat) : Id Nat := do
   for x in xs invariant _pref => 0 ≤ acc do
     acc := acc + x
   return acc
+
+/-! ## A loop over an `Array`, with and without a membership-proof binder
+
+The membership binder (`for h : x in xs`) is covered here rather than per container. -/
+
+def sumArray (xs : Array Nat) : Id Nat
+    ensures r => r = xs.toList.sum := do
+  let mut acc := 0
+  for x in xs invariant pref _ => acc = pref.sum do
+    acc := acc + x
+  return acc
+
+#guard_msgs (drop info) in
+#check @sumArray.spec
+
+def sumArrayMem (xs : Array Nat) : Id Nat
+    ensures r => r = xs.toList.sum := do
+  let mut acc := 0
+  for h : x in xs invariant pref _ => acc = pref.sum do
+    acc := acc + x
+  return acc
+
+#guard_msgs (drop info) in
+#check @sumArrayMem.spec
+
+/-! ## A loop over a `HashMap`, through its `PureForIn` instance
+
+The container needs no specification of its own: stating that its loop is effect-free is enough
+for the `invariant` clause to work, and the binder may destructure. -/
+
+def sumValues (m : Std.HashMap Nat Nat) : Id Nat
+    ensures r => 0 ≤ r := do
+  let mut s := 0
+  for (_k, v) in m invariant _pref _suff => 0 ≤ s do
+    s := s + v
+  return s
+
+#guard_msgs (drop info) in
+#check @sumValues.spec
+
+/-! A loop over several collections takes no invariant. -/
+
+/-- error: The `invariant` clause takes a `for` loop over a single collection. -/
+#guard_msgs in
+example (xs ys : List Nat) : Id Unit := do
+  for _ in xs, _ in ys invariant _ _ => True do pure ()
+
+/-! A container whose loop is not effect-free is reported at the clause. -/
+
+/--
+error: failed to synthesize instance of type class
+  Std.Internal.PureForIn Id String Char
+The `invariant` clause is stated over this class, which says that iterating the container produces its elements without effects.
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+-/
+#guard_msgs in
+example (s : String) : Id Unit := do
+  for _c in s invariant _ _ => True do pure ()
+
+/-! ## The `invariant` clause ascribes types per binder
+
+An ascription after the binder list would cover the loop binders and the assertion binders alike. -/
+
+/--
+error: The `invariant` clause takes no type ascription covering all its binders; ascribe the type on an individual binder, as in `invariant (pref : List α) suff => ...`.
+-/
+#guard_msgs in
+example (xs : List Nat) : Id Nat := do
+  let mut acc := 0
+  for x in xs invariant pref suff : List Nat => 0 ≤ acc do
+    acc := acc + x
+  return acc
+
+/-! ## The clause binders accept a type ascription, as in `fun` -/
+
+def requiresAscribed (xs : List Nat) : StateM Nat Unit
+    requires s : Nat => s = 0
+    ensures _ s => s = xs.sum
+  := do
+  for x in xs invariant pref _ s => s = pref.sum do
+    modify (· + x)
+
+#guard_msgs (drop info) in
+#check @requiresAscribed.spec
+
+def ensuresAscribed (n : Nat) : Id Nat
+    ensures r : Nat => r ≥ n
+  := pure n
+
+/-- info: ensuresAscribed.spec : ∀ (n : Nat), ⦃ ⊤ ⦄ ensuresAscribed n ⦃ fun r => r ≥ n ⦄ -/
+#guard_msgs in
+#check @ensuresAscribed.spec
+
+/-! ## An `ensures` clause written with match alternatives
+
+The clause is a `fun`, so it may state the postcondition per shape of the result. -/
+
+def halve (n : Nat) : Id (Option Nat)
+    ensures
+      | none => False
+      | some v => 2 * v ≤ n
+  := pure (some (n / 2))
+
+#guard_msgs (drop info) in
+#check @halve.spec
 
 /-! ## The contract telescope is transplanted faithfully to `f.spec`
 

@@ -134,6 +134,19 @@ theorem frameClosure_le {R : Type v} {β : Type w} (op : R → α → α) [∀ r
 
 end PreservesSup
 
+/-- Frame elimination: a join on the left of a meet is eliminated pointwise. -/
+theorem iSup_meet_le {ι : Type v} {P R : α} {Φ : ι → α} [PreservesSup (meet P)]
+    (h : ∀ i, Φ i ⊓ P ⊑ R) : iSup Φ ⊓ P ⊑ R := by
+  refine PartialOrder.rel_trans
+    (le_meet _ _ _ (meet_le_right _ _) (meet_le_left _ _)) ?_
+  show meet P (iSup Φ) ⊑ R
+  unfold iSup
+  rw [PreservesSup.map_sup (f := meet P)]
+  apply sup_le
+  rintro y ⟨x, ⟨i, rfl⟩, rfl⟩
+  exact PartialOrder.rel_trans
+    (le_meet _ _ _ (meet_le_right _ _) (meet_le_left _ _)) (h i)
+
 /-- Frame a single state coordinate: from the function-order premise `(fun u => ⌜u = s⌝ ⊓ pre) ⊑ Q`
 conclude the point entailment `pre ⊑ Q s`. Instantiating the premise at `u := s` collapses
 `⌜s = s⌝ ⊓ pre` to `pre`. Iterating it over a state chain point-frames `pre ⊑ Q s₁ … sₙ` to the

@@ -132,11 +132,12 @@ def declSig := leading_parser
 /-- The `requires P` precondition clause of a `def` contract. The form `requires s => P s` binds the
 arguments of the assertion itself, such as the state of a state monad. -/
 def requiresClause := leading_parser
-  ppIndent (ppSpace >> nonReservedSymbol "requires" >>
+  ppIndent (ppLine >> nonReservedSymbol "requires" >>
     withForbidden "ensures" (atomic Term.basicFun <|> (ppSpace >> termParser)))
 /-- The `ensures b => Q` postcondition clause of a `def` contract, binding the result `b`. -/
 def ensuresClause := leading_parser
-  ppIndent (ppSpace >> nonReservedSymbol "ensures" >> Term.basicFun)
+  ppIndent (ppLine >> nonReservedSymbol "ensures" >>
+    (Term.basicFun <|> ppIndent Term.matchAlts))
 /-- The `: type` of a `def`. It may carry contract clauses, so we forbid `requires`/`ensures` in the type. -/
 def defTypeSpec := withForbiddens #["requires", "ensures"] Term.typeSpec
 /-- `optDeclSig` matches the signature of a declaration with optional type: a list of binders and then possibly `: type` -/

@@ -11,6 +11,7 @@ public import Std.Tactic.BVDecide.LRAT
 public import Std.Tactic.BVDecide.Normalize
 public import Std.Tactic.BVDecide.Reflect
 public import Std.Tactic.BVDecide.Syntax
+public import Init.Sym.Lemmas
 
 @[expose] public section
 

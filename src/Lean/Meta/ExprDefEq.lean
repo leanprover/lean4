@@ -82,6 +82,46 @@ register_builtin_option backward.isDefEq.implicitBump : Bool := {
   not just instance-implicit ones"
 }
 
+/--
+Controls how a failing comparison of two applications invokes `isDefEqOnFailure`.
+
+**Original behavior (`true`):** once before `isDefEqProjInst`, `isDefEqStringLit` and
+`isDefEqUnitLike`, and once again after them, querying the unification hint discrimination tree
+four times instead of two. A stuck abort raised by the first invocation escapes immediately, so
+the three heuristics in between never run.
+
+**New behavior (`false`, the default):** once, before those heuristics. A stuck abort is deferred
+until they have had their chance, and re-raised if they all decline.
+-/
+register_builtin_option backward.isDefEq.appOnFailure : Bool := {
+  defValue := false
+  descr    := "if true, run the stuck-metavariable and unification-hint pass both before and \
+  after the remaining `isExprDefEqExpensive` heuristics, instead of only before them"
+}
+
+/--
+Controls whether assignments to instance-typed metavariables (see
+`MetavarContext.instanceTypedMVars`) are restricted so that the final value of a
+metavariable created for an instance-implicit argument has the type the metavariable was
+created with, up to `TransparencyMode.instances`. This prevents unification from committing
+to an instance for a type that is different at instance-resolution time. See issue #9077.
+
+With `true`, the value must be one instance synthesis could have produced: either the candidate
+value already is such a value — its type matches at `.instances` transparency and the
+metavariables in its type-determining (spine) positions are themselves instance-typed or not
+assignable by `isDefEq` — or the instance is synthesized directly and the candidate must be
+definitionally equal to the result. If synthesis fails, the assignment, and with it the current
+unification attempt, fails.
+
+With `false`, there is no restriction (the behavior before the fix for issue #9077).
+-/
+register_builtin_option backward.isDefEq.instanceTypes : Bool := {
+  defValue := true
+  descr    := "if true, restrict assignments to instance metavariables to values instance \
+  synthesis could have produced, preserving the metavariable's type up to `.instances` \
+  transparency"
+}
+
 register_builtin_option trace.Meta.isDefEq.printTransparency : Bool := {
   defValue := false
   descr    := "if true, prefix `Meta.isDefEq` `=?=` trace messages with the current transparency level"
@@ -286,6 +326,23 @@ inductive DefEqArgsFirstPassResult where
   | ok (postponedImplicit : Array Nat) (postponedHO : Array Nat)
 
 /--
+Ensure `MetaM` configuration is strong enough for checking definitional equality of
+implicit and instance-implict arguments as well as assigned mvar types. Bumps transparency to at
+least `.implicit`, so both `[instance_reducible]` and `[implicit_reducible]` unfold.
+-/
+@[inline] def withImplicitConfig (x : MetaM α) : MetaM α := do
+  let old ← getTransparency
+  if old.lt .implicit then
+    trace[Meta.isDefEq.transparency]
+      "raising transparency {toString old} → implicit"
+  withAtLeastTransparency .implicit do
+    let cfg ← getConfig
+    if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaHave && cfg.zetaDelta && cfg.proj == .yesWithDelta then
+      x
+    else
+      withConfig (fun cfg => { cfg with beta := true, iota := true, zeta := true, zetaHave := true, zetaDelta := true, proj := .yesWithDelta }) x
+
+/--
   First pass for `isDefEqArgs`. We unify explicit arguments, *and* easy cases
   Here, we say a case is easy if it is of the form
 
@@ -318,6 +375,9 @@ inductive DefEqArgsFirstPassResult where
 -/
 private def isDefEqArgsFirstPass
     (paramInfo : Array ParamInfo) (args₁ args₂ : Array Expr) : MetaM DefEqArgsFirstPassResult := do
+  let opts ← getOptions
+  let respectTransparency := backward.isDefEq.respectTransparency.get opts
+  let implicitBump := backward.isDefEq.implicitBump.get opts
   let mut postponedImplicit := #[]
   let mut postponedHO := #[]
   for h : i in *...paramInfo.size do
@@ -338,8 +398,17 @@ private def isDefEqArgsFirstPass
       unless (← Meta.isExprDefEqAux a₁ a₂) do
         return .failed
     else if (← isEtaUnassignedMVar a₁ <||> isEtaUnassignedMVar a₂) then
-      unless (← Meta.isExprDefEqAux a₁ a₂) do
-        return .failed
+      /- Easy cases are still argument unifications at an implicit position, so they get the same
+         transparency bump as the second pass: whether an argument is checked at `.implicit`
+         should not depend on which side happens to be an unassigned metavariable. In particular,
+         the assignment triggered here — including the type check and `instanceTypes` fallbacks
+         run by `checkTypesAndAssign` — sees the bumped ambient transparency. -/
+      if respectTransparency && (info.binderInfo.isInstImplicit || implicitBump) then
+        unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do
+          return .failed
+      else
+        unless (← Meta.isExprDefEqAux a₁ a₂) do
+          return .failed
     else
       if info.isProp then
         unless ← isAbstractedUnassignedMVar a₁ <||> isAbstractedUnassignedMVar a₂ do
@@ -352,16 +421,12 @@ private def isDefEqArgsFirstPass
   return .ok postponedImplicit postponedHO
 
 /--
-Ensure `MetaM` configuration is strong enough for checking definitional equality of
-implicit and instance-implict arguments as well as assigned mvar types. Bumps transparency to at
-least `.implicit`, so both `[instance_reducible]` and `[implicit_reducible]` unfold.
+Like `withImplicitConfig`, but sets transparency to exactly `.instances`: instance-typed
+metavariable assignments must preserve the type at `.instances` even when the ambient
+transparency is higher.
 -/
-@[inline] def withImplicitConfig (x : MetaM α) : MetaM α := do
-  let old ← getTransparency
-  if old.lt .implicit then
-    trace[Meta.isDefEq.transparency]
-      "raising transparency {toString old} → implicit"
-  withAtLeastTransparency .implicit do
+@[inline] def withInstancesConfig (x : MetaM α) : MetaM α := do
+  withTransparency .instances do
     let cfg ← getConfig
     if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaHave && cfg.zetaDelta && cfg.proj == .yesWithDelta then
       x
@@ -489,11 +554,107 @@ abbrev respectTransparencyAtTypes : CoreM Bool := do
   let opts ← getOptions
   return backward.isDefEq.respectTransparency.types.get opts && backward.isDefEq.respectTransparency.get opts
 
+/--
+Return `true` if all metavariables in type-determining (spine) positions of `e` are
+admissible in a value assigned to an instance-typed metavariable under
+`backward.isDefEq.instanceTypes` (see `MetavarContext.instanceTypedMVars`). Admissible are:
+- instance-typed metavariables: their own assignments are subject to the same restriction;
+- metavariables `isDefEq` cannot assign (from an outer `MetavarContext` depth, or synthetic
+  opaque): the current instance search cannot commit them to a wrong-typed value, and their
+  eventual assignment is governed by whoever created them (e.g. the elaborator's pending
+  instance metavariables, which are synthesized against their recorded type).
+
+Only spine positions matter: `inferType` consults the type of a subterm only there (the head
+of an application, the body of a lambda or `let`, the structure of a projection). A
+metavariable in argument position enters the inferred type only by substitution, so
+instantiating it changes the value's type and its occurrences in the already-checked
+expected type in the same way.
+
+A delayed-assigned spine metavariable need not be admissible itself — it will never be
+assigned directly — but the spine of its pending metavariable is checked instead.
+-/
+partial def spineMVarsAdmissible (e : Expr) : MetaM Bool := go e
+where
+  go (e : Expr) : MetaM Bool := do
+    unless e.hasExprMVar do return true
+    match e with
+    | .mvar mvarId =>
+      if let some d ← getDelayedMVarAssignment? mvarId then
+        go (mkMVar d.mvarIdPending)
+      else
+        mvarId.isInstanceTyped <||> mvarId.isReadOnlyOrSyntheticOpaque
+    | .app f _ => go f
+    | .lam _ _ b _ => go b
+    | .letE _ _ v b _ => go v <&&> go b
+    | .proj _ _ s => go s
+    | .mdata _ b => go b
+    | _ => return true
+
+/--
+Type check for assignments to instance-typed metavariables: the value's type must agree with
+the metavariable's type at `.instances` transparency.
+
+The check is *eta-tolerant*: when the types are function types whose binder domains agree
+only above `.instances` (e.g. across a semireducible synonym like Mathlib's `OrderDual`), we
+accept the value as long as the codomain — where instance selection actually happens —
+agrees at `.instances` for the metavariable type's own binders. Without this, acceptance
+would depend on which eta-representative of the value the unifier happened to build
+(`tryResolve` eta-reduces answers, so `fun i : Dual ι => inst i` becomes the bare `inst`,
+whose inferred type has the `ι` binder). The full types must still agree at the ordinary
+transparency, ensuring the assignment remains type-correct.
+-/
+private def checkInstanceTypedTypes (mvarType vType v : Expr) : MetaM Bool := do
+  if (← withInstancesConfig <| Meta.isExprDefEqAux mvarType vType) then
+    return true
+  unless mvarType.isForall do return false
+  let oldOk ← if (← respectTransparencyAtTypes) then
+    withImplicitConfig <| Meta.isExprDefEqAux mvarType vType
+  else
+    withInferTypeConfig <| Meta.isExprDefEqAux mvarType vType
+  unless oldOk do return false
+  forallTelescope mvarType fun xs body => do
+    withInstancesConfig <| Meta.isExprDefEqAux body (← inferType (mkAppN v xs))
+
+/--
+Fallback for assignments to instance-typed metavariables under
+`backward.isDefEq.instanceTypes` when the candidate value `v` is not directly acceptable:
+synthesize the instance for the metavariable's type, assign it, and require `v` to be
+definitionally equal to the synthesized instance. This mirrors the elaboration order in
+which instance arguments were synthesized first and only then unified. Fails without
+modifying the state if synthesis fails or if `v` does not match the synthesized instance.
+-/
+private def synthInstanceTypedMVarAndUnify (mvar v : Expr) : MetaM Bool := do
+  checkpointDefEq do
+    unless (← Meta.synthPending mvar.mvarId!) do
+      if (← isDiagnosticsEnabled) then
+        trace[diagnostics] "failure when assigning instance metavariable with type{indentExpr (← inferType mvar)}\nthe candidate value{indentExpr v}\nwas rejected and the instance could not be synthesized directly.\nWorkaround: `set_option backward.isDefEq.instanceTypes false`"
+      return false
+    let inst ← instantiateMVars mvar
+    if (← Meta.isExprDefEqAux v inst) then
+      return true
+    else
+      if (← isDiagnosticsEnabled) then
+        trace[diagnostics] "failure when assigning instance metavariable with type{indentExpr (← inferType mvar)}\nthe rejected candidate value{indentExpr v}\nis not definitionally equal to the synthesized instance{indentExpr inst}\nWorkaround: `set_option backward.isDefEq.instanceTypes false`"
+      return false
+
 private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
   withTraceNodeBefore `Meta.isDefEq.assign.checkTypes (fun _ => return m!"({mvar} : {← inferType mvar}) := ({v} : {← inferType v})") do
     if !mvar.isMVar then
       trace[Meta.isDefEq.assign.checkTypes] "metavariable expected"
       return false
+    if (← mvar.mvarId!.isInstanceTyped) && backward.isDefEq.instanceTypes.get (← getOptions) then
+      /- The value of an instance metavariable must be determined by instance synthesis, up
+         to defeq at `.instances` transparency: either the candidate value already is such a
+         value — with only admissible metavariables in its spine — and has the right type, or
+         we synthesize the instance now and require the candidate to be defeq to the result. -/
+      let v ← instantiateMVars v
+      if (← spineMVarsAdmissible v) then
+        let mvarType ← inferType mvar
+        let vType ← inferType v
+        if (← checkInstanceTypedTypes mvarType vType v) then
+          mvar.mvarId!.assign v
+          return true
+      synthInstanceTypedMVarAndUnify mvar v
     else
       -- must check whether types are definitionally equal or not, before assigning and returning true
       let mvarType ← inferType mvar
@@ -2161,21 +2322,17 @@ where
 
 /--
   Given applications `t` and `s` that are in WHNF (modulo the current transparency setting),
-  check whether they are definitionally equal or not.
+  check whether they are definitionally equal or not by comparing functions and arguments.
+  On failure, the caller is responsible for invoking `isDefEqAppFallback`.
 -/
 private def isDefEqApp (t s : Expr) : MetaM Bool := do
   let tFn := t.getAppFn
   let sFn := s.getAppFn
   if tFn.isConst && sFn.isConst && tFn.constName! == sFn.constName! then
     /- See comment at `tryHeuristic` explaining why we process arguments before universe levels. -/
-    if (← checkpointDefEq (isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)) then
-      return true
-    else
-      isDefEqOnFailure t s
-  else if (← checkpointDefEq (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)) then
-    return true
+    checkpointDefEq (isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)
   else
-    isDefEqOnFailure t s
+    checkpointDefEq (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)
 
 /-- Return `true` if the type of the given expression is an inductive datatype with a single constructor with no fields. -/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
@@ -2202,6 +2359,48 @@ private def isDefEqProjInst (t : Expr) (s : Expr) : MetaM LBool := do
   else
     return .undef
 
+/--
+The special cases tried *after* the main `isExprDefEqExpensive` machinery has failed, as opposed
+to the early ones (`isDefEqNative`, `isDefEqNat`, `isDefEqOffset`).
+
+`.false` means one of them decided the terms are *not* definitionally equal, and must not be read
+as "declined". `.undef` means they all declined — note that `isDefEqUnitLike` returning `false`
+is a decline (the rule does not apply), not a negative verdict, hence `.undef`.
+-/
+private def isDefEqLateSpecialCases (t s : Expr) : MetaM LBool := do
+  match (← isDefEqProjInst t s) with
+  | .undef =>
+    match (← isDefEqStringLit t s) with
+    | .undef => return if (← isDefEqUnitLike t s) then .true else .undef
+    | r      => return r
+  | r => return r
+
+/--
+Fallback for a failing comparison of two applications; see `backward.isDefEq.appOnFailure`
+for the two behaviors.
+
+In the new behavior, `isDefEqOnFailure` runs before `isDefEqLateSpecialCases` because those
+unfold the class projections that `getStuckMVar?` needs to see an unsynthesized instance in an
+argument position. A stuck abort is not authoritative here — one of the late special cases may
+still close the goal — so it is deferred and re-raised only if they all decline.
+-/
+private def isDefEqAppFallback (t : Expr) (s : Expr) : MetaM Bool := do
+  if backward.isDefEq.appOnFailure.get (← getOptions) then
+    if (← isDefEqOnFailure t s) then return true
+    whenUndefDo (isDefEqLateSpecialCases t s) do
+    isDefEqOnFailure t s
+  else
+    let saved ← saveState
+    -- `none` records a deferred `isDefEqStuck`
+    let r? ← catchInternalId isDefEqStuckExceptionId (some <$> isDefEqOnFailure t s) fun _ => do
+      saved.restore
+      return none
+    if r? == some true then return true
+    if (← isDefEqLateSpecialCases t s) matches .true then return true
+    if r?.isNone then
+      Meta.throwIsDefEqStuck
+    return false
+
 private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   whenUndefDo (isDefEqEta t s) do
   whenUndefDo (isDefEqEta s t) do
@@ -2223,12 +2422,11 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
       return true
     if t.isConst && s.isConst then
       if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
-    else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqApp t s) then
-      return true
+    else if (← pure t.isApp <&&> pure s.isApp) then
+      if (← isDefEqApp t s) then return true
+      isDefEqAppFallback t s
     else
-      whenUndefDo (isDefEqProjInst t s) do
-      whenUndefDo (isDefEqStringLit t s) do
-      if (← isDefEqUnitLike t s) then return true else
+      whenUndefDo (isDefEqLateSpecialCases t s) do
       isDefEqOnFailure t s
 
 inductive DefEqCacheKind where

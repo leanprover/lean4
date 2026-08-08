@@ -181,7 +181,7 @@ private def mkForInLoopWithInvariantAndVariant (g : LoopGadget) (inv? dec? : Opt
   let invArg ← match inv? with
     | none =>
       -- Nothing determines the assertion language of an absent invariant.
-      `((none : Option ($(mkIdent `Std.Internal.Do.RepeatInvariant) _ _ Unit)))
+      `((none : Option ($(mkIdent `Std.Internal.Do.RepeatInvariant) _ _ Prop)))
     | some invClause =>
       let cursor := mkIdentFrom invClause (← mkFreshUserName `__c)
       let hasLeft ← `($(mkIdent ``Sum.isRight) $cursor:ident)
@@ -194,7 +194,9 @@ private def mkForInLoopWithInvariantAndVariant (g : LoopGadget) (inv? dec? : Opt
         `(match $hasLeft:term with | $exitPat => $invBody)
       `(some $(← g.mkRepeatCursorFun cursor invBody))
   let varArg ← match dec? with
-    | none => `(none)
+    | none =>
+      -- Nothing determines the codomain of an absent measure.
+      `((none : Option (_ → Unit)))
     | some decClause =>
       -- Binders past the clause bind the arguments of the measure itself, as they do for an
       -- assertion.

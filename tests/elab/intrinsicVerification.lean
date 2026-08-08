@@ -292,6 +292,8 @@ def countIntoState (n : Nat) : StateM Nat Unit
     do
     modify (· + 1)
     i := i + 1
+where finally
+  | spec => all_goals simp_all; omega
 
 #guard_msgs (drop info) in
 #check @countIntoState.spec
@@ -311,7 +313,7 @@ def countUp (n : Nat) : Id Nat
   return i
 where finally
   | spec =>
-    case inv1 => exact fun i => n - i
+    case inv1 => exact .ofMeasure fun i => n - i
     all_goals simp_all; omega
 
 #guard_msgs (drop info) in

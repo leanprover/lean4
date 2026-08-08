@@ -26,6 +26,7 @@ one per combination a loop annotation produces, leaving an absent annotation to 
 namespace Std.Internal.Do
 
 open Lean.Order
+open Assertion
 
 universe u u₁ u₂ v w
 variable {α : Type u₁} {β : Type (max u₁ u₂)} {m : Type (max u₁ u₂) → Type v}
@@ -101,16 +102,17 @@ theorem Spec.forInPure' {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
 
 section Loop
 
-universe uₚ uₑ uq
+universe uₚ uₑ uq uγ uf
 
 set_option linter.unusedVariables false in
 /-- A `repeat` loop annotated with the loop invariant and the termination measure that `vcgen` reads
 from the `inv?` and `var?` arguments. It is definitionally `forIn l init f`, so the annotations are
 erased at runtime. The invariant ranges over the loop's cursor, `.inl` while the loop iterates and
-`.inr` once it is done; the measure ranges over the loop state. -/
+`.inr` once it is done. The measure is the function a `RepeatVariant` is built from, so that the
+assertion language it evaluates in is the one the specification is applied at. -/
 @[inline] def forInLoopWithInvariantAndVariant {β : Type u} {m : Type u → Type v} {Pred : Type uₚ}
-    [Monad m] (l : Lean.Loop) (init : β) (f : Unit → β → m (ForInStep β))
-    (inv? : Option (RepeatInvariant β β Pred)) (var? : Option (RepeatVariant β)) : m β :=
+    {Fun : Type uf} [Monad m] (l : Lean.Loop) (init : β) (f : Unit → β → m (ForInStep β))
+    (inv? : Option (RepeatInvariant β β Pred)) (var? : Option (β → Fun)) : m β :=
   forIn l init f
 
 variable {β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
@@ -120,15 +122,17 @@ variable [Monad m] [Lean.Order.MonadTail m] [Assertion Pred] [Assertion EPred]
 @[spec]
 theorem Spec.forInLoop_invariant_variant
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
-    (measure : RepeatVariant β)
+    [∀ P : Pred, PreservesSup (meet P)]
+    (measure : β → Nat)
     (inv : RepeatInvariant β β Pred)
     (einv : EPred)
-    (step : ∀ b,
+    (step : ∀ b (mb : Nat),
       Triple
         (f () b)
-        (inv (.inl b))
+        ((RepeatVariant.ofMeasure (Pred := Pred) measure).EvalsTo b mb ⊓ inv (.inl b))
         (fun r => match r with
-          | .yield b' => ⌜measure b' < measure b⌝ ⊓ inv (.inl b')
+          | .yield b' =>
+            (RepeatVariant.ofMeasure (Pred := Pred) measure).EvalsBelow b' mb ⊓ inv (.inl b')
           | .done b' => inv (.inr b'))
         einv) :
     Triple
@@ -137,24 +141,25 @@ theorem Spec.forInLoop_invariant_variant
       (fun b => inv (.inr b))
       einv := by
   unfold forInLoopWithInvariantAndVariant
-  exact Spec.forIn_loop measure inv einv step
+  exact Spec.forIn_loop (RepeatVariant.ofMeasure measure) inv einv step
 
 @[spec]
 theorem Spec.forInLoop_invariant
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
-    (measure : RepeatVariant β)
+    [∀ P : Pred, PreservesSup (meet P)]
+    (measure : RepeatVariant β Pred)
     (inv : RepeatInvariant β β Pred)
     (einv : EPred)
-    (step : ∀ b,
+    (step : ∀ b (mb : measure.γ),
       Triple
         (f () b)
-        (inv (.inl b))
+        (measure.EvalsTo b mb ⊓ inv (.inl b))
         (fun r => match r with
-          | .yield b' => ⌜measure b' < measure b⌝ ⊓ inv (.inl b')
+          | .yield b' => measure.EvalsBelow b' mb ⊓ inv (.inl b')
           | .done b' => inv (.inr b'))
         einv) :
     Triple
-      (forInLoopWithInvariantAndVariant l init f (some inv) none)
+      (forInLoopWithInvariantAndVariant l init f (some inv) (none : Option (β → Unit)))
       (inv (.inl init))
       (fun b => inv (.inr b))
       einv := by
@@ -162,26 +167,28 @@ theorem Spec.forInLoop_invariant
   exact Spec.forIn_loop measure inv einv step
 
 @[spec]
-theorem Spec.forInLoop_variant {Q : Type uq}
+theorem Spec.forInLoop_variant
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
-    (measure : RepeatVariant β)
+    [∀ P : Pred, PreservesSup (meet P)]
+    (measure : β → Nat)
     (inv : RepeatInvariant β β Pred)
     (einv : EPred)
-    (step : ∀ b,
+    (step : ∀ b (mb : Nat),
       Triple
         (f () b)
-        (inv (.inl b))
+        ((RepeatVariant.ofMeasure (Pred := Pred) measure).EvalsTo b mb ⊓ inv (.inl b))
         (fun r => match r with
-          | .yield b' => ⌜measure b' < measure b⌝ ⊓ inv (.inl b')
+          | .yield b' =>
+            (RepeatVariant.ofMeasure (Pred := Pred) measure).EvalsBelow b' mb ⊓ inv (.inl b')
           | .done b' => inv (.inr b'))
         einv) :
     Triple
-      (forInLoopWithInvariantAndVariant (Pred := Q) l init f none (some measure))
+      (forInLoopWithInvariantAndVariant (Pred := Prop) l init f none (some measure))
       (inv (.inl init))
       (fun b => inv (.inr b))
       einv := by
   unfold forInLoopWithInvariantAndVariant
-  exact Spec.forIn_loop measure inv einv step
+  exact Spec.forIn_loop (RepeatVariant.ofMeasure measure) inv einv step
 
 end Loop
 

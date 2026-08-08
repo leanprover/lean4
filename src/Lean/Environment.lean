@@ -562,6 +562,29 @@ structure RecordedDeps where
   these lookups give the same answers in the current context.
   -/
   options : Array RecordedOptionAccess := #[]
+  /--
+  Per accessed generation-tracked extension (see `EnvExtension.trackGen`), the state generation
+  that was observed: `(extension index, generation)`. The dependency is stale once the
+  extension's generation moves.
+  -/
+  extGens : Array (Nat × Nat) := #[]
+  /--
+  Value of `Environment.recordGen` when recording started. While it is unchanged, none of the
+  recorded environment dependencies can have changed and validation skips their checks.
+  -/
+  recordGen : Nat := 0
+  /--
+  Length of the declaration change log (`Environment.declChangeLog`) when recording started.
+  Changes appended since whose target was born after `constBirthW` are skipped during
+  validation (the computation cannot have observed a declaration that did not exist yet); any other
+  change conservatively invalidates the entry.
+  -/
+  changeLogPos : Nat := 0
+  /--
+  Value of `Environment.constBirthGen` when recording started: the birth watermark for
+  `changeLogPos`.
+  -/
+  constBirthW : Nat := 0
   deriving Inhabited
 
 /--
@@ -636,6 +659,46 @@ structure Environment where
   `elabMutualDef` may switch from public to private when e.g. entering the proof of a theorem.
   -/
   isExporting : Bool := false
+  /--
+  True while a computation is recording its dependencies on this environment branch
+  (`Lean.Core.State.recordedDeps`): its by-name option reads are restricted to
+  `Lean.getRecordedOption`, generation-tracked extensions must be read through the recording
+  accessors (`EnvExtension.trackGen`), and every other extension read must be of a covered
+  extension (`EnvExtension.declCovered`).
+  -/
+  isRecordingDeps : Bool := false
+  /--
+  Log of declaration-keyed state changes some recording computation could have observed: a write
+  about a declaration is appended when the declaration was born before the latest arming
+  (`recordArmBirthGen`); writes about younger declarations cannot falsify any recorded entry and
+  stay silent. Cache entries are validated against the log by birth arithmetic
+  (`Environment.checkDeclChangeLog`); reducibility status changes are the most common source.
+  -/
+  declChangeLog : Array Name := #[]
+  /--
+  Value of `Environment.constBirthGen` at the most recent arming of a recording computation on this
+  lineage; see `declChangeLog`.
+  -/
+  recordArmBirthGen : Nat := 0
+  /--
+  Counter bumped by every modification a recorded dependency could refer to: any
+  state change of a generation-tracked extension and every post-hoc reducibility change. Cache
+  entries are stamped with it (`RecordedDeps.recordGen`); while it is unchanged, validation skips
+  all per-dependency environment checks. It deliberately does not cover option values, which are
+  context rather than environment state.
+  -/
+  recordGen : Nat := 0
+  /--
+  Birth indices of the constants added on this environment lineage, assigned when a constant
+  becomes observable here (synchronous `addDecl`, asynchronous registration); imported constants
+  and constants with unknown provenance (e.g. realized constants, currently) are absent and
+  treated as index 0, older than any watermark, which is the conservative direction. Consumers
+  capture a watermark (`constBirthGen`) and test `constBirthIdx n > watermark` to prove that a
+  recording taken at the watermark cannot have observed `n`; see `Environment.declChangeLog`.
+  -/
+  constBirths : PHashMap Name Nat := {}
+  /-- Watermark counter for `constBirths`. -/
+  constBirthGen : Nat := 0
 deriving Nonempty
 
 @[inline] private def VisibilityMap.get (m : VisibilityMap α) (env : Environment) : α :=
@@ -679,6 +742,52 @@ def setExporting (env : Environment) (isExporting : Bool) : Environment :=
     env
   else
     { env with isExporting }
+
+/-- Bumps `env.recordGen`; see there. Called where recorded dependencies change outside `EnvExtension.modifyState`. -/
+def bumpRecordGen (env : Environment) : Environment :=
+  { env with recordGen := env.recordGen + 1 }
+
+/-- Registers `n` as born now on this environment lineage; see `Environment.constBirths`. -/
+def registerConstBirth (env : Environment) (n : Name) : Environment :=
+  { env with constBirths := env.constBirths.insert n (env.constBirthGen + 1)
+             constBirthGen := env.constBirthGen + 1 }
+
+/--
+Birth index of `n` on this lineage; 0 (older than any watermark) for imported constants and
+constants of unknown provenance. See `Environment.constBirths`.
+-/
+def constBirthIdx (env : Environment) (n : Name) : Nat :=
+  env.constBirths.find? n |>.getD 0
+
+/--
+Records a state change about `declName` in `Environment.declChangeLog` if some recording
+computation could have observed the pre-change state, i.e. if the declaration was born before
+the latest arming; see there. Callers invoke this only for writes that actually change
+observable state (idempotent re-registrations stay silent).
+-/
+def logDeclChange (env : Environment) (declName : Name) : Environment :=
+  if env.constBirthIdx declName ≤ env.recordArmBirthGen then
+    -- the log check sits behind the `recordGen` short-circuit, so appends must bump it
+    { env with declChangeLog := env.declChangeLog.push declName }.bumpRecordGen
+  else
+    env
+
+/--
+Validates the declaration-change dependencies of an entry recorded at log position `fromPos`
+with birth watermark `birthW`: every change appended since must
+target a declaration born after the watermark; see `Environment.declChangeLog`.
+-/
+def checkDeclChangeLog (env : Environment) (fromPos birthW : Nat) : Bool :=
+  fromPos ≤ env.declChangeLog.size &&
+    env.declChangeLog.all (fun d => env.constBirthIdx d > birthW) (start := fromPos)
+
+/-- Updates `env.isRecordingDeps`; arming also stamps `Environment.recordArmBirthGen`. -/
+def setRecordingDeps (env : Environment) (recording : Bool) : Environment :=
+  if recording then
+    { env with isRecordingDeps := true, recordArmBirthGen := env.constBirthGen }
+  else if env.isRecordingDeps then
+    { env with isRecordingDeps := false }
+  else env
 
 /-- Consistently updates synchronous and (private) asynchronous parts of the environment without blocking. -/
 private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → Kernel.Environment) : Environment :=
@@ -738,6 +847,7 @@ def addDeclCore (env : Environment) (maxHeartbeats : USize) (maxRecDepth : USize
   -- visibility scopes but the caller can still customize the public one on the main elaboration
   -- branch by use of `addConstAsync` as is the case for `Lean.addDecl`.
   for n in decl.getNames do
+    env := env.registerConstBirth n
     let some info := env.checked.get.find? n | unreachable!
     env := { env with asyncConstsMap.private := env.asyncConstsMap.private.add {
       constInfo := .ofConstantInfo info
@@ -1077,6 +1187,7 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
       | some v => .mk v.nestedConsts.public
       | none   => .mk (α := AsyncConsts) default
   }
+  let env := env.registerConstBirth constName
   return {
     constName, kind, exportedKind?
     mainEnv := { env with
@@ -1346,6 +1457,38 @@ structure EnvExtension (σ : Type) where private mk ::
   present.
   -/
   replay?   : Option (ReplayFn σ)
+  /-- Name for diagnostics; set automatically for persistent extensions. -/
+  name      : Name
+  /--
+  Whether the extension state is stored together with a generation counter that every
+  modification bumps. Type class resolution cache entries depend on extension state in one of
+  two regimes:
+
+  * *Generation-tracked* (`trackGen`): reads by a recording computation go through the recording
+    accessors, which record the observed generation as a dependency of the cache entry being
+    computed, so a state change invalidates exactly the entries that consulted this extension;
+    see `Lean.Meta.SynthInstance`. A *pure* read while recording panics. For
+    extensions answering *shape* queries (candidate sets such as instances), where a new
+    declaration changes answers about pre-existing queries.
+  * *Covered* (`declCovered`): declaration-keyed content whose observable changes are
+    enforced by the write machinery rather than trusted: entries are write-stability-guarded
+    (`MapDeclarationExtension.insert`), and a write some recording computation could have observed
+    is appended to the declaration change log and validated by birth arithmetic
+    (`Environment.declChangeLog`, `Environment.constBirths`). Reads are then free everywhere.
+    The registration site states the extension's coverage argument in one line; the residual
+    assumption, uniform across covered extensions, is that reads are keyed by declarations
+    reachable from the computation.
+
+  A read of an unclassified extension while recording panics: a recording computation is a
+  closed system, so every extension it consults is classifiable at
+  registration. `tests/elab/tc_cache_covered_claims.lean` locks the audit.
+
+  Must use `AsyncMode.local` or `.mainOnly`: generations are branch-local, matching the
+  visibility of the resolution cache.
+  -/
+  trackGen : Bool
+  /-- Whether reads of this extension are covered; see `trackGen` for the classification. -/
+  declCovered : Bool
   deriving Inhabited
 
 namespace EnvExtension
@@ -1359,13 +1502,23 @@ private builtin_initialize envExtensionsRef : IO.Ref (Array (EnvExtension EnvExt
   user-defined environment extensions. When this happens, we must adjust the size of the `env.extensions`.
   This method is invoked when processing `import`s.
 -/
+private unsafe def mkInitialEntryUnsafe (ext : EnvExtension EnvExtensionState) : IO EnvExtensionState := do
+  let s ← ext.mkInitial
+  if ext.trackGen then
+    return unsafeCast ((0, s) : Nat × EnvExtensionState)
+  return s
+
+/-- Creates the state array entry for `ext`; see `modifyStateImpl` for the `.recorded` pairing. -/
+@[implemented_by mkInitialEntryUnsafe]
+private opaque mkInitialEntry (ext : EnvExtension EnvExtensionState) : IO EnvExtensionState
+
 partial def ensureExtensionsArraySize (exts : Array EnvExtensionState) : IO (Array EnvExtensionState) := do
   loop exts.size exts
 where
   loop (i : Nat) (exts : Array EnvExtensionState) : IO (Array EnvExtensionState) := do
     let envExtensions ← envExtensionsRef.get
     if h : i < envExtensions.size then
-      let s ← envExtensions[i].mkInitial
+      let s ← mkInitialEntry envExtensions[i]
       let exts := exts.push s
       loop (i + 1) exts
     else
@@ -1373,34 +1526,48 @@ where
 
 private def invalidExtMsg := "invalid environment extension has been accessed"
 
-private unsafe def setStateImpl {σ} (ext : EnvExtension σ) (exts : Array EnvExtensionState) (s : σ) : Array EnvExtensionState :=
-  if h : ext.idx < exts.size then
-    exts.set ext.idx (unsafeCast s)
-  else
-    -- do not return an empty array on panic, avoiding follow-up out-of-bounds accesses
-    have : Inhabited (Array EnvExtensionState) := ⟨exts⟩
-    panic! invalidExtMsg
+/-
+For `.recorded` extensions the entry stored in the state array is the state paired with its
+generation counter (as `Nat × σ`); all other extensions store the state directly. The pairing is
+confined to `modifyStateImpl`/`getStateImpl` and `mkInitialEntry`, which are the only functions
+creating or reading entries.
+-/
 
-private unsafe def modifyStateImpl {σ : Type} (ext : EnvExtension σ) (exts : Array EnvExtensionState) (f : σ → σ) : Array EnvExtensionState :=
+private unsafe def modifyStateImpl {σ : Type} (ext : EnvExtension σ) (exts : Array EnvExtensionState) (f : σ → σ)
+    (keepRecordGen := false) : Array EnvExtensionState :=
   if ext.idx < exts.size then
     exts.modify ext.idx fun s =>
-      let s : σ := unsafeCast s
-      let s : σ := f s
-      unsafeCast s
+      if ext.trackGen then
+        let (gen, s) : Nat × σ := unsafeCast s
+        unsafeCast ((if keepRecordGen then gen else gen + 1, f s) : Nat × σ)
+      else
+        let s : σ := unsafeCast s
+        let s : σ := f s
+        unsafeCast s
   else
     -- do not return an empty array on panic, avoiding follow-up out-of-bounds accesses
     have : Inhabited (Array EnvExtensionState) := ⟨exts⟩
     panic! invalidExtMsg
 
-private unsafe def getStateImpl {σ} [Inhabited σ] (ext : EnvExtension σ) (exts : Array EnvExtensionState) : σ :=
+private unsafe def getStateImpl {σ} [Inhabited σ] (ext : EnvExtension σ) (exts : Array EnvExtensionState)
+    (tripwire : Bool := false) : σ :=
   if h : ext.idx < exts.size then
-    unsafeCast exts[ext.idx]
+    if tripwire then
+      -- an unclaimed read while recording: no recorded dependency validates it
+      panic! s!"unclassified environment extension read while recording dependencies: \
+        `{ext.name}` (index {ext.idx}); the extension should either be registered as covered \
+        (`declCovered`, with a justification) or generation-tracked and read through the \
+        recording accessors (see `EnvExtension.trackGen`)"
+    else if ext.trackGen then
+      (unsafeCast exts[ext.idx] : Nat × σ).2
+    else
+      unsafeCast exts[ext.idx]
   else
     panic! invalidExtMsg
 
 def mkInitialExtStates : IO (Array EnvExtensionState) := do
   let exts ← envExtensionsRef.get
-  exts.mapM fun ext => ext.mkInitial
+  exts.mapM mkInitialEntry
 
 /--
 Checks whether `modifyState (asyncDecl := declName)` may be called on an async environment
@@ -1424,21 +1591,35 @@ def asyncMayModify (ext : EnvExtension σ) (env : Environment) (asyncDecl : Name
 Applies the given function to the extension state. See `AsyncMode` for details on how modifications
 from different environment branches are reconciled.
 
+For generation-tracked extensions the modification bumps the state's generation counter,
+invalidating recorded entries that depend on it, unless `keepRecordGen` is set;
+see `EnvExtension.trackGen`.
+
 Note that in modes `sync` and `async`, `f` will be called twice, on the local and on the `checked`
 state.
 -/
 def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ)
-    (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : Environment := Id.run do
+    (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous)
+    (keepRecordGen := false) : Environment := Id.run do
   -- for panics
   let _ : Inhabited Environment := ⟨env⟩
   -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
+  -- Only generation-tracked modifications advance an invalidation counter; untracked extension
+  -- state is validated purely through the read-side covered claims (`EnvExtension.trackGen`).
+  let bumped (env : Environment) : Environment :=
+    if ext.trackGen && !keepRecordGen then
+      env.bumpRecordGen
+    else
+      env
   match asyncMode with
   | .mainOnly =>
     if let some asyncCtx := env.asyncCtx? then
       return panic! s!"environment extension is marked as `mainOnly` but used in {asyncCtx.descr}"
-    return { env with base.private.extensions := unsafe ext.modifyStateImpl env.base.private.extensions f }
+    let env := bumped env
+    return { env with base.private.extensions := unsafe ext.modifyStateImpl env.base.private.extensions f keepRecordGen }
   | .local =>
-    return { env with base.private.extensions := unsafe ext.modifyStateImpl env.base.private.extensions f }
+    let env := bumped env
+    return { env with base.private.extensions := unsafe ext.modifyStateImpl env.base.private.extensions f keepRecordGen }
   | _ =>
     if asyncMode matches .async _ then
       if asyncDecl.isAnonymous then
@@ -1452,8 +1633,9 @@ def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ 
       if let some (n :: _) := env.asyncCtx?.map (·.realizingStack) then
         return panic! s!"environment extension must set `replay?` field to be \
           used in realization context '{n}'"
-    env.modifyCheckedAsync fun env =>
-      { env with extensions := unsafe ext.modifyStateImpl env.extensions f }
+    -- `trackGen` extensions cannot use these modes (see `registerEnvExtension`)
+    (bumped env).modifyCheckedAsync fun env =>
+      { env with extensions := unsafe ext.modifyStateImpl env.extensions f keepRecordGen }
 
 /--
 Sets the extension state to the given value. See `AsyncMode` for details on how modifications from
@@ -1464,10 +1646,17 @@ def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) (a
 
 -- `unsafe` fails to infer `Nonempty` here
 private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension σ)
-    (env : Environment) (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : σ := Id.run do
+    (env : Environment) (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous)
+    (recorded := false) : σ := Id.run do
+  -- Reads of unclassified extensions and pure reads of generation-tracked extensions panic
+  -- while recording; see `getStateImpl` and `EnvExtension.trackGen`. `recorded` is
+  -- internal plumbing for the recording accessors: the caller asserts it has recorded this
+  -- tracked extension's generation for the current query.
+  let tripwire := env.isRecordingDeps &&
+    (if ext.trackGen then !recorded else !ext.declCovered)
   -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
   match asyncMode with
-  | .sync => ext.getStateImpl env.checked.get.extensions
+  | .sync => ext.getStateImpl env.checked.get.extensions tripwire
   | .async branch =>
     if asyncDecl.isAnonymous then
       panic! "called on `async` extension, must set `asyncDecl` \
@@ -1476,22 +1665,22 @@ private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension
     -- analogous structure to `findAsync?`; see there
     -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
     if env.base.get env |>.constants.contains asyncDecl then
-      return ext.getStateImpl env.base.private.extensions
+      return ext.getStateImpl env.base.private.extensions tripwire
 
     -- specialization of the following branch, nested async decls are rare
     if let some c := env.asyncConsts.find? asyncDecl then
       match branch with
       | .asyncEnv =>
         if let some exts := c.exts? then
-          return ext.getStateImpl exts.get
+          return ext.getStateImpl exts.get tripwire
         else
-          return ext.getStateImpl env.base.private.extensions
+          return ext.getStateImpl env.base.private.extensions tripwire
       | .mainEnv =>
         if c.isRealized then
           if let some exts := c.exts? then
-            return ext.getStateImpl exts.get
+            return ext.getStateImpl exts.get tripwire
         else
-          return ext.getStateImpl env.base.private.extensions
+          return ext.getStateImpl env.base.private.extensions tripwire
 
     if let some (c, parent?) := env.asyncConsts.findRecAndParent? asyncDecl then
       -- If `parent?` is `none`, the current branch is the parent
@@ -1505,17 +1694,17 @@ private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension
           -- this specific case, accessing the latter will in particular not block longer than the
           -- former.
           | .mainEnv => if c.isRealized then c.exts? else parentExts?) then
-        return ext.getStateImpl exts.get
+        return ext.getStateImpl exts.get tripwire
       -- NOTE: if `exts?` is `none`, we should *not* try the following, more expensive branches that
       -- will just come to the same conclusion
     else if let some c := env.allRealizations.get.find? asyncDecl then
       if let some exts := c.exts? then
-        return ext.getStateImpl exts.get
+        return ext.getStateImpl exts.get tripwire
     -- fallback; we could enforce that `asyncDecl` and its extension state always exist but the
     -- upside of doing is unclear and it is not true in e.g. the compiler. One alternative would be
     -- to add a `getState?` that does not panic in such cases.
-    ext.getStateImpl env.base.private.extensions
-  | _         => ext.getStateImpl env.base.private.extensions
+    ext.getStateImpl env.base.private.extensions tripwire
+  | _         => ext.getStateImpl env.base.private.extensions tripwire
 
 /--
 Returns the current extension state. See `AsyncMode` for details on how modifications from
@@ -1526,7 +1715,31 @@ only for important optimizations.
 -/
 @[implemented_by getStateUnsafe]
 opaque getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment)
-  (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : σ
+  (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) (recorded := false) : σ
+
+private unsafe def getGenUnsafe (ext : EnvExtension EnvExtensionState) (env : Environment) : Nat :=
+  -- `.recorded` extensions are restricted to `.local`/`.mainOnly`, whose state lives in the
+  -- current branch's array.
+  let exts := env.base.private.extensions
+  if h : ext.idx < exts.size then
+    (unsafeCast exts[ext.idx] : Nat × EnvExtensionState).1
+  else 0
+
+@[implemented_by getGenUnsafe]
+private opaque getGen (ext : EnvExtension EnvExtensionState) (env : Environment) : Nat
+
+/--
+Current generation of the `.recorded` extension with registration index `idx` on the current
+branch of `env`, or 0 if `idx` does not denote a `.recorded` extension. Used to validate the
+`RecordedDeps.extGens` dependencies of a recorded entry.
+-/
+def getRecordedGen (env : Environment) (idx : Nat) : BaseIO Nat := do
+  let exts ← envExtensionsRef.get
+  if h : idx < exts.size then
+    let ext := exts[idx]
+    if ext.trackGen then
+      return getGen ext env
+  return 0
 
 end EnvExtension
 
@@ -1539,12 +1752,19 @@ end EnvExtension
    For that, you need to register a persistent environment extension. -/
 def registerEnvExtension {σ : Type} (mkInitial : IO σ)
     (replay? : Option (ReplayFn σ) := none)
-    (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO (EnvExtension σ) := do
+    (asyncMode : EnvExtension.AsyncMode := .mainOnly)
+    (name : Name := .anonymous)
+    (trackGen : Bool := false)
+    (declCovered : Bool := false) : IO (EnvExtension σ) := do
   unless (← initializing) do
     throw (IO.userError "failed to register environment, extensions can only be registered during initialization")
+  if trackGen then
+    unless asyncMode matches .local | .mainOnly do
+      throw (IO.userError "generation-tracked environment extensions must use `AsyncMode.local` or \
+        `.mainOnly`; generations are branch-local (see `EnvExtension.trackGen`)")
   let exts ← EnvExtension.envExtensionsRef.get
   let idx := exts.size
-  let ext : EnvExtension σ := { idx, mkInitial, asyncMode, replay? }
+  let ext : EnvExtension σ := { idx, mkInitial, asyncMode, replay?, name, trackGen, declCovered }
   -- safety: `EnvExtensionState` is opaque, so we can upcast to it
   EnvExtension.envExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
   pure ext
@@ -1693,12 +1913,13 @@ but is limited to the maximum level actually imported: `exported` on the cmdline
 language server. Higher levels will return the data of the maximum imported level.
 -/
 def getModuleEntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ)
-    (env : Environment) (m : ModuleIdx) (level := OLeanLevel.exported) : Array α :=
+    (env : Environment) (m : ModuleIdx) (level := OLeanLevel.exported) : Array α := Id.run do
+  -- imported entries are immutable within a module, so reads record no resolution dependency
   let exts := match level with
     | .exported => env.base.private.extensions
     | _         => env.serverBaseExts
   -- safety: as in `getStateUnsafe`
-  unsafe (ext.toEnvExtension.getStateImpl exts).importedEntries[m]!
+  return unsafe (ext.toEnvExtension.getStateImpl exts).importedEntries[m]!
 
 /-- Retrieves additional IR extension state for the interpreter. -/
 def getModuleIREntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ)
@@ -1714,8 +1935,10 @@ def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : En
 
 /-- Get the current state of the given extension in the given environment. -/
 def getState {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment)
-    (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := .anonymous) : σ :=
-  (ext.toEnvExtension.getState (asyncMode := asyncMode) (asyncDecl := asyncDecl) env).state
+    (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := .anonymous)
+    (recorded := false) : σ :=
+  (ext.toEnvExtension.getState (asyncMode := asyncMode) (asyncDecl := asyncDecl)
+    (recorded := recorded) env).state
 
 /-- Set the current state of the given extension in the given environment. -/
 def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (s : σ) : Environment :=
@@ -1723,8 +1946,10 @@ def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : En
 
 /-- Modify the state of the given extension in the given environment by applying the given function. -/
 def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (f : σ → σ)
-    (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := Name.anonymous) : Environment :=
-  ext.toEnvExtension.modifyState (asyncMode := asyncMode) (asyncDecl := asyncDecl) env fun ps => { ps with state := f (ps.state) }
+    (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := Name.anonymous)
+    (keepRecordGen := false) : Environment :=
+  ext.toEnvExtension.modifyState (asyncMode := asyncMode) (asyncDecl := asyncDecl)
+    (keepRecordGen := keepRecordGen) env fun ps => { ps with state := f (ps.state) }
 
 end PersistentEnvExtension
 
@@ -1740,6 +1965,10 @@ structure PersistentEnvExtensionDescrCore (α β σ : Type) where
   statsFn           : σ → Format := fun _ => Format.nil
   asyncMode         : EnvExtension.AsyncMode := .mainOnly
   replay?           : Option (ReplayFn σ) := none
+  /-- See `EnvExtension.trackGen`. -/
+  trackGen : Bool := false
+  /-- See `EnvExtension.trackGen`. -/
+  declCovered : Bool := false
 
 attribute [inherit_doc PersistentEnvExtension.exportEntriesFn]
   PersistentEnvExtensionDescrCore.exportEntriesFnEx
@@ -1766,7 +1995,8 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
   if pExts.any (fun ext => ext.name == descr.name) then throw (IO.userError s!"invalid environment extension, '{descr.name}' has already been used")
   let replay? := descr.replay?.map fun replay =>
     fun oldState newState newConsts s => { s with state := replay oldState.state newState.state newConsts s.state }
-  let ext ← registerEnvExtension (asyncMode := descr.asyncMode) (replay? := replay?) do
+  let ext ← registerEnvExtension (asyncMode := descr.asyncMode) (replay? := replay?)
+      (name := descr.name) (trackGen := descr.trackGen) (declCovered := descr.declCovered) do
     let initial ← descr.mkInitial
     let s : PersistentEnvExtensionState α σ := {
       importedEntries := #[],
@@ -2780,6 +3010,14 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     pure (.mk res)
   let some res := res.get? RealizeConstResult | unreachable!
   let exPromise ← IO.Promise.new
+  -- The realized constants and their extension-state snapshots become observable on this
+  -- lineage with this merge, so this is where their birth indices are assigned; see
+  -- `Environment.constBirths`.
+  let env := res.newConsts.private.foldl (init := env) fun env c =>
+    if env.asyncConstsMap.private.find? c.constInfo.name |>.isSome then
+      env
+    else
+      env.registerConstBirth c.constInfo.name
   let env := { env with
     asyncConstsMap := {
       «private» := res.newConsts.private.foldl (init := env.asyncConstsMap.private) fun consts c =>
@@ -2905,11 +3143,21 @@ This is consulted for all definitions regardless of their reducibility hints. Cu
 structural recursion to ensure that parent definitions get the correct height even though the
 `_f` helper definitions are marked as `.abbrev` (which `getMaxHeight` would otherwise ignore). -/
 builtin_initialize defHeightOverrideExt : EnvExtension (NameMap UInt32) ←
-  registerEnvExtension (pure {}) (asyncMode := .local)
+  -- covered: overrides are declaration-keyed, write-stability-guarded, and logged
+  registerEnvExtension (pure {}) (asyncMode := .local) (declCovered := true)
 
 /-- Register a height override for a definition so that `getMaxHeight` uses it. -/
 def setDefHeightOverride (env : Environment) (declName : Name) (height : UInt32) : Environment :=
-  defHeightOverrideExt.modifyState env fun m => m.insert declName height
+  let env := env.logDeclChange declName
+  defHeightOverrideExt.modifyState env fun m =>
+    -- write-stability guard; see `MapDeclarationExtension.insert`
+    match m.find? declName with
+    | some prev =>
+      if prev != height then
+        panic! s!"definition height override for `{declName}` is already set"
+      else
+        m
+    | none => m.insert declName height
 
 def getMaxHeight (env : Environment) (e : Expr) : UInt32 :=
   let overrides := defHeightOverrideExt.getState env

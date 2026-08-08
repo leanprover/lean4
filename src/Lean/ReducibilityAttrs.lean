@@ -51,6 +51,9 @@ def ReducibilityStatus.toAttrString : ReducibilityStatus → String
 builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × ReducibilityStatus) (Name × ReducibilityStatus) (NameMap ReducibilityStatus) ←
   registerPersistentEnvExtension {
     name            := `reducibilityCore
+    -- covered: status changes about observable declarations are recorded in the declaration
+    -- change log and validated by birth arithmetic (see `Environment.declChangeLog`)
+    declCovered    := true
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameMap ReducibilityStatus) (p : Name × ReducibilityStatus) => s.insert p.1 p.2
@@ -71,6 +74,8 @@ builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × Reducib
 builtin_initialize reducibilityExtraExt : SimpleScopedEnvExtension (Name × ReducibilityStatus) (SMap Name ReducibilityStatus) ←
   registerSimpleScopedEnvExtension {
     name := `reducibilityExtra
+    -- covered: as for `reducibilityCoreExt` above
+    declCovered := true
     initial := {}
     addEntry := fun d (declName, status) => d.insert declName status
     finalizeImport := fun d => d.switch
@@ -101,22 +106,14 @@ private def setReducibilityStatusCore (env : Environment) (declName : Name) (sta
     reducibilityExtraExt.addCore env (declName, status) attrKind currNamespace
 
 /-
-TODO: it would be great if we could distinguish between the following two situations
+The type class resolution cache distinguishes the following two situations by birth arithmetic
+(`Environment.declChangeLog`): an attribute that is part of `foo`'s own elaboration
+(`@[reducible] def foo := ...`) is skipped during validation, while a post-hoc
+`attribute [reducible] foo` invalidates the entries that could have observed the old status.
 
-1-
-```
-@[reducible] def foo := ...
-```
-
-2-
-```
-def foo := ...
-...
-attribute [reducible] foo
-```
-
-Reason: the second one is problematic if user has add simp theorems or TC instances that include `foo`.
-Recall that the discrimination trees unfold `[reducible]` declarations while indexing new entries.
+TODO: the distinction is not yet surfaced to other consumers: discrimination trees unfold
+`[reducible]` declarations while indexing new entries, so a post-hoc change can invalidate
+already-indexed simp theorems or TC instances mentioning `foo`; see `validate` below.
 -/
 
 register_builtin_option allowUnsafeReducibility : Bool := {
@@ -182,6 +179,9 @@ private def addAttr (status : ReducibilityStatus) (declName : Name) (stx : Synta
   validate declName status attrKind
   let ns ← getCurrNamespace
   modifyEnv fun env => setReducibilityStatusCore env declName status attrKind ns
+  -- Reducibility determines what `isDefEq` may unfold, so a status change some recording
+  -- query could have observed must be recorded; see `Environment.declChangeLog`.
+  modifyEnv fun env => env.logDeclChange declName
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -256,7 +256,13 @@ builtin_initialize
 def getReducibilityStatus [Monad m] [MonadEnv m] (declName : Name) : m ReducibilityStatus := do
   return getReducibilityStatusCore (← getEnv) declName
 
-/-- Set the reducibility attribute for the given declaration. -/
+/--
+Set the reducibility attribute for the given declaration.
+
+Note: does not bump the reducibility change counter (`reducibilityChangedExt`). Use only for
+declarations created by the caller itself (before other code can have cached results about
+them); status changes to pre-existing declarations must go through the reducibility attributes.
+-/
 def setReducibilityStatus [MonadEnv m] (declName : Name) (s : ReducibilityStatus) : m Unit :=
   modifyEnv fun env => setReducibilityStatusCore env declName s .global .anonymous
 

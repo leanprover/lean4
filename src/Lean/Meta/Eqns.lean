@@ -47,6 +47,8 @@ def eqnAffectingOptions : Array (Lean.Option Bool) :=
 keyed by declaration name. Only populated when at least one option has a non-default value.
 Stores an association list of (option name, value) pairs for options that differ from defaults. -/
 builtin_initialize eqnOptionsExt : MapDeclarationExtension (Array (Name × DataValue)) ←
+  -- consulted during equation realization, which can happen inside a resolution search;
+  -- populated only when the declaration is created (monotone)
   mkMapDeclarationExtension (asyncMode := .local)
 
 def eqnThmSuffixBase := "eq"
@@ -157,7 +159,10 @@ structure EqnsExtState where
 
 /-- A mapping from equational theorem to the declaration it was derived from.  -/
 builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
-  registerEnvExtension (pure {}) (asyncMode := .local)
+  -- consulted during equation realization, which can happen inside a resolution search;
+  -- covered: realized on demand, so reads never observe result-relevant absence, and
+  -- registered equations are write-stability-guarded
+  registerEnvExtension (pure {}) (asyncMode := .local) (declCovered := true)
 
 /--
 Runs `act` with the equation-affecting options restored to the values stored for `declName`
@@ -216,7 +221,16 @@ Stores in the `eqnsExt` environment extension that `eqThms` are the equational t
 -/
 private def registerEqnThms (declName : Name) (eqThms : Array Name) : CoreM Unit := do
   modifyEnv fun env => eqnsExt.modifyState env fun s => { s with
-    mapInv := eqThms.foldl (init := s.mapInv) fun mapInv eqThm => mapInv.insert eqThm declName
+    mapInv := eqThms.foldl (init := s.mapInv) fun mapInv eqThm =>
+      -- write-stability guard; see `MapDeclarationExtension.insert`. Re-registration with the
+      -- same parent is idempotent (e.g. `alreadyGenerated?` re-registers realized equations).
+      match mapInv.find? eqThm with
+      | some prev =>
+        if prev != declName then
+          panic! s!"equation theorem `{eqThm}` is already registered for `{prev}`"
+        else
+          mapInv
+      | none => mapInv.insert eqThm declName
   }
 
 /--

@@ -69,8 +69,11 @@ Type class environment extension
 -- TODO: add support for scoped instances
 builtin_initialize classExtension : SimplePersistentEnvExtension ClassEntry ClassState ←
   registerSimplePersistentEnvExtension {
+    -- covered: class facts are immutable per declaration and monotone
+    declCovered  := true
     addEntryFn    := ClassState.addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries ClassState.addEntry {} es).switch
+    -- class facts are immutable per declaration and monotone
   }
 
 /-- Return `true` if `n` is the name of type class in the given environment. -/

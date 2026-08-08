@@ -64,9 +64,19 @@ builtin_initialize ppFnsRef : IO.Ref PPFns ←
   }
 
 builtin_initialize ppExt : EnvExtension PPFns ←
-  registerEnvExtension ppFnsRef.get
+  registerEnvExtension ppFnsRef.get (name := `pp)
+
+/--
+Pretty printing is a legitimate consumer of arbitrary extension state even when its context was
+captured inside a region with restricted extension access (e.g. a trace message constructed
+during type class resolution): rendering happens outside the restricted computation and cannot
+contaminate its caches. Lift the restriction from the captured environment.
+-/
+private def PPContext.unrestricted (ctx : PPContext) : PPContext :=
+  { ctx with env := ctx.env.setRecordingDeps false }
 
 def ppExprWithInfos (ctx : PPContext) (e : Expr) : BaseIO FormatWithInfos := do
+  let ctx := ctx.unrestricted
   if pp.raw.get ctx.opts then
     let e := instantiateMVarsCore ctx.mctx e |>.1
     return format (toString e)
@@ -80,6 +90,7 @@ def ppExprWithInfos (ctx : PPContext) (e : Expr) : BaseIO FormatWithInfos := do
         pure f!"failed to pretty print expression (use 'set_option pp.rawOnError true' for raw representation)"
 
 def ppConstNameWithInfos (ctx : PPContext) (n : Name) : BaseIO FormatWithInfos := do
+  let ctx := ctx.unrestricted
   match (← ppExt.getState ctx.env |>.ppConstNameWithInfos ctx n |>.toBaseIO) with
   | .ok fmt => return fmt
   | .error ex =>
@@ -89,6 +100,7 @@ def ppConstNameWithInfos (ctx : PPContext) (n : Name) : BaseIO FormatWithInfos :
       pure f!"failed to pretty print constant (use 'set_option pp.rawOnError true' for raw representation)"
 
 def ppTerm (ctx : PPContext) (stx : Term) : BaseIO Format := do
+  let ctx := ctx.unrestricted
   if pp.raw.get ctx.opts then
     return formatRawTerm ctx stx
   else
@@ -101,6 +113,7 @@ def ppTerm (ctx : PPContext) (stx : Term) : BaseIO Format := do
         pure f!"failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)"
 
 def ppLevel (ctx : PPContext) (l : Level) : BaseIO Format := do
+  let ctx := ctx.unrestricted
   match (← ppExt.getState ctx.env |>.ppLevel ctx l |>.toBaseIO) with
   | .ok fmt => return fmt
   | .error ex =>
@@ -110,6 +123,7 @@ def ppLevel (ctx : PPContext) (l : Level) : BaseIO Format := do
       pure f!"failed to pretty print level (use 'set_option pp.rawOnError true' for raw representation)"
 
 def ppGoal (ctx : PPContext) (mvarId : MVarId) : BaseIO Format := do
+  let ctx := ctx.unrestricted
   match (← ppExt.getState ctx.env |>.ppGoal ctx mvarId |>.toBaseIO) with
   | .ok fmt => return fmt
   | .error ex =>

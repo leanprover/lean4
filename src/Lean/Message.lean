@@ -812,13 +812,14 @@ instance (m n) [MonadLift m n] [AddMessageContext m] : AddMessageContext n where
 
 def addMessageContextPartial {m} [Monad m] [MonadEnv m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
   -- unrestricted acquisition: a message context is a display context, whose later reads cannot
-  -- influence a cached resolution result
-  let env ← getEnv
+  -- influence a cached resolution result; the environment's recording marker is dropped so that
+  -- later extension reads by message consumers do not trip it
+  let env := (← getEnv).setRecordingDeps false
   let opts ← getOptionsUnrestricted
   return MessageData.withContext { env := env, mctx := {}, lctx := {}, opts := opts } msgData
 
 def addMessageContextFull {m} [Monad m] [MonadEnv m] [MonadMCtx m] [MonadLCtx m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
-  let env ← getEnv
+  let env := (← getEnv).setRecordingDeps false
   let mctx ← getMCtx
   let lctx ← getLCtx
   let opts ← getOptionsUnrestricted

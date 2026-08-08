@@ -166,7 +166,9 @@ def getBuiltinVersoDocStrings : IO (NameMap VersoDocString) :=
 def addDocStringCore [Monad m] [MonadError m] [MonadEnv m] [MonadLiftT BaseIO m] (declName : Name) (docString : String) : m Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
     throwError m!"invalid doc string, declaration `{.ofConstName declName}` is in an imported module"
-  modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
+  -- documentation metadata, not resolution-relevant: later writes legitimately replace
+  -- earlier ones
+  modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces (allowOverwrite := true)
 
 def removeDocStringCore [Monad m] [MonadError m] [MonadEnv m] [MonadLiftT BaseIO m] (declName : Name) : m Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do

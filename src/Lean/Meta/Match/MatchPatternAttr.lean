@@ -32,7 +32,10 @@ def isYellow (color : String) : Bool :=
 -/
 @[builtin_doc]
 builtin_initialize matchPatternAttr : TagAttribute ←
-  registerTagAttribute `match_pattern "mark that a definition can be used in a pattern (remark: the dependent pattern matching compiler will unfold the definition)"
+  -- consulted during resolution `isDefEq`; post-hoc tagging is treated as decl-time (the tag is
+  -- effectively part of the definition)
+  -- covered: declaration-keyed; post-hoc applications are recorded in the declaration change log
+  registerTagAttribute (declCovered := true) `match_pattern "mark that a definition can be used in a pattern (remark: the dependent pattern matching compiler will unfold the definition)"
     (validate := fun declName => do
       withExporting (isExporting := !isPrivateName declName) do
         if !(← getConstInfo declName).isDefinition then

@@ -817,7 +817,22 @@ private def recordOptionAccess (access : RecordedOptionAccess) : CoreM Unit := d
     -- and the membership test avoids the state update for them.
     let d := (← get).recordedDeps
     unless d.options.any (·.name == access.name) do
-      Core.modifyRecordedDeps fun ⟨options⟩ => ⟨options.push access⟩
+      Core.modifyRecordedDeps fun ⟨options, extGens, g, p, w⟩ =>
+        ⟨options.push access, extGens, g, p, w⟩
+
+/--
+Records the current generation of the generation-tracked extension with registration index
+`extIdx` in the recording computation's accumulator, if any; the read-side counterpart of the
+`EnvExtension.trackGen` bump. Call sites record the generation through this accessor and then
+read the state itself with `(recorded := true)`.
+-/
+def recordExtGenAccess (extIdx : Nat) : CoreM Unit := do
+  if (← read).recordingDeps then
+    let d := (← get).recordedDeps
+    unless d.extGens.any (·.1 == extIdx) do
+      let gen ← EnvExtension.getRecordedGen (← getEnv) extIdx
+      Core.modifyRecordedDeps fun ⟨options, extGens, g, p, w⟩ =>
+        ⟨options, extGens.push (extIdx, gen), g, p, w⟩
 
 /--
 Reads an option inside a recording computation, recording the lookup as an option dependency

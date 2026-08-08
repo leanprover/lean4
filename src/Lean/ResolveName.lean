@@ -43,7 +43,9 @@ def registerReservedNamePredicate (p : Environment → Name → Bool) : IO Unit 
   reservedNamePredicatesRef.modify fun ps => ps.push p
 
 builtin_initialize reservedNamePredicatesExt : EnvExtension (Array (Environment → Name → Bool)) ←
-  registerEnvExtension reservedNamePredicatesRef.get
+  -- covered: consulted by `Environment.find?` (via `isReservedName`), so also on resolution
+  -- search paths; the predicate set is fixed at initialization
+  registerEnvExtension reservedNamePredicatesRef.get (declCovered := true)
 
 /--
 Returns `true` if `name` is a reserved name.

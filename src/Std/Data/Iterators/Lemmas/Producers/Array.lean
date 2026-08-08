@@ -12,6 +12,7 @@ import Init.Data.List.TakeDrop
 public import Std.Data.Iterators.Producers.Array
 public import Init.Data.Iterators.Producers.List
 public import Std.Data.Iterators.Lemmas.Producers.Monadic.Array
+import Init.Omega
 
 @[expose] public section
 
@@ -115,3 +116,27 @@ theorem Array.iter_equiv_iter_toList {α : Type w} {array : Array α} :
   simpa using! iterFromIdx_equiv_iter_drop_toList
 
 end Equivalence
+
+instance : LawfulDeterministicIterator (Iterators.Types.ArrayIterator β) Id where
+  isPlausibleStep_eq_eq it := by
+    rcases it with ⟨⟨array, pos⟩⟩
+    refine if h : pos < array.size then ?_ else ?_
+    · exact ⟨.yield ⟨⟨array, pos + 1⟩⟩ array[pos], by
+          ext step
+          simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep,
+            Iterators.Types.ArrayIterator.instIterator] -- TODO: remove `inst...` argument as soon as possible
+          cases step with
+          | yield it' out =>
+            constructor
+            · rintro ⟨ha, hp, hlt, hv⟩; rcases it' with ⟨⟨a', p'⟩⟩; simp_all
+            · intro heq; cases heq; exact ⟨rfl, rfl, h, rfl⟩
+          | skip => simp
+          | done => simp; omega⟩
+    · exact ⟨.done, by
+          ext step
+          simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep,
+            Iterators.Types.ArrayIterator.instIterator] -- TODO: remove `inst...` argument as soon as possible
+          cases step with
+          | yield => simp; omega
+          | skip => simp
+          | done => simp; omega⟩

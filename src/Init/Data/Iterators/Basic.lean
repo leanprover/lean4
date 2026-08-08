@@ -214,6 +214,12 @@ theorem Iter.toIterM_comp_toIter {α : Type w} {β : Type w} :
     Iter.toIterM ∘ IterM.toIter (α := α) (β := β) = id :=
   rfl
 
+theorem Iter.toIterM_inj :
+    Iter.toIterM it = Iter.toIterM it' ↔ it = it' := by
+  apply Iff.intro
+  · cases it; cases it'; simp [Iter.toIterM]
+  · simp +contextual
+
 section IterStep
 
 variable {α : Type u} {β : Type w}
@@ -296,6 +302,12 @@ theorem IterStep.mapIterator_comp {α' : Type u'} {α'' : Type u''}
     IterStep.mapIterator (β := β) (g ∘ f) = mapIterator g ∘ mapIterator f := by
   apply funext
   exact fun _ => mapIterator_mapIterator.symm
+
+theorem IterStep.mapIterator_inj {α' : Type u'} {f : α → α'} {s s'} (hf : ∀ a b, f a = f b → a = b) :
+    IterStep.mapIterator (β := β) f s = IterStep.mapIterator (β := β) f s' ↔ s = s' := by
+  replace hf (a b : α) : f a = f b ↔ a = b := ⟨hf a b, by simp +contextual⟩
+  simp only [mapIterator]
+  split <;> split <;> simp [hf]
 
 @[simp]
 theorem IterStep.mapIterator_id {step : IterStep α β} :

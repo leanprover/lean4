@@ -11,3 +11,4 @@ public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Drop
 public import Std.Data.Iterators.Lemmas.Combinators.Monadic.DropWhile
 public import Std.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
 public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Zip
+public import Std.Data.Iterators.Lemmas.Combinators.Monadic.StepSize

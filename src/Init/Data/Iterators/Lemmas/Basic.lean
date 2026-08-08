@@ -7,10 +7,11 @@ module
 
 prelude
 public import Init.Data.Iterators.Basic
+public import Init.RCases
 
 public section
 
-namespace Std
+namespace Std.Iter
 open Std.Iterators
 
 /--
@@ -19,7 +20,7 @@ iterator `it` to an element of `motive it` by defining `f it` in terms of the va
 the plausible successors of `it'.
 -/
 @[specialize]
-def Iter.inductSteps {α β} [Iterator α Id β] [Finite α Id]
+def inductSteps {α β} [Iterator α Id β] [Finite α Id]
   (motive : Iter (α := α) β → Sort x)
   (step : (it : Iter (α := α) β) →
     (ih_yield : ∀ {it' : Iter (α := α) β} {out : β},
@@ -38,7 +39,7 @@ iterator `it` to an element of `motive it` by defining `f it` in terms of the va
 the plausible skip successors of `it'.
 -/
 @[specialize]
-def Iter.inductSkips {α β} [Iterator α Id β] [Productive α Id]
+def inductSkips {α β} [Iterator α Id β] [Productive α Id]
   (motive : Iter (α := α) β → Sort x)
   (step : (it : Iter (α := α) β) →
     (ih_skip : ∀ {it' : Iter (α := α) β}, it.IsPlausibleStep (.skip it') → motive it') →
@@ -47,4 +48,22 @@ def Iter.inductSkips {α β} [Iterator α Id β] [Productive α Id]
   step it (fun {it'} _ => inductSkips motive step it')
 termination_by it.finitelyManySkips
 
-end Std
+-- Not a real instance because the discrimination key would be to indiscriminate.
+local instance [Iterator α Id β] [LawfulDeterministicIterator α Id] {it : Iter (α := α) β} :
+    Subsingleton it.Step where
+  allEq s s' := by
+    obtain ⟨s'', hs''⟩ := LawfulDeterministicIterator.isPlausibleStep_eq_eq it.toIterM
+    obtain ⟨s, hs⟩ := s
+    obtain ⟨s', hs'⟩ := s'
+    simp only [Iter.IsPlausibleStep, hs''] at hs hs'
+    have := hs.trans hs'.symm
+    rw [IterStep.mapIterator_inj (fun _ _ => toIterM_inj.mp) ] at this
+    rwa [Subtype.mk.injEq]
+
+theorem IsPlausibleStep.eq_step [Iterator α Id β] [LawfulDeterministicIterator α Id]
+    {it : Iter (α := α) β} {step} (h : it.IsPlausibleStep step) :
+    step = it.step.val := by
+  have : ⟨step, h⟩ = it.step := Subsingleton.allEq _ _
+  simp [← this]
+
+end Std.Iter

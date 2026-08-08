@@ -1065,4 +1065,113 @@ theorem Iter.all_map {α β β' : Type w}
   · simp [ihs ‹_›]
   · simp
 
+section LawfulDeterministic
+
+variable {α β γ : Type w} [Iterator α Id β] [LawfulDeterministicIterator α Id]
+
+private theorem PostconditionT.map_some_pure_property' {v : Option γ} {x : γ}
+    (h : (PostconditionT.map some (PostconditionT.pure (m := Id) x)).Property v) : v = some x := by
+  obtain ⟨⟨a, ha⟩, rfl⟩ := h; congr 1; exact ha.symm
+
+private theorem instLawfulDeterministicIteratorFilterMap
+    {lift : ⦃α : Type w⦄ → Id α → Id α} {f : β → PostconditionT Id (Option γ)} (h : ∀ b, Subsingleton (Subtype (f b).Property)) :
+    LawfulDeterministicIterator
+      (Iterators.Types.FilterMap α Id Id lift f) Id where
+  isPlausibleStep_eq_eq it := by
+    obtain ⟨innerStep, hinner⟩ := LawfulDeterministicIterator.isPlausibleStep_eq_eq
+      it.internalState.inner
+    cases innerStep with
+    | done =>
+      exact ⟨.done, by
+        ext step; simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep]
+        constructor
+        · intro h
+          cases h with
+          | done h => rfl
+          | yieldNone h => rw [hinner] at h; cases h
+          | yieldSome h => rw [hinner] at h; cases h
+          | skip h => rw [hinner] at h; cases h
+        · intro h
+          cases h
+          exact .done (by rw [hinner])⟩
+    | skip it' =>
+      exact ⟨.skip (IterM.InternalCombinators.filterMap lift _ it'), by
+        ext step; simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep]
+        constructor
+        · intro h
+          cases h with
+          | skip h => rw [hinner] at h; cases h; rfl
+          | done h => rw [hinner] at h; cases h
+          | yieldNone h => rw [hinner] at h; cases h
+          | yieldSome h => rw [hinner] at h; cases h
+        · intro h
+          cases h
+          exact .skip (by rw [hinner])⟩
+    | yield it' out =>
+      cases hfout : (f out).operation.run.val with
+      | none =>
+        exact ⟨.skip (IterM.InternalCombinators.filterMap lift _ it'), by
+          ext step; simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep]
+          constructor
+          · intro h
+            cases h with
+            | yieldNone h hp =>
+              rw [hinner] at h; cases h; rfl
+            | yieldSome h hp =>
+              rw [hinner] at h; cases h
+              have : (f out).Property none := hfout ▸ (f out).operation.run.property
+              cases (h out).allEq ⟨none, this⟩ ⟨some _, hp⟩
+            | skip h => rw [hinner] at h; cases h
+            | done h => rw [hinner] at h; cases h
+          · intro h; cases h
+            exact .yieldNone (by rw [hinner]) (hfout ▸ (f out).operation.run.property)⟩
+      | some out' =>
+        replace hfout : (f out).Property (some out') := hfout ▸ (f out).operation.run.property
+        exact ⟨.yield (IterM.InternalCombinators.filterMap lift _ it') out', by
+          ext step; simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep]
+          constructor
+          · intro h
+            cases h with
+            | yieldSome h hp =>
+              rw [hinner] at h; cases h
+              cases (h out).allEq ⟨_, hfout⟩ ⟨_, hp⟩
+              simp
+            | yieldNone h hp =>
+              rw [hinner] at h; cases h
+              cases (h out).allEq ⟨_, hfout⟩ ⟨_, hp⟩
+            | skip h => rw [hinner] at h; cases h
+            | done h => rw [hinner] at h; cases h
+          · intro h
+            cases h
+            exact .yieldSome (by rw [hinner]) hfout⟩
+
+instance instLawfulDeterministicIteratorFilterMapPure
+    {lift : ⦃α : Type w⦄ → Id α → Id α}
+    {f : β → Option γ} :
+    LawfulDeterministicIterator
+      (Iterators.Types.FilterMap α Id Id lift (fun b => pure (f b))) Id := by
+  apply instLawfulDeterministicIteratorFilterMap
+  intro b
+  simp only [PostconditionT.property_pure]
+  apply Subsingleton.intro
+  intro ⟨x, hx⟩ ⟨y, hy⟩
+  cases hx; cases hy
+  rfl
+
+instance instLawfulDeterministicIteratorMapPure
+    {lift : ⦃α : Type w⦄ → Id α → Id α}
+    {f : β → γ} :
+    LawfulDeterministicIterator
+      (Iterators.Types.Map α Id Id lift (fun b => pure (f b))) Id := by
+  apply instLawfulDeterministicIteratorFilterMap
+  intro b
+  simp only [PostconditionT.map_eq_pure_bind, PostconditionT.pure_bind, Function.comp_apply,
+    PostconditionT.property_pure]
+  apply Subsingleton.intro
+  intro ⟨x, hx⟩ ⟨y, hy⟩
+  cases hx; cases hy
+  rfl
+
+end LawfulDeterministic
+
 end Std

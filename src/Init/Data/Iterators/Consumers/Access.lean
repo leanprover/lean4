@@ -19,6 +19,45 @@ set_option linter.missingDocs true
 namespace Std
 open Std.Iterators
 
+/-- Characterizes the plausible step when advancing to the `n`-th output of a pure iterator. -/
+def Iter.IsPlausibleNthOutputStep {α β : Type w} [Iterator α Id β]
+    (n : Nat) (it : Iter (α := α) β) (step : IterStep (Iter (α := α) β) β) : Prop :=
+  it.toIterM.IsPlausibleNthOutputStep n (step.mapIterator Iter.toIterM)
+
+/--
+Returns the step in which `it` yields its `n`-th element, or `.done` if it terminates earlier.
+In contrast to `step`, this function will always return either `.yield` or `.done` but never a
+`.skip` step.
+
+For monadic iterators, the monadic effects of this operation may differ from manually iterating
+to the `n`-th value because `nextAtIdx?` can take shortcuts. By the signature, the return value
+is guaranteed to plausible in the sense of `IterM.IsPlausibleNthOutputStep`.
+
+This function is only available for iterators that explicitly support it by implementing
+the `IteratorAccess` typeclass.
+-/
+@[inline]
+def Iter.nextAtIdx? [Iterator α Id β] [IteratorAccess α Id] (it : Iter (α := α) β)
+    (n : Nat) : PlausibleIterStep (it.IsPlausibleNthOutputStep n) :=
+  let step := it.toIterM.nextAtIdx? n |>.run
+  ⟨step.val.mapIterator IterM.toIter, by simp [IsPlausibleNthOutputStep, step.property]⟩
+
+/--
+Slow version of `IterM.nextAtIdx?` that does not require an `IteratorAccess α m` instance.
+
+Returns the step in which `it` yields its `n`-th element, or `.done` if it terminates earlier.
+In contrast to `step`, this function will always return either `.yield` or `.done` but never a
+`.skip` step.
+
+This function terminates after finitely many steps.
+-/
+@[inline]
+def Iter.nextAtIdxSlow? [Iterator α Id β] [Productive α Id]
+    (it : Iter (α := α) β)
+    (n : Nat) : PlausibleIterStep (it.IsPlausibleNthOutputStep n) :=
+  let step := it.toIterM.nextAtIdxSlow? n |>.run
+  ⟨step.val.mapIterator IterM.toIter, by simp [IsPlausibleNthOutputStep, step.property]⟩
+
 /--
 If possible, takes `n` steps with the iterator `it` and
 returns the `n`-th emitted value, or `none` if `it` finished

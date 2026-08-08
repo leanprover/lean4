@@ -23,4 +23,10 @@ def Iter.stepSize [Iterator α Id β] [IteratorAccess α Id]
     Iter (α := Types.StepSizeIterator α Id β) β :=
   (it.toIterM.stepSize n).toIter
 
+@[inline]
+def Iter.Intermediate.stepSize [Iterator α Id β] [IteratorAccess α Id]
+    (it : Iter (α := α) β) (nextIdx n : Nat) :
+    Iter (α := Types.StepSizeIterator α Id β) β :=
+  (IterM.Intermediate.stepSize it.toIterM nextIdx n).toIter
+
 end Std

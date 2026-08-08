@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Iterators.Consumers
 import Init.Omega
+meta import Init.ByCases
 
 @[expose] public section
 
@@ -115,5 +116,40 @@ instance ArrayIterator.instFinite [Pure m] : Finite (ArrayIterator α) m := by
 instance ArrayIterator.instIteratorLoop {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
     IteratorLoop (ArrayIterator α) m n :=
   .defaultImplementation
+
+instance : IteratorAccess (ArrayIterator α) Id where
+  nextAtIdx? it n :=
+    let step : IterStep (IterM (α := ArrayIterator α) Id α) α :=
+      if h : it.internalState.pos + n < it.internalState.array.size then
+        .yield
+          ⟨⟨it.internalState.array, it.internalState.pos + n + 1⟩⟩
+          it.internalState.array[it.internalState.pos + n]
+      else
+        .done
+    haveI : IterM.IsPlausibleNthOutputStep n it step := by
+      simp only [step]
+      induction n generalizing it
+      · split
+        · refine .zero_yield ?_
+          simpa [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, ArrayIterator.instIterator, *] -- TODO: remove `inst...` argument as soon as possible
+        · refine .done ?_
+          simp_all [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, ArrayIterator.instIterator] -- TODO: remove `inst...` argument as soon as possible
+      · rename_i n ih
+        by_cases h : it.internalState.pos < it.internalState.array.size
+        · refine .yield (it' := ?it') (out := ?_) ?_ ?_
+          · exact ⟨⟨it.internalState.array, it.internalState.pos + 1⟩⟩
+          · exact it.internalState.array[it.internalState.pos]
+          · simpa [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, ArrayIterator.instIterator] -- TODO: remove `inst...` argument as soon as possible
+          · specialize ih ?it'
+            simp only [Nat.add_comm 1, Nat.add_assoc] at ih ⊢
+            split
+            · rw [dif_pos (by omega)] at ih
+              apply ih
+            · rw [dif_neg (by omega)] at ih
+              apply ih
+        · rw [dif_neg (by omega)]
+          refine .done (α := ArrayIterator α) (m := Id) ?_
+          simpa [IterM.IsPlausibleStep, Iterator.IsPlausibleStep] using h
+    pure ⟨step, this⟩
 
 end Std.Iterators.Types

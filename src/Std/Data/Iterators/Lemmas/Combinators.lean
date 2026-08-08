@@ -11,3 +11,4 @@ public import Std.Data.Iterators.Lemmas.Combinators.TakeWhile
 public import Std.Data.Iterators.Lemmas.Combinators.Drop
 public import Std.Data.Iterators.Lemmas.Combinators.DropWhile
 public import Std.Data.Iterators.Lemmas.Combinators.Zip
+public import Std.Data.Iterators.Lemmas.Combinators.StepSize

@@ -29,6 +29,7 @@
             llvmPackages.llvm  # llvm-symbolizer for asan/lsan
             gdb
             tree  # for CI
+            samply  # for `lake profile` end-to-end test
           ];
           # https://github.com/NixOS/nixpkgs/issues/60919
           hardeningDisable = [ "all" ];

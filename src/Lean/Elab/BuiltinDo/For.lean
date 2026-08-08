@@ -22,10 +22,10 @@ open Lean.Meta
 
 @[builtin_macro Lean.Parser.Term.doFor] def expandDoFor : Macro := fun stx => do
   match stx with
-  | `(doFor| for $[$_ : ]? $_:ident in $_ $[$_inv:doForInvariant]? $[$_dec:doDecreasing]? do $_) =>
+  | `(doFor| for $[$_ : ]? $_:ident in $_ $[$_inv:doLoopInvariant]? $[$_dec:doDecreasing]? do $_) =>
     -- This is the target form of the expander, handled by `elabDoFor` below.
     Macro.throwUnsupported
-  | `(doFor| for%$tk $decls:doForDecl,* $[$inv:doForInvariant]? $[$dec:doDecreasing]? do $body) =>
+  | `(doFor| for%$tk $decls:doForDecl,* $[$inv:doLoopInvariant]? $[$dec:doDecreasing]? do $body) =>
     let decls := decls.getElems
     if let some inv := inv then
       if decls.size > 1 then
@@ -81,7 +81,7 @@ open Lean.Meta
             do $body)
     doElems := doElems.push
       (← `(doSeqItem| for%$tk $[$h? : ]? $x:ident in $xs
-        $[$inv:doForInvariant]? $[$dec:doDecreasing]? do $body))
+        $[$inv:doLoopInvariant]? $[$dec:doDecreasing]? do $body))
     `(doElem| do $doElems*)
   | _ => Macro.throwUnsupported
 
@@ -156,7 +156,7 @@ consumed so far and the elements remaining, and binders past them bind the argum
 assertion itself. -/
 private def mkForInPureWithInvariant (g : LoopGadget) (invClause : Syntax) (h? : Option Syntax)
     (α : Expr) : DoElabM Expr := do
-  let `(doForInvariant| invariant $binders* => $invBody) := invClause | throwUnsupportedSyntax
+  let `(doLoopInvariant| invariant $binders* => $invBody) := invClause | throwUnsupportedSyntax
   checkPureForIn invClause h? g.xs α (← read).monadInfo
   unless binders.size ≥ 2 do
     throwErrorAt invClause "The `invariant` clause takes at least two binders: the elements \
@@ -185,7 +185,7 @@ private def mkForInLoopWithInvariantAndVariant (g : LoopGadget) (inv? dec? : Opt
     | some invClause =>
       let cursor := mkIdentFrom invClause (← mkFreshUserName `__c)
       let hasLeft ← `($(mkIdent ``Sum.isRight) $cursor:ident)
-      let `(doForInvariant| invariant $exitBinder $assertionBinders* => $invBody) := invClause
+      let `(doLoopInvariant| invariant $exitBinder $assertionBinders* => $invBody) := invClause
         | throwUnsupportedSyntax
       let invBody ← if assertionBinders.isEmpty then pure invBody else
         `(fun $assertionBinders* => $invBody)
@@ -196,7 +196,12 @@ private def mkForInLoopWithInvariantAndVariant (g : LoopGadget) (inv? dec? : Opt
   let varArg ← match dec? with
     | none => `(none)
     | some decClause =>
-      let `(doDecreasing| decreasing $measure) := decClause | throwUnsupportedSyntax
+      -- Binders past the clause bind the arguments of the measure itself, as they do for an
+      -- assertion.
+      let measure ← match decClause with
+        | `(doDecreasing| decreasing $binders* => $body) => `(fun $binders* => $body)
+        | `(doDecreasing| decreasing $measure:term) => pure measure
+        | _ => throwUnsupportedSyntax
       `(some $(← g.mkStateFun decClause measure))
   g.mkCall ref `Std.Internal.Do.forInLoopWithInvariantAndVariant #[invArg, varArg]
 
@@ -206,7 +211,7 @@ terminates with the collection, so it takes only an invariant. -/
 private def mkLoopGadget (g : LoopGadget) (inv? dec? : Option Syntax) (h? : Option Syntax)
     (ρ α : Expr) : DoElabM Expr := do
   if let some invClause := inv? then
-    if let `(doForInvariant| invariant $_* : $ty => $_) := invClause then
+    if let `(doLoopInvariant| invariant $_* : $ty => $_) := invClause then
       throwErrorAt ty "The `invariant` clause takes no type ascription covering all its binders; \
         ascribe the type on an individual binder, as in `invariant (pref : List α) suff => ...`."
   if (← instantiateMVars ρ).isConstOf ``Lean.Loop then
@@ -220,7 +225,7 @@ private def mkLoopGadget (g : LoopGadget) (inv? dec? : Option Syntax) (h? : Opti
 
 @[builtin_doElem_elab Lean.Parser.Term.doFor] def elabDoFor : DoElab := fun stx dec => do
   let `(doFor| for%$tk $[$h? : ]? $x:ident in $xs
-      $[$inv?:doForInvariant]? $[$dec?:doDecreasing]? do $body) := stx
+      $[$inv?:doLoopInvariant]? $[$dec?:doDecreasing]? do $body) := stx
     | throwUnsupportedSyntax
   let dec ← dec.ensureUnitAt tk
   checkMutVarsForShadowing #[x]

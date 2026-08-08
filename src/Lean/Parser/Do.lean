@@ -186,21 +186,24 @@ consumed so far and `suff` to the elements remaining. On a `repeat` or `while` l
 `invariant exit a b c => e`, with `exit` bound to whether the loop has left. Any further binders,
 here `a b c`, bind the arguments of the assertion itself, such as the state of a state monad.
 -/
-def doForInvariant := leading_parser
+def doLoopInvariant := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "invariant" >>
     withForbiddens #["do", "decreasing"] basicFun)
 /--
-A `decreasing` clause gives a `repeat` or `while` loop its termination measure, a natural number
-that every iteration must strictly decrease. It is a term over the loop's mutable variables.
+A `decreasing` clause gives a `repeat` or `while` loop its termination measure, which every
+iteration must lower. The measure is a term over the loop's mutable variables; the form
+`decreasing a b c => e` binds the arguments of the measure itself, such as the state of a state
+monad.
 -/
 def doDecreasing := leading_parser
-  ppIndent (ppLine >> nonReservedSymbol "decreasing" >> ppSpace >> withForbidden "do" termParser)
+  ppIndent (ppLine >> nonReservedSymbol "decreasing" >>
+    withForbidden "do" (atomic basicFun <|> (ppSpace >> termParser)))
 /--
 The `invariant` and `decreasing` clauses of a `repeat` loop, either of which may be given on its
 own. The body follows `do`, which terminates the clause's term.
 -/
 def doLoopClauses := leading_parser
-  ((doForInvariant >> optional doDecreasing) <|> doDecreasing) >> " do "
+  ((doLoopInvariant >> optional doDecreasing) <|> doDecreasing) >> " do "
 /--
 `for x in e do s` iterates over `e` assuming `e`'s type has an instance of the `ForIn` typeclass.
 `break` and `continue` are supported inside `for` loops.
@@ -209,7 +212,7 @@ until at least one of them is exhausted.
 The types of `e2` etc. must implement the `Std.ToStream` typeclass.
 -/
 @[builtin_doElem_parser] def doFor    := leading_parser
-  "for " >> sepBy1 doForDecl ", " >> optional doForInvariant >> optional doDecreasing >>
+  "for " >> sepBy1 doForDecl ", " >> optional doLoopInvariant >> optional doDecreasing >>
     " do " >> doSeq
 
 def dependentParam := leading_parser
@@ -330,7 +333,7 @@ from the program and proves it; at runtime the element does nothing.
   "repeat " >> optional doLoopClauses >> doSeq
 @[builtin_doElem_parser] def doWhile       := leading_parser
   "while " >> withForbiddens #["do", "invariant", "decreasing"] doIfCond >>
-    optional doForInvariant >> optional doDecreasing >> " do " >> doSeq
+    optional doLoopInvariant >> optional doDecreasing >> " do " >> doSeq
 @[builtin_doElem_parser] def doRepeatUntil := leading_parser
   "repeat " >> optional doLoopClauses >> doSeq >> ppDedent ppLine >> "until " >> termParser
 
@@ -369,7 +372,7 @@ They expand into `do unless ...`, `do for ...`, `do try ...`, and `do return ...
 @[builtin_term_parser] def termUnless := leading_parser
   "unless " >> withForbidden "do" termParser >> " do " >> doSeq
 @[builtin_term_parser] def termFor := leading_parser
-  "for " >> sepBy1 doForDecl ", " >> optional doForInvariant >> optional doDecreasing >>
+  "for " >> sepBy1 doForDecl ", " >> optional doLoopInvariant >> optional doDecreasing >>
     " do " >> doSeq
 @[builtin_term_parser] def termTry    := leading_parser
   "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally

@@ -17,8 +17,8 @@ invariant so that `vcgen` reads the invariant from the program. Their `@[spec]` 
 restate `Spec.forIn_list`/`Spec.forIn'_list` for every container with a `PureForIn` instance.
 
 `forInLoopWithInvariantAndVariant` does the same for a `repeat` loop, carrying an invariant and a
-termination measure, either of which may be absent. Its four specifications restate
-`Spec.forIn_loop`, one per combination, leaving an absent annotation to `vcgen` to infer.
+termination measure, either of which may be absent. Its specifications restate `Spec.forIn_loop`,
+one per combination a loop annotation produces, leaving an absent annotation to `vcgen` to infer.
 -/
 
 @[expose] public section
@@ -177,28 +177,6 @@ theorem Spec.forInLoop_variant {Q : Type uq}
         einv) :
     Triple
       (forInLoopWithInvariantAndVariant (Pred := Q) l init f none (some measure))
-      (inv (.inl init))
-      (fun b => inv (.inr b))
-      einv := by
-  unfold forInLoopWithInvariantAndVariant
-  exact Spec.forIn_loop measure inv einv step
-
-@[spec]
-theorem Spec.forInLoop_bare {Q : Type uq}
-    {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
-    (measure : RepeatVariant β)
-    (inv : RepeatInvariant β β Pred)
-    (einv : EPred)
-    (step : ∀ b,
-      Triple
-        (f () b)
-        (inv (.inl b))
-        (fun r => match r with
-          | .yield b' => ⌜measure b' < measure b⌝ ⊓ inv (.inl b')
-          | .done b' => inv (.inr b'))
-        einv) :
-    Triple
-      (forInLoopWithInvariantAndVariant (Pred := Q) l init f none none)
       (inv (.inl init))
       (fun b => inv (.inr b))
       einv := by

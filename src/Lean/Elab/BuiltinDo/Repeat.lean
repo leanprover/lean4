@@ -19,13 +19,13 @@ open Lean.Parser.Term
 /-- Split a `doLoopClauses` node into the `invariant` and `decreasing` clauses it carries. Either
 clause may be given on its own, so the node's children are inspected by kind. -/
 def splitLoopClauses (clauses? : Option Syntax) :
-    Option (TSyntax ``doForInvariant) × Option (TSyntax ``doDecreasing) := Id.run do
+    Option (TSyntax ``doLoopInvariant) × Option (TSyntax ``doDecreasing) := Id.run do
   let some clauses := clauses? | return (none, none)
   let mut inv? := none
   let mut dec? := none
   for arg in clauses.getArgs do
     let arg := if arg.isOfKind nullKind then arg.getArgs.getD 0 .missing else arg
-    if arg.isOfKind ``doForInvariant then
+    if arg.isOfKind ``doLoopInvariant then
       inv? := some ⟨arg⟩
     else if arg.isOfKind ``doDecreasing then
       dec? := some ⟨arg⟩
@@ -45,7 +45,7 @@ actionable — the user can remove the following code without breaking the do bl
   let `(doElem| repeat%$tk $[$clauses?:doLoopClauses]? $seq) := stx | throwUnsupportedSyntax
   let (inv?, var?) := splitLoopClauses (clauses?.map (·.raw))
   let mut expanded ←
-    `(doElem| for%$tk _ in Loop.mk $[$inv?:doForInvariant]? $[$var?:doDecreasing]? do $seq)
+    `(doElem| for%$tk _ in Loop.mk $[$inv?:doLoopInvariant]? $[$var?:doDecreasing]? do $seq)
   let info ← inferControlInfoSeq seq
   if !info.breaks then
     if !(← Meta.isDefEqGuarded dec.resultType (← mkPUnit)) then
@@ -54,14 +54,14 @@ actionable — the user can remove the following code without breaking the do bl
     withRef expanded <| elabDoElem ⟨expanded⟩ dec
 
 @[builtin_macro Lean.Parser.Term.doWhile] def expandDoWhile : Macro
-  | `(doElem| while%$tk $cond:doIfCond $[$inv?:doForInvariant]? $[$dec?:doDecreasing]? do $seq) => do
+  | `(doElem| while%$tk $cond:doIfCond $[$inv?:doLoopInvariant]? $[$dec?:doDecreasing]? do $seq) => do
     let body ← `(doSeq| if $cond:doIfCond then $seq else break)
     match inv?, dec? with
     | none, none => `(doElem| repeat%$tk $body:doSeq)
-    | some inv, none => `(doElem| repeat%$tk $inv:doForInvariant do $body:doSeq)
+    | some inv, none => `(doElem| repeat%$tk $inv:doLoopInvariant do $body:doSeq)
     | none, some dec => `(doElem| repeat%$tk $dec:doDecreasing do $body:doSeq)
     | some inv, some dec =>
-      `(doElem| repeat%$tk $inv:doForInvariant $dec:doDecreasing do $body:doSeq)
+      `(doElem| repeat%$tk $inv:doLoopInvariant $dec:doDecreasing do $body:doSeq)
   | _ => Macro.throwUnsupported
 
 @[builtin_macro Lean.Parser.Term.doRepeatUntil] def expandDoRepeatUntil : Macro

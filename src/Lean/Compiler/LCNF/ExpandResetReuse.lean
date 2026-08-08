@@ -7,7 +7,9 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.PassManager
+import Lean.Compiler.LCNF.UniquenessAnalysis
 import Init.While
+import Lean.Compiler.LCNF.PrettyPrinter
 
 /-!
 This pass expands pairs of reset-reuse instructions into explicit hot and cold paths. We do this on
@@ -194,6 +196,11 @@ def collectSucceedingSets (target : FVarId) (k : Code .impure) :
     | _ => break
   return (sets, k)
 
+structure Context where
+  analysis : UniquenessAnalysisResult
+
+abbrev ExpandM := ReaderT Context CompilerM
+
 mutual
 
 /--
@@ -201,7 +208,7 @@ Expand the matching `reuse`/`dec` for the allocation in `origAllocId` whose `res
 `resetTokenId`.
 -/
 partial def processResetCont (resetTokenId : FVarId) (code : Code .impure) (origAllocId : FVarId)
-    (isSharedId : FVarId) (currentRetType : Expr) : CompilerM (Code .impure) := do
+    (isSharedId : FVarId) (currentRetType : Expr) : ExpandM (Code .impure) := do
   match code with
   | .dec y n _ _ _ k =>
     if resetTokenId == y then
@@ -228,14 +235,19 @@ partial def processResetCont (resetTokenId : FVarId) (code : Code .impure) (orig
         borrow := false
       }
       let contJp ← mkFunDecl (← mkFreshBinderName `reusejp) currentRetType #[param] k
-
-      let slowPath ← mkSlowPath decl c xs contJp.fvarId selfSets
-      let fastPath ← mkFastPath resetTokenId c u xs contJp.fvarId origAllocId
-
       eraseLetDecl decl
 
-      let reuse ← mkIf isSharedId uint8 currentRetType slowPath fastPath
-      return .jp contJp reuse
+      let uniqueness := (← read).analysis.variables.getD origAllocId .top
+      trace[Compiler.uniqueness] m!"{← PP.run <| PP.ppFVar origAllocId}: {repr uniqueness} {(← read).analysis.variables.contains origAllocId}"
+      match uniqueness with
+      | .top =>
+        let slowPath ← mkSlowPath decl c xs contJp.fvarId selfSets
+        let fastPath ← mkFastPath resetTokenId c u xs contJp.fvarId origAllocId
+        let reuse ← mkIf isSharedId uint8 currentRetType slowPath fastPath
+        return .jp contJp reuse
+      | .unique =>
+        let fastPath ← mkFastPath resetTokenId c u xs contJp.fvarId origAllocId
+        return .jp contJp fastPath
     | _ =>
       let k ← processResetCont resetTokenId k origAllocId isSharedId currentRetType
       return code.updateCont! k
@@ -258,7 +270,7 @@ where
   3. Pass the fresh allocation to the joinpoint.
   -/
   mkSlowPath (decl : LetDecl .impure) (info : CtorInfo) (args : Array (Arg .impure))
-      (contJpId : FVarId) (selfSets : Array (CodeDecl .impure)) : CompilerM (Code .impure) := do
+      (contJpId : FVarId) (selfSets : Array (CodeDecl .impure)) : ExpandM (Code .impure) := do
     let allocDecl ← mkLetDecl (← mkFreshBinderName `reuseFailAlloc) decl.type (.ctor info args)
     let mut code := .jmp contJpId #[.fvar allocDecl.fvarId]
     code := attachCodeDecls (← remapSets allocDecl.fvarId selfSets) code
@@ -272,7 +284,7 @@ where
   2. Pass the reused allocation to the joinpoint.
   -/
   mkFastPath (resetTokenId : FVarId) (info : CtorInfo) (update : Bool) (args : Array (Arg .impure))
-      (contJpId : FVarId) (origAllocId : FVarId) : CompilerM (Code .impure) := do
+      (contJpId : FVarId) (origAllocId : FVarId) : ExpandM (Code .impure) := do
     let mut code := .jmp contJpId #[.fvar resetTokenId]
     for h : idx in 0...args.size do
       if !(← isSelfOset origAllocId idx args[idx]) then
@@ -286,7 +298,7 @@ Traverse `code` looking for reset-reuse pairs to expand while `ds` holds the ins
 last branching point.
 -/
 partial def Code.expandResetReuse (code : Code .impure) (ds : Array (CodeDecl .impure))
-    (currentRetType : Expr) : CompilerM (Code .impure) := do
+    (currentRetType : Expr) : ExpandM (Code .impure) := do
   let collectAndGo (code : Code .impure) (ds : Array (CodeDecl .impure)) (k : Code .impure) :=
     let d := code.toCodeDecl!
     k.expandResetReuse (ds.push d) currentRetType
@@ -313,25 +325,34 @@ where
   Expand the reset in `decl` together with its matching `reuse`/`dec`s in its continuation `k`.
   -/
   expand (ds : Array (CodeDecl .impure)) (decl : LetDecl .impure) (nFields : Nat)
-      (origAllocId : FVarId) (k : Code .impure) : CompilerM (Code .impure) := do
+      (origAllocId : FVarId) (k : Code .impure) : ExpandM (Code .impure) := do
     let (ds, mask) ← eraseProjIncFor nFields origAllocId ds
     let isSharedParam ← mkParam (← mkFreshBinderName `isShared) uint8 false
-    let k ← processResetCont decl.fvarId k origAllocId isSharedParam.fvarId currentRetType
-    let k ← k.expandResetReuse #[] currentRetType
     let allocParam := {
       fvarId := decl.fvarId,
       binderName := decl.binderName,
       type := tobject,
       borrow := false
     }
+    let k ← processResetCont decl.fvarId k origAllocId isSharedParam.fvarId currentRetType
+    let k ← k.expandResetReuse #[] currentRetType
     let resetJp ← mkFunDecl (← mkFreshBinderName `resetjp) currentRetType #[allocParam, isSharedParam] k
-    let isSharedDecl ← mkLetDecl (← mkFreshBinderName `isSharedCheck) uint8 (.isShared origAllocId)
-    let slowPath ← mkSlowPath origAllocId mask resetJp.fvarId isSharedDecl.fvarId
-    let fastPath ← mkFastPath origAllocId mask resetJp.fvarId isSharedDecl.fvarId
-    let mut reset ← mkIf isSharedDecl.fvarId uint8 currentRetType slowPath fastPath
-    reset := .let isSharedDecl reset
-    eraseLetDecl decl
-    return attachCodeDecls ds (.jp resetJp reset)
+    let uniqueness := (← read).analysis.variables.getD origAllocId .top
+    trace[Compiler.uniqueness] m!"{← PP.run <| PP.ppFVar origAllocId}: {repr uniqueness}"
+    match uniqueness with
+    | .top =>
+      let isSharedDecl ← mkLetDecl (← mkFreshBinderName `isSharedCheck) uint8 (.isShared origAllocId)
+      let slowPath ← mkSlowPath origAllocId mask resetJp.fvarId isSharedDecl.fvarId
+      let fastPath ← mkFastPath origAllocId mask resetJp.fvarId isSharedDecl.fvarId
+      let mut reset ← mkIf isSharedDecl.fvarId uint8 currentRetType slowPath fastPath
+      reset := .let isSharedDecl reset
+      eraseLetDecl decl
+      return attachCodeDecls ds (.jp resetJp reset)
+    | .unique =>
+      let isSharedDecl ← mkLetDecl (← mkFreshBinderName `isSharedCheck) uint8 (.lit (.uint8 0))
+      let fastPath ← mkFastPath origAllocId mask resetJp.fvarId isSharedDecl.fvarId
+      eraseLetDecl decl
+      return attachCodeDecls ds (.jp resetJp (.let isSharedDecl fastPath))
 
   /--
   On the slow path we cannot reuse the allocation, this means we have to:
@@ -342,7 +363,7 @@ where
   3. Pass box(0) as a reuse value into the continuation join point
   -/
   mkSlowPath (origAllocId : FVarId) (mask : Mask) (resetJpId : FVarId) (isSharedId : FVarId) :
-      CompilerM (Code .impure) := do
+      ExpandM (Code .impure) := do
     let mut code := .jmp resetJpId #[.erased, .fvar isSharedId]
     code := .dec origAllocId 1 true false none code
     for fvarId? in mask do
@@ -357,7 +378,7 @@ where
   2. Pass the original allocation as a reuse value into the continuation join point
   -/
   mkFastPath (origAllocId : FVarId) (mask : Mask) (resetJpId : FVarId) (isSharedId : FVarId) :
-      CompilerM (Code .impure) := do
+      ExpandM (Code .impure) := do
     let mut code := .jmp resetJpId #[.fvar origAllocId, .fvar isSharedId]
     for h : idx in 0...mask.size do
       if mask[idx].isSome then
@@ -368,16 +389,22 @@ where
 
 end
 
-def Decl.expandResetReuse (decl : Decl .impure) : CompilerM (Decl .impure) := do
+def Decl.expandResetReuse (decl : Decl .impure) (analysis : UniquenessAnalysisResult) :
+    CompilerM (Decl .impure) := do
   if (← getConfig).resetReuse then
-    let value ← decl.value.mapCodeM (·.expandResetReuse #[] decl.type)
+    let value ← decl.value.mapCodeM (·.expandResetReuse #[] decl.type |>.run { analysis })
     let decl := { decl with value }
     return decl
   else
     return decl
 
-public def expandResetReuse : Pass :=
-  Pass.mkPerDeclaration `expandResetReuse .impure Decl.expandResetReuse
+public def expandResetReuse : Pass where
+  name := `expandResetReuse
+  phase := .impure
+  phaseOut := .impure
+  run decls := do
+    let analysis ← inferSccUniqueness decls
+    decls.mapM (·.expandResetReuse analysis)
 
 builtin_initialize
   registerTraceClass `Compiler.expandResetReuse (inherited := true)

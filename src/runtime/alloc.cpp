@@ -23,14 +23,20 @@ void initialize_alloc() {
 void finalize_alloc() {
 }
 
-LEAN_THREAD_VALUE(uint64_t, g_heartbeat, 0);
+extern "C" {
+#ifdef LEAN_HEARTBEAT_TLS
+LEAN_EXPORT __thread uint64_t lean_heartbeat LEAN_HEARTBEAT_TLS = 0;
+#else
+LEAN_THREAD_VALUE(uint64_t, lean_heartbeat, 0);
+#endif
+}
 
 void set_heartbeats(uint64_t count) {
-    g_heartbeat = count;
+    lean_heartbeat = count;
 }
 
 void add_heartbeats(uint64_t count) {
-    g_heartbeat += count;
+    lean_heartbeat += count;
 }
 
 extern "C" LEAN_EXPORT void lean_inc_heartbeat() {
@@ -38,7 +44,7 @@ extern "C" LEAN_EXPORT void lean_inc_heartbeat() {
 }
 
 uint64_t get_num_heartbeats() {
-    return g_heartbeat;
+    return lean_heartbeat;
 }
 
 }

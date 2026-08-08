@@ -200,6 +200,42 @@ rev = {repr rev}
 [[lean_lib]]
 name = {repr libRoot}
 "
+def cslibLeanConfigFileContents (pkgName libRoot rev : String) :=
+s!"import Lake
+open Lake DSL
+
+package {repr pkgName} where
+  version := v!\"0.1.0\"
+  keywords := #[\"cs\"]
+  leanOptions := #[
+    ⟨`pp.unicode.fun, true⟩, -- pretty-prints `fun a ↦ b`
+    ⟨`weak.linter.mathlibStandardSet, true⟩,
+  ]
+
+require \"leanprover\" / \"cslib\" @ git {repr rev}
+
+@[default_target]
+lean_lib {libRoot} where
+  -- add any library configuration options here
+"
+def cslibTomlConfigFileContents (pkgName libRoot rev : String) :=
+s!"name = {repr pkgName}
+version = \"0.1.0\"
+keywords = [\"cs\"]
+defaultTargets = [{repr libRoot}]
+
+[leanOptions]
+pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+weak.linter.mathlibStandardSet = true
+
+[[require]]
+name = \"cslib\"
+scope = \"leanprover-community\"
+rev = {repr rev}
+
+[[lean_lib]]
+name = {repr libRoot}
+"
 
 def readmeFileContents (pkgName : String) := s!"# {pkgName}"
 
@@ -217,6 +253,21 @@ To set up your new GitHub repository, follow these steps:
 
 After following the steps above, you can remove this section from the README file.
 "
+def csReadmeFileContents (pkgName : String) := s!"# {pkgName}
+
+## GitHub configuration
+
+To set up your new GitHub repository, follow these steps:
+
+* Under your repository name, click **Settings**.
+* In the **Actions** section of the sidebar, click \"General\".
+* Check the box **Allow GitHub Actions to create and approve pull requests**.
+* Click the **Pages** section of the settings sidebar.
+* In the **Source** dropdown menu, select \"GitHub Actions\".
+
+After following the steps above, you can remove this section from the README file.
+"
+
 
 def leanActionWorkflowContents :=
 "name: Lean Action CI

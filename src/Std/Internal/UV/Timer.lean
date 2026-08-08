@@ -59,9 +59,13 @@ This function has different behavior depending on the state and configuration of
      This ensures that the returned `IO.Promise` resolves at the next repetition of the timer.
   - if it is finished, return the last `IO.Promise` created by `next`. Notably this could be one
     that never resolves if the timer was stopped before fulfilling the last one.
+
+If the event loop is torn down (at process exit) while the promise is still pending, it is
+resolved with an `UV_ECANCELED` error. Once the loop is gone this function itself fails with
+`UV_ECANCELED` rather than returning a promise.
 -/
 @[extern "lean_uv_timer_next"]
-opaque next (timer : @& Timer) : IO (IO.Promise Unit)
+opaque next (timer : @& Timer) : IO (IO.Promise (Except IO.Error Unit))
 
 /--
 This function has different behavior depending on the state and configuration of the `Timer`:

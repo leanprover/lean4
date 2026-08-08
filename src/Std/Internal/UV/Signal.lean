@@ -62,10 +62,13 @@ This function has different behavior depending on the state and configuration of
   - if it is finished, return the last `IO.Promise` created by `next`. Notably this could be one
     that never resolves if the signal handler was stopped before fulfilling the last one.
 
-The resolved `IO.Promise` contains the signal number that was received.
+The resolved `IO.Promise` contains the signal number that was received. If the event loop is torn
+down (at process exit) while the promise is still pending, it is resolved with an `UV_ECANCELED`
+error. Once the loop is gone this function itself fails with `UV_ECANCELED` rather than returning a
+promise.
 -/
 @[extern "lean_uv_signal_next"]
-opaque next (signal : @& Signal) : IO (IO.Promise Int)
+opaque next (signal : @& Signal) : IO (IO.Promise (Except IO.Error Int))
 
 /--
 This function has different behavior depending on the state of the `Signal`:

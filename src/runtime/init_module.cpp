@@ -37,6 +37,7 @@ void initialize_runtime_module() {
     lean_initialize_runtime_module();
 }
 void finalize_runtime_module() {
+    finalize_libuv();
     finalize_stack_overflow();
     finalize_process();
     finalize_mutex();

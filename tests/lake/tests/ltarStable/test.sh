@@ -10,10 +10,7 @@ source ../common.sh
 
 # Copy the package to a working directory so that neither the byproducts below nor
 # the source edit hit the checked-in source tree
-WORK_DIR="$PWD/work"
-mkdir -p "$WORK_DIR"
-cp -r Test Test.lean lakefile.toml "$WORK_DIR/"
-cd "$WORK_DIR"
+copy_to_work Test Test.lean lakefile.toml
 
 # Hermetic, workspace-local artifact cache: an empty `LAKE_CACHE_DIR` disables the
 # system cache, so all artifacts and mappings live under `.lake/cache`. The package

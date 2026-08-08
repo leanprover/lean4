@@ -46,6 +46,17 @@ else
 fi
 norm_dirname() { norm_path "$(dirname -- "$1")";  }
 
+# Copy the given paths into the ignored `work/` directory and `cd` into it, so that tests
+# which mutate their inputs or initialize a Git repository leave the checked-in source tree
+# untouched. The copies are made writable because `cp` propagates the source mode and CI
+# runs the suite with tracked files read-only.
+copy_to_work() {
+  mkdir -p work
+  cp -r "$@" work/
+  chmod -R u+w work
+  cd work
+}
+
 init_git() {
   echo "# initialize test repository"
   set -x

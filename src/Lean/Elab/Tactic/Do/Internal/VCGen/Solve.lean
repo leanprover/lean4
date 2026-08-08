@@ -415,6 +415,26 @@ private def stopOrErrorOnMissingSpec (prog monad : Expr) (thms : Array SpecTheor
     throwError "No spec matching the monad {monad} found for program {prog}. \
       Candidates were {thms.map (·.proof)}."
 
+/-- Check that `payload` is a term of the join point's own context: it may mention neither a local
+introduced at the jump site nor a metavariable carrying one in its local context. The latter only
+fails once that metavariable is assigned, long after the jump is gone, so it is caught here. -/
+private def checkJPPayloadScope (jpInfo : JPDefInfo) (jump payload : Expr) : MetaM Unit := do
+  let lctx ← getLCtx
+  let leakedRef ← IO.mkRef (#[] : Array Name)
+  let note (decl : LocalDecl) : IO Unit := do
+    if decl.index ≥ jpInfo.outerLCtxSize then leakedRef.modify (·.push decl.userName)
+  payload.forEach fun sub => do
+    match sub with
+    | .fvar fvarId => if let some decl := lctx.find? fvarId then note decl
+    | .mvar mvarId =>
+      for decl? in (← mvarId.getDecl).lctx.decls.toList do
+        if let some decl := decl? then note decl
+    | _ => pure ()
+  let leaked ← leakedRef.get
+  unless leaked.isEmpty do
+    throwError "vcgen +jp: the precondition of jump{indentExpr jump}\ndepends on \
+      {leaked.toList}, which the join point's body cannot refer to"
+
 /-- At a JP jump site `__do_jp args`, build this jump's `ResolvedJump`. `finalizeJPs` assigns `?Hᵢ` the
 disjunction of its jumps' payloads and discharges each jump by construction.
 
@@ -476,30 +496,31 @@ private def mkJPJumpPayload? (jpInfo : JPDefInfo) (e matchExpr : Expr) :
       let eqs ← jpBinders.mapIdxM fun i jp => do
         let τ ← Sym.inferType jp
         return mkApp3 (mkConst ``Eq [← Sym.getLevel τ]) τ jp joinArgs[i]!
-      -- Locals past the telescope are `∃`/`let`-closed. Implementation-detail decls (compiler
-      -- internal) must never become `∃` binders or witnesses, so drop them here.
-      let restDecls := slice.filter (fun decl => !decl.isImplementationDetail)
-        (start := layout.bodyTeleLen)
-      let restLocals := restDecls.map LocalDecl.toExpr
-      -- `∃ rest, joinParams = joinArgs`, existentially/let-closing the kept locals; the paired ones
-      -- are then rewritten to the mvar's own alt binders.
-      let (_, φPropClosed) ← restDecls.foldrM (init := (restLocals, (mkAndN eqs.toList).abstract restLocals))
-          fun decl (locals, φ) => do
-        let locals := locals.pop
-        let type := (← instantiateMVarsS decl.type).abstract locals
-        match decl.value? with
-        | some v =>
-          let val := (← instantiateMVarsS v).abstract locals
-          return (locals, Lean.mkLet decl.userName type val φ (nondep := decl.isNondep))
-        | none =>
-          let typeLevel ← Sym.getLevel decl.type
-          return (locals, mkApp2 (mkConst ``Exists [typeLevel]) type (Expr.lam decl.userName type φ .default))
-      let φPropClosed := φPropClosed.replaceFVars matchedLocals matchedBinders
-      -- The `∃` binders are exactly the non-let rest locals, in order; hand them back as witnesses.
+      -- Every local introduced since the join point was registered, other than the ones paired with
+      -- an alt binder, is closed over: the split's own bookkeeping as well as the locals past its
+      -- telescope. A metavariable in the payload, a loop invariant say, may carry any of them in its
+      -- local context, so none may be left behind. Implementation details never become binders.
+      let matchedIds := matchedLocals.map Expr.fvarId!
+      let closeDecls := slice.filter fun decl =>
+        !decl.isImplementationDetail && !matchedIds.contains decl.fvarId
+      -- `∃ closed, joinParams = joinArgs`, innermost binder first. `mkLambdaFVars`/`mkLetFVars`
+      -- re-scope any hole whose local context mentions the local being bound, which plain
+      -- abstraction cannot do; a let keeps its own `nondep` flag, so a `have` stays a `have`.
+      let φ ← liftMetaM <| closeDecls.foldrM (init := mkAndN eqs.toList) fun decl φ => do
+        if decl.value?.isSome then
+          Meta.mkLetFVars #[decl.toExpr] φ (usedLetOnly := false) (generalizeNondepLet := false)
+        else
+          let u ← Meta.getLevel decl.type
+          return mkApp2 (mkConst ``Exists [u]) decl.type (← Meta.mkLambdaFVars #[decl.toExpr] φ)
+      -- The paired locals become `?Hᵢ`'s own alt binders. Abstracting and applying re-scopes holes
+      -- the same way, where substituting one free variable for the other would not.
+      let φ ← liftMetaM <| return (← Meta.mkLambdaFVars matchedLocals φ).beta matchedBinders
+      let payload ← liftMetaM <| Meta.mkLambdaFVars allBinders φ
+      liftMetaM <| checkJPPayloadScope jpInfo e payload
+      -- The `∃` binders are exactly the non-let closed locals, in order; hand them back as witnesses.
       return some {
-        altIdx, redExpr, redProof
-        payload := ← liftMetaM <| Meta.mkLambdaFVars allBinders φPropClosed
-        witnesses := (restDecls.filter (·.value?.isNone)).map LocalDecl.toExpr }
+        altIdx, redExpr, redProof, payload
+        witnesses := (closeDecls.filter (·.value?.isNone)).map LocalDecl.toExpr }
 
 /-- Build the proof of `∃ locals, ⋀ joinParams = joinArgs`, supplying each `∃` binder from
 `witnesses` (the actual locals) and closing the residual equalities by `rfl`. Every node of the

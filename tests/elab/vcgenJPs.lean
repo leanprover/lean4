@@ -233,3 +233,20 @@ theorem throwing_triple :
   unfold throwing
   vcgen +jp
   all_goals grind
+
+-- A `for` loop inside an alt binds a loop invariant whose local context mentions the alt's own
+-- binders. Closing the jump's precondition over the jump-site locals has to re-scope that
+-- invariant, or the fvars it is later assigned escape into the join point's body.
+def loop_in_alt (f : Nat → Option Nat) : Id Nat := do
+  let mut x := 1
+  match f 0 with
+  | some y => for _ in [0:y] do x := x + 1
+  | none => x := x + 2
+  match f 1 with | some z => x := x + z | none => x := x + 2
+  return x
+
+theorem loop_in_alt_triple : ⦃ True ⦄ loop_in_alt f ⦃ fun r => r > 0 ⦄ := by
+  unfold loop_in_alt
+  vcgen +jp
+  case inv1 => rename_i y _; exact (fun _ x => ⌜x > 0 ∧ y ≤ y⌝)
+  all_goals grind

@@ -93,7 +93,7 @@ def builtinPassManager : PassManager := {
   basePasses := #[
     init,
     pullInstances,
-    cse (shouldElimFunDecls := false),
+    --cse (shouldElimFunDecls := false),
     simp,
     floatLetIn,
     findJoinPoints,
@@ -112,7 +112,7 @@ def builtinPassManager : PassManager := {
     specialize,
     findJoinPoints (occurrence := 1),
     simp (occurrence := 2),
-    cse (shouldElimFunDecls := false) (occurrence := 1),
+    --cse (shouldElimFunDecls := false) (occurrence := 1),
     saveBase, -- End of base phase
     -- should come last so it can see all created decls
     -- pass must be run for each phase; see `base/monoTransparentDeclsExt`
@@ -135,7 +135,7 @@ def builtinPassManager : PassManager := {
     extendJoinPointContext (phase := .mono) (occurrence := 1),
     simp (occurrence := 5) (phase := .mono),
     elimDeadBranches,
-    cse (occurrence := 2) (phase := .mono),
+    --cse (occurrence := 2) (phase := .mono),
     saveMono,  -- End of mono phase
     inferVisibility (phase := .mono),
     extractClosed,

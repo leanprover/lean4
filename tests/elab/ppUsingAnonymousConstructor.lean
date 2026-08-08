@@ -29,5 +29,5 @@ attribute [pp_using_anonymous_constructor] S
 #guard_msgs in #check (⟨2, by omega⟩ : {n : Nat // n < 3})
 
 set_option pp.universes true in
-/-- info: Subtype.mk.{1} 2 ⋯ : Subtype.{1} fun n => LT.lt.{0} n 3 -/
+/-- info: Subtype.mk.{1} 2 ⋯ : Subtype.{1} fun n => LT.lt.{1} n 3 -/
 #guard_msgs in #check (⟨2, by omega⟩ : {n : Nat // n < 3})

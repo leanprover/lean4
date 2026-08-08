@@ -3,13 +3,13 @@
 [Meta.debug] #[a, b, motive, intro, t]
 [Meta.debug] #[x, a, a, a, a, a._@._internal._hyg.0]
 [Meta.debug] @False.elim.{0}
-      (@GT.gt.{0} Nat instLTNat (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))
+      (@GT.gt.{1} Nat instLTNat (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))
         (@OfNat.ofNat.{0} Nat (nat_lit 5) (instOfNatNat (nat_lit 5))))
       (@noConfusion_of_Nat.{2} (List.{1} Type) (@List.ctorIdx.{1} Type) (@List.cons.{1} Type Unit (@List.nil.{1} Type))
         (@List.nil.{1} Type) t1)
-[Meta.debug] @GT.gt.{0} Nat instLTNat (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))
+[Meta.debug] @GT.gt.{1} Nat instLTNat (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))
       (@OfNat.ofNat.{0} Nat (nat_lit 5) (instOfNatNat (nat_lit 5)))
-[Meta.debug] @LT.lt.{0} Nat instLTNat (@OfNat.ofNat.{0} Nat (nat_lit 10000000) (instOfNatNat (nat_lit 10000000)))
+[Meta.debug] @LT.lt.{1} Nat instLTNat (@OfNat.ofNat.{0} Nat (nat_lit 10000000) (instOfNatNat (nat_lit 10000000)))
       (@OfNat.ofNat.{0} Nat (nat_lit 20000000000) (instOfNatNat (nat_lit 20000000000)))
 [Meta.debug] case case_1
     y : Nat

@@ -80,5 +80,5 @@ so it goes before the colon.
 -/
 def bar' [LT α] (x : α) : x < x := sorry
 
-/-- info: bar'.{u_1} {α : Type u_1} [LT α] (x : α) : x < x -/
+/-- info: bar'.{u_1} {α : Sort u_1} [LT α] (x : α) : x < x -/
 #guard_msgs in #check bar'

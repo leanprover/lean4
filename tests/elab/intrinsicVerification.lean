@@ -261,6 +261,110 @@ def halve (n : Nat) : Id (Option Nat)
 #guard_msgs (drop info) in
 #check @halve.spec
 
+/-! ## A `repeat` or `while` loop binds whether it has left
+
+The clause's first binder is a `Bool`: `true` once the loop is done, `false` while it iterates. The
+`decreasing` clause gives the termination measure, a term over the loop's mutable variables. -/
+
+def countDown (n : Nat) : Id Nat
+    ensures r => r = 0 := do
+  let mut i := n
+  while i > 0
+      invariant exit => if exit then i = 0 else True
+      decreasing i
+    do
+    i := i - 1
+  return i
+
+#guard_msgs (drop info) in
+#check @countDown.spec
+
+/-! Binders past the first bind the arguments of the assertion itself, such as the state of a state
+monad. -/
+
+def countIntoState (n : Nat) : StateM Nat Unit
+    requires s => s = 0
+    ensures _ s => s = n := do
+  let mut i := 0
+  while i < n
+      invariant exit s => s = i ∧ if exit then i = n else i ≤ n
+      decreasing n - i
+    do
+    modify (· + 1)
+    i := i + 1
+where finally
+  | spec => all_goals simp_all; omega
+
+#guard_msgs (drop info) in
+#check @countIntoState.spec
+
+/-! A wildcard binder states one assertion for both cases. A clause left out is a
+condition like any other: the omitted measure is named `inv1` and discharged in the `spec` section,
+which then proves the step that mentions it. -/
+
+def countUp (n : Nat) : Id Nat
+    ensures r => r ≤ n := do
+  let mut i := 0
+  repeat
+      invariant _ => i ≤ n
+    do
+    if i = n then break
+    i := i + 1
+  return i
+where finally
+  | spec =>
+    case inv1 => exact .ofMeasure fun i => n - i
+    all_goals simp_all; omega
+
+#guard_msgs (drop info) in
+#check @countUp.spec
+
+/-! A `repeat … until` loop takes the same clauses. -/
+
+def countUntil (n : Nat) : Id Nat
+    ensures r => r ≤ n := do
+  let mut i := 0
+  repeat
+      invariant _ => i ≤ n
+      decreasing n - i
+    do
+    if i < n then i := i + 1
+  until i = n
+  return i
+
+#guard_msgs (drop info) in
+#check @countUntil.spec
+
+/-! A loop that returns early carries the returned value in a slot of the state tuple that the
+invariant skips over, so a `repeat` with a `return` in its body takes the clauses like any other.
+The invariant cannot name that slot, so what the loop returns is beyond what it can state. -/
+
+def firstZero (xs : Array Nat) : Id (Option Nat)
+    ensures _ => True := do
+  let mut i := 0
+  repeat
+      invariant _ => i ≤ xs.size
+      decreasing xs.size - i
+    do
+    if h : i < xs.size then
+      if xs[i] = 0 then return some i
+      i := i + 1
+    else
+      break
+  return none
+
+#guard_msgs (drop info) in
+#check @firstZero.spec
+
+/-! A `for` loop over a collection ends with the collection. -/
+
+/--
+error: A `for` loop terminates with the collection it iterates; `decreasing` states the termination measure of a `repeat` or `while` loop.
+-/
+#guard_msgs in
+example (xs : List Nat) : Id Unit := do
+  for _ in xs invariant _ _ => True decreasing xs.length do pure ()
+
 /-! ## The contract telescope is transplanted faithfully to `f.spec`
 
 `f.spec` re-binds the definition's telescope verbatim, applies `f` to exactly the explicit arguments,

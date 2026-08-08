@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.BuiltinDo.Basic
 meta import Lean.Parser.Do
 import Init.Control.Do
+import Init.Data.Sum.Basic
 import Init.While
 import Lean.Meta.ProdN
 
@@ -21,10 +22,10 @@ open Lean.Meta
 
 @[builtin_macro Lean.Parser.Term.doFor] def expandDoFor : Macro := fun stx => do
   match stx with
-  | `(doFor| for $[$_ : ]? $_:ident in $_ $[$_inv:doForInvariant]? do $_) =>
+  | `(doFor| for $[$_ : ]? $_:ident in $_ $[$_inv:doLoopInvariant]? $[$_dec:doDecreasing]? do $_) =>
     -- This is the target form of the expander, handled by `elabDoFor` below.
     Macro.throwUnsupported
-  | `(doFor| for%$tk $decls:doForDecl,* $[$inv:doForInvariant]? do $body) =>
+  | `(doFor| for%$tk $decls:doForDecl,* $[$inv:doLoopInvariant]? $[$dec:doDecreasing]? do $body) =>
     let decls := decls.getElems
     if let some inv := inv then
       if decls.size > 1 then
@@ -79,7 +80,8 @@ open Lean.Meta
             $s:ident := s'
             do $body)
     doElems := doElems.push
-      (← `(doSeqItem| for%$tk $[$h? : ]? $x:ident in $xs $[$inv:doForInvariant]? do $body))
+      (← `(doSeqItem| for%$tk $[$h? : ]? $x:ident in $xs
+        $[$inv:doLoopInvariant]? $[$dec:doDecreasing]? do $body))
     `(doElem| do $doElems*)
   | _ => Macro.throwUnsupported
 
@@ -96,19 +98,66 @@ private def checkPureForIn (invClause : Syntax) (h? : Option Syntax) (xs α : Ex
     (extraErrorMsg? := m!"The `invariant` clause is stated over this class, which says that \
       iterating the container produces its elements without effects.")
 
-/-- Rebuild the already-elaborated loop as a `forInWithInvariant` call carrying the `invariant`
-clause: `ForIn.forInWithInvariant`, or `ForIn'.forInWithInvariant'` for a membership-proof binder
-(`for h : x in xs`). The mut tuple's layout is `[return?, mutVars…, unit?]`, so the invariant can
-name the loop's mutable variables directly; the early-return slot becomes a wildcard. Binders past
-the first two bind the arguments of the assertion itself. -/
-private def mkForInWithInvariant (invClause : Syntax) (h? : Option Syntax)
-    (xs α preS body σ : Expr) (loopMutVars : Array MutVar) (returnsEarly : Bool)
-    (mi : MonadInfo) : DoElabM Expr := do
-  if let `(doForInvariant| invariant $_* : $ty => $_) := invClause then
-    throwErrorAt ty "The `invariant` clause takes no type ascription covering all its binders; \
-      ascribe the type on an individual binder, as in `invariant (pref : List α) suff => ...`."
-  let `(doForInvariant| invariant $binders* => $invBody) := invClause | throwUnsupportedSyntax
-  checkPureForIn invClause h? xs α mi
+/-- The already-elaborated pieces of a loop that its annotation gadget is built from. -/
+structure LoopGadget where
+  /-- The collection being iterated. -/
+  xs : Expr
+  /-- The initial state tuple. -/
+  init : Expr
+  /-- The loop body, a function from the element and the state tuple to a `ForInStep`. -/
+  body : Expr
+  /-- The type of the state tuple. -/
+  σ : Expr
+  /-- The mutable variables carried through the loop, in state-tuple order. -/
+  loopMutVars : Array MutVar
+  /-- Whether the state tuple carries an early-return slot. -/
+  returnsEarly : Bool
+
+/-- The pattern that names the loop's mutable variables in the state tuple, whose layout is
+`[return?, mutVars…, unit?]`; the early-return slot becomes a wildcard. -/
+private def LoopGadget.statePat (g : LoopGadget) : DoElabM Term := do
+  let hole ← `(_)
+  let mut binders : Array Term := #[]
+  if g.returnsEarly then binders := binders.push hole
+  for mv in g.loopMutVars do binders := binders.push ⟨mv.ident.raw⟩
+  if g.returnsEarly && g.loopMutVars.isEmpty then binders := binders.push hole
+  match binders with
+    | #[]  => `(_)
+    | #[b] => pure b
+    | _    => `(⟨$binders,*⟩)
+
+/-- Abstract `e` over the loop's state tuple, so that `e` may name the loop's mutable variables. -/
+private def LoopGadget.mkStateFun (g : LoopGadget) (ref : Syntax) (e : Term) : DoElabM Term := do
+  let s := mkIdentFrom ref (← mkFreshUserName `__s)
+  `(fun $s:ident => match $s:ident with | $(← g.statePat) => $e)
+
+/-- Abstract `e` over the cursor of a `repeat` loop, so that `e` may name the loop's mutable
+variables whether the loop is iterating or done. -/
+private def LoopGadget.mkRepeatCursorFun (g : LoopGadget) (cursor : Ident) (e : Term) :
+    DoElabM Term := do
+  let pat ← g.statePat
+  `(fun $cursor:ident => match $cursor:ident with | .inl $pat | .inr $pat => $e)
+
+/-- Elaborate the gadget application that replaces the loop. The gadgets live downstream of this
+module, so `gadget` is an unresolved name that resolves in the user's context. -/
+private def LoopGadget.mkCall (g : LoopGadget) (ref : Syntax) (gadget : Name)
+    (annotations : Array Term) : DoElabM Expr := do
+  unless (← getEnv).contains gadget do
+    throwErrorAt ref "a loop annotation elaborates to a `vcgen` gadget; \
+      add `import Std.Internal.Do` to use it."
+  let call ← `($(mkIdent gadget) $(← Term.exprToSyntax g.xs) $(← Term.exprToSyntax g.init)
+    $(← Term.exprToSyntax g.body) $annotations*)
+  Term.elabTermEnsuringType call (mkApp (← read).monadInfo.m g.σ)
+
+/-- Rebuild the loop over a collection as a `forInPureWithInvariant` call carrying the `invariant`
+clause, or `forInPureWithInvariant'` for a membership-proof binder (`for h : x in xs`). The
+invariant names the loop's mutable variables directly; its first two binders are the elements
+consumed so far and the elements remaining, and binders past them bind the arguments of the
+assertion itself. -/
+private def mkForInPureWithInvariant (g : LoopGadget) (invClause : Syntax) (h? : Option Syntax)
+    (α : Expr) : DoElabM Expr := do
+  let `(doLoopInvariant| invariant $binders* => $invBody) := invClause | throwUnsupportedSyntax
+  checkPureForIn invClause h? g.xs α (← read).monadInfo
   unless binders.size ≥ 2 do
     throwErrorAt invClause "The `invariant` clause takes at least two binders: the elements \
       consumed so far and the elements remaining."
@@ -116,31 +165,69 @@ private def mkForInWithInvariant (invClause : Syntax) (h? : Option Syntax)
   let assertionBinders := binders.extract 2
   let invBody ← if assertionBinders.isEmpty then pure invBody else
     `(fun $assertionBinders* => $invBody)
-  let hole ← `(_)
-  let mut mutBinders : Array Term := #[]
-  if returnsEarly then mutBinders := mutBinders.push hole
-  for mv in loopMutVars do mutBinders := mutBinders.push ⟨mv.ident.raw⟩
-  if returnsEarly && loopMutVars.isEmpty then mutBinders := mutBinders.push hole
-  let mutTuplePat : Term ← match mutBinders with
-    | #[]  => `(_)
-    | #[b] => pure b
-    | _    => `(⟨$mutBinders,*⟩)
-  let mutTupleBinder := mkIdentFrom invClause (← mkFreshUserName `__s)
-  let invLam ← `(fun $loopBinders* $mutTupleBinder:ident =>
-    match $mutTupleBinder:ident with | $mutTuplePat => $invBody)
-  -- The `forInWithInvariant` gadgets live downstream of this module, so they are referenced by an
-  -- unresolved name that resolves in the user's context (which imports the metatheory).
-  let gadget := if h?.isSome then `Std.Internal.Do.ForIn'.forInWithInvariant'
-    else `Std.Internal.Do.ForIn.forInWithInvariant
-  unless (← getEnv).contains gadget do
-    throwErrorAt invClause
-      "the `invariant` clause elaborates to a `vcgen` gadget; add `import Std.Internal.Do` to use it."
-  let call ← `($(mkIdent gadget)
-    $(← Term.exprToSyntax xs) $(← Term.exprToSyntax preS) $(← Term.exprToSyntax body) $invLam)
-  Term.elabTermEnsuringType call (mkApp mi.m σ)
+  let invLam ← `(fun $loopBinders* => $(← g.mkStateFun invClause invBody))
+  let gadget := if h?.isSome then `Std.Internal.Do.forInPureWithInvariant'
+    else `Std.Internal.Do.forInPureWithInvariant
+  g.mkCall invClause gadget #[invLam]
+
+/-- Rebuild the loop of a `repeat` as a `forInLoopWithInvariantAndVariant` call carrying the
+`invariant` and `decreasing` clauses, either of which may be absent. Both clauses name the loop's
+mutable variables directly. The `invariant` clause is a function of the `Bool` that says whether the
+loop has left; the cursor's own payload is the state tuple, which the mutable variables already
+name. -/
+private def mkForInLoopWithInvariantAndVariant (g : LoopGadget) (inv? dec? : Option Syntax) :
+    DoElabM Expr := do
+  let ref := inv?.getD (dec?.getD .missing)
+  let invArg ← match inv? with
+    | none =>
+      -- Nothing determines the assertion language of an absent invariant.
+      `((none : Option ($(mkIdent `Std.Internal.Do.RepeatInvariant) _ _ Prop)))
+    | some invClause =>
+      let cursor := mkIdentFrom invClause (← mkFreshUserName `__c)
+      let hasLeft ← `($(mkIdent ``Sum.isRight) $cursor:ident)
+      let `(doLoopInvariant| invariant $exitBinder $assertionBinders* => $invBody) := invClause
+        | throwUnsupportedSyntax
+      let invBody ← if assertionBinders.isEmpty then pure invBody else
+        `(fun $assertionBinders* => $invBody)
+      let invBody ← if exitBinder.raw.isOfKind ``hole then pure invBody else
+        let exitPat : Term := ⟨exitBinder.raw⟩
+        `(match $hasLeft:term with | $exitPat => $invBody)
+      `(some $(← g.mkRepeatCursorFun cursor invBody))
+  let varArg ← match dec? with
+    | none =>
+      -- Nothing determines the codomain of an absent measure.
+      `((none : Option (_ → Unit)))
+    | some decClause =>
+      -- Binders past the clause bind the arguments of the measure itself, as they do for an
+      -- assertion.
+      let measure ← match decClause with
+        | `(doDecreasing| decreasing $binders* => $body) => `(fun $binders* => $body)
+        | `(doDecreasing| decreasing $measure:term) => pure measure
+        | _ => throwUnsupportedSyntax
+      `(some $(← g.mkStateFun decClause measure))
+  g.mkCall ref `Std.Internal.Do.forInLoopWithInvariantAndVariant #[invArg, varArg]
+
+/-- Rebuild the already-elaborated loop as the `vcgen` gadget its annotation calls for. The `Loop`
+of a `repeat` takes an invariant over its cursor and a termination measure; a loop over a collection
+terminates with the collection, so it takes only an invariant. -/
+private def mkLoopGadget (g : LoopGadget) (inv? dec? : Option Syntax) (h? : Option Syntax)
+    (ρ α : Expr) : DoElabM Expr := do
+  if let some invClause := inv? then
+    if let `(doLoopInvariant| invariant $_* : $ty => $_) := invClause then
+      throwErrorAt ty "The `invariant` clause takes no type ascription covering all its binders; \
+        ascribe the type on an individual binder, as in `invariant (pref : List α) suff => ...`."
+  if (← instantiateMVars ρ).isConstOf ``Lean.Loop then
+    mkForInLoopWithInvariantAndVariant g inv? dec?
+  else
+    if let some decClause := dec? then
+      throwErrorAt decClause "A `for` loop terminates with the collection it iterates; \
+        `decreasing` states the termination measure of a `repeat` or `while` loop."
+    let some invClause := inv? | throwUnsupportedSyntax
+    mkForInPureWithInvariant g invClause h? α
 
 @[builtin_doElem_elab Lean.Parser.Term.doFor] def elabDoFor : DoElab := fun stx dec => do
-  let `(doFor| for%$tk $[$h? : ]? $x:ident in $xs $[$inv?:doForInvariant]? do $body) := stx
+  let `(doFor| for%$tk $[$h? : ]? $x:ident in $xs
+      $[$inv?:doLoopInvariant]? $[$dec?:doDecreasing]? do $body) := stx
     | throwUnsupportedSyntax
   let dec ← dec.ensureUnitAt tk
   checkMutVarsForShadowing #[x]
@@ -238,10 +325,12 @@ private def mkForInWithInvariant (invClause : Syntax) (h? : Option Syntax)
     -- Elaborate the loop body, which must have result type `PUnit`, just like the whole `for` loop.
     elabDoSeq body { dec with k := continueCont, kind := .duplicable }
 
-  let forIn ← match inv? with
-    | none => pure (mkApp app body)
-    | some invClause =>
-      mkForInWithInvariant invClause h? xs α preS body σ loopMutVars info.returnsEarly mi
+  let forIn ←
+    if inv?.isNone && dec?.isNone then
+      pure (mkApp app body)
+    else
+      mkLoopGadget { xs, init := preS, body, σ, loopMutVars, returnsEarly := info.returnsEarly }
+        (inv?.map (·.raw)) (dec?.map (·.raw)) (h?.map (·.raw)) ρ α
 
   let γ := (← read).doBlockResultType
   let rest ←

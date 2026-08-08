@@ -185,7 +185,7 @@ partial def ofElem (stx : DoElem) : TermElabM ControlInfo := do
   | `(doElem| unless $_ do $elseSeq) =>
     ControlInfo.alternative {} <$> ofSeq elseSeq
   -- For/Repeat
-  | `(doElem| for $[$[$_ :]? $_ in $_],* $[$_:doForInvariant]? do $bodySeq) =>
+  | `(doElem| for $[$[$_ :]? $_ in $_],* $[$_:doLoopInvariant]? $[$_:doDecreasing]? do $bodySeq) =>
     let info ← ofSeq bodySeq
     return { info with  -- keep only reassigns and returnsEarly
       numRegularExits := 1,
@@ -193,7 +193,7 @@ partial def ofElem (stx : DoElem) : TermElabM ControlInfo := do
       breaks := false,
       noFallthrough := false,
     }
-  | `(doRepeat| repeat $bodySeq) =>
+  | `(doRepeat| repeat $[$_:doLoopClauses]? $bodySeq) =>
     -- A break-less `repeat` never falls through; the elaborator injects an `unreachable!` so the
     -- surrounding continuation still has a polymorphic value to hand back, and any dead-code
     -- warning on subsequent elements is actionable.

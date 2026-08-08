@@ -23,7 +23,9 @@ def mkRecOnName (indDeclName : Name) : Name   := Name.mkStr indDeclName recOnSuf
 def mkBRecOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName brecOnSuffix
 def mkBelowName (indDeclName : Name) : Name := Name.mkStr indDeclName belowSuffix
 
-builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExtension (asyncMode := .async .mainEnv)
+builtin_initialize auxRecExt : TagDeclarationExtension ←
+  -- aux-recursor status is an immutable per-declaration fact
+  mkTagDeclarationExtension (asyncMode := .async .mainEnv) (tcResolutionAccess := .exempt)
 
 def markAuxRecursor (env : Environment) (declName : Name) : Environment :=
   auxRecExt.tag env declName

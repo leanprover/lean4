@@ -1,1 +1,1 @@
-2125.lean:7:0-9:23: error: (kernel) invalid return type for 'C.c'
+2125.lean:7:0-9:23: error: (kernel) invalid occurrence of a datatype being declared in an index of the mutual declaration

@@ -25,6 +25,7 @@ def checkQuery (e : Expr) : MetaM Unit := discard <| checkQueryWith (pure e)
 elab "#check_builtin_class_insts" : command => liftTermElabM do
   let z := [Level.zero]
   let app (n : Name) (args : Array Expr) := mkAppN (mkConst n z) args
+  let ord (n : Name) (args : Array Expr) := mkAppN (mkConst n [1]) args
   let int := mkConst ``Int
   let nat := mkConst ``Nat
   let srI := app ``Grind.Ring.toSemiring #[int, app ``Grind.CommRing.toRing #[int, mkConst ``Grind.instCommRingInt]]
@@ -32,8 +33,8 @@ elab "#check_builtin_class_insts" : command => liftTermElabM do
     app ``Grind.CommRing.toCommSemiring #[int, mkConst ``Grind.instCommRingInt]]]
   let srN := app ``Grind.CommSemiring.toSemiring #[nat, mkConst ``Grind.instCommSemiringNat]
   let nmN := app ``Grind.Semiring.toNatModule #[nat, srN]
-  let some preI ← synthInstance? (app ``Std.IsPreorder #[int, mkConst ``Int.instLEInt]) | unreachable!
-  let some preN ← synthInstance? (app ``Std.IsPreorder #[nat, mkConst ``instLENat]) | unreachable!
+  let some preI ← synthInstance? (ord ``Std.IsPreorder #[int, mkConst ``Int.instLEInt]) | unreachable!
+  let some preN ← synthInstance? (ord ``Std.IsPreorder #[nat, mkConst ``instLENat]) | unreachable!
   for (t, sr, nm, le, lt, pre) in [(int, srI, nmI, mkConst ``Int.instLEInt, mkConst ``Int.instLTInt, preI),
       (nat, srN, nmN, mkConst ``instLENat, mkConst ``instLTNat, preN)] do
     for c in [``Grind.CommRing, ``Grind.Ring, ``Grind.Field, ``Grind.CommSemiring, ``Grind.Semiring, ``Grind.NatModule, ``NatCast, ``Max, ``Dvd] do
@@ -41,8 +42,8 @@ elab "#check_builtin_class_insts" : command => liftTermElabM do
     checkQuery (app ``Grind.NoNatZeroDivisors #[t, nm])
     checkQuery (app ``Grind.AddRightCancel #[t, ← synthInstance (app ``Add #[t])])
     for c in [``Std.IsPreorder, ``Std.IsPartialOrder, ``Std.IsLinearPreorder, ``Std.IsLinearOrder] do
-      checkQuery (app c #[t, le])
-    checkQuery (app ``Std.LawfulOrderLT #[t, lt, le])
+      checkQuery (ord c #[t, le])
+    checkQuery (ord ``Std.LawfulOrderLT #[t, lt, le])
     checkQuery (app ``Grind.OrderedRing #[t, sr, le, lt, pre])
     let (inst?, e) ← checkQueryWith do return app ``Grind.IsCharP #[t, sr, ← mkFreshExprMVar nat]
     unless inst?.isSome && e.appArg!.nat? == some 0 do

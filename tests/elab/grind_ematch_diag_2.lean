@@ -336,6 +336,7 @@ h_7 : idx + 8 ≤ len
         [thm] inj: idx + 1 ≠ idx + 3 → slot s (idx + 1) ≠ slot s (idx + 3)
         [thm] inj: idx + 6 ≠ idx + 3 → slot s (idx + 6) ≠ slot s (idx + 3)
       [thm] next_def: next (slot s (idx + 3)) = slot s (idx + 3 + 1) has 16 direct follow up instances
+        [thm] sorted: idx + 4 < len → lookup heap (slot s (idx + 4)) ≤ lookup heap (next (slot s (idx + 4)))
         [thm] inj: idx + 4 ≠ idx + 5 → slot s (idx + 4) ≠ slot s (idx + 5)
         [thm] inj: idx + 4 ≠ idx + 6 → slot s (idx + 4) ≠ slot s (idx + 6)
         [thm] inj: idx + 4 ≠ idx → slot s (idx + 4) ≠ slot s idx
@@ -350,12 +351,12 @@ h_7 : idx + 8 ≤ len
         [thm] inj: idx + 7 ≠ idx + 4 → slot s (idx + 7) ≠ slot s (idx + 4)
         [thm] inj: idx + 5 ≠ idx + 4 → slot s (idx + 5) ≠ slot s (idx + 4)
         [thm] inj: idx + 4 ≠ idx + 3 → slot s (idx + 4) ≠ slot s (idx + 3)
-        [thm] sorted: idx + 4 < len → lookup heap (slot s (idx + 4)) ≤ lookup heap (next (slot s (idx + 4)))
         [thm] inj: idx + 6 ≠ idx + 4 → slot s (idx + 6) ≠ slot s (idx + 4)
       [thm] next_def: next (slot s (idx + 4)) = slot s (idx + 4 + 1) has 16 direct follow up instances
         [thm] inj: idx + 5 ≠ idx + 6 → slot s (idx + 5) ≠ slot s (idx + 6)
         [thm] inj: idx + 2 ≠ idx + 5 → slot s (idx + 2) ≠ slot s (idx + 5)
         [thm] inj: idx + 4 ≠ idx + 5 → slot s (idx + 4) ≠ slot s (idx + 5)
+        [thm] sorted: idx + 5 < len → lookup heap (slot s (idx + 5)) ≤ lookup heap (next (slot s (idx + 5)))
         [thm] inj: idx + 6 ≠ idx + 5 → slot s (idx + 6) ≠ slot s (idx + 5)
         [thm] inj: idx + 5 ≠ idx → slot s (idx + 5) ≠ slot s idx
         [thm] inj: idx + 5 ≠ idx + 7 → slot s (idx + 5) ≠ slot s (idx + 7)
@@ -368,7 +369,6 @@ h_7 : idx + 8 ≤ len
         [thm] next_def: next (slot s (idx + 5)) = slot s (idx + 5 + 1)
         [thm] inj: idx + 7 ≠ idx + 5 → slot s (idx + 7) ≠ slot s (idx + 5)
         [thm] inj: idx + 3 ≠ idx + 5 → slot s (idx + 3) ≠ slot s (idx + 5)
-        [thm] sorted: idx + 5 < len → lookup heap (slot s (idx + 5)) ≤ lookup heap (next (slot s (idx + 5)))
       [thm] next_def: next (slot s (idx + 5)) = slot s (idx + 5 + 1) has 16 direct follow up instances
         [thm] inj: idx + 6 ≠ idx + 7 → slot s (idx + 6) ≠ slot s (idx + 7)
         [thm] inj: idx + 7 ≠ idx + 6 → slot s (idx + 7) ≠ slot s (idx + 6)
@@ -380,20 +380,20 @@ h_7 : idx + 8 ≤ len
         [thm] next_def: next (slot s (idx + 6)) = slot s (idx + 6 + 1)
         [thm] inj: idx + 1 ≠ idx + 6 → slot s (idx + 1) ≠ slot s (idx + 6)
         [thm] inj: idx + 3 ≠ idx + 6 → slot s (idx + 3) ≠ slot s (idx + 6)
-        [thm] sorted: idx + 6 < len → lookup heap (slot s (idx + 6)) ≤ lookup heap (next (slot s (idx + 6)))
         [thm] inj: idx + 6 ≠ idx → slot s (idx + 6) ≠ slot s idx
         [thm] inj: idx + 6 ≠ idx + 4 → slot s (idx + 6) ≠ slot s (idx + 4)
         [thm] inj: idx + 6 ≠ idx + 1 → slot s (idx + 6) ≠ slot s (idx + 1)
+        [thm] sorted: idx + 6 < len → lookup heap (slot s (idx + 6)) ≤ lookup heap (next (slot s (idx + 6)))
         [thm] inj: idx + 6 ≠ idx + 2 → slot s (idx + 6) ≠ slot s (idx + 2)
         [thm] inj: idx + 6 ≠ idx + 3 → slot s (idx + 6) ≠ slot s (idx + 3)
       [thm] next_def: next (slot s (idx + 6)) = slot s (idx + 6 + 1) has 16 direct follow up instances
         [thm] inj: idx + 6 ≠ idx + 7 → slot s (idx + 6) ≠ slot s (idx + 7)
         [thm] inj: idx + 7 ≠ idx + 6 → slot s (idx + 7) ≠ slot s (idx + 6)
         [thm] inj: idx + 3 ≠ idx + 7 → slot s (idx + 3) ≠ slot s (idx + 7)
+        [thm] sorted: idx + 7 < len → lookup heap (slot s (idx + 7)) ≤ lookup heap (next (slot s (idx + 7)))
         [thm] inj: idx + 7 ≠ idx + 1 → slot s (idx + 7) ≠ slot s (idx + 1)
         [thm] inj: idx + 5 ≠ idx + 7 → slot s (idx + 5) ≠ slot s (idx + 7)
         [thm] inj: idx ≠ idx + 7 → slot s idx ≠ slot s (idx + 7)
-        [thm] sorted: idx + 7 < len → lookup heap (slot s (idx + 7)) ≤ lookup heap (next (slot s (idx + 7)))
         [thm] inj: idx + 2 ≠ idx + 7 → slot s (idx + 2) ≠ slot s (idx + 7)
         [thm] inj: idx + 7 ≠ idx + 4 → slot s (idx + 7) ≠ slot s (idx + 4)
         [thm] inj: idx + 4 ≠ idx + 7 → slot s (idx + 4) ≠ slot s (idx + 7)

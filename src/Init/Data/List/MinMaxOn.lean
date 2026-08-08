@@ -502,7 +502,7 @@ protected theorem minOn?_eq_ite
   fun_cases xs.minOn? f <;> simp [List.minOn]
 
 @[deprecated List.minOn?_eq_ite (since := "2026-07-21")]
-protected theorem minOn?_eq_if {β : Type u_1} {α : Type u_2} [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β} {xs : List α} : List.minOn? f xs = if h : xs ≠ [] then Option.some (List.minOn f xs h) else Option.none := List.minOn?_eq_ite
+protected theorem minOn?_eq_if {β : Sort u_1} {α : Type u_2} [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β} {xs : List α} : List.minOn? f xs = if h : xs ≠ [] then Option.some (List.minOn f xs h) else Option.none := List.minOn?_eq_ite
 
 @[simp]
 protected theorem isSome_minOn?_iff [LE β] [DecidableLE β] {f : α → β} {xs : List α} :
@@ -617,7 +617,7 @@ protected theorem maxOn?_eq_ite
   List.minOn?_eq_ite
 
 @[deprecated List.maxOn?_eq_ite (since := "2026-07-21")]
-protected theorem maxOn?_eq_if {β : Type u_1} {α : Type u_2} [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β} {xs : List α} : List.maxOn? f xs = if h : xs ≠ [] then Option.some (List.maxOn f xs h) else Option.none := List.maxOn?_eq_ite
+protected theorem maxOn?_eq_if {β : Sort u_1} {α : Type u_2} [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β} {xs : List α} : List.maxOn? f xs = if h : xs ≠ [] then Option.some (List.maxOn f xs h) else Option.none := List.maxOn?_eq_ite
 
 @[simp]
 protected theorem isSome_maxOn?_iff [LE β] [DecidableLE β] {f : α → β} {xs : List α} :

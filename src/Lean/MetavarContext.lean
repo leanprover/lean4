@@ -659,18 +659,35 @@ def instantiateLocalDeclMVars [Monad m] [MonadMCtx m] (localDecl : LocalDecl) : 
 
 namespace DependsOn
 
-structure State where
+private structure Context where
+  /-- The local context is used to determine what fvars depend on.
+  It is admissible for the local context to be incomplete (or even empty);
+  fvars not in the context will not have their types or values visited. -/
+  lctx : LocalContext
+  /-- When `generalizeNondepLet := true` (the default), then values of nondependent lets are ignored;
+  for computing dependencies from "within" a telescope. -/
+  generalizeNondepLet : Bool
+
+private structure State where
+  /-- Visited expressions.
+  Additionally, `collectFVarDeps` and `collectMVarDeps` assume every visited fvar and mvar are present. -/
   visited : ExprSet := {}
+  /-- Visited levels, if `visitLMVar?` is given.
+  Additionally, `collectMVarDeps` assumes every visited level mvar is present. -/
+  visitedLevels : LevelSet := {}
   mctx    : MetavarContext
 
-private abbrev M := StateM State
+private abbrev M := ReaderT Context (StateM State)
 
 private instance : MonadMCtx M where
   getMCtx := return (← get).mctx
   modifyMCtx f := modify fun s => { s with mctx := f s.mctx }
 
-private def shouldVisit (e : Expr) : M Bool := do
-  if !e.hasMVar && !e.hasFVar then
+private instance : MonadLCtx M where
+  getLCtx := Context.lctx <$> read
+
+private def shouldVisit (visitLMVars : Bool) (e : Expr) : M Bool := do
+  if !(e.hasExprMVar || (visitLMVars && e.hasLevelMVar) || e.hasFVar) then
     return false
   else if (← get).visited.contains e then
     return false
@@ -678,16 +695,29 @@ private def shouldVisit (e : Expr) : M Bool := do
     modify fun s => { s with visited := s.visited.insert e }
     return true
 
-@[specialize] private partial def dep (pf : FVarId → Bool) (pm : MVarId →  Bool) (e : Expr) : M Bool :=
+/--
+Visits subexpressions of `e`, instantiating metavariables as it goes.
+The `visitFVar` function is given unique occurrences of fvars.
+The `visitMVar` function is given unique *unassigned* occurrences of mvars.
+
+If `visitLMVar?` is given, then level metavariables are visited too.
+-/
+@[specialize] private partial def depCore
+    (visitFVar : (visit : Expr → M Bool) → FVarId → M Bool)
+    (visitMVar : (visit : Expr → M Bool) → MVarId → M Bool)
+    (visitLMVar : LMVarId → M Bool := fun _ => pure false)
+    (shouldVisitLMVars : Bool := false)
+    (e : Expr) : M Bool :=
   let rec
     visit (e : Expr) : M Bool := do
-      if !(← shouldVisit e) then
+      if !(← shouldVisit shouldVisitLMVars e) then
         pure false
       else
         visitMain e,
     visitApp : Expr → M Bool
-      | .app f a .. => visitApp f <||> visit a
-      | e => visit e,
+      | .app f a ..  => visitApp f <||> visit a
+      | .mvar mvarId => visitMVar visit mvarId
+      | e            => visitMain e,
     visitMain : Expr → M Bool
       | .proj _ _ s      => visit s
       | .forallE _ d b _ => visit d <||> visit b
@@ -700,8 +730,6 @@ private def shouldVisit (e : Expr) : M Bool := do
           let e' ← instantiateMVars e
           if e'.getAppFn != f then
             visitMain e'
-          else if pm f.mvarId! then
-            return true
           else
             visitApp e
         else
@@ -709,48 +737,180 @@ private def shouldVisit (e : Expr) : M Bool := do
       | .mvar mvarId     => do
         match (← getExprMVarAssignment? mvarId) with
         | some a => visit a
-        | none   =>
-          if pm mvarId then
-            return true
-          else
-            let lctx := (← getMCtx).getDecl mvarId |>.lctx
-            return lctx.any fun decl => pf decl.fvarId
-      | .fvar fvarId     => return pf fvarId
-      | _                    => pure false
+        | none   => visitMVar visit mvarId
+      | .fvar fvarId     => visitFVar visit fvarId
+      | .sort l          => do visitLevel (← instantiateLevelMVars l)
+      | .const _ ls      => ls.anyM fun l => do visitLevel (← instantiateLevelMVars l)
+      | _                => pure false,
+    visitLevel (l : Level) : M Bool := do
+      if !l.hasMVar || (← get).visitedLevels.contains l then
+        return false
+      else
+        modify fun s => { s with visitedLevels := s.visitedLevels.insert l }
+        match l with
+        | .zero | .param ..    => pure false
+        | .succ u              => visitLevel u
+        | .max u v | .imax u v => visitLevel u <||> visitLevel v
+        | .mvar mvarId         => visitLMVar mvarId
   visit e
 
-@[inline] private partial def main (pf : FVarId → Bool) (pm : MVarId → Bool) (e : Expr) : M Bool :=
-  if !e.hasFVar && !e.hasMVar then pure false else dep pf pm e
+@[inline] private partial def depLocalDecl (visit : Expr → M Bool) (localDecl : LocalDecl) : M Bool := do
+  match localDecl with
+  | .cdecl (type := t) .. =>
+    visit t
+  | .ldecl (type := t) (value := v) (nondep := nondep) .. =>
+    if (← read).generalizeNondepLet && nondep then
+      visit t
+    else
+      visit t <||> visit v
+
+/-- Returns true iff the expression depends on a free variable satisfying `pf`. -/
+@[specialize] private partial def depFVar (pf : FVarId → Bool) : Expr → M Bool :=
+  depCore
+    (visitFVar := fun visit fvarId => do
+      if pf fvarId then
+        return true
+      else if let some localDecl := (← getLCtx).find? fvarId then
+        -- fvars can depend on fvars through the local context
+        -- (if a local context is not present, this is skipped)
+        depLocalDecl visit localDecl
+      else
+        return false)
+    (visitMVar := fun visit mvarId => do
+      let lctx := (← getMCtx).getDecl mvarId |>.lctx
+      -- In a worst-case assignment, the metavariable is assigned to an expression that uses
+      -- everything in its local context.
+      -- There is no need to visit the type of the metavariable since all its fvars are accounted for here.
+      lctx.anyM fun decl => visit decl.toExpr)
+
+/-- Returns true iff the expression depends on an expression metavariable satisfying `pm`
+or a level metavariable satisfying `plm` (if `shouldVisitLMVars` is true). -/
+@[specialize] private partial def depMVar (pm : MVarId → Bool) (plm : LMVarId → Bool) (shouldVisitLMVars : Bool) : Expr → M Bool :=
+  depCore
+    (visitFVar := fun visit fvarId => do
+      -- fvars can depend on metavariables through the local context
+      -- (if a local context is not present, this is skipped)
+      if let some localDecl := (← getLCtx).find? fvarId then
+        depLocalDecl visit localDecl
+      else
+        return false)
+    (visitMVar := fun visit mvarId => do
+      if pm mvarId then
+        return true
+      else
+        let mdecl := (← getMCtx).getDecl mvarId
+        -- Metavariables can appear in either the type of a metavariable or in its local context.
+        -- The local context is compatible with the current context, so no need to check.
+        -- For delayed assignments, checking the type is sufficient to check dependencies for new local declarations.
+        -- Additionally, we need to take a "best-case" assignment approach, since metavariables theoretically
+        -- depend on *any* existing metavariable with a compatible local context, or even those yet to be defined.
+        if (← visit mdecl.type) then
+          return true
+        else
+          if let some { mvarIdPending, .. } ← getDelayedMVarAssignment? mvarId then
+            -- Metavariable dependencies can go through delayed assignments.
+            -- Checking these was unnecessary for `depFVar` since the fvars dependencies already appear in the context of `mvarId`.
+            let mdeclPending := (← getMCtx).getDecl mvarIdPending
+            withReader ({· with lctx := mdeclPending.lctx}) do
+              visit (.mvar mvarIdPending)
+          else
+            return false)
+    (visitLMVar := pure ∘ plm)
+    (shouldVisitLMVars := shouldVisitLMVars)
+
+@[inline] private partial def mainFVar (pf : FVarId → Bool) (e : Expr) : M Bool :=
+  if !e.hasFVar && !e.hasExprMVar then pure false else depFVar pf e
+
+@[inline] private partial def mainMVar (pm : MVarId → Bool) (e : Expr) (plm : LMVarId → Bool := fun _ => false) (shouldVisitLMVars : Bool := false) : M Bool :=
+  if !e.hasFVar && !e.hasExprMVar then pure false else depMVar pm plm shouldVisitLMVars e
 
 end DependsOn
 
 /--
-  Return `true` iff `e` depends on a free variable `x` s.t. `pf x` is `true`, or an unassigned metavariable `?m` s.t. `pm ?m` is true.
-  For each metavariable `?m` (that does not satisfy `pm` occurring in `x`
-  1- If `?m := t`, then we visit `t` looking for `x`
-  2- If `?m` is unassigned, then we consider the worst case and check whether `x` is in the local context of `?m`.
-     This case is a "may dependency". That is, we may assign a term `t` to `?m` s.t. `t` contains `x`. -/
-@[inline] def findExprDependsOn [Monad m] [MonadMCtx m] (e : Expr) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : m Bool := do
-  let (result, { mctx, .. }) := DependsOn.main pf pm e |>.run { mctx := (← getMCtx) }
+Returns `true` iff `e` depends on a free variable `x` s.t. `pf x` is `true`.
+We say `e` depends on `x` if any of the following are true (assuming `e` has its metavariables instantiated):
+1. `x` occurs in `e`
+2. a metavariable `?m` occurs in `e` that depends on `x`
+3. `e = ?m` and `x` occurs in the local context of `?m`
+4. `e = y` is an fvar and the type or value of `x` (if present in `lctx`) depends on `x`
+
+The third case (local context occurrence) is a potential dependency from a "worst-case" assignment,
+where the metavariable is assigned an expression that refers to every fvar in its context.
+
+Options:
+- `lctx` is the local context to use in following types and values of fvars. If an fvar doesn't appear in the local context,
+  then it is simply not used in determining dependence.
+- When `generalizeNondepLet := true` (the default), then values of nondependent lets are ignored.
+  This is for computing dependencies from "within" a telescope.
+-/
+@[inline] def findExprDependsOn [Monad m] [MonadMCtx m] (e : Expr)
+    (pf : FVarId → Bool := fun _ => false)
+    (lctx : LocalContext := {})
+    (generalizeNondepLet := true) : m Bool := do
+  let (result, { mctx, .. }) :=
+    DependsOn.mainFVar pf e
+      |>.run { lctx, generalizeNondepLet }
+      |>.run { mctx := (← getMCtx) }
   setMCtx mctx
   return result
 
 /--
-Similar to `findExprDependsOn`, but checks the expressions in the given local declaration
-depends on a free variable `x` s.t. `pf x` is `true` or an unassigned metavariable `?m` s.t. `pm ?m` is true.
+Returns `true` iff `e` depends on an unassigned metavariable `?m` such that `pm ?m` is true.
+We say `e` depends on `?m` if any of the following are true (assuming `e` has its metavariables instantiated):
+1. `?m` occurs in `e`
+2. an metavariable `?n` occurs in `e` that depends on `?m`
+3. `e = ?n` and the type of `?n` depends on `?m`
+4. `e = ?n` is delayed assigned to `?d` and `?d` depends on `?m`
+5. `e = x` is an fvar and the type or value of `x` (if present in `lctx`) depends on `?m`
+
+This is assuming a "best-case" assignment. Observe that metavariables can depend on any metavariable with
+a compatible local context, so there is no way to reason about worst-case assignments.
+For delayed assignments, the function follows dependencies from new local declarations only indirectly,
+using the type of the delayed assigned metavariable, but not existing metavariables in the local context.
+
+Options:
+- `lctx` is the local context to use in following types and values of fvars. If an fvar doesn't appear in the local context,
+  then it is simply not used in determining dependence.
+- When `generalizeNondepLet := true` (the default), then values of nondependent lets are ignored.
+  This is for computing dependencies from "within" a telescope.
+-/
+@[inline] def findExprDependsOnMVar [Monad m] [MonadMCtx m] (e : Expr)
+    (pm : MVarId → Bool := fun _ => false)
+    (lctx : LocalContext := {})
+    (generalizeNondepLet := true) : m Bool := do
+  let (result, { mctx, .. }) :=
+    DependsOn.mainMVar pm e
+      |>.run { lctx, generalizeNondepLet }
+      |>.run { mctx := (← getMCtx) }
+  setMCtx mctx
+  return result
+
+/--
+Returns true iff the local declaration depends on a free variable `x` such that `pf x` is `true.
+
+Similar to `findExprDependsOn`, but for local declarations.
+
 - When `generalizeNondepLet := true` (the default), then values of nondependent lets are ignored,
   for computing dependencies from "within" a telescope.
 -/
-@[inline] def findLocalDeclDependsOn [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) (generalizeNondepLet := true) : m Bool := do
-  match localDecl with
-  | .cdecl (type := t) ..  => findExprDependsOn t pf pm
-  | .ldecl (type := t) (value := v) (nondep := nondep) .. =>
-    if generalizeNondepLet && nondep then
-      findExprDependsOn t pf pm
-    else
-      let (result, { mctx, .. }) := (DependsOn.main pf pm t <||> DependsOn.main pf pm v).run { mctx := (← getMCtx) }
-      setMCtx mctx
-      return result
+@[inline] def findLocalDeclDependsOn [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (generalizeNondepLet := true) : m Bool := do
+  let (result, { mctx, .. }) :=
+    DependsOn.depLocalDecl (DependsOn.mainFVar pf) localDecl
+      |>.run { lctx := {}, generalizeNondepLet }
+      |>.run { mctx := (← getMCtx) }
+  setMCtx mctx
+  return result
+
+/--
+This is a `findExprDependsOnMVar` version of `findExprDependsOn`.
+-/
+@[inline] def findLocalDeclDependsOnMVar [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pm : MVarId → Bool := fun _ => false) (generalizeNondepLet := true) : m Bool := do
+  let (result, { mctx, .. }) :=
+    DependsOn.depLocalDecl (DependsOn.mainMVar pm) localDecl
+      |>.run { lctx := {}, generalizeNondepLet }
+      |>.run { mctx := (← getMCtx) }
+  setMCtx mctx
+  return result
 
 def exprDependsOn [Monad m] [MonadMCtx m] (e : Expr) (fvarId : FVarId) : m Bool :=
   findExprDependsOn e (fvarId == ·)
@@ -772,7 +932,7 @@ def exprDependsOn' [Monad m] [MonadMCtx m] (e : Expr) (x : Expr) : m Bool :=
   if x.isFVar then
     findExprDependsOn e (x.fvarId! == ·)
   else if x.isMVar then
-    findExprDependsOn e (pm := (x.mvarId! == ·))
+    findExprDependsOnMVar e (pm := (x.mvarId! == ·))
   else
     return false
 
@@ -781,18 +941,55 @@ def localDeclDependsOn' [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (x : Exp
   if x.isFVar then
     findLocalDeclDependsOn localDecl (x.fvarId! == ·) (generalizeNondepLet := generalizeNondepLet)
   else if x.isMVar then
-    findLocalDeclDependsOn localDecl (pm := (x.mvarId! == ·)) (generalizeNondepLet := generalizeNondepLet)
+    findLocalDeclDependsOnMVar localDecl (pm := (x.mvarId! == ·)) (generalizeNondepLet := generalizeNondepLet)
   else
     return false
 
-/-- Return true iff `e` depends on a free variable `x` s.t. `pf x`, or an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
-def dependsOnPred [Monad m] [MonadMCtx m] (e : Expr) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : m Bool :=
-  findExprDependsOn e pf pm
+/-- Return true iff `e` depends on a free variable `x` s.t. `pf x`. -/
+@[deprecated findExprDependsOn (since := "2026-03-21")]
+def dependsOnPred [Monad m] [MonadMCtx m] (e : Expr) (pf : FVarId → Bool := fun _ => false) : m Bool :=
+  findExprDependsOn e pf
 
-/-- Return true iff the local declaration `localDecl` depends on a free variable `x` s.t. `pf x`, an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
-def localDeclDependsOnPred [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) (generalizeNondepLet := true) : m Bool := do
-  findLocalDeclDependsOn localDecl pf pm (generalizeNondepLet := generalizeNondepLet)
+/-- Return true iff the local declaration `localDecl` depends on a free variable `x` s.t. `pf x`. -/
+@[deprecated findLocalDeclDependsOn (since := "2026-03-21")]
+def localDeclDependsOnPred [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (generalizeNondepLet := true) : m Bool := do
+  findLocalDeclDependsOn localDecl pf (generalizeNondepLet := generalizeNondepLet)
 
+/--
+Returns a set of all the fvars that `e` depends on, directly or indirectly.
+Follows all metavariable assignments and delayed assignments.
+If `lctx` is provided, this is used for following types of fvars as well.
+
+See also `findExprDependsOn`.
+-/
+def collectFVarDeps [Monad m] [MonadMCtx m] (e : Expr)
+    (lctx : LocalContext := {})
+    (generalizeNondepLet := true) : m ExprSet := do
+  let (_, { mctx, visited, .. }) :=
+    -- Using a constant-`false` function ensures we visit every fvar.
+    DependsOn.mainFVar (fun _ => false) e
+      |>.run { lctx, generalizeNondepLet }
+      |>.run { mctx := (← getMCtx) }
+  setMCtx mctx
+  return visited.filter (·.isFVar)
+
+/--
+Returns a set of all the metavariables that `e` depends on, directly or indirectly.
+Follows all metavariable assignments and delayed assignments.
+If `lctx` is provided, this is used for following types of fvars as well.
+
+See also `findExprDependsOnMVar`.
+-/
+def collectMVarDeps [Monad m] [MonadMCtx m] (e : Expr)
+    (lctx : LocalContext := {}) (collectLMVars : Bool := true)
+    (generalizeNondepLet := true) : m (ExprSet × LevelSet) := do
+  let (_, { mctx, visited, visitedLevels }) :=
+    -- Using a constant-`false` function ensures we visit every mvar.
+    DependsOn.mainMVar (fun _ => false) (shouldVisitLMVars := collectLMVars) (plm := fun _ => false) e
+      |>.run { lctx, generalizeNondepLet }
+      |>.run { mctx := (← getMCtx) }
+  setMCtx mctx
+  return (visited.filter (·.isMVar), visitedLevels.filter (·.isMVar))
 
 namespace MetavarContext
 

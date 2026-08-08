@@ -902,7 +902,7 @@ theorem IterM.isEmpty_eq_match_step {α β : Type w} {m : Type w → Type w'} [M
       | .done => return .up true) := by
   simp only [isEmpty]
   have := IteratorLoop.wellFounded_of_productive (α := α) (β := β) (m := m)
-    (P := fun _ _ s => s = ForInStep.done (ULift.up false)) (by simp)
+    (P := fun _ _ s => s = ForInStep.done (ULift.up.{w} false)) (by simp)
   simp only [LawfulIteratorLoop.lawful _ _ _ _ _ this]
   rw [IterM.DefaultConsumers.forIn_eq, IterM.DefaultConsumers.forIn'_eq_match_step _ this]
   simp only [flip, pure_bind]

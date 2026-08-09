@@ -9,11 +9,11 @@ section Writer
 
 public class Writer (ω : Type) (m : outParam (Type → Type)) where
   write : ω → String → m Unit
-  flush : ω → m Unit
+  writeToBuffer : ω → (String → String) → m Unit
 
 instance : Writer IO.FS.Handle IO where
   write handle string := handle.putStr string
-  flush handle := handle.flush
+  writeToBuffer handle f := handle.putStr (f "")
 
 structure StringBuffer (σ : Type) where
   buf : ST.Ref σ String
@@ -23,7 +23,7 @@ def StringBuffer.new : ST σ (StringBuffer σ) := do
 
 instance : Writer (StringBuffer σ) (ST σ) where
   write buf string := buf.buf.modify fun s => s ++ string
-  flush _ := return ()
+  writeToBuffer buf f := buf.buf.modify fun s => f s
 
 end Writer
 
@@ -59,6 +59,14 @@ public class Formatter (φ : Type) where
   writeFloat32 [Writer ω m] [Monad m] (val : Float32) : JsonT ω φ m Unit
   writeFloat [Writer ω m] [Monad m] (val : Float) : JsonT ω φ m Unit
   writeString [Writer ω m] [Monad m] (val : String) : JsonT ω φ m Unit
+  /--
+  Writes `val` as a JSON string without escaping it or checking whether it needs escaping.
+
+  The caller guarantees that `val` contains no character that JSON requires to be escaped. This is
+  for content that is known to be plain by construction — field and alternative names, and numbers
+  rendered as strings — not for user data.
+  -/
+  writeStringNoEscape [Writer ω m] [Monad m] (val : String) : JsonT ω φ m Unit
   beginArray [Writer ω m] [Monad m] : JsonT ω φ m Unit
   endArray [Writer ω m] [Monad m] : JsonT ω φ m Unit
   beginArrayValue [Writer ω m] [Monad m] (first : Bool) : JsonT ω φ m Unit
@@ -109,7 +117,7 @@ instance [Writer ω m] [Formatter φ] [Monad m] :
   serializeSomeWith v ser := ser v
   serializeUnit := do Formatter.beginObject; Formatter.endObject
   serializeUnitStructure _ := do Formatter.beginObject; Formatter.endObject
-  serializeUnitAlt _ _ altName := Formatter.writeString altName
+  serializeUnitAlt _ _ altName := Formatter.writeStringNoEscape altName
 
   SeqState := Aux
   serializeSeqBegin _ := do
@@ -157,7 +165,7 @@ instance [Writer ω m] [Formatter φ] [Monad m] :
     return Aux.mk true
   serializeStructFieldWith aux _ fieldName val ser := do
     Formatter.beginObjectKey aux.first
-    Formatter.writeString fieldName
+    Formatter.writeStringNoEscape fieldName
     Formatter.endObjectKey
     Formatter.beginObjectValue
     ser val
@@ -169,7 +177,7 @@ instance [Writer ω m] [Formatter φ] [Monad m] :
   serializeAnonAltBegin _ _ altName _ := do
     Formatter.beginObject
     Formatter.beginObjectKey true
-    Formatter.writeString altName
+    Formatter.writeStringNoEscape altName
     Formatter.endObjectKey
     Formatter.beginObjectValue
     Formatter.beginArray
@@ -188,14 +196,14 @@ instance [Writer ω m] [Formatter φ] [Monad m] :
   serializeNamedAltBegin _ _ altName _ := do
     Formatter.beginObject
     Formatter.beginObjectKey true
-    Formatter.writeString altName
+    Formatter.writeStringNoEscape altName
     Formatter.endObjectKey
     Formatter.beginObjectValue
     Formatter.beginObject
     return Aux.mk true
   serializeNamedAltFieldWith aux _ fieldName val ser := do
     Formatter.beginObjectKey aux.first
-    Formatter.writeString fieldName
+    Formatter.writeStringNoEscape fieldName
     Formatter.endObjectKey
     Formatter.beginObjectValue
     ser val
@@ -208,6 +216,11 @@ instance [Writer ω m] [Formatter φ] [Monad m] :
 @[inline]
 public def JsonT.write [Writer ω m] [Monad m] (s : String) : JsonT ω φ m Unit := do
   liftM <| Writer.write (← get).writer s
+
+-- TODO: This is a hack only string mode benefits from
+@[inline]
+public def JsonT.writeToBuffer [Writer ω m] [Monad m] (f : String → String) : JsonT ω φ m Unit := do
+  liftM <| Writer.writeToBuffer (← get).writer f
 
 /--
 A `Formatter` that emits JSON without any insignificant whitespace.

@@ -16,13 +16,21 @@ namespace Std.Internal.Derse
 open Lean
 
 /--
+Writes `str` in quotes, verbatim. Unlike `Json.renderString` this neither scans for characters that
+need escaping nor escapes any, so it is only correct for strings that are plain by construction.
+-/
+@[inline]
+def CompactFormatter.writeQuoted [Writer ω m] [Monad m] (str : String) : JsonT ω φ m Unit :=
+  JsonT.write ("\"" ++ str ++ "\"")
+
+/--
 Renders `num` the way `Lean.Json` does: as a JSON number if it is finite and as one of the strings
 `"NaN"`, `"Infinity"` and `"-Infinity"` otherwise, as JSON has no syntax for those values.
 -/
 @[inline]
 def CompactFormatter.writeFloat [Writer ω m] [Monad m] (num : Float) : JsonT ω φ m Unit :=
   match JsonNumber.fromFloat? num with
-  | .inl exceptional => JsonT.write (Json.renderString exceptional)
+  | .inl exceptional => JsonT.writeToBuffer (fun acc => Json.renderString exceptional acc)
   | .inr number => JsonT.write (toString number)
 
 /--
@@ -36,16 +44,17 @@ instance : Formatter CompactFormatter where
   writeUInt8 val := JsonT.write (toString val)
   writeUInt16 val := JsonT.write (toString val)
   writeUInt32 val := JsonT.write (toString val)
-  writeUInt64 val := JsonT.write (Json.renderString (toString val))
+  writeUInt64 val := CompactFormatter.writeQuoted (toString val)
   writeInt8 val := JsonT.write (toString val)
   writeInt16 val := JsonT.write (toString val)
   writeInt32 val := JsonT.write (toString val)
-  writeInt64 val := JsonT.write (Json.renderString (toString val))
+  writeInt64 val := CompactFormatter.writeQuoted (toString val)
   writeNat val := JsonT.write (toString val)
   writeInt val := JsonT.write (toString val)
   writeFloat val := CompactFormatter.writeFloat val
   writeFloat32 val := CompactFormatter.writeFloat val.toFloat
-  writeString val := JsonT.write (Json.renderString val)
+  writeString val := JsonT.writeToBuffer (fun acc => Json.renderString val acc)
+  writeStringNoEscape val := CompactFormatter.writeQuoted val
   beginArray := JsonT.write "["
   endArray := JsonT.write "]"
   beginArrayValue first := if first then pure () else JsonT.write ","

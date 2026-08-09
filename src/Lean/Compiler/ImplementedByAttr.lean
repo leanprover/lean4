@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Elab.InfoTree
+import Lean.Compiler.ComputableExt
 
 public section
 
@@ -61,6 +62,12 @@ builtin_initialize implementedByAttr : ParametricAttribute Name ← registerPara
         throwError "Invalid `implemented_by` argument `{fnName}`: `{fnName}` has type{indentExpr fnType}\nbut `{.ofConstName declName}` has type{indentExpr declType}"
       if decl.name == fnDecl.name then
         throwError "Invalid `implemented_by` argument `{fnName}`: Definition cannot be implemented by itself"
+      unless isDirectlyComputable (← getEnv) fnDecl.name do
+        let mut hint : MessageData := .ofFormat .nil
+        if isComputable (← getEnv) fnDecl.name then
+          hint := .hint' m!"You can instead write a wrapper around `{fnName}` and use that inside of `implemented_by`"
+        throwError "Invalid `implemented_by` argument `{fnName}`: `{fnName}` is not directly computable{hint}"
+      modifyEnv (addComputable · decl.name)
       return fnName
 }
 
@@ -68,7 +75,7 @@ def getImplementedBy? (env : Environment) (declName : Name) : Option Name :=
   implementedByAttr.getParam? env declName
 
 def setImplementedBy (env : Environment) (declName : Name) (impName : Name) : Except String Environment :=
-  implementedByAttr.setParam env declName impName
+  (implementedByAttr.setParam env declName impName).map (addComputable · declName)
 
 end Compiler
 

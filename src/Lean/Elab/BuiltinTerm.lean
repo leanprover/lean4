@@ -11,7 +11,7 @@ public import Lean.Meta.WrapInstance
 public import Lean.Elab.Open
 public import Lean.Elab.SetOption
 public import Lean.Elab.Eval
-import Lean.Compiler.NoncomputableAttr
+import Lean.Compiler.ComputableExt
 
 public section
 
@@ -372,7 +372,7 @@ private def resynthInstImplicitArgs (type : Expr) : TermElabM Expr := do
   let inst ← synthInstance type
   let inst ← if backward.inferInstanceAs.wrap.get (← getOptions) then
     -- Wrap instance so its type matches the expected type exactly.
-    let logCompileErrors := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
+    let logCompileErrors := false -- TODO: check if inside noncomputable
     let isMeta := (← read).declName?.any (isMarkedMeta (← getEnv))
     -- The auxiliary definitions `wrapInstance` introduces bridge `type` and `expectedType`, so their
     -- bodies are only well-typed when the definitions whose unfolding the bridge requires are
@@ -460,7 +460,7 @@ private opaque evalFilePath (stx : Syntax) : TermElabM System.FilePath
         setInlineAttribute name
         if (← read).declName?.any (isMarkedMeta (← getEnv)) then
           modifyEnv (markMeta · name)
-        let logCompileErrors := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
+        let logCompileErrors := false -- TODO: check if inside noncomputable
         compileDecls (logErrors := logCompileErrors) #[name]
         return e
     else

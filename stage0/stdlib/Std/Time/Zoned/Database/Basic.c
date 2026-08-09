@@ -24,7 +24,6 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 extern lean_object* l_Int_instInhabited;
-extern uint8_t l_instInhabitedUInt8;
 extern lean_object* l_Std_Time_TimeZone_instInhabitedLocalTimeType_default;
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -266,7 +265,7 @@ lean_object* v_transitionTimes_65_; lean_object* v_transitionIndices_66_; lean_o
 v_transitionTimes_65_ = lean_ctor_get(v_tz_64_, 1);
 v_transitionIndices_66_ = lean_ctor_get(v_tz_64_, 2);
 v___x_67_ = l_Int_instInhabited;
-v___x_68_ = l_instInhabitedUInt8;
+v___x_68_ = 0;
 v___x_69_ = l_Std_Time_TimeZone_instInhabitedLocalTimeType_default;
 v_time_70_ = lean_array_get_borrowed(v___x_67_, v_transitionTimes_65_, v_index_63_);
 v___x_71_ = lean_box(v___x_68_);

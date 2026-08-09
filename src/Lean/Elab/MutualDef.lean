@@ -1213,7 +1213,7 @@ where
       -- Add tags early so elaboration can access them
       match view.modifiers.computeKind with
       | .meta          => modifyEnv (markMeta · declId.declName)
-      | .noncomputable => modifyEnv (addNoncomputable · declId.declName)
+      | .noncomputable => pure () -- hmm
       | .regular       => pure ()
     withExporting (isExporting :=
       -- `example`s are always private unless explicitly marked `public`

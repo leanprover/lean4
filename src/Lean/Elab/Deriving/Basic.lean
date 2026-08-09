@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Elab.App
 public import Lean.Elab.DeclNameGen
-import Lean.Compiler.NoncomputableAttr
+import Lean.Compiler.ComputableExt
 import Lean.Meta.WrapInstance
 
 public section
@@ -246,8 +246,8 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) (isNoncomputable
     -- Pre-check: if the instance value depends on noncomputable definitions and the user didn't write
     -- `noncomputable`, give an actionable error with a `Try this:` suggestion.
     unless isNoncomputable || (← read).isNoncomputableSection do
-      let noncompRef? := preNormValue.foldConsts none fun n acc =>
-        acc <|> if Lean.isNoncomputable (asyncMode := .local) env n then some n else none
+      let noncompRef? ← preNormValue.getUsedConstants.findM? fun n => do
+        notM <| isComputableOrIrrelevant n
       if let some noncompRef := noncompRef? then
         if let some cmdRef := cmdRef? then
           if let some origText := cmdRef.reprint then
@@ -258,7 +258,6 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) (isNoncomputable
     let isMeta := (← read).isMetaSection || isMarkedMeta (← getEnv) declName
     if isNoncomputable || (← read).isNoncomputableSection then
       addDecl <| Declaration.defnDecl decl
-      modifyEnv (addNoncomputable · instName)
     else
       addAndCompile (Declaration.defnDecl decl) (markMeta := isMeta)
   trace[Elab.Deriving] "Derived instance `{.ofConstName instName}`"

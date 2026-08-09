@@ -58,7 +58,6 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 lean_object* lean_byte_array_set(lean_object*, lean_object*, uint8_t);
 lean_object* lean_byte_array_size(lean_object*);
-extern uint8_t l_instInhabitedUInt8;
 lean_object* l_outOfBounds___redArg(lean_object*);
 uint8_t lean_byte_array_fget(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1367,7 +1366,7 @@ if (v___x_381_ == 0)
 {
 uint8_t v___x_382_; lean_object* v___x_383_; lean_object* v___x_384_; uint8_t v___x_385_; 
 lean_dec(v___x_379_);
-v___x_382_ = l_instInhabitedUInt8;
+v___x_382_ = 0;
 v___x_383_ = lean_box(v___x_382_);
 v___x_384_ = l_outOfBounds___redArg(v___x_383_);
 lean_dec(v___x_383_);
@@ -2907,7 +2906,7 @@ if (v___x_1054_ == 0)
 {
 uint8_t v___x_1055_; lean_object* v___x_1056_; lean_object* v___x_1057_; uint8_t v___x_1058_; 
 lean_dec(v___x_1052_);
-v___x_1055_ = l_instInhabitedUInt8;
+v___x_1055_ = 0;
 v___x_1056_ = lean_box(v___x_1055_);
 v___x_1057_ = l_outOfBounds___redArg(v___x_1056_);
 lean_dec(v___x_1056_);
@@ -4369,9 +4368,9 @@ return v___x_1452_;
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Meta_Tactic_BVDecide_LRAT_Trim_0__Lean_Meta_Tactic_BVDecide_LRAT_trim_mapping_spec__3___redArg___lam__0___boxed(lean_object* v___y_1463_, lean_object* v_fst_1464_, lean_object* v_snd_1465_, lean_object* v___x_1466_, lean_object* v_____r_1467_, lean_object* v_deletions_1468_, lean_object* v___y_1469_, lean_object* v___y_1470_){
 _start:
 {
-uint8_t v___x_22197__boxed_1471_; lean_object* v_res_1472_; 
-v___x_22197__boxed_1471_ = lean_unbox(v___x_1466_);
-v_res_1472_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Meta_Tactic_BVDecide_LRAT_Trim_0__Lean_Meta_Tactic_BVDecide_LRAT_trim_mapping_spec__3___redArg___lam__0(v___y_1463_, v_fst_1464_, v_snd_1465_, v___x_22197__boxed_1471_, v_____r_1467_, v_deletions_1468_, v___y_1469_, v___y_1470_);
+uint8_t v___x_22198__boxed_1471_; lean_object* v_res_1472_; 
+v___x_22198__boxed_1471_ = lean_unbox(v___x_1466_);
+v_res_1472_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Meta_Tactic_BVDecide_LRAT_Trim_0__Lean_Meta_Tactic_BVDecide_LRAT_trim_mapping_spec__3___redArg___lam__0(v___y_1463_, v_fst_1464_, v_snd_1465_, v___x_22198__boxed_1471_, v_____r_1467_, v_deletions_1468_, v___y_1469_, v___y_1470_);
 lean_dec_ref(v___y_1469_);
 lean_dec(v_fst_1464_);
 return v_res_1472_;
@@ -4440,7 +4439,7 @@ if (v___x_1586_ == 0)
 {
 uint8_t v___x_1587_; lean_object* v___x_1588_; lean_object* v___x_1589_; uint8_t v___x_1590_; 
 lean_dec(v___x_1584_);
-v___x_1587_ = l_instInhabitedUInt8;
+v___x_1587_ = 0;
 v___x_1588_ = lean_box(v___x_1587_);
 v___x_1589_ = l_outOfBounds___redArg(v___x_1588_);
 lean_dec(v___x_1588_);

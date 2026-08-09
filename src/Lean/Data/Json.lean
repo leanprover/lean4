@@ -12,3 +12,4 @@ public import Lean.Data.Json.Printer
 public import Lean.Data.Json.Parser
 public import Lean.Data.Json.FromToJson
 public import Lean.Data.Json.Elab
+public import Lean.Data.Json.Derse

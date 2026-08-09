@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Do.Gadget.ForIn
-// Imports: public import Std.Internal.Do.Triple.SpecLemmas import Init.Data.Array.Bootstrap import Init.Data.List.Monadic
+// Imports: public import Std.Internal.Do.Triple.SpecLemmas public import Std.Internal.ForIn
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -70,8 +70,7 @@ return v_res_56_;
 }
 }
 lean_object* runtime_initialize_Std_Internal_Do_Triple_SpecLemmas(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_List_Monadic(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_ForIn(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Internal_Do_Gadget_ForIn(uint8_t builtin) {
@@ -82,10 +81,7 @@ lean_initialize_runtime_module();
 res = runtime_initialize_Std_Internal_Do_Triple_SpecLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Array_Bootstrap(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = runtime_initialize_Init_Data_List_Monadic(builtin);
+res = runtime_initialize_Std_Internal_ForIn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -98,8 +94,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_Internal_Do_Triple_SpecLemmas(uint8_t builtin);
-lean_object* initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
-lean_object* initialize_Init_Data_List_Monadic(uint8_t builtin);
+lean_object* initialize_Std_Internal_ForIn(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Do_Gadget_ForIn(uint8_t builtin) {
 lean_object * res;
@@ -108,10 +103,7 @@ _G_initialized = true;
 res = initialize_Std_Internal_Do_Triple_SpecLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Bootstrap(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_Monadic(builtin);
+res = initialize_Std_Internal_ForIn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Internal_Do_Gadget_ForIn(builtin);

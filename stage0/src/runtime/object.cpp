@@ -2383,6 +2383,7 @@ extern "C" LEAN_EXPORT uint8 lean_string_is_valid_pos(b_obj_arg s, b_obj_arg i0)
 extern "C" LEAN_EXPORT obj_res lean_string_utf8_extract(b_obj_arg s, b_obj_arg b0, b_obj_arg e0) {
     if (!lean_is_scalar(b0) || !lean_is_scalar(e0)) {
         /* See comment at string_utf8_get */
+        lean_inc(s);
         return s;
     }
     usize b = lean_unbox(b0);

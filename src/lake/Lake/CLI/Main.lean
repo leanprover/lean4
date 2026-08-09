@@ -480,6 +480,10 @@ protected def get : CliM PUnit := do
   unless overwrite do
     -- artifacts of skipped mappings with `--no-overwrite` cannot be cleanly handled
     error "`--no-overwrite` is not supported for `cache get`"
+  let pkg? ← opts.package?.bindM fun pkgName => do
+    match ws.findPackageByName? <| stringToLegalOrSimpleName pkgName with
+    | some pkg => return some pkg
+    | none => throw <| CliError.unknownPackage pkgName
   if let some file := mappings? then liftM (m := LoggerIO) do
     if opts.mappingsOnly then
       error "`--mappings-only` is not supported with a mappings file; use `lake cache add` instead"
@@ -500,7 +504,8 @@ protected def get : CliM PUnit := do
       else
         return ws.defaultCacheService
     let map ← CacheMap.load file
-    cache.writeMap ws.root.cacheScope map service.name? (some remoteScope) overwrite
+    let localScope := pkg?.elim ws.root.cacheScope (·.cacheScope)
+    cache.writeMap localScope map service.name? (some remoteScope) overwrite
     let descrs ← map.collectOutputDescrs
     service.downloadArtifacts descrs cache remoteScope opts.forceDownload
   else
@@ -533,12 +538,7 @@ protected def get : CliM PUnit := do
         -- This is likely user error (they meant `--repo`) rather than something actually useful.
         error "to use `cache get` with `--scope`, a custom endpoint must be set (not Reservoir); \
           if you instead want to download artifacts for a fork of the package, use `--repo`"
-      let pkg ← id do
-        if let some pkgName := opts.package? then
-          match ws.findPackageByName? <| stringToLegalOrSimpleName pkgName with
-          | some pkg => return pkg
-          | none => throw <| CliError.unknownPackage pkgName
-        else return ws.root
+      let pkg := pkg?.getD ws.root
       let platform := cachePlatform pkg platform
       let toolchain := cacheToolchain pkg toolchain
       let map ← id do
@@ -555,11 +555,7 @@ protected def get : CliM PUnit := do
         let descrs ← map.collectOutputDescrs
         service.downloadArtifacts descrs cache remoteScope opts.forceDownload
     else if service.isReservoir then
-      if let some pkgName := opts.package? then
-        let pkg ← id do
-          match ws.findPackageByName? <| stringToLegalOrSimpleName pkgName with
-          | some pkg => return pkg
-          | none => throw <| CliError.unknownPackage pkgName
+      if let some pkg := pkg? then
         let some remoteScope := pkg.reservoirScope?
           | error s!"{pkg.prettyName}: not a Reservoir dependency and no `--scope` or `--repo` set"
         fetchReservoir cache service pkg remoteScope opts platform toolchain overwrite

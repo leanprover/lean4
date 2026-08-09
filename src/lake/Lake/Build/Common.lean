@@ -521,17 +521,16 @@ stored in the cached input-to-content mapping.
 @[specialize] def getArtifactsUsingCache?
   [ResolveOutputs α] (inputHash : Hash) (pkg : Package)
 : JobM (Option α) := do
-  if let some out ← (← getLakeCache).readOutputs? pkg.cacheScope inputHash then
-    try
-      return some (← resolveOutputs out)
-    catch e =>
-      let log ← takeLogFrom e
-      let msg := s!"input '{inputHash.toString.take 7}' found in package artifact cache, \
-        but some output(s) have issues:"
-      let msg := log.entries.foldl (s!"{·}\n- {·.message}") msg
-      logWarning msg
-      return none
-  else
+  try
+    (← (← getLakeCache).readOutputs? pkg.cacheScope inputHash).mapM resolveOutputs
+  catch e =>
+    let log ← takeLogFrom e
+    let msg := s!"input '{inputHash.toString.take 7}' found in package artifact cache, \
+      but some output(s) have issues:"
+    let msg := log.entries.foldl (s!"{·}\n- {·.message}") msg
+    -- Must be `trace` to avoid breaking `--wfail` / `--iofail` builds
+    -- TODO: Figure out a way to split cache and build failures
+    logVerbose msg
     return none
 
 open ResolveOutputs in

@@ -466,10 +466,9 @@ public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : Lo
   | .ok contents =>
     match Json.parse contents >>= fromJson? with
     | .ok out =>
-      return out
+      return some out
     | .error e =>
-      logWarning s!"{path}: invalid JSON: {e}"
-      return none
+      error s!"{path}: invalid JSON: {e}"
   | .error (.noFileOrDirectory ..) => return none
   | .error e => error s!"{path}: read failed: {e}"
 

@@ -47,6 +47,21 @@ private def getAssignmentExt? (e : Expr) : GoalM (Option Rat) := do
           return some val
   return none
 
+/--
+Returns the value of `e` in cutsat's current *candidate* assignment if that value is an
+integer. `e` may be an `Int` term, or a `Nat` term whose cast to `Int` has been
+internalized by cutsat. The result is a heuristic, not a guarantee: the assignment may
+contain rational or default values (e.g. from eliminated or skipped variables), in which
+case it is not a model of the integer constraints; such values are filtered per term.
+This is sufficient for model-based theory combination, which only uses the values to
+propose case splits. The homomorphism engine is the intended client: all homomorphism
+target domains are handled by cutsat, so the result type is `Int`.
+-/
+def getModelValue? (e : Expr) : GoalM (Option Int) := do
+  let some v ← getAssignmentExt? e | return none
+  unless v.den == 1 do return none
+  return some v.num
+
 private def hasTheoryVar (e : Expr) : GoalM Bool := do
   cutsatExt.hasTermAtRoot e
 

@@ -675,6 +675,10 @@ protected def put : CliM PUnit := do
   let opts ← getThe LakeOptions
   let some scope := opts.scope?
     | error "the `--scope` or `--repo` option must be set"
+  if opts.rev?.isSome then
+    error "the `--rev` option is not supported for `cache put`; \
+      to upload artifacts for different revisions, use the staging workflow, \
+      e.g., `lake cache stage` and `lake cache put-staged`"
   noArgsRem do
   let cfg ← mkLoadConfig opts
   let lakeEnv := cfg.lakeEnv

@@ -26,7 +26,9 @@ public structure EqnInfo where
   deriving Inhabited
 
 public builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ←
-  mkMapDeclarationExtension (exportEntriesFn := fun env s =>
+  -- covered: consulted by the reserved-name predicates for fixpoint induction names, so also on
+  -- resolution search paths; populated only when the declaration is created (monotone)
+  mkMapDeclarationExtension (synthCovered := true) (exportEntriesFn := fun env s =>
     let all := s.toArray
     -- Do not export for non-exposed defs at exported/server levels
     let exported := s.filter (fun n _ => env.hasExposedBody n) |>.toArray

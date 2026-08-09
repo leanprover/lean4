@@ -24,7 +24,10 @@ structure SparseCasesOnKey where
 deriving BEq, Hashable
 
 builtin_initialize sparseCasesOnCacheExt : EnvExtension (PHashMap SparseCasesOnKey Name) ←
-  registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep it local
+  -- mere cache, keep it local; may be consulted on resolution search paths via the reserved-name
+  -- covered: realization cache, populated on demand; reads never observe result-relevant
+  -- absence, and entries are write-stability-guarded
+  registerEnvExtension (pure {}) (asyncMode := .local) (synthCovered := true)
 
 /-- Information necessary to recognize and split on sparse casesOn (in particular in MatchEqs) -/
 public structure SparseCasesOnInfo where
@@ -35,6 +38,8 @@ public structure SparseCasesOnInfo where
 deriving Inhabited
 
 builtin_initialize sparseCasesOnInfoExt : MapDeclarationExtension SparseCasesOnInfo ←
+  -- consulted by the reserved-name predicate for `else_eq` names, so also on resolution search
+  -- paths; populated only when the declaration is created (monotone)
   mkMapDeclarationExtension (exportEntriesFn := fun env s =>
     let all := s.toArray
     -- Do not export for non-exposed defs at exported/server levels
@@ -133,7 +138,15 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
     (value       := value)
     (hints       := ReducibilityHints.abbrev)
   addDecl (.defnDecl decl)
-  modifyEnv fun env => sparseCasesOnCacheExt.modifyState env fun s => s.insert key declName
+  modifyEnv fun env => sparseCasesOnCacheExt.modifyState env fun s =>
+    -- write-stability guard; see `MapDeclarationExtension.insert`
+    match s.find? key with
+    | some prev =>
+      if prev != declName then
+        panic! s!"sparse `casesOn` for `{declName}` is already registered as `{prev}`"
+      else
+        s
+    | none => s.insert key declName
   setReducibleAttribute declName
   modifyEnv fun env => markSparseCasesOn env declName
   modifyEnv fun env => sparseCasesOnInfoExt.insert env declName {

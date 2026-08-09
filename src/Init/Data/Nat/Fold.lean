@@ -284,7 +284,7 @@ theorem fold_add
       fold m (fun i h => f (n + i) (by omega))
         (fold n (fun i h => f i (by omega)) init) := by
   induction m with
-  | zero => simp; rfl
+  | zero => simp; try rfl
   | succ m ih =>
     simp [fold_congr (Nat.add_assoc n m 1).symm, ih]
 
@@ -309,7 +309,7 @@ theorem foldRev_add
       foldRev n (fun i h => f i (by omega))
         (foldRev m (fun i h => f (n + i) (by omega)) init) := by
   induction m generalizing init with
-  | zero => simp; rfl
+  | zero => simp; try rfl
   | succ m ih =>
     rw [foldRev_congr (Nat.add_assoc n m 1).symm]
     simp [ih]
@@ -398,7 +398,7 @@ theorem dfold_add
       dfold m (α := fun i h => α (n + i)) (fun i h => f (n + i) (by omega))
         (dfold n (α := fun i h => α i) (fun i h => f i (by omega)) init) := by
   induction m with
-  | zero => simp; rfl
+  | zero => simp; try rfl
   | succ m ih =>
     simp [dfold_congr (Nat.add_assoc n m 1).symm, ih]
 
@@ -433,7 +433,7 @@ theorem dfoldRev_add
       dfoldRev n (α := fun i h => α i) (fun i h => f i (by omega))
         (dfoldRev m (α := fun i h => α (n + i)) (fun i h => f (n + i) (by omega)) init) := by
   induction m with
-  | zero => simp; rfl
+  | zero => simp; try rfl
   | succ m ih =>
     simp [← Nat.add_assoc, ih]
 

@@ -82,6 +82,28 @@ register_builtin_option backward.isDefEq.implicitBump : Bool := {
   not just instance-implicit ones"
 }
 
+/--
+Controls whether the binder types of lambda expressions get their transparency bumped to
+`TransparencyMode.implicit` during `isDefEq`.
+
+When `isDefEq` compares two lambda expressions `fun x : A => ⋯ =?= fun x : B => ⋯`, the binder
+types `A` and `B` are, morally, implicit type information: users usually do not write them
+directly. So, as with implicit arguments, Lean should try harder to make them match. When `true`,
+lambda binder types are compared at `.implicit` transparency, which unfolds `[reducible]`,
+`[instance_reducible]`, and `[implicit_reducible]` definitions, but not arbitrary semireducible
+definitions.
+
+The binder types of `∀` binders are a visible part of the type and are not affected: they are
+compared at the ambient transparency.
+
+This option only has an effect when `backward.isDefEq.respectTransparency` is `true`.
+-/
+register_builtin_option backward.isDefEq.lambdaBump : Bool := {
+  defValue := true
+  descr    := "if true, bump transparency to `.implicit` when comparing the binder types of \
+  two lambda expressions"
+}
+
 register_builtin_option trace.Meta.isDefEq.printTransparency : Bool := {
   defValue := false
   descr    := "if true, prefix `Meta.isDefEq` `=?=` trace messages with the current transparency level"
@@ -428,19 +450,30 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
 
   Pre: `fvars.size == ds₂.size`
 
+  `isLamDomain[i]` indicates whether the `i`-th binder is a `fun` binder (as opposed to `∀`).
+  Lambda binder types are compared at (at least) `.implicit` transparency
+  (see `backward.isDefEq.lambdaBump`).
+
   This method also updates the set of local instances, and invokes
   the continuation `k` with the updated set.
 
   We can't use `withNewLocalInstances` because the `isDefEq fvarType d₂`
   may use local instances. -/
-@[specialize] partial def isDefEqBindingDomain (fvars : Array Expr) (ds₂ : Array Expr) (k : MetaM Bool) : MetaM Bool :=
+@[specialize] partial def isDefEqBindingDomain (fvars : Array Expr) (ds₂ : Array Expr) (isLamDomain : Array Bool) (k : MetaM Bool) : MetaM Bool := do
+  let opts ← getOptions
+  let lambdaBump := backward.isDefEq.respectTransparency.get opts && backward.isDefEq.lambdaBump.get opts
   let rec loop (i : Nat) := do
     if h : i < fvars.size then do
       let fvar := fvars[i]
       let fvarDecl ← getFVarLocalDecl fvar
       let fvarType := fvarDecl.type
       let d₂       := ds₂[i]!
-      if (← Meta.isExprDefEqAux fvarType d₂) then
+      let domainEq ←
+        if lambdaBump && isLamDomain.getD i false then
+          withImplicitConfig <| Meta.isExprDefEqAux fvarType d₂
+        else
+          Meta.isExprDefEqAux fvarType d₂
+      if domainEq then
         match (← isClass? fvarType) with
         | some className => withNewLocalInstance className fvar <| loop (i+1)
         | none           => loop (i+1)
@@ -456,25 +489,25 @@ It accumulates the new free variables in `fvars`, and declare them at `lctx`.
 We use the domain types of `e₁` to create the new free variables.
 We store the domain types of `e₂` at `ds₂`.
 -/
-private partial def isDefEqBindingAux (lctx : LocalContext) (fvars : Array Expr) (e₁ e₂ : Expr) (ds₂ : Array Expr) : MetaM Bool :=
-  let process (n : Name) (d₁ d₂ b₁ b₂ : Expr) : MetaM Bool := do
+private partial def isDefEqBindingAux (lctx : LocalContext) (fvars : Array Expr) (e₁ e₂ : Expr) (ds₂ : Array Expr) (isLamDomain : Array Bool) : MetaM Bool :=
+  let process (n : Name) (d₁ d₂ b₁ b₂ : Expr) (isLam : Bool) : MetaM Bool := do
     let d₁     := d₁.instantiateRev fvars
     let d₂     := d₂.instantiateRev fvars
     let fvarId ← mkFreshFVarId
     let lctx   := lctx.mkLocalDecl fvarId n d₁
     let fvars  := fvars.push (mkFVar fvarId)
-    isDefEqBindingAux lctx fvars b₁ b₂ (ds₂.push d₂)
+    isDefEqBindingAux lctx fvars b₁ b₂ (ds₂.push d₂) (isLamDomain.push isLam)
   match e₁, e₂ with
-  | .forallE n d₁ b₁ _, .forallE _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂
-  | .lam     n d₁ b₁ _, .lam     _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂
+  | .forallE n d₁ b₁ _, .forallE _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂ false
+  | .lam     n d₁ b₁ _, .lam     _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂ true
   | _,                  _                  =>
     withLCtx' lctx do
-      isDefEqBindingDomain fvars ds₂ do
+      isDefEqBindingDomain fvars ds₂ isLamDomain do
         Meta.isExprDefEqAux (e₁.instantiateRev fvars) (e₂.instantiateRev fvars)
 
 @[inline] private def isDefEqBinding (a b : Expr) : MetaM Bool := do
   let lctx ← getLCtx
-  isDefEqBindingAux lctx #[] a b #[]
+  isDefEqBindingAux lctx #[] a b #[] #[]
 
 /--
 Returns `true` if both `backward.isDefEq.respectTransparency` and `backward.isDefEq.respectTransparency.types` is true.

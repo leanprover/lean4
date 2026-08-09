@@ -420,12 +420,13 @@ USAGE:
 
 OPTIONS:
   --max-revs=<n>                  backtrack up to n revisions (default: 100)
-  --rev=<commit-hash>             uses this exact revision to lookup artifacts
-  --service=<name>                cache service to fetch from
-  --repo=<github-repo>            GitHub repository of the package or a fork
-  --platform=<target-triple>      with Reservoir or --repo, sets the platform
-  --toolchain=<name>              with Reservoir or --repo, sets the toolchain
-  --scope=<remote-scope>          scope for a custom endpoint
+  --rev=<commit-hash>             lookup artifacts only for set revision
+  --package=<name>                fetch outputs for set package
+  --service=<name>                fetch outputs from set cache service
+  --repo=<github-repo>            GitHub repository of the package or its fork
+  --platform=<target-triple>      with Reservoir or --repo, set the platform
+  --toolchain=<name>              with Reservoir or --repo, set the toolchain
+  --scope=<remote-scope>          verbatim scope for a custom endpoint
   --mappings-only                 only download mappings, delay artifacts
   --force-download                redownload existing files
 
@@ -471,29 +472,29 @@ def helpCachePut :=
 USAGE:
   lake cache put <mappings> <scope-option>
 
-Uploads the input-to-output mappings contained in the specified file along
-with the corresponding output artifacts to a remote cache. The cache service
-used can be specified via the `--service` option. If not specified, Lake will use
-the system default, or error if none is configured. See the help page of
-`lake cache services` for more information on how to configure services.
-
-Files are uploaded using the AWS Signature Version 4 authentication protocol
-via `curl`. Thus, the service should generally be an S3-compatible bucket. The
-authentication key is set via the `LAKE_CACHE_KEY` environment variable.
-
-Since Lake does not currently use cryptographically secure hashes for
-artifacts and outputs, uploads to the cache are prefixed with a scope to avoid
-clashes. This scope is configured with the following options:
-
-  --scope=<remote-scope>          sets a fixed scope
-  --repo=<github-repo>            uses the repository + toolchain & platform
+OPTIONS:
+  --service=<name>                upload to set cache service
+  --scope=<remote-scope>          upload under set scope verbatim
+  --repo=<github-repo>            scope w/ repository + toolchain & platform
   --toolchain=<name>              with --repo, sets the toolchain
   --platform=<target-triple>      with --repo, sets the platform
 
-At least one of `--scope` or `--repo` must be set. If `--repo` is used, Lake
-will produce a scope by augmenting the repository with toolchain and platform
-information as it deems necessary. If `--scope` is set, Lake will use the
-specified scope verbatim.
+Uploads the input-to-output mappings contained in the specified file along
+with the corresponding output artifacts to a remote cache. The cache service
+used can be specified via the `--service` option. If not specified, Lake will
+use the system default, or error if none is configured. See the help page of
+`lake cache services` for more information on how to configure services.
+
+Files are uploaded using the AWS Signature Version 4 authentication protocol
+via `curl`. Thus, the service should generally be an S3-compatible bucket.
+The authentication key is set via the `LAKE_CACHE_KEY` environment variable.
+
+Since Lake does not currently use cryptographically secure hashes for
+artifacts and outputs, uploads to the cache are prefixed with a scope to
+avoid clashes. This is controlled by `--scope` or `--repo`. With `--repo`,
+Lake will produce a scope by augmenting the repository with toolchain and
+platform information as it deems necessary. With `--scope`, Lake will use
+the specified scope verbatim.
 
 Artifacts are uploaded to the artifact endpoint with a file name derived
 from their Lake content hash (and prefixed by the repository or scope).
@@ -563,16 +564,24 @@ USAGE:
   lake cache put-staged <staging-directory>
 
 OPTIONS:
-  --scope=<remote-scope>          verbatim scope
-  --repo=<github-repo>            scope with repository + toolchain & platform
-  --toolchain=<name>              with --repo, sets the toolchain
-  --platform=<target-triple>      with --repo, sets the platform
+  --rev=<commit-hash>             upload for set revision
+  --service=<name>                upload to set cache service
+  --scope=<remote-scope>          upload under set scope verbatim
+  --repo=<github-repo>            scope w/ repository + toolchain & platform
+  --toolchain=<name>              with --repo, set the toolchain
+  --platform=<target-triple>      with --repo, set the platform
 
 Works like `lake cache put` but uploads outputs from the staging directory
-instead of the Lake cache. Does not configure the workspace and thus does not
-execute arbitrary user code. However, because of this, the package's platform
-and toolchain settings will not be automatically detected and must be
-specified manually via `--platform` and `--toolchain` (if desired)."
+instead of the Lake cache.
+
+Does not configure the workspace and thus does not execute arbitrary user
+code. However, because of this, the package's platform and toolchain settings
+will not be automatically detected for `--repo` and must be specified manually
+via `--platform` and `--toolchain` (if needed).
+
+Lake will still, by default, detect the target revision from the package
+directory's current Git revision. To upload outputs for a different revision,
+specify it with `--rev`."
 
 def helpCacheClean :=
 "Removes ALL files from the local Lake cache

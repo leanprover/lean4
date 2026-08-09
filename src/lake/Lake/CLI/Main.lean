@@ -69,6 +69,7 @@ public structure LakeOptions where
   forceDownload : Bool := false
   mappingsOnly : Bool := false
   service? : Option String := none
+  package? : Option String := none
   scope? : Option CacheServiceScope := none
   platform? : Option CachePlatform := none
   toolchain? : Option CacheToolchain := none
@@ -291,6 +292,9 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--force-download" => modifyThe LakeOptions ({· with forceDownload := true})
 | "--download-arts" => modifyThe LakeOptions ({· with mappingsOnly := false})
 | "--mappings-only" => modifyThe LakeOptions ({· with mappingsOnly := true})
+| "--package" => do
+  let pkgName ← takeOptArg "--package" "package name"
+  modifyThe LakeOptions ({· with package? := some pkgName})
 | "--service" => do
   let service ← takeOptArg "--service" "service name"
   modifyThe LakeOptions ({· with service? := some service})
@@ -529,12 +533,17 @@ protected def get : CliM PUnit := do
         -- This is likely user error (they meant `--repo`) rather than something actually useful.
         error "to use `cache get` with `--scope`, a custom endpoint must be set (not Reservoir); \
           if you instead want to download artifacts for a fork of the package, use `--repo`"
-      let pkg := ws.root
-      let repo := GitRepo.mk pkg.dir
+      let pkg ← id do
+        if let some pkgName := opts.package? then
+          match ws.findPackageByName? <| stringToLegalOrSimpleName pkgName with
+          | some pkg => return pkg
+          | none => throw <| CliError.unknownPackage pkgName
+        else return ws.root
       let platform := cachePlatform pkg platform
       let toolchain := cacheToolchain pkg toolchain
       let map ← id do
         if let some rev := opts.rev? then
+          let repo := GitRepo.mk pkg.dir
           let rev ← repo.resolveRevision rev
           let some map ← service.downloadRevisionOutputs? rev cache pkg.cacheScope remoteScope platform toolchain
             | error s!"{remoteScope}: outputs not found for revision {rev}"
@@ -546,24 +555,27 @@ protected def get : CliM PUnit := do
         let descrs ← map.collectOutputDescrs
         service.downloadArtifacts descrs cache remoteScope opts.forceDownload
     else if service.isReservoir then
-      -- TODO: Parallelize?
-      let ok ← ws.packages.foldlM (start := 1) (init := true) (m := LoggerIO) fun ok pkg => do
+      if let some pkgName := opts.package? then
+        let pkg ← id do
+          match ws.findPackageByName? <| stringToLegalOrSimpleName pkgName with
+          | some pkg => return pkg
+          | none => throw <| CliError.unknownPackage pkgName
         let some remoteScope := pkg.reservoirScope?
-          | logInfo s!"{pkg.prettyName}: skipping non-Reservoir dependency"
+          | error s!"{pkg.prettyName}: not a Reservoir dependency and no `--scope` or `--repo` set"
+        fetchReservoir cache service pkg remoteScope opts platform toolchain overwrite
+      else
+        -- TODO: Parallelize?
+        let ok ← ws.packages.foldlM (start := 1) (init := true) (m := LoggerIO) fun ok pkg => do
+          let some remoteScope := pkg.reservoirScope?
+            | logInfo s!"{pkg.prettyName}: skipping non-Reservoir dependency"
+              return ok
+          try
+            fetchReservoir cache service pkg remoteScope opts platform toolchain overwrite
             return ok
-        let platform := cachePlatform pkg platform
-        let toolchain := cacheToolchain pkg toolchain
-        try
-          let map ← findOutputs cache service pkg remoteScope opts platform toolchain
-          cache.writeMap pkg.cacheScope map service.name? (some remoteScope) overwrite
-          unless opts.mappingsOnly do
-            let descrs ← map.collectOutputDescrs
-            service.downloadArtifacts descrs cache remoteScope opts.forceDownload
-          return ok
-        catch _ =>
-          return false
-      unless ok do
-        error "failed to download artifacts for some dependencies"
+          catch _ =>
+            return false
+        unless ok do
+          error "failed to download artifacts for some dependencies"
     else
       error "to use `cache get` with a custom endpoint, the `--scope` or `--repo` option must be set"
 where
@@ -573,6 +585,14 @@ where
     \n  LAKE_CACHE_REVISION_ENDPOINT={revisionEndpoint}\n\
     To use `cache get` with a custom endpoint, both environment variables \
     must be set to non-empty strings. To use Reservoir, neither should be set."
+  fetchReservoir cache service pkg remoteScope opts platform toolchain overwrite : LoggerIO Unit := do
+    let platform := cachePlatform pkg platform
+    let toolchain := cacheToolchain pkg toolchain
+    let map ← findOutputs cache service pkg remoteScope opts platform toolchain
+    cache.writeMap pkg.cacheScope map service.name? (some remoteScope) overwrite
+    unless opts.mappingsOnly do
+      let descrs ← map.collectOutputDescrs
+      service.downloadArtifacts descrs cache remoteScope opts.forceDownload
   findOutputs cache service pkg remoteScope opts platform toolchain : LoggerIO CacheMap := do
     let repo := GitRepo.mk pkg.dir
     if (← repo.hasDiff) then
@@ -664,7 +684,7 @@ protected def put : CliM PUnit := do
   let platform := cachePlatform pkg (opts.platform?.getD .system)
   let toolchain := cacheToolchain pkg (opts.toolchain?.getD lakeEnv.cacheToolchain)
   let service ← computeUploadService opts.service? lakeEnv lakeCfg
-  let rev ← opts.rev?.getDM (computePackageRev pkg.dir)
+  let rev ← computePackageRev pkg.dir
   putCore rev file lakeCache.artifactDir service scope platform toolchain
 
 protected def add : CliM PUnit := do

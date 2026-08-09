@@ -126,7 +126,7 @@ instance Append.instIterator [Monad m] [Iterator α₁ m β] [Iterator α₂ m �
       | .done h => return .deflate <| .done (.sndDone h)
 
 instance Append.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n]
-    [Iterator α₁ m β] [Iterator α₂ m β] :
+    {_ : Iterator α₁ m β} {_ : Iterator α₂ m β} :
     IteratorLoop (Append α₁ α₂ m β) m n :=
   .defaultImplementation
 
@@ -162,7 +162,7 @@ theorem Append.rel_of_snd [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
     Append.Rel α₁ α₂ m β (IterM.Intermediate.appendSnd α₁ it₂') (IterM.Intermediate.appendSnd α₁ it₂) := by
   exact Prod.Lex.right _ h
 
-def Append.instFinitenessRelation [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
+def Append.instFinitenessRelation [Monad m] {_ : Iterator α₁ m β} {_ : Iterator α₂ m β}
     [Finite α₁ m] [Finite α₂ m] :
     FinitenessRelation (Append α₁ α₂ m β) m where
   Rel := Append.Rel α₁ α₂ m β
@@ -189,7 +189,7 @@ def Append.instFinitenessRelation [Monad m] [Iterator α₁ m β] [Iterator α�
       apply Append.rel_of_snd
       exact IterM.TerminationMeasures.Finite.rel_of_skip ‹_›
 
-instance Append.instFinite [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
+instance Append.instFinite [Monad m] {_ : Iterator α₁ m β} {_ : Iterator α₂ m β}
     [Finite α₁ m] [Finite α₂ m] : Finite (Append α₁ α₂ m β) m :=
   .of_finitenessRelation instFinitenessRelation
 
@@ -231,7 +231,7 @@ theorem Append.productiveRel_of_snd [Monad m] [Iterator α₁ m β] [Iterator α
       (IterM.Intermediate.appendSnd α₁ it₂') (IterM.Intermediate.appendSnd α₁ it₂) := by
   exact Prod.Lex.right _ h
 
-private def Append.instProductivenessRelation [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
+private def Append.instProductivenessRelation [Monad m] {_ : Iterator α₁ m β} {_ : Iterator α₂ m β}
     [Productive α₁ m] [Productive α₂ m] :
     ProductivenessRelation (Append α₁ α₂ m β) m where
   Rel := Append.ProductiveRel α₁ α₂ m β
@@ -251,7 +251,7 @@ private def Append.instProductivenessRelation [Monad m] [Iterator α₁ m β] [I
       apply Append.productiveRel_of_snd
       exact IterM.TerminationMeasures.Productive.rel_of_skip ‹_›
 
-instance Append.instProductive [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
+instance Append.instProductive [Monad m] {_ : Iterator α₁ m β} {_ : Iterator α₂ m β}
     [Productive α₁ m] [Productive α₂ m] : Productive (Append α₁ α₂ m β) m :=
   .of_productivenessRelation instProductivenessRelation
 

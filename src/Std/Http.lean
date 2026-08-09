@@ -69,11 +69,11 @@ small and large payloads efficiently.
 ```lean
 def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) := do
   -- Access request method and URI
-  let method := req.head.method      -- Method.get, Method.post, etc.
-  let uri := req.head.uri            -- RequestTarget
+  let method := req.line.method      -- Method.get, Method.post, etc.
+  let uri := req.line.uri            -- RequestTarget
 
   -- Read a specific header
-  if let some contentType := req.head.headers.get? (.mk "content-type") then
+  if let some contentType := req.line.headers.get? (.mk "content-type") then
     IO.println s!"Content-Type: {contentType}"
 
   Response.ok |>.text "OK"
@@ -83,7 +83,7 @@ def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) :=
 
 `RequestTarget.query` is parsed using form-style key/value conventions (`k=v&...`), and `+` is decoded as a
 space in query components. If you need RFC 3986 opaque query handling, use the raw request target string
-(`toString req.head.uri`) and parse it with custom logic.
+(`toString req.line.uri`) and parse it with custom logic.
 
 ### Reading the Request Body
 

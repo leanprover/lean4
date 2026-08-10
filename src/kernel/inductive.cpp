@@ -128,35 +128,11 @@ static expr const & consume_mdata(expr const & e) {
     return *r;
 }
 
-/* Check that every occurrence of a datatype being declared (`ind_names`) in `e` is applied to the
-   universe levels `lvls` and to the `nparams` parameters of the declaration. `e` is the type of a
-   type former or of a constructor, so its first `nparams` binders are the parameters, and at binder
-   depth `offset` they are the bound variables `#(offset-1) … #(offset-nparams)`. */
-static void check_uniform_ind_occs(environment const & env, expr const & e, buffer<name> const & ind_names,
-                                   levels const & lvls, unsigned nparams) {
-    for_each(e, [&](expr const & t, unsigned offset) {
-            buffer<expr> args;
-            expr const & fn = consume_mdata(get_app_args(consume_mdata(t), args));
-            if (!is_constant(fn) || std::find(ind_names.begin(), ind_names.end(), const_name(fn)) == ind_names.end())
-                return true;
-            /* Over-applied: descend, so that occurrences in the indices are checked too. The parameter
-               application itself is visited as a subterm of `t` and checked (and pruned) below. */
-            if (args.size() > nparams)
-                return true;
-            bool ok = args.size() == nparams && offset >= nparams && const_levels(fn) == lvls;
-            for (unsigned i = 0; ok && i < nparams; i++)
-                ok = is_bvar(consume_mdata(args[i]), offset - 1 - i);
-            if (!ok)
-                throw kernel_exception(env, sstream() << "invalid occurrence of datatype '" << const_name(fn)
-                                       << "' being declared: it must be applied to the parameters and universe "
-                                       "levels of the mutual declaration");
-            return false;
-        });
-}
+/* Check that every occurrence of a datatype being declared in a constructor type of `d` is applied
+   to the declaration's universe levels and to its parameters, which at binder depth `offset` are the
+   bound variables `#(offset-1) … #(offset-nparams)`.
 
-/* Check the occurrences of the datatypes being declared in the types of the declaration.
-
-   Later phases inspect these types modulo `whnf`, which can erase an occurrence (as in
+   Later phases inspect the constructor types modulo `whnf`, which can erase an occurrence (as in
    `(fun _ => Unit) (T Nat)`), and the parametric arguments of a nested occurrence are dropped from
    the auxiliary declaration altogether, so a non-uniform occurrence could escape checking there.
    Reduction never creates an occurrence of a datatype being declared, since those are not yet in the
@@ -170,8 +146,26 @@ static void check_uniform_ind_occs(environment const & env, inductive_decl const
     for (inductive_type const & ind_type : d.get_types())
         ind_names.push_back(ind_type.get_name());
     for (inductive_type const & ind_type : d.get_types()) {
-        for (constructor const & cnstr : ind_type.get_cnstrs())
-            check_uniform_ind_occs(env, constructor_type(cnstr), ind_names, lvls, nparams);
+        for (constructor const & cnstr : ind_type.get_cnstrs()) {
+            for_each(constructor_type(cnstr), [&](expr const & t, unsigned offset) {
+                    buffer<expr> args;
+                    expr const & fn = consume_mdata(get_app_args(consume_mdata(t), args));
+                    if (!is_constant(fn) || std::find(ind_names.begin(), ind_names.end(), const_name(fn)) == ind_names.end())
+                        return true;
+                    /* Over-applied: descend, so that occurrences in the indices are checked too. The
+                       parameter application itself is visited as a subterm of `t` and checked below. */
+                    if (args.size() > nparams)
+                        return true;
+                    bool ok = args.size() == nparams && offset >= nparams && const_levels(fn) == lvls;
+                    for (unsigned i = 0; ok && i < nparams; i++)
+                        ok = is_bvar(consume_mdata(args[i]), offset - 1 - i);
+                    if (!ok)
+                        throw kernel_exception(env, sstream() << "invalid occurrence of datatype '" << const_name(fn)
+                                               << "' being declared: it must be applied to the parameters and universe "
+                                               "levels of the mutual declaration");
+                    return false;
+                });
+        }
     }
 }
 

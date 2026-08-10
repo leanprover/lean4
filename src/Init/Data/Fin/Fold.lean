@@ -24,11 +24,18 @@ nesting to the left.
 Example:
  * `Fin.foldl 3 (· + ·.val) (0 : Nat) = ((0 + (0 : Fin 3).val) + (1 : Fin 3).val) + (2 : Fin 3).val`
 -/
-@[inline, expose] def foldl (n) (f : α → Fin n → α) (init : α) : α := loop init 0 where
-  /-- Inner loop for `Fin.foldl`. `Fin.foldl.loop n f x i = f (f (f x i) ...) (n-1)`. -/
-  @[specialize] loop (x : α) (i : Nat) : α :=
-    if h : i < n then loop (f x ⟨i, h⟩) (i+1) else x
-  termination_by n - i
+@[inline, expose] def foldl : (n : Nat) → (α → Fin n → α) → α → α
+  | 0, _, init => init
+  | n+1, f, init => foldl n (fun x i => f x i.succ) (f init 0)
+
+/-- Inner loop for `Fin.foldl`. `Fin.foldl.loop n f x i = f (f (f x i) ...) (n-1)`. -/
+@[specialize, semireducible] def foldl.loop (n) (f : α → Fin n → α) (x : α) (i : Nat) : α :=
+  if h : i < n then loop n f (f x ⟨i, h⟩) (i+1) else x
+termination_by n - i
+
+/-- Tail-recursive implementation of `Fin.foldl`, used by the compiler. -/
+@[inline] def foldlTR (n) (f : α → Fin n → α) (init : α) : α :=
+  foldl.loop n f init 0
 
 /--
 Combine all the values that can be represented by `Fin n` with an initial value, starting at `n - 1`
@@ -248,12 +255,25 @@ private theorem foldl_loop (f : α → Fin (n+1) → α) (x) (h : i < n+1) :
     rw [foldl_loop_lt]
     rw [foldl_loop_eq, foldl_loop_eq]
 
-@[simp] theorem foldl_zero (f : α → Fin 0 → α) (x) : foldl 0 f x = x :=
+private theorem foldlTR_zero (f : α → Fin 0 → α) (x) : foldlTR 0 f x = x :=
   foldl_loop_eq ..
+
+private theorem foldlTR_succ (f : α → Fin (n+1) → α) (x) :
+    foldlTR (n+1) f x = foldlTR n (fun x i => f x i.succ) (f x 0) :=
+  foldl_loop ..
+
+@[csimp] theorem foldl_eq_foldlTR : @foldl = @foldlTR := by
+  funext α n f x
+  induction n generalizing x with
+  | zero => exact foldlTR_zero .. |>.symm
+  | succ n ih => rw [foldl, foldlTR_succ, ih]
+
+@[simp] theorem foldl_zero (f : α → Fin 0 → α) (x) : foldl 0 f x = x :=
+  rfl
 
 theorem foldl_succ (f : α → Fin (n+1) → α) (x) :
     foldl (n+1) f x = foldl n (fun x i => f x i.succ) (f x 0) :=
-  foldl_loop ..
+  rfl
 
 theorem foldl_succ_last (f : α → Fin (n+1) → α) (x) :
     foldl (n+1) f x = f (foldl n (f · ·.castSucc) x) (last n) := by

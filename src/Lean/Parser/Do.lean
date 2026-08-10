@@ -199,12 +199,6 @@ def doDecreasing := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "decreasing" >>
     withForbidden "do" (atomic basicFun <|> (ppSpace >> termParser)))
 /--
-The `invariant` and `decreasing` clauses of a `repeat` loop, either of which may be given on its
-own. The body follows `do`, which terminates the clause's term.
--/
-def doLoopClauses := leading_parser
-  ((doLoopInvariant >> optional doDecreasing) <|> doDecreasing) >> " do "
-/--
 `for x in e do s` iterates over `e` assuming `e`'s type has an instance of the `ForIn` typeclass.
 `break` and `continue` are supported inside `for` loops.
 `for x in e, x2 in e2, ... do s` iterates over the given collections in parallel,
@@ -330,12 +324,13 @@ from the program and proves it; at runtime the element does nothing.
     (atomic basicFun <|> (ppSpace >> termParser))
 
 @[builtin_doElem_parser] def doRepeat      := leading_parser
-  "repeat " >> optional doLoopClauses >> doSeq
+  "repeat " >> optional doLoopInvariant >> optional doDecreasing >> doSeq
 @[builtin_doElem_parser] def doWhile       := leading_parser
   "while " >> withForbiddens #["do", "invariant", "decreasing"] doIfCond >>
     optional doLoopInvariant >> optional doDecreasing >> " do " >> doSeq
 @[builtin_doElem_parser] def doRepeatUntil := leading_parser
-  "repeat " >> optional doLoopClauses >> doSeq >> ppDedent ppLine >> "until " >> termParser
+  "repeat " >> optional doLoopInvariant >> optional doDecreasing >> doSeq >>
+    ppDedent ppLine >> "until " >> termParser
 
 /-
 We use `notFollowedBy` to avoid counterintuitive behavior.

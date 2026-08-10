@@ -73,8 +73,9 @@ error: unexpected syntax
   do
     let mut i := 0
     repeat
-        decreasing n - i do
-      i := i + 1
+        decreasing n - i
+      do
+        i := i + 1
     return i
 -/
 #guard_msgs in

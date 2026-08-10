@@ -14,6 +14,9 @@ public import Init.Data.RArray
 import Init.Data.Int.Cooper
 import Init.Data.Int.LemmasAux
 public section
+
+open Internal
+
 namespace Int.Internal.Linear
 
 /-! Helper definitions and theorems for constructing linear arithmetic proofs. -/
@@ -494,10 +497,10 @@ theorem Expr.denote_toPoly'_go (ctx : Context) (e : Expr) :
   (toPoly'.go k e p).denote ctx = k * e.denote ctx + p.denote ctx := by
     induction k, e using Expr.toPoly'.go.induct generalizing p with
   | case1 k k' h =>
-    simp only [toPoly'.go, h, cond_true]
+    simp only [toPoly'.go, h, Bool.cond_true]
     simp [eq_of_beq h]
   | case2 k k' h =>
-    simp only [toPoly'.go, h, cond_false]
+    simp only [toPoly'.go, h, Bool.cond_false]
     simp
   | case3 k i => simp [toPoly'.go]
   | case4 k a b iha ihb => simp [toPoly'.go, iha, ihb]
@@ -509,10 +512,10 @@ theorem Expr.denote_toPoly'_go (ctx : Context) (e : Expr) :
     simp only [toPoly'.go, h]
     simp [eq_of_beq h]
   | case7 k a k' h ih =>
-    simp only [toPoly'.go, h, cond_false]
+    simp only [toPoly'.go, h, Bool.cond_false]
     simpa [denote, ← Int.mul_assoc] using ih
   | case9 k a h h ih =>
-    simp only [toPoly'.go, h, cond_false]
+    simp only [toPoly'.go, h, Bool.cond_false]
     simp only [mul_def, denote]
     rw [Int.mul_comm (denote _ _) _]
     simpa [Int.mul_assoc] using ih

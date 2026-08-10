@@ -44,7 +44,7 @@ theorem containsConsecutiveNumbers_spec (a : Array Int) :
     | .inr ⟨i, found⟩ => (i + 1 ≥ a.size ∨ found = true) ∧
         (found = false → ∀ j : Nat, j < i → a[j]! + 1 ≠ a[j + 1]!) ∧
         (found = true → HasConsecutivePair a)
-  | inv2 => fun ⟨i, found⟩ => (a.size + 1 - i) * 2 + (if found = false then 1 else 0)
+  | inv2 => .ofMeasure fun ⟨i, found⟩ => (a.size + 1 - i) * 2 + (if found = false then 1 else 0)
   with finish
 
 end E_containsConsecutiveNumbers
@@ -77,7 +77,7 @@ theorem countSumDivisibleBy_spec (n d : Nat) (_hd : d > 0) :
         count = ((List.range k).countP (divisesDigitSum d))
     | .inr ⟨count, k⟩ => k = n ∧
         count = ((List.range k).countP (divisesDigitSum d))
-  | inv2 => fun ⟨count, k⟩ => n + 1 - k
+  | inv2 => .ofMeasure fun ⟨count, k⟩ => n + 1 - k
   with finish [List.range_succ, Nat.dvd_iff_mod_eq_zero, divisesDigitSum]
 
 end E_countSumDivisibleBy
@@ -106,7 +106,7 @@ theorem cubeElements_spec (a : Array Int) :
         ∀ k, k < i → result[k]! = intCube (a[k]!)
     | .inr ⟨result, i⟩ => i = a.size ∧ result.size = a.size ∧
         ∀ k, k < i → result[k]! = intCube (a[k]!)
-  | inv2 => fun ⟨result, i⟩ => a.size + 1 - i
+  | inv2 => .ofMeasure fun ⟨result, i⟩ => a.size + 1 - i
   with finish
 
 end E_cubeElements
@@ -153,7 +153,7 @@ theorem differenceMinMax_spec (a : Array Int) (hne : a.size ≠ 0) :
     | .inr ⟨mn, mx, i⟩ => i = a.size ∧
         (∃ j : Nat, j < i ∧ a[j]! = mn) ∧ (∀ j : Nat, j < i → mn ≤ a[j]!) ∧
         (∃ j : Nat, j < i ∧ a[j]! = mx) ∧ (∀ j : Nat, j < i → a[j]! ≤ mx)
-  | inv2 => fun ⟨_mn, _mx, i⟩ => a.size - i
+  | inv2 => .ofMeasure fun ⟨_mn, _mx, i⟩ => a.size - i
   with (try finish)
   case vc2 => sorry
 
@@ -184,7 +184,7 @@ theorem elementWiseModulo_spec (a b : Array Int)
         ∀ k, k < i → result[k]! = a[k]! % b[k]!
     | .inr ⟨result, i⟩ => i = a.size ∧ result.size = a.size ∧
         ∀ k, k < i → result[k]! = a[k]! % b[k]!
-  | inv2 => fun ⟨result, i⟩ => a.size + 1 - i
+  | inv2 => .ofMeasure fun ⟨result, i⟩ => a.size + 1 - i
   with finish
 
 end E_elementWiseModulo
@@ -211,8 +211,8 @@ theorem findSmallest_spec (s : Array Nat) :
   generalize h : (findSmallest s).run = r
   apply Id.of_wp_run_eq h
   vcgen [findSmallest] invariants
-  | inv1 => fun xs minIndex => minIndex < s.size ∧ s[minIndex]! ≤ s[0]! ∧
-      ∀ j, j ∈ xs.prefix → s[minIndex]! ≤ s[j]!
+  | inv1 => fun xpref _ minIndex => minIndex < s.size ∧ s[minIndex]! ≤ s[0]! ∧
+      ∀ j, j ∈ xpref → s[minIndex]! ≤ s[j]!
   with finish
 
 end E_findSmallest
@@ -285,7 +285,7 @@ theorem isGreater_spec (n : Int) (a : Array Int) (_h : a.size > 0) :
   generalize h : (isGreater n a).run = r
   apply Id.of_wp_run_eq h
   vcgen [isGreater] invariants
-  | inv1 => fun xs ok => ok = true ↔ (∀ j : Nat, j ∈ xs.prefix → a[j]! < n)
+  | inv1 => fun xpref _ ok => ok = true ↔ (∀ j : Nat, j ∈ xpref → a[j]! < n)
   with finish
 
 end E_isGreater
@@ -321,7 +321,7 @@ theorem isPrime_spec (n : Nat) (_h : 2 ≤ n) :
   generalize h : (isPrime n).run = r
   apply Id.of_wp_run_eq h
   vcgen [isPrime] invariants
-  | inv1 => fun xs composite => composite = false ↔ (∀ d : Nat, d ∈ xs.prefix → n % d ≠ 0)
+  | inv1 => fun xpref _ composite => composite = false ↔ (∀ d : Nat, d ∈ xpref → n % d ≠ 0)
   with (try finish)
   case vc2 => sorry
   case vc3 => sorry
@@ -444,7 +444,7 @@ theorem removeElement_spec (s : Array Int) (k : Nat) (hk : k < s.size) :
     | .inr ⟨result, i⟩ => i = result.size ∧ result.size + 1 = s.size ∧
         ∀ (j : Nat), j < result.size →
           (if j < k then result[j]! = s[j]! else result[j]! = s[j + 1]!)
-  | inv2 => fun ⟨result, i⟩ => result.size - i
+  | inv2 => .ofMeasure fun ⟨result, i⟩ => result.size - i
   with finish
 
 end E_removeElement
@@ -571,12 +571,12 @@ theorem findEvenNumbers_spec (arr : Array Int) :
   generalize h : (findEvenNumbers arr).run = r
   apply Id.of_wp_run_eq h
   vcgen [findEvenNumbers] invariants
-  | inv1 => fun xs ⟨result, indices⟩ => xs.prefix.length ≤ arr.size ∧
+  | inv1 => fun xpref _ ⟨result, indices⟩ => xpref.length ≤ arr.size ∧
       (∀ x, x ∈ result → isEvenInt x = true) ∧
       (∀ x, isEvenInt x = false → result.count x = 0) ∧
-      (∀ x, isEvenInt x = true → result.count x = (arr.extract 0 xs.prefix.length).count x) ∧
+      (∀ x, isEvenInt x = true → result.count x = (arr.extract 0 xpref.length).count x) ∧
       indices.size = result.size ∧
-      (∀ k, k < indices.size → indices[k]! < xs.prefix.length) ∧
+      (∀ k, k < indices.size → indices[k]! < xpref.length) ∧
       (∀ k, k < indices.size → indices[k]! < arr.size) ∧
       (∀ k, k < indices.size → result[k]! = arr[indices[k]!]!) ∧
       (∀ k j, k < j → j < indices.size → indices[k]! < indices[j]!)
@@ -632,9 +632,9 @@ theorem findMajorityElement_spec (lst : List Int) :
   generalize h : (findMajorityElement lst).run = r
   apply Id.of_wp_run_eq h
   vcgen [findMajorityElement] invariants
-  | inv1 => fun xs ⟨found, candidate⟩ => (found = true → candidate ∈ lst ∧ isMajorityElement lst candidate) ∧
-      (found = false → ∀ k : Nat, k < xs.prefix.length → ¬isMajorityElement lst lst[k]!)
-  | inv2 pref cur suff hsplit b hinv => fun ys count => count = (lst.take ys.prefix.length).count lst[cur]!
+  | inv1 => fun xpref _ ⟨found, candidate⟩ => (found = true → candidate ∈ lst ∧ isMajorityElement lst candidate) ∧
+      (found = false → ∀ k : Nat, k < xpref.length → ¬isMajorityElement lst lst[k]!)
+  | inv2 pref cur suff hsplit b hinv => fun ypref _ count => count = (lst.take ypref.length).count lst[cur]!
   case vc7 => sorry
   case vc8 => sorry
   all_goals grind [List.take_length, List.length_range', List.take_succ_eq_append_getElem, -Array.extract_eq_pop, -Nat.min_def]
@@ -683,8 +683,8 @@ theorem ifPowerOfFour_spec (n : Nat) :
   generalize h : (ifPowerOfFour n).run = r
   apply Id.of_wp_run_eq h
   vcgen [ifPowerOfFour] invariants
-  | inv1 => fun xs current => current > 0 ∧ (isPowerOfFour n ↔ isPowerOfFour current) ∧
-      (isPowerOfFour n → ∃ e, current = 4 ^ e ∧ (e = 0 ∨ 4 ^ (e + xs.prefix.length) = n))
+  | inv1 => fun xpref _ current => current > 0 ∧ (isPowerOfFour n ↔ isPowerOfFour current) ∧
+      (isPowerOfFour n → ∃ e, current = 4 ^ e ∧ (e = 0 ∨ 4 ^ (e + xpref.length) = n))
   case vc4 => sorry
   all_goals grind [isPowerOfFour_iff_div_four, Nat.lt_pow_self, Nat.pow_succ, -Array.extract_eq_pop, -Nat.min_def]
 
@@ -718,7 +718,7 @@ theorem isSorted_spec (a : Array Int) :
   generalize h : (isSorted a).run = r
   apply Id.of_wp_run_eq h
   vcgen [isSorted] invariants
-  | inv1 => fun xs sorted => (sorted = true → ∀ k : Nat, k ∈ xs.prefix → k + 1 < a.size → a[k]! ≤ a[k + 1]!) ∧
+  | inv1 => fun xpref _ sorted => (sorted = true → ∀ k : Nat, k ∈ xpref → k + 1 < a.size → a[k]! ≤ a[k + 1]!) ∧
       (sorted = false → ∃ k : Nat, k + 1 < a.size ∧ a[k]! > a[k + 1]!)
   with finish
 
@@ -759,10 +759,10 @@ theorem isSublist_spec (sub : List Int) (main : List Int) :
   generalize h : (isSublist sub main).run = r
   apply Id.of_wp_run_eq h
   vcgen [isSublist] invariants
-  | inv1 => fun xs ⟨rest, found⟩ => rest <:+: main ∧
+  | inv1 => fun xpref _ ⟨rest, found⟩ => rest <:+: main ∧
       (found = true → sub <:+: main) ∧
       (sub <:+: main → found = true ∨ sub <:+: rest) ∧
-      (found = false → rest.length + xs.prefix.length ≤ main.length)
+      (found = false → rest.length + xpref.length ≤ main.length)
   with finish [List.eq_nil_of_infix_nil, List.length_drop, List.length_range',
     List.length_eq_zero_iff]
 
@@ -839,8 +839,8 @@ theorem mergeSorted_spec (a1 : Array Nat) (a2 : Array Nat)
   generalize h : (mergeSorted a1 a2).run = r
   apply Id.of_wp_run_eq h
   vcgen [mergeSorted] invariants
-  | inv1 => fun xs ⟨result, i, j⟩ => i ≤ a1.size ∧ j ≤ a2.size ∧
-      result.size = i + j ∧ result.size = xs.prefix.length ∧
+  | inv1 => fun xpref _ ⟨result, i, j⟩ => i ≤ a1.size ∧ j ≤ a2.size ∧
+      result.size = i + j ∧ result.size = xpref.length ∧
       isSorted result ∧
       (∀ v : Nat, result.count v = (a1.extract 0 i).count v + (a2.extract 0 j).count v) ∧
       (i < a1.size → ∀ p, p < result.size → result[p]! ≤ a1[i]!) ∧
@@ -894,7 +894,7 @@ theorem differenceMinMax_spec (a : Array Int) :
     | .inr ⟨mn, mx, i⟩ => i = a.size ∧
         (∃ j : Nat, j < i ∧ a[j]! = mn) ∧ (∀ j : Nat, j < i → mn ≤ a[j]!) ∧
         (∃ j : Nat, j < i ∧ a[j]! = mx) ∧ (∀ j : Nat, j < i → a[j]! ≤ mx)
-  | inv2 => fun ⟨_mn, _mx, i⟩ => a.size - i
+  | inv2 => .ofMeasure fun ⟨_mn, _mx, i⟩ => a.size - i
   with (try finish)
   case vc2 => sorry
 
@@ -945,9 +945,9 @@ theorem findMajorityElement_spec (lst : List Int) :
     ⦃ fun r => (hasMajorityElement lst → r ∈ lst ∧ isMajorityElement lst r) ∧
       (¬hasMajorityElement lst → r = -1) ⦄ := by
   vcgen [findMajorityElement] invariants
-  | inv1 => fun xs ⟨found, candidate⟩ => (found = true → candidate ∈ lst ∧ isMajorityElement lst candidate) ∧
-      (found = false → ∀ k : Nat, k < xs.prefix.length → ¬isMajorityElement lst lst[k]!)
-  | inv2 _ cur _ _ _ _ => fun ys count => count = (lst.take ys.prefix.length).count lst[cur]!
+  | inv1 => fun xpref _ ⟨found, candidate⟩ => (found = true → candidate ∈ lst ∧ isMajorityElement lst candidate) ∧
+      (found = false → ∀ k : Nat, k < xpref.length → ¬isMajorityElement lst lst[k]!)
+  | inv2 _ cur _ _ _ _ => fun ypref _ count => count = (lst.take ypref.length).count lst[cur]!
   case vc7 => sorry
   case vc8 => sorry
   all_goals grind [List.take_length, List.length_range', List.take_succ_eq_append_getElem, List.count_append, List.count_singleton, -Array.extract_eq_pop, -Nat.min_def]

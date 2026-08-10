@@ -35,6 +35,7 @@ lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Do_inferControlInfoSeq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_node5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Do_mkPUnit___redArg(lean_object*);
 lean_object* l_Lean_Meta_isExprDefEqGuarded(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1303,6 +1304,7 @@ lean_ctor_set(v___x_502_, 0, v___x_486_);
 lean_ctor_set(v___x_502_, 1, v___x_498_);
 lean_ctor_set(v___x_502_, 2, v___x_500_);
 lean_ctor_set(v___x_502_, 3, v___x_501_);
+lean_inc_ref(v___x_491_);
 v___x_503_ = l_Lean_Syntax_node4(v___x_486_, v___x_489_, v___x_491_, v___x_495_, v___x_497_, v___x_502_);
 lean_inc(v_seq_484_);
 v___x_504_ = l_Lean_Elab_Do_inferControlInfoSeq(v_seq_484_, v_a_458_, v_a_459_, v_a_460_, v_a_461_, v_a_462_, v_a_463_);
@@ -1328,7 +1330,7 @@ v___x_513_ = ((lean_object*)(l_Lean_Elab_Do_elabDoRepeat___closed__27));
 v___x_514_ = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(v___x_514_, 0, v___x_512_);
 lean_ctor_set(v___x_514_, 1, v___x_513_);
-v___x_515_ = l_Lean_Syntax_node4(v___x_486_, v___x_487_, v___x_514_, v___x_506_, v___x_509_, v_seq_484_);
+v___x_515_ = l_Lean_Syntax_node5(v___x_486_, v___x_487_, v___x_514_, v___x_506_, v___x_491_, v___x_509_, v_seq_484_);
 if (v_breaks_507_ == 0)
 {
 if (v___x_466_ == 0)
@@ -1491,6 +1493,7 @@ else
 {
 lean_object* v_a_550_; lean_object* v___x_552_; uint8_t v_isShared_553_; uint8_t v_isSharedCheck_557_; 
 lean_dec(v___x_503_);
+lean_dec_ref_known(v___x_491_, 3);
 lean_dec(v___x_486_);
 lean_dec(v_seq_484_);
 lean_dec_ref(v_dec_456_);
@@ -1917,11 +1920,13 @@ return v_res_847_;
 }
 lean_object* runtime_initialize_Lean_Elab_BuiltinDo_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_BuiltinDo_For(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_BuiltinDo_Repeat(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Elab_BuiltinDo_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

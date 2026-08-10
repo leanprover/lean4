@@ -129,10 +129,23 @@ def declId := leading_parser
 -- @[builtin_doc] -- FIXME: suppress the hover
 def declSig := leading_parser
   many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.typeSpec
+/-- The `requires P` precondition clause of a `def` contract. The form `requires s => P s` binds the
+arguments of the assertion itself, such as the state of a state monad. -/
+def requiresClause := leading_parser
+  ppIndent (ppLine >> nonReservedSymbol "requires" >>
+    withForbidden "ensures" (atomic Term.basicFun <|> (ppSpace >> termParser)))
+/-- The `ensures b => Q` postcondition clause of a `def` contract, binding the result `b`. -/
+def ensuresClause := leading_parser
+  ppIndent (ppLine >> nonReservedSymbol "ensures" >>
+    (Term.basicFun <|> ppIndent Term.matchAlts))
+/-- The `: type` of a `def`. It may carry contract clauses, so we forbid `requires`/`ensures` in the type. -/
+def defTypeSpec := withForbiddens #["requires", "ensures"] Term.typeSpec
 /-- `optDeclSig` matches the signature of a declaration with optional type: a list of binders and then possibly `: type` -/
 -- @[builtin_doc] -- FIXME: suppress the hover
 def optDeclSig := leading_parser
-  many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.optType
+  withForbiddens #["requires", "ensures"]
+    (many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder))) >>
+  optional defTypeSpec
 /-- Right-hand side of a `:=` in a declaration, a term. -/
 def declBody : Parser :=
   /-
@@ -184,6 +197,12 @@ def whereStructInst  := leading_parser
   -- Issue #753 shows an example that fails to be parsed when we used `Term.whereDecls`.
   withAntiquot (mkAntiquot "declVal" decl_name% (isPseudoKind := true)) <|
     declValSimple <|> declValEqns <|> whereStructInst
+/-- `requires P`/`ensures b => Q` contract clauses followed by the value of a `def`. Tried only
+after `declVal` fails, so contract-free definitions parse without probing for the clauses.
+`withoutInfo` avoids collecting `declVal`'s tokens and kinds a second time at startup; they are
+already registered through the `declVal` alternative of `definition`. -/
+def contractDeclVal := leading_parser
+  optional requiresClause >> optional ensuresClause >> withoutInfo declVal
 def «abbrev»         := leading_parser
   "abbrev " >> declId >> ppIndent optDeclSig >> declVal
 def derivingClass    := leading_parser
@@ -192,7 +211,8 @@ def derivingClasses  := sepBy1 derivingClass ", "
 def optDefDeriving   :=
   optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance" >> notSymbol "noncomputable") >> derivingClasses)
 def definition     := leading_parser
-  "def " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> declVal >> optDefDeriving
+  "def " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >>
+  (declVal <|> contractDeclVal) >> optDefDeriving
 def «theorem»        := leading_parser
   "theorem " >> recover declId skipUntilWsOrDelim >> ppIndent declSig >> declVal
 def «opaque»         := leading_parser

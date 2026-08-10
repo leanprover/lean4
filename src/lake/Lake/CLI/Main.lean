@@ -346,7 +346,9 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--builtin-lint" => modifyThe LakeOptions ({· with runBuiltinLint := true})
 | "--builtin-only" => modifyThe LakeOptions ({· with runBuiltinLint := true, builtinOnly := true})
 | "--record-exceptions" =>
-  modifyThe LakeOptions ({· with runBuiltinLint := true, builtinLint.recordExceptions := true})
+  modifyThe LakeOptions ({· with runBuiltinLint := true, builtinLint.mode := .recordExceptions})
+| "--code-quality" =>
+   modifyThe LakeOptions ({· with runBuiltinLint := true, builtinOnly := true, builtinLint.mode := .codeQuality})
 | "--linters" => do
   let opts ← getThe LakeOptions
   if opts.builtinLint.lintOnly then
@@ -547,7 +549,7 @@ protected def get : CliM PUnit := do
       -- TODO: Parallelize?
       let ok ← ws.packages.foldlM (start := 1) (init := true) (m := LoggerIO) fun ok pkg => do
         let some remoteScope := pkg.reservoirScope?
-          | logInfo s!"{pkg.prettyName}: skipping non-Reservoir dependency`"
+          | logInfo s!"{pkg.prettyName}: skipping non-Reservoir dependency"
             return ok
         let platform := cachePlatform pkg platform
         let toolchain := cacheToolchain pkg toolchain

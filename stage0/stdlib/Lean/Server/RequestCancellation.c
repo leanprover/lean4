@@ -43,7 +43,6 @@ LEAN_EXPORT uint8_t l_Lean_Server_RequestCancellationToken_wasCancelledByEdit(le
 LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_wasCancelledByEdit___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Server_RequestCancellationToken_wasCancelled(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_wasCancelled___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellation_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellation_requestCancelled;
 LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_run___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_run(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -304,329 +303,323 @@ v_r_84_ = lean_box(v_res_83_);
 return v_r_84_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellation_toCtorIdx(lean_object* v_x_85_){
-_start:
-{
-lean_object* v___x_86_; 
-v___x_86_ = lean_unsigned_to_nat(0u);
-return v___x_86_;
-}
-}
 static lean_object* _init_l_Lean_Server_RequestCancellation_requestCancelled(void){
 _start:
 {
-lean_object* v___x_87_; 
-v___x_87_ = lean_box(0);
-return v___x_87_;
+lean_object* v___x_85_; 
+v___x_85_ = lean_box(0);
+return v___x_85_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_run___redArg(lean_object* v_tk_88_, lean_object* v_x_89_){
+LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_run___redArg(lean_object* v_tk_86_, lean_object* v_x_87_){
 _start:
 {
-lean_object* v___x_90_; 
-v___x_90_ = lean_apply_1(v_x_89_, v_tk_88_);
-return v___x_90_;
+lean_object* v___x_88_; 
+v___x_88_ = lean_apply_1(v_x_87_, v_tk_86_);
+return v___x_88_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_run(lean_object* v_m_91_, lean_object* v_00_u03b1_92_, lean_object* v_tk_93_, lean_object* v_x_94_){
+LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_run(lean_object* v_m_89_, lean_object* v_00_u03b1_90_, lean_object* v_tk_91_, lean_object* v_x_92_){
 _start:
 {
-lean_object* v___x_95_; 
-v___x_95_ = lean_apply_1(v_x_94_, v_tk_93_);
-return v___x_95_;
+lean_object* v___x_93_; 
+v___x_93_ = lean_apply_1(v_x_92_, v_tk_91_);
+return v___x_93_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_CancellableM_run___redArg(lean_object* v_tk_96_, lean_object* v_x_97_){
+LEAN_EXPORT lean_object* l_Lean_Server_CancellableM_run___redArg(lean_object* v_tk_94_, lean_object* v_x_95_){
 _start:
 {
-lean_object* v___x_99_; 
-v___x_99_ = lean_apply_2(v_x_97_, v_tk_96_, lean_box(0));
-return v___x_99_;
+lean_object* v___x_97_; 
+v___x_97_ = lean_apply_2(v_x_95_, v_tk_94_, lean_box(0));
+return v___x_97_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_CancellableM_run___redArg___boxed(lean_object* v_tk_100_, lean_object* v_x_101_, lean_object* v_a_102_){
+LEAN_EXPORT lean_object* l_Lean_Server_CancellableM_run___redArg___boxed(lean_object* v_tk_98_, lean_object* v_x_99_, lean_object* v_a_100_){
 _start:
 {
-lean_object* v_res_103_; 
-v_res_103_ = l_Lean_Server_CancellableM_run___redArg(v_tk_100_, v_x_101_);
-return v_res_103_;
+lean_object* v_res_101_; 
+v_res_101_ = l_Lean_Server_CancellableM_run___redArg(v_tk_98_, v_x_99_);
+return v_res_101_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_CancellableM_run(lean_object* v_00_u03b1_104_, lean_object* v_tk_105_, lean_object* v_x_106_){
+LEAN_EXPORT lean_object* l_Lean_Server_CancellableM_run(lean_object* v_00_u03b1_102_, lean_object* v_tk_103_, lean_object* v_x_104_){
 _start:
 {
-lean_object* v___x_108_; 
-v___x_108_ = lean_apply_2(v_x_106_, v_tk_105_, lean_box(0));
-return v___x_108_;
+lean_object* v___x_106_; 
+v___x_106_ = lean_apply_2(v_x_104_, v_tk_103_, lean_box(0));
+return v___x_106_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_CancellableM_run___boxed(lean_object* v_00_u03b1_109_, lean_object* v_tk_110_, lean_object* v_x_111_, lean_object* v_a_112_){
+LEAN_EXPORT lean_object* l_Lean_Server_CancellableM_run___boxed(lean_object* v_00_u03b1_107_, lean_object* v_tk_108_, lean_object* v_x_109_, lean_object* v_a_110_){
 _start:
 {
-lean_object* v_res_113_; 
-v_res_113_ = l_Lean_Server_CancellableM_run(v_00_u03b1_109_, v_tk_110_, v_x_111_);
-return v_res_113_;
+lean_object* v_res_111_; 
+v_res_111_ = l_Lean_Server_CancellableM_run(v_00_u03b1_107_, v_tk_108_, v_x_109_);
+return v_res_111_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___redArg___lam__0(uint8_t v_a_114_){
+LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___redArg___lam__0(uint8_t v_a_112_){
 _start:
 {
-lean_object* v___x_115_; lean_object* v___x_116_; 
-v___x_115_ = lean_box(v_a_114_);
-v___x_116_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_116_, 0, v___x_115_);
-return v___x_116_;
+lean_object* v___x_113_; lean_object* v___x_114_; 
+v___x_113_ = lean_box(v_a_112_);
+v___x_114_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_114_, 0, v___x_113_);
+return v___x_114_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___redArg___lam__0___boxed(lean_object* v_a_117_){
+LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___redArg___lam__0___boxed(lean_object* v_a_115_){
 _start:
 {
-uint8_t v_a_668__boxed_118_; lean_object* v_res_119_; 
-v_a_668__boxed_118_ = lean_unbox(v_a_117_);
-v_res_119_ = l_Lean_Server_CancellableT_checkCancelled___redArg___lam__0(v_a_668__boxed_118_);
-return v_res_119_;
+uint8_t v_a_668__boxed_116_; lean_object* v_res_117_; 
+v_a_668__boxed_116_ = lean_unbox(v_a_115_);
+v_res_117_ = l_Lean_Server_CancellableT_checkCancelled___redArg___lam__0(v_a_668__boxed_116_);
+return v_res_117_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___redArg___lam__1(lean_object* v_toPure_124_, uint8_t v_a_125_){
+LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___redArg___lam__1(lean_object* v_toPure_122_, uint8_t v_a_123_){
 _start:
 {
-if (v_a_125_ == 0)
+if (v_a_123_ == 0)
 {
-lean_object* v___x_126_; lean_object* v___x_127_; 
-v___x_126_ = ((lean_object*)(l_Lean_Server_CancellableT_checkCancelled___redArg___lam__1___closed__0));
-v___x_127_ = lean_apply_2(v_toPure_124_, lean_box(0), v___x_126_);
-return v___x_127_;
+lean_object* v___x_124_; lean_object* v___x_125_; 
+v___x_124_ = ((lean_object*)(l_Lean_Server_CancellableT_checkCancelled___redArg___lam__1___closed__0));
+v___x_125_ = lean_apply_2(v_toPure_122_, lean_box(0), v___x_124_);
+return v___x_125_;
 }
 else
 {
-lean_object* v___x_128_; lean_object* v___x_129_; 
-v___x_128_ = ((lean_object*)(l_Lean_Server_CancellableT_checkCancelled___redArg___lam__1___closed__1));
-v___x_129_ = lean_apply_2(v_toPure_124_, lean_box(0), v___x_128_);
-return v___x_129_;
+lean_object* v___x_126_; lean_object* v___x_127_; 
+v___x_126_ = ((lean_object*)(l_Lean_Server_CancellableT_checkCancelled___redArg___lam__1___closed__1));
+v___x_127_ = lean_apply_2(v_toPure_122_, lean_box(0), v___x_126_);
+return v___x_127_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___redArg___lam__1___boxed(lean_object* v_toPure_130_, lean_object* v_a_131_){
+LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___redArg___lam__1___boxed(lean_object* v_toPure_128_, lean_object* v_a_129_){
 _start:
 {
-uint8_t v_a_boxed_132_; lean_object* v_res_133_; 
-v_a_boxed_132_ = lean_unbox(v_a_131_);
-v_res_133_ = l_Lean_Server_CancellableT_checkCancelled___redArg___lam__1(v_toPure_130_, v_a_boxed_132_);
-return v_res_133_;
+uint8_t v_a_boxed_130_; lean_object* v_res_131_; 
+v_a_boxed_130_ = lean_unbox(v_a_129_);
+v_res_131_ = l_Lean_Server_CancellableT_checkCancelled___redArg___lam__1(v_toPure_128_, v_a_boxed_130_);
+return v_res_131_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___redArg___lam__2(lean_object* v_toFunctor_134_, lean_object* v_inst_135_, lean_object* v___f_136_, lean_object* v_inst_137_, lean_object* v___f_138_, lean_object* v_toBind_139_, lean_object* v_a_140_){
+LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___redArg___lam__2(lean_object* v_toFunctor_132_, lean_object* v_inst_133_, lean_object* v___f_134_, lean_object* v_inst_135_, lean_object* v___f_136_, lean_object* v_toBind_137_, lean_object* v_a_138_){
 _start:
 {
-lean_object* v_map_141_; lean_object* v___x_142_; lean_object* v___x_143_; lean_object* v___x_144_; lean_object* v___x_145_; lean_object* v___x_146_; 
-v_map_141_ = lean_ctor_get(v_toFunctor_134_, 0);
-lean_inc(v_map_141_);
-lean_dec_ref(v_toFunctor_134_);
-v___x_142_ = lean_alloc_closure((void*)(l_Lean_Server_RequestCancellationToken_wasCancelledByCancelRequest___boxed), 2, 1);
-lean_closure_set(v___x_142_, 0, v_a_140_);
-v___x_143_ = lean_apply_2(v_inst_135_, lean_box(0), v___x_142_);
-v___x_144_ = lean_apply_4(v_map_141_, lean_box(0), lean_box(0), v___f_136_, v___x_143_);
-v___x_145_ = lean_alloc_closure((void*)(l_ExceptT_bindCont), 7, 6);
-lean_closure_set(v___x_145_, 0, lean_box(0));
-lean_closure_set(v___x_145_, 1, lean_box(0));
-lean_closure_set(v___x_145_, 2, v_inst_137_);
-lean_closure_set(v___x_145_, 3, lean_box(0));
-lean_closure_set(v___x_145_, 4, lean_box(0));
-lean_closure_set(v___x_145_, 5, v___f_138_);
-v___x_146_ = lean_apply_4(v_toBind_139_, lean_box(0), lean_box(0), v___x_144_, v___x_145_);
-return v___x_146_;
+lean_object* v_map_139_; lean_object* v___x_140_; lean_object* v___x_141_; lean_object* v___x_142_; lean_object* v___x_143_; lean_object* v___x_144_; 
+v_map_139_ = lean_ctor_get(v_toFunctor_132_, 0);
+lean_inc(v_map_139_);
+lean_dec_ref(v_toFunctor_132_);
+v___x_140_ = lean_alloc_closure((void*)(l_Lean_Server_RequestCancellationToken_wasCancelledByCancelRequest___boxed), 2, 1);
+lean_closure_set(v___x_140_, 0, v_a_138_);
+v___x_141_ = lean_apply_2(v_inst_133_, lean_box(0), v___x_140_);
+v___x_142_ = lean_apply_4(v_map_139_, lean_box(0), lean_box(0), v___f_134_, v___x_141_);
+v___x_143_ = lean_alloc_closure((void*)(l_ExceptT_bindCont), 7, 6);
+lean_closure_set(v___x_143_, 0, lean_box(0));
+lean_closure_set(v___x_143_, 1, lean_box(0));
+lean_closure_set(v___x_143_, 2, v_inst_135_);
+lean_closure_set(v___x_143_, 3, lean_box(0));
+lean_closure_set(v___x_143_, 4, lean_box(0));
+lean_closure_set(v___x_143_, 5, v___f_136_);
+v___x_144_ = lean_apply_4(v_toBind_137_, lean_box(0), lean_box(0), v___x_142_, v___x_143_);
+return v___x_144_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___redArg(lean_object* v_inst_148_, lean_object* v_inst_149_, lean_object* v_a_150_){
+LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___redArg(lean_object* v_inst_146_, lean_object* v_inst_147_, lean_object* v_a_148_){
 _start:
 {
-lean_object* v_toApplicative_151_; lean_object* v_toBind_152_; lean_object* v_toFunctor_153_; lean_object* v_toPure_154_; lean_object* v___f_155_; lean_object* v___f_156_; lean_object* v___f_157_; lean_object* v___x_158_; lean_object* v___x_159_; lean_object* v___x_160_; lean_object* v___x_161_; 
-v_toApplicative_151_ = lean_ctor_get(v_inst_148_, 0);
-v_toBind_152_ = lean_ctor_get(v_inst_148_, 1);
-lean_inc_n(v_toBind_152_, 2);
-v_toFunctor_153_ = lean_ctor_get(v_toApplicative_151_, 0);
-v_toPure_154_ = lean_ctor_get(v_toApplicative_151_, 1);
-v___f_155_ = ((lean_object*)(l_Lean_Server_CancellableT_checkCancelled___redArg___closed__0));
-lean_inc_n(v_toPure_154_, 2);
-v___f_156_ = lean_alloc_closure((void*)(l_Lean_Server_CancellableT_checkCancelled___redArg___lam__1___boxed), 2, 1);
-lean_closure_set(v___f_156_, 0, v_toPure_154_);
-lean_inc_ref(v_inst_148_);
-lean_inc_ref(v_toFunctor_153_);
-v___f_157_ = lean_alloc_closure((void*)(l_Lean_Server_CancellableT_checkCancelled___redArg___lam__2), 7, 6);
-lean_closure_set(v___f_157_, 0, v_toFunctor_153_);
-lean_closure_set(v___f_157_, 1, v_inst_149_);
-lean_closure_set(v___f_157_, 2, v___f_155_);
-lean_closure_set(v___f_157_, 3, v_inst_148_);
-lean_closure_set(v___f_157_, 4, v___f_156_);
-lean_closure_set(v___f_157_, 5, v_toBind_152_);
-lean_inc_ref(v_a_150_);
-v___x_158_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_158_, 0, v_a_150_);
-v___x_159_ = lean_apply_2(v_toPure_154_, lean_box(0), v___x_158_);
-v___x_160_ = lean_alloc_closure((void*)(l_ExceptT_bindCont), 7, 6);
-lean_closure_set(v___x_160_, 0, lean_box(0));
-lean_closure_set(v___x_160_, 1, lean_box(0));
-lean_closure_set(v___x_160_, 2, v_inst_148_);
-lean_closure_set(v___x_160_, 3, lean_box(0));
-lean_closure_set(v___x_160_, 4, lean_box(0));
-lean_closure_set(v___x_160_, 5, v___f_157_);
-v___x_161_ = lean_apply_4(v_toBind_152_, lean_box(0), lean_box(0), v___x_159_, v___x_160_);
-return v___x_161_;
+lean_object* v_toApplicative_149_; lean_object* v_toBind_150_; lean_object* v_toFunctor_151_; lean_object* v_toPure_152_; lean_object* v___f_153_; lean_object* v___f_154_; lean_object* v___f_155_; lean_object* v___x_156_; lean_object* v___x_157_; lean_object* v___x_158_; lean_object* v___x_159_; 
+v_toApplicative_149_ = lean_ctor_get(v_inst_146_, 0);
+v_toBind_150_ = lean_ctor_get(v_inst_146_, 1);
+lean_inc_n(v_toBind_150_, 2);
+v_toFunctor_151_ = lean_ctor_get(v_toApplicative_149_, 0);
+v_toPure_152_ = lean_ctor_get(v_toApplicative_149_, 1);
+v___f_153_ = ((lean_object*)(l_Lean_Server_CancellableT_checkCancelled___redArg___closed__0));
+lean_inc_n(v_toPure_152_, 2);
+v___f_154_ = lean_alloc_closure((void*)(l_Lean_Server_CancellableT_checkCancelled___redArg___lam__1___boxed), 2, 1);
+lean_closure_set(v___f_154_, 0, v_toPure_152_);
+lean_inc_ref(v_inst_146_);
+lean_inc_ref(v_toFunctor_151_);
+v___f_155_ = lean_alloc_closure((void*)(l_Lean_Server_CancellableT_checkCancelled___redArg___lam__2), 7, 6);
+lean_closure_set(v___f_155_, 0, v_toFunctor_151_);
+lean_closure_set(v___f_155_, 1, v_inst_147_);
+lean_closure_set(v___f_155_, 2, v___f_153_);
+lean_closure_set(v___f_155_, 3, v_inst_146_);
+lean_closure_set(v___f_155_, 4, v___f_154_);
+lean_closure_set(v___f_155_, 5, v_toBind_150_);
+lean_inc_ref(v_a_148_);
+v___x_156_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_156_, 0, v_a_148_);
+v___x_157_ = lean_apply_2(v_toPure_152_, lean_box(0), v___x_156_);
+v___x_158_ = lean_alloc_closure((void*)(l_ExceptT_bindCont), 7, 6);
+lean_closure_set(v___x_158_, 0, lean_box(0));
+lean_closure_set(v___x_158_, 1, lean_box(0));
+lean_closure_set(v___x_158_, 2, v_inst_146_);
+lean_closure_set(v___x_158_, 3, lean_box(0));
+lean_closure_set(v___x_158_, 4, lean_box(0));
+lean_closure_set(v___x_158_, 5, v___f_155_);
+v___x_159_ = lean_apply_4(v_toBind_150_, lean_box(0), lean_box(0), v___x_157_, v___x_158_);
+return v___x_159_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___redArg___boxed(lean_object* v_inst_162_, lean_object* v_inst_163_, lean_object* v_a_164_){
+LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___redArg___boxed(lean_object* v_inst_160_, lean_object* v_inst_161_, lean_object* v_a_162_){
 _start:
 {
-lean_object* v_res_165_; 
-v_res_165_ = l_Lean_Server_CancellableT_checkCancelled___redArg(v_inst_162_, v_inst_163_, v_a_164_);
-lean_dec_ref(v_a_164_);
-return v_res_165_;
+lean_object* v_res_163_; 
+v_res_163_ = l_Lean_Server_CancellableT_checkCancelled___redArg(v_inst_160_, v_inst_161_, v_a_162_);
+lean_dec_ref(v_a_162_);
+return v_res_163_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled(lean_object* v_m_166_, lean_object* v_inst_167_, lean_object* v_inst_168_, lean_object* v_a_169_){
+LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled(lean_object* v_m_164_, lean_object* v_inst_165_, lean_object* v_inst_166_, lean_object* v_a_167_){
 _start:
 {
-lean_object* v___x_170_; 
-v___x_170_ = l_Lean_Server_CancellableT_checkCancelled___redArg(v_inst_167_, v_inst_168_, v_a_169_);
-return v___x_170_;
+lean_object* v___x_168_; 
+v___x_168_ = l_Lean_Server_CancellableT_checkCancelled___redArg(v_inst_165_, v_inst_166_, v_a_167_);
+return v___x_168_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___boxed(lean_object* v_m_171_, lean_object* v_inst_172_, lean_object* v_inst_173_, lean_object* v_a_174_){
+LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___boxed(lean_object* v_m_169_, lean_object* v_inst_170_, lean_object* v_inst_171_, lean_object* v_a_172_){
 _start:
 {
-lean_object* v_res_175_; 
-v_res_175_ = l_Lean_Server_CancellableT_checkCancelled(v_m_171_, v_inst_172_, v_inst_173_, v_a_174_);
-lean_dec_ref(v_a_174_);
-return v_res_175_;
+lean_object* v_res_173_; 
+v_res_173_ = l_Lean_Server_CancellableT_checkCancelled(v_m_169_, v_inst_170_, v_inst_171_, v_a_172_);
+lean_dec_ref(v_a_172_);
+return v_res_173_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___at___00Lean_Server_CancellableM_checkCancelled_spec__0(lean_object* v_a_176_){
+LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___at___00Lean_Server_CancellableM_checkCancelled_spec__0(lean_object* v_a_174_){
 _start:
 {
-uint8_t v___x_178_; 
-v___x_178_ = l_Lean_Server_RequestCancellationToken_wasCancelledByCancelRequest(v_a_176_);
-if (v___x_178_ == 0)
+uint8_t v___x_176_; 
+v___x_176_ = l_Lean_Server_RequestCancellationToken_wasCancelledByCancelRequest(v_a_174_);
+if (v___x_176_ == 0)
+{
+lean_object* v___x_177_; lean_object* v___x_178_; 
+v___x_177_ = ((lean_object*)(l_Lean_Server_CancellableT_checkCancelled___redArg___lam__1___closed__0));
+v___x_178_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_178_, 0, v___x_177_);
+return v___x_178_;
+}
+else
 {
 lean_object* v___x_179_; lean_object* v___x_180_; 
-v___x_179_ = ((lean_object*)(l_Lean_Server_CancellableT_checkCancelled___redArg___lam__1___closed__0));
+v___x_179_ = ((lean_object*)(l_Lean_Server_CancellableT_checkCancelled___redArg___lam__1___closed__1));
 v___x_180_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_180_, 0, v___x_179_);
 return v___x_180_;
 }
-else
-{
-lean_object* v___x_181_; lean_object* v___x_182_; 
-v___x_181_ = ((lean_object*)(l_Lean_Server_CancellableT_checkCancelled___redArg___lam__1___closed__1));
-v___x_182_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_182_, 0, v___x_181_);
-return v___x_182_;
 }
 }
-}
-LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___at___00Lean_Server_CancellableM_checkCancelled_spec__0___boxed(lean_object* v_a_183_, lean_object* v___y_184_){
+LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___at___00Lean_Server_CancellableM_checkCancelled_spec__0___boxed(lean_object* v_a_181_, lean_object* v___y_182_){
 _start:
 {
-lean_object* v_res_185_; 
-v_res_185_ = l_Lean_Server_CancellableT_checkCancelled___at___00Lean_Server_CancellableM_checkCancelled_spec__0(v_a_183_);
-lean_dec_ref(v_a_183_);
-return v_res_185_;
+lean_object* v_res_183_; 
+v_res_183_ = l_Lean_Server_CancellableT_checkCancelled___at___00Lean_Server_CancellableM_checkCancelled_spec__0(v_a_181_);
+lean_dec_ref(v_a_181_);
+return v_res_183_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_CancellableM_checkCancelled(lean_object* v_a_186_){
+LEAN_EXPORT lean_object* l_Lean_Server_CancellableM_checkCancelled(lean_object* v_a_184_){
 _start:
 {
-lean_object* v___x_188_; 
-v___x_188_ = l_Lean_Server_CancellableT_checkCancelled___at___00Lean_Server_CancellableM_checkCancelled_spec__0(v_a_186_);
-return v___x_188_;
+lean_object* v___x_186_; 
+v___x_186_ = l_Lean_Server_CancellableT_checkCancelled___at___00Lean_Server_CancellableM_checkCancelled_spec__0(v_a_184_);
+return v___x_186_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_CancellableM_checkCancelled___boxed(lean_object* v_a_189_, lean_object* v_a_190_){
+LEAN_EXPORT lean_object* l_Lean_Server_CancellableM_checkCancelled___boxed(lean_object* v_a_187_, lean_object* v_a_188_){
 _start:
 {
-lean_object* v_res_191_; 
-v_res_191_ = l_Lean_Server_CancellableM_checkCancelled(v_a_189_);
-lean_dec_ref(v_a_189_);
-return v_res_191_;
+lean_object* v_res_189_; 
+v_res_189_ = l_Lean_Server_CancellableM_checkCancelled(v_a_187_);
+lean_dec_ref(v_a_187_);
+return v_res_189_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_instMonadCancellableOfMonadLift___redArg(lean_object* v_inst_192_, lean_object* v_inst_193_){
+LEAN_EXPORT lean_object* l_Lean_Server_instMonadCancellableOfMonadLift___redArg(lean_object* v_inst_190_, lean_object* v_inst_191_){
 _start:
 {
-lean_object* v___x_194_; 
-v___x_194_ = lean_apply_2(v_inst_192_, lean_box(0), v_inst_193_);
-return v___x_194_;
+lean_object* v___x_192_; 
+v___x_192_ = lean_apply_2(v_inst_190_, lean_box(0), v_inst_191_);
+return v___x_192_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_instMonadCancellableOfMonadLift(lean_object* v_m_195_, lean_object* v_n_196_, lean_object* v_inst_197_, lean_object* v_inst_198_){
+LEAN_EXPORT lean_object* l_Lean_Server_instMonadCancellableOfMonadLift(lean_object* v_m_193_, lean_object* v_n_194_, lean_object* v_inst_195_, lean_object* v_inst_196_){
 _start:
 {
-lean_object* v___x_199_; 
-v___x_199_ = lean_apply_2(v_inst_197_, lean_box(0), v_inst_198_);
-return v___x_199_;
+lean_object* v___x_197_; 
+v___x_197_ = lean_apply_2(v_inst_195_, lean_box(0), v_inst_196_);
+return v___x_197_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_instMonadCancellableCancellableTOfMonadOfMonadLiftTBaseIO___redArg(lean_object* v_inst_200_, lean_object* v_inst_201_){
+LEAN_EXPORT lean_object* l_Lean_Server_instMonadCancellableCancellableTOfMonadOfMonadLiftTBaseIO___redArg(lean_object* v_inst_198_, lean_object* v_inst_199_){
 _start:
 {
-lean_object* v___x_202_; 
-v___x_202_ = lean_alloc_closure((void*)(l_Lean_Server_CancellableT_checkCancelled___boxed), 4, 3);
-lean_closure_set(v___x_202_, 0, lean_box(0));
-lean_closure_set(v___x_202_, 1, v_inst_200_);
-lean_closure_set(v___x_202_, 2, v_inst_201_);
-return v___x_202_;
+lean_object* v___x_200_; 
+v___x_200_ = lean_alloc_closure((void*)(l_Lean_Server_CancellableT_checkCancelled___boxed), 4, 3);
+lean_closure_set(v___x_200_, 0, lean_box(0));
+lean_closure_set(v___x_200_, 1, v_inst_198_);
+lean_closure_set(v___x_200_, 2, v_inst_199_);
+return v___x_200_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_instMonadCancellableCancellableTOfMonadOfMonadLiftTBaseIO(lean_object* v_m_203_, lean_object* v_inst_204_, lean_object* v_inst_205_){
+LEAN_EXPORT lean_object* l_Lean_Server_instMonadCancellableCancellableTOfMonadOfMonadLiftTBaseIO(lean_object* v_m_201_, lean_object* v_inst_202_, lean_object* v_inst_203_){
 _start:
 {
-lean_object* v___x_206_; 
-v___x_206_ = lean_alloc_closure((void*)(l_Lean_Server_CancellableT_checkCancelled___boxed), 4, 3);
-lean_closure_set(v___x_206_, 0, lean_box(0));
-lean_closure_set(v___x_206_, 1, v_inst_204_);
-lean_closure_set(v___x_206_, 2, v_inst_205_);
-return v___x_206_;
+lean_object* v___x_204_; 
+v___x_204_ = lean_alloc_closure((void*)(l_Lean_Server_CancellableT_checkCancelled___boxed), 4, 3);
+lean_closure_set(v___x_204_, 0, lean_box(0));
+lean_closure_set(v___x_204_, 1, v_inst_202_);
+lean_closure_set(v___x_204_, 2, v_inst_203_);
+return v___x_204_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellation_check___redArg(lean_object* v_inst_207_){
+LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellation_check___redArg(lean_object* v_inst_205_){
 _start:
 {
-lean_inc(v_inst_207_);
-return v_inst_207_;
+lean_inc(v_inst_205_);
+return v_inst_205_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellation_check___redArg___boxed(lean_object* v_inst_208_){
+LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellation_check___redArg___boxed(lean_object* v_inst_206_){
 _start:
 {
-lean_object* v_res_209_; 
-v_res_209_ = l_Lean_Server_RequestCancellation_check___redArg(v_inst_208_);
-lean_dec(v_inst_208_);
-return v_res_209_;
+lean_object* v_res_207_; 
+v_res_207_ = l_Lean_Server_RequestCancellation_check___redArg(v_inst_206_);
+lean_dec(v_inst_206_);
+return v_res_207_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellation_check(lean_object* v_m_210_, lean_object* v_inst_211_){
+LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellation_check(lean_object* v_m_208_, lean_object* v_inst_209_){
 _start:
 {
-lean_inc(v_inst_211_);
-return v_inst_211_;
+lean_inc(v_inst_209_);
+return v_inst_209_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellation_check___boxed(lean_object* v_m_212_, lean_object* v_inst_213_){
+LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellation_check___boxed(lean_object* v_m_210_, lean_object* v_inst_211_){
 _start:
 {
-lean_object* v_res_214_; 
-v_res_214_ = l_Lean_Server_RequestCancellation_check(v_m_212_, v_inst_213_);
-lean_dec(v_inst_213_);
-return v_res_214_;
+lean_object* v_res_212_; 
+v_res_212_ = l_Lean_Server_RequestCancellation_check(v_m_210_, v_inst_211_);
+lean_dec(v_inst_211_);
+return v_res_212_;
 }
 }
 lean_object* runtime_initialize_Lean_Server_ServerTask(uint8_t builtin);
 lean_object* runtime_initialize_Init_System_Promise(uint8_t builtin);
 lean_object* runtime_initialize_Init_System_CancelToken(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_RequestCancellation(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Server_ServerTask(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

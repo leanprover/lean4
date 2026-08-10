@@ -152,12 +152,12 @@ protected theorem modCore_eq_mod (n m : Nat) : Nat.modCore n m = n % m := by
   match n, m with
   | 0, _ =>
     rw [Nat.modCore_eq]
-    exact if_neg fun ⟨hlt, hle⟩ => Nat.lt_irrefl _ (Nat.lt_of_lt_of_le hlt hle)
+    exact ite_eq_right fun ⟨hlt, hle⟩ => Nat.lt_irrefl _ (Nat.lt_of_lt_of_le hlt hle)
   | (_ + 1), _ =>
     rw [Nat.mod]; dsimp
     refine iteInduction (fun _ => rfl) (fun h => ?false) -- cannot use `split` this early yet
     rw [Nat.modCore_eq]
-    exact if_neg fun ⟨_hlt, hle⟩ => h hle
+    exact ite_eq_right fun ⟨_hlt, hle⟩ => h hle
 
 theorem mod_eq_ite (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x := by
   rw [←Nat.modCore_eq_mod, ←Nat.modCore_eq_mod, Nat.modCore_eq]
@@ -180,13 +180,13 @@ def mod.inductionOn.{u}
 @[simp] theorem mod_zero (a : Nat) : a % 0 = a :=
   have : (if 0 < 0 ∧ 0 ≤ a then (a - 0) % 0 else a) = a :=
     have h : ¬ (0 < 0 ∧ 0 ≤ a) := fun ⟨h₁, _⟩ => absurd h₁ (Nat.lt_irrefl _)
-    if_neg h
+    ite_eq_right h
   (mod_eq_ite a 0).symm ▸ this
 
 theorem mod_eq_of_lt {a b : Nat} (h : a < b) : a % b = a :=
   have : (if 0 < b ∧ b ≤ a then (a - b) % b else a) = a :=
     have h' : ¬(0 < b ∧ b ≤ a) := fun ⟨_, h₁⟩ => absurd h₁ (Nat.not_le_of_gt h)
-    if_neg h'
+    ite_eq_right h'
   (mod_eq_ite a b).symm ▸ this
 
 @[simp] theorem one_mod_eq_zero_iff {n : Nat} : 1 % n = 0 ↔ n = 1 := by
@@ -205,7 +205,7 @@ theorem mod_eq_of_lt {a b : Nat} (h : a < b) : a % b = a :=
 theorem mod_eq_sub_mod {a b : Nat} (h : a ≥ b) : a % b = (a - b) % b :=
   match eq_zero_or_pos b with
   | Or.inl h₁ => h₁.symm ▸ (Nat.sub_zero a).symm ▸ rfl
-  | Or.inr h₁ => (mod_eq_ite a b).symm ▸ if_pos ⟨h₁, h⟩
+  | Or.inr h₁ => (mod_eq_ite a b).symm ▸ ite_eq_left ⟨h₁, h⟩
 
 @[simp] protected theorem sub_mod_add_mod_cancel (a b : Nat) [NeZero a] : a - b % a + b % a = a := by
   rw [Nat.sub_add_cancel]
@@ -250,7 +250,7 @@ theorem div_add_mod (m n : Nat) : n * (m / n) + m % n = m := by
 decreasing_by apply div_rec_lemma; assumption
 
 theorem div_eq_sub_div (h₁ : 0 < b) (h₂ : b ≤ a) : a / b = (a - b) / b + 1 := by
- rw [div_eq_ite a, if_pos]; constructor <;> assumption
+ rw [div_eq_ite a, ite_eq_left]; constructor <;> assumption
 
 theorem mod_add_div (m k : Nat) : m % k + k * (m / k) = m := by
   induction m, k using mod.inductionOn with rw [div_eq_ite, mod_eq_ite]
@@ -274,7 +274,7 @@ theorem mod_eq_sub_div_mul {x k : Nat} : x % k = x - (x / k) * k := by
   rw [div_eq_ite]; simp [Nat.lt_irrefl]
 
 @[simp] protected theorem zero_div (b : Nat) : 0 / b = 0 :=
-  (div_eq_ite 0 b).trans <| if_neg <| And.rec Nat.not_le_of_gt
+  (div_eq_ite 0 b).trans <| ite_eq_right <| And.rec Nat.not_le_of_gt
 
 theorem le_div_iff_mul_le (k0 : 0 < k) : x ≤ y / k ↔ x * k ≤ y := by
   induction y, k using mod.inductionOn generalizing x with
@@ -420,7 +420,7 @@ theorem mul_mod_mul_left (z x y : Nat) : (z * x) % (z * y) = z * (x % y) :=
         exact IH _ (sub_lt (Nat.lt_of_lt_of_le y0 yn) y0)
 
 theorem div_eq_of_lt (h₀ : a < b) : a / b = 0 := by
-  rw [div_eq_ite a, if_neg]
+  rw [div_eq_ite a, ite_eq_right]
   intro h₁
   apply Nat.not_le_of_gt h₀ h₁.right
 

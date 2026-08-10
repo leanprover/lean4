@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Data.DHashMap.Lemmas
 public import Std.Data.HashMap.AdditionalOperations
+public import Std.Internal.ForIn.Basic
 import all Std.Data.DHashMap.Basic
 import Init.Data.List.Pairwise
 
@@ -1070,6 +1071,14 @@ theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
     ForIn.forIn m init f = ForIn.forIn m.toList init f :=
   DHashMap.Const.forInUncurried_eq_forIn_toList
 
+@[simp, grind =]
+theorem forIn_toList (c : HashMap α β) : ForIn.toList c = c.toList :=
+  Std.Internal.ForIn.toList_eq_of_forIn_eq fun _ _ => forIn_eq_forIn_toList
+
+instance [Monad m'] [LawfulMonad m'] :
+    Std.Internal.PureForIn m' (HashMap α β) (α × β) where
+  forIn_eq _ _ _ := by rw [forIn_toList]; exact forIn_eq_forIn_toList
+
 theorem foldM_eq_foldlM_keys [Monad m'] [LawfulMonad m']
     {f : δ → α → m' δ} {init : δ} :
     m.foldM (fun d a _ => f d a) init = m.keys.foldlM f init :=
@@ -1190,7 +1199,7 @@ theorem all_keys [LawfulHashable α] [EquivBEq α] {p : α → Bool} :
 
 variable {ρ : Type w} [ForIn Id ρ (α × β)]
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem insertMany_nil :
     insertMany m [] = m :=
   ext DHashMap.Const.insertMany_nil
@@ -1200,7 +1209,7 @@ theorem insertMany_list_singleton {k : α} {v : β} :
     insertMany m [⟨k, v⟩] = m.insert k v :=
   ext DHashMap.Const.insertMany_list_singleton
 
-@[grind _=_]
+@[grind _=_, cbv_eval]
 theorem insertMany_cons {l : List (α × β)} {k : α} {v : β} :
     insertMany m (⟨k, v⟩ :: l) = insertMany (m.insert k v) l :=
   ext DHashMap.Const.insertMany_cons
@@ -2416,6 +2425,7 @@ theorem ofList_singleton {k : α} {v : β} :
     ofList (⟨k, v⟩ :: tl) = insertMany ((∅ : HashMap α β).insert k v) tl :=
   ext DHashMap.Const.ofList_cons
 
+@[cbv_eval]
 theorem ofList_eq_insertMany_empty {l : List (α × β)} :
     ofList l = insertMany (∅ : HashMap α β) l :=
   ext DHashMap.Const.ofList_eq_insertMany_empty
@@ -2542,7 +2552,7 @@ theorem size_ofList_le [EquivBEq α] [LawfulHashable α]
 
 grind_pattern size_ofList_le => (ofList l).size
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem ofArray_eq_ofList (a : Array (α × β)) :
     ofArray a = ofList a.toList := by
   apply ext

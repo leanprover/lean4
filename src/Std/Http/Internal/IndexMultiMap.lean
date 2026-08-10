@@ -22,7 +22,7 @@ for fast key lookups. Each key always has at least one associated value.
 
 namespace Std.Internal
 
-open Std Internal
+open Std
 
 set_option linter.all true
 

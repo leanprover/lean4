@@ -22,11 +22,11 @@ def dlookup (a : α) : List (Sigma β) → Option (β a)
 
 @[grind =]
 theorem dlookup_cons_eq (l) (a : α) (b : β a) : dlookup a (⟨a, b⟩ :: l) = some b :=
-  dif_pos rfl
+  dite_eq_left rfl
 
 @[grind =]
 theorem dlookup_cons_ne (l) {a} : ∀ s : Sigma β, a ≠ s.1 → dlookup a (s :: l) = dlookup a l
-  | ⟨_, _⟩, h => dif_neg h.symm
+  | ⟨_, _⟩, h => dite_eq_right h.symm
 
 @[grind =]
 theorem dlookup_isSome {a : α} {l : List (Sigma β)} : (dlookup a l).isSome ↔ a ∈ l.keys := by

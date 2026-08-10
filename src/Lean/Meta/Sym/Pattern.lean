@@ -527,9 +527,9 @@ partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
   -- A pattern subterm internalized into the same table as the target shares its pointer, so a
   -- pointer match is a closed term equal to the target with no variables left to bind.
   if isSameExpr p e then return true
-  let e' := etaReduce e
+  let e' := etaReduce e |>.consumeMData
   if !isSameExpr e e' then
-    -- **Note**: We eagerly eta reduce patterns
+    -- **Note**: We eagerly eta reduce patterns and consume mdata
     process p e'
   else match p with
   | .bvar bidx => assignExpr bidx e
@@ -615,7 +615,7 @@ where
 
   processAppWithInfo (p : Expr) (e : Expr) (i : Nat) (info : ProofInstInfo) : UnifyM Bool := do
     let .app fp ap := p | if e.isApp then return false else process p e
-    let .app fe ae := e | checkLetVar p e
+    let .app fe ae := e.consumeMData | checkLetVar p e
     unless (← processAppWithInfo fp fe (i - 1) info) do return false
     if h : i < info.argsInfo.size then
       let argInfo := info.argsInfo[i]
@@ -636,7 +636,7 @@ where
 
   processAppDefault (p : Expr) (e : Expr) : UnifyM Bool := do
     let .app fp ap := p | if e.isApp then return false else process p e
-    let .app fe ae := e | checkLetVar p e
+    let .app fe ae := e.consumeMData | checkLetVar p e
     unless (← processAppDefault fp fe) do return false
     process ap ae
 

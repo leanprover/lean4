@@ -200,7 +200,7 @@ public theorem toNat?_eq_none {s : String.Slice} (h : s.isNat = false) : s.toNat
 
 public theorem toNat?_eq_some_ofDigitChars {s : String.Slice} (h : s.isNat = true) :
     s.toNat? = some (Nat.ofDigitChars 10 (s.copy.toList.filter (· != '_')) 0) := by
-  rw [toNat?, if_pos h, Option.some.injEq]
+  rw [toNat?, ite_eq_left h, Option.some.injEq]
   simp [Nat.ofDigitChars_eq_foldl, ↓Char.isValue, Char.reduceToNat, foldl_eq_foldl_toList, List.foldl_ite_right,
     bne_eq, Bool.beq_eq_decide_eq, Nat.mul_comm 10]
 

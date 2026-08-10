@@ -2089,16 +2089,16 @@ else
 lean_object* v___x_733_; 
 v___x_733_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_733_, 0, v_loc_729_);
-v___y_704_ = v_a_695_;
-v___y_705_ = v_a_694_;
-v___y_706_ = v_a_693_;
-v___y_707_ = v_a_696_;
-v___y_708_ = v_a_690_;
-v___y_709_ = v___f_722_;
-v___y_710_ = v___f_720_;
-v___y_711_ = v_a_691_;
-v___y_712_ = v_a_689_;
-v___y_713_ = v_a_692_;
+v___y_704_ = v_a_690_;
+v___y_705_ = v___f_720_;
+v___y_706_ = v_a_695_;
+v___y_707_ = v_a_694_;
+v___y_708_ = v_a_696_;
+v___y_709_ = v_a_693_;
+v___y_710_ = v_a_689_;
+v___y_711_ = v_a_692_;
+v___y_712_ = v___f_722_;
+v___y_713_ = v_a_691_;
 v___y_714_ = v___x_733_;
 goto v___jp_703_;
 }
@@ -2109,16 +2109,16 @@ else
 lean_object* v___x_734_; 
 lean_dec(v___x_724_);
 v___x_734_ = lean_box(0);
-v___y_704_ = v_a_695_;
-v___y_705_ = v_a_694_;
-v___y_706_ = v_a_693_;
-v___y_707_ = v_a_696_;
-v___y_708_ = v_a_690_;
-v___y_709_ = v___f_722_;
-v___y_710_ = v___f_720_;
-v___y_711_ = v_a_691_;
-v___y_712_ = v_a_689_;
-v___y_713_ = v_a_692_;
+v___y_704_ = v_a_690_;
+v___y_705_ = v___f_720_;
+v___y_706_ = v_a_695_;
+v___y_707_ = v_a_694_;
+v___y_708_ = v_a_696_;
+v___y_709_ = v_a_693_;
+v___y_710_ = v_a_689_;
+v___y_711_ = v_a_692_;
+v___y_712_ = v___f_722_;
+v___y_713_ = v_a_691_;
 v___y_714_ = v___x_734_;
 goto v___jp_703_;
 }
@@ -2128,7 +2128,7 @@ lean_object* v___x_715_; lean_object* v___x_716_; lean_object* v___x_717_;
 v___x_715_ = l_Lean_mkOptionalNode(v___y_714_);
 v___x_716_ = l_Lean_Elab_Tactic_expandOptLocation(v___x_715_);
 lean_dec(v___x_715_);
-v___x_717_ = l_Lean_Elab_Tactic_withLocation(v___x_716_, v___y_709_, v___y_710_, v___f_702_, v___y_712_, v___y_708_, v___y_711_, v___y_713_, v___y_706_, v___y_705_, v___y_704_, v___y_707_);
+v___x_717_ = l_Lean_Elab_Tactic_withLocation(v___x_716_, v___y_712_, v___y_705_, v___f_702_, v___y_710_, v___y_704_, v___y_713_, v___y_711_, v___y_709_, v___y_707_, v___y_706_, v___y_708_);
 lean_dec(v___x_716_);
 return v___x_717_;
 }
@@ -2191,11 +2191,13 @@ return v_res_767_;
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_Replace(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Location(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic_Change(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Replace(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

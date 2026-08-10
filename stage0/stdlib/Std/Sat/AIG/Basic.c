@@ -3313,7 +3313,7 @@ v___x_910_ = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___redArg(v___f_906_, 
 v___x_911_ = lean_array_fget_borrowed(v_decls_901_, v_idx_902_);
 if (lean_obj_tag(v___x_911_) == 2)
 {
-lean_object* v_l_912_; lean_object* v_r_913_; lean_object* v___x_914_; lean_object* v___x_915_; uint8_t v___y_917_; lean_object* v___y_918_; uint8_t v___y_919_; uint8_t v___y_943_; lean_object* v___x_949_; lean_object* v___x_950_; uint8_t v___x_951_; 
+lean_object* v_l_912_; lean_object* v_r_913_; lean_object* v___x_914_; lean_object* v___x_915_; lean_object* v___y_917_; uint8_t v___y_918_; uint8_t v___y_919_; uint8_t v___y_943_; lean_object* v___x_949_; lean_object* v___x_950_; uint8_t v___x_951_; 
 v_l_912_ = lean_ctor_get(v___x_911_, 0);
 v_r_913_ = lean_ctor_get(v___x_911_, 1);
 v___x_914_ = lean_unsigned_to_nat(1u);
@@ -3345,7 +3345,7 @@ lean_inc(v___x_915_);
 v___x_923_ = l_Nat_reprFast(v___x_915_);
 v___x_924_ = lean_string_append(v___x_922_, v___x_923_);
 lean_dec_ref(v___x_923_);
-v___x_925_ = l_Std_Sat_AIG_toGraphviz_invEdgeStyle(v___y_917_);
+v___x_925_ = l_Std_Sat_AIG_toGraphviz_invEdgeStyle(v___y_918_);
 v___x_926_ = lean_string_append(v___x_924_, v___x_925_);
 lean_dec_ref(v___x_925_);
 v___x_927_ = ((lean_object*)(l_Std_Sat_AIG_toGraphviz_go___redArg___closed__2));
@@ -3353,8 +3353,8 @@ v___x_928_ = lean_string_append(v___x_926_, v___x_927_);
 v___x_929_ = lean_string_append(v___x_928_, v___x_920_);
 lean_dec_ref(v___x_920_);
 v___x_930_ = lean_string_append(v___x_929_, v___x_921_);
-lean_inc(v___y_918_);
-v___x_931_ = l_Nat_reprFast(v___y_918_);
+lean_inc(v___y_917_);
+v___x_931_ = l_Nat_reprFast(v___y_917_);
 v___x_932_ = lean_string_append(v___x_930_, v___x_931_);
 lean_dec_ref(v___x_931_);
 v___x_933_ = l_Std_Sat_AIG_toGraphviz_invEdgeStyle(v___y_919_);
@@ -3371,7 +3371,7 @@ v_snd_940_ = lean_ctor_get(v___x_938_, 1);
 lean_inc(v_snd_940_);
 lean_dec_ref(v___x_938_);
 v_acc_900_ = v_fst_939_;
-v_idx_902_ = v___y_918_;
+v_idx_902_ = v___y_917_;
 v_a_903_ = v_snd_940_;
 goto _start;
 }
@@ -3387,15 +3387,15 @@ if (v___x_947_ == 0)
 {
 uint8_t v___x_948_; 
 v___x_948_ = 1;
-v___y_917_ = v___y_943_;
-v___y_918_ = v___x_944_;
+v___y_917_ = v___x_944_;
+v___y_918_ = v___y_943_;
 v___y_919_ = v___x_948_;
 goto v___jp_916_;
 }
 else
 {
-v___y_917_ = v___y_943_;
-v___y_918_ = v___x_944_;
+v___y_917_ = v___x_944_;
+v___y_918_ = v___y_943_;
 v___y_919_ = v___x_908_;
 goto v___jp_916_;
 }
@@ -5993,11 +5993,13 @@ lean_object* runtime_initialize_Init_Data_Hashable(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Defs(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_ToString_Macro(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Sat_AIG_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Data_HashSet(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -6238,7 +6238,7 @@ return v_positions_1996_;
 v___jp_2005_:
 {
 lean_object* v___x_2010_; 
-v___x_2010_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Elab_Structural_Positions_groupAndSort___at___00__private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__5_spec__10___redArg(v___y_2007_, v___y_2008_, v___y_2006_, v___y_2009_);
+v___x_2010_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Elab_Structural_Positions_groupAndSort___at___00__private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion_spec__5_spec__10___redArg(v___y_2007_, v___y_2006_, v___y_2008_, v___y_2009_);
 lean_dec(v___y_2009_);
 lean_dec(v___y_2007_);
 v___y_2000_ = v___x_2010_;
@@ -6252,17 +6252,17 @@ if (v___x_2016_ == 0)
 {
 lean_dec(v___y_2013_);
 lean_inc(v___y_2015_);
-v___y_2006_ = v___y_2015_;
-v___y_2007_ = v___y_2012_;
-v___y_2008_ = v___y_2014_;
+v___y_2006_ = v___y_2012_;
+v___y_2007_ = v___y_2014_;
+v___y_2008_ = v___y_2015_;
 v___y_2009_ = v___y_2015_;
 goto v___jp_2005_;
 }
 else
 {
-v___y_2006_ = v___y_2015_;
-v___y_2007_ = v___y_2012_;
-v___y_2008_ = v___y_2014_;
+v___y_2006_ = v___y_2012_;
+v___y_2007_ = v___y_2014_;
+v___y_2008_ = v___y_2015_;
 v___y_2009_ = v___y_2013_;
 goto v___jp_2005_;
 }
@@ -6282,17 +6282,17 @@ v___x_2024_ = lean_nat_dec_le(v___x_2020_, v___x_2023_);
 if (v___x_2024_ == 0)
 {
 lean_inc(v___x_2023_);
-v___y_2012_ = v___x_2019_;
+v___y_2012_ = v___y_2018_;
 v___y_2013_ = v___x_2023_;
-v___y_2014_ = v___y_2018_;
+v___y_2014_ = v___x_2019_;
 v___y_2015_ = v___x_2023_;
 goto v___jp_2011_;
 }
 else
 {
-v___y_2012_ = v___x_2019_;
+v___y_2012_ = v___y_2018_;
 v___y_2013_ = v___x_2023_;
-v___y_2014_ = v___y_2018_;
+v___y_2014_ = v___x_2019_;
 v___y_2015_ = v___x_2020_;
 goto v___jp_2011_;
 }
@@ -12100,11 +12100,13 @@ lean_object* runtime_initialize_Lean_Elab_PreDefinition_Structural_IndPred(uint8
 lean_object* runtime_initialize_Lean_Elab_PreDefinition_Structural_Eqns(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_PreDefinition_Structural_SmartUnfolding(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_TryThis(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_PreDefinition_Structural_Main(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Elab_PreDefinition_Mutual(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

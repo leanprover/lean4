@@ -2178,7 +2178,7 @@ lean_inc(v_a_704_);
 if (lean_obj_tag(v_a_704_) == 0)
 {
 uint8_t v_debug_705_; 
-v_debug_705_ = lean_ctor_get_uint8(v_a_691_, sizeof(void*)*6 + 3);
+v_debug_705_ = lean_ctor_get_uint8(v_a_691_, sizeof(void*)*5 + 3);
 if (v_debug_705_ == 0)
 {
 lean_dec(v_ruleDesc_x3f_690_);
@@ -2635,7 +2635,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_Internal_VCGen_processHypotheses_
 _start:
 {
 uint8_t v_internalize_846_; 
-v_internalize_846_ = lean_ctor_get_uint8(v_a_835_, sizeof(void*)*6 + 4);
+v_internalize_846_ = lean_ctor_get_uint8(v_a_835_, sizeof(void*)*5 + 4);
 if (v_internalize_846_ == 0)
 {
 lean_object* v___x_847_; 
@@ -3373,7 +3373,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_Internal_VCGen_simpGoalTelescope_
 _start:
 {
 lean_object* v_hypSimpMethods_1213_; 
-v_hypSimpMethods_1213_ = lean_ctor_get(v_a_1204_, 3);
+v_hypSimpMethods_1213_ = lean_ctor_get(v_a_1204_, 2);
 if (lean_obj_tag(v_hypSimpMethods_1213_) == 1)
 {
 lean_object* v_val_1214_; lean_object* v___x_1215_; 
@@ -5044,7 +5044,7 @@ else
 lean_object* v_backwardRules_1755_; lean_object* v_andIntro_1756_; lean_object* v___x_1757_; lean_object* v___x_1758_; 
 lean_del_object(v___x_1641_);
 v_backwardRules_1755_ = lean_ctor_get(v___y_1624_, 0);
-v_andIntro_1756_ = lean_ctor_get(v_backwardRules_1755_, 6);
+v_andIntro_1756_ = lean_ctor_get(v_backwardRules_1755_, 8);
 v___x_1757_ = lean_box(0);
 lean_inc_ref(v_andIntro_1756_);
 v___x_1758_ = l_Lean_Elab_Tactic_Do_Internal_Lean_Meta_Sym_BackwardRule_applyChecked(v_andIntro_1756_, v_goal_1623_, v___x_1757_, v___y_1624_, v___y_1625_, v___y_1626_, v___y_1627_, v___y_1628_, v___y_1629_, v___y_1630_, v___y_1631_, v___y_1632_, v___y_1633_, v___y_1634_);
@@ -5586,8 +5586,8 @@ goto v___jp_1760_;
 }
 else
 {
-lean_dec(v_tail_1778_);
 lean_dec_ref_known(v_mvarIds_1774_, 2);
+lean_dec(v_tail_1778_);
 lean_del_object(v___x_1776_);
 v___y_1761_ = v___y_1631_;
 v___y_1762_ = v___y_1632_;
@@ -5948,11 +5948,13 @@ lean_object* runtime_initialize_Lean_Meta_Sym_Intro(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_Simp_Goal(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_Simp_Telescope(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_Util(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic_Do_Internal_VCGen_Util(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Grind_Main(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

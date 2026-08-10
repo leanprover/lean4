@@ -451,6 +451,10 @@ def checkPrec.parenthesizer (prec : Nat) : Parenthesizer :=
 @[combinator_parenthesizer withFn, expose]
 def withFn.parenthesizer (_ : ParserFn → ParserFn) (p : Parenthesizer) : Parenthesizer := p
 
+@[combinator_parenthesizer withForbiddens, expose]
+def withForbiddens.parenthesizer (tks : Array Token) (p : Parenthesizer)
+    (_h : tks.toList.Nodup) : Parenthesizer := p
+
 @[combinator_parenthesizer leadingNode, expose]
 def leadingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesizer) : Parenthesizer := do
   node.parenthesizer k p

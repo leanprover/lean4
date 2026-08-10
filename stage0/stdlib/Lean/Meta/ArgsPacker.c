@@ -2247,8 +2247,8 @@ lean_dec_ref(v_arg_751_);
 lean_dec(v_a_737_);
 lean_dec(v_head_735_);
 lean_del_object(v___x_733_);
-lean_dec(v_head_731_);
 lean_dec_ref_known(v_tail_725_, 2);
+lean_dec(v_head_731_);
 lean_dec_ref(v_alt_718_);
 lean_dec(v_u_716_);
 lean_dec_ref(v_e_715_);
@@ -9224,7 +9224,7 @@ v___jp_3639_:
 lean_object* v___x_3646_; lean_object* v___x_3647_; 
 v___x_3646_ = l_Lean_Expr_bindingName_x21(v_type_3632_);
 lean_dec_ref(v_type_3632_);
-v___x_3647_ = l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_withCurriedDecl___redArg(v_argsPacker_3630_, v___x_3646_, v___y_3641_, v___y_3640_, v___y_3642_, v___y_3643_, v___y_3644_, v___y_3645_);
+v___x_3647_ = l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_withCurriedDecl___redArg(v_argsPacker_3630_, v___x_3646_, v___y_3640_, v___y_3641_, v___y_3642_, v___y_3643_, v___y_3644_, v___y_3645_);
 return v___x_3647_;
 }
 v___jp_3648_:
@@ -9293,8 +9293,8 @@ return v___x_3665_;
 }
 else
 {
-v___y_3640_ = v___f_3654_;
-v___y_3641_ = v_packedMotiveType_3653_;
+v___y_3640_ = v_packedMotiveType_3653_;
+v___y_3641_ = v___f_3654_;
 v___y_3642_ = v___y_3649_;
 v___y_3643_ = v___y_3650_;
 v___y_3644_ = v___y_3651_;
@@ -9341,11 +9341,13 @@ lean_object* runtime_initialize_Lean_Meta_PProdN(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_ArgsPacker_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 lean_object* runtime_initialize_Init_While(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_ArgsPacker(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_AppBuilder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

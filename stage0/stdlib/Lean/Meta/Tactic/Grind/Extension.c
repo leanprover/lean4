@@ -6935,8 +6935,8 @@ return v___x_2142_;
 }
 else
 {
-lean_dec(v_head_2097_);
 lean_dec_ref_known(v_symbols_2096_, 2);
+lean_dec(v_head_2097_);
 lean_dec_ref(v_thm_2092_);
 lean_dec_ref(v_s_2091_);
 goto v___jp_2093_;
@@ -7246,8 +7246,8 @@ return v___x_2218_;
 }
 else
 {
-lean_dec_ref_known(v_symbols_2177_, 2);
 lean_dec(v_head_2178_);
+lean_dec_ref_known(v_symbols_2177_, 2);
 lean_dec_ref(v_thm_2173_);
 lean_dec_ref(v_s_2172_);
 goto v___jp_2174_;
@@ -8364,11 +8364,13 @@ return v_res_2673_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Theorems(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Extension(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Grind_Theorems(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -1872,6 +1872,24 @@ The suggestions are printed in the order of their confidence, from highest to lo
 syntax (name := suggestions) "suggestions" : tactic
 
 /--
+`types [T₁, ..., Tₙ]` restricts the structure and enum inductive analysis of the `bv_decide` family
+of tactics to `T₁, ..., Tₙ`. Every other structure or enum inductive is treated as an opaque
+variable, even if the analysis would usually pick it up. This is useful to keep preprocessing
+tractable on goals that mention many types of which only a few matter for the proof.
+-/
+syntax bvTypes := &" types" " [" ident,* "]"
+
+/--
+This tactic works just like `bv_decide` but skips calling a SAT solver by using a proof that is
+already stored on disk. It is called with the name of an LRAT file in the same directory as the
+current Lean file:
+```
+bv_check "proof.lrat"
+```
+-/
+syntax (name := bvCheck) "bv_check" optConfig (bvTypes)? ppSpace str : tactic
+
+/--
 Close fixed-width `BitVec` and `Bool` goals by obtaining a proof from an external SAT solver and
 verifying it inside Lean. The solvable goals are currently limited to
 - the Lean equivalent of [`QF_BV`](https://smt-lib.org/logics-all.shtml#QF_BV)
@@ -1894,22 +1912,21 @@ In order to avoid calling a SAT solver every time, the proof can be cached with 
 If solving your problem relies inherently on using associativity or commutativity, consider enabling
 the `bv.ac_nf` option.
 
+`bv_decide types [T₁, ..., Tₙ]` restricts the analysis of structures and enum inductives to
+`T₁, ..., Tₙ`, treating all other ones as opaque variables.
+
 Note: `bv_decide` trusts the correctness of the code generator and adds a axioms asserting its result.
 
 Note: include `import Std.Tactic.BVDecide`
 -/
-macro (name := bvDecideMacro) (priority:=low) "bv_decide" optConfig : tactic =>
-  Macro.throwError "to use `bv_decide`, please include `import Std.Tactic.BVDecide`"
-
+syntax (name := bvDecide) "bv_decide" optConfig (bvTypes)? : tactic
 
 /--
 Suggest a proof script for a `bv_decide` tactic call. Useful for caching LRAT proofs.
 
 Note: include `import Std.Tactic.BVDecide`
 -/
-macro (name := bvTraceMacro) (priority:=low) "bv_decide?" optConfig : tactic =>
-  Macro.throwError "to use `bv_decide?`, please include `import Std.Tactic.BVDecide`"
-
+syntax (name := bvTrace) "bv_decide?" optConfig (bvTypes)? : tactic
 
 /--
 Run the normalization procedure of `bv_decide` only. Sometimes this is enough to solve basic
@@ -1917,9 +1934,7 @@ Run the normalization procedure of `bv_decide` only. Sometimes this is enough to
 
 Note: include `import Std.Tactic.BVDecide`
 -/
-macro (name := bvNormalizeMacro) (priority:=low) "bv_normalize" optConfig : tactic =>
-  Macro.throwError "to use `bv_normalize`, please include `import Std.Tactic.BVDecide`"
-
+syntax (name := bvNormalize) "bv_normalize" optConfig (bvTypes)? : tactic
 
 /--
 `massumption` is like `assumption`, but operating on a stateful `Std.Do.SPred` goal.
@@ -2381,7 +2396,9 @@ after reduction to close the goal.
 - `cbv` — reduce the goal target
 - `cbv at h` — reduce hypothesis `h`
 - `cbv at h |-` — reduce hypothesis `h` and the goal target
-- `cbv at *` — reduce all non-dependent propositional hypotheses and the goal target
+- `cbv at *` — reduce the goal target and all non-dependent propositional hypotheses
+
+If a hypothesis reduces to `False`, the goal is closed immediately.
 
 `cbv` is not a finishing tactic in general: it may leave a new (simpler) goal.
 

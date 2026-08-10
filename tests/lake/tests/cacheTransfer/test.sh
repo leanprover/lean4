@@ -126,9 +126,11 @@ test_err 'the `--platform` and `--toolchain` options do nothing' \
   cache get bogus.jsonl --scope='bogus' --platform='bogus' --wfail
 test_err 'the `--platform` and `--toolchain` options do nothing' \
   cache get bogus.jsonl --scope='bogus' --toolchain='bogus' --wfail
+test_err 'the `--rev` option does nothing' \
+  cache get bogus.jsonl --scope='bogus' --rev='bogus' --wfail
 test_err 'a custom endpoint must be set (not Reservoir)' cache get --scope='bogus'
 test_err 'unknown package `bogus`' cache get --package='bogus'
-test_err 'the `--rev` option is not supported for a Reservoir `cache get`' \
+test_err 'the `--rev` option is not supported for a multi-package Reservoir `cache get`' \
   cache get --rev=bogus
 with_endpoints test_err 'the `--scope` or `--repo` option must be set' cache get
 LAKE_CACHE_ARTIFACT_ENDPOINT=bogus test_err 'both environment variables must be set' cache get
@@ -217,6 +219,9 @@ test_run build Test --no-build
 test_not_out 'downloading' cache get --scope=test --service=ok
 # Verify `--force-download` fetches them regardless
 test_out 'downloading build outputs' cache get --scope=test --service=ok --force-download
+# Verify it does so for a set revision as well
+test_out 'downloading build outputs' \
+  cache get --scope=test --service=ok --rev=HEAD --force-download
 
 # Verify a missing artifact fails the transfer,
 # leaving the artifacts that did transfer in the cache
@@ -375,6 +380,16 @@ test_cmd rm -rf dep/.lake/build .lake/build "$CACHE_DIR"
 test_not_out 'skipping non-Reservoir dependency' -f dep.toml cache get --package=dep
 match_text "POST /ok/api/v1/packages/leanprover/dep/artifacts" "$SERVER_LOG"
 test_exp -d "$CACHE_DIR/revisions/dep"
+test_artifacts "$NUM_DEP_ARTS"
+test_run -f dep.toml build @dep/Dep --no-build
+
+# Verify `--rev` looks up only that revision for the selected package,
+# rather than backtracking from its head revision
+test_cmd rm -rf dep/.lake/build .lake/build "$CACHE_DIR"
+test_err 'outputs not found for revision' \
+  -f dep.toml cache get --package=dep --rev=HEAD~1
+test_artifacts 0
+test_run -f dep.toml cache get --package=dep --rev=HEAD
 test_artifacts "$NUM_DEP_ARTS"
 test_run -f dep.toml build @dep/Dep --no-build
 

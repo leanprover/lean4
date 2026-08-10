@@ -484,6 +484,10 @@ protected def get : CliM PUnit := do
   if let some file := mappings? then liftM (m := LoggerIO) do
     if opts.mappingsOnly then
       error "`--mappings-only` is not supported with a mappings file; use `lake cache add` instead"
+    if opts.rev?.isSome then
+      logWarning "the `--rev` option does nothing for `cache get` with a mappings file"
+      if opts.failLv ≤ .warning then
+        failure
     if opts.platform?.isSome || opts.toolchain?.isSome then
       logWarning "the `--platform` and `--toolchain` options do nothing for `cache get` with a mappings file"
       if opts.failLv ≤ .warning then
@@ -536,28 +540,14 @@ protected def get : CliM PUnit := do
         error "to use `cache get` with `--scope`, a custom endpoint must be set (not Reservoir); \
           if you instead want to download artifacts for a fork of the package, use `--repo`"
       let pkg := pkg?.getD ws.root
-      let platform := cachePlatform pkg platform
-      let toolchain := cacheToolchain pkg toolchain
-      let map ← id do
-        if let some rev := opts.rev? then
-          let repo := GitRepo.mk pkg.dir
-          let rev ← repo.resolveRevision rev
-          let some map ← service.downloadRevisionOutputs? rev cache pkg.cacheScope remoteScope platform toolchain
-            | error s!"{remoteScope}: outputs not found for revision {rev}"
-          return map
-        else
-          findOutputs cache service pkg remoteScope opts platform toolchain
-      cache.writeMap pkg.cacheScope map service.name? (some remoteScope) overwrite
-      unless opts.mappingsOnly do
-        let descrs ← map.collectOutputDescrs
-        service.downloadArtifacts descrs cache remoteScope opts.forceDownload
+      fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite
     else if service.isReservoir then
-      if opts.rev?.isSome then
-        error "the `--rev` option is not supported for a Reservoir `cache get`"
       if let some pkg := pkg? then
         let some remoteScope := pkg.reservoirScope?
           | error s!"{pkg.prettyName}: not a Reservoir dependency and no `--scope` or `--repo` set"
-        fetchReservoir cache service pkg remoteScope opts platform toolchain overwrite
+        fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite
+      else if opts.rev?.isSome then
+        error "the `--rev` option is not supported for a multi-package Reservoir `cache get`"
       else
         -- TODO: Parallelize?
         let ok ← ws.packages.foldlM (start := 1) (init := true) (m := LoggerIO) fun ok pkg => do
@@ -565,7 +555,7 @@ protected def get : CliM PUnit := do
             | logInfo s!"{pkg.prettyName}: skipping non-Reservoir dependency"
               return ok
           try
-            fetchReservoir cache service pkg remoteScope opts platform toolchain overwrite
+            fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite
             return ok
           catch _ =>
             return false
@@ -580,30 +570,35 @@ where
     \n  LAKE_CACHE_REVISION_ENDPOINT={revisionEndpoint}\n\
     To use `cache get` with a custom endpoint, both environment variables \
     must be set to non-empty strings. To use Reservoir, neither should be set."
-  fetchReservoir cache service pkg remoteScope opts platform toolchain overwrite : LoggerIO Unit := do
+  fetchOutputs cache service pkg remoteScope opts platform toolchain overwrite : LoggerIO Unit := do
     let platform := cachePlatform pkg platform
     let toolchain := cacheToolchain pkg toolchain
-    let map ← findOutputs cache service pkg remoteScope opts platform toolchain
+    let map : CacheMap ← id do
+      let repo := GitRepo.mk pkg.dir
+      if let some rev := opts.rev? then
+        let rev ← repo.resolveRevision rev
+        let some map ← service.downloadRevisionOutputs? rev cache pkg.cacheScope remoteScope platform toolchain opts.forceDownload
+          | error s!"{remoteScope}: outputs not found for revision {rev}"
+        return map
+      else
+        if (← repo.hasDiff) then
+          logWarning s!"{pkg.prettyName}: package has changes; \
+            only artifacts for committed code will be downloaded"
+          if opts.failLv ≤ .warning then
+            failure
+        let n := opts.maxRevs
+        let revs ← repo.getHeadRevisions n
+        let map? ← revs.findSomeM? fun rev =>
+          service.downloadRevisionOutputs? rev cache pkg.cacheScope remoteScope platform toolchain opts.forceDownload
+        let some map := map?
+          | let revisions :=
+              if n = 0 || revs.size < n then "for any revision" else s!"in {n} revisions from HEAD"
+            error s!"{remoteScope}: no outputs found {revisions}"
+        return map
     cache.writeMap pkg.cacheScope map service.name? (some remoteScope) overwrite
     unless opts.mappingsOnly do
       let descrs ← map.collectOutputDescrs
       service.downloadArtifacts descrs cache remoteScope opts.forceDownload
-  findOutputs cache service pkg remoteScope opts platform toolchain : LoggerIO CacheMap := do
-    let repo := GitRepo.mk pkg.dir
-    if (← repo.hasDiff) then
-      logWarning s!"{pkg.prettyName}: package has changes; \
-        only artifacts for committed code will be downloaded"
-      if opts.failLv ≤ .warning then
-        failure
-    let n := opts.maxRevs
-    let revs ← repo.getHeadRevisions n
-    let map? ← revs.findSomeM? fun rev =>
-      service.downloadRevisionOutputs? rev cache pkg.cacheScope remoteScope platform toolchain opts.forceDownload
-    let some map := map?
-      | let revisions :=
-          if n = 0 || revs.size < n then "for any revision" else s!"in {n} revisions from HEAD"
-        error s!"{remoteScope}: no outputs found {revisions}"
-    return map
 
 private def computeUploadService
   (service? : Option String) (lakeEnv : Env) (lakeCfg : LoadedLakeConfig)

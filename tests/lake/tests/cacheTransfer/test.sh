@@ -204,9 +204,12 @@ test_out 'downloading build outputs' cache get --scope=test --service=ok --force
 test_cmd rm -rf .lake/build "$CACHE_DIR"
 MISSING="$(ls -1 "$STORE_DIR/a0/test" | head -1)"
 test_cmd mv "$STORE_DIR/a0/test/$MISSING" "$WORK_DIR/$MISSING"
+: > "$SERVER_LOG"
 test_err 'failed to download some artifacts' cache get --scope=test --service=ok
 match_text 'status code: 404' produced.out
 test_artifacts $((NUM_ARTS - 1))
+# A 404 is a settled failure: the request is not retried
+test_cmd_eq 1 grep -c "GET /ok/a0/test/$MISSING" "$SERVER_LOG"
 # Verify the failure did not poison the cache
 test_cmd mv "$WORK_DIR/$MISSING" "$STORE_DIR/a0/test/$MISSING"
 test_run cache get --scope=test --service=ok
@@ -229,8 +232,12 @@ test_artifacts 1
 
 # Verify a corrupted download is not adopted as an artifact
 test_cmd rm -rf .lake/build "$CACHE_DIR"
+: > "$SERVER_LOG"
 test_err 'hash mismatch' cache get --scope=test --service=corrupt
 test_artifacts 0
+# A download that is corrupted on every attempt is abandoned at the attempt limit
+CORRUPT_ART="$(ls -1 "$STORE_DIR/a0/test" | head -1)"
+test_cmd_eq 3 grep -c "GET /corrupt/a0/test/$CORRUPT_ART" "$SERVER_LOG"
 test_run cache get --scope=test --service=ok
 test_artifacts "$NUM_ARTS"
 test_run build Test --no-build
@@ -249,6 +256,77 @@ test_cmd rm -rf .lake/build "$CACHE_DIR"
 test_err 'failed to download artifact' cache get --scope=test --service=reset
 test_artifacts 0
 test_run cache get --scope=test --service=ok
+test_run build Test --no-build
+
+# Verify a batch retries transfers interrupted by a transient failure:
+# the first request for each artifact is dropped without a response,
+# which `curl --retry` does not retry on its own
+test_cmd rm -rf .lake/build "$CACHE_DIR"
+: > "$SERVER_LOG"
+test_out 'retrying' cache get --scope=test --service=flaky
+test_artifacts "$NUM_ARTS"
+test_run build Test --no-build
+# Each artifact was requested twice: the dropped attempt and its retry
+FLAKY_ART="$(ls -1 "$STORE_DIR/a0/test" | head -1)"
+test_cmd_eq 2 grep -c "GET /flaky/a0/test/$FLAKY_ART" "$SERVER_LOG"
+
+# Verify a download that arrives corrupted once is retried
+# (a hash mismatch that `curl` itself cannot detect).
+# The detail of the recovered failure goes to the verbose log only.
+test_cmd rm -rf .lake/build "$CACHE_DIR"
+test_out 'retrying' cache get --scope=test --service=flakyCorrupt
+no_match_text 'hash mismatch' produced.out
+test_artifacts "$NUM_ARTS"
+test_run build Test --no-build
+
+# Verify failed uploads are retried as well
+: > "$SERVER_LOG"
+test_out 'retrying' cache put outputs.jsonl --scope=flakyput --service=flaky
+test_artifacts "$NUM_ARTS" "$STORE_DIR/a0/flakyput"
+FLAKY_ART="$(ls -1 "$STORE_DIR/a0/flakyput" | head -1)"
+test_cmd_eq 2 grep -c "PUT /flaky/a0/flakyput/$FLAKY_ART" "$SERVER_LOG"
+
+# Verify a retry of part of a batch: with one artifact's fault consumed up
+# front, only the other arrives corrupted, and the retry re-requests just it
+# (under an index remapped from the full batch)
+test_run cache put outputs.jsonl --scope=test3
+test_cmd rm -rf .lake/build "$CACHE_DIR"
+FLAKY_ART="$(ls -1 "$STORE_DIR/a0/test3" | head -1)"
+test_cmd curl -s -o /dev/null "$URL/flakycorrupt/a0/test3/$FLAKY_ART"
+test_out 'retrying 1 failed download' cache get --scope=test3 --service=flakyCorrupt
+test_artifacts "$NUM_ARTS"
+test_run build Test --no-build
+
+# Verify a batch that has a permanent failure and a transient failure:
+# the batch retries only the corrupted transfer, and the 404 fails the batch
+test_run cache put outputs.jsonl --scope=test4
+test_cmd rm -rf .lake/build "$CACHE_DIR"
+MISSING="$(ls -1 "$STORE_DIR/a0/test4" | head -1)"
+test_cmd mv "$STORE_DIR/a0/test4/$MISSING" "$WORK_DIR/$MISSING"
+GOOD="$(ls -1 "$STORE_DIR/a0/test4" | head -1)"
+: > "$SERVER_LOG"
+test_err 'failed to download some artifacts' cache get --scope=test4 --service=flakyCorrupt
+match_text 'status code: 404' produced.out
+match_text 'retrying 1 failed download' produced.out
+test_artifacts 1
+# Lake requests the missing artifact once and does not retry it
+test_cmd_eq 1 grep -c "GET /flakycorrupt/a0/test4/$MISSING" "$SERVER_LOG"
+# Lake requests the corrupted artifact twice: once for each attempt
+test_cmd_eq 2 grep -c "GET /flakycorrupt/a0/test4/$GOOD" "$SERVER_LOG"
+# Restore the artifact and verify a full recovery
+test_cmd mv "$WORK_DIR/$MISSING" "$STORE_DIR/a0/test4/$MISSING"
+test_run cache get --scope=test4 --service=ok
+test_artifacts "$NUM_ARTS"
+test_run build Test --no-build
+
+# Verify `LAKE_CACHE_TRANSFER_ATTEMPTS` bounds a batch's attempts
+test_run cache put outputs.jsonl --scope=test2
+test_cmd rm -rf .lake/build "$CACHE_DIR"
+LAKE_CACHE_TRANSFER_ATTEMPTS=1 test_err 'failed to download some artifacts' \
+  cache get --scope=test2 --service=flaky
+# The failed attempt consumed each path's one fault, so a rerun succeeds
+test_run cache get --scope=test2 --service=flaky
+test_artifacts "$NUM_ARTS"
 test_run build Test --no-build
 
 # Verify the transfers that `curl` itself misreports,

@@ -7,10 +7,16 @@ module
 
 prelude
 public import Lean.Meta.Tactic.BVDecide.Normalize.Basic
+import Lean.Elab.Tactic.FalseOrByContra
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.LitValues
+import Lean.Meta.Sym.Util
+import Lean.Meta.Sym.Grind
+import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Sym.Intro
+import Lean.Meta.Tactic.Grind.Simp
 
 /-!
 This module is responsible for collecting the hypotheses out of the target that `bv_decide` was told
@@ -159,27 +165,81 @@ where
       return some constant
     else
       return some default
-  
 
-public def PreProcessM.collectTargetHyps : PreProcessM Unit := do
-  let target ← PreProcessM.getTarget
-  let hypotheses ←
-    match target with
-    | .mvarIdTarget g =>
-      g.withContext do
-        (← getPropHyps).mapM fun fvarId => do
-          return {
-            name := ← fvarId.getUserName
-            type := ← Sym.instantiateMVarsS (← fvarId.getType)
-            value := mkFVar fvarId
-            source := .lctx fvarId
-          }
-    | .grindTarget g =>
-      let (hypotheses, _) ← Grind.GoalM.run g collectGoalHyps
-      pure hypotheses
+
+def recordLocalHyp (fvarId : FVarId) : Sym.SymM Hyp := do
+  return {
+    name := ← fvarId.getUserName
+    type := ← Sym.instantiateMVarsS (← fvarId.getType)
+    value := mkFVar fvarId
+    source := .lctx fvarId
+  }
+
+/--
+Runs `intros; by_contra` on a `grind` goal. This does maintain maximal sharing but does *not*
+internalize them into the e-graph. The rationale for this is that if the user wanted bv_decide to be
+aware of e-graph information related to the goal they should run `by_contra` themselves in order to
+force internalization. Otherwise `bv_decide` will only use existing e-graph information + the
+bitvector information about the goal. This allows us to avoid internalizing huge bitvector
+expressions that can just be attacked by `bv_decide` on its own.
+-/
+def setupGrindTarget (goal : Grind.Goal) : Grind.GrindM (Grind.Goal × Array FVarId) := do
+  let (fvarIds, goal) ←
+    match ← goal.intros #[] with
+    | .goal fvarIds goal => pure (fvarIds, goal)
+    | .failed => pure (#[], goal)
+  goal.withContext do
+    let target ← goal.mvarId.getType
+    if target.isFalse then
+      return (goal, fvarIds)
+    let mvarId ← if ← isProp target then pure goal.mvarId else goal.mvarId.exfalso
+    let some mvarId ← mvarId.byContra? | return (goal, fvarIds)
+    let mvarId ← Sym.preprocessMVar mvarId
+    let .goal newFVarIds mvarId ← Sym.introN mvarId 1
+      | throwError "`bv_decide` failed to introduce the negated goal"
+    return ({ goal with mvarId }, fvarIds ++ newFVarIds)
+
+def setupTarget : PreProcessM (Option (Array Hyp)) := do
+  match ← PreProcessM.getTarget with
+  | .mvarIdTarget g =>
+    -- TODO: consider reimplementing this with SymM
+    let some g ← g.falseOrByContra (useClassical := some true) | return none
+    let g ← Sym.preprocessMVar g
+    PreProcessM.setTarget <| .mvarIdTarget g
+    g.withContext do
+      return some <| ← (← getPropHyps).mapM fun fvarId =>
+        return {
+          name := ← fvarId.getUserName
+          type := ← Sym.instantiateMVarsS (← fvarId.getType)
+          value := mkFVar fvarId
+          source := .lctx fvarId
+        }
+  | .grindTarget g =>
+    let (g, introduced) ← setupGrindTarget g
+    if g.inconsistent then return none
+    let (hyps, g) ← Grind.GoalM.run g do
+      let hypotheses ← collectGoalHyps
+      let introduced : Array Hyp ← introduced.filterMapM fun fvarId => do
+        unless ← isProp (← fvarId.getType) do return none
+        return some {
+          name := ← fvarId.getUserName
+          type := ← Grind.preprocessLight (← fvarId.getType)
+          value := mkFVar fvarId
+          source := .lctx fvarId
+        }
+      return hypotheses ++ introduced
+    PreProcessM.setTarget <| .grindTarget g
+    return hyps
+
+/--
+Collects the hypotheses that `bv_decide` operates on.
+-/
+public def PreProcessM.collectTargetHyps : PreProcessM Bool := do
+  let some hypotheses ← setupTarget | return true
   withTraceNode `Meta.Tactic.bv (fun _ => return m!"Collected initial hypotheses") do
     hypotheses.forM fun hyp => do trace[Meta.Tactic.bv] m!"{hyp}"
   modify fun s => { s with hypotheses := hypotheses }
+  return false
 
 end Normalize
 end Lean.Meta.Tactic.BVDecide

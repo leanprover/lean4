@@ -42,9 +42,21 @@ inductive Target where
   | grindTarget (goal : Grind.Goal)
   deriving Inhabited
 
-def Target.mvarId : Target → MVarId
+namespace Target
+
+def mvarId : Target → MVarId
   | .mvarIdTarget mvar => mvar
   | .grindTarget goal => goal.mvarId
+
+def isGrind : Target → Bool
+  | .mvarIdTarget .. => false
+  | .grindTarget .. => true
+
+def isMVar : Target → Bool
+  | .mvarIdTarget .. => true
+  | .grindTarget .. => false
+
+end Target
 
 /--
 The various kinds of matches supported by the match to cond infrastructure.
@@ -301,7 +313,7 @@ def run (ctx : PreProcessContext) (target : Target) (x : PreProcessM α) :
 
 @[inline]
 def run' (ctx : PreProcessContext) (target : Target) (x : PreProcessM α) : Grind.GrindM α := do
-  ReaderT.run x ctx |>.run' { target }
+  Prod.fst <$> run ctx target x
 
 @[inline]
 def pushHyp (hyp : Hyp) : PreProcessM Unit := do

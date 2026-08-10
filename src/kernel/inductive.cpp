@@ -121,13 +121,6 @@ optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr cons
     return optional<recursor_rule>();
 }
 
-static expr const & consume_mdata(expr const & e) {
-    expr const * r = &e;
-    while (is_mdata(*r))
-        r = &mdata_expr(*r);
-    return *r;
-}
-
 /* Check that every occurrence of a datatype being declared in a constructor type of `d` is applied
    to the declaration's universe levels and to its parameters, which at binder depth `offset` are the
    bound variables `#(offset-1) … #(offset-nparams)`.
@@ -149,7 +142,7 @@ static void check_uniform_ind_occs(environment const & env, inductive_decl const
         for (constructor const & cnstr : ind_type.get_cnstrs()) {
             for_each(constructor_type(cnstr), [&](expr const & t, unsigned offset) {
                     buffer<expr> args;
-                    expr const & fn = consume_mdata(get_app_args(consume_mdata(t), args));
+                    expr const & fn = get_app_args(t, args);
                     if (!is_constant(fn) || std::find(ind_names.begin(), ind_names.end(), const_name(fn)) == ind_names.end())
                         return true;
                     /* Over-applied: descend, so that occurrences in the indices are checked too. The
@@ -158,7 +151,7 @@ static void check_uniform_ind_occs(environment const & env, inductive_decl const
                         return true;
                     bool ok = args.size() == nparams && offset >= nparams && const_levels(fn) == lvls;
                     for (unsigned i = 0; ok && i < nparams; i++)
-                        ok = is_bvar(consume_mdata(args[i]), offset - 1 - i);
+                        ok = is_bvar(args[i], offset - 1 - i);
                     if (!ok)
                         throw kernel_exception(env, sstream() << "invalid occurrence of datatype '" << const_name(fn)
                                                << "' being declared: it must be applied to the parameters and universe "

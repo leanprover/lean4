@@ -98,29 +98,37 @@ private def checkPureForIn (invClause : Syntax) (h? : Option Syntax) (xs α : Ex
     (extraErrorMsg? := m!"The `invariant` clause is stated over this class, which says that \
       iterating the container produces its elements without effects.")
 
-/-- Report a clause that binds more arguments than the loop's assertions take, such as the state of
-a state monad. The monad determines its assertion language through `WPMonad`'s output parameters,
-and the language's arguments are the arrows before its result. -/
-private def checkAssertionBinders (ref : Syntax) (what : String) (binders : Nat) :
-    DoElabM Unit := withRef ref do
-  unless (← getEnv).contains `Std.Internal.Do.WPMonad do return
+/-- The assertion language of the `do` block's monad, which `WPMonad` computes as an output
+parameter. The instance is demanded through an instance metavariable, so an instance that is not
+available yet postpones with the rest of the elaboration. -/
+private def assertionLanguage? : DoElabM (Option Expr) := do
+  unless (← getEnv).contains `Std.Internal.Do.WPMonad do return none
   let wpTy ← Term.elabType <| ←
     `($(mkIdent `Std.Internal.Do.WPMonad) $(← Term.exprToSyntax (← read).monadInfo.m) _ _)
-  let .some _ ← trySynthInstance wpTy | return
-  let some pred := wpTy.getAppArgs[1]? | return
+  discard <| Term.mkInstMVar wpTy
+  let some pred := wpTy.getAppArgs[1]? | return none
+  let pred ← instantiateMVars pred
+  return if pred.hasExprMVar then none else some pred
+
+/-- Report a clause that binds more arguments than the loop's assertions take, such as the state of
+a state monad. The language's arguments are the arrows before its result. -/
+private def checkAssertionBinders (ref : Syntax) (what : String) (binders : Nat) :
+    DoElabM Unit := withRef ref do
+  let some pred ← assertionLanguage? | return
   let rec count (e : Expr) (n : Nat) : Nat :=
     match e with
     | .forallE _ _ b _ => count b (n + 1)
     | _ => n
-  let arity := count (← instantiateMVars pred) 0
+  let arity := count pred 0
   if binders > arity then
     let takes := if arity == 1 then m!"one argument" else m!"{arity} arguments"
     let has := if binders == 1 then m!"one binder" else m!"{binders} binders"
     throwErrorAt ref "The {what} of a loop in this monad takes {takes}, and this clause has \
       {has}. The loop's mutable variables are named without binding them."
 
-/-- The already-elaborated pieces of a loop that its annotation gadget is built from. -/
-structure LoopGadget where
+/-- The already-elaborated pieces of a `forIn` application that an annotation's gadget is
+built from. -/
+structure ForInApp where
   /-- The collection being iterated. -/
   xs : Expr
   /-- The initial state tuple. -/
@@ -136,7 +144,7 @@ structure LoopGadget where
 
 /-- The pattern that names the loop's mutable variables in the state tuple, whose layout is
 `[return?, mutVars…, unit?]`; the early-return slot becomes a wildcard. -/
-private def LoopGadget.statePat (g : LoopGadget) : DoElabM Term := do
+private def ForInApp.statePat (g : ForInApp) : DoElabM Term := do
   let hole ← `(_)
   let mut binders : Array Term := #[]
   if g.returnsEarly then binders := binders.push hole
@@ -148,20 +156,20 @@ private def LoopGadget.statePat (g : LoopGadget) : DoElabM Term := do
     | _    => `(⟨$binders,*⟩)
 
 /-- Abstract `e` over the loop's state tuple, so that `e` may name the loop's mutable variables. -/
-private def LoopGadget.mkStateFun (g : LoopGadget) (ref : Syntax) (e : Term) : DoElabM Term := do
+private def ForInApp.mkStateFun (g : ForInApp) (ref : Syntax) (e : Term) : DoElabM Term := do
   let s := mkIdentFrom ref (← mkFreshUserName `__s)
   `(fun $s:ident => match $s:ident with | $(← g.statePat) => $e)
 
 /-- Abstract `e` over the cursor of a `repeat` loop, so that `e` may name the loop's mutable
 variables whether the loop is iterating or done. -/
-private def LoopGadget.mkRepeatCursorFun (g : LoopGadget) (cursor : Ident) (e : Term) :
+private def ForInApp.mkRepeatCursorFun (g : ForInApp) (cursor : Ident) (e : Term) :
     DoElabM Term := do
   let pat ← g.statePat
   `(fun $cursor:ident => match $cursor:ident with | .inl $pat | .inr $pat => $e)
 
 /-- Elaborate the gadget application that replaces the loop. The gadgets live downstream of this
 module, so `gadget` is an unresolved name that resolves in the user's context. -/
-private def LoopGadget.mkCall (g : LoopGadget) (ref : Syntax) (gadget : Name)
+private def ForInApp.mkCall (g : ForInApp) (ref : Syntax) (gadget : Name)
     (annotations : Array Term) : DoElabM Expr := do
   unless (← getEnv).contains gadget do
     throwErrorAt ref "a loop annotation elaborates to a `vcgen` gadget; \
@@ -175,7 +183,7 @@ clause, or `forInPureWithInvariant'` for a membership-proof binder (`for h : x i
 invariant names the loop's mutable variables directly; its first two binders are the elements
 consumed so far and the elements remaining, and binders past them bind the arguments of the
 assertion itself. -/
-private def mkForInPureWithInvariant (g : LoopGadget) (invClause : Syntax) (h? : Option Syntax)
+private def mkForInPureWithInvariant (g : ForInApp) (invClause : Syntax) (h? : Option Syntax)
     (α : Expr) : DoElabM Expr := do
   let `(doLoopInvariant| invariant $binders* => $invBody) := invClause | throwUnsupportedSyntax
   checkPureForIn invClause h? g.xs α (← read).monadInfo
@@ -196,13 +204,16 @@ private def mkForInPureWithInvariant (g : LoopGadget) (invClause : Syntax) (h? :
 mutable variables directly. The `invariant` clause is a function of the `Bool` that says whether the
 loop has left; the cursor's own payload is the state tuple, which the mutable variables already
 name. -/
-private def mkForInLoopWithInvariantAndVariant (g : LoopGadget) (inv? dec? : Option Syntax) :
+private def mkForInLoopWithInvariantAndVariant (g : ForInApp) (inv? dec? : Option Syntax) :
     DoElabM Expr := do
   let ref := inv?.getD (dec?.getD .missing)
   let invArg ← match inv? with
     | none =>
-      -- Nothing determines the assertion language of an absent invariant.
-      `((none : Option ($(mkIdent `Std.Internal.Do.RepeatInvariant) _ _ Prop)))
+      -- An absent invariant states nothing, so its assertion language comes from the monad.
+      let pred ← match ← assertionLanguage? with
+        | some pred => Term.exprToSyntax pred
+        | none => `(Prop)
+      `((none : Option ($(mkIdent `Std.Internal.Do.RepeatInvariant) _ _ $pred)))
     | some invClause =>
       let cursor := mkIdentFrom invClause (← mkFreshUserName `__c)
       let hasLeft ← `($(mkIdent ``Sum.isRight) $cursor:ident)
@@ -238,7 +249,7 @@ private def mkForInLoopWithInvariantAndVariant (g : LoopGadget) (inv? dec? : Opt
 /-- Rebuild the already-elaborated loop as the `vcgen` gadget its annotation calls for. The `Loop`
 of a `repeat` takes an invariant over its cursor and a termination measure; a loop over a collection
 terminates with the collection, so it takes only an invariant. -/
-private def mkLoopGadget (g : LoopGadget) (inv? dec? : Option Syntax) (h? : Option Syntax)
+private def mkLoopGadget (g : ForInApp) (inv? dec? : Option Syntax) (h? : Option Syntax)
     (ρ α : Expr) : DoElabM Expr := do
   if let some invClause := inv? then
     if let `(doLoopInvariant| invariant $_* : $ty => $_) := invClause then
@@ -353,11 +364,9 @@ private def mkLoopGadget (g : LoopGadget) (inv? dec? : Option Syntax) (h? : Opti
     -- Elaborate the loop body, which must have result type `PUnit`, just like the whole `for` loop.
     elabDoSeq body { dec with k := continueCont, kind := .duplicable }
 
-  let forIn ←
-    if inv?.isNone && dec?.isNone then
-      pure (mkApp app body)
-    else
-      mkLoopGadget { xs, init := preS, body, σ, loopMutVars, returnsEarly := info.returnsEarly }
+  let mut forIn := mkApp app body
+  unless inv?.isNone && dec?.isNone do
+    forIn ← mkLoopGadget { xs, init := preS, body, σ, loopMutVars, returnsEarly := info.returnsEarly }
         (inv?.map (·.raw)) (dec?.map (·.raw)) (h?.map (·.raw)) ρ α
 
   let γ := (← read).doBlockResultType

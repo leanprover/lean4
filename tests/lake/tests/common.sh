@@ -222,7 +222,7 @@ test_err() {
   if match_text "$expected" produced.out; then
     if [ $rc == 0 ]; then
       echo "FAILURE: Lake unexpectedly succeeded"
-      return $rc
+      return 1
     fi
   else
     return 1

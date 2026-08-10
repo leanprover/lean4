@@ -132,3 +132,24 @@ example (n m : Nat) (h : n ≤ m) (heven : n % 2 = 0) (hmeven : m % 2 = 0) (h : 
     | .inl i => spred(⌜i % 2 = 0 ∧ i ≤ m⌝)
     | .inr i => spred(⌜i % 2 = 0 ∧ p i⌝)
   with grind
+
+/-!
+The specification for `while` works for a `StateT` even if the state doesn't have a `Nonempty`
+instance.
+-/
+
+structure State where
+  n : Nat
+
+def stateWithoutNonemptyInstance : StateM State Nat := do
+  while (← get).n > 0 do
+    modify fun state => { n := state.n - 1 }
+  return (← get).n
+
+example : ⦃⌜True⌝⦄ stateWithoutNonemptyInstance ⦃⇓ n => ⌜n = 0⌝⦄ := by
+  mvcgen [stateWithoutNonemptyInstance] invariants
+  | inv1 => fun _ s => ULift.up s.n
+  | inv2 => ⇓ r => match r with
+    | .inl i => spred(⌜True⌝)
+    | .inr i => spred(fun s => ⌜s.n = 0⌝)
+  with grind

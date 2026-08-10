@@ -5,7 +5,8 @@ import Std.Tactic.BVDecide
 
 /--
 error: The prover found a potentially spurious counterexample:
-- It abstracted the following unsupported expressions as opaque variables: [x <<< 1 == x]
+- It abstracted the following unsupported expressions as opaque variables:
+  - x <<< 1 == x
 Consider the following assignment:
 x <<< 1 == x = false
 -/

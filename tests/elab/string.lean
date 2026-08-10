@@ -1,6 +1,7 @@
 module
 
 meta import Init.Data.String
+import all Init.Data.String.Basic
 
 /-!
 # Tests for `String` functions
@@ -199,3 +200,18 @@ Behavior of `String.next` (`lean_string_utf8_next`) in special cases (see issue 
 #test ("L∃∀N".pos ⟨1⟩ (by decide)).prev?.map (·.offset) = some ⟨0⟩
 #test ("L∃∀N".pos ⟨0⟩ (by decide)).prev? = none
 #test ("L∃∀N".pos ⟨1⟩ (by decide)).prev!.offset = ⟨0⟩
+
+#test String.Pos.Raw.extract "red green blue" ⟨0⟩ ⟨3⟩ = "red"
+#test String.Pos.Raw.extract "red green blue" ⟨3⟩ ⟨0⟩ = ""
+#test String.Pos.Raw.extract "red green blue" ⟨0⟩ ⟨100⟩ = "red green blue"
+#test String.Pos.Raw.extract "red green blue" ⟨4⟩ ⟨100⟩ = "green blue"
+#test String.Pos.Raw.extract "red green blue" ⟨0⟩ ⟨2 ^ 100⟩ = "red green blue"
+#test String.Pos.Raw.extract "red green blue" ⟨4⟩ ⟨2 ^ 100⟩ = "green blue"
+#test String.Pos.Raw.extract "L∃∀N" ⟨1⟩ ⟨2⟩ = "∃∀N"
+#test String.Pos.Raw.extract "L∃∀N" ⟨3⟩ ⟨2⟩ = ""
+#test String.Pos.Raw.extract "L∃∀N" ⟨2⟩ ⟨100⟩ = ""
+#test String.Pos.Raw.extract "L∃∀N" ⟨2 ^ 100⟩ ⟨1⟩ = ""
+#test String.Pos.Raw.extract "L∃∀N" ⟨2 ^ 100⟩ ⟨2 ^ 101⟩ = ""
+
+#test "red green blue".extract (String.pos _ ⟨0⟩ (by decide)) (String.pos _ ⟨3⟩ (by decide)) = "red"
+#test "red green blue".extract (String.pos _ ⟨4⟩ (by decide)) (String.pos _ ⟨14⟩ (by decide)) = "green blue"

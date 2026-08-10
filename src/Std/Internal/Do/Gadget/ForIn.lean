@@ -112,7 +112,7 @@ erased at runtime. The invariant ranges over the loop's cursor, `.inl` while the
 assertion language it evaluates in is the one the specification is applied at. -/
 @[inline] def forInLoopWithInvariantAndVariant {β : Type u} {m : Type u → Type v} {Pred : Type uₚ}
     {Fun : Type} [Monad m] (l : Lean.Loop) (init : β) (f : Unit → β → m (ForInStep β))
-    (inv? : Option (β ⊕ β → Pred)) (var? : Option (β → Fun)) : m β :=
+    (inv? : Option (RepeatInvariant β β Pred)) (var? : Option (β → Fun)) : m β :=
   forIn l init f
 
 variable {β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
@@ -136,7 +136,7 @@ theorem Spec.forInLoop_invariant_variant {Fun : Type} {γ : Type uγ'}
           | .done b' => inv (.inr b'))
         einv) :
     Triple
-      (forInLoopWithInvariantAndVariant l init f (some inv) (some measure))
+      (forInLoopWithInvariantAndVariant l init f (some (RepeatInvariant.mk inv)) (some measure))
       (inv (.inl init))
       (fun b => inv (.inr b))
       einv := by
@@ -159,7 +159,7 @@ theorem Spec.forInLoop_invariant
           | .done b' => inv (.inr b'))
         einv) :
     Triple
-      (forInLoopWithInvariantAndVariant l init f (some inv) (none : Option (β → Unit)))
+      (forInLoopWithInvariantAndVariant l init f (some (RepeatInvariant.mk inv)) (none : Option (β → Unit)))
       (inv (.inl init))
       (fun b => inv (.inr b))
       einv := by
@@ -171,7 +171,7 @@ theorem Spec.forInLoop_variant {Fun : Type} {γ : Type uγ'}
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]
     (measure : β → Fun)
-    (inv : β ⊕ β → Pred)
+    (inv : RepeatInvariant β β Pred)
     (einv : EPred)
     (step : ∀ b (mb : γ),
       Triple

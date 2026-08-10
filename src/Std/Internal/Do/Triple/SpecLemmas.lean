@@ -1850,6 +1850,14 @@ An invariant for a `repeatM` loop, given as a predicate over the `α ⊕ β` cur
 def RepeatInvariant (α β : Type u) (Pred : Type uₚ) :=
   α ⊕ β → Pred
 
+/-- State the invariant of a `repeatM` loop, keeping `RepeatInvariant` on the term that carries it
+so that a specification matches it without unfolding the definition. -/
+def RepeatInvariant.mk {α β : Type u} {Pred : Type uₚ} (inv : α ⊕ β → Pred) :
+    RepeatInvariant α β Pred := inv
+
+@[simp, grind =] theorem RepeatInvariant.mk_apply {α β : Type u} {Pred : Type uₚ}
+    (inv : α ⊕ β → Pred) (c : α ⊕ β) : RepeatInvariant.mk inv c = inv c := rfl
+
 /--
 A termination measure for a `repeatM` loop: a type `γ` of measure values equipped with a
 well-founded relation, and a lattice-embedded evaluation of the measure at each cursor.

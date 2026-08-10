@@ -181,7 +181,7 @@ private def mkForInLoopWithInvariantAndVariant (g : LoopGadget) (inv? dec? : Opt
   let invArg ← match inv? with
     | none =>
       -- Nothing determines the assertion language of an absent invariant.
-      `((none : Option (_ ⊕ _ → Prop)))
+      `((none : Option ($(mkIdent `Std.Internal.Do.RepeatInvariant) _ _ Prop)))
     | some invClause =>
       let cursor := mkIdentFrom invClause (← mkFreshUserName `__c)
       let hasLeft ← `($(mkIdent ``Sum.isRight) $cursor:ident)
@@ -192,7 +192,11 @@ private def mkForInLoopWithInvariantAndVariant (g : LoopGadget) (inv? dec? : Opt
       let invBody ← if exitBinder.raw.isOfKind ``hole then pure invBody else
         let exitPat : Term := ⟨exitBinder.raw⟩
         `(match $hasLeft:term with | $exitPat => $invBody)
-      `(some $(← g.mkRepeatCursorFun cursor invBody))
+      -- `RepeatInvariant.mk` keeps the clause's declared type on the term. A bare lambda carries
+      -- the unfolded type, and a specification's instance arguments are synthesized before the
+      -- check that would unfold it.
+      `(some ($(mkIdent `Std.Internal.Do.RepeatInvariant.mk)
+        $(← g.mkRepeatCursorFun cursor invBody)))
   let varArg ← match dec? with
     | none =>
       -- Nothing determines the codomain of an absent measure.

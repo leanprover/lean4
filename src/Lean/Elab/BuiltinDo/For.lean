@@ -241,7 +241,8 @@ private def mkForInLoopWithInvariantAndVariant (g : ForInApp)
       `(some ($(mkIdent ``Std.Internal.Do.RepeatInvariant.mk) $(← g.mkCursorFun cursor invBody)))
   let varArg ← match dec? with
     | none =>
-      -- Nothing determines the codomain of an absent measure.
+      -- Nothing determines the codomain of an absent measure, so it is the `Unit` that the
+      -- specification of a loop stating only its invariant reads here.
       `((none : Option (_ → Unit)))
     | some decClause =>
       let (binders, body) ← match decClause with

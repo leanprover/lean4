@@ -339,6 +339,25 @@ where finally
 #guard_msgs (drop info) in
 #check @countMeasureOnly.spec
 
+/-! The measure is the hole when the loop states only its invariant, in any monad. -/
+
+def countInvariantOnly (n : Nat) : StateM Nat Unit
+    requires s => s = 0
+    ensures _ s => s = 0 := do
+  let mut i := 0
+  while i < n
+      invariant _ s => s = 0
+    do
+    i := i + 1
+where finally
+  | spec =>
+    case inv1 => exact .ofMeasure fun i => n - i
+    all_goals simp_all
+    all_goals omega
+
+#guard_msgs (drop info) in
+#check @countInvariantOnly.spec
+
 /-! The measure may read the state of a state monad, and its binders are the arguments the
 assertions take. Binding more than that is reported at the clause. -/
 

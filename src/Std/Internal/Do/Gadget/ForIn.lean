@@ -159,7 +159,7 @@ theorem Spec.forInLoop_invariant
           | .done b' => inv (.inr b'))
         einv) :
     Triple
-      (forInLoopWithInvariantAndVariant l init f (some (RepeatInvariant.mk inv)) (none : Option (β → Unit)))
+      (forInLoopWithInvariantAndVariant (Fun := Unit) l init f (some (RepeatInvariant.mk inv)) none)
       (inv (.inl init))
       (fun b => inv (.inr b))
       einv := by

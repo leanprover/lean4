@@ -13,7 +13,6 @@ import Lean.Util.SafeExponentiation
 import Init.Data.Nat.Dvd
 import Init.Data.Nat.PowMod
 import Init.Data.Nat.Simproc
-import Lean.CoreM
 public section
 namespace Lean.Nat
 open Meta Simp
@@ -205,15 +204,15 @@ private def mkBEqNat (x y : Expr) : Expr :=
 private def mkBneNat (x y : Expr) : Expr :=
   mkAppN (mkConst ``bne [Level.zero]) #[mkConst ``Nat, mkBEqNatInstance, x, y]
 
-private def mkLENat (u : Level) (x y : Expr) : Expr :=
-  mkAppN (.const ``LE.le [u]) #[mkConst ``Nat, mkConst ``instLENat, x, y]
+private def mkLENat (x y : Expr) : Expr :=
+  mkAppN (.const ``LE.le [1]) #[mkConst ``Nat, mkConst ``instLENat, x, y]
 
-private def mkGENat (u : Level) (x y : Expr) : Expr := mkLENat u y x
+private def mkGENat (x y : Expr) : Expr := mkLENat y x
 
-private def mkLTNat (u : Level) (x y : Expr) : Expr :=
-  mkAppN (.const ``LT.lt [u]) #[mkConst ``Nat, mkConst ``instLTNat, x, y]
+private def mkLTNat (x y : Expr) : Expr :=
+  mkAppN (.const ``LT.lt [1]) #[mkConst ``Nat, mkConst ``instLTNat, x, y]
 
-private def mkGTNat (u : Level) (x y : Expr) : Expr := mkLTNat u y x
+private def mkGTNat (x y : Expr) : Expr := mkLTNat y x
 
 private def mkOfDecideEqTrue (p : Expr) : MetaM Expr := do
   let d ← Meta.mkDecide p
@@ -243,23 +242,22 @@ private def reduceNatEqExpr (x y : Expr) : SimpM (Option EqResult):= do
   -/
   let some xno ← NatOffset.fromExpr? x | return none
   let some yno ← NatOffset.fromExpr? y | return none
-  let leLvl ← if (← leCarrierIsSort) then pure (1 : Level) else pure 0
   match xno, yno with
   | .const xn, .const yn =>
     return some (.decide (xn = yn))
   | .offset xb xo xn, .const yn => do
     if xn ≤ yn then
-      let leProof ← mkOfDecideEqTrue (mkLENat leLvl xo y)
+      let leProof ← mkOfDecideEqTrue (mkLENat xo y)
       applyEqLemma (.eq xb (toExpr (yn - xn))) ``Nat.Simproc.add_eq_le #[xb, xo, y, leProof]
     else
-      let gtProof ← mkOfDecideEqTrue (mkGTNat leLvl xo y)
+      let gtProof ← mkOfDecideEqTrue (mkGTNat xo y)
       applyEqLemma .false ``Nat.Simproc.add_eq_gt  #[xb, xo, y, gtProof]
   | .const xn, .offset yb yo yn => do
     if yn ≤ xn then
-      let leProof ← mkOfDecideEqTrue (mkLENat leLvl yo x)
+      let leProof ← mkOfDecideEqTrue (mkLENat yo x)
       applyEqLemma (.eq yb (toExpr (xn - yn))) ``Nat.Simproc.eq_add_le  #[x, yb, yo, leProof]
     else
-      let gtProof ← mkOfDecideEqTrue (mkGTNat leLvl yo x)
+      let gtProof ← mkOfDecideEqTrue (mkGTNat yo x)
       applyEqLemma .false ``Nat.Simproc.eq_add_gt #[x, yb, yo, gtProof]
   | .offset xb xo xn, .offset yb yo yn => do
     if xn = yn then
@@ -268,11 +266,11 @@ private def reduceNatEqExpr (x y : Expr) : SimpM (Option EqResult):= do
       applyEqLemma (.eq xb yb) ``Nat.Simproc.add_eq_add_cancel #[xb, yb, xo]
     else if xn < yn then
       let zb := mkAddNat yb (toExpr (yn - xn))
-      let leProof ← mkOfDecideEqTrue (mkLENat leLvl xo yo)
+      let leProof ← mkOfDecideEqTrue (mkLENat xo yo)
       applyEqLemma (.eq xb zb) ``Nat.Simproc.add_eq_add_le #[xb, yb, xo, yo, leProof]
     else
       let zb := mkAddNat xb (toExpr (xn - yn))
-      let geProof ← mkOfDecideEqTrue (mkGENat leLvl xo yo)
+      let geProof ← mkOfDecideEqTrue (mkGENat xo yo)
       applyEqLemma (.eq zb yb) ``Nat.Simproc.add_eq_add_ge #[xb, yb, xo, yo, geProof]
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
@@ -340,37 +338,36 @@ private def reduceLTLE (nm : Name) (arity : Nat) (isLT : Bool) (e : Expr) : Simp
   let y := e.appArg!
   let some xno ← NatOffset.fromExpr? x (inc := cond isLT 1 0) | return .continue
   let some yno ← NatOffset.fromExpr? y | return .continue
-  let leLvl ← if (← leCarrierIsSort) then pure (1 : Level) else pure 0
   match xno, yno with
   | .const xn, .const yn =>
     Meta.Simp.evalPropStep e (xn ≤ yn)
   | .offset xb xo xn, .const yn => do
     if xn ≤ yn then
-      let finExpr := mkLENat leLvl xb (toExpr (yn - xn))
-      let leProof ← mkOfDecideEqTrue (mkLENat leLvl xo y)
+      let finExpr := mkLENat xb (toExpr (yn - xn))
+      let leProof ← mkOfDecideEqTrue (mkLENat xo y)
       applySimprocConst finExpr ``Nat.Simproc.add_le_le #[xb, xo, y, leProof]
     else
-      let gtProof ← mkOfDecideEqTrue (mkGTNat leLvl xo y)
+      let gtProof ← mkOfDecideEqTrue (mkGTNat xo y)
       applySimprocConst (mkConst ``False) ``Nat.Simproc.add_le_gt #[xb, xo, y, gtProof]
   | .const xn, .offset yb yo yn => do
     if xn ≤ yn then
-      let leProof ← mkOfDecideEqTrue (mkLENat leLvl x yo)
+      let leProof ← mkOfDecideEqTrue (mkLENat x yo)
       applySimprocConst (mkConst ``True) ``Nat.Simproc.le_add_le #[x, yb, yo, leProof]
     else
-      let finExpr := mkLENat leLvl (toExpr (xn - yn)) yb
-      let geProof ← mkOfDecideEqTrue (mkGENat leLvl x yo)
+      let finExpr := mkLENat (toExpr (xn - yn)) yb
+      let geProof ← mkOfDecideEqTrue (mkGENat x yo)
       applySimprocConst finExpr ``Nat.Simproc.le_add_ge #[x, yb, yo, geProof]
   | .offset xb xo xn, .offset yb yo yn => do
     if xn = yn then
       -- See `reduceNatEqExpr`.
-      applySimprocConst (mkLENat leLvl xb yb) ``Nat.Simproc.add_le_add_cancel #[xb, yb, xo]
+      applySimprocConst (mkLENat xb yb) ``Nat.Simproc.add_le_add_cancel #[xb, yb, xo]
     else if xn < yn then
-      let finExpr := mkLENat leLvl xb (mkAddNat yb (toExpr (yn - xn)))
-      let leProof ← mkOfDecideEqTrue (mkLENat leLvl xo yo)
+      let finExpr := mkLENat xb (mkAddNat yb (toExpr (yn - xn)))
+      let leProof ← mkOfDecideEqTrue (mkLENat xo yo)
       applySimprocConst finExpr ``Nat.Simproc.add_le_add_le  #[xb, yb, xo, yo, leProof]
     else
-      let finExpr := mkLENat leLvl (mkAddNat xb (toExpr (xn - yn))) yb
-      let geProof ← mkOfDecideEqTrue (mkGENat leLvl xo yo)
+      let finExpr := mkLENat (mkAddNat xb (toExpr (xn - yn))) yb
+      let geProof ← mkOfDecideEqTrue (mkGENat xo yo)
       applySimprocConst finExpr ``Nat.Simproc.add_le_add_ge  #[xb, yb, xo, yo, geProof]
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
@@ -384,7 +381,6 @@ builtin_simproc [simp, seval] reduceSubDiff ((_ - _ : Nat)) := fun e => do
   let some pno ← NatOffset.fromExpr? p | return .continue
   let q := e.appArg!
   let some qno ← NatOffset.fromExpr? q | return .continue
-  let leLvl ← if (← leCarrierIsSort) then pure (1 : Level) else pure 0
   match pno, qno with
   | .const pn, .const qn =>
     -- Generate rfl proof  showing (p - q) = pn - qn
@@ -397,11 +393,11 @@ builtin_simproc [simp, seval] reduceSubDiff ((_ - _ : Nat)) := fun e => do
       applySimprocConst pb ``Nat.Simproc.add_sub_cancel #[pb, po]
     else if pn < n then
       let finExpr := mkSubNat pb (toExpr (n - pn))
-      let leProof ← mkOfDecideEqTrue (mkLENat leLvl po q)
+      let leProof ← mkOfDecideEqTrue (mkLENat po q)
       applySimprocConst finExpr ``Nat.Simproc.add_sub_le  #[pb, po, q, leProof]
     else
       let finExpr := mkAddNat pb (toExpr (pn - n))
-      let geProof ← mkOfDecideEqTrue (mkGENat leLvl po q)
+      let geProof ← mkOfDecideEqTrue (mkGENat po q)
       applySimprocConst finExpr ``Nat.add_sub_assoc #[po, q, geProof, pb]
   | .const po, .offset nb no nn => do
       let finExpr := mkSubNat (toExpr (po - nn)) nb
@@ -412,11 +408,11 @@ builtin_simproc [simp, seval] reduceSubDiff ((_ - _ : Nat)) := fun e => do
       applySimprocConst (mkSubNat pb nb) ``Nat.Simproc.add_sub_add_cancel #[pb, nb, po]
     else if pn < nn then
       let finExpr := mkSubNat pb (mkAddNat nb (toExpr (nn - pn)))
-      let leProof ← mkOfDecideEqTrue (mkLENat leLvl po no)
+      let leProof ← mkOfDecideEqTrue (mkLENat po no)
       applySimprocConst finExpr ``Nat.Simproc.add_sub_add_le #[pb, nb, po, no, leProof]
     else
       let finExpr := mkSubNat (mkAddNat pb (toExpr (pn - nn))) nb
-      let geProof ← mkOfDecideEqTrue (mkGENat leLvl po no)
+      let geProof ← mkOfDecideEqTrue (mkGENat po no)
       applySimprocConst finExpr ``Nat.Simproc.add_sub_add_ge #[pb, nb, po, no, geProof]
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine

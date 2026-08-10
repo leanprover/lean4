@@ -15,7 +15,6 @@ import Lean.Meta.Sym.LitValues
 public import Lean.Meta.Sym.DSimp.DSimpM
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.Simp.Result
-import Lean.CoreM
 
 /-!
 This module contains implementations of simprocs used in the `bv_normalize` simp set.
@@ -249,13 +248,13 @@ def mkDecideProofEq (lhs rhs : Expr) : Expr :=
   let inst := mkApp2 (mkConst ``instDecidableEqNat) lhs rhs
   mkDecideProofWith p inst
 
-def mkDecideProofLt (u : Level) (lhs rhs : Expr) : Expr :=
-  let p := mkApp4 (mkConst ``LT.lt [u]) (mkConst ``Nat) (mkConst ``instLTNat) lhs rhs
+def mkDecideProofLt (lhs rhs : Expr) : Expr :=
+  let p := mkApp4 (mkConst ``LT.lt [1]) (mkConst ``Nat) (mkConst ``instLTNat) lhs rhs
   let inst := mkApp2 (mkConst ``Nat.decLt) lhs rhs
   mkDecideProofWith p inst
 
-def mkDecideProofLe (u : Level) (lhs rhs : Expr) : Expr :=
-  let p := mkApp4 (mkConst ``LE.le [u]) (mkConst ``Nat) (mkConst ``instLENat) lhs rhs
+def mkDecideProofLe (lhs rhs : Expr) : Expr :=
+  let p := mkApp4 (mkConst ``LE.le [1]) (mkConst ``Nat) (mkConst ``instLENat) lhs rhs
   let inst := mkApp2 (mkConst ``Nat.decLe) lhs rhs
   mkDecideProofWith p inst
 
@@ -520,7 +519,7 @@ def extractLsb' (wExpr startExpr lenExpr targetExpr : Expr) : SimprocM (Sym.Simp
         lenExpr
         lhs
         rhs
-        (Nat.mkDecideProofLe (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) lenExpr wExpr)
+        (Nat.mkDecideProofLe lenExpr wExpr)
     countRule `bvExtract.add
     return .step expr proof
   | HMul.hMul _ _ _ _ lhs rhs =>
@@ -538,7 +537,7 @@ def extractLsb' (wExpr startExpr lenExpr targetExpr : Expr) : SimprocM (Sym.Simp
         lenExpr
         lhs
         rhs
-        (Nat.mkDecideProofLe (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) lenExpr wExpr)
+        (Nat.mkDecideProofLe lenExpr wExpr)
     countRule `bvExtract.mul
     return .step expr proof
   | HAppend.hAppend lhsTypeExpr rhsTypeExpr _ _ lhs rhs =>
@@ -558,7 +557,7 @@ def extractLsb' (wExpr startExpr lenExpr targetExpr : Expr) : SimprocM (Sym.Simp
           rhs
           startExpr
           lenExpr
-          (Nat.mkDecideProofLe (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) (← mkLit (start + len)) rhsWidthExpr)
+          (Nat.mkDecideProofLe (← mkLit (start + len)) rhsWidthExpr)
       countRule `bvExtract.append_1
       return .step expr proof
     else if rhsWidth ≤ start then
@@ -572,7 +571,7 @@ def extractLsb' (wExpr startExpr lenExpr targetExpr : Expr) : SimprocM (Sym.Simp
           rhs
           startExpr
           lenExpr
-          (Nat.mkDecideProofLe (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) rhsWidthExpr startExpr)
+          (Nat.mkDecideProofLe rhsWidthExpr startExpr)
       countRule `bvExtract.append_2
       return .step expr proof
     else
@@ -586,7 +585,7 @@ def extractLsb' (wExpr startExpr lenExpr targetExpr : Expr) : SimprocM (Sym.Simp
     if !(startVal + lenVal) < initialWidthVal then return .rfl
     let newInner ← BitVec.mkExtractLsb' wExpr startExpr lenExpr inner
     let expr ← BitVec.mkComplement newInner lenExpr
-    let lt := Nat.mkDecideProofLt (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) (← Nat.mkAdd startExpr lenExpr) wExpr
+    let lt := Nat.mkDecideProofLt (← Nat.mkAdd startExpr lenExpr) wExpr
     let proof := mkApp5 (mkConst ``BitVec.extractLsb'_not_of_lt) wExpr inner startExpr lenExpr lt
     countRule `bvExtract.complement
     return .step expr proof
@@ -1225,7 +1224,7 @@ def bvUdiv (α lhs rhs : Expr) : SimprocM (Sym.Simp.Result) := do
   -- 2^k = n
   let hk := Nat.mkDecideProofEq (← Nat.mkPow (← mkLit 2) kExpr) nExpr
   -- k < w
-  let hlt := Nat.mkDecideProofLt (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) kExpr wExpr
+  let hlt := Nat.mkDecideProofLt kExpr wExpr
   let proof := mkApp6 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.udiv_ofNat_eq_of_lt)
     wExpr lhs nExpr kExpr hk hlt
   countRule `bvUdiv
@@ -1295,7 +1294,7 @@ uninterpreted atom for `bv_decide` while the shift itself remains interpreted.
 def clampShiftAmount (wExpr rhsExpr : Expr) (w : Nat) : SimprocM (Expr × Expr × Expr) := do
   let vExpr ← mkLit (w.log2 + 1)
   let clamped ← BitVec.mkOfNatClamp vExpr rhsExpr
-  let h := Nat.mkDecideProofLt (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) wExpr (← Nat.mkPow (← mkLit 2) vExpr)
+  let h := Nat.mkDecideProofLt wExpr (← Nat.mkPow (← mkLit 2) vExpr)
   return (vExpr, clamped, h)
 
 def isBitVecToNat (e : Expr) : Bool :=
@@ -1313,13 +1312,13 @@ def bvShiftRightNat (α lhsExpr rhsExpr : Expr) : SimprocM (Sym.Simp.Result) := 
       let extract ← BitVec.mkExtractLsb' wExpr rhsExpr newLenExpr lhsExpr
       let expr ← BitVec.mkAppend zero extract (← mkLit rhs) newLenExpr (← mkLit (newLen + rhs))
       let expr ← BitVec.mkCast wExpr expr
-      let h := Nat.mkDecideProofLt (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) rhsExpr wExpr
+      let h := Nat.mkDecideProofLt rhsExpr wExpr
       let proof := mkApp4 (mkConst ``BitVec.ushiftRight_eq_extractLsb'_of_lt) wExpr lhsExpr rhsExpr h
       countRule `bvShiftRightNat.extract
       return .step expr proof
     else
       let expr ← mkLit 0#w
-      let h := Nat.mkDecideProofLe (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) wExpr rhsExpr
+      let h := Nat.mkDecideProofLe wExpr rhsExpr
       let proof := mkApp4 (mkConst ``BitVec.ushiftRight_eq_zero) wExpr lhsExpr rhsExpr h
       countRule `bvShiftRightNat.zero
       return .step expr proof (done := true)
@@ -1346,13 +1345,13 @@ def bvShiftLeftNat (α lhsExpr rhsExpr : Expr) : SimprocM (Sym.Simp.Result) := d
       let extract ← BitVec.mkExtractLsb' wExpr (← mkLit 0) newLenExpr lhsExpr
       let expr ← BitVec.mkAppend extract zero newLenExpr (← mkLit rhs) (← mkLit (newLen + rhs))
       let expr ← BitVec.mkCast wExpr expr
-      let h := Nat.mkDecideProofLt (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) rhsExpr wExpr
+      let h := Nat.mkDecideProofLt rhsExpr wExpr
       let proof := mkApp4 (mkConst ``BitVec.shiftLeft_eq_concat_of_lt) wExpr lhsExpr rhsExpr h
       countRule `bvShiftLeftNat.concat
       return .step expr proof
     else
       let expr ← mkLit 0#w
-      let h := Nat.mkDecideProofLe (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) wExpr rhsExpr
+      let h := Nat.mkDecideProofLe wExpr rhsExpr
       let proof := mkApp4 (mkConst ``BitVec.shiftLeft_eq_zero) wExpr lhsExpr rhsExpr h
       countRule `bvShiftLeftNat.zero
       return .step expr proof (done := true)
@@ -1503,7 +1502,7 @@ def setWidth (oldWidthExpr newWidthExpr targetExpr : Expr) : SimprocM (Sym.Simp.
         oldWidthExpr
         targetExpr
         newWidthExpr
-        (Nat.mkDecideProofLe (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) newWidthExpr oldWidthExpr)
+        (Nat.mkDecideProofLe newWidthExpr oldWidthExpr)
     countRule `setWidth.extract
     return .step expr proof
   else
@@ -1522,7 +1521,7 @@ def setWidth (oldWidthExpr newWidthExpr targetExpr : Expr) : SimprocM (Sym.Simp.
         oldWidthExpr
         targetExpr
         newWidthExpr
-        (Nat.mkDecideProofLe (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) oldWidthExpr newWidthExpr)
+        (Nat.mkDecideProofLe oldWidthExpr newWidthExpr)
     countRule `setWidth.append
     return .step expr proof
 
@@ -1537,7 +1536,7 @@ def signExtend (oldWidthExpr newWidthExpr targetExpr : Expr) : SimprocM (Sym.Sim
         oldWidthExpr
         targetExpr
         newWidthExpr
-        (Nat.mkDecideProofLe (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) newWidthExpr oldWidthExpr)
+        (Nat.mkDecideProofLe newWidthExpr oldWidthExpr)
     countRule `signExtend.extract
     return .step expr proof
   else
@@ -1563,7 +1562,7 @@ def signExtend (oldWidthExpr newWidthExpr targetExpr : Expr) : SimprocM (Sym.Sim
         oldWidthExpr
         targetExpr
         newWidthExpr
-        (Nat.mkDecideProofLe (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) oldWidthExpr newWidthExpr)
+        (Nat.mkDecideProofLe oldWidthExpr newWidthExpr)
     countRule `signExtend.append
     return .step expr proof
 

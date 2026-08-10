@@ -1,6 +1,5 @@
 import Lean.Meta.Tactic
 import Lean.Meta.Sym
-import Lean.OrderLevel
 
 def f (x : Nat) :=
   let y := x + 1
@@ -19,7 +18,7 @@ y : Nat := x + 1
 #guard_msgs in
 run_meta SymM.run do
   withLocalDeclD `x Nat.mkType fun x => do
-  let m ← mkFreshExprMVar <| mkNatLE (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) x (mkApp (mkConst ``f) x)
+  let m ← mkFreshExprMVar <| mkNatLE x (mkApp (mkConst ``f) x)
   let mvarId := m.mvarId!
   let mvarId ← unfoldTarget mvarId ``f
   let mvarId ← mvarId.liftLets

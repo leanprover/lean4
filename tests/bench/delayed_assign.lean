@@ -1,10 +1,9 @@
 import Lean
-import Lean.OrderLevel
 
 open Lean Meta
 
-def mkLE (u : Level) (i : Nat) : Expr :=
-  mkNatLE u (mkNatLit 0) (mkBVar i)
+def mkLE (i : Nat) : Expr :=
+  mkNatLE (mkNatLit 0) (mkBVar i)
 
 partial def solve (mvarId : MVarId) : MetaM Unit := do
   let type ← instantiateMVars (← mvarId.getType)
@@ -33,18 +32,18 @@ partial def runBench (name : String) (n : Nat) (mk : Nat → MetaM MVarId) : Met
   IO.println s!"{name}_{n}: {ms} ms, instantiateMVars: {instMs} ms"
 
 def mkBench1 (n : Nat) : MetaM MVarId := do
-  let type := mkType (← if (← leCarrierIsSort) then pure (1 : Level) else pure 0) n
+  let type := mkType n
   return (← mkFreshExprSyntheticOpaqueMVar type).mvarId!
 where
-  mkResultType (u : Level) (i : Nat) : Expr :=
+  mkResultType (i : Nat) : Expr :=
     match i with
     | 0 => mkConst ``True
-    | i+1 => mkAnd (mkLE u i) (mkResultType u i)
+    | i+1 => mkAnd (mkLE i) (mkResultType i)
 
-  mkType (u : Level) (i : Nat) : Expr :=
+  mkType (i : Nat) : Expr :=
     match i with
-    | 0 => mkResultType u n
-    | i+1 => .forallE `x Nat.mkType (mkAnd (mkType u i) (mkLE u (n - i - 1))) .default
+    | 0 => mkResultType n
+    | i+1 => .forallE `x Nat.mkType (mkAnd (mkType i) (mkLE (n - i - 1))) .default
 
 partial def bench1 (n : Nat) : MetaM Unit := do
   runBench "bench1" n mkBench1

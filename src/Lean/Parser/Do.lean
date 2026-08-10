@@ -195,7 +195,7 @@ iteration must lower. The measure is a term over the loop's mutable variables; t
 `decreasing a b c => e` binds the arguments of the measure itself, such as the state of a state
 monad.
 -/
-def doDecreasing := leading_parser
+def doLoopDecreasing := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "decreasing" >>
     withForbidden "do" (atomic basicFun <|> (ppSpace >> termParser)))
 /--
@@ -206,7 +206,7 @@ until at least one of them is exhausted.
 The types of `e2` etc. must implement the `Std.ToStream` typeclass.
 -/
 @[builtin_doElem_parser] def doFor    := leading_parser
-  "for " >> sepBy1 doForDecl ", " >> optional doLoopInvariant >> optional doDecreasing >>
+  "for " >> sepBy1 doForDecl ", " >> optional doLoopInvariant >> optional doLoopDecreasing >>
     " do " >> doSeq
 
 def dependentParam := leading_parser
@@ -324,12 +324,12 @@ from the program and proves it; at runtime the element does nothing.
     (atomic basicFun <|> (ppSpace >> termParser))
 
 @[builtin_doElem_parser] def doRepeat      := leading_parser
-  "repeat " >> optional doLoopInvariant >> optional doDecreasing >> doSeq
+  "repeat " >> optional doLoopInvariant >> optional doLoopDecreasing >> doSeq
 @[builtin_doElem_parser] def doWhile       := leading_parser
   "while " >> withForbiddens #["do", "invariant", "decreasing"] doIfCond >>
-    optional doLoopInvariant >> optional doDecreasing >> " do " >> doSeq
+    optional doLoopInvariant >> optional doLoopDecreasing >> " do " >> doSeq
 @[builtin_doElem_parser] def doRepeatUntil := leading_parser
-  "repeat " >> optional doLoopInvariant >> optional doDecreasing >> doSeq >>
+  "repeat " >> optional doLoopInvariant >> optional doLoopDecreasing >> doSeq >>
     ppDedent ppLine >> "until " >> termParser
 
 /-
@@ -367,7 +367,7 @@ They expand into `do unless ...`, `do for ...`, `do try ...`, and `do return ...
 @[builtin_term_parser] def termUnless := leading_parser
   "unless " >> withForbidden "do" termParser >> " do " >> doSeq
 @[builtin_term_parser] def termFor := leading_parser
-  "for " >> sepBy1 doForDecl ", " >> optional doLoopInvariant >> optional doDecreasing >>
+  "for " >> sepBy1 doForDecl ", " >> optional doLoopInvariant >> optional doLoopDecreasing >>
     " do " >> doSeq
 @[builtin_term_parser] def termTry    := leading_parser
   "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally

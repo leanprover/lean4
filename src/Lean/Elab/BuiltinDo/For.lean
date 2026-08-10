@@ -22,10 +22,10 @@ open Lean.Meta
 
 @[builtin_macro Lean.Parser.Term.doFor] def expandDoFor : Macro := fun stx => do
   match stx with
-  | `(doFor| for $[$_ : ]? $_:ident in $_ $[$_inv:doLoopInvariant]? $[$_dec:doDecreasing]? do $_) =>
+  | `(doFor| for $[$_ : ]? $_:ident in $_ $[$_inv:doLoopInvariant]? $[$_dec:doLoopDecreasing]? do $_) =>
     -- This is the target form of the expander, handled by `elabDoFor` below.
     Macro.throwUnsupported
-  | `(doFor| for%$tk $decls:doForDecl,* $[$inv:doLoopInvariant]? $[$dec:doDecreasing]? do $body) =>
+  | `(doFor| for%$tk $decls:doForDecl,* $[$inv:doLoopInvariant]? $[$dec:doLoopDecreasing]? do $body) =>
     let decls := decls.getElems
     if let some inv := inv then
       if decls.size > 1 then
@@ -81,7 +81,7 @@ open Lean.Meta
             do $body)
     doElems := doElems.push
       (← `(doSeqItem| for%$tk $[$h? : ]? $x:ident in $xs
-        $[$inv:doLoopInvariant]? $[$dec:doDecreasing]? do $body))
+        $[$inv:doLoopInvariant]? $[$dec:doLoopDecreasing]? do $body))
     `(doElem| do $doElems*)
   | _ => Macro.throwUnsupported
 
@@ -212,7 +212,7 @@ private def mkForInLoopWithInvariantAndVariant (g : ForInApp) (inv? dec? : Optio
       -- An absent invariant states nothing, so its assertion language comes from the monad.
       let pred ← match ← assertionLanguage? with
         | some pred => Term.exprToSyntax pred
-        | none => `(Prop)
+        | none => `(_)
       `((none : Option ($(mkIdent `Std.Internal.Do.RepeatInvariant) _ _ $pred)))
     | some invClause =>
       let cursor := mkIdentFrom invClause (← mkFreshUserName `__c)
@@ -238,10 +238,10 @@ private def mkForInLoopWithInvariantAndVariant (g : ForInApp) (inv? dec? : Optio
       -- Binders past the clause bind the arguments of the measure itself, as they do for an
       -- assertion.
       let measure ← match decClause with
-        | `(doDecreasing| decreasing $binders* => $body) =>
+        | `(doLoopDecreasing| decreasing $binders* => $body) =>
           checkAssertionBinders decClause "measure" binders.size
           `(fun $binders* => $body)
-        | `(doDecreasing| decreasing $measure:term) => pure measure
+        | `(doLoopDecreasing| decreasing $measure:term) => pure measure
         | _ => throwUnsupportedSyntax
       `(some $(← g.mkStateFun decClause measure))
   g.mkCall ref `Std.Internal.Do.forInLoopWithInvariantAndVariant #[invArg, varArg]
@@ -266,7 +266,7 @@ private def mkLoopGadget (g : ForInApp) (inv? dec? : Option Syntax) (h? : Option
 
 @[builtin_doElem_elab Lean.Parser.Term.doFor] def elabDoFor : DoElab := fun stx dec => do
   let `(doFor| for%$tk $[$h? : ]? $x:ident in $xs
-      $[$inv?:doLoopInvariant]? $[$dec?:doDecreasing]? do $body) := stx
+      $[$inv?:doLoopInvariant]? $[$dec?:doLoopDecreasing]? do $body) := stx
     | throwUnsupportedSyntax
   let dec ← dec.ensureUnitAt tk
   checkMutVarsForShadowing #[x]

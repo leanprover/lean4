@@ -11,6 +11,7 @@ inductive W : Type where | mk (p : Bool)
 inductive L (α : Type) : Type where | mk
 inductive L2 (α : Type) (β : Type) : Type where | mk (a : α)
 def Ignore (_ : Type) : Type := Unit
+def IdT (α : Type 1) : Type 1 := α
 
 /-- Log the declaration in readable form, then add it. -/
 meta def mkInd (lparams : List Name) (nparams : Nat) (types : List InductiveType) :
@@ -151,6 +152,50 @@ info: accepted
 -/
 #guard_msgs in
 mkselfindex
+
+-- A constructor's parameter binder only has to be *definitionally equal* to the corresponding
+-- parameter of the type former, which `check_constructors` verifies. The check must therefore accept
+-- an occurrence applied to that binder, here `p : IdT Type` standing in for `p : Type`.
+meta def buildDefeqParam : CommandElabM Unit := do
+  let Vt := mkForall `p .default (mkSort 1) (mkSort 1)
+  let ct := mkForall `p .default (mkApp (mkConst ``IdT) (mkSort 1)) <|
+    mkForall `l .default (mkApp (mkConst ``L) (mkApp (mkConst `V) (mkBVar 0)))
+      (mkApp (mkConst `V) (mkBVar 1))
+  mkInd [] 1 [{ name := `V, type := Vt, ctors := [{ name := `V.mk, type := ct }] }]
+
+elab "mkdefeqparam" : command => buildDefeqParam
+
+/--
+info: num parameters: 1, universe parameters: []
+inductive V : Type → Type
+  | V.mk : (p : IdT Type) → L (V p) → V p
+---
+info: accepted
+-/
+#guard_msgs in
+mkdefeqparam
+
+-- A constructor type whose leading binders are not the parameters is rejected downstream, so the
+-- check need not (and does not) recognize the situation: `C.mk` applies `C` to a `let`-bound
+-- variable, which looks like the parameter at that binder depth.
+meta def buildLetParam : CommandElabM Unit := do
+  let Ct := mkForall `p .default (mkSort 1) (mkSort 1)
+  let ct := .letE `x (mkSort 1) (mkConst ``Nat)
+    (mkForall `p .default (mkSort 1) (mkApp (mkConst `C) (mkBVar 1))) false
+  mkInd [] 1 [{ name := `C, type := Ct, ctors := [{ name := `C.mk, type := ct }] }]
+
+elab "mkletparam" : command => buildLetParam
+
+/--
+info: num parameters: 1, universe parameters: []
+inductive C : Type → Type
+  | C.mk : let x := Nat;
+Type → C x
+---
+error: (kernel) invalid inductive datatype declaration, incorrect number of parameters
+-/
+#guard_msgs in
+mkletparam
 
 -- Uniform occurrences are still accepted. The frontend normalizes the occurrences it accepts, so
 -- `Ignore (T (id p))` below reaches the kernel as `Ignore (T p)`.

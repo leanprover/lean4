@@ -123,7 +123,8 @@ optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr cons
 
 /* Check that every occurrence of a datatype being declared in a constructor type of `d` is applied
    to the declaration's universe levels and to its parameters, which at binder depth `offset` are the
-   bound variables `#(offset-1) … #(offset-nparams)`.
+   bound variables `#(offset-1) … #(offset-nparams)`. That those binders really are the parameters is
+   established later, by `get_params` and the parameter check in `check_constructors`.
 
    Later phases inspect the constructor types modulo `whnf`, which can erase an occurrence (as in
    `(fun _ => Unit) (T Nat)`), and the parametric arguments of a nested occurrence are dropped from

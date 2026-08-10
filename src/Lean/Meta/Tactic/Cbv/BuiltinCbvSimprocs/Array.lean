@@ -133,6 +133,15 @@ builtin_cbv_simproc ↓ simpPartialToArray (PartialBlock.toArray _) := fun e => 
   -- always simplified
   return .rfl (done := true)
 
+builtin_cbv_simproc cbv_eval simpArrayEmptyWithCapacity (Array.emptyWithCapacity _) := fun e => do
+  let_expr c@Array.emptyWithCapacity α n := e | return .rfl
+  let u := c.constLevels![0]!
+  let zero ← mkLitS (.natVal 0)
+  let block ← mkAppS (← mkConstS ``PartialBlock.empty [u]) α
+  let res ← mkAppS₃ (← mkConstS ``PartialBlock.toArray [u]) α zero block
+  let proof := mkApp2 (.const ``PartialBlock.emptyWithCapacity_eq [u]) α n
+  return .step res proof (done := true)
+
 builtin_cbv_simproc cbv_eval simpArrayMk (Array.mk _) := fun e => do
   let_expr c@Array.mk α list := e | return .rfl
   let some elems := getListLitElems list | return .rfl

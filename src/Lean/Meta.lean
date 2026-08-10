@@ -33,6 +33,8 @@ public import Lean.Meta.LetToHave
 public import Lean.Meta.ForEachExpr
 public import Lean.Meta.Transform
 public import Lean.Meta.NestedInductive
+public import Lean.Meta.MutualInductive
+public import Lean.Meta.InductiveCertificate
 public import Lean.Meta.PPGoal
 public import Lean.Meta.UnificationHint
 public import Lean.Meta.Inductive

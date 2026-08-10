@@ -123,7 +123,7 @@ inductive Box (α : Type) where
   | mk : α → Box α
 
 /--
-error: (kernel) uncertified computation rule of nested inductive type 'T2': (kernel) declaration has free variables '_certify.T2._nested.Box1.mk', expression: ⏎
+error: (kernel) uncertified computation rule of inductive type 'T2': (kernel) declaration has free variables '_certify.T2._nested.Box1.mk', expression: ⏎
   (if _fvar.1 = true then _certify.T2.T2 else Nat) → _certify.T2._nested.Box1
 -/
 #guard_msgs in

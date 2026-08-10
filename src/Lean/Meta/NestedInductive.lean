@@ -1469,6 +1469,11 @@ public structure Certificate where
   the binder that makes the type reflexive, and the model has already reduced it away.
   -/
   reflexive : Array Bool
+  /--
+  Whether the declaration is recursive, which the kernel records on each type it declares. A nested
+  occurrence is one, so only a certificate for a declaration without one has anything to say here.
+  -/
+  recursive : Bool := true
 
 /--
 What `buildModel` found: how many rules already held definitionally, how many it proved, which it left
@@ -1606,7 +1611,7 @@ Only what the construction always uses, all declared in the first few hundred li
 is deliberately absent: it is reached only for a field of function type, of which nothing declared
 before `Init.Core` has one, and listing it would skip every declaration before that point.
 -/
-def ingredients : Array Name :=
+public def ingredients : Array Name :=
   #[``Eq, ``Eq.refl, ``Eq.ndrec, ``Eq.symm, ``congrArg, ``congr, ``congrFun, ``PUnit, ``PUnit.unit,
     ``True, ``True.intro]
 
@@ -1668,43 +1673,10 @@ public def certify (kenv : Kernel.Environment) (declName : Name) :
   -- the declaration is already present, so the realisation has to be named out of its way
   certifyCore env iv types.toArray (`_surr ++ ·)
 
-/--
-`certifyCore`, working from the declaration the kernel was handed rather than from the environment,
-which is how `add_inductive` reaches it: the certificate has to be in hand before anything is
-declared, since the kernel takes the recursors and the reflexivity flags from it.
-
-`ok none` means the declaration has no nested occurrence, which is how the kernel learns to declare
-it itself. Deciding that here rather than in the kernel keeps one definition of what counts as an
-occurrence instead of two that have to agree.
--/
-@[export lean_certify_nested_inductive]
-public def certifyDecl (kenv : Kernel.Environment) (d : Declaration) :
-    IO (Except String (Option Certificate)) := do
-  let .inductDecl lparams nparams types isUnsafe := d | return .ok none
-  let types := types.toArray
-  let some first := types[0]? | return .ok none
-  let env ← Environment.ofKernelEnvForElab kenv {}
-  -- Whether there is an occurrence to unfold, asked of the code that would unfold it. Purely
-  -- syntactic and nothing is declared, so this is what every inductive pays to be routed.
-  let detect : MetaM Bool :=
-    withElimNested lparams nparams types.toList fun _ aux _ => return !aux.isEmpty
-  let ctx : Core.Context := {
-    fileName := "<nested inductive certificate>", fileMap := default
-    options := Elab.async.set {} false, maxHeartbeats := 0
-  }
-  let nested ← match ← ((MetaM.run' detect : CoreM Bool).run ctx { env }).toIO' with
-    | .error ex => return .error (← ex.toMessageData.toString)
-    | .ok (b, _) => pure b
-  if !nested then return .ok none
-  -- an unsafe declaration is not certified, so it needs none of the ingredients
-  if !isUnsafe && ingredients.any fun n => !env.contains n then
-    return .error "a nested inductive was declared before the certificate's ingredients exist"
-  -- the fields the generator reads; the rest are only meaningful once the type exists
-  let iv : InductiveVal := {
-    name := first.name, levelParams := lparams, type := first.type, numParams := nparams
-    numIndices := 0, all := types.toList.map (·.name), ctors := first.ctors.map (·.name)
-    numNested := 0, isRec := true, isUnsafe, isReflexive := false }
-  certifyCore env iv types id
+/-- Whether the declaration has an occurrence to unfold, asked of the code that would unfold it. -/
+public def isNested (lparams : List Name) (nparams : Nat) (types : List InductiveType) :
+    MetaM Bool :=
+  withElimNested lparams nparams types fun _ aux _ => return !aux.isEmpty
 
 end NestedGen
 

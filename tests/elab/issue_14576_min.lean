@@ -23,7 +23,7 @@ elab "mkbug" : command => build
 /--
 info: (w : W) → L (E w) w.1.1 → E w
 ---
-error: (kernel) uncertified computation rule of nested inductive type 'E': (kernel) invalid projection
+error: (kernel) uncertified computation rule of inductive type 'E': (kernel) invalid projection
   w.1
 -/
 #guard_msgs in

@@ -56,7 +56,7 @@ meta def build : CommandElabM Unit := do
 elab "mkbug" : command => build
 
 /--
-error: (kernel) uncertified computation rule of nested inductive type 'E': (kernel) invalid projection
+error: (kernel) uncertified computation rule of inductive type 'E': (kernel) invalid projection
   w.1
 -/
 #guard_msgs in

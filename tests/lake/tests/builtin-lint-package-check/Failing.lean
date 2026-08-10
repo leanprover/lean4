@@ -6,4 +6,4 @@ open Lean Linter CodeQuality
 -- and makes `lake lint --code-quality` exit nonzero.
 @[package_code_quality_check]
 public meta def failingMetric : PackageCheck where
-  run _ := throw <| IO.userError "boom"
+  run _ := throwError "boom"

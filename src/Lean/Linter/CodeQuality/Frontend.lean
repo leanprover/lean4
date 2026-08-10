@@ -8,8 +8,7 @@ module
 prelude
 public import Lean.Linter.CodeQuality.Basic
 public import Lean.Elab.InfoTree.Main
-public import Lean.Elab.Command
-public import Lean.Message
+import Lean.Elab.Command
 
 public section
 
@@ -78,18 +77,15 @@ def getPackageChecks : CoreM (Array NamedPackageCheck) := do
 def runPackageChecks (checks : Array NamedPackageCheck) (ctx : PackageCheckContext) :
     CoreM CheckResult := do
   let tasks ← checks.mapM fun check => do
-    (check.declName, ·) <$> do
-      let act : MetaM (Array Entry) := do
-        check.run ctx
-      EIO.asTask <| (← Core.wrapAsync (fun _ =>
-          act |>.run' Elab.Command.mkMetaContext
-        ) (cancelTk? := none)) ()
+    let act ← Core.wrapAsync (cancelTk? := none) fun (_ : Unit) =>
+      check.run ctx |>.run' Elab.Command.mkMetaContext
+    return (check.declName, ← EIO.asTask (act ()))
   let mut entries := #[]
   let mut errors := #[]
   for (declName, task) in tasks do
     match task.get with
     | .ok checkEntries => entries := entries ++ checkEntries
-    | .error err => errors := errors.push (s!"{declName} has failed: " ++ (err.toMessageData))
+    | .error err => errors := errors.push (s!"{declName} has failed: " ++ err.toMessageData)
   return ⟨entries, errors⟩
 
 end Lean.Linter.CodeQuality

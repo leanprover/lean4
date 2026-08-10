@@ -336,8 +336,8 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   -/
   builtinLint?, builtinLint : Option Bool := none
   /--
-  Additional modules imported for each environment used in running
-  linters and code quality checks.
+  Additional modules imported for each environment
+  used in running code quality checks.
   -/
   checks : Array Name := #[]
 

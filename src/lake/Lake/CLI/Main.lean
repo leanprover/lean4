@@ -371,7 +371,8 @@ def lakeLongOption : (opt : String) → CliM PUnit
     unless s.isEmpty do
       checks := checks.push s.toName
   modifyThe LakeOptions fun opts =>
-    { opts with builtinLint.checks := opts.builtinLint.checks ++ checks,
+    { opts with runBuiltinLint := true, builtinOnly := true,
+                builtinLint.checks := opts.builtinLint.checks ++ checks,
                 builtinLint.mode := .codeQuality }
 
 -- Shared options
@@ -1052,7 +1053,9 @@ private def runBuiltinLint
     unless (ws.findTargetModule? c).isSome do
       error s!"unknown checks module `{c}`; it must be a module of a package in the workspace"
   let args := { args with mods, checks, srcSearchPath := ws.augmentedLeanSrcPath }
-  let specs ← parseTargetSpecs ws (mods.map (s!"+{·}") |>.toList)
+  -- Checks modules are imported alongside each lint target, so they must be built as well.
+  let buildMods := mods ++ checks.filter (!mods.contains ·)
+  let specs ← parseTargetSpecs ws (buildMods.map (s!"+{·}") |>.toList)
   let lintOpts := BuiltinLint.leanOptOverrides args
   let overrides : Lean.NameMap Lean.LeanOptions :=
     if lintOpts.values.isEmpty then

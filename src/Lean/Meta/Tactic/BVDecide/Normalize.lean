@@ -20,8 +20,10 @@ public import Lean.Meta.Tactic.BVDecide.Normalize.Enums
 public import Lean.Meta.Tactic.BVDecide.Normalize.TypeAnalysis
 public import Lean.Meta.Tactic.BVDecide.Normalize.ShortCircuit
 public import Lean.Meta.Tactic.BVDecide.Normalize.Reduction
+public import Lean.Meta.Tactic.BVDecide.Normalize.CollectHyps
 import Lean.Meta.Sym.Util
 import Lean.Meta.Sym.Intro
+import Lean.Meta.Tactic.Grind.Intro
 
 /-!
 This module contains the implementation of `bv_normalize`, the preprocessing tactic for `bv_decide`.
@@ -47,16 +49,30 @@ def passPipeline : PreProcessM (List Pass) := do
 
   return passPipeline
 
-public def bvNormalize : PreProcessM Bool := do
-  withTraceNode `Meta.Tactic.bv (fun _ => return "Preprocessing goal") do
-    let g ← PreProcessM.getGoal
+def setupTarget : PreProcessM Bool := do
+  match ← PreProcessM.getTarget with
+  | .mvarIdTarget g =>
     -- TODO: consider reimplementing this with SymM
     let some g ← g.falseOrByContra (useClassical := some true) | return true
     let g ← Sym.preprocessMVar g
-    PreProcessM.setGoal g
-    PreProcessM.collectHypsFromGoal
+    PreProcessM.setTarget <| .mvarIdTarget g
+    return false
+  | .grindTarget g =>
+    let a : Grind.Action := Grind.Action.intros 0 >> Grind.Action.assertAll
+    match (← a.run g) with
+    | .closed _ | .stuck [] => return true
+    | .stuck [g] =>
+      PreProcessM.setTarget <| .grindTarget g
+      return false
+    | .stuck _ => throwError m!"internalizing grind goal produced multiple goals"
 
-    trace[Meta.Tactic.bv] m!"Running preprocessing pipeline on:\n{g}"
+public def bvNormalize : PreProcessM Bool := do
+  withTraceNode `Meta.Tactic.bv (fun _ => return "Preprocessing goal") do
+    if ← setupTarget then return true
+
+    PreProcessM.collectTargetHyps
+
+    trace[Meta.Tactic.bv] m!"Running preprocessing pipeline"
     let cfg ← PreProcessM.getConfig
 
     if cfg.structures || cfg.enums then

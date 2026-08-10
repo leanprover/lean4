@@ -466,10 +466,9 @@ public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : Lo
   | .ok contents =>
     match Json.parse contents >>= fromJson? with
     | .ok out =>
-      return out
+      return some out
     | .error e =>
-      logWarning s!"{path}: invalid JSON: {e}"
-      return none
+      error s!"{path}: invalid JSON: {e}"
   | .error (.noFileOrDirectory ..) => return none
   | .error e => error s!"{path}: read failed: {e}"
 
@@ -564,7 +563,7 @@ def uploadS3
   (file : FilePath) (contentType : String) (url : String) (key : String)
 : LoggerIO Unit := do
   let out ← captureProc' {
-    cmd := "curl"
+    cmd := ← Internal.getCurl
     args := #[
       "-s", "-w", "%{stderr}%{json}\n",
       "--aws-sigv4", "aws:amz:auto:s3", "--user", key,
@@ -883,7 +882,7 @@ def transferArtifacts
         "-s", "-w", "%{stderr}%{json}\n", "--config", path.toString
       ]
   let child ← IO.Process.spawn {
-    cmd := "curl", args
+    cmd := ← Internal.getCurl, args
     stdout := .piped, stderr := .piped
   }
   let s ← monitorTransfer cfg child.stderr child.stdout {}
@@ -963,7 +962,7 @@ where
       ]
     let args := Reservoir.lakeHeaders.foldl (· ++ #["-H", ·]) args
     let spawnArgs := {
-      cmd := "curl", args := args.push url
+      cmd := ← Internal.getCurl, args := args.push url
       stdout := .piped, stderr := .piped
     }
     logVerbose (mkCmdLog spawnArgs)

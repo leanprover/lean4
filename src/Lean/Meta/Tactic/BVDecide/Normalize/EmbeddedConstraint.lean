@@ -47,7 +47,7 @@ redundant top level hypotheses.
 public def embeddedConstraintPass : Pass where
   name := `embeddedConstraintSubstitution
   run' := do
-    let goal ← PreProcessM.getGoal
+    let goal ← PreProcessM.getTargetMVarId
     goal.withContext do
       let hyps ← PreProcessM.getHyps
       let mut relevantHypsMap : PersistentHashMap Sym.ExprPtr HypInfo := {}

@@ -59,7 +59,7 @@ public def shortCircuitPass : Pass where
       post := shortCircuitProc
     }
 
-    let goal ← PreProcessM.getGoal
+    let goal ← PreProcessM.getTargetMVarId
     goal.withContext do
       PreProcessM.mapSimpHyps methods config
 

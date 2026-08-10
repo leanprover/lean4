@@ -21,7 +21,6 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern uint8_t l_instInhabitedUInt8;
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
@@ -908,7 +907,7 @@ LEAN_EXPORT uint8_t l_panic___at___00String_Slice_getUTF8Byte_x21_spec__0(lean_o
 _start:
 {
 uint8_t v___x_295_; lean_object* v___x_296_; lean_object* v___x_297_; uint8_t v___x_298_; 
-v___x_295_ = l_instInhabitedUInt8;
+v___x_295_ = 0;
 v___x_296_ = lean_box(v___x_295_);
 v___x_297_ = lean_panic_fn_borrowed(v___x_296_, v_msg_294_);
 lean_dec(v___x_296_);

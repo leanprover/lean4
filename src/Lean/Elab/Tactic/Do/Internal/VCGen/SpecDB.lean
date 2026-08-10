@@ -111,7 +111,7 @@ public def SpecAttr.SpecTheorems.findSpecs (database : SpecTheorems) (e : Expr) 
     SymM (Array SpecTheorem) := do
   let e ← instantiateMVars e
   let e ← shareCommon e
-  let candidates := Sym.getMatch database.specs e
+  let candidates := Sym.getMatch (← getMCtx) database.specs e
   let candidates := candidates.filter fun spec => !database.erased.contains spec.proof
   -- It appears that insertion sort is *much* faster than qsort here.
   return candidates.insertionSort (·.priority > ·.priority)

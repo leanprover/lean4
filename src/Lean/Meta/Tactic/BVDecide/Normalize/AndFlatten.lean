@@ -41,7 +41,7 @@ in embedded constraint substitution.
 public partial def andFlatteningPass : Pass where
   name := `andFlattening
   run' := do
-    discard <| process (← PreProcessM.getGoal) |>.run {}
+    discard <| process (← PreProcessM.getTargetMVarId) |>.run {}
     return false
 where
   process (g : MVarId) : FlattenM Unit :=

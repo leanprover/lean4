@@ -746,9 +746,50 @@ theorem countdown_spec (n : Nat) :
     ⦃ fun s => s = 0 ⦄ countdown n ⦃ fun _ s => s = n ⦄ := by
   vcgen [countdown]
   case inv1 => exact RepeatInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i _ => i = 0)
-  case inv2 => exact fun i => i
+  case inv2 => exact .ofMeasure fun i => i
   any_goals simp at *
   all_goals grind
+
+/-- Like `countdown`, but termination is measured from the monadic state rather than the loop cursor. -/
+def countdownStateful (n : Nat) : StateT Nat Id Unit := do
+  set 0
+  while (← get) ≠ n do
+    modify (· + 1)
+  return
+
+theorem countdownStateful_spec (n : Nat) :
+    ⦃ fun _ => True ⦄ countdownStateful n ⦃ fun _ s => s = n ⦄ := by
+  vcgen [countdownStateful]
+  case inv1 =>
+    exact RepeatInvariant.ofInvariantAndBreak
+      (fun _ s => s ≤ n)
+      (fun _ s => s = n)
+  case inv2 => exact .ofMeasure fun _ s => n - s
+  any_goals simp at *
+  all_goals grind
+
+/-- Nested countdown driven by a single `while` loop: `i` counts down and resets `j`, so the
+decrease is lexicographic in `(i, j)`. -/
+def countdownLex (n : Nat) : StateT Nat Id Unit := do
+  let mut i := n
+  let mut j := 0
+  while 0 < i ∨ 0 < j do
+    if 0 < j then
+      j := j - 1
+      modify (· + 1)
+    else
+      i := i - 1
+      j := n
+  return
+
+theorem countdownLex_spec (n : Nat) :
+    ⦃ fun _ => True ⦄ countdownLex n ⦃ fun _ _ => True ⦄ := by
+  vcgen [countdownLex]
+  case inv1 => exact RepeatInvariant.ofInvariantAndBreak (fun _ _ => True) (fun _ _ => True)
+  case inv2 => exact .ofMeasure fun (i, j) => (i, j)
+  all_goals simp_all [RepeatVariant.evalsBelow_ofMeasure]
+  all_goals subst_vars
+  all_goals decreasing_tactic
 
 end RepeatInvariantOfInvariantAndBreak
 namespace WithGrindError

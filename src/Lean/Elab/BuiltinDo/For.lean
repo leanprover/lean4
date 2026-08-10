@@ -201,10 +201,11 @@ private def mkForInPureWithInvariant (g : ForInApp) (invClause : TSyntax ``doLoo
   unless binders.size ≥ 2 do
     throwErrorAt invClause "The `invariant` clause takes at least two binders: the elements \
       consumed so far and the elements remaining."
-  let assertionBinders := binders.extract 2
+  let loopBinders := binders.take 2
+  let assertionBinders := binders.drop 2
   checkAssertionBinders invClause "invariant" assertionBinders.size (← assertionLanguage?)
   let invBody ← mkAssertionFun assertionBinders invBody
-  let invLam ← `(fun $(binders.take 2)* => $(← g.mkStateFun invBody))
+  let invLam ← `(fun $loopBinders* => $(← g.mkStateFun invBody))
   let gadget := if h?.isSome then ``Std.Internal.Do.forInPureWithInvariant'
     else ``Std.Internal.Do.forInPureWithInvariant
   g.mkCall invClause gadget #[invLam]
@@ -220,15 +221,13 @@ private def mkForInLoopWithInvariantAndVariant (g : ForInApp)
   let pred? ← assertionLanguage?
   let invArg ← match inv? with
     | none =>
-      -- An absent invariant states nothing, so its assertion language comes from the monad.
-      let pred ← match pred? with
-        | some pred => Term.exprToSyntax pred
-        | none => `(_)
-      `((none : Option ($(mkIdent ``Std.Internal.Do.RepeatInvariant) _ _ $pred)))
+      -- Nothing determines the assertion language of an absent invariant, so it is the `Prop` that
+      -- the specification of a loop stating only its measure reads here.
+      `((none : Option ($(mkIdent ``Std.Internal.Do.RepeatInvariant) _ _ Prop)))
     | some invClause =>
       let (binders, invBody) ← destructInvariant invClause
       let exitBinder := binders[0]!
-      let assertionBinders := binders.extract 1
+      let assertionBinders := binders.drop 1
       checkAssertionBinders invClause "invariant" assertionBinders.size pred?
       let invBody ← mkAssertionFun assertionBinders invBody
       let cursor := mkIdentFrom invClause (← mkFreshUserName `__c)

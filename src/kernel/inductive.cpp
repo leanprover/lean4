@@ -170,7 +170,6 @@ static void check_uniform_ind_occs(environment const & env, inductive_decl const
     for (inductive_type const & ind_type : d.get_types())
         ind_names.push_back(ind_type.get_name());
     for (inductive_type const & ind_type : d.get_types()) {
-        check_uniform_ind_occs(env, ind_type.get_type(), ind_names, lvls, nparams);
         for (constructor const & cnstr : ind_type.get_cnstrs())
             check_uniform_ind_occs(env, constructor_type(cnstr), ind_names, lvls, nparams);
     }

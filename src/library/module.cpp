@@ -52,7 +52,7 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #endif
 
 #if defined(__has_feature)
-#if __has_feature(address_sanitizer)
+#if __has_feature(address_sanitizer) || __has_feature(hwaddress_sanitizer)
 #include <sanitizer/lsan_interface.h>
 #endif
 #endif
@@ -548,7 +548,7 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
         // report those objects as leaks. Register the mapping as a root region so LSan follows the
         // in-region refs. (The malloc fallback below is covered by `__lsan_ignore_object` instead.)
 #if defined(__has_feature)
-#if __has_feature(address_sanitizer)
+#if __has_feature(address_sanitizer) || __has_feature(hwaddress_sanitizer)
         if (is_mmap)
             __lsan_register_root_region(buffer, size);
 #endif
@@ -568,7 +568,7 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
             // never freed at all, so tell LeakSanitizer not to report it. Under `mmap` (the common
             // path) the buffer is not a heap allocation and needs no such treatment.
 #if defined(__has_feature)
-#if __has_feature(address_sanitizer)
+#if __has_feature(address_sanitizer) || __has_feature(hwaddress_sanitizer)
             __lsan_ignore_object(buffer);
 #endif
 #endif

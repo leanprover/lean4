@@ -61,7 +61,7 @@ extern "C" LEAN_EXPORT uint8 lean_internal_has_llvm_backend(obj_arg) {
 
 extern "C" LEAN_EXPORT uint8 lean_internal_has_address_sanitizer(obj_arg) {
 #if defined(__has_feature)
-#if __has_feature(address_sanitizer)
+#if __has_feature(address_sanitizer) || __has_feature(hwaddress_sanitizer)
     return 1;
 #else
     return 0;

@@ -291,20 +291,14 @@ static inline lean_object * get_next(lean_object * o) {
 }
 
 // See the docstring on `lean_object*` for details about pointer packing.
-#if defined(__has_feature)
-    #if __has_feature(hwaddress_sanitizer)
-        #define LEAN_HAS_HWASAN 1
-    #endif
-#endif
-#if defined(LEAN_HAS_HWASAN) || defined(__SANITIZE_HWADDRESS__) || \
-    defined(__ARM_FEATURE_MEMORY_TAGGING)
+#if defined(__ARM_FEATURE_MEMORY_TAGGING)
     #define LEAN_PTR_PACKING_SAFE false
 #else
     #define LEAN_PTR_PACKING_SAFE true
 #endif
 
 static_assert(sizeof(void*) != 8 || LEAN_PTR_PACKING_SAFE,
-    "Cannot compile with HWASAN or ARM MTE enabled; on 64-bit machines, "
+    "ARM MTE support is not implemented; on 64-bit machines, "
     "the pointer packing in `set_next` truncates the top byte used by these features.\n"
     "See https://github.com/leanprover/lean4/issues/13113.");
 
@@ -366,7 +360,7 @@ extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
     o->m_cs_sz = 0;
     return o;
 #else
-    void * r = malloc(sz);
+    void * r = lean_malloc_non_tagged(sz);
     if (r == nullptr) lean_internal_panic_out_of_memory();
     return (lean_object*)r;
 #endif
@@ -546,7 +540,7 @@ static obj_res mark_persistent_fn(obj_arg o) {
 }
 
 #if defined(__has_feature)
-#if __has_feature(address_sanitizer)
+#if __has_feature(address_sanitizer) || __has_feature(hwaddress_sanitizer)
 #include <sanitizer/lsan_interface.h>
 #endif
 #endif
@@ -560,7 +554,7 @@ extern "C" LEAN_EXPORT void lean_mark_persistent(object * o) {
         if (!lean_is_scalar(o) && lean_has_rc(o)) {
             lean_internal_set_rc(o, 0);
 #if defined(__has_feature)
-#if __has_feature(address_sanitizer)
+#if __has_feature(address_sanitizer) || __has_feature(hwaddress_sanitizer)
             // do not report as leak
             // NOTE: Most persistent objects are actually reachable from global
             // variables up to the end of the process. However, this is *not*

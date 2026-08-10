@@ -17,6 +17,12 @@ Author: Leonardo de Moura
 #include <lean/mimalloc.h>
 #endif
 
+#if defined(__has_feature)
+#if __has_feature(hwaddress_sanitizer)
+#include <sanitizer/hwasan_interface.h>
+#endif
+#endif
+
 #ifdef __cplusplus
 #include <atomic>
 #include <stdlib.h>
@@ -467,6 +473,20 @@ LEAN_EXPORT void lean_inc_heartbeat(void);
 void * malloc(size_t);  // avoid including big `stdlib.h`
 #endif
 
+static inline void * lean_malloc_non_tagged(size_t sz) {
+#if defined(__has_feature)
+#if __has_feature(hwaddress_sanitizer)
+    // LEAN_PTR_PACKING needs top bits.
+    // https://github.com/leanprover/lean4/issues/13113.
+    __hwasan_disable_allocator_tagging();
+    void* r = malloc(sz);
+    __hwasan_enable_allocator_tagging();
+    return r;
+#endif
+#endif
+    return malloc(sz);
+}
+
 static inline lean_object * lean_alloc_small_object(unsigned sz) {
     lean_inc_heartbeat();
 #ifdef LEAN_MIMALLOC
@@ -479,7 +499,7 @@ static inline lean_object * lean_alloc_small_object(unsigned sz) {
     o->m_cs_sz = sz;
     return o;
 #else
-    void * mem = malloc(sizeof(size_t) + sz);
+    void * mem = lean_malloc_non_tagged(sizeof(size_t) + sz);
     if (mem == 0) lean_internal_panic_out_of_memory();
     *(size_t*)mem = sz;
     return (lean_object*)((size_t*)mem + 1);

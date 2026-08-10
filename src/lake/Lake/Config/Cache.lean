@@ -18,6 +18,8 @@ import Lake.Util.Proc
 import Lake.Util.Reservoir
 import Lake.Util.JsonObject
 import Lake.Util.IO
+import Std.Data.HashSet.Basic
+import Init.Data.Range.Polymorphic.Iterators
 import Init.System.Platform
 import Init.Data.String.Lemmas
 
@@ -741,13 +743,45 @@ structure TransferConfig where
   scope : CacheServiceScope
   infos : Array TransferInfo
   key : String := ""
+  /-- Whether this is the batch's last attempt, after which failures are not retried. -/
+  finalAttempt : Bool := true
 
 structure TransferState where
   didError : Bool := false
   numSuccesses : Nat := 0
+  /--
+  Transfers with a settled outcome: a success or a failure that a retry cannot
+  fix. A batch retries its unsettled transfers on its next attempt.
+  -/
+  settled : Std.HashSet Nat := {}
 
 @[inline] def tmpPath (path : FilePath) : FilePath :=
   path.addExtension "tmp"
+
+/--
+The default number of times a batch transfer is attempted: one initial attempt
+plus retries of the transfers that failed in ways a retry may fix (e.g., a
+dropped connection or a corrupted download). The `LAKE_CACHE_TRANSFER_ATTEMPTS`
+environment variable overrides this (minimum 1).
+-/
+def defaultTransferAttempts : Nat := 3
+
+def getTransferAttempts : BaseIO Nat := do
+  if let some v ← IO.getEnv "LAKE_CACHE_TRANSFER_ATTEMPTS" then
+    if let some n := v.toNat? then
+      return max 1 n
+  return defaultTransferAttempts
+
+/--
+Whether a transfer that failed with this HTTP status may succeed if retried.
+Covers the response codes `curl --retry` deems transient (408, 429, 500, 502,
+503, 504) plus a missing status, which indicates a dropped connection rather
+than a server rejection.
+-/
+def retryableStatus : Except String Nat → Bool
+  | .ok 408 | .ok 429 | .ok 500 | .ok 502 | .ok 503 | .ok 504 => true
+  | .ok _ => false
+  | .error _ => true
 
 partial def monitorTransfer
   (cfg : TransferConfig) (h hOut : IO.FS.Handle) (s : TransferState)
@@ -759,33 +793,52 @@ partial def monitorTransfer
     let s ← (·.2) <$> StateT.run (s := s) do
       match Json.parse line >>= fromJson? with
       | .ok (out : JsonObject) =>
-        let some info := getInfo? out
-          | logError s!"{cfg.scope}: unidentifiable transfer completed: {line.trimAscii}"
-            modify ({· with didError := true})
+        let some (i, info) := getInfo? out
+          | -- Tied to no transfer; an unreported transfer is unsettled,
+            -- so the batch's next attempt retries it
+            logWarning s!"{cfg.scope}: unidentifiable transfer completed: {line.trimAscii}"
             return
+        if (← get).settled.contains i then
+          logWarning s!"{cfg.scope}: duplicate report for a transfer: {line.trimAscii}"
+          return
         match out.get? "exitcode" with
         | .ok none
         | .ok (some 0) =>
           match out.get "http_code" with
           | .ok code@200
           | .ok code@201 =>
-            handleTransfer info code out line
+            handleTransfer i info code out line
           | code? =>
-            handleFailure info code? out line
-            modify ({· with didError := true})
+            handleFailure i info (retryableStatus code?) code? out line
         | _ =>
-          handleFailure info (out.get "http_code") out line
-          modify ({· with didError := true})
+          -- A nonzero exit code alongside a 2xx status means an incomplete
+          -- transfer (e.g., a connection dropped mid-body), which is retryable
+          handleFailure i info true (out.get "http_code") out line
       | .error e =>
-        logError s!"curl produced invalid JSON: {e}; received: {line.trimAscii}"
-        modify ({· with didError := true})
+        logWarning s!"curl produced invalid JSON: {e}; received: {line.trimAscii}"
     monitorTransfer cfg h hOut s
 where
   getInfo? out :=
     match out.getAs Nat "urlnum" with
-    | .ok i => cfg.infos[i]?
+    | .ok i => cfg.infos[i]?.map ((i, ·))
     | _ => none
-  handleTransfer info code out line : StateT TransferState LoggerIO Unit := do
+  /-- Marks a transfer's outcome as settled and successful. -/
+  recordSuccess (i : Nat) : StateT TransferState LoggerIO Unit :=
+    modify fun s => {s with
+      settled := s.settled.insert i, numSuccesses := s.numSuccesses + 1}
+  /--
+  Records a failed transfer. A retryable failure on a non-final attempt is
+  left unsettled, so the batch's next attempt retries it; its detail goes to
+  the verbose log, and the batch logs one warning per retry attempt. Any
+  other failure is an error and settles its transfer.
+  -/
+  recordFailure (i : Nat) (retryable : Bool) (msg : String) : StateT TransferState LoggerIO Unit := do
+    if retryable && !cfg.finalAttempt then
+      logVerbose msg
+    else
+      logError msg
+      modify fun s => {s with settled := s.settled.insert i, didError := true}
+  handleTransfer i info code out line : StateT TransferState LoggerIO Unit := do
     let {url, hash, path, extraPaths} := info
     match cfg.kind with
     | .get =>
@@ -799,11 +852,9 @@ where
         logDownload
         let actualHash := Hash.ofByteArray contents
         if actualHash != hash then
-          logError s!"{tmpPath}: downloaded artifact hash mismatch, got {actualHash}"
-          modify ({· with didError := true})
+          recordFailure i true s!"{tmpPath}: downloaded artifact hash mismatch, got {actualHash}"
         else if let .error e ← IO.FS.rename tmpPath path |>.toBaseIO then
-          logError s!"{path}: failed to persist temporary artifact: {e}"
-          modify ({· with didError := true})
+          recordFailure i true s!"{path}: failed to persist temporary artifact: {e}"
         else
           unless extraPaths.isEmpty do
             -- Note: No intra-cache hard links (breaks permissions/pruning), so we copy
@@ -811,20 +862,18 @@ where
               if let .error e ← IO.FS.writeBinFile extraPath contents |>.toBaseIO then
                 logError s!"{extraPath}: failed to copy artifact: {e}"
                 modify ({· with didError := true})
-          modify fun s => {s with numSuccesses := s.numSuccesses + 1}
+          recordSuccess i
       | .error (.noFileOrDirectory ..) =>
-        handleFailure info (.ok code) out line
-        modify ({· with didError := true})
+        handleFailure i info true (.ok code) out line
       | .error e =>
         logDownload
-        logError s!"{tmpPath}: failed to read downloaded artifact: {e}"
-        modify ({· with didError := true})
+        recordFailure i true s!"{tmpPath}: failed to read downloaded artifact: {e}"
     | .put =>
       logInfo s!"{cfg.scope}: uploaded artifact {hash}\
         \n  local path: {path}\
         \n  remote URL: {url}"
-      modify fun s => {s with numSuccesses := s.numSuccesses + 1}
-  handleFailure info code? out line : LoggerIO Unit := do
+      recordSuccess i
+  handleFailure i info retryable code? out line : StateT TransferState LoggerIO Unit := do
     let action := match cfg.kind with | .get => "download" | .put => "upload"
     let mut msg := s!"{cfg.scope}: failed to {action} artifact {info.hash}"
     if let .ok code := code? then
@@ -849,12 +898,13 @@ where
         if size > 0 then
           if let some resp := String.fromUTF8? (← hOut.read size.toUSize) then
             msg := s!"{msg}\nunexpected response:\n{resp}"
-    logError msg
+    recordFailure i retryable msg
     logVerbose s!"curl JSON: {line.trimAsciiEnd}"
 
-def transferArtifacts
+/-- Performs one attempt of a batch transfer: spawns `curl` and monitors its transfers. -/
+def runTransferAttempt
   (cfg : TransferConfig)
-: LoggerIO Unit := IO.FS.withTempFile fun h path => do
+: LoggerIO TransferState := IO.FS.withTempFile fun h path => do
   let args ← id do
     match cfg.kind with
     | .get =>
@@ -888,15 +938,34 @@ def transferArtifacts
   let s ← monitorTransfer cfg child.stderr child.stdout {}
   let rc ← child.wait
   let stdout ← child.stdout.readToEnd
-  let mut didError := s.didError
-  if s.numSuccesses < cfg.infos.size then
-    let action := match cfg.kind with | .get => "download" | .put => "upload"
-    logError s!"{cfg.scope}: failed to {action} some artifacts"
-    didError := true
   unless stdout.isEmpty do
     logWarning s!"{cfg.scope}: curl produced unexpected output:\n{stdout.trimAsciiEnd}"
   if rc != 0 then
-    logError s!"{cfg.scope}: curl exited with code {rc}"
+    -- Failures are settled per transfer; curl's own exit code is redundant
+    let msg := s!"{cfg.scope}: curl exited with code {rc}"
+    if cfg.finalAttempt then logWarning msg else logVerbose msg
+  return s
+
+def transferArtifacts (cfg : TransferConfig) : LoggerIO Unit := do
+  let attempts ← getTransferAttempts
+  let action := match cfg.kind with | .get => "download" | .put => "upload"
+  let mut didError := false
+  let mut numSuccesses := 0
+  let mut infos := cfg.infos
+  for attempt in [1:attempts+1] do
+    let finalAttempt := attempt == attempts
+    let s ← runTransferAttempt {cfg with infos, finalAttempt}
+    didError := didError || s.didError
+    numSuccesses := numSuccesses + s.numSuccesses
+    let retry := infos.zipIdx.filterMap fun (info, i) =>
+      if s.settled.contains i then none else some info
+    if retry.isEmpty then
+      break
+    infos := retry
+    unless finalAttempt do
+      logWarning s!"{cfg.scope}: retrying {retry.size} failed {action}(s) (attempt {attempt+1} of {attempts})"
+  if numSuccesses < cfg.infos.size then
+    logError s!"{cfg.scope}: failed to {action} some artifacts"
     didError := true
   if didError then
     failure

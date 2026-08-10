@@ -85,6 +85,7 @@ NUM_REPLAY_ARTS=8
 
 # The `dep` package's library has a single module
 NUM_DEP_ARTS=1
+NUM_DEP_REPLAY_ARTS=4
 
 # Runs a command with the cache endpoints set through the environment,
 # which is the deprecated alternative to a configured service
@@ -127,12 +128,16 @@ test_err 'the `--platform` and `--toolchain` options do nothing' \
   cache get bogus.jsonl --scope='bogus' --toolchain='bogus' --wfail
 test_err 'a custom endpoint must be set (not Reservoir)' cache get --scope='bogus'
 test_err 'unknown package `bogus`' cache get --package='bogus'
+test_err 'the `--rev` option is not supported for a Reservoir `cache get`' \
+  cache get --rev=bogus
 with_endpoints test_err 'the `--scope` or `--repo` option must be set' cache get
 LAKE_CACHE_ARTIFACT_ENDPOINT=bogus test_err 'both environment variables must be set' cache get
 LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'both environment variables must be set' cache get
 
 # Verify `cache put` rejects bad configurations
 with_endpoints test_err 'the `--scope` or `--repo` option must be set' cache put bogus.jsonl
+test_err 'the `--package` option is not supported for `cache put`' \
+  cache put bogus.jsonl --scope='bogus' --package='bogus'
 test_err 'the `--rev` option is not supported for `cache put`' \
   cache put bogus.jsonl --scope='bogus' --rev=bogus
 test_err 'the `--service` option must be set' \
@@ -147,6 +152,8 @@ LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be
 # Verify `cache put-staged` rejects bad configurations
 with_endpoints test_err 'the `--scope` or `--repo` option must be set' \
   cache put-staged bogus
+test_err 'the `--package` option does nothing for `cache put-staged`' \
+  cache put-staged bogus --scope='bogus' --package='bogus'
 test_err 'the `--service` option must be set' \
   cache put-staged bogus --scope='bogus'
 LAKE_CACHE_KEY= test_err 'the `--service` option must be set' \
@@ -161,6 +168,9 @@ test_err '`--scope` and `--repo` require `--service`' \
   cache add bogus.jsonl --scope='bogus'
 test_err '`--scope` and `--repo` require `--service`' \
   cache add bogus.jsonl --repo='leanprover/bogus'
+test_err 'unknown package `bogus`' cache add bogus.jsonl --package='bogus'
+# The package is selected with `--package`, not a positional argument
+test_err 'unexpected arguments: bogus' cache add bogus.jsonl bogus
 
 # Verify a revision that cannot be resolved or has no outputs is reported
 test_err 'revision not found' cache get --repo='leanprover/bogus' --rev='bogus'
@@ -385,6 +395,14 @@ test_exp -d "$CACHE_DIR/outputs/dep"
 test_exp ! -e "$CACHE_DIR/outputs/test"
 test_artifacts "$NUM_DEP_ARTS"
 test_run -f dep.toml build @dep/Dep --no-build
+
+# Verify `cache add` attaches mappings to the selected package,
+# whose artifacts are then fetched on demand
+test_cmd rm -rf dep/.lake/build .lake/build "$CACHE_DIR"
+test_run -f dep.toml cache add dep-outputs.jsonl --package=dep --scope=dep --service=ok
+test_artifacts 0
+test_out 'downloaded artifact' -f dep.toml -v build @dep/Dep --no-build
+test_artifacts "$NUM_DEP_REPLAY_ARTS"
 test_run update
 
 # Verify a malformed artifact URL lookup is reported

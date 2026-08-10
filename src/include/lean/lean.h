@@ -476,8 +476,10 @@ void * malloc(size_t);  // avoid including big `stdlib.h`
 static inline void * lean_malloc_non_tagged(size_t sz) {
 #if defined(__has_feature)
 #if __has_feature(hwaddress_sanitizer)
-    // LEAN_PTR_PACKING needs top bits.
-    // https://github.com/leanprover/lean4/issues/13113.
+    // In order to justify setting `LEAN_PTR_PACKING_SAFE` to true,
+    // we must ensure that hwasan does not tag our object pointers.
+    // This limits the usefulness of hwasan for Lean itself, but at
+    // least allows it to be used on larger binaries containing Lean.
     __hwasan_disable_allocator_tagging();
     void* r = malloc(sz);
     __hwasan_enable_allocator_tagging();

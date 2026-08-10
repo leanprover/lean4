@@ -32,8 +32,8 @@ private def natCastToInt? (e : Expr) : Option Expr :=
   | NatCast.natCast _ inst a =>
     let_expr instNatCastInt := inst | none
     some a
-  | Grind.ToInt.toInt _ _ _ a => some a
   | _ => none
+  -- TODO: add support for new `toInt` and `toNat`
 
 def getAssignment? (goal : Goal) (e : Expr) : MetaM (Option Rat) := do
   let node ← goal.getENode (← goal.getRoot e)

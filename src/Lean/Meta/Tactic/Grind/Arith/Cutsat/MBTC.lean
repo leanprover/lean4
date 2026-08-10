@@ -30,21 +30,7 @@ private def getAssignmentExt? (e : Expr) : GoalM (Option Rat) := do
       let_expr NatCast.natCast _ inst _ := parent | pure ()
       let_expr instNatCastInt := inst | pure ()
       return (← getAssignment? (← get) parent)
-  else
-    -- It may be a `ToInt` term.
-    if let some x := (← get').toIntVarMap.find? { expr := e } then
-      -- If there is an int variable `x` for `toInt e`, use its assignment.
-      if let some val ← getAssignment? (← get) x then
-        return some val
-    if let some info := (← get').toIntTermMap.find? { expr := e } then
-      -- If `toInt e` is an integer value, return it.
-      if let some val ← getIntValue? info.eToInt then
-        return some val
-      -- If `toInt e` is a composite int term that has been internalized
-      -- and has an assignment, return it.
-      if (← alreadyInternalized info.eToInt) then
-        if let some val ← getAssignment? (← get) info.eToInt then
-          return some val
+  -- TODO: add support for `toInt` and `toNat`
   return none
 
 /--

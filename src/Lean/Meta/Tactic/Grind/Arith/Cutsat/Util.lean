@@ -32,6 +32,11 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 
 open Lean
 
+/-- Returns `true` if cutsat natively supports `type`. -/
+def isSupportedType (type : Expr) : GoalM Bool :=
+  return type == Nat.mkType || type == Int.mkType
+  -- TODO: add support for `toInt` and `toNat`
+
 def get' : GoalM State := do
   cutsatExt.getState
 

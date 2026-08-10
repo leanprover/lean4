@@ -5,10 +5,9 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Init.Data.Int.OfNat
 import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 import Lean.Meta.NatInstTesters
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
@@ -80,9 +79,9 @@ private partial def natToInt' (e : Expr) : GoalM (Expr × Expr) := do
     else
       mkNatVar e
   | Fin.val n a =>
-    -- [ToInt experiment] `toInt?` branch disabled together with the `ToInt` instances;
-    -- it constructed the result via `Nat.ToInt.finVal`, whose statement needs the
-    -- `Fin` instance.
+    -- `Fin.val` is treated as an opaque `Nat` variable; the range fact `Fin.isLt` is
+    -- the one piece of `Fin`-specific information asserted here. Value-level reasoning
+    -- for `Fin` is provided by the `[grind hom]` rules.
     let alreadyProcessed := (← get').natToIntMap.contains { expr := e }
     let r ← mkNatVar e
     unless alreadyProcessed do pushNewFact <| mkApp2 (mkConst ``Fin.isLt) n a

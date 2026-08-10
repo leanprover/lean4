@@ -224,7 +224,8 @@ private def wpConsumeMData? (goal : MVarId) (info : WPApp) : VCGenM (Option MVar
 usual let-introduction runs (`wpLet?`) and `tryJPGadget?` then registers it. -/
 private def tryMarkJP? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
   unless (← read).useJP do return none
-  let .letE name ty val body nondep := info.prog.getAppFn | return none
+  -- `wp`'s program argument carries the monad's type, so the `let` stands on its own here.
+  let .letE name ty val body nondep := info.prog | return none
   unless Lean.Elab.Tactic.Do.isJP name do return none
   unless val.isLambda do return none
   if body.getAppFn.isConstOf ``Std.Internal.Do.jpGadget then return none
@@ -232,7 +233,7 @@ private def tryMarkJP? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) :
   let uβ ← Sym.getLevel ty
   let wrapped := Expr.letE name ty val
     (mkAppN (mkConst ``Std.Internal.Do.jpGadget [uα, uβ]) #[info.Prog, ty, .bvar 0, body]) nondep
-  return some (← replaceProgDefEq goal info (← mkAppRevS wrapped info.prog.getAppRevArgs))
+  return some (← replaceProgDefEq goal info wrapped)
 
 /-- Strategy 11a: hoist or zeta-substitute a `let` from the program head. -/
 private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do

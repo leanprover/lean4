@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.BuiltinDo.Basic
 meta import Lean.Parser.Do
+meta import Std.Internal.Do.Gadget.ForIn
 import Init.Control.Do
 import Init.Data.Sum.Basic
 import Init.While
@@ -99,32 +100,49 @@ private def checkPureForIn (invClause : Syntax) (h? : Option Syntax) (xs α : Ex
       iterating the container produces its elements without effects.")
 
 /-- The assertion language of the `do` block's monad, which `WPMonad` computes as an output
-parameter. The instance is demanded through an instance metavariable, so an instance that is not
-available yet postpones with the rest of the elaboration. -/
+parameter: synthesizing `WPMonad StateM Nat _ _` assigns `Nat → Prop` for the assertions of
+`StateM Nat`. The result is what the monad's assertions are known to be right here, so a monad
+whose instance is not available reports nothing. The type is built from syntax so that the
+universes and the instance arguments of the class come from elaboration. -/
 private def assertionLanguage? : DoElabM (Option Expr) := do
-  unless (← getEnv).contains `Std.Internal.Do.WPMonad do return none
+  unless (← getEnv).contains ``Std.Internal.Do.WPMonad do return none
   let wpTy ← Term.elabType <| ←
-    `($(mkIdent `Std.Internal.Do.WPMonad) $(← Term.exprToSyntax (← read).monadInfo.m) _ _)
-  discard <| Term.mkInstMVar wpTy
+    `($(mkIdent ``Std.Internal.Do.WPMonad) $(← Term.exprToSyntax (← read).monadInfo.m) _ _)
+  let .some _ ← trySynthInstance wpTy | return none
   let some pred := wpTy.getAppArgs[1]? | return none
   let pred ← instantiateMVars pred
   return if pred.hasExprMVar then none else some pred
 
 /-- Report a clause that binds more arguments than the loop's assertions take, such as the state of
 a state monad. The language's arguments are the arrows before its result. -/
-private def checkAssertionBinders (ref : Syntax) (what : String) (binders : Nat) :
-    DoElabM Unit := withRef ref do
-  let some pred ← assertionLanguage? | return
-  let rec count (e : Expr) (n : Nat) : Nat :=
-    match e with
-    | .forallE _ _ b _ => count b (n + 1)
-    | _ => n
-  let arity := count pred 0
+private def checkAssertionBinders (ref : Syntax) (what : String) (binders : Nat)
+    (pred? : Option Expr) : DoElabM Unit := do
+  if binders == 0 then return
+  let some pred := pred? | return
+  let arity := pred.getForallArity
   if binders > arity then
     let takes := if arity == 1 then m!"one argument" else m!"{arity} arguments"
     let has := if binders == 1 then m!"one binder" else m!"{binders} binders"
     throwErrorAt ref "The {what} of a loop in this monad takes {takes}, and this clause has \
       {has}. The loop's mutable variables are named without binding them."
+
+/-- Bind the arguments of an assertion, which the clause states after the loop's own binders. -/
+private def mkAssertionFun (binders : TSyntaxArray ``Lean.Parser.Term.funBinder) (body : Term) :
+    DoElabM Term :=
+  if binders.isEmpty then pure body else `(fun $binders* => $body)
+
+/-- The pattern that names the loop's mutable variables in the state tuple, whose layout is
+`[return?, mutVars…, unit?]`; the early-return slot becomes a wildcard. -/
+private def mkStatePat (loopMutVars : Array MutVar) (returnsEarly : Bool) : DoElabM Term := do
+  let hole ← `(_)
+  let mut binders : Array Term := #[]
+  if returnsEarly then binders := binders.push hole
+  for mv in loopMutVars do binders := binders.push ⟨mv.ident.raw⟩
+  if returnsEarly && loopMutVars.isEmpty then binders := binders.push hole
+  match binders with
+    | #[]  => `(_)
+    | #[b] => pure b
+    | _    => `(⟨$binders,*⟩)
 
 /-- The already-elaborated pieces of a `forIn` application that an annotation's gadget is
 built from. -/
@@ -137,35 +155,18 @@ structure ForInApp where
   body : Expr
   /-- The type of the state tuple. -/
   σ : Expr
-  /-- The mutable variables carried through the loop, in state-tuple order. -/
-  loopMutVars : Array MutVar
-  /-- Whether the state tuple carries an early-return slot. -/
-  returnsEarly : Bool
-
-/-- The pattern that names the loop's mutable variables in the state tuple, whose layout is
-`[return?, mutVars…, unit?]`; the early-return slot becomes a wildcard. -/
-private def ForInApp.statePat (g : ForInApp) : DoElabM Term := do
-  let hole ← `(_)
-  let mut binders : Array Term := #[]
-  if g.returnsEarly then binders := binders.push hole
-  for mv in g.loopMutVars do binders := binders.push ⟨mv.ident.raw⟩
-  if g.returnsEarly && g.loopMutVars.isEmpty then binders := binders.push hole
-  match binders with
-    | #[]  => `(_)
-    | #[b] => pure b
-    | _    => `(⟨$binders,*⟩)
+  /-- The pattern naming the loop's mutable variables in the state tuple. -/
+  statePat : Term
 
 /-- Abstract `e` over the loop's state tuple, so that `e` may name the loop's mutable variables. -/
-private def ForInApp.mkStateFun (g : ForInApp) (ref : Syntax) (e : Term) : DoElabM Term := do
-  let s := mkIdentFrom ref (← mkFreshUserName `__s)
-  `(fun $s:ident => match $s:ident with | $(← g.statePat) => $e)
+private def ForInApp.mkStateFun (g : ForInApp) (e : Term) : DoElabM Term :=
+  `(fun $(g.statePat) => $e)
 
 /-- Abstract `e` over the cursor of a `repeat` loop, so that `e` may name the loop's mutable
 variables whether the loop is iterating or done. -/
-private def ForInApp.mkRepeatCursorFun (g : ForInApp) (cursor : Ident) (e : Term) :
-    DoElabM Term := do
-  let pat ← g.statePat
-  `(fun $cursor:ident => match $cursor:ident with | .inl $pat | .inr $pat => $e)
+private def ForInApp.mkCursorFun (g : ForInApp) (cursor : Ident) (e : Term) : DoElabM Term :=
+  `(fun $cursor:ident => match $cursor:ident with
+      | .inl $(g.statePat) | .inr $(g.statePat) => $e)
 
 /-- Elaborate the gadget application that replaces the loop. The gadgets live downstream of this
 module, so `gadget` is an unresolved name that resolves in the user's context. -/
@@ -178,25 +179,34 @@ private def ForInApp.mkCall (g : ForInApp) (ref : Syntax) (gadget : Name)
     $(← Term.exprToSyntax g.body) $annotations*)
   Term.elabTermEnsuringType call (mkApp (← read).monadInfo.m g.σ)
 
+/-- The binders and body of an `invariant` clause. An ascription covering the binder list would
+cover the loop's binders and the assertion's alike, so it is reported here. -/
+private def destructInvariant (invClause : TSyntax ``doLoopInvariant) :
+    DoElabM (TSyntaxArray ``Lean.Parser.Term.funBinder × Term) := do
+  if let `(doLoopInvariant| invariant $_* : $ty => $_) := invClause then
+    throwErrorAt ty "The `invariant` clause takes no type ascription covering all its binders; \
+      ascribe the type on an individual binder, as in `invariant (pref : List α) suff => ...`."
+  let `(doLoopInvariant| invariant $binders* => $body) := invClause | throwUnsupportedSyntax
+  return (binders, body)
+
 /-- Rebuild the loop over a collection as a `forInPureWithInvariant` call carrying the `invariant`
 clause, or `forInPureWithInvariant'` for a membership-proof binder (`for h : x in xs`). The
 invariant names the loop's mutable variables directly; its first two binders are the elements
 consumed so far and the elements remaining, and binders past them bind the arguments of the
 assertion itself. -/
-private def mkForInPureWithInvariant (g : ForInApp) (invClause : Syntax) (h? : Option Syntax)
-    (α : Expr) : DoElabM Expr := do
-  let `(doLoopInvariant| invariant $binders* => $invBody) := invClause | throwUnsupportedSyntax
+private def mkForInPureWithInvariant (g : ForInApp) (invClause : TSyntax ``doLoopInvariant)
+    (h? : Option Ident) (α : Expr) : DoElabM Expr := do
+  let (binders, invBody) ← destructInvariant invClause
   checkPureForIn invClause h? g.xs α (← read).monadInfo
   unless binders.size ≥ 2 do
     throwErrorAt invClause "The `invariant` clause takes at least two binders: the elements \
       consumed so far and the elements remaining."
-  let loopBinders := binders.take 2
   let assertionBinders := binders.extract 2
-  let invBody ← if assertionBinders.isEmpty then pure invBody else
-    `(fun $assertionBinders* => $invBody)
-  let invLam ← `(fun $loopBinders* => $(← g.mkStateFun invClause invBody))
-  let gadget := if h?.isSome then `Std.Internal.Do.forInPureWithInvariant'
-    else `Std.Internal.Do.forInPureWithInvariant
+  checkAssertionBinders invClause "invariant" assertionBinders.size (← assertionLanguage?)
+  let invBody ← mkAssertionFun assertionBinders invBody
+  let invLam ← `(fun $(binders.take 2)* => $(← g.mkStateFun invBody))
+  let gadget := if h?.isSome then ``Std.Internal.Do.forInPureWithInvariant'
+    else ``Std.Internal.Do.forInPureWithInvariant
   g.mkCall invClause gadget #[invLam]
 
 /-- Rebuild the loop of a `repeat` as a `forInLoopWithInvariantAndVariant` call carrying the
@@ -204,65 +214,45 @@ private def mkForInPureWithInvariant (g : ForInApp) (invClause : Syntax) (h? : O
 mutable variables directly. The `invariant` clause is a function of the `Bool` that says whether the
 loop has left; the cursor's own payload is the state tuple, which the mutable variables already
 name. -/
-private def mkForInLoopWithInvariantAndVariant (g : ForInApp) (inv? dec? : Option Syntax) :
+private def mkForInLoopWithInvariantAndVariant (g : ForInApp)
+    (inv? : Option (TSyntax ``doLoopInvariant)) (dec? : Option (TSyntax ``doLoopDecreasing)) :
     DoElabM Expr := do
-  let ref := inv?.getD (dec?.getD .missing)
+  let pred? ← assertionLanguage?
   let invArg ← match inv? with
     | none =>
       -- An absent invariant states nothing, so its assertion language comes from the monad.
-      let pred ← match ← assertionLanguage? with
+      let pred ← match pred? with
         | some pred => Term.exprToSyntax pred
         | none => `(_)
-      `((none : Option ($(mkIdent `Std.Internal.Do.RepeatInvariant) _ _ $pred)))
+      `((none : Option ($(mkIdent ``Std.Internal.Do.RepeatInvariant) _ _ $pred)))
     | some invClause =>
+      let (binders, invBody) ← destructInvariant invClause
+      let exitBinder := binders[0]!
+      let assertionBinders := binders.extract 1
+      checkAssertionBinders invClause "invariant" assertionBinders.size pred?
+      let invBody ← mkAssertionFun assertionBinders invBody
       let cursor := mkIdentFrom invClause (← mkFreshUserName `__c)
-      let hasLeft ← `($(mkIdent ``Sum.isRight) $cursor:ident)
-      let `(doLoopInvariant| invariant $exitBinder $assertionBinders* => $invBody) := invClause
-        | throwUnsupportedSyntax
-      checkAssertionBinders invClause "invariant" assertionBinders.size
-      let invBody ← if assertionBinders.isEmpty then pure invBody else
-        `(fun $assertionBinders* => $invBody)
       let invBody ← if exitBinder.raw.isOfKind ``hole then pure invBody else
         let exitPat : Term := ⟨exitBinder.raw⟩
+        let hasLeft ← `($(mkIdent ``Sum.isRight) $cursor:ident)
         `(match $hasLeft:term with | $exitPat => $invBody)
       -- `RepeatInvariant.mk` keeps the clause's declared type on the term. A bare lambda carries
       -- the unfolded type, and a specification's instance arguments are synthesized before the
       -- check that would unfold it.
-      `(some ($(mkIdent `Std.Internal.Do.RepeatInvariant.mk)
-        $(← g.mkRepeatCursorFun cursor invBody)))
+      `(some ($(mkIdent ``Std.Internal.Do.RepeatInvariant.mk) $(← g.mkCursorFun cursor invBody)))
   let varArg ← match dec? with
     | none =>
       -- Nothing determines the codomain of an absent measure.
       `((none : Option (_ → Unit)))
     | some decClause =>
-      -- Binders past the clause bind the arguments of the measure itself, as they do for an
-      -- assertion.
-      let measure ← match decClause with
-        | `(doLoopDecreasing| decreasing $binders* => $body) =>
-          checkAssertionBinders decClause "measure" binders.size
-          `(fun $binders* => $body)
-        | `(doLoopDecreasing| decreasing $measure:term) => pure measure
+      let (binders, body) ← match decClause with
+        | `(doLoopDecreasing| decreasing $binders* => $body) => pure (binders, body)
+        | `(doLoopDecreasing| decreasing $measure:term) => pure (#[], measure)
         | _ => throwUnsupportedSyntax
-      `(some $(← g.mkStateFun decClause measure))
-  g.mkCall ref `Std.Internal.Do.forInLoopWithInvariantAndVariant #[invArg, varArg]
-
-/-- Rebuild the already-elaborated loop as the `vcgen` gadget its annotation calls for. The `Loop`
-of a `repeat` takes an invariant over its cursor and a termination measure; a loop over a collection
-terminates with the collection, so it takes only an invariant. -/
-private def mkLoopGadget (g : ForInApp) (inv? dec? : Option Syntax) (h? : Option Syntax)
-    (ρ α : Expr) : DoElabM Expr := do
-  if let some invClause := inv? then
-    if let `(doLoopInvariant| invariant $_* : $ty => $_) := invClause then
-      throwErrorAt ty "The `invariant` clause takes no type ascription covering all its binders; \
-        ascribe the type on an individual binder, as in `invariant (pref : List α) suff => ...`."
-  if (← instantiateMVars ρ).isConstOf ``Lean.Loop then
-    mkForInLoopWithInvariantAndVariant g inv? dec?
-  else
-    if let some decClause := dec? then
-      throwErrorAt decClause "A `for` loop terminates with the collection it iterates; \
-        `decreasing` states the termination measure of a `repeat` or `while` loop."
-    let some invClause := inv? | throwUnsupportedSyntax
-    mkForInPureWithInvariant g invClause h? α
+      checkAssertionBinders decClause "measure" binders.size pred?
+      `(some $(← g.mkStateFun (← mkAssertionFun binders body)))
+  g.mkCall (inv?.map (·.raw) |>.getD (dec?.map (·.raw) |>.getD .missing))
+    ``Std.Internal.Do.forInLoopWithInvariantAndVariant #[invArg, varArg]
 
 @[builtin_doElem_elab Lean.Parser.Term.doFor] def elabDoFor : DoElab := fun stx dec => do
   let `(doFor| for%$tk $[$h? : ]? $x:ident in $xs
@@ -364,10 +354,19 @@ private def mkLoopGadget (g : ForInApp) (inv? dec? : Option Syntax) (h? : Option
     -- Elaborate the loop body, which must have result type `PUnit`, just like the whole `for` loop.
     elabDoSeq body { dec with k := continueCont, kind := .duplicable }
 
+  -- A loop over `Lean.Loop` is what `repeat` and `while` expand to, and it is the only one whose
+  -- termination the program has to state.
   let mut forIn := mkApp app body
   unless inv?.isNone && dec?.isNone do
-    forIn ← mkLoopGadget { xs, init := preS, body, σ, loopMutVars, returnsEarly := info.returnsEarly }
-        (inv?.map (·.raw)) (dec?.map (·.raw)) (h?.map (·.raw)) ρ α
+    let g : ForInApp :=
+      { xs, init := preS, body, σ, statePat := ← mkStatePat loopMutVars info.returnsEarly }
+    if (← instantiateMVars ρ).isConstOf ``Lean.Loop then
+      forIn ← mkForInLoopWithInvariantAndVariant g inv? dec?
+    else if let some decClause := dec? then
+      throwErrorAt decClause "A `for` loop terminates with the collection it iterates; \
+        `decreasing` states the termination measure of a `repeat` or `while` loop."
+    else if let some invClause := inv? then
+      forIn ← mkForInPureWithInvariant g invClause h? α
 
   let γ := (← read).doBlockResultType
   let rest ←

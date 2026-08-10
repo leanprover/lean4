@@ -1101,7 +1101,7 @@ theorem forall_mem_iff_forall_getElem {P : α → Prop} {xs : Vector α n} :
     (∀ x ∈ xs, P x) ↔ ∀ (i : Nat) (hi : i < n), P (xs[i]) := by
   cases xs; simp [*, Array.forall_mem_iff_forall_getElem]
 
-@[deprecated forall_mem_iff_forall_getElem (since := "2026-01-29")]
+@[deprecated forall_mem_iff_forall_getElem +typeChanged (since := "2026-01-29")]
 theorem forall_getElem {xs : Vector α n} {p : α → Prop} :
     (∀ (i : Nat) h, p (xs[i]'h)) ↔ ∀ a, a ∈ xs → p a :=
   forall_mem_iff_forall_getElem.symm

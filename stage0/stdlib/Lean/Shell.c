@@ -52,7 +52,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_getOptionDecls();
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* l_String_Slice_toName(lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Language_Lean_setOption(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
@@ -2636,7 +2636,7 @@ v___x_642_ = lean_string_utf8_next_fast(v_arg_629_, v___y_632_);
 lean_dec(v___y_632_);
 v_name_643_ = l_String_Slice_toName(v___x_641_);
 lean_dec_ref_known(v___x_641_, 3);
-v_val_644_ = lean_string_utf8_extract(v_arg_629_, v___x_642_, v___x_633_);
+v_val_644_ = lean_string_utf8_extract_fast(v_arg_629_, v___x_642_, v___x_633_);
 lean_dec_ref(v_arg_629_);
 v___x_645_ = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(v_a_636_, v_name_643_);
 lean_dec(v_a_636_);
@@ -4874,9 +4874,9 @@ if (v___x_1596_ == 0)
 lean_object* v___x_1597_; lean_object* v___x_1598_; lean_object* v___x_1599_; lean_object* v___x_1600_; lean_object* v___x_1602_; 
 v___x_1597_ = lean_unsigned_to_nat(0u);
 v___x_1598_ = lean_string_utf8_next_fast(v_a_1539_, v___y_1594_);
-v___x_1599_ = lean_string_utf8_extract(v_a_1539_, v___x_1597_, v___y_1594_);
+v___x_1599_ = lean_string_utf8_extract_fast(v_a_1539_, v___x_1597_, v___y_1594_);
 lean_dec(v___y_1594_);
-v___x_1600_ = lean_string_utf8_extract(v_a_1539_, v___x_1598_, v___x_1595_);
+v___x_1600_ = lean_string_utf8_extract_fast(v_a_1539_, v___x_1598_, v___x_1595_);
 if (v_isShared_1542_ == 0)
 {
 lean_ctor_set_tag(v___x_1541_, 1);
@@ -11286,7 +11286,7 @@ else
 {
 lean_object* v___x_3298_; 
 lean_dec_ref(v___x_3272_);
-v___x_3298_ = lean_string_utf8_extract(v_str_3266_, v___x_3270_, v_endExclusive_3268_);
+v___x_3298_ = lean_string_utf8_extract_fast(v_str_3266_, v___x_3270_, v_endExclusive_3268_);
 lean_dec(v_endExclusive_3268_);
 lean_dec(v___x_3270_);
 lean_dec_ref(v_str_3266_);

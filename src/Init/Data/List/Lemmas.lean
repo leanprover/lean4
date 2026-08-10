@@ -1374,7 +1374,7 @@ theorem foldr_filter {p : α → Bool} {f : α → β → β} {l : List α} {ini
   | cons a l IH => by_cases h : p (f a) <;> simp [*]
 
 theorem map_filter_eq_foldr {f : α → β} {p : α → Bool} {as : List α} :
-    map f (filter p as) = foldr (fun a bs => bif p a then f a :: bs else bs) [] as := by
+    map f (filter p as) = foldr (fun a bs => if p a then f a :: bs else bs) [] as := by
   induction as with
   | nil => rfl
   | cons head _ ih =>

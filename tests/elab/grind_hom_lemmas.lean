@@ -16,7 +16,7 @@ def showMatches (declName : Name) : MetaM Unit := do
   lambdaTelescope value fun _ body => SymM.run do
     let body ← share body
     let thms ← Grind.getHomoTheorems
-    for thm in thms.getMatch body do
+    for thm in thms.getMatch (← getMCtx) body do
       logInfo m!"{thm.expr}"
 
 /--

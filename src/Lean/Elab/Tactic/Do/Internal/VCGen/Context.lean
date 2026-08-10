@@ -60,6 +60,12 @@ public structure VCGen.BackwardRules where
   /-- The backward rule for `Lean.Order.ofProp_le`. Introduces an embedded pure
   precondition `⌜p⌝` on any complete lattice. -/
   ofPropPreIntro : BackwardRule
+  /-- The backward rule for `Lean.Order.ofProp_meet_le`. Introduces the guard of a
+  `⌜p⌝ ⊓ P` precondition on any complete lattice, leaving `P`. -/
+  ofPropMeetPreIntro : BackwardRule
+  /-- The backward rule for `Lean.Order.iSup_le`. Eliminates an `iSup` precondition,
+  leaving the pointwise entailment for `∀`-introduction. -/
+  iSupPreIntro : BackwardRule
   /-- The backward rule for `Lean.Order.true_le_of_top_le`. Replaces a `True` precondition
   with `⊤` on the `Prop` lattice. -/
   truePreIntro : BackwardRule
@@ -84,6 +90,8 @@ public def VCGen.mkBackwardRules : MetaM VCGen.BackwardRules := do
     stateArgIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_of_forall_le
     propPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_of_imp_top_le
     ofPropPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.ofProp_le
+    ofPropMeetPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.ofProp_meet_le
+    iSupPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.iSup_le
     truePreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.true_le_of_top_le
     elimPre := ← mkBackwardRuleFromDecl ``Lean.Order.top_le_prop
     andIntro := ← mkBackwardRuleFromDecl ``And.intro
@@ -98,9 +106,6 @@ public structure VCGen.Context where
   /-- The `@[frameproc]` registry snapshot taken at frontend init. `solve` selects a procedure per
   program node by the node's monad. -/
   frameProcs : VCGen.FrameProcs := {}
-  /-- Lattice splits keyed by operator head, merging the built-in connectives with the registered
-  frame operators. Built once at frontend init; `splitLatticeOp?` looks a head up here. -/
-  latticeOps : Std.HashMap Name VCGen.LatticeOp := {}
   /-- User-customizable simp methods used to pre-simplify hypotheses. -/
   hypSimpMethods : Option Sym.Simp.Methods := none
   /-- The `trivial` config option: when `true` (default), `Driver.emitVC` runs
@@ -174,9 +179,9 @@ public structure VCGen.State where
   sound because it is a subterm of the hash-consed goal target.
   -/
   latticeBackwardRuleCache : Std.HashMap (ExprPtr × Nat) BackwardRule := {}
-  /-- Caches the `F`-abstract upper-adjoint frame rule (`op_wp_upperAdjoint_le_wp`), keyed by the
-  `WPMonad` instance and the number of excess state arguments. -/
-  frameBackwardRuleCache : Std.HashMap (ExprPtr × Nat) BackwardRule := {}
+  /-- Caches the frame rule (`WP.Frames.op_wp_upperAdjoint_le_wp`), keyed by the `WPMonad` instance
+  and the number of excess state arguments. -/
+  frameBackwardRuleCache : Std.HashMap (ExprPtr × Nat) FrameBackwardRule := {}
   /-- The frame database from the `frames` clause. -/
   frameDB : FrameDB := {}
   /--

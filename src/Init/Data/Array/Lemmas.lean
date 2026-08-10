@@ -1488,7 +1488,7 @@ theorem filter_map {f : β → α} {xs : Array β} : filter p (map f xs) = map f
   simp [List.filter_map]
 
 theorem map_filter_eq_foldl {f : α → β} {p : α → Bool} {xs : Array α} :
-    map f (filter p xs) = foldl (fun acc x => bif p x then acc.push (f x) else acc) #[] xs := by
+    map f (filter p xs) = foldl (fun acc x => if p x then acc.push (f x) else acc) #[] xs := by
   rcases xs with ⟨xs⟩
   apply ext'
   simp only [List.size_toArray, List.filter_toArray', List.map_toArray, List.foldl_toArray']

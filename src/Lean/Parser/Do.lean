@@ -178,9 +178,10 @@ def doForDecl := leading_parser
   optional (atomic (ident >> " : ")) >> termParser >> " in " >>
     withForbiddens #["do", "invariant"] termParser
 /--
-The optional `invariant cur => e` clause of a `for` loop. The invariant annotates the loop so
-`vcgen` reads it from the program, with `cur` bound to the iteration cursor and mutable variables
-referenced by name.
+The optional `invariant pref suff a b c => e` clause of a `for` loop. The invariant annotates the
+loop so `vcgen` reads it from the program, with `pref` bound to the elements consumed so far, `suff`
+to the elements remaining, and mutable variables referenced by name. Any further binders, here
+`a b c`, bind the arguments of the assertion itself, such as the state of a state monad.
 -/
 def doForInvariant := leading_parser
   ppSpace >> nonReservedSymbol "invariant" >> withForbidden "do" basicFun
@@ -299,6 +300,14 @@ with debug assertions enabled (see the `debugAssertions` option).
 -/
 @[builtin_doElem_parser] def doDebugAssert := leading_parser:leadPrec
   "debug_assert! " >> termParser
+/--
+`assert P` states that `P` holds at this point in the program. The form `assert s => P s` binds the
+arguments of the assertion itself, such as the state of a state monad. `vcgen` reads the assertion
+from the program and proves it; at runtime the element does nothing.
+-/
+@[builtin_doElem_parser default+10] def doAssertion := leading_parser:leadPrec
+  nonReservedSymbol "assert" (includeIdent := true) >>
+    (atomic basicFun <|> (ppSpace >> termParser))
 
 @[builtin_doElem_parser] def doRepeat      := leading_parser
   "repeat " >> doSeq

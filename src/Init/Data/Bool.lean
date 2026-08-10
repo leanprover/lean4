@@ -526,21 +526,24 @@ theorem exists_bool {p : Bool → Prop} : (∃ b, p b) ↔ p false ∨ p true :=
 
 /-! ### cond -/
 
+theorem cond_true  {α : Sort u} {a b : α} : cond true  a b = a := rfl
+theorem cond_false {α : Sort u} {a b : α} : cond false a b = b := rfl
+
+@[simp]
 theorem cond_eq_ite {α} (b : Bool) (t e : α) : cond b t e = if b then t else e := by
-  cases b <;> simp
+  cases b <;> simp [Bool.cond_true, Bool.cond_false]
 
 @[deprecated cond_eq_ite +typeChanged (since := "2025-10-29")]
 theorem cond_eq_if : (bif b then x else y) = (if b then x else y) := cond_eq_ite b x y
 
-@[simp] theorem cond_not (b : Bool) (t e : α) : cond (!b) t e = cond b e t := by
+theorem cond_not (b : Bool) (t e : α) : cond (!b) t e = cond b e t := by
   cases b <;> rfl
 
-@[simp] theorem cond_self (c : Bool) (t : α) : cond c t t = t := by cases c <;> rfl
+theorem cond_self (c : Bool) (t : α) : cond c t t = t := by simp
 
-/-- If the return values are propositions, there is no harm in simplifying a `bif` to an `if`. -/
-@[simp] theorem cond_prop {b : Bool} {p q : Prop} :
+theorem cond_prop {b : Bool} {p q : Prop} :
     (bif b then p else q) ↔ if b then p else q := by
-  cases b <;> simp
+  simp
 
 /-
 This is a simp rule in Mathlib, but results in non-confluence that is difficult
@@ -557,48 +560,51 @@ operations like `cond` to a mix of `Prop` and `Bool`.
 -/
 theorem cond_decide {α} (p : Prop) [Decidable p] (t e : α) :
     cond (decide p) t e = if p then t else e := by
-  simp [cond_eq_ite]
+  simp
 
-@[simp] theorem cond_eq_ite_iff {a : Bool} {p : Prop} [h : Decidable p] {x y u v : α} :
-  (cond a x y = ite p u v) ↔ ite a x y = ite p u v := by
-  simp [Bool.cond_eq_ite]
+theorem cond_eq_ite_iff {a : Bool} {p : Prop} [h : Decidable p] {x y u v : α} :
+    (cond a x y = ite p u v) ↔ ite a x y = ite p u v := by
+  simp
 
-@[simp] theorem ite_eq_cond_iff {p : Prop} {a : Bool} [h : Decidable p] {x y u v : α} :
-  (ite p x y = cond a u v) ↔ ite p x y = ite a u v := by
-  simp [Bool.cond_eq_ite]
+theorem ite_eq_cond_iff {p : Prop} {a : Bool} [h : Decidable p] {x y u v : α} :
+    (ite p x y = cond a u v) ↔ ite p x y = ite a u v := by
+  simp
 
-@[simp] theorem cond_eq_true_distrib : ∀(c t f : Bool),
+theorem cond_eq_true_distrib : ∀(c t f : Bool),
     (cond c t f = true) = ite (c = true) (t = true) (f = true) := by
-  decide
+  simp
 
-@[simp] theorem cond_eq_false_distrib : ∀(c t f : Bool),
-    (cond c t f = false) = ite (c = true) (t = false) (f = false) := by decide
+theorem cond_eq_false_distrib : ∀(c t f : Bool),
+    (cond c t f = false) = ite (c = true) (t = false) (f = false) := by
+  simp
 
-protected theorem cond_true  {α : Sort u} {a b : α} : cond true  a b = a := cond_true  a b
-protected theorem cond_false {α : Sort u} {a b : α} : cond false a b = b := cond_false a b
+@[deprecated Bool.cond_true (since := "2026-07-28")]
+theorem _root_.cond_true (a b : α) : cond true a b = a := rfl
+@[deprecated Bool.cond_false (since := "2026-07-28")]
+theorem _root_.cond_false (a b : α) : cond false a b = b := rfl
 
-@[simp] theorem cond_true_left   : ∀(c f : Bool), cond c true f  = ( c || f) := by decide
-@[simp] theorem cond_false_left  : ∀(c f : Bool), cond c false f = (!c && f) := by decide
-@[simp] theorem cond_true_right  : ∀(c t : Bool), cond c t true  = (!c || t) := by decide
-@[simp] theorem cond_false_right : ∀(c t : Bool), cond c t false = ( c && t) := by decide
+theorem cond_true_left   : ∀(c f : Bool), cond c true f  = ( c || f) := by simp
+theorem cond_false_left  : ∀(c f : Bool), cond c false f = (!c && f) := by simp
+theorem cond_true_right  : ∀(c t : Bool), cond c t true  = (!c || t) := by simp
+theorem cond_false_right : ∀(c t : Bool), cond c t false = ( c && t) := by simp
 
 -- These restore confluence between the above lemmas and `cond_not`.
-@[simp] theorem cond_not_self_left  : ∀ (c b : Bool), cond c (!c) b = (!c && b) := by decide
+theorem cond_not_self_left  : ∀ (c b : Bool), cond c (!c) b = (!c && b) := by simp
 
 @[deprecated Bool.cond_not_self_left (since := "2026-07-21")]
 theorem cond_then_not_self (c : Bool) (b : Bool) : (bif c then !c else b) = (!c && b) := Bool.cond_not_self_left c b
 
-@[simp] theorem cond_not_self_right : ∀ (c b : Bool), cond c b (!c) = (!c || b) := by decide
+theorem cond_not_self_right : ∀ (c b : Bool), cond c b (!c) = (!c || b) := by simp
 
 @[deprecated Bool.cond_not_self_right (since := "2026-07-21")]
 theorem cond_else_not_self (c : Bool) (b : Bool) : (bif c then b else !c) = (!c || b) := Bool.cond_not_self_right c b
 
-@[simp] theorem cond_self_left  : ∀ (c b : Bool), cond c c b = (c || b) := by decide
+theorem cond_self_left  : ∀ (c b : Bool), cond c c b = (c || b) := by simp
 
 @[deprecated Bool.cond_self_left (since := "2026-07-21")]
 theorem cond_then_self (c : Bool) (b : Bool) : (bif c then c else b) = (c || b) := Bool.cond_self_left c b
 
-@[simp] theorem cond_self_right : ∀ (c b : Bool), cond c b c = (c && b) := by decide
+theorem cond_self_right : ∀ (c b : Bool), cond c b c = (c && b) := by simp
 
 @[deprecated Bool.cond_self_right (since := "2026-07-21")]
 theorem cond_else_self (c : Bool) (b : Bool) : (bif c then b else c) = (c && b) := Bool.cond_self_right c b

@@ -521,17 +521,16 @@ stored in the cached input-to-content mapping.
 @[specialize] def getArtifactsUsingCache?
   [ResolveOutputs α] (inputHash : Hash) (pkg : Package)
 : JobM (Option α) := do
-  if let some out ← (← getLakeCache).readOutputs? pkg.cacheScope inputHash then
-    try
-      return some (← resolveOutputs out)
-    catch e =>
-      let log ← takeLogFrom e
-      let msg := s!"input '{inputHash.toString.take 7}' found in package artifact cache, \
-        but some output(s) have issues:"
-      let msg := log.entries.foldl (s!"{·}\n- {·.message}") msg
-      logWarning msg
-      return none
-  else
+  try
+    (← (← getLakeCache).readOutputs? pkg.cacheScope inputHash).mapM resolveOutputs
+  catch e =>
+    let log ← takeLogFrom e
+    let msg := s!"input '{inputHash.toString.take 7}' found in package artifact cache, \
+      but some output(s) have issues:"
+    let msg := log.entries.foldl (s!"{·}\n- {·.message}") msg
+    -- Must be `trace` to avoid breaking `--wfail` / `--iofail` builds
+    -- TODO: Figure out a way to split cache and build failures
+    logVerbose msg
     return none
 
 open ResolveOutputs in
@@ -1001,8 +1000,7 @@ The library will statically link in `linkObjs` (e.g., object files or
 static libraries) and, if `linkDeps := true`, dynamically link to `linkLibs`
 (and their transitive `deps`).
 
-Additional arguments to the linker can be provided via `weakArgs` and `traceArgs`.
-`traceArgs` will be included in the build's input trace, `weakArgs` will not.
+Additional arguments to the linker can be provided via `args`.
 
 If `plugin := true`, the resulting `Dynlib` will be marked as a Lean plugin.
 This means it is expected to have a `initialize_<libName>` symbol.

@@ -349,13 +349,13 @@ static inline void dec(lean_object * o, lean_object* & todo) {
 LEAN_THREAD_PTR(object, g_to_free);
 #endif
 
-static void lean_del_core(object * o, object * & todo);
+static object * lean_del_core(object * o, object * todo);
 
 extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
 #ifdef LEAN_LAZY_RC
      if (g_to_free) {
          object * o = pop_back(g_to_free);
-         lean_del_core(o, g_to_free);
+         g_to_free = lean_del_core(o, g_to_free);
      }
 #endif
 #ifdef LEAN_MIMALLOC
@@ -375,7 +375,9 @@ extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
 static void deactivate_task(lean_task_object * t);
 static void deactivate_promise(lean_promise_object * t);
 
-static void lean_del_core_other(object * o, uint8 tag, object * & todo) {
+/* The deletion worklist is passed by value and returned rather than by reference so that it can
+   live in a register across the constructor loop, which is by far the hottest deletion path. */
+static object * lean_del_core_other(object * o, uint8 tag, object * todo) {
     switch (tag) {
     case LeanClosure: {
         object ** it  = lean_closure_arg_cptr(o);
@@ -423,17 +425,19 @@ static void lean_del_core_other(object * o, uint8 tag, object * & todo) {
     default:
         lean_unreachable();
     }
+    return todo;
 }
 
-static void lean_del_core(object * o, object * & todo) {
+static object * lean_del_core(object * o, object * todo) {
     uint8 tag = lean_ptr_tag(o);
     if (LEAN_LIKELY(tag <= LeanMaxCtorTag)) {
         object ** it  = lean_ctor_obj_cptr(o);
         object ** end = it + lean_ctor_num_objs(o);
         for (; it != end; ++it) dec(*it, todo);
         lean_free_small_object(o);
+        return todo;
     } else {
-        lean_del_core_other(o, tag, todo);
+        return lean_del_core_other(o, tag, todo);
     }
 }
 
@@ -444,7 +448,7 @@ extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
 #else
         object * todo = nullptr;
         while (true) {
-            lean_del_core(o, todo);
+            todo = lean_del_core(o, todo);
             if (todo == nullptr)
                 return;
             o = pop_back(todo);

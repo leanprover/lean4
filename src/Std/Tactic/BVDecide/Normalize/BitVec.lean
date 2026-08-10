@@ -59,8 +59,6 @@ theorem BitVec.sle_eq_ult (x y : BitVec w) :
     x.sle y = !((!x.getLsbD (w - 1) == y.getLsbD (w - 1)) ^^ y.ult x) := by
   rw [BitVec.sle_eq_not_slt, BitVec.slt_eq_ult, Bool.beq_comm]
 
-attribute [bv_normalize] BitVec.ofNat_eq_ofNat
-
 @[bv_normalize]
 theorem BitVec.ofNatLT_reduce (n : Nat) (h) : BitVec.ofNatLT n h = BitVec.ofNat w n := by
   simp [BitVec.ofNatLT, BitVec.ofNat, Fin.ofNat, Nat.mod_eq_of_lt h]
@@ -356,10 +354,6 @@ attribute [bv_normalize] BitVec.ssubOverflow_eq
 attribute [bv_normalize] BitVec.sdivOverflow_eq
 attribute [bv_normalize] BitVec.ctz
 
-
-attribute [bv_normalize] BitVec.append_zero_add_zero_append
-attribute [bv_normalize] BitVec.zero_append_add_append_zero
-
 /-- `x / (BitVec.ofNat n)` where `n = 2^k` is the same as shifting `x` right by `k`. -/
 theorem BitVec.udiv_ofNat_eq_of_lt (w : Nat) (x : BitVec w) (n : Nat) (k : Nat) (hk : 2 ^ k = n) (hlt : k < w) :
     x / (BitVec.ofNat w n) = x >>> k := by
@@ -424,8 +418,6 @@ theorem BitVec.and_const_right' {a : BitVec w} :
     (a &&& BitVec.ofNat w b) &&& BitVec.ofNat w c = (BitVec.ofNat w b &&& BitVec.ofNat w c) &&& a := by
   ac_rfl
 
--- Explicit no_index so this theorem works in the presence of constant folding if w1/w2/w3 are fixed
-@[bv_normalize]
 theorem BitVec.append_const_left {c : BitVec w3} :
     HAppend.hAppend (β := BitVec (no_index _)) (γ := BitVec (no_index _))
       (BitVec.ofNat w1 a)
@@ -434,7 +426,6 @@ theorem BitVec.append_const_left {c : BitVec w3} :
   rw [BitVec.append_assoc]
   simp
 
-@[bv_normalize]
 theorem BitVec.append_const_right {a : BitVec w1} :
     HAppend.hAppend (α := BitVec (no_index _)) (γ := BitVec (no_index _))
       (HAppend.hAppend (γ := BitVec (no_index _)) a (BitVec.ofNat w2 b))

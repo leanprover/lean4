@@ -1576,7 +1576,7 @@ Examples:
 -/
 def eraseP (p : α → Bool) : List α → List α
   | [] => []
-  | a :: l => bif p a then l else a :: eraseP p l
+  | a :: l => if p a then l else a :: eraseP p l
 
 /-! ### eraseIdx -/
 
@@ -1701,7 +1701,7 @@ Examples:
   /-- Auxiliary for `findIdx`: `findIdx.go p l n = findIdx p l + n` -/
   @[specialize] go : List α → Nat → Nat
   | [], n => n
-  | a :: l, n => bif p a then n else go l (n + 1)
+  | a :: l, n => if p a then n else go l (n + 1)
 
 @[simp, grind =] theorem findIdx_nil {p : α → Bool} : [].findIdx p = 0 := rfl
 
@@ -1806,7 +1806,7 @@ Examples:
   /-- Auxiliary for `countP`: `countP.go p l acc = countP p l + acc`. -/
   @[specialize] go : List α → Nat → Nat
   | [], acc => acc
-  | x :: xs, acc => bif p x then go xs (acc + 1) else go xs acc
+  | x :: xs, acc => if p x then go xs (acc + 1) else go xs acc
 
 /-! ### count -/
 

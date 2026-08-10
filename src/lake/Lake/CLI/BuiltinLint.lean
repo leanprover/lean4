@@ -39,6 +39,11 @@ public structure Args where
   linterOverrides : Array (Name × Bool) := #[]
   /-- The list of root modules to lint. -/
   mods : Array Name := #[]
+  /-- Additional modules containing environment linters, imported alongside each lint root so
+  the lint targets need not import them. A checks module is itself exempt from linting unless
+  it is also listed in `mods`. Populated from `--checks=Mod1,Mod2,...` on the CLI and the
+  root package's `lintChecks` configuration. -/
+  checks : Array Name := #[]
   /-- Whether to only run the user provided linters -/
   lintOnly : Bool := false
   /-- Whether to record linter warnings as `set_option <linter> false in` exceptions
@@ -100,10 +105,12 @@ private inductive DeferredCheckOutcome where
   | recorded (records : Array ExceptionRecord) (unlocated : Bool)
 
 private def collectTextLints
-    (env : Environment) (pkgRoot : Name) :
+    (env : Environment) (pkgRoot : Name) (excluded : NameSet) :
     Array (Name × Array Linter.LintEntry) :=
   Linter.getAllLints env |>.foldl (init := #[]) fun acc (mod, entries) =>
-    if pkgRoot.isPrefixOf mod && !entries.isEmpty then acc.push (mod, entries) else acc
+    if pkgRoot.isPrefixOf mod && !excluded.contains mod && !entries.isEmpty then
+      acc.push (mod, entries)
+    else acc
 
 @[noinline] private def getIsModule (modData : Lean.ModuleData) : BaseIO Bool :=
   return modData.isModule
@@ -196,7 +203,7 @@ Failures are reported on stderr, unless `args.recordExceptions` is set, in which
 turned into exception records at the flagged docstring's positions for the caller to write.
 -/
 private def runDeferredChecks (args : Args) (linterOpts : Linter.LinterOptions) (sp : SearchPath)
-    (env : Environment) (pkgRoot : Name) (docCheckedModules : NameSet) :
+    (env : Environment) (pkgRoot : Name) (excluded : NameSet) (docCheckedModules : NameSet) :
     IO DeferredCheckResults := do
   let selected :=
     if args.lintOnly then
@@ -209,7 +216,7 @@ private def runDeferredChecks (args : Args) (linterOpts : Linter.LinterOptions) 
   let (outcome, _) ←
       CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do
     let failures ← Lean.Doc.DeferredCheck.run
-      (fun m => pkgRoot.isPrefixOf m && !docCheckedModules.contains m)
+      (fun m => pkgRoot.isPrefixOf m && !excluded.contains m && !docCheckedModules.contains m)
       (shouldCheck := fun c =>
         return Linter.getLinterValue linter.doc.deferred (← c.options.toLinterOptions))
     if args.mode == .recordExceptions then
@@ -264,8 +271,8 @@ are aggregated per module/linter pair into code quality entries whose scalar val
 of warnings, for the caller to emit as JSON.
 -/
 private def runTextLinters (args : Args) (linterOpts : Linter.LinterOptions)
-    (env : Environment) (mod : Name) : IO LintingOutcome := do
-  let textGroups := collectTextLints env mod.getRoot
+    (env : Environment) (mod : Name) (excluded : NameSet) : IO LintingOutcome := do
+  let textGroups := collectTextLints env mod.getRoot excluded
   let textGroups :=
     if args.lintOnly then
       textGroups.filterMap fun (m, entries) =>
@@ -314,6 +321,10 @@ elaborated declarations, so they run here rather than during the build; per-decl
 By default all registered linters run; with `--lint-only`, only those explicitly enabled by the
 command-line overrides do.
 
+Declarations of the lint targets were built without the checks modules' options registered, so
+they carry no snapshot for them. For exactly those options, enablement falls back to the
+lint-time option value (the option's default combined with the command-line overrides).
+
 In `report` mode the findings are printed to stdout (grouped by file). In `recordExceptions` mode,
 each flagged declaration is resolved to a source position via its declaration range and to a file
 via `sp`, yielding exception records for the caller to write; declarations whose range or source
@@ -322,14 +333,22 @@ the findings are aggregated per module/declaration/linter triple into code quali
 scalar value is the number of warnings, for the caller to emit as JSON.
 -/
 private def runEnvironmentLinters (args : Args) (linterOpts : Linter.LinterOptions) (sp : SearchPath)
-    (env : Environment) (mod : Name) : IO LintingOutcome := do
+    (env : Environment) (mod : Name) (excluded : NameSet) : IO LintingOutcome := do
   let (outcome, _) ← CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do
-    let decls ← Linter.EnvLinter.getDeclsInPackage mod.getRoot
+    let decls ← Linter.EnvLinter.getDeclsInPackage mod.getRoot excluded
     let linters ← Linter.EnvLinter.getEnvLinters (if args.lintOnly then some linterOpts else none)
     if linters.isEmpty && args.mode == .report then do
       IO.println s!"-- No environment linters were run for {mod}."
       return .reported false
-    let results ← Linter.EnvLinter.lintCore decls linters
+    let envLinterOpts ← Linter.envLinterOptionsRef.get
+    let mut checkOptFallback : NameMap Bool := {}
+    for c in args.checks do
+      if let some idx := env.getModuleIdx? c then
+        for (optName, _) in Linter.EnvLinter.envLinterExt.getModuleEntries env idx do
+          let opt := envLinterOpts.find? (·.name == optName)
+            |>.getD { name := optName, defValue := false }
+          checkOptFallback := checkOptFallback.insert optName (Linter.getLinterValue opt linterOpts)
+    let results ← Linter.EnvLinter.lintCore decls linters (checkOptFallback.getD · false)
     let failed := results.any (!·.2.isEmpty)
     match args.mode with
     | .report =>
@@ -389,6 +408,10 @@ public def run (args : Args) : IO UInt32 := do
     IO.eprintln "lake lint: no modules specified for builtin linting"
     return 1
   let envLinterModule : Import := { module := `Lean.Linter.EnvLinter }
+  let checkImports : Array Import := args.checks.map fun c => { module := c }
+  -- Checks modules are exempt from linting unless they are also lint targets.
+  let excluded : NameSet := args.checks.foldl (init := {}) fun s c =>
+    if mods.contains c then s else s.insert c
 
   let sp := args.srcSearchPath ++ (← getSrcSearchPath)
 
@@ -412,7 +435,7 @@ public def run (args : Args) : IO UInt32 := do
     let isModule ← getIsModule modData
     let level := if isModule then OLeanLevel.server else OLeanLevel.private
     unsafe region.free
-    let env ← importModules #[{ module := mod }, envLinterModule] {}
+    let env ← importModules (#[{ module := mod }, envLinterModule] ++ checkImports) {}
       (trustLevel := 1024) (loadExts := true) (level := level)
 
     -- We create `LinterOptions` out of the passed overrides
@@ -421,7 +444,7 @@ public def run (args : Args) : IO UInt32 := do
       linterSets := (Lean.Linter.linterSetsExt.getState env).merged
     }
 
-    let textLintingOutcome ← runTextLinters args linterOpts env mod
+    let textLintingOutcome ← runTextLinters args linterOpts env mod excluded
     match textLintingOutcome with
     | .reported textFailed =>
       anyFailed := anyFailed || textFailed
@@ -431,7 +454,7 @@ public def run (args : Args) : IO UInt32 := do
     | .codeQualityChecks entries =>
       codeQualityEntries := codeQualityEntries ++ entries
 
-    let environmentLintingOutcome ← runEnvironmentLinters args linterOpts sp env mod
+    let environmentLintingOutcome ← runEnvironmentLinters args linterOpts sp env mod excluded
 
     match environmentLintingOutcome with
     | .reported declFailed =>
@@ -443,7 +466,7 @@ public def run (args : Args) : IO UInt32 := do
       codeQualityEntries := codeQualityEntries ++ entries
 
     unless args.mode == .codeQuality do
-      let deferredResults ← runDeferredChecks args linterOpts sp env mod.getRoot docCheckedModules
+      let deferredResults ← runDeferredChecks args linterOpts sp env mod.getRoot excluded docCheckedModules
       docCheckedModules := deferredResults.checkedModules
       match deferredResults.outcome with
       | .reported failed =>

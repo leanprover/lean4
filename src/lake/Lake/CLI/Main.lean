@@ -367,6 +367,16 @@ def lakeLongOption : (opt : String) → CliM PUnit
     modifyLintOnlyFlag true
   let spec ← takeOptArg "--lint-only" "comma-separated linter spec"
   parseLintersSpec spec
+| "--checks" => do
+  let spec ← takeOptArg "--checks" "comma-separated module names"
+  let mut checks : Array Lean.Name := #[]
+  for raw in spec.split (· == ',') do
+    let s := raw.trimAscii
+    unless s.isEmpty do
+      checks := checks.push s.toName
+  modifyThe LakeOptions fun opts =>
+    { opts with runBuiltinLint := true, builtinLint.checks :=
+        opts.builtinLint.checks ++ checks }
 
 -- Shared options
 | "--force" => modifyThe LakeOptions ({· with shake.force := true})
@@ -1053,8 +1063,15 @@ private def runBuiltinLint
   if mods.isEmpty then
     error "no modules specified and there are no applicable default targets"
   let args := opts.builtinLint
-  let args := {args with mods, srcSearchPath := ws.augmentedLeanSrcPath}
-  let specs ← parseTargetSpecs ws (mods.map (s!"+{·}") |>.toList)
+  let checks := (ws.root.config.lintChecks ++ args.checks).foldl (init := #[])
+    fun acc c => if acc.contains c then acc else acc.push c
+  for c in checks do
+    unless (ws.findTargetModule? c).isSome do
+      error s!"unknown checks module `{c}`; it must be a module of a package in the workspace"
+  let args := {args with mods, checks, srcSearchPath := ws.augmentedLeanSrcPath}
+  -- Build the checks modules along with the lint targets so they can be imported below.
+  let buildMods := mods ++ checks.filter (!mods.contains ·)
+  let specs ← parseTargetSpecs ws (buildMods.map (s!"+{·}") |>.toList)
   let lintOpts := BuiltinLint.leanOptOverrides args
   let overrides : Lean.NameMap Lean.LeanOptions :=
     if lintOpts.values.isEmpty then

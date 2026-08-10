@@ -1,0 +1,9 @@
+name = "lint-checks"
+defaultTargets = ["Main"]
+
+[[lean_lib]]
+name = "Main"
+globs = "Main.*"
+
+[[lean_lib]]
+name = "Linters"

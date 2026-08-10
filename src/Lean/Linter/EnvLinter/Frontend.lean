@@ -36,23 +36,27 @@ def getEnvLinters (opts? : Option LinterOptions := none) : CoreM (Array NamedEnv
 
 /--
 Queries the `envLinterSnapshotExt` to see if a given environment linter is enabled for the given
-declaration.
+declaration. `fallback` is used for declarations without a snapshot entry, i.e. those built
+before the linter's option was registered.
 -/
-def isLinterEnabledFor (env : Environment) (linter : NamedEnvLinter) (decl : Name) : Bool :=
+def isLinterEnabledFor (env : Environment) (linter : NamedEnvLinter) (decl : Name)
+    (fallback : Bool := false) : Bool :=
   match getEnvLinterSnapshotEntry? env decl linter.optName with
   | some b => b
-  | none => false
+  | none => fallback
 
 /--
 Runs all the specified linters on all the specified declarations in parallel,
-producing a list of results.
+producing a list of results. `fallbackEnabled` determines, by linter option name, whether a
+linter runs on declarations that carry no option snapshot for it.
 -/
-def lintCore (decls : Array Name) (linters : Array NamedEnvLinter) :
+def lintCore (decls : Array Name) (linters : Array NamedEnvLinter)
+    (fallbackEnabled : Name → Bool := fun _ => false) :
     CoreM (Array (NamedEnvLinter × Std.HashMap Name MessageData)) := do
   let env ← getEnv
   let tasks : Array (NamedEnvLinter × Array (Name × Task (Except Exception <| Option MessageData))) ←
     linters.mapM fun linter => do
-      let decls := decls.filter (isLinterEnabledFor env linter ·)
+      let decls := decls.filter (isLinterEnabledFor env linter · (fallbackEnabled linter.optName))
       (linter, ·) <$> decls.mapM fun decl => (decl, ·) <$> do
         let act : MetaM (Option MessageData) := do
           linter.test decl
@@ -157,11 +161,11 @@ def getDeclsInCurrModule : CoreM (Array Name) := do
 def getAllDecls : CoreM (Array Name) := do
   pure $ (← getEnv).constants.map₁.fold (init := ← getDeclsInCurrModule) fun r k _ => r.push k
 
-/-- Get the list of all declarations in the specified package. -/
-def getDeclsInPackage (pkg : Name) : CoreM (Array Name) := do
+/-- Get the list of all declarations in the specified package, skipping modules in `excluded`. -/
+def getDeclsInPackage (pkg : Name) (excluded : NameSet := {}) : CoreM (Array Name) := do
   let env ← getEnv
   let mut decls ← getDeclsInCurrModule
-  let modules := env.header.moduleNames.map (pkg.isPrefixOf ·)
+  let modules := env.header.moduleNames.map fun m => pkg.isPrefixOf m && !excluded.contains m
   return env.constants.map₁.fold (init := decls) fun decls declName _ =>
     if modules[env.const2ModIdx[declName]?.get!]! then
       decls.push declName

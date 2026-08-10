@@ -337,6 +337,15 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   builtinLint?, builtinLint : Option Bool := none
 
   /--
+  Additional modules containing environment linters to load during builtin linting
+  (`lake lint --builtin-lint`). Each listed module is built along with the lint targets
+  and imported alongside each lint root, so the lint targets themselves do not need to
+  import it. A listed module is itself exempt from linting unless it is explicitly given
+  as a lint target. Extended by `--checks=Mod1,Mod2,...` on the command line.
+  -/
+  lintChecks : Array Name := #[]
+
+  /--
   Whether this package is expected to function only on a single toolchain
   (the package's toolchain).
 

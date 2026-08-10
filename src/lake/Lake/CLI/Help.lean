@@ -252,7 +252,7 @@ By default, runs the package's configured lint driver. If `builtinLint` is
 set to `true` in the package configuration, builtin lints also run.
 
 Builtin linting (`--builtin-lint`, `--builtin-only`, `--linters`,
-`--lint-only`, or `builtinLint = true` in the package configuration) drives a
+`--lint-only`, `--checks`, or `builtinLint = true` in the package configuration) drives a
 build of the targeted modules with the requested linter options enabled.
 The lint driver path on its own does not trigger a build.
 
@@ -283,6 +283,14 @@ OPTIONS:
                         Expands `linter.all` and linter sets. Uses the same
                         `<spec>` syntax as `--linters`; switching between
                         `--linters` and `--lint-only` replaces the prior spec
+  --checks <mods>       comma-separated list of workspace modules containing
+                        additional environment linters. Each module is built
+                        with the lint targets and imported alongside each lint
+                        root, so lint targets need not import it themselves. A
+                        checks module is exempt from linting unless it is also
+                        listed as a lint target. Repeatable; accumulates with
+                        the `lintChecks` package configuration. Implies
+                        `--builtin-lint`
   --record-exceptions   record each linter warning as a
                         `set_option <linter> false in` exception by editing the
                         offending source files in place, silencing the warning

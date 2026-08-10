@@ -480,10 +480,7 @@ protected def get : CliM PUnit := do
   unless overwrite do
     -- artifacts of skipped mappings with `--no-overwrite` cannot be cleanly handled
     error "`--no-overwrite` is not supported for `cache get`"
-  let pkg? ← opts.package?.bindM fun pkgName => do
-    match ws.findPackageByName? <| stringToLegalOrSimpleName pkgName with
-    | some pkg => return some pkg
-    | none => throw <| CliError.unknownPackage pkgName
+  let pkg? ← opts.package?.bindM (liftM <| parsePackageSpec ws ·)
   if let some file := mappings? then liftM (m := LoggerIO) do
     if opts.mappingsOnly then
       error "`--mappings-only` is not supported with a mappings file; use `lake cache add` instead"
@@ -555,6 +552,8 @@ protected def get : CliM PUnit := do
         let descrs ← map.collectOutputDescrs
         service.downloadArtifacts descrs cache remoteScope opts.forceDownload
     else if service.isReservoir then
+      if opts.rev?.isSome then
+        error "the `--rev` option is not supported for a Reservoir `cache get`"
       if let some pkg := pkg? then
         let some remoteScope := pkg.reservoirScope?
           | error s!"{pkg.prettyName}: not a Reservoir dependency and no `--scope` or `--repo` set"
@@ -671,6 +670,8 @@ protected def put : CliM PUnit := do
   let opts ← getThe LakeOptions
   let some scope := opts.scope?
     | error "the `--scope` or `--repo` option must be set"
+  if opts.package?.isSome then
+    error "the `--package` option is not supported for `cache put`"
   if opts.rev?.isSome then
     error "the `--rev` option is not supported for `cache put`; \
       to upload artifacts for different revisions, use the staging workflow, \
@@ -690,12 +691,11 @@ protected def put : CliM PUnit := do
 protected def add : CliM PUnit := do
   processOptions lakeOption
   let file ← takeArg "mappings"
-  let pkg? ← takeArg?
   let opts ← getThe LakeOptions
   noArgsRem do
   let cfg ← mkLoadConfig opts
   let ws ← loadWorkspace cfg
-  let pkg ← match pkg? with
+  let pkg ← match opts.package? with
     | some pkg => parsePackageSpec ws pkg
     | _ => pure ws.root
   let localScope := pkg.cacheScope
@@ -804,6 +804,8 @@ protected def putStaged : CliM PUnit := do
   let stagingDir ← FilePath.mk <$> takeArg "staging directory"
   let some scope := opts.scope?
     | error "the `--scope` or `--repo` option must be set"
+  if opts.package?.isSome then
+    error "the `--package` option does nothing for `cache put-staged`"
   noArgsRem do
   let cfg ← mkLoadConfig opts
   let lakeCfg ← loadLakeConfig cfg.lakeEnv

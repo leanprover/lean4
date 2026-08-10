@@ -435,18 +435,20 @@ service. The cache service used can be specified via the `--service` option.
 Otherwise, Lake will the system default, or, if none is configured, Reservoir.
 See `lake cache services` for more information on how to configure services.
 
-If an input-to-outputs mappings file, `--scope`, or `--repo` is provided,
-Lake will download build outputs for the root package. Otherwise, it will use
-Reservoir to download outputs for each dependency in the workspace (in order).
-Non-Reservoir dependencies will be skipped.
+By default, Lake will use Reservoir to download outputs for each
+dependency in the workspace (in order). Non-Reservoir dependencies will be
+skipped. If instead an input-to-outputs mappings file, `--scope`, or `--repo`
+is provided, Lake will default to downloading build outputs for the root
+package. In either case, if `--package` is specified, Lake will switch to
+only downloading outputs for it.
 
 To determine what to download, Lake searches for input-to-output mappings for
-a given build of the package via the cache service. This mapping is identified
+a given build of a package via the cache service. This mapping is identified
 by a Git revision and prefixed with a scope derived from the package's name,
 GitHub repository, Lean toolchain, and current platform. The exact configuration
 can be customized using options.
 
-For Reservoir, setting `--repo` will cause Lake to lookup outputs for the root
+For Reservoir, setting `--repo` will cause Lake to lookup outputs for the
 package by a repository name, rather than the package's. This can be used to
 download outputs for a fork of the Reservoir package (if such artifacts are
 available). The `--platform` and `--toolchain` options can be used to download
@@ -510,6 +512,7 @@ USAGE:
   lake cache add <mappings>
 
 OPTIONS:
+  --package=<name>                add outputs to set package
   --service=<name>                cache service to fetch from on demand
   --scope=<remote-scope>          the prefix of artifacts within the service
   --repo=<github-repo>            for Reservoir, a GitHub repository scope
@@ -517,7 +520,8 @@ OPTIONS:
 
 Reads a list of input-to-output mappings from the provided file and adds
 them to the local Lake cache. Mappings already in the cache are overwritten
-unless `--no-overwrite` is specified.
+unless `--no-overwrite` is specified. Mappings are added for the root package
+unless `--package` is specified.
 
 If `--service` is provided, the output artifacts can then be fetched lazily
 from that service during a Lake build. The service must either be `reservoir`
@@ -579,7 +583,7 @@ code. However, because of this, the package's platform and toolchain settings
 will not be automatically detected for `--repo` and must be specified manually
 via `--platform` and `--toolchain` (if needed).
 
-Lake will still, by default, detect the target revision from the package
+Lake will still, by default, detect the target revision from the workspace
 directory's current Git revision. To upload outputs for a different revision,
 specify it with `--rev`."
 

@@ -98,6 +98,27 @@ private def checkPureForIn (invClause : Syntax) (h? : Option Syntax) (xs α : Ex
     (extraErrorMsg? := m!"The `invariant` clause is stated over this class, which says that \
       iterating the container produces its elements without effects.")
 
+/-- Report a clause that binds more arguments than the loop's assertions take, such as the state of
+a state monad. The monad determines its assertion language through `WPMonad`'s output parameters,
+and the language's arguments are the arrows before its result. -/
+private def checkAssertionBinders (ref : Syntax) (what : String) (binders : Nat) :
+    DoElabM Unit := withRef ref do
+  unless (← getEnv).contains `Std.Internal.Do.WPMonad do return
+  let wpTy ← Term.elabType <| ←
+    `($(mkIdent `Std.Internal.Do.WPMonad) $(← Term.exprToSyntax (← read).monadInfo.m) _ _)
+  let .some _ ← trySynthInstance wpTy | return
+  let some pred := wpTy.getAppArgs[1]? | return
+  let rec count (e : Expr) (n : Nat) : Nat :=
+    match e with
+    | .forallE _ _ b _ => count b (n + 1)
+    | _ => n
+  let arity := count (← instantiateMVars pred) 0
+  if binders > arity then
+    let takes := if arity == 1 then m!"one argument" else m!"{arity} arguments"
+    let has := if binders == 1 then m!"one binder" else m!"{binders} binders"
+    throwErrorAt ref "The {what} of a loop in this monad takes {takes}, and this clause has \
+      {has}. The loop's mutable variables are named without binding them."
+
 /-- The already-elaborated pieces of a loop that its annotation gadget is built from. -/
 structure LoopGadget where
   /-- The collection being iterated. -/
@@ -187,6 +208,7 @@ private def mkForInLoopWithInvariantAndVariant (g : LoopGadget) (inv? dec? : Opt
       let hasLeft ← `($(mkIdent ``Sum.isRight) $cursor:ident)
       let `(doLoopInvariant| invariant $exitBinder $assertionBinders* => $invBody) := invClause
         | throwUnsupportedSyntax
+      checkAssertionBinders invClause "invariant" assertionBinders.size
       let invBody ← if assertionBinders.isEmpty then pure invBody else
         `(fun $assertionBinders* => $invBody)
       let invBody ← if exitBinder.raw.isOfKind ``hole then pure invBody else
@@ -205,7 +227,9 @@ private def mkForInLoopWithInvariantAndVariant (g : LoopGadget) (inv? dec? : Opt
       -- Binders past the clause bind the arguments of the measure itself, as they do for an
       -- assertion.
       let measure ← match decClause with
-        | `(doDecreasing| decreasing $binders* => $body) => `(fun $binders* => $body)
+        | `(doDecreasing| decreasing $binders* => $body) =>
+          checkAssertionBinders decClause "measure" binders.size
+          `(fun $binders* => $body)
         | `(doDecreasing| decreasing $measure:term) => pure measure
         | _ => throwUnsupportedSyntax
       `(some $(← g.mkStateFun decClause measure))

@@ -319,6 +319,38 @@ where finally
 #guard_msgs (drop info) in
 #check @countUp.spec
 
+/-! The measure may read the state of a state monad, and its binders are the arguments the
+assertions take. Binding more than that is reported at the clause. -/
+
+def drain (n : Nat) : StateM Nat Unit
+    requires s => s ≤ n
+    ensures _ s => s = n := do
+  repeat
+      invariant exit s => s ≤ n ∧ (exit → s = n)
+      decreasing s => n - s
+    do
+    let s ← get
+    if s = n then break
+    set (s + 1)
+where finally
+  | spec => all_goals simp_all; omega
+
+#guard_msgs (drop info) in
+#check @drain.spec
+
+/--
+error: The measure of a loop in this monad takes one argument, and this clause has 2 binders. The loop's mutable variables are named without binding them.
+-/
+#guard_msgs in
+example (n : Nat) : StateM Nat Unit := do
+  let mut go := true
+  while go
+      invariant _ s => s ≤ n
+      decreasing _ s => n - s
+    do
+    set n
+    go := false
+
 /-! A `repeat … until` loop takes the same clauses. -/
 
 def countUntil (n : Nat) : Id Nat

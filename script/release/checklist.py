@@ -346,11 +346,11 @@ class DownstreamChecker(RepoChecker):
             dsl.prepare()
             dsl.switch("master")
             dsl.run(
-                *("python", ".downstream/split.py", ".", self.rrepo.gh_name, head),
+                *("python", ".downstream/split.py", ".", self.rrepo.gh_name),
                 *("-m", "chore: adaptations from downstream-lean4"),
             )
             # See also LocalRepo.prepare and LocalRepo.switch
-            self.lrepo.git("fetch", "--force", dsl.path, head)
+            self.lrepo.git("fetch", "--force", dsl.path, "HEAD")
             self.lrepo.git("switch", "-C", head, "FETCH_HEAD")
         else:
             self.lrepo.create_branch(head)

@@ -181,7 +181,7 @@ private def mkForInLoopWithInvariantAndVariant (g : LoopGadget) (inv? dec? : Opt
   let invArg ← match inv? with
     | none =>
       -- Nothing determines the assertion language of an absent invariant.
-      `((none : Option ($(mkIdent `Std.Internal.Do.RepeatInvariant) _ _ Prop)))
+      `((none : Option (_ ⊕ _ → Prop)))
     | some invClause =>
       let cursor := mkIdentFrom invClause (← mkFreshUserName `__c)
       let hasLeft ← `($(mkIdent ``Sum.isRight) $cursor:ident)

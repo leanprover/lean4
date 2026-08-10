@@ -111,8 +111,8 @@ erased at runtime. The invariant ranges over the loop's cursor, `.inl` while the
 `.inr` once it is done. The measure is the function a `RepeatVariant` is built from, so that the
 assertion language it evaluates in is the one the specification is applied at. -/
 @[inline] def forInLoopWithInvariantAndVariant {β : Type u} {m : Type u → Type v} {Pred : Type uₚ}
-    {Fun : Type uf} [Monad m] (l : Lean.Loop) (init : β) (f : Unit → β → m (ForInStep β))
-    (inv? : Option (RepeatInvariant β β Pred)) (var? : Option (β → Fun)) : m β :=
+    {Fun : Type} [Monad m] (l : Lean.Loop) (init : β) (f : Unit → β → m (ForInStep β))
+    (inv? : Option (β ⊕ β → Pred)) (var? : Option (β → Fun)) : m β :=
   forIn l init f
 
 variable {β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
@@ -120,13 +120,13 @@ variable [Monad m] [Lean.Order.MonadTail m] [Assertion Pred] [Assertion EPred]
   [WPMonad m Pred EPred]
 
 @[spec]
-theorem Spec.forInLoop_invariant_variant
+theorem Spec.forInLoop_invariant_variant {Fun : Type} {γ : Type uγ'}
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
-    [∀ P : Pred, PreservesSup (meet P)]
-    (measure : β → Nat)
-    (inv : RepeatInvariant β β Pred)
+    [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]
+    (measure : β → Fun)
+    (inv : β ⊕ β → Pred)
     (einv : EPred)
-    (step : ∀ b (mb : Nat),
+    (step : ∀ b (mb : γ),
       Triple
         (f () b)
         ((RepeatVariant.ofMeasure (Pred := Pred) measure).EvalsTo b mb ⊓ inv (.inl b))
@@ -148,7 +148,7 @@ theorem Spec.forInLoop_invariant
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [∀ P : Pred, PreservesSup (meet P)]
     (measure : RepeatVariant β Pred)
-    (inv : RepeatInvariant β β Pred)
+    (inv : β ⊕ β → Pred)
     (einv : EPred)
     (step : ∀ b (mb : measure.γ),
       Triple
@@ -167,13 +167,13 @@ theorem Spec.forInLoop_invariant
   exact Spec.forIn_loop measure inv einv step
 
 @[spec]
-theorem Spec.forInLoop_variant
+theorem Spec.forInLoop_variant {Fun : Type} {γ : Type uγ'}
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
-    [∀ P : Pred, PreservesSup (meet P)]
-    (measure : β → Nat)
-    (inv : RepeatInvariant β β Pred)
+    [NondetFun Pred Fun γ] [WellFoundedRelation γ] [∀ P : Pred, PreservesSup (meet P)]
+    (measure : β → Fun)
+    (inv : β ⊕ β → Pred)
     (einv : EPred)
-    (step : ∀ b (mb : Nat),
+    (step : ∀ b (mb : γ),
       Triple
         (f () b)
         ((RepeatVariant.ofMeasure (Pred := Pred) measure).EvalsTo b mb ⊓ inv (.inl b))

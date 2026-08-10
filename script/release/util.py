@@ -479,7 +479,7 @@ def get_release_notes_index_path() -> str:
 
 
 def get_release_notes_title_for(version: Version, release: GitRelease) -> str:
-    date = release.created_at.astimezone(datetime.timezone.utc).strftime("%Y-%m-%d")
+    date = release.published_at.astimezone(datetime.timezone.utc).strftime("%Y-%m-%d")
     return f"Lean {version.raw} ({date})"
 
 

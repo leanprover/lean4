@@ -11,7 +11,6 @@ import Init.GrindInstances.ToInt
 import Lean.Meta.Tactic.Grind.SynthInstance
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.EvalNum
-import Lean.OrderLevel
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -134,7 +133,7 @@ private def intRfl := mkApp (mkConst ``Eq.refl [1]) Int.mkType
 
 private def mkOfLE : ToIntM (Option Expr × Option Expr) := do
   let info ← getInfo
-  let toLE := mkApp (mkConst ``LE [← if (← leCarrierIsSort) then pure info.u.succ else pure info.u]) info.type
+  let toLE := mkApp (mkConst ``LE [info.u.succ]) info.type
   let some leInst ← synthInstance? toLE | return (none, none)
   let toIntLE := mkApp4 (mkConst ``Grind.ToInt.LE [info.u]) info.type leInst info.rangeExpr info.toIntInst
   let some toIntLEInst ← synthInstance? toIntLE
@@ -157,7 +156,7 @@ def getOfNotLE? : ToIntM (Option Expr) := do
 
 private def mkOfLT : ToIntM (Option Expr × Option Expr) := do
   let info ← getInfo
-  let toLT := mkApp (mkConst ``LT [← if (← leCarrierIsSort) then pure info.u.succ else pure info.u]) info.type
+  let toLT := mkApp (mkConst ``LT [info.u.succ]) info.type
   let some ltInst ← synthInstance? toLT | return (none, none)
   let toIntLT := mkApp4 (mkConst ``Grind.ToInt.LT [info.u]) info.type ltInst info.rangeExpr info.toIntInst
   let some toIntLTInst ← synthInstance? toIntLT

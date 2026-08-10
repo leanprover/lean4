@@ -73,10 +73,7 @@ Each type must at least implement the instance `Std.IsPreorder`.
 structure Struct where
   id                 : Nat
   type               : Expr
-  /--
-  The universe argument `LE` and the classes changing forms with it take at `type`: `getLevel
-  type` once `LE` binds its carrier as a `Sort`, its predecessor while it binds it as a `Type`.
-  -/
+  /-- Cached `normalizeLevel (← getLevel type)`, the universe argument `LE` takes at `type`. -/
   u                  : Level
   isPreorderInst     : Expr
   /-- `LE` instance  -/

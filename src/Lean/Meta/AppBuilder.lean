@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-import Lean.OrderLevel
 public import Lean.Meta.SynthInstance
 public import Lean.Meta.DecLevel
 import Lean.Meta.CtorRecognizer
@@ -725,7 +724,7 @@ We use heterogeneous operators to ensure we have a uniform representation.
 -/
 private def mkBinaryRel (className : Name) (rName : Name) (a b : Expr) : MetaM Expr := do
   let aType ← inferType a
-  let u ← if (← leCarrierIsSort) then getLevel aType else getDecLevel aType
+  let u ← getLevel aType
   let inst ← synthInstance (mkApp (mkConst className [u]) aType)
   return mkApp4 (mkConst rName [u]) aType inst a b
 

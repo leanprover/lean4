@@ -8,7 +8,6 @@ prelude
 public import Lean.Meta.Tactic.Simp.Arith.Util
 public import Lean.Meta.Tactic.Simp.Arith.Nat.Basic
 import Lean.Meta.AppBuilder
-import Lean.OrderLevel
 public section
 namespace Lean.Meta.Simp.Arith.Nat
 
@@ -42,23 +41,22 @@ def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   if let some arg := e.not? then
     let mut eNew? := none
     let mut h₁    := default
-    let leLvl ← if (← leCarrierIsSort) then pure (1 : Level) else pure 0
     match_expr arg with
     | LE.le α _ a b =>
       let_expr Nat ← α | pure ()
-      eNew? := some (mkNatLE leLvl (mkNatAdd b (mkNatLit 1)) a)
+      eNew? := some (mkNatLE (mkNatAdd b (mkNatLit 1)) a)
       h₁    := mkApp2 (mkConst ``Nat.not_le_eq) a b
     | GE.ge α _ a b =>
       let_expr Nat ← α | pure ()
-      eNew? := some (mkNatLE leLvl (mkNatAdd a (mkNatLit 1)) b)
+      eNew? := some (mkNatLE (mkNatAdd a (mkNatLit 1)) b)
       h₁    := mkApp2 (mkConst ``Nat.not_ge_eq) a b
     | LT.lt α _ a b =>
       let_expr Nat ← α | pure ()
-      eNew? := some (mkNatLE leLvl b a)
+      eNew? := some (mkNatLE b a)
       h₁    := mkApp2 (mkConst ``Nat.not_lt_eq) a b
     | GT.gt α _ a b =>
       let_expr Nat ← α | pure ()
-      eNew? := some (mkNatLE leLvl a b)
+      eNew? := some (mkNatLE a b)
       h₁    := mkApp2 (mkConst ``Nat.not_gt_eq) a b
     | _ => pure ()
     let some eNew := eNew? | return none

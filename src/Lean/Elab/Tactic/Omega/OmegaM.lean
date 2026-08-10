@@ -9,7 +9,6 @@ prelude
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.Canonicalizer
 public import Init.Omega
-import Lean.OrderLevel
 
 public section
 
@@ -188,7 +187,7 @@ def analyzeAtom (e : Expr) : OmegaM (List Expr) := do
     | some _ =>
       -- `k * x/k ≤ x < k * x/k + k`
       let ne_zero := mkApp3 (.const ``Ne [1]) (.const ``Int []) k (toExpr (0 : Int))
-      let pos := mkApp4 (.const ``LT.lt [← if (← leCarrierIsSort) then pure (1 : Level) else pure 0]) (.const ``Int []) (.const ``Int.instLTInt [])
+      let pos := mkApp4 (.const ``LT.lt [1]) (.const ``Int []) (.const ``Int.instLTInt [])
         (toExpr (0 : Int)) k
       pure [mkApp3 (.const ``Int.mul_ediv_self_le []) x k (← mkDecideProof ne_zero),
             mkApp3 (.const ``Int.lt_mul_ediv_self_add []) x k (← mkDecideProof pos)]
@@ -198,7 +197,7 @@ def analyzeAtom (e : Expr) : OmegaM (List Expr) := do
       | none
       | some 0 => pure ∅
       | some _ =>
-        let b_pos := mkApp4 (.const ``LT.lt [← if (← leCarrierIsSort) then pure (1 : Level) else pure 0]) (.const ``Int []) (.const ``Int.instLTInt [])
+        let b_pos := mkApp4 (.const ``LT.lt [1]) (.const ``Int []) (.const ``Int.instLTInt [])
           (toExpr (0 : Int)) b
         let pow_pos := mkApp3 (.const ``Lean.Omega.Int.pos_pow_of_pos []) b exp (← mkDecideProof b_pos)
         pure [mkApp3 (.const ``Int.emod_nonneg []) x k
@@ -210,7 +209,7 @@ def analyzeAtom (e : Expr) : OmegaM (List Expr) := do
         | none
         | some 0 => pure ∅
         | some _ =>
-          let b_pos := mkApp4 (.const ``LT.lt [← if (← leCarrierIsSort) then pure (1 : Level) else pure 0]) (.const ``Nat []) (.const ``instLTNat [])
+          let b_pos := mkApp4 (.const ``LT.lt [1]) (.const ``Nat []) (.const ``instLTNat [])
             (toExpr (0 : Nat)) b
           let pow_pos := mkApp3 (.const ``Nat.pow_pos []) b exp (← mkDecideProof b_pos)
           let cast_pos := mkApp2 (.const ``Int.ofNat_pos_of_pos []) k' pow_pos

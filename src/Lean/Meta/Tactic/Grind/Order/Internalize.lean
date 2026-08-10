@@ -18,7 +18,6 @@ import Lean.Meta.Tactic.Grind.Order.StructId
 import Lean.Meta.Tactic.Grind.Order.Util
 import Lean.Meta.Tactic.Grind.Order.Assert
 import Lean.Meta.Tactic.Grind.Order.Proof
-import Lean.OrderLevel
 namespace Lean.Meta.Grind.Order
 
 open Arith CommRing
@@ -112,8 +111,7 @@ def mkCommRingCnstr? (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : RingM (O
   if !isArithTerm lhs && !isArithTerm rhs then
     let e ← mkDenote0 s kind lhs rhs
     let ring ← getRing
-    let s ← if (← leCarrierIsSort) then pure { s with u := ring.u } else pure s
-    return some { u := lhs, v := rhs, k := 0, e, kind, h? := some (mkCnstrNorm0 s ring.ringInst kind lhs rhs)  }
+    return some { u := lhs, v := rhs, k := 0, e, kind, h? := some (mkCnstrNorm0 { s with u := ring.u } ring.ringInst kind lhs rhs)  }
   let some lhs ← reify? lhs (skipVar := false) | return none
   let some rhs ← reify? rhs (skipVar := false) | return none
   let some p ← lhs.sub rhs |>.toPolyM? | return none
@@ -135,8 +133,7 @@ def mkNonCommRingCnstr? (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : NonCo
   if !isArithTerm lhs && !isArithTerm rhs then
     let e ← mkDenote0 s kind lhs rhs
     let ring ← getRing
-    let s ← if (← leCarrierIsSort) then pure { s with u := ring.u } else pure s
-    return some { u := lhs, v := rhs, k := 0, e, kind, h? := some (mkCnstrNorm0 s ring.ringInst kind lhs rhs)  }
+    return some { u := lhs, v := rhs, k := 0, e, kind, h? := some (mkCnstrNorm0 { s with u := ring.u } ring.ringInst kind lhs rhs)  }
   let some lhs ← ncreify? lhs (skipVar := false) | return none
   let some rhs ← ncreify? rhs (skipVar := false) | return none
   -- **TODO**: We need a `toPolyM_nc` similar `toPolyM`
@@ -308,8 +305,7 @@ where
   adaptCnstr (lhs rhs : Expr) (isLT : Bool) : GoalM Expr := do
     let (lhs', h₁) ← natToInt lhs
     let (rhs', h₂) ← natToInt rhs
-    let leLvl : Level ← if (← leCarrierIsSort) then pure 1 else pure 0
-    let eNew := if isLT then mkIntLT leLvl lhs' rhs' else mkIntLE leLvl lhs' rhs'
+    let eNew := if isLT then mkIntLT lhs' rhs' else mkIntLE lhs' rhs'
     let h := mkApp6
         (mkConst (if isLT then ``Nat.ToInt.lt_eq else ``Nat.ToInt.le_eq))
         lhs rhs lhs' rhs' h₁ h₂

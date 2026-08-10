@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Basic
 import Init.While
-import Lean.OrderLevel
 public section
 namespace Lean.Meta
 /-!
@@ -243,7 +242,7 @@ def litToCtor (e : Expr) : MetaM Expr := do
     let i := toExpr v.val
     let n := toExpr n
     -- Remark: we construct the proof manually here to avoid a cyclic dependency.
-    let p := mkApp4 (mkConst ``LT.lt [← if (← leCarrierIsSort) then pure (1 : Level) else pure 0]) (mkConst ``Nat) (mkConst ``instLTNat) i n
+    let p := mkApp4 (mkConst ``LT.lt [1]) (mkConst ``Nat) (mkConst ``instLTNat) i n
     let h := mkApp3 (mkConst ``of_decide_eq_true) p
       (mkApp2 (mkConst ``Nat.decLt) i n)
       eagerReflBoolTrue

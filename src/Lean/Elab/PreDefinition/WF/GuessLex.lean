@@ -19,7 +19,6 @@ public import Lean.Elab.PreDefinition.WF.Basic
 public import Lean.Data.Array
 import Lean.Meta.Tactic.Refl
 import Init.Data.Prod
-import Lean.OrderLevel
 
 public section
 
@@ -434,10 +433,10 @@ instance : ToFormat GuessLexRel where
   format r := toString r
 
 /-- Given a `GuessLexRel`, produce a binary `Expr` that relates two `Nat` values accordingly. -/
-def GuessLexRel.toNatRel (u : Level) : GuessLexRel → Expr
-  | lt => mkAppN (mkConst ``LT.lt [u]) #[mkConst ``Nat, mkConst ``instLTNat]
+def GuessLexRel.toNatRel : GuessLexRel → Expr
+  | lt => mkAppN (mkConst ``LT.lt [1]) #[mkConst ``Nat, mkConst ``instLTNat]
   | eq => mkAppN (mkConst ``Eq [Level.one]) #[mkConst ``Nat]
-  | le => mkAppN (mkConst ``LE.le [u]) #[mkConst ``Nat, mkConst ``instLENat]
+  | le => mkAppN (mkConst ``LE.le [1]) #[mkConst ``Nat, mkConst ``instLENat]
   | no_idea => unreachable!
 
 /--
@@ -452,9 +451,8 @@ def evalRecCall (callerName: Name) (decrTactic? : Option DecreasingBy) (callerMe
     let param := callerMeasure.natFn.beta rcc.params
     let arg := calleeMeasure.natFn.beta rcc.args
     trace[Elab.definition.wf] "inspectRecCall: {rcc.caller} ({param}) → {rcc.callee} ({arg})"
-    let leLvl ← if (← leCarrierIsSort) then pure (1 : Level) else pure 0
     for rel in [GuessLexRel.eq, .lt, .le] do
-      let goalExpr := mkAppN (rel.toNatRel leLvl) #[arg, param]
+      let goalExpr := mkAppN rel.toNatRel #[arg, param]
       trace[Elab.definition.wf] "Goal for {rel}: {goalExpr}"
       check goalExpr
 

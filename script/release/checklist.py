@@ -533,7 +533,7 @@ class DownstreamChecker(RepoChecker):
             self.cl.fail(f"{what} does not point to toolchain tag")
             return
 
-        self.lrepo.push("stable")
+        self.lrepo.push("stable", force=True)
         self.cl.success(f"{what} updated to point to toolchain tag")
 
     def check_mathlib4_version_tags(self) -> None:

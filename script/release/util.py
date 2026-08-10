@@ -260,11 +260,20 @@ class LocalRepo:
         except Exception:  # noqa: BLE001
             self.git("commit", "-m", message)
 
-    def push(self, branch: str, remote: str = "origin", upstream: bool = True) -> None:
-        if upstream:
-            self.git("push", "-u", remote, branch, silent=True)
-        else:
-            self.git("push", remote, branch, silent=True)
+    def push(
+        self,
+        branch: str,
+        remote: str = "origin",
+        upstream: bool = True,
+        force: bool = False,
+    ) -> None:
+        self.git(
+            "push",
+            *(["-u"] if upstream else []),
+            *(["--force-with-lease"] if force else []),
+            *(remote, branch),
+            silent=True,
+        )
 
 
 class Checklist:

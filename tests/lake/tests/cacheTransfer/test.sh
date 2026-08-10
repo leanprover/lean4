@@ -35,7 +35,7 @@ PORT_FILE="$WORK_DIR/port"
 # Copy test data to a working directory to avoid initializing a Git repository
 # inside the checked-in source tree
 mkdir -p "$WORK_DIR"
-cp -r lakefile.toml non-reservoir.toml BadCurl.lean Test.lean Test "$WORK_DIR/"
+cp -r lakefile.toml non-reservoir.toml dep.toml BadCurl.lean Test.lean Test dep "$WORK_DIR/"
 cd "$WORK_DIR"
 
 echo "# SETUP"
@@ -83,6 +83,9 @@ export ELAN_TOOLCHAIN=
 NUM_ARTS=2
 NUM_REPLAY_ARTS=8
 
+# The `dep` package's library has a single module
+NUM_DEP_ARTS=1
+
 # Runs a command with the cache endpoints set through the environment,
 # which is the deprecated alternative to a configured service
 with_endpoints() {
@@ -123,12 +126,15 @@ test_err 'the `--platform` and `--toolchain` options do nothing' \
 test_err 'the `--platform` and `--toolchain` options do nothing' \
   cache get bogus.jsonl --scope='bogus' --toolchain='bogus' --wfail
 test_err 'a custom endpoint must be set (not Reservoir)' cache get --scope='bogus'
+test_err 'unknown package `bogus`' cache get --package='bogus'
 with_endpoints test_err 'the `--scope` or `--repo` option must be set' cache get
 LAKE_CACHE_ARTIFACT_ENDPOINT=bogus test_err 'both environment variables must be set' cache get
 LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'both environment variables must be set' cache get
 
 # Verify `cache put` rejects bad configurations
 with_endpoints test_err 'the `--scope` or `--repo` option must be set' cache put bogus.jsonl
+test_err 'the `--rev` option is not supported for `cache put`' \
+  cache put bogus.jsonl --scope='bogus' --rev=bogus
 test_err 'the `--service` option must be set' \
   cache put bogus.jsonl --scope='bogus'
 LAKE_CACHE_KEY= test_err 'the `--service` option must be set' \
@@ -164,6 +170,9 @@ test_err 'outputs not found for revision' \
 # Verify dependencies that are not on Reservoir are skipped
 test_run -f non-reservoir.toml update
 test_out 'hello: skipping non-Reservoir dependency' -f non-reservoir.toml cache get
+# Verify such a dependency is an error when selected with `--package`
+test_err 'hello: not a Reservoir dependency' \
+  -f non-reservoir.toml cache get --package=hello
 test_run update
 
 echo "# TRANSFER TESTS"
@@ -344,6 +353,40 @@ match_text "POST /ok/api/v1/repositories/leanprover/test/artifacts" "$SERVER_LOG
 test_artifacts "$NUM_ARTS"
 test_run build Test --no-build
 
+# Verify `--package` fetches a single dependency through Reservoir,
+# using that dependency's scope and revision
+test_cmd rm -rf .lake/build "$CACHE_DIR"
+test_run -f dep.toml update
+test_run -d dep build Dep -o dep-outputs.jsonl
+test_run -d dep cache put dep-outputs.jsonl --repo=leanprover/dep
+test_cmd rm -rf dep/.lake/build .lake/build "$CACHE_DIR"
+: > "$SERVER_LOG"
+# The other dependencies are left alone, so none is reported as skipped
+test_not_out 'skipping non-Reservoir dependency' -f dep.toml cache get --package=dep
+match_text "POST /ok/api/v1/packages/leanprover/dep/artifacts" "$SERVER_LOG"
+test_exp -d "$CACHE_DIR/revisions/dep"
+test_artifacts "$NUM_DEP_ARTS"
+test_run -f dep.toml build @dep/Dep --no-build
+
+# Verify `--package` also selects the dependency for a custom endpoint scope,
+# where `--rev` resolves within that dependency's repository
+test_run -d dep cache put dep-outputs.jsonl --scope=dep
+test_cmd rm -rf dep/.lake/build .lake/build "$CACHE_DIR"
+test_run -f dep.toml cache get --package=dep --scope=dep --service=ok --rev=HEAD
+test_exp -d "$CACHE_DIR/revisions/dep"
+test_artifacts "$NUM_DEP_ARTS"
+test_run -f dep.toml build @dep/Dep --no-build
+
+# Verify `--package` selects the dependency for a mappings file as well,
+# which is otherwise loaded into the root package's local scope
+test_cmd rm -rf dep/.lake/build .lake/build "$CACHE_DIR"
+test_run -f dep.toml cache get dep-outputs.jsonl --package=dep --scope=dep --service=ok
+test_exp -d "$CACHE_DIR/outputs/dep"
+test_exp ! -e "$CACHE_DIR/outputs/test"
+test_artifacts "$NUM_DEP_ARTS"
+test_run -f dep.toml build @dep/Dep --no-build
+test_run update
+
 # Verify a malformed artifact URL lookup is reported
 test_cmd rm -rf .lake/build "$CACHE_DIR"
 test_err 'Incorrect number of results' cache get --repo=leanprover/test --service=badCount
@@ -368,5 +411,15 @@ test_run cache put-staged staging --scope=staged
 test_exp -f "$STORE_DIR/r0/staged/$REV.jsonl"
 test_cmd rm -rf .lake/build "$CACHE_DIR"
 test_run cache get --scope=staged --service=ok
+test_artifacts "$NUM_ARTS"
+test_run build Test --no-build
+
+# Verify staged outputs can be uploaded for another revision,
+# which `cache get --rev` then fetches instead of those of the head revision
+OLD_REV="$(git rev-parse HEAD~1)"
+test_run cache put-staged staging --scope=staged --rev="$OLD_REV"
+test_exp -f "$STORE_DIR/r0/staged/$OLD_REV.jsonl"
+test_cmd rm -rf .lake/build "$CACHE_DIR"
+test_out "for revision $OLD_REV" cache get --scope=staged --service=ok --rev="$OLD_REV"
 test_artifacts "$NUM_ARTS"
 test_run build Test --no-build

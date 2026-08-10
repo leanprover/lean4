@@ -146,35 +146,28 @@ public def compileStaticLib
   let args := args.push libFile.toString ++ (← mkArgs libFile <| oFiles.map toString)
   proc {cmd := ar.toString, args}
 
-def getMacOSXDeploymentEnv : BaseIO (Array (String × Option String)) := do
-  -- It is difficult to identify the correct minor version here, leading to linking warnings like:
-  -- `ld64.lld: warning: /usr/lib/system/libsystem_kernel.dylib has version 13.5.0, which is newer than target minimum of 13.0.0`
-  -- In order to suppress these we set the MACOSX_DEPLOYMENT_TARGET variable into the far future.
-  if System.Platform.isOSX then
-    match (← IO.getEnv "MACOSX_DEPLOYMENT_TARGET") with
-    | some _ => return #[]
-    | none => return #[("MACOSX_DEPLOYMENT_TARGET", some "99.0")]
-  else
-    return #[]
-
 public def compileSharedLib
-  (libFile : FilePath) (linkArgs : Array String) (linker : FilePath := "cc")
+  (libFile : FilePath) (linkArgs : Array String)
+  (linker : FilePath := "cc") (macosxDeploymentTarget? : Option String := none)
 : LogIO Unit := do
   createParentDirs libFile
   proc {
     cmd := linker.toString
     args := #["-shared", "-o", libFile.toString] ++ (← mkArgs libFile linkArgs)
-    env := ← getMacOSXDeploymentEnv
+    -- See `BuildConfig.macosxDeploymentTarget?` for details
+    env := macosxDeploymentTarget?.elim #[] fun ver => #[("MACOSX_DEPLOYMENT_TARGET", some ver)]
   }
 
 public def compileExe
-  (binFile : FilePath) (linkArgs : Array String) (linker : FilePath := "cc")
+  (binFile : FilePath) (linkArgs : Array String)
+  (linker : FilePath := "cc") (macosxDeploymentTarget? : Option String := none)
 : LogIO Unit := do
   createParentDirs binFile
   proc {
     cmd := linker.toString
     args := #["-o", binFile.toString] ++ (← mkArgs binFile linkArgs)
-    env := ← getMacOSXDeploymentEnv
+    -- See `BuildConfig.macosxDeploymentTarget?` for details
+    env :=  macosxDeploymentTarget?.elim #[] fun ver => #[("MACOSX_DEPLOYMENT_TARGET", some ver)]
   }
 
 /-- Download a file using `curl`, clobbering any existing file. -/

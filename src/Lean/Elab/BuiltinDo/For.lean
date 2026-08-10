@@ -220,10 +220,7 @@ private def mkForInLoopWithInvariantAndVariant (g : ForInApp)
     DoElabM Expr := do
   let pred? ← assertionLanguage?
   let invArg ← match inv? with
-    | none =>
-      -- Nothing determines the assertion language of an absent invariant, so it is the `Prop` that
-      -- the specification of a loop stating only its measure reads here.
-      `((none : Option ($(mkIdent ``Std.Internal.Do.RepeatInvariant) _ _ Prop)))
+    | none => `($(mkIdent ``Std.Internal.Do.noInvariant))
     | some invClause =>
       let (binders, invBody) ← destructInvariant invClause
       let exitBinder := binders[0]!
@@ -240,10 +237,7 @@ private def mkForInLoopWithInvariantAndVariant (g : ForInApp)
       -- check that would unfold it.
       `(some ($(mkIdent ``Std.Internal.Do.RepeatInvariant.mk) $(← g.mkCursorFun cursor invBody)))
   let varArg ← match dec? with
-    | none =>
-      -- Nothing determines the codomain of an absent measure, so it is the `Unit` that the
-      -- specification of a loop stating only its invariant reads here.
-      `((none : Option (_ → Unit)))
+    | none => `($(mkIdent ``Std.Internal.Do.noMeasure))
     | some decClause =>
       let (binders, body) ← match decClause with
         | `(doLoopDecreasing| decreasing $binders* => $body) => pure (binders, body)

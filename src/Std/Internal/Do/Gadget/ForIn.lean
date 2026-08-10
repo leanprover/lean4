@@ -115,6 +115,12 @@ assertion language it evaluates in is the one the specification is applied at. -
     (inv? : Option (RepeatInvariant β β Pred)) (var? : Option (β → Fun)) : m β :=
   forIn l init f
 
+/-- The invariant slot of a loop that states only its measure, whose assertion language is `Prop`. -/
+def noInvariant {β : Type u} : Option (RepeatInvariant β β Prop) := none
+
+/-- The measure slot of a loop that states only its invariant, whose codomain is `Unit`. -/
+def noMeasure {β : Type u} : Option (β → Unit) := none
+
 variable {β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
 variable [Monad m] [Lean.Order.MonadTail m] [Assertion Pred] [Assertion EPred]
   [WPMonad m Pred EPred]
@@ -159,7 +165,7 @@ theorem Spec.forInLoop_invariant
           | .done b' => inv (.inr b'))
         einv) :
     Triple
-      (forInLoopWithInvariantAndVariant (Fun := Unit) l init f (some (RepeatInvariant.mk inv)) none)
+      (forInLoopWithInvariantAndVariant l init f (some (RepeatInvariant.mk inv)) noMeasure)
       (inv (.inl init))
       (fun b => inv (.inr b))
       einv := by
@@ -183,7 +189,7 @@ theorem Spec.forInLoop_variant {Fun : Type} {γ : Type uγ'}
           | .done b' => inv (.inr b'))
         einv) :
     Triple
-      (forInLoopWithInvariantAndVariant (Pred := Prop) l init f none (some measure))
+      (forInLoopWithInvariantAndVariant l init f noInvariant (some measure))
       (inv (.inl init))
       (fun b => inv (.inr b))
       einv := by

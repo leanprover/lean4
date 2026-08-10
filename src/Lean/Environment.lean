@@ -644,6 +644,21 @@ accessible in both the private and public scope. All other data is empty.
 def ofKernelEnv (env : Kernel.Environment) : Environment :=
   { base.private := env, base.public := env, importRealizationCtx? := none }
 
+/--
+Initializes `importRealizationCtx?`, without which realizing a value for an imported declaration,
+as the caches behind queries such as `Meta.getFunInfo` do, fails.
+
+The context is the environment's own, so anything realized on it is discarded along with it rather
+than shared with any other environment.
+-/
+def enableRealizationsForImports (env : Environment) (opts : Options) : BaseIO Environment := do
+  return { env with importRealizationCtx? := some {
+    -- safety: `RealizationContext` is private
+    env := unsafe unsafeCast env
+    opts
+    realizeMapRef := (← IO.mkRef {})
+  } }
+
 @[export lean_elab_environment_to_kernel_env]
 def toKernelEnv (env : Environment) : Kernel.Environment :=
   env.checked.get
@@ -2411,12 +2426,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
         Safety: There are no concurrent accesses to `env` at this point, assuming
         extensions' `addImportFn`s did not spawn any unbound tasks. -/
       env ← unsafe Runtime.markPersistent env
-  return { env with importRealizationCtx? := some {
-    -- safety: `RealizationContext` is private
-    env := unsafe unsafeCast env
-    opts
-    realizeMapRef := (← IO.mkRef {})
-  } }
+  Environment.enableRealizationsForImports env opts
 
 /--
 Creates environment object from given imports.

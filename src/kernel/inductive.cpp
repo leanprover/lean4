@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <string>
+#include <vector>
 #include "runtime/sstream.h"
 #include "runtime/utf8.h"
 #include "util/name_generator.h"
@@ -1141,6 +1143,308 @@ static void check_no_nested_aux(environment const & env, name const & n, expr co
     }
 }
 
+/* The equations a recursor's rules assert, one per rule, closed under every binder they mention.
+
+   Stating these here rather than accepting them from the certificate is the whole point: the kernel
+   says what it is about to make definitional, and a certificate has to prove exactly that. Accepting
+   the statement along with its proof would let a certificate prove something else and be believed.
+
+   Each equation is the rule as iota will fire it, reading the same arities `inductive_reduce_rec`
+   does: the major premise sits at `get_major_idx`, and the right-hand side is applied to the
+   telescope before it and then to the constructor's fields. Only a constructor application is
+   stated; iota's other majors, literals and K-like and structure eta, reduce to one of those before
+   it looks up a rule, and an equation stated at the major premise implies its own instances with
+   further arguments applied.
+
+   The equations are stated over the constants of `env`, in which the rules hold by construction, so
+   as they stand they are vacuous. `check_nested_rules` checks them in an environment where those
+   same names are definitions over a model instead, and that is what gives them content. */
+static void mk_rule_equations(environment const & env, name const & rec_name, buffer<expr> & eqs,
+                              buffer<expr> & sides) {
+    constant_info rec_info = env.get(rec_name);
+    recursor_val rec_val   = rec_info.to_recursor_val();
+    unsigned ntele         = rec_val.get_nparams() + rec_val.get_nmotives() + rec_val.get_nminors();
+    local_ctx lctx;
+    name_generator ngen(*g_ind_fresh);
+    /* the recursor's parameters, motives and minor premises, which every rule is stated under */
+    buffer<expr> tele;
+    expr ty = rec_info.get_type();
+    for (unsigned i = 0; i < rec_val.get_major_idx(); i++) {
+        if (!is_pi(ty))
+            throw kernel_exception(env, sstream() << "'" << rec_name << "' takes fewer arguments than "
+                                                     "the arities it is declared with");
+        expr l = lctx.mk_local_decl(ngen, binding_name(ty), binding_domain(ty), binding_info(ty));
+        if (i < ntele)
+            tele.push_back(l);
+        ty = instantiate(binding_body(ty), l);
+    }
+    /* The major premise's type says which type this recursor eliminates and at which parameters, and
+       that is where a rule's constructor takes its own parameters and levels from. An auxiliary
+       recursor's rules name constructors of the declaration that was nested under, whose parameter
+       count is its own and whose parameters are the ones the nesting specialised it at, so neither
+       can be read off the recursor's telescope. */
+    if (!is_pi(ty))
+        throw kernel_exception(env, sstream() << "'" << rec_name << "' has no major premise");
+    buffer<expr> major_args;
+    expr major_fn = get_app_args(binding_domain(ty), major_args);
+    if (!is_constant(major_fn))
+        throw kernel_exception(env, sstream() << "the major premise of '" << rec_name
+                                              << "' is not an inductive type");
+    levels c_lvls = const_levels(major_fn);
+    type_checker tc(env, lctx);
+    for (recursor_rule const & rule : rec_val.get_rules()) {
+        constant_info c_info = env.get(rule.get_cnstr());
+        unsigned c_nparams   = c_info.to_constructor_val().get_nparams();
+        if (major_args.size() < c_nparams)
+            throw kernel_exception(env, sstream() << "the major premise of '" << rec_name
+                                                  << "' does not give '" << rule.get_cnstr()
+                                                  << "' its parameters");
+        expr c_ty = instantiate_type_lparams(c_info, c_lvls);
+        for (unsigned i = 0; i < c_nparams; i++) {
+            if (!is_pi(c_ty)) throw kernel_exception(env, "ill-formed constructor type");
+            c_ty = instantiate(binding_body(c_ty), major_args[i]);
+        }
+        /* the constructor's own fields, and with them the indices it concludes at */
+        buffer<expr> fields;
+        while (is_pi(c_ty)) {
+            expr l = lctx.mk_local_decl(ngen, binding_name(c_ty), binding_domain(c_ty), binding_info(c_ty));
+            fields.push_back(l);
+            c_ty = instantiate(binding_body(c_ty), l);
+        }
+        /* iota takes this many arguments off the major premise, so a rule stating a different number
+           would reduce to something other than the equation checked here */
+        if (fields.size() != rule.get_nfields())
+            throw kernel_exception(env, sstream() << "the rule of '" << rec_name << "' for '"
+                                                  << rule.get_cnstr() << "' states " << rule.get_nfields()
+                                                  << " fields, the constructor has " << fields.size());
+        buffer<expr> c_args;
+        get_app_args(c_ty, c_args);
+        if (c_args.size() < c_nparams) throw kernel_exception(env, "ill-formed constructor type");
+        expr major = mk_app(mk_app(mk_constant(rule.get_cnstr(), c_lvls), c_nparams, major_args.data()),
+                            fields);
+        buffer<expr> lhs_args;
+        lhs_args.append(tele);
+        for (unsigned i = c_nparams; i < c_args.size(); i++)
+            lhs_args.push_back(c_args[i]);
+        lhs_args.push_back(major);
+        expr lhs = mk_app(mk_constant(rec_name, lparams_to_levels(rec_info.get_lparams())), lhs_args);
+        expr rhs = mk_app(mk_app(instantiate_lparams(rule.get_rhs(), rec_info.get_lparams(),
+                                                     lparams_to_levels(rec_info.get_lparams())),
+                                 tele), fields);
+        expr A   = tc.infer(lhs);
+        level u  = sort_level(tc.ensure_type(A));
+        expr eq  = mk_app(mk_constant(name("Eq"), levels(u)), A, lhs, rhs);
+        buffer<expr> binders;
+        binders.append(tele);
+        binders.append(fields);
+        eqs.push_back(lctx.mk_pi(binders, eq));
+        /* A rule that already holds definitionally over the model has no certificate, and needs none.
+           The two sides go out closed under the same binders so the caller can ask that directly,
+           rather than by type checking a reflexivity proof of one of them. */
+        sides.push_back(lctx.mk_lambda(binders, lhs));
+        sides.push_back(lctx.mk_lambda(binders, rhs));
+    }
+}
+
+extern "C" object * lean_certify_nested_inductive(obj_arg env, obj_arg d);
+
+/* One recursor of the nested declaration as the certificate derives it, from the model rather than
+   from the elimination the kernel ran.
+
+   Only what the kernel cannot get from its own declaration is read back: the index count, which no
+   check downstream would catch, and the name of the theorem for each rule. The derived type and
+   right-hand sides are not, since what the kernel asks of them it asks of the definitions realising
+   them instead, which is the stronger question. */
+struct certified_rec {
+    name              m_name;
+    unsigned          m_nindices = 0;
+    /* the constructor each rule is for, and the theorem discharging it; anonymous where the rule
+       holds definitionally over the model */
+    std::vector<pair<name, name>> m_rule_proofs;
+};
+
+/* What the Lean side returns: the environment holding the model, the bridges and the proofs, in which
+   every constant this declaration introduces is realised by a definition, and the recursors it
+   derived independently of the kernel's elimination. */
+struct nested_certificate {
+    optional<environment>      m_env;
+    std::vector<certified_rec> m_recs;
+    std::vector<bool>          m_reflexive;
+};
+
+static optional<nested_certificate> get_nested_certificate(environment const & env, declaration const & d,
+                                                           name const & decl_name) {
+    object * r = lean_certify_nested_inductive(env.to_obj_arg(), d.to_obj_arg());
+    if (!lean_io_result_is_ok(r)) {
+        lean_io_result_show_error(r);
+        lean_dec_ref(r);
+        throw kernel_exception(env, sstream() << "failed to certify nested inductive type '"
+                                              << decl_name << "'");
+    }
+    /* `Except String (Option Certificate)`: tag 0 carries the message, tag 1 the certificate, and
+       within that a scalar means the generator found no nested occurrence. */
+    object * v = lean_io_result_get_value(r);
+    if (lean_obj_tag(v) == 0) {
+        std::string msg(lean_string_cstr(lean_ctor_get(v, 0)));
+        lean_dec_ref(r);
+        throw kernel_exception(env, sstream() << "uncertified nested inductive type '" << decl_name
+                                              << "': " << msg);
+    }
+    object * cert_opt = lean_ctor_get(v, 0);
+    if (lean_is_scalar(cert_opt)) {
+        lean_dec_ref(r);
+        return optional<nested_certificate>();
+    }
+    object * c = lean_ctor_get(cert_opt, 0);
+    nested_certificate cert;
+    cert.m_env = optional<environment>(environment(lean_ctor_get(c, 0), true));
+    object * crecs = lean_ctor_get(c, 1);
+    /* `RestoredRec`: name, level parameters, type, index count, and one rule per constructor. Read
+       before the result is released, since these are borrowed pointers into it. */
+    for (size_t i = 0; i < lean_array_size(crecs); i++) {
+        object * o = lean_array_get_core(crecs, i);
+        certified_rec cr;
+        cr.m_name     = name(lean_ctor_get(o, 0), true);
+        cr.m_nindices = static_cast<unsigned>(lean_unbox(lean_ctor_get(o, 3)));
+        object * rules = lean_ctor_get(o, 4);
+        object * prfs  = lean_ctor_get(o, 5);
+        if (lean_array_size(prfs) != lean_array_size(rules))
+            throw kernel_exception(env, sstream() << "the certificate does not answer for every rule of '"
+                                                  << cr.m_name << "'");
+        for (size_t j = 0; j < lean_array_size(rules); j++) {
+            object * p = lean_array_get_core(prfs, j);
+            cr.m_rule_proofs.push_back(mk_pair(name(lean_ctor_get(lean_array_get_core(rules, j), 0), true),
+                                               lean_is_scalar(p) ? name()
+                                                                 : name(lean_ctor_get(p, 0), true)));
+        }
+        cert.m_recs.push_back(cr);
+    }
+    object * refl = lean_ctor_get(c, 2);
+    for (size_t i = 0; i < lean_array_size(refl); i++)
+        cert.m_reflexive.push_back(lean_unbox(lean_array_get_core(refl, i)) != 0);
+    lean_dec_ref(r);
+    return optional<nested_certificate>(cert);
+}
+
+/* Check what the elimination above produced against a model of the declaration.
+
+   The elimination and the rewrite of its result back into the nested presentation are what the kernel
+   does for a nested inductive that it does not otherwise check: the rewritten recursors and their
+   rules are `add_core`d, and those rules are what the declaration makes definitional. So the whole of
+   this declaration is asked of a model built independently, in `Lean.Meta.NestedGen`, from the
+   environment as it stood before any of it was added:
+
+   - every constant declared is realised there by a definition, at the type it was declared with, so
+     that nothing was introduced that a model cannot answer for. A definition is what makes the rules
+     say something: were the model to hold the recursor this kernel declared, its rules would hold by
+     the very fiat they are meant to justify;
+   - every computation rule holds there, either definitionally or by a theorem the certificate names.
+     The rules are restated here from the recursors as declared, so what gets proved is what is about
+     to be believed rather than whatever the generator chose to state.
+
+   Nothing here can license a declaration -- the model and its proofs go into a scratch environment
+   that is discarded -- so the only possible effect is to reject. */
+static void certify_nested(environment const & env, environment const & new_env, declaration const & d,
+                           buffer<name> const & rec_names) {
+    inductive_decl ind_d(d);
+    names all_ind_names = get_all_inductive_names(ind_d);
+    name decl_name = head(all_ind_names);
+    optional<nested_certificate> cert_opt = get_nested_certificate(env, d, decl_name);
+    /* The kernel found an occurrence to unfold and the generator did not. They implement the same
+       rule, so this is a disagreement about what nesting is rather than a declaration to accept. */
+    if (!cert_opt)
+        throw kernel_exception(env, sstream() << "no certificate for nested inductive type '"
+                                              << decl_name << "': the generator found no nested "
+                                                              "occurrence in it");
+    nested_certificate const & cert = *cert_opt;
+    environment const & cert_env = *cert.m_env;
+    type_checker tc(cert_env);
+    /* Universe parameters are matched by position, not by name: the model was built separately. The
+       type is compared up to definitional equality because the two derivations need not agree term
+       for term -- the elimination keeps a redex where opening and reclosing a telescope reduces one
+       away -- and inhabitation at a definitionally equal type is what is being asked. */
+    auto realises = [&](name const & n, names const & lps, expr const & ty) {
+        optional<constant_info> mi = cert_env.find(n);
+        if (!mi || !mi->is_definition() || length(lps) != length(mi->get_lparams())
+                || !tc.is_def_eq(instantiate_type_lparams(*mi, lparams_to_levels(lps)), ty))
+            throw kernel_exception(env, sstream() << "the certificate for '" << decl_name
+                                                  << "' does not define '" << n
+                                                  << "' at its declared type");
+    };
+    unsigned ind_idx = 0;
+    for (inductive_type const & ind_type : ind_d.get_types()) {
+        realises(ind_type.get_name(), ind_d.get_lparams(), ind_type.get_type());
+        /* `is_reflexive` asks `is_pi` of each constructor field, so a field the elimination left as a
+           redex hides the binder that makes the type reflexive, and the model, whose telescopes were
+           opened and reclosed, can be reflexive where the declaration is not. Beta only ever exposes
+           more `∀`, so the other direction would mean the model has lost a field. */
+        if (ind_idx >= cert.m_reflexive.size())
+            throw kernel_exception(env, sstream() << "the certificate for '" << decl_name
+                                                  << "' does not cover the declaration's types");
+        if (new_env.get(ind_type.get_name()).to_inductive_val().is_reflexive() && !cert.m_reflexive[ind_idx])
+            throw kernel_exception(env, sstream() << "'" << ind_type.get_name()
+                                                  << "' is declared reflexive but the model is not");
+        ind_idx++;
+        for (constructor const & c : ind_type.get_cnstrs())
+            realises(constructor_name(c), ind_d.get_lparams(), constructor_type(c));
+    }
+    for (name const & rec_name : rec_names) {
+        certified_rec const * cr = nullptr;
+        for (certified_rec const & r : cert.m_recs) {
+            if (r.m_name == rec_name) { cr = &r; break; }
+        }
+        if (!cr)
+            throw kernel_exception(env, sstream() << "the certificate for '" << decl_name
+                                                  << "' does not derive '" << rec_name << "'");
+        constant_info rec_info = new_env.get(rec_name);
+        recursor_val rec_val   = rec_info.to_recursor_val();
+        realises(rec_name, rec_info.get_lparams(), rec_info.get_type());
+        /* `major_idx` is derived from the arities, and iota takes that argument for the major premise.
+           The kernel copies them off its own auxiliary declaration, where the nesting fixed the
+           parameters of an auxiliary recursor, so a second elimination arriving at the same index
+           count is the only handle there is on them. */
+        if (rec_val.get_nindices() != cr->m_nindices)
+            throw kernel_exception(env, sstream() << "'" << rec_name << "' is declared with "
+                                                  << rec_val.get_nindices() << " indices, the model implies "
+                                                  << cr->m_nindices);
+        /* which theorem discharges the rule for a given constructor, if any */
+        name_map<name> proof_of;
+        for (pair<name, name> const & p : cr->m_rule_proofs) {
+            if (!p.second.is_anonymous())
+                proof_of.insert(p.first, p.second);
+        }
+        buffer<expr> eqs, sides;
+        mk_rule_equations(new_env, rec_name, eqs, sides);
+        if (eqs.size() != length(rec_val.get_rules()))
+            throw kernel_exception(env, sstream() << "'" << rec_name
+                                                  << "' does not state one equation per rule");
+        unsigned i = 0;
+        for (recursor_rule const & rule : rec_val.get_rules()) {
+            /* either it holds definitionally over the model, or the named theorem proves it */
+            if (!tc.is_def_eq(sides[2*i], sides[2*i + 1])) {
+                bool proved = false;
+                name const * pn = proof_of.find(rule.get_cnstr());
+                if (pn) {
+                    /* a theorem, not merely a constant of the right type: a rejected proof is added
+                       as an axiom of the statement it failed to prove, and would answer here */
+                    optional<constant_info> pi = cert_env.find(*pn);
+                    if (pi && pi->is_theorem()
+                           && length(pi->get_lparams()) == length(rec_info.get_lparams()))
+                        proved = tc.is_def_eq(instantiate_type_lparams(*pi, lparams_to_levels(rec_info.get_lparams())),
+                                              eqs[i]);
+                }
+                if (!proved)
+                    throw kernel_exception(env, sstream() << "no certificate for the computation rule of '"
+                                                          << rec_name << "' for '" << rule.get_cnstr()
+                                                          << "': "
+                                                          << (pn ? *pn : name("none was named"))
+                                                          << " does not prove it");
+            }
+            i++;
+        }
+    }
+}
+
 environment environment::add_inductive(declaration const & d) const {
     /* Reject metavariables, free variables, and references to auxiliary declarations. */
     {
@@ -1253,6 +1557,11 @@ environment environment::add_inductive(declaration const & d) const {
                 }
             }
         }
+        /* An unsafe declaration is outside the kernel's guarantees, and nothing could certify it: the
+           bridges are definitions and the rule proofs are theorems, and neither may mention an unsafe
+           constant. */
+        if (!ind_d.is_unsafe())
+            certify_nested(*this, new_env, d, new_rec_names);
         return diag.update(new_env);
     }
 }

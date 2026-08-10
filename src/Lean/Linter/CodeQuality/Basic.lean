@@ -9,6 +9,7 @@ module
 prelude
 
 public import Lean.Data.Json
+public import Lean.Message
 
 public section
 
@@ -32,6 +33,6 @@ structure Entry where
 
 structure CheckResult where
   entries : Array Entry
-  errors : Array String
+  errors : Array MessageData
 
 end Lean.Linter.CodeQuality

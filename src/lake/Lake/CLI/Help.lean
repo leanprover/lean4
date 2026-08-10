@@ -290,6 +290,9 @@ OPTIONS:
   --code-quality        records each linter warning as a code quality check result
                         and runs the registered code quality checks.
                         Setting this flag will skip lint driver.
+  --checks <mods>       Comma-separated list of workspace modules containing
+                        package quality checks to be executed on each
+                        top-level module that is being imported.
 
 A lint driver can be configured by either setting the `lintDriver` package
 configuration option or by tagging a script or executable `@[lint_driver]`.

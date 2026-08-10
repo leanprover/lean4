@@ -8,6 +8,8 @@ module
 prelude
 public import Lean.Linter.CodeQuality.Basic
 public import Lean.Elab.InfoTree.Main
+public import Lean.Elab.Command
+public import Lean.Message
 
 public section
 
@@ -29,9 +31,10 @@ into a single array of entries and accumulates all errors.
 /-- Global inputs provided by the driver to every code quality check. -/
 structure PackageCheckContext where
   srcSearchPath : System.SearchPath
+  topLevelModule : Name
 
 structure PackageCheck where
-  run : PackageCheckContext → IO (Array Entry)
+  run : PackageCheckContext → MetaM (Array Entry)
 
 structure NamedPackageCheck extends PackageCheck where
   declName : Name
@@ -73,16 +76,20 @@ def getPackageChecks : CoreM (Array NamedPackageCheck) := do
   pure result
 
 def runPackageChecks (checks : Array NamedPackageCheck) (ctx : PackageCheckContext) :
-    IO CheckResult := do
+    CoreM CheckResult := do
   let tasks ← checks.mapM fun check => do
-    (check.declName, ·) <$> (IO.asTask <| check.run ctx)
+    (check.declName, ·) <$> do
+      let act : MetaM (Array Entry) := do
+        check.run ctx
+      EIO.asTask <| (← Core.wrapAsync (fun _ =>
+          act |>.run' Elab.Command.mkMetaContext
+        ) (cancelTk? := none)) ()
   let mut entries := #[]
   let mut errors := #[]
   for (declName, task) in tasks do
     match task.get with
     | .ok checkEntries => entries := entries ++ checkEntries
-    | .error err =>
-      errors := errors.push (s!"{declName} has failed: " ++ err.toString)
+    | .error err => errors := errors.push (s!"{declName} has failed: " ++ (err.toMessageData))
   return ⟨entries, errors⟩
 
 end Lean.Linter.CodeQuality

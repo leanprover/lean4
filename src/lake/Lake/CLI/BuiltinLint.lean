@@ -41,6 +41,8 @@ public structure Args where
   /-- Whether to record linter warnings as `set_option <linter> false in` exceptions
   by editing the source files in place. -/
   mode : Mode := .report
+  /-- An array of modules containing code quality checks, these are imported alongside each module -/
+  checks : Array Name := #[]
   /-- Source search path used to resolve modules to their `.lean` files when recording
   exceptions for environment linters. Populated from the workspace's `LEAN_SRC_PATH`, since
   `getSrcSearchPath` alone does not cover package sources during a `lake lint` run. -/
@@ -99,7 +101,6 @@ private inductive DeferredCheckOutcome where
 private structure PackageCodeQualityCheckOutcome where
   entries : Array CodeQuality.Entry
   failed : Bool
-  seenPackageCheckModules : NameSet
 
 private def collectTextLints
     (env : Environment) (pkgRoot : Name) :
@@ -386,18 +387,18 @@ private def runEnvironmentLinters (args : Args) (linterOpts : Linter.LinterOptio
   return outcome
 
 private def runPackageCodeQualityChecks (sp : SearchPath) (env : Environment)
-    (seenPackageCheckDecls : NameSet) : IO PackageCodeQualityCheckOutcome := do
-  let ⟨(outcome, anyFailed, checks), _⟩ ← CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do
+    (mod : Name) : IO PackageCodeQualityCheckOutcome := do
+  let ⟨(outcome, anyFailed), _⟩ ← CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do
     let mut anyFailed : Bool := false
     let checks ← CodeQuality.getPackageChecks
-    let checks := checks.filter (!seenPackageCheckDecls.contains ·.declName)
-    let ⟨outcome, errors⟩ ← CodeQuality.runPackageChecks checks { srcSearchPath := sp }
+    let ⟨outcome, errors⟩ ← CodeQuality.runPackageChecks checks
+      { srcSearchPath := sp, topLevelModule := mod }
     if !errors.isEmpty then
       anyFailed := true
     for error in errors do
-      IO.eprintln error
-    return (outcome, anyFailed, checks)
-  return ⟨outcome, anyFailed, seenPackageCheckDecls.insertMany <| checks.map (·.declName)⟩
+      IO.eprintln (← error.format)
+    return (outcome, anyFailed)
+  return ⟨outcome, anyFailed⟩
 
 public def run (args : Args) : IO UInt32 := do
   let mods := args.mods
@@ -405,6 +406,7 @@ public def run (args : Args) : IO UInt32 := do
     IO.eprintln "lake lint: no modules specified for builtin linting"
     return 1
   let envLinterModule : Import := { module := `Lean.Linter.EnvLinter }
+  let checkImports : Array Import := args.checks.map fun c => { module := c }
 
   let sp := args.srcSearchPath ++ (← getSrcSearchPath)
 
@@ -418,7 +420,6 @@ public def run (args : Args) : IO UInt32 := do
   -- Modules whose deferred docstring checks have already been run. A module can appear in
   -- several targets' import closures, so this runs each such module's checks only once.
   let mut docCheckedModules : NameSet := {}
-  let mut seenPackageCheckModules : NameSet := {}
   for mod in mods do
     unsafe Lean.enableInitializersExecution
     -- Peek at the .olean header to learn whether `mod` participates in the module system.
@@ -429,7 +430,7 @@ public def run (args : Args) : IO UInt32 := do
     let isModule ← getIsModule modData
     let level := if isModule then OLeanLevel.server else OLeanLevel.private
     unsafe region.free
-    let env ← importModules #[{ module := mod }, envLinterModule] {}
+    let env ← importModules (#[{ module := mod }, envLinterModule] ++ checkImports) {}
       (trustLevel := 1024) (loadExts := true) (level := level)
 
     -- We create `LinterOptions` out of the passed overrides
@@ -460,10 +461,9 @@ public def run (args : Args) : IO UInt32 := do
       codeQualityEntries := codeQualityEntries ++ entries
 
     if args.mode == .codeQuality then
-      let ⟨entries, failed, seen⟩ ← runPackageCodeQualityChecks sp env seenPackageCheckModules
+      let ⟨entries, failed⟩ ← runPackageCodeQualityChecks sp env mod
       codeQualityEntries := codeQualityEntries ++ entries
       if failed then anyFailed := true
-      seenPackageCheckModules := seen
     else
       let deferredResults ← runDeferredChecks args linterOpts sp env mod.getRoot docCheckedModules
       docCheckedModules := deferredResults.checkedModules

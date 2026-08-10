@@ -643,7 +643,6 @@ def detectIte {aig : AIG Nat} (root : Nat) (h : root < aig.decls.size) : Option 
     -- We expect the structure to be a conjunction of disjunctions
     if !l.invert || !r.invert then
       none
-
     else
       -- Match l = (l0 ∧ l1) and r = (r0 ∧ r1)
       have := aig.hdag h hroot
@@ -651,25 +650,20 @@ def detectIte {aig : AIG Nat} (root : Nat) (h : root < aig.decls.size) : Option 
       | .gate l0 l1, .gate r0 r1 => go l r l0 l1 r0 r1
       | _, _ => none
   | _ => none
-
 where
   go (l r l0 l1 r0 r1 : Fanin) : Option (Fanin × Fanin × Fanin) :=
     -- ¬(l0 ∧ l1) ∧ ¬(¬l0 ∧ r1) = (l0 → ¬l1) ∧ (¬l0 → ¬r1)
     if l0 = r0.flip true then
       some (l0, l1.flip true, r1.flip true)
-
     -- ¬(l0 ∧ l1) ∧ ¬(r0 ∧ ¬l0) = (l0 → ¬l1) ∧ (¬l0 → ¬r0)
     else if l0 = r1.flip true then
       some (l0, l1.flip true, r0.flip true)
-
     -- ¬(l0 ∧ l1) ∧ ¬(¬l1 ∧ r1) = (l1 → ¬l0) ∧ (¬l0 → ¬r1)
     else if l1 = r0.flip true then
       some (l1, l0.flip true, r1.flip true)
-
     -- ¬(l0 ∧ l1) ∧ ¬(r0 ∧ ¬l1) = (l1 → ¬l0) ∧ (¬l1 → ¬r0)
     else if l1 = r1.flip true then
       some (l1, l0.flip true, r0.flip true)
-
     else
       none
 
@@ -677,24 +671,21 @@ theorem detectIte.gate_cond_go {l r l0 l1 r0 r1 c t f}
     (heq : go l r l0 l1 r0 r1 = some ⟨c, t, f⟩) :
     c.gate = l0.gate ∨ c.gate = l1.gate := by
   revert heq
-  fun_cases go
-  <;> simp +contextual
+  fun_cases go <;> simp +contextual
 
 theorem detectIte.gate_ifTrue_go {l r l0 l1 r0 r1 c t f}
     (heq : go l r l0 l1 r0 r1 = some ⟨c, t, f⟩) :
     t.gate = l0.gate ∨ t.gate = l1.gate := by
   replace heq := heq.symm
   revert heq
-  fun_cases go
-  <;> simp +contextual
+  fun_cases go <;> simp +contextual
 
 theorem detectIte.gate_ifFalse_go {l r l0 l1 r0 r1 c t f}
     (heq : go l r l0 l1 r0 r1 = some ⟨c, t, f⟩) :
     f.gate = r0.gate ∨ f.gate = r1.gate := by
   replace heq := heq.symm
   revert heq
-  fun_cases go
-  <;> simp +contextual
+  fun_cases go <;> simp +contextual
 
 theorem detectIte_cond_lt {aig : AIG Nat} {root c t f} {h : root < aig.decls.size}
     (heq : detectIte root h = some ⟨c, t, f⟩) :
@@ -732,26 +723,8 @@ theorem detectIte_ifFalse_lt {aig : AIG Nat} {root c t f} {h : root < aig.decls.
     omega
   all_goals simp
 
-theorem detectIte.denote_go' (denote : Fanin → Bool) {l r l0 l1 r0 r1 c t f : Fanin}
-    (heq : go l r l0 l1 r0 r1 = some ⟨c, t, f⟩)
-    (hl : denote l = !(denote l0 && denote l1)) (hr : denote r = !(denote r0 && denote r1))
-    (hflip : ∀ (fi : Fanin), denote (fi.flip true) = !denote fi) :
-    (denote l && denote r) =
-      if denote c then denote t else denote f := by
-  replace heq := heq.symm
-  revert heq
-  fun_cases go
-  <;> rename_i h
-  <;> simp +contextual only [h, hflip, hl, hr, Option.some.injEq, Prod.mk.injEq,
-        reduceCtorEq, false_implies]
-  <;> intros
-  <;> generalize denote l0 = dl0
-  <;> generalize denote l1 = dl1
-  <;> generalize denote r0 = dr0
-  <;> generalize denote r1 = dr1
-  <;> decide +revert
-
-theorem detectIte.denote_go {aig : AIG Nat} {root : Nat} {l r l0 l1 r0 r1 c t f : Fanin} {hroot hl hr}
+theorem detectIte.denote_go {aig : AIG Nat} {root : Nat} {l r l0 l1 r0 r1 c t f : Fanin}
+    {hroot hl hr}
     (heq : go l r l0 l1 r0 r1 = some ⟨c, t, f⟩) (heqroot : aig.decls[root]'hroot = .gate l r)
     (heql : aig.decls[l.gate]'hl = .gate l0 l1) (heqr : aig.decls[r.gate]'hr = .gate r0 r1)
     (hinvl : l.invert) (hinvr : r.invert) :
@@ -764,29 +737,20 @@ theorem detectIte.denote_go {aig : AIG Nat} {root : Nat} {l r l0 l1 r0 r1 c t f 
         ⟦aig, ⟨f.gate, f.invert, by have := gate_ifFalse_go heq; omega⟩, assign⟧ := by
   simp only [denote_idx_gate heqroot, Bool.bne_false]
 
-  let denote (fi : Fanin) : Bool :=
-    if hgate : fi.gate < aig.decls.size then
-      ⟦aig, ⟨fi.gate, fi.invert, hgate⟩, assign⟧
-    else
-      fi.invert
-  have {fi : Fanin} h : ⟦aig, ⟨fi.gate, fi.invert, h⟩, assign⟧ = denote fi := by simp [denote, h]
-  simp only [this]
-
-  have := aig.hdag (by omega) heql
-  have := aig.hdag (by omega) heqr
-  have hl0 : l0.gate < aig.decls.size := by omega
-  have hl1 : l1.gate < aig.decls.size := by omega
-  have hr0 : r0.gate < aig.decls.size := by omega
-  have hr1 : r1.gate < aig.decls.size := by omega
-
-  apply denote_go' denote heq
-  · simp [denote, hl, hl0, hl1, denote_idx_gate heql, hinvl]
-  · simp [denote, hr, hr0, hr1, denote_idx_gate heqr, hinvr]
-  · simp only [Fanin.gate_flip, denote]
-    intro fi
-    split
-    · simp
-    · simp
+  replace heq := heq.symm
+  revert heq
+  fun_cases go
+  case case5 => simp
+  all_goals
+    simp_all only [Fanin.gate_flip, Option.some.injEq, Prod.mk.injEq,
+      denote_idx_gate heql, Fanin.invert_flip, Bool.bne_true, denote_not_invert, Bool.not_and,
+      Bool.not_not, denote_idx_gate heqr, Bool.not_eq_eq_eq_not, Bool.not_true]
+    intro h
+    generalize ⟦aig, ⟨l0.gate, l0.invert, _⟩, assign⟧ = v1
+    generalize ⟦aig, ⟨l1.gate, l1.invert, _⟩, assign⟧ = v2
+    generalize ⟦aig, ⟨r0.gate, r0.invert, _⟩, assign⟧ = v3
+    generalize ⟦aig, ⟨r1.gate, r1.invert, _⟩, assign⟧ = v4
+    decide +revert
 
 theorem denote_detectIte {root h c t f} (heq : detectIte root h = some ⟨c, t, f⟩) :
     ⟦aig, ⟨root, false, h⟩, assign⟧ =
@@ -799,11 +763,12 @@ theorem denote_detectIte {root h c t f} (heq : detectIte root h = some ⟨c, t, 
   next hroot =>
     split at heq
     · simp at heq
-    next hinvert =>
+    · next hinvert =>
       simp only at heq
-      simp at hinvert
       split at heq
-      next hl hr =>
+      · next hl hr =>
+        simp only [Bool.or_eq_true, Bool.not_eq_eq_eq_not, Bool.not_true, not_or,
+          Bool.not_eq_false] at hinvert
         apply detectIte.denote_go heq hroot hl hr hinvert.left hinvert.right
       · simp at heq
   · simp at heq

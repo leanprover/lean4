@@ -3,9 +3,6 @@ structWithAlgTCSynth.lean:292:27-292:63: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:363:27-363:52: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:375:27-375:64: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:387:27-387:47: warning: declaration uses `sorry`
-structWithAlgTCSynth.lean:387:27-387:47: warning: declaration uses `sorry`
-structWithAlgTCSynth.lean:392:27-392:46: warning: declaration uses `sorry`
-structWithAlgTCSynth.lean:392:27-392:46: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:392:27-392:46: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:471:9-471:21: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:476:9-476:25: warning: declaration uses `sorry`
@@ -21,7 +18,6 @@ structWithAlgTCSynth.lean:627:9-627:22: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:633:9-633:12: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:636:9-636:12: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:639:9-639:21: warning: declaration uses `sorry`
-structWithAlgTCSynth.lean:642:9-642:21: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:642:9-642:21: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:666:9-666:22: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:745:9-745:34: warning: declaration uses `sorry`
@@ -54,13 +50,6 @@ structWithAlgTCSynth.lean:1130:12-1130:16: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:1136:12-1136:16: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:1163:9-1163:26: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:1174:9-1174:27: warning: declaration uses `sorry`
-structWithAlgTCSynth.lean:1184:9-1184:21: warning: declaration uses `sorry`
-structWithAlgTCSynth.lean:1184:9-1184:21: warning: declaration uses `sorry`
-structWithAlgTCSynth.lean:1184:9-1184:21: warning: declaration uses `sorry`
-structWithAlgTCSynth.lean:1184:9-1184:21: warning: declaration uses `sorry`
-structWithAlgTCSynth.lean:1184:9-1184:21: warning: declaration uses `sorry`
-structWithAlgTCSynth.lean:1184:9-1184:21: warning: declaration uses `sorry`
-structWithAlgTCSynth.lean:1184:9-1184:21: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:1184:9-1184:21: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:1192:9-1192:17: warning: declaration uses `sorry`
 structWithAlgTCSynth.lean:1203:9-1203:25: warning: declaration uses `sorry`

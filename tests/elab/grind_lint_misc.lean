@@ -26,7 +26,7 @@ info: Vector.range_succ
   [thm] Vector.toArray_empty ↦ 1
 ---
 info: Try this:
-  [apply] #grind_lint check  (min := 20) in Acc Attr Bool Clause Const Decidable DefaultClause DHashMap Equiv ExceptT ExtDHashMap
+  [apply] #grind_lint check (min := 20) in Acc Attr Bool Clause Const Decidable DefaultClause DHashMap Equiv ExceptT ExtDHashMap
     Fin Int Internal InvImage Lex LRAT Nat NormalizePattern OldCollector Option OptionT Perm Prod PSigma Quot Quotient Rat
     Raw ReaderT ReflCmp Setoid StateT Subrelation Subtype Sum Tactic Task Vector WellFounded
   #grind_lint inspect Vector.range_succ

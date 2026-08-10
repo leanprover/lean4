@@ -4,8 +4,8 @@ import Lean
 Tests the code-quality check framework (`Lean.Linter.CodeQuality`): the
 `package_code_quality_check` attribute, the backing `packageCheckExt` environment extension,
 and the concurrent `runPackageChecks` driver producing a combined entry array. Checks
-receive a `PackageCheckContext` with driver-provided inputs such as the package root.
-A check that throws is reported on stderr and contributes no entries.
+receive a `PackageCheckContext` with the driver-provided source search path. A check that
+throws contributes no entries; its error is collected into the result's `errors`.
 -/
 
 open Lean Linter CodeQuality

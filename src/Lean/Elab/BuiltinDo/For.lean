@@ -206,8 +206,8 @@ private def mkForInPureWithInvariant (g : ForInApp) (invClause : TSyntax ``doLoo
   checkAssertionBinders invClause "invariant" assertionBinders.size (← assertionLanguage?)
   let invBody ← mkAssertionFun assertionBinders invBody
   let invLam ← `(fun $loopBinders* => $(← g.mkStateFun invBody))
-  let gadget := if h?.isSome then ``Std.Internal.Do.forInPureWithInvariant'
-    else ``Std.Internal.Do.forInPureWithInvariant
+  let gadget := if h?.isSome then ``Std.Internal.Do.Gadget.forInPureWithInvariant'
+    else ``Std.Internal.Do.Gadget.forInPureWithInvariant
   g.mkCall invClause gadget #[invLam]
 
 /-- Rebuild the loop of a `repeat` as a `forInLoopWithInvariantAndVariant` call carrying the
@@ -220,7 +220,7 @@ private def mkForInLoopWithInvariantAndVariant (g : ForInApp)
     DoElabM Expr := do
   let pred? ← assertionLanguage?
   let invArg ← match inv? with
-    | none => `($(mkIdent ``Std.Internal.Do.noInvariant))
+    | none => `($(mkIdent ``Std.Internal.Do.Gadget.noInvariant))
     | some invClause =>
       let (binders, invBody) ← destructInvariant invClause
       let exitBinder := binders[0]!
@@ -237,7 +237,7 @@ private def mkForInLoopWithInvariantAndVariant (g : ForInApp)
       -- check that would unfold it.
       `(some ($(mkIdent ``Std.Internal.Do.RepeatInvariant.mk) $(← g.mkCursorFun cursor invBody)))
   let varArg ← match dec? with
-    | none => `($(mkIdent ``Std.Internal.Do.noMeasure))
+    | none => `($(mkIdent ``Std.Internal.Do.Gadget.noMeasure))
     | some decClause =>
       let (binders, body) ← match decClause with
         | `(doLoopDecreasing| decreasing $binders* => $body) => pure (binders, body)
@@ -246,7 +246,7 @@ private def mkForInLoopWithInvariantAndVariant (g : ForInApp)
       checkAssertionBinders decClause "measure" binders.size pred?
       `(some $(← g.mkStateFun (← mkAssertionFun binders body)))
   g.mkCall (inv?.map (·.raw) |>.getD (dec?.map (·.raw) |>.getD .missing))
-    ``Std.Internal.Do.forInLoopWithInvariantAndVariant #[invArg, varArg]
+    ``Std.Internal.Do.Gadget.forInLoopWithInvariantAndVariant #[invArg, varArg]
 
 @[builtin_doElem_elab Lean.Parser.Term.doFor] def elabDoFor : DoElab := fun stx dec => do
   let `(doFor| for%$tk $[$h? : ]? $x:ident in $xs

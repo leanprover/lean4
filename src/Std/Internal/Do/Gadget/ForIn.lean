@@ -35,6 +35,8 @@ variable [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
 
 /-! ## Gadgets -/
 
+namespace Gadget
+
 set_option linter.unusedVariables false in
 /-- A `forIn` loop annotated with its loop invariant, which `vcgen` reads from the `inv` argument.
 It is definitionally `forIn xs init f`, so the annotation is erased at runtime. The invariant
@@ -51,6 +53,10 @@ invariant ranges over the elements consumed so far, the elements remaining, and 
     (xs : ρ) (init : β) (f : (a : α) → a ∈ xs → β → m (ForInStep β))
     (inv : Invariant α β Pred) : m β :=
   forIn' xs init f
+
+end Gadget
+
+open Gadget
 
 /-! ## Specifications -/
 
@@ -104,6 +110,8 @@ section Loop
 
 universe uₚ uₑ uq uγ uf
 
+namespace Gadget
+
 set_option linter.unusedVariables false in
 /-- A `repeat` loop annotated with the loop invariant and the termination measure that `vcgen` reads
 from the `inv?` and `var?` arguments. It is definitionally `forIn l init f`, so the annotations are
@@ -120,6 +128,8 @@ def noInvariant {β : Type u} : Option (RepeatInvariant β β Prop) := none
 
 /-- The measure slot of a loop that states only its invariant, whose codomain is `Unit`. -/
 def noMeasure {β : Type u} : Option (β → Unit) := none
+
+end Gadget
 
 variable {β : Type u} {m : Type u → Type v} {Pred : Type uₚ} {EPred : Type uₑ}
 variable [Monad m] [Lean.Order.MonadTail m] [Assertion Pred] [Assertion EPred]

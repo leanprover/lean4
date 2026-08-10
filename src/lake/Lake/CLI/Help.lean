@@ -432,8 +432,8 @@ OPTIONS:
 
 Downloads build outputs for packages in the workspace from a remote cache
 service. The cache service used can be specified via the `--service` option.
-Otherwise, Lake will the system default, or, if none is configured, Reservoir.
-See `lake cache services` for more information on how to configure services.
+Otherwise, Lake will use the configured default or, if none, Reservoir. See
+`lake cache services` for more information on how to configure services.
 
 By default, Lake will use Reservoir to download outputs for each
 dependency in the workspace (in order). Non-Reservoir dependencies will be
@@ -512,7 +512,7 @@ USAGE:
   lake cache add <mappings>
 
 OPTIONS:
-  --package=<name>                add outputs to set package
+  --package=<name>                add mappings to set package
   --service=<name>                cache service to fetch from on demand
   --scope=<remote-scope>          the prefix of artifacts within the service
   --repo=<github-repo>            for Reservoir, a GitHub repository scope

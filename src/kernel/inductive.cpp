@@ -4,9 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <string>
+#include <vector>
 #include "runtime/sstream.h"
 #include "runtime/utf8.h"
 #include "util/name_generator.h"
+#include "util/name_map.h"
 #include "kernel/environment.h"
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
@@ -789,461 +792,382 @@ public:
     }
 };
 
-static name * g_nested = nullptr;
-static name * g_nested_fresh = nullptr;
 
-/* Result produced by elim_nested_inductive_fn */
-struct elim_nested_inductive_result {
-    name_generator           m_ngen;
-    buffer<expr>             m_params;
-    local_ctx                m_params_lctx; /* local context declaring the free vars in `m_params` (and in the `m_aux2nested` values). */
-    name_map<expr>           m_aux2nested; /* mapping from auxiliary type to nested inductive type. */
-    declaration              m_aux_decl;
 
-    elim_nested_inductive_result(name_generator const & ngen, buffer<expr> const & params, local_ctx const & params_lctx, buffer<pair<expr, name>> const & nested_aux, declaration const & d):
-        m_ngen(ngen), m_params(params), m_params_lctx(params_lctx), m_aux_decl(d) {
-        for (pair<expr, name> const & p : nested_aux) {
-            m_aux2nested.insert(p.second, p.first);
-        }
+
+/* Every recursor a nested inductive declaration introduces: one per type of the mutual block it was
+   written as, then one per nested occurrence, the latter named after the block's head. Together their
+   rules are the whole of what the declaration makes definitional. */
+
+/* The arities a recursor is declared with, derived from its type rather than copied.
+
+   `major_idx` is `nparams + nmotives + nminors + nindices`, and iota takes that argument for the major
+   premise, so these have to be right. The kernel copies them off its own auxiliary declaration today;
+   were the elimination to move out of it there would be nothing to copy from, and reading them back
+   off the type is a check on what it was handed rather than trust in it.
+
+   A motive is a binder whose type ends in a sort. The indices belong to the type being eliminated and
+   come from its own arity, and the minors are then whatever is left. */
+static bool derive_rec_arities_core(environment const & env, expr const & rec_type, unsigned nparams,
+                                    unsigned & nmotives, unsigned & nminors, unsigned & nindices) {
+    local_ctx lctx;
+    name_generator ngen(*g_ind_fresh);
+    buffer<expr> doms;
+    expr ty = rec_type;
+    while (is_pi(ty)) {
+        expr l = lctx.mk_local_decl(ngen, binding_name(ty), binding_domain(ty), binding_info(ty));
+        doms.push_back(binding_domain(ty));
+        ty = instantiate(binding_body(ty), l);
     }
-
-    /* If `c` is an constructor name associated with an auxiliary inductive type, then return the
-       nested inductive associated with it and the name of its inductive type. Return none. */
-    optional<pair<expr, name>> get_nested_if_aux_constructor(environment const & aux_env, name const & c) const {
-        optional<constant_info> info = aux_env.find(c);
-        if (!info || !info->is_constructor()) return optional<pair<expr, name>>();
-        name auxI_name = info->to_constructor_val().get_induct();
-        expr const * nested = m_aux2nested.find(auxI_name);
-        if (!nested) return optional<pair<expr, name>>();
-        return optional<pair<expr, name>>(std::in_place, *nested, auxI_name);
+    unsigned total = doms.size();
+    if (total < nparams + 1) return false;
+    /* a motive is a binder after the parameters whose type ends in a sort; a minor premise ends in an
+       application of one of them, so the run of motives is where they stop */
+    nmotives = 0;
+    for (unsigned i = nparams; i < total; i++) {
+        expr cod = doms[i];
+        while (is_pi(cod)) cod = binding_body(cod);
+        if (!is_sort(cod)) break;
+        nmotives++;
     }
-
-    name restore_constructor_name(environment const & aux_env, name const & cnstr_name) const {
-        optional<pair<expr, name>> p = get_nested_if_aux_constructor(aux_env, cnstr_name);
-        lean_assert(p);
-        expr const & I = get_app_fn(p->first);
-        lean_assert(is_constant(I));
-        return cnstr_name.replace_prefix(p->second, const_name(I));
-    }
-
-    expr restore_nested(expr e, environment const & aux_env, name_map<name> const & aux_rec_name_map = name_map<name>()) {
-        local_ctx lctx;
-        buffer<expr> As;
-        bool pi = is_pi(e);
-        for (unsigned i = 0; i < m_params.size(); i++) {
-            lean_assert(is_pi(e) || is_lambda(e));
-            As.push_back(lctx.mk_local_decl(m_ngen, binding_name(e), binding_domain(e), binding_info(e)));
-            e = instantiate(binding_body(e), As.back());
-        }
-        e = replace(e, [&](expr const & t, unsigned) {
-                if (is_constant(t)) {
-                    if (name const * rec_name = aux_rec_name_map.find(const_name(t))) {
-                        return some_expr(mk_constant(*rec_name, const_levels(t)));
-                    }
-                }
-                expr const & fn = get_app_fn(t);
-                if (is_constant(fn)) {
-                    if (expr const * nested = m_aux2nested.find(const_name(fn))) {
-                        buffer<expr> args;
-                        get_app_args(t, args);
-                        lean_assert(args.size() >= m_params.size());
-                        expr new_t = instantiate_rev(abstract(*nested, m_params.size(), m_params.data()), As.size(), As.data());
-                        return some_expr(mk_app(new_t, args.size() - m_params.size(), args.data() + m_params.size()));
-                    }
-                    if (optional<pair<expr, name>> r = get_nested_if_aux_constructor(aux_env, const_name(fn))) {
-                        expr nested    = r->first;
-                        name auxI_name = r->second;
-                        /* `t` is a constructor-application of an auxiliary inductive type */
-                        buffer<expr> args;
-                        get_app_args(t, args);
-                        lean_assert(args.size() >= m_params.size());
-                        expr new_nested = instantiate_rev(abstract(nested, m_params.size(), m_params.data()), As.size(), As.data());
-                        buffer<expr> I_args;
-                        expr I = get_app_args(new_nested, I_args);
-                        lean_assert(is_constant(I));
-                        name new_fn_name = const_name(fn).replace_prefix(auxI_name, const_name(I));
-                        expr new_fn = mk_constant(new_fn_name, const_levels(I));
-                        expr new_t  = mk_app(mk_app(new_fn, I_args), args.size() - m_params.size(), args.data() + m_params.size());
-                        return some_expr(new_t);
-                    }
-                }
-                return none_expr();
-            });
-        return pi ? lctx.mk_pi(As, e) : lctx.mk_lambda(As, e);
-    }
-};
-
-/* Eliminate nested inductive datatypes by creating a new (auxiliary) declaration which contains and inductive types in `d`
-   and copies of the nested inductive datatypes used in `d`. For each nested occurrence `I Ds is` where `I` is a nested inductive
-   datatype and `Ds` are the parametric arguments and `is` the indices, we create an auxiliary type `Iaux` in the (mutual) inductive
-   declaration `d`, and replace `I Ds is` with `Iaux As is` where `As` are `d`'s parameters.
-   Moreover, we add the pair `(I Ds, Iaux)` to `nested_aux`.
-
-   Note that, `As` and `Ds` may have a different sizes. */
-struct elim_nested_inductive_fn {
-    environment const &        m_env;
-    declaration const &        m_d;
-    name_generator             m_ngen;
-    local_ctx                  m_params_lctx;
-    buffer<expr>               m_params;
-    buffer<pair<expr, name>>   m_nested_aux; /* The expressions stored here contains free vars in `m_params` */
-    levels                     m_lvls;
-    buffer<inductive_type>     m_new_types;
-    unsigned                   m_next_idx{1};
-
-    elim_nested_inductive_fn(environment const & env, declaration const & d):
-        m_env(env), m_d(d), m_ngen(*g_nested_fresh) {
-        m_lvls = lparams_to_levels(inductive_decl(m_d).get_lparams());
-    }
-
-    name mk_unique_name(name const & n) {
-        while (true) {
-            name r = n.append_after(m_next_idx);
-            m_next_idx++;
-            if (!m_env.find(r)) return r;
-        }
-    }
-
-    void throw_ill_formed() {
-        throw kernel_exception(m_env, "invalid nested inductive datatype, ill-formed declaration");
-    }
-
-    expr replace_params(expr const & e, buffer<expr> const & As) {
-        lean_assert(m_params.size() == As.size());
-        return instantiate_rev(abstract(e, As.size(), As.data()), m_params.size(), m_params.data());
-    }
-
-    /* IF `e` is of the form `I Ds is` where
-          1) `I` is a nested inductive datatype (i.e., a previously declared inductive datatype),
-          2) the parametric arguments `Ds` do not contain loose bound variables, and do contain inductive datatypes in `m_new_types`
-       THEN return the `inductive_val` in the `constant_info` associated with `I`.
-       Otherwise, return none. */
-    optional<inductive_val> is_nested_inductive_app(expr const & e) {
-        if (!is_app(e)) return optional<inductive_val>();
-        expr const & fn = get_app_fn(e);
-        if (!is_constant(fn)) return optional<inductive_val>();
-        optional<constant_info> info = m_env.find(const_name(fn));
-        if (!info || !info->is_inductive()) return optional<inductive_val>();
-        buffer<expr> args;
-        get_app_args(e, args);
-        unsigned nparams = info->to_inductive_val().get_nparams();
-        if (nparams > args.size()) return optional<inductive_val>();
-        bool is_nested   = false;
-        bool loose_bvars = false;
-        for (unsigned i = 0; i < nparams; i++) {
-            if (has_loose_bvars(args[i])) {
-                loose_bvars = true;
-            }
-            if (find(args[i], [&](expr const & t, unsigned) {
-                        if (is_constant(t)) {
-                            for (inductive_type const & ind_type : m_new_types) {
-                                if (const_name(t) == ind_type.get_name())
-                                    return true;
-                            }
-                        }
-                        return false;
-                    })) {
-                is_nested = true;
-            }
-        }
-        if (!is_nested) return optional<inductive_val>();
-        if (loose_bvars)
-            throw kernel_exception(m_env, sstream() << "invalid nested inductive datatype '" << const_name(fn) << "', nested inductive datatypes parameters cannot contain local variables.");
-        return optional<inductive_val>(info->to_inductive_val());
-    }
-
-    expr instantiate_pi_params(expr e, unsigned nparams, expr const * params) {
-        for (unsigned i = 0; i < nparams; i++) {
-            if (!is_pi(e)) throw_ill_formed();
-            e = binding_body(e);
-        }
-        return instantiate_rev(e, nparams, params);
-    }
-
-    /* If `e` is a nested occurrence `I Ds is`, return `Iaux As is` */
-    optional<expr> replace_if_nested(local_ctx const & lctx, buffer<expr> const & As, expr const & e) {
-        optional<inductive_val> I_val = is_nested_inductive_app(e);
-        if (!I_val) return none_expr();
-        /* `e` is of the form `I As is` where `As` are the parameters and `is` the indices */
-        buffer<expr> args;
-        expr const & fn       = get_app_args(e, args);
-        name const & I_name   = const_name(fn);
-        levels const & I_lvls = const_levels(fn);
-        lean_assert(I_val->get_nparams() <= args.size());
-        unsigned I_nparams = I_val->get_nparams();
-        expr IAs = mk_app(fn, I_nparams, args.data()); /* `I As` */
-        /* Check whether we have already created an auxiliary inductive_type for `I As` */
-        optional<name> auxI_name;
-        /* Replace `As` with `m_params` before searching at `m_nested_aux`.
-           We need this step because we re-create parameters for each constructor with the correct binding info */
-        expr Iparams = replace_params(IAs, As);
-        for (pair<expr, name> const & p : m_nested_aux) {
-            /* Remark: we could have used `is_def_eq` here instead of structural equality.
-               It is probably not needed, but if one day we decide to do it, we have to populate
-               an auxiliary environment with the inductive datatypes we are defining since `p.first` and `Iparams`
-               contain references to them. */
-            if (p.first == Iparams) {
-                auxI_name = p.second;
-                break;
-            }
-        }
-        if (auxI_name) {
-            expr auxI = mk_constant(*auxI_name, m_lvls);
-            auxI      = mk_app(auxI, As);
-            return some_expr(mk_app(auxI, args.size() - I_nparams, args.data() + I_nparams));
-        } else {
-            optional<expr> result;
-            /* We should copy all inductive datatypes `J` in the mutual declaration containing `I` to
-               the `m_new_types` mutual declaration as new auxiliary types. */
-            for (name const & J_name : I_val->get_all()) {
-                constant_info J_info = m_env.get(J_name);
-                lean_assert(J_info.is_inductive());
-                expr J               = mk_constant(J_name, I_lvls);
-                expr JAs             = mk_app(J, I_nparams, args.data());
-                name auxJ_name       = mk_unique_name(*g_nested + J_name);
-                expr auxJ_type       = instantiate_lparams(J_info.get_type(), J_info.get_lparams(), I_lvls);
-                auxJ_type            = instantiate_pi_params(auxJ_type, I_nparams, args.data());
-                auxJ_type            = lctx.mk_pi(As, auxJ_type);
-                m_nested_aux.push_back(mk_pair(replace_params(JAs, As), auxJ_name));
-                if (J_name == I_name) {
-                    /* Create result */
-                    expr auxI = mk_constant(auxJ_name, m_lvls);
-                    auxI      = mk_app(auxI, As);
-                    result    = mk_app(auxI, args.size() - I_nparams, args.data() + I_nparams);
-                }
-                buffer<constructor> auxJ_constructors;
-                for (name const & J_cnstr_name : J_info.to_inductive_val().get_cnstrs()) {
-                    constant_info J_cnstr_info = m_env.get(J_cnstr_name);
-                    name auxJ_cnstr_name = J_cnstr_name.replace_prefix(J_name, auxJ_name);
-                    /* auxJ_cnstr_type still has references to `J`, this will be fixed later when we process it. */
-                    expr auxJ_cnstr_type    = instantiate_lparams(J_cnstr_info.get_type(), J_cnstr_info.get_lparams(), I_lvls);
-                    auxJ_cnstr_type         = instantiate_pi_params(auxJ_cnstr_type, I_nparams, args.data());
-                    auxJ_cnstr_type         = lctx.mk_pi(As, auxJ_cnstr_type);
-                    auxJ_constructors.push_back(constructor(auxJ_cnstr_name, auxJ_cnstr_type));
-                }
-                m_new_types.push_back(inductive_type(auxJ_name, auxJ_type, constructors(auxJ_constructors)));
-            }
-            lean_assert(result);
-            return result;
-        }
-    }
-
-    /* Replace all nested inductive datatype occurrences in `e`. */
-    expr replace_all_nested(local_ctx const & lctx, buffer<expr> const & As, expr const & e) {
-        return replace(e, [&](expr const & e, unsigned) { return replace_if_nested(lctx, As, e); });
-    }
-
-    expr get_params(expr type, unsigned nparams, local_ctx & lctx, buffer<expr> & params) {
-        lean_assert(params.empty());
-        for (unsigned i = 0; i < nparams; i++) {
-            if (!is_pi(type)) throw kernel_exception(m_env, "invalid inductive datatype declaration, incorrect number of parameters");
-            params.push_back(lctx.mk_local_decl(m_ngen, binding_name(type), binding_domain(type), binding_info(type)));
-            type = instantiate(binding_body(type), params.back());
-        }
-        return type;
-    }
-
-    elim_nested_inductive_result operator()() {
-        inductive_decl ind_d(m_d);
-        if (!ind_d.get_nparams().is_small()) throw_ill_formed();
-        unsigned d_nparams = ind_d.get_nparams().get_small_value();
-        to_buffer(ind_d.get_types(), m_new_types);
-        if (m_new_types.size() == 0) throw kernel_exception(m_env, "invalid empty (mutual) inductive datatype declaration, it must contain at least one inductive type.");
-        /* initialize m_params and m_params_lctx */
-        get_params(m_new_types[0].get_type(), d_nparams, m_params_lctx, m_params);
-        unsigned qhead = 0;
-        /* Main elimination loop. */
-        while (qhead < m_new_types.size()) {
-            inductive_type ind_type = m_new_types[qhead];
-            buffer<constructor> new_cnstrs;
-            for (constructor cnstr : ind_type.get_cnstrs()) {
-                expr cnstr_type = constructor_type(cnstr);
-                local_ctx lctx;
-                buffer<expr> As;
-                /* Consume parameters.
-
-                   We (re-)create the parameters for each constructor because we want to preserve the binding_info. */
-                cnstr_type = get_params(cnstr_type, d_nparams, lctx, As);
-                lean_assert(As.size() == d_nparams);
-                expr new_cnstr_type = replace_all_nested(lctx, As, cnstr_type);
-                new_cnstr_type = lctx.mk_pi(As, new_cnstr_type);
-                new_cnstrs.push_back(constructor(constructor_name(cnstr), new_cnstr_type));
-            }
-            m_new_types[qhead] = inductive_type(ind_type.get_name(), ind_type.get_type(), constructors(new_cnstrs));
-            qhead++;
-        }
-        declaration aux_decl = mk_inductive_decl(ind_d.get_lparams(), ind_d.get_nparams(), inductive_types(m_new_types), ind_d.is_unsafe());
-        return elim_nested_inductive_result(m_ngen, m_params, m_params_lctx, m_nested_aux, aux_decl);
-    }
-};
-
-/* Given the auxiliary environment `aux_env` generated by processing the auxiliary mutual declaration,
-   and the original declaration `d`. This function return a pair `(aux_rec_names, aux_rec_name_map)`
-   where `aux_rec_names` contains the recursor names associated to auxiliary inductive types used to
-   eliminated nested inductive occurrences.
-   The mapping `aux_rec_name_map` contains an entry `(aux_rec_name -> rec_name)` for each
-   element in `aux_rec_names`. It provides the new names for these recursors.
-
-   We compute the new recursor names using the first inductive datatype in the original declaration `d`,
-   and the suffice `.rec_<idx>`. */
-static pair<names, name_map<name>> mk_aux_rec_name_map(environment const & aux_env, inductive_decl const & d) {
-    unsigned ntypes = length(d.get_types());
-    lean_assert(ntypes > 0);
-    inductive_type const & main_type = head(d.get_types());
-    name const & main_name  = main_type.get_name();
-    constant_info main_info = aux_env.get(main_name);
-    names const & all_names = main_info.to_inductive_val().get_all();
-    /* This function is only called if we have created auxiliary inductive types when eliminating
-       the nested inductives. */
-    lean_assert(length(all_names) > ntypes);
-    /* Remark: we use the `main_name` to declare the auxiliary recursors as: <main_name>.rec_1, <main_name>.rec_2, ...
-       This is a little bit asymmetrical if `d` is a mutual declaration, but it makes sure we have simple names. */
-    buffer<name>   old_rec_names;
-    name_map<name> rec_map;
-    unsigned i = 0;
-    unsigned next_idx = 1;
-    for (name const & ind_name : all_names) {
-        if (i >= ntypes) {
-            old_rec_names.push_back(mk_rec_name(ind_name));
-            name new_rec_name = mk_rec_name(main_name).append_after(next_idx);
-            next_idx++;
-            rec_map.insert(old_rec_names.back(), new_rec_name);
-        }
-        i++;
-    }
-    return mk_pair(names(old_rec_names), rec_map);
+    /* The major premise is last, and its type says how many of the arguments to the type being
+       eliminated are indices. Its own parameters are not indices, and for an auxiliary recursor they
+       are not parameters of the recursor either: the nesting fixed them. So they cannot be read off
+       the recursor's telescope, nor off the eliminated type's arity, only off here. */
+    buffer<expr> major_args;
+    expr major_fn = get_app_args(doms[total - 1], major_args);
+    if (!is_constant(major_fn)) return false;
+    optional<constant_info> major_ind = env.find(const_name(major_fn));
+    if (!major_ind || !major_ind->is_inductive()) return false;
+    unsigned major_nparams = major_ind->to_inductive_val().get_nparams();
+    if (major_args.size() < major_nparams) return false;
+    nindices = major_args.size() - major_nparams;
+    if (total < nparams + nmotives + nindices + 1) return false;
+    nminors = total - nparams - nmotives - nindices - 1;
+    return true;
 }
 
-/* The auxiliary types created by `elim_nested_inductive_fn` live under `_nested` and exist only in the
-   temporary environment used to eliminate nested inductives. A declaration naming one is reaching into
-   that environment, where it can be given a type it does not have once the nested types are restored. */
-static void check_no_nested_aux(environment const & env, name const & n, expr const & e) {
-    /* `proj` is included because its structure name is resolved too: the kernel rewrites nested
-       occurrences in the constructor to the auxiliary type, so a projection naming that type matches
-       without the declaration ever mentioning it as a constant. */
-    if (find(e, [](expr const & e, unsigned) {
-                return (is_constant(e) && is_prefix_of(*g_nested, const_name(e))) ||
-                       (is_proj(e) && is_prefix_of(*g_nested, proj_sname(e)));
-            })) {
-        throw kernel_exception(env, sstream() << "invalid declaration '" << n
-                               << "', it uses the reserved prefix '" << *g_nested << "'");
+/* The equations a recursor's rules assert, one per rule, closed under every binder they mention.
+
+   Stating these here rather than accepting them from the certificate is the whole point: the kernel
+   says what it is about to make definitional, and a certificate has to prove exactly that. Accepting
+   the statement along with its proof would let a certificate prove something else and be believed.
+
+   The equations are stated over the constants of `env`, in which the rules already hold by
+   construction, so as they stand they are vacuous. The caller substitutes a model for those constants
+   before asking for proofs, and that substitution is what gives them content. */
+static void mk_rule_equations(environment const & env, name const & rec_name, buffer<expr> & eqs,
+                              buffer<expr> & sides) {
+    constant_info rec_info = env.get(rec_name);
+    recursor_val rec_val   = rec_info.to_recursor_val();
+    unsigned nparams       = rec_val.get_nparams();
+    unsigned nmotives      = rec_val.get_nmotives();
+    unsigned nminors       = rec_val.get_nminors();
+    unsigned nindices      = rec_val.get_nindices();
+    local_ctx lctx;
+    name_generator ngen(*g_ind_fresh);
+    /* the recursor's parameters, motives and minor premises, which every rule is stated under */
+    buffer<expr> tele;
+    expr ty = rec_info.get_type();
+    for (unsigned i = 0; i < nparams + nmotives + nminors + nindices; i++) {
+        if (!is_pi(ty)) return;
+        expr l = lctx.mk_local_decl(ngen, binding_name(ty), binding_domain(ty), binding_info(ty));
+        if (i < nparams + nmotives + nminors)
+            tele.push_back(l);
+        ty = instantiate(binding_body(ty), l);
     }
+    /* The major premise's type says which type this recursor eliminates and at which parameters, and
+       that is where a rule's constructor takes its own parameters and levels from. An auxiliary
+       recursor's rules name constructors of the declaration that was nested under, whose parameter
+       count is its own and whose parameters are the ones the nesting specialised it at, so neither
+       can be read off the recursor's telescope. */
+    if (!is_pi(ty)) return;
+    buffer<expr> major_args;
+    expr major_fn = get_app_args(binding_domain(ty), major_args);
+    if (!is_constant(major_fn)) return;
+    levels c_lvls = const_levels(major_fn);
+    type_checker tc(env, lctx);
+    for (recursor_rule const & rule : rec_val.get_rules()) {
+        constant_info c_info = env.get(rule.get_cnstr());
+        unsigned c_nparams   = c_info.to_constructor_val().get_nparams();
+        if (major_args.size() < c_nparams) return;
+        expr c_ty = instantiate_type_lparams(c_info, c_lvls);
+        for (unsigned i = 0; i < c_nparams; i++) {
+            if (!is_pi(c_ty)) return;
+            c_ty = instantiate(binding_body(c_ty), major_args[i]);
+        }
+        /* the constructor's own fields, and with them the indices it concludes at */
+        buffer<expr> fields;
+        while (is_pi(c_ty)) {
+            expr l = lctx.mk_local_decl(ngen, binding_name(c_ty), binding_domain(c_ty), binding_info(c_ty));
+            fields.push_back(l);
+            c_ty = instantiate(binding_body(c_ty), l);
+        }
+        buffer<expr> c_args;
+        get_app_args(c_ty, c_args);
+        if (c_args.size() < c_nparams) return;
+        expr major = mk_app(mk_app(mk_constant(rule.get_cnstr(), c_lvls), c_nparams, major_args.data()),
+                            fields);
+        buffer<expr> lhs_args;
+        lhs_args.append(tele);
+        for (unsigned i = c_nparams; i < c_args.size(); i++)
+            lhs_args.push_back(c_args[i]);
+        lhs_args.push_back(major);
+        expr lhs = mk_app(mk_constant(rec_name, lparams_to_levels(rec_info.get_lparams())), lhs_args);
+        expr rhs = mk_app(mk_app(instantiate_lparams(rule.get_rhs(), rec_info.get_lparams(),
+                                                     lparams_to_levels(rec_info.get_lparams())),
+                                 tele), fields);
+        expr A   = tc.infer(lhs);
+        level u  = sort_level(tc.ensure_type(A));
+        expr eq  = mk_app(mk_constant(name("Eq"), levels(u)), A, lhs, rhs);
+        buffer<expr> binders;
+        binders.append(tele);
+        binders.append(fields);
+        eqs.push_back(lctx.mk_pi(binders, eq));
+        /* A rule that already holds definitionally has no certificate, and needs none. The two sides
+           go out closed under the same binders so the caller can ask that directly, rather than by
+           type checking a reflexivity proof of one of them. */
+        sides.push_back(lctx.mk_lambda(binders, lhs));
+        sides.push_back(lctx.mk_lambda(binders, rhs));
+    }
+}
+
+extern "C" object * lean_certify_nested_inductive(obj_arg env, obj_arg d);
+
+/* Require a certificate for the computation rules the kernel states about a nested inductive
+   declaration.
+
+   `add_inductive_fn` checks the mutual model, but the rewrite of its types and rules back into the
+   nested presentation below is `add_core`d unchecked, and those rules are what the declaration makes
+   definitional. `Lean.Meta.NestedGen.certify` rebuilds the model and proves them over it; the
+   equations themselves are stated here, by `mk_rule_equations`, so that what gets proved is what is
+   about to be believed rather than whatever the generator chose to state.
+ */
+struct derived_rec {
+    name           m_name;
+    names          m_lparams;
+    expr           m_type;
+    recursor_rules m_rules;
+    /* the theorem discharging each rule, aligned with `m_rules`; empty where it holds definitionally */
+    std::vector<name>  m_rule_proofs;
+};
+
+/* What the Lean side returns: the environment holding the model and the proofs, the constant of the
+   model standing for each constant of this declaration, the theorems, and the recursors it derived. */
+struct nested_certificate {
+    bool                     m_present = false;
+    optional<environment>    m_env;
+    std::vector<derived_rec> m_recs;
+    std::vector<bool>        m_reflexive;
+};
+
+static nested_certificate get_nested_certificate(environment const & env, declaration const & d,
+                                                 name const & decl_name) {
+    object * r = lean_certify_nested_inductive(env.to_obj_arg(), d.to_obj_arg());
+    if (!lean_io_result_is_ok(r)) {
+        lean_io_result_show_error(r);
+        lean_dec_ref(r);
+        throw kernel_exception(env, sstream() << "failed to certify the computation rules of nested "
+                                                 "inductive type '" << decl_name << "'");
+    }
+    /* `Except String (Option Certificate)`: tag 0 carries the message, tag 1 the certificate, and
+       within that a scalar means there was nothing to reason with and nothing was checked. */
+    object * v = lean_io_result_get_value(r);
+    if (lean_obj_tag(v) == 0) {
+        std::string msg(lean_string_cstr(lean_ctor_get(v, 0)));
+        lean_dec_ref(r);
+        throw kernel_exception(env, sstream() << "uncertified computation rule of nested inductive "
+                                                 "type '" << decl_name << "': " << msg);
+    }
+    object * cert_opt = lean_ctor_get(v, 0);
+    nested_certificate cert;
+    if (lean_is_scalar(cert_opt)) {
+        lean_dec_ref(r);
+        return cert;
+    }
+    object * c = lean_ctor_get(cert_opt, 0);
+    cert.m_env = optional<environment>(environment(lean_ctor_get(c, 0), true));
+    object * crecs = lean_ctor_get(c, 1);
+    /* `RestoredRec`: name, level parameters, type, index count, and one rule per constructor. Read
+       before the result is released, since these are borrowed pointers into it. */
+    for (size_t i = 0; i < lean_array_size(crecs); i++) {
+        object * o = lean_array_get_core(crecs, i);
+        derived_rec dr;
+        dr.m_name     = name(lean_ctor_get(o, 0), true);
+        dr.m_lparams  = names(lean_ctor_get(o, 1), true);
+        dr.m_type     = expr(lean_ctor_get(o, 2), true);
+        object * rules = lean_ctor_get(o, 4);
+        buffer<recursor_rule> rs;
+        for (size_t j = 0; j < lean_array_size(rules); j++) {
+            object * rl  = lean_array_get_core(rules, j);
+            object * snd = lean_ctor_get(rl, 1);
+            rs.push_back(recursor_rule(name(lean_ctor_get(rl, 0), true),
+                                       static_cast<unsigned>(lean_unbox(lean_ctor_get(snd, 0))),
+                                       expr(lean_ctor_get(snd, 1), true)));
+        }
+        dr.m_rules = recursor_rules(rs);
+        object * prfs = lean_ctor_get(o, 5);
+        for (size_t j = 0; j < lean_array_size(prfs); j++) {
+            object * p = lean_array_get_core(prfs, j);
+            dr.m_rule_proofs.push_back(lean_is_scalar(p) ? name() : name(lean_ctor_get(p, 0), true));
+        }
+        cert.m_recs.push_back(dr);
+    }
+    object * refl = lean_ctor_get(c, 2);
+    for (size_t i = 0; i < lean_array_size(refl); i++)
+        cert.m_reflexive.push_back(lean_unbox(lean_array_get_core(refl, i)) != 0);
+    lean_dec_ref(r);
+    cert.m_present = true;
+    return cert;
+}
+
+/* Every rule the declaration states, restated over the model and matched against the certificate. */
+static void check_nested_rules(environment const & env, name const & decl_name,
+                               nested_certificate const & cert) {
+    environment const & cert_env = *cert.m_env;
+    /* The rules exactly as the kernel is about to make them definitional. They are stated about the
+       constants this declaration introduces, where they hold by fiat; what gives them content is
+       that the certificate has to satisfy them for definitions realising those same constants.
+
+       Following the certificate's recursors is following exactly what was declared: the loop above
+       declared one for each, and `check_name` refused any that already existed. */
+    type_checker tc(cert_env);
+    for (derived_rec const & dr : cert.m_recs) {
+        buffer<expr> eqs, sides;
+        mk_rule_equations(env, dr.m_name, eqs, sides);
+        if (dr.m_rule_proofs.size() != eqs.size())
+            throw kernel_exception(env, sstream() << "the certificate does not answer for every rule of '"
+                                                  << dr.m_name << "'");
+        for (unsigned i = 0; i < eqs.size(); i++) {
+            /* either it holds definitionally over the model, or the named theorem proves it */
+            if (tc.is_def_eq(sides[2*i], sides[2*i + 1]))
+                continue;
+            bool proved = false;
+            name const & pn = dr.m_rule_proofs[i];
+            if (!pn.is_anonymous()) {
+                optional<constant_info> pi = cert_env.find(pn);
+                if (pi && length(pi->get_lparams()) == length(dr.m_lparams))
+                    proved = tc.is_def_eq(instantiate_type_lparams(*pi, lparams_to_levels(dr.m_lparams)),
+                                          eqs[i]);
+            }
+            /* the theorem names the recursor and the constructor whose rule it is meant to discharge */
+            if (!proved)
+                throw kernel_exception(env, sstream() << "no certificate for a computation rule of nested "
+                                                         "inductive type '" << decl_name << "': "
+                                                      << (pn.is_anonymous() ? name("none was named") : pn)
+                                                      << " does not prove it");
+        }
+    }
+}
+
+static unsigned count_binders(expr e) {
+    unsigned n = 0;
+    while (is_pi(e)) { n++; e = binding_body(e); }
+    return n;
 }
 
 environment environment::add_inductive(declaration const & d) const {
-    /* Reject metavariables, free variables, and references to auxiliary declarations. */
-    {
-        inductive_decl ind_d(d);
-        for (inductive_type const & ind_type : ind_d.get_types()) {
-            check_no_metavar_no_fvar(*this, ind_type.get_name(), ind_type.get_type());
-            check_no_nested_aux(*this, ind_type.get_name(), ind_type.get_type());
-            for (constructor const & cnstr : ind_type.get_cnstrs()) {
-                check_no_metavar_no_fvar(*this, constructor_name(cnstr), constructor_type(cnstr));
-                check_no_nested_aux(*this, constructor_name(cnstr), constructor_type(cnstr));
-            }
-        }
-    }
-    elim_nested_inductive_result res = elim_nested_inductive_fn(*this, d)();
-    unsigned nnested = res.m_aux2nested.size();
+    inductive_decl ind_d(d);
     scoped_diagnostics diag(*this, true);
-    environment aux_env = add_inductive_fn(*this, diag.get(), inductive_decl(res.m_aux_decl), nnested)();
-    if (!nnested) {
-        /* `d` did not contain nested inductive types. */
-        return diag.update(aux_env);
-    } else {
-        /* Restore nested inductives. */
-        inductive_decl ind_d(d);
-        names all_ind_names = get_all_inductive_names(ind_d);
-        names aux_rec_names; name_map<name> aux_rec_name_map;
-        std::tie(aux_rec_names, aux_rec_name_map) = mk_aux_rec_name_map(aux_env, d);
-        environment new_env = *this;
-        // We collect names to be able to re-check everything later.
-        buffer<name> new_rec_names;
-        auto process_rec = [&](name const & rec_name) {
-            name new_rec_name      = rec_name;
-            if (name const * new_name = aux_rec_name_map.find(rec_name))
-                new_rec_name = *new_name;
-            constant_info rec_info = aux_env.get(rec_name);
-            expr new_rec_type      = res.restore_nested(rec_info.get_type(), aux_env, aux_rec_name_map);
-            recursor_val rec_val   = rec_info.to_recursor_val();
-            buffer<recursor_rule> new_rules;
-            for (recursor_rule const & rule : rec_val.get_rules()) {
-                expr new_rhs        = res.restore_nested(rule.get_rhs(), aux_env, aux_rec_name_map);
-                name cnstr_name     = rule.get_cnstr();
-                name new_cnstr_name = cnstr_name;
-                if (new_rec_name != rec_name) {
-                    /* We need to fix the constructor name */
-                    new_cnstr_name  = res.restore_constructor_name(aux_env, cnstr_name);
-                }
-                new_rules.push_back(recursor_rule(new_cnstr_name, rule.get_nfields(), new_rhs));
-            }
-            new_env.check_name(new_rec_name);
-            new_env.add_core(constant_info(recursor_val(new_rec_name, rec_info.get_lparams(), new_rec_type,
-                                                        all_ind_names, rec_val.get_nparams(), rec_val.get_nindices(), rec_val.get_nmotives(),
-                                                        rec_val.get_nminors(), recursor_rules(new_rules),
-                                                        rec_val.is_k(), rec_val.is_unsafe())));
-            new_rec_names.push_back(new_rec_name);
-        };
-        for (inductive_type const & ind_type : ind_d.get_types()) {
-            constant_info ind_info = aux_env.get(ind_type.get_name());
-            inductive_val ind_val  = ind_info.to_inductive_val();
-            /* We just need to "fix" the `all` fields for ind_info.
-
-               Remark: if we decide to store the recursor names, we will also need to fix it. */
-            new_env.check_name(ind_info.get_name());
-            new_env.add_core(constant_info(inductive_val(ind_info.get_name(), ind_info.get_lparams(), ind_info.get_type(),
-                                                         ind_val.get_nparams(), ind_val.get_nindices(),
-                                                         all_ind_names, ind_val.get_cnstrs(), ind_val.get_nnested(),
-                                                         ind_val.is_rec(), ind_val.is_unsafe(), ind_val.is_reflexive())));
-            for (name const & cnstr_name : ind_val.get_cnstrs()) {
-                constant_info   cnstr_info = aux_env.get(cnstr_name);
-                constructor_val cnstr_val  = cnstr_info.to_constructor_val();
-                expr new_type = res.restore_nested(cnstr_info.get_type(), aux_env);
-                new_env.check_name(cnstr_info.get_name());
-                new_env.add_core(constant_info(constructor_val(cnstr_info.get_name(), cnstr_info.get_lparams(), new_type,
-                                                               cnstr_val.get_induct(), cnstr_val.get_cidx(), cnstr_val.get_nparams(),
-                                                               cnstr_val.get_nfields(), cnstr_val.is_unsafe())));
-            }
-            process_rec(mk_rec_name(ind_type.get_name()));
-        }
-        for (name const & aux_rec : aux_rec_names) {
-            process_rec(aux_rec);
-        }
-        /* Type check the nested inductive applications `I Ds` that were replaced by auxiliary types.
-           The parametric arguments `Ds` do not appear in the auxiliary declaration, so they would
-           otherwise escape type checking. We check them at the end, using `new_env`, to avoid
-           type checking terms in an environment containing auxiliary declarations. */
-        {
-            type_checker tc(new_env, res.m_params_lctx, diag.get(), inductive_decl(d).is_unsafe() ? definition_safety::unsafe : definition_safety::safe);
-            res.m_aux2nested.for_each([&](name const &, expr const & nested) {
-                    tc.check(nested, inductive_decl(d).get_lparams());
-                });
-        }
-        /* Re-check everything `restore_nested` rewrote: the constructor types, and the recursor
-           types and computation rules. The rewritten terms are not otherwise checked in `new_env`.
-           The preceding checks are expected to make this redundant; it is cheap and it keeps a
-           mistake in the restoration from reaching the environment. Note that the inductive types
-           themselves are added unchanged, so they need no check here.
-           **Note**: these checks are not necessary. We added them to catch additional bugs and missing
-           checks in the nested inductive handling.
-        */
-        {
-            type_checker tc(new_env, diag.get(), inductive_decl(d).is_unsafe() ? definition_safety::unsafe : definition_safety::safe);
-            for (inductive_type const & ind_type : ind_d.get_types()) {
-                for (constructor const & cnstr : ind_type.get_cnstrs()) {
-                    tc.check(new_env.get(constructor_name(cnstr)).get_type(), inductive_decl(d).get_lparams());
-                }
-            }
-            for (name const & rec_name : new_rec_names) {
-                constant_info rec_info = new_env.get(rec_name);
-                tc.check(rec_info.get_type(), rec_info.get_lparams());
-                for (recursor_rule const & rule : rec_info.to_recursor_val().get_rules()) {
-                    tc.check(rule.get_rhs(), rec_info.get_lparams());
-                }
-            }
-        }
-        return diag.update(new_env);
+    names all_ind_names = get_all_inductive_names(ind_d);
+    /* Asked of every declaration, since a certified one is declared without being checked here. */
+    for (inductive_type const & ind_type : ind_d.get_types()) {
+        check_no_metavar_no_fvar(*this, ind_type.get_name(), ind_type.get_type());
+        for (constructor const & cnstr : ind_type.get_cnstrs())
+            check_no_metavar_no_fvar(*this, constructor_name(cnstr), constructor_type(cnstr));
     }
+    /* Whether there is a nested occurrence is decided by the code that would unfold it, so that one
+       definition of what counts as an occurrence serves both. Getting it wrong is conservative either
+       way: an occurrence reported where there is none leaves the model equal to the declaration, which
+       is checked all the same, and one missed sends the declaration to `add_inductive_fn`, whose
+       positivity check rejects it. */
+    nested_certificate cert = get_nested_certificate(*this, d, head(all_ind_names));
+    if (!cert.m_present)
+        return diag.update(add_inductive_fn(*this, diag.get(), ind_d, 0)());
+    /* A nested declaration is not checked here but declared over a model: the certificate carries the
+       recursors, and every constant declared is required to be inhabited in the environment the model
+       was checked in, at the type declared for it. */
+    unsigned nparams = ind_d.get_nparams().get_small_value();
+    unsigned ntypes  = length(ind_d.get_types());
+    if (cert.m_recs.size() < ntypes || cert.m_reflexive.size() != ntypes)
+        throw kernel_exception(*this, sstream() << "the certificate for '" << head(all_ind_names)
+                                                << "' does not cover the declaration's types");
+    /* Each constant is declared only once the certificate is shown to define it, at the type being
+       declared. A definition is what makes the rules say something -- were the certificate to hold
+       the recursor this kernel is about to declare, its rules would hold by the very fiat they are
+       meant to justify. Nothing here reads the environment being built, so every check can and does
+       come before the `add_core` it licenses. */
+    auto realises = [&](name const & n, names const & lps, expr const & ty) {
+        /* an unsafe declaration is outside the kernel's guarantees and nothing realises it: a
+           definition over the model may not mention an unsafe constant */
+        if (ind_d.is_unsafe()) return;
+        optional<constant_info> mi = cert.m_env->find(n);
+        /* universe parameters are matched by position, not by name: the model was built separately */
+        if (!mi || !mi->is_definition()
+                || length(lps) != length(mi->get_lparams())
+                || instantiate_type_lparams(*mi, lparams_to_levels(lps)) != ty)
+            throw kernel_exception(*this, sstream() << "the certificate does not define '" << n
+                                                    << "' at its declared type");
+    };
+    /* Field counts reach iota, so take them from the rules the recursors state rather than from a
+       second count of the same binders. */
+    name_map<unsigned> rule_nfields;
+    for (derived_rec const & dr : cert.m_recs)
+        for (recursor_rule const & r : dr.m_rules)
+            rule_nfields.insert(r.get_cnstr(), r.get_nfields());
+    environment new_env = *this;
+    unsigned ind_idx = 0;
+    for (inductive_type const & ind_type : ind_d.get_types()) {
+        buffer<name> cnstr_names;
+        for (constructor const & c : ind_type.get_cnstrs())
+            cnstr_names.push_back(constructor_name(c));
+        unsigned type_binders = count_binders(ind_type.get_type());
+        if (type_binders < nparams)
+            throw kernel_exception(*this, sstream() << "'" << ind_type.get_name() << "' takes fewer than "
+                                                    << nparams << " parameters");
+        realises(ind_type.get_name(), ind_d.get_lparams(), ind_type.get_type());
+        new_env.check_name(ind_type.get_name());
+        new_env.add_core(constant_info(inductive_val(ind_type.get_name(), ind_d.get_lparams(),
+                                                     ind_type.get_type(), nparams, type_binders - nparams,
+                                                     all_ind_names, names(cnstr_names),
+                                                     cert.m_recs.size() - ntypes, true, ind_d.is_unsafe(),
+                                                     cert.m_reflexive[ind_idx])));
+        ind_idx++;
+        unsigned cidx = 0;
+        for (constructor const & c : ind_type.get_cnstrs()) {
+            unsigned cnstr_binders = count_binders(constructor_type(c));
+            unsigned const * stated = rule_nfields.find(constructor_name(c));
+            if (cnstr_binders < nparams || !stated || *stated + nparams != cnstr_binders)
+                throw kernel_exception(*this, sstream() << "the certificate does not state a rule for '"
+                                                        << constructor_name(c) << "' with its field count");
+            unsigned nfields = cnstr_binders - nparams;
+            realises(constructor_name(c), ind_d.get_lparams(), constructor_type(c));
+            new_env.check_name(constructor_name(c));
+            new_env.add_core(constant_info(constructor_val(constructor_name(c), ind_d.get_lparams(),
+                                                           constructor_type(c), ind_type.get_name(), cidx,
+                                                           nparams, nfields, ind_d.is_unsafe())));
+            cidx++;
+        }
+    }
+    for (derived_rec const & dr : cert.m_recs) {
+        unsigned nmotives = 0, nminors = 0, nindices = 0;
+        if (!derive_rec_arities_core(new_env, dr.m_type, nparams, nmotives, nminors, nindices))
+            throw kernel_exception(new_env, sstream() << "the certificate's type for '" << dr.m_name
+                                                      << "' does not read as a recursor of this declaration");
+        realises(dr.m_name, dr.m_lparams, dr.m_type);
+        new_env.check_name(dr.m_name);
+        /* Never K-like, and not worth taking anyone's word for: K needs a non-mutual single-constructor
+           zero-field `Prop`, a nested occurrence needs a field to sit in, and the model this is derived
+           from always has the declaration's types plus at least one copy. Were it wrongly set, `rec`
+           would reduce without looking at the major premise. */
+        new_env.add_core(constant_info(recursor_val(dr.m_name, dr.m_lparams, dr.m_type, all_ind_names,
+                                                    nparams, nindices, nmotives, nminors, dr.m_rules,
+                                                    false, ind_d.is_unsafe())));
+    }
+    /* likewise its rules cannot be proved: a theorem may not mention an unsafe constant */
+    if (!ind_d.is_unsafe())
+        check_nested_rules(new_env, head(all_ind_names), cert);
+    return diag.update(new_env);
 }
 
 static expr * g_nat_zero       = nullptr;
@@ -1278,12 +1202,8 @@ expr string_lit_to_constructor(expr const & e) {
 
 
 void initialize_inductive() {
-    g_nested         = new name("_nested");
-    mark_persistent(g_nested->raw());
     g_ind_fresh      = new name("_ind_fresh");
     mark_persistent(g_ind_fresh->raw());
-    g_nested_fresh   = new name("_nested_fresh");
-    mark_persistent(g_nested_fresh->raw());
     g_nat_zero       = new expr(mk_constant(name{"Nat", "zero"}));
     mark_persistent(g_nat_zero->raw());
     g_nat_succ       = new expr(mk_constant(name{"Nat", "succ"}));
@@ -1298,13 +1218,10 @@ void initialize_inductive() {
     g_char_of_nat    = new expr(mk_constant(name{"Char", "ofNat"}));
     mark_persistent(g_char_of_nat->raw());
     register_name_generator_prefix(*g_ind_fresh);
-    register_name_generator_prefix(*g_nested_fresh);
 }
 
 void finalize_inductive() {
-    delete g_nested;
     delete g_ind_fresh;
-    delete g_nested_fresh;
     delete g_nat_succ;
     delete g_nat_zero;
     delete g_string_mk;

@@ -27,15 +27,13 @@ error: failed to generate `SizeOf` instance for `Tree₁`:
 inductive Tree₁ -- failed to generate sizeOf theorem for Tree₁.node
   | node (children : List (Unit → id Tree₁))
 
-/--
-error: failed to generate `SizeOf` instance for `Tree₂`:
-  failed to generate sizeOf theorem for Tree₂.node (use `set_option genSizeOfSpec false` to disable theorem generation), expected 'Nat.add' application, lhs is ⏎
-    1
-  rhs is
-    1 + sizeOf head
+/-!
+This one goes through: the field is a redex, and the recursor derived from the model reduces it to
+`Unit → Tree₂`, which is all the `sizeOf` specification needed. The neighbouring shapes are guarded by
+`id` rather than by a redex, so beta does not reach them and they still fail.
 -/
 #guard_msgs(pass trace, all) in
-inductive Tree₂ -- failed to generate sizeOf theorem for Tree₂.node
+inductive Tree₂
   | node (children : List ((fun α => α) Unit → Tree₂))
 
 /--

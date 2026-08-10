@@ -2,18 +2,19 @@ import Lean.CoreM
 import Lean.AddDecl
 
 /-!
-The kernel must reject declarations that name its `_nested` auxiliary types.
+The kernel must reject declarations that name the auxiliary types the elimination of nested
+inductives creates.
 
-Those types exist only in the temporary environment used to eliminate nested
-inductives. A constructor referring to one is checked there, but `restore_nested`
-then rewrites the name back to the nested type, which can have a different
-universe, leaving a stored constructor type that is ill typed.
+They were once declared in a temporary kernel environment, so a constructor naming one was checked
+against a type it would not keep. The elimination now runs in Lean, against a scratch environment
+that is discarded, and no such constant is ever in scope: what refuses these is ordinary type
+checking, so the kernel needs no rule of its own about the name.
 -/
 
 open Lean
 
 /--
-error: (kernel) invalid declaration 'KNAux.mk', it uses the reserved prefix '_nested'
+error: (kernel) unknown constant '_nested.KNHost_1'
 -/
 #guard_msgs in
 #eval addDecl <| .inductDecl [] 0 [
@@ -24,10 +25,11 @@ error: (kernel) invalid declaration 'KNAux.mk', it uses the reserved prefix '_ne
                   (.app (.const `_nested.KNHost_1 [.zero]) (.const ``True []))
                   (.const `KNAux []) .default }] }] false
 
--- A `proj` names its structure type, and the kernel rewrites nested occurrences in the
--- constructor to the auxiliary type, so this reaches that type without naming it as a constant.
+-- A `proj` names its structure type rather than mentioning it as a constant, so it reaches the
+-- auxiliary type by another route; the projection is refused for the same reason.
 /--
-error: (kernel) invalid declaration 'KNProj.mk', it uses the reserved prefix '_nested'
+error: (kernel) invalid projection
+  x.1
 -/
 #guard_msgs in
 #eval addDecl <| .inductDecl [] 0 [

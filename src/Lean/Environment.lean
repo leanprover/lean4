@@ -645,6 +645,41 @@ private def asyncConsts (env : Environment) : AsyncConsts :=
 def ofKernelEnv (env : Kernel.Environment) : Environment :=
   { base.private := env, base.public := env, importRealizationCtx? := none }
 
+/--
+Reconstructs an elaborator environment from a kernel environment, enough of one to run `MetaM` on.
+
+`ofKernelEnv` is not enough for that. `findAsync?` reads imported constants straight out of `base`
+but expects the current module's own declarations in `asyncConsts`, where `addDeclCore` puts them as
+it goes, so through `ofKernelEnv` every local declaration looks undefined. Cached queries such as
+`Meta.getFunInfo` additionally realize against `importRealizationCtx?`, which `ofKernelEnv` leaves
+empty. Both are reconstructed here, at a cost linear in the number of declarations made so far in the
+current module.
+
+The same caveat applies as for `ofKernelEnv`: the result is temporary and must not leak into
+elaboration. It gets a realization context of its own, so anything realized on it is discarded along
+with it rather than shared with the environment being elaborated.
+-/
+def ofKernelEnvForElab (kenv : Kernel.Environment) (opts : Options) : BaseIO Environment := do
+  let env := ofKernelEnv kenv
+  let (privateConsts, publicConsts) := kenv.constants.foldStage2
+    (fun (privateConsts, publicConsts) _ info =>
+      let aconst : AsyncConst := {
+        constInfo := .ofConstantInfo info
+        exts? := none
+        aconstsImpl := .pure <| .mk (α := AsyncConsts) default
+      }
+      (privateConsts.add aconst, publicConsts.add aconst))
+    (env.asyncConstsMap.private, env.asyncConstsMap.public)
+  let env := { env with
+    asyncConstsMap.private := privateConsts
+    asyncConstsMap.public  := publicConsts }
+  return { env with importRealizationCtx? := some {
+    -- safety: `RealizationContext` is private
+    env := unsafe unsafeCast env
+    opts
+    realizeMapRef := (← IO.mkRef {})
+  } }
+
 @[export lean_elab_environment_to_kernel_env]
 def toKernelEnv (env : Environment) : Kernel.Environment :=
   env.checked.get

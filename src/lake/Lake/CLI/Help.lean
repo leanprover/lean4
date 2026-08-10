@@ -453,7 +453,7 @@ package by a repository name, rather than the package's. This can be used to
 download outputs for a fork of the Reservoir package (if such artifacts are
 available). The `--platform` and `--toolchain` options can be used to download
 artifacts for a different platform/toolchain configuration than Lake detects.
-For a custom endpoint, the full prefix Lake uses can be set via  `--scope`.
+For a custom endpoint, the full prefix Lake uses can be set via `--scope`.
 
 If `--rev` is not set, Lake uses the package's current revision to lookup
 artifacts. If no mappings are found, Lake will backtrack the Git history up to
@@ -472,7 +472,7 @@ def helpCachePut :=
 "Upload build outputs from the Lake cache to a remote service
 
 USAGE:
-  lake cache put <mappings> <scope-option>
+  lake cache put <mappings>
 
 OPTIONS:
   --service=<name>                upload to set cache service

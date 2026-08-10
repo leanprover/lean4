@@ -527,7 +527,7 @@ class DownstreamChecker(RepoChecker):
 
         self.lrepo.prepare()
         self.lrepo.switch("stable")
-        self.lrepo.git("merge", "--ff-only", self.version.tag)
+        self.lrepo.git("reset", "--hard", self.version.tag)
 
         if not self.prompt("Push branch [b]stable[/b] to origin?"):
             self.cl.fail(f"{what} does not point to toolchain tag")

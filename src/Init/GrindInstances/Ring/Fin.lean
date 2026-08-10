@@ -7,10 +7,11 @@ module
 
 prelude
 import all Init.Data.Zero
-public import Init.GrindInstances.ToInt
-import all Init.GrindInstances.ToInt
 public import Init.Data.Fin.Lemmas
 public import Init.Grind.Ring.Basic
+import Init.Omega
+import Init.Data.Nat.Div.Lemmas
+import Init.Data.Int.Order
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.MinMax
 
@@ -139,22 +140,7 @@ instance (n : Nat) [NeZero n] : IsCharP (Fin n) n := IsCharP.mk' _ _
     simp only [Nat.zero_mod]
     simp only [Fin.mk.injEq])
 
--- [ToInt experiment] example [NeZero n] : ToInt.Neg (Fin n) (.co 0 n) := inferInstance
--- [ToInt experiment] example [NeZero n] : ToInt.Sub (Fin n) (.co 0 n) := inferInstance
 
--- [ToInt experiment] set_option backward.isDefEq.respectTransparency false in
--- [ToInt experiment] instance [i : NeZero n] : ToInt.Pow (Fin n) (.co 0 n) where
--- [ToInt experiment]   toInt_pow x k := by
--- [ToInt experiment]     induction k with
--- [ToInt experiment]     | zero =>
--- [ToInt experiment]       match n, i with
--- [ToInt experiment]       | 1, _ => simp
--- [ToInt experiment]       | (n + 2), _ =>
--- [ToInt experiment]         simp [IntInterval.wrap, Int.sub_zero, Int.add_zero]
--- [ToInt experiment]         rw [Int.emod_eq_of_lt] <;> omega
--- [ToInt experiment]     | succ k ih =>
--- [ToInt experiment]       rw [pow_succ, ToInt.Mul.toInt_mul, ih, ← ToInt.wrap_toInt,
--- [ToInt experiment]         ← IntInterval.wrap_mul (by simp), Int.pow_succ, ToInt.wrap_toInt]
 
 instance : PowIdentity (Fin 2) 2 where
   pow_eq x := by

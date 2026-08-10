@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Init.Grind.ToIntLemmas
-import Init.GrindInstances.ToInt
 import Lean.Meta.Tactic.Grind.SynthInstance
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.EvalNum
@@ -417,8 +416,8 @@ private partial def toInt' (e : Expr) : ToIntM (Expr × Expr) := do
     return (mkIntLit 0, thm)
   | OfNat.ofNat _ n _inst =>
     let some n ← getNatValue? n | mkToIntVar e
-    -- [ToInt experiment] `Fin` zero special case disabled together with the `ToInt`
-    -- instances; it constructed the result via `Lean.Grind.ofNat_FinZero`.
+    -- The `Fin` zero special case (via `Lean.Grind.ofNat_FinZero`) was removed together
+    -- with the `ToInt` instances.
     toIntOfNat e n
   | BitVec.ofNat _ n =>
     let some n ← getNatValue? n | mkToIntVar e

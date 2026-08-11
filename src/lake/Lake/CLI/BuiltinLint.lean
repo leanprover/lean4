@@ -41,7 +41,8 @@ public structure Args where
   /-- Whether to record linter warnings as `set_option <linter> false in` exceptions
   by editing the source files in place. -/
   mode : Mode := .report
-  /-- An array of modules containing code quality checks, these are imported alongside each module -/
+  /-- An array of modules containing code quality checks that are
+  imported alongside each top-level module -/
   checks : Array Name := #[]
   /-- Source search path used to resolve modules to their `.lean` files when recording
   exceptions for environment linters. Populated from the workspace's `LEAN_SRC_PATH`, since

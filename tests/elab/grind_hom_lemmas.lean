@@ -50,8 +50,6 @@ info: @BitVec.toNat_add
 run_meta showMatches ``bvAdd
 
 /--
-info: UInt8.toBitVec_ofNat
----
 info: @UInt8.toBitVec_mul
 -/
 #guard_msgs in

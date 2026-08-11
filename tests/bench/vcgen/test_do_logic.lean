@@ -734,7 +734,8 @@ namespace RepeatInvariantOfInvariantAndBreak
 an `onBreak` condition (here the negated loop condition) that additionally holds once the loop
 exits. -/
 
-/-- Counts `i` down from `n`, incrementing the state on each iteration, so the final state is `n`. -/
+/-- Counts `i` down from `n`, incrementing the state on each iteration, so the final state is `n`.
+The measure reads the loop's own variable, which `NondetFun` interprets as that value. -/
 def countdown (n : Nat) : StateT Nat Id Unit := do
   let mut i := n
   while i > 0 do
@@ -763,22 +764,6 @@ theorem countdownStateful_spec (n : Nat) :
       (fun _ s => s ≤ n)
       (fun _ s => s = n)
   | inv2 => .ofMeasure fun _ s => n - s
-  with finish
-
-/-- The measure of a loop in a state monad need not read the state: here it counts down the loop's
-own variable while the state counts up. -/
-def countdownPureMeasure (n : Nat) : StateT Nat Id Unit := do
-  let mut i := n
-  while 0 < i do
-    i := i - 1
-    modify (· + 1)
-  return
-
-theorem countdownPureMeasure_spec (n : Nat) :
-    ⦃ fun s => s = 0 ⦄ countdownPureMeasure n ⦃ fun _ s => s = n ⦄ := by
-  vcgen [countdownPureMeasure] invariants
-  | inv1 => RepeatInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i s => s = n)
-  | inv2 => .ofMeasure fun i => i
   with finish
 
 /-- Nested countdown driven by a single `while` loop: `i` counts down and resets `j`, so the

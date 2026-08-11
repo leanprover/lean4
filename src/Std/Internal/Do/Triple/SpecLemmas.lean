@@ -2021,100 +2021,83 @@ measures. -/
   simp only [EvalsBelow, iSup_apply, meet_apply, CompleteLattice.ofProp_apply]
   rfl
 
-/-! Fixed-arity specializations of `evalsBelow_ofMeasure_apply` for `Nat`-valued measures at a
-lattice tower ending in `Prop`, in the manner of `CompleteLattice.ofProp_apply_1` and its
-siblings: the ground instances leave every parameter recoverable from the trigger, so these are
-usable `@[grind =]` lemmas where the general `evalsBelow_ofMeasure_apply` is not. -/
+/-! Fixed-arity specializations of `evalsBelow_ofMeasure_apply` at a lattice tower ending in
+`Prop`, in the manner of `CompleteLattice.ofProp_apply_1` and its siblings: the ground instances
+leave every parameter recoverable from the trigger, so these are usable `@[grind =]` lemmas where
+the general `evalsBelow_ofMeasure_apply` is not. The measure lands in any well-founded type and the
+decrease is a step of that type's relation, which `rel_sizeOf_nat` and `rel_prod_nat` state as
+arithmetic. -/
 
-@[grind =] theorem evalsBelow_ofMeasure_apply_1 {α : Type} {σ₁ : Type}
-    (f : α → σ₁ → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) :
-    (ofMeasure (Pred := σ₁ → Prop) f).EvalsBelow a' ma s₁ = (f a' s₁ < ma) := by
-  simp
+@[grind =] theorem evalsBelow_ofMeasure_apply_1 {α : Type} {σ₁ : Type} {γ : Type}
+    [WellFoundedRelation γ] (f : α → σ₁ → γ) (a' : α) (ma : γ) (s₁ : σ₁) :
+    (ofMeasure (Pred := σ₁ → Prop) f).EvalsBelow a' ma s₁
+      = WellFoundedRelation.rel (f a' s₁) ma := by
+  simp [evalsBelow_ofMeasure]
 
-@[grind =] theorem evalsBelow_ofMeasure_apply_2 {α : Type} {σ₁ σ₂ : Type}
-    (f : α → σ₁ → σ₂ → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) (s₂ : σ₂) :
-    (ofMeasure (Pred := σ₁ → σ₂ → Prop) f).EvalsBelow a' ma s₁ s₂ = (f a' s₁ s₂ < ma) := by
-  simp
+@[grind =] theorem evalsBelow_ofMeasure_apply_2 {α : Type} {σ₁ σ₂ : Type} {γ : Type}
+    [WellFoundedRelation γ] (f : α → σ₁ → σ₂ → γ) (a' : α) (ma : γ) (s₁ : σ₁) (s₂ : σ₂) :
+    (ofMeasure (Pred := σ₁ → σ₂ → Prop) f).EvalsBelow a' ma s₁ s₂
+      = WellFoundedRelation.rel (f a' s₁ s₂) ma := by
+  simp [evalsBelow_ofMeasure]
 
-@[grind =] theorem evalsBelow_ofMeasure_apply_3 {α : Type} {σ₁ σ₂ σ₃ : Type}
-    (f : α → σ₁ → σ₂ → σ₃ → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) :
+@[grind =] theorem evalsBelow_ofMeasure_apply_3 {α : Type} {σ₁ σ₂ σ₃ : Type} {γ : Type}
+    [WellFoundedRelation γ] (f : α → σ₁ → σ₂ → σ₃ → γ) (a' : α) (ma : γ)
+    (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃
-      = (f a' s₁ s₂ s₃ < ma) := by
-  simp
+      = WellFoundedRelation.rel (f a' s₁ s₂ s₃) ma := by
+  simp [evalsBelow_ofMeasure]
 
-@[grind =] theorem evalsBelow_ofMeasure_apply_4 {α : Type} {σ₁ σ₂ σ₃ σ₄ : Type}
-    (f : α → σ₁ → σ₂ → σ₃ → σ₄ → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃)
-    (s₄ : σ₄) :
+@[grind =] theorem evalsBelow_ofMeasure_apply_4 {α : Type} {σ₁ σ₂ σ₃ σ₄ : Type} {γ : Type}
+    [WellFoundedRelation γ] (f : α → σ₁ → σ₂ → σ₃ → σ₄ → γ) (a' : α) (ma : γ)
+    (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃ s₄
-      = (f a' s₁ s₂ s₃ s₄ < ma) := by
-  simp
+      = WellFoundedRelation.rel (f a' s₁ s₂ s₃ s₄) ma := by
+  simp [evalsBelow_ofMeasure]
 
-@[grind =] theorem evalsBelow_ofMeasure_apply_5 {α : Type} {σ₁ σ₂ σ₃ σ₄ σ₅ : Type}
-    (f : α → σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) (s₂ : σ₂)
-    (s₃ : σ₃) (s₄ : σ₄) (s₅ : σ₅) :
+@[grind =] theorem evalsBelow_ofMeasure_apply_5 {α : Type} {σ₁ σ₂ σ₃ σ₄ σ₅ : Type} {γ : Type}
+    [WellFoundedRelation γ] (f : α → σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → γ) (a' : α) (ma : γ)
+    (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) (s₅ : σ₅) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃ s₄ s₅
-      = (f a' s₁ s₂ s₃ s₄ s₅ < ma) := by
-  simp
+      = WellFoundedRelation.rel (f a' s₁ s₂ s₃ s₄ s₅) ma := by
+  simp [evalsBelow_ofMeasure]
 
 /-! The same specializations for a measure whose value depends on the cursor alone. -/
 
-@[grind =] theorem evalsBelow_ofMeasure_pure_apply_1 {α : Type} {σ₁ : Type}
-    (f : α → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) :
-    (ofMeasure (Pred := σ₁ → Prop) f).EvalsBelow a' ma s₁ = (f a' < ma) := by
-  simp
-
-@[grind =] theorem evalsBelow_ofMeasure_pure_apply_2 {α : Type} {σ₁ σ₂ : Type}
-    (f : α → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) (s₂ : σ₂) :
-    (ofMeasure (Pred := σ₁ → σ₂ → Prop) f).EvalsBelow a' ma s₁ s₂ = (f a' < ma) := by
-  simp
-
-@[grind =] theorem evalsBelow_ofMeasure_pure_apply_3 {α : Type} {σ₁ σ₂ σ₃ : Type}
-    (f : α → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) :
-    (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃ = (f a' < ma) := by
-  simp
-
-@[grind =] theorem evalsBelow_ofMeasure_pure_apply_4 {α : Type} {σ₁ σ₂ σ₃ σ₄ : Type}
-    (f : α → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) :
-    (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃ s₄ = (f a' < ma) := by
-  simp
-
-@[grind =] theorem evalsBelow_ofMeasure_pure_apply_5 {α : Type} {σ₁ σ₂ σ₃ σ₄ σ₅ : Type}
-    (f : α → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) (s₅ : σ₅) :
-    (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃ s₄ s₅ = (f a' < ma) := by
-  simp
-
-/-! The same specializations for a measure into any well-founded type, where the decrease is a step
-of that type's relation. -/
-
-@[grind =] theorem evalsBelow_ofMeasure_pure_rel_apply_1 {α : Type} {σ₁ : Type}
-    {γ : Type} [WellFoundedRelation γ] (f : α → γ) (a' : α) (ma : γ) (s₁ : σ₁) :
+@[grind =] theorem evalsBelow_ofMeasure_pure_apply_1 {α : Type} {σ₁ : Type} {γ : Type}
+    [WellFoundedRelation γ] (f : α → γ) (a' : α) (ma : γ) (s₁ : σ₁) :
     (ofMeasure (Pred := σ₁ → Prop) f).EvalsBelow a' ma s₁
       = WellFoundedRelation.rel (f a') ma := by
   simp [evalsBelow_ofMeasure]
 
-@[grind =] theorem evalsBelow_ofMeasure_pure_rel_apply_2 {α : Type} {σ₁ σ₂ : Type}
-    {γ : Type} [WellFoundedRelation γ] (f : α → γ) (a' : α) (ma : γ) (s₁ : σ₁) (s₂ : σ₂) :
+@[grind =] theorem evalsBelow_ofMeasure_pure_apply_2 {α : Type} {σ₁ σ₂ : Type} {γ : Type}
+    [WellFoundedRelation γ] (f : α → γ) (a' : α) (ma : γ) (s₁ : σ₁) (s₂ : σ₂) :
     (ofMeasure (Pred := σ₁ → σ₂ → Prop) f).EvalsBelow a' ma s₁ s₂
       = WellFoundedRelation.rel (f a') ma := by
   simp [evalsBelow_ofMeasure]
 
-@[grind =] theorem evalsBelow_ofMeasure_pure_rel_apply_3 {α : Type} {σ₁ σ₂ σ₃ : Type}
-    {γ : Type} [WellFoundedRelation γ] (f : α → γ) (a' : α) (ma : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) :
+@[grind =] theorem evalsBelow_ofMeasure_pure_apply_3 {α : Type} {σ₁ σ₂ σ₃ : Type} {γ : Type}
+    [WellFoundedRelation γ] (f : α → γ) (a' : α) (ma : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃
       = WellFoundedRelation.rel (f a') ma := by
   simp [evalsBelow_ofMeasure]
 
-@[grind =] theorem evalsBelow_ofMeasure_pure_rel_apply_4 {α : Type} {σ₁ σ₂ σ₃ σ₄ : Type}
-    {γ : Type} [WellFoundedRelation γ] (f : α → γ) (a' : α) (ma : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) :
+@[grind =] theorem evalsBelow_ofMeasure_pure_apply_4 {α : Type} {σ₁ σ₂ σ₃ σ₄ : Type} {γ : Type}
+    [WellFoundedRelation γ] (f : α → γ) (a' : α) (ma : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃ s₄
       = WellFoundedRelation.rel (f a') ma := by
   simp [evalsBelow_ofMeasure]
 
-@[grind =] theorem evalsBelow_ofMeasure_pure_rel_apply_5 {α : Type} {σ₁ σ₂ σ₃ σ₄ σ₅ : Type}
-    {γ : Type} [WellFoundedRelation γ] (f : α → γ) (a' : α) (ma : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) (s₅ : σ₅) :
+@[grind =] theorem evalsBelow_ofMeasure_pure_apply_5 {α : Type} {σ₁ σ₂ σ₃ σ₄ σ₅ : Type} {γ : Type}
+    [WellFoundedRelation γ] (f : α → γ) (a' : α) (ma : γ)
+    (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) (s₅ : σ₅) :
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃ s₄ s₅
       = WellFoundedRelation.rel (f a') ma := by
   simp [evalsBelow_ofMeasure]
+
+/-- The well-founded order on the natural numbers, in the arithmetic `grind` reasons with. The
+left-hand side is the form `sizeOfWFRel` leaves once its reducible definitions are unfolded. -/
+@[simp, grind =] theorem rel_sizeOf_nat (a b : Nat) :
+    InvImage (@WellFoundedRelation.rel Nat Nat.lt_wfRel) sizeOf a b ↔ a < b := Iff.rfl
 
 /-- The well-founded order on a pair of natural numbers, in the arithmetic `grind` reasons with. -/
 @[grind =] theorem rel_prod_nat (p q : Nat × Nat) :

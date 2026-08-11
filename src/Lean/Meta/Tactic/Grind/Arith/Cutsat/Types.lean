@@ -342,6 +342,8 @@ structure State where
   - `Int.Internal.Linear.emod_le`
   -/
   divMod : PHashSet (Expr × Int) := {}
+  /-- Caches whether a type has a `Lean.Grind.ToInt` or `Lean.Grind.ToNat` instance. -/
+  embeddingInsts : PHashMap ExprPtr Bool := {}
   /--
   `usedCommRing` is `true` if the `CommRing` has been used to normalize expressions.
   -/

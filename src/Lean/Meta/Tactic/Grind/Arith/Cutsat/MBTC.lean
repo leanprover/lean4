@@ -12,7 +12,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
-private def getAssignmentExt? (e : Expr) : GoalM (Option Rat) := do
+private partial def getAssignmentExt? (e : Expr) : GoalM (Option Rat) := do
   if let some val ← getAssignment? (← get) e then
     -- Easy case when `e : Int`
     return some val
@@ -30,7 +30,16 @@ private def getAssignmentExt? (e : Expr) : GoalM (Option Rat) := do
       let_expr NatCast.natCast _ inst _ := parent | pure ()
       let_expr instNatCastInt := inst | pure ()
       return (← getAssignment? (← get) parent)
-  -- TODO: add support for `toInt` and `toNat`
+  else if (← hasEmbeddingInst type) then
+    -- Use the value of the marker application `Grind.ToInt.toInt e`/`Grind.ToNat.toNat e`,
+    -- if present among the parents.
+    for parent in (← getParents e).elems do
+      match_expr parent with
+      | Lean.Grind.ToInt.toInt _ _ a =>
+        if (← isEqv a e) then return (← getAssignmentExt? (← getRoot parent))
+      | Lean.Grind.ToNat.toNat _ _ a =>
+        if (← isEqv a e) then return (← getAssignmentExt? (← getRoot parent))
+      | _ => pure ()
   return none
 
 /--

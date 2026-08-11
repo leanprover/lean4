@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
+public import Init.Grind.ToInt
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Simp.Arith.Int.Simp
 public section
@@ -32,16 +33,35 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 
 open Lean
 
-/-- Returns `true` if cutsat natively supports `type`. -/
-def isSupportedType (type : Expr) : GoalM Bool :=
-  return type == Nat.mkType || type == Int.mkType
-  -- TODO: add support for `toInt` and `toNat`
-
 def get' : GoalM State := do
   cutsatExt.getState
 
 @[inline] def modify' (f : State → State) : GoalM Unit := do
   cutsatExt.modifyState f
+
+/--
+Returns `true` if `type` has a `Lean.Grind.ToInt` or `Lean.Grind.ToNat` instance, i.e.
+it is embedded into a domain natively supported by cutsat. The result is cached per goal.
+-/
+def hasEmbeddingInst (type : Expr) : GoalM Bool := do
+  if let some r := (← get').embeddingInsts.find? { expr := type } then
+    return r
+  let r ← check
+  modify' fun s => { s with embeddingInsts := s.embeddingInsts.insert { expr := type } r }
+  return r
+where
+  check : GoalM Bool := do
+    let u ← getLevel type
+    let some u ← decLevel? u | return false
+    if (← synthInstance? (mkApp (mkConst ``Grind.ToNat [u]) type)).isSome then
+      return true
+    return (← synthInstance? (mkApp (mkConst ``Grind.ToInt [u]) type)).isSome
+
+/-- Returns `true` if cutsat natively supports `type`. -/
+def isSupportedType (type : Expr) : GoalM Bool := do
+  if type == Nat.mkType || type == Int.mkType then
+    return true
+  hasEmbeddingInst type
 
 /-- Returns `true` if the cutsat state is inconsistent. -/
 def inconsistent : GoalM Bool := do

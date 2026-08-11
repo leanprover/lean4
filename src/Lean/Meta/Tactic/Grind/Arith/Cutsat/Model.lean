@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
+import Init.Grind.ToInt
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Grind.Arith.ModelUtil
 public section
@@ -32,8 +33,9 @@ private def natCastToInt? (e : Expr) : Option Expr :=
   | NatCast.natCast _ inst a =>
     let_expr instNatCastInt := inst | none
     some a
+  | Grind.ToInt.toInt _ _ a => some a
+  | Grind.ToNat.toNat _ _ a => some a
   | _ => none
-  -- TODO: add support for new `toInt` and `toNat`
 
 def getAssignment? (goal : Goal) (e : Expr) : MetaM (Option Rat) := do
   let node ← goal.getENode (← goal.getRoot e)
@@ -63,8 +65,12 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Rat)) := do
     if (← isIntNatENode node) then
       if let some v ← getAssignment? goal node.self then
         model := assignEqc goal node.self v model
-  -- Assign natCast and toInt terms
-  for e in goal.exprs do
+  /-
+  Assign `natCast` and embedding-marker chains. Values flow from a term to its argument
+  (`↑(toNat a)` to `toNat a` to `a`), and `goal.exprs` is in internalization order
+  (subterms first), so the reverse traversal resolves the chains in one pass.
+  -/
+  for e in goal.exprs.toArray.reverse do
     let node ← goal.getENode e
     let i := node.self
     let some n := natCastToInt? i | pure ()

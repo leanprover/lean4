@@ -205,8 +205,6 @@ def sumIter (xs : List Nat) : Id Nat
   for x in xs.iter invariant pref _suff => s = pref.sum do
     s := s + x
   return s
-where finally
-  | spec => all_goals grind
 
 #guard_msgs (drop info) in
 #check @sumIter.spec

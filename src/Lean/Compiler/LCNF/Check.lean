@@ -228,7 +228,7 @@ partial def checkCases (c : Cases .pure) : CheckM Unit := do
       unless val.induct == c.typeName do
         throwError "invalid LCNF `cases`, `{ctorName}` is not a constructor of `{c.typeName}`"
       unless params.size == val.numFields do
-        throwError "invalid LCNF `cases`, `{ctorName}` has # {val.numFields} fields, but alternative has # {params.size} alternatives"
+        throwError "invalid LCNF `cases`, `{ctorName}` has # {val.numFields} fields, but alternative has # {params.size} parameters"
       withParams params do check k
 
 partial def check (code : Code .pure) : CheckM Unit := do

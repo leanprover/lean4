@@ -148,6 +148,22 @@ private def liftedHypBare? (scope : VCGen.Scope) (goal : MVarId) (target : Expr)
     goal.assign hyp.toExpr
     return some []
 
+/-- Replace the `i`-th argument of the application `e`, which has `n` arguments. -/
+private def setAppArg (e : Expr) (i n : Nat) (v : Expr) : Expr :=
+  match e with
+  | .app f a => if n == i + 1 then e.updateApp! f v else e.updateApp! (setAppArg f i (n-1) v) a
+  | _ => e
+
+/-- Instantiate an assigned metavariable in the program of the `wp` application `rhs`. -/
+private def instantiateWPProg? (rhs : Expr) : VCGenM (Option Expr) := do
+  unless rhs.hasMVar do return none
+  let n := rhs.getAppNumArgs
+  unless n > 7 && rhs.getAppFn.isConstOf ``Std.Internal.Do.wp do return none
+  let prog := rhs.getArg! 7 n
+  let prog' ← instantiateMVarsIfMVarAppS prog
+  if isSameExpr prog prog' then return none
+  return some (← shareCommon (setAppArg rhs 7 n prog'))
+
 /-- Instantiate assigned head metavariables in the goal's entailment, so the shape tests in the
 following steps see the assigned form. -/
 private def instantiateGoal? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
@@ -155,6 +171,7 @@ private def instantiateGoal? (goal : MVarId) (target : Expr) : VCGenM (Option MV
   let α' ← instantiateMVarsIfMVarAppS α
   let pre' ← instantiateMVarsIfMVarAppS pre
   let rhs' ← instantiateMVarsIfMVarAppS rhs
+  let rhs' := (← instantiateWPProg? rhs').getD rhs'
   if isSameExpr α α' && isSameExpr pre pre' && isSameExpr rhs rhs' then return none
   return some (← goal.replaceTargetDefEqFast (← mkAppNS c #[α', inst, pre', rhs']))
 

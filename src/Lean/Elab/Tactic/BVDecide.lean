@@ -245,7 +245,7 @@ def evalBVNormalize : Tactic := fun
     let g ← getMainGoal
     let params ← Grind.mkDefaultParams {}
     let (_, state) ← Grind.GrindM.run (params := params) do
-      Normalize.bvNormalize.run { config := cfg, restrictedTypes := types } (.mvarIdTarget g)
+      Normalize.bvNormalize.run (.new (.solve types) cfg) (.mvarIdTarget g)
     let goal := state.target.mvarId
     if ← goal.isAssigned then
       replaceMainGoal []

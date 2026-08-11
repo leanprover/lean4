@@ -41,7 +41,7 @@ public def reductionPass : Pass where
 
     let goal ← PreProcessM.getTargetMVarId
     goal.withContext do
-      PreProcessM.mapDSimpHyps methods config
+      PreProcessM.dsimpHyps .reduction methods config
 
 end Normalize
 end Lean.Meta.Tactic.BVDecide

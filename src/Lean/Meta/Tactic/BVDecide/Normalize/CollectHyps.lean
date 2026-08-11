@@ -97,15 +97,16 @@ where
   Collect equalities for all types that we consider relevant.
   -/
   collectRelevantEqualities : CollectM Unit := do
-    let eqcs ← Grind.getEqcs
-    for eqc in eqcs do
-      if let some representative ← analyzeClass eqc then
-        let root ← Grind.getRootENode eqc.head!
-        let homogeneous := !root.heqProofs
+    for root in ← Grind.getExprs do
+      let node ← Grind.getENode root
+      unless node.isRoot do continue
+      if let some representative ← analyzeClass root then
+        let homogeneous := !node.heqProofs
+        let eqc ← Grind.getEqc root
         for e in eqc do
           if e == representative then continue
           unless homogeneous do
-            unless (← Grind.hasSameType e representative) do continue
+            unless ← Grind.hasSameType e representative do continue
           recordHyp {
             name := .anonymous
             type := ← Sym.share (← mkEq e representative),
@@ -113,36 +114,35 @@ where
             source := .grind
           }
 
-  analyzeClass (eqc : List Expr) : CollectM (Option Expr) := do
-    let elem := eqc.head!
-    let root := (← Grind.getRootENode elem).self
-    let type ← Sym.inferType elem
+  analyzeClass (root : Expr) : CollectM (Option Expr) := do
+    let type ← Sym.inferType root
     match_expr type with
     | Bool =>
-      if ← Grind.isEqBoolTrue elem then
+      if ← Grind.isEqBoolTrue root then
         return some (← Sym.getBoolTrueExpr)
-      else if ← Grind.isEqBoolFalse elem then
+      else if ← Grind.isEqBoolFalse root then
         return some (← Sym.getBoolFalseExpr)
       else
         return some root
     | BitVec w =>
       unless (Sym.getNatValue? w).isSome do return none
-      handleEqcWithConstType eqc root Sym.getBitVecValue?
-    | UInt8 => withFixedInt <| handleEqcWithConstType eqc root Sym.getUInt8Value?
-    | UInt16 => withFixedInt <| handleEqcWithConstType eqc root Sym.getUInt16Value?
-    | UInt32 => withFixedInt <| handleEqcWithConstType eqc root Sym.getUInt32Value?
-    | UInt64 => withFixedInt <| handleEqcWithConstType eqc root Sym.getUInt64Value?
-    | Int8 => withFixedInt <| handleEqcWithConstType eqc root Sym.getInt8Value?
-    | Int16 => withFixedInt <| handleEqcWithConstType eqc root Sym.getInt16Value?
-    | Int32 => withFixedInt <| handleEqcWithConstType eqc root Sym.getInt32Value?
-    | Int64 => withFixedInt <| handleEqcWithConstType eqc root Sym.getInt64Value?
+      handleEqcWithConstType root Sym.getBitVecValue?
+    | UInt8 => withFixedInt <| handleEqcWithConstType root Sym.getUInt8Value?
+    | UInt16 => withFixedInt <| handleEqcWithConstType root Sym.getUInt16Value?
+    | UInt32 => withFixedInt <| handleEqcWithConstType root Sym.getUInt32Value?
+    | UInt64 => withFixedInt <| handleEqcWithConstType root Sym.getUInt64Value?
+    | Int8 => withFixedInt <| handleEqcWithConstType root Sym.getInt8Value?
+    | Int16 => withFixedInt <| handleEqcWithConstType root Sym.getInt16Value?
+    | Int32 => withFixedInt <| handleEqcWithConstType root Sym.getInt32Value?
+    | Int64 => withFixedInt <| handleEqcWithConstType root Sym.getInt64Value?
     -- Hack: Use UInt64/Int64 as the format is the same as USize/ISize but at the same time we don't
     -- care about the precise value for our purposes.
-    | USize => withFixedInt <| handleEqcWithConstType eqc root Sym.getUInt64Value?
-    | ISize => withFixedInt <| handleEqcWithConstType eqc root Sym.getInt64Value?
+    | USize => withFixedInt <| handleEqcWithConstType root Sym.getUInt64Value?
+    | ISize => withFixedInt <| handleEqcWithConstType root Sym.getInt64Value?
     | _ =>
       let some (const, _) := type.getAppFn'.const? | return none
       unless ← isPotentialTypeAnalysisType (← read) const do return none
+      let eqc ← Grind.getEqc root
       if let some ctorApp ← eqc.findM? (liftM ∘ Meta.isConstructorApp) then
         return some ctorApp
       else
@@ -168,13 +168,13 @@ where
   Heuristic for choosing a canonical representative for a class: If the class contains a constant we
   choose the constant as representative, otherwise just a default value.
   -/
-  handleEqcWithConstType {α : Type} (eqc : List Expr) (default : Expr) (getConst : Expr → Option α)
-      : CollectM (Option Expr) :=
+  handleEqcWithConstType {α : Type} (default : Expr) (getConst : Expr → Option α)
+      : CollectM (Option Expr) := do
+    let eqc ← Grind.getEqc default
     if let some constant := eqc.find? (getConst · |>.isSome) then
       return some constant
     else
       return some default
-
 
 def recordLocalHyp (fvarId : FVarId) : Sym.SymM Hyp := do
   return {
@@ -184,6 +184,25 @@ def recordLocalHyp (fvarId : FVarId) : Sym.SymM Hyp := do
     source := .lctx fvarId
   }
 
+def symByContradiction (goal : MVarId) : Sym.SymM (Array FVarId × MVarId) := do
+  let (fvarIds, goal) ←
+    match ← Sym.intros goal with
+    | .goal fvarIds goal => pure (fvarIds, goal)
+    | .failed => pure (#[], goal)
+  goal.withContext do
+    let goalType ← goal.getType
+    unless ← isProp goalType do
+      let goal ← goal.exfalso
+      let goal ← Sym.preprocessMVar goal
+      return (fvarIds, goal)
+    if goalType.isFalse then
+      return (fvarIds, goal)
+    let some goal ← goal.byContra? | unreachable!
+    let goal ← Sym.preprocessMVar goal
+    let .goal contraFVarIds goal ← Sym.introN goal 1
+      | throwError "`bv_decide` failed to introduce the negated goal"
+    return (fvarIds ++ contraFVarIds, goal)
+
 /--
 Runs `intros; by_contra` on a `grind` goal. This does maintain maximal sharing but does *not*
 internalize them into the e-graph. The rationale for this is that if the user wanted bv_decide to be
@@ -192,27 +211,14 @@ force internalization. Otherwise `bv_decide` will only use existing e-graph info
 bitvector information about the goal. This allows us to avoid internalizing huge bitvector
 expressions that can just be attacked by `bv_decide` on its own.
 -/
-def setupGrindTarget (goal : Grind.Goal) : Grind.GrindM (Grind.Goal × Array FVarId) := do
-  let (fvarIds, goal) ←
-    match ← goal.intros #[] with
-    | .goal fvarIds goal => pure (fvarIds, goal)
-    | .failed => pure (#[], goal)
-  goal.withContext do
-    let target ← goal.mvarId.getType
-    if target.isFalse then
-      return (goal, fvarIds)
-    let mvarId ← if ← isProp target then pure goal.mvarId else goal.mvarId.exfalso
-    let some mvarId ← mvarId.byContra? | return (goal, fvarIds)
-    let mvarId ← Sym.preprocessMVar mvarId
-    let .goal newFVarIds mvarId ← Sym.introN mvarId 1
-      | throwError "`bv_decide` failed to introduce the negated goal"
-    return ({ goal with mvarId }, fvarIds ++ newFVarIds)
+def setupGrindTarget (goal : Grind.Goal) : Grind.GrindM (Array FVarId × Grind.Goal) := do
+  let (fvarIds, mvarId) ← symByContradiction goal.mvarId
+  return (fvarIds, { goal with mvarId })
 
 def setupTarget : PreProcessM (Option (Array Hyp)) := do
   match ← PreProcessM.getTarget with
   | .mvarIdTarget g =>
-    -- TODO: consider reimplementing this with SymM
-    let some g ← g.falseOrByContra (useClassical := some true) | return none
+    let (_, g) ← symByContradiction g
     let g ← Sym.preprocessMVar g
     PreProcessM.setTarget <| .mvarIdTarget g
     g.withContext do
@@ -224,7 +230,8 @@ def setupTarget : PreProcessM (Option (Array Hyp)) := do
           source := .lctx fvarId
         }
   | .grindTarget g =>
-    let (g, introduced) ← setupGrindTarget g
+    let isPush ← PreProcessM.isPushMode
+    let (introduced, g) ← if isPush then pure (#[], g) else setupGrindTarget g
     if g.inconsistent then return none
     let cfg ← PreProcessM.getConfig
     let (hyps, g) ← Grind.GoalM.run g do

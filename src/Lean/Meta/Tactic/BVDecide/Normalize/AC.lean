@@ -336,15 +336,7 @@ public def bvAcNormalizePass : Pass where
 
     let goal ← PreProcessM.getTargetMVarId
     goal.withContext do
-      PreProcessM.mapHyps fun hyp => do
-        simp methods config hyp
-where
-  simp (methods : Sym.Simp.Methods) (config : Sym.Simp.Config) (hyp : Hyp) : PreProcessM Hyp := do
-    let simpState := { persistentCache := ← PreProcessM.takeACCache }
-    let (res, s) ← Sym.Simp.SimpM.run (methods := methods) (config := config) (s := simpState) do
-      Sym.Simp.simp hyp.type
-    PreProcessM.setACCache s.persistentCache
-    hyp.applySimpResult res
+      PreProcessM.simpHyps .ac methods config
 
 end Normalize
 end Lean.Meta.Tactic.BVDecide

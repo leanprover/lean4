@@ -2025,8 +2025,8 @@ measures. -/
 `Prop`, in the manner of `CompleteLattice.ofProp_apply_1` and its siblings: the ground instances
 leave every parameter recoverable from the trigger, so these are usable `@[grind =]` lemmas where
 the general `evalsBelow_ofMeasure_apply` is not. The measure lands in any well-founded type and the
-decrease is a step of that type's relation, which `rel_sizeOf_nat` and `rel_prod_nat` state as
-arithmetic. -/
+decrease is a step of that type's relation, which `rel_sizeOf_nat` states as arithmetic for `Nat`
+and `Prod.lex_def` splits for a pair. -/
 
 @[grind =] theorem evalsBelow_ofMeasure_apply_1 {α : Type} {σ₁ : Type} {γ : Type}
     [WellFoundedRelation γ] (f : α → σ₁ → γ) (a' : α) (ma : γ) (s₁ : σ₁) :
@@ -2098,11 +2098,6 @@ arithmetic. -/
 left-hand side is the form `sizeOfWFRel` leaves once its reducible definitions are unfolded. -/
 @[simp, grind =] theorem rel_sizeOf_nat (a b : Nat) :
     InvImage (@WellFoundedRelation.rel Nat Nat.lt_wfRel) sizeOf a b ↔ a < b := Iff.rfl
-
-/-- The well-founded order on a pair of natural numbers, in the arithmetic `grind` reasons with. -/
-@[grind =] theorem rel_prod_nat (p q : Nat × Nat) :
-    WellFoundedRelation.rel p q ↔ p.1 < q.1 ∨ (p.1 = q.1 ∧ p.2 < q.2) :=
-  Prod.lex_def
 
 end RepeatVariant
 

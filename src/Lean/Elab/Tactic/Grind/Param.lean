@@ -281,7 +281,7 @@ public def elabGrindParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.T
       match p with
       | `(Parser.Tactic.grindParam| - $id:ident) =>
         if incremental then
-          throwErrorAt p "invalid `-` occurrence, it can only used at the `grind` tactic entry point"
+          throwErrorAt p "invalid `-` occurrence, it can only be used at the `grind` tactic entry point"
         let declName ← realizeGlobalConstNoOverloadWithInfo id
         Term.checkDeprecatedCore declName
         if let some declName ← Grind.isCasesAttrCandidate? declName false then

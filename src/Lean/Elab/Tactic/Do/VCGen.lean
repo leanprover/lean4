@@ -370,7 +370,7 @@ def elabInvariants (stx : Syntax) (invariants : Array MVarId) (suggestInvariant 
           break
         dotOrCase := .true
         let some mv := invariants[n]? | do
-          logErrorAt alt m!"More invariants have been defined ({alts.size}) than there were unassigned invariants goals `inv<n>` ({invariants.size})."
+          logErrorAt alt m!"More invariants have been defined ({alts.size}) than there were unassigned invariant goals `inv<n>` ({invariants.size})."
           continue
         withRef rhs do
         discard <| evalTacticAt (← `(tactic| exact $rhs)) mv

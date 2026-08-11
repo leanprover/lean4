@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-import Init.Grind.ToInt
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Init.Data.Int.OfNat
 import Lean.Meta.Tactic.Grind.Simp
@@ -473,8 +472,9 @@ def processNewDiseq (a b : Expr) : GoalM Unit := do
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
+  -- TODO: hardcoded embedding support: kinds for the embedding accessors
+  -- (`Fin.val`, `BitVec.toNat`, `BitVec.toInt`, `UInt??.toBitVec`, ...) and `Fin.mk`.
   | add | mul | num | div | mod | sub | pow | natAbs | toNat | natCast | neg | finVal
-  | embedInt | embedNat | finMk
   deriving BEq, Repr
 
 private def getKindAndType? (e : Expr) : GrindM (Option (SupportedTermKind × Expr)) :=
@@ -493,10 +493,6 @@ private def getKindAndType? (e : Expr) : GrindM (Option (SupportedTermKind × Ex
   | Int.toNat _ => return some (.toNat, Nat.mkType)
   | NatCast.natCast α _ _ => return some (.natCast, α)
   | Fin.val _ _ => return some (.finVal, Nat.mkType)
-  | Grind.ToInt.toInt _ _ _ => return some (.embedInt, Int.mkType)
-  | Grind.ToNat.toNat _ _ _ => return some (.embedNat, Nat.mkType)
-  | Fin.mk n _ _ => return some (.finMk, ← shareCommon (mkApp (mkConst ``Fin) n))
-  | Fin.succ n _ => return some (.finMk, ← shareCommon (mkApp (mkConst ``Fin) (mkNatAdd n (mkNatLit 1))))
   | _ => return none
 
 private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : Bool := Id.run do
@@ -505,7 +501,7 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
   -- TODO: document `NatCast.natCast` case.
   -- Remark: we added it to prevent natCast_sub from being expanded twice.
   if declName == ``NatCast.natCast then return true
-  if k matches .div | .mod | .sub | .pow | .neg | .natAbs | .toNat | .natCast | .finVal | .embedInt | .embedNat | .finMk then return false
+  if k matches .div | .mod | .sub | .pow | .neg | .natAbs | .toNat | .natCast | .finVal then return false
   if declName == ``HAdd.hAdd || declName == ``LE.le || declName == ``Dvd.dvd then return true
   match k with
   | .add => return false
@@ -673,26 +669,15 @@ Internalizes an integer (and `Nat`) expression. Here are the different cases tha
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).lia do return ()
   let some (k, type) ← getKindAndType? e | return ()
-  if k matches .embedInt | .embedNat then
-    /-
-    The argument of an embedding-marker application (`Grind.ToInt.toInt a` or
-    `Grind.ToNat.toNat a`) is a solver term: model-based theory combination compares
-    the assignments of such arguments occurring at the same position of the same
-    function, using the values of their marker applications.
-    -/
-    cutsatExt.markTerm e.appArg!
+  -- TODO: hardcoded embedding support: when `e` is an embedding-accessor application,
+  -- mark its argument (model-based theory combination compares such arguments).
   if type.isConstOf ``Int then
     internalizeIntTerm e type parent? k
   else if type.isConstOf ``Nat then
     internalizeNatTerm e type parent? k
-  else if let some fn ← getEmbeddingFn? type then
-    /-
-    A term of an embedded type in a supported shape (literal, arithmetic operation,
-    `Fin.mk`): create its marker application so that the term has a value for
-    model-based theory combination even when no translated fact mentions it. The
-    homomorphism rules rewrite the marker to its normal form on internalization.
-    -/
-    let marker ← shareCommon (mkApp fn e)
-    Grind.internalize marker (← getGeneration e)
+  -- TODO: hardcoded embedding support: for `Fin`- and `BitVec`-typed terms in supported
+  -- shapes (literals, arithmetic operations, `Fin.mk`, `Fin.succ`), create the accessor
+  -- application so the term has a value for model-based theory combination even when no
+  -- translated fact mentions it.
 
 end Lean.Meta.Grind.Arith.Cutsat

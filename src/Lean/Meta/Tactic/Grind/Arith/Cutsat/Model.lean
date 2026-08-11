@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-import Init.Grind.ToInt
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Grind.Arith.ModelUtil
 public section
@@ -33,8 +32,9 @@ private def natCastToInt? (e : Expr) : Option Expr :=
   | NatCast.natCast _ inst a =>
     let_expr instNatCastInt := inst | none
     some a
-  | Grind.ToInt.toInt _ _ a => some a
-  | Grind.ToNat.toNat _ _ a => some a
+  -- TODO: hardcoded embedding support: `Fin.val`, `BitVec.toNat`/`toInt`, and
+  -- `toBitVec` applications, so that source terms receive model values (the pass below
+  -- already resolves multi-step chains by iterating in reverse internalization order).
   | _ => none
 
 def getAssignment? (goal : Goal) (e : Expr) : MetaM (Option Rat) := do

@@ -30,16 +30,8 @@ private partial def getAssignmentExt? (e : Expr) : GoalM (Option Rat) := do
       let_expr NatCast.natCast _ inst _ := parent | pure ()
       let_expr instNatCastInt := inst | pure ()
       return (← getAssignment? (← get) parent)
-  else if (← hasEmbeddingInst type) then
-    -- Use the value of the marker application `Grind.ToInt.toInt e`/`Grind.ToNat.toNat e`,
-    -- if present among the parents.
-    for parent in (← getParents e).elems do
-      match_expr parent with
-      | Lean.Grind.ToInt.toInt _ _ a =>
-        if (← isEqv a e) then return (← getAssignmentExt? (← getRoot parent))
-      | Lean.Grind.ToNat.toNat _ _ a =>
-        if (← isEqv a e) then return (← getAssignmentExt? (← getRoot parent))
-      | _ => pure ()
+  -- TODO: hardcoded embedding support: use the value of the embedding-accessor
+  -- application (`Fin.val e`, `BitVec.toNat e`, `e.toBitVec`, ...) among the parents.
   return none
 
 /--

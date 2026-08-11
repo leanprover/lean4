@@ -225,10 +225,10 @@ bool event_loop_abandon_requests(event_loop_t * event_loop) {
 }
 
 lean_obj_res lean_uv_loop_unavailable_error() {
-    lean_object * msg = lean_mk_string("libuv event loop is not available");
-    lean_obj_res res = lean_io_result_mk_error(lean_decode_uv_error(UV_ECANCELED, msg));
-    lean_dec_ref(msg);
-    return res;
+    // The message is the error's `details`; `lean_decode_uv_error` would take it as a file name,
+    // which `UV_ECANCELED` does not accept.
+    lean_object * details = lean_mk_string("libuv event loop is not available");
+    return lean_io_result_mk_error(lean_mk_io_error_other_error(-UV_ECANCELED, details));
 }
 
 // Runs the loop and stops when it needs to register new requests.

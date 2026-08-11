@@ -91,7 +91,6 @@ extern "C" void finalize_libuv() {
                     // The loop then stays open, which only leaks a static; assert loudly so the
                     // diagnostic names the missing case instead of surfacing as a later failure.
                     lean_always_assert(false);
-                    return;
             }
 
             if (releases > 0) {
@@ -118,7 +117,7 @@ extern "C" void finalize_libuv() {
         int close_result = uv_loop_close(global_ev.loop);
 
         if (close_result != 0) {
-            lean_assert(false && "libuv loop failed to exit");
+            lean_always_assert(false && "libuv loop failed to exit");
         }
     }
 

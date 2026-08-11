@@ -456,12 +456,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_cancel_recv(b_obj_arg socket) {
     lean_uv_udp_socket_object* udp_socket = lean_to_uv_udp_socket(socket);
 
-    lean_inc(socket);
-
+    // Cancellation never fails: returning ok when the loop is unavailable keeps the unregister loop
+    // going.
     if (!event_loop_lock(&global_ev)) {
-        lean_dec(socket);
         return lean_io_result_mk_ok(lean_box(0));
     }
+
+    lean_inc(socket);
 
     if (udp_socket->m_promise_read == nullptr) {
         event_loop_unlock(&global_ev);

@@ -302,7 +302,7 @@ def main(version: Version, refman: Path):
         lines.append(":::")
     lines.append("")
     lines.append(f"For this release, {pl(counts.total, 'change')} landed.")
-    lines.append(f"In addition to the {pl(counts.feat, 'feature addition')},")
+    lines.append(f"In addition to the {pl(counts.feat, 'feature addition')}")
     lines.append(f"and {pl(counts.fix, 'fix', 'fixes')} listed below,")
     lines.append(f"there were {pl(counts.refactor, 'refactoring change')},")
     lines.append(f"{pl(counts.doc, 'documentation improvement')},")

@@ -157,7 +157,7 @@ def checkJpInScope (jp : FVarId) : CheckM Unit := do
 
 def checkParam (param : Param .pure) : CheckM Unit := do
   unless param == (← getParam param.fvarId) do
-    throwError "LCNF parameter mismatch at `{param.binderName}`, does not value in local context"
+    throwError "LCNF parameter mismatch at `{param.binderName}`, does not match value in local context"
 
 def checkParams (params : Array (Param .pure)) : CheckM Unit :=
   params.forM checkParam

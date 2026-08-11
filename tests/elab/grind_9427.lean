@@ -29,7 +29,10 @@ example (x y : BitVec 100000) : x * y = y * x := by
 example (x y z : BitVec 100000) : x * y - z*z = 0 → z*z = y * x := by
   grind -lia
 
-/-- trace: [sym.issues] exponent 1024 exceeds threshold for exponentiation `(exp := 16)` -/
+/--
+trace: [sym.issues] exponent 1024 exceeds threshold for exponentiation `(exp := 16)`
+[sym.issues] exponent 1024 exceeds threshold for exponentiation `(exp := 16)`
+-/
 #guard_msgs in
 set_option trace.sym.issues true in
 example (x y : BitVec 1024) : x * y = y * x := by

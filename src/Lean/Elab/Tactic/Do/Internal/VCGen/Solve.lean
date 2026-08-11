@@ -10,6 +10,7 @@ public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
 public import Lean.Elab.Tactic.Do.Internal.VCGen.RuleCache
 public import Lean.Elab.Tactic.Do.Internal.VCGen.Entails
 public import Lean.Meta.Sym.InstantiateS
+public import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.InstantiateMVarsS
 
@@ -273,6 +274,31 @@ private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
     let .goal _ goal ← Sym.intros goal
       | throwError "Failed to intro hoisted let"
     return some goal
+
+/-- Strategy 11b: fold the state arguments of the program's `wp` application, so the symbolic
+state a spec application threads through the goal is normalized as it is produced rather than left
+to the discharging tactic. Runs the `simplifying_assumptions` rewrite set when one is configured
+and the plain `Sym.Simp` methods otherwise; the program, the postcondition and the precondition are
+left untouched. -/
+private def wpSimpStateArgs? (goal : MVarId) (info : WPApp) :
+    VCGenM (Option (List MVarId)) := goal.withContext do
+  if info.excessArgs.isEmpty then return none
+  let some methods := (← read).hypSimpMethods | return none
+  let start := info.args.size
+  let target ← goal.getType
+  match h : target with
+  | .app f rhs =>
+    let (result, simpState') ← Sym.Simp.SimpM.run
+      (do
+        let ar ← Sym.Simp.simpAppArgRange rhs start (start + info.excessArgs.size)
+        Sym.Simp.mkCongr target f rhs .rfl ar h)
+      methods {} (← get).simpState
+    modify fun st => { st with simpState := simpState' }
+    match ← result.toSimpGoalResult goal with
+    | .closed => return some []
+    | .goal g => return some [g]
+    | .noProgress => return none
+  | _ => return none
 
 /-- Strategy 11b: split an `ite`/`dite`/match program, or iota-reduce a matcher with a concrete
 discriminant. -/
@@ -542,6 +568,8 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
     if let some g ← wpLet? goal info then
       VCGen.burnOne
       return .goals scope [g]
+    if let some gs ← wpSimpStateArgs? goal info then
+      return .goals scope gs
     if let some gs ← wpMatch? goal info then
       VCGen.burnOne
       return .goals scope gs

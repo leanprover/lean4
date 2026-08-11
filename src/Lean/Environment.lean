@@ -2301,6 +2301,8 @@ where
       p := body
     p.isProp
 
+set_option allowUnsafeReducibility true in
+attribute [local instance_reducible] Id in
 /--
 Constructs environment from `importModulesCore` results.
 

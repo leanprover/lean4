@@ -71,7 +71,7 @@ where
       -- trace[Elab.Tactic.Do.vcgen] "assignMVars {← mvar.getTag}, isDelayedAssigned: {← mvar.isDelayedAssigned},\n{mvar}"
       let some prf ← (tryGoal mvar).run | addSubGoalAsVC mvar
       if ← mvar.isAssigned then
-        throwError "Tried to assign already assigned metavariable `{← mvar.getTag}`. MVar: {mvar}\nAssignment: {mkMVar mvar}\nNew assignment: {prf}"
+        throwError "Tried to assign metavariable `{← mvar.getTag}`, but it has already been assigned. MVar: {mvar}\nAssignment: {mkMVar mvar}\nNew assignment: {prf}"
       mvar.assign prf
 
   onGoal goal name : VCGenM Expr := do

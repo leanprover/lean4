@@ -36,14 +36,23 @@ namespace Normalize
 structure State where
   hyps : Array Hyp := #[]
 
-abbrev CollectM := StateRefT State Grind.GoalM
+open Elab.Tactic.BVDecide in
+abbrev CollectM := ReaderT BVDecideConfig StateRefT State Grind.GoalM
 
 @[inline]
 def recordHyp (hyp : Hyp) : CollectM Unit := do
   modify fun s => { s with hyps := s.hyps.push hyp }
 
-def collectGoalHyps : Grind.GoalM (Array Hyp) := do
-  let (_, res) ← go |>.run {}
+@[inline]
+def withFixedInt (x : CollectM (Option α)) : CollectM (Option α) := do
+  if (← read).fixedInt then
+    x
+  else
+    return none
+
+open Elab.Tactic.BVDecide in
+def collectGoalHyps (cfg : BVDecideConfig) : Grind.GoalM (Array Hyp) := do
+  let (_, res) ← go |>.run cfg |>.run {}
   return res.hyps
 where
   go : CollectM Unit := do
@@ -119,21 +128,21 @@ where
     | BitVec w =>
       unless (Sym.getNatValue? w).isSome do return none
       handleEqcWithConstType eqc root Sym.getBitVecValue?
-    | UInt8 => handleEqcWithConstType eqc root Sym.getUInt8Value?
-    | UInt16 => handleEqcWithConstType eqc root Sym.getUInt16Value?
-    | UInt32 => handleEqcWithConstType eqc root Sym.getUInt32Value?
-    | UInt64 => handleEqcWithConstType eqc root Sym.getUInt64Value?
-    | Int8 => handleEqcWithConstType eqc root Sym.getInt8Value?
-    | Int16 => handleEqcWithConstType eqc root Sym.getInt16Value?
-    | Int32 => handleEqcWithConstType eqc root Sym.getInt32Value?
-    | Int64 => handleEqcWithConstType eqc root Sym.getInt64Value?
+    | UInt8 => withFixedInt <| handleEqcWithConstType eqc root Sym.getUInt8Value?
+    | UInt16 => withFixedInt <| handleEqcWithConstType eqc root Sym.getUInt16Value?
+    | UInt32 => withFixedInt <| handleEqcWithConstType eqc root Sym.getUInt32Value?
+    | UInt64 => withFixedInt <| handleEqcWithConstType eqc root Sym.getUInt64Value?
+    | Int8 => withFixedInt <| handleEqcWithConstType eqc root Sym.getInt8Value?
+    | Int16 => withFixedInt <| handleEqcWithConstType eqc root Sym.getInt16Value?
+    | Int32 => withFixedInt <| handleEqcWithConstType eqc root Sym.getInt32Value?
+    | Int64 => withFixedInt <| handleEqcWithConstType eqc root Sym.getInt64Value?
     -- Hack: Use UInt64/Int64 as the format is the same as USize/ISize but at the same time we don't
     -- care about the precise value for our purposes.
-    | USize => handleEqcWithConstType eqc root Sym.getUInt64Value?
-    | ISize => handleEqcWithConstType eqc root Sym.getInt64Value?
+    | USize => withFixedInt <| handleEqcWithConstType eqc root Sym.getUInt64Value?
+    | ISize => withFixedInt <| handleEqcWithConstType eqc root Sym.getInt64Value?
     | _ =>
       let some (const, _) := type.getAppFn'.const? | return none
-      unless ← isPotentialTypeAnalysisType const do return none
+      unless ← isPotentialTypeAnalysisType (← read) const do return none
       if let some ctorApp ← eqc.findM? (liftM ∘ Meta.isConstructorApp) then
         return some ctorApp
       else
@@ -217,8 +226,9 @@ def setupTarget : PreProcessM (Option (Array Hyp)) := do
   | .grindTarget g =>
     let (g, introduced) ← setupGrindTarget g
     if g.inconsistent then return none
+    let cfg ← PreProcessM.getConfig
     let (hyps, g) ← Grind.GoalM.run g do
-      let hypotheses ← collectGoalHyps
+      let hypotheses ← collectGoalHyps cfg
       let introduced : Array Hyp ← introduced.filterMapM fun fvarId => do
         unless ← isProp (← fvarId.getType) do return none
         return some {

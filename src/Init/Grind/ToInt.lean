@@ -28,4 +28,18 @@ class ToNat (α : Type u) where
   /-- The embedding function. -/
   toNat : α → Nat
 
+/- For pretty-printing purposes only. -/
+@[app_unexpander ToInt.toInt]
+meta def toIntUnexpander : PrettyPrinter.Unexpander := fun stx => do
+  match stx with
+  | `($_ $a:term) => `(↑$a)
+  | _ => throw ()
+
+/- For pretty-printing purposes only. -/
+@[app_unexpander ToNat.toNat]
+meta def toNatUnexpander : PrettyPrinter.Unexpander := fun stx => do
+  match stx with
+  | `($_ $a:term) => `(↑$a)
+  | _ => throw ()
+
 end Lean.Grind

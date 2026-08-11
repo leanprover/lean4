@@ -168,10 +168,9 @@ static bool load_system_trust_store(SSL_CTX * ctx) {
 
     return true;
 #else
-    // Everywhere else OpenSSL's own defaults already resolve to the system trust anchors: besides
-    // the default certificate file and directory, this installs the default store URI, which on
-    // Windows is the `ROOT` certificate store (OpenSSL 3.2 and later).
-    return SSL_CTX_set_default_verify_paths(ctx) == 1;
+    // Everywhere else OpenSSL's own defaults already resolve to the system trust anchors.
+    // Works on Windows if OpenSSL version is greater than 3.2.
+    return SSL_CTX_set_default_verify_paths(ctx);
 #endif
 }
 

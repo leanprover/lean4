@@ -96,7 +96,7 @@ syntax (name := massumption) "massumption" : tactic
 syntax (name := mclear) "mclear" colGt ident : tactic
 
 @[tactic_alt Lean.Parser.Tactic.mclearMacro]
-macro (name := mclearError) "mclear" : tactic => Macro.throwError "`mclear` expects at an identifier"
+macro (name := mclearError) "mclear" : tactic => Macro.throwError "`mclear` expects an identifier"
 
 @[tactic_alt Lean.Parser.Tactic.mconstructorMacro]
 syntax (name := mconstructor) "mconstructor" : tactic

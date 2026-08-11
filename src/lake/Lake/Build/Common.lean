@@ -605,7 +605,7 @@ public def resolveArtifact
         | .ok mtime =>
           return {descr, path, mtime}
         | .error e =>
-          error s!"downloaded succeeded, but artifact failed to resolve: {e}"
+          error s!"download succeeded, but artifact failed to resolve: {e}"
       else
         error s!"artifact cache service is not configured: {service}"
     else

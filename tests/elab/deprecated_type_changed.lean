@@ -14,7 +14,7 @@ warning: The updated constant has a different type:
 instead of
   Bool
 
-This suggests that addressing the deprecation might be more involved than simply replacing the old name with the new name. This is often excepected, but sometimes it indicates that the deprecation is in favor of the wrong declaration, or that there is a mistake in one of the statements.
+This suggests that addressing the deprecation might be more involved than simply replacing the old name with the new name. This is often expected, but sometimes it indicates that the deprecation is in favor of the wrong declaration, or that there is a mistake in one of the statements.
 
 If the type difference is intentional, use `+typeChanged` to silence this warning.
 

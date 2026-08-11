@@ -293,7 +293,7 @@ def countIntoState (n : Nat) : StateM Nat Unit
     modify (· + 1)
     i := i + 1
 where finally
-  | spec => all_goals simp_all; omega
+  | spec => all_goals grind
 
 #guard_msgs (drop info) in
 #check @countIntoState.spec
@@ -314,7 +314,7 @@ def countUp (n : Nat) : Id Nat
 where finally
   | spec =>
     case inv1 => exact .ofMeasure fun i => n - i
-    all_goals simp_all; omega
+    all_goals grind
 
 #guard_msgs (drop info) in
 #check @countUp.spec
@@ -324,17 +324,20 @@ measure omitted by `countUp`, and it states an assertion of the monad the loop r
 
 def countMeasureOnly (n : Nat) : StateM Nat Unit
     requires s => s = 0
-    ensures _ s => s = 0 := do
+    ensures _ s => s = n := do
   let mut i := 0
   while i < n
       decreasing n - i
     do
+    modify (· + 1)
     i := i + 1
 where finally
   | spec =>
-    case inv1 => exact fun _ s => s = 0
-    all_goals simp_all
-    all_goals omega
+    case inv1 =>
+      exact fun c s => match c with
+        | .inl i => s = i ∧ i ≤ n
+        | .inr i => s = i ∧ i = n
+    all_goals grind
 
 #guard_msgs (drop info) in
 #check @countMeasureOnly.spec
@@ -352,8 +355,7 @@ def countInvariantOnly (n : Nat) : StateM Nat Unit
 where finally
   | spec =>
     case inv1 => exact .ofMeasure fun i => n - i
-    all_goals simp_all
-    all_goals omega
+    all_goals grind
 
 #guard_msgs (drop info) in
 #check @countInvariantOnly.spec
@@ -372,7 +374,7 @@ def drain (n : Nat) : StateM Nat Unit
     if s = n then break
     set (s + 1)
 where finally
-  | spec => all_goals simp_all; omega
+  | spec => all_goals grind
 
 #guard_msgs (drop info) in
 #check @drain.spec

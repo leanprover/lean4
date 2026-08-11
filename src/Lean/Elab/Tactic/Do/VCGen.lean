@@ -467,7 +467,7 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
       tryCatchRuntimeEx
         (List.toArray <$> Term.withSynthesize do
           Tactic.run vc (Tactic.evalTactic tac *> Tactic.pruneSolvedGoals))
-        (fun ex => throwError "Error while running {tac} on {vc}Message: {indentD ex.toMessageData}\n{extraMsg}")
+        (fun ex => throwError "Error while running {tac} on {vc}\nMessage: {indentD ex.toMessageData}\n{extraMsg}")
   let invariants ←
     if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) "Try again with -leave." invariants else pure invariants
   trace[Elab.Tactic.Do.vcgen] "before elabInvariants {← (invariants ++ vcs).mapM fun m => m.getTag}"

@@ -288,7 +288,7 @@ def toSuperDigits (n : Nat) : List Char :=
   toSuperDigitsAux n []
 
 /--
-Converts a natural number to a string that contains the its decimal representation as Unicode
+Converts a natural number to a string that contains its decimal representation as Unicode
 superscript digit characters.
 
 Examples:
@@ -339,7 +339,7 @@ def toSubDigits (n : Nat) : List Char :=
   toSubDigitsAux n []
 
 /--
-Converts a natural number to a string that contains the its decimal representation as Unicode
+Converts a natural number to a string that contains its decimal representation as Unicode
 subscript digit characters.
 
 Examples:

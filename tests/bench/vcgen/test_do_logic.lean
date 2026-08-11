@@ -768,6 +768,22 @@ theorem countdownStateful_spec (n : Nat) :
   any_goals simp at *
   all_goals grind
 
+/-- The measure of a loop in a state monad need not read the state: here it counts down the loop's
+own variable while the state counts up. -/
+def countdownPureMeasure (n : Nat) : StateT Nat Id Unit := do
+  let mut i := n
+  while 0 < i do
+    i := i - 1
+    modify (· + 1)
+  return
+
+theorem countdownPureMeasure_spec (n : Nat) :
+    ⦃ fun s => s = 0 ⦄ countdownPureMeasure n ⦃ fun _ s => s = n ⦄ := by
+  vcgen [countdownPureMeasure]
+  case inv1 => exact RepeatInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i s => s = n)
+  case inv2 => exact .ofMeasure fun i => i
+  all_goals grind
+
 /-- Nested countdown driven by a single `while` loop: `i` counts down and resets `j`, so the
 decrease is lexicographic in `(i, j)`. -/
 def countdownLex (n : Nat) : StateT Nat Id Unit := do

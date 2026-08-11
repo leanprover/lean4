@@ -194,6 +194,43 @@ def sumValues (m : Std.HashMap Nat Nat) : Id Nat
 #guard_msgs (drop info) in
 #check @sumValues.spec
 
+/-! ## A loop over an iterator, and over the iterators a combinator builds
+
+An iterator is a container like any other: it has a `PureForIn` instance, and a combinator returns
+an iterator, so one instance covers `map` and `filter` too. -/
+
+def sumIter (xs : List Nat) : Id Nat
+    ensures r => r = xs.sum := do
+  let mut s := 0
+  for x in xs.iter invariant pref _suff => s = pref.sum do
+    s := s + x
+  return s
+where finally
+  | spec => all_goals grind
+
+#guard_msgs (drop info) in
+#check @sumIter.spec
+
+def sumIterMap (xs : List Nat) : Id Nat
+    ensures r => 0 ≤ r := do
+  let mut s := 0
+  for x in xs.iter.map (· + 1) invariant _pref _suff => 0 ≤ s do
+    s := s + x
+  return s
+
+#guard_msgs (drop info) in
+#check @sumIterMap.spec
+
+def sumIterFilter (xs : List Nat) : Id Nat
+    ensures r => 0 ≤ r := do
+  let mut s := 0
+  for x in xs.iter.filter (· > 2) invariant _pref _suff => 0 ≤ s do
+    s := s + x
+  return s
+
+#guard_msgs (drop info) in
+#check @sumIterFilter.spec
+
 /-! A loop over several collections takes no invariant. -/
 
 /-- error: The `invariant` clause takes a `for` loop over a single collection. -/

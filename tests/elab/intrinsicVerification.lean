@@ -642,3 +642,93 @@ def residualSectionIllTyped (n : Nat) : Id Nat
   := pure n
 where finally
   | spec => exact opq_ax 0
+
+/-! ## A `while` loop whose contract asks for a witness
+
+The invariant relates `mn`, `mx` and `i` at every iteration, and its `exit` binder states what the
+loop reaches once it leaves: `i = a.size`, so the bounds the invariant records for the prefix `[0, i)`
+cover the whole array. The postcondition claims a minimum and a maximum exist, and the `spec` section
+names the two the exit state holds. -/
+
+@[local grind] def InArray (a : Array Int) (v : Int) : Prop :=
+  ∃ i : Nat, i < a.size ∧ a[i]! = v
+
+@[local grind] def IsMinOfArray (a : Array Int) (mn : Int) : Prop :=
+  InArray a mn ∧ ∀ i : Nat, i < a.size → mn ≤ a[i]!
+
+@[local grind] def IsMaxOfArray (a : Array Int) (mx : Int) : Prop :=
+  InArray a mx ∧ ∀ i : Nat, i < a.size → a[i]! ≤ mx
+
+def differenceMinMax (a : Array Int) : Id Int
+    requires a.size ≠ 0
+    ensures r => ∃ mn mx, IsMinOfArray a mn ∧ IsMaxOfArray a mx ∧ r = mx - mn
+  := do
+  let mut mn := a[0]!
+  let mut mx := a[0]!
+  let mut i : Nat := 1
+  while i < a.size
+      invariant exit => 1 ≤ i ∧ i ≤ a.size ∧ (exit → i = a.size) ∧
+        (∃ j : Nat, j < i ∧ a[j]! = mn) ∧ (∀ j : Nat, j < i → mn ≤ a[j]!) ∧
+        (∃ j : Nat, j < i ∧ a[j]! = mx) ∧ (∀ j : Nat, j < i → a[j]! ≤ mx)
+      decreasing a.size - i
+    do
+    let v := a[i]!
+    if v < mn then mn := v
+    if v > mx then mx := v
+    i := i + 1
+  return mx - mn
+where finally
+  | spec => case vc2 st _ => exact ⟨st.1, st.2.1, by grind, by grind, by grind⟩
+
+#guard_msgs (drop info) in
+#check @differenceMinMax.spec
+
+/-! ## A loop nested in a loop
+
+The inner loop's invariant names `i`, the index the outer loop stands at, by ordinary lexical
+scoping: the clause elaborates in the body of the outer loop, where `i` is in scope alongside the
+inner loop's own mutable variable `count`. -/
+
+@[local grind] def isMajorityElement (lst : List Int) (x : Int) : Prop :=
+  lst.count x > lst.length / 2
+
+@[local grind] def hasMajorityElement (lst : List Int) : Prop :=
+  ∃ x, x ∈ lst ∧ isMajorityElement lst x
+
+@[local grind →] theorem mem_getElem! (lst : List Int) (w : Int) (hw : w ∈ lst) :
+    ∃ k, k < lst.length ∧ lst[k]! = w := by
+  obtain ⟨k, hk, hkv⟩ := List.getElem_of_mem hw
+  exact ⟨k, hk, by rw [getElem!_pos lst k hk, hkv]⟩
+
+def findMajorityElement (lst : List Int) : Id Int
+    ensures r => (hasMajorityElement lst → r ∈ lst ∧ isMajorityElement lst r) ∧
+                 (¬hasMajorityElement lst → r = -1)
+  := do
+  let n := lst.length
+  let threshold := n / 2
+  let mut found := false
+  let mut candidate : Int := -1
+  for i in [0:n]
+      invariant pref _suff =>
+        (found = true → candidate ∈ lst ∧ isMajorityElement lst candidate) ∧
+        (found = false → ∀ k : Nat, k < pref.length → ¬isMajorityElement lst lst[k]!)
+    do
+    let elem := lst[i]!
+    let mut count := 0
+    for j in [0:n]
+        invariant inner _suff => count = (lst.take inner.length).count lst[i]!
+      do
+      if lst[j]! = elem then
+        count := count + 1
+    if count > threshold then
+      found := true
+      candidate := elem
+  if found then
+    return candidate
+  else
+    return -1
+where finally
+  | spec => all_goals grind [List.take_length, List.take_succ_eq_append_getElem]
+
+#guard_msgs (drop info) in
+#check @findMajorityElement.spec

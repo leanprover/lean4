@@ -13,8 +13,8 @@ import Lean.Meta.Sym.Simp.Rewrite
 public section
 namespace Lean.Meta.Grind.Homo
 
-builtin_initialize registerTraceClass `grind.homo
-builtin_initialize registerTraceClass `grind.homo.pred (inherited := true)
+builtin_initialize registerTraceClass `grind.hom
+builtin_initialize registerTraceClass `grind.hom.pred (inherited := true)
 
 /-- Per-goal state for the `[grind hom]`/`[grind hom_pred]` solver extension. -/
 structure State where
@@ -74,7 +74,7 @@ private def firePreds (e : Expr) (generation : Nat) : GoalM Unit := do
   let .const declName _ := e.getAppFn | return ()
   unless (← getPreds).contains declName do return ()
   for (proof, prop) in ← mkHomoPredInstances e do
-    trace_goal[grind.homo.pred] "{prop}"
+    trace_goal[grind.hom.pred] "{prop}"
     addNewRawFact proof prop generation .input .other
 
 /--
@@ -121,7 +121,7 @@ def internalize (e : Expr) (_parent? : Option Expr) : GoalM Unit := do
     let r ← preprocess e₁
     let h ← mkEqTrans h₁ (← r.getProof)
     Grind.internalize r.expr generation
-    trace_goal[grind.homo] "{e}\n===>\n{r.expr}"
+    trace_goal[grind.hom] "{e}\n===>\n{r.expr}"
     pushEq e r.expr h
   else
     firePreds e generation
@@ -140,7 +140,7 @@ def processNewEq (a b : Expr) : GoalM Unit := do
   let some (t, hEqProp) ← applyHomo? eq | return ()
   let fact ← mkEqMP hEqProp (← mkEqProof a b)
   let generation := max (← getGeneration a) (← getGeneration b)
-  trace_goal[grind.homo] "{eq}\n===>\n{t}"
+  trace_goal[grind.hom] "{eq}\n===>\n{t}"
   addNewRawFact fact t generation .input .other
 
 /--
@@ -158,7 +158,7 @@ def processNewDiseq (a b : Expr) : GoalM Unit := do
   let hne ← mkDiseqProof a b
   let fact ← mkEqMP (← mkCongrArg (mkConst ``Not) hEqProp) hne
   let generation := max (← getGeneration a) (← getGeneration b)
-  trace_goal[grind.homo] "{mkNot eq}\n===>\n{mkNot t}"
+  trace_goal[grind.hom] "{mkNot eq}\n===>\n{mkNot t}"
   addNewRawFact fact (mkNot t) generation .input .other
 
 builtin_initialize

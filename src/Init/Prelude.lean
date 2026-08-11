@@ -4875,7 +4875,7 @@ inductive SourceInfo where
   binders, as in the macro expansion for dependent if:
   ```
   `(if $h : $cond then $t else $e) ~>
-  `(dite $cond (fun $h => $t) (fun $h => $t))
+  `(dite $cond (fun $h => $t) (fun $h => $e))
   ```
   In these cases, if the user hovers over `h` they will see information about both binding sites.
   -/

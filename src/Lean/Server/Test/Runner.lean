@@ -735,11 +735,12 @@ def processLine (line : String) : RunnerM Unit := do
 partial def main (args : List String) : IO Unit := do
   let args := args.toArray
   let isProject := args[0]?.any (· == "-p")
+  let opts := #["-DstderrAsMessages=false", "-Dexperimental.module=true", "-Dbootstrap.prelude=true"]
   let (ipcCmd, ipcArgs) :=
     if isProject then
-      ("lake", #["serve", "--", "-DstderrAsMessages=false", "-Dexperimental.module=true"])
+      ("lake", #["serve", "--"] ++ opts)
     else
-      ("lean", #["--server", "-DstderrAsMessages=false", "-Dexperimental.module=true"])
+      ("lean", #["--server"] ++ opts)
   let path := if args.size == 1 then args[0]! else args[1]!
   let uri := s!"file:///{path}"
   -- We want `dbg_trace` tactics to write directly to stderr instead of being caught in reuse

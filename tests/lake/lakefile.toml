@@ -1,6 +1,8 @@
 name = "lake"
 srcDir = "../../src/lake"
 defaultTargets = ["Lake", "lake"]
+bootstrap = true
+leanOptions.bootstrap.prelude = true
 
 [[lean_lib]]
 name = "Lake"

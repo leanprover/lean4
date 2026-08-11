@@ -703,6 +703,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     internalizeNatTerm e type parent? k
   else
     if isForbiddenParent parent? k then return ()
+    if k matches .num then return ()
     if (← hasVar e) then return ()
     let internalizeMarker (marker : Expr) : GoalM Unit := do
       Grind.internalize marker (← getGeneration e)

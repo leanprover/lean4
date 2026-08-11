@@ -2083,6 +2083,44 @@ usable `@[grind =]` lemmas where the general `evalsBelow_ofMeasure_apply` is not
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃ s₄ s₅ = (f a' < ma) := by
   simp
 
+/-! The same specializations for a measure into any well-founded type, where the decrease is a step
+of that type's relation. -/
+
+@[grind =] theorem evalsBelow_ofMeasure_pure_rel_apply_1 {α : Type} {σ₁ : Type}
+    {γ : Type} [WellFoundedRelation γ] (f : α → γ) (a' : α) (ma : γ) (s₁ : σ₁) :
+    (ofMeasure (Pred := σ₁ → Prop) f).EvalsBelow a' ma s₁
+      = WellFoundedRelation.rel (f a') ma := by
+  simp [evalsBelow_ofMeasure]
+
+@[grind =] theorem evalsBelow_ofMeasure_pure_rel_apply_2 {α : Type} {σ₁ σ₂ : Type}
+    {γ : Type} [WellFoundedRelation γ] (f : α → γ) (a' : α) (ma : γ) (s₁ : σ₁) (s₂ : σ₂) :
+    (ofMeasure (Pred := σ₁ → σ₂ → Prop) f).EvalsBelow a' ma s₁ s₂
+      = WellFoundedRelation.rel (f a') ma := by
+  simp [evalsBelow_ofMeasure]
+
+@[grind =] theorem evalsBelow_ofMeasure_pure_rel_apply_3 {α : Type} {σ₁ σ₂ σ₃ : Type}
+    {γ : Type} [WellFoundedRelation γ] (f : α → γ) (a' : α) (ma : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) :
+    (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃
+      = WellFoundedRelation.rel (f a') ma := by
+  simp [evalsBelow_ofMeasure]
+
+@[grind =] theorem evalsBelow_ofMeasure_pure_rel_apply_4 {α : Type} {σ₁ σ₂ σ₃ σ₄ : Type}
+    {γ : Type} [WellFoundedRelation γ] (f : α → γ) (a' : α) (ma : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) :
+    (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃ s₄
+      = WellFoundedRelation.rel (f a') ma := by
+  simp [evalsBelow_ofMeasure]
+
+@[grind =] theorem evalsBelow_ofMeasure_pure_rel_apply_5 {α : Type} {σ₁ σ₂ σ₃ σ₄ σ₅ : Type}
+    {γ : Type} [WellFoundedRelation γ] (f : α → γ) (a' : α) (ma : γ) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) (s₅ : σ₅) :
+    (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃ s₄ s₅
+      = WellFoundedRelation.rel (f a') ma := by
+  simp [evalsBelow_ofMeasure]
+
+/-- The well-founded order on a pair of natural numbers, in the arithmetic `grind` reasons with. -/
+@[grind =] theorem rel_prod_nat (p q : Nat × Nat) :
+    WellFoundedRelation.rel p q ↔ p.1 < q.1 ∨ (p.1 = q.1 ∧ p.2 < q.2) :=
+  Prod.lex_def
+
 end RepeatVariant
 
 open Std.Internal.Do.CompleteLattice in

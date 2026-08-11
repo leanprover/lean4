@@ -210,43 +210,44 @@ private def mkForInPureWithInvariant (g : ForInApp) (invClause : TSyntax ``doLoo
     else ``Std.Internal.Do.Gadget.forInPureWithInvariant
   g.mkCall invClause gadget #[invLam]
 
-/-- Rebuild the loop of a `repeat` as a `forInLoopWithInvariantAndVariant` call carrying the
-`invariant` and `decreasing` clauses, either of which may be absent. Both clauses name the loop's
-mutable variables directly. The `invariant` clause is a function of the `Bool` that says whether the
-loop has left; the cursor's own payload is the state tuple, which the mutable variables already
-name. -/
-private def mkForInLoopWithInvariantAndVariant (g : ForInApp)
+/-- Rebuild the loop of a `repeat` as a call to the gadget carrying the annotations the loop states.
+Both clauses name the loop's mutable variables directly. The `invariant` clause is a function of the
+`Bool` that says whether the loop has left; the cursor's own payload is the state tuple, which the
+mutable variables already name. -/
+private def mkForInLoopGadget (g : ForInApp)
     (inv? : Option (TSyntax ``doLoopInvariant)) (dec? : Option (TSyntax ``doLoopDecreasing)) :
-    DoElabM Expr := do
+    DoElabM (Option Expr) := do
   let pred? ← assertionLanguage?
-  let invArg ← match inv? with
-    | none => `($(mkIdent ``Std.Internal.Do.Gadget.noInvariant))
-    | some invClause =>
-      let (binders, invBody) ← destructInvariant invClause
-      let exitBinder := binders[0]!
-      let assertionBinders := binders.drop 1
-      checkAssertionBinders invClause "invariant" assertionBinders.size pred?
-      let invBody ← mkAssertionFun assertionBinders invBody
-      let cursor := mkIdentFrom invClause (← mkFreshUserName `__c)
-      let invBody ← if exitBinder.raw.isOfKind ``hole then pure invBody else
-        let exitPat : Term := ⟨exitBinder.raw⟩
-        let hasLeft ← `($(mkIdent ``Sum.isRight) $cursor:ident)
-        `(match $hasLeft:term with | $exitPat => $invBody)
-      -- `RepeatInvariant.mk` keeps the clause's declared type on the term. A bare lambda carries
-      -- the unfolded type, and a specification's instance arguments are synthesized before the
-      -- check that would unfold it.
-      `(some ($(mkIdent ``Std.Internal.Do.RepeatInvariant.mk) $(← g.mkCursorFun cursor invBody)))
-  let varArg ← match dec? with
-    | none => `($(mkIdent ``Std.Internal.Do.Gadget.noMeasure))
-    | some decClause =>
-      let (binders, body) ← match decClause with
-        | `(doLoopDecreasing| decreasing $binders* => $body) => pure (binders, body)
-        | `(doLoopDecreasing| decreasing $measure:term) => pure (#[], measure)
-        | _ => throwUnsupportedSyntax
-      checkAssertionBinders decClause "measure" binders.size pred?
-      `(some $(← g.mkStateFun (← mkAssertionFun binders body)))
-  g.mkCall (inv?.map (·.raw) |>.getD (dec?.map (·.raw) |>.getD .missing))
-    ``Std.Internal.Do.Gadget.forInLoopWithInvariantAndVariant #[invArg, varArg]
+  let invArg? ← inv?.mapM fun invClause => do
+    let (binders, invBody) ← destructInvariant invClause
+    let exitBinder := binders[0]!
+    let assertionBinders := binders.drop 1
+    checkAssertionBinders invClause "invariant" assertionBinders.size pred?
+    let invBody ← mkAssertionFun assertionBinders invBody
+    let cursor := mkIdentFrom invClause (← mkFreshUserName `__c)
+    let invBody ← if exitBinder.raw.isOfKind ``hole then pure invBody else
+      let exitPat : Term := ⟨exitBinder.raw⟩
+      let hasLeft ← `($(mkIdent ``Sum.isRight) $cursor:ident)
+      `(match $hasLeft:term with | $exitPat => $invBody)
+    -- `RepeatInvariant.mk` keeps the clause's declared type on the term. A bare lambda carries the
+    -- unfolded type, and a specification's instance arguments are synthesized before the check that
+    -- would unfold it.
+    return ((invClause : Syntax), ← `($(mkIdent ``Std.Internal.Do.RepeatInvariant.mk)
+      $(← g.mkCursorFun cursor invBody)))
+  let varArg? ← dec?.mapM fun decClause => do
+    let (binders, body) ← match decClause with
+      | `(doLoopDecreasing| decreasing $binders* => $body) => pure (binders, body)
+      | `(doLoopDecreasing| decreasing $measure:term) => pure (#[], measure)
+      | _ => throwUnsupportedSyntax
+    checkAssertionBinders decClause "measure" binders.size pred?
+    return ((decClause : Syntax), ← g.mkStateFun (← mkAssertionFun binders body))
+  let some (ref, gadget, annotations) := (match invArg?, varArg? with
+    | some (ref, inv), some (_, var) =>
+      some (ref, ``Std.Internal.Do.Gadget.forInLoopWithInvariantAndVariant, #[inv, var])
+    | some (ref, inv), none => some (ref, ``Std.Internal.Do.Gadget.forInLoopWithInvariant, #[inv])
+    | none, some (ref, var) => some (ref, ``Std.Internal.Do.Gadget.forInLoopWithVariant, #[var])
+    | none, none => none) | return none
+  some <$> g.mkCall ref gadget annotations
 
 @[builtin_doElem_elab Lean.Parser.Term.doFor] def elabDoFor : DoElab := fun stx dec => do
   let `(doFor| for%$tk $[$h? : ]? $x:ident in $xs
@@ -355,7 +356,7 @@ private def mkForInLoopWithInvariantAndVariant (g : ForInApp)
     let g : ForInApp :=
       { xs, init := preS, body, σ, statePat := ← mkStatePat loopMutVars info.returnsEarly }
     if (← instantiateMVars ρ).isConstOf ``Lean.Loop then
-      forIn ← mkForInLoopWithInvariantAndVariant g inv? dec?
+      if let some e ← mkForInLoopGadget g inv? dec? then forIn := e
     else if let some decClause := dec? then
       throwErrorAt decClause "A `for` loop terminates with the collection it iterates; \
         `decreasing` states the termination measure of a `repeat` or `while` loop."

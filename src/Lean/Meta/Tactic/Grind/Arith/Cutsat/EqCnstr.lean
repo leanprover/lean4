@@ -15,6 +15,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.EvalNum
 import Lean.Meta.NatInstTesters
 import Init.Omega
@@ -703,7 +704,21 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     internalizeNatTerm e type parent? k
   else
     if isForbiddenParent parent? k then return ()
-    if k matches .num then return ()
+    if k matches .num then
+      /-
+      Numerals that can be evaluated are only marked as solver terms; model-based theory
+      combination computes their values directly. We do not create accessor applications
+      for them: the accessor would just be rewritten to a value, asserting a redundant
+      equality that is broadcast to all solvers (e.g., noise in the ring solver basis).
+      Remark: numerals are not necessarily normalized (e.g., `(-1 : Fin 4)`, `(300 : UInt8)`).
+
+      Numerals that cannot be evaluated (e.g., `(1 : Fin (n + 2))`) are processed like any
+      other term: E-matching theorems are often keyed on their accessor applications
+      (e.g., `Fin.val_one`).
+      -/
+      if (← canBeEvaluated type) then
+        cutsatExt.markTerm e
+        return ()
     if (← hasVar e) then return ()
     let internalizeMarker (marker : Expr) : GoalM Unit := do
       Grind.internalize marker (← getGeneration e)

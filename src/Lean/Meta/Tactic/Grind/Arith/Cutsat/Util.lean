@@ -57,6 +57,26 @@ def isSupportedType (type : Expr) : GoalM Bool := do
     | ISize => return true
     | _ => return false
 
+/--
+Returns `true` if numerals of the embedded type `α` can be evaluated, i.e., their
+embedded (`Fin.val`/`toNat`/`toInt`) value can be computed directly. Such numerals are
+not given embedding-accessor applications. Currently this means the modulus of `α` is
+known, but future embedded types may be evaluable without one.
+-/
+def canBeEvaluated (α : Expr) : GoalM Bool :=
+  match_expr α with
+  | Fin n => return (← getNatValue? n).isSome
+  | BitVec w => return (← getNatValue? w).isSome
+  | UInt8 => return true
+  | UInt16 => return true
+  | UInt32 => return true
+  | UInt64 => return true
+  | Int8 => return true
+  | Int16 => return true
+  | Int32 => return true
+  | Int64 => return true
+  | _ => return false -- USize, ISize
+
 /-- Returns `true` if the cutsat state is inconsistent. -/
 def inconsistent : GoalM Bool := do
   if (← isInconsistent) then return true

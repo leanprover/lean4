@@ -1597,7 +1597,7 @@ def mkEMatchTheoremAndSuggest (ref : Syntax) (declName : Name) (prios : SymbolPr
         Tactic.TryThis.addSuggestions ref s.suggestions
     return s.thms[0]
   else
-    throwError "invalid `grind` theorem, failed to find an usable pattern using different modifiers"
+    throwError "invalid `grind` theorem, failed to find a usable pattern using different modifiers"
 
 /--
 Tries different modifiers, logs info messages with modifiers that worked, but stores just the first one that worked.

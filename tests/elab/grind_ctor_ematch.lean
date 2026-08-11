@@ -71,6 +71,6 @@ attribute [grind] fax
 example : f (f (f x)) = f x := by
   grind
 
-/-- error: invalid `grind` theorem, failed to find an usable pattern using different modifiers -/
+/-- error: invalid `grind` theorem, failed to find a usable pattern using different modifiers -/
 #guard_msgs in
 attribute [grind] Nat.succ

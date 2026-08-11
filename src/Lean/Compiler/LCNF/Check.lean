@@ -210,7 +210,7 @@ partial def checkFunDecl (funDecl : FunDecl .pure) : CheckM Unit := do
   unless decl.type == funDecl.type do
     throwError "LCNF local function declaration mismatch at `{funDecl.binderName}`, type in local context{indentExpr decl.type}\nexpected{indentExpr funDecl.type}"
   unless (← getFunDecl funDecl.fvarId) == funDecl do
-    throwError "LCNF local function declaration mismatch at `{funDecl.binderName}`, declaration in local context does match"
+    throwError "LCNF local function declaration mismatch at `{funDecl.binderName}`, declaration in local context does not match"
 
 partial def checkCases (c : Cases .pure) : CheckM Unit := do
   let mut ctorNames : NameSet := {}

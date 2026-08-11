@@ -744,10 +744,10 @@ def countdown (n : Nat) : StateT Nat Id Unit := do
 
 theorem countdown_spec (n : Nat) :
     ⦃ fun s => s = 0 ⦄ countdown n ⦃ fun _ s => s = n ⦄ := by
-  vcgen [countdown]
-  case inv1 => exact RepeatInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i _ => i = 0)
-  case inv2 => exact .ofMeasure fun i => i
-  all_goals grind
+  vcgen [countdown] invariants
+  | inv1 => RepeatInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i _ => i = 0)
+  | inv2 => .ofMeasure fun i => i
+  with finish
 
 /-- Like `countdown`, but termination is measured from the monadic state rather than the loop cursor. -/
 def countdownStateful (n : Nat) : StateT Nat Id Unit := do
@@ -758,13 +758,12 @@ def countdownStateful (n : Nat) : StateT Nat Id Unit := do
 
 theorem countdownStateful_spec (n : Nat) :
     ⦃ fun _ => True ⦄ countdownStateful n ⦃ fun _ s => s = n ⦄ := by
-  vcgen [countdownStateful]
-  case inv1 =>
-    exact RepeatInvariant.ofInvariantAndBreak
+  vcgen [countdownStateful] invariants
+  | inv1 => RepeatInvariant.ofInvariantAndBreak
       (fun _ s => s ≤ n)
       (fun _ s => s = n)
-  case inv2 => exact .ofMeasure fun _ s => n - s
-  all_goals grind
+  | inv2 => .ofMeasure fun _ s => n - s
+  with finish
 
 /-- The measure of a loop in a state monad need not read the state: here it counts down the loop's
 own variable while the state counts up. -/
@@ -777,10 +776,10 @@ def countdownPureMeasure (n : Nat) : StateT Nat Id Unit := do
 
 theorem countdownPureMeasure_spec (n : Nat) :
     ⦃ fun s => s = 0 ⦄ countdownPureMeasure n ⦃ fun _ s => s = n ⦄ := by
-  vcgen [countdownPureMeasure]
-  case inv1 => exact RepeatInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i s => s = n)
-  case inv2 => exact .ofMeasure fun i => i
-  all_goals grind
+  vcgen [countdownPureMeasure] invariants
+  | inv1 => RepeatInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i s => s = n)
+  | inv2 => .ofMeasure fun i => i
+  with finish
 
 /-- Nested countdown driven by a single `while` loop: `i` counts down and resets `j`, so the
 decrease is lexicographic in `(i, j)`. -/
@@ -798,9 +797,9 @@ def countdownLex (n : Nat) : StateT Nat Id Unit := do
 
 theorem countdownLex_spec (n : Nat) :
     ⦃ fun _ => True ⦄ countdownLex n ⦃ fun _ _ => True ⦄ := by
-  vcgen [countdownLex]
-  case inv1 => exact RepeatInvariant.ofInvariantAndBreak (fun _ _ => True) (fun _ _ => True)
-  case inv2 => exact .ofMeasure fun (i, j) => (i, j)
+  vcgen [countdownLex] invariants
+  | inv1 => RepeatInvariant.ofInvariantAndBreak (fun _ _ => True) (fun _ _ => True)
+  | inv2 => .ofMeasure fun (i, j) => (i, j)
   all_goals simp_all [RepeatVariant.evalsBelow_ofMeasure]
   all_goals subst_vars
   all_goals decreasing_tactic

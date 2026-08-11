@@ -747,7 +747,6 @@ theorem countdown_spec (n : Nat) :
   vcgen [countdown]
   case inv1 => exact RepeatInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i _ => i = 0)
   case inv2 => exact .ofMeasure fun i => i
-  any_goals simp at *
   all_goals grind
 
 /-- Like `countdown`, but termination is measured from the monadic state rather than the loop cursor. -/
@@ -765,7 +764,6 @@ theorem countdownStateful_spec (n : Nat) :
       (fun _ s => s ≤ n)
       (fun _ s => s = n)
   case inv2 => exact .ofMeasure fun _ s => n - s
-  any_goals simp at *
   all_goals grind
 
 /-- The measure of a loop in a state monad need not read the state: here it counts down the loop's

@@ -262,11 +262,13 @@ private theorem foldlTR_succ (f : α → Fin (n+1) → α) (x) :
     foldlTR (n+1) f x = foldlTR n (fun x i => f x i.succ) (f x 0) :=
   foldl_loop ..
 
-@[csimp] theorem foldl_eq_foldlTR : @foldl = @foldlTR := by
+theorem foldl_eq_foldlTR : @foldl = @foldlTR := by
   funext α n f x
   induction n generalizing x with
   | zero => exact foldlTR_zero .. |>.symm
   | succ n ih => rw [foldl, foldlTR_succ, ih]
+
+attribute [implemented_by foldlTR] foldl
 
 @[simp] theorem foldl_zero (f : α → Fin 0 → α) (x) : foldl 0 f x = x :=
   rfl

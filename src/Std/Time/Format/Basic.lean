@@ -618,6 +618,7 @@ private def reservedDigits : FormatString → Option Nat
     if isNumericModifier m then (· + ·) <$> fixedDigits m <*> reservedDigits rest else some 0
   | _ => some 0
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `reserve`: the `reservedDigits` of the rest of the format. -/
 private def parseWith (config : FormatConfig) (reserve : Option Nat) : (mod : Modifier) → Parser (TypeFormat mod)
   | .G text => eraOfIndex <$> parseName (eraNames config.dateformat.symbols text)

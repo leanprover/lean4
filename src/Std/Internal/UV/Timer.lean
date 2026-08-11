@@ -26,6 +26,11 @@ A `Timer` can be in one of 3 states:
 
 This together with whether it was set up as `repeating` with `Timer.new` determines the behavior
 of all functions on `Timer`s.
+
+The event loop is torn down at process exit. Any promise still pending at that point is resolved
+with an `UV_ECANCELED` error, and every operation below then fails with `UV_ECANCELED` instead of
+starting new work. The exceptions are `stop` and `cancel`, which succeed as no-ops because a loop
+that is gone already satisfies their postcondition.
 -/
 def Timer : Type := TimerImpl.type
 

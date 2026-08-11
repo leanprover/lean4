@@ -293,7 +293,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj) {
     lean_uv_timer_object * timer = lean_to_uv_timer(obj);
 
     if (!event_loop_lock(&global_ev)) {
-        return lean_uv_loop_unavailable_error();
+        return lean_io_result_mk_ok(lean_box(0));
     }
 
     // `cancel` on a repeating timer leaves it running without a promise, in which case the loop has
@@ -327,8 +327,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_cancel(b_obj_arg obj) {
     lean_uv_timer_object * timer = lean_to_uv_timer(obj);
 
-    // It's locking here to avoid changing the state during other operations. Cancellation never
-    // fails: returning ok when the loop is unavailable keeps the unregister loop going.
+    // It's locking here to avoid changing the state during other operations.
     if (!event_loop_lock(&global_ev)) {
         return lean_io_result_mk_ok(lean_box(0));
     }

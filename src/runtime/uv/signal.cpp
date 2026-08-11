@@ -284,7 +284,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
 
     if (signal->m_state == SIGNAL_STATE_RUNNING) {
         if (!event_loop_lock(&global_ev)) {
-            return lean_uv_loop_unavailable_error();
+            return lean_io_result_mk_ok(lean_box(0));
         }
         int result = uv_signal_stop(signal->m_uv_signal);
 
@@ -320,8 +320,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_cancel(b_obj_arg obj) {
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
 
-    // It's locking here to avoid changing the state during other operations. Cancellation never
-    // fails: returning ok when the loop is unavailable keeps the unregister loop going.
+    // It's locking here to avoid changing the state during other operations.
     if (!event_loop_lock(&global_ev)) {
         return lean_io_result_mk_ok(lean_box(0));
     }

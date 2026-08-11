@@ -494,8 +494,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket) 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_recv(b_obj_arg socket) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    // Cancellation never fails: returning ok when the loop is unavailable keeps the unregister loop
-    // going.
     if (!event_loop_lock(&global_ev)) {
         return lean_io_result_mk_ok(lean_box(0));
     }
@@ -700,8 +698,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_try_accept(b_obj_arg socket) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_accept(b_obj_arg socket) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    // Cancellation never fails: returning ok when the loop is unavailable keeps the unregister loop
-    // going.
     if (!event_loop_lock(&global_ev)) {
         return lean_io_result_mk_ok(lean_box(0));
     }

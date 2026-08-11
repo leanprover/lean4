@@ -72,6 +72,16 @@ def parse_backport_pr_body(body: str) -> int | None:
     return int(match.group(1))
 
 
+def get_previously_released_prs(refman: Path, version: Version) -> set[int]:
+    path = refman / util.get_release_notes_path_for(version.prev)
+    if not path.exists():
+        return set()
+
+    text = path.read_text()
+    pattern = rf"^- \[#(\d+)\]\({re.escape(repos.LEAN4.gh_url)}/pull/\1\)$"
+    return {int(m) for m in re.findall(pattern, text, re.MULTILINE)}
+
+
 def get_description_from_body(body: str) -> str:
     paragraphs = []
     paragraph = []
@@ -134,7 +144,9 @@ class CommitInfo:
     description: str
 
 
-def load_commits(version: Version, repo: Repo, grepo: Repository) -> list[CommitInfo]:
+def load_commits(
+    version: Version, repo: Repo, grepo: Repository, skip_prs: set[int]
+) -> list[CommitInfo]:
     skip_pr_number_prompt = False
 
     commits = []
@@ -168,6 +180,10 @@ def load_commits(version: Version, repo: Repo, grepo: Repository) -> list[Commit
             pr_number = backported
             pr = grepo.get_pull(pr_number)
 
+        if pr_number in skip_prs:
+            print("[blue]Ignored, already listed in previous release notes[/]")
+            continue
+
         parsed = parse_pr_title(pr.title)
         if parsed is None:
             print("[red]Title does not match expected format[/]")
@@ -189,9 +205,8 @@ def load_commits(version: Version, repo: Repo, grepo: Repository) -> list[Commit
             description = title
 
         category = get_category(labels)
-        if not category:
-            if warn:
-                print("[yellow]No changelog-* label found[/]")
+        if category is None and warn:
+            print("[yellow]No changelog-* label found[/]")
         if category is not None and category not in SECTIONS:
             print(f"[yellow]Unknown category {category!r}[/]")
             category = "Uncategorised"
@@ -269,7 +284,8 @@ def main(version: Version, refman: Path):
     date = release.published_at.astimezone(datetime.timezone.utc)
     title = util.get_release_notes_title_for(version, release)
 
-    commits = load_commits(version, repo, grepo)
+    skip_prs = get_previously_released_prs(refman, version)
+    commits = load_commits(version, repo, grepo, skip_prs)
     counts = count_by_kind(commits)
 
     lines = []
@@ -303,7 +319,7 @@ def main(version: Version, refman: Path):
         lines.append(":::")
     lines.append("")
     lines.append(f"For this release, {pl(counts.total, 'change')} landed.")
-    lines.append(f"In addition to the {pl(counts.feat, 'feature addition')},")
+    lines.append(f"In addition to the {pl(counts.feat, 'feature addition')}")
     lines.append(f"and {pl(counts.fix, 'fix', 'fixes')} listed below,")
     lines.append(f"there were {pl(counts.refactor, 'refactoring change')},")
     lines.append(f"{pl(counts.doc, 'documentation improvement')},")

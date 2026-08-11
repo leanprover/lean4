@@ -720,7 +720,7 @@ structure FS.Stream where
   /--
   Reads text up to and including the next newline from the stream.
 
-  If the returned string is empty, an end-of-file marker (EOF) has been reached.
+  If the returned string does not end with a newline, an end-of-file marker (EOF) has been reached.
   An EOF does not actually close a stream, so further reads may block and return more data.
   -/
   getLine : IO String
@@ -855,7 +855,7 @@ Writing to a handle is typically buffered, and may not immediately modify the fi
 
 /--
 Reads UTF-8-encoded text up to and including the next line break from the handle. If the returned
-string is empty, an end-of-file marker (EOF) has been reached.
+string does not end with a line break, an end-of-file marker (EOF) has been reached.
 
 Encountering an EOF does not close a handle. Subsequent reads may block and return more data.
 -/

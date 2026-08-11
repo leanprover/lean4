@@ -26,9 +26,9 @@ example (x y : W) : wadd x y = wadd y x := by grind
 /-- The predicate `wu_pos` provides the bounds. -/
 example (x y : W) (h : wu (wadd x y) ≤ 0) : wu x ≤ 0 := by grind
 
-/-- The engine is disabled by `-homo`. -/
+/-- The engine is disabled by `-hom`. -/
 example (x y : W) : wadd x y = wadd y x := by
-  fail_if_success grind -homo
+  fail_if_success grind -hom
   grind
 
 /-! Goals over stdlib types closed through the `Init.Grind.Homo` rules. -/

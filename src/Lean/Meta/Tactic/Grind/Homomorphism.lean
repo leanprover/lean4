@@ -110,7 +110,7 @@ private def applyHomo? (e : Expr) : GoalM (Option (Expr × Expr)) := do
   return some (e', h)
 
 def internalize (e : Expr) (_parent? : Option Expr) : GoalM Unit := do
-  unless (← getConfig).homo do return ()
+  unless (← getConfig).hom do return ()
   if e.isAppOf ``Eq then return () -- We do not internalize equalities
   -- Check whether term has already been internalized by this solver extension.
   if (← homExt.getState).internalized.contains { expr := e } then return ()
@@ -135,7 +135,7 @@ target-domain E-graph, and asserting `a = c` after `a = b` and `b = c` is a no-o
 because no union takes place.
 -/
 def processNewEq (a b : Expr) : GoalM Unit := do
-  unless (← getConfig).homo do return ()
+  unless (← getConfig).hom do return ()
   let eq ← shareCommon (← mkEq a b)
   let some (t, hEqProp) ← applyHomo? eq | return ()
   let fact ← mkEqMP hEqProp (← mkEqProof a b)
@@ -152,7 +152,7 @@ the backward direction of the `=`-injection rule, i.e. the injectivity of the
 homomorphism.
 -/
 def processNewDiseq (a b : Expr) : GoalM Unit := do
-  unless (← getConfig).homo do return ()
+  unless (← getConfig).hom do return ()
   let eq ← shareCommon (← mkEq a b)
   let some (t, hEqProp) ← applyHomo? eq | return ()
   let hne ← mkDiseqProof a b

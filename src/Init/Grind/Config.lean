@@ -143,12 +143,12 @@ structure Config where
   -/
   liaSteps : Nat := 10000
   /--
-  When `true` (default: `true`), applies the `[grind homo]` homomorphism rules and
-  `[grind homo_pred]` predicates during internalization. Homomorphism rules translate
+  When `true` (default: `true`), applies the `[grind hom]` homomorphism rules and
+  `[grind hom_pred]` predicates during internalization. Homomorphism rules translate
   terms from a source domain into a target domain that has a dedicated solver (e.g.,
   `UInt8` operations into `Nat` arithmetic via `BitVec`).
   -/
-  homo := true
+  hom := true
   /--
   When `true` (default: `true`), uses procedure for handling associative (and commutative) operators.
   -/

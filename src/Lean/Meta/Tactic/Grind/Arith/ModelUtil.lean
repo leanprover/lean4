@@ -60,8 +60,7 @@ def isInterpretedTerm (e : Expr) : Bool :=
   || e.isAppOf ``Neg.neg || e.isAppOf ``HDiv.hDiv || e.isAppOf ``HMod.hMod || e.isAppOf ``One.one || e.isAppOf ``Zero.zero
   || e.isAppOf ``Inv.inv || e.isAppOf ``NatCast.natCast || e.isIte || e.isDIte || e.isAppOf ``OfNat.ofNat
   || e.isAppOf ``Fin.val || e.isAppOf ``Grind.IntModule.OfNatModule.toQ || e matches .lit (.natVal _)
-  -- TODO: hardcoded embedding support: `BitVec.toNat`/`toInt` and `toBitVec` accessors
-  -- (`Fin.val` is already listed above).
+  || e.isAppOf ``BitVec.toNat || e.isAppOf ``BitVec.toInt
 
 /--
 Adds the assignments `e' := v` to `a` for each `e'` in the equivalence class os `e`.

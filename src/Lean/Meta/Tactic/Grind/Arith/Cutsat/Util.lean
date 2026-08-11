@@ -40,9 +40,22 @@ def get' : GoalM State := do
 
 /-- Returns `true` if cutsat natively supports `type`. -/
 def isSupportedType (type : Expr) : GoalM Bool := do
-  -- TODO: hardcoded embedding support: return `true` for `Fin`, `BitVec`, `UInt??`,
-  -- `USize`, `Int??`, and `ISize`.
-  return type == Nat.mkType || type == Int.mkType
+  if isNatType type || isIntType type then
+    return true
+  else match_expr type with
+    | Fin _ => return true
+    | BitVec _ => return true
+    | UInt8 => return true
+    | UInt16 => return true
+    | UInt32 => return true
+    | UInt64 => return true
+    | USize => return true
+    | Int8 => return true
+    | Int16 => return true
+    | Int32 => return true
+    | Int64 => return true
+    | ISize => return true
+    | _ => return false
 
 /-- Returns `true` if the cutsat state is inconsistent. -/
 def inconsistent : GoalM Bool := do

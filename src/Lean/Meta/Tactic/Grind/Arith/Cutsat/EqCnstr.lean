@@ -657,6 +657,27 @@ private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : Supp
     let c := { p := .add (-1) x p, h := .defnNat e'h.2 x e'' : EqCnstr }
     c.assert
 
+def isEmbeddingApp? (e : Expr) : Option Expr :=
+  match_expr e with
+  | Fin.val _ a => some a
+  | BitVec.toNat _ a =>
+    match_expr a with
+    | UInt8.toBitVec a => some a
+    | UInt16.toBitVec a => some a
+    | UInt32.toBitVec a => some a
+    | UInt64.toBitVec a => some a
+    | USize.toBitVec a => some a
+    | _ => some a
+  | BitVec.toInt _ a =>
+    match_expr a with
+    | Int8.toBitVec a => some a
+    | Int16.toBitVec a => some a
+    | Int32.toBitVec a => some a
+    | Int64.toBitVec a => some a
+    | ISize.toBitVec a => some a
+    | _ => some a
+  | _ => none
+
 /--
 Internalizes an integer (and `Nat`) expression. Here are the different cases that are handled.
 
@@ -668,16 +689,45 @@ Internalizes an integer (and `Nat`) expression. Here are the different cases tha
 -/
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).lia do return ()
+  if let some arg := isEmbeddingApp? e then
+    /-
+    The argument of an embedding application is a solver term: model-based theory combination compares
+    the assignments of such arguments occurring at the same position of the same
+    function, using the values of their marker applications.
+    -/
+    cutsatExt.markTerm arg
   let some (k, type) ← getKindAndType? e | return ()
-  -- TODO: hardcoded embedding support: when `e` is an embedding-accessor application,
-  -- mark its argument (model-based theory combination compares such arguments).
   if type.isConstOf ``Int then
     internalizeIntTerm e type parent? k
   else if type.isConstOf ``Nat then
     internalizeNatTerm e type parent? k
-  -- TODO: hardcoded embedding support: for `Fin`- and `BitVec`-typed terms in supported
-  -- shapes (literals, arithmetic operations, `Fin.mk`, `Fin.succ`), create the accessor
-  -- application so the term has a value for model-based theory combination even when no
-  -- translated fact mentions it.
+  else
+    if isForbiddenParent parent? k then return ()
+    if (← hasVar e) then return ()
+    let internalizeMarker (marker : Expr) : GoalM Unit := do
+      Grind.internalize marker (← getGeneration e)
+    match_expr type with
+    | Fin n =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``Fin.val) n e)
+    | BitVec n =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``BitVec.toNat) n e)
+    | UInt8 =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``BitVec.toNat) (mkNatLit 8) (mkApp (mkConst ``UInt8.toBitVec) e))
+    | UInt16 =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``BitVec.toNat) (mkNatLit 16) (mkApp (mkConst ``UInt16.toBitVec) e))
+    | UInt32 =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``BitVec.toNat) (mkNatLit 32) (mkApp (mkConst ``UInt32.toBitVec) e))
+    | UInt64 =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``BitVec.toNat) (mkNatLit 64) (mkApp (mkConst ``UInt64.toBitVec) e))
+    | Int8 =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``BitVec.toInt) (mkNatLit 8) (mkApp (mkConst ``Int8.toBitVec) e))
+    | Int16 =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``BitVec.toInt) (mkNatLit 16) (mkApp (mkConst ``Int16.toBitVec) e))
+    | Int32 =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``BitVec.toInt) (mkNatLit 32) (mkApp (mkConst ``Int32.toBitVec) e))
+    | Int64 =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``BitVec.toInt) (mkNatLit 64) (mkApp (mkConst ``Int64.toBitVec) e))
+    -- Skipping USize and ISize for now.
+    | _ => return ()
 
 end Lean.Meta.Grind.Arith.Cutsat

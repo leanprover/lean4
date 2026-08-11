@@ -30,8 +30,15 @@ private partial def getAssignmentExt? (e : Expr) : GoalM (Option Rat) := do
       let_expr NatCast.natCast _ inst _ := parent | pure ()
       let_expr instNatCastInt := inst | pure ()
       return (← getAssignment? (← get) parent)
-  -- TODO: hardcoded embedding support: use the value of the embedding-accessor
-  -- application (`Fin.val e`, `BitVec.toNat e`, `e.toBitVec`, ...) among the parents.
+  else
+    -- `e` is a term of an embedded type (e.g., `Fin`, `BitVec`, `UInt8`): use the value of an
+    -- embedding application of `e` among its parents. Chains such as `a.toBitVec.toNat` are
+    -- resolved one step at a time; only the last step is a cutsat (`Nat`/`Int`) term.
+    for parent in (← getParents (← getRoot e)).elems do
+      if let some a := embeddingArg? parent then
+        if (← isEqv a e) then
+          if let some v ← getAssignmentExt? (← getRoot parent) then
+            return some v
   return none
 
 /--

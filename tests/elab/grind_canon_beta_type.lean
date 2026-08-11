@@ -14,10 +14,10 @@ trace: [grind.assert] Not
         (@OfNat.ofNat (Fin (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))) (nat_lit 0)
           (@Fin.instOfNat (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) ⋯ (nat_lit 0))))
 [grind.assert] Not
-      (@Eq Nat (@Fin.val (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) i)
+      (@Eq Nat
+        (@Lean.Grind.ToNat.toNat (Fin (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
+          (@Lean.Grind.instToNatFin (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))) i)
         (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
-[grind.assert] @LE.le Nat instLENat (@Fin.val (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) i)
-      (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))
 [grind.assert] Not
       (@Eq Nat (@Fin.val (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) i)
         (@Fin.val (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
@@ -28,8 +28,12 @@ trace: [grind.assert] Not
         (@OfNat.ofNat (Fin (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))) (nat_lit 1)
           (@Fin.instOfNat (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) ⋯ (nat_lit 1))))
       (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))
+[grind.assert] @LE.le Nat instLENat (@Fin.val (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) i)
+      (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))
 [grind.assert] Not
-      (@Eq Nat (@Fin.val (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) i)
+      (@Eq Nat
+        (@Lean.Grind.ToNat.toNat (Fin (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
+          (@Lean.Grind.instToNatFin (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))) i)
         (@OfNat.ofNat Nat (nat_lit 0) (instOfNatNat (nat_lit 0))))
 [grind.assert] Not
       (@Eq Nat (@Fin.val (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) i)
@@ -41,7 +45,9 @@ trace: [grind.assert] Not
         (@OfNat.ofNat (Fin (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))) (nat_lit 0)
           (@Fin.instOfNat (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) ⋯ (nat_lit 0))))
       (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))
-[grind.assert] @LE.le Nat instLENat (@Fin.val (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) i)
+[grind.assert] @LE.le Nat instLENat
+      (@Lean.Grind.ToNat.toNat (Fin (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
+        (@Lean.Grind.instToNatFin (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))) i)
       (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))
 -/
 #guard_msgs in

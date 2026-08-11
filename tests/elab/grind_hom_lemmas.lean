@@ -41,7 +41,7 @@ def applyHomo (declName : Name) : MetaM Unit := do
 
 def bvAdd (x y : BitVec 8) : Nat := (x + y).toNat
 def u8Mul (x y : UInt8) : BitVec 8 := (x * y).toBitVec
-def finSub (n : Nat) (a b : Fin n) : Nat := (a - b).val
+def finSub (n : Nat) (a b : Fin n) : Nat := Lean.Grind.ToNat.toNat (a - b)
 
 /--
 info: @BitVec.toNat_add
@@ -57,9 +57,7 @@ info: @UInt8.toBitVec_mul
 #guard_msgs in
 run_meta showMatches ``u8Mul
 
-/--
-info: @Fin.val_sub
--/
+/-- info: @Grind.Fin.toNat_sub -/
 #guard_msgs in
 run_meta showMatches ``finSub
 
@@ -130,7 +128,7 @@ def showPredInstances (declName : Name) : MetaM Unit := do
 def bvToNat (x y : BitVec 8) : Nat := (x + y).toNat
 def bvToInt (x : BitVec 8) : Int := x.toInt
 def u8Le (x y : UInt8) : Prop := x ≤ y
-def finVal (n : Nat) (a : Fin n) : Nat := a.val
+def finVal (n : Nat) (a : Fin n) : Nat := Lean.Grind.ToNat.toNat a
 def i64Lt (a b : Int64) : Prop := a < b
 
 /--

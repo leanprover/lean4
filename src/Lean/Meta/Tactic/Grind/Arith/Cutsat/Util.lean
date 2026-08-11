@@ -40,22 +40,29 @@ def get' : GoalM State := do
   cutsatExt.modifyState f
 
 /--
-Returns `true` if `type` has a `Lean.Grind.ToInt` or `Lean.Grind.ToNat` instance, i.e.
-it is embedded into a domain natively supported by cutsat. The result is cached per goal.
+Returns the embedding-marker function for `type` — `Grind.ToNat.toNat`/`Grind.ToInt.toInt`
+partially applied to `type` and its instance — if `type` has such an instance, i.e. it is
+embedded into a domain natively supported by cutsat. The result is cached per goal.
 -/
-def hasEmbeddingInst (type : Expr) : GoalM Bool := do
+def getEmbeddingFn? (type : Expr) : GoalM (Option Expr) := do
   if let some r := (← get').embeddingInsts.find? { expr := type } then
     return r
-  let r ← check
+  let r ← mk?
   modify' fun s => { s with embeddingInsts := s.embeddingInsts.insert { expr := type } r }
   return r
 where
-  check : GoalM Bool := do
+  mk? : GoalM (Option Expr) := do
     let u ← getLevel type
-    let some u ← decLevel? u | return false
-    if (← synthInstance? (mkApp (mkConst ``Grind.ToNat [u]) type)).isSome then
-      return true
-    return (← synthInstance? (mkApp (mkConst ``Grind.ToInt [u]) type)).isSome
+    let some u ← decLevel? u | return none
+    if let some inst ← synthInstance? (mkApp (mkConst ``Grind.ToNat [u]) type) then
+      return some (mkApp2 (mkConst ``Grind.ToNat.toNat [u]) type inst)
+    if let some inst ← synthInstance? (mkApp (mkConst ``Grind.ToInt [u]) type) then
+      return some (mkApp2 (mkConst ``Grind.ToInt.toInt [u]) type inst)
+    return none
+
+/-- Returns `true` if `type` has a `Lean.Grind.ToInt` or `Lean.Grind.ToNat` instance. -/
+def hasEmbeddingInst (type : Expr) : GoalM Bool :=
+  return (← getEmbeddingFn? type).isSome
 
 /-- Returns `true` if cutsat natively supports `type`. -/
 def isSupportedType (type : Expr) : GoalM Bool := do

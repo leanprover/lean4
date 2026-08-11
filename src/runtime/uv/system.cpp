@@ -455,7 +455,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
         size,
         0,
         [](uv_random_t* uv_req, int status, void* buf, size_t buflen) {
-            random_req_t* req = (random_req_t*)uv_req;
+            random_req_t* req = (random_req_t*)uv_req->data;
 
             event_loop_unregister_request(&global_ev, &req->pending);
 

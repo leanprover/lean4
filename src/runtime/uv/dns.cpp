@@ -16,7 +16,6 @@ namespace lean {
 
 using namespace std;
 
-// The `uv_*_t` is the first member so the completion callback can recover the owner by casting.
 typedef struct {
     uv_getaddrinfo_t req;
     uv_pending_req   pending;
@@ -61,6 +60,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
     uv_getaddrinfo_t* resolver = &owner->req;
+    resolver->data = owner;
 
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
@@ -87,7 +87,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
     lean_inc(promise);
 
     int result = uv_getaddrinfo(global_ev.loop, resolver, [](uv_getaddrinfo_t* req, int status, struct addrinfo* res) {
-        dns_addrinfo_req* owner = (dns_addrinfo_req*)req;
+        dns_addrinfo_req* owner = (dns_addrinfo_req*)req->data;
         lean_object* promise = owner->pending.promise;
 
         event_loop_unregister_request(&global_ev, &owner->pending);
@@ -154,6 +154,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
     uv_getnameinfo_t* req = &owner->req;
+    req->data = owner;
 
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
@@ -169,7 +170,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
     lean_inc(promise);
 
     int result = uv_getnameinfo(global_ev.loop, req, [](uv_getnameinfo_t* req, int status, const char* hostname, const char* service) {
-        dns_nameinfo_req* owner = (dns_nameinfo_req*)req;
+        dns_nameinfo_req* owner = (dns_nameinfo_req*)req->data;
         lean_object* promise = owner->pending.promise;
 
         event_loop_unregister_request(&global_ev, &owner->pending);

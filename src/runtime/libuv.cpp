@@ -23,7 +23,7 @@ static std::unique_ptr<lthread> g_libuv_thread;
 
 // How long `finalize_libuv` waits for outstanding threadpool requests before abandoning them. Only
 // reached when a request is stuck in an uninterruptible syscall; the common case exits immediately.
-#define LEAN_UV_TEARDOWN_DRAIN_NS (100ull * 1000ull * 1000ull)
+static constexpr uint64_t LEAN_UV_TEARDOWN_DRAIN_NS = 100ull * 1000ull * 1000ull;
 
 extern "C" void initialize_libuv() {
     initialize_libuv_timer();
@@ -101,7 +101,14 @@ extern "C" void finalize_libuv() {
 
     uint64_t const deadline = uv_hrtime() + LEAN_UV_TEARDOWN_DRAIN_NS;
 
-    while (uv_run(global_ev.loop, UV_RUN_NOWAIT) != 0 && uv_hrtime() < deadline) {
+    // The first pass runs the close callbacks the walk queued. Anything that survives it is a
+    // threadpool request whose worker has to finish on its own, so the poll below is only ever
+    // reached in that case and sleeping between passes costs nothing in the common one.
+    while (uv_run(global_ev.loop, UV_RUN_NOWAIT) != 0) {
+        if (uv_hrtime() >= deadline) {
+            break;
+        }
+
         uv_sleep(1);
     }
 

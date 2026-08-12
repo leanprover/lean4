@@ -180,9 +180,10 @@ void event_loop_wait_finalized(event_loop_t * event_loop) {
     uv_mutex_unlock(&event_loop->mutex);
 }
 
-void event_loop_register_request(event_loop_t * event_loop, uv_pending_req * pending, uv_req_t * req, lean_object * promise) {
+void event_loop_register_request(event_loop_t * event_loop, uv_pending_req * pending, uv_req_t * req, lean_object * promise, lean_object * owned) {
     pending->req = req;
     pending->promise = promise;
+    pending->owned = owned;
     pending->prev = nullptr;
     pending->next = event_loop->requests;
 
@@ -217,6 +218,11 @@ void event_loop_cancel_requests(event_loop_t * event_loop) {
 }
 
 // Abandons the requests that outlived the teardown drain, returning whether there were any.
+//
+// Their `uv_req_t`s stay registered and allocated: a threadpool worker still owns the memory and
+// will write to it, so the loop is deliberately left unclosed rather than freed underneath it. The
+// Lean objects the requests hold are not shared with the worker, so those are released here instead
+// of being leaked along with the request.
 bool event_loop_abandon_requests(event_loop_t * event_loop) {
     bool abandoned = false;
 
@@ -226,6 +232,12 @@ bool event_loop_abandon_requests(event_loop_t * event_loop) {
             lean_dec(pending->promise);
             pending->promise = nullptr;
         }
+
+        if (pending->owned != nullptr) {
+            lean_dec(pending->owned);
+            pending->owned = nullptr;
+        }
+
         abandoned = true;
     }
 

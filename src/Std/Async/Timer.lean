@@ -81,14 +81,12 @@ def selector (s : Sleep) : Selector Unit :=
         return none
 
     registerFn waiter := do
-      let sleepWaiter ← s.native.next
-      BaseIO.chainTask sleepWaiter.result? fun
-        | none => do
-          return ()
-        | some res =>
-          let lose := return ()
-          let win promise := promise.resolve res
-          waiter.race lose win
+      let sleepWaiter : AsyncTask Unit := .ofPromise (← s.native.next)
+
+      BaseIO.chainTask (t := sleepWaiter) fun res => do
+        let lose := return ()
+        let win promise := promise.resolve res
+        waiter.race lose win
 
     unregisterFn := s.native.cancel
   }

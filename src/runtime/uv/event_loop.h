@@ -46,6 +46,7 @@ public:
 typedef struct uv_pending_req {
     uv_req_t * req;
     lean_object * promise;
+    lean_object * owned;
     struct uv_pending_req * next;
     struct uv_pending_req * prev;
 } uv_pending_req;
@@ -77,7 +78,7 @@ void event_loop_begin_teardown();
 void event_loop_mark_finalized(event_loop_t *event_loop);
 void event_loop_wait_finalized(event_loop_t *event_loop);
 lean_obj_res lean_uv_loop_unavailable_error();
-void event_loop_register_request(event_loop_t *event_loop, uv_pending_req *pending, uv_req_t *req, lean_object *promise);
+void event_loop_register_request(event_loop_t *event_loop, uv_pending_req *pending, uv_req_t *req, lean_object *promise, lean_object *owned);
 void event_loop_unregister_request(event_loop_t *event_loop, uv_pending_req *pending);
 void event_loop_cancel_requests(event_loop_t *event_loop);
 bool event_loop_abandon_requests(event_loop_t *event_loop);

@@ -149,7 +149,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 
     // Registered only after a successful submit, and before unlocking: the completion callback runs
     // on the loop thread, which cannot take the mutex until we release it.
-    event_loop_register_request(&global_ev, &owner->pending, (uv_req_t*)resolver, promise);
+    event_loop_register_request(&global_ev, &owner->pending, (uv_req_t*)resolver, promise, nullptr);
 
     event_loop_unlock(&global_ev);
     return lean_io_result_mk_ok(promise);
@@ -217,7 +217,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
 
-    event_loop_register_request(&global_ev, &owner->pending, (uv_req_t*)req, promise);
+    event_loop_register_request(&global_ev, &owner->pending, (uv_req_t*)req, promise, nullptr);
 
     event_loop_unlock(&global_ev);
     return lean_io_result_mk_ok(promise);

@@ -6,7 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Elab.Tactic.FalseOrByContra
 public import Lean.Meta.Tactic.BVDecide.Normalize.Basic
 public import Lean.Meta.Tactic.BVDecide.Normalize.ApplyControlFlow
 public import Lean.Meta.Tactic.BVDecide.Normalize.Simproc
@@ -23,7 +22,8 @@ public import Lean.Meta.Tactic.BVDecide.Normalize.Reduction
 public import Lean.Meta.Tactic.BVDecide.Normalize.CollectHyps
 import Lean.Meta.Sym.Util
 import Lean.Meta.Sym.Intro
-import Lean.Meta.Tactic.Grind.Intro
+import Lean.Meta.Sym.Grind
+import Lean.Meta.Tactic.Grind.BVDecide.Types
 
 /-!
 This module contains the implementation of `bv_normalize`, the preprocessing tactic for `bv_decide`.
@@ -49,29 +49,29 @@ def passPipeline : PreProcessM (List Pass) := do
 
   return passPipeline
 
-def setupTarget : PreProcessM Bool := do
-  match ← PreProcessM.getTarget with
-  | .mvarIdTarget g =>
-    -- TODO: consider reimplementing this with SymM
-    let some g ← g.falseOrByContra (useClassical := some true) | return true
-    let g ← Sym.preprocessMVar g
-    PreProcessM.setTarget <| .mvarIdTarget g
-    return false
-  | .grindTarget g =>
-    let a : Grind.Action := Grind.Action.intros 0 >> Grind.Action.assertAll
-    match (← a.run g) with
-    | .closed _ | .stuck [] => return true
-    | .stuck [g] =>
-      PreProcessM.setTarget <| .grindTarget g
-      return false
-    | .stuck _ => throwError m!"internalizing grind goal produced multiple goals"
+/--
+Runs `x` with the caches that a previous `bv_decide_push` left in the grind goal. In
+`bv_decide_push` mode the caches of this run are handed back to the goal afterwards, such that
+future invocations of the pre-processor on this goal can pick them up again.
+-/
+def withCaches (x : PreProcessM α) : PreProcessM α := do
+  if let some caches ← PreProcessM.withGrindGoal Grind.BVDecide.getCaches then
+    PreProcessM.setCaches caches
+  let res ← x
+  if ← PreProcessM.isPushMode then
+    discard <| PreProcessM.withGrindGoal <| Grind.BVDecide.setCaches (← PreProcessM.getCaches)
+  return res
 
 public def bvNormalize : PreProcessM Bool := do
   withTraceNode `Meta.Tactic.bv (fun _ => return "Preprocessing goal") do
-    if ← setupTarget then return true
-
-    PreProcessM.collectTargetHyps
-
+    if ← PreProcessM.collectTargetHyps then return true
+    withCaches runPipeline
+where
+  /--
+  Runs all passes on the hypotheses collected from the target. Returns `true` if a pass closed the
+  goal.
+  -/
+  runPipeline : PreProcessM Bool := do
     trace[Meta.Tactic.bv] m!"Running preprocessing pipeline"
     let cfg ← PreProcessM.getConfig
 
@@ -113,6 +113,7 @@ public def bvNormalize : PreProcessM Bool := do
     -/
     if cfg.shortCircuit then
       if ← shortCircuitPass.run then return true
+
     return false
 
 end Normalize

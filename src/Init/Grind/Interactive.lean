@@ -400,5 +400,18 @@ syntax (name := bvTrace) "bv_decide?" optConfig (bvTypes)? : grind
 @[inherit_doc Lean.Parser.Tactic.bvCheck]
 syntax (name := bvCheck) "bv_check" optConfig (bvTypes)? ppSpace str : grind
 
+/--
+This tactic acts as an incremental pre-processor for `bv_decide` in `sym` or `grind` mode. Users
+can run `bv_decide_push` during arbitrary parts of their proof to make `bv_decide` run its
+pre-processor on the current goal state. It then stores as much information as possible from this
+pre-processor run for subsequent goals to speed up their invocations of `bv_decide` or
+`bv_decide_push`.
+
+Note that `bv_decide_push` can only store context independent information. For example, it has to
+assume that in the future more structures or enums might occur in the goal and thus cannot
+incrementalize type-based pre-processing. For this reason it also does not support a `types` clause.
+-/
+syntax (name := bvDecidePush) "bv_decide_push" optConfig : grind
+
 end Grind
 end Lean.Parser.Tactic

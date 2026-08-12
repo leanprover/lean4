@@ -403,7 +403,7 @@ namespace Cache
   cache.artifactDir / artifactPath contentHash ext
 
 /-- Returns the artifact in the Lake cache corresponding the given artifact description. -/
-@[deprecated "Deprecated without replacelement." (since := "2025-03-04")]
+@[deprecated "Deprecated without replacement." (since := "2025-03-04")]
 public def getArtifact? (cache : Cache) (descr : ArtifactDescr) : BaseIO (Option Artifact) := do
   let path := cache.artifactDir / descr.relPath
   let .ok mtime ← getMTime path |>.toBaseIO
@@ -411,7 +411,7 @@ public def getArtifact? (cache : Cache) (descr : ArtifactDescr) : BaseIO (Option
   return some {descr, path, mtime}
 
 /-- Returns the artifact in the Lake cache corresponding the given artifact description. Errors if missing. -/
-@[deprecated "Deprecated without replacelement." (since := "2025-03-04")]
+@[deprecated "Deprecated without replacement." (since := "2025-03-04")]
 public def getArtifact (cache : Cache) (descr : ArtifactDescr) : EIO String Artifact := do
   let path := cache.artifactDir / descr.relPath
   match (← getMTime path |>.toBaseIO) with
@@ -466,10 +466,9 @@ public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : Lo
   | .ok contents =>
     match Json.parse contents >>= fromJson? with
     | .ok out =>
-      return out
+      return some out
     | .error e =>
-      logWarning s!"{path}: invalid JSON: {e}"
-      return none
+      error s!"{path}: invalid JSON: {e}"
   | .error (.noFileOrDirectory ..) => return none
   | .error e => error s!"{path}: read failed: {e}"
 

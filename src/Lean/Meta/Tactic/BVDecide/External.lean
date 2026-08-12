@@ -183,7 +183,7 @@ public def satQuery (solverPath : System.FilePath) (problemPath : System.FilePat
         | .error err =>
           throwError s!"Error {err} while parsing:\n{stdout}"
       else
-        throwError s!"The external prover produced unexpected output, stdout:\n{stdout}stderr:\n{stderr}"
+        throwError s!"The external prover produced unexpected output, stdout:\n{stdout}\nstderr:\n{stderr}"
 where
   solverModeFlags (mode : Elab.Tactic.BVDecide.SolverMode) : Array String :=
     match mode with

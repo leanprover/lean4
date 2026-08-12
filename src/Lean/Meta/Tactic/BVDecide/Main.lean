@@ -16,9 +16,8 @@ This module provides the implementation of the `bv_decide` frontend itself.
 -/
 namespace Lean.Meta.Tactic.BVDecide
 
-public def TacticContext.preProcessContext (ctx : TacticContext) : Normalize.PreProcessContext where
-  config := ctx.config
-  restrictedTypes := ctx.restrictedTypes
+public def TacticContext.preProcessContext (ctx : TacticContext) : Normalize.PreProcessContext :=
+  .new (.solve ctx.restrictedTypes) ctx.config
 
 def bvUnsat (g : MVarId) (hypotheses : Array Normalize.Hyp) (ctx : TacticContext) :
     Sym.SymM (Except CounterExample LratCert) :=

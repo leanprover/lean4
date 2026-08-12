@@ -10,6 +10,7 @@ public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
 public import Lean.Elab.Tactic.Do.Internal.VCGen.RuleCache
 public import Lean.Elab.Tactic.Do.Internal.VCGen.Entails
 public import Lean.Meta.Sym.InstantiateS
+public import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.InstantiateMVarsS
 
@@ -147,6 +148,22 @@ private def liftedHypBare? (scope : VCGen.Scope) (goal : MVarId) (target : Expr)
     goal.assign hyp.toExpr
     return some []
 
+/-- Replace the `i`-th argument of the application `e`, which has `n` arguments. -/
+private def setAppArg (e : Expr) (i n : Nat) (v : Expr) : Expr :=
+  match e with
+  | .app f a => if n == i + 1 then e.updateApp! f v else e.updateApp! (setAppArg f i (n-1) v) a
+  | _ => e
+
+/-- Instantiate an assigned metavariable in the program of the `wp` application `rhs`. -/
+private def instantiateWPProg? (rhs : Expr) : VCGenM (Option Expr) := do
+  unless rhs.hasMVar do return none
+  let n := rhs.getAppNumArgs
+  unless n > 7 && rhs.getAppFn.isConstOf ``Std.Internal.Do.wp do return none
+  let prog := rhs.getArg! 7 n
+  let prog' ← instantiateMVarsIfMVarAppS prog
+  if isSameExpr prog prog' then return none
+  return some (← shareCommon (setAppArg rhs 7 n prog'))
+
 /-- Instantiate assigned head metavariables in the goal's entailment, so the shape tests in the
 following steps see the assigned form. -/
 private def instantiateGoal? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
@@ -154,6 +171,7 @@ private def instantiateGoal? (goal : MVarId) (target : Expr) : VCGenM (Option MV
   let α' ← instantiateMVarsIfMVarAppS α
   let pre' ← instantiateMVarsIfMVarAppS pre
   let rhs' ← instantiateMVarsIfMVarAppS rhs
+  let rhs' := (← instantiateWPProg? rhs').getD rhs'
   if isSameExpr α α' && isSameExpr pre pre' && isSameExpr rhs rhs' then return none
   return some (← goal.replaceTargetDefEqFast (← mkAppNS c #[α', inst, pre', rhs']))
 
@@ -273,6 +291,31 @@ private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
     let .goal _ goal ← Sym.intros goal
       | throwError "Failed to intro hoisted let"
     return some goal
+
+/-- Strategy 11b: fold the state arguments of the program's `wp` application, so the symbolic
+state a spec application threads through the goal is normalized as it is produced rather than left
+to the discharging tactic. Runs the `simplifying_assumptions` rewrite set when one is configured
+and the plain `Sym.Simp` methods otherwise; the program, the postcondition and the precondition are
+left untouched. -/
+private def wpSimpStateArgs? (goal : MVarId) (info : WPApp) :
+    VCGenM (Option (List MVarId)) := goal.withContext do
+  if info.excessArgs.isEmpty then return none
+  let some methods := (← read).hypSimpMethods | return none
+  let start := info.args.size
+  let target ← goal.getType
+  match h : target with
+  | .app f rhs =>
+    let (result, simpState') ← Sym.Simp.SimpM.run
+      (do
+        let ar ← Sym.Simp.simpAppArgRange rhs start (start + info.excessArgs.size)
+        Sym.Simp.mkCongr target f rhs .rfl ar h)
+      methods {} (← get).simpState
+    modify fun st => { st with simpState := simpState' }
+    match ← result.toSimpGoalResult goal with
+    | .closed => return some []
+    | .goal g => return some [g]
+    | .noProgress => return none
+  | _ => return none
 
 /-- Strategy 11b: split an `ite`/`dite`/match program, or iota-reduce a matcher with a concrete
 discriminant. -/
@@ -542,6 +585,8 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
     if let some g ← wpLet? goal info then
       VCGen.burnOne
       return .goals scope [g]
+    if let some gs ← wpSimpStateArgs? goal info then
+      return .goals scope gs
     if let some gs ← wpMatch? goal info then
       VCGen.burnOne
       return .goals scope gs

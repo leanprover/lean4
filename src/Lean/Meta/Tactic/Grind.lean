@@ -48,6 +48,7 @@ public import Lean.Meta.Tactic.Grind.Filter
 public import Lean.Meta.Tactic.Grind.CollectParams
 public import Lean.Meta.Tactic.Grind.Finish
 public import Lean.Meta.Tactic.Grind.RegisterCommand
+public import Lean.Meta.Tactic.Grind.BVDecide
 public section
 namespace Lean
 

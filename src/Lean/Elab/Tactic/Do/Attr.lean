@@ -61,7 +61,7 @@ def SpecProof.getProof : SpecProof → MetaM (List Name × Expr)
   | .stx _ _ proof => pure ([], proof)
   | .local fvarId => pure ([], mkFVar fvarId)
   | .global declName => do
-    let info ← getConstInfo declName
+    let info := (← getAsyncConstInfo declName).toConstantVal
     pure (info.levelParams, mkConst declName (info.levelParams.map mkLevelParam))
 
 instance : Hashable SpecProof where
@@ -200,7 +200,7 @@ private def mkSpecTheorem (type : Expr) (proof : SpecProof) (prio : Nat) : MetaM
 
 def mkSpecTheoremFromConst (declName : Name) (prio : Nat := eval_prio default) : MetaM SpecTheorem := do
   -- cf. mkSimpTheoremsFromConst
-  let cinfo ← getConstInfo declName
+  let cinfo := (← getAsyncConstInfo declName).toConstantVal
   let us := cinfo.levelParams.map mkLevelParam
   let val := mkConst declName us
 --  withSimpGlobalConfig do -- This sets iota := false, which we do not want (for computeMVarBetaPotentialForSPred)
@@ -280,7 +280,7 @@ def SpecProof.getProof : SpecProof → MetaM (List Name × Expr)
   | .stx _ _ proof => pure ([], proof)
   | .local fvarId => pure ([], mkFVar fvarId)
   | .global declName => do
-    let info ← getConstInfo declName
+    let info := (← getAsyncConstInfo declName).toConstantVal
     pure (info.levelParams, mkConst declName (info.levelParams.map mkLevelParam))
 
 instance : Hashable SpecProof where
@@ -438,7 +438,7 @@ def eraseUnusedVarsFromPattern (p : Sym.Pattern) : Sym.Pattern := Id.run do
 
 /-- The application-argument index of `declName`'s program parameter `x`, read from its signature. -/
 def progArgIdx? (declName : Name) : MetaM (Option Nat) := do
-  forallTelescope (← getConstInfo declName).type fun xs _ => do
+  forallTelescope (← getAsyncConstInfo declName).toConstantVal.type fun xs _ => do
     for i in [0:xs.size] do
       if (← xs[i]!.fvarId!.getUserName) == `x then
         return some i
@@ -489,7 +489,7 @@ private def mkSpecTheorem (type : Expr) (proof : SpecProof) (prio : Nat) : MetaM
   return some { pattern, proof, priority := prio, conjunctivePre }
 
 def mkSpecTheoremFromConst (declName : Name) (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
-  let info ← getConstInfo declName
+  let info := (← getAsyncConstInfo declName).toConstantVal
   mkSpecTheorem info.type (.global declName) prio
 
 def mkSpecTheoremFromLocal (fvar : FVarId) (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
@@ -593,7 +593,7 @@ def simpSpecTheorems (entries : Array SimpEntry) (prio : Nat) : MetaM (Array Spe
       match thm.origin with
       | .decl declName .. =>
         try
-          if hasOverlapHypothesis (← getConstInfo declName).type then
+          if hasOverlapHypothesis (← getAsyncConstInfo declName).toConstantVal.type then
             trace[Elab.Tactic.Do.specAttr] "Skipping overlap-hypothesis equation {declName}"
           else if let some spec ← mkSpecTheoremFromSimpDecl? declName prio then
             result := result.push spec
@@ -626,11 +626,12 @@ a `vcgen` spec.
 -/
 def SpecExtension.addSimpSpecTheoremsFromConst (ext : SpecExtension) (declName : Name) (prio : Nat)
     (attrKind : AttributeKind) : MetaM Unit := do
-  let info ← getConstInfo declName
+  let async ← getAsyncConstInfo declName
+  let info := async.toConstantVal
   if (← isProp info.type) then
     if let some thm ← mkSpecTheoremFromSimpDecl? declName prio then
       ext.add thm attrKind
-  else if info.isDefinition then
+  else if async.kind == .defn then
     for thm in ← simpSpecTheorems (← mkSimpEntryOfDeclToUnfold declName) prio do
       ext.add thm attrKind
   else
@@ -645,10 +646,11 @@ erases exactly the entries that annotating `foo` inserted.
 def specEraseProofs (declName : Name) : MetaM (Array SpecProof) := do
   if (← mkSpecTheoremFromConst declName).isSome then
     return #[.global declName]
-  let info ← getConstInfo declName
+  let async ← getAsyncConstInfo declName
+  let info := async.toConstantVal
   if (← isProp info.type) then
     return #[.global declName]
-  else if info.isDefinition then
+  else if async.kind == .defn then
     return (← simpSpecTheorems (← mkSimpEntryOfDeclToUnfold declName) (eval_prio default)).map (·.proof)
   else
     return #[]

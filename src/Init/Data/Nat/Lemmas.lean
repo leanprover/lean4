@@ -1037,8 +1037,8 @@ theorem div_le_iff_le_mul_of_dvd (hb : b ≠ 0) (hba : b ∣ a) : a / b ≤ c �
   rw [Nat.mul_div_right _ (zero_lt_of_ne_zero hb), Nat.mul_comm]
   exact ⟨mul_le_mul_right b, fun h ↦ Nat.le_of_mul_le_mul_right h (zero_lt_of_ne_zero hb)⟩
 
-protected theorem div_lt_div_right (ha : a ≠ 0) : a ∣ b → a ∣ c → (b / a < c / a ↔ b < c) := by
-  rintro ⟨d, rfl⟩ ⟨e, rfl⟩; simp [Nat.pos_iff_ne_zero.2 ha]
+protected theorem div_lt_div_right (ha : a ≠ 0) (hc : a ∣ c) : b / a < c / a ↔ b < c := by
+  rw [div_lt_iff_lt_mul (Nat.pos_of_ne_zero ha), Nat.div_mul_cancel hc]
 
 protected theorem div_lt_div_left (ha : a ≠ 0) (hba : b ∣ a) (hca : c ∣ a) :
     a / b < a / c ↔ c < b := by
@@ -1049,7 +1049,7 @@ protected theorem div_lt_div_left (ha : a ≠ 0) (hba : b ∣ a) (hca : c ∣ a)
     rw [Nat.pos_iff_ne_zero] <;> rintro rfl <;> simp at * <;> contradiction
 
 theorem lt_div_iff_mul_lt_of_dvd (hc : c ≠ 0) (hcb : c ∣ b) : a < b / c ↔ a * c < b := by
-  simp [← Nat.div_lt_div_right _ _ hcb, hc, Nat.pos_iff_ne_zero, Nat.dvd_mul_left]
+  simp [← Nat.div_lt_div_right _ hcb, hc, Nat.pos_iff_ne_zero]
 
 protected theorem div_mul_div_le (a b c d : Nat) :
     (a / b) * (c / d) ≤ (a * c) / (b * d) := by

@@ -40,28 +40,30 @@ register_builtin_option sat.solver : String := {
 
 declare_config_elab elabBVDecideConfig Lean.Elab.Tactic.BVDecide.BVDecideConfig
 
-public def isPotentialTypeAnalysisType (declName : Name) : CoreM Bool := do
-  if ← isEnumType declName then
+open Elab.Tactic.BVDecide in
+public def isPotentialTypeAnalysisType (cfg : BVDecideConfig) (declName : Name) : CoreM Bool := do
+  if ← pure cfg.enums <&&> isEnumType declName then
     return true
   let env ← getEnv
-  if !isStructure env declName then
+  if !cfg.structures || !isStructure env declName then
     return false
   let .inductInfo info ← getConstInfo declName | return false
   return !info.isRec
 
+open Elab.Tactic.BVDecide in
 /--
 Elaborate the optional `types [T₁, ..., Tₙ]` clause of the `bv_decide` family of tactics. Returns
 `none` if the clause is absent, in which case the structure and enum analysis runs unrestricted.
 -/
-def elabBVDecideTypes (stx : Option (TSyntax ``Lean.Parser.Tactic.bvTypes)) :
-    CoreM (Option (Array Name)) := do
+def elabBVDecideTypes (stx : Option (TSyntax ``Lean.Parser.Tactic.bvTypes))
+    (cfg : BVDecideConfig) : CoreM (Option (Array Name)) := do
   let some stx := stx | return none
   let `(Lean.Parser.Tactic.bvTypes| types [$ids,*]) := stx
     | throwErrorAt stx "unexpected `types` clause"
   let mut types := #[]
   for id in ids.getElems do
     let declName ← Elab.realizeGlobalConstNoOverloadWithInfo id
-    unless (← isPotentialTypeAnalysisType declName) do
+    unless (← isPotentialTypeAnalysisType cfg declName) do
       throwErrorAt id m!"`{declName}` cannot be used in a `types` clause, only non-recursive \
         structures and enum inductives are supported"
     unless types.contains declName do

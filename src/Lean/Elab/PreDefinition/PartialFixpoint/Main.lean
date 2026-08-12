@@ -93,12 +93,12 @@ def partialFixpoint (docCtx : LocalContext × LocalInstances) (preDefs : Array P
         | .coinductiveFixpoint =>
           forallTelescopeReducing type fun xs e => do
             unless e.isProp do
-              throwError "`coinductive_fixpoint` can be only used to define predicates"
+              throwError "`coinductive_fixpoint` can only be used to define predicates"
             mkInstPiOfInstsForall xs (mkConst ``ReverseImplicationOrder.instCompleteLattice)
         | .inductiveFixpoint =>
           forallTelescopeReducing type fun xs e => do
             unless e.isProp do
-              throwError "`inductive_fixpoint` can be only used to define predicates"
+              throwError "`inductive_fixpoint` can only be used to define predicates"
             mkInstPiOfInstsForall xs (mkConst ``ImplicationOrder.instCompleteLattice)
         | .partialFixpoint => try
             synthInstance (← mkAppM ``CCPO #[type])

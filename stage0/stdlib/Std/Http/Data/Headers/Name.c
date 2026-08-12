@@ -39,7 +39,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_String_Slice_splitToSubslice___redArg(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
@@ -890,7 +890,7 @@ goto v_resetjp_239_;
 v_resetjp_239_:
 {
 lean_object* v___x_242_; lean_object* v___x_243_; lean_object* v___x_244_; lean_object* v___x_246_; 
-v___x_242_ = lean_string_utf8_extract(v___x_223_, v___x_224_, v___x_225_);
+v___x_242_ = lean_string_utf8_extract_fast(v___x_223_, v___x_224_, v___x_225_);
 v___x_243_ = lean_string_append(v_val_238_, v___x_242_);
 lean_dec_ref(v___x_242_);
 v___x_244_ = lean_string_append(v___x_243_, v_out_235_);
@@ -921,7 +921,7 @@ return v___x_247_;
 v___jp_250_:
 {
 lean_object* v___x_254_; lean_object* v___x_255_; uint32_t v___x_256_; uint32_t v___x_257_; uint8_t v___x_258_; 
-v___x_254_ = lean_string_utf8_extract(v_name_226_, v_startInclusive_252_, v_endExclusive_253_);
+v___x_254_ = lean_string_utf8_extract_fast(v_name_226_, v_startInclusive_252_, v_endExclusive_253_);
 lean_dec(v_endExclusive_253_);
 lean_dec(v_startInclusive_252_);
 v___x_255_ = lean_unsigned_to_nat(0u);

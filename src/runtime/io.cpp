@@ -1526,8 +1526,8 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_swap(b_obj_arg ref, obj_arg a) {
         mark_mt(a);
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         while (true) {
-            object * old_a = val_addr->exchange(a);
-            if (old_a != nullptr)
+            object * old_a = val_addr->load();
+            if (old_a != nullptr && val_addr->compare_exchange_strong(old_a, a))
                 return old_a;
         }
     } else {

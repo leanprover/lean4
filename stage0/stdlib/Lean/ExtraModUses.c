@@ -852,7 +852,7 @@ goto v_resetjp_133_;
 v___jp_124_:
 {
 lean_object* v___x_129_; lean_object* v___x_130_; 
-v___x_129_ = lean_array_uset(v___y_127_, v___y_126_, v___y_125_);
+v___x_129_ = lean_array_uset(v___y_125_, v___y_126_, v___y_127_);
 v___x_130_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_130_, 0, v___y_128_);
 lean_ctor_set(v___x_130_, 1, v___x_129_);
@@ -981,17 +981,17 @@ lean_object* v___x_175_; lean_object* v___x_176_;
 v___x_175_ = lean_unsigned_to_nat(1u);
 v___x_176_ = lean_nat_sub(v_size_131_, v___x_175_);
 lean_dec(v_size_131_);
-v___y_125_ = v_bkt_x27_173_;
+v___y_125_ = v_buckets_x27_172_;
 v___y_126_ = v___x_149_;
-v___y_127_ = v_buckets_x27_172_;
+v___y_127_ = v_bkt_x27_173_;
 v___y_128_ = v___x_176_;
 goto v___jp_124_;
 }
 else
 {
-v___y_125_ = v_bkt_x27_173_;
+v___y_125_ = v_buckets_x27_172_;
 v___y_126_ = v___x_149_;
-v___y_127_ = v_buckets_x27_172_;
+v___y_127_ = v_bkt_x27_173_;
 v___y_128_ = v_size_131_;
 goto v___jp_124_;
 }
@@ -4080,11 +4080,13 @@ return v_res_1696_;
 lean_object* runtime_initialize_Lean_CoreM(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_MetaAttr(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Stream(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_ExtraModUses(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_CoreM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

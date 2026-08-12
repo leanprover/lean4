@@ -57,7 +57,7 @@ lean_object* l_Lake_Workspace_findLeanExe_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
 lean_object* l_Lake_untar(lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Lake_prepareLeanCommand___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lake_proc(lean_object*, uint8_t, lean_object*);
+lean_object* l_Lake_proc(lean_object*, uint8_t, lean_object*, lean_object*);
 extern lean_object* l_Lake_defaultLakeDir;
 static const lean_ctor_object l_Lake_env___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*0 + 8, .m_other = 0, .m_tag = 0}, .m_objs = {LEAN_SCALAR_PTR_LITERAL(1, 1, 1, 0, 0, 0, 0, 0)}};
 static const lean_object* l_Lake_env___closed__0 = (const lean_object*)&l_Lake_env___closed__0_value;
@@ -557,7 +557,7 @@ lean_ctor_set(v___x_169_, 3, v___x_165_);
 lean_ctor_set(v___x_169_, 4, v___x_166_);
 lean_ctor_set_uint8(v___x_169_, sizeof(void*)*5, v___x_167_);
 lean_ctor_set_uint8(v___x_169_, sizeof(void*)*5 + 1, v___x_168_);
-v___x_170_ = l_Lake_proc(v___x_169_, v___x_168_, v___y_162_);
+v___x_170_ = l_Lake_proc(v___x_169_, v___x_168_, v___x_165_, v___y_162_);
 return v___x_170_;
 }
 }
@@ -2118,11 +2118,13 @@ lean_object* runtime_initialize_Lake_Build_Actions(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Build_Targets(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Build_Module(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Util_Proc(uint8_t builtin);
+void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_CLI_Actions(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize();
 res = runtime_initialize_Lake_Config_Workspace(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

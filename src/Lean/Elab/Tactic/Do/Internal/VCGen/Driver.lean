@@ -106,7 +106,7 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
   let mut worklist : Array WorkItem := #[{ goal := { goal with mvarId }, scope }]
   while let some s := worklist.back? do
     worklist := worklist.pop
-    let goal := s.goal
+    let goal ← processHypotheses s.goal
     if goal.inconsistent then continue
     match ← solve s.scope goal.mvarId with
     | .stop _reason =>
@@ -116,11 +116,6 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
       -- from the worklist later see the invariant MVar already assigned.
       -- Non-invariant subgoals go to the worklist as usual and will eventually go through `emitVC`.
       let subgoals ← handleInvariantSubgoals subgoals
-      let goal ←
-        if subgoals.size > 1 then
-          processHypotheses goal
-        else
-          pure goal
       worklist := worklist ++ subgoals.reverse.map (fun mv =>
         { goal := { goal with mvarId := mv }, scope })
 
@@ -147,19 +142,21 @@ Return the VCs and invariant goals.
 `stepLimit?`, when `some n`, seeds the fuel counter to `n`; when `none`, fuel is unlimited.
 -/
 public partial def run (goal : Grind.Goal) (ctx : Context) (scope : VCGen.Scope)
-    (stepLimit? : Option Nat := none) (frameDB? : Option (Deferred FrameDB) := none) :
+    (stepLimit? : Option Nat := none) (frameDB : FrameDB := {}) :
     Grind.GrindM Result := do
   let initState : State :=
-    { fuel := match stepLimit? with | some n => .limited n | none => .unlimited, frameDB? }
-  let ((), state) ← StateRefT'.run (ReaderT.run (work scope goal) ctx) initState
+    { fuel := match stepLimit? with | some n => .limited n | none => .unlimited, frameDB }
+  -- VCGen temporarily violates the `SymM` folded-projections invariant: `reduceHead?`
+  -- exposes kernel projections in intermediate terms and restores the invariant in its
+  -- final result, so the `shareCommon` kernel-projection check is disabled.
+  let ((), state) ← Sym.withoutFoldProjsCheck <| StateRefT'.run (ReaderT.run (work scope goal) ctx) initState
   _ ← state.invariants.mapIdxM fun idx mv => do
     mv.setTag (Name.mkSimple ("inv" ++ toString (idx + 1)))
   _ ← state.vcs.mapIdxM fun idx g => do
     g.mvarId.setTag (Name.mkSimple ("vc" ++ toString (idx + 1)) ++ (← g.mvarId.getTag).eraseMacroScopes)
   let vcs ← state.vcs.filterM (not <$> ·.mvarId.isAssigned)
-  let unmatchedFrames := match state.frameDB? with
-    | some (.elaborated db) => db.entries.filterMap fun e => if e.retired then none else some e.frameStx
-    | _ => #[]
+  let unmatchedFrames := state.frameDB.entries.filterMap fun e =>
+    if e.retired then none else some e.frameStx
   return {
     invariants := state.invariants,
     vcs,

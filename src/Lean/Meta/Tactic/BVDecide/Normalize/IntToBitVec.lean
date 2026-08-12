@@ -53,7 +53,7 @@ end M
 public def intToBitVecPass : Pass where
   name := `intToBitVec
   run' goal := do
-    let intToBvThms ← intToBitVecExt.getTheorems
+    let intToBvThms ← metaIntToBitVecExt.getTheorems
     let cfg ← PreProcessM.getConfig
     let simpCtx ← Simp.mkContext
       (config := {

@@ -3983,7 +3983,6 @@ if (v___y_1161_ == 0)
 {
 lean_object* v___x_1162_; lean_object* v___x_1163_; uint8_t v___x_1164_; 
 v___x_1162_ = l_Array_zipIdx___redArg(v_fieldsAndSeps_1159_, v___x_1157_);
-lean_dec_ref(v_fieldsAndSeps_1159_);
 v___x_1163_ = lean_array_get_size(v___x_1162_);
 v___x_1164_ = lean_nat_dec_lt(v___x_1157_, v___x_1163_);
 if (v___x_1164_ == 0)
@@ -4373,11 +4372,13 @@ return v___x_1250_;
 }
 lean_object* runtime_initialize_Lean_Server_InfoUtils(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Server_Completion_CompletionUtils(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_Completion_SyntheticCompletion(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Server_InfoUtils(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

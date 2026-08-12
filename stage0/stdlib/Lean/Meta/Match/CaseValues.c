@@ -1586,6 +1586,7 @@ v___x_518_ = ((lean_object*)(l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta
 lean_inc(v_a_498_);
 v___x_519_ = lean_name_append_index_after(v___x_518_, v_a_498_);
 v___x_520_ = l_Lean_Meta_appendTagSuffix(v_fst_516_, v___x_519_, v_a_503_, v_a_504_, v_a_505_, v_a_506_);
+lean_dec(v___x_519_);
 if (lean_obj_tag(v___x_520_) == 0)
 {
 lean_object* v___x_521_; 
@@ -1767,6 +1768,7 @@ lean_dec(v_a_498_);
 v___x_540_ = lean_name_append_index_after(v___x_518_, v___x_539_);
 lean_inc(v_snd_533_);
 v___x_541_ = l_Lean_Meta_appendTagSuffix(v_snd_533_, v___x_540_, v___y_534_, v___y_535_, v___y_536_, v___y_537_);
+lean_dec(v___x_540_);
 if (lean_obj_tag(v___x_541_) == 0)
 {
 lean_object* v___x_543_; uint8_t v_isShared_544_; uint8_t v_isSharedCheck_551_; 
@@ -2118,11 +2120,13 @@ return v_res_659_;
 lean_object* runtime_initialize_Lean_Meta_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_FVarSubst(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Subst(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Match_CaseValues(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -85,8 +85,8 @@ lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 extern lean_object* l_instMonadBaseIO;
 lean_object* lean_stream_of_handle(lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
-lean_object* l_Array_toJson___redArg(lean_object*, lean_object*);
-lean_object* l_Array_fromJson_x3f___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Array_toJson___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Array_fromJson_x3f___redArg(lean_object*, lean_object*);
 lean_object* l_instMonadStateOfStateTOfMonad___redArg(lean_object*);
 lean_object* l_Lake_EStateT_instMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_EStateT_instMonad___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4923,7 +4923,7 @@ LEAN_EXPORT lean_object* l_Lake_instToJsonLog___lam__0(lean_object* v___x_1593_,
 _start:
 {
 lean_object* v___x_1595_; 
-v___x_1595_ = l_Array_toJson___redArg(v___x_1593_, v_x_1594_);
+v___x_1595_ = l_Lean_Array_toJson___redArg(v___x_1593_, v_x_1594_);
 return v___x_1595_;
 }
 }
@@ -4931,7 +4931,7 @@ LEAN_EXPORT lean_object* l_Lake_instFromJsonLog___lam__0(lean_object* v___x_1599
 _start:
 {
 lean_object* v___x_1601_; 
-v___x_1601_ = l_Array_fromJson_x3f___redArg(v___x_1599_, v_x_1600_);
+v___x_1601_ = l_Lean_Array_fromJson_x3f___redArg(v___x_1599_, v_x_1600_);
 if (lean_obj_tag(v___x_1601_) == 0)
 {
 lean_object* v_a_1602_; lean_object* v___x_1604_; uint8_t v_isShared_1605_; uint8_t v_isSharedCheck_1609_; 
@@ -9696,7 +9696,7 @@ return v_res_3560_;
 LEAN_EXPORT lean_object* l_Lake_LogIO_toBaseIO___redArg(lean_object* v_self_3561_, lean_object* v_cfg_3562_){
 _start:
 {
-lean_object* v___y_3565_; uint8_t v___y_3566_; lean_object* v___y_3569_; uint8_t v___y_3570_; lean_object* v___y_3571_; lean_object* v___x_3572_; lean_object* v___y_3574_; lean_object* v___y_3575_; uint8_t v___y_3576_; uint8_t v___y_3577_; lean_object* v___y_3599_; lean_object* v___y_3600_; uint8_t v___y_3601_; lean_object* v___x_3603_; lean_object* v___x_3604_; 
+uint8_t v___y_3565_; lean_object* v___y_3566_; uint8_t v___y_3569_; lean_object* v___y_3570_; lean_object* v___y_3571_; lean_object* v___x_3572_; lean_object* v___y_3574_; uint8_t v___y_3575_; lean_object* v___y_3576_; uint8_t v___y_3577_; lean_object* v___y_3599_; lean_object* v___y_3600_; uint8_t v___y_3601_; lean_object* v___x_3603_; lean_object* v___x_3604_; 
 v___x_3572_ = l_instMonadBaseIO;
 v___x_3603_ = ((lean_object*)(l_Lake_Log_empty___closed__0));
 v___x_3604_ = lean_apply_2(v_self_3561_, v___x_3603_, lean_box(0));
@@ -9719,8 +9719,8 @@ if (v___x_3611_ == 2)
 uint8_t v___x_3612_; 
 v___x_3612_ = 0;
 v___y_3574_ = v_a_3606_;
-v___y_3575_ = v___x_3609_;
-v___y_3576_ = v___x_3612_;
+v___y_3575_ = v___x_3612_;
+v___y_3576_ = v___x_3609_;
 v___y_3577_ = v_outLv_3608_;
 goto v___jp_3573_;
 }
@@ -9749,14 +9749,14 @@ goto v___jp_3598_;
 }
 v___jp_3564_:
 {
-if (v___y_3566_ == 0)
+if (v___y_3565_ == 0)
 {
-return v___y_3565_;
+return v___y_3566_;
 }
 else
 {
 lean_object* v___x_3567_; 
-lean_dec(v___y_3565_);
+lean_dec(v___y_3566_);
 v___x_3567_ = lean_box(0);
 return v___x_3567_;
 }
@@ -9839,8 +9839,8 @@ v___jp_3598_:
 uint8_t v___x_3602_; 
 v___x_3602_ = 0;
 v___y_3574_ = v___y_3599_;
-v___y_3575_ = v___y_3600_;
-v___y_3576_ = v___y_3601_;
+v___y_3575_ = v___y_3601_;
+v___y_3576_ = v___y_3600_;
 v___y_3577_ = v___x_3602_;
 goto v___jp_3573_;
 }
@@ -9858,7 +9858,7 @@ return v_res_3620_;
 LEAN_EXPORT lean_object* l_Lake_LogIO_toBaseIO(lean_object* v_00_u03b1_3621_, lean_object* v_self_3622_, lean_object* v_cfg_3623_){
 _start:
 {
-lean_object* v___y_3626_; uint8_t v___y_3627_; lean_object* v___y_3630_; uint8_t v___y_3631_; lean_object* v___y_3632_; lean_object* v___x_3633_; lean_object* v___y_3635_; lean_object* v___y_3636_; uint8_t v___y_3637_; uint8_t v___y_3638_; lean_object* v___y_3660_; lean_object* v___y_3661_; uint8_t v___y_3662_; lean_object* v___x_3664_; lean_object* v___x_3665_; 
+uint8_t v___y_3626_; lean_object* v___y_3627_; uint8_t v___y_3630_; lean_object* v___y_3631_; lean_object* v___y_3632_; lean_object* v___x_3633_; lean_object* v___y_3635_; uint8_t v___y_3636_; lean_object* v___y_3637_; uint8_t v___y_3638_; lean_object* v___y_3660_; lean_object* v___y_3661_; uint8_t v___y_3662_; lean_object* v___x_3664_; lean_object* v___x_3665_; 
 v___x_3633_ = l_instMonadBaseIO;
 v___x_3664_ = ((lean_object*)(l_Lake_Log_empty___closed__0));
 v___x_3665_ = lean_apply_2(v_self_3622_, v___x_3664_, lean_box(0));
@@ -9881,8 +9881,8 @@ if (v___x_3672_ == 2)
 uint8_t v___x_3673_; 
 v___x_3673_ = 0;
 v___y_3635_ = v_a_3667_;
-v___y_3636_ = v___x_3670_;
-v___y_3637_ = v___x_3673_;
+v___y_3636_ = v___x_3673_;
+v___y_3637_ = v___x_3670_;
 v___y_3638_ = v_outLv_3669_;
 goto v___jp_3634_;
 }
@@ -9911,14 +9911,14 @@ goto v___jp_3659_;
 }
 v___jp_3625_:
 {
-if (v___y_3627_ == 0)
+if (v___y_3626_ == 0)
 {
-return v___y_3626_;
+return v___y_3627_;
 }
 else
 {
 lean_object* v___x_3628_; 
-lean_dec(v___y_3626_);
+lean_dec(v___y_3627_);
 v___x_3628_ = lean_box(0);
 return v___x_3628_;
 }
@@ -10001,8 +10001,8 @@ v___jp_3659_:
 uint8_t v___x_3663_; 
 v___x_3663_ = 0;
 v___y_3635_ = v___y_3660_;
-v___y_3636_ = v___y_3661_;
-v___y_3637_ = v___y_3662_;
+v___y_3636_ = v___y_3662_;
+v___y_3637_ = v___y_3661_;
 v___y_3638_ = v___x_3663_;
 goto v___jp_3634_;
 }
@@ -11182,11 +11182,13 @@ lean_object* runtime_initialize_Lean_Message(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Util_Lift(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Modify(uint8_t builtin);
+void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Util_Log(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize();
 res = runtime_initialize_Lean_Data_Json(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

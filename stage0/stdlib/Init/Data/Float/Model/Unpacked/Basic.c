@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t l_Float_Model_UnpackedFloat_instBEqSign_beq(uint8_t, uint8_t);
+uint8_t l_Float_Model_UnpackedFloat_instDecidableEqSign(uint8_t, uint8_t);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
@@ -513,7 +513,7 @@ if (lean_obj_tag(v_x_180_) == 0)
 uint8_t v_sign_181_; uint8_t v_sign_182_; uint8_t v___x_183_; 
 v_sign_181_ = lean_ctor_get_uint8(v_x_179_, 0);
 v_sign_182_ = lean_ctor_get_uint8(v_x_180_, 0);
-v___x_183_ = l_Float_Model_UnpackedFloat_instBEqSign_beq(v_sign_181_, v_sign_182_);
+v___x_183_ = l_Float_Model_UnpackedFloat_instDecidableEqSign(v_sign_181_, v_sign_182_);
 return v___x_183_;
 }
 else
@@ -545,7 +545,7 @@ if (lean_obj_tag(v_x_180_) == 2)
 uint8_t v_sign_187_; uint8_t v_sign_188_; uint8_t v___x_189_; 
 v_sign_187_ = lean_ctor_get_uint8(v_x_179_, 0);
 v_sign_188_ = lean_ctor_get_uint8(v_x_180_, 0);
-v___x_189_ = l_Float_Model_UnpackedFloat_instBEqSign_beq(v_sign_187_, v_sign_188_);
+v___x_189_ = l_Float_Model_UnpackedFloat_instDecidableEqSign(v_sign_187_, v_sign_188_);
 return v___x_189_;
 }
 else
@@ -566,7 +566,7 @@ v_exponent_193_ = lean_ctor_get(v_x_179_, 1);
 v_sign_194_ = lean_ctor_get_uint8(v_x_180_, sizeof(void*)*2);
 v_mantissa_195_ = lean_ctor_get(v_x_180_, 0);
 v_exponent_196_ = lean_ctor_get(v_x_180_, 1);
-v___x_197_ = l_Float_Model_UnpackedFloat_instBEqSign_beq(v_sign_191_, v_sign_194_);
+v___x_197_ = l_Float_Model_UnpackedFloat_instDecidableEqSign(v_sign_191_, v_sign_194_);
 if (v___x_197_ == 0)
 {
 return v___x_197_;
@@ -610,11 +610,13 @@ return v_r_204_;
 }
 lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Sign(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Int_Repr(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Float_Model_Unpacked_Sign(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

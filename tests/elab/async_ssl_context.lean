@@ -1,4 +1,5 @@
 import Std.Internal.SSL
+import Lean
 
 /-!
 Tests for `Std.Internal.SSL.Context`: TLS context creation and configuration.
@@ -9,66 +10,25 @@ behaviour are exercised in separate test files.
 
 open Std.Internal.SSL
 
--- A self-signed `CN=localhost` certificate and its matching RSA private key, embedded so the tests
--- neither shell out to `openssl` nor depend on it being installed. Valid until 2126; the smoke tests
--- only load these into a context (no handshake), so expiry is never checked. To regenerate:
---   openssl genrsa -out key.pem 2048
---   openssl req -new -x509 -key key.pem -out cert.pem -days 36500 -subj "/CN=localhost"
+open Lean in
 
-def testCertPEM : String :=
-"-----BEGIN CERTIFICATE-----
-MIIDCzCCAfOgAwIBAgIUfBsMFFfMmVyfKr1HjIF9ZUsOz0MwDQYJKoZIhvcNAQEL
-BQAwFDESMBAGA1UEAwwJbG9jYWxob3N0MCAXDTI2MDcwNDE1NDQyNVoYDzIxMjYw
-NjEwMTU0NDI1WjAUMRIwEAYDVQQDDAlsb2NhbGhvc3QwggEiMA0GCSqGSIb3DQEB
-AQUAA4IBDwAwggEKAoIBAQC7SwGfQ+WLyJwnRlX37WMUEDT/YVZd0PV/6PPJSFx3
-0z2vZnqMh9S7gQPvkYkon7qMtqF5jlJt3zDmddjuhhwHqeNj1htKnWPjhh8rc2DG
-7v9u/36O92fz2jKUn8qHGG80+SiW4LkE8uXuC/ia0a1W03iT7rApICuSIgNrP5Zr
-XZ3pHxn4m7GxnOxm/5jt0SX3HQkRV+VMEo0cGEq/8ZvmwnOOG14C/o/FxFw9zxw8
-pDTabvfLVxoHCMOu7UB3c0Hg6SzM8cD/QefWQRLyD/rZIw34GcTs9IklWxJ0loqj
-Y1q0c5p5991zRC2SqmM6vpAjc6dpijIAZvsycewlnY1bAgMBAAGjUzBRMB0GA1Ud
-DgQWBBRam+qywW30FsQlhzW2SV7dHs96NDAfBgNVHSMEGDAWgBRam+qywW30FsQl
-hzW2SV7dHs96NDAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQC7
-ItNAWGWOQDfjSCi2XqbKPSMbo3d8x2fQclYuFXu3QjbsmTrkzCehvGAyXHUtbnwa
-wAufdEDKjfmUZmquVQd54oTCDgNtDF4729kD7pBeIIyhWyH0osPAs9mva37ripqC
-MQ3kMClzS8FSBhB03CSdkypzx0znI2rIcxbMDPCIoYtkKYyvc6/yztWZfVbhHWPC
-6bYAHOFpqFCOSzcZFwzWjWmAnH+pPEX8khDTTY676VG/Yuy2F/BgCdXco8VE+kiW
-hh/mZMXyGuGKuYexz8Tv5M3qzdqxNmhFObyJPk/Y7XgIoBtdyHLMkqYN5fnlUMtQ
-gjuJv2wDBVKza1YhNdr1
------END CERTIFICATE-----
-"
+elab "include_cert% " path:str : term => do
+  let dir := (System.FilePath.mk (← readThe Core.Context).fileName).parent.getD ⟨"."⟩
+  return mkStrLit (← IO.FS.readFile (dir / path.getString))
 
-def testKeyPEM : String :=
-"-----BEGIN PRIVATE KEY-----
-MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7SwGfQ+WLyJwn
-RlX37WMUEDT/YVZd0PV/6PPJSFx30z2vZnqMh9S7gQPvkYkon7qMtqF5jlJt3zDm
-ddjuhhwHqeNj1htKnWPjhh8rc2DG7v9u/36O92fz2jKUn8qHGG80+SiW4LkE8uXu
-C/ia0a1W03iT7rApICuSIgNrP5ZrXZ3pHxn4m7GxnOxm/5jt0SX3HQkRV+VMEo0c
-GEq/8ZvmwnOOG14C/o/FxFw9zxw8pDTabvfLVxoHCMOu7UB3c0Hg6SzM8cD/QefW
-QRLyD/rZIw34GcTs9IklWxJ0loqjY1q0c5p5991zRC2SqmM6vpAjc6dpijIAZvsy
-cewlnY1bAgMBAAECggEADV4RnBHnAL6NMpppCVx2jViIx89lMCX5V6tDNxMEkoLP
-rMSmK4CIVOek5cTf4rffwypHxRq81F2xKkmv9Xo55uwfsCD4aq9oETWh5OKDvj8R
-mRUALekHkNZ6dLQg6tp6GXBNDtO0MN+7PG27TSV49zD5sqk/Bnhm07O8xbtQm5IA
-LheZd4GPqBdTIf1krFNP86Th4X+DKrnuNmiXS4lDuhH/rheRfTQ4VK/srnrj//Zw
-I+AeXwnch25CByXp+CoSHpwZGPYzfknZBjmkh1QbwMR/ivjA954BxbVsWl+/cAYh
-7+MEvkrInJYqbwSVWQrVrKjRuHqI0OcvymBbGXoaHQKBgQDg+HBLB0Tt+mQqX+Kb
-eo0ymK+V2Y0kprlVthTHPJHpA+zMcEBJWjlz0IpdfkjKAMrVoVJB4Fn8Y4Wj4Nzq
-yV1AsZ/cHsH3NWnwiMaRvVTs7O60Vhs0G/I2lIx6T0dl4qWFjJQizrvMctNFVkvR
-rh4tnGQnTMBViqKAB5CiW/o/dwKBgQDVIDNchhEAijUNJ60c4XcbrhGjlBmjDRyG
-KfVM1LMQz9u20bZvOP/qL5wNHrlGqplOBUvD1o/J6b4ZIgzhWNB0WrPrBBi40pvv
-9v7wCTZ3XfJ+KrGlWOfB0fPVs2kKjLd8b+1xoa7JM/RJIBmytXj3o9lS/6F7SkjH
-0EQv086CPQKBgE83jCsPOzllMwIs01mWNMP9Oc7VVTrzrk09GWHytRpM9IQkfq6V
-o6dhZmd3gWAIGWRSMunZezZBQRysoH3YPAr8wOK8veYzm8NEFk/ZUF9BKui7bUbT
-FF4dvr2OzwBUZ554Gu2KyFw8jqJaucXyvtOmvymLgCpe78uPXmGda6gPAoGBAL3y
-5xPtgTXD+ChzVjzJTkjjSWFLW9YQl32T48bIQ5gWSbKVEk3qtVvZdvHSkjrDTcNV
-wQMYNis1InJwAJ7Pc2pgdL5fdlEzlDu5Hdp9u4eDud5s2suNg3EhWHr8XgBDDj3f
-2/ZMreUxYuXRsFWwm9HKvKTWpOund1pu6nbeBc3ZAoGAWKJkhw7KoELqiCpTn3If
-7ZN64vgqkNacXfjzc4D5oJ2aqAPJsTBdJ14+VShecgc5Kn0QriP0mTU712/GiK08
-A0Xb02+1ouerqiUE+Ea++rZphkyC0g+MKcoCWFWKDmtJuC7vtCGLOeFuLgHahqqS
-yIGPWTqB+JUmYpWBWIvu0Gg=
------END PRIVATE KEY-----
-"
+def testCertPEM : String := include_cert% "async_ssl_certs/cert.pem"
+def testKeyPEM : String := include_cert% "async_ssl_certs/key.pem"
+def testWildcardCertPEM : String := include_cert% "async_ssl_certs/wildcard.pem"
+def testMultiSANCertPEM : String := include_cert% "async_ssl_certs/multisan.pem"
+def testCorruptCertPEM : String := include_cert% "async_ssl_certs/corrupt.pem"
 
--- Writes the embedded certificate and key to a temporary directory, returning their paths.
+-- Matches none of the certificates above, so it is only good for provoking a key/cert mismatch.
+def testUnrelatedKeyPEM : String := include_cert% "async_ssl_certs/key2.pem"
+
+-- Three distinct certificates in one file, the shape of a real CA bundle.
+def testBundlePEM : String := testCertPEM ++ testWildcardCertPEM ++ testMultiSANCertPEM
+
+-- Writes the embedded certificate and key to a temporary directory for the path-based APIs.
 def setupTestCerts : IO (String × String) := do
   let dir ← IO.FS.createTempDir
   let keyFile  := toString (dir / "key.pem")
@@ -99,11 +59,49 @@ def testMkClientFromPEM (certFile : String) : IO Unit := do
   let caPEM ← IO.FS.readFile certFile
   let _clientCtx ← Context.Client.mkFromPEM caPEM true
 
--- Asserts that an IO action fails, used to exercise the rejection/error paths.
-def assertThrows (label : String) (act : IO Unit) : IO Unit := do
+-- Materializes rejected input on disk for the path-based APIs.
+def writeTempFile (name contents : String) : IO String := do
+  let dir ← IO.FS.createTempDir
+  let path := toString (dir / name)
+  IO.FS.writeFile path contents
+  return path
+
+def setupMalformedFile : IO String := writeTempFile "junk.pem" "this is not pem\n"
+
+def setupCorruptCert : IO String := writeTempFile "corrupt.pem" testCorruptCertPEM
+
+def setupUnrelatedKey : IO String := writeTempFile "key2.pem" testUnrelatedKeyPEM
+
+def setupBundle : IO String := writeTempFile "bundle.pem" testBundlePEM
+
+def setupDuplicateBundle : IO String := writeTempFile "dup.pem" (testBundlePEM ++ testCertPEM)
+
+-- Asserts that an IO action fails with exactly `expected` as its message.
+def assertErrorMessage (label expected : String) (act : IO Unit) : IO Unit := do
   match ← act.toBaseIO with
   | .ok _ => throw <| IO.userError s!"{label}: expected failure, but it succeeded"
-  | .error _ => pure ()
+  | .error e =>
+    let actual := toString e
+    unless actual == expected do
+      throw <| IO.userError s!"{label}:\nexpected error: {expected}\nactual error:   {actual}"
+
+-- A missing file reaches OpenSSL's error queue as an `ENOENT` entry, which is turned back into the
+-- corresponding `IO.Error` on the offending path.
+def missingFileError (path : String) : String :=
+  s!"no such file or directory (error code: 2)\n  file: {path}"
+
+-- Failures with no `errno` behind them (unparsable PEM, key/cert mismatch) are reported as `EINVAL`
+-- plus a description of what went wrong with the material on the offending path.
+def malformedFileError (path detail : String) : String :=
+  s!"invalid argument (error code: 22, {detail})\n  file: {path}"
+
+-- A path is rejected before it reaches OpenSSL if it cannot be passed as a C string.
+def nulByteError (path : String) : String :=
+  s!"invalid argument (error code: 22, string contains NUL bytes)\n  file: {path}"
+
+-- The in-memory variants report the same way, but have no path to attach.
+def malformedPEMError (detail : String) : String :=
+  s!"invalid argument (error code: 22, {detail})"
 
 -- An empty CA bundle with `verifyPeer := true` falls back to the platform trust anchors and succeeds.
 def testMkFromPEMEmptyFallsBack : IO Unit := do
@@ -114,31 +112,126 @@ def testMkFromPEMNoVerify (certFile : String) : IO Unit := do
   let caPEM ← IO.FS.readFile certFile
   let _clientCtx ← Context.Client.mkFromPEM caPEM false
 
--- Malformed PEM input is rejected rather than silently ignored.
+-- A bundle of several distinct certificates is loaded in full: every certificate in the PEM becomes
+-- a trust anchor, not just the first one.
+def testMkFromPEMAcceptsBundle : IO Unit := do
+  let _clientCtx ← Context.Client.mkFromPEM testBundlePEM true
+
+def testMkAcceptsBundleFile (bundleFile : String) : IO Unit := do
+  let _clientCtx ← Context.Client.mk bundleFile true
+
+-- Repeated certificates are skipped instead of failing, so a bundle that overlaps the system trust
+-- anchors (or repeats itself) still yields a usable context.
+def testMkFromPEMAcceptsDuplicates : IO Unit := do
+  let _clientCtx ← Context.Client.mkFromPEM (testCertPEM ++ testCertPEM) true
+
+def testMkAcceptsDuplicatesInFile (dupFile : String) : IO Unit := do
+  let _clientCtx ← Context.Client.mk dupFile true
+
+-- Unlike the path-based APIs, `mkFromPEM` hands OpenSSL an explicit length rather than a C string,
+-- so a NUL byte is data (here: trailing junk after a complete certificate) and not an error.
+def testMkFromPEMAcceptsNulBytes : IO Unit := do
+  let _clientCtx ← Context.Client.mkFromPEM (testCertPEM.push '\x00') true
+
 def testMkFromPEMRejectsGarbage : IO Unit := do
-  assertThrows "garbage PEM"
+  assertErrorMessage "garbage PEM"
+    (malformedPEMError "the given CA PEM string contains no certificates")
     (discard <| Context.Client.mkFromPEM "not a certificate at all" true)
 
--- A well-formed PEM block that contains no certificate is rejected.
+def testMkNoVerifyIgnoresCorruptCAFile (corruptFile : String) : IO Unit := do
+  let _clientCtx ← Context.Client.mk corruptFile false
+
 def testMkFromPEMRejectsEmptyBlock : IO Unit := do
-  assertThrows "PEM without certificates"
+  assertErrorMessage "PEM without certificates"
+    (malformedPEMError "could not read PEM CA certificates from the given string")
     (discard <| Context.Client.mkFromPEM "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n" true)
 
--- A non-existent CA file with `verifyPeer := true` is rejected (the file-based additive path fails).
+def testMkFromPEMRejectsCorruptCert : IO Unit := do
+  assertErrorMessage "one-bit-flipped CA PEM"
+    (malformedPEMError "could not read PEM CA certificates from the given string")
+    (discard <| Context.Client.mkFromPEM testCorruptCertPEM true)
+
+def testMkRejectsMalformedCAFile (junkFile : String) : IO Unit := do
+  assertErrorMessage "malformed CA file"
+    (malformedFileError junkFile "could not read PEM CA certificates")
+    (discard <| Context.Client.mk junkFile true)
+
+def testMkRejectsCorruptCAFile (corruptFile : String) : IO Unit := do
+  assertErrorMessage "one-bit-flipped CA file"
+    (malformedFileError corruptFile "could not read PEM CA certificates")
+    (discard <| Context.Client.mk corruptFile true)
+
 def testMkRejectsMissingCAFile : IO Unit := do
-  assertThrows "missing CA file"
+  assertErrorMessage "missing CA file"
+    (missingFileError "/nonexistent/path/to/ca.pem")
     (discard <| Context.Client.mk "/nonexistent/path/to/ca.pem" true)
 
--- A server context with non-existent certificate/key files is rejected.
-def testMkServerRejectsMissingFiles : IO Unit := do
-  assertThrows "missing server cert"
-    (discard <| Context.Server.mk "/nonexistent/cert.pem" "/nonexistent/key.pem")
+def testMkServerRejectsMissingCert (keyFile : String) : IO Unit := do
+  assertErrorMessage "missing server cert"
+    (missingFileError "/nonexistent/cert.pem")
+    (discard <| Context.Server.mk "/nonexistent/cert.pem" keyFile)
 
--- A server context whose certificate and key do not match is rejected (here by swapping the file
--- arguments so neither parses as the expected PEM object).
+def testMkServerRejectsMissingKey (certFile : String) : IO Unit := do
+  assertErrorMessage "missing server key"
+    (missingFileError "/nonexistent/key.pem")
+    (discard <| Context.Server.mk certFile "/nonexistent/key.pem")
+
+def testMkServerRejectsMalformedKey (certFile junkFile : String) : IO Unit := do
+  assertErrorMessage "malformed server key"
+    (malformedFileError junkFile "could not read an unencrypted PEM private key")
+    (discard <| Context.Server.mk certFile junkFile)
+
+def testMkServerRejectsCertAsKey (certFile : String) : IO Unit := do
+  assertErrorMessage "certificate used as server key"
+    (malformedFileError certFile "could not read an unencrypted PEM private key")
+    (discard <| Context.Server.mk certFile certFile)
+
+def testMkServerRejectsMalformedCert (junkFile keyFile : String) : IO Unit := do
+  assertErrorMessage "malformed server cert"
+    (malformedFileError junkFile "could not read a PEM certificate chain")
+    (discard <| Context.Server.mk junkFile keyFile)
+
+def testMkServerRejectsCorruptCert (corruptFile keyFile : String) : IO Unit := do
+  assertErrorMessage "one-bit-flipped server cert"
+    (malformedFileError corruptFile "could not read a PEM certificate chain")
+    (discard <| Context.Server.mk corruptFile keyFile)
+
 def testMkServerRejectsSwappedFiles (certFile keyFile : String) : IO Unit := do
-  assertThrows "swapped server cert/key"
+  assertErrorMessage "swapped server cert/key"
+    (malformedFileError keyFile "could not read a PEM certificate chain")
     (discard <| Context.Server.mk keyFile certFile)
+
+def testMkServerRejectsMismatchedKey (certFile key2File : String) : IO Unit := do
+  assertErrorMessage "server key from a different pair"
+    (malformedFileError key2File "the private key does not match the certificate")
+    (discard <| Context.Server.mk certFile key2File)
+
+def testMkServerRejectsNulInCert (keyFile : String) : IO Unit := do
+  let certPath := "cert\x00.pem"
+
+  assertErrorMessage "NUL byte in server cert path"
+    (nulByteError certPath)
+    (discard <| Context.Server.mk certPath keyFile)
+
+def testMkServerRejectsNulInKey (certFile : String) : IO Unit := do
+  let keyPath := "key\x00.pem"
+
+  assertErrorMessage "NUL byte in server key path"
+    (nulByteError keyPath)
+    (discard <| Context.Server.mk certFile keyPath)
+
+-- The CA path is checked before `verifyPeer`, so a NUL is rejected even when the file would never
+-- have been opened.
+def testMkRejectsNulInCAFile : IO Unit := do
+  let caPath := "ca\x00.pem"
+
+  assertErrorMessage "NUL byte in CA path"
+    (nulByteError caPath)
+    (discard <| Context.Client.mk caPath true)
+
+  assertErrorMessage "NUL byte in CA path without verification"
+    (nulByteError caPath)
+    (discard <| Context.Client.mk caPath false)
 
 #eval do
   let (certFile, keyFile) ← setupTestCerts
@@ -154,14 +247,49 @@ def testMkServerRejectsSwappedFiles (certFile keyFile : String) : IO Unit := do
   let (certFile, _) ← setupTestCerts
   testMkFromPEMNoVerify certFile
 
-#eval testMkFromPEMRejectsGarbage
+#eval do
+  testMkFromPEMAcceptsBundle
+  testMkFromPEMAcceptsDuplicates
+  testMkFromPEMAcceptsNulBytes
+  testMkAcceptsBundleFile (← setupBundle)
+  testMkAcceptsDuplicatesInFile (← setupDuplicateBundle)
 
-#eval testMkFromPEMRejectsEmptyBlock
+#eval
+  testMkFromPEMRejectsGarbage
 
-#eval testMkRejectsMissingCAFile
+#eval
+  testMkFromPEMRejectsEmptyBlock
 
-#eval testMkServerRejectsMissingFiles
+#eval
+  testMkRejectsMissingCAFile
+
+#eval do
+  let junkFile ← setupMalformedFile
+  testMkRejectsMalformedCAFile junkFile
+
+#eval testMkFromPEMRejectsCorruptCert
+
+#eval do
+  let corruptFile ← setupCorruptCert
+  testMkRejectsCorruptCAFile corruptFile
+  testMkNoVerifyIgnoresCorruptCAFile corruptFile
 
 #eval do
   let (certFile, keyFile) ← setupTestCerts
+  let junkFile ← setupMalformedFile
+  let corruptFile ← setupCorruptCert
+
+  testMkServerRejectsMissingCert keyFile
+  testMkServerRejectsMissingKey certFile
+  testMkServerRejectsMalformedCert junkFile keyFile
+  testMkServerRejectsMalformedKey certFile junkFile
+  testMkServerRejectsCorruptCert corruptFile keyFile
+  testMkServerRejectsCertAsKey certFile
   testMkServerRejectsSwappedFiles certFile keyFile
+  testMkServerRejectsMismatchedKey certFile (← setupUnrelatedKey)
+
+#eval do
+  let (certFile, keyFile) ← setupTestCerts
+  testMkServerRejectsNulInCert keyFile
+  testMkServerRejectsNulInKey certFile
+  testMkRejectsNulInCAFile

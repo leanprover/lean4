@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-lean_object* lean_mk_syntax_ident(lean_object*);
+lean_object* l_Lean_mkIdent(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
@@ -148,7 +148,7 @@ v___x_44_ = lean_string_append(v___x_41_, v___x_43_);
 lean_dec_ref(v___x_43_);
 v___x_45_ = lean_box(0);
 v___x_46_ = l_Lean_Name_str___override(v___x_45_, v___x_44_);
-v___x_47_ = lean_mk_syntax_ident(v___x_46_);
+v___x_47_ = l_Lean_mkIdent(v___x_46_);
 v___x_48_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_48_, 0, v___x_47_);
 lean_ctor_set(v___x_48_, 1, v_a_25_);
@@ -180,7 +180,7 @@ _start:
 {
 lean_object* v___x_61_; lean_object* v___x_62_; 
 v___x_61_ = ((lean_object*)(l_Lean_Grind_NodeDefUnexpander___redArg___closed__1));
-v___x_62_ = lean_mk_syntax_ident(v___x_61_);
+v___x_62_ = l_Lean_mkIdent(v___x_61_);
 return v___x_62_;
 }
 }
@@ -214,11 +214,13 @@ return v_res_73_;
 }
 }
 lean_object* runtime_initialize_Init_Grind_Tactics(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Grind_PP(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Grind_Tactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

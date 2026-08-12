@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Sym_instantiateRevBetaS___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_instantiateRevBetaS(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_sym_dsimp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_mkLambdaFVarsS(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -46,7 +46,7 @@ lean_inc_ref(v___y_8_);
 lean_inc(v___y_6_);
 lean_inc_ref(v___y_5_);
 lean_inc(v___y_4_);
-lean_inc(v___y_3_);
+lean_inc_ref(v___y_3_);
 lean_inc(v___y_2_);
 v___x_13_ = lean_apply_11(v_k_1_, v_b_7_, v___y_2_, v___y_3_, v___y_4_, v___y_5_, v___y_6_, v___y_8_, v___y_9_, v___y_10_, v___y_11_, lean_box(0));
 return v___x_13_;
@@ -64,7 +64,7 @@ lean_dec_ref(v___y_21_);
 lean_dec(v___y_19_);
 lean_dec_ref(v___y_18_);
 lean_dec(v___y_17_);
-lean_dec(v___y_16_);
+lean_dec_ref(v___y_16_);
 lean_dec(v___y_15_);
 return v_res_26_;
 }
@@ -76,7 +76,7 @@ lean_object* v___f_42_; lean_object* v___x_43_;
 lean_inc(v___y_36_);
 lean_inc_ref(v___y_35_);
 lean_inc(v___y_34_);
-lean_inc(v___y_33_);
+lean_inc_ref(v___y_33_);
 lean_inc(v___y_32_);
 v___f_42_ = lean_alloc_closure((void*)(l_Lean_Meta_withLocalDecl___at___00__private_Lean_Meta_Sym_DSimp_Lambda_0__Lean_Meta_Sym_DSimp_dsimpLambda_go_spec__0___redArg___lam__0___boxed), 12, 6);
 lean_closure_set(v___f_42_, 0, v_k_30_);
@@ -147,7 +147,7 @@ lean_dec_ref(v___y_62_);
 lean_dec(v___y_61_);
 lean_dec_ref(v___y_60_);
 lean_dec(v___y_59_);
-lean_dec(v___y_58_);
+lean_dec_ref(v___y_58_);
 lean_dec(v___y_57_);
 return v_res_69_;
 }
@@ -174,7 +174,7 @@ lean_dec_ref(v___y_98_);
 lean_dec(v___y_97_);
 lean_dec_ref(v___y_96_);
 lean_dec(v___y_95_);
-lean_dec(v___y_94_);
+lean_dec_ref(v___y_94_);
 lean_dec(v___y_93_);
 return v_res_105_;
 }
@@ -192,7 +192,7 @@ lean_dec_ref(v___y_115_);
 lean_dec(v___y_114_);
 lean_dec_ref(v___y_113_);
 lean_dec(v___y_112_);
-lean_dec(v___y_111_);
+lean_dec_ref(v___y_111_);
 lean_dec(v___y_110_);
 return v_res_121_;
 }
@@ -219,7 +219,7 @@ lean_dec_ref(v___y_146_);
 lean_dec(v___y_145_);
 lean_dec_ref(v___y_144_);
 lean_dec(v___y_143_);
-lean_dec(v___y_142_);
+lean_dec_ref(v___y_142_);
 lean_dec(v___y_141_);
 return v_res_151_;
 }
@@ -238,7 +238,8 @@ v_body_167_ = lean_ctor_get(v_e_152_, 2);
 lean_inc_ref(v_body_167_);
 v_binderInfo_168_ = lean_ctor_get_uint8(v_e_152_, sizeof(void*)*3 + 8);
 lean_dec_ref_known(v_e_152_, 3);
-v___x_169_ = l_Lean_Meta_Sym_instantiateRevBetaS___redArg(v_binderType_166_, v_fvars_153_, v_a_159_);
+lean_inc_ref(v_fvars_153_);
+v___x_169_ = l_Lean_Meta_Sym_instantiateRevBetaS(v_binderType_166_, v_fvars_153_, v_a_158_, v_a_159_, v_a_160_, v_a_161_, v_a_162_, v_a_163_);
 if (lean_obj_tag(v___x_169_) == 0)
 {
 lean_object* v_a_170_; lean_object* v___x_171_; 
@@ -252,7 +253,7 @@ lean_inc_ref(v_a_160_);
 lean_inc(v_a_159_);
 lean_inc_ref(v_a_158_);
 lean_inc(v_a_157_);
-lean_inc(v_a_156_);
+lean_inc_ref(v_a_156_);
 lean_inc(v_a_155_);
 v___x_171_ = lean_sym_dsimp(v_a_170_, v_a_155_, v_a_156_, v_a_157_, v_a_158_, v_a_159_, v_a_160_, v_a_161_, v_a_162_, v_a_163_);
 if (lean_obj_tag(v___x_171_) == 0)
@@ -346,8 +347,9 @@ return v___x_186_;
 else
 {
 lean_object* v___x_189_; 
+lean_inc_ref(v_fvars_153_);
 lean_inc_ref(v_e_152_);
-v___x_189_ = l_Lean_Meta_Sym_instantiateRevBetaS___redArg(v_e_152_, v_fvars_153_, v_a_159_);
+v___x_189_ = l_Lean_Meta_Sym_instantiateRevBetaS(v_e_152_, v_fvars_153_, v_a_158_, v_a_159_, v_a_160_, v_a_161_, v_a_162_, v_a_163_);
 if (lean_obj_tag(v___x_189_) == 0)
 {
 lean_object* v_a_190_; lean_object* v___x_191_; 
@@ -361,7 +363,7 @@ lean_inc_ref(v_a_160_);
 lean_inc(v_a_159_);
 lean_inc_ref(v_a_158_);
 lean_inc(v_a_157_);
-lean_inc(v_a_156_);
+lean_inc_ref(v_a_156_);
 lean_inc(v_a_155_);
 v___x_191_ = lean_sym_dsimp(v_a_190_, v_a_155_, v_a_156_, v_a_157_, v_a_158_, v_a_159_, v_a_160_, v_a_161_, v_a_162_, v_a_163_);
 if (lean_obj_tag(v___x_191_) == 0)
@@ -451,7 +453,6 @@ lean_object* v___x_205_;
 lean_del_object(v___x_197_);
 lean_del_object(v___x_194_);
 v___x_205_ = l_Lean_Meta_Sym_mkLambdaFVarsS(v_fvars_153_, v_e_152_, v_a_158_, v_a_159_, v_a_160_, v_a_161_, v_a_162_, v_a_163_);
-lean_dec_ref(v_fvars_153_);
 if (lean_obj_tag(v___x_205_) == 0)
 {
 lean_object* v_a_206_; lean_object* v___x_208_; uint8_t v_isShared_209_; uint8_t v_isSharedCheck_215_; 
@@ -567,7 +568,6 @@ v_resetjp_226_:
 {
 lean_object* v___x_229_; 
 v___x_229_ = l_Lean_Meta_Sym_mkLambdaFVarsS(v_fvars_153_, v_e_x27_225_, v_a_158_, v_a_159_, v_a_160_, v_a_161_, v_a_162_, v_a_163_);
-lean_dec_ref(v_fvars_153_);
 if (lean_obj_tag(v___x_229_) == 0)
 {
 lean_object* v_a_230_; lean_object* v___x_232_; uint8_t v_isShared_233_; uint8_t v_isSharedCheck_241_; 
@@ -751,7 +751,7 @@ lean_dec_ref(v_a_284_);
 lean_dec(v_a_283_);
 lean_dec_ref(v_a_282_);
 lean_dec(v_a_281_);
-lean_dec(v_a_280_);
+lean_dec_ref(v_a_280_);
 lean_dec(v_a_279_);
 return v_res_290_;
 }
@@ -778,7 +778,7 @@ lean_dec_ref(v_a_313_);
 lean_dec(v_a_312_);
 lean_dec_ref(v_a_311_);
 lean_dec(v_a_310_);
-lean_dec(v_a_309_);
+lean_dec_ref(v_a_309_);
 lean_dec(v_a_308_);
 return v_res_318_;
 }
@@ -786,11 +786,13 @@ return v_res_318_;
 lean_object* runtime_initialize_Lean_Meta_Sym_DSimp_DSimpM(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_AbstractS(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_InstantiateS(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Sym_DSimp_Lambda(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Sym_DSimp_DSimpM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

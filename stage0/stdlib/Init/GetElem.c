@@ -2559,7 +2559,7 @@ lean_object* v___x_1026_; lean_object* v___x_1027_; lean_object* v___x_1028_; le
 lean_dec(v_x_1018_);
 v___x_1026_ = ((lean_object*)(l_outOfBounds___redArg___closed__0));
 v___x_1027_ = ((lean_object*)(l_List_get_x21Internal___redArg___closed__0));
-v___x_1028_ = lean_unsigned_to_nat(332u);
+v___x_1028_ = lean_unsigned_to_nat(333u);
 v___x_1029_ = lean_unsigned_to_nat(18u);
 v___x_1030_ = ((lean_object*)(l_List_get_x21Internal___redArg___closed__1));
 v___x_1031_ = l_mkPanicMessageWithDecl(v___x_1026_, v___x_1027_, v___x_1028_, v___x_1029_, v___x_1030_);
@@ -2712,11 +2712,13 @@ return v_res_1099_;
 }
 lean_object* runtime_initialize_Init_Util(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Option_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_GetElem(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

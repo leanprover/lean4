@@ -75,26 +75,26 @@ theorem head?_take {l : List α} {i : Nat} :
     (l.take i).head? = if i = 0 then none else l.head? := by
   simp [head?_eq_getElem?, getElem?_take]
   split
-  · rw [if_neg (by omega)]
-  · rw [if_pos (by omega)]
+  · rw [ite_eq_right (by omega)]
+  · rw [ite_eq_left (by omega)]
 
 theorem head_take {l : List α} {i : Nat} (h : l.take i ≠ []) :
     (l.take i).head h = l.head (by simp_all) := by
   apply Option.some_inj.1
-  rw [← head?_eq_some_head, ← head?_eq_some_head, head?_take, if_neg]
+  rw [← head?_eq_some_head, ← head?_eq_some_head, head?_take, ite_eq_right]
   simp_all
 
 theorem getLast?_take {l : List α} : (l.take i).getLast? = if i = 0 then none else l[i - 1]?.or l.getLast? := by
   rw [getLast?_eq_getElem?, getElem?_take, length_take]
   split
-  · rw [if_neg (by omega)]
+  · rw [ite_eq_right (by omega)]
     rw [Nat.min_def]
     split
     · rw [getElem?_eq_getElem (by omega)]
       simp
     · rw [← getLast?_eq_getElem?, getElem?_eq_none (by omega)]
       simp
-  · rw [if_pos]
+  · rw [ite_eq_left]
     omega
 
 theorem getLast_take {l : List α} (h : l.take i ≠ []) :

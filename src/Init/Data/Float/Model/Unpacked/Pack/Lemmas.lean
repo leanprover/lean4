@@ -49,6 +49,6 @@ theorem valid_pack {spec : Format} {f : UnpackedFloat} : spec.Valid (pack spec f
       omega
     omega
   | case6 s m e hm actualMantissaBits biasedExponent h₁ h₂ =>
-    simp [Nat.pos_iff_ne_zero.1 spec.he]
+    simp [Nat.ne_zero_of_lt spec.he]
 
 end Float.Model.UnpackedFloat

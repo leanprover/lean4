@@ -229,7 +229,6 @@ v_a_14_ = lean_ctor_get(v___x_5_, 0);
 lean_inc(v_a_14_);
 lean_dec_ref_known(v___x_5_, 1);
 v___x_15_ = l_Std_Time_TimeZone_convertTZif(v_a_14_, v_id_3_);
-lean_dec(v_a_14_);
 return v___x_15_;
 }
 }
@@ -2308,11 +2307,13 @@ return v_res_634_;
 }
 lean_object* runtime_initialize_Std_Time_Zoned_Database_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_TakeDrop(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Time_Zoned_Database_TZdb(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Time_Zoned_Database_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

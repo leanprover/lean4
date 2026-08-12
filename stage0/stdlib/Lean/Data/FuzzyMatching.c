@@ -55,7 +55,7 @@ uint8_t lean_float_decLe(double, double);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 double l_Float_ofInt(lean_object*);
 double lean_float_div(double, double);
-uint8_t l_String_charactersIn(lean_object*, lean_object*);
+uint8_t l_Lean_String_charactersIn(lean_object*, lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
 uint8_t lean_float_decLt(double, double);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
@@ -1855,7 +1855,7 @@ _start:
 lean_object* v___x_564_; lean_object* v___x_565_; lean_object* v___x_566_; lean_object* v___x_567_; lean_object* v___x_568_; lean_object* v___x_569_; 
 v___x_564_ = ((lean_object*)(l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_ofInt16_x21___closed__2));
 v___x_565_ = lean_unsigned_to_nat(2u);
-v___x_566_ = lean_unsigned_to_nat(124u);
+v___x_566_ = lean_unsigned_to_nat(127u);
 v___x_567_ = ((lean_object*)(l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_ofInt16_x21___closed__1));
 v___x_568_ = ((lean_object*)(l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_ofInt16_x21___closed__0));
 v___x_569_ = l_mkPanicMessageWithDecl(v___x_568_, v___x_567_, v___x_566_, v___x_565_, v___x_564_);
@@ -3730,7 +3730,7 @@ v___x_1399_ = lean_nat_dec_lt(v___x_1380_, v___x_1381_);
 if (v___x_1399_ == 0)
 {
 uint8_t v___x_1400_; 
-v___x_1400_ = l_String_charactersIn(v_pattern_1367_, v_word_1368_);
+v___x_1400_ = l_Lean_String_charactersIn(v_pattern_1367_, v_word_1368_);
 if (v___x_1400_ == 0)
 {
 lean_object* v___x_1401_; 
@@ -3951,11 +3951,13 @@ lean_object* runtime_initialize_Init_Data_OfScientific(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Option_Coe(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Range(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Server_Completion_CompletionUtils(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Data_FuzzyMatching(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

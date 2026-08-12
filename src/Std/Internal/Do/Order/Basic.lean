@@ -177,7 +177,7 @@ theorem sup_apply
     exact (le_sup (c := c) hf) s
 
 /-- Pointwise characterization of binary meet on function lattices. -/
-@[simp] theorem meet_apply
+@[simp, grind =] theorem meet_apply
     {σ : Type v} {β : σ → Type w} [∀ s, CompleteLattice (β s)]
     (a b : ∀ s, β s) (s : σ) :
     (a ⊓ b) s = a s ⊓ b s := by
@@ -254,6 +254,12 @@ instance : PartialOrder Prop where
 
 @[grind =, simp] theorem le_prop_eq_imp (p q : Prop) : (p ⊑ q) = (p → q) := rfl
 
+/-- Entailment on a function lattice is pointwise. `β` is recoverable from the operands' types, so
+unlike a carrier-only parameter this is a usable `@[grind =]` trigger; it lets `grind` push `⊑`
+through a state argument down to the base lattice. -/
+@[grind =] theorem le_pi_eq_forall {σ : Type v} {β : σ → Type w} [∀ s, PartialOrder (β s)]
+    (a b : ∀ s, β s) : (a ⊑ b) = ∀ s, a s ⊑ b s := rfl
+
 /-- Supremum for Prop: true iff some element of the set is true -/
 def propSup (c : Prop → Prop) : Prop := ∃ p, c p ∧ p
 
@@ -292,6 +298,11 @@ theorem true_le_of_top_le (x : Prop) : ((⊤ : Prop) ⊑ x) → (True : Prop) �
     exact (iInf_le f i) hf
   · intro hall
     exact (le_iInf f (x := ∀ i, f i) (fun i h => h i)) hall
+
+/-- Introduction rule for a `∀` on the RHS of a `Prop` entailment. -/
+theorem le_forall {α : Sort u} (p : Prop) (q : α → Prop)
+    (h : ∀ x, p ⊑ q x) : p ⊑ (∀ x, q x) :=
+  fun hp x => h x hp
 
 @[simp] theorem iSup_prop_eq_exists {ι : Type u} (f : ι → Prop) :
     (iSup f : Prop) = (∃ i, f i) := by
@@ -422,15 +433,15 @@ theorem ofProp_le [CompleteLattice l] (p : Prop) (rhs : l) :
   (CompleteLattice.ofProp_intro p rhs).mpr
 
 /-- Entailment between functions is pointwise. -/
-theorem le_iff_forall_le {σ α : Type u} [PartialOrder α] {f g : σ → α} :
+theorem le_iff_forall_le {σ : Type u} {α : Type v} [PartialOrder α] {f g : σ → α} :
     (f ⊑ g) ↔ (∀ s, f s ⊑ g s) := Iff.rfl
 
 /-- Entailment between functions follows from pointwise entailment. -/
-theorem le_of_forall_le {σ α : Type u} [PartialOrder α] {f g : σ → α} :
+theorem le_of_forall_le {σ : Type u} {α : Type v} [PartialOrder α] {f g : σ → α} :
     (∀ s, f s ⊑ g s) → f ⊑ g := le_iff_forall_le.mpr
 
 /-- `⊤ ⊑ g` for a function `g` follows from pointwise `⊤ ⊑ g s`. -/
-theorem top_le_of_forall_top_le {σ α : Type u} [CompleteLattice α] {g : σ → α} :
+theorem top_le_of_forall_top_le {σ : Type u} {α : Type v} [CompleteLattice α] {g : σ → α} :
     (∀ s, (⊤ : α) ⊑ g s) → (⊤ : σ → α) ⊑ g := by
   intro h s
   rw [top_apply]
@@ -452,5 +463,33 @@ goals. Tagged `@[grind =]` for use under `grind`. -/
 @[grind =, simp] theorem ofProp_prop_eq (p : Prop) : (⌜p⌝ : Prop) = p := by
   simp only [CompleteLattice.ofProp]
   rcases Classical.em p with hp | hp <;> simp [hp, top_prop_eq, bot_prop_eq]
+
+/-! `Prop`-valued, fixed-arity specializations of `CompleteLattice.ofProp_apply`: `⌜p⌝` at a
+state-indexed `Prop` lattice, applied to its states, is `p`. Fixing the carrier to `Prop` (a ground
+instance) leaves every parameter recoverable from the trigger, so these are usable `@[grind =]`
+lemmas where the general `ofProp_apply` is not. They reduce a guard straight to its `Prop` in one
+step, avoiding the intermediate `(⌜p⌝ : Prop)` whose instance `ofProp_prop_eq` fails to match. -/
+
+@[grind =] theorem CompleteLattice.ofProp_apply_1 {σ₁ : Type _}
+    (p : Prop) (s₁ : σ₁) : (⌜p⌝ : σ₁ → Prop) s₁ = p := by
+  simp only [CompleteLattice.ofProp_apply, ofProp_prop_eq]
+
+@[grind =] theorem CompleteLattice.ofProp_apply_2 {σ₁ : Type _} {σ₂ : Type _}
+    (p : Prop) (s₁ : σ₁) (s₂ : σ₂) : (⌜p⌝ : σ₁ → σ₂ → Prop) s₁ s₂ = p := by
+  simp only [CompleteLattice.ofProp_apply, ofProp_prop_eq]
+
+@[grind =] theorem CompleteLattice.ofProp_apply_3 {σ₁ : Type _} {σ₂ : Type _} {σ₃ : Type _}
+    (p : Prop) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) : (⌜p⌝ : σ₁ → σ₂ → σ₃ → Prop) s₁ s₂ s₃ = p := by
+  simp only [CompleteLattice.ofProp_apply, ofProp_prop_eq]
+
+@[grind =] theorem CompleteLattice.ofProp_apply_4 {σ₁ : Type _} {σ₂ : Type _} {σ₃ : Type _}
+    {σ₄ : Type _} (p : Prop) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) :
+    (⌜p⌝ : σ₁ → σ₂ → σ₃ → σ₄ → Prop) s₁ s₂ s₃ s₄ = p := by
+  simp only [CompleteLattice.ofProp_apply, ofProp_prop_eq]
+
+@[grind =] theorem CompleteLattice.ofProp_apply_5 {σ₁ : Type _} {σ₂ : Type _} {σ₃ : Type _}
+    {σ₄ : Type _} {σ₅ : Type _} (p : Prop) (s₁ : σ₁) (s₂ : σ₂) (s₃ : σ₃) (s₄ : σ₄) (s₅ : σ₅) :
+    (⌜p⌝ : σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → Prop) s₁ s₂ s₃ s₄ s₅ = p := by
+  simp only [CompleteLattice.ofProp_apply, ofProp_prop_eq]
 
 end Lean.Order

@@ -628,7 +628,7 @@ v___jp_195_:
 lean_object* v___x_200_; lean_object* v___x_201_; lean_object* v___x_202_; lean_object* v___x_203_; lean_object* v___x_204_; lean_object* v___x_205_; lean_object* v___x_206_; lean_object* v___x_207_; lean_object* v___x_208_; lean_object* v___x_209_; lean_object* v___x_210_; lean_object* v___x_211_; lean_object* v___x_212_; lean_object* v___x_213_; 
 v___x_200_ = l_Lean_Linter_linter_deprecated_syntax;
 v___x_201_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0___closed__1, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0___closed__1_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0___closed__1);
-v___x_202_ = l_Lean_MessageData_ofName(v___y_197_);
+v___x_202_ = l_Lean_MessageData_ofName(v___y_198_);
 v___x_203_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_203_, 0, v___x_201_);
 lean_ctor_set(v___x_203_, 1, v___x_202_);
@@ -652,7 +652,7 @@ lean_ctor_set(v___x_211_, 0, v___x_210_);
 lean_ctor_set(v___x_211_, 1, v___x_204_);
 v___x_212_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_212_, 0, v___x_211_);
-lean_ctor_set(v___x_212_, 1, v___y_198_);
+lean_ctor_set(v___x_212_, 1, v___y_197_);
 v___x_213_ = l_Lean_Linter_logLintIf___redArg(v_inst_183_, v_inst_184_, v_inst_185_, v_inst_186_, v_inst_187_, v___x_200_, v___y_196_, v___x_212_);
 return v___x_213_;
 }
@@ -890,8 +890,8 @@ goto v_reusejp_269_;
 v_reusejp_269_:
 {
 v___y_196_ = v_before_256_;
-v___y_197_ = v___x_262_;
-v___y_198_ = v___y_215_;
+v___y_197_ = v___y_215_;
+v___y_198_ = v___x_262_;
 v___y_199_ = v___x_270_;
 goto v___jp_195_;
 }
@@ -905,8 +905,8 @@ lean_del_object(v___x_259_);
 lean_del_object(v___x_254_);
 v___x_273_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0___closed__17, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0___closed__17_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0___closed__17);
 v___y_196_ = v_before_256_;
-v___y_197_ = v___x_262_;
-v___y_198_ = v___y_215_;
+v___y_197_ = v___y_215_;
+v___y_198_ = v___x_262_;
 v___y_199_ = v___x_273_;
 goto v___jp_195_;
 }
@@ -964,11 +964,13 @@ return v_res_324_;
 lean_object* runtime_initialize_Lean_MonadEnv(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Linter_Init(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Util(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_DeprecatedSyntax(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_MonadEnv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

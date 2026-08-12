@@ -1444,8 +1444,8 @@ goto v___jp_313_;
 }
 else
 {
-lean_dec(v_pre_332_);
 lean_dec_ref_known(v_pre_331_, 2);
+lean_dec(v_pre_332_);
 lean_dec_ref_known(v_declName_330_, 2);
 lean_dec_ref_known(v_fn_328_, 2);
 lean_dec_ref_known(v_fn_327_, 2);
@@ -1520,8 +1520,8 @@ goto v___jp_313_;
 }
 else
 {
-lean_dec_ref_known(v_target_326_, 2);
 lean_dec_ref(v_fn_327_);
+lean_dec_ref_known(v_target_326_, 2);
 lean_dec(v_val_325_);
 lean_dec(v_mvar_307_);
 v___y_314_ = v_a_308_;
@@ -2173,11 +2173,13 @@ return v_res_767_;
 }
 lean_object* runtime_initialize_Std_Tactic_Do_Syntax(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Do_ProofMode_MGoal(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic_Do_ProofMode_LeftRight(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Tactic_Do_Syntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

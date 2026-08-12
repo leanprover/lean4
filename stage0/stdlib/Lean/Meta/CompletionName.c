@@ -18,7 +18,7 @@ uint8_t l_Lean_isRecCore(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_is_matcher(lean_object*, lean_object*);
+uint8_t l_Lean_Meta_isMatcherCore(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 extern lean_object* l_Lean_privateHeader;
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -221,7 +221,7 @@ v___x_53_ = l_Lean_TagDeclarationExtension_isTagged(v___x_50_, v_env_44_, v_decl
 if (v___x_53_ == 0)
 {
 uint8_t v___x_54_; 
-v___x_54_ = lean_is_matcher(v_env_44_, v_declName_45_);
+v___x_54_ = l_Lean_Meta_isMatcherCore(v_env_44_, v_declName_45_);
 return v___x_54_;
 }
 else
@@ -292,11 +292,13 @@ return v_r_69_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Match_MatcherInfo(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_CompletionName(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Match_MatcherInfo(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

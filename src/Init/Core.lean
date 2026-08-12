@@ -316,7 +316,7 @@ asserts that there is some `x` of type `α` such that `p x` holds.
 To create an existential proof, use the `exists` tactic,
 or the anonymous constructor notation `⟨x, h⟩`.
 To unpack an existential, use `cases h` where `h` is a proof of `∃ x : α, p x`,
-or `let ⟨x, hx⟩ := h` where `.
+or `let ⟨x, hx⟩ := h`.
 
 Because Lean has proof irrelevance, any two proofs of an existential are
 definitionally equal. One consequence of this is that it is impossible to recover the
@@ -769,7 +769,7 @@ the `BEq` typeclass.
 Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead of
 `Prop` valued. It is mainly intended for programming applications.
 -/
-@[inline] def bne {α : Type u} [BEq α] (a b : α) : Bool :=
+@[inline, implicit_reducible] def bne {α : Type u} [BEq α] (a b : α) : Bool :=
   !(a == b)
 
 @[inherit_doc] infix:50 " != " => bne
@@ -887,8 +887,6 @@ variable {a b : α} {p : Prop}
 
 theorem Ne.intro (h : a = b → False) : a ≠ b := h
 
-theorem Ne.elim (h : a ≠ b) : a = b → False := h
-
 theorem Ne.irrefl (h : a ≠ a) : False := h rfl
 
 @[symm] theorem Ne.symm (h : a ≠ b) : b ≠ a := fun h₁ => h (h₁.symm)
@@ -989,7 +987,7 @@ Heterogeneous equality with an `Eq.rec` application on the left is equivalent to
 equality on the original term.
 -/
 theorem eqRec_heq_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
-    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h}
+    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : β}
     : @Eq.rec α a motive refl b h ≍ c ↔ refl ≍ c :=
   h.rec (fun _ => ⟨id, id⟩) c
 
@@ -998,7 +996,7 @@ Heterogeneous equality with an `Eq.rec` application on the right is equivalent t
 equality on the original term.
 -/
 theorem heq_eqRec_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
-    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h} :
+    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : β} :
     c ≍ @Eq.rec α a motive refl b h ↔ c ≍ refl :=
   h.rec (fun _ => ⟨id, id⟩) c
 
@@ -1177,15 +1175,23 @@ instance {p q} [Decidable p] [Decidable q] : Decidable (p ↔ q) :=
 
 /-! # if-then-else expression theorems -/
 
-theorem if_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t e : α} : (ite c t e) = t :=
+@[suggest_for ite_pos ite_of_pos]
+theorem ite_eq_left {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t e : α} : (ite c t e) = t :=
   match h with
   | isTrue  _   => rfl
   | isFalse hnc => absurd hc hnc
 
-theorem if_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t e : α} : (ite c t e) = e :=
+@[deprecated ite_eq_left (since := "2026-07-21")]
+theorem if_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t : α} {e : α} : (if c then t else e) = t := ite_eq_left hc
+
+@[suggest_for ite_neg ite_of_neg]
+theorem ite_eq_right {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t e : α} : (ite c t e) = e :=
   match h with
   | isTrue hc   => absurd hc hnc
   | isFalse _   => rfl
+
+@[deprecated ite_eq_right (since := "2026-07-21")]
+theorem if_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : α} {e : α} : (if c then t else e) = e := ite_eq_right hnc
 
 /-- Split an if-then-else into cases. The `split` tactic is generally easier to use than this theorem. -/
 def iteInduction {c} [inst : Decidable c] {motive : α → Sort _} {t e : α}
@@ -1194,15 +1200,23 @@ def iteInduction {c} [inst : Decidable c] {motive : α → Sort _} {t e : α}
   | isTrue h => hpos h
   | isFalse h => hneg h
 
-theorem dif_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = t hc :=
+@[suggest_for dite_pos dite_of_pos]
+theorem dite_eq_left {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = t hc :=
   match h with
   | isTrue  _   => rfl
   | isFalse hnc => absurd hc hnc
 
-theorem dif_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = e hnc :=
+@[deprecated dite_eq_left (since := "2026-07-21")]
+theorem dif_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t : c → α} {e : ¬c → α} : dite c t e = t hc := dite_eq_left hc
+
+@[suggest_for dite_neg dite_of_neg]
+theorem dite_eq_right {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = e hnc :=
   match h with
   | isTrue hc   => absurd hc hnc
   | isFalse _   => rfl
+
+@[deprecated dite_eq_right (since := "2026-07-21")]
+theorem dif_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬c → α} : dite c t e = e hnc := dite_eq_right hnc
 
 @[macro_inline]
 instance {c t e : Prop} [dC : Decidable c] [dT : Decidable t] [dE : Decidable e] : Decidable (if c then t else e) :=
@@ -1331,7 +1345,7 @@ def Subrelation {α : Sort u} (q r : α → α → Prop) :=
 The inverse image of `r : β → β → Prop` by a function `α → β` is the relation
 `s : α → α → Prop` defined by `s a b = r (f a) (f b)`.
 -/
-def InvImage {α : Sort u} {β : Sort v} (r : β → β → Prop) (f : α → β) : α → α → Prop :=
+@[implicit_reducible] def InvImage {α : Sort u} {β : Sort v} (r : β → β → Prop) (f : α → β) : α → α → Prop :=
   fun a₁ a₂ => r (f a₁) (f a₂)
 
 /--
@@ -1478,7 +1492,7 @@ Examples:
  * `(1, 2).map (· + 1) (· * 3) = (2, 6)`
  * `(1, 2).map toString (· * 3) = ("1", 6)`
 -/
-def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
+@[implicit_reducible] def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
     (f : α₁ → α₂) (g : β₁ → β₂) : α₁ × β₁ → α₂ × β₂
   | (a, b) => (f a, g b)
 
@@ -1983,6 +1997,7 @@ must respect `s.r`. `Quotient.lift` allows values in a quotient to be mapped to 
 as the mapping respects `s.r`.
 
 -/
+@[implicit_reducible]
 protected def mk' {α : Sort u} [s : Setoid α] (a : α) : Quotient s :=
   Quotient.mk s a
 

@@ -10,9 +10,11 @@ public import Lean.Meta.Tactic.Simp
 public import Lean.Meta.Sym.Pattern
 public import Std.Tactic.Do.Syntax
 public import Std.Internal.Do.Triple.Basic
+public import Lean.Elab.Tactic.Do.ConjunctivePre
 import Init.While
 import Init.Syntax
 import Lean.Meta.Sym.Simp.DiscrTree
+import Lean.Meta.DiscrTree.Util
 
 public section
 
@@ -338,6 +340,10 @@ structure SpecTheorem where
   proof : SpecProof
   /-- The kind of spec theorem: triple or simp. -/
   kind : SpecTheoremKind := .triple
+  /-- Whether the precondition is conjunctive in the spec's postconditions, so applying the spec
+  directly carries any frame and `vcgen` skips the frame machinery. Opt out with a trivial `Q = Q`
+  premise. -/
+  conjunctivePre : Bool := false
   priority : Nat := eval_prio default
   deriving Inhabited
 
@@ -346,13 +352,24 @@ instance : BEq SpecTheorem where
 
 abbrev SpecEntry := SpecTheorem
 
+-- Call-site priority bands, all above `@[spec high]`, ordered named > `*` > unfold.
+/-- Priority for a spec named in a `vcgen [...]` argument list. -/
+def explicitSpecPrio : Nat := eval_prio high + 3000
+/-- Priority for a local hypothesis pulled into `vcgen`'s spec set by `*`. -/
+def starSpecPrio : Nat := eval_prio high + 2000
+/-- Priority for the equational and unfold specs a bracketed definition in a `vcgen [...]` list contributes. -/
+def unfoldSpecPrio : Nat := eval_prio high + 1000
+
 structure SpecTheorems where
   specs : DiscrTree SpecTheorem := DiscrTree.empty
   erased : PHashSet SpecProof := {}
   deriving Inhabited
 
+/-- Insert `e`, keeping the higher priority when a spec with the same proof is already stored. -/
 def SpecTheorems.insert (d : SpecTheorems) (e : SpecTheorem) : SpecTheorems :=
-  { d with specs := Sym.insertPattern d.specs e.pattern e }
+  let priority := (Sym.getMatch d.specs e.pattern.pattern).foldl (init := e.priority) fun pr s =>
+    if s.proof == e.proof then max pr s.priority else pr
+  { d with specs := Sym.insertPattern d.specs e.pattern { e with priority } }
 
 def SpecTheorems.isErased (d : SpecTheorems) (thmId : SpecProof) : Bool :=
   d.erased.contains thmId
@@ -461,13 +478,14 @@ def mkSpecPatternFromExpr (expr : Expr)
 private def mkSpecTheorem (type : Expr) (proof : SpecProof) (prio : Nat) : MetaM (Option SpecTheorem) := do
   let (levelParams, expr) ← proof.getProof
   let type ← instantiateMVars type
-  let (_, _, type) ← forallMetaTelescope type
+  let (binders, _, type) ← forallMetaTelescope type
   -- Reduce reducible abbreviations so a proof whose type is an abbreviation like
   -- `abbrev s := ⦃P⦄ prog ⦃Q⦄` is recognized as a triple spec.
   let type ← whnfR type
   let some _ ← selectProg type | return none
   let pattern ← mkSpecPatternFromExpr expr levelParams
-  return some { pattern, proof, priority := prio }
+  let conjunctivePre ← isConjunctiveInPosts type binders
+  return some { pattern, proof, priority := prio, conjunctivePre }
 
 def mkSpecTheoremFromConst (declName : Name) (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
   let info ← getConstInfo declName
@@ -509,6 +527,12 @@ private def etaExpandEqPattern (pattern : Sym.Pattern) (eqTy : Expr) : Sym.Patte
         checkTypeMask? := none }
     (newPattern, k)
 
+/-- Whether some hypothesis of the equation type is an overlap hypothesis
+(see `Simp.isEqnThmHypothesis`), as in the wildcard-row equation of an overlapping `match`. -/
+private def hasOverlapHypothesis : Expr → Bool
+  | .forallE _ d b _ => Simp.isEqnThmHypothesis d || hasOverlapHypothesis b
+  | _ => false
+
 /--
 Create a `SpecTheorem` from a simp/equational declaration `declName : ∀ xs, lhs = rhs`, keyed on the
 LHS. Function-level equations (e.g. class projection unfold lemmas) are eta-expanded so the
@@ -526,28 +550,96 @@ def mkSpecTheoremFromSimpDecl? (declName : Name) (prio : Nat) : MetaM (Option Sp
   return some { pattern, proof := .global declName, kind := .simp etaArgs, priority := prio }
 
 /--
+Create a `SpecTheorem` from an elaborated equational proof term `proof : ∀ xs, lhs = rhs`, keyed on
+the LHS. Mirrors `mkSpecTheoremFromSimpDecl?` for proofs supplied as terms rather than declaration
+names. Returns `none` for a no-op equation whose LHS key equals its RHS.
+-/
+def mkSpecTheoremFromSimpExpr? (ref : Syntax) (proof : Expr) (levelParams : List Name := [])
+    (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
+  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromExprWithKey proof levelParams fun body => do
+    let_expr Eq eqTy lhs rhs := body | throwError "conclusion is not an equality{indentExpr body}"
+    return (lhs, (eqTy, rhs))
+  if pattern.pattern == rhs then return none
+  let (pattern, etaArgs) := etaExpandEqPattern pattern eqTy
+  return some { pattern, proof := .stx (← mkFreshId) ref proof, kind := .simp etaArgs, priority := prio }
+
+/--
+The unfold theorem `declName.eq_def` through which a definition in a simp set's `toUnfold`
+rewrites, the spec-database counterpart of `simp`'s delta unfolding. `none` for a recursive
+definition, whose unconditional unfolding would not terminate.
+-/
+def unfoldSpecEqn? (declName : Name) : MetaM (Option Name) := do
+  if (← isRecursiveDefinition declName) then return none
+  getUnfoldEqnFor? declName (nonRec := true)
+
+/--
+The spec theorems the simp entries `entries` contribute, the single place a `vcgen [...]` argument or
+an `attribute [spec] f` definition (through `mkSimpEntryOfDeclToUnfold`) turns into specs:
+- each `.thm` entry, keyed on its left-hand side at `prio`, skipping wildcard-row equations guarded
+  by an overlap hypothesis (as a spec such an equation matches any call and strands the hypothesis as
+  a verification condition). A declaration equation is keyed via `mkSpecTheoremFromSimpDecl?`; an
+  equation supplied as a `vcgen [...]` term carries its proof directly (`mkSpecTheoremFromSimpExpr?`),
+- each `.toUnfold` definition through its unfold theorem `f.eq_def` (`unfoldSpecEqn?`) at priority
+  `0`, below every equation, so a call with an opaque discriminant still rewrites to the underlying
+  `match` expression, which `vcgen` then splits.
+A single malformed entry is traced and skipped rather than aborting the set.
+-/
+def simpSpecTheorems (entries : Array SimpEntry) (prio : Nat) : MetaM (Array SpecTheorem) := do
+  let mut result := #[]
+  for entry in entries do
+    match entry with
+    | .thm thm =>
+      match thm.origin with
+      | .decl declName .. =>
+        try
+          if hasOverlapHypothesis (← getConstInfo declName).type then
+            trace[Elab.Tactic.Do.specAttr] "Skipping overlap-hypothesis equation {declName}"
+          else if let some spec ← mkSpecTheoremFromSimpDecl? declName prio then
+            result := result.push spec
+        catch e =>
+          trace[Elab.Tactic.Do.specAttr] "Failed to add simp spec {declName}: {e.toMessageData}"
+      | .stx .. =>
+        try
+          if hasOverlapHypothesis (← inferType thm.proof) then
+            trace[Elab.Tactic.Do.specAttr] "Skipping overlap-hypothesis equation {thm.origin.key}"
+          else if let some spec ← mkSpecTheoremFromSimpExpr? .missing thm.proof thm.levelParams.toList prio then
+            result := result.push spec
+        catch e =>
+          trace[Elab.Tactic.Do.specAttr] "Failed to add simp spec {thm.origin.key}: {e.toMessageData}"
+      | _ => pure ()
+    | .toUnfold declName =>
+      try
+        if let some eqDef ← unfoldSpecEqn? declName then
+          if let some spec ← mkSpecTheoremFromSimpDecl? eqDef 0 then
+            result := result.push spec
+      catch e =>
+        trace[Elab.Tactic.Do.specAttr] "Failed to add unfold spec {declName}: {e.toMessageData}"
+    | .toUnfoldThms .. => pure ()
+  return result
+
+/--
 Register the equational lemmas of a `@[spec]`-annotated declaration as `.simp` entries with the
-given priority. An equational proposition is registered directly; a definition is registered via its
-equation lemmas (`getEqnsFor?`). Anything else throws, since it cannot serve as a `vcgen` spec.
+given priority. An equational proposition is registered directly; a definition is registered via the
+specs its simp entries contribute (`simpSpecTheorems`). Anything else throws, since it cannot serve as
+a `vcgen` spec.
 -/
 def SpecExtension.addSimpSpecTheoremsFromConst (ext : SpecExtension) (declName : Name) (prio : Nat)
     (attrKind : AttributeKind) : MetaM Unit := do
-  let add (declName : Name) : MetaM Unit := do
-    if let some thm ← mkSpecTheoremFromSimpDecl? declName prio then
-      ext.add thm attrKind
   let info ← getConstInfo declName
   if (← isProp info.type) then
-    add declName
-  else if let some eqns ← getEqnsFor? declName then
-    eqns.forM add
+    if let some thm ← mkSpecTheoremFromSimpDecl? declName prio then
+      ext.add thm attrKind
+  else if info.isDefinition then
+    for thm in ← simpSpecTheorems (← mkSimpEntryOfDeclToUnfold declName) prio do
+      ext.add thm attrKind
   else
     throwError "'{declName}' is neither an equational theorem nor a definition with unfold equations"
 
 /--
 The spec proofs a `@[spec]` constant contributes to the database: the constant itself for a
-`Triple`/`⊑ wp` spec, the equation itself for an equational spec, or its equation lemmas for a
-definition registered to unfold. Mirrors `addSimpSpecTheoremsFromConst` so `[-foo]` erases exactly
-the entries that annotating `foo` inserted.
+`Triple`/`⊑ wp` spec, the equation itself for an equational spec, or the specs its simp set
+contributes for a definition registered to unfold. Mirrors `addSimpSpecTheoremsFromConst` so `[-foo]`
+erases exactly the entries that annotating `foo` inserted.
 -/
 def specEraseProofs (declName : Name) : MetaM (Array SpecProof) := do
   if (← mkSpecTheoremFromConst declName).isSome then
@@ -555,8 +647,8 @@ def specEraseProofs (declName : Name) : MetaM (Array SpecProof) := do
   let info ← getConstInfo declName
   if (← isProp info.type) then
     return #[.global declName]
-  else if let some eqns ← getEqnsFor? declName then
-    return eqns.map (.global ·)
+  else if info.isDefinition then
+    return (← simpSpecTheorems (← mkSimpEntryOfDeclToUnfold declName) (eval_prio default)).map (·.proof)
   else
     return #[]
 

@@ -78,7 +78,7 @@ where
 
 end ToExpr
 
-open ToExpr
+open Lean.Compiler.LCNF.ToExpr
 
 private def Arg.toExprM (arg : Arg pu) : ToExprM Expr :=
   return arg.toExpr.abstract' (← read) (← get)

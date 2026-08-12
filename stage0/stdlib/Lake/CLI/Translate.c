@@ -16,7 +16,7 @@ extern "C" {
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 size_t lean_array_size(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -188,7 +188,8 @@ goto v_resetjp_18_;
 v_resetjp_18_:
 {
 lean_object* v___x_21_; lean_object* v___x_23_; 
-v___x_21_ = lean_erase_macro_scopes(v_val_16_);
+v___x_21_ = l_Lean_Name_eraseMacroScopes(v_val_16_);
+lean_dec(v_val_16_);
 if (v_isShared_20_ == 0)
 {
 lean_ctor_set(v___x_19_, 2, v___x_21_);
@@ -945,11 +946,13 @@ lean_object* runtime_initialize_Lean_PrettyPrinter(uint8_t builtin);
 lean_object* runtime_initialize_Lake_CLI_Translate_Toml(uint8_t builtin);
 lean_object* runtime_initialize_Lake_CLI_Translate_Lean(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Load_Lean_Elab(uint8_t builtin);
+void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_CLI_Translate(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize();
 res = runtime_initialize_Lake_Config_Lang(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

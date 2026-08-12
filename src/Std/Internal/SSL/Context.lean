@@ -51,6 +51,14 @@ end Server
 
 namespace Client
 
+/-
+A default value on a borrowed parameter wraps its type in `optParam`, which hides the `@&` marker
+from the compiler: the parameter is then treated as owned and every argument leaks. So the extern
+takes `caFile` explicitly and the public wrapper below carries the default.
+-/
+@[extern "lean_ssl_ctx_mk_client"]
+private opaque mkImpl (caFile : @& String) (verifyPeer : Bool) : IO Context.Client
+
 /--
 Creates a client-side TLS context.
 
@@ -62,8 +70,8 @@ Trust-anchor semantics:
 - An empty `caFile` with `verifyPeer := true` uses just the platform default trust anchors.
 - `verifyPeer := false` disables peer verification entirely (the CA file is not parsed).
 -/
-@[extern "lean_ssl_ctx_mk_client"]
-opaque mk (caFile : @& String := "") (verifyPeer : Bool := true) : IO Context.Client
+@[inline] def mk (caFile : String := "") (verifyPeer : Bool := true) : IO Context.Client :=
+  mkImpl caFile verifyPeer
 
 /--
 Creates a client-side TLS context with CA trust anchors from an in-memory PEM string instead of a

@@ -252,7 +252,7 @@ end Automated
 
 namespace HimpSplit
 
--- A `⇨` (Heyting implication) in the postcondition exercises the `himp_complete` split, whose
+-- A `⇨` (Heyting implication) in the postcondition exercises the `PreservesSup.le_upperAdjoint` split, whose
 -- subgoal carries a `⊓ ⊤` precondition that `meet_top_le_of_le` cancels. The abstract `Pred` keeps
 -- `⇨` from collapsing to `→`.
 theorem himp_post {m} [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
@@ -708,7 +708,8 @@ theorem incr_id (amounts : List Nat) :
 error: unsolved goals
 case vc1
 m : Type → Type u
-Pred EPred : Type
+Pred : Type u_1
+EPred : Type u_2
 inst✝³ : Monad m
 inst✝² : Assertion Pred
 inst✝¹ : Assertion EPred

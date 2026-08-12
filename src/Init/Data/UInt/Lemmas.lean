@@ -877,26 +877,26 @@ theorem USize.ofNatClamp_eq_ofNat (n : Nat) (hn : n < USize.size) :
 @[simp] theorem USize.toNat_ofFin (x : Fin USize.size) : (USize.ofFin x).toNat = x.val := (rfl)
 
 theorem UInt8.toNat_ofNatClamp_of_lt {n : Nat} (hn : n < UInt8.size) :
-    (UInt8.ofNatClamp n).toNat = n := by rw [UInt8.ofNatClamp, dif_pos hn, toNat_ofNatLT]
+    (UInt8.ofNatClamp n).toNat = n := by rw [UInt8.ofNatClamp, dite_eq_left hn, toNat_ofNatLT]
 theorem UInt16.toNat_ofNatClamp_of_lt {n : Nat} (hn : n < UInt16.size) :
-    (UInt16.ofNatClamp n).toNat = n := by rw [UInt16.ofNatClamp, dif_pos hn, toNat_ofNatLT]
+    (UInt16.ofNatClamp n).toNat = n := by rw [UInt16.ofNatClamp, dite_eq_left hn, toNat_ofNatLT]
 theorem UInt32.toNat_ofNatClamp_of_lt {n : Nat} (hn : n < UInt32.size) :
-    (UInt32.ofNatClamp n).toNat = n := by rw [UInt32.ofNatClamp, dif_pos hn, toNat_ofNatLT]
+    (UInt32.ofNatClamp n).toNat = n := by rw [UInt32.ofNatClamp, dite_eq_left hn, toNat_ofNatLT]
 theorem UInt64.toNat_ofNatClamp_of_lt {n : Nat} (hn : n < UInt64.size) :
-    (UInt64.ofNatClamp n).toNat = n := by rw [UInt64.ofNatClamp, dif_pos hn, toNat_ofNatLT]
+    (UInt64.ofNatClamp n).toNat = n := by rw [UInt64.ofNatClamp, dite_eq_left hn, toNat_ofNatLT]
 theorem USize.toNat_ofNatClamp_of_lt {n : Nat} (hn : n < USize.size) :
-    (USize.ofNatClamp n).toNat = n := by rw [USize.ofNatClamp, dif_pos hn, toNat_ofNatLT]
+    (USize.ofNatClamp n).toNat = n := by rw [USize.ofNatClamp, dite_eq_left hn, toNat_ofNatLT]
 
 theorem UInt8.toNat_ofNatClamp_of_le {n : Nat} (hn : UInt8.size ≤ n) :
-    (UInt8.ofNatClamp n).toNat = UInt8.size - 1 := by rw [ofNatClamp, dif_neg (by omega), toNat_ofNatLT]
+    (UInt8.ofNatClamp n).toNat = UInt8.size - 1 := by rw [ofNatClamp, dite_eq_right (by omega), toNat_ofNatLT]
 theorem UInt16.toNat_ofNatClamp_of_le {n : Nat} (hn : UInt16.size ≤ n) :
-    (UInt16.ofNatClamp n).toNat = UInt16.size - 1 := by rw [ofNatClamp, dif_neg (by omega), toNat_ofNatLT]
+    (UInt16.ofNatClamp n).toNat = UInt16.size - 1 := by rw [ofNatClamp, dite_eq_right (by omega), toNat_ofNatLT]
 theorem UInt32.toNat_ofNatClamp_of_le {n : Nat} (hn : UInt32.size ≤ n) :
-    (UInt32.ofNatClamp n).toNat = UInt32.size - 1 := by rw [ofNatClamp, dif_neg (by omega), toNat_ofNatLT]
+    (UInt32.ofNatClamp n).toNat = UInt32.size - 1 := by rw [ofNatClamp, dite_eq_right (by omega), toNat_ofNatLT]
 theorem UInt64.toNat_ofNatClamp_of_le {n : Nat} (hn : UInt64.size ≤ n) :
-    (UInt64.ofNatClamp n).toNat = UInt64.size - 1 := by rw [ofNatClamp, dif_neg (by omega), toNat_ofNatLT]
+    (UInt64.ofNatClamp n).toNat = UInt64.size - 1 := by rw [ofNatClamp, dite_eq_right (by omega), toNat_ofNatLT]
 theorem USize.toNat_ofNatClamp_of_le {n : Nat} (hn : USize.size ≤ n) :
-    (USize.ofNatClamp n).toNat = USize.size - 1 := by rw [ofNatClamp, dif_neg (by omega), toNat_ofNatLT]
+    (USize.ofNatClamp n).toNat = USize.size - 1 := by rw [ofNatClamp, dite_eq_right (by omega), toNat_ofNatLT]
 
 @[simp] theorem UInt8.toFin_ofNatLT {n : Nat} (hn) : (UInt8.ofNatLT n hn).toFin = ⟨n, hn⟩ := (rfl)
 @[simp] theorem UInt16.toFin_ofNatLT {n : Nat} (hn) : (UInt16.ofNatLT n hn).toFin = ⟨n, hn⟩ := (rfl)
@@ -1030,13 +1030,13 @@ theorem USize.toBitVec_ofNatClamp_of_le {n : Nat} (hn : USize.size ≤ n) :
 @[simp] theorem USize.toUInt8_ofNat {n : Nat} : toUInt8 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := toUInt8_ofNat' _
 
 theorem UInt16.toUInt8_ofNatClamp_of_lt {n : Nat} (hn : n < UInt16.size) :
-    (UInt16.ofNatClamp n).toUInt8 = UInt8.ofNat n := by rw [ofNatClamp, dif_pos hn, toUInt8_ofNatLT]
+    (UInt16.ofNatClamp n).toUInt8 = UInt8.ofNat n := by rw [ofNatClamp, dite_eq_left hn, toUInt8_ofNatLT]
 theorem UInt32.toUInt8_ofNatClamp_of_lt {n : Nat} (hn : n < UInt32.size) :
-    (UInt32.ofNatClamp n).toUInt8 = UInt8.ofNat n := by rw [ofNatClamp, dif_pos hn, toUInt8_ofNatLT]
+    (UInt32.ofNatClamp n).toUInt8 = UInt8.ofNat n := by rw [ofNatClamp, dite_eq_left hn, toUInt8_ofNatLT]
 theorem UInt64.toUInt8_ofNatClamp_of_lt {n : Nat} (hn : n < UInt64.size) :
-    (UInt64.ofNatClamp n).toUInt8 = UInt8.ofNat n := by rw [ofNatClamp, dif_pos hn, toUInt8_ofNatLT]
+    (UInt64.ofNatClamp n).toUInt8 = UInt8.ofNat n := by rw [ofNatClamp, dite_eq_left hn, toUInt8_ofNatLT]
 theorem USize.toUInt8_ofNatClamp_of_lt {n : Nat} (hn : n < USize.size) :
-    (USize.ofNatClamp n).toUInt8 = UInt8.ofNat n := by rw [ofNatClamp, dif_pos hn, toUInt8_ofNatLT]
+    (USize.ofNatClamp n).toUInt8 = UInt8.ofNat n := by rw [ofNatClamp, dite_eq_left hn, toUInt8_ofNatLT]
 
 theorem UInt16.toUInt8_ofNatClamp_of_le {n : Nat} (hn : UInt16.size ≤ n) :
     (UInt16.ofNatClamp n).toUInt8 = UInt8.ofNatLT (UInt8.size - 1) (by decide) :=
@@ -1073,11 +1073,11 @@ theorem USize.toUInt8_ofNatClamp_of_le {n : Nat} (hn : USize.size ≤ n) :
 @[simp] theorem USize.toUInt16_ofNat {n : Nat} : toUInt16 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := USize.toUInt16_ofNat' _
 
 theorem UInt32.toUInt16_ofNatClamp_of_lt {n : Nat} (hn : n < UInt32.size) :
-    (UInt32.ofNatClamp n).toUInt16 = UInt16.ofNat n := by rw [ofNatClamp, dif_pos hn, toUInt16_ofNatLT]
+    (UInt32.ofNatClamp n).toUInt16 = UInt16.ofNat n := by rw [ofNatClamp, dite_eq_left hn, toUInt16_ofNatLT]
 theorem UInt64.toUInt16_ofNatClamp_of_lt {n : Nat} (hn : n < UInt64.size) :
-    (UInt64.ofNatClamp n).toUInt16 = UInt16.ofNat n := by rw [ofNatClamp, dif_pos hn, toUInt16_ofNatLT]
+    (UInt64.ofNatClamp n).toUInt16 = UInt16.ofNat n := by rw [ofNatClamp, dite_eq_left hn, toUInt16_ofNatLT]
 theorem USize.toUInt16_ofNatClamp_of_lt {n : Nat} (hn : n < USize.size) :
-    (USize.ofNatClamp n).toUInt16 = UInt16.ofNat n := by rw [ofNatClamp, dif_pos hn, toUInt16_ofNatLT]
+    (USize.ofNatClamp n).toUInt16 = UInt16.ofNat n := by rw [ofNatClamp, dite_eq_left hn, toUInt16_ofNatLT]
 
 theorem UInt32.toUInt16_ofNatClamp_of_le {n : Nat} (hn : UInt32.size ≤ n) :
     (UInt32.ofNatClamp n).toUInt16 = UInt16.ofNatLT (UInt16.size - 1) (by decide) :=
@@ -1106,9 +1106,9 @@ theorem USize.toUInt16_ofNatClamp_of_le {n : Nat} (hn : USize.size ≤ n) :
 @[simp] theorem USize.toUInt32_ofNat {n : Nat} : toUInt32 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := USize.toUInt32_ofNat' _
 
 theorem UInt64.toUInt32_ofNatClamp_of_lt {n : Nat} (hn : n < UInt64.size) :
-    (UInt64.ofNatClamp n).toUInt32 = UInt32.ofNat n := by rw [ofNatClamp, dif_pos hn, toUInt32_ofNatLT]
+    (UInt64.ofNatClamp n).toUInt32 = UInt32.ofNat n := by rw [ofNatClamp, dite_eq_left hn, toUInt32_ofNatLT]
 theorem USize.toUInt32_ofNatClamp_of_lt {n : Nat} (hn : n < USize.size) :
-    (USize.ofNatClamp n).toUInt32 = UInt32.ofNat n := by rw [ofNatClamp, dif_pos hn, toUInt32_ofNatLT]
+    (USize.ofNatClamp n).toUInt32 = UInt32.ofNat n := by rw [ofNatClamp, dite_eq_left hn, toUInt32_ofNatLT]
 
 theorem UInt64.toUInt32_ofNatClamp_of_le {n : Nat} (hn : UInt64.size ≤ n) :
     (UInt64.ofNatClamp n).toUInt32 = UInt32.ofNatLT (UInt32.size - 1) (by decide) :=
@@ -1129,7 +1129,7 @@ theorem USize.toUInt32_ofNatClamp_of_le {n : Nat} (hn : USize.size ≤ n) :
 @[simp] theorem UInt64.toUSize_ofNat {n : Nat} : toUSize (no_index (OfNat.ofNat n)) = OfNat.ofNat n := UInt64.toUSize_ofNat' _
 
 theorem UInt64.toUSize_ofNatClamp_of_lt {n : Nat} (hn : n < UInt64.size) :
-    (UInt64.ofNatClamp n).toUSize = USize.ofNat n := by rw [ofNatClamp, dif_pos hn, toUSize_ofNatLT]
+    (UInt64.ofNatClamp n).toUSize = USize.ofNat n := by rw [ofNatClamp, dite_eq_left hn, toUSize_ofNatLT]
 
 theorem UInt64.toUSize_ofNatClamp_of_le {n : Nat} (hn : UInt64.size ≤ n) :
     (UInt64.ofNatClamp n).toUSize = USize.ofNatLT (USize.size - 1) (by cases USize.size_eq <;> simp_all) :=
@@ -3596,3 +3596,9 @@ theorem UInt64.lt_add_one {c : UInt64} (h : c ≠ -1) : c < c + 1 :=
 theorem USize.lt_add_one {c : USize} (h : c ≠ -1) : c < c + 1 :=
   USize.lt_iff_toBitVec_lt.2 (BitVec.lt_add_one
     (by simpa [← USize.toBitVec_inj, BitVec.neg_one_eq_allOnes] using h))
+
+theorem UInt8.toNat_ofNat_le {n : Nat} : (UInt8.ofNat n).toNat ≤ n := toNat_ofNat ▸ Nat.mod_le ..
+theorem UInt16.toNat_ofNat_le {n : Nat} : (UInt16.ofNat n).toNat ≤ n := toNat_ofNat ▸ Nat.mod_le ..
+theorem UInt32.toNat_ofNat_le {n : Nat} : (UInt32.ofNat n).toNat ≤ n := toNat_ofNat ▸ Nat.mod_le ..
+theorem UInt64.toNat_ofNat_le {n : Nat} : (UInt64.ofNat n).toNat ≤ n := toNat_ofNat ▸ Nat.mod_le ..
+theorem USize.toNat_ofNat_le {n : Nat} : (USize.ofNat n).toNat ≤ n := toNat_ofNat ▸ Nat.mod_le ..

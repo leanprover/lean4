@@ -185,7 +185,7 @@ partial def ofElem (stx : DoElem) : TermElabM ControlInfo := do
   | `(doElem| unless $_ do $elseSeq) =>
     ControlInfo.alternative {} <$> ofSeq elseSeq
   -- For/Repeat
-  | `(doElem| for $[$[$_ :]? $_ in $_],* do $bodySeq) =>
+  | `(doElem| for $[$[$_ :]? $_ in $_],* $[$_:doForInvariant]? do $bodySeq) =>
     let info ← ofSeq bodySeq
     return { info with  -- keep only reassigns and returnsEarly
       numRegularExits := 1,

@@ -2153,7 +2153,7 @@ goto v_resetjp_624_;
 v_resetjp_624_:
 {
 uint8_t v_linarith_627_; 
-v_linarith_627_ = lean_ctor_get_uint8(v_a_623_, sizeof(void*)*13 + 22);
+v_linarith_627_ = lean_ctor_get_uint8(v_a_623_, sizeof(void*)*14 + 22);
 lean_dec(v_a_623_);
 if (v_linarith_627_ == 0)
 {
@@ -2852,11 +2852,13 @@ lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Linear_StructId(uin
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Linear_Var(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Linear_Util(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Linear_Reify(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Linear_Internalize(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Linear_OfNatModule(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

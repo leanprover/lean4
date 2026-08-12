@@ -75,6 +75,10 @@ structure Cursor {α : Type u} (l : List α) : Type u where
   /-- Appending the prefix to the suffix yields the original list. -/
   property : «prefix» ++ suffix = l
 
+/-- Transports a cursor along an equality of the list it ranges over. -/
+@[inline] def Cursor.cast {α} {l l' : List α} (c : Cursor l) (h : l = l') : Cursor l' :=
+  ⟨c.prefix, c.suffix, h ▸ c.property⟩
+
 /--
 Creates a cursor at position `n` in the list `l`.
 The prefix contains the first `n` elements, and the suffix contains the remaining elements.
@@ -2272,7 +2276,7 @@ theorem Spec.repeatM
   induction n using Nat.strongRecOn with
   | _ n ih =>
     intro a
-    rw [repeatM_eq_of_monadTail (f := f) a]
+    rw [_root_.repeatM.Internal.eq_of_monadTail (f := f) a]
     refine Triple.bind (f := fun x => match x with
       | .inl a' => _root_.repeatM f a' | .inr a' => Pure.pure a')
       (f a) (step a n) ?_

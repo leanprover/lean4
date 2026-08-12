@@ -347,7 +347,7 @@ It is equivalent to `it.toList.foldl`.
 
 This function is deprecated. Instead of `it.allowNontermination.fold`, use `it.fold`.
 -/
-@[always_inline, inline, deprecated IterM.Partial.fold (since := "2025-12-04")]
+@[always_inline, inline, deprecated IterM.fold (since := "2025-12-04")]
 def IterM.Partial.fold {m : Type w → Type w'} {α : Type w} {β : Type w} {γ : Type w}
     [Monad m] [Iterator α m β] [IteratorLoop α m m] (f : γ → β → γ) (init : γ)
     (it : IterM.Partial (α := α) m β) : m γ :=

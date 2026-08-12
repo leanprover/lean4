@@ -16,7 +16,7 @@ POSIX TZ string parser for RFC 8536 §3.3 footer strings.
 public section
 
 namespace Std.Time.TimeZone
-open Internal
+open Std.Time.Internal
 
 set_option linter.all true
 

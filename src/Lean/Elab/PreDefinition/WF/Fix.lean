@@ -17,7 +17,7 @@ public import Lean.Util.HasConstCache
 public section
 
 namespace Lean.Elab.WF
-open Meta
+open Lean Meta
 
 register_builtin_option debug.definition.wf.replaceRecApps : Bool := {
     defValue := false

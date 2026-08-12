@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Do.WP
-// Imports: public import Std.Internal.Do.WP.Basic public import Std.Internal.Do.WP.Conjunctive public import Std.Internal.Do.WP.Frame public import Std.Internal.Do.WP.FrameGadget public import Std.Internal.Do.WP.Lemmas
+// Imports: public import Std.Internal.Do.WP.Basic public import Std.Internal.Do.WP.Conjunctive public import Std.Internal.Do.WP.Frame public import Std.Internal.Do.WP.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,13 +16,14 @@ extern "C" {
 lean_object* runtime_initialize_Std_Internal_Do_WP_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Std_Internal_Do_WP_Conjunctive(uint8_t builtin);
 lean_object* runtime_initialize_Std_Internal_Do_WP_Frame(uint8_t builtin);
-lean_object* runtime_initialize_Std_Internal_Do_WP_FrameGadget(uint8_t builtin);
 lean_object* runtime_initialize_Std_Internal_Do_WP_Lemmas(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Internal_Do_WP(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Internal_Do_WP_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -30,9 +31,6 @@ res = runtime_initialize_Std_Internal_Do_WP_Conjunctive(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Internal_Do_WP_Frame(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = runtime_initialize_Std_Internal_Do_WP_FrameGadget(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Internal_Do_WP_Lemmas(builtin);
@@ -50,7 +48,6 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Std_Internal_Do_WP_Basic(uint8_t builtin);
 lean_object* initialize_Std_Internal_Do_WP_Conjunctive(uint8_t builtin);
 lean_object* initialize_Std_Internal_Do_WP_Frame(uint8_t builtin);
-lean_object* initialize_Std_Internal_Do_WP_FrameGadget(uint8_t builtin);
 lean_object* initialize_Std_Internal_Do_WP_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Do_WP(uint8_t builtin) {
@@ -64,9 +61,6 @@ res = initialize_Std_Internal_Do_WP_Conjunctive(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Internal_Do_WP_Frame(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Internal_Do_WP_FrameGadget(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Internal_Do_WP_Lemmas(builtin);

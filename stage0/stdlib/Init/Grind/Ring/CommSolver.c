@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Ring.CommSolver
-// Imports: public import Init.Data.Ord.Basic public import Init.Grind.Ring.Field public import Init.Grind.Ordered.Ring public import Init.GrindInstances.Ring.Int import all Init.Data.Ord.Basic import Init.LawfulBEqTactics public import Init.Classical public import Init.Data.Bool public import Init.Data.Int.DivMod.Lemmas public import Init.Data.RArray public import Init.Ext import Init.Data.Hashable import Init.Data.Int.LemmasAux import Init.Data.Nat.Linear import Init.Grind.Ordered.Order import Init.Omega import Init.WFTactics import Init.Data.Int.Repr
+// Imports: public import Init.Data.Ord.Basic public import Init.Grind.Ring.Field public import Init.Grind.Ordered.Ring public import Init.GrindInstances.Ring.Int import all Init.Data.Ord.Basic import Init.LawfulBEqTactics public import Init.Classical public import Init.Data.Bool public import Init.Data.Int.DivMod.Lemmas public import Init.Data.RArray public import Init.Ext import Init.Data.Hashable import Init.Data.Int.LemmasAux import Init.Data.Nat.Internal.Linear import Init.Grind.Ordered.Order import Init.Omega import Init.WFTactics import Init.Data.Int.Repr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1295,8 +1295,8 @@ goto v_reusejp_346_;
 }
 v_reusejp_346_:
 {
-v___y_328_ = v___y_341_;
-v___y_329_ = v___x_342_;
+v___y_328_ = v___x_342_;
+v___y_329_ = v___y_341_;
 v___y_330_ = v___x_347_;
 goto v___jp_327_;
 }
@@ -1326,8 +1326,8 @@ v_reusejp_351_:
 {
 lean_object* v___x_353_; 
 v___x_353_ = l_Repr_addAppParen(v___x_352_, v___x_349_);
-v___y_328_ = v___y_341_;
-v___y_329_ = v___x_342_;
+v___y_328_ = v___x_342_;
+v___y_329_ = v___y_341_;
 v___y_330_ = v___x_353_;
 goto v___jp_327_;
 }
@@ -2009,13 +2009,13 @@ return v___x_326_;
 v___jp_327_:
 {
 lean_object* v___x_331_; lean_object* v___x_332_; uint8_t v___x_333_; lean_object* v___x_334_; lean_object* v___x_335_; 
-lean_inc(v___y_329_);
-v___x_331_ = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(v___x_331_, 0, v___y_329_);
-lean_ctor_set(v___x_331_, 1, v___y_330_);
 lean_inc(v___y_328_);
+v___x_331_ = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(v___x_331_, 0, v___y_328_);
+lean_ctor_set(v___x_331_, 1, v___y_330_);
+lean_inc(v___y_329_);
 v___x_332_ = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(v___x_332_, 0, v___y_328_);
+lean_ctor_set(v___x_332_, 0, v___y_329_);
 lean_ctor_set(v___x_332_, 1, v___x_331_);
 v___x_333_ = 0;
 v___x_334_ = lean_alloc_ctor(6, 1, 1);
@@ -5208,8 +5208,8 @@ goto v_reusejp_1592_;
 }
 v_reusejp_1592_:
 {
-v___y_1574_ = v___x_1588_;
-v___y_1575_ = v___y_1587_;
+v___y_1574_ = v___y_1587_;
+v___y_1575_ = v___x_1588_;
 v___y_1576_ = v___x_1593_;
 goto v___jp_1573_;
 }
@@ -5239,8 +5239,8 @@ v_reusejp_1597_:
 {
 lean_object* v___x_1599_; 
 v___x_1599_ = l_Repr_addAppParen(v___x_1598_, v___x_1595_);
-v___y_1574_ = v___x_1588_;
-v___y_1575_ = v___y_1587_;
+v___y_1574_ = v___y_1587_;
+v___y_1575_ = v___x_1588_;
 v___y_1576_ = v___x_1599_;
 goto v___jp_1573_;
 }
@@ -5346,13 +5346,13 @@ goto v___jp_1610_;
 v___jp_1573_:
 {
 lean_object* v___x_1577_; lean_object* v___x_1578_; uint8_t v___x_1579_; lean_object* v___x_1580_; lean_object* v___x_1581_; 
-lean_inc(v___y_1574_);
-v___x_1577_ = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(v___x_1577_, 0, v___y_1574_);
-lean_ctor_set(v___x_1577_, 1, v___y_1576_);
 lean_inc(v___y_1575_);
+v___x_1577_ = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(v___x_1577_, 0, v___y_1575_);
+lean_ctor_set(v___x_1577_, 1, v___y_1576_);
+lean_inc(v___y_1574_);
 v___x_1578_ = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(v___x_1578_, 0, v___y_1575_);
+lean_ctor_set(v___x_1578_, 0, v___y_1574_);
 lean_ctor_set(v___x_1578_, 1, v___x_1577_);
 v___x_1579_ = 0;
 v___x_1580_ = lean_alloc_ctor(6, 1, 1);
@@ -12735,16 +12735,18 @@ lean_object* runtime_initialize_Init_Data_RArray(uint8_t builtin);
 lean_object* runtime_initialize_Init_Ext(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Hashable(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Int_LemmasAux(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* runtime_initialize_Init_Grind_Ordered_Order(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 lean_object* runtime_initialize_Init_WFTactics(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Int_Repr(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Grind_Ring_CommSolver(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Ord_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -12784,7 +12786,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Int_LemmasAux(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Grind_Ordered_Order(builtin);
@@ -12835,7 +12837,7 @@ lean_object* initialize_Init_Data_RArray(uint8_t builtin);
 lean_object* initialize_Init_Ext(uint8_t builtin);
 lean_object* initialize_Init_Data_Hashable(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* initialize_Init_Grind_Ordered_Order(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 lean_object* initialize_Init_WFTactics(uint8_t builtin);
@@ -12884,7 +12886,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Int_LemmasAux(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_Ordered_Order(builtin);

@@ -5536,8 +5536,8 @@ goto v___jp_819_;
 }
 else
 {
-lean_dec_ref_known(v_declName_832_, 2);
 lean_dec(v_pre_833_);
+lean_dec_ref_known(v_declName_832_, 2);
 lean_dec_ref_known(v_val_828_, 3);
 lean_del_object(v___x_830_);
 lean_del_object(v___x_826_);
@@ -48640,8 +48640,8 @@ goto v___jp_15636_;
 }
 else
 {
-lean_dec_ref_known(v_declName_15645_, 2);
 lean_dec(v_pre_15646_);
+lean_dec_ref_known(v_declName_15645_, 2);
 lean_dec_ref_known(v_val_15641_, 3);
 lean_del_object(v___x_15643_);
 lean_del_object(v___x_15628_);
@@ -48650,8 +48650,8 @@ goto v___jp_15636_;
 }
 else
 {
-lean_dec(v_declName_15645_);
 lean_dec_ref_known(v_val_15641_, 3);
+lean_dec(v_declName_15645_);
 lean_del_object(v___x_15643_);
 lean_del_object(v___x_15628_);
 goto v___jp_15636_;
@@ -52636,11 +52636,13 @@ return v_res_17078_;
 lean_object* runtime_initialize_Init_Data_UInt_Log2(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_LCNF_InferType(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_UInt_Lemmas(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF_Simp_ConstantFold(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_UInt_Log2(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

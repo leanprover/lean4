@@ -5298,7 +5298,7 @@ _start:
 lean_object* v___x_1567_; lean_object* v___x_1568_; lean_object* v___x_1569_; lean_object* v___x_1570_; lean_object* v___x_1571_; lean_object* v___x_1572_; 
 v___x_1567_ = ((lean_object*)(l_Lean_ConstantInfo_value_x21___closed__1));
 v___x_1568_ = lean_unsigned_to_nat(62u);
-v___x_1569_ = lean_unsigned_to_nat(508u);
+v___x_1569_ = lean_unsigned_to_nat(509u);
 v___x_1570_ = ((lean_object*)(l_Lean_ConstantInfo_value_x21___closed__0));
 v___x_1571_ = ((lean_object*)(l_Lean_Declaration_definitionVal_x21___closed__0));
 v___x_1572_ = l_mkPanicMessageWithDecl(v___x_1571_, v___x_1570_, v___x_1569_, v___x_1568_, v___x_1567_);
@@ -5311,7 +5311,7 @@ _start:
 lean_object* v___x_1573_; lean_object* v___x_1574_; lean_object* v___x_1575_; lean_object* v___x_1576_; lean_object* v___x_1577_; lean_object* v___x_1578_; 
 v___x_1573_ = ((lean_object*)(l_Lean_ConstantInfo_value_x21___closed__1));
 v___x_1574_ = lean_unsigned_to_nat(62u);
-v___x_1575_ = lean_unsigned_to_nat(509u);
+v___x_1575_ = lean_unsigned_to_nat(510u);
 v___x_1576_ = ((lean_object*)(l_Lean_ConstantInfo_value_x21___closed__0));
 v___x_1577_ = ((lean_object*)(l_Lean_Declaration_definitionVal_x21___closed__0));
 v___x_1578_ = l_mkPanicMessageWithDecl(v___x_1577_, v___x_1576_, v___x_1575_, v___x_1574_, v___x_1573_);
@@ -5372,7 +5372,7 @@ default:
 lean_object* v___x_1593_; lean_object* v___x_1594_; lean_object* v___x_1595_; lean_object* v___x_1596_; lean_object* v___x_1597_; lean_object* v___x_1598_; uint8_t v___x_1599_; lean_object* v___x_1600_; lean_object* v___x_1601_; lean_object* v___x_1602_; lean_object* v___x_1603_; lean_object* v___x_1604_; lean_object* v___x_1605_; 
 v___x_1593_ = ((lean_object*)(l_Lean_Declaration_definitionVal_x21___closed__0));
 v___x_1594_ = ((lean_object*)(l_Lean_ConstantInfo_value_x21___closed__0));
-v___x_1595_ = lean_unsigned_to_nat(510u);
+v___x_1595_ = lean_unsigned_to_nat(511u);
 v___x_1596_ = lean_unsigned_to_nat(31u);
 v___x_1597_ = ((lean_object*)(l_Lean_ConstantInfo_value_x21___closed__4));
 v___x_1598_ = l_Lean_ConstantInfo_name(v_info_1581_);
@@ -5578,7 +5578,7 @@ _start:
 lean_object* v___x_1651_; lean_object* v___x_1652_; lean_object* v___x_1653_; lean_object* v___x_1654_; lean_object* v___x_1655_; lean_object* v___x_1656_; 
 v___x_1651_ = ((lean_object*)(l_Lean_ConstantInfo_inductiveVal_x21___closed__1));
 v___x_1652_ = lean_unsigned_to_nat(9u);
-v___x_1653_ = lean_unsigned_to_nat(538u);
+v___x_1653_ = lean_unsigned_to_nat(539u);
 v___x_1654_ = ((lean_object*)(l_Lean_ConstantInfo_inductiveVal_x21___closed__0));
 v___x_1655_ = ((lean_object*)(l_Lean_Declaration_definitionVal_x21___closed__0));
 v___x_1656_ = l_mkPanicMessageWithDecl(v___x_1655_, v___x_1654_, v___x_1653_, v___x_1652_, v___x_1651_);
@@ -5684,11 +5684,13 @@ return v___x_1679_;
 lean_object* runtime_initialize_Lean_Expr(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Ord_UInt(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_ToString_Macro(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Declaration(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Expr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

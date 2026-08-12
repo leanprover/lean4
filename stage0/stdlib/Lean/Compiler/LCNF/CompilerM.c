@@ -5584,8 +5584,8 @@ return v___x_1817_;
 else
 {
 lean_object* v___x_1818_; 
-lean_dec(v_n_1813_);
 lean_dec_ref_known(v_e_1774_, 2);
+lean_dec(v_n_1813_);
 v___x_1818_ = lean_box(1);
 return v___x_1818_;
 }
@@ -13844,11 +13844,13 @@ return v_res_4913_;
 }
 lean_object* runtime_initialize_Lean_Compiler_LCNF_LCtx(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_LCNF_ConfigOptions(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF_CompilerM(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Compiler_LCNF_LCtx(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -1300,9 +1300,9 @@ goto v_resetjp_438_;
 v___jp_420_:
 {
 lean_object* v___x_425_; lean_object* v___x_426_; 
-v___x_425_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Expr_numApps_spec__0___redArg(v___y_423_, v___y_421_, v___y_422_, v___y_424_);
+v___x_425_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Expr_numApps_spec__0___redArg(v___y_421_, v___y_422_, v___y_423_, v___y_424_);
 lean_dec(v___y_424_);
-lean_dec(v___y_423_);
+lean_dec(v___y_421_);
 v___x_426_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_426_, 0, v___x_425_);
 return v___x_426_;
@@ -1310,23 +1310,23 @@ return v___x_426_;
 v___jp_427_:
 {
 uint8_t v___x_432_; 
-v___x_432_ = lean_nat_dec_le(v___y_431_, v___y_429_);
+v___x_432_ = lean_nat_dec_le(v___y_431_, v___y_430_);
 if (v___x_432_ == 0)
 {
-lean_dec(v___y_429_);
+lean_dec(v___y_430_);
 lean_inc(v___y_431_);
 v___y_421_ = v___y_428_;
-v___y_422_ = v___y_431_;
-v___y_423_ = v___y_430_;
+v___y_422_ = v___y_429_;
+v___y_423_ = v___y_431_;
 v___y_424_ = v___y_431_;
 goto v___jp_420_;
 }
 else
 {
 v___y_421_ = v___y_428_;
-v___y_422_ = v___y_431_;
-v___y_423_ = v___y_430_;
-v___y_424_ = v___y_429_;
+v___y_422_ = v___y_429_;
+v___y_423_ = v___y_431_;
+v___y_424_ = v___y_430_;
 goto v___jp_420_;
 }
 }
@@ -1365,17 +1365,17 @@ v___x_448_ = lean_nat_dec_le(v___x_434_, v___x_447_);
 if (v___x_448_ == 0)
 {
 lean_inc(v___x_447_);
-v___y_428_ = v_a_443_;
-v___y_429_ = v___x_447_;
-v___y_430_ = v___x_444_;
+v___y_428_ = v___x_444_;
+v___y_429_ = v_a_443_;
+v___y_430_ = v___x_447_;
 v___y_431_ = v___x_447_;
 goto v___jp_427_;
 }
 else
 {
-v___y_428_ = v_a_443_;
-v___y_429_ = v___x_447_;
-v___y_430_ = v___x_444_;
+v___y_428_ = v___x_444_;
+v___y_429_ = v_a_443_;
+v___y_430_ = v___x_447_;
 v___y_431_ = v___x_434_;
 goto v___jp_427_;
 }
@@ -1444,11 +1444,13 @@ return v_res_497_;
 }
 lean_object* runtime_initialize_Lean_Expr(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Util_PtrSet(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Util_NumApps(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Expr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

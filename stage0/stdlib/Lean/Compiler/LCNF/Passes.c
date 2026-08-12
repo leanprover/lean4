@@ -3616,8 +3616,8 @@ goto v___jp_1167_;
 }
 else
 {
-lean_dec_ref_known(v_pre_1176_, 2);
 lean_dec(v_pre_1177_);
+lean_dec_ref_known(v_pre_1176_, 2);
 lean_dec_ref_known(v_declName_1175_, 2);
 v___y_1168_ = v_a_1162_;
 v___y_1169_ = v_a_1163_;
@@ -3626,8 +3626,8 @@ goto v___jp_1167_;
 }
 else
 {
-lean_dec(v_pre_1176_);
 lean_dec_ref_known(v_declName_1175_, 2);
+lean_dec(v_pre_1176_);
 v___y_1168_ = v_a_1162_;
 v___y_1169_ = v_a_1163_;
 goto v___jp_1167_;
@@ -4264,11 +4264,13 @@ lean_object* runtime_initialize_Lean_Compiler_LCNF_CoalesceRC(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_LCNF_Toposort(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_LCNF_ExpandResetReuse(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_LCNF_SimpleGroundExpr(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF_Passes(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Compiler_LCNF_PullLetDecls(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

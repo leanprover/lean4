@@ -14,6 +14,8 @@ import Lean.Linter.Deprecated
 
 open Lean Meta
 
+namespace Lean
+
 register_builtin_option genCtorIdx : Bool := {
   defValue := true
   descr    := "generate the `CtorIdx` functions for inductive datatypes"
@@ -113,3 +115,5 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
         modifyEnv fun env => addProtected env aliasName
         setReducibleAttribute aliasName
         Lean.Linter.setDeprecated aliasName { newName? := some declName, since? := "2025-08-25" }
+
+end Lean

@@ -43,7 +43,7 @@ lean_object* l_Std_DTreeMap_Internal_Impl_minView___redArg(lean_object*, lean_ob
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_anyM___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_forIn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_name_append_index_after(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -7189,9 +7189,9 @@ goto v___jp_1910_;
 v___jp_1898_:
 {
 lean_object* v___x_1902_; lean_object* v___x_1904_; 
-v___x_1902_ = lean_nat_add(v___y_1899_, v___y_1901_);
+v___x_1902_ = lean_nat_add(v___y_1900_, v___y_1901_);
 lean_dec(v___y_1901_);
-lean_dec(v___y_1899_);
+lean_dec(v___y_1900_);
 if (v_isShared_1895_ == 0)
 {
 lean_ctor_set(v___x_1894_, 4, v_impl_1865_);
@@ -7220,7 +7220,7 @@ lean_object* v___x_1906_;
 if (v_isShared_1883_ == 0)
 {
 lean_ctor_set(v___x_1882_, 4, v___x_1904_);
-lean_ctor_set(v___x_1882_, 3, v___y_1900_);
+lean_ctor_set(v___x_1882_, 3, v___y_1899_);
 lean_ctor_set(v___x_1882_, 2, v_v_1887_);
 lean_ctor_set(v___x_1882_, 1, v_k_1886_);
 lean_ctor_set(v___x_1882_, 0, v___x_1897_);
@@ -7234,7 +7234,7 @@ v_reuseFailAlloc_1907_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_1907_, 0, v___x_1897_);
 lean_ctor_set(v_reuseFailAlloc_1907_, 1, v_k_1886_);
 lean_ctor_set(v_reuseFailAlloc_1907_, 2, v_v_1887_);
-lean_ctor_set(v_reuseFailAlloc_1907_, 3, v___y_1900_);
+lean_ctor_set(v_reuseFailAlloc_1907_, 3, v___y_1899_);
 lean_ctor_set(v_reuseFailAlloc_1907_, 4, v___x_1904_);
 v___x_1906_ = v_reuseFailAlloc_1907_;
 goto v_reusejp_1905_;
@@ -7283,8 +7283,8 @@ if (lean_obj_tag(v_r_1889_) == 0)
 lean_object* v_size_1916_; 
 v_size_1916_ = lean_ctor_get(v_r_1889_, 0);
 lean_inc(v_size_1916_);
-v___y_1899_ = v___x_1915_;
-v___y_1900_ = v___x_1914_;
+v___y_1899_ = v___x_1914_;
+v___y_1900_ = v___x_1915_;
 v___y_1901_ = v_size_1916_;
 goto v___jp_1898_;
 }
@@ -7292,8 +7292,8 @@ else
 {
 lean_object* v___x_1917_; 
 v___x_1917_ = lean_unsigned_to_nat(0u);
-v___y_1899_ = v___x_1915_;
-v___y_1900_ = v___x_1914_;
+v___y_1899_ = v___x_1914_;
+v___y_1900_ = v___x_1915_;
 v___y_1901_ = v___x_1917_;
 goto v___jp_1898_;
 }
@@ -8919,7 +8919,7 @@ LEAN_EXPORT lean_object* l_Lean_LocalContext_getUnusedName(lean_object* v_lctx_2
 _start:
 {
 lean_object* v_suggestion_2366_; uint8_t v___x_2367_; 
-v_suggestion_2366_ = lean_erase_macro_scopes(v_suggestion_2365_);
+v_suggestion_2366_ = l_Lean_Name_eraseMacroScopes(v_suggestion_2365_);
 v___x_2367_ = l_Lean_LocalContext_usesUserName(v_lctx_2364_, v_suggestion_2366_);
 if (v___x_2367_ == 0)
 {
@@ -8942,6 +8942,7 @@ _start:
 {
 lean_object* v_res_2373_; 
 v_res_2373_ = l_Lean_LocalContext_getUnusedName(v_lctx_2371_, v_suggestion_2372_);
+lean_dec(v_suggestion_2372_);
 lean_dec_ref(v_lctx_2371_);
 return v_res_2373_;
 }
@@ -12713,8 +12714,8 @@ lean_object* v___x_3771_;
 v___x_3771_ = l_Lean_LocalContext_setUserName(v_a_3755_, v___y_3770_, v___y_3769_);
 v_i_3754_ = v_n_3765_;
 v_a_3755_ = v___x_3771_;
-v___y_3756_ = v___y_3768_;
-v___y_3757_ = v___y_3767_;
+v___y_3756_ = v___y_3767_;
+v___y_3757_ = v___y_3768_;
 goto _start;
 }
 v___jp_3773_:
@@ -12731,8 +12732,8 @@ lean_dec_ref(v___x_3777_);
 v_fvarId_3780_ = lean_ctor_get(v___y_3775_, 1);
 lean_inc(v_fvarId_3780_);
 lean_dec_ref(v___y_3775_);
-v___y_3767_ = v_snd_3779_;
-v___y_3768_ = v___x_3776_;
+v___y_3767_ = v___x_3776_;
+v___y_3768_ = v_snd_3779_;
 v___y_3769_ = v_fst_3778_;
 v___y_3770_ = v_fvarId_3780_;
 goto v___jp_3766_;
@@ -15467,11 +15468,13 @@ lean_object* runtime_initialize_Lean_Data_PersistentArray(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Expr(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_ToString_Macro(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_LocalContext(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Nat_Control(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

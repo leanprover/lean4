@@ -43,7 +43,7 @@ lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___redArg(lean_object*
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_eqv___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hash___boxed(lean_object*);
-extern lean_object* l_Lean_Meta_Tactic_BVDecide_intToBitVecExt;
+extern lean_object* l_Lean_Meta_Tactic_BVDecide_metaIntToBitVecExt;
 lean_object* l_Lean_Meta_SimpExtension_getTheorems___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getSimpCongrTheorems___redArg(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -2032,7 +2032,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_BVDecide_Normalize_intToBitVecPass__
 _start:
 {
 lean_object* v___x_606_; lean_object* v___x_607_; 
-v___x_606_ = l_Lean_Meta_Tactic_BVDecide_intToBitVecExt;
+v___x_606_ = l_Lean_Meta_Tactic_BVDecide_metaIntToBitVecExt;
 v___x_607_ = l_Lean_Meta_SimpExtension_getTheorems___redArg(v___x_606_, v___y_604_);
 if (lean_obj_tag(v___x_607_) == 0)
 {
@@ -2568,11 +2568,13 @@ return v_res_721_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_BVDecide_Normalize_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_BVDecide_Normalize_IntToBitVec(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_BVDecide_Normalize_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

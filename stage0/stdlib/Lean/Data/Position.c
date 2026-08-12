@@ -214,7 +214,7 @@ LEAN_EXPORT lean_object* l_Lean_FileMap_ofPosition(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_ofPosition___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_lineStart(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_lineStart___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_toFileMap(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_String_toFileMap(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_instDecidableEqPosition_decEq(lean_object* v_x_5_, lean_object* v_x_6_){
 _start:
 {
@@ -1600,7 +1600,7 @@ lean_dec_ref(v_map_500_);
 return v_res_502_;
 }
 }
-LEAN_EXPORT lean_object* l_String_toFileMap(lean_object* v_s_503_){
+LEAN_EXPORT lean_object* l_Lean_String_toFileMap(lean_object* v_s_503_){
 _start:
 {
 lean_object* v___x_504_; 
@@ -1610,11 +1610,13 @@ return v___x_504_;
 }
 lean_object* runtime_initialize_Lean_Data_Json_FromToJson_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_ToExpr(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Data_Position(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Data_Json_FromToJson_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

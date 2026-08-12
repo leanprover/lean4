@@ -266,7 +266,7 @@ def main(version: Version, refman: Path):
     repo = Repo(Path(__file__).parent.parent.parent)
     grepo = github.get_repo(repos.LEAN4.gh_full_name)
     release = grepo.get_release(version.tag)
-    date = release.created_at.astimezone(datetime.timezone.utc)
+    date = release.published_at.astimezone(datetime.timezone.utc)
     title = util.get_release_notes_title_for(version, release)
 
     commits = load_commits(version, repo, grepo)

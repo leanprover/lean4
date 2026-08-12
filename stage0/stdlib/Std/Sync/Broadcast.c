@@ -2260,9 +2260,9 @@ goto v___jp_586_;
 v___jp_575_:
 {
 lean_object* v___x_579_; lean_object* v___x_581_; 
-v___x_579_ = lean_nat_add(v___y_577_, v___y_578_);
+v___x_579_ = lean_nat_add(v___y_576_, v___y_578_);
 lean_dec(v___y_578_);
-lean_dec(v___y_577_);
+lean_dec(v___y_576_);
 if (v_isShared_572_ == 0)
 {
 lean_ctor_set(v___x_571_, 4, v_r_549_);
@@ -2291,7 +2291,7 @@ lean_object* v___x_583_;
 if (v_isShared_560_ == 0)
 {
 lean_ctor_set(v___x_559_, 4, v___x_581_);
-lean_ctor_set(v___x_559_, 3, v___y_576_);
+lean_ctor_set(v___x_559_, 3, v___y_577_);
 lean_ctor_set(v___x_559_, 2, v_v_563_);
 lean_ctor_set(v___x_559_, 1, v_k_562_);
 lean_ctor_set(v___x_559_, 0, v___x_574_);
@@ -2305,7 +2305,7 @@ v_reuseFailAlloc_584_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_584_, 0, v___x_574_);
 lean_ctor_set(v_reuseFailAlloc_584_, 1, v_k_562_);
 lean_ctor_set(v_reuseFailAlloc_584_, 2, v_v_563_);
-lean_ctor_set(v_reuseFailAlloc_584_, 3, v___y_576_);
+lean_ctor_set(v_reuseFailAlloc_584_, 3, v___y_577_);
 lean_ctor_set(v_reuseFailAlloc_584_, 4, v___x_581_);
 v___x_583_ = v_reuseFailAlloc_584_;
 goto v_reusejp_582_;
@@ -2350,8 +2350,8 @@ if (lean_obj_tag(v_r_565_) == 0)
 lean_object* v_size_592_; 
 v_size_592_ = lean_ctor_get(v_r_565_, 0);
 lean_inc(v_size_592_);
-v___y_576_ = v___x_590_;
-v___y_577_ = v___x_591_;
+v___y_576_ = v___x_591_;
+v___y_577_ = v___x_590_;
 v___y_578_ = v_size_592_;
 goto v___jp_575_;
 }
@@ -2359,8 +2359,8 @@ else
 {
 lean_object* v___x_593_; 
 v___x_593_ = lean_unsigned_to_nat(0u);
-v___y_576_ = v___x_590_;
-v___y_577_ = v___x_591_;
+v___y_576_ = v___x_591_;
+v___y_577_ = v___x_590_;
 v___y_578_ = v___x_593_;
 goto v___jp_575_;
 }
@@ -18038,11 +18038,13 @@ lean_object* runtime_initialize_Init_Data_Queue(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Vector(uint8_t builtin);
 lean_object* runtime_initialize_Std_Sync_Mutex(uint8_t builtin);
 lean_object* runtime_initialize_Std_Async_IO(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Sync_Broadcast(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

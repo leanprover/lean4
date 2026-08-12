@@ -491,33 +491,6 @@ private def unfoldNestedDIte (e : Expr) : CoreM Expr := do
   else
     return e
 
-/--
-Auxiliary predicate for `whnfMatcher`.
-See comment above.
--/
-def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
-  if (← canUnfoldDefault cfg info) then
-    return true
-  /- Beyond what the normal transparency allows, we additionally unfold
-     certain definitions to expose constructors in match discriminants. -/
-  if hasMatchPatternAttribute (← getEnv) info.name then
-    return true
-  return info.name == ``OfNat.ofNat -- needed to reduce numeric literals in match discriminants
-   || info.name == ``NatCast.natCast -- needed for `↑m` in match discriminants (pervasive in Int proofs)
-   || info.name == ``Zero.zero || info.name == ``One.one -- needed for `0`/`1` in match discriminants
-   || info.name == ``decEq
-   || info.name == ``Nat.decEq
-   || info.name == ``Char.ofNat   || info.name == ``Char.ofNatAux
-   || info.name == ``String.decEq || info.name == ``List.hasDecEq
-   || info.name == ``Fin.ofNat -- needed for Fin literal reduction in match discriminants
-   || info.name == ``UInt8.ofNat  || info.name == ``UInt8.decEq
-   || info.name == ``UInt16.ofNat || info.name == ``UInt16.decEq
-   || info.name == ``UInt32.ofNat || info.name == ``UInt32.decEq
-   || info.name == ``UInt64.ofNat || info.name == ``UInt64.decEq
-   /- `Fin.ofNat` reduces to `⟨a % n, _⟩`, so we also need to unfold `%` (i.e., `HMod.hMod`
-      and `Mod.mod`) to expose the `Fin.mk` constructor in match discriminants. -/
-   || info.name == ``HMod.hMod || info.name == ``Mod.mod
-
 private def whnfMatcher (e : Expr) : MetaM Expr := do
   /- When reducing `match` expressions at `.reducible`, `.instances` or `.implicit` transparency,
      we use a custom `canUnfoldAtMatcher` predicate that additionally allows unfolding
@@ -526,7 +499,7 @@ private def whnfMatcher (e : Expr) : MetaM Expr := do
      reduced to expose constructors, without bumping the overall transparency level.  -/
   if (← getTransparency) matches .reducible | .instances | .implicit then
     -- Also unfold some default-reducible constants; see `canUnfoldAtMatcher`
-    withCanUnfoldPred canUnfoldAtMatcher do
+    withCanUnfoldAtMatcherPred do
       whnf e
   else
     -- Do NOT use `canUnfoldAtMatcher` here as it does not affect all/default reducibility and inhibits caching (#2564).
@@ -1082,7 +1055,7 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
 @[inline] private def useWHNFCache (e : Expr) : MetaM Bool := do
   -- We cache only closed terms without expr metavars.
   -- Potential refinement: cache if `e` is not stuck at a metavariable
-  if e.hasFVar || e.hasExprMVar || (← read).canUnfold?.isSome then
+  if e.hasFVar || e.hasExprMVar || (← read).customCanUnfoldPredicate?.isSome then
     return false
   else
     return true

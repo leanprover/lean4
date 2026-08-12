@@ -52,9 +52,9 @@ private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.with
   throwError "substSomeVar failed"
 
 private def unfoldElimOffset (mvarId : MVarId) : MetaM MVarId := do
-  if Option.isNone <| (← mvarId.getType).find? fun e => e.isConstOf ``Nat.elimOffset then
-    throwError "goal's target does not contain `Nat.elimOffset`"
-  mvarId.deltaTarget (· == ``Nat.elimOffset)
+  if Option.isNone <| (← mvarId.getType).find? fun e => e.isConstOf ``Nat.Internal.elimOffset then
+    throwError "goal's target does not contain `Nat.Internal.elimOffset`"
+  mvarId.deltaTarget (· == ``Nat.Internal.elimOffset)
 
 /--
 Helper method for proving a conditional equational theorem associated with an alternative of

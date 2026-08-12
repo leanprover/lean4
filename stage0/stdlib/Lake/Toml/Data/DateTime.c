@@ -1057,8 +1057,8 @@ return v___x_253_;
 else
 {
 lean_object* v___x_254_; 
-lean_dec_ref_known(v___x_180_, 2);
 lean_dec(v_tail_181_);
+lean_dec_ref_known(v___x_180_, 2);
 v___x_254_ = lean_box(0);
 return v___x_254_;
 }
@@ -3051,8 +3051,8 @@ else
 lean_inc(v_endExclusive_709_);
 lean_inc(v_startInclusive_708_);
 lean_inc_ref(v_str_707_);
-lean_dec_ref_known(v___x_778_, 2);
 lean_dec(v_tail_779_);
+lean_dec_ref_known(v___x_778_, 2);
 v___y_726_ = v___x_775_;
 goto v___jp_725_;
 }
@@ -3481,11 +3481,13 @@ lean_object* runtime_initialize_Init_Data_String_Search(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Loop(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_ToString_Macro(uint8_t builtin);
+void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Toml_Data_DateTime(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize();
 res = runtime_initialize_Lake_Util_Date(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -805,8 +805,8 @@ goto v___jp_207_;
 else
 {
 lean_object* v_a_247_; lean_object* v___x_249_; uint8_t v_isShared_250_; uint8_t v_isSharedCheck_254_; 
-lean_dec_ref_known(v_a_205_, 1);
 lean_dec(v_fvarId_234_);
+lean_dec_ref_known(v_a_205_, 1);
 lean_dec_ref_known(v___x_203_, 14);
 v_a_247_ = lean_ctor_get(v___x_235_, 0);
 v_isSharedCheck_254_ = !lean_is_exclusive(v___x_235_);
@@ -1126,11 +1126,13 @@ return v_res_436_;
 }
 lean_object* runtime_initialize_Lean_Elab_Tactic_Unfold(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Conv_Simp(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic_Conv_Unfold(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Elab_Tactic_Unfold(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -475,7 +475,7 @@ def processNewDiseq (a b : Expr) : GoalM Unit := do
 private inductive SupportedTermKind where
   -- TODO: hardcoded embedding support: kinds for the embedding accessors
   -- (`Fin.val`, `BitVec.toNat`, `BitVec.toInt`, `UInt??.toBitVec`, ...) and `Fin.mk`.
-  | add | mul | num | div | mod | sub | pow | natAbs | toNat | natCast | neg | finVal
+  | add | mul | num | div | mod | sub | pow | natAbs | toNat | natCast | neg | finVal | finMk
   deriving BEq, Repr
 
 private def getKindAndType? (e : Expr) : GrindM (Option (SupportedTermKind × Expr)) :=
@@ -494,6 +494,8 @@ private def getKindAndType? (e : Expr) : GrindM (Option (SupportedTermKind × Ex
   | Int.toNat _ => return some (.toNat, Nat.mkType)
   | NatCast.natCast α _ _ => return some (.natCast, α)
   | Fin.val _ _ => return some (.finVal, Nat.mkType)
+  | Fin.mk n _ _ => return some (.finMk, mkApp (mkConst ``Fin) n)
+  | Fin.succ n _ => return some (.finMk, mkApp (mkConst ``Fin) (mkNatAdd n (mkNatLit 1)))
   | _ => return none
 
 private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : Bool := Id.run do
@@ -502,7 +504,7 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
   -- TODO: document `NatCast.natCast` case.
   -- Remark: we added it to prevent natCast_sub from being expanded twice.
   if declName == ``NatCast.natCast then return true
-  if k matches .div | .mod | .sub | .pow | .neg | .natAbs | .toNat | .natCast | .finVal then return false
+  if k matches .div | .mod | .sub | .pow | .neg | .natAbs | .toNat | .natCast | .finVal | .finMk then return false
   if declName == ``HAdd.hAdd || declName == ``LE.le || declName == ``Dvd.dvd then return true
   match k with
   | .add => return false

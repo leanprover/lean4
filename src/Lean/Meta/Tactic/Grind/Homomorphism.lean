@@ -136,6 +136,9 @@ because no union takes place.
 -/
 def processNewEq (a b : Expr) : GoalM Unit := do
   unless (← getConfig).hom do return ()
+  -- `a` and `b` may have different types when their classes were merged via `HEq`
+  -- (e.g., `BitVec.cast` terms). The `=`-injection applies only to homogeneous equalities.
+  unless (← hasSameType a b) do return ()
   let eq ← shareCommon (← mkEq a b)
   let some (t, hEqProp) ← applyHomo? eq | return ()
   let fact ← mkEqMP hEqProp (← mkEqProof a b)
@@ -153,6 +156,8 @@ homomorphism.
 -/
 def processNewDiseq (a b : Expr) : GoalM Unit := do
   unless (← getConfig).hom do return ()
+  -- See the same-type check at `processNewEq`.
+  unless (← hasSameType a b) do return ()
   let eq ← shareCommon (← mkEq a b)
   let some (t, hEqProp) ← applyHomo? eq | return ()
   let hne ← mkDiseqProof a b

@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Sym.Apply
 public import Std.Internal.Order.Heyting
 public import Lean.Elab.Tactic.Do.Internal.VCGen.FrameProc
+import Std.Internal.Do.WP.Frame
 import Lean.Meta.Sym.Simp.Rewrite
 import Lean.Meta.AppBuilder
 import Lean.Meta.AbstractMVars
@@ -128,7 +129,7 @@ private partial def mkPointFrameApply (introThm : Name) (opAs pre : Expr) (ss : 
       let ofp ← mkAppOptM ``Lean.Order.CompleteLattice.ofProp #[preTy, none, ← mkEq u s]
       mkLambdaFVars #[u] (← mkAppM ``Lean.Order.meet #[ofp, pre])
     let h ← mkPointFrameApply introThm opAs gate init
-    mkAppM ``Lean.Order.le_apply_of_point_meet_le #[s, pre, Q, h]
+    mkAppM ``Std.Internal.Do.le_apply_of_point_meet_le #[s, pre, Q, h]
 
 /--
 Build a reusable backward rule decomposing `pre ⊑ op … s⃗` for a lattice operator. The operator's

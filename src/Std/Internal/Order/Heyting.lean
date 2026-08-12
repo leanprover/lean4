@@ -6,52 +6,33 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
+public import Std.Internal.Order.OfProp
 public import Std.Internal.Order.PreservesSup
+public import Init.ByCases
+import Init.Classical
 
-public section
+@[expose] public section
+
+/-!
+# Heyting implication
+
+`a ⇨ b` is the upper adjoint of the lattice meet `a ⊓ ·`. A complete lattice whose meet preserves
+`Sup` is a frame, and `⇨` then satisfies the laws of an implication: modus ponens, currying and
+distribution of `⊓` over `⊔`.
+-/
 
 namespace Lean.Order
 
-universe u
+open PartialOrder Std.Internal.Order
+
+universe u v
+
+section Basic
 
 variable {α : Type u} [CompleteLattice α]
 
-instance (a : Prop) : PreservesSup (meet a) where
-  map_sup s := by
-    show a ⊓ CompleteLattice.sup s = CompleteLattice.sup (fun y => ∃ x, s x ∧ y = a ⊓ x)
-    have sup_eq_propSup (c : Prop → Prop) : CompleteLattice.sup c = propSup c := by
-      apply propext
-      constructor
-      · exact sup_le c (fun y hy hyTrue => ⟨y, hy, hyTrue⟩)
-      · intro ⟨y, hy, hyTrue⟩
-        exact le_sup (c := c) hy hyTrue
-    rw [sup_eq_propSup s, sup_eq_propSup (fun y => ∃ x, s x ∧ y = a ⊓ x)]
-    apply propext
-    simp only [propSup, meet_prop_eq_and]
-    constructor
-    · rintro ⟨ha, x, hsx, hx⟩
-      exact ⟨a ∧ x, ⟨x, hsx, rfl⟩, ha, hx⟩
-    · rintro ⟨p, ⟨x, hsx, hp_eq⟩, hp⟩
-      subst p
-      exact ⟨hp.1, x, hsx, hp.2⟩
-
-instance {σ : Type v} {β : σ → Type u} [∀ s, CompleteLattice (β s)]
-    [∀ s, ∀ c : β s, PreservesSup (meet c)] (a : ∀ s, β s) : PreservesSup (meet a) where
-  map_sup s := by
-    show a ⊓ CompleteLattice.sup s = CompleteLattice.sup (fun y => ∃ x, s x ∧ y = a ⊓ x)
-    funext t
-    rw [meet_apply, sup_apply, sup_apply, PreservesSup.map_sup (f := meet (a t))]
-    congr 1
-    funext w
-    apply propext
-    constructor
-    · rintro ⟨v, ⟨f, hf, hft⟩, rfl⟩
-      exact ⟨a ⊓ f, ⟨f, hf, rfl⟩, by rw [meet_apply, hft]⟩
-    · rintro ⟨g, ⟨x, hx, rfl⟩, hgt⟩
-      exact ⟨x t, ⟨x, hx, rfl⟩, by rw [← hgt, meet_apply]⟩
-
 /-- Heyting implication: the upper adjoint of the lattice meet. For `Prop` it is `→`. -/
-@[expose] noncomputable def himp {α : Type u} [CompleteLattice α] (a b : α) : α :=
+noncomputable def himp {α : Type u} [CompleteLattice α] (a b : α) : α :=
   PreservesSup.upperAdjoint (meet a) b
 
 @[inherit_doc himp] scoped infixr:60 " ⇨ " => himp
@@ -110,6 +91,118 @@ theorem meet_himp_le {a b : α} [PreservesSup (meet a)] : a ⊓ (a ⇨ b) ⊑ b 
       · exact PartialOrder.rel_trans (meet_le_right ..) (bot_le ..)
     have hs : f s = y := by simp [f]
     exact le_sup (c := fun z => ∃ g, (a ⊓ g ⊑ b) ∧ g s = z) ⟨f, hf, hs⟩
+
+end Basic
+
+/-! ## Derived laws -/
+
+section Derived
+
+set_option linter.unusedSectionVars false
+
+variable {l : Type u} [CompleteLattice l] {P P' Q Q' R R' T : l} {φ φ₁ φ₂ : Prop}
+variable [∀ a : l, PreservesSup (meet a)]
+
+/-! ### Connectives -/
+
+theorem le_himp_comm (h : P ⊓ Q ⊑ R) : P ⊑ Q ⇨ R := le_himp (rel_trans meet_le_comm h)
+theorem le_himp_of_meet_le_comm (h : Q ⊓ P ⊑ R) : P ⊑ Q ⇨ R := le_himp h
+theorem meet_le_of_le_himp (h : P ⊑ Q ⇨ R) : P ⊓ Q ⊑ R := rel_trans
+  (le_meet _ _ _ (meet_le_right _ _) (meet_le_of_left_le h))
+  meet_himp_le
+theorem meet_le_of_le_himp_comm (h : Q ⊑ P ⇨ R) : P ⊓ Q ⊑ R :=
+  rel_trans meet_le_comm (meet_le_of_le_himp h)
+theorem himp_meet_le : (P ⇨ Q) ⊓ P ⊑ Q := meet_le_of_le_himp rel_refl
+theorem le_himp_mp (h₁ : P ⊑ Q ⇨ R) (h₂ : P ⊑ Q) : P ⊑ R :=
+  le_trans_meet h₂ (meet_le_of_le_himp h₁)
+
+theorem meet_join_le_left (hleft : P ⊓ R ⊑ T) (hright : Q ⊓ R ⊑ T) : (P ⊔ Q) ⊓ R ⊑ T :=
+  meet_le_of_le_himp (join_le _ _ _ (le_himp_comm hleft) (le_himp_comm hright))
+theorem meet_join_le_right (hleft : P ⊓ Q ⊑ T) (hright : P ⊓ R ⊑ T) : P ⊓ (Q ⊔ R) ⊑ T :=
+  meet_le_of_le_himp_comm
+    (join_le _ _ _
+      (le_himp_comm (rel_trans meet_le_comm hleft))
+      (le_himp_comm (rel_trans meet_le_comm hright)))
+
+/-! ### Monotonicity -/
+
+theorem himp_mono (h1 : Q ⊑ P) (h2 : P' ⊑ Q') : (P ⇨ P') ⊑ Q ⇨ Q' :=
+  le_himp_comm <| rel_trans (meet_mono_right h1) <| rel_trans himp_meet_le h2
+theorem himp_mono_left (h : P' ⊑ P) : (P ⇨ Q) ⊑ (P' ⇨ Q) := himp_mono h rel_refl
+theorem himp_mono_right (h : Q ⊑ Q') : (P ⇨ Q) ⊑ (P ⇨ Q') := himp_mono rel_refl h
+
+/-! ### Distributivity -/
+
+theorem meet_join_left : P ⊓ (Q ⊔ R) = (P ⊓ Q) ⊔ (P ⊓ R) :=
+  rel_antisymm
+    (meet_join_le_right (le_join_of_le_left rel_refl) (le_join_of_le_right rel_refl))
+    (join_le _ _ _ (meet_mono_right (left_le_join _ _)) (meet_mono_right (right_le_join _ _)))
+theorem join_meet_left : P ⊔ (Q ⊓ R) = (P ⊔ Q) ⊓ (P ⊔ R) :=
+  rel_antisymm
+    (join_le _ _ _ (le_meet _ _ _ (left_le_join _ _) (left_le_join _ _))
+      (meet_mono (right_le_join _ _) (right_le_join _ _)))
+    (meet_join_le_left (le_join_of_le_left (meet_le_left _ _))
+      (meet_join_le_right (le_join_of_le_left (meet_le_right _ _)) (le_join_of_le_right rel_refl)))
+theorem meet_join_right : (P ⊔ Q) ⊓ R = (P ⊓ R) ⊔ (Q ⊓ R) :=
+  meet_comm.trans (meet_join_left.trans (rel_antisymm
+    (join_mono (P := _) (Q := _) (P' := _) (Q' := _)
+      (rel_of_eq meet_comm) (rel_of_eq meet_comm))
+    (join_mono (rel_of_eq meet_comm) (rel_of_eq meet_comm))))
+theorem join_meet_right : (P ⊓ Q) ⊔ R = (P ⊔ R) ⊓ (Q ⊔ R) :=
+  join_comm.trans (join_meet_left.trans (rel_antisymm
+    (meet_mono (rel_of_eq join_comm) (rel_of_eq join_comm))
+    (meet_mono (rel_of_eq join_comm) (rel_of_eq join_comm))))
+
+/-! ### Units and composition -/
+
+theorem top_himp : ((⊤ : l) ⇨ P) = P :=
+  rel_antisymm
+    (rel_trans (le_meet _ _ _ (le_top _) rel_refl) meet_himp_le)
+    (le_himp_comm (meet_le_of_left_le rel_refl))
+theorem le_himp_self : Q ⊑ P ⇨ P := le_himp_comm (meet_le_right _ _)
+theorem le_himp_self_iff : (Q ⊑ P ⇨ P) ↔ True := iff_true_intro le_himp_self
+theorem himp_meet_himp_le : (P ⇨ Q) ⊓ (Q ⇨ R) ⊑ P ⇨ R :=
+  le_himp_of_meet_le_comm <|
+    rel_trans (rel_of_eq meet_assoc.symm) <|
+      rel_trans (meet_mono_left meet_himp_le) meet_himp_le
+theorem bot_himp : ((⊥ : l) ⇨ P) = ⊤ :=
+  rel_antisymm (le_top _) (le_himp_comm (meet_le_of_right_le (bot_le _)))
+
+theorem meet_himp_le_meet : P' ⊓ (P' ⇨ Q') ⊑ P' ⊓ Q' :=
+  le_meet _ _ _ (meet_le_left _ _) (rel_trans meet_le_comm himp_meet_le)
+theorem meet_le_meet_of_le_himp (hp : P ⊑ P') (hq : Q ⊑ (P' ⇨ Q')) : P ⊓ Q ⊑ P' ⊓ Q' :=
+  rel_trans (meet_mono hp hq) meet_himp_le_meet
+
+/-! ### Interaction with the propositional embedding -/
+
+theorem himp_ofProp_le {φ₁ φ₂ : Prop} : (⌜φ₁ → φ₂⌝ : l) ⊑ (⌜φ₁⌝ ⇨ ⌜φ₂⌝) :=
+  le_himp_comm (rel_trans (rel_of_eq ofProp_and) (ofProp_mono (And.elim id)))
+
+theorem himp_ofProp {φ₁ φ₂ : Prop} : ((⌜φ₁⌝ : l) ⇨ ⌜φ₂⌝) = ⌜φ₁ → φ₂⌝ := by
+  apply rel_antisymm
+  · by_cases h₁ : φ₁
+    · -- φ₁ true: weaken the LHS to `(⌜φ₁⌝ ⇨ ⌜φ₂⌝) ⊓ ⌜φ₁⌝` and apply `himp_meet_le`.
+      have h₁' : (⊤ : l) ⊑ ⌜φ₁⌝ := by
+        have : (⌜φ₁⌝ : l) = ⊤ := ofProp_eq_top h₁
+        exact this ▸ rel_refl
+      exact rel_trans
+        (le_meet _ _ _ rel_refl (rel_trans (le_top _) h₁'))
+        (rel_trans himp_meet_le (ofProp_mono (fun h _ => h)))
+    · -- φ₁ false: `⌜φ₁ → φ₂⌝ = ⊤`
+      have : (⌜φ₁ → φ₂⌝ : l) = ⊤ := ofProp_eq_top (fun hp => absurd hp h₁)
+      exact this ▸ le_top _
+  · exact himp_ofProp_le
+
+end Derived
+
+/-- `⊤ ⊑ (P ⇨ Q)` iff `P ⊑ Q`. -/
+@[simp] theorem top_le_himp_iff {l : Type u} [CompleteLattice l]
+    [∀ a : l, PreservesSup (meet a)] (P Q : l) :
+    ((⊤ : l) ⊑ P ⇨ Q) ↔ (P ⊑ Q) :=
+  ⟨fun h => rel_trans
+    (le_meet _ _ _ (le_top _) rel_refl)
+    (rel_trans (meet_mono_left h) himp_meet_le),
+   fun h => le_himp_comm (meet_le_of_right_le h)⟩
 
 end Lean.Order
 

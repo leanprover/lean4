@@ -40,7 +40,7 @@ The file is laid out reusable-first: the programs, then the separation logic, th
 lemmas, then the `@[frameproc]`, then the specifications.
 -/
 
-open Lean Order Meta Elab Tactic Sym Sym.Internal Std Internal.Do Std.Internal.Do.CompleteLattice
+open Lean Order Meta Elab Tactic Sym Sym.Internal Std Internal.Do
 
 /-! # Programs
 

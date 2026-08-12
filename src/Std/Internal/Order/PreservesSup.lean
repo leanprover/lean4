@@ -6,11 +6,21 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Order.Basic
+public import Std.Internal.Order.Lemmas
 
 @[expose] public section
 
+/-!
+# `Sup`-preserving maps and their upper adjoints
+
+A `Sup`-preserving map on a complete lattice is a lower adjoint. Its upper adjoint is the
+implication belonging to it: Heyting `⇨` for the lattice meet, a magic wand for a separating
+conjunction.
+-/
+
 namespace Lean.Order
+
+open Std.Internal.Order
 
 universe u v w
 
@@ -29,6 +39,40 @@ class PreservesSup {α : Type u} [CompleteLattice α] (f : α → α) : Prop whe
   /-- `f` preserves joins. -/
   map_sup (s : α → Prop) :
     f (CompleteLattice.sup s) = CompleteLattice.sup (fun y => ∃ x, s x ∧ y = f x)
+
+instance (a : Prop) : PreservesSup (meet a) where
+  map_sup s := by
+    show a ⊓ CompleteLattice.sup s = CompleteLattice.sup (fun y => ∃ x, s x ∧ y = a ⊓ x)
+    have sup_eq_propSup (c : Prop → Prop) : CompleteLattice.sup c = propSup c := by
+      apply propext
+      constructor
+      · exact sup_le c (fun y hy hyTrue => ⟨y, hy, hyTrue⟩)
+      · intro ⟨y, hy, hyTrue⟩
+        exact le_sup (c := c) hy hyTrue
+    rw [sup_eq_propSup s, sup_eq_propSup (fun y => ∃ x, s x ∧ y = a ⊓ x)]
+    apply propext
+    simp only [propSup, meet_prop_eq_and]
+    constructor
+    · rintro ⟨ha, x, hsx, hx⟩
+      exact ⟨a ∧ x, ⟨x, hsx, rfl⟩, ha, hx⟩
+    · rintro ⟨p, ⟨x, hsx, hp_eq⟩, hp⟩
+      subst p
+      exact ⟨hp.1, x, hsx, hp.2⟩
+
+instance {σ : Type v} {β : σ → Type u} [∀ s, CompleteLattice (β s)]
+    [∀ s, ∀ c : β s, PreservesSup (meet c)] (a : ∀ s, β s) : PreservesSup (meet a) where
+  map_sup s := by
+    show a ⊓ CompleteLattice.sup s = CompleteLattice.sup (fun y => ∃ x, s x ∧ y = a ⊓ x)
+    funext t
+    rw [meet_apply, sup_apply, sup_apply, PreservesSup.map_sup (f := meet (a t))]
+    congr 1
+    funext w
+    apply propext
+    constructor
+    · rintro ⟨v, ⟨f, hf, hft⟩, rfl⟩
+      exact ⟨a ⊓ f, ⟨f, hf, rfl⟩, by rw [meet_apply, hft]⟩
+    · rintro ⟨g, ⟨x, hx, rfl⟩, hgt⟩
+      exact ⟨x t, ⟨x, hx, rfl⟩, by rw [← hgt, meet_apply]⟩
 
 namespace PreservesSup
 
@@ -63,74 +107,10 @@ theorem map_mono (f : α → α) [PreservesSup f] {b b' : α} (h : b ⊑ b') : f
             rw [PreservesSup.map_sup (f := f)]; exact le_sup _ ⟨b, h, rfl⟩
     _ = f b' := by rw [hsup]
 
-/-- The **frame closure** of a post-transformer `k` with respect to a family of `Sup`-preserving
-operators `op r`: the meet over all resources `r` of the `r`-upper-adjoint of `k` framed by `r`. It
-internalizes the frame rule into any `k` (see `frameClosure_frames`), with no assumption on `k`. A
-weakest precondition built as `frameClosure op (fun Q => bwp x Q E)` satisfies the `op`-frame rule by
-construction. -/
-noncomputable def frameClosure {R : Type v} {β : Type w} (op : R → α → α)
-    (k : (β → α) → α) (Q : β → α) : α :=
-  ⨅ r, upperAdjoint (op r) (k (fun a => op r (Q a)))
-
-/-- The frame rule, internalized: for a family of `Sup`-preserving operators `op r` whose resources
-compose by `comp` with the action law `op (comp r r') = op r ∘ op r'`, and any post-transformer `k`,
-`op F (frameClosure op k Q) ⊑ frameClosure op k (fun a => op F (Q a))`. -/
-theorem frameClosure_frames {R : Type v} {β : Type w} (op : R → α → α) [∀ r, PreservesSup (op r)]
-    (comp : R → R → R) (hact : ∀ r r' a, op (comp r r') a = op r (op r' a))
-    (k : (β → α) → α) (Q : β → α) (F : R) :
-    op F (frameClosure op k Q) ⊑ frameClosure op k (fun a => op F (Q a)) := by
-  apply le_iInf
-  intro F'
-  apply le_upperAdjoint (op F')
-  rw [← hact F' F (frameClosure op k Q)]
-  refine PartialOrder.rel_trans (map_mono (op (comp F' F)) (iInf_le _ (comp F' F))) ?_
-  refine PartialOrder.rel_trans (upperAdjoint_le (op (comp F' F)) _) ?_
-  apply PartialOrder.rel_of_eq
-  congr 1
-  funext a
-  rw [hact F' F (Q a)]
-
-/-- Landing below the frame closure, transposed across the Galois connection: `pre ⊑ frameClosure op k Q`
-holds exactly when `op r pre ⊑ k (fun a => op r (Q a))` for every resource `r`. At a unit resource
-(`op e = id`) the `r = e` conjunct is `pre ⊑ k Q`; the remaining conjuncts are the frame conditions on
-`pre`, so a `pre` that cannot frame is forced down to the trivial `⊥`. -/
-theorem le_frameClosure_iff {R : Type v} {β : Type w} (op : R → α → α) [∀ r, PreservesSup (op r)]
-    (k : (β → α) → α) {Q : β → α} {pre : α} :
-    pre ⊑ frameClosure op k Q ↔ ∀ r, op r pre ⊑ k (fun a => op r (Q a)) := by
-  constructor
-  · intro h r
-    exact PartialOrder.rel_trans (map_mono (op r) (PartialOrder.rel_trans h (iInf_le _ r)))
-      (upperAdjoint_le (op r) _)
-  · intro h
-    apply le_iInf
-    intro r
-    exact le_upperAdjoint (op r) (h r)
-
-/-- Landing below the frame closure reduces to landing below the base transformer together with
-framing: if `pre ⊑ k Q` and `k` frames every `op r` (`op r (k Q') ⊑ k (fun a => op r (Q' a))`), then
-`pre ⊑ frameClosure op k Q`. -/
-theorem le_frameClosure {R : Type v} {β : Type w} (op : R → α → α) [∀ r, PreservesSup (op r)]
-    (k : (β → α) → α) {Q : β → α} {pre : α}
-    (hframe : ∀ (r : R) (Q' : β → α), op r (k Q') ⊑ k (fun a => op r (Q' a)))
-    (hpre : pre ⊑ k Q) :
-    pre ⊑ frameClosure op k Q :=
-  (le_frameClosure_iff op k).mpr fun r =>
-    PartialOrder.rel_trans (map_mono (op r) hpre) (hframe r Q)
-
 /-- A right adjoint is monotone. -/
 theorem upperAdjoint_mono (f : α → α) [PreservesSup f] {b b' : α} (h : b ⊑ b') :
     upperAdjoint f b ⊑ upperAdjoint f b' :=
   le_upperAdjoint f (PartialOrder.rel_trans (upperAdjoint_le f b) h)
-
-/-- The frame closure lies below the base transformer, witnessed at a unit resource `e` with
-`op e = id`. -/
-theorem frameClosure_le {R : Type v} {β : Type w} (op : R → α → α) [∀ r, PreservesSup (op r)]
-    (e : R) (hunit : ∀ a, op e a = a) (k : (β → α) → α) (Q : β → α) :
-    frameClosure op k Q ⊑ k Q := by
-  refine PartialOrder.rel_trans (iInf_le _ e) ?_
-  rw [show (fun a => op e (Q a)) = Q from funext fun a => hunit (Q a)]
-  have h := upperAdjoint_le (op e) (k Q)
-  rwa [hunit] at h
 
 end PreservesSup
 
@@ -146,14 +126,6 @@ theorem iSup_meet_le {ι : Type v} {P R : α} {Φ : ι → α} [PreservesSup (me
   rintro y ⟨x, ⟨i, rfl⟩, rfl⟩
   exact PartialOrder.rel_trans
     (le_meet _ _ _ (meet_le_right _ _) (meet_le_left _ _)) (h i)
-
-/-- Frame a single state coordinate: from the function-order premise `(fun u => ⌜u = s⌝ ⊓ pre) ⊑ Q`
-conclude the point entailment `pre ⊑ Q s`. Instantiating the premise at `u := s` collapses
-`⌜s = s⌝ ⊓ pre` to `pre`. Iterating it over a state chain point-frames `pre ⊑ Q s₁ … sₙ` to the
-function-order goal `(fun u⃗ => ⌜u⃗ = s⃗⌝ ⊓ pre) ⊑ Q`. -/
-theorem le_apply_of_point_meet_le {σ : Type v} {β : Type w} [CompleteLattice β]
-    (s : σ) (pre : β) (Q : σ → β) (h : (fun u => ⌜u = s⌝ ⊓ pre) ⊑ Q) : pre ⊑ Q s :=
-  (CompleteLattice.ofProp_intro_r (s = s) pre (Q s)).mp (h s) rfl
 
 end Lean.Order
 

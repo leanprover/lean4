@@ -18,9 +18,9 @@ associative and idempotent monoid operations with units `⊤` and `⊥`. These i
 structure to the generic algebra in `Std` (`Std.Commutative`, `Std.Associative`, `Trans`, ...).
 -/
 
-namespace Std.Internal.Do.CompleteLattice
+namespace Lean.Order
 
-open Lean.Order PartialOrder
+open PartialOrder
 
 instance [CompleteLattice l] : Std.Refl (α := l) (· ⊑ ·) := ⟨fun _ => rel_refl⟩
 instance [CompleteLattice l] : Trans (· ⊑ · : l → l → Prop) (· ⊑ ·) (· ⊑ ·) := ⟨rel_trans⟩
@@ -43,4 +43,4 @@ instance [CompleteLattice l] : Std.LawfulIdentity (· ⊔ ·) (⊥ : l) where
   left_id _ := bot_join
   right_id _ := join_bot
 
-end Std.Internal.Do.CompleteLattice
+end Lean.Order

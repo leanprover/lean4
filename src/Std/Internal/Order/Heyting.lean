@@ -6,7 +6,7 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.Order.PreservesSup
+public import Std.Internal.Order.PreservesSup
 
 public section
 

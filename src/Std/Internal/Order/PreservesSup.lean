@@ -6,7 +6,7 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.Order.Basic
+public import Std.Internal.Order.Basic
 
 @[expose] public section
 

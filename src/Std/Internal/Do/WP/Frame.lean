@@ -8,7 +8,7 @@ module
 prelude
 public import Std.Internal.Do.WP.Basic
 public import Std.Internal.Do.WP.Conjunctive
-public import Std.Internal.Do.Order.Instances
+public import Std.Internal.Order.Instances
 universe u v w z t
 @[expose] public section
 

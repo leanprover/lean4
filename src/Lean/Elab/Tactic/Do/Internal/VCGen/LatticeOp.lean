@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Sym.Apply
-public import Std.Internal.Do.Order.Heyting
+public import Std.Internal.Order.Heyting
 public import Lean.Elab.Tactic.Do.Internal.VCGen.FrameProc
 import Lean.Meta.Sym.Simp.Rewrite
 import Lean.Meta.AppBuilder

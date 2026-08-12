@@ -6,7 +6,7 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.Order.Lemmas
+public import Std.Internal.Order.Lemmas
 
 public section
 

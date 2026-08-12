@@ -7,9 +7,9 @@ module
 
 prelude
 public import Init.Internal.Order
-public import Std.Internal.Do.Order.Basic
-public import Std.Internal.Do.Order.Heyting
-public import Std.Internal.Do.Order.Instances
+public import Std.Internal.Order.Basic
+public import Std.Internal.Order.Heyting
+public import Std.Internal.Order.Instances
 universe u v w s
 @[expose] public section
 

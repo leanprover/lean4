@@ -7,8 +7,8 @@ module
 
 prelude
 public import Init.ByCases
-public import Std.Internal.Do.Order.Basic
-public import Std.Internal.Do.Order.Heyting
+public import Std.Internal.Order.Basic
+public import Std.Internal.Order.Heyting
 import Init.Classical
 import Init.TacticsExtra
 

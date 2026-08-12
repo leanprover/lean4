@@ -208,11 +208,22 @@ goal with a definitionally equal one (proof by `rfl`), and the final proof is ac
 by the kernel.
 -/
 
+/--
+trace: case grind
+P : S → Prop
+x : S
+h : ∀ (y : S), P y
+⊢ let a := f x x;
+  let b := g x;
+  P (f (g a) (g b))
+-/
+#guard_msgs in
 example (P : S → Prop) (x : S) (h : ∀ y, P y) :
     P (f (let a := f x x; g a) (let b := g x; g b)) := by
   sym =>
-  lift_lets
-  exact h _
+    lift_lets
+    show_goals
+    exact h _
 
 /-! `lift_lets` fails when there is nothing to lift (here, the `let` is under a lambda). -/
 

@@ -388,6 +388,20 @@ This is a variant of `cbv` that only works in `sym =>` mode.
 -/
 syntax (name := symCbv) "cbv" : grind
 
+/--
+`lift_lets` moves the `let`/`have` declarations of the goal target toward the root,
+as far out as their dependencies allow. Nested declarations are flattened, and
+declarations with syntactically equal types and values are merged. Declarations under
+`fun`/`∀` binders are not lifted. The new goal is definitionally equal to the original
+one.
+
+Unlike the standalone `lift_lets` tactic, this variant does not support the `at`
+location syntax: in `sym =>` mode hypotheses are never modified.
+
+Only available in `sym =>` mode.
+-/
+syntax (name := symLiftLets) "lift_lets" : grind
+
 @[inherit_doc Lean.Parser.Tactic.bvNormalize]
 syntax (name := bvNormalize) "bv_normalize" optConfig (bvTypes)? : grind
 

@@ -201,8 +201,6 @@ def testMkServerRejectsSwappedFiles (certFile keyFile : String) : IO Unit := do
     (malformedFileError keyFile "could not read a PEM certificate chain")
     (discard <| Context.Server.mk keyFile certFile)
 
--- Both files parse, but the key belongs to a different pair, so the context is rejected before any
--- session can present a certificate the peer cannot use.
 def testMkServerRejectsMismatchedKey (certFile key2File : String) : IO Unit := do
   assertErrorMessage "server key from a different pair"
     (malformedFileError key2File "the private key does not match the certificate")
@@ -210,12 +208,14 @@ def testMkServerRejectsMismatchedKey (certFile key2File : String) : IO Unit := d
 
 def testMkServerRejectsNulInCert (keyFile : String) : IO Unit := do
   let certPath := "cert\x00.pem"
+
   assertErrorMessage "NUL byte in server cert path"
     (nulByteError certPath)
     (discard <| Context.Server.mk certPath keyFile)
 
 def testMkServerRejectsNulInKey (certFile : String) : IO Unit := do
   let keyPath := "key\x00.pem"
+
   assertErrorMessage "NUL byte in server key path"
     (nulByteError keyPath)
     (discard <| Context.Server.mk certFile keyPath)
@@ -224,9 +224,11 @@ def testMkServerRejectsNulInKey (certFile : String) : IO Unit := do
 -- have been opened.
 def testMkRejectsNulInCAFile : IO Unit := do
   let caPath := "ca\x00.pem"
+
   assertErrorMessage "NUL byte in CA path"
     (nulByteError caPath)
     (discard <| Context.Client.mk caPath true)
+
   assertErrorMessage "NUL byte in CA path without verification"
     (nulByteError caPath)
     (discard <| Context.Client.mk caPath false)
@@ -252,11 +254,14 @@ def testMkRejectsNulInCAFile : IO Unit := do
   testMkAcceptsBundleFile (← setupBundle)
   testMkAcceptsDuplicatesInFile (← setupDuplicateBundle)
 
-#eval testMkFromPEMRejectsGarbage
+#eval
+  testMkFromPEMRejectsGarbage
 
-#eval testMkFromPEMRejectsEmptyBlock
+#eval
+  testMkFromPEMRejectsEmptyBlock
 
-#eval testMkRejectsMissingCAFile
+#eval
+  testMkRejectsMissingCAFile
 
 #eval do
   let junkFile ← setupMalformedFile
@@ -273,6 +278,7 @@ def testMkRejectsNulInCAFile : IO Unit := do
   let (certFile, keyFile) ← setupTestCerts
   let junkFile ← setupMalformedFile
   let corruptFile ← setupCorruptCert
+
   testMkServerRejectsMissingCert keyFile
   testMkServerRejectsMissingKey certFile
   testMkServerRejectsMalformedCert junkFile keyFile

@@ -17,6 +17,7 @@ import Lean.Meta.Sym.InstantiateMVarsS
 public import Lean.Meta.Sym.DSimp.DSimpM
 import Lean.Meta.Sym.DSimp.Result
 public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.BVDecide.Types
 
 public section
 
@@ -142,32 +143,116 @@ instance : ToMessageData Hyp where
   toMessageData hyp := toMessageData hyp.type
 
 /--
-The immutable context of the `bv_normalize` preprocessing pipeline.
+The mode that the `bv_normalize` preprocessing pipeline runs in.
+-/
+inductive Mode where
+  /--
+  A regular run as part of `bv_decide` or a standalone `bv_normalize`. `restrictedTypes` are the
+  types that the structure and enum analysis is restricted to, as provided by the `types` clause.
+  If this is `none` the analysis discovers the relevant types on its own.
+  -/
+  | solve (restrictedTypes : Option (Array Name))
+  /--
+  A run as part of `bv_decide_push`. It merely prepares the caches of the passes for later runs of
+  the pipeline on descendants of this goal and may thus only produce context independent
+  information.
+  -/
+  | push
+
+namespace Mode
+
+def isPush : Mode → Bool
+  | .push => true
+  | .solve .. => false
+
+def restrictedTypes : Mode → Option (Array Name)
+  | .solve types => types
+  | .push => none
+
+/--
+Disables the configuration options that `mode` cannot support. In `push` mode these are the options
+that either depend on the context (e.g. enums, structures) or require a more clever incrementality
+scheme (e.g. `embeddedConstraintSubst`, `andFlattening`).
+-/
+def adjustConfig (mode : Mode) (config : BVDecideConfig) : BVDecideConfig :=
+  match mode with
+  | .solve .. => config
+  | .push =>
+    { config with
+      enums := false
+      fixedInt := false
+      structures := false
+      embeddedConstraintSubst := false
+      andFlattening := false }
+
+end Mode
+
+/--
+The immutable context of the `bv_normalize` preprocessing pipeline. Use `PreProcessContext.new` to
+create one.
 -/
 structure PreProcessContext where
+  private mk ::
   /--
-  The configuration that the tactic was called with.
+  The configuration that the tactic was called with, already adjusted for `mode`.
   -/
   config : BVDecideConfig
   /--
-  The types that the structure and enum analysis is restricted to, as provided by the `types`
-  clause. If this is `none` the analysis discovers the relevant types on its own.
+  The mode that the pipeline runs in.
   -/
-  restrictedTypes : Option (Array Name) := none
+  mode : Mode
+
+/--
+Creates the context for a run of the pipeline in `mode`, disabling all configuration options that
+`mode` does not support.
+-/
+def PreProcessContext.new (mode : Mode) (config : BVDecideConfig) : PreProcessContext where
+  config := mode.adjustConfig config
+  mode := mode
+
+/--
+Identifies the `Sym.Simp` cache that a pass operates on.
+-/
+inductive SimpCacheId where
+  | rewrite
+  | ac
+
+/--
+Identifies the `Sym.DSimp` cache that a pass operates on.
+-/
+inductive DSimpCacheId where
+  | rewrite
+  | reduction
+
+namespace SimpCacheId
+
+def get : SimpCacheId → Grind.BVDecide.Caches → Sym.Simp.Cache
+  | .rewrite, caches => caches.rewriteSimp
+  | .ac, caches => caches.ac
+
+def set : SimpCacheId → Sym.Simp.Cache → Grind.BVDecide.Caches → Grind.BVDecide.Caches
+  | .rewrite, cache, caches => { caches with rewriteSimp := cache }
+  | .ac, cache, caches => { caches with ac := cache }
+
+end SimpCacheId
+
+namespace DSimpCacheId
+
+def get : DSimpCacheId → Grind.BVDecide.Caches → Sym.DSimp.Cache
+  | .rewrite, caches => caches.rewriteDSimp
+  | .reduction, caches => caches.reduction
+
+def set : DSimpCacheId → Sym.DSimp.Cache → Grind.BVDecide.Caches → Grind.BVDecide.Caches
+  | .rewrite, cache, caches => { caches with rewriteDSimp := cache }
+  | .reduction, cache, caches => { caches with reduction := cache }
+
+end DSimpCacheId
 
 structure PreProcessState where
   /--
-  Cache for the `Simp` component of the rewriter.
+  The caches of the passes that maintain one.
   -/
-  rewriteSimpCache : Sym.Simp.Cache := {}
-  /--
-  Cache for the `DSimp` component of the rewriter.
-  -/
-  rewriteDSimpCache : Sym.DSimp.Cache := {}
-  /--
-  Cache for the `Simp` component of the AC pass.
-  -/
-  acCache : Sym.Simp.Cache := {}
+  caches : Grind.BVDecide.Caches := {}
   /--
   Analysis results for the structure and enum pass if required.
   -/
@@ -209,7 +294,10 @@ namespace PreProcessM
 def getConfig : PreProcessM BVDecideConfig := return (← read).config
 
 @[inline]
-def getRestrictedTypes : PreProcessM (Option (Array Name)) := return (← read).restrictedTypes
+def getRestrictedTypes : PreProcessM (Option (Array Name)) := return (← read).mode.restrictedTypes
+
+@[inline]
+def isPushMode : PreProcessM Bool := return (← read).mode.isPush
 
 @[inline]
 def getTarget : PreProcessM Target := return (← get).target
@@ -221,6 +309,26 @@ def getTargetMVarId : PreProcessM MVarId := return (← get).target.mvarId
 def setTarget (target : Target) : PreProcessM Unit :=
   modify fun s => { s with target := target }
 
+/--
+Runs `x` on the target if it is a grind goal and writes the updated goal back. Returns `none` if the
+target is a plain `MVarId`.
+-/
+@[inline]
+def withGrindGoal (x : Grind.GoalM α) : PreProcessM (Option α) := do
+  let .grindTarget goal ← getTarget | return none
+  let (res, goal) ← Grind.GoalM.run goal x
+  setTarget <| .grindTarget goal
+  return some res
+
+/--
+Closes the target using `falseProof : False`. Grind targets are additionally marked as inconsistent
+so that `grind` knows that there is nothing left to do for this goal.
+-/
+def closeTarget (falseProof : Expr) : PreProcessM Unit := do
+  match ← getTarget with
+  | .mvarIdTarget mvarId => mvarId.assignFalseProof falseProof
+  | .grindTarget .. => discard <| withGrindGoal <| Grind.closeGoal falseProof
+
 @[inline]
 def didChange : PreProcessM Bool := return (← get).didChange
 
@@ -231,45 +339,19 @@ def resetDidChange : PreProcessM Unit := modify fun s => { s with didChange := f
 def setDidChange : PreProcessM Unit := modify fun s => { s with didChange := true }
 
 @[inline]
-def takeRewriteSimpCache : PreProcessM Sym.Simp.Cache := do
-  modifyGet fun s => (s.rewriteSimpCache, { s with rewriteSimpCache := {} })
+def getCaches : PreProcessM Grind.BVDecide.Caches := return (← get).caches
 
 @[inline]
-def setRewriteSimpCache (cache : Sym.Simp.Cache) : PreProcessM Unit := do
-  modify fun s => { s with rewriteSimpCache := cache }
+def setCaches (caches : Grind.BVDecide.Caches) : PreProcessM Unit := do
+  modify fun s => { s with caches }
 
-@[inline]
-def dropRewriteSimpCache : PreProcessM Unit := do
-  discard <| takeRewriteSimpCache
-
-@[inline]
-def takeRewriteDSimpCache : PreProcessM Sym.DSimp.Cache := do
-  modifyGet fun s => (s.rewriteDSimpCache, { s with rewriteDSimpCache := {} })
-
-@[inline]
-def setRewriteDSimpCache (cache : Sym.DSimp.Cache) : PreProcessM Unit := do
-  modify fun s => { s with rewriteDSimpCache := cache }
-
-@[inline]
-def dropRewriteDSimpCache : PreProcessM Unit := do
-  discard <| takeRewriteDSimpCache
-
-@[inline]
-def takeACCache : PreProcessM Sym.Simp.Cache := do
-  modifyGet fun s => (s.acCache, { s with acCache := {} })
-
-@[inline]
-def setACCache (cache : Sym.Simp.Cache) : PreProcessM Unit := do
-  modify fun s => { s with acCache := cache }
-
-@[inline]
-def dropACCache : PreProcessM Unit := do
-  discard <| takeACCache
-
-def dropFixpointCaches : PreProcessM Unit := do
-  dropRewriteSimpCache
-  dropRewriteDSimpCache
-  dropACCache
+/--
+Drops the caches of all passes that maintain one. In `bv_decide_push` mode this is a no-op as the
+caches are the very thing that we want to hand to the next invocation.
+-/
+def dropPassCaches : PreProcessM Unit := do
+  if !(← isPushMode) then
+    setCaches {}
 
 @[inline]
 def getTypeAnalysis : PreProcessM TypeAnalysis := do
@@ -359,7 +441,7 @@ def mapIdxHyps [Monad m] [MonadLiftT PreProcessM m] [MonadError m] [MonadMCtx m]
     let hyp := hyps[idx]
     let newHyp ← f idx hyp
     if newHyp.type.isFalse then
-      (← PreProcessM.getTargetMVarId).assign newHyp.value
+      PreProcessM.closeTarget newHyp.value
       return true
     else
       if hyp != newHyp then
@@ -380,6 +462,42 @@ def forHyps [Monad m] [MonadLiftT PreProcessM m] [MonadError m] (f : Hyp → m U
     m Unit := do
   let hyps ← getHyps
   hyps.forM f
+
+/--
+Runs `Sym.Simp` on `hyp`, using the cache identified by `cacheId` and updating it in place.
+-/
+def simpHyp (cacheId : SimpCacheId) (methods : Sym.Simp.Methods) (config : Sym.Simp.Config)
+    (hyp : Hyp) : PreProcessM Hyp := do
+  let caches ← getCaches
+  let simpState := { persistentCache := cacheId.get caches }
+  setCaches <| cacheId.set {} caches
+  let (res, s) ← Sym.Simp.SimpM.run (methods := methods) (config := config) (s := simpState) do
+    Sym.Simp.simp hyp.type
+  setCaches <| cacheId.set s.persistentCache (← getCaches)
+  hyp.applySimpResult res
+
+/--
+Runs `Sym.DSimp` on `hyp`, using the cache identified by `cacheId` and updating it in place.
+-/
+def dsimpHyp (cacheId : DSimpCacheId) (methods : Sym.DSimp.Methods) (config : Sym.DSimp.Config)
+    (hyp : Hyp) : PreProcessM Hyp := do
+  let caches ← getCaches
+  let dsimpState := { cache := cacheId.get caches }
+  setCaches <| cacheId.set {} caches
+  let (res, s) ← Sym.DSimp.DSimpM.run (methods := methods) (config := config) (s := dsimpState) do
+    Sym.DSimp.dsimp hyp.type
+  setCaches <| cacheId.set s.cache (← getCaches)
+  hyp.applyDSimpResult res
+
+@[inline]
+def simpHyps (cacheId : SimpCacheId) (methods : Sym.Simp.Methods) (config : Sym.Simp.Config) :
+    PreProcessM Bool :=
+  mapHyps (simpHyp cacheId methods config)
+
+@[inline]
+def dsimpHyps (cacheId : DSimpCacheId) (methods : Sym.DSimp.Methods) (config : Sym.DSimp.Config) :
+    PreProcessM Bool :=
+  mapHyps (dsimpHyp cacheId methods config)
 
 def mapSimpHyps (methods : Sym.Simp.Methods) (config : Sym.Simp.Config) : PreProcessM Bool :=
   go |>.run' {}
@@ -427,7 +545,7 @@ the goal anymore.
 -/
 partial def fixpointPipeline (passes : List Pass) : PreProcessM Bool := do
   let res ← go
-  PreProcessM.dropFixpointCaches
+  PreProcessM.dropPassCaches
   return res
 where
   go : PreProcessM Bool := do

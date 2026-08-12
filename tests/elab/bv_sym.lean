@@ -42,6 +42,14 @@ example (n m : Nat) (x : BitVec 64) (h : m = n + 1) (hx : x = alloc m) :
     by_contra
     bv_decide
 
+example (n m : Nat) (x : BitVec 64) (h : m = n + 1) (hx : x = alloc m) :
+    (x + alloc (n + 1)) &&& 0x1fff#64 = 0#64 := by
+  sym =>
+    instantiate [alloc_aligned]
+    bv_decide_push
+    by_contra
+    bv_decide
+
 example (n : Nat) (h1 : 0 < n) (h2 : n < 2) (h3 : x = alloc 1) :
     (x + alloc n) &&& 0x1fff#64 = 0#64 := by
   grind =>

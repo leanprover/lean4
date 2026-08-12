@@ -566,15 +566,19 @@ where
       unless they are `grind` gadgets.
       -/
       mkENode' e generation
+      Solvers.internalize e parent?
     | .fvar .. =>
       mkENode' e generation
       checkAndAddSplitCandidate e
+      Solvers.internalize e parent?
     | .letE .. =>
       mkENode' e generation
+      Solvers.internalize e parent?
     | .lam .. =>
       addSplitCandidatesForFunext e generation parent?
       mkENode' e generation
       tryEta e generation
+      Solvers.internalize e parent?
     | .forallE _ d b _ =>
       mkENode' e generation
       internalizeImpl d generation e
@@ -586,20 +590,26 @@ where
       if (← isProp d <&&> isProp e) then
         propagateUp e
         checkAndAddSplitCandidate e
+      Solvers.internalize e parent?
     | .lit .. =>
       mkENode e generation
+      Solvers.internalize e parent?
     | .const declName _ =>
       updateIndicesFound (.const declName)
       mkENode e generation
       activateTheorems declName generation
+      Solvers.internalize e parent?
     | .mvar .. =>
       mkENode' e generation
+      Solvers.internalize e parent?
     | .mdata .. =>
       reportIssue! "unexpected metadata found during internalization{indentExpr e}\n`grind` uses a pre-processing step that eliminates metadata"
       mkENode' e generation
+      Solvers.internalize e parent?
     | .proj .. =>
       reportIssue! "unexpected kernel projection term during internalization{indentExpr e}\n`grind` uses a pre-processing step that folds them as projection applications, the pre-processor failed to fold this term"
       mkENode' e generation
+      Solvers.internalize e parent?
     | .app .. =>
       if (← isNonParametricLitValue e) then
         internalizeNonParametricLiteral e generation parent?

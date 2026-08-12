@@ -6,7 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Elab.Tactic.FalseOrByContra
 public import Lean.Meta.Tactic.BVDecide.Normalize.Basic
 public import Lean.Meta.Tactic.BVDecide.Normalize.ApplyControlFlow
 public import Lean.Meta.Tactic.BVDecide.Normalize.Simproc
@@ -23,7 +22,7 @@ public import Lean.Meta.Tactic.BVDecide.Normalize.Reduction
 public import Lean.Meta.Tactic.BVDecide.Normalize.CollectHyps
 import Lean.Meta.Sym.Util
 import Lean.Meta.Sym.Intro
-import Lean.Meta.Tactic.Grind.Intro
+import Lean.Meta.Sym.Grind
 
 /-!
 This module contains the implementation of `bv_normalize`, the preprocessing tactic for `bv_decide`.
@@ -49,28 +48,9 @@ def passPipeline : PreProcessM (List Pass) := do
 
   return passPipeline
 
-def setupTarget : PreProcessM Bool := do
-  match ← PreProcessM.getTarget with
-  | .mvarIdTarget g =>
-    -- TODO: consider reimplementing this with SymM
-    let some g ← g.falseOrByContra (useClassical := some true) | return true
-    let g ← Sym.preprocessMVar g
-    PreProcessM.setTarget <| .mvarIdTarget g
-    return false
-  | .grindTarget g =>
-    let a : Grind.Action := Grind.Action.intros 0 >> Grind.Action.assertAll
-    match (← a.run g) with
-    | .closed _ | .stuck [] => return true
-    | .stuck [g] =>
-      PreProcessM.setTarget <| .grindTarget g
-      return false
-    | .stuck _ => throwError m!"internalizing grind goal produced multiple goals"
-
 public def bvNormalize : PreProcessM Bool := do
   withTraceNode `Meta.Tactic.bv (fun _ => return "Preprocessing goal") do
-    if ← setupTarget then return true
-
-    PreProcessM.collectTargetHyps
+    if ← PreProcessM.collectTargetHyps then return true
 
     trace[Meta.Tactic.bv] m!"Running preprocessing pipeline"
     let cfg ← PreProcessM.getConfig

@@ -7,10 +7,16 @@ module
 
 prelude
 public import Lean.Meta.Tactic.BVDecide.Normalize.Basic
+import Lean.Elab.Tactic.FalseOrByContra
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.LitValues
+import Lean.Meta.Sym.Util
+import Lean.Meta.Sym.Grind
+import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Sym.Intro
+import Lean.Meta.Tactic.Grind.Simp
 
 /-!
 This module is responsible for collecting the hypotheses out of the target that `bv_decide` was told
@@ -30,14 +36,23 @@ namespace Normalize
 structure State where
   hyps : Array Hyp := #[]
 
-abbrev CollectM := StateRefT State Grind.GoalM
+open Elab.Tactic.BVDecide in
+abbrev CollectM := ReaderT BVDecideConfig StateRefT State Grind.GoalM
 
 @[inline]
 def recordHyp (hyp : Hyp) : CollectM Unit := do
   modify fun s => { s with hyps := s.hyps.push hyp }
 
-def collectGoalHyps : Grind.GoalM (Array Hyp) := do
-  let (_, res) ← go |>.run {}
+@[inline]
+def withFixedInt (x : CollectM (Option α)) : CollectM (Option α) := do
+  if (← read).fixedInt then
+    x
+  else
+    return none
+
+open Elab.Tactic.BVDecide in
+def collectGoalHyps (cfg : BVDecideConfig) : Grind.GoalM (Array Hyp) := do
+  let (_, res) ← go |>.run cfg |>.run {}
   return res.hyps
 where
   go : CollectM Unit := do
@@ -113,21 +128,21 @@ where
     | BitVec w =>
       unless (Sym.getNatValue? w).isSome do return none
       handleEqcWithConstType eqc root Sym.getBitVecValue?
-    | UInt8 => handleEqcWithConstType eqc root Sym.getUInt8Value?
-    | UInt16 => handleEqcWithConstType eqc root Sym.getUInt16Value?
-    | UInt32 => handleEqcWithConstType eqc root Sym.getUInt32Value?
-    | UInt64 => handleEqcWithConstType eqc root Sym.getUInt64Value?
-    | Int8 => handleEqcWithConstType eqc root Sym.getInt8Value?
-    | Int16 => handleEqcWithConstType eqc root Sym.getInt16Value?
-    | Int32 => handleEqcWithConstType eqc root Sym.getInt32Value?
-    | Int64 => handleEqcWithConstType eqc root Sym.getInt64Value?
+    | UInt8 => withFixedInt <| handleEqcWithConstType eqc root Sym.getUInt8Value?
+    | UInt16 => withFixedInt <| handleEqcWithConstType eqc root Sym.getUInt16Value?
+    | UInt32 => withFixedInt <| handleEqcWithConstType eqc root Sym.getUInt32Value?
+    | UInt64 => withFixedInt <| handleEqcWithConstType eqc root Sym.getUInt64Value?
+    | Int8 => withFixedInt <| handleEqcWithConstType eqc root Sym.getInt8Value?
+    | Int16 => withFixedInt <| handleEqcWithConstType eqc root Sym.getInt16Value?
+    | Int32 => withFixedInt <| handleEqcWithConstType eqc root Sym.getInt32Value?
+    | Int64 => withFixedInt <| handleEqcWithConstType eqc root Sym.getInt64Value?
     -- Hack: Use UInt64/Int64 as the format is the same as USize/ISize but at the same time we don't
     -- care about the precise value for our purposes.
-    | USize => handleEqcWithConstType eqc root Sym.getUInt64Value?
-    | ISize => handleEqcWithConstType eqc root Sym.getInt64Value?
+    | USize => withFixedInt <| handleEqcWithConstType eqc root Sym.getUInt64Value?
+    | ISize => withFixedInt <| handleEqcWithConstType eqc root Sym.getInt64Value?
     | _ =>
       let some (const, _) := type.getAppFn'.const? | return none
-      unless ← isPotentialTypeAnalysisType const do return none
+      unless ← isPotentialTypeAnalysisType (← read) const do return none
       if let some ctorApp ← eqc.findM? (liftM ∘ Meta.isConstructorApp) then
         return some ctorApp
       else
@@ -159,27 +174,82 @@ where
       return some constant
     else
       return some default
-  
 
-public def PreProcessM.collectTargetHyps : PreProcessM Unit := do
-  let target ← PreProcessM.getTarget
-  let hypotheses ←
-    match target with
-    | .mvarIdTarget g =>
-      g.withContext do
-        (← getPropHyps).mapM fun fvarId => do
-          return {
-            name := ← fvarId.getUserName
-            type := ← Sym.instantiateMVarsS (← fvarId.getType)
-            value := mkFVar fvarId
-            source := .lctx fvarId
-          }
-    | .grindTarget g =>
-      let (hypotheses, _) ← Grind.GoalM.run g collectGoalHyps
-      pure hypotheses
+
+def recordLocalHyp (fvarId : FVarId) : Sym.SymM Hyp := do
+  return {
+    name := ← fvarId.getUserName
+    type := ← Sym.instantiateMVarsS (← fvarId.getType)
+    value := mkFVar fvarId
+    source := .lctx fvarId
+  }
+
+/--
+Runs `intros; by_contra` on a `grind` goal. This does maintain maximal sharing but does *not*
+internalize them into the e-graph. The rationale for this is that if the user wanted bv_decide to be
+aware of e-graph information related to the goal they should run `by_contra` themselves in order to
+force internalization. Otherwise `bv_decide` will only use existing e-graph information + the
+bitvector information about the goal. This allows us to avoid internalizing huge bitvector
+expressions that can just be attacked by `bv_decide` on its own.
+-/
+def setupGrindTarget (goal : Grind.Goal) : Grind.GrindM (Grind.Goal × Array FVarId) := do
+  let (fvarIds, goal) ←
+    match ← goal.intros #[] with
+    | .goal fvarIds goal => pure (fvarIds, goal)
+    | .failed => pure (#[], goal)
+  goal.withContext do
+    let target ← goal.mvarId.getType
+    if target.isFalse then
+      return (goal, fvarIds)
+    let mvarId ← if ← isProp target then pure goal.mvarId else goal.mvarId.exfalso
+    let some mvarId ← mvarId.byContra? | return (goal, fvarIds)
+    let mvarId ← Sym.preprocessMVar mvarId
+    let .goal newFVarIds mvarId ← Sym.introN mvarId 1
+      | throwError "`bv_decide` failed to introduce the negated goal"
+    return ({ goal with mvarId }, fvarIds ++ newFVarIds)
+
+def setupTarget : PreProcessM (Option (Array Hyp)) := do
+  match ← PreProcessM.getTarget with
+  | .mvarIdTarget g =>
+    -- TODO: consider reimplementing this with SymM
+    let some g ← g.falseOrByContra (useClassical := some true) | return none
+    let g ← Sym.preprocessMVar g
+    PreProcessM.setTarget <| .mvarIdTarget g
+    g.withContext do
+      return some <| ← (← getPropHyps).mapM fun fvarId =>
+        return {
+          name := ← fvarId.getUserName
+          type := ← Sym.instantiateMVarsS (← fvarId.getType)
+          value := mkFVar fvarId
+          source := .lctx fvarId
+        }
+  | .grindTarget g =>
+    let (g, introduced) ← setupGrindTarget g
+    if g.inconsistent then return none
+    let cfg ← PreProcessM.getConfig
+    let (hyps, g) ← Grind.GoalM.run g do
+      let hypotheses ← collectGoalHyps cfg
+      let introduced : Array Hyp ← introduced.filterMapM fun fvarId => do
+        unless ← isProp (← fvarId.getType) do return none
+        return some {
+          name := ← fvarId.getUserName
+          type := ← Grind.preprocessLight (← fvarId.getType)
+          value := mkFVar fvarId
+          source := .lctx fvarId
+        }
+      return hypotheses ++ introduced
+    PreProcessM.setTarget <| .grindTarget g
+    return hyps
+
+/--
+Collects the hypotheses that `bv_decide` operates on.
+-/
+public def PreProcessM.collectTargetHyps : PreProcessM Bool := do
+  let some hypotheses ← setupTarget | return true
   withTraceNode `Meta.Tactic.bv (fun _ => return m!"Collected initial hypotheses") do
     hypotheses.forM fun hyp => do trace[Meta.Tactic.bv] m!"{hyp}"
   modify fun s => { s with hypotheses := hypotheses }
+  return false
 
 end Normalize
 end Lean.Meta.Tactic.BVDecide

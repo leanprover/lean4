@@ -28,8 +28,8 @@ private def builtinInsts : Std.HashMap Expr Expr :=
     (mkApp3 (mkConst ``HDiv us) nat nat nat, Nat.mkInstHDiv),
     (mkApp3 (mkConst ``HMod us) nat nat nat, Nat.mkInstHMod),
     (mkApp3 (mkConst ``HPow us) nat nat nat, Nat.mkInstHPow),
-    (mkApp  (mkConst ``LT [0]) nat, Nat.mkInstLT),
-    (mkApp  (mkConst ``LE [0]) nat, Nat.mkInstLE),
+    (mkApp  (mkConst ``LT [1]) nat, Nat.mkInstLT),
+    (mkApp  (mkConst ``LE [1]) nat, Nat.mkInstLE),
 
     (mkApp3 (mkConst ``HAdd us) int int int, Int.mkInstHAdd),
     (mkApp3 (mkConst ``HSub us) int int int, Int.mkInstHSub),
@@ -37,8 +37,8 @@ private def builtinInsts : Std.HashMap Expr Expr :=
     (mkApp3 (mkConst ``HDiv us) int int int, Int.mkInstHDiv),
     (mkApp3 (mkConst ``HMod us) int int int, Int.mkInstHMod),
     (mkApp3 (mkConst ``HPow us) int nat int, Int.mkInstHPow),
-    (mkApp  (mkConst ``LT [0]) int, Int.mkInstLT),
-    (mkApp  (mkConst ``LE [0]) int, Int.mkInstLE),
+    (mkApp  (mkConst ``LT [1]) int, Int.mkInstLT),
+    (mkApp  (mkConst ``LE [1]) int, Int.mkInstLE),
   ]
 
 /--

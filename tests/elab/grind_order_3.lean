@@ -22,7 +22,7 @@ example (p : Prop) (a b c : Int) : (p ↔ b ≤ a) → (p ↔ c ≤ b) → ¬ p 
 /--
 error: `grind` failed
 case grind
-α : Type u_1
+α : Sort u_1
 inst : LE α
 inst_1 : Std.IsPreorder α
 a b c : α

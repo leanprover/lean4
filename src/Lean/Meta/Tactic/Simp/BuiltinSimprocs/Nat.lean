@@ -184,12 +184,12 @@ private def mkBneNat (x y : Expr) : Expr :=
   mkAppN (mkConst ``bne [Level.zero]) #[mkConst ``Nat, mkBEqNatInstance, x, y]
 
 private def mkLENat (x y : Expr) : Expr :=
-  mkAppN (.const ``LE.le [Level.zero]) #[mkConst ``Nat, mkConst ``instLENat, x, y]
+  mkAppN (.const ``LE.le [1]) #[mkConst ``Nat, mkConst ``instLENat, x, y]
 
 private def mkGENat (x y : Expr) : Expr := mkLENat y x
 
 private def mkLTNat (x y : Expr) : Expr :=
-  mkAppN (.const ``LT.lt [Level.zero]) #[mkConst ``Nat, mkConst ``instLTNat, x, y]
+  mkAppN (.const ``LT.lt [1]) #[mkConst ``Nat, mkConst ``instLTNat, x, y]
 
 private def mkGTNat (x y : Expr) : Expr := mkLTNat y x
 

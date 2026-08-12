@@ -212,12 +212,12 @@ def mkDecideProofEq (lhs rhs : Expr) : Expr :=
   mkDecideProofWith p inst
 
 def mkDecideProofLt (lhs rhs : Expr) : Expr :=
-  let p := mkApp4 (mkConst ``LT.lt [0]) (mkConst ``Nat) (mkConst ``instLTNat) lhs rhs
+  let p := mkApp4 (mkConst ``LT.lt [1]) (mkConst ``Nat) (mkConst ``instLTNat) lhs rhs
   let inst := mkApp2 (mkConst ``Nat.decLt) lhs rhs
   mkDecideProofWith p inst
 
 def mkDecideProofLe (lhs rhs : Expr) : Expr :=
-  let p := mkApp4 (mkConst ``LE.le [0]) (mkConst ``Nat) (mkConst ``instLENat) lhs rhs
+  let p := mkApp4 (mkConst ``LE.le [1]) (mkConst ``Nat) (mkConst ``instLENat) lhs rhs
   let inst := mkApp2 (mkConst ``Nat.decLe) lhs rhs
   mkDecideProofWith p inst
 

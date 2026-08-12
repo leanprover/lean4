@@ -110,7 +110,8 @@ def mkDenote0 [MonadLiftT MetaM m] [MonadError m] [Monad m] [MonadCanon m] [Mona
 def mkCommRingCnstr? (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : RingM (Option (Cnstr Expr)) := do
   if !isArithTerm lhs && !isArithTerm rhs then
     let e ← mkDenote0 s kind lhs rhs
-    return some { u := lhs, v := rhs, k := 0, e, kind, h? := some (mkCnstrNorm0 s (← getRing).ringInst kind lhs rhs)  }
+    let ring ← getRing
+    return some { u := lhs, v := rhs, k := 0, e, kind, h? := some (mkCnstrNorm0 { s with u := ring.u } ring.ringInst kind lhs rhs)  }
   let some lhs ← reify? lhs (skipVar := false) | return none
   let some rhs ← reify? rhs (skipVar := false) | return none
   let some p ← lhs.sub rhs |>.toPolyM? | return none
@@ -131,7 +132,8 @@ def mkCommRingCnstr? (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : RingM (O
 def mkNonCommRingCnstr? (s : Struct) (kind : CnstrKind) (lhs rhs : Expr) : NonCommRingM (Option (Cnstr Expr)) := do
   if !isArithTerm lhs && !isArithTerm rhs then
     let e ← mkDenote0 s kind lhs rhs
-    return some { u := lhs, v := rhs, k := 0, e, kind, h? := some (mkCnstrNorm0 s (← getRing).ringInst kind lhs rhs)  }
+    let ring ← getRing
+    return some { u := lhs, v := rhs, k := 0, e, kind, h? := some (mkCnstrNorm0 { s with u := ring.u } ring.ringInst kind lhs rhs)  }
   let some lhs ← ncreify? lhs (skipVar := false) | return none
   let some rhs ← ncreify? rhs (skipVar := false) | return none
   -- **TODO**: We need a `toPolyM_nc` similar `toPolyM`

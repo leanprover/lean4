@@ -194,8 +194,8 @@ def getEnumToBitVecLeFor (declName : Name) : MetaM Name := do
     let bvType := mkApp (mkConst ``BitVec) (toExpr bvSize)
     let declType := mkConst declName levelParams
     let maxValue := toExpr (BitVec.ofNat bvSize (domainSize - 1))
-    let instLe ← synthInstance (mkApp (mkConst ``LE [0]) bvType)
-    let mkStatement e := mkApp4 (mkConst ``LE.le [0]) bvType instLe (mkApp enumToBitVec e) maxValue
+    let instLe ← synthInstance (mkApp (mkConst ``LE [1]) bvType)
+    let mkStatement e := mkApp4 (mkConst ``LE.le [1]) bvType instLe (mkApp enumToBitVec e) maxValue
 
     -- ∀ (x : declName), enumToBitVec x ≤ BitVec.ofNat bvSize (domainSize - 1)
     let (type, value) ←

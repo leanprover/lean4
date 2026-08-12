@@ -1270,24 +1270,24 @@ instance instOfNatNat (n : Nat) : OfNat Nat n where
   ofNat := n
 
 /-- `LE α` is the typeclass which supports the notation `x ≤ y` where `x y : α`.-/
-class LE (α : Type u) where
+class LE (α : Sort u) where
   /-- The less-equal relation: `x ≤ y` -/
   le : α → α → Prop
 
 /-- `LT α` is the typeclass which supports the notation `x < y` where `x y : α`.-/
-class LT (α : Type u) where
+class LT (α : Sort u) where
   /-- The less-than relation: `x < y` -/
   lt : α → α → Prop
 
 /-- `a ≥ b` is an abbreviation for `b ≤ a`. -/
-@[reducible] def GE.ge {α : Type u} [LE α] (a b : α) : Prop := LE.le b a
+@[reducible] def GE.ge {α : Sort u} [LE α] (a b : α) : Prop := LE.le b a
 /-- `a > b` is an abbreviation for `b < a`. -/
-@[reducible] def GT.gt {α : Type u} [LT α] (a b : α) : Prop := LT.lt b a
+@[reducible] def GT.gt {α : Sort u} [LT α] (a b : α) : Prop := LT.lt b a
 
 /-- Abbreviation for `DecidableRel (· < · : α → α → Prop)`. -/
-abbrev DecidableLT (α : Type u) [LT α] := DecidableRel (LT.lt : α → α → Prop)
+abbrev DecidableLT (α : Sort u) [LT α] := DecidableRel (LT.lt : α → α → Prop)
 /-- Abbreviation for `DecidableRel (· ≤ · : α → α → Prop)`. -/
-abbrev DecidableLE (α : Type u) [LE α] := DecidableRel (LE.le : α → α → Prop)
+abbrev DecidableLE (α : Sort u) [LE α] := DecidableRel (LE.le : α → α → Prop)
 
 /--
 An overloaded operation to find the greater of two values of type `α`.

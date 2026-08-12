@@ -73,7 +73,7 @@ Each type must at least implement the instance `Std.IsPreorder`.
 structure Struct where
   id                 : Nat
   type               : Expr
-  /-- Cached `getDecLevel type` -/
+  /-- Cached `normalizeLevel (← getLevel type)`, the universe argument `LE` takes at `type`. -/
   u                  : Level
   isPreorderInst     : Expr
   /-- `LE` instance  -/

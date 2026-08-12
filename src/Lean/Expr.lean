@@ -2265,7 +2265,7 @@ def mkNatPow (a b : Expr) : Expr :=
   mkApp2 natPowFn a b
 
 private def natLEPred : Expr :=
-  mkApp2 (mkConst ``LE.le [0]) Nat.mkType Nat.mkInstLE
+  mkApp2 (mkConst ``LE.le [1]) Nat.mkType Nat.mkInstLE
 
 /-- Given `a b : Nat`, return `a ≤ b` -/
 def mkNatLE (a b : Expr) : Expr :=
@@ -2373,14 +2373,14 @@ def mkIntPowNat (a b : Expr) : Expr :=
   mkApp2 intPowNatFn a b
 
 private def intLEPred : Expr :=
-  mkApp2 (mkConst ``LE.le [0]) Int.mkType Int.mkInstLE
+  mkApp2 (mkConst ``LE.le [1]) Int.mkType Int.mkInstLE
 
 /-- Given `a b : Int`, returns `a ≤ b` -/
 def mkIntLE (a b : Expr) : Expr :=
   mkApp2 intLEPred a b
 
 private def intLTPred : Expr :=
-  mkApp2 (mkConst ``LT.lt [0]) Int.mkType Int.mkInstLT
+  mkApp2 (mkConst ``LT.lt [1]) Int.mkType Int.mkInstLT
 
 /-- Given `a b : Int`, returns `a < b` -/
 def mkIntLT (a b : Expr) : Expr :=

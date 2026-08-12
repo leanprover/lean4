@@ -71,19 +71,19 @@ public theorem Asymm.total_not {r : α → α → Prop} [i : Asymm r] : Total (�
     | .inl hba => .inl <| i.asymm b a hba
     | .inr hba => .inr hba
 
-public instance {α : Type u} [LE α] [IsPartialOrder α] :
+public instance {α : Sort u} [LE α] [IsPartialOrder α] :
     Antisymm (α := α) (· ≤ ·) where
   antisymm := IsPartialOrder.le_antisymm
 
-public instance {α : Type u} [LE α] [IsPreorder α] :
+public instance {α : Sort u} [LE α] [IsPreorder α] :
     Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) where
       trans := IsPreorder.le_trans _ _ _
 
-public instance {α : Type u} [LE α] [IsPreorder α] :
+public instance {α : Sort u} [LE α] [IsPreorder α] :
     Refl (α := α) (· ≤ ·) where
   refl := IsPreorder.le_refl
 
-public instance {α : Type u} [LE α] [IsLinearPreorder α] :
+public instance {α : Sort u} [LE α] [IsLinearPreorder α] :
     Total (α := α) (· ≤ ·) where
   total := IsLinearPreorder.le_total
 
@@ -92,73 +92,73 @@ end AxiomaticInstances
 section LE
 
 @[simp]
-public theorem le_refl {α : Type u} [LE α] [Refl (α := α) (· ≤ ·)] (a : α) : a ≤ a := by
+public theorem le_refl {α : Sort u} [LE α] [Refl (α := α) (· ≤ ·)] (a : α) : a ≤ a := by
   simp [Refl.refl]
 
 public theorem le_of_eq [LE α] [Refl (α := α) (· ≤ ·)] {a b : α} : a = b → a ≤ b :=
   (· ▸ le_refl _)
 
-public theorem le_antisymm {α : Type u} [LE α] [Std.Antisymm (α := α) (· ≤ ·)] {a b : α}
+public theorem le_antisymm {α : Sort u} [LE α] [Std.Antisymm (α := α) (· ≤ ·)] {a b : α}
     (hab : a ≤ b) (hba : b ≤ a) : a = b :=
   Antisymm.antisymm _ _ hab hba
 
-public theorem le_antisymm_iff {α : Type u} [LE α] [Antisymm (α := α) (· ≤ ·)]
+public theorem le_antisymm_iff {α : Sort u} [LE α] [Antisymm (α := α) (· ≤ ·)]
     [Refl (α := α) (· ≤ ·)] {a b : α} : a ≤ b ∧ b ≤ a ↔ a = b :=
   ⟨fun | ⟨hab, hba⟩ => le_antisymm hab hba, by simp +contextual [le_refl]⟩
 
-public theorem le_trans {α : Type u} [LE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] {a b c : α}
+public theorem le_trans {α : Sort u} [LE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] {a b c : α}
     (hab : a ≤ b) (hbc : b ≤ c) : a ≤ c :=
   Trans.trans hab hbc
 
-public theorem le_total {α : Type u} [LE α] [Std.Total (α := α) (· ≤ ·)] {a b : α} :
+public theorem le_total {α : Sort u} [LE α] [Std.Total (α := α) (· ≤ ·)] {a b : α} :
     a ≤ b ∨ b ≤ a :=
   Std.Total.total a b
 
-public theorem le_of_not_ge {α : Type u} [LE α] [Std.Total (α := α) (· ≤ ·)] {a b : α} :
+public theorem le_of_not_ge {α : Sort u} [LE α] [Std.Total (α := α) (· ≤ ·)] {a b : α} :
     ¬ b ≤ a → a ≤ b := Total.rel_of_not_rel_swap
 
 end LE
 
 section LT
 
-public theorem lt_trans {α : Type u} [LT α] [Trans (α := α) (· < ·) (· < ·) (· < ·)] {a b c : α}
+public theorem lt_trans {α : Sort u} [LT α] [Trans (α := α) (· < ·) (· < ·) (· < ·)] {a b c : α}
     (hab : a < b) (hbc : b < c) : a < c :=
   Trans.trans hab hbc
 
-public theorem lt_iff_le_and_not_ge {α : Type u} [LT α] [LE α] [LawfulOrderLT α] {a b : α} :
+public theorem lt_iff_le_and_not_ge {α : Sort u} [LT α] [LE α] [LawfulOrderLT α] {a b : α} :
     a < b ↔ a ≤ b ∧ ¬ b ≤ a :=
   LawfulOrderLT.lt_iff a b
 
-public theorem not_lt_iff_not_le_or_ge {α : Type u} [LT α] [LE α] [LawfulOrderLT α]
+public theorem not_lt_iff_not_le_or_ge {α : Sort u} [LT α] [LE α] [LawfulOrderLT α]
     {a b : α} : ¬ a < b ↔ ¬ a ≤ b ∨ b ≤ a := by
   simp only [lt_iff_le_and_not_ge, Classical.not_and_iff_not_or_not, Classical.not_not]
 
-public theorem not_le_of_gt {α : Type u} [LT α] [LE α] [LawfulOrderLT α] {a b : α}
+public theorem not_le_of_gt {α : Sort u} [LT α] [LE α] [LawfulOrderLT α] {a b : α}
     (h : a < b) : ¬ b ≤ a := (lt_iff_le_and_not_ge.1 h).2
 
-public theorem not_lt_of_ge {α : Type u} [LT α] [LE α] [LawfulOrderLT α] {a b : α}
+public theorem not_lt_of_ge {α : Sort u} [LT α] [LE α] [LawfulOrderLT α] {a b : α}
     (h : a ≤ b) : ¬ b < a := imp_not_comm.1 not_le_of_gt h
 
-public instance {α : Type u} {_ : LE α} [LT α] [LawfulOrderLT α]
+public instance {α : Sort u} {_ : LE α} [LT α] [LawfulOrderLT α]
     [Trichotomous (α := α) (· < ·)] : Antisymm (α := α) (· ≤ ·) where
   antisymm _ _ hab hba := Trichotomous.trichotomous _ _ (not_lt_of_ge hba) (not_lt_of_ge hab)
 
-public theorem not_gt_of_lt {α : Type u} [LT α] [i : Std.Asymm (α := α) (· < ·)] {a b : α}
+public theorem not_gt_of_lt {α : Sort u} [LT α] [i : Std.Asymm (α := α) (· < ·)] {a b : α}
     (h : a < b) : ¬ b < a :=
   i.asymm a b h
 
-public theorem lt_irrefl {α : Type u} [LT α] [i : Std.Irrefl (α := α) (· < ·)] {a : α} :
+public theorem lt_irrefl {α : Sort u} [LT α] [i : Std.Irrefl (α := α) (· < ·)] {a : α} :
     ¬ a < a :=
   i.irrefl a
 
-public theorem le_of_lt {α : Type u} [LT α] [LE α] [LawfulOrderLT α] {a b : α} (h : a < b) :
+public theorem le_of_lt {α : Sort u} [LT α] [LE α] [LawfulOrderLT α] {a b : α} (h : a < b) :
     a ≤ b := (lt_iff_le_and_not_ge.1 h).1
 
-public instance {α : Type u} {_ : LT α} [LE α] [LawfulOrderLT α]
+public instance {α : Sort u} {_ : LT α} [LE α] [LawfulOrderLT α]
     [Antisymm (α := α) (· ≤ ·)] : Antisymm (α := α) (· < ·) where
   antisymm _ _ hab hba := Antisymm.antisymm _ _ (le_of_lt hab) (le_of_lt hba)
 
-public instance {α : Type u} [LT α] [LE α] [LawfulOrderLT α] :
+public instance {α : Sort u} [LT α] [LE α] [LawfulOrderLT α] :
     Std.Asymm (α := α) (· < ·) where
   asymm a b := by
     simp only [LawfulOrderLT.lt_iff]
@@ -166,10 +166,10 @@ public instance {α : Type u} [LT α] [LE α] [LawfulOrderLT α] :
     exact h.2.elim h'.1
 
 @[deprecated instIrreflOfAsymm +typeChanged (since := "2025-10-24")]
-public theorem instIrreflLtOfIsPreorderOfLawfulOrderLT {α : Type u} [LT α] [LE α]
+public theorem instIrreflLtOfIsPreorderOfLawfulOrderLT {α : Sort u} [LT α] [LE α]
     [LawfulOrderLT α] : Std.Irrefl (α := α) (· < ·) := inferInstance
 
-public instance {α : Type u} [LT α] [LE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) ]
+public instance {α : Sort u} [LT α] [LE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) ]
     [LawfulOrderLT α] : Trans (α := α) (· < ·) (· < ·) (· < ·) where
   trans {a b c} hab hbc := by
     simp only [lt_iff_le_and_not_ge] at hab hbc ⊢
@@ -178,23 +178,23 @@ public instance {α : Type u} [LT α] [LE α] [Trans (α := α) (· ≤ ·) (· 
     · intro hca
       exact hab.2.elim (le_trans hbc.1 hca)
 
-public theorem not_lt {α : Type u} [LT α] [LE α] [Std.Total (α := α) (· ≤ ·)] [LawfulOrderLT α]
+public theorem not_lt {α : Sort u} [LT α] [LE α] [Std.Total (α := α) (· ≤ ·)] [LawfulOrderLT α]
     {a b : α} : ¬ a < b ↔ b ≤ a := by
   simp [not_lt_iff_not_le_or_ge]
   exact le_of_not_ge
 
-public theorem not_le {α : Type u} [LT α] [LE α] [Std.Total (α := α) (· ≤ ·)] [LawfulOrderLT α]
+public theorem not_le {α : Sort u} [LT α] [LE α] [Std.Total (α := α) (· ≤ ·)] [LawfulOrderLT α]
     {a b : α} : ¬ a ≤ b ↔ b < a := by
   simp [lt_iff_le_and_not_ge]
   exact le_of_not_ge
 
-public instance {α : Type u} {_ : LT α} [LE α] [LawfulOrderLT α]
+public instance {α : Sort u} {_ : LT α} [LE α] [LawfulOrderLT α]
     [Total (α := α) (· ≤ ·)] [Antisymm (α := α) (· ≤ ·)] : Trichotomous (α := α) (· < ·) where
   trichotomous a b hab hba := by
     simp only [not_lt] at hab hba
     exact Antisymm.antisymm (r := (· ≤ ·)) a b hba hab
 
-public instance {α : Type u} {_ : LT α} [LE α] [LawfulOrderLT α]
+public instance {α : Sort u} {_ : LT α} [LE α] [LawfulOrderLT α]
     [Total (α := α) (· ≤ ·)] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] :
     Trans (α := α) (¬ · < ·) (¬ · < ·) (¬ · < ·) where
   trans {a b c} hab hbc := by
@@ -202,10 +202,10 @@ public instance {α : Type u} {_ : LT α} [LE α] [LawfulOrderLT α]
     exact le_trans hbc hab
 
 @[deprecated Asymm.total_not +typeChanged (since := "2025-10-24")]
-public theorem instTotalNotLtOfLawfulOrderLTOfLe {α : Type u} {_ : LT α} [LE α] [LawfulOrderLT α]
+public theorem instTotalNotLtOfLawfulOrderLTOfLe {α : Sort u} {_ : LT α} [LE α] [LawfulOrderLT α]
     : Total (α := α) (¬ · < ·) := Asymm.total_not
 
-public theorem lt_of_le_of_lt {α : Type u} [LE α] [LT α]
+public theorem lt_of_le_of_lt {α : Sort u} [LE α] [LT α]
     [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] [LawfulOrderLT α] {a b c : α} (hab : a ≤ b)
     (hbc : b < c) : a < c := by
   simp only [lt_iff_le_and_not_ge] at hbc ⊢
@@ -214,7 +214,7 @@ public theorem lt_of_le_of_lt {α : Type u} [LE α] [LT α]
   · intro hca
     exact hbc.2.elim (le_trans hca hab)
 
-public theorem lt_of_lt_of_le {α : Type u} [LE α] [LT α]
+public theorem lt_of_lt_of_le {α : Sort u} [LE α] [LT α]
     [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] [LawfulOrderLT α] {a b c : α} (hab : a < b)
     (hbc : b ≤ c) : a < c := by
   simp only [lt_iff_le_and_not_ge] at hab ⊢
@@ -223,7 +223,7 @@ public theorem lt_of_lt_of_le {α : Type u} [LE α] [LT α]
   · intro hca
     exact hab.2.elim (le_trans hbc hca)
 
-public theorem lt_of_le_of_ne {α : Type u} [LE α] [LT α]
+public theorem lt_of_le_of_ne {α : Sort u} [LE α] [LT α]
     [Std.Antisymm (α := α) (· ≤ ·)] [LawfulOrderLT α] {a b : α}
     (hle : a ≤ b) (hne : a ≠ b) : a < b := by
   apply Classical.byContradiction
@@ -231,7 +231,7 @@ public theorem lt_of_le_of_ne {α : Type u} [LE α] [LT α]
   intro hge
   exact hne.elim <| Std.Antisymm.antisymm a b hle hge
 
-public theorem ne_of_lt {α : Type u} [LT α] [Std.Irrefl (α := α) (· < ·)] {a b : α} : a < b → a ≠ b :=
+public theorem ne_of_lt {α : Sort u} [LT α] [Std.Irrefl (α := α) (· < ·)] {a b : α} : a < b → a ≠ b :=
   fun h h' => absurd (h' ▸ h) (h' ▸ lt_irrefl)
 
 public theorem le_iff_lt_or_eq [LE α] [LT α] [LawfulOrderLT α] [IsPartialOrder α] {a b : α} :
@@ -253,11 +253,11 @@ end Std
 namespace Classical.Order
 open Std
 
-public scoped instance instLT {α : Type u} [LE α] :
+public scoped instance instLT {α : Sort u} [LE α] :
     LT α where
   lt a b := a ≤ b ∧ ¬ b ≤ a
 
-public instance instLawfulOrderLT {α : Type u} [LE α] :
+public instance instLawfulOrderLT {α : Sort u} [LE α] :
     LawfulOrderLT α where
   lt_iff _ _ := Iff.rfl
 

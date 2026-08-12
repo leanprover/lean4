@@ -724,7 +724,7 @@ We use heterogeneous operators to ensure we have a uniform representation.
 -/
 private def mkBinaryRel (className : Name) (rName : Name) (a b : Expr) : MetaM Expr := do
   let aType ← inferType a
-  let u ← getDecLevel aType
+  let u ← getLevel aType
   let inst ← synthInstance (mkApp (mkConst className [u]) aType)
   return mkApp4 (mkConst rName [u]) aType inst a b
 

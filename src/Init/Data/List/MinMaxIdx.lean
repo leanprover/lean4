@@ -662,7 +662,7 @@ protected theorem minIdxOn?_eq_ite
   cases xs <;> simp [List.minIdxOn?_cons_eq_some_minIdxOn]
 
 @[deprecated List.minIdxOn?_eq_ite (since := "2026-07-21")]
-protected theorem minIdxOn?_eq_if {β : Type u_1} {α : Type u_2} [LE β] [DecidableLE β] {f : α → β} {xs : List α} : List.minIdxOn? f xs = if h : xs ≠ [] then Option.some (List.minIdxOn f xs h) else Option.none := List.minIdxOn?_eq_ite
+protected theorem minIdxOn?_eq_if {β : Sort u_1} {α : Type u_2} [LE β] [DecidableLE β] {f : α → β} {xs : List α} : List.minIdxOn? f xs = if h : xs ≠ [] then Option.some (List.minIdxOn f xs h) else Option.none := List.minIdxOn?_eq_ite
 
 protected theorem minIdxOn?_cons
     [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} {x : α} {xs : List α} :
@@ -784,7 +784,7 @@ protected theorem maxIdxOn?_eq_ite
   exact List.minIdxOn?_eq_ite
 
 @[deprecated List.maxIdxOn?_eq_ite (since := "2026-07-21")]
-protected theorem maxIdxOn?_eq_if {β : Type u_1} {α : Type u_2} [LE β] [DecidableLE β] {f : α → β} {xs : List α} : List.maxIdxOn? f xs = if h : xs ≠ [] then Option.some (List.maxIdxOn f xs h) else Option.none := List.maxIdxOn?_eq_ite
+protected theorem maxIdxOn?_eq_if {β : Sort u_1} {α : Type u_2} [LE β] [DecidableLE β] {f : α → β} {xs : List α} : List.maxIdxOn? f xs = if h : xs ≠ [] then Option.some (List.maxIdxOn f xs h) else Option.none := List.maxIdxOn?_eq_ite
 
 protected theorem maxIdxOn?_cons
     [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} {x : α} {xs : List α} :

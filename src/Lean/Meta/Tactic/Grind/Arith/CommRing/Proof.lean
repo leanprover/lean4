@@ -401,7 +401,7 @@ def mkLeIffProof (leInst ltInst isPreorderInst orderedRingInst : Expr) (lhs rhs 
   let ctx ← toContextExpr vars
   let h := mkApp6 (mkConst ``Grind.CommRing.le_norm_expr [ring.u]) ring.type ring.commRingInst leInst ltInst isPreorderInst orderedRingInst
   let h := mkApp6 h ctx (toExpr lhs) (toExpr rhs) (toExpr lhs') (toExpr rhs') eagerReflBoolTrue
-  let leFn := mkApp2 (mkConst ``LE.le [ring.u]) ring.type leInst
+  let leFn := mkApp2 (mkConst ``LE.le [ring.u.succ]) ring.type leInst
   let le   := mkApp2 leFn (← lhs.denoteExpr' vars) (← rhs.denoteExpr' vars)
   let le'  := mkApp2 leFn (← lhs'.denoteExpr' vars) (← rhs'.denoteExpr' vars)
   let expected := mkPropEq le le'
@@ -413,7 +413,7 @@ def mkLtIffProof (leInst ltInst lawfulOrdLtInst isPreorderInst orderedRingInst :
   let ctx ← toContextExpr vars
   let h := mkApp7 (mkConst ``Grind.CommRing.lt_norm_expr [ring.u]) ring.type ring.commRingInst leInst ltInst lawfulOrdLtInst isPreorderInst orderedRingInst
   let h := mkApp6 h ctx (toExpr lhs) (toExpr rhs) (toExpr lhs') (toExpr rhs') eagerReflBoolTrue
-  let ltFn := mkApp2 (mkConst ``LT.lt [ring.u]) ring.type ltInst
+  let ltFn := mkApp2 (mkConst ``LT.lt [ring.u.succ]) ring.type ltInst
   let lt   := mkApp2 ltFn (← lhs.denoteExpr' vars) (← rhs.denoteExpr' vars)
   let lt'  := mkApp2 ltFn (← lhs'.denoteExpr' vars) (← rhs'.denoteExpr' vars)
   let expected := mkPropEq lt lt'
@@ -450,7 +450,7 @@ def mkNonCommLeIffProof (leInst ltInst isPreorderInst orderedRingInst : Expr) (l
   let ctx ← toContextExpr vars
   let h := mkApp6 (mkConst ``Grind.CommRing.le_norm_expr_nc [ring.u]) ring.type ring.ringInst leInst ltInst isPreorderInst orderedRingInst
   let h := mkApp6 h ctx (toExpr lhs) (toExpr rhs) (toExpr lhs') (toExpr rhs') eagerReflBoolTrue
-  let leFn := mkApp2 (mkConst ``LE.le [ring.u]) ring.type leInst
+  let leFn := mkApp2 (mkConst ``LE.le [ring.u.succ]) ring.type leInst
   let le   := mkApp2 leFn (← lhs.denoteExpr' vars) (← rhs.denoteExpr' vars)
   let le'  := mkApp2 leFn (← lhs'.denoteExpr' vars) (← rhs'.denoteExpr' vars)
   let expected := mkPropEq le le'
@@ -462,7 +462,7 @@ def mkNonCommLtIffProof (leInst ltInst lawfulOrdLtInst isPreorderInst orderedRin
   let ctx ← toContextExpr vars
   let h := mkApp7 (mkConst ``Grind.CommRing.lt_norm_expr_nc [ring.u]) ring.type ring.ringInst leInst ltInst lawfulOrdLtInst isPreorderInst orderedRingInst
   let h := mkApp6 h ctx (toExpr lhs) (toExpr rhs) (toExpr lhs') (toExpr rhs') eagerReflBoolTrue
-  let ltFn := mkApp2 (mkConst ``LT.lt [ring.u]) ring.type ltInst
+  let ltFn := mkApp2 (mkConst ``LT.lt [ring.u.succ]) ring.type ltInst
   let lt   := mkApp2 ltFn (← lhs.denoteExpr' vars) (← rhs.denoteExpr' vars)
   let lt'  := mkApp2 ltFn (← lhs'.denoteExpr' vars) (← rhs'.denoteExpr' vars)
   let expected := mkPropEq lt lt'

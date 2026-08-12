@@ -129,7 +129,7 @@ private def checkToFieldDefEq? (leInst? parentInst? childInst? : Option Expr) (t
   let some leInst := leInst? | return none
   let some parentInst := parentInst? | return none
   let some childInst := childInst? | return none
-  let toField := mkApp3 (mkConst toFieldName [u]) type leInst childInst
+  let toField := mkApp3 (mkConst toFieldName [u.succ]) type leInst childInst
   unless (← isDefEqD parentInst toField) do
     reportIssue! (← mkExpectedDefEqMsg parentInst toField)
     return none
@@ -182,8 +182,8 @@ where
     let some u ← getDecLevel? base | return none
     -- `base`-level premises. These queries are shared with `getNatStructId?` via the
     -- `synthInstance` cache.
-    let leInst? ← getInst? ``LE u base
-    let isPreorderInst? ← mkIsPreorderInst? u base leInst?
+    let leInst? ← getInst? ``LE u.succ base
+    let isPreorderInst? ← mkIsPreorderInst? u.succ base leInst?
     let orderedAddInst? ← match leInst?, isPreorderInst? with
       | some leInst, some isPreorderInst =>
         let addInst ← getBinHomoInst ``HAdd u base
@@ -203,10 +203,10 @@ where
       mkQOrderInst ``Grind.IntModule.OfNatModule.instOrderedAddQ le pre ord
     -- `LT (Q base)` is implemented via `≤`, so the classical instance applies.
     let lawfulOrderLTInstQ? := leInstQ?.map fun leInstQ =>
-      mkApp2 (mkConst ``Classical.Order.instLawfulOrderLT [u]) type leInstQ
+      mkApp2 (mkConst ``Classical.Order.instLawfulOrderLT [u.succ]) type leInstQ
     let isLinearInstQ? ← match ordPremises? with
       | some (le, _, ord) =>
-        let isLinearInst? ← mkIsLinearOrderInst? u base leInst?
+        let isLinearInst? ← mkIsLinearOrderInst? u.succ base leInst?
         pure <| isLinearInst?.map fun lin =>
           mkQOrderInst ``Grind.IntModule.OfNatModule.instIsLinearOrderQ le lin ord
       | none => pure none
@@ -238,9 +238,9 @@ where
     registerInstance (mkApp3 (mkConst ``HSMul [0, u, u]) Int.mkType type type) zsmulInst
     registerInstance (mkApp3 (mkConst ``HSMul [0, u, u]) Nat.mkType type type) nsmulInst
     if let some leInstQ := leInstQ? then
-      registerInstance (mkApp (mkConst ``LE [u]) type) leInstQ
+      registerInstance (mkApp (mkConst ``LE [u.succ]) type) leInstQ
     if let some ltInstQ := ltInstQ? then
-      registerInstance (mkApp (mkConst ``LT [u]) type) ltInstQ
+      registerInstance (mkApp (mkConst ``LT [u.succ]) type) ltInstQ
     let zero ← internalizeConst <| mkApp2 (mkConst ``Zero.zero [u]) type zeroInst
     let ofNatZero ← preprocess <| mkApp3 (mkConst ``OfNat.ofNat [u]) type (mkRawNatLit 0) ofNatZeroInst
     let addFn ← internalizeFn <| mkApp4 (mkConst ``HAdd.hAdd [u, u, u]) type type type addInst
@@ -249,9 +249,9 @@ where
     let zsmulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Int.mkType type type zsmulInst
     let nsmulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Nat.mkType type type nsmulInst
     let leFn? ← leInstQ?.mapM fun leInstQ =>
-      internalizeFn <| mkApp2 (mkConst ``LE.le [u]) type leInstQ
+      internalizeFn <| mkApp2 (mkConst ``LE.le [u.succ]) type leInstQ
     let ltFn? ← ltInstQ?.mapM fun ltInstQ =>
-      internalizeFn <| mkApp2 (mkConst ``LT.lt [u]) type ltInstQ
+      internalizeFn <| mkApp2 (mkConst ``LT.lt [u.succ]) type ltInstQ
     let id := (← get').structs.size
     let struct : Struct := {
       id, type, u, intModuleInst,
@@ -270,12 +270,12 @@ where
   goCore? : GoalM (Option Nat) := do
     let some u ← getDecLevel? type | return none
     let ringId? ← CommRing.getCommRingId? type
-    let leInst? ← getInst? ``LE u type
-    let ltInst? ← getInst? ``LT u type
-    let lawfulOrderLTInst? ← mkLawfulOrderLTInst? u type ltInst? leInst?
-    let isPreorderInst? ← mkIsPreorderInst? u type leInst?
-    let isPartialInst? ← mkIsPartialOrderInst? u type leInst?
-    let isLinearInst? ← mkIsLinearOrderInst? u type leInst?
+    let leInst? ← getInst? ``LE u.succ type
+    let ltInst? ← getInst? ``LT u.succ type
+    let lawfulOrderLTInst? ← mkLawfulOrderLTInst? u.succ type ltInst? leInst?
+    let isPreorderInst? ← mkIsPreorderInst? u.succ type leInst?
+    let isPartialInst? ← mkIsPartialOrderInst? u.succ type leInst?
+    let isLinearInst? ← mkIsLinearOrderInst? u.succ type leInst?
     if (← getConfig).ring && ringId?.isSome && isPreorderInst?.isNone then
       /-
       If the type is a `Ring` **and** is not even a preorder **and** `grind ring` is enabled,
@@ -334,11 +334,11 @@ where
     ensureToHomoFieldDefEq zsmulInst intModuleInst ``Grind.IntModule.zsmul ``instHSMul u type (some Int.mkType)
     ensureToHomoFieldDefEq nsmulInst intModuleInst ``Grind.IntModule.nsmul ``instHSMul u type (some Nat.mkType)
     let leFn? ← if let some leInst := leInst? then
-      some <$> (internalizeFn <| mkApp2 (mkConst ``LE.le [u]) type leInst)
+      some <$> (internalizeFn <| mkApp2 (mkConst ``LE.le [u.succ]) type leInst)
     else
       pure none
     let ltFn? ← if let some ltInst := ltInst? then
-      some <$> (internalizeFn <| mkApp2 (mkConst ``LT.lt [u]) type ltInst)
+      some <$> (internalizeFn <| mkApp2 (mkConst ``LT.lt [u.succ]) type ltInst)
     else
       pure none
     let zsmulFn? ← getHSMulIntFn? u type
@@ -384,16 +384,16 @@ def getNatStructId? (type : Expr) : GoalM (Option Nat) := do
     return id?
 where
   go? : GoalM (Option Nat) := do
-    let u ← getDecLevel type
+    let some u ← getDecLevel? type | return none
     let some natModuleInst ← mkNatModuleInst? u type | return none
     let q ← shareCommon (← canon (mkApp2 (mkConst ``Grind.IntModule.OfNatModule.Q [u]) type natModuleInst))
     let some structId ← getStructId? q
       | throwError "`grind` unexpected failure, failure to initialize auxiliary `IntModule`{indentExpr q}"
-    let leInst? ← getInst? ``LE u type
-    let ltInst? ← getInst? ``LT u type
-    let isPreorderInst? ← mkIsPreorderInst? u type leInst?
-    let lawfulOrderLTInst? ← mkLawfulOrderLTInst? u type ltInst? leInst?
-    let isLinearInst? ← mkIsLinearOrderInst? u type leInst?
+    let leInst? ← getInst? ``LE u.succ type
+    let ltInst? ← getInst? ``LT u.succ type
+    let isPreorderInst? ← mkIsPreorderInst? u.succ type leInst?
+    let lawfulOrderLTInst? ← mkLawfulOrderLTInst? u.succ type ltInst? leInst?
+    let isLinearInst? ← mkIsLinearOrderInst? u.succ type leInst?
     let addInst ← getBinHomoInst ``HAdd u type
     let addFn ← internalizeFn <| mkApp4 (mkConst ``HAdd.hAdd [u, u, u]) type type type addInst
     let orderedAddInst? ← match leInst?, isPreorderInst? with

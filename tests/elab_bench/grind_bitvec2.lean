@@ -719,8 +719,6 @@ theorem toNat_eq_nat {x : BitVec w} {y : Nat} :
   · intro eq
     simp [Nat.mod_eq_of_lt, eq]
 
-grind_pattern toNat_eq_nat => BitVec.ofNat w y, x.toNat
-
 /-- Moves one-sided right toNat equality to BitVec equality. -/
 theorem nat_eq_toNat {x : BitVec w} {y : Nat} :
     (y = x.toNat) ↔ (y < 2^w ∧ (x = BitVec.ofNat w y)) := by

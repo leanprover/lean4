@@ -26,13 +26,19 @@ def startInflight : IO Unit := do
     let t ← Timer.mk 3600000 false
     discard <| t.next
 
+  -- SIGWINCH; libuv only accepts a handful of signums on Windows.
   for _ in [0:8] do
-    let s ← Signal.mk 28 true
-    discard <| s.next
+    try
+      let s ← Signal.mk 28 true
+      discard <| s.next
+    catch _ => pure ()
 
+  -- A host with no route to TEST-NET-1 fails the connect outright rather than leaving it pending.
   for _ in [0:30] do
     let s ← TCP.Socket.new
-    discard <| s.connect blackhole
+    try
+      discard <| s.connect blackhole
+    catch _ => pure ()
 
   for _ in [0:15] do
     let s ← TCP.Socket.new

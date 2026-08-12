@@ -60,9 +60,6 @@ void handle_signal_event(uv_signal_t* handle, int signum) {
 
     if (signal->m_repeating) {
         if (!signal_promise_is_finished(signal)) {
-            // Resolving runs Lean code: a `(sync := true)` continuation runs on this thread and a
-            // `cancel` from it drops the promise the loop is still resolving, so hold a reference
-            // across the call. `signal` must not be touched afterwards for the same reason.
             lean_object* promise = signal->m_promise;
             lean_inc(promise);
 
@@ -91,14 +88,14 @@ void handle_signal_event(uv_signal_t* handle, int signum) {
     }
 }
 
-size_t lean_uv_signal_shutdown(lean_uv_signal_object * signal, uv_deferred_teardown & deferred) {
-    size_t release_refs = 0;
+void lean_uv_signal_shutdown(lean_object * obj, uv_deferred_teardown & deferred) {
+    lean_uv_signal_object * signal = lean_to_uv_signal(obj);
 
     if (signal->m_state == SIGNAL_STATE_RUNNING) {
         // `cancel` on a repeating signal leaves it running without a promise, in which case the loop
         // has already given its reference back.
         if (signal->m_promise != NULL) {
-            release_refs += 1;
+            deferred.release(obj);
         }
 
         uv_signal_stop(signal->m_uv_signal);
@@ -111,7 +108,6 @@ size_t lean_uv_signal_shutdown(lean_uv_signal_object * signal, uv_deferred_teard
     }
 
     signal->m_uv_signal = nullptr;
-    return release_refs;
 }
 
 /* Std.Internal.UV.Signal.mk (signum : Int32) (repeating : Bool) : IO Signal */

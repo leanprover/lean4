@@ -53,7 +53,6 @@ extern "C" void finalize_libuv() {
     g_libuv_thread->join();
     g_libuv_thread = nullptr;
 
-    event_loop_drain_active(&global_ev);
     event_loop_lock_internal(&global_ev);
 
     uv_deferred_teardown deferred_teardown;
@@ -72,20 +71,18 @@ extern "C" void finalize_libuv() {
         lean_object * obj = (lean_object*)handle->data;
 
         if (obj != nullptr) {
-            size_t releases = 0;
-
             switch (uv_handle_get_type(handle)) {
                 case UV_TIMER:
-                    releases = lean_uv_timer_shutdown(lean_to_uv_timer(obj), *deferred);
+                    lean_uv_timer_shutdown(obj, *deferred);
                     break;
                 case UV_TCP:
-                    releases = lean_uv_tcp_socket_shutdown(lean_to_uv_tcp_socket(obj), *deferred);
+                    lean_uv_tcp_socket_shutdown(obj, *deferred);
                     break;
                 case UV_UDP:
-                    releases = lean_uv_udp_socket_shutdown(lean_to_uv_udp_socket(obj), *deferred);
+                    lean_uv_udp_socket_shutdown(obj, *deferred);
                     break;
                 case UV_SIGNAL:
-                    releases = lean_uv_signal_shutdown(lean_to_uv_signal(obj), *deferred);
+                    lean_uv_signal_shutdown(obj, *deferred);
                     break;
                 default: {
                     char const * name = uv_handle_type_name(uv_handle_get_type(handle));
@@ -94,8 +91,6 @@ extern "C" void finalize_libuv() {
                     lean_internal_panic(msg.c_str());
                 }
             }
-
-            deferred->release(obj, releases);
         }
 
         uv_close(handle, [](uv_handle_t * handle) { free(handle); });

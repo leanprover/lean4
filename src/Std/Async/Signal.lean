@@ -235,9 +235,9 @@ does not start the signal waiter.
 def selector (s : Signal.Waiter) : Selector Unit :=
   {
     tryFn := do
-      let signalWaiter : AsyncTask _ ← async s.wait
-      if ← IO.hasFinished signalWaiter then
-        discard <| IO.ofExcept signalWaiter.get
+      let signalWaiter ← s.native.next
+      if ← signalWaiter.isResolved then
+        discard <| IO.ofExcept signalWaiter.result!.get
         return some ()
       else
         s.native.cancel

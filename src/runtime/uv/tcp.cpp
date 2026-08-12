@@ -45,17 +45,13 @@ void lean_uv_tcp_socket_finalizer(void* ptr) {
         return;
     }
 
-    /// It's changing here because the object is being freed in the finalizer, and we need the data
-    /// inside of it.
-    tcp_socket->m_uv_tcp->data = ptr;
-
     uv_close((uv_handle_t*)tcp_socket->m_uv_tcp, [](uv_handle_t* handle) {
-        lean_uv_tcp_socket_object* tcp_socket = (lean_uv_tcp_socket_object*)handle->data;
-        free(tcp_socket->m_uv_tcp);
-        free(tcp_socket);
+        free(handle);
     });
 
     event_loop_unlock(&global_ev);
+
+    free(tcp_socket);
 }
 
 void initialize_libuv_tcp_socket() {
@@ -79,8 +75,8 @@ void initialize_libuv_tcp_socket() {
     });
 }
 
-size_t lean_uv_tcp_socket_shutdown(lean_uv_tcp_socket_object * tcp_socket, uv_deferred_teardown & deferred) {
-    size_t release_refs = 0;
+void lean_uv_tcp_socket_shutdown(lean_object * obj, uv_deferred_teardown & deferred) {
+    lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(obj);
 
     if (tcp_socket->m_promise_read != nullptr) {
         uv_read_stop((uv_stream_t*)tcp_socket->m_uv_tcp);
@@ -93,7 +89,7 @@ size_t lean_uv_tcp_socket_shutdown(lean_uv_tcp_socket_object * tcp_socket, uv_de
             tcp_socket->m_byte_array = nullptr;
         }
 
-        release_refs += 1;
+        deferred.release(obj);
     }
 
     if (tcp_socket->m_promise_accept != nullptr) {
@@ -105,7 +101,7 @@ size_t lean_uv_tcp_socket_shutdown(lean_uv_tcp_socket_object * tcp_socket, uv_de
             tcp_socket->m_client = nullptr;
         }
 
-        release_refs += 1;
+        deferred.release(obj);
     }
 
     if (tcp_socket->m_promise_shutdown != nullptr) {
@@ -114,7 +110,6 @@ size_t lean_uv_tcp_socket_shutdown(lean_uv_tcp_socket_object * tcp_socket, uv_de
     }
 
     tcp_socket->m_uv_tcp = nullptr;
-    return release_refs;
 }
 
 // =======================================
@@ -368,6 +363,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
         buf->base = (char*)lean_sarray_cptr(tcp_socket->m_byte_array);
         buf->len = lean_sarray_capacity(tcp_socket->m_byte_array);
     }, [](uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
+
+        // EAGAIN // EWOULDBLOCK
+        if (nread == 0) {
+            return;
+        }
+
         uv_read_stop(stream);
 
         lean_object* socket = (lean_object*)stream->data;

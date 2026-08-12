@@ -34,15 +34,13 @@ void lean_uv_udp_socket_finalizer(void* ptr) {
         return;
     }
 
-    udp_socket->m_uv_udp->data = ptr;
-
     uv_close((uv_handle_t*)udp_socket->m_uv_udp, [](uv_handle_t* handle) {
-        lean_uv_udp_socket_object* udp_socket = (lean_uv_udp_socket_object*)handle->data;
-        free(udp_socket->m_uv_udp);
-        free(udp_socket);
+        free(handle);
     });
 
     event_loop_unlock(&global_ev);
+
+    free(udp_socket);
 }
 
 void initialize_libuv_udp_socket() {
@@ -62,8 +60,8 @@ void initialize_libuv_udp_socket() {
     });
 }
 
-size_t lean_uv_udp_socket_shutdown(lean_uv_udp_socket_object * udp_socket, uv_deferred_teardown & deferred) {
-    size_t release_refs = 0;
+void lean_uv_udp_socket_shutdown(lean_object * obj, uv_deferred_teardown & deferred) {
+    lean_uv_udp_socket_object * udp_socket = lean_to_uv_udp_socket(obj);
 
     if (udp_socket->m_promise_read != nullptr) {
         uv_udp_recv_stop(udp_socket->m_uv_udp);
@@ -76,11 +74,10 @@ size_t lean_uv_udp_socket_shutdown(lean_uv_udp_socket_object * udp_socket, uv_de
             udp_socket->m_byte_array = nullptr;
         }
 
-        release_refs += 1;
+        deferred.release(obj);
     }
 
     udp_socket->m_uv_udp = nullptr;
-    return release_refs;
 }
 
 // =======================================

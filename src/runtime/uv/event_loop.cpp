@@ -46,11 +46,10 @@ void uv_deferred_teardown::run() {
 
     m_promises.clear();
 
-    for (auto & release : m_releases) {
-        for (size_t i = 0; i < release.second; i++) {
-            lean_dec(release.first);
-        }
+    for (lean_object * obj : m_releases) {
+        lean_dec(obj);
     }
+
     m_releases.clear();
 }
 
@@ -69,34 +68,32 @@ void async_callback(uv_async_t * handle) {
 }
 
 // Interrupts the event loop and stops it so it can receive future requests.
-void event_loop_interrupt(event_loop_t * event_loop) {
-    int result = uv_async_send(&event_loop->async);
-    (void)result;
-    lean_assert(result == 0);
+//
+// The guard shares `interrupt_mutex` with the teardown store to `state`, which is what keeps a send
+// away from an `async` handle being closed: the teardown walk closes it strictly after that store.
+static void event_loop_interrupt(event_loop_t * event_loop) {
+    uv_mutex_lock(&event_loop->interrupt_mutex);
+
+    if (event_loop->state == EVENT_LOOP_RUNNING) {
+        int result = uv_async_send(&event_loop->async);
+        (void)result;
+        lean_assert(result == 0);
+    }
+
+    uv_mutex_unlock(&event_loop->interrupt_mutex);
 }
 
 // Initializes the event loop
 void event_loop_init(event_loop_t * event_loop) {
     event_loop->loop = uv_default_loop();
     check_uv(uv_mutex_init_recursive(&event_loop->mutex), "Failed to initialize mutex");
+    check_uv(uv_mutex_init(&event_loop->interrupt_mutex), "Failed to initialize interrupt mutex");
     check_uv(uv_cond_init(&event_loop->cond_var), "Failed to initialize condition variable");
-    check_uv(uv_cond_init(&event_loop->drain_cond), "Failed to initialize drain condition variable");
     check_uv(uv_cond_init(&event_loop->finalize_cond), "Failed to initialize finalize condition variable");
     check_uv(uv_async_init(event_loop->loop, &event_loop->async, NULL), "Failed to initialize async");
     event_loop->n_waiters = 0;
-    event_loop->n_active = 0;
     event_loop->state = EVENT_LOOP_RUNNING;
     event_loop->requests = nullptr;
-}
-
-// Leaves the drain region entered in `event_loop_lock`. While finalizing, the last requester to
-// leave wakes `event_loop_drain_active`; during normal operation this is just an atomic decrement.
-static void event_loop_active_release(event_loop_t * event_loop) {
-    if (--event_loop->n_active == 0 && event_loop->state != EVENT_LOOP_RUNNING) {
-        uv_mutex_lock(&event_loop->mutex);
-        uv_cond_signal(&event_loop->drain_cond);
-        uv_mutex_unlock(&event_loop->mutex);
-    }
 }
 
 // Acquires the loop mutex, interrupting the loop if another thread is running it. Unlike
@@ -104,6 +101,7 @@ static void event_loop_active_release(event_loop_t * event_loop) {
 // `finalize_libuv` itself.
 void event_loop_lock_internal(event_loop_t * event_loop) {
     lean_assert(event_loop->state != EVENT_LOOP_UNINITIALIZED);
+
     if (uv_mutex_trylock(&event_loop->mutex) != 0) {
         event_loop->n_waiters++;
         event_loop_interrupt(event_loop);
@@ -112,23 +110,18 @@ void event_loop_lock_internal(event_loop_t * event_loop) {
     }
 }
 
-// Locks the event loop for the side of the requesters.
+// Locks the event loop for the side of the requesters, failing once teardown has begun.
 //
-// Registers in `n_active` before reading `state` so that a concurrent `finalize_libuv` cannot close
-// the interrupt `async` between our `state` check and the `uv_async_send` inside
-// `event_loop_lock_internal`. The close happens in the teardown walk, which `finalize_libuv` only
-// reaches after `event_loop_drain_active` has waited for `n_active` to fall to zero. Requesters
-// arriving after the loop has left `RUNNING` bail out before they would ever interrupt.
+// The leading read is unsynchronized and only skips work: a requester that still sees `RUNNING`
+// after teardown stored `STOPPING` goes on to block on the mutex, which `finalize_libuv` holds for
+// the whole teardown, and the recheck below then turns it away. Its interrupt is harmless for the
+// same reason `event_loop_interrupt` is safe.
 bool event_loop_lock(event_loop_t * event_loop) {
-    event_loop->n_active++;
-
     if (event_loop->state != EVENT_LOOP_RUNNING) {
-        event_loop_active_release(event_loop);
         return false;
     }
 
     event_loop_lock_internal(event_loop);
-    event_loop_active_release(event_loop);
 
     if (event_loop->state != EVENT_LOOP_RUNNING) {
         event_loop_unlock(event_loop);
@@ -146,20 +139,19 @@ void event_loop_unlock(event_loop_t * event_loop) {
     uv_mutex_unlock(&event_loop->mutex);
 }
 
+// Closes the loop to new requesters and wakes the loop thread so it can observe that.
 void event_loop_request_stop(event_loop_t * event_loop) {
+    uv_mutex_lock(&event_loop->interrupt_mutex);
     event_loop->state = EVENT_LOOP_STOPPING;
-    event_loop_interrupt(event_loop);
+    uv_mutex_unlock(&event_loop->interrupt_mutex);
+
+    // Sent directly rather than through `event_loop_interrupt`, which now declines: the teardown
+    // walk that closes `async` has not run yet, so the handle is still live.
+    int result = uv_async_send(&event_loop->async);
+    (void)result;
+    lean_assert(result == 0);
+
     uv_cond_signal(&event_loop->cond_var);
-}
-
-void event_loop_drain_active(event_loop_t * event_loop) {
-    uv_mutex_lock(&event_loop->mutex);
-
-    while (event_loop->n_active != 0) {
-        uv_cond_wait(&event_loop->drain_cond, &event_loop->mutex);
-    }
-
-    uv_mutex_unlock(&event_loop->mutex);
 }
 
 // Marks the calling thread as the one running `finalize_libuv`.

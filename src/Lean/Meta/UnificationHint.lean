@@ -38,6 +38,10 @@ builtin_initialize unificationHintExtension : SimpleScopedEnvExtension Unificati
   registerSimpleScopedEnvExtension {
     addEntry := UnificationHints.add
     initial  := {}
+    -- adding a hint bumps the generation, invalidating resolution cache entries that consulted
+    -- the hints; unlike reducibility there is no declaration-time exemption, as a new hint
+    -- applies to pre-existing terms
+    trackGen := true
   }
 
 structure UnificationConstraint where
@@ -102,7 +106,8 @@ def tryUnificationHints (t s : Expr) : MetaM Bool := do
     return false
   if t.isMVar then
     return false
-  let hints := unificationHintExtension.getState (← getEnv)
+  recordExtGenAccess unificationHintExtension.ext.toEnvExtension.idx
+  let hints := unificationHintExtension.getState (recorded := true) (← getEnv)
   let candidates ← withConfigWithKey config <| hints.discrTree.getMatch t
   for candidate in candidates do
     if (← tryCandidate candidate) then

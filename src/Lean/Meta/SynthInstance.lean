@@ -32,10 +32,17 @@ register_builtin_option backward.synthInstance.canonInstances : Bool := {
   descr := "use optimization that relies on 'morally canonical' instances during type class resolution"
 }
 
+register_builtin_option debug.synthInstance.checkCacheHits : Bool := {
+  defValue := false
+  descr := "differentially validate type class resolution cache hits: re-run every served query from scratch and panic if the recomputed result differs from the cached one, which means a dependency of the entry was not recorded (development soak check; roughly doubles resolution cost)"
+}
+
 namespace SynthInstance
 
 def getMaxHeartbeats (opts : Options) : Nat :=
-  synthInstance.maxHeartbeats.get opts * 1000
+  -- Unrestricted read: the limit is part of the resolution cache key
+  -- (`SynthInstanceCacheKey.limits`).
+  synthInstance.maxHeartbeats.getUnrestricted opts * 1000
 
 structure Instance where
   val : Expr
@@ -598,7 +605,7 @@ def generate : SynthM Unit := do
     let mctx := gNode.mctx
     let mvar := gNode.mvar
     /- See comment at `typeHasMVars` -/
-    if backward.synthInstance.canonInstances.get (← getOptions) then
+    if (← getRecordedOption backward.synthInstance.canonInstances) then
       unless gNode.typeHasMVars do
         if let some entry := (← get).tableEntries[key]? then
           if entry.answers.any fun answer => answer.result.numMVars == 0 then
@@ -921,6 +928,117 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
   check result
   return some result
 
+/-- Returns whether every recorded lookup in `log` gives the same answer in `opts`. -/
+private def validOptionAccesses (opts : Options) (log : SynthOptionAccessLog) : Bool :=
+  log.all fun a => opts.findUnrestricted? a.name == a.value
+
+/--
+Merges the environment dependencies observed by a nested query (or served from a used cache
+entry) into the enclosing query's accumulator. The enclosing query keeps its own
+`changeLogPos` and `tcGen`: they were captured when that query started, and the merged
+dependencies are validated against them like the query's own observations.
+-/
+private def _root_.Lean.SynthEnvDeps.mergeInto (child parent : SynthEnvDeps) : SynthEnvDeps :=
+  let options := child.options.foldl (init := parent.options) fun l a =>
+    if l.any (·.name == a.name) then l else l.push a
+  let extGens := child.extGens.foldl (init := parent.extGens) fun l d =>
+    if l.any (·.1 == d.1) then l else l.push d
+  { parent with options, extGens }
+
+/--
+Identity of two dependency logs for entry replacement in `insertCachedResult`: same option
+answers and same dependency *shape* (same extensions and reducibility declarations observed).
+The observed generations and statuses are deliberately not part of the identity: a fresh
+observation with the same shape supersedes the old entry, whose generations can never recur.
+-/
+private def sameDepIdentity (a b : SynthEnvDeps) : Bool :=
+  a.options == b.options
+  && a.extGens.size == b.extGens.size
+  && a.extGens.all (fun d => b.extGens.any (·.1 == d.1))
+
+/--
+Inserts a result into the type class resolution cache: always into the transient
+`Meta.Cache.synthInstance` tier, which has the lifetime of the current `Meta.State`, and
+additionally into the persistent tier if `persist` is true.
+
+Only context-free entries may be persisted: the key must not contain metavariables and the result
+must be closed. Results with abstracted metavariables are only valid relative to the elaboration
+context that created them: their degrees of freedom (e.g. universe metavariables not determined
+by the key, cf. `Small`) are resolved by ambient constraints, so reusing them in a different
+context can produce incorrectly instantiated terms.
+
+A persistent insertion is rolled back together with the environment (see
+`Environment.synthCache`); the transient copy then still serves the entry for the rest of the
+command, as `Meta.SavedState.restore` deliberately does not restore `Meta.Cache`. Without it,
+backtracking-heavy elaboration (e.g. tactics trying alternatives) would re-run every failed
+attempt's typeclass queries from scratch.
+-/
+private def insertCachedResult (key : SynthInstanceCacheKey) (log : SynthEnvDeps)
+    (result? : Option AbstractMVarsResult) (persist : Bool) : MetaM Unit := do
+  -- One entry per observed dependency combination; replace an entry with the same identity.
+  let upsert (c : SynthInstanceCache) : SynthInstanceCache :=
+    c.insert key <| (log, result?) :: (c.find? key |>.getD [] |>.filter fun e => !sameDepIdentity e.1 log)
+  if persist then
+    -- Modify the environment directly instead of via `Meta.modifyEnv`, which would reset the
+    -- `Meta.Cache` caches.
+    modifyThe Core.State fun s =>
+      { s with env := s.env.setSynthCache (upsert s.env.synthCache) }
+  modifyCache fun c => { c with synthInstance := upsert c.synthInstance }
+
+/--
+Validates a cache entry's recorded dependencies against the current context. Returns `none` if
+any recorded answer has changed; otherwise the entry may be used, and the returned Boolean
+indicates the log was *re-stamped*: `Environment.synthDepGen` had moved, all recorded
+dependencies re-answered identically, and the log now carries the current stamps (including
+the reducibility log position and birth watermark, so each log segment is scanned at most once
+per entry). The caller re-inserts a re-stamped entry.
+
+The status re-asks may record into the armed query's accumulator, which is benign: it
+over-approximates the current query's dependencies.
+-/
+private def validateDeps? (opts : Options) (env : Environment)
+    (log : SynthEnvDeps) : BaseIO (Option (SynthEnvDeps × Bool)) := do
+  unless validOptionAccesses opts log.options do return none
+  -- Global short-circuit: while `Environment.synthDepGen` is unchanged, no recorded environment
+  -- dependency can have changed and the per-dependency checks are skipped.
+  if log.tcGen == env.synthDepGen then
+    return some (log, false)
+  for (idx, gen) in log.extGens do
+    unless (← EnvExtension.getRecordedGen env idx) == gen do return none
+  unless env.checkSynthChangeLog log.changeLogPos log.constBirthW do return none
+  return some ({ log with
+    tcGen := env.synthDepGen
+    changeLogPos := env.synthChangeLog.size
+    constBirthW := env.constBirthGen }, true)
+
+/--
+Returns the type class resolution cache entry for `key` from the transient
+(`Meta.Cache.synthInstance`) or persistent (`Environment.synthCache`) tier, together with its
+recorded dependencies. Only entries whose recorded dependencies give the same answers in the
+current context are considered (`validateDeps?`); a re-stamped entry is re-inserted into its
+tier. See `SynthInstanceCache`.
+-/
+private def findCachedResult? (key : SynthInstanceCacheKey) :
+    MetaM (Option (SynthEnvDeps × Option AbstractMVarsResult)) := do
+  let opts ← getOptions
+  let env ← getEnv
+  let findIn (c : SynthInstanceCache) :
+      BaseIO (Option (SynthEnvDeps × Option AbstractMVarsResult × Bool)) := do
+    let some entries := c.find? key | return none
+    for (log, val?) in entries do
+      if let some (log, restamped) ← validateDeps? opts env log then
+        return some (log, val?, restamped)
+    return none
+  if let some (log, val?, restamped) ← findIn (← get).cache.synthInstance then
+    if restamped then
+      insertCachedResult key log val? (persist := false)
+    return some (log, val?)
+  if let some (log, val?, restamped) ← findIn env.synthCache then
+    if restamped then
+      insertCachedResult key log val? (persist := true)
+    return some (log, val?)
+  return none
+
 /--
 Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.
 This function tries to avoid the potentially expensive `check` at `applyCachedAbstractResult?`.
@@ -940,42 +1058,347 @@ private def applyCachedAbstractResult? (type : Expr) (abstResult? : Option Abstr
     applyAbstractResult? type abstResult?
 
 /-- Helper function for caching synthesized type class instances. -/
-private def cacheResult (cacheKey : SynthInstanceCacheKey) (kind : PreprocessKind) (abstResult? : Option AbstractMVarsResult) (result? : Option Expr) : MetaM Unit := do
-  -- **TODO**: simplify this function.
-  match abstResult? with
-  | none => modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey none }
-  | some abstResult =>
-    if abstResult.numMVars == 0 && abstResult.paramNames.isEmpty && kind matches .noMVars | .mvarsNoOutputParams then
-      match result? with
-      | none => modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey none }
-      | some result =>
-        -- See `applyCachedAbstractResult?` If new metavariables have **not** been introduced,
-        -- we don't need to perform extra checks again when reusing result.
-        modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey (some { expr := result, paramNames := #[], mvars := #[] }) }
-    else
-      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey (some abstResult) }
+private def cacheResult (cacheKey : SynthInstanceCacheKey) (log : SynthEnvDeps) (kind : PreprocessKind) (normalized : Bool) (abstResult? : Option AbstractMVarsResult) (result? : Option Expr) : MetaM Unit := do
+  -- The stored value: for a closed result we store the concrete `result` expr with an empty
+  -- `AbstractMVarsResult` so that `applyCachedAbstractResult?` can skip re-`check`ing it.
+  let value? :=
+    match abstResult? with
+    | none => none
+    | some abstResult =>
+      if abstResult.numMVars == 0 && abstResult.paramNames.isEmpty && kind matches .noMVars | .mvarsNoOutputParams then
+        result?.map fun result => { expr := result, paramNames := #[], mvars := #[] }
+      else
+        some abstResult
+  -- Only context-free entries may be persisted: a key without metavariables, a key that does not
+  -- depend on the identity of any free variable, and a closed value (no abstracted metavariables,
+  -- no free variables); see `insertCachedResult`.
+  --
+  -- The key is tested for metavariables directly rather than through `.noMVars`. An
+  -- `.mvarsOutputParams` query has its output parameters replaced by a wildcard in the key, so the
+  -- key is metavariable-free whenever every metavariable sits in an output parameter, even though
+  -- the query itself is not. Such an entry is as context-free as a `.noMVars` one: the wildcard
+  -- stands for a value the input parameters determine, and a hit re-derives it by unifying the
+  -- cached result against the query (`assignOutParams`).
+  --
+  -- A `normalized` key names its free variables by canonical position and records their types in
+  -- `normFVarTypes`, so it is context-free even though it mentions free variables. A raw key is
+  -- context-free only if it mentions none: an `FVarId` identifies a variable only within the
+  -- `NameGenerator` that created it, and the cache outlives any of them.
+  let persist := !cacheKey.type.hasMVar &&
+    (normalized || (cacheKey.localInsts.isEmpty && !cacheKey.type.hasFVar)) &&
+    (value?.all fun r => r.numMVars == 0 && r.paramNames.isEmpty && !r.expr.hasFVar)
+  insertCachedResult cacheKey log value? (persist := persist)
+
+/-!
+Free-variable normalization of the cache key and result. Two `.noMVars` queries that are
+structurally identical up to the identities of their free variables (e.g. `Foo α` under `[Foo α]`
+vs. `Foo β` under `[Foo β]`) are made to share a single cache entry: every free variable reachable
+from the query type and the local instances is renamed to a canonical positional identifier, and
+the result is stored over the same canonical variables and re-instantiated with the current
+context's free variables on a hit.
+
+This is sound because a hit means the normalized key components are `BEq`-equal, i.e. the two
+contexts are identical up to free-variable renaming, and the synthesized result only mentions free
+variables in that closure (the query's variables and the local instances). Queries that cannot be
+soundly normalized fall back to the raw (unnormalized) key: see `normalizeContext?`.
+-/
+namespace SynthNorm
+
+/-- Canonical positional free-variable identifier used in the normalized cache key. -/
+private def canonFVarId (i : Nat) : FVarId := ⟨.mkNum `_snf i⟩
+
+private structure State where
+  /-- Assigns each source free variable its canonical position. Persistent, so that a memoized
+  closure seeds a query's state in constant time. -/
+  fmap  : PersistentHashMap FVarId Nat := {}
+  /-- Canonical position to source free variable (inverse of `fmap`), for re-instantiation. -/
+  order : Array FVarId := #[]
+  /-- Canonical position to the (recursively normalized) type of that free variable. -/
+  types : Array Expr := #[]
+  /-- Canonical position to the normalized value of that free variable, if it is let-bound. -/
+  values : Array (Option Expr) := #[]
+  /-- Set when the closure cannot be soundly normalized (let-bound or mvar-typed variable). -/
+  bail  : Bool := false
+  /-- Closure variables whose raw `LocalDecl` type or let-value mentions a metavariable, with the
+  instantiation used; see `SynthNormClosureMemo.mvarTyped`. -/
+  mvarTyped : Array (FVarId × Bool × Expr) := #[]
+  /--
+  Memoizes `normExpr` on visited subterms so that terms with DAG sharing are traversed in DAG
+  size, not tree size. Sound because positions are assigned by first occurrence and never change:
+  revisiting a subterm yields the same normalization. Keyed structurally (`ExprStructEq` hashes
+  are cached and its equality short-circuits on pointer identity).
+  -/
+  cache : Std.HashMap ExprStructEq Expr := {}
+
+private abbrev M := ReaderT LocalContext (StateT State MetaM)
+
+/--
+Renames every free variable to a canonical positional identifier by first-occurrence order,
+recording and recursively normalizing each one's type, and its value if it is let-bound. Sets
+`bail` on a variable whose type or value contains an unassigned metavariable, which is not
+context-free and so cannot be soundly normalized.
+-/
+private partial def normExpr (e : Expr) : M Expr := do
+  if (← get).bail then return e
+  unless e.hasFVar do return e
+  match e with
+  | .fvar id =>
+    if let some i := (← get).fmap.find? id then
+      return .fvar (canonFVarId i)
+    -- `preprocess` puts this marker in output-parameter positions; it is a constant, not a
+    -- variable of the local context, and must not be renamed (nor bail the normalization).
+    if id.name == `__wild__ then return e
+    match (← read).find? id with
+    | none =>
+      modify fun s => { s with bail := true }
+      return e
+    | some decl =>
+      -- `Expr.hasMVar` is a syntactic flag: it stays set for metavariables that are already
+      -- assigned, whose values are context-free. Instantiate before deciding to bail. The result is
+      -- recorded even when we bail below: assigning the metavariable that made us bail must
+      -- invalidate the memoized closure.
+      let inst (isValue : Bool) (e : Expr) : M Expr := do
+        unless e.hasMVar do return e
+        let e ← instantiateMVars e
+        modify fun s => { s with mvarTyped := s.mvarTyped.push (id, isValue, e) }
+        return e
+      let type ← inst false decl.type
+      -- A nondependent `ldecl` (`have`) hides its value from definitional unfolding, so
+      -- `LocalDecl.value?` reports none and the value stays out of the key.
+      let value? ← match decl.value? with
+        | none   => pure none
+        | some v => do
+          let v ← inst true v
+          pure (some v)
+      if type.hasMVar || (match value? with | some v => v.hasMVar | none => false) then
+        modify fun s => { s with bail := true }
+        return e
+      let i := (← get).order.size
+      modify fun s =>
+        { s with fmap := s.fmap.insert id i, order := s.order.push id,
+                 types := s.types.push default, values := s.values.push none }
+      let nty ← normExpr type
+      let nval? ← match value? with
+        | none   => pure none
+        | some v => do
+          let v ← normExpr v
+          pure (some v)
+      modify fun s => { s with types := s.types.set! i nty, values := s.values.set! i nval? }
+      return .fvar (canonFVarId i)
+  | _ =>
+    if let some r := (← get).cache[(e : ExprStructEq)]? then
+      return r
+    let r ← match e with
+      | .app f a          => pure <| .app (← normExpr f) (← normExpr a)
+      | .lam n d b bi     => pure <| .lam n (← normExpr d) (← normExpr b) bi
+      | .forallE n d b bi => pure <| .forallE n (← normExpr d) (← normExpr b) bi
+      | .letE n t v b nd  => pure <| .letE n (← normExpr t) (← normExpr v) (← normExpr b) nd
+      | .mdata m b        => pure <| .mdata m (← normExpr b)
+      | .proj s i b       => pure <| .proj s i (← normExpr b)
+      | e                 => pure e
+    modify fun s => { s with cache := s.cache.insert e r }
+    return r
+
+/-- The free-variable-normalized cache context for a query; see `normalizeContext?`. -/
+structure Context where
+  normType        : Expr
+  canonLocalInsts : LocalInstances
+  fvarTypes       : Array Expr
+  fvarValues      : Array (Option Expr)
+  fmap            : PersistentHashMap FVarId Nat
+  order           : Array FVarId
+
+/--
+Whether a memoized closure is still valid: every closure variable whose type mentions a
+metavariable must still instantiate to what the closure was built from. The other closure
+variables have immutable types, and the local instances are compared by the caller.
+-/
+private def isValidMemo (lctx : LocalContext) (memo : SynthNormClosureMemo) : MetaM Bool := do
+  for (id, isValue, e) in memo.mvarTyped do
+    let some decl := lctx.find? id | return false
+    let some raw := (if isValue then decl.value? else some decl.type) | return false
+    unless (← instantiateMVars raw) == e do return false
+  return true
+
+/--
+The free-variable-normalized closure of the local instances, or `none` if it cannot be soundly
+normalized. Memoized in `Meta.Cache.synthNormClosure`: the closure is the same for every query made
+under the same local instances, and normalizing it per query dominates the cost of a cache key.
+-/
+private def getClosure? (localInsts : LocalInstances) : MetaM (Option SynthNormClosure) := do
+  let lctx ← getLCtx
+  let cache := (← get).cache
+  if let some memo := cache.synthNormClosure then
+    if memo.localInsts == localInsts && (← isValidMemo lctx memo) then
+      return memo.closure?
+  let go : M LocalInstances :=
+    localInsts.mapM fun li => return { li with fvar := ← normExpr li.fvar }
+  let (canonLocalInsts, st) ← go.run lctx |>.run {}
+  let closure? :=
+    if st.bail then none
+    else some { fmap := st.fmap, order := st.order, types := st.types, values := st.values,
+                canonLocalInsts }
+  modifyCache fun c =>
+    { c with synthNormClosure := some { localInsts, mvarTyped := st.mvarTyped, closure? } }
+  return closure?
+
+/--
+Computes the free-variable-normalized cache context for a `.noMVars` query, or `none` if it cannot
+be soundly normalized (some free variable in the closure has an unassigned metavariable in its type
+or value). The closure comprises the free variables of the local instances and of `cacheKeyType`,
+together with their types, transitively. The local instances are normalized first, so that their
+part of the closure does not depend on the query and can be memoized; see `getClosure?`.
+-/
+def normalizeContext? (cacheKeyType : Expr) (localInsts : LocalInstances) :
+    MetaM (Option Context) := do
+  let some closure ← getClosure? localInsts | return none
+  let lctx ← getLCtx
+  -- Seed from the memoized closure; the query type may extend it with further free variables.
+  let st0 : State := { fmap := closure.fmap, order := closure.order, types := closure.types,
+                       values := closure.values }
+  let (normType, st) ← (normExpr cacheKeyType).run lctx |>.run st0
+  if st.bail then return none
+  return some { normType, canonLocalInsts := closure.canonLocalInsts, fvarTypes := st.types,
+                fvarValues := st.values, fmap := st.fmap, order := st.order }
+
+/--
+Abstracts the closure free variables of `e` into loose bound variables (positional, by the closure
+`order`), or `none` if `e` mentions a free variable outside the closure (in which case the value is
+context-dependent beyond its key and must not be reused).
+
+The abstracted value contains no context-specific free variables, so it is safe to store in the
+shared cache and re-instantiate in a different context (cf. `reopen`), analogously to how
+`abstractMVars` produces a closed schema. `.noMVars` results have no abstracted metavariables, so
+`e` never wraps the value in metavariable binders and this abstraction composes with the universe
+handling in `openAbstractMVarsResult`.
+-/
+def abstractOverClosure? (ctx : Context) (e : Expr) : Option Expr :=
+  -- Abstract first, then check the (cached) `hasFVar` flag of the result: any remaining free
+  -- variable is outside the closure. Unlike `hasAnyFVar`, this is linear in the DAG size of `e`.
+  let e := e.abstract (ctx.order.map Expr.fvar)
+  if e.hasFVar then none else some e
+
+/-- Abstracts the free variables of a cache value, or `none` if the result escapes the closure. -/
+def abstractValue? (ctx : Context) (abstResult? : Option AbstractMVarsResult) (result? : Option Expr) :
+    Option (Option AbstractMVarsResult × Option Expr) := do
+  let abstResult? ← match abstResult? with
+    | none   => some none
+    | some a => (abstractOverClosure? ctx a.expr).map fun e => some { a with expr := e }
+  let result? ← match result? with
+    | none   => some none
+    | some r => (abstractOverClosure? ctx r).map some
+  some (abstResult?, result?)
+
+/--
+Re-instantiates a closure-abstracted value (see `abstractOverClosure?`) with the current context's
+closure free variables `order`.
+-/
+def reopen (order : Array FVarId) (e : Expr) : Expr :=
+  e.instantiateRev (order.map Expr.fvar)
+
+end SynthNorm
+
+/--
+The `Meta.Config` used for all type class resolution. The ambient configuration is replaced
+wholesale rather than adjusted: resolution results are cached across contexts and commands with no
+configuration component in the cache key, so any ambient configuration that influenced the search
+(e.g. `canUnfoldPredicateConfig` set by `simp`) would leak between contexts through the cache.
+Search-relevant state that must flow in from the caller is context, not configuration, and is part
+of the cache key (e.g. `synthPendingDepth`, the relevant options).
+-/
+private def synthInstanceConfig : Config :=
+  { isDefEqStuckEx := true, transparency := .instances,
+    foApprox := true, ctxApprox := true, constApprox := false, univApprox := false }
+
+/--
+Marks the query as recording on the environment (`Environment.synthRecording`) without
+resetting `Meta.Cache` (which `Meta.modifyEnv` would).
+-/
+private def setSynthRecording (recording : Bool) : MetaM Unit :=
+  modifyThe Core.State fun s => { s with env := s.env.setSynthRecording recording }
 
 def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do
+  -- For a nested query this read happens under the enclosing query's restriction and is recorded
+  -- as its dependency: the value determines the nested query's cache key.
+  let maxResultSize ← match maxResultSize? with
+    | some n => pure n
+    | none   => getRecordedOption synthInstance.maxSize
+  -- The query's dependencies: result-relevant option lookups on the search path go through the
+  -- recording accessors (`getRecordedOption`), and observed environment dependencies are
+  -- recorded directly; both flow into the accumulator `Meta.Cache.synthEnvDeps`, which becomes
+  -- the cache entry's dependency log, see `SynthInstanceCache`. The enclosing query's
+  -- accumulator (if any) is saved here and the nested query's effective dependencies are
+  -- merged into it on exit (`finally` below): the enclosing query observed the result.
+  let parentDeps := (← get).cache.synthEnvDeps
+  let parentRecording := (← getEnv).synthRecording
+  let fresh : SynthEnvDeps :=
+    { tcGen := (← getEnv).synthDepGen
+      changeLogPos := (← getEnv).synthChangeLog.size
+      constBirthW := (← getEnv).constBirthGen }
+  modifyCache fun c => { c with synthEnvDeps := fresh }
+  setSynthRecording true
+  try
+  -- Restrict the ambient options: result-relevant by-name reads on the search path are diverted
+  -- to the recording accessors by construction (a plain read panics), so the recorded log
+  -- captures every option that can affect the result. See `OptionsRestriction.tcResolution`.
+  withOptions (·.restrict .tcResolution) do
+  -- Resolve the per-step definitional-equality flags once; they are part of the cache key
+  -- rather than recorded dependencies, so the raw reads are not logged. See `SynthDefEqFlags`.
   let opts ← getOptions
-  let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
+  let getB (n : Name) (d : Bool) : Bool :=
+    ((opts.findUnrestricted? n).bind KVMap.Value.ofDataValue?).getD d
+  let flags : SynthDefEqFlags := {
+    respectTransparency      := getB `backward.isDefEq.respectTransparency true
+    respectTransparencyTypes := getB `backward.isDefEq.respectTransparency.types true
+    implicitBump             := getB `backward.isDefEq.implicitBump true
+    reducibleClassField      := getB `backward.whnf.reducibleClassField true
+    lazyProjDelta            := getB `backward.isDefEq.lazyProjDelta true
+    lazyWhnfCore             := getB `backward.isDefEq.lazyWhnfCore true
+    smartUnfolding           := getB `smartUnfolding true
+  }
+  -- Resource limits are part of the cache key (`SynthInstanceCacheKey.limits`): exceeding one
+  -- throws and results are only stored on the success path, so a limit cannot influence a
+  -- stored result, and keying by them makes that structural. Read by name because their
+  -- accessors live in modules this one does not import.
+  let getN (n : Name) (d : Nat) : Nat :=
+    ((opts.findUnrestricted? n).bind KVMap.Value.ofDataValue?).getD d
+  let limits : SynthLimits := {
+    maxHeartbeats           := getN `maxHeartbeats 200000
+    synthInstanceHeartbeats := getN `synthInstance.maxHeartbeats 20000
+    maxRecDepth             := getN `maxRecDepth 512
+    exponentiationThreshold := getN `exponentiation.threshold 256
+  }
+  withReader (fun ctx => { ctx with synthDefEqFlags? := some flags }) do
   withTraceNode `Meta.synthInstance
     (fun _ => return m!"{← instantiateMVars type}") do
-  withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.instances,
-                                          foApprox := true, ctxApprox := true, constApprox := false, univApprox := false }) do
+  withConfig (fun _ => synthInstanceConfig) do
   withInTypeClassResolution do
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type
     let { type, cacheKeyType, kind } ← preprocess type
-    let cacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth }
-    match (← get).cache.synthInstance.find? cacheKey with
-    | some abstResult? =>
-      trace[Meta.synthInstance.cache] "cached: {type}"
-      let result? ← applyCachedAbstractResult? type abstResult?
-      trace[Meta.synthInstance] "result {result?} (cached)"
-      return result?
-    | none =>
-      trace[Meta.synthInstance.cache] "new: {type}"
-      let abstResult? ← withNewMCtxDepth (allowLevelAssignments := true) do
+    -- Normalize the free variables of the key and result so that structurally identical queries in
+    -- different local contexts share a cache entry. Metavariables are left exactly as they are, so
+    -- this applies to metavariable-laden queries as well: their keys are otherwise context-specific
+    -- and can never be shared. `.mvarsOutputParams` keys have their output parameters replaced by a
+    -- wildcard already, so they are usually metavariable-free apart from it.
+    let normCtx? ← SynthNorm.normalizeContext? cacheKeyType localInsts
+    -- The instance-table generation is recorded once per query here, covering every read of
+    -- the table on the search path.
+    recordExtGenAccess instanceExtension.ext.toEnvExtension.idx
+    let insts := instanceExtension.getState (recorded := true) (← getEnv)
+    let cacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth,
+                      activeScopedInsts := instanceExtension.getActiveScopesWithEntries (recorded := true) (← getEnv),
+                      localAttrInsts := insts.localInstanceNames,
+                      erasedInsts := if insts.erased.isEmpty then #[]
+                        else insts.erased.fold (init := #[]) (·.push ·) |>.qsort Name.quickLt,
+                      maxResultSize, defEqFlags := flags, limits,
+                      isExporting := (← getEnv).isExporting }
+    let rawKey := cacheKey
+    let cacheKey := match normCtx? with
+      | some c => { cacheKey with localInsts := c.canonLocalInsts, type := c.normType, normFVarTypes := c.fvarTypes, normFVarValues := c.fvarValues }
+      | none   => cacheKey
+    let runSearch : MetaM (Option AbstractMVarsResult) :=
+      withNewMCtxDepth (allowLevelAssignments := true) do
         match kind with
         | .noMVars =>
           /-
@@ -1000,12 +1423,108 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
           SynthInstance.main (← preprocessOutParam type) maxResultSize
         | .mvarsNoOutputParams => SynthInstance.main type maxResultSize
         | .mvarsOutputParams => SynthInstance.main (← preprocessOutParam type) maxResultSize
+    -- Differential validation of a served hit (`debug.synthInstance.checkCacheHits`): recompute
+    -- the query from scratch and compare against the served result. The recompute bypasses the
+    -- entry under test by construction (the search body performs no cache lookup), and its
+    -- recorded dependencies flow into the current accumulator, which only strengthens the
+    -- entry's log. Raw `toString` is used for reporting: the pretty printer reads options by
+    -- name, which the ambient restriction diverts.
+    let checkHit (served? : Option AbstractMVarsResult) : MetaM Unit := do
+      -- deliberately unrestricted read: purely diagnostic, cannot influence a cached result
+      unless debug.synthInstance.checkCacheHits.getUnrestricted (← getOptions) do return
+      -- Fresh heartbeat budget: the recompute must not consume the query's own allowance. The
+      -- check is observation-only, so recompute exceptions are reported instead of propagated:
+      -- a search that throws where the cache had an answer is itself a divergence.
+      let fresh?? : Except String (Option AbstractMVarsResult) ←
+        try
+          .ok <$> withCurrHeartbeats runSearch
+        catch ex => do
+          let msg ← ex.toMessageData.toString
+          pure <| .error s!"exception: {msg}"
+      let pp : Option AbstractMVarsResult → String
+        | none => "none"
+        | some r => toString r.expr
+      let mismatch? : Option String := match fresh?? with
+        | .error e => some e
+        | .ok fresh? =>
+          let same := match served?, fresh? with
+            | none, none => true
+            | some a, some b => a.numMVars == b.numMVars && a.paramNames == b.paramNames && a.expr == b.expr
+            | _, _ => false
+          if same then none else some (pp fresh?)
+      if let some fresh := mismatch? then
+        -- the panic is the branch result: an unused pure binding would be dead-code-eliminated
+        panic! s!"type class resolution cache hit differs from recomputation for\n  \
+          {toString type}\ncached: {pp served?}\nrecomputed: {fresh}\n\
+          an environment dependency of the served entry was not recorded; see \
+          `Lean.EnvExtension.trackGen`"
+    -- Raw-key front-cache: repeated queries in one context must return the *same* result object.
+    -- A normalized hit re-instantiates the stored schema (`SynthNorm.reopen`), which allocates a
+    -- fresh copy per hit; consumers that rely on pointer identity for sharing (e.g. `grind`'s
+    -- alpha-sharing) would pay deep structural work for every copy. The transient tier therefore
+    -- additionally memoizes the reopened result under the unnormalized key, with the query's
+    -- effective option dependencies.
+    let insertRawKey (abstResult? : Option AbstractMVarsResult) : MetaM Unit := do
+      let log : SynthEnvDeps := (← get).cache.synthEnvDeps
+      modifyCache fun c => { c with synthInstance := c.synthInstance.insert rawKey <|
+        (log, abstResult?) :: (c.synthInstance.find? rawKey |>.getD [] |>.filter fun e => !sameDepIdentity e.1 log) }
+    if normCtx?.isSome then
+      if let some entries := (← get).cache.synthInstance.find? rawKey then
+        let env ← getEnv
+        for (entryLog, abstResult?) in entries do
+          -- Front-cache entries are transient (per command), so serving skips the re-stamp.
+          if let some (entryLog, _) ← validateDeps? opts env entryLog then
+            trace[Meta.synthInstance.cache] "cached: {type}"
+            -- The used entry's dependencies become dependencies of this query.
+            modifyCache fun c => { c with synthEnvDeps := entryLog.mergeInto c.synthEnvDeps }
+            checkHit abstResult?
+            let result? ← applyCachedAbstractResult? type abstResult?
+            trace[Meta.synthInstance] "result {result?} (cached)"
+            return result?
+    match ← findCachedResult? cacheKey with
+    | some (entryLog, abstResult?) =>
+      trace[Meta.synthInstance.cache] "cached: {type}"
+      -- The used entry's dependencies become dependencies of this query.
+      modifyCache fun c => { c with synthEnvDeps := entryLog.mergeInto c.synthEnvDeps }
+      -- Re-instantiate the closure-abstracted result with the current context's free variables.
+      let abstResult? := match normCtx? with
+        | some c => abstResult?.map fun a => { a with expr := SynthNorm.reopen c.order a.expr }
+        | none   => abstResult?
+      if normCtx?.isSome then
+        insertRawKey abstResult?
+      checkHit abstResult?
+      let result? ← applyCachedAbstractResult? type abstResult?
+      trace[Meta.synthInstance] "result {result?} (cached)"
+      return result?
+    | none =>
+      trace[Meta.synthInstance.cache] "new: {type}"
+      let abstResult? ← runSearch
       let result? ← applyAbstractResult? type abstResult?
       trace[Meta.synthInstance] "result {result?}"
-      cacheResult cacheKey kind abstResult? result?
+      let log : SynthEnvDeps := (← get).cache.synthEnvDeps
+      match normCtx? with
+      | none   => cacheResult cacheKey log kind (normalized := false) abstResult? result?
+      | some c =>
+        -- The context-level result goes under the raw key (see the front-cache above), including
+        -- when the abstraction below fails: an escaping result is still valid in this context.
+        insertRawKey abstResult?
+        -- Store the result over the canonical closure variables; skip caching (this query only) if
+        -- the result escapes the closure and so is not context-free.
+        match SynthNorm.abstractValue? c abstResult? result? with
+        | some (nAbstResult?, nResult?) => cacheResult cacheKey log kind (normalized := true) nAbstResult? nResult?
+        | none => pure ()
       return result?
+  finally
+    -- Restore the enclosing accumulator, merging this query's effective dependencies into it.
+    let childDeps := (← get).cache.synthEnvDeps
+    setSynthRecording parentRecording
+    modifyCache fun c => { c with synthEnvDeps :=
+      if parentRecording then childDeps.mergeInto parentDeps else parentDeps }
 
-def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do
+def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do
+  -- Profiling is a display boundary: strip the access restriction of an enclosing query, whose
+  -- options would otherwise reach the profiler's by-name reads (via `lean_profileit`).
+  profileitM Exception "typeclass inference" ((← getOptions).restrict .none) (decl := type.getAppFn.constName?.getD .anonymous) do
   synthInstanceCore? type maxResultSize?
 
 /--
@@ -1041,7 +1560,7 @@ private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <|
     | none   =>
       return false
     | some _ =>
-      let max := maxSynthPendingDepth.get (← getOptions)
+      let max ← getRecordedOption maxSynthPendingDepth
       if (← read).synthPendingDepth > max then
         trace[Meta.synthPending] "too many nested synthPending invocations"
         recordSynthPendingFailure mvarDecl.type

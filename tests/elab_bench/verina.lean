@@ -412,13 +412,30 @@ namespace P_findEvenNumbers
 def isEvenInt (x : Int) : Bool :=
   x % 2 = 0
 
+/-- `idx` witnesses that `sub` is a subsequence of `arr`: it lists, in increasing order, the
+positions of `arr` that `sub` collects. The loop below maintains this witness, so it is named
+rather than left under the existential of `Array.Sublist`. It carries no `grind` attribute: the
+conditions it collects are reached through `IsSublistWitness.push`, not by unfolding. -/
+def IsSublistWitness (arr : Array Int) (sub : Array Int) (idx : Array Nat) : Prop :=
+  idx.size = sub.size ∧
+  (∀ i, i < idx.size → idx[i]! < arr.size) ∧
+  (∀ i, i < idx.size → sub[i]! = arr[idx[i]!]!) ∧
+  (∀ i j, i < j → j < idx.size → idx[i]! < idx[j]!)
+
+/-- The empty witness. -/
+@[local grind]
+theorem IsSublistWitness.empty (arr : Array Int) : IsSublistWitness arr #[] #[] := sorry
+
+/-- Extending the witness by a position past every position it already holds. -/
+@[local grind]
+theorem IsSublistWitness.push {arr sub : Array Int} {idx : Array Nat} {k : Nat}
+    (h : IsSublistWitness arr sub idx) (hk : k < arr.size)
+    (hmax : ∀ i, i < idx.size → idx[i]! < k) :
+    IsSublistWitness arr (sub.push arr[k]!) (idx.push k) := sorry
+
 @[local grind]
 def Array.Sublist (arr : Array Int) (sub : Array Int) : Prop :=
-  ∃ indices : Array Nat,
-    indices.size = sub.size ∧
-    (∀ i, i < indices.size → indices[i]! < arr.size) ∧
-    (∀ i, i < indices.size → sub[i]! = arr[indices[i]!]!) ∧
-    (∀ i j, i < j → j < indices.size → indices[i]! < indices[j]!)
+  ∃ idx, IsSublistWitness arr sub idx
 
 @[local grind =]
 theorem count_extract_succ [DecidableEq α] [Inhabited α] {a : α} {xs : Array α} {n : Nat}
@@ -448,11 +465,8 @@ def findEvenNumbers (arr : Array Int) : Id (Array Int)
         (∀ x, x ∈ result → isEvenInt x = true) ∧
         (∀ x, isEvenInt x = false → result.count x = 0) ∧
         (∀ x, isEvenInt x = true → result.count x = (arr.extract 0 pref.length).count x) ∧
-        indices.size = result.size ∧
-        (∀ k, k < indices.size → indices[k]! < pref.length) ∧
-        (∀ k, k < indices.size → indices[k]! < arr.size) ∧
-        (∀ k, k < indices.size → result[k]! = arr[indices[k]!]!) ∧
-        (∀ k j, k < j → j < indices.size → indices[k]! < indices[j]!)
+        IsSublistWitness arr result indices ∧
+        (∀ k, k < indices.size → indices[k]! < pref.length)
     do
     let x := arr[i]!
     if isEvenInt x = true then
@@ -642,9 +656,20 @@ end P_isSublist
 
 namespace P_mergeSorted
 
-@[local grind]
+/-- Sortedness carries no `grind` attribute: it is reached through the lemmas below rather than by
+unfolding, which would make every pair of array reads a candidate instantiation. -/
 def isSorted (arr : Array Nat) : Prop :=
   ∀ i j : Nat, i < j → j < arr.size → arr[i]! ≤ arr[j]!
+
+/-- Every element of `xs` is at most `v`. Named for the same reason as `isSorted`. -/
+def AllLE (xs : Array Nat) (v : Nat) : Prop :=
+  ∀ p, p < xs.size → xs[p]! ≤ v
+
+@[local grind]
+theorem isSorted_empty : isSorted #[] := sorry
+
+@[local grind]
+theorem AllLE_empty (v : Nat) : AllLE #[] v := sorry
 
 @[local grind]
 theorem isSorted_le (arr : Array Nat) (i : Nat) :
@@ -674,14 +699,13 @@ theorem getElem!_push_eq {α} [Inhabited α] (xs : Array α) (x : α) :
 
 @[local grind]
 theorem isSorted_push' (result : Array Nat) (v : Nat)
-    (hs : isSorted result)
-    (hall : ∀ p, p < result.size → result[p]! ≤ v) :
+    (hs : isSorted result) (hall : AllLE result v) :
     isSorted (result.push v) := sorry
 
 @[local grind]
 theorem push_all_le (result : Array Nat) (v w : Nat)
-    (hall : ∀ p, p < result.size → result[p]! ≤ w) (hvw : v ≤ w) :
-    ∀ p, p < (result.push v).size → (result.push v)[p]! ≤ w := sorry
+    (hall : AllLE result w) (hvw : v ≤ w) :
+    AllLE (result.push v) w := sorry
 
 def mergeSorted (a1 : Array Nat) (a2 : Array Nat) : Id (Array Nat)
     requires isSorted a1 ∧ isSorted a2
@@ -696,8 +720,8 @@ def mergeSorted (a1 : Array Nat) (a2 : Array Nat) : Id (Array Nat)
         result.size = i + j ∧ result.size = pref.length ∧
         isSorted result ∧
         (∀ v : Nat, result.count v = (a1.extract 0 i).count v + (a2.extract 0 j).count v) ∧
-        (i < a1.size → ∀ p, p < result.size → result[p]! ≤ a1[i]!) ∧
-        (j < a2.size → ∀ p, p < result.size → result[p]! ≤ a2[j]!)
+        (i < a1.size → AllLE result a1[i]!) ∧
+        (j < a2.size → AllLE result a2[j]!)
     do
     if i >= a1.size then
       result := result.push a2[j]!

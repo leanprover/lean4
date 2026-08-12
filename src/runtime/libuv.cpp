@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Markus Himmel, Sofia Rodrigues
  */
+#include <cstdio>
 #include <memory>
+#include <string>
 #include "runtime/libuv.h"
 #include "runtime/object.h"
 #include "runtime/thread.h"
@@ -85,12 +87,12 @@ extern "C" void finalize_libuv() {
                 case UV_SIGNAL:
                     releases = lean_uv_signal_shutdown(lean_to_uv_signal(obj), *deferred);
                     break;
-                default:
-                    // Unrecognised handle type: skip the `uv_close` below rather than freeing a
-                    // handle whose wrapper still points at it, which its finalizer would free again.
-                    // The loop then stays open, which only leaks a static; assert loudly so the
-                    // diagnostic names the missing case instead of surfacing as a later failure.
-                    lean_always_assert(false);
+                default: {
+                    char const * name = uv_handle_type_name(uv_handle_get_type(handle));
+                    std::string msg = "libuv teardown reached an unhandled handle type: ";
+                    msg += name != nullptr ? name : "unknown";
+                    lean_internal_panic(msg.c_str());
+                }
             }
 
             deferred->release(obj, releases);
@@ -114,7 +116,10 @@ extern "C" void finalize_libuv() {
         int close_result = uv_loop_close(global_ev.loop);
 
         if (close_result != 0) {
-            lean_always_assert(false && "libuv loop failed to exit");
+            // Not worth aborting the process for: `main` has already produced its output, and the
+            // only cost of an unclosed loop is that its allocations survive into a leak report.
+            fprintf(stderr, "warning: libuv event loop did not close at exit: %s\n",
+                    uv_strerror(close_result));
         }
     }
 

@@ -10,17 +10,15 @@ namespace lean {
 
 using namespace std;
 
-// The finalizer of the `Signal`.
 void lean_uv_signal_finalizer(void* ptr) {
     lean_uv_signal_object* signal = (lean_uv_signal_object*) ptr;
 
-    // `m_promise` must only be released once the loop state is known: if the loop is gone,
-    // `lean_uv_signal_shutdown` has already released it during the teardown walk.
     if (!event_loop_lock(&global_ev)) {
         event_loop_wait_finalized(&global_ev);
         if (signal->m_uv_signal != nullptr) {
             free(signal->m_uv_signal);
         }
+
         free(signal);
         return;
     }

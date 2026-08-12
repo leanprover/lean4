@@ -171,6 +171,17 @@ public structure VCGen.State where
   -/
   splitBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
   /--
+  A cache mapping case analyses on the right-hand side of an entailment to their splitting backward
+  rule to apply. The particular rule depends on the case analysis's constant prefix (the result type
+  of an `ite`/`dite`, or a matcher together with its parameters and motive), the lattice carrier and
+  its order instance the rule states its conclusion at, and the number of state arguments the case
+  analysis is applied to.
+
+  The prefix, carrier and instance are keyed by `ExprPtr`, so lookups compare them by pointer rather
+  than structurally. This is sound because each is a subterm of the hash-consed goal target.
+  -/
+  topLevelSplitBackwardRuleCache : Std.HashMap (ExprPtr × ExprPtr × ExprPtr × Nat) BackwardRule := {}
+  /--
   A cache mapping lattice connectives to their backward rule to apply, keyed by the `head … cₙ`
   prefix of constant arguments the rule bakes in verbatim and the total argument count that fixes the
   schematic operand and state count.

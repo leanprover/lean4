@@ -66,6 +66,29 @@ public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPApp) :
     { st with splitBackwardRuleCache := st.splitBackwardRuleCache.insert key rule }
   return rule
 
+open Lean.Elab.Tactic.Do in
+/--
+Cached version of `mkBackwardRuleForTopLevelSplit`.
+
+Cache key: the constant prefix of the case analysis `subject` (the result type of an `ite`/`dite`,
+or a matcher together with its parameters and motive), the lattice carrier `α` and its order
+instance `inst`, and the number of state arguments the case analysis is applied to. The rule bakes
+the prefix, the carrier and the instance in verbatim, and its state binders are sized by
+`excessArgs`.
+-/
+public def mkBackwardRuleForTopLevelSplitCached (splitInfo : SplitInfo) (subject relFn α inst : Expr)
+    (excessArgs : Array Expr) : VCGenM BackwardRule := do
+  let numConst := match splitInfo with
+    | .ite .. | .dite .. => 1
+    | .matcher matcherApp => matcherApp.params.size + 1
+  let key := (ExprPtr.mk (subject.getAppPrefix numConst), ExprPtr.mk α, ExprPtr.mk inst,
+    excessArgs.size)
+  if let some rule := (← get).topLevelSplitBackwardRuleCache[key]? then return rule
+  let rule ← (← mkBackwardRuleForTopLevelSplit splitInfo relFn α inst excessArgs).shareCommon
+  modify fun st =>
+    { st with topLevelSplitBackwardRuleCache := st.topLevelSplitBackwardRuleCache.insert key rule }
+  return rule
+
 /--
 Cached construction of a lattice-split backward rule for the operator heading `rhs`. On a cache miss
 the rewrite and terminal sets are assembled from the built-in seeds and the operator's `@[frameproc]`

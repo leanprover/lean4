@@ -401,6 +401,83 @@ public def mkBackwardRuleForSplit
   let res ← abstractMVars prf
   mkBackwardRuleFromExpr res.expr res.paramNames.toList
 
+open Lean.Elab.Tactic.Do in
+/-- Creates a reusable backward rule for splitting an `ite`, `dite` or matcher that heads the
+right-hand side of an entailment `pre ⊑ subject s₁ … sₙ`, where `subject` is the case analysis and
+`s₁ … sₙ` are the state arguments it is applied to.
+
+The rule concludes the entailment from one premise per alternative, each stating the entailment at
+that alternative's right-hand side under the hypothesis deciding the case. For the conditional-jump
+precondition `if s.zf then E.head jump else post () s`, the rule is
+
+```
+∀ c [Decidable c] t e pre, (c → pre ⊑ t) → (¬c → pre ⊑ e) → pre ⊑ ite c t e
+```
+
+`relFn`, `α` and `inst` are the head and the leading two arguments of the goal's `⊑`, so the rule's
+conclusion is stated at the goal's own lattice carrier and order instance. `excessArgs` supplies the
+types of `s₁ … sₙ`; the rule binds them and re-applies the split subject to them, so a case analysis
+living at a function assertion lattice is split under the state arguments `le_of_forall_le` peeled.
+
+`SplitInfo.withAbstract` introduces the abstract fvars for the split components,
+`SplitInfo.splitWith` builds the splitting proof with the splitter, so overlapping matcher patterns
+get the per-alternative hypotheses of the corresponding `casesOn` chain, and `rwIfOrMatcher`
+discovers each alternative's right-hand side inside the splitter telescope. -/
+public def mkBackwardRuleForTopLevelSplit
+    (splitInfo : SplitInfo) (relFn α inst : Expr) (excessArgs : Array Expr) :
+    MetaM BackwardRule := do
+  -- The type of the split subject: the goal's lattice carrier under the state arguments the subject
+  -- is applied to. `resTy` reads it off the case analysis, so the rule's pattern carries the same
+  -- expression as the goal's `ite` type argument or matcher motive.
+  let some subjTy := splitInfo.resTy
+    | throwError "mkBackwardRuleForTopLevelSplit: the case analysis has a dependent motive"
+  let prf ←
+    splitInfo.withAbstract subjTy fun abstractInfo splitFVars => do
+    -- Eta-reduce matcher alts for the backward rule pattern to avoid expensive
+    -- higher-order unification. The alts are eta-expanded by `withAbstract` so that
+    -- `splitWith`/`matcherApp.transform` can `instantiateLambda` them directly.
+    let abstractSubject := match abstractInfo with
+      | .ite e | .dite e => e
+      | .matcher matcherApp =>
+        { matcherApp with alts := matcherApp.alts.map Expr.eta }.toExpr
+    let excessArgNamesTypes ← excessArgs.mapM fun arg =>
+      return (`s, ← Meta.inferType arg)
+    withLocalDeclsDND excessArgNamesTypes fun ss => do
+    withLocalDeclD `Pre α fun pre => do
+    let mkGoal (subject : Expr) : Expr := mkAppN relFn #[α, inst, pre, mkAppN subject ss]
+    -- Use synthetic opaque mvars so that `rwIfOrMatcher`'s `assumption` cannot
+    -- accidentally assign our subgoal metavariables.
+    let subgoals ← splitInfo.altInfos.mapM fun _ =>
+      mkFreshExprSyntheticOpaqueMVar (mkSort 0)
+    let namedSubgoals := subgoals.mapIdx fun i mv => ((`h).appendIndexAfter (i+1), mv)
+    withLocalDeclsDND namedSubgoals fun subgoalHyps => do
+    let prf ←
+      abstractInfo.splitWith
+        (useSplitter := true)
+        (mkGoal abstractSubject)
+        (fun _name bodyType idx altFVars => do
+          -- Extract the split subject from `bodyType` (the substituted alt goal type) by dropping
+          -- the state arguments it is applied to. For matchers, `bodyType` has the discriminant
+          -- replaced by the constructor pattern (e.g., `Nat.zero` instead of `discr`), which is
+          -- required for `rwMatcher` to discharge the equality hypotheses of congr equation
+          -- theorems. For ite/dite, `bodyType` equals `mkGoal abstractSubject` so this is
+          -- equivalent.
+          let subject := (bodyType.getArg! 3).stripArgsN ss.size
+          let res ← rwIfOrMatcher idx subject
+          if res.proof?.isNone then
+            throwError "mkBackwardRuleForTopLevelSplit: rwIfOrMatcher failed for alt {idx}"
+          let altParams := altFVars.all
+          subgoals[idx]!.mvarId!.assign (← mkForallFVars altParams (mkGoal res.expr))
+          let context ← withLocalDecl `x .default subjTy fun x =>
+            mkLambdaFVars #[x] (mkGoal x)
+          let eqProof ← mkAppM ``congrArg #[context, res.proof?.get!]
+          mkEqMPR eqProof (mkAppN subgoalHyps[idx]! altParams))
+    let prf ← instantiateMVars prf
+    mkLambdaFVars (splitFVars ++ ss ++ #[pre] ++ subgoalHyps) prf
+  let prf ← instantiateMVars prf
+  let res ← abstractMVars prf
+  mkBackwardRuleFromExpr res.expr res.paramNames.toList
+
 /-! ## Frame rules -/
 
 /-- Locate the assignable subgoal positions of a frame backward rule: the split VC (the premise

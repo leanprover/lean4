@@ -471,6 +471,53 @@ private def applySpecs (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) :
     trace[Elab.Tactic.Do.vcgen] "Failed to apply spec {thm.proof} for {info.prog}"
   stopOrErrorOnMissingSpec info.prog info.M candidates
 
+/-- Expose a case analysis heading `rhs`: strip the `noImplicitLambda` annotation a tactic
+`have`/`let`/`suffices` leaves on the goal, and beta-reduce the redex an assertion applied to the
+state arguments leaves behind. -/
+private partial def exposeRhsCase (rhs : Expr) : VCGenM Expr := do
+  let rhs := rhs.consumeMData
+  let f := rhs.getAppFn
+  if f.isLambda then exposeRhsCase (← betaS f rhs.getAppArgs) else return rhs
+
+/-- Strategy 9b: split an `ite`/`dite`/matcher heading the RHS of `pre ⊑ rhs`.
+
+A spec whose precondition analyzes a decidable state condition (a conditional jump's flag test)
+reduces its precondition VC to `pre ⊑ if c then <exception post> else <weakest precondition of the
+rest>`. `splitLatticeOp?` decomposes a `⊓`/`⇨` head, and `wpMatch?` splits a case analysis in program
+position; this splits one in assertion position, so each branch continues with the branch condition
+in the local context and the loop resumes stepping the `wp` the branch exposes. -/
+private def splitRhsCase? (goal : MVarId) (target α inst pre rhs : Expr) :
+    VCGenM (Option (List MVarId)) := do
+  let rhs' ← exposeRhsCase rhs
+  let some splitInfo ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? rhs' | return none
+  -- The state arguments the case analysis is applied to: the `ite`/`dite` arguments past its five,
+  -- and a matcher's `remaining`.
+  let numArgs := rhs'.getAppNumArgs
+  let some numExcess := (match splitInfo with
+    | .ite _ | .dite _ => if numArgs < 5 then none else some (numArgs - 5)
+    | .matcher matcherApp => some matcherApp.remaining.size : Option Nat) | return none
+  -- The rule states its conclusion at the type of the case analysis, so a matcher whose motive is
+  -- dependent has none and the goal is emitted as a VC with the case analysis intact.
+  unless splitInfo.resTy.isSome do return none
+  let subject := rhs'.stripArgsN numExcess
+  let excessArgs := rhs'.getAppArgs.extract (numArgs - numExcess)
+  let replaceRhs (rhs : Expr) : VCGenM MVarId := do
+    goal.replaceTargetDefEqFast (← mkAppNS target.getAppFn #[α, inst, pre, rhs])
+  if splitInfo matches .matcher .. then
+    if let some rhs'' ← liftMetaM <| withReducible <| reduceRecMatcher? rhs' then
+      return some [← replaceRhs (← shareCommonInc rhs'')]
+  let rule ← mkBackwardRuleForTopLevelSplitCached splitInfo subject target.getAppFn α inst excessArgs
+  let goal ← if isSameExpr rhs rhs' then pure goal else replaceRhs rhs'
+  let .goals goals ← rule.applyChecked goal m!"split rule for{indentExpr subject}"
+    | throwError "Failed to apply split rule for{indentExpr subject}"
+  let mut simpGoals := #[]
+  for g in goals do
+    match ← simpGoalTelescope g with
+    | .goal g' => simpGoals := simpGoals.push g'
+    | .noProgress => simpGoals := simpGoals.push g
+    | .closed => continue
+  return some simpGoals.toList
+
 /--
 The main VC generation step. Operates on a plain `MVarId` with no knowledge of grind.
 Returns `.goals subgoals` when the goal was decomposed, or a classification result
@@ -490,7 +537,8 @@ The function performs the following steps in order:
 7. **Bare pure precondition introduction**: on the `Prop` lattice, replace a `True`
    precondition by `⊤` and lift any other precondition into the local context.
 8. **EPost projection reduction**: reduce an `EPost.Cons.head` RHS to the projected component.
-9. **Lattice decomposition**: decompose `⊓`, `⇨`, `⌜p⌝` and `⊤` RHS connectives.
+9. **Lattice decomposition**: decompose `⊓`, `⇨`, `⌜p⌝` and `⊤` RHS connectives, then split an
+   `ite`/`dite`/matcher RHS on its condition.
 10. **Lifted-hypothesis discharge**: close a residual `pre ⊑ ⌜φ⌝` entailment against the most
     recently lifted precondition `h : φ` in the local context, cached in `Scope.lastLiftedPre?`.
 11. **WP decomposition**: when the RHS is `wp e post epost s₁ ... sₙ`, in order:
@@ -527,6 +575,7 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
   -- forall, then discharge a residual entailment against the lifted hypothesis).
   if let some g ← reduceEPostHead? goal target α inst pre rhs then return .goals scope [g]
   if let some gs ← splitLatticeOp? goal rhs then return .goals scope gs
+  if let some gs ← splitRhsCase? goal target α inst pre rhs then return .goals scope gs
   if let some gs ← splitForallLe? goal rhs then return .goals scope gs
   if let some gs ← liftedHyp? scope goal α pre rhs then return .goals scope gs
 

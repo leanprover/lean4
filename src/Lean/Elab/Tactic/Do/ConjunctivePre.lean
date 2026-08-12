@@ -114,7 +114,8 @@ private def occursMVar (mvarIds : Array MVarId) (e : Expr) : Bool :=
 /-- Whether `e` is conjunctive in the metavariables `qs`, as a sufficient syntactic condition: every
 occurrence of a `qs` metavariable lies in a conjunctive context — a `wp` postcondition or
 exception-postcondition argument (assuming the program's `wp` is conjunctive), a `⊓`/`∧`/`⨅` operand,
-a `⇨` consequent, an `EPost.Cons.head` projection, applied at a tail, or under a `λ`. -/
+a `⇨` consequent, an `EPost.Cons.head` projection, a branch of a `qs`-free case analysis, applied at
+a tail, or under a `λ`. -/
 private partial def isConjunctiveIn (qs : Array MVarId) (e : Expr) : Bool :=
   if !occursMVar qs e then true else
   match e with
@@ -135,6 +136,12 @@ private partial def isConjunctiveIn (qs : Array MVarId) (e : Expr) : Bool :=
       | Lean.Order.meet _ _ a b => isConjunctiveIn qs a && isConjunctiveIn qs b
       | Lean.Order.iInf _ _ _ f => isConjunctiveIn qs f
       | And a b => isConjunctiveIn qs a && isConjunctiveIn qs b
+      -- A case analysis whose condition is `qs`-free is conjunctive when both branches are: the meet
+      -- distributes through it (`if c then a₁ else b ⊓ if c then a₂ else b = if c then a₁ ⊓ a₂ else b`,
+      -- using `b ⊓ b = b`), so a premise-free branching spec (a conditional jump's flag test) applies
+      -- directly and its precondition VC splits per branch.
+      | ite _ c _ a b => !occursMVar qs c && isConjunctiveIn qs a && isConjunctiveIn qs b
+      | dite _ c _ a b => !occursMVar qs c && isConjunctiveIn qs a && isConjunctiveIn qs b
       | Lean.Order.himp _ _ a b => !occursMVar qs a && isConjunctiveIn qs b
       | wp _ _ _ _ _ _ _ prog post epost =>
         !occursMVar qs prog && isConjunctiveIn qs post && isConjunctiveIn qs epost

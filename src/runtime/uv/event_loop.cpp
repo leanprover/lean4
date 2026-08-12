@@ -38,6 +38,22 @@ void lean_promise_resolve_with_code(int status, obj_arg promise) {
     lean_promise_resolve(res, promise);
 }
 
+void uv_deferred_teardown::run() {
+    for (lean_object * promise : m_promises) {
+        lean_promise_resolve_with_code(UV_ECANCELED, promise);
+        lean_dec(promise);
+    }
+
+    m_promises.clear();
+
+    for (auto & release : m_releases) {
+        for (size_t i = 0; i < release.second; i++) {
+            lean_dec(release.first);
+        }
+    }
+    m_releases.clear();
+}
+
 // Utility function for error checking. This function is only used inside the
 // initializition of the event loop.
 static void check_uv(int result, const char * msg) {

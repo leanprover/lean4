@@ -49,30 +49,30 @@ void initialize_libuv_udp_socket() {
     g_uv_udp_socket_external_class = lean_register_external_class(lean_uv_udp_socket_finalizer, [](void* obj, lean_object* f) {
         lean_uv_udp_socket_object* udp_socket = (lean_uv_udp_socket_object*)obj;
 
-        if (udp_socket->m_promise_read != nullptr) {
-            lean_inc(f);
-            lean_apply_1(f, udp_socket->m_promise_read);
-        }
+        auto visit = [f](lean_object* child) {
+            if (child != nullptr) {
+                lean_inc(f);
+                lean_inc(child);
+                lean_dec(lean_apply_1(f, child));
+            }
+        };
 
-        if (udp_socket->m_byte_array != nullptr) {
-            lean_inc(f);
-            lean_apply_1(f, udp_socket->m_byte_array);
-        }
+        visit(udp_socket->m_promise_read);
+        visit(udp_socket->m_byte_array);
     });
 }
 
-size_t lean_uv_udp_socket_shutdown(lean_uv_udp_socket_object * udp_socket) {
+size_t lean_uv_udp_socket_shutdown(lean_uv_udp_socket_object * udp_socket, uv_deferred_teardown & deferred) {
     size_t release_refs = 0;
 
     if (udp_socket->m_promise_read != nullptr) {
         uv_udp_recv_stop(udp_socket->m_uv_udp);
 
-        lean_promise_resolve_with_code(UV_ECANCELED, udp_socket->m_promise_read);
-        lean_dec(udp_socket->m_promise_read);
+        deferred.cancel_promise(udp_socket->m_promise_read);
         udp_socket->m_promise_read = nullptr;
 
         if (udp_socket->m_byte_array != nullptr) {
-            lean_dec(udp_socket->m_byte_array);
+            deferred.release(udp_socket->m_byte_array);
             udp_socket->m_byte_array = nullptr;
         }
 
@@ -329,14 +329,26 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
         buf->base = (char*)lean_sarray_cptr(udp_socket->m_byte_array);
         buf->len = lean_sarray_capacity(udp_socket->m_byte_array);
     }, [](uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
+        // libuv signals "nothing to read yet" as an empty read with no peer. No datagram arrived,
+        // so the receive stays armed instead of completing with an empty one.
+        if (nread == 0 && addr == NULL) {
+            return;
+        }
+
         uv_udp_recv_stop(handle);
 
-        lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket((lean_object*)handle->data);
+        lean_object* socket = (lean_object*)handle->data;
+        lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket(socket);
         lean_object* promise = udp_socket->m_promise_read;
         lean_object* byte_array = udp_socket->m_byte_array;
 
         udp_socket->m_promise_read = nullptr;
         udp_socket->m_byte_array = nullptr;
+
+        // Resolving runs Lean code: a `(sync := true)` continuation runs on this thread and may both
+        // observe the socket's fields and drop its last reference, so the read has to be fully
+        // settled and the loop's reference handed back before anything below is resolved.
+        lean_dec(socket);
 
         if (nread >= 0) {
             lean_sarray_set_size(byte_array, nread);
@@ -360,9 +372,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
         }
 
         lean_dec(promise);
-
-        // The event loop does not own the object anymore.
-        lean_dec((lean_object*)handle->data);
     });
 
     if (result < 0) {
@@ -415,10 +424,16 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
     }, [](uv_udp_t* handle, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
         uv_udp_recv_stop(handle);
 
-        lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket((lean_object*)handle->data);
+        lean_object* socket = (lean_object*)handle->data;
+        lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket(socket);
         lean_object* promise = udp_socket->m_promise_read;
 
         udp_socket->m_promise_read = nullptr;
+
+        // Resolving runs Lean code: a `(sync := true)` continuation runs on this thread and may both
+        // observe the socket's fields and drop its last reference, so the wait has to be fully
+        // settled and the loop's reference handed back before anything below is resolved.
+        lean_dec(socket);
 
         if (nread == UV_ENOBUFS) {
             lean_promise_resolve(mk_except_ok(lean_box(0)), promise);
@@ -430,9 +445,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
         }
 
         lean_dec(promise);
-
-        // The event loop does not own the object anymore.
-        lean_dec((lean_object*)handle->data);
     });
 
     if (result < 0) {
@@ -460,30 +472,29 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_cancel_recv(b_obj_arg socket) {
         return lean_io_result_mk_ok(lean_box(0));
     }
 
-    lean_inc(socket);
-
     if (udp_socket->m_promise_read == nullptr) {
         event_loop_unlock(&global_ev);
-        lean_dec(socket);
         return lean_io_result_mk_ok(lean_box(0));
     }
 
     uv_udp_recv_stop(udp_socket->m_uv_udp);
 
     lean_object* promise = udp_socket->m_promise_read;
-    lean_dec(promise);
-    udp_socket->m_promise_read = nullptr;
-
     lean_object* byte_array = udp_socket->m_byte_array;
+
+    udp_socket->m_promise_read = nullptr;
+    udp_socket->m_byte_array = nullptr;
+
+    event_loop_unlock(&global_ev);
+
+    // Dropping the last reference to an unresolved promise resolves it, which runs Lean code that
+    // may re-enter this socket, so the cancellation has to be complete before any release below.
+    lean_dec(promise);
 
     if (byte_array != nullptr) {
         lean_dec(byte_array);
-        udp_socket->m_byte_array = nullptr;
     }
 
-    lean_dec(socket);
-
-    event_loop_unlock(&global_ev);
     lean_dec(socket);
 
     return lean_io_result_mk_ok(lean_box(0));

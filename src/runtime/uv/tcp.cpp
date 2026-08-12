@@ -62,40 +62,34 @@ void initialize_libuv_tcp_socket() {
     g_uv_tcp_socket_external_class = lean_register_external_class(lean_uv_tcp_socket_finalizer, [](void* obj, lean_object* f) {
         lean_uv_tcp_socket_object* tcp_socket = (lean_uv_tcp_socket_object*)obj;
 
-        if (tcp_socket->m_promise_accept != nullptr) {
-            lean_inc(f);
-            lean_apply_1(f, tcp_socket->m_promise_accept);
-        }
+        // `f` consumes both itself and its argument.
+        auto visit = [f](lean_object* child) {
+            if (child != nullptr) {
+                lean_inc(f);
+                lean_inc(child);
+                lean_dec(lean_apply_1(f, child));
+            }
+        };
 
-        if (tcp_socket->m_promise_shutdown != nullptr) {
-            lean_inc(f);
-            lean_apply_1(f, tcp_socket->m_promise_shutdown);
-        }
-
-        if (tcp_socket->m_promise_read != nullptr) {
-            lean_inc(f);
-            lean_apply_1(f, tcp_socket->m_promise_read);
-        }
-
-        if (tcp_socket->m_byte_array != nullptr) {
-            lean_inc(f);
-            lean_apply_1(f, tcp_socket->m_byte_array);
-        }
+        visit(tcp_socket->m_promise_accept);
+        visit(tcp_socket->m_promise_shutdown);
+        visit(tcp_socket->m_promise_read);
+        visit(tcp_socket->m_byte_array);
+        visit(tcp_socket->m_client);
     });
 }
 
-size_t lean_uv_tcp_socket_shutdown(lean_uv_tcp_socket_object * tcp_socket, uv_deferred_releases & deferred) {
+size_t lean_uv_tcp_socket_shutdown(lean_uv_tcp_socket_object * tcp_socket, uv_deferred_teardown & deferred) {
     size_t release_refs = 0;
 
     if (tcp_socket->m_promise_read != nullptr) {
         uv_read_stop((uv_stream_t*)tcp_socket->m_uv_tcp);
 
-        lean_promise_resolve_with_code(UV_ECANCELED, tcp_socket->m_promise_read);
-        lean_dec(tcp_socket->m_promise_read);
+        deferred.cancel_promise(tcp_socket->m_promise_read);
         tcp_socket->m_promise_read = nullptr;
 
         if (tcp_socket->m_byte_array != nullptr) {
-            lean_dec(tcp_socket->m_byte_array);
+            deferred.release(tcp_socket->m_byte_array);
             tcp_socket->m_byte_array = nullptr;
         }
 
@@ -103,12 +97,11 @@ size_t lean_uv_tcp_socket_shutdown(lean_uv_tcp_socket_object * tcp_socket, uv_de
     }
 
     if (tcp_socket->m_promise_accept != nullptr) {
-        lean_promise_resolve_with_code(UV_ECANCELED, tcp_socket->m_promise_accept);
-        lean_dec(tcp_socket->m_promise_accept);
+        deferred.cancel_promise(tcp_socket->m_promise_accept);
         tcp_socket->m_promise_accept = nullptr;
 
         if (tcp_socket->m_client != nullptr) {
-            deferred.emplace_back(tcp_socket->m_client, 1);
+            deferred.release(tcp_socket->m_client);
             tcp_socket->m_client = nullptr;
         }
 
@@ -116,8 +109,7 @@ size_t lean_uv_tcp_socket_shutdown(lean_uv_tcp_socket_object * tcp_socket, uv_de
     }
 
     if (tcp_socket->m_promise_shutdown != nullptr) {
-        lean_promise_resolve_with_code(UV_ECANCELED, tcp_socket->m_promise_shutdown);
-        lean_dec(tcp_socket->m_promise_shutdown);
+        deferred.cancel_promise(tcp_socket->m_promise_shutdown);
         tcp_socket->m_promise_shutdown = nullptr;
     }
 
@@ -378,12 +370,18 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
     }, [](uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
         uv_read_stop(stream);
 
-        lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket((lean_object*)stream->data);
+        lean_object* socket = (lean_object*)stream->data;
+        lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
         lean_object* promise = tcp_socket->m_promise_read;
         lean_object* byte_array = tcp_socket->m_byte_array;
 
         tcp_socket->m_promise_read = nullptr;
         tcp_socket->m_byte_array = nullptr;
+
+        // Resolving runs Lean code: a `(sync := true)` continuation runs on this thread and may both
+        // observe the socket's fields and drop its last reference, so the read has to be fully
+        // settled and the loop's reference handed back before anything below is resolved.
+        lean_dec(socket);
 
         if (nread >= 0) {
             lean_sarray_set_size(byte_array, nread);
@@ -397,9 +395,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
         }
 
         lean_dec(promise);
-
-        // The event loop does not own the object anymore.
-        lean_dec((lean_object*)stream->data);
     });
 
     if (result < 0) {
@@ -451,10 +446,16 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket) 
     }, [](uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
         uv_read_stop(stream);
 
-        lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket((lean_object*)stream->data);
+        lean_object* socket = (lean_object*)stream->data;
+        lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
         lean_object* promise = tcp_socket->m_promise_read;
 
         tcp_socket->m_promise_read = nullptr;
+
+        // Resolving runs Lean code: a `(sync := true)` continuation runs on this thread and may both
+        // observe the socket's fields and drop its last reference, so the wait has to be fully
+        // settled and the loop's reference handed back before anything below is resolved.
+        lean_dec(socket);
 
         if (nread == UV_ENOBUFS) {
             lean_promise_resolve(mk_except_ok(lean_box(1)), promise);
@@ -468,9 +469,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket) 
         }
 
         lean_dec(promise);
-
-        // The event loop does not own the object anymore.
-        lean_dec((lean_object*)stream->data);
     });
 
     if (result < 0) {
@@ -506,18 +504,23 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_recv(b_obj_arg socket) {
     uv_read_stop((uv_stream_t*)tcp_socket->m_uv_tcp);
 
     lean_object* promise = tcp_socket->m_promise_read;
-    lean_dec(promise);
-    tcp_socket->m_promise_read = nullptr;
-
     lean_object* byte_array = tcp_socket->m_byte_array;
+
+    tcp_socket->m_promise_read = nullptr;
+    tcp_socket->m_byte_array = nullptr;
+
+    event_loop_unlock(&global_ev);
+
+    // Dropping the last reference to an unresolved promise resolves it, which runs Lean code that
+    // may re-enter this socket, so the cancellation has to be complete before any release below.
+    lean_dec(promise);
+
     if (byte_array != nullptr) {
         lean_dec(byte_array);
-        tcp_socket->m_byte_array = nullptr;
     }
 
     lean_dec(socket);
 
-    event_loop_unlock(&global_ev);
     return lean_io_result_mk_ok(lean_box(0));
 }
 
@@ -550,49 +553,42 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
     }
 
     int result = uv_listen((uv_stream_t*)tcp_socket->m_uv_tcp, backlog, [](uv_stream_t* stream, int status) {
-        lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket((lean_object*)stream->data);
+        lean_object* socket = (lean_object*)stream->data;
+        lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
         if (tcp_socket->m_promise_accept == nullptr) {
             return;
         }
 
         lean_object* promise = tcp_socket->m_promise_accept;
+        lean_object* client = tcp_socket->m_client;
 
-        if (status < 0) {
-            lean_promise_resolve_with_code(status, promise);
-            lean_dec(promise);
-            tcp_socket->m_promise_accept = nullptr;
+        int result = status;
 
-            if (tcp_socket->m_client != nullptr) {
-                lean_dec(tcp_socket->m_client);
-                tcp_socket->m_client = nullptr;
-            }
-
-            lean_dec((lean_object*)stream->data);
-            return;
+        if (status >= 0) {
+            lean_uv_tcp_socket_object* client_socket = lean_to_uv_tcp_socket(client);
+            result = uv_accept((uv_stream_t*)tcp_socket->m_uv_tcp, (uv_stream_t*)client_socket->m_uv_tcp);
         }
 
-        lean_object* client = tcp_socket->m_client;
-        lean_uv_tcp_socket_object* client_socket = lean_to_uv_tcp_socket(client);
-
-        int result = uv_accept((uv_stream_t*)tcp_socket->m_uv_tcp, (uv_stream_t*)client_socket->m_uv_tcp);
-
+        // Resolving runs Lean code: a `(sync := true)` continuation runs on this thread and may both
+        // observe the socket's fields and drop its last reference, so the accept has to be fully
+        // settled and the loop's reference handed back before anything below is resolved.
         tcp_socket->m_promise_accept = nullptr;
         tcp_socket->m_client = nullptr;
 
+        // The accept increases the count and then the listen decreases
+        lean_dec(socket);
+
         if (result < 0) {
-            lean_dec(client);
+            if (client != nullptr) {
+                lean_dec(client);
+            }
             lean_promise_resolve_with_code(result, promise);
-            lean_dec(promise);
-            lean_dec((lean_object*)stream->data);
-            return;
+        } else {
+            lean_promise_resolve(mk_except_ok(client), promise);
         }
 
-        lean_promise_resolve(mk_except_ok(client), promise);
         lean_dec(promise);
-
-        // The accept increases the count and then the listen decreases
-        lean_dec((lean_object*)stream->data);
     });
 
     event_loop_unlock(&global_ev);
@@ -708,19 +704,23 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_accept(b_obj_arg socket) 
     }
 
     lean_object* promise = tcp_socket->m_promise_accept;
-    lean_dec(promise);
-    tcp_socket->m_promise_accept = nullptr;
-
     lean_object* client = tcp_socket->m_client;
+
+    tcp_socket->m_promise_accept = nullptr;
+    tcp_socket->m_client = nullptr;
+
+    event_loop_unlock(&global_ev);
+
+    // Dropping the last reference to an unresolved promise resolves it, which runs Lean code that
+    // may re-enter this socket, so the cancellation has to be complete before any release below.
+    lean_dec(promise);
 
     if (client != nullptr) {
         lean_dec(client);
-        tcp_socket->m_client = nullptr;
     }
 
     lean_dec(socket);
 
-    event_loop_unlock(&global_ev);
     return lean_io_result_mk_ok(lean_box(0));
 }
 
@@ -753,8 +753,16 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
     lean_inc(socket);
 
     int result = uv_shutdown(shutdown_req, (uv_stream_t*)tcp_socket->m_uv_tcp, [](uv_shutdown_t* req, int status) {
-        lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket((lean_object*)req->data);
+        lean_object* socket = (lean_object*)req->data;
+        lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
         lean_object* promise = tcp_socket->m_promise_shutdown;
+
+        tcp_socket->m_promise_shutdown = nullptr;
+        free(req);
+
+        // Resolving runs Lean code: a `(sync := true)` continuation runs on this thread and may
+        // drop the last reference to the socket, so `tcp_socket` must not be touched below.
+        lean_dec(socket);
 
         if (promise != nullptr) {
             if (status < 0) {
@@ -764,22 +772,21 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
             }
 
             lean_dec(promise);
-
-            tcp_socket->m_promise_shutdown = nullptr;
         }
-
-        lean_dec((lean_object*)req->data);
-        free(req);
     });
 
 
     if (result < 0) {
         free(shutdown_req);
-        lean_dec(tcp_socket->m_promise_shutdown);
         tcp_socket->m_promise_shutdown = nullptr;
-        lean_dec(promise);
-        lean_dec(socket);
+
         event_loop_unlock(&global_ev);
+
+        // Dropping the last reference to an unresolved promise resolves it, which runs Lean code
+        // that may re-enter this socket, so the failure has to be recorded before any release below.
+        lean_dec(promise); // The structure does not own it.
+        lean_dec(promise); // We are not going to return it.
+        lean_dec(socket);
 
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }

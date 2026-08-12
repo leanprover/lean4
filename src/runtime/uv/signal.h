@@ -44,7 +44,7 @@ typedef struct {
 static inline lean_object* lean_uv_signal_new(lean_uv_signal_object * s) { return lean_alloc_external(g_uv_signal_external_class, s); }
 static inline lean_uv_signal_object* lean_to_uv_signal(lean_object * o) { return (lean_uv_signal_object*)(lean_get_external_data(o)); }
 
-size_t lean_uv_signal_shutdown(lean_uv_signal_object * signal);
+size_t lean_uv_signal_shutdown(lean_uv_signal_object * signal, uv_deferred_teardown & deferred);
 
 #endif
 

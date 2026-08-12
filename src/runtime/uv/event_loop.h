@@ -29,17 +29,29 @@ enum event_loop_state {
     EVENT_LOOP_FINALIZED,
 };
 
-// Lean references whose `lean_dec`s are deferred by `finalize_libuv` until after the teardown walk
-// has finished.
-typedef std::vector<std::pair<lean_object *, size_t>> uv_deferred_releases;
+class uv_deferred_teardown {
+    std::vector<lean_object *> m_promises;
+    std::vector<std::pair<lean_object *, size_t>> m_releases;
+
+public:
+    void cancel_promise(lean_object * promise) { m_promises.push_back(promise); }
+
+    void release(lean_object * obj, size_t count = 1) {
+        if (count > 0) {
+            m_releases.emplace_back(obj, count);
+        }
+    }
+
+    void run();
+};
 
 // A libuv request that is bound to the loop rather than to a handle: DNS resolution and
 // `uv_random`. `uv_walk` only visits handles, so these are tracked in an intrusive list in order to
 // be cancelled during teardown; without it `finalize_libuv` would block until they complete, which
 // a slow resolver can delay indefinitely.
 typedef struct uv_pending_req {
-    uv_req_t *              req;
-    lean_object *           promise;
+    uv_req_t * req;
+    lean_object * promise;
     struct uv_pending_req * next;
     struct uv_pending_req * prev;
 } uv_pending_req;

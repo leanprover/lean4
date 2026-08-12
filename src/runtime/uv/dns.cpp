@@ -56,9 +56,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
     }
 
     dns_addrinfo_req* owner = (dns_addrinfo_req*)malloc(sizeof(dns_addrinfo_req));
+
     if (owner == nullptr) {
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
+
     uv_getaddrinfo_t* resolver = &owner->req;
     resolver->data = owner;
 
@@ -91,6 +93,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
         lean_object* promise = owner->pending.promise;
 
         event_loop_unregister_request(&global_ev, &owner->pending);
+
+        if (promise == nullptr) {
+            uv_freeaddrinfo(res);
+            free(owner);
+            return;
+        }
 
         if (status != 0) {
             lean_promise_resolve_with_code(status, promise);
@@ -174,6 +182,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
         lean_object* promise = owner->pending.promise;
 
         event_loop_unregister_request(&global_ev, &owner->pending);
+
+        if (promise == nullptr) {
+            // Teardown abandoned this request and already settled the promise.
+            free(owner);
+            return;
+        }
 
         if (status != 0) {
             lean_promise_resolve_with_code(status, promise);

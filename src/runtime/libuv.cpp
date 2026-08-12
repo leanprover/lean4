@@ -54,7 +54,7 @@ extern "C" void finalize_libuv() {
     event_loop_drain_active(&global_ev);
     event_loop_lock_internal(&global_ev);
 
-    uv_deferred_releases pending_releases;
+    uv_deferred_teardown deferred_teardown;
 
     uv_walk(global_ev.loop, [](uv_handle_t * handle, void * arg) {
         if (uv_is_closing(handle)) {
@@ -66,7 +66,7 @@ extern "C" void finalize_libuv() {
             return;
         }
 
-        uv_deferred_releases * deferred = (uv_deferred_releases *)arg;
+        uv_deferred_teardown * deferred = (uv_deferred_teardown *)arg;
         lean_object * obj = (lean_object*)handle->data;
 
         if (obj != nullptr) {
@@ -74,16 +74,16 @@ extern "C" void finalize_libuv() {
 
             switch (uv_handle_get_type(handle)) {
                 case UV_TIMER:
-                    releases = lean_uv_timer_shutdown(lean_to_uv_timer(obj));
+                    releases = lean_uv_timer_shutdown(lean_to_uv_timer(obj), *deferred);
                     break;
                 case UV_TCP:
                     releases = lean_uv_tcp_socket_shutdown(lean_to_uv_tcp_socket(obj), *deferred);
                     break;
                 case UV_UDP:
-                    releases = lean_uv_udp_socket_shutdown(lean_to_uv_udp_socket(obj));
+                    releases = lean_uv_udp_socket_shutdown(lean_to_uv_udp_socket(obj), *deferred);
                     break;
                 case UV_SIGNAL:
-                    releases = lean_uv_signal_shutdown(lean_to_uv_signal(obj));
+                    releases = lean_uv_signal_shutdown(lean_to_uv_signal(obj), *deferred);
                     break;
                 default:
                     // Unrecognised handle type: skip the `uv_close` below rather than freeing a
@@ -93,14 +93,11 @@ extern "C" void finalize_libuv() {
                     lean_always_assert(false);
             }
 
-            if (releases > 0) {
-                deferred->emplace_back(obj, releases);
-            }
+            deferred->release(obj, releases);
         }
 
         uv_close(handle, [](uv_handle_t * handle) { free(handle); });
-    }, &pending_releases);
-
+    }, &deferred_teardown);
 
     event_loop_mark_finalized(&global_ev);
     event_loop_cancel_requests(&global_ev);
@@ -121,11 +118,7 @@ extern "C" void finalize_libuv() {
         }
     }
 
-    for (auto & release : pending_releases) {
-        for (size_t i = 0; i < release.second; i++) {
-            lean_dec(release.first);
-        }
-    }
+    deferred_teardown.run();
 
     event_loop_unlock(&global_ev);
 }

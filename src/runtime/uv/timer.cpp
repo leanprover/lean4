@@ -40,9 +40,13 @@ void lean_uv_timer_finalizer(void* ptr) {
 
 void initialize_libuv_timer() {
     g_uv_timer_external_class = lean_register_external_class(lean_uv_timer_finalizer, [](void* obj, lean_object* f) {
-        if (((lean_uv_timer_object*)obj)->m_promise != NULL) {
+        lean_object * promise = ((lean_uv_timer_object*)obj)->m_promise;
+
+        if (promise != NULL) {
+            // `f` consumes both itself and its argument.
             lean_inc(f);
-            lean_apply_1(f, ((lean_uv_timer_object*)obj)->m_promise);
+            lean_inc(promise);
+            lean_dec(lean_apply_1(f, promise));
         }
     });
 }
@@ -61,27 +65,42 @@ void handle_timer_event(uv_timer_t* handle) {
 
    if (timer->m_repeating) {
         // For repeating timers, only resolves if the promise exists and is not finished
-        if (timer->m_promise != NULL && !timer_promise_is_finished(timer)) {
-            lean_object* res = lean_io_promise_resolve(mk_except_ok(lean_box(0)), timer->m_promise);
+        lean_object * promise = timer->m_promise;
+
+        if (promise != NULL && !timer_promise_is_finished(timer)) {
+            // Resolving runs Lean code: a `(sync := true)` continuation runs on this thread and a
+            // `cancel` from it drops the promise the loop is still resolving, so hold a reference
+            // across the call. `timer` must not be touched afterwards for the same reason.
+            lean_inc(promise);
+
+            lean_object* res = lean_io_promise_resolve(mk_except_ok(lean_box(0)), promise);
             lean_dec(res);
+            lean_dec(promise);
         }
     } else {
-        // For non-repeating timers, resolves if the promise exists
-        if (timer->m_promise != NULL) {
-            lean_assert(!timer_promise_is_finished(timer));
-            lean_object* res = lean_io_promise_resolve(mk_except_ok(lean_box(0)), timer->m_promise);
-            lean_dec(res);
-        }
-
         uv_timer_stop(timer->m_uv_timer);
         timer->m_state = TIMER_STATE_FINISHED;
 
+        lean_object * promise = timer->m_promise;
+        if (promise != NULL) {
+            lean_assert(!timer_promise_is_finished(timer));
+            lean_inc(promise);
+        }
+
         // The loop does not need to keep the timer alive anymore.
         lean_dec(obj);
+
+        // Resolving runs Lean code: a `(sync := true)` continuation runs on this thread and may
+        // drop the last reference to the timer, so neither `timer` nor `obj` may be touched below.
+        if (promise != NULL) {
+            lean_object* res = lean_io_promise_resolve(mk_except_ok(lean_box(0)), promise);
+            lean_dec(res);
+            lean_dec(promise);
+        }
     }
 }
 
-size_t lean_uv_timer_shutdown(lean_uv_timer_object * timer) {
+size_t lean_uv_timer_shutdown(lean_uv_timer_object * timer, uv_deferred_teardown & deferred) {
     size_t release_refs = 0;
 
     if (timer->m_state == TIMER_STATE_RUNNING) {
@@ -96,11 +115,7 @@ size_t lean_uv_timer_shutdown(lean_uv_timer_object * timer) {
     }
 
     if (timer->m_promise != NULL) {
-        if (!timer_promise_is_finished(timer)) {
-            lean_promise_resolve_with_code(UV_ECANCELED, timer->m_promise);
-        }
-
-        lean_dec(timer->m_promise);
+        deferred.cancel_promise(timer->m_promise);
         timer->m_promise = NULL;
     }
 
@@ -154,7 +169,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
     lean_uv_timer_object * timer = lean_to_uv_timer(obj);
 
     auto create_promise = []() {
-        return lean_io_promise_new();
+        lean_object * promise = lean_io_promise_new();
+        // The loop thread resolves and releases it, so its refcount has to be atomic.
+        mark_mt(promise);
+        return promise;
     };
 
     auto setup_timer = [create_promise, obj, timer]() {
@@ -218,18 +236,20 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
                         timer->m_promise = create_promise();
                     }
 
-                    lean_inc(timer->m_promise);
+                    lean_object* promise = timer->m_promise;
+                    lean_inc(promise);
 
                     event_loop_unlock(&global_ev);
 
-                    return lean_io_result_mk_ok(timer->m_promise);
+                    return lean_io_result_mk_ok(promise);
                 }
             case TIMER_STATE_FINISHED:
                 {
                     if (timer->m_promise != NULL) {
-                        lean_inc(timer->m_promise);
+                        lean_object* promise = timer->m_promise;
+                        lean_inc(promise);
                         event_loop_unlock(&global_ev);
-                        return lean_io_result_mk_ok(timer->m_promise);
+                        return lean_io_result_mk_ok(promise);
                     } else {
                         // Creates a resolved promise
                         lean_object* finished_promise = create_promise();
@@ -300,26 +320,27 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj) {
     // already given its reference back and must not be charged for it twice.
     bool loop_owns_timer = timer->m_state == TIMER_STATE_RUNNING && timer->m_promise != NULL;
 
-    if (timer->m_promise != NULL) {
-        lean_dec(timer->m_promise);
-        timer->m_promise = NULL;
-    }
+    lean_object * promise = timer->m_promise;
+    timer->m_promise = NULL;
 
     if (timer->m_state == TIMER_STATE_RUNNING) {
         uv_timer_stop(timer->m_uv_timer);
         timer->m_state = TIMER_STATE_FINISHED;
-
-        event_loop_unlock(&global_ev);
-
-        if (loop_owns_timer) {
-            // The loop does not need to keep the timer alive anymore.
-            lean_dec(obj);
-        }
-
-        return lean_io_result_mk_ok(lean_box(0));
     }
 
     event_loop_unlock(&global_ev);
+
+    // Dropping the last reference to an unresolved promise resolves it, which runs Lean code that
+    // may re-enter this timer, so the stop has to be complete before any release below.
+    if (promise != NULL) {
+        lean_dec(promise);
+    }
+
+    if (loop_owns_timer) {
+        // The loop does not need to keep the timer alive anymore.
+        lean_dec(obj);
+    }
+
     return lean_io_result_mk_ok(lean_box(0));
 }
 
@@ -332,28 +353,29 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_cancel(b_obj_arg obj) {
         return lean_io_result_mk_ok(lean_box(0));
     }
 
+    lean_object * promise = NULL;
+
     if (timer->m_state == TIMER_STATE_RUNNING && timer->m_promise != NULL) {
-        if (timer->m_repeating) {
-            lean_dec(timer->m_promise);
-            timer->m_promise = NULL;
+        promise = timer->m_promise;
+        timer->m_promise = NULL;
 
-            // The timer keeps ticking, but it no longer owes anyone a promise, so the loop gives
-            // its reference back. Otherwise a dropped repeating timer could never be reclaimed:
-            // the reference kept it alive and only it could have released the reference.
-            lean_dec(obj);
-        } else {
+        // A repeating timer keeps ticking, it just no longer owes anyone a promise. Either way the
+        // loop gives its reference back; otherwise a dropped repeating timer could never be
+        // reclaimed, as the reference kept it alive and only it could have released the reference.
+        if (!timer->m_repeating) {
             uv_timer_stop(timer->m_uv_timer);
-
-            lean_dec(timer->m_promise);
-            timer->m_promise = NULL;
             timer->m_state = TIMER_STATE_INITIAL;
-
-            // The loop does not need to keep the timer alive anymore.
-            lean_dec(obj);
         }
     }
 
     event_loop_unlock(&global_ev);
+
+    // Dropping the last reference to an unresolved promise resolves it, which runs Lean code that
+    // may re-enter this timer, so the cancellation has to be complete before any release below.
+    if (promise != NULL) {
+        lean_dec(promise);
+        lean_dec(obj);
+    }
 
     return lean_io_result_mk_ok(lean_box(0));
 }

@@ -3998,7 +3998,11 @@ theorem replicate_append_self {x : BitVec w} :
     conv => lhs; rw [ih]
     simp only [BitVec.cast_cast, BitVec.cast_eq]
     rw [← cast_append_left]
-    · grind
+    -- The goal needs the exponent identity `w + w * n = w * (n + 1)` to relate
+    -- `2 ^ _` terms in the `toNat` images of the appends. `grind` finds it only via a
+    -- model-based theory combination case split, and the homomorphism encoding produces
+    -- enough competing exponent-pair candidates that the default split budget is too small.
+    · grind (splits := 11)
     · rw [Nat.add_comm, Nat.mul_add, Nat.mul_one]; omega
 
 theorem replicate_succ' {x : BitVec w} :

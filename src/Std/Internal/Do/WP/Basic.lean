@@ -6,7 +6,8 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.PredTrans
+public import Std.Internal.Do.ExceptPost
+public import Std.Internal.Order.PredTrans
 universe u v w z
 @[expose] public section
 
@@ -218,6 +219,34 @@ instance Id.instWPMonad : WPMonad Id.{u} Prop EPost.Nil where
   pure_le_wp_pure _ _ _ := PartialOrder.rel_refl
   bind_le_wp_bind _ _ _ _ := PartialOrder.rel_refl
 
+/-- `MonadExceptOf` instance for the outermost exception layer:
+`throw` invokes the head exception postcondition, `tryCatch` intercepts it. -/
+instance {ε : Type u} {Pred : Type v} {EPred : Type w} :
+    MonadExceptOf ε (PredTrans Pred (EPost.Cons (ε → Pred) EPred)) where
+  throw e := ⟨fun _post epost => epost.head e⟩
+  tryCatch x handle := ⟨fun post epost => x.apply post ⟨(fun e => (handle e).apply post epost), epost.tail⟩⟩
+
+/-- `MonadExceptOf` instance lifted through an unrelated exception layer:
+delegates to the inner instance, threading the extra exception postcondition. -/
+instance {ε : Type u} {Pred : Type v} {EPred : Type w} {ε' : Type u}
+    [MonadExceptOf ε (PredTrans Pred EPred)] :
+    MonadExceptOf ε (PredTrans Pred (EPost.Cons (ε' → Pred) EPred)) where
+  throw x := ⟨fun post epost => (throw (m := PredTrans Pred EPred) x).apply post epost.tail⟩
+  tryCatch x handle := ⟨fun post epost =>
+    (tryCatch (m := PredTrans Pred EPred)
+      (⟨fun post' epost' => x.apply post' ⟨epost.head, epost'⟩⟩)
+      (fun e => ⟨fun post' epost' => (handle e).apply post' ⟨epost.head, epost'⟩⟩)).apply
+      post epost.tail⟩
+
+/-- Adds an exception layer to a predicate transformer.
+
+Given a transformer over `Except ε α`, produces one over `α` with an additional
+exception postcondition for `ε`. The normal and error postconditions are combined
+via `pushExcept`. -/
+def PredTrans.pushExcept {α : Type u} {ε : Type v} {Pred : Type w} {EPred : Type z}
+    (x : PredTrans Pred EPred (Except ε α)) : PredTrans Pred (EPost.Cons (ε → Pred) EPred) α :=
+  ⟨fun post epost => x.apply (epost.pushExcept post) epost.tail⟩
+
 @[simp, grind =]
 theorem PredTrans.apply_pushExcept {α ε Pred EPred}
     (x : PredTrans Pred EPred (Except ε α)) (post : α → Pred)
@@ -231,8 +260,7 @@ postcondition layer. -/
     WP (ExceptT ε m α) α Pred (EPost.Cons (ε → Pred) EPred) where
   wpTrans x := PredTrans.pushExcept (WP.wpTrans x.run)
   wp_trans_monotone x := fun post post' epost epost' hepost hpost => by
-    change wp x.run (epost.pushExcept post) epost.tail ⊑
-           wp x.run (epost'.pushExcept post') epost'.tail
+    simp only [PredTrans.apply_pushExcept]
     have hepost' : epost.head ⊑ epost'.head ∧ epost.tail ⊑ epost'.tail := by
       simpa [PartialOrder.rel, meet_prop_eq_and] using hepost
     let hhead := hepost'.1
@@ -252,7 +280,8 @@ instance ExceptT.instWPMonad {Pred : Type v}
   pure_le_wp_pure x := fun post epost =>
     WPMonad.pure_le_wp_pure (m := m) (Except.ok x) (epost.pushExcept post) epost.tail
   bind_le_wp_bind x f := fun post epost => by
-    show wp x.run _ epost.tail ⊑ wp (x >>= f).run (epost.pushExcept post) epost.tail
+    show (PredTrans.pushExcept (WP.wpTrans x.run)).apply _ epost ⊑ _
+    simp only [PredTrans.apply_pushExcept]
     apply PartialOrder.rel_trans _ (WPMonad.bind_le_wp_bind (m := m) x.run _ (epost.pushExcept post) epost.tail)
     apply WP.wp_consequence
     intro r; cases r with
@@ -266,6 +295,20 @@ theorem ExceptT.wp_apply_eq {α ε Pred EPred}
   (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
     wp x post epost = wp x.run (epost.pushExcept post) epost.tail := rfl
 
+/-- Adds an early-termination layer to a predicate transformer, modelling `Option` as
+early termination. Given a transformer over `Option α`, produces one over `α` with an
+additional exception postcondition for the `none` case. -/
+def PredTrans.pushOption {α : Type u} {Pred : Type u} {EPred : Type v}
+    (x : PredTrans Pred EPred (Option α)) : PredTrans Pred (EPost.Cons Pred EPred) α :=
+  ⟨fun post epost => x.apply (epost.pushOption post) epost.tail⟩
+
+/-- Unfolding `pushOption` through `apply`. -/
+@[simp, grind =]
+theorem PredTrans.apply_pushOption {α : Type u} {Pred : Type u} {EPred : Type v}
+    (x : PredTrans Pred EPred (Option α)) (post : α → Pred)
+    (epost : EPost.Cons Pred EPred) :
+    (PredTrans.pushOption x).apply post epost = x.apply (epost.pushOption post) epost.tail := rfl
+
 /-- `OptionT`'s `WP` interpretation: lift the base interpretation by adding a `PUnit` exception
 postcondition layer. -/
 @[instance_reducible] def OptionT.wpInst {Pred : Type u}
@@ -273,8 +316,7 @@ postcondition layer. -/
     WP (OptionT m α) α Pred (EPost.Cons Pred EPred) where
   wpTrans x := PredTrans.pushOption (WP.wpTrans x.run)
   wp_trans_monotone x := fun post post' epost epost' hepost hpost => by
-    change wp x.run (epost.pushOption post) epost.tail ⊑
-           wp x.run (epost'.pushOption post') epost'.tail
+    simp only [PredTrans.apply_pushOption]
     have hepost' : epost.head ⊑ epost'.head ∧ epost.tail ⊑ epost'.tail := hepost
     apply WP.wp_consequence_econs (x := x.run)
     · intro r; cases r with
@@ -290,7 +332,8 @@ instance OptionT.instWPMonad {Pred : Type u}
   pure_le_wp_pure x := fun post epost =>
     WPMonad.pure_le_wp_pure (m := m) (some x) (epost.pushOption post) epost.tail
   bind_le_wp_bind x f := fun post epost => by
-    show wp x.run _ epost.tail ⊑ wp (x >>= f).run (epost.pushOption post) epost.tail
+    show (PredTrans.pushOption (WP.wpTrans x.run)).apply _ epost ⊑ _
+    simp only [PredTrans.apply_pushOption]
     apply PartialOrder.rel_trans _ (WPMonad.bind_le_wp_bind (m := m) x.run _ (epost.pushOption post) epost.tail)
     apply WP.wp_consequence
     intro r; cases r with

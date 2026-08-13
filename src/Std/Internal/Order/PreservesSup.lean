@@ -11,9 +11,9 @@ public import Std.Internal.Order.Lemmas
 @[expose] public section
 
 /-!
-# `Sup`-preserving maps and their upper adjoints
+# Supremum-preserving maps and their upper adjoints
 
-A `Sup`-preserving map on a complete lattice is a lower adjoint. Its upper adjoint is the
+A supremum-preserving map on a complete lattice is a lower adjoint. Its upper adjoint is the
 implication belonging to it: Heyting `⇨` for the lattice meet, a magic wand for a separating
 conjunction.
 -/
@@ -27,11 +27,12 @@ universe u v w
 variable {α : Type u} [CompleteLattice α]
 
 /--
-`f : α → α` *preserves `Sup`* if it distributes over arbitrary joins:
+`f : α → α` *preserves suprema* if it distributes over arbitrary suprema:
 `f (sup s) = sup { f x | x ∈ s }`. Equivalently `f` is a lower adjoint, so it has an upper adjoint
 `PreservesSup.upperAdjoint f`.
 
-A frame operator acts by a `Sup`-preserving map for each resource `r`: the lattice meet `(a ⊓ ·)`,
+A frame operator acts by a supremum-preserving map for each resource `r`: the lattice meet
+`(a ⊓ ·)`,
 or a cost combinator `(costConj r)` for a counter resource. The upper adjoint is the corresponding
 implication: Heyting `⇨` for the meet, a magic wand for separating conjunction.
 -/
@@ -89,7 +90,7 @@ theorem upperAdjoint_spec (f : α → α) (b : α) : is_sup (fun x : α => f x �
 theorem le_upperAdjoint (f : α → α) {b x : α} (h : f x ⊑ b) : x ⊑ upperAdjoint f b :=
   le_sup (c := fun x : α => f x ⊑ b) h
 
-/-- Counit (modus ponens), from join preservation: `f (upperAdjoint f b) ⊑ b`. -/
+/-- Counit (modus ponens), from supremum preservation: `f (upperAdjoint f b) ⊑ b`. -/
 theorem upperAdjoint_le (f : α → α) [PreservesSup f] (b : α) : f (upperAdjoint f b) ⊑ b := by
   unfold upperAdjoint
   rw [PreservesSup.map_sup (f := f)]
@@ -97,7 +98,7 @@ theorem upperAdjoint_le (f : α → α) [PreservesSup f] (b : α) : f (upperAdjo
   rintro y ⟨x, hx, rfl⟩
   exact hx
 
-/-- Monotonicity of a `Sup`-preserving `f`, derived from join preservation. -/
+/-- Monotonicity of a supremum-preserving `f`, derived from supremum preservation. -/
 theorem map_mono (f : α → α) [PreservesSup f] {b b' : α} (h : b ⊑ b') : f b ⊑ f b' := by
   have hsup : (CompleteLattice.sup (fun y => y ⊑ b')) = b' :=
     is_sup_unique (CompleteLattice.sup_spec _)

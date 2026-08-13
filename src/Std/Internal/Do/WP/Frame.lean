@@ -30,14 +30,15 @@ section FrameClosure
 
 variable {α : Type u} [CompleteLattice α]
 
-/-- The **frame closure** of a post-transformer `k` with respect to a family of `Sup`-preserving
+/-- The **frame closure** of a post-transformer `k` with respect to a family of supremum-preserving
 operators `op r`: the meet over all resources `r` of the `r`-upper-adjoint of `k` framed by `r`. It
 internalizes the frame rule into any `k` (see `WP.frameClosure_frames`), with no assumption on `k`. -/
 noncomputable def WP.frameClosure {R : Type v} {β : Type w} (op : R → α → α)
     (k : (β → α) → α) (Q : β → α) : α :=
   ⨅ r, PreservesSup.upperAdjoint (op r) (k (fun a => op r (Q a)))
 
-/-- The frame rule, internalized: for a family of `Sup`-preserving operators `op r` whose resources
+/-- The frame rule, internalized: for a family of supremum-preserving operators `op r` whose
+resources
 compose by `comp` with the action law `op (comp r r') = op r ∘ op r'`, and any post-transformer `k`,
 `op F (frameClosure op k Q) ⊑ frameClosure op k (fun a => op F (Q a))`. -/
 theorem WP.frameClosure_frames {R : Type v} {β : Type w} (op : R → α → α)
@@ -121,7 +122,7 @@ structure WP.Frames {R : Type t} (op : R → Pred → Pred) (x : Prog) (F : R) :
   op_wp_le_wp_op : ∀ (Q : Value → Pred) (E : EPred),
     op F (wp x Q E) ⊑ wp x (fun a => op F (Q a)) E
 
-/-- The framed spec `vcgen` applies for `x`, when each `op r` preserves `Sup`: framing `x` by `F`
+/-- The framed spec `vcgen` applies for `x`, when each `op r` preserves suprema: framing `x` by `F`
 makes `op F (wp x (fun a => PreservesSup.upperAdjoint (op F) (Q a)))` a precondition for `wp x Q`. -/
 theorem WP.Frames.op_wp_upperAdjoint_le_wp {R : Type t} (op : R → Pred → Pred)
     [∀ r, PreservesSup (op r)] {x : Prog} {F : R} (hframes : WP.Frames op x F) :
@@ -173,7 +174,7 @@ theorem WP.Frames.of_conjunctive {Prog : Type u} {Value : Type v} {Pred : Type w
     exact PartialOrder.rel_refl
 
 /-- Reinterpret a `WP` so its weakest precondition is the `WP.frameClosure` of the base
-wp over a family of `Sup`-preserving resource operators `op r`. -/
+wp over a family of supremum-preserving resource operators `op r`. -/
 @[instance_reducible] noncomputable def WP.of_frameClosure {R : Type t} (op : R → Pred → Pred)
     [∀ r, PreservesSup (op r)] (base : WP Prog Value Pred EPred) : WP Prog Value Pred EPred where
   wpTrans x := ⟨fun Q E => WP.frameClosure op (fun Q' => base.wp x Q' E) Q⟩
@@ -205,7 +206,8 @@ theorem WP.le_wp_of_frameClosure_eq {R : Type t} {op : R → Pred → Pred} [∀
   exact (WP.of_frameClosure_le_wp_iff op base x Q E pre).mpr h
 
 /-- Reinterpret a `WPMonad m` so its weakest precondition is the `WP.frameClosure` of the
-base wp over a family of `Sup`-preserving resource operators `op r` that act by `comp` with unit `e`.
+base wp over a family of supremum-preserving resource operators `op r` that act by `comp` with
+unit `e`.
 The resource frame rule then holds by construction (`WP.Frames.of_frameClosure`). -/
 @[instance_reducible] noncomputable def WPMonad.of_frameClosure {m : Type → Type} [Monad m]
     {P : Type u} {E : Type z} [Assertion P] [Assertion E]

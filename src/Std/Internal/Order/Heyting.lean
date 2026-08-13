@@ -17,7 +17,7 @@ import Init.Classical
 # Heyting implication
 
 `a ⇨ b` is the upper adjoint of the lattice meet `a ⊓ ·`. A complete lattice whose meet preserves
-`Sup` is a frame, and `⇨` then satisfies the laws of an implication: modus ponens, currying and
+suprema is a frame, and `⇨` then satisfies the laws of an implication: modus ponens, currying and
 distribution of `⊓` over `⊔`.
 -/
 

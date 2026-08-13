@@ -364,7 +364,7 @@ def _root_.Lean.MVarId.byCases (mvarId : MVarId) (p : Expr) (hName : Name := `h)
   let goalType ← mvarId.getType
   let goalTag ← mvarId.getTag
   unless (← isProp goalType) do
-    throwTacticEx `byCases mvarId m!"Goal is not a proposition{indentExpr goalType}"
+    throwTacticEx `byCases mvarId m!"Goal is not a proposition"
   let (thenPart, thenSubgoal) ← mkByCasesSubgoal p hName goalType (goalTag ++ `isTrue)
   let (elsePart, elseSubgoal) ← mkByCasesSubgoal (mkNot p) hName goalType (goalTag ++ `isFalse)
   mvarId.assign <| mkApp4 (.const ``Classical.byCases []) p goalType thenPart elsePart

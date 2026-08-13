@@ -6,14 +6,14 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.ExceptPost
-public import Std.Internal.Do.WP.Monad.Basic
+public import Std.WP.ExceptPost
+public import Std.WP.Monad.Basic
 universe u v w z
 @[expose] public section
 
 set_option linter.missingDocs true
 
-open Lean.Order Std.Internal.Do
+open Lean.Order Std.WP
 
 /-!
 # WPMonad Instances
@@ -33,7 +33,7 @@ with the `PredTrans` helpers that push a result type into an exception postcondi
 * `WPMonad (EStateM ε σ) (σ → Prop) (ε → σ → Prop)` — concrete error-state monad.
 -/
 
-namespace Std.Internal.Do
+namespace Std.WP
 
 variable {m : Type u → Type z}
 
@@ -294,4 +294,4 @@ instance EStateM.instWPMonad : WPMonad (EStateM ε σ) (σ → Prop) (ε → σ 
     simp only [WP.wp, WP.wpTrans, bind, EStateM.bind]
     cases (x s) <;> exact PartialOrder.rel_refl
 
-end Std.Internal.Do
+end Std.WP

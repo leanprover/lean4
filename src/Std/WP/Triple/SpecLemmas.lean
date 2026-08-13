@@ -6,8 +6,8 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.Triple.Monad
-public import Std.Internal.Do.WP
+public import Std.WP.Triple.Monad
+public import Std.WP.Monad
 public import Std.Do.Triple.SpecLemmas
 public import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic
@@ -43,9 +43,10 @@ This module contains Hoare triple specifications for some functions in Core.
 The specifications follow the `Triple x pre post epost` argument order, program first.
 -/
 
-namespace Std.Internal.Do
+namespace Std.WP
 
 open Lean.Order
+open Std.Internal
 
 universe u v w w'
 variable {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
@@ -609,13 +610,14 @@ theorem Spec.restoreM_trans
       (wp (MonadControl.restoreM (m:=n₁) (MonadControlT.restoreM (m:=n₂) x) : m α) post epost) post epost :=
   Triple.intro (by rw [WPMonad.wp_restoreM_trans_apply_eq])
 
-end Std.Internal.Do
+end Std.WP
 
 -- /-! # `ForIn` -/
 
-namespace Std.Internal.Do
+namespace Std.WP
 
 open Lean.Order
+open Std.Internal
 
 universe u₁ u₂ v w uₚ uₑ
 
@@ -2193,4 +2195,4 @@ theorem Spec.forIn_loop
 
 end While
 
-end Std.Internal.Do
+end Std.WP

@@ -1,4 +1,4 @@
-import Std.Internal.Do
+import Std.WP
 import Std.Tactic.Do
 
 /-!
@@ -10,7 +10,7 @@ Supporting lemmas and the verification-condition steps of a `where finally | spe
 itself. Each fixture lives in its own namespace with `@[local grind]` lemmas.
 -/
 
-open Std.Internal.Do Lean.Order
+open Std.WP Lean.Order
 set_option mvcgen.warning false
 set_option warn.sorry false
 set_option maxHeartbeats 1000000

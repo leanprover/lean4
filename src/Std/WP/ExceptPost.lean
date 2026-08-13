@@ -6,7 +6,7 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.Assertion
+public import Std.WP.Assertion
 universe u v w z
 @[expose] public section
 
@@ -31,7 +31,7 @@ monad transformer stack. For example, `ExceptT Nat (ExceptT String (StateM σ))`
 - `epost⟨v₁, v₂, ...⟩` is notation for constructing exception postcondition values.
 -/
 
-namespace Std.Internal.Do
+namespace Std.WP
 
 /-- The empty exception postcondition type, used when a monad has no exception layers. -/
 structure EPost.Nil : Type
@@ -234,4 +234,4 @@ macro_rules
     | _ => `(EPost.Cons.mk $x $xs)
   | _ => throw ()
 
-end Std.Internal.Do
+end Std.WP

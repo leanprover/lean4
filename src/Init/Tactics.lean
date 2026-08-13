@@ -2384,7 +2384,7 @@ provided that all functions used in `prog` have specifications registered with `
 
 ### Program types
 
-`vcgen` works on any program type `Prog` that carries a `Std.Internal.Do.WP` interpretation. A monad
+`vcgen` works on any program type `Prog` that carries a `Std.WP.WP` interpretation. A monad
 is one such program type. An inductive type of commands is another, once its weakest precondition is
 defined in terms of an operational semantics.
 

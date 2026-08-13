@@ -6,9 +6,8 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.WP.Basic
-public import Std.Internal.Do.WP.Conjunctive
-public import Std.Internal.Do.WP.Frame
-public import Std.Internal.Do.WP.Monad
+public import Std.WP.Triple.Basic
+public import Std.WP.Triple.Monad
+public import Std.WP.Triple.SpecLemmas
 
 set_option linter.missingDocs true

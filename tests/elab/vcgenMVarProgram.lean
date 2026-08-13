@@ -1,5 +1,5 @@
 import Std.Tactic.Do
-import Std.Internal.Do
+import Std.WP
 
 /-!
 A spec whose program applies a continuation variable under a binder, as in
@@ -12,7 +12,7 @@ instantiating it.
 
 set_option mvcgen.warning false
 
-open Std.Internal.Do
+open Std.WP
 open Lean.Order
 
 inductive Lang where
@@ -50,8 +50,8 @@ theorem spec_nat {n : Nat} {Φ : Value → Prop} : ⦃ Φ ⟨.nat n, .nat⟩ ⦄
 
 @[spec]
 theorem spec_add {l r} {Φ : Value → Prop} :
-    ⦃ Std.Internal.Do.wp l
-        (fun vl => Std.Internal.Do.wp r
+    ⦃ Std.WP.wp l
+        (fun vl => Std.WP.wp r
           (fun vr => ∀ nl nr, vl.val = Lang.nat nl → vr.val = Lang.nat nr →
             Φ ⟨.nat (nl + nr), .nat⟩) epost⟨⟩) epost⟨⟩ ⦄
       (Lang.add l r) ⦃ Φ; epost⟨⟩⦄ := by
@@ -61,7 +61,7 @@ theorem spec_add {l r} {Φ : Value → Prop} :
 
 @[spec]
 theorem spec_bnd {k : Nat → Lang} {Φ : Value → Prop} :
-    ⦃ Std.Internal.Do.wp (Lang.add (k 5) (Lang.nat 0)) Φ epost⟨⟩ ⦄
+    ⦃ Std.WP.wp (Lang.add (k 5) (Lang.nat 0)) Φ epost⟨⟩ ⦄
       (Lang.bnd (fun x => Lang.add (k x) (Lang.nat 0))) ⦃ Φ; epost⟨⟩⦄ := by
   refine Triple.iff.mpr ?_
   simp only [Lean.Order.le_prop_eq_imp]

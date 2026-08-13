@@ -17,7 +17,7 @@ import Lean.Meta.Sym.InstantiateMVarsS
 open Lean Meta Elab Tactic Sym Sym.Internal
 open Lean.Elab.Tactic.VCGen.SpecAttr
 open Lean.Elab.Tactic.VCGen
-open Std.Internal.Do Lean.Order
+open Std.WP Lean.Order
 
 namespace Lean.Elab.Tactic.VCGen
 
@@ -157,7 +157,7 @@ private def setAppArg (e : Expr) (i n : Nat) (v : Expr) : Expr :=
 private def instantiateWPProg? (rhs : Expr) : VCGenM (Option Expr) := do
   unless rhs.hasMVar do return none
   let n := rhs.getAppNumArgs
-  unless n > 7 && rhs.getAppFn.isConstOf ``Std.Internal.Do.wp do return none
+  unless n > 7 && rhs.getAppFn.isConstOf ``Std.WP.wp do return none
   let prog := rhs.getArg! 7 n
   let prog' ← instantiateMVarsIfMVarAppS prog
   if isSameExpr prog prog' then return none

@@ -10,7 +10,7 @@ generation accumulates a stratified equation system whose carry chain the discha
 must fold. Minimized from the AeneasVerif/kraken assembly verifier.
 -/
 
-open Lean Meta Order Std.Internal.Do
+open Lean Meta Order Std.WP
 
 namespace AdcChain
 

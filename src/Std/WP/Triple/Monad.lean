@@ -6,8 +6,8 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.Triple.Basic
-public import Std.Internal.Do.WP.Monad.Basic
+public import Std.WP.Triple.Basic
+public import Std.WP.Monad.Basic
 @[expose] public section
 
 set_option linter.missingDocs true
@@ -20,7 +20,7 @@ open Lean.Order
 The rules that build a `Triple` for `pure`, `>>=`, `<$>` and `<*>` from triples for the parts.
 -/
 
-namespace Std.Internal.Do
+namespace Std.WP
 
 universe u v w w'
 variable {Pred : Type w} {EPred : Type w'}
@@ -56,4 +56,4 @@ theorem seq [LawfulMonad m] (x : m (α → β)) (y : m α)
 
 end Triple
 
-end Std.Internal.Do
+end Std.WP

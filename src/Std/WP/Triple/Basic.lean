@@ -6,8 +6,8 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.WP.Basic
-public import Std.Internal.Do.ExceptPost
+public import Std.WP.Basic
+public import Std.WP.ExceptPost
 @[expose] public section
 
 set_option linter.missingDocs true
@@ -24,10 +24,10 @@ precondition `wp x post epost` of `x : Prog` for the postcondition `post` and er
 postcondition `epost`.
 It is thus defined in terms of an instance `WP Prog Value Pred EPred`.
 
-The triples for the monadic combinators are in `Std.Internal.Do.Triple.Monad`.
+The triples for the monadic combinators are in `Std.WP.Triple.Monad`.
 -/
 
-namespace Std.Internal.Do
+namespace Std.WP
 
 universe u v w w'
 variable {Pred : Type w} {EPred : Type w'}
@@ -64,7 +64,7 @@ private meta def hintProgram (c : Term) (m? : Option Term) : MacroM Term :=
   | none => if isSplitProgram c.raw then `(($c : (_ : _ → _) _)) else pure c
 
 -- Make `CompleteLattice → CCPO` (hence `⊥` / `Lean.Order.bot`) available under
--- `open Std.Internal.Do`, so Hoare triple notation does not require `open Lean.Order`.
+-- `open Std.WP`, so Hoare triple notation does not require `open Lean.Order`.
 attribute [scoped instance] Lean.Order.instCCPOOfCompleteLattice
 
 /-- Hoare triple notation without exception postcondition (defaults to `⊥`). An optional `(m := …)`
@@ -136,4 +136,4 @@ theorem entails_wp_of_post {x : Prog} {pre : Pred} {post post' : Value → Pred}
 
 end Triple
 
-end Std.Internal.Do
+end Std.WP

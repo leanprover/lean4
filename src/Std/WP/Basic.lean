@@ -6,14 +6,14 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.Assertion
+public import Std.WP.Assertion
 public import Std.Internal.Order.PredTrans
 universe u v w z
 @[expose] public section
 
 set_option linter.missingDocs true
 
-open Lean.Order Std.Internal.Do
+open Lean.Order Std.WP
 
 /-!
 # Weakest Precondition Interpretation
@@ -38,7 +38,7 @@ operational semantics such as an omnisemantics. The file `tests/elab/vcgenImp.le
 example in full.
 
 Everything here is generic over the program type. The interpretation of a monad and of the monad
-transformers is in `Std.Internal.Do.WP.Monad`.
+transformers is in `Std.WP.Monad`.
 
 ## Assertion Language Classes
 
@@ -47,7 +47,7 @@ We use `Assertion Pred` for the assertion language of normal postconditions
 and `Assertion EPred` for exception postconditions.
 -/
 
-namespace Std.Internal.Do
+namespace Std.WP
 
 /-!
 ## The WP Typeclass
@@ -75,7 +75,7 @@ def WP.wp {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred : Type w'}
 
 -- `wp x post epost` computes the weakest precondition; it is `WP.wp` with the interpretation
 -- synthesised as an instance.
-export Std.Internal.Do.WP (wp)
+export Std.WP.WP (wp)
 
 @[simp, grind =] theorem WP.wpTrans_apply_eq {Prog : Type u} {Value : Type v}
     [Assertion Pred] [Assertion EPred] [WP Prog Value Pred EPred] (x : Prog) :
@@ -139,4 +139,4 @@ theorem wp_le_wp_of_eq {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred :
     wp y post epost ⊑ wp x post epost := by
   subst h; exact PartialOrder.rel_refl
 
-end Std.Internal.Do
+end Std.WP

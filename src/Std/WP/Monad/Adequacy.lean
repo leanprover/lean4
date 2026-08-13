@@ -6,13 +6,13 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.WP.Monad.Instances
+public import Std.WP.Monad.Instances
 universe u v w z
 @[expose] public section
 
 set_option linter.missingDocs true
 
-open Lean.Order Std.Internal.Do
+open Lean.Order Std.WP
 
 /-!
 # Soundness Lemmas
@@ -21,7 +21,7 @@ These lemmas bridge `wp` reasoning to concrete program properties. Each one says
 if `wp prog ...` holds, then a property `P` holds of the program's result.
 -/
 
-namespace Std.Internal.Do
+namespace Std.WP
 
 /-- Soundness for `Id`: if `wp prog P` holds, then `P` holds of the result. -/
 theorem Id.of_wp_run_eq {α : Type u} {x : α} {prog : Id α}
@@ -83,4 +83,4 @@ theorem EStateM.of_wp_run_eq {ε σ α : Type} {x : EStateM.Result ε σ α}
   | error e s' =>
     simpa [wp, WP.wpTrans, heq] using hwp
 
-end Std.Internal.Do
+end Std.WP

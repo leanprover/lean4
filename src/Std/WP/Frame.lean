@@ -6,8 +6,8 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.WP.Basic
-public import Std.Internal.Do.WP.Conjunctive
+public import Std.WP.Basic
+public import Std.WP.Conjunctive
 public import Std.Internal.Order.FrameClosure
 universe u v w z t
 @[expose] public section
@@ -22,12 +22,12 @@ A `WP` built as the `Lean.Order.PredTrans.frameClosure` of a base wp frames ever
 construction.
 
 The monadic counterpart, which builds a `WPMonad` from the frame closure of a base interpretation,
-is in `Std.Internal.Do.WP.Monad.Frame`.
+is in `Std.WP.Monad.Frame`.
 -/
 
-open Lean.Order Std.Internal.Do
+open Lean.Order Std.WP
 
-namespace Std.Internal.Do
+namespace Std.WP
 
 variable {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred : Type z}
   [Assertion Pred] [Assertion EPred] [WP Prog Value Pred EPred]
@@ -122,4 +122,4 @@ theorem WP.le_wp_of_frameClosure_eq {R : Type t} {op : R → Pred → Pred} [∀
   subst heq
   exact (WP.of_frameClosure_le_wp_iff op base x Q E pre).mpr h
 
-end Std.Internal.Do
+end Std.WP

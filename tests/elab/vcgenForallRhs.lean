@@ -1,5 +1,5 @@
 import Std.Tactic.Do
-import Std.Internal.Do
+import Std.WP
 
 /-!
 `vcgen` must split a raw `∀`/`→` on the RHS of a `Prop` entailment (`le_forall`) and an `iInf` on
@@ -9,7 +9,7 @@ state arguments.
 
 set_option mvcgen.warning false
 
-open Std.Internal.Do
+open Std.WP
 open Lean.Order
 
 /-! ## Raw `∀` on the `Prop` lattice -/
@@ -44,8 +44,8 @@ theorem spec_nat {n : Nat} {Φ : Value → Prop} : ⦃ Φ ⟨.nat n, .nat⟩ ⦄
 
 @[spec]
 theorem spec_add {l r} {Φ : Value → Prop} :
-    ⦃ Std.Internal.Do.wp l
-        (fun vl => Std.Internal.Do.wp r
+    ⦃ Std.WP.wp l
+        (fun vl => Std.WP.wp r
           (fun vr => ∀ nl nr, vl.val = Lang.nat nl → vr.val = Lang.nat nr →
             Φ ⟨.nat (nl + nr), .nat⟩) epost⟨⟩) epost⟨⟩ ⦄
       (Lang.add l r) ⦃ Φ; epost⟨⟩⦄ := by
@@ -93,8 +93,8 @@ theorem spec_nat_s {n : Nat} {Φ : ValueS → Nat → Prop} :
 
 @[spec]
 theorem spec_add_s {l r} {Φ : ValueS → Nat → Prop} :
-    ⦃ Std.Internal.Do.wp l
-        (fun vl => Std.Internal.Do.wp r
+    ⦃ Std.WP.wp l
+        (fun vl => Std.WP.wp r
           (fun vr => iInf fun nl => iInf fun nr =>
             ⌜vl.val = LangS.nat nl⌝ ⇨ ⌜vr.val = LangS.nat nr⌝ ⇨
               Φ ⟨.nat (nl + nr), .nat⟩) epost⟨⟩) epost⟨⟩ ⦄

@@ -1,5 +1,5 @@
 import Std.Tactic.Do
-import Std.Internal.Do
+import Std.WP
 
 /-!
 Regression test for a *dependent* assertion language `(st : State) → st.Invariant → Prop`. Its order
@@ -10,7 +10,7 @@ it runs out of heartbeats. Extracted from a user report.
 
 set_option mvcgen.warning false
 
-open Std.Internal.Do
+open Std.WP
 
 opaque State : Type
 opaque State.Invariant : State → Prop

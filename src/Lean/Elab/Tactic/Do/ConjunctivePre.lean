@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Basic
-public import Std.Internal.Do.Triple.Basic
+public import Std.WP.Triple.Basic
 
 /-!
 # Conjunctive preconditions: spec applications that need no frame
@@ -94,7 +94,7 @@ lands at the current state, losslessly. The analysis stays with the premise-free
 
 namespace Lean.Elab.Tactic.VCGen.SpecAttr
 
-open Lean Meta Std.Internal.Do Lean.Order
+open Lean Meta Std.WP Lean.Order
 
 /-! ## Constant names of the assertion library
 

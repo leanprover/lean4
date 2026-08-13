@@ -1,5 +1,5 @@
 import Std.Tactic.Do
-import Std.Internal.Do
+import Std.WP
 
 /-!
 Tests that `vcgen` keeps the exception postcondition of a spec that states it as `epost⟨E⟩` with `E`
@@ -8,7 +8,7 @@ verification condition.
 -/
 
 set_option mvcgen.warning false
-open Std.Internal.Do Lean.Order
+open Std.WP Lean.Order
 
 abbrev M := ExceptT String Id
 

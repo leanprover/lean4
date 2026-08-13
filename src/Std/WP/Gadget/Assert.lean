@@ -6,19 +6,21 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.Triple.Monad
+public import Std.WP.Triple.Monad
 public import Std.Internal.Order.Heyting
 
 @[expose] public section
 
 set_option linter.missingDocs true
 
-open Lean Order Std.Internal.Do Lean.Order
+open Lean Order Std.WP Lean.Order
 
-namespace Std.Internal.Do
+namespace Std.WP
 
 universe u v
 variable {m : Type u → Type v} {Pred : Type u} {EPred : Type u} [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
+
+namespace Gadget
 
 set_option linter.unusedVariables false in
 
@@ -28,16 +30,20 @@ The `as` parameter is the assertion to be checked. At runtime, `assertGadget` is
 `pure ⟨⟩`. -/
 def assertGadget [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] (as : Pred) : m PUnit := pure ⟨⟩
 
+end Gadget
+
+open Gadget
+
 /-- Specification for `assertGadget`: the precondition requires both the assertion `as` and
 the Heyting implication `as ⇨ post ⟨⟩`, ensuring the assertion holds and the postcondition
 follows from it. -/
 @[spec]
 theorem Spec.assertGadget (as : Pred) [∀ a : Pred, PreservesSup (meet a)] :
-  Triple (Std.Internal.Do.assertGadget (m := m) as) (as ⊓ (as ⇨ post ⟨⟩)) post epost := by
-  simpa [Std.Internal.Do.assertGadget] using
+  Triple (Gadget.assertGadget (m := m) as) (as ⊓ (as ⇨ post ⟨⟩)) post epost := by
+  simpa [Gadget.assertGadget] using
     (Triple.pure (m := m) (pre := as ⊓ (as ⇨ post ⟨⟩)) (post := post) (epost := epost)
       (a := ⟨⟩) (h := meet_himp_le))
 
-end Std.Internal.Do
+end Std.WP
 
 end -- public section

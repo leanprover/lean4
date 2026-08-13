@@ -14,7 +14,7 @@ generation alone.
 
 set_option mvcgen.warning false
 
-open Lean Order Parser Meta Elab Tactic Sym Std Internal.Do
+open Lean Order Parser Meta Elab Tactic Sym Std WP
 open AdcChain
 
 set_option maxRecDepth 10000

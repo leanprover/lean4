@@ -9,7 +9,7 @@ prelude
 public import Lean.Elab.Tactic.Do.Internal.VCGen.WPApp
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.AlphaShareBuilder
-import Std.Internal.Do.Order.Basic
+import Std.Internal.Order.Basic
 import Lean.Meta.AppBuilder
 import Lean.Meta.AbstractMVars
 import Lean.Meta.Sym.InferType

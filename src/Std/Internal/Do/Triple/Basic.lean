@@ -63,7 +63,7 @@ private meta def hintProgram (c : Term) (m? : Option Term) : MacroM Term :=
 
 -- Make `CompleteLattice → CCPO` (hence `⊥` / `Lean.Order.bot`) available under
 -- `open Std.Internal.Do`, so Hoare triple notation does not require `open Lean.Order`.
-attribute [scoped instance] Lean.Order.instCCPO_std
+attribute [scoped instance] Lean.Order.instCCPOOfCompleteLattice
 
 /-- Hoare triple notation without exception postcondition (defaults to `⊥`). An optional `(m := …)`
 after the precondition ascribes the program to monad `…`. -/

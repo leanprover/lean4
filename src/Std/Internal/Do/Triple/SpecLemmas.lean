@@ -1894,7 +1894,7 @@ theorem le_of_total_le (v : RepeatVariant α Pred) (a : α) {P Q : Pred}
     [PreservesSup (meet P)]
     (h : (⨆ n, v.EvalsTo a n ⊓ P) ⊑ Q) : P ⊑ Q := by
   have h1 : P ⊑ (⨆ n, v.EvalsTo a n) ⊓ P := by
-    rw [v.total a, CompleteLattice.top_meet]
+    rw [v.total a, top_meet]
   have h2 : (⨆ n, v.EvalsTo a n) ⊓ P ⊑ ⨆ n, v.EvalsTo a n ⊓ P :=
     iSup_meet_le fun n => le_iSup (fun n => v.EvalsTo a n ⊓ P) n
   exact PartialOrder.rel_trans h1 (PartialOrder.rel_trans h2 h)
@@ -1989,7 +1989,7 @@ theorem rel_ofMeasure {γ : Type uγ} {Fun : Type v'} [NondetFun Pred Fun γ]
 noncomputable def EvalsBelow (v : RepeatVariant α Pred) (a' : α) (ma : v.γ) : Pred :=
   ⨆ ma', v.EvalsTo a' ma' ⊓ ⌜v.rel ma' ma⌝
 
-open Std.Internal.Do.CompleteLattice in
+open Lean.Order in
 /-- For a state-independent measure the pinned value is the measure itself, so the join
 collapses to a decrease along the well-founded relation of `γ`. The proof obligation has the
 shape produced by `termination_by`, so that `decreasing_tactic` applies. -/
@@ -2005,7 +2005,7 @@ theorem evalsBelow_ofMeasure {γ : Type uγ} [WellFoundedRelation γ]
     rw [ofProp_eq_top trivial]
     exact le_top _
 
-open Std.Internal.Do.CompleteLattice in
+open Lean.Order in
 @[simp, grind =] theorem evalsBelow_ofMeasure_nat {α : Type} {Pred : Type} [Assertion Pred]
     (f : α → Nat) (a' : α) (ma : Nat) :
     (ofMeasure (Pred := Pred) f).EvalsBelow a' ma = ⌜f a' < ma⌝ :=
@@ -2085,7 +2085,7 @@ usable `@[grind =]` lemmas where the general `evalsBelow_ofMeasure_apply` is not
 
 end RepeatVariant
 
-open Std.Internal.Do.CompleteLattice in
+open Lean.Order in
 /--
 Specification for `repeatM`. The user supplies a termination `measure`, an invariant, and a step
 `Triple` whose pre asserts the measure evaluates to `ma` and the in-progress invariant holds, and

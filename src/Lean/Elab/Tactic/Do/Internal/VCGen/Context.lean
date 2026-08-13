@@ -96,7 +96,7 @@ public def VCGen.mkBackwardRules : MetaM VCGen.BackwardRules := do
     elimPre := ← mkBackwardRuleFromDecl ``Lean.Order.top_le_prop
     andIntro := ← mkBackwardRuleFromDecl ``And.intro
     refl := ← mkBackwardRuleFromDecl ``Lean.Order.PartialOrder.rel_refl
-    meetTop := ← mkBackwardRuleFromDecl ``Std.Internal.Do.CompleteLattice.meet_top_le_of_le
+    meetTop := ← mkBackwardRuleFromDecl ``Lean.Order.meet_top_le_of_le
     forallIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_forall
   }
 

@@ -418,7 +418,7 @@ theorem existsRatHint_of_ratHintsExhaustive {n : Nat} (f : DefaultFormula n)
   have i_in_bounds : i < Array.size (Array.range (Array.size f.clauses)) := by grind
   have i_lt_f_clauses_size : i < f.clauses.size := by grind
   have h : i ∈ (ratHints.map (fun x => x.1)).toList := by
-    simp only [← of_decide_eq_true_forward ratHintsExhaustive_eq_true]
+    simp only [← of_decide_eq_true ratHintsExhaustive_eq_true]
     have i_eq_range_i : i = (Array.range f.clauses.size)[i]'i_in_bounds := by grind
     rw [i_eq_range_i]
     rw [Array.mem_toList_iff]

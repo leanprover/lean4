@@ -699,9 +699,13 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
             pure (← isClass? mvarType).isSome
           else
             pure false
-        let capInstance (x : MetaM Bool) : MetaM Bool :=
-          if isInstance then withTransparency .instances x else x
-        capInstance <| withImplicitConfig do
+        if isInstance then
+          -- TODO: spine analysis
+          if (← checkTypesForInstanceTypedMVarAssignment mvarType vType v) then
+            mvar.mvarId!.assign v
+            return true
+          synthInstanceTypedMVarAndUnify mvar v
+        else withImplicitConfig do
           if (← Meta.isExprDefEqAux mvarType vType) then
             mvar.mvarId!.assign v
             return true
@@ -710,6 +714,20 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
               if (← Meta.isExprDefEqAux mvarType vType) then
                 trace[diagnostics] "failure when assigning metavariable with type{indentExpr mvarType}\nwhich is not definitionally equal to{indentExpr vType}\nwhen using `.implicit` transparency, but it is with `.default`.\nWorkaround: `set_option backward.isDefEq.respectTransparency.types false`"
             return false
+        -- let withCorrectTransparency (x : MetaM Bool) : MetaM Bool :=
+        --   if isInstance then withExactInstancesConfig x else withImplicitConfig x
+        -- -- withCorrectTransparency do
+        -- if (← withCorrectTransparency <| Meta.isExprDefEqAux mvarType vType) then
+        --   mvar.mvarId!.assign v
+        --   return true
+        -- else
+        --   if isInstance then
+        --     synthInstanceTypedMVarAndUnify mvar v
+        --   else
+        --     if (← isDiagnosticsEnabled) then withInferTypeConfig do
+        --       if (← Meta.isExprDefEqAux mvarType vType) then
+        --         trace[diagnostics] "failure when assigning metavariable with type{indentExpr mvarType}\nwhich is not definitionally equal to{indentExpr vType}\nwhen using `.implicit` transparency, but it is with `.default`.\nWorkaround: `set_option backward.isDefEq.respectTransparency.types false`"
+        --     return false
       else
         withInferTypeConfig do
           if (← Meta.isExprDefEqAux mvarType vType) then

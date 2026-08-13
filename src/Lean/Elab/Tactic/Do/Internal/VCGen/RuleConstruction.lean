@@ -12,6 +12,8 @@ public import Lean.Elab.Tactic.Do.Internal.VCGen.Reduce
 public import Lean.Elab.Tactic.Do.Internal.VCGen.SpecDB
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
+-- `mkAppOptM` builds `WP.Frames.op_wp_upperAdjoint_le_wp` by name, so the constant has to be
+-- in the environment even though no signature here mentions it.
 import Std.Internal.Do.WP.Frame
 
 open Lean Meta Elab Tactic Sym

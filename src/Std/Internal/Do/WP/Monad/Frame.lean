@@ -27,7 +27,11 @@ namespace Std.Internal.Do
 /-- Reinterpret a `WPMonad m` so its weakest precondition is the `frameClosure` of the
 base wp over a family of supremum-preserving resource operators `op r` that act by `comp` with
 unit `e`.
-The resource frame rule then holds by construction (`WP.Frames.of_frameClosure`). -/
+The resource frame rule then holds by construction (`WP.Frames.of_frameClosure`).
+
+This construction is what makes a separation logic work. Every spec now carries its frame, so the
+frame obligation moves from the site that applies a spec to the site that states and proves it. A
+caller of the spec inherits the frame. -/
 @[instance_reducible] noncomputable def WPMonad.of_frameClosure {m : Type → Type} [Monad m]
     {P : Type u} {E : Type z} [Assertion P] [Assertion E]
     {R : Type} (op : R → P → P) [∀ r, PreservesSup (op r)] {comp : R → R → R} {e : R}

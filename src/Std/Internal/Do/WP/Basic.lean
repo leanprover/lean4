@@ -19,9 +19,24 @@ open Lean.Order Std.Internal.Do
 # Weakest Precondition Interpretation
 
 `WP Prog Value Pred EPred` interprets a program type `Prog` whose results have type `Value` as a
-monotone predicate transformer `PredTrans Pred EPred Value`. The function `wp` is the user-facing
-wrapper: `wp x post epost` computes the weakest precondition for `x` to satisfy normal
-postcondition `post` and exception postcondition `epost`.
+monotone predicate transformer `PredTrans Pred EPred Value`. For a program `x : Prog`, a normal
+postcondition `post : Value → Pred` and an exception postcondition `epost : EPred`, the assertion
+`wp x post epost` is the weakest precondition under which `x` establishes `post` and `epost`.
+
+The program type `Prog` determines the other three types, which are `outParam`s of the class.
+Instance search runs on `Prog` alone. A term `wp x post epost` therefore fixes the result type, the
+assertion lattice and the exception postcondition type from the type of `x`, and each program type
+carries one interpretation.
+
+Two examples show the range of `Prog`. The error-state monad `EStateM ε σ` has the instance
+`WP (EStateM ε σ α) α (σ → Prop) (ε → σ → Prop)`. Here a state predicate is the assertion, and an
+error paired with a state is the exception postcondition.
+
+A deep embedding is the second example. A command language `Cmd` with assertions `Env → State → Prop`
+has the instance `WP Cmd Unit (Env → State → Prop) EPost.Nil`. Its `wpTrans` is an operational
+semantics, and `vcgen` reasons about a `Cmd` by its constructors. `Cmd` is an inductive type, and
+`WP` accepts it because the class constrains `Prog` to a type alone. The file
+`tests/elab/vcgenImp.lean` carries this example in full.
 
 Everything here is generic over the program type. The interpretation of a monad and of the monad
 transformers is in `Std.Internal.Do.WP.Monad`.

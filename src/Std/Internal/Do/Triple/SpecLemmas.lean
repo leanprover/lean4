@@ -6,7 +6,8 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.Triple.Basic
+public import Std.Internal.Do.Triple.Monad
+public import Std.Internal.Do.WP
 public import Std.Do.Triple.SpecLemmas
 public import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic

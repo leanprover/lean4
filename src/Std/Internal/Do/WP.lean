@@ -9,6 +9,6 @@ prelude
 public import Std.Internal.Do.WP.Basic
 public import Std.Internal.Do.WP.Conjunctive
 public import Std.Internal.Do.WP.Frame
-public import Std.Internal.Do.WP.Lemmas
+public import Std.Internal.Do.WP.Monad
 
 set_option linter.missingDocs true

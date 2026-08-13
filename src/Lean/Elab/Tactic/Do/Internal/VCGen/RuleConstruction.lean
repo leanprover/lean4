@@ -12,6 +12,7 @@ public import Lean.Elab.Tactic.Do.Internal.VCGen.Reduce
 public import Lean.Elab.Tactic.Do.Internal.VCGen.SpecDB
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
+import Std.Internal.Do.WP.Frame
 
 open Lean Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do.Internal.SpecAttr

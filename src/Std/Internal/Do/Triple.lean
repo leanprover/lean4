@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Internal.Do.Triple.Basic
+public import Std.Internal.Do.Triple.Monad
 public import Std.Internal.Do.Triple.Gadget
 public import Std.Internal.Do.Triple.SpecLemmas
 

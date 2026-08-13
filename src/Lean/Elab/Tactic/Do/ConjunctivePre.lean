@@ -96,16 +96,50 @@ namespace Lean.Elab.Tactic.VCGen.SpecAttr
 
 open Lean Meta Std.Internal.Do Lean.Order
 
+/-! ## Constant names of the assertion library
+
+The assertion library moves from namespace `Std.Internal.Do` to `Std.WP`. The metaprograms here and
+in `Attr.lean` name its constants, and `stage0` carries those names as compiled atoms, so it looks
+for them while elaborating `src/Std`. Each table below therefore lists a constant under both names,
+which keeps the metaprograms working on either side of one `update-stage0` cycle. Drop the
+`Std.Internal.Do` entries once the snapshot carries the new names.
+
+The `Std.WP` entries are unchecked literals, because those constants exist only after the move. Note
+the doubled `WP.WP` in the name of `wp`: the class is `Std.WP.WP` and `wp` is its member, exported as
+`Std.WP.wp`.
+-/
+
+/-- The `Triple` structure. -/
+public def tripleNames : Array Name := #[``Triple, `Std.WP.Triple]
+
+/-- The `wp` function. -/
+public def wpNames : Array Name := #[``wp, `Std.WP.WP.wp]
+
+/-- The `EPost.Cons.head` projection. -/
+public def epostConsHeadNames : Array Name := #[``EPost.Cons.head, `Std.WP.EPost.Cons.head]
+
+/-- The name under which `e` is an application of a constant in `names`. -/
+public def appName? (names : Array Name) (e : Expr) : Option Name :=
+  match e.getAppFn with
+  | .const n _ => if names.contains n then some n else none
+  | _ => none
+
 /-- The precondition, program, postcondition, and exception postcondition of a spec conclusion in
 either `Triple` or `pre ⊑ wp …` shape. -/
 private def specComponents? (concl : Expr) : Option (Expr × Expr × Expr × Expr) :=
   match_expr concl with
   | PartialOrder.rel _ _ pre rhs =>
-    match_expr rhs with
-    | wp _ _ _ _ _ _ _ prog post epost => some (pre, prog, post, epost)
-    | _ => none
-  | Triple _ _ _ _ _ _ x _ pre post epost => some (pre, x, post, epost)
-  | _ => none
+    -- `wp x post epost` with its seven leading implicit and instance arguments.
+    if (appName? wpNames rhs).isSome && rhs.getAppNumArgs == 10 then
+      let args := rhs.getAppArgs
+      some (pre, args[7]!, args[8]!, args[9]!)
+    else none
+  | _ =>
+    -- `Triple x pre post epost` with its six leading arguments and the `WP` instance after `x`.
+    if (appName? tripleNames concl).isSome && concl.getAppNumArgs == 11 then
+      let args := concl.getAppArgs
+      some (args[8]!, args[6]!, args[9]!, args[10]!)
+    else none
 
 /-- Whether any metavariable from `mvarIds` occurs in `e`. -/
 private def occursMVar (mvarIds : Array MVarId) (e : Expr) : Bool :=
@@ -123,22 +157,24 @@ private partial def isConjunctiveIn (qs : Array MVarId) (e : Expr) : Bool :=
   | _ =>
     match e.getAppFn with
     | .mvar m => qs.contains m && e.getAppArgs.all (!occursMVar qs ·)
-    | .const ``EPost.Cons.head _ =>
-      -- `EPost.Cons.head` is a `⊓`-morphism (`EPost.Cons.head_meet`); its exception-stack argument
-      -- stays in a `⊓`-context, the rest (types and the applied exception) must be `qs`-free.
-      let args := e.getAppArgs
-      match args[2]? with
-      | some s => isConjunctiveIn qs s && (List.range args.size).all fun i => i == 2 || !occursMVar qs args[i]!
-      | none => false
     | _ =>
-      match_expr e with
-      | Lean.Order.meet _ _ a b => isConjunctiveIn qs a && isConjunctiveIn qs b
-      | Lean.Order.iInf _ _ _ f => isConjunctiveIn qs f
-      | And a b => isConjunctiveIn qs a && isConjunctiveIn qs b
-      | Lean.Order.himp _ _ a b => !occursMVar qs a && isConjunctiveIn qs b
-      | wp _ _ _ _ _ _ _ prog post epost =>
-        !occursMVar qs prog && isConjunctiveIn qs post && isConjunctiveIn qs epost
-      | _ => false
+      if (appName? epostConsHeadNames e).isSome then
+        -- `EPost.Cons.head` is a `⊓`-morphism (`EPost.Cons.head_meet`); its exception-stack argument
+        -- stays in a `⊓`-context, the rest (types and the applied exception) must be `qs`-free.
+        let args := e.getAppArgs
+        match args[2]? with
+        | some s => isConjunctiveIn qs s && (List.range args.size).all fun i => i == 2 || !occursMVar qs args[i]!
+        | none => false
+      else if (appName? wpNames e).isSome && e.getAppNumArgs == 10 then
+        let args := e.getAppArgs
+        !occursMVar qs args[7]! && isConjunctiveIn qs args[8]! && isConjunctiveIn qs args[9]!
+      else
+        match_expr e with
+        | Lean.Order.meet _ _ a b => isConjunctiveIn qs a && isConjunctiveIn qs b
+        | Lean.Order.iInf _ _ _ f => isConjunctiveIn qs f
+        | And a b => isConjunctiveIn qs a && isConjunctiveIn qs b
+        | Lean.Order.himp _ _ a b => !occursMVar qs a && isConjunctiveIn qs b
+        | _ => false
 
 /-- Whether the spec's precondition is conjunctive in its schematic postconditions (`Q` and/or `E`):
 each occurs only in conjunctive contexts, and in no premise nor in the program. The `binders` are the

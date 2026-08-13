@@ -54,21 +54,39 @@ attribute [simp] EPost.Cons.head EPost.Cons.tail
 
 /-- Push an `Except ε α` result into separate normal and exception postconditions:
 `ok a` uses `post a`, and `error e` uses `epost.head e`. -/
-@[simp]
-abbrev EPost.Cons.pushExcept {α : Type u} {ε : Type v} {Pred : Type w} {EPred : Type z}
+def EPost.Cons.pushExcept {α : Type u} {ε : Type v} {Pred : Type w} {EPred : Type z}
     (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) : Except ε α → Pred :=
   fun
   | .ok a => post a
   | .error e => epost.head e
 
+/-- A normal result uses the normal postcondition. -/
+@[simp, grind =] theorem EPost.Cons.pushExcept_ok {α : Type u} {ε : Type v} {Pred : Type w}
+    {EPred : Type z} (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) (a : α) :
+    epost.pushExcept post (.ok a) = post a := rfl
+
+/-- An exceptional result uses the head exception postcondition. -/
+@[simp, grind =] theorem EPost.Cons.pushExcept_error {α : Type u} {ε : Type v} {Pred : Type w}
+    {EPred : Type z} (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) (e : ε) :
+    epost.pushExcept post (.error e) = epost.head e := rfl
+
 /-- Push an `Option α` result into separate normal and none postconditions:
 `some a` uses `post a`, and `none` uses `epost.head`. -/
-@[simp]
-abbrev EPost.Cons.pushOption {α : Type u} {Pred : Type u} {EPred : Type v}
+def EPost.Cons.pushOption {α : Type u} {Pred : Type u} {EPred : Type v}
     (post : α → Pred) (epost : EPost.Cons Pred EPred) : Option α → Pred :=
   fun
   | .some a => post a
   | .none => epost.head
+
+/-- A present result uses the normal postcondition. -/
+@[simp, grind =] theorem EPost.Cons.pushOption_some {α : Type u} {Pred : Type u} {EPred : Type v}
+    (post : α → Pred) (epost : EPost.Cons Pred EPred) (a : α) :
+    epost.pushOption post (.some a) = post a := rfl
+
+/-- An absent result uses the head postcondition. -/
+@[simp, grind =] theorem EPost.Cons.pushOption_none {α : Type u} {Pred : Type u} {EPred : Type v}
+    (post : α → Pred) (epost : EPost.Cons Pred EPred) :
+    epost.pushOption post .none = epost.head := rfl
 
 /-!
 ## Partial Order and Complete Lattice Instances

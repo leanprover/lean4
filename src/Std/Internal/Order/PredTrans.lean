@@ -6,44 +6,36 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.Assertion
-public import Std.Internal.Do.ExceptPost
+public import Std.Internal.Order.Basic
+
 universe u v w z
 @[expose] public section
 
 set_option linter.missingDocs true
 
-open Lean.Order
-
 /-!
-# Predicate Transformers
+# Predicate transformers
 
-This module defines the type `PredTrans Pred EPred α` of *predicate transformers* for weakest
-precondition reasoning over monadic programs with exception postconditions.
+`PredTrans Pred EPred α` wraps a map from a normal postcondition `α → Pred` and an exception
+postcondition `EPred` to a precondition `Pred`. The order and the chain-complete suprema are the
+pointwise ones of the function space.
 
-A predicate transformer `x : PredTrans Pred EPred α` takes a normal postcondition `post : α → Pred`,
-an exception postcondition `epost : EPred`, and returns a precondition of type `Pred`.
-
-`PredTrans` forms a monad, so monadic programs can be interpreted by a monad morphism into
-`PredTrans`; this is exactly what `WPMonad` encodes.
-
-## Main definitions
-
-- `PredTrans Pred EPred α` — the type of monotone predicate transformers
-- `PredTrans.pushExcept` — adds an exception layer to a predicate transformer
-- `pushArg` — adds a state argument to a predicate transformer
-- Instances for `Monad`, `LawfulMonad`, `MonadStateOf`, `MonadExceptOf`, etc.
+`PredTrans Pred EPred` is a monad, so monadic programs can be interpreted by a monad morphism into
+it. This module provides that monad structure, the `apply` simp framework of the monadic
+combinators, and `pushArg`, which adds a state argument.
 -/
 
-namespace Std.Internal.Do
+namespace Lean.Order
 
-/-- A monotone predicate transformer from postconditions to preconditions.
+/-- A predicate transformer from postconditions to preconditions.
 
 Given a return type `α`, a lattice `Pred` for assertions, and an exception assertion type `EPred`,
 `PredTrans Pred EPred α` wraps a function `(α → Pred) → EPred → Pred`. -/
 structure PredTrans (Pred : Type u) (EPred : Type v) (α : Type w) where
   /-- Apply the predicate transformer to a postcondition and exception postcondition. -/
   apply : (α → Pred) → EPred → Pred
+
+variable {Pred : Type u} {EPred : Type v} {α : Type w}
 
 /-- Extensionality for predicate transformers. -/
 @[ext] theorem PredTrans.ext {x y : PredTrans Pred EPred α}
@@ -74,6 +66,11 @@ instance [CCPO Pred] : CCPO (PredTrans Pred EPred α) where
     · intro h
       exact (hsup q.apply).mpr fun f ⟨pf, hpf, hpf_eq⟩ => by subst hpf_eq; exact h pf hpf
 
+/-- Monotonicity property for a predicate transformer: if both `post` and `epost` grow,
+then the resulting precondition grows. -/
+def PredTrans.monotone [PartialOrder Pred] [PartialOrder EPred] (pt : PredTrans Pred EPred α) :=
+  ∀ post post' epost epost', epost ⊑ epost' → post ⊑ post' → pt.apply post epost ⊑ pt.apply post' epost'
+
 /-- `Monad` instance for `PredTrans`: `pure` returns the postcondition applied to the value,
 and `bind` threads the postcondition through the continuation. -/
 instance instMonadPredTrans (Pred : Type u) (EPred : Type v) : Monad (PredTrans Pred EPred) where
@@ -91,11 +88,6 @@ instance instLawfulMonadPredTrans (Pred : Type u) (EPred : Type v) : LawfulMonad
   bind_map _ _ := PredTrans.ext fun _ _ => rfl
   pure_bind _ _ := PredTrans.ext fun _ _ => rfl
   bind_assoc _ _ _ := PredTrans.ext fun _ _ => rfl
-
-/-- Monotonicity property for a predicate transformer: if both `post` and `epost` grow,
-then the resulting precondition grows. -/
-def PredTrans.monotone [PartialOrder Pred] [PartialOrder EPred] (pt : PredTrans Pred EPred α) :=
-  ∀ post post' epost epost', epost ⊑ epost' → post ⊑ post' → pt.apply post epost ⊑ pt.apply post' epost'
 
 /-!
 ## `apply_*` simp framework
@@ -151,53 +143,6 @@ theorem PredTrans.apply_ite {Pred : Type u} {EPred : Type v}
   split <;> rfl
 
 /-!
-## Exception Handling
-
-Definitions for pushing and lifting exception layers through predicate transformers.
--/
-
-/-- Push an `Except ε α` result into separate normal and exception postconditions:
-`ok a` uses `post a`, and `error e` uses `epost.head e`. -/
-@[simp]
-abbrev EPost.Cons.pushExcept {α : Type u} {ε : Type v} {Pred : Type w} {EPred : Type z}
-    (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) : Except ε α → Pred :=
-  fun
-  | .ok a => post a
-  | .error e => epost.head e
-
-/-- Adds an exception layer to a predicate transformer.
-
-Given a transformer over `Except ε α`, produces one over `α` with an additional
-exception postcondition for `ε`. The normal and error postconditions are combined
-via `pushExcept`. -/
-def PredTrans.pushExcept {α : Type u} {ε : Type v} {Pred : Type w} {EPred : Type z}
-    (x : PredTrans Pred EPred (Except ε α)) : PredTrans Pred (EPost.Cons (ε → Pred) EPred) α :=
-  ⟨fun post epost => x.apply (epost.pushExcept post) epost.tail⟩
-
-/-- Push an `Option α` result into separate normal and none postconditions:
-`some a` uses `post a`, and `none` uses `epost.head`. -/
-@[simp]
-abbrev EPost.Cons.pushOption {α : Type u} {Pred : Type u} {EPred : Type v}
-    (post : α → Pred) (epost : EPost.Cons Pred EPred) : Option α → Pred :=
-  fun
-  | .some a => post a
-  | .none => epost.head
-
-/-- Adds an early-termination layer to a predicate transformer, modelling `Option` as
-early termination. Given a transformer over `Option α`, produces one over `α` with an
-additional exception postcondition for the `none` case. -/
-def PredTrans.pushOption {α : Type u} {Pred : Type u} {EPred : Type v}
-    (x : PredTrans Pred EPred (Option α)) : PredTrans Pred (EPost.Cons Pred EPred) α :=
-  ⟨fun post epost => x.apply (epost.pushOption post) epost.tail⟩
-
-/-- Unfolding `pushOption` through `apply`. -/
-@[simp, grind =]
-theorem PredTrans.apply_pushOption {α : Type u} {Pred : Type u} {EPred : Type v}
-    (x : PredTrans Pred EPred (Option α)) (post : α → Pred)
-    (epost : EPost.Cons Pred EPred) :
-    (PredTrans.pushOption x).apply post epost = x.apply (epost.pushOption post) epost.tail := rfl
-
-/-!
 ## State Handling
 
 Definitions for adding state arguments to predicate transformers.
@@ -222,11 +167,6 @@ instance {σ : Type u} {Pred : Type v} {EPred : Type w} :
     MonadLift (PredTrans Pred EPred) (PredTrans (σ → Pred) EPred) where
   monadLift x := ⟨fun post epost s => x.apply (fun a => post a s) epost⟩
 
-/-- Lift a predicate transformer to one with an additional exception layer (high priority). -/
-instance (priority := high) {ε : Type u} {Pred : Type u} {EPred : Type u} :
-    MonadLift (PredTrans Pred EPred) (PredTrans Pred (EPost.Cons (ε → Pred) EPred)) where
-  monadLift x := ⟨fun post epost => x.apply post epost.tail⟩
-
 /-!
 ## Monad Instances
 
@@ -246,13 +186,6 @@ instance {σ : Type u} {Pred : Type v} {EPred : Type w} :
     MonadReaderOf σ (PredTrans (σ → Pred) EPred) where
   read := ⟨fun post _epost => fun s => post s s⟩
 
-/-- `MonadExceptOf` instance for the outermost exception layer:
-`throw` invokes the head exception postcondition, `tryCatch` intercepts it. -/
-instance {ε : Type u} {Pred : Type v} {EPred : Type w} :
-    MonadExceptOf ε (PredTrans Pred (EPost.Cons (ε → Pred) EPred)) where
-  throw e := ⟨fun _post epost => epost.head e⟩
-  tryCatch x handle := ⟨fun post epost => x.apply post ⟨(fun e => (handle e).apply post epost), epost.tail⟩⟩
-
 /-- `MonadExceptOf` instance lifted through a state layer:
 delegates `throw` and `tryCatch` to the inner `PredTrans l e` instance. -/
 instance {ε : Type u} {Pred : Type v} {EPred : Type w} {σ : Type z}
@@ -266,16 +199,6 @@ instance {ε : Type u} {Pred : Type v} {EPred : Type w} {σ : Type z}
       (fun e => ⟨fun post epost => (handle e).apply (fun r s => post (r, s)) epost s⟩)).apply
       (fun rs => post rs.1 rs.2) epost⟩
 
-/-- `MonadExceptOf` instance lifted through an unrelated exception layer:
-delegates to the inner instance, threading the extra exception postcondition. -/
-instance {ε : Type u} {Pred : Type v} {EPred : Type w} {ε' : Type u}
-    [MonadExceptOf ε (PredTrans Pred EPred)] :
-    MonadExceptOf ε (PredTrans Pred (EPost.Cons (ε' → Pred) EPred)) where
-  throw x := ⟨fun post epost => (throw (m := PredTrans Pred EPred) x).apply post epost.tail⟩
-  tryCatch x handle := ⟨fun post epost =>
-    (tryCatch (m := PredTrans Pred EPred)
-      (⟨fun post' epost' => x.apply post' ⟨epost.head, epost'⟩⟩)
-      (fun e => ⟨fun post' epost' => (handle e).apply post' ⟨epost.head, epost'⟩⟩)).apply
-      post epost.tail⟩
+end Lean.Order
 
-end Std.Internal.Do
+end -- public section

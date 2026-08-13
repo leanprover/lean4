@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Internal.Do.Assertion
-universe u v
+universe u v w z
 @[expose] public section
 
 set_option linter.missingDocs true
@@ -47,6 +47,28 @@ structure EPost.Cons (eh : Type u) (et : Type v) where
   tail : et
 
 attribute [simp] EPost.Cons.head EPost.Cons.tail
+
+/-!
+## Pushing Results into Postconditions
+-/
+
+/-- Push an `Except ε α` result into separate normal and exception postconditions:
+`ok a` uses `post a`, and `error e` uses `epost.head e`. -/
+@[simp]
+abbrev EPost.Cons.pushExcept {α : Type u} {ε : Type v} {Pred : Type w} {EPred : Type z}
+    (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) : Except ε α → Pred :=
+  fun
+  | .ok a => post a
+  | .error e => epost.head e
+
+/-- Push an `Option α` result into separate normal and none postconditions:
+`some a` uses `post a`, and `none` uses `epost.head`. -/
+@[simp]
+abbrev EPost.Cons.pushOption {α : Type u} {Pred : Type u} {EPred : Type v}
+    (post : α → Pred) (epost : EPost.Cons Pred EPred) : Option α → Pred :=
+  fun
+  | .some a => post a
+  | .none => epost.head
 
 /-!
 ## Partial Order and Complete Lattice Instances

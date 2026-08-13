@@ -278,7 +278,7 @@ instance: WPMonad Traceful TraceProp EPost⟨⟩ where
     ⟩⟩
 
     wp_trans_monotone x := by
-      simp only [Std.Internal.Do.PredTrans.monotone, Lean.Order.PartialOrder.rel]
+      simp only [Lean.Order.PredTrans.monotone, Lean.Order.PartialOrder.rel]
       grind
   }
 

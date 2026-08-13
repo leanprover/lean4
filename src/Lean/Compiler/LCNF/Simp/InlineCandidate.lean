@@ -89,7 +89,8 @@ def inlineCandidate? (e : LetValue .pure) : SimpM (Option InlineCandidateInfo) :
             way. After we change `Decidable` to a structure as suggested by Gabriel, we should only accept type classes
             that are structures. Moreover, we should reject instances that have only one exit point producing an explicit structure.
             -/
-            return false        -- This is done to avoid inlining `_override` implementations for computed fields in the
+            return false
+        -- This is done to avoid inlining `_override` implementations for computed fields in the
         -- base phase, since `cases` constructs have not yet been replaced by their underlying
         -- implementation, and thus inlining `_override` implementations for computed fields will
         -- expose a constructor/`cases` mismatch.

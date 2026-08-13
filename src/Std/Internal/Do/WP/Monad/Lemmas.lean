@@ -6,7 +6,7 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.WP.Basic
+public import Std.Internal.Do.WP.Monad.Instances
 @[expose] public section
 
 set_option linter.missingDocs true

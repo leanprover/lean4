@@ -6,7 +6,7 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.Triple.Basic
+public import Std.Internal.Do.Triple.Monad
 public import Std.Internal.Order.Heyting
 
 @[expose] public section

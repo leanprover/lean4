@@ -336,7 +336,17 @@ def mkBuildContext'
   (ws : Workspace) (cfg : BuildConfig) (jobs : JobQueue)
 : BaseIO BuildContext := return {
   opaqueWs := ws
-  toBuildConfig := cfg
+  toBuildConfig := {cfg with
+    macosxDeploymentTarget? := ← id do
+      if System.Platform.isOSX then
+        match cfg.macosxDeploymentTarget? with
+        | some ver => return some ver
+        | none =>
+          -- TODO: Consider adding `MACOSX_DEPLOYMENT_TARGET` to `Lake.Env`
+          return some <| (← IO.getEnv "MACOSX_DEPLOYMENT_TARGET").getD "99.0"
+      else
+        return cfg.macosxDeploymentTarget?
+    }
   outputsRef? := ← id do
     if cfg.outputsFile?.isSome then
       some <$> CacheRef.mk

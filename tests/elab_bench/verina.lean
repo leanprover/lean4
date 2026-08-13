@@ -32,10 +32,11 @@ def containsConsecutiveNumbers (a : Array Int) : Id Bool := do
         i := i + 1
     return found
 
+@[spec]
 theorem containsConsecutiveNumbers_spec (a : Array Int) :
-    (containsConsecutiveNumbers a).run = true ↔ HasConsecutivePair a := by
-  generalize h : (containsConsecutiveNumbers a).run = r
-  apply Id.of_wp_run_eq h
+    ⦃ True ⦄
+    containsConsecutiveNumbers a
+    ⦃ fun r => r = true ↔ HasConsecutivePair a ⦄ := by
   vcgen [containsConsecutiveNumbers] invariants
   | inv1 => fun r => match r with
     | .inl ⟨i, found⟩ => i + 1 ≤ a.size ∧
@@ -44,7 +45,7 @@ theorem containsConsecutiveNumbers_spec (a : Array Int) :
     | .inr ⟨i, found⟩ => (i + 1 ≥ a.size ∨ found = true) ∧
         (found = false → ∀ j : Nat, j < i → a[j]! + 1 ≠ a[j + 1]!) ∧
         (found = true → HasConsecutivePair a)
-  | inv2 => fun ⟨i, found⟩ => (a.size + 1 - i) * 2 + (if found = false then 1 else 0)
+  | inv2 => .ofMeasure fun ⟨i, found⟩ => (a.size + 1 - i) * 2 + (if found = false then 1 else 0)
   with finish
 
 end E_containsConsecutiveNumbers
@@ -67,17 +68,18 @@ def countSumDivisibleBy (n : Nat) (d : Nat) : Id Nat := do
     k := k + 1
   return count
 
-theorem countSumDivisibleBy_spec (n d : Nat) (_hd : d > 0) :
-    (countSumDivisibleBy n d).run = ((List.range n).countP (divisesDigitSum d)) := by
-  generalize h : (countSumDivisibleBy n d).run = r
-  apply Id.of_wp_run_eq h
+@[spec]
+theorem countSumDivisibleBy_spec (n d : Nat) :
+    ⦃ d > 0 ⦄
+    countSumDivisibleBy n d
+    ⦃ fun r => r = ((List.range n).countP (divisesDigitSum d)) ⦄ := by
   vcgen [countSumDivisibleBy] invariants
   | inv1 => fun r => match r with
     | .inl ⟨count, k⟩ => k ≤ n ∧
         count = ((List.range k).countP (divisesDigitSum d))
     | .inr ⟨count, k⟩ => k = n ∧
         count = ((List.range k).countP (divisesDigitSum d))
-  | inv2 => fun ⟨count, k⟩ => n + 1 - k
+  | inv2 => .ofMeasure fun ⟨count, k⟩ => n + 1 - k
   with finish [List.range_succ, Nat.dvd_iff_mod_eq_zero, divisesDigitSum]
 
 end E_countSumDivisibleBy
@@ -95,18 +97,18 @@ def cubeElements (a : Array Int) : Id (Array Int) := do
     i := i + 1
   return result
 
+@[spec]
 theorem cubeElements_spec (a : Array Int) :
-    (cubeElements a).run.size = a.size ∧
-    (∀ (i : Nat), i < a.size → (cubeElements a).run[i]! = intCube (a[i]!)) := by
-  generalize h : (cubeElements a).run = r
-  apply Id.of_wp_run_eq h
+    ⦃ True ⦄
+    cubeElements a
+    ⦃ fun r => r.size = a.size ∧ (∀ (i : Nat), i < a.size → r[i]! = intCube (a[i]!)) ⦄ := by
   vcgen [cubeElements] invariants
   | inv1 => fun r => match r with
     | .inl ⟨result, i⟩ => i ≤ a.size ∧ result.size = a.size ∧
         ∀ k, k < i → result[k]! = intCube (a[k]!)
     | .inr ⟨result, i⟩ => i = a.size ∧ result.size = a.size ∧
         ∀ k, k < i → result[k]! = intCube (a[k]!)
-  | inv2 => fun ⟨result, i⟩ => a.size + 1 - i
+  | inv2 => .ofMeasure fun ⟨result, i⟩ => a.size + 1 - i
   with finish
 
 end E_cubeElements
@@ -117,10 +119,11 @@ def cubeSurfaceArea (size : Nat) : Id Nat := do
   let area := 6 * (size ^ 2)
   return area
 
+@[spec]
 theorem cubeSurfaceArea_spec (size : Nat) :
-    (cubeSurfaceArea size).run = 6 * (size ^ 2) := by
-  generalize h : (cubeSurfaceArea size).run = r
-  apply Id.of_wp_run_eq h
+    ⦃ True ⦄
+    cubeSurfaceArea size
+    ⦃ fun r => r = 6 * (size ^ 2) ⦄ := by
   vcgen [cubeSurfaceArea]
   with finish
 
@@ -141,10 +144,11 @@ def differenceMinMax (a : Array Int) : Id Int := do
     if v > mx then mx := v else pure ()
     i := i + 1
   return (mx - mn)
-theorem differenceMinMax_spec (a : Array Int) (hne : a.size ≠ 0) :
-    ∃ (mn : Int) (mx : Int), IsMinOfArray a mn ∧ IsMaxOfArray a mx ∧ (differenceMinMax a).run = mx - mn := by
-  generalize h : (differenceMinMax a).run = r
-  apply Id.of_wp_run_eq h
+@[spec]
+theorem differenceMinMax_spec (a : Array Int) :
+    ⦃ a.size ≠ 0 ⦄
+    differenceMinMax a
+    ⦃ fun r => ∃ (mn : Int) (mx : Int), IsMinOfArray a mn ∧ IsMaxOfArray a mx ∧ r = mx - mn ⦄ := by
   vcgen [differenceMinMax] invariants
   | inv1 => fun r => match r with
     | .inl ⟨mn, mx, i⟩ => 1 ≤ i ∧ i ≤ a.size ∧
@@ -153,7 +157,7 @@ theorem differenceMinMax_spec (a : Array Int) (hne : a.size ≠ 0) :
     | .inr ⟨mn, mx, i⟩ => i = a.size ∧
         (∃ j : Nat, j < i ∧ a[j]! = mn) ∧ (∀ j : Nat, j < i → mn ≤ a[j]!) ∧
         (∃ j : Nat, j < i ∧ a[j]! = mx) ∧ (∀ j : Nat, j < i → a[j]! ≤ mx)
-  | inv2 => fun ⟨_mn, _mx, i⟩ => a.size - i
+  | inv2 => .ofMeasure fun ⟨_mn, _mx, i⟩ => a.size - i
   with (try finish)
   case vc2 => sorry
 
@@ -172,19 +176,18 @@ def elementWiseModulo (a : Array Int) (b : Array Int) : Id (Array Int) := do
     i := i + 1
   return result
 
-theorem elementWiseModulo_spec (a b : Array Int)
-    (hsize : a.size = b.size) (_hnz : allNonzero b) :
-    (elementWiseModulo a b).run.size = a.size ∧
-    (∀ (i : Nat), i < a.size → (elementWiseModulo a b).run[i]! = a[i]! % b[i]!) := by
-  generalize h : (elementWiseModulo a b).run = r
-  apply Id.of_wp_run_eq h
+@[spec]
+theorem elementWiseModulo_spec (a b : Array Int) :
+    ⦃ a.size = b.size ∧ allNonzero b ⦄
+    elementWiseModulo a b
+    ⦃ fun r => r.size = a.size ∧ (∀ (i : Nat), i < a.size → r[i]! = a[i]! % b[i]!) ⦄ := by
   vcgen [elementWiseModulo] invariants
   | inv1 => fun r => match r with
     | .inl ⟨result, i⟩ => i ≤ a.size ∧ result.size = a.size ∧
         ∀ k, k < i → result[k]! = a[k]! % b[k]!
     | .inr ⟨result, i⟩ => i = a.size ∧ result.size = a.size ∧
         ∀ k, k < i → result[k]! = a[k]! % b[k]!
-  | inv2 => fun ⟨result, i⟩ => a.size + 1 - i
+  | inv2 => .ofMeasure fun ⟨result, i⟩ => a.size + 1 - i
   with finish
 
 end E_elementWiseModulo
@@ -201,15 +204,11 @@ def findSmallest (s : Array Nat) : Id (Option Nat) := do
         minIndex := i
     return some s[minIndex]!
 
+@[spec]
 theorem findSmallest_spec (s : Array Nat) :
-    (match (findSmallest s).run with
-     | none => s.size = 0
-     | some min =>
-        s.size > 0 ∧
-        (∃ i, i < s.size ∧ s[i]! = min) ∧
-        (∀ j, j < s.size → min ≤ s[j]!)) := by
-  generalize h : (findSmallest s).run = r
-  apply Id.of_wp_run_eq h
+    ⦃ True ⦄
+    findSmallest s
+    ⦃ fun r => (match r with | none => s.size = 0 | some min => s.size > 0 ∧ (∃ i, i < s.size ∧ s[i]! = min) ∧ (∀ j, j < s.size → min ≤ s[j]!)) ⦄ := by
   vcgen [findSmallest] invariants
   | inv1 => fun xpref _ minIndex => minIndex < s.size ∧ s[minIndex]! ≤ s[0]! ∧
       ∀ j, j ∈ xpref → s[minIndex]! ≤ s[j]!
@@ -227,10 +226,11 @@ def hasOppositeSign (a : Int) (b : Int) : Id Bool := do
   else
     return false
 
+@[spec]
 theorem hasOppositeSign_spec (a : Int) (b : Int) :
-    (hasOppositeSign a b).run = true ↔ ((a > 0 ∧ b < 0) ∨ (a < 0 ∧ b > 0)) := by
-  generalize h : (hasOppositeSign a b).run = r
-  apply Id.of_wp_run_eq h
+    ⦃ True ⦄
+    hasOppositeSign a b
+    ⦃ fun r => r = true ↔ ((a > 0 ∧ b < 0) ∨ (a < 0 ∧ b > 0)) ⦄ := by
   vcgen [hasOppositeSign]
   with finish
 
@@ -245,10 +245,11 @@ def isDivisibleBy11 (n : Int) : Id Bool := do
   else
     return false
 
+@[spec]
 theorem isDivisibleBy11_spec (n : Int) :
-    (isDivisibleBy11 n).run = true ↔ (11 : Int) ∣ n := by
-  generalize h : (isDivisibleBy11 n).run = r
-  apply Id.of_wp_run_eq h
+    ⦃ True ⦄
+    isDivisibleBy11 n
+    ⦃ fun r => r = true ↔ (11 : Int) ∣ n ⦄ := by
   vcgen [isDivisibleBy11]
   with finish
 
@@ -261,9 +262,11 @@ namespace E_isEven
 def isEven (n : Int) : Id Bool := do
   if n % 2 = 0 then return true else return false
 
-theorem isEven_spec (n : Int) : (isEven n).run = true ↔ IntIsEven n := by
-  generalize h : (isEven n).run = r
-  apply Id.of_wp_run_eq h
+@[spec]
+theorem isEven_spec (n : Int) :
+    ⦃ True ⦄
+    isEven n
+    ⦃ fun r => r = true ↔ IntIsEven n ⦄ := by
   vcgen [isEven, IntIsEven]
   with finish
 
@@ -280,10 +283,11 @@ def isGreater (n : Int) (a : Array Int) : Id Bool := do
       ok := false
   return ok
 
-theorem isGreater_spec (n : Int) (a : Array Int) (_h : a.size > 0) :
-    (isGreater n a).run = true ↔ (∀ i : Nat, i < a.size → a[i]! < n) := by
-  generalize h : (isGreater n a).run = r
-  apply Id.of_wp_run_eq h
+@[spec]
+theorem isGreater_spec (n : Int) (a : Array Int) :
+    ⦃ a.size > 0 ⦄
+    isGreater n a
+    ⦃ fun r => r = true ↔ (∀ i : Nat, i < a.size → a[i]! < n) ⦄ := by
   vcgen [isGreater] invariants
   | inv1 => fun xpref _ ok => ok = true ↔ (∀ j : Nat, j ∈ xpref → a[j]! < n)
   with finish
@@ -316,10 +320,11 @@ def isPrime (n : Nat) : Id Bool := do
   else
     return true
 
-theorem isPrime_spec (n : Nat) (_h : 2 ≤ n) :
-    (isPrime n).run = true ↔ ¬ ∃ k : Nat, 1 < k ∧ k < n ∧ n % k = 0 := by
-  generalize h : (isPrime n).run = r
-  apply Id.of_wp_run_eq h
+@[spec]
+theorem isPrime_spec (n : Nat) :
+    ⦃ 2 ≤ n ⦄
+    isPrime n
+    ⦃ fun r => r = true ↔ ¬ ∃ k : Nat, 1 < k ∧ k < n ∧ n % k = 0 ⦄ := by
   vcgen [isPrime] invariants
   | inv1 => fun xpref _ composite => composite = false ↔ (∀ d : Nat, d ∈ xpref → n % d ≠ 0)
   with (try finish)
@@ -333,11 +338,11 @@ namespace E_kthElement
 def kthElement (arr : Array Int) (k : Nat) : Id Int := do
   return arr[k - 1]!
 
-theorem kthElement_spec (arr : Array Int) (k : Nat)
-    (_h1 : arr.size ≥ 1) (_h2 : 1 ≤ k) (_h3 : k ≤ arr.size) :
-    (kthElement arr k).run = arr[k - 1]! := by
-  generalize h : (kthElement arr k).run = r
-  apply Id.of_wp_run_eq h
+@[spec]
+theorem kthElement_spec (arr : Array Int) (k : Nat) :
+    ⦃ arr.size ≥ 1 ∧ 1 ≤ k ∧ k ≤ arr.size ⦄
+    kthElement arr k
+    ⦃ fun r => r = arr[k - 1]! ⦄ := by
   vcgen [kthElement]
   with finish
 
@@ -349,10 +354,11 @@ def lastDigit (n : Nat) : Id Nat := do
   let d := n % 10
   return d
 
+@[spec]
 theorem lastDigit_spec (n : Nat) :
-    (lastDigit n).run = n % 10 ∧ (lastDigit n).run < 10 := by
-  generalize h : (lastDigit n).run = r
-  apply Id.of_wp_run_eq h
+    ⦃ True ⦄
+    lastDigit n
+    ⦃ fun r => r = n % 10 ∧ r < 10 ⦄ := by
   vcgen [lastDigit]
   with finish
 
@@ -372,13 +378,11 @@ def minOfThree (a b c : Int) : Id Int := do
     pure ()
   return m
 
+@[spec]
 theorem minOfThree_spec (a b c : Int) :
-    (minOfThree a b c).run ≤ a ∧ (minOfThree a b c).run ≤ b ∧
-      (minOfThree a b c).run ≤ c ∧
-      ((minOfThree a b c).run = a ∨ (minOfThree a b c).run = b ∨
-        (minOfThree a b c).run = c) := by
-  generalize h : (minOfThree a b c).run = r
-  apply Id.of_wp_run_eq h
+    ⦃ True ⦄
+    minOfThree a b c
+    ⦃ fun r => r ≤ a ∧ r ≤ b ∧ r ≤ c ∧ (r = a ∨ r = b ∨ r = c) ⦄ := by
   vcgen [minOfThree]
   with finish
 
@@ -390,9 +394,11 @@ def multiply (a b : Int) : Id Int := do
   let prod := a * b
   return prod
 
-theorem multiply_spec (a b : Int) : (multiply a b).run = a * b := by
-  generalize h : (multiply a b).run = r
-  apply Id.of_wp_run_eq h
+@[spec]
+theorem multiply_spec (a b : Int) :
+    ⦃ True ⦄
+    multiply a b
+    ⦃ fun r => r = a * b ⦄ := by
   vcgen [multiply]
   with finish
 
@@ -406,11 +412,11 @@ def myMin (a b : Int) : Id Int := do
   else
     return b
 
+@[spec]
 theorem myMin_spec (a b : Int) :
-    (myMin a b).run ≤ a ∧ (myMin a b).run ≤ b ∧
-      ((myMin a b).run = a ∨ (myMin a b).run = b) := by
-  generalize h : (myMin a b).run = r
-  apply Id.of_wp_run_eq h
+    ⦃ True ⦄
+    myMin a b
+    ⦃ fun r => r ≤ a ∧ r ≤ b ∧ (r = a ∨ r = b) ⦄ := by
   vcgen [myMin]
   with finish
 
@@ -429,13 +435,11 @@ def removeElement (s : Array Int) (k : Nat) : Id (Array Int) := do
     i := i + 1
   return result
 
-theorem removeElement_spec (s : Array Int) (k : Nat) (hk : k < s.size) :
-    (removeElement s k).run.size + 1 = s.size ∧
-    (∀ (i : Nat), i < (removeElement s k).run.size →
-      (if i < k then (removeElement s k).run[i]! = s[i]!
-       else (removeElement s k).run[i]! = s[i + 1]!)) := by
-  generalize h : (removeElement s k).run = r
-  apply Id.of_wp_run_eq h
+@[spec]
+theorem removeElement_spec (s : Array Int) (k : Nat) :
+    ⦃ k < s.size ⦄
+    removeElement s k
+    ⦃ fun r => r.size + 1 = s.size ∧ (∀ (i : Nat), i < r.size → (if i < k then r[i]! = s[i]! else r[i]! = s[i + 1]!)) ⦄ := by
   vcgen [removeElement] invariants
   | inv1 => fun r => match r with
     | .inl ⟨result, i⟩ => i ≤ result.size ∧ result.size + 1 = s.size ∧
@@ -444,7 +448,7 @@ theorem removeElement_spec (s : Array Int) (k : Nat) (hk : k < s.size) :
     | .inr ⟨result, i⟩ => i = result.size ∧ result.size + 1 = s.size ∧
         ∀ (j : Nat), j < result.size →
           (if j < k then result[j]! = s[j]! else result[j]! = s[j + 1]!)
-  | inv2 => fun ⟨result, i⟩ => result.size - i
+  | inv2 => .ofMeasure fun ⟨result, i⟩ => result.size - i
   with finish
 
 end E_removeElement
@@ -463,13 +467,11 @@ def sumAndAverage (n : Nat) : Id (Int × Float) := do
     let avg : Float := (Float.ofInt sumInt) / (Float.ofNat n)
     return (sumInt, avg)
 
+@[spec]
 theorem sumAndAverage_spec (n : Nat) :
-    (sumAndAverage n).run.1 = Int.ofNat (gaussSumNat n) ∧
-    (n = 0 → (sumAndAverage n).run.2 = 0.0) ∧
-    (n > 0 → (sumAndAverage n).run.2 =
-      (Float.ofInt (sumAndAverage n).run.1) / (Float.ofNat n)) := by
-  generalize h : (sumAndAverage n).run = r
-  apply Id.of_wp_run_eq h
+    ⦃ True ⦄
+    sumAndAverage n
+    ⦃ fun r => r.1 = Int.ofNat (gaussSumNat n) ∧ (n = 0 → r.2 = 0.0) ∧ (n > 0 → r.2 = (Float.ofInt r.1) / (Float.ofNat n)) ⦄ := by
   vcgen [sumAndAverage]
   with finish
 
@@ -483,10 +485,11 @@ def sumOfSquaresOfFirstNOddNumbers (n : Nat) : Id Nat := do
   let num := oddSquaresClosedFormNumerator n
   return num / 3
 
+@[spec]
 theorem sumOfSquaresOfFirstNOddNumbers_spec (n : Nat) :
-    (sumOfSquaresOfFirstNOddNumbers n).run = oddSquaresClosedFormNumerator n / 3 := by
-  generalize h : (sumOfSquaresOfFirstNOddNumbers n).run = r
-  apply Id.of_wp_run_eq h
+    ⦃ True ⦄
+    sumOfSquaresOfFirstNOddNumbers n
+    ⦃ fun r => r = oddSquaresClosedFormNumerator n / 3 ⦄ := by
   vcgen [sumOfSquaresOfFirstNOddNumbers]
   with finish
 
@@ -510,15 +513,12 @@ def swapFirstAndLast (a : Array Int) : Id (Array Int) := do
     result := result.set! last firstVal
     return result
 
-theorem swapFirstAndLast_spec (a : Array Int) (h : 0 < a.size) :
-    (swapFirstAndLast a).run.size = a.size ∧
-    (∀ (i : Nat), i < a.size →
-      ((swapFirstAndLast a).run[i]! =
-        if i = 0 then a[lastIdx a]!
-        else if i = lastIdx a then a[0]!
-        else a[i]!)) := by
+@[spec]
+theorem swapFirstAndLast_spec (a : Array Int) :
+    ⦃ 0 < a.size ⦄
+    swapFirstAndLast a
+    ⦃ fun r => r.size = a.size ∧ (∀ (i : Nat), i < a.size → (r[i]! = if i = 0 then a[lastIdx a]! else if i = lastIdx a then a[0]! else a[i]!)) ⦄ := by
   generalize hr : (swapFirstAndLast a).run = r
-  apply Id.of_wp_run_eq hr
   vcgen [swapFirstAndLast]
   with finish
 
@@ -563,13 +563,11 @@ def findEvenNumbers (arr : Array Int) : Id (Array Int) := do
       indices := indices.push i
   return result
 
+@[spec]
 theorem findEvenNumbers_spec (arr : Array Int) :
-    (Array.Sublist arr (findEvenNumbers arr).run) ∧
-    (∀ x, x ∈ (findEvenNumbers arr).run → isEvenInt x = true) ∧
-    (∀ x, isEvenInt x = true → (findEvenNumbers arr).run.count x = arr.count x) ∧
-    (∀ x, isEvenInt x = false → (findEvenNumbers arr).run.count x = 0) := by
-  generalize h : (findEvenNumbers arr).run = r
-  apply Id.of_wp_run_eq h
+    ⦃ True ⦄
+    findEvenNumbers arr
+    ⦃ fun r => (Array.Sublist arr r) ∧ (∀ x, x ∈ r → isEvenInt x = true) ∧ (∀ x, isEvenInt x = true → r.count x = arr.count x) ∧ (∀ x, isEvenInt x = false → r.count x = 0) ⦄ := by
   vcgen [findEvenNumbers] invariants
   | inv1 => fun xpref _ ⟨result, indices⟩ => xpref.length ≤ arr.size ∧
       (∀ x, x ∈ result → isEvenInt x = true) ∧
@@ -625,12 +623,11 @@ def findMajorityElement (lst : List Int) : Id Int := do
   else
     return -1
 
+@[spec]
 theorem findMajorityElement_spec (lst : List Int) :
-    (hasMajorityElement lst → ((findMajorityElement lst).run ∈ lst ∧
-        isMajorityElement lst (findMajorityElement lst).run)) ∧
-    (¬hasMajorityElement lst → (findMajorityElement lst).run = -1) := by
-  generalize h : (findMajorityElement lst).run = r
-  apply Id.of_wp_run_eq h
+    ⦃ True ⦄
+    findMajorityElement lst
+    ⦃ fun r => (hasMajorityElement lst → (r ∈ lst ∧ isMajorityElement lst r)) ∧ (¬hasMajorityElement lst → r = -1) ⦄ := by
   vcgen [findMajorityElement] invariants
   | inv1 => fun xpref _ ⟨found, candidate⟩ => (found = true → candidate ∈ lst ∧ isMajorityElement lst candidate) ∧
       (found = false → ∀ k : Nat, k < xpref.length → ¬isMajorityElement lst lst[k]!)
@@ -678,10 +675,11 @@ def ifPowerOfFour (n : Nat) : Id Bool := do
         current := current / 4
     return current = 1
 
+@[spec]
 theorem ifPowerOfFour_spec (n : Nat) :
-    ((ifPowerOfFour n).run = true ↔ isPowerOfFour n) := by
-  generalize h : (ifPowerOfFour n).run = r
-  apply Id.of_wp_run_eq h
+    ⦃ True ⦄
+    ifPowerOfFour n
+    ⦃ fun r => (r = true ↔ isPowerOfFour n) ⦄ := by
   vcgen [ifPowerOfFour] invariants
   | inv1 => fun xpref _ current => current > 0 ∧ (isPowerOfFour n ↔ isPowerOfFour current) ∧
       (isPowerOfFour n → ∃ e, current = 4 ^ e ∧ (e = 0 ∨ 4 ^ (e + xpref.length) = n))
@@ -711,12 +709,11 @@ def isSorted (a : Array Int) : Id Bool := do
         sorted := false
   return sorted
 
+@[spec]
 theorem isSorted_spec (a : Array Int) :
-    ((isSorted a).run = true ↔ AdjacentSorted a) ∧
-    ((isSorted a).run = true → GloballySorted a) ∧
-    ((isSorted a).run = false ↔ ¬ AdjacentSorted a) := by
-  generalize h : (isSorted a).run = r
-  apply Id.of_wp_run_eq h
+    ⦃ True ⦄
+    isSorted a
+    ⦃ fun r => (r = true ↔ AdjacentSorted a) ∧ (r = true → GloballySorted a) ∧ (r = false ↔ ¬ AdjacentSorted a) ⦄ := by
   vcgen [isSorted] invariants
   | inv1 => fun xpref _ sorted => (sorted = true → ∀ k : Nat, k ∈ xpref → k + 1 < a.size → a[k]! ≤ a[k + 1]!) ∧
       (sorted = false → ∃ k : Nat, k + 1 < a.size ∧ a[k]! > a[k + 1]!)
@@ -754,10 +751,11 @@ def isSublist (sub : List Int) (main : List Int) : Id Bool := do
           rest := rest.drop 1
     return found
 
+@[spec]
 theorem isSublist_spec (sub : List Int) (main : List Int) :
-    ((isSublist sub main).run = true ↔ isContiguousSublist sub main) := by
-  generalize h : (isSublist sub main).run = r
-  apply Id.of_wp_run_eq h
+    ⦃ True ⦄
+    isSublist sub main
+    ⦃ fun r => (r = true ↔ isContiguousSublist sub main) ⦄ := by
   vcgen [isSublist] invariants
   | inv1 => fun xpref _ ⟨rest, found⟩ => rest <:+: main ∧
       (found = true → sub <:+: main) ∧
@@ -831,13 +829,11 @@ def mergeSorted (a1 : Array Nat) (a2 : Array Nat) : Id (Array Nat) := do
           j := j + 1
   return result
 
-theorem mergeSorted_spec (a1 : Array Nat) (a2 : Array Nat)
-    (h1 : isSorted a1) (h2 : isSorted a2) :
-    ((mergeSorted a1 a2).run.size = a1.size + a2.size) ∧
-    (isSorted (mergeSorted a1 a2).run) ∧
-    (∀ v : Nat, (mergeSorted a1 a2).run.count v = a1.count v + a2.count v) := by
-  generalize h : (mergeSorted a1 a2).run = r
-  apply Id.of_wp_run_eq h
+@[spec]
+theorem mergeSorted_spec (a1 : Array Nat) (a2 : Array Nat) :
+    ⦃ isSorted a1 ∧ isSorted a2 ⦄
+    mergeSorted a1 a2
+    ⦃ fun r => (r.size = a1.size + a2.size) ∧ (isSorted r) ∧ (∀ v : Nat, r.count v = a1.count v + a2.count v) ⦄ := by
   vcgen [mergeSorted] invariants
   | inv1 => fun xpref _ ⟨result, i, j⟩ => i ≤ a1.size ∧ j ≤ a2.size ∧
       result.size = i + j ∧ result.size = xpref.length ∧
@@ -881,6 +877,7 @@ def differenceMinMax (a : Array Int) : Id Int := do
     i := i + 1
   return (mx - mn)
 
+@[spec]
 theorem differenceMinMax_spec (a : Array Int) :
     ⦃ a.size ≠ 0 ⦄
     differenceMinMax a
@@ -894,7 +891,7 @@ theorem differenceMinMax_spec (a : Array Int) :
     | .inr ⟨mn, mx, i⟩ => i = a.size ∧
         (∃ j : Nat, j < i ∧ a[j]! = mn) ∧ (∀ j : Nat, j < i → mn ≤ a[j]!) ∧
         (∃ j : Nat, j < i ∧ a[j]! = mx) ∧ (∀ j : Nat, j < i → a[j]! ≤ mx)
-  | inv2 => fun ⟨_mn, _mx, i⟩ => a.size - i
+  | inv2 => .ofMeasure fun ⟨_mn, _mx, i⟩ => a.size - i
   with (try finish)
   case vc2 => sorry
 
@@ -939,6 +936,7 @@ def findMajorityElement (lst : List Int) : Id Int := do
   else
     return -1
 
+@[spec]
 theorem findMajorityElement_spec (lst : List Int) :
     ⦃ True ⦄
     findMajorityElement lst

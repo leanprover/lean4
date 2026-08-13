@@ -107,12 +107,13 @@ add `import Std.Internal.Do` to use them."
   let args := sigBinders.flatMap contractBinderIdents
   let pre : Term ← if requiresStx.isNone then `(⊤) else
     match requiresStx[0] with
-    | `(requiresClause| requires $bs* => $p) => `(fun $bs* => $p)
-    | `(requiresClause| requires $p) => pure p
+    | `(requiresClause| requires $f:basicFun) => `(fun $f:basicFun)
+    | `(requiresClause| requires $p:term) => pure p
     | _ => Macro.throwUnsupported
   let post : Term ← if ensuresStx.isNone then `(fun _ => ⊤) else
     match ensuresStx[0] with
-    | `(ensuresClause| ensures $bs* => $q) => `(fun $bs* => $q)
+    | `(ensuresClause| ensures $f:basicFun) => `(fun $f:basicFun)
+    | `(ensuresClause| ensures $alts:matchAlts) => `(fun $alts:matchAlts)
     | _ => Macro.throwUnsupported
   let msg : TSyntax `str := ⟨Syntax.mkStrLit <|
     if specStep?.isSome then

@@ -26,11 +26,6 @@ namespace Lean.Elab.Tactic.Do.Internal
 
 open Lean.Elab.Tactic.Do.Internal.SpecAttr
 
-/-- Returns `true` if `e` is already internalized into the current `SymM` share table, in which case
-`shareCommon e` returns `e` unchanged. -/
-public def _root_.Lean.Meta.Sym.isShared (e : Expr) : SymM Bool :=
-  return (← get).share.set.contains { expr := e }
-
 /--
 Internalizes the pattern's expressions into the current `SymM` share table.
 
@@ -76,13 +71,6 @@ public def SpecAttr.SpecTheorem.instantiate (specThm : SpecTheorem) :
 public def SpecAttr.SpecTheorem.global? (specThm : SpecTheorem) : Option Name :=
   match specThm.proof with | .global decl => some decl | _ => none
 
-/-- True iff the spec's pattern unifies with the program, mirroring the match performed in
-`findSpecs`. Distinguishes a spurious discrimination-tree candidate, whose pattern does not unify,
-from a spec whose pattern matches yet whose backward rule fails to apply. -/
-public def SpecAttr.SpecTheorem.patternMatches (specThm : SpecTheorem) (prog : Expr) : SymM Bool :=
-  withNewMCtxDepth do
-    return (← specThm.pattern.match? prog).isSome
-
 namespace VCGen
 
 /--
@@ -117,33 +105,15 @@ end VCGen
 
 /--
 Look up `SpecTheorem`s in the `@[spec]` database.
-Takes all specs that match the given program `e` and sorts by descending priority.
+Takes all specs the discrimination tree holds for the program `e` and sorts by descending priority.
 -/
 public def SpecAttr.SpecTheorems.findSpecs (database : SpecTheorems) (e : Expr) :
-    SymM (Except (Array SpecTheorem) SpecTheorem × SpecTheorems) := do
+    SymM (Array SpecTheorem) := do
   let e ← instantiateMVars e
   let e ← shareCommon e
-  let candidates := Sym.getMatch database.specs e
+  let candidates := Sym.getMatch (← getMCtx) database.specs e
   let candidates := candidates.filter fun spec => !database.erased.contains spec.proof
-  if h : candidates.size = 1 then
-    have : 0 < candidates.size := h ▸ Nat.zero_lt_one
-    return (.ok candidates[0], database)
   -- It appears that insertion sort is *much* faster than qsort here.
-  let candidates := candidates.insertionSort (·.priority > ·.priority)
-  let mut database := database
-  for spec in candidates do
-    -- Match against the internalized pattern so its instance arguments are pointer-equal to the
-    -- program's. A spec is internalized the first time it is tried and stored back in the database,
-    -- so later lookups find it already in the share table and skip the work.
-    let mut spec := spec
-    unless ← isShared spec.pattern.pattern do
-      spec := { spec with pattern := ← spec.pattern.shareCommon }
-      -- Take sole ownership of the discrimination tree before inserting so the update is in place.
-      let specs := database.specs
-      database := { database with specs := default }
-      database := { database with specs := Sym.insertPattern specs spec.pattern spec }
-    let some _res ← spec.pattern.match? e | continue
-    return (.ok spec, database)
-  return (.error candidates, database)
+  return candidates.insertionSort (·.priority > ·.priority)
 
 end Lean.Elab.Tactic.Do.Internal

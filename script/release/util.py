@@ -3,11 +3,12 @@ import re
 import shlex
 import subprocess
 import urllib.parse
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from os import PathLike
 from pathlib import Path
 from re import Match, Pattern
-from typing import Callable, Literal, NoReturn, Self
+from typing import Literal, NoReturn, Self
 
 from github import Auth, Github
 from github.GithubException import UnknownObjectException
@@ -141,6 +142,10 @@ class ReleaseRepo:
     # When set, this branch should be updated to point to the version bump commit.
     stable_branch: str | None = None
 
+    # When set, this repo should be updated in patch releases (which are
+    # releases of the form v4.X.Y with Y > 0).
+    patch_release: bool = False
+
     # Strong deps are dependencies that *must* be updated before a new version
     # of the repo can be released. Strong deps include all dependencies
     # specified in the lakefile, as well as those used by CI involved in merging
@@ -252,14 +257,23 @@ class LocalRepo:
         self.git("add", ".")
         try:
             self.git("diff", "--cached", "--quiet")
-        except Exception:
+        except Exception:  # noqa: BLE001
             self.git("commit", "-m", message)
 
-    def push(self, branch: str, remote: str = "origin", upstream: bool = True) -> None:
-        if upstream:
-            self.git("push", "-u", remote, branch, silent=True)
-        else:
-            self.git("push", remote, branch, silent=True)
+    def push(
+        self,
+        branch: str,
+        remote: str = "origin",
+        upstream: bool = True,
+        force: bool = False,
+    ) -> None:
+        self.git(
+            "push",
+            *(["-u"] if upstream else []),
+            *(["--force-with-lease"] if force else []),
+            *(remote, branch),
+            silent=True,
+        )
 
 
 class Checklist:
@@ -306,7 +320,7 @@ def get_github_instance() -> Github:
         token = run_stdout("gh", "auth", "token").strip()
         print("Using GitHub token from `gh auth token`")
         return Github(auth=Auth.Token(token))
-    except Exception:
+    except Exception:  # noqa: BLE001
         Checklist().fatal("Failed to get GitHub token from `gh auth token`")
 
 
@@ -465,7 +479,7 @@ def get_release_notes_index_path() -> str:
 
 
 def get_release_notes_title_for(version: Version, release: GitRelease) -> str:
-    date = release.created_at.astimezone(datetime.timezone.utc).strftime("%Y-%m-%d")
+    date = release.published_at.astimezone(datetime.timezone.utc).strftime("%Y-%m-%d")
     return f"Lean {version.raw} ({date})"
 
 

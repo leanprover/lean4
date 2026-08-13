@@ -193,9 +193,9 @@ theorem take_eq_append_getElem_of_pos {i} {l : List α} (h₁ : 0 < i) (h₂ : i
   match i, h₁ with
   | i + 1, _ => take_succ_eq_append_getElem (by omega)
 
-theorem dropLast_take {i : Nat} {l : List α} (h : i < l.length) :
+theorem dropLast_take {i : Nat} {l : List α} (h : i ≤ l.length) :
     (l.take i).dropLast = l.take (i - 1) := by
-  simp only [dropLast_eq_take, length_take, Nat.le_of_lt h, Nat.min_eq_left, take_take, sub_le]
+  simp only [dropLast_eq_take, length_take, h, Nat.min_eq_left, take_take, sub_le]
 
 theorem take_eq_dropLast {l : List α} {i : Nat} (h : i + 1 = l.length) :
     l.take i = l.dropLast := by

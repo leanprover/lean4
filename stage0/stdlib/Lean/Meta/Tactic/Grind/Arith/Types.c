@@ -13,31 +13,22 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_State_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState_default;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_State_toCtorIdx(lean_object* v_x_1_){
-_start:
-{
-lean_object* v___x_2_; 
-v___x_2_ = lean_unsigned_to_nat(0u);
-return v___x_2_;
-}
-}
 static lean_object* _init_l_Lean_Meta_Grind_Arith_instInhabitedState_default(void){
 _start:
 {
-lean_object* v___x_3_; 
-v___x_3_ = lean_box(0);
-return v___x_3_;
+lean_object* v___x_1_; 
+v___x_1_ = lean_box(0);
+return v___x_1_;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_Arith_instInhabitedState(void){
 _start:
 {
-lean_object* v___x_4_; 
-v___x_4_ = lean_box(0);
-return v___x_4_;
+lean_object* v___x_2_; 
+v___x_2_ = lean_box(0);
+return v___x_2_;
 }
 }
 lean_object* runtime_initialize_Init_Core(uint8_t builtin);

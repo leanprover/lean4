@@ -129,9 +129,10 @@ theorem fib_impl_vcs
     (I : (n : Nat) → (_ : ¬n = 0) →
       Invariant Nat (Prod Nat Nat) Prop)
     (ret : Q 0 0)
-    (loop_pre : ∀ n (hn : ¬n = 0), (I n hn) [] [1:n].toList (0, 1))
-    (loop_post : ∀ n (hn : ¬n = 0) r, (I n hn) [1:n].toList [] r ⊑ Q n r.2)
-    (loop_step : ∀ n (hn : ¬n = 0) r pref cur suff (_h : [1:n].toList = pref ++ cur :: suff),
+    (loop_pre : ∀ n (hn : ¬n = 0), (I n hn) [] (ForIn.toList [1:n]) (0, 1))
+    (loop_post : ∀ n (hn : ¬n = 0) r, (I n hn) (ForIn.toList [1:n]) [] r ⊑ Q n r.2)
+    (loop_step : ∀ n (hn : ¬n = 0) r pref cur suff
+                    (_h : ForIn.toList [1:n] = pref ++ cur :: suff),
                   (I n hn) pref (cur::suff) r ⊑ (I n hn) (pref ++ [cur]) suff (r.2, r.1+r.2))
     : wp (fib_impl n) (Q n) E := by
   vcgen [fib_impl]
@@ -351,18 +352,16 @@ def mergeWithAll (m₁ m₂ : ExtTreeMap α β cmp) (f : α → Option β → Op
           r := r.insert a b
     return r
 
--- Originally a demo that `Id.of_wp_run_eq` applies despite universe polymorphism.
--- Neither `mvcgen` nor `vcgen` can find a triple spec for `forIn` on the
--- universe-polymorphic `ExtTreeMap`; both fall back to simp, which simplifies
--- the body but doesn't fully discharge. With `(errorOnMissingSpec := false)`,
--- `vcgen` matches legacy `mvcgen`'s behaviour of leaving an unsolved VC.
+-- A demo that `Id.of_wp_run_eq` applies despite universe polymorphism. The `ExtTreeMap`
+-- loops are decomposed by the `PureForIn` specification; the invariants relating the merge
+-- to its two arguments are left open.
 theorem mem_mergeWithAll [LawfulEqCmp cmp] {m₁ m₂ : ExtTreeMap α β cmp}
     {f : α → Option β → Option β → Option β} {a : α} :
     a ∈ mergeWithAll m₁ m₂ f ↔ (a ∈ m₁ ∨ a ∈ m₂) ∧ (f a m₁[a]? m₂[a]?).isSome := by
   generalize h : mergeWithAll m₁ m₂ f = x
   apply Id.of_wp_run_eq h
-  vcgen (errorOnMissingSpec := false) [mergeWithAll]
-  admit
+  vcgen [mergeWithAll]
+  all_goals admit
 
 end KimsUnivPolyUseCase
 
@@ -735,7 +734,8 @@ namespace RepeatInvariantOfInvariantAndBreak
 an `onBreak` condition (here the negated loop condition) that additionally holds once the loop
 exits. -/
 
-/-- Counts `i` down from `n`, incrementing the state on each iteration, so the final state is `n`. -/
+/-- Counts `i` down from `n`, incrementing the state on each iteration, so the final state is `n`.
+The measure reads the loop's own variable, which `NondetFun` interprets as that value. -/
 def countdown (n : Nat) : StateT Nat Id Unit := do
   let mut i := n
   while i > 0 do
@@ -745,11 +745,49 @@ def countdown (n : Nat) : StateT Nat Id Unit := do
 
 theorem countdown_spec (n : Nat) :
     ⦃ fun s => s = 0 ⦄ countdown n ⦃ fun _ s => s = n ⦄ := by
-  vcgen [countdown]
-  case inv1 => exact RepeatInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i _ => i = 0)
-  case inv2 => exact fun i => i
-  any_goals simp at *
-  all_goals grind
+  vcgen [countdown] invariants
+  | inv1 => RepeatInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i _ => i = 0)
+  | inv2 => .ofMeasure fun i => i
+  with finish
+
+/-- Like `countdown`, but termination is measured from the monadic state rather than the loop cursor. -/
+def countdownStateful (n : Nat) : StateT Nat Id Unit := do
+  set 0
+  while (← get) ≠ n do
+    modify (· + 1)
+  return
+
+theorem countdownStateful_spec (n : Nat) :
+    ⦃ fun _ => True ⦄ countdownStateful n ⦃ fun _ s => s = n ⦄ := by
+  vcgen [countdownStateful] invariants
+  | inv1 => RepeatInvariant.ofInvariantAndBreak
+      (fun _ s => s ≤ n)
+      (fun _ s => s = n)
+  | inv2 => .ofMeasure fun _ s => n - s
+  with finish
+
+/-- Nested countdown driven by a single `while` loop: `i` counts down and resets `j`, so the
+decrease is lexicographic in `(i, j)`. -/
+def countdownLex (n : Nat) : StateT Nat Id Unit := do
+  let mut i := n
+  let mut j := 0
+  while 0 < i ∨ 0 < j do
+    if 0 < j then
+      j := j - 1
+      modify (· + 1)
+    else
+      i := i - 1
+      j := n
+  return
+
+theorem countdownLex_spec (n : Nat) :
+    ⦃ fun _ => True ⦄ countdownLex n ⦃ fun _ _ => True ⦄ := by
+  vcgen [countdownLex] invariants
+  | inv1 => RepeatInvariant.ofInvariantAndBreak (fun _ _ => True) (fun _ _ => True)
+  | inv2 => .ofMeasure fun (i, j) => (i, j)
+  all_goals simp_all [RepeatVariant.evalsBelow_ofMeasure]
+  all_goals subst_vars
+  all_goals decreasing_tactic
 
 end RepeatInvariantOfInvariantAndBreak
 namespace WithGrindError

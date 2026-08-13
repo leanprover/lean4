@@ -848,7 +848,7 @@ theorem or_none : or o none = o := by
 theorem or_eq_ite : or o o' = if o.isSome then o else o' := by
   cases o <;> simp
 
-@[deprecated or_eq_ite (since := "2026-07-29")]
+@[deprecated or_eq_ite +typeChanged (since := "2026-07-29")]
 theorem or_eq_bif : or o o' = bif o.isSome then o else o' := by
   cases o <;> rfl
 

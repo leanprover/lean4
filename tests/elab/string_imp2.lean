@@ -47,7 +47,7 @@ it₁.remainingToString ++ "-" ++ it₂.remainingToString
 #eval "abc" == "abc"
 #eval "abc" == "abd"
 #eval "αβγ".drop 1 |>.copy
-#eval "αβγ".takeRight 1
+#eval "αβγ".takeEnd 1 |>.copy
 
 def ss : Substring.Raw := "0123abcdαβγδ".toRawSubstring
 #eval ss.drop 4 |>.takeRight 4

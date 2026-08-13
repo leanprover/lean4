@@ -349,13 +349,13 @@ static inline void dec(lean_object * o, lean_object* & todo) {
 LEAN_THREAD_PTR(object, g_to_free);
 #endif
 
-static void lean_del_core(object * o, object * & todo);
+static object * lean_del_core(object * o, object * todo);
 
 extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
 #ifdef LEAN_LAZY_RC
      if (g_to_free) {
          object * o = pop_back(g_to_free);
-         lean_del_core(o, g_to_free);
+         g_to_free = lean_del_core(o, g_to_free);
      }
 #endif
 #ifdef LEAN_MIMALLOC
@@ -375,7 +375,9 @@ extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
 static void deactivate_task(lean_task_object * t);
 static void deactivate_promise(lean_promise_object * t);
 
-static void lean_del_core_other(object * o, uint8 tag, object * & todo) {
+/* The deletion worklist is passed by value and returned rather than by reference so that it can
+   live in a register across the constructor loop, which is by far the hottest deletion path. */
+static object * lean_del_core_other(object * o, uint8 tag, object * todo) {
     switch (tag) {
     case LeanClosure: {
         object ** it  = lean_closure_arg_cptr(o);
@@ -423,17 +425,19 @@ static void lean_del_core_other(object * o, uint8 tag, object * & todo) {
     default:
         lean_unreachable();
     }
+    return todo;
 }
 
-static void lean_del_core(object * o, object * & todo) {
+static object * lean_del_core(object * o, object * todo) {
     uint8 tag = lean_ptr_tag(o);
     if (LEAN_LIKELY(tag <= LeanMaxCtorTag)) {
         object ** it  = lean_ctor_obj_cptr(o);
         object ** end = it + lean_ctor_num_objs(o);
         for (; it != end; ++it) dec(*it, todo);
         lean_free_small_object(o);
+        return todo;
     } else {
-        lean_del_core_other(o, tag, todo);
+        return lean_del_core_other(o, tag, todo);
     }
 }
 
@@ -444,7 +448,7 @@ extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
 #else
         object * todo = nullptr;
         while (true) {
-            lean_del_core(o, todo);
+            todo = lean_del_core(o, todo);
             if (todo == nullptr)
                 return;
             o = pop_back(todo);
@@ -2376,13 +2380,22 @@ extern "C" LEAN_EXPORT uint8 lean_string_is_valid_pos(b_obj_arg s, b_obj_arg i0)
     return is_utf8_first_byte(str[i]);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_string_utf8_extract(b_obj_arg s, b_obj_arg b0, b_obj_arg e0) {
-    if (!lean_is_scalar(b0) || !lean_is_scalar(e0)) {
-        /* See comment at string_utf8_get */
-        return s;
-    }
+extern "C" LEAN_EXPORT obj_res lean_string_utf8_extract_fast(b_obj_arg s, b_obj_arg b0, b_obj_arg e0) {
     usize b = lean_unbox(b0);
     usize e = lean_unbox(e0);
+    lean_assert(b <= lean_string_size(s) - 1);
+    lean_assert(e <= lean_string_size(s) - 1);
+    if (b >= e) return lean_mk_string_unchecked("", 0, 0);
+    char const * str = lean_string_cstr(s);
+    return lean_mk_string_from_bytes_unchecked(str + b, e - b);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_string_utf8_extract(b_obj_arg s, b_obj_arg b0, b_obj_arg e0) {
+    /* Replace non-scalar values with SIZE_MAX:
+    Non-scalar values are out of bounds here (see comment at string_utf8_get),
+    including SIZE_MAX, and values that are out of bounds all behave the same here */
+    usize b = lean_is_scalar(b0) ? lean_unbox(b0) : SIZE_MAX;
+    usize e = lean_is_scalar(e0) ? lean_unbox(e0) : SIZE_MAX;
     char const * str = lean_string_cstr(s);
     usize sz = lean_string_size(s) - 1;
     if (b >= e || b >= sz) return lean_mk_string_unchecked("", 0, 0);

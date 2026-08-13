@@ -941,7 +941,7 @@ private:
             for (size_t i = 0; i < args.size(); i++) {
                 type t = param_type(decl_params(e.m_decl)[i]);
                 args2[i] = box_t(eval_arg(args[i]), t);
-                if (e.m_native.m_boxed && param_borrow(decl_params(e.m_decl)[i])) {
+                if (e.m_native.m_boxed && param_borrow(decl_params(e.m_decl)[i]) && !type_is_scalar(t)) {
                     // NOTE: If we chose the boxed version where the IR chose the unboxed one, we need to manually increment
                     // originally borrowed parameters because the wrapper will decrement these after the call.
                     // Basically the wrapper is more homogeneous (removing both unboxed and borrowed parameters) than we

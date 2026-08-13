@@ -222,8 +222,12 @@ private def mkSpecBackwardProof
     /- if `epost` is `⊥`, then `epost ⊑ epostAbstract` holds trivially and
       abstracting `epost` can be simply done by `WP.wp_econs_bot_le` without
       introducing a new premise. This case is quite common, that's why we handle
-      it specially. -/
-    let isBot ← try
+      it specially.
+      The test runs at a fresh metavariable depth, where a schematic component of
+      `epost` such as `E` in `epost⟨E⟩` is read-only. `decomposeEPostRel` below
+      assigns `E` the matching component of `epostAbstract`. -/
+    let isBot ← withNewMCtxDepth do
+      try
         let botEPost ← mkAppOptM ``Lean.Order.bot #[epostTy, none]
         isDefEqGuarded epostSpec botEPost
       catch _ => pure false

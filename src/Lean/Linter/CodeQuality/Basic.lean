@@ -19,7 +19,7 @@ namespace Lean.Linter.CodeQuality
 
 inductive Source where
   | module (name : Name)
-  | declaration (name : Name)
+  | declaration (module : Name) (name : Name)
   deriving ToJson
 
 inductive Value where

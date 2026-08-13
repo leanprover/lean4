@@ -35,7 +35,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_String_Slice_Pattern_Char_instToForwardSearcherCharDefaultForwardSearcherForallBoolBeq___lam__0___boxed(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_String_Slice_splitToSubslice___redArg(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
@@ -650,7 +650,7 @@ goto v_resetjp_122_;
 v_resetjp_122_:
 {
 lean_object* v___x_125_; lean_object* v___x_126_; lean_object* v___x_127_; lean_object* v___x_129_; 
-v___x_125_ = lean_string_utf8_extract(v___x_105_, v___x_106_, v___x_107_);
+v___x_125_ = lean_string_utf8_extract_fast(v___x_105_, v___x_106_, v___x_107_);
 v___x_126_ = lean_string_append(v_val_121_, v___x_125_);
 lean_dec_ref(v___x_125_);
 v___x_127_ = lean_string_append(v___x_126_, v_out_118_);
@@ -681,7 +681,7 @@ return v___x_130_;
 v___jp_133_:
 {
 lean_object* v___x_137_; uint32_t v___x_138_; uint32_t v___x_139_; uint8_t v___x_140_; 
-v___x_137_ = lean_string_utf8_extract(v_fst_108_, v_startInclusive_135_, v_endExclusive_136_);
+v___x_137_ = lean_string_utf8_extract_fast(v_fst_108_, v_startInclusive_135_, v_endExclusive_136_);
 lean_dec(v_endExclusive_136_);
 lean_dec(v_startInclusive_135_);
 v___x_138_ = lean_string_utf8_get(v___x_137_, v___x_106_);
@@ -1041,7 +1041,7 @@ goto v_resetjp_291_;
 v_resetjp_291_:
 {
 lean_object* v___x_294_; lean_object* v___x_295_; lean_object* v___x_296_; lean_object* v___x_298_; 
-v___x_294_ = lean_string_utf8_extract(v___x_274_, v___x_275_, v___x_276_);
+v___x_294_ = lean_string_utf8_extract_fast(v___x_274_, v___x_275_, v___x_276_);
 v___x_295_ = lean_string_append(v_val_290_, v___x_294_);
 lean_dec_ref(v___x_294_);
 v___x_296_ = lean_string_append(v___x_295_, v_out_287_);
@@ -1072,7 +1072,7 @@ return v___x_299_;
 v___jp_302_:
 {
 lean_object* v___x_306_; uint32_t v___x_307_; uint32_t v___x_308_; uint8_t v___x_309_; 
-v___x_306_ = lean_string_utf8_extract(v_name_277_, v_startInclusive_304_, v_endExclusive_305_);
+v___x_306_ = lean_string_utf8_extract_fast(v_name_277_, v_startInclusive_304_, v_endExclusive_305_);
 lean_dec(v_endExclusive_305_);
 lean_dec(v_startInclusive_304_);
 v___x_307_ = lean_string_utf8_get(v___x_306_, v___x_275_);

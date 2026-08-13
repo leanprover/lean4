@@ -219,11 +219,6 @@ instance Id.instWPMonad : WPMonad Id.{u} Prop EPost.Nil where
   pure_le_wp_pure _ _ _ := PartialOrder.rel_refl
   bind_le_wp_bind _ _ _ _ := PartialOrder.rel_refl
 
-/-- Lift a predicate transformer to one with an additional exception layer (high priority). -/
-instance (priority := high) {ε : Type u} {Pred : Type u} {EPred : Type u} :
-    MonadLift (PredTrans Pred EPred) (PredTrans Pred (EPost.Cons (ε → Pred) EPred)) where
-  monadLift x := ⟨fun post epost => x.apply post epost.tail⟩
-
 /-- `MonadExceptOf` instance for the outermost exception layer:
 `throw` invokes the head exception postcondition, `tryCatch` intercepts it. -/
 instance {ε : Type u} {Pred : Type v} {EPred : Type w} :

@@ -29,9 +29,8 @@ base wp over a family of supremum-preserving resource operators `op r` that act 
 unit `e`.
 The resource frame rule then holds by construction (`WP.Frames.of_frameClosure`).
 
-This construction is what makes a separation logic work. Every spec now carries its frame, so the
-frame obligation moves from the site that applies a spec to the site that states and proves it. A
-caller of the spec inherits the frame. -/
+A separation logic depends on this property: every frame `op r` passes through the `wp` of every
+program. A caller of a spec picks a frame and applies the frame rule for that frame. -/
 @[instance_reducible] noncomputable def WPMonad.of_frameClosure {m : Type → Type} [Monad m]
     {P : Type u} {E : Type z} [Assertion P] [Assertion E]
     {R : Type} (op : R → P → P) [∀ r, PreservesSup (op r)] {comp : R → R → R} {e : R}

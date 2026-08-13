@@ -33,10 +33,9 @@ Two examples show the range of `Prog`. The error-state monad `EStateM ε σ` has
 error paired with a state is the exception postcondition.
 
 A deep embedding is the second example. A command language `Cmd` with assertions `Env → State → Prop`
-has the instance `WP Cmd Unit (Env → State → Prop) EPost.Nil`. Its `wpTrans` is an operational
-semantics, and `vcgen` reasons about a `Cmd` by its constructors. `Cmd` is an inductive type, and
-`WP` accepts it because the class constrains `Prog` to a type alone. The file
-`tests/elab/vcgenImp.lean` carries this example in full.
+has the instance `WP Cmd Unit (Env → State → Prop) EPost.Nil`. Its `wp` is defined in terms of an
+operational semantics such as an omnisemantics. The file `tests/elab/vcgenImp.lean` carries this
+example in full.
 
 Everything here is generic over the program type. The interpretation of a monad and of the monad
 transformers is in `Std.Internal.Do.WP.Monad`.

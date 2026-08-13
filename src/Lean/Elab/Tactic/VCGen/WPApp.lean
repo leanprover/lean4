@@ -16,13 +16,13 @@ recognize one.
 
 open Lean Meta Sym
 
-namespace Lean.Elab.Tactic.Do.Internal
+namespace Lean.Elab.Tactic.VCGen
 
 /--
 Common metadata for a goal whose right-hand side is a weakest-precondition application
 `pre ⊑ wp Prog Value Pred EPred instAL instEAL instWP prog post epost s₁ ... sₙ`.
 -/
-public structure VCGen.WPApp where
+public structure WPApp where
   /-- The `wp` function head, separated from its explicit core arguments. -/
   head : Expr
   /-- The ordered core arguments of the `wp` application:
@@ -31,7 +31,7 @@ public structure VCGen.WPApp where
   /-- Extra arguments applied after `wp … prog post epost`, usually concrete state arguments. -/
   excessArgs : Array Expr
 
-namespace VCGen.WPApp
+namespace WPApp
 
 /-- Program type argument of `wp` (e.g. `m α` or a non-monadic program type). -/
 public def Prog (info : WPApp) : Expr := info.args[0]!
@@ -52,14 +52,14 @@ public def prog (info : WPApp) : Expr := info.args[7]!
 /-- Postcondition argument of `wp`. -/
 public def post (info : WPApp) : Expr := info.args[8]!
 
-end VCGen.WPApp
+end WPApp
 
 /-- The `wp` metadata of `rhs`, or `none` when `rhs` is not a `wp` application. -/
-public def VCGen.isWPApp? (rhs : Expr) : Option VCGen.WPApp :=
+public def isWPApp? (rhs : Expr) : Option WPApp :=
   rhs.withApp fun head args =>
     if head.isConstOf ``Std.Internal.Do.wp && args.size ≥ 10 then
       some { head, args := args.take 10, excessArgs := args.drop 10 }
     else
       none
 
-end Lean.Elab.Tactic.Do.Internal
+end Lean.Elab.Tactic.VCGen

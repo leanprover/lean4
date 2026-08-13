@@ -752,7 +752,7 @@ grind_pattern _root_.le_of_le_bot => X ⊑ ⊥, X ⊑ C
 The `@[frameproc]` for `HeapM`: cancel the framed `∗` atoms out of the goal precondition and emit
 the leftover atoms as the footprint. -/
 
-open Lean.Elab.Tactic.Do.Internal Lean.Elab.Tactic.Do.Internal.VCGen
+open Lean.Elab.Tactic.VCGen
 
 /-- Flatten a separating conjunction after mvars are instantiated. -/
 partial def sepAtoms.go (e : Expr) : Array Expr :=

@@ -207,6 +207,7 @@ inductive Expr where
 
 structure Param where
   x : VarId
+  /-- Whether the caller keeps ownership of the argument. Scalar parameters are owned. -/
   borrow : Bool
   ty : IRType
   deriving Inhabited, Repr

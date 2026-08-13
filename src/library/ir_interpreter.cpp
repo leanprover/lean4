@@ -941,11 +941,14 @@ private:
             for (size_t i = 0; i < args.size(); i++) {
                 type t = param_type(decl_params(e.m_decl)[i]);
                 args2[i] = box_t(eval_arg(args[i]), t);
-                if (e.m_native.m_boxed && param_borrow(decl_params(e.m_decl)[i]) && !type_is_scalar(t)) {
+                if (e.m_native.m_boxed && param_borrow(decl_params(e.m_decl)[i])) {
                     // NOTE: If we chose the boxed version where the IR chose the unboxed one, we need to manually increment
                     // originally borrowed parameters because the wrapper will decrement these after the call.
                     // Basically the wrapper is more homogeneous (removing both unboxed and borrowed parameters) than we
                     // would need in this instance.
+                    // A scalar parameter would break this: `box_t` allocates a box that this call alone owns and the
+                    // wrapper's decrement frees. `Lean.IR.ToIR.lowerParam` establishes that such a parameter is owned.
+                    lean_assert(!type_is_scalar(t));
                     inc(args2[i]);
                 }
             }

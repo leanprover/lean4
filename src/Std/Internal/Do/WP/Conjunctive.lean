@@ -18,20 +18,23 @@ open Lean.Order Std.Internal.Do
 /-!
 # Conjunctive weakest preconditions
 
-`WPConjunctive x` states that the `wp` of the individual program `x` maps a meet of postconditions
-below the `wp` of their meet. The instances for the base monads and the monad transformers are in
+`WPConjunctive x` states that the meet `wp x Q₁ E₁ ⊓ wp x Q₂ E₂` of two weakest preconditions lies
+below the weakest precondition `wp x (Q₁ ⊓ Q₂) (E₁ ⊓ E₂)` of the componentwise meet of the
+postconditions. The instances for the base monads and the monad transformers are in
 `Std.Internal.Do.WP.Monad.Conjunctive`.
 -/
 
 namespace Std.Internal.Do
 
-/-- `wp x` is sub-conjunctive: a meet of postconditions maps below the `wp` of their meet. A
-healthiness condition of the `WP` interpretation for the individual program `x`; it holds for the base
+/-- `wp x` is sub-conjunctive: the meet of the weakest preconditions of two postconditions lies
+below the weakest precondition of the componentwise meet of the postconditions. A healthiness
+condition of the `WP` interpretation for the individual program `x`; it holds for the base
 interpretations and lifts through the transformers. -/
 class WPConjunctive {Prog : Type u} {Value : outParam (Type v)} {Pred : outParam (Type w)}
     {EPred : outParam (Type z)} [Assertion Pred] [Assertion EPred] [WP Prog Value Pred EPred]
     (x : Prog) : Prop where
-  /-- A meet of postconditions maps below the `wp` of their meet. -/
+  /-- The meet of the weakest preconditions `wp x Q₁ E₁` and `wp x Q₂ E₂` lies below the weakest
+  precondition `wp x (Q₁ ⊓ Q₂) (E₁ ⊓ E₂)` of the componentwise meet of the postconditions. -/
   wp_meet_wp_le (Q₁ Q₂ : Value → Pred) (E₁ E₂ : EPred) :
     wp x Q₁ E₁ ⊓ wp x Q₂ E₂ ⊑ wp x (Q₁ ⊓ Q₂) (E₁ ⊓ E₂)
 

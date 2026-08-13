@@ -74,7 +74,7 @@ typedef struct uv_pending_req {
 
 // Event loop structure for managing asynchronous events and synchronization across multiple threads.
 typedef struct {
-    uv_loop_t  * loop;             // The libuv event loop.
+    uv_loop_t  * loop;             // The libuv event loop, owned by the runtime.
     uv_mutex_t   mutex;            // Mutex for protecting `loop`.
     uv_mutex_t   interrupt_mutex;  // Mutex for protecting `async` against the teardown that closes it.
     uv_mutex_t   finalize_mutex;   // Mutex for `finalize_cond`; separate because `mutex` is recursive.
@@ -88,12 +88,12 @@ typedef struct {
 
 // The multithreaded event loop object for all tasks in the task manager.
 //
-// `loop` is `uv_default_loop()`, and the runtime requires exclusive ownership of it: no other code
-// linked into a Lean binary may put a handle on it. `finalize_libuv` enumerates the loop with
-// `uv_walk` and reaps everything it finds, and a `uv_handle_t` carries nothing that identifies its
-// owner -- `data` belongs to whoever created the handle -- so a foreign handle of a type the
-// teardown recognises would be read as a Lean wrapper and then freed. Anything else linked in has
-// to run its own `uv_loop_t`.
+// `loop` is a loop the runtime owns outright, deliberately not `uv_default_loop()`. `finalize_libuv`
+// enumerates it with `uv_walk` and reaps everything it finds, and a `uv_handle_t` carries nothing
+// that identifies its owner -- `data` belongs to whoever created the handle -- so a foreign handle
+// of a type the teardown recognises would be read as a Lean wrapper and then freed. The default loop
+// is a process-wide singleton that any other libuv user in the binary may put handles on, which is
+// exactly what this must not share.
 extern event_loop_t global_ev;
 
 // =======================================

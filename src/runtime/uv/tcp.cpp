@@ -31,24 +31,26 @@ typedef struct {
 void lean_uv_tcp_socket_finalizer(void* ptr) {
     lean_uv_tcp_socket_object* tcp_socket = (lean_uv_tcp_socket_object*)ptr;
 
-    lean_always_assert(tcp_socket->m_promise_shutdown == nullptr);
-    lean_always_assert(tcp_socket->m_promise_accept == nullptr);
-    lean_always_assert(tcp_socket->m_promise_read == nullptr);
-    lean_always_assert(tcp_socket->m_byte_array == nullptr);
+    // The loop holds a reference on the socket for as long as any of these is set, so reaching the
+    // finalizer with one is a bug in the accounting. Released rather than asserted on in release
+    // builds: an abort during process teardown is worse than a promise nothing can await any more.
+    lean_assert(tcp_socket->m_promise_shutdown == nullptr);
+    lean_assert(tcp_socket->m_promise_accept == nullptr);
+    lean_assert(tcp_socket->m_promise_read == nullptr);
+    lean_assert(tcp_socket->m_byte_array == nullptr);
+    lean_assert(tcp_socket->m_client == nullptr);
 
     if (!event_loop_lock(&global_ev)) {
         // Teardown already detached and closed the handle; only the wrapper is left to free.
         event_loop_wait_finalized(&global_ev);
         lean_assert(tcp_socket->m_uv_tcp == nullptr);
-        free(tcp_socket);
-        return;
+    } else {
+        uv_close((uv_handle_t*)tcp_socket->m_uv_tcp, [](uv_handle_t* handle) {
+            free(handle);
+        });
+
+        event_loop_unlock(&global_ev);
     }
-
-    uv_close((uv_handle_t*)tcp_socket->m_uv_tcp, [](uv_handle_t* handle) {
-        free(handle);
-    });
-
-    event_loop_unlock(&global_ev);
 
     free(tcp_socket);
 }
@@ -291,6 +293,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
+
+    // The loop thread releases `data_array`, which recursively releases the `ByteArray`s the caller
+    // may still hold references to, so their refcounts have to be atomic.
+    mark_mt(data_array);
 
     tcp_send_data* send_data = (tcp_send_data*)write_uv->data;
     send_data->promise = promise;

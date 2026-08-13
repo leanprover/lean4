@@ -188,6 +188,10 @@ private def toInt32 : Signal → Int32
 
 /--
 `Signal.Waiter` can be used to handle a specific signal once.
+
+The event loop is torn down at process exit. A `wait` that is still pending at that point fails the
+same way `stop` makes it fail, and every operation below then fails with `UV_ECANCELED` instead of
+starting new work.
 -/
 structure Waiter where
   private ofNative ::

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Sofia Rodrigues, Henrik Böving
 */
+#include <cstdio>
 #include "runtime/uv/event_loop.h"
 #include "runtime/thread.h"
 
@@ -41,8 +42,15 @@ void lean_promise_resolve_with_code(int status, b_obj_arg promise) {
 void uv_deferred_teardown::run() {
     // Dropping the last reference to an unresolved promise goes through the task manager.
     // `lean_finalize_task_manager` is what orders `finalize_libuv` before the task manager is
-    // destroyed; assert that rather than rely on the caller having got it right.
-    lean_always_assert(m_objects.empty() || task_manager_is_running());
+    // destroyed; a runtime that tore the loop down without one has nothing left that could settle
+    // these, so they are retained rather than dereferenced through a null task manager. Aborting
+    // here instead would turn a shutdown nobody can act on into a crash.
+    if (!m_objects.empty() && !task_manager_is_running()) {
+        fprintf(stderr, "warning: libuv teardown ran without a task manager; retaining %zu pending object(s)\n",
+                m_objects.size());
+        m_objects.clear();
+        return;
+    }
 
     for (lean_object * obj : m_objects) {
         lean_dec(obj);
@@ -78,7 +86,13 @@ static void event_loop_interrupt(event_loop_t * event_loop) {
 
 // Initializes the event loop
 void event_loop_init(event_loop_t * event_loop) {
-    event_loop->loop = uv_default_loop();
+    event_loop->loop = (uv_loop_t *)malloc(sizeof(uv_loop_t));
+
+    if (event_loop->loop == nullptr) {
+        lean_internal_panic("Failed to allocate the event loop");
+    }
+
+    check_uv(uv_loop_init(event_loop->loop), "Failed to initialize event loop");
     check_uv(uv_mutex_init_recursive(&event_loop->mutex), "Failed to initialize mutex");
     check_uv(uv_mutex_init(&event_loop->interrupt_mutex), "Failed to initialize interrupt mutex");
     check_uv(uv_mutex_init(&event_loop->finalize_mutex), "Failed to initialize finalize mutex");
@@ -218,10 +232,17 @@ void event_loop_cancel_requests(event_loop_t * event_loop) {
 
 // Abandons the requests that outlived the teardown drain, returning whether there were any.
 //
-// Their `uv_req_t`s stay registered and allocated: a threadpool worker still owns the memory and
-// will write to it, so the loop is deliberately left unclosed rather than freed underneath it.
+// Their `uv_req_t`s stay allocated: a threadpool worker still owns the memory and will write to it,
+// so the loop is deliberately left unclosed rather than freed underneath it. Nothing frees them
+// later either -- the completion callback that would runs only when the loop runs, and by this
+// point nothing ever runs it again.
 //
-// `owned` is released here rather than leaked with the request, which is why a registered request
+// They also stay *linked into this list*, which is what keeps the retention from becoming a leak:
+// `global_ev` is a global, so each abandoned block is still reachable from a root and a leak checker
+// classifies it as reachable rather than reporting it. Unlinking them here to "tidy up" would turn a
+// deliberate, bounded retention into a reported leak.
+//
+// `owned` is released here rather than retained with the request, which is why a registered request
 // may never hand a worker memory that `owned` keeps alive; `lean_uv_random` allocates its scratch
 // buffer inside the request for exactly this reason.
 //

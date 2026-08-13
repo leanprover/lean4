@@ -227,10 +227,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
                 }
             case TIMER_STATE_RUNNING:
                 {
+                    lean_object* settled = NULL;
+
                     if (timer_promise_is_finished(timer)) {
-                        if (timer->m_promise != NULL) {
-                            lean_dec(timer->m_promise);
-                        } else {
+                        // Rules 1 and 2: the previous promise is handed to `settled` and the field
+                        // replaced before anything is released below.
+                        settled = timer->m_promise;
+
+                        if (settled == NULL) {
                             // Re-arming after `cancel`: the loop owes a promise again, so it takes
                             // its reference on the timer back.
                             lean_inc(obj);
@@ -243,6 +247,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
                     lean_inc(promise);
 
                     event_loop_unlock(&global_ev);
+
+                    if (settled != NULL) {
+                        lean_dec(settled);
+                    }
 
                     return lean_io_result_mk_ok(promise);
                 }

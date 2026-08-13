@@ -253,10 +253,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
                 }
             case SIGNAL_STATE_RUNNING:
                 {
+                    lean_object* settled = NULL;
+
                     if (signal_promise_is_finished(signal)) {
-                        if (signal->m_promise != NULL) {
-                            lean_dec(signal->m_promise);
-                        } else {
+                        // Rules 1 and 2: the previous promise is handed to `settled` and the field
+                        // replaced before anything is released below.
+                        settled = signal->m_promise;
+
+                        if (settled == NULL) {
                             // Re-arming after `cancel`: the loop owes a promise again, so it takes
                             // its reference on the signal back.
                             lean_inc(obj);
@@ -267,7 +271,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
 
                     lean_object* promise = signal->m_promise;
                     lean_inc(promise);
+
                     event_loop_unlock(&global_ev);
+
+                    if (settled != NULL) {
+                        lean_dec(settled);
+                    }
+
                     return lean_io_result_mk_ok(promise);
                 }
             case SIGNAL_STATE_FINISHED:

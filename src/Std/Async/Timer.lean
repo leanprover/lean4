@@ -19,6 +19,10 @@ namespace Async
 /--
 `Sleep` can be used to sleep for some duration once.
 The underlying timer has millisecond resolution.
+
+The event loop is torn down at process exit. A `wait` that is still pending at that point fails the
+same way `stop` makes it fail, and every operation below then fails with `UV_ECANCELED` instead of
+starting new work.
 -/
 structure Sleep where
   private ofNative ::
@@ -109,6 +113,10 @@ def Selector.sleep (duration : Std.Time.Millisecond.Offset) : Async (Selector Un
 /--
 `Interval` can be used to repeatedly wait for some duration like a clock.
 The underlying timer has millisecond resolution.
+
+The event loop is torn down at process exit. A `tick` that is still pending at that point fails the
+same way `stop` makes it fail, and every operation below then fails with `UV_ECANCELED` instead of
+starting new work.
 -/
 structure Interval where
   private ofNative ::

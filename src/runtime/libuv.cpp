@@ -89,11 +89,10 @@ extern "C" void finalize_libuv() {
                 lean_uv_signal_shutdown(obj, *deferred);
                 break;
             default: {
-                // Only reachable once something violates the exclusive ownership of
-                // `uv_default_loop()` documented at `global_ev`, or once the runtime grows a handle
-                // type without teaching this switch about it. Aborting with the type named is the
-                // mildest outcome available: the cases above would have taken the same handle for a
-                // Lean wrapper and freed it.
+                // The loop belongs to the runtime alone (see `global_ev`), so this only fires once
+                // the runtime grows a handle type without teaching this switch about it. Aborting
+                // with the type named is the mildest outcome available: the cases above would have
+                // taken the same handle for a Lean wrapper and freed it.
                 char const * name = uv_handle_type_name(uv_handle_get_type(handle));
                 std::string msg = "libuv teardown reached an unhandled handle type: ";
                 msg += name != nullptr ? name : "unknown";
@@ -134,14 +133,27 @@ extern "C" void finalize_libuv() {
 
     bool abandoned = event_loop_abandon_requests(&global_ev, deferred_teardown);
 
+    // A request that outlived the drain keeps its `uv_req_t` and the loop that owns it. Freeing
+    // either would need the loop to run once more so the completion callback could reap it, and the
+    // only ways to get there are worse than the retention: a drainer thread would outlive the
+    // runtime that just declared itself finalized and race `exit`, and `uv_library_shutdown` queues
+    // its stop messages behind the pending work, so it blocks for as long as the stuck request takes
+    // -- which is what the drain deadline exists to bound. Both stay reachable from `global_ev`, so
+    // this costs address space at exit rather than a reported leak.
     if (!abandoned) {
         int close_result = uv_loop_close(global_ev.loop);
 
         if (close_result != 0) {
-            // Not worth aborting the process for: `main` has already produced its output, and the
-            // only cost of an unclosed loop is that its allocations survive into a leak report.
+            // Not worth aborting the process for: `main` has already produced its output, and an
+            // unclosed loop is still reachable from `global_ev`.
             fprintf(stderr, "warning: libuv event loop did not close at exit: %s\n",
                     uv_strerror(close_result));
+        } else {
+            // Nothing reads `loop` once the state is `EVENT_LOOP_FINALIZED`: every entry point is
+            // turned away by `event_loop_lock`, and the finalizers that take the
+            // `event_loop_wait_finalized` path only free their own wrapper.
+            free(global_ev.loop);
+            global_ev.loop = nullptr;
         }
     }
 

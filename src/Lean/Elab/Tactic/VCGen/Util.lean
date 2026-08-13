@@ -7,8 +7,8 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Grind.Main
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Reduce
+public import Lean.Elab.Tactic.VCGen.Context
+public import Lean.Elab.Tactic.VCGen.Reduce
 public import Lean.Meta.Sym.AlphaShareBuilder
 public import Lean.Meta.Sym.Intro
 public import Lean.Meta.Sym.Simp.Goal
@@ -24,7 +24,7 @@ collapser `solveTrivialConjuncts`. None of these know anything about the entailm
 decomposes.
 -/
 
-namespace Lean.Elab.Tactic.Do.Internal
+namespace Lean.Elab.Tactic.VCGen
 
 /-- Change `goal`'s `Prop`-typed target to the definitionally-equal `targetNew`, mirroring the goal
 update in `Sym.Simp`: a fresh synthetic-opaque goal cast back through `@id`. Unlike
@@ -55,7 +55,7 @@ is reconstructed from `rule.expr.getAppFn` — works for the common case of a
 constant rule. Pass a custom message for dynamically-built rules.
 
 Designed for dot notation: `rule.applyChecked goal`. Requires
-`open Lean.Elab.Tactic.Do.Internal` in scope so that the dot lookup resolves.
+`open Lean.Elab.Tactic.VCGen` in scope so that the dot lookup resolves.
 -/
 public def Lean.Meta.Sym.BackwardRule.applyChecked (rule : BackwardRule) (goal : MVarId)
     (ruleDesc? : Option MessageData := none) : VCGenM ApplyResult := do
@@ -83,10 +83,9 @@ public def Lean.Meta.Sym.BackwardRule.applyChecked (rule : BackwardRule) (goal :
         Re-run with `set_option pp.all true` to see the structural difference."
     return r
 
-namespace VCGen
 
 open Sym Sym.Internal
-open Lean.Elab.Tactic.Do.Internal
+open Lean.Elab.Tactic.VCGen
 
 /-- `Grind.processHypotheses` if `Context.internalize` is `true`, otherwise a no-op. -/
 public def processHypotheses (goal : Grind.Goal) : VCGenM Grind.Goal := do
@@ -187,5 +186,4 @@ public partial def solveTrivialConjuncts (goal : MVarId) : VCGenM (Option MVarId
   else
     return some goal
 
-end VCGen
-end Lean.Elab.Tactic.Do.Internal
+end Lean.Elab.Tactic.VCGen

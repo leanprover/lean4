@@ -13,9 +13,8 @@ public import Lean.Meta.Tactic.Replace
 open Lean Meta Sym
 open Std.Internal.Do Lean.Order
 
-namespace Lean.Elab.Tactic.Do.Internal
+namespace Lean.Elab.Tactic.VCGen
 
-namespace VCGen
 
 /-!
 Helpers for decomposing exception-postcondition (`EPost`) goals: reducing an `EPost.Cons.head`
@@ -105,6 +104,5 @@ public def replaceEPostHeadBot? (goal : MVarId) (target head : Expr) (args : Arr
     mkApp6 (mkConst ``congrArg [uα, .succ .zero]) α (mkSort .zero) (mkAppN head args) curBot relPre acc
   return some (← goal.replaceTargetEq (mkApp relPre curBot) eqProof)
 
-end VCGen
 
-end Lean.Elab.Tactic.Do.Internal
+end Lean.Elab.Tactic.VCGen

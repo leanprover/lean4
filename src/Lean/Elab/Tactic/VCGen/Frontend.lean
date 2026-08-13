@@ -8,9 +8,9 @@ module
 prelude
 public import Lean.Elab.Tactic.Do.VCGen.SuggestInvariant
 public import Lean.Elab.Tactic.Do.VCGen
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Driver
-public import Lean.Elab.Tactic.Do.Internal.VCGen.FrameProcAttr
+public import Lean.Elab.Tactic.VCGen.Context
+public import Lean.Elab.Tactic.VCGen.Driver
+public import Lean.Elab.Tactic.VCGen.FrameProcAttr
 public import Lean.Meta.Sym.Simp.Attr
 public import Lean.Meta.Sym.Simp.ControlFlow
 public import Lean.Meta.Sym.Simp.EvalGround
@@ -22,13 +22,13 @@ public import Lean.Elab.Tactic.Grind.Basic
 import Lean.Meta.Sym.ProofInstInfo
 
 open Lean Parser Meta Elab Tactic Sym
-open Lean.Elab.Tactic.Do Lean.Elab.Tactic.Do.Internal.SpecAttr
+open Lean.Elab.Tactic.Do Lean.Elab.Tactic.VCGen.SpecAttr
 
-namespace Lean.Elab.Tactic.Do.Internal
+namespace Lean.Elab.Tactic.VCGen
 
 /-!
 `vcgen` tactic frontend: parse the user-facing argument syntax into a
-`VCGen.Context`, run `VCGen.run`, and replace the main goal with the
+`Context`, run `run`, and replace the main goal with the
 resulting invariants and VCs.
 -/
 
@@ -36,7 +36,6 @@ resulting invariants and VCs.
 private def runTacticM (x : TacticM α) (goals : List MVarId := [])  : TermElabM α :=
   x.run { elaborator := `mvcgen } |>.run' { goals }
 
-namespace VCGen
 
 /--
 Parse the optional `[...]` argument list for `vcgen`, partitioning entries into
@@ -45,7 +44,7 @@ spec theorems and simp lemmas. Follows the same approach as
 and on failure falls back to a simp/unfold lemma processed via `mkSimpContext`.
 -/
 public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) :
-    TermElabM (VCGen.Context × VCGen.Scope) := do
+    TermElabM (Context × Scope) := do
   let mut specThms ← getSpecTheorems
   let mut simpStuff := #[]
   let mut simpTermThms : Array SimpTheorem := #[]
@@ -139,9 +138,9 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
           if let some thm ← mkSpecTheoremFromLocal fvar starSpecPrio then
             specThms := specThms.insert thm
         catch _ => continue
-  let backwardRules ← VCGen.mkBackwardRules
+  let backwardRules ← mkBackwardRules
   let allSpecThms ← addSimpSpecs specThms simpThms
-  let ctx : VCGen.Context := { backwardRules }
+  let ctx : Context := { backwardRules }
   return (ctx, { specs := allSpecThms })
 
 /-- True iff `m` carries a `WPMonad m _ _` instance, i.e. it is a genuine weakest-precondition monad
@@ -180,14 +179,13 @@ public def inferProgType? (goalType : Expr) : MetaM (Option Expr) := withReducib
         return some progTy.appFn!
     return some progTy
 
-end VCGen
 
 /-- Warn about `vcgen` config options that are accepted by the parser but currently
 ignored at runtime. As more options gain implementation support, drop their checks
 here. Options with implemented semantics (`trivial`, `elimLets`, `stepLimit`,
 `invariants?`) are silently accepted. -/
-private def warnIgnoredConfig (config : VCGen.Config) : MetaM Unit := do
-  let default : VCGen.Config := {}
+private def warnIgnoredConfig (config : Do.VCGen.Config) : MetaM Unit := do
+  let default : Do.VCGen.Config := {}
   if config.leave != default.leave then
     logWarning "vcgen: the `leave` config option is currently ignored."
 
@@ -287,8 +285,8 @@ private def parseInvariantMap (stx : Syntax) :
 
 /--
 Run after VC generation: iterate the (unfiltered) `invariants` array returned by
-`VCGen.run`, look up each entry in the pre-parsed `alts` map by its 1-based
-position (which equals the `inv<n>` tag the entry carries — `VCGen.run` assigns
+`run`, look up each entry in the pre-parsed `alts` map by its 1-based
+position (which equals the `inv<n>` tag the entry carries — `run` assigns
 tags consecutively), and elaborate the matching alt. Invariants that were already
 elaborated inline by `Driver.emitVC` (tracked in `inlineHandled`) are skipped, so
 we don't warn about alts that were already consumed there. -/
@@ -300,7 +298,7 @@ private def elabRemainingInvariants (alts : Std.HashMap Nat Syntax)
     if handled.contains n then continue
     let some alt := alts[n]? | continue
     handled := handled.insert n
-    discard <| VCGen.elabInvariant alts n invariants[i]
+    discard <| elabInvariant alts n invariants[i]
   -- Warn on user-provided alts that matched no invariant goal (neither inline nor post-hoc).
   for (n, alt) in alts.toArray do
     unless handled.contains n do
@@ -308,9 +306,9 @@ private def elabRemainingInvariants (alts : Std.HashMap Nat Syntax)
 
 /-- Parsed `vcgen` arguments shared by the two entry points. -/
 private structure ParsedArgs where
-  config : VCGen.Config
-  ctx : VCGen.Context
-  scope : VCGen.Scope
+  config : Do.VCGen.Config
+  ctx : Context
+  scope : Scope
   invariantAlts? : Option (Std.HashMap Nat Syntax)
   frameDB : FrameDB
 
@@ -395,12 +393,12 @@ private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := g
   -- `case vcN bs* =>` patterns line up. Re-enabling on opt-in would require detecting
   -- explicit `(elimLets := true)` at the syntax level (upstream `Config` can't
   -- distinguish "default true" from "user-set true"); not yet wired.
-  let (ctx, scope) ← VCGen.mkContext stx[2] goal
+  let (ctx, scope) ← mkContext stx[2] goal
   -- The program type, inferred once from the goal, is the expected type for the `frames`/`until`
   -- program patterns (so overloaded heads resolve). A goal with no program cannot be a `vcgen` goal.
-  let some progTy ← VCGen.inferProgType? (← goal.getType)
+  let some progTy ← inferProgType? (← goal.getType)
     | throwError "vcgen: could not determine the program type of the goal"
-  let frameProcs ← VCGen.getFrameProcs
+  let frameProcs ← getFrameProcs
   let untilPat? ← if stx[3].isNone then pure none
     else some <$> elabUntilPattern progTy ⟨stx[3][1]⟩
   let frameDB ← if stx[4].isNone then pure ({} : FrameDB)
@@ -425,7 +423,7 @@ def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
   let goal ← Lean.Elab.Tactic.Grind.getMainGoal
   let args ← parseArgs stx goal.mvarId
   let result ← Lean.Elab.Tactic.Grind.liftGrindM do
-    let result ← VCGen.run goal args.ctx args.scope args.config.stepLimit (frameDB := args.frameDB)
+    let result ← run goal args.ctx args.scope args.config.stepLimit (frameDB := args.frameDB)
     if let some alts := args.invariantAlts? then
       elabRemainingInvariants alts result.invariants result.inlineHandledInvariants
     return result
@@ -487,4 +485,4 @@ public def elabVCGen : Tactic := fun stx => withMainContext do
     Grind.evalGrindTactic step
   replaceMainGoal (state.goals.map (·.mvarId))
 
-end Lean.Elab.Tactic.Do.Internal
+end Lean.Elab.Tactic.VCGen

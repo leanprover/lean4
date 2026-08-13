@@ -6,18 +6,18 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
+public import Lean.Elab.Tactic.VCGen.Context
 
 /-!
 The `@[frameproc]` attribute registers `FrameProc`s for `vcgen`.
 -/
 
 open Lean Meta Elab Sym
-open Lean.Elab.Tactic.Do.Internal
+open Lean.Elab.Tactic.VCGen
 
 public section
 
-namespace Lean.Elab.Tactic.Do.Internal.VCGen
+namespace Lean.Elab.Tactic.VCGen
 
 unsafe def getFrameProcFromDeclImpl (declName : Name) : ImportM FrameProc := do
   let ctx ← read
@@ -63,4 +63,4 @@ builtin_initialize registerBuiltinAttribute {
   add             := fun declName _stx kind => addFrameProcAttr declName kind
 }
 
-end Lean.Elab.Tactic.Do.Internal.VCGen
+end Lean.Elab.Tactic.VCGen

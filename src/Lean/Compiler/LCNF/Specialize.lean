@@ -12,8 +12,10 @@ import Lean.Compiler.LCNF.Simp
 import Lean.Compiler.LCNF.ToExpr
 import Lean.Compiler.LCNF.Level
 import Lean.Compiler.LCNF.Closure
+import Lean.Compiler.LCNF.SCCUtils
 import Lean.Meta.Transform
 import Init.Omega
+
 namespace Lean.Compiler.LCNF
 namespace Specialize
 
@@ -38,10 +40,10 @@ builtin_initialize specCacheExt : SimplePersistentEnvExtension CacheEntry Cache 
       (!·.contains ·.key) addEntry
   }
 
-public def cacheSpec (key : Expr) (declName : Name) : CoreM Unit :=
+public def cacheSpecExt (key : Expr) (declName : Name) : CoreM Unit :=
   modifyEnv fun env => specCacheExt.addEntry env { key, declName }
 
-public def findSpecCache? (key : Expr) : CoreM (Option Name) :=
+public def findSpecCacheExt? (key : Expr) : CoreM (Option Name) :=
   return specCacheExt.getState (← getEnv) |>.find? key
 
 structure Context where
@@ -73,6 +75,11 @@ structure State where
   Specialization information about specialized declarations generated in this SCC so far.
   -/
   localSpecParamInfo : Std.HashMap Name (Array SpecParamInfo) := {}
+  /--
+  The local specialization cache for this SCC. Will be synced to the global one in the end of the
+  loop.
+  -/
+  localSpecCache : Std.HashMap Expr Name := {}
   /--
   If we specialize a declaration but leave some specializable parameters unspecialized, we store
   them as a mask here. This mask is used to determine which parameters we specialize for
@@ -390,6 +397,14 @@ def resetChanged : SpecializeM Unit :=
 def hasChanged : SpecializeM Bool :=
   return (← get).changed
 
+@[inline]
+def cacheSpec (e : Expr) (n : Name) : SpecializeM Unit :=
+  modify fun s => { s with localSpecCache := s.localSpecCache.insert e n }
+
+@[inline]
+def findSpecCache? (e : Expr) : SpecializeM (Option Name) := do
+  pure (← get).localSpecCache[e]? <|> liftM (findSpecCacheExt? e)
+
 mutual
   /--
   Try to specialize the function application in the given let-declaration.
@@ -521,14 +536,6 @@ partial def loop (round : Nat := 0) : SpecializeM Unit := do
   let limit := (← getConfig).maxRecSpecialize
   if targets.isEmpty then
     trace[Compiler.specialize.step] m!"Termination after {round} rounds"
-    for (declName, paramsInfo) in (← get).localSpecParamInfo do
-      if paramsInfo.any SpecParamInfo.causesSpecialization then
-        trace[Compiler.specialize.info] "{declName} {paramsInfo}"
-        modifyEnv fun env => specExtension.addEntry env {
-          declName,
-          paramsInfo,
-          alreadySpecialized := true
-        }
     return ()
   else if round > limit then
     throwError m!"Exceeded recursive specialization limit ({limit}), consider increasing it with `set_option compiler.maxRecSpecialize {limit}`"
@@ -550,7 +557,28 @@ partial def loop (round : Nat := 0) : SpecializeM Unit := do
 def main (decls : Array (Decl .pure)) : CompilerM (Array (Decl .pure)) := do
   saveSpecEntries decls
   let (_, s) ← loop |>.run { declName := .anonymous } |>.run { workingDecls := decls }
-  return s.processedDecls
+  let processedDecls := s.processedDecls
+  let relevant ← sccClosureFrom processedDecls (decls.map (·.name))
+  let mut finalDecls := #[]
+  let inverseSpecCache := Std.HashMap.ofArray <| s.localSpecCache.toArray.map (fun p => (p.2, p.1))
+  for decl in processedDecls do
+    if relevant.contains decl.name then
+      finalDecls := finalDecls.push decl
+      if let some key := inverseSpecCache[decl.name]? then
+        cacheSpecExt key decl.name
+        let paramsInfo := s.localSpecParamInfo[decl.name]!
+        if paramsInfo.any SpecParamInfo.causesSpecialization then
+          trace[Compiler.specialize.info] "{decl.name} {paramsInfo}"
+          modifyEnv fun env => specExtension.addEntry env {
+            declName := decl.name,
+            paramsInfo,
+            alreadySpecialized := true
+          }
+    else
+      decl.erase
+
+  return finalDecls
+
 
 end Specialize
 

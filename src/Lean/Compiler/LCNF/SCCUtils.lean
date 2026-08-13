@@ -8,10 +8,9 @@ module
 prelude
 public import Lean.Compiler.LCNF.CompilerM
 import Lean.Util.SCC
+import Init.While
 
 namespace Lean.Compiler.LCNF
-
-namespace SplitScc
 
 partial def findSccCalls (scc : Std.HashMap Name (Decl pu)) (decl : Decl pu) : BaseIO (Std.HashSet Name) := do
   match decl.value with
@@ -29,14 +28,32 @@ where
             modify fun s => s.insert name
         | _ => return
 
-end SplitScc
+public def sccClosureFrom (scc : Array (Decl pu)) (roots : Array Name) :
+    CompilerM (Std.HashSet Name) := do
+  if scc.size == 1 then
+    return Std.HashSet.ofArray <| scc.map (·.name)
+  let declMap := Std.HashMap.ofArray <| scc.map fun decl => (decl.name, decl)
+  let calls := Std.HashMap.ofArray <| ← scc.mapM fun decl => do
+    let calls ← findSccCalls declMap decl
+    return (decl.name, calls.toList)
+  let mut seen : Std.HashSet Name := {}
+  let mut worklist := roots
+  while !worklist.isEmpty do
+    let elem := worklist.back!
+    worklist := worklist.pop
+    if seen.contains elem then
+      continue
+    seen := seen.insert elem
+    let callees := calls[elem]!
+    worklist := worklist ++ callees.toArray
+  return seen
 
 public def splitScc (scc : Array (Decl pu)) : CompilerM (Array (Array (Decl pu))) := do
   if scc.size == 1 then
     return #[scc]
   let declMap := Std.HashMap.ofArray <| scc.map fun decl => (decl.name, decl)
   let callers := Std.HashMap.ofArray <| ← scc.mapM fun decl => do
-    let calls ← SplitScc.findSccCalls declMap decl
+    let calls ← findSccCalls declMap decl
     return (decl.name, calls.toList)
   let newSccs := Lean.SCC.scc (scc.toList.map (·.name)) (callers.getD · [])
   trace[Compiler.splitSCC] m!"Split SCC into {newSccs}"

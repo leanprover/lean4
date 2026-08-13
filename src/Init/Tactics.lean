@@ -2382,15 +2382,11 @@ macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
 `vcgen` will break down a Hoare triple proof goal like `⦃P⦄ prog ⦃Q⦄` into verification conditions,
 provided that all functions used in `prog` have specifications registered with `@[spec]`.
 
-It is an experimental `Sym`-based drop-in for `mvcgen`, and its surface syntax extends that of
-`mvcgen`. The two differ in what a program may be and in what a verification condition looks like.
-
 ### Program types
 
-`mvcgen` works on monadic programs. `vcgen` works on any program type `Prog` that carries a
-`Std.Internal.Do.WP` interpretation. A monad is one such program type. A deep embedding is another:
-an inductive type of commands whose weakest precondition is an operational semantics has no `Monad`
-instance, and `vcgen` reasons about it by its constructors.
+`vcgen` works on any program type `Prog` that carries a `Std.Internal.Do.WP` interpretation. A monad
+is one such program type. An inductive type of commands is another, once its weakest precondition is
+defined in terms of an operational semantics.
 
 ### Verification conditions and specifications
 
@@ -2399,17 +2395,18 @@ original program `prog` no longer occurs in it. The assertion lattice is any `Co
 the entailment is its order, so a verification condition is an ordinary Lean goal that `grind` can
 attack.
 
-When no `@[spec]` theorem applies, `vcgen` rewrites an application `prog = f a b c` with the simp set
-that `@[spec]` registers.
+A `@[spec]` theorem declares a specification in one of two forms. A Hoare triple
+`foo_spec : ⦃P⦄ foo a b c ⦃Q⦄` states it directly. An equation `baz_eq : baz a b c = ...` states it
+by rewriting.
 
 ### Features
 
-When used like `vcgen [foo_spec, bar_def, instBEqFloat]`, `vcgen` will additionally
+When used like `vcgen [foo_spec, bar_def, baz_eq]`, `vcgen` will additionally
 
 * add a Hoare triple specification `foo_spec : ⦃P⦄ foo ... ⦃Q⦄` to the `spec` set for a function
   `foo` occurring in `prog`,
 * unfold a definition `def bar_def ... := ...` in `prog`,
-* unfold any method of the `instBEqFloat : BEq Float` instance in `prog`.
+* rewrite with an equational specification `baz_eq : baz ... = ...` in `prog`.
 
 ### Config options
 
@@ -2424,20 +2421,20 @@ Often, `vcgen` will be used like this:
 vcgen [...] invariants
 · I1
 · I2
-with grind
+with try finish
 ```
-The `with` step runs in `grind` mode and shares the E-graph that `vcgen` builds, so it sees the
-hypotheses of every verification condition. It takes a single `grind` step, and a sequence needs
+The `with` clause takes one step of `grind` mode, such as `finish`. That step shares the E-graph that
+`vcgen` builds, so it sees the hypotheses of every verification condition. A sequence of steps needs
 explicit grouping, as in `with (s₁; s₂)`.
 
-Invariants take the same bulleted and labelled forms as in `mvcgen`:
+Invariants also take a labelled form, which is useful for naming inaccessibles:
 ```
 vcgen [...] invariants
 | inv1 _ acc _ => I1 acc
 | _ => I2
 ```
 
-`vcgen` adds three clauses of its own.
+`vcgen` has two further clauses.
 
 ```
 vcgen until f a _ c
@@ -2449,18 +2446,15 @@ goal. Holes are written `_`, as in `conv in`.
 vcgen frames
 | f a _ c => F
 ```
-supplies the frame `F` to apply when the spec for a matching program is used. The named binders are
-in scope in `F`, bound to the matched arguments.
-
-```
-vcgen simplifying_assumptions [thm₁, thm₂]
-```
-adds theorems to the simp set that `vcgen` runs on the assumptions of each verification condition.
+supplies a frame for a call. The specification of `f` describes a small footprint, so the
+postcondition of the call says nothing about the rest of the state. `F` is the assertion that the
+call leaves untouched, which is what carries the rest of the state past the call. The named binders
+are in scope in `F`, bound to the matched arguments.
 
 ### Invariant suggestions
 
-`vcgen [...] invariants?` suggests invariants, as `mvcgen` does. See the `mvcgen` docstring for an
-example of the output and for how to strengthen a suggestion so that the inductive step goes through.
+`vcgen [...] invariants?` suggests invariants for the loops in `prog`. The suggestions are currently
+of limited use. A future release either implements them properly or removes the keyword.
 -/
 macro (name := vcgenMacro) (priority:=low) "vcgen" : tactic =>
   Macro.throwError "to use `vcgen`, please include `import Std.Tactic.Do`"

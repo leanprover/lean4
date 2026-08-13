@@ -1469,6 +1469,7 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_get(b_obj_arg ref) {
                 inc(val);
                 object * tmp = val_addr->exchange(val);
                 lean_assert(tmp == nullptr);
+                (void)tmp;
                 return val;
             }
         }
@@ -1507,6 +1508,7 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_put(b_obj_arg ref, obj_arg a) {
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         object * old_a = val_addr->exchange(a);
         lean_assert(old_a == nullptr);
+        (void)old_a;
         return box(0);
     } else {
         if (lean_to_ref(ref)->m_value != nullptr)

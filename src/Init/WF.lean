@@ -354,7 +354,8 @@ theorem lexAccessible {a : α} (aca : Acc ra a) (acb : (b : β) → Acc rb b) (b
   rel := Prod.Lex ha.rel hb.rel
   wf  := ⟨fun (a, b) => lexAccessible (WellFounded.apply ha.wf a) (WellFounded.apply hb.wf) b⟩
 
-instance [ha : WellFoundedRelation α] [hb : WellFoundedRelation β] : WellFoundedRelation (α × β) :=
+@[reducible] instance [ha : WellFoundedRelation α] [hb : WellFoundedRelation β] :
+    WellFoundedRelation (α × β) :=
   lex ha hb
 
 -- relational product is a Subrelation of the Lex

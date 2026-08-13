@@ -533,7 +533,7 @@ theorem cond_false {α : Sort u} {a b : α} : cond false a b = b := rfl
 theorem cond_eq_ite {α} (b : Bool) (t e : α) : cond b t e = if b then t else e := by
   cases b <;> simp [Bool.cond_true, Bool.cond_false]
 
-@[deprecated cond_eq_ite (since := "2025-10-29")]
+@[deprecated cond_eq_ite +typeChanged (since := "2025-10-29")]
 theorem cond_eq_if : (bif b then x else y) = (if b then x else y) := cond_eq_ite b x y
 
 theorem cond_not (b : Bool) (t e : α) : cond (!b) t e = cond b e t := by

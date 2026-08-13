@@ -32,7 +32,7 @@ lean_object* l_String_Slice_posLE(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
@@ -941,7 +941,7 @@ lean_ctor_set(v___x_129_, 1, v___x_127_);
 lean_ctor_set(v___x_129_, 2, v___x_128_);
 v___x_130_ = l_String_Slice_Pos_revSkipWhile___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_trimEndSpaces_spec__0(v___x_129_, v___x_128_);
 lean_dec_ref_known(v___x_129_, 3);
-v___x_131_ = lean_string_utf8_extract(v_s_126_, v___x_127_, v___x_130_);
+v___x_131_ = lean_string_utf8_extract_fast(v_s_126_, v___x_127_, v___x_130_);
 lean_dec(v___x_130_);
 lean_dec_ref(v_s_126_);
 return v___x_131_;
@@ -2971,7 +2971,7 @@ return v_b_802_;
 v___jp_803_:
 {
 lean_object* v___x_807_; lean_object* v___x_808_; 
-v___x_807_ = lean_string_utf8_extract(v_str_798_, v_startInclusive_805_, v_endExclusive_806_);
+v___x_807_ = lean_string_utf8_extract_fast(v_str_798_, v_startInclusive_805_, v_endExclusive_806_);
 lean_dec(v_endExclusive_806_);
 lean_dec(v_startInclusive_805_);
 v___x_808_ = lean_array_push(v_b_802_, v___x_807_);
@@ -3287,8 +3287,8 @@ v___x_940_ = lean_nat_dec_eq(v___x_939_, v___x_937_);
 if (v___x_940_ == 0)
 {
 lean_object* v_s1_941_; lean_object* v_s2_942_; lean_object* v___x_944_; 
-v_s1_941_ = lean_string_utf8_extract(v_string_932_, v___x_936_, v___x_939_);
-v_s2_942_ = lean_string_utf8_extract(v_string_932_, v___x_939_, v___x_937_);
+v_s1_941_ = lean_string_utf8_extract_fast(v_string_932_, v___x_936_, v___x_939_);
+v_s2_942_ = lean_string_utf8_extract_fast(v_string_932_, v___x_939_, v___x_937_);
 lean_dec(v___x_939_);
 lean_dec_ref(v_string_932_);
 if (v_isShared_935_ == 0)
@@ -3843,7 +3843,7 @@ lean_object* v___x_1079_; lean_object* v___x_1080_; lean_object* v___x_1081_; le
 v___x_1079_ = l_String_Slice_Pos_revSkipWhile___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_trimRight_go_spec__0(v___x_1076_, v___x_1075_);
 lean_dec_ref_known(v___x_1076_, 3);
 v___x_1080_ = lean_array_pop(v_xs_1064_);
-v___x_1081_ = lean_string_utf8_extract(v_string_1071_, v___x_1066_, v___x_1079_);
+v___x_1081_ = lean_string_utf8_extract_fast(v_string_1071_, v___x_1066_, v___x_1079_);
 if (v_isShared_1074_ == 0)
 {
 lean_ctor_set(v___x_1073_, 0, v___x_1081_);
@@ -3864,7 +3864,7 @@ lean_object* v___x_1084_; lean_object* v___x_1085_; lean_object* v___x_1086_; le
 v___x_1084_ = lean_array_push(v___x_1080_, v___x_1083_);
 v___x_1085_ = lean_alloc_ctor(9, 1, 0);
 lean_ctor_set(v___x_1085_, 0, v___x_1084_);
-v___x_1086_ = lean_string_utf8_extract(v_string_1071_, v___x_1079_, v___x_1075_);
+v___x_1086_ = lean_string_utf8_extract_fast(v_string_1071_, v___x_1079_, v___x_1075_);
 lean_dec(v___x_1079_);
 lean_dec_ref(v_string_1071_);
 v___x_1087_ = lean_alloc_ctor(0, 2, 0);

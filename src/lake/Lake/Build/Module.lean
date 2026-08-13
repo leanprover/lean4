@@ -837,7 +837,7 @@ public def Module.checkArtifactsExist (self : Module) (isModule : Bool) : BaseIO
 public protected def Module.checkExists (self : Module) (isModule : Bool) : BaseIO Bool := do
   self.ltarFile.pathExists <||> self.checkArtifactsExist isModule
 
-@[deprecated Module.checkExists (since := "2025-03-04")]
+@[deprecated Module.checkExists +typeChanged (since := "2025-03-04")]
 public instance : CheckExists Module := ⟨Module.checkExists (isModule := false)⟩
 
 public protected def Module.getMTime (self : Module) (isModule : Bool) : IO MTime := do
@@ -860,7 +860,7 @@ public protected def Module.getMTime (self : Module) (isModule : Bool) : IO MTim
     | .noFileOrDirectory .. => throw e
     | e => throw e
 
-@[deprecated Module.getMTime (since := "2025-03-04")]
+@[deprecated Module.getMTime +typeChanged (since := "2025-03-04")]
 public instance : GetMTime Module := ⟨Module.getMTime (isModule := false)⟩
 
 def ModuleOutputArtifacts.setMTime (self : ModuleOutputArtifacts) (mtime : MTime) : ModuleOutputArtifacts :=

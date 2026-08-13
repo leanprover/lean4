@@ -28,7 +28,7 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
@@ -15462,7 +15462,7 @@ return v_b_4413_;
 v___jp_4414_:
 {
 lean_object* v___x_4418_; lean_object* v___x_4419_; lean_object* v___x_4420_; lean_object* v___x_4421_; 
-v___x_4418_ = lean_string_utf8_extract(v_str_4409_, v_startInclusive_4416_, v_endExclusive_4417_);
+v___x_4418_ = lean_string_utf8_extract_fast(v_str_4409_, v_startInclusive_4416_, v_endExclusive_4417_);
 lean_dec(v_endExclusive_4417_);
 lean_dec(v_startInclusive_4416_);
 v___x_4419_ = lean_alloc_ctor(3, 1, 0);

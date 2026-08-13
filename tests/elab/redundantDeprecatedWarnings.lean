@@ -10,7 +10,7 @@ def baz (x : Nat) := x + 1
 @[deprecated foo (since:="2025-06-23")]
 def baz2 (x : Nat) := x + 1
 
-@[simp,deprecated bar (since:="2025-06-23")]
+@[simp,deprecated bar +typeChanged (since:="2025-06-23")]
 theorem qux (x : Nat) : foo x = baz x := rfl
 
 @[deprecated bar (since:="2025-06-23")]
@@ -18,7 +18,7 @@ theorem quux (x : Nat) : foo x = x + 1 := by
   rw [qux x]
   rfl
 
-@[simp, deprecated bar (since:="2025-06-23")]
+@[simp, deprecated bar +typeChanged (since:="2025-06-23")]
 theorem qux2 (x : Nat) : foo x = baz x := rfl
 
 @[deprecated "test" (since:="2025-06-23")]

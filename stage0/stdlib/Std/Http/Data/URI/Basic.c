@@ -82,7 +82,7 @@ lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_obje
 lean_object* l_Std_Http_URI_EncodedFragment_encode(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_getLast_x3f___redArg(lean_object*);
 lean_object* l_List_lengthTR___redArg(lean_object*);
 lean_object* l_String_Slice_subslice_x21(lean_object*, lean_object*, lean_object*);
@@ -2922,7 +2922,7 @@ goto v___jp_572_;
 v___jp_572_:
 {
 lean_object* v___x_576_; uint8_t v___x_577_; 
-v___x_576_ = lean_string_utf8_extract(v_lower_559_, v_startInclusive_574_, v_endExclusive_575_);
+v___x_576_ = lean_string_utf8_extract_fast(v_lower_559_, v_startInclusive_574_, v_endExclusive_575_);
 lean_dec(v_endExclusive_575_);
 lean_dec(v_startInclusive_574_);
 v___x_577_ = l_Std_Http_URI_isValidDomainLabel(v___x_576_);

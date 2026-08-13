@@ -29,7 +29,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Json_getStr_x3f(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Hash_ofHex_x3f(lean_object*);
 lean_object* l_Lake_lowerHexUInt64(uint64_t);
 static const lean_string_object l_Lake_artifactPath___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "."};
@@ -572,7 +572,7 @@ if (v___x_175_ == 0)
 {
 lean_object* v___x_176_; lean_object* v___x_177_; lean_object* v___x_178_; 
 v___x_176_ = lean_unsigned_to_nat(0u);
-v___x_177_ = lean_string_utf8_extract(v_path_171_, v___x_176_, v___y_173_);
+v___x_177_ = lean_string_utf8_extract_fast(v_path_171_, v___x_176_, v___y_173_);
 v___x_178_ = l_Lake_Hash_ofHex_x3f(v___x_177_);
 lean_dec_ref(v___x_177_);
 if (lean_obj_tag(v___x_178_) == 1)
@@ -599,7 +599,7 @@ v_resetjp_180_:
 lean_object* v___x_183_; lean_object* v_ext_184_; lean_object* v___x_185_; uint64_t v___x_186_; lean_object* v___x_188_; 
 v___x_183_ = lean_string_utf8_next_fast(v_path_171_, v___y_173_);
 lean_dec(v___y_173_);
-v_ext_184_ = lean_string_utf8_extract(v_path_171_, v___x_183_, v___x_174_);
+v_ext_184_ = lean_string_utf8_extract_fast(v_path_171_, v___x_183_, v___x_174_);
 lean_dec_ref(v_path_171_);
 v___x_185_ = lean_alloc_ctor(0, 1, 8);
 lean_ctor_set(v___x_185_, 0, v_ext_184_);

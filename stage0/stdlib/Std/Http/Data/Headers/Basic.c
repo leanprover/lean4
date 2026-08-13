@@ -34,7 +34,7 @@ lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 uint8_t l_Std_Http_Internal_isToken(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
@@ -527,7 +527,7 @@ goto v_resetjp_18_;
 v_resetjp_18_:
 {
 lean_object* v___x_21_; lean_object* v___x_22_; lean_object* v___x_23_; lean_object* v___x_25_; 
-v___x_21_ = lean_string_utf8_extract(v___x_1_, v___x_2_, v___x_3_);
+v___x_21_ = lean_string_utf8_extract_fast(v___x_1_, v___x_2_, v___x_3_);
 v___x_22_ = lean_string_append(v_val_17_, v___x_21_);
 lean_dec_ref(v___x_21_);
 v___x_23_ = lean_string_append(v___x_22_, v_out_14_);
@@ -558,7 +558,7 @@ return v___x_26_;
 v___jp_29_:
 {
 lean_object* v___x_33_; uint32_t v___x_34_; uint32_t v___x_35_; uint8_t v___x_36_; 
-v___x_33_ = lean_string_utf8_extract(v_fst_4_, v_startInclusive_31_, v_endExclusive_32_);
+v___x_33_ = lean_string_utf8_extract_fast(v_fst_4_, v_startInclusive_31_, v_endExclusive_32_);
 lean_dec(v_endExclusive_32_);
 lean_dec(v_startInclusive_31_);
 v___x_34_ = lean_string_utf8_get(v___x_33_, v___x_2_);

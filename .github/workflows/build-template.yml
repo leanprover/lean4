@@ -315,7 +315,7 @@ jobs:
         run: |
           git status --porcelain -unormal | sort > "$RUNNER_TEMP/tree-before"
           git ls-files -z | xargs -0 chmod a-w
-        if: matrix.test && runner.os != 'Windows'
+        if: matrix.test
       - name: Test
         id: test
         run: |
@@ -325,14 +325,14 @@ jobs:
       # restore write access before any later step (stage 2, benchmarks, `update-stage0`) runs
       - name: Unprotect Source Tree
         run: git ls-files -z | xargs -0 chmod u+w
-        if: always() && matrix.test && runner.os != 'Windows'
+        if: always() && matrix.test
       - name: Check Source Tree Clean
         run: |
           git status --porcelain -unormal | sort > "$RUNNER_TEMP/tree-after"
           diff -u "$RUNNER_TEMP/tree-before" "$RUNNER_TEMP/tree-after" && exit 0
           echo "::error::the test suite left files in the checked-in source tree; write them to an ignored path instead"
           exit 1
-        if: matrix.test && runner.os != 'Windows' && steps.test.conclusion != 'skipped'
+        if: matrix.test && steps.test.conclusion != 'skipped'
       # copy failed tests' output into the `<failure>` elements shown by the test summary
       - name: Embed Test Output
         run: |

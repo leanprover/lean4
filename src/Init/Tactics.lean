@@ -2446,10 +2446,20 @@ goal. Holes are written `_`, as in `conv in`.
 vcgen frames
 | f a _ c => F
 ```
-supplies a frame for a call. The specification of `f` describes a small footprint, so the
-postcondition of the call says nothing about the rest of the state. `F` is the assertion that the
-call leaves untouched, which is what carries the rest of the state past the call. The named binders
-are in scope in `F`, bound to the matched arguments.
+supplies a frame for a call. Take `mkFreshNat : StateM (Nat × Nat) Nat`, which returns `s.1` and
+increments it. Its specification mentions `s.1` alone:
+```
+@[spec] theorem mkFreshNat_spec :
+    ⦃fun s => ⌜s.1 = n⌝⦄ mkFreshNat ⦃fun r s => ⌜r = n ∧ s.1 = n + 1⌝⦄
+```
+A caller that knows `s.2 = 7` loses that fact at the call, because the postcondition says nothing
+about `s.2`. Writing
+```
+vcgen frames
+| mkFreshNat => fun s => ⌜s.2 = 7⌝
+```
+carries `s.2 = 7` past the call, and `vcgen` proves that `mkFreshNat` preserves it. The named binders
+are in scope in the frame, bound to the matched arguments.
 
 ### Invariant suggestions
 

@@ -6,17 +6,17 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Reduce
-public import Lean.Elab.Tactic.Do.Internal.VCGen.SpecDB
-public import Lean.Elab.Tactic.Do.Internal.VCGen.RuleConstruction
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
-public import Lean.Elab.Tactic.Do.Internal.VCGen.EPost
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Util
-public import Lean.Elab.Tactic.Do.Internal.VCGen.RuleCache
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Entails
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Solve
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Driver
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Frontend
+public import Lean.Elab.Tactic.VCGen.Reduce
+public import Lean.Elab.Tactic.VCGen.SpecDB
+public import Lean.Elab.Tactic.VCGen.RuleConstruction
+public import Lean.Elab.Tactic.VCGen.Context
+public import Lean.Elab.Tactic.VCGen.EPost
+public import Lean.Elab.Tactic.VCGen.Util
+public import Lean.Elab.Tactic.VCGen.RuleCache
+public import Lean.Elab.Tactic.VCGen.Entails
+public import Lean.Elab.Tactic.VCGen.Solve
+public import Lean.Elab.Tactic.VCGen.Driver
+public import Lean.Elab.Tactic.VCGen.Frontend
 
 /-!
 The `vcgen` tactic, split across the modules above.

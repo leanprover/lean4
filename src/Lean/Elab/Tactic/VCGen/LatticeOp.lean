@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Meta.Sym.Apply
 public import Std.Internal.Order.Heyting
-public import Lean.Elab.Tactic.Do.Internal.VCGen.FrameProc
+public import Lean.Elab.Tactic.VCGen.FrameProc
 import Std.Internal.Order.FrameClosure
 import Lean.Meta.Sym.Simp.Rewrite
 import Lean.Meta.AppBuilder
@@ -17,9 +17,8 @@ import Lean.Meta.AbstractMVars
 open Lean Meta Sym
 open Lean.Order
 
-namespace Lean.Elab.Tactic.Do.Internal
+namespace Lean.Elab.Tactic.VCGen
 
-namespace VCGen
 
 /-! ## Lattice split rules
 
@@ -180,5 +179,4 @@ public def mkLatticeOpRule (rhs : Expr) (op : LatticeOp) : SymM BackwardRule := 
     let res ← abstractMVars prf
     mkBackwardRuleFromExpr res.expr res.paramNames.toList
 
-end VCGen
-end Lean.Elab.Tactic.Do.Internal
+end Lean.Elab.Tactic.VCGen

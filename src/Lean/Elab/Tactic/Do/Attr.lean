@@ -238,7 +238,7 @@ def getSpecTheorems : CoreM SpecTheorems :=
 
 end Lean.Elab.Tactic.Do.SpecAttr
 
-namespace Lean.Elab.Tactic.Do.Internal.SpecAttr
+namespace Lean.Elab.Tactic.VCGen.SpecAttr
 
 open Lean Meta Std.Internal.Do Lean.Order
 
@@ -678,7 +678,7 @@ def SpecExtension.getTheorems (ext : SpecExtension) : CoreM SpecTheorems :=
 def getSpecTheorems : CoreM SpecTheorems :=
   specAttr.getTheorems
 
-end Lean.Elab.Tactic.Do.Internal.SpecAttr
+end Lean.Elab.Tactic.VCGen.SpecAttr
 
 namespace Lean.Elab.Tactic.Do.SpecAttr
 
@@ -699,7 +699,7 @@ def mkSpecAttr : AttributeImpl where
       catch _ =>
       try
         -- New metatheory `Std.Internal.Do.Triple` / `⊑ wp` specs.
-        Internal.SpecAttr.specAttr.addSpecTheoremFromConst declName prio attrKind
+        _root_.Lean.Elab.Tactic.VCGen.SpecAttr.specAttr.addSpecTheoremFromConst declName prio attrKind
       catch _ =>
       -- Equality / unfold specs: register for legacy `mvcgen` via `mvcgen_simp`, and for the new
       -- metatheory's internal database with the annotated priority (the `mvcgen_simp` hand-off
@@ -709,7 +709,7 @@ def mkSpecAttr : AttributeImpl where
         let newStx ← `(attr| mvcgen_simp)
         let newStx := newStx.raw.setArg 3 stx[1]
         impl.add declName newStx attrKind
-        Internal.SpecAttr.specAttr.addSimpSpecTheoremsFromConst declName prio attrKind
+        _root_.Lean.Elab.Tactic.VCGen.SpecAttr.specAttr.addSimpSpecTheoremsFromConst declName prio attrKind
       catch e =>
       trace[Elab.Tactic.Do.specAttr] "Reason for failure to apply spec attribute: {e.toMessageData}"
       throwError "Invalid 'spec': target was neither a Hoare triple specification nor a 'simp' lemma"

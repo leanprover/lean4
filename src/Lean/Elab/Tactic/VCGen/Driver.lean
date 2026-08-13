@@ -7,21 +7,20 @@ module
 
 prelude
 public import Lean.Elab.Tactic.Meta
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Solve
+public import Lean.Elab.Tactic.VCGen.Context
+public import Lean.Elab.Tactic.VCGen.Solve
 public import Lean.Meta.Sym.Grind
 
 open Lean Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do.SpecAttr
 
-namespace Lean.Elab.Tactic.Do.Internal
+namespace Lean.Elab.Tactic.VCGen
 
 /-!
 Worklist driver for `vcgen`. Wraps `solve` with a queue of pending goals
 and emits VCs (or invariant holes) for those `solve` cannot decompose further.
 -/
 
-namespace VCGen
 
 /--
 Try to elaborate the user's invariant alt for invariant number `n` inline,
@@ -142,7 +141,7 @@ Return the VCs and invariant goals.
 
 `stepLimit?`, when `some n`, seeds the fuel counter to `n`; when `none`, fuel is unlimited.
 -/
-public partial def run (goal : Grind.Goal) (ctx : Context) (scope : VCGen.Scope)
+public partial def run (goal : Grind.Goal) (ctx : Context) (scope : Scope)
     (stepLimit? : Option Nat := none) (frameDB : FrameDB := {}) :
     Grind.GrindM Result := do
   let initState : State :=
@@ -164,6 +163,5 @@ public partial def run (goal : Grind.Goal) (ctx : Context) (scope : VCGen.Scope)
     inlineHandledInvariants := state.inlineHandledInvariants,
     unmatchedFrames }
 
-end VCGen
 
-end Lean.Elab.Tactic.Do.Internal
+end Lean.Elab.Tactic.VCGen

@@ -6,7 +6,7 @@ Authors: Sebastian Graf, Vladimir Gladshtein
 module
 
 prelude
-public import Lean.Elab.Tactic.Do.Internal.VCGen.WPApp
+public import Lean.Elab.Tactic.VCGen.WPApp
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.AlphaShareBuilder
 import Std.Internal.Order.Basic
@@ -24,7 +24,7 @@ The metadata a frame inference procedure operates on: the `wp` application metad
 
 open Lean Meta Sym Sym.Internal
 
-namespace Lean.Elab.Tactic.Do.Internal
+namespace Lean.Elab.Tactic.VCGen
 
 /-- How the goal precondition frames through the frame operator: `vcgen` applies the frame rule with
 the `frame`, discharging the split VC `pre ⊑ (op frame residualPre) s⃗` with `proof` and leaving
@@ -33,7 +33,7 @@ which the solver fills after the frame rule applies.
 
 Build a `FrameSplit` with `FrameSplit.withDischargedSplitVC` (proof supplied) or
 `FrameSplit.withDeferredSplitVC` (split VC left as one subgoal). -/
-public structure VCGen.FrameSplit where
+public structure FrameSplit where
   /-- The framed resource. -/
   frame : Expr
   /-- The residual precondition the program runs against once `frame` is framed off: in the split VC
@@ -46,7 +46,7 @@ public structure VCGen.FrameSplit where
   subgoals : List MVarId
 
 /-- Instantiate a `FrameSplit`'s data against the current metavariable context (and reshare). -/
-public def VCGen.FrameSplit.instantiateMVarsS (split : FrameSplit) : SymM FrameSplit :=
+public def FrameSplit.instantiateMVarsS (split : FrameSplit) : SymM FrameSplit :=
   return { split with
            frame := ← Sym.instantiateMVarsS split.frame
            splitVCProof := ← Sym.instantiateMVarsS split.splitVCProof }
@@ -54,7 +54,7 @@ public def VCGen.FrameSplit.instantiateMVarsS (split : FrameSplit) : SymM FrameS
 /-- The inputs to a `FrameInferenceProc`: the goal, how the frame was requested, and the spec being
 applied. Extends the program's `wp` metadata (`WPApp`), so `Pred`, `excessArgs`, etc. are available
 directly. -/
-public structure VCGen.FrameInferenceInfo extends VCGen.WPApp where
+public structure FrameInferenceInfo extends WPApp where
   /-- The entailment goal `pre ⊑ wp …` the frame rule or spec applies to. -/
   goal : MVarId
   /-- The frame pinned by a matching `frames` clause, or `none` to infer the frame, e.g. from the
@@ -71,23 +71,23 @@ public structure VCGen.FrameInferenceInfo extends VCGen.WPApp where
 
 /-- The goal's entailment relation `PartialOrder.rel α inst` (carrier and order instance applied);
 apply it to two operands to build an entailment in the goal's order. -/
-public def VCGen.FrameInferenceInfo.le (i : FrameInferenceInfo) : SymM Expr :=
+public def FrameInferenceInfo.le (i : FrameInferenceInfo) : SymM Expr :=
   return (← i.goal.getType).stripArgsN 2
 
 /-- What holds going in: the left-hand side of the goal entailment `pre ⊑ wp …`. -/
-public def VCGen.FrameInferenceInfo.pre (i : FrameInferenceInfo) : SymM Expr :=
+public def FrameInferenceInfo.pre (i : FrameInferenceInfo) : SymM Expr :=
   return (← i.goal.getType).appFn!.appArg!
 
 /-- A fresh residual-precondition metavariable for a `FrameSplit`: synthetic-opaque; the procedure
 builds the split VC against it and leaves it unassigned. -/
-public def VCGen.FrameInferenceInfo.mkResidualPre (i : FrameInferenceInfo) : SymM MVarId :=
+public def FrameInferenceInfo.mkResidualPre (i : FrameInferenceInfo) : SymM MVarId :=
   return (← mkFreshExprSyntheticOpaqueMVar i.Pred).mvarId!
 
 /-- The spec precondition instantiated at the call site, read off a speculative application of
 `specRule` to `goal` that is rolled back: the precondition VC's metavariables are frozen into a
 telescope and reopened fresh in the restored context, so they outlive the rollback. `none` when the
 rule does not apply or leaves no precondition VC. -/
-public def VCGen.FrameInferenceInfo.specPre? (i : FrameInferenceInfo) : SymM (Option Expr) := do
+public def FrameInferenceInfo.specPre? (i : FrameInferenceInfo) : SymM (Option Expr) := do
   let abs? ← Meta.withoutModifyingMCtx do
     let .goals subgoals ← i.specRule.apply i.goal | return none
     -- The precondition VC is the only bare `pre ⊑ specPre` entailment among the rule's subgoals;
@@ -106,7 +106,7 @@ public def VCGen.FrameInferenceInfo.specPre? (i : FrameInferenceInfo) : SymM (Op
 /-- The split VC proposition `pre ⊑ (op frame footprint) s⃗`: the frame operator applied to `frame`
 and `footprint`, then to the excess state arguments, entailed by `pre` in the goal's order. `frame`
 and `footprint` must be hash-consed (`shareCommon`); the result is. -/
-public def VCGen.FrameInferenceInfo.mkSplitVCS (i : FrameInferenceInfo) (frame footprint : Expr) :
+public def FrameInferenceInfo.mkSplitVCS (i : FrameInferenceInfo) (frame footprint : Expr) :
     SymM Expr := do
   let rhs ← mkAppNS (← mkAppNS (← i.mkOpApp) #[frame, footprint]) i.excessArgs
   let ty ← i.goal.getType
@@ -114,7 +114,7 @@ public def VCGen.FrameInferenceInfo.mkSplitVCS (i : FrameInferenceInfo) (frame f
 
 /-- A `FrameSplit` framing `frame` whose split VC `pre ⊑ (op frame residualPre) s⃗` is deferred as a
 fresh subgoal for the built-in lattice (meet) decomposition to split. -/
-public def VCGen.FrameSplit.withDeferredSplitVC (i : FrameInferenceInfo) (frame : Expr) :
+public def FrameSplit.withDeferredSplitVC (i : FrameInferenceInfo) (frame : Expr) :
     SymM FrameSplit := do
   let residualPre ← i.mkResidualPre
   let m ← mkFreshExprSyntheticOpaqueMVar (← i.mkSplitVCS frame (mkMVar residualPre))
@@ -122,7 +122,7 @@ public def VCGen.FrameSplit.withDeferredSplitVC (i : FrameInferenceInfo) (frame 
 
 /-- A `FrameSplit` framing `frame`, discharging the split VC `pre ⊑ (op frame residualPre) s⃗` with
 `splitVCProof` and leaving its `subgoals`. -/
-public def VCGen.FrameSplit.withDischargedSplitVC (frame : Expr) (residualPre : MVarId)
+public def FrameSplit.withDischargedSplitVC (frame : Expr) (residualPre : MVarId)
     (splitVCProof : Expr) (subgoals : List MVarId := []) : FrameSplit :=
   { frame, residualPre, splitVCProof, subgoals }
 
@@ -130,7 +130,7 @@ public def VCGen.FrameSplit.withDischargedSplitVC (frame : Expr) (residualPre : 
 rule's goal list: the schematic frame and the split VC `pre ⊑ (op frame W) s⃗`, where `W` is the
 weakest footprint baked into the rule. The positions are fixed at rule construction, so applying a
 `FrameSplit` assigns by index. -/
-public structure VCGen.FrameBackwardRule where
+public structure FrameBackwardRule where
   /-- The backward rule concluding `pre ⊑ wp x Q E s⃗`. -/
   rule : Lean.Meta.Sym.BackwardRule
   /-- Position of the split VC `pre ⊑ (op frame W) s⃗`. -/
@@ -146,13 +146,13 @@ The procedure produces the frame and a proof of the split VC `pre ⊑ (op frame 
 must not assign `residualPre`, which the solver fills with the weakest footprint after the frame rule
 applies. Build the result with `FrameSplit.withDischargedSplitVC` (proof supplied) or
 `FrameSplit.withDeferredSplitVC` (split VC left as a subgoal). -/
-public abbrev VCGen.FrameInferenceProc :=
-  VCGen.FrameInferenceInfo → SymM (Option VCGen.FrameSplit)
+public abbrev FrameInferenceProc :=
+  FrameInferenceInfo → SymM (Option FrameSplit)
 
 /-- How to decompose a lattice operator `head … s⃗` on the RHS of an entailment: the distribution and
 unfolding `rewrites` that saturate it, and the terminal `⊑`-introduction `terminals` that close the
 reduced form. `head` keys the split in the `latticeOps` table. -/
-public structure VCGen.LatticeOp where
+public structure LatticeOp where
   /-- Head constant of the operator this split decomposes. Keys the `latticeOps` table. -/
   head : Name
   /-- The number of leading arguments held constant during rule construction: the operator's carrier
@@ -168,48 +168,48 @@ public structure VCGen.LatticeOp where
 
 /-- A frame inference procedure registered with `@[frameproc]`, together with its frame operator. The
 `vcgen` frontend selects the one whose `prog` matches the goal program's monad. -/
-public structure VCGen.FrameProc where
+public structure FrameProc where
   /-- Head constant of the program type (the monad) whose `wp` this procedure frames. Keys the
   procedure in the `byProg` index; `vcgen` consults it for a program with that head. -/
   prog : Name
   /-- Head constant of the frame operator, locating the split VC in the frame rule. -/
   opHead : Name
   /-- Builds the frame operator (head constant `opHead`) applied to the goal's assertion type. -/
-  mkOpAppM : VCGen.WPApp → MetaM Expr
+  mkOpAppM : WPApp → MetaM Expr
   /-- The resource type `R` of the operator `op : R → Pred → Pred`, i.e. the domain of `mkOpAppM`'s
   result. Provided directly so `vcgen` reads it without building the operator, which it does only when
   a frame actually applies. -/
-  mkResourceTy : VCGen.WPApp → MetaM Expr
+  mkResourceTy : WPApp → MetaM Expr
   /-- The frame inference metaprogram. -/
-  proc : VCGen.FrameInferenceProc
+  proc : FrameInferenceProc
 
 /-- The registered frame inference procedures, indexed by the program monad's head constant
 (selected per node in `solve`). -/
-public structure VCGen.FrameProcs where
-  byProg : Std.HashMap Name VCGen.FrameProc := {}
+public structure FrameProcs where
+  byProg : Std.HashMap Name FrameProc := {}
 
-public instance : Inhabited VCGen.FrameProcs := ⟨{}⟩
+public instance : Inhabited FrameProcs := ⟨{}⟩
 
-public def VCGen.FrameProcs.insert (s : FrameProcs) (fp : FrameProc) : FrameProcs :=
+public def FrameProcs.insert (s : FrameProcs) (fp : FrameProc) : FrameProcs :=
   { byProg := s.byProg.insert fp.prog fp }
 
 /-- Default frame inference procedure, agnostic of the frame operator: frame the resource pinned by
 a `frames` clause, with the weakest footprint. -/
-public def VCGen.defaultFrameInferenceProc : FrameInferenceProc := fun i => do
+public def defaultFrameInferenceProc : FrameInferenceProc := fun i => do
   let some frame := i.providedFrame? | return none
   return some (← FrameSplit.withDeferredSplitVC i frame)
 
 /-- The lattice meet operator over the goal's assertion type. -/
-private def meetOp (info : VCGen.WPApp) : MetaM Expr :=
+private def meetOp (info : WPApp) : MetaM Expr :=
   Meta.mkAppOptM ``Lean.Order.meet #[info.Pred, none]
 
 /-- The default frame operator: lattice meet `pre ⊓ frame`, the Hoare frame every complete lattice carries.
 Framed only through an explicit `frames` clause; used for a monad with no registered `@[frameproc]`. -/
-public def VCGen.meetFrameProc : VCGen.FrameProc where
+public def meetFrameProc : FrameProc where
   prog := ``Lean.Order.meet
   mkOpAppM := meetOp
   mkResourceTy info := pure info.Pred
   opHead := ``Lean.Order.meet
   proc := defaultFrameInferenceProc
 
-end Lean.Elab.Tactic.Do.Internal
+end Lean.Elab.Tactic.VCGen

@@ -7,18 +7,17 @@ module
 
 prelude
 public import Lean.Elab.Tactic.Do.VCGen.Split
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Reduce
-public import Lean.Elab.Tactic.Do.Internal.VCGen.SpecDB
+public import Lean.Elab.Tactic.VCGen.Context
+public import Lean.Elab.Tactic.VCGen.Reduce
+public import Lean.Elab.Tactic.VCGen.SpecDB
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
 
 open Lean Meta Elab Tactic Sym
-open Lean.Elab.Tactic.Do.Internal.SpecAttr
+open Lean.Elab.Tactic.VCGen.SpecAttr
 
-namespace Lean.Elab.Tactic.Do.Internal
+namespace Lean.Elab.Tactic.VCGen
 
-namespace VCGen
 
 /-!
 Construction of `BackwardRule`s from `SpecTheorem`s and split info, with no knowledge of `VCGenM`.
@@ -453,5 +452,4 @@ public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
     | throwError "frame: could not build the frame rule for operator{indentExpr op}"
   analyzeFrameRule rule fp.opHead info.excessArgs.size
 
-end VCGen
-end Lean.Elab.Tactic.Do.Internal
+end Lean.Elab.Tactic.VCGen

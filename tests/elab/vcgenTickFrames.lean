@@ -216,7 +216,7 @@ theorem TickT.le_wp_tick' [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPr
 `tickFrameProc` shifts by the current tick count and emits the split VC in its `costConj_apply`
 meet form, so the built-in meet split yields the tick guard and the shifted residual. -/
 
-open Lean.Elab.Tactic.Do.Internal Lean.Elab.Tactic.Do.Internal.VCGen
+open Lean.Elab.Tactic.VCGen
 
 /-- Exact spec for `tick`, registered so `vcgen` can decompose `tick` calls. -/
 @[spec] theorem tick_spec [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :

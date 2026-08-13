@@ -12,9 +12,8 @@ import Lean.Meta.Sym.Util
 
 open Lean Meta Sym
 
-namespace Lean.Elab.Tactic.Do.Internal
+namespace Lean.Elab.Tactic.VCGen
 
-namespace VCGen
 
 /-!
 SymM-level head-redex reducer used throughout VCGen.
@@ -80,5 +79,4 @@ public partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
 public def reduceHead (e : Expr) : SymM Expr :=
   return (← reduceHead? e).getD e
 
-end VCGen
-end Lean.Elab.Tactic.Do.Internal
+end Lean.Elab.Tactic.VCGen

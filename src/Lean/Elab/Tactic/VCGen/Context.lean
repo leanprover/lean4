@@ -7,17 +7,17 @@ module
 
 prelude
 public import Lean.Elab.Tactic.Do.VCGen.Basic
-public import Lean.Elab.Tactic.Do.Internal.VCGen.SpecDB
-public import Lean.Elab.Tactic.Do.Internal.VCGen.FrameProc
+public import Lean.Elab.Tactic.VCGen.SpecDB
+public import Lean.Elab.Tactic.VCGen.FrameProc
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Simp.DiscrTree
 public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Tactic.Grind.Types
 
 open Lean Meta Elab Tactic Sym
-open Lean.Elab.Tactic.Do Lean.Elab.Tactic.Do.Internal.SpecAttr
+open Lean.Elab.Tactic.Do Lean.Elab.Tactic.VCGen.SpecAttr
 
-namespace Lean.Elab.Tactic.Do.Internal
+namespace Lean.Elab.Tactic.VCGen
 
 /-!
 The `VCGenM` monad: its read-only `Context` (a fixed bundle of pre-built
@@ -48,7 +48,7 @@ public structure FrameDB where
 public instance : Inhabited FrameDB := ⟨{}⟩
 
 /-- Pre-built backward rules used by `solve`. -/
-public structure VCGen.BackwardRules where
+public structure BackwardRules where
   /-- The backward rule for `Triple.intro`. Unfolds `⦃P⦄ x ⦃Q; E⦄` into `P ⊑ wp x Q E`. -/
   tripleIntro : BackwardRule
   /-- The backward rule for `Lean.Order.le_of_forall_le`. Peels one excess state argument
@@ -84,7 +84,7 @@ public structure VCGen.BackwardRules where
   forallIntro : BackwardRule
 
 /-- Build the backward rules used by `solve` from their underlying lemmas. -/
-public def VCGen.mkBackwardRules : MetaM VCGen.BackwardRules := do
+public def mkBackwardRules : MetaM BackwardRules := do
   return {
     tripleIntro := ← mkBackwardRuleFromDecl ``Std.Internal.Do.Triple.intro
     stateArgIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_of_forall_le
@@ -100,12 +100,12 @@ public def VCGen.mkBackwardRules : MetaM VCGen.BackwardRules := do
     forallIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_forall
   }
 
-public structure VCGen.Context where
+public structure Context where
   /-- Pre-built backward rules used by `solve`. -/
-  backwardRules : VCGen.BackwardRules
+  backwardRules : BackwardRules
   /-- The `@[frameproc]` registry snapshot taken at frontend init. `solve` selects a procedure per
   program node by the node's monad. -/
-  frameProcs : VCGen.FrameProcs := {}
+  frameProcs : FrameProcs := {}
   /-- User-customizable simp methods used to pre-simplify hypotheses. -/
   hypSimpMethods : Option Sym.Simp.Methods := none
   /-- The `trivial` config option: when `true` (default), `Driver.emitVC` runs
@@ -139,7 +139,7 @@ public structure VCGen.Context where
   once the program in `wp⟦e⟧` matches `pat`, before applying a spec. -/
   untilPat? : Option Sym.Pattern := none
 
-public structure VCGen.Scope where
+public structure Scope where
   /-- Spec database in scope: globals plus locals from in-scope hypotheses. -/
   specs : SpecTheorems
   /-- `__do_jp` fvars currently in scope. -/
@@ -151,7 +151,7 @@ public structure VCGen.Scope where
   nextDeclIdx : Nat := 0
   deriving Inhabited
 
-public structure VCGen.State where
+public structure State where
   /--
   A cache mapping registered SpecThms to their backward rule to apply.
   The particular rule depends on the theorem name, the `WPMonad` instance and the number of
@@ -213,9 +213,8 @@ public structure VCGen.State where
   warn about them). -/
   inlineHandledInvariants : Std.HashSet Nat := {}
 
-public abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State Grind.GrindM)
+public abbrev VCGenM := ReaderT Context (StateRefT State Grind.GrindM)
 
-namespace VCGen
 
 public def Scope.registerJP (s : Scope) (fv : FVarId) (info : JumpSiteInfo) : Scope :=
   { s with jps := s.jps.insert fv info }
@@ -252,6 +251,5 @@ public def burnOne : VCGenM Unit :=
     | .limited (n+1) => .limited n
     | other => other }
 
-end VCGen
 
-end Lean.Elab.Tactic.Do.Internal
+end Lean.Elab.Tactic.VCGen

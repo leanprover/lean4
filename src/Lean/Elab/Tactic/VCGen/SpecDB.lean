@@ -22,9 +22,9 @@ this module adds the operations the VC generator needs on top: instantiating a s
 database, and looking up the specs matching a program.
 -/
 
-namespace Lean.Elab.Tactic.Do.Internal
+namespace Lean.Elab.Tactic.VCGen
 
-open Lean.Elab.Tactic.Do.Internal.SpecAttr
+open Lean.Elab.Tactic.VCGen.SpecAttr
 
 /--
 Internalizes the pattern's expressions into the current `SymM` share table.
@@ -71,7 +71,6 @@ public def SpecAttr.SpecTheorem.instantiate (specThm : SpecTheorem) :
 public def SpecAttr.SpecTheorem.global? (specThm : SpecTheorem) : Option Name :=
   match specThm.proof with | .global decl => some decl | _ => none
 
-namespace VCGen
 
 /--
 Extend the spec `database` with the specs a `vcgen [...]` call's simp-style arguments contribute
@@ -101,7 +100,6 @@ public def addSimpSpecs (database : SpecTheorems) (simpThms : SimpTheorems) :
     specs := Sym.insertPattern specs newSpec.pattern newSpec
   return { specs, erased }
 
-end VCGen
 
 /--
 Look up `SpecTheorem`s in the `@[spec]` database.
@@ -116,4 +114,4 @@ public def SpecAttr.SpecTheorems.findSpecs (database : SpecTheorems) (e : Expr) 
   -- It appears that insertion sort is *much* faster than qsort here.
   return candidates.insertionSort (·.priority > ·.priority)
 
-end Lean.Elab.Tactic.Do.Internal
+end Lean.Elab.Tactic.VCGen

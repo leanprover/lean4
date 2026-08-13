@@ -7,24 +7,23 @@ module
 
 prelude
 public import Lean.Elab.Tactic.Do.VCGen.Split
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
-public import Lean.Elab.Tactic.Do.Internal.VCGen.RuleConstruction
-public import Lean.Elab.Tactic.Do.Internal.VCGen.LatticeOp
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Util
+public import Lean.Elab.Tactic.VCGen.Context
+public import Lean.Elab.Tactic.VCGen.RuleConstruction
+public import Lean.Elab.Tactic.VCGen.LatticeOp
+public import Lean.Elab.Tactic.VCGen.Util
 import Lean.Meta.Sym.InferType
 
 open Lean Meta Elab Tactic Sym
-open Lean.Elab.Tactic.Do.Internal.SpecAttr
-open Lean.Elab.Tactic.Do.Internal
+open Lean.Elab.Tactic.VCGen.SpecAttr
+open Lean.Elab.Tactic.VCGen
 
 /-!
 `VCGenM`-level cache wrappers around the `SymM` rule constructors in
 `VCGen.RuleConstruction`.
 -/
 
-namespace Lean.Elab.Tactic.Do.Internal
+namespace Lean.Elab.Tactic.VCGen
 
-namespace VCGen
 
 /--
 Cached version of spec rule construction.
@@ -96,6 +95,5 @@ public def mkFrameBackwardRuleCached (fp : FrameProc) (info : WPApp) :
   modify fun st => { st with frameBackwardRuleCache := st.frameBackwardRuleCache.insert key frule }
   return frule
 
-end VCGen
 
-end Lean.Elab.Tactic.Do.Internal
+end Lean.Elab.Tactic.VCGen

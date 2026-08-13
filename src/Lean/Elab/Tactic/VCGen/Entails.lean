@@ -6,17 +6,17 @@ Authors: Sebastian Graf, Vladimir Gladshtein
 module
 
 prelude
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
-public import Lean.Elab.Tactic.Do.Internal.VCGen.EPost
-public import Lean.Elab.Tactic.Do.Internal.VCGen.RuleCache
-public import Lean.Elab.Tactic.Do.Internal.VCGen.Util
+public import Lean.Elab.Tactic.VCGen.Context
+public import Lean.Elab.Tactic.VCGen.EPost
+public import Lean.Elab.Tactic.VCGen.RuleCache
+public import Lean.Elab.Tactic.VCGen.Util
 public import Lean.Meta.Sym.Util
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.InstantiateMVarsS
 
 open Lean Meta Elab Tactic Sym Sym.Internal
-open Lean.Elab.Tactic.Do.Internal.SpecAttr
-open Lean.Elab.Tactic.Do.Internal
+open Lean.Elab.Tactic.VCGen.SpecAttr
+open Lean.Elab.Tactic.VCGen
 open Std.Internal.Do Lean.Order
 
 /-!
@@ -25,9 +25,8 @@ introducing excess state arguments and pure preconditions, reducing
 exception-postcondition projections, and decomposing lattice connectives.
 -/
 
-namespace Lean.Elab.Tactic.Do.Internal
+namespace Lean.Elab.Tactic.VCGen
 
-namespace VCGen
 
 /-- Unfold `⦃P⦄ x ⦃Q; E⦄` into the underlying entailment `P ⊑ wp x Q E`. -/
 public def unfoldTriple (goal : MVarId) : VCGenM MVarId := do
@@ -175,6 +174,5 @@ public def elimTopPre (goal : MVarId) : VCGenM MVarId := do
     | throwError "Failed to strip the `⊤ ⊑` wrapper of {goal}"
   return goal
 
-end VCGen
 
-end Lean.Elab.Tactic.Do.Internal
+end Lean.Elab.Tactic.VCGen

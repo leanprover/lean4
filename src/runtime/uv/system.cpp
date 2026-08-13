@@ -11,8 +11,10 @@ namespace lean {
 
 using namespace std;
 
-// Stores all the things needed to request a random sequence of bytes. The promise and the buffer
-// both live in `pending`, which teardown clears when it abandons the request.
+// Stores all the things needed to request a random sequence of bytes, followed by the `size` bytes
+// libuv fills. That scratch buffer trails the struct instead of being the Lean array's payload
+// because a threadpool worker writes it: teardown abandons workers it cannot cancel, leaking their
+// request, and only memory that is leaked with the request may still be written afterwards.
 typedef struct {
     uv_random_t req;
     uv_pending_req pending;
@@ -422,7 +424,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_hrtime() {
 
 // Std.Internal.UV.System.random : UInt64 → IO (IO.Promise (Except IO.Error (Array UInt8)))
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
-    random_req_t* req = (random_req_t*)malloc(sizeof(random_req_t));
+    if (size > SIZE_MAX - sizeof(random_req_t)) {
+        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+    }
+
+    random_req_t* req = (random_req_t*)malloc(sizeof(random_req_t) + size);
     if (req == nullptr) {
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
@@ -447,7 +453,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
     int result = uv_random(
         global_ev.loop,
         &req->req,
-        lean_sarray_cptr(byte_array),
+        (uint8_t*)(req + 1),
         size,
         0,
         [](uv_random_t* uv_req, int status, void* buf, size_t buflen) {
@@ -458,7 +464,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
             event_loop_unregister_request(&global_ev, &req->pending);
 
             if (promise == nullptr) {
-                // Teardown abandoned this request, settling the promise and releasing the buffer.
+                // Teardown abandoned this request, settling the promise and releasing the array.
+                // The worker wrote into `req` itself, so freeing it here is safe now that it ran.
                 free(req);
                 return;
             }
@@ -467,6 +474,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
                 lean_dec(byte_array);
                 lean_promise_resolve(mk_except_err(lean_decode_uv_error(status, nullptr)), promise);
             } else {
+                memcpy(lean_sarray_cptr(byte_array), buf, buflen);
                 lean_sarray_set_size(byte_array, buflen);
                 lean_promise_resolve(mk_except_ok(byte_array), promise);
             }

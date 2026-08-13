@@ -25,9 +25,8 @@ void lean_uv_timer_finalizer(void* ptr) {
         return;
     }
 
-    if (timer->m_promise != NULL) {
-        lean_dec(timer->m_promise);
-    }
+    lean_object * promise = timer->m_promise;
+    timer->m_promise = NULL;
 
     uv_close((uv_handle_t*) timer->m_uv_timer, [](uv_handle_t* handle) {
         free(handle);
@@ -36,6 +35,12 @@ void lean_uv_timer_finalizer(void* ptr) {
     event_loop_unlock(&global_ev);
 
     free(timer);
+
+    // Dropping the last reference to an unresolved promise resolves it, which runs Lean
+    // continuations, so it has to happen outside the loop lock.
+    if (promise != NULL) {
+        lean_dec(promise);
+    }
 }
 
 void initialize_libuv_timer() {
@@ -317,17 +322,20 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj) {
         return lean_io_result_mk_ok(lean_box(0));
     }
 
+    if (timer->m_state != TIMER_STATE_RUNNING) {
+        event_loop_unlock(&global_ev);
+        return lean_io_result_mk_ok(lean_box(0));
+    }
+
     // `cancel` on a repeating timer leaves it running without a promise, in which case the loop has
     // already given its reference back and must not be charged for it twice.
-    bool loop_owns_timer = timer->m_state == TIMER_STATE_RUNNING && timer->m_promise != NULL;
+    bool loop_owns_timer = timer->m_promise != NULL;
 
     lean_object * promise = timer->m_promise;
     timer->m_promise = NULL;
 
-    if (timer->m_state == TIMER_STATE_RUNNING) {
-        uv_timer_stop(timer->m_uv_timer);
-        timer->m_state = TIMER_STATE_FINISHED;
-    }
+    uv_timer_stop(timer->m_uv_timer);
+    timer->m_state = TIMER_STATE_FINISHED;
 
     event_loop_unlock(&global_ev);
 

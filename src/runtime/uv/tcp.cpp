@@ -233,7 +233,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 
     size_t array_len = lean_array_size(data_array);
 
+    // Taken before anything is allocated, so the loop-unavailable path has nothing to unwind.
+    if (!event_loop_lock(&global_ev)) {
+        lean_dec(data_array);
+        return lean_uv_loop_unavailable_error();
+    }
+
     if (array_len == 0) {
+        event_loop_unlock(&global_ev);
         lean_dec(data_array);
 
         lean_object* promise = lean_promise_new();
@@ -245,11 +252,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 
     // Allocate buffer array for uv_write
     if (lean_usize_mul_would_overflow(array_len, sizeof(uv_buf_t))) {
+        event_loop_unlock(&global_ev);
         lean_dec(data_array);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
     uv_buf_t* bufs = (uv_buf_t*)malloc(array_len * sizeof(uv_buf_t));
     if (bufs == nullptr) {
+        event_loop_unlock(&global_ev);
         lean_dec(data_array);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
@@ -263,12 +272,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 
     uv_write_t* write_uv = (uv_write_t*)malloc(sizeof(uv_write_t));
     if (write_uv == nullptr) {
+        event_loop_unlock(&global_ev);
         lean_dec(data_array);
         free(bufs);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
     write_uv->data = (tcp_send_data*)malloc(sizeof(tcp_send_data));
     if (write_uv->data == nullptr) {
+        event_loop_unlock(&global_ev);
         lean_dec(data_array);
         free(bufs);
         free(write_uv);
@@ -287,17 +298,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
     // These objects are going to enter the loop and be owned by it
     lean_inc(promise);
     lean_inc(socket);
-
-    if (!event_loop_lock(&global_ev)) {
-        lean_dec(promise);
-        lean_dec(promise);
-        lean_dec(socket);
-        lean_dec(data_array);
-        free(bufs);
-        free(write_uv->data);
-        free(write_uv);
-        return lean_uv_loop_unavailable_error();
-    }
 
     int result = uv_write(write_uv, (uv_stream_t*)tcp_socket->m_uv_tcp, bufs, array_len, [](uv_write_t* req, int status) {
         tcp_send_data* tup = (tcp_send_data*) req->data;
@@ -458,15 +458,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket) 
         // settled and the loop's reference handed back before anything below is resolved.
         lean_dec(socket);
 
-        if (nread == UV_ENOBUFS) {
-            lean_promise_resolve(mk_except_ok(lean_box(1)), promise);
-        } else if (nread == UV_EOF) {
+        if (nread == UV_EOF) {
             lean_promise_resolve(mk_except_ok(lean_box(0)), promise);
-        } else if (nread < 0) {
+        } else if (nread < 0 && nread != UV_ENOBUFS) {
             lean_promise_resolve(mk_except_err(lean_decode_uv_error(nread, nullptr)), promise);
         } else {
-            // This branch should be dead, we cannot receive a value >= 0 according to docs.
-            lean_always_assert(false);
+            // `UV_ENOBUFS` is the documented answer to the zero-length `alloc_cb` above. A
+            // non-negative `nread` would be a zero-length delivery, which equally means the socket
+            // woke up readable, so report that rather than aborting the process at exit.
+            lean_promise_resolve(mk_except_ok(lean_box(1)), promise);
         }
 
         lean_dec(promise);

@@ -62,11 +62,6 @@ static void check_uv(int result, const char * msg) {
     }
 }
 
-// The callback that stops the loop when it's called.
-void async_callback(uv_async_t * handle) {
-    uv_stop(handle->loop);
-}
-
 // Interrupts the event loop and stops it so it can receive future requests.
 //
 // The guard shares `interrupt_mutex` with the teardown store to `state`, which is what keeps a send
@@ -88,6 +83,7 @@ void event_loop_init(event_loop_t * event_loop) {
     event_loop->loop = uv_default_loop();
     check_uv(uv_mutex_init_recursive(&event_loop->mutex), "Failed to initialize mutex");
     check_uv(uv_mutex_init(&event_loop->interrupt_mutex), "Failed to initialize interrupt mutex");
+    check_uv(uv_mutex_init(&event_loop->finalize_mutex), "Failed to initialize finalize mutex");
     check_uv(uv_cond_init(&event_loop->cond_var), "Failed to initialize condition variable");
     check_uv(uv_cond_init(&event_loop->finalize_cond), "Failed to initialize finalize condition variable");
     check_uv(uv_async_init(event_loop->loop, &event_loop->async, NULL), "Failed to initialize async");
@@ -112,10 +108,10 @@ void event_loop_lock_internal(event_loop_t * event_loop) {
 
 // Locks the event loop for the side of the requesters, failing once teardown has begun.
 //
-// The leading read is unsynchronized and only skips work: a requester that still sees `RUNNING`
-// after teardown stored `STOPPING` goes on to block on the mutex, which `finalize_libuv` holds for
-// the whole teardown, and the recheck below then turns it away. Its interrupt is harmless for the
-// same reason `event_loop_interrupt` is safe.
+// The leading read is unsynchronized and only skips work: `state` only ever changes while the
+// mutex is held, so a requester that still sees `RUNNING` after teardown stored `STOPPING` goes on
+// to take the mutex and the recheck below turns it away. Its interrupt is harmless for the same
+// reason `event_loop_interrupt` is safe.
 bool event_loop_lock(event_loop_t * event_loop) {
     if (event_loop->state != EVENT_LOOP_RUNNING) {
         return false;
@@ -160,24 +156,29 @@ void event_loop_begin_teardown() {
 }
 
 void event_loop_mark_finalized(event_loop_t * event_loop) {
+    uv_mutex_lock(&event_loop->finalize_mutex);
     event_loop->state = EVENT_LOOP_FINALIZED;
     uv_cond_broadcast(&event_loop->finalize_cond);
+    uv_mutex_unlock(&event_loop->finalize_mutex);
 }
 
 // Blocks until `finalize_libuv` has marked the loop finalized. Handle finalizers use this when they
 // find the loop gone: by the time the loop is finalized the teardown walk has already detached
 // (nulled) and closed their `uv_handle_t`, so they can free the wrapping struct without racing the
 // walk.
+//
+// This waits on `finalize_mutex` rather than `mutex`: a finalizer can be reached from a thread that
+// already holds `mutex`, and `uv_cond_wait` on a recursive mutex held more than once is undefined.
 void event_loop_wait_finalized(event_loop_t * event_loop) {
     if (g_in_teardown) {
         return;
     }
 
-    uv_mutex_lock(&event_loop->mutex);
+    uv_mutex_lock(&event_loop->finalize_mutex);
     while (event_loop->state != EVENT_LOOP_FINALIZED) {
-        uv_cond_wait(&event_loop->finalize_cond, &event_loop->mutex);
+        uv_cond_wait(&event_loop->finalize_cond, &event_loop->finalize_mutex);
     }
-    uv_mutex_unlock(&event_loop->mutex);
+    uv_mutex_unlock(&event_loop->finalize_mutex);
 }
 
 void event_loop_register_request(event_loop_t * event_loop, uv_pending_req * pending, uv_req_t * req, lean_object * promise, lean_object * owned) {
@@ -220,21 +221,25 @@ void event_loop_cancel_requests(event_loop_t * event_loop) {
 // Abandons the requests that outlived the teardown drain, returning whether there were any.
 //
 // Their `uv_req_t`s stay registered and allocated: a threadpool worker still owns the memory and
-// will write to it, so the loop is deliberately left unclosed rather than freed underneath it. The
-// Lean objects the requests hold are not shared with the worker, so those are released here instead
-// of being leaked along with the request.
-bool event_loop_abandon_requests(event_loop_t * event_loop) {
+// will write to it, so the loop is deliberately left unclosed rather than freed underneath it.
+//
+// `owned` is released here rather than leaked with the request, which is why a registered request
+// may never hand a worker memory that `owned` keeps alive; `lean_uv_random` allocates its scratch
+// buffer inside the request for exactly this reason.
+//
+// Settling the promises runs Lean code, so it is deferred alongside the walk's rather than done
+// under the loop lock.
+bool event_loop_abandon_requests(event_loop_t * event_loop, uv_deferred_teardown & deferred) {
     bool abandoned = false;
 
     for (uv_pending_req * pending = event_loop->requests; pending != nullptr; pending = pending->next) {
         if (pending->promise != nullptr) {
-            lean_promise_resolve_with_code(UV_ECANCELED, pending->promise);
-            lean_dec(pending->promise);
+            deferred.cancel_promise(pending->promise);
             pending->promise = nullptr;
         }
 
         if (pending->owned != nullptr) {
-            lean_dec(pending->owned);
+            deferred.release(pending->owned);
             pending->owned = nullptr;
         }
 
@@ -265,18 +270,16 @@ void event_loop_run_loop(event_loop_t * event_loop) {
             break;
         }
 
+        // `UV_RUN_ONCE` returns after servicing one round of events. `async` is always active, so
+        // the loop never runs out of things to wait on; a requester wakes it with `uv_async_send`
+        // and this unlock is what lets that requester in.
         uv_run(event_loop->loop, UV_RUN_ONCE);
-        /*
-         * We leave `uv_run` only when `uv_stop` is called as there is always the `uv_async_t` so
-         * we can never run out of things to wait on. `uv_stop` is only called from `async_callback`
-         * when another thread wants to work with the event loop so we need to give up the mutex.
-         */
 
         uv_mutex_unlock(&event_loop->mutex);
     }
 }
 
-/* Std.Internal.UV.Loop.configure (options : Loop.Options) : BaseIO Unit */
+/* Std.Internal.UV.Loop.configure (options : Loop.Options) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg options) {
     bool accum = lean_ctor_get_uint8(options, 0);
     bool block = lean_ctor_get_uint8(options, 1);
@@ -305,7 +308,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
 
     event_loop_unlock(&global_ev);
 
-    return lean_box(0);
+    return lean_io_result_mk_ok(lean_box(0));
 }
 
 /* Std.Internal.UV.Loop.alive : BaseIO Bool */
@@ -313,6 +316,7 @@ extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive() {
     if (!event_loop_lock(&global_ev)) {
         return 0;
     }
+
     int is_alive = uv_loop_alive(global_ev.loop);
     event_loop_unlock(&global_ev);
 
@@ -325,14 +329,14 @@ void initialize_libuv_loop() {
 
 #else
 
-/* Std.Internal.UV.Loop.configure (options : Loop.Options) : BaseIO Unit */
+/* Std.Internal.UV.Loop.configure (options : Loop.Options) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg options) {
     return io_result_mk_error("lean_uv_event_loop_configure is not supported");
 }
 
-/* Std.Internal.UV.Loop.alive : BaseIO UInt64 */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive() {
-    return io_result_mk_error("lean_uv_event_loop_alive is not supported");
+/* Std.Internal.UV.Loop.alive : BaseIO Bool */
+extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive() {
+    return 0;
 }
 
 #endif

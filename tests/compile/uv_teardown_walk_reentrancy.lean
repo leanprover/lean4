@@ -9,8 +9,9 @@ callback. A `(sync := true)` continuation attached to such a promise then ran on
 thread; when it dropped the last reference to another handle, that handle's finalizer freed a
 `uv_handle_t` still linked into the queue `uv_walk` was iterating, crashing the walk.
 
-The listener is created first so it is walked first, and the socket the continuation owns is
-created later so it is still ahead of the walk when the continuation runs.
+`uv_deferred_teardown` fixes that by recording the promises during the walk and settling them
+afterwards, so the continuation below now runs after `uv_walk` has returned. Reverting the deferral
+puts it back inside the walk and this test crashes again.
 -/
 
 open Std.Internal.UV Std.Net
@@ -30,7 +31,7 @@ def main : IO Unit := do
   datagram.bind lo
 
   -- This closure is the sole owner of `socket`, `timer` and `datagram`, and runs synchronously on
-  -- the thread that resolves `accepted` — the teardown thread, from inside the walk.
+  -- the teardown thread, which is what makes it re-enter the uv bindings during teardown.
   BaseIO.chainTask (sync := true) accepted.result? fun _ => do
     let _ ← (socket.getSockName : IO _).toBaseIO
     let _ ← (timer.stop : IO _).toBaseIO

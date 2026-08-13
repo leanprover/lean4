@@ -172,7 +172,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
 
     size_t array_len = lean_array_size(data_array);
 
+    // Taken before anything is allocated, so the loop-unavailable path has nothing to unwind.
+    if (!event_loop_lock(&global_ev)) {
+        lean_dec(data_array);
+        return lean_uv_loop_unavailable_error();
+    }
+
     if (array_len == 0) {
+        event_loop_unlock(&global_ev);
         lean_dec(data_array);
 
         lean_object* promise = lean_promise_new();
@@ -183,11 +190,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
     }
 
     if (lean_usize_mul_would_overflow(array_len, sizeof(uv_buf_t))) {
+        event_loop_unlock(&global_ev);
         lean_dec(data_array);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
     uv_buf_t* bufs = (uv_buf_t*)malloc(array_len * sizeof(uv_buf_t));
     if (bufs == nullptr) {
+        event_loop_unlock(&global_ev);
         lean_dec(data_array);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
@@ -204,6 +213,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
 
     uv_udp_send_t* send_uv = (uv_udp_send_t*)malloc(sizeof(uv_udp_send_t));
     if (send_uv == nullptr) {
+        event_loop_unlock(&global_ev);
         lean_dec(data_array);
         lean_dec(promise);
         free(bufs);
@@ -211,6 +221,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
     }
     send_uv->data = (udp_send_data*)malloc(sizeof(udp_send_data));
     if (send_uv->data == nullptr) {
+        event_loop_unlock(&global_ev);
         lean_dec(data_array);
         lean_dec(promise);
         free(bufs);
@@ -234,6 +245,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
         lean_object* addr = lean_ctor_get(opt_addr, 0);
         addr_ptr = (sockaddr_storage*)malloc(sizeof(sockaddr_storage));
         if (addr_ptr == nullptr) {
+            event_loop_unlock(&global_ev);
             lean_dec(promise);
             lean_dec(promise);
             lean_dec(socket);
@@ -244,20 +256,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
             return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
         }
         lean_socket_address_to_sockaddr_storage(addr, addr_ptr);
-    }
-
-    if (!event_loop_lock(&global_ev)) {
-        if (addr_ptr != nullptr) {
-            free(addr_ptr);
-        }
-        lean_dec(promise);
-        lean_dec(promise);
-        lean_dec(socket);
-        lean_dec(data_array);
-        free(bufs);
-        free(send_uv->data);
-        free(send_uv);
-        return lean_uv_loop_unavailable_error();
     }
 
     int result = uv_udp_send(send_uv, udp_socket->m_uv_udp, bufs, array_len, (sockaddr*)addr_ptr, [](uv_udp_send_t* req, int status) {
@@ -347,7 +345,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
         // settled and the loop's reference handed back before anything below is resolved.
         lean_dec(socket);
 
-        if (nread >= 0) {
+        if (nread >= 0 && (flags & UV_UDP_PARTIAL) != 0) {
+            // The datagram was larger than the buffer and the kernel discarded the rest. Reporting
+            // the truncated prefix as a successful read would be silent data loss.
+            lean_dec(byte_array);
+            lean_promise_resolve(mk_except_err(lean_decode_uv_error(UV_EMSGSIZE, nullptr)), promise);
+        } else if (nread >= 0) {
             lean_sarray_set_size(byte_array, nread);
 
             lean_object* addr_obj;
@@ -432,13 +435,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
         // settled and the loop's reference handed back before anything below is resolved.
         lean_dec(socket);
 
-        if (nread == UV_ENOBUFS) {
-            lean_promise_resolve(mk_except_ok(lean_box(0)), promise);
-        } else if (nread < 0) {
+        if (nread < 0 && nread != UV_ENOBUFS) {
             lean_promise_resolve(mk_except_err(lean_decode_uv_error(nread, nullptr)), promise);
         } else {
-            // This branch should be dead, we cannot receive a value >= 0 according to docs.
-            lean_always_assert(false);
+            // `UV_ENOBUFS` is the documented answer to the zero-length `alloc_cb` above. A
+            // non-negative `nread` would be a zero-length delivery, which equally means the socket
+            // woke up readable, so report that rather than aborting the process at exit.
+            lean_promise_resolve(mk_except_ok(lean_box(0)), promise);
         }
 
         lean_dec(promise);

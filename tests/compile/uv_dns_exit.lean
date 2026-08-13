@@ -12,5 +12,6 @@ open Std.Internal.UV
 def main : IO Unit := do
   let promise ← DNS.getAddrInfo "localhost" "80" 0
   match promise.result?.get with
-  | some _ => IO.println "lookup completed"
+  | some (.ok _) => IO.println "lookup completed"
+  | some (.error e) => IO.println s!"lookup failed: {e}"
   | none => IO.println "lookup dropped"

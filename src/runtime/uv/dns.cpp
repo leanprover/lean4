@@ -184,7 +184,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
         event_loop_unregister_request(&global_ev, &owner->pending);
 
         if (promise == nullptr) {
-            // Teardown abandoned this request and already settled the promise.
+            // Teardown abandoned this request and already settled the promise. The worker is done
+            // with `owner` by the time it calls back, so freeing it here is safe.
             free(owner);
             return;
         }

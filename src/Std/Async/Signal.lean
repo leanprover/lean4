@@ -220,8 +220,8 @@ def wait (s : Signal.Waiter) : IO (AsyncTask Int) := do
 /--
 If:
 - `s` is still running this stops `s` without resolving any remaining `AsyncTask`s that were created
-  through `wait`. Note that if another `AsyncTask` is binding on any of these it is going hang
-  forever without further intervention.
+  through `wait`. Those tasks fail once the last reference to their promise is dropped, rather than
+  producing a value.
 - `s` is not yet or not anymore running this is a no-op.
 -/
 @[inline]

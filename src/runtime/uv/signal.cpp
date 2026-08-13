@@ -23,9 +23,8 @@ void lean_uv_signal_finalizer(void* ptr) {
         return;
     }
 
-    if (signal->m_promise != NULL) {
-        lean_dec(signal->m_promise);
-    }
+    lean_object * promise = signal->m_promise;
+    signal->m_promise = NULL;
 
     uv_close((uv_handle_t*)signal->m_uv_signal, [](uv_handle_t* handle) {
         free(handle);
@@ -34,6 +33,12 @@ void lean_uv_signal_finalizer(void* ptr) {
     event_loop_unlock(&global_ev);
 
     free(signal);
+
+    // Dropping the last reference to an unresolved promise resolves it, which runs Lean
+    // continuations, so it has to happen outside the loop lock.
+    if (promise != NULL) {
+        lean_dec(promise);
+    }
 }
 
 void initialize_libuv_signal() {

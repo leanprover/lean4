@@ -26,10 +26,9 @@ void lean_uv_udp_socket_finalizer(void* ptr) {
     lean_always_assert(udp_socket->m_byte_array == nullptr);
 
     if (!event_loop_lock(&global_ev)) {
+        // Teardown already detached and closed the handle; only the wrapper is left to free.
         event_loop_wait_finalized(&global_ev);
-        if (udp_socket->m_uv_udp != nullptr) {
-            free(udp_socket->m_uv_udp);
-        }
+        lean_assert(udp_socket->m_uv_udp == nullptr);
         free(udp_socket);
         return;
     }
@@ -66,7 +65,7 @@ void lean_uv_udp_socket_shutdown(lean_object * obj, uv_deferred_teardown & defer
     if (udp_socket->m_promise_read != nullptr) {
         uv_udp_recv_stop(udp_socket->m_uv_udp);
 
-        deferred.cancel_promise(udp_socket->m_promise_read);
+        deferred.release(udp_socket->m_promise_read);
         udp_socket->m_promise_read = nullptr;
 
         if (udp_socket->m_byte_array != nullptr) {
@@ -98,6 +97,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_new() {
         free(udp_socket);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
+
+    // Rule 4.
+    uv_udp->data = nullptr;
 
     if (!event_loop_lock(&global_ev)) {
         free(uv_udp);
@@ -260,10 +262,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
 
     int result = uv_udp_send(send_uv, udp_socket->m_uv_udp, bufs, array_len, (sockaddr*)addr_ptr, [](uv_udp_send_t* req, int status) {
         udp_send_data* tup = (udp_send_data*) req->data;
+
+        // Rule 1: the socket is fully settled and the loop's reference handed back first.
+        lean_dec(tup->socket);
+
         lean_promise_resolve_with_code(status, tup->promise);
 
         lean_dec(tup->promise);
-        lean_dec(tup->socket);
         lean_dec(tup->data);
 
         free(tup->bufs);
@@ -340,9 +345,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
         udp_socket->m_promise_read = nullptr;
         udp_socket->m_byte_array = nullptr;
 
-        // Resolving runs Lean code: a `(sync := true)` continuation runs on this thread and may both
-        // observe the socket's fields and drop its last reference, so the read has to be fully
-        // settled and the loop's reference handed back before anything below is resolved.
+        // Rule 1: the socket is fully settled and the loop's reference handed back first.
         lean_dec(socket);
 
         if (nread >= 0 && (flags & UV_UDP_PARTIAL) != 0) {
@@ -430,9 +433,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
 
         udp_socket->m_promise_read = nullptr;
 
-        // Resolving runs Lean code: a `(sync := true)` continuation runs on this thread and may both
-        // observe the socket's fields and drop its last reference, so the wait has to be fully
-        // settled and the loop's reference handed back before anything below is resolved.
+        // Rule 1: the socket is fully settled and the loop's reference handed back first.
         lean_dec(socket);
 
         if (nread < 0 && nread != UV_ENOBUFS) {
@@ -487,8 +488,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_cancel_recv(b_obj_arg socket) {
 
     event_loop_unlock(&global_ev);
 
-    // Dropping the last reference to an unresolved promise resolves it, which runs Lean code that
-    // may re-enter this socket, so the cancellation has to be complete before any release below.
+    // Rules 1 and 2: the cancellation is complete and the lock dropped before releasing.
     lean_dec(promise);
 
     if (byte_array != nullptr) {

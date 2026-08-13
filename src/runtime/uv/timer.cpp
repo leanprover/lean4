@@ -17,10 +17,9 @@ void lean_uv_timer_finalizer(void* ptr) {
     // `m_promise` must only be released once the loop state is known: if the loop is gone,
     // `lean_uv_timer_shutdown` has already released it during the teardown walk.
     if (!event_loop_lock(&global_ev)) {
+        // Teardown already detached and closed the handle; only the wrapper is left to free.
         event_loop_wait_finalized(&global_ev);
-        if (timer->m_uv_timer != nullptr) {
-            free(timer->m_uv_timer);
-        }
+        lean_assert(timer->m_uv_timer == nullptr);
         free(timer);
         return;
     }
@@ -36,8 +35,7 @@ void lean_uv_timer_finalizer(void* ptr) {
 
     free(timer);
 
-    // Dropping the last reference to an unresolved promise resolves it, which runs Lean
-    // continuations, so it has to happen outside the loop lock.
+    // Rule 2.
     if (promise != NULL) {
         lean_dec(promise);
     }
@@ -73,12 +71,11 @@ void handle_timer_event(uv_timer_t* handle) {
         lean_object * promise = timer->m_promise;
 
         if (!timer_promise_is_finished(timer)) {
-            // Resolving runs Lean code: a `(sync := true)` continuation runs on this thread and a
-            // `cancel` from it drops the promise the loop is still resolving, so hold a reference
-            // across the call. `timer` must not be touched afterwards for the same reason.
+            // Rule 1: a `cancel` from the continuation drops the promise being resolved, so hold
+            // a reference across the call and do not touch the timer afterwards.
             lean_inc(promise);
 
-            lean_object* res = lean_io_promise_resolve(mk_except_ok(lean_box(0)), promise);
+            lean_object* res = lean_io_promise_resolve(lean_box(0), promise);
             lean_dec(res);
             lean_dec(promise);
         }
@@ -95,10 +92,9 @@ void handle_timer_event(uv_timer_t* handle) {
         // The loop does not need to keep the timer alive anymore.
         lean_dec(obj);
 
-        // Resolving runs Lean code: a `(sync := true)` continuation runs on this thread and may
-        // drop the last reference to the timer, so neither `timer` nor `obj` may be touched below.
+        // Rule 1: nothing below may touch the timer.
         if (promise != NULL) {
-            lean_object* res = lean_io_promise_resolve(mk_except_ok(lean_box(0)), promise);
+            lean_object* res = lean_io_promise_resolve(lean_box(0), promise);
             lean_dec(res);
             lean_dec(promise);
         }
@@ -120,7 +116,7 @@ void lean_uv_timer_shutdown(lean_object * obj, uv_deferred_teardown & deferred) 
     }
 
     if (timer->m_promise != NULL) {
-        deferred.cancel_promise(timer->m_promise);
+        deferred.release(timer->m_promise);
         timer->m_promise = NULL;
     }
 
@@ -138,6 +134,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t r
         free(timer);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
+
+    // Rule 4.
+    uv_timer->data = nullptr;
 
     timer->m_uv_timer = uv_timer;
     timer->m_timeout = timeout;
@@ -339,8 +338,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj) {
 
     event_loop_unlock(&global_ev);
 
-    // Dropping the last reference to an unresolved promise resolves it, which runs Lean code that
-    // may re-enter this timer, so the stop has to be complete before any release below.
+    // Rules 1 and 2: the stop is complete and the lock dropped before releasing.
     if (promise != NULL) {
         lean_dec(promise);
     }
@@ -379,8 +377,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_cancel(b_obj_arg obj) {
 
     event_loop_unlock(&global_ev);
 
-    // Dropping the last reference to an unresolved promise resolves it, which runs Lean code that
-    // may re-enter this timer, so the cancellation has to be complete before any release below.
+    // Rules 1 and 2: the cancellation is complete and the lock dropped before releasing.
     if (promise != NULL) {
         lean_dec(promise);
         lean_dec(obj);

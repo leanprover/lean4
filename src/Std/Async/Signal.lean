@@ -215,7 +215,7 @@ The resolved `AsyncTask` contains the signal number that was received.
 @[inline]
 def wait (s : Signal.Waiter) : IO (AsyncTask Int) := do
   let promise ← s.native.next
-  return .ofPromise promise
+  return .ofPurePromise promise
 
 /--
 If:
@@ -237,7 +237,6 @@ def selector (s : Signal.Waiter) : Selector Unit :=
     tryFn := do
       let signalWaiter ← s.native.next
       if ← signalWaiter.isResolved then
-        discard <| IO.ofExcept signalWaiter.result!.get
         return some ()
       else
         s.native.cancel

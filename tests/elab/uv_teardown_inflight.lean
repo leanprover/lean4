@@ -4,7 +4,7 @@ import Std.Net.Addr
 /-!
 Exercises libuv event-loop teardown (`finalize_libuv`) while operations are still in flight: timers,
 signals, connects, accepts, receives and a half-close all reach `finalize_libuv` unresolved, so the
-teardown walk has to stop every handle, hand the loop's references back and settle every promise.
+teardown walk has to stop every handle, hand the loop's references back and drop every promise.
 
 Nothing here is expected to fail, so setup errors are deliberately *not* caught: a swallowed
 `Socket.new` or `bind` would silently reduce this to a test of nothing. The two exceptions are

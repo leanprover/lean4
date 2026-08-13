@@ -464,7 +464,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
             event_loop_unregister_request(&global_ev, &req->pending);
 
             if (promise == nullptr) {
-                // Teardown abandoned this request, settling the promise and releasing the array.
+                // Teardown abandoned this request, releasing both the promise and the array.
                 // The worker wrote into `req` itself, so freeing it here is safe now that it ran.
                 free(req);
                 return;

@@ -30,7 +30,7 @@ static LEAN_THREAD_LOCAL bool g_in_teardown = false;
 
 // Helpers
 
-void lean_promise_resolve_with_code(int status, obj_arg promise) {
+void lean_promise_resolve_with_code(int status, b_obj_arg promise) {
     obj_arg res = status == 0
         ? mk_except_ok(lean_box(0))
         : mk_except_err(lean_decode_uv_error(status, nullptr));
@@ -39,18 +39,16 @@ void lean_promise_resolve_with_code(int status, obj_arg promise) {
 }
 
 void uv_deferred_teardown::run() {
-    for (lean_object * promise : m_promises) {
-        lean_promise_resolve_with_code(UV_ECANCELED, promise);
-        lean_dec(promise);
-    }
+    // Dropping the last reference to an unresolved promise goes through the task manager.
+    // `lean_finalize_task_manager` is what orders `finalize_libuv` before the task manager is
+    // destroyed; assert that rather than rely on the caller having got it right.
+    lean_always_assert(m_objects.empty() || task_manager_is_running());
 
-    m_promises.clear();
-
-    for (lean_object * obj : m_releases) {
+    for (lean_object * obj : m_objects) {
         lean_dec(obj);
     }
 
-    m_releases.clear();
+    m_objects.clear();
 }
 
 // Utility function for error checking. This function is only used inside the
@@ -227,14 +225,14 @@ void event_loop_cancel_requests(event_loop_t * event_loop) {
 // may never hand a worker memory that `owned` keeps alive; `lean_uv_random` allocates its scratch
 // buffer inside the request for exactly this reason.
 //
-// Settling the promises runs Lean code, so it is deferred alongside the walk's rather than done
-// under the loop lock.
+// Releasing runs Lean code (rule 2), so it is deferred alongside the walk's rather than done under
+// the loop lock.
 bool event_loop_abandon_requests(event_loop_t * event_loop, uv_deferred_teardown & deferred) {
     bool abandoned = false;
 
     for (uv_pending_req * pending = event_loop->requests; pending != nullptr; pending = pending->next) {
         if (pending->promise != nullptr) {
-            deferred.cancel_promise(pending->promise);
+            deferred.release(pending->promise);
             pending->promise = nullptr;
         }
 

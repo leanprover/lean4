@@ -14,11 +14,9 @@ void lean_uv_signal_finalizer(void* ptr) {
     lean_uv_signal_object* signal = (lean_uv_signal_object*) ptr;
 
     if (!event_loop_lock(&global_ev)) {
+        // Teardown already detached and closed the handle; only the wrapper is left to free.
         event_loop_wait_finalized(&global_ev);
-        if (signal->m_uv_signal != nullptr) {
-            free(signal->m_uv_signal);
-        }
-
+        lean_assert(signal->m_uv_signal == nullptr);
         free(signal);
         return;
     }
@@ -34,8 +32,7 @@ void lean_uv_signal_finalizer(void* ptr) {
 
     free(signal);
 
-    // Dropping the last reference to an unresolved promise resolves it, which runs Lean
-    // continuations, so it has to happen outside the loop lock.
+    // Rule 2.
     if (promise != NULL) {
         lean_dec(promise);
     }
@@ -68,7 +65,7 @@ void handle_signal_event(uv_signal_t* handle, int signum) {
             lean_object* promise = signal->m_promise;
             lean_inc(promise);
 
-            lean_object* res = lean_io_promise_resolve(mk_except_ok(lean_box(signum)), promise);
+            lean_object* res = lean_io_promise_resolve(lean_box(signum), promise);
             lean_dec(res);
             lean_dec(promise);
         }
@@ -83,10 +80,9 @@ void handle_signal_event(uv_signal_t* handle, int signum) {
 
         lean_dec(obj);
 
-        // Resolving runs Lean code: a `(sync := true)` continuation runs on this thread and may
-        // drop the last reference to the signal, so neither `signal` nor `obj` may be touched below.
+        // Rule 1: nothing below may touch the signal.
         if (promise != NULL) {
-            lean_object* res = lean_io_promise_resolve(mk_except_ok(lean_box(signum)), promise);
+            lean_object* res = lean_io_promise_resolve(lean_box(signum), promise);
             lean_dec(res);
             lean_dec(promise);
         }
@@ -108,7 +104,7 @@ void lean_uv_signal_shutdown(lean_object * obj, uv_deferred_teardown & deferred)
     }
 
     if (signal->m_promise != NULL) {
-        deferred.cancel_promise(signal->m_promise);
+        deferred.release(signal->m_promise);
         signal->m_promise = NULL;
     }
 
@@ -157,6 +153,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
         free(signal);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
+
+    // Rule 4.
+    uv_signal->data = nullptr;
 
     signal->m_uv_signal = uv_signal;
     signal->m_signum = signum;
@@ -327,8 +326,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
 
     event_loop_unlock(&global_ev);
 
-    // Dropping the last reference to an unresolved promise resolves it, which runs Lean code
-    // that may re-enter this signal, so the stop has to be complete before any release below.
+    // Rules 1 and 2: the stop is complete and the lock dropped before releasing.
     if (promise != NULL) {
         lean_dec(promise);
     }
@@ -372,8 +370,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_cancel(b_obj_arg obj) {
 
     event_loop_unlock(&global_ev);
 
-    // Dropping the last reference to an unresolved promise resolves it, which runs Lean code that
-    // may re-enter this signal, so the cancellation has to be complete before any release below.
+    // Rules 1 and 2: the cancellation is complete and the lock dropped before releasing.
     if (promise != NULL) {
         lean_dec(promise);
         lean_dec(obj);

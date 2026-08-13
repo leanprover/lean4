@@ -1098,9 +1098,16 @@ extern "C" LEAN_EXPORT void lean_init_task_manager() {
     lean_init_task_manager_using(get_lean_num_threads());
 }
 
+bool task_manager_is_running() {
+    return g_task_manager != nullptr;
+}
+
 extern "C" LEAN_EXPORT void lean_finalize_task_manager() {
     if (g_task_manager) {
-        // It needs to run before the task_manager is deleted. This is the best place to do that.
+        // Teardown settles the promises left pending on the event loop, which goes through the task
+        // manager, so it has to run while that is still up. This is the only place both are in
+        // scope; `finalize_runtime_module` only reaches `finalize_libuv` for a runtime that never
+        // started a task manager, and therefore never had a promise to settle.
         finalize_libuv();
         delete g_task_manager;
         g_task_manager = nullptr;

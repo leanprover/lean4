@@ -69,22 +69,31 @@ extern "C" void finalize_libuv() {
         uv_deferred_teardown * deferred = (uv_deferred_teardown *)arg;
         lean_object * obj = (lean_object*)handle->data;
 
+        // Every constructor attaches the wrapper before releasing the loop lock this walk holds, so
+        // a live handle without one cannot be observed here. Checked unconditionally because the
+        // shutdown below is what detaches `m_uv_*`, and skipping it would leave the handle's owner
+        // free to `free` the same pointer that the `uv_close` below hands to `free`.
+        lean_always_assert(obj != nullptr);
+
         switch (uv_handle_get_type(handle)) {
             case UV_TIMER:
-                if (obj != nullptr) lean_uv_timer_shutdown(obj, *deferred);
+                lean_uv_timer_shutdown(obj, *deferred);
                 break;
             case UV_TCP:
-                if (obj != nullptr) lean_uv_tcp_socket_shutdown(obj, *deferred);
+                lean_uv_tcp_socket_shutdown(obj, *deferred);
                 break;
             case UV_UDP:
-                if (obj != nullptr) lean_uv_udp_socket_shutdown(obj, *deferred);
+                lean_uv_udp_socket_shutdown(obj, *deferred);
                 break;
             case UV_SIGNAL:
-                if (obj != nullptr) lean_uv_signal_shutdown(obj, *deferred);
+                lean_uv_signal_shutdown(obj, *deferred);
                 break;
             default: {
-                // Right now, there's no way to register another type of handler on FFI, so if it's
-                // unknown, then it's something wrong with some internal library that must be handled.
+                // Only reachable once something violates the exclusive ownership of
+                // `uv_default_loop()` documented at `global_ev`, or once the runtime grows a handle
+                // type without teaching this switch about it. Aborting with the type named is the
+                // mildest outcome available: the cases above would have taken the same handle for a
+                // Lean wrapper and freed it.
                 char const * name = uv_handle_type_name(uv_handle_get_type(handle));
                 std::string msg = "libuv teardown reached an unhandled handle type: ";
                 msg += name != nullptr ? name : "unknown";
@@ -98,11 +107,9 @@ extern "C" void finalize_libuv() {
     event_loop_mark_finalized(&global_ev);
     event_loop_cancel_requests(&global_ev);
 
-    // The drain runs Lean code, so it must not hold the loop lock. Closing a stream errors out the
-    // `uv_write_t`/`uv_connect_t`/`uv_shutdown_t` it still had queued, and those callbacks resolve
-    // their promise; a `(sync := true)` continuation of one runs inline on this thread. Holding the
-    // lock across that would let such a continuation block on a `Std.Mutex` owned by a thread parked
-    // in `event_loop_lock`, which is waiting on the lock this thread holds.
+    // The drain runs Lean code (see rule 2 at `uv_deferred_teardown`), so it must not hold the loop
+    // lock: closing a stream errors out the `uv_write_t`/`uv_connect_t`/`uv_shutdown_t` it still had
+    // queued, and those callbacks resolve their promise.
     //
     // Dropping it is safe because `event_loop_mark_finalized` above already turns every requester
     // away before it reaches the mutex, and the loop thread has been joined, so this thread is the
@@ -111,9 +118,10 @@ extern "C" void finalize_libuv() {
 
     uint64_t const deadline = uv_hrtime() + LEAN_UV_TEARDOWN_DRAIN_NS;
 
-    // The first pass runs the close callbacks the walk queued. Anything that survives it is a
-    // threadpool request whose worker has to finish on its own, so the poll below is only ever
-    // reached in that case and sleeping between passes costs nothing in the common one.
+    // The first pass runs the close callbacks the walk queued, and the requests `uv_cancel` reached.
+    // Anything that survives it is a threadpool request whose worker has to finish on its own, so
+    // the poll below is only ever reached in that case and sleeping between passes costs nothing in
+    // the common one.
     while (uv_run(global_ev.loop, UV_RUN_NOWAIT) != 0) {
         if (uv_hrtime() >= deadline) {
             break;

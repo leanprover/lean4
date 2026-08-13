@@ -37,10 +37,9 @@ void lean_uv_tcp_socket_finalizer(void* ptr) {
     lean_always_assert(tcp_socket->m_byte_array == nullptr);
 
     if (!event_loop_lock(&global_ev)) {
+        // Teardown already detached and closed the handle; only the wrapper is left to free.
         event_loop_wait_finalized(&global_ev);
-        if (tcp_socket->m_uv_tcp != nullptr) {
-            free(tcp_socket->m_uv_tcp);
-        }
+        lean_assert(tcp_socket->m_uv_tcp == nullptr);
         free(tcp_socket);
         return;
     }
@@ -81,7 +80,7 @@ void lean_uv_tcp_socket_shutdown(lean_object * obj, uv_deferred_teardown & defer
     if (tcp_socket->m_promise_read != nullptr) {
         uv_read_stop((uv_stream_t*)tcp_socket->m_uv_tcp);
 
-        deferred.cancel_promise(tcp_socket->m_promise_read);
+        deferred.release(tcp_socket->m_promise_read);
         tcp_socket->m_promise_read = nullptr;
 
         if (tcp_socket->m_byte_array != nullptr) {
@@ -93,7 +92,7 @@ void lean_uv_tcp_socket_shutdown(lean_object * obj, uv_deferred_teardown & defer
     }
 
     if (tcp_socket->m_promise_accept != nullptr) {
-        deferred.cancel_promise(tcp_socket->m_promise_accept);
+        deferred.release(tcp_socket->m_promise_accept);
         tcp_socket->m_promise_accept = nullptr;
 
         if (tcp_socket->m_client != nullptr) {
@@ -105,7 +104,7 @@ void lean_uv_tcp_socket_shutdown(lean_object * obj, uv_deferred_teardown & defer
     }
 
     if (tcp_socket->m_promise_shutdown != nullptr) {
-        deferred.cancel_promise(tcp_socket->m_promise_shutdown);
+        deferred.release(tcp_socket->m_promise_shutdown);
         tcp_socket->m_promise_shutdown = nullptr;
     }
 
@@ -133,6 +132,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new() {
         free(tcp_socket);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
+
+    // Rule 4.
+    uv_tcp->data = nullptr;
 
     if (!event_loop_lock(&global_ev)) {
         free(uv_tcp);
@@ -201,10 +203,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
 
     int result = uv_tcp_connect(uv_connect, tcp_socket->m_uv_tcp, (sockaddr*)&addr_struct, [](uv_connect_t* req, int status) {
         tcp_connect_data* tup = (tcp_connect_data*) req->data;
-        lean_promise_resolve_with_code(status, tup->promise);
 
-        // The event loop does not own the object anymore.
+        // Rule 1: the socket is fully settled and the loop's reference handed back first.
         lean_dec(tup->socket);
+
+        lean_promise_resolve_with_code(status, tup->promise);
         lean_dec(tup->promise);
 
         free(req->data);
@@ -302,11 +305,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
     int result = uv_write(write_uv, (uv_stream_t*)tcp_socket->m_uv_tcp, bufs, array_len, [](uv_write_t* req, int status) {
         tcp_send_data* tup = (tcp_send_data*) req->data;
 
+        // Rule 1: the socket is fully settled and the loop's reference handed back first.
+        lean_dec(tup->socket);
+
         lean_promise_resolve_with_code(status, tup->promise);
 
         lean_dec(tup->promise);
         lean_dec(tup->data);
-        lean_dec(tup->socket);
 
         free(tup->bufs);
         free(req->data);
@@ -379,9 +384,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
         tcp_socket->m_promise_read = nullptr;
         tcp_socket->m_byte_array = nullptr;
 
-        // Resolving runs Lean code: a `(sync := true)` continuation runs on this thread and may both
-        // observe the socket's fields and drop its last reference, so the read has to be fully
-        // settled and the loop's reference handed back before anything below is resolved.
+        // Rule 1: the socket is fully settled and the loop's reference handed back first.
         lean_dec(socket);
 
         if (nread >= 0) {
@@ -453,9 +456,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket) 
 
         tcp_socket->m_promise_read = nullptr;
 
-        // Resolving runs Lean code: a `(sync := true)` continuation runs on this thread and may both
-        // observe the socket's fields and drop its last reference, so the wait has to be fully
-        // settled and the loop's reference handed back before anything below is resolved.
+        // Rule 1: the socket is fully settled and the loop's reference handed back first.
         lean_dec(socket);
 
         if (nread == UV_EOF) {
@@ -512,8 +513,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_recv(b_obj_arg socket) {
 
     event_loop_unlock(&global_ev);
 
-    // Dropping the last reference to an unresolved promise resolves it, which runs Lean code that
-    // may re-enter this socket, so the cancellation has to be complete before any release below.
+    // Rules 1 and 2: the cancellation is complete and the lock dropped before releasing.
     lean_dec(promise);
 
     if (byte_array != nullptr) {
@@ -571,9 +571,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
             result = uv_accept((uv_stream_t*)tcp_socket->m_uv_tcp, (uv_stream_t*)client_socket->m_uv_tcp);
         }
 
-        // Resolving runs Lean code: a `(sync := true)` continuation runs on this thread and may both
-        // observe the socket's fields and drop its last reference, so the accept has to be fully
-        // settled and the loop's reference handed back before anything below is resolved.
+        // Rule 1: the socket is fully settled and the loop's reference handed back first.
         tcp_socket->m_promise_accept = nullptr;
         tcp_socket->m_client = nullptr;
 
@@ -712,8 +710,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_accept(b_obj_arg socket) 
 
     event_loop_unlock(&global_ev);
 
-    // Dropping the last reference to an unresolved promise resolves it, which runs Lean code that
-    // may re-enter this socket, so the cancellation has to be complete before any release below.
+    // Rules 1 and 2: the cancellation is complete and the lock dropped before releasing.
     lean_dec(promise);
 
     if (client != nullptr) {
@@ -761,8 +758,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
         tcp_socket->m_promise_shutdown = nullptr;
         free(req);
 
-        // Resolving runs Lean code: a `(sync := true)` continuation runs on this thread and may
-        // drop the last reference to the socket, so `tcp_socket` must not be touched below.
+        // Rule 1: nothing below may touch the socket.
         lean_dec(socket);
 
         if (promise != nullptr) {
@@ -783,8 +779,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
 
         event_loop_unlock(&global_ev);
 
-        // Dropping the last reference to an unresolved promise resolves it, which runs Lean code
-        // that may re-enter this socket, so the failure has to be recorded before any release below.
+        // Rules 1 and 2: the failure is recorded and the lock dropped before releasing.
         lean_dec(promise); // The structure does not own it.
         lean_dec(promise); // We are not going to return it.
         lean_dec(socket);

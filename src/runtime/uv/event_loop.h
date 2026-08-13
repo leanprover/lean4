@@ -28,13 +28,34 @@ enum event_loop_state {
     EVENT_LOOP_FINALIZED,
 };
 
+/* Rules that every handle wrapper in `runtime/uv` follows. They are stated here rather than at each
+   of the ~30 sites that depend on them.
+
+   1. Releasing a `lean_object` can run arbitrary Lean code. Resolving a promise, and dropping the
+      last reference to an unresolved one, both hand control to the task manager, and a
+      `(sync := true)` continuation then runs inline on the releasing thread. Such a continuation may
+      re-enter the same handle and may drop its last reference. So a callback or a `cancel`/`stop`
+      must finish mutating the wrapper -- clear the promise field, stop the handle, hand the loop's
+      reference back -- *before* it releases anything, and must not touch the wrapper afterwards.
+
+   2. Releases must happen outside the loop lock. A continuation reached from `lean_dec` can block on
+      a `Std.Mutex` held by a thread parked in `event_loop_lock`, which would then be waiting on the
+      lock we hold.
+
+   3. Teardown cannot release anything at all while it walks the loop, so it collects into a
+      `uv_deferred_teardown` and drains that once the walk is done and the lock is dropped.
+
+   4. `handle->data` points at the wrapper and is what the teardown walk reads to find it. libuv
+      leaves `data` untouched by `uv_*_init`, so it has to be set before the handle reaches the loop,
+      and every constructor publishes it before releasing the lock. */
 class uv_deferred_teardown {
-    std::vector<lean_object *> m_promises;
-    std::vector<lean_object *> m_releases;
+    std::vector<lean_object *> m_objects;
 
 public:
-    void cancel_promise(lean_object * promise) { m_promises.push_back(promise); }
-    void release(lean_object * obj) { m_releases.push_back(obj); }
+    // Pending promises are released rather than settled: dropping the last reference to an
+    // unresolved promise resolves its task to `none`, which `Async.ofPromise` and friends already
+    // report as a failure. This is the same path `stop` and `cancel` take.
+    void release(lean_object * obj) { m_objects.push_back(obj); }
 
     void run();
 };
@@ -66,6 +87,13 @@ typedef struct {
 } event_loop_t;
 
 // The multithreaded event loop object for all tasks in the task manager.
+//
+// `loop` is `uv_default_loop()`, and the runtime requires exclusive ownership of it: no other code
+// linked into a Lean binary may put a handle on it. `finalize_libuv` enumerates the loop with
+// `uv_walk` and reaps everything it finds, and a `uv_handle_t` carries nothing that identifies its
+// owner -- `data` belongs to whoever created the handle -- so a foreign handle of a type the
+// teardown recognises would be read as a Lean wrapper and then freed. Anything else linked in has
+// to run its own `uv_loop_t`.
 extern event_loop_t global_ev;
 
 // =======================================
@@ -94,6 +122,6 @@ extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive();
 
 // Helpers
 
-void lean_promise_resolve_with_code(int status, obj_arg promise);
+void lean_promise_resolve_with_code(int status, b_obj_arg promise);
 
 }

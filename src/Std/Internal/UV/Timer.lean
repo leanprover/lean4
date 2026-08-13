@@ -27,10 +27,10 @@ A `Timer` can be in one of 3 states:
 This together with whether it was set up as `repeating` with `Timer.new` determines the behavior
 of all functions on `Timer`s.
 
-The event loop is torn down at process exit. Any promise still pending at that point is resolved
-with an `UV_ECANCELED` error, and every operation below then fails with `UV_ECANCELED` instead of
-starting new work. The exceptions are `stop` and `cancel`, which succeed as no-ops: teardown has
-already stopped the timer and settled its promise, so there is nothing left for them to do.
+The event loop is torn down at process exit. Any promise still pending at that point is dropped, so
+a computation waiting on it fails instead of producing a value, and every operation below then fails
+with `UV_ECANCELED` instead of starting new work. The exceptions are `stop` and `cancel`, which
+succeed as no-ops: teardown has already stopped the timer and dropped its promise.
 -/
 def Timer : Type := TimerImpl.type
 
@@ -65,12 +65,11 @@ This function has different behavior depending on the state and configuration of
   - if it is finished, return the last `IO.Promise` created by `next`. Notably this could be one
     that never resolves if the timer was stopped before fulfilling the last one.
 
-If the event loop is torn down (at process exit) while the promise is still pending, it is
-resolved with an `UV_ECANCELED` error. Once the loop is gone this function itself fails with
-`UV_ECANCELED` rather than returning a promise.
+If the event loop is torn down (at process exit) while the promise is still pending, it is dropped.
+Once the loop is gone this function itself fails with `UV_ECANCELED` rather than returning a promise.
 -/
 @[extern "lean_uv_timer_next"]
-opaque next (timer : @& Timer) : IO (IO.Promise (Except IO.Error Unit))
+opaque next (timer : @& Timer) : IO (IO.Promise Unit)
 
 /--
 This function has different behavior depending on the state and configuration of the `Timer`:

@@ -23,8 +23,8 @@ open Std.Net
 Asynchronously resolves a hostname and service to an array of socket addresses.
 
 If the event loop is torn down (at process exit) while the lookup is still in flight, the promise is
-resolved with an `UV_ECANCELED` error. Once the loop is gone this function itself fails with
-`UV_ECANCELED` rather than returning a promise.
+dropped, so a computation waiting on it fails instead of producing a value. Once the loop is gone
+this function itself fails with `UV_ECANCELED` rather than returning a promise.
 -/
 @[extern "lean_uv_dns_get_info"]
 opaque getAddrInfo (host : @& String) (service : @& String) (family : UInt8) :
@@ -34,8 +34,8 @@ opaque getAddrInfo (host : @& String) (service : @& String) (family : UInt8) :
 Performs a reverse DNS lookup on a `SocketAddress`.
 
 If the event loop is torn down (at process exit) while the lookup is still in flight, the promise is
-resolved with an `UV_ECANCELED` error. Once the loop is gone this function itself fails with
-`UV_ECANCELED` rather than returning a promise.
+dropped, so a computation waiting on it fails instead of producing a value. Once the loop is gone
+this function itself fails with `UV_ECANCELED` rather than returning a promise.
 -/
 @[extern "lean_uv_dns_get_name"]
 opaque getNameInfo (host : @& SocketAddress) : IO (IO.Promise (Except IO.Error (String × String)))

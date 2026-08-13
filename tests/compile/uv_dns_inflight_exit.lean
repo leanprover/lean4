@@ -4,7 +4,7 @@ import Std.Internal.UV
 Exercises teardown of `uv_getaddrinfo` requests that are still registered when the process exits.
 
 `uv_getaddrinfo` runs on the threadpool and is invisible to `uv_walk`, so the loop's request list is
-the only thing that can settle these promises; without it `finalize_libuv` would block until the
+the only thing that can reach these promises; without it `finalize_libuv` would block until the
 resolver returns. Nothing here is awaited, so `event_loop_cancel_requests` and the drain that
 `event_loop_abandon_requests` backstops run with the list non-empty.
 

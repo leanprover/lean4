@@ -43,7 +43,7 @@ If:
 -/
 @[inline]
 def wait (s : Sleep) : Async Unit :=
-  Async.ofPromise s.native.next
+  Async.ofPurePromise s.native.next
 
 /--
 If:
@@ -74,14 +74,13 @@ def selector (s : Sleep) : Selector Unit :=
     tryFn := do
       let sleepWaiter ← s.native.next
       if ← sleepWaiter.isResolved then
-        discard <| IO.ofExcept sleepWaiter.result!.get
         return some ()
       else
         s.native.cancel
         return none
 
     registerFn waiter := do
-      let sleepWaiter : AsyncTask Unit := .ofPromise (← s.native.next)
+      let sleepWaiter : AsyncTask Unit := .ofPurePromise (← s.native.next)
 
       BaseIO.chainTask (t := sleepWaiter) fun res => do
         let lose := return ()
@@ -139,7 +138,7 @@ If:
 -/
 @[inline]
 def tick (i : Interval) : Async Unit := do
-  Async.ofPromise i.native.next
+  Async.ofPurePromise i.native.next
 
 /--
 If:

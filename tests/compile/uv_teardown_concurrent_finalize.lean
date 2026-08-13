@@ -6,7 +6,7 @@ Regression guard for libuv teardown racing handle finalizers.
 `finalize_libuv` runs before the task manager is destroyed, so worker threads are still dropping
 references while the teardown walk inspects handles. A handle finalizer that touched its state
 before consulting the loop state used to leave a stale `m_promise` behind, which the walk then
-resolved and released a second time — a refcount underflow that corrupted the heap and crashed
+released a second time — a refcount underflow that corrupted the heap and crashed
 roughly a third of the runs.
 
 Detached tasks churn timers that have already fired (so they are `FINISHED` with a promise still
@@ -23,9 +23,7 @@ partial def churn (n : Nat) : IO Unit := do
     let p ← t.next
     ts := ts.push (t, p)
   for (_, p) in ts do
-    match p.result!.get with
-    | .ok _ => pure ()
-    | .error _ => pure ()
+    let () := p.result!.get
   -- `ts` dies here: 64 timers are finalized at once, each with a resolved promise attached.
   churn (n - 1)
 

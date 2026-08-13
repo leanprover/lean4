@@ -125,7 +125,9 @@ if(USE_MIMALLOC)
     mimalloc
     GIT_REPOSITORY https://github.com/microsoft/mimalloc
     GIT_BRANCH dev3
-    GIT_TAG v3.4.1
+    # v3.4.3 fixes a heap-corruption abort (SIGTRAP out of libmalloc) that v3.4.1 raises while
+    # compiling; do not downgrade without re-running the `tests/compile` suite.
+    GIT_TAG v3.4.3
     # Unnecessarily deep directory structure, but it saves us from a complicated
     # stage0 update for now. If we ever update the other dependencies like
     # cadical, it might be worth reorganizing the directory structure.

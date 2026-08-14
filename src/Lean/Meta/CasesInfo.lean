@@ -54,7 +54,31 @@ public def CasesInfo.numAlts (c : CasesInfo) : Nat :=
   c.altNumParams.size
 
 public def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
-  unless isCasesOnLike (← getEnv) declName do return none
+  if isCasesOnRecursor (← getEnv) declName then
+    let indName := declName.getPrefix
+    let info ← getConstInfoInduct indName
+    let arity := info.numParams + 1 + info.numIndices + 1 + info.numCtors
+    return some {
+      declName, indName, arity
+      discrPos := info.numParams + 1 + info.numIndices
+      altsRange := (info.numParams + 1 + info.numIndices + 1)...arity
+      altNumParams := ← info.ctors.toArray.mapM fun nm => do
+        let cinfo ← getConstInfoCtor nm
+        return .ctor nm cinfo.numFields
+    }
+  else if isNonrecRecursor (← getEnv) declName then
+    let indName := declName.getPrefix
+    let info ← getConstInfoInduct indName
+    let arity := info.numParams + 1 + info.numCtors + info.numIndices + 1
+    return some {
+      declName, indName, arity
+      discrPos := info.numParams + 1 + info.numCtors + info.numIndices
+      altsRange := (info.numParams + 1)...(info.numParams + 1 + info.numCtors)
+      altNumParams := ← info.ctors.toArray.mapM fun nm => do
+        let cinfo ← getConstInfoCtor nm
+        return .ctor nm cinfo.numFields
+    }
+  unless isSparseCasesOn (← getEnv) declName do return none
   let info ← getConstVal declName
   MetaM.run' <|
     forallTelescope info.type fun xs r => do

@@ -418,6 +418,19 @@ private def analyzeFrameRule (rule : BackwardRule) (opHead : Name) (numExcess : 
   forallTelescope (← Meta.inferType rule.expr) fun xs _ => do
     let premiseType (listIdx : Nat) : MetaM Expr :=
       Meta.inferType xs[resultPos[listIdx]!]!
+    -- The conclusion `pre ⊑ wp x Q E s⃗` mentions every parameter but the frame, so unification
+    -- with the goal determines them all and the rule leaves the split VC, the frame condition and
+    -- the frame. `commit` names those three and reads them off by index, so a rule that leaves
+    -- anything else is rejected here rather than silently going unnamed.
+    unless resultPos.size == 3 do
+      throwError "frame: the frame rule for `{opHead}` must leave the split VC, the frame condition \
+        and the frame, but it leaves {resultPos.size} subgoals:\
+        {indentD (← (Array.range resultPos.size).mapM premiseType)}"
+    -- The positions are also fixed: `mkResultPos` orders non-dependent subgoals first, the frame
+    -- occurs in the types of both premises and they occur in neither's, so the goal list is the
+    -- split VC, the frame condition and the frame, at 0, 1 and 2. Matching on shape records the
+    -- same positions without reading them off that ordering, which is a choice worth revisiting
+    -- when this analysis is next rewritten.
     let mut found := none
     -- Find the opApp `op F W` in the split VC that looks like `pre ⊑ (op F W) s`
     for i in [0:resultPos.size] do
@@ -428,8 +441,18 @@ private def analyzeFrameRule (rule : BackwardRule) (opHead : Name) (numExcess : 
         break
     let some (splitVCIdx, opApp) := found
       | throwError "frame: could not locate the split VC in the frame rule for `{opHead}`"
+    -- `idxOf` answers with the size when absent, which would index past the applied rule's goals.
     let frameIdx := resultPos.idxOf (xs.idxOf opApp.appFn!.appArg!)
-    return { rule, splitVCIdx, frameIdx }
+    unless frameIdx < resultPos.size do
+      throwError "frame: the frame of the frame rule for `{opHead}` is not one of its parameters"
+    let mut framesIdx? := none
+    for i in [0:resultPos.size] do
+      if (← premiseType i).isAppOf ``Std.Internal.Do.WP.Frames then
+        framesIdx? := some i
+        break
+    let some framesIdx := framesIdx?
+      | throwError "frame: could not locate the frame condition in the frame rule for `{opHead}`"
+    return { rule, splitVCIdx, frameIdx, framesIdx }
 
 /--
 The frame backward rule for a frame operator `op : R → Pred → Pred`, built from the frame rule
@@ -438,7 +461,8 @@ The frame backward rule for a frame operator `op : R → Pred → Pred`, built f
 The rule concludes `pre ⊑ wp prog Q E s⃗` from the split VC `pre ⊑ (op F W) s⃗` and the frame
 condition `WP.Frames op prog F`, with the frame `F` left schematic and the weakest footprint
 `W = wp prog (fun a => upperAdjoint (op F) (Q a)) E` baked in, so a single rule serves every inferred
-frame. `analyzeFrameRule` records the positions of the schematic slots.
+frame. `analyzeFrameRule` records the positions of the subgoals, so applying the rule reads them off
+by index.
 -/
 public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
     MetaM FrameBackwardRule := do

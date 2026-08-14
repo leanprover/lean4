@@ -401,6 +401,7 @@ private def isDefEqArgsFirstPass
     else if (← isEtaUnassignedMVar a₁ <||> isEtaUnassignedMVar a₂) then
       -- Easy cases are still argument unifications at an implicit position, so they get the same
       -- transparency bump as the second pass.
+      -- See `tests/elab/isDefEqArgsFirstPassBump.lean` for an example of when this is relevant.
       if respectTransparency && (info.binderInfo.isInstImplicit || implicitBump) then
         unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do
           return .failed
@@ -569,6 +570,14 @@ expected type in the same way.
 
 A delayed-assigned spine metavariable need not be admissible itself. It will never be
 assigned directly. The spine of its pending metavariable is checked instead.
+
+Note that metavariables that are unassignable right now are considered safe.
+Therefore, it can happen that instance search finds an instance that still contains metavariables
+and matches the expected type at instance transparency, but assigning those metavariables (which
+were unassignable during instance search) changes the type to something that is not
+instance-reducibly defeq to the metavariable's original type. We argue that instance search still
+did its job correctly. Changing this would in many cases prevent instance search from returning
+instances with metavariables at all.
 -/
 partial def spineMVarsAdmissible (e : Expr) : MetaM Bool := go e
 where
@@ -651,6 +660,7 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
       -- result.
       -- We also fall back to synthesis if `v`'s type could change after the assignment
       -- of metavariables contained in it.
+      -- See `tests/elab/9077.lean` for examples that show the necessity of this behavior.
       let v ← instantiateMVars v
       if (← spineMVarsAdmissible v) then
         let mvarType ← inferType mvar
@@ -2388,6 +2398,8 @@ unfold the class projections that `getStuckMVar?` needs to see.
 When `isDefEqOnFailure` throws a stuck exception, one of the late special cases may
 still close the goal, so the exception is suppressed and re-thrown only if the special cases don't
 succeed.
+
+See `tests/elab/isDefEqProjInstWithMVar.lean` for an example that fails with the old behavior.
 -/
 private def isDefEqAppFallback (t : Expr) (s : Expr) : MetaM Bool := do
   if backward.isDefEq.throwOnStuckAfterApp.get (← getOptions) then

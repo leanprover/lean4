@@ -1,13 +1,12 @@
 /-!
-Regression test for #9077: instance synthesis must not commit to an instance for a type
-that is different at instance-resolution time (e.g. across a semireducible type synonym),
-which used to happen when unification assigned an instance metavariable a value of the
-wrong type.
+Regression test for #9077: instance synthesis must not synthesize instances whose type doesn't match
+the expected type at instance transparency. Notable exception: outParams might only unify at a
+higher transparency.
 
 Tests both settings of `backward.isDefEq.instanceTypes`:
-- `false`: no restriction (the buggy pre-#9077-fix behavior),
-- `true`: reject wrong-typed assignments, falling back to synthesizing the instance and
-  unifying the candidate value with the result.
+- `false`: old behavior,
+- `true`: reject assignments to instance-implicit argument metavariables of the wrong type, falling
+  back to synthesizing the instance and unifying the candidate value with the result.
 -/
 
 class P (α : Type) where p : Nat
@@ -16,19 +15,18 @@ structure H (α : Type) {p : P α} [p' : P α] (h : p = p') where
 class N (β : Type) where
 instance inst (α : Type) [q : Q α] : N (H α (p := q.toP) rfl) where
 
+@[implicit_reducible]
 def Copy (α : Type) := α
-
-set_option backward.isDefEq.respectTransparency false
 
 instance pCopy [P E] : P (Copy E) := (inferInstance : P E)
 
 /-!
-Scenario 1 (the original repro shape): `inst : N (H (Copy E) rfl)` needs `Q (Copy E)`, but
-we only have `iQ : Q E`, and these types are not instance-reducibly equal. With `false`,
-after `synthPending` fails to synthesize `?q : Q (Copy E)`, unification assigns it anyway:
-`pCopy (inst := iQ.toP) =?= ?q.toP` unfolds `pCopy`, giving `iQ.toP =?= ?q.toP` and finally
-`(?q : Q (Copy E)) := (iQ : Q E)`. With `true` this assignment is rejected, and since no
-`Q (Copy E)` instance exists, the synthesis fallback fails too.
+Scenario 1, minimization of #9077's reproducer: `inst : N (H (Copy E) rfl)` requires a `Q (Copy E)`
+instance, but we only have `iQ : Q E`. Therefore, instance synthesis should fail.
+With `false`, the instance is assigned by unification anyway: It sees the problem
+`pCopy (inst := iQ.toP) =?= ?q.toP`, unfolds `pCopy`, obtains `iQ.toP =?= ?q.toP` and finally
+assigns `(?q : Q (Copy E)) := (iQ : Q E)`.
+With `true`, this assignment is rightfully rejected.
 -/
 
 /-- info: inst (Copy E) -/
@@ -49,9 +47,9 @@ variable (E : Type) [iQ : Q E] in
 #synth N (H (Copy E) rfl)
 
 /-!
-Scenario 2: unification directly proposes `(?q : Q (Copy E)) := (iQ : Q E)` because the
-instance value occurs in the goal type. Without a `Q (Copy E)` instance, `false` exhibits
-the bug and `true` fails.
+Scenario 2: unification assigns `(?q : Q (Copy E)) := (iQ : Q E)`.
+Without a `Q (Copy E)` instance, `false` exhibits
+the bug and `true` fails. The latter is expected.
 -/
 
 structure G (α : Type) (q : Q α) where
@@ -77,9 +75,9 @@ variable (E : Type) [iQ : Q E] in
 
 /-!
 Scenario 3: like scenario 2, but the correct instance `qCopy : Q (Copy E)` exists and is
-definitionally equal to the rejected candidate `iQ`. Merely rejecting the assignment would
-fail here — this is the brittleness the synthesis fallback addresses: `true` synthesizes
-`qCopy`, unifies it with the candidate, and succeeds.
+definitionally equal to the rejected candidate `iQ`. It would be brittle to simply reject the
+assignment in this case. Instead, we synthesize the "correct" instance and then check that it
+unifies with the wrongly typed one, at ambient transparency, usually implicit.
 -/
 
 instance qCopy [Q E] : Q (Copy E) := ‹Q E›
@@ -97,13 +95,11 @@ variable (E : Type) [iQ : Q E] in
 #synth M (G (Copy E) iQ)
 
 /-!
-Scenario 4 (minimized from `let x : Std.HashSet _ := ∅` in Mathlib): the goal type contains
-the *caller's* pending instance metavariables (created for the instance-implicit arguments
-of `Box` while its type argument is still undetermined), and unification assigns them to the
-search's subgoal metavariables. These caller metavariables are not assignable during the
-search, so `true` accepts them in the spine rather than demanding an mvar-free value it
-could not synthesize; the elaborator synthesizes them later, once `useBox x` determines the
-type argument.
+Regression test for a failure observed after introducing the new behavior, minimized from
+`let x : Std.HashSet _ := ∅` occurrences. The instance's expected type contains an unassigned
+metavariable, which is unassignable during instance search. This metavariable does not originate
+from an instance-implicit argument. Still, we allow this metavariable in spine positions of the
+assignment.
 -/
 
 class R (α : Type) where

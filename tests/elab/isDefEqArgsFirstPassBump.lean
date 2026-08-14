@@ -1,29 +1,30 @@
 /-!
-The first pass of `isDefEqArgs` must apply the `.implicit` transparency bump too.
+The first pass of `isDefEqArgs` must bump to transparency for implicit arguments, just like the
+second pass.
 
 Reduced from `CategoryTheory.Abelian.subobjectIsoSubobjectOp` in Mathlib's
-`CategoryTheory/Abelian/Subobject.lean` — the order isomorphism
-`Subobject X ≃o (Subobject (op X))ᵒᵈ` — whose proof stops elaborating without the bump,
-failing to synthesize `Mono (kernel.ι (cokernel.π f))`.
+`CategoryTheory/Abelian/Subobject.lean`, which otherwise fails to synthesize
+`Mono (kernel.ι (cokernel.π f))`.
 
-`isDefEqArgsFirstPass` unifies an argument pair eagerly when one side is an unassigned
-metavariable, instead of postponing it to the second pass. Such a pair is still an argument
-unification at an implicit position, so it gets the same transparency bump as the second pass:
-whether an argument is checked at `.implicit` must not depend on which side happens to be an
-unassigned metavariable.
+`isDefEqArgsFirstPass` immediately unifies an argument pair when one side is an unassigned
+metavariable instead of postponing it to the second pass. Such a pair is still an argument
+unification at an implicit position, but originally, the assignment did not involve a unification
+problem, so transparency did not matter. Since `respectTransparency.isDefEq.instanceTypes`, however,
+the assignment can fall back to synthesizing an instance and unifying with it, and the transparency
+of the unification should be exactly the same as if it happened in the second pass.
 
 Below, synthesizing `Mono (limitPi f)` applies `limitPiMono`, whose conclusion is
-`Mono (limitPi ?f ?inst)`. The instance-implicit `?inst` is unassigned, so the first pass takes
-the eager branch and assigns it `h`. Checking that assignment compares `HasLimit f` against
-`HasLimit (ofOpp (toOpp f))`, which fails at `.instances` because `ofOpp` and `toOpp` are
-`implicit_reducible`. The `backward.isDefEq.instanceTypes` fallback then synthesizes `HasLimit f`
-via `hasLimitAll` and compares `h` against the result — and *that* comparison runs at the ambient
-transparency. Bumped to `.implicit` it reduces `ofOpp (toOpp f)` to `f` and the two proofs match;
-at `.instances` it does not, and synthesis fails with `failed to synthesize Mono (limitPi f)`.
+`Mono (limitPi ?f ?inst)`. The instance-implicit `?inst` is unassigned, so the first pass assigns it
+`h`. Checking that assignment compares `HasLimit f` against `HasLimit (ofOpp (toOpp f))`, which
+fails at instance transparency because `ofOpp` and `toOpp` are `implicit_reducible`. Lean falls
+back to synthesizing `HasLimit f` via `hasLimitAll` and compares `h` against the result.
+That comparison runs at the ambient transparency. Bumped to implicit transparency, it reduces
+`ofOpp (toOpp f)` to `f` and the two proofs match. At `.instances`, it does not, and synthesis fails
+with `failed to synthesize Mono (limitPi f)`.
 
-There the assignment reads
+In the original situation from mathlib, the assignment read
 `(?m : HasEqualizer (cokernel.π f) 0) := (h : HasKernel (cokernel.π f).op.unop)`, and the
-`implicit_reducible` definitions are `Quiver.Hom.op` and `Quiver.Hom.unop`.
+`implicit_reducible` definitions were `Quiver.Hom.op` and `Quiver.Hom.unop`.
 -/
 
 @[implicit_reducible] def toOpp (a : Nat) : Nat := a

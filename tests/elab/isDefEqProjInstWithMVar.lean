@@ -1,6 +1,11 @@
 /-!
-MWE: `isDefEqApp` calls `isDefEqOnFailure` itself, so a stuck outer-level instance
-metavariable throws before `isExprDefEqExpensive` ever reaches `isDefEqProjInst`.
+Regression test:
+`isDefEqApp` calls `isDefEqOnFailure`. If it is stuck on a metavariable during instance search,
+a stuck exception is thrown before `isDefEqProjInst` was tried. This made comparisons like
+`x * y =?= Mul.mul x y` wrongly fail at implicit transparency.
+
+This was fixed by deferring throwing the stuck exception until heuristics such as `isDefEqProjInst`
+was tried.
 -/
 
 /-- like `CommSemiring` -/
@@ -31,9 +36,8 @@ def h {α : Type} {k : K α} : Hom α k := ⟨fun _ => 0⟩
 @[reducible] def kNat : K Nat where
   mul a _ := a
 
-/-!
-The error previously was:
----
+set_option backward.isDefEq.throwOnStuckAfterApp true in
+/--
 error: Function expected at
   h
 but this term has type
@@ -41,12 +45,17 @@ but this term has type
 
 Note: Expected a function because this term is being applied to the argument
   b
----
-Reason: `[implicit] HMul.hmul x y =?= Mul.mul x y`, involving a `Mul` mvar, fails.
+-/
+/-
+Reason:
+`[implicit] HMul.hmul x y =?= Mul.mul x y`, involving a `Mul` mvar, fails.
 `isDefEqApp` calls `isDefEqOnFailure`, which finds the mvar and throws a stuck exception.
 Lean can't synthesize the mvar though, so we fail hard before trying `isDefEqProjInst`.
 
 This was fixed by deferring the stuck exception until `isDefEqProjInst` was tried.
 -/
+#guard_msgs in
+example (b : Box Nat kNat) : Nat := h b
 
+-- succeeds now
 example (b : Box Nat kNat) : Nat := h b

@@ -11490,8 +11490,8 @@ goto v___jp_3976_;
 }
 else
 {
-lean_dec(v_pre_3990_);
 lean_dec_ref_known(v_declName_3989_, 2);
+lean_dec(v_pre_3990_);
 lean_dec(v_declName_3975_);
 lean_dec_ref(v_env_3973_);
 goto v___jp_3976_;

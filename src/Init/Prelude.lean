@@ -1187,12 +1187,9 @@ operator.
 The Boolean `or` is a `@[macro_inline]` function in order to give it short-circuiting evaluation:
 if `x` is `true` then `y` is not evaluated at runtime.
 -/
-@[macro_inline, implicit_reducible]
-def Bool.or (x y : Bool) : Bool :=
-  match x with
-  | true  => true
-  | false => y
-  -- Bool.rec y true x
+@[implicit_reducible]
+noncomputable def Bool.or (x y : Bool) : Bool :=
+  Bool.rec y true x
 
 @[macro_inline, inherit_doc Bool.or] def Bool.Internal.or (x y : Bool) : Bool :=
   match x with
@@ -1208,12 +1205,9 @@ operator.
 The Boolean `and` is a `@[macro_inline]` function in order to give it short-circuiting evaluation:
 if `x` is `false` then `y` is not evaluated at runtime.
 -/
-@[macro_inline, implicit_reducible]
-def Bool.and (x y : Bool) : Bool :=
-  match x with
-  | false => false
-  | true  => y
-  -- Bool.rec false y x
+@[implicit_reducible]
+noncomputable def Bool.and (x y : Bool) : Bool :=
+  Bool.rec false y x
 
 @[macro_inline, inherit_doc Bool.and] def Bool.Internal.and (x y : Bool) : Bool :=
   match x with
@@ -1226,12 +1220,9 @@ Boolean negation, also known as Boolean complement. `not x` can be written `!x`.
 This is a function that maps the value `true` to `false` and the value `false` to `true`. The
 propositional connective is `Not : Prop → Prop`.
 -/
-@[macro_inline, implicit_reducible]
-def Bool.not (x : Bool) : Bool :=
-  match x with
-  | true => false
-  | false => true
-  -- Bool.rec true false x
+@[implicit_reducible]
+noncomputable def Bool.not (x : Bool) : Bool :=
+  Bool.rec true false x
 
 @[inline, inherit_doc Bool.not] def Bool.Internal.not : Bool → Bool
   | true  => false

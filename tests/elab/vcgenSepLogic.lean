@@ -209,6 +209,16 @@ def pop (p : Addr) : HeapM Nat := do
   store p r.2
   pure r.1
 
+/-- Sum the first `n` cells from `base`. -/
+def sumarray (base : Addr) (n : Nat) : HeapM Nat := do
+  let mut s := 0
+  let mut i := 0
+  for _ in [0:n] do
+    let x ← load (base + i)
+    s := s + x
+    i := i + 1
+  pure s
+
 /-- In-place reverse: walk the spine, swapping each node's next/prev links (`next := prev`,
 `prev := old next`). The loop is fuel-bounded; `xs.length` iterations suffice. -/
 def reverse (fuel : Nat) (head : Addr) : HeapM Addr := do
@@ -362,6 +372,9 @@ theorem sepConj_comm (a b : HProp) : (a ∗ b) = (b ∗ a) := by
     · rintro ⟨h₁, h₂, hd, rfl, hp, hq⟩
       exact ⟨h₂, h₁, Heap.disjoint_comm hd, Heap.union_comm hd, hq, hp⟩
 
+theorem sepConj_left_comm (a b c : HProp) : (a ∗ (b ∗ c)) = (b ∗ (a ∗ c)) := by
+  rw [← sepConj_assoc, sepConj_comm a b, sepConj_assoc]
+
 @[grind =]
 theorem sepConj_emp (a : HProp) : (a ∗ emp) = a := by
   rw [sepConj_comm, emp_sepConj]
@@ -458,6 +471,10 @@ theorem sepConj_iSup {ι : Type} (F : HProp) (g : ι → HProp) :
   · obtain ⟨i, h₁, h₂, hdis, rfl, hF, hg⟩ := (iSup_hprop_apply (fun x => F ∗ g x) h).mp hh
     exact ⟨h₁, h₂, hdis, rfl, hF, (iSup_hprop_apply g h₂).mpr ⟨i, hg⟩⟩
 
+/-- Assert a pure fact alongside a resource that is kept. -/
+@[grind ←] theorem le_ofProp_meet_self {φ : Prop} (X : HProp) (h : φ) : X ⊑ ⌜φ⌝ ⊓ X :=
+  le_meet _ _ _ (le_ofProp _ _ h) PartialOrder.rel_refl
+
 /-! ## The magic wand as upper adjoint -/
 
 instance (F : HProp) : PreservesSup (sepConj F) where
@@ -553,19 +570,6 @@ theorem le_sepConj_wand_refl (X A : HProp) : X ⊑ X ∗ (A -∗ A) :=
   PartialOrder.rel_trans (PartialOrder.rel_of_eq (sepConj_emp X).symm)
     (sepConj_mono_right X (le_wand A emp A (PartialOrder.rel_of_eq (sepConj_emp A))))
 
-/-- `le_sepConj_wand_refl` behind two resources, matching a spec precondition's association. -/
-@[grind ←]
-theorem le_sepConj_wand_refl₂ (X Y A : HProp) : X ∗ Y ⊑ X ∗ Y ∗ (A -∗ A) :=
-  PartialOrder.rel_trans (le_sepConj_wand_refl (X ∗ Y) A)
-    (PartialOrder.rel_of_eq (sepConj_assoc X Y (A -∗ A)))
-
-/-- Attach the trivial wand at an `emp`-framed residual post. -/
-theorem le_sepConj_wand_emp_wand_refl (X A : HProp) : X ⊑ X ∗ (A -∗ (emp -∗ A)) :=
-  PartialOrder.rel_trans (PartialOrder.rel_of_eq (sepConj_emp X).symm)
-    (sepConj_mono_right X (le_wand A emp (emp -∗ A)
-      (le_wand emp (A ∗ emp) A
-        (PartialOrder.rel_of_eq (by rw [emp_sepConj, sepConj_emp])))))
-
 /-! ## The allocator's resource
 
 `Pool k` is what the allocator owns: its bump cell, holding `k`, and every address from `k` on.
@@ -614,6 +618,47 @@ theorem Unallocated_eq (k : Addr) : Unallocated k = k ↦ 0 ∗ Unallocated (k +
     have e2 := h2 n
     subst e1
     by_cases hn : n = k <;> simp [Heap.union, Heap.single, hn] at e2 ⊢ <;> grind
+
+/-! ## Arrays
+
+`IsArray xs base` owns the cells `base`, `base + 1`, … holding `xs`. Unlike a list, a cell is
+reached by arithmetic rather than by following a pointer, so focusing on one element splits the
+predicate at an index and hands back a wand to close it again. -/
+
+/-- The cells from `base` on, holding `xs`. -/
+noncomputable def IsArray : List Nat → Addr → HProp
+  | [], _base => emp
+  | x :: xs, base => base ↦ x ∗ IsArray xs (base + 1)
+
+@[grind =] theorem IsArray_nil (base : Addr) : IsArray [] base = emp := rfl
+
+@[grind =] theorem IsArray_cons (x : Nat) (xs : List Nat) (base : Addr) :
+    IsArray (x :: xs) base = base ↦ x ∗ IsArray xs (base + 1) := rfl
+
+/-- Focus the `i`th cell, keeping a wand that closes the array back up. -/
+theorem IsArray_focus (xs : List Nat) (base : Addr) (i : Nat) (h : i < xs.length) :
+    IsArray xs base ⊑ (base + i) ↦ xs[i]! ∗ ((base + i) ↦ xs[i]! -∗ IsArray xs base) := by
+  induction xs generalizing base i with
+  | nil => simp at h
+  | cons x xs ih =>
+    match i with
+    | 0 =>
+      rw [IsArray_cons, show base + 0 = base from rfl, show (x :: xs)[0]! = x from rfl]
+      exact sepConj_mono_right _ (le_wand _ _ _ (PartialOrder.rel_of_eq (by grind)))
+    | i + 1 =>
+      have h' : i < xs.length := by simpa using h
+      have harr : base + (i + 1) = (base + 1) + i := by grind
+      have hidx : (x :: xs)[i + 1]! = xs[i]! := by simp
+      rw [IsArray_cons, harr, hidx]
+      refine PartialOrder.rel_trans (sepConj_mono_right _ (ih (base + 1) i h')) ?_
+      refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
+        ((base + 1) + i) ↦ xs[i]! ∗ (base ↦ x ∗ (((base + 1) + i) ↦ xs[i]! -∗ IsArray xs (base + 1))))) ?_
+      · grind
+      refine sepConj_mono_right _ (le_wand _ _ _ ?_)
+      refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
+        base ↦ x ∗ (((base + 1) + i) ↦ xs[i]! ∗ (((base + 1) + i) ↦ xs[i]! -∗ IsArray xs (base + 1))))) ?_
+      · grind
+      exact sepConj_mono_right _ (sepConj_wand_le _ _)
 
 /-! ## Doubly-linked lists
 
@@ -760,7 +805,7 @@ partial def sepAtoms.go (e : Expr) : Array Expr :=
   if e.isAppOf ``sepConj then go e.appFn!.appArg! ++ go e.appArg!
   else #[e]
 
-/-- Flatten a separating conjunction; instantiate mvars once at the root. -/
+/-- Flatten a separating conjunction. Instantiate mvars once at the root. -/
 def sepAtoms (e : Expr) : MetaM (Array Expr) :=
   return sepAtoms.go (← instantiateMVars e)
 
@@ -770,159 +815,160 @@ def sepConjOfAtoms (atoms : Array Expr) : SymM Expr := do
     let op ← mkConstS ``sepConj
     atoms.pop.foldrM (fun a acc => mkAppNS op #[a, acc]) atoms.back!
 
-/-- Match and remove `cancel` atoms from `pre`. Returns the remaining `pre` atoms, the matched
-`pre` atoms in `cancel` order, and the unmatched `cancel` atoms. Successful pairings are committed,
-so the caller sees the schematics of the matched `cancel` atoms instantiated at the goal's values.
+/-- Match `cancel`'s atoms against `pre`'s atoms, pairing up to `isDefEq`.
 
-Naïve by design: atoms match only up to `isDefEq`, so a footprint cancels a cell only when its address
-and value are already defeq to one in `pre`. A comprehensive frameproc would also match `pointsTo`s by
-address label with a non-defeq value. This suffices for the demo. -/
+Example: take `pre = l1 ↦ a ∗ l2 ↦ b` and `cancel = ?l ↦ ?v ∗ IsList q xs`. The atom `?l ↦ ?v`
+pairs with `l1 ↦ a`, and the pairing assigns `?l := l1` and `?v := a`. The atom `IsList q xs`
+pairs with nothing. The result is `(rest, footprint, unpaid)` with `rest = #[l2 ↦ b]`,
+`footprint = #[l1 ↦ a, IsList q xs]` and `unpaid = #[IsList q xs]`.
+
+`footprint` has one entry per `cancel` atom, in `cancel`'s order. An entry is the paired `pre`
+atom where a pairing exists, and the `cancel` atom itself where none does. `unpaid` repeats the
+entries of the second kind, so `unpaid ⊆ footprint`, and these two arrays are the only ones that
+overlap. `rest` holds the `pre` atoms that no `cancel` atom paired with, so `rest` and
+`footprint \ unpaid` partition `pre`'s atoms. Pairings assign the `cancel` atoms'
+metavariables, so the caller sees them instantiated. `footprint` keeps `cancel`'s order, so the
+spec's precondition VC closes by AC-rearrangement downstream.
+
+Naïve by design: atoms match only up to `isDefEq`, so a footprint cancels a cell only when its
+address and value are already defeq to one in `pre`. A comprehensive frameproc must also match a
+`pointsTo` by address label with a non-defeq value. This suffices for the demo. -/
 def matchSepAtoms (pre cancel : Expr) : MetaM (Array Expr × Array Expr × Array Expr) := do
   let mut rest ← sepAtoms pre
-  let mut matched : Array Expr := #[]
+  let mut footprint : Array Expr := #[]
   let mut unmatched : Array Expr := #[]
   for atom in (← sepAtoms cancel) do
     -- `withoutModifyingMCtx`: a failed near-miss must not pin schematic mvars.
     match ← rest.findIdxM? fun cand => withoutModifyingMCtx (isDefEq atom cand) with
     | some i =>
       discard <| isDefEq atom rest[i]!
-      matched := matched.push rest[i]!
+      footprint := footprint.push rest[i]!
       rest := rest.eraseIdxIfInBounds i
-    | none => unmatched := unmatched.push atom
-  return (rest, matched, unmatched)
+    | none =>
+      footprint := footprint.push (← instantiateMVars atom)
+      unmatched := unmatched.push atom
+  return (rest, footprint, unmatched)
 
--- This demo's frame procedure runs in `SymM` but leans on `MetaM` here: `Meta.AC` closes the
--- `∗`-rearrangement, and `isDefEq` matches atoms that may carry spec metavariables. It is worth it
--- for a self-contained example; a production frameproc would want a `SymM`-native equivalent.
-def proveSepConjLe (pre rhs : Expr) : MetaM (Option Expr) := do
-  if ← isDefEq pre rhs then
-    return some (← mkAppM ``PartialOrder.rel_of_eq #[← mkEqRefl pre])
-  let eqTy ← mkEq pre rhs
-  let eqMVar ← mkFreshExprSyntheticOpaqueMVar eqTy
+-- This demo's frame procedure runs in `GrindM` but leans on `MetaM` here: `Meta.AC` closes the
+-- `∗`-rearrangement, and `isDefEq` matches atoms that can carry spec metavariables. This keeps
+-- the example self-contained. A production frameproc needs a `SymM`-native equivalent.
+def proveSepConjEq (lhs rhs : Expr) : MetaM (Option Expr) := do
+  -- Probe defeq without committing: a failed `isDefEq` can leave partial metavariable assignments.
+  if ← withoutModifyingMCtx (isDefEq lhs rhs) then
+    discard <| isDefEq lhs rhs
+    return some (← mkEqRefl lhs)
+  let eqMVar ← mkFreshExprSyntheticOpaqueMVar (← mkEq lhs rhs)
   try
     Lean.Meta.AC.rewriteUnnormalizedRefl eqMVar.mvarId!
-    let eq ← instantiateMVars eqMVar
-    return some (← mkAppM ``PartialOrder.rel_of_eq #[eq])
+    return some (← instantiateMVars eqMVar)
   catch _ =>
     return none
 
-/-- A `FrameSplit` cancelling `frame` off the precondition: the split VC `pre ⊑ frame ∗ residualPre`
-is `pre ⊑ frame ∗ footprint` (proved by AC-rearrangement of `∗`) composed by right-monotonicity with
-the emitted subgoal `footprint ⊑ residualPre`. -/
-def mkSepFrameSplit (i : FrameInferenceInfo) (frame footprint : Expr) : SymM FrameSplit := do
-  -- `.appArg!` reads the `frame ∗ ·` right-hand side off the split VC `mkSplitVCS` builds.
-  let sepFF := (← i.mkSplitVCS frame footprint).appArg!
-  match ← proveSepConjLe (← i.pre) sepFF with
-  | none => FrameSplit.withDeferredSplitVC i frame
-  | some hcl =>
-    let le ← i.le
-    let residualPre ← i.mkResidualPre
-    let residualPreE := mkMVar residualPre
-    let sepFR := (← i.mkSplitVCS frame residualPreE).appArg!
-    let sub ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[footprint, residualPreE])
-    let mono ← mkAppNS (← mkConstS ``sepConj_mono_right) #[frame, footprint, residualPreE, sub]
-    let args := le.getAppArgs
-    let proof ← mkAppNS (← mkConstS ``PartialOrder.rel_trans le.getAppFn.constLevels!)
-      #[args[0]!, args[1]!, ← i.pre, sepFF, sepFR, hcl, mono]
-    return FrameSplit.withDischargedSplitVC frame residualPre proof [sub.mvarId!]
+def proveSepConjLe (pre rhs : Expr) : MetaM (Option Expr) := do
+  let some eq ← proveSepConjEq pre rhs | return none
+  return some (← mkAppM ``PartialOrder.rel_of_eq #[eq])
 
-/-- Frame `emp` for a spec that carries its postcondition through a wand,
+/-- Discharge the split VC `pre ⊑ ?F ∗ W` for a cancellation result and complete the spec
+application `app`.
 
-    ⦃ P ∗ (G -∗ Q r₀) ⦄ x ⦃ Q ⦄
+Example: continue from `matchSepAtoms`'s example, with `specPre = ?l ↦ ?v ∗ IsList q xs` as the
+`cancel` argument, cancelled against `pre = l1 ↦ a ∗ l2 ↦ b`. So `frameAtoms = #[l2 ↦ b]`,
+`footprintAtoms = #[l1 ↦ a, IsList q xs]` and `unpaid = #[IsList q xs]`.
 
-where `Q` is schematic, `G` is what the spec establishes and `r₀` is the result it returns.
-Cancelling the `∗`-factors of that precondition against those of the goal pairs off `P` and leaves
-`G -∗ Q r₀`, which reaches this procedure as `wandAtom`.
+First the completion. `app.post` gets the post of the weakest footprint `W`, so `app.proof` now
+proves `app.footprint ⊑ W`. `app.footprint` gets `footprint = l1 ↦ a ∗ IsList q xs`, the
+conjunction of `footprintAtoms`. `app.preVC` demands `footprint ⊑ specPre`. The cancellation
+assigned `?l := l1` and `?v := a`, so both sides are `l1 ↦ a ∗ IsList q xs`, and AC-rearrangement
+closes the VC. If AC fails, the VC stays for the user, with the spec's parameters live.
 
-For `append_spec` at goal `A ∗ B ⊑ wp (append fuel x y) Q`, the precondition is
-`?A ∗ ?B ∗ (?G -∗ Q ?r₀)` and `matchSepAtoms` assigns `?A := A`, `?B := B`, pinning `?G` and `?r₀`.
-The frame rule at frame `emp` re-posts the goal at `fun a => emp -∗ Q a`, so
+Then the split VC, along one chain. Write `paid = l1 ↦ a` for the conjunction of `footprintAtoms`
+minus `unpaid`, `unpaid = IsList q xs` and `frame = l2 ↦ b` for the other two conjunctions:
 
-    footprint := A ∗ B ∗ (G -∗ (emp -∗ Q r₀))
+    pre ⊑ paid ∗ frame          -- `q1` by AC: both sides carry `pre`'s atoms
+        ⊑ paid ∗ (?F ∗ unpaid)  -- the residual `frame ⊑ ?F ∗ unpaid`, under `paid ∗ ·`
+        = ?F ∗ (paid ∗ unpaid)  -- `sepConj_left_comm`
+        = ?F ∗ footprint        -- `hfp` by AC
+        ⊑ ?F ∗ W                -- the completed `app.proof`, under `?F ∗ ·`
 
-and the split VC `A ∗ B ⊑ emp ∗ residualPre` is `rel_trans (rel_trans q₂ q₃) (sepConj_mono_right
-sub₁)` for
+The residual `l2 ↦ b ⊑ ?F ∗ IsList q xs` and the schematic frame `?F` surface as subgoals for the
+user. The schematic `?F` never reaches `isDefEq` or AC: it rides through `sepConj_left_comm`, and
+the AC equations relate concrete terms only.
 
-    q₂   : A ∗ B ⊑ (A ∗ B) ∗ (G -∗ (emp -∗ G))            le_sepConj_wand_emp_wand_refl at G = Q r₀
-    q₃   : (A ∗ B) ∗ (G -∗ (emp -∗ G)) = emp ∗ footprint   associativity, commutativity, `emp`
-    sub₁ : footprint ⊑ residualPre
+With an empty `unpaid` the same chain closes on its own. The residual reads `frame ⊑ ?F ∗ emp`,
+so the frame is `frame`, and `sepConj_emp` closes the residual and doubles as the equation `hfp`.
+Both closed goals leave the returned list through the solver's assigned-goal filter. If AC fails
+on `q1` or `hfp`, the split VC survives whole, as deferred framing. -/
+def dischargeSplitVC (i : FrameInferenceInfo) (goals : FrameGoals) (app : SpecApplication)
+    (frameAtoms footprintAtoms unpaid : Array Expr) : Lean.Meta.Grind.GrindM (List MVarId) := do
+  let W ← goals.weakestFootprint i.excessArgs.size
+  unless ← isDefEq app.post (W.getArg! 8) do
+    throwError "sepConj frameproc: could not fix the framed postcondition"
+  let footprintC ← sepConjOfAtoms footprintAtoms
+  unless ← isDefEq app.footprint footprintC do
+    throwError "sepConj frameproc: could not fix the footprint"
+  if let some hfp ← proveSepConjLe footprintC (← instantiateMVars (← app.preVC.getType).appArg!) then
+    app.preVC.assign hfp
+  let frameC ← sepConjOfAtoms frameAtoms
+  let F := mkMVar goals.frame
+  let paidC ← sepConjOfAtoms (footprintAtoms.filter (!unpaid.contains ·))
+  let unpaidC ← sepConjOfAtoms unpaid
+  let residual ← mkFreshExprSyntheticOpaqueMVar (← mkAppM ``Lean.Order.PartialOrder.rel
+    #[frameC, ← mkAppM ``sepConj #[F, unpaidC]])
+  if unpaid.isEmpty then
+    -- Nothing unpaid: the frame is `frameC`, and `sepConj_emp` closes the residual.
+    goals.frame.assign frameC
+    residual.mvarId!.assign (← mkAppM ``Lean.Order.PartialOrder.rel_of_eq
+      #[← mkAppM ``Eq.symm #[← mkAppM ``sepConj_emp #[frameC]]])
+  let some q1 ← proveSepConjLe (← i.pre) (← mkAppM ``sepConj #[paidC, frameC])
+    | return [goals.frame, goals.splitVC, goals.frames]
+  -- With nothing unpaid, `paidC` is `footprintC`, so `sepConj_emp` is the equation. `Meta.AC`
+  -- normalizes the two sides of an `∗ emp` equation in different atom orders and then fails.
+  let some hfp ← if unpaid.isEmpty then some <$> mkAppM ``sepConj_emp #[footprintC]
+    else proveSepConjEq (← mkAppM ``sepConj #[paidC, unpaidC]) footprintC
+    | return [goals.frame, goals.splitVC, goals.frames]
+  let prf ← mkAppM ``Lean.Order.PartialOrder.rel_trans #[q1,
+    ← mkAppM ``Lean.Order.PartialOrder.rel_trans
+      #[← mkAppM ``sepConj_mono_right #[paidC, residual],
+        ← mkAppM ``Lean.Order.PartialOrder.rel_trans
+          #[← mkAppM ``Lean.Order.PartialOrder.rel_of_eq
+              #[← mkAppM ``Eq.trans #[← mkAppM ``sepConj_left_comm #[paidC, F, unpaidC],
+                  ← mkAppM ``congrArg #[← mkAppM ``sepConj #[F], hfp]]],
+            ← mkAppM ``sepConj_mono_right #[F, app.proof]]]]
+  goals.splitVC.assign prf
+  return goals.frame :: residual.mvarId! :: app.preVC :: app.subgoals ++ [goals.frames]
 
-`residualPre` receives `wp (append fuel x y) (fun a => emp -∗ Q a)`, and re-applying the spec
-against it produces the precondition VC `footprint ⊑ A ∗ B ∗ (G -∗ (emp -∗ Q r₀))`. Both sides
-agree, so unification closes it and assigns `?A`, `?B`, `?G`, `?r₀`. `finish` receives
-`xs.length ≤ fuel` and `WP.Frames sepConj (append fuel x y) emp`.
-
-At `G ≠ Q r₀`, `q₂` and `q₃` become a subgoal `pre ⊑ emp ∗ footprint`. -/
-def mkEmpFrameSplit (i : FrameInferenceInfo) (matched : Array Expr) (wandAtom : Expr) :
-    SymM (Option FrameSplit) := do
-  let wandAtom ← instantiateMVarsS wandAtom
-  -- `wandAtom = G -∗ b`; rewrap `b` at the `emp`-framed residual post.
-  unless wandAtom.isAppOfArity ``wand 2 do return none
-  if wandAtom.hasExprMVar then return none
-  let G := wandAtom.appFn!.appArg!
-  let b := wandAtom.appArg!
-  let empE ← mkConstS ``emp
-  -- The inner wrapper mirrors the residual post the frame rule builds, in the frame rule's own
-  -- spelling (`PreservesSup.upperAdjoint`), so the re-application's precondition VC closes by
-  -- unification.
-  let sepConjEmp ← mkAppNS (← mkConstS ``sepConj) #[empE]
-  let inner ← shareCommon (← Meta.mkAppOptM ``Lean.Order.PreservesSup.upperAdjoint
-    #[none, none, some sepConjEmp, some b])
-  let wrapped ← mkAppNS (← mkConstS ``wand) #[G, inner]
-  let footprint ← sepConjOfAtoms (matched.push wrapped)
-  let le ← i.le
-  let residualPre ← i.mkResidualPre
-  let sepConjE ← mkConstS ``sepConj
-  let empFoot ← mkAppNS sepConjE #[empE, footprint]
-  let empRes ← mkAppNS sepConjE #[empE, mkMVar residualPre]
-  let sub1 ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[footprint, mkMVar residualPre])
-  let mono ← mkAppNS (← mkConstS ``sepConj_mono_right) #[empE, footprint, mkMVar residualPre, sub1]
-  let args := le.getAppArgs
-  let relTrans ← mkConstS ``PartialOrder.rel_trans le.getAppFn.constLevels!
-  let mkTrans (x y z h₁ h₂ : Expr) : SymM Expr :=
-    mkAppNS relTrans #[args[0]!, args[1]!, x, y, z, h₁, h₂]
-  let pre ← i.pre
-  -- A trivial continuation (the wand's argument is the residual post itself) discharges
-  -- `pre ⊑ emp ∗ footprint` in place: attach the trivial wand, then reassociate.
-  if isSameExpr G b then
-    let preW ← mkAppNS sepConjE #[pre, wrapped]
-    if let some q3 ← proveSepConjLe preW empFoot then
-      let q2 ← mkAppNS (← mkConstS ``le_sepConj_wand_emp_wand_refl) #[pre, G]
-      let toFoot ← mkTrans pre preW empFoot q2 q3
-      let proof ← mkTrans pre empFoot empRes toFoot mono
-      return some (FrameSplit.withDischargedSplitVC empE residualPre proof [sub1.mvarId!])
-  let sub2 ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[pre, empFoot])
-  let proof ← mkTrans pre empFoot empRes sub2 mono
-  return some (FrameSplit.withDischargedSplitVC empE residualPre proof
-    [sub2.mvarId!, sub1.mvarId!])
-
-/-- Automatic frame inference by domain difference: the spec's precondition's atoms (its footprint)
-are cancelled from the goal precondition's, and the leftover atoms are the frame. Example: goal
-precondition `l1 ↦ a ∗ l2 ↦ b` against `store_spec`'s `?l ↦ ?v` cancels `l1 ↦ a` (pinning
-`?l := l1`, `?v := a`), frames `l2 ↦ b`, and proves the split VC by AC-rearrangement. A pinned
-`frames` resource cancels its own atoms instead, leaving the split VC open when they are missing.
-A spec whose only uncancelled atom is a wand `?G -∗ Q ?r₀` is ramified and goes to
-`mkEmpFrameSplit`. -/
+/-- Automatic frame inference by domain difference: cancel the spec precondition's atoms (its
+footprint) from the goal precondition's atoms, and the leftover atoms are the frame. Example: the
+goal precondition `l1 ↦ a ∗ l2 ↦ b` against `store_spec`'s `?l ↦ ?v` cancels `l1 ↦ a` and pins
+`?l := l1` and `?v := a`. The leftover `l2 ↦ b` is the frame, and AC-rearrangement proves the
+split VC. A pinned `frames` resource cancels its own atoms instead. If the precondition misses
+one of them, the split VC stays open. If a footprint atom has no counterpart in the precondition,
+it survives cancellation into the residual VC, and the frame stays schematic. -/
 def sepConjFrameProc : FrameInferenceProc := fun i => do
   -- Exercises `FrameInferenceInfo.spec?`: a real frameproc keys a footprint off the applied spec's
   -- name. `probe_spec` isolates the report to the one test example below.
   if i.spec? == some `probe_spec then
     logInfo m!"framing for spec {i.spec?}"
-  match i.providedFrame? with
-  | some frame =>
-    match ← matchSepAtoms (← i.pre) frame with
-    | (rest, _, #[]) => return some (← mkSepFrameSplit i frame (← sepConjOfAtoms rest))
-    | _ => return some (← FrameSplit.withDeferredSplitVC i frame)
-  | none =>
-    let some specPre ← i.specPre? | return none
-    match ← matchSepAtoms (← i.pre) specPre with
-    | (rest, matched, #[]) =>
-      if rest.isEmpty then return none
-      return some (← mkSepFrameSplit i (← sepConjOfAtoms rest) (← sepConjOfAtoms matched))
-    | (#[], matched, #[wandAtom]) =>
-      -- Everything matched except a wand: a ramified spec.
-      mkEmpFrameSplit i matched wandAtom
-    | _ => return none
+  let some app ← i.applySpec i.excessArgs | return .failed
+  let specPre ← instantiateMVars (← app.preVC.getType).appArg!
+  -- A spec whose precondition mentions its own schematic post cannot frame through the weakest
+  -- footprint: the wrapped and the unwrapped post produce different preconditions.
+  let post ← instantiateMVars app.post
+  if (specPre.find? (isSameExpr · post)).isSome then return (.goals [])
+  -- One cancellation serves both modes. A pinned frame cancels its own atoms, and the leftover
+  -- is the footprint. Spec-driven inference cancels `specPre`'s atoms, and the leftover is the
+  -- frame.
+  let (rest, matched, unpaid) ← matchSepAtoms (← i.pre) (i.providedFrame?.getD specPre)
+  if let some frame := i.providedFrame? then
+    -- If the precondition holds nothing for a pinned frame atom, no partition exists. Defer the
+    -- split VC.
+    unless unpaid.isEmpty do return (.goals (← (← i.commit).withDeferredSplitVC frame))
+    .goals <$> dischargeSplitVC i (← i.commit) app matched rest unpaid
+  else
+    -- Nothing paired (for example an unfold equation or a loop spec), or nothing left over:
+    -- unframed.
+    if unpaid.size == matched.size || rest.isEmpty then return (.goals [])
+    .goals <$> dischargeSplitVC i (← i.commit) app rest matched unpaid
 
 @[frameproc] def heapFP : FrameProc where
   prog := ``HeapM
@@ -1102,33 +1148,31 @@ example (xs : List Nat) (head l : Addr) (v : Nat) :
       ⦃ fun r => l ↦ v ∗ IsList xs.reverse null r ⦄ := by
   vcgen [reverse_spec] with finish
 
-/-! ## Wand-style append
+/-! ## Append
 
-The append specification is *ramified*: a schematic postcondition `Q` received through a wand in
-the precondition, at the known result `if x = null then y else x`. The loop invariant exposes the
-last visited node and carries a wand absorbing the visited prefix (`wand_absorb`); linking the
-last node discharges the prefix wand and the continuation wand by the counit. -/
+The loop invariant exposes the last visited node and carries a wand absorbing the visited prefix
+(`wand_absorb`); linking the last node discharges that wand by the counit. -/
 
 /-- Loop invariant for `append` at loop state `(t, u)`: `t` is the last visited node with
 next-pointer `u` and some prev-pointer `pt`, the unvisited segment `rest` hangs off `u`, a wand
-absorbs the visited prefix xprev into the whole first list, the second list and the continuation
-`K` ride along untouched, and the remaining iteration budget `n` bounds `rest`. -/
-noncomputable abbrev AppendLoopInv (xs ys : List Nat) (xprev yprev x y : Addr) (K : HProp)
+absorbs the visited prefix xprev into the whole first list, the second list rides along untouched,
+and the remaining iteration budget `n` bounds `rest`. -/
+noncomputable abbrev AppendLoopInv (xs ys : List Nat) (xprev yprev x y : Addr)
     (n : Nat) (b : Addr × Addr) : HProp :=
   ⨆ v, ⨆ rest, ⨆ pt,
     ⌜rest.length ≤ n ∧ b.1 ≠ null⌝ ⊓
       (b.1 ↦ b.2 ∗ (b.1 + 1) ↦ pt ∗ (b.1 + 2) ↦ v ∗ IsList rest b.1 b.2 ∗
         (IsList (v :: rest ++ ys) pt b.1 -∗ IsList (xs ++ ys) xprev x) ∗
-        IsList ys yprev y ∗ K)
+        IsList ys yprev y)
 
 /-- Enter the append loop: the head node is the visited prefix and the prefix wand is the
 identity. -/
 @[grind .] theorem append_entry_le (v : Nat) (rest xs ys : List Nat) (xprev yprev x y u₀ : Addr)
-    (K : HProp) (n : Nat) (hxs : xs = v :: rest) (hx : x ≠ null) (hlen : xs.length ≤ n) :
-    (IsList ys yprev y ∗ K) ∗ x ↦ u₀ ∗ (x + 1) ↦ xprev ∗ (x + 2) ↦ v ∗ IsList rest x u₀
-      ⊑ AppendLoopInv xs ys xprev yprev x y K n (x, u₀) := by
+    (n : Nat) (hxs : xs = v :: rest) (hx : x ≠ null) (hlen : xs.length ≤ n) :
+    IsList ys yprev y ∗ x ↦ u₀ ∗ (x + 1) ↦ xprev ∗ (x + 2) ↦ v ∗ IsList rest x u₀
+      ⊑ AppendLoopInv xs ys xprev yprev x y n (x, u₀) := by
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
-      x ↦ u₀ ∗ (x + 1) ↦ xprev ∗ (x + 2) ↦ v ∗ IsList rest x u₀ ∗ IsList ys yprev y ∗ K)) ?_
+      x ↦ u₀ ∗ (x + 1) ↦ xprev ∗ (x + 2) ↦ v ∗ IsList rest x u₀ ∗ IsList ys yprev y)) ?_
   · grind
   refine le_iSup_of_le v (le_iSup_of_le rest (le_iSup_of_le xprev ?_))
   refine le_meet _ _ _ (le_ofProp _ _ ⟨by grind, hx⟩) ?_
@@ -1138,24 +1182,23 @@ identity. -/
   exact PartialOrder.rel_of_eq (by grind)
 
 grind_pattern append_entry_le =>
-  IsList rest x u₀, (x + 1) ↦ xprev, (x + 2) ↦ v, IsList ys yprev y,
-  IsList (xs ++ ys) xprev x -∗ K, xs.length ≤ n
+  IsList rest x u₀, (x + 1) ↦ xprev, (x + 2) ↦ v, IsList ys yprev y, xs.length ≤ n
 
 /-- One append iteration: absorb the visited node into the prefix wand (`wand_absorb`) and
 re-establish the loop invariant on the rest. -/
 @[grind .] theorem append_yield_le (v w : Nat) (rest rest' xs ys : List Nat)
-    (xprev yprev x y pt t u u' : Addr) (K : HProp) (n : Nat)
+    (xprev yprev x y pt t u u' : Addr) (n : Nat)
     (ht : t ≠ null) (hu : u ≠ null) (hrest : rest = w :: rest')
     (hlen : rest.length ≤ n + 1) :
     (t ↦ u ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗
-        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗ IsList ys yprev y ∗ K) ∗
+        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗ IsList ys yprev y) ∗
       u ↦ u' ∗ (u + 1) ↦ t ∗ (u + 2) ↦ w ∗ IsList rest' u u'
-      ⊑ AppendLoopInv xs ys xprev yprev x y K n (u, u') := by
+      ⊑ AppendLoopInv xs ys xprev yprev x y n (u, u') := by
   subst hrest
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
       t ↦ u ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗ u ↦ u' ∗ (u + 1) ↦ t ∗ (u + 2) ↦ w ∗
         IsList rest' u u' ∗ (IsList (v :: (w :: rest') ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗
-        IsList ys yprev y ∗ K)) ?_
+        IsList ys yprev y)) ?_
   · grind
   refine le_iSup_of_le w (le_iSup_of_le rest' (le_iSup_of_le t ?_))
   refine le_meet _ _ _ (le_ofProp _ _ ⟨by grind, hu⟩) ?_
@@ -1165,7 +1208,7 @@ re-establish the loop invariant on the rest. -/
       (IsList_cons_intro v u pt ((w :: rest') ++ ys) t ht)
     grind
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
-      (u ↦ u' ∗ (u + 1) ↦ t ∗ (u + 2) ↦ w ∗ IsList rest' u u' ∗ IsList ys yprev y ∗ K) ∗
+      (u ↦ u' ∗ (u + 1) ↦ t ∗ (u + 2) ↦ w ∗ IsList rest' u u' ∗ IsList ys yprev y) ∗
         ((t ↦ u ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v) ∗
           (IsList (v :: (w :: rest') ++ ys) pt t -∗ IsList (xs ++ ys) xprev x)))) ?_
   · grind
@@ -1175,15 +1218,15 @@ re-establish the loop invariant on the rest. -/
 /-- Break out of the append loop: `u = null` forces the unvisited segment empty, so the invariant
 holds at the exhausted budget. -/
 @[grind .] theorem append_done_le (v : Nat) (rest xs ys : List Nat) (xprev yprev x y pt t u : Addr)
-    (K : HProp) (ht : t ≠ null) (hu : u = null) :
+    (ht : t ≠ null) (hu : u = null) :
     t ↦ u ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗ IsList rest t u ∗
-        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗ IsList ys yprev y ∗ K
-      ⊑ AppendLoopInv xs ys xprev yprev x y K ([] : List Nat).length (t, u) := by
+        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗ IsList ys yprev y
+      ⊑ AppendLoopInv xs ys xprev yprev x y ([] : List Nat).length (t, u) := by
   subst hu
   rw [IsList_null_eq]
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
       sepPure (rest = []) ∗ (t ↦ null ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗
-        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗ IsList ys yprev y ∗ K))) ?_
+        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗ IsList ys yprev y))) ?_
   · grind
   refine sepPure_sepConj_le_of _ _ _ fun hrest => ?_
   subst hrest
@@ -1193,111 +1236,92 @@ holds at the exhausted budget. -/
   rw [IsList_nil_null]
   grind
 
-/-- Discharge both wands at the last node: rebuild the cons cell onto the relinked second list,
-apply the prefix wand's counit, then the continuation wand's. -/
+/-- Discharge the prefix wand at the last node: rebuild the cons cell onto the relinked second
+list, then apply the wand's counit. -/
 @[grind .] theorem append_link_le (v : Nat) (rest xs ys : List Nat) (xprev x y pt t u : Addr)
-    (K : HProp) (ht : t ≠ null) (hlen : rest.length ≤ 0) :
+    (ht : t ≠ null) (hlen : rest.length ≤ 0) :
     ((t + 1) ↦ pt ∗ (t + 2) ↦ v ∗ IsList rest t u ∗
-        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗
-        (IsList (xs ++ ys) xprev x -∗ K) ∗ t ↦ y) ∗
+        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗ t ↦ y) ∗
       IsList ys t y
-      ⊑ K := by
+      ⊑ IsList (xs ++ ys) xprev x := by
   have hrest : rest = [] := by grind
   subst hrest
   rw [IsList_nil_eq]
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
       sepPure (u = null) ∗ (t ↦ y ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗
-        (IsList (v :: [] ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗ IsList ys t y ∗
-        (IsList (xs ++ ys) xprev x -∗ K)))) ?_
+        (IsList (v :: [] ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗ IsList ys t y))) ?_
   · grind
   refine sepPure_sepConj_le_of _ _ _ fun _hu => ?_
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
-      ((t ↦ y ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗ IsList ys t y) ∗
-        (IsList (v :: [] ++ ys) pt t -∗ IsList (xs ++ ys) xprev x)) ∗
-      (IsList (xs ++ ys) xprev x -∗ K))) ?_
+      (t ↦ y ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗ IsList ys t y) ∗
+        (IsList (v :: [] ++ ys) pt t -∗ IsList (xs ++ ys) xprev x))) ?_
   · grind
-  · refine PartialOrder.rel_trans
-      (sepConj_mono_left _ (PartialOrder.rel_trans
-        (sepConj_mono_left _ (IsList_cons_intro v y pt ys t ht))
-        (sepConj_wand_le _ _))) ?_
-    exact sepConj_wand_le _ _
+  · exact PartialOrder.rel_trans
+      (sepConj_mono_left _ (IsList_cons_intro v y pt ys t ht))
+      (sepConj_wand_le _ _)
 
 grind_pattern append_link_le =>
   (t + 1) ↦ pt, (t + 2) ↦ v, IsList rest t u,
-  IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x,
-  IsList (xs ++ ys) xprev x -∗ K, IsList ys t y, t ↦ y
+  IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x, IsList ys t y, t ↦ y
 
 /-- The `y = null` link: the second list is empty, and storing `null` into the last node's next
 field leaves the first list intact. -/
 @[grind .] theorem append_link_null_le (v : Nat) (rest xs ys : List Nat)
-    (xprev yprev x y pt t u : Addr) (K : HProp)
+    (xprev yprev x y pt t u : Addr)
     (ht : t ≠ null) (hlen : rest.length ≤ 0) (hy : y = null) :
     ((t + 1) ↦ pt ∗ (t + 2) ↦ v ∗ IsList rest t u ∗
-        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗ IsList ys yprev y ∗
-        (IsList (xs ++ ys) xprev x -∗ K)) ∗ t ↦ y
-      ⊑ K := by
+        (IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗ IsList ys yprev y) ∗ t ↦ y
+      ⊑ IsList (xs ++ ys) xprev x := by
   have hrest : rest = [] := by grind
   subst hrest
   subst hy
   rw [IsList_nil_eq, IsList_null_eq]
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
       sepPure (u = null) ∗ sepPure (ys = []) ∗ (t ↦ null ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗
-        (IsList (v :: [] ++ ys) pt t -∗ IsList (xs ++ ys) xprev x) ∗
-        (IsList (xs ++ ys) xprev x -∗ K)))) ?_
+        (IsList (v :: [] ++ ys) pt t -∗ IsList (xs ++ ys) xprev x)))) ?_
   · grind
   refine sepPure_sepConj_le_of _ _ _ fun _hu => sepPure_sepConj_le_of _ _ _ fun hys => ?_
   subst hys
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
-      ((t ↦ null ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗ IsList [] t null) ∗
-        (IsList (v :: [] ++ []) pt t -∗ IsList (xs ++ []) xprev x)) ∗
-      (IsList (xs ++ []) xprev x -∗ K))) ?_
+      (t ↦ null ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v ∗ IsList [] t null) ∗
+        (IsList (v :: [] ++ []) pt t -∗ IsList (xs ++ []) xprev x))) ?_
   · grind
-  · refine PartialOrder.rel_trans
-      (sepConj_mono_left _ (PartialOrder.rel_trans
-        (sepConj_mono_left _ (IsList_cons_intro v null pt [] t ht))
-        (sepConj_wand_le _ _))) ?_
-    exact sepConj_wand_le _ _
+  · exact PartialOrder.rel_trans
+      (sepConj_mono_left _ (IsList_cons_intro v null pt [] t ht))
+      (sepConj_wand_le _ _)
 
 grind_pattern append_link_null_le =>
   (t + 1) ↦ pt, (t + 2) ↦ v, IsList rest t u,
-  IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x,
-  IsList (xs ++ ys) xprev x -∗ K, IsList ys yprev y, t ↦ y
+  IsList (v :: rest ++ ys) pt t -∗ IsList (xs ++ ys) xprev x, IsList ys yprev y, t ↦ y
 
-/-- The empty-first-list branch: the continuation receives the second list unchanged. -/
-@[grind .] theorem append_nil_le (xs ys : List Nat) (xprev yprev y : Addr) (K : HProp) :
-    IsList xs xprev null ∗ IsList ys yprev y ∗ (IsList (xs ++ ys) yprev y -∗ K)
-      ⊑ K := by
+/-- The empty-first-list branch: the second list is the result unchanged. -/
+@[grind .] theorem append_nil_le (xs ys : List Nat) (xprev yprev y : Addr) :
+    IsList xs xprev null ∗ IsList ys yprev y ⊑ IsList (xs ++ ys) yprev y := by
   rw [IsList_null_eq]
   refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
-      sepPure (xs = []) ∗ IsList ys yprev y ∗ (IsList (xs ++ ys) yprev y -∗ K))) ?_
+      sepPure (xs = []) ∗ IsList ys yprev y)) ?_
   · grind
   · refine sepPure_sepConj_le_of _ _ _ fun hxs => ?_
     subst hxs
-    exact sepConj_wand_le _ _
+    exact PartialOrder.rel_refl
 
-/-- Ramified append specification: the schematic postcondition `Q` is received through a wand at
-the returned head and the node preceding it. -/
-theorem append_spec (fuel : Nat) (xs ys : List Nat) (xprev yprev x y : Addr) (Q : Addr → HProp)
+/-- Append specification: the second list is relinked onto the last node of the first. -/
+theorem append_spec (fuel : Nat) (xs ys : List Nat) (xprev yprev x y : Addr)
     (hle : xs.length ≤ fuel) :
-    ⦃ IsList xs xprev x ∗ IsList ys yprev y ∗
-        (IsList (xs ++ ys) (if x = null then yprev else xprev) (if x = null then y else x) -∗
-          Q (if x = null then y else x)) ⦄
+    ⦃ IsList xs xprev x ∗ IsList ys yprev y ⦄
       append fuel x y
-    ⦃ Q ⦄ := by
+    ⦃ fun r => IsList (xs ++ ys) (if x = null then yprev else xprev) r ⦄ := by
   by_cases hx : x = null
   · subst hx
     have hb : (if null = null then yprev else xprev) = yprev := by grind
-    have hr : (if null = null then y else null) = y := by grind
-    rw [hb, hr]
+    rw [hb]
     simp only [append, reduceIte]
     vcgen with finish
   · have hb : (if x = null then yprev else xprev) = xprev := by grind
-    have hr : (if x = null then y else x) = x := by grind
-    rw [hb, hr]
+    rw [hb]
     have hlen' : xs.length ≤ (ForIn.toList [:fuel]).length := by grind
     vcgen [append, load_next_IsList_ne, store_prev_IsList_ne] invariants
-      | inv1 => fun _ suff b =>
-          AppendLoopInv xs ys xprev yprev x y (IsList (xs ++ ys) xprev x -∗ Q x) suff.length b
+      | inv1 => fun _ suff b => AppendLoopInv xs ys xprev yprev x y suff.length b
       with finish
 
 /-- Plain append specification, from `append_spec` at the trivial continuation. -/
@@ -1448,3 +1472,110 @@ example (l : Addr) (z v : Nat) (k : Addr) :
       (do let p ← newstack; push p v; let r ← pop p; freestack p; pure r)
     ⦃ fun r => ⌜r = v⌝ ⊓ (l ↦ z ∗ Pool (k + 4)) ⦄ := by
   vcgen with finish
+
+/-! ## Summing an array
+
+The array is reached by arithmetic, so the loop reads cell `base + i` out of a predicate that owns
+the whole block. `load_array` focuses that one cell and closes the array again, which keeps the
+index arithmetic out of the loop invariant. -/
+
+/-- The range `[:n]` has `n` elements, in the `toList` form the `forIn` specification uses. -/
+@[simp, grind =] theorem length_toList_upTo (n : Nat) :
+    (ForIn.toList [:n] : List Nat).length = n := by grind
+
+/-- The `forIn` specification splits the range at a visited prefix, whose length is the index the
+loop is at, so that index is in bounds. -/
+@[grind →] theorem lt_of_range_split {n cur : Nat} {pref suff : List Nat}
+    (h : ForIn.toList [:n] = pref ++ cur :: suff) : pref.length < n := by
+  have hl := congrArg List.length h
+  rw [length_toList_upTo] at hl
+  simp at hl
+  omega
+
+/-- Extending the prefix by one element adds that element to the sum. -/
+@[grind =] theorem sum_take_succ (xs : List Nat) (i : Nat) (h : i < xs.length) :
+    (xs.take (i + 1)).sum = xs[i]! + (xs.take i).sum := by
+  rw [List.take_succ, List.sum_append, List.getElem?_eq_getElem h]
+  simp [getElem!_pos, h]
+  grind
+
+/-- Read one cell of an array, leaving the array intact. -/
+theorem load_array (xs : List Nat) (base : Addr) (i : Nat) (h : i < xs.length) :
+    ⦃ IsArray xs base ⦄ load (base + i) ⦃ fun r => ⌜r = xs[i]!⌝ ⊓ IsArray xs base ⦄ := by
+  refine ⟨PartialOrder.rel_trans (IsArray_focus xs base i h) ?_⟩
+  vcgen [load_spec] with (try finish)
+  rename_i r
+  refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (?_ : _ =
+    sepPure (r = xs[i]!) ∗ (base + i) ↦ xs[i]! ∗ ((base + i) ↦ xs[i]! -∗ IsArray xs base))) ?_
+  · grind
+  refine sepPure_sepConj_le_of _ _ _ fun _ => ?_
+  exact sepConj_wand_le _ _
+
+/-- Loop invariant for `sumarray` at loop state `(i, s)`: `i` cells have been read and `s` is their
+sum, and the array is owned in full throughout. -/
+noncomputable abbrev SumLoopInv (xs : List Nat) (base : Addr) (n : Nat) (b : Nat × Nat) : HProp :=
+  ⌜b.2 = n ∧ b.1 = ((xs.take b.2).sum)⌝ ⊓ IsArray xs base
+
+theorem sumarray_spec (xs : List Nat) (base : Addr) :
+    ⦃ IsArray xs base ⦄
+      sumarray base xs.length
+    ⦃ fun s => ⌜s = xs.sum⌝ ⊓ IsArray xs base ⦄ := by
+  vcgen [sumarray, load_array] invariants
+    | inv1 => fun pref _ b => SumLoopInv xs base pref.length b
+    with finish
+
+/-- Framing an unrelated cell across the whole sum. -/
+example (l : Addr) (z : Nat) (xs : List Nat) (base : Addr) :
+    ⦃ l ↦ z ∗ IsArray xs base ⦄
+      sumarray base xs.length
+    ⦃ fun s => ⌜s = xs.sum⌝ ⊓ (l ↦ z ∗ IsArray xs base) ⦄ := by
+  vcgen [sumarray_spec] with finish
+
+/-! # Partial cancellation
+
+Preconditions the domain-difference cancellation cannot pair off completely. The frame procedure
+cancels what does pair, pinning the paired spec parameters, and leaves a residual VC carrying the
+unmatched footprint atoms with the frame schematic. -/
+
+/-- The stack is held in representation (`p ↦ top ∗ IsList …`), so `pop_spec`'s footprint
+`Stack (?v :: ?ys) ?p` pairs with nothing; the `frames` clause pins the frame, the split VC folds
+the representation back into the abstract predicate (assigning the spec's parameters), and `grind`
+closes the rest. -/
+example (p top l : Addr) (z v : Nat) (xs : List Nat) :
+    ⦃ p ↦ top ∗ IsList (v :: xs) null top ∗ l ↦ z ⦄
+      pop p
+    ⦃ fun r => ⌜r = v⌝ ⊓ (Stack xs p ∗ l ↦ z) ⦄ := by
+  vcgen frames | pop p => l ↦ z
+  -- The pinned frame is cancelled, so what is left is to fill the spec's parameters and fold the
+  -- representation into the abstract predicate.
+  case vc4 => exact v
+  case vc5 => exact xs
+  · exact le_Stack (v :: xs) p top
+  all_goals grind
+
+/-- The payload list is a cons only through `hxs`; after `subst` the footprint pairs exactly. -/
+example (p l : Addr) (z v : Nat) (xs ys : List Nat) (hxs : xs = v :: ys) :
+    ⦃ Stack xs p ∗ l ↦ z ⦄
+      pop p
+    ⦃ fun r => ⌜r = v⌝ ⊓ (Stack ys p ∗ l ↦ z) ⦄ := by
+  subst hxs
+  vcgen with finish
+
+/-- `push_spec`'s `Pool ?k` pairs (pinning `?k := k`) while `Stack ?xs p` goes unmatched: the
+procedure cancels the pool and emits the residual
+`p ↦ top ∗ IsList xs null top ∗ l ↦ z ⊑ ?F ∗ Stack ?xs p` (the last goal), which folds the
+representation, assigning the frame `l ↦ z`; `grind` closes the rest. -/
+example (p top l : Addr) (z v : Nat) (xs : List Nat) (k : Addr) :
+    ⦃ (p ↦ top ∗ IsList xs null top) ∗ Pool k ∗ l ↦ z ⦄
+      push p v
+    ⦃ fun _ => (Stack (v :: xs) p ∗ Pool (k + 3)) ∗ l ↦ z ⦄ := by
+  vcgen
+  -- Fill the schematic frame and the spec's unpinned parameter, then fold the representation in
+  -- the residual.
+  case vc1 => exact l ↦ z
+  case vc4 => exact xs
+  · exact PartialOrder.rel_trans
+      (PartialOrder.rel_of_eq (by grind :
+        p ↦ top ∗ IsList xs null top ∗ l ↦ z = l ↦ z ∗ p ↦ top ∗ IsList xs null top))
+      (sepConj_mono_right _ (le_Stack xs p top))
+  all_goals grind

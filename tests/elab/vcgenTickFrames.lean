@@ -225,40 +225,52 @@ open Lean.Elab.Tactic.VCGen
   intro n
   exact TickT.le_wp_tick' Q E n
 
+/-- Assert a pure fact alongside a resource that is kept. -/
+theorem le_ofProp_meet_self {φ : Prop} (x : L) (h : φ) : x ⊑ ⌜φ⌝ ⊓ x :=
+  le_meet _ _ _ (le_ofProp _ _ h) PartialOrder.rel_refl
+
 /-- The frame inference procedure: shift by the pinned frame's amount, or by the whole current tick
-count (`i.excessArgs[0]`, the first excess state argument of the `Nat → L` cost assertion). It emits
-the split VC in the meet form `pre ⊑ (⌜shift ≤ ticks⌝ ⊓ residualPre (ticks - shift)) s⃗`; the built-in
-meet split turns this into the tick guard (closed by `grind`) and the shifted residual
-`pre ⊑ residualPre (ticks - shift) s⃗`. -/
+count (`i.excessArgs[0]`, the first excess state argument of the `Nat → L` cost assertion). It
+discharges the split VC `pre ⊑ (costConj shift W) ticks s⃗` itself. The spec applied at the
+shifted counter proves `pre ⊑ W (ticks - shift) s⃗`. This chains into `le_ofProp_meet_self`,
+stated at the cost lattice and applied to `s⃗` through the pointwise order on functions. The tick
+guard `shift ≤ ticks` remains as a subgoal. The chain only typechecks with the spec applied at
+the shifted counter, so it guards the delegation of the excess state arguments to the
+procedure. -/
 def tickFrameProc : FrameInferenceProc := fun i => do
-  unless i.Pred.isArrow && i.Pred.bindingDomain!.isConstOf ``Nat do return none
-  let some ticks := i.excessArgs[0]? | return none
+  unless i.Pred.isArrow && i.Pred.bindingDomain!.isConstOf ``Nat do return (.goals [])
+  let some ticks := i.excessArgs[0]? | return (.goals [])
   let shift ← match i.providedFrame? with
     | some r => pure r
-    | none => do
-      -- Shifting by the whole tick count leaves `ticks - ticks`; skip when that normalizes to `0` so
-      -- the proc does not re-fire on its own residual.
-      let ticks ← instantiateMVarsS ticks
-      let thms := ({} : Lean.Meta.Sym.Simp.Theorems).insert
-        (← Lean.Meta.Sym.Simp.mkTheoremFromDecl ``Nat.sub_self)
-      let post := Lean.Meta.Sym.Simp.evalGround >> thms.rewrite
-      pure ((← Lean.Meta.Sym.simp ticks { post }).getResultExpr ticks)
-  if shift.nat? == some 0 then return none
-  -- Emit the split VC `pre ⊑ (costConj shift residualPre ticks) s⃗` in its `costConj_apply`-reduced
-  -- meet form `pre ⊑ (⌜shift ≤ ticks⌝ ⊓ residualPre (ticks - shift)) s⃗` (definitionally equal), so the
-  -- built-in meet split decomposes it: the tick guard closes by `grind`, the residual re-applies.
+    | none => instantiateMVarsS ticks
+  -- A zero shift frames nothing, for example a `frames` clause that pins `0`.
+  if shift.nat? == some 0 then return (.goals [])
+  let rest := i.excessArgs.extract 1 i.excessArgs.size
+  let shifted ← mkAppNS (← mkConstS ``Nat.sub) #[ticks, shift]
+  let some app ← i.applySpec (#[shifted] ++ rest) | return .failed
+  let goals ← i.commit
+  let W ← goals.weakestFootprint i.excessArgs.size
+  unless ← isDefEqS app.post (W.getArg! 8) do
+    throwError "tick frameproc: could not fix the framed postcondition"
+  let pre ← i.pre
+  unless ← isDefEqS app.footprint pre do
+    throwError "tick frameproc: could not take the precondition as the footprint"
+  -- The lattice instances come from the frame operator and the goal entailment.
   let op ← i.mkOpApp
   let costL := op.getAppArgs[0]!
   let costInst := op.getAppArgs[1]!
   let us := op.getAppFn.constLevels!
-  let residualPre ← i.mkResidualPre
-  let guard ← mkAppNS (← mkConstS ``CompleteLattice.ofProp us)
-    #[costL, costInst, ← mkAppNS (← mkConstS ``Nat.le) #[shift, ticks]]
-  let residual ← mkAppNS (mkMVar residualPre) #[← mkAppNS (← mkConstS ``Nat.sub) #[ticks, shift]]
-  let meet ← mkAppNS (← mkConstS ``Lean.Order.meet us) #[costL, costInst, guard, residual]
-  let rhs ← mkAppNS meet (i.excessArgs.extract 1 i.excessArgs.size)
-  let m ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS (← i.le) #[← i.pre, rhs])
-  return some (FrameSplit.withDischargedSplitVC shift residualPre m [m.mvarId!])
+  let φ ← mkAppNS (← mkConstS ``Nat.le) #[shift, ticks]
+  let hle ← mkFreshExprSyntheticOpaqueMVar φ
+  let hmeet ← mkAppNS (← mkConstS ``le_ofProp_meet_self us)
+    #[costL, costInst, φ, ← mkAppNS W #[shifted], hle]
+  -- The pointwise order on functions lets `hmeet` apply to the state arguments directly.
+  let happ ← mkAppNS hmeet rest
+  let ty ← Sym.inferType happ
+  let le ← i.le
+  let prf ← mkAppNS (← mkConstS ``Lean.Order.PartialOrder.rel_trans le.getAppFn.constLevels!)
+    (le.getAppArgs ++ #[pre, ty.appFn!.appArg!, ty.appArg!, app.proof, happ])
+  .goals <$> goals.withDischargedSplitVC shift prf (hle.mvarId! :: app.preVC :: app.subgoals)
 
 /-- Register the cost frame inference procedure for `vcgen`, indexed by the `TickT` program type. The
 frame operator `costConj` is built at the base lattice `L` read off the assertion type `Nat → L`, so it

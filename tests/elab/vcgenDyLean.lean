@@ -376,21 +376,19 @@ public meta partial def collectAlways (e : Expr) : Array Expr :=
 
 /-- Frame inference for `Traceful`: gather the precondition's `Always' pᵢ` conjuncts and frame by a
 single `Always'` over their conjunction, `Always' (fun tr => p₁ tr ∧ … ∧ pₙ tr)`. -/
-public meta def dyLeanFrameProc : FrameInferenceProc := fun i => do
-  let frame ← do
-    match i.providedFrame? with
-    | some frame => pure frame
-    | none => match (collectAlways (← i.pre)).toList with
-      | [] => return none
-      | [single] => pure single
-      | a :: rest =>
-        let preds := (a :: rest).map (·.appArg!)
-        let domTy := (← Meta.inferType preds.head!).bindingDomain!
-        let combined ← Meta.withLocalDeclD `tr domTy fun tr => do
-          let last :: initRev := (preds.map (fun p => (mkApp p tr).headBeta)).reverse | unreachable!
-          Meta.mkLambdaFVars #[tr] (initRev.foldl (fun acc x => mkApp (mkApp (mkConst ``And) x) acc) last)
-        pure (← shareCommon (mkApp a.appFn! combined))
-  return some (← FrameSplit.withDeferredSplitVC i frame)
+public meta def dyLeanFrameProc : FrameInferenceProc := .ofFrame? fun i => do
+  match i.providedFrame? with
+  | some frame => return some frame
+  | none => match (collectAlways (← (i.pre : SymM Expr))).toList with
+    | [] => return none
+    | [single] => return some single
+    | a :: rest =>
+      let preds := (a :: rest).map (·.appArg!)
+      let domTy := (← Meta.inferType preds.head!).bindingDomain!
+      let combined ← Meta.withLocalDeclD `tr domTy fun tr => do
+        let last :: initRev := (preds.map (fun p => (mkApp p tr).headBeta)).reverse | unreachable!
+        Meta.mkLambdaFVars #[tr] (initRev.foldl (fun acc x => mkApp (mkApp (mkConst ``And) x) acc) last)
+      return some (← shareCommon (mkApp a.appFn! combined))
 
 @[frameproc] public meta def dyLeanFP : FrameProc where
   prog := ``Traceful

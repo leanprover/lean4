@@ -38,24 +38,49 @@ public def JsonT.run [Functor m] (ser : JsonSerializer ω φ)
     (x : JsonT ω φ m α) : m α :=
   StateT.run' x ser
 
+@[inline]
+public def JsonT.write [Writer ω m] [Monad m] (s : String) : JsonT ω φ m Unit := do
+  liftM <| Writer.write (← get).writer s
+
+-- TODO: This is a hack only string mode benefits from
+@[inline]
+public def JsonT.writeToBuffer [Writer ω m] [Monad m] (f : String → String) : JsonT ω φ m Unit := do
+  liftM <| Writer.writeToBuffer (← get).writer f
+
+@[inline]
+public def JsonT.modifyFormatter [Monad m] (f : φ → φ) : JsonT ω φ m Unit := do
+  modify fun s => { s with formatter := f s.formatter }
+
+@[inline]
+public def JsonT.getFormatter [Monad m] : JsonT ω φ m φ := do
+  return (← get).formatter
+
+/--
+Writes `str` in quotes, verbatim. Unlike `Json.renderString` this neither scans for characters that
+need escaping nor escapes any, so it is only correct for strings that are plain by construction.
+-/
+@[inline]
+public def Formatter.writeQuoted [Writer ω m] [Monad m] (str : String) : JsonT ω φ m Unit :=
+  JsonT.write ("\"" ++ str ++ "\"")
+
 public class Formatter (φ : Type) where
-  writeNull [Writer ω m] [Monad m] : JsonT ω φ m Unit
-  writeBool [Writer ω m] [Monad m] (val : Bool) : JsonT ω φ m Unit
-  writeUInt8 [Writer ω m] [Monad m] (val : UInt8) : JsonT ω φ m Unit
-  writeUInt16 [Writer ω m] [Monad m] (val : UInt16) : JsonT ω φ m Unit
-  writeUInt32 [Writer ω m] [Monad m] (val : UInt32) : JsonT ω φ m Unit
+  writeNull [Writer ω m] [Monad m] : JsonT ω φ m Unit := JsonT.write "null"
+  writeBool [Writer ω m] [Monad m] (val : Bool) : JsonT ω φ m Unit := JsonT.write (if val then "true" else "false")
+  writeUInt8 [Writer ω m] [Monad m] (val : UInt8) : JsonT ω φ m Unit := JsonT.write (toString val)
+  writeUInt16 [Writer ω m] [Monad m] (val : UInt16) : JsonT ω φ m Unit := JsonT.write (toString val)
+  writeUInt32 [Writer ω m] [Monad m] (val : UInt32) : JsonT ω φ m Unit := JsonT.write (toString val)
   /--
   Separate from `writeNat` because JSON consumers generally cannot represent 64 bit integers
   exactly, so a formatter may want to encode them as strings.
   -/
-  writeUInt64 [Writer ω m] [Monad m] (val : UInt64) : JsonT ω φ m Unit
-  writeInt8 [Writer ω m] [Monad m] (val : Int8) : JsonT ω φ m Unit
-  writeInt16 [Writer ω m] [Monad m] (val : Int16) : JsonT ω φ m Unit
-  writeInt32 [Writer ω m] [Monad m] (val : Int32) : JsonT ω φ m Unit
+  writeUInt64 [Writer ω m] [Monad m] (val : UInt64) : JsonT ω φ m Unit := Formatter.writeQuoted (toString val)
+  writeInt8 [Writer ω m] [Monad m] (val : Int8) : JsonT ω φ m Unit := JsonT.write (toString val)
+  writeInt16 [Writer ω m] [Monad m] (val : Int16) : JsonT ω φ m Unit := JsonT.write (toString val)
+  writeInt32 [Writer ω m] [Monad m] (val : Int32) : JsonT ω φ m Unit := JsonT.write (toString val)
   /-- See `writeUInt64`. -/
-  writeInt64 [Writer ω m] [Monad m] (val : Int64) : JsonT ω φ m Unit
-  writeNat [Writer ω m] [Monad m] (val : Nat) : JsonT ω φ m Unit
-  writeInt [Writer ω m] [Monad m] (val : Int) : JsonT ω φ m Unit
+  writeInt64 [Writer ω m] [Monad m] (val : Int64) : JsonT ω φ m Unit := Formatter.writeQuoted (toString val)
+  writeNat [Writer ω m] [Monad m] (val : Nat) : JsonT ω φ m Unit := JsonT.write (toString val)
+  writeInt [Writer ω m] [Monad m] (val : Int) : JsonT ω φ m Unit := JsonT.write (toString val)
   writeFloat32 [Writer ω m] [Monad m] (val : Float32) : JsonT ω φ m Unit
   writeFloat [Writer ω m] [Monad m] (val : Float) : JsonT ω φ m Unit
   writeString [Writer ω m] [Monad m] (val : String) : JsonT ω φ m Unit
@@ -66,7 +91,7 @@ public class Formatter (φ : Type) where
   for content that is known to be plain by construction — field and alternative names, and numbers
   rendered as strings — not for user data.
   -/
-  writeStringNoEscape [Writer ω m] [Monad m] (val : String) : JsonT ω φ m Unit
+  writeStringNoEscape [Writer ω m] [Monad m] (val : String) : JsonT ω φ m Unit := Formatter.writeQuoted val
   beginArray [Writer ω m] [Monad m] : JsonT ω φ m Unit
   endArray [Writer ω m] [Monad m] : JsonT ω φ m Unit
   beginArrayValue [Writer ω m] [Monad m] (first : Bool) : JsonT ω φ m Unit
@@ -210,17 +235,8 @@ instance [Writer ω m] [Formatter φ] [Monad m] :
     Formatter.endObjectValue
     return { first := false }
   serializeNamedAltEnd _ := do
+    Formatter.endObjectValue
     Formatter.endObject
-    Formatter.endObject
-
-@[inline]
-public def JsonT.write [Writer ω m] [Monad m] (s : String) : JsonT ω φ m Unit := do
-  liftM <| Writer.write (← get).writer s
-
--- TODO: This is a hack only string mode benefits from
-@[inline]
-public def JsonT.writeToBuffer [Writer ω m] [Monad m] (f : String → String) : JsonT ω φ m Unit := do
-  liftM <| Writer.writeToBuffer (← get).writer f
 
 /--
 A `Formatter` that emits JSON without any insignificant whitespace.
@@ -230,12 +246,10 @@ rendering from `Lean.Json`; it moves here once that infrastructure is available 
 -/
 public structure CompactFormatter where
 
-/-
-TODO
 public structure PrettyFormatter where
-
-instance : Formatter PrettyFormatter where
--/
+  currentIndent : Nat := 0
+  hasValue : Bool := false
+  indent : String := "  "
 
 namespace Json
 
@@ -251,7 +265,7 @@ public def toString [Serialize α] [Formatter φ] (xs : α) (fmt : φ) : String 
 
 public def toHandle [Serialize α] [Formatter φ] (xs : α) (fmt : φ) (file : IO.FS.Handle) :
     IO Unit := do
-  let ser := JsonSerializer.mk file fmt 
+  let ser := JsonSerializer.mk file fmt
   JsonT.run ser do
     Serialize.serialize xs
 

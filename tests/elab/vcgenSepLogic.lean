@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 import Lean
-import Std.Internal
+import Std.WP
 import Std.Tactic.Do
 
 set_option mvcgen.warning false
@@ -40,7 +40,7 @@ The file is laid out reusable-first: the programs, then the separation logic, th
 lemmas, then the `@[frameproc]`, then the specifications.
 -/
 
-open Lean Order Meta Elab Tactic Sym Sym.Internal Std Internal.Do
+open Lean Order Meta Elab Tactic Sym Sym.Internal Std WP
 
 /-! # Programs
 

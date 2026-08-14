@@ -1,10 +1,10 @@
-import Std.Internal.Do
+import Std.WP
 import Std.Tactic.Do
 
 /-!
 # `coinductive_fixpoint` beside a `vcgen` proof
 
-`Prop` is an assertion lattice, so `Std.Internal.Do` carries a `PartialOrder Prop` instance,
+`Prop` is an assertion lattice, so `Std.WP` carries a `PartialOrder Prop` instance,
 re-scoped from `Std.Internal.Order`.
 
 The monotonicity solver of `partial_fixpoint` tries `ind_impl` before `coind_impl`. On a mutual
@@ -15,10 +15,10 @@ instance through the pointwise lift, so `ind_impl` applies and wins on order.
 This test pins how far that reaches. A single coinductive definition and a `vcgen` proof coexist.
 A mutual block that mixes `inductive_fixpoint` and `coinductive_fixpoint` over an implication does
 not. See the `mixed3` and `mixed4` cases of `coinductive_predicates.lean`, which elaborate when
-`Std.Internal.Do` is not open.
+`Std.WP` is not open.
 -/
 
-open Std.Internal.Do Lean.Order
+open Std.WP Lean.Order
 
 set_option mvcgen.warning false
 

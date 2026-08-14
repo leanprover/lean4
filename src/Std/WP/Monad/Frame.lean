@@ -6,8 +6,8 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.WP.Frame
-public import Std.Internal.Do.WP.Monad.Basic
+public import Std.WP.Frame
+public import Std.WP.Monad.Basic
 universe u v w z t
 @[expose] public section
 
@@ -20,9 +20,9 @@ set_option linter.missingDocs true
 of its base weakest precondition, so that every program frames every resource.
 -/
 
-open Lean.Order Std.Internal.Do
+open Lean.Order Std.WP
 
-namespace Std.Internal.Do
+namespace Std.WP
 
 /-- Reinterpret a `WPMonad m` so its weakest precondition is the `frameClosure` of the
 base wp over a family of supremum-preserving resource operators `op r` that act by `comp` with
@@ -54,4 +54,4 @@ program. A caller of a spec picks a frame and applies the frame rule for that fr
     exact PartialOrder.rel_trans (PredTrans.frameClosure_frames op comp hact _ _ _ r)
       (PredTrans.frameClosure_le op e hunit _ _ _)
 
-end Std.Internal.Do
+end Std.WP

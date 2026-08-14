@@ -1,4 +1,4 @@
-import Std.Internal.Do
+import Std.WP
 import Std.Tactic.Do
 
 /-!
@@ -9,7 +9,7 @@ handled as a simp lemma (equation), exactly as `simp` would.
 
 set_option mvcgen.warning false
 
-open Lean.Order Std.Internal.Do
+open Lean.Order Std.WP
 
 /-! Equation term argument: `show lhs = rhs from h` rewrites an opaque program action. -/
 section

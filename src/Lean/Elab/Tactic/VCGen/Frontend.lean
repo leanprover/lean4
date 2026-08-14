@@ -149,7 +149,7 @@ as metavariables for instance search to fill; instance search runs at default tr
 caller reduces types at reducible transparency. -/
 private def isWPMonad (m : Expr) : MetaM Bool := withDefault do
   try
-    let wpm ← mkConstWithFreshMVarLevels ``Std.Internal.Do.WPMonad
+    let wpm ← mkConstWithFreshMVarLevels ``Std.WP.WPMonad
     let (args, _, _) ← forallMetaTelescopeReducing (← inferType wpm)
     unless ← isDefEq args[0]! m do return false
     return (← synthInstance? (mkAppN wpm args)).isSome
@@ -171,7 +171,7 @@ public def inferProgType? (goalType : Expr) : MetaM (Option Expr) := withReducib
         (isWPApp? rhs).map (·.Prog)
       else
         body.withApp fun head args =>
-          if head.isConstOf ``Std.Internal.Do.Triple && args.size ≥ 3 then some args[2]! else none
+          if head.isConstOf ``Std.WP.Triple && args.size ≥ 3 then some args[2]! else none
     let some progTy := progTy? | return none
     let progTy ← whnf progTy
     if progTy.isApp then

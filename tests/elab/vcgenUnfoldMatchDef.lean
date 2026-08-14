@@ -1,5 +1,5 @@
 import Std.Tactic.Do
-import Std.Internal.Do
+import Std.WP
 
 /-!
 Test for `vcgen [f]` where `f` is defined by a root `match` on its arguments. With an opaque
@@ -32,7 +32,7 @@ def recf (n : Nat) : Id Nat :=
   match n with | 0 => pure 1 | n + 1 => recf n
 
 section
-open Lean.Order Std.Internal.Do
+open Lean.Order Std.WP
 
 example (n : Option Nat) : ⦃ True ⦄ dep n ⦃ fun r => r > 0 ⦄ := by
   vcgen [dep] with finish

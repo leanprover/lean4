@@ -6,13 +6,13 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.WP.Basic
+public import Std.WP.Basic
 universe u v w z
 @[expose] public section
 
 set_option linter.missingDocs true
 
-open Lean.Order Std.Internal.Do
+open Lean.Order Std.WP
 
 /-!
 # The Weakest Precondition Interpretation of a Monad
@@ -23,7 +23,7 @@ together with soundness of that interpretation for `pure` and `bind`. An instanc
 its own.
 -/
 
-namespace Std.Internal.Do
+namespace Std.WP
 
 variable {m : Type u → Type z}
 
@@ -91,4 +91,4 @@ theorem seq_le_wp_seq (f : m (α → β)) (x : m α) :
 
 end WPMonad
 
-end Std.Internal.Do
+end Std.WP

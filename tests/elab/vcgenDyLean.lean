@@ -2,8 +2,8 @@ module
 
 import Lean
 import Std.Tactic.Do
-public import Std.Internal.Do
-import Std.Internal.Do.Triple.SpecLemmas
+public import Std.WP
+import Std.WP.Triple.SpecLemmas
 public meta import Lean.Elab.Tactic.VCGen.FrameProc
 public meta import Lean.Elab.Tactic.VCGen.FrameProcAttr
 public meta import Lean.Elab.Tactic.VCGen.RuleConstruction
@@ -200,7 +200,7 @@ section MvcgenSetup
 
 variable [ExecTraceTypes] [ProofTraceTypes]
 
-open Std.Internal.Do
+open Std.WP
 open Lean.Order
 
 public
@@ -328,7 +328,7 @@ theorem Always'_implies_self
 
 grind_pattern Always'_implies_self => Always' p ⟨ tr, h_inv ⟩
 
-open Std.Internal.Do
+open Std.WP
 open Lean.Order
 
 theorem always_frame
@@ -418,7 +418,7 @@ variable [ProofTraceTypes]
 @[spec]
 axiom receiveMessage.spec
   (handle: Nat)
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (receiveMessage handle)
       (⊤)
       (fun msg => Always' (fun tr => msg.Publishable tr) )
@@ -427,7 +427,7 @@ axiom receiveMessage.spec
 @[spec]
 axiom sendMessage.spec
   (msg: Bytes)
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (sendMessage msg)
       (⟨fun tr => msg.Publishable tr.val⟩)
       (fun _ => ⊤)
@@ -443,7 +443,7 @@ opaque RandGeneratedLast: ProofTrace → Bytes → Prop
 @[spec]
 axiom genRand.spec
   (size: Nat) (usageAndLabel: RandUsageAndLabel)
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (genRand size)
       (⟨ fun _ => True ⟩)
       (fun res => Always' (fun tr => res.label tr = usageAndLabel.label res) ⊓
@@ -452,7 +452,7 @@ axiom genRand.spec
 
 @[spec]
 axiom skip.spec
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (skip)
       (⟨ fun _ => True ⟩)
       (fun _ => ⟨ fun _ => True ⟩)
@@ -461,7 +461,7 @@ axiom skip.spec
 @[spec]
 axiom requireRandJustGenerated.spec
   (msg: Bytes)
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (requireRandJustGenerated msg)
       (⟨ fun tr => RandGeneratedLast tr.val msg ⟩)
       (fun _ => ⟨ fun _ => True ⟩)
@@ -470,7 +470,7 @@ axiom requireRandJustGenerated.spec
 @[spec]
 axiom requireLabelPub.spec
   (msg: Bytes)
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (requireLabelPub msg)
       (⟨ fun tr => msg.label tr.val = Label.pub ⟩)
       (fun _  => ⟨ fun _ => True ⟩ )
@@ -479,7 +479,7 @@ axiom requireLabelPub.spec
 @[spec]
 axiom requireLabelSecret.spec
   (msg: Bytes)
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (requireLabelSecret msg)
       (⟨ fun tr => msg.label tr.val = Label.secret ⟩)
       (fun _  => ⟨ fun _ => True ⟩)
@@ -635,7 +635,7 @@ def testBench40: Traceful Unit := do
   let _ ← sendMessage msg38
   let _ ← sendMessage msg39
 
-open Std.Internal.Do
+open Std.WP
 
 variable [ProofTraceTypes]
 
@@ -671,7 +671,7 @@ theorem blah5 {p q : TraceProp} (h : ∀ tr, p.val tr → q.val tr) : p ⊑ q :=
 
 theorem testNoNeedToFrame.spec
   (handle: Nat)
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (testNoNeedToFrame handle)
       (⟨ fun _ => True ⟩ )
       (fun _  => ⟨ fun _ => True ⟩)
@@ -685,7 +685,7 @@ set_option tactic.hygienic false
 -- robust `try dsimp/intro/simp at pre; grind` sweep over the resulting frame side goals.
 theorem testFrameSimple.spec
   (handle: Nat)
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (testFrameSimple handle)
       (⟨ fun _ => True ⟩ )
       (fun _  => ⟨ fun _ => True ⟩)
@@ -698,7 +698,7 @@ theorem testFrameSimple.spec
   all_goals grind
 
 theorem testNotAlways.spec
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (testNotAlways)
       (⟨ fun _ => True ⟩)
       (fun _  => ⟨ fun _ => True ⟩)
@@ -712,7 +712,7 @@ theorem testNotAlways.spec
   all_goals grind
 
 theorem testGhostPub.spec
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (testGhostPub)
       (⟨ fun _ => True ⟩)
       (fun _  => ⟨ fun _ => True ⟩)
@@ -726,7 +726,7 @@ theorem testGhostPub.spec
   all_goals grind
 
 theorem testGhostSecret.spec
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (testGhostSecret)
       (⟨ fun _ => True ⟩ )
       (fun _  => ⟨ fun _ => True ⟩)
@@ -741,7 +741,7 @@ theorem testGhostSecret.spec
 
 theorem testMixed.spec
   (handle: Nat)
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (testMixed handle)
       (⟨ fun _ => True ⟩)
       (fun _  => ⟨ fun _ => True ⟩)
@@ -756,7 +756,7 @@ theorem testMixed.spec
   all_goals grind
 
 theorem testBench10.spec
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (testBench10)
       (⟨ fun _ => True ⟩)
       (fun _  => ⟨ fun _ => True ⟩)
@@ -765,7 +765,7 @@ theorem testBench10.spec
   vcgen [testBench10] with finish
 
 -- theorem testBench40.spec
---   : Std.Internal.Do.Triple
+--   : Std.WP.Triple
 --       (testBench40)
 --       (⟨ fun _ => True ⟩)
 --       (fun _  => ⟨ fun _ => True ⟩)

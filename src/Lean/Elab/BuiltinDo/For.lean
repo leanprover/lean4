@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Elab.BuiltinDo.Basic
 meta import Lean.Parser.Do
-meta import Std.Internal.Do.Gadget.ForIn
+meta import Std.WP.Gadget.ForIn
 import Init.Control.Do
 import Init.Data.Sum.Basic
 import Init.While
@@ -105,9 +105,9 @@ parameter: synthesizing `WPMonad StateM Nat _ _` assigns `Nat → Prop` for the 
 whose instance is not available reports nothing. The type is built from syntax so that the
 universes and the instance arguments of the class come from elaboration. -/
 private def assertionLanguage? : DoElabM (Option Expr) := do
-  unless (← getEnv).contains ``Std.Internal.Do.WPMonad do return none
+  unless (← getEnv).contains ``Std.WP.WPMonad do return none
   let wpTy ← Term.elabType <| ←
-    `($(mkIdent ``Std.Internal.Do.WPMonad) $(← Term.exprToSyntax (← read).monadInfo.m) _ _)
+    `($(mkIdent ``Std.WP.WPMonad) $(← Term.exprToSyntax (← read).monadInfo.m) _ _)
   let .some _ ← trySynthInstance wpTy | return none
   let some pred := wpTy.getAppArgs[1]? | return none
   let pred ← instantiateMVars pred
@@ -174,7 +174,7 @@ private def ForInApp.mkCall (g : ForInApp) (ref : Syntax) (gadget : Name)
     (annotations : Array Term) : DoElabM Expr := do
   unless (← getEnv).contains gadget do
     throwErrorAt ref "a loop annotation elaborates to a `vcgen` gadget; \
-      add `import Std.Internal.Do` to use it."
+      add `import Std.WP` to use it."
   let call ← `($(mkIdent gadget) $(← Term.exprToSyntax g.xs) $(← Term.exprToSyntax g.init)
     $(← Term.exprToSyntax g.body) $annotations*)
   Term.elabTermEnsuringType call (mkApp (← read).monadInfo.m g.σ)
@@ -206,8 +206,8 @@ private def mkForInPureWithInvariant (g : ForInApp) (invClause : TSyntax ``doLoo
   checkAssertionBinders invClause "invariant" assertionBinders.size (← assertionLanguage?)
   let invBody ← mkAssertionFun assertionBinders invBody
   let invLam ← `(fun $loopBinders* => $(← g.mkStateFun invBody))
-  let gadget := if h?.isSome then ``Std.Internal.Do.Gadget.forInPureWithInvariant'
-    else ``Std.Internal.Do.Gadget.forInPureWithInvariant
+  let gadget := if h?.isSome then ``Std.WP.Gadget.forInPureWithInvariant'
+    else ``Std.WP.Gadget.forInPureWithInvariant
   g.mkCall invClause gadget #[invLam]
 
 /-- Rebuild the loop of a `repeat` as a call to the gadget carrying the annotations the loop states.
@@ -232,7 +232,7 @@ private def mkForInLoopGadget (g : ForInApp)
     -- `RepeatInvariant.mk` keeps the clause's declared type on the term. A bare lambda carries the
     -- unfolded type, and a specification's instance arguments are synthesized before the check that
     -- would unfold it.
-    return ((invClause : Syntax), ← `($(mkIdent ``Std.Internal.Do.RepeatInvariant.mk)
+    return ((invClause : Syntax), ← `($(mkIdent ``Std.WP.RepeatInvariant.mk)
       $(← g.mkCursorFun cursor invBody)))
   let varArg? ← dec?.mapM fun decClause => do
     let (binders, body) ← match decClause with
@@ -243,9 +243,9 @@ private def mkForInLoopGadget (g : ForInApp)
     return ((decClause : Syntax), ← g.mkStateFun (← mkAssertionFun binders body))
   let some (ref, gadget, annotations) := (match invArg?, varArg? with
     | some (ref, inv), some (_, var) =>
-      some (ref, ``Std.Internal.Do.Gadget.forInLoopWithInvariantAndVariant, #[inv, var])
-    | some (ref, inv), none => some (ref, ``Std.Internal.Do.Gadget.forInLoopWithInvariant, #[inv])
-    | none, some (ref, var) => some (ref, ``Std.Internal.Do.Gadget.forInLoopWithVariant, #[var])
+      some (ref, ``Std.WP.Gadget.forInLoopWithInvariantAndVariant, #[inv, var])
+    | some (ref, inv), none => some (ref, ``Std.WP.Gadget.forInLoopWithInvariant, #[inv])
+    | none, some (ref, var) => some (ref, ``Std.WP.Gadget.forInLoopWithVariant, #[var])
     | none, none => none) | return none
   some <$> g.mkCall ref gadget annotations
 

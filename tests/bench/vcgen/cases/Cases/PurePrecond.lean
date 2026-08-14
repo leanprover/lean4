@@ -8,7 +8,7 @@ so VC generation must introduce and discharge these pure preconditions. `step` f
 preserving `b = true`.
 -/
 
-open Lean Meta Order Std.Internal.Do
+open Lean Meta Order Std.WP
 
 namespace PurePrecond
 

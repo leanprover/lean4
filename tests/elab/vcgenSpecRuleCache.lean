@@ -1,5 +1,5 @@
 import Std.Tactic.Do
-import Std.Internal.Do
+import Std.WP
 
 /-!
 Regression test for `vcgen`'s spec backward-rule cache. The rule built from an equality spec must
@@ -21,7 +21,7 @@ def myid2 (a : α) : Id α :=
   pure a
 
 section
-open Lean.Order Std.Internal.Do
+open Lean.Order Std.WP
 
 -- The same equation `recf.eq_2` matches both `recf 3` and the recursive call `recf 2`.
 example : ⦃ True ⦄ recf 3 ⦃ fun r => r > 0 ⦄ := by

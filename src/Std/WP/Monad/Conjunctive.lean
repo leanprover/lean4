@@ -6,14 +6,14 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.WP.Conjunctive
-public import Std.Internal.Do.WP.Monad.Instances
+public import Std.WP.Conjunctive
+public import Std.WP.Monad.Instances
 universe u v w z
 @[expose] public section
 
 set_option linter.missingDocs true
 
-open Lean.Order Std.Internal.Do
+open Lean.Order Std.WP
 
 /-!
 # Conjunctivity of the monadic weakest preconditions
@@ -22,7 +22,7 @@ open Lean.Order Std.Internal.Do
 instance lifts conjunctivity from the programs of its base monad.
 -/
 
-namespace Std.Internal.Do
+namespace Std.WP
 
 /-- An `Id` program is conjunctive: its `wp` is evaluation at the result. -/
 instance Id.instWPConjunctive {α : Type u} (x : Id α) : WPConjunctive x where
@@ -105,4 +105,4 @@ instance ExceptT.instWPConjunctive {m : Type u → Type v} {ε α : Type u} {Pre
       simp only [meet_apply, EPost.Cons.pushExcept, EPost.Cons.head_meet] <;>
       exact PartialOrder.rel_refl
 
-end Std.Internal.Do
+end Std.WP

@@ -86,7 +86,7 @@ public structure BackwardRules where
 /-- Build the backward rules used by `solve` from their underlying lemmas. -/
 public def mkBackwardRules : MetaM BackwardRules := do
   return {
-    tripleIntro := ← mkBackwardRuleFromDecl ``Std.Internal.Do.Triple.intro
+    tripleIntro := ← mkBackwardRuleFromDecl ``Std.WP.Triple.intro
     stateArgIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_of_forall_le
     propPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_of_imp_top_le
     ofPropPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.ofProp_le

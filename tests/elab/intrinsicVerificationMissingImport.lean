@@ -3,12 +3,12 @@ metatheory reports a helpful error naming the missing import, rather than a down
 failure. -/
 
 /--
-error: `requires`/`ensures` contracts elaborate to a `vcgen`-proved specification theorem; add `import Std.Internal.Do` to use them.
+error: `requires`/`ensures` contracts elaborate to a `vcgen`-proved specification theorem; add `import Std.WP` to use them.
 -/
 #guard_msgs in
 def f (x : Nat) : Id Nat requires x > 0 ensures r => r ≥ x := pure x
 
-/-- error: a loop annotation elaborates to a `vcgen` gadget; add `import Std.Internal.Do` to use it. -/
+/-- error: a loop annotation elaborates to a `vcgen` gadget; add `import Std.WP` to use it. -/
 #guard_msgs in
 def g (xs : List Nat) : Id Nat := do
   let mut acc := 0
@@ -16,7 +16,7 @@ def g (xs : List Nat) : Id Nat := do
     acc := acc + x
   return acc
 
-/-- error: the `assert` element elaborates to a `vcgen` gadget; add `import Std.Internal.Do` to use it. -/
+/-- error: the `assert` element elaborates to a `vcgen` gadget; add `import Std.WP` to use it. -/
 #guard_msgs in
 def h (n : Nat) : Id Nat := do
   assert n > 0

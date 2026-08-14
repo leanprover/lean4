@@ -6,7 +6,7 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.Triple.SpecLemmas
+public import Std.WP.Triple.SpecLemmas
 public import Std.Internal.ForIn
 
 /-!
@@ -23,9 +23,10 @@ leaving what the loop does not state to `vcgen` to infer.
 
 @[expose] public section
 
-namespace Std.Internal.Do
+namespace Std.WP
 
 open Lean.Order
+open Std.Internal
 open Assertion
 
 universe u u₁ u₂ v w
@@ -221,4 +222,4 @@ theorem Spec.forInLoop_variant {Fun : Type} {γ : Type uγ'}
 
 end Loop
 
-end Std.Internal.Do
+end Std.WP

@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Sym.SymM
-import Std.Internal.Do.WP.Basic
+import Std.WP.Basic
 
 /-!
 `WPApp`: metadata for a goal whose right-hand side is a `wp` application, with `isWPApp?` to
@@ -57,7 +57,7 @@ end WPApp
 /-- The `wp` metadata of `rhs`, or `none` when `rhs` is not a `wp` application. -/
 public def isWPApp? (rhs : Expr) : Option WPApp :=
   rhs.withApp fun head args =>
-    if head.isConstOf ``Std.Internal.Do.wp && args.size ≥ 10 then
+    if head.isConstOf ``Std.WP.wp && args.size ≥ 10 then
       some { head, args := args.take 10, excessArgs := args.drop 10 }
     else
       none

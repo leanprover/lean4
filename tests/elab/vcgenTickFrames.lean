@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 import Lean
-import Std.Internal
+import Std.WP
 import Std.Tactic.Do
 
 set_option mvcgen.warning false
@@ -22,7 +22,7 @@ base wp over `costConj`, so every program frames every shift by construction, an
 `@[frameproc]` lets plain `vcgen` infer and frame the shift across calls.
 -/
 
-open Lean Order Meta Elab Tactic Sym Sym.Internal Std Internal.Do
+open Lean Order Meta Elab Tactic Sym Sym.Internal Std WP
 
 /-! ## The cost separating conjunction -/
 

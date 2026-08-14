@@ -6,7 +6,7 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.WP.Monad.Instances
+public import Std.WP.Monad.Instances
 @[expose] public section
 
 set_option linter.missingDocs true
@@ -21,7 +21,7 @@ Some lemmas prove only one direction (`⊑`) instead of equality because our `bi
 only provides one direction.
 -/
 
-namespace Std.Internal.Do.WPMonad
+namespace Std.WP.WPMonad
 
 open Lean.Order WPMonad
 
@@ -669,4 +669,4 @@ theorem wp_orElse_EStateM_apply_eq (x : EStateM ε σ α) (h : Unit → EStateM 
   simp only [wp, WP.wpTrans, OrElse.orElse, EStateM.orElse]
   cases x s <;> simp; rfl
 
-end Std.Internal.Do.WPMonad
+end Std.WP.WPMonad

@@ -12,7 +12,7 @@ public import Lean.Elab.Tactic.VCGen.Reduce
 public import Lean.Elab.Tactic.VCGen.SpecDB
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
-meta import Std.Internal.Do.WP.Frame
+meta import Std.WP.Frame
 
 open Lean Meta Elab Tactic Sym
 open Lean.Elab.Tactic.VCGen.SpecAttr
@@ -25,7 +25,7 @@ Construction of `BackwardRule`s from `SpecTheorem`s and split info, with no know
 The `VCGenM` cache wrappers live in `VCGen.RuleCache`.
 -/
 
-open Std.Internal.Do Lean.Order
+open Std.WP Lean.Order
 
 /-! ## Spec rules -/
 
@@ -251,7 +251,7 @@ private def mkSpecBackwardProof
   /- proof of the original theorem with abstracted `post` and `epost` specialized to the excess state arguments -/
   specApplied := mkAppN specApplied ss
   /- `wp prog postAbstract epostAbstract s₁ ... sₙ` -/
-  let wpTy ← mkAppM ``Std.Internal.Do.wp <| #[prog, postAbstract, epostAbstract] ++ ss
+  let wpTy ← mkAppM ``Std.WP.wp <| #[prog, postAbstract, epostAbstract] ++ ss
   let specAppliedTy ← mkAppM ``PartialOrder.rel #[preApplied, wpTy]
   /- later when the whole proof is type checked, we want to help the kernel by providing the expected type -/
   specApplied ← mkExpectedTypeHint specApplied specAppliedTy
@@ -294,7 +294,7 @@ private def eqSpecToWp? (info : WPApp) (eqPrf eqType : Expr) :
   let epost ← mkFreshExprMVar (userName := `E) info.EPred
   -- The goal's leading `wp` arguments `#[Prog, Value, Pred, EPred, instAL, instEAL, instWP]` are
   -- exactly the leading arguments of `wp_le_wp_of_eq`.
-  let specProof ← mkAppOptM ``Std.Internal.Do.wp_le_wp_of_eq <|
+  let specProof ← mkAppOptM ``Std.WP.wp_le_wp_of_eq <|
     (info.args.take 7).map some ++ #[none, none, some eqPrf, some post, some epost]
   return (specProof, ← instantiateMVars (← Meta.inferType specProof))
 
@@ -323,7 +323,7 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
   let_expr PartialOrder.rel Pred' _cl' pre rhs := specType
     | throwError "target not a partial order ⊑ application {specType}"
   guard <| ← isDefEqGuarded info.Pred Pred'
-  let_expr Std.Internal.Do.wp _Prog' _Value' _Pred' _EPred' _instAL' _instEAL' instWP' prog postSpec epostSpec := rhs
+  let_expr Std.WP.wp _Prog' _Value' _Pred' _EPred' _instAL' _instEAL' instWP' prog postSpec epostSpec := rhs
     | throwError "target not a wp application {rhs}"
   guard <| ← isDefEqGuarded info.instWP instWP'
   -- Use local excess-state binders so explicit post premises can be re-lifted to `⊑`.
@@ -445,7 +445,7 @@ public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
   -- Pin the program and the operator, leaving everything else schematic;
   -- `tryMkBackwardRuleFromSpec` turns the unassigned metavariables into rule parameters.
   let op ← fp.mkOpAppM info
-  let specProof ← mkAppOptM ``Std.Internal.Do.WP.Frames.op_wp_upperAdjoint_le_wp
+  let specProof ← mkAppOptM ``Std.WP.WP.Frames.op_wp_upperAdjoint_le_wp
     ((info.args.take 7).map some ++ #[none, some op, none])
   let some specThm ← mkSpecTheoremFromStx (← getRef) specProof
     | throwError "frame: could not build the frame spec for operator{indentExpr op}"

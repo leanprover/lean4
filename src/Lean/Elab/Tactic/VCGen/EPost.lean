@@ -7,11 +7,11 @@ module
 
 prelude
 public import Lean.Meta.Sym
-public import Std.Internal.Do
+public import Std.WP
 public import Lean.Meta.Tactic.Replace
 
 open Lean Meta Sym
-open Std.Internal.Do Lean.Order
+open Std.WP Lean.Order
 
 namespace Lean.Elab.Tactic.VCGen
 

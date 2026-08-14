@@ -17,7 +17,7 @@ import Lean.Meta.Sym.InstantiateMVarsS
 open Lean Meta Elab Tactic Sym Sym.Internal
 open Lean.Elab.Tactic.VCGen.SpecAttr
 open Lean.Elab.Tactic.VCGen
-open Std.Internal.Do Lean.Order
+open Std.WP Lean.Order
 
 /-!
 Entailment-shaped goal decomposition for `pre ⊑ rhs` targets: unfolding `Triple`,

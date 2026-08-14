@@ -9,7 +9,7 @@ prelude
 public import Lean.Meta.Tactic.Simp
 public import Lean.Meta.Sym.Pattern
 public import Std.Tactic.Do.Syntax
-public import Std.Internal.Do.Triple.Basic
+public import Std.WP.Triple.Basic
 public import Lean.Elab.Tactic.Do.ConjunctivePre
 import Init.While
 import Init.Syntax
@@ -240,7 +240,7 @@ end Lean.Elab.Tactic.Do.SpecAttr
 
 namespace Lean.Elab.Tactic.VCGen.SpecAttr
 
-open Lean Meta Std.Internal.Do Lean.Order
+open Lean Meta Std.WP Lean.Order
 
 /--
 The kind of a spec theorem.
@@ -699,7 +699,7 @@ def mkSpecAttr : AttributeImpl where
         specAttr.addSpecTheoremFromConst declName prio attrKind
       catch _ =>
       try
-        -- New metatheory `Std.Internal.Do.Triple` / `⊑ wp` specs.
+        -- New metatheory `Std.WP.Triple` / `⊑ wp` specs.
         _root_.Lean.Elab.Tactic.VCGen.SpecAttr.specAttr.addSpecTheoremFromConst declName prio attrKind
       catch _ =>
       -- Equality / unfold specs: register for legacy `mvcgen` via `mvcgen_simp`, and for the new

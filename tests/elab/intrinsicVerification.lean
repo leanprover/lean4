@@ -1,4 +1,4 @@
-import Std.Internal.Do
+import Std.WP
 import Std.Data.HashMap
 
 /-! Tests for `def` contracts. A `def` carrying `requires`/`ensures` clauses elaborates to the
@@ -38,7 +38,7 @@ def onlyRequire (n : Nat) : Id Nat
 #guard_msgs in
 #check @onlyRequire.spec
 
-open Std.Internal.Do Lean.Order
+open Std.WP Lean.Order
 
 /-! ## An `ensures` contract with a `for … invariant` loop, proved with no manual steps -/
 

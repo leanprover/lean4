@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Vladimir Gladshtein, Sebastian Graf
 -/
 import Lean
-import Std.Internal
+import Std.WP
 import Std.Tactic.Do
 
 set_option mvcgen.warning false
@@ -22,7 +22,7 @@ Tests whose proofs do not mention `mvcgen`/`vcgen` (manual `mspec`/`mintro` proo
 are intentionally not ported.
 -/
 
-open Lean Order Meta Elab Tactic Sym Std Internal.Do
+open Lean Order Meta Elab Tactic Sym Std WP
 
 set_option grind.warning false
 set_option warn.sorry false

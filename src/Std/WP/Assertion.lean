@@ -15,7 +15,7 @@ universe u v w s
 
 set_option linter.missingDocs true
 
-namespace Std.Internal.Do
+namespace Std.WP
 
 open Lean.Order
 
@@ -26,7 +26,7 @@ The `Assertion` class and lattice capabilities such as total nondeterministic fu
 -/
 
 -- `Prop` is an assertion lattice, ordered by implication. Re-scope its order instances here, so
--- that `open Std.Internal.Do` supplies them along with the triple notation.
+-- that `open Std.WP` supplies them along with the triple notation.
 attribute [scoped instance] Std.Internal.Order.instPartialOrderProp
   Std.Internal.Order.instCompleteLatticeProp
 
@@ -132,4 +132,4 @@ theorem NondetFun.le_of_total_le {Pred : Type u} {Fun : Type v} {α : Type w}
 
 end Assertion
 
-end Std.Internal.Do
+end Std.WP

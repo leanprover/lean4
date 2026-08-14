@@ -67,12 +67,22 @@ void handle_timer_event(uv_timer_t* handle) {
     lean_assert(timer->m_state == TIMER_STATE_RUNNING);
 
    if (timer->m_repeating) {
-        // For repeating timers, only resolves if the promise exists and is not finished
-        lean_object * promise = timer->m_promise;
+        if (timer_promise_is_finished(timer)) {
+            lean_object * settled = timer->m_promise;
 
-        if (!timer_promise_is_finished(timer)) {
+            if (settled == NULL) {
+                // Already handed back, by `cancel` or by an earlier tick.
+                return;
+            }
+
+            timer->m_promise = NULL;
+
+            lean_dec(obj);
+            lean_dec(settled);
+        } else {
             // Rule 1: a `cancel` from the continuation drops the promise being resolved, so hold
             // a reference across the call and do not touch the timer afterwards.
+            lean_object * promise = timer->m_promise;
             lean_inc(promise);
 
             lean_object* res = lean_io_promise_resolve(lean_box(0), promise);
@@ -286,6 +296,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
             return lean_io_result_mk_ok(finished_promise);
         }
     }
+
+    // Only reachable through a corrupted `m_state`, since the switch above covers every enumerator.
+    // Falling off the end instead would be undefined behaviour, and would leave the loop locked.
+    lean_internal_panic("libuv timer reached an unknown state");
 }
 
 /* Std.Internal.UV.Timer.reset (timer : @& Timer) : IO Unit */

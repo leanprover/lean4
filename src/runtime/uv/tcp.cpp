@@ -238,22 +238,24 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 
     size_t array_len = lean_array_size(data_array);
 
-    // Answered without the loop, and so without regard for whether it is still up: there is nothing
-    // to write.
-    if (array_len == 0) {
-        lean_dec(data_array);
-
-        lean_object* promise = lean_promise_new();
-        mark_mt(promise);
-        lean_promise_resolve_with_code(0, promise);
-
-        return lean_io_result_mk_ok(promise);
-    }
-
     // Taken before anything is allocated, so the loop-unavailable path has nothing to unwind.
     if (!event_loop_lock(&global_ev)) {
         lean_dec(data_array);
         return lean_uv_loop_unavailable_error();
+    }
+
+    // Nothing to write, but the loop still has to be up: `send` is documented to fail once it is
+    // gone rather than to report a write that never happened.
+    if (array_len == 0) {
+        event_loop_unlock(&global_ev);
+        lean_dec(data_array);
+
+        lean_object* promise = lean_promise_new();
+        mark_mt(promise);
+
+        lean_promise_resolve_with_code(0, promise);
+
+        return lean_io_result_mk_ok(promise);
     }
 
     // Allocate buffer array for uv_write

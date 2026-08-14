@@ -61,7 +61,18 @@ void handle_signal_event(uv_signal_t* handle, int signum) {
     lean_assert(signal->m_state == SIGNAL_STATE_RUNNING);
 
     if (signal->m_repeating) {
-        if (!signal_promise_is_finished(signal)) {
+        if (signal_promise_is_finished(signal)) {
+            lean_object * settled = signal->m_promise;
+
+            if (settled == NULL) {
+                return;
+            }
+
+            signal->m_promise = NULL;
+
+            lean_dec(obj);
+            lean_dec(settled);
+        } else {
             lean_object* promise = signal->m_promise;
             lean_inc(promise);
 
@@ -75,6 +86,7 @@ void handle_signal_event(uv_signal_t* handle, int signum) {
 
         lean_object * promise = signal->m_promise;
         if (promise != NULL) {
+            lean_assert(!signal_promise_is_finished(signal));
             lean_inc(promise);
         }
 
@@ -308,6 +320,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
             return lean_io_result_mk_ok(finished_promise);
         }
     }
+
+    // Only reachable through a corrupted `m_state`, since the switch above covers every enumerator.
+    // Falling off the end instead would be undefined behaviour, and would leave the loop locked.
+    lean_internal_panic("libuv signal reached an unknown state");
 }
 
 /* Std.Internal.UV.Signal.stop (signal : @& Signal) : IO Unit */

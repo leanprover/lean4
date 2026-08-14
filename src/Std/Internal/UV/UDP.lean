@@ -65,6 +65,9 @@ opaque send (socket : @& Socket) (data : Array ByteArray) (addr : @& Option Sock
 Receives data from an UDP socket. `size` is for the maximum bytes to receive. The promise
 resolves when some data is available or an error occurs.
 Furthermore calling this function in parallel with `waitReadable` is not supported.
+
+Fails with `UV_EMSGSIZE` if the datagram is larger than `size`: the kernel discards the remainder, so
+the truncated prefix is dropped rather than reported as a complete read.
 -/
 @[extern "lean_uv_udp_recv"]
 opaque recv (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error (ByteArray × Option SocketAddress)))

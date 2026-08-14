@@ -23,7 +23,7 @@ void lean_uv_udp_socket_finalizer(void* ptr) {
     lean_uv_udp_socket_object* udp_socket = (lean_uv_udp_socket_object*)ptr;
 
     // The loop holds a reference on the socket for as long as either of these is set, so reaching
-    // the finalizer with one is a bug in the accounting. Released rather than asserted on in release
+    // the finalizer with one is a bug in the accounting. Leaked rather than aborted on in release
     // builds: an abort during process teardown is worse than a promise nothing can await any more.
     lean_assert(udp_socket->m_promise_read == nullptr);
     lean_assert(udp_socket->m_byte_array == nullptr);
@@ -175,14 +175,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
 
     size_t array_len = lean_array_size(data_array);
 
-    // Taken before anything is allocated, so the loop-unavailable path has nothing to unwind.
-    if (!event_loop_lock(&global_ev)) {
-        lean_dec(data_array);
-        return lean_uv_loop_unavailable_error();
-    }
-
+    // Answered without the loop, and so without regard for whether it is still up: there is nothing
+    // to send.
     if (array_len == 0) {
-        event_loop_unlock(&global_ev);
         lean_dec(data_array);
 
         lean_object* promise = lean_promise_new();
@@ -190,6 +185,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
         lean_promise_resolve_with_code(0, promise);
 
         return lean_io_result_mk_ok(promise);
+    }
+
+    // Taken before anything is allocated, so the loop-unavailable path has nothing to unwind.
+    if (!event_loop_lock(&global_ev)) {
+        lean_dec(data_array);
+        return lean_uv_loop_unavailable_error();
     }
 
     if (lean_usize_mul_would_overflow(array_len, sizeof(uv_buf_t))) {

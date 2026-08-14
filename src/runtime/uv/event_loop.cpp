@@ -25,10 +25,6 @@ using namespace std;
 
 event_loop_t global_ev;
 
-// True on the thread currently running `finalize_libuv`. Used by `event_loop_wait_finalized` to
-// recognise a re-entrant call from teardown itself.
-static LEAN_THREAD_LOCAL bool g_in_teardown = false;
-
 // Helpers
 
 void lean_promise_resolve_with_code(int status, b_obj_arg promise) {
@@ -162,11 +158,6 @@ void event_loop_request_stop(event_loop_t * event_loop) {
     uv_cond_signal(&event_loop->cond_var);
 }
 
-// Marks the calling thread as the one running `finalize_libuv`.
-void event_loop_begin_teardown() {
-    g_in_teardown = true;
-}
-
 void event_loop_mark_finalized(event_loop_t * event_loop) {
     uv_mutex_lock(&event_loop->finalize_mutex);
     event_loop->state = EVENT_LOOP_FINALIZED;
@@ -182,10 +173,6 @@ void event_loop_mark_finalized(event_loop_t * event_loop) {
 // This waits on `finalize_mutex` rather than `mutex`: a finalizer can be reached from a thread that
 // already holds `mutex`, and `uv_cond_wait` on a recursive mutex held more than once is undefined.
 void event_loop_wait_finalized(event_loop_t * event_loop) {
-    if (g_in_teardown) {
-        return;
-    }
-
     uv_mutex_lock(&event_loop->finalize_mutex);
     while (event_loop->state != EVENT_LOOP_FINALIZED) {
         uv_cond_wait(&event_loop->finalize_cond, &event_loop->finalize_mutex);

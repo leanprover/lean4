@@ -32,7 +32,7 @@ void lean_uv_tcp_socket_finalizer(void* ptr) {
     lean_uv_tcp_socket_object* tcp_socket = (lean_uv_tcp_socket_object*)ptr;
 
     // The loop holds a reference on the socket for as long as any of these is set, so reaching the
-    // finalizer with one is a bug in the accounting. Released rather than asserted on in release
+    // finalizer with one is a bug in the accounting. Leaked rather than aborted on in release
     // builds: an abort during process teardown is worse than a promise nothing can await any more.
     lean_assert(tcp_socket->m_promise_shutdown == nullptr);
     lean_assert(tcp_socket->m_promise_accept == nullptr);
@@ -238,14 +238,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 
     size_t array_len = lean_array_size(data_array);
 
-    // Taken before anything is allocated, so the loop-unavailable path has nothing to unwind.
-    if (!event_loop_lock(&global_ev)) {
-        lean_dec(data_array);
-        return lean_uv_loop_unavailable_error();
-    }
-
+    // Answered without the loop, and so without regard for whether it is still up: there is nothing
+    // to write.
     if (array_len == 0) {
-        event_loop_unlock(&global_ev);
         lean_dec(data_array);
 
         lean_object* promise = lean_promise_new();
@@ -253,6 +248,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
         lean_promise_resolve_with_code(0, promise);
 
         return lean_io_result_mk_ok(promise);
+    }
+
+    // Taken before anything is allocated, so the loop-unavailable path has nothing to unwind.
+    if (!event_loop_lock(&global_ev)) {
+        lean_dec(data_array);
+        return lean_uv_loop_unavailable_error();
     }
 
     // Allocate buffer array for uv_write

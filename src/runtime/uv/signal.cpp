@@ -326,23 +326,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
 
     int result = uv_signal_stop(signal->m_uv_signal);
 
-    // `cancel` on a repeating signal leaves it running without a promise, in which case the loop
-    // has already given its reference back and must not be charged for it twice.
-    bool loop_owns_signal = signal->m_promise != NULL;
-
     lean_object * promise = signal->m_promise;
     signal->m_promise = NULL;
     signal->m_state = SIGNAL_STATE_FINISHED;
 
     event_loop_unlock(&global_ev);
 
-    // Rules 1 and 2: the stop is complete and the lock dropped before releasing.
     if (promise != NULL) {
         lean_dec(promise);
-    }
-
-    if (loop_owns_signal) {
-        // The loop does not need to keep the signal alive anymore.
         lean_dec(obj);
     }
 

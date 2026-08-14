@@ -80,6 +80,9 @@ The promise resolves when some data is available or an error occurs. If the sock
 has not been previously bound with `bind`, it is automatically bound to `0.0.0.0`
 (all interfaces) with a random port.
 Furthermore calling this function in parallel with `recvSelector` is not supported.
+
+Fails with `UV_EMSGSIZE` if the datagram is larger than `size`: the kernel discards the remainder, so
+the truncated prefix is dropped rather than reported as a complete read.
 -/
 @[inline]
 def recv (s : Socket) (size : UInt64) : Async (ByteArray × Option SocketAddress) :=
@@ -91,6 +94,8 @@ and provides that data. If the socket has not been previously bound with `bind`,
 automatically bound to `0.0.0.0` (all interfaces) with a random port.
 Calling this function does starts the data wait, only when it's used with `Selectable.one` or `combine`.
 It must not be called in parallel with `recv`.
+
+Fails with `UV_EMSGSIZE` if the datagram is larger than `size`, like `recv`.
 -/
 def recvSelector (s : Socket) (size : UInt64) : Selector (ByteArray × Option SocketAddress) :=
  {

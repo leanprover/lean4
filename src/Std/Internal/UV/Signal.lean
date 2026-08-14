@@ -32,7 +32,7 @@ of all functions on `Signal`s.
 The event loop is torn down at process exit. Any promise still pending at that point is dropped, so
 a computation waiting on it fails instead of producing a value, and every operation below then fails
 with `UV_ECANCELED` instead of starting new work. The exceptions are `stop` and `cancel`, which
-succeed as no-ops: teardown has already stopped the signal handler and dropped its promise.
+succeed as no-ops: teardown itself stops the signal handler and drops its promise.
 -/
 def Signal : Type := SignalImpl.type
 

@@ -43,8 +43,6 @@ extern "C" void finalize_libuv() {
         return;
     }
 
-    event_loop_begin_teardown();
-
     event_loop_lock_internal(&global_ev);
     event_loop_request_stop(&global_ev);
     event_loop_unlock(&global_ev);

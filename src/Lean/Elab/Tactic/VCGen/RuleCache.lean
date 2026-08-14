@@ -55,6 +55,7 @@ public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPApp) :
   let cacheKey := match splitInfo with
     | .ite .. => ``ite
     | .dite .. => ``dite
+    | .cond .. => ``cond
     | .matcher matcherApp => matcherApp.matcherName
   let key := (cacheKey, ExprPtr.mk info.instWP, info.excessArgs.size)
   let s := (← get).splitBackwardRuleCache

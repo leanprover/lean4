@@ -316,8 +316,8 @@ private def wpSimpStateArgs? (goal : MVarId) (info : WPApp) :
     | .noProgress => return none
   | _ => return none
 
-/-- Strategy 11b: split an `ite`/`dite`/match program, or iota-reduce a matcher with a concrete
-discriminant. -/
+/-- Strategy 11b: split an `ite`/`dite`/`cond`/match program, or iota-reduce a matcher with a
+concrete discriminant. -/
 private def wpMatch? (goal : MVarId) (info : WPApp) :
     VCGenM (Option (List MVarId)) := do
   let some splitInfo ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? info.prog | return none

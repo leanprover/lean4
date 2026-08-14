@@ -340,7 +340,7 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
 /-! ## Split rules -/
 
 open Lean.Elab.Tactic.Do in
-/-- Creates a reusable backward rule for splitting `ite`, `dite`, or matchers.
+/-- Creates a reusable backward rule for splitting `ite`, `dite`, `cond`, or matchers.
 
 Uses `SplitInfo.withAbstract` to introduce abstract fvars for the split components,
 then `SplitInfo.splitWith` to build the splitting proof. Hypothesis types are
@@ -356,7 +356,7 @@ public def mkBackwardRuleForSplit
     -- higher-order unification. The alts are eta-expanded by `withAbstract` so that
     -- `splitWith`/`matcherApp.transform` can `instantiateLambda` them directly.
     let abstractProg := match abstractInfo with
-      | .ite e | .dite e => e
+      | .ite e | .dite e | .cond e => e
       | .matcher matcherApp =>
         { matcherApp with alts := matcherApp.alts.map Expr.eta }.toExpr
     let excessArgNamesTypes ← info.excessArgs.mapM fun arg =>

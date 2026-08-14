@@ -62,7 +62,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 size_t lean_ptr_addr(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -600,7 +600,7 @@ goto v_reusejp_19_;
 v_reusejp_19_:
 {
 lean_object* v___x_21_; lean_object* v___x_22_; 
-v___x_21_ = lean_st_ref_set(v___y_2_, v___x_20_);
+v___x_21_ = lean_st_ref_put(v___y_2_, v___x_20_);
 v___x_22_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_22_, 0, v_fst_9_);
 return v___x_22_;
@@ -2872,7 +2872,7 @@ goto v_reusejp_752_;
 v_reusejp_752_:
 {
 lean_object* v___x_754_; lean_object* v___x_755_; lean_object* v___x_756_; 
-v___x_754_ = lean_st_ref_set(v___y_725_, v___x_753_);
+v___x_754_ = lean_st_ref_put(v___y_725_, v___x_753_);
 v___x_755_ = lean_box(0);
 v___x_756_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_756_, 0, v___x_755_);
@@ -7510,7 +7510,7 @@ _start:
 lean_object* v___x_2326_; lean_object* v___x_2327_; lean_object* v___x_2328_; lean_object* v___x_2329_; 
 v___x_2326_ = lean_st_ref_take(v_a_2322_);
 v___x_2327_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lean_Meta_Transform_0__Lean_Core_transform_visit___at___00Lean_Core_transform___at___00Lean_Meta_Grind_eraseIrrelevantMData_spec__0_spec__0_spec__6___redArg(v___x_2326_, v_e_2323_, v_a_2324_);
-v___x_2328_ = lean_st_ref_set(v_a_2322_, v___x_2327_);
+v___x_2328_ = lean_st_ref_put(v_a_2322_, v___x_2327_);
 v___x_2329_ = lean_box(0);
 return v___x_2329_;
 }

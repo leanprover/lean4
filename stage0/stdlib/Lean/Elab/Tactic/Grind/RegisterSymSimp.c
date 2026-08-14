@@ -42,7 +42,7 @@ lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 extern lean_object* l_Lean_Meta_Sym_Simp_symSimpVariantExtension;
 lean_object* l_Lean_ScopedEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 size_t lean_array_size(lean_object*);
 lean_object* l_Lean_Elab_Tactic_Grind_elabSymSimproc___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2156,7 +2156,7 @@ goto v_reusejp_523_;
 v_reusejp_523_:
 {
 lean_object* v___x_525_; lean_object* v___x_526_; lean_object* v___x_527_; 
-v___x_525_ = lean_st_ref_set(v___y_498_, v___x_524_);
+v___x_525_ = lean_st_ref_put(v___y_498_, v___x_524_);
 v___x_526_ = lean_box(0);
 v___x_527_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_527_, 0, v___x_526_);

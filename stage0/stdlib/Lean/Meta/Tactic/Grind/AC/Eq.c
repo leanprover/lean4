@@ -66,7 +66,7 @@ lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Grind_AC_Seq_subset(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 uint8_t l_Lean_Grind_AC_Seq_compare(lean_object*, lean_object*);
@@ -6607,7 +6607,7 @@ goto v_reusejp_3092_;
 v_reusejp_3092_:
 {
 lean_object* v___x_3094_; lean_object* v___x_3095_; lean_object* v___x_3097_; 
-v___x_3094_ = lean_st_ref_set(v___y_3055_, v___x_3093_);
+v___x_3094_ = lean_st_ref_put(v___y_3055_, v___x_3093_);
 v___x_3095_ = lean_box(0);
 if (v_isShared_3062_ == 0)
 {
@@ -28588,7 +28588,7 @@ goto v_reusejp_9753_;
 v_reusejp_9753_:
 {
 lean_object* v___x_9755_; lean_object* v___x_9756_; lean_object* v___x_9757_; lean_object* v___x_9759_; 
-v___x_9755_ = lean_st_ref_set(v___y_9716_, v___x_9754_);
+v___x_9755_ = lean_st_ref_put(v___y_9716_, v___x_9754_);
 v___x_9756_ = lean_box(0);
 v___x_9757_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_9757_, 0, v___x_9756_);

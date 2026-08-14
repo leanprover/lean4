@@ -59,7 +59,7 @@ size_t lean_array_size(lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isImplementationDetail(lean_object*);
 uint8_t l_Lean_isPrivateName(lean_object*);
 uint8_t l_Lean_Name_isInternal(lean_object*);
@@ -1727,7 +1727,7 @@ goto v_reusejp_385_;
 v_reusejp_385_:
 {
 lean_object* v___x_387_; lean_object* v___x_388_; lean_object* v___x_389_; 
-v___x_387_ = lean_st_ref_set(v___y_368_, v___x_386_);
+v___x_387_ = lean_st_ref_put(v___y_368_, v___x_386_);
 v___x_388_ = lean_box_uint64(v_a_367_);
 v___x_389_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_389_, 0, v___x_388_);

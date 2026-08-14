@@ -26,7 +26,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -1038,7 +1038,7 @@ goto v_reusejp_149_;
 v_reusejp_149_:
 {
 lean_object* v___x_151_; lean_object* v___x_152_; lean_object* v___x_154_; 
-v___x_151_ = lean_st_ref_set(v___y_112_, v___x_150_);
+v___x_151_ = lean_st_ref_put(v___y_112_, v___x_150_);
 v___x_152_ = lean_box(0);
 if (v_isShared_119_ == 0)
 {
@@ -6503,7 +6503,7 @@ goto v_reusejp_2124_;
 v_reusejp_2124_:
 {
 lean_object* v___x_2126_; lean_object* v___x_2127_; 
-v___x_2126_ = lean_st_ref_set(v___y_2107_, v___x_2125_);
+v___x_2126_ = lean_st_ref_put(v___y_2107_, v___x_2125_);
 v___x_2127_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2127_, 0, v_fst_2114_);
 return v___x_2127_;

@@ -33,7 +33,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_mkAuxDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
@@ -554,7 +554,7 @@ goto v_reusejp_146_;
 v_reusejp_146_:
 {
 lean_object* v___x_148_; lean_object* v___x_149_; 
-v___x_148_ = lean_st_ref_set(v___y_129_, v___x_147_);
+v___x_148_ = lean_st_ref_put(v___y_129_, v___x_147_);
 v___x_149_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_149_, 0, v_fst_136_);
 return v___x_149_;
@@ -2496,7 +2496,7 @@ goto v_reusejp_764_;
 v_reusejp_764_:
 {
 lean_object* v___x_766_; lean_object* v___x_767_; lean_object* v___x_769_; 
-v___x_766_ = lean_st_ref_set(v___y_708_, v___x_765_);
+v___x_766_ = lean_st_ref_put(v___y_708_, v___x_765_);
 v___x_767_ = lean_box(0);
 if (v_isShared_732_ == 0)
 {

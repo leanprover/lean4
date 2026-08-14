@@ -54,7 +54,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -586,7 +586,7 @@ v_declName_205_ = lean_ctor_get(v_x_162_, 0);
 v___x_206_ = lean_st_ref_take(v___y_165_);
 lean_inc(v_declName_205_);
 v___x_207_ = l_Lean_NameSet_insert(v___x_206_, v_declName_205_);
-v___x_208_ = lean_st_ref_set(v___y_165_, v___x_207_);
+v___x_208_ = lean_st_ref_put(v___y_165_, v___x_207_);
 v___y_172_ = v___y_165_;
 v___y_173_ = v___y_166_;
 v___y_174_ = v___y_167_;
@@ -2651,7 +2651,7 @@ goto v_reusejp_957_;
 v_reusejp_957_:
 {
 lean_object* v___x_959_; lean_object* v___x_960_; lean_object* v___x_962_; 
-v___x_959_ = lean_st_ref_set(v___y_920_, v___x_958_);
+v___x_959_ = lean_st_ref_put(v___y_920_, v___x_958_);
 v___x_960_ = lean_box(0);
 if (v_isShared_927_ == 0)
 {
@@ -3264,7 +3264,7 @@ goto v_reusejp_1190_;
 v_reusejp_1190_:
 {
 lean_object* v___x_1192_; lean_object* v___x_1193_; lean_object* v_mctx_1194_; lean_object* v_zetaDeltaFVarIds_1195_; lean_object* v_postponed_1196_; lean_object* v_diag_1197_; lean_object* v___x_1199_; uint8_t v_isShared_1200_; uint8_t v_isSharedCheck_1208_; 
-v___x_1192_ = lean_st_ref_set(v___y_1173_, v___x_1191_);
+v___x_1192_ = lean_st_ref_put(v___y_1173_, v___x_1191_);
 v___x_1193_ = lean_st_ref_take(v___y_1171_);
 v_mctx_1194_ = lean_ctor_get(v___x_1193_, 0);
 v_zetaDeltaFVarIds_1195_ = lean_ctor_get(v___x_1193_, 2);
@@ -3316,7 +3316,7 @@ goto v_reusejp_1202_;
 v_reusejp_1202_:
 {
 lean_object* v___x_1204_; lean_object* v___x_1205_; lean_object* v___x_1206_; 
-v___x_1204_ = lean_st_ref_set(v___y_1171_, v___x_1203_);
+v___x_1204_ = lean_st_ref_put(v___y_1171_, v___x_1203_);
 v___x_1205_ = lean_box(0);
 v___x_1206_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1206_, 0, v___x_1205_);

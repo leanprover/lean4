@@ -58,7 +58,7 @@ lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_isPrivateName(lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_mkPath(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
@@ -2561,7 +2561,7 @@ goto v_reusejp_669_;
 v_reusejp_669_:
 {
 lean_object* v___x_671_; lean_object* v___x_672_; lean_object* v_mctx_673_; lean_object* v_zetaDeltaFVarIds_674_; lean_object* v_postponed_675_; lean_object* v_diag_676_; lean_object* v___x_678_; uint8_t v_isShared_679_; uint8_t v_isSharedCheck_687_; 
-v___x_671_ = lean_st_ref_set(v___y_652_, v___x_670_);
+v___x_671_ = lean_st_ref_put(v___y_652_, v___x_670_);
 v___x_672_ = lean_st_ref_take(v___y_650_);
 v_mctx_673_ = lean_ctor_get(v___x_672_, 0);
 v_zetaDeltaFVarIds_674_ = lean_ctor_get(v___x_672_, 2);
@@ -2613,7 +2613,7 @@ goto v_reusejp_681_;
 v_reusejp_681_:
 {
 lean_object* v___x_683_; lean_object* v___x_684_; lean_object* v___x_685_; 
-v___x_683_ = lean_st_ref_set(v___y_650_, v___x_682_);
+v___x_683_ = lean_st_ref_put(v___y_650_, v___x_682_);
 v___x_684_ = lean_box(0);
 v___x_685_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_685_, 0, v___x_684_);
@@ -4727,7 +4727,7 @@ goto v_reusejp_1613_;
 v_reusejp_1613_:
 {
 lean_object* v___x_1615_; lean_object* v___x_1616_; 
-v___x_1615_ = lean_st_ref_set(v___y_1596_, v___x_1614_);
+v___x_1615_ = lean_st_ref_put(v___y_1596_, v___x_1614_);
 v___x_1616_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1616_, 0, v_fst_1603_);
 return v___x_1616_;
@@ -5664,7 +5664,7 @@ goto v_reusejp_1921_;
 v_reusejp_1921_:
 {
 lean_object* v___x_1923_; lean_object* v___x_1924_; lean_object* v___x_1925_; 
-v___x_1923_ = lean_st_ref_set(v___y_1894_, v___x_1922_);
+v___x_1923_ = lean_st_ref_put(v___y_1894_, v___x_1922_);
 v___x_1924_ = lean_box(0);
 v___x_1925_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1925_, 0, v___x_1924_);

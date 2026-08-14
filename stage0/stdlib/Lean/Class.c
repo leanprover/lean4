@@ -83,7 +83,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_collectLevelParams(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_instBEqAttributeKind_beq(uint8_t, uint8_t);
 size_t lean_array_size(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -4179,7 +4179,7 @@ goto v_reusejp_1266_;
 v_reusejp_1266_:
 {
 lean_object* v___x_1268_; lean_object* v___x_1269_; lean_object* v___x_1270_; 
-v___x_1268_ = lean_st_ref_set(v___y_1252_, v___x_1267_);
+v___x_1268_ = lean_st_ref_put(v___y_1252_, v___x_1267_);
 v___x_1269_ = lean_box(0);
 v___x_1270_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1270_, 0, v___x_1269_);
@@ -5740,7 +5740,7 @@ goto v_reusejp_1903_;
 v_reusejp_1903_:
 {
 lean_object* v___x_1905_; lean_object* v___x_1906_; lean_object* v___x_1907_; 
-v___x_1905_ = lean_st_ref_set(v___y_1882_, v___x_1904_);
+v___x_1905_ = lean_st_ref_put(v___y_1882_, v___x_1904_);
 v___x_1906_ = lean_box(0);
 v___x_1907_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1907_, 0, v___x_1906_);

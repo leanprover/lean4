@@ -79,7 +79,7 @@ lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean
 lean_object* l_Lean_Meta_instInhabitedMetaM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_MapDeclarationExtension_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* l_Lean_Environment_setExporting(lean_object*, uint8_t);
@@ -3512,7 +3512,7 @@ goto v_reusejp_937_;
 v_reusejp_937_:
 {
 lean_object* v___x_939_; lean_object* v___x_940_; lean_object* v___x_942_; 
-v___x_939_ = lean_st_ref_set(v_a_907_, v___x_938_);
+v___x_939_ = lean_st_ref_put(v_a_907_, v___x_938_);
 v___x_940_ = lean_box(0);
 if (v_isShared_922_ == 0)
 {
@@ -7184,7 +7184,7 @@ goto v_reusejp_2189_;
 v_reusejp_2189_:
 {
 lean_object* v___x_2191_; lean_object* v___x_2192_; lean_object* v___x_2194_; 
-v___x_2191_ = lean_st_ref_set(v_a_2160_, v___x_2190_);
+v___x_2191_ = lean_st_ref_put(v_a_2160_, v___x_2190_);
 v___x_2192_ = lean_box(0);
 if (v_isShared_2174_ == 0)
 {

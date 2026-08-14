@@ -57,7 +57,7 @@ lean_object* l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverE
 lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint64_t lean_usize_to_uint64(size_t);
@@ -4055,7 +4055,7 @@ goto v_reusejp_1486_;
 v_reusejp_1486_:
 {
 lean_object* v___x_1488_; lean_object* v___x_1489_; 
-v___x_1488_ = lean_st_ref_set(v___y_1471_, v___x_1487_);
+v___x_1488_ = lean_st_ref_put(v___y_1471_, v___x_1487_);
 v___x_1489_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1489_, 0, v_snd_1477_);
 return v___x_1489_;
@@ -4437,7 +4437,7 @@ goto v_reusejp_1649_;
 v_reusejp_1649_:
 {
 lean_object* v___x_1651_; lean_object* v___x_1652_; lean_object* v___x_1654_; 
-v___x_1651_ = lean_st_ref_set(v___y_1612_, v___x_1650_);
+v___x_1651_ = lean_st_ref_put(v___y_1612_, v___x_1650_);
 v___x_1652_ = lean_box(0);
 if (v_isShared_1619_ == 0)
 {

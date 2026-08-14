@@ -90,7 +90,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 uint8_t l_Lean_Meta_Grind_isMarkedSubsingletonApp(lean_object*);
 lean_object* l_Lean_Meta_Grind_EMatch_isTheoremInstanceProof_x3f(lean_object*);
@@ -6891,7 +6891,7 @@ goto v_reusejp_2352_;
 v_reusejp_2352_:
 {
 lean_object* v___x_2354_; lean_object* v___x_2355_; 
-v___x_2354_ = lean_st_ref_set(v___y_2335_, v___x_2353_);
+v___x_2354_ = lean_st_ref_put(v___y_2335_, v___x_2353_);
 v___x_2355_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2355_, 0, v_fst_2342_);
 return v___x_2355_;

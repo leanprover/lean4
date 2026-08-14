@@ -88,7 +88,7 @@ lean_object* l_Lean_Meta_Grind_pushEqCore___redArg(lean_object*, lean_object*, l
 lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_getConfig___redArg(lean_object*);
 uint8_t l_Lean_Meta_Grind_Arith_isIntModuleVirtualParent(lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_CommRing_reify_x3f(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -8130,7 +8130,7 @@ goto v_reusejp_2468_;
 v_reusejp_2468_:
 {
 lean_object* v___x_2470_; lean_object* v___x_2471_; lean_object* v___x_2473_; 
-v___x_2470_ = lean_st_ref_set(v___y_2431_, v___x_2469_);
+v___x_2470_ = lean_st_ref_put(v___y_2431_, v___x_2469_);
 v___x_2471_ = lean_box(0);
 if (v_isShared_2438_ == 0)
 {
@@ -10366,7 +10366,7 @@ goto v_reusejp_3237_;
 v_reusejp_3237_:
 {
 lean_object* v___x_3239_; lean_object* v___x_3240_; lean_object* v___x_3242_; 
-v___x_3239_ = lean_st_ref_set(v___y_3200_, v___x_3238_);
+v___x_3239_ = lean_st_ref_put(v___y_3200_, v___x_3238_);
 v___x_3240_ = lean_box(0);
 if (v_isShared_3207_ == 0)
 {
@@ -10550,7 +10550,7 @@ goto v_reusejp_3299_;
 v_reusejp_3299_:
 {
 lean_object* v___x_3301_; lean_object* v___x_3302_; lean_object* v___x_3304_; 
-v___x_3301_ = lean_st_ref_set(v___y_3262_, v___x_3300_);
+v___x_3301_ = lean_st_ref_put(v___y_3262_, v___x_3300_);
 v___x_3302_ = lean_box(0);
 if (v_isShared_3269_ == 0)
 {
@@ -10734,7 +10734,7 @@ goto v_reusejp_3361_;
 v_reusejp_3361_:
 {
 lean_object* v___x_3363_; lean_object* v___x_3364_; lean_object* v___x_3366_; 
-v___x_3363_ = lean_st_ref_set(v___y_3324_, v___x_3362_);
+v___x_3363_ = lean_st_ref_put(v___y_3324_, v___x_3362_);
 v___x_3364_ = lean_box(0);
 if (v_isShared_3331_ == 0)
 {

@@ -54,7 +54,7 @@ lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, l
 lean_object* l_Lean_Meta_mkFreshExprMVar(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEqGuarded(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
@@ -3914,7 +3914,7 @@ goto v_reusejp_969_;
 v_reusejp_969_:
 {
 lean_object* v___x_971_; lean_object* v___x_972_; 
-v___x_971_ = lean_st_ref_set(v___y_952_, v___x_970_);
+v___x_971_ = lean_st_ref_put(v___y_952_, v___x_970_);
 v___x_972_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_972_, 0, v_fst_959_);
 return v___x_972_;
@@ -4739,7 +4739,7 @@ goto v_reusejp_1238_;
 v_reusejp_1238_:
 {
 lean_object* v___x_1240_; lean_object* v___x_1241_; lean_object* v___x_1242_; 
-v___x_1240_ = lean_st_ref_set(v___y_1211_, v___x_1239_);
+v___x_1240_ = lean_st_ref_put(v___y_1211_, v___x_1239_);
 v___x_1241_ = lean_box(0);
 v___x_1242_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1242_, 0, v___x_1241_);
@@ -11983,7 +11983,7 @@ goto v_reusejp_3757_;
 v_reusejp_3757_:
 {
 lean_object* v___x_3759_; lean_object* v___x_3760_; 
-v___x_3759_ = lean_st_ref_set(v___y_3740_, v___x_3758_);
+v___x_3759_ = lean_st_ref_put(v___y_3740_, v___x_3758_);
 v___x_3760_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_3760_, 0, v_fst_3747_);
 return v___x_3760_;
@@ -12331,7 +12331,7 @@ goto v_reusejp_3924_;
 v_reusejp_3924_:
 {
 lean_object* v___x_3926_; lean_object* v___x_3927_; lean_object* v___x_3928_; 
-v___x_3926_ = lean_st_ref_set(v___y_3897_, v___x_3925_);
+v___x_3926_ = lean_st_ref_put(v___y_3897_, v___x_3925_);
 v___x_3927_ = lean_box(0);
 v___x_3928_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_3928_, 0, v___x_3927_);
@@ -16784,7 +16784,7 @@ goto v_reusejp_5379_;
 v_reusejp_5379_:
 {
 lean_object* v___x_5381_; lean_object* v___x_5382_; 
-v___x_5381_ = lean_st_ref_set(v___y_5352_, v___x_5380_);
+v___x_5381_ = lean_st_ref_put(v___y_5352_, v___x_5380_);
 v___x_5382_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_5382_, 0, v_trees_5356_);
 return v___x_5382_;
@@ -16952,7 +16952,7 @@ goto v_reusejp_5433_;
 v_reusejp_5433_:
 {
 lean_object* v___x_5435_; lean_object* v___x_5436_; lean_object* v___x_5438_; 
-v___x_5435_ = lean_st_ref_set(v___y_5391_, v___x_5434_);
+v___x_5435_ = lean_st_ref_put(v___y_5391_, v___x_5434_);
 v___x_5436_ = lean_box(0);
 if (v_isShared_5410_ == 0)
 {

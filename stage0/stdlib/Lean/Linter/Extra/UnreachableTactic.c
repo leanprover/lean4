@@ -41,7 +41,7 @@ size_t lean_uint64_to_usize(uint64_t);
 uint8_t l_Lean_Syntax_instBEqRange_beq(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_instMonadEIO(lean_object*);
@@ -1116,7 +1116,7 @@ lean_object* v___x_307_; lean_object* v___x_308_; lean_object* v___x_309_; lean_
 v___x_307_ = l_Lean_Linter_Extra_UnreachableTactic_ignoreTacticKindsRef;
 v___x_308_ = lean_st_ref_take(v___x_307_);
 v___x_309_ = l_Lean_NameHashSet_insert(v___x_308_, v_kind_305_);
-v___x_310_ = lean_st_ref_set(v___x_307_, v___x_309_);
+v___x_310_ = lean_st_ref_put(v___x_307_, v___x_309_);
 v___x_311_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_311_, 0, v___x_310_);
 return v___x_311_;
@@ -1275,7 +1275,7 @@ v___x_347_ = lean_st_ref_take(v___y_336_);
 v___x_348_ = ((lean_object*)(l_Lean_Linter_Extra_UnreachableTactic_getTactics___closed__2));
 v___x_349_ = ((lean_object*)(l_Lean_Linter_Extra_UnreachableTactic_getTactics___closed__3));
 v___x_350_ = l_Std_DHashMap_Internal_Raw_u2080_insert___redArg(v___x_348_, v___x_349_, v___x_347_, v_val_343_, v_stx_329_);
-v___x_351_ = lean_st_ref_set(v___y_336_, v___x_350_);
+v___x_351_ = lean_st_ref_put(v___y_336_, v___x_350_);
 v___x_352_ = lean_box(0);
 if (v_isShared_346_ == 0)
 {
@@ -1616,7 +1616,7 @@ lean_dec_ref_known(v___x_468_, 1);
 v___x_470_ = lean_st_ref_take(v_a_458_);
 v___x_471_ = l_Std_DHashMap_Internal_Raw_u2080_erase___at___00Lean_Linter_Extra_UnreachableTactic_eraseUsedTactics_spec__2___redArg(v___x_470_, v_val_469_);
 lean_dec(v_val_469_);
-v___x_472_ = lean_st_ref_set(v_a_458_, v___x_471_);
+v___x_472_ = lean_st_ref_put(v_a_458_, v___x_471_);
 v___x_473_ = l_Lean_Linter_Extra_UnreachableTactic_eraseUsedTacticsList(v_children_465_, v_a_458_);
 return v___x_473_;
 }
@@ -3097,7 +3097,7 @@ goto v_reusejp_908_;
 v_reusejp_908_:
 {
 lean_object* v___x_910_; lean_object* v___x_911_; lean_object* v___x_913_; 
-v___x_910_ = lean_st_ref_set(v___y_878_, v___x_909_);
+v___x_910_ = lean_st_ref_put(v___y_878_, v___x_909_);
 v___x_911_ = lean_box(0);
 if (v_isShared_885_ == 0)
 {
@@ -4570,7 +4570,7 @@ v_resetjp_1365_:
 lean_object* v___x_1368_; lean_object* v___x_1369_; lean_object* v___x_1370_; lean_object* v___x_1371_; lean_object* v___x_1373_; 
 v___x_1368_ = lean_st_ref_take(v___y_1359_);
 v___x_1369_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_Linter_Extra_UnreachableTactic_getTactics___at___00Lean_Linter_Extra_UnreachableTactic_unreachableTacticLinter_spec__10_spec__15___redArg(v___x_1368_, v_val_1364_, v_stx_1355_);
-v___x_1370_ = lean_st_ref_set(v___y_1359_, v___x_1369_);
+v___x_1370_ = lean_st_ref_put(v___y_1359_, v___x_1369_);
 v___x_1371_ = lean_box(0);
 if (v_isShared_1367_ == 0)
 {

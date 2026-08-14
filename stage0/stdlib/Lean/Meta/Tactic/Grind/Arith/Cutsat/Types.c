@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
-// Imports: public import Init.Data.Int.Linear public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
+// Imports: public import Init.Data.Int.Linear public import Lean.Meta.Tactic.Grind.Arith.Util public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2799,7 +2799,7 @@ v___x_958_ = lean_unsigned_to_nat(0u);
 v___x_959_ = lean_box(0);
 v___x_960_ = lean_obj_once(&l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState_default___closed__3, &l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState_default___closed__3_once, _init_l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState_default___closed__3);
 v___x_961_ = lean_obj_once(&l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState_default___closed__1, &l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState_default___closed__1_once, _init_l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState_default___closed__1);
-v___x_962_ = lean_alloc_ctor(0, 24, 2);
+v___x_962_ = lean_alloc_ctor(0, 20, 2);
 lean_ctor_set(v___x_962_, 0, v___x_961_);
 lean_ctor_set(v___x_962_, 1, v___x_960_);
 lean_ctor_set(v___x_962_, 2, v___x_961_);
@@ -2820,12 +2820,8 @@ lean_ctor_set(v___x_962_, 16, v___x_956_);
 lean_ctor_set(v___x_962_, 17, v___x_960_);
 lean_ctor_set(v___x_962_, 18, v___x_955_);
 lean_ctor_set(v___x_962_, 19, v___x_960_);
-lean_ctor_set(v___x_962_, 20, v___x_961_);
-lean_ctor_set(v___x_962_, 21, v___x_960_);
-lean_ctor_set(v___x_962_, 22, v___x_960_);
-lean_ctor_set(v___x_962_, 23, v___x_960_);
-lean_ctor_set_uint8(v___x_962_, sizeof(void*)*24, v___x_957_);
-lean_ctor_set_uint8(v___x_962_, sizeof(void*)*24 + 1, v___x_957_);
+lean_ctor_set_uint8(v___x_962_, sizeof(void*)*20, v___x_957_);
+lean_ctor_set_uint8(v___x_962_, sizeof(void*)*20 + 1, v___x_957_);
 return v___x_962_;
 }
 }
@@ -2890,8 +2886,8 @@ return v_res_977_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Int_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Util(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Types(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_ToIntInfo(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types(uint8_t builtin) {
@@ -2902,10 +2898,10 @@ lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Int_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Types(builtin);
+res = runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_ToIntInfo(builtin);
+res = runtime_initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedLeCnstr = _init_l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedLeCnstr();
@@ -2935,8 +2931,8 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_Int_Linear(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Util(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Types(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_ToIntInfo(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types(uint8_t builtin) {
 lean_object * res;
@@ -2945,10 +2941,10 @@ _G_initialized = true;
 res = initialize_Init_Data_Int_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Types(builtin);
+res = initialize_Lean_Meta_Tactic_Grind_Arith_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_ToIntInfo(builtin);
+res = initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types(builtin);

@@ -41,7 +41,7 @@ lean_object* l_Lean_Exception_getRef(lean_object*);
 lean_object* l_Lean_Exception_toMessageData(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
@@ -5799,7 +5799,7 @@ goto v_reusejp_1648_;
 v_reusejp_1648_:
 {
 lean_object* v___x_1650_; lean_object* v___x_1651_; 
-v___x_1650_ = lean_st_ref_set(v___y_1628_, v___x_1649_);
+v___x_1650_ = lean_st_ref_put(v___y_1628_, v___x_1649_);
 v___x_1651_ = lean_box(0);
 v_a_1616_ = v___x_1651_;
 goto v___jp_1615_;

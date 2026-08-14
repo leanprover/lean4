@@ -47,7 +47,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_instBEqLevelMVarId_beq(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
@@ -3435,7 +3435,7 @@ goto v_reusejp_983_;
 v_reusejp_983_:
 {
 lean_object* v___x_985_; lean_object* v___x_986_; 
-v___x_985_ = lean_st_ref_set(v___y_966_, v___x_984_);
+v___x_985_ = lean_st_ref_put(v___y_966_, v___x_984_);
 v___x_986_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_986_, 0, v_fst_973_);
 return v___x_986_;
@@ -3624,7 +3624,7 @@ goto v_reusejp_1058_;
 v_reusejp_1058_:
 {
 lean_object* v___x_1060_; lean_object* v___x_1061_; lean_object* v_cache_1062_; lean_object* v_zetaDeltaFVarIds_1063_; lean_object* v_postponed_1064_; lean_object* v_diag_1065_; lean_object* v___x_1067_; uint8_t v_isShared_1068_; uint8_t v_isSharedCheck_1080_; 
-v___x_1060_ = lean_st_ref_set(v_a_1021_, v___x_1059_);
+v___x_1060_ = lean_st_ref_put(v_a_1021_, v___x_1059_);
 v___x_1061_ = lean_st_ref_take(v_a_1019_);
 v_cache_1062_ = lean_ctor_get(v___x_1061_, 1);
 v_zetaDeltaFVarIds_1063_ = lean_ctor_get(v___x_1061_, 2);
@@ -3675,7 +3675,7 @@ goto v_reusejp_1069_;
 v_reusejp_1069_:
 {
 lean_object* v___x_1071_; uint8_t v___x_1072_; uint8_t v___x_1073_; lean_object* v___x_1074_; lean_object* v___x_1075_; lean_object* v___x_1077_; 
-v___x_1071_ = lean_st_ref_set(v_a_1019_, v___x_1070_);
+v___x_1071_ = lean_st_ref_put(v_a_1019_, v___x_1070_);
 v___x_1072_ = 1;
 v___x_1073_ = 0;
 v___x_1074_ = l_Lean_LocalContext_mkLambda(v_lctx_1042_, v_fvars_1045_, v_fst_1038_, v___x_1072_, v___x_1073_);

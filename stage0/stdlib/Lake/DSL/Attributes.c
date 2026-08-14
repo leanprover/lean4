@@ -22,7 +22,7 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obj
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 uint8_t l_Lean_MessageData_hasTag(lean_object*, lean_object*);
@@ -559,7 +559,7 @@ goto v_reusejp_131_;
 v_reusejp_131_:
 {
 lean_object* v___x_133_; lean_object* v___x_134_; lean_object* v___x_135_; 
-v___x_133_ = lean_st_ref_set(v___y_111_, v___x_132_);
+v___x_133_ = lean_st_ref_put(v___y_111_, v___x_132_);
 v___x_134_ = lean_box(0);
 v___x_135_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_135_, 0, v___x_134_);

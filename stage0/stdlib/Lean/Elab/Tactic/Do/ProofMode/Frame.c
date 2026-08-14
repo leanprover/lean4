@@ -54,7 +54,7 @@ lean_object* l_Lean_Elab_Tactic_Do_ProofMode_parseEmptyHyp_x3f(lean_object*);
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_SPred_mkAnd_x21(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_Hyp_toExpr(lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -443,7 +443,7 @@ goto v_reusejp_40_;
 v_reusejp_40_:
 {
 lean_object* v___x_42_; lean_object* v___x_43_; 
-v___x_42_ = lean_st_ref_set(v___y_14_, v___x_41_);
+v___x_42_ = lean_st_ref_put(v___y_14_, v___x_41_);
 v___x_43_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_43_, 0, v_r_35_);
 return v___x_43_;
@@ -2182,7 +2182,7 @@ goto v_reusejp_771_;
 v_reusejp_771_:
 {
 lean_object* v___x_773_; lean_object* v___x_774_; 
-v___x_773_ = lean_st_ref_set(v___y_754_, v___x_772_);
+v___x_773_ = lean_st_ref_put(v___y_754_, v___x_772_);
 v___x_774_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_774_, 0, v_fst_761_);
 return v___x_774_;
@@ -3222,7 +3222,7 @@ goto v_reusejp_1184_;
 v_reusejp_1184_:
 {
 lean_object* v___x_1186_; lean_object* v___x_1187_; lean_object* v___x_1188_; 
-v___x_1186_ = lean_st_ref_set(v___y_1157_, v___x_1185_);
+v___x_1186_ = lean_st_ref_put(v___y_1157_, v___x_1185_);
 v___x_1187_ = lean_box(0);
 v___x_1188_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1188_, 0, v___x_1187_);

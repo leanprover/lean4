@@ -37,7 +37,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_getScope___redArg(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
 extern lean_object* l_Lean_Elab_Command_instInhabitedScope_default;
 lean_object* l_List_head_x21___redArg(lean_object*, lean_object*);
@@ -1874,7 +1874,7 @@ lean_object* v___x_255_; lean_object* v___x_256_; lean_object* v___x_257_; lean_
 v___x_255_ = l_Lean_Linter_builtinUnusedVariablesIgnoreFnsRef;
 v___x_256_ = lean_st_ref_take(v___x_255_);
 v___x_257_ = lean_array_push(v___x_256_, v_h_253_);
-v___x_258_ = lean_st_ref_set(v___x_255_, v___x_257_);
+v___x_258_ = lean_st_ref_put(v___x_255_, v___x_257_);
 v___x_259_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_259_, 0, v___x_258_);
 return v___x_259_;
@@ -2575,7 +2575,7 @@ goto v_reusejp_477_;
 v_reusejp_477_:
 {
 lean_object* v___x_479_; lean_object* v___x_480_; lean_object* v___x_481_; 
-v___x_479_ = lean_st_ref_set(v___y_463_, v___x_478_);
+v___x_479_ = lean_st_ref_put(v___y_463_, v___x_478_);
 v___x_480_ = lean_box(0);
 v___x_481_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_481_, 0, v___x_480_);
@@ -6143,7 +6143,7 @@ lean_object* v___x_2130_; lean_object* v___x_2131_; lean_object* v___x_2132_; le
 v___x_2130_ = lean_st_ref_take(v_set_2124_);
 v___x_2131_ = lean_box(0);
 v___x_2132_ = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00Lean_Linter_UnusedVariables_insertObjImpl_spec__1___redArg(v___x_2130_, v___x_2128_, v___x_2131_);
-v___x_2133_ = lean_st_ref_set(v_set_2124_, v___x_2132_);
+v___x_2133_ = lean_st_ref_put(v_set_2124_, v___x_2132_);
 v___x_2134_ = 1;
 v___x_2135_ = lean_box(v___x_2134_);
 v___x_2136_ = lean_alloc_ctor(0, 1, 0);
@@ -6564,7 +6564,7 @@ lean_dec_ref_known(v_e_2300_, 1);
 v___x_2303_ = lean_st_ref_take(v_fvarUses_2299_);
 v___x_2304_ = lean_box(0);
 v___x_2305_ = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00__private_Lean_Linter_UnusedVariables_0__Lean_Linter_UnusedVariables_visitAssignments_visitExpr_spec__0___redArg(v___x_2303_, v_fvarId_2302_, v___x_2304_);
-v___x_2306_ = lean_st_ref_set(v_fvarUses_2299_, v___x_2305_);
+v___x_2306_ = lean_st_ref_put(v_fvarUses_2299_, v___x_2305_);
 v___x_2307_ = 0;
 v___x_2308_ = lean_box(v___x_2307_);
 v___x_2309_ = lean_alloc_ctor(0, 1, 0);
@@ -7320,7 +7320,7 @@ v___jp_2479_:
 lean_object* v___x_2481_; lean_object* v___x_2482_; lean_object* v___x_2483_; lean_object* v___x_2484_; 
 v___x_2481_ = lean_st_ref_take(v_a_2477_);
 v___x_2482_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_ForEachExpr_visit___at___00__private_Lean_Linter_UnusedVariables_0__Lean_Linter_UnusedVariables_visitAssignments_visitExpr_spec__1_spec__4___redArg(v___x_2481_, v_e_2476_, v_a_2480_);
-v___x_2483_ = lean_st_ref_set(v_a_2477_, v___x_2482_);
+v___x_2483_ = lean_st_ref_put(v_a_2477_, v___x_2482_);
 v___x_2484_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2484_, 0, v_a_2480_);
 return v___x_2484_;
@@ -10961,7 +10961,7 @@ goto v_reusejp_3756_;
 v_reusejp_3756_:
 {
 lean_object* v___x_3758_; lean_object* v___x_3759_; lean_object* v___x_3761_; 
-v___x_3758_ = lean_st_ref_set(v___y_3694_, v___x_3757_);
+v___x_3758_ = lean_st_ref_put(v___y_3694_, v___x_3757_);
 v___x_3759_ = l_Lean_PersistentArray_toArray___redArg(v_children_3692_);
 if (v_isShared_3740_ == 0)
 {
@@ -11324,7 +11324,7 @@ goto v_reusejp_3813_;
 v_reusejp_3813_:
 {
 lean_object* v___x_3815_; lean_object* v___x_3816_; lean_object* v___x_3818_; 
-v___x_3815_ = lean_st_ref_set(v___y_3694_, v___x_3814_);
+v___x_3815_ = lean_st_ref_put(v___y_3694_, v___x_3814_);
 v___x_3816_ = lean_box(v___x_3689_);
 if (v_isShared_3799_ == 0)
 {
@@ -11547,7 +11547,7 @@ goto v_reusejp_3860_;
 v_reusejp_3860_:
 {
 lean_object* v___x_3862_; lean_object* v___x_3863_; lean_object* v___x_3865_; 
-v___x_3862_ = lean_st_ref_set(v___y_3694_, v___x_3861_);
+v___x_3862_ = lean_st_ref_put(v___y_3694_, v___x_3861_);
 v___x_3863_ = lean_box(v___x_3689_);
 if (v_isShared_3843_ == 0)
 {
@@ -12269,7 +12269,7 @@ goto v_reusejp_4006_;
 v_reusejp_4006_:
 {
 lean_object* v___x_4008_; lean_object* v___x_4009_; lean_object* v___x_4011_; 
-v___x_4008_ = lean_st_ref_set(v___y_3694_, v___x_4007_);
+v___x_4008_ = lean_st_ref_put(v___y_3694_, v___x_4007_);
 v___x_4009_ = lean_box(v___x_3689_);
 if (v_isShared_3993_ == 0)
 {
@@ -12421,7 +12421,7 @@ goto v_reusejp_4042_;
 v_reusejp_4042_:
 {
 lean_object* v___x_4044_; lean_object* v___x_4045_; lean_object* v___x_4047_; 
-v___x_4044_ = lean_st_ref_set(v___y_3694_, v___x_4043_);
+v___x_4044_ = lean_st_ref_put(v___y_3694_, v___x_4043_);
 v___x_4045_ = lean_box(v___x_3689_);
 if (v_isShared_4028_ == 0)
 {
@@ -12508,7 +12508,7 @@ return v___x_4062_;
 v___jp_3696_:
 {
 lean_object* v___x_3699_; lean_object* v___x_3700_; lean_object* v___x_3701_; 
-v___x_3699_ = lean_st_ref_set(v___y_3697_, v_snd_3698_);
+v___x_3699_ = lean_st_ref_put(v___y_3697_, v_snd_3698_);
 v___x_3700_ = lean_box(v___x_3689_);
 v___x_3701_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_3701_, 0, v___x_3700_);
@@ -13807,7 +13807,7 @@ goto v_reusejp_4667_;
 v_reusejp_4667_:
 {
 lean_object* v___x_4669_; lean_object* v___x_4670_; lean_object* v___x_4672_; 
-v___x_4669_ = lean_st_ref_set(v___y_4637_, v___x_4668_);
+v___x_4669_ = lean_st_ref_put(v___y_4637_, v___x_4668_);
 v___x_4670_ = lean_box(0);
 if (v_isShared_4644_ == 0)
 {
@@ -17129,7 +17129,7 @@ v___x_5788_ = ((size_t)0ULL);
 v___x_5789_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Linter_UnusedVariables_unusedVariables_spec__9(v___y_5737_, v_sz_5787_, v___x_5788_, v___y_5786_);
 v___x_5790_ = l_Std_DHashMap_Internal_Raw_u2080_Const_insertManyIfNewUnit___at___00Lean_Linter_UnusedVariables_unusedVariables_spec__10(v___x_5783_, v___x_5789_);
 lean_dec_ref(v___x_5789_);
-v___x_5791_ = lean_st_ref_set(v_val_5731_, v___x_5790_);
+v___x_5791_ = lean_st_ref_put(v_val_5731_, v___x_5790_);
 v___x_5792_ = lean_st_ref_get(v_val_5731_);
 v___x_5793_ = lean_nat_dec_lt(v___x_5781_, v___x_5784_);
 if (v___x_5793_ == 0)
@@ -17865,7 +17865,7 @@ v___x_5968_ = ((size_t)0ULL);
 v___x_5969_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Linter_UnusedVariables_unusedVariables_spec__9(v___y_5912_, v_sz_5967_, v___x_5968_, v___y_5966_);
 v___x_5970_ = l_Std_DHashMap_Internal_Raw_u2080_Const_insertManyIfNewUnit___at___00Lean_Linter_UnusedVariables_unusedVariables_spec__10(v___x_5963_, v___x_5969_);
 lean_dec_ref(v___x_5969_);
-v___x_5971_ = lean_st_ref_set(v_val_5911_, v___x_5970_);
+v___x_5971_ = lean_st_ref_put(v_val_5911_, v___x_5970_);
 v___x_5972_ = lean_st_ref_get(v_val_5911_);
 v___x_5973_ = lean_nat_dec_lt(v___x_5961_, v___x_5964_);
 if (v___x_5973_ == 0)

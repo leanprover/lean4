@@ -64,7 +64,7 @@ lean_object* l_Lean_registerSimplePersistentEnvExtension___redArg(lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -1082,7 +1082,7 @@ goto v_reusejp_234_;
 v_reusejp_234_:
 {
 lean_object* v___x_236_; lean_object* v___x_237_; lean_object* v___x_239_; 
-v___x_236_ = lean_st_ref_set(v___y_197_, v___x_235_);
+v___x_236_ = lean_st_ref_put(v___y_197_, v___x_235_);
 v___x_237_ = lean_box(0);
 if (v_isShared_204_ == 0)
 {
@@ -4515,7 +4515,7 @@ goto v_reusejp_1574_;
 v_reusejp_1574_:
 {
 lean_object* v___x_1576_; lean_object* v___x_1577_; lean_object* v___x_1578_; 
-v___x_1576_ = lean_st_ref_set(v_a_1554_, v___x_1575_);
+v___x_1576_ = lean_st_ref_put(v_a_1554_, v___x_1575_);
 v___x_1577_ = lean_box(0);
 v___x_1578_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1578_, 0, v___x_1577_);

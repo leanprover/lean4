@@ -42,7 +42,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Array_eraseIdx___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_modifyState___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_addCore___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Array_instInhabited(lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*);
@@ -927,7 +927,7 @@ goto v_reusejp_178_;
 v_reusejp_178_:
 {
 lean_object* v___x_180_; lean_object* v___x_181_; lean_object* v___x_182_; 
-v___x_180_ = lean_st_ref_set(v___y_161_, v___x_179_);
+v___x_180_ = lean_st_ref_put(v___y_161_, v___x_179_);
 v___x_181_ = lean_box(0);
 v___x_182_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_182_, 0, v___x_181_);
@@ -1179,7 +1179,7 @@ goto v_reusejp_298_;
 v_reusejp_298_:
 {
 lean_object* v___x_300_; lean_object* v___x_301_; lean_object* v___x_302_; 
-v___x_300_ = lean_st_ref_set(v___y_275_, v___x_299_);
+v___x_300_ = lean_st_ref_put(v___y_275_, v___x_299_);
 v___x_301_ = lean_box(0);
 v___x_302_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_302_, 0, v___x_301_);
@@ -1713,7 +1713,7 @@ v___x_474_ = l_Lean_labelExtensionMapRef;
 v___x_475_ = lean_st_ref_take(v___x_474_);
 lean_inc(v_a_469_);
 v___x_476_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_registerLabelAttr_spec__0___redArg(v___x_475_, v_attrName_464_, v_a_469_);
-v___x_477_ = lean_st_ref_set(v___x_474_, v___x_476_);
+v___x_477_ = lean_st_ref_put(v___x_474_, v___x_476_);
 if (v_isShared_473_ == 0)
 {
 lean_ctor_set(v___x_472_, 0, v_a_469_);

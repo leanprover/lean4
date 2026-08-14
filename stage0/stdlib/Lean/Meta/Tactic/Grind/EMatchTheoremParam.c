@@ -57,7 +57,7 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 uint8_t l_Lean_MessageData_hasTag(lean_object*, lean_object*);
@@ -4631,7 +4631,7 @@ goto v_reusejp_1375_;
 v_reusejp_1375_:
 {
 lean_object* v___x_1377_; lean_object* v___x_1378_; 
-v___x_1377_ = lean_st_ref_set(v___y_1355_, v___x_1376_);
+v___x_1377_ = lean_st_ref_put(v___y_1355_, v___x_1376_);
 v___x_1378_ = lean_box(0);
 v_a_1343_ = v___x_1378_;
 goto v___jp_1342_;
@@ -6919,7 +6919,7 @@ goto v_reusejp_2069_;
 v_reusejp_2069_:
 {
 lean_object* v___x_2071_; lean_object* v___x_2072_; lean_object* v___x_2073_; 
-v___x_2071_ = lean_st_ref_set(v___y_2049_, v___x_2070_);
+v___x_2071_ = lean_st_ref_put(v___y_2049_, v___x_2070_);
 v___x_2072_ = lean_box(0);
 v___x_2073_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2073_, 0, v___x_2072_);

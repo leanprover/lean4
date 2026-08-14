@@ -51,7 +51,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
@@ -2155,7 +2155,7 @@ goto v_resetjp_559_;
 v___jp_552_:
 {
 lean_object* v___x_554_; lean_object* v___x_555_; 
-v___x_554_ = lean_st_ref_set(v_a_535_, v_snd_553_);
+v___x_554_ = lean_st_ref_put(v_a_535_, v_snd_553_);
 lean_inc(v_declName_533_);
 v___x_555_ = l___private_Lean_Compiler_LCNF_InferBorrow_0__Lean_Compiler_LCNF_mkInitParamMap_goCode(v_declName_533_, v_value_551_, v_a_535_, v_a_536_, v_a_537_, v_a_538_, v_a_539_);
 if (lean_obj_tag(v___x_555_) == 0)
@@ -2916,7 +2916,7 @@ goto v_resetjp_813_;
 v___jp_806_:
 {
 lean_object* v___x_808_; lean_object* v___x_809_; 
-v___x_808_ = lean_st_ref_set(v___y_782_, v_snd_807_);
+v___x_808_ = lean_st_ref_put(v___y_782_, v_snd_807_);
 lean_inc(v_name_804_);
 v___x_809_ = l___private_Lean_Compiler_LCNF_InferBorrow_0__Lean_Compiler_LCNF_mkInitParamMap_goCode(v_name_804_, v_code_797_, v___y_782_, v___y_783_, v___y_784_, v___y_785_, v___y_786_);
 if (lean_obj_tag(v___x_809_) == 0)
@@ -7703,7 +7703,7 @@ v_reusejp_2253_:
 {
 lean_object* v___x_2255_; uint8_t v___x_2256_; lean_object* v___x_2258_; 
 lean_ctor_set_uint8(v___x_2254_, sizeof(void*)*2, v_borrow_2232_);
-v___x_2255_ = lean_st_ref_set(v___y_2224_, v___x_2254_);
+v___x_2255_ = lean_st_ref_put(v___y_2224_, v___x_2254_);
 v___x_2256_ = 0;
 if (v_isShared_2246_ == 0)
 {
@@ -8149,7 +8149,7 @@ goto v_reusejp_2397_;
 v_reusejp_2397_:
 {
 lean_object* v___x_2399_; size_t v_sz_2400_; size_t v___x_2401_; lean_object* v___x_2402_; 
-v___x_2399_ = lean_st_ref_set(v_a_2371_, v___x_2398_);
+v___x_2399_ = lean_st_ref_put(v_a_2371_, v___x_2398_);
 v_sz_2400_ = lean_array_size(v_val_2381_);
 v___x_2401_ = ((size_t)0ULL);
 v___x_2402_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Compiler_LCNF_InferBorrow_0__Lean_Compiler_LCNF_infer_updateParamMap_spec__2___redArg(v_sz_2400_, v___x_2401_, v_val_2381_, v_a_2371_);
@@ -8257,7 +8257,7 @@ goto v_reusejp_2422_;
 v_reusejp_2422_:
 {
 lean_object* v___x_2424_; lean_object* v___x_2425_; lean_object* v___x_2427_; 
-v___x_2424_ = lean_st_ref_set(v_a_2371_, v___x_2423_);
+v___x_2424_ = lean_st_ref_put(v_a_2371_, v___x_2423_);
 v___x_2425_ = lean_box(0);
 if (v_isShared_2406_ == 0)
 {
@@ -8706,7 +8706,7 @@ goto v_reusejp_2580_;
 v_reusejp_2580_:
 {
 lean_object* v___x_2582_; lean_object* v___x_2583_; lean_object* v___x_2585_; 
-v___x_2582_ = lean_st_ref_set(v___y_2529_, v___x_2581_);
+v___x_2582_ = lean_st_ref_put(v___y_2529_, v___x_2581_);
 v___x_2583_ = lean_box(0);
 if (v_isShared_2539_ == 0)
 {
@@ -8938,7 +8938,7 @@ v_reusejp_2678_:
 {
 lean_object* v___x_2680_; lean_object* v___x_2681_; 
 lean_ctor_set_uint8(v___x_2679_, sizeof(void*)*2, v___x_2667_);
-v___x_2680_ = lean_st_ref_set(v___y_2669_, v___x_2679_);
+v___x_2680_ = lean_st_ref_put(v___y_2669_, v___x_2679_);
 v___x_2681_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2681_, 0, v___x_2676_);
 return v___x_2681_;
@@ -14033,7 +14033,7 @@ v_reusejp_4366_:
 {
 lean_object* v___x_4368_; 
 lean_ctor_set_uint8(v___x_4367_, sizeof(void*)*2, v___x_4365_);
-v___x_4368_ = lean_st_ref_set(v_a_4343_, v___x_4367_);
+v___x_4368_ = lean_st_ref_put(v_a_4343_, v___x_4367_);
 goto _start;
 }
 }
@@ -14435,7 +14435,7 @@ v_reusejp_4530_:
 {
 lean_object* v___x_4532_; lean_object* v___x_4533_; 
 lean_ctor_set_uint8(v___x_4531_, sizeof(void*)*2, v___x_4529_);
-v___x_4532_ = lean_st_ref_set(v_a_4509_, v___x_4531_);
+v___x_4532_ = lean_st_ref_put(v_a_4509_, v___x_4531_);
 v___x_4533_ = l___private_Lean_Compiler_LCNF_InferBorrow_0__Lean_Compiler_LCNF_infer_loop(v_a_4508_, v_a_4509_, v_a_4510_, v_a_4511_, v_a_4512_, v_a_4513_);
 return v___x_4533_;
 }

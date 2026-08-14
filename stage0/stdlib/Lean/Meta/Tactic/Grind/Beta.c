@@ -41,7 +41,7 @@ lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isLambda(lean_object*);
 lean_object* l_Lean_Meta_Grind_getGeneration___redArg(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -1927,7 +1927,7 @@ goto v_reusejp_598_;
 v_reusejp_598_:
 {
 lean_object* v___x_600_; lean_object* v___x_601_; lean_object* v___x_603_; 
-v___x_600_ = lean_st_ref_set(v___y_561_, v___x_599_);
+v___x_600_ = lean_st_ref_put(v___y_561_, v___x_599_);
 v___x_601_ = lean_box(0);
 if (v_isShared_568_ == 0)
 {

@@ -49,7 +49,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Completion_getDotCompletionTypeNames(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_ContextInfo_runMetaM___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -5080,7 +5080,7 @@ goto v_reusejp_1477_;
 v_reusejp_1477_:
 {
 lean_object* v___x_1479_; lean_object* v___x_1480_; 
-v___x_1479_ = lean_st_ref_set(v___y_1460_, v___x_1478_);
+v___x_1479_ = lean_st_ref_put(v___y_1460_, v___x_1478_);
 v___x_1480_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1480_, 0, v_fst_1467_);
 return v___x_1480_;

@@ -28,7 +28,7 @@ lean_object* l_Lean_PrettyPrinter_delab(lean_object*, lean_object*, lean_object*
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Kernel_enableDiag(lean_object*, uint8_t);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_Kernel_isDiagnosticsEnabled(lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
@@ -1488,7 +1488,7 @@ goto v_reusejp_295_;
 v_reusejp_295_:
 {
 lean_object* v___x_297_; 
-v___x_297_ = lean_st_ref_set(v_a_236_, v___x_296_);
+v___x_297_ = lean_st_ref_put(v_a_236_, v___x_296_);
 v_fileName_261_ = v_fileName_239_;
 v_fileMap_262_ = v_fileMap_240_;
 v_currRecDepth_263_ = v_currRecDepth_242_;
@@ -2077,7 +2077,7 @@ goto v_reusejp_486_;
 v_reusejp_486_:
 {
 lean_object* v___x_488_; lean_object* v___x_489_; lean_object* v___x_490_; 
-v___x_488_ = lean_st_ref_set(v___y_466_, v___x_487_);
+v___x_488_ = lean_st_ref_put(v___y_466_, v___x_487_);
 v___x_489_ = lean_box(0);
 v___x_490_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_490_, 0, v___x_489_);
@@ -2932,7 +2932,7 @@ goto v_reusejp_875_;
 v_reusejp_875_:
 {
 lean_object* v___x_877_; lean_object* v___x_878_; 
-v___x_877_ = lean_st_ref_set(v___y_858_, v___x_876_);
+v___x_877_ = lean_st_ref_put(v___y_858_, v___x_876_);
 v___x_878_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_878_, 0, v_fst_865_);
 return v___x_878_;
@@ -4317,7 +4317,7 @@ goto v_reusejp_1378_;
 v_reusejp_1378_:
 {
 lean_object* v___x_1380_; 
-v___x_1380_ = lean_st_ref_set(v_a_1318_, v___x_1379_);
+v___x_1380_ = lean_st_ref_put(v_a_1318_, v___x_1379_);
 v_fileName_1344_ = v_fileName_1321_;
 v_fileMap_1345_ = v_fileMap_1322_;
 v_currRecDepth_1346_ = v_currRecDepth_1324_;
@@ -5317,7 +5317,7 @@ goto v_reusejp_1669_;
 v_reusejp_1669_:
 {
 lean_object* v___x_1671_; 
-v___x_1671_ = lean_st_ref_set(v_a_1482_, v___x_1670_);
+v___x_1671_ = lean_st_ref_put(v_a_1482_, v___x_1670_);
 v_fileName_1622_ = v_fileName_1601_;
 v_fileMap_1623_ = v_fileMap_1602_;
 v_currRecDepth_1624_ = v_currRecDepth_1604_;
@@ -5508,7 +5508,7 @@ goto v_reusejp_1758_;
 v_reusejp_1758_:
 {
 lean_object* v___x_1760_; lean_object* v___x_1761_; lean_object* v___x_1762_; 
-v___x_1760_ = lean_st_ref_set(v___y_1738_, v___x_1759_);
+v___x_1760_ = lean_st_ref_put(v___y_1738_, v___x_1759_);
 v___x_1761_ = lean_box(0);
 v___x_1762_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1762_, 0, v___x_1761_);

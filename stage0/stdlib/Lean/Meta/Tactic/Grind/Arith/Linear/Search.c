@@ -91,7 +91,7 @@ lean_object* l_Lean_Meta_Grind_Arith_quoteIfArithTerm(lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Int_repr(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
@@ -2893,7 +2893,7 @@ goto v_reusejp_946_;
 v_reusejp_946_:
 {
 lean_object* v___x_948_; lean_object* v___x_949_; lean_object* v___x_951_; 
-v___x_948_ = lean_st_ref_set(v___y_909_, v___x_947_);
+v___x_948_ = lean_st_ref_put(v___y_909_, v___x_947_);
 v___x_949_ = lean_box(0);
 if (v_isShared_916_ == 0)
 {
@@ -12155,7 +12155,7 @@ goto v_reusejp_3864_;
 v_reusejp_3864_:
 {
 lean_object* v___x_3866_; lean_object* v___x_3867_; lean_object* v___x_3869_; 
-v___x_3866_ = lean_st_ref_set(v___y_3827_, v___x_3865_);
+v___x_3866_ = lean_st_ref_put(v___y_3827_, v___x_3865_);
 v___x_3867_ = lean_box(0);
 if (v_isShared_3834_ == 0)
 {
@@ -16897,7 +16897,7 @@ goto v_reusejp_5517_;
 v_reusejp_5517_:
 {
 lean_object* v___x_5519_; lean_object* v_fvarId_5520_; uint8_t v___x_5521_; 
-v___x_5519_ = lean_st_ref_set(v___y_5491_, v___x_5518_);
+v___x_5519_ = lean_st_ref_put(v___y_5491_, v___x_5518_);
 v_fvarId_5520_ = lean_ctor_get(v___y_5509_, 1);
 v___x_5521_ = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Search_0__Lean_Meta_Grind_Arith_Linear_findCase_spec__0___redArg(v_fvarId_5520_, v_decVars_5486_);
 if (v___x_5521_ == 0)

@@ -42,7 +42,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot(lean_object*, lean_object*, uint8_t, uint8_t);
 lean_object* l_Lean_Parser_ParserContext_mkEmptySubstringAt(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
@@ -1505,7 +1505,7 @@ goto v_reusejp_408_;
 v_reusejp_408_:
 {
 lean_object* v___x_410_; lean_object* v___x_411_; lean_object* v___x_412_; 
-v___x_410_ = lean_st_ref_set(v___y_395_, v___x_409_);
+v___x_410_ = lean_st_ref_put(v___y_395_, v___x_409_);
 v___x_411_ = lean_box(0);
 v___x_412_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_412_, 0, v___x_411_);
@@ -1813,7 +1813,7 @@ goto v_reusejp_510_;
 v_reusejp_510_:
 {
 lean_object* v___x_512_; lean_object* v___x_513_; lean_object* v___x_515_; 
-v___x_512_ = lean_st_ref_set(v___y_473_, v___x_511_);
+v___x_512_ = lean_st_ref_put(v___y_473_, v___x_511_);
 v___x_513_ = lean_box(0);
 if (v_isShared_480_ == 0)
 {

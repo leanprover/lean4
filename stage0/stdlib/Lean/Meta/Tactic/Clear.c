@@ -39,7 +39,7 @@ size_t lean_usize_sub(size_t, size_t);
 size_t lean_usize_mul(size_t, size_t);
 uint8_t lean_usize_dec_le(size_t, size_t);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_MVarId_checkNotAssigned(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_local_ctx_erase(lean_object*, lean_object*);
@@ -341,7 +341,7 @@ goto v_reusejp_65_;
 v_reusejp_65_:
 {
 lean_object* v___x_67_; lean_object* v___x_68_; lean_object* v___x_69_; 
-v___x_67_ = lean_st_ref_set(v___y_23_, v___x_66_);
+v___x_67_ = lean_st_ref_put(v___y_23_, v___x_66_);
 v___x_68_ = lean_box(v_fst_55_);
 v___x_69_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_69_, 0, v___x_68_);
@@ -482,7 +482,7 @@ goto v_reusejp_122_;
 v_reusejp_122_:
 {
 lean_object* v___x_124_; lean_object* v___x_125_; lean_object* v___x_126_; 
-v___x_124_ = lean_st_ref_set(v___y_23_, v___x_123_);
+v___x_124_ = lean_st_ref_put(v___y_23_, v___x_123_);
 v___x_125_ = lean_box(v_fst_112_);
 v___x_126_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_126_, 0, v___x_125_);
@@ -664,7 +664,7 @@ goto v_reusejp_37_;
 v_reusejp_37_:
 {
 lean_object* v___x_39_; lean_object* v___x_40_; lean_object* v___x_41_; 
-v___x_39_ = lean_st_ref_set(v___y_23_, v___x_38_);
+v___x_39_ = lean_st_ref_put(v___y_23_, v___x_38_);
 v___x_40_ = lean_box(v_fst_26_);
 v___x_41_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_41_, 0, v___x_40_);
@@ -818,7 +818,7 @@ goto v_reusejp_185_;
 v_reusejp_185_:
 {
 lean_object* v___x_187_; lean_object* v___x_188_; lean_object* v___x_189_; 
-v___x_187_ = lean_st_ref_set(v___y_171_, v___x_186_);
+v___x_187_ = lean_st_ref_put(v___y_171_, v___x_186_);
 v___x_188_ = lean_box(v_fst_175_);
 v___x_189_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_189_, 0, v___x_188_);
@@ -1622,7 +1622,7 @@ goto v_reusejp_468_;
 v_reusejp_468_:
 {
 lean_object* v___x_470_; lean_object* v___x_471_; lean_object* v___x_472_; 
-v___x_470_ = lean_st_ref_set(v___y_441_, v___x_469_);
+v___x_470_ = lean_st_ref_put(v___y_441_, v___x_469_);
 v___x_471_ = lean_box(0);
 v___x_472_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_472_, 0, v___x_471_);

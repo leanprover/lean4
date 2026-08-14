@@ -33,7 +33,7 @@ lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 extern lean_object* l_Lean_Meta_Sym_DSimp_symDSimpVariantExtension;
 lean_object* l_Lean_ScopedEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 size_t lean_array_size(lean_object*);
 size_t lean_usize_add(size_t, size_t);
@@ -1785,7 +1785,7 @@ goto v_reusejp_447_;
 v_reusejp_447_:
 {
 lean_object* v___x_449_; lean_object* v___x_450_; lean_object* v___x_451_; 
-v___x_449_ = lean_st_ref_set(v___y_423_, v___x_448_);
+v___x_449_ = lean_st_ref_put(v___y_423_, v___x_448_);
 v___x_450_ = lean_box(0);
 v___x_451_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_451_, 0, v___x_450_);

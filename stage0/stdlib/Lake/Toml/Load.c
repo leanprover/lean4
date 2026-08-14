@@ -43,7 +43,7 @@ uint8_t l_Lean_MessageLog_hasErrors(lean_object*);
 lean_object* l_Lake_mkExceptionMessage(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Kernel_enableDiag(lean_object*, uint8_t);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_Kernel_isDiagnosticsEnabled(lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
@@ -742,7 +742,7 @@ goto v_reusejp_202_;
 v_reusejp_202_:
 {
 lean_object* v___x_204_; 
-v___x_204_ = lean_st_ref_set(v___x_133_, v___x_203_);
+v___x_204_ = lean_st_ref_put(v___x_133_, v___x_203_);
 lean_inc(v___x_133_);
 lean_inc_ref(v_fileMap_94_);
 lean_inc_ref(v_fileName_93_);

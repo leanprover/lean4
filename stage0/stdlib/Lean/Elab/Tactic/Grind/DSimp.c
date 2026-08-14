@@ -78,7 +78,7 @@ lean_object* l_Lean_Elab_Tactic_Grind_liftGrindM___redArg(lean_object*, lean_obj
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isTrue(lean_object*);
 lean_object* l_Lean_MVarId_getDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2978,7 +2978,7 @@ goto v_reusejp_996_;
 v_reusejp_996_:
 {
 lean_object* v___x_998_; lean_object* v___x_999_; lean_object* v___x_1000_; 
-v___x_998_ = lean_st_ref_set(v___y_969_, v___x_997_);
+v___x_998_ = lean_st_ref_put(v___y_969_, v___x_997_);
 v___x_999_ = lean_box(0);
 v___x_1000_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1000_, 0, v___x_999_);
@@ -4296,7 +4296,7 @@ goto v_reusejp_1324_;
 v_reusejp_1324_:
 {
 lean_object* v___x_1326_; 
-v___x_1326_ = lean_st_ref_set(v___y_1284_, v___x_1325_);
+v___x_1326_ = lean_st_ref_put(v___y_1284_, v___x_1325_);
 if (lean_obj_tag(v_fst_1301_) == 0)
 {
 lean_object* v___x_1327_; lean_object* v___x_1328_; 

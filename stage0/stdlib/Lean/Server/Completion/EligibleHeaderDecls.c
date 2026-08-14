@@ -80,7 +80,7 @@ lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___redArg(lean_object*, lea
 lean_object* l_Lean_Environment_constants(lean_object*);
 lean_object* l_Lean_PersistentHashMap_forM___redArg(lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_swap(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_EligibleHeaderDecls_0__Lean_Server_Completion_initFn_00___x40_Lean_Server_Completion_EligibleHeaderDecls_1911833064____hygCtx___hyg_2_();
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_EligibleHeaderDecls_0__Lean_Server_Completion_initFn_00___x40_Lean_Server_Completion_EligibleHeaderDecls_1911833064____hygCtx___hyg_2____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Completion_eligibleHeaderDeclsMutex;
@@ -2403,9 +2403,9 @@ return v___x_796_;
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_AssocList_Basic_0__Std_DHashMap_Internal_AssocList_forInStep_go___at___00Lean_Server_Completion_getEligibleHeaderDecls_spec__1___redArg___lam__0___boxed(lean_object* v_a_797_, lean_object* v___y_798_, lean_object* v___y_799_, lean_object* v___y_800_, lean_object* v___y_801_, lean_object* v___y_802_){
 _start:
 {
-uint8_t v_a_4591__boxed_803_; lean_object* v_res_804_; 
-v_a_4591__boxed_803_ = lean_unbox(v_a_797_);
-v_res_804_ = l___private_Std_Data_DHashMap_Internal_AssocList_Basic_0__Std_DHashMap_Internal_AssocList_forInStep_go___at___00Lean_Server_Completion_getEligibleHeaderDecls_spec__1___redArg___lam__0(v_a_4591__boxed_803_, v___y_798_, v___y_799_, v___y_800_, v___y_801_);
+uint8_t v_a_4612__boxed_803_; lean_object* v_res_804_; 
+v_a_4612__boxed_803_ = lean_unbox(v_a_797_);
+v_res_804_ = l___private_Std_Data_DHashMap_Internal_AssocList_Basic_0__Std_DHashMap_Internal_AssocList_forInStep_go___at___00Lean_Server_Completion_getEligibleHeaderDecls_spec__1___redArg___lam__0(v_a_4612__boxed_803_, v___y_798_, v___y_799_, v___y_800_, v___y_801_);
 lean_dec(v___y_801_);
 lean_dec_ref(v___y_800_);
 lean_dec(v___y_799_);
@@ -3232,7 +3232,8 @@ lean_object* v___x_1072_; lean_object* v___x_1073_; lean_object* v___x_1075_;
 lean_inc(v_a_1068_);
 v___x_1072_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_1072_, 0, v_a_1068_);
-v___x_1073_ = lean_st_ref_set(v___y_1054_, v___x_1072_);
+v___x_1073_ = lean_st_ref_swap(v___y_1054_, v___x_1072_);
+lean_dec(v___x_1073_);
 if (v_isShared_1071_ == 0)
 {
 v___x_1075_ = v___x_1070_;

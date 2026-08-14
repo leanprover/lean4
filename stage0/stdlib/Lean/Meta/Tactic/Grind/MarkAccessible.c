@@ -45,7 +45,7 @@ lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
 lean_object* l_Lean_LocalContext_setUserName(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprMVarAt(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -864,7 +864,7 @@ goto v_reusejp_246_;
 v_reusejp_246_:
 {
 lean_object* v___x_248_; lean_object* v___x_249_; lean_object* v___x_250_; 
-v___x_248_ = lean_st_ref_set(v___y_219_, v___x_247_);
+v___x_248_ = lean_st_ref_put(v___y_219_, v___x_247_);
 v___x_249_ = lean_box(0);
 v___x_250_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_250_, 0, v___x_249_);

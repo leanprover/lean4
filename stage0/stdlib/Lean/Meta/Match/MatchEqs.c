@@ -42,7 +42,7 @@ lean_object* l_Lean_Meta_matchEq_x3f(lean_object*, lean_object*, lean_object*, l
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_instBEqFVarId_beq(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
@@ -1721,7 +1721,7 @@ goto v_reusejp_320_;
 v_reusejp_320_:
 {
 lean_object* v___x_322_; lean_object* v___x_323_; lean_object* v___x_324_; 
-v___x_322_ = lean_st_ref_set(v___y_306_, v___x_321_);
+v___x_322_ = lean_st_ref_put(v___y_306_, v___x_321_);
 v___x_323_ = lean_box(v_fst_310_);
 v___x_324_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_324_, 0, v___x_323_);
@@ -5468,7 +5468,7 @@ goto v_reusejp_1348_;
 v_reusejp_1348_:
 {
 lean_object* v___x_1350_; lean_object* v___x_1351_; lean_object* v___x_1353_; 
-v___x_1350_ = lean_st_ref_set(v___y_1311_, v___x_1349_);
+v___x_1350_ = lean_st_ref_put(v___y_1311_, v___x_1349_);
 v___x_1351_ = lean_box(0);
 if (v_isShared_1318_ == 0)
 {
@@ -7496,7 +7496,7 @@ goto v_reusejp_1857_;
 v_reusejp_1857_:
 {
 lean_object* v___x_1859_; lean_object* v___x_1860_; 
-v___x_1859_ = lean_st_ref_set(v___y_1840_, v___x_1858_);
+v___x_1859_ = lean_st_ref_put(v___y_1840_, v___x_1858_);
 v___x_1860_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1860_, 0, v_fst_1847_);
 return v___x_1860_;

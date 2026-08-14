@@ -48,7 +48,7 @@ lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 lean_object* l_Lean_indentD(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnvironmentHeader_moduleNames(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -1198,7 +1198,7 @@ goto v_reusejp_391_;
 v_reusejp_391_:
 {
 lean_object* v___x_393_; lean_object* v___x_394_; lean_object* v___x_396_; 
-v___x_393_ = lean_st_ref_set(v_a_349_, v___x_392_);
+v___x_393_ = lean_st_ref_put(v_a_349_, v___x_392_);
 v___x_394_ = lean_box(0);
 if (v_isShared_369_ == 0)
 {

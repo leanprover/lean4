@@ -90,7 +90,7 @@ lean_object* l_Lean_MessageData_paren(lean_object*);
 uint8_t lean_float_decLt(double, double);
 uint8_t l_Lean_Name_cmp(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_swap(lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___redArg(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
@@ -112,6 +112,7 @@ uint8_t l___private_Lean_Util_Trace_0__Lean_checkTraceOption_go(lean_object*, le
 lean_object* l_Lean_MessageData_ofList(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getRelevantConstants(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_extract___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_toArray___redArg(lean_object*);
@@ -4775,7 +4776,8 @@ lean_object* v___x_1854_; lean_object* v___x_1855_; lean_object* v___x_1856_;
 lean_inc(v___y_1853_);
 v___x_1854_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_1854_, 0, v___y_1853_);
-v___x_1855_ = lean_st_ref_set(v___x_1849_, v___x_1854_);
+v___x_1855_ = lean_st_ref_swap(v___x_1849_, v___x_1854_);
+lean_dec(v___x_1855_);
 v___x_1856_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1856_, 0, v___y_1853_);
 return v___x_1856_;
@@ -10093,7 +10095,7 @@ goto v_reusejp_3236_;
 v_reusejp_3236_:
 {
 lean_object* v___x_3238_; lean_object* v___x_3239_; lean_object* v___x_3241_; 
-v___x_3238_ = lean_st_ref_set(v___y_3199_, v___x_3237_);
+v___x_3238_ = lean_st_ref_put(v___y_3199_, v___x_3237_);
 v___x_3239_ = lean_box(0);
 if (v_isShared_3206_ == 0)
 {

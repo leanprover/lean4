@@ -56,7 +56,7 @@ lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Kernel_enableDiag(lean_object*, uint8_t);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_Kernel_isDiagnosticsEnabled(lean_object*);
 lean_object* l_Lake_Package_mkTomlConfig(lean_object*, lean_object*);
 lean_object* l_Lake_Toml_ppTable(lean_object*);
@@ -831,7 +831,7 @@ goto v_reusejp_258_;
 v_reusejp_258_:
 {
 lean_object* v___x_260_; 
-v___x_260_ = lean_st_ref_set(v___x_183_, v___x_259_);
+v___x_260_ = lean_st_ref_put(v___x_183_, v___x_259_);
 lean_inc(v___x_183_);
 v_fileName_197_ = v___x_188_;
 v_fileMap_198_ = v___x_189_;

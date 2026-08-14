@@ -57,7 +57,7 @@ lean_object* l_Lean_Compiler_LCNF_normalizeFVarIds(uint8_t, lean_object*, lean_o
 lean_object* l_Lean_Compiler_LCNF_Decl_saveImpure___redArg(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_recordFinalImpureDecl(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 extern lean_object* l_Lean_Compiler_LCNF_toposortPass;
 lean_object* l_Lean_Compiler_LCNF_inferVisibility(uint8_t);
 extern lean_object* l_Lean_Compiler_LCNF_detectSimpleGround;
@@ -1345,7 +1345,7 @@ goto v_reusejp_360_;
 v_reusejp_360_:
 {
 lean_object* v___x_362_; 
-v___x_362_ = lean_st_ref_set(v___y_327_, v___x_361_);
+v___x_362_ = lean_st_ref_put(v___y_327_, v___x_361_);
 v_a_335_ = v_a_342_;
 goto v___jp_334_;
 }
@@ -3520,7 +3520,7 @@ goto v_reusejp_1217_;
 v_reusejp_1217_:
 {
 lean_object* v___x_1219_; lean_object* v___x_1220_; lean_object* v___x_1222_; 
-v___x_1219_ = lean_st_ref_set(v_a_1163_, v___x_1218_);
+v___x_1219_ = lean_st_ref_put(v_a_1163_, v___x_1218_);
 v___x_1220_ = lean_box(0);
 if (v_isShared_1198_ == 0)
 {

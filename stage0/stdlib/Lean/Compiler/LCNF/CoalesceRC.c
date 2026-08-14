@@ -40,7 +40,7 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
@@ -2399,7 +2399,7 @@ goto v_reusejp_615_;
 v_reusejp_615_:
 {
 lean_object* v___x_617_; lean_object* v___x_618_; 
-v___x_617_ = lean_st_ref_set(v_a_353_, v___x_616_);
+v___x_617_ = lean_st_ref_put(v_a_353_, v___x_616_);
 v___x_618_ = l___private_Lean_Compiler_LCNF_CoalesceRC_0__Lean_Compiler_LCNF_Code_coalesceRC_go(v_k_602_, v_a_353_, v_a_354_, v_a_355_, v_a_356_, v_a_357_);
 if (lean_obj_tag(v___x_618_) == 0)
 {
@@ -2471,7 +2471,7 @@ goto v_reusejp_632_;
 v_reusejp_632_:
 {
 lean_object* v___x_634_; lean_object* v___x_635_; lean_object* v_incTotal_636_; lean_object* v_incAccum_637_; lean_object* v___x_638_; lean_object* v___x_639_; uint8_t v___x_640_; 
-v___x_634_ = lean_st_ref_set(v_a_353_, v___x_633_);
+v___x_634_ = lean_st_ref_put(v_a_353_, v___x_633_);
 v___x_635_ = lean_st_ref_get(v_a_353_);
 v_incTotal_636_ = lean_ctor_get(v___x_635_, 0);
 lean_inc_ref(v_incTotal_636_);
@@ -2646,7 +2646,7 @@ goto v_reusejp_674_;
 v_reusejp_674_:
 {
 lean_object* v___x_676_; lean_object* v___x_677_; 
-v___x_676_ = lean_st_ref_set(v_a_353_, v___x_675_);
+v___x_676_ = lean_st_ref_put(v_a_353_, v___x_675_);
 v___x_677_ = l___private_Lean_Compiler_LCNF_CoalesceRC_0__Lean_Compiler_LCNF_Code_coalesceRC_go(v_k_661_, v_a_353_, v_a_354_, v_a_355_, v_a_356_, v_a_357_);
 if (lean_obj_tag(v___x_677_) == 0)
 {
@@ -2730,7 +2730,7 @@ goto v_reusejp_696_;
 v_reusejp_696_:
 {
 lean_object* v___x_698_; lean_object* v___x_699_; lean_object* v___x_701_; 
-v___x_698_ = lean_st_ref_set(v_a_353_, v___x_697_);
+v___x_698_ = lean_st_ref_put(v_a_353_, v___x_697_);
 v___x_699_ = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x21___at___00__private_Lean_Compiler_LCNF_CoalesceRC_0__Lean_Compiler_LCNF_Code_coalesceRC_go_spec__3(v_decTotal_683_, v_fvarId_656_);
 lean_dec_ref(v_decTotal_683_);
 if (v_isShared_664_ == 0)

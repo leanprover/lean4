@@ -46,7 +46,7 @@ uint8_t l_Lean_IR_IRType_isScalar(lean_object*);
 lean_object* l_Lean_IR_findEnvDecl_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_params(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_IR_LocalContext_addLocal(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_addJP(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2035,7 +2035,7 @@ return v___x_475_;
 v___jp_456_:
 {
 lean_object* v___x_460_; lean_object* v___x_461_; 
-v___x_460_ = lean_st_ref_set(v___y_457_, v___y_459_);
+v___x_460_ = lean_st_ref_put(v___y_457_, v___y_459_);
 v___x_461_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_461_, 0, v___y_458_);
 return v___x_461_;

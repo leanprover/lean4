@@ -48,7 +48,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_hasAssignableMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFalseElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1020,7 +1020,7 @@ goto v_reusejp_196_;
 v_reusejp_196_:
 {
 lean_object* v___x_198_; lean_object* v___x_199_; lean_object* v___x_200_; 
-v___x_198_ = lean_st_ref_set(v___y_169_, v___x_197_);
+v___x_198_ = lean_st_ref_put(v___y_169_, v___x_197_);
 v___x_199_ = lean_box(0);
 v___x_200_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_200_, 0, v___x_199_);
@@ -2281,7 +2281,7 @@ goto v_reusejp_634_;
 v_reusejp_634_:
 {
 lean_object* v___x_636_; lean_object* v___x_637_; lean_object* v___x_639_; 
-v___x_636_ = lean_st_ref_set(v___y_597_, v___x_635_);
+v___x_636_ = lean_st_ref_put(v___y_597_, v___x_635_);
 v___x_637_ = lean_box(0);
 if (v_isShared_604_ == 0)
 {
@@ -3036,7 +3036,7 @@ v___x_898_ = lean_st_ref_take(v_a_885_);
 v___x_899_ = lean_unsigned_to_nat(1u);
 v___x_900_ = lean_nat_sub(v___x_898_, v___x_899_);
 lean_dec(v___x_898_);
-v___x_901_ = lean_st_ref_set(v_a_885_, v___x_900_);
+v___x_901_ = lean_st_ref_put(v_a_885_, v___x_900_);
 v___x_902_ = 1;
 v___x_903_ = ((lean_object*)(l_Lean_Meta_ElimEmptyInductive_elim___closed__0));
 v___x_904_ = lean_box(0);
@@ -4379,7 +4379,7 @@ goto v_reusejp_1335_;
 v_reusejp_1335_:
 {
 lean_object* v___x_1337_; lean_object* v___x_1338_; 
-v___x_1337_ = lean_st_ref_set(v___y_1318_, v___x_1336_);
+v___x_1337_ = lean_st_ref_put(v___y_1318_, v___x_1336_);
 v___x_1338_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1338_, 0, v_fst_1325_);
 return v___x_1338_;

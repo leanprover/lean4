@@ -17,7 +17,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainGoal___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -295,7 +295,7 @@ goto v_reusejp_17_;
 v_reusejp_17_:
 {
 lean_object* v___x_19_; lean_object* v___x_20_; 
-v___x_19_ = lean_st_ref_set(v___y_2_, v___x_18_);
+v___x_19_ = lean_st_ref_put(v___y_2_, v___x_18_);
 v___x_20_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_20_, 0, v_snd_8_);
 return v___x_20_;
@@ -407,7 +407,7 @@ goto v_reusejp_60_;
 v_reusejp_60_:
 {
 lean_object* v___x_62_; lean_object* v___x_63_; 
-v___x_62_ = lean_st_ref_set(v___y_43_, v___x_61_);
+v___x_62_ = lean_st_ref_put(v___y_43_, v___x_61_);
 v___x_63_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_63_, 0, v_fst_50_);
 return v___x_63_;
@@ -1571,7 +1571,7 @@ goto v_reusejp_442_;
 v_reusejp_442_:
 {
 lean_object* v___x_444_; lean_object* v___x_445_; lean_object* v___x_446_; 
-v___x_444_ = lean_st_ref_set(v___y_415_, v___x_443_);
+v___x_444_ = lean_st_ref_put(v___y_415_, v___x_443_);
 v___x_445_ = lean_box(0);
 v___x_446_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_446_, 0, v___x_445_);
@@ -2888,7 +2888,7 @@ goto v_reusejp_907_;
 v_reusejp_907_:
 {
 lean_object* v___x_909_; lean_object* v___x_910_; 
-v___x_909_ = lean_st_ref_set(v___y_890_, v___x_908_);
+v___x_909_ = lean_st_ref_put(v___y_890_, v___x_908_);
 v___x_910_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_910_, 0, v_fst_897_);
 return v___x_910_;

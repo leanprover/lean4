@@ -40,7 +40,7 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 extern lean_object* l_Lean_trace_profiler;
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_append___redArg(lean_object*, lean_object*);
@@ -851,7 +851,7 @@ goto v_reusejp_188_;
 v_reusejp_188_:
 {
 lean_object* v___x_190_; lean_object* v___x_191_; 
-v___x_190_ = lean_st_ref_set(v___y_163_, v___x_189_);
+v___x_190_ = lean_st_ref_put(v___y_163_, v___x_189_);
 v___x_191_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_191_, 0, v_traces_167_);
 return v___x_191_;
@@ -1812,7 +1812,7 @@ goto v_reusejp_518_;
 v_reusejp_518_:
 {
 lean_object* v___x_520_; lean_object* v___x_521_; lean_object* v___x_523_; 
-v___x_520_ = lean_st_ref_set(v___y_464_, v___x_519_);
+v___x_520_ = lean_st_ref_put(v___y_464_, v___x_519_);
 v___x_521_ = lean_box(0);
 if (v_isShared_496_ == 0)
 {
@@ -2174,7 +2174,7 @@ goto v_reusejp_620_;
 v_reusejp_620_:
 {
 lean_object* v___x_622_; lean_object* v___x_623_; 
-v___x_622_ = lean_st_ref_set(v___y_559_, v___x_621_);
+v___x_622_ = lean_st_ref_put(v___y_559_, v___x_621_);
 v___x_623_ = l_MonadExcept_ofExcept___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00__private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Tactic_Backtrack_Backtrack_run_spec__3_spec__4___redArg(v_fst_561_);
 return v___x_623_;
 }
@@ -2798,7 +2798,7 @@ goto v_reusejp_846_;
 v_reusejp_846_:
 {
 lean_object* v___x_848_; lean_object* v___x_849_; 
-v___x_848_ = lean_st_ref_set(v___y_785_, v___x_847_);
+v___x_848_ = lean_st_ref_put(v___y_785_, v___x_847_);
 v___x_849_ = l_MonadExcept_ofExcept___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00__private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Tactic_Backtrack_Backtrack_run_spec__3_spec__4___redArg(v_fst_787_);
 return v___x_849_;
 }

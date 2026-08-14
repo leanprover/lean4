@@ -25,7 +25,7 @@ lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
 extern lean_object* l_Lean_firstFrontendMacroScope;
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Exception_toMessageData(lean_object*);
 lean_object* l_Lean_MessageData_toString(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -475,7 +475,7 @@ goto v_reusejp_11_;
 v_reusejp_11_:
 {
 lean_object* v___x_13_; lean_object* v___x_14_; lean_object* v___x_15_; 
-v___x_13_ = lean_st_ref_set(v_a_2_, v___x_12_);
+v___x_13_ = lean_st_ref_put(v_a_2_, v___x_12_);
 v___x_14_ = lean_box(0);
 v___x_15_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_15_, 0, v___x_14_);
@@ -1003,7 +1003,7 @@ goto v_reusejp_190_;
 v_reusejp_190_:
 {
 lean_object* v___x_192_; lean_object* v___x_193_; lean_object* v___x_194_; 
-v___x_192_ = lean_st_ref_set(v_a_180_, v___x_191_);
+v___x_192_ = lean_st_ref_put(v_a_180_, v___x_191_);
 v___x_193_ = lean_box(0);
 v___x_194_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_194_, 0, v___x_193_);
@@ -1170,7 +1170,7 @@ goto v_reusejp_251_;
 v_reusejp_251_:
 {
 lean_object* v___x_253_; lean_object* v___x_254_; lean_object* v___x_255_; 
-v___x_253_ = lean_st_ref_set(v_a_242_, v___x_252_);
+v___x_253_ = lean_st_ref_put(v_a_242_, v___x_252_);
 v___x_254_ = lean_box(0);
 v___x_255_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_255_, 0, v___x_254_);
@@ -1326,7 +1326,7 @@ goto v_reusejp_300_;
 v_reusejp_300_:
 {
 lean_object* v___x_302_; lean_object* v___x_303_; lean_object* v___x_304_; 
-v___x_302_ = lean_st_ref_set(v_a_274_, v___x_301_);
+v___x_302_ = lean_st_ref_put(v_a_274_, v___x_301_);
 v___x_303_ = lean_box(0);
 v___x_304_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_304_, 0, v___x_303_);
@@ -1525,7 +1525,7 @@ goto v_reusejp_385_;
 v_reusejp_385_:
 {
 lean_object* v___x_387_; lean_object* v___x_388_; lean_object* v___x_389_; lean_object* v___x_390_; 
-v___x_387_ = lean_st_ref_set(v_a_352_, v___x_386_);
+v___x_387_ = lean_st_ref_put(v_a_352_, v___x_386_);
 v___x_388_ = l_Lean_Elab_Frontend_setParserState___redArg(v_fst_374_, v_a_352_);
 lean_dec_ref(v___x_388_);
 v___x_389_ = l_Lean_Elab_Frontend_setMessages___redArg(v_snd_375_, v_a_352_);

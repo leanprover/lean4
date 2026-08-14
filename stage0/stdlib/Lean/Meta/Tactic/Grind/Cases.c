@@ -93,7 +93,7 @@ lean_object* l_Lean_LocalContext_setKind(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_RecursorInfo_numMinors(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -3330,7 +3330,7 @@ goto v_reusejp_1036_;
 v_reusejp_1036_:
 {
 lean_object* v___x_1038_; lean_object* v___x_1039_; lean_object* v___x_1040_; 
-v___x_1038_ = lean_st_ref_set(v___y_1009_, v___x_1037_);
+v___x_1038_ = lean_st_ref_put(v___y_1009_, v___x_1037_);
 v___x_1039_ = lean_box(0);
 v___x_1040_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1040_, 0, v___x_1039_);

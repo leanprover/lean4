@@ -17,7 +17,7 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_Elab_Command_getScope___redArg(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 extern lean_object* l_Lean_Elab_Command_instInhabitedScope_default;
@@ -1016,7 +1016,7 @@ _start:
 lean_object* v___x_253_; lean_object* v___x_254_; lean_object* v___x_255_; lean_object* v___x_256_; 
 v___x_253_ = lean_st_ref_take(v___y_251_);
 v___x_254_ = l_List_foldl___at___00__private_Lean_Linter_CheckUnivs_0__Lean_Linter_CheckUnivs_univParamsGrouped_spec__1(v___x_253_, v_us_249_);
-v___x_255_ = lean_st_ref_set(v___y_251_, v___x_254_);
+v___x_255_ = lean_st_ref_put(v___y_251_, v___x_254_);
 v___x_256_ = lean_box(0);
 return v___x_256_;
 }
@@ -1059,7 +1059,7 @@ lean_inc_ref(v_params_277_);
 lean_dec_ref(v___x_276_);
 v___x_278_ = lean_box(0);
 v___x_279_ = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00__private_Lean_Linter_CheckUnivs_0__Lean_Linter_CheckUnivs_univParamsGrouped_spec__0___redArg(v___x_274_, v_params_277_, v___x_278_);
-v___x_280_ = lean_st_ref_set(v___y_267_, v___x_279_);
+v___x_280_ = lean_st_ref_put(v___y_267_, v___x_279_);
 goto v___jp_269_;
 }
 case 4:
@@ -1774,7 +1774,7 @@ v___jp_468_:
 lean_object* v___x_470_; lean_object* v___x_471_; lean_object* v___x_472_; 
 v___x_470_ = lean_st_ref_take(v_a_465_);
 v___x_471_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_ForEachExpr_visit___at___00__private_Lean_Linter_CheckUnivs_0__Lean_Linter_CheckUnivs_univParamsGrouped_spec__2_spec__6___redArg(v___x_470_, v_e_464_, v_val_469_);
-v___x_472_ = lean_st_ref_set(v_a_465_, v___x_471_);
+v___x_472_ = lean_st_ref_put(v_a_465_, v___x_471_);
 return v_val_469_;
 }
 v___jp_473_:
@@ -3314,7 +3314,7 @@ goto v_reusejp_1094_;
 v_reusejp_1094_:
 {
 lean_object* v___x_1096_; lean_object* v___x_1097_; lean_object* v___x_1099_; 
-v___x_1096_ = lean_st_ref_set(v___y_1064_, v___x_1095_);
+v___x_1096_ = lean_st_ref_put(v___y_1064_, v___x_1095_);
 v___x_1097_ = lean_box(0);
 if (v_isShared_1071_ == 0)
 {

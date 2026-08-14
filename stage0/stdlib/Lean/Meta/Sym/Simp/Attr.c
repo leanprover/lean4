@@ -45,7 +45,7 @@ lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 lean_object* l_Lean_Meta_Sym_Simp_mkTheoremFromDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_addCore___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
@@ -462,7 +462,7 @@ goto v_reusejp_30_;
 v_reusejp_30_:
 {
 lean_object* v___x_32_; lean_object* v___x_33_; lean_object* v_mctx_34_; lean_object* v_zetaDeltaFVarIds_35_; lean_object* v_postponed_36_; lean_object* v_diag_37_; lean_object* v___x_39_; uint8_t v_isShared_40_; uint8_t v_isSharedCheck_48_; 
-v___x_32_ = lean_st_ref_set(v___y_13_, v___x_31_);
+v___x_32_ = lean_st_ref_put(v___y_13_, v___x_31_);
 v___x_33_ = lean_st_ref_take(v___y_11_);
 v_mctx_34_ = lean_ctor_get(v___x_33_, 0);
 v_zetaDeltaFVarIds_35_ = lean_ctor_get(v___x_33_, 2);
@@ -514,7 +514,7 @@ goto v_reusejp_42_;
 v_reusejp_42_:
 {
 lean_object* v___x_44_; lean_object* v___x_45_; lean_object* v___x_46_; 
-v___x_44_ = lean_st_ref_set(v___y_11_, v___x_43_);
+v___x_44_ = lean_st_ref_put(v___y_11_, v___x_43_);
 v___x_45_ = lean_box(0);
 v___x_46_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_46_, 0, v___x_45_);
@@ -3100,7 +3100,7 @@ v___x_1086_ = l_Lean_Meta_Sym_Simp_symSimpExtensionMapRef;
 v___x_1087_ = lean_st_ref_take(v___x_1086_);
 lean_inc(v_a_1081_);
 v___x_1088_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_Meta_Sym_Simp_registerSymSimpAttr_spec__0___redArg(v___x_1087_, v_attrName_1076_, v_a_1081_);
-v___x_1089_ = lean_st_ref_set(v___x_1086_, v___x_1088_);
+v___x_1089_ = lean_st_ref_put(v___x_1086_, v___x_1088_);
 if (v_isShared_1085_ == 0)
 {
 lean_ctor_set(v___x_1084_, 0, v_a_1081_);

@@ -44,7 +44,7 @@ lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, l
 lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
 lean_object* l_Lean_mkFVar(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___00Lean_PersistentArray_findSomeRevM_x3f___at___00Lean_LocalContext_findDeclRevM_x3f___at___00Lean_Meta_findLocalDeclWithType_x3f_spec__0_spec__0_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1262,7 +1262,7 @@ goto v_reusejp_428_;
 v_reusejp_428_:
 {
 lean_object* v___x_430_; lean_object* v___x_431_; lean_object* v___x_432_; 
-v___x_430_ = lean_st_ref_set(v___y_401_, v___x_429_);
+v___x_430_ = lean_st_ref_put(v___y_401_, v___x_429_);
 v___x_431_ = lean_box(0);
 v___x_432_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_432_, 0, v___x_431_);

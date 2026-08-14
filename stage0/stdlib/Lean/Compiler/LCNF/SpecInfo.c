@@ -90,7 +90,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_mkFixedParamsMap(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
@@ -4615,7 +4615,7 @@ goto v_reusejp_1593_;
 v_reusejp_1593_:
 {
 lean_object* v___x_1595_; lean_object* v___x_1596_; lean_object* v___x_1598_; 
-v___x_1595_ = lean_st_ref_set(v___y_1542_, v___x_1594_);
+v___x_1595_ = lean_st_ref_put(v___y_1542_, v___x_1594_);
 v___x_1596_ = lean_box(0);
 if (v_isShared_1552_ == 0)
 {
@@ -5161,7 +5161,7 @@ goto v_reusejp_1747_;
 v_reusejp_1747_:
 {
 lean_object* v___x_1749_; 
-v___x_1749_ = lean_st_ref_set(v___y_1728_, v___x_1748_);
+v___x_1749_ = lean_st_ref_put(v___y_1728_, v___x_1748_);
 v_a_1717_ = v___x_1726_;
 goto v___jp_1716_;
 }

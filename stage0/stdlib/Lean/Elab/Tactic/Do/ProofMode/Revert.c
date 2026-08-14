@@ -34,7 +34,7 @@ size_t lean_usize_sub(size_t, size_t);
 size_t lean_usize_mul(size_t, size_t);
 uint8_t lean_usize_dec_le(size_t, size_t);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_Hyp_toExpr(lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_inferType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2443,7 +2443,7 @@ v___x_1036_ = l_Lean_Expr_mvarId_x21(v_a_1031_);
 v___x_1037_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_1037_, 0, v___x_1036_);
 lean_ctor_set(v___x_1037_, 1, v___x_1035_);
-v___x_1038_ = lean_st_ref_set(v_val_1017_, v___x_1037_);
+v___x_1038_ = lean_st_ref_put(v_val_1017_, v___x_1037_);
 if (v_isShared_1034_ == 0)
 {
 v___x_1040_ = v___x_1033_;
@@ -3091,7 +3091,7 @@ goto v_reusejp_1235_;
 v_reusejp_1235_:
 {
 lean_object* v___x_1237_; lean_object* v___x_1238_; lean_object* v___x_1239_; 
-v___x_1237_ = lean_st_ref_set(v___y_1208_, v___x_1236_);
+v___x_1237_ = lean_st_ref_put(v___y_1208_, v___x_1236_);
 v___x_1238_ = lean_box(0);
 v___x_1239_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1239_, 0, v___x_1238_);

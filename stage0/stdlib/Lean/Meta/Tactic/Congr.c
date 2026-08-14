@@ -47,7 +47,7 @@ lean_object* l_Lean_Meta_throwTacticEx___redArg(lean_object*, lean_object*, lean
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Context_config(lean_object*);
 uint8_t l_Lean_Meta_instBEqTransparencyMode_beq(uint8_t, uint8_t);
 lean_object* l_Lean_MVarId_heqOfEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3473,7 +3473,7 @@ lean_inc(v_val_965_);
 lean_dec_ref_known(v_a_961_, 1);
 v___x_966_ = lean_st_ref_take(v_a_942_);
 v___x_967_ = lean_array_push(v___x_966_, v_val_965_);
-v___x_968_ = lean_st_ref_set(v_a_942_, v___x_967_);
+v___x_968_ = lean_st_ref_put(v_a_942_, v___x_967_);
 v___x_969_ = lean_box(0);
 if (v_isShared_964_ == 0)
 {
@@ -3577,7 +3577,7 @@ v___jp_948_:
 lean_object* v___x_949_; lean_object* v___x_950_; lean_object* v___x_951_; lean_object* v___x_952_; lean_object* v___x_953_; 
 v___x_949_ = lean_st_ref_take(v_a_942_);
 v___x_950_ = lean_array_push(v___x_949_, v_mvarId_941_);
-v___x_951_ = lean_st_ref_set(v_a_942_, v___x_950_);
+v___x_951_ = lean_st_ref_put(v_a_942_, v___x_950_);
 v___x_952_ = lean_box(0);
 v___x_953_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_953_, 0, v___x_952_);

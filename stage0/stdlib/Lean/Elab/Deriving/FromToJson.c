@@ -131,7 +131,7 @@ lean_object* l_Lean_MessageData_ofList(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_liftTermElabM___redArg(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -12012,7 +12012,7 @@ goto v_reusejp_5275_;
 v_reusejp_5275_:
 {
 lean_object* v___x_5277_; lean_object* v___x_5278_; lean_object* v___x_5280_; 
-v___x_5277_ = lean_st_ref_set(v___y_5238_, v___x_5276_);
+v___x_5277_ = lean_st_ref_put(v___y_5238_, v___x_5276_);
 v___x_5278_ = lean_box(0);
 if (v_isShared_5245_ == 0)
 {

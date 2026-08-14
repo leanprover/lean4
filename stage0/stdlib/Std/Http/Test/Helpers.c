@@ -109,7 +109,7 @@ size_t lean_array_size(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Std_Http_Internal_Mock_Server_getSendChan(lean_object*);
 lean_object* l_Std_Http_Internal_Mock_sendAll(lean_object*, lean_object*);
 lean_object* l_IO_Promise_result_x21___redArg(lean_object*);
@@ -1616,7 +1616,7 @@ goto v_reusejp_275_;
 v_reusejp_275_:
 {
 lean_object* v___x_277_; lean_object* v___x_278_; 
-v___x_277_ = lean_st_ref_set(v___y_263_, v___x_276_);
+v___x_277_ = lean_st_ref_put(v___y_263_, v___x_276_);
 v___x_278_ = ((lean_object*)(l_Std_Http_Internal_Test_instHandlerTestHandler___lam__1___closed__1));
 return v___x_278_;
 }

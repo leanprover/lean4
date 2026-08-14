@@ -49,7 +49,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___redArg(lean_object*);
@@ -1659,7 +1659,7 @@ goto v_reusejp_465_;
 v_reusejp_465_:
 {
 lean_object* v___x_467_; lean_object* v___x_468_; lean_object* v___x_469_; 
-v___x_467_ = lean_st_ref_set(v___y_447_, v___x_466_);
+v___x_467_ = lean_st_ref_put(v___y_447_, v___x_466_);
 v___x_468_ = lean_box(0);
 v___x_469_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_469_, 0, v___x_468_);
@@ -1830,7 +1830,7 @@ goto v_reusejp_508_;
 v_reusejp_508_:
 {
 lean_object* v___x_510_; lean_object* v_r_511_; 
-v___x_510_ = lean_st_ref_set(v___y_488_, v___x_509_);
+v___x_510_ = lean_st_ref_put(v___y_488_, v___x_509_);
 lean_inc(v___y_488_);
 lean_inc_ref(v___y_487_);
 v_r_511_ = lean_apply_3(v_x_485_, v___y_487_, v___y_488_, lean_box(0));

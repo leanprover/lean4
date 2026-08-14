@@ -21,7 +21,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Elab_Command_getScope___redArg(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -524,7 +524,7 @@ goto v_reusejp_132_;
 v_reusejp_132_:
 {
 lean_object* v___x_134_; lean_object* v___x_135_; lean_object* v___x_137_; 
-v___x_134_ = lean_st_ref_set(v___y_102_, v___x_133_);
+v___x_134_ = lean_st_ref_put(v___y_102_, v___x_133_);
 v___x_135_ = lean_box(0);
 if (v_isShared_109_ == 0)
 {

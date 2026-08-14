@@ -46,7 +46,7 @@ lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_obje
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_Expr_constName_x3f(lean_object*);
@@ -1228,7 +1228,7 @@ goto v_reusejp_319_;
 v_reusejp_319_:
 {
 lean_object* v___x_321_; lean_object* v___x_322_; lean_object* v___x_323_; 
-v___x_321_ = lean_st_ref_set(v___y_299_, v___x_320_);
+v___x_321_ = lean_st_ref_put(v___y_299_, v___x_320_);
 v___x_322_ = lean_box(0);
 v___x_323_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_323_, 0, v___x_322_);
@@ -2585,7 +2585,7 @@ goto v_reusejp_729_;
 v_reusejp_729_:
 {
 lean_object* v___x_731_; lean_object* v___x_732_; 
-v___x_731_ = lean_st_ref_set(v___y_712_, v___x_730_);
+v___x_731_ = lean_st_ref_put(v___y_712_, v___x_730_);
 v___x_732_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_732_, 0, v_fst_719_);
 return v___x_732_;

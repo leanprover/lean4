@@ -35,7 +35,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
@@ -656,7 +656,7 @@ lean_object* v___x_125_; lean_object* v___x_126_; lean_object* v___x_127_; lean_
 v___x_125_ = lean_st_ref_take(v_a_119_);
 v___x_126_ = lean_box(0);
 v___x_127_ = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00Lean_Compiler_LCNF_FindUsed_visitFVar_spec__1___redArg(v___x_125_, v_fvarId_117_, v___x_126_);
-v___x_128_ = lean_st_ref_set(v_a_119_, v___x_127_);
+v___x_128_ = lean_st_ref_put(v_a_119_, v___x_127_);
 v___x_129_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_129_, 0, v___x_126_);
 return v___x_129_;
@@ -4302,7 +4302,7 @@ goto v_reusejp_1333_;
 v_reusejp_1333_:
 {
 lean_object* v___x_1335_; lean_object* v___x_1336_; lean_object* v___x_1338_; 
-v___x_1335_ = lean_st_ref_set(v___y_1282_, v___x_1334_);
+v___x_1335_ = lean_st_ref_put(v___y_1282_, v___x_1334_);
 v___x_1336_ = lean_box(0);
 if (v_isShared_1292_ == 0)
 {

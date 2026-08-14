@@ -45,7 +45,7 @@ extern lean_object* l_Lean_Linter_linterMessageTag;
 lean_object* l_Lean_Elab_Command_getScope___redArg(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 extern lean_object* l_Lean_Elab_Command_instInhabitedScope_default;
@@ -3317,7 +3317,7 @@ goto v_reusejp_930_;
 v_reusejp_930_:
 {
 lean_object* v___x_932_; lean_object* v___x_933_; lean_object* v___x_935_; 
-v___x_932_ = lean_st_ref_set(v___y_900_, v___x_931_);
+v___x_932_ = lean_st_ref_put(v___y_900_, v___x_931_);
 v___x_933_ = lean_box(0);
 if (v_isShared_907_ == 0)
 {
@@ -6029,7 +6029,7 @@ goto v_reusejp_1819_;
 v_reusejp_1819_:
 {
 lean_object* v___x_1821_; lean_object* v___x_1822_; 
-v___x_1821_ = lean_st_ref_set(v___y_1802_, v___x_1820_);
+v___x_1821_ = lean_st_ref_put(v___y_1802_, v___x_1820_);
 v___x_1822_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1822_, 0, v_fst_1809_);
 return v___x_1822_;

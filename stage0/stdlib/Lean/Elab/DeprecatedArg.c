@@ -39,7 +39,7 @@ lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_fi
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___redArg(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
@@ -2329,7 +2329,7 @@ goto v_reusejp_754_;
 v_reusejp_754_:
 {
 lean_object* v___x_756_; lean_object* v___x_757_; lean_object* v___x_758_; 
-v___x_756_ = lean_st_ref_set(v___y_734_, v___x_755_);
+v___x_756_ = lean_st_ref_put(v___y_734_, v___x_755_);
 v___x_757_ = lean_box(0);
 v___x_758_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_758_, 0, v___x_757_);
@@ -3101,7 +3101,7 @@ goto v_reusejp_946_;
 v_reusejp_946_:
 {
 lean_object* v___x_948_; lean_object* v___x_949_; lean_object* v___x_950_; 
-v___x_948_ = lean_st_ref_set(v___y_927_, v___x_947_);
+v___x_948_ = lean_st_ref_put(v___y_927_, v___x_947_);
 v___x_949_ = lean_box(0);
 v___x_950_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_950_, 0, v___x_949_);

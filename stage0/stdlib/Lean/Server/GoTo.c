@@ -94,7 +94,7 @@ lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_obje
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
 lean_object* l_Lean_Meta_isInstance___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getTag_x3f(lean_object*);
@@ -805,7 +805,7 @@ goto v_reusejp_142_;
 v_reusejp_142_:
 {
 lean_object* v___x_144_; lean_object* v___x_145_; 
-v___x_144_ = lean_st_ref_set(v___y_125_, v___x_143_);
+v___x_144_ = lean_st_ref_put(v___y_125_, v___x_143_);
 v___x_145_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_145_, 0, v_fst_132_);
 return v___x_145_;
@@ -1718,7 +1718,7 @@ v___jp_357_:
 lean_object* v___x_360_; lean_object* v___x_361_; lean_object* v___x_362_; lean_object* v___x_363_; 
 v___x_360_ = lean_st_ref_take(v_a_350_);
 v___x_361_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_ForEachExpr_visit___at___00Lean_Server_GoToKind_determineTargetExprs_spec__1_spec__2___redArg(v___x_360_, v_e_349_, v_fst_359_);
-v___x_362_ = lean_st_ref_set(v_a_350_, v___x_361_);
+v___x_362_ = lean_st_ref_put(v_a_350_, v___x_361_);
 v___x_363_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_363_, 0, v_a_358_);
 return v___x_363_;
@@ -7968,7 +7968,7 @@ goto v_reusejp_2514_;
 v_reusejp_2514_:
 {
 lean_object* v___x_2516_; lean_object* v___x_2517_; 
-v___x_2516_ = lean_st_ref_set(v___y_2497_, v___x_2515_);
+v___x_2516_ = lean_st_ref_put(v___y_2497_, v___x_2515_);
 v___x_2517_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2517_, 0, v_fst_2504_);
 return v___x_2517_;

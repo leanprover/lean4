@@ -77,7 +77,7 @@ uint8_t l_Lean_isMarkedMeta(lean_object*, lean_object*);
 lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_setDeclFor(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConst(lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x21(lean_object*, uint8_t);
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
@@ -3172,7 +3172,7 @@ goto v_reusejp_1158_;
 v_reusejp_1158_:
 {
 lean_object* v___x_1160_; lean_object* v___x_1161_; lean_object* v_mctx_1162_; lean_object* v_zetaDeltaFVarIds_1163_; lean_object* v_postponed_1164_; lean_object* v_diag_1165_; lean_object* v___x_1167_; uint8_t v_isShared_1168_; uint8_t v_isSharedCheck_1192_; 
-v___x_1160_ = lean_st_ref_set(v___y_1123_, v___x_1159_);
+v___x_1160_ = lean_st_ref_put(v___y_1123_, v___x_1159_);
 v___x_1161_ = lean_st_ref_take(v___y_1121_);
 v_mctx_1162_ = lean_ctor_get(v___x_1161_, 0);
 v_zetaDeltaFVarIds_1163_ = lean_ctor_get(v___x_1161_, 2);
@@ -3224,7 +3224,7 @@ goto v_reusejp_1170_;
 v_reusejp_1170_:
 {
 lean_object* v___x_1172_; uint8_t v___x_1173_; 
-v___x_1172_ = lean_st_ref_set(v___y_1121_, v___x_1171_);
+v___x_1172_ = lean_st_ref_put(v___y_1121_, v___x_1171_);
 v___x_1173_ = l_Lean_Expr_isConst(v___x_1081_);
 lean_dec_ref(v___x_1081_);
 if (v___x_1173_ == 0)
@@ -5771,7 +5771,7 @@ goto v_reusejp_2060_;
 v_reusejp_2060_:
 {
 lean_object* v___x_2062_; lean_object* v___x_2063_; lean_object* v___x_2064_; 
-v___x_2062_ = lean_st_ref_set(v___y_2042_, v___x_2061_);
+v___x_2062_ = lean_st_ref_put(v___y_2042_, v___x_2061_);
 v___x_2063_ = lean_box(0);
 v___x_2064_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2064_, 0, v___x_2063_);
@@ -5913,7 +5913,7 @@ goto v_reusejp_2098_;
 v_reusejp_2098_:
 {
 lean_object* v___x_2100_; lean_object* v_r_2101_; 
-v___x_2100_ = lean_st_ref_set(v___y_2078_, v___x_2099_);
+v___x_2100_ = lean_st_ref_put(v___y_2078_, v___x_2099_);
 lean_inc(v___y_2078_);
 lean_inc_ref(v___y_2077_);
 v_r_2101_ = lean_apply_3(v_x_2075_, v___y_2077_, v___y_2078_, lean_box(0));

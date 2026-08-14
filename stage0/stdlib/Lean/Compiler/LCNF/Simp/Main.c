@@ -62,7 +62,7 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*)
 uint8_t lean_usize_dec_le(size_t, size_t);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_inlineCandidate_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_InlineCandidateInfo_arity(lean_object*);
 size_t lean_ptr_addr(lean_object*);
@@ -4488,7 +4488,7 @@ goto v_reusejp_1339_;
 v_reusejp_1339_:
 {
 lean_object* v___x_1341_; lean_object* v___x_1342_; lean_object* v___x_1343_; lean_object* v___x_1345_; 
-v___x_1341_ = lean_st_ref_set(v___y_1311_, v___x_1340_);
+v___x_1341_ = lean_st_ref_put(v___y_1311_, v___x_1340_);
 v___x_1342_ = lean_unsigned_to_nat(1u);
 v___x_1343_ = lean_nat_add(v_start_1316_, v___x_1342_);
 lean_dec(v_start_1316_);
@@ -10728,7 +10728,7 @@ goto v_reusejp_2776_;
 v_reusejp_2776_:
 {
 lean_object* v___x_2778_; lean_object* v___x_2779_; 
-v___x_2778_ = lean_st_ref_set(v___y_2753_, v___x_2777_);
+v___x_2778_ = lean_st_ref_put(v___y_2753_, v___x_2777_);
 v___x_2779_ = l_Lean_Compiler_LCNF_Simp_eraseLetDecl___redArg(v_decl_2748_, v___y_2753_, v___y_2756_);
 lean_dec_ref(v_decl_2748_);
 if (lean_obj_tag(v___x_2779_) == 0)

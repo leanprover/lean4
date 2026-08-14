@@ -42,7 +42,7 @@ lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_getBuiltinInitFnNameFor_x3f(lean_object*, lean_object*);
 lean_object* lean_get_init_fn_name_for(lean_object*, lean_object*);
@@ -736,7 +736,7 @@ goto v_reusejp_251_;
 v_reusejp_251_:
 {
 lean_object* v___x_253_; lean_object* v___x_254_; lean_object* v___f_255_; lean_object* v___x_256_; 
-v___x_253_ = lean_st_ref_set(v_a_214_, v___x_252_);
+v___x_253_ = lean_st_ref_put(v_a_214_, v___x_252_);
 v___x_254_ = lean_box(v_pu_211_);
 v___f_255_ = lean_alloc_closure((void*)(l___private_Lean_Compiler_LCNF_Toposort_0__Lean_Compiler_LCNF_toposort_process___lam__0___boxed), 9, 1);
 lean_closure_set(v___f_255_, 0, v___x_254_);
@@ -857,7 +857,7 @@ goto v_reusejp_229_;
 v_reusejp_229_:
 {
 lean_object* v___x_231_; lean_object* v___x_232_; lean_object* v___x_233_; 
-v___x_231_ = lean_st_ref_set(v___y_221_, v___x_230_);
+v___x_231_ = lean_st_ref_put(v___y_221_, v___x_230_);
 v___x_232_ = lean_box(0);
 v___x_233_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_233_, 0, v___x_232_);

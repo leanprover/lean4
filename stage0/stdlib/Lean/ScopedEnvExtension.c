@@ -58,7 +58,7 @@ lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___redArg(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_modifyState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4818,7 +4818,7 @@ lean_ctor_set(v___x_1505_, 0, v_descr_1485_);
 lean_ctor_set(v___x_1505_, 1, v_a_1499_);
 lean_inc_ref(v___x_1505_);
 v___x_1506_ = lean_array_push(v___x_1504_, v___x_1505_);
-v___x_1507_ = lean_st_ref_set(v___x_1503_, v___x_1506_);
+v___x_1507_ = lean_st_ref_put(v___x_1503_, v___x_1506_);
 if (v_isShared_1502_ == 0)
 {
 lean_ctor_set(v___x_1501_, 0, v___x_1505_);

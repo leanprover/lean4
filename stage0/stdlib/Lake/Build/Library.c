@@ -59,7 +59,7 @@ lean_object* l_Lake_ModuleFacet_fetch___redArg(lean_object*, lean_object*, lean_
 lean_object* l_Lake_ensureJob___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lake_Job_toOpaque___redArg(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lake_Job_renew___redArg(lean_object*);
 extern lean_object* l_Lake_instDataKindDynlib;
 lean_object* l_Lake_nameToSharedLib(lean_object*, uint8_t);
@@ -4345,7 +4345,7 @@ lean_ctor_set_uint8(v_job_1431_, sizeof(void*)*3, v___x_1429_);
 lean_inc_ref(v_job_1431_);
 v___x_1432_ = l_Lake_Job_toOpaque___redArg(v_job_1431_);
 v___x_1433_ = lean_array_push(v___x_1424_, v___x_1432_);
-v___x_1434_ = lean_st_ref_set(v_registeredJobs_1388_, v___x_1433_);
+v___x_1434_ = lean_st_ref_put(v_registeredJobs_1388_, v___x_1433_);
 v___x_1435_ = l_Lake_Job_renew___redArg(v_job_1431_);
 if (v_isShared_1418_ == 0)
 {
@@ -6735,7 +6735,7 @@ lean_ctor_set_uint8(v_job_2244_, sizeof(void*)*3, v___x_2242_);
 lean_inc_ref(v_job_2244_);
 v___x_2245_ = l_Lake_Job_toOpaque___redArg(v_job_2244_);
 v___x_2246_ = lean_array_push(v___x_2237_, v___x_2245_);
-v___x_2247_ = lean_st_ref_set(v_registeredJobs_2204_, v___x_2246_);
+v___x_2247_ = lean_st_ref_put(v_registeredJobs_2204_, v___x_2246_);
 v___x_2248_ = l_Lake_Job_renew___redArg(v_job_2244_);
 if (v_isShared_2231_ == 0)
 {
@@ -9461,7 +9461,7 @@ lean_ctor_set_uint8(v_job_3219_, sizeof(void*)*3, v___x_3217_);
 lean_inc_ref(v_job_3219_);
 v___x_3220_ = l_Lake_Job_toOpaque___redArg(v_job_3219_);
 v___x_3221_ = lean_array_push(v___x_3212_, v___x_3220_);
-v___x_3222_ = lean_st_ref_set(v_registeredJobs_3211_, v___x_3221_);
+v___x_3222_ = lean_st_ref_put(v_registeredJobs_3211_, v___x_3221_);
 v___x_3223_ = l_Lake_Job_renew___redArg(v_job_3219_);
 if (v_isShared_3205_ == 0)
 {

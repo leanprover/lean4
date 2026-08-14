@@ -1116,7 +1116,7 @@ lean_object* v_config_412_; lean_object* v___x_413_; lean_object* v_maxSteps_414
 v_config_412_ = lean_ctor_get(v___y_400_, 0);
 v___x_413_ = lean_st_ref_get(v___y_401_);
 v_maxSteps_414_ = lean_ctor_get(v_config_412_, 1);
-v_target_415_ = lean_ctor_get(v___x_413_, 4);
+v_target_415_ = lean_ctor_get(v___x_413_, 2);
 lean_inc_ref(v_target_415_);
 lean_dec(v___x_413_);
 v___x_416_ = lean_unsigned_to_nat(2u);

@@ -56,7 +56,7 @@ lean_object* l_Lean_Compiler_LCNF_Simp_isSmall___redArg(lean_object*, lean_objec
 lean_object* l_Lean_Compiler_LCNF_Simp_incInlineLocal___redArg(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_shouldInlineLocal___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_findFunDecl_x27_x3f___redArg(uint8_t, lean_object*, lean_object*);
@@ -3228,7 +3228,7 @@ goto v_reusejp_702_;
 v_reusejp_702_:
 {
 lean_object* v___x_704_; lean_object* v___x_705_; 
-v___x_704_ = lean_st_ref_set(v___y_684_, v___x_703_);
+v___x_704_ = lean_st_ref_put(v___y_684_, v___x_703_);
 v___x_705_ = l_Lean_Compiler_LCNF_getType(v___y_681_, v___y_683_, v___y_682_, v___y_680_, v___y_686_);
 if (lean_obj_tag(v___x_705_) == 0)
 {

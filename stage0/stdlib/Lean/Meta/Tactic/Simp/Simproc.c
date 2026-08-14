@@ -65,7 +65,7 @@ lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_addCore___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 lean_object* lean_io_error_to_string(lean_object*);
@@ -4220,7 +4220,7 @@ goto v_reusejp_1172_;
 v_reusejp_1172_:
 {
 lean_object* v___x_1174_; lean_object* v___x_1175_; 
-v___x_1174_ = lean_st_ref_set(v___x_1160_, v___x_1173_);
+v___x_1174_ = lean_st_ref_put(v___x_1160_, v___x_1173_);
 v___x_1175_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1175_, 0, v___x_1174_);
 return v___x_1175_;
@@ -4722,7 +4722,7 @@ goto v_reusejp_1346_;
 v_reusejp_1346_:
 {
 lean_object* v___x_1348_; lean_object* v___x_1349_; lean_object* v___x_1350_; 
-v___x_1348_ = lean_st_ref_set(v___y_1327_, v___x_1347_);
+v___x_1348_ = lean_st_ref_put(v___y_1327_, v___x_1347_);
 v___x_1349_ = lean_box(0);
 v___x_1350_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1350_, 0, v___x_1349_);
@@ -6474,7 +6474,7 @@ goto v_reusejp_1841_;
 v_reusejp_1841_:
 {
 lean_object* v___x_1843_; lean_object* v___x_1844_; lean_object* v___x_1845_; 
-v___x_1843_ = lean_st_ref_set(v___y_1826_, v___x_1842_);
+v___x_1843_ = lean_st_ref_put(v___y_1826_, v___x_1842_);
 v___x_1844_ = lean_box(0);
 v___x_1845_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1845_, 0, v___x_1844_);
@@ -6625,7 +6625,7 @@ goto v_reusejp_1927_;
 v_reusejp_1927_:
 {
 lean_object* v___x_1929_; lean_object* v___x_1930_; lean_object* v___x_1931_; 
-v___x_1929_ = lean_st_ref_set(v___y_1910_, v___x_1928_);
+v___x_1929_ = lean_st_ref_put(v___y_1910_, v___x_1928_);
 v___x_1930_ = lean_box(0);
 v___x_1931_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1931_, 0, v___x_1930_);
@@ -8748,7 +8748,7 @@ v_resetjp_2668_:
 lean_object* v___x_2671_; lean_object* v___x_2672_; lean_object* v___x_2673_; lean_object* v___x_2675_; 
 v___x_2671_ = lean_st_ref_take(v_ref_2658_);
 v___x_2672_ = l_Lean_Meta_Simp_Simprocs_addCore(v___x_2671_, v_val_2667_, v_declName_2659_, v_post_2660_, v_proc_2661_);
-v___x_2673_ = lean_st_ref_set(v_ref_2658_, v___x_2672_);
+v___x_2673_ = lean_st_ref_put(v_ref_2658_, v___x_2672_);
 if (v_isShared_2670_ == 0)
 {
 lean_ctor_set_tag(v___x_2669_, 0);
@@ -9864,7 +9864,7 @@ goto v_reusejp_3057_;
 v_reusejp_3057_:
 {
 lean_object* v___x_3059_; lean_object* v___x_3060_; lean_object* v___x_3062_; 
-v___x_3059_ = lean_st_ref_set(v___y_3020_, v___x_3058_);
+v___x_3059_ = lean_st_ref_put(v___y_3020_, v___x_3058_);
 v___x_3060_ = lean_box(0);
 if (v_isShared_3027_ == 0)
 {
@@ -15956,7 +15956,7 @@ v___x_4903_ = l_Lean_Meta_Simp_simprocExtensionMapRef;
 v___x_4904_ = lean_st_ref_take(v___x_4903_);
 lean_inc(v_a_4898_);
 v___x_4905_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_Meta_Simp_registerBuiltinSimprocCore_spec__0___redArg(v___x_4904_, v_attrName_4892_, v_a_4898_);
-v___x_4906_ = lean_st_ref_set(v___x_4903_, v___x_4905_);
+v___x_4906_ = lean_st_ref_put(v___x_4903_, v___x_4905_);
 if (v_isShared_4902_ == 0)
 {
 lean_ctor_set(v___x_4901_, 0, v_a_4898_);

@@ -18,7 +18,7 @@ lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_pp_macroStack;
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
@@ -9923,7 +9923,7 @@ goto v_reusejp_3915_;
 v_reusejp_3915_:
 {
 lean_object* v___x_3917_; lean_object* v___x_3918_; lean_object* v___x_3920_; 
-v___x_3917_ = lean_st_ref_set(v___y_3878_, v___x_3916_);
+v___x_3917_ = lean_st_ref_put(v___y_3878_, v___x_3916_);
 v___x_3918_ = lean_box(0);
 if (v_isShared_3885_ == 0)
 {

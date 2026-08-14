@@ -63,7 +63,7 @@ size_t lean_usize_sub(size_t, size_t);
 size_t lean_usize_mul(size_t, size_t);
 uint8_t lean_usize_dec_le(size_t, size_t);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_note(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
@@ -580,7 +580,7 @@ goto v_reusejp_89_;
 v_reusejp_89_:
 {
 lean_object* v___x_91_; lean_object* v___x_92_; 
-v___x_91_ = lean_st_ref_set(v___y_72_, v___x_90_);
+v___x_91_ = lean_st_ref_put(v___y_72_, v___x_90_);
 v___x_92_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_92_, 0, v_fst_79_);
 return v___x_92_;
@@ -1374,7 +1374,7 @@ goto v_reusejp_371_;
 v_reusejp_371_:
 {
 lean_object* v___x_373_; lean_object* v___x_374_; lean_object* v___x_375_; 
-v___x_373_ = lean_st_ref_set(v___y_344_, v___x_372_);
+v___x_373_ = lean_st_ref_put(v___y_344_, v___x_372_);
 v___x_374_ = lean_box(0);
 v___x_375_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_375_, 0, v___x_374_);

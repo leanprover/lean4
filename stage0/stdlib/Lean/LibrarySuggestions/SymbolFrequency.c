@@ -35,7 +35,7 @@ size_t lean_usize_add(size_t, size_t);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_swap(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Array_instInhabited(lean_object*);
 lean_object* l_instMonadEIO(lean_object*);
@@ -1159,7 +1159,8 @@ lean_object* v___x_393_; lean_object* v___x_394_; lean_object* v___x_396_;
 lean_inc(v_a_389_);
 v___x_393_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_393_, 0, v_a_389_);
-v___x_394_ = lean_st_ref_set(v___x_386_, v___x_393_);
+v___x_394_ = lean_st_ref_swap(v___x_386_, v___x_393_);
+lean_dec(v___x_394_);
 if (v_isShared_392_ == 0)
 {
 v___x_396_ = v___x_391_;
@@ -2635,7 +2636,8 @@ lean_object* v___x_920_; lean_object* v___x_921_; lean_object* v___x_922_;
 lean_inc(v___y_919_);
 v___x_920_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_920_, 0, v___y_919_);
-v___x_921_ = lean_st_ref_set(v___x_915_, v___x_920_);
+v___x_921_ = lean_st_ref_swap(v___x_915_, v___x_920_);
+lean_dec(v___x_921_);
 v___x_922_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_922_, 0, v___y_919_);
 return v___x_922_;

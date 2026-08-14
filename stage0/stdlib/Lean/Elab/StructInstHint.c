@@ -56,7 +56,7 @@ lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Kernel_enableDiag(lean_object*, uint8_t);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_Kernel_isDiagnosticsEnabled(lean_object*);
 extern lean_object* l_Lean_Meta_Tactic_TryThis_format_inputWidth;
 lean_object* l_Lean_Syntax_ofRange(lean_object*, uint8_t);
@@ -1564,7 +1564,7 @@ goto v_reusejp_464_;
 v_reusejp_464_:
 {
 lean_object* v___x_466_; 
-v___x_466_ = lean_st_ref_set(v___y_365_, v___x_465_);
+v___x_466_ = lean_st_ref_put(v___y_365_, v___x_465_);
 v_fileName_408_ = v_fileName_386_;
 v_fileMap_409_ = v_fileMap_387_;
 v_currRecDepth_410_ = v_currRecDepth_389_;

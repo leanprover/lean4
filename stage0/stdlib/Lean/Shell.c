@@ -41,7 +41,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Kernel_enableDiag(lean_object*, uint8_t);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_Kernel_isDiagnosticsEnabled(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* lean_get_stderr();
@@ -9908,7 +9908,7 @@ goto v_reusejp_2906_;
 v_reusejp_2906_:
 {
 lean_object* v___x_2908_; 
-v___x_2908_ = lean_st_ref_set(v___x_2839_, v___x_2907_);
+v___x_2908_ = lean_st_ref_put(v___x_2839_, v___x_2907_);
 lean_inc(v___x_2839_);
 lean_inc(v___x_2827_);
 v_fileName_2847_ = v_fileName_2823_;

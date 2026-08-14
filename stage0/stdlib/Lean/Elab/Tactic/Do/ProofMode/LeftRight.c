@@ -17,7 +17,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -253,7 +253,7 @@ goto v_reusejp_19_;
 v_reusejp_19_:
 {
 lean_object* v___x_21_; lean_object* v___x_22_; 
-v___x_21_ = lean_st_ref_set(v___y_2_, v___x_20_);
+v___x_21_ = lean_st_ref_put(v___y_2_, v___x_20_);
 v___x_22_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_22_, 0, v_fst_9_);
 return v___x_22_;
@@ -896,7 +896,7 @@ goto v_reusejp_224_;
 v_reusejp_224_:
 {
 lean_object* v___x_226_; lean_object* v___x_227_; lean_object* v___x_228_; 
-v___x_226_ = lean_st_ref_set(v___y_197_, v___x_225_);
+v___x_226_ = lean_st_ref_put(v___y_197_, v___x_225_);
 v___x_227_ = lean_box(0);
 v___x_228_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_228_, 0, v___x_227_);

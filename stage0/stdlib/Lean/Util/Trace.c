@@ -74,7 +74,7 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_String_toRawSubstring_x27(lean_object*);
 extern lean_object* l_Lean_instInhabitedMessageData_default;
 lean_object* lean_string_utf8_byte_size(lean_object*);
@@ -5785,7 +5785,7 @@ v___x_2350_ = l_Lean_inheritedTraceOptions;
 v___x_2351_ = lean_st_ref_take(v___x_2350_);
 v___x_2352_ = lean_box(0);
 v___x_2353_ = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00Lean_registerTraceClass_spec__0___redArg(v___x_2351_, v_optionName_2337_, v___x_2352_);
-v___x_2354_ = lean_st_ref_set(v___x_2350_, v___x_2353_);
+v___x_2354_ = lean_st_ref_put(v___x_2350_, v___x_2353_);
 if (v_isShared_2345_ == 0)
 {
 lean_ctor_set(v___x_2344_, 0, v___x_2354_);

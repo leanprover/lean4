@@ -64,7 +64,7 @@ lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_obj
 uint8_t lean_expr_has_loose_bvar(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_shareCommon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_ofNat(lean_object*);
@@ -7248,7 +7248,7 @@ goto v_reusejp_2267_;
 v_reusejp_2267_:
 {
 lean_object* v___x_2269_; lean_object* v___x_2270_; lean_object* v___x_2271_; 
-v___x_2269_ = lean_st_ref_set(v___y_2256_, v___x_2268_);
+v___x_2269_ = lean_st_ref_put(v___y_2256_, v___x_2268_);
 v___x_2270_ = lean_box(0);
 v___x_2271_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2271_, 0, v___x_2270_);

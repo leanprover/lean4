@@ -62,7 +62,7 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_MapDeclarationExtension_find_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_MapDeclarationExtension_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isTypeFormerType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_modifyState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1975,7 +1975,7 @@ goto v_reusejp_577_;
 v_reusejp_577_:
 {
 lean_object* v___x_579_; lean_object* v___x_580_; lean_object* v___x_582_; 
-v___x_579_ = lean_st_ref_set(v_a_545_, v___x_578_);
+v___x_579_ = lean_st_ref_put(v_a_545_, v___x_578_);
 v___x_580_ = lean_box(0);
 if (v_isShared_562_ == 0)
 {
@@ -2616,7 +2616,7 @@ goto v_reusejp_721_;
 v_reusejp_721_:
 {
 lean_object* v___x_723_; lean_object* v___x_725_; 
-v___x_723_ = lean_st_ref_set(v___y_693_, v___x_722_);
+v___x_723_ = lean_st_ref_put(v___y_693_, v___x_722_);
 if (v_isShared_701_ == 0)
 {
 v___x_725_ = v___x_700_;

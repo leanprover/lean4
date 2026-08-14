@@ -74,7 +74,7 @@ lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
@@ -457,7 +457,7 @@ goto v_reusejp_40_;
 v_reusejp_40_:
 {
 lean_object* v___x_42_; lean_object* v___x_43_; 
-v___x_42_ = lean_st_ref_set(v___y_23_, v___x_41_);
+v___x_42_ = lean_st_ref_put(v___y_23_, v___x_41_);
 v___x_43_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_43_, 0, v_fst_30_);
 return v___x_43_;
@@ -4873,7 +4873,7 @@ goto v_reusejp_1303_;
 v_reusejp_1303_:
 {
 lean_object* v___x_1305_; lean_object* v___x_1306_; lean_object* v___x_1307_; 
-v___x_1305_ = lean_st_ref_set(v___y_1276_, v___x_1304_);
+v___x_1305_ = lean_st_ref_put(v___y_1276_, v___x_1304_);
 v___x_1306_ = lean_box(0);
 v___x_1307_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1307_, 0, v___x_1306_);
@@ -6447,7 +6447,7 @@ v___jp_1832_:
 lean_object* v___x_1834_; lean_object* v___x_1835_; lean_object* v___x_1836_; lean_object* v___x_1837_; 
 v___x_1834_ = lean_st_ref_take(v_a_1824_);
 v___x_1835_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_ForEachExpr_visit___at___00Lean_Expr_checkMaxShared_spec__1_spec__3___redArg(v___x_1834_, v_e_1823_, v_a_1833_);
-v___x_1836_ = lean_st_ref_set(v_a_1824_, v___x_1835_);
+v___x_1836_ = lean_st_ref_put(v_a_1824_, v___x_1835_);
 v___x_1837_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1837_, 0, v_a_1833_);
 return v___x_1837_;
@@ -7822,7 +7822,7 @@ _start:
 lean_object* v___x_2367_; lean_object* v___x_2368_; lean_object* v___x_2369_; lean_object* v___x_2370_; 
 v___x_2367_ = lean_st_ref_take(v_a_2363_);
 v___x_2368_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lean_Meta_Transform_0__Lean_Core_transform_visit___at___00Lean_Core_transform___at___00Lean_Meta_Sym_normalizeLevels_spec__1_spec__1_spec__7___redArg(v___x_2367_, v_e_2364_, v_a_2365_);
-v___x_2369_ = lean_st_ref_set(v_a_2363_, v___x_2368_);
+v___x_2369_ = lean_st_ref_put(v_a_2363_, v___x_2368_);
 v___x_2370_ = lean_box(0);
 return v___x_2370_;
 }

@@ -36,7 +36,7 @@ lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_addHypInfo(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_Hyp_toExpr(lean_object*);
@@ -390,7 +390,7 @@ goto v_reusejp_57_;
 v_reusejp_57_:
 {
 lean_object* v___x_59_; lean_object* v___x_60_; 
-v___x_59_ = lean_st_ref_set(v___y_31_, v___x_58_);
+v___x_59_ = lean_st_ref_put(v___y_31_, v___x_58_);
 v___x_60_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_60_, 0, v_r_52_);
 return v___x_60_;
@@ -1164,7 +1164,7 @@ goto v_reusejp_350_;
 v_reusejp_350_:
 {
 lean_object* v___x_352_; lean_object* v___x_353_; lean_object* v___x_354_; 
-v___x_352_ = lean_st_ref_set(v___y_323_, v___x_351_);
+v___x_352_ = lean_st_ref_put(v___y_323_, v___x_351_);
 v___x_353_ = lean_box(0);
 v___x_354_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_354_, 0, v___x_353_);

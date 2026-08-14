@@ -85,7 +85,7 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_Simp_Result_toSimpGoalResult(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TSyntax_getId(lean_object*);
 lean_object* l_Lean_LocalContext_findFromUserName_x3f(lean_object*, lean_object*);
@@ -2831,7 +2831,7 @@ goto v_reusejp_888_;
 v_reusejp_888_:
 {
 lean_object* v___x_890_; lean_object* v___x_892_; 
-v___x_890_ = lean_st_ref_set(v_a_846_, v___x_889_);
+v___x_890_ = lean_st_ref_put(v_a_846_, v___x_889_);
 if (v_isShared_869_ == 0)
 {
 v___x_892_ = v___x_868_;
@@ -3096,7 +3096,7 @@ goto v_reusejp_1029_;
 v_reusejp_1029_:
 {
 lean_object* v___x_1031_; lean_object* v___x_1032_; 
-v___x_1031_ = lean_st_ref_set(v___y_1012_, v___x_1030_);
+v___x_1031_ = lean_st_ref_put(v___y_1012_, v___x_1030_);
 v___x_1032_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1032_, 0, v_fst_1019_);
 return v___x_1032_;
@@ -4152,7 +4152,7 @@ goto v_reusejp_1406_;
 v_reusejp_1406_:
 {
 lean_object* v___x_1408_; lean_object* v___x_1410_; 
-v___x_1408_ = lean_st_ref_set(v_a_1350_, v___x_1407_);
+v___x_1408_ = lean_st_ref_put(v_a_1350_, v___x_1407_);
 if (v_isShared_1387_ == 0)
 {
 v___x_1410_ = v___x_1386_;
@@ -10435,7 +10435,7 @@ goto v_reusejp_3445_;
 v_reusejp_3445_:
 {
 lean_object* v___x_3447_; lean_object* v___f_3448_; lean_object* v___x_3449_; 
-v___x_3447_ = lean_st_ref_set(v___y_3401_, v___x_3446_);
+v___x_3447_ = lean_st_ref_put(v___y_3401_, v___x_3446_);
 v___f_3448_ = lean_alloc_closure((void*)(l___private_Lean_Elab_Tactic_Grind_Sym_0__Lean_Elab_Tactic_Grind_evalSymSimp___lam__1___boxed), 12, 2);
 lean_closure_set(v___f_3448_, 0, v_fst_3422_);
 lean_closure_set(v___f_3448_, 1, v_mvarId_3414_);

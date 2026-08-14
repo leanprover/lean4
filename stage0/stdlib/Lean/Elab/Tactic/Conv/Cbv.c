@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
@@ -447,7 +447,7 @@ goto v_reusejp_119_;
 v_reusejp_119_:
 {
 lean_object* v___x_121_; lean_object* v___x_122_; lean_object* v___x_123_; 
-v___x_121_ = lean_st_ref_set(v___y_99_, v___x_120_);
+v___x_121_ = lean_st_ref_put(v___y_99_, v___x_120_);
 v___x_122_ = lean_box(0);
 v___x_123_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_123_, 0, v___x_122_);

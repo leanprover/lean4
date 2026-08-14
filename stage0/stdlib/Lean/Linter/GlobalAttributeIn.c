@@ -36,7 +36,7 @@ lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 lean_object* l_Lean_Elab_Command_getScope___redArg(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 extern lean_object* l_Lean_Elab_Command_instInhabitedScope_default;
@@ -1171,7 +1171,7 @@ goto v_reusejp_368_;
 v_reusejp_368_:
 {
 lean_object* v___x_370_; lean_object* v___x_371_; lean_object* v___x_373_; 
-v___x_370_ = lean_st_ref_set(v___y_338_, v___x_369_);
+v___x_370_ = lean_st_ref_put(v___y_338_, v___x_369_);
 v___x_371_ = lean_box(0);
 if (v_isShared_345_ == 0)
 {

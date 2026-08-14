@@ -95,7 +95,7 @@ lean_object* l_Lean_MessageData_ofList(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_List_lengthTR___redArg(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAux(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4051,7 +4051,7 @@ goto v_reusejp_1501_;
 v_reusejp_1501_:
 {
 lean_object* v___x_1503_; lean_object* v___x_1504_; lean_object* v___x_1506_; 
-v___x_1503_ = lean_st_ref_set(v___y_1464_, v___x_1502_);
+v___x_1503_ = lean_st_ref_put(v___y_1464_, v___x_1502_);
 v___x_1504_ = lean_box(0);
 if (v_isShared_1471_ == 0)
 {

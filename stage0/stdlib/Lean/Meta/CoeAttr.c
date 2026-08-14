@@ -48,7 +48,7 @@ lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_fi
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_findConstVal_x3f(lean_object*, lean_object*, uint8_t);
 lean_object* l_List_reverse___redArg(lean_object*);
 lean_object* l_Lean_mkLevelParam(lean_object*);
@@ -2648,7 +2648,7 @@ goto v_reusejp_781_;
 v_reusejp_781_:
 {
 lean_object* v___x_783_; lean_object* v___x_784_; lean_object* v_mctx_785_; lean_object* v_zetaDeltaFVarIds_786_; lean_object* v_postponed_787_; lean_object* v_diag_788_; lean_object* v___x_790_; uint8_t v_isShared_791_; uint8_t v_isSharedCheck_799_; 
-v___x_783_ = lean_st_ref_set(v___y_764_, v___x_782_);
+v___x_783_ = lean_st_ref_put(v___y_764_, v___x_782_);
 v___x_784_ = lean_st_ref_take(v___y_763_);
 v_mctx_785_ = lean_ctor_get(v___x_784_, 0);
 v_zetaDeltaFVarIds_786_ = lean_ctor_get(v___x_784_, 2);
@@ -2700,7 +2700,7 @@ goto v_reusejp_793_;
 v_reusejp_793_:
 {
 lean_object* v___x_795_; lean_object* v___x_796_; lean_object* v___x_797_; 
-v___x_795_ = lean_st_ref_set(v___y_763_, v___x_794_);
+v___x_795_ = lean_st_ref_put(v___y_763_, v___x_794_);
 v___x_796_ = lean_box(0);
 v___x_797_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_797_, 0, v___x_796_);

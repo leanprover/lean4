@@ -69,7 +69,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewMCtxDepthImp(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_checkNotAssigned(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4798,7 +4798,7 @@ goto v_reusejp_1554_;
 v_reusejp_1554_:
 {
 lean_object* v___x_1556_; lean_object* v___x_1557_; lean_object* v___x_1558_; 
-v___x_1556_ = lean_st_ref_set(v___y_1527_, v___x_1555_);
+v___x_1556_ = lean_st_ref_put(v___y_1527_, v___x_1555_);
 v___x_1557_ = lean_box(0);
 v___x_1558_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1558_, 0, v___x_1557_);

@@ -44,7 +44,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_headBeta(lean_object*);
 lean_object* l_Lean_Elab_Term_throwTypeMismatchError___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_abortTermExceptionId;
@@ -1069,7 +1069,7 @@ goto v_reusejp_262_;
 v_reusejp_262_:
 {
 lean_object* v___x_264_; lean_object* v___x_265_; 
-v___x_264_ = lean_st_ref_set(v___y_245_, v___x_263_);
+v___x_264_ = lean_st_ref_put(v___y_245_, v___x_263_);
 v___x_265_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_265_, 0, v_fst_252_);
 return v___x_265_;
@@ -5959,7 +5959,7 @@ goto v_reusejp_1801_;
 v_reusejp_1801_:
 {
 lean_object* v___x_1803_; lean_object* v___x_1804_; lean_object* v___x_1805_; 
-v___x_1803_ = lean_st_ref_set(v___y_1781_, v___x_1802_);
+v___x_1803_ = lean_st_ref_put(v___y_1781_, v___x_1802_);
 v___x_1804_ = lean_box(0);
 v___x_1805_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1805_, 0, v___x_1804_);

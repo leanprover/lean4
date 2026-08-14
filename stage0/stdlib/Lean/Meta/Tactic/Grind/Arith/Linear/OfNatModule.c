@@ -40,7 +40,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_Linear_get_x27___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 extern lean_object* l_Lean_Meta_Grind_Arith_Linear_linearExt;
@@ -5418,7 +5418,7 @@ goto v_reusejp_1806_;
 v_reusejp_1806_:
 {
 lean_object* v___x_1808_; lean_object* v___x_1809_; lean_object* v___x_1810_; 
-v___x_1808_ = lean_st_ref_set(v_a_1781_, v___x_1807_);
+v___x_1808_ = lean_st_ref_put(v_a_1781_, v___x_1807_);
 v___x_1809_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_1809_, 0, v___x_1803_);
 v___x_1810_ = lean_alloc_ctor(0, 1, 0);

@@ -23,7 +23,7 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_Elab_Command_getScope___redArg(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -667,7 +667,7 @@ goto v_reusejp_185_;
 v_reusejp_185_:
 {
 lean_object* v___x_187_; lean_object* v___x_188_; lean_object* v___x_190_; 
-v___x_187_ = lean_st_ref_set(v___y_155_, v___x_186_);
+v___x_187_ = lean_st_ref_put(v___y_155_, v___x_186_);
 v___x_188_ = lean_box(0);
 if (v_isShared_162_ == 0)
 {

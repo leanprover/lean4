@@ -58,7 +58,7 @@ lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_empty;
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_ppTerm(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_find_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instBEqMVarId_beq___boxed(lean_object*, lean_object*);
@@ -1641,7 +1641,7 @@ goto v_reusejp_342_;
 v_reusejp_342_:
 {
 lean_object* v___x_344_; 
-v___x_344_ = lean_st_ref_set(v___y_325_, v___x_343_);
+v___x_344_ = lean_st_ref_put(v___y_325_, v___x_343_);
 v___y_306_ = v___y_324_;
 v___y_307_ = v___y_326_;
 v___y_308_ = v___y_327_;
@@ -1901,7 +1901,7 @@ goto v_reusejp_408_;
 v_reusejp_408_:
 {
 lean_object* v___x_410_; 
-v___x_410_ = lean_st_ref_set(v___x_253_, v___x_409_);
+v___x_410_ = lean_st_ref_put(v___x_253_, v___x_409_);
 lean_inc(v___x_253_);
 v___y_363_ = v___x_358_;
 v___y_364_ = v___x_253_;
@@ -6932,7 +6932,7 @@ goto v_reusejp_2108_;
 v_reusejp_2108_:
 {
 lean_object* v___x_2110_; lean_object* v___x_2111_; lean_object* v___x_2112_; 
-v___x_2110_ = lean_st_ref_set(v___y_2078_, v___x_2109_);
+v___x_2110_ = lean_st_ref_put(v___y_2078_, v___x_2109_);
 v___x_2111_ = lean_box(0);
 v___x_2112_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2112_, 0, v___x_2111_);

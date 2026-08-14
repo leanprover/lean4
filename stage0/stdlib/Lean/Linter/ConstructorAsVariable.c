@@ -37,7 +37,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_instInhabitedScope_default;
 lean_object* l_List_head_x21___redArg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Linter_linterSetsExt;
@@ -607,7 +607,7 @@ goto v_reusejp_112_;
 v_reusejp_112_:
 {
 lean_object* v___x_114_; lean_object* v___x_115_; 
-v___x_114_ = lean_st_ref_set(v___y_95_, v___x_113_);
+v___x_114_ = lean_st_ref_put(v___y_95_, v___x_113_);
 v___x_115_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_115_, 0, v_fst_102_);
 return v___x_115_;
@@ -1206,7 +1206,7 @@ goto v_reusejp_329_;
 v_reusejp_329_:
 {
 lean_object* v___x_331_; lean_object* v___x_332_; lean_object* v___x_334_; 
-v___x_331_ = lean_st_ref_set(v___y_299_, v___x_330_);
+v___x_331_ = lean_st_ref_put(v___y_299_, v___x_330_);
 v___x_332_ = lean_box(0);
 if (v_isShared_306_ == 0)
 {
@@ -2537,7 +2537,7 @@ lean_ctor_set(v___x_765_, 0, v___x_763_);
 lean_ctor_set(v___x_765_, 1, v___x_764_);
 lean_inc_ref(v_val_746_);
 v___x_766_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_Linter_constructorNameAsVariable_spec__3___redArg(v___x_762_, v_val_746_, v___x_765_);
-v___x_767_ = lean_st_ref_set(v_val_743_, v___x_766_);
+v___x_767_ = lean_st_ref_put(v_val_743_, v___x_766_);
 v_as_x27_748_ = v_tail_754_;
 v_b_749_ = v___x_757_;
 goto _start;

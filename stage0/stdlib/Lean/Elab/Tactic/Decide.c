@@ -33,7 +33,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_instBEqInternalExceptionId_beq(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
@@ -847,7 +847,7 @@ goto v_reusejp_19_;
 v_reusejp_19_:
 {
 lean_object* v___x_21_; lean_object* v___x_22_; 
-v___x_21_ = lean_st_ref_set(v___y_2_, v___x_20_);
+v___x_21_ = lean_st_ref_put(v___y_2_, v___x_20_);
 v___x_22_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_22_, 0, v_fst_9_);
 return v___x_22_;
@@ -5404,7 +5404,7 @@ goto v_reusejp_1625_;
 v_reusejp_1625_:
 {
 lean_object* v___x_1627_; 
-v___x_1627_ = lean_st_ref_set(v___y_1482_, v___x_1626_);
+v___x_1627_ = lean_st_ref_put(v___y_1482_, v___x_1626_);
 v___y_1570_ = v___y_1609_;
 v___y_1571_ = v___x_1612_;
 goto v___jp_1569_;
@@ -5528,7 +5528,7 @@ goto v_reusejp_1655_;
 v_reusejp_1655_:
 {
 lean_object* v___x_1657_; 
-v___x_1657_ = lean_st_ref_set(v___y_1484_, v___x_1656_);
+v___x_1657_ = lean_st_ref_put(v___y_1484_, v___x_1656_);
 v_fileName_1596_ = v_fileName_1577_;
 v_fileMap_1597_ = v_fileMap_1578_;
 v_currRecDepth_1598_ = v_currRecDepth_1580_;
@@ -7585,7 +7585,7 @@ goto v_reusejp_2521_;
 v_reusejp_2521_:
 {
 lean_object* v___x_2523_; 
-v___x_2523_ = lean_st_ref_set(v_a_2407_, v___x_2522_);
+v___x_2523_ = lean_st_ref_put(v_a_2407_, v___x_2522_);
 v_fileName_2474_ = v_fileName_2422_;
 v_fileMap_2475_ = v_fileMap_2423_;
 v_currRecDepth_2476_ = v_currRecDepth_2425_;

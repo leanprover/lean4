@@ -57,7 +57,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate_rev(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -7058,7 +7058,7 @@ _start:
 lean_object* v___x_2578_; lean_object* v___x_2579_; lean_object* v___x_2580_; lean_object* v___x_2581_; 
 v___x_2578_ = lean_st_ref_take(v_a_2574_);
 v___x_2579_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lean_Meta_Transform_0__Lean_Meta_transformWithCache_visit___at___00Lean_Meta_transform___at___00__private_Lean_Elab_PreDefinition_WF_Preprocess_0__Lean_Elab_WF_nonPropHaveToLet_spec__3_spec__3_spec__13___redArg(v___x_2578_, v_e_2575_, v_a_2576_);
-v___x_2580_ = lean_st_ref_set(v_a_2574_, v___x_2579_);
+v___x_2580_ = lean_st_ref_put(v_a_2574_, v___x_2579_);
 v___x_2581_ = lean_box(0);
 return v___x_2581_;
 }
@@ -11567,7 +11567,7 @@ goto v_reusejp_4263_;
 v_reusejp_4263_:
 {
 lean_object* v___x_4265_; lean_object* v___x_4266_; lean_object* v___x_4268_; 
-v___x_4265_ = lean_st_ref_set(v___y_4226_, v___x_4264_);
+v___x_4265_ = lean_st_ref_put(v___y_4226_, v___x_4264_);
 v___x_4266_ = lean_box(0);
 if (v_isShared_4233_ == 0)
 {

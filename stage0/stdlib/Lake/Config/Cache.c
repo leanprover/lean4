@@ -102,7 +102,7 @@ lean_object* lean_io_create_tempfile();
 lean_object* lean_io_remove_file(lean_object*);
 lean_object* l_Lake_Hash_instHashable___lam__0___boxed(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_io_prim_handle_mk(lean_object*, uint8_t);
 lean_object* lean_io_prim_handle_lock(lean_object*, uint8_t);
 lean_object* l_Lean_Json_compress(lean_object*);
@@ -5586,7 +5586,7 @@ _start:
 lean_object* v___x_1684_; lean_object* v___x_1685_; lean_object* v___x_1686_; 
 v___x_1684_ = lean_st_ref_take(v_cache_1682_);
 v___x_1685_ = l_Lake_CacheMap_get_x3f(v_inputHash_1681_, v___x_1684_);
-v___x_1686_ = lean_st_ref_set(v_cache_1682_, v___x_1684_);
+v___x_1686_ = lean_st_ref_put(v_cache_1682_, v___x_1684_);
 return v___x_1685_;
 }
 }
@@ -5608,7 +5608,7 @@ lean_object* v___x_1698_; lean_object* v___x_1699_; lean_object* v___x_1700_; le
 v___x_1698_ = lean_st_ref_take(v_cache_1695_);
 v___x_1699_ = lean_apply_1(v_inst_1692_, v_val_1694_);
 v___x_1700_ = l___private_Lake_Config_Cache_0__Lake_CacheMap_insertCore(v_inputHash_1693_, v___x_1699_, v___x_1698_, v_platformIndependent_1696_);
-v___x_1701_ = lean_st_ref_set(v_cache_1695_, v___x_1700_);
+v___x_1701_ = lean_st_ref_put(v_cache_1695_, v___x_1700_);
 return v___x_1701_;
 }
 }
@@ -5631,7 +5631,7 @@ lean_object* v___x_1718_; lean_object* v___x_1719_; lean_object* v___x_1720_; le
 v___x_1718_ = lean_st_ref_take(v_cache_1715_);
 v___x_1719_ = lean_apply_1(v_inst_1712_, v_val_1714_);
 v___x_1720_ = l___private_Lake_Config_Cache_0__Lake_CacheMap_insertCore(v_inputHash_1713_, v___x_1719_, v___x_1718_, v_platformIndependent_1716_);
-v___x_1721_ = lean_st_ref_set(v_cache_1715_, v___x_1720_);
+v___x_1721_ = lean_st_ref_put(v_cache_1715_, v___x_1720_);
 return v___x_1721_;
 }
 }

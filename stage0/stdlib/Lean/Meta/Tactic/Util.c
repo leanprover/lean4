@@ -40,7 +40,7 @@ uint8_t l_Lean_LocalDecl_isImplementationDetail(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -820,7 +820,7 @@ goto v_reusejp_104_;
 v_reusejp_104_:
 {
 lean_object* v___x_106_; lean_object* v___x_107_; lean_object* v___x_108_; 
-v___x_106_ = lean_st_ref_set(v_a_92_, v___x_105_);
+v___x_106_ = lean_st_ref_put(v_a_92_, v___x_105_);
 v___x_107_ = lean_box(0);
 v___x_108_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_108_, 0, v___x_107_);
@@ -1927,7 +1927,7 @@ goto v_reusejp_597_;
 v_reusejp_597_:
 {
 lean_object* v___x_599_; lean_object* v___x_600_; 
-v___x_599_ = lean_st_ref_set(v___y_580_, v___x_598_);
+v___x_599_ = lean_st_ref_put(v___y_580_, v___x_598_);
 v___x_600_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_600_, 0, v_fst_587_);
 return v___x_600_;
@@ -2758,7 +2758,7 @@ goto v_reusejp_941_;
 v_reusejp_941_:
 {
 lean_object* v___x_943_; lean_object* v___x_944_; lean_object* v___x_945_; 
-v___x_943_ = lean_st_ref_set(v___y_914_, v___x_942_);
+v___x_943_ = lean_st_ref_put(v___y_914_, v___x_942_);
 v___x_944_ = lean_box(0);
 v___x_945_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_945_, 0, v___x_944_);
@@ -3315,7 +3315,7 @@ v___x_1181_ = lean_st_ref_take(v___y_1175_);
 v___x_1182_ = l_Lean_Expr_fvarId_x21(v_e_1174_);
 v___x_1183_ = l_Std_DHashMap_Internal_Raw_u2080_erase___at___00Lean_MVarId_getNondepPropHyps_spec__0___redArg(v___x_1181_, v___x_1182_);
 lean_dec(v___x_1182_);
-v___x_1184_ = lean_st_ref_set(v___y_1175_, v___x_1183_);
+v___x_1184_ = lean_st_ref_put(v___y_1175_, v___x_1183_);
 v___x_1185_ = lean_box(0);
 v___x_1186_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1186_, 0, v___x_1185_);
@@ -3419,7 +3419,7 @@ goto v_reusejp_1230_;
 v_reusejp_1230_:
 {
 lean_object* v___x_1232_; lean_object* v___x_1233_; lean_object* v___x_1234_; 
-v___x_1232_ = lean_st_ref_set(v_a_1213_, v___x_1231_);
+v___x_1232_ = lean_st_ref_put(v_a_1213_, v___x_1231_);
 v___x_1233_ = lean_box(v___x_1222_);
 v___x_1234_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1234_, 0, v___x_1233_);
@@ -3817,7 +3817,7 @@ goto v_reusejp_1381_;
 v_reusejp_1381_:
 {
 lean_object* v___x_1383_; lean_object* v___x_1384_; lean_object* v___x_1385_; 
-v___x_1383_ = lean_st_ref_set(v_a_1368_, v___x_1382_);
+v___x_1383_ = lean_st_ref_put(v_a_1368_, v___x_1382_);
 v___x_1384_ = lean_box(v___x_1372_);
 v___x_1385_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1385_, 0, v___x_1384_);
@@ -4605,7 +4605,7 @@ v___x_1599_ = lean_st_ref_take(v___y_1593_);
 v___x_1600_ = l_Lean_Expr_fvarId_x21(v_e_1592_);
 v___x_1601_ = l_Std_DHashMap_Internal_Raw_u2080_erase___at___00Lean_MVarId_getNondepPropHyps_spec__0___redArg(v___x_1599_, v___x_1600_);
 lean_dec(v___x_1600_);
-v___x_1602_ = lean_st_ref_set(v___y_1593_, v___x_1601_);
+v___x_1602_ = lean_st_ref_put(v___y_1593_, v___x_1601_);
 v___x_1603_ = lean_box(0);
 v___x_1604_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1604_, 0, v___x_1603_);
@@ -9006,7 +9006,7 @@ lean_dec_ref_known(v___x_3011_, 14);
 lean_dec_ref(v_x_2984_);
 v___x_3017_ = lean_st_ref_take(v_a_2986_);
 v___x_3018_ = lean_array_push(v___x_3017_, v_mvarId_2985_);
-v___x_3019_ = lean_st_ref_set(v_a_2986_, v___x_3018_);
+v___x_3019_ = lean_st_ref_put(v_a_2986_, v___x_3018_);
 v___x_3020_ = lean_box(0);
 if (v_isShared_3016_ == 0)
 {

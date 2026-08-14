@@ -23,7 +23,7 @@ lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 uint8_t l_Lean_MessageData_hasTag(lean_object*, lean_object*);
@@ -1053,7 +1053,7 @@ goto v_reusejp_180_;
 v_reusejp_180_:
 {
 lean_object* v___x_182_; lean_object* v___x_183_; lean_object* v___x_184_; 
-v___x_182_ = lean_st_ref_set(v___y_160_, v___x_181_);
+v___x_182_ = lean_st_ref_put(v___y_160_, v___x_181_);
 v___x_183_ = lean_box(0);
 v___x_184_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_184_, 0, v___x_183_);
@@ -2996,7 +2996,7 @@ goto v_reusejp_937_;
 v_reusejp_937_:
 {
 lean_object* v___x_939_; lean_object* v___x_940_; 
-v___x_939_ = lean_st_ref_set(v___y_920_, v___x_938_);
+v___x_939_ = lean_st_ref_put(v___y_920_, v___x_938_);
 v___x_940_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_940_, 0, v_fst_927_);
 return v___x_940_;

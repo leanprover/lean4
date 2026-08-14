@@ -43,7 +43,7 @@ lean_object* l_Lean_indentD(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -10480,7 +10480,7 @@ goto v_reusejp_3671_;
 v_reusejp_3671_:
 {
 lean_object* v___x_3673_; lean_object* v___x_3674_; lean_object* v___x_3676_; 
-v___x_3673_ = lean_st_ref_set(v___y_3634_, v___x_3672_);
+v___x_3673_ = lean_st_ref_put(v___y_3634_, v___x_3672_);
 v___x_3674_ = lean_box(0);
 if (v_isShared_3641_ == 0)
 {

@@ -37,7 +37,7 @@ lean_object* l_Lean_PersistentHashMap_empty(lean_object*, lean_object*, lean_obj
 extern lean_object* l___private_Lean_ExtraModUses_0__Lean_extraModUses;
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_instHashableExtraModUse_hash(lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
@@ -5627,7 +5627,7 @@ goto v_reusejp_1792_;
 v_reusejp_1792_:
 {
 lean_object* v___x_1794_; lean_object* v___x_1795_; lean_object* v___x_1797_; 
-v___x_1794_ = lean_st_ref_set(v___y_1755_, v___x_1793_);
+v___x_1794_ = lean_st_ref_put(v___y_1755_, v___x_1793_);
 v___x_1795_ = lean_box(0);
 if (v_isShared_1762_ == 0)
 {
@@ -5999,7 +5999,7 @@ goto v_reusejp_1881_;
 v_reusejp_1881_:
 {
 lean_object* v___x_1883_; lean_object* v___x_1884_; lean_object* v___x_1885_; 
-v___x_1883_ = lean_st_ref_set(v___y_1864_, v___x_1882_);
+v___x_1883_ = lean_st_ref_put(v___y_1864_, v___x_1882_);
 v___x_1884_ = lean_box(0);
 v___x_1885_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1885_, 0, v___x_1884_);

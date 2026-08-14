@@ -47,7 +47,7 @@ size_t lean_usize_of_nat(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 lean_object* l_Lean_EnvExtension_modifyState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Match_instInhabitedMatcherInfo_default;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
@@ -1585,7 +1585,7 @@ goto v_reusejp_442_;
 v_reusejp_442_:
 {
 lean_object* v___x_444_; lean_object* v___x_445_; lean_object* v___x_446_; 
-v___x_444_ = lean_st_ref_set(v_a_422_, v___x_443_);
+v___x_444_ = lean_st_ref_put(v_a_422_, v___x_443_);
 v___x_445_ = lean_box(0);
 v___x_446_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_446_, 0, v___x_445_);

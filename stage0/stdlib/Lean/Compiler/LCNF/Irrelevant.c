@@ -43,7 +43,7 @@ extern lean_object* l_Lean_unknownIdentifierMessageTag;
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 uint64_t l___private_Lean_Meta_Basic_0__Lean_Meta_Config_toKey(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingImp(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
@@ -1039,7 +1039,7 @@ goto v_reusejp_293_;
 v_reusejp_293_:
 {
 lean_object* v___x_295_; lean_object* v___x_296_; lean_object* v___x_297_; 
-v___x_295_ = lean_st_ref_set(v___y_275_, v___x_294_);
+v___x_295_ = lean_st_ref_put(v___y_275_, v___x_294_);
 v___x_296_ = lean_box(0);
 v___x_297_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_297_, 0, v___x_296_);
@@ -1210,7 +1210,7 @@ goto v_reusejp_336_;
 v_reusejp_336_:
 {
 lean_object* v___x_338_; lean_object* v_r_339_; 
-v___x_338_ = lean_st_ref_set(v___y_316_, v___x_337_);
+v___x_338_ = lean_st_ref_put(v___y_316_, v___x_337_);
 lean_inc(v___y_316_);
 lean_inc_ref(v___y_315_);
 v_r_339_ = lean_apply_3(v_x_313_, v___y_315_, v___y_316_, lean_box(0));
@@ -3648,7 +3648,7 @@ goto v_reusejp_1178_;
 v_reusejp_1178_:
 {
 lean_object* v___x_1180_; lean_object* v___x_1181_; lean_object* v___x_1183_; 
-v___x_1180_ = lean_st_ref_set(v_a_1150_, v___x_1179_);
+v___x_1180_ = lean_st_ref_put(v_a_1150_, v___x_1179_);
 v___x_1181_ = lean_box(0);
 if (v_isShared_1163_ == 0)
 {

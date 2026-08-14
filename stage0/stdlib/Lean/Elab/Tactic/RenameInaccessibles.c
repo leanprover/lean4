@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
@@ -610,7 +610,7 @@ goto v_reusejp_176_;
 v_reusejp_176_:
 {
 lean_object* v___x_178_; lean_object* v___x_179_; 
-v___x_178_ = lean_st_ref_set(v___y_149_, v___x_177_);
+v___x_178_ = lean_st_ref_put(v___y_149_, v___x_177_);
 v___x_179_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_179_, 0, v_trees_153_);
 return v___x_179_;
@@ -1493,7 +1493,7 @@ goto v_reusejp_463_;
 v_reusejp_463_:
 {
 lean_object* v___x_465_; lean_object* v___x_466_; lean_object* v___x_468_; 
-v___x_465_ = lean_st_ref_set(v___y_423_, v___x_464_);
+v___x_465_ = lean_st_ref_put(v___y_423_, v___x_464_);
 v___x_466_ = lean_box(0);
 if (v_isShared_440_ == 0)
 {
@@ -3037,7 +3037,7 @@ goto v_reusejp_998_;
 v_reusejp_998_:
 {
 lean_object* v___x_1000_; lean_object* v___x_1001_; lean_object* v___x_1002_; 
-v___x_1000_ = lean_st_ref_set(v___y_978_, v___x_999_);
+v___x_1000_ = lean_st_ref_put(v___y_978_, v___x_999_);
 v___x_1001_ = lean_box(0);
 v___x_1002_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1002_, 0, v___x_1001_);
@@ -4040,7 +4040,7 @@ goto v_reusejp_1351_;
 v_reusejp_1351_:
 {
 lean_object* v___x_1353_; lean_object* v___x_1354_; lean_object* v___x_1355_; 
-v___x_1353_ = lean_st_ref_set(v___y_1324_, v___x_1352_);
+v___x_1353_ = lean_st_ref_put(v___y_1324_, v___x_1352_);
 v___x_1354_ = lean_box(0);
 v___x_1355_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1355_, 0, v___x_1354_);

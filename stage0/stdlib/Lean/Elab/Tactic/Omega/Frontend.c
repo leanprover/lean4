@@ -64,7 +64,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_instBEqInternalExceptionId_beq(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
@@ -2706,7 +2706,7 @@ goto v_reusejp_244_;
 v_reusejp_244_:
 {
 lean_object* v___x_246_; lean_object* v___x_247_; 
-v___x_246_ = lean_st_ref_set(v___y_227_, v___x_245_);
+v___x_246_ = lean_st_ref_put(v___y_227_, v___x_245_);
 v___x_247_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_247_, 0, v_fst_234_);
 return v___x_247_;
@@ -5979,7 +5979,7 @@ goto v_reusejp_1407_;
 v_reusejp_1407_:
 {
 lean_object* v___x_1409_; lean_object* v___x_1410_; lean_object* v___x_1412_; 
-v___x_1409_ = lean_st_ref_set(v___y_1370_, v___x_1408_);
+v___x_1409_ = lean_st_ref_put(v___y_1370_, v___x_1408_);
 v___x_1410_ = lean_box(0);
 if (v_isShared_1377_ == 0)
 {
@@ -13945,7 +13945,7 @@ v_reusejp_4034_:
 {
 lean_object* v___x_4036_; lean_object* v___x_4037_; lean_object* v___x_4039_; 
 v___x_4036_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_Elab_Tactic_Omega_asLinearCombo_spec__4___redArg(v___x_4032_, v_e_4008_, v___x_4035_);
-v___x_4037_ = lean_st_ref_set(v_a_4009_, v___x_4036_);
+v___x_4037_ = lean_st_ref_put(v_a_4009_, v___x_4036_);
 if (v_isShared_4025_ == 0)
 {
 v___x_4039_ = v___x_4024_;
@@ -15914,7 +15914,7 @@ goto v_reusejp_4754_;
 v_reusejp_4754_:
 {
 lean_object* v___x_4756_; lean_object* v___x_4757_; lean_object* v___x_4759_; 
-v___x_4756_ = lean_st_ref_set(v___y_4717_, v___x_4755_);
+v___x_4756_ = lean_st_ref_put(v___y_4717_, v___x_4755_);
 v___x_4757_ = lean_box(0);
 if (v_isShared_4724_ == 0)
 {
@@ -17826,7 +17826,7 @@ goto v_reusejp_5335_;
 v_reusejp_5335_:
 {
 lean_object* v___x_5337_; lean_object* v___x_5338_; 
-v___x_5337_ = lean_st_ref_set(v___y_5318_, v___x_5336_);
+v___x_5337_ = lean_st_ref_put(v___y_5318_, v___x_5336_);
 v___x_5338_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_5338_, 0, v_fst_5325_);
 return v___x_5338_;
@@ -21687,7 +21687,7 @@ goto v_reusejp_6451_;
 v_reusejp_6451_:
 {
 lean_object* v___x_6453_; lean_object* v___x_6454_; lean_object* v___x_6455_; 
-v___x_6453_ = lean_st_ref_set(v___y_6431_, v___x_6452_);
+v___x_6453_ = lean_st_ref_put(v___y_6431_, v___x_6452_);
 v___x_6454_ = lean_box(0);
 v___x_6455_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_6455_, 0, v___x_6454_);
@@ -24723,7 +24723,7 @@ goto v_reusejp_7566_;
 v_reusejp_7566_:
 {
 lean_object* v___x_7568_; lean_object* v___x_7569_; 
-v___x_7568_ = lean_st_ref_set(v___y_7541_, v___x_7567_);
+v___x_7568_ = lean_st_ref_put(v___y_7541_, v___x_7567_);
 v___x_7569_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_7569_, 0, v_traces_7545_);
 return v___x_7569_;
@@ -25219,7 +25219,7 @@ goto v_reusejp_7753_;
 v_reusejp_7753_:
 {
 lean_object* v___x_7755_; lean_object* v___x_7756_; lean_object* v___x_7758_; 
-v___x_7755_ = lean_st_ref_set(v___y_7699_, v___x_7754_);
+v___x_7755_ = lean_st_ref_put(v___y_7699_, v___x_7754_);
 v___x_7756_ = lean_box(0);
 if (v_isShared_7731_ == 0)
 {
@@ -25577,7 +25577,7 @@ goto v_reusejp_7859_;
 v_reusejp_7859_:
 {
 lean_object* v___x_7861_; lean_object* v___x_7862_; 
-v___x_7861_ = lean_st_ref_set(v___y_7797_, v___x_7860_);
+v___x_7861_ = lean_st_ref_put(v___y_7797_, v___x_7860_);
 v___x_7862_ = l_MonadExcept_ofExcept___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_Omega_splitDisjunction_spec__2_spec__3___redArg(v_fst_7799_);
 return v___x_7862_;
 }
@@ -26296,7 +26296,7 @@ goto v_reusejp_8216_;
 v_reusejp_8216_:
 {
 lean_object* v___x_8218_; lean_object* v___x_8219_; 
-v___x_8218_ = lean_st_ref_set(v___y_8154_, v___x_8217_);
+v___x_8218_ = lean_st_ref_put(v___y_8154_, v___x_8217_);
 v___x_8219_ = l_MonadExcept_ofExcept___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Elab_Tactic_Omega_splitDisjunction_spec__2_spec__3___redArg(v_fst_8156_);
 return v___x_8219_;
 }
@@ -30923,7 +30923,7 @@ goto v_reusejp_9734_;
 v_reusejp_9734_:
 {
 lean_object* v___x_9736_; lean_object* v___x_9737_; lean_object* v___x_9738_; 
-v___x_9736_ = lean_st_ref_set(v___y_9707_, v___x_9735_);
+v___x_9736_ = lean_st_ref_put(v___y_9707_, v___x_9735_);
 v___x_9737_ = lean_box(0);
 v___x_9738_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_9738_, 0, v___x_9737_);
@@ -33337,7 +33337,7 @@ goto v_reusejp_10507_;
 v_reusejp_10507_:
 {
 lean_object* v___x_10509_; lean_object* v___x_10510_; lean_object* v___x_10512_; 
-v___x_10509_ = lean_st_ref_set(v___y_10470_, v___x_10508_);
+v___x_10509_ = lean_st_ref_put(v___y_10470_, v___x_10508_);
 v___x_10510_ = lean_box(0);
 if (v_isShared_10477_ == 0)
 {
@@ -33848,7 +33848,7 @@ goto v_reusejp_10650_;
 v_reusejp_10650_:
 {
 lean_object* v___x_10652_; lean_object* v___x_10653_; lean_object* v_mctx_10654_; lean_object* v_zetaDeltaFVarIds_10655_; lean_object* v_postponed_10656_; lean_object* v_diag_10657_; lean_object* v___x_10659_; uint8_t v_isShared_10660_; uint8_t v_isSharedCheck_10668_; 
-v___x_10652_ = lean_st_ref_set(v___y_10633_, v___x_10651_);
+v___x_10652_ = lean_st_ref_put(v___y_10633_, v___x_10651_);
 v___x_10653_ = lean_st_ref_take(v___y_10632_);
 v_mctx_10654_ = lean_ctor_get(v___x_10653_, 0);
 v_zetaDeltaFVarIds_10655_ = lean_ctor_get(v___x_10653_, 2);
@@ -33900,7 +33900,7 @@ goto v_reusejp_10662_;
 v_reusejp_10662_:
 {
 lean_object* v___x_10664_; lean_object* v___x_10665_; lean_object* v___x_10666_; 
-v___x_10664_ = lean_st_ref_set(v___y_10632_, v___x_10663_);
+v___x_10664_ = lean_st_ref_put(v___y_10632_, v___x_10663_);
 v___x_10665_ = lean_box(0);
 v___x_10666_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_10666_, 0, v___x_10665_);

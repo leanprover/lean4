@@ -37,7 +37,7 @@ lean_object* lean_st_ref_take(lean_object*);
 extern lean_object* l_Lean_Parser_Tactic_Doc_tacticDocExtExt;
 lean_object* l_Lean_TSyntax_getDocString(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 uint8_t l_Lean_Parser_Tactic_Doc_isTactic(lean_object*, lean_object*);
@@ -1589,7 +1589,7 @@ goto v_reusejp_305_;
 v_reusejp_305_:
 {
 lean_object* v___x_307_; lean_object* v___x_308_; lean_object* v___x_310_; 
-v___x_307_ = lean_st_ref_set(v___y_281_, v___x_306_);
+v___x_307_ = lean_st_ref_put(v___y_281_, v___x_306_);
 v___x_308_ = lean_box(0);
 if (v_isShared_279_ == 0)
 {
@@ -2259,7 +2259,7 @@ goto v_reusejp_559_;
 v_reusejp_559_:
 {
 lean_object* v___x_561_; lean_object* v___x_562_; lean_object* v___x_563_; 
-v___x_561_ = lean_st_ref_set(v___y_531_, v___x_560_);
+v___x_561_ = lean_st_ref_put(v___y_531_, v___x_560_);
 v___x_562_ = lean_box(0);
 v___x_563_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_563_, 0, v___x_562_);
@@ -7355,7 +7355,7 @@ goto v_reusejp_2221_;
 v_reusejp_2221_:
 {
 lean_object* v___x_2223_; lean_object* v___x_2224_; lean_object* v___x_2226_; 
-v___x_2223_ = lean_st_ref_set(v___y_2191_, v___x_2222_);
+v___x_2223_ = lean_st_ref_put(v___y_2191_, v___x_2222_);
 v___x_2224_ = lean_box(0);
 if (v_isShared_2198_ == 0)
 {

@@ -25,7 +25,7 @@ lean_object* l_Lean_Compiler_LCNF_LCtx_toLocalContext(lean_object*, uint8_t);
 double lean_float_of_nat(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
@@ -474,7 +474,7 @@ goto v_reusejp_68_;
 v_reusejp_68_:
 {
 lean_object* v___x_70_; lean_object* v___x_71_; lean_object* v___x_73_; 
-v___x_70_ = lean_st_ref_set(v___y_17_, v___x_69_);
+v___x_70_ = lean_st_ref_put(v___y_17_, v___x_69_);
 v___x_71_ = lean_box(0);
 if (v_isShared_27_ == 0)
 {

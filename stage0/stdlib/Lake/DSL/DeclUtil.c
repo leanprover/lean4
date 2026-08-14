@@ -34,7 +34,7 @@ lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_header(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_getCurrMacroScope___redArg(lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
@@ -1499,7 +1499,7 @@ goto v_reusejp_671_;
 v_reusejp_671_:
 {
 lean_object* v___x_673_; lean_object* v___x_674_; lean_object* v___x_676_; 
-v___x_673_ = lean_st_ref_set(v___y_641_, v___x_672_);
+v___x_673_ = lean_st_ref_put(v___y_641_, v___x_672_);
 v___x_674_ = lean_box(0);
 if (v_isShared_648_ == 0)
 {
@@ -2061,7 +2061,7 @@ goto v_reusejp_829_;
 v_reusejp_829_:
 {
 lean_object* v___x_831_; lean_object* v___x_832_; lean_object* v___x_833_; 
-v___x_831_ = lean_st_ref_set(v___y_796_, v___x_830_);
+v___x_831_ = lean_st_ref_put(v___y_796_, v___x_830_);
 v___x_832_ = lean_box(0);
 v___x_833_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_833_, 0, v___x_832_);

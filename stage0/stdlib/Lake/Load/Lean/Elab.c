@@ -80,7 +80,7 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 extern lean_object* l_Lean_persistentEnvExtensionsRef;
 lean_object* l_Lean_mkExtNameMap(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
@@ -1368,7 +1368,7 @@ lean_object* v___x_285_; lean_object* v___x_286_; lean_object* v___x_287_; lean_
 v___x_285_ = lean_st_ref_take(v___x_263_);
 lean_inc(v_a_281_);
 v___x_286_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Lake_importModulesUsingCache_spec__1___redArg(v___x_285_, v_imports_259_, v_a_281_);
-v___x_287_ = lean_st_ref_set(v___x_263_, v___x_286_);
+v___x_287_ = lean_st_ref_put(v___x_263_, v___x_286_);
 if (v_isShared_284_ == 0)
 {
 v___x_289_ = v___x_283_;

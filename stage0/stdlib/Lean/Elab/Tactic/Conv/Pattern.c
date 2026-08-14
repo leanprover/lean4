@@ -55,7 +55,7 @@ size_t lean_usize_mul(size_t, size_t);
 uint8_t lean_usize_dec_le(size_t, size_t);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_Conv_getRhs___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainGoal___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1552,7 +1552,7 @@ lean_dec(v_fst_396_);
 lean_del_object(v___x_394_);
 v___x_400_ = lean_st_ref_take(v_state_374_);
 v___x_401_ = l_Lean_Elab_Tactic_Conv_PatternMatchState_skip(v___x_400_);
-v___x_402_ = lean_st_ref_set(v_state_374_, v___x_401_);
+v___x_402_ = lean_st_ref_put(v_state_374_, v___x_401_);
 v___x_403_ = ((lean_object*)(l___private_Lean_Elab_Tactic_Conv_Pattern_0__Lean_Elab_Tactic_Conv_pre___closed__0));
 if (v_isShared_391_ == 0)
 {
@@ -1593,7 +1593,7 @@ lean_dec(v_a_409_);
 v___x_412_ = lean_st_ref_take(v_state_374_);
 v___x_413_ = l_Lean_Expr_mvarId_x21(v_snd_411_);
 v___x_414_ = l_Lean_Elab_Tactic_Conv_PatternMatchState_accept(v___x_413_, v___x_412_);
-v___x_415_ = lean_st_ref_set(v_state_374_, v___x_414_);
+v___x_415_ = lean_st_ref_put(v_state_374_, v___x_414_);
 v_sz_416_ = lean_array_size(v_snd_397_);
 v___x_417_ = ((size_t)0ULL);
 v___x_418_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Elab_Tactic_Conv_Pattern_0__Lean_Elab_Tactic_Conv_pre_spec__0___redArg(v_snd_397_, v_sz_416_, v___x_417_, v_snd_411_, v_a_379_, v_a_380_, v_a_381_, v_a_382_);
@@ -3420,7 +3420,7 @@ goto v_reusejp_1164_;
 v_reusejp_1164_:
 {
 lean_object* v___x_1166_; lean_object* v___x_1167_; lean_object* v___x_1168_; 
-v___x_1166_ = lean_st_ref_set(v___y_1137_, v___x_1165_);
+v___x_1166_ = lean_st_ref_put(v___y_1137_, v___x_1165_);
 v___x_1167_ = lean_box(0);
 v___x_1168_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1168_, 0, v___x_1167_);

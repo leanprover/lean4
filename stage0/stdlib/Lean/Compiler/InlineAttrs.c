@@ -33,7 +33,7 @@ lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 extern lean_object* l_Lean_unknownIdentifierMessageTag;
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
@@ -1883,7 +1883,7 @@ goto v_reusejp_562_;
 v_reusejp_562_:
 {
 lean_object* v___x_564_; lean_object* v___x_565_; lean_object* v___x_566_; 
-v___x_564_ = lean_st_ref_set(v___y_544_, v___x_563_);
+v___x_564_ = lean_st_ref_put(v___y_544_, v___x_563_);
 v___x_565_ = lean_box(0);
 v___x_566_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_566_, 0, v___x_565_);
@@ -2054,7 +2054,7 @@ goto v_reusejp_605_;
 v_reusejp_605_:
 {
 lean_object* v___x_607_; lean_object* v_r_608_; 
-v___x_607_ = lean_st_ref_set(v___y_585_, v___x_606_);
+v___x_607_ = lean_st_ref_put(v___y_585_, v___x_606_);
 lean_inc(v___y_585_);
 lean_inc_ref(v___y_584_);
 v_r_608_ = lean_apply_3(v_x_582_, v___y_584_, v___y_585_, lean_box(0));

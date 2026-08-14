@@ -70,7 +70,7 @@ uint8_t l_Lake_instOrdLogLevel_ord(uint8_t, uint8_t);
 uint8_t l_Lake_Log_maxLv(lean_object*);
 lean_object* lean_task_get_own(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_io_mono_ms_now();
 uint32_t lean_uint32_of_nat(lean_object*);
 lean_object* l_IO_sleep(uint32_t);
@@ -2524,7 +2524,7 @@ lean_object* v_jobs_866_; lean_object* v___x_867_; lean_object* v___x_868_; lean
 v_jobs_866_ = lean_ctor_get(v_a_863_, 0);
 v___x_867_ = lean_st_ref_take(v_jobs_866_);
 v___x_868_ = ((lean_object*)(l_Lake_mkBuildContext___closed__0));
-v___x_869_ = lean_st_ref_set(v_jobs_866_, v___x_868_);
+v___x_869_ = lean_st_ref_put(v_jobs_866_, v___x_868_);
 v_jobNo_870_ = lean_ctor_get(v_a_864_, 0);
 v_totalJobs_871_ = lean_ctor_get(v_a_864_, 1);
 v_wantsRebuild_872_ = lean_ctor_get_uint8(v_a_864_, sizeof(void*)*6);

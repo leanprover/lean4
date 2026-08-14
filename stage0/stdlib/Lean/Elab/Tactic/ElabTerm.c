@@ -35,7 +35,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainGoal___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_assert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -215,7 +215,7 @@ static const lean_string_object l_Lean_Elab_Tactic_closeMainGoalUsing___lam__0__
 static const lean_object* l_Lean_Elab_Tactic_closeMainGoalUsing___lam__0___closed__0 = (const lean_object*)&l_Lean_Elab_Tactic_closeMainGoalUsing___lam__0___closed__0_value;
 static lean_once_cell_t l_Lean_Elab_Tactic_closeMainGoalUsing___lam__0___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_closeMainGoalUsing___lam__0___closed__1;
-static const lean_string_object l_Lean_Elab_Tactic_closeMainGoalUsing___lam__0___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 40, .m_capacity = 40, .m_length = 39, .m_data = "\nthis is often due occurs-check failure"};
+static const lean_string_object l_Lean_Elab_Tactic_closeMainGoalUsing___lam__0___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 46, .m_capacity = 46, .m_length = 45, .m_data = "\nthis is often due to an occurs-check failure"};
 static const lean_object* l_Lean_Elab_Tactic_closeMainGoalUsing___lam__0___closed__2 = (const lean_object*)&l_Lean_Elab_Tactic_closeMainGoalUsing___lam__0___closed__2_value;
 static lean_once_cell_t l_Lean_Elab_Tactic_closeMainGoalUsing___lam__0___closed__3_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_closeMainGoalUsing___lam__0___closed__3;
@@ -1479,7 +1479,7 @@ goto v_reusejp_372_;
 v_reusejp_372_:
 {
 lean_object* v___x_374_; lean_object* v___x_375_; 
-v___x_374_ = lean_st_ref_set(v___y_355_, v___x_373_);
+v___x_374_ = lean_st_ref_put(v___y_355_, v___x_373_);
 v___x_375_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_375_, 0, v_fst_362_);
 return v___x_375_;
@@ -6085,7 +6085,7 @@ goto v_reusejp_2132_;
 v_reusejp_2132_:
 {
 lean_object* v___x_2134_; lean_object* v___x_2135_; lean_object* v___x_2136_; 
-v___x_2134_ = lean_st_ref_set(v___y_2105_, v___x_2133_);
+v___x_2134_ = lean_st_ref_put(v___y_2105_, v___x_2133_);
 v___x_2135_ = lean_box(0);
 v___x_2136_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2136_, 0, v___x_2135_);

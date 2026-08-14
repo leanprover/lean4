@@ -55,7 +55,7 @@ uint64_t l_Lean_Level_hash(lean_object*);
 lean_object* lean_task_get_own(lean_object*);
 lean_object* lean_io_promise_new();
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_promise_resolve(lean_object*, lean_object*);
 lean_object* l_IO_Promise_result_x21___redArg(lean_object*);
@@ -914,7 +914,7 @@ goto v_reusejp_158_;
 v_reusejp_158_:
 {
 lean_object* v___x_160_; lean_object* v___x_162_; 
-v___x_160_ = lean_st_ref_set(v___y_136_, v___x_159_);
+v___x_160_ = lean_st_ref_put(v___y_136_, v___x_159_);
 if (v_isShared_128_ == 0)
 {
 lean_ctor_set(v___x_127_, 0, v_finfo_135_);
@@ -4289,7 +4289,7 @@ goto v___jp_1352_;
 v___jp_1319_:
 {
 lean_object* v___x_1322_; 
-v___x_1322_ = lean_st_ref_set(v_realizeMapRef_1306_, v_snd_1321_);
+v___x_1322_ = lean_st_ref_put(v_realizeMapRef_1306_, v_snd_1321_);
 if (lean_obj_tag(v_fst_1320_) == 1)
 {
 lean_object* v_val_1323_; lean_object* v___x_1325_; uint8_t v_isShared_1326_; uint8_t v_isSharedCheck_1331_; 
@@ -6333,7 +6333,7 @@ goto v_reusejp_1947_;
 v_reusejp_1947_:
 {
 lean_object* v___x_1949_; lean_object* v___x_1951_; 
-v___x_1949_ = lean_st_ref_set(v___y_1925_, v___x_1948_);
+v___x_1949_ = lean_st_ref_put(v___y_1925_, v___x_1948_);
 if (v_isShared_1922_ == 0)
 {
 lean_ctor_set(v___x_1921_, 0, v_finfo_1924_);

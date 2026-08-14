@@ -54,7 +54,7 @@ size_t lean_usize_shift_right(size_t, size_t);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_addCore___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkSimpExt(lean_object*);
@@ -612,7 +612,7 @@ goto v_reusejp_44_;
 v_reusejp_44_:
 {
 lean_object* v___x_46_; lean_object* v___x_47_; lean_object* v_mctx_48_; lean_object* v_zetaDeltaFVarIds_49_; lean_object* v_postponed_50_; lean_object* v_diag_51_; lean_object* v___x_53_; uint8_t v_isShared_54_; uint8_t v_isSharedCheck_62_; 
-v___x_46_ = lean_st_ref_set(v___y_27_, v___x_45_);
+v___x_46_ = lean_st_ref_put(v___y_27_, v___x_45_);
 v___x_47_ = lean_st_ref_take(v___y_25_);
 v_mctx_48_ = lean_ctor_get(v___x_47_, 0);
 v_zetaDeltaFVarIds_49_ = lean_ctor_get(v___x_47_, 2);
@@ -664,7 +664,7 @@ goto v_reusejp_56_;
 v_reusejp_56_:
 {
 lean_object* v___x_58_; lean_object* v___x_59_; lean_object* v___x_60_; 
-v___x_58_ = lean_st_ref_set(v___y_25_, v___x_57_);
+v___x_58_ = lean_st_ref_put(v___y_25_, v___x_57_);
 v___x_59_ = lean_box(0);
 v___x_60_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_60_, 0, v___x_59_);
@@ -3495,7 +3495,7 @@ goto v_reusejp_1062_;
 v_reusejp_1062_:
 {
 lean_object* v___x_1064_; lean_object* v___x_1065_; lean_object* v___x_1066_; 
-v___x_1064_ = lean_st_ref_set(v___y_1042_, v___x_1063_);
+v___x_1064_ = lean_st_ref_put(v___y_1042_, v___x_1063_);
 v___x_1065_ = lean_box(0);
 v___x_1066_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1066_, 0, v___x_1065_);
@@ -4191,7 +4191,7 @@ goto v_reusejp_1281_;
 v_reusejp_1281_:
 {
 lean_object* v___x_1283_; lean_object* v___x_1284_; lean_object* v___x_1286_; 
-v___x_1283_ = lean_st_ref_set(v___y_1245_, v___x_1282_);
+v___x_1283_ = lean_st_ref_put(v___y_1245_, v___x_1282_);
 v___x_1284_ = lean_box(0);
 if (v_isShared_1265_ == 0)
 {
@@ -4995,7 +4995,7 @@ v___x_1604_ = l_Lean_Meta_simpExtensionMapRef;
 v___x_1605_ = lean_st_ref_take(v___x_1604_);
 lean_inc(v_a_1599_);
 v___x_1606_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_Meta_registerSimpAttr_spec__0___redArg(v___x_1605_, v_attrName_1594_, v_a_1599_);
-v___x_1607_ = lean_st_ref_set(v___x_1604_, v___x_1606_);
+v___x_1607_ = lean_st_ref_put(v___x_1604_, v___x_1606_);
 if (v_isShared_1603_ == 0)
 {
 lean_ctor_set(v___x_1602_, 0, v_a_1599_);

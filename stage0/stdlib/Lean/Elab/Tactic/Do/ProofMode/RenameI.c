@@ -34,7 +34,7 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*)
 uint8_t lean_usize_dec_le(size_t, size_t);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_toExpr(lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
@@ -517,7 +517,7 @@ v___x_226_ = l_Lean_Expr_mvarId_x21(v_a_221_);
 v___x_227_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_227_, 0, v___x_226_);
 lean_ctor_set(v___x_227_, 1, v___x_225_);
-v___x_228_ = lean_st_ref_set(v_val_207_, v___x_227_);
+v___x_228_ = lean_st_ref_put(v_val_207_, v___x_227_);
 v___x_229_ = lean_box(0);
 v___x_230_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_230_, 0, v___x_229_);
@@ -1207,7 +1207,7 @@ goto v_reusejp_435_;
 v_reusejp_435_:
 {
 lean_object* v___x_437_; lean_object* v___x_438_; lean_object* v___x_439_; 
-v___x_437_ = lean_st_ref_set(v___y_408_, v___x_436_);
+v___x_437_ = lean_st_ref_put(v___y_408_, v___x_436_);
 v___x_438_ = lean_box(0);
 v___x_439_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_439_, 0, v___x_438_);

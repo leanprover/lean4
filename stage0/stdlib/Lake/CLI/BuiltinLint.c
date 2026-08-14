@@ -92,7 +92,7 @@ lean_object* l_Lean_Linter_EnvLinter_getDeclsInPackage___redArg(lean_object*, le
 extern lean_object* l_Lean_maxRecDepth;
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Kernel_enableDiag(lean_object*, uint8_t);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_Kernel_isDiagnosticsEnabled(lean_object*);
 uint8_t l_Lean_Linter_isLinterEnabledByOptions(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -7418,7 +7418,7 @@ goto v_reusejp_2411_;
 v_reusejp_2411_:
 {
 lean_object* v___x_2413_; 
-v___x_2413_ = lean_st_ref_set(v___y_2396_, v___x_2412_);
+v___x_2413_ = lean_st_ref_put(v___y_2396_, v___x_2412_);
 lean_inc(v___y_2396_);
 v___y_2366_ = v___f_2314_;
 v___y_2367_ = v___y_2389_;
@@ -13635,7 +13635,7 @@ goto v_reusejp_4307_;
 v_reusejp_4307_:
 {
 lean_object* v___x_4309_; 
-v___x_4309_ = lean_st_ref_set(v___x_4120_, v___x_4308_);
+v___x_4309_ = lean_st_ref_put(v___x_4120_, v___x_4308_);
 lean_inc(v___x_4120_);
 v_fileName_4264_ = v___x_4209_;
 v_fileMap_4265_ = v___x_4210_;

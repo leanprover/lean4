@@ -72,7 +72,7 @@ lean_object* l_Lean_PersistentHashMap_empty(lean_object*, lean_object*, lean_obj
 extern lean_object* l___private_Lean_ExtraModUses_0__Lean_extraModUses;
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_instHashableExtraModUse_hash(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
@@ -1261,7 +1261,7 @@ goto v_reusejp_277_;
 v_reusejp_277_:
 {
 lean_object* v___x_279_; lean_object* v___x_280_; lean_object* v___x_282_; 
-v___x_279_ = lean_st_ref_set(v___y_226_, v___x_278_);
+v___x_279_ = lean_st_ref_put(v___y_226_, v___x_278_);
 v___x_280_ = lean_box(0);
 if (v_isShared_236_ == 0)
 {
@@ -1590,7 +1590,7 @@ goto v_reusejp_412_;
 v_reusejp_412_:
 {
 lean_object* v___x_414_; lean_object* v___x_415_; 
-v___x_414_ = lean_st_ref_set(v_a_393_, v___x_413_);
+v___x_414_ = lean_st_ref_put(v_a_393_, v___x_413_);
 lean_inc_ref(v_decl_389_);
 v___x_415_ = l___private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_shouldExportBody(v_pu_387_, v_decl_389_, v_a_390_, v_a_391_, v_a_392_, v_a_393_);
 if (lean_obj_tag(v___x_415_) == 0)
@@ -1793,7 +1793,7 @@ goto v_reusejp_448_;
 v_reusejp_448_:
 {
 lean_object* v___x_450_; lean_object* v___x_451_; 
-v___x_450_ = lean_st_ref_set(v___y_434_, v___x_449_);
+v___x_450_ = lean_st_ref_put(v___y_434_, v___x_449_);
 v___x_451_ = l_Lean_Compiler_LCNF_DeclValue_forCodeM___at___00Lean_Compiler_LCNF_markDeclPublicRec_spec__2___redArg(v___f_429_, v_value_408_, v___y_431_, v___y_432_, v___y_433_, v___y_434_);
 return v___x_451_;
 }
@@ -4545,7 +4545,7 @@ goto v_reusejp_1336_;
 v_reusejp_1336_:
 {
 lean_object* v___x_1338_; lean_object* v___x_1339_; lean_object* v___x_1340_; lean_object* v___x_1341_; 
-v___x_1338_ = lean_st_ref_set(v___y_1321_, v___x_1337_);
+v___x_1338_ = lean_st_ref_put(v___y_1321_, v___x_1337_);
 v___x_1339_ = lean_box(0);
 v___x_1340_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1340_, 0, v___x_1339_);
@@ -4781,7 +4781,7 @@ goto v_reusejp_1412_;
 v_reusejp_1412_:
 {
 lean_object* v___x_1414_; lean_object* v___x_1415_; lean_object* v___f_1416_; lean_object* v_r_1417_; 
-v___x_1414_ = lean_st_ref_set(v___y_1392_, v___x_1413_);
+v___x_1414_ = lean_st_ref_put(v___y_1392_, v___x_1413_);
 v___x_1415_ = lean_box(v_isExporting_1396_);
 v___f_1416_ = lean_alloc_closure((void*)(l_Lean_withExporting___at___00__private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_checkTemplateVisibility_go_spec__3___redArg___lam__0___boxed), 9, 2);
 lean_closure_set(v___f_1416_, 0, v___x_1415_);
@@ -5331,7 +5331,7 @@ goto v_reusejp_1582_;
 v_reusejp_1582_:
 {
 lean_object* v___x_1584_; lean_object* v___x_1585_; lean_object* v___x_1586_; lean_object* v___x_1588_; 
-v___x_1584_ = lean_st_ref_set(v___y_1531_, v___x_1583_);
+v___x_1584_ = lean_st_ref_put(v___y_1531_, v___x_1583_);
 v___x_1585_ = lean_box(0);
 v___x_1586_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1586_, 0, v___x_1585_);
@@ -5868,7 +5868,7 @@ goto v_reusejp_1731_;
 v_reusejp_1731_:
 {
 lean_object* v___x_1733_; lean_object* v___x_1734_; lean_object* v___x_1735_; lean_object* v___x_1736_; 
-v___x_1733_ = lean_st_ref_set(v___y_1714_, v___x_1732_);
+v___x_1733_ = lean_st_ref_put(v___y_1714_, v___x_1732_);
 v___x_1734_ = lean_box(0);
 v___x_1735_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1735_, 0, v___x_1734_);

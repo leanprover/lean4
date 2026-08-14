@@ -29,7 +29,7 @@ lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_fi
 lean_object* l_Lean_isRec___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* l_Lean_MapDeclarationExtension_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DeclarationRange_0__Lean_initFn_00___x40_Lean_DeclarationRange_3757377111____hygCtx___hyg_2_();
@@ -204,7 +204,7 @@ lean_object* v___x_57_; lean_object* v___x_58_; lean_object* v___x_59_; lean_obj
 v___x_57_ = l_Lean_builtinDeclRanges;
 v___x_58_ = lean_st_ref_take(v___x_57_);
 v___x_59_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(v_declName_54_, v_declRanges_55_, v___x_58_);
-v___x_60_ = lean_st_ref_set(v___x_57_, v___x_59_);
+v___x_60_ = lean_st_ref_put(v___x_57_, v___x_59_);
 v___x_61_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_61_, 0, v___x_60_);
 return v___x_61_;

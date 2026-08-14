@@ -65,7 +65,7 @@ lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
@@ -795,7 +795,7 @@ lean_object* v___x_193_; lean_object* v___x_194_; lean_object* v___x_195_; lean_
 v___x_193_ = l_Lean_Doc_DeferredCheck_builtinHandlers;
 v___x_194_ = lean_st_ref_take(v___x_193_);
 v___x_195_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(v_key_190_, v_impl_191_, v___x_194_);
-v___x_196_ = lean_st_ref_set(v___x_193_, v___x_195_);
+v___x_196_ = lean_st_ref_put(v___x_193_, v___x_195_);
 v___x_197_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_197_, 0, v___x_196_);
 return v___x_197_;
@@ -1411,7 +1411,7 @@ goto v_reusejp_428_;
 v_reusejp_428_:
 {
 lean_object* v___x_430_; lean_object* v___x_431_; lean_object* v___x_432_; 
-v___x_430_ = lean_st_ref_set(v___y_409_, v___x_429_);
+v___x_430_ = lean_st_ref_put(v___y_409_, v___x_429_);
 v___x_431_ = lean_box(0);
 v___x_432_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_432_, 0, v___x_431_);

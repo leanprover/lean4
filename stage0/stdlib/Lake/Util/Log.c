@@ -45,7 +45,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Array_shrink___redArg(lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 lean_object* l_Array_extract___redArg(lean_object*, lean_object*, lean_object*);
@@ -10757,7 +10757,7 @@ _start:
 lean_object* v___x_3921_; lean_object* v___x_3922_; lean_object* v___x_3923_; 
 v___x_3921_ = lean_st_ref_take(v_val_3918_);
 v___x_3922_ = lean_array_push(v___x_3921_, v_e_3919_);
-v___x_3923_ = lean_st_ref_set(v_val_3918_, v___x_3922_);
+v___x_3923_ = lean_st_ref_put(v_val_3918_, v___x_3922_);
 return v___x_3923_;
 }
 }

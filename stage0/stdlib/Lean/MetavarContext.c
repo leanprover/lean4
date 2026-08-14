@@ -49,7 +49,7 @@ uint8_t l_Lean_Expr_isMVar(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_runST___redArg(lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 uint64_t l_Lean_instHashableMVarId_hash(lean_object*);
@@ -5821,7 +5821,7 @@ lean_inc(v_snd_1860_);
 lean_dec_ref(v___x_1858_);
 v___x_1861_ = lean_st_ref_take(v___y_1855_);
 lean_dec(v___x_1861_);
-v___x_1862_ = lean_st_ref_set(v___y_1855_, v_fst_1859_);
+v___x_1862_ = lean_st_ref_put(v___y_1855_, v_fst_1859_);
 return v_snd_1860_;
 }
 }

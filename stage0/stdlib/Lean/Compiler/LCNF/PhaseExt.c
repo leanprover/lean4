@@ -68,7 +68,7 @@ lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___redArg(lean_object
 lean_object* l_Lean_PersistentEnvExtension_getModuleIREntries___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getPhase___redArg(lean_object*);
 lean_object* l_Lean_registerEnvExtension___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtension_modifyState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -588,7 +588,7 @@ LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___00Lean_throwErro
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Compiler_LCNF_getDeclAt_x3f_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Compiler_LCNF_getDeclAt_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Compiler_LCNF_getDeclAt_x3f_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static const lean_string_object l_Lean_Compiler_LCNF_getDeclAt_x3f___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 67, .m_capacity = 67, .m_length = 66, .m_data = "Internal compiler error: getDecl\? on impure is unuspported for now"};
+static const lean_string_object l_Lean_Compiler_LCNF_getDeclAt_x3f___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 67, .m_capacity = 67, .m_length = 66, .m_data = "Internal compiler error: getDecl\? on impure is unsupported for now"};
 static const lean_object* l_Lean_Compiler_LCNF_getDeclAt_x3f___closed__0 = (const lean_object*)&l_Lean_Compiler_LCNF_getDeclAt_x3f___closed__0_value;
 static lean_once_cell_t l_Lean_Compiler_LCNF_getDeclAt_x3f___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Compiler_LCNF_getDeclAt_x3f___closed__1;
@@ -5543,7 +5543,7 @@ goto v_reusejp_1952_;
 v_reusejp_1952_:
 {
 lean_object* v___x_1954_; lean_object* v___x_1955_; lean_object* v___x_1956_; 
-v___x_1954_ = lean_st_ref_set(v_a_1936_, v___x_1953_);
+v___x_1954_ = lean_st_ref_put(v_a_1936_, v___x_1953_);
 v___x_1955_ = lean_box(0);
 v___x_1956_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1956_, 0, v___x_1955_);
@@ -5648,7 +5648,7 @@ goto v_reusejp_1991_;
 v_reusejp_1991_:
 {
 lean_object* v___x_1993_; lean_object* v___x_1994_; lean_object* v___x_1995_; 
-v___x_1993_ = lean_st_ref_set(v_a_1975_, v___x_1992_);
+v___x_1993_ = lean_st_ref_put(v_a_1975_, v___x_1992_);
 v___x_1994_ = lean_box(0);
 v___x_1995_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1995_, 0, v___x_1994_);
@@ -5753,7 +5753,7 @@ goto v_reusejp_2030_;
 v_reusejp_2030_:
 {
 lean_object* v___x_2032_; lean_object* v___x_2033_; lean_object* v___x_2034_; 
-v___x_2032_ = lean_st_ref_set(v_a_2014_, v___x_2031_);
+v___x_2032_ = lean_st_ref_put(v_a_2014_, v___x_2031_);
 v___x_2033_ = lean_box(0);
 v___x_2034_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2034_, 0, v___x_2033_);

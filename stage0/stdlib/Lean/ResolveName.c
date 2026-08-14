@@ -133,7 +133,7 @@ uint8_t l_Lean_Environment_isNamespace(lean_object*, lean_object*);
 uint8_t l_Lean_initializing();
 lean_object* lean_mk_io_user_error(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_OptionT_instAlternative___redArg(lean_object*);
 lean_object* l_OptionT_instMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -839,7 +839,7 @@ lean_object* v___x_78_; lean_object* v___x_79_; lean_object* v___x_80_; lean_obj
 v___x_78_ = l_Lean_reservedNamePredicatesRef;
 v___x_79_ = lean_st_ref_take(v___x_78_);
 v___x_80_ = lean_array_push(v___x_79_, v_p_73_);
-v___x_81_ = lean_st_ref_set(v___x_78_, v___x_80_);
+v___x_81_ = lean_st_ref_put(v___x_78_, v___x_80_);
 v___x_82_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_82_, 0, v___x_81_);
 return v___x_82_;

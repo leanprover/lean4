@@ -16,7 +16,7 @@ extern "C" {
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 extern lean_object* l_Lean_searchPathRef;
 lean_object* l_Lake_Env_leanSearchPath(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_swap(lean_object*, lean_object*);
 lean_object* l_Lake_loadLakeConfig(lean_object*, lean_object*);
 lean_object* l_Lake_resolveConfigFile(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_loadConfigFile___redArg(lean_object*, lean_object*);
@@ -952,9 +952,9 @@ goto v___jp_216_;
 v___jp_205_:
 {
 lean_object* v___x_209_; lean_object* v___x_211_; 
-v___x_209_ = lean_nat_add(v___y_206_, v___y_208_);
+v___x_209_ = lean_nat_add(v___y_207_, v___y_208_);
 lean_dec(v___y_208_);
-lean_dec(v___y_206_);
+lean_dec(v___y_207_);
 if (v_isShared_202_ == 0)
 {
 lean_ctor_set(v___x_201_, 4, v_r_179_);
@@ -983,7 +983,7 @@ lean_object* v___x_213_;
 if (v_isShared_190_ == 0)
 {
 lean_ctor_set(v___x_189_, 4, v___x_211_);
-lean_ctor_set(v___x_189_, 3, v___y_207_);
+lean_ctor_set(v___x_189_, 3, v___y_206_);
 lean_ctor_set(v___x_189_, 2, v_v_193_);
 lean_ctor_set(v___x_189_, 1, v_k_192_);
 lean_ctor_set(v___x_189_, 0, v___x_204_);
@@ -997,7 +997,7 @@ v_reuseFailAlloc_214_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_214_, 0, v___x_204_);
 lean_ctor_set(v_reuseFailAlloc_214_, 1, v_k_192_);
 lean_ctor_set(v_reuseFailAlloc_214_, 2, v_v_193_);
-lean_ctor_set(v_reuseFailAlloc_214_, 3, v___y_207_);
+lean_ctor_set(v_reuseFailAlloc_214_, 3, v___y_206_);
 lean_ctor_set(v_reuseFailAlloc_214_, 4, v___x_211_);
 v___x_213_ = v_reuseFailAlloc_214_;
 goto v_reusejp_212_;
@@ -1042,8 +1042,8 @@ if (lean_obj_tag(v_r_195_) == 0)
 lean_object* v_size_222_; 
 v_size_222_ = lean_ctor_get(v_r_195_, 0);
 lean_inc(v_size_222_);
-v___y_206_ = v___x_221_;
-v___y_207_ = v___x_220_;
+v___y_206_ = v___x_220_;
+v___y_207_ = v___x_221_;
 v___y_208_ = v_size_222_;
 goto v___jp_205_;
 }
@@ -1051,8 +1051,8 @@ else
 {
 lean_object* v___x_223_; 
 v___x_223_ = lean_unsigned_to_nat(0u);
-v___y_206_ = v___x_221_;
-v___y_207_ = v___x_220_;
+v___y_206_ = v___x_220_;
+v___y_207_ = v___x_221_;
 v___y_208_ = v___x_223_;
 goto v___jp_205_;
 }
@@ -1498,7 +1498,8 @@ v_resetjp_332_:
 lean_object* v___x_335_; lean_object* v___x_336_; lean_object* v___x_337_; lean_object* v___x_338_; 
 v___x_335_ = l_Lean_searchPathRef;
 v___x_336_ = l_Lake_Env_leanSearchPath(v_lakeEnv_314_);
-v___x_337_ = lean_st_ref_set(v___x_335_, v___x_336_);
+v___x_337_ = lean_st_ref_swap(v___x_335_, v___x_336_);
+lean_dec(v___x_337_);
 lean_inc_ref(v_lakeEnv_314_);
 v___x_338_ = l_Lake_loadLakeConfig(v_lakeEnv_314_, v_a_312_);
 if (lean_obj_tag(v___x_338_) == 0)

@@ -56,7 +56,7 @@ lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeImp(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_Simp_simp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Lean_Meta_Sym_Simp_Lambda_0__Lean_Meta_Sym_Simp_mkFunextFor___lam__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "lift"};
@@ -1738,7 +1738,7 @@ goto v_reusejp_707_;
 v_reusejp_707_:
 {
 lean_object* v___x_709_; lean_object* v___x_711_; 
-v___x_709_ = lean_st_ref_set(v_a_673_, v___x_708_);
+v___x_709_ = lean_st_ref_put(v_a_673_, v___x_708_);
 if (v_isShared_697_ == 0)
 {
 v___x_711_ = v___x_696_;
@@ -2537,7 +2537,7 @@ goto v_reusejp_1049_;
 v_reusejp_1049_:
 {
 lean_object* v___x_1051_; lean_object* v___x_1052_; lean_object* v___x_1053_; 
-v___x_1051_ = lean_st_ref_set(v___y_1038_, v___x_1050_);
+v___x_1051_ = lean_st_ref_put(v___y_1038_, v___x_1050_);
 v___x_1052_ = lean_box(0);
 v___x_1053_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1053_, 0, v___x_1052_);

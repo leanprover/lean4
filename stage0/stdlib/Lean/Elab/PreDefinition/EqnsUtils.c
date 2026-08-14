@@ -56,7 +56,7 @@ uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Kernel_enableDiag(lean_object*, uint8_t);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_Kernel_isDiagnosticsEnabled(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Eqns_simpMatch_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Eqns_simpMatch_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -899,7 +899,7 @@ goto v_reusejp_225_;
 v_reusejp_225_:
 {
 lean_object* v___x_227_; 
-v___x_227_ = lean_st_ref_set(v_a_148_, v___x_226_);
+v___x_227_ = lean_st_ref_put(v_a_148_, v___x_226_);
 v_fileName_179_ = v_fileName_157_;
 v_fileMap_180_ = v_fileMap_158_;
 v_currRecDepth_181_ = v_currRecDepth_160_;

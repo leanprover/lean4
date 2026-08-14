@@ -57,7 +57,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
@@ -1081,7 +1081,7 @@ goto v_reusejp_264_;
 v_reusejp_264_:
 {
 lean_object* v___x_266_; lean_object* v___x_267_; lean_object* v___x_268_; 
-v___x_266_ = lean_st_ref_set(v_a_251_, v___x_265_);
+v___x_266_ = lean_st_ref_put(v_a_251_, v___x_265_);
 v___x_267_ = lean_box(0);
 v___x_268_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_268_, 0, v___x_267_);
@@ -1547,7 +1547,7 @@ goto v_reusejp_450_;
 v_reusejp_450_:
 {
 lean_object* v___x_452_; lean_object* v___x_453_; lean_object* v___x_455_; 
-v___x_452_ = lean_st_ref_set(v_a_405_, v___x_451_);
+v___x_452_ = lean_st_ref_put(v_a_405_, v___x_451_);
 v___x_453_ = lean_box(0);
 if (v_isShared_437_ == 0)
 {
@@ -2157,7 +2157,7 @@ goto v_reusejp_606_;
 v_reusejp_606_:
 {
 lean_object* v___x_608_; lean_object* v___x_609_; lean_object* v___x_611_; 
-v___x_608_ = lean_st_ref_set(v_a_575_, v___x_607_);
+v___x_608_ = lean_st_ref_put(v_a_575_, v___x_607_);
 v___x_609_ = lean_box(0);
 if (v_isShared_593_ == 0)
 {
@@ -2497,7 +2497,7 @@ goto v_reusejp_731_;
 v_reusejp_731_:
 {
 lean_object* v___x_733_; lean_object* v___x_734_; lean_object* v___x_736_; 
-v___x_733_ = lean_st_ref_set(v_a_691_, v___x_732_);
+v___x_733_ = lean_st_ref_put(v_a_691_, v___x_732_);
 v___x_734_ = lean_box(0);
 if (v_isShared_721_ == 0)
 {
@@ -3281,7 +3281,7 @@ goto v_reusejp_983_;
 v_reusejp_983_:
 {
 lean_object* v___x_985_; 
-v___x_985_ = lean_st_ref_set(v___y_948_, v___x_984_);
+v___x_985_ = lean_st_ref_put(v___y_948_, v___x_984_);
 v_a_952_ = v___x_967_;
 goto v___jp_951_;
 }
@@ -4637,7 +4637,7 @@ goto v_reusejp_1520_;
 v_reusejp_1520_:
 {
 lean_object* v___x_1522_; lean_object* v___x_1523_; lean_object* v___x_1525_; 
-v___x_1522_ = lean_st_ref_set(v_a_1471_, v___x_1521_);
+v___x_1522_ = lean_st_ref_put(v_a_1471_, v___x_1521_);
 v___x_1523_ = lean_box(0);
 if (v_isShared_1505_ == 0)
 {
@@ -5514,7 +5514,7 @@ v___x_1898_ = lean_st_ref_take(v_a_1888_);
 v___x_1899_ = lean_box(0);
 lean_inc_ref(v_e_1887_);
 v___x_1900_ = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00Lean_Meta_Try_Collector_visit_spec__2___redArg(v___x_1898_, v_e_1887_, v___x_1899_);
-v___x_1901_ = lean_st_ref_set(v_a_1888_, v___x_1900_);
+v___x_1901_ = lean_st_ref_put(v_a_1888_, v___x_1900_);
 switch(lean_obj_tag(v_e_1887_))
 {
 case 4:

@@ -83,7 +83,7 @@ lean_object* l_Lean_ScopedEnvExtension_addCore___redArg(lean_object*, lean_objec
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Attribute_Builtin_ensureNoArgs(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -472,7 +472,7 @@ static const lean_string_object l___private_Lean_ReducibilityAttrs_0__Lean_valid
 static const lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___lam__0___closed__22 = (const lean_object*)&l___private_Lean_ReducibilityAttrs_0__Lean_validate___lam__0___closed__22_value;
 static lean_once_cell_t l___private_Lean_ReducibilityAttrs_0__Lean_validate___lam__0___closed__23_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___lam__0___closed__23;
-static const lean_string_object l___private_Lean_ReducibilityAttrs_0__Lean_validate___lam__0___closed__24_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 111, .m_capacity = 111, .m_length = 110, .m_data = "`, recall that `[reducible]` affects the term indexing datastructures used by `simp` and type class resolution"};
+static const lean_string_object l___private_Lean_ReducibilityAttrs_0__Lean_validate___lam__0___closed__24_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 112, .m_capacity = 112, .m_length = 111, .m_data = "`, recall that `[reducible]` affects the term indexing data structures used by `simp` and type class resolution"};
 static const lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___lam__0___closed__24 = (const lean_object*)&l___private_Lean_ReducibilityAttrs_0__Lean_validate___lam__0___closed__24_value;
 static lean_once_cell_t l___private_Lean_ReducibilityAttrs_0__Lean_validate___lam__0___closed__25_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___lam__0___closed__25;
@@ -5969,7 +5969,7 @@ goto v_reusejp_1851_;
 v_reusejp_1851_:
 {
 lean_object* v___x_1853_; lean_object* v___x_1854_; lean_object* v___x_1855_; 
-v___x_1853_ = lean_st_ref_set(v___y_1833_, v___x_1852_);
+v___x_1853_ = lean_st_ref_put(v___y_1833_, v___x_1852_);
 v___x_1854_ = lean_box(0);
 v___x_1855_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1855_, 0, v___x_1854_);
@@ -6140,7 +6140,7 @@ goto v_reusejp_1894_;
 v_reusejp_1894_:
 {
 lean_object* v___x_1896_; lean_object* v_r_1897_; 
-v___x_1896_ = lean_st_ref_set(v___y_1874_, v___x_1895_);
+v___x_1896_ = lean_st_ref_put(v___y_1874_, v___x_1895_);
 lean_inc(v___y_1874_);
 lean_inc_ref(v___y_1873_);
 v_r_1897_ = lean_apply_3(v_x_1871_, v___y_1873_, v___y_1874_, lean_box(0));
@@ -6621,7 +6621,7 @@ goto v_reusejp_2121_;
 v_reusejp_2121_:
 {
 lean_object* v___x_2123_; lean_object* v___x_2124_; lean_object* v___x_2126_; 
-v___x_2123_ = lean_st_ref_set(v_a_2099_, v___x_2122_);
+v___x_2123_ = lean_st_ref_put(v_a_2099_, v___x_2122_);
 v___x_2124_ = lean_box(0);
 if (v_isShared_2105_ == 0)
 {

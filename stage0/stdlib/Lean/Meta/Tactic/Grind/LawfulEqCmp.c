@@ -52,7 +52,7 @@ size_t lean_usize_sub(size_t, size_t);
 size_t lean_usize_mul(size_t, size_t);
 uint8_t lean_usize_dec_le(size_t, size_t);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_getBinOp(lean_object*);
 lean_object* l_Lean_Meta_Sym_getOrderingEqExpr___redArg(lean_object*);
 lean_object* l_Lean_Meta_Grind_isEqv___redArg(lean_object*, lean_object*, lean_object*);
@@ -1666,7 +1666,7 @@ goto v_reusejp_432_;
 v_reusejp_432_:
 {
 lean_object* v___x_434_; lean_object* v___x_436_; 
-v___x_434_ = lean_st_ref_set(v_a_395_, v___x_433_);
+v___x_434_ = lean_st_ref_put(v_a_395_, v___x_433_);
 if (v_isShared_416_ == 0)
 {
 v___x_436_ = v___x_415_;

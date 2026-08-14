@@ -55,7 +55,7 @@ lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_string_to_utf8(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_instToStringString___lam__0___boxed(lean_object*);
@@ -14507,7 +14507,7 @@ goto v_reusejp_4774_;
 v_reusejp_4774_:
 {
 lean_object* v___x_4776_; lean_object* v___x_4777_; 
-v___x_4776_ = lean_st_ref_set(v_r_4760_, v___x_4775_);
+v___x_4776_ = lean_st_ref_put(v_r_4760_, v___x_4775_);
 v___x_4777_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_4777_, 0, v_data_4771_);
 return v___x_4777_;
@@ -14578,7 +14578,7 @@ goto v_reusejp_4799_;
 v_reusejp_4799_:
 {
 lean_object* v___x_4801_; lean_object* v___x_4802_; 
-v___x_4801_ = lean_st_ref_set(v_r_4785_, v___x_4800_);
+v___x_4801_ = lean_st_ref_put(v_r_4785_, v___x_4800_);
 v___x_4802_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_4802_, 0, v___x_4801_);
 return v___x_4802_;
@@ -14650,7 +14650,7 @@ goto v_reusejp_4824_;
 v_reusejp_4824_:
 {
 lean_object* v___x_4826_; lean_object* v___x_4827_; 
-v___x_4826_ = lean_st_ref_set(v_r_4809_, v___x_4825_);
+v___x_4826_ = lean_st_ref_put(v_r_4809_, v___x_4825_);
 v___x_4827_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_4827_, 0, v___x_4826_);
 return v___x_4827_;
@@ -14812,7 +14812,7 @@ goto v_reusejp_4867_;
 v_reusejp_4867_:
 {
 lean_object* v___x_4869_; uint8_t v___x_4870_; 
-v___x_4869_ = lean_st_ref_set(v_r_4856_, v___x_4868_);
+v___x_4869_ = lean_st_ref_put(v_r_4856_, v___x_4868_);
 v___x_4870_ = lean_string_validate_utf8(v___x_4866_);
 if (v___x_4870_ == 0)
 {

@@ -75,7 +75,7 @@ lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_Meta_Sym_isClass_x3f(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingImp(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescope___at___00Lean_Meta_Sym_preprocessType_spec__0___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescope___at___00Lean_Meta_Sym_preprocessType_spec__0___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescope___at___00Lean_Meta_Sym_preprocessType_spec__0___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3023,7 +3023,7 @@ goto v_reusejp_1075_;
 v_reusejp_1075_:
 {
 lean_object* v___x_1077_; lean_object* v___x_1079_; 
-v___x_1077_ = lean_st_ref_set(v_a_1036_, v___x_1076_);
+v___x_1077_ = lean_st_ref_put(v_a_1036_, v___x_1076_);
 if (v_isShared_1057_ == 0)
 {
 v___x_1079_ = v___x_1056_;

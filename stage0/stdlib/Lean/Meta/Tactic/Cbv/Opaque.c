@@ -41,7 +41,7 @@ lean_object* l_Lean_registerSimpleScopedEnvExtension___redArg(lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_modifyState___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_hash___override___boxed(lean_object*);
 lean_object* l_Std_HashSet_instInhabited(lean_object*, lean_object*, lean_object*);
@@ -750,7 +750,7 @@ goto v_reusejp_198_;
 v_reusejp_198_:
 {
 lean_object* v___x_200_; lean_object* v___x_201_; lean_object* v___x_202_; 
-v___x_200_ = lean_st_ref_set(v___y_181_, v___x_199_);
+v___x_200_ = lean_st_ref_put(v___y_181_, v___x_199_);
 v___x_201_ = lean_box(0);
 v___x_202_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_202_, 0, v___x_201_);
@@ -1483,7 +1483,7 @@ goto v_reusejp_464_;
 v_reusejp_464_:
 {
 lean_object* v___x_466_; lean_object* v___x_467_; lean_object* v___x_468_; 
-v___x_466_ = lean_st_ref_set(v___y_440_, v___x_465_);
+v___x_466_ = lean_st_ref_put(v___y_440_, v___x_465_);
 v___x_467_ = lean_box(0);
 v___x_468_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_468_, 0, v___x_467_);

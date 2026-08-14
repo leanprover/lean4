@@ -62,7 +62,7 @@ lean_object* l_Lean_MapDeclarationExtension_find_x3f___redArg(lean_object*, lean
 uint8_t l_Lean_MapDeclarationExtension_contains___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_MapDeclarationExtension_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FunIndParamKind_ctorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_FunIndParamKind_ctorIdx___boxed(lean_object*);
@@ -2889,7 +2889,7 @@ goto v_reusejp_977_;
 v_reusejp_977_:
 {
 lean_object* v___x_979_; lean_object* v___x_980_; lean_object* v___x_981_; 
-v___x_979_ = lean_st_ref_set(v_a_955_, v___x_978_);
+v___x_979_ = lean_st_ref_put(v_a_955_, v___x_978_);
 v___x_980_ = lean_box(0);
 v___x_981_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_981_, 0, v___x_980_);

@@ -143,7 +143,7 @@ lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_fi
 lean_object* lean_st_ref_get(lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_backtrackExceptionId;
 uint8_t l_Lean_instBEqInternalExceptionId_beq(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_swap(lean_object*, lean_object*);
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
@@ -19558,7 +19558,8 @@ else
 {
 lean_object* v___x_7665_; lean_object* v___x_7666_; 
 lean_dec_ref_known(v___x_7658_, 1);
-v___x_7665_ = lean_st_ref_set(v_a_7653_, v___x_7657_);
+v___x_7665_ = lean_st_ref_swap(v_a_7653_, v___x_7657_);
+lean_dec(v___x_7665_);
 lean_inc(v_a_7655_);
 lean_inc_ref(v_a_7654_);
 lean_inc(v_a_7653_);
@@ -19656,7 +19657,8 @@ else
 {
 lean_object* v___x_7692_; lean_object* v___x_7693_; 
 lean_dec_ref_known(v___x_7685_, 1);
-v___x_7692_ = lean_st_ref_set(v_a_7680_, v___x_7684_);
+v___x_7692_ = lean_st_ref_swap(v_a_7680_, v___x_7684_);
+lean_dec(v___x_7692_);
 lean_inc(v_a_7682_);
 lean_inc_ref(v_a_7681_);
 lean_inc(v_a_7680_);
@@ -19909,7 +19911,8 @@ else
 {
 lean_object* v___x_7762_; lean_object* v___x_7763_; 
 lean_dec_ref_known(v___x_7755_, 1);
-v___x_7762_ = lean_st_ref_set(v_a_7750_, v___x_7754_);
+v___x_7762_ = lean_st_ref_swap(v_a_7750_, v___x_7754_);
+lean_dec(v___x_7762_);
 lean_inc(v_a_7752_);
 lean_inc_ref(v_a_7751_);
 lean_inc(v_a_7750_);
@@ -20007,7 +20010,8 @@ else
 {
 lean_object* v___x_7789_; lean_object* v___x_7790_; 
 lean_dec_ref_known(v___x_7782_, 1);
-v___x_7789_ = lean_st_ref_set(v_a_7777_, v___x_7781_);
+v___x_7789_ = lean_st_ref_swap(v_a_7777_, v___x_7781_);
+lean_dec(v___x_7789_);
 lean_inc(v_a_7779_);
 lean_inc_ref(v_a_7778_);
 lean_inc(v_a_7777_);

@@ -32,7 +32,7 @@ size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 extern lean_object* l_Lean_trace_profiler;
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -432,7 +432,7 @@ goto v_reusejp_60_;
 v_reusejp_60_:
 {
 lean_object* v___x_62_; lean_object* v___x_63_; 
-v___x_62_ = lean_st_ref_set(v___y_35_, v___x_61_);
+v___x_62_ = lean_st_ref_put(v___y_35_, v___x_61_);
 v___x_63_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_63_, 0, v_traces_39_);
 return v___x_63_;
@@ -1065,7 +1065,7 @@ goto v_reusejp_300_;
 v_reusejp_300_:
 {
 lean_object* v___x_302_; lean_object* v___x_303_; lean_object* v___x_305_; 
-v___x_302_ = lean_st_ref_set(v___y_246_, v___x_301_);
+v___x_302_ = lean_st_ref_put(v___y_246_, v___x_301_);
 v___x_303_ = lean_box(0);
 if (v_isShared_278_ == 0)
 {
@@ -1510,7 +1510,7 @@ goto v_reusejp_417_;
 v_reusejp_417_:
 {
 lean_object* v___x_419_; lean_object* v___x_420_; 
-v___x_419_ = lean_st_ref_set(v___y_364_, v___x_418_);
+v___x_419_ = lean_st_ref_put(v___y_364_, v___x_418_);
 v___x_420_ = l_MonadExcept_ofExcept___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Compiler_compile_spec__5_spec__7___redArg(v_fst_366_);
 return v___x_420_;
 }
@@ -2116,7 +2116,7 @@ goto v_reusejp_616_;
 v_reusejp_616_:
 {
 lean_object* v___x_618_; 
-v___x_618_ = lean_st_ref_set(v___y_469_, v___x_617_);
+v___x_618_ = lean_st_ref_put(v___y_469_, v___x_617_);
 v_fileName_573_ = v_fileName_472_;
 v_fileMap_574_ = v_fileMap_473_;
 v_currRecDepth_575_ = v_currRecDepth_475_;

@@ -68,7 +68,7 @@ lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_sp
 lean_object* l_Lean_Compiler_LCNF_Cases_getCtorNames___redArg(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
@@ -855,7 +855,7 @@ v_reusejp_179_:
 lean_object* v___x_181_; lean_object* v___x_182_; 
 lean_inc(v_fvarId_177_);
 v___x_181_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_177_, v___x_180_, v___x_176_);
-v___x_182_ = lean_st_ref_set(v_a_144_, v___x_181_);
+v___x_182_ = lean_st_ref_put(v_a_144_, v___x_181_);
 v___y_164_ = v_a_144_;
 v___y_165_ = v_a_145_;
 v___y_166_ = v_a_146_;
@@ -1063,7 +1063,7 @@ v_reusejp_217_:
 {
 lean_object* v___x_219_; lean_object* v___x_220_; lean_object* v___x_221_; lean_object* v___x_223_; 
 v___x_219_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_193_, v___x_218_, v___x_215_);
-v___x_220_ = lean_st_ref_set(v_a_144_, v___x_219_);
+v___x_220_ = lean_st_ref_put(v_a_144_, v___x_219_);
 v___x_221_ = lean_box(0);
 if (v_isShared_213_ == 0)
 {
@@ -5050,7 +5050,7 @@ lean_inc(v_snd_1426_);
 lean_dec(v_a_1423_);
 lean_inc(v_fvarId_1402_);
 v___x_1427_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_1402_, v_fst_1425_, v___x_1424_);
-v___x_1428_ = lean_st_ref_set(v_a_1395_, v___x_1427_);
+v___x_1428_ = lean_st_ref_put(v_a_1395_, v___x_1427_);
 v_fst_1429_ = lean_ctor_get(v_snd_1426_, 0);
 v_snd_1430_ = lean_ctor_get(v_snd_1426_, 1);
 v_isSharedCheck_1472_ = !lean_is_exclusive(v_snd_1426_);
@@ -6979,7 +6979,7 @@ goto v_reusejp_1915_;
 v_reusejp_1915_:
 {
 lean_object* v___x_1917_; lean_object* v___x_1918_; lean_object* v___x_1920_; 
-v___x_1917_ = lean_st_ref_set(v___y_1864_, v___x_1916_);
+v___x_1917_ = lean_st_ref_put(v___y_1864_, v___x_1916_);
 v___x_1918_ = lean_box(0);
 if (v_isShared_1874_ == 0)
 {

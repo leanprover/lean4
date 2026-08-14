@@ -52,7 +52,7 @@ lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_instBEqFVarId_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_instHashableFVarId_hash___boxed(lean_object*);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_eqv___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hash___boxed(lean_object*);
 static const lean_closure_object l___private_Lean_Meta_Tactic_BVDecide_Normalize_IntToBitVec_0__Lean_Meta_Tactic_BVDecide_Normalize_M_addSizeTerm___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Expr_eqv___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
@@ -338,7 +338,7 @@ goto v_reusejp_16_;
 v_reusejp_16_:
 {
 lean_object* v___x_18_; lean_object* v___x_19_; 
-v___x_18_ = lean_st_ref_set(v_a_4_, v___x_17_);
+v___x_18_ = lean_st_ref_put(v_a_4_, v___x_17_);
 v___x_19_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_19_, 0, v___x_14_);
 return v___x_19_;
@@ -403,7 +403,7 @@ goto v_reusejp_43_;
 v_reusejp_43_:
 {
 lean_object* v___x_45_; lean_object* v___x_46_; 
-v___x_45_ = lean_st_ref_set(v_a_27_, v___x_44_);
+v___x_45_ = lean_st_ref_put(v_a_27_, v___x_44_);
 v___x_46_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_46_, 0, v___x_41_);
 return v___x_46_;
@@ -472,7 +472,7 @@ goto v_reusejp_72_;
 v_reusejp_72_:
 {
 lean_object* v___x_74_; lean_object* v___x_75_; 
-v___x_74_ = lean_st_ref_set(v_a_60_, v___x_73_);
+v___x_74_ = lean_st_ref_put(v_a_60_, v___x_73_);
 v___x_75_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_75_, 0, v___x_70_);
 return v___x_75_;
@@ -537,7 +537,7 @@ goto v_reusejp_99_;
 v_reusejp_99_:
 {
 lean_object* v___x_101_; lean_object* v___x_102_; 
-v___x_101_ = lean_st_ref_set(v_a_83_, v___x_100_);
+v___x_101_ = lean_st_ref_put(v_a_83_, v___x_100_);
 v___x_102_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_102_, 0, v___x_97_);
 return v___x_102_;
@@ -1903,7 +1903,7 @@ _start:
 {
 lean_object* v___x_722_; lean_object* v_hypotheses_723_; lean_object* v___x_724_; lean_object* v___x_725_; size_t v_sz_726_; size_t v___x_727_; lean_object* v___x_728_; 
 v___x_722_ = lean_st_ref_get(v___y_711_);
-v_hypotheses_723_ = lean_ctor_get(v___x_722_, 5);
+v_hypotheses_723_ = lean_ctor_get(v___x_722_, 3);
 lean_inc_ref(v_hypotheses_723_);
 lean_dec(v___x_722_);
 v___x_724_ = lean_box(0);
@@ -3600,7 +3600,7 @@ _start:
 lean_object* v_config_1227_; lean_object* v___x_1228_; lean_object* v_target_1229_; lean_object* v___x_1230_; lean_object* v___x_1231_; lean_object* v___x_1232_; 
 v_config_1227_ = lean_ctor_get(v___y_1215_, 0);
 v___x_1228_ = lean_st_ref_get(v___y_1216_);
-v_target_1229_ = lean_ctor_get(v___x_1228_, 4);
+v_target_1229_ = lean_ctor_get(v___x_1228_, 2);
 lean_inc_ref(v_target_1229_);
 lean_dec(v___x_1228_);
 v___x_1230_ = l_Lean_Meta_Tactic_BVDecide_Normalize_Target_mvarId(v_target_1229_);

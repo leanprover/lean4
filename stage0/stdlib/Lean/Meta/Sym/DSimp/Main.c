@@ -53,7 +53,7 @@ lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Meta_Sym_instBEqExprPtr___lam__0___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_instHashableExprPtr___lam__0___boxed(lean_object*);
 lean_object* l_Lean_PersistentHashMap_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Core_checkSystem(lean_object*, lean_object*, lean_object*);
@@ -681,7 +681,7 @@ goto v_reusejp_222_;
 v_reusejp_222_:
 {
 lean_object* v___x_224_; lean_object* v___x_225_; 
-v___x_224_ = lean_st_ref_set(v_a_211_, v___x_223_);
+v___x_224_ = lean_st_ref_put(v_a_211_, v___x_223_);
 v___x_225_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_225_, 0, v_r_210_);
 return v___x_225_;
@@ -746,7 +746,7 @@ goto v_reusejp_254_;
 v_reusejp_254_:
 {
 lean_object* v___x_256_; lean_object* v___x_257_; 
-v___x_256_ = lean_st_ref_set(v_a_237_, v___x_255_);
+v___x_256_ = lean_st_ref_put(v_a_237_, v___x_255_);
 v___x_257_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_257_, 0, v_r_234_);
 return v___x_257_;
@@ -1639,7 +1639,7 @@ goto v_reusejp_594_;
 v_reusejp_594_:
 {
 lean_object* v___x_596_; lean_object* v___x_597_; 
-v___x_596_ = lean_st_ref_set(v___y_586_, v___x_595_);
+v___x_596_ = lean_st_ref_put(v___y_586_, v___x_595_);
 lean_dec(v___y_586_);
 v___x_597_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_597_, 0, v_r_585_);
@@ -1869,7 +1869,7 @@ goto v_reusejp_677_;
 v_reusejp_677_:
 {
 lean_object* v___x_679_; lean_object* v_pre_680_; lean_object* v___x_681_; 
-v___x_679_ = lean_st_ref_set(v___y_665_, v___x_678_);
+v___x_679_ = lean_st_ref_put(v___y_665_, v___x_678_);
 v_pre_680_ = lean_ctor_get(v___y_663_, 0);
 lean_inc_ref(v_pre_680_);
 lean_inc(v___y_671_);

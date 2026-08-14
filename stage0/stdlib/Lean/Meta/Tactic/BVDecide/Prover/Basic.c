@@ -40,7 +40,7 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 extern lean_object* l_Lean_trace_profiler;
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -1705,7 +1705,7 @@ goto v_reusejp_588_;
 v_reusejp_588_:
 {
 lean_object* v___x_590_; lean_object* v___x_591_; 
-v___x_590_ = lean_st_ref_set(v___y_563_, v___x_589_);
+v___x_590_ = lean_st_ref_put(v___y_563_, v___x_589_);
 v___x_591_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_591_, 0, v_traces_567_);
 return v___x_591_;
@@ -2135,7 +2135,7 @@ goto v_reusejp_758_;
 v_reusejp_758_:
 {
 lean_object* v___x_760_; lean_object* v___x_761_; lean_object* v___x_763_; 
-v___x_760_ = lean_st_ref_set(v___y_704_, v___x_759_);
+v___x_760_ = lean_st_ref_put(v___y_704_, v___x_759_);
 v___x_761_ = lean_box(0);
 if (v_isShared_736_ == 0)
 {
@@ -2598,7 +2598,7 @@ goto v_reusejp_885_;
 v_reusejp_885_:
 {
 lean_object* v___x_887_; lean_object* v___x_888_; 
-v___x_887_ = lean_st_ref_set(v___y_824_, v___x_886_);
+v___x_887_ = lean_st_ref_put(v___y_824_, v___x_886_);
 v___x_888_ = l_MonadExcept_ofExcept___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Meta_Tactic_BVDecide_closeWithBVReflection_spec__9_spec__13___redArg(v_fst_826_);
 return v___x_888_;
 }
@@ -3881,7 +3881,7 @@ goto v_reusejp_1326_;
 v_reusejp_1326_:
 {
 lean_object* v___x_1328_; lean_object* v___x_1329_; lean_object* v___x_1330_; 
-v___x_1328_ = lean_st_ref_set(v___y_1299_, v___x_1327_);
+v___x_1328_ = lean_st_ref_put(v___y_1299_, v___x_1327_);
 v___x_1329_ = lean_box(0);
 v___x_1330_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1330_, 0, v___x_1329_);
@@ -4165,7 +4165,7 @@ goto v_reusejp_1415_;
 v_reusejp_1415_:
 {
 lean_object* v___x_1417_; lean_object* v___x_1418_; lean_object* v___x_1420_; 
-v___x_1417_ = lean_st_ref_set(v___y_1378_, v___x_1416_);
+v___x_1417_ = lean_st_ref_put(v___y_1378_, v___x_1416_);
 v___x_1418_ = lean_box(0);
 if (v_isShared_1385_ == 0)
 {

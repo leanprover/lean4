@@ -68,7 +68,7 @@ size_t lean_usize_sub(size_t, size_t);
 size_t lean_usize_mul(size_t, size_t);
 uint8_t lean_usize_dec_le(size_t, size_t);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
@@ -2677,7 +2677,7 @@ goto v_reusejp_1009_;
 v_reusejp_1009_:
 {
 lean_object* v___x_1011_; lean_object* v___x_1012_; lean_object* v___x_1013_; 
-v___x_1011_ = lean_st_ref_set(v___y_982_, v___x_1010_);
+v___x_1011_ = lean_st_ref_put(v___y_982_, v___x_1010_);
 v___x_1012_ = lean_box(0);
 v___x_1013_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1013_, 0, v___x_1012_);
@@ -4529,7 +4529,7 @@ goto v_reusejp_1848_;
 v_reusejp_1848_:
 {
 lean_object* v___x_1850_; lean_object* v___x_1851_; lean_object* v___x_1853_; 
-v___x_1850_ = lean_st_ref_set(v___y_1811_, v___x_1849_);
+v___x_1850_ = lean_st_ref_put(v___y_1811_, v___x_1849_);
 v___x_1851_ = lean_box(0);
 if (v_isShared_1818_ == 0)
 {
@@ -4685,7 +4685,7 @@ goto v_reusejp_1897_;
 v_reusejp_1897_:
 {
 lean_object* v___x_1899_; lean_object* v___x_1900_; lean_object* v___x_1901_; 
-v___x_1899_ = lean_st_ref_set(v___y_1870_, v___x_1898_);
+v___x_1899_ = lean_st_ref_put(v___y_1870_, v___x_1898_);
 v___x_1900_ = lean_box(0);
 v___x_1901_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1901_, 0, v___x_1900_);
@@ -5686,7 +5686,7 @@ goto v_reusejp_2224_;
 v_reusejp_2224_:
 {
 lean_object* v___x_2226_; lean_object* v___x_2227_; lean_object* v___x_2229_; 
-v___x_2226_ = lean_st_ref_set(v___y_2187_, v___x_2225_);
+v___x_2226_ = lean_st_ref_put(v___y_2187_, v___x_2225_);
 v___x_2227_ = ((lean_object*)(l_Lean_addTrace___at___00Lean_Elab_Tactic_Do_ProofMode_MGoal_pureRflAndAndIntro_spec__0___closed__0));
 if (v_isShared_2194_ == 0)
 {

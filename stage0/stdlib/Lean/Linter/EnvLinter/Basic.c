@@ -70,7 +70,7 @@ lean_object* l_Lean_registerSimplePersistentEnvExtension___redArg(lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2325,7 +2325,7 @@ goto v_reusejp_709_;
 v_reusejp_709_:
 {
 lean_object* v___x_711_; lean_object* v___x_712_; lean_object* v___x_713_; 
-v___x_711_ = lean_st_ref_set(v___y_679_, v___x_710_);
+v___x_711_ = lean_st_ref_put(v___y_679_, v___x_710_);
 v___x_712_ = lean_box(0);
 v___x_713_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_713_, 0, v___x_712_);
@@ -2797,7 +2797,7 @@ goto v_reusejp_872_;
 v_reusejp_872_:
 {
 lean_object* v___x_874_; lean_object* v___x_875_; lean_object* v___x_876_; 
-v___x_874_ = lean_st_ref_set(v___y_853_, v___x_873_);
+v___x_874_ = lean_st_ref_put(v___y_853_, v___x_873_);
 v___x_875_ = lean_box(0);
 v___x_876_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_876_, 0, v___x_875_);

@@ -88,7 +88,7 @@ lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Array_range(lean_object*);
 lean_object* l_Array_zip___redArg(lean_object*, lean_object*);
@@ -2247,7 +2247,7 @@ goto v_reusejp_529_;
 v_reusejp_529_:
 {
 lean_object* v___x_531_; lean_object* v___x_532_; lean_object* v___x_533_; 
-v___x_531_ = lean_st_ref_set(v___y_499_, v___x_530_);
+v___x_531_ = lean_st_ref_put(v___y_499_, v___x_530_);
 v___x_532_ = lean_box(0);
 v___x_533_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_533_, 0, v___x_532_);
@@ -5988,7 +5988,7 @@ goto v_reusejp_1887_;
 v_reusejp_1887_:
 {
 lean_object* v___x_1889_; lean_object* v___x_1890_; 
-v___x_1889_ = lean_st_ref_set(v___y_1870_, v___x_1888_);
+v___x_1889_ = lean_st_ref_put(v___y_1870_, v___x_1888_);
 v___x_1890_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1890_, 0, v_fst_1877_);
 return v___x_1890_;

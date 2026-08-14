@@ -66,7 +66,7 @@ lean_object* lean_array_pop(lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_String_Slice_subslice_x21(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
@@ -85,6 +85,7 @@ lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___redArg(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_get_num_heartbeats();
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
+lean_object* lean_st_ref_swap(lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_findInternalDocString_x3f(lean_object*, lean_object*, uint8_t);
 lean_object* l_List_reverse___redArg(lean_object*);
@@ -605,7 +606,7 @@ v___x_6_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_6_, 0, v_name_1_);
 lean_ctor_set(v___x_6_, 1, v_body_2_);
 v___x_7_ = lean_array_push(v___x_5_, v___x_6_);
-v___x_8_ = lean_st_ref_set(v_a_3_, v___x_7_);
+v___x_8_ = lean_st_ref_put(v_a_3_, v___x_7_);
 v___x_9_ = lean_box(0);
 v___x_10_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_10_, 0, v___x_9_);
@@ -7769,7 +7770,7 @@ lean_object* v___x_2516_; lean_object* v___x_2517_; lean_object* v___x_2518_; le
 v___x_2516_ = l___private_Lean_DocString_Markdown_0__Lean_Doc_builtinInlineMdRenderers;
 v___x_2517_ = lean_st_ref_take(v___x_2516_);
 v___x_2518_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(v_type_2513_, v_r_2514_, v___x_2517_);
-v___x_2519_ = lean_st_ref_set(v___x_2516_, v___x_2518_);
+v___x_2519_ = lean_st_ref_put(v___x_2516_, v___x_2518_);
 v___x_2520_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2520_, 0, v___x_2519_);
 return v___x_2520_;
@@ -7790,7 +7791,7 @@ lean_object* v___x_2528_; lean_object* v___x_2529_; lean_object* v___x_2530_; le
 v___x_2528_ = l___private_Lean_DocString_Markdown_0__Lean_Doc_builtinBlockMdRenderers;
 v___x_2529_ = lean_st_ref_take(v___x_2528_);
 v___x_2530_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(v_type_2525_, v_r_2526_, v___x_2529_);
-v___x_2531_ = lean_st_ref_set(v___x_2528_, v___x_2530_);
+v___x_2531_ = lean_st_ref_put(v___x_2528_, v___x_2530_);
 v___x_2532_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2532_, 0, v___x_2531_);
 return v___x_2532_;
@@ -8746,7 +8747,8 @@ if (v___x_2863_ == 0)
 {
 lean_object* v___x_2864_; lean_object* v___x_2865_; 
 lean_dec_ref_known(v___x_2861_, 1);
-v___x_2864_ = lean_st_ref_set(v_a_2856_, v___x_2860_);
+v___x_2864_ = lean_st_ref_swap(v_a_2856_, v___x_2860_);
+lean_dec(v___x_2864_);
 lean_inc(v_a_2858_);
 lean_inc_ref(v_a_2857_);
 lean_inc(v_a_2856_);
@@ -10500,7 +10502,7 @@ goto v_reusejp_3457_;
 v_reusejp_3457_:
 {
 lean_object* v___x_3459_; 
-v___x_3459_ = lean_st_ref_set(v___x_3380_, v___x_3458_);
+v___x_3459_ = lean_st_ref_put(v___x_3380_, v___x_3458_);
 lean_inc(v___x_3380_);
 v_fileName_3393_ = v___x_3385_;
 v_fileMap_3394_ = v___x_3386_;

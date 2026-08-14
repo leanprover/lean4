@@ -63,7 +63,7 @@ lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtension___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_EnvExtension_modifyState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_hash___override___boxed(lean_object*);
 lean_object* l_Lean_Name_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_instInhabited(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1583,7 +1583,7 @@ goto v_reusejp_448_;
 v_reusejp_448_:
 {
 lean_object* v___x_450_; lean_object* v___x_451_; lean_object* v___x_452_; 
-v___x_450_ = lean_st_ref_set(v_a_429_, v___x_449_);
+v___x_450_ = lean_st_ref_put(v_a_429_, v___x_449_);
 v___x_451_ = lean_box(0);
 v___x_452_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_452_, 0, v___x_451_);

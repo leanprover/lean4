@@ -25,7 +25,7 @@ lean_object* l_Lean_Meta_KExprMap_find_x3f___redArg(lean_object*, lean_object*, 
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Meta_KExprMap_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_swap(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getIntValue_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DefEq_isInstHAddInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DefEq_isInstHSubInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3562,7 +3562,8 @@ goto v_reusejp_1091_;
 v_reusejp_1091_:
 {
 lean_object* v___x_1093_; lean_object* v___x_1094_; lean_object* v___x_1096_; 
-v___x_1093_ = lean_st_ref_set(v_a_1052_, v___x_1092_);
+v___x_1093_ = lean_st_ref_swap(v_a_1052_, v___x_1092_);
+lean_dec(v___x_1093_);
 v___x_1094_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_1094_, 0, v___x_1084_);
 if (v_isShared_1089_ == 0)

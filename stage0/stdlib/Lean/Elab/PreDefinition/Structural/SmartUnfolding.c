@@ -99,7 +99,7 @@ lean_object* l_Lean_Meta_markSmartUnfoldingMatch(lean_object*);
 lean_object* lean_find_expr(lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_instInhabitedModifiers_default;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addNonRec(lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4575,7 +4575,7 @@ goto v_reusejp_1685_;
 v_reusejp_1685_:
 {
 lean_object* v___x_1687_; lean_object* v___x_1688_; lean_object* v___x_1689_; 
-v___x_1687_ = lean_st_ref_set(v___y_1662_, v___x_1686_);
+v___x_1687_ = lean_st_ref_put(v___y_1662_, v___x_1686_);
 v___x_1688_ = lean_box(0);
 v___x_1689_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1689_, 0, v___x_1688_);

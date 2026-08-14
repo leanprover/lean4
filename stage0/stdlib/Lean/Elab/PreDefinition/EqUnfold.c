@@ -34,7 +34,7 @@ lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
@@ -800,7 +800,7 @@ goto v_reusejp_149_;
 v_reusejp_149_:
 {
 lean_object* v___x_151_; 
-v___x_151_ = lean_st_ref_set(v_a_72_, v___x_150_);
+v___x_151_ = lean_st_ref_put(v_a_72_, v___x_150_);
 v_fileName_103_ = v_fileName_81_;
 v_fileMap_104_ = v_fileMap_82_;
 v_currRecDepth_105_ = v_currRecDepth_84_;
@@ -1078,7 +1078,7 @@ goto v_reusejp_258_;
 v_reusejp_258_:
 {
 lean_object* v___x_260_; lean_object* v___x_261_; 
-v___x_260_ = lean_st_ref_set(v___y_241_, v___x_259_);
+v___x_260_ = lean_st_ref_put(v___y_241_, v___x_259_);
 v___x_261_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_261_, 0, v_fst_248_);
 return v___x_261_;
@@ -3283,7 +3283,7 @@ goto v_reusejp_1089_;
 v_reusejp_1089_:
 {
 lean_object* v___x_1091_; lean_object* v___x_1092_; lean_object* v___x_1094_; 
-v___x_1091_ = lean_st_ref_set(v___y_1052_, v___x_1090_);
+v___x_1091_ = lean_st_ref_put(v___y_1052_, v___x_1090_);
 v___x_1092_ = lean_box(0);
 if (v_isShared_1059_ == 0)
 {

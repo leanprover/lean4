@@ -20,7 +20,7 @@ size_t lean_usize_of_nat(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 size_t lean_usize_add(size_t, size_t);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedPersistentArrayNode_default(lean_object*);
 size_t lean_usize_shift_right(size_t, size_t);
@@ -660,7 +660,7 @@ lean_object* v___x_72_; lean_object* v___x_73_; lean_object* v___x_74_; lean_obj
 v___x_72_ = l_Lean_Linter_Extra_UnnecessarySeqFocus_multigoalKindsRef;
 v___x_73_ = lean_st_ref_take(v___x_72_);
 v___x_74_ = l_Lean_NameSet_insert(v___x_73_, v_k_70_);
-v___x_75_ = lean_st_ref_set(v___x_72_, v___x_74_);
+v___x_75_ = lean_st_ref_put(v___x_72_, v___x_74_);
 v___x_76_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_76_, 0, v___x_75_);
 return v___x_76_;
@@ -758,7 +758,7 @@ goto v___jp_101_;
 v___jp_101_:
 {
 lean_object* v___x_103_; lean_object* v___x_104_; 
-v___x_103_ = lean_st_ref_set(v___x_99_, v___y_102_);
+v___x_103_ = lean_st_ref_put(v___x_99_, v___y_102_);
 v___x_104_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_104_, 0, v___x_103_);
 return v___x_104_;
@@ -968,7 +968,7 @@ v___x_311_ = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(v___x_311_, 0, v_stx_281_);
 lean_ctor_set_uint8(v___x_311_, sizeof(void*)*1, v___x_310_);
 v___x_312_ = l_Std_DHashMap_Internal_Raw_u2080_insert___redArg(v___x_308_, v___x_309_, v___x_307_, v_val_306_, v___x_311_);
-v___x_313_ = lean_st_ref_set(v_a_282_, v___x_312_);
+v___x_313_ = lean_st_ref_put(v_a_282_, v___x_312_);
 v___y_289_ = v_a_282_;
 goto v___jp_288_;
 }
@@ -2355,7 +2355,7 @@ return v___x_727_;
 v___jp_624_:
 {
 lean_object* v___x_626_; lean_object* v___x_627_; 
-v___x_626_ = lean_st_ref_set(v_a_618_, v_snd_625_);
+v___x_626_ = lean_st_ref_put(v_a_618_, v_snd_625_);
 v___x_627_ = l_Lean_Linter_Extra_UnnecessarySeqFocus_markUsedTacticsList___redArg(v_multigoals_616_, v_children_623_, v_a_618_);
 lean_dec_ref(v_children_623_);
 return v___x_627_;
@@ -2363,7 +2363,7 @@ return v___x_627_;
 v___jp_628_:
 {
 lean_object* v___x_630_; lean_object* v___x_631_; 
-v___x_630_ = lean_st_ref_set(v_a_618_, v_snd_629_);
+v___x_630_ = lean_st_ref_put(v_a_618_, v_snd_629_);
 v___x_631_ = l_Lean_Linter_Extra_UnnecessarySeqFocus_markUsedTacticsList___redArg(v_multigoals_616_, v_children_623_, v_a_618_);
 lean_dec_ref(v_children_623_);
 return v___x_631_;
@@ -3635,7 +3635,7 @@ goto v_reusejp_1278_;
 v_reusejp_1278_:
 {
 lean_object* v___x_1280_; lean_object* v___x_1281_; lean_object* v___x_1283_; 
-v___x_1280_ = lean_st_ref_set(v___y_1248_, v___x_1279_);
+v___x_1280_ = lean_st_ref_put(v___y_1248_, v___x_1279_);
 v___x_1281_ = lean_box(0);
 if (v_isShared_1255_ == 0)
 {

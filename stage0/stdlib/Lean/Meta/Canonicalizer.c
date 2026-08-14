@@ -23,7 +23,7 @@ size_t lean_usize_land(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 size_t lean_ptr_addr(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -634,7 +634,7 @@ goto v___jp_167_;
 v___jp_167_:
 {
 lean_object* v___x_170_; lean_object* v___x_171_; 
-v___x_170_ = lean_st_ref_set(v_a_164_, v_snd_169_);
+v___x_170_ = lean_st_ref_put(v_a_164_, v_snd_169_);
 v___x_171_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_171_, 0, v_fst_168_);
 return v___x_171_;
@@ -730,7 +730,7 @@ goto v___jp_208_;
 v___jp_208_:
 {
 lean_object* v___x_211_; lean_object* v___x_212_; 
-v___x_211_ = lean_st_ref_set(v_a_201_, v_snd_210_);
+v___x_211_ = lean_st_ref_put(v_a_201_, v_snd_210_);
 v___x_212_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_212_, 0, v_fst_209_);
 return v___x_212_;
@@ -828,7 +828,7 @@ goto v_reusejp_263_;
 v_reusejp_263_:
 {
 lean_object* v___x_265_; lean_object* v___x_266_; 
-v___x_265_ = lean_st_ref_set(v___y_246_, v___x_264_);
+v___x_265_ = lean_st_ref_put(v___y_246_, v___x_264_);
 v___x_266_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_266_, 0, v_fst_253_);
 return v___x_266_;
@@ -1487,7 +1487,7 @@ return v___x_483_;
 v___jp_498_:
 {
 lean_object* v___x_502_; lean_object* v___x_503_; lean_object* v___x_504_; 
-v___x_502_ = lean_st_ref_set(v___y_499_, v_snd_501_);
+v___x_502_ = lean_st_ref_put(v___y_499_, v_snd_501_);
 v___x_503_ = lean_box_uint64(v___y_500_);
 v___x_504_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_504_, 0, v___x_503_);
@@ -3288,7 +3288,7 @@ goto v_reusejp_1107_;
 v_reusejp_1107_:
 {
 lean_object* v___x_1109_; lean_object* v___x_1111_; 
-v___x_1109_ = lean_st_ref_set(v_a_1055_, v___x_1108_);
+v___x_1109_ = lean_st_ref_put(v_a_1055_, v___x_1108_);
 if (v_isShared_1092_ == 0)
 {
 lean_ctor_set(v___x_1091_, 0, v_e_1053_);
@@ -3457,7 +3457,7 @@ goto v_reusejp_1142_;
 v_reusejp_1142_:
 {
 lean_object* v___x_1144_; lean_object* v___x_1146_; 
-v___x_1144_ = lean_st_ref_set(v_a_1055_, v___x_1143_);
+v___x_1144_ = lean_st_ref_put(v_a_1055_, v___x_1143_);
 if (v_isShared_1065_ == 0)
 {
 lean_ctor_set(v___x_1064_, 0, v_e_1053_);

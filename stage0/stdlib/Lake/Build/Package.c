@@ -38,7 +38,7 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lake_ensureJob___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lake_Job_toOpaque___redArg(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lake_Job_renew___redArg(lean_object*);
 uint8_t l_Lake_JobAction_merge(uint8_t, uint8_t);
 lean_object* l_Lake_GitRepo_resolveRevision_x3f(lean_object*, lean_object*);
@@ -2926,7 +2926,7 @@ lean_ctor_set_uint8(v_job_1023_, sizeof(void*)*3, v___x_998_);
 lean_inc_ref(v_job_1023_);
 v___x_1024_ = l_Lake_Job_toOpaque___redArg(v_job_1023_);
 v___x_1025_ = lean_array_push(v___x_1020_, v___x_1024_);
-v___x_1026_ = lean_st_ref_set(v_registeredJobs_1019_, v___x_1025_);
+v___x_1026_ = lean_st_ref_put(v_registeredJobs_1019_, v___x_1025_);
 v___x_1027_ = l_Lake_Job_renew___redArg(v_job_1023_);
 if (v_isShared_1013_ == 0)
 {
@@ -5345,7 +5345,7 @@ lean_ctor_set_uint8(v_job_1903_, sizeof(void*)*3, v___x_1895_);
 lean_inc_ref(v_job_1903_);
 v___x_1904_ = l_Lake_Job_toOpaque___redArg(v_job_1903_);
 v___x_1905_ = lean_array_push(v___x_1893_, v___x_1904_);
-v___x_1906_ = lean_st_ref_set(v_registeredJobs_1892_, v___x_1905_);
+v___x_1906_ = lean_st_ref_put(v_registeredJobs_1892_, v___x_1905_);
 v___x_1907_ = l_Lake_Job_renew___redArg(v_job_1903_);
 if (v_isShared_1886_ == 0)
 {
@@ -5802,7 +5802,7 @@ lean_ctor_set_uint8(v_job_2107_, sizeof(void*)*3, v___x_2105_);
 lean_inc_ref(v_job_2107_);
 v___x_2108_ = l_Lake_Job_toOpaque___redArg(v_job_2107_);
 v___x_2109_ = lean_array_push(v___x_2097_, v___x_2108_);
-v___x_2110_ = lean_st_ref_set(v_registeredJobs_2096_, v___x_2109_);
+v___x_2110_ = lean_st_ref_put(v_registeredJobs_2096_, v___x_2109_);
 v___x_2111_ = l_Lake_Job_renew___redArg(v_job_2107_);
 if (v_isShared_2090_ == 0)
 {
@@ -6134,7 +6134,7 @@ lean_ctor_set_uint8(v_job_2261_, sizeof(void*)*3, v___x_2259_);
 lean_inc_ref(v_job_2261_);
 v___x_2262_ = l_Lake_Job_toOpaque___redArg(v_job_2261_);
 v___x_2263_ = lean_array_push(v___x_2251_, v___x_2262_);
-v___x_2264_ = lean_st_ref_set(v_registeredJobs_2250_, v___x_2263_);
+v___x_2264_ = lean_st_ref_put(v_registeredJobs_2250_, v___x_2263_);
 v___x_2265_ = l_Lake_Job_renew___redArg(v_job_2261_);
 if (v_isShared_2244_ == 0)
 {
@@ -6478,7 +6478,7 @@ lean_ctor_set_uint8(v_job_2413_, sizeof(void*)*3, v___x_2405_);
 lean_inc_ref(v_job_2413_);
 v___x_2414_ = l_Lake_Job_toOpaque___redArg(v_job_2413_);
 v___x_2415_ = lean_array_push(v___x_2403_, v___x_2414_);
-v___x_2416_ = lean_st_ref_set(v_registeredJobs_2402_, v___x_2415_);
+v___x_2416_ = lean_st_ref_put(v_registeredJobs_2402_, v___x_2415_);
 v___x_2417_ = l_Lake_Job_renew___redArg(v_job_2413_);
 if (v_isShared_2396_ == 0)
 {
@@ -6805,7 +6805,7 @@ lean_ctor_set_uint8(v_job_2550_, sizeof(void*)*3, v___x_2548_);
 lean_inc_ref(v_job_2550_);
 v___x_2551_ = l_Lake_Job_toOpaque___redArg(v_job_2550_);
 v___x_2552_ = lean_array_push(v___x_2540_, v___x_2551_);
-v___x_2553_ = lean_st_ref_set(v_registeredJobs_2539_, v___x_2552_);
+v___x_2553_ = lean_st_ref_put(v_registeredJobs_2539_, v___x_2552_);
 v___x_2554_ = l_Lake_Job_renew___redArg(v_job_2550_);
 if (v_isShared_2533_ == 0)
 {
@@ -7126,7 +7126,7 @@ lean_ctor_set_uint8(v_job_2676_, sizeof(void*)*3, v___x_2668_);
 lean_inc_ref(v_job_2676_);
 v___x_2677_ = l_Lake_Job_toOpaque___redArg(v_job_2676_);
 v___x_2678_ = lean_array_push(v___x_2666_, v___x_2677_);
-v___x_2679_ = lean_st_ref_set(v_registeredJobs_2665_, v___x_2678_);
+v___x_2679_ = lean_st_ref_put(v_registeredJobs_2665_, v___x_2678_);
 v___x_2680_ = l_Lake_Job_renew___redArg(v_job_2676_);
 if (v_isShared_2659_ == 0)
 {
@@ -7455,7 +7455,7 @@ lean_ctor_set_uint8(v_job_2817_, sizeof(void*)*3, v___x_2815_);
 lean_inc_ref(v_job_2817_);
 v___x_2818_ = l_Lake_Job_toOpaque___redArg(v_job_2817_);
 v___x_2819_ = lean_array_push(v___x_2807_, v___x_2818_);
-v___x_2820_ = lean_st_ref_set(v_registeredJobs_2806_, v___x_2819_);
+v___x_2820_ = lean_st_ref_put(v_registeredJobs_2806_, v___x_2819_);
 v___x_2821_ = l_Lake_Job_renew___redArg(v_job_2817_);
 if (v_isShared_2800_ == 0)
 {

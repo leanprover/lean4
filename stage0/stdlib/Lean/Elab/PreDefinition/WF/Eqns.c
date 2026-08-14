@@ -16,7 +16,7 @@ extern "C" {
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_Environment_hasExposedBody(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -905,7 +905,7 @@ lean_ctor_set(v___x_264_, 5, v___x_263_);
 lean_ctor_set(v___x_264_, 6, v_messages_259_);
 lean_ctor_set(v___x_264_, 7, v_infoState_260_);
 lean_ctor_set(v___x_264_, 8, v_snapshotTasks_261_);
-v___x_265_ = lean_st_ref_set(v_a_249_, v___x_264_);
+v___x_265_ = lean_st_ref_put(v_a_249_, v___x_264_);
 v___x_266_ = lean_st_ref_take(v_a_247_);
 v_mctx_267_ = lean_ctor_get(v___x_266_, 0);
 v_zetaDeltaFVarIds_268_ = lean_ctor_get(v___x_266_, 2);
@@ -957,7 +957,7 @@ goto v_reusejp_275_;
 v_reusejp_275_:
 {
 lean_object* v___x_277_; lean_object* v___x_278_; lean_object* v___x_279_; 
-v___x_277_ = lean_st_ref_set(v_a_247_, v___x_276_);
+v___x_277_ = lean_st_ref_put(v_a_247_, v___x_276_);
 v___x_278_ = lean_box(0);
 v___x_279_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_279_, 0, v___x_278_);
@@ -1418,7 +1418,7 @@ goto v_reusejp_406_;
 v_reusejp_406_:
 {
 lean_object* v___x_408_; lean_object* v___x_409_; 
-v___x_408_ = lean_st_ref_set(v___y_381_, v___x_407_);
+v___x_408_ = lean_st_ref_put(v___y_381_, v___x_407_);
 v___x_409_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_409_, 0, v_traces_385_);
 return v___x_409_;
@@ -2816,7 +2816,7 @@ goto v_reusejp_964_;
 v_reusejp_964_:
 {
 lean_object* v___x_966_; lean_object* v___x_967_; lean_object* v___x_969_; 
-v___x_966_ = lean_st_ref_set(v___y_910_, v___x_965_);
+v___x_966_ = lean_st_ref_put(v___y_910_, v___x_965_);
 v___x_967_ = lean_box(0);
 if (v_isShared_942_ == 0)
 {
@@ -3359,7 +3359,7 @@ goto v_reusejp_1106_;
 v_reusejp_1106_:
 {
 lean_object* v___x_1108_; lean_object* v___x_1109_; 
-v___x_1108_ = lean_st_ref_set(v___y_1045_, v___x_1107_);
+v___x_1108_ = lean_st_ref_put(v___y_1045_, v___x_1107_);
 v___x_1109_ = l_MonadExcept_ofExcept___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00__private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_Elab_WF_copyPrivateUnfoldTheorem_spec__4_spec__6___redArg(v_fst_1047_);
 return v___x_1109_;
 }

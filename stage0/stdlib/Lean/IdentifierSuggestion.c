@@ -76,7 +76,7 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_instRepr_repr(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t l_Lean_instBEqAttributeKind_beq(uint8_t, uint8_t);
@@ -2126,7 +2126,7 @@ goto v_reusejp_624_;
 v_reusejp_624_:
 {
 lean_object* v___x_626_; lean_object* v___x_627_; lean_object* v_toEnvExtension_628_; lean_object* v_env_629_; lean_object* v_nextMacroScope_630_; lean_object* v_ngen_631_; lean_object* v_auxDeclNGen_632_; lean_object* v_traceState_633_; lean_object* v_messages_634_; lean_object* v_infoState_635_; lean_object* v_snapshotTasks_636_; lean_object* v___x_638_; uint8_t v_isShared_639_; uint8_t v_isSharedCheck_648_; 
-v___x_626_ = lean_st_ref_set(v___y_603_, v___x_625_);
+v___x_626_ = lean_st_ref_put(v___y_603_, v___x_625_);
 v___x_627_ = lean_st_ref_take(v___y_603_);
 v_toEnvExtension_628_ = lean_ctor_get(v_a_590_, 0);
 v_env_629_ = lean_ctor_get(v___x_627_, 0);
@@ -2195,7 +2195,7 @@ goto v_reusejp_642_;
 v_reusejp_642_:
 {
 lean_object* v___x_644_; lean_object* v___x_645_; lean_object* v___x_646_; 
-v___x_644_ = lean_st_ref_set(v___y_603_, v___x_643_);
+v___x_644_ = lean_st_ref_put(v___y_603_, v___x_643_);
 v___x_645_ = lean_box(0);
 v___x_646_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_646_, 0, v___x_645_);

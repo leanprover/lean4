@@ -73,7 +73,7 @@ lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_
 lean_object* l_Array_mkArray5___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Environment_setExporting(lean_object*, uint8_t);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*);
 lean_object* l_Lean_TSyntax_getId(lean_object*);
 lean_object* l_Lean_Elab_Command_resolveSyntaxKind(lean_object*, lean_object*, lean_object*);
@@ -2484,7 +2484,7 @@ goto v_reusejp_771_;
 v_reusejp_771_:
 {
 lean_object* v___x_773_; lean_object* v___x_774_; lean_object* v___x_775_; 
-v___x_773_ = lean_st_ref_set(v___y_750_, v___x_772_);
+v___x_773_ = lean_st_ref_put(v___y_750_, v___x_772_);
 v___x_774_ = lean_box(0);
 v___x_775_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_775_, 0, v___x_774_);
@@ -2631,7 +2631,7 @@ goto v_reusejp_813_;
 v_reusejp_813_:
 {
 lean_object* v___x_815_; lean_object* v_r_816_; 
-v___x_815_ = lean_st_ref_set(v___y_787_, v___x_814_);
+v___x_815_ = lean_st_ref_put(v___y_787_, v___x_814_);
 lean_inc(v___y_787_);
 lean_inc_ref(v___y_786_);
 v_r_816_ = lean_apply_3(v_x_784_, v___y_786_, v___y_787_, lean_box(0));

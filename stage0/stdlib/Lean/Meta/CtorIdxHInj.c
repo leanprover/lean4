@@ -59,7 +59,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_isCtorIdxCore_x3f(lean_object*, lean_object*);
 uint64_t l___private_Lean_Meta_Basic_0__Lean_Meta_Config_toKey(lean_object*);
@@ -774,7 +774,7 @@ goto v_reusejp_224_;
 v_reusejp_224_:
 {
 lean_object* v___x_226_; lean_object* v___x_227_; 
-v___x_226_ = lean_st_ref_set(v___y_207_, v___x_225_);
+v___x_226_ = lean_st_ref_put(v___y_207_, v___x_225_);
 v___x_227_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_227_, 0, v_fst_214_);
 return v___x_227_;

@@ -49,7 +49,7 @@ lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
@@ -4564,7 +4564,7 @@ goto v_reusejp_1111_;
 v_reusejp_1111_:
 {
 lean_object* v___x_1113_; lean_object* v___x_1114_; lean_object* v___x_1116_; 
-v___x_1113_ = lean_st_ref_set(v___y_1074_, v___x_1112_);
+v___x_1113_ = lean_st_ref_put(v___y_1074_, v___x_1112_);
 v___x_1114_ = lean_box(0);
 if (v_isShared_1081_ == 0)
 {

@@ -41,7 +41,12 @@ def universeParamNew {α : Type u} (x : α) : α := x
 @[deprecated universeParamNew (since := "2026-07-29")]
 def universeParamOld := @universeParamNew
 
-/-- warning: `universeParamOld` has been deprecated: Use `universeParamNew` instead -/
+/--
+warning: `universeParamOld` has been deprecated: Use `universeParamNew` instead
+
+Hint: Replace the deprecated name:
+  universeParamO̵l̵d̵N̲e̲w̲
+-/
 #guard_msgs in
 example {α : Type u} (x : α) : α := universeParamOld x
 

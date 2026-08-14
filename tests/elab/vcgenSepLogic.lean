@@ -875,13 +875,13 @@ Example: continue from `matchSepAtoms`'s example, with `specPre = ?l ↦ ?v ∗ 
 `cancel` argument, cancelled against `pre = l1 ↦ a ∗ l2 ↦ b`. So `frameAtoms = #[l2 ↦ b]`,
 `footprintAtoms = #[l1 ↦ a, IsList q xs]` and `unpaid = #[IsList q xs]`.
 
-First the completion. `app.post` gets the post of the weakest footprint `W`, so `app.proof` now
+First comes the completion. `app.post` gets the post of the weakest footprint `W`, so `app.proof` now
 proves `app.footprint ⊑ W`. `app.footprint` gets `footprint = l1 ↦ a ∗ IsList q xs`, the
 conjunction of `footprintAtoms`. `app.preVC` demands `footprint ⊑ specPre`. The cancellation
 assigned `?l := l1` and `?v := a`, so both sides are `l1 ↦ a ∗ IsList q xs`, and AC-rearrangement
 closes the VC. If AC fails, the VC stays for the user, with the spec's parameters live.
 
-Then the split VC, along one chain. Write `paid = l1 ↦ a` for the conjunction of `footprintAtoms`
+Then comes the split VC, along one chain. Write `paid = l1 ↦ a` for the conjunction of `footprintAtoms`
 minus `unpaid`, `unpaid = IsList q xs` and `frame = l2 ↦ b` for the other two conjunctions:
 
     pre ⊑ paid ∗ frame          -- `q1` by AC: both sides carry `pre`'s atoms

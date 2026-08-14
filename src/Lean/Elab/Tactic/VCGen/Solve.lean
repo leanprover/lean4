@@ -437,6 +437,22 @@ private def isFramedPost (post : Expr) : Bool :=
   let body := if post.isLambda then post.bindingBody! else post
   body.consumeMData.getAppFn.isConstOf ``Lean.Order.PreservesSup.upperAdjoint
 
+/-- Implementation of `FrameInferenceInfo.applySpec`: apply `specRule` to a fresh footprint
+entailment `?fp ⊑ wp prog ?post epost s⃗`. Only the post differs from the goal's `wp` application,
+and the rule's post is schematic. So applicability here agrees with applicability at the goal and
+at the weakest footprint alike. The spec's precondition VC is the sole bare entailment among the
+subgoals. The `∀`-quantified subgoals are the postcondition VCs. -/
+private def applySpecToFootprint (goal : MVarId) (info : WPApp) (specRule : Sym.BackwardRule)
+    (excessArgs : Array Expr) : VCGenM (Option SpecApplication) := do
+  let goalType ← goal.getType
+  let fp ← mkFreshExprMVar (← Meta.inferType (goalType.appFn!.appArg!))
+  let post ← mkFreshExprMVar (← Meta.inferType info.post)
+  let wpApp ← mkAppNS (mkAppN info.head (info.args.set! 8 post)) excessArgs
+  let target ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS (goalType.stripArgsN 2) #[fp, wpApp])
+  let .goals sgs ← specRule.apply target.mvarId! | return none
+  let some preVC ← sgs.findM? fun g => return (← g.getType).isAppOf ``Lean.Order.PartialOrder.rel
+    | throwError "frame: spec rule left no precondition VC for{indentExpr info.prog}"
+  return some { proof := target, footprint := fp, post, preVC, subgoals := sgs.filter (· != preVC) }
 /-- Implementation of `FrameInferenceInfo.commit`: apply the frame rule for `fp`'s operator,
 assigning `goal`, and read its subgoals off by the positions `mkFrameBackwardRuleCached` recorded at
 rule construction. -/
@@ -460,10 +476,10 @@ does not apply.
   program type, or the default meet frame). The choice is per node, since sub-programs may reach a
   different monad (e.g. a `monadLift`ed base call).
 - An explicit `frames` clause elaborates a frame and passes it to the procedure.
-- The procedure decides whether to frame (e.g. by pairing the goal precondition against
-  `FrameInferenceInfo.peekSpecPre`); committing applies the frame rule, and the unassigned
-  metavariables of the resulting proof become the subgoals. Returning without committing applies the
-  spec unframed.
+- The procedure decides whether to frame, for example by pairing the goal precondition against
+  the precondition of the spec applied through `FrameInferenceInfo.applySpec`. Committing applies
+  the frame rule, and the unassigned metavariables of the resulting proof become the subgoals.
+  Returning without committing applies the spec unframed.
 -/
 private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
     VCGenM (Option SolveResult) := do
@@ -482,9 +498,9 @@ private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : Spec
     let procs := (← read).frameProcs.byProg
     let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
     let providedFrame? ← matchFrame? fp info
-    let some subgoals ← liftWith fun runInBase => do
+    let .goals subgoals ← liftWith fun runInBase => do
         fp.proc { info with goal, providedFrame?, spec? := thm.global?,
-                            applySpec := fun g => runInBase (applySpec g),
+                            applySpec := fun ss => runInBase (applySpecToFootprint goal info specRule ss),
                             mkOpApp := do shareCommon (← fp.mkOpAppM info),
                             commit := runInBase (commitFrameRule goal info fp) }
       | return none

@@ -16,6 +16,11 @@ import Lean.Compiler.ExportAttr
 public section
 
 namespace Lean.Compiler.LCNF
+
+private def csimp (e : Expr) : CoreM Expr := do
+  let env ← getEnv
+  Core.transform e fun e => return .continue (← CSimp.replaceConstant? env e)
+
 /--
 Inline constants tagged with the `[macro_inline]` attribute occurring in `e`.
 -/
@@ -119,6 +124,7 @@ The steps for this are roughly:
 - partially erasing type information of the declaration
 - eta-expanding the declaration value.
 - if the declaration has an unsafe-rec version, use it.
+- apply compiler simplification replacements
 - expand declarations tagged with the `[macro_inline]` attribute
 - turn the resulting term into LCNF declaration
 -/
@@ -154,6 +160,7 @@ def toDecl (declName : Name) : CompilerM (Decl .pure) := do
       let type  ← toLCNFType info.type
       let value ← Meta.lambdaTelescope value fun xs body => do Meta.mkLambdaFVars xs (← Meta.etaExpand body)
       let value ← replaceUnsafeRecNames value
+      let value ← csimp value
       let value ← macroInline value
       /- Recall that some declarations tagged with `macro_inline` contain matchers. -/
       let value ← inlineMatchers value

@@ -295,8 +295,7 @@ Normalises a specification proof so its conclusion is in `pre ⊑ wp …` form.
 -/
 def tripleToWpProof? (proof type : Expr) : MetaM (Option (Expr × Expr)) := do
   let type ← whnfR type
-  if let some tripleName := appName? tripleNames type then
-    unless type.getAppNumArgs == 11 do return none
+  if type.isAppOfArity ``Triple 11 then
     -- Build the `Triple.le_wp` projection application explicitly from the `Triple` type's own
     -- arguments rather than via `mkAppM`. `mkAppM` would re-synthesise the instance arguments
     -- (`Monad m`, `WPMonad m …`), which fails for transformer specs whose monad is a partially
@@ -305,7 +304,7 @@ def tripleToWpProof? (proof type : Expr) : MetaM (Option (Expr × Expr)) := do
     -- caller has unified the spec's program against the goal. Reusing the type's arguments keeps
     -- those instance metavariables shared with the proof, so no premature synthesis happens.
     let lvls := type.getAppFn.constLevels!
-    let proof := mkAppN (.const (tripleName ++ `le_wp) lvls) (type.getAppArgs.push proof)
+    let proof := mkAppN (.const ``Triple.le_wp lvls) (type.getAppArgs.push proof)
     let type ← instantiateMVars (← inferType proof)
     return some (proof, type)
   else if type.isAppOfArity ``PartialOrder.rel 4 then
@@ -453,13 +452,13 @@ bare `lhs ⊑ rhs` whose RHS is not a `wp` application (an invariant entailment 
 `none` to skip such non-spec hypotheses instead of failing.
 -/
 def selectProg (type : Expr) : MetaM (Option Expr) := do
-  if let some tripleName := appName? tripleNames type then
-    let some idx ← progArgIdx? tripleName | return none
+  if type.getAppFn.isConstOf ``Triple then
+    let some idx ← progArgIdx? ``Triple | return none
     return type.getAppArgs[idx]?
   match_expr type with
   | PartialOrder.rel _α _inst _pre rhs =>
-    if let some wpName := appName? wpNames rhs then
-      let some idx ← progArgIdx? wpName | return none
+    if rhs.getAppFn.isConstOf ``wp then
+      let some idx ← progArgIdx? ``wp | return none
       return rhs.getAppArgs[idx]?
     return none
   | _ => return none

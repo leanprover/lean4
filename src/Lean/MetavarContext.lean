@@ -461,14 +461,14 @@ def _root_.Lean.MVarId.isDelayedAssigned [Monad m] [MonadMCtx m] (mvarId : MVarI
 
 /--
 Mark `mvarId` so that assignments to it must preserve its type up to instance transparency.
-See `MetavarContext.instanceTypedMVars` and `backward.isDefEq.instanceTypes`.
+See `MetavarContext.instanceTypedMVars` and `backward.isDefEq.respectTransparency.instanceSearchTypes`.
 -/
 def _root_.Lean.MVarId.markInstanceTyped [MonadMCtx m] (mvarId : MVarId) : m Unit :=
   modifyMCtx fun mctx => { mctx with instanceTypedMVars := mctx.instanceTypedMVars.insert mvarId () }
 
 /--
 Return `true` if assignments to `mvarId` must preserve its type up to instance transparency.
-See `MetavarContext.instanceTypedMVars` and `backward.isDefEq.instanceTypes`.
+See `MetavarContext.instanceTypedMVars` and `backward.isDefEq.respectTransparency.instanceSearchTypes`.
 -/
 def _root_.Lean.MVarId.isInstanceTyped [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool :=
   return (← getMCtx).instanceTypedMVars.contains mvarId

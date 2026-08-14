@@ -3,7 +3,7 @@ Regression test for #9077: instance synthesis must not synthesize instances whos
 the expected type at instance transparency. Notable exception: outParams might only unify at a
 higher transparency.
 
-Tests both settings of `backward.isDefEq.instanceTypes`:
+Tests both settings of `backward.isDefEq.respectTransparency.instanceSearchTypes`:
 - `false`: old behavior,
 - `true`: reject assignments to instance-implicit argument metavariables of the wrong type, falling
   back to synthesizing the instance and unifying the candidate value with the result.
@@ -31,7 +31,7 @@ With `true`, this assignment is rightfully rejected.
 
 /-- info: inst (Copy E) -/
 #guard_msgs in
-set_option backward.isDefEq.instanceTypes false in
+set_option backward.isDefEq.respectTransparency.instanceSearchTypes false in
 variable (E : Type) [iQ : Q E] in
 #synth N (H (Copy E) rfl)
 
@@ -42,7 +42,7 @@ error: failed to synthesize
 Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
-set_option backward.isDefEq.instanceTypes true in
+set_option backward.isDefEq.respectTransparency.instanceSearchTypes true in
 variable (E : Type) [iQ : Q E] in
 #synth N (H (Copy E) rfl)
 
@@ -58,7 +58,7 @@ instance instG (α : Type) [q : Q α] : M (G α q) where
 
 /-- info: instG (Copy E) -/
 #guard_msgs in
-set_option backward.isDefEq.instanceTypes false in
+set_option backward.isDefEq.respectTransparency.instanceSearchTypes false in
 variable (E : Type) [iQ : Q E] in
 #synth M (G (Copy E) iQ)
 
@@ -69,7 +69,7 @@ error: failed to synthesize
 Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
-set_option backward.isDefEq.instanceTypes true in
+set_option backward.isDefEq.respectTransparency.instanceSearchTypes true in
 variable (E : Type) [iQ : Q E] in
 #synth M (G (Copy E) iQ)
 
@@ -84,13 +84,13 @@ instance qCopy [Q E] : Q (Copy E) := ‹Q E›
 
 /-- info: instG (Copy E) -/
 #guard_msgs in
-set_option backward.isDefEq.instanceTypes false in
+set_option backward.isDefEq.respectTransparency.instanceSearchTypes false in
 variable (E : Type) [iQ : Q E] in
 #synth M (G (Copy E) iQ)
 
 /-- info: instG (Copy E) -/
 #guard_msgs in
-set_option backward.isDefEq.instanceTypes true in
+set_option backward.isDefEq.respectTransparency.instanceSearchTypes true in
 variable (E : Type) [iQ : Q E] in
 #synth M (G (Copy E) iQ)
 
@@ -111,13 +111,13 @@ instance instInitBox (α : Type) [R α] : Init (Box α) := ⟨⟨⟩⟩
 def useBox (_b : Box Nat) : Nat := 0
 
 #guard_msgs in
-set_option backward.isDefEq.instanceTypes false in
+set_option backward.isDefEq.respectTransparency.instanceSearchTypes false in
 example : Nat :=
   let x : Box _ := Init.init
   useBox x
 
 #guard_msgs in
-set_option backward.isDefEq.instanceTypes true in
+set_option backward.isDefEq.respectTransparency.instanceSearchTypes true in
 example : Nat :=
   let x : Box _ := Init.init
   useBox x

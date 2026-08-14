@@ -117,7 +117,7 @@ current unification attempt, fails.
 With `false`, the old, more lenient behavior is restored (the behavior before the fix for issue
 #9077).
 -/
-register_builtin_option backward.isDefEq.instanceTypes : Bool := {
+register_builtin_option backward.isDefEq.respectTransparency.instanceSearchTypes : Bool := {
   defValue := true
   descr    := "if true, require assignments to instance metavariables to preserve the metavariable's
   type up to `.instances` transparency during instance search"
@@ -555,7 +555,7 @@ abbrev respectTransparencyAtTypes : CoreM Bool := do
 
 /--
 Returns `true` if all metavariables whose types influence the type of `e`, a value assigned to an
-instance-typed metavariable unter `backward.isDefEq.instanceTypes`, are admissible. Admissible are:
+instance-typed metavariable unter `backward.isDefEq.respectTransparency.instanceSearchTypes`, are admissible. Admissible are:
 
 * instance-typed metavariables: their own assignments are subject to the same restriction;
 * metavariables `isDefEq` cannot assign (from an outer `MetavarContext` depth, or synthetic
@@ -625,7 +625,7 @@ private def checkTypesForInstanceTypedMVarAssignment (mvarType vType v : Expr) :
 
 /--
 Fallback for assignments to instance-typed metavariables under
-`backward.isDefEq.instanceTypes` when the candidate value `v` is not directly acceptable:
+`backward.isDefEq.respectTransparency.instanceSearchTypes` when the candidate value `v` is not directly acceptable:
 synthesize the instance for the metavariable's type, assign it, and require `v` to be
 definitionally equal to the synthesized instance. Fails without modifying the state if synthesis
 fails or if `v` does not match the synthesized instance.
@@ -638,14 +638,14 @@ private def synthInstanceTypedMVarAndUnify (mvar v : Expr) : MetaM Bool := do
   checkpointDefEq do
     unless (← Meta.synthPending mvar.mvarId!) do
       if (← isDiagnosticsEnabled) then
-        trace[diagnostics] "failure when assigning instance metavariable with type{indentExpr (← inferType mvar)}\nthe candidate value{indentExpr v}\nwas rejected and the instance could not be synthesized directly.\nWorkaround: `set_option backward.isDefEq.instanceTypes false`"
+        trace[diagnostics] "failure when assigning instance metavariable with type{indentExpr (← inferType mvar)}\nthe candidate value{indentExpr v}\nwas rejected and the instance could not be synthesized directly.\nWorkaround: `set_option backward.isDefEq.respectTransparency.instanceSearchTypes false`"
       return false
     let inst ← instantiateMVars mvar
     if (← Meta.isExprDefEqAux v inst) then
       return true
     else
       if (← isDiagnosticsEnabled) then
-        trace[diagnostics] "failure when assigning instance metavariable with type{indentExpr (← inferType mvar)}\nthe rejected candidate value{indentExpr v}\nis not definitionally equal to the synthesized instance{indentExpr inst}\nWorkaround: `set_option backward.isDefEq.instanceTypes false`"
+        trace[diagnostics] "failure when assigning instance metavariable with type{indentExpr (← inferType mvar)}\nthe rejected candidate value{indentExpr v}\nis not definitionally equal to the synthesized instance{indentExpr inst}\nWorkaround: `set_option backward.isDefEq.respectTransparency.instanceSearchTypes false`"
       return false
 
 private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
@@ -653,7 +653,7 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
     if !mvar.isMVar then
       trace[Meta.isDefEq.assign.checkTypes] "metavariable expected"
       return false
-    if (← mvar.mvarId!.isInstanceTyped) && backward.isDefEq.instanceTypes.get (← getOptions) then
+    if (← mvar.mvarId!.isInstanceTyped) && backward.isDefEq.respectTransparency.instanceSearchTypes.get (← getOptions) then
       -- The value assigned to an instance-typed metavariable must have the expected type up to
       -- instance transparency: either the candidate value `v` already is such a value, or we
       -- synthesize the instance now and require the candidate to be definitionally equal to the

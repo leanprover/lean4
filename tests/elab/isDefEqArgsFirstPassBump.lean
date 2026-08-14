@@ -9,7 +9,7 @@ Reduced from `CategoryTheory.Abelian.subobjectIsoSubobjectOp` in Mathlib's
 `isDefEqArgsFirstPass` immediately unifies an argument pair when one side is an unassigned
 metavariable instead of postponing it to the second pass. Such a pair is still an argument
 unification at an implicit position, but originally, the assignment did not involve a unification
-problem, so transparency did not matter. Since `respectTransparency.isDefEq.instanceTypes`, however,
+problem, so transparency did not matter. Since `respectTransparency.isDefEq.respectTransparency.instanceSearchTypes`, however,
 the assignment can fall back to synthesizing an instance and unifying with it, and the transparency
 of the unification should be exactly the same as if it happened in the second pass.
 

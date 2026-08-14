@@ -28,6 +28,9 @@ end Foo
 warning: `Foo.foo` has been deprecated: Use `Foo.bar` instead
 
 Note: `Foo.bar` is protected. References to this constant must include its prefix `Foo` even when inside its namespace.
+
+Hint: Replace the deprecated name:
+  f̵o̵o̵F̲o̲o̲.̲b̲a̲r̲
 -/
 #guard_msgs in
 open Foo in
@@ -85,6 +88,9 @@ end A.B
 warning: `A.B.D` has been deprecated: Use `A.B.C` instead
 
 Note: `A.B.C` is protected. References to this constant must include at least the last component `B` of its prefix `A.B` even when inside its namespace.
+
+Hint: Replace the deprecated name:
+  D̵B̲.̲C̲
 -/
 #guard_msgs in
 open A B in

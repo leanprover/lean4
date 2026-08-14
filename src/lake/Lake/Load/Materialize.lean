@@ -26,72 +26,79 @@ or resolve a local path dependency.
 namespace Lake
 
 /--
-Update the Git package in {lean}`repo` to the revision {lean}`rev?` if not already at it.
-IF no revision is specified (i.e., {lean}`rev? = none`), then uses the latest {lit}`master`.
+Materialize the Git repository from {lean}`url` into {lean}`repo` at {lean}`rev?`.
+
+If no revision is specified (i.e., {lean}`rev? = none`), the latest {lit}`HEAD` is used.
+
+If the repository is already at {lean}`rev?`, return early with no changes.
+Otherwise, fetch the revision {lean}`rev?` from the remote {lean}`url` and check it out.
+If no local repository exists, initialize a new one.
 -/
-def updateGitPkg
-  (name : String) (repo : GitRepo) (rev? : Option GitRev)
-: LoggerIO PUnit := do
-  let rev ← repo.findRemoteRevision rev?
-  if (← repo.getHeadRevision) = rev then
-    if (← repo.hasDiff) then
-      logWarning s!"{name}: repository '{repo.dir}' has local changes"
+def materializeGitRepo
+  (name : String) (repo : GitRepo) (url : String) (rev? : Option GitRev)
+: LoggerIO Unit := do
+  let rev := rev?.getD .head
+  let remote := Git.defaultRemote
+  let url ← resolveUrl url
+  -- # Setup repository
+  if (← repo.gitExists) then
+    if let some oldUrl ← repo.getRemoteUrl? remote then
+      unless oldUrl = url do
+        logInfo s!"{name}: remote URL changed\
+          \n  old: {oldUrl}\
+          \n  new: {url}"
+        repo.setRemoteUrl remote url
+    else
+      repo.addRemote remote url
+    -- Skip fetch if already on revision. Avoids errors when offline.
+    -- https://github.com/leanprover/lake/issues/104
+    if (← repo.getHeadRevision?) = some rev then
+      checkDiff
+      return
+    if rev.isFullSha1 then
+      if (← repo.findCommit? rev).isSome then
+        -- Skip revision fetch if the exact commit is already available.
+        -- May still fetch objects due to the partial clone.
+        checkout rev
+        return
   else
+    logInfo s!"{name}: materializing new dependency"
+    IO.FS.createDirAll repo.dir
+    repo.quietInit
+    repo.addRemote remote url
+  -- # New revision
+  logInfo s!"{name}: fetching revision '{rev}' from {url}"
+  let some rev ← repo.fetchRevision? remote rev
+    | error s!"{name}: failed to fetch the package revision\
+      \n  {rev}\
+      \nfrom the Git repository at\
+      \n  {url}"
+  if (← repo.getHeadRevision?) = some rev then -- e.g., new tag = old rev
+    checkDiff
+    return
+  checkout rev
+  -- Cleanup unreachable references and objects to prevent excessive repository growth
+  repo.pruneRemote remote
+  repo.gc
+where
+  @[inline] resolveUrl url := do
+    if (← FilePath.pathExists url) then
+      let some path ← resolvePath? url
+        | error s!"{name}: failed to resolve path:\n  {url}"
+      return path.toString
+    else
+      return url
+  @[inline] checkout rev := do
     logInfo s!"{name}: checking out revision '{rev}'"
     repo.checkoutDetach rev
-    -- Remove untracked files from tracked folders the package.
+    -- Remove untracked files from tracked folders in the package.
     -- This helps ensure reproducible behavior by removing leftovers.
     -- For example, Lake will trust leftover `.hash` files unconditionally,
     -- so stale ones from the previous revision cause incorrect trace computations.
     repo.clean
-
-/-- Clone the Git package as {lean}`repo`. -/
-def cloneGitPkg
-  (name : String) (repo : GitRepo) (url : String) (rev? : Option GitRev)
-: LoggerIO PUnit := do
-  logInfo s!"{name}: cloning {url}"
-  repo.clone url
-  if let some rev := rev? then
-    let rev ← repo.resolveRemoteRevision rev
-    logInfo s!"{name}: checking out revision '{rev}'"
-    repo.checkoutDetach rev
-
-/--
-Update the Git repository from {lean}`url` in {lean}`repo` to {lean}`rev?`.
-If {lean}`repo` is already from {lean}`url`, just checkout the new revision.
-Otherwise, delete the local repository and clone a fresh copy from {lean}`url`.
--/
-def updateGitRepo
-  (name : String) (repo : GitRepo) (url : String) (rev? : Option String)
-: LoggerIO Unit := do
-  let sameUrl ← EIO.catchExceptions (h := fun _ => pure false) <| show IO Bool from do
-    let some remoteUrl ← repo.getRemoteUrl? | return false
-    if remoteUrl = url then return true
-    return (← IO.FS.realPath remoteUrl) = (← IO.FS.realPath url)
-  if sameUrl then
-    updateGitPkg name repo rev?
-  else
-    if System.Platform.isWindows then
-      -- Deleting git repositories via IO.FS.removeDirAll does not work reliably on windows
-      logInfo s!"{name}: URL has changed; you might need to delete '{repo.dir}' manually"
-      updateGitPkg name repo rev?
-    else
-      logInfo s!"{name}: URL has changed; deleting '{repo.dir}' and cloning again"
-      IO.FS.removeDirAll repo.dir
-      cloneGitPkg name repo url rev?
-
-
-/--
-Materialize the Git repository from {lean}`url` into {lean}`repo` at {lean}`rev?`.
-Clone it if no local copy exists, otherwise update it.
--/
-def materializeGitRepo
-  (name : String) (repo : GitRepo) (url : String) (rev? : Option String)
-: LoggerIO Unit := do
-  if (← repo.dirExists) then
-    updateGitRepo name repo url rev?
-  else
-    cloneGitPkg name repo url rev?
+  @[inline] checkDiff := do
+    if (← repo.hasDiff) then
+      logWarning s!"{name}: repository has local changes:\n  {repo.dir}"
 
 public structure MaterializedDep where
   /-- Absolute path to the materialized package. -/
@@ -242,26 +249,10 @@ public def PackageEntry.materialize
   | .path (dir := relPkgDir) .. =>
     mkDep relPkgDir ""
   | .git (url := url) (rev := rev) (subDir? := subDir?) .. => do
-    let prettyName := manifestEntry.prettyName
     let relGitDir := relPkgsDir / manifestEntry.dirName
-    let gitDir := wsDir / relGitDir
-    let repo := GitRepo.mk gitDir
-    /-
-    Do not update (fetch remote) if already on revision
-    Avoids errors when offline, e.g., [leanprover/lake#104][104].
-
-    [104]: https://github.com/leanprover/lake/issues/104
-    -/
-    if (← repo.dirExists) then
-      if (← repo.getHeadRevision?) = rev then
-        if (← repo.hasDiff) then
-          logWarning s!"{prettyName}: repository '{repo.dir}' has local changes"
-      else
-        let url := lakeEnv.pkgUrlMap.find? manifestEntry.name |>.getD url
-        updateGitRepo prettyName repo url rev
-    else
-      let url := lakeEnv.pkgUrlMap.find? manifestEntry.name |>.getD url
-      cloneGitPkg prettyName repo url rev
+    let repo := GitRepo.mk (wsDir / relGitDir)
+    let url := lakeEnv.pkgUrlMap.getD manifestEntry.name url
+    materializeGitRepo manifestEntry.prettyName repo url rev
     let relPkgDir := match subDir? with | .some subDir => relGitDir / subDir | .none => relGitDir
     mkDep relPkgDir (Git.filterUrl? url |>.getD "")
 where

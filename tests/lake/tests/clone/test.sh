@@ -22,9 +22,8 @@ echo "# TESTS"
 
 # test that `LAKE_PKG_URL_MAP` properly overwrites the config-specified Git URL
 LAKE_PKG_URL_MAP=$HELLO_MAP test_out "file://" update
-# test that a second `lake update` is a no-op (with URLs)
-# see https://github.com/leanprover/lean4/commit/6176fdba9e5a888225a23e5d558a005e0d1eb2f6#r125905901
-LAKE_PKG_URL_MAP=$HELLO_MAP test_no_out update --keep-toolchain
+# test that a second `lake update` does not perform another checkout (with URLs)
+LAKE_PKG_URL_MAP=$HELLO_MAP test_not_out "checking out" update --keep-toolchain
 rm -rf .lake/packages
 
 # Test that Lake produces no warnings on a `lake build` after a `lake update`
@@ -33,11 +32,11 @@ rm -rf .lake/packages
 echo "# TEST: lake build after update"
 
 test_run update
-# test that a second `lake update` is a no-op (with file paths)
-test_no_out update --keep-toolchain
-test -d .lake/packages/hello
-# test that Lake produces no warnings
-test_no_warn build
+# test that a second `lake update` does not perform another checkout (with file paths)
+test_not_out "checking out" update --keep-toolchain
+test_exp -d .lake/packages/hello
+# test that Lake produces no logs
+test_no_stderr build
 test_cmd_eq "Hello, world!" ./.lake/build/bin/test
 
 # Test that Lake produces a warning if local changes are made to a dependency
@@ -50,7 +49,7 @@ test_cmd_fails git -C .lake/packages/hello diff --exit-code
 test_out "has local changes" build
 test_cmd_eq "Hello, changes!" ./.lake/build/bin/test
 test_cmd git -C .lake/packages/hello reset --hard
-test_no_warn build
+test_no_stderr build
 
 # Test no `git fetch` on a `lake build` if already on the proper revision
 # See https://github.com/leanprover/lake/issues/104
@@ -60,11 +59,9 @@ echo "# TEST: No fetch"
 TEST_URL=https://example.com/hello.git
 TEST_MAP="{\"hello\" : \"$TEST_URL\"}"
 
-# set invalid remote
-git -C .lake/packages/hello remote set-url origin $TEST_URL
-# build should succeed (do nothing) despite the invalid remote because
-# the remote should not be fetched; Lake should also not produce any warnings
-LAKE_PKG_URL_MAP=$TEST_MAP test_no_warn build
+# build should succeed despite the invalid remote because the
+# remote should not be fetched (and nothing should be checked out)
+LAKE_PKG_URL_MAP=$TEST_MAP test_not_out "checking" build
 
 # Cleanup
 rm -rf hello/.git

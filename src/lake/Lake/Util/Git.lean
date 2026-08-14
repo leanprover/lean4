@@ -84,6 +84,10 @@ public def cwd : GitRepo := ⟨"."⟩
 @[inline] public def dirExists (repo : GitRepo) : BaseIO Bool :=
   repo.dir.isDir
 
+/-- Returns whether `.git` exists at the root of the repository directory. -/
+@[inline] public def gitExists (repo : GitRepo) : BaseIO Bool :=
+  (repo.dir / ".git").pathExists
+
 @[inline] public def captureGit (args : Array String) (repo : GitRepo) : LogIO String :=
   captureProc {cmd := "git", args, cwd := repo.dir}
 
@@ -95,6 +99,11 @@ public def cwd : GitRepo := ⟨"."⟩
 
 @[inline] public def testGit (args : Array String) (repo : GitRepo) : BaseIO Bool :=
   testProc {cmd := "git", args, cwd := repo.dir}
+
+@[inline] def testExecGit (args : Array String) (repo : GitRepo) : LogIO Bool := do
+  let spanwArgs := {cmd := "git", args, cwd := repo.dir}
+  logVerbose (mkCmdLog spanwArgs)
+  testProc spanwArgs
 
 public def clone (url : String) (repo : GitRepo) : LogIO PUnit  :=
   proc {cmd := "git", args := #["clone", url, repo.dir.toString]} (quiet := true)
@@ -119,6 +128,9 @@ public def checkoutBranch (branch : String) (repo : GitRepo) : LogIO PUnit :=
 
 public def checkoutDetach (hash : String) (repo : GitRepo) : LogIO PUnit  :=
   repo.execGit #["checkout", "--detach", hash, "--"]
+
+public def gc (repo : GitRepo) : LogIO PUnit :=
+  repo.execGit #["gc"]
 
 /-- Remove untracked files from tracked folders in the repository. -/
 public def clean (repo : GitRepo) : LogIO PUnit :=
@@ -146,7 +158,8 @@ public def getHeadRevision (repo : GitRepo) : LogIO GitRev := do
     the repository may be corrupt, so you may need to remove it and try again"
 
 public def fetchRevision? (repo : GitRepo) (remote : String) (rev : GitRev) : LogIO (Option GitRev) := do
-  if (← repo.testGit #["fetch", "--tags", "--force", "--refetch", "--filter=tree:0", remote, rev]) then
+  let args := #["fetch", "--tags", "--force", "--refetch", "--filter=tree:0", remote, rev]
+  if (← repo.testExecGit args) then
     let some rev ← repo.resolveRevision? .fetchHead
       | error s!"{repo}: could not resolve 'FETCH_HEAD' to a commit after fetching; \
           this may be an issue with Lake; please report it"
@@ -195,6 +208,9 @@ public def setRemoteUrl (remote : String) (url : String) (repo : GitRepo) : LogI
 public def getFilteredRemoteUrl?
   (remote := Git.defaultRemote) (repo : GitRepo)
 : BaseIO (Option String) := OptionT.run do Git.filterUrl? (← repo.getRemoteUrl? remote)
+
+public def pruneRemote (remote : String) (repo : GitRepo) : LogIO Unit :=
+  repo.execGit #["remote", "prune", remote]
 
 public def hasNoDiff (repo : GitRepo) : BaseIO Bool := do
   repo.testGit #["diff", "--exit-code", "HEAD"]

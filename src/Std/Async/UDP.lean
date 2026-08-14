@@ -110,23 +110,19 @@ def recvSelector (s : Socket) (size : UInt64) : Selector (ByteArray × Option So
         s.native.cancelRecv
         return none
     registerFn waiter := do
-      let readableWaiter ← s.native.waitReadable
+      let readableWaiter : AsyncTask _ := .ofPromise (← s.native.waitReadable)
 
-      -- If we get cancelled the promise will be dropped so prepare for that
-      discard <| IO.mapTask (t := readableWaiter.result?) fun res => do
-        match res with
-        | none => return ()
-        | some res =>
-          let lose := return ()
-          let win promise := do
-            try
-              discard <| IO.ofExcept res
-              -- We know that this read should not block
-              let res ← (s.recv size).block
-              promise.resolve (.ok res)
-            catch e =>
-              promise.resolve (.error e)
-          waiter.race lose win
+      discard <| IO.mapTask (t := readableWaiter) fun res => do
+        let lose := return ()
+        let win promise := do
+          try
+            discard <| IO.ofExcept res
+            -- We know that this read should not block
+            let res ← (s.recv size).block
+            promise.resolve (.ok res)
+          catch e =>
+            promise.resolve (.error e)
+        waiter.race lose win
 
     unregisterFn := s.native.cancelRecv
   }

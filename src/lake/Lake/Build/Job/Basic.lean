@@ -95,32 +95,14 @@ public def JobState.merge (a b : JobState) : JobState where
 
 /-! ## JobTask -/
 
-/-- The exceptional (non-success) outcome kind of a Lake job result. -/
-public inductive JobException
-/-- A build failure; log entries from `pos` onward describe the error. -/
-| errorLogged : Log.Pos → JobException
-/-- The job was cancelled before it could complete. -/
-| cancelled
-  deriving Inhabited
-
 /-- The result of a Lake job. -/
-public abbrev JobResult α := EResult JobException JobState α
-
-namespace JobResult
-
-/-- Convert an `EResult Log.Pos` (from `JobM`) to a `JobResult`. -/
-@[inline] public def ofLogResult : EResult Log.Pos JobState α → JobResult α
-  | .ok a s => .ok a s
-  | .error e s => .error (.errorLogged e) s
-
-end JobResult
+public abbrev JobResult α := EResult Log.Pos JobState α
 
 /-- Add log entries to the beginning of the job's log. -/
 public def JobResult.prependLog (log : Log) (self : JobResult α) : JobResult α :=
   match self with
   | .ok a s => .ok a <| s.modifyLog (log ++ ·)
-  | .error (.errorLogged e) s => .error (.errorLogged ⟨log.size + e.val⟩) <| s.modifyLog (log ++ ·)
-  | .error .cancelled s => .error .cancelled <| s.modifyLog (log ++ ·)
+  | .error e s => .error ⟨log.size + e.val⟩ <| s.modifyLog (log ++ ·)
 
 /-- The `Task` of a Lake job. -/
 public abbrev JobTask α := BaseIOTask (JobResult α)
@@ -159,10 +141,7 @@ public protected def cast (self : Job α) (h : ¬ self.kind.isAnonymous) : Job (
   {task, caption}
 
 @[inline] public protected def error [OptDataKind α] (log : Log := {}) (caption := "") : Job α :=
-  .ofTask (Task.pure (.error (.errorLogged 0) {log})) caption
-
-@[inline] public protected def cancelled [OptDataKind α] (caption := "") : Job α :=
-  .ofTask (Task.pure (.error .cancelled {})) caption
+  .ofTask (Task.pure (.error 0 {log})) caption
 
 @[inline] public protected def pure [kind : OptDataKind α] (a : α) (log : Log := {}) (caption := "") : Job α :=
   .ofTask (Task.pure (.ok a {log})) caption

@@ -1,3 +1,12 @@
--- This module takes ~3 seconds to elaborate.
--- It is used to test that importing modules are not compiled after cancellation.
-#eval IO.sleep 3000
+/-!
+Blocks until `slowA`'s marker appears (path in `FAILFAST_SYNC`), which happens
+only after cancellation is active — so `SlowChain.B`'s compile continuation
+deterministically observes a set token. Bounded, in case cancellation never
+comes.
+-/
+#eval do
+  let some path ← IO.getEnv "FAILFAST_SYNC"
+    | throw <| IO.userError "FAILFAST_SYNC not set"
+  for _ in [0:600] do
+    if ← System.FilePath.pathExists ⟨path⟩ then break
+    IO.sleep 100

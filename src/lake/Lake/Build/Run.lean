@@ -50,10 +50,8 @@ structure MonitorContext where
   showTime : Bool
   /-- How often to poll jobs (in milliseconds). -/
   updateFrequency : Nat
-  /-- Stop the monitor after the first required target failure is detected. -/
-  failFast : Bool
-  /-- When set to `true`, no new build jobs are scheduled. -/
-  cancelling? : Option IO.CancelToken
+  /-- Cancellation token to set on the first required target failure (`--fail-fast`). -/
+  cancelling? : Option IO.CancelToken := none
 
 @[inline, instance_reducible] def MonitorContext.logger (ctx : MonitorContext) : MonadLog BaseIO :=
   .stream ctx.out ctx.outLv ctx.useAnsi
@@ -124,7 +122,6 @@ def reportJob (job : OpaqueJob) : MonitorM PUnit := do
   let {jobNo, totalJobs, ..} ← get
   let {failLv, outLv, showOptional, out, useAnsi, showProgress, minAction, showTime, ..} ← read
   let {task, caption, optional, ..} := job
-  if let .error .cancelled _ := task.get then return  -- skip cancelled jobs: not a failure
   let {log, action, wantsRebuild, buildTime, ..} := task.get.state
   let maxLv := log.maxLv
   let failed := strictAnd log.hasEntries (maxLv ≥ failLv)
@@ -192,11 +189,8 @@ partial def loop
   (new unfinished : Array OpaqueJob)
 : MonitorM PUnit := do
   let (running, unfinished) ← scanJobs new unfinished
-  -- On the first required-target failure with `--fail-fast`,
-  -- cancel pending job scheduling and let running tasks drain to completion.
-  let ctx ← read
-  if ctx.failFast && !(← get).failures.isEmpty then
-    if let some tk := ctx.cancelling? then
+  if let some tk := (← read).cancelling? then
+    unless (← get).failures.isEmpty || (← tk.isSet) do
       tk.set
   if h : 0 < unfinished.size then
     renderProgress running unfinished h
@@ -230,9 +224,9 @@ public structure MonitorResult where
   self.failures.isEmpty
 
 def mkMonitorContext
-    (cfg : BuildConfig) (jobs : JobQueue)
-    (cancelling? : Option IO.CancelToken := none) :
-    BaseIO MonitorContext := do
+  (cfg : BuildConfig) (jobs : JobQueue)
+  (cancelling? : Option IO.CancelToken := none)
+: BaseIO MonitorContext := do
   let out ← cfg.out.get
   let useAnsi ← cfg.ansiMode.isEnabled out
   let outLv := cfg.outLv
@@ -245,9 +239,7 @@ def mkMonitorContext
   let updateFrequency := 100
   return {
     jobs, out, failLv, outLv, minAction, showOptional
-    useAnsi, showProgress, showTime, updateFrequency
-    failFast := cfg.failFast
-    cancelling?
+    useAnsi, showProgress, showTime, updateFrequency, cancelling?
   }
 
 def monitorJobs'
@@ -284,7 +276,6 @@ public def monitorJobs
   let ctx := {
     jobs, out, failLv, outLv, minAction, showOptional
     useAnsi, showProgress, showTime, updateFrequency
-    failFast := false, cancelling? := none
   }
   monitorJobs' ctx initJobs initFailures resetCtrl
 
@@ -340,15 +331,14 @@ instance : CoeOut (BuildResult α) MonitorResult := ⟨BuildResult.toMonitorResu
 def monitorJob (ctx : MonitorContext) (job : Job α) : BaseIO (BuildResult α) := do
   let result ← monitorJobs' ctx #[job]
   if result.isOk then
-    match (← job.wait) with
-    | .ok a _ => return {result with out := .ok a}
-    | .error .cancelled _ => return {result with out := .error "build cancelled"}
-    | .error _ _ =>
+    if let some a ← job.wait? then
+      return {toMonitorResult := result, out := .ok a}
+    else
       -- Computation job failed but was unreported in the monitor. This should be impossible.
-      return {result with out := .error <|
+      return {toMonitorResult := result, out := .error <|
         "uncaught top-level build failure (this is likely a bug in Lake)"}
   else
-    return {result with out := .error "build failed"}
+    return {toMonitorResult := result, out := .error "build failed"}
 
 def mkBuildContext'
   (ws : Workspace) (cfg : BuildConfig) (jobs : JobQueue)
@@ -408,7 +398,7 @@ public def Workspace.runFetchM
   (ws : Workspace) (build : FetchM α) (cfg : BuildConfig := {}) (caption := "job computation")
 : IO α := do
   let jobs ← mkJobQueue
-  let cancelling? := some (← IO.CancelToken.new)
+  let cancelling? ← if cfg.failFast then some <$> IO.CancelToken.new else pure none
   let mctx ← mkMonitorContext cfg jobs cancelling?
   let bctx ← mkBuildContext' ws cfg jobs cancelling?
   let job ← startBuild bctx build caption
@@ -419,10 +409,9 @@ def monitorBuild (mctx : MonitorContext) (job : Job (Job α)) : BaseIO (BuildRes
   let result ← monitorJob mctx job
   match result.out with
   | .ok job =>
-    match (← job.wait) with
-    | .ok a _ => return {result with out := .ok a}
-    | .error .cancelled _ => return {result with out := .error "build cancelled"}
-    | .error _ _ =>
+    if let some a ← job.wait? then
+      return {result with out := .ok a}
+    else
       -- Job failed but was unreported in the monitor. It was likely not properly registered.
       return {result with out := .error <|
         "uncaught top-level build failure (this is likely a bug in the build script)"}
@@ -450,7 +439,7 @@ public def Workspace.runBuild
   (ws : Workspace) (build : FetchM (Job α)) (cfg : BuildConfig := {})
 : IO α := do
   let jobs ← mkJobQueue
-  let cancelling? := some (← IO.CancelToken.new)
+  let cancelling? ← if cfg.failFast then some <$> IO.CancelToken.new else pure none
   let mctx ← mkMonitorContext cfg jobs cancelling?
   let bctx ← mkBuildContext' ws cfg jobs cancelling?
   let job ← startBuild bctx build

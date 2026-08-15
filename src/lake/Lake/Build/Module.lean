@@ -84,16 +84,11 @@ structure ModuleImportData where
         let impSet := if imp.includeSelf then impSet.insert imp.module else impSet
         .ok impSet s
       | .error e s => .error e s
-    | .error .cancelled _ =>
-      match r with
-      | .ok _ _ => .error .cancelled r.state
-      | .error _ _ => r
     | .error _ _ =>
       let entry := LogEntry.error s!"{fileName}: bad import '{imp.module.name}'"
       match r with
-      | .ok _ s => .error (.errorLogged 0) (s.logEntry entry)
-      | .error (.errorLogged e) s => .error (.errorLogged e) (s.logEntry entry)
-      | .error .cancelled s => .error .cancelled s
+      | .ok _ s => .error 0 (s.logEntry entry)
+      | .error e s => .error e (s.logEntry entry)
   return Job.ofTask <| task.map (sync := true) fun
     | .ok impSet s => .ok impSet.toArray s
     | .error e s => .error e s

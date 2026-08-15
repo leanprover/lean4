@@ -21,7 +21,7 @@ public structure BuildConfig extends LogConfig where
   trustHash : Bool := true
   /-- Early exit if a target has to be rebuilt. -/
   noBuild : Bool := false
-  /-- Stop the build monitor after the first required target failure is detected. -/
+  /-- Stop scheduling new build jobs after the first required target failure. -/
   failFast : Bool := false
   /-- Verbosity level (`-q`, `-v`, or neither). -/
   verbosity : Verbosity := .normal
@@ -90,8 +90,9 @@ public structure BuildContext extends BuildConfig, Context where
   -/
   outputsRef? : Option CacheRef := none
   /--
-  When set to `true`, stops new build jobs from being scheduled.
-  Already-running tasks complete normally; no new work is dispatched.
+  Cancellation token for the build. Once the token is set, job continuations
+  (e.g., `Job.mapM` / `Job.bindM`) error instead of scheduling new work;
+  already-running tasks complete normally. If `none`, cancellation is disabled.
   -/
   cancelling? : Option IO.CancelToken := none
 

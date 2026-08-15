@@ -115,7 +115,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
     lean_uv_timer_object * timer = lean_to_uv_timer(obj);
 
     auto create_promise = []() {
-        return lean_io_promise_new();
+        lean_object * promise = lean_io_promise_new();
+        mark_mt(promise);
+        return promise;
     };
 
     auto setup_timer = [create_promise, obj, timer]() {
@@ -137,7 +139,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
         );
 
         if (result != 0) {
+            timer->m_state = TIMER_STATE_INITIAL;
+            timer->m_promise = NULL;
+
+            lean_dec(promise); // The structure does not own it.
+            lean_dec(promise); // We are not going to return it.
             lean_dec(obj);
+
             event_loop_unlock(&global_ev);
             return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
         }

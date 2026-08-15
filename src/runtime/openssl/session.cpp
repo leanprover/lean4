@@ -101,6 +101,13 @@ static lean_obj_res mk_ssl_protocol_error(char const * msg) {
     return lean_io_result_mk_error(lean_mk_io_error_protocol_error(EPROTO, mk_string(msg)));
 }
 
+// Reports a failure that has no errno behind it. The OpenSSL error queue is discarded rather than
+// appended, so its entries cannot leak into a later, unrelated diagnosis.
+static lean_obj_res mk_ssl_invalid_argument(char const * msg) {
+    ERR_clear_error();
+    return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string(msg)));
+}
+
 static lean_obj_res mk_ssl_eof_error() {
     return lean_io_result_mk_error(lean_mk_io_error_eof(lean_box(0)));
 }
@@ -335,14 +342,12 @@ static lean_obj_res mk_ssl_session(SSL_CTX * ctx, ssl_session_role role) {
 
 /* Std.Internal.SSL.Session.Server.mkImpl (ctx : @& Context.Server) : IO Session */
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_mk_server(b_obj_arg ctx_obj) {
-    lean_ssl_context_object * ctx = lean_to_ssl_context_object(ctx_obj);
-    return mk_ssl_session(ctx->ctx, ssl_session_role_server);
+    return mk_ssl_session(lean_to_ssl_context(ctx_obj), ssl_session_role_server);
 }
 
 /* Std.Internal.SSL.Session.Client.mkImpl (ctx : @& Context.Client) : IO Session */
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_mk_client(b_obj_arg ctx_obj) {
-    lean_ssl_context_object * ctx = lean_to_ssl_context_object(ctx_obj);
-    return mk_ssl_session(ctx->ctx, ssl_session_role_client);
+    return mk_ssl_session(lean_to_ssl_context(ctx_obj), ssl_session_role_client);
 }
 
 /* Std.Internal.SSL.Session.setServerNameImpl (ssl : @& Session) (host : @& String) : IO Unit */

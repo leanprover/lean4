@@ -3165,6 +3165,10 @@ theorem isEmpty_inter_iff [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
     rw [← contains_eq_false_iff_not_mem]
   exact Impl.isEmpty_inter!_iff h₁ h₂
 
+theorem isEmpty_inter_comm [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (t₁ ∩ t₂).isEmpty = (t₂ ∩ t₁).isEmpty :=
+  Impl.isEmpty_inter!_comm h₁ h₂
+
 end Inter
 
 namespace Const

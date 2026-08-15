@@ -2818,6 +2818,11 @@ theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h�
   simp only [Inter.inter, Membership.mem]
   simp_to_raw using @Raw₀.isEmpty_inter_iff _ _ _ _ ⟨m₁, _⟩ ⟨m₂, _⟩ _ _
 
+theorem isEmpty_inter_comm [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁ ∩ m₂).isEmpty = (m₂ ∩ m₁).isEmpty := by
+  simp only [Inter.inter]
+  simp_to_raw using @Raw₀.isEmpty_inter_comm _ _ _ _ ⟨m₁, _⟩ ⟨m₂, _⟩ _ _
+
 end Inter
 
 namespace Const

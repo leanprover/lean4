@@ -1171,6 +1171,10 @@ theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h�
     (m₁ ∩ m₂).isEmpty ↔ ∀ k, k ∈ m₁ → k ∉ m₂ :=
   @HashMap.Raw.isEmpty_inter_iff _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out
 
+theorem isEmpty_inter_comm [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁ ∩ m₂).isEmpty = (m₂ ∩ m₁).isEmpty :=
+  @HashMap.Raw.isEmpty_inter_comm _ _ _ _ m₁.inner m₂.inner _ _ h₁.out h₂.out
+
 end Inter
 
 section Diff

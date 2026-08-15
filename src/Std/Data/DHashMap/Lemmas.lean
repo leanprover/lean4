@@ -2462,6 +2462,11 @@ theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] :
   simpa only [mem_iff_contains, Bool.not_eq_true] using!
     @Raw₀.isEmpty_inter_iff _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.wf m₂.wf
 
+theorem isEmpty_inter_comm [EquivBEq α] [LawfulHashable α] :
+    (m₁ ∩ m₂).isEmpty = (m₂ ∩ m₁).isEmpty :=
+  @Raw₀.isEmpty_inter_comm _ _ _ _
+    ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.wf m₂.wf
+
 end Inter
 
 namespace Const

@@ -2101,6 +2101,10 @@ theorem isEmpty_inter_iff [TransCmp cmp] :
     (t₁ ∩ t₂).isEmpty ↔ ∀ k, k ∈ t₁ → k ∉ t₂ :=
   DTreeMap.isEmpty_inter_iff
 
+theorem isEmpty_inter_comm [TransCmp cmp] :
+    (t₁ ∩ t₂).isEmpty = (t₂ ∩ t₁).isEmpty :=
+  DTreeMap.isEmpty_inter_comm
+
 end Inter
 
 section

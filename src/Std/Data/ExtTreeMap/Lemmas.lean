@@ -1931,6 +1931,10 @@ theorem isEmpty_inter_iff [TransCmp cmp] :
     (t₁ ∩ t₂).isEmpty ↔ ∀ k, k ∈ t₁ → k ∉ t₂ :=
   ExtDTreeMap.isEmpty_inter_iff
 
+theorem isEmpty_inter_comm [TransCmp cmp] :
+    (t₁ ∩ t₂).isEmpty = (t₂ ∩ t₁).isEmpty :=
+  ExtDTreeMap.isEmpty_inter_comm
+
 end Inter
 
 section Diff

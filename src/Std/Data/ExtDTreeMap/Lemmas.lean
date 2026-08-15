@@ -2933,6 +2933,10 @@ theorem isEmpty_inter_iff [TransCmp cmp] :
     (t₁ ∩ t₂).isEmpty ↔ ∀ k, k ∈ t₁ → ¬k ∈ t₂ :=
   t₁.inductionOn₂ t₂ fun _ _ => DTreeMap.isEmpty_inter_iff
 
+theorem isEmpty_inter_comm [TransCmp cmp] :
+    (t₁ ∩ t₂).isEmpty = (t₂ ∩ t₁).isEmpty :=
+  t₁.inductionOn₂ t₂ fun _ _ => DTreeMap.isEmpty_inter_comm
+
 end Inter
 
 namespace Const

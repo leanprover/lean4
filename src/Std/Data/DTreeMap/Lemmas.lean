@@ -3005,6 +3005,10 @@ theorem isEmpty_inter_iff [TransCmp cmp] :
     rw [← contains_eq_false_iff_not_mem]
   exact Impl.isEmpty_inter_iff t₁.wf t₂.wf
 
+theorem isEmpty_inter_comm [TransCmp cmp] :
+    (t₁ ∩ t₂).isEmpty = (t₂ ∩ t₁).isEmpty :=
+  Impl.isEmpty_inter_comm t₁.wf t₂.wf
+
 end Inter
 
 namespace Const

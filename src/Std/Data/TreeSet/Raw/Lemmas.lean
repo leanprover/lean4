@@ -846,6 +846,10 @@ theorem isEmpty_inter_iff [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
     (t₁ ∩ t₂).isEmpty ↔ ∀ k, k ∈ t₁ → k ∉ t₂ :=
   TreeMap.Raw.isEmpty_inter_iff h₁ h₂
 
+theorem isEmpty_inter_comm [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (t₁ ∩ t₂).isEmpty = (t₂ ∩ t₁).isEmpty :=
+  TreeMap.Raw.isEmpty_inter_comm h₁ h₂
+
 end Inter
 
 section

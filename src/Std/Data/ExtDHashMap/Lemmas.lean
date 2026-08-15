@@ -2701,6 +2701,10 @@ theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] :
     (m₁ ∩ m₂).isEmpty ↔ ∀ k, k ∈ m₁ → k ∉ m₂ :=
   m₁.inductionOn₂ m₂ fun _ _ => DHashMap.isEmpty_inter_iff
 
+theorem isEmpty_inter_comm [EquivBEq α] [LawfulHashable α] :
+    (m₁ ∩ m₂).isEmpty = (m₂ ∩ m₁).isEmpty :=
+  m₁.inductionOn₂ m₂ fun _ _ => DHashMap.isEmpty_inter_comm
+
 end Inter
 
 namespace Const

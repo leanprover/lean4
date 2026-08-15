@@ -4,7 +4,7 @@ Blocks until `slowA`'s marker appears (path in `FAILFAST_SYNC`). Under
 `SlowChain.B`'s compile continuation deterministically observes a set token.
 Bounded, in case the marker never appears.
 -/
-#eval do
+#eval show IO Unit from do
   let some path ← IO.getEnv "FAILFAST_SYNC"
     | throw <| IO.userError "FAILFAST_SYNC not set"
   for _ in [0:600] do

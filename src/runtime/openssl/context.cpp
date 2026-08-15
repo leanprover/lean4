@@ -172,6 +172,20 @@ static bool load_system_trust_store(SSL_CTX * ctx) {
     ERR_clear_error();
 
     return added > 0;
+#elif defined(LEAN_WINDOWS)
+    // The Windows ROOT store is reachable only through OpenSSL's winstore provider, which
+    // `SSL_CTX_set_default_verify_paths` does not consult, so it has to be named explicitly. The
+    // default paths are still added on top, and a build configured with `no-winstore` falls back to
+    // them alone.
+    int winstore = SSL_CTX_load_verify_store(ctx, "org.openssl.winstore://");
+    int paths = SSL_CTX_set_default_verify_paths(ctx);
+
+    if (winstore != 1 && paths != 1) return false;
+
+    // Entries a failed load left behind would otherwise be picked up by a later diagnosis in this
+    // call as its own.
+    ERR_clear_error();
+    return true;
 #else
     return SSL_CTX_set_default_verify_paths(ctx) == 1;
 #endif
@@ -230,9 +244,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert_file, 
     }
 
     // Encrypted private keys are not supported. Without a callback here OpenSSL falls back to
-    // PEM_def_callback, which prompts for a passphrase on the terminal and blocks; returning 0
-    // turns that into the ordinary read failure diagnosed below.
-    SSL_CTX_set_default_passwd_cb(ctx, [](char *, int, int, void *) { return 0; });
+    // PEM_def_callback, which prompts for a passphrase on the terminal and blocks. The return value
+    // is the passphrase length, so it has to be -1 (the documented failure code) and not 0: 0 is an
+    // empty passphrase, which loads a key encrypted under one instead of rejecting it.
+    SSL_CTX_set_default_passwd_cb(ctx, [](char *, int, int, void *) { return -1; });
 
     // Both key calls below are diagnosed from the error queue, so each must see only its own
     // entries.

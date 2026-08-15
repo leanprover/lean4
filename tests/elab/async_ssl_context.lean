@@ -25,6 +25,12 @@ def testCorruptCertPEM : String := include_cert% "async_ssl_certs/corrupt.pem"
 -- Matches none of the certificates above, so it is only good for provoking a key/cert mismatch.
 def testUnrelatedKeyPEM : String := include_cert% "async_ssl_certs/key2.pem"
 
+-- A P-256 key, so the mismatch against the RSA certificates is one of algorithm rather than value.
+def testECKeyPEM : String := include_cert% "async_ssl_certs/eckey.pem"
+
+-- `key.pem` behind a passphrase, which OpenSSL asks for on the terminal unless it is told not to.
+def testEncryptedKeyPEM : String := include_cert% "async_ssl_certs/enckey.pem"
+
 -- Three distinct certificates in one file, the shape of a real CA bundle.
 def testBundlePEM : String := testCertPEM ++ testWildcardCertPEM ++ testMultiSANCertPEM
 
@@ -71,6 +77,10 @@ def setupMalformedFile : IO String := writeTempFile "junk.pem" "this is not pem\
 def setupCorruptCert : IO String := writeTempFile "corrupt.pem" testCorruptCertPEM
 
 def setupUnrelatedKey : IO String := writeTempFile "key2.pem" testUnrelatedKeyPEM
+
+def setupECKey : IO String := writeTempFile "eckey.pem" testECKeyPEM
+
+def setupEncryptedKey : IO String := writeTempFile "enckey.pem" testEncryptedKeyPEM
 
 def setupBundle : IO String := writeTempFile "bundle.pem" testBundlePEM
 
@@ -206,6 +216,22 @@ def testMkServerRejectsMismatchedKey (certFile key2File : String) : IO Unit := d
     (malformedFileError key2File "the private key does not match the certificate")
     (discard <| Context.Server.mk certFile key2File)
 
+-- A key of a different algorithm than the certificate lands in an unused slot of the context, so
+-- `SSL_CTX_use_PrivateKey_file` accepts it without ever comparing the two; only the separate
+-- `SSL_CTX_check_private_key` rejects it.
+def testMkServerRejectsCrossAlgorithmKey (certFile ecKeyFile : String) : IO Unit := do
+  assertErrorMessage "EC server key against an RSA certificate"
+    (malformedFileError ecKeyFile "the private key does not match the certificate")
+    (discard <| Context.Server.mk certFile ecKeyFile)
+
+-- Encrypted keys are unsupported. The point of this test is as much the absence of output as the
+-- error itself: with no password callback installed OpenSSL prompts for the passphrase on the
+-- terminal, which blocks when one is attached and pollutes the test output when one is not.
+def testMkServerRejectsEncryptedKey (certFile encKeyFile : String) : IO Unit := do
+  assertErrorMessage "passphrase-protected server key"
+    (malformedFileError encKeyFile "could not read an unencrypted PEM private key")
+    (discard <| Context.Server.mk certFile encKeyFile)
+
 def testMkServerRejectsNulInCert (keyFile : String) : IO Unit := do
   let certPath := "cert\x00.pem"
 
@@ -287,6 +313,8 @@ def testMkRejectsNulInCAFile : IO Unit := do
   testMkServerRejectsCertAsKey certFile
   testMkServerRejectsSwappedFiles certFile keyFile
   testMkServerRejectsMismatchedKey certFile (← setupUnrelatedKey)
+  testMkServerRejectsCrossAlgorithmKey certFile (← setupECKey)
+  testMkServerRejectsEncryptedKey certFile (← setupEncryptedKey)
 
 #eval do
   let (certFile, keyFile) ← setupTestCerts

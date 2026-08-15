@@ -8,13 +8,15 @@ Author: Sofia Rodrigues
 
 #ifndef LEAN_EMSCRIPTEN
 
+#include <openssl/err.h>
 #include <openssl/pem.h>
 #include <openssl/x509.h>
 #include <openssl/x509_vfy.h>
 #include <openssl/x509v3.h>
-#include <errno.h>
-#include <limits.h>
-#include <string.h>
+#include <cerrno>
+#include <climits>
+#include <cstring>
+#include <string>
 
 #if defined(__APPLE__)
 #include <Security/Security.h>
@@ -25,7 +27,7 @@ Author: Sofia Rodrigues
 
 namespace lean {
 
-lean_external_class * g_ssl_context_external_class = NULL;
+lean_external_class * g_ssl_context_external_class = nullptr;
 
 #ifndef LEAN_EMSCRIPTEN
 
@@ -44,6 +46,8 @@ static lean_obj_res mk_ssl_file_error(b_obj_arg file, char const * msg) {
     return lean_io_result_mk_error(lean_mk_io_error_invalid_argument_file(file, EINVAL, mk_string(msg)));
 }
 
+// Reports a failure that has no errno behind it. The OpenSSL error queue is discarded rather than
+// appended, so its entries cannot leak into a later, unrelated diagnosis.
 static lean_obj_res mk_ssl_invalid_argument(char const * msg) {
     ERR_clear_error();
     return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string(msg)));
@@ -54,7 +58,7 @@ lean_object * mk_openssl_error(char const * where, int ssl_err) {
 
     if (ssl_err != 0) msg += " (ssl_error=" + std::to_string(ssl_err) + ")";
 
-    // Drain up to 10 entries from the OpenSSL error queue; mark with "(truncated)" if more remain.
+    // Drains up to 10 entries from the OpenSSL error queue; marks with "(truncated)" if more remain.
     unsigned long err;
     bool first = true;
     int cap = 10;
@@ -67,25 +71,20 @@ lean_object * mk_openssl_error(char const * where, int ssl_err) {
         first = false;
     }
 
-    if (!first && ERR_peek_error() != 0) {
+    if (ERR_peek_error() != 0) {
         msg += "; ... (truncated)";
         ERR_clear_error();
     }
 
-    return lean_mk_io_user_error(mk_string(msg.c_str()));
+    return lean_mk_io_user_error(mk_string(msg));
 }
 
 static void lean_ssl_context_finalizer(void * ptr) {
-    lean_ssl_context_object * obj = (lean_ssl_context_object*)ptr;
-    SSL_CTX_free(obj->ctx);
-    free(obj);
+    SSL_CTX_free((SSL_CTX*)ptr);
 }
 
 void initialize_openssl_context() {
-    g_ssl_context_external_class = lean_register_external_class(lean_ssl_context_finalizer, [](void * obj, lean_object * f) {
-        (void)obj;
-        (void)f;
-    });
+    g_ssl_context_external_class = lean_register_external_class(lean_ssl_context_finalizer, [](void *, lean_object *) {});
 }
 
 static bool configure_ctx_options(SSL_CTX * ctx) {
@@ -99,18 +98,17 @@ static bool configure_ctx_options(SSL_CTX * ctx) {
         // but set explicitly so the intent is clear.
         SSL_OP_NO_COMPRESSION |
 
-        // Disables session tickets (TLS 1.2 RFC 5077 and TLS 1.3 PSK resumption).
-        // This prevents 0-RTT session resumption but avoids stateful ticket
-        // management complexity and removes one tracking vector in server deployments.
-        // If session resumption performance matters, remove this flag and implement
-        // a ticket key rotation strategy.
+        // Disables RFC 5077 session tickets in TLS 1.2. TLS 1.3 tickets cannot be switched off this
+        // way: there the flag only downgrades them to the stateful form, which the disabled session
+        // cache below then suppresses. If resumption performance matters, remove this flag and
+        // implement a ticket key rotation strategy.
         SSL_OP_NO_TICKET
     );
 
-    // Disable the internal session cache as well. SSL_OP_NO_TICKET only suppresses ticket-based
-    // resumption (RFC 5077 and TLS 1.3 PSK); a TLS 1.2 server still offers session-ID resumption
-    // through the cache, which defaults to SSL_SESS_CACHE_SERVER. Turning the cache off makes the
-    // "no session resumption" guarantee hold for both client and server contexts.
+    // Backs the flag above. A TLS 1.2 server still offers session-ID resumption through this cache
+    // (which defaults to SSL_SESS_CACHE_SERVER), and the TLS 1.3 stateful tickets left by
+    // SSL_OP_NO_TICKET are stored in it too, so turning it off is what makes "no session
+    // resumption" hold for both protocol versions.
     SSL_CTX_set_session_cache_mode(ctx, SSL_SESS_CACHE_OFF);
 
     // Reject TLS 1.0 and 1.1. Both are deprecated (RFC 8996) and have known
@@ -132,18 +130,25 @@ static bool configure_ctx_options(SSL_CTX * ctx) {
 }
 
 // Loads the platform's system root certificates into the context's trust store so clients verify
-// public servers out of the box (like a browser).
+// public servers out of the box (like a browser). Success does not promise a non-empty trust store:
+// only the Apple branch loads anchors eagerly and can count them.
 static bool load_system_trust_store(SSL_CTX * ctx) {
 #if defined(__APPLE__)
-    // OpenSSL's default paths don't reach the Keychain, so the trusted anchors are pulled from the
-    // Security framework instead.
+    // OpenSSL's default paths don't reach the Keychain, so the anchors are pulled from the Security
+    // framework instead. This yields the built-in system roots only: certificates a user or an
+    // administrator added to a keychain are not included, and per-certificate trust settings are
+    // not consulted, so a root the user explicitly distrusted is still added here.
     X509_STORE * store = SSL_CTX_get_cert_store(ctx);
-    if (store == nullptr) return false;
 
     CFArrayRef anchors = nullptr;
-    if (SecTrustCopyAnchorCertificates(&anchors) != errSecSuccess || anchors == nullptr) {
+    OSStatus status = SecTrustCopyAnchorCertificates(&anchors);
+
+    if (status != errSecSuccess || anchors == nullptr) {
+        if (anchors != nullptr) CFRelease(anchors);
         return false;
     }
+
+    int added = 0;
 
     for (CFIndex i = 0, n = CFArrayGetCount(anchors); i < n; i++) {
         SecCertificateRef cert = (SecCertificateRef)CFArrayGetValueAtIndex(anchors, i);
@@ -158,19 +163,17 @@ static bool load_system_trust_store(SSL_CTX * ctx) {
         if (x509 == nullptr) continue;
 
         // X509_STORE_add_cert bumps the certificate's refcount, so drop our own reference after.
-        // Duplicate anchors are harmless and ignored.
-        X509_STORE_add_cert(store, x509);
+        // An anchor already in the store is reported as success and counted like any other.
+        if (X509_STORE_add_cert(store, x509) == 1) added++;
         X509_free(x509);
     }
 
     CFRelease(anchors);
     ERR_clear_error();
 
-    return true;
+    return added > 0;
 #else
-    // Everywhere else OpenSSL's own defaults already resolve to the system trust anchors.
-    // Works on Windows if OpenSSL version is greater than 3.2.
-    return SSL_CTX_set_default_verify_paths(ctx);
+    return SSL_CTX_set_default_verify_paths(ctx) == 1;
 #endif
 }
 
@@ -188,6 +191,8 @@ static SSL_CTX * mk_ssl_ctx_base(const SSL_METHOD * method, lean_obj_res * err) 
 
     if (!configure_ctx_options(ctx)) {
         SSL_CTX_free(ctx);
+        // SSL_CTX_set_min_proto_version is the only way to get here, and it reports failure without
+        // pushing anything onto the OpenSSL error queue, so this message has to stand on its own.
         *err = mk_openssl_io_error("SSL_CTX_set_min_proto_version failed");
         return nullptr;
     }
@@ -197,18 +202,10 @@ static SSL_CTX * mk_ssl_ctx_base(const SSL_METHOD * method, lean_obj_res * err) 
 
 // Wraps a fully configured SSL_CTX into a Lean external object, taking ownership of ctx.
 static lean_obj_res wrap_ssl_context(SSL_CTX * ctx) {
-    lean_ssl_context_object * obj = (lean_ssl_context_object*)malloc(sizeof(lean_ssl_context_object));
+    lean_object * obj = lean_ssl_context_new(ctx);
+    lean_mark_mt(obj);
 
-    if (obj == nullptr) {
-        SSL_CTX_free(ctx);
-        return mk_openssl_io_error("failed to allocate SSL context object");
-    }
-
-    obj->ctx = ctx;
-    lean_object * lean_obj = lean_ssl_context_object_new(obj);
-    lean_mark_mt(lean_obj);
-
-    return lean_io_result_mk_ok(lean_obj);
+    return lean_io_result_mk_ok(obj);
 }
 
 /* Std.Internal.SSL.Context.Server.mk (certFile keyFile : @& String) : IO Context.Server */
@@ -232,10 +229,20 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert_file, 
         return mk_ssl_file_error(cert_file, "could not read a PEM certificate chain");
     }
 
-    if (SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM) <= 0) {
-        unsigned long err_code = ERR_peek_last_error();
+    // Encrypted private keys are not supported. Without a callback here OpenSSL falls back to
+    // PEM_def_callback, which prompts for a passphrase on the terminal and blocks; returning 0
+    // turns that into the ordinary read failure diagnosed below.
+    SSL_CTX_set_default_passwd_cb(ctx, [](char *, int, int, void *) { return 0; });
 
-        bool mismatch = ERR_GET_LIB(err_code) == ERR_LIB_X509 && ERR_GET_REASON(err_code) == X509_R_KEY_VALUES_MISMATCH;
+    // Both key calls below are diagnosed from the error queue, so each must see only its own
+    // entries.
+    ERR_clear_error();
+
+    // A key of the same algorithm as the certificate is compared against it here. The only errors
+    // this raises from ERR_LIB_X509 come from that comparison, so they distinguish a key that does
+    // not belong to the certificate from one that could not be read at all.
+    if (SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM) <= 0) {
+        bool mismatch = ERR_GET_LIB(ERR_peek_last_error()) == ERR_LIB_X509;
 
         SSL_CTX_free(ctx);
         return mk_ssl_file_error(key_file, mismatch
@@ -243,6 +250,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert_file, 
             : "could not read an unencrypted PEM private key");
     }
 
+    ERR_clear_error();
+
+    // A key whose algorithm differs from the certificate's occupies a different slot in the context
+    // and is never compared above, so it is accepted there and only caught here. Without this the
+    // context would be built with no usable certificate and fail at handshake time instead.
     if (SSL_CTX_check_private_key(ctx) != 1) {
         SSL_CTX_free(ctx);
         return mk_ssl_file_error(key_file, "the private key does not match the certificate");
@@ -251,11 +263,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert_file, 
     return wrap_ssl_context(ctx);
 }
 
-/* Std.Internal.SSL.Context.Client.mk (caFile : @& String) (verifyPeer : Bool) : IO Context.Client */
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca_file, uint8_t verify_peer) {
-    const char * ca = lean_string_cstr(ca_file);
-    if (strlen(ca) != lean_string_size(ca_file) - 1) return mk_embedded_nul_error(ca_file);
-
+// Shared skeleton of the client constructors. With verification off the CA material is never
+// consulted, so `load_ca` is skipped entirely; otherwise the platform's trust anchors are loaded
+// first and `load_ca` adds the caller's own CAs on top of them, additively. `load_ca` returns
+// nullptr on success, or an IO error to propagate.
+template<typename LoadCA>
+static lean_obj_res mk_client_ctx(uint8_t verify_peer, LoadCA load_ca) {
     lean_obj_res err = nullptr;
     SSL_CTX * ctx = mk_ssl_ctx_base(TLS_client_method(), &err);
     if (ctx == nullptr) return err;
@@ -265,106 +278,81 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca_file, ui
         return wrap_ssl_context(ctx);
     }
 
-    // Trust the platform's system roots (so public servers verify out of the box, like a browser),
-    // then add the caller's CA file on top if one was supplied. The supplied CA is additive: it
-    // never replaces the system trust anchors.
     if (!load_system_trust_store(ctx)) {
         SSL_CTX_free(ctx);
         return mk_openssl_io_error("failed to load system trust store");
     }
 
-    if (ca[0] != '\0') {
-        if (SSL_CTX_load_verify_locations(ctx, ca, nullptr) != 1) {
-            SSL_CTX_free(ctx);
-            return mk_ssl_file_error(ca_file, "could not read PEM CA certificates");
-        }
+    if (lean_obj_res ca_err = load_ca(ctx)) {
+        SSL_CTX_free(ctx);
+        return ca_err;
     }
 
     SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, nullptr);
     return wrap_ssl_context(ctx);
 }
 
+/* Std.Internal.SSL.Context.Client.mk (caFile : @& String) (verifyPeer : Bool) : IO Context.Client */
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca_file, uint8_t verify_peer) {
+    const char * ca = lean_string_cstr(ca_file);
+    if (strlen(ca) != lean_string_size(ca_file) - 1) return mk_embedded_nul_error(ca_file);
+
+    return mk_client_ctx(verify_peer, [&](SSL_CTX * ctx) -> lean_obj_res {
+        // An empty CA path leaves the client with just the system trust anchors.
+        if (ca[0] == '\0') return nullptr;
+
+        if (SSL_CTX_load_verify_locations(ctx, ca, nullptr) != 1) {
+            return mk_ssl_file_error(ca_file, "could not read PEM CA certificates");
+        }
+
+        return nullptr;
+    });
+}
+
 /* Std.Internal.SSL.Context.Client.mkFromPEM (caPEM : @& String) (verifyPeer : Bool) : IO Context.Client */
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client_from_pem(b_obj_arg ca_pem, uint8_t verify_peer) {
-    lean_obj_res err = nullptr;
-    SSL_CTX * ctx = mk_ssl_ctx_base(TLS_client_method(), &err);
-    if (ctx == nullptr) return err;
+    return mk_client_ctx(verify_peer, [&](SSL_CTX * ctx) -> lean_obj_res {
+        const char * pem = lean_string_cstr(ca_pem);
+        size_t pem_size = lean_string_size(ca_pem) - 1;
 
-    // Without peer verification the supplied CA certificates would never be consulted, so skip
-    // parsing them and just disable verification (mirrors the file-based `mk`).
-    if (!verify_peer) {
-        SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, nullptr);
-        return wrap_ssl_context(ctx);
-    }
+        // An empty PEM leaves the client with just the system trust anchors.
+        if (pem_size == 0) return nullptr;
 
-    // Trust the platform's system roots; any PEM certificates below are added on top of them.
-    if (!load_system_trust_store(ctx)) {
-        SSL_CTX_free(ctx);
-        return mk_openssl_io_error("failed to load system trust store");
-    }
+        if (pem_size > INT_MAX) return mk_ssl_invalid_argument("the CA PEM string is too large");
 
-    const char * pem = lean_string_cstr(ca_pem);
-    size_t pem_size = lean_string_size(ca_pem) - 1;
+        BIO * bio = BIO_new_mem_buf(pem, (int)pem_size);
+        if (bio == nullptr) return mk_openssl_io_error("BIO_new_mem_buf failed");
 
-    // An empty PEM leaves the client with just the system trust anchors.
-    if (pem_size == 0) {
-        SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, nullptr);
-        return wrap_ssl_context(ctx);
-    }
+        STACK_OF(X509_INFO) * infos = PEM_X509_INFO_read_bio(bio, nullptr, nullptr, nullptr);
 
-    if (pem_size > INT_MAX) {
-        SSL_CTX_free(ctx);
-        return mk_ssl_invalid_argument("the CA PEM string is too large");
-    }
+        BIO_free(bio);
 
-    BIO * bio = BIO_new_mem_buf(pem, (int)pem_size);
+        if (infos == nullptr) return mk_ssl_invalid_argument("could not read PEM CA certificates from the given string");
 
-    if (bio == nullptr) {
-        SSL_CTX_free(ctx);
-        return mk_openssl_io_error("BIO_new_mem_buf failed");
-    }
+        // The store already holds the system roots and is owned by the context, so it is not freed
+        // here.
+        X509_STORE * store = SSL_CTX_get_cert_store(ctx);
+        int cert_count = 0;
 
-    STACK_OF(X509_INFO) * infos = PEM_X509_INFO_read_bio(bio, nullptr, nullptr, nullptr);
+        for (int i = 0; i < sk_X509_INFO_num(infos); i++) {
+            X509_INFO * info = sk_X509_INFO_value(infos, i);
+            if (info->x509 == nullptr) continue;
+            cert_count++;
 
-    BIO_free(bio);
-
-    if (infos == nullptr) {
-        SSL_CTX_free(ctx);
-        return mk_ssl_invalid_argument("could not read PEM CA certificates from the given string");
-    }
-
-    // Add the parsed certificates to the context's verification store, which already holds the
-    // system roots; the store is owned by the context, so it must not be freed here.
-    X509_STORE * store = SSL_CTX_get_cert_store(ctx);
-    int cert_count = 0;
-
-    for (int i = 0; i < sk_X509_INFO_num(infos); i++) {
-        X509_INFO * info = sk_X509_INFO_value(infos, i);
-        if (info->x509 == nullptr) continue;
-        cert_count++;
-
-        if (X509_STORE_add_cert(store, info->x509) != 1) {
-            unsigned long err_code = ERR_peek_last_error();
-            if (ERR_GET_LIB(err_code) == ERR_LIB_X509 && ERR_GET_REASON(err_code) == X509_R_CERT_ALREADY_IN_HASH_TABLE) {
-                ERR_clear_error();
-                continue;
+            // A certificate that is already an anchor (e.g. a system root repeated in the bundle)
+            // is reported as success, so duplicates need no special handling here.
+            if (X509_STORE_add_cert(store, info->x509) != 1) {
+                sk_X509_INFO_pop_free(infos, X509_INFO_free);
+                return mk_openssl_io_error("X509_STORE_add_cert failed");
             }
-
-            sk_X509_INFO_pop_free(infos, X509_INFO_free);
-            SSL_CTX_free(ctx);
-            return mk_openssl_io_error("X509_STORE_add_cert failed");
         }
-    }
 
-    sk_X509_INFO_pop_free(infos, X509_INFO_free);
+        sk_X509_INFO_pop_free(infos, X509_INFO_free);
 
-    if (cert_count == 0) {
-        SSL_CTX_free(ctx);
-        return mk_ssl_invalid_argument("the given CA PEM string contains no certificates");
-    }
+        if (cert_count == 0) return mk_ssl_invalid_argument("the given CA PEM string contains no certificates");
 
-    SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, nullptr);
-    return wrap_ssl_context(ctx);
+        return nullptr;
+    });
 }
 
 #else

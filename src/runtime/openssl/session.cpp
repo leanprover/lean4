@@ -36,6 +36,11 @@ void initialize_openssl_session() {
     });
 }
 
+inline lean_obj_res mk_ssl_invalid_argument(char const * msg) {
+    ERR_clear_error();
+    return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string(msg)));
+}
+
 /*
  * `IOWant` is an enum inductive, so it is an unboxed `uint8_t` (`read` = 0, `write` = 1). How it is
  * stored depends on the constructor holding it, and the two wrappers below differ:
@@ -58,49 +63,49 @@ void initialize_openssl_session() {
  * NOTE: neither the `wantIO` payload nor the nullary constructors are encoded alike across the two
  * types (`Option.none` = lean_box(0) but `ReadResult.closed` = lean_box(2)). Do not conflate them.
  */
-static inline lean_obj_res mk_option_iowant_none() {
+inline lean_obj_res mk_option_iowant_none() {
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-static inline lean_obj_res mk_read_result_closed() {
+inline lean_obj_res mk_read_result_closed() {
     return lean_io_result_mk_ok(lean_box(2));
 }
 
-static inline lean_obj_res mk_option_iowant_read() {
+inline lean_obj_res mk_option_iowant_read() {
     lean_object * r = lean_alloc_ctor(1, 1, 0);
     lean_ctor_set(r, 0, lean_box(0));
     return lean_io_result_mk_ok(r);
 }
 
-static inline lean_obj_res mk_option_iowant_write() {
+inline lean_obj_res mk_option_iowant_write() {
     lean_object * r = lean_alloc_ctor(1, 1, 0);
     lean_ctor_set(r, 0, lean_box(1));
     return lean_io_result_mk_ok(r);
 }
 
-static inline lean_obj_res mk_read_result_want_read() {
+inline lean_obj_res mk_read_result_want_read() {
     lean_object * r = lean_alloc_ctor(1, 0, 1);
     lean_ctor_set_uint8(r, 0, 0);
     return lean_io_result_mk_ok(r);
 }
 
-static inline lean_obj_res mk_read_result_want_write() {
+inline lean_obj_res mk_read_result_want_write() {
     lean_object * r = lean_alloc_ctor(1, 0, 1);
     lean_ctor_set_uint8(r, 0, 1);
     return lean_io_result_mk_ok(r);
 }
 
-static inline lean_obj_res mk_read_result_data(lean_object * bytes) {
+inline lean_obj_res mk_read_result_data(lean_object * bytes) {
     lean_object * r = lean_alloc_ctor(0, 1, 0);
     lean_ctor_set(r, 0, bytes);
     return lean_io_result_mk_ok(r);
 }
 
-static inline lean_obj_res mk_ssl_protocol_error(char const * msg) {
+inline lean_obj_res mk_ssl_protocol_error(char const * msg) {
     return lean_io_result_mk_error(lean_mk_io_error_protocol_error(EPROTO, mk_string(msg)));
 }
 
-static inline lean_obj_res mk_ssl_eof_error() {
+inline lean_obj_res mk_ssl_eof_error() {
     return lean_io_result_mk_error(lean_mk_io_error_eof(lean_box(0)));
 }
 
@@ -124,6 +129,7 @@ static char const * ssl_reason_message(int reason) {
     case SSL_R_APPLICATION_DATA_AFTER_CLOSE_NOTIFY:
         return "application data arrived after the TLS session was closed";
     case SSL_R_WRONG_VERSION_NUMBER:
+        return "the peer sent a TLS record with an unrecognized version; it may not be speaking TLS";
     case SSL_R_UNSUPPORTED_PROTOCOL:
         return "the peer does not support a compatible TLS version";
     case SSL_R_NO_SHARED_CIPHER:
@@ -156,14 +162,14 @@ static lean_obj_res mk_ssl_error(SSL * ssl, int ssl_err, char const * fallback) 
         return mk_ssl_protocol_error(msg.c_str());
     }
 
-    // An unexpected transport EOF reaches us either as this reason code or, with an empty queue,
-    // as a bare SSL_ERROR_SYSCALL.
     if (reason == SSL_R_UNEXPECTED_EOF_WHILE_READING) return mk_ssl_eof_error();
 
     char const * msg = ssl_reason_message(reason);
     if (msg != nullptr) return mk_ssl_protocol_error(msg);
 
-    if (ssl_err == SSL_ERROR_SYSCALL) return mk_ssl_eof_error();
+    if (ssl_err == SSL_ERROR_SYSCALL) {
+        return mk_ssl_protocol_error("the TLS session was aborted by an earlier fatal error");
+    }
 
     return mk_ssl_protocol_error(fallback);
 }
@@ -301,6 +307,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_set_server_name(b_obj_arg ssl, b_ob
 
     lean_ssl_session_object * ssl_obj = lean_to_ssl_session_object(ssl);
 
+    // Both settings below only act during the handshake, so accepting the call afterwards would
+    // leave the peer unverified against the name the caller believes was checked.
+    if (SSL_is_init_finished(ssl_obj->ssl)) {
+        return mk_ssl_invalid_argument("the server name must be set before the handshake");
+    }
+
     // SSL_set_tlsext_host_name sets the SNI extension sent in the ClientHello.
     if (SSL_set_tlsext_host_name(ssl_obj->ssl, server_name) != 1) {
         return mk_ssl_invalid_argument("the server name is not a valid SNI hostname");
@@ -310,6 +322,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_set_server_name(b_obj_arg ssl, b_ob
     // CN/SAN. Without this, OpenSSL only validates the certificate chain — not that the
     // certificate actually belongs to the hostname we connected to.
     if (SSL_set1_host(ssl_obj->ssl, server_name) != 1) {
+        // Leaving SNI set would send the peer a name we are not going to verify against.
+        SSL_set_tlsext_host_name(ssl_obj->ssl, nullptr);
         return mk_ssl_invalid_argument("the server name cannot be used for certificate verification");
     }
 
@@ -361,9 +375,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_handshake(b_obj_arg ssl) {
         return mk_option_iowant_write();
     }
 
-    // Any other error is fatal for the handshake. In particular SSL_ERROR_ZERO_RETURN
-    // (the peer sent a TLS close_notify before the handshake finished) is a protocol
-    // error here, not a recoverable retry.
+    // Any other error is fatal for the handshake. In particular SSL_ERROR_ZERO_RETURN (the peer sent
+    // a TLS close_notify before the handshake finished) is reported as a vanished resource, not as a
+    // recoverable retry.
     return mk_ssl_error(ssl_obj->ssl, err, "the TLS handshake failed");
 }
 
@@ -573,81 +587,80 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_pending_plaintext(b_obj_arg ssl) {
     return lean_io_result_mk_ok(lean_box_uint64((uint64_t)SSL_pending(ssl_obj->ssl)));
 }
 
-/* Std.Internal.SSL.Session.closeNotify (ssl : @& Session) : IO (Option IOWant)  */
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_close_notify(b_obj_arg ssl) {
-    ERR_clear_error();
-    lean_ssl_session_object * ssl_obj = lean_to_ssl_session_object(ssl);
-
-    if (SSL_is_init_finished(ssl_obj->ssl)) {
-        char peek_buf[1];
-        int peek_rc = SSL_peek(ssl_obj->ssl, peek_buf, 1);
-
-        if (peek_rc > 0) {
-            if ((SSL_get_shutdown(ssl_obj->ssl) & SSL_SENT_SHUTDOWN) == 0) {
-                // Sends our alert without entering the read phase, which only runs once
-                // SSL_SENT_SHUTDOWN is set.
-                int send_rc = SSL_shutdown(ssl_obj->ssl);
-                if (send_rc < 0) {
-                    int send_err = SSL_get_error(ssl_obj->ssl, send_rc);
-                    if (send_err == SSL_ERROR_WANT_WRITE) return mk_option_iowant_write();
-                    if (send_err != SSL_ERROR_WANT_READ) {
-                        return mk_ssl_error(ssl_obj->ssl, send_err, "could not shut down the TLS session");
-                    }
-                }
-            }
-            return mk_option_iowant_read();
-        }
-
-        int peek_err = SSL_get_error(ssl_obj->ssl, peek_rc);
-
-        // SSL_ERROR_ZERO_RETURN means the peer's close_notify is buffered, which the shutdown below
-        // consumes. Anything but that or a want-I/O signal (e.g. a corrupt record) is fatal.
-        if (peek_err != SSL_ERROR_ZERO_RETURN && peek_err != SSL_ERROR_WANT_READ
-                && peek_err != SSL_ERROR_WANT_WRITE) {
-            return mk_ssl_error(ssl_obj->ssl, peek_err, "could not read data from the TLS session");
-        }
-
-        ERR_clear_error();
-    }
-
-    int rc = SSL_shutdown(ssl_obj->ssl);
-
-    if (rc == 1) {
-        return mk_option_iowant_none();
-    }
-
-    if (rc < 0) {
-        int err = SSL_get_error(ssl_obj->ssl, rc);
-        if (err == SSL_ERROR_WANT_READ) return mk_option_iowant_read();
-        if (err == SSL_ERROR_WANT_WRITE) return mk_option_iowant_write();
-        return mk_ssl_error(ssl_obj->ssl, err, "could not shut down the TLS session");
-    }
-
-    // rc == 0: our close_notify was sent but the peer's has not arrived yet. Retrying immediately
-    // lets a peer close_notify that is already buffered in the input BIO (e.g. with memory BIOs)
-    // complete the shutdown without a transport round-trip. No application record can precede it:
-    // the peek above rules that out, and before the handshake completes there is none to read.
-    ERR_clear_error();
-
-    rc = SSL_shutdown(ssl_obj->ssl);
-    if (rc == 1) {
-        return mk_option_iowant_none();
-    }
-    if (rc == 0) {
-        int err = SSL_get_error(ssl_obj->ssl, rc);
-        if (err == SSL_ERROR_WANT_READ) return mk_option_iowant_read();
-        if (err == SSL_ERROR_WANT_WRITE) return mk_option_iowant_write();
-
-        // If OpenSSL gives us rc == 0 without a retry hint, fall back to the
-        // original "need peer close_notify" interpretation.
-        return mk_option_iowant_read();
-    }
-
+// Classifies a failing `SSL_shutdown` (`rc` must be negative). Want-I/O becomes the matching signal;
+// a session that never reached a negotiated state reports success, since there is nothing to close.
+static lean_obj_res close_notify_error(lean_ssl_session_object * ssl_obj, int rc) {
     int err = SSL_get_error(ssl_obj->ssl, rc);
     if (err == SSL_ERROR_WANT_READ) return mk_option_iowant_read();
     if (err == SSL_ERROR_WANT_WRITE) return mk_option_iowant_write();
 
+    unsigned long queued = ERR_peek_last_error();
+
+    if (ERR_GET_LIB(queued) == ERR_LIB_SSL && ERR_GET_REASON(queued) == SSL_R_SHUTDOWN_WHILE_IN_INIT) {
+        ERR_clear_error();
+
+        if (!ssl_obj->pending_writes->empty()) {
+            return mk_ssl_protocol_error("the TLS session ended before buffered data could be sent");
+        }
+
+        return mk_option_iowant_none();
+    }
+
     return mk_ssl_error(ssl_obj->ssl, err, "could not shut down the TLS session");
+}
+
+/* Std.Internal.SSL.Session.closeNotify (ssl : @& Session) : IO (Option IOWant)  */
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_close_notify(b_obj_arg ssl) {
+    ERR_clear_error();
+    lean_ssl_session_object * ssl_obj = lean_to_ssl_session_object(ssl);
+    SSL * s = ssl_obj->ssl;
+
+    // Plaintext accepted by `write` but not yet encrypted must reach the peer before the alert that
+    // ends the session; `SSL_shutdown` would leave it in the queue with the caller never learning
+    // the data was dropped. Only worth attempting on a negotiated session: before that `SSL_write`
+    // would drive the handshake instead, so a teardown could never finish.
+    if (SSL_is_init_finished(s) && !ssl_obj->pending_writes->empty()) {
+        int flush_err = 0;
+        ssl_pending_write_flush flushed = try_flush_pending_writes(ssl_obj, &flush_err);
+
+        if (flushed == ssl_pending_write_flush_failed) {
+            return mk_ssl_error(s, flush_err, "could not send buffered data over the TLS session");
+        }
+
+        if (flushed == ssl_pending_write_flush_blocked) {
+            return flush_err == SSL_ERROR_WANT_READ ? mk_option_iowant_read() : mk_option_iowant_write();
+        }
+    }
+
+    if ((SSL_get_shutdown(s) & SSL_SENT_SHUTDOWN) == 0) {
+        int rc = SSL_shutdown(s);
+        if (rc == 1) return mk_option_iowant_none();
+        if (rc < 0) return close_notify_error(ssl_obj, rc);
+    }
+
+    if ((SSL_get_shutdown(s) & SSL_RECEIVED_SHUTDOWN) != 0) return mk_option_iowant_none();
+
+    if (SSL_is_init_finished(s)) {
+        char peek_buf[1];
+        int peek_rc = SSL_peek(s, peek_buf, 1);
+        if (peek_rc > 0) return mk_option_iowant_read();
+
+        int peek_err = SSL_get_error(s, peek_rc);
+
+        if (peek_err != SSL_ERROR_ZERO_RETURN && peek_err != SSL_ERROR_WANT_READ
+                && peek_err != SSL_ERROR_WANT_WRITE) {
+            return mk_ssl_error(s, peek_err, "could not read data from the TLS session");
+        }
+
+        ERR_clear_error();
+
+        if ((SSL_get_shutdown(s) & SSL_RECEIVED_SHUTDOWN) != 0) return mk_option_iowant_none();
+    }
+
+    int rc = SSL_shutdown(s);
+    if (rc == 1) return mk_option_iowant_none();
+    if (rc < 0) return close_notify_error(ssl_obj, rc);
+    return mk_option_iowant_read();
 }
 
 #else

@@ -31,8 +31,8 @@ struct lean_ssl_session_object {
     std::deque<std::vector<char>> * pending_writes;
 };
 
-static inline lean_object * lean_ssl_session_object_new(lean_ssl_session_object * s) { return lean_alloc_external(g_ssl_session_external_class, s); }
-static inline lean_ssl_session_object * lean_to_ssl_session_object(lean_object * o) { return (lean_ssl_session_object*)(lean_get_external_data(o)); }
+inline lean_object * lean_ssl_session_object_new(lean_ssl_session_object * s) { return lean_alloc_external(g_ssl_session_external_class, s); }
+inline lean_ssl_session_object * lean_to_ssl_session_object(lean_object * o) { return (lean_ssl_session_object*)(lean_get_external_data(o)); }
 #endif
 
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_mk_server(b_obj_arg ctx);

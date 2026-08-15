@@ -55,6 +55,7 @@ inductive IOWant where
   OpenSSL needs to flush encrypted bytes to the socket (`SSL_ERROR_WANT_WRITE`).
   -/
   | write
+  deriving Repr, DecidableEq, Inhabited
 
 /--
 Result of a `Session.read?` call.
@@ -75,6 +76,7 @@ inductive ReadResult where
   The peer closed the TLS session cleanly (`SSL_ERROR_ZERO_RETURN`).
   -/
   | closed
+  deriving Inhabited
 
 namespace Session.Server
 
@@ -153,6 +155,10 @@ When `maxBytes == 0`, performs a non-consuming peek: returns `.data ByteArray.em
 plaintext is available (without consuming it), `.closed` if the peer has sent `close_notify`, or
 `.wantIO` if more socket I/O is needed first. This lets a caller test readability without committing
 to a read.
+
+Before reporting `.wantIO`, this flushes any plaintext still queued by `write`, so a `.wantIO .read`
+may come back with fresh encrypted output waiting: always `drainEncrypted` after a `read?` rather
+than only when the result asks for `.write`.
 -/
 @[extern "lean_ssl_read"]
 opaque read? (ssl : @& Session) (maxBytes : UInt64) : IO ReadResult
@@ -197,17 +203,29 @@ opaque negotiatedVersion (ssl : @& Session) : IO String
 
 /--
 Sends a TLS `close_notify` alert via `SSL_shutdown`.
-- Returns `none` when the bidirectional shutdown is complete.
+- Returns `none` when nothing is left to do: normally because the bidirectional shutdown is
+complete, and also for a session that never had one to run (see below).
 - Returns `some .read` when our alert has been sent and we are waiting for the peer's `close_notify`;
 the caller should drain the output BIO, wait for more encrypted input, then call `closeNotify` again.
 If the peer's `close_notify` is already buffered, a single call may still return `none`.
 - Returns `some .write` when OpenSSL still has encrypted output to drain before it can finish the
 shutdown.
 
+On a session whose handshake has completed, plaintext still queued by `write` is flushed before the
+alert is sent, so a shutdown never drops accepted data; while that flush is blocked this returns the
+`IOWant` it is waiting on and sends nothing.
+
 Undelivered plaintext blocks the shutdown: while `read?` still has data to hand out, this returns
 `some .read` and makes no further progress, so drain the session before shutting it down. The data
 is never discarded, and `read?` keeps working after our `close_notify` has been sent — a peer may
 legitimately have sent records before it saw our alert.
+
+A session that never reached a negotiated state — the handshake was never run, or an earlier fatal
+error tore it down — has nothing to close and returns `none` rather than raising, so teardown paths
+can call this unconditionally. The one exception is plaintext `write` accepted but never delivered:
+such a session cannot carry it, and this raises rather than reporting a clean close. So this raises
+only when it is dropping data handed to `write`; a caller that wrote nothing, or whose writes all
+completed, never has to catch.
 -/
 @[extern "lean_ssl_close_notify"]
 opaque closeNotify (ssl : @& Session) : IO (Option IOWant)
@@ -289,9 +307,12 @@ Sets the server name for the client TLS handshake.
 
 This sets both the SNI extension sent in the ClientHello and enables post-handshake hostname
 verification against the certificate CN/SAN. Without it, OpenSSL validates only the certificate
-chain — not that the certificate belongs to the host being connected to. Must be called before the
-handshake.
+chain — not that the certificate belongs to the host being connected to.
+
+Neither setting can take effect once the handshake is done, so calling this afterwards raises rather
+than leaving the peer unverified against a name the caller believes was checked.
 -/
+@[inline]
 def setServerName (s : Session.Client) (host : @& String) : IO Unit := Session.setServerNameImpl s.toSession host
 
 /--

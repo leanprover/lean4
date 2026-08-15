@@ -203,6 +203,11 @@ the caller should drain the output BIO, wait for more encrypted input, then call
 If the peer's `close_notify` is already buffered, a single call may still return `none`.
 - Returns `some .write` when OpenSSL still has encrypted output to drain before it can finish the
 shutdown.
+
+Undelivered plaintext blocks the shutdown: while `read?` still has data to hand out, this returns
+`some .read` and makes no further progress, so drain the session before shutting it down. The data
+is never discarded, and `read?` keeps working after our `close_notify` has been sent — a peer may
+legitimately have sent records before it saw our alert.
 -/
 @[extern "lean_ssl_close_notify"]
 opaque closeNotify (ssl : @& Session) : IO (Option IOWant)

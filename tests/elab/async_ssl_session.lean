@@ -10,10 +10,6 @@ This is the session layer split out of #13112 (`TCP.SSL`); it builds on the
 
 open Std.Internal.SSL
 
--- ---------------------------------------------------------------------------
--- Helpers
--- ---------------------------------------------------------------------------
-
 def assertEqStr (actual expected : String) : IO Unit := do
   unless actual == expected do
     throw <| IO.userError s!"expected '{expected}', got '{actual}'"
@@ -26,11 +22,6 @@ def assertEqN (actual expected : UInt64) (label : String) : IO Unit := do
   unless actual == expected do
     throw <| IO.userError s!"{label}: expected {expected}, got {actual}"
 
--- A self-signed `CN=localhost` certificate and its matching RSA private key, embedded so the tests
--- neither shell out to `openssl` nor depend on it being installed. Valid until 2126, so peer
--- verification during the handshakes below succeeds. To regenerate:
---   openssl genrsa -out key.pem 2048
---   openssl req -new -x509 -key key.pem -out cert.pem -days 36500 -subj "/CN=localhost"
 def testCertPEM : String :=
 "-----BEGIN CERTIFICATE-----
 MIIDCzCCAfOgAwIBAgIUfBsMFFfMmVyfKr1HjIF9ZUsOz0MwDQYJKoZIhvcNAQEL
@@ -84,10 +75,9 @@ yIGPWTqB+JUmYpWBWIvu0Gg=
 -----END PRIVATE KEY-----
 "
 
--- Writes the embedded certificate and key to a per-process temporary directory, returning their paths.
 def setupTestCerts : IO (String × String) := do
   let dir ← IO.FS.createTempDir
-  let keyFile  := toString (dir / "key.pem")
+  let keyFile := toString (dir / "key.pem")
   let certFile := toString (dir / "cert.pem")
   IO.FS.writeFile keyFile testKeyPEM
   IO.FS.writeFile certFile testCertPEM
@@ -96,8 +86,6 @@ def setupTestCerts : IO (String × String) := do
 instance : Coe Session.Client Session := ⟨Session.Client.toSession⟩
 instance : Coe Session.Server Session := ⟨Session.Server.toSession⟩
 
--- Drive one handshake step: advance both state machines and exchange encrypted
--- bytes between their memory BIOs. Returns (clientDone, serverDone).
 def handshakeStep (c s : Session) : IO (Bool × Bool) := do
   let cd ← c.handshake
   let cOut ← c.drainEncrypted
@@ -113,15 +101,10 @@ partial def runHandshake (c s : Session) : IO Unit := do
   let (cd, sd) ← handshakeStep c s
   unless cd && sd do runHandshake c s
 
--- Pipe all pending encrypted output from src into dst's read BIO.
 def pipeEncrypted (src dst : Session) : IO Unit := do
   let bytes ← src.drainEncrypted
   if bytes.size > 0 then
     discard <| dst.feedEncrypted bytes
-
--- ---------------------------------------------------------------------------
--- Test: client configured from an in-memory PEM verifies the server cert.
--- ---------------------------------------------------------------------------
 
 def testMkClientFromPEM (certFile keyFile : String) : IO Unit := do
   let serverCtx ← Context.Server.mk certFile keyFile
@@ -138,25 +121,16 @@ def testMkClientFromPEM (certFile keyFile : String) : IO Unit := do
   let code ← clientSess.verifyResult
   assertEqN code 0 "verifyResult after mkFromPEM"
 
--- ---------------------------------------------------------------------------
--- Test: in-process TLS handshake between two memory-BIO sessions.
--- ---------------------------------------------------------------------------
-
 def testInProcessHandshake (certFile keyFile : String) : IO Unit := do
   let serverCtx ← Context.Server.mk certFile keyFile
 
-  let clientCtx ← Context.Client.mk "" false  -- skip peer verification
+  let clientCtx ← Context.Client.mk "" false
 
   let serverSess ← Session.Server.mk serverCtx
   let clientSess ← Session.Client.mk clientCtx
 
-  -- setServerName exercises SSL_set_tlsext_host_name.
   clientSess.setServerName "localhost"
-
   runHandshake clientSess serverSess
-
-  -- verifyResult: just verify the call succeeds (self-signed cert returns
-  -- X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT even with VERIFY_NONE).
   discard <| clientSess.verifyResult
 
 -- ---------------------------------------------------------------------------
@@ -365,6 +339,105 @@ def testCloseNotify (certFile keyFile : String) : IO Unit := do
     throw <| IO.userError "closeNotify did not report a completed shutdown"
 
 -- ---------------------------------------------------------------------------
+-- Test: a close_notify arriving behind unread application data.
+-- ---------------------------------------------------------------------------
+
+-- A peer may send its last application record and its `close_notify` in a single flight, so both
+-- land in the input BIO together. Starting our own shutdown at that point must neither consume nor
+-- reject the record: `closeNotify` reports want-read while plaintext is still undelivered, `read?`
+-- hands the record out and only then reports `.closed`, and the shutdown completes afterwards.
+--
+-- OpenSSL rejects an application record read *inside* `SSL_shutdown` as a fatal protocol error
+-- (`application data after close notify`), so the runtime peeks before letting the shutdown read.
+
+def testCloseNotifyWithPendingData (certFile keyFile : String) : IO Unit := do
+  let serverCtx ← Context.Server.mk certFile keyFile
+  let clientCtx ← Context.Client.mk "" false
+
+  let serverSess ← Session.Server.mk serverCtx
+  let clientSess ← Session.Client.mk clientCtx
+  runHandshake clientSess serverSess
+
+  -- Deliver a final application record and the server's close_notify together.
+  discard <| serverSess.write "final".toUTF8
+  let serverClosing ← serverSess.closeNotify
+  match serverClosing with
+  | some .read => pure ()
+  | some .write => throw <| IO.userError "server closeNotify should await peer input"
+  | none => throw <| IO.userError "server closeNotify completed before the peer responded"
+  pipeEncrypted serverSess clientSess
+
+  -- Initiating our side of the shutdown must not consume or reject the unread
+  -- application record that precedes the peer's close_notify.
+  let clientClosing ← clientSess.closeNotify
+  match clientClosing with
+  | some .read => pure ()
+  | some .write => throw <| IO.userError "client closeNotify should await peer input"
+  | none => throw <| IO.userError "client closeNotify completed with unread application data"
+
+  match ← clientSess.read? 1024 with
+  | .data bytes => assertEqStr (String.fromUTF8! bytes) "final"
+  | .wantIO _ => throw <| IO.userError "expected final application data before close_notify"
+  | .closed => throw <| IO.userError "close_notify was reported before final application data"
+
+  match ← clientSess.read? 1024 with
+  | .closed => pure ()
+  | .data _ => throw <| IO.userError "unexpected application data after final record"
+  | .wantIO _ => throw <| IO.userError "expected buffered close_notify after final record"
+
+  -- Nothing is left undelivered, so the client's shutdown now completes.
+  let clientDone ← clientSess.closeNotify
+  unless clientDone.isNone do
+    throw <| IO.userError "client shutdown did not complete after the peer's close_notify was read"
+
+  pipeEncrypted clientSess serverSess
+  let serverDone ← serverSess.closeNotify
+
+  unless serverDone.isNone do
+    throw <| IO.userError "server shutdown did not complete after receiving close_notify"
+
+-- ---------------------------------------------------------------------------
+-- Test: closing while the peer's plaintext is unread and its alert has not arrived.
+-- ---------------------------------------------------------------------------
+
+-- The same shutdown-before-drain race, but the peer has only sent data so far: there is no buffered
+-- `close_notify` to finish on. `closeNotify` must send our alert, report want-read, and keep the
+-- plaintext intact for as many calls as it takes — a session with undelivered data must survive an
+-- early shutdown rather than fail.
+def testCloseNotifyBeforeDrainingData (certFile keyFile : String) : IO Unit := do
+  let serverCtx ← Context.Server.mk certFile keyFile
+  let clientCtx ← Context.Client.mk "" false
+
+  let serverSess ← Session.Server.mk serverCtx
+  let clientSess ← Session.Client.mk clientCtx
+  runHandshake clientSess serverSess
+
+  discard <| serverSess.write "final".toUTF8
+  pipeEncrypted serverSess clientSess
+
+  for attempt in [1, 2] do
+    match ← clientSess.closeNotify with
+    | some .read => pure ()
+    | some .write => throw <| IO.userError s!"closeNotify {attempt} should await peer input"
+    | none => throw <| IO.userError s!"closeNotify {attempt} completed with plaintext still unread"
+
+  match ← clientSess.read? 1024 with
+  | .data bytes => assertEqStr (String.fromUTF8! bytes) "final"
+  | .wantIO _ => throw <| IO.userError "unread plaintext was consumed by closeNotify"
+  | .closed => throw <| IO.userError "session reported closed with plaintext still unread"
+
+  -- The peer answers our alert; both ends then reach a clean shutdown.
+  pipeEncrypted clientSess serverSess
+  let serverDone ← serverSess.closeNotify
+  unless serverDone.isNone do
+    throw <| IO.userError "server shutdown did not complete after receiving close_notify"
+
+  pipeEncrypted serverSess clientSess
+  let clientDone ← clientSess.closeNotify
+  unless clientDone.isNone do
+    throw <| IO.userError "client shutdown did not complete after receiving close_notify"
+
+-- ---------------------------------------------------------------------------
 -- Test: plaintext written before the handshake completes is queued and replayed.
 -- ---------------------------------------------------------------------------
 
@@ -400,12 +473,53 @@ def testWriteBeforeHandshake (certFile keyFile : String) : IO Unit := do
   | _ => throw <| IO.userError "queued plaintext was not delivered after the handshake"
 
 -- ---------------------------------------------------------------------------
+-- Test: `read?` reports which socket I/O it is actually waiting on.
+-- ---------------------------------------------------------------------------
+
+-- `ReadResult.wantIO` stores its `IOWant` unboxed, unlike the `Option IOWant` the other primitives
+-- return, so the two are built differently on the C side. A session with an empty input BIO must
+-- report `.read` — reporting `.write` would send an event loop to wait for writability that is
+-- always immediately true, spinning instead of waiting for the peer.
+def testReadWantIO (certFile keyFile : String) : IO Unit := do
+  let serverCtx ← Context.Server.mk certFile keyFile
+  let clientCtx ← Context.Client.mk "" false
+
+  let serverSess ← Session.Server.mk serverCtx
+  let clientSess ← Session.Client.mk clientCtx
+
+  let expectWantRead (r : ReadResult) (label : String) : IO Unit :=
+    match r with
+    | .wantIO .read => pure ()
+    | .wantIO .write => throw <| IO.userError s!"{label}: expected wantIO .read, got .write"
+    | .data b => throw <| IO.userError s!"{label}: expected wantIO .read, got data ({b.size} bytes)"
+    | .closed => throw <| IO.userError s!"{label}: expected wantIO .read, got closed"
+
+  -- Before the handshake, and again after the ClientHello has been drained, the session is waiting
+  -- on encrypted input in both the peek and the sized-read paths.
+  expectWantRead (← clientSess.read? 0) "peek before handshake"
+  expectWantRead (← clientSess.read? 1024) "read before handshake"
+  let hello ← clientSess.drainEncrypted
+  expectWantRead (← clientSess.read? 0) "peek after draining ClientHello"
+  expectWantRead (← clientSess.read? 1024) "read after draining ClientHello"
+
+  -- Once the handshake is done and no plaintext is buffered, it is still input we are waiting for.
+  discard <| serverSess.feedEncrypted hello
+  runHandshake clientSess serverSess
+  expectWantRead (← clientSess.read? 0) "peek after handshake"
+  expectWantRead (← clientSess.read? 1024) "read after handshake"
+  expectWantRead (← serverSess.read? 1024) "server read after handshake"
+
+-- ---------------------------------------------------------------------------
 -- Run all tests
 -- ---------------------------------------------------------------------------
 
 #eval do
   let (certFile, keyFile) ← setupTestCerts
   testMkClientFromPEM certFile keyFile
+
+#eval do
+  let (certFile, keyFile) ← setupTestCerts
+  testReadWantIO certFile keyFile
 
 #eval do
   let (certFile, keyFile) ← setupTestCerts
@@ -442,6 +556,14 @@ def testWriteBeforeHandshake (certFile keyFile : String) : IO Unit := do
 #eval do
   let (certFile, keyFile) ← setupTestCerts
   testCloseNotify certFile keyFile
+
+#eval do
+  let (certFile, keyFile) ← setupTestCerts
+  testCloseNotifyWithPendingData certFile keyFile
+
+#eval do
+  let (certFile, keyFile) ← setupTestCerts
+  testCloseNotifyBeforeDrainingData certFile keyFile
 
 #eval do
   let (certFile, keyFile) ← setupTestCerts

@@ -12,8 +12,6 @@ Author: Sofia Rodrigues
 
 #ifndef LEAN_EMSCRIPTEN
 #include <openssl/ssl.h>
-#include <openssl/err.h>
-#include <string>
 #endif
 
 namespace lean {
@@ -23,16 +21,11 @@ void initialize_openssl_context();
 
 #ifndef LEAN_EMSCRIPTEN
 
-// Structure for managing a single Context object.
-typedef struct {
-    SSL_CTX * ctx;
-} lean_ssl_context_object;
-
 // Drains the OpenSSL error queue and returns a single error message combining up to 10 entries.
 lean_object * mk_openssl_error(char const * where, int ssl_err = 0);
-static inline lean_obj_res mk_openssl_io_error(char const * where, int ssl_err = 0) { return lean_io_result_mk_error(mk_openssl_error(where, ssl_err)); }
-static inline lean_object * lean_ssl_context_object_new(lean_ssl_context_object * c) { return lean_alloc_external(g_ssl_context_external_class, c); }
-static inline lean_ssl_context_object * lean_to_ssl_context_object(lean_object * o) { return (lean_ssl_context_object*)(lean_get_external_data(o)); }
+inline lean_obj_res mk_openssl_io_error(char const * where, int ssl_err = 0) { return lean_io_result_mk_error(mk_openssl_error(where, ssl_err)); }
+inline lean_object * lean_ssl_context_new(SSL_CTX * ctx) { return lean_alloc_external(g_ssl_context_external_class, ctx); }
+inline SSL_CTX * lean_to_ssl_context(lean_object * o) { return (SSL_CTX*)lean_get_external_data(o); }
 #endif
 
 // =======================================

@@ -109,7 +109,7 @@ def evalDecideCore (tacticName : Name) (cfg : Parser.Tactic.DecideConfig) : Tact
 where
   doElab (expectedType : Expr) : TacticM Expr := do
     let dec ← mkDecide expectedType
-    -- Get instance from `pf`
+    -- Get instance from `dec`
     let inst := dec.appArg!
     -- reduce `dec`
     let r ← withAtLeastTransparency .default <| whnf dec
@@ -196,13 +196,10 @@ where
           `{.ofConstName ``Classical.propDecidable}`."
       else
         MessageData.nil
-    let inst := s.appArg!
     return m!"\
-      Tactic `{tacticName}` failed for proposition\
-      {indentExpr expectedType}\n\
-      because its `{.ofConstName ``Decidable}` instance\
-      {indentExpr inst}\n\
-      did not reduce to `{.ofConstName ``isTrue}` or `{.ofConstName ``isFalse}`.\n\n\
+      Tactic `{tacticName}` failed to reduce\
+      {indentExpr (s.setPPExplicit true)}\n\
+      to `{.ofConstName ``true}` or `{.ofConstName ``false}`.\n\n\
       {stuckMsg}{hint}"
 
 declare_config_elab elabDecideConfig Parser.Tactic.DecideConfig

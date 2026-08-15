@@ -28,11 +28,9 @@ Irreducible decidable instance
 opaque unknownProp : Prop
 
 /--
-error: Tactic `decide` failed for proposition
-  unknownProp
-because its `Decidable` instance
-  Classical.propDecidable unknownProp
-did not reduce to `isTrue` or `isFalse`.
+error: Tactic `decide` failed to reduce
+  @decide unknownProp (Classical.propDecidable unknownProp)
+to `true` or `false`.
 
 After unfolding the instance `Classical.propDecidable`, reduction got stuck at
   Classical.choice ⋯
@@ -60,11 +58,9 @@ def baz (n : Nat) : Decidable (Nice n) := by
 instance : Decidable (Nice n) := baz n
 
 /--
-error: Tactic `decide` failed for proposition
-  Nice 102
-because its `Decidable` instance
-  instDecidableNice
-did not reduce to `isTrue` or `isFalse`.
+error: Tactic `decide` failed to reduce
+  @decide (Nice 102) instDecidableNice
+to `true` or `false`.
 
 After unfolding the instances `baz` and `instDecidableNice`, reduction got stuck at
   ⋯ ▸ inferInstance
@@ -80,11 +76,9 @@ Following `Decidable.rec` to give better messages
 -/
 
 /--
-error: Tactic `decide` failed for proposition
-  ¬Nice 102
-because its `Decidable` instance
-  instDecidableNot
-did not reduce to `isTrue` or `isFalse`.
+error: Tactic `decide` failed to reduce
+  @decide (¬Nice 102) instDecidableNot
+to `true` or `false`.
 
 After unfolding the instances `baz`, `instDecidableNice`, and `instDecidableNot`, reduction got stuck at
   ⋯ ▸ inferInstance

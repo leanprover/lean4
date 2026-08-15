@@ -190,7 +190,7 @@ partial def loop
 : MonitorM PUnit := do
   let (running, unfinished) ← scanJobs new unfinished
   if let some tk := (← read).cancelling? then
-    unless (← get).failures.isEmpty || (← tk.isSet) do
+    unless (← get).failures.isEmpty do
       tk.set
   if h : 0 < unfinished.size then
     renderProgress running unfinished h

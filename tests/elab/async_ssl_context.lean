@@ -31,6 +31,10 @@ def testECKeyPEM : String := include_cert% "async_ssl_certs/eckey.pem"
 -- `key.pem` behind a passphrase, which OpenSSL asks for on the terminal unless it is told not to.
 def testEncryptedKeyPEM : String := include_cert% "async_ssl_certs/enckey.pem"
 
+-- `key.pem` encrypted under an *empty* passphrase, which a password callback reporting a zero-length
+-- passphrase rather than a failure decrypts instead of rejecting.
+def testEmptyPassphraseKeyPEM : String := include_cert% "async_ssl_certs/emptypwkey.pem"
+
 -- Three distinct certificates in one file, the shape of a real CA bundle.
 def testBundlePEM : String := testCertPEM ++ testWildcardCertPEM ++ testMultiSANCertPEM
 
@@ -81,6 +85,8 @@ def setupUnrelatedKey : IO String := writeTempFile "key2.pem" testUnrelatedKeyPE
 def setupECKey : IO String := writeTempFile "eckey.pem" testECKeyPEM
 
 def setupEncryptedKey : IO String := writeTempFile "enckey.pem" testEncryptedKeyPEM
+
+def setupEmptyPassphraseKey : IO String := writeTempFile "emptypwkey.pem" testEmptyPassphraseKeyPEM
 
 def setupBundle : IO String := writeTempFile "bundle.pem" testBundlePEM
 
@@ -232,6 +238,13 @@ def testMkServerRejectsEncryptedKey (certFile encKeyFile : String) : IO Unit := 
     (malformedFileError encKeyFile "could not read an unencrypted PEM private key")
     (discard <| Context.Server.mk certFile encKeyFile)
 
+-- An empty passphrase still counts as encrypted. A password callback that reports a zero-length
+-- passphrase instead of a failure decrypts this key and accepts it.
+def testMkServerRejectsEmptyPassphraseKey (certFile emptyPwKeyFile : String) : IO Unit := do
+  assertErrorMessage "server key encrypted under an empty passphrase"
+    (malformedFileError emptyPwKeyFile "could not read an unencrypted PEM private key")
+    (discard <| Context.Server.mk certFile emptyPwKeyFile)
+
 def testMkServerRejectsNulInCert (keyFile : String) : IO Unit := do
   let certPath := "cert\x00.pem"
 
@@ -315,6 +328,7 @@ def testMkRejectsNulInCAFile : IO Unit := do
   testMkServerRejectsMismatchedKey certFile (← setupUnrelatedKey)
   testMkServerRejectsCrossAlgorithmKey certFile (← setupECKey)
   testMkServerRejectsEncryptedKey certFile (← setupEncryptedKey)
+  testMkServerRejectsEmptyPassphraseKey certFile (← setupEmptyPassphraseKey)
 
 #eval do
   let (certFile, keyFile) ← setupTestCerts

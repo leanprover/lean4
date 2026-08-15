@@ -17,6 +17,7 @@ certificates are rejected).
 | `key2.pem` | | second RSA-2048 key, matching none of the certificates |
 | `eckey.pem` | | P-256 key; a *different algorithm* from every certificate here, which OpenSSL accepts against an RSA certificate unless `SSL_CTX_check_private_key` is consulted |
 | `enckey.pem` | | `key.pem` encrypted with the passphrase `lean4`; encrypted keys are unsupported and must be rejected without prompting for one |
+| `emptypwkey.pem` | | `key.pem` encrypted under an *empty* passphrase; still an encrypted key, and rejected only because the password callback reports a failure rather than a zero-length passphrase |
 | `cert.pem` | `CN=localhost` | standard server cert (no SAN; hostname matching uses the CN fallback) |
 | `wildcard.pem` | `CN=*.test.local` | SAN: `DNS:*.test.local, DNS:test.local` |
 | `multisan.pem` | `CN=alpha.test.local` | SAN: `DNS:alpha.test.local, DNS:beta.test.local` |
@@ -42,6 +43,7 @@ openssl x509 -req -in expired.csr -signkey key.pem -out expired.pem -set_serial 
 openssl genrsa -out key2.pem 2048
 openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out eckey.pem
 openssl pkey -in key.pem -aes256 -passout pass:lean4 -out enckey.pem
+openssl pkey -in key.pem -aes256 -passout pass: -out emptypwkey.pem
 python3 -c '
 import base64, textwrap
 der = bytearray(base64.b64decode("".join(open("cert.pem").read().strip().splitlines()[1:-1])))

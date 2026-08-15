@@ -145,9 +145,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
     return io_result_mk_error("lean_uv_event_loop_configure is not supported");
 }
 
-/* Std.Internal.UV.Loop.alive : BaseIO UInt64 */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive() {
-    return io_result_mk_error("lean_uv_event_loop_alive is not supported");
+/* Std.Internal.UV.Loop.alive : BaseIO Bool */
+extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive() {
+    return 0;
 }
 
 #endif

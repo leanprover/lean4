@@ -17,7 +17,7 @@ lean_lib Cases where
 lean_lib VCGenBench where
   roots := #[`vcgen_add_sub_cancel, `vcgen_add_sub_cancel_deep, `vcgen_add_sub_cancel_simp,
              `vcgen_get_throw_set, `vcgen_get_throw_set_grind, `vcgen_pure_precond,
-             `vcgen_reader_state, `vcgen_match_split]
+             `vcgen_reader_state, `vcgen_match_split, `vcgen_adc_chain]
   moreLeanArgs := #["--tstack=102400"] -- 100 MB in KB
 
 @[default_target]

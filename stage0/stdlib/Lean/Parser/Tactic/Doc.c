@@ -107,7 +107,7 @@ lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* l_String_Slice_subslice_x21(lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_id___boxed(lean_object*, lean_object*);
 lean_object* l_Array_binSearchAux___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -9577,7 +9577,7 @@ if (v___x_3659_ == 0)
 {
 lean_object* v___x_3660_; lean_object* v___x_3661_; lean_object* v___x_3662_; 
 v___x_3660_ = ((lean_object*)(l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_getTacticExtensionString_indentLine___closed__1));
-v___x_3661_ = lean_string_utf8_extract(v_str_3653_, v_startInclusive_3654_, v_endExclusive_3655_);
+v___x_3661_ = lean_string_utf8_extract_fast(v_str_3653_, v_startInclusive_3654_, v_endExclusive_3655_);
 v___x_3662_ = lean_string_append(v___x_3660_, v___x_3661_);
 lean_dec_ref(v___x_3661_);
 v___y_3650_ = v___x_3662_;
@@ -9586,7 +9586,7 @@ goto v___jp_3649_;
 else
 {
 lean_object* v___x_3663_; 
-v___x_3663_ = lean_string_utf8_extract(v_str_3653_, v_startInclusive_3654_, v_endExclusive_3655_);
+v___x_3663_ = lean_string_utf8_extract_fast(v_str_3653_, v_startInclusive_3654_, v_endExclusive_3655_);
 v___y_3650_ = v___x_3663_;
 goto v___jp_3649_;
 }
@@ -9904,7 +9904,7 @@ v_endExclusive_3758_ = lean_ctor_get(v_head_3755_, 2);
 lean_inc(v_endExclusive_3758_);
 lean_dec(v_head_3755_);
 v___x_3759_ = ((lean_object*)(l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_getTacticExtensionString_bullet___closed__1));
-v___x_3760_ = lean_string_utf8_extract(v_str_3756_, v_startInclusive_3757_, v_endExclusive_3758_);
+v___x_3760_ = lean_string_utf8_extract_fast(v_str_3756_, v_startInclusive_3757_, v_endExclusive_3758_);
 lean_dec(v_endExclusive_3758_);
 lean_dec(v_startInclusive_3757_);
 lean_dec_ref(v_str_3756_);
@@ -9928,7 +9928,7 @@ v_endExclusive_3767_ = lean_ctor_get(v_head_3764_, 2);
 lean_inc(v_endExclusive_3767_);
 lean_dec(v_head_3764_);
 v___x_3768_ = ((lean_object*)(l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_getTacticExtensionString_bullet___closed__1));
-v___x_3769_ = lean_string_utf8_extract(v_str_3765_, v_startInclusive_3766_, v_endExclusive_3767_);
+v___x_3769_ = lean_string_utf8_extract_fast(v_str_3765_, v_startInclusive_3766_, v_endExclusive_3767_);
 lean_dec(v_endExclusive_3767_);
 lean_dec(v_startInclusive_3766_);
 lean_dec_ref(v_str_3765_);
@@ -10169,7 +10169,7 @@ lean_ctor_set(v___x_3857_, 1, v___x_3847_);
 lean_ctor_set(v___x_3857_, 2, v___x_3856_);
 v___x_3858_ = l_String_Slice_Pos_revSkipWhile___at___00Lean_Parser_Tactic_Doc_getTacticExtensionString_spec__1(v___x_3857_, v___x_3856_);
 lean_dec_ref_known(v___x_3857_, 3);
-v___x_3859_ = lean_string_utf8_extract(v___x_3855_, v___x_3847_, v___x_3858_);
+v___x_3859_ = lean_string_utf8_extract_fast(v___x_3855_, v___x_3847_, v___x_3858_);
 lean_dec(v___x_3858_);
 lean_dec_ref(v___x_3855_);
 return v___x_3859_;

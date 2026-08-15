@@ -90,7 +90,7 @@ def closeMainGoalUsing (tacName : Name) (x : Expr → Name → TacticM Expr) (ch
         let mvars ← filterOldMVars (← getMVars val) mvarCounterSaved
         logUnassignedAndAbort mvars
       unless (← mvarId.checkedAssign val) do
-        throwTacticEx tacName mvarId m!"attempting to close the goal using{indentExpr val}\nthis is often due occurs-check failure")
+        throwTacticEx tacName mvarId m!"attempting to close the goal using{indentExpr val}\nthis is often due to an occurs-check failure")
     (fun ex => do
       pushGoal mvarId
       throw ex)

@@ -55,12 +55,12 @@ private def alphaEq (e₁ e₂ : Expr) : Bool := Id.run do
 
 /--
 Returns `true` if `declName` is the name of a grind helper declaration that
-should not be unfolded by `unfoldReducible`. `Grind.EqMatch` and `Grind.MatchCond`
+should not be unfolded by `unfoldReducible`. `Grind.EqMatch`, `Grind.MatchCond`, `Grind.nestedReducible`
 are `abbrev`s, but they are gadgets that must survive until the corresponding
 propagators consume them.
 -/
 def isGrindGadget (declName : Name) : Bool :=
-  declName == ``Grind.EqMatch || declName == ``Grind.MatchCond
+  declName == ``Grind.EqMatch || declName == ``Grind.MatchCond || declName == ``Grind.nestedDecidable
 
 /--
 Returns `true` if `declName` is a reducible constant that the `unfoldReducible`

@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_string_utf8_byte_size(lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
@@ -9031,7 +9031,7 @@ lean_object* v___x_2411_; lean_object* v___x_2412_; lean_object* v___x_2413_; le
 v___x_2411_ = lean_obj_once(&l_WellFounded_opaqueFix_u2083___at___00__private_Std_Http_Protocol_H1_0__Std_Http_Protocol_H1_Machine_writeHead_spec__1___redArg___closed__1, &l_WellFounded_opaqueFix_u2083___at___00__private_Std_Http_Protocol_H1_0__Std_Http_Protocol_H1_Machine_writeHead_spec__1___redArg___closed__1_once, _init_l_WellFounded_opaqueFix_u2083___at___00__private_Std_Http_Protocol_H1_0__Std_Http_Protocol_H1_Machine_writeHead_spec__1___redArg___closed__1);
 v___x_2412_ = lean_unsigned_to_nat(0u);
 v___x_2413_ = ((lean_object*)(l_WellFounded_opaqueFix_u2083___at___00__private_Std_Http_Protocol_H1_0__Std_Http_Protocol_H1_Machine_writeHead_spec__1___redArg___closed__0));
-v___x_2414_ = lean_string_utf8_extract(v___x_2413_, v___x_2412_, v___x_2411_);
+v___x_2414_ = lean_string_utf8_extract_fast(v___x_2413_, v___x_2412_, v___x_2411_);
 return v___x_2414_;
 }
 }
@@ -9215,7 +9215,7 @@ goto _start;
 v___jp_2445_:
 {
 lean_object* v___x_2449_; uint32_t v___x_2450_; uint32_t v___x_2451_; uint8_t v___x_2452_; 
-v___x_2449_ = lean_string_utf8_extract(v___x_2415_, v_startInclusive_2447_, v_endExclusive_2448_);
+v___x_2449_ = lean_string_utf8_extract_fast(v___x_2415_, v_startInclusive_2447_, v_endExclusive_2448_);
 lean_dec(v_endExclusive_2448_);
 lean_dec(v_startInclusive_2447_);
 v___x_2450_ = lean_string_utf8_get(v___x_2449_, v___x_2427_);

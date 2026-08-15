@@ -8,11 +8,22 @@ module
 prelude
 public import Std.Internal.Do.WP.Basic
 public import Std.Internal.Do.WP.Conjunctive
-public import Std.Internal.Do.Order.Instances
+public import Std.Internal.Order.FrameClosure
 universe u v w z t
 @[expose] public section
 
 set_option linter.missingDocs true
+
+/-!
+# Framing at the `wp` layer
+
+`WP.Frames op x F` states that the program `x` commutes `op F ·` into the postcondition of `wp x`.
+A `WP` built as the `Lean.Order.PredTrans.frameClosure` of a base wp frames every resource by
+construction.
+
+The monadic counterpart, which builds a `WPMonad` from the frame closure of a base interpretation,
+is in `Std.Internal.Do.WP.Monad.Frame`.
+-/
 
 open Lean.Order Std.Internal.Do
 
@@ -33,7 +44,7 @@ structure WP.Frames {R : Type t} (op : R → Pred → Pred) (x : Prog) (F : R) :
   op_wp_le_wp_op : ∀ (Q : Value → Pred) (E : EPred),
     op F (wp x Q E) ⊑ wp x (fun a => op F (Q a)) E
 
-/-- The framed spec `vcgen` applies for `x`, when each `op r` preserves `Sup`: framing `x` by `F`
+/-- The framed spec `vcgen` applies for `x`, when each `op r` preserves suprema: framing `x` by `F`
 makes `op F (wp x (fun a => PreservesSup.upperAdjoint (op F) (Q a)))` a precondition for `wp x Q`. -/
 theorem WP.Frames.op_wp_upperAdjoint_le_wp {R : Type t} (op : R → Pred → Pred)
     [∀ r, PreservesSup (op r)] {x : Prog} {F : R} (hframes : WP.Frames op x F) :
@@ -45,29 +56,29 @@ theorem WP.Frames.op_wp_upperAdjoint_le_wp {R : Type t} (op : R → Pred → Pre
   intro
   apply PreservesSup.upperAdjoint_le
 
-/-- `PreservesSup.le_frameClosure` at the `wp` layer: when `x` frames every resource `r`, landing
+/-- `le_frameClosure` at the `wp` layer: when `x` frames every resource `r`, landing
 below `wp x Q E` suffices to land below the frame closure of `wp x · E`. -/
 theorem WP.Frames.le_frameClosure {R : Type t} (op : R → Pred → Pred) [∀ r, PreservesSup (op r)]
     {x : Prog} (hframes : ∀ r, WP.Frames op x r) {Q : Value → Pred} {E : EPred} {pre : Pred}
     (hpre : pre ⊑ wp x Q E) :
-    pre ⊑ PreservesSup.frameClosure op (fun Q => wp x Q E) Q :=
-  PreservesSup.le_frameClosure op (fun Q => wp x Q E)
+    pre ⊑ ((WP.wpTrans x).frameClosure op).apply Q E :=
+  PredTrans.le_frameClosure op (WP.wpTrans x)
     (fun r Q' => (hframes r).op_wp_le_wp_op Q' E) hpre
 
-/-- If `wp` is built as `PreservesSup.frameClosure op` over a base post-transformer `f x E` (the frame
+/-- If `wp` is built as the `frameClosure op` of a base predicate transformer `f x` (the frame
 rule internalized into `wp`), then every program frames every resource `F` with respect to `op`. -/
 theorem WP.Frames.of_frameClosure {R : Type t} (op : R → Pred → Pred) [∀ r, PreservesSup (op r)]
     (comp : R → R → R) (hact : ∀ r r' a, op (comp r r') a = op r (op r' a))
     {x : Prog} {F : R}
-    (h : ∃ f : Prog → EPred → (Value → Pred) → Pred,
-      ∀ (x : Prog) (Q : Value → Pred) (E : EPred),
-        wp x Q E = PreservesSup.frameClosure op (f x E) Q) :
+    (h : ∃ f : Prog → PredTrans Pred EPred Value,
+      ∀ x : Prog, WP.wpTrans x = (f x).frameClosure op) :
     WP.Frames op x F := by
   obtain ⟨f, hf⟩ := h
   constructor
   intro Q E
-  rw [hf x Q E, hf x (fun a => op F (Q a)) E]
-  exact PreservesSup.frameClosure_frames op comp hact (f x E) Q F
+  show op F ((WP.wpTrans x).apply Q E) ⊑ (WP.wpTrans x).apply _ E
+  rw [hf x]
+  exact PredTrans.frameClosure_frames op comp hact (f x) Q E F
 
 /-- If `wp x` is conjunctive, then `x` frames `(F ⊓ ·)` when `F` holds before and after running `x`. -/
 theorem WP.Frames.of_conjunctive {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred : Type z}
@@ -84,16 +95,12 @@ theorem WP.Frames.of_conjunctive {Prog : Type u} {Value : Type v} {Pred : Type w
     simp only [meet_apply]
     exact PartialOrder.rel_refl
 
-/-- Reinterpret a `WP` so its weakest precondition is the `PreservesSup.frameClosure` of the base
-wp over a family of `Sup`-preserving resource operators `op r`. -/
+/-- Reinterpret a `WP` so its weakest precondition is the `frameClosure` of the base
+wp over a family of supremum-preserving resource operators `op r`. -/
 @[instance_reducible] noncomputable def WP.of_frameClosure {R : Type t} (op : R → Pred → Pred)
     [∀ r, PreservesSup (op r)] (base : WP Prog Value Pred EPred) : WP Prog Value Pred EPred where
-  wpTrans x := ⟨fun Q E => PreservesSup.frameClosure op (fun Q' => base.wp x Q' E) Q⟩
-  wp_trans_monotone x post post' epost epost' hE hP := by
-    simp only [PreservesSup.frameClosure]
-    refine CompleteLattice.iInf_mono fun r => PreservesSup.upperAdjoint_mono _ ?_
-    exact base.wp_consequence_econs x _ _ epost epost'
-      (fun a => PreservesSup.map_mono (op r) (hP a)) hE
+  wpTrans x := (base.wpTrans x).frameClosure op
+  wp_trans_monotone x := PredTrans.monotone_frameClosure op (base.wp_trans_monotone x)
 
 omit [WP Prog Value Pred EPred] in
 /-- Characterization of the `WP.of_frameClosure` weakest precondition: landing below it is landing
@@ -101,9 +108,8 @@ below the base wp with every resource `op r` framed onto the pre- and postcondit
 theorem WP.of_frameClosure_le_wp_iff {R : Type t} (op : R → Pred → Pred) [∀ r, PreservesSup (op r)]
     (base : WP Prog Value Pred EPred) (x : Prog) (Q : Value → Pred) (E : EPred) (pre : Pred) :
     pre ⊑ (WP.of_frameClosure op base).wp x Q E ↔
-      ∀ r, op r pre ⊑ base.wp x (fun a => op r (Q a)) E := by
-  show pre ⊑ PreservesSup.frameClosure op (fun Q' => base.wp x Q' E) Q ↔ _
-  exact PreservesSup.le_frameClosure_iff op _
+      ∀ r, op r pre ⊑ base.wp x (fun a => op r (Q a)) E :=
+  PredTrans.le_frameClosure_iff op (base.wpTrans x)
 
 omit [WP Prog Value Pred EPred] in
 /-- Introduction rule for the weakest precondition of a `WP.of_frameClosure` interpretation,
@@ -116,28 +122,4 @@ theorem WP.le_wp_of_frameClosure_eq {R : Type t} {op : R → Pred → Pred} [∀
   subst heq
   exact (WP.of_frameClosure_le_wp_iff op base x Q E pre).mpr h
 
-/-- Reinterpret a `WPMonad m` so its weakest precondition is the `PreservesSup.frameClosure` of the
-base wp over a family of `Sup`-preserving resource operators `op r` that act by `comp` with unit `e`.
-The resource frame rule then holds by construction (`WP.Frames.of_frameClosure`). -/
-@[instance_reducible] noncomputable def WPMonad.of_frameClosure {m : Type → Type} [Monad m]
-    {P : Type u} {E : Type z} [Assertion P] [Assertion E]
-    {R : Type} (op : R → P → P) [∀ r, PreservesSup (op r)] {comp : R → R → R} {e : R}
-    (hact : ∀ r r' a, op (comp r r') a = op r (op r' a)) (hunit : ∀ a, op e a = a)
-    (base : WPMonad m P E) : WPMonad m P E where
-  toLawfulMonad := base.toLawfulMonad
-  toWP α := WP.of_frameClosure op (base.toWP α)
-  pure_le_wp_pure x post E' := by
-    show post x ⊑ PreservesSup.frameClosure op (fun Q' => WP.wp (pure x) Q' E') post
-    refine (PreservesSup.le_frameClosure_iff op _).mpr fun r => ?_
-    exact base.pure_le_wp_pure x (fun a => op r (post a)) E'
-  bind_le_wp_bind x f post E' := by
-    show PreservesSup.frameClosure op (fun Q' => WP.wp x Q' E')
-          (fun a => PreservesSup.frameClosure op (fun Q' => WP.wp (f a) Q' E') post)
-        ⊑ PreservesSup.frameClosure op (fun Q' => WP.wp (x >>= f) Q' E') post
-    refine (PreservesSup.le_frameClosure_iff op _).mpr fun r => ?_
-    refine PartialOrder.rel_trans (PreservesSup.frameClosure_frames op comp hact _ _ r) ?_
-    refine PartialOrder.rel_trans (PreservesSup.frameClosure_le op e hunit _ _) ?_
-    refine PartialOrder.rel_trans ?_ (base.bind_le_wp_bind x f (fun a => op r (post a)) E')
-    refine WP.wp_consequence x _ _ E' fun a => ?_
-    exact PartialOrder.rel_trans (PreservesSup.frameClosure_frames op comp hact _ _ r)
-      (PreservesSup.frameClosure_le op e hunit _ _)
+end Std.Internal.Do

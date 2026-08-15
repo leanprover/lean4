@@ -9,6 +9,7 @@ public import Lean.Meta.Sym.SymM
 import Lean.Meta.Sym.ExprPtr
 import Lean.Meta.SynthInstance
 import Lean.Meta.Sym.SynthInstance
+import Lean.Meta.Sym.Arith.EvalNum
 import Lean.Meta.IntInstTesters
 import Lean.Meta.NatInstTesters
 import Lean.Meta.Sym.Eta
@@ -208,6 +209,12 @@ def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM Should
     return .canonType
   else
     return .visit
+
+def mkOffset (e : Expr) (offset : Nat) : Expr :=
+  if offset == 0 then
+    e
+  else
+    mkNatAdd e (mkNatLit offset)
 
 /--
 Reduce a projection function application (e.g., `@Sigma.fst _ _ ⟨a, b⟩` → `a`).
@@ -462,10 +469,10 @@ where
 
   postReduce (e : Expr) : CanonM Expr := do
     if isNatArithApp e then
-      if let some e ← evalNat e |>.run then
+      if let some e ← Sym.Arith.evalNat? e |>.run then
         return mkNatLit e
-      else if let some (e, k) ← isOffset? e |>.run then
-        mkOffset e k
+      else if let some (e, k) ← Sym.Arith.isOffset? e |>.run then
+        return mkOffset e k
       else
         return e
     else

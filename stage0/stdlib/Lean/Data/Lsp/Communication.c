@@ -43,7 +43,7 @@ lean_object* l_String_Slice_posGE___redArg(lean_object*, lean_object*);
 lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 lean_object* l_String_Slice_intercalate(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_parse(lean_object*);
 lean_object* l_Lean_Json_getObjVal_x3f(lean_object*, lean_object*);
 lean_object* l_String_quote(lean_object*);
@@ -1060,7 +1060,7 @@ goto v_resetjp_191_;
 v_resetjp_191_:
 {
 lean_object* v___x_194_; lean_object* v___x_196_; 
-v___x_194_ = lean_string_utf8_extract(v_str_186_, v_startInclusive_187_, v_endExclusive_188_);
+v___x_194_ = lean_string_utf8_extract_fast(v_str_186_, v_startInclusive_187_, v_endExclusive_188_);
 lean_dec(v_endExclusive_188_);
 lean_dec(v_startInclusive_187_);
 lean_dec_ref(v_str_186_);

@@ -10,6 +10,7 @@ import Lean.Elab.Tactic.Grind.Basic
 import Lean.Meta.Tactic.BVDecide.Main
 import Lean.Elab.Tactic.BVDecide
 import Lean.Meta.Tactic.BVDecide.Normalize
+import Lean.Meta.Tactic.Grind.BVDecide.Types
 
 /-!
 This module provides the implementation of the `bv_decide` family of tactics in `sym =>` mode.
@@ -30,7 +31,7 @@ open Meta.Tactic.BVDecide
     BVDecide.ensureBvDecide
     let g ← getMainGoal
     let cfg ← elabBVDecideConfig cfg g.mvarId `bv_decide
-    let types ← elabBVDecideTypes types
+    let types ← elabBVDecideTypes types cfg
     IO.FS.withTempFile fun _ lratFile => do
       let cfg ← TacticContext.new lratFile cfg types
       discard <| liftGrindM <| bvDecide (.grindTarget g) cfg
@@ -42,7 +43,7 @@ open Meta.Tactic.BVDecide
     BVDecide.ensureBvDecide
     let g ← getMainGoal
     let cfg ← elabBVDecideConfig cfgStx g.mvarId `bv_decide?
-    let types ← elabBVDecideTypes typesStx
+    let types ← elabBVDecideTypes typesStx cfg
     let ctx ← BVDecide.BVTrace.mkContext cfg types
     match ← liftGrindM <| BVDecide.BVTrace.evalBvTrace (.grindTarget g) ctx with
     | .normalize =>
@@ -60,7 +61,7 @@ open Meta.Tactic.BVDecide
     BVDecide.ensureBvDecide
     let g ← getMainGoal
     let cfg ← elabBVDecideConfig cfgStx g.mvarId `bv_check
-    let types ← elabBVDecideTypes typesStx
+    let types ← elabBVDecideTypes typesStx cfg
     let ctx ← BVDecide.BVCheck.mkContext path.getString cfg types
     liftGrindM <| BVDecide.BVCheck.evalBvCheck (.grindTarget g) ctx do
       let bvNormalizeStx ← `(grind| bv_normalize $cfgStx $[$typesStx:bvTypes]?)
@@ -75,13 +76,27 @@ def evalBVNormalize : GrindTactic := fun
     BVDecide.ensureBvDecide
     let g ← getMainGoal
     let cfg ← elabBVDecideConfig cfg g.mvarId `bv_normalize
-    let types ← elabBVDecideTypes types
+    let types ← elabBVDecideTypes types cfg
     let (_, state) ← liftGrindM <|
-      Meta.Tactic.BVDecide.Normalize.bvNormalize.run { config := cfg, restrictedTypes := types } (.grindTarget g)
+      Normalize.bvNormalize.run (.new (.solve types) cfg) (.grindTarget g)
     if ← state.target.mvarId.isAssigned then
       replaceMainGoal []
     else
       throwError "`bv_normalize` failed to close the goal"
+  | _ => throwUnsupportedSyntax
+
+@[builtin_grind_tactic Parser.Tactic.Grind.bvDecidePush]
+def evalBVPush : GrindTactic := fun
+  | `(grind| bv_decide_push $cfg:optConfig) => do
+    BVDecide.ensureBvDecide
+    let g ← getMainGoal
+    let cfg ← elabBVDecideConfig cfg g.mvarId `bv_decide_push
+    liftGoalM <| do
+      let g ← get
+      let ctx := Normalize.PreProcessContext.new .push cfg
+      let (_, state) ← Normalize.bvNormalize.run ctx (.grindTarget g)
+      let .grindTarget goal := state.target | unreachable!
+      set goal
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Grind

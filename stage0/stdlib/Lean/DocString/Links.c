@@ -46,7 +46,7 @@ uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Slice_toString(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
@@ -2260,7 +2260,7 @@ goto v___jp_696_;
 v___jp_696_:
 {
 lean_object* v___x_697_; lean_object* v___x_698_; 
-v___x_697_ = lean_string_utf8_extract(v_s_672_, v___x_673_, v_snd_688_);
+v___x_697_ = lean_string_utf8_extract_fast(v_s_672_, v___x_673_, v_snd_688_);
 v___x_698_ = l___private_Lean_DocString_Links_0__Lean_rw(v___x_697_);
 if (lean_obj_tag(v___x_698_) == 0)
 {

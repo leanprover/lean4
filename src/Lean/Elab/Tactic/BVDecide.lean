@@ -191,7 +191,7 @@ def evalBvDecide : Tactic := fun
   | `(tactic| bv_decide $cfg:optConfig $[$types:bvTypes]?) => do
     ensureBvDecide
     let cfg ← elabBVDecideConfig cfg
-    let types ← elabBVDecideTypes types
+    let types ← elabBVDecideTypes types cfg
     IO.FS.withTempFile fun _ lratFile => do
       let cfg ← TacticContext.new lratFile cfg types
       liftMetaFinishingTactic fun g => do
@@ -205,7 +205,7 @@ def evalBvTraceTactic : Tactic := fun
   | `(tactic| bv_decide?%$tk $cfgStx:optConfig $[$typesStx:bvTypes]?) => do
     ensureBvDecide
     let cfg ← elabBVDecideConfig cfgStx
-    let types ← elabBVDecideTypes typesStx
+    let types ← elabBVDecideTypes typesStx cfg
     let ctx ← BVTrace.mkContext cfg types
     let g ← getMainGoal
     let params ← Grind.mkDefaultParams {}
@@ -226,7 +226,7 @@ def evalBvCheckTactic : Tactic := fun
   | `(tactic| bv_check%$tk $cfgStx:optConfig $[$typesStx:bvTypes]? $path:str) => do
     ensureBvDecide
     let cfg ← elabBVDecideConfig cfgStx
-    let types ← elabBVDecideTypes typesStx
+    let types ← elabBVDecideTypes typesStx cfg
     let ctx ← BVCheck.mkContext path.getString cfg types
     let g ← getMainGoal
     let params ← Grind.mkDefaultParams {}
@@ -241,11 +241,11 @@ def evalBVNormalize : Tactic := fun
   | `(tactic| bv_normalize $cfg:optConfig $[$types:bvTypes]?) => do
     ensureBvDecide
     let cfg ← elabBVDecideConfig cfg
-    let types ← elabBVDecideTypes types
+    let types ← elabBVDecideTypes types cfg
     let g ← getMainGoal
     let params ← Grind.mkDefaultParams {}
     let (_, state) ← Grind.GrindM.run (params := params) do
-      Normalize.bvNormalize.run { config := cfg, restrictedTypes := types } (.mvarIdTarget g)
+      Normalize.bvNormalize.run (.new (.solve types) cfg) (.mvarIdTarget g)
     let goal := state.target.mvarId
     if ← goal.isAssigned then
       replaceMainGoal []

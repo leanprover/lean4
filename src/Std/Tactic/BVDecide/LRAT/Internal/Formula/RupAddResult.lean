@@ -7,7 +7,6 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.LRAT.Internal.Formula.Lemmas
-public import Init.GrindInstances.ToInt
 import Init.ByCases
 import Init.Data.Array.Bootstrap
 import Init.Data.Fin.Lemmas

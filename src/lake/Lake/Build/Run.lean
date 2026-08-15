@@ -398,7 +398,7 @@ public def Workspace.runFetchM
   (ws : Workspace) (build : FetchM α) (cfg : BuildConfig := {}) (caption := "job computation")
 : IO α := do
   let jobs ← mkJobQueue
-  let cancelling? ← if cfg.failFast then some <$> IO.CancelToken.new else pure none
+  let cancelling? := if cfg.failFast then some (← IO.CancelToken.new) else none
   let mctx ← mkMonitorContext cfg jobs cancelling?
   let bctx ← mkBuildContext' ws cfg jobs cancelling?
   let job ← startBuild bctx build caption

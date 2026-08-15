@@ -11,7 +11,7 @@ import Lean.Meta.AppBuilder
 public section
 namespace Lean.Meta.Grind
 
-/-- Extension backing the `@[grind homo]` attribute. -/
+/-- Extension backing the `@[grind hom]` attribute. -/
 builtin_initialize homoExt : Sym.Simp.SymSimpExtension ← Sym.Simp.mkSymSimpExt
 
 /-- Returns the homomorphism rules tagged with the `[grind hom]` attribute. -/
@@ -126,7 +126,7 @@ structure HomoPredTheorem where
 /-- Map from trigger head symbol to the `[grind hom_pred]` theorems it activates. -/
 abbrev HomoPredTheorems := NameMap (List HomoPredTheorem)
 
-/-- Extension backing the `@[grind homo_pred]` attribute. -/
+/-- Extension backing the `@[grind hom_pred]` attribute. -/
 builtin_initialize homoPredExt : SimpleScopedEnvExtension (Name × HomoPredTheorem) HomoPredTheorems ←
   registerSimpleScopedEnvExtension {
     initial  := {}

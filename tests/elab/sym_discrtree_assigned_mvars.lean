@@ -13,7 +13,7 @@ fails with "made no progress". The matching layers below retrieval already resol
 metavariables.
 -/
 
-open Lean.Order
+open Lean.Order Std.Internal.Order
 
 example (f g : Nat → Nat → Prop) (h : ∀ a b, f a b ⊑ g a b) : f ⊑ g := by
   sym =>

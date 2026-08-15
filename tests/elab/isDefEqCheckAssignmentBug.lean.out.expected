@@ -28,10 +28,6 @@
         [Meta.isDefEq.onFailure] ❌️ ReaderT Elab.Command.Context
               (StateRefT' IO.RealWorld Elab.Command.State
                 (EIO Exception)) =?= ReaderT Context (StateRefT' IO.RealWorld State CoreM)
-        [Meta.isDefEq.onFailure] ❌️ ReaderT Elab.Command.Context
-              (StateRefT' IO.RealWorld Elab.Command.State
-                (EIO Exception)) =?= ReaderT Context (StateRefT' IO.RealWorld State CoreM)
-  [Meta.isDefEq.onFailure] ❌️ MonadEvalT MetaM Elab.Command.CommandElabM =?= MonadEvalT ?m ?m
   [Meta.isDefEq.onFailure] ❌️ MonadEvalT MetaM Elab.Command.CommandElabM =?= MonadEvalT ?m ?m
 [Meta.isDefEq] ✅️ MonadEvalT MetaM Elab.Command.CommandElabM =?= MonadEvalT ?m ?m
   [Meta.isDefEq] ✅️ MetaM =?= ?m
@@ -78,9 +74,6 @@
         [Meta.isDefEq] ❌️ Elab.Term.Context =?= Context
         [Meta.isDefEq.onFailure] ❌️ ReaderT Elab.Term.Context
               (StateRefT' IO.RealWorld Elab.Term.State MetaM) =?= ReaderT Context (StateRefT' IO.RealWorld State CoreM)
-        [Meta.isDefEq.onFailure] ❌️ ReaderT Elab.Term.Context
-              (StateRefT' IO.RealWorld Elab.Term.State MetaM) =?= ReaderT Context (StateRefT' IO.RealWorld State CoreM)
-  [Meta.isDefEq.onFailure] ❌️ MonadEvalT MetaM Elab.TermElabM =?= MonadEvalT ?m ?m
   [Meta.isDefEq.onFailure] ❌️ MonadEvalT MetaM Elab.TermElabM =?= MonadEvalT ?m ?m
 [Meta.isDefEq] ✅️ MonadEvalT MetaM Elab.TermElabM =?= MonadEvalT ?m ?m
   [Meta.isDefEq] ✅️ MetaM =?= ?m
@@ -183,10 +176,6 @@
                 [Meta.isDefEq.onFailure] ❌️ ST.Ref IO.RealWorld Elab.Term.State =?= Context
               [Meta.isDefEq.onFailure] ❌️ ReaderT (ST.Ref IO.RealWorld Elab.Term.State) MetaM
                     α =?= ReaderT Context (StateRefT' IO.RealWorld State CoreM) α
-              [Meta.isDefEq.onFailure] ❌️ ReaderT (ST.Ref IO.RealWorld Elab.Term.State) MetaM
-                    α =?= ReaderT Context (StateRefT' IO.RealWorld State CoreM) α
-  [Meta.isDefEq.onFailure] ❌️ MonadEvalT MetaM
-        (StateRefT' IO.RealWorld Elab.Term.State MetaM) =?= MonadEvalT ?m ?m
   [Meta.isDefEq.onFailure] ❌️ MonadEvalT MetaM
         (StateRefT' IO.RealWorld Elab.Term.State MetaM) =?= MonadEvalT ?m ?m
 [Meta.isDefEq] ✅️ MonadEvalT MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM) =?= MonadEvalT ?m ?m

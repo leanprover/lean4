@@ -501,7 +501,6 @@ theorem bitwise_mod_two_pow (of_false_false : f false false = false := by rfl) :
    apply Nat.eq_of_testBit_eq
    simp
 
-@[grind =]
 protected theorem and_comm (x y : Nat) : x &&& y = y &&& x := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.and_comm]
@@ -509,12 +508,6 @@ protected theorem and_comm (x y : Nat) : x &&& y = y &&& x := by
 protected theorem and_assoc (x y z : Nat) : (x &&& y) &&& z = x &&& (y &&& z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.and_assoc]
-
-grind_pattern Nat.and_assoc => (x &&& y) &&& z where
-  x =/= 0; y =/= 0; z =/= 0
-
-grind_pattern Nat.and_assoc => x &&& (y &&& z) where
-  x =/= 0; y =/= 0; z =/= 0
 
 instance : Std.Associative (α := Nat) (· &&& ·) where
   assoc := Nat.and_assoc
@@ -577,12 +570,10 @@ theorem and_mod_two_pow : (a &&& b) % 2 ^ n = (a % 2 ^ n) &&& (b % 2 ^ n) :=
    apply Nat.eq_of_testBit_eq
    simp
 
-@[grind =]
 protected theorem or_comm (x y : Nat) : x ||| y = y ||| x := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.or_comm]
 
-@[grind _=_]
 protected theorem or_assoc (x y z : Nat) : (x ||| y) ||| z = x ||| (y ||| z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.or_assoc]
@@ -662,12 +653,10 @@ theorem or_pos_iff {n m : Nat} : 0 < n ||| m ↔ 0 < n ∨ 0 < m := by
    apply Nat.eq_of_testBit_eq
    simp
 
-@[grind =]
 protected theorem xor_comm (x y : Nat) : x ^^^ y = y ^^^ x := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.xor_comm]
 
-@[grind _=_]
 protected theorem xor_assoc (x y z : Nat) : (x ^^^ y) ^^^ z = x ^^^ (y ^^^ z) := by
    apply Nat.eq_of_testBit_eq
    simp
@@ -800,15 +789,12 @@ theorem shiftLeft_bitwise_distrib {a b : Nat} (of_false_false : f false false = 
     (bitwise f a b) <<< i = bitwise f (a <<< i) (b <<< i) := by
   simp [shiftLeft_eq, bitwise_mul_two_pow of_false_false]
 
-@[grind _=_]
 theorem shiftLeft_and_distrib {a b : Nat} : (a &&& b) <<< i = a <<< i &&& b <<< i :=
   shiftLeft_bitwise_distrib
 
-@[grind _=_]
 theorem shiftLeft_or_distrib {a b : Nat} : (a ||| b) <<< i = a <<< i ||| b <<< i :=
   shiftLeft_bitwise_distrib
 
-@[grind _=_]
 theorem shiftLeft_xor_distrib {a b : Nat} : (a ^^^ b) <<< i = a <<< i ^^^ b <<< i :=
   shiftLeft_bitwise_distrib
 
@@ -817,7 +803,6 @@ theorem shiftLeft_xor_distrib {a b : Nat} : (a ^^^ b) <<< i = a <<< i ^^^ b <<< 
   simp only [testBit, one_and_eq_mod_two, mod_two_bne_zero]
   exact (Bool.beq_eq_decide_eq _ _).symm
 
-@[grind _=_]
 theorem shiftRight_bitwise_distrib {a b : Nat} (of_false_false : f false false = false := by rfl) :
     (bitwise f a b) >>> i = bitwise f (a >>> i) (b >>> i) := by
   simp [shiftRight_eq_div_pow, bitwise_div_two_pow of_false_false]

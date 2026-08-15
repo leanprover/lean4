@@ -59,9 +59,15 @@ where
       let e' := mkApp2 (mkConst ``Grind.nestedDecidable) (← preprocess p) e
       modify fun s => s.insert { expr := e } e'
       return e'
-    -- Remark: we have to process `Expr.proj` since we only
-    -- fold projections later during term internalization
-    unless e.isApp || e.isForall || e.isProj || e.isMData do
+    /-
+    Remark: we have to process `Expr.proj` since we only
+    fold projections later during term internalization
+    Remark: let-expressions are zeta-reduced.
+    Remark: We used to not go inside binders because `grind` does not process them, but
+    some of the proofs nested in binders may be exposed for other preprocessing steps later.
+    So, we decided to mark all of them.
+    -/
+    unless e.isApp || e.isForall || e.isLambda || e.isProj || e.isMData do
       return e
     let e' ← match e with
       | .app .. => e.withApp fun f args => do
@@ -81,14 +87,45 @@ where
         pure <| e.updateProj! (← visit b)
       | .mdata _ b =>
         pure <| e.updateMData! (← visit b)
-      | .forallE _ d b _ =>
-        -- Recall that we have `ForallProp.lean`.
-        let d' ← visit d
-        let b' ← if b.hasLooseBVars then pure b else visit b
-        pure <| e.updateForallE! d' b'
+      | .forallE .. => visitForall e
+      | .lam .. => visitLambda e
       | _ => unreachable!
     modify fun s => s.insert { expr := e } e'
     return e'
+
+  visitLambda (root : Expr) : M Expr := do
+    let rec loop (e : Expr) (fvars : Array Expr := #[]) (modified := false) : M Expr := do
+      match e with
+      | .lam n d b c =>
+        let d := d.instantiateRev fvars
+        let d' ← visit d
+        withLocalDecl n c d' fun x =>
+          loop b (fvars.push x) (modified || !isSameExpr d d')
+      | e =>
+        let e := e.instantiateRev fvars
+        let e' ← visit e
+        if modified || !isSameExpr e e' then
+          mkLambdaFVars fvars e'
+        else
+          return root
+    loop root
+
+  visitForall (root : Expr) : M Expr := do
+    let rec loop (e : Expr) (fvars : Array Expr := #[]) (modified := false) : M Expr := do
+      match e with
+      | .forallE n d b c =>
+        let d := d.instantiateRev fvars
+        let d' ← visit d
+        withLocalDecl n c d' fun x =>
+          loop b (fvars.push x) (modified || !isSameExpr d d')
+      | e =>
+        let e := e.instantiateRev fvars
+        let e' ← visit e
+        if modified || !isSameExpr e e' then
+          mkForallFVars fvars e'
+        else
+          return root
+    loop root
 
   preprocess (e : Expr) : M Expr := do
     /-

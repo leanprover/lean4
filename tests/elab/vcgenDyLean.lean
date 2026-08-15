@@ -4,9 +4,9 @@ import Lean
 import Std.Tactic.Do
 public import Std.Internal.Do
 import Std.Internal.Do.Triple.SpecLemmas
-public meta import Lean.Elab.Tactic.Do.Internal.VCGen.FrameProc
-public meta import Lean.Elab.Tactic.Do.Internal.VCGen.FrameProcAttr
-public meta import Lean.Elab.Tactic.Do.Internal.VCGen.RuleConstruction
+public meta import Lean.Elab.Tactic.VCGen.FrameProc
+public meta import Lean.Elab.Tactic.VCGen.FrameProcAttr
+public meta import Lean.Elab.Tactic.VCGen.RuleConstruction
 
 set_option mvcgen.warning false
 
@@ -278,7 +278,7 @@ instance: WPMonad Traceful TraceProp EPost⟨⟩ where
     ⟩⟩
 
     wp_trans_monotone x := by
-      simp only [Std.Internal.Do.PredTrans.monotone, Lean.Order.PartialOrder.rel]
+      simp only [Lean.Order.PredTrans.monotone, Lean.Order.PartialOrder.rel]
       grind
   }
 
@@ -362,7 +362,7 @@ grind_pattern always_meet => Always' p1 ⊓ Always' p2
 
 section DyLeanFrameProc
 open Lean Meta Elab Tactic Sym
-open Lean.Elab.Tactic.Do.Internal Lean.Elab.Tactic.Do.Internal.VCGen
+open Lean.Elab.Tactic.VCGen
 
 /-- Collect the `Always'` conjuncts of a precondition, descending through `⊓`. These are the frames
 that transport to any extension of the current trace. -/

@@ -136,7 +136,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_chdir(b_obj_arg path) {
     int result = uv_chdir(path_str);
 
     if (result < 0) {
-        lean_inc(path);
         return lean_io_result_mk_error(lean_decode_uv_error(result, path));
     }
 
@@ -212,7 +211,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid) {
     }
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, lean_mk_string("group")));
+        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
 
     lean_object* groupname = lean_mk_string(group.groupname);

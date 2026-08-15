@@ -7,9 +7,9 @@ module
 
 prelude
 public import Init.Internal.Order
-public import Std.Internal.Do.Order.Basic
-public import Std.Internal.Do.Order.Heyting
-public import Std.Internal.Do.Order.Instances
+public import Std.Internal.Order.OfProp
+public import Std.Internal.Order.PreservesSup
+public import Std.Internal.Order.Heyting
 universe u v w s
 @[expose] public section
 
@@ -18,13 +18,17 @@ set_option linter.missingDocs true
 namespace Std.Internal.Do
 
 open Lean.Order
-open Std.Internal.Do.CompleteLattice
 
 /-!
 # Assertion
 
 The `Assertion` class and lattice capabilities such as total nondeterministic functions.
 -/
+
+-- `Prop` is an assertion lattice, ordered by implication. Re-scope its order instances here, so
+-- that `open Std.Internal.Do` supplies them along with the triple notation.
+attribute [scoped instance] Std.Internal.Order.instPartialOrderProp
+  Std.Internal.Order.instCompleteLatticeProp
 
 /-- An assertion type is equipped with a `CompleteLattice` structure,
 used as the carrier for pre- and postconditions. -/

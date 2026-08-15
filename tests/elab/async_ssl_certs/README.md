@@ -18,6 +18,8 @@ certificates are rejected).
 | `eckey.pem` | | P-256 key; a *different algorithm* from every certificate here, which OpenSSL accepts against an RSA certificate unless `SSL_CTX_check_private_key` is consulted |
 | `enckey.pem` | | `key.pem` encrypted with the passphrase `lean4`; encrypted keys are unsupported and must be rejected without prompting for one |
 | `emptypwkey.pem` | | `key.pem` encrypted under an *empty* passphrase; still an encrypted key, and rejected only because the password callback reports a failure rather than a zero-length passphrase |
+| `tradkey.pem` | | `key.pem` in the traditional (RFC 1421) encoding rather than PKCS#8; the only key form that reaches the bundle loader as a parsed entry carrying no certificate, so it exercises the skip branch |
+| `enccert.pem` | | `cert.pem` as an RFC 1421 encrypted `CERTIFICATE` block; decrypted in place while a bundle is read, so it is the input that makes a missing password callback prompt on the terminal and hang |
 | `cert.pem` | `CN=localhost` | standard server cert (no SAN; hostname matching uses the CN fallback) |
 | `wildcard.pem` | `CN=*.test.local` | SAN: `DNS:*.test.local, DNS:test.local` |
 | `multisan.pem` | `CN=alpha.test.local` | SAN: `DNS:alpha.test.local, DNS:beta.test.local` |
@@ -28,7 +30,8 @@ certificates are rejected).
 character — so it only fails once the certificate body is decoded, which exercises the
 "malformed certificate" paths rather than the "not a PEM file" ones.
 
-To regenerate:
+To regenerate (`-not_before`/`-not_after` need OpenSSL 3.5 or later; on older versions use
+`-startdate`/`-enddate`):
 
 ```sh
 openssl genrsa -out key.pem 2048
@@ -44,6 +47,24 @@ openssl genrsa -out key2.pem 2048
 openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out eckey.pem
 openssl pkey -in key.pem -aes256 -passout pass:lean4 -out enckey.pem
 openssl pkey -in key.pem -aes256 -passout pass: -out emptypwkey.pem
+openssl rsa -in key.pem -traditional -out tradkey.pem
+python3 -c '
+import base64, hashlib, subprocess, textwrap
+# Legacy RFC 1421 PEM encryption: key = EVP_BytesToKey(MD5, salt=IV, passphrase), 24 bytes for 3DES.
+iv = bytes(range(1, 9))
+pw = b"lean4"
+d = b""; key = b""
+while len(key) < 24:
+    d = hashlib.md5(d + pw + iv).digest()
+    key += d
+key = key[:24]
+der = base64.b64decode("".join(open("cert.pem").read().strip().splitlines()[1:-1]))
+enc = subprocess.run(["openssl", "enc", "-des-ede3-cbc", "-K", key.hex(), "-iv", iv.hex()],
+                     input=der, capture_output=True, check=True).stdout
+body = "\n".join(textwrap.wrap(base64.b64encode(enc).decode(), 64))
+open("enccert.pem", "w").write("-----BEGIN CERTIFICATE-----\nProc-Type: 4,ENCRYPTED\n"
+    f"DEK-Info: DES-EDE3-CBC,{iv.hex().upper()}\n\n" + body + "\n-----END CERTIFICATE-----\n")
+'
 python3 -c '
 import base64, textwrap
 der = bytearray(base64.b64decode("".join(open("cert.pem").read().strip().splitlines()[1:-1])))

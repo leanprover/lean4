@@ -1,8 +1,8 @@
 /-!
-Blocks until `slowA`'s marker appears (path in `FAILFAST_SYNC`), which happens
-only after cancellation is active — so `SlowChain.B`'s compile continuation
-deterministically observes a set token. Bounded, in case cancellation never
-comes.
+Blocks until `slowA`'s marker appears (path in `FAILFAST_SYNC`). Under
+`--fail-fast` the marker is written only once cancellation is active, so
+`SlowChain.B`'s compile continuation deterministically observes a set token.
+Bounded, in case the marker never appears.
 -/
 #eval do
   let some path ← IO.getEnv "FAILFAST_SYNC"

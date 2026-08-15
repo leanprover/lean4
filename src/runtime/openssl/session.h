@@ -29,6 +29,11 @@ void initialize_openssl_session();
 struct lean_ssl_session_object {
     SSL * ssl;
     std::deque<std::vector<char>> * pending_writes;
+    // Total bytes held in `pending_writes`, kept in step with the queue so `lean_ssl_write` can
+    // bound it without walking the deque.
+    size_t pending_bytes;
+    // Set once `lean_ssl_feed_eof` has reported that no further encrypted input will arrive.
+    bool input_eof;
 };
 
 inline lean_object * lean_ssl_session_object_new(lean_ssl_session_object * s) { return lean_alloc_external(g_ssl_session_external_class, s); }
@@ -44,6 +49,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_handshake(b_obj_arg ssl);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_write(b_obj_arg ssl, b_obj_arg data);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_read(b_obj_arg ssl, uint64_t max_bytes);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_feed_encrypted(b_obj_arg ssl, b_obj_arg data);
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_feed_eof(b_obj_arg ssl);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_drain_encrypted(b_obj_arg ssl);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_pending_encrypted(b_obj_arg ssl);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_pending_plaintext(b_obj_arg ssl);

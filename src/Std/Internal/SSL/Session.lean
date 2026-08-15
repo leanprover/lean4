@@ -141,6 +141,10 @@ with an empty `data` once the I/O is satisfied to keep draining the queue.
 
 Passing an empty `data` does not enqueue anything: it only flushes any previously queued plaintext
 and reports whether the queue is now drained (`none`) or still blocked (`some w`).
+
+The internal queue is bounded (1 MiB), so writing repeatedly while blocked eventually raises rather
+than buffering without limit. A single `data` larger than the bound is still accepted, since it only
+reaches the queue after OpenSSL has taken it and asked to be retried.
 -/
 @[extern "lean_ssl_write"]
 opaque write (ssl : @& Session) (data : @& ByteArray) : IO (Option IOWant)
@@ -168,9 +172,27 @@ Feeds encrypted TLS bytes into the SSL input BIO and returns the number of bytes
 
 The input BIO is an in-memory BIO, which never performs a short write: this consumes all of `data`
 (so the result always equals `data.size`) or raises on a fatal BIO error.
+
+Raises if `feedEof` has already been called.
 -/
 @[extern "lean_ssl_feed_encrypted"]
 opaque feedEncrypted (ssl : @& Session) (data : @& ByteArray) : IO UInt64
+
+/--
+Reports that the transport carrying the encrypted stream has reached end of file, so no further
+`feedEncrypted` will follow. Call this when the socket read side closes.
+
+Without it a session cannot distinguish "no bytes have arrived yet" from "no bytes will ever
+arrive": a peer that drops the connection without sending `close_notify` leaves `read?` reporting
+`.wantIO .read` indefinitely. Once this is called, `read?` drains whatever was already fed and then
+raises `IO.Error.unexpectedEof` — the truncation that a stripped `close_notify` produces — or
+returns `.closed` if the peer's `close_notify` did arrive.
+
+Bytes fed earlier stay readable; the end of file only takes effect once they are consumed. Calling
+this more than once is harmless, but `feedEncrypted` afterwards raises.
+-/
+@[extern "lean_ssl_feed_eof"]
+opaque feedEof (ssl : @& Session) : IO Unit
 
 /--
 Drains encrypted TLS bytes from the SSL output BIO.
@@ -257,6 +279,12 @@ Feeds encrypted bytes into a server session's input BIO.
 def feedEncrypted (s : Session.Server) (data : @& ByteArray) : IO UInt64 := Session.feedEncrypted s.toSession data
 
 /--
+Reports end of file on the transport feeding a server session.
+-/
+@[inline]
+def feedEof (s : Session.Server) : IO Unit := Session.feedEof s.toSession
+
+/--
 Drains encrypted bytes from a server session's output BIO.
 -/
 @[inline]
@@ -338,6 +366,12 @@ Feeds encrypted bytes into a client session's input BIO.
 -/
 @[inline]
 def feedEncrypted (s : Session.Client) (data : @& ByteArray) : IO UInt64 := Session.feedEncrypted s.toSession data
+
+/--
+Reports end of file on the transport feeding a client session.
+-/
+@[inline]
+def feedEof (s : Session.Client) : IO Unit := Session.feedEof s.toSession
 
 /--
 Drains encrypted bytes from a client session's output BIO.

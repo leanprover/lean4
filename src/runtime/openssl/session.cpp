@@ -109,15 +109,21 @@ inline lean_obj_res mk_ssl_eof_error() {
     return lean_io_result_mk_error(lean_mk_io_error_eof(lean_box(0)));
 }
 
-// Drains the OpenSSL error queue, keeping the first `errno` an `ERR_LIB_SYS` entry carries and the
-// first reason code any other entry carries. Both stay 0 when the queue holds no such entry.
+// Drains the OpenSSL error queue, keeping the `errno` the first `ERR_LIB_SYS` entry carries and the
+// reason code the first `ERR_LIB_SSL` entry carries. Both stay 0 when the queue holds no such entry.
+//
+// Reason codes are numbered per library, so entries raised by X509, ASN1, PEM and friends are
+// dropped rather than compared against the `SSL_R_*` constants the callers below switch on. Among
+// the SSL entries the first is the specific one: OpenSSL raises the condition it diagnosed and then
+// wraps it as it unwinds, so a bad record queues `SSL_R_WRONG_VERSION_NUMBER` ahead of the generic
+// `SSL_R_RECORD_LAYER_FAILURE`.
 static void take_ssl_error_reason(int * sys_errno, int * reason) {
     unsigned long err;
 
     while ((err = ERR_get_error()) != 0) {
         if (ERR_GET_LIB(err) == ERR_LIB_SYS) {
             if (*sys_errno == 0) *sys_errno = ERR_GET_REASON(err);
-        } else if (*reason == 0) {
+        } else if (ERR_GET_LIB(err) == ERR_LIB_SSL && *reason == 0) {
             *reason = ERR_GET_REASON(err);
         }
     }
@@ -191,6 +197,24 @@ enum ssl_session_role {
     ssl_session_role_client,
 };
 
+// Upper bound on plaintext accepted by `write` but not yet taken by OpenSSL. The output BIO is
+// memory-backed and never blocks, so `SSL_write` only stalls while the handshake needs input; a
+// caller that keeps writing across such a stall would otherwise grow the queue without limit.
+static constexpr size_t ssl_max_pending_write_bytes = 1 << 20;
+
+inline lean_obj_res mk_ssl_write_queue_full() {
+    ERR_clear_error();
+    return lean_io_result_mk_error(lean_mk_io_error_resource_exhausted(ENOBUFS,
+        mk_string("the TLS session already holds the maximum amount of unsent plaintext")));
+}
+
+// Copies plaintext OpenSSL would not take yet so it can be retried once the socket I/O it is
+// waiting on completes.
+static void ssl_enqueue_pending_write(lean_ssl_session_object * obj, char const * data, size_t size) {
+    obj->pending_writes->emplace_back(data, data + size);
+    obj->pending_bytes += size;
+}
+
 // `size` must fit in an `int`; `lean_ssl_write` rejects oversized payloads before they can reach
 // this function or the pending queue.
 static ssl_write_step_ ssl_write_step(lean_ssl_session_object * obj, char const * data, size_t size, int * out_err) {
@@ -216,6 +240,7 @@ static ssl_pending_write_flush try_flush_pending_writes(lean_ssl_session_object 
         if (step == ssl_write_step_failed) return ssl_pending_write_flush_failed;
         if (step == ssl_write_step_blocked) return ssl_pending_write_flush_blocked;
 
+        obj->pending_bytes -= pw.size();
         obj->pending_writes->pop_front();
     }
 
@@ -230,11 +255,9 @@ static lean_obj_res flush_and_return_want(lean_ssl_session_object * obj, int bas
     ssl_pending_write_flush flushed = try_flush_pending_writes(obj, &flush_err);
     if (flushed == ssl_pending_write_flush_failed) return mk_ssl_error(obj->ssl, flush_err, "could not send buffered data over the TLS session");
 
-    // Still blocked: the flush's own want supersedes the read's. Fully flushed: a WANT_WRITE from
-    // the read is satisfied, so what remains is encrypted input.
-    int want = flushed == ssl_pending_write_flush_blocked
-        ? flush_err
-        : (base_want == SSL_ERROR_WANT_WRITE ? SSL_ERROR_WANT_READ : base_want);
+    // A blocked flush's want supersedes the read's: the queue is retried ahead of any further
+    // plaintext, so its socket I/O is what the caller has to satisfy first.
+    int want = flushed == ssl_pending_write_flush_blocked ? flush_err : base_want;
 
     return want == SSL_ERROR_WANT_READ ? mk_read_result_want_read() : mk_read_result_want_write();
 }
@@ -272,6 +295,8 @@ static lean_obj_res mk_ssl_session(SSL_CTX * ctx, ssl_session_role role) {
     }
 
     ssl_obj->ssl = ssl;
+    ssl_obj->pending_bytes = 0;
+    ssl_obj->input_eof = false;
     ssl_obj->pending_writes = new (std::nothrow) std::deque<std::vector<char>>();
 
     if (ssl_obj->pending_writes == nullptr) {
@@ -406,8 +431,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_write(b_obj_arg ssl, b_obj_arg data
         }
 
         if (flushed == ssl_pending_write_flush_blocked) {
+            if (data_len > ssl_max_pending_write_bytes - ssl_obj->pending_bytes) {
+                return mk_ssl_write_queue_full();
+            }
+
             if (data_len > 0) {
-                ssl_obj->pending_writes->emplace_back(payload, payload + data_len);
+                ssl_enqueue_pending_write(ssl_obj, payload, data_len);
             }
 
             if (flush_err == SSL_ERROR_WANT_READ) {
@@ -431,9 +460,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_write(b_obj_arg ssl, b_obj_arg data
         return mk_option_iowant_none();
     }
 
-    // Queue plaintext so it is retried after the required socket I/O completes.
+    // Queue plaintext so it is retried after the required socket I/O completes. `SSL_write` has
+    // already taken the payload and requires the same bytes back on retry, so this enqueue cannot
+    // be refused; it is bounded instead by only running with an empty queue.
     if (step == ssl_write_step_blocked) {
-        ssl_obj->pending_writes->emplace_back(payload, payload + data_len);
+        ssl_enqueue_pending_write(ssl_obj, payload, data_len);
         if (err == SSL_ERROR_WANT_READ) {
             return mk_option_iowant_read();
         }
@@ -503,6 +534,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_feed_encrypted(b_obj_arg ssl, b_obj
     lean_ssl_session_object * ssl_obj = lean_to_ssl_session_object(ssl);
     size_t data_len = lean_sarray_size(data);
 
+    if (ssl_obj->input_eof) {
+        return mk_ssl_invalid_argument("the encrypted input stream was already ended by feedEof");
+    }
+
     if (data_len == 0) {
         return lean_io_result_mk_ok(lean_box_uint64(0));
     }
@@ -528,6 +563,22 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_feed_encrypted(b_obj_arg ssl, b_obj
     }
 
     return mk_openssl_io_error("BIO_write failed");
+}
+
+/* Std.Internal.SSL.Session.feedEof (ssl : @& Session) : IO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_feed_eof(b_obj_arg ssl) {
+    ERR_clear_error();
+    lean_ssl_session_object * ssl_obj = lean_to_ssl_session_object(ssl);
+
+    // A memory BIO reports "retry" when it runs dry, which is indistinguishable from "the next
+    // bytes have not arrived yet": a peer that drops the connection without `close_notify` would
+    // leave `read?` reporting `.wantIO .read` forever. Returning 0 instead lets OpenSSL see the
+    // truncated stream and fail the read, which is what detects a stripped shutdown. Bytes already
+    // fed stay readable; the EOF only takes effect once they are consumed.
+    BIO_set_mem_eof_return(SSL_get_rbio(ssl_obj->ssl), 0);
+    ssl_obj->input_eof = true;
+
+    return lean_io_result_mk_ok(lean_box(0));
 }
 
 /* Std.Internal.SSL.Session.drainEncrypted (ssl : @& Session) : IO ByteArray */
@@ -594,9 +645,7 @@ static lean_obj_res close_notify_error(lean_ssl_session_object * ssl_obj, int rc
     if (err == SSL_ERROR_WANT_READ) return mk_option_iowant_read();
     if (err == SSL_ERROR_WANT_WRITE) return mk_option_iowant_write();
 
-    unsigned long queued = ERR_peek_last_error();
-
-    if (ERR_GET_LIB(queued) == ERR_LIB_SSL && ERR_GET_REASON(queued) == SSL_R_SHUTDOWN_WHILE_IN_INIT) {
+    if (SSL_in_init(ssl_obj->ssl)) {
         ERR_clear_error();
 
         if (!ssl_obj->pending_writes->empty()) {
@@ -708,6 +757,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_read(b_obj_arg /*ssl*/, uint64_t /*
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_feed_encrypted(b_obj_arg /*ssl*/, b_obj_arg /*data*/) {
+    lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
+    return nullptr;
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_feed_eof(b_obj_arg /*ssl*/) {
     lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
     return nullptr;
 }

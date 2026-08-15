@@ -22,6 +22,9 @@ private opaque SessionImpl : NonemptyType.{0}
 /--
 Represents an OpenSSL SSL session. Use `Session.Server.mk` / `Session.Client.mk` to create
 role-specific sessions.
+
+A session is not safe for concurrent use. Operations on the same session from more than one task
+have to be serialized externally, for example with a `Std.Mutex`.
 -/
 def Session : Type := SessionImpl.type
 
@@ -144,7 +147,8 @@ and reports whether the queue is now drained (`none`) or still blocked (`some w`
 
 The internal queue is bounded (1 MiB), so writing repeatedly while blocked eventually raises rather
 than buffering without limit. A single `data` larger than the bound is still accepted, since it only
-reaches the queue after OpenSSL has taken it and asked to be retried.
+reaches the queue after OpenSSL has taken it and asked to be retried; no further plaintext is then
+admitted until the queue drains back below the bound.
 -/
 @[extern "lean_ssl_write"]
 opaque write (ssl : @& Session) (data : @& ByteArray) : IO (Option IOWant)
@@ -186,7 +190,9 @@ Without it a session cannot distinguish "no bytes have arrived yet" from "no byt
 arrive": a peer that drops the connection without sending `close_notify` leaves `read?` reporting
 `.wantIO .read` indefinitely. Once this is called, `read?` drains whatever was already fed and then
 raises `IO.Error.unexpectedEof` — the truncation that a stripped `close_notify` produces — or
-returns `.closed` if the peer's `close_notify` did arrive.
+returns `.closed` if the peer's `close_notify` did arrive. A truncated stream keeps reporting
+`IO.Error.unexpectedEof` on every later `read?`, so the diagnosis does not depend on which call
+observes it first.
 
 Bytes fed earlier stay readable; the end of file only takes effect once they are consumed. Calling
 this more than once is harmless, but `feedEncrypted` afterwards raises.
@@ -240,14 +246,16 @@ alert is sent, so a shutdown never drops accepted data; while that flush is bloc
 Undelivered plaintext blocks the shutdown: while `read?` still has data to hand out, this returns
 `some .read` and makes no further progress, so drain the session before shutting it down. The data
 is never discarded, and `read?` keeps working after our `close_notify` has been sent — a peer may
-legitimately have sent records before it saw our alert.
+legitimately have sent records before it saw our alert. Once `feedEof` has reported the transport
+gone there is no peer alert left to wait for, so this reports `none` even with plaintext still
+buffered rather than asking for input that can no longer arrive; the plaintext stays readable.
 
-A session that never reached a negotiated state — the handshake was never run, or an earlier fatal
-error tore it down — has nothing to close and returns `none` rather than raising, so teardown paths
-can call this unconditionally. The one exception is plaintext `write` accepted but never delivered:
-such a session cannot carry it, and this raises rather than reporting a clean close. So this raises
-only when it is dropping data handed to `write`; a caller that wrote nothing, or whose writes all
-completed, never has to catch.
+A session with no negotiated state to tear down — the handshake was never run, an earlier fatal
+error tore it down, or the transport ended before the peer's `close_notify` arrived — has nothing to
+close and returns `none` rather than raising, so teardown paths can call this unconditionally. The
+one exception is plaintext `write` accepted but never delivered: such a session cannot carry it, and
+this raises rather than reporting a clean close. So this raises only when it is dropping data handed
+to `write`; a caller that wrote nothing, or whose writes all completed, never has to catch.
 -/
 @[extern "lean_ssl_close_notify"]
 opaque closeNotify (ssl : @& Session) : IO (Option IOWant)
@@ -258,73 +266,73 @@ namespace Server
 Runs one handshake step on a server session.
 -/
 @[inline]
-def handshake (s : Session.Server) : IO (Option IOWant) := Session.handshake s.toSession
+def handshake (s : @& Session.Server) : IO (Option IOWant) := Session.handshake s.toSession
 
 /--
 Writes plaintext into a server session.
 -/
 @[inline]
-def write (s : Session.Server) (data : @& ByteArray) : IO (Option IOWant) := Session.write s.toSession data
+def write (s : @& Session.Server) (data : @& ByteArray) : IO (Option IOWant) := Session.write s.toSession data
 
 /--
 Reads decrypted plaintext from a server session.
 -/
 @[inline]
-def read? (s : Session.Server) (maxBytes : UInt64) : IO ReadResult := Session.read? s.toSession maxBytes
+def read? (s : @& Session.Server) (maxBytes : UInt64) : IO ReadResult := Session.read? s.toSession maxBytes
 
 /--
 Feeds encrypted bytes into a server session's input BIO.
 -/
 @[inline]
-def feedEncrypted (s : Session.Server) (data : @& ByteArray) : IO UInt64 := Session.feedEncrypted s.toSession data
+def feedEncrypted (s : @& Session.Server) (data : @& ByteArray) : IO UInt64 := Session.feedEncrypted s.toSession data
 
 /--
 Reports end of file on the transport feeding a server session.
 -/
 @[inline]
-def feedEof (s : Session.Server) : IO Unit := Session.feedEof s.toSession
+def feedEof (s : @& Session.Server) : IO Unit := Session.feedEof s.toSession
 
 /--
 Drains encrypted bytes from a server session's output BIO.
 -/
 @[inline]
-def drainEncrypted (s : Session.Server) : IO ByteArray := Session.drainEncrypted s.toSession
+def drainEncrypted (s : @& Session.Server) : IO ByteArray := Session.drainEncrypted s.toSession
 
 /--
 Returns encrypted bytes pending in a server session's output BIO.
 -/
 @[inline]
-def pendingEncrypted (s : Session.Server) : IO UInt64 := Session.pendingEncrypted s.toSession
+def pendingEncrypted (s : @& Session.Server) : IO UInt64 := Session.pendingEncrypted s.toSession
 
 /--
 Returns plaintext bytes buffered in a server session.
 -/
 @[inline]
-def pendingPlaintext (s : Session.Server) : IO UInt64 := Session.pendingPlaintext s.toSession
+def pendingPlaintext (s : @& Session.Server) : IO UInt64 := Session.pendingPlaintext s.toSession
 
 /--
 Returns the X.509 verification result code for a server session.
 -/
 @[inline]
-def verifyResult (s : Session.Server) : IO UInt64 := Session.verifyResult s.toSession
+def verifyResult (s : @& Session.Server) : IO UInt64 := Session.verifyResult s.toSession
 
 /--
 Returns the X.509 verification result string for a server session.
 -/
 @[inline]
-def verifyResultString (s : Session.Server) : IO String := Session.verifyResultString s.toSession
+def verifyResultString (s : @& Session.Server) : IO String := Session.verifyResultString s.toSession
 
 /--
 Sends a TLS `close_notify` alert on a server session.
 -/
 @[inline]
-def closeNotify (s : Session.Server) : IO (Option IOWant) := Session.closeNotify s.toSession
+def closeNotify (s : @& Session.Server) : IO (Option IOWant) := Session.closeNotify s.toSession
 
 /--
 Returns the negotiated TLS version string for a server session.
 -/
 @[inline]
-def negotiatedVersion (s : Session.Server) : IO String := Session.negotiatedVersion s.toSession
+def negotiatedVersion (s : @& Session.Server) : IO String := Session.negotiatedVersion s.toSession
 
 end Server
 
@@ -337,83 +345,83 @@ This sets both the SNI extension sent in the ClientHello and enables post-handsh
 verification against the certificate CN/SAN. Without it, OpenSSL validates only the certificate
 chain — not that the certificate belongs to the host being connected to.
 
-Neither setting can take effect once the handshake is done, so calling this afterwards raises rather
-than leaving the peer unverified against a name the caller believes was checked.
+Both settings are read while the `ClientHello` is assembled, so this raises once the handshake has
+started rather than silently sending the peer one name and verifying against another.
 -/
 @[inline]
-def setServerName (s : Session.Client) (host : @& String) : IO Unit := Session.setServerNameImpl s.toSession host
+def setServerName (s : @& Session.Client) (host : @& String) : IO Unit := Session.setServerNameImpl s.toSession host
 
 /--
 Runs one handshake step on a client session.
 -/
 @[inline]
-def handshake (s : Session.Client) : IO (Option IOWant) := Session.handshake s.toSession
+def handshake (s : @& Session.Client) : IO (Option IOWant) := Session.handshake s.toSession
 
 /--
 Writes plaintext into a client session.
 -/
 @[inline]
-def write (s : Session.Client) (data : @& ByteArray) : IO (Option IOWant) := Session.write s.toSession data
+def write (s : @& Session.Client) (data : @& ByteArray) : IO (Option IOWant) := Session.write s.toSession data
 
 /--
 Reads decrypted plaintext from a client session.
 -/
 @[inline]
-def read? (s : Session.Client) (maxBytes : UInt64) : IO ReadResult := Session.read? s.toSession maxBytes
+def read? (s : @& Session.Client) (maxBytes : UInt64) : IO ReadResult := Session.read? s.toSession maxBytes
 
 /--
 Feeds encrypted bytes into a client session's input BIO.
 -/
 @[inline]
-def feedEncrypted (s : Session.Client) (data : @& ByteArray) : IO UInt64 := Session.feedEncrypted s.toSession data
+def feedEncrypted (s : @& Session.Client) (data : @& ByteArray) : IO UInt64 := Session.feedEncrypted s.toSession data
 
 /--
 Reports end of file on the transport feeding a client session.
 -/
 @[inline]
-def feedEof (s : Session.Client) : IO Unit := Session.feedEof s.toSession
+def feedEof (s : @& Session.Client) : IO Unit := Session.feedEof s.toSession
 
 /--
 Drains encrypted bytes from a client session's output BIO.
 -/
 @[inline]
-def drainEncrypted (s : Session.Client) : IO ByteArray := Session.drainEncrypted s.toSession
+def drainEncrypted (s : @& Session.Client) : IO ByteArray := Session.drainEncrypted s.toSession
 
 /--
 Returns encrypted bytes pending in a client session's output BIO.
 -/
 @[inline]
-def pendingEncrypted (s : Session.Client) : IO UInt64 := Session.pendingEncrypted s.toSession
+def pendingEncrypted (s : @& Session.Client) : IO UInt64 := Session.pendingEncrypted s.toSession
 
 /--
 Returns plaintext bytes buffered in a client session.
 -/
 @[inline]
-def pendingPlaintext (s : Session.Client) : IO UInt64 := Session.pendingPlaintext s.toSession
+def pendingPlaintext (s : @& Session.Client) : IO UInt64 := Session.pendingPlaintext s.toSession
 
 /--
 Returns the X.509 verification result code for a client session.
 -/
 @[inline]
-def verifyResult (s : Session.Client) : IO UInt64 := Session.verifyResult s.toSession
+def verifyResult (s : @& Session.Client) : IO UInt64 := Session.verifyResult s.toSession
 
 /--
 Returns the X.509 verification result string for a client session.
 -/
 @[inline]
-def verifyResultString (s : Session.Client) : IO String := Session.verifyResultString s.toSession
+def verifyResultString (s : @& Session.Client) : IO String := Session.verifyResultString s.toSession
 
 /--
 Sends a TLS `close_notify` alert on a client session.
 -/
 @[inline]
-def closeNotify (s : Session.Client) : IO (Option IOWant) := Session.closeNotify s.toSession
+def closeNotify (s : @& Session.Client) : IO (Option IOWant) := Session.closeNotify s.toSession
 
 /--
 Returns the negotiated TLS version string for a client session.
 -/
 @[inline]
-def negotiatedVersion (s : Session.Client) : IO String := Session.negotiatedVersion s.toSession
+def negotiatedVersion (s : @& Session.Client) : IO String := Session.negotiatedVersion s.toSession
 
 end Client
 end Session

@@ -189,7 +189,7 @@ def testReadZero (certFile keyFile : String) : IO Unit := do
   | .closed   => throw <| IO.userError "read? 0 returned .closed unexpectedly"
 
 -- ---------------------------------------------------------------------------
--- Test: multiple pending writes flush in order (exercises deque pop_front).
+-- Test: successive writes reach the peer in the order they were made.
 -- ---------------------------------------------------------------------------
 
 def testPendingWriteOrder (certFile keyFile : String) : IO Unit := do
@@ -200,9 +200,8 @@ def testPendingWriteOrder (certFile keyFile : String) : IO Unit := do
   let clientSess ← Session.Client.mk clientCtx
   runHandshake clientSess serverSess
 
-  -- Write three distinct messages through the client session and verify the
-  -- server receives them in the same order.  This exercises the pending_writes
-  -- deque: each write drains the queue front-to-back before appending.
+  -- The handshake is complete, so every write is taken immediately and the pending-write queue
+  -- stays empty; this covers ordering alone, not the queue.
   let msgs := #["first".toUTF8, "second".toUTF8, "third".toUTF8]
   for m in msgs do
     discard <| clientSess.write m
@@ -882,3 +881,117 @@ def errorOf (act : IO α) : IO (Option String) := do
   | .closed => pure ()
   | .data b => throw <| IO.userError s!"unexpected data ({b.size} bytes) after the peer's close_notify"
   | .wantIO _ => throw <| IO.userError "expected .closed for a close_notify received before feedEof"
+
+-- A single `write` larger than the queue bound is admitted, since `SSL_write` has already taken the
+-- payload by then. The bound still has to hold for everything written afterwards, even though the
+-- queue is now sitting above it.
+#eval do
+  let clientCtx ← Context.Client.mk "" false
+  let c ← Session.Client.mk clientCtx
+
+  discard <| c.write ⟨Array.replicate (2 * 1024 * 1024) (0x41 : UInt8)⟩
+
+  let chunk : ByteArray := ⟨Array.replicate (64 * 1024) (0x41 : UInt8)⟩
+  let mut refused := none
+  for _ in [0:8] do
+    if refused.isNone then
+      refused := ← errorOf (c.write chunk)
+
+  match refused with
+  | none => throw <| IO.userError "an oversized queued write disabled the pending-write bound"
+  | some msg =>
+    unless (msg.splitOn "maximum amount of unsent plaintext").length > 1 do
+      throw <| IO.userError s!"unexpected queue-full error: {msg}"
+
+  -- A full queue must still accept the empty write that exists to drain it, or there would be no
+  -- way back from the bound.
+  match ← errorOf (c.write ByteArray.empty) with
+  | none => pure ()
+  | some msg => throw <| IO.userError s!"a full queue refused a pure flush: {msg}"
+
+-- The server name feeds the `ClientHello`, so it is too late to set once the handshake has started
+-- even though the session is not yet established: SNI would go unsent while the caller was told it
+-- had been applied.
+#eval do
+  let clientCtx ← Context.Client.mk "" false
+  let c ← Session.Client.mk clientCtx
+  discard <| c.handshake
+
+  match ← errorOf (c.setServerName "example.com") with
+  | none => throw <| IO.userError "setServerName was accepted after the ClientHello had been sent"
+  | some msg =>
+    unless (msg.splitOn "before the handshake starts").length > 1 do
+      throw <| IO.userError s!"unexpected setServerName error: {msg}"
+
+-- OpenSSL diagnoses a truncated stream once and then reports the session as a generic failure, so
+-- the truncation has to be remembered: every `read?` after the transport ends must agree.
+#eval do
+  let (certFile, keyFile) ← setupTestCerts
+  let serverCtx ← Context.Server.mk certFile keyFile
+  let clientCtx ← Context.Client.mk "" false
+  let s ← Session.Server.mk serverCtx
+  let c ← Session.Client.mk clientCtx
+  runHandshake c.toSession s.toSession
+
+  c.feedEof
+  for label in ["read", "repeated read", "peek"] do
+    let r ← errorOf (if label == "peek" then c.read? 0 else c.read? 1024)
+    match r with
+    | none => throw <| IO.userError s!"{label} after feedEof did not raise"
+    | some msg =>
+      unless (msg.splitOn "end of file").length > 1 do
+        throw <| IO.userError s!"{label} after feedEof reported '{msg}' instead of end of file"
+
+-- Teardown runs on exactly the connections whose peer vanishes without answering our alert, so a
+-- transport that ends there is the expected outcome rather than an error to catch.
+#eval do
+  let (certFile, keyFile) ← setupTestCerts
+  let serverCtx ← Context.Server.mk certFile keyFile
+  let clientCtx ← Context.Client.mk "" false
+  let s ← Session.Server.mk serverCtx
+  let c ← Session.Client.mk clientCtx
+  runHandshake c.toSession s.toSession
+
+  match ← c.closeNotify with
+  | some .read => pure ()
+  | r => throw <| IO.userError s!"expected to be waiting for the peer's close_notify, got {repr r}"
+
+  discard <| c.drainEncrypted
+  c.feedEof
+
+  for i in [0:3] do
+    match ← errorOf c.closeNotify with
+    | none => pure ()
+    | some msg => throw <| IO.userError s!"closeNotify #{i} after a half-close raised: {msg}"
+
+-- Plaintext still to be handed out holds the shutdown back, but only while the peer's alert could
+-- still arrive. After `feedEof` no further input is possible, so reporting `.read` would ask the
+-- caller for something it can never supply.
+#eval do
+  let (certFile, keyFile) ← setupTestCerts
+  let serverCtx ← Context.Server.mk certFile keyFile
+  let clientCtx ← Context.Client.mk "" false
+  let s ← Session.Server.mk serverCtx
+  let c ← Session.Client.mk clientCtx
+  runHandshake c.toSession s.toSession
+
+  discard <| s.write "final-record".toUTF8
+  discard <| s.closeNotify
+  discard <| c.feedEncrypted (← s.drainEncrypted)
+
+  match ← c.closeNotify with
+  | some .read => pure ()
+  | r => throw <| IO.userError s!"undelivered plaintext did not hold the shutdown back, got {repr r}"
+
+  c.feedEof
+
+  for i in [0:3] do
+    match ← c.closeNotify with
+    | none => pure ()
+    | r => throw <| IO.userError s!"closeNotify #{i} still asked for input after feedEof: {repr r}"
+
+  -- The shutdown reported done, but the plaintext it was protecting is still there.
+  match ← c.read? 1024 with
+  | .data b => assertEqStr (String.fromUTF8! b) "final-record"
+  | .closed => throw <| IO.userError "closeNotify discarded the plaintext it was holding for"
+  | .wantIO _ => throw <| IO.userError "expected the buffered plaintext after the shutdown"

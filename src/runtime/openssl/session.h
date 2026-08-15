@@ -12,10 +12,9 @@ Author: Sofia Rodrigues
 
 #ifndef LEAN_EMSCRIPTEN
 #include <openssl/ssl.h>
-#endif
-
 #include <deque>
 #include <vector>
+#endif
 
 namespace lean {
 
@@ -34,10 +33,14 @@ struct lean_ssl_session_object {
     size_t pending_bytes;
     // Set once `lean_ssl_feed_eof` has reported that no further encrypted input will arrive.
     bool input_eof;
+    // Set once OpenSSL has diagnosed the input stream as truncated. OpenSSL reports that condition
+    // exactly once and then degrades to a bare `SSL_ERROR_SYSCALL`, so it has to be remembered for
+    // repeated calls to keep classifying the session the same way.
+    bool input_truncated;
 };
 
-inline lean_object * lean_ssl_session_object_new(lean_ssl_session_object * s) { return lean_alloc_external(g_ssl_session_external_class, s); }
-inline lean_ssl_session_object * lean_to_ssl_session_object(lean_object * o) { return (lean_ssl_session_object*)(lean_get_external_data(o)); }
+static inline lean_object * lean_ssl_session_object_new(lean_ssl_session_object * s) { return lean_alloc_external(g_ssl_session_external_class, s); }
+static inline lean_ssl_session_object * lean_to_ssl_session_object(lean_object * o) { return (lean_ssl_session_object*)(lean_get_external_data(o)); }
 #endif
 
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_mk_server(b_obj_arg ctx);

@@ -15,6 +15,7 @@ Author: Sofia Rodrigues
 #include <openssl/x509v3.h>
 #include <cerrno>
 #include <climits>
+#include <cstdio>
 #include <cstring>
 #include <string>
 
@@ -31,20 +32,26 @@ lean_external_class * g_ssl_context_external_class = nullptr;
 
 #ifndef LEAN_EMSCRIPTEN
 
-
 static lean_obj_res mk_ssl_file_error(b_obj_arg file, char const * msg) {
-    int errnum = 0;
-    unsigned long err;
+    ERR_clear_error();
 
-    while ((err = ERR_get_error()) != 0) {
-        if (errnum == 0 && ERR_GET_LIB(err) == ERR_LIB_SYS) errnum = ERR_GET_REASON(err);
+    int errnum = 0;
+    FILE * probe = fopen(lean_string_cstr(file), "rb");
+
+    if (probe == nullptr) errnum = errno; else fclose(probe);
+
+    if (errnum == ENOENT || errnum == EACCES || errnum == EPERM || errnum == EISDIR ||
+        errnum == ENOTDIR || errnum == ELOOP || errnum == ENAMETOOLONG || errnum == EMFILE ||
+        errnum == ENFILE || errnum == ENOMEM) {
+        return lean_io_result_mk_error(decode_io_error(errnum, file));
     }
 
-    if (errnum != 0) return lean_io_result_mk_error(decode_io_error(errnum, file));
-
     lean_inc(file);
-    return lean_io_result_mk_error(lean_mk_io_error_invalid_argument_file(file, EINVAL, mk_string(msg)));
+    return lean_io_result_mk_error(lean_mk_io_error_invalid_argument_file(
+        file, errnum != 0 ? errnum : EINVAL, mk_string(msg)));
 }
+
+static int reject_encrypted_pem(char *, int, int, void *) { return -1; }
 
 // Reports a failure that has no errno behind it. The OpenSSL error queue is discarded rather than
 // appended, so its entries cannot leak into a later, unrelated diagnosis.
@@ -98,16 +105,22 @@ static bool configure_ctx_options(SSL_CTX * ctx) {
         // but set explicitly so the intent is clear.
         SSL_OP_NO_COMPRESSION |
 
-        // Disables RFC 5077 session tickets in TLS 1.2. TLS 1.3 tickets cannot be switched off this
-        // way: there the flag only downgrades them to the stateful form, which the disabled session
-        // cache below then suppresses. If resumption performance matters, remove this flag and
-        // implement a ticket key rotation strategy.
+        // Disables RFC 5077 session tickets in TLS 1.2. It does not switch them off in TLS 1.3,
+        // where it only downgrades them to the stateful form; SSL_CTX_set_num_tickets below is what
+        // stops those being sent.
         SSL_OP_NO_TICKET
     );
 
-    // Backs the flag above. A TLS 1.2 server still offers session-ID resumption through this cache
-    // (which defaults to SSL_SESS_CACHE_SERVER), and the TLS 1.3 stateful tickets left by
-    // SSL_OP_NO_TICKET are stored in it too, so turning it off is what makes "no session
+    // Sends no NewSessionTicket at all in TLS 1.3. Without this a server still puts two of them on
+    // the wire per connection, useless against the disabled cache below but not free.
+    SSL_CTX_set_num_tickets(ctx, 0);
+
+    // Installed before any PEM is read, so it covers the certificate chain and the CA bundle as well
+    // as the private key.
+    SSL_CTX_set_default_passwd_cb(ctx, reject_encrypted_pem);
+
+    // Backs the flags above. A TLS 1.2 server still offers session-ID resumption through this cache
+    // (which defaults to SSL_SESS_CACHE_SERVER), so turning it off is what makes "no session
     // resumption" hold for both protocol versions.
     SSL_CTX_set_session_cache_mode(ctx, SSL_SESS_CACHE_OFF);
 
@@ -135,7 +148,7 @@ static bool configure_ctx_options(SSL_CTX * ctx) {
 static bool load_system_trust_store(SSL_CTX * ctx) {
 #if defined(__APPLE__)
     // OpenSSL's default paths don't reach the Keychain, so the anchors are pulled from the Security
-    // framework instead. This yields the built-in system roots only: certificates a user or an
+    // framework as well. This yields the built-in system roots only: certificates a user or an
     // administrator added to a keychain are not included, and per-certificate trust settings are
     // not consulted, so a root the user explicitly distrusted is still added here.
     X509_STORE * store = SSL_CTX_get_cert_store(ctx);
@@ -169,9 +182,11 @@ static bool load_system_trust_store(SSL_CTX * ctx) {
     }
 
     CFRelease(anchors);
+
+    int paths = SSL_CTX_set_default_verify_paths(ctx);
     ERR_clear_error();
 
-    return added > 0;
+    return added > 0 || paths == 1;
 #elif defined(LEAN_WINDOWS)
     // The Windows ROOT store is reachable only through OpenSSL's winstore provider, which
     // `SSL_CTX_set_default_verify_paths` does not consult, so it has to be named explicitly. The
@@ -194,6 +209,11 @@ static bool load_system_trust_store(SSL_CTX * ctx) {
 // Creates an SSL_CTX with the hardened options shared by all contexts. Returns nullptr and stores
 // an IO error in *err on failure.
 static SSL_CTX * mk_ssl_ctx_base(const SSL_METHOD * method, lean_obj_res * err) {
+    if (!ensure_openssl_initialized()) {
+        *err = mk_openssl_io_error("OPENSSL_init_ssl failed");
+        return nullptr;
+    }
+
     ERR_clear_error();
 
     SSL_CTX * ctx = SSL_CTX_new(method);
@@ -242,12 +262,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert_file, 
         SSL_CTX_free(ctx);
         return mk_ssl_file_error(cert_file, "could not read a PEM certificate chain");
     }
-
-    // Encrypted private keys are not supported. Without a callback here OpenSSL falls back to
-    // PEM_def_callback, which prompts for a passphrase on the terminal and blocks. The return value
-    // is the passphrase length, so it has to be -1 (the documented failure code) and not 0: 0 is an
-    // empty passphrase, which loads a key encrypted under one instead of rejecting it.
-    SSL_CTX_set_default_passwd_cb(ctx, [](char *, int, int, void *) { return -1; });
 
     // Both key calls below are diagnosed from the error queue, so each must see only its own
     // entries.
@@ -307,6 +321,42 @@ static lean_obj_res mk_client_ctx(uint8_t verify_peer, LoadCA load_ca) {
     return wrap_ssl_context(ctx);
 }
 
+// Adds every certificate the BIO yields to the context's trust store, on top of the system anchors
+// already there. Returns 0 if the PEM could not be read at all, otherwise the number of
+// certificates found; `*err` is set only for a hard failure. Non-certificate entries (private keys,
+// CRLs) are skipped, matching what a CA bundle file is allowed to contain.
+//
+// Both client constructors share this, so an in-memory bundle and a bundle on disk are accepted and
+// rejected on exactly the same terms.
+static int add_ca_certificates(SSL_CTX * ctx, BIO * bio, bool * read_failed, lean_obj_res * err) {
+    STACK_OF(X509_INFO) * infos = PEM_X509_INFO_read_bio(bio, nullptr, reject_encrypted_pem, nullptr);
+
+    if (infos == nullptr) {
+        *read_failed = true;
+        return 0;
+    }
+
+    *read_failed = false;
+
+    X509_STORE * store = SSL_CTX_get_cert_store(ctx);
+    int cert_count = 0;
+
+    for (int i = 0; i < sk_X509_INFO_num(infos); i++) {
+        X509_INFO * info = sk_X509_INFO_value(infos, i);
+        if (info->x509 == nullptr) continue;
+        cert_count++;
+.
+        if (X509_STORE_add_cert(store, info->x509) != 1) {
+            sk_X509_INFO_pop_free(infos, X509_INFO_free);
+            *err = mk_openssl_io_error("X509_STORE_add_cert failed");
+            return 0;
+        }
+    }
+
+    sk_X509_INFO_pop_free(infos, X509_INFO_free);
+    return cert_count;
+}
+
 /* Std.Internal.SSL.Context.Client.mk (caFile : @& String) (verifyPeer : Bool) : IO Context.Client */
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca_file, uint8_t verify_peer) {
     const char * ca = lean_string_cstr(ca_file);
@@ -316,8 +366,23 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca_file, ui
         // An empty CA path leaves the client with just the system trust anchors.
         if (ca[0] == '\0') return nullptr;
 
-        if (SSL_CTX_load_verify_locations(ctx, ca, nullptr) != 1) {
-            return mk_ssl_file_error(ca_file, "could not read PEM CA certificates");
+        BIO * bio = BIO_new_file(ca, "r");
+        if (bio == nullptr) return mk_ssl_file_error(ca_file, "could not read PEM CA certificates");
+
+        bool read_failed = false;
+        lean_obj_res err = nullptr;
+        int cert_count = add_ca_certificates(ctx, bio, &read_failed, &err);
+
+        BIO_free(bio);
+
+        if (err != nullptr) return err;
+        if (read_failed) return mk_ssl_file_error(ca_file, "could not read PEM CA certificates");
+
+        // `SSL_CTX_load_verify_locations` reports success for a file holding no certificates at all
+        // (a lone CRL, or a private key), which silently leaves the trust store unchanged. Counting
+        // is what turns that misconfiguration into an error.
+        if (cert_count == 0) {
+            return mk_ssl_file_error(ca_file, "the CA file contains no certificates");
         }
 
         return nullptr;
@@ -338,31 +403,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client_from_pem(b_obj_arg ca
         BIO * bio = BIO_new_mem_buf(pem, (int)pem_size);
         if (bio == nullptr) return mk_openssl_io_error("BIO_new_mem_buf failed");
 
-        STACK_OF(X509_INFO) * infos = PEM_X509_INFO_read_bio(bio, nullptr, nullptr, nullptr);
+        bool read_failed = false;
+        lean_obj_res err = nullptr;
+        int cert_count = add_ca_certificates(ctx, bio, &read_failed, &err);
 
         BIO_free(bio);
 
-        if (infos == nullptr) return mk_ssl_invalid_argument("could not read PEM CA certificates from the given string");
-
-        // The store already holds the system roots and is owned by the context, so it is not freed
-        // here.
-        X509_STORE * store = SSL_CTX_get_cert_store(ctx);
-        int cert_count = 0;
-
-        for (int i = 0; i < sk_X509_INFO_num(infos); i++) {
-            X509_INFO * info = sk_X509_INFO_value(infos, i);
-            if (info->x509 == nullptr) continue;
-            cert_count++;
-
-            // A certificate that is already an anchor (e.g. a system root repeated in the bundle)
-            // is reported as success, so duplicates need no special handling here.
-            if (X509_STORE_add_cert(store, info->x509) != 1) {
-                sk_X509_INFO_pop_free(infos, X509_INFO_free);
-                return mk_openssl_io_error("X509_STORE_add_cert failed");
-            }
-        }
-
-        sk_X509_INFO_pop_free(infos, X509_INFO_free);
+        if (err != nullptr) return err;
+        if (read_failed) return mk_ssl_invalid_argument("could not read PEM CA certificates from the given string");
 
         if (cert_count == 0) return mk_ssl_invalid_argument("the given CA PEM string contains no certificates");
 

@@ -47,16 +47,15 @@ void initialize_libuv_udp_socket() {
     g_uv_udp_socket_external_class = lean_register_external_class(lean_uv_udp_socket_finalizer, [](void* obj, lean_object* f) {
         lean_uv_udp_socket_object* udp_socket = (lean_uv_udp_socket_object*)obj;
 
-        auto visit = [f](lean_object* child) {
-            if (child != nullptr) {
-                lean_inc(f);
-                lean_inc(child);
-                lean_dec(lean_apply_1(f, child));
-            }
-        };
+        if (udp_socket->m_promise_read != nullptr) {
+            lean_inc(f);
+            lean_apply_1(f, udp_socket->m_promise_read);
+        }
 
-        visit(udp_socket->m_promise_read);
-        visit(udp_socket->m_byte_array);
+        if (udp_socket->m_byte_array != nullptr) {
+            lean_inc(f);
+            lean_apply_1(f, udp_socket->m_byte_array);
+        }
     });
 }
 
@@ -234,10 +233,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
 
-    // The loop thread releases `data_array`, which recursively releases the `ByteArray`s the caller
-    // may still hold references to, so their refcounts have to be atomic.
-    mark_mt(data_array);
-
     udp_send_data* send_data = (udp_send_data*)send_uv->data;
     send_data->promise = promise;
     send_data->data = data_array;
@@ -355,12 +350,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
         // Rule 1: the socket is fully settled and the loop's reference handed back first.
         lean_dec(socket);
 
-        if (nread >= 0 && (flags & UV_UDP_PARTIAL) != 0) {
-            // The datagram was larger than the buffer and the kernel discarded the rest. Reporting
-            // the truncated prefix as a successful read would be silent data loss.
-            lean_dec(byte_array);
-            lean_promise_resolve(mk_except_err(lean_decode_uv_error(UV_EMSGSIZE, nullptr)), promise);
-        } else if (nread >= 0) {
+        if (nread >= 0) {
             lean_sarray_set_size(byte_array, nread);
 
             lean_object* addr_obj;
@@ -443,13 +433,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
         // Rule 1: the socket is fully settled and the loop's reference handed back first.
         lean_dec(socket);
 
-        if (nread < 0 && nread != UV_ENOBUFS) {
+        if (nread == UV_ENOBUFS) {
+            lean_promise_resolve(mk_except_ok(lean_box(0)), promise);
+        } else if (nread < 0) {
             lean_promise_resolve(mk_except_err(lean_decode_uv_error(nread, nullptr)), promise);
         } else {
-            // `UV_ENOBUFS` is the documented answer to the zero-length `alloc_cb` above. A
-            // non-negative `nread` would be a zero-length delivery, which equally means the socket
-            // woke up readable, so report that rather than aborting the process at exit.
-            lean_promise_resolve(mk_except_ok(lean_box(0)), promise);
+            // This branch should be dead, we cannot receive a value >= 0 according to docs.
+            lean_always_assert(false);
         }
 
         lean_dec(promise);

@@ -43,13 +43,9 @@ void lean_uv_timer_finalizer(void* ptr) {
 
 void initialize_libuv_timer() {
     g_uv_timer_external_class = lean_register_external_class(lean_uv_timer_finalizer, [](void* obj, lean_object* f) {
-        lean_object * promise = ((lean_uv_timer_object*)obj)->m_promise;
-
-        if (promise != NULL) {
-            // `f` consumes both itself and its argument.
+        if (((lean_uv_timer_object*)obj)->m_promise != NULL) {
             lean_inc(f);
-            lean_inc(promise);
-            lean_dec(lean_apply_1(f, promise));
+            lean_apply_1(f, ((lean_uv_timer_object*)obj)->m_promise);
         }
     });
 }
@@ -343,6 +339,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj) {
         return lean_io_result_mk_ok(lean_box(0));
     }
 
+    // A timer that already fired kept `m_promise` but the loop handed its reference back, so the
+    // state has to gate the releases below.
     if (timer->m_state != TIMER_STATE_RUNNING) {
         event_loop_unlock(&global_ev);
         return lean_io_result_mk_ok(lean_box(0));

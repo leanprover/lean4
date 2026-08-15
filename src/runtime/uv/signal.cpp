@@ -40,12 +40,9 @@ void lean_uv_signal_finalizer(void* ptr) {
 
 void initialize_libuv_signal() {
     g_uv_signal_external_class = lean_register_external_class(lean_uv_signal_finalizer, [](void* obj, lean_object* f) {
-        lean_object * promise = ((lean_uv_signal_object*)obj)->m_promise;
-
-        if (promise != NULL) {
+        if (((lean_uv_signal_object*)obj)->m_promise != NULL) {
             lean_inc(f);
-            lean_inc(promise);
-            lean_dec(lean_apply_1(f, promise));
+            lean_apply_1(f, ((lean_uv_signal_object*)obj)->m_promise);
         }
     });
 }
@@ -202,17 +199,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
 
-    auto create_promise = []() {
-        lean_object * promise = lean_io_promise_new();
-        // The loop thread resolves and releases it, so its refcount has to be atomic.
-        mark_mt(promise);
-        return promise;
-    };
-
-    auto setup_signal = [create_promise, obj, signal]() {
+    auto setup_signal = [obj, signal]() {
         lean_assert(signal->m_promise == NULL);
 
-        lean_object* promise = create_promise();
+        lean_object* promise = lean_io_promise_new();
         signal->m_promise = promise;
         signal->m_state = SIGNAL_STATE_RUNNING;
 
@@ -236,14 +226,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
         }
 
         if (result != 0) {
-            // Restore the pre-call state: leaving `RUNNING` behind would make the teardown walk
-            // believe the loop still holds the reference released just below.
-            signal->m_state = SIGNAL_STATE_INITIAL;
-            signal->m_promise = NULL;
-
-            lean_dec(promise); // The structure does not own it.
-            lean_dec(promise); // We are not going to return it.
             lean_dec(obj);
+            lean_dec(promise);
 
             event_loop_unlock(&global_ev);
             return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
@@ -278,7 +262,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
                             lean_inc(obj);
                         }
 
-                        signal->m_promise = create_promise();
+                        signal->m_promise = lean_io_promise_new();
                     }
 
                     lean_object* promise = signal->m_promise;
@@ -295,7 +279,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
             case SIGNAL_STATE_FINISHED:
                 {
                     if (signal->m_promise == NULL) {
-                        lean_object* finished_promise = create_promise();
+                        lean_object* finished_promise = lean_io_promise_new();
                         event_loop_unlock(&global_ev);
                         return lean_io_result_mk_ok(finished_promise);
                     }
@@ -315,7 +299,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
             event_loop_unlock(&global_ev);
             return lean_io_result_mk_ok(promise);
         } else {
-            lean_object* finished_promise = create_promise();
+            lean_object* finished_promise = lean_io_promise_new();
             event_loop_unlock(&global_ev);
             return lean_io_result_mk_ok(finished_promise);
         }
@@ -335,6 +319,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
         return lean_io_result_mk_ok(lean_box(0));
     }
 
+    // A signal that already fired kept `m_promise` but the loop handed its reference back, so the
+    // state has to gate the releases below.
     if (signal->m_state != SIGNAL_STATE_RUNNING) {
         event_loop_unlock(&global_ev);
         return lean_io_result_mk_ok(lean_box(0));

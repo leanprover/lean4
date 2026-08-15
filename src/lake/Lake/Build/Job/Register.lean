@@ -29,18 +29,26 @@ public def Job.renew (self : Job α) : Job α :=
   have : OptDataKind α := self.kind
   self.mapResult (sync := true) fun
   | .ok a s => .ok a s.renew
-  | .error _ s => .error 0 s.renew
+  | .error (.errorLogged _) s => .error (.errorLogged 0) s.renew
+  | .error e s => .error e s.renew
 
 /--
 Registers the job for the top-level build monitor,
 (e.g., the Lake CLI progress UI), assigning it `caption`.
+
+When the build is being cancelled, registration is skipped: the job still
+exists for dependency propagation but is not surfaced in the monitor output,
+so interrupted pending jobs do not appear as failures.
 -/
 @[inline] public def registerJob
-  [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadBuild m]
+  [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] [MonadBuild m]
   (caption : String) (job : Job α) (optional := false)
 : m (Job α) := do
+  let ctx ← getBuildContext
+  if let some tk := ctx.cancelling? then
+    if ← tk.isSet then return job.renew
   let job : Job α := {job with caption, optional}
-  (← getBuildContext).registeredJobs.modify (·.push job)
+  ctx.registeredJobs.modify (·.push job)
   return job.renew
 
 /-- Wraps stray I/O, logs, and errors in `x` into the produced job.  -/

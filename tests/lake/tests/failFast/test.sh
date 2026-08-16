@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 source ../common.sh
 
-export FAILFAST_SYNC="$PWD/slowA.produced.out"
+export FAILFAST_SYNC="slowA.produced.out"
 
 ./clean.sh
 

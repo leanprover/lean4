@@ -170,7 +170,8 @@ def preprocess (e : Expr) : ClosureM Expr := do
   let ctx ← read
   -- If we are not zetaDelta-expanding let-decls, then we use `check` to find
   -- which let-decls are dependent. We say a let-decl is dependent if its lambda abstraction is type incorrect.
-  if !ctx.zetaDelta then
+  let lctx ← getLCtx
+  if !ctx.zetaDelta && (e.hasMVar || e.hasAnyFVar fun f => (lctx.find? f).any (·.hasValue)) then
     check e
   pure e
 

@@ -28,7 +28,7 @@ namespace Lake
 /--
 Materialize the Git repository from {lean}`url` into {lean}`repo` at {lean}`rev?`.
 
-If no revision is specified (i.e., {lean}`rev? = none`), the latest {lit}`HEAD` is used.
+If no revision is specified (i.e., {lean}`rev? = none`), the latest {lit}`master` is used.
 
 If the repository is already at {lean}`rev?`, return early with no fetch.
 Otherwise, fetch the revision {lean}`rev?` from the remote {lean}`url` and check it out.
@@ -37,7 +37,7 @@ If no local repository exists, initialize a new one.
 def materializeGitRepo
   (name : String) (repo : GitRepo) (url : String) (rev? : Option GitRev)
 : LoggerIO Unit := do
-  let rev := rev?.getD .head
+  let rev := rev?.getD Git.upstreamBranch
   let remote := Git.defaultRemote
   let url ← resolveUrl url
   -- # Setup repository

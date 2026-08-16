@@ -181,7 +181,8 @@ partial def lowerLet (decl : LetDecl .pure) (k : Code .pure) : ToImpureM (Code .
       -- Should have been caught by `ToLCNF`
       throwError f!"ToImpure: unexpected use of noncomputable declaration `{name}`; please report this issue"
     | some (.recInfo ..) =>
-      throwError f!"code generator does not support recursor `{name}` yet, consider using 'match ... with' and/or structural recursion"
+      throwError "The code generator only supports recursors for non-recursive, non-mutual inductives \
+        but not `{.ofConstName name}`, consider using 'match ... with' and/or structural recursion"
     | none => panic! "reference to unbound name"
   | .fvar fvarId irArgs =>
     let irArgs ← irArgs.mapM (·.toImpure)

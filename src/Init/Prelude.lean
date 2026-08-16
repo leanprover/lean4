@@ -1086,7 +1086,7 @@ or derive `i < arr.size` from some other proposition that we are checking in the
 -/
 @[macro_inline, implicit_reducible]
 def dite {α : Sort u} (c : Prop) [h : Decidable c] (t : c → α) (e : Not c → α) : α :=
-  h.casesOn e t
+  h.rec e t
 
 /-! # if-then-else -/
 
@@ -1112,7 +1112,7 @@ until `c` is known.
 -/
 @[macro_inline, implicit_reducible]
 def ite {α : Sort u} (c : Prop) [h : Decidable c] (t e : α) : α :=
-  h.casesOn (fun _ => e) (fun _ => t)
+  h.rec (fun _ => e) (fun _ => t)
 
 @[macro_inline] instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (And p q) :=
   match dp with
@@ -1188,9 +1188,7 @@ The Boolean `or` is a `@[macro_inline]` function in order to give it short-circu
 if `x` is `true` then `y` is not evaluated at runtime.
 -/
 @[macro_inline, implicit_reducible] def Bool.or (x y : Bool) : Bool :=
-  match x with
-  | true  => true
-  | false => y
+  x.rec y true
 
 /--
 Boolean “and”, also known as conjunction. `and x y` can be written `x && y`.
@@ -1202,9 +1200,7 @@ The Boolean `and` is a `@[macro_inline]` function in order to give it short-circ
 if `x` is `false` then `y` is not evaluated at runtime.
 -/
 @[macro_inline, implicit_reducible] def Bool.and (x y : Bool) : Bool :=
-  match x with
-  | false => false
-  | true  => y
+  x.rec false y
 
 /--
 Boolean negation, also known as Boolean complement. `not x` can be written `!x`.
@@ -1212,9 +1208,8 @@ Boolean negation, also known as Boolean complement. `not x` can be written `!x`.
 This is a function that maps the value `true` to `false` and the value `false` to `true`. The
 propositional connective is `Not : Prop → Prop`.
 -/
-@[inline, implicit_reducible] def Bool.not : Bool → Bool
-  | true  => false
-  | false => true
+@[inline, implicit_reducible] def Bool.not : Bool → Bool :=
+  Bool.rec true false
 
 export Bool (or and not)
 

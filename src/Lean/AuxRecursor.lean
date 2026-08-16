@@ -44,6 +44,14 @@ def isAuxRecursorWithSuffix (env : Environment) (declName : Name) (suffix : Stri
 def isCasesOnRecursor (env : Environment) (declName : Name) : Bool :=
   isAuxRecursorWithSuffix env declName casesOnSuffix
 
+def isNonrecRecursor (env : Environment) (declName : Name) : Bool :=
+  match declName with
+  | .str ind "rec" =>
+    match env.find? ind with
+    | some (.inductInfo val) => !val.isRec && (val.all matches [_])
+    | _ => false
+  | _ => false
+
 def isRecOnRecursor (env : Environment) (declName : Name) : Bool :=
   isAuxRecursorWithSuffix env declName recOnSuffix
 
@@ -59,9 +67,9 @@ def markSparseCasesOn (env : Environment) (declName : Name) : Environment :=
 def isSparseCasesOn (env : Environment) (declName : Name) : Bool :=
   sparseCasesOnExt.isTagged env declName
 
-/-- Is this a `.casesOn`, a constructor elimination or a sparse casesOn? -/
+/-- Is this a `.casesOn`, a nonrecursive `.rec`, a constructor elimination or a sparse casesOn? -/
 def isCasesOnLike (env : Environment) (declName : Name) : Bool :=
-  isCasesOnRecursor env declName || isSparseCasesOn env declName
+  isCasesOnRecursor env declName || isNonrecRecursor env declName || isSparseCasesOn env declName
 
 /--
 Shape information for no confusion lemmas.

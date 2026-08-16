@@ -186,6 +186,13 @@ instance : ToExpr Bool where
   toExpr     := fun b => if b then mkConst ``Bool.true else mkConst ``Bool.false
   toTypeExpr := mkConst ``Bool
 
+instance : ToExpr Ordering where
+  toExpr
+    | .lt => mkConst ``Ordering.lt
+    | .eq => mkConst ``Ordering.eq
+    | .gt => mkConst ``Ordering.gt
+  toTypeExpr := mkConst ``Ordering
+
 instance : ToExpr Char where
   toExpr     := fun c => mkApp (mkConst ``Char.ofNat) (mkRawNatLit c.toNat)
   toTypeExpr := mkConst ``Char

@@ -1077,6 +1077,14 @@ noncomputable def Bool.and (x y : Bool) : Bool :=
   | true  => y
 
 /--
+The dependent version of `a && b`.
+-/
+@[macro_inline, implicit_reducible] def Bool.dand (a : Bool) (b : Eq a true → Bool) : Bool :=
+  match a with
+  | false => false
+  | true => b rfl
+
+/--
 Boolean negation, also known as Boolean complement. `not x` can be written `!x`.
 
 This is a function that maps the value `true` to `false` and the value `false` to `true`. The

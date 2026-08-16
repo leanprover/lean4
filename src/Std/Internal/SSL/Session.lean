@@ -137,18 +137,27 @@ opaque handshake (ssl : @& Session) : IO (Option IOWant)
 
 /--
 Attempts to write plaintext application data into SSL. Returns `none` when all queued plaintext
-(including `data`) has been accepted; encrypted output is then ready to drain with `drainEncrypted`.
-Returns `some w` when OpenSSL needs socket I/O of kind `w` before the write can complete; in that
-case the data has been queued internally and **must not** be submitted again — call `write` again
-with an empty `data` once the I/O is satisfied to keep draining the queue.
+(including `data`) has been accepted. Returns `some w` when OpenSSL needs socket I/O of kind `w`
+before the write can complete; in that case the data has been queued internally and **must not** be
+submitted again — call `write` again with an empty `data` once the I/O is satisfied to keep draining
+the queue.
+
+Every result may leave encrypted output behind, `some .read` included: a write that blocks does so
+because it drove a handshake step, which puts a flight in the output BIO that has to reach the peer
+before the awaited input can arrive. Always `drainEncrypted` after a `write`; waiting for the
+reported I/O without draining first deadlocks the session.
 
 Passing an empty `data` does not enqueue anything: it only flushes any previously queued plaintext
 and reports whether the queue is now drained (`none`) or still blocked (`some w`).
 
 The internal queue is bounded (1 MiB), so writing repeatedly while blocked eventually raises rather
-than buffering without limit. A single `data` larger than the bound is still accepted, since it only
-reaches the queue after OpenSSL has taken it and asked to be retried; no further plaintext is then
-admitted until the queue drains back below the bound.
+than buffering without limit; a payload rejected that way is not queued, and the caller retries it.
+A single `data` larger than the bound is accepted when the queue is empty, since it reaches the
+queue only after OpenSSL has taken it and asked to be retried — but the same payload is rejected
+once anything is queued ahead of it, because it is then bounds-checked before OpenSSL sees it.
+
+Raises if the session has already failed, including `IO.Error.unexpectedEof` once a read has found
+the input stream truncated.
 -/
 @[extern "lean_ssl_write"]
 opaque write (ssl : @& Session) (data : @& ByteArray) : IO (Option IOWant)
@@ -159,10 +168,11 @@ Attempts to read decrypted plaintext data.
 At most one TLS record's worth of plaintext (16 KiB, `SSL3_RT_MAX_PLAIN_LENGTH`) is returned per
 call, regardless of `maxBytes`; call again to read further data.
 
-When `maxBytes == 0`, performs a non-consuming peek: returns `.data ByteArray.empty` if any
-plaintext is available (without consuming it), `.closed` if the peer has sent `close_notify`, or
-`.wantIO` if more socket I/O is needed first. This lets a caller test readability without committing
-to a read.
+When `maxBytes == 0`, performs a peek: returns `.data ByteArray.empty` if any plaintext is available
+(without consuming it), `.closed` if the peer has sent `close_notify`, or `.wantIO` if more socket
+I/O is needed first. Only the plaintext is left untouched — like any other read, a peek drives the
+session, so on a session that has not handshaked yet it starts the handshake and thereby makes a
+later `Client.setServerName` raise. Configure the server name before the first read of any kind.
 
 Before reporting `.wantIO`, this flushes any plaintext still queued by `write`, so a `.wantIO .read`
 may come back with fresh encrypted output waiting: always `drainEncrypted` after a `read?` rather
@@ -213,7 +223,12 @@ Returns the amount of encrypted TLS bytes currently pending in the output BIO.
 opaque pendingEncrypted (ssl : @& Session) : IO UInt64
 
 /--
-Returns the amount of decrypted plaintext bytes currently buffered inside the SSL object.
+Returns the amount of decrypted plaintext that the next `read?` can return without needing more
+encrypted input.
+
+This covers only the TLS record currently being processed, so `0` does not mean the session is
+drained: whole records that have been fed but not yet opened report `0` and still yield data. Use
+`read?` itself to decide whether anything is left.
 -/
 @[extern "lean_ssl_pending_plaintext"]
 opaque pendingPlaintext (ssl : @& Session) : IO UInt64
@@ -221,10 +236,9 @@ opaque pendingPlaintext (ssl : @& Session) : IO UInt64
 /--
 Returns the negotiated TLS protocol version string, e.g. `"TLSv1.3"` or `"TLSv1.2"`.
 
-Before the handshake completes this returns the highest protocol version the session is configured
-to offer rather than a negotiated value, so only treat the result as authoritative after a
-successful handshake. `"unknown"` is returned only in the unexpected case that OpenSSL reports no
-version at all.
+Only meaningful after a successful handshake. Before one completes this reports the TLS method's
+nominal version, which is neither negotiated nor derived from the session's configuration — a
+session restricted to TLS 1.2 still answers `"TLSv1.3"` here.
 -/
 @[extern "lean_ssl_negotiated_version"]
 opaque negotiatedVersion (ssl : @& Session) : IO String
@@ -236,8 +250,9 @@ complete, and also for a session that never had one to run (see below).
 - Returns `some .read` when our alert has been sent and we are waiting for the peer's `close_notify`;
 the caller should drain the output BIO, wait for more encrypted input, then call `closeNotify` again.
 If the peer's `close_notify` is already buffered, a single call may still return `none`.
-- Returns `some .write` when OpenSSL still has encrypted output to drain before it can finish the
-shutdown.
+- Returns `some .write` when OpenSSL needs to flush encrypted output before it can finish the
+shutdown. The output BIO is memory-backed and never blocks, so this does not arise today; drain
+after every call regardless of the result, since the alert itself is output that has to be sent.
 
 On a session whose handshake has completed, plaintext still queued by `write` is flushed before the
 alert is sent, so a shutdown never drops accepted data; while that flush is blocked this returns the
@@ -250,12 +265,15 @@ legitimately have sent records before it saw our alert. Once `feedEof` has repor
 gone there is no peer alert left to wait for, so this reports `none` even with plaintext still
 buffered rather than asking for input that can no longer arrive; the plaintext stays readable.
 
-A session with no negotiated state to tear down — the handshake was never run, an earlier fatal
-error tore it down, or the transport ended before the peer's `close_notify` arrived — has nothing to
-close and returns `none` rather than raising, so teardown paths can call this unconditionally. The
-one exception is plaintext `write` accepted but never delivered: such a session cannot carry it, and
-this raises rather than reporting a clean close. So this raises only when it is dropping data handed
-to `write`; a caller that wrote nothing, or whose writes all completed, never has to catch.
+A session with no negotiated state to tear down — the handshake was never run, a fatal error tore it
+down, or the transport ended before the peer's `close_notify` arrived — has nothing to close and
+returns `none` rather than raising, so teardown paths can call this unconditionally. This holds
+whether or not an earlier call had already diagnosed the failure; a shutdown never reports one it
+discovers itself, since there is nothing left to shut down either way.
+
+The one exception is plaintext `write` accepted but never delivered: such a session cannot carry it,
+and this raises rather than reporting a clean close. So this raises only when it is dropping data
+handed to `write`; a caller that wrote nothing, or whose writes all completed, never has to catch.
 -/
 @[extern "lean_ssl_close_notify"]
 opaque closeNotify (ssl : @& Session) : IO (Option IOWant)

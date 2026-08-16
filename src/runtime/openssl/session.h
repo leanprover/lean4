@@ -33,9 +33,14 @@ struct lean_ssl_session_object {
     size_t pending_bytes;
     // Set once `lean_ssl_feed_eof` has reported that no further encrypted input will arrive.
     bool input_eof;
-    // Set once OpenSSL has diagnosed the input stream as truncated. OpenSSL reports that condition
-    // exactly once and then degrades to a bare `SSL_ERROR_SYSCALL`, so it has to be remembered for
-    // repeated calls to keep classifying the session the same way.
+    // Set once a fatal error has torn the session down. OpenSSL raises such a condition exactly once
+    // and then leaves the session indistinguishable from one waiting for input — `SSL_in_init`,
+    // `SSL_get_shutdown` and `SSL_want` all read the same either way — so a later call would be told
+    // to wait for socket I/O that can never help. The verdict is recorded when it is first seen.
+    bool failed;
+    // Set once OpenSSL has diagnosed the input stream as truncated, which is the one failure that
+    // has to keep its own classification: `failed` alone would report it as a protocol error rather
+    // than the end of stream it is.
     bool input_truncated;
 };
 

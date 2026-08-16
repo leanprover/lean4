@@ -995,3 +995,118 @@ def errorOf (act : IO α) : IO (Option String) := do
   | .data b => assertEqStr (String.fromUTF8! b) "final-record"
   | .closed => throw <| IO.userError "closeNotify discarded the plaintext it was holding for"
   | .wantIO _ => throw <| IO.userError "expected the buffered plaintext after the shutdown"
+
+-- A fatal error is diagnosed by OpenSSL exactly once; afterwards `SSL_in_init`, `SSL_get_shutdown`
+-- and `SSL_want` read the same as on a session that is merely waiting for input, so an undefended
+-- retry is told to wait for socket I/O that can never arrive. Every operation must keep reporting
+-- the failure instead. The garbage below is chosen for the record header OpenSSL rejects without
+-- leaving anything queued, which is the case that degrades; other malformed input re-raises by
+-- itself and would not exercise this.
+#eval do
+  let (certFile, keyFile) ← setupTestCerts
+  let serverCtx ← Context.Server.mk certFile keyFile
+  let clientCtx ← Context.Client.mk "" false
+  let s ← Session.Server.mk serverCtx
+  let c ← Session.Client.mk clientCtx
+
+  -- The client is waiting for a ServerHello; hand it a record with an unusable version instead.
+  discard <| c.handshake
+  discard <| s.feedEncrypted (← c.drainEncrypted)
+  discard <| c.feedEncrypted (ByteArray.mk (List.replicate 64 (0x16 : UInt8)).toArray)
+
+  match ← errorOf c.handshake with
+  | none => throw <| IO.userError "a bogus record must fail the handshake"
+  | some msg =>
+    unless (msg.splitOn "unrecognized version").length > 1 do
+      throw <| IO.userError s!"unexpected handshake error: {msg}"
+
+  -- The session is dead. Nothing may report progress or ask for input again.
+  let after : List (String × IO String) :=
+    [("handshake", do let r ← c.handshake; return s!"{repr r}"),
+     ("write", do let r ← c.write "x".toUTF8; return s!"{repr r}"),
+     ("read?", do let r ← c.read? 1024; return s!"{repr (r matches .closed)}")]
+
+  for (label, act) in after do
+    for i in [0:3] do
+      match ← errorOf act with
+      | none => throw <| IO.userError s!"{label} #{i} returned instead of reporting the fatal error"
+      | some msg =>
+        unless (msg.splitOn "aborted by an earlier fatal error").length > 1 do
+          throw <| IO.userError s!"{label} #{i} reported '{msg}'"
+
+-- A truncated stream keeps its own classification: `failed` alone would turn the end of the stream
+-- into a protocol error, which a caller cannot distinguish from a peer that spoke garbage.
+#eval do
+  let (certFile, keyFile) ← setupTestCerts
+  let serverCtx ← Context.Server.mk certFile keyFile
+  let clientCtx ← Context.Client.mk "" false
+  let s ← Session.Server.mk serverCtx
+  let c ← Session.Client.mk clientCtx
+  runHandshake c.toSession s.toSession
+  c.feedEof
+
+  for label in ["read", "repeated read", "handshake"] do
+    let r ← errorOf (if label == "handshake" then discard c.handshake else discard (c.read? 1024))
+    match r with
+    | none => throw <| IO.userError s!"{label} after feedEof did not raise"
+    | some msg =>
+      unless (msg.splitOn "end of file").length > 1 do
+        throw <| IO.userError s!"{label} after feedEof reported '{msg}' instead of end of file"
+
+-- Teardown must not depend on whether the caller happened to read first. The same broken session
+-- reaches `closeNotify` by two routes -- with the failure already diagnosed, and with `closeNotify`
+-- itself the first call to touch the bad input -- and both must report the same clean close.
+#eval do
+  let mk : IO Session.Server := do
+    let (certFile, keyFile) ← setupTestCerts
+    let serverCtx ← Context.Server.mk certFile keyFile
+    let clientCtx ← Context.Client.mk "" false
+    let s ← Session.Server.mk serverCtx
+    let c ← Session.Client.mk clientCtx
+    runHandshake c.toSession s.toSession
+    discard <| s.feedEncrypted (ByteArray.mk (List.replicate 64 (0x17 : UInt8)).toArray)
+    return s
+
+  -- Route A: a read diagnoses the corrupt record, then teardown runs.
+  let a ← mk
+  discard <| errorOf (a.read? 1024)
+  match ← errorOf a.closeNotify with
+  | none => pure ()
+  | some msg => throw <| IO.userError s!"closeNotify raised after the failure was diagnosed: {msg}"
+
+  -- Route B: teardown is the first call to see the corrupt record.
+  let b ← mk
+  match ← errorOf b.closeNotify with
+  | none => pure ()
+  | some msg => throw <| IO.userError s!"closeNotify raised on an undiagnosed failure: {msg}"
+
+  -- Both sessions stay torn down, and repeated teardown stays a no-op.
+  for (label, sess) in [("A", a), ("B", b)] do
+    for i in [0:2] do
+      match ← errorOf sess.closeNotify with
+      | none => pure ()
+      | some msg => throw <| IO.userError s!"closeNotify {label} #{i} raised: {msg}"
+
+-- The one loss a caller has to hear about on teardown is plaintext `write` accepted but never
+-- delivered, and a session killed before it could be flushed is exactly that case.
+#eval do
+  let (certFile, keyFile) ← setupTestCerts
+  let serverCtx ← Context.Server.mk certFile keyFile
+  let clientCtx ← Context.Client.mk "" false
+  let s ← Session.Server.mk serverCtx
+  let c ← Session.Client.mk clientCtx
+
+  -- Queued before the handshake, so it is still waiting when the session dies.
+  match ← c.write "never-sent".toUTF8 with
+  | some _ => pure ()
+  | none => throw <| IO.userError "a pre-handshake write should be queued, not accepted outright"
+
+  discard <| s.feedEncrypted (← c.drainEncrypted)
+  discard <| c.feedEncrypted (ByteArray.mk (List.replicate 64 (0x16 : UInt8)).toArray)
+  discard <| errorOf c.handshake
+
+  match ← errorOf c.closeNotify with
+  | none => throw <| IO.userError "closeNotify silently dropped plaintext accepted by write"
+  | some msg =>
+    unless (msg.splitOn "before buffered data could be sent").length > 1 do
+      throw <| IO.userError s!"unexpected closeNotify error: {msg}"

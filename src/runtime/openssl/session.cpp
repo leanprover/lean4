@@ -102,6 +102,24 @@ static lean_obj_res mk_ssl_eof_error() {
     return lean_io_result_mk_error(lean_mk_io_error_eof(lean_box(0)));
 }
 
+// Reports the condition that already killed the session, for a call made after the fact. Only the
+// truncated stream keeps its own classification; every other fatal error is a protocol failure.
+static lean_obj_res mk_ssl_session_dead(lean_ssl_session_object * obj) {
+    if (obj->input_truncated) return mk_ssl_eof_error();
+    return mk_ssl_protocol_error("the TLS session was aborted by an earlier fatal error");
+}
+
+// The verdict for a session with nothing left to tear down. The alert can no longer be exchanged,
+// so the shutdown is as complete as it can be — unless `write` accepted plaintext that is now
+// undeliverable, which is the one loss a caller has to hear about.
+static lean_obj_res mk_ssl_nothing_to_close(lean_ssl_session_object * obj) {
+    if (!obj->pending_writes->empty()) {
+        return mk_ssl_protocol_error("the TLS session ended before buffered data could be sent");
+    }
+
+    return mk_option_iowant_none();
+}
+
 // Drains the OpenSSL error queue, keeping the `errno` the first `ERR_LIB_SYS` entry carries and the
 // reason code the first `ERR_LIB_SSL` entry carries. Both stay 0 when the queue holds no such entry.
 //
@@ -155,6 +173,9 @@ static bool ssl_input_truncated(lean_ssl_session_object * obj, int ssl_err, int 
 // `fallback` describes the operation for failures with no specific mapping.
 static lean_obj_res mk_ssl_error_of(lean_ssl_session_object * obj, int ssl_err, int sys_errno, int reason,
                                     char const * fallback) {
+    // Every condition diagnosed here is fatal, and this is the one place they all pass through.
+    obj->failed = true;
+
     // A syscall failing under the BIO is an ordinary IO error that already carries an errno. There
     // is no file to name, but `decode_io_error` dereferences the name it is handed for some errnos,
     // so it gets an empty one rather than null.
@@ -306,6 +327,7 @@ static lean_obj_res mk_ssl_session(SSL_CTX * ctx, ssl_session_role role) {
     ssl_obj->ssl = ssl;
     ssl_obj->pending_bytes = 0;
     ssl_obj->input_eof = false;
+    ssl_obj->failed = false;
     ssl_obj->input_truncated = false;
     ssl_obj->pending_writes = new (std::nothrow) std::deque<std::vector<char>>();
 
@@ -392,6 +414,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_handshake(b_obj_arg ssl) {
     ERR_clear_error();
 
     lean_ssl_session_object * ssl_obj = lean_to_ssl_session_object(ssl);
+    if (ssl_obj->failed) return mk_ssl_session_dead(ssl_obj);
+
     int rc = SSL_do_handshake(ssl_obj->ssl);
 
     if (rc == 1) {
@@ -414,6 +438,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_write(b_obj_arg ssl, b_obj_arg data
     ERR_clear_error();
 
     lean_ssl_session_object * ssl_obj = lean_to_ssl_session_object(ssl);
+    if (ssl_obj->failed) return mk_ssl_session_dead(ssl_obj);
+
     size_t data_len = lean_sarray_size(data);
     char const * payload = (char const*)lean_sarray_cptr(data);
 
@@ -473,6 +499,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_write(b_obj_arg ssl, b_obj_arg data
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_read(b_obj_arg ssl, uint64_t max_bytes) {
     ERR_clear_error();
     lean_ssl_session_object * ssl_obj = lean_to_ssl_session_object(ssl);
+    if (ssl_obj->failed) return mk_ssl_session_dead(ssl_obj);
 
     bool peek = max_bytes == 0;
     size_t cap = peek ? 1
@@ -612,12 +639,7 @@ static lean_obj_res close_notify_error(lean_ssl_session_object * ssl_obj, int rc
 
     if (SSL_in_init(ssl_obj->ssl)) {
         ERR_clear_error();
-
-        if (!ssl_obj->pending_writes->empty()) {
-            return mk_ssl_protocol_error("the TLS session ended before buffered data could be sent");
-        }
-
-        return mk_option_iowant_none();
+        return mk_ssl_nothing_to_close(ssl_obj);
     }
 
     return mk_ssl_error(ssl_obj, err, "could not shut down the TLS session");
@@ -629,11 +651,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_close_notify(b_obj_arg ssl) {
     lean_ssl_session_object * ssl_obj = lean_to_ssl_session_object(ssl);
     SSL * s = ssl_obj->ssl;
 
+    // A session torn down by an earlier fatal error can neither send the alert nor receive one, so
+    // it reports the same verdict whether the failure was diagnosed by an earlier call or below.
+    if (ssl_obj->failed) return mk_ssl_nothing_to_close(ssl_obj);
+
     // Plaintext accepted by `write` but not yet encrypted must reach the peer before the alert that
     // ends the session; `SSL_shutdown` would leave it in the queue with the caller never learning
-    // the data was dropped. Only worth attempting while the session is negotiated: before the
-    // handshake `SSL_write` would drive it instead, and after a fatal error nothing can be sent at
-    // all, so in both cases `close_notify_error` reports the loss rather than flushing.
+    // the data was dropped. Only worth attempting once the session is negotiated: before that
+    // `SSL_write` would drive the handshake instead, so `close_notify_error` reports the loss.
     if (SSL_is_init_finished(s) && !ssl_obj->pending_writes->empty()) {
         int flush_err = 0;
         ssl_write_step flushed = try_flush_pending_writes(ssl_obj, &flush_err);
@@ -667,15 +692,19 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_close_notify(b_obj_arg ssl) {
 
         if (peek_err != SSL_ERROR_ZERO_RETURN && peek_err != SSL_ERROR_WANT_READ
                 && peek_err != SSL_ERROR_WANT_WRITE) {
+            // The peek has just torn the session down. Recording the verdict here is what makes the
+            // shutdown report the same thing whether or not an earlier call happened to diagnose
+            // the same input first; raising would also surface a read failure out of a shutdown.
             int sys_errno = 0;
             int reason = 0;
             take_ssl_error_reason(&sys_errno, &reason);
 
-            if (!ssl_input_truncated(ssl_obj, peek_err, sys_errno, reason)) {
-                return mk_ssl_error_of(ssl_obj, peek_err, sys_errno, reason, "could not read data from the TLS session");
-            }
+            // Only records the truncation, which a later `read?` still has to report as the end of
+            // the stream rather than as a protocol error.
+            (void)ssl_input_truncated(ssl_obj, peek_err, sys_errno, reason);
+            ssl_obj->failed = true;
 
-            return mk_option_iowant_none();
+            return mk_ssl_nothing_to_close(ssl_obj);
         }
 
         ERR_clear_error();

@@ -94,7 +94,7 @@ public structure BuildContext extends BuildConfig, Context where
   (e.g., `Job.mapM` / `Job.bindM`) error instead of scheduling new work;
   already-running tasks complete normally. If `none`, cancellation is disabled.
   -/
-  cancelling? : Option IO.CancelToken := none
+  cancelTk? : Option IO.CancelToken := none
 
 /-- A transformer to equip a monad with a `BuildContext`. -/
 public abbrev BuildT := ReaderT BuildContext

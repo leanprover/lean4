@@ -101,9 +101,9 @@ public def cwd : GitRepo := ⟨"."⟩
   testProc {cmd := "git", args, cwd := repo.dir}
 
 @[inline] def testExecGit (args : Array String) (repo : GitRepo) : LogIO Bool := do
-  let spanwArgs := {cmd := "git", args, cwd := repo.dir}
-  logVerbose (mkCmdLog spanwArgs)
-  testProc spanwArgs
+  let out ← rawProc {cmd := "git", args, cwd := repo.dir}
+  logOutput out (if out.exitCode = 0 then logVerbose else logInfo)
+  return out.exitCode = 0
 
 public def clone (url : String) (repo : GitRepo) : LogIO PUnit  :=
   proc {cmd := "git", args := #["clone", url, repo.dir.toString]} (quiet := true)
@@ -129,8 +129,8 @@ public def checkoutBranch (branch : String) (repo : GitRepo) : LogIO PUnit :=
 public def checkoutDetach (hash : String) (repo : GitRepo) : LogIO PUnit  :=
   repo.execGit #["checkout", "--detach", hash, "--"]
 
-public def gc (repo : GitRepo) : LogIO PUnit :=
-  repo.execGit #["gc"]
+public def gcAuto (repo : GitRepo) : LogIO PUnit :=
+  repo.execGit #["gc", "--auto"]
 
 /-- Remove untracked files from tracked folders in the repository. -/
 public def clean (repo : GitRepo) : LogIO PUnit :=
@@ -158,7 +158,8 @@ public def getHeadRevision (repo : GitRepo) : LogIO GitRev := do
     the repository may be corrupt, so you may need to remove it and try again"
 
 public def fetchRevision? (repo : GitRepo) (remote : String) (rev : GitRev) : LogIO (Option GitRev) := do
-  let args := #["fetch", "--tags", "--force", "--refetch", "--filter=tree:0", remote, rev]
+  -- `--refetch` is expensive and not needed here as Lake uses a single, fixed filter
+  let args := #["fetch", "--tags", "--force", "--filter=tree:0", remote, rev]
   if (← repo.testExecGit args) then
     let some rev ← repo.resolveRevision? .fetchHead
       | error s!"{repo}: could not resolve 'FETCH_HEAD' to a commit after fetching; \

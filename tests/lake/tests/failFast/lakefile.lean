@@ -25,7 +25,7 @@ package test
 @[default_target]
 target slowA pkg : Unit := Job.async (prio := .dedicated) do
   if let some tk := (← getBuildContext).cancelling? then
-    for _ in [0:600] do
+    for _ in [0:100] do
       if ← tk.isSet then break
       IO.sleep 100
   IO.FS.writeFile (pkg.dir / "slowA.produced.out") ""

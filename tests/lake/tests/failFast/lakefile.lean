@@ -24,7 +24,7 @@ package test
 -- worker.
 @[default_target]
 target slowA pkg : Unit := Job.async (prio := .dedicated) do
-  if let some tk := (← getBuildContext).cancelling? then
+  if let some tk := (← getBuildContext).cancelTk? then
     for _ in [0:100] do
       if ← tk.isSet then break
       IO.sleep 100

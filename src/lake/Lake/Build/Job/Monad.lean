@@ -212,7 +212,7 @@ If the build's cancellation token is set, errors without running `f`.
   self.bindTask fun task => do
   BaseIO.mapTask (t := task) (prio := prio) (sync := sync) fun
     | .ok a s => do
-      if let some tk := ctx.cancelling? then
+      if let some tk := ctx.cancelTk? then
         if ← tk.isSet then return canceledResult s
       let trace := mixTrace trace s.trace
       withLoggedIO (f a) |>.toFn fetch pkg? stack store ctx {s with trace}
@@ -230,7 +230,7 @@ If the build's cancellation token is set, errors without running `f`.
   self.bindTask fun task => do
   BaseIO.bindTask task (prio := prio) (sync := sync) fun
     | .ok a sa => do
-      if let some tk := ctx.cancelling? then
+      if let some tk := ctx.cancelTk? then
         if ← tk.isSet then return Task.pure (canceledResult sa)
       let trace := mixTrace trace sa.trace
       match (← withLoggedIO (f a) |>.toFn fetch pkg? stack store ctx {sa with trace}) with

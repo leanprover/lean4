@@ -129,7 +129,7 @@ private partial def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α 
   if h : i < keys.size then
     let k := keys[i]
     let c := createNodes keys v (i+1)
-    .node #[] #[(k, c)]
+    .chain k c
   else
     .node #[v] #[]
 
@@ -153,7 +153,16 @@ where
   termination_by vs.size - i
 
 private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Trie α → Trie α
-  | i, .chain _k _c => panic! "unimpl"
+  | i, .chain k c =>
+    if h : i < keys.size then
+      if keys[i] == k then
+        .chain k (insertAux keys v (i+1) c)
+      else if keys[i] < k then
+        .node #[] #[(keys[i], createNodes keys v (i+1)), (k, c)]
+      else
+        .node #[] #[(k, c), (keys[i], createNodes keys v (i+1))]
+    else
+      .node #[v] #[(k, c)]
   | i, .node vs cs =>
     if h : i < keys.size then
       let k := keys[i]

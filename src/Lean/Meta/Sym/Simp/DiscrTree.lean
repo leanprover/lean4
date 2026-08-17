@@ -167,7 +167,10 @@ def pushArgsTodo (todo : Array Expr) (e : Expr) : Array Expr :=
 
 partial def getMatchLoop (mctx : MetavarContext) (todo : Array Expr) (c : Trie α) (result : Array α) : Array α :=
   match c with
-  | .chain k c => panic! "unimpl"
+  | .chain k c =>
+    -- Reuse general code path
+    getMatchLoop mctx todo (.node #[] #[(k, c)]) result
+
   | .node vs cs =>
     let csize := cs.size
     if todo.isEmpty then

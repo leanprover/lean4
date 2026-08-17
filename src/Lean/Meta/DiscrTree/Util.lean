@@ -58,13 +58,17 @@ Generate a trie node from values and an array of children.
 -/
 @[inline]
 def mkNode (vs : Array α) (cs : Array (Key × Trie α)) : Trie α :=
-  .node vs cs
+  if h : vs.isEmpty ∧ cs.size = 1 then
+    .chain cs[0].1 cs[0].2
+  else
+    .node vs cs
 
 /--
 Inspect a trie node as an array of values and an array of children.
 -/
 @[inline]
 def asNode : Trie α → Array α × Array (Key × Trie α)
+  | .chain k v => ⟨#[], #[(k, v)]⟩
   | .node vs cs => ⟨vs, cs⟩
 
 /--
@@ -73,6 +77,7 @@ Equivalent to `t.asNode.1`.
 -/
 @[inline]
 def nodeValues : Trie α → Array α
+  | .chain _ _ => #[]
   | .node vs _ => vs
 
 /--
@@ -81,6 +86,7 @@ Equivalent to `t.asNode.2`.
 -/
 @[inline]
 def nodeChildren : Trie α → Array (Key × Trie α)
+  | .chain k v => #[(k, v)]
   | .node _ cs => cs
 
 /--
@@ -91,6 +97,7 @@ invariant that no trie node has an empty child node.
 -/
 @[inline]
 def isEmptyNode : Trie α → Bool
+  | .chain _ _ => false
   | .node vs children => vs.isEmpty && children.isEmpty
 
 end Trie

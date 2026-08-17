@@ -1,3 +1,9 @@
+module
+
+/-!
+Tests when noncomputable dependencies in terms and types prevent code generation.
+-/
+
 noncomputable def badPair : Nat × (Nat × Nat) := ⟨1, ⟨2, 3⟩⟩
 noncomputable def badFun (a : Nat) : Nat := a
 
@@ -40,17 +46,6 @@ error: failed to compile definition, consider marking it as 'noncomputable' beca
 -/
 #guard_msgs in
 def test9 (a : Nat) : V := ⟨a, badFun a⟩
-
-universe u
-
-def Erased (α : Sort u) : Sort max 1 u :=
-  { s : α → Prop // ∃ a, (a = ·) = s }
-
-@[macro_inline] def Erased.mk {α} (a : α) : Erased α :=
-  ⟨fun b => a = b, a, rfl⟩
-
-noncomputable def Erased.out {α} : Erased α → α
-  | ⟨_, h⟩ => Classical.choose h
 
 structure Foo where
   spec : Erased Nat

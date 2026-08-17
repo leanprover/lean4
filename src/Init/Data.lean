@@ -51,3 +51,4 @@ public import Init.Data.Slice
 public import Init.Data.Order
 public import Init.Data.Rat
 public import Init.Data.Dyadic
+public import Init.Data.Erased

@@ -2148,6 +2148,37 @@ extern "C" LEAN_EXPORT uint8_t lean_string_compare(b_obj_arg s1, b_obj_arg s2) {
     return 1;
 }
 
+extern "C" LEAN_EXPORT obj_res lean_string_copy_append_slice(obj_arg dest, b_obj_arg src, b_obj_arg start, b_obj_arg end) {
+    size_t ssz = lean_string_size(src) - 1; // byte size of `src` excluding the null terminator
+    // Positions into an in-memory string always fit in `size_t`; a non-scalar
+    // position is necessarily beyond the end of the string and is clamped.
+    size_t b = lean_is_scalar(start) ? lean_unbox(start) : ssz;
+    size_t e = lean_is_scalar(end)   ? lean_unbox(end)   : ssz;
+    if (b > ssz) b = ssz;
+    if (e > ssz) e = ssz;
+    if (b >= e) return dest;
+    size_t len = e - b; // number of bytes to append
+    // The slice boundaries are valid UTF8 character starts, so the slice is itself valid UTF8.
+    size_t slice_len = utf8_strlen(lean_string_cstr(src) + b, len);
+    size_t dsz     = lean_string_size(dest); // includes the null terminator
+    size_t dlen    = lean_string_len(dest);
+    size_t new_sz  = dsz + len;
+    size_t new_len = dlen + slice_len;
+    object * r;
+    if (!lean_is_exclusive(dest)) {
+        r = lean_alloc_string(new_sz, mk_capacity(new_sz), new_len);
+        memcpy(w_string_cstr(r), lean_string_cstr(dest), dsz - 1);
+        dec_ref(dest);
+    } else {
+        r = string_ensure_capacity(dest, len);
+    }
+    memcpy(w_string_cstr(r) + dsz - 1, lean_string_cstr(src) + b, len);
+    lean_to_string(r)->m_size   = new_sz;
+    lean_to_string(r)->m_length = new_len;
+    w_string_cstr(r)[new_sz - 1] = 0;
+    return r;
+}
+
 static obj_res string_to_list_core(std::string const & s, bool reverse = false) {
     std::vector<unsigned> tmp;
     utf8_decode(s, tmp);

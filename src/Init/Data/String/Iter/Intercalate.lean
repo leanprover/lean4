@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Data.Iterators.Combinators.Monadic.FilterMap
 public import Init.Data.String.Basic
-import Init.Data.String.Slice
+public import Init.Data.String.Slice
 
 set_option doc.verso true
 

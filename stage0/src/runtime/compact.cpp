@@ -247,7 +247,7 @@ object_offset object_compactor::compact(object * o) {
     case LeanPromise:         return insert_promise(o);
     case LeanRef:             return insert_ref(o);
     case LeanExternal:        throw exception("external objects cannot be compacted");
-    case LeanReserved:        lean_unreachable();
+    case LeanNOption:         return insert_noption(o);
     default:                  return insert_constructor(o);
     }
 }
@@ -307,6 +307,14 @@ object_offset object_compactor::insert_constructor(object * o) {
         lean_ctor_set(new_o, i, m_tmp[base + i]);
     m_tmp.resize(base);
     return save_max_sharing(o, new_o, lean_object_byte_size(o));
+}
+
+object_offset object_compactor::insert_noption(object * o) {
+    object_offset value = to_offset(lean_to_noption(o)->m_value);
+    lean_noption_object * new_o = static_cast<lean_noption_object *>(alloc(sizeof(lean_noption_object)));
+    lean_set_non_heap_header((lean_object *)new_o, sizeof(lean_noption_object), LeanNOption, 0);
+    new_o->m_value = value;
+    return save_max_sharing(o, (lean_object *)new_o, sizeof(lean_noption_object));
 }
 
 object_offset object_compactor::insert_array(object * o) {
@@ -446,6 +454,7 @@ struct tag_counter_manager {
         display_kind("#promise:  ", LeanPromise);
         display_kind("#ref:      ", LeanRef);
         display_kind("#external: ", LeanExternal);
+        display_kind("#noption:  ", LeanNOption);
 
         size_t num_ctors = 0;
         for (unsigned i = 0; i <= LeanMaxCtorTag; i++)
@@ -560,6 +569,11 @@ inline void region_reader::fix_constructor(object * o) {
     }
     lean_assert(lean_object_byte_size(o) < 4192);
     move(o);
+}
+
+inline void region_reader::fix_noption(object * o) {
+    lean_to_noption(o)->m_value = fix_object_ptr(lean_to_noption(o)->m_value);
+    move(sizeof(lean_noption_object));
 }
 
 inline void region_reader::fix_array(object * o) {
@@ -677,6 +691,7 @@ object * region_reader::read() {
             case LeanRef:             fix_ref(curr); break;
             case LeanTask:            fix_task(curr); break;
             case LeanPromise:         fix_promise(curr); break;
+            case LeanNOption:         fix_noption(curr); break;
             case LeanExternal:        lean_unreachable();
             default:                  lean_unreachable();
             }

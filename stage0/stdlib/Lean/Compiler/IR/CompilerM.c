@@ -1845,10 +1845,10 @@ else
 {
 lean_dec(v_val_577_);
 lean_inc_ref(v_xs_574_);
-lean_inc(v_type_575_);
 lean_inc(v_f_573_);
-v___y_563_ = v_f_573_;
-v___y_564_ = v_type_575_;
+lean_inc(v_type_575_);
+v___y_563_ = v_type_575_;
+v___y_564_ = v_f_573_;
 v___y_565_ = v_xs_574_;
 goto v___jp_562_;
 }
@@ -1857,10 +1857,10 @@ else
 {
 lean_dec(v___x_576_);
 lean_inc_ref(v_xs_574_);
-lean_inc(v_type_575_);
 lean_inc(v_f_573_);
-v___y_563_ = v_f_573_;
-v___y_564_ = v_type_575_;
+lean_inc(v_type_575_);
+v___y_563_ = v_type_575_;
+v___y_564_ = v_f_573_;
 v___y_565_ = v_xs_574_;
 goto v___jp_562_;
 }
@@ -1903,9 +1903,9 @@ v___jp_562_:
 lean_object* v___x_566_; lean_object* v___x_567_; lean_object* v___x_568_; 
 v___x_566_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Array_filterMapM___at___00__private_Lean_Compiler_IR_CompilerM_0__Lean_IR_initFn_00___x40_Lean_Compiler_IR_CompilerM_3612076334____hygCtx___hyg_2__spec__0_spec__0___closed__0));
 v___x_567_ = lean_alloc_ctor(1, 4, 0);
-lean_ctor_set(v___x_567_, 0, v___y_563_);
+lean_ctor_set(v___x_567_, 0, v___y_564_);
 lean_ctor_set(v___x_567_, 1, v___y_565_);
-lean_ctor_set(v___x_567_, 2, v___y_564_);
+lean_ctor_set(v___x_567_, 2, v___y_563_);
 lean_ctor_set(v___x_567_, 3, v___x_566_);
 v___x_568_ = lean_array_push(v_b_556_, v___x_567_);
 v___y_558_ = v___x_568_;

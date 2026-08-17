@@ -5836,8 +5836,8 @@ goto v___jp_1770_;
 }
 else
 {
-lean_inc(v_pre_1793_);
 lean_inc(v_us_1794_);
+lean_inc(v_pre_1793_);
 lean_dec_ref_known(v_a_1759_, 2);
 if (lean_obj_tag(v_us_1794_) == 0)
 {
@@ -5876,8 +5876,8 @@ goto v___jp_1770_;
 }
 else
 {
-lean_inc(v_pre_1793_);
 lean_inc(v_us_1794_);
+lean_inc(v_pre_1793_);
 lean_dec_ref_known(v_a_1759_, 2);
 if (lean_obj_tag(v_us_1794_) == 0)
 {
@@ -5916,8 +5916,8 @@ goto v___jp_1770_;
 }
 else
 {
-lean_inc(v_pre_1793_);
 lean_inc(v_us_1794_);
+lean_inc(v_pre_1793_);
 lean_dec_ref_known(v_a_1759_, 2);
 if (lean_obj_tag(v_us_1794_) == 0)
 {
@@ -5956,8 +5956,8 @@ goto v___jp_1770_;
 }
 else
 {
-lean_inc(v_pre_1793_);
 lean_inc(v_us_1794_);
+lean_inc(v_pre_1793_);
 lean_dec_ref_known(v_a_1759_, 2);
 if (lean_obj_tag(v_us_1794_) == 0)
 {
@@ -5996,8 +5996,8 @@ goto v___jp_1770_;
 }
 else
 {
-lean_inc(v_pre_1793_);
 lean_inc(v_us_1794_);
+lean_inc(v_pre_1793_);
 lean_dec_ref_known(v_a_1759_, 2);
 if (lean_obj_tag(v_us_1794_) == 0)
 {
@@ -6036,8 +6036,8 @@ goto v___jp_1770_;
 }
 else
 {
-lean_inc(v_pre_1793_);
 lean_inc(v_us_1794_);
+lean_inc(v_pre_1793_);
 lean_dec_ref_known(v_a_1759_, 2);
 if (lean_obj_tag(v_us_1794_) == 0)
 {
@@ -6075,8 +6075,8 @@ goto v___jp_1770_;
 }
 else
 {
-lean_inc(v_pre_1793_);
 lean_inc(v_us_1794_);
+lean_inc(v_pre_1793_);
 lean_dec_ref_known(v_a_1759_, 2);
 if (lean_obj_tag(v_us_1794_) == 0)
 {
@@ -6110,8 +6110,8 @@ goto v___jp_1770_;
 }
 else
 {
-lean_inc(v_pre_1793_);
 lean_inc(v_us_1794_);
+lean_inc(v_pre_1793_);
 lean_dec_ref_known(v_a_1759_, 2);
 if (lean_obj_tag(v_us_1794_) == 0)
 {
@@ -6145,8 +6145,8 @@ goto v___jp_1770_;
 }
 else
 {
-lean_inc(v_pre_1793_);
 lean_inc(v_us_1794_);
+lean_inc(v_pre_1793_);
 lean_dec_ref_known(v_a_1759_, 2);
 if (lean_obj_tag(v_us_1794_) == 0)
 {
@@ -6192,8 +6192,8 @@ goto v___jp_1770_;
 else
 {
 lean_object* v___x_1916_; lean_object* v___x_1917_; lean_object* v___x_1918_; 
-lean_inc(v_pre_1793_);
 lean_inc(v_us_1794_);
+lean_inc(v_pre_1793_);
 lean_dec_ref_known(v_a_1759_, 2);
 v___x_1916_ = l_Lean_Name_str___override(v_pre_1793_, v___x_1800_);
 v___x_1917_ = l_Lean_Expr_const___override(v___x_1916_, v_us_1794_);
@@ -6218,8 +6218,8 @@ goto v___jp_1770_;
 else
 {
 lean_object* v___x_1921_; lean_object* v___x_1922_; lean_object* v___x_1923_; 
-lean_inc(v_pre_1793_);
 lean_inc(v_us_1794_);
+lean_inc(v_pre_1793_);
 lean_dec_ref_known(v_a_1759_, 2);
 v___x_1921_ = l_Lean_Name_str___override(v_pre_1793_, v___x_1798_);
 v___x_1922_ = l_Lean_Expr_const___override(v___x_1921_, v_us_1794_);
@@ -6244,8 +6244,8 @@ goto v___jp_1770_;
 else
 {
 lean_object* v___x_1926_; lean_object* v___x_1927_; lean_object* v___x_1928_; 
-lean_inc(v_pre_1793_);
 lean_inc(v_us_1794_);
+lean_inc(v_pre_1793_);
 lean_dec_ref_known(v_a_1759_, 2);
 v___x_1926_ = l_Lean_Name_str___override(v_pre_1793_, v___x_1796_);
 v___x_1927_ = l_Lean_Expr_const___override(v___x_1926_, v_us_1794_);

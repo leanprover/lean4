@@ -5975,8 +5975,8 @@ return v___x_1525_;
 else
 {
 lean_object* v_a_1530_; lean_object* v___x_1532_; uint8_t v_isShared_1533_; uint8_t v_isSharedCheck_1537_; 
-lean_dec_ref_known(v_c_1265_, 1);
 lean_dec_ref(v_cases_1475_);
+lean_dec_ref_known(v_c_1265_, 1);
 lean_dec_ref(v_info_1264_);
 lean_dec(v_x_1263_);
 v_a_1530_ = lean_ctor_get(v___x_1476_, 0);

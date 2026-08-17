@@ -1727,7 +1727,7 @@ return v___x_442_;
 LEAN_EXPORT lean_object* l_Lean_Level_max___override(lean_object* v_a_443_, lean_object* v_a_444_){
 _start:
 {
-uint64_t v___x_445_; uint64_t v___x_446_; uint64_t v___x_447_; uint64_t v___x_448_; uint64_t v___x_449_; uint64_t v___x_450_; uint64_t v___x_451_; uint8_t v___y_453_; lean_object* v___y_454_; uint8_t v___y_455_; lean_object* v___y_459_; uint8_t v___y_460_; lean_object* v___y_464_; uint32_t v___x_469_; lean_object* v___x_470_; uint32_t v___x_471_; lean_object* v___x_472_; uint8_t v___x_473_; 
+uint64_t v___x_445_; uint64_t v___x_446_; uint64_t v___x_447_; uint64_t v___x_448_; uint64_t v___x_449_; uint64_t v___x_450_; uint64_t v___x_451_; lean_object* v___y_453_; uint8_t v___y_454_; uint8_t v___y_455_; lean_object* v___y_459_; uint8_t v___y_460_; lean_object* v___y_464_; uint32_t v___x_469_; lean_object* v___x_470_; uint32_t v___x_471_; lean_object* v___x_472_; uint8_t v___x_473_; 
 v___x_445_ = 2251ULL;
 v___x_446_ = l_Lean_Level_data___override(v_a_443_);
 v___x_447_ = l_Lean_Level_Data_hash(v___x_446_);
@@ -1755,7 +1755,7 @@ goto v___jp_463_;
 v___jp_452_:
 {
 uint64_t v___x_456_; lean_object* v___x_457_; 
-v___x_456_ = lean_level_mk_data(v___x_451_, v___y_454_, v___y_453_, v___y_455_);
+v___x_456_ = lean_level_mk_data(v___x_451_, v___y_453_, v___y_454_, v___y_455_);
 v___x_457_ = lean_alloc_ctor(2, 2, 8);
 lean_ctor_set(v___x_457_, 0, v_a_443_);
 lean_ctor_set(v___x_457_, 1, v_a_444_);
@@ -1770,15 +1770,15 @@ if (v___x_461_ == 0)
 {
 uint8_t v___x_462_; 
 v___x_462_ = l_Lean_Level_Data_hasParam(v___x_448_);
-v___y_453_ = v___y_460_;
-v___y_454_ = v___y_459_;
+v___y_453_ = v___y_459_;
+v___y_454_ = v___y_460_;
 v___y_455_ = v___x_462_;
 goto v___jp_452_;
 }
 else
 {
-v___y_453_ = v___y_460_;
-v___y_454_ = v___y_459_;
+v___y_453_ = v___y_459_;
+v___y_454_ = v___y_460_;
 v___y_455_ = v___x_461_;
 goto v___jp_452_;
 }

@@ -102,6 +102,7 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 #define LeanRef         253
 #define LeanExternal    254
 #define LeanReserved    255
+#define LeanNOption     LeanReserved
 
 #define LEAN_MAX_CTOR_FIELDS 256
 #define LEAN_MAX_CTOR_SCALARS_SIZE 1024
@@ -322,6 +323,11 @@ typedef struct {
     lean_external_class * m_class;
     void *                m_data;
 } lean_external_object;
+
+typedef struct {
+    lean_object  m_header;
+    lean_object *m_value;
+} lean_noption_object;
 
 static inline LEAN_ALWAYS_INLINE uint8_t lean_is_scalar(lean_object * o) { return ((size_t)(o) & 1) == 1; }
 static inline lean_object * lean_box(size_t n) { return (lean_object*)(((size_t)(n) << 1) | 1); }
@@ -649,6 +655,7 @@ static inline lean_task_object * lean_to_task(lean_object * o) { assert(lean_is_
 static inline lean_promise_object * lean_to_promise(lean_object * o) { assert(lean_is_promise(o)); return (lean_promise_object*)(o); }
 static inline lean_ref_object * lean_to_ref(lean_object * o) { assert(lean_is_ref(o)); return (lean_ref_object*)(o); }
 static inline lean_external_object * lean_to_external(lean_object * o) { assert(lean_is_external(o)); return (lean_external_object*)(o); }
+static inline lean_noption_object * lean_to_noption(lean_object * o) { assert(lean_ptr_tag(o) == LeanNOption); return (lean_noption_object*)(o); }
 
 static inline bool lean_is_exclusive(lean_object * o) {
     if (LEAN_LIKELY(lean_is_st(o))) {
@@ -831,6 +838,11 @@ static inline void lean_ctor_set_float32(b_lean_obj_arg o, unsigned offset, floa
     assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
     *((float*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset)) = v;
 }
+
+LEAN_EXPORT lean_obj_res lean_noption_none(void);
+LEAN_EXPORT lean_obj_res lean_noption_some(lean_obj_arg value);
+LEAN_EXPORT uint8_t lean_noption_is_some(b_lean_obj_arg value);
+LEAN_EXPORT lean_obj_res lean_noption_get(lean_obj_arg value);
 
 /* Closures */
 

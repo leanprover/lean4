@@ -76,6 +76,7 @@ class LEAN_EXPORT object_compactor {
     object_offset insert_task(object * o);
     object_offset insert_promise(object * o);
     object_offset insert_ref(object * o);
+    object_offset insert_noption(object * o);
     object_offset insert_mpz(object * o);
     object_offset insert_closure(object * o);
 public:
@@ -130,6 +131,7 @@ class LEAN_EXPORT region_reader {
     void fix_ref(object * o);
     void fix_task(object * o);
     void fix_promise(object * o);
+    void fix_noption(object * o);
     void fix_mpz(object * o);
     void fix_closure(object * o);
 public:

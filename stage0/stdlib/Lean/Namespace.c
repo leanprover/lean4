@@ -2212,7 +2212,7 @@ return v_res_607_;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_alter___at___00__private_Lean_Namespace_0__Lean_initFn_00___x40_Lean_Namespace_1373626441____hygCtx___hyg_2__spec__1(uint8_t v___y_608_, lean_object* v_m_609_, lean_object* v_a_610_){
 _start:
 {
-lean_object* v___y_612_; size_t v___y_613_; lean_object* v___y_614_; lean_object* v___y_615_; lean_object* v_size_618_; lean_object* v_buckets_619_; lean_object* v___x_621_; uint8_t v_isShared_622_; uint8_t v_isSharedCheck_665_; 
+size_t v___y_612_; lean_object* v___y_613_; lean_object* v___y_614_; lean_object* v___y_615_; lean_object* v_size_618_; lean_object* v_buckets_619_; lean_object* v___x_621_; uint8_t v_isShared_622_; uint8_t v_isSharedCheck_665_; 
 v_size_618_ = lean_ctor_get(v_m_609_, 0);
 v_buckets_619_ = lean_ctor_get(v_m_609_, 1);
 v_isSharedCheck_665_ = !lean_is_exclusive(v_m_609_);
@@ -2234,7 +2234,7 @@ goto v_resetjp_620_;
 v___jp_611_:
 {
 lean_object* v___x_616_; lean_object* v___x_617_; 
-v___x_616_ = lean_array_uset(v___y_614_, v___y_613_, v___y_612_);
+v___x_616_ = lean_array_uset(v___y_614_, v___y_612_, v___y_613_);
 v___x_617_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_617_, 0, v___y_615_);
 lean_ctor_set(v___x_617_, 1, v___x_616_);
@@ -2362,16 +2362,16 @@ lean_object* v___x_661_; lean_object* v___x_662_;
 v___x_661_ = lean_unsigned_to_nat(1u);
 v___x_662_ = lean_nat_sub(v_size_618_, v___x_661_);
 lean_dec(v_size_618_);
-v___y_612_ = v_bkt_x27_659_;
-v___y_613_ = v___x_636_;
+v___y_612_ = v___x_636_;
+v___y_613_ = v_bkt_x27_659_;
 v___y_614_ = v_buckets_x27_658_;
 v___y_615_ = v___x_662_;
 goto v___jp_611_;
 }
 else
 {
-v___y_612_ = v_bkt_x27_659_;
-v___y_613_ = v___x_636_;
+v___y_612_ = v___x_636_;
+v___y_613_ = v_bkt_x27_659_;
 v___y_614_ = v_buckets_x27_658_;
 v___y_615_ = v_size_618_;
 goto v___jp_611_;

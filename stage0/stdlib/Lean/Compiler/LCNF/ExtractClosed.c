@@ -3701,8 +3701,8 @@ goto v___jp_874_;
 }
 else
 {
-lean_dec(v_pre_940_);
 lean_dec_ref_known(v_declName_939_, 2);
+lean_dec(v_pre_940_);
 lean_dec_ref_known(v_value_938_, 3);
 lean_dec_ref(v_decl_937_);
 v_decl_875_ = v_decl_860_;
@@ -4262,8 +4262,8 @@ goto v___jp_1051_;
 }
 else
 {
-lean_dec(v_pre_1083_);
 lean_dec_ref_known(v_declName_1082_, 2);
+lean_dec(v_pre_1083_);
 lean_dec_ref_known(v_value_1081_, 3);
 lean_dec(v_val_1080_);
 lean_dec_ref(v_k_1040_);
@@ -4273,8 +4273,8 @@ goto v___jp_1051_;
 }
 else
 {
-lean_dec_ref_known(v_value_1081_, 3);
 lean_dec(v_declName_1082_);
+lean_dec_ref_known(v_value_1081_, 3);
 lean_dec(v_val_1080_);
 lean_dec_ref(v_k_1040_);
 lean_dec_ref(v_decl_1039_);
@@ -5676,8 +5676,8 @@ v___x_1756_ = lean_ptr_addr(v_a_1754_);
 v___x_1757_ = lean_usize_dec_eq(v___x_1755_, v___x_1756_);
 if (v___x_1757_ == 0)
 {
-v___y_1513_ = v_a_1754_;
-v___y_1514_ = v_a_1752_;
+v___y_1513_ = v_a_1752_;
+v___y_1514_ = v_a_1754_;
 v___y_1515_ = v___x_1757_;
 goto v___jp_1512_;
 }
@@ -5687,8 +5687,8 @@ size_t v___x_1758_; size_t v___x_1759_; uint8_t v___x_1760_;
 v___x_1758_ = lean_ptr_addr(v_decl_1526_);
 v___x_1759_ = lean_ptr_addr(v_a_1752_);
 v___x_1760_ = lean_usize_dec_eq(v___x_1758_, v___x_1759_);
-v___y_1513_ = v_a_1754_;
-v___y_1514_ = v_a_1752_;
+v___y_1513_ = v_a_1752_;
+v___y_1514_ = v_a_1754_;
 v___y_1515_ = v___x_1760_;
 goto v___jp_1512_;
 }
@@ -6024,8 +6024,8 @@ v___x_1830_ = lean_ptr_addr(v_a_1828_);
 v___x_1831_ = lean_usize_dec_eq(v___x_1829_, v___x_1830_);
 if (v___x_1831_ == 0)
 {
-v___y_1506_ = v_a_1826_;
-v___y_1507_ = v_a_1828_;
+v___y_1506_ = v_a_1828_;
+v___y_1507_ = v_a_1826_;
 v___y_1508_ = v___x_1831_;
 goto v___jp_1505_;
 }
@@ -6035,8 +6035,8 @@ size_t v___x_1832_; size_t v___x_1833_; uint8_t v___x_1834_;
 v___x_1832_ = lean_ptr_addr(v_decl_1526_);
 v___x_1833_ = lean_ptr_addr(v_a_1826_);
 v___x_1834_ = lean_usize_dec_eq(v___x_1832_, v___x_1833_);
-v___y_1506_ = v_a_1826_;
-v___y_1507_ = v_a_1828_;
+v___y_1506_ = v_a_1828_;
+v___y_1507_ = v_a_1826_;
 v___y_1508_ = v___x_1834_;
 goto v___jp_1505_;
 }
@@ -6502,8 +6502,8 @@ v___x_1594_ = lean_ptr_addr(v_a_1592_);
 v___x_1595_ = lean_usize_dec_eq(v___x_1593_, v___x_1594_);
 if (v___x_1595_ == 0)
 {
-v___y_1499_ = v_a_1590_;
-v___y_1500_ = v_a_1592_;
+v___y_1499_ = v_a_1592_;
+v___y_1500_ = v_a_1590_;
 v___y_1501_ = v___x_1595_;
 goto v___jp_1498_;
 }
@@ -6513,8 +6513,8 @@ size_t v___x_1596_; size_t v___x_1597_; uint8_t v___x_1598_;
 v___x_1596_ = lean_ptr_addr(v_decl_1526_);
 v___x_1597_ = lean_ptr_addr(v_a_1590_);
 v___x_1598_ = lean_usize_dec_eq(v___x_1596_, v___x_1597_);
-v___y_1499_ = v_a_1590_;
-v___y_1500_ = v_a_1592_;
+v___y_1499_ = v_a_1592_;
+v___y_1500_ = v_a_1590_;
 v___y_1501_ = v___x_1598_;
 goto v___jp_1498_;
 }
@@ -7440,8 +7440,8 @@ if (v___y_1501_ == 0)
 lean_object* v___x_1502_; lean_object* v___x_1503_; 
 lean_dec_ref(v_code_1415_);
 v___x_1502_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_1502_, 0, v___y_1499_);
-lean_ctor_set(v___x_1502_, 1, v___y_1500_);
+lean_ctor_set(v___x_1502_, 0, v___y_1500_);
+lean_ctor_set(v___x_1502_, 1, v___y_1499_);
 v___x_1503_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1503_, 0, v___x_1502_);
 return v___x_1503_;
@@ -7463,8 +7463,8 @@ if (v___y_1508_ == 0)
 lean_object* v___x_1509_; lean_object* v___x_1510_; 
 lean_dec_ref(v_code_1415_);
 v___x_1509_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_1509_, 0, v___y_1506_);
-lean_ctor_set(v___x_1509_, 1, v___y_1507_);
+lean_ctor_set(v___x_1509_, 0, v___y_1507_);
+lean_ctor_set(v___x_1509_, 1, v___y_1506_);
 v___x_1510_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1510_, 0, v___x_1509_);
 return v___x_1510_;
@@ -7486,8 +7486,8 @@ if (v___y_1515_ == 0)
 lean_object* v___x_1516_; lean_object* v___x_1517_; 
 lean_dec_ref(v_code_1415_);
 v___x_1516_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_1516_, 0, v___y_1514_);
-lean_ctor_set(v___x_1516_, 1, v___y_1513_);
+lean_ctor_set(v___x_1516_, 0, v___y_1513_);
+lean_ctor_set(v___x_1516_, 1, v___y_1514_);
 v___x_1517_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1517_, 0, v___x_1516_);
 return v___x_1517_;

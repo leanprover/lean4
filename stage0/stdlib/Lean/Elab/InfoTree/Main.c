@@ -1269,7 +1269,7 @@ return v___x_224_;
 LEAN_EXPORT lean_object* l_Lean_Elab_ContextInfo_runCoreM___redArg(lean_object* v_info_225_, lean_object* v_x_226_){
 _start:
 {
-lean_object* v_a_229_; lean_object* v___x_232_; lean_object* v___x_233_; lean_object* v___x_234_; lean_object* v___x_235_; lean_object* v_toCommandContextInfo_236_; lean_object* v_env_237_; lean_object* v_options_238_; lean_object* v_currNamespace_239_; lean_object* v_openDecls_240_; lean_object* v_ngen_241_; lean_object* v___x_242_; lean_object* v___x_243_; uint8_t v___x_244_; lean_object* v_env_245_; lean_object* v___x_246_; lean_object* v___x_247_; lean_object* v___x_248_; uint8_t v___x_249_; lean_object* v___x_250_; lean_object* v___x_251_; lean_object* v___x_252_; lean_object* v___x_253_; uint8_t v___y_255_; lean_object* v___y_256_; lean_object* v_fileName_257_; lean_object* v_fileMap_258_; lean_object* v_currRecDepth_259_; lean_object* v_ref_260_; lean_object* v_currNamespace_261_; lean_object* v_openDecls_262_; lean_object* v_initHeartbeats_263_; lean_object* v_maxHeartbeats_264_; lean_object* v_quotContext_265_; lean_object* v_currMacroScope_266_; lean_object* v_cancelTk_x3f_267_; uint8_t v_suppressElabErrors_268_; lean_object* v_inheritedTraceOptions_269_; lean_object* v___y_270_; uint8_t v___y_306_; lean_object* v___y_307_; lean_object* v___y_308_; lean_object* v___y_309_; uint8_t v___y_324_; lean_object* v___y_325_; lean_object* v___y_326_; lean_object* v___y_327_; uint8_t v___y_328_; lean_object* v___x_348_; lean_object* v___x_349_; lean_object* v___x_350_; lean_object* v___x_351_; lean_object* v___x_352_; lean_object* v___x_353_; lean_object* v___x_354_; lean_object* v___x_355_; lean_object* v___x_356_; lean_object* v___x_357_; lean_object* v___x_358_; lean_object* v_env_359_; lean_object* v___x_360_; uint8_t v___x_361_; lean_object* v___y_363_; lean_object* v___y_364_; uint8_t v___y_394_; uint8_t v___x_414_; 
+lean_object* v_a_229_; lean_object* v___x_232_; lean_object* v___x_233_; lean_object* v___x_234_; lean_object* v___x_235_; lean_object* v_toCommandContextInfo_236_; lean_object* v_env_237_; lean_object* v_options_238_; lean_object* v_currNamespace_239_; lean_object* v_openDecls_240_; lean_object* v_ngen_241_; lean_object* v___x_242_; lean_object* v___x_243_; uint8_t v___x_244_; lean_object* v_env_245_; lean_object* v___x_246_; lean_object* v___x_247_; lean_object* v___x_248_; uint8_t v___x_249_; lean_object* v___x_250_; lean_object* v___x_251_; lean_object* v___x_252_; lean_object* v___x_253_; lean_object* v___y_255_; uint8_t v___y_256_; lean_object* v_fileName_257_; lean_object* v_fileMap_258_; lean_object* v_currRecDepth_259_; lean_object* v_ref_260_; lean_object* v_currNamespace_261_; lean_object* v_openDecls_262_; lean_object* v_initHeartbeats_263_; lean_object* v_maxHeartbeats_264_; lean_object* v_quotContext_265_; lean_object* v_currMacroScope_266_; lean_object* v_cancelTk_x3f_267_; uint8_t v_suppressElabErrors_268_; lean_object* v_inheritedTraceOptions_269_; lean_object* v___y_270_; lean_object* v___y_306_; uint8_t v___y_307_; lean_object* v___y_308_; lean_object* v___y_309_; lean_object* v___y_324_; lean_object* v___y_325_; uint8_t v___y_326_; lean_object* v___y_327_; uint8_t v___y_328_; lean_object* v___x_348_; lean_object* v___x_349_; lean_object* v___x_350_; lean_object* v___x_351_; lean_object* v___x_352_; lean_object* v___x_353_; lean_object* v___x_354_; lean_object* v___x_355_; lean_object* v___x_356_; lean_object* v___x_357_; lean_object* v___x_358_; lean_object* v_env_359_; lean_object* v___x_360_; uint8_t v___x_361_; lean_object* v___y_363_; lean_object* v___y_364_; uint8_t v___y_394_; uint8_t v___x_414_; 
 v___x_232_ = lean_unsigned_to_nat(0u);
 v___x_233_ = lean_obj_once(&l_Lean_Elab_ContextInfo_runCoreM___redArg___closed__4, &l_Lean_Elab_ContextInfo_runCoreM___redArg___closed__4_once, _init_l_Lean_Elab_ContextInfo_runCoreM___redArg___closed__4);
 v___x_234_ = lean_obj_once(&l_Lean_Elab_ContextInfo_runCoreM___redArg___closed__5, &l_Lean_Elab_ContextInfo_runCoreM___redArg___closed__5_once, _init_l_Lean_Elab_ContextInfo_runCoreM___redArg___closed__5);
@@ -1374,7 +1374,7 @@ return v___x_231_;
 v___jp_254_:
 {
 lean_object* v___x_271_; lean_object* v___x_272_; lean_object* v___x_273_; 
-v___x_271_ = l_Lean_Option_get___at___00Lean_Elab_ContextInfo_runCoreM_spec__1(v_options_238_, v___y_256_);
+v___x_271_ = l_Lean_Option_get___at___00Lean_Elab_ContextInfo_runCoreM_spec__1(v_options_238_, v___y_255_);
 v___x_272_ = lean_alloc_ctor(0, 14, 2);
 lean_ctor_set(v___x_272_, 0, v_fileName_257_);
 lean_ctor_set(v___x_272_, 1, v_fileMap_258_);
@@ -1390,7 +1390,7 @@ lean_ctor_set(v___x_272_, 10, v_quotContext_265_);
 lean_ctor_set(v___x_272_, 11, v_currMacroScope_266_);
 lean_ctor_set(v___x_272_, 12, v_cancelTk_x3f_267_);
 lean_ctor_set(v___x_272_, 13, v_inheritedTraceOptions_269_);
-lean_ctor_set_uint8(v___x_272_, sizeof(void*)*14, v___y_255_);
+lean_ctor_set_uint8(v___x_272_, sizeof(void*)*14, v___y_256_);
 lean_ctor_set_uint8(v___x_272_, sizeof(void*)*14 + 1, v_suppressElabErrors_268_);
 v___x_273_ = lean_apply_3(v_x_226_, v___x_272_, v___y_270_, lean_box(0));
 if (lean_obj_tag(v___x_273_) == 0)
@@ -1614,7 +1614,7 @@ goto v_resetjp_338_;
 v_resetjp_338_:
 {
 lean_object* v___x_341_; lean_object* v___x_343_; 
-v___x_341_ = l_Lean_Kernel_enableDiag(v_env_330_, v___y_324_);
+v___x_341_ = l_Lean_Kernel_enableDiag(v_env_330_, v___y_326_);
 if (v_isShared_340_ == 0)
 {
 lean_ctor_set(v___x_339_, 5, v___x_233_);
@@ -1768,8 +1768,8 @@ if (v___x_388_ == 0)
 if (v___x_387_ == 0)
 {
 lean_dec_ref(v___x_386_);
-v___y_255_ = v___x_387_;
-v___y_256_ = v___x_383_;
+v___y_255_ = v___x_383_;
+v___y_256_ = v___x_387_;
 v_fileName_257_ = v_fileName_366_;
 v_fileMap_258_ = v_fileMap_367_;
 v_currRecDepth_259_ = v_currRecDepth_368_;
@@ -1800,9 +1800,9 @@ lean_dec(v_ref_369_);
 lean_dec(v_currRecDepth_368_);
 lean_dec_ref(v_fileMap_367_);
 lean_dec_ref(v_fileName_366_);
-v___y_324_ = v___x_387_;
+v___y_324_ = v___x_383_;
 v___y_325_ = v___y_364_;
-v___y_326_ = v___x_383_;
+v___y_326_ = v___x_387_;
 v___y_327_ = v___x_386_;
 v___y_328_ = v___x_388_;
 goto v___jp_323_;
@@ -1822,9 +1822,9 @@ lean_dec(v_ref_369_);
 lean_dec(v_currRecDepth_368_);
 lean_dec_ref(v_fileMap_367_);
 lean_dec_ref(v_fileName_366_);
-v___y_324_ = v___x_387_;
+v___y_324_ = v___x_383_;
 v___y_325_ = v___y_364_;
-v___y_326_ = v___x_383_;
+v___y_326_ = v___x_387_;
 v___y_327_ = v___x_386_;
 v___y_328_ = v___x_387_;
 goto v___jp_323_;
@@ -6132,8 +6132,8 @@ else
 {
 lean_del_object(v___x_1786_);
 lean_dec_ref(v_children_1784_);
-lean_dec_ref(v_i_1783_);
 lean_dec_ref_known(v_ctx_x3f_1775_, 1);
+lean_dec_ref(v_i_1783_);
 return v___x_1789_;
 }
 }

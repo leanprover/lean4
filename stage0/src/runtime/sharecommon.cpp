@@ -121,13 +121,11 @@ class sharecommon_fn {
             return true;
         }
         switch (lean_ptr_tag(a)) {
-        case LeanReserved:
-            lean_unreachable();
         // We do not maximize sharing for the following kinds of objects
         case LeanThunk:
         case LeanTask:     case LeanRef:
         case LeanExternal: case LeanClosure:
-        case LeanPromise:
+        case LeanPromise:  case LeanNOption:
             m_children.push_back(a);
             return true;
         default:
@@ -268,7 +266,7 @@ public:
             case LeanPromise:         lean_unreachable();
             case LeanRef:             lean_unreachable();
             case LeanExternal:        lean_unreachable();
-            case LeanReserved:        lean_unreachable();
+            case LeanNOption:         lean_unreachable();
             default:                  visit_ctor(curr); break;
             }
         }
@@ -430,7 +428,7 @@ lean_object * sharecommon_quick_fn::visit(lean_object * a) {
     case LeanPromise:         lean_inc_ref(a); return a;
     case LeanRef:             lean_inc_ref(a); return a;
     case LeanExternal:        lean_inc_ref(a); return a;
-    case LeanReserved:        lean_inc_ref(a); return a;
+    case LeanNOption:         lean_inc_ref(a); return a;
     case LeanMPZ:             return visit_terminal(a);
     case LeanScalarArray:     return visit_terminal(a);
     case LeanString:          return visit_terminal(a);

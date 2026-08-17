@@ -107,6 +107,10 @@ partial def LetValue.toMono (e : LetValue .pure) : ToMonoM (LetValue .pure) := d
     else if declName == ``Nat.succ then
       -- This should have been handled in Code.toMono.
       unreachable!
+    else if declName == ``NOption.none then
+      return .const ``NOption.noneInternal [] (← args.mapM argToMono)
+    else if declName == ``NOption.some then
+      return .const ``NOption.someInternal [] (← args.mapM argToMono)
     else if let some (.ctorInfo ctorInfo) := (← getEnv).find? declName then
       if let some info ← hasTrivialStructure? ctorInfo.induct then
         args[ctorInfo.numParams + info.fieldIdx]!.toLetValue.toMono
@@ -231,6 +235,30 @@ partial def casesIntToMono (c: Cases .pure) (_ : c.typeName == ``Int) : ToMonoM 
         modifyLCtx fun lctx => lctx.addLetDecl absDecl
         return .alt ``Bool.false #[] (.let absDecl (← k.toMono))
   return .let zeroNatDecl (.let zeroIntDecl (.let isNegDecl (.cases ⟨``Bool, resultType, isNegDecl.fvarId, alts⟩)))
+
+/-- Eliminate `cases` for `NOption`. -/
+partial def casesNOptionToMono (c : Cases .pure) (_ : c.typeName == ``NOption) : ToMonoM (Code .pure) := do
+  let resultType ← toMonoType c.resultType
+  let isSomeDecl ← mkLetDecl `isSome (mkConst ``Bool)
+    (.const ``NOption.isSomeInternal [] #[.erased, .fvar c.discr])
+  let alts ← c.alts.mapM fun alt => do
+    match alt with
+    | .default k => return alt.updateCode (← k.toMono)
+    | .alt ctorName ps k =>
+      eraseParams ps
+      if ctorName == ``NOption.some then
+        let p := ps[0]!
+        let decl := {
+          fvarId := p.fvarId
+          binderName := p.binderName
+          type := ← toMonoType p.type
+          value := .const ``NOption.getInternal [] #[.erased, .fvar c.discr]
+        }
+        modifyLCtx fun lctx => lctx.addLetDecl decl
+        return .alt ``Bool.true #[] (.let decl (← k.toMono))
+      else
+        return .alt ``Bool.false #[] (← k.toMono)
+  return .let isSomeDecl (.cases ⟨``Bool, resultType, isSomeDecl.fvarId, alts⟩)
 
 /-- Eliminate `cases` for `UInt` types. -/
 partial def casesUIntToMono (c : Cases .pure) (uintName : Name) (_ : c.typeName == uintName) :
@@ -379,6 +407,8 @@ partial def Code.toMono (code : Code .pure) : ToMonoM (Code .pure) := do
       casesNatToMono c h
     else if h : c.typeName == ``Int then
       casesIntToMono c h
+    else if h : c.typeName == ``NOption then
+      casesNOptionToMono c h
     else if h : c.typeName == ``UInt8 then
       casesUIntToMono c ``UInt8 h
     else if h : c.typeName == ``UInt16 then

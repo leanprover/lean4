@@ -422,6 +422,10 @@ static object * lean_del_core_other(object * o, uint8 tag, object * todo) {
         lean_to_external(o)->m_class->m_finalize(lean_to_external(o)->m_data);
         lean_free_small_object(o);
         break;
+    case LeanNOption:
+        dec(lean_to_noption(o)->m_value, todo);
+        lean_free_small_object(o);
+        break;
     default:
         lean_unreachable();
     }
@@ -455,6 +459,51 @@ extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
         }
 #endif
     }
+}
+
+/* Immediate constructor tags fit below the `none` sentinel. Larger immediates are shifted, while
+   pointers are unchanged. `LeanNOption` objects escape the two values for which that is impossible:
+   the largest immediate and an already escaped nested `NOption`. */
+extern "C" LEAN_EXPORT obj_res lean_noption_none() {
+    return lean_box(LeanMaxCtorTag + 1);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_noption_some(obj_arg value) {
+    if (lean_is_scalar(value)) {
+        size_t scalar = lean_unbox(value);
+        if (scalar < LeanMaxCtorTag + 1)
+            return value;
+        if (scalar < (SIZE_MAX >> 1))
+            return lean_box(scalar + 1);
+    } else if (lean_ptr_tag(value) != LeanNOption) {
+        return value;
+    }
+    lean_noption_object * result = (lean_noption_object *)lean_alloc_object(sizeof(lean_noption_object));
+    lean_set_st_header((lean_object *)result, LeanNOption, 0);
+    result->m_value = value;
+    return (lean_object *)result;
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_noption_is_some(b_obj_arg value) {
+    return !lean_is_scalar(value) || lean_unbox(value) != LeanMaxCtorTag + 1;
+}
+
+extern "C" LEAN_EXPORT obj_res lean_noption_get(obj_arg value) {
+    if (lean_is_scalar(value)) {
+        size_t scalar = lean_unbox(value);
+        lean_assert(scalar != LeanMaxCtorTag + 1);
+        return scalar > LeanMaxCtorTag + 1 ? lean_box(scalar - 1) : value;
+    }
+    if (lean_ptr_tag(value) != LeanNOption)
+        return value;
+    object * result = lean_to_noption(value)->m_value;
+    if (lean_is_exclusive(value)) {
+        lean_free_small_object(value);
+    } else {
+        lean_inc(result);
+        lean_dec_ref(value);
+    }
+    return result;
 }
 
 
@@ -611,6 +660,9 @@ extern "C" LEAN_EXPORT void lean_mark_persistent(object * o) {
                 case LeanRef:
                     if (object * v = lean_to_ref(o)->m_value) todo.push_back(v);
                     break;
+                case LeanNOption:
+                    todo.push_back(lean_to_noption(o)->m_value);
+                    break;
                 default:
                     lean_unreachable();
                     break;
@@ -685,6 +737,9 @@ extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
                     break;
                 case LeanRef:
                     if (object * v = lean_to_ref(o)->m_value) todo.push_back(v);
+                    break;
+                case LeanNOption:
+                    todo.push_back(lean_to_noption(o)->m_value);
                     break;
                 default:
                     lean_unreachable();

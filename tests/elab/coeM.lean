@@ -28,6 +28,7 @@ It was checking that `Eq (some true)` and `Eq _` were defeq monads. The defeq ch
 error: Invalid dotted identifier notation: The expected type of `.some` could not be determined
 
 Hint: Using one of these would be unambiguous:
+  [apply] `NOption.some`
   [apply] `some`
   [apply] `Option.Rel.some`
 -/

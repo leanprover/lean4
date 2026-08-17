@@ -367,20 +367,17 @@ def leadingIdentBehavior (env : Environment) (catName : Name) : LeadingIdentBeha
   | none     => LeadingIdentBehavior.default
   | some cat => cat.behavior
 
-unsafe def evalParserConstUnsafe (declName : Name) (evalFallback? : Option ParserFn := none) : ParserFn := fun ctx s => unsafeBaseIO do
+unsafe def evalParserConstUnsafe (declName : Name) : ParserFn := fun ctx s => unsafeBaseIO do
   let categories := (parserExtension.getState ctx.env).categories
   match (← (mkParserOfConstant categories declName { env := ctx.env, opts := ctx.options }).toBaseIO) with
   | .ok (_, p) =>
     -- We should manually register `p`'s tokens before invoking it as it might not be part of any syntax category (yet)
     return adaptUncacheableContextFn (fun ctx => { ctx with tokens := p.info.collectTokens [] |>.foldl (fun tks tk => tks.insert tk tk) ctx.tokens }) p.fn ctx s
   | .error e   =>
-    if let some evalFallback := evalFallback? then
-      return evalFallback ctx s
-    else
-      return s.mkUnexpectedError e.toString
+    return s.mkUnexpectedError e.toString
 
 @[implemented_by evalParserConstUnsafe]
-opaque evalParserConst (declName : Name) (evalFallback? : Option ParserFn := none) : ParserFn
+opaque evalParserConst (declName : Name) : ParserFn
 
 register_builtin_option internal.parseQuotWithCurrentStage : Bool := {
   defValue := false
@@ -389,14 +386,10 @@ register_builtin_option internal.parseQuotWithCurrentStage : Bool := {
 
 /-- Interpret `declName` if possible and inside a quotation, or else run `p`. The `ParserInfo` will always be taken from `p`. -/
 def evalInsideQuot (declName : Name) : Parser → Parser := withFn fun f c s =>
-  if c.quotDepth > 0 && !c.suppressInsideQuot && internal.parseQuotWithCurrentStage.get c.options && c.env.contains declName then
+  if c.quotDepth > 0 && !c.suppressInsideQuot && internal.parseQuotWithCurrentStage.get c.options then
     adaptUncacheableContextFn (fun ctx =>
       { ctx with options := ctx.options.set `interpreter.prefer_native false })
-      -- HACK: silently fall back to running compiled `f` on eval error, otherwise parser imported
-      -- but not meta imported can lead to silent backtracking and confusing errors such as
-      -- "unexpected token `by`". Note that the above `contains` already sets a silent fallback for
-      -- "not imported at all".
-      (evalParserConst (evalFallback? := some f) declName) c s
+      (evalParserConst declName) c s
   else
     f c s
 

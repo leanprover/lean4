@@ -52,10 +52,6 @@ structure FieldMetadata where
   cmds : Array Command := #[]
   fields : Term := Unhygienic.run `(Array.empty)
 
--- We automatically disable the following option for `macro`s but the subsequent `def`s both contain
--- quotations and are called only by `macro`s, so we disable the option for them manually.
-set_option internal.parseQuotWithCurrentStage false
-
 meta def mkConfigAuxDecls
   (vis? : Option (TSyntax ``visibility))
   (structId : Ident) (structArity : Nat) (structTy : Term) (views : Array FieldView)

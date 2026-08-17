@@ -77,6 +77,36 @@ private def resolveBinderNameHints (goal : MVarId) (target : Expr) : VCGenM MVar
   let target' ← Expr.resolveBinderNameHint target
   goal.replaceTargetDefEqFast (← shareCommon target')
 
+/-- Strategy 0: consume a `binderNameHint` that a spec rule's instantiation left at the head of
+`e`, an applied position of the target. Returns the hint's payload with any over-application
+reattached, plus the goal, renamed when the hinted value is still a local variable whose hint
+carries an accessible closure binder. Renaming touches only local-context metadata. -/
+private def consumeBinderNameHintCore (goal : MVarId) (e : Expr) :
+    VCGenM (Option (MVarId × Expr)) := do
+  unless e.getAppFn.isConstOf ``binderNameHint do return none
+  let args := e.getAppArgs
+  unless args.size ≥ 6 do return none
+  let hinted := args[3]!
+  let binder ← instantiateMVarsIfMVarAppS args[4]!
+  let payload := args[5]!
+  -- The reduced closure is read only for its binder name and discarded, so goal sharing is
+  -- untouched; `whnf` is what exposes the state lambda of an invariant applied to its cursor.
+  let binder ← liftMetaM <| whnf binder.cleanupAnnotations
+  let goal ← match hinted, binder with
+    | .fvar fvarId, .lam n _ _ _ =>
+      if !n.hasMacroScopes && (← fvarId.getDecl).userName.hasMacroScopes then
+        trace[Elab.Tactic.Do.vcgen] "binder-name-hint: rename {Expr.fvar fvarId} to {n}"
+        liftMetaM <| goal.rename fvarId n
+      else pure goal
+    | _, _ => pure goal
+  let stripped ← mkAppNS payload (args.extract 6 args.size)
+  return some (goal, stripped)
+
+/-- Strategy 0 at the target's own head. -/
+private def consumeBinderNameHint? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
+  let some (goal, stripped) ← consumeBinderNameHintCore goal target | return none
+  return some (← goal.replaceTargetDefEqFast stripped)
+
 /-- Strategy 1: simp the target, then introduce binders if the target is a `∀`. -/
 private def forallIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
   unless target.isForall do return none
@@ -563,6 +593,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
 
   -- Phase 1: simplify `target` until it is of the form `pre ⊑ rhs`.
   if let some g ← consumeMData? goal target then return .goals scope [g]
+  if let some g ← consumeBinderNameHint? goal target then return .goals scope [g]
   if let some gs ← forallIntro? goal target then return .goals scope gs
   if let some g ← targetLetIntro? goal target then return .goals scope [g]
   if let some g ← tripleUnfold? goal target then return .goals scope [g]
@@ -572,6 +603,13 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
 
   let_expr PartialOrder.rel α inst pre rhs := target
     | return .stop (.noEntailment target)
+
+  -- Strategy 0 on the entailment's right-hand side, where a hint surfaces when a spec for the
+  -- bound program hands its postcondition the result value.
+  if let some (goal, rhs') ← consumeBinderNameHintCore goal rhs then
+    let relArgs := target.getAppArgs
+    let target' ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs')
+    return .goals scope [← goal.replaceTargetDefEqFast target']
 
   -- Phase 2: close reflexive goals, then drive `pre` toward `⊤`, lifting any pure content so a
   -- later spec application sees a `⊤` precondition.

@@ -495,7 +495,7 @@ private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : Spec
         excessArgs: {info.excessArgs}"
     | return none
   let applySpec := (specRule.applyChecked · m!"spec rule for{indentExpr info.prog}")
-  unless thm.conjunctivePre || thm.kind matches .simp .. || isFramedPost info.post do
+  unless thm.conjunctivePre || isFramedPost info.post do
     let procs := (← read).frameProcs.byProg
     let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
     let providedFrame? ← matchFrame? fp info

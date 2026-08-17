@@ -109,20 +109,24 @@ private def consumePreHints? (goal : MVarId) (target pre : Expr) : VCGenM (Optio
   let target' ← mkAppNS target.getAppFn (relArgs.set! 2 pre)
   return some (← goal.replaceTargetDefEqFast target')
 
-/-- The binder names of the alternative of the single-alternative matcher that the lambda `f`
-applies to its own argument, or `none`. This is the shape of a loop invariant's state lambda when
-the loop has several mutable variables: `fun x => match x with | (lo, hi) => …`. -/
+/-- The binder names of the first alternative of the matcher that the lambda `f` applies to its
+own argument, or `none`; every alternative must bind the same number of parameters. This is the
+shape of a loop invariant's state lambda: `fun x => match x with | (lo, hi) => …` for a `for` loop
+with several mutable variables, and `fun __c => match __c with | .inl i | .inr i => …` for a
+`repeat` or `while` loop. -/
 private def stateMatcherAltNames? (f : Expr) : VCGenM (Option (Array Name)) := do
   let .lam _ _ body _ := f.headBeta.cleanupAnnotations | return none
   let .const c _ := body.getAppFn | return none
   let some info := Meta.getMatcherInfoCore? (← getEnv) c | return none
-  unless info.numDiscrs == 1 && info.numAlts == 1 do return none
+  unless info.numDiscrs == 1 && info.getNumDiscrEqs == 0 do return none
+  let some numParams := info.altNumParams[0]? | return none
+  unless info.altNumParams.all (· == numParams) do return none
   let args := body.getAppArgs
   unless args.size == info.arity do return none
   unless args[info.getFirstDiscrPos]!.cleanupAnnotations == .bvar 0 do return none
   let mut alt := args[info.getFirstAltPos]!
   let mut names := #[]
-  for _ in *...info.altNumParams[0]! do
+  for _ in *...numParams do
     let .lam n _ b _ := alt | return none
     names := names.push n
     alt := b
@@ -165,10 +169,13 @@ private def scanHints (target : Expr) : VCGenM HintScan := do
           if let .lam n _ _ _ := f.headBeta.cleanupAnnotations then
             if isProgramName n && (scan.renames.all (·.1 != idx)) then
               scan := { scan with renames := scan.renames.push (idx, n) }
-          if scan.split?.isNone then
-            if let some names ← stateMatcherAltNames? f then
-              if names.size ≥ 2 then
-                scan := { scan with split? := some (idx, names) }
+          if let some names ← stateMatcherAltNames? f then
+            if names.size == 1 then
+              -- A single state name: the matcher destructures a `repeat`/`while` cursor.
+              if isProgramName names[0]! && (scan.renames.all (·.1 != idx)) then
+                scan := { scan with renames := scan.renames.push (idx, names[0]!) }
+            else if scan.split?.isNone && names.size ≥ 2 then
+              scan := { scan with split? := some (idx, names) }
       e := args[5]!
   return scan
 
@@ -355,8 +362,11 @@ private def forallIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List 
       -- Rename the leading binders after the hints. The hints themselves stay: strategy 0
       -- consumes each at its applied position, and a hint inside a not-yet-applied closure (such
       -- as the postcondition's) must survive until a later application surfaces it.
+      -- No `shareCommon` here: hash-consing is alpha-invariant and would canonicalize the
+      -- renamed binders back. The spine's children are shared; the spine itself is introduced
+      -- right away.
       let goal ← if scan.renames.isEmpty && scan.split?.isNone then pure goal else
-        goal.replaceTargetDefEqFast (← shareCommon (renameLeadingBinders target scan.renames))
+        goal.replaceTargetDefEqFast (renameLeadingBinders target scan.renames)
       pure (goal, accessible, scan.split?)
     else pure (goal, {}, none)
   if let some (prefixLen, names) := splitInfo? then

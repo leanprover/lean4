@@ -168,7 +168,8 @@ theorem Spec.forInLoop_invariant_variant {Fun : Type} {γ : Type uγ'}
     (step : ∀ b (mb : γ),
       Triple
         (f () b)
-        ((RepeatVariant.ofMeasure (Pred := Pred) measure).EvalsTo b mb ⊓ inv (.inl b))
+        (binderNameHint b inv <|
+          (RepeatVariant.ofMeasure (Pred := Pred) measure).EvalsTo b mb ⊓ inv (.inl b))
         (fun r => match r with
           | .yield b' =>
             (RepeatVariant.ofMeasure (Pred := Pred) measure).EvalsBelow b' mb ⊓ inv (.inl b')
@@ -177,7 +178,7 @@ theorem Spec.forInLoop_invariant_variant {Fun : Type} {γ : Type uγ'}
     Triple
       (forInLoopWithInvariantAndVariant l init f (RepeatInvariant.mk inv) measure)
       (inv (.inl init))
-      (fun b => inv (.inr b))
+      (fun b => binderNameHint b inv <| inv (.inr b))
       einv := by
   unfold forInLoopWithInvariantAndVariant
   exact Spec.forIn_loop (RepeatVariant.ofMeasure measure) inv einv step
@@ -192,7 +193,7 @@ theorem Spec.forInLoop_invariant
     (step : ∀ b (mb : measure.γ),
       Triple
         (f () b)
-        (measure.EvalsTo b mb ⊓ inv (.inl b))
+        (binderNameHint b inv <| measure.EvalsTo b mb ⊓ inv (.inl b))
         (fun r => match r with
           | .yield b' => measure.EvalsBelow b' mb ⊓ inv (.inl b')
           | .done b' => inv (.inr b'))
@@ -200,7 +201,7 @@ theorem Spec.forInLoop_invariant
     Triple
       (forInLoopWithInvariant l init f (RepeatInvariant.mk inv))
       (inv (.inl init))
-      (fun b => inv (.inr b))
+      (fun b => binderNameHint b inv <| inv (.inr b))
       einv := by
   unfold forInLoopWithInvariant
   exact Spec.forIn_loop measure inv einv step
@@ -215,7 +216,8 @@ theorem Spec.forInLoop_variant {Fun : Type} {γ : Type uγ'}
     (step : ∀ b (mb : γ),
       Triple
         (f () b)
-        ((RepeatVariant.ofMeasure (Pred := Pred) measure).EvalsTo b mb ⊓ inv (.inl b))
+        (binderNameHint b inv <|
+          (RepeatVariant.ofMeasure (Pred := Pred) measure).EvalsTo b mb ⊓ inv (.inl b))
         (fun r => match r with
           | .yield b' =>
             (RepeatVariant.ofMeasure (Pred := Pred) measure).EvalsBelow b' mb ⊓ inv (.inl b')
@@ -224,7 +226,7 @@ theorem Spec.forInLoop_variant {Fun : Type} {γ : Type uγ'}
     Triple
       (forInLoopWithVariant l init f measure)
       (inv (.inl init))
-      (fun b => inv (.inr b))
+      (fun b => binderNameHint b inv <| inv (.inr b))
       einv := by
   unfold forInLoopWithVariant
   exact Spec.forIn_loop (RepeatVariant.ofMeasure measure) inv einv step

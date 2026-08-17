@@ -91,9 +91,10 @@ public structure FrameInferenceInfo extends WPApp where
   /-- Applies the backward rule of the `@[spec]` theorem to a fresh footprint entailment
   `?fp ⊑ wp prog ?post epost s⃗`. The footprint and the post stay open. The procedure supplies the
   excess state arguments `s⃗`. The rule fixes their count to the goal's count, and their values
-  are free, with `excessArgs` as the goal's own. `none` means the rule does not apply, and the
-  failed attempt leaves no observable state behind. The successful application is an orphan until
-  the procedure completes it, so a procedure that stands down can forget it. -/
+  are free, with `excessArgs` as the goal's own. `none` means the rule does not apply. A failed
+  attempt can introduce dead metavariables: no part of the goal is instantiated with a term that
+  contains them. The successful application is an orphan until the procedure completes it, so a
+  procedure that stands down can forget it. -/
   applySpec : Array Expr → Grind.GrindM (Option SpecApplication)
   /-- Builds the frame operator `op : R → Pred → Pred`, hash-consed; the selected procedure's
   `FrameProc.mkOpAppM`. -/

@@ -167,9 +167,18 @@ def pushArgsTodo (todo : Array Expr) (e : Expr) : Array Expr :=
 
 partial def getMatchLoop (mctx : MetavarContext) (todo : Array Expr) (c : Trie α) (result : Array α) : Array α :=
   match c with
-  | .chain k c =>
-    -- Reuse general code path
-    getMatchLoop mctx todo (.node #[] #[(k, c)]) result
+  | .chain key child =>
+    if todo.isEmpty then
+      result
+    else
+      let e     := resolveAssignedMVars mctx <| etaReduce todo.back!
+      let todo  := todo.pop
+      if key == .star then
+        getMatchLoop mctx todo child result
+      else if key == getKey e then
+        getMatchLoop mctx (pushArgsTodo todo e) child result
+      else
+        result
 
   | .node vs cs =>
     let csize := cs.size
@@ -181,25 +190,17 @@ partial def getMatchLoop (mctx : MetavarContext) (todo : Array Expr) (c : Trie �
       let e     := resolveAssignedMVars mctx <| etaReduce todo.back!
       let todo  := todo.pop
       let first := cs[0] /- Recall that `Key.star` is the minimal key -/
-      if csize = 1 then
-        /- Special case: only one child node -/
+      /- We must always visit `Key.star` edges since they are wildcards.
+        Thus, `todo` is not used linearly when there is `Key.star` edge
+        and there is an edge for `k` and `k != Key.star`. -/
+      let result :=
         if first.1 == .star then
           getMatchLoop mctx todo first.2 result
-        else if first.1 == getKey e then
-          getMatchLoop mctx (pushArgsTodo todo e) first.2 result
         else
           result
-      else
-        /- We must always visit `Key.star` edges since they are wildcards.
-          Thus, `todo` is not used linearly when there is `Key.star` edge
-          and there is an edge for `k` and `k != Key.star`. -/
-        let result := if first.1 == .star then
-          getMatchLoop mctx todo first.2 result
-        else
-          result
-        match findKey? cs (getKey e) with
-        | none   => result
-        | some c => getMatchLoop mctx (pushArgsTodo todo e) c.2 result
+      match findKey? cs (getKey e) with
+      | none   => result
+      | some c => getMatchLoop mctx (pushArgsTodo todo e) c.2 result
 
 /--
 Retrieves all values whose patterns match the expression `e`.

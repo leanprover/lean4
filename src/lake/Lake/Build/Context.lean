@@ -21,6 +21,8 @@ public structure BuildConfig extends LogConfig where
   trustHash : Bool := true
   /-- Early exit if a target has to be rebuilt. -/
   noBuild : Bool := false
+  /-- Stop the build monitor after the first required target failure is detected. -/
+  failFast : Bool := false
   /-- Verbosity level (`-q`, `-v`, or neither). -/
   verbosity : Verbosity := .normal
   /-- Whether to print a message when the build finishes successfully (if not quiet). -/
@@ -87,6 +89,11 @@ public structure BuildContext extends BuildConfig, Context where
   If `none`, tracking outputs is disabled for this build.
   -/
   outputsRef? : Option CacheRef := none
+  /--
+  When set to `true`, stops new build jobs from being scheduled.
+  Already-running tasks complete normally; no new work is dispatched.
+  -/
+  cancelling? : Option IO.CancelToken := none
 
 /-- A transformer to equip a monad with a `BuildContext`. -/
 public abbrev BuildT := ReaderT BuildContext

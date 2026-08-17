@@ -163,14 +163,14 @@ namespace Job
   [OptDataKind α] (act : JobM α) (caption := "")
 : SpawnM (Job α) := .ofFn fun fetch pkg? stack store ctx _ =>
   .ofTask (caption := caption) <$> Task.pure <$>
-    (withLoggedIO act).toFn fetch pkg? stack store ctx {}
+    (JobResult.ofLogResult <$> (withLoggedIO act).toFn fetch pkg? stack store ctx {})
 
 /-- Spawn a job that asynchronously performs `act`. -/
 @[nospecialize] public protected def async
   [OptDataKind α] (act : JobM α) (prio := Task.Priority.default) (caption := "")
 : SpawnM (Job α) := .ofFn fun fetch pkg? stack store ctx _ =>
   .ofTask (caption := caption) <$> BaseIO.asTask (prio := prio) do
-    (withLoggedIO act).toFn fetch pkg? stack store ctx {}
+    JobResult.ofLogResult <$> (withLoggedIO act).toFn fetch pkg? stack store ctx {}
 
 /-- Wait for a job to complete and return the result. -/
 @[inline] public protected def wait (self : Job α) : BaseIO (JobResult α) := do
@@ -189,8 +189,10 @@ Logs the job's log and throws if there was an error.
 -/
 public protected def await (self : Job α) : LogIO α := do
   match (← self.wait) with
-  | .error n {log, ..} => log.replay; throw n
   | .ok a {log, ..} => log.replay; pure a
+  | .error (.errorLogged n) {log, ..} => log.replay; throw n
+  -- No log entries to replay; throw pos 0 as a sentinel to signal failure upstream.
+  | .error .cancelled _ => throw 0
 
 /-- Apply `f` asynchronously to the job's output. -/
 @[nospecialize] public protected def mapM
@@ -199,10 +201,12 @@ public protected def await (self : Job α) : LogIO α := do
 : SpawnM (Job β) := .ofFn fun fetch pkg? stack store ctx trace => do
   self.bindTask fun task => do
   BaseIO.mapTask (t := task) (prio := prio) (sync := sync) fun
-    | .ok a s =>
+    | .ok a s => do
+      if let some tk := ctx.cancelling? then
+        if ← tk.isSet then return .error .cancelled s
       let trace := mixTrace trace s.trace
-      withLoggedIO (f a) |>.toFn fetch pkg? stack store ctx {s with trace}
-    | .error n s => return .error n s
+      JobResult.ofLogResult <$> (withLoggedIO (f a)).toFn fetch pkg? stack store ctx {s with trace}
+    | .error e s => return .error e s
 
 /--
 Apply `f` asynchronously to the job's output
@@ -215,13 +219,16 @@ and asynchronously await the resulting job.
   self.bindTask fun task => do
   BaseIO.bindTask task (prio := prio) (sync := sync) fun
     | .ok a sa => do
+      if let some tk := ctx.cancelling? then
+        if ← tk.isSet then return Task.pure (.error .cancelled sa)
       let trace := mixTrace trace sa.trace
       match (← withLoggedIO (f a) |>.toFn fetch pkg? stack store ctx {sa with trace}) with
       | .ok job sa =>
         return job.task.map (prio := prio) (sync := true) fun
         | .ok b sb => .ok b {sa.merge sb with trace := sb.trace}
-        | .error e sb => .error ⟨sa.log.size + e.val⟩ {sa.merge sb with trace := sb.trace}
-      | .error e sa => return Task.pure (.error e sa)
+        | .error (.errorLogged e) sb => .error (.errorLogged ⟨sa.log.size + e.val⟩) {sa.merge sb with trace := sb.trace}
+        | .error e sb => .error e {sa.merge sb with trace := sb.trace}
+      | .error e sa => return Task.pure (.error (.errorLogged e) sa)
     | .error e sa => return Task.pure (.error e sa)
 
 /--
@@ -246,14 +253,20 @@ results of `a` and `b`. The job `c` errors if either `a` or `b` error.
 : Job γ :=
   self.zipResultWith (other := other) (prio := prio) (sync := sync) fun
   | .ok a sa, .ok b sb => .ok (f a b) (sa.merge sb)
-  | ra, rb => .error 0 (ra.state.merge rb.state)
+  | .error (.errorLogged _) sa, rb => .error (.errorLogged 0) (sa.merge rb.state)
+  | ra, .error (.errorLogged _) sb => .error (.errorLogged 0) (ra.state.merge sb)
+  -- Remaining cases: at least one side is `.cancelled` and neither is `.errorLogged`.
+  | ra, rb => .error .cancelled (ra.state.merge rb.state)
 
 /-- Merges this job with another, discarding its output and trace. -/
 public def add (self : Job α) (other : Job β) : Job α :=
   have : OptDataKind α := self.kind
   self.zipResultWith (other := other) fun
   | .ok a sa, .ok _ sb => .ok a {sa.merge sb with trace := sa.trace}
-  | ra, rb => .error 0 {ra.state.merge rb.state with trace := ra.state.trace}
+  | .error (.errorLogged _) sa, rb => .error (.errorLogged 0) {sa.merge rb.state with trace := sa.trace}
+  | ra, .error (.errorLogged _) sb => .error (.errorLogged 0) {ra.state.merge sb with trace := ra.state.trace}
+  -- Remaining cases: at least one side is `.cancelled` and neither is `.errorLogged`.
+  | ra, rb => .error .cancelled {ra.state.merge rb.state with trace := ra.state.trace}
 
 /-- Merges this job with another, discarding both outputs. -/
 public def mix (self : Job α) (other : Job β) : Job Unit :=

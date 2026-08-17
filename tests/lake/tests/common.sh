@@ -295,7 +295,7 @@ test_no_out() {
   return $rc
 }
 
-test_no_warn() {
+test_no_stderr() {
   echo '$' lake "$@"
   if "$LAKE" "$@" 2>produced.out; then
     diff produced.out /dev/null

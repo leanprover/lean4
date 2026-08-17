@@ -94,7 +94,7 @@ private def consumeBinderNameHintCore (goal : MVarId) (e : Expr) :
   let binder ← liftMetaM <| whnf binder.cleanupAnnotations
   let goal ← match hinted, binder with
     | .fvar fvarId, .lam n _ _ _ =>
-      if !n.hasMacroScopes && (← fvarId.getDecl).userName.hasMacroScopes then
+      if !n.isImplementationDetail && (← fvarId.getDecl).userName.hasMacroScopes then
         trace[Elab.Tactic.Do.vcgen] "binder-name-hint: rename {Expr.fvar fvarId} to {n}"
         liftMetaM <| goal.rename fvarId n
       else pure goal
@@ -156,8 +156,21 @@ private def findStateTupleSplit? (target : Expr) : VCGenM (Option (Nat × Array 
       chain args[5]! fuel
   chain pre 8
 
-/-- Introduce the first `n` leading binders of `goal`, hygienically as in `introsHygienic`. -/
-private def introPrefixHygienic (goal : MVarId) (n : Nat) : VCGenM MVarId := goal.withContext do
+/-- The names hint resolution assigned to the goal's leading binders: the leading binder names of
+the resolved target that differ from `original`'s. These are the program's own variable names. -/
+private def hintAssignedNames (original : Expr) (goal : MVarId) : VCGenM NameSet := do
+  unless original.hasBinderNameHint do return {}
+  let rec go (a b : Expr) (acc : NameSet) : NameSet :=
+    match a, b with
+    | .forallE n₁ _ b₁ _, .forallE n₂ _ b₂ _
+    | .letE n₁ _ _ b₁ _, .letE n₂ _ _ b₂ _ =>
+      go b₁ b₂ (if n₁ == n₂ then acc else acc.insert n₂)
+    | _, _ => acc
+  return go original (← goal.getType) {}
+
+/-- Introduce the first `n` leading binders of `goal`, naming them as `introsHygienic` does. -/
+private def introPrefixHygienic (goal : MVarId) (n : Nat) (accessible : NameSet) :
+    VCGenM MVarId := goal.withContext do
   if n == 0 then return goal
   let rec collect (type : Expr) (acc : Array Name) : Array Name :=
     if acc.size == n then acc else
@@ -167,7 +180,8 @@ private def introPrefixHygienic (goal : MVarId) (n : Nat) : VCGenM MVarId := goa
     | _ => acc
   let mut names := #[]
   for nm in collect (← goal.getType) #[] do
-    names := names.push (← Meta.mkFreshBinderNameForTactic nm)
+    names := names.push (← if accessible.contains nm then pure nm
+      else Meta.mkFreshBinderNameForTactic nm)
   let .goal _ goal ← Sym.intros goal names
     | throwError "vcgen: failed to introduce the binders before a state tuple"
   return goal
@@ -302,7 +316,12 @@ private def splitStateTuple (goal : MVarId) (names : Array Name) : VCGenM MVarId
     p := .proj ``Prod 1 p
   projs := projs.push p
   goal.assign (.lam `p σ (mkAppN g projs) .default)
-  return g.mvarId!
+  -- The new binders are the program's own variables: introduce them with their names kept.
+  let introNames ← names.mapM fun n =>
+    if isProgramName n then pure n else Meta.mkFreshBinderNameForTactic n
+  let .goal _ g' ← Sym.intros g.mvarId! introNames
+    | throwError "vcgen: failed to introduce the split state binders"
+  return g'
 
 /-- Strategy 1: simp the target, then introduce binders if the target is a `∀`. A binder holding
 the state tuple of a loop with several mutable variables is split into one binder per component
@@ -314,14 +333,15 @@ private def forallIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List 
     findStateTupleSplit? (← instantiateMVarsS target)
   else pure none
   let goal ← resolveBinderNameHints goal target
+  let hintNames ← hintAssignedNames target goal
   if let some (prefixLen, names) := splitInfo? then
-    let goal ← introPrefixHygienic goal prefixLen
+    let goal ← introPrefixHygienic goal prefixLen hintNames
     return some [← splitStateTuple goal names]
   let (goal, simped) ← match ← simpGoalTelescope goal with
     | .closed => return some []
     | .goal goal' => pure (goal', true)
     | .noProgress => pure (goal, false)
-  let goal' ← introsHygienic goal
+  let goal' ← introsHygienic goal (accessible := hintNames)
   if !simped && goal' == goal then
     throwError "Failed to intro forall target {goal}"
   return some [goal']
@@ -540,9 +560,7 @@ private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
     let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
     let target := Expr.letE name type val target nondep
     let goal ← goal.replaceTargetDefEqFast target
-    let .goal _ goal ← Sym.intros goal
-      | throwError "Failed to intro hoisted let"
-    return some goal
+    return some (← introsHygienic goal)
 
 /-- Strategy 11b: fold the state arguments of the program's `wp` application, so the symbolic
 state a spec application threads through the goal is normalized as it is produced rather than left

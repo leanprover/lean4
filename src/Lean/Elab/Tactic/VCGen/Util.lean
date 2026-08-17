@@ -91,25 +91,36 @@ open Lean.Elab.Tactic.VCGen
 public def processHypotheses (goal : Grind.Goal) : VCGenM Grind.Goal := do
   if (← read).internalize then Grind.processHypotheses goal else return goal
 
+/-- Whether `n` is a program variable's own name: no macro scopes and no implementation-detail
+`__` prefix. Such a name stays accessible in a verification condition. -/
+public def isProgramName (n : Name) : Bool :=
+  !n.hasMacroScopes && !n.isImplementationDetail
+
 /--
 Introduce all leading binders of `goal` in one pass, naming the `i`-th binder `overrides[i]` when
-given and the binder's own name otherwise. Accessibility is decided by `tactic.hygienic` via
-`mkFreshBinderNameForTactic`. The introduction itself is a single `Sym.intros` call (which keeps
-the memoized, sharing-correct intro); only the names are chosen here. Returns the goal unchanged
-when there are no leading binders.
+given and the binder's own name otherwise. A `let` binder with a program variable's name and a `∀`
+binder whose name is listed in `accessible` keep their name verbatim, so the program's own
+variables stay accessible in the verification condition; every other name goes through
+`mkFreshBinderNameForTactic`, which `tactic.hygienic` makes inaccessible. The introduction itself
+is a single `Sym.intros` call (which keeps the memoized, sharing-correct intro); only the names are
+chosen here. Returns the goal unchanged when there are no leading binders.
 -/
-public def introsHygienic (goal : MVarId) (overrides : Array Name := #[]) : VCGenM MVarId :=
+public def introsHygienic (goal : MVarId) (overrides : Array Name := #[])
+    (accessible : NameSet := {}) : VCGenM MVarId :=
   goal.withContext do
-    let rec collectBinders (type : Expr) (acc : Array Name) : Array Name :=
+    let rec collectBinders (type : Expr) (acc : Array (Name × Bool)) : Array (Name × Bool) :=
       match type with
-      | .forallE n _ b _ => collectBinders b (acc.push n)
-      | .letE n _ _ b _ => collectBinders b (acc.push n)
+      | .forallE n _ b _ => collectBinders b (acc.push (n, false))
+      | .letE n _ _ b _ => collectBinders b (acc.push (n, true))
       | _ => acc
-    let binderNames := collectBinders (← goal.getType) #[]
-    if binderNames.isEmpty then return goal
+    let binders := collectBinders (← goal.getType) #[]
+    if binders.isEmpty then return goal
     let mut names := #[]
-    for h : i in *...binderNames.size do
-      names := names.push (← Meta.mkFreshBinderNameForTactic (overrides[i]?.getD binderNames[i]))
+    for h : i in *...binders.size do
+      let (n, isLet) := binders[i]
+      let n := overrides[i]?.getD n
+      let verbatim := if isLet then isProgramName n else accessible.contains n
+      names := names.push (← if verbatim then pure n else Meta.mkFreshBinderNameForTactic n)
     let .goal _ goal ← Sym.intros goal names | return goal
     return goal
 

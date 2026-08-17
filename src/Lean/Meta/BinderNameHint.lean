@@ -19,23 +19,16 @@ namespace Lean
 def Expr.hasBinderNameHint (e : Expr) : Bool :=
   Option.isSome <| e.find? fun e => e.isConstOf `binderNameHint
 
-/-- A binder name, and whether a hint has named this binder already. -/
-private abbrev Slot := Name × Bool
+private def  enterScope (name : Name) (xs : Array Name) : Array Name :=
+    xs.push name
 
-private def  enterScope (name : Name) (xs : Array Slot) : Array Slot :=
-    xs.push (name, false)
-
-private def exitScope (xs : Array Slot) : Name × Array Slot :=
+private def exitScope (xs : Array Name) : Name × Array Name :=
     assert! xs.size > 0
-    (xs.back!.1, xs.pop)
+    (xs.back!, xs.pop)
 
-private def rememberName (bidx : Nat) (name : Name) (xs : Array Slot) : Array Slot :=
+private def rememberName (bidx : Nat) (name : Name) (xs : Array Name) : Array Name :=
     assert! xs.size > bidx
-    xs.set! (xs.size - bidx - 1) (name, true)
-
-private def hintNamed (bidx : Nat) (xs : Array Slot) : Bool :=
-    assert! xs.size > bidx
-    xs[xs.size - bidx - 1]!.2
+    xs.set! (xs.size - bidx - 1) name
 
 /--
 Resolves occurrences of `binderNameHint` in `e`. See docstring of `binderNameHint` for more
@@ -53,7 +46,7 @@ The state is the array of binder names. The length of the array is always the bi
 and the innermost binder is at the end. We update the binder names therein when encountering a
 `binderNameHint`, and update the binder when exiting the scope.
 -/
-  go (e : Expr) : MonadCacheT ExprStructEq Expr (StateT (Array Slot) CoreM) Expr := do
+  go (e : Expr) : MonadCacheT ExprStructEq Expr (StateT (Array Name) CoreM) Expr := do
     checkCache { val := e : ExprStructEq } fun _ => do
       if e.isAppOfArity ``binderNameHint 6 then
         let v := e.appFn!.appFn!.appArg!
@@ -63,9 +56,9 @@ and the innermost binder is at the end. We update the binder names therein when 
         match v, b.headBeta with
         | .bvar bidx, .lam n _ _ _
         | .bvar bidx, .forallE n _ _ _ =>
-          -- A binder name with macro scopes is an implementation detail, not a user-facing name,
-          -- so it does not overwrite the name an earlier hint remembered.
-          unless n.hasMacroScopes && hintNamed bidx (← get) do
+          -- A hint through an implementation-detail binder (a `do` elaborator intermediate such
+          -- as `__s` or `__do_lift`) carries no user-facing name and is ignored.
+          unless n.isImplementationDetail do
             modify (rememberName bidx n)
         | .bvar bidx, _ =>
           -- If we do not have a binder to use, ensure that name has macro scope.
@@ -74,7 +67,7 @@ and the innermost binder is at the end. We update the binder names therein when 
           -- (Using `fun _ =>` would show up as `property†` to appear, which is bad UX)
           let xs ← get
           assert! xs.size > bidx
-          let n := xs[xs.size - bidx - 1]!.1
+          let n := xs[xs.size - bidx - 1]!
           let n' ← mkFreshUserName n
           modify (rememberName bidx n')
         | _, _ =>

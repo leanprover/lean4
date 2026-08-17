@@ -2,8 +2,8 @@ import Std.WP
 import Std.Tactic.Do
 
 /-! Tests that `vcgen` names a loop's verification-condition binders after the program's own `for`
-element and mutable variable rather than after the spec lemma's binders. The names stay
-inaccessible, so `case vcN x y => …` keeps renaming them positionally. -/
+element and mutable variable rather than after the spec lemma's binders. The program's variables
+are accessible in the verification condition; the spec lemma's binders stay inaccessible. -/
 
 open Std.WP Lean.Order
 
@@ -20,19 +20,19 @@ def sumEvens (xs : List Nat) : Id Nat := do
 /--
 trace: case vc1
 xs : List Nat
-acc✝ : Nat
-a✝ : acc✝ % 2 = 0
-⊢ ∃ k, acc✝ = 2 * k
+acc : Nat
+a✝ : acc % 2 = 0
+⊢ ∃ k, acc = 2 * k
 
 case vc2
 xs pref✝ : List Nat
-x✝ : Nat
+x : Nat
 suff✝ : List Nat
-_h✝ : ForIn.toList xs = pref✝ ++ x✝ :: suff✝
-acc✝¹ : Nat
-a✝ : acc✝¹ % 2 = 0
-acc✝ : Nat := acc✝¹ + 2 * x✝
-⊢ match ForInStep.yield acc✝ with
+_h✝ : ForIn.toList xs = pref✝ ++ x :: suff✝
+acc✝ : Nat
+a✝ : acc✝ % 2 = 0
+acc : Nat := acc✝ + 2 * x
+⊢ match ForInStep.yield acc with
   | ForInStep.yield acc => acc % 2 = 0
   | ForInStep.done acc => acc % 2 = 0
 -/
@@ -43,11 +43,11 @@ example (xs : List Nat) : ⦃ True ⦄ (sumEvens xs : Id Nat) ⦃ fun r => ∃ k
   trace_state
   all_goals sorry
 
--- The binders remain inaccessible, so `case vcN x y => …` renames them positionally.
+-- The program's variables are accessible, so the proof refers to `acc` directly.
 example (xs : List Nat) : ⦃ True ⦄ (sumEvens xs : Id Nat) ⦃ fun r => ∃ k, r = 2 * k ⦄ := by
   unfold sumEvens
   vcgen
-  case vc1 acc h => exact ⟨acc / 2, by omega⟩
+  case vc1 => exact ⟨acc / 2, by omega⟩
   all_goals sorry
 
 def sumRange (n : Nat) : Id Nat := do
@@ -57,9 +57,9 @@ def sumRange (n : Nat) : Id Nat := do
   return total
 
 /--
-trace: n total✝ : Nat
-a✝ : total✝ % 2 = 0
-⊢ ∃ k, total✝ = 2 * k
+trace: n total : Nat
+a✝ : total % 2 = 0
+⊢ ∃ k, total = 2 * k
 -/
 #guard_msgs in
 example (n : Nat) : ⦃ True ⦄ (sumRange n : Id Nat) ⦃ fun r => ∃ k, r = 2 * k ⦄ := by
@@ -77,13 +77,13 @@ def sumMemEvens (xs : List Nat) : Id Nat := do
 
 /--
 trace: xs pref✝ : List Nat
-x✝ : Nat
+x : Nat
 suff✝ : List Nat
-h✝ : ForIn.toList xs = pref✝ ++ x✝ :: suff✝
-acc✝¹ : Nat
-a✝ : acc✝¹ % 2 = 0
-acc✝ : Nat := acc✝¹ + 2 * x✝
-⊢ match ForInStep.yield acc✝ with
+h✝ : ForIn.toList xs = pref✝ ++ x :: suff✝
+acc✝ : Nat
+a✝ : acc✝ % 2 = 0
+acc : Nat := acc✝ + 2 * x
+⊢ match ForInStep.yield acc with
   | ForInStep.yield acc => acc % 2 = 0
   | ForInStep.done acc => acc % 2 = 0
 -/

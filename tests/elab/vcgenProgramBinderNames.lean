@@ -33,9 +33,7 @@ _h✝ : ForIn.toList xs = _cur ++ x :: _suff
 acc✝ : Nat
 a✝ : acc✝ % 2 = 0
 acc : Nat := acc✝ + 2 * x
-⊢ match ForInStep.yield acc with
-  | ForInStep.yield acc => acc % 2 = 0
-  | ForInStep.done acc => acc % 2 = 0
+⊢ acc % 2 = 0
 -/
 #guard_msgs in
 example (xs : List Nat) : ⦃ True ⦄ (sumEvens xs : Id Nat) ⦃ fun r => ∃ k, r = 2 * k ⦄ := by
@@ -84,9 +82,7 @@ h✝ : ForIn.toList xs = _cur ++ x :: _suff
 acc✝ : Nat
 a✝ : acc✝ % 2 = 0
 acc : Nat := acc✝ + 2 * x
-⊢ match ForInStep.yield acc with
-  | ForInStep.yield acc => acc % 2 = 0
-  | ForInStep.done acc => acc % 2 = 0
+⊢ acc % 2 = 0
 -/
 #guard_msgs in
 example (xs : List Nat) : ⦃ True ⦄ (sumMemEvens xs : Id Nat) ⦃ fun r => ∃ k, r = 2 * k ⦄ := by

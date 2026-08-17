@@ -41,7 +41,7 @@ lean_object* l_Lean_Exception_getRef(lean_object*);
 lean_object* l_Lean_Exception_toMessageData(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
@@ -695,7 +695,7 @@ _start:
 lean_object* v___x_128_; lean_object* v___x_129_; lean_object* v___x_130_; 
 v___x_128_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabSubKeys_spec__0_spec__0_spec__1___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabSubKeys_spec__0_spec__0_spec__1___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabSubKeys_spec__0_spec__0_spec__1___closed__1);
 v___x_129_ = lean_unsigned_to_nat(0u);
-v___x_130_ = lean_alloc_ctor(0, 10, 0);
+v___x_130_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_130_, 0, v___x_129_);
 lean_ctor_set(v___x_130_, 1, v___x_129_);
 lean_ctor_set(v___x_130_, 2, v___x_129_);
@@ -706,6 +706,7 @@ lean_ctor_set(v___x_130_, 6, v___x_128_);
 lean_ctor_set(v___x_130_, 7, v___x_128_);
 lean_ctor_set(v___x_130_, 8, v___x_128_);
 lean_ctor_set(v___x_130_, 9, v___x_128_);
+lean_ctor_set(v___x_130_, 10, v___x_128_);
 return v___x_130_;
 }
 }
@@ -5799,7 +5800,7 @@ goto v_reusejp_1648_;
 v_reusejp_1648_:
 {
 lean_object* v___x_1650_; lean_object* v___x_1651_; 
-v___x_1650_ = lean_st_ref_set(v___y_1628_, v___x_1649_);
+v___x_1650_ = lean_st_ref_put(v___y_1628_, v___x_1649_);
 v___x_1651_ = lean_box(0);
 v_a_1616_ = v___x_1651_;
 goto v___jp_1615_;

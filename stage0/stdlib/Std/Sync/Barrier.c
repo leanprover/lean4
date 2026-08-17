@@ -16,7 +16,7 @@ extern "C" {
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_io_condvar_notify_all(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -243,7 +243,7 @@ goto v_reusejp_94_;
 v_reusejp_94_:
 {
 lean_object* v___x_96_; lean_object* v___x_97_; lean_object* v_count_98_; uint8_t v___x_99_; 
-v___x_96_ = lean_st_ref_set(v___y_83_, v___x_95_);
+v___x_96_ = lean_st_ref_put(v___y_83_, v___x_95_);
 v___x_97_ = lean_st_ref_get(v___y_83_);
 v_count_98_ = lean_ctor_get(v___x_97_, 0);
 lean_inc(v_count_98_);
@@ -299,7 +299,7 @@ goto v_reusejp_107_;
 v_reusejp_107_:
 {
 lean_object* v___x_109_; lean_object* v___x_110_; uint8_t v___x_111_; 
-v___x_109_ = lean_st_ref_set(v___y_83_, v___x_108_);
+v___x_109_ = lean_st_ref_put(v___y_83_, v___x_108_);
 v___x_110_ = lean_io_condvar_notify_all(v_cvar_81_);
 v___x_111_ = 1;
 return v___x_111_;

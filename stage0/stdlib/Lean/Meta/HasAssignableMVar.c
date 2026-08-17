@@ -39,7 +39,7 @@ lean_object* l_Lean_MetavarContext_getDecl(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Core_checkSystem(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isLevelMVarAssignable___at___00Lean_Meta_hasAssignableLevelMVar_spec__0___redArg(lean_object*, lean_object*);
@@ -1125,7 +1125,7 @@ v___x_354_ = lean_st_ref_take(v_a_343_);
 v___x_355_ = lean_box(0);
 lean_inc_ref(v_e_342_);
 v___x_356_ = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00__private_Lean_Meta_HasAssignableMVar_0__Lean_Meta_hasAssignableMVar_visit_spec__4___redArg(v___x_354_, v_e_342_, v___x_355_);
-v___x_357_ = lean_st_ref_set(v_a_343_, v___x_356_);
+v___x_357_ = lean_st_ref_put(v_a_343_, v___x_356_);
 v___x_358_ = l___private_Lean_Meta_HasAssignableMVar_0__Lean_Meta_hasAssignableMVar_go(v_e_342_, v_a_343_, v_a_344_, v_a_345_, v_a_346_, v_a_347_);
 return v___x_358_;
 }

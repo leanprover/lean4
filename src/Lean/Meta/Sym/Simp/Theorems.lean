@@ -49,11 +49,11 @@ structure Theorems where
 def Theorems.insert (thms : Theorems) (thm : Theorem) : Theorems :=
   { thms with thms := insertPattern thms.thms thm.pattern thm }
 
-def Theorems.getMatch (thms : Theorems) (e : Expr) : Array Theorem :=
-  Sym.getMatch thms.thms e
+def Theorems.getMatch (thms : Theorems) (mctx : MetavarContext) (e : Expr) : Array Theorem :=
+  Sym.getMatch mctx thms.thms e
 
-def Theorems.getMatchWithExtra (thms : Theorems) (e : Expr) : Array (Theorem × Nat) :=
-  Sym.getMatchWithExtra thms.thms e
+def Theorems.getMatchWithExtra (thms : Theorems) (mctx : MetavarContext) (e : Expr) : Array (Theorem × Nat) :=
+  Sym.getMatchWithExtra mctx thms.thms e
 
 /--
 Check whether `lhs` and `rhs` (with `numVars` pattern variables represented as `.bvar` indices

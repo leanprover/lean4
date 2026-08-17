@@ -16,7 +16,7 @@ open Lean Linter CodeQuality
 public meta def dummyMetric : PackageCheck := fun _ =>
   return #[
     { name := "dummyMetric", source := .module `MyModule, value := .scalar 42.0 },
-    { name := "dummyMetric", source := .declaration `MyModule.foo, value := .scalar 1.0 }]
+    { name := "dummyMetric", source := .declaration `MyModule `MyModule.foo, value := .scalar 1.0 }]
 
 @[package_code_quality_check]
 public meta def dictMetric : PackageCheck := fun _ =>
@@ -57,7 +57,7 @@ def testRunPackageChecks : CoreM String := do
   return (toJson entries).compress
 
 /--
-info: "[{\"name\":\"dummyMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"scalar\":{\"value\":42}}},{\"name\":\"dummyMetric\",\"source\":{\"declaration\":{\"name\":\"MyModule.foo\"}},\"value\":{\"scalar\":{\"value\":1}}},{\"name\":\"dictMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"dict\":{\"dictionary\":{\"a\":1,\"b\":2}}}},{\"name\":\"pkgRootMetric\",\"source\":{\"module\":{\"name\":\"MyPkg\"}},\"value\":{\"scalar\":{\"value\":0}}}]"
+info: "[{\"name\":\"dummyMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"scalar\":{\"value\":42}}},{\"name\":\"dummyMetric\",\"source\":{\"declaration\":{\"module\":\"MyModule\",\"name\":\"MyModule.foo\"}},\"value\":{\"scalar\":{\"value\":1}}},{\"name\":\"dictMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"dict\":{\"dictionary\":{\"a\":1,\"b\":2}}}},{\"name\":\"pkgRootMetric\",\"source\":{\"module\":{\"name\":\"MyPkg\"}},\"value\":{\"scalar\":{\"value\":0}}}]"
 -/
 #guard_msgs in
 #eval testRunPackageChecks
@@ -71,7 +71,7 @@ public meta def failingMetric : PackageCheck := fun _ =>
 /--
 info: code quality check `failingMetric` failed: boom
 ---
-info: "[{\"name\":\"dummyMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"scalar\":{\"value\":42}}},{\"name\":\"dummyMetric\",\"source\":{\"declaration\":{\"name\":\"MyModule.foo\"}},\"value\":{\"scalar\":{\"value\":1}}},{\"name\":\"dictMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"dict\":{\"dictionary\":{\"a\":1,\"b\":2}}}},{\"name\":\"pkgRootMetric\",\"source\":{\"module\":{\"name\":\"MyPkg\"}},\"value\":{\"scalar\":{\"value\":0}}}]"
+info: "[{\"name\":\"dummyMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"scalar\":{\"value\":42}}},{\"name\":\"dummyMetric\",\"source\":{\"declaration\":{\"module\":\"MyModule\",\"name\":\"MyModule.foo\"}},\"value\":{\"scalar\":{\"value\":1}}},{\"name\":\"dictMetric\",\"source\":{\"module\":{\"name\":\"MyModule\"}},\"value\":{\"dict\":{\"dictionary\":{\"a\":1,\"b\":2}}}},{\"name\":\"pkgRootMetric\",\"source\":{\"module\":{\"name\":\"MyPkg\"}},\"value\":{\"scalar\":{\"value\":0}}}]"
 -/
 #guard_msgs in
 #eval testRunPackageChecks

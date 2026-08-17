@@ -58,7 +58,7 @@ lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
@@ -2107,7 +2107,7 @@ v___jp_416_:
 lean_object* v___x_419_; lean_object* v___x_420_; lean_object* v___x_421_; lean_object* v___x_422_; 
 v___x_419_ = lean_st_ref_take(v_a_411_);
 v___x_420_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lean_Meta_BinderNameHint_0__Lean_Expr_resolveBinderNameHint_go_spec__0___redArg(v___x_419_, v_e_410_, v_fst_418_);
-v___x_421_ = lean_st_ref_set(v_a_411_, v___x_420_);
+v___x_421_ = lean_st_ref_put(v_a_411_, v___x_420_);
 v___x_422_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_422_, 0, v_a_417_);
 return v___x_422_;

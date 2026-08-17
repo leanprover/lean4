@@ -9,7 +9,7 @@ is not iota-reduced away. Starting at `s = n`, each `step` decrements the state 
 at `0` after exactly `n` steps without ever throwing.
 -/
 
-open Lean Meta Order Std.Internal.Do
+open Lean Meta Order Std.WP
 
 namespace MatchSplit
 

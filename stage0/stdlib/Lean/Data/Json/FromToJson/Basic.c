@@ -28,7 +28,7 @@ lean_object* l_String_toName(lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_toSlice(lean_object*);
 lean_object* l_Lean_Json_getObjVal_x3f(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -521,7 +521,7 @@ lean_object* v_str_88_; lean_object* v_startInclusive_89_; lean_object* v_endExc
 v_str_88_ = lean_ctor_get(v_s_87_, 0);
 v_startInclusive_89_ = lean_ctor_get(v_s_87_, 1);
 v_endExclusive_90_ = lean_ctor_get(v_s_87_, 2);
-v___x_91_ = lean_string_utf8_extract(v_str_88_, v_startInclusive_89_, v_endExclusive_90_);
+v___x_91_ = lean_string_utf8_extract_fast(v_str_88_, v_startInclusive_89_, v_endExclusive_90_);
 v___x_92_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_92_, 0, v___x_91_);
 return v___x_92_;

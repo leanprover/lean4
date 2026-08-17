@@ -45,7 +45,7 @@ lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_Linear_getNatStructId_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_Linear_ofNatModule(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -1884,7 +1884,7 @@ goto v_reusejp_482_;
 v_reusejp_482_:
 {
 lean_object* v___x_484_; lean_object* v___x_485_; lean_object* v___x_487_; 
-v___x_484_ = lean_st_ref_set(v___y_445_, v___x_483_);
+v___x_484_ = lean_st_ref_put(v___y_445_, v___x_483_);
 v___x_485_ = lean_box(0);
 if (v_isShared_452_ == 0)
 {
@@ -2068,7 +2068,7 @@ goto v_reusejp_544_;
 v_reusejp_544_:
 {
 lean_object* v___x_546_; lean_object* v___x_547_; lean_object* v___x_549_; 
-v___x_546_ = lean_st_ref_set(v___y_507_, v___x_545_);
+v___x_546_ = lean_st_ref_put(v___y_507_, v___x_545_);
 v___x_547_ = lean_box(0);
 if (v_isShared_514_ == 0)
 {

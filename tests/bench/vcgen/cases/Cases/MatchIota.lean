@@ -8,7 +8,7 @@ Because `loop` eventually calls `step 0`, the program throws, so the exceptional
 is left unconstrained.
 -/
 
-open Lean Meta Order Std.Internal.Do
+open Lean Meta Order Std.WP
 
 namespace MatchIota
 

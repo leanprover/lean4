@@ -96,7 +96,7 @@ uint8_t lean_uint16_dec_lt(uint16_t, uint16_t);
 uint8_t l_Std_Http_Protocol_H1_Writer_instBEqState_beq(lean_object*, lean_object*);
 lean_object* lean_mk_io_user_error(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Std_CloseableChannel_new___redArg(lean_object*);
 lean_object* l_Std_Http_Body_mkStream();
@@ -4874,7 +4874,7 @@ goto v_reusejp_1575_;
 v_reusejp_1575_:
 {
 lean_object* v___x_1577_; lean_object* v___x_1578_; 
-v___x_1577_ = lean_st_ref_set(v___y_1563_, v___x_1576_);
+v___x_1577_ = lean_st_ref_put(v___y_1563_, v___x_1576_);
 v___x_1578_ = ((lean_object*)(l___private_Std_Http_Server_Connection_0__Std_Http_Server_Connection_processH1Events___redArg___lam__3___closed__1));
 return v___x_1578_;
 }

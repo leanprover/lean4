@@ -42,7 +42,7 @@ lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 uint8_t l___private_Lean_Util_Trace_0__Lean_checkTraceOption_go(lean_object*, lean_object*, lean_object*);
@@ -2002,7 +2002,7 @@ goto v_reusejp_420_;
 v_reusejp_420_:
 {
 lean_object* v___x_422_; lean_object* v___x_423_; 
-v___x_422_ = lean_st_ref_set(v___y_403_, v___x_421_);
+v___x_422_ = lean_st_ref_put(v___y_403_, v___x_421_);
 v___x_423_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_423_, 0, v_fst_410_);
 return v___x_423_;
@@ -2181,7 +2181,7 @@ goto v_reusejp_479_;
 v_reusejp_479_:
 {
 lean_object* v___x_481_; lean_object* v___x_482_; 
-v___x_481_ = lean_st_ref_set(v___y_454_, v___x_480_);
+v___x_481_ = lean_st_ref_put(v___y_454_, v___x_480_);
 v___x_482_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_482_, 0, v_traces_458_);
 return v___x_482_;
@@ -6333,7 +6333,7 @@ goto v_reusejp_1789_;
 v_reusejp_1789_:
 {
 lean_object* v___x_1791_; lean_object* v___x_1792_; lean_object* v___x_1794_; 
-v___x_1791_ = lean_st_ref_set(v___y_1752_, v___x_1790_);
+v___x_1791_ = lean_st_ref_put(v___y_1752_, v___x_1790_);
 v___x_1792_ = lean_box(0);
 if (v_isShared_1759_ == 0)
 {
@@ -6907,7 +6907,7 @@ goto v_reusejp_1970_;
 v_reusejp_1970_:
 {
 lean_object* v___x_1972_; lean_object* v___x_1973_; lean_object* v___x_1975_; 
-v___x_1972_ = lean_st_ref_set(v___y_1916_, v___x_1971_);
+v___x_1972_ = lean_st_ref_put(v___y_1916_, v___x_1971_);
 v___x_1973_ = lean_box(0);
 if (v_isShared_1948_ == 0)
 {
@@ -7260,7 +7260,7 @@ goto v_reusejp_2070_;
 v_reusejp_2070_:
 {
 lean_object* v___x_2072_; lean_object* v___x_2073_; 
-v___x_2072_ = lean_st_ref_set(v___y_2009_, v___x_2071_);
+v___x_2072_ = lean_st_ref_put(v___y_2009_, v___x_2071_);
 v___x_2073_ = l_MonadExcept_ofExcept___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Meta_rwMatcher_spec__11_spec__14___redArg(v_fst_2011_);
 return v___x_2073_;
 }

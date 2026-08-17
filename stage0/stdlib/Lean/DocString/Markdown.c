@@ -32,7 +32,7 @@ lean_object* l_String_Slice_posLE(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
@@ -66,7 +66,7 @@ lean_object* lean_array_pop(lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_String_Slice_subslice_x21(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
@@ -85,6 +85,7 @@ lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___redArg(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_get_num_heartbeats();
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
+lean_object* lean_st_ref_swap(lean_object*, lean_object*);
 lean_object* l_ReaderT_bind___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_findInternalDocString_x3f(lean_object*, lean_object*, uint8_t);
 lean_object* l_List_reverse___redArg(lean_object*);
@@ -605,7 +606,7 @@ v___x_6_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_6_, 0, v_name_1_);
 lean_ctor_set(v___x_6_, 1, v_body_2_);
 v___x_7_ = lean_array_push(v___x_5_, v___x_6_);
-v___x_8_ = lean_st_ref_set(v_a_3_, v___x_7_);
+v___x_8_ = lean_st_ref_put(v_a_3_, v___x_7_);
 v___x_9_ = lean_box(0);
 v___x_10_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_10_, 0, v___x_9_);
@@ -941,7 +942,7 @@ lean_ctor_set(v___x_129_, 1, v___x_127_);
 lean_ctor_set(v___x_129_, 2, v___x_128_);
 v___x_130_ = l_String_Slice_Pos_revSkipWhile___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_trimEndSpaces_spec__0(v___x_129_, v___x_128_);
 lean_dec_ref_known(v___x_129_, 3);
-v___x_131_ = lean_string_utf8_extract(v_s_126_, v___x_127_, v___x_130_);
+v___x_131_ = lean_string_utf8_extract_fast(v_s_126_, v___x_127_, v___x_130_);
 lean_dec(v___x_130_);
 lean_dec_ref(v_s_126_);
 return v___x_131_;
@@ -2971,7 +2972,7 @@ return v_b_802_;
 v___jp_803_:
 {
 lean_object* v___x_807_; lean_object* v___x_808_; 
-v___x_807_ = lean_string_utf8_extract(v_str_798_, v_startInclusive_805_, v_endExclusive_806_);
+v___x_807_ = lean_string_utf8_extract_fast(v_str_798_, v_startInclusive_805_, v_endExclusive_806_);
 lean_dec(v_endExclusive_806_);
 lean_dec(v_startInclusive_805_);
 v___x_808_ = lean_array_push(v_b_802_, v___x_807_);
@@ -3287,8 +3288,8 @@ v___x_940_ = lean_nat_dec_eq(v___x_939_, v___x_937_);
 if (v___x_940_ == 0)
 {
 lean_object* v_s1_941_; lean_object* v_s2_942_; lean_object* v___x_944_; 
-v_s1_941_ = lean_string_utf8_extract(v_string_932_, v___x_936_, v___x_939_);
-v_s2_942_ = lean_string_utf8_extract(v_string_932_, v___x_939_, v___x_937_);
+v_s1_941_ = lean_string_utf8_extract_fast(v_string_932_, v___x_936_, v___x_939_);
+v_s2_942_ = lean_string_utf8_extract_fast(v_string_932_, v___x_939_, v___x_937_);
 lean_dec(v___x_939_);
 lean_dec_ref(v_string_932_);
 if (v_isShared_935_ == 0)
@@ -3843,7 +3844,7 @@ lean_object* v___x_1079_; lean_object* v___x_1080_; lean_object* v___x_1081_; le
 v___x_1079_ = l_String_Slice_Pos_revSkipWhile___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_trimRight_go_spec__0(v___x_1076_, v___x_1075_);
 lean_dec_ref_known(v___x_1076_, 3);
 v___x_1080_ = lean_array_pop(v_xs_1064_);
-v___x_1081_ = lean_string_utf8_extract(v_string_1071_, v___x_1066_, v___x_1079_);
+v___x_1081_ = lean_string_utf8_extract_fast(v_string_1071_, v___x_1066_, v___x_1079_);
 if (v_isShared_1074_ == 0)
 {
 lean_ctor_set(v___x_1073_, 0, v___x_1081_);
@@ -3864,7 +3865,7 @@ lean_object* v___x_1084_; lean_object* v___x_1085_; lean_object* v___x_1086_; le
 v___x_1084_ = lean_array_push(v___x_1080_, v___x_1083_);
 v___x_1085_ = lean_alloc_ctor(9, 1, 0);
 lean_ctor_set(v___x_1085_, 0, v___x_1084_);
-v___x_1086_ = lean_string_utf8_extract(v_string_1071_, v___x_1079_, v___x_1075_);
+v___x_1086_ = lean_string_utf8_extract_fast(v_string_1071_, v___x_1079_, v___x_1075_);
 lean_dec(v___x_1079_);
 lean_dec_ref(v_string_1071_);
 v___x_1087_ = lean_alloc_ctor(0, 2, 0);
@@ -7769,7 +7770,7 @@ lean_object* v___x_2516_; lean_object* v___x_2517_; lean_object* v___x_2518_; le
 v___x_2516_ = l___private_Lean_DocString_Markdown_0__Lean_Doc_builtinInlineMdRenderers;
 v___x_2517_ = lean_st_ref_take(v___x_2516_);
 v___x_2518_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(v_type_2513_, v_r_2514_, v___x_2517_);
-v___x_2519_ = lean_st_ref_set(v___x_2516_, v___x_2518_);
+v___x_2519_ = lean_st_ref_put(v___x_2516_, v___x_2518_);
 v___x_2520_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2520_, 0, v___x_2519_);
 return v___x_2520_;
@@ -7790,7 +7791,7 @@ lean_object* v___x_2528_; lean_object* v___x_2529_; lean_object* v___x_2530_; le
 v___x_2528_ = l___private_Lean_DocString_Markdown_0__Lean_Doc_builtinBlockMdRenderers;
 v___x_2529_ = lean_st_ref_take(v___x_2528_);
 v___x_2530_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(v_type_2525_, v_r_2526_, v___x_2529_);
-v___x_2531_ = lean_st_ref_set(v___x_2528_, v___x_2530_);
+v___x_2531_ = lean_st_ref_put(v___x_2528_, v___x_2530_);
 v___x_2532_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2532_, 0, v___x_2531_);
 return v___x_2532_;
@@ -7828,7 +7829,7 @@ _start:
 lean_object* v___x_2540_; lean_object* v___x_2541_; lean_object* v___x_2542_; 
 v___x_2540_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_ofExcept___at___00Lean_evalConst___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_inlineRendererForUnsafe_spec__0_spec__0_spec__1_spec__3___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_ofExcept___at___00Lean_evalConst___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_inlineRendererForUnsafe_spec__0_spec__0_spec__1_spec__3___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_ofExcept___at___00Lean_evalConst___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_inlineRendererForUnsafe_spec__0_spec__0_spec__1_spec__3___closed__1);
 v___x_2541_ = lean_unsigned_to_nat(0u);
-v___x_2542_ = lean_alloc_ctor(0, 10, 0);
+v___x_2542_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_2542_, 0, v___x_2541_);
 lean_ctor_set(v___x_2542_, 1, v___x_2541_);
 lean_ctor_set(v___x_2542_, 2, v___x_2541_);
@@ -7839,6 +7840,7 @@ lean_ctor_set(v___x_2542_, 6, v___x_2540_);
 lean_ctor_set(v___x_2542_, 7, v___x_2540_);
 lean_ctor_set(v___x_2542_, 8, v___x_2540_);
 lean_ctor_set(v___x_2542_, 9, v___x_2540_);
+lean_ctor_set(v___x_2542_, 10, v___x_2540_);
 return v___x_2542_;
 }
 }
@@ -8746,7 +8748,8 @@ if (v___x_2863_ == 0)
 {
 lean_object* v___x_2864_; lean_object* v___x_2865_; 
 lean_dec_ref_known(v___x_2861_, 1);
-v___x_2864_ = lean_st_ref_set(v_a_2856_, v___x_2860_);
+v___x_2864_ = lean_st_ref_swap(v_a_2856_, v___x_2860_);
+lean_dec(v___x_2864_);
 lean_inc(v_a_2858_);
 lean_inc_ref(v_a_2857_);
 lean_inc(v_a_2856_);
@@ -10500,7 +10503,7 @@ goto v_reusejp_3457_;
 v_reusejp_3457_:
 {
 lean_object* v___x_3459_; 
-v___x_3459_ = lean_st_ref_set(v___x_3380_, v___x_3458_);
+v___x_3459_ = lean_st_ref_put(v___x_3380_, v___x_3458_);
 lean_inc(v___x_3380_);
 v_fileName_3393_ = v___x_3385_;
 v_fileMap_3394_ = v___x_3386_;

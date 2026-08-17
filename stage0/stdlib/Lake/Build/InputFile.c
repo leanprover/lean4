@@ -23,11 +23,11 @@ lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
 lean_object* l_Lake_Job_toOpaque___redArg(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lake_Job_renew___redArg(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_String_Slice_Pos_prevn(lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -241,7 +241,7 @@ lean_ctor_set_uint8(v_job_61_, sizeof(void*)*3, v___x_59_);
 lean_inc_ref(v_job_61_);
 v___x_62_ = l_Lake_Job_toOpaque___redArg(v_job_61_);
 v___x_63_ = lean_array_push(v___x_56_, v___x_62_);
-v___x_64_ = lean_st_ref_set(v_registeredJobs_55_, v___x_63_);
+v___x_64_ = lean_st_ref_put(v_registeredJobs_55_, v___x_63_);
 v___x_65_ = l_Lake_Job_renew___redArg(v_job_61_);
 if (v_isShared_49_ == 0)
 {
@@ -1869,7 +1869,7 @@ lean_ctor_set_uint8(v_job_475_, sizeof(void*)*3, v___x_473_);
 lean_inc_ref(v_job_475_);
 v___x_476_ = l_Lake_Job_toOpaque___redArg(v_job_475_);
 v___x_477_ = lean_array_push(v___x_470_, v___x_476_);
-v___x_478_ = lean_st_ref_set(v_registeredJobs_469_, v___x_477_);
+v___x_478_ = lean_st_ref_put(v_registeredJobs_469_, v___x_477_);
 v___x_479_ = l_Lake_Job_renew___redArg(v_job_475_);
 if (v_isShared_463_ == 0)
 {
@@ -2073,7 +2073,7 @@ lean_ctor_set(v___x_548_, 1, v___x_546_);
 lean_ctor_set(v___x_548_, 2, v___x_547_);
 v___x_549_ = l_String_Slice_Pos_prevn(v___x_548_, v___x_547_, v___x_545_);
 lean_dec_ref_known(v___x_548_, 3);
-v___x_550_ = lean_string_utf8_extract(v___y_544_, v___x_546_, v___x_549_);
+v___x_550_ = lean_string_utf8_extract_fast(v___y_544_, v___x_546_, v___x_549_);
 lean_dec(v___x_549_);
 lean_dec_ref(v___y_544_);
 return v___x_550_;

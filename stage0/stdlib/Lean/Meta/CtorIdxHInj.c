@@ -59,7 +59,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_isCtorIdxCore_x3f(lean_object*, lean_object*);
 uint64_t l___private_Lean_Meta_Basic_0__Lean_Meta_Config_toKey(lean_object*);
@@ -774,7 +774,7 @@ goto v_reusejp_224_;
 v_reusejp_224_:
 {
 lean_object* v___x_226_; lean_object* v___x_227_; 
-v___x_226_ = lean_st_ref_set(v___y_207_, v___x_225_);
+v___x_226_ = lean_st_ref_put(v___y_207_, v___x_225_);
 v___x_227_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_227_, 0, v_fst_214_);
 return v___x_227_;
@@ -2566,7 +2566,7 @@ _start:
 lean_object* v___x_938_; lean_object* v___x_939_; lean_object* v___x_940_; 
 v___x_938_ = lean_obj_once(&l___private_Lean_Meta_CtorIdxHInj_0__Lean_Meta_initFn___lam__1___closed__1_00___x40_Lean_Meta_CtorIdxHInj_1686831688____hygCtx___hyg_2_, &l___private_Lean_Meta_CtorIdxHInj_0__Lean_Meta_initFn___lam__1___closed__1_00___x40_Lean_Meta_CtorIdxHInj_1686831688____hygCtx___hyg_2__once, _init_l___private_Lean_Meta_CtorIdxHInj_0__Lean_Meta_initFn___lam__1___closed__1_00___x40_Lean_Meta_CtorIdxHInj_1686831688____hygCtx___hyg_2_);
 v___x_939_ = lean_unsigned_to_nat(0u);
-v___x_940_ = lean_alloc_ctor(0, 10, 0);
+v___x_940_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_940_, 0, v___x_939_);
 lean_ctor_set(v___x_940_, 1, v___x_939_);
 lean_ctor_set(v___x_940_, 2, v___x_939_);
@@ -2577,6 +2577,7 @@ lean_ctor_set(v___x_940_, 6, v___x_938_);
 lean_ctor_set(v___x_940_, 7, v___x_938_);
 lean_ctor_set(v___x_940_, 8, v___x_938_);
 lean_ctor_set(v___x_940_, 9, v___x_938_);
+lean_ctor_set(v___x_940_, 10, v___x_938_);
 return v___x_940_;
 }
 }

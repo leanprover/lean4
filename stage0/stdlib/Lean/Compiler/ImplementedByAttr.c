@@ -49,7 +49,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___redArg(lean_object*);
@@ -270,7 +270,7 @@ _start:
 lean_object* v___x_4_; lean_object* v___x_5_; lean_object* v___x_6_; 
 v___x_4_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Compiler_ImplementedByAttr_0__Lean_Compiler_initFn_00___x40_Lean_Compiler_ImplementedByAttr_2873759278____hygCtx___hyg_2__spec__0_spec__0_spec__1_spec__8_spec__9_spec__10___redArg___closed__1, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Compiler_ImplementedByAttr_0__Lean_Compiler_initFn_00___x40_Lean_Compiler_ImplementedByAttr_2873759278____hygCtx___hyg_2__spec__0_spec__0_spec__1_spec__8_spec__9_spec__10___redArg___closed__1_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Compiler_ImplementedByAttr_0__Lean_Compiler_initFn_00___x40_Lean_Compiler_ImplementedByAttr_2873759278____hygCtx___hyg_2__spec__0_spec__0_spec__1_spec__8_spec__9_spec__10___redArg___closed__1);
 v___x_5_ = lean_unsigned_to_nat(0u);
-v___x_6_ = lean_alloc_ctor(0, 10, 0);
+v___x_6_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_6_, 0, v___x_5_);
 lean_ctor_set(v___x_6_, 1, v___x_5_);
 lean_ctor_set(v___x_6_, 2, v___x_5_);
@@ -281,6 +281,7 @@ lean_ctor_set(v___x_6_, 6, v___x_4_);
 lean_ctor_set(v___x_6_, 7, v___x_4_);
 lean_ctor_set(v___x_6_, 8, v___x_4_);
 lean_ctor_set(v___x_6_, 9, v___x_4_);
+lean_ctor_set(v___x_6_, 10, v___x_4_);
 return v___x_6_;
 }
 }
@@ -1659,7 +1660,7 @@ goto v_reusejp_465_;
 v_reusejp_465_:
 {
 lean_object* v___x_467_; lean_object* v___x_468_; lean_object* v___x_469_; 
-v___x_467_ = lean_st_ref_set(v___y_447_, v___x_466_);
+v___x_467_ = lean_st_ref_put(v___y_447_, v___x_466_);
 v___x_468_ = lean_box(0);
 v___x_469_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_469_, 0, v___x_468_);
@@ -1830,7 +1831,7 @@ goto v_reusejp_508_;
 v_reusejp_508_:
 {
 lean_object* v___x_510_; lean_object* v_r_511_; 
-v___x_510_ = lean_st_ref_set(v___y_488_, v___x_509_);
+v___x_510_ = lean_st_ref_put(v___y_488_, v___x_509_);
 lean_inc(v___y_488_);
 lean_inc_ref(v___y_487_);
 v_r_511_ = lean_apply_3(v_x_485_, v___y_487_, v___y_488_, lean_box(0));
@@ -2247,9 +2248,9 @@ return v___x_644_;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ImplementedByAttr_0__Lean_Compiler_initFn___lam__3_00___x40_Lean_Compiler_ImplementedByAttr_2873759278____hygCtx___hyg_2____boxed(lean_object* v___x_645_, lean_object* v_env_646_, lean_object* v_n_647_, lean_object* v_x_648_){
 _start:
 {
-uint8_t v___x_7131__boxed_649_; uint8_t v_res_650_; lean_object* v_r_651_; 
-v___x_7131__boxed_649_ = lean_unbox(v___x_645_);
-v_res_650_ = l___private_Lean_Compiler_ImplementedByAttr_0__Lean_Compiler_initFn___lam__3_00___x40_Lean_Compiler_ImplementedByAttr_2873759278____hygCtx___hyg_2_(v___x_7131__boxed_649_, v_env_646_, v_n_647_, v_x_648_);
+uint8_t v___x_7164__boxed_649_; uint8_t v_res_650_; lean_object* v_r_651_; 
+v___x_7164__boxed_649_ = lean_unbox(v___x_645_);
+v_res_650_ = l___private_Lean_Compiler_ImplementedByAttr_0__Lean_Compiler_initFn___lam__3_00___x40_Lean_Compiler_ImplementedByAttr_2873759278____hygCtx___hyg_2_(v___x_7164__boxed_649_, v_env_646_, v_n_647_, v_x_648_);
 lean_dec(v_x_648_);
 v_r_651_ = lean_box(v_res_650_);
 return v_r_651_;

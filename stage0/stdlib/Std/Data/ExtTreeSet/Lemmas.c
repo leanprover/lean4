@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.ExtTreeSet.Lemmas
-// Imports: public import Std.Data.ExtTreeMap.Lemmas public import Std.Data.ExtTreeSet.Basic
+// Imports: public import Std.Data.ExtTreeMap.Lemmas public import Std.Data.ExtTreeSet.Basic public import Std.Internal.ForIn.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* runtime_initialize_Std_Data_ExtTreeMap_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_ExtTreeSet_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_ForIn_Basic(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Data_ExtTreeSet_Lemmas(uint8_t builtin) {
@@ -28,6 +29,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Std_Data_ExtTreeSet_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Std_Internal_ForIn_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -39,6 +43,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_Data_ExtTreeMap_Lemmas(uint8_t builtin);
 lean_object* initialize_Std_Data_ExtTreeSet_Basic(uint8_t builtin);
+lean_object* initialize_Std_Internal_ForIn_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_ExtTreeSet_Lemmas(uint8_t builtin) {
 lean_object * res;
@@ -48,6 +53,9 @@ res = initialize_Std_Data_ExtTreeMap_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_ExtTreeSet_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Internal_ForIn_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Data_ExtTreeSet_Lemmas(builtin);

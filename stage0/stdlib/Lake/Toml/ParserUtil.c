@@ -42,7 +42,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot(lean_object*, lean_object*, uint8_t, uint8_t);
 lean_object* l_Lean_Parser_ParserContext_mkEmptySubstringAt(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
@@ -99,7 +99,7 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_sepBy1NoAntiquot(lean_object*, lean_object*, uint8_t);
 lean_object* l_String_Slice_trimAscii(lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_epsilonInfo;
 LEAN_EXPORT uint8_t l_Lake_Toml_isBinDigit(uint32_t);
 LEAN_EXPORT lean_object* l_Lake_Toml_isBinDigit___boxed(lean_object*);
@@ -1505,7 +1505,7 @@ goto v_reusejp_408_;
 v_reusejp_408_:
 {
 lean_object* v___x_410_; lean_object* v___x_411_; lean_object* v___x_412_; 
-v___x_410_ = lean_st_ref_set(v___y_395_, v___x_409_);
+v___x_410_ = lean_st_ref_put(v___y_395_, v___x_409_);
 v___x_411_ = lean_box(0);
 v___x_412_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_412_, 0, v___x_411_);
@@ -1567,7 +1567,7 @@ _start:
 lean_object* v___x_433_; lean_object* v___x_434_; lean_object* v___x_435_; 
 v___x_433_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_addTrace___at___00Lake_Toml_atom_formatter_spec__2_spec__2___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_addTrace___at___00Lake_Toml_atom_formatter_spec__2_spec__2___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_addTrace___at___00Lake_Toml_atom_formatter_spec__2_spec__2___closed__1);
 v___x_434_ = lean_unsigned_to_nat(0u);
-v___x_435_ = lean_alloc_ctor(0, 10, 0);
+v___x_435_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_435_, 0, v___x_434_);
 lean_ctor_set(v___x_435_, 1, v___x_434_);
 lean_ctor_set(v___x_435_, 2, v___x_434_);
@@ -1578,6 +1578,7 @@ lean_ctor_set(v___x_435_, 6, v___x_433_);
 lean_ctor_set(v___x_435_, 7, v___x_433_);
 lean_ctor_set(v___x_435_, 8, v___x_433_);
 lean_ctor_set(v___x_435_, 9, v___x_433_);
+lean_ctor_set(v___x_435_, 10, v___x_433_);
 return v___x_435_;
 }
 }
@@ -1813,7 +1814,7 @@ goto v_reusejp_510_;
 v_reusejp_510_:
 {
 lean_object* v___x_512_; lean_object* v___x_513_; lean_object* v___x_515_; 
-v___x_512_ = lean_st_ref_set(v___y_473_, v___x_511_);
+v___x_512_ = lean_st_ref_put(v___y_473_, v___x_511_);
 v___x_513_ = lean_box(0);
 if (v_isShared_480_ == 0)
 {
@@ -2194,7 +2195,7 @@ lean_inc(v_startInclusive_719_);
 v_endExclusive_720_ = lean_ctor_get(v___x_717_, 2);
 lean_inc(v_endExclusive_720_);
 lean_dec_ref(v___x_717_);
-v___x_721_ = lean_string_utf8_extract(v_str_718_, v_startInclusive_719_, v_endExclusive_720_);
+v___x_721_ = lean_string_utf8_extract_fast(v_str_718_, v_startInclusive_719_, v_endExclusive_720_);
 lean_dec(v_endExclusive_720_);
 lean_dec(v_startInclusive_719_);
 lean_dec_ref(v_str_718_);

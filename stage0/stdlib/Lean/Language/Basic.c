@@ -30,7 +30,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 extern lean_object* l_Lean_instInhabitedMessageLog_default;
 lean_object* lean_st_mk_ref(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_swap(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -4844,7 +4844,8 @@ v___x_1642_ = lean_apply_3(v_process_1638_, v___x_1641_, v_ictx_1639_, lean_box(
 lean_inc(v___x_1642_);
 v___x_1643_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_1643_, 0, v___x_1642_);
-v___x_1644_ = lean_st_ref_set(v_val_1637_, v___x_1643_);
+v___x_1644_ = lean_st_ref_swap(v_val_1637_, v___x_1643_);
+lean_dec(v___x_1644_);
 return v___x_1642_;
 }
 }

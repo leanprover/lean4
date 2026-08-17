@@ -17,7 +17,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint64_t l_Lean_instHashableMVarId_hash(lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 size_t lean_usize_land(size_t, size_t);
@@ -632,7 +632,7 @@ goto v_reusejp_107_;
 v_reusejp_107_:
 {
 lean_object* v___x_109_; lean_object* v___x_110_; lean_object* v___x_112_; 
-v___x_109_ = lean_st_ref_set(v___y_85_, v___x_108_);
+v___x_109_ = lean_st_ref_put(v___y_85_, v___x_108_);
 v___x_110_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_110_, 0, v_fst_94_);
 if (v_isShared_98_ == 0)
@@ -1666,7 +1666,7 @@ v___jp_324_:
 lean_object* v___x_327_; lean_object* v___x_328_; lean_object* v___x_329_; lean_object* v___x_330_; 
 v___x_327_ = lean_st_ref_take(v_a_317_);
 v___x_328_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_ForEachExpr_visit___at___00__private_Lean_Meta_Tactic_Grind_EqResolution_0__Lean_Meta_Grind_topsortMVars_x3f_visitTypeOf_spec__5_spec__9___redArg(v___x_327_, v_e_316_, v_val_326_);
-v___x_329_ = lean_st_ref_set(v_a_317_, v___x_328_);
+v___x_329_ = lean_st_ref_put(v_a_317_, v___x_328_);
 v___x_330_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_330_, 0, v_a_325_);
 return v___x_330_;
@@ -3289,7 +3289,7 @@ goto v_reusejp_928_;
 v_reusejp_928_:
 {
 lean_object* v___x_930_; lean_object* v___x_931_; 
-v___x_930_ = lean_st_ref_set(v___y_911_, v___x_929_);
+v___x_930_ = lean_st_ref_put(v___y_911_, v___x_929_);
 v___x_931_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_931_, 0, v_fst_918_);
 return v___x_931_;

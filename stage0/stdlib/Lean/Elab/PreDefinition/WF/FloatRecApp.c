@@ -59,7 +59,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 uint8_t l_Lean_MData_isRecApp(lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
@@ -867,7 +867,7 @@ _start:
 lean_object* v___x_254_; lean_object* v___x_255_; lean_object* v___x_256_; lean_object* v___x_257_; 
 v___x_254_ = lean_st_ref_take(v_a_250_);
 v___x_255_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lean_Meta_Transform_0__Lean_Core_transform_visit___at___00Lean_Core_transform___at___00Lean_Elab_WF_floatRecApp_spec__1_spec__1_spec__7___redArg(v___x_254_, v_e_251_, v_a_252_);
-v___x_256_ = lean_st_ref_set(v_a_250_, v___x_255_);
+v___x_256_ = lean_st_ref_put(v_a_250_, v___x_255_);
 v___x_257_ = lean_box(0);
 return v___x_257_;
 }

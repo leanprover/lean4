@@ -113,7 +113,7 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_String_Slice_posLE(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_mkLocalInstanceLetDecls(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_mkLet(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -131,7 +131,7 @@ lean_object* l_Lean_MessageData_ofList(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_liftTermElabM___redArg(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -1449,7 +1449,7 @@ _start:
 lean_object* v___x_149_; lean_object* v___x_150_; lean_object* v___x_151_; 
 v___x_149_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_Deriving_FromToJson_mkJsonField_spec__0_spec__0___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_Deriving_FromToJson_mkJsonField_spec__0_spec__0___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_Deriving_FromToJson_mkJsonField_spec__0_spec__0___closed__1);
 v___x_150_ = lean_unsigned_to_nat(0u);
-v___x_151_ = lean_alloc_ctor(0, 10, 0);
+v___x_151_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_151_, 0, v___x_150_);
 lean_ctor_set(v___x_151_, 1, v___x_150_);
 lean_ctor_set(v___x_151_, 2, v___x_150_);
@@ -1460,6 +1460,7 @@ lean_ctor_set(v___x_151_, 6, v___x_149_);
 lean_ctor_set(v___x_151_, 7, v___x_149_);
 lean_ctor_set(v___x_151_, 8, v___x_149_);
 lean_ctor_set(v___x_151_, 9, v___x_149_);
+lean_ctor_set(v___x_151_, 10, v___x_149_);
 return v___x_151_;
 }
 }
@@ -1701,7 +1702,7 @@ lean_ctor_set(v___x_241_, 1, v___x_239_);
 lean_ctor_set(v___x_241_, 2, v___x_240_);
 v___x_242_ = l_String_Slice_Pos_revSkipWhile___at___00Lean_Elab_Deriving_FromToJson_mkJsonField_spec__1(v___x_241_, v___x_240_);
 lean_dec_ref_known(v___x_241_, 3);
-v_s_u2081_243_ = lean_string_utf8_extract(v_str_238_, v___x_239_, v___x_242_);
+v_s_u2081_243_ = lean_string_utf8_extract_fast(v_str_238_, v___x_239_, v___x_242_);
 lean_dec(v___x_242_);
 v___x_251_ = lean_string_dec_eq(v_str_238_, v_s_u2081_243_);
 lean_dec_ref(v_str_238_);
@@ -12012,7 +12013,7 @@ goto v_reusejp_5275_;
 v_reusejp_5275_:
 {
 lean_object* v___x_5277_; lean_object* v___x_5278_; lean_object* v___x_5280_; 
-v___x_5277_ = lean_st_ref_set(v___y_5238_, v___x_5276_);
+v___x_5277_ = lean_st_ref_put(v___y_5238_, v___x_5276_);
 v___x_5278_ = lean_box(0);
 if (v_isShared_5245_ == 0)
 {

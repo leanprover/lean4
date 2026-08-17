@@ -79,7 +79,7 @@ lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, l
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 uint8_t l_Lean_LocalContext_contains(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_findFromUserName_x3f(lean_object*, lean_object*);
@@ -6080,7 +6080,7 @@ goto v_reusejp_1873_;
 v_reusejp_1873_:
 {
 lean_object* v___x_1875_; lean_object* v___x_1876_; 
-v___x_1875_ = lean_st_ref_set(v___y_1856_, v___x_1874_);
+v___x_1875_ = lean_st_ref_put(v___y_1856_, v___x_1874_);
 v___x_1876_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1876_, 0, v_fst_1863_);
 return v___x_1876_;

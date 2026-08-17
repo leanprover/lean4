@@ -40,7 +40,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_applySimpResultToLocalDecl(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
@@ -1425,7 +1425,7 @@ goto v_reusejp_424_;
 v_reusejp_424_:
 {
 lean_object* v___x_426_; lean_object* v___x_427_; 
-v___x_426_ = lean_st_ref_set(v___y_407_, v___x_425_);
+v___x_426_ = lean_st_ref_put(v___y_407_, v___x_425_);
 v___x_427_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_427_, 0, v_fst_414_);
 return v___x_427_;

@@ -43,7 +43,7 @@ lean_object* l_Lean_Server_Completion_getCompletionTagsForDecl___redArg(lean_obj
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 size_t lean_array_size(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -641,7 +641,7 @@ v_reusejp_25_:
 {
 lean_object* v___x_27_; lean_object* v___x_28_; lean_object* v___x_29_; lean_object* v___x_30_; 
 v___x_27_ = lean_array_push(v___x_8_, v___x_26_);
-v___x_28_ = lean_st_ref_set(v_a_6_, v___x_27_);
+v___x_28_ = lean_st_ref_put(v_a_6_, v___x_27_);
 v___x_29_ = ((lean_object*)(l___private_Lean_Server_Completion_CompletionCollectors_0__Lean_Server_Completion_addItem___redArg___closed__0));
 v___x_30_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_30_, 0, v___x_29_);
@@ -6777,7 +6777,7 @@ goto v_reusejp_2040_;
 v_reusejp_2040_:
 {
 lean_object* v___x_2042_; lean_object* v___x_2043_; 
-v___x_2042_ = lean_st_ref_set(v___y_2023_, v___x_2041_);
+v___x_2042_ = lean_st_ref_put(v___y_2023_, v___x_2041_);
 v___x_2043_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2043_, 0, v_fst_2030_);
 return v___x_2043_;
@@ -14011,7 +14011,7 @@ goto v_reusejp_4977_;
 v_reusejp_4977_:
 {
 lean_object* v___x_4979_; lean_object* v___x_4980_; lean_object* v___x_4981_; 
-v___x_4979_ = lean_st_ref_set(v___y_4959_, v___x_4978_);
+v___x_4979_ = lean_st_ref_put(v___y_4959_, v___x_4978_);
 v___x_4980_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_4980_, 0, v_fst_4967_);
 v___x_4981_ = lean_alloc_ctor(0, 1, 0);

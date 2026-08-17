@@ -83,7 +83,7 @@ lean_object* l_Lean_SimplePersistentEnvExtension_getState___redArg(lean_object*,
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Option_instBEq_beq___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedDeclarationRange_default;
 lean_object* l_Lean_Name_beq___boxed(lean_object*, lean_object*);
@@ -1797,7 +1797,7 @@ v___x_462_ = l___private_Lean_DocString_Extension_0__Lean_builtinDocStrings;
 v___x_463_ = lean_st_ref_take(v___x_462_);
 v___x_464_ = l_String_removeLeadingSpaces(v_docString_460_);
 v___x_465_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(v_declName_459_, v___x_464_, v___x_463_);
-v___x_466_ = lean_st_ref_set(v___x_462_, v___x_465_);
+v___x_466_ = lean_st_ref_put(v___x_462_, v___x_465_);
 v___x_467_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_467_, 0, v___x_466_);
 return v___x_467_;
@@ -4980,7 +4980,7 @@ lean_object* v___x_1138_; lean_object* v___x_1139_; lean_object* v___x_1140_; le
 v___x_1138_ = l___private_Lean_DocString_Extension_0__Lean_builtinDocStrings;
 v___x_1139_ = lean_st_ref_take(v___x_1138_);
 v___x_1140_ = l_Std_DTreeMap_Internal_Impl_erase___at___00Lean_removeBuiltinDocString_spec__0___redArg(v_declName_1136_, v___x_1139_);
-v___x_1141_ = lean_st_ref_set(v___x_1138_, v___x_1140_);
+v___x_1141_ = lean_st_ref_put(v___x_1138_, v___x_1140_);
 v___x_1142_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1142_, 0, v___x_1141_);
 return v___x_1142_;

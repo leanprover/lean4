@@ -116,7 +116,7 @@ lean_object* l_Lean_Meta_getLevel___boxed(lean_object*, lean_object*, lean_objec
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_addDecl(lean_object*, lean_object*);
 lean_object* l_Lean_mkFVar(lean_object*);
 static lean_once_cell_t l_Lean_Meta_instInhabitedHaveInfo_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
@@ -1487,7 +1487,7 @@ goto v_reusejp_368_;
 v_reusejp_368_:
 {
 lean_object* v___x_370_; lean_object* v___x_371_; 
-v___x_370_ = lean_st_ref_set(v___y_342_, v___x_369_);
+v___x_370_ = lean_st_ref_put(v___y_342_, v___x_369_);
 v___x_371_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_371_, 0, v_r_363_);
 return v___x_371_;

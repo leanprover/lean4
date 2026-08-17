@@ -423,7 +423,7 @@ private structure PostProcessState where
 public partial def enumsPass : Pass where
   name := `enums
   run' := do
-    let goal ← PreProcessM.getGoal
+    let goal ← PreProcessM.getTargetMVarId
     goal.withContext do
       let analysis ← PreProcessM.getTypeAnalysis
       let interestingEnums := analysis.interestingEnums

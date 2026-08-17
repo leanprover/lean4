@@ -28,7 +28,7 @@ lean_object* l_IO_instMonadLiftSTRealWorldBaseIO___lam__0___boxed(lean_object*, 
 lean_object* l_instMonadLiftT___lam__0___boxed(lean_object*, lean_object*);
 lean_object* l_instMonadLiftTOfMonadLift___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_instBEqFVarId_beq(lean_object*, lean_object*);
 uint64_t l_Lean_Expr_hash(lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
@@ -585,7 +585,7 @@ goto v_reusejp_112_;
 v_reusejp_112_:
 {
 lean_object* v___x_114_; lean_object* v___x_115_; lean_object* v___x_116_; 
-v___x_114_ = lean_st_ref_set(v___y_99_, v___x_113_);
+v___x_114_ = lean_st_ref_put(v___y_99_, v___x_113_);
 v___x_115_ = lean_box(0);
 v___x_116_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_116_, 0, v___x_115_);
@@ -702,7 +702,7 @@ goto v_reusejp_168_;
 v_reusejp_168_:
 {
 lean_object* v___x_170_; lean_object* v___x_171_; lean_object* v___x_172_; 
-v___x_170_ = lean_st_ref_set(v_a_157_, v___x_169_);
+v___x_170_ = lean_st_ref_put(v_a_157_, v___x_169_);
 v___x_171_ = lean_box(0);
 v___x_172_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_172_, 0, v___x_171_);
@@ -767,7 +767,7 @@ goto v_reusejp_197_;
 v_reusejp_197_:
 {
 lean_object* v___x_199_; lean_object* v___x_200_; lean_object* v___x_201_; 
-v___x_199_ = lean_st_ref_set(v_a_182_, v___x_198_);
+v___x_199_ = lean_st_ref_put(v_a_182_, v___x_198_);
 v___x_200_ = lean_box(0);
 v___x_201_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_201_, 0, v___x_200_);
@@ -834,7 +834,7 @@ goto v_reusejp_222_;
 v_reusejp_222_:
 {
 lean_object* v___x_224_; lean_object* v___x_225_; lean_object* v___x_226_; 
-v___x_224_ = lean_st_ref_set(v_a_213_, v___x_223_);
+v___x_224_ = lean_st_ref_put(v_a_213_, v___x_223_);
 v___x_225_ = lean_box(0);
 v___x_226_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_226_, 0, v___x_225_);
@@ -1642,7 +1642,7 @@ goto v_reusejp_473_;
 v_reusejp_473_:
 {
 lean_object* v___x_475_; lean_object* v___x_476_; lean_object* v___x_478_; 
-v___x_475_ = lean_st_ref_set(v_a_456_, v___x_474_);
+v___x_475_ = lean_st_ref_put(v_a_456_, v___x_474_);
 v___x_476_ = lean_box(0);
 if (v_isShared_463_ == 0)
 {
@@ -1840,7 +1840,7 @@ goto v_reusejp_559_;
 v_reusejp_559_:
 {
 lean_object* v___x_561_; lean_object* v___x_562_; lean_object* v___x_564_; 
-v___x_561_ = lean_st_ref_set(v_a_541_, v___x_560_);
+v___x_561_ = lean_st_ref_put(v_a_541_, v___x_560_);
 v___x_562_ = lean_box(0);
 if (v_isShared_549_ == 0)
 {
@@ -2056,7 +2056,7 @@ goto v_reusejp_643_;
 v_reusejp_643_:
 {
 lean_object* v___x_645_; lean_object* v___x_646_; lean_object* v___x_647_; 
-v___x_645_ = lean_st_ref_set(v_a_634_, v___x_644_);
+v___x_645_ = lean_st_ref_put(v_a_634_, v___x_644_);
 v___x_646_ = lean_box(0);
 v___x_647_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_647_, 0, v___x_646_);
@@ -2182,7 +2182,7 @@ goto v_reusejp_706_;
 v_reusejp_706_:
 {
 lean_object* v___x_708_; lean_object* v___x_709_; lean_object* v___x_710_; 
-v___x_708_ = lean_st_ref_set(v___y_697_, v___x_707_);
+v___x_708_ = lean_st_ref_put(v___y_697_, v___x_707_);
 v___x_709_ = lean_box(0);
 v___x_710_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_710_, 0, v___x_709_);
@@ -3557,7 +3557,7 @@ goto v_reusejp_1140_;
 v_reusejp_1140_:
 {
 lean_object* v___x_1142_; lean_object* v___x_1143_; 
-v___x_1142_ = lean_st_ref_set(v_a_1112_, v___x_1141_);
+v___x_1142_ = lean_st_ref_put(v_a_1112_, v___x_1141_);
 lean_inc_ref(v_k_1119_);
 v___x_1143_ = l___private_Lean_Compiler_LCNF_CSE_0__Lean_Compiler_LCNF_Code_cse_go(v_shouldElimFunDecls_1110_, v_k_1119_, v_a_1112_, v_a_1113_, v_a_1114_, v_a_1115_, v_a_1116_);
 if (lean_obj_tag(v___x_1143_) == 0)
@@ -4213,7 +4213,7 @@ goto v_reusejp_1278_;
 v_reusejp_1278_:
 {
 lean_object* v___x_1280_; lean_object* v___x_1281_; 
-v___x_1280_ = lean_st_ref_set(v_a_1112_, v___x_1279_);
+v___x_1280_ = lean_st_ref_put(v_a_1112_, v___x_1279_);
 lean_inc_ref(v_k_1231_);
 v___x_1281_ = l___private_Lean_Compiler_LCNF_CSE_0__Lean_Compiler_LCNF_Code_cse_go(v_shouldElimFunDecls_1110_, v_k_1231_, v_a_1112_, v_a_1113_, v_a_1114_, v_a_1115_, v_a_1116_);
 if (lean_obj_tag(v___x_1281_) == 0)

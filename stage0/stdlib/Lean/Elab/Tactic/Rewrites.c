@@ -35,7 +35,7 @@ lean_object* l_Lean_FVarId_getType___redArg(lean_object*, lean_object*, lean_obj
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Rewrites_localHypotheses(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Rewrites_findRewrites(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_get_x3fInternal___redArg(lean_object*, lean_object*);
@@ -354,7 +354,7 @@ goto v_reusejp_49_;
 v_reusejp_49_:
 {
 lean_object* v___x_51_; lean_object* v___x_52_; 
-v___x_51_ = lean_st_ref_set(v___y_32_, v___x_50_);
+v___x_51_ = lean_st_ref_put(v___y_32_, v___x_50_);
 v___x_52_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_52_, 0, v_fst_39_);
 return v___x_52_;
@@ -1295,7 +1295,7 @@ goto v_reusejp_478_;
 v_reusejp_478_:
 {
 lean_object* v___x_480_; lean_object* v_eNew_481_; lean_object* v_eqProof_482_; lean_object* v_mvarIds_483_; lean_object* v___x_484_; lean_object* v___f_485_; lean_object* v___x_486_; 
-v___x_480_ = lean_st_ref_set(v___y_458_, v___x_479_);
+v___x_480_ = lean_st_ref_put(v___y_458_, v___x_479_);
 v_eNew_481_ = lean_ctor_get(v_result_469_, 0);
 lean_inc_ref(v_eNew_481_);
 v_eqProof_482_ = lean_ctor_get(v_result_469_, 1);
@@ -1897,7 +1897,7 @@ goto v_reusejp_680_;
 v_reusejp_680_:
 {
 lean_object* v___x_682_; lean_object* v___x_683_; 
-v___x_682_ = lean_st_ref_set(v___y_663_, v___x_681_);
+v___x_682_ = lean_st_ref_put(v___y_663_, v___x_681_);
 v___x_683_ = l_Lean_Elab_Tactic_saveState___redArg(v___y_659_, v___y_661_, v___y_663_, v___y_665_);
 if (lean_obj_tag(v___x_683_) == 0)
 {

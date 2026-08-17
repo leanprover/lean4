@@ -40,7 +40,7 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_LCtx_addLetDecl(uint8_t, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_eraseFunDecl___redArg(uint8_t, lean_object*, uint8_t, lean_object*);
 uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Closure_collectFunDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -608,7 +608,7 @@ goto v_reusejp_152_;
 v_reusejp_152_:
 {
 lean_object* v___x_154_; lean_object* v___x_155_; 
-v___x_154_ = lean_st_ref_set(v_a_139_, v___x_153_);
+v___x_154_ = lean_st_ref_put(v_a_139_, v___x_153_);
 v___x_155_ = l_Lean_Compiler_LCNF_getPhase___redArg(v_a_140_);
 if (lean_obj_tag(v___x_155_) == 0)
 {
@@ -864,7 +864,7 @@ goto v_reusejp_233_;
 v_reusejp_233_:
 {
 lean_object* v___x_235_; uint8_t v___x_236_; lean_object* v___x_237_; 
-v___x_235_ = lean_st_ref_set(v_a_219_, v___x_234_);
+v___x_235_ = lean_st_ref_put(v_a_219_, v___x_234_);
 v___x_236_ = 1;
 v___x_237_ = l_Lean_Compiler_LCNF_eraseFunDecl___redArg(v___x_230_, v_decl_217_, v___x_236_, v_a_219_);
 if (lean_obj_tag(v___x_237_) == 0)
@@ -1824,7 +1824,7 @@ goto v_reusejp_504_;
 v_reusejp_504_:
 {
 lean_object* v___x_506_; 
-v___x_506_ = lean_st_ref_set(v___y_483_, v___x_505_);
+v___x_506_ = lean_st_ref_put(v___y_483_, v___x_505_);
 v___y_473_ = v___x_496_;
 v_auxDeclName_474_ = v_name_493_;
 v___y_475_ = v___y_486_;

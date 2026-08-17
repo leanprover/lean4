@@ -17,7 +17,7 @@ extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addBuiltinDocString(lean_object*, lean_object*);
@@ -283,7 +283,7 @@ goto v_reusejp_49_;
 v_reusejp_49_:
 {
 lean_object* v___x_51_; lean_object* v___x_52_; 
-v___x_51_ = lean_st_ref_set(v___y_32_, v___x_50_);
+v___x_51_ = lean_st_ref_put(v___y_32_, v___x_50_);
 v___x_52_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_52_, 0, v_fst_39_);
 return v___x_52_;
@@ -1735,7 +1735,7 @@ goto v_reusejp_466_;
 v_reusejp_466_:
 {
 lean_object* v___x_468_; lean_object* v___x_469_; lean_object* v___x_471_; 
-v___x_468_ = lean_st_ref_set(v___y_424_, v___x_467_);
+v___x_468_ = lean_st_ref_put(v___y_424_, v___x_467_);
 v___x_469_ = lean_box(0);
 if (v_isShared_443_ == 0)
 {
@@ -1969,7 +1969,7 @@ goto v_reusejp_536_;
 v_reusejp_536_:
 {
 lean_object* v___x_538_; lean_object* v___x_539_; 
-v___x_538_ = lean_st_ref_set(v___y_509_, v___x_537_);
+v___x_538_ = lean_st_ref_put(v___y_509_, v___x_537_);
 v___x_539_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_539_, 0, v_trees_513_);
 return v___x_539_;

@@ -50,7 +50,7 @@ lean_object* l_Lean_PersistentHashMap_instInhabited(lean_object*, lean_object*, 
 lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_EnvExtension_modifyState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_normalizeFVarIds(uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_instBEqAuxDeclCacheKey_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instBEqAuxDeclCacheKey_beq___boxed(lean_object*, lean_object*);
@@ -1631,7 +1631,7 @@ goto v_reusejp_527_;
 v_reusejp_527_:
 {
 lean_object* v___x_529_; lean_object* v___x_530_; lean_object* v___x_531_; 
-v___x_529_ = lean_st_ref_set(v_a_508_, v___x_528_);
+v___x_529_ = lean_st_ref_put(v_a_508_, v___x_528_);
 v___x_530_ = lean_box(0);
 v___x_531_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_531_, 0, v___x_530_);

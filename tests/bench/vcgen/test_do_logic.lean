@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Vladimir Gladshtein, Sebastian Graf
 -/
 import Lean
-import Std.Internal
+import Std.WP
 import Std.Tactic.Do
 
 set_option mvcgen.warning false
@@ -22,7 +22,7 @@ Tests whose proofs do not mention `mvcgen`/`vcgen` (manual `mspec`/`mintro` proo
 are intentionally not ported.
 -/
 
-open Lean Order Meta Elab Tactic Sym Std Internal.Do
+open Lean Order Meta Elab Tactic Sym Std WP
 
 set_option grind.warning false
 set_option warn.sorry false
@@ -734,7 +734,8 @@ namespace RepeatInvariantOfInvariantAndBreak
 an `onBreak` condition (here the negated loop condition) that additionally holds once the loop
 exits. -/
 
-/-- Counts `i` down from `n`, incrementing the state on each iteration, so the final state is `n`. -/
+/-- Counts `i` down from `n`, incrementing the state on each iteration, so the final state is `n`.
+The measure reads the loop's own variable, which `NondetFun` interprets as that value. -/
 def countdown (n : Nat) : StateT Nat Id Unit := do
   let mut i := n
   while i > 0 do
@@ -744,11 +745,49 @@ def countdown (n : Nat) : StateT Nat Id Unit := do
 
 theorem countdown_spec (n : Nat) :
     ⦃ fun s => s = 0 ⦄ countdown n ⦃ fun _ s => s = n ⦄ := by
-  vcgen [countdown]
-  case inv1 => exact RepeatInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i _ => i = 0)
-  case inv2 => exact fun i => i
-  any_goals simp at *
-  all_goals grind
+  vcgen [countdown] invariants
+  | inv1 => RepeatInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i _ => i = 0)
+  | inv2 => .ofMeasure fun i => i
+  with finish
+
+/-- Like `countdown`, but termination is measured from the monadic state rather than the loop cursor. -/
+def countdownStateful (n : Nat) : StateT Nat Id Unit := do
+  set 0
+  while (← get) ≠ n do
+    modify (· + 1)
+  return
+
+theorem countdownStateful_spec (n : Nat) :
+    ⦃ fun _ => True ⦄ countdownStateful n ⦃ fun _ s => s = n ⦄ := by
+  vcgen [countdownStateful] invariants
+  | inv1 => RepeatInvariant.ofInvariantAndBreak
+      (fun _ s => s ≤ n)
+      (fun _ s => s = n)
+  | inv2 => .ofMeasure fun _ s => n - s
+  with finish
+
+/-- Nested countdown driven by a single `while` loop: `i` counts down and resets `j`, so the
+decrease is lexicographic in `(i, j)`. -/
+def countdownLex (n : Nat) : StateT Nat Id Unit := do
+  let mut i := n
+  let mut j := 0
+  while 0 < i ∨ 0 < j do
+    if 0 < j then
+      j := j - 1
+      modify (· + 1)
+    else
+      i := i - 1
+      j := n
+  return
+
+theorem countdownLex_spec (n : Nat) :
+    ⦃ fun _ => True ⦄ countdownLex n ⦃ fun _ _ => True ⦄ := by
+  vcgen [countdownLex] invariants
+  | inv1 => RepeatInvariant.ofInvariantAndBreak (fun _ _ => True) (fun _ _ => True)
+  | inv2 => .ofMeasure fun (i, j) => (i, j)
+  all_goals simp_all [RepeatVariant.evalsBelow_ofMeasure]
+  all_goals subst_vars
+  all_goals decreasing_tactic
 
 end RepeatInvariantOfInvariantAndBreak
 namespace WithGrindError

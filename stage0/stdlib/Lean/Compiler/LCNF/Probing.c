@@ -77,7 +77,7 @@ lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_o
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Subarray_copy___redArg(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_ReaderT_instMonadLift___lam__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -2520,7 +2520,7 @@ v_value_820_ = lean_ctor_get(v_decl_817_, 3);
 lean_inc(v_value_820_);
 lean_dec_ref(v_decl_817_);
 v___x_821_ = lean_array_push(v___x_819_, v_value_820_);
-v___x_822_ = lean_st_ref_set(v_a_811_, v___x_821_);
+v___x_822_ = lean_st_ref_put(v_a_811_, v___x_821_);
 v_c_810_ = v_k_818_;
 goto _start;
 }
@@ -3235,7 +3235,7 @@ lean_inc_ref(v_k_1093_);
 lean_dec_ref_known(v_code_1078_, 2);
 v___x_1094_ = lean_st_ref_take(v_a_1079_);
 v___x_1095_ = lean_array_push(v___x_1094_, v_decl_1092_);
-v___x_1096_ = lean_st_ref_set(v_a_1079_, v___x_1095_);
+v___x_1096_ = lean_st_ref_put(v_a_1079_, v___x_1095_);
 v_value_1097_ = lean_ctor_get(v_decl_1092_, 4);
 lean_inc_ref(v_value_1097_);
 lean_dec_ref(v_decl_1092_);

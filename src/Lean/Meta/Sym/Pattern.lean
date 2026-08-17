@@ -267,7 +267,7 @@ Throws an error if the theorem's conclusion is not an equality.
 -/
 public def mkEqPatternFromDecl (declName : Name) : MetaM (Pattern × Expr) := do
   mkPatternFromDeclWithKey declName (zetaReduceLHSOnly := true) fun type => do
-    let_expr Eq _ lhs rhs := type | throwError "conclusion is not a equality{indentExpr type}"
+    let_expr Eq _ lhs rhs := type | throwError "conclusion is not an equality{indentExpr type}"
     return (lhs, rhs)
 
 structure UnifyM.Context where

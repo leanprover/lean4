@@ -37,7 +37,7 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
@@ -4995,7 +4995,7 @@ goto v_resetjp_1574_;
 v_resetjp_1574_:
 {
 lean_object* v___x_1577_; lean_object* v___x_1578_; lean_object* v___x_1579_; lean_object* v___x_1581_; 
-v___x_1577_ = lean_string_utf8_extract(v___x_1557_, v___x_1558_, v___x_1559_);
+v___x_1577_ = lean_string_utf8_extract_fast(v___x_1557_, v___x_1558_, v___x_1559_);
 v___x_1578_ = lean_string_append(v_val_1573_, v___x_1577_);
 lean_dec_ref(v___x_1577_);
 v___x_1579_ = lean_string_append(v___x_1578_, v_out_1570_);
@@ -5026,7 +5026,7 @@ return v___x_1582_;
 v___jp_1585_:
 {
 lean_object* v___x_1589_; uint32_t v___x_1590_; uint32_t v___x_1591_; uint8_t v___x_1592_; 
-v___x_1589_ = lean_string_utf8_extract(v_fst_1560_, v_startInclusive_1587_, v_endExclusive_1588_);
+v___x_1589_ = lean_string_utf8_extract_fast(v_fst_1560_, v_startInclusive_1587_, v_endExclusive_1588_);
 lean_dec(v_endExclusive_1588_);
 lean_dec(v_startInclusive_1587_);
 v___x_1590_ = lean_string_utf8_get(v___x_1589_, v___x_1558_);
@@ -5328,7 +5328,7 @@ goto v_resetjp_1697_;
 v_resetjp_1697_:
 {
 lean_object* v___x_1700_; lean_object* v___x_1701_; lean_object* v___x_1702_; lean_object* v___x_1704_; 
-v___x_1700_ = lean_string_utf8_extract(v___x_1680_, v___x_1681_, v___x_1682_);
+v___x_1700_ = lean_string_utf8_extract_fast(v___x_1680_, v___x_1681_, v___x_1682_);
 v___x_1701_ = lean_string_append(v_val_1696_, v___x_1700_);
 lean_dec_ref(v___x_1700_);
 v___x_1702_ = lean_string_append(v___x_1701_, v_out_1693_);
@@ -5359,7 +5359,7 @@ return v___x_1705_;
 v___jp_1708_:
 {
 lean_object* v___x_1712_; uint32_t v___x_1713_; uint32_t v___x_1714_; uint8_t v___x_1715_; 
-v___x_1712_ = lean_string_utf8_extract(v_name_1683_, v_startInclusive_1710_, v_endExclusive_1711_);
+v___x_1712_ = lean_string_utf8_extract_fast(v_name_1683_, v_startInclusive_1710_, v_endExclusive_1711_);
 lean_dec(v_endExclusive_1711_);
 lean_dec(v_startInclusive_1710_);
 v___x_1713_ = lean_string_utf8_get(v___x_1712_, v___x_1681_);

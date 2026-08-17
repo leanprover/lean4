@@ -103,7 +103,7 @@ lean_object* lean_nat_div(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_expr_dbg_to_string(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3574,7 +3574,7 @@ _start:
 lean_object* v___x_1250_; lean_object* v___x_1251_; lean_object* v___x_1252_; lean_object* v___x_1253_; 
 v___x_1250_ = lean_st_ref_take(v_a_1246_);
 v___x_1251_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lean_Meta_Transform_0__Lean_Core_transform_visit___at___00Lean_Core_transform___at___00Lean_Meta_PProdN_reduceProjs_spec__0_spec__0_spec__6___redArg(v___x_1250_, v_e_1247_, v_a_1248_);
-v___x_1252_ = lean_st_ref_set(v_a_1246_, v___x_1251_);
+v___x_1252_ = lean_st_ref_put(v_a_1246_, v___x_1251_);
 v___x_1253_ = lean_box(0);
 return v___x_1253_;
 }

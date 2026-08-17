@@ -59,7 +59,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isForall(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delabForallWithSignature___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_delabCore___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -356,7 +356,7 @@ goto v_reusejp_31_;
 v_reusejp_31_:
 {
 lean_object* v___x_33_; lean_object* v___x_34_; 
-v___x_33_ = lean_st_ref_set(v___y_14_, v___x_32_);
+v___x_33_ = lean_st_ref_put(v___y_14_, v___x_32_);
 v___x_34_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_34_, 0, v_fst_21_);
 return v___x_34_;

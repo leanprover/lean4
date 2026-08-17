@@ -55,7 +55,7 @@ lean_object* l_Lean_Meta_isClass_x3f(lean_object*, lean_object*, lean_object*, l
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_delab___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Widget_ppExprTagged(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_ppGoal_shouldShowLetValue___redArg(uint8_t, lean_object*, lean_object*);
@@ -7744,7 +7744,7 @@ goto v_reusejp_2125_;
 v_reusejp_2125_:
 {
 lean_object* v___x_2127_; lean_object* v___x_2128_; 
-v___x_2127_ = lean_st_ref_set(v___y_2108_, v___x_2126_);
+v___x_2127_ = lean_st_ref_put(v___y_2108_, v___x_2126_);
 v___x_2128_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2128_, 0, v_fst_2115_);
 return v___x_2128_;

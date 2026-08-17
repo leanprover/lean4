@@ -56,7 +56,7 @@ lean_object* l_Lean_MessageData_ofList(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_InductiveVal_isNested(lean_object*);
 lean_object* l_List_lengthTR___redArg(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -575,7 +575,7 @@ goto v_reusejp_70_;
 v_reusejp_70_:
 {
 lean_object* v___x_72_; lean_object* v___x_73_; lean_object* v___x_75_; 
-v___x_72_ = lean_st_ref_set(v___y_33_, v___x_71_);
+v___x_72_ = lean_st_ref_put(v___y_33_, v___x_71_);
 v___x_73_ = lean_box(0);
 if (v_isShared_40_ == 0)
 {

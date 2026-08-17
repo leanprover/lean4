@@ -1468,10 +1468,8 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_get(b_obj_arg ref) {
             if (val != nullptr) {
                 inc(val);
                 object * tmp = val_addr->exchange(val);
-                if (tmp != nullptr) {
-                    /* this may happen if another thread wrote `ref` */
-                    dec(tmp);
-                }
+                lean_assert(tmp == nullptr);
+                (void)tmp;
                 return val;
             }
         }
@@ -1501,7 +1499,7 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_take(b_obj_arg ref) {
 
 static_assert(sizeof(atomic<unsigned short>) == sizeof(unsigned short), "`atomic<unsigned short>` and `unsigned short` must have the same size"); // NOLINT
 
-extern "C" LEAN_EXPORT obj_res lean_st_ref_set(b_obj_arg ref, obj_arg a) {
+extern "C" LEAN_EXPORT obj_res lean_st_ref_put(b_obj_arg ref, obj_arg a) {
     if (ref_maybe_mt(ref)) {
         /* We must mark `a` as multi-threaded if `ref` is marked as multi-threaded.
            Reason: our runtime relies on the fact that a single-threaded object
@@ -1509,8 +1507,8 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_set(b_obj_arg ref, obj_arg a) {
         mark_mt(a);
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         object * old_a = val_addr->exchange(a);
-        if (old_a != nullptr)
-            dec(old_a);
+        lean_assert(old_a == nullptr);
+        (void)old_a;
         return box(0);
     } else {
         if (lean_to_ref(ref)->m_value != nullptr)
@@ -1526,8 +1524,8 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_swap(b_obj_arg ref, obj_arg a) {
         mark_mt(a);
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         while (true) {
-            object * old_a = val_addr->exchange(a);
-            if (old_a != nullptr)
+            object * old_a = val_addr->load();
+            if (old_a != nullptr && val_addr->compare_exchange_strong(old_a, a))
                 return old_a;
         }
     } else {

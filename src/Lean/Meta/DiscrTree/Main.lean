@@ -430,6 +430,7 @@ private def getStarResult (d : DiscrTree α) : Array α :=
   let result : Array α := .mkEmpty initCapacity
   match d.root.find? .star with
   | none                  => result
+  | some (.chain _k _c) => panic! "unimpl"
   | some (.node vs _) => result ++ vs
 
 private abbrev findKey (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α) :=
@@ -437,6 +438,7 @@ private abbrev findKey (cs : Array (Key × Trie α)) (k : Key) : Option (Key × 
 
 private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
   match c with
+  | .chain _k _c => panic! "unimpl"
   | .node vs cs =>
     if todo.isEmpty then
       return result ++ vs
@@ -544,6 +546,7 @@ private partial def getAllValuesForKey (d : DiscrTree α) (k : Key) (result : Ar
 where
   go (trie : Trie α) (result : Array α) : Array α := Id.run do
     match trie with
+    | .chain _k _c => panic! "unimpl"
     | .node vs cs =>
       let mut result := result ++ vs
       for (_, trie) in cs do
@@ -577,11 +580,13 @@ partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
 where
   process (skip : Nat) (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
     match skip, c with
+    | _skip+1, .chain _k _c => panic! "unimpl"
     | skip+1, .node _  cs =>
       if cs.isEmpty then
         return result
       else
         cs.foldlM (init := result) fun result ⟨k, c⟩ => process (skip + k.arity) todo c result
+    | 0, .chain _k _c => panic! "unimpl"
     | 0, .node vs cs => do
       if todo.isEmpty then
         return result ++ vs

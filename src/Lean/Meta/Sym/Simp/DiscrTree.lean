@@ -167,6 +167,7 @@ def pushArgsTodo (todo : Array Expr) (e : Expr) : Array Expr :=
 
 partial def getMatchLoop (mctx : MetavarContext) (todo : Array Expr) (c : Trie α) (result : Array α) : Array α :=
   match c with
+  | .chain k c => panic! "unimpl"
   | .node vs cs =>
     let csize := cs.size
     if todo.isEmpty then
@@ -204,6 +205,7 @@ Retrieves all values whose patterns match the expression `e`.
 public def getMatch (mctx : MetavarContext) (d : DiscrTree α) (e : Expr) : Array α :=
   let result := match d.root.find? .star with
   | none              => .mkEmpty initCapacity
+  | some (.chain _ _) => panic! "unimpl"
   | some (.node vs _) => vs
   let e := resolveAssignedMVars mctx <| etaReduce e
   match d.root.find? (getKey e) with

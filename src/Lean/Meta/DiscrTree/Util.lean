@@ -15,6 +15,7 @@ Monadically fold the keys and values stored in a `Trie`.
 @[specialize]
 partial def foldM [Monad m] (initialKeys : Array Key)
     (f : σ → Array Key → α → m σ) : (init : σ) → Trie α → m σ
+  | init, Trie.chain _k _c => pure init -- UNSOUND
   | init, Trie.node vs children => do
     let s ← vs.foldlM (init := init) fun s v => f s initialKeys v
     children.foldlM (init := s) fun s (k, t) =>
@@ -32,6 +33,7 @@ Monadically fold the values stored in a `Trie`.
 -/
 @[specialize]
 partial def foldValuesM [Monad m] (f : σ → α → m σ) : (init : σ) → Trie α → m σ
+  | init, chain _k _c => pure init -- UNSOUND
   | init, node vs children => do
     let s ← vs.foldlM (init := init) f
     children.foldlM (init := s) fun s (_, c) => c.foldValuesM (init := s) f
@@ -47,6 +49,7 @@ def foldValues (f : σ → α → σ) (init : σ) (t : Trie α) : σ :=
 The number of values stored in a `Trie`.
 -/
 partial def size : Trie α → Nat
+  | Trie.chain _k _c => panic! "unimpl"
   | Trie.node vs children =>
     children.foldl (init := vs.size) fun n (_, c) => n + size c
 
@@ -161,6 +164,7 @@ Any resulting subtrees containing no values will be pruned.
 partial def Trie.mapArraysM (t : DiscrTree.Trie α) (f : Array α → m (Array β)) :
     m (DiscrTree.Trie β) :=
   match t with
+  | .chain _k _c => panic! "unimpl"
   | .node vs children => do
     let vs ← f vs
     let children ← children.filterMapM fun (k, child) => do

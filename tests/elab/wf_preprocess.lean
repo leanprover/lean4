@@ -213,18 +213,18 @@ theorem MTree.size.eq_1.{u_1} : ∀ {α : Type u_1} (t : MTree α),
   t.size =
     (have s := 1;
       do
-      let s ←
+      let __s ←
         forIn t.cs s fun css __s =>
             have s := __s;
             do
-            let s ←
+            let __s ←
               forIn css s fun c __s =>
                   have s := __s;
                   have s := s + c.size;
                   pure (ForInStep.yield s)
-            have s : Nat := s
+            have s : Nat := __s
             pure (ForInStep.yield s)
-      have s : Nat := s
+      have s : Nat := __s
       pure s).run
 -/
 #guard_msgs in

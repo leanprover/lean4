@@ -364,13 +364,8 @@ private def mkForInLoopGadget (g : ForInApp)
       forIn ← mkForInPureWithInvariant g invClause h? α
 
   let γ := (← read).doBlockResultType
-  -- The continuation's binder is the name a `Spec.bind` hint gives the loop's result, so a lone
-  -- mutable variable donates its source name; the early-return layout keeps the internal name.
-  let postName := match loopMutVarNames with
-    | [x] => if info.returnsEarly then s else x
-    | _ => s
   let rest ←
-    withLocalDeclD postName σ fun postS => do mkLambdaFVars #[postS] <| ← do
+    withLocalDeclD s σ fun postS => do mkLambdaFVars #[postS] <| ← do
       bindMutVarsFromTuple loopMutVarNames postS.fvarId! do
         if info.returnsEarly then
           let ret ← getFVarFromUserName returnVarName

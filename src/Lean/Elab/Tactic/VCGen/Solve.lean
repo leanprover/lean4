@@ -107,10 +107,216 @@ private def consumeBinderNameHint? (goal : MVarId) (target : Expr) : VCGenM (Opt
   let some (goal, stripped) ← consumeBinderNameHintCore goal target | return none
   return some (← goal.replaceTargetDefEqFast stripped)
 
-/-- Strategy 1: simp the target, then introduce binders if the target is a `∀`. -/
+/-- The binder names of the alternative of the single-alternative matcher that the lambda `f`
+applies to its own argument, or `none`. This is the shape of a loop invariant's state lambda when
+the loop has several mutable variables: `fun x => match x with | (lo, hi) => …`. -/
+private def stateMatcherAltNames? (f : Expr) : VCGenM (Option (Array Name)) := do
+  let .lam _ _ body _ := f.headBeta.cleanupAnnotations | return none
+  let .const c _ := body.getAppFn | return none
+  let some info := Meta.getMatcherInfoCore? (← getEnv) c | return none
+  unless info.numDiscrs == 1 && info.numAlts == 1 do return none
+  let args := body.getAppArgs
+  unless args.size == info.arity do return none
+  unless args[info.getFirstDiscrPos]!.cleanupAnnotations == .bvar 0 do return none
+  let mut alt := args[info.getFirstAltPos]!
+  let mut names := #[]
+  for _ in *...info.altNumParams[0]! do
+    let .lam n _ b _ := alt | return none
+    names := names.push n
+    alt := b
+  return some names
+
+/-- Find the leading binder of `target` that a `binderNameHint` in the goal's precondition names
+through a state-destructuring matcher lambda: the state tuple of a loop with several mutable
+variables. Returns the number of binders preceding it and the names of the tuple's components.
+The hint chain sits at the precondition's head, so no goal traversal is needed. -/
+private def findStateTupleSplit? (target : Expr) : VCGenM (Option (Nat × Array Name)) := do
+  let rec peel (e : Expr) (k : Nat) : Expr × Nat :=
+    match e with
+    | .forallE _ _ b _ => peel b (k+1)
+    | .letE _ _ _ b _ => peel b (k+1)
+    | e => (e, k)
+  let (body, k) := peel target 0
+  let pre? := match_expr body.consumeMData with
+    | PartialOrder.rel _ _ pre _ => some pre
+    | Triple _ _ _ _ _ _ _ _ pre _ _ => some pre
+    | _ => none
+  let some pre := pre? | return none
+  let rec chain (e : Expr) (fuel : Nat) : VCGenM (Option (Nat × Array Name)) := do
+    match fuel with
+    | 0 => return none
+    | fuel+1 =>
+      unless e.getAppFn.isConstOf ``binderNameHint && e.getAppNumArgs ≥ 6 do return none
+      let args := e.getAppArgs
+      if let .bvar i := args[3]!.cleanupAnnotations then
+        if i < k then
+          if let some names ← stateMatcherAltNames? args[4]! then
+            if names.size ≥ 2 then
+              return some (k - 1 - i, names)
+      chain args[5]! fuel
+  chain pre 8
+
+/-- Introduce the first `n` leading binders of `goal`, hygienically as in `introsHygienic`. -/
+private def introPrefixHygienic (goal : MVarId) (n : Nat) : VCGenM MVarId := goal.withContext do
+  if n == 0 then return goal
+  let rec collect (type : Expr) (acc : Array Name) : Array Name :=
+    if acc.size == n then acc else
+    match type with
+    | .forallE nm _ b _ => collect b (acc.push nm)
+    | .letE nm _ _ b _ => collect b (acc.push nm)
+    | _ => acc
+  let mut names := #[]
+  for nm in collect (← goal.getType) #[] do
+    names := names.push (← Meta.mkFreshBinderNameForTactic nm)
+  let .goal _ goal ← Sym.intros goal names
+    | throwError "vcgen: failed to introduce the binders before a state tuple"
+  return goal
+
+/-- The components of the right-nested tuple `e`, or `#[e]` when `e` is not a `Prod.mk`
+application. -/
+private def tupleLeaves (e : Expr) : Array Expr :=
+  go e #[] 64
+where
+  go (e : Expr) (acc : Array Expr) : Nat → Array Expr
+    | 0 => acc.push e
+    | fuel+1 =>
+      match_expr e with
+      | Prod.mk _ _ a b => go b (acc.push a) fuel
+      | _ => acc.push e
+
+/-- Reduce one node: a projection of a `Prod.mk` application, or a single-alternative matcher whose
+discriminant is a tuple of the alternative's arity. Leaves other nodes unchanged. -/
+private def reduceTupleStep (e : Expr) : VCGenM Expr := do
+  match e with
+  | .proj ``Prod 0 s => match_expr s with
+    | Prod.mk _ _ a _ => return a
+    | _ => return e
+  | .proj ``Prod 1 s => match_expr s with
+    | Prod.mk _ _ _ b => return b
+    | _ => return e
+  | _ =>
+    match_expr e with
+    | Prod.fst _ _ s => match_expr s with
+      | Prod.mk _ _ a _ => return a
+      | _ => return e
+    | Prod.snd _ _ s => match_expr s with
+      | Prod.mk _ _ _ b => return b
+      | _ => return e
+    | _ =>
+      let .const c _ := e.getAppFn | return e
+      let some info := Meta.getMatcherInfoCore? (← getEnv) c | return e
+      unless info.numDiscrs == 1 && info.numAlts == 1 && e.getAppNumArgs == info.arity do
+        return e
+      unless info.getNumDiscrEqs == 0 do return e
+      let args := e.getAppArgs
+      let leaves := tupleLeaves args[info.getFirstDiscrPos]!
+      unless leaves.size == info.altNumParams[0]! do return e
+      return args[info.getFirstAltPos]!.beta leaves
+
+/-- Apply `reduceTupleStep` bottom-up to the whole of `e`. -/
+private partial def reduceTupleOps (e : Expr) : VCGenM Expr := do
+  let e ← match e with
+    | .app f a => pure <| e.updateApp! (← reduceTupleOps f) (← reduceTupleOps a)
+    | .lam _ ty b _ => pure <| e.updateLambdaE! (← reduceTupleOps ty) (← reduceTupleOps b)
+    | .forallE _ ty b _ => pure <| e.updateForallE! (← reduceTupleOps ty) (← reduceTupleOps b)
+    | .letE _ ty v b nd =>
+      pure <| e.updateLet! (← reduceTupleOps ty) (← reduceTupleOps v) (← reduceTupleOps b) nd
+    | .mdata _ b => pure <| e.updateMData! (← reduceTupleOps b)
+    | .proj _ _ b => pure <| e.updateProj! (← reduceTupleOps b)
+    | _ => pure e
+  reduceTupleStep e
+
+/-- Whether `e` is a tuple whose leaves are variables or literals, so a `let` binding it can be
+zeta-inlined without duplicating computation. -/
+private def isAtomTuple (e : Expr) : Bool :=
+  e.isAppOf ``Prod.mk &&
+    (tupleLeaves e).all fun l => l.isBVar || l.isFVar || l matches .lit ..
+
+/-- Substitute bound variable `d` (the state-tuple binder) by `tuple` (whose bound variables are
+the `m` component binders replacing it), reducing the projections and the single-alternative
+matchers that the substitution exposes, bottom-up. A `let` whose value becomes a tuple of atoms
+(an intermediate of the state destructuring) is zeta-inlined, so its projections reduce as well. -/
+private partial def substStateTuple (tuple : Expr) (m : Nat) (e : Expr) (d : Nat) :
+    VCGenM Expr := do
+  let e ← match e with
+    | .bvar i =>
+      if i == d then pure (tuple.liftLooseBVars 0 d)
+      else if i > d then pure (.bvar (i + m - 1))
+      else pure e
+    | .app f a => pure <| e.updateApp! (← substStateTuple tuple m f d) (← substStateTuple tuple m a d)
+    | .lam _ ty b _ =>
+      pure <| e.updateLambdaE! (← substStateTuple tuple m ty d) (← substStateTuple tuple m b (d+1))
+    | .forallE _ ty b _ =>
+      pure <| e.updateForallE! (← substStateTuple tuple m ty d) (← substStateTuple tuple m b (d+1))
+    | .letE _ ty v b nd => do
+      let ty' ← substStateTuple tuple m ty d
+      let v' ← substStateTuple tuple m v d
+      let b' ← substStateTuple tuple m b (d+1)
+      if isAtomTuple v' then
+        reduceTupleOps (b'.instantiate1 v')
+      else
+        pure <| e.updateLet! ty' v' b' nd
+    | .mdata _ b => pure <| e.updateMData! (← substStateTuple tuple m b d)
+    | .proj _ _ b => pure <| e.updateProj! (← substStateTuple tuple m b d)
+    | _ => pure e
+  reduceTupleStep e
+
+/-- Replace the goal `∀ (p : σ₁ × ⋯ × σₘ), T` by `∀ (n₁ : σ₁) ⋯ (nₘ : σₘ), T[(n₁, ⋯, nₘ)]`, with
+the names taken from the program's own state destructuring, and the projections and matchers on
+the tuple reduced away. The old goal follows from the new one by structure eta: the proof applies
+the new goal to the projections of `p`. -/
+private def splitStateTuple (goal : MVarId) (names : Array Name) : VCGenM MVarId :=
+  goal.withContext do
+  let target ← goal.getType
+  let .forallE _ σ body _ := target
+    | throwError "vcgen: state-tuple split expects a `∀` target{indentExpr target}"
+  let m := names.size
+  -- Peel the right-nested product into components, keeping each layer's `Prod` application.
+  let mut comps : Array Expr := #[]
+  let mut layers : Array Expr := #[]
+  let mut ty := σ
+  for _ in *...m-1 do
+    let_expr Prod α _β := ty
+      | throwError "vcgen: state type{indentExpr σ}\ndoes not destructure into {names}"
+    comps := comps.push α
+    layers := layers.push ty
+    ty := ty.appArg!
+  comps := comps.push ty
+  -- The tuple of the new binders: component `i` is bound variable `m - 1 - i`.
+  let mut tuple : Expr := .bvar 0
+  for j in *...m-1 do
+    let i := m - 2 - j
+    let layer := layers[i]!
+    tuple := mkApp4 (.const ``Prod.mk layer.getAppFn.constLevels!)
+      (layer.appFn!.appArg!) (layer.appArg!) (.bvar (m - 1 - i)) tuple
+  let mut newTarget ← substStateTuple tuple m body 0
+  for j in *...m do
+    let i := m - 1 - j
+    newTarget := .forallE names[i]! comps[i]! newTarget .default
+  let g ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar (← shareCommon newTarget)
+  -- `(p.1, (p.2.1, …)) ≡ p` by structure eta, so `g` applied to the projections proves the target.
+  let mut projs : Array Expr := #[]
+  let mut p : Expr := .bvar 0
+  for _ in *...m-1 do
+    projs := projs.push (.proj ``Prod 0 p)
+    p := .proj ``Prod 1 p
+  projs := projs.push p
+  goal.assign (.lam `p σ (mkAppN g projs) .default)
+  return g.mvarId!
+
+/-- Strategy 1: simp the target, then introduce binders if the target is a `∀`. A binder holding
+the state tuple of a loop with several mutable variables is split into one binder per component
+first, named after the program's own destructuring. -/
 private def forallIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
   unless target.isForall do return none
+  -- Detect the split on the instantiated target, before hint resolution erases the hints.
+  let splitInfo? ← if target.hasBinderNameHint then
+    findStateTupleSplit? (← instantiateMVarsS target)
+  else pure none
   let goal ← resolveBinderNameHints goal target
+  if let some (prefixLen, names) := splitInfo? then
+    let goal ← introPrefixHygienic goal prefixLen
+    return some [← splitStateTuple goal names]
   let (goal, simped) ← match ← simpGoalTelescope goal with
     | .closed => return some []
     | .goal goal' => pure (goal', true)

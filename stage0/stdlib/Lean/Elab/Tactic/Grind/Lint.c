@@ -1042,7 +1042,7 @@ _start:
 lean_object* v___x_157_; lean_object* v___x_158_; lean_object* v___x_159_; 
 v___x_157_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_Grind_Lint_0__Lean_Elab_Tactic_Grind_checkEMatchTheorem_spec__0_spec__0___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_Grind_Lint_0__Lean_Elab_Tactic_Grind_checkEMatchTheorem_spec__0_spec__0___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_Grind_Lint_0__Lean_Elab_Tactic_Grind_checkEMatchTheorem_spec__0_spec__0___closed__1);
 v___x_158_ = lean_unsigned_to_nat(0u);
-v___x_159_ = lean_alloc_ctor(0, 10, 0);
+v___x_159_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_159_, 0, v___x_158_);
 lean_ctor_set(v___x_159_, 1, v___x_158_);
 lean_ctor_set(v___x_159_, 2, v___x_158_);
@@ -1053,6 +1053,7 @@ lean_ctor_set(v___x_159_, 6, v___x_157_);
 lean_ctor_set(v___x_159_, 7, v___x_157_);
 lean_ctor_set(v___x_159_, 8, v___x_157_);
 lean_ctor_set(v___x_159_, 9, v___x_157_);
+lean_ctor_set(v___x_159_, 10, v___x_157_);
 return v___x_159_;
 }
 }

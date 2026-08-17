@@ -244,7 +244,7 @@ _start:
 lean_object* v___x_4_; lean_object* v___x_5_; lean_object* v___x_6_; 
 v___x_4_ = lean_obj_once(&l_Lean_addTrace___at___00Lean_Compiler_LCNF_Decl_simp_x3f_spec__0___redArg___closed__1, &l_Lean_addTrace___at___00Lean_Compiler_LCNF_Decl_simp_x3f_spec__0___redArg___closed__1_once, _init_l_Lean_addTrace___at___00Lean_Compiler_LCNF_Decl_simp_x3f_spec__0___redArg___closed__1);
 v___x_5_ = lean_unsigned_to_nat(0u);
-v___x_6_ = lean_alloc_ctor(0, 10, 0);
+v___x_6_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_6_, 0, v___x_5_);
 lean_ctor_set(v___x_6_, 1, v___x_5_);
 lean_ctor_set(v___x_6_, 2, v___x_5_);
@@ -255,6 +255,7 @@ lean_ctor_set(v___x_6_, 6, v___x_4_);
 lean_ctor_set(v___x_6_, 7, v___x_4_);
 lean_ctor_set(v___x_6_, 8, v___x_4_);
 lean_ctor_set(v___x_6_, 9, v___x_4_);
+lean_ctor_set(v___x_6_, 10, v___x_4_);
 return v___x_6_;
 }
 }
@@ -941,7 +942,7 @@ v___x_276_ = lean_obj_once(&l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__10, &l_
 v___x_277_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_277_, 0, v___x_275_);
 lean_ctor_set(v___x_277_, 1, v___x_276_);
-v___x_278_ = l_Nat_reprFast(v___y_259_);
+v___x_278_ = l_Nat_reprFast(v___y_258_);
 v___x_279_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_279_, 0, v___x_278_);
 v___x_280_ = l_Lean_MessageData_ofFormat(v___x_279_);
@@ -952,7 +953,7 @@ v___x_282_ = lean_obj_once(&l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__12, &l_
 v___x_283_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_283_, 0, v___x_281_);
 lean_ctor_set(v___x_283_, 1, v___x_282_);
-v___x_284_ = l_Nat_reprFast(v___y_258_);
+v___x_284_ = l_Nat_reprFast(v___y_260_);
 v___x_285_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_285_, 0, v___x_284_);
 v___x_286_ = l_Lean_MessageData_ofFormat(v___x_285_);
@@ -963,7 +964,7 @@ v___x_288_ = lean_obj_once(&l_Lean_Compiler_LCNF_Decl_simp_x3f___closed__14, &l_
 v___x_289_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_289_, 0, v___x_287_);
 lean_ctor_set(v___x_289_, 1, v___x_288_);
-v___x_290_ = l_Nat_reprFast(v___y_260_);
+v___x_290_ = l_Nat_reprFast(v___y_259_);
 v___x_291_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_291_, 0, v___x_290_);
 v___x_292_ = l_Lean_MessageData_ofFormat(v___x_291_);
@@ -1061,9 +1062,9 @@ lean_object* v_a_315_;
 v_a_315_ = lean_ctor_get(v___x_314_, 0);
 lean_inc(v_a_315_);
 lean_dec_ref_known(v___x_314_, 1);
-v___y_258_ = v_inline_312_;
-v___y_259_ = v_visited_311_;
-v___y_260_ = v_inlineLocal_313_;
+v___y_258_ = v_visited_311_;
+v___y_259_ = v_inlineLocal_313_;
+v___y_260_ = v_inline_312_;
 v___y_261_ = v___y_306_;
 v___y_262_ = v_a_315_;
 goto v___jp_257_;
@@ -1085,9 +1086,9 @@ lean_dec(v___x_320_);
 if (v___x_321_ == 0)
 {
 lean_dec(v___x_318_);
-v___y_258_ = v_inline_312_;
-v___y_259_ = v_visited_311_;
-v___y_260_ = v_inlineLocal_313_;
+v___y_258_ = v_visited_311_;
+v___y_259_ = v_inlineLocal_313_;
+v___y_260_ = v_inline_312_;
 v___y_261_ = v___y_306_;
 v___y_262_ = v_a_316_;
 goto v___jp_257_;
@@ -1118,9 +1119,9 @@ v___x_330_ = l_Lean_addTrace___at___00Lean_Compiler_LCNF_Decl_simp_x3f_spec__0__
 if (lean_obj_tag(v___x_330_) == 0)
 {
 lean_dec_ref_known(v___x_330_, 1);
-v___y_258_ = v_inline_312_;
-v___y_259_ = v_visited_311_;
-v___y_260_ = v_inlineLocal_313_;
+v___y_258_ = v_visited_311_;
+v___y_259_ = v_inlineLocal_313_;
+v___y_260_ = v_inline_312_;
 v___y_261_ = v___y_306_;
 v___y_262_ = v_a_316_;
 goto v___jp_257_;

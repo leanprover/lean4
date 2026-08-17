@@ -17203,7 +17203,7 @@ _start:
 lean_object* v___x_6432_; lean_object* v___x_6433_; lean_object* v___x_6434_; 
 v___x_6432_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_Command_resolveSyntaxKind_spec__1_spec__2___redArg___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_Command_resolveSyntaxKind_spec__1_spec__2___redArg___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_Command_resolveSyntaxKind_spec__1_spec__2___redArg___closed__1);
 v___x_6433_ = lean_unsigned_to_nat(0u);
-v___x_6434_ = lean_alloc_ctor(0, 10, 0);
+v___x_6434_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_6434_, 0, v___x_6433_);
 lean_ctor_set(v___x_6434_, 1, v___x_6433_);
 lean_ctor_set(v___x_6434_, 2, v___x_6433_);
@@ -17214,6 +17214,7 @@ lean_ctor_set(v___x_6434_, 6, v___x_6432_);
 lean_ctor_set(v___x_6434_, 7, v___x_6432_);
 lean_ctor_set(v___x_6434_, 8, v___x_6432_);
 lean_ctor_set(v___x_6434_, 9, v___x_6432_);
+lean_ctor_set(v___x_6434_, 10, v___x_6432_);
 return v___x_6434_;
 }
 }

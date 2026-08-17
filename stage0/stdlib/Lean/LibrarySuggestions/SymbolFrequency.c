@@ -1564,7 +1564,7 @@ _start:
 lean_object* v___x_530_; lean_object* v___x_531_; lean_object* v___x_532_; 
 v___x_530_ = lean_obj_once(&l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__15, &l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__15_once, _init_l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__15);
 v___x_531_ = lean_unsigned_to_nat(0u);
-v___x_532_ = lean_alloc_ctor(0, 10, 0);
+v___x_532_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_532_, 0, v___x_531_);
 lean_ctor_set(v___x_532_, 1, v___x_531_);
 lean_ctor_set(v___x_532_, 2, v___x_531_);
@@ -1575,6 +1575,7 @@ lean_ctor_set(v___x_532_, 6, v___x_530_);
 lean_ctor_set(v___x_532_, 7, v___x_530_);
 lean_ctor_set(v___x_532_, 8, v___x_530_);
 lean_ctor_set(v___x_532_, 9, v___x_530_);
+lean_ctor_set(v___x_532_, 10, v___x_530_);
 return v___x_532_;
 }
 }

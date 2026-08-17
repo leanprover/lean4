@@ -2885,7 +2885,7 @@ _start:
 lean_object* v___x_865_; lean_object* v___x_866_; lean_object* v___x_867_; 
 v___x_865_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_PrettyPrinter_ppSignature_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___redArg___closed__1, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_PrettyPrinter_ppSignature_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___redArg___closed__1_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_PrettyPrinter_ppSignature_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___redArg___closed__1);
 v___x_866_ = lean_unsigned_to_nat(0u);
-v___x_867_ = lean_alloc_ctor(0, 10, 0);
+v___x_867_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_867_, 0, v___x_866_);
 lean_ctor_set(v___x_867_, 1, v___x_866_);
 lean_ctor_set(v___x_867_, 2, v___x_866_);
@@ -2896,6 +2896,7 @@ lean_ctor_set(v___x_867_, 6, v___x_865_);
 lean_ctor_set(v___x_867_, 7, v___x_865_);
 lean_ctor_set(v___x_867_, 8, v___x_865_);
 lean_ctor_set(v___x_867_, 9, v___x_865_);
+lean_ctor_set(v___x_867_, 10, v___x_865_);
 return v___x_867_;
 }
 }

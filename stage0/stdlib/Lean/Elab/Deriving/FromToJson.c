@@ -1449,7 +1449,7 @@ _start:
 lean_object* v___x_149_; lean_object* v___x_150_; lean_object* v___x_151_; 
 v___x_149_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_Deriving_FromToJson_mkJsonField_spec__0_spec__0___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_Deriving_FromToJson_mkJsonField_spec__0_spec__0___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_Deriving_FromToJson_mkJsonField_spec__0_spec__0___closed__1);
 v___x_150_ = lean_unsigned_to_nat(0u);
-v___x_151_ = lean_alloc_ctor(0, 10, 0);
+v___x_151_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_151_, 0, v___x_150_);
 lean_ctor_set(v___x_151_, 1, v___x_150_);
 lean_ctor_set(v___x_151_, 2, v___x_150_);
@@ -1460,6 +1460,7 @@ lean_ctor_set(v___x_151_, 6, v___x_149_);
 lean_ctor_set(v___x_151_, 7, v___x_149_);
 lean_ctor_set(v___x_151_, 8, v___x_149_);
 lean_ctor_set(v___x_151_, 9, v___x_149_);
+lean_ctor_set(v___x_151_, 10, v___x_149_);
 return v___x_151_;
 }
 }

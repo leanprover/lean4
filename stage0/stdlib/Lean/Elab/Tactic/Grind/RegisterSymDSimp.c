@@ -641,7 +641,7 @@ _start:
 lean_object* v___x_123_; lean_object* v___x_124_; lean_object* v___x_125_; 
 v___x_123_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lean_Elab_Tactic_Grind_RegisterSymDSimp_0__Lean_Elab_Command_elabRegisterSymDSimp_spec__0_spec__0_spec__1___redArg___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lean_Elab_Tactic_Grind_RegisterSymDSimp_0__Lean_Elab_Command_elabRegisterSymDSimp_spec__0_spec__0_spec__1___redArg___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lean_Elab_Tactic_Grind_RegisterSymDSimp_0__Lean_Elab_Command_elabRegisterSymDSimp_spec__0_spec__0_spec__1___redArg___closed__1);
 v___x_124_ = lean_unsigned_to_nat(0u);
-v___x_125_ = lean_alloc_ctor(0, 10, 0);
+v___x_125_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_125_, 0, v___x_124_);
 lean_ctor_set(v___x_125_, 1, v___x_124_);
 lean_ctor_set(v___x_125_, 2, v___x_124_);
@@ -652,6 +652,7 @@ lean_ctor_set(v___x_125_, 6, v___x_123_);
 lean_ctor_set(v___x_125_, 7, v___x_123_);
 lean_ctor_set(v___x_125_, 8, v___x_123_);
 lean_ctor_set(v___x_125_, 9, v___x_123_);
+lean_ctor_set(v___x_125_, 10, v___x_123_);
 return v___x_125_;
 }
 }
@@ -1749,8 +1750,8 @@ v___x_442_ = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(v___x_442_, 0, v___y_424_);
 lean_ctor_set_uint8(v___x_442_, sizeof(void*)*1, v___x_441_);
 v___x_443_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_443_, 0, v___y_422_);
-lean_ctor_set(v___x_443_, 1, v___y_421_);
+lean_ctor_set(v___x_443_, 0, v___y_421_);
+lean_ctor_set(v___x_443_, 1, v___y_422_);
 lean_ctor_set(v___x_443_, 2, v___x_442_);
 v___x_444_ = l_Lean_Meta_Sym_DSimp_symDSimpVariantExtension;
 v___x_445_ = lean_alloc_ctor(0, 2, 0);
@@ -1834,8 +1835,8 @@ if (lean_obj_tag(v_snd_469_) == 0)
 {
 lean_object* v___x_471_; 
 v___x_471_ = lean_unsigned_to_nat(100000u);
-v___y_421_ = v_fst_468_;
-v___y_422_ = v_fst_465_;
+v___y_421_ = v_fst_465_;
+v___y_422_ = v_fst_468_;
 v___y_423_ = v___y_456_;
 v___y_424_ = v___x_471_;
 goto v___jp_420_;
@@ -1846,8 +1847,8 @@ lean_object* v_val_472_;
 v_val_472_ = lean_ctor_get(v_snd_469_, 0);
 lean_inc(v_val_472_);
 lean_dec_ref_known(v_snd_469_, 1);
-v___y_421_ = v_fst_468_;
-v___y_422_ = v_fst_465_;
+v___y_421_ = v_fst_465_;
+v___y_422_ = v_fst_468_;
 v___y_423_ = v___y_456_;
 v___y_424_ = v_val_472_;
 goto v___jp_420_;

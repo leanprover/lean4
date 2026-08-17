@@ -809,7 +809,7 @@ _start:
 lean_object* v___x_209_; lean_object* v___x_210_; lean_object* v___x_211_; 
 v___x_209_ = lean_obj_once(&l___private_Lean_Compiler_LCNF_Irrelevant_0__Lean_Compiler_LCNF_getRelevantCtorFields_x3f_go___closed__4, &l___private_Lean_Compiler_LCNF_Irrelevant_0__Lean_Compiler_LCNF_getRelevantCtorFields_x3f_go___closed__4_once, _init_l___private_Lean_Compiler_LCNF_Irrelevant_0__Lean_Compiler_LCNF_getRelevantCtorFields_x3f_go___closed__4);
 v___x_210_ = lean_unsigned_to_nat(0u);
-v___x_211_ = lean_alloc_ctor(0, 10, 0);
+v___x_211_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_211_, 0, v___x_210_);
 lean_ctor_set(v___x_211_, 1, v___x_210_);
 lean_ctor_set(v___x_211_, 2, v___x_210_);
@@ -820,6 +820,7 @@ lean_ctor_set(v___x_211_, 6, v___x_209_);
 lean_ctor_set(v___x_211_, 7, v___x_209_);
 lean_ctor_set(v___x_211_, 8, v___x_209_);
 lean_ctor_set(v___x_211_, 9, v___x_209_);
+lean_ctor_set(v___x_211_, 10, v___x_209_);
 return v___x_211_;
 }
 }
@@ -1530,7 +1531,7 @@ _start:
 lean_object* v___x_443_; lean_object* v___x_444_; lean_object* v___x_445_; 
 v___x_443_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Compiler_LCNF_Irrelevant_0__Lean_Compiler_LCNF_getRelevantCtorFields_x3f_spec__0_spec__0_spec__3_spec__4_spec__5_spec__6___redArg___closed__1, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Compiler_LCNF_Irrelevant_0__Lean_Compiler_LCNF_getRelevantCtorFields_x3f_spec__0_spec__0_spec__3_spec__4_spec__5_spec__6___redArg___closed__1_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Compiler_LCNF_Irrelevant_0__Lean_Compiler_LCNF_getRelevantCtorFields_x3f_spec__0_spec__0_spec__3_spec__4_spec__5_spec__6___redArg___closed__1);
 v___x_444_ = lean_unsigned_to_nat(0u);
-v___x_445_ = lean_alloc_ctor(0, 10, 0);
+v___x_445_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_445_, 0, v___x_444_);
 lean_ctor_set(v___x_445_, 1, v___x_444_);
 lean_ctor_set(v___x_445_, 2, v___x_444_);
@@ -1541,6 +1542,7 @@ lean_ctor_set(v___x_445_, 6, v___x_443_);
 lean_ctor_set(v___x_445_, 7, v___x_443_);
 lean_ctor_set(v___x_445_, 8, v___x_443_);
 lean_ctor_set(v___x_445_, 9, v___x_443_);
+lean_ctor_set(v___x_445_, 10, v___x_443_);
 return v___x_445_;
 }
 }

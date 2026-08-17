@@ -2477,7 +2477,7 @@ _start:
 lean_object* v___x_832_; lean_object* v___x_833_; lean_object* v___x_834_; 
 v___x_832_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwAttrDeclNotOfExpectedType___at___00Lean_Compiler_LCNF_addPass_spec__1_spec__2_spec__4___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwAttrDeclNotOfExpectedType___at___00Lean_Compiler_LCNF_addPass_spec__1_spec__2_spec__4___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwAttrDeclNotOfExpectedType___at___00Lean_Compiler_LCNF_addPass_spec__1_spec__2_spec__4___closed__1);
 v___x_833_ = lean_unsigned_to_nat(0u);
-v___x_834_ = lean_alloc_ctor(0, 10, 0);
+v___x_834_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_834_, 0, v___x_833_);
 lean_ctor_set(v___x_834_, 1, v___x_833_);
 lean_ctor_set(v___x_834_, 2, v___x_833_);
@@ -2488,6 +2488,7 @@ lean_ctor_set(v___x_834_, 6, v___x_832_);
 lean_ctor_set(v___x_834_, 7, v___x_832_);
 lean_ctor_set(v___x_834_, 8, v___x_832_);
 lean_ctor_set(v___x_834_, 9, v___x_832_);
+lean_ctor_set(v___x_834_, 10, v___x_832_);
 return v___x_834_;
 }
 }
@@ -3593,8 +3594,8 @@ return v___x_1233_;
 }
 else
 {
-lean_dec(v_pre_1179_);
 lean_dec_ref_known(v_pre_1178_, 2);
+lean_dec(v_pre_1179_);
 lean_dec_ref_known(v_pre_1177_, 2);
 lean_dec_ref_known(v_pre_1176_, 2);
 lean_dec_ref_known(v_declName_1175_, 2);
@@ -3605,8 +3606,8 @@ goto v___jp_1167_;
 }
 else
 {
+lean_dec_ref_known(v_pre_1177_, 2);
 lean_dec(v_pre_1178_);
-lean_dec_ref_known(v_pre_1177_, 2);
 lean_dec_ref_known(v_pre_1176_, 2);
 lean_dec_ref_known(v_declName_1175_, 2);
 v___y_1168_ = v_a_1162_;
@@ -3616,8 +3617,8 @@ goto v___jp_1167_;
 }
 else
 {
-lean_dec_ref_known(v_pre_1176_, 2);
 lean_dec(v_pre_1177_);
+lean_dec_ref_known(v_pre_1176_, 2);
 lean_dec_ref_known(v_declName_1175_, 2);
 v___y_1168_ = v_a_1162_;
 v___y_1169_ = v_a_1163_;
@@ -3626,8 +3627,8 @@ goto v___jp_1167_;
 }
 else
 {
-lean_dec(v_pre_1176_);
 lean_dec_ref_known(v_declName_1175_, 2);
+lean_dec(v_pre_1176_);
 v___y_1168_ = v_a_1162_;
 v___y_1169_ = v_a_1163_;
 goto v___jp_1167_;

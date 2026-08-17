@@ -1135,7 +1135,7 @@ _start:
 lean_object* v___x_312_; lean_object* v___x_313_; lean_object* v___x_314_; 
 v___x_312_ = lean_obj_once(&l_Lean_addTrace___at___00Lean_Compiler_LCNF_splitScc_spec__14___closed__1, &l_Lean_addTrace___at___00Lean_Compiler_LCNF_splitScc_spec__14___closed__1_once, _init_l_Lean_addTrace___at___00Lean_Compiler_LCNF_splitScc_spec__14___closed__1);
 v___x_313_ = lean_unsigned_to_nat(0u);
-v___x_314_ = lean_alloc_ctor(0, 10, 0);
+v___x_314_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_314_, 0, v___x_313_);
 lean_ctor_set(v___x_314_, 1, v___x_313_);
 lean_ctor_set(v___x_314_, 2, v___x_313_);
@@ -1146,6 +1146,7 @@ lean_ctor_set(v___x_314_, 6, v___x_312_);
 lean_ctor_set(v___x_314_, 7, v___x_312_);
 lean_ctor_set(v___x_314_, 8, v___x_312_);
 lean_ctor_set(v___x_314_, 9, v___x_312_);
+lean_ctor_set(v___x_314_, 10, v___x_312_);
 return v___x_314_;
 }
 }

@@ -11376,9 +11376,9 @@ return v___x_4055_;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqInstance___lam__0___boxed(lean_object* v_a_4056_, lean_object* v_a_4057_, lean_object* v_declName_4058_, lean_object* v___y_4059_, lean_object* v___y_4060_, lean_object* v___y_4061_, lean_object* v___y_4062_, lean_object* v___y_4063_, lean_object* v___y_4064_, lean_object* v___y_4065_){
 _start:
 {
-uint8_t v_a_6405__boxed_4066_; lean_object* v_res_4067_; 
-v_a_6405__boxed_4066_ = lean_unbox(v_a_4056_);
-v_res_4067_ = l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqInstance___lam__0(v_a_6405__boxed_4066_, v_a_4057_, v_declName_4058_, v___y_4059_, v___y_4060_, v___y_4061_, v___y_4062_, v___y_4063_, v___y_4064_);
+uint8_t v_a_6435__boxed_4066_; lean_object* v_res_4067_; 
+v_a_6435__boxed_4066_ = lean_unbox(v_a_4056_);
+v_res_4067_ = l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqInstance___lam__0(v_a_6435__boxed_4066_, v_a_4057_, v_declName_4058_, v___y_4059_, v___y_4060_, v___y_4061_, v___y_4062_, v___y_4063_, v___y_4064_);
 lean_dec(v___y_4064_);
 lean_dec_ref(v___y_4063_);
 lean_dec(v___y_4062_);
@@ -11412,7 +11412,7 @@ _start:
 lean_object* v___x_4071_; lean_object* v___x_4072_; lean_object* v___x_4073_; 
 v___x_4071_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_isEnumType___at___00__private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqInstance_spec__1_spec__1_spec__2_spec__4_spec__6_spec__7_spec__8___redArg___closed__1, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_isEnumType___at___00__private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqInstance_spec__1_spec__1_spec__2_spec__4_spec__6_spec__7_spec__8___redArg___closed__1_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_isEnumType___at___00__private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqInstance_spec__1_spec__1_spec__2_spec__4_spec__6_spec__7_spec__8___redArg___closed__1);
 v___x_4072_ = lean_unsigned_to_nat(0u);
-v___x_4073_ = lean_alloc_ctor(0, 10, 0);
+v___x_4073_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_4073_, 0, v___x_4072_);
 lean_ctor_set(v___x_4073_, 1, v___x_4072_);
 lean_ctor_set(v___x_4073_, 2, v___x_4072_);
@@ -11423,6 +11423,7 @@ lean_ctor_set(v___x_4073_, 6, v___x_4071_);
 lean_ctor_set(v___x_4073_, 7, v___x_4071_);
 lean_ctor_set(v___x_4073_, 8, v___x_4071_);
 lean_ctor_set(v___x_4073_, 9, v___x_4071_);
+lean_ctor_set(v___x_4073_, 10, v___x_4071_);
 return v___x_4073_;
 }
 }
@@ -12556,9 +12557,9 @@ return v___x_4438_;
 LEAN_EXPORT lean_object* l_List_allM___at___00Lean_isEnumType___at___00__private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqInstance_spec__1_spec__2___boxed(lean_object* v___x_4441_, lean_object* v_x_4442_, lean_object* v___y_4443_, lean_object* v___y_4444_, lean_object* v___y_4445_){
 _start:
 {
-uint8_t v___x_7055__boxed_4446_; lean_object* v_res_4447_; 
-v___x_7055__boxed_4446_ = lean_unbox(v___x_4441_);
-v_res_4447_ = l_List_allM___at___00Lean_isEnumType___at___00__private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqInstance_spec__1_spec__2(v___x_7055__boxed_4446_, v_x_4442_, v___y_4443_, v___y_4444_);
+uint8_t v___x_7088__boxed_4446_; lean_object* v_res_4447_; 
+v___x_7088__boxed_4446_ = lean_unbox(v___x_4441_);
+v_res_4447_ = l_List_allM___at___00Lean_isEnumType___at___00__private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqInstance_spec__1_spec__2(v___x_7088__boxed_4446_, v_x_4442_, v___y_4443_, v___y_4444_);
 lean_dec(v___y_4444_);
 lean_dec_ref(v___y_4443_);
 return v_res_4447_;

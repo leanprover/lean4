@@ -445,10 +445,11 @@ subgoals. The `∀`-quantified subgoals are the postcondition VCs. -/
 private def applySpecToFootprint (goal : MVarId) (info : WPApp) (specRule : Sym.BackwardRule)
     (excessArgs : Array Expr) : VCGenM (Option SpecApplication) := do
   let goalType ← goal.getType
-  let fp ← mkFreshExprMVar (← Meta.inferType (goalType.appFn!.appArg!))
-  let post ← mkFreshExprMVar (← Meta.inferType info.post)
-  let wpApp ← mkAppNS (mkAppN info.head (info.args.set! 8 post)) excessArgs
-  let target ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS (goalType.stripArgsN 2) #[fp, wpApp])
+  let le := goalType.stripArgsN 2
+  let fp ← mkFreshExprMVar le.appFn!.appArg!
+  let post ← mkFreshExprMVar (← Sym.inferType info.post)
+  let wpApp ← mkAppNS (← mkAppNS info.head (info.args.set! 8 post)) excessArgs
+  let target ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[fp, wpApp])
   let .goals sgs ← specRule.apply target.mvarId! | return none
   let some preVC ← sgs.findM? fun g => return (← g.getType).isAppOf ``Lean.Order.PartialOrder.rel
     | throwError "frame: spec rule left no precondition VC for{indentExpr info.prog}"

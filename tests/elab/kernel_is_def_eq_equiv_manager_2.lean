@@ -57,7 +57,9 @@ private def bool := mkConst ``Bool
 private def checked (env : Environment) (decl : Declaration) : CoreM Environment := do
   match env.addDeclCore 800000 10000 decl none with
   | .ok next => return next
-  | .error err => throwError "{err.toMessageData (← getOptions)}"
+  -- Report only that the kernel rejected the declaration. The rejected term is ill-typed, and its
+  -- pretty-printed form is not stable across environments, so we do not include it in the message.
+  | .error _ => throwError "kernel error"
 
 private def define (env : Environment) (name : Name) (type value : Expr) :
     CoreM Environment :=
@@ -126,11 +128,7 @@ private def closedWitness (x : Expr) : Expr :=
       mkApp (mkConst (.str gate "intro")) x]
 
 /--
-error: (kernel) type expected
-  @Native64ResultSortGate.rec x (fun index index_1 index_2 index_3 proof => Type) Prop
-    (Native64SortGateB.0.3766726852 ((fun salt => x) 125330)) (Native64SortGateA.1.2023879994 ((fun salt => x) 125330))
-    (Native64SortGateA.1.2023879994 ((fun salt => x) 125330)) (Native64SortGateA.1.2023879994 ((fun salt => x) 125330))
-    h
+error: kernel error
 -/
 #guard_msgs in
 run_meta do

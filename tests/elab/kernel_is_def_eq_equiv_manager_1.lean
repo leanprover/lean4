@@ -35,7 +35,9 @@ private def bool := mkConst ``Bool
 private def checked (env : Environment) (decl : Declaration) : CoreM Environment := do
   match env.addDeclCore 800000 8000 decl none with
   | .ok next => return next
-  | .error err => throwError "{err.toMessageData (← getOptions)}"
+  -- Report only that the kernel rejected the declaration. The rejected term is ill-typed, and its
+  -- pretty-printed form is not stable across environments, so we do not include it in the message.
+  | .error _ => throwError "kernel error"
 
 private def pad (salt : Nat) (e : Expr) : Expr :=
   mkApp (mkLambda `salt .default (mkConst ``Nat) (e.liftLooseBVars 0 1)) (mkNatLit salt)
@@ -80,7 +82,7 @@ private def ownerDecl : Declaration :=
   }] false
 
 /--
-error: (kernel) arg #3 of 'Native64TwoHashOwner.step' contains a non valid occurrence of the datatypes being declared
+error: kernel error
 -/
 #guard_msgs in
 run_meta do

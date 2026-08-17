@@ -2,8 +2,9 @@ import Std.WP
 import Std.Tactic.Do
 
 /-! Tests that `vcgen` names a loop's verification-condition binders after the program's own `for`
-element and mutable variable rather than after the spec lemma's binders. The program's variables
-are accessible in the verification condition; the spec lemma's binders stay inaccessible. -/
+element, mutable variable, and `invariant` clause binders rather than after the spec lemma's
+binders. The program's variables are accessible in the verification condition; the spec lemma's
+binders stay inaccessible. -/
 
 open Std.WP Lean.Order
 
@@ -25,10 +26,10 @@ a✝ : acc % 2 = 0
 ⊢ ∃ k, acc = 2 * k
 
 case vc2
-xs pref✝ : List Nat
+xs _cur : List Nat
 x : Nat
-suff✝ : List Nat
-_h✝ : ForIn.toList xs = pref✝ ++ x :: suff✝
+_suff : List Nat
+_h✝ : ForIn.toList xs = _cur ++ x :: _suff
 acc✝ : Nat
 a✝ : acc✝ % 2 = 0
 acc : Nat := acc✝ + 2 * x
@@ -76,10 +77,10 @@ def sumMemEvens (xs : List Nat) : Id Nat := do
   return acc
 
 /--
-trace: xs pref✝ : List Nat
+trace: xs _cur : List Nat
 x : Nat
-suff✝ : List Nat
-h✝ : ForIn.toList xs = pref✝ ++ x :: suff✝
+_suff : List Nat
+h✝ : ForIn.toList xs = _cur ++ x :: _suff
 acc✝ : Nat
 a✝ : acc✝ % 2 = 0
 acc : Nat := acc✝ + 2 * x

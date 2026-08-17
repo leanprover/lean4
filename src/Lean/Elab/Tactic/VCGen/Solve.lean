@@ -126,11 +126,11 @@ private def stateMatcherAltNames? (f : Expr) : VCGenM (Option (Array Name)) := d
     alt := b
   return some names
 
-/-- Find the leading binder of `target` that a `binderNameHint` in the goal's precondition names
-through a state-destructuring matcher lambda: the state tuple of a loop with several mutable
-variables. Returns the number of binders preceding it and the names of the tuple's components.
-The hint chain sits at the precondition's head, so no goal traversal is needed. -/
-private def findStateTupleSplit? (target : Expr) : VCGenM (Option (Nat × Array Name)) := do
+/-- Scan the hint chain at the head of the precondition of `target` (under its binder telescope).
+Returns the program names the hints carry for the leading binders, which stay accessible on
+introduction, and the state-tuple binder to split when a hint destructures its argument through a
+matcher lambda: the number of binders preceding it and the names of the tuple's components. -/
+private def scanPreHints (target : Expr) : VCGenM (NameSet × Option (Nat × Array Name)) := do
   let rec peel (e : Expr) (k : Nat) : Expr × Nat :=
     match e with
     | .forallE _ _ b _ => peel b (k+1)
@@ -141,32 +141,25 @@ private def findStateTupleSplit? (target : Expr) : VCGenM (Option (Nat × Array 
     | PartialOrder.rel _ _ pre _ => some pre
     | Triple _ _ _ _ _ _ _ _ pre _ _ => some pre
     | _ => none
-  let some pre := pre? | return none
-  let rec chain (e : Expr) (fuel : Nat) : VCGenM (Option (Nat × Array Name)) := do
-    match fuel with
-    | 0 => return none
-    | fuel+1 =>
-      unless e.getAppFn.isConstOf ``binderNameHint && e.getAppNumArgs ≥ 6 do return none
-      let args := e.getAppArgs
-      if let .bvar i := args[3]!.cleanupAnnotations then
-        if i < k then
-          if let some names ← stateMatcherAltNames? args[4]! then
+  let some pre := pre? | return ({}, none)
+  let mut accessible : NameSet := {}
+  let mut split : Option (Nat × Array Name) := none
+  let mut e := pre
+  for _ in *...8 do
+    unless e.getAppFn.isConstOf ``binderNameHint && e.getAppNumArgs ≥ 6 do break
+    let args := e.getAppArgs
+    if let .bvar i := args[3]!.cleanupAnnotations then
+      if i < k then
+        let f := args[4]!
+        if let .lam n _ _ _ := f.headBeta.cleanupAnnotations then
+          if isProgramName n then
+            accessible := accessible.insert n
+        if split.isNone then
+          if let some names ← stateMatcherAltNames? f then
             if names.size ≥ 2 then
-              return some (k - 1 - i, names)
-      chain args[5]! fuel
-  chain pre 8
-
-/-- The names hint resolution assigned to the goal's leading binders: the leading binder names of
-the resolved target that differ from `original`'s. These are the program's own variable names. -/
-private def hintAssignedNames (original : Expr) (goal : MVarId) : VCGenM NameSet := do
-  unless original.hasBinderNameHint do return {}
-  let rec go (a b : Expr) (acc : NameSet) : NameSet :=
-    match a, b with
-    | .forallE n₁ _ b₁ _, .forallE n₂ _ b₂ _
-    | .letE n₁ _ _ b₁ _, .letE n₂ _ _ b₂ _ =>
-      go b₁ b₂ (if n₁ == n₂ then acc else acc.insert n₂)
-    | _, _ => acc
-  return go original (← goal.getType) {}
+              split := some (k - 1 - i, names)
+    e := args[5]!
+  return (accessible, split)
 
 /-- Introduce the first `n` leading binders of `goal`, naming them as `introsHygienic` does. -/
 private def introPrefixHygienic (goal : MVarId) (n : Nat) (accessible : NameSet) :
@@ -328,12 +321,11 @@ the state tuple of a loop with several mutable variables is split into one binde
 first, named after the program's own destructuring. -/
 private def forallIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
   unless target.isForall do return none
-  -- Detect the split on the instantiated target, before hint resolution erases the hints.
-  let splitInfo? ← if target.hasBinderNameHint then
-    findStateTupleSplit? (← instantiateMVarsS target)
-  else pure none
+  -- Scan the hints on the instantiated target, before hint resolution erases them.
+  let (hintNames, splitInfo?) ← if target.hasBinderNameHint then
+    scanPreHints (← instantiateMVarsS target)
+  else pure ({}, none)
   let goal ← resolveBinderNameHints goal target
-  let hintNames ← hintAssignedNames target goal
   if let some (prefixLen, names) := splitInfo? then
     let goal ← introPrefixHygienic goal prefixLen hintNames
     return some [← splitStateTuple goal names]

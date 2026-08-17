@@ -75,7 +75,8 @@ theorem Spec.forInPure {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
     (step : ∀ pref cur suff (_h : ForIn.toList xs = pref ++ cur :: suff) b,
       Triple
         (f cur b)
-        (binderNameHint cur f <| binderNameHint b (inv pref (cur :: suff)) <|
+        (binderNameHint pref inv <| binderNameHint suff (inv pref) <|
+          binderNameHint cur f <| binderNameHint b (inv pref (cur :: suff)) <|
           inv pref (cur :: suff) b)
         (fun r => match r with
           | .yield b' => inv (pref ++ [cur]) suff b'
@@ -99,7 +100,8 @@ theorem Spec.forInPure' {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
     (step : ∀ pref cur suff (h : ForIn.toList xs = pref ++ cur :: suff) b,
       Triple
         (f cur ((LawfulMemForInId.mem_toList_iff).mp (by simp [h])) b)
-        (binderNameHint cur f <| binderNameHint b (inv pref (cur :: suff)) <|
+        (binderNameHint pref inv <| binderNameHint suff (inv pref) <|
+          binderNameHint cur f <| binderNameHint b (inv pref (cur :: suff)) <|
           inv pref (cur :: suff) b)
         (fun r => match r with
           | .yield b' => inv (pref ++ [cur]) suff b'

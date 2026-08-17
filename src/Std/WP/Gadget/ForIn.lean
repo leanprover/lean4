@@ -6,6 +6,7 @@ Authors: Sebastian Graf
 module
 
 prelude
+public import Init.BinderNameHint
 public import Std.WP.Triple.SpecLemmas
 public import Std.Internal.ForIn
 
@@ -59,7 +60,11 @@ end Gadget
 
 open Gadget
 
-/-! ## Specifications -/
+/-! ## Specifications
+
+The `binderNameHint`s take the element and state binder names from the loop body `f` and the
+invariant `inv`, so `vcgen` presents its verification conditions under the source program's
+names. -/
 
 @[spec]
 theorem Spec.forInPure {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
@@ -70,7 +75,8 @@ theorem Spec.forInPure {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
     (step : ∀ pref cur suff (_h : ForIn.toList xs = pref ++ cur :: suff) b,
       Triple
         (f cur b)
-        (inv pref (cur :: suff) b)
+        (binderNameHint cur f <| binderNameHint b (inv pref (cur :: suff)) <|
+          inv pref (cur :: suff) b)
         (fun r => match r with
           | .yield b' => inv (pref ++ [cur]) suff b'
           | .done b' => inv (ForIn.toList xs) [] b')
@@ -78,7 +84,7 @@ theorem Spec.forInPure {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
     Triple
       (forInPureWithInvariant xs init f inv)
       (inv [] (ForIn.toList xs) init)
-      (fun b => inv (ForIn.toList xs) [] b)
+      (fun b => binderNameHint b (inv (ForIn.toList xs) []) <| inv (ForIn.toList xs) [] b)
       epost := by
   unfold forInPureWithInvariant
   rw [PureForIn.forIn_eq]
@@ -93,7 +99,8 @@ theorem Spec.forInPure' {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
     (step : ∀ pref cur suff (h : ForIn.toList xs = pref ++ cur :: suff) b,
       Triple
         (f cur ((LawfulMemForInId.mem_toList_iff).mp (by simp [h])) b)
-        (inv pref (cur :: suff) b)
+        (binderNameHint cur f <| binderNameHint b (inv pref (cur :: suff)) <|
+          inv pref (cur :: suff) b)
         (fun r => match r with
           | .yield b' => inv (pref ++ [cur]) suff b'
           | .done b' => inv (ForIn.toList xs) [] b')
@@ -101,7 +108,7 @@ theorem Spec.forInPure' {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
     Triple
       (forInPureWithInvariant' xs init f inv)
       (inv [] (ForIn.toList xs) init)
-      (fun b => inv (ForIn.toList xs) [] b)
+      (fun b => binderNameHint b (inv (ForIn.toList xs) []) <| inv (ForIn.toList xs) [] b)
       epost := by
   unfold forInPureWithInvariant'
   rw [PureForIn'.forIn'_eq]

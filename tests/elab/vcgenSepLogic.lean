@@ -29,9 +29,8 @@ reverse is the `iFrame` moment at program scale.
 A second showcase is an in-place append after the C original in SF Verifiable C ("Magic wand,
 partial data structure"): a loop walks to the last node, its invariant carrying the visited prefix
 in a wand. Each iteration absorbs a node into the wand (`wand_absorb`), and linking the last node
-discharges it by the counit of the `∗ ⊣ -∗` adjunction. The specification is ramified: the
-schematic post `Q` is received through a second wand at the known result, so `append_concat`
-follows by direct application.
+discharges it by the counit of the `∗ ⊣ -∗` adjunction. The specification is a plain triple with
+a concrete postcondition, and `append_concat` fixes its fuel to the list length.
 
 Both programs are fuel-bounded `for` loops, verified against `Spec.forIn_range` with explicitly
 instantiated loop invariants.
@@ -845,7 +844,8 @@ def matchSepAtoms (pre cancel : Expr) : MetaM (Array Expr × Array Expr × Array
       footprint := footprint.push rest[i]!
       rest := rest.eraseIdxIfInBounds i
     | none =>
-      footprint := footprint.push (← instantiateMVars atom)
+      let atom ← instantiateMVars atom
+      footprint := footprint.push atom
       unmatched := unmatched.push atom
   return (rest, footprint, unmatched)
 
@@ -950,10 +950,11 @@ def sepConjFrameProc : FrameInferenceProc := fun i => do
   if i.spec? == some `probe_spec then
     logInfo m!"framing for spec {i.spec?}"
   let some app ← i.applySpec i.excessArgs | return .failed
-  let specPre ← instantiateMVars (← app.preVC.getType).appArg!
+  let specPre ← shareCommon (← instantiateMVars (← app.preVC.getType).appArg!)
   -- A spec whose precondition mentions its own schematic post cannot frame through the weakest
-  -- footprint: the wrapped and the unwrapped post produce different preconditions.
-  let post ← instantiateMVars app.post
+  -- footprint: the wrapped and the unwrapped post produce different preconditions. `shareCommon`
+  -- on both operands makes the pointer test `isSameExpr` reliable.
+  let post ← shareCommon (← instantiateMVars app.post)
   if (specPre.find? (isSameExpr · post)).isSome then return (.goals [])
   -- One cancellation serves both modes. A pinned frame cancels its own atoms, and the leftover
   -- is the footprint. Spec-driven inference cancels `specPre`'s atoms, and the leftover is the

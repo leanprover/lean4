@@ -949,13 +949,13 @@ def sepConjFrameProc : FrameInferenceProc := fun i => do
   -- name. `probe_spec` isolates the report to the one test example below.
   if i.spec? == some `probe_spec then
     logInfo m!"framing for spec {i.spec?}"
-  let some app ← i.applySpec i.excessArgs | return .failed
+  let app := i.app
   let specPre ← shareCommon (← instantiateMVars (← app.preVC.getType).appArg!)
   -- A spec whose precondition mentions its own schematic post cannot frame through the weakest
   -- footprint: the wrapped and the unwrapped post produce different preconditions. `shareCommon`
   -- on both operands makes the pointer test `isSameExpr` reliable.
   let post ← shareCommon (← instantiateMVars app.post)
-  if (specPre.find? (isSameExpr · post)).isSome then return (.goals [])
+  if (specPre.find? (isSameExpr · post)).isSome then return .unframed
   -- One cancellation serves both modes. A pinned frame cancels its own atoms, and the leftover
   -- is the footprint. Spec-driven inference cancels `specPre`'s atoms, and the leftover is the
   -- frame.
@@ -963,13 +963,13 @@ def sepConjFrameProc : FrameInferenceProc := fun i => do
   if let some frame := i.providedFrame? then
     -- If the precondition holds nothing for a pinned frame atom, no partition exists. Defer the
     -- split VC.
-    unless unpaid.isEmpty do return (.goals (← (← i.commit).withDeferredSplitVC frame))
-    .goals <$> dischargeSplitVC i (← i.commit) app matched rest unpaid
+    unless unpaid.isEmpty do return .framed (·.withDeferredSplitVC frame)
+    return .framed (dischargeSplitVC i · app matched rest unpaid)
   else
     -- Nothing paired (for example an unfold equation or a loop spec), or nothing left over:
     -- unframed.
-    if unpaid.size == matched.size || rest.isEmpty then return (.goals [])
-    .goals <$> dischargeSplitVC i (← i.commit) app rest matched unpaid
+    if unpaid.size == matched.size || rest.isEmpty then return .unframed
+    return .framed (dischargeSplitVC i · app rest matched unpaid)
 
 @[frameproc] def heapFP : FrameProc where
   prog := ``HeapM

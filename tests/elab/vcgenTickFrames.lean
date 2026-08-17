@@ -234,43 +234,45 @@ count (`i.excessArgs[0]`, the first excess state argument of the `Nat → L` cos
 discharges the split VC `pre ⊑ (costConj shift W) ticks s⃗` itself. The spec applied at the
 shifted counter proves `pre ⊑ W (ticks - shift) s⃗`. This chains into `le_ofProp_meet_self`,
 stated at the cost lattice and applied to `s⃗` through the pointwise order on functions. The tick
-guard `shift ≤ ticks` remains as a subgoal. The chain only typechecks with the spec applied at
-the shifted counter, so it guards the delegation of the excess state arguments to the
-procedure. -/
+guard `shift ≤ ticks` remains as a subgoal. The chain only typechecks at the shifted counter, so
+it guards the open excess arguments of the spec application. -/
 def tickFrameProc : FrameInferenceProc := fun i => do
-  unless i.Pred.isArrow && i.Pred.bindingDomain!.isConstOf ``Nat do return (.goals [])
-  let some ticks := i.excessArgs[0]? | return (.goals [])
+  unless i.Pred.isArrow && i.Pred.bindingDomain!.isConstOf ``Nat do return .unframed
+  let some ticks := i.excessArgs[0]? | return .unframed
   let shift ← match i.providedFrame? with
     | some r => pure r
     | none => instantiateMVarsS ticks
   -- A zero shift frames nothing, for example a `frames` clause that pins `0`.
-  if shift.nat? == some 0 then return (.goals [])
-  let rest := i.excessArgs.extract 1 i.excessArgs.size
+  if shift.nat? == some 0 then return .unframed
+  let app := i.app
+  -- Complete the open excess arguments before the decision: the counter shifts, deeper state
+  -- stays the goal's.
   let shifted ← mkAppNS (← mkConstS ``Nat.sub) #[ticks, shift]
-  let some app ← i.applySpec (#[shifted] ++ rest) | return .failed
-  let goals ← i.commit
-  let W ← goals.weakestFootprint i.excessArgs.size
-  unless ← isDefEqS app.post (W.getArg! 8) do
-    throwError "tick frameproc: could not fix the framed postcondition"
+  unless ← isDefEqS app.excess[0]! shifted do return .unframed
+  for h : idx in [1:app.excess.size] do
+    unless ← isDefEqS app.excess[idx]! i.excessArgs[idx]! do return .unframed
   let pre ← i.pre
-  unless ← isDefEqS app.footprint pre do
-    throwError "tick frameproc: could not take the precondition as the footprint"
-  -- The lattice instances come from the frame operator and the goal entailment.
-  let op ← i.mkOpApp
-  let costL := op.getAppArgs[0]!
-  let costInst := op.getAppArgs[1]!
-  let us := op.getAppFn.constLevels!
-  let φ ← mkAppNS (← mkConstS ``Nat.le) #[shift, ticks]
-  let hle ← mkFreshExprSyntheticOpaqueMVar φ
-  let hmeet ← mkAppNS (← mkConstS ``le_ofProp_meet_self us)
-    #[costL, costInst, φ, ← mkAppNS W #[shifted], hle]
-  -- The pointwise order on functions lets `hmeet` apply to the state arguments directly.
-  let happ ← mkAppNS hmeet rest
-  let ty ← Sym.inferType happ
-  let le ← i.le
-  let prf ← mkAppNS (← mkConstS ``Lean.Order.PartialOrder.rel_trans le.getAppFn.constLevels!)
-    (le.getAppArgs ++ #[pre, ty.appFn!.appArg!, ty.appArg!, app.proof, happ])
-  .goals <$> goals.withDischargedSplitVC shift prf (hle.mvarId! :: app.preVC :: app.subgoals)
+  unless ← isDefEqS app.footprint pre do return .unframed
+  return .framed fun goals => do
+    let W ← goals.weakestFootprint i.excessArgs.size
+    unless ← isDefEqS app.post (W.getArg! 8) do
+      throwError "tick frameproc: could not fix the framed postcondition"
+    -- The lattice instances come from the frame operator and the goal entailment.
+    let op ← i.mkOpApp
+    let costL := op.getAppArgs[0]!
+    let costInst := op.getAppArgs[1]!
+    let us := op.getAppFn.constLevels!
+    let φ ← mkAppNS (← mkConstS ``Nat.le) #[shift, ticks]
+    let hle ← mkFreshExprSyntheticOpaqueMVar φ
+    let hmeet ← mkAppNS (← mkConstS ``le_ofProp_meet_self us)
+      #[costL, costInst, φ, ← mkAppNS W #[shifted], hle]
+    -- The pointwise order on functions lets `hmeet` apply to the state arguments directly.
+    let happ ← mkAppNS hmeet (i.excessArgs.extract 1 i.excessArgs.size)
+    let ty ← Sym.inferType happ
+    let le ← i.le
+    let prf ← mkAppNS (← mkConstS ``Lean.Order.PartialOrder.rel_trans le.getAppFn.constLevels!)
+      (le.getAppArgs ++ #[pre, ty.appFn!.appArg!, ty.appArg!, app.proof, happ])
+    goals.withDischargedSplitVC shift prf (hle.mvarId! :: app.preVC :: app.subgoals)
 
 /-- Register the cost frame inference procedure for `vcgen`, indexed by the `TickT` program type. The
 frame operator `costConj` is built at the base lattice `L` read off the assertion type `Nat → L`, so it

@@ -437,26 +437,31 @@ private def isFramedPost (post : Expr) : Bool :=
   let body := if post.isLambda then post.bindingBody! else post
   body.consumeMData.getAppFn.isConstOf ``Lean.Order.PreservesSup.upperAdjoint
 
-/-- Implementation of `FrameInferenceInfo.applySpec`: apply `specRule` to a fresh footprint
-entailment `?fp ⊑ wp prog ?post epost s⃗`. Only the post differs from the goal's `wp` application,
-and the rule's post is schematic. So applicability here agrees with applicability at the goal and
-at the weakest footprint alike. The spec's precondition VC is the sole bare entailment among the
-subgoals. The `∀`-quantified subgoals are the postcondition VCs. -/
-private def applySpecToFootprint (goal : MVarId) (info : WPApp) (specRule : Sym.BackwardRule)
-    (excessArgs : Array Expr) : VCGenM (Option SpecApplication) := do
+/-- Implementation of the solver-side spec application: apply `specRule` once to the fresh target
+`?fp ⊑ wp prog ?Q E ?s⃗`, with the footprint, the post and the excess state arguments open and the
+exception post the goal's. Only the post and the excess arguments differ from the goal's `wp`
+application. The rule's post is schematic, and the excess arguments never decide applicability. So
+applicability here agrees with applicability at the goal. A failed attempt can introduce dead
+metavariables: no part of the goal is instantiated with a term that contains them. The spec's
+precondition VC is the sole bare entailment among the subgoals. The `∀`-quantified subgoals are
+the postcondition VCs. -/
+private def applySpecSymbolic (goal : MVarId) (info : WPApp) (specRule : Sym.BackwardRule) :
+    VCGenM (Option SpecApplication) := do
   let goalType ← goal.getType
   let le := goalType.stripArgsN 2
   let fp ← mkFreshExprMVar le.appFn!.appArg!
   let post ← mkFreshExprMVar (← Sym.inferType info.post)
-  let wpApp ← mkAppNS (← mkAppNS info.head (info.args.set! 8 post)) excessArgs
+  let excess ← info.excessArgs.mapM fun a => do mkFreshExprMVar (← Sym.inferType a)
+  let wpApp ← mkAppNS (← mkAppNS info.head (info.args.set! 8 post)) excess
   let target ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[fp, wpApp])
   let .goals sgs ← specRule.apply target.mvarId! | return none
   let some preVC ← sgs.findM? fun g => return (← g.getType).isAppOf ``Lean.Order.PartialOrder.rel
     | throwError "frame: spec rule left no precondition VC for{indentExpr info.prog}"
-  return some { proof := target, footprint := fp, post, preVC, subgoals := sgs.filter (· != preVC) }
-/-- Implementation of `FrameInferenceInfo.commit`: apply the frame rule for `fp`'s operator,
-assigning `goal`, and read its subgoals off by the positions `mkFrameBackwardRuleCached` recorded at
-rule construction. -/
+  return some { proof := target, footprint := fp, post, excess, preVC,
+                subgoals := sgs.filter (· != preVC) }
+
+/-- Apply the frame rule for `fp`'s operator, assigning `goal`, and read its subgoals off by the
+positions `mkFrameBackwardRuleCached` recorded at rule construction. -/
 private def commitFrameRule (goal : MVarId) (info : WPApp) (fp : FrameProc) :
     VCGenM FrameGoals := do
   let frule ← mkFrameBackwardRuleCached fp info
@@ -473,14 +478,14 @@ the frame procedure commits. `none` when no backward rule fits the goal's monad,
 does not apply.
 
 - A spec with a conjunctive precondition, or an already-framed residual, applies its spec directly.
-- Otherwise the frame procedure for the monad is selected (the `@[frameproc]` registered for the
-  program type, or the default meet frame). The choice is per node, since sub-programs may reach a
-  different monad (e.g. a `monadLift`ed base call).
-- An explicit `frames` clause elaborates a frame and passes it to the procedure.
-- The procedure decides whether to frame, for example by pairing the goal precondition against
-  the precondition of the spec applied through `FrameInferenceInfo.applySpec`. Committing applies
-  the frame rule, and the unassigned metavariables of the resulting proof become the subgoals.
-  Returning without committing applies the spec unframed.
+- Otherwise the solver applies the spec's backward rule once, to the symbolic target
+  `?fp ⊑ wp prog ?Q E ?s⃗` (`applySpecSymbolic`), and consults the frame procedure for the monad
+  (the `@[frameproc]` registered for the program type, or the default meet frame). The choice is
+  per node, since sub-programs can reach a different monad (for example a `monadLift`ed base
+  call). An explicit `frames` clause elaborates a frame and passes it to the procedure.
+- `FrameResult.framed k` applies the frame rule and runs `k` on its subgoals; the framed path
+  applies the spec exactly once. `FrameResult.unframed` applies the spec to the goal directly and
+  orphans the symbolic application.
 -/
 private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
     VCGenM (Option SolveResult) := do
@@ -494,24 +499,28 @@ private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : Spec
         Pred:{indentExpr info.Pred}\n\
         excessArgs: {info.excessArgs}"
     | return none
-  let applySpec := (specRule.applyChecked · m!"spec rule for{indentExpr info.prog}")
-  unless thm.conjunctivePre || isFramedPost info.post do
-    let procs := (← read).frameProcs.byProg
-    let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
-    let providedFrame? ← matchFrame? fp info
-    let .goals subgoals ← liftWith fun runInBase => do
-        fp.proc { info with goal, providedFrame?, spec? := thm.global?,
-                            applySpec := fun ss => runInBase (applySpecToFootprint goal info specRule ss),
-                            mkOpApp := do shareCommon (← fp.mkOpAppM info),
-                            commit := runInBase (commitFrameRule goal info fp) }
+  if thm.conjunctivePre || isFramedPost info.post then
+    trace[Elab.Tactic.Do.vcgen] "Applying spec {thm.proof} for {info.prog}. Excess args: {info.excessArgs}"
+    let .goals goals ← specRule.applyChecked goal m!"spec rule for{indentExpr info.prog}"
       | return none
-    if ← goal.isAssigned then
-      trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` framed {info.prog}"
-      return some (.goals scope subgoals)
-  trace[Elab.Tactic.Do.vcgen] "Applying spec {thm.proof} for {info.prog}. Excess args: {info.excessArgs}"
-  let .goals goals ← applySpec goal
-    | return none
-  return some (.goals scope goals)
+    return some (.goals scope goals)
+  let procs := (← read).frameProcs.byProg
+  let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
+  let providedFrame? ← matchFrame? fp info
+  let some app ← applySpecSymbolic goal info specRule | return none
+  match ← fp.proc { info with goal, providedFrame?, spec? := thm.global?, app,
+                              mkOpApp := do shareCommon (← fp.mkOpAppM info) } with
+  | .framed k =>
+    let goals ← commitFrameRule goal info fp
+    trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` framed {info.prog}"
+    return some (.goals scope (← (k goals : Grind.GrindM _)))
+  | .unframed =>
+    -- The symbolic application stays orphaned: its metavariables are dead. The direct application
+    -- builds its subgoal types by substitution, the invariant the solver pipeline relies on.
+    trace[Elab.Tactic.Do.vcgen] "Applying spec {thm.proof} for {info.prog}. Excess args: {info.excessArgs}"
+    let .goals goals ← specRule.applyChecked goal m!"spec rule for{indentExpr info.prog}"
+      | return none
+    return some (.goals scope goals)
 
 /--
 Handle a spec-ready program `info.prog`: apply the highest-priority `@[spec]` theorem whose backward

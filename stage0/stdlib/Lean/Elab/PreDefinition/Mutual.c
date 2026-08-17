@@ -17,7 +17,7 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
@@ -366,7 +366,7 @@ goto v_reusejp_62_;
 v_reusejp_62_:
 {
 lean_object* v___x_64_; lean_object* v___x_65_; lean_object* v___x_66_; 
-v___x_64_ = lean_st_ref_set(v___y_39_, v___x_63_);
+v___x_64_ = lean_st_ref_put(v___y_39_, v___x_63_);
 v___x_65_ = lean_box(0);
 v___x_66_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_66_, 0, v___x_65_);
@@ -1116,7 +1116,7 @@ goto v_reusejp_332_;
 v_reusejp_332_:
 {
 lean_object* v___x_334_; 
-v___x_334_ = lean_st_ref_set(v_a_231_, v___x_333_);
+v___x_334_ = lean_st_ref_put(v_a_231_, v___x_333_);
 v_fileName_266_ = v_fileName_239_;
 v_fileMap_267_ = v_fileMap_240_;
 v_currRecDepth_268_ = v_currRecDepth_242_;
@@ -1503,7 +1503,7 @@ goto v_reusejp_530_;
 v_reusejp_530_:
 {
 lean_object* v___x_532_; lean_object* v___x_533_; lean_object* v_mctx_534_; lean_object* v_zetaDeltaFVarIds_535_; lean_object* v_postponed_536_; lean_object* v_diag_537_; lean_object* v___x_539_; uint8_t v_isShared_540_; uint8_t v_isSharedCheck_548_; 
-v___x_532_ = lean_st_ref_set(v___y_512_, v___x_531_);
+v___x_532_ = lean_st_ref_put(v___y_512_, v___x_531_);
 v___x_533_ = lean_st_ref_take(v___y_511_);
 v_mctx_534_ = lean_ctor_get(v___x_533_, 0);
 v_zetaDeltaFVarIds_535_ = lean_ctor_get(v___x_533_, 2);
@@ -1555,7 +1555,7 @@ goto v_reusejp_542_;
 v_reusejp_542_:
 {
 lean_object* v___x_544_; lean_object* v___x_545_; lean_object* v___x_546_; 
-v___x_544_ = lean_st_ref_set(v___y_511_, v___x_543_);
+v___x_544_ = lean_st_ref_put(v___y_511_, v___x_543_);
 v___x_545_ = lean_box(0);
 v___x_546_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_546_, 0, v___x_545_);

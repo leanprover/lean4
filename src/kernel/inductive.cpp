@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <algorithm>
 #include "runtime/sstream.h"
 #include "runtime/utf8.h"
 #include "util/name_generator.h"
@@ -118,6 +119,48 @@ optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr cons
             return optional<recursor_rule>(rule);
     }
     return optional<recursor_rule>();
+}
+
+/* Check that every occurrence of a datatype being declared in a constructor type of `d` is applied
+   to the declaration's universe levels and to its parameters, which at binder depth `offset` are the
+   bound variables `#(offset-1) … #(offset-nparams)`. That those binders really are the parameters is
+   established later, by `get_params` and the parameter check in `check_constructors`.
+
+   Later phases inspect the constructor types modulo `whnf`, which can erase an occurrence (as in
+   `(fun _ => Unit) (T Nat)`), and the parametric arguments of a nested occurrence are dropped from
+   the auxiliary declaration altogether, so a non-uniform occurrence could escape checking there.
+   Reduction never creates an occurrence of a datatype being declared, since those are not yet in the
+   environment, so checking the syntactic occurrences here covers all of them. */
+static void check_uniform_ind_occs(environment const & env, inductive_decl const & d) {
+    if (!d.get_nparams().is_small())
+        throw kernel_exception(env, "invalid inductive datatype, number of parameters is too big");
+    unsigned nparams = d.get_nparams().get_small_value();
+    levels lvls = lparams_to_levels(d.get_lparams());
+    buffer<name> ind_names;
+    for (inductive_type const & ind_type : d.get_types())
+        ind_names.push_back(ind_type.get_name());
+    for (inductive_type const & ind_type : d.get_types()) {
+        for (constructor const & cnstr : ind_type.get_cnstrs()) {
+            for_each(constructor_type(cnstr), [&](expr const & t, unsigned offset) {
+                    buffer<expr> args;
+                    expr const & fn = get_app_args(t, args);
+                    if (!is_constant(fn) || std::find(ind_names.begin(), ind_names.end(), const_name(fn)) == ind_names.end())
+                        return true;
+                    /* Over-applied: descend, so that occurrences in the indices are checked too. The
+                       parameter application itself is visited as a subterm of `t` and checked below. */
+                    if (args.size() > nparams)
+                        return true;
+                    bool ok = args.size() == nparams && offset >= nparams && const_levels(fn) == lvls;
+                    for (unsigned i = 0; ok && i < nparams; i++)
+                        ok = is_bvar(args[i], offset - 1 - i);
+                    if (!ok)
+                        throw kernel_exception(env, sstream() << "invalid occurrence of datatype '" << const_name(fn)
+                                               << "' being declared: it must be applied to the parameters and universe "
+                                               "levels of the mutual declaration");
+                    return false;
+                });
+        }
+    }
 }
 
 /* Auxiliary class for adding a mutual inductive datatype declaration. */
@@ -1154,6 +1197,7 @@ environment environment::add_inductive(declaration const & d) const {
             }
         }
     }
+    check_uniform_ind_occs(*this, inductive_decl(d));
     elim_nested_inductive_result res = elim_nested_inductive_fn(*this, d)();
     unsigned nnested = res.m_aux2nested.size();
     scoped_diagnostics diag(*this, true);

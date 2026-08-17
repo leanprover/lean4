@@ -6,7 +6,7 @@ Same add/sub loop as `AddSubCancel` but with a pure `let offset := ...` binding 
 Exercises the handling of pure `letE` nodes in the elaborated program (let-hoist / let-intro).
 -/
 
-open Lean Meta Order Std.Internal.Do
+open Lean Meta Order Std.WP
 
 namespace LetBinding
 

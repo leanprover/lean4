@@ -50,7 +50,7 @@ lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_mkRef___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLetDeclImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAux(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
@@ -1483,7 +1483,7 @@ goto v_reusejp_608_;
 v_reusejp_608_:
 {
 lean_object* v___x_610_; lean_object* v___x_611_; 
-v___x_610_ = lean_st_ref_set(v___y_591_, v___x_609_);
+v___x_610_ = lean_st_ref_put(v___y_591_, v___x_609_);
 v___x_611_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_611_, 0, v_fst_598_);
 return v___x_611_;
@@ -1575,7 +1575,7 @@ lean_object* v___x_657_; lean_object* v___x_658_; lean_object* v___x_659_; lean_
 v___x_657_ = lean_st_ref_take(v_val_635_);
 lean_inc(v___x_636_);
 v___x_658_ = lean_array_push(v___x_657_, v___x_636_);
-v___x_659_ = lean_st_ref_set(v_val_635_, v___x_658_);
+v___x_659_ = lean_st_ref_put(v_val_635_, v___x_658_);
 v___x_660_ = lean_st_ref_take(v___y_640_);
 v_mctx_661_ = lean_ctor_get(v___x_660_, 0);
 v_cache_662_ = lean_ctor_get(v___x_660_, 1);
@@ -1626,7 +1626,7 @@ goto v_reusejp_670_;
 v_reusejp_670_:
 {
 lean_object* v___x_672_; lean_object* v___x_674_; 
-v___x_672_ = lean_st_ref_set(v___y_640_, v___x_671_);
+v___x_672_ = lean_st_ref_put(v___y_640_, v___x_671_);
 if (v_isShared_656_ == 0)
 {
 lean_ctor_set(v___x_655_, 0, v___x_634_);
@@ -2995,7 +2995,7 @@ _start:
 lean_object* v___x_1223_; lean_object* v___x_1224_; lean_object* v___x_1225_; lean_object* v___x_1226_; 
 v___x_1223_ = lean_st_ref_take(v_a_1219_);
 v___x_1224_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lean_Meta_ForEachExpr_0__Lean_Meta_forEachExpr_x27_visit___at___00Lean_Meta_forEachExpr_x27___at___00Lean_Meta_forEachExpr___at___00Lean_Meta_setMVarUserNamesAt_spec__4_spec__5_spec__6_spec__8___redArg(v___x_1223_, v_e_1220_, v_a_1221_);
-v___x_1225_ = lean_st_ref_set(v_a_1219_, v___x_1224_);
+v___x_1225_ = lean_st_ref_put(v_a_1219_, v___x_1224_);
 v___x_1226_ = lean_box(0);
 return v___x_1226_;
 }
@@ -4185,7 +4185,7 @@ goto v_reusejp_1737_;
 v_reusejp_1737_:
 {
 lean_object* v___x_1739_; lean_object* v___x_1740_; size_t v___x_1741_; size_t v___x_1742_; 
-v___x_1739_ = lean_st_ref_set(v___y_1721_, v___x_1738_);
+v___x_1739_ = lean_st_ref_put(v___y_1721_, v___x_1738_);
 v___x_1740_ = lean_box(0);
 v___x_1741_ = ((size_t)1ULL);
 v___x_1742_ = lean_usize_add(v_i_1719_, v___x_1741_);
@@ -4494,7 +4494,7 @@ lean_dec_ref_known(v___x_1872_, 1);
 v___x_1874_ = lean_st_ref_take(v___y_1861_);
 v___x_1875_ = l_Array_append___redArg(v___x_1874_, v_a_1873_);
 lean_dec(v_a_1873_);
-v___x_1876_ = lean_st_ref_set(v___y_1861_, v___x_1875_);
+v___x_1876_ = lean_st_ref_put(v___y_1861_, v___x_1875_);
 v___x_1877_ = lean_box(0);
 v___x_1878_ = ((size_t)1ULL);
 v___x_1879_ = lean_usize_add(v_i_1859_, v___x_1878_);
@@ -4648,7 +4648,7 @@ lean_dec_ref_known(v___x_1927_, 1);
 v___x_1929_ = lean_st_ref_take(v___y_1916_);
 v___x_1930_ = l_Array_append___redArg(v___x_1929_, v_a_1928_);
 lean_dec(v_a_1928_);
-v___x_1931_ = lean_st_ref_set(v___y_1916_, v___x_1930_);
+v___x_1931_ = lean_st_ref_put(v___y_1916_, v___x_1930_);
 v___x_1932_ = lean_box(0);
 v___x_1933_ = ((size_t)1ULL);
 v___x_1934_ = lean_usize_add(v_i_1914_, v___x_1933_);
@@ -4927,7 +4927,7 @@ lean_dec_ref_known(v___x_2049_, 1);
 v___x_2051_ = lean_st_ref_take(v___x_2025_);
 v___x_2052_ = l_Array_append___redArg(v___x_2051_, v_a_2050_);
 lean_dec(v_a_2050_);
-v___x_2053_ = lean_st_ref_set(v___x_2025_, v___x_2052_);
+v___x_2053_ = lean_st_ref_put(v___x_2025_, v___x_2052_);
 v___x_2054_ = 0;
 v___x_2055_ = 1;
 v___x_2056_ = l_Lean_Meta_mkForallFVars(v_xs_2003_, v_type_2004_, v___x_2054_, v___x_2017_, v___x_2017_, v___x_2055_, v_a_2005_, v_a_2006_, v_a_2007_, v_a_2008_);

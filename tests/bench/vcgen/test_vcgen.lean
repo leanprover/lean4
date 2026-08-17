@@ -25,7 +25,7 @@ Each case exercises a different aspect of the VC generation:
 - `MatchSplit`: Pattern matching with symbolic discriminant (state), exercising match split
 -/
 
-open Lean Order Parser Meta Elab Tactic Sym Std Internal.Do
+open Lean Order Parser Meta Elab Tactic Sym Std WP
 
 set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
@@ -72,7 +72,7 @@ h✝³ : ¬6 < s✝ + 6
 h✝² : ¬7 < s✝ + 7
 h✝¹ : ¬8 < s✝ + 8
 h✝ : ¬9 < s✝ + 9
-⊢ s✝ + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 = 10
+⊢ s✝ + 9 + 1 = 10
 -/
 #guard_msgs in
 open GetThrowSet in

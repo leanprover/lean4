@@ -17,7 +17,7 @@ lean_object* l_Lean_Elab_Term_withPushMacroExpansionStack___boxed(lean_object*, 
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -968,7 +968,7 @@ goto v_reusejp_201_;
 v_reusejp_201_:
 {
 lean_object* v___x_203_; lean_object* v___x_204_; 
-v___x_203_ = lean_st_ref_set(v___y_174_, v___x_202_);
+v___x_203_ = lean_st_ref_put(v___y_174_, v___x_202_);
 v___x_204_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_204_, 0, v_trees_178_);
 return v___x_204_;
@@ -1134,7 +1134,7 @@ goto v_reusejp_253_;
 v_reusejp_253_:
 {
 lean_object* v___x_255_; lean_object* v___x_256_; lean_object* v___x_258_; 
-v___x_255_ = lean_st_ref_set(v___y_213_, v___x_254_);
+v___x_255_ = lean_st_ref_put(v___y_213_, v___x_254_);
 v___x_256_ = lean_box(0);
 if (v_isShared_230_ == 0)
 {

@@ -60,7 +60,7 @@ lean_object* l_Lean_Meta_instMonadMetaM___lam__1___boxed(lean_object*, lean_obje
 lean_object* l_Lean_Core_instMonadCoreM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_instMonadCoreM___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 uint8_t l___private_Lean_Util_Trace_0__Lean_checkTraceOption_go(lean_object*, lean_object*, lean_object*);
@@ -559,7 +559,7 @@ goto v_reusejp_82_;
 v_reusejp_82_:
 {
 lean_object* v___x_84_; lean_object* v___x_85_; 
-v___x_84_ = lean_st_ref_set(v___y_57_, v___x_83_);
+v___x_84_ = lean_st_ref_put(v___y_57_, v___x_83_);
 v___x_85_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_85_, 0, v_traces_61_);
 return v___x_85_;
@@ -2456,7 +2456,7 @@ goto v_reusejp_697_;
 v_reusejp_697_:
 {
 lean_object* v___x_699_; lean_object* v___x_700_; lean_object* v___x_702_; 
-v___x_699_ = lean_st_ref_set(v___y_643_, v___x_698_);
+v___x_699_ = lean_st_ref_put(v___y_643_, v___x_698_);
 v___x_700_ = lean_box(0);
 if (v_isShared_675_ == 0)
 {
@@ -2818,7 +2818,7 @@ goto v_reusejp_799_;
 v_reusejp_799_:
 {
 lean_object* v___x_801_; lean_object* v___x_802_; 
-v___x_801_ = lean_st_ref_set(v___y_738_, v___x_800_);
+v___x_801_ = lean_st_ref_put(v___y_738_, v___x_800_);
 v___x_802_ = l_MonadExcept_ofExcept___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Meta_reduceSparseCasesOn_spec__6_spec__10___redArg(v_fst_740_);
 return v___x_802_;
 }
@@ -4700,7 +4700,7 @@ goto v_reusejp_1491_;
 v_reusejp_1491_:
 {
 lean_object* v___x_1493_; lean_object* v___x_1494_; lean_object* v___x_1496_; 
-v___x_1493_ = lean_st_ref_set(v___y_1454_, v___x_1492_);
+v___x_1493_ = lean_st_ref_put(v___y_1454_, v___x_1492_);
 v___x_1494_ = lean_box(0);
 if (v_isShared_1461_ == 0)
 {

@@ -20,7 +20,7 @@ lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate_rev(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvar___override(lean_object*);
 lean_object* l_Lean_LocalContext_mkLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t);
@@ -1878,7 +1878,7 @@ goto v_reusejp_535_;
 v_reusejp_535_:
 {
 lean_object* v___x_537_; lean_object* v___x_538_; 
-v___x_537_ = lean_st_ref_set(v___y_509_, v___x_536_);
+v___x_537_ = lean_st_ref_put(v___y_509_, v___x_536_);
 v___x_538_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_538_, 0, v_r_530_);
 return v___x_538_;
@@ -4092,7 +4092,7 @@ _start:
 lean_object* v___x_1265_; lean_object* v___x_1266_; lean_object* v___x_1267_; 
 v___x_1265_ = lean_obj_once(&l_Lean_throwError___at___00Lean_Compiler_LCNF_InferType_Pure_inferProjType_spec__0___redArg___closed__1, &l_Lean_throwError___at___00Lean_Compiler_LCNF_InferType_Pure_inferProjType_spec__0___redArg___closed__1_once, _init_l_Lean_throwError___at___00Lean_Compiler_LCNF_InferType_Pure_inferProjType_spec__0___redArg___closed__1);
 v___x_1266_ = lean_unsigned_to_nat(0u);
-v___x_1267_ = lean_alloc_ctor(0, 10, 0);
+v___x_1267_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_1267_, 0, v___x_1266_);
 lean_ctor_set(v___x_1267_, 1, v___x_1266_);
 lean_ctor_set(v___x_1267_, 2, v___x_1266_);
@@ -4103,6 +4103,7 @@ lean_ctor_set(v___x_1267_, 6, v___x_1265_);
 lean_ctor_set(v___x_1267_, 7, v___x_1265_);
 lean_ctor_set(v___x_1267_, 8, v___x_1265_);
 lean_ctor_set(v___x_1267_, 9, v___x_1265_);
+lean_ctor_set(v___x_1267_, 10, v___x_1265_);
 return v___x_1267_;
 }
 }

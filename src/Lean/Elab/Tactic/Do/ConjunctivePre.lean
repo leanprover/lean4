@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Basic
-public import Std.Internal.Do.Triple.Basic
+public import Std.WP.Triple.Basic
 
 /-!
 # Conjunctive preconditions: spec applications that need no frame
@@ -92,9 +92,9 @@ re-routes the point-frame through the premises: the conclusion VC trivializes an
 lands at the current state, losslessly. The analysis stays with the premise-free fragment.
 -/
 
-namespace Lean.Elab.Tactic.Do.Internal.SpecAttr
+namespace Lean.Elab.Tactic.VCGen.SpecAttr
 
-open Lean Meta Std.Internal.Do Lean.Order
+open Lean Meta Std.WP Lean.Order
 
 /-- The precondition, program, postcondition, and exception postcondition of a spec conclusion in
 either `Triple` or `pre ⊑ wp …` shape. -/
@@ -154,4 +154,4 @@ public def isConjunctiveInPosts (concl : Expr) (binders : Array Expr) : MetaM Bo
     if occursMVar qs (← inferType b) then return false
   return isConjunctiveIn qs pre
 
-end Lean.Elab.Tactic.Do.Internal.SpecAttr
+end Lean.Elab.Tactic.VCGen.SpecAttr

@@ -7,7 +7,7 @@ otherwise increments the state by one. With the loop driving the state up from `
 never fires, so the program never throws and ends at state `n`.
 -/
 
-open Lean Meta Order Std.Internal.Do
+open Lean Meta Order Std.WP
 
 namespace GetThrowSet
 

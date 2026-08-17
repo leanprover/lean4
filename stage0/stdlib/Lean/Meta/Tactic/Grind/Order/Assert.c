@@ -53,7 +53,7 @@ lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Order_getCnstr_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_isEqTrue___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_isEqFalse___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3233,7 +3233,7 @@ goto v_reusejp_950_;
 v_reusejp_950_:
 {
 lean_object* v___x_952_; lean_object* v___x_953_; lean_object* v___x_955_; 
-v___x_952_ = lean_st_ref_set(v___y_913_, v___x_951_);
+v___x_952_ = lean_st_ref_put(v___y_913_, v___x_951_);
 v___x_953_ = lean_box(0);
 if (v_isShared_920_ == 0)
 {

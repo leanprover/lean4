@@ -62,7 +62,7 @@ lean_object* l_Lean_MapDeclarationExtension_find_x3f___redArg(lean_object*, lean
 uint8_t l_Lean_MapDeclarationExtension_contains___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_MapDeclarationExtension_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FunIndParamKind_ctorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_FunIndParamKind_ctorIdx___boxed(lean_object*);
@@ -1685,7 +1685,7 @@ _start:
 lean_object* v___x_521_; lean_object* v___x_522_; lean_object* v___x_523_; 
 v___x_521_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_getFunInduct_x3f_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___redArg___closed__1, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_getFunInduct_x3f_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___redArg___closed__1_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_getFunInduct_x3f_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___redArg___closed__1);
 v___x_522_ = lean_unsigned_to_nat(0u);
-v___x_523_ = lean_alloc_ctor(0, 10, 0);
+v___x_523_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_523_, 0, v___x_522_);
 lean_ctor_set(v___x_523_, 1, v___x_522_);
 lean_ctor_set(v___x_523_, 2, v___x_522_);
@@ -1696,6 +1696,7 @@ lean_ctor_set(v___x_523_, 6, v___x_521_);
 lean_ctor_set(v___x_523_, 7, v___x_521_);
 lean_ctor_set(v___x_523_, 8, v___x_521_);
 lean_ctor_set(v___x_523_, 9, v___x_521_);
+lean_ctor_set(v___x_523_, 10, v___x_521_);
 return v___x_523_;
 }
 }
@@ -2889,7 +2890,7 @@ goto v_reusejp_977_;
 v_reusejp_977_:
 {
 lean_object* v___x_979_; lean_object* v___x_980_; lean_object* v___x_981_; 
-v___x_979_ = lean_st_ref_set(v_a_955_, v___x_978_);
+v___x_979_ = lean_st_ref_put(v_a_955_, v___x_978_);
 v___x_980_ = lean_box(0);
 v___x_981_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_981_, 0, v___x_980_);

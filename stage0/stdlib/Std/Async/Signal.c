@@ -23,7 +23,7 @@ lean_object* lean_mk_io_user_error(lean_object*);
 lean_object* lean_io_map_task(lean_object*, lean_object*, lean_object*, uint8_t);
 uint8_t lean_io_get_task_state(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_io_promise_resolve(lean_object*, lean_object*);
 lean_object* lean_task_pure(lean_object*);
 lean_object* lean_uv_signal_next(lean_object*);
@@ -3023,7 +3023,7 @@ v___jp_894_:
 uint8_t v___x_896_; lean_object* v___x_897_; lean_object* v___x_898_; 
 v___x_896_ = 1;
 v___x_897_ = lean_box(v___x_896_);
-v___x_898_ = lean_st_ref_set(v_finished_891_, v___x_897_);
+v___x_898_ = lean_st_ref_put(v_finished_891_, v___x_897_);
 if (v___y_895_ == 0)
 {
 lean_object* v___x_899_; 

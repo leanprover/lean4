@@ -6,7 +6,7 @@ Dependent if-then-else (`if h : cond then ...`) inside an `ExceptT String <| Sta
 program. The add/sub around the guarded `throw` keeps the state unchanged on the success path.
 -/
 
-open Lean Meta Order Std.Internal.Do
+open Lean Meta Order Std.WP
 
 namespace DiteSplit
 

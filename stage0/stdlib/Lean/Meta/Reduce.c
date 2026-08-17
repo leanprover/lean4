@@ -64,7 +64,7 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit_spec__1(lean_object*);
@@ -2101,7 +2101,7 @@ lean_object* v___x_703_; lean_object* v___x_704_; lean_object* v___x_705_; lean_
 v___x_703_ = lean_st_ref_take(v_a_686_);
 lean_inc(v_a_699_);
 v___x_704_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit_spec__6___redArg(v___x_703_, v_e_685_, v_a_699_);
-v___x_705_ = lean_st_ref_set(v_a_686_, v___x_704_);
+v___x_705_ = lean_st_ref_put(v_a_686_, v___x_704_);
 if (v_isShared_702_ == 0)
 {
 v___x_707_ = v___x_701_;

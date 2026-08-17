@@ -72,7 +72,7 @@ uint8_t l_Lean_Expr_isMVar(lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_consumeMData(lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 extern lean_object* l_Lean_instEmptyCollectionFVarIdHashSet;
@@ -2521,7 +2521,7 @@ goto v_reusejp_802_;
 v_reusejp_802_:
 {
 lean_object* v___x_804_; lean_object* v___x_805_; 
-v___x_804_ = lean_st_ref_set(v___y_785_, v___x_803_);
+v___x_804_ = lean_st_ref_put(v___y_785_, v___x_803_);
 v___x_805_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_805_, 0, v_fst_792_);
 return v___x_805_;

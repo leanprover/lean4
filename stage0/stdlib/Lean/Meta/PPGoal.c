@@ -45,7 +45,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_simpMacroScopes(lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 uint32_t l_Lean_Expr_approxDepth(lean_object*);
@@ -1207,7 +1207,7 @@ goto v_reusejp_400_;
 v_reusejp_400_:
 {
 lean_object* v___x_402_; lean_object* v___x_403_; 
-v___x_402_ = lean_st_ref_set(v___y_383_, v___x_401_);
+v___x_402_ = lean_st_ref_put(v___y_383_, v___x_401_);
 v___x_403_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_403_, 0, v_fst_390_);
 return v___x_403_;

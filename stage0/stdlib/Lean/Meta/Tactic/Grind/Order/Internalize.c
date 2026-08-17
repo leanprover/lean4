@@ -120,7 +120,7 @@ lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* l_Int_toNat(lean_object*);
@@ -15763,7 +15763,7 @@ goto v_reusejp_4989_;
 v_reusejp_4989_:
 {
 lean_object* v___x_4991_; lean_object* v___x_4992_; lean_object* v___x_4994_; 
-v___x_4991_ = lean_st_ref_set(v___y_4952_, v___x_4990_);
+v___x_4991_ = lean_st_ref_put(v___y_4952_, v___x_4990_);
 v___x_4992_ = lean_box(0);
 if (v_isShared_4959_ == 0)
 {
@@ -22923,7 +22923,7 @@ goto v_resetjp_7316_;
 v_resetjp_7316_:
 {
 uint8_t v_order_7319_; 
-v_order_7319_ = lean_ctor_get_uint8(v_a_7315_, sizeof(void*)*14 + 27);
+v_order_7319_ = lean_ctor_get_uint8(v_a_7315_, sizeof(void*)*14 + 28);
 lean_dec(v_a_7315_);
 if (v_order_7319_ == 0)
 {

@@ -46,7 +46,7 @@ lean_object* lean_string_from_utf8_unchecked(lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
@@ -773,7 +773,7 @@ _start:
 lean_object* v___x_166_; lean_object* v___x_167_; lean_object* v___x_168_; 
 v___x_166_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lake_DSL_Meta_0__Lake_DSL_elabMetaIf_spec__0_spec__0_spec__1___redArg___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lake_DSL_Meta_0__Lake_DSL_elabMetaIf_spec__0_spec__0_spec__1___redArg___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lake_DSL_Meta_0__Lake_DSL_elabMetaIf_spec__0_spec__0_spec__1___redArg___closed__1);
 v___x_167_ = lean_unsigned_to_nat(0u);
-v___x_168_ = lean_alloc_ctor(0, 10, 0);
+v___x_168_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_168_, 0, v___x_167_);
 lean_ctor_set(v___x_168_, 1, v___x_167_);
 lean_ctor_set(v___x_168_, 2, v___x_167_);
@@ -784,6 +784,7 @@ lean_ctor_set(v___x_168_, 6, v___x_166_);
 lean_ctor_set(v___x_168_, 7, v___x_166_);
 lean_ctor_set(v___x_168_, 8, v___x_166_);
 lean_ctor_set(v___x_168_, 9, v___x_166_);
+lean_ctor_set(v___x_168_, 10, v___x_166_);
 return v___x_168_;
 }
 }
@@ -1905,7 +1906,7 @@ goto v_reusejp_582_;
 v_reusejp_582_:
 {
 lean_object* v___x_584_; lean_object* v___x_585_; 
-v___x_584_ = lean_st_ref_set(v___y_565_, v___x_583_);
+v___x_584_ = lean_st_ref_put(v___y_565_, v___x_583_);
 v___x_585_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_585_, 0, v_fst_572_);
 return v___x_585_;
@@ -2405,7 +2406,7 @@ goto v_reusejp_777_;
 v_reusejp_777_:
 {
 lean_object* v___x_779_; lean_object* v___x_780_; lean_object* v___x_781_; 
-v___x_779_ = lean_st_ref_set(v___y_757_, v___x_778_);
+v___x_779_ = lean_st_ref_put(v___y_757_, v___x_778_);
 v___x_780_ = lean_box(0);
 v___x_781_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_781_, 0, v___x_780_);

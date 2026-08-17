@@ -45,7 +45,7 @@ lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
@@ -1636,7 +1636,7 @@ goto v_reusejp_332_;
 v_reusejp_332_:
 {
 lean_object* v___x_334_; lean_object* v___x_335_; lean_object* v___x_337_; 
-v___x_334_ = lean_st_ref_set(v___y_295_, v___x_333_);
+v___x_334_ = lean_st_ref_put(v___y_295_, v___x_333_);
 v___x_335_ = lean_box(0);
 if (v_isShared_302_ == 0)
 {
@@ -2994,7 +2994,7 @@ goto v_reusejp_737_;
 v_reusejp_737_:
 {
 lean_object* v___x_739_; lean_object* v___x_740_; lean_object* v___x_741_; lean_object* v___x_742_; lean_object* v___x_744_; 
-v___x_739_ = lean_st_ref_set(v___y_684_, v___x_738_);
+v___x_739_ = lean_st_ref_put(v___y_684_, v___x_738_);
 v___x_740_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Grind_ForallProp_0__Lean_Meta_Grind_getOrigin___redArg___closed__1));
 v___x_741_ = lean_name_append_index_after(v___x_740_, v_nextThmIdx_725_);
 v___x_742_ = lean_alloc_ctor(3, 1, 0);

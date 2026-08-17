@@ -19,7 +19,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 uint8_t l_Lean_instBEqFVarId_beq(lean_object*, lean_object*);
 uint8_t l_Lean_LocalContext_contains(lean_object*, lean_object*);
@@ -1968,7 +1968,7 @@ goto v_reusejp_434_;
 v_reusejp_434_:
 {
 lean_object* v___x_436_; lean_object* v___x_437_; 
-v___x_436_ = lean_st_ref_set(v___y_417_, v___x_435_);
+v___x_436_ = lean_st_ref_put(v___y_417_, v___x_435_);
 v___x_437_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_437_, 0, v_fst_424_);
 return v___x_437_;
@@ -8400,7 +8400,7 @@ goto v_reusejp_2533_;
 v_reusejp_2533_:
 {
 lean_object* v___x_2535_; lean_object* v___x_2536_; 
-v___x_2535_ = lean_st_ref_set(v___y_2516_, v___x_2534_);
+v___x_2535_ = lean_st_ref_put(v___y_2516_, v___x_2534_);
 v___x_2536_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2536_, 0, v_fst_2523_);
 return v___x_2536_;

@@ -373,8 +373,8 @@ partial def Code.toMono (code : Code .pure) : ToMonoM (Code .pure) := do
   | .jmp fvarId args => return code.updateJmp! fvarId (← args.mapM argToMono)
   | .return .. => return code
   | .cases c =>
-    if h : c.typeName == ``Decidable then
-      decToMono c h
+    if h : c.typeName == ``Decidable ∧ !(← getEnv).contains `Decidable.intro then
+      decToMono c h.1
     else if h : c.typeName == ``Nat then
       casesNatToMono c h
     else if h : c.typeName == ``Int then

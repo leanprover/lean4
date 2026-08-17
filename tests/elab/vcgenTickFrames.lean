@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 import Lean
-import Std.Internal
+import Std.WP
 import Std.Tactic.Do
 
 set_option mvcgen.warning false
@@ -17,12 +17,12 @@ A cost transformer `TickT m := StateT Nat m` whose weakest precondition bakes in
 rule for a resource that is **not** the lattice meet. The resource is a `Nat` tick counter with
 separating conjunction `costConj shift b = fun ticks => ⌜shift ≤ ticks⌝ ⊓ b (ticks - shift)`
 (Day convolution with a point mass: translate `b` by `shift`) and magic wand
-`shift -⋆ b = fun ticks => b (ticks + shift)`. `TickT.wp` is the `PreservesSup.frameClosure` of the
+`shift -⋆ b = fun ticks => b (ticks + shift)`. `TickT.wp` is the `frameClosure` of the
 base wp over `costConj`, so every program frames every shift by construction, and a registered
 `@[frameproc]` lets plain `vcgen` infer and frame the shift across calls.
 -/
 
-open Lean Order Meta Elab Tactic Sym Sym.Internal Std Internal.Do Std.Internal.Do.CompleteLattice
+open Lean Order Meta Elab Tactic Sym Sym.Internal Std WP
 
 /-! ## The cost separating conjunction -/
 
@@ -140,11 +140,11 @@ def TickT.run [Monad m] {α : Type} (x : TickT m α) : StateT Nat m α := x
 /-- The cost primitive: incur one unit of cost by incrementing the counter. -/
 def tick [Monad m] : TickT m Unit := show StateT Nat m Unit from modify (· + 1)
 
-/-- The frame-internalizing cost weakest precondition: the `PreservesSup.frameClosure` of the base
+/-- The frame-internalizing cost weakest precondition: the `frameClosure` of the base
 `StateT` wp over `costConj`. -/
 noncomputable def TickT.wp [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     {α : Type} (x : TickT m α) (Q : α → Nat → Pred) (E : EPred) : Nat → Pred :=
-  PreservesSup.frameClosure costConj (WP.wp x.run · E) Q
+  ((WP.wpTrans x.run).frameClosure costConj).apply Q E
 
 /-- The simp normal form for `TickT.wp`: the meet over all shifts `r` of the base wp under the
 shifted postcondition `⌜r ≤ m⌝ ⊓ Q a (m - r)`, offset by `r`. -/
@@ -152,7 +152,7 @@ shifted postcondition `⌜r ≤ m⌝ ⊓ Q a (m - r)`, offset by `r`. -/
 theorem TickT.wp_apply_eq [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     {α : Type} (x : TickT m α) (Q : α → Nat → Pred) (E : EPred) (n : Nat) :
     TickT.wp x Q E n = ⨅ r, WP.wp x.run (fun a m => ⌜r ≤ m⌝ ⊓ Q a (m - r)) E (n + r) := by
-  simp only [TickT.wp, PreservesSup.frameClosure, iInf_apply, costConj_imp]
+  simp only [TickT.wp, PredTrans.apply_frameClosure, iInf_apply, costConj_imp]
   rfl
 
 theorem TickT.le_wp_tick [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
@@ -190,7 +190,7 @@ noncomputable instance TickT.instWPMonad [Assertion Pred] [Assertion EPred] [WPM
 theorem frames_costConj [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     {α : Type} (x : TickT m α) (F : Nat) : WP.Frames costConj x F :=
   WP.Frames.of_frameClosure costConj (· + ·) costConj_add
-    ⟨fun y E Q' => WP.wp y.run Q' E, fun _ _ _ => rfl⟩
+    ⟨fun y => WP.wpTrans y.run, fun _ => rfl⟩
 
 /-- The frame rule, pointwise: holding `F` commutes into the postcondition of any `TickT` program. -/
 theorem tickFrames [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
@@ -216,7 +216,7 @@ theorem TickT.le_wp_tick' [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPr
 `tickFrameProc` shifts by the current tick count and emits the split VC in its `costConj_apply`
 meet form, so the built-in meet split yields the tick guard and the shifted residual. -/
 
-open Lean.Elab.Tactic.Do.Internal Lean.Elab.Tactic.Do.Internal.VCGen
+open Lean.Elab.Tactic.VCGen
 
 /-- Exact spec for `tick`, registered so `vcgen` can decompose `tick` calls. -/
 @[spec] theorem tick_spec [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :

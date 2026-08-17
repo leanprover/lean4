@@ -1,5 +1,5 @@
 import Std.Tactic.Do
-import Std.Internal.Do
+import Std.WP
 
 /-!
 `vcgen` tries the `@[spec]` theorems matching a program in descending priority order and applies the
@@ -10,7 +10,7 @@ is passed over for the next candidate.
 set_option mvcgen.warning false
 set_option warn.sorry false
 
-open Std.Internal.Do Lean.Order
+open Std.WP Lean.Order
 
 class Missing (ρ : Type) : Prop
 

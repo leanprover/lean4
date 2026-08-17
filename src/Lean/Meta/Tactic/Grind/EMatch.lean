@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.ProveEq
 import Lean.Meta.Tactic.Grind.SynthInstance
 import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Sym.Arith.EvalNum
 import Init.Grind.Util
 import Init.Omega
 public import Lean.Meta.HasAssignableMVar
@@ -311,7 +312,7 @@ private partial def processOffset (c : Choice) (genInfo? : Option GenPatternInfo
   repeat
     let n ← getENode curr
     if n.generation < maxGeneration then
-      if let some (eArg, k') ← isOffset? curr |>.run then
+      if let some (eArg, k') ← Sym.Arith.isOffset? curr |>.run then
         if let some c ← assignGenInfo? genInfo? c e |>.run then
           if k' < k then
             let c := c.updateGen n.generation
@@ -325,7 +326,7 @@ private partial def processOffset (c : Choice) (genInfo? : Option GenPatternInfo
             internalize eArg' (n.generation+1)
             if let some c ← matchArg? c pArg eArg' |>.run then
               pushChoice (c.updateGen n.generation)
-      else if let some k' ← evalNat curr |>.run then
+      else if let some k' ← Sym.Arith.evalNat? curr |>.run then
         if let some c ← assignGenInfo? genInfo? c e |>.run then
           if k' >= k then
             let eArg' := mkNatLit (k' - k)

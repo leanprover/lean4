@@ -42,7 +42,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Array_shrink___redArg(lean_object*, lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_updateAltCodeImp___redArg(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
@@ -737,7 +737,7 @@ v___x_261_ = lean_st_ref_take(v_a_239_);
 v___x_262_ = l_Array_shrink___redArg(v___x_261_, v___x_256_);
 v___x_263_ = l_Array_append___redArg(v___x_262_, v_snd_260_);
 lean_dec(v_snd_260_);
-v___x_264_ = lean_st_ref_set(v_a_239_, v___x_263_);
+v___x_264_ = lean_st_ref_put(v_a_239_, v___x_263_);
 if (v_isShared_254_ == 0)
 {
 lean_ctor_set(v___x_253_, 0, v_fst_259_);
@@ -931,7 +931,7 @@ else
 lean_object* v___x_351_; lean_object* v___x_352_; lean_object* v___x_353_; lean_object* v___x_355_; 
 v___x_351_ = lean_st_ref_take(v_a_331_);
 v___x_352_ = lean_array_push(v___x_351_, v_decl_329_);
-v___x_353_ = lean_st_ref_set(v_a_331_, v___x_352_);
+v___x_353_ = lean_st_ref_put(v_a_331_, v___x_352_);
 if (v_isShared_349_ == 0)
 {
 v___x_355_ = v___x_348_;

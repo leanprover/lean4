@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_String_Slice_slice_x21(lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -821,7 +821,7 @@ lean_inc(v_startInclusive_117_);
 v_endExclusive_118_ = lean_ctor_get(v___x_115_, 2);
 lean_inc(v_endExclusive_118_);
 lean_dec_ref(v___x_115_);
-v___x_119_ = lean_string_utf8_extract(v_str_116_, v_startInclusive_117_, v_endExclusive_118_);
+v___x_119_ = lean_string_utf8_extract_fast(v_str_116_, v_startInclusive_117_, v_endExclusive_118_);
 lean_dec(v_endExclusive_118_);
 lean_dec(v_startInclusive_117_);
 lean_dec_ref(v_str_116_);
@@ -836,7 +836,7 @@ v___jp_122_:
 lean_object* v___x_124_; lean_object* v___x_125_; lean_object* v___x_126_; lean_object* v___x_127_; 
 v___x_124_ = lean_unsigned_to_nat(0u);
 v___x_125_ = lean_string_utf8_byte_size(v_replacement_108_);
-v___x_126_ = lean_string_utf8_extract(v_replacement_108_, v___x_124_, v___x_125_);
+v___x_126_ = lean_string_utf8_extract_fast(v_replacement_108_, v___x_124_, v___x_125_);
 v___x_127_ = lean_string_append(v_b_110_, v___x_126_);
 lean_dec_ref(v___x_126_);
 v_a_109_ = v_it_123_;

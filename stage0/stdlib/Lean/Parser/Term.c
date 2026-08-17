@@ -172,7 +172,7 @@ lean_object* l_Lean_PrettyPrinter_Formatter_checkColGt_formatter___boxed(lean_ob
 lean_object* l_Lean_PrettyPrinter_Formatter_visitAtom(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Syntax_Traverser_left(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Doc_Parser_document_formatter(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_visitArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Doc_Parser_ifVerso_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -13894,7 +13894,7 @@ goto v_reusejp_187_;
 v_reusejp_187_:
 {
 lean_object* v___x_189_; lean_object* v___x_190_; lean_object* v___x_191_; 
-v___x_189_ = lean_st_ref_set(v___y_174_, v___x_188_);
+v___x_189_ = lean_st_ref_put(v___y_174_, v___x_188_);
 v___x_190_ = lean_box(0);
 v___x_191_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_191_, 0, v___x_190_);

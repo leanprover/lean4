@@ -112,7 +112,7 @@ lean_object* l_Lean_Parser_sepByFn(uint8_t, lean_object*, lean_object*, lean_obj
 uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Slice_Pos_nextn(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Slice_Pos_prevn(lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_popSyntax(lean_object*);
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
@@ -143,7 +143,7 @@ lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_fi
 lean_object* lean_st_ref_get(lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_backtrackExceptionId;
 uint8_t l_Lean_instBEqInternalExceptionId_beq(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_swap(lean_object*, lean_object*);
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
@@ -9671,7 +9671,7 @@ v___x_3188_ = l_String_Slice_Pos_prevn(v___x_3186_, v___x_3187_, v___x_3183_);
 lean_dec_ref_known(v___x_3186_, 3);
 v___x_3189_ = lean_nat_add(v___x_3185_, v___x_3188_);
 lean_dec(v___x_3188_);
-v_core_3190_ = lean_string_utf8_extract(v_val_3168_, v___x_3185_, v___x_3189_);
+v_core_3190_ = lean_string_utf8_extract_fast(v_val_3168_, v___x_3185_, v___x_3189_);
 lean_dec(v___x_3189_);
 lean_dec(v___x_3185_);
 lean_dec_ref(v_val_3168_);
@@ -16186,7 +16186,7 @@ lean_dec_ref_known(v___x_5856_, 3);
 v___x_5859_ = lean_nat_add(v_startInclusive_5854_, v___x_5858_);
 lean_dec(v___x_5858_);
 lean_dec(v_startInclusive_5854_);
-v___x_5860_ = lean_string_utf8_extract(v___y_5847_, v___x_5859_, v_endExclusive_5855_);
+v___x_5860_ = lean_string_utf8_extract_fast(v___y_5847_, v___x_5859_, v_endExclusive_5855_);
 lean_dec(v_endExclusive_5855_);
 lean_dec(v___x_5859_);
 v___x_5861_ = lean_string_append(v_b_5851_, v___x_5860_);
@@ -16305,7 +16305,7 @@ lean_ctor_set(v___x_5917_, 1, v___x_5915_);
 lean_ctor_set(v___x_5917_, 2, v___x_5916_);
 v___x_5918_ = l_String_Slice_Pos_prevn(v___x_5917_, v___x_5916_, v___x_5914_);
 lean_dec_ref_known(v___x_5917_, 3);
-v___x_5919_ = lean_string_utf8_extract(v_str_5901_, v___x_5915_, v___x_5918_);
+v___x_5919_ = lean_string_utf8_extract_fast(v_str_5901_, v___x_5915_, v___x_5918_);
 lean_dec(v___x_5918_);
 lean_dec_ref(v_str_5901_);
 v___y_5904_ = v___x_5919_;
@@ -19558,7 +19558,8 @@ else
 {
 lean_object* v___x_7665_; lean_object* v___x_7666_; 
 lean_dec_ref_known(v___x_7658_, 1);
-v___x_7665_ = lean_st_ref_set(v_a_7653_, v___x_7657_);
+v___x_7665_ = lean_st_ref_swap(v_a_7653_, v___x_7657_);
+lean_dec(v___x_7665_);
 lean_inc(v_a_7655_);
 lean_inc_ref(v_a_7654_);
 lean_inc(v_a_7653_);
@@ -19656,7 +19657,8 @@ else
 {
 lean_object* v___x_7692_; lean_object* v___x_7693_; 
 lean_dec_ref_known(v___x_7685_, 1);
-v___x_7692_ = lean_st_ref_set(v_a_7680_, v___x_7684_);
+v___x_7692_ = lean_st_ref_swap(v_a_7680_, v___x_7684_);
+lean_dec(v___x_7692_);
 lean_inc(v_a_7682_);
 lean_inc_ref(v_a_7681_);
 lean_inc(v_a_7680_);
@@ -19909,7 +19911,8 @@ else
 {
 lean_object* v___x_7762_; lean_object* v___x_7763_; 
 lean_dec_ref_known(v___x_7755_, 1);
-v___x_7762_ = lean_st_ref_set(v_a_7750_, v___x_7754_);
+v___x_7762_ = lean_st_ref_swap(v_a_7750_, v___x_7754_);
+lean_dec(v___x_7762_);
 lean_inc(v_a_7752_);
 lean_inc_ref(v_a_7751_);
 lean_inc(v_a_7750_);
@@ -20007,7 +20010,8 @@ else
 {
 lean_object* v___x_7789_; lean_object* v___x_7790_; 
 lean_dec_ref_known(v___x_7782_, 1);
-v___x_7789_ = lean_st_ref_set(v_a_7777_, v___x_7781_);
+v___x_7789_ = lean_st_ref_swap(v_a_7777_, v___x_7781_);
+lean_dec(v___x_7789_);
 lean_inc(v_a_7779_);
 lean_inc_ref(v_a_7778_);
 lean_inc(v_a_7777_);

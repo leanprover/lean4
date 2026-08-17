@@ -50,7 +50,7 @@ lean_object* l___private_Init_While_0__repeatM_erased___redArg(lean_object*, lea
 extern lean_object* l_Std_Async_ContextAsync_instMonad;
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Std_CancellationContext_new();
 lean_object* l_Std_Mutex_new___redArg(lean_object*);
@@ -532,7 +532,7 @@ v___x_123_ = lean_st_ref_take(v___y_120_);
 v___x_124_ = lean_unsigned_to_nat(1u);
 v___x_125_ = lean_nat_add(v___x_123_, v___x_124_);
 lean_dec(v___x_123_);
-v___x_126_ = lean_st_ref_set(v___y_120_, v___x_125_);
+v___x_126_ = lean_st_ref_put(v___y_120_, v___x_125_);
 v___x_127_ = ((lean_object*)(l___private_Std_Http_Server_0__Std_Http_Server_frameCancellation___redArg___lam__0___closed__1));
 return v___x_127_;
 }
@@ -555,7 +555,7 @@ v___x_135_ = lean_st_ref_take(v___y_132_);
 v___x_136_ = lean_unsigned_to_nat(1u);
 v___x_137_ = lean_nat_sub(v___x_135_, v___x_136_);
 lean_dec(v___x_135_);
-v___x_138_ = lean_st_ref_set(v___y_132_, v___x_137_);
+v___x_138_ = lean_st_ref_put(v___y_132_, v___x_137_);
 v___x_139_ = ((lean_object*)(l___private_Std_Http_Server_0__Std_Http_Server_frameCancellation___redArg___lam__0___closed__1));
 return v___x_139_;
 }

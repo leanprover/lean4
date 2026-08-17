@@ -75,7 +75,7 @@ extern lean_object* l_Lean_Meta_Tactic_TryThis_instImpl_00___x40_Lean_Meta_TryTh
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_format(lean_object*, lean_object*);
 extern lean_object* l_Std_Format_defWidth;
 lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -9503,7 +9503,7 @@ goto v_reusejp_3197_;
 v_reusejp_3197_:
 {
 lean_object* v___x_3199_; lean_object* v___x_3200_; lean_object* v___x_3201_; 
-v___x_3199_ = lean_st_ref_set(v___y_3167_, v___x_3198_);
+v___x_3199_ = lean_st_ref_put(v___y_3167_, v___x_3198_);
 v___x_3200_ = lean_box(0);
 v___x_3201_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_3201_, 0, v___x_3200_);

@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Tactic.Do.Syntax
-public import Std.Internal.Do
+public import Std.WP
 public import Lean.Elab.Util
 public import Lean.Elab.Do.Basic
 import Lean.DocString.Extension
@@ -27,7 +27,7 @@ elaborates to the assertion gadget that `vcgen` proves in the course of that the
 
 public section
 
-open Lean Lean.Parser.Command Std.Internal.Do Lean.Order
+open Lean Lean.Parser.Command Std.WP Lean.Order
 
 namespace Lean.Elab.Tactic.Do
 
@@ -94,10 +94,10 @@ def expandDefContract : Macro := fun stx => do
     return stx.setArg 1 (decl.setArg 3 val[2])
   let (specStep?, strippedVal) ← extractSpecSection val[2]
   let cleanDeclaration := stx.setArg 1 (decl.setArg 3 strippedVal)
-  unless (← Macro.hasDecl ``Std.Internal.Do.Triple) do
+  unless (← Macro.hasDecl ``Std.WP.Triple) do
     Macro.throwErrorAt (if requiresStx.isNone then ensuresStx else requiresStx)
       "`requires`/`ensures` contracts elaborate to a `vcgen`-proved specification theorem; \
-add `import Std.Internal.Do` to use them."
+add `import Std.WP` to use them."
   let sig := decl[2]
   let fId : Ident := ⟨decl[1][0]⟩
   let specId := mkIdentFrom fId (fId.getId ++ `spec)
@@ -113,6 +113,7 @@ add `import Std.Internal.Do` to use them."
   let post : Term ← if ensuresStx.isNone then `(fun _ => ⊤) else
     match ensuresStx[0] with
     | `(ensuresClause| ensures $f:basicFun) => `(fun $f:basicFun)
+    | `(ensuresClause| ensures $alts:matchAlts) => `(fun $alts:matchAlts)
     | _ => Macro.throwUnsupported
   let msg : TSyntax `str := ⟨Syntax.mkStrLit <|
     if specStep?.isSome then
@@ -126,10 +127,10 @@ discharge them in a `where finally | spec => ...` section of the definition"⟩
   let specTac : TSyntax `tactic ← match specStep? with
     | some tacs => `(tactic| ($(⟨tacs⟩):tacticSeq))
     | none => `(tactic| skip)
-  -- `open scoped` activates the instances of `Std.Internal.Do` and the `⊤` notation of
+  -- `open scoped` activates the instances of `Std.WP` and the `⊤` notation of
   -- `Lean.Order` for the spec theorem without adding names to the user's scope.
   let thm ← `(command|
-    open scoped Std.Internal.Do Lean.Order in
+    open scoped Std.WP Lean.Order in
     @[spec] theorem $specId $binders* : ⦃ $pre ⦄ $fId $args* ⦃ $post ⦄ := by
       vcgen [$fId:ident] with (try finish)
       $specTac:tactic
@@ -146,11 +147,11 @@ def elabDoAssertion : DoElab := fun stx dec => do
     | `(doAssertion| assert $f:basicFun) => `(fun $f:basicFun)
     | `(doAssertion| assert $p:term) => pure p
     | _ => throwUnsupportedSyntax
-  unless (← getEnv).contains ``assertGadget do
+  unless (← getEnv).contains ``Gadget.assertGadget do
     throwErrorAt tk
-      "the `assert` element elaborates to a `vcgen` gadget; add `import Std.Internal.Do` to use it."
+      "the `assert` element elaborates to a `vcgen` gadget; add `import Std.WP` to use it."
   let dec ← dec.ensureUnitAt tk
-  let e ← Term.elabTermEnsuringType (← `($(mkCIdent ``assertGadget) $as)) (← mkMonadApp (← mkPUnit))
+  let e ← Term.elabTermEnsuringType (← `($(mkCIdent ``Gadget.assertGadget) $as)) (← mkMonadApp (← mkPUnit))
   dec.mkBindUnlessPure e
 
 end Lean.Elab.Tactic.Do

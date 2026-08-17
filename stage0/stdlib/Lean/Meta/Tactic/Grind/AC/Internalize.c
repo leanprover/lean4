@@ -48,7 +48,7 @@ lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_AC_addTermOpId___redArg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Grind_AC_acExt;
 lean_object* l_Lean_Meta_Grind_SolverExtension_markTerm___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1373,7 +1373,7 @@ goto v_reusejp_405_;
 v_reusejp_405_:
 {
 lean_object* v___x_407_; lean_object* v___x_408_; lean_object* v___x_410_; 
-v___x_407_ = lean_st_ref_set(v___y_368_, v___x_406_);
+v___x_407_ = lean_st_ref_put(v___y_368_, v___x_406_);
 v___x_408_ = lean_box(0);
 if (v_isShared_375_ == 0)
 {
@@ -1873,7 +1873,7 @@ goto v_resetjp_609_;
 v_resetjp_609_:
 {
 uint8_t v_ac_612_; uint8_t v___y_614_; 
-v_ac_612_ = lean_ctor_get_uint8(v_a_608_, sizeof(void*)*14 + 24);
+v_ac_612_ = lean_ctor_get_uint8(v_a_608_, sizeof(void*)*14 + 25);
 lean_dec(v_a_608_);
 if (v_ac_612_ == 0)
 {

@@ -24,7 +24,7 @@ lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getLocalImpureDecl_x3f___redArg(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -392,7 +392,7 @@ goto v_reusejp_116_;
 v_reusejp_116_:
 {
 lean_object* v___x_118_; lean_object* v___x_119_; 
-v___x_118_ = lean_st_ref_set(v___y_91_, v___x_117_);
+v___x_118_ = lean_st_ref_put(v___y_91_, v___x_117_);
 v___x_119_ = l_Lean_Compiler_LCNF_getLocalImpureDecl_x3f___redArg(v___x_106_, v___y_93_);
 if (lean_obj_tag(v___x_119_) == 0)
 {
@@ -451,7 +451,7 @@ goto v_reusejp_130_;
 v_reusejp_130_:
 {
 lean_object* v___x_132_; lean_object* v_toSignature_133_; lean_object* v_value_134_; uint8_t v___x_135_; lean_object* v___x_136_; lean_object* v___f_137_; lean_object* v___x_138_; 
-v___x_132_ = lean_st_ref_set(v___y_91_, v___x_131_);
+v___x_132_ = lean_st_ref_put(v___y_91_, v___x_131_);
 v_toSignature_133_ = lean_ctor_get(v_val_121_, 0);
 lean_inc_ref(v_toSignature_133_);
 v_value_134_ = lean_ctor_get(v_val_121_, 1);
@@ -585,7 +585,7 @@ goto v_reusejp_165_;
 v_reusejp_165_:
 {
 lean_object* v___x_167_; lean_object* v___x_168_; 
-v___x_167_ = lean_st_ref_set(v___y_91_, v___x_166_);
+v___x_167_ = lean_st_ref_put(v___y_91_, v___x_166_);
 v___x_168_ = lean_box(0);
 v_a_96_ = v___x_168_;
 goto v___jp_95_;

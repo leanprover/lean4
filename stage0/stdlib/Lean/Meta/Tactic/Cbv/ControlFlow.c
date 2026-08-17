@@ -48,7 +48,7 @@ lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_Simp_Result_withContextDependent(lean_object*);
 lean_object* l_Lean_Meta_Sym_Simp_mkEqTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Tactic_Cbv_registerBuiltinCbvSimproc(lean_object*, lean_object*, lean_object*);
@@ -9489,7 +9489,7 @@ goto v_reusejp_2907_;
 v_reusejp_2907_:
 {
 lean_object* v___x_2909_; lean_object* v___x_2910_; lean_object* v___x_2912_; 
-v___x_2909_ = lean_st_ref_set(v___y_2870_, v___x_2908_);
+v___x_2909_ = lean_st_ref_put(v___y_2870_, v___x_2908_);
 v___x_2910_ = lean_box(0);
 if (v_isShared_2877_ == 0)
 {
@@ -10783,8 +10783,8 @@ return v___y_3362_;
 v___jp_3364_:
 {
 lean_object* v___x_3368_; lean_object* v___x_3369_; 
-lean_dec_ref(v___y_3365_);
-v___x_3368_ = l_Lean_Meta_Sym_Simp_Result_withContextDependent(v___y_3366_);
+lean_dec_ref(v___y_3366_);
+v___x_3368_ = l_Lean_Meta_Sym_Simp_Result_withContextDependent(v___y_3365_);
 lean_inc_ref(v___x_3368_);
 v___x_3369_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_3369_, 0, v___x_3368_);
@@ -10819,8 +10819,8 @@ lean_object* v_a_3376_; uint8_t v___x_3377_;
 v_a_3376_ = lean_ctor_get(v___x_3375_, 0);
 lean_inc(v_a_3376_);
 v___x_3377_ = 0;
-v___y_3365_ = v___x_3375_;
-v___y_3366_ = v_a_3376_;
+v___y_3365_ = v_a_3376_;
+v___y_3366_ = v___x_3375_;
 v___y_3367_ = v___x_3377_;
 goto v___jp_3364_;
 }

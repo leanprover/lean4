@@ -54,7 +54,7 @@ lean_object* l_Lean_Elab_FixedParamPerm_instantiateLambda(lean_object*, lean_obj
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEqGuarded(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_instInhabitedTerminationMeasure_default;
@@ -2671,7 +2671,7 @@ goto v_reusejp_927_;
 v_reusejp_927_:
 {
 lean_object* v___x_929_; lean_object* v___x_930_; 
-v___x_929_ = lean_st_ref_set(v___y_910_, v___x_928_);
+v___x_929_ = lean_st_ref_put(v___y_910_, v___x_928_);
 v___x_930_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_930_, 0, v_fst_917_);
 return v___x_930_;

@@ -88,7 +88,7 @@ lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Array_range(lean_object*);
 lean_object* l_Array_zip___redArg(lean_object*, lean_object*);
@@ -958,7 +958,7 @@ _start:
 lean_object* v___x_44_; lean_object* v___x_45_; lean_object* v___x_46_; 
 v___x_44_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Elab_addConstInfo___at___00__private_Lean_Elab_ConfigEval_DeriveEvalTerm_0__Lean_Elab_ConfigEval_EvalTerm_resolveAtomicNameForConstNamespace_spec__1_spec__1_spec__2_spec__3_spec__6_spec__8_spec__9_spec__10___redArg___closed__1, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Elab_addConstInfo___at___00__private_Lean_Elab_ConfigEval_DeriveEvalTerm_0__Lean_Elab_ConfigEval_EvalTerm_resolveAtomicNameForConstNamespace_spec__1_spec__1_spec__2_spec__3_spec__6_spec__8_spec__9_spec__10___redArg___closed__1_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Elab_addConstInfo___at___00__private_Lean_Elab_ConfigEval_DeriveEvalTerm_0__Lean_Elab_ConfigEval_EvalTerm_resolveAtomicNameForConstNamespace_spec__1_spec__1_spec__2_spec__3_spec__6_spec__8_spec__9_spec__10___redArg___closed__1);
 v___x_45_ = lean_unsigned_to_nat(0u);
-v___x_46_ = lean_alloc_ctor(0, 10, 0);
+v___x_46_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_46_, 0, v___x_45_);
 lean_ctor_set(v___x_46_, 1, v___x_45_);
 lean_ctor_set(v___x_46_, 2, v___x_45_);
@@ -969,6 +969,7 @@ lean_ctor_set(v___x_46_, 6, v___x_44_);
 lean_ctor_set(v___x_46_, 7, v___x_44_);
 lean_ctor_set(v___x_46_, 8, v___x_44_);
 lean_ctor_set(v___x_46_, 9, v___x_44_);
+lean_ctor_set(v___x_46_, 10, v___x_44_);
 return v___x_46_;
 }
 }
@@ -2247,7 +2248,7 @@ goto v_reusejp_529_;
 v_reusejp_529_:
 {
 lean_object* v___x_531_; lean_object* v___x_532_; lean_object* v___x_533_; 
-v___x_531_ = lean_st_ref_set(v___y_499_, v___x_530_);
+v___x_531_ = lean_st_ref_put(v___y_499_, v___x_530_);
 v___x_532_ = lean_box(0);
 v___x_533_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_533_, 0, v___x_532_);
@@ -5988,7 +5989,7 @@ goto v_reusejp_1887_;
 v_reusejp_1887_:
 {
 lean_object* v___x_1889_; lean_object* v___x_1890_; 
-v___x_1889_ = lean_st_ref_set(v___y_1870_, v___x_1888_);
+v___x_1889_ = lean_st_ref_put(v___y_1870_, v___x_1888_);
 v___x_1890_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1890_, 0, v_fst_1877_);
 return v___x_1890_;

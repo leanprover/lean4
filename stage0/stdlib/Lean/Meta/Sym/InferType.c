@@ -39,7 +39,7 @@ lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_shareCommonInc(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
@@ -1007,7 +1007,7 @@ goto v_reusejp_319_;
 v_reusejp_319_:
 {
 lean_object* v___x_321_; lean_object* v___x_323_; 
-v___x_321_ = lean_st_ref_set(v_a_278_, v___x_320_);
+v___x_321_ = lean_st_ref_put(v_a_278_, v___x_320_);
 if (v_isShared_301_ == 0)
 {
 v___x_323_ = v___x_300_;
@@ -1330,7 +1330,7 @@ goto v_reusejp_459_;
 v_reusejp_459_:
 {
 lean_object* v___x_461_; lean_object* v___x_463_; 
-v___x_461_ = lean_st_ref_set(v_a_420_, v___x_460_);
+v___x_461_ = lean_st_ref_put(v_a_420_, v___x_460_);
 if (v_isShared_441_ == 0)
 {
 v___x_463_ = v___x_440_;

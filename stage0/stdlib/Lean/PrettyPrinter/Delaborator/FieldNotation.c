@@ -46,7 +46,7 @@ lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_obje
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_Expr_constName_x3f(lean_object*);
@@ -1228,7 +1228,7 @@ goto v_reusejp_319_;
 v_reusejp_319_:
 {
 lean_object* v___x_321_; lean_object* v___x_322_; lean_object* v___x_323_; 
-v___x_321_ = lean_st_ref_set(v___y_299_, v___x_320_);
+v___x_321_ = lean_st_ref_put(v___y_299_, v___x_320_);
 v___x_322_ = lean_box(0);
 v___x_323_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_323_, 0, v___x_322_);
@@ -2585,7 +2585,7 @@ goto v_reusejp_729_;
 v_reusejp_729_:
 {
 lean_object* v___x_731_; lean_object* v___x_732_; 
-v___x_731_ = lean_st_ref_set(v___y_712_, v___x_730_);
+v___x_731_ = lean_st_ref_put(v___y_712_, v___x_730_);
 v___x_732_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_732_, 0, v_fst_719_);
 return v___x_732_;
@@ -3825,7 +3825,7 @@ _start:
 lean_object* v___x_1120_; lean_object* v___x_1121_; lean_object* v___x_1122_; 
 v___x_1120_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo_spec__2_spec__2_spec__4_spec__5_spec__6_spec__7___redArg___closed__1, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo_spec__2_spec__2_spec__4_spec__5_spec__6_spec__7___redArg___closed__1_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo_spec__2_spec__2_spec__4_spec__5_spec__6_spec__7___redArg___closed__1);
 v___x_1121_ = lean_unsigned_to_nat(0u);
-v___x_1122_ = lean_alloc_ctor(0, 10, 0);
+v___x_1122_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_1122_, 0, v___x_1121_);
 lean_ctor_set(v___x_1122_, 1, v___x_1121_);
 lean_ctor_set(v___x_1122_, 2, v___x_1121_);
@@ -3836,6 +3836,7 @@ lean_ctor_set(v___x_1122_, 6, v___x_1120_);
 lean_ctor_set(v___x_1122_, 7, v___x_1120_);
 lean_ctor_set(v___x_1122_, 8, v___x_1120_);
 lean_ctor_set(v___x_1122_, 9, v___x_1120_);
+lean_ctor_set(v___x_1122_, 10, v___x_1120_);
 return v___x_1122_;
 }
 }

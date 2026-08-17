@@ -3,7 +3,7 @@ Copyright (c) 2026 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
-import Std.Internal.Do
+import Std.WP
 import Std.Tactic.Do
 
 /-!
@@ -11,7 +11,7 @@ import Std.Tactic.Do
 metavariable (`f_group_finish`), and a lifted precondition reaches grind's E-graph (`eat_spec_finish`).
 -/
 
-open Std.Internal.Do Lean.Order
+open Std.WP Lean.Order
 set_option mvcgen.warning false
 set_option linter.unusedVariables false
 

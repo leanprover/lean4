@@ -52,7 +52,7 @@ lean_object* lean_expr_instantiate_rev(lean_object*, lean_object*);
 uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 uint8_t l_Lean_MessageData_hasTag(lean_object*, lean_object*);
@@ -1663,7 +1663,7 @@ lean_inc(v_fvarId_416_);
 lean_dec_ref_known(v_subExpr_407_, 1);
 v___x_417_ = lean_st_ref_take(v___y_408_);
 v___x_418_ = l_Lean_FVarIdSet_insert(v___x_417_, v_fvarId_416_);
-v___x_419_ = lean_st_ref_set(v___y_408_, v___x_418_);
+v___x_419_ = lean_st_ref_put(v___y_408_, v___x_418_);
 v___x_420_ = 0;
 v___x_421_ = lean_box(v___x_420_);
 v___x_422_ = lean_alloc_ctor(0, 1, 0);
@@ -2455,7 +2455,7 @@ _start:
 lean_object* v___x_743_; lean_object* v___x_744_; lean_object* v___x_745_; lean_object* v___x_746_; 
 v___x_743_ = lean_st_ref_take(v_a_739_);
 v___x_744_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lean_Meta_ForEachExpr_0__Lean_Meta_forEachExpr_x27_visit___at___00Lean_Meta_forEachExpr_x27___at___00__private_Lean_Linter_Extra_UnusedDecidableInType_0__Lean_Linter_Extra_UnusedDecidableInType_collectFVarsOutsideOfProofs_spec__0_spec__0_spec__2___redArg(v___x_743_, v_e_740_, v_a_741_);
-v___x_745_ = lean_st_ref_set(v_a_739_, v___x_744_);
+v___x_745_ = lean_st_ref_put(v_a_739_, v___x_744_);
 v___x_746_ = lean_box(0);
 return v___x_746_;
 }
@@ -5686,7 +5686,7 @@ goto v_reusejp_2111_;
 v_reusejp_2111_:
 {
 lean_object* v___x_2113_; lean_object* v___x_2114_; lean_object* v___x_2115_; 
-v___x_2113_ = lean_st_ref_set(v___y_2091_, v___x_2112_);
+v___x_2113_ = lean_st_ref_put(v___y_2091_, v___x_2112_);
 v___x_2114_ = lean_box(0);
 v___x_2115_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2115_, 0, v___x_2114_);

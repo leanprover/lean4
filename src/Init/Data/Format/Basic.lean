@@ -147,6 +147,20 @@ def isNil : Format → Bool
   | nil => true
   | _   => false
 
+private inductive AlignAction where
+  | pad (n : Nat)
+  | newline
+
+/--
+The action an `align` at indentation level `indent` takes when the next output would be emitted at
+column `col`.
+
+`be` renders by this, `spaceUptoLine` measures by it, and `vetoFlatten` looks ahead with it. They
+must all decide alike, or a group is measured at a width it never renders at.
+-/
+@[inline] private def alignAction (col : Nat) (indent : Int) : AlignAction :=
+  if col < indent then .pad (indent - col).toNat else .newline
+
 private structure SpaceResult where
   foundLine              : Bool := false
   foundFlattenedHardLine : Bool := false
@@ -168,12 +182,10 @@ private def spaceUptoLine (w : Nat) : Format → Bool → Int → Nat → SpaceR
   | line,         flatten, _,      _   => if flatten then { space := 1 } else { foundLine := true }
   | align force,  flatten, indent, col =>
     if flatten && !force then {}
-    -- `be`'s own test, and it must stay that: a group measured as padding here but rendered as a
-    -- break there is measured at a width it never renders at
-    else if col < indent then
-      { space := (indent - col).toNat }
     else
-      { foundLine := true }
+      match alignAction col indent with
+      | .pad n   => { space := n }
+      | .newline => { foundLine := true }
   | text s,       flatten, _,      _   =>
     let p := String.Internal.posOf s '\n'
     let off := String.Internal.offsetOfPos s p
@@ -288,7 +300,10 @@ Whether a `line` about to be flattened into a space at column `k` must break ins
 -/
 @[inline] private def vetoFlatten (k : Nat) (is : List WorkItem) (gs : List WorkGroup) : Bool :=
   match nextForcedAlign? is gs with
-  | some indent => decide (indent ≤ k + 1)
+  | some indent =>
+    match alignAction (k + 1) indent with
+    | .newline => true
+    | .pad _   => false
   | none => false
 
 private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] (fresh : Bool) : List WorkGroup → m Unit
@@ -366,18 +381,19 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] (fresh : Bool) 
         be w fresh (gs' is)
       else
         let k ← currColumn
-        if k < i.indent then
+        match alignAction k i.indent with
+        | .pad n =>
           -- padding emits only spaces, so a row that was whitespace-only still is
-          pushOutput (String.Internal.pushn "" ' ' (i.indent - k).toNat)
+          pushOutput (String.Internal.pushn "" ' ' n)
           endTags i.activeTags
           be w fresh (gs' is)
-        else
-          -- at or past the indentation level, the `align` ends the row -- except on a row that is
-          -- still whitespace-only and already at that level, where a newline would leave it blank
+        | .newline =>
+          -- a row that is still whitespace-only and already at the indentation level would be left
+          -- blank by a newline
           if k != i.indent || !fresh then
             pushNewline i.indent.toNat
           endTags i.activeTags
-          -- like a hard line break, re-evaluate whether to flatten the remaining group
+          -- the rest of the group was measured from a column this break just left
           if g.fla == .disallow then
             be w true (gs' is)
           else

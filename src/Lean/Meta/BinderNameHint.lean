@@ -30,6 +30,12 @@ private def rememberName (bidx : Nat) (name : Name) (xs : Array Name) : Array Na
     assert! xs.size > bidx
     xs.set! (xs.size - bidx - 1) name
 
+private def makeFresh (bidx : Nat) (xs : Array Name) : CoreM (Array Name) := do
+    assert! xs.size > bidx
+    let name := xs[xs.size - bidx - 1]!
+    let name' ← Core.mkFreshUserName name
+    return xs.set! (xs.size - bidx - 1) name'
+
 /--
 Resolves occurrences of `binderNameHint` in `e`. See docstring of `binderNameHint` for more
 information.
@@ -56,10 +62,7 @@ and the innermost binder is at the end. We update the binder names therein when 
         match v, b.headBeta with
         | .bvar bidx, .lam n _ _ _
         | .bvar bidx, .forallE n _ _ _ =>
-          -- A hint through an implementation-detail binder (a `do` elaborator intermediate such
-          -- as `__s` or `__do_lift`) carries no user-facing name and is ignored.
-          unless n.isImplementationDetail do
-            modify (rememberName bidx n)
+          modify (rememberName bidx n)
         | .bvar bidx, _ =>
           -- If we do not have a binder to use, ensure that name has macro scope.
           -- This is used by the well-founded definition preprocessor so that the new binder

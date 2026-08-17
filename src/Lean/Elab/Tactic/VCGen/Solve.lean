@@ -62,21 +62,6 @@ private def consumeMData? (goal : MVarId) (target : Expr) : VCGenM (Option MVarI
   unless target.isMData do return none
   return some (← goal.replaceTargetDefEqFast target.consumeMData)
 
-/--
-Rename the target's binders after the `binderNameHint`s a spec theorem attached to them and drop
-those hints, so the binders `introsHygienic` introduces carry the names of the program's own
-closures. Returns the goal unchanged when the target carries no hint.
-
-Runs ahead of the target `simp`, which erases `binderNameHint` outright.
--/
-private def resolveBinderNameHints (goal : MVarId) (target : Expr) : VCGenM MVarId := do
-  unless target.hasBinderNameHint do return goal
-  -- The hinted closures reach the goal as spec-rule parameters, so they are metavariables until the
-  -- rule application assigns them.
-  let target ← instantiateMVarsS target
-  let target' ← Expr.resolveBinderNameHint target
-  goal.replaceTargetDefEqFast (← shareCommon target')
-
 /-- Strategy 0: consume a `binderNameHint` that a spec rule's instantiation left at the head of
 `e`, an applied position of the target. Returns the hint's payload with any over-application
 reattached, plus the goal, renamed when the hinted value is still a local variable whose hint
@@ -99,13 +84,30 @@ private def consumeBinderNameHintCore (goal : MVarId) (e : Expr) :
         liftMetaM <| goal.rename fvarId n
       else pure goal
     | _, _ => pure goal
-  let stripped ← mkAppNS payload (args.extract 6 args.size)
+  -- Beta-reduce: an over-applied hint leaves the payload applied to the excess arguments, such
+  -- as the state a lifted postcondition takes after its result.
+  let stripped ← betaRevS payload (args.extract 6 args.size).reverse
   return some (goal, stripped)
 
 /-- Strategy 0 at the target's own head. -/
 private def consumeBinderNameHint? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
   let some (goal, stripped) ← consumeBinderNameHintCore goal target | return none
   return some (← goal.replaceTargetDefEqFast stripped)
+
+/-- Strategy 0 on the precondition: strip the hint chain at the head of `pre`, so normalization
+and lifting see the bare precondition. Binder renames already happened at `∀`-introduction; a hint
+for a still-hygienic local variable renames it here. -/
+private def consumePreHints? (goal : MVarId) (target pre : Expr) : VCGenM (Option MVarId) := do
+  unless pre.getAppFn.isConstOf ``binderNameHint do return none
+  let mut goal := goal
+  let mut pre := pre
+  for _ in *...8 do
+    let some (goal', stripped) ← consumeBinderNameHintCore goal pre | break
+    goal := goal'
+    pre := stripped
+  let relArgs := target.getAppArgs
+  let target' ← mkAppNS target.getAppFn (relArgs.set! 2 pre)
+  return some (← goal.replaceTargetDefEqFast target')
 
 /-- The binder names of the alternative of the single-alternative matcher that the lambda `f`
 applies to its own argument, or `none`. This is the shape of a loop invariant's state lambda when
@@ -126,40 +128,60 @@ private def stateMatcherAltNames? (f : Expr) : VCGenM (Option (Array Name)) := d
     alt := b
   return some names
 
-/-- Scan the hint chain at the head of the precondition of `target` (under its binder telescope).
-Returns the program names the hints carry for the leading binders, which stay accessible on
-introduction, and the state-tuple binder to split when a hint destructures its argument through a
-matcher lambda: the number of binders preceding it and the names of the tuple's components. -/
-private def scanPreHints (target : Expr) : VCGenM (NameSet × Option (Nat × Array Name)) := do
+/-- The result of scanning the hint chains at the heads of a goal's precondition and right-hand
+side: the names the hints carry for the leading binders, and the state-tuple binder to split. -/
+private structure HintScan where
+  /-- Binder index (from the outside) to the program name a hint carries for it. The first hint
+  with a user-facing name wins; the precondition's hints come before the right-hand side's, so a
+  program name wins over the postcondition's result name. -/
+  renames : Array (Nat × Name) := #[]
+  /-- The state-tuple binder a hint destructures through a matcher lambda: the number of binders
+  preceding it and the names of the tuple's components. -/
+  split? : Option (Nat × Array Name) := none
+
+/-- Scan the hint chains at the heads of the precondition and the right-hand side of `target`,
+under its binder telescope. Hints through implementation-detail binders carry no name. -/
+private def scanHints (target : Expr) : VCGenM HintScan := do
   let rec peel (e : Expr) (k : Nat) : Expr × Nat :=
     match e with
     | .forallE _ _ b _ => peel b (k+1)
     | .letE _ _ _ b _ => peel b (k+1)
     | e => (e, k)
   let (body, k) := peel target 0
-  let pre? := match_expr body.consumeMData with
-    | PartialOrder.rel _ _ pre _ => some pre
-    | Triple _ _ _ _ _ _ _ _ pre _ _ => some pre
-    | _ => none
-  let some pre := pre? | return ({}, none)
-  let mut accessible : NameSet := {}
-  let mut split : Option (Nat × Array Name) := none
-  let mut e := pre
-  for _ in *...8 do
-    unless e.getAppFn.isConstOf ``binderNameHint && e.getAppNumArgs ≥ 6 do break
-    let args := e.getAppArgs
-    if let .bvar i := args[3]!.cleanupAnnotations then
-      if i < k then
-        let f := args[4]!
-        if let .lam n _ _ _ := f.headBeta.cleanupAnnotations then
-          if isProgramName n then
-            accessible := accessible.insert n
-        if split.isNone then
-          if let some names ← stateMatcherAltNames? f then
-            if names.size ≥ 2 then
-              split := some (k - 1 - i, names)
-    e := args[5]!
-  return (accessible, split)
+  let (heads, k) := match_expr body.consumeMData with
+    | PartialOrder.rel _ _ pre rhs => (#[pre, rhs], k)
+    | Triple _ _ _ _ _ _ _ _ pre _ _ => (#[pre], k)
+    | _ => (#[], k)
+  let mut scan : HintScan := {}
+  for h in heads do
+    let mut e := h
+    for _ in *...8 do
+      unless e.getAppFn.isConstOf ``binderNameHint && e.getAppNumArgs ≥ 6 do break
+      let args := e.getAppArgs
+      if let .bvar i := args[3]!.cleanupAnnotations then
+        if i < k then
+          let idx := k - 1 - i
+          let f := args[4]!
+          if let .lam n _ _ _ := f.headBeta.cleanupAnnotations then
+            if isProgramName n && (scan.renames.all (·.1 != idx)) then
+              scan := { scan with renames := scan.renames.push (idx, n) }
+          if scan.split?.isNone then
+            if let some names ← stateMatcherAltNames? f then
+              if names.size ≥ 2 then
+                scan := { scan with split? := some (idx, names) }
+      e := args[5]!
+  return scan
+
+/-- Rename the leading binders of `target` according to `renames` (binder index to name). -/
+private def renameLeadingBinders (target : Expr) (renames : Array (Nat × Name)) : Expr :=
+  go target 0
+where
+  go (e : Expr) (i : Nat) : Expr :=
+    let n? := renames.findSome? fun (j, n) => if j == i then some n else none
+    match e with
+    | .forallE n d b bi => .forallE (n?.getD n) d (go b (i+1)) bi
+    | .letE n t v b nd => .letE (n?.getD n) t v (go b (i+1)) nd
+    | e => e
 
 /-- Introduce the first `n` leading binders of `goal`, naming them as `introsHygienic` does. -/
 private def introPrefixHygienic (goal : MVarId) (n : Nat) (accessible : NameSet) :
@@ -321,19 +343,30 @@ the state tuple of a loop with several mutable variables is split into one binde
 first, named after the program's own destructuring. -/
 private def forallIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
   unless target.isForall do return none
-  -- Scan the hints on the instantiated target, before hint resolution erases them.
-  let (hintNames, splitInfo?) ← if target.hasBinderNameHint then
-    scanPreHints (← instantiateMVarsS target)
-  else pure ({}, none)
-  let goal ← resolveBinderNameHints goal target
+  let (goal, accessible, splitInfo?) ←
+    if target.hasBinderNameHint then do
+      -- The hinted closures reach the goal as spec-rule parameters, so they are metavariables
+      -- until the rule application assigns them.
+      let target ← instantiateMVarsS target
+      let scan ← scanHints target
+      let mut accessible : NameSet := {}
+      for (_, n) in scan.renames do
+        accessible := accessible.insert n
+      -- Rename the leading binders after the hints. The hints themselves stay: strategy 0
+      -- consumes each at its applied position, and a hint inside a not-yet-applied closure (such
+      -- as the postcondition's) must survive until a later application surfaces it.
+      let goal ← if scan.renames.isEmpty && scan.split?.isNone then pure goal else
+        goal.replaceTargetDefEqFast (← shareCommon (renameLeadingBinders target scan.renames))
+      pure (goal, accessible, scan.split?)
+    else pure (goal, {}, none)
   if let some (prefixLen, names) := splitInfo? then
-    let goal ← introPrefixHygienic goal prefixLen hintNames
-    return some [← splitStateTuple goal names]
+    let g ← introPrefixHygienic goal prefixLen accessible
+    return some [← splitStateTuple g names]
   let (goal, simped) ← match ← simpGoalTelescope goal with
     | .closed => return some []
     | .goal goal' => pure (goal', true)
     | .noProgress => pure (goal, false)
-  let goal' ← introsHygienic goal (accessible := hintNames)
+  let goal' ← introsHygienic goal (accessible := accessible)
   if !simped && goal' == goal then
     throwError "Failed to intro forall target {goal}"
   return some [goal']
@@ -820,8 +853,10 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
   let_expr PartialOrder.rel α inst pre rhs := target
     | return .stop (.noEntailment target)
 
-  -- Strategy 0 on the entailment's right-hand side, where a hint surfaces when a spec for the
-  -- bound program hands its postcondition the result value.
+  -- Strategy 0 on the entailment's sides, where a hint surfaces when a spec for the bound
+  -- program hands its postcondition the result value.
+  if let some g ← consumePreHints? goal target pre then
+    return .goals scope [g]
   if let some (goal, rhs') ← consumeBinderNameHintCore goal rhs then
     let relArgs := target.getAppArgs
     let target' ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs')

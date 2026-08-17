@@ -144,7 +144,7 @@ example :
   sym =>
     vcgen invariants
       · fun _pref suff r => r + suff.length * 5 ≤ 25
-    case vc3 b a x => finish
+    case vc3 => finish
     case vc1 => tactic => simp +arith
-    case vc2 x _ =>
-      tactic => show x < 30; grind
+    case vc2 =>
+      tactic => show r < 30; grind

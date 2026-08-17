@@ -12,6 +12,7 @@ public import Lean.Meta.Sym.AlphaShareBuilder
 import Std.Internal.Order.Basic
 import Lean.Meta.AppBuilder
 import Lean.Meta.AbstractMVars
+import Lean.Meta.BinderNameHint
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Tactic.Util
@@ -101,6 +102,10 @@ public def FrameInferenceInfo.specPre? (i : FrameInferenceInfo) : SymM (Option E
     some <$> Meta.abstractMVars (← instantiateMVars specPre)
   let some abs := abs? | return none
   let (_, _, specPre) ← Meta.openAbstractMVarsResult abs
+  -- Strip the `binderNameHint`s the goal's postcondition carries into the instantiation: this view
+  -- feeds matching and footprint construction, where a hint defeats syntactic comparison.
+  let specPre ← if specPre.hasBinderNameHint then Expr.resolveBinderNameHint specPre
+    else pure specPre
   return some (← shareCommon specPre)
 
 /-- The split VC proposition `pre ⊑ (op frame footprint) s⃗`: the frame operator applied to `frame`

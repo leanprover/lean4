@@ -531,7 +531,7 @@ def sumEvens (xs : List Nat) : Id Nat
     acc := acc + 2 * x
   return acc
 where finally
-  | spec => case vc1 acc h => exact ⟨acc / 2, by omega⟩
+  | spec => case vc1 => exact ⟨acc / 2, by omega⟩
 
 /-- info: sumEvens.spec : ∀ (xs : List Nat), ⦃ ⊤ ⦄ sumEvens xs ⦃ fun r => ∃ k, r = 2 * k ⦄ -/
 #guard_msgs in

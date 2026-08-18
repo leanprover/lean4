@@ -9,6 +9,8 @@ public import Lean.Meta.Sym.Pattern
 public import Lean.Meta.DiscrTree
 import Lean.Meta.Sym.Simp.DiscrTree
 import Lean.Meta.AppBuilder
+import Lean.Meta.Tactic.Simp.SimpTheorems -- for `ignoreEquations`
+import Lean.Meta.Eqns -- for `getEqnsFor?`
 import Lean.ExtraModUses
 import Init.Omega
 import Init.Data.Range.Polymorphic.Iterators
@@ -200,6 +202,30 @@ def mkTheoremFromExpr (e : Expr) : MetaM Theorem := do
   let perm := isPerm pattern.varTypes.size pattern.pattern rhs
   let rhsVarMask := mkRhsVarMask pattern.varTypes.size rhs
   return { expr, pattern, rhs, perm, rhsVarMask }
+
+/--
+Returns the names of the theorems contributed by `declName` when it is used as a `Sym.simp`
+theorem. A proposition contributes itself. A definition contributes its equational theorems,
+so that `simp [f]` unfolds `f` applications.
+-/
+def getSimpTheoremNames (declName : Name) : MetaM (Array Name) := do
+  let info ← getAsyncConstInfo declName
+  if (← isProp info.sig.get.type) then
+    return #[declName]
+  unless info.kind matches .defn do
+    throwError "cannot use `{.ofConstName declName}` as a simp theorem, it is not a proposition nor a definition with equational theorems"
+  if (← Simp.ignoreEquations declName) then
+    throwError "cannot use `{.ofConstName declName}` as a simp theorem, it is a reducible definition or a projection, and `Sym.simp` does not support unfolding them"
+  let some eqns ← getEqnsFor? declName
+    | throwError "cannot use `{.ofConstName declName}` as a simp theorem, it does not have equational theorems"
+  return eqns
+
+/--
+Creates the `Theorem`s contributed by `declName` when it is used as a `Sym.simp` theorem.
+See `getSimpTheoremNames`.
+-/
+def mkTheoremsFromDecl (declName : Name) : MetaM (Array Theorem) := do
+  (← getSimpTheoremNames declName).mapM mkTheoremFromDecl
 
 /--
 Environment extension storing a set of `Sym.Simp` theorems.

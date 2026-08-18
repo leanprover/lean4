@@ -7,10 +7,11 @@ marker before its payload, so a marked type compares against its payload in cons
 marker with regular reducibility hints (`myHint` below) unfolds after the payload, and the
 comparison walks the payload's whole reduction chain instead.
 
-The examples observe the unfold ordering in the elaborator's definitional comparison, where
-resource limits detect it deterministically. The kernel orders its lazy delta by the same
-reducibility hints; the marker with regular hints cannot reach it, because elaboration fails
-first. -/
+Both markers are `[implicit_reducible]`, so a reducible-transparency comparison treats either as
+opaque; at default transparency both may unfold, and the reducibility hints order the unfolding.
+The examples observe that ordering in the elaborator's definitional comparison, where resource
+limits detect it deterministically. The kernel orders its lazy delta by the same hints; the
+marker with regular hints cannot reach it, because elaboration fails first. -/
 
 def W : Nat → Prop
   | 0 => True

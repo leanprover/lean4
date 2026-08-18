@@ -38,8 +38,8 @@ public structure Args where
   mods : Array Name := #[]
   /-- Whether to only run the user provided linters -/
   lintOnly : Bool := false
-  /-- Whether to record linter warnings as `set_option <linter> false in` exceptions
-  by editing the source files in place. -/
+  /-- Whether to run linting, record linter warnings as `set_option <linter> false in` exceptions
+  by editing the source files in place, or running the code quality checking.-/
   mode : Mode := .report
   /-- An array of modules containing code quality checks that are
   imported alongside each top-level module -/

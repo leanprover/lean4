@@ -131,10 +131,6 @@ public def emitVC (goal : Grind.Goal) : VCGenM Unit := do
   if target.hasBinderNameHint then
     let target' ← liftMetaM <| Expr.resolveBinderNameHint target
     goal := { goal with mvarId := ← goal.mvarId.replaceTargetDefEqFast (← shareCommon target') }
-  -- Head-reduce the target: an invariant applied to the initial, stepped or final state leaves a
-  -- beta/iota redex such as `match Sum.inl (0, 0) with …` at the head of the VC.
-  if let some target' ← reduceHead? (← goal.mvarId.getType) then
-    goal := { goal with mvarId := ← goal.mvarId.replaceTargetDefEqFast target' }
   goal ← processHypotheses goal
   if goal.inconsistent then return
   let some mvarId ← cleanupVC goal.mvarId | return

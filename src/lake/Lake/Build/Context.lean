@@ -93,6 +93,7 @@ public structure BuildContext extends BuildConfig, Context where
   Cancellation token for the build. Once the token is set, job continuations
   (e.g., `Job.mapM` / `Job.bindM`) error instead of scheduling new work;
   already-running tasks complete normally. If `none`, cancellation is disabled.
+   Only the build monitor should set this token: reporting assumes that a counted failure exists when the token is set.
   -/
   cancelTk? : Option IO.CancelToken := none
 

@@ -767,8 +767,9 @@ bool type_checker::is_def_eq(levels const & ls1, levels const & ls2) {
 }
 
 /** \brief This is an auxiliary method for is_def_eq. It handles the "easy cases". */
-lbool type_checker::quick_is_def_eq(expr const & t, expr const & s, bool use_hash) {
-    if (m_st->m_eqv_manager.is_equiv(t, s, use_hash))
+lbool type_checker::quick_is_def_eq(expr const & t, expr const & s) {
+    /* Cheap structural check plus the positive `is_def_eq` cache. */
+    if (t == s || succeeded_before(t, s))
         return l_true;
     if (t.kind() == s.kind()) {
         switch (t.kind()) {
@@ -889,6 +890,25 @@ void type_checker::cache_failure(expr const & t, expr const & s) {
         m_st->m_failure.insert(mk_pair(t, s));
     else
         m_st->m_failure.insert(mk_pair(s, t));
+}
+
+bool type_checker::succeeded_before(expr const & t, expr const & s) const {
+    if (hash(t) < hash(s)) {
+        return m_st->m_success.find(mk_pair(t, s)) != m_st->m_success.end();
+    } else if (hash(t) > hash(s)) {
+        return m_st->m_success.find(mk_pair(s, t)) != m_st->m_success.end();
+    } else {
+        return
+            m_st->m_success.find(mk_pair(t, s)) != m_st->m_success.end() ||
+            m_st->m_success.find(mk_pair(s, t)) != m_st->m_success.end();
+    }
+}
+
+void type_checker::cache_success(expr const & t, expr const & s) {
+    if (hash(t) <= hash(s))
+        m_st->m_success.insert(mk_pair(t, s));
+    else
+        m_st->m_success.insert(mk_pair(s, t));
 }
 
 /**
@@ -1086,8 +1106,7 @@ bool type_checker::is_def_eq_unit_like(expr const & t, expr const & s) {
 bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     scope_rec_depth guard;
     check_system("is_definitionally_equal", /* do_check_interrupted */ true);
-    bool use_hash = true;
-    lbool r = quick_is_def_eq(t, s, use_hash);
+    lbool r = quick_is_def_eq(t, s);
     if (r != l_undef) return r == l_true;
 
     // Very basic support for proofs by reflection. If `t` has no free variables and `s` is `Bool.true`,
@@ -1164,7 +1183,7 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
 bool type_checker::is_def_eq(expr const & t, expr const & s) {
     bool r = is_def_eq_core(t, s);
     if (r)
-        m_st->m_eqv_manager.add_equiv(t, s);
+        cache_success(t, s);
     return r;
 }
 

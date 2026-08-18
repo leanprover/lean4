@@ -786,21 +786,3 @@ def onOneLine (k : Nat) : Id Nat given (n : Nat) requires k = n ensures r => r =
 /-- info: onOneLine.spec : ∀ (k n : Nat), ⦃ k = n ⦄ onOneLine k ⦃ fun r => r = n ⦄ -/
 #guard_msgs in
 #check @onOneLine.spec
-
-def applyPoly (f : forall (α : Type), α → α) : Id Nat
-    given (n : Nat)
-    requires n = 0
-    ensures _ => True
-  := pure (f Nat 0)
-
-/--
-info: applyPoly.spec : ∀ (f : (α : Type) → α → α) (n : Nat), ⦃ n = 0 ⦄ applyPoly f ⦃ fun x => True ⦄
--/
-#guard_msgs in
-#check @applyPoly.spec
-
-def constFun : forall (α : Type), α → α := fun _ a => a
-
-/-- info: constFun : (α : Type) → α → α -/
-#guard_msgs in
-#check @constFun

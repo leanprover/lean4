@@ -1035,6 +1035,7 @@ where
                          numBinders, fvar := fieldFVar, default? := none,
                          binfo := view.binderInfo, paramInfoOverrides,
                          kind := StructFieldKind.newField }
+          Term.addTermInfo' view.nameId fieldFVar (isBinder := true)
           withExporting (isExporting := wasExporting) do
             go (i+1)
       | some info =>

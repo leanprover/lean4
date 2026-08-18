@@ -1,0 +1,49 @@
+{"textDocument": {"uri": "file:///structGoTo.lean"},
+ "position": {"line": 7, "character": 10}}
+[{"targetUri": "file:///structGoTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 5, "character": 2}, "end": {"line": 5, "character": 3}},
+  "targetRange":
+  {"start": {"line": 5, "character": 2}, "end": {"line": 5, "character": 3}},
+  "originSelectionRange":
+  {"start": {"line": 7, "character": 10}, "end": {"line": 7, "character": 11}}}]
+{"textDocument": {"uri": "file:///structGoTo.lean"},
+ "position": {"line": 10, "character": 13}}
+[{"targetUri": "file:///structGoTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 5, "character": 2}, "end": {"line": 5, "character": 3}},
+  "targetRange":
+  {"start": {"line": 5, "character": 2}, "end": {"line": 5, "character": 3}},
+  "originSelectionRange":
+  {"start": {"line": 10, "character": 13},
+   "end": {"line": 10, "character": 14}}}]
+{"textDocument": {"uri": "file:///structGoTo.lean"},
+ "position": {"line": 10, "character": 17}}
+[{"targetUri": "file:///structGoTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 7, "character": 2}, "end": {"line": 7, "character": 3}},
+  "targetRange":
+  {"start": {"line": 7, "character": 2}, "end": {"line": 7, "character": 3}},
+  "originSelectionRange":
+  {"start": {"line": 10, "character": 17},
+   "end": {"line": 10, "character": 18}}}]
+{"textDocument": {"uri": "file:///structGoTo.lean"},
+ "position": {"line": 17, "character": 11}}
+[{"targetUri": "file:///structGoTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 4, "character": 10}, "end": {"line": 4, "character": 11}},
+  "targetRange":
+  {"start": {"line": 4, "character": 0}, "end": {"line": 10, "character": 18}},
+  "originSelectionRange":
+  {"start": {"line": 17, "character": 11},
+   "end": {"line": 17, "character": 12}}}]
+{"textDocument": {"uri": "file:///structGoTo.lean"},
+ "position": {"line": 23, "character": 21}}
+[{"targetUri": "file:///structGoTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 7, "character": 2}, "end": {"line": 7, "character": 3}},
+  "targetRange":
+  {"start": {"line": 7, "character": 2}, "end": {"line": 7, "character": 3}},
+  "originSelectionRange":
+  {"start": {"line": 23, "character": 21},
+   "end": {"line": 23, "character": 22}}}]

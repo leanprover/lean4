@@ -1,3 +1,7 @@
+module
+
+public section
+
 /-! `binderNameHint`'s `.abbrev` reducibility hints make a definitional comparison unfold the
 marker before its payload, so a marked type compares against its payload in constant time. A
 marker with regular reducibility hints (`myHint` below) unfolds after the payload, and the
@@ -7,6 +11,7 @@ def W : Nat → Prop
   | 0 => True
   | n+1 => W n
 
+@[simp ↓, expose, implicit_reducible]
 def myHint {α : Sort u} {β : Sort v} {γ : Sort w} (_v : α) (_binder : β) (e : γ) : γ := e
 
 -- The marker unfolds first: constant time, within a small heartbeat budget.

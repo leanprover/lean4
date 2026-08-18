@@ -148,9 +148,21 @@ def deltaRecDef (nm : Name) (us : List Level) (args : Array Expr) : MetaM (Expr 
   return (goApp, transformations.instantiate1 (.proj ``PProd 0 (.bvar 0)))
 
 /--
+We use this for binder types: Binder types are head-beta-reduced once in `mkForallFVars` and
+`mkLambdaFVars`. However, `headBeta` might also return a expression that can be head-beta-reduced
+further; to make sure we land on a common expression we head-beta-reduce both sides to a fixpoint.
+-/
+partial def recHeadBeta (e : Expr) : Expr :=
+  let f := e.getAppFn
+  if f.isHeadBetaTargetFn false then recHeadBeta (f.betaRev e.getAppRevArgs) else e
+
+/--
 Note: A return value of `none` indicates a reflexivity proof.
+Furthermore, `lhs` and `rhs` must not be proofs.
 `isDep = true` means that the proof must be `rfl` and thus the return value always `none`.
 A successful return also implies that the types of `lhs` and `rhs` are defeq.
+
+`lhs` here is part of the elaborated construction and `rhs` part of the user-provided value.
 -/
 partial def proveEq (ctx : ProveContext) (lhs rhs : Expr) (isDep checkTypes : Bool) :
     MetaM (Option Expr) := withIncRecDepth do
@@ -160,8 +172,17 @@ partial def proveEq (ctx : ProveContext) (lhs rhs : Expr) (isDep checkTypes : Bo
   match lhs, rhs with
   | .mdata _ lhs, rhs => proveEq ctx lhs rhs isDep checkTypes
   | lhs, .mdata _ rhs => proveEq ctx lhs rhs isDep checkTypes
+  | .const nm us, .const nm' us' =>
+    if nm == nm' && us.isEqv us' Level.isEquiv then
+      return none
+    throwError "Different constants at{indentExpr (lhs.setPPUniverses true)}\n\
+      and{indentExpr (rhs.setPPUniverses true)}"
+  | .sort u, .sort v =>
+    if u.isEquiv v then
+      return none
+    throwError "Different sorts at{indentExpr lhs}\nand{indentExpr rhs}"
   | .forallE nm t b bi, .forallE nm' t' b' bi' =>
-    discard <| proveEq ctx t t' (isDep := true) (checkTypes := true)
+    discard <| proveEq ctx (recHeadBeta t) (recHeadBeta t') (isDep := true) (checkTypes := true)
     withLocalDecl nm bi t fun var => do
       let eq? ← proveEq ctx (b.instantiate1 var) (b'.instantiate1 var) isDep (checkTypes := true)
       eq?.mapM fun proof => do
@@ -169,14 +190,30 @@ partial def proveEq (ctx : ProveContext) (lhs rhs : Expr) (isDep checkTypes : Bo
         let v ← getLevel (b.instantiate1 var)
         return mkApp4 (.const ``pi_congr [u, v]) t (.lam nm t b bi) (.lam nm' t' b' bi')
           (← mkLambdaFVars #[var] proof)
+  -- eta-expansion with lambda on the left
   | .lam nm t b bi, rhs =>
     if checkTypes then
       let .lam _ t' _ _ ← etaExpand1 rhs |
         throwError "Invalid equality goal, the left-hand side is a function but the \
           right-hand side is not:{indentExpr lhs}\nand{indentExpr rhs}"
-      discard <| proveEq ctx t t' (isDep := true) (checkTypes := true)
+      discard <| proveEq ctx (recHeadBeta t) (recHeadBeta t') (isDep := true) (checkTypes := true)
     withLocalDecl nm bi t fun var => do
       let eq? ← proveEq ctx (b.instantiate1 var) (rhs.betaRev #[var]) isDep checkTypes
+      eq?.mapM fun proof => do
+        let u ← getLevel t
+        let β ← inferType (b.instantiate1 var)
+        let v ← getLevel β
+        return mkApp5 (.const ``funext [u, v]) t (← mkLambdaFVars #[var] β) lhs rhs
+          (← mkLambdaFVars #[var] proof)
+  -- eta-expansion with lambda on the right
+  | lhs, .lam nm t b bi =>
+    if checkTypes then
+      let .lam _ t' _ _ ← etaExpand1 lhs |
+        throwError "Invalid equality goal, the right-hand side is a function but the \
+          left-hand side is not:{indentExpr lhs}\nand{indentExpr rhs}"
+      discard <| proveEq ctx (recHeadBeta t') (recHeadBeta t) (isDep := true) (checkTypes := true)
+    withLocalDecl nm bi t fun var => do
+      let eq? ← proveEq ctx (lhs.betaRev #[var]) (b.instantiate1 var) isDep checkTypes
       eq?.mapM fun proof => do
         let u ← getLevel t
         let β ← inferType (b.instantiate1 var)
@@ -245,7 +282,7 @@ partial def proveEq (ctx : ProveContext) (lhs rhs : Expr) (isDep checkTypes : Bo
     if h : lhsArgs.size = rhsArgs.size then
       -- Congruence
       let arity := rhsArgs.size
-      discard <| proveEq ctx lhsFn rhsFn (isDep := true) (checkTypes := true)
+      discard <| proveEq ctx lhsFn rhsFn (isDep := false) (checkTypes := true)
       let mut ty ← inferType rhsFn
       let mut vars : Array Expr := #[]
       let mut proof? : Option Expr := none
@@ -332,11 +369,6 @@ partial def proveEq (ctx : ProveContext) (lhs rhs : Expr) (isDep checkTypes : Bo
       | none => return eqProof
       | some otherProof =>
         return mkApp6 (.const ``Eq.trans [resLvl]) resType lhs mid rhs eqProof otherProof
-  | .const nm us, .const nm' us' =>
-    if nm == nm' && us.isEqv us' Level.isEquiv then
-      return none
-    throwError "Different constants at{indentExpr (lhs.setPPUniverses true)}\n\
-      and{indentExpr (rhs.setPPUniverses true)}"
   | _, _ =>
     throwError "Failed to prove equality due to unknown pattern of{indentExpr lhs}\nand{indentExpr rhs}"
 

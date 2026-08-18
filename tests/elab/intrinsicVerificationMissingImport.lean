@@ -3,7 +3,7 @@ metatheory reports a helpful error naming the missing import, rather than a down
 failure. -/
 
 /--
-error: `requires`/`ensures` contracts elaborate to a `vcgen`-proved specification theorem; add `import Std.WP` to use them.
+error: `given`/`requires`/`ensures` contracts elaborate to a `vcgen`-proved specification theorem; add `import Std.WP` to use them.
 -/
 #guard_msgs in
 def f (x : Nat) : Id Nat requires x > 0 ensures r => r ≥ x := pure x

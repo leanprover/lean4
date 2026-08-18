@@ -339,12 +339,12 @@ structure SpecTheorem where
   /-- The proof for the theorem. -/
   proof : SpecProof
   /-- The kind of spec theorem: triple or simp. -/
-  kind : SpecTheoremKind := .triple
+  kind : SpecTheoremKind
   /-- Whether the precondition is conjunctive in the spec's postconditions, so applying the spec
   directly carries any frame and `vcgen` skips the frame machinery. Opt out with a trivial `Q = Q`
   premise. -/
-  conjunctivePre : Bool := false
-  priority : Nat := eval_prio default
+  conjunctivePre : Bool
+  priority : Nat
   deriving Inhabited
 
 instance : BEq SpecTheorem where
@@ -486,7 +486,7 @@ private def mkSpecTheorem (type : Expr) (proof : SpecProof) (prio : Nat) : MetaM
   let some _ ← selectProg type | return none
   let pattern ← mkSpecPatternFromExpr expr levelParams
   let conjunctivePre ← isConjunctiveInPosts type binders
-  return some { pattern, proof, priority := prio, conjunctivePre }
+  return some { pattern, proof, kind := .triple, priority := prio, conjunctivePre }
 
 def mkSpecTheoremFromConst (declName : Name) (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
   let info := (← getAsyncConstInfo declName).toConstantVal
@@ -548,8 +548,6 @@ def mkSpecTheoremFromSimpDecl? (declName : Name) (prio : Nat) : MetaM (Option Sp
   -- progress (e.g. `getThe.eq_1 : getThe σ = MonadStateOf.get` after reducible unfolding).
   if pattern.pattern == rhs then return none
   let (pattern, etaArgs) := etaExpandEqPattern pattern eqTy
-  -- A rewrite's precondition is the rewritten `wp` application, whose post slot holds the post:
-  -- conjunctive by construction, so the solver applies it without frame machinery.
   return some { pattern, proof := .global declName, kind := .simp etaArgs, priority := prio,
                 conjunctivePre := true }
 

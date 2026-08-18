@@ -62,6 +62,42 @@ private def consumeMData? (goal : MVarId) (target : Expr) : VCGenM (Option MVarI
   unless target.isMData do return none
   return some (← goal.replaceTargetDefEqFast target.consumeMData)
 
+/-- The binder names of the first alternative of the matcher that the lambda `f` applies to its
+own argument, or `none`; every alternative must bind the same number of parameters. This is the
+shape of a loop invariant's state lambda: `fun x => match x with | (lo, hi) => …` for a `for` loop
+with several mutable variables, and `fun __c => match __c with | .inl i | .inr i => …` for a
+`repeat` or `while` loop. -/
+private def stateMatcherAltNames? (f : Expr) : VCGenM (Option (Array Name)) := do
+  let .lam _ _ body _ := f.headBeta.cleanupAnnotations | return none
+  let .const c _ := body.getAppFn | return none
+  let some info := Meta.getMatcherInfoCore? (← getEnv) c | return none
+  unless info.numDiscrs == 1 && info.getNumDiscrEqs == 0 do return none
+  let some numParams := info.altNumParams[0]? | return none
+  unless info.altNumParams.all (· == numParams) do return none
+  let args := body.getAppArgs
+  unless args.size == info.arity do return none
+  unless args[info.getFirstDiscrPos]!.cleanupAnnotations == .bvar 0 do return none
+  let mut alt := args[info.getFirstAltPos]!
+  let mut names := #[]
+  for _ in *...numParams do
+    let .lam n _ b _ := alt | return none
+    names := names.push n
+    alt := b
+  return some names
+
+/-- The program name a hint's binder argument carries: the binder's own name, or the single
+binder name of the matcher alternative when the binder destructures its argument, as the
+invariant closure of a `repeat` or `while` loop does. `whnf` exposes the state lambda of an
+invariant applied to its cursor; the reduced closure is read only for its name and discarded. -/
+private def hintName? (binder : Expr) : VCGenM (Option Name) := do
+  let binder ← instantiateMVarsIfMVarAppS binder
+  let binder ← liftMetaM <| whnf binder.cleanupAnnotations
+  if let .lam n _ _ _ := binder then
+    if isProgramName n then return some n
+  if let some names ← stateMatcherAltNames? binder then
+    if names.size == 1 && isProgramName names[0]! then return some names[0]!
+  return none
+
 /-- Strategy 0: consume a `binderNameHint` that a spec rule's instantiation left at the head of
 `e`, an applied position of the target. Returns the hint's payload with any over-application
 reattached, plus the goal, renamed when the hinted value is still a local variable whose hint
@@ -72,18 +108,17 @@ private def consumeBinderNameHintCore (goal : MVarId) (e : Expr) :
   let args := e.getAppArgs
   unless args.size ≥ 6 do return none
   let hinted := args[3]!
-  let binder ← instantiateMVarsIfMVarAppS args[4]!
   let payload := args[5]!
-  -- The reduced closure is read only for its binder name and discarded, so goal sharing is
-  -- untouched; `whnf` is what exposes the state lambda of an invariant applied to its cursor.
-  let binder ← liftMetaM <| whnf binder.cleanupAnnotations
-  let goal ← match hinted, binder with
-    | .fvar fvarId, .lam n _ _ _ =>
-      if !n.isImplementationDetail && (← fvarId.getDecl).userName.hasMacroScopes then
-        trace[Elab.Tactic.Do.vcgen] "binder-name-hint: rename {Expr.fvar fvarId} to {n}"
-        liftMetaM <| goal.rename fvarId n
+  let goal ← match hinted with
+    | .fvar fvarId =>
+      -- The first hint wins: a binder that already carries an accessible user name keeps it.
+      if (← fvarId.getDecl).userName.hasMacroScopes then
+        if let some n ← hintName? args[4]! then
+          trace[Elab.Tactic.Do.vcgen] "binder-name-hint: rename {Expr.fvar fvarId} to {n}"
+          liftMetaM <| goal.rename fvarId n
+        else pure goal
       else pure goal
-    | _, _ => pure goal
+    | _ => pure goal
   -- Beta-reduce: an over-applied hint leaves the payload applied to the excess arguments, such
   -- as the state a lifted postcondition takes after its result.
   let stripped ← betaRevS payload (args.extract 6 args.size).reverse
@@ -109,89 +144,35 @@ private def consumePreHints? (goal : MVarId) (target pre : Expr) : VCGenM (Optio
   let target' ← mkAppNS target.getAppFn (relArgs.set! 2 pre)
   return some (← goal.replaceTargetDefEqFast target')
 
-/-- The binder names of the first alternative of the matcher that the lambda `f` applies to its
-own argument, or `none`; every alternative must bind the same number of parameters. This is the
-shape of a loop invariant's state lambda: `fun x => match x with | (lo, hi) => …` for a `for` loop
-with several mutable variables, and `fun __c => match __c with | .inl i | .inr i => …` for a
-`repeat` or `while` loop. -/
-private def stateMatcherAltNames? (f : Expr) : VCGenM (Option (Array Name)) := do
-  let .lam _ _ body _ := f.headBeta.cleanupAnnotations | return none
-  let .const c _ := body.getAppFn | return none
-  let some info := Meta.getMatcherInfoCore? (← getEnv) c | return none
-  unless info.numDiscrs == 1 && info.getNumDiscrEqs == 0 do return none
-  let some numParams := info.altNumParams[0]? | return none
-  unless info.altNumParams.all (· == numParams) do return none
-  let args := body.getAppArgs
-  unless args.size == info.arity do return none
-  unless args[info.getFirstDiscrPos]!.cleanupAnnotations == .bvar 0 do return none
-  let mut alt := args[info.getFirstAltPos]!
-  let mut names := #[]
-  for _ in *...numParams do
-    let .lam n _ b _ := alt | return none
-    names := names.push n
-    alt := b
-  return some names
-
-/-- The result of scanning the hint chains at the heads of a goal's precondition and right-hand
-side: the names the hints carry for the leading binders, and the state-tuple binder to split. -/
-private structure HintScan where
-  /-- Binder index (from the outside) to the program name a hint carries for it. The first hint
-  with a user-facing name wins; the precondition's hints come before the right-hand side's, so a
-  program name wins over the postcondition's result name. -/
-  renames : Array (Nat × Name) := #[]
-  /-- The state-tuple binder a hint destructures through a matcher lambda: the number of binders
-  preceding it and the names of the tuple's components. -/
-  split? : Option (Nat × Array Name) := none
-
-/-- Scan the hint chains at the heads of the precondition and the right-hand side of `target`,
-under its binder telescope. Hints through implementation-detail binders carry no name. -/
-private def scanHints (target : Expr) : VCGenM HintScan := do
+/-- The state-tuple binder of `target` that a `binderNameHint` in the precondition destructures
+through a matcher lambda: the number of binders preceding it and the names of the tuple's
+components. The hint chain sits at the precondition's head, so no goal traversal is needed. -/
+private def scanSplit? (target : Expr) : VCGenM (Option (Nat × Array Name)) := do
   let rec peel (e : Expr) (k : Nat) : Expr × Nat :=
     match e with
     | .forallE _ _ b _ => peel b (k+1)
     | .letE _ _ _ b _ => peel b (k+1)
     | e => (e, k)
   let (body, k) := peel target 0
-  let (heads, k) := match_expr body.consumeMData with
-    | PartialOrder.rel _ _ pre rhs => (#[pre, rhs], k)
-    | Triple _ _ _ _ _ _ _ _ pre _ _ => (#[pre], k)
-    | _ => (#[], k)
-  let mut scan : HintScan := {}
-  for h in heads do
-    let mut e := h
-    for _ in *...8 do
-      unless e.getAppFn.isConstOf ``binderNameHint && e.getAppNumArgs ≥ 6 do break
-      let args := e.getAppArgs
-      if let .bvar i := args[3]!.cleanupAnnotations then
-        if i < k then
-          let idx := k - 1 - i
-          let f := args[4]!
-          if let .lam n _ _ _ := f.headBeta.cleanupAnnotations then
-            if isProgramName n && (scan.renames.all (·.1 != idx)) then
-              scan := { scan with renames := scan.renames.push (idx, n) }
-          if let some names ← stateMatcherAltNames? f then
-            if names.size == 1 then
-              -- A single state name: the matcher destructures a `repeat`/`while` cursor.
-              if isProgramName names[0]! && (scan.renames.all (·.1 != idx)) then
-                scan := { scan with renames := scan.renames.push (idx, names[0]!) }
-            else if scan.split?.isNone && names.size ≥ 2 then
-              scan := { scan with split? := some (idx, names) }
-      e := args[5]!
-  return scan
-
-/-- Rename the leading binders of `target` according to `renames` (binder index to name). -/
-private def renameLeadingBinders (target : Expr) (renames : Array (Nat × Name)) : Expr :=
-  go target 0
-where
-  go (e : Expr) (i : Nat) : Expr :=
-    let n? := renames.findSome? fun (j, n) => if j == i then some n else none
-    match e with
-    | .forallE n d b bi => .forallE (n?.getD n) d (go b (i+1)) bi
-    | .letE n t v b nd => .letE (n?.getD n) t v (go b (i+1)) nd
-    | e => e
+  let pre? := match_expr body.consumeMData with
+    | PartialOrder.rel _ _ pre _ => some pre
+    | Triple _ _ _ _ _ _ _ _ pre _ _ => some pre
+    | _ => none
+  let some pre := pre? | return none
+  let mut e := pre
+  for _ in *...8 do
+    unless e.getAppFn.isConstOf ``binderNameHint && e.getAppNumArgs ≥ 6 do break
+    let args := e.getAppArgs
+    if let .bvar i := args[3]!.cleanupAnnotations then
+      if i < k then
+        if let some names ← stateMatcherAltNames? args[4]! then
+          if names.size ≥ 2 then
+            return some (k - 1 - i, names)
+    e := args[5]!
+  return none
 
 /-- Introduce the first `n` leading binders of `goal`, naming them as `introsHygienic` does. -/
-private def introPrefixHygienic (goal : MVarId) (n : Nat) (accessible : NameSet) :
+private def introPrefixHygienic (goal : MVarId) (n : Nat) :
     VCGenM MVarId := goal.withContext do
   if n == 0 then return goal
   let rec collect (type : Expr) (acc : Array Name) : Array Name :=
@@ -202,8 +183,7 @@ private def introPrefixHygienic (goal : MVarId) (n : Nat) (accessible : NameSet)
     | _ => acc
   let mut names := #[]
   for nm in collect (← goal.getType) #[] do
-    names := names.push (← if accessible.contains nm then pure nm
-      else Meta.mkFreshBinderNameForTactic nm)
+    names := names.push (← Meta.mkFreshBinderNameForTactic nm)
   let .goal _ goal ← Sym.intros goal names
     | throwError "vcgen: failed to introduce the binders before a state tuple"
   return goal
@@ -350,33 +330,19 @@ the state tuple of a loop with several mutable variables is split into one binde
 first, named after the program's own destructuring. -/
 private def forallIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
   unless target.isForall do return none
-  let (goal, accessible, splitInfo?) ←
-    if target.hasBinderNameHint then do
-      -- The hinted closures reach the goal as spec-rule parameters, so they are metavariables
-      -- until the rule application assigns them.
-      let target ← instantiateMVarsS target
-      let scan ← scanHints target
-      let mut accessible : NameSet := {}
-      for (_, n) in scan.renames do
-        accessible := accessible.insert n
-      -- Rename the leading binders after the hints. The hints themselves stay: strategy 0
-      -- consumes each at its applied position, and a hint inside a not-yet-applied closure (such
-      -- as the postcondition's) must survive until a later application surfaces it.
-      -- No `shareCommon` here: hash-consing is alpha-invariant and would canonicalize the
-      -- renamed binders back. The spine's children are shared; the spine itself is introduced
-      -- right away.
-      let goal ← if scan.renames.isEmpty && scan.split?.isNone then pure goal else
-        goal.replaceTargetDefEqFast (renameLeadingBinders target scan.renames)
-      pure (goal, accessible, scan.split?)
-    else pure (goal, {}, none)
-  if let some (prefixLen, names) := splitInfo? then
-    let g ← introPrefixHygienic goal prefixLen accessible
-    return some [← splitStateTuple g names]
+  if target.hasBinderNameHint then
+    -- The hinted closures reach the goal as spec-rule parameters, so they are metavariables
+    -- until the rule application assigns them. The hints stay in the goal: strategy 0 consumes
+    -- each at its applied position, where the first hint to name a binder wins because a binder
+    -- that already carries an accessible user name keeps it.
+    if let some (prefixLen, names) ← scanSplit? (← instantiateMVarsS target) then
+      let g ← introPrefixHygienic goal prefixLen
+      return some [← splitStateTuple g names]
   let (goal, simped) ← match ← simpGoalTelescope goal with
     | .closed => return some []
     | .goal goal' => pure (goal', true)
     | .noProgress => pure (goal, false)
-  let goal' ← introsHygienic goal (accessible := accessible)
+  let goal' ← introsHygienic goal
   if !simped && goal' == goal then
     throwError "Failed to intro forall target {goal}"
   return some [goal']

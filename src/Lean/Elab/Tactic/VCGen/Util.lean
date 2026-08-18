@@ -98,15 +98,14 @@ public def isProgramName (n : Name) : Bool :=
 
 /--
 Introduce all leading binders of `goal` in one pass, naming the `i`-th binder `overrides[i]` when
-given and the binder's own name otherwise. A `let` binder with a program variable's name and a `∀`
-binder whose name is listed in `accessible` keep their name verbatim, so the program's own
-variables stay accessible in the verification condition; every other name goes through
-`mkFreshBinderNameForTactic`, which `tactic.hygienic` makes inaccessible. The introduction itself
-is a single `Sym.intros` call (which keeps the memoized, sharing-correct intro); only the names are
-chosen here. Returns the goal unchanged when there are no leading binders.
+given and the binder's own name otherwise. A `let` binder with a program variable's name keeps its
+name verbatim, so the program's own bindings stay accessible in the verification condition; every
+other name goes through `mkFreshBinderNameForTactic`, which `tactic.hygienic` makes inaccessible.
+The introduction itself is a single `Sym.intros` call (which keeps the memoized, sharing-correct
+intro); only the names are chosen here. Returns the goal unchanged when there are no leading
+binders.
 -/
-public def introsHygienic (goal : MVarId) (overrides : Array Name := #[])
-    (accessible : NameSet := {}) : VCGenM MVarId :=
+public def introsHygienic (goal : MVarId) (overrides : Array Name := #[]) : VCGenM MVarId :=
   goal.withContext do
     let rec collectBinders (type : Expr) (acc : Array (Name × Bool)) : Array (Name × Bool) :=
       match type with
@@ -119,7 +118,7 @@ public def introsHygienic (goal : MVarId) (overrides : Array Name := #[])
     for h : i in *...binders.size do
       let (n, isLet) := binders[i]
       let n := overrides[i]?.getD n
-      let verbatim := if isLet then isProgramName n else accessible.contains n
+      let verbatim := isLet && isProgramName n
       names := names.push (← if verbatim then pure n else Meta.mkFreshBinderNameForTactic n)
     let .goal _ goal ← Sym.intros goal names | return goal
     return goal

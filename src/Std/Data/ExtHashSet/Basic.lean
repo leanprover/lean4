@@ -31,13 +31,10 @@ namespace Std
 /--
 Hash sets.
 
-This is a simple separate-chaining hash table. The data of the hash set consists of a cached size
-and an array of buckets, where each bucket is a linked list of keys. The number of buckets
-is always a power of two. The hash set doubles its size upon inserting an element such that the
-number of elements is more than 75% of the number of buckets.
-
-The hash table is backed by an `Array`. Users should make sure that the hash set is used linearly to
-avoid expensive copies.
+This is a linear-probing hash table backed by separate flat key and value arrays. Empty cells use
+`NOption`. The number of cells is always a power of two. The hash set doubles its size before an
+insertion that would make it more than 75% full. Users should make sure that the hash set is used
+linearly to avoid expensive copies.
 
 The hash set uses `==` (provided by the `BEq` typeclass) to compare elements and `hash` (provided by
 the `Hashable` typeclass) to hash them. To ensure that the operations behave as expected, `==`
@@ -49,10 +46,11 @@ In contrast to regular hash sets, `Std.ExtHashSet` offers several extensionality
 and therefore has more lemmas about equality of hash maps. This however also makes it lose the
 ability to iterate freely over hash sets.
 
-These hash sets contain a bundled well-formedness invariant, which means that they cannot
-be used in nested inductive types. For these use cases, `Std.HashSet.Raw` and
-`Std.HashSet.Raw.WF` unbundle the invariant from the hash set. When in doubt, prefer
-`HashSet` or `ExtHashSet` over `HashSet.Raw`.
+These hash sets contain a bundled well-formedness invariant, which means that they cannot be used
+in nested inductive types. `Std.HashSet.Raw` and `Std.HashSet.Raw.WF` partially unbundle this
+invariant, but the raw representation still carries an array-alignment proof and therefore also
+cannot currently be used in nested inductive types. When in doubt, prefer `HashSet` or `ExtHashSet`
+over `HashSet.Raw`.
 -/
 structure ExtHashSet (α : Type u) [BEq α] [Hashable α] where
   /-- Internal implementation detail of the hash set. -/

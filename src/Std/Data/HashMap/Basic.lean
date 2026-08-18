@@ -26,8 +26,8 @@ The operations `map` and `filterMap` on `Std.HashMap` are defined in the module
 Lemmas about the operations on `Std.HashMap` are available in the
 module `Std.Data.HashMap.Lemmas`.
 
-See the module `Std.Data.HashMap.Raw` for a variant of this type which is safe to use in
-nested inductive types.
+See the module `Std.Data.HashMap.Raw` for a variant with a partially unbundled well-formedness
+invariant.
 -/
 
 universe u v w w'
@@ -39,13 +39,11 @@ namespace Std
 /--
 Hash maps.
 
-This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
-and an array of buckets, where each bucket is a linked list of key-value pairs. The number of buckets
-is always a power of two. The hash map doubles its size upon inserting an element such that the
-number of elements is more than 75% of the number of buckets.
-
-The hash table is backed by an `Array`. Users should make sure that the hash map is used linearly to
-avoid expensive copies.
+This is a linear-probing hash table backed by separate flat arrays for keys and values. Empty cells
+use `NOption`, and values use `NSigma` so that no key is repeated in the value array at runtime. The
+number of cells is always a power of two. The hash map doubles its size before an insertion that
+would make it more than 75% full. Users should make sure that the hash map is used linearly to avoid
+expensive copies.
 
 The hash map uses `==` (provided by the `BEq` typeclass) to compare keys and `hash` (provided by
 the `Hashable` typeclass) to hash them. To ensure that the operations behave as expected, `==`
@@ -53,10 +51,11 @@ should be an equivalence relation and `a == b` should imply `hash a = hash b` (s
 `EquivBEq` and `LawfulHashable` typeclasses). Both of these conditions are automatic if the BEq
 instance is lawful, i.e., if `a == b` implies `a = b`.
 
-These hash maps contain a bundled well-formedness invariant, which means that they cannot
-be used in nested inductive types. For these use cases, `Std.Data.HashMap.Raw` and
-`Std.Data.HashMap.Raw.WF` unbundle the invariant from the hash map. When in doubt, prefer
-`HashMap` over `HashMap.Raw`.
+These hash maps contain a bundled well-formedness invariant, which means that they cannot be used
+in nested inductive types. `Std.Data.HashMap.Raw` and `Std.Data.HashMap.Raw.WF` partially unbundle
+this invariant, but the raw representation still carries an array-alignment proof and therefore also
+cannot currently be used in nested inductive types. When in doubt, prefer `HashMap` over
+`HashMap.Raw`.
 
 Dependent hash maps, in which keys may occur in their values' types, are available as
 `Std.Data.DHashMap`.

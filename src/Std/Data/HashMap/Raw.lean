@@ -14,14 +14,15 @@ set_option linter.missingDocs true
 set_option autoImplicit false
 
 /-!
-# Hash maps with unbundled well-formedness invariant
+# Hash maps with a partially unbundled well-formedness invariant
 
 This module develops the type `Std.HashMap.Raw` of hash maps with unbundled
 well-formedness invariant.
 
-This version is safe to use in nested inductive types. The well-formedness predicate is
-available as `Std.HashMap.Raw.WF` and we prove in this file that all operations preserve
-well-formedness. When in doubt, prefer `HashMap` over `HashMap.Raw`.
+The hashing and probing well-formedness predicate is available as `Std.HashMap.Raw.WF`, and we
+prove in this file that all operations preserve it. The underlying representation carries an erased
+array-alignment proof, so this version cannot currently be used in nested inductive types. When in
+doubt, prefer `HashMap` over `HashMap.Raw`.
 
 Lemmas about the operations on `Std.HashMap.Raw` are available in the module
 `Std.Data.HashMap.RawLemmas`.
@@ -36,18 +37,17 @@ namespace Std
 namespace HashMap
 
 /--
-Hash maps without a bundled well-formedness invariant, suitable for use in nested
-inductive types. The well-formedness invariant is called `Raw.WF`. When in doubt, prefer `HashMap`
-over `HashMap.Raw`. Lemmas about the operations on `Std.Data.HashMap.Raw` are available in the
-module `Std.Data.HashMap.RawLemmas`.
+Hash maps whose hashing and probing invariant is not bundled with the table. The invariant is called
+`Raw.WF`. The underlying representation carries an erased array-alignment proof and therefore
+cannot currently be used in nested inductive types. When in doubt, prefer `HashMap` over
+`HashMap.Raw`. Lemmas about the operations on `Std.Data.HashMap.Raw` are available in the module
+`Std.Data.HashMap.RawLemmas`.
 
-This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
-and an array of buckets, where each bucket is a linked list of key-value pairs. The number of buckets
-is always a power of two. The hash map doubles its size upon inserting an element such that the
-number of elements is more than 75% of the number of buckets.
-
-The hash table is backed by an `Array`. Users should make sure that the hash map is used linearly to
-avoid expensive copies.
+This is a linear-probing hash table backed by separate flat arrays for keys and values. Empty cells
+use `NOption`, and values use `NSigma` so that no key is repeated in the value array at runtime. The
+number of cells is always a power of two. The hash map doubles its size before an insertion that
+would make it more than 75% full. Users should make sure that the hash map is used linearly to avoid
+expensive copies.
 
 The hash map uses `==` (provided by the `BEq` typeclass) to compare keys and `hash` (provided by
 the `Hashable` typeclass) to hash them. To ensure that the operations behave as expected, `==`

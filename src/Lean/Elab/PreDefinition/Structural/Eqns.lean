@@ -433,7 +433,8 @@ def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := do
 where
   doRealize name :=
     withoutExporting do
-      mkProofFor declName name (← letToHave info.value) (.ofArray info.declNames)
+      prependError m!"failed to generate equational theorem for `{.ofConstName declName}`" do
+        mkProofFor declName name (← letToHave info.value) (.ofArray info.declNames)
 
 def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then

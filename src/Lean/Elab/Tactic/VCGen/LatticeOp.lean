@@ -9,7 +9,6 @@ prelude
 public import Lean.Meta.Sym.Apply
 public import Std.Internal.Order.Heyting
 public import Lean.Elab.Tactic.VCGen.FrameProc
-import Std.Internal.Order.FrameClosure
 import Lean.Meta.Sym.Simp.Rewrite
 import Lean.Meta.AppBuilder
 import Lean.Meta.AbstractMVars

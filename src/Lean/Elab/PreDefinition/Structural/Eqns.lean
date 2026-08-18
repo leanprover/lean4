@@ -135,6 +135,7 @@ def deltaRecDef (nm : Name) (us : List Level) (args : Array Expr) : MetaM (Expr 
   let info ← getConstInfo nm
   let value ← instantiateValueLevelParams info us
   let value := value.beta args
+  let value := value.eta
   let (brecApp, projs) := peelProjs value
   let .const brecDef brecLvls := brecApp.getAppFn |
     throwError "Invalid recursive occurrence, expected application of `brecOn` at{indentExpr value}"
@@ -199,21 +200,6 @@ partial def proveEq (ctx : ProveContext) (lhs rhs : Expr) (isDep checkTypes : Bo
       discard <| proveEq ctx (recHeadBeta t) (recHeadBeta t') (isDep := true) (checkTypes := true)
     withLocalDecl nm bi t fun var => do
       let eq? ← proveEq ctx (b.instantiate1 var) (rhs.betaRev #[var]) isDep checkTypes
-      eq?.mapM fun proof => do
-        let u ← getLevel t
-        let β ← inferType (b.instantiate1 var)
-        let v ← getLevel β
-        return mkApp5 (.const ``funext [u, v]) t (← mkLambdaFVars #[var] β) lhs rhs
-          (← mkLambdaFVars #[var] proof)
-  -- eta-expansion with lambda on the right
-  | lhs, .lam nm t b bi =>
-    if checkTypes then
-      let .lam _ t' _ _ ← etaExpand1 lhs |
-        throwError "Invalid equality goal, the right-hand side is a function but the \
-          left-hand side is not:{indentExpr lhs}\nand{indentExpr rhs}"
-      discard <| proveEq ctx (recHeadBeta t') (recHeadBeta t) (isDep := true) (checkTypes := true)
-    withLocalDecl nm bi t fun var => do
-      let eq? ← proveEq ctx (lhs.betaRev #[var]) (b.instantiate1 var) isDep checkTypes
       eq?.mapM fun proof => do
         let u ← getLevel t
         let β ← inferType (b.instantiate1 var)

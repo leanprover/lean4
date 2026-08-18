@@ -206,8 +206,8 @@ partial def proveEq (ctx : ProveContext) (lhs rhs : Expr) (isDep checkTypes : Bo
         let btype ← inferType (b'.instantiate1 var)
         let blvl ← getLevel btype
         return mkApp6 (.const ``have_body_congr_dep' [u, blvl]) t
-          (← mkLambdaFVars #[var] btype) v (.lam nm t b .default) (.lam nm' t' b' .default)
-          (← mkLambdaFVars #[var] bproof)
+          (.lam nm t (btype.abstract #[var]) .default) v (.lam nm t b .default)
+          (.lam nm' t' b' .default) (.lam nm t (bproof.abstract #[var]) .default)
       | some vproof, none =>
         let btype ← inferType (b'.instantiate1 var)
         let blvl ← getLevel btype
@@ -220,7 +220,7 @@ partial def proveEq (ctx : ProveContext) (lhs rhs : Expr) (isDep checkTypes : Bo
         let β ← mkLetFVars #[var] btype (generalizeNondepLet := false)
         return mkApp8 (.const ``have_congr' [u, blvl]) t β
           v v' (.lam nm t b .default) (.lam nm' t' b' .default) vproof
-          (← mkLambdaFVars #[var] bproof)
+          (.lam nm t (bproof.abstract #[var]) .default)
   | _, .app _ _ =>
     let lhsFn := lhs.getAppFn'
     let lhsArgs := lhs.getAppArgs'

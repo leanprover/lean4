@@ -9,6 +9,7 @@ prelude
 public import Std.Tactic.Do.Syntax
 public import Std.WP
 public import Lean.Elab.Util
+public import Lean.Elab.Command
 public import Lean.Elab.Do.Basic
 import Lean.DocString.Extension
 meta import Lean.Parser.Command
@@ -75,6 +76,12 @@ private def extractSpecSection (v : Syntax) : MacroM (Option Syntax × Syntax) :
     Macro.throwErrorAt specs[1] "duplicate `spec` section"
   let wf' := wf.setArg 2 (mkNullNode others)
   return (some specs[0]![3], setPath v path (mkNullNode #[wd.setArg 2 (mkNullNode #[wf'])]))
+
+/-- The marker command carrying a `def`'s contract clauses to `elabContractNotice`, which reports
+their experimental status from a monad that can read options and log. It reuses the
+`contractDeclVal` kind, which is never itself a command, and drops the definition's value. -/
+private def mkContractNotice (val : Syntax) : Syntax :=
+  mkNode ``Lean.Parser.Command.contractDeclVal (val.getArgs.pop.push (mkNullNode #[]))
 
 /-- Expand a `def` carrying `given`/`requires`/`ensures` clauses into the plain `def` plus a spec
 theorem `@[spec] theorem f.spec : ∀ xs, ⦃P⦄ f args ⦃fun b => Q⦄` proved by `vcgen`. A
@@ -145,7 +152,16 @@ discharge them in a `where finally | spec => ...` section of the definition"⟩
       first
       | done
       | fail $msg)
-  return mkNullNode #[cleanDeclaration, thm]
+  return mkNullNode #[mkContractNotice val, cleanDeclaration, thm]
+
+open Lean.Elab.Do in
+/-- Report the experimental status of each contract clause the notice carries. -/
+@[builtin_command_elab Lean.Parser.Command.contractDeclVal]
+def elabContractNotice : Elab.Command.CommandElab := fun stx => do
+  for clause in stx.getArgs.pop do
+    unless clause.isNone do
+      let kw := clause[0][0]
+      warnIntrinsicExperimental kw m!"`{kw.getAtomVal}` clause"
 
 open Lean.Elab.Do Lean.Parser.Term in
 @[builtin_doElem_elab Lean.Parser.Term.doAssertion]
@@ -158,6 +174,7 @@ def elabDoAssertion : DoElab := fun stx dec => do
   unless (← getEnv).contains ``Gadget.assertGadget do
     throwErrorAt tk
       "the `assert` element elaborates to a `vcgen` gadget; add `import Std.WP` to use it."
+  warnIntrinsicExperimental tk m!"`assert` element"
   let dec ← dec.ensureUnitAt tk
   let e ← Term.elabTermEnsuringType (← `($(mkCIdent ``Gadget.assertGadget) $as)) (← mkMonadApp (← mkPUnit))
   dec.mkBindUnlessPure e

@@ -236,10 +236,10 @@ return v___x_43_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__2___boxed(lean_object* v___x_44_, lean_object* v___x_45_, lean_object* v___x_46_, lean_object* v_inst_47_, lean_object* v_____do__lift_48_){
 _start:
 {
-uint8_t v___x_1064__boxed_49_; uint8_t v___x_1065__boxed_50_; lean_object* v_res_51_; 
-v___x_1064__boxed_49_ = lean_unbox(v___x_45_);
-v___x_1065__boxed_50_ = lean_unbox(v___x_46_);
-v_res_51_ = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__2(v___x_44_, v___x_1064__boxed_49_, v___x_1065__boxed_50_, v_inst_47_, v_____do__lift_48_);
+uint8_t v___x_1063__boxed_49_; uint8_t v___x_1064__boxed_50_; lean_object* v_res_51_; 
+v___x_1063__boxed_49_ = lean_unbox(v___x_45_);
+v___x_1064__boxed_50_ = lean_unbox(v___x_46_);
+v_res_51_ = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__2(v___x_44_, v___x_1063__boxed_49_, v___x_1064__boxed_50_, v_inst_47_, v_____do__lift_48_);
 return v_res_51_;
 }
 }
@@ -267,10 +267,10 @@ return v___x_67_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__3___boxed(lean_object* v___x_68_, lean_object* v___x_69_, lean_object* v___x_70_, lean_object* v_inst_71_, lean_object* v_body_72_, lean_object* v_g_73_, lean_object* v_toBind_74_, lean_object* v_x_75_){
 _start:
 {
-uint8_t v___x_1095__boxed_76_; uint8_t v___x_1096__boxed_77_; lean_object* v_res_78_; 
-v___x_1095__boxed_76_ = lean_unbox(v___x_69_);
-v___x_1096__boxed_77_ = lean_unbox(v___x_70_);
-v_res_78_ = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__3(v___x_68_, v___x_1095__boxed_76_, v___x_1096__boxed_77_, v_inst_71_, v_body_72_, v_g_73_, v_toBind_74_, v_x_75_);
+uint8_t v___x_1094__boxed_76_; uint8_t v___x_1095__boxed_77_; lean_object* v_res_78_; 
+v___x_1094__boxed_76_ = lean_unbox(v___x_69_);
+v___x_1095__boxed_77_ = lean_unbox(v___x_70_);
+v_res_78_ = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__3(v___x_68_, v___x_1094__boxed_76_, v___x_1095__boxed_77_, v_inst_71_, v_body_72_, v_g_73_, v_toBind_74_, v_x_75_);
 lean_dec_ref(v_body_72_);
 lean_dec(v___x_68_);
 return v_res_78_;
@@ -299,10 +299,10 @@ return v___x_90_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__4___boxed(lean_object* v___x_91_, lean_object* v___x_92_, lean_object* v___x_93_, lean_object* v_inst_94_, lean_object* v_____do__lift_95_){
 _start:
 {
-uint8_t v___x_1126__boxed_96_; uint8_t v___x_1127__boxed_97_; lean_object* v_res_98_; 
-v___x_1126__boxed_96_ = lean_unbox(v___x_92_);
-v___x_1127__boxed_97_ = lean_unbox(v___x_93_);
-v_res_98_ = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__4(v___x_91_, v___x_1126__boxed_96_, v___x_1127__boxed_97_, v_inst_94_, v_____do__lift_95_);
+uint8_t v___x_1125__boxed_96_; uint8_t v___x_1126__boxed_97_; lean_object* v_res_98_; 
+v___x_1125__boxed_96_ = lean_unbox(v___x_92_);
+v___x_1126__boxed_97_ = lean_unbox(v___x_93_);
+v_res_98_ = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__4(v___x_91_, v___x_1125__boxed_96_, v___x_1126__boxed_97_, v_inst_94_, v_____do__lift_95_);
 return v_res_98_;
 }
 }
@@ -330,10 +330,10 @@ return v___x_114_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__5___boxed(lean_object* v___x_115_, lean_object* v___x_116_, lean_object* v___x_117_, lean_object* v_inst_118_, lean_object* v_body_119_, lean_object* v_g_120_, lean_object* v_toBind_121_, lean_object* v_x_122_){
 _start:
 {
-uint8_t v___x_1155__boxed_123_; uint8_t v___x_1156__boxed_124_; lean_object* v_res_125_; 
-v___x_1155__boxed_123_ = lean_unbox(v___x_116_);
-v___x_1156__boxed_124_ = lean_unbox(v___x_117_);
-v_res_125_ = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__5(v___x_115_, v___x_1155__boxed_123_, v___x_1156__boxed_124_, v_inst_118_, v_body_119_, v_g_120_, v_toBind_121_, v_x_122_);
+uint8_t v___x_1154__boxed_123_; uint8_t v___x_1155__boxed_124_; lean_object* v_res_125_; 
+v___x_1154__boxed_123_ = lean_unbox(v___x_116_);
+v___x_1155__boxed_124_ = lean_unbox(v___x_117_);
+v_res_125_ = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__5(v___x_115_, v___x_1154__boxed_123_, v___x_1155__boxed_124_, v_inst_118_, v_body_119_, v_g_120_, v_toBind_121_, v_x_122_);
 lean_dec_ref(v_body_119_);
 lean_dec(v___x_115_);
 return v_res_125_;
@@ -399,9 +399,9 @@ return v___x_142_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__6___boxed(lean_object* v_declName_148_, lean_object* v_type_149_, lean_object* v_body_150_, lean_object* v_nondep_151_, lean_object* v_toPure_152_, lean_object* v_e_153_, lean_object* v_value_154_, lean_object* v_____do__lift_155_){
 _start:
 {
-uint8_t v_nondep_1188__boxed_156_; lean_object* v_res_157_; 
-v_nondep_1188__boxed_156_ = lean_unbox(v_nondep_151_);
-v_res_157_ = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__6(v_declName_148_, v_type_149_, v_body_150_, v_nondep_1188__boxed_156_, v_toPure_152_, v_e_153_, v_value_154_, v_____do__lift_155_);
+uint8_t v_nondep_1187__boxed_156_; lean_object* v_res_157_; 
+v_nondep_1187__boxed_156_ = lean_unbox(v_nondep_151_);
+v_res_157_ = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__6(v_declName_148_, v_type_149_, v_body_150_, v_nondep_1187__boxed_156_, v_toPure_152_, v_e_153_, v_value_154_, v_____do__lift_155_);
 lean_dec_ref(v_value_154_);
 return v_res_157_;
 }
@@ -514,9 +514,9 @@ return v___x_193_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__8___boxed(lean_object* v_binderName_199_, lean_object* v_body_200_, lean_object* v_binderInfo_201_, lean_object* v_toPure_202_, lean_object* v_e_203_, lean_object* v_binderType_204_, lean_object* v_____do__lift_205_){
 _start:
 {
-uint8_t v_binderInfo_1262__boxed_206_; lean_object* v_res_207_; 
-v_binderInfo_1262__boxed_206_ = lean_unbox(v_binderInfo_201_);
-v_res_207_ = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__8(v_binderName_199_, v_body_200_, v_binderInfo_1262__boxed_206_, v_toPure_202_, v_e_203_, v_binderType_204_, v_____do__lift_205_);
+uint8_t v_binderInfo_1261__boxed_206_; lean_object* v_res_207_; 
+v_binderInfo_1261__boxed_206_ = lean_unbox(v_binderInfo_201_);
+v_res_207_ = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__8(v_binderName_199_, v_body_200_, v_binderInfo_1261__boxed_206_, v_toPure_202_, v_e_203_, v_binderType_204_, v_____do__lift_205_);
 lean_dec_ref(v_binderType_204_);
 return v_res_207_;
 }
@@ -579,9 +579,9 @@ return v___x_222_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__9___boxed(lean_object* v_binderName_228_, lean_object* v_body_229_, lean_object* v_binderInfo_230_, lean_object* v_toPure_231_, lean_object* v_e_232_, lean_object* v_binderType_233_, lean_object* v_____do__lift_234_){
 _start:
 {
-uint8_t v_binderInfo_1303__boxed_235_; lean_object* v_res_236_; 
-v_binderInfo_1303__boxed_235_ = lean_unbox(v_binderInfo_230_);
-v_res_236_ = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__9(v_binderName_228_, v_body_229_, v_binderInfo_1303__boxed_235_, v_toPure_231_, v_e_232_, v_binderType_233_, v_____do__lift_234_);
+uint8_t v_binderInfo_1302__boxed_235_; lean_object* v_res_236_; 
+v_binderInfo_1302__boxed_235_ = lean_unbox(v_binderInfo_230_);
+v_res_236_ = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__9(v_binderName_228_, v_body_229_, v_binderInfo_1302__boxed_235_, v_toPure_231_, v_e_232_, v_binderType_233_, v_____do__lift_234_);
 lean_dec_ref(v_binderType_233_);
 return v_res_236_;
 }
@@ -646,9 +646,9 @@ return v___x_253_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__10___boxed(lean_object* v_declName_259_, lean_object* v_value_260_, lean_object* v_body_261_, lean_object* v_nondep_262_, lean_object* v_toPure_263_, lean_object* v_e_264_, lean_object* v_type_265_, lean_object* v_____do__lift_266_){
 _start:
 {
-uint8_t v_nondep_1345__boxed_267_; lean_object* v_res_268_; 
-v_nondep_1345__boxed_267_ = lean_unbox(v_nondep_262_);
-v_res_268_ = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__10(v_declName_259_, v_value_260_, v_body_261_, v_nondep_1345__boxed_267_, v_toPure_263_, v_e_264_, v_type_265_, v_____do__lift_266_);
+uint8_t v_nondep_1344__boxed_267_; lean_object* v_res_268_; 
+v_nondep_1344__boxed_267_ = lean_unbox(v_nondep_262_);
+v_res_268_ = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__10(v_declName_259_, v_value_260_, v_body_261_, v_nondep_1344__boxed_267_, v_toPure_263_, v_e_264_, v_type_265_, v_____do__lift_266_);
 lean_dec_ref(v_type_265_);
 return v_res_268_;
 }

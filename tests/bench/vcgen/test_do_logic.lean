@@ -140,7 +140,10 @@ theorem fib_impl_vcs
   case vc1 h => subst h; apply_rules [ret]
   case vc2 h => apply_rules [loop_pre]
   case vc3 => apply_rules [loop_step]
-  case vc4 => apply_rules [loop_post]
+  case vc4 h pref cur suff _hsplit b _hinv =>
+    -- `cleanupVC` reduced the `ForInStep.yield` that the step's postcondition matches on.
+    guard_target =ₛ I n h (pref ++ [cur]) suff (b.snd, b.fst + b.snd)
+    apply_rules [loop_post]
 
 @[spec]
 theorem mkFreshNat_spec [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
@@ -513,7 +516,7 @@ end IteratorTests
 namespace ConfigSyntaxTests
 
 /-! Tests for the ported `(config := …)` syntax. Implemented options change behavior
-silently; `leave` and `jp` are accepted by the parser but warn that they are
+silently; `leave`, `trivial` and `jp` are accepted by the parser but warn that they are
 currently ignored. -/
 
 def trivial_test (n : Nat) : Id Nat := pure n
@@ -522,10 +525,10 @@ def trivial_test (n : Nat) : Id Nat := pure n
 example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by
   vcgen (config := {}) [trivial_test]
 
--- `trivial := false` skips `repeatAndRfl`, leaving a residual entailment.
+/-- warning: vcgen: the `trivial` config option is currently ignored. -/
+#guard_msgs in
 example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by
   vcgen (trivial := false) [trivial_test]
-  trivial
 
 -- `elimLets := false` skips the let-elimination pre-pass (now honored by `vcgen`).
 example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by

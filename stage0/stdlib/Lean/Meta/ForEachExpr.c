@@ -269,9 +269,9 @@ return v___x_9_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ForEachExpr_0__Lean_Meta_visitLambda_visit___redArg___lam__1___boxed(lean_object* v_inst_10_, lean_object* v_inst_11_, lean_object* v_binderName_12_, lean_object* v_binderInfo_13_, lean_object* v_d_14_, lean_object* v___f_15_, lean_object* v_____r_16_){
 _start:
 {
-uint8_t v_binderInfo_66__boxed_17_; lean_object* v_res_18_; 
-v_binderInfo_66__boxed_17_ = lean_unbox(v_binderInfo_13_);
-v_res_18_ = l___private_Lean_Meta_ForEachExpr_0__Lean_Meta_visitLambda_visit___redArg___lam__1(v_inst_10_, v_inst_11_, v_binderName_12_, v_binderInfo_66__boxed_17_, v_d_14_, v___f_15_, v_____r_16_);
+uint8_t v_binderInfo_62__boxed_17_; lean_object* v_res_18_; 
+v_binderInfo_62__boxed_17_ = lean_unbox(v_binderInfo_13_);
+v_res_18_ = l___private_Lean_Meta_ForEachExpr_0__Lean_Meta_visitLambda_visit___redArg___lam__1(v_inst_10_, v_inst_11_, v_binderName_12_, v_binderInfo_62__boxed_17_, v_d_14_, v___f_15_, v_____r_16_);
 return v_res_18_;
 }
 }
@@ -724,7 +724,7 @@ switch(lean_obj_tag(v_e_256_))
 {
 case 7:
 {
-lean_object* v___x_271_; lean_object* v___f_272_; lean_object* v___f_273_; lean_object* v___x_274_; lean_object* v___x_275_; lean_object* v___x_887__overap_276_; lean_object* v___x_277_; 
+lean_object* v___x_271_; lean_object* v___f_272_; lean_object* v___f_273_; lean_object* v___x_274_; lean_object* v___x_275_; lean_object* v___x_878__overap_276_; lean_object* v___x_277_; 
 lean_dec(v_toBind_266_);
 lean_dec_ref(v_toApplicative_255_);
 v___x_271_ = l_Lean_MonadCacheT_instMonadControl___redArg(v_x_257_, v___x_258_, v___x_259_);
@@ -745,14 +745,14 @@ lean_closure_set(v___x_275_, 1, v_inst_260_);
 lean_closure_set(v___x_275_, 2, v_fn_262_);
 lean_closure_set(v___x_275_, 3, v_x_257_);
 lean_closure_set(v___x_275_, 4, v_x_263_);
-v___x_887__overap_276_ = l_Lean_Meta_visitForall___redArg(v___x_264_, v___x_274_, v___x_275_, v_e_256_);
+v___x_878__overap_276_ = l_Lean_Meta_visitForall___redArg(v___x_264_, v___x_274_, v___x_275_, v_e_256_);
 lean_inc(v_a_265_);
-v___x_277_ = lean_apply_1(v___x_887__overap_276_, v_a_265_);
+v___x_277_ = lean_apply_1(v___x_878__overap_276_, v_a_265_);
 return v___x_277_;
 }
 case 6:
 {
-lean_object* v___x_278_; lean_object* v___f_279_; lean_object* v___f_280_; lean_object* v___x_281_; lean_object* v___x_282_; lean_object* v___x_897__overap_283_; lean_object* v___x_284_; 
+lean_object* v___x_278_; lean_object* v___f_279_; lean_object* v___f_280_; lean_object* v___x_281_; lean_object* v___x_282_; lean_object* v___x_888__overap_283_; lean_object* v___x_284_; 
 lean_dec(v_toBind_266_);
 lean_dec_ref(v_toApplicative_255_);
 v___x_278_ = l_Lean_MonadCacheT_instMonadControl___redArg(v_x_257_, v___x_258_, v___x_259_);
@@ -773,14 +773,14 @@ lean_closure_set(v___x_282_, 1, v_inst_260_);
 lean_closure_set(v___x_282_, 2, v_fn_262_);
 lean_closure_set(v___x_282_, 3, v_x_257_);
 lean_closure_set(v___x_282_, 4, v_x_263_);
-v___x_897__overap_283_ = l_Lean_Meta_visitLambda___redArg(v___x_264_, v___x_281_, v___x_282_, v_e_256_);
+v___x_888__overap_283_ = l_Lean_Meta_visitLambda___redArg(v___x_264_, v___x_281_, v___x_282_, v_e_256_);
 lean_inc(v_a_265_);
-v___x_284_ = lean_apply_1(v___x_897__overap_283_, v_a_265_);
+v___x_284_ = lean_apply_1(v___x_888__overap_283_, v_a_265_);
 return v___x_284_;
 }
 case 8:
 {
-lean_object* v___x_285_; lean_object* v___f_286_; lean_object* v___f_287_; lean_object* v___x_288_; lean_object* v___x_289_; lean_object* v___x_908__overap_290_; lean_object* v___x_291_; 
+lean_object* v___x_285_; lean_object* v___f_286_; lean_object* v___f_287_; lean_object* v___x_288_; lean_object* v___x_289_; lean_object* v___x_899__overap_290_; lean_object* v___x_291_; 
 lean_dec(v_toBind_266_);
 lean_dec_ref(v_toApplicative_255_);
 v___x_285_ = l_Lean_MonadCacheT_instMonadControl___redArg(v_x_257_, v___x_258_, v___x_259_);
@@ -801,9 +801,9 @@ lean_closure_set(v___x_289_, 1, v_inst_260_);
 lean_closure_set(v___x_289_, 2, v_fn_262_);
 lean_closure_set(v___x_289_, 3, v_x_257_);
 lean_closure_set(v___x_289_, 4, v_x_263_);
-v___x_908__overap_290_ = l_Lean_Meta_visitLet___redArg(v___x_264_, v___x_288_, v___x_289_, v_e_256_);
+v___x_899__overap_290_ = l_Lean_Meta_visitLet___redArg(v___x_264_, v___x_288_, v___x_289_, v_e_256_);
 lean_inc(v_a_265_);
-v___x_291_ = lean_apply_1(v___x_908__overap_290_, v_a_265_);
+v___x_291_ = lean_apply_1(v___x_899__overap_290_, v_a_265_);
 return v___x_291_;
 }
 case 5:

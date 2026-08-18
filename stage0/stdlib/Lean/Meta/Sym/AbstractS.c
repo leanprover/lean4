@@ -255,13 +255,13 @@ goto v_resetjp_40_;
 }
 v_resetjp_40_:
 {
-lean_object* v___x_43_; lean_object* v___x_2596__overap_44_; lean_object* v___x_45_; lean_object* v___x_46_; 
+lean_object* v___x_43_; lean_object* v___x_2599__overap_44_; lean_object* v___x_45_; lean_object* v___x_46_; 
 v___x_43_ = lean_nat_add(v_offset_19_, v_val_39_);
 lean_dec(v_val_39_);
-v___x_2596__overap_44_ = l_Lean_Meta_Sym_Internal_mkBVarS___redArg(v___x_13_, v___x_43_);
+v___x_2599__overap_44_ = l_Lean_Meta_Sym_Internal_mkBVarS___redArg(v___x_13_, v___x_43_);
 v___x_45_ = lean_box(v___y_20_);
 lean_inc_ref(v___y_21_);
-v___x_46_ = lean_apply_3(v___x_2596__overap_44_, v___x_45_, v___y_21_, v___y_22_);
+v___x_46_ = lean_apply_3(v___x_2599__overap_44_, v___x_45_, v___y_21_, v___y_22_);
 if (lean_obj_tag(v___x_46_) == 0)
 {
 lean_object* v_a_47_; lean_object* v_a_48_; lean_object* v___x_50_; uint8_t v_isShared_51_; uint8_t v_isSharedCheck_58_; 
@@ -569,9 +569,9 @@ goto v___jp_23_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_AbstractS_0__Lean_Meta_Sym_abstractFVarsCore___lam__0___boxed(lean_object* v_toDeBruijn_x3f_94_, lean_object* v___x_95_, lean_object* v_maxFVar_96_, lean_object* v_minIndex_97_, lean_object* v_lctx_98_, lean_object* v___x_99_, lean_object* v_e_100_, lean_object* v_offset_101_, lean_object* v___y_102_, lean_object* v___y_103_, lean_object* v___y_104_){
 _start:
 {
-uint8_t v___y_2691__boxed_105_; lean_object* v_res_106_; 
-v___y_2691__boxed_105_ = lean_unbox(v___y_102_);
-v_res_106_ = l___private_Lean_Meta_Sym_AbstractS_0__Lean_Meta_Sym_abstractFVarsCore___lam__0(v_toDeBruijn_x3f_94_, v___x_95_, v_maxFVar_96_, v_minIndex_97_, v_lctx_98_, v___x_99_, v_e_100_, v_offset_101_, v___y_2691__boxed_105_, v___y_103_, v___y_104_);
+uint8_t v___y_2694__boxed_105_; lean_object* v_res_106_; 
+v___y_2694__boxed_105_ = lean_unbox(v___y_102_);
+v_res_106_ = l___private_Lean_Meta_Sym_AbstractS_0__Lean_Meta_Sym_abstractFVarsCore___lam__0(v_toDeBruijn_x3f_94_, v___x_95_, v_maxFVar_96_, v_minIndex_97_, v_lctx_98_, v___x_99_, v_e_100_, v_offset_101_, v___y_2694__boxed_105_, v___y_103_, v___y_104_);
 lean_dec_ref(v___y_103_);
 lean_dec(v_offset_101_);
 lean_dec_ref(v___x_99_);

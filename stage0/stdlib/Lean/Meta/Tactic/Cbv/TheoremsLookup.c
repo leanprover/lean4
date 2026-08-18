@@ -789,12 +789,12 @@ return v_res_193_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Tactic_Cbv_getEqnTheorems_spec__2_spec__3___redArg___boxed(lean_object* v_x_194_, lean_object* v_x_195_, lean_object* v_x_196_, lean_object* v_x_197_, lean_object* v_x_198_){
 _start:
 {
-size_t v_x_2176__boxed_199_; size_t v_x_2177__boxed_200_; lean_object* v_res_201_; 
-v_x_2176__boxed_199_ = lean_unbox_usize(v_x_195_);
+size_t v_x_2163__boxed_199_; size_t v_x_2164__boxed_200_; lean_object* v_res_201_; 
+v_x_2163__boxed_199_ = lean_unbox_usize(v_x_195_);
 lean_dec(v_x_195_);
-v_x_2177__boxed_200_ = lean_unbox_usize(v_x_196_);
+v_x_2164__boxed_200_ = lean_unbox_usize(v_x_196_);
 lean_dec(v_x_196_);
-v_res_201_ = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Tactic_Cbv_getEqnTheorems_spec__2_spec__3___redArg(v_x_194_, v_x_2176__boxed_199_, v_x_2177__boxed_200_, v_x_197_, v_x_198_);
+v_res_201_ = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Tactic_Cbv_getEqnTheorems_spec__2_spec__3___redArg(v_x_194_, v_x_2163__boxed_199_, v_x_2164__boxed_200_, v_x_197_, v_x_198_);
 return v_res_201_;
 }
 }
@@ -1090,10 +1090,10 @@ return v___x_305_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Tactic_Cbv_getEqnTheorems_spec__0_spec__0___redArg___boxed(lean_object* v_x_306_, lean_object* v_x_307_, lean_object* v_x_308_){
 _start:
 {
-size_t v_x_2437__boxed_309_; lean_object* v_res_310_; 
-v_x_2437__boxed_309_ = lean_unbox_usize(v_x_307_);
+size_t v_x_2424__boxed_309_; lean_object* v_res_310_; 
+v_x_2424__boxed_309_ = lean_unbox_usize(v_x_307_);
 lean_dec(v_x_307_);
-v_res_310_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Tactic_Cbv_getEqnTheorems_spec__0_spec__0___redArg(v_x_306_, v_x_2437__boxed_309_, v_x_308_);
+v_res_310_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Tactic_Cbv_getEqnTheorems_spec__0_spec__0___redArg(v_x_306_, v_x_2424__boxed_309_, v_x_308_);
 lean_dec(v_x_308_);
 lean_dec_ref(v_x_306_);
 return v_res_310_;
@@ -1613,10 +1613,10 @@ return v___x_452_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Tactic_Cbv_getEqnTheorems_spec__0_spec__0___boxed(lean_object* v_00_u03b2_453_, lean_object* v_x_454_, lean_object* v_x_455_, lean_object* v_x_456_){
 _start:
 {
-size_t v_x_2709__boxed_457_; lean_object* v_res_458_; 
-v_x_2709__boxed_457_ = lean_unbox_usize(v_x_455_);
+size_t v_x_2696__boxed_457_; lean_object* v_res_458_; 
+v_x_2696__boxed_457_ = lean_unbox_usize(v_x_455_);
 lean_dec(v_x_455_);
-v_res_458_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Tactic_Cbv_getEqnTheorems_spec__0_spec__0(v_00_u03b2_453_, v_x_454_, v_x_2709__boxed_457_, v_x_456_);
+v_res_458_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Tactic_Cbv_getEqnTheorems_spec__0_spec__0(v_00_u03b2_453_, v_x_454_, v_x_2696__boxed_457_, v_x_456_);
 lean_dec(v_x_456_);
 lean_dec_ref(v_x_454_);
 return v_res_458_;
@@ -1633,12 +1633,12 @@ return v___x_465_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Tactic_Cbv_getEqnTheorems_spec__2_spec__3___boxed(lean_object* v_00_u03b2_466_, lean_object* v_x_467_, lean_object* v_x_468_, lean_object* v_x_469_, lean_object* v_x_470_, lean_object* v_x_471_){
 _start:
 {
-size_t v_x_2720__boxed_472_; size_t v_x_2721__boxed_473_; lean_object* v_res_474_; 
-v_x_2720__boxed_472_ = lean_unbox_usize(v_x_468_);
+size_t v_x_2707__boxed_472_; size_t v_x_2708__boxed_473_; lean_object* v_res_474_; 
+v_x_2707__boxed_472_ = lean_unbox_usize(v_x_468_);
 lean_dec(v_x_468_);
-v_x_2721__boxed_473_ = lean_unbox_usize(v_x_469_);
+v_x_2708__boxed_473_ = lean_unbox_usize(v_x_469_);
 lean_dec(v_x_469_);
-v_res_474_ = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Tactic_Cbv_getEqnTheorems_spec__2_spec__3(v_00_u03b2_466_, v_x_467_, v_x_2720__boxed_472_, v_x_2721__boxed_473_, v_x_470_, v_x_471_);
+v_res_474_ = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Tactic_Cbv_getEqnTheorems_spec__2_spec__3(v_00_u03b2_466_, v_x_467_, v_x_2707__boxed_472_, v_x_2708__boxed_473_, v_x_470_, v_x_471_);
 return v_res_474_;
 }
 }

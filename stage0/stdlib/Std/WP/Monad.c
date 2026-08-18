@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.WP.Monad
-// Imports: public import Std.WP.Monad.Basic public import Std.WP.Monad.Instances public import Std.WP.Monad.Adequacy public import Std.WP.Monad.Conjunctive public import Std.WP.Monad.Frame public import Std.WP.Monad.Lemmas
+// Imports: public import Std.WP.Monad.Basic public import Std.WP.Monad.Instances public import Std.WP.Monad.Sound public import Std.WP.Monad.Conjunctive public import Std.WP.Monad.Frame public import Std.WP.Monad.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* runtime_initialize_Std_WP_Monad_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Std_WP_Monad_Instances(uint8_t builtin);
-lean_object* runtime_initialize_Std_WP_Monad_Adequacy(uint8_t builtin);
+lean_object* runtime_initialize_Std_WP_Monad_Sound(uint8_t builtin);
 lean_object* runtime_initialize_Std_WP_Monad_Conjunctive(uint8_t builtin);
 lean_object* runtime_initialize_Std_WP_Monad_Frame(uint8_t builtin);
 lean_object* runtime_initialize_Std_WP_Monad_Lemmas(uint8_t builtin);
@@ -32,7 +32,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Std_WP_Monad_Instances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_WP_Monad_Adequacy(builtin);
+res = runtime_initialize_Std_WP_Monad_Sound(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_WP_Monad_Conjunctive(builtin);
@@ -55,7 +55,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_WP_Monad_Basic(uint8_t builtin);
 lean_object* initialize_Std_WP_Monad_Instances(uint8_t builtin);
-lean_object* initialize_Std_WP_Monad_Adequacy(uint8_t builtin);
+lean_object* initialize_Std_WP_Monad_Sound(uint8_t builtin);
 lean_object* initialize_Std_WP_Monad_Conjunctive(uint8_t builtin);
 lean_object* initialize_Std_WP_Monad_Frame(uint8_t builtin);
 lean_object* initialize_Std_WP_Monad_Lemmas(uint8_t builtin);
@@ -70,7 +70,7 @@ lean_dec_ref(res);
 res = initialize_Std_WP_Monad_Instances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_WP_Monad_Adequacy(builtin);
+res = initialize_Std_WP_Monad_Sound(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_WP_Monad_Conjunctive(builtin);

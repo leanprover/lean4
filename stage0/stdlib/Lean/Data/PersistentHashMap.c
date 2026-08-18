@@ -1583,12 +1583,12 @@ return v_res_477_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___redArg___boxed(lean_object* v_inst_478_, lean_object* v_inst_479_, lean_object* v_x_480_, lean_object* v_x_481_, lean_object* v_x_482_, lean_object* v_x_483_, lean_object* v_x_484_){
 _start:
 {
-size_t v_x_461__boxed_485_; size_t v_x_462__boxed_486_; lean_object* v_res_487_; 
-v_x_461__boxed_485_ = lean_unbox_usize(v_x_481_);
+size_t v_x_439__boxed_485_; size_t v_x_440__boxed_486_; lean_object* v_res_487_; 
+v_x_439__boxed_485_ = lean_unbox_usize(v_x_481_);
 lean_dec(v_x_481_);
-v_x_462__boxed_486_ = lean_unbox_usize(v_x_482_);
+v_x_440__boxed_486_ = lean_unbox_usize(v_x_482_);
 lean_dec(v_x_482_);
-v_res_487_ = l_Lean_PersistentHashMap_insertAux___redArg(v_inst_478_, v_inst_479_, v_x_480_, v_x_461__boxed_485_, v_x_462__boxed_486_, v_x_483_, v_x_484_);
+v_res_487_ = l_Lean_PersistentHashMap_insertAux___redArg(v_inst_478_, v_inst_479_, v_x_480_, v_x_439__boxed_485_, v_x_440__boxed_486_, v_x_483_, v_x_484_);
 return v_res_487_;
 }
 }
@@ -1623,12 +1623,12 @@ return v___x_520_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___boxed(lean_object* v_00_u03b1_521_, lean_object* v_00_u03b2_522_, lean_object* v_inst_523_, lean_object* v_inst_524_, lean_object* v_x_525_, lean_object* v_x_526_, lean_object* v_x_527_, lean_object* v_x_528_, lean_object* v_x_529_){
 _start:
 {
-size_t v_x_639__boxed_530_; size_t v_x_640__boxed_531_; lean_object* v_res_532_; 
-v_x_639__boxed_530_ = lean_unbox_usize(v_x_526_);
+size_t v_x_617__boxed_530_; size_t v_x_618__boxed_531_; lean_object* v_res_532_; 
+v_x_617__boxed_530_ = lean_unbox_usize(v_x_526_);
 lean_dec(v_x_526_);
-v_x_640__boxed_531_ = lean_unbox_usize(v_x_527_);
+v_x_618__boxed_531_ = lean_unbox_usize(v_x_527_);
 lean_dec(v_x_527_);
-v_res_532_ = l_Lean_PersistentHashMap_insertAux(v_00_u03b1_521_, v_00_u03b2_522_, v_inst_523_, v_inst_524_, v_x_525_, v_x_639__boxed_530_, v_x_640__boxed_531_, v_x_528_, v_x_529_);
+v_res_532_ = l_Lean_PersistentHashMap_insertAux(v_00_u03b1_521_, v_00_u03b2_522_, v_inst_523_, v_inst_524_, v_x_525_, v_x_617__boxed_530_, v_x_618__boxed_531_, v_x_528_, v_x_529_);
 return v_res_532_;
 }
 }

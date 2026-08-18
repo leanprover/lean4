@@ -1369,14 +1369,14 @@ return v_res_452_;
 LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Meta_SameCtorUtils_0__Lean_Meta_withSharedCtorIndices_go_spec__0___redArg(lean_object* v_msg_454_, lean_object* v___y_455_, lean_object* v___y_456_, lean_object* v___y_457_, lean_object* v___y_458_){
 _start:
 {
-lean_object* v___f_460_; lean_object* v___x_685__overap_461_; lean_object* v___x_462_; 
+lean_object* v___f_460_; lean_object* v___x_660__overap_461_; lean_object* v___x_462_; 
 v___f_460_ = ((lean_object*)(l_panic___at___00__private_Lean_Meta_SameCtorUtils_0__Lean_Meta_withSharedCtorIndices_go_spec__0___redArg___closed__0));
-v___x_685__overap_461_ = lean_panic_fn_borrowed(v___f_460_, v_msg_454_);
+v___x_660__overap_461_ = lean_panic_fn_borrowed(v___f_460_, v_msg_454_);
 lean_inc(v___y_458_);
 lean_inc_ref(v___y_457_);
 lean_inc(v___y_456_);
 lean_inc_ref(v___y_455_);
-v___x_462_ = lean_apply_5(v___x_685__overap_461_, v___y_455_, v___y_456_, v___y_457_, v___y_458_, lean_box(0));
+v___x_462_ = lean_apply_5(v___x_660__overap_461_, v___y_455_, v___y_456_, v___y_457_, v___y_458_, lean_box(0));
 return v___x_462_;
 }
 }

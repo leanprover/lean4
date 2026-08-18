@@ -7666,9 +7666,9 @@ return v___x_2945_;
 LEAN_EXPORT lean_object* l___private_Lean_ResolveName_0__Lean_unresolveNameGlobal_x3f_tryResolve___redArg___lam__0___boxed(lean_object* v_toPure_2946_, lean_object* v_____do__lift_2947_){
 _start:
 {
-uint8_t v_____do__lift_1160__boxed_2948_; lean_object* v_res_2949_; 
-v_____do__lift_1160__boxed_2948_ = lean_unbox(v_____do__lift_2947_);
-v_res_2949_ = l___private_Lean_ResolveName_0__Lean_unresolveNameGlobal_x3f_tryResolve___redArg___lam__0(v_toPure_2946_, v_____do__lift_1160__boxed_2948_);
+uint8_t v_____do__lift_1150__boxed_2948_; lean_object* v_res_2949_; 
+v_____do__lift_1150__boxed_2948_ = lean_unbox(v_____do__lift_2947_);
+v_res_2949_ = l___private_Lean_ResolveName_0__Lean_unresolveNameGlobal_x3f_tryResolve___redArg___lam__0(v_toPure_2946_, v_____do__lift_1150__boxed_2948_);
 return v_res_2949_;
 }
 }

@@ -889,9 +889,9 @@ return v___x_248_;
 LEAN_EXPORT lean_object* l_Int_Internal_Linear_Poly_normCommRing_x3f___lam__0___boxed(lean_object* v_a_251_, lean_object* v_s_252_){
 _start:
 {
-uint8_t v_a_151914__boxed_253_; lean_object* v_res_254_; 
-v_a_151914__boxed_253_ = lean_unbox(v_a_251_);
-v_res_254_ = l_Int_Internal_Linear_Poly_normCommRing_x3f___lam__0(v_a_151914__boxed_253_, v_s_252_);
+uint8_t v_a_151740__boxed_253_; lean_object* v_res_254_; 
+v_a_151740__boxed_253_ = lean_unbox(v_a_251_);
+v_res_254_ = l_Int_Internal_Linear_Poly_normCommRing_x3f___lam__0(v_a_151740__boxed_253_, v_s_252_);
 return v_res_254_;
 }
 }

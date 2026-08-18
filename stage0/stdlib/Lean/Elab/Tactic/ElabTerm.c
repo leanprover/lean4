@@ -7167,10 +7167,10 @@ return v___x_2665_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalSpecialize___lam__0___boxed(lean_object* v___x_2668_, lean_object* v_stx_2669_, lean_object* v___x_2670_, lean_object* v___x_2671_, lean_object* v___y_2672_, lean_object* v___y_2673_, lean_object* v___y_2674_, lean_object* v___y_2675_, lean_object* v___y_2676_, lean_object* v___y_2677_, lean_object* v___y_2678_, lean_object* v___y_2679_, lean_object* v___y_2680_){
 _start:
 {
-uint8_t v___x_1129__boxed_2681_; uint8_t v___x_1131__boxed_2682_; lean_object* v_res_2683_; 
-v___x_1129__boxed_2681_ = lean_unbox(v___x_2668_);
-v___x_1131__boxed_2682_ = lean_unbox(v___x_2671_);
-v_res_2683_ = l_Lean_Elab_Tactic_evalSpecialize___lam__0(v___x_1129__boxed_2681_, v_stx_2669_, v___x_2670_, v___x_1131__boxed_2682_, v___y_2672_, v___y_2673_, v___y_2674_, v___y_2675_, v___y_2676_, v___y_2677_, v___y_2678_, v___y_2679_);
+uint8_t v___x_1111__boxed_2681_; uint8_t v___x_1113__boxed_2682_; lean_object* v_res_2683_; 
+v___x_1111__boxed_2681_ = lean_unbox(v___x_2668_);
+v___x_1113__boxed_2682_ = lean_unbox(v___x_2671_);
+v_res_2683_ = l_Lean_Elab_Tactic_evalSpecialize___lam__0(v___x_1111__boxed_2681_, v_stx_2669_, v___x_2670_, v___x_1113__boxed_2682_, v___y_2672_, v___y_2673_, v___y_2674_, v___y_2675_, v___y_2676_, v___y_2677_, v___y_2678_, v___y_2679_);
 lean_dec(v___y_2679_);
 lean_dec_ref(v___y_2678_);
 lean_dec(v___y_2677_);
@@ -9581,9 +9581,9 @@ return v___x_3871_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_elabAsFVar___lam__0___boxed(lean_object* v_stx_3874_, lean_object* v___x_3875_, lean_object* v___x_3876_, lean_object* v_userName_x3f_3877_, lean_object* v___y_3878_, lean_object* v___y_3879_, lean_object* v___y_3880_, lean_object* v___y_3881_, lean_object* v___y_3882_, lean_object* v___y_3883_, lean_object* v___y_3884_, lean_object* v___y_3885_, lean_object* v___y_3886_){
 _start:
 {
-uint8_t v___x_1473__boxed_3887_; lean_object* v_res_3888_; 
-v___x_1473__boxed_3887_ = lean_unbox(v___x_3876_);
-v_res_3888_ = l_Lean_Elab_Tactic_elabAsFVar___lam__0(v_stx_3874_, v___x_3875_, v___x_1473__boxed_3887_, v_userName_x3f_3877_, v___y_3878_, v___y_3879_, v___y_3880_, v___y_3881_, v___y_3882_, v___y_3883_, v___y_3884_, v___y_3885_);
+uint8_t v___x_1499__boxed_3887_; lean_object* v_res_3888_; 
+v___x_1499__boxed_3887_ = lean_unbox(v___x_3876_);
+v_res_3888_ = l_Lean_Elab_Tactic_elabAsFVar___lam__0(v_stx_3874_, v___x_3875_, v___x_1499__boxed_3887_, v_userName_x3f_3877_, v___y_3878_, v___y_3879_, v___y_3880_, v___y_3881_, v___y_3882_, v___y_3883_, v___y_3884_, v___y_3885_);
 lean_dec(v___y_3881_);
 lean_dec_ref(v___y_3880_);
 lean_dec(v___y_3879_);

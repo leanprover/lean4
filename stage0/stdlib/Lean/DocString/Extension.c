@@ -6119,16 +6119,16 @@ goto v___jp_1593_;
 }
 else
 {
-lean_dec_ref_known(v_kind_1612_, 2);
 lean_dec(v_pre_1613_);
+lean_dec_ref_known(v_kind_1612_, 2);
 lean_dec_ref_known(v___x_1610_, 3);
 goto v___jp_1593_;
 }
 }
 else
 {
-lean_dec(v_kind_1612_);
 lean_dec_ref_known(v___x_1610_, 3);
+lean_dec(v_kind_1612_);
 goto v___jp_1593_;
 }
 }

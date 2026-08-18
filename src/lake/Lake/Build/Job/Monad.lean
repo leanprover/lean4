@@ -194,12 +194,16 @@ public protected def await (self : Job α) : LogIO α := do
 
 /--
 The result of a job continuation canceled by the build's cancellation token
-(see `BuildConfig.failFast`). The trace-level entry keeps the job out of the
-failure summary while still explaining the skip in verbose output and giving
-`Job.await` a message to replay.
+(see `BuildConfig.failFast`). The trace-level log entry keeps the job out of the
+failure summary while still explaining via the verbose output.
+
+Note two conventions we follow here:  
+- the monitor counts a job as failed when `log.maxLv ≥ failLv`, so entries on this path must stay
+below `failLv`
+- the result is an "ordinary" error. We provide `JobResult.isCanceled` to identify cancellations using the log.
 -/
 @[inline] def canceledResult (s : JobState) : JobResult α :=
-  .error s.log.endPos (s.logEntry (.trace "canceled after earlier build failure"))
+  .error s.log.endPos (s.logEntry (.trace cancelMessage))
 
 /--
 Apply `f` asynchronously to the job's output.

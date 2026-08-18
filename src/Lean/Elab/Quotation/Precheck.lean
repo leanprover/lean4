@@ -113,7 +113,7 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
     if (← read).quotLCtx.contains val then
       return
     let rs ← try resolveName stx val [] [] catch _ => pure []
-    for (e, _) in rs do
+    for (e, _, _) in rs do
       match e with
       | Expr.fvar _      .. =>
         if quotPrecheck.allowSectionVars.get (← getOptions) && (← isSectionVariable e) then

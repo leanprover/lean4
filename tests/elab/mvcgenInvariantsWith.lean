@@ -1,6 +1,5 @@
 import Std.Tactic.Do
 import Std
-set_option backward.do.legacy false
 
 open Std Do
 

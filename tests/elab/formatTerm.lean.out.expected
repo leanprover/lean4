@@ -32,6 +32,79 @@ do
     t✝
   else
     e✝
+do
+  for x✝ in xs✝ do
+    pure✝ ()
+do
+  let mut acc✝ := 0;
+  for x✝ in xs✝ do
+    acc✝ := acc✝ + x✝;
+    return acc✝
+do
+  while c✝ do
+    pure✝ ()
+do
+  unless c✝ do
+    pure✝ ()
+do
+  assert 0 ≤ acc✝
+do
+  assert s✝ => s✝ ≤ acc✝
+do
+  for x✝ in xs✝
+      invariant pref✝ suff✝ => 0 ≤ acc✝ do
+    pure✝ ()
+do
+  for x✝ in xs✝
+      invariant pref✝ suff✝ s✝ => s✝ ≤ acc✝ do
+    pure✝ ()
+do
+  while i✝ < n✝
+      invariant _ => i✝ ≤ n✝
+      decreasing n✝ - i✝ do
+    pure✝ ()
+do
+  repeat
+      decreasing n✝ - i✝
+    do
+      pure✝ ()
+do
+  repeat
+      invariant exit✝ => if exit✝ then i✝ = n✝ else i✝ ≤ n✝
+      decreasing n✝ - i✝
+    do
+      pure✝ ()
+do
+  repeat
+      invariant _ => i✝ ≤ n✝
+      decreasing n✝ - i✝
+    do
+      pure✝ ()
+  until i✝ = n✝
+def clampLow✝ (n✝ lo✝ : Nat✝) : Id✝ Nat✝
+    requires lo✝ ≤ n✝
+    ensures r✝ => r✝ = n✝ :=
+  pure✝ n✝
+def k✝ (x✝ : Nat✝)
+    requires s✝ => s✝ > x✝
+    ensures r✝ => r✝ ≥ x✝ :=
+  pure✝ x✝
+def g✝ (x✝ : Nat✝)
+    requires x✝ > 0
+    ensures r✝ => r✝ ≥ x✝ :=
+  pure✝ x✝
+def m✝ (x✝ : Nat✝)
+    requires x✝ > 0
+    ensures
+      | 0 => False✝
+      | (n✝ + 1) => n✝ ≥ x✝ :=
+  pure✝ x✝
+def h✝ (x✝ : Nat✝) : Id✝ Nat✝
+    ensures r✝ => r✝ = x✝ :=
+  pure✝ x✝
+where
+finally
+  | spec✝ => skip
 def foo✝ := by
   · skip; skip
   · skip; skip

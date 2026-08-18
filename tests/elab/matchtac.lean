@@ -22,33 +22,33 @@ by {
 }
 
 theorem tst4 {α : Type} {p : Prop} (xs : List α) (h₁ : (a : α) → (as : List α) → xs = a :: as → p) (h₂ : xs = [] → p) : p := by
-match (generalizing := false) h : xs with
-| []    => _
-| z::zs => _
-case match_2 => exact h₁ z zs h
-exact h₂ h
+  match (generalizing := false) h : xs with
+  | []    => _
+  | z::zs => _
+  case match_2 => exact h₁ z zs h
+  exact h₂ h
 
 theorem tst5 {p q r} (h : p ∨ q ∨ r) : r ∨ q ∨ p:= by
-match h with
-| Or.inl h          => exact Or.inr (Or.inr h)
-| Or.inr (Or.inl h) => ?c1
-| Or.inr (Or.inr h) => ?c2
-case c2 =>
-  apply Or.inl
-  assumption
-case c1 =>
-  apply Or.inr
-  apply Or.inl
-  assumption
+  match h with
+  | Or.inl h          => exact Or.inr (Or.inr h)
+  | Or.inr (Or.inl h) => ?c1
+  | Or.inr (Or.inr h) => ?c2
+  case c2 =>
+    apply Or.inl
+    assumption
+  case c1 =>
+    apply Or.inr
+    apply Or.inl
+    assumption
 
 theorem tst6 {p q r} (h : p ∨ q ∨ r) : r ∨ q ∨ p:= by
-match h with
-| Or.inl h          => exact Or.inr (Or.inr h)
-| Or.inr (Or.inl h) => ?c1
-| Or.inr (Or.inr h) =>
-  apply Or.inl
-  assumption
-case c1 => apply Or.inr; apply Or.inl; assumption
+  match h with
+  | Or.inl h          => exact Or.inr (Or.inr h)
+  | Or.inr (Or.inl h) => ?c1
+  | Or.inr (Or.inr h) =>
+    apply Or.inl
+    assumption
+  case c1 => apply Or.inr; apply Or.inl; assumption
 
 theorem tst7 {p q r} (h : p ∨ q ∨ r) : r ∨ q ∨ p:=
 by match h with

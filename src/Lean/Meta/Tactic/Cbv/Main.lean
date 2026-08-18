@@ -67,6 +67,11 @@ There are also places where we deviate from strict call-by-value semantics:
 - Dependent projections that cannot be rewritten via `congrArg` are reduced
   directly when possible. As a last resort, if the types on which the projection
   function depends are definitionally equal, we use `HCongr` to build the proof.
+  For a stuck tower of projections `base.π₁.…​.πₙ` over a base that is only
+  propositionally a constructor, we additionally try `congrArg` with the composite
+  projection function: even when the intermediate levels are dependent, the
+  composite is often non-dependent (e.g. `fun p => p.snd.len : … → Nat`) and the
+  whole spine can be rewritten in one step.
 
 ## Attributes
 
@@ -93,57 +98,13 @@ is marked done regardless of whether a rule fires. Otherwise it tries in order:
 ## Entry points
 
 - `cbvEntry`: reduces a single expression (used by `conv => cbv`)
-- `cbvGoal`: reduces goal target and/or hypothesis types (used by the `cbv` tactic)
+- `cbvGoal`: reduces the goal target (used by the `cbv` tactic)
+- `cbvHyp`: reduces a hypothesis type (used by `cbv at`)
 - `cbvDecideGoal`: reduces `decide P = true` and closes or errors (used by `decide_cbv`)
 -/
 
 namespace Lean.Meta.Tactic.Cbv
 open Lean.Meta.Sym.Simp
-
-/-- Like `Sym.unfoldReducibleStep` but skips `@[cbv_opaque]` declarations. -/
-private def unfoldReducibleStep (e : Expr) : MetaM TransformStep := do
-  let .const declName _ := e.getAppFn | return .continue
-  unless (← isReducible declName) do return .continue
-  if (← getEnv).isProjectionFn declName then return .continue
-  if (← isCbvOpaque declName) then return .continue
-  let some v ← unfoldDefinition? e | return .continue
-  return .visit v
-
-/-- Like `Sym.unfoldReducible` but skips `@[cbv_opaque]` declarations. -/
-private def unfoldReducible (e : Expr) : MetaM Expr := do
-  Meta.transform e (pre := unfoldReducibleStep)
-
-/-- Like `Sym.preprocessExpr` but skips `@[cbv_opaque]` declarations during unfolding. -/
-private def preprocessExpr (e : Expr) : Sym.SymM Expr := do
-  Sym.shareCommon (← unfoldReducible (← instantiateMVars e))
-
-/-- Like `Sym.preprocessMVar` but skips `@[cbv_opaque]` declarations during unfolding. -/
-private def preprocessMVar (mvarId : MVarId) : Sym.SymM MVarId := do
-  let mvarDecl ← mvarId.getDecl
-  let lctx ← preprocessLCtx mvarDecl.lctx
-  let type ← preprocessExpr mvarDecl.type
-  let mvarNew ← mkFreshExprMVarAt lctx mvarDecl.localInstances type .syntheticOpaque mvarDecl.userName
-  mvarId.assign mvarNew
-  return mvarNew.mvarId!
-where
-  preprocessLCtx (lctx : LocalContext) : Sym.SymM LocalContext := do
-    let auxDeclToFullName := lctx.auxDeclToFullName
-    let mut fvarIdToDecl := {}
-    let mut decls := {}
-    let mut index := 0
-    for decl in lctx do
-      let decl ← match decl with
-        | .cdecl _ fvarId userName type bi kind =>
-          let type ← preprocessExpr type
-          pure <| LocalDecl.cdecl index fvarId userName type bi kind
-        | .ldecl _ fvarId userName type value nondep kind =>
-          let type ← preprocessExpr type
-          let value ← preprocessExpr value
-          pure <| LocalDecl.ldecl index fvarId userName type value nondep kind
-      index := index + 1
-      decls := decls.push (some decl)
-      fvarIdToDecl := fvarIdToDecl.insert decl.fvarId decl
-    return { fvarIdToDecl, decls, auxDeclToFullName }
 
 public register_builtin_option cbv.warning : Bool := {
   defValue := false
@@ -233,11 +194,51 @@ def zetaReduce : Simproc := fun e => do
   trace[Debug.Meta.Tactic.cbv.reduce] "zeta:{indentExpr e}\n==>{indentExpr new}"
   return .step new (← Sym.mkEqRefl new)
 
+/-- Peels nested projections: for `e = base.proj₁.....projₙ` returns the projection nodes
+outermost-first together with the innermost non-projection `base`. -/
+def peelProjSpine (e : Expr) (acc : Array Expr := #[]) : Array Expr × Expr :=
+  match e with
+  | .proj _ _ struct => peelProjSpine struct (acc.push e)
+  | _ => (acc, e)
+
+/--
+Last resort for nested dependent projections, whose composite is non-dependent.
+-/
+def trySpineCongrArg (e : Expr) (cd : Bool) : Sym.Simp.SimpM Result := do
+  let (projs, base) := peelProjSpine e
+  -- A single projection over an unchanged struct was already handled by `handleProj`.
+  if projs.size < 2 then
+    return .rfl (done := true) cd
+  let res ← simp base
+  let .step base' proof _ cd' := res
+    | return .rfl (done := true) (cd || res.isContextDependent)
+  let cd := cd || cd'
+  let mut congrArgFunBody := Expr.bvar 0
+  for p in projs.reverse do
+    let .proj typeName idx _ := p | unreachable!
+    congrArgFunBody := .proj typeName idx congrArgFunBody
+  let congrArgFun := mkLambda `x .default (← Sym.inferType base') congrArgFunBody
+  let congrArgFunType ← Sym.inferType congrArgFun
+  unless congrArgFunType.isArrow do
+    return .rfl (done := true) cd
+  let .forallE _ α β _ := congrArgFunType | unreachable!
+  let u ← Sym.getLevel α
+  let v ← Sym.getLevel β
+  let newProof := mkApp6 (mkConst ``congrArg [u, v]) α β base base' congrArgFun proof
+  let mut newE := base'
+  for p in projs.reverse do
+    newE ← p.updateProjS! newE
+  if Sym.isSameExpr newE e then
+    return .rfl (done := true) cd
+  return .step newE newProof cd
+
 /--
 Recursively simplifies the struct inside a projection, then reduces the projection.
 For non-dependent projection types, uses `congrArg` to lift the proof.
 For dependent projection types, tries direct reduction first; if that fails and
 the original and rewritten struct are definitionally equal, falls back to `HCongr`.
+For a stuck composite of projections, tries `congrArg` with the composite projection
+function via `trySpineCongrArg`.
 -/
 def handleProj : Simproc := fun e => do
   let Expr.proj typeName idx struct := e | return .rfl
@@ -249,39 +250,42 @@ def handleProj : Simproc := fun e => do
   -- We recursively simplify the projection
   let res ← simp struct
   match res with
-  | .rfl _ _ =>
-    let some reduced ← withCbvOpaqueGuard <| reduceProj? <| .proj typeName idx struct | do
-      return .rfl (done := true)
+  | .rfl _ cd =>
+    -- if we get stuck, we try if we have a composite of dependent projections, which is non-dependent
+    let some reduced ← withCbvOpaqueGuard <| withDefault <| reduceProj? <| .proj typeName idx struct | do
+      trySpineCongrArg e cd
 
-    -- TODO: Figure if we can share this term incrementally
     let reduced ← Sym.share reduced
-    return .step reduced (← Sym.mkEqRefl reduced)
-  | .step e' proof _ _ =>
+    return .step reduced (← Sym.mkEqRefl reduced) cd
+  | .step e' proof _ cd =>
     let type ← Sym.inferType e'
     let congrArgFun := Lean.mkLambda `x .default type <| .proj typeName idx <| .bvar 0
-    let congrArgFunType ← inferType congrArgFun
+    let congrArgFunType ← Sym.inferType congrArgFun
     -- If the type of a projection function is non-dependent, we can safely prove `e.i = e'.i` from `e = e'`
-    if (congrArgFunType.isArrow) then
-      let newProof ← mkCongrArg congrArgFun proof
-      return .step (← Lean.Expr.updateProjS! e e') newProof
+    if congrArgFunType.isArrow then
+      let .forallE _ α β _ := congrArgFunType | unreachable!
+      let u ← Sym.getLevel α
+      let v ← Sym.getLevel β
+      let newProof := mkApp6 (mkConst ``congrArg [u, v]) α β struct e' congrArgFun proof
+      return .step (← Lean.Expr.updateProjS! e e') newProof cd
     else
       -- If the type of the projection function is dependent, we first try to reduce the projection
-      let reduced ← withCbvOpaqueGuard <| reduceProj? e
+      let reduced ← withCbvOpaqueGuard <| withDefault <| reduceProj? e
       match reduced with
       | .some reduced =>
         let reduced ← Sym.share reduced
-        return .step reduced (← Sym.mkEqRefl reduced)
+        return .step reduced (← Sym.mkEqRefl reduced) cd
       | .none =>
        -- If we failed to reduce it, we turn to a last resort; we try use heterogeneous congruence lemma that we then try to turn into an equality.
-        unless (← isDefEq struct e') do
+        unless (← Sym.isDefEqI struct e') do
           -- If we rewrote the projection body using something that holds up to propositional equality, then there is nothing we can do.
           -- TODO: Check if there is a need to report this to a user, or shall we fail silently.
-          return .rfl (done := true)
+          return .rfl (done := true) cd
         let hcongr ← mkHCongr congrArgFun
         let newProof := mkApp3 (hcongr.proof) struct e' proof
         -- We have already checked if `struct` and `e'` are defEq, so we can skip the check.
         let newProof ← mkEqOfHEq newProof (check := false)
-        return .step (← Lean.Expr.updateProjS! e e') newProof
+        return .step (← Lean.Expr.updateProjS! e e') newProof cd
 
 open Sym.Internal in
 /--
@@ -297,23 +301,29 @@ def simplifyAppFn : Simproc := fun e => do
     let res ← simp fn
     match res with
     | .rfl _ _ => return res
-    | .step e' proof _ _ =>
+    | .step e' proof _ cd =>
       let newType ← Sym.inferType e'
       let congrArgFun := Lean.mkLambda `x .default newType (mkAppN (.bvar 0) e.getAppArgs)
       let newValue ← mkAppNS e' e.getAppArgs
-      let newProof ← mkCongrArg congrArgFun proof
+      let resultType ← Sym.inferType e
+      let u ← Sym.getLevel newType
+      let v ← Sym.getLevel resultType
+      let newProof := mkApp6 (mkConst ``congrArg [u, v]) newType resultType fn e' congrArgFun proof
       trace[Debug.Meta.Tactic.cbv.reduce] "simplifyAppFn:{indentExpr e}\n==>{indentExpr newValue}"
-      return .step newValue newProof
+      return .step newValue newProof cd
 
 def handleConst : Simproc := fun e => do
   let .const n lvls := e | return .rfl
   let info ← getConstInfo n
   unless info.isDefinition do return .rfl
-  let eType ← Sym.inferType e
+  let eType := info.type
+  -- Fast path: a syntactically functional type cannot whnf to a non-function.
+  if eType matches .forallE .. then return .rfl
   let eType ← whnfD eType
   if eType matches .forallE .. then return .rfl
   unless info.hasValue && info.levelParams.length == lvls.length do return .rfl
   let fBody ← instantiateValueLevelParams info lvls
+  let fBody ← Sym.unfoldReducible fBody
   let eNew ← Sym.share fBody
   trace[Meta.Tactic.cbv.unfold] "const `{n}`:{indentExpr e}\n==>{indentExpr eNew}"
   return .step eNew (← Sym.mkEqRefl eNew)
@@ -350,11 +360,22 @@ def cbvPost (simprocs : CbvSimprocs) : Simproc :=
 def mkCbvMethods (simprocs : CbvSimprocs) : Methods :=
   { pre := cbvPre simprocs, post := cbvPost simprocs }
 
+/--
+Core `cbv` evaluator. It disables the `shareCommon` invariant checks for the duration
+of the evaluation: `cbv` processes kernel projections natively, so they must not be
+folded into projection function applications, and it continuously constructs fresh
+terms from environment signatures (congruence proofs, `inferType` results) containing
+reducible constants such as `Eq.ndrec` and `Unit`, so each occurrence would trigger a
+full-term repair pass. The checks are disabled here (and in `cbvGoalCore`) rather than
+via the `SymM.run` configuration because `cbv` may run inside an enclosing `SymM`
+session (e.g., inside a `sym` block).
+-/
 def cbvCore (e : Expr) (config : Sym.Simp.Config := {}) : Sym.SymM Result := do
-  let simprocs ← getCbvSimprocs
-  let methods := mkCbvMethods simprocs
-  SimpM.run' (methods := methods) (config := config)
-    <| simp e
+  Sym.withoutShareCommonChecks do
+    let simprocs ← getCbvSimprocs
+    let methods := mkCbvMethods simprocs
+    SimpM.run' (methods := methods) (config := config)
+      <| simp e
 
 /-- Reduce a single expression. Unfolds reducibles, shares subterms, then runs the
 simplifier with `cbvPre`/`cbvPost`. Used by `conv => cbv`. -/
@@ -366,75 +387,82 @@ public def cbvEntry (e : Expr) : MetaM Result := do
   let simprocs ← getCbvSimprocs
   let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
   let methods := mkCbvMethods simprocs
-  let e ← unfoldReducible e
+  let e ← Sym.unfoldReducible e
   Sym.SymM.run do
-    let e ← Sym.shareCommon e
-    SimpM.run' (simp e) (methods := methods) (config := config)
+    -- See `cbvCore` for why the `shareCommon` invariant checks are disabled.
+    Sym.withoutShareCommonChecks do
+      let e ← Sym.shareCommon e
+      SimpM.run' (simp e) (methods := methods) (config := config)
 
-/-- Reduce goal target and/or hypothesis types using call-by-value evaluation.
+/--
+Core of `cbvGoal`: reduces the target of an already preprocessed `mvarId` using
+call-by-value evaluation, within the caller's `SymM` context.
+-/
+public def cbvGoalCore (mvarId : MVarId) : Sym.SymM (Option MVarId) := do
+  -- See `cbvCore` for why the `shareCommon` invariant checks are disabled.
+  Sym.withoutShareCommonChecks do
+  let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
+  mvarId.withContext do
+    let mut mvarIdNew := mvarId
+    let target ← mvarIdNew.getType
+    let result ← withTraceNode `Meta.Tactic.cbv (fun
+        | .ok (Result.step target' ..) => return m!"target:{indentExpr target}\n==>{indentExpr target'}"
+        | .ok (Result.rfl ..)          => return m!"target: no change"
+        | .error err                   => return m!"target: {err.toMessageData}") do
+      cbvCore target config
+    match result with
+    | .rfl _ _ => pure ()
+    | .step target' proof _ _ =>
+      if target'.isTrue then
+        mvarIdNew.assign (← mkOfEqTrue proof)
+        return none
+      else
+        mvarIdNew ← mvarIdNew.replaceTargetEq target' proof
+    -- Try refl to close equation goals
+    let s ← Meta.saveState
+    try mvarIdNew.refl; return none
+    catch _ => s.restore; return some mvarIdNew
+
+/--
+Reduce the type of hypothesis `fvarId` using call-by-value evaluation, in its own
+`SymM` session (like `conv at h => cbv`). The local context is only mutated after
+the session ends, so the `SymM` incrementality invariant is preserved.
+-/
+public def cbvHyp (mvarId : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) :=
+  mvarId.withContext do
+    let localDecl ← fvarId.getDecl
+    let type ← instantiateMVars localDecl.type
+    let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
+    let result ← withTraceNode `Meta.Tactic.cbv (fun
+        | .ok (Result.step type' ..) => return m!"hypothesis `{localDecl.userName}`:{indentExpr type}\n==>{indentExpr type'}"
+        | .ok (Result.rfl ..)        => return m!"hypothesis `{localDecl.userName}`: no change"
+        | .error err                 => return m!"hypothesis `{localDecl.userName}`: {err.toMessageData}") do
+      let type ← Sym.unfoldReducible type
+      Sym.SymM.run do
+        Sym.withoutShareCommonChecks do
+          let type ← Sym.shareCommon type
+          cbvCore type config
+    match result with
+    | .rfl .. => return some mvarId
+    | .step type' proof _ _ =>
+      if type'.isFalse then
+        mvarId.assign (← mkFalseElim (← mvarId.getType) (← mkEqMP proof localDecl.toExpr))
+        return none
+      else
+        return some (← mvarId.replaceLocalDecl fvarId type' proof).mvarId
+
+/--
+Reduce the goal target using call-by-value evaluation.
 
 Preprocesses the goal via `Sym.preprocessMVar` (instantiates metavariables, unfolds
-reducibles, shares common subterms), then runs `cbvCore` on each selected hypothesis
-and the target within a single `SymM` context.
+reducibles, shares common subterms), then reduces the goal type via `cbvCore`. If
+the reduced type is `True`, the goal is closed. Otherwise, the target is replaced.
 
-For each hypothesis in `fvarIdsToSimp`, reduces its type via `cbvCore`. If the
-reduced type is `False`, the goal is closed immediately. Otherwise, the hypothesis
-is replaced with the reduced type.
-
-If `simplifyTarget` is true, reduces the goal type via `cbvCore`. If the reduced
-type is `True`, the goal is closed. Otherwise, the target is replaced.
-
-After all reductions, attempts `refl` to close equation goals of the form `v = v`. -/
-public def cbvGoal (mvarId : MVarId) (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[]) : MetaM (Option MVarId) := do
-  let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
+After the reduction, attempts `refl` to close equation goals of the form `v = v`.
+-/
+public def cbvGoal (mvarId : MVarId) : MetaM (Option MVarId) :=
   Sym.SymM.run do
-    let mvarId ← preprocessMVar mvarId
-    mvarId.withContext do
-      let mut mvarIdNew := mvarId
-      let mut toAssert : Array Hypothesis := #[]
-      -- Process hypotheses
-      for fvarId in fvarIdsToSimp do
-        let localDecl ← fvarId.getDecl
-        let type := localDecl.type
-        let result ← withTraceNode `Meta.Tactic.cbv (fun
-            | .ok (Result.step type' ..) => return m!"hypothesis `{localDecl.userName}`:{indentExpr type}\n==>{indentExpr type'}"
-            | .ok (Result.rfl ..)        => return m!"hypothesis `{localDecl.userName}`: no change"
-            | .error err                 => return m!"hypothesis `{localDecl.userName}`: {err.toMessageData}") do
-          cbvCore type config
-        match result with
-        | .rfl _ _ => pure ()
-        | .step type' proof _ _ =>
-          if type'.isFalse then
-            let u ← getLevel type
-            mvarIdNew.assign (← mkFalseElim (← mvarIdNew.getType) (mkApp4 (mkConst ``Eq.mp [u]) type type' proof (mkFVar fvarId)))
-            return none
-          else
-            let u ← getLevel type
-            toAssert := toAssert.push { userName := localDecl.userName, type := type', value := mkApp4 (mkConst ``Eq.mp [u]) type type' proof (mkFVar fvarId) }
-      -- Process target
-      if simplifyTarget then
-        let target ← mvarIdNew.getType
-        let result ← withTraceNode `Meta.Tactic.cbv (fun
-            | .ok (Result.step target' ..) => return m!"target:{indentExpr target}\n==>{indentExpr target'}"
-            | .ok (Result.rfl ..)          => return m!"target: no change"
-            | .error err                   => return m!"target: {err.toMessageData}") do
-          cbvCore target config
-        match result with
-        | .rfl _ _ => pure ()
-        | .step target' proof _ _ =>
-          if target'.isTrue then
-            mvarIdNew.assign (← mkOfEqTrue proof)
-            return none
-          else
-            mvarIdNew ← mvarIdNew.replaceTargetEq target' proof
-      -- Assert new hypotheses and clear old ones
-      let (_, mvarIdNew') ← mvarIdNew.assertHypotheses toAssert
-      mvarIdNew := mvarIdNew'
-      mvarIdNew ← mvarIdNew.tryClearMany fvarIdsToSimp
-      -- Try refl to close equation goals
-      let s ← Meta.saveState
-      try mvarIdNew.refl; return none
-      catch _ => s.restore; return some mvarIdNew
+    cbvGoalCore (← Sym.preprocessMVar mvarId)
 
 /--
 Attempt to close a goal of the form `decide P = true` by reducing only the LHS using `cbv`.
@@ -449,7 +477,7 @@ public def cbvDecideGoal (m : MVarId) : MetaM Unit := do
       | .error err => return m!"decide_cbv: {err.toMessageData}") do
   let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
   Sym.SymM.run do
-    let m ← preprocessMVar m
+    let m ← Sym.preprocessMVar m
     let mType ← m.getType
     let some (_, lhs, _) := mType.eq? |
       throwError "`decide_cbv`: expected goal of the form `decide _ = true`, got: {indentExpr mType}"
@@ -465,6 +493,5 @@ public def cbvDecideGoal (m : MVarId) : MetaM Unit := do
     match result with
     | .rfl _ _ => checkResult lhs (m.refl)
     | .step e' proof _ _ => checkResult e' (m.assign proof)
-
 
 end Lean.Meta.Tactic.Cbv

@@ -83,13 +83,13 @@ open Lean.Elab hiding TermElabM
 -/
 #guard_msgs in #where
 
-open Command Std
-open Array renaming map -> listMap
+open Command _root_.Std
+open _root_.Array renaming map -> listMap
 
 /--
 info: open Lean Lean.Meta
 open Lean.Elab hiding TermElabM
-open Lean.Elab.Command Std
+open Lean.Elab.Command Lean.Meta.Command Std
 open Array renaming map → listMap
 -/
 #guard_msgs in #where

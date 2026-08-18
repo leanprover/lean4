@@ -1,6 +1,6 @@
-import Std.Internal.Async.Timer
+import Std.Async.Timer
 
-open Std Internal IO Async
+open Std Async
 
 def test1 : Async Nat := do
   let s1 ← Sleep.mk 1000

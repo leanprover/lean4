@@ -15,7 +15,7 @@ jobs:
       - name: Check awaiting-mathlib label
         id: check-awaiting-mathlib-label
         if: github.event_name == 'pull_request_target'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const { labels, number: prNumber } = context.payload.pull_request;
@@ -29,7 +29,7 @@ jobs:
               core.info('PR is marked "awaiting-mathlib" but neither "breaks-mathlib" nor "builds-mathlib" labels are present.');
               core.setOutput('awaiting', 'true');
             }
-      
+
       - name: Wait for mathlib compatibility
         if: github.event_name == 'pull_request_target' && steps.check-awaiting-mathlib-label.outputs.awaiting == 'true'
         run: |

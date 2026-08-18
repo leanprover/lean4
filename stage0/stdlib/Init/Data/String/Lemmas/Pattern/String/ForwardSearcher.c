@@ -20,7 +20,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_byte_array_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-uint8_t l_Nat_decidableBallLT___redArg(lean_object*, lean_object*);
+uint8_t l_Nat_decidableBallLTTR___redArg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_String_Lemmas_Pattern_String_ForwardSearcher_0__String_Slice_Pattern_Model_ForwardSliceSearcher_instDecidablePartialMatch___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_String_ForwardSearcher_0__String_Slice_Pattern_Model_ForwardSliceSearcher_instDecidablePartialMatch___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_String_Lemmas_Pattern_String_ForwardSearcher_0__String_Slice_Pattern_Model_ForwardSliceSearcher_instDecidablePartialMatch(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -115,8 +115,7 @@ lean_closure_set(v___f_29_, 0, v_pat_20_);
 lean_closure_set(v___f_29_, 1, v_stackPos_23_);
 lean_closure_set(v___f_29_, 2, v_needlePos_22_);
 lean_closure_set(v___f_29_, 3, v_s_21_);
-v___x_30_ = l_Nat_decidableBallLT___redArg(v_needlePos_22_, v___f_29_);
-lean_dec(v_needlePos_22_);
+v___x_30_ = l_Nat_decidableBallLTTR___redArg(v_needlePos_22_, v___f_29_);
 return v___x_30_;
 }
 }
@@ -322,11 +321,13 @@ lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Basic(uint8_t builtin
 lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_OrderInstances(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Lemmas_Pattern_String_ForwardSearcher(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_String_Lemmas_Pattern_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -308,14 +308,14 @@ theorem computeDistance_eq_prefixFunctionRecurrence {s : Slice} (i : Nat)
   cases hpat
   fun_induction prefixFunctionRecurrence with
   | case1 =>
-    rw [buildTable.computeDistance, if_pos]
+    rw [buildTable.computeDistance, ite_eq_left]
     simp [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte, *]
   | case2 =>
-    rw [buildTable.computeDistance, if_neg, dif_pos]
+    rw [buildTable.computeDistance, ite_eq_right, dite_eq_left]
     · rfl
     · simp [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte, *]
   | case3 g hg h₁ h₂ h₃ ih =>
-    rw [buildTable.computeDistance, if_neg, dif_neg h₂]
+    rw [buildTable.computeDistance, ite_eq_right, dite_eq_right h₂]
     · simp only [ht'.eq_prefixFunction, ih]
     · simp [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte, *]
 
@@ -325,8 +325,8 @@ theorem isTable_buildTableGo {pat : Slice} {table : Array Nat} {ht₀ ht h}
   fun_induction buildTable.go with
   | case1 t ht₀ ht h hlt patByte dist ih =>
     refine ih (ht'.push (by simp; omega) ?_)
-    simp only [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte, ht'.eq_prefixFunction, dist,
-      patByte]
+    simp only [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte_eq_getElem,
+      ht'.eq_prefixFunction, dist, patByte]
     rw [computeDistance_eq_prefixFunctionRecurrence _ _ rfl _ ht',
       prefixFunctionRecurrence_eq_prefixFunction]
     · exact prefixFunction_le_prefixFunction_sub_one_add_one ht₀
@@ -488,7 +488,7 @@ theorem Invariants.isValidSearchFrom_toList {pat s : Slice} {stackPos needlePos 
           intro pos hp₁ hp₂
           obtain rfl : stackPos = pos.offset := Std.le_antisymm hp₁ hp₂
           simpa [matchesAt_iff_getElem h.isEmpty_eq_false] using fun h => ⟨0, by simpa,
-            by simpa [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte] using Ne.symm h₂⟩
+            by simpa [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte] using! Ne.symm h₂⟩
 
       · cases ht
         simp only [getElem_buildTable] at hit''
@@ -562,7 +562,7 @@ public theorem lawfulToForwardSearcherModel {pat : Slice} (hpat : pat.isEmpty = 
     LawfulToForwardSearcherModel pat where
   isValidSearchFrom_toList s := by
     simp only [ToForwardSearcher.toSearcher]
-    rw [iter, dif_neg (by simpa [isEmpty_eq] using hpat)]
+    rw [iter, dite_eq_right (by simpa [isEmpty_eq] using hpat)]
     rw (occs := [1]) [← Invariants.base_start hpat]
     apply Invariants.isValidSearchFrom_toList _ _ rfl rfl
 
@@ -590,14 +590,14 @@ public theorem toList_emptyBefore_eq (s : Slice) (pos : s.Pos) :
   rw [Std.Iter.toList_eq_match_step, Std.Iter.step_eq]
   by_cases h : pos = s.endPos
   · simp [h]
-  · rw [dif_neg h, Std.Iter.toList_eq_match_step]
+  · rw [dite_eq_right h, Std.Iter.toList_eq_match_step]
     simp [Std.Iter.step_eq, h]
 
 public theorem toSearcher_of_isEmpty {pat : Slice} (hpat : pat.isEmpty = true) (s : Slice) :
     ToForwardSearcher.toSearcher pat s =
       Std.Iter.mk (.emptyBefore s.startPos : ForwardSliceSearcher s) := by
   simp only [ToForwardSearcher.toSearcher, iter,
-    dif_pos (show pat.utf8ByteSize = 0 from by simpa [isEmpty_eq] using hpat)]
+    dite_eq_left (show pat.utf8ByteSize = 0 from by simpa [isEmpty_eq] using hpat)]
 
 end ForwardSliceSearcher
 
@@ -612,7 +612,7 @@ public theorem lawfulToForwardSearcherModel {pat : String} (hpat : pat ≠ "") :
 public theorem toSearcher_empty (s : Slice) : ToForwardSearcher.toSearcher "" s =
       Std.Iter.mk (.emptyBefore s.startPos : ForwardSliceSearcher s) := by
   simp only [ToForwardSearcher.toSearcher, ForwardSliceSearcher.iter,
-    dif_pos (show "".toSlice.utf8ByteSize = 0 from by decide)]
+    dite_eq_left (show "".toSlice.utf8ByteSize = 0 from by decide)]
 
 end ForwardStringSearcher
 

@@ -12,7 +12,7 @@ import Lean.Compiler.InitAttr
 
 namespace Lean.Compiler.LCNF
 
-private structure CollectUsedDeclsState where
+structure CollectUsedDeclsState where
   visited : NameSet := {}
   localDecls : Array (Decl .impure) := #[]
   extSigs : Array (Signature .impure) := #[]

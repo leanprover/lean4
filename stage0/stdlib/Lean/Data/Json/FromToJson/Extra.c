@@ -244,7 +244,7 @@ else
 lean_object* v_a_73_; lean_object* v___f_74_; lean_object* v___x_75_; lean_object* v___x_76_; 
 v_a_73_ = lean_ctor_get(v___x_64_, 0);
 lean_inc(v_a_73_);
-lean_dec_ref(v___x_64_);
+lean_dec_ref_known(v___x_64_, 1);
 v___f_74_ = lean_alloc_closure((void*)(l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_fromJson_x3f___redArg___lam__0), 5, 2);
 lean_closure_set(v___f_74_, 0, v_inst_61_);
 lean_closure_set(v___f_74_, 1, v_cmp_60_);
@@ -338,11 +338,13 @@ return v___x_109_;
 }
 lean_object* runtime_initialize_Lean_Data_Json_FromToJson_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_TreeMap_AdditionalOperations(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Data_Json_FromToJson_Extra(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Data_Json_FromToJson_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

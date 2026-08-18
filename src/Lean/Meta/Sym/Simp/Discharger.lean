@@ -55,6 +55,8 @@ Given a proposition `e : Prop`, returns:
 
 Both carry a `contextDependent` flag indicating whether context-dependent
 information was used during the attempt.
+
+The returned proof is not required to be maximally shared.
 -/
 public abbrev Discharger := Expr → SimpM DischargeResult
 

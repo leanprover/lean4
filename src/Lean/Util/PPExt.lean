@@ -29,14 +29,6 @@ register_builtin_option pp.rawOnError : Bool := {
   descr    := "(pretty printer) fallback to 'raw' printer when pretty printer fails"
 }
 
-structure PPContext where
-  env           : Environment
-  mctx          : MetavarContext := {}
-  lctx          : LocalContext := {}
-  opts          : Options := {}
-  currNamespace : Name := Name.anonymous
-  openDecls     : List OpenDecl := []
-
 abbrev PrettyPrinter.InfoPerPos := Std.TreeMap Nat Elab.Info
 /-- A format tree with `Elab.Info` annotations.
 Each `.tag n _` node is annotated with `infos[n]`.

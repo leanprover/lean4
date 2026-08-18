@@ -122,15 +122,30 @@ def declModifiers (inline : Bool) := leading_parser
 /-- `declId` matches `foo` or `foo.{u,v}`: an identifier possibly followed by a list of universe names -/
 -- @[builtin_doc] -- FIXME: suppress the hover
 def declId := leading_parser
-  ident >> optional (".{" >> sepBy1 (recover ident (skipUntil (fun c => c.isWhitespace || c ∈ [',', '}']))) ", " >> "}")
+  ident >>
+  optional (checkNoWsBefore "no space before '.{'" >> ".{" >>
+    sepBy1 (recover ident (skipUntil (fun c => c.isWhitespace || c ∈ [',', '}']))) ", " >> "}")
 /-- `declSig` matches the signature of a declaration with required type: a list of binders and then `: type` -/
 -- @[builtin_doc] -- FIXME: suppress the hover
 def declSig := leading_parser
   many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.typeSpec
+/-- The `requires P` precondition clause of a `def` contract. The form `requires s => P s` binds the
+arguments of the assertion itself, such as the state of a state monad. -/
+def requiresClause := leading_parser
+  ppIndent (ppLine >> nonReservedSymbol "requires" >>
+    withForbidden "ensures" (atomic Term.basicFun <|> (ppSpace >> termParser)))
+/-- The `ensures b => Q` postcondition clause of a `def` contract, binding the result `b`. -/
+def ensuresClause := leading_parser
+  ppIndent (ppLine >> nonReservedSymbol "ensures" >>
+    (Term.basicFun <|> ppIndent Term.matchAlts))
+/-- The `: type` of a `def`. It may carry contract clauses, so we forbid `requires`/`ensures` in the type. -/
+def defTypeSpec := withForbiddens #["requires", "ensures"] Term.typeSpec
 /-- `optDeclSig` matches the signature of a declaration with optional type: a list of binders and then possibly `: type` -/
 -- @[builtin_doc] -- FIXME: suppress the hover
 def optDeclSig := leading_parser
-  many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.optType
+  withForbiddens #["requires", "ensures"]
+    (many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder))) >>
+  optional defTypeSpec
 /-- Right-hand side of a `:=` in a declaration, a term. -/
 def declBody : Parser :=
   /-
@@ -182,6 +197,12 @@ def whereStructInst  := leading_parser
   -- Issue #753 shows an example that fails to be parsed when we used `Term.whereDecls`.
   withAntiquot (mkAntiquot "declVal" decl_name% (isPseudoKind := true)) <|
     declValSimple <|> declValEqns <|> whereStructInst
+/-- `requires P`/`ensures b => Q` contract clauses followed by the value of a `def`. Tried only
+after `declVal` fails, so contract-free definitions parse without probing for the clauses.
+`withoutInfo` avoids collecting `declVal`'s tokens and kinds a second time at startup; they are
+already registered through the `declVal` alternative of `definition`. -/
+def contractDeclVal := leading_parser
+  optional requiresClause >> optional ensuresClause >> withoutInfo declVal
 def «abbrev»         := leading_parser
   "abbrev " >> declId >> ppIndent optDeclSig >> declVal
 def derivingClass    := leading_parser
@@ -190,7 +211,8 @@ def derivingClasses  := sepBy1 derivingClass ", "
 def optDefDeriving   :=
   optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance" >> notSymbol "noncomputable") >> derivingClasses)
 def definition     := leading_parser
-  "def " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> declVal >> optDefDeriving
+  "def " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >>
+  (declVal <|> contractDeclVal) >> optDefDeriving
 def «theorem»        := leading_parser
   "theorem " >> recover declId skipUntilWsOrDelim >> ppIndent declSig >> declVal
 def «opaque»         := leading_parser
@@ -340,10 +362,11 @@ namespace InternalSyntax
   This command is for internal use only. It is intended for macros that implicitly introduce new
   scopes, such as `expandInCmd` and `expandNamespacedDeclaration`. It allows local attributes to remain
   accessible beyond those implicit scopes, even though they would normally be hidden from the user.
+  The numeric argument specifies how many scope levels to mark as non-delimiting.
   -/
-  scoped syntax (name := end_local_scope) "end_local_scope" : command
+  scoped syntax (name := end_local_scope) "end_local_scope" num : command
 
-  def endLocalScopeSyntax : Command := Unhygienic.run `(end_local_scope)
+  def endLocalScopeSyntax (depth : Nat) : Command := Unhygienic.run `(end_local_scope $(Syntax.mkNumLit (toString depth)))
 end InternalSyntax
 
 /-- Declares one or more typed variables, or modifies whether already-declared variables are
@@ -557,7 +580,8 @@ Use `#check_assertions!` to only show unsatisfied assertions.
 @[builtin_command_parser] def checkAssertions := leading_parser
   "#check_assertions" >> optional "!"
 /--
-`#eval e` evaluates the expression `e` by compiling and evaluating it.
+`#eval e` evaluates the expression `e` by compiling it and running the compiled code. It then
+prints the resulting value.
 
 * The command attempts to use `ToExpr`, `Repr`, or `ToString` instances to print the result.
 * If `e` is a monadic value of type `m ty`, then the command tries to adapt the monad `m`
@@ -859,7 +883,7 @@ def initializeKeyword := leading_parser
   optional (atomic (ident >> Term.typeSpec >> ppSpace >> Term.leftArrow)) >> Term.doSeq
 
 @[builtin_command_parser] def «in»  := trailing_parser
-  withOpen (ppDedent (" in" >> ppLine >> commandParser))
+  withOpen (withSetOption (ppDedent (" in" >> ppLine >> commandParser)))
 
 /--
 Adds a docstring to an existing declaration, replacing any existing docstring.
@@ -1020,7 +1044,8 @@ It makes the given namespaces available in the term `e`.
 It sets the option `opt` to the value `val` in the term `e`.
 -/
 @[builtin_term_parser] def «set_option» := leading_parser:leadPrec
-  "set_option " >> identWithPartialTrailingDot >> ppSpace >> Command.optionValue >> " in " >> termParser
+  "set_option " >> identWithPartialTrailingDot >> ppSpace >> Command.optionValue >>
+    withSetOptionValue (" in " >> termParser)
 end Term
 
 namespace Tactic
@@ -1032,7 +1057,8 @@ but it opens a namespace only within the tactics `tacs`. -/
 /-- `set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,
 but it sets the option only within the tactics `tacs`. -/
 @[builtin_tactic_parser] def «set_option» := leading_parser:leadPrec
-  "set_option " >> identWithPartialTrailingDot >> ppSpace >> Command.optionValue >> " in " >> tacticSeq
+  "set_option " >> identWithPartialTrailingDot >> ppSpace >> Command.optionValue >>
+    withSetOptionValue (" in " >> tacticSeq)
 end Tactic
 
 end Parser

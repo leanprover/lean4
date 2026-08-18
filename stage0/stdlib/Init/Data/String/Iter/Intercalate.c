@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_WellFounded_opaqueFix_u2083___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_joinString___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Std_Iter_joinString___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1, .m_capacity = 1, .m_length = 0, .m_data = ""};
 static const lean_object* l_Std_Iter_joinString___redArg___closed__0 = (const lean_object*)&l_Std_Iter_joinString___redArg___closed__0_value;
@@ -39,7 +39,7 @@ v_it_8_ = lean_ctor_get(v_val_7_, 0);
 lean_inc(v_it_8_);
 v_out_9_ = lean_ctor_get(v_val_7_, 1);
 lean_inc(v_out_9_);
-lean_dec_ref(v_val_7_);
+lean_dec_ref_known(v_val_7_, 2);
 v___x_10_ = lean_apply_1(v_inst_2_, v_out_9_);
 v___x_11_ = lean_string_append(v_acc_4_, v___x_10_);
 lean_dec_ref(v___x_10_);
@@ -52,7 +52,7 @@ lean_object* v_it_13_; lean_object* v___x_14_;
 lean_dec_ref(v_inst_2_);
 v_it_13_ = lean_ctor_get(v_val_7_, 0);
 lean_inc(v_it_13_);
-lean_dec_ref(v_val_7_);
+lean_dec_ref_known(v_val_7_, 1);
 v___x_14_ = lean_apply_4(v_recur_6_, v_it_13_, v_acc_4_, lean_box(0), lean_box(0));
 return v___x_14_;
 }
@@ -103,7 +103,7 @@ v_it_38_ = lean_ctor_get(v_val_37_, 0);
 lean_inc(v_it_38_);
 v_out_39_ = lean_ctor_get(v_val_37_, 1);
 lean_inc(v_out_39_);
-lean_dec_ref(v_val_37_);
+lean_dec_ref_known(v_val_37_, 2);
 v___x_40_ = lean_apply_1(v_inst_31_, v_out_39_);
 if (lean_obj_tag(v_acc_34_) == 0)
 {
@@ -138,7 +138,7 @@ lean_object* v_str_47_; lean_object* v_startInclusive_48_; lean_object* v_endExc
 v_str_47_ = lean_ctor_get(v_s_32_, 0);
 v_startInclusive_48_ = lean_ctor_get(v_s_32_, 1);
 v_endExclusive_49_ = lean_ctor_get(v_s_32_, 2);
-v___x_50_ = lean_string_utf8_extract(v_str_47_, v_startInclusive_48_, v_endExclusive_49_);
+v___x_50_ = lean_string_utf8_extract_fast(v_str_47_, v_startInclusive_48_, v_endExclusive_49_);
 v___x_51_ = lean_string_append(v_val_43_, v___x_50_);
 lean_dec_ref(v___x_50_);
 v___x_52_ = lean_string_append(v___x_51_, v___x_40_);
@@ -172,7 +172,7 @@ lean_object* v_it_58_; lean_object* v___x_59_;
 lean_dec_ref(v_inst_31_);
 v_it_58_ = lean_ctor_get(v_val_37_, 0);
 lean_inc(v_it_58_);
-lean_dec_ref(v_val_37_);
+lean_dec_ref_known(v_val_37_, 1);
 v___x_59_ = lean_apply_4(v_recur_36_, v_it_58_, v_acc_34_, lean_box(0), lean_box(0));
 return v___x_59_;
 }
@@ -215,7 +215,7 @@ else
 lean_object* v_val_76_; 
 v_val_76_ = lean_ctor_get(v___x_74_, 0);
 lean_inc(v_val_76_);
-lean_dec_ref(v___x_74_);
+lean_dec_ref_known(v___x_74_, 1);
 return v_val_76_;
 }
 }
@@ -241,7 +241,7 @@ else
 lean_object* v_val_87_; 
 v_val_87_ = lean_ctor_get(v___x_85_, 0);
 lean_inc(v_val_87_);
-lean_dec_ref(v___x_85_);
+lean_dec_ref_known(v___x_85_, 1);
 return v_val_87_;
 }
 }
@@ -249,11 +249,13 @@ return v_val_87_;
 lean_object* runtime_initialize_Init_Data_Iterators_Combinators_Monadic_FilterMap(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Slice(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Iter_Intercalate(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Iterators_Combinators_Monadic_FilterMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

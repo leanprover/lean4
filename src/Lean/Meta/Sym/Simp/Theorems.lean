@@ -11,6 +11,7 @@ import Lean.Meta.Sym.Simp.DiscrTree
 import Lean.Meta.AppBuilder
 import Lean.ExtraModUses
 import Init.Omega
+import Init.Data.Range.Polymorphic.Iterators
 public section
 namespace Lean.Meta.Sym.Simp
 
@@ -30,7 +31,11 @@ structure Theorem where
   /-- If `true`, the theorem is a permutation rule (e.g., `x + y = y + x`).
   Rewriting is only applied when the result is strictly less than the input
   (using `acLt`), preventing infinite loops. -/
-  perm    : Bool := false
+  perm    : Bool
+  /-- Bitmask of the pattern variables that occur in `rhs`: bit `i` is set iff pattern
+  variable `i` occurs in `rhs`. `Theorem.rewrite` uses it to detect hypothesis proofs that
+  become part of the resulting term and must consequently be maximally shared. -/
+  rhsVarMask : Nat
   deriving Inhabited
 
 instance : BEq Theorem where
@@ -44,11 +49,11 @@ structure Theorems where
 def Theorems.insert (thms : Theorems) (thm : Theorem) : Theorems :=
   { thms with thms := insertPattern thms.thms thm.pattern thm }
 
-def Theorems.getMatch (thms : Theorems) (e : Expr) : Array Theorem :=
-  Sym.getMatch thms.thms e
+def Theorems.getMatch (thms : Theorems) (mctx : MetavarContext) (e : Expr) : Array Theorem :=
+  Sym.getMatch mctx thms.thms e
 
-def Theorems.getMatchWithExtra (thms : Theorems) (e : Expr) : Array (Theorem × Nat) :=
-  Sym.getMatchWithExtra thms.thms e
+def Theorems.getMatchWithExtra (thms : Theorems) (mctx : MetavarContext) (e : Expr) : Array (Theorem × Nat) :=
+  Sym.getMatchWithExtra mctx thms.thms e
 
 /--
 Check whether `lhs` and `rhs` (with `numVars` pattern variables represented as `.bvar` indices
@@ -127,35 +132,59 @@ Wrap a proof expression according to the adaptation applied to its type.
 Given a proof `h : <original type>`, returns a proof of the adapted equality.
 This wrapping must be applied AFTER the proof has been applied to its quantified arguments.
 -/
-private def wrapProof (numVars : Nat) (expr : Expr) (adaptation : EqAdaptation) : MetaM Expr :=
+private def wrapProof (pattern : Pattern) (expr : Expr) (adaptation : EqAdaptation) : MetaM Expr :=
   match adaptation with
   | .eq => return expr
   | .eqFalse =>
-    wrapInner numVars expr fun h => mkAppM ``eq_false #[h]
+    wrapInner pattern expr fun h => mkAppM ``eq_false #[h]
   | .iff =>
-    wrapInner numVars expr fun h => mkAppM ``propext #[h]
+    wrapInner pattern expr fun h => mkAppM ``propext #[h]
   | .eqTrue =>
-    wrapInner numVars expr fun h => mkAppM ``eq_true #[h]
+    wrapInner pattern expr fun h => mkAppM ``eq_true #[h]
 where
-  /-- Wraps the innermost application of `expr` (after `numVars` arguments) with `wrap`. -/
-  wrapInner (numVars : Nat) (expr : Expr) (wrap : Expr → MetaM Expr) : MetaM Expr := do
+  /-- Wraps the innermost application of `expr` (after the pattern variables) with `wrap`. -/
+  wrapInner (pattern : Pattern) (expr : Expr) (wrap : Expr → MetaM Expr) : MetaM Expr := do
+    -- For a named theorem, `expr` is a constant with the universe levels elided (see the
+    -- `mkValue` fast path). Instantiate it with the pattern's level params so that `inferType`
+    -- succeeds, and `mkValue` can later substitute the matched levels.
+    let expr := match expr with
+      | .const declName [] => mkConst declName (pattern.levelParams.map mkLevelParam)
+      | _ => expr
     let type ← inferType expr
-    forallBoundedTelescope type numVars fun xs _ => do
+    forallBoundedTelescope type pattern.varTypes.size fun xs _ => do
       let h := mkAppN expr xs
       mkLambdaFVars xs (← wrap h)
 
+/--
+Computes the bitmask of the pattern variables occurring in `rhs`.
+Pattern variable `i` corresponds to the loose bound variable `numVars - 1 - i` in `rhs`.
+See `Theorem.rewrite`.
+-/
+private def mkRhsVarMask (numVars : Nat) (rhs : Expr) : Nat := Id.run do
+  let mut mask := 0
+  for i in *...numVars do
+    /-
+    **Note**: We are potentially scanning the `rhs` multiple times. We assume this is ok here
+    because the `rhs` is usually small, and we cache the loose bvar range in `Expr`.
+    -/
+    if rhs.hasLooseBVar (numVars - 1 - i) then
+      mask := mask ||| (1 <<< i)
+  return mask
+
 def mkTheoremFromDecl (declName : Name) : MetaM Theorem := do
-  let (pattern, (rhs, adaptation)) ← mkPatternFromDeclWithKey declName selectEqKey
-  let expr ← wrapProof pattern.varTypes.size (mkConst declName) adaptation
+  let (pattern, (rhs, adaptation)) ← mkPatternFromDeclWithKey declName selectEqKey (zetaReduceLHSOnly := true)
+  let expr ← wrapProof pattern (mkConst declName) adaptation
   let perm := isPerm pattern.varTypes.size pattern.pattern rhs
-  return { expr, pattern, rhs, perm }
+  let rhsVarMask := mkRhsVarMask pattern.varTypes.size rhs
+  return { expr, pattern, rhs, perm, rhsVarMask }
 
 /-- Create a `Theorem` from a proof expression. Handles equalities, `¬`, `↔`, and propositions. -/
 def mkTheoremFromExpr (e : Expr) : MetaM Theorem := do
-  let (pattern, (rhs, adaptation)) ← mkPatternFromExprWithKey e [] selectEqKey
-  let expr ← wrapProof pattern.varTypes.size e adaptation
+  let (pattern, (rhs, adaptation)) ← mkPatternFromExprWithKey e [] selectEqKey (zetaReduceLHSOnly := true)
+  let expr ← wrapProof pattern e adaptation
   let perm := isPerm pattern.varTypes.size pattern.pattern rhs
-  return { expr, pattern, rhs, perm }
+  let rhsVarMask := mkRhsVarMask pattern.varTypes.size rhs
+  return { expr, pattern, rhs, perm, rhsVarMask }
 
 /--
 Environment extension storing a set of `Sym.Simp` theorems.
@@ -171,10 +200,12 @@ def mkSymSimpExt (name : Name := by exact decl_name%) : IO SymSimpExtension :=
     name     := name
     initial  := {}
     addEntry := fun thms thm => thms.insert thm
-    exportEntry? := fun lvl thm => do
-      let .const declName _ := thm.expr | return thm
-      guard (lvl == .private || !isPrivateName declName)
-      return thm
+    exportEntry? := fun _ thm =>
+      match thm.expr with
+      | .const declName _ =>
+        if isPrivateName declName then ⟨none, none, some thm⟩
+        else .uniform (some thm)
+      | _ => .uniform (some thm)
   }
 
 abbrev SymSimpExtensionMap := Std.HashMap Name SymSimpExtension

@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Grind.Intro
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
 public import Lean.Meta.Sym.Simp.SimpM
+public import Lean.Meta.Sym.DSimp.DSimpM
 import Init.Omega
 public section
 namespace Lean.Elab.Tactic.Grind
@@ -37,6 +38,18 @@ structure SimpCacheKey where
   extras  : Array ExtraTheorem
   deriving BEq, Hashable
 
+structure DSimpArgs where
+  fvarIds : Array FVarId := #[]
+  zetaDeltaAll : Bool := false
+  -- TODO: rfl-theorems and declarations to unfold
+  deriving BEq, Hashable
+
+/-- Cache key for `Sym.dsimp` variant invocations. -/
+structure DSimpCacheKey where
+  variant : Name
+  args    : DSimpArgs
+  deriving BEq, Hashable
+
 structure Cache where
   /-- Cache for `BackwardRule`s created from declaration names (sym mode only). -/
   backwardRuleName : PHashMap Name Sym.BackwardRule := {}
@@ -44,6 +57,8 @@ structure Cache where
   backwardRuleSyntax : PHashMap (Nat × Nat) Sym.BackwardRule := {}
   /-- Per-variant persistent `Sym.simp` cache. Keyed by variant name + extra theorem names. -/
   simpState : Std.HashMap SimpCacheKey Sym.Simp.State := {}
+  /-- Per-variant persistent `Sym.dsimp` cache. Keyed by variant name + args. -/
+  dsimpState : Std.HashMap DSimpCacheKey Sym.DSimp.State := {}
 
 structure State where
   symState   : Meta.Sym.State
@@ -68,7 +83,10 @@ def setGoals (goals : List Goal) : GrindTacticM Unit :=
 
 def pruneSolvedGoals : GrindTacticM Unit := do
   let gs ← getGoals
-  let gs := gs.filter fun g => !g.inconsistent
+  let gs ← gs.filterM fun g => do
+    if g.inconsistent then return false
+    -- The metavariable may have been assigned by `isDefEq`
+    return !(← g.mvarId.isAssigned)
   setGoals gs
 
 def getUnsolvedGoals : GrindTacticM (List Goal) := do
@@ -306,7 +324,7 @@ def tryTactic (tac : GrindTacticM α) : GrindTacticM Bool := do
   catch _ =>
     pure false
 
-open Grind
+open Lean.Meta.Grind
 
 /-
 **Note**: Recall that `grind` uses the reducibility specified at `Config.reducible`
@@ -317,6 +335,16 @@ def liftGrindM (k : GrindM α) : GrindTacticM α := do
   let ((a, grindState), symState) ← liftMetaM <| StateRefT'.run (((Grind.withGTransparency k) ctx.methods.toMethodsRef ctx.ctx |>.run s.grindState) ctx.sctx) s.symState
   modify fun s => { s with grindState, symState }
   return a
+
+/-- Lifts a `SymM` computation into `GrindTacticM`. -/
+def liftSymM (k : Sym.SymM α) : GrindTacticM α := do
+  -- GrindM := ... Sym.SymM, so SymM auto-lifts to GrindM
+  liftGrindM k
+
+/-- Throws an error unless the tactic is being executed in `sym =>` mode. -/
+def ensureSym : GrindTacticM Unit := do
+  unless (← read).sym do
+    throwError "tactic is only available in `sym =>` mode"
 
 def replaceMainGoal (goals : List Goal) : GrindTacticM Unit := do
   let goals := goals.filter fun goal => !goal.inconsistent
@@ -329,13 +357,19 @@ def liftGoalM (k : GoalM α) : GrindTacticM α := do
   replaceMainGoal [goal]
   return a
 
-def liftAction (a : Action) : GrindTacticM Unit := do
+inductive LiftActionCoreResult where
+  | closed | subgoals
+
+def liftActionCore (a : Action) : GrindTacticM LiftActionCoreResult := do
   let goal ← getMainGoal
   let ka := fun _ => throwError "tactic is not applicable"
   let kp := fun goal => return .stuck [goal]
   match (← liftGrindM <| a goal ka kp) with
-  | .closed _ => replaceMainGoal []
-  | .stuck gs => replaceMainGoal gs
+  | .closed _ => replaceMainGoal []; return .closed
+  | .stuck gs => replaceMainGoal gs; return .subgoals
+
+def liftAction (a : Action) : GrindTacticM Unit := do
+  discard <| liftActionCore a
 
 def done : GrindTacticM Unit := do
   pruneSolvedGoals

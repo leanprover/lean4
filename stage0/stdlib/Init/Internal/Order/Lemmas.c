@@ -320,7 +320,7 @@ lean_object* v_val_140_; lean_object* v___x_141_;
 lean_dec(v_h__2_137_);
 v_val_140_ = lean_ctor_get(v_r_135_, 0);
 lean_inc(v_val_140_);
-lean_dec_ref(v_r_135_);
+lean_dec_ref_known(v_r_135_, 1);
 v___x_141_ = lean_apply_1(v_h__1_136_, v_val_140_);
 return v___x_141_;
 }
@@ -343,7 +343,7 @@ lean_object* v_val_149_; lean_object* v___x_150_;
 lean_dec(v_h__2_146_);
 v_val_149_ = lean_ctor_get(v_r_144_, 0);
 lean_inc(v_val_149_);
-lean_dec_ref(v_r_144_);
+lean_dec_ref_known(v_r_144_, 1);
 v___x_150_ = lean_apply_1(v_h__1_145_, v_val_149_);
 return v___x_150_;
 }
@@ -355,11 +355,13 @@ lean_object* runtime_initialize_Init_Data_Array_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Internal_Order_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Monadic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Internal_Order_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_List_Control(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

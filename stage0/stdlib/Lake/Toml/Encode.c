@@ -341,7 +341,7 @@ else
 lean_object* v_val_104_; lean_object* v___x_105_; 
 v_val_104_ = lean_ctor_get(v_x1_102_, 0);
 lean_inc(v_val_104_);
-lean_dec_ref(v_x1_102_);
+lean_dec_ref_known(v_x1_102_, 1);
 v___x_105_ = lean_apply_1(v_inst_101_, v_x2_103_);
 if (lean_obj_tag(v___x_105_) == 0)
 {
@@ -545,7 +545,7 @@ else
 lean_object* v_val_161_; lean_object* v___x_162_; 
 v_val_161_ = lean_ctor_get(v_x_159_, 0);
 lean_inc(v_val_161_);
-lean_dec_ref(v_x_159_);
+lean_dec_ref_known(v_x_159_, 1);
 v___x_162_ = lean_apply_1(v_inst_158_, v_val_161_);
 return v___x_162_;
 }
@@ -652,7 +652,7 @@ if (lean_obj_tag(v___x_190_) == 1)
 lean_object* v_val_191_; lean_object* v___x_192_; lean_object* v___x_193_; 
 v_val_191_ = lean_ctor_get(v___x_190_, 0);
 lean_inc(v_val_191_);
-lean_dec_ref(v___x_190_);
+lean_dec_ref_known(v___x_190_, 1);
 v___x_192_ = ((lean_object*)(l_Lake_Toml_instSmartInsertOfToToml_x3f___redArg___lam__0___closed__0));
 v___x_193_ = l_Lake_Toml_RBDict_insert___redArg(v___x_192_, v_k_187_, v_val_191_, v_t_189_);
 return v___x_193_;
@@ -812,7 +812,7 @@ else
 lean_object* v_val_258_; lean_object* v___x_259_; lean_object* v___x_260_; lean_object* v___x_261_; 
 v_val_258_ = lean_ctor_get(v_v_x3f_256_, 0);
 lean_inc(v_val_258_);
-lean_dec_ref(v_v_x3f_256_);
+lean_dec_ref_known(v_v_x3f_256_, 1);
 v___x_259_ = lean_apply_1(v_inst_254_, v_val_258_);
 v___x_260_ = ((lean_object*)(l_Lake_Toml_instSmartInsertOfToToml_x3f___redArg___lam__0___closed__0));
 v___x_261_ = l_Lake_Toml_RBDict_insert___redArg(v___x_260_, v_k_255_, v___x_259_, v_t_257_);
@@ -904,11 +904,13 @@ return v_t_295_;
 }
 lean_object* runtime_initialize_Lake_Util_FilePath(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Toml_Data_Value(uint8_t builtin);
+void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Toml_Encode(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize();
 res = runtime_initialize_Lake_Util_FilePath(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

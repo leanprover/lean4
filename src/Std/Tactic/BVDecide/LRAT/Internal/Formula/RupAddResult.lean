@@ -7,13 +7,15 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.LRAT.Internal.Formula.Lemmas
-public import Init.GrindInstances.ToInt
 import Init.ByCases
 import Init.Data.Array.Bootstrap
 import Init.Data.Fin.Lemmas
 import Init.Data.Int.OfNat
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Nat.Simproc
+
+-- TODO: remove after stage0 update
+set_option linter.unusedSimpArgs false
 
 @[expose] public section
 
@@ -477,7 +479,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
     next idx_eq_j =>
       apply Or.inl
       constructor
-      · simp only [clearUnit, idx_eq_j, Array.getInternal_eq_getElem, ih1]
+      · simp only [Fin.getElem_fin, clearUnit, idx_eq_j, Array.getInternal_eq_getElem, ih1]
         rw [Array.getElem_modify_self, ih2, remove_add_cancel]
         exact ih3
       · intro k k_ge_idx_add_one
@@ -511,7 +513,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
         · simp only [Fin.getElem_fin]
           exact ih2
         · constructor
-          · simp only [clearUnit, idx_eq_j1, Array.getInternal_eq_getElem, ih1]
+          · simp only [Fin.getElem_fin, clearUnit, idx_eq_j1, Array.getInternal_eq_getElem, ih1]
             rw [Array.getElem_modify_self, ih3, ih4]
             decide
           · constructor
@@ -543,7 +545,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
           · simp only [Fin.getElem_fin]
             exact ih1
           · constructor
-            · simp only [clearUnit, idx_eq_j2, Array.getInternal_eq_getElem, ih2]
+            · simp only [Fin.getElem_fin, clearUnit, idx_eq_j2, Array.getInternal_eq_getElem, ih2]
               rw [Array.getElem_modify_self, ih3, ih4]
               decide
             · constructor

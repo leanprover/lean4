@@ -118,7 +118,7 @@ def collectFVarIdsAt (e : Expr) (fvarIdToPos : FVarIdMap Nat) : Array FVarId :=
     let pos₂ := fvarIdToPos.get! fvarId₂
     pos₁ < pos₂
 
-open Internal in
+open Lean.Meta.Sym.Internal in
 /--
 Build a chain of arrows `α₁ → α₂ → ... → αₙ → β` using the `mkForallS` wrapper
 (not `.forallE`) to preserve sharing.
@@ -165,9 +165,9 @@ where
   go (e : Expr) (xs xs' args subst types : Array Expr) (varDeps : Array (Array Nat)) (fvarIdToPos : FVarIdMap Nat)
       : SymM ToBetaAppResult := do
     if let .letE n t v b (nondep := true) := e then
-      assert! !t.hasLooseBVars
-      withLocalDeclD n t fun x => do
+      let t := t.instantiateRev xs
       let v := v.instantiateRev xs
+      withLocalDeclD n t fun x => do
       let fvarIds := collectFVarIdsAt v fvarIdToPos
       let varPos := fvarIds.map (fvarIdToPos.getD · 0)
       let ys := fvarIds.map mkFVar
@@ -201,7 +201,7 @@ def consumeForallN (type : Expr) (n : Nat) : Expr :=
   | 0 => type
   | n+1 => consumeForallN type.bindingBody! n
 
-open Internal in
+open Lean.Meta.Sym.Internal in
 /--
 Eliminate auxiliary applications `xᵢ' sᵢ₁ ... sᵢₖ` in the body when converting back to `have` form.
 
@@ -300,7 +300,7 @@ where
       fnUnivs := fnUnivs.reverse
       return { argUnivs, fnUnivs }
 
-open Internal in
+open Lean.Meta.Sym.Internal in
 /--
 Simplify a beta-application and generate a proof.
 

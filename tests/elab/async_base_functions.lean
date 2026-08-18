@@ -1,9 +1,9 @@
-import Std.Internal.Async
+import Std.Async
 import Std.Sync.Mutex
 
 open Std
 
-open Std.Internal.IO.Async
+open Std.Async
 
 def wait (ms : UInt32) (ref : Std.Mutex Nat) (val : Nat) : Async Unit := do
   ref.atomically (·.modify (· * val))

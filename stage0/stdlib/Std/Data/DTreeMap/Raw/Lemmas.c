@@ -60,7 +60,7 @@ lean_object* v_val_16_; lean_object* v___x_17_;
 lean_dec(v_h__2_13_);
 v_val_16_ = lean_ctor_get(v_x_11_, 0);
 lean_inc(v_val_16_);
-lean_dec_ref(v_x_11_);
+lean_dec_ref_known(v_x_11_, 1);
 v___x_17_ = lean_apply_1(v_h__1_12_, v_val_16_);
 return v___x_17_;
 }
@@ -83,7 +83,7 @@ lean_object* v_val_25_; lean_object* v___x_26_;
 lean_dec(v_h__2_22_);
 v_val_25_ = lean_ctor_get(v_x_20_, 0);
 lean_inc(v_val_25_);
-lean_dec_ref(v_x_20_);
+lean_dec_ref_known(v_x_20_, 1);
 v___x_26_ = lean_apply_1(v_h__1_21_, v_val_25_);
 return v___x_26_;
 }
@@ -95,11 +95,13 @@ lean_object* runtime_initialize_Init_Data_Array_Perm(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Find(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Pairwise(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Prod(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Data_DTreeMap_Raw_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Data_DTreeMap_Internal_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -6,7 +6,7 @@ Authors: Siddhartha Gadgil, Mario Carneiro, Kim Morrison
 module
 prelude
 public import Lean.Meta.Reduce
-public import Lean.Meta.Tactic.Assert
+public import Lean.Meta.Tactic.Replace
 public import Lean.Meta.DiscrTree.Main
 import Lean.Meta.AppBuilder
 public section

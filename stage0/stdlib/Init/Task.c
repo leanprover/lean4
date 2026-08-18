@@ -93,7 +93,7 @@ if (lean_obj_tag(v_tail_30_) == 0)
 lean_object* v_head_31_; lean_object* v___f_32_; lean_object* v___x_33_; 
 v_head_31_ = lean_ctor_get(v_x_23_, 0);
 lean_inc(v_head_31_);
-lean_dec_ref(v_x_23_);
+lean_dec_ref_known(v_x_23_, 2);
 v___f_32_ = lean_alloc_closure((void*)(l___private_Init_Task_0__Task_mapList_go___redArg___lam__1), 3, 2);
 lean_closure_set(v___f_32_, 0, v_x_24_);
 lean_closure_set(v___f_32_, 1, v_f_20_);
@@ -106,7 +106,7 @@ lean_object* v_head_34_; lean_object* v___x_35_; lean_object* v___f_36_; lean_ob
 lean_inc(v_tail_30_);
 v_head_34_ = lean_ctor_get(v_x_23_, 0);
 lean_inc(v_head_34_);
-lean_dec_ref(v_x_23_);
+lean_dec_ref_known(v_x_23_, 2);
 v___x_35_ = lean_box(v_sync_22_);
 lean_inc(v_prio_21_);
 v___f_36_ = lean_alloc_closure((void*)(l___private_Init_Task_0__Task_mapList_go___redArg___lam__2___boxed), 6, 5);
@@ -196,11 +196,13 @@ return v_res_96_;
 lean_object* runtime_initialize_Init_Core(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Bitwise_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Task(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Core(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

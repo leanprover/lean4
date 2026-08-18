@@ -190,7 +190,6 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
       | ⟨.operating _ searcher⟩, ⟨.atEnd⟩ => simp [SplitIterator.toOption, Option.lt]
       | ⟨.atEnd⟩, _ => simp
 
-@[no_expose]
 instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (SplitIterator pat s) Id :=
   .of_finitenessRelation finitenessRelation
 
@@ -301,7 +300,6 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
       | ⟨.operating _ searcher⟩, ⟨.atEnd⟩ => simp [SplitInclusiveIterator.toOption, Option.lt]
       | ⟨.atEnd⟩, _ => simp
 
-@[no_expose]
 instance [Std.Iterators.Finite (σ s) Id] :
     Std.Iterators.Finite (SplitInclusiveIterator pat s) Id :=
   .of_finitenessRelation finitenessRelation
@@ -661,7 +659,6 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
       | ⟨.operating _ searcher⟩, ⟨.atEnd⟩ => simp [RevSplitIterator.toOption, Option.lt]
       | ⟨.atEnd⟩, _ => simp
 
-@[no_expose]
 instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (RevSplitIterator ρ s) Id :=
   .of_finitenessRelation finitenessRelation
 

@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
@@ -215,7 +215,7 @@ goto _start;
 v___jp_17_:
 {
 lean_object* v___x_21_; lean_object* v___x_22_; uint32_t v___x_23_; uint32_t v___x_24_; uint8_t v___x_25_; 
-v___x_21_ = lean_string_utf8_extract(v_str_7_, v_startInclusive_19_, v_endExclusive_20_);
+v___x_21_ = lean_string_utf8_extract_fast(v_str_7_, v_startInclusive_19_, v_endExclusive_20_);
 lean_dec(v_endExclusive_20_);
 lean_dec(v_startInclusive_19_);
 v___x_22_ = lean_unsigned_to_nat(0u);
@@ -309,7 +309,7 @@ lean_ctor_set(v___x_86_, 2, v___x_85_);
 v_parts_87_ = l_String_Slice_splitToSubslice___at___00Lake_toUpperCamelCaseString_spec__0(v___x_86_);
 v___x_88_ = ((lean_object*)(l_Lake_toUpperCamelCaseString___closed__0));
 v___x_89_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Lake_toUpperCamelCaseString_spec__1___redArg(v_str_83_, v___x_86_, v___x_85_, v_parts_87_, v___x_88_);
-lean_dec_ref(v___x_86_);
+lean_dec_ref_known(v___x_86_, 3);
 lean_dec_ref(v_str_83_);
 v___x_90_ = lean_array_to_list(v___x_89_);
 v___x_91_ = ((lean_object*)(l_Lake_toUpperCamelCaseString___closed__1));
@@ -346,7 +346,7 @@ v_pre_110_ = lean_ctor_get(v_name_109_, 0);
 lean_inc(v_pre_110_);
 v_str_111_ = lean_ctor_get(v_name_109_, 1);
 lean_inc_ref(v_str_111_);
-lean_dec_ref(v_name_109_);
+lean_dec_ref_known(v_name_109_, 2);
 v___x_112_ = l_Lake_toUpperCamelCase(v_pre_110_);
 v___x_113_ = l_Lake_toUpperCamelCaseString(v_str_111_);
 v___x_114_ = l_Lean_Name_str___override(v___x_112_, v___x_113_);
@@ -362,11 +362,13 @@ lean_object* runtime_initialize_Init_Data_String_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Modify(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Search(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Util_Casing(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

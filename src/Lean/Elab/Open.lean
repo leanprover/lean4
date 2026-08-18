@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Util
 public import Lean.Parser.Command
 meta import Lean.Parser.Command
+public import Lean.Linter.AmbiguousOpen
 import Init.Omega
 
 public section
@@ -75,22 +76,28 @@ def elabOpenDecl [MonadOptions m] [MonadResolveName m] [MonadInfoTree m] (stx : 
     match stx with
     | `(Parser.Command.openDecl| $nss*) =>
       for ns in nss do
-        for ns in (← resolveNamespace ns) do
+        let resolved ← resolveNamespace ns
+        Linter.checkAmbiguousOpen ns resolved
+        for ns in resolved do
           addOpenDecl (OpenDecl.simple ns [])
           activateScoped ns
     | `(Parser.Command.openDecl| scoped $nss*) =>
       for ns in nss do
-        for ns in (← resolveNamespace ns) do
+        let resolved ← resolveNamespace ns
+        Linter.checkAmbiguousOpen ns resolved
+        for ns in resolved do
           activateScoped ns
     | `(Parser.Command.openDecl| $ns ($ids*)) =>
       let nss ← resolveNamespace ns
+      Linter.checkAmbiguousOpen ns nss
       for idStx in ids do
         let declName ← resolveNameUsingNamespacesCore nss idStx
         if (← getInfoState).enabled then
           addConstInfo idStx declName
         addOpenDecl (OpenDecl.explicit idStx.getId declName)
-    | `(Parser.Command.openDecl| $ns hiding $ids*) =>
-      let ns ← resolveUniqueNamespace ns
+    | `(Parser.Command.openDecl| $nsStx hiding $ids*) =>
+      let ns ← resolveUniqueNamespace nsStx
+      Linter.checkAmbiguousOpen nsStx [ns]
       activateScoped ns
       for id in ids do
         let declName ← resolveId ns id
@@ -98,8 +105,9 @@ def elabOpenDecl [MonadOptions m] [MonadResolveName m] [MonadInfoTree m] (stx : 
           addConstInfo id declName
       let ids := ids.map (·.getId) |>.toList
       addOpenDecl (OpenDecl.simple ns ids)
-    | `(Parser.Command.openDecl| $ns renaming $[$froms -> $tos],*) =>
-      let ns ← resolveUniqueNamespace ns
+    | `(Parser.Command.openDecl| $nsStx renaming $[$froms -> $tos],*) =>
+      let ns ← resolveUniqueNamespace nsStx
+      Linter.checkAmbiguousOpen nsStx [ns]
       for («from», to) in froms.zip tos do
         let declName ← resolveId ns «from»
         if (← getInfoState).enabled then

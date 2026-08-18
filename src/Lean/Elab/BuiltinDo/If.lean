@@ -17,6 +17,7 @@ namespace Lean.Elab.Do
 open Lean.Parser.Term
 open Lean.Meta
 
+open InternalSyntax in
 /--
 If the given syntax is a `doIf`, return an equivalent `doIf` that has an `else` but no `else if`s or
 `if let`s.
@@ -25,14 +26,14 @@ If the given syntax is a `doIf`, return an equivalent `doIf` that has an `else` 
   match stx with
   | `(doElem|if $_:doIfProp then $_ else $_) =>
     Macro.throwUnsupported
-  | `(doElem|if $cond:doIfCond then $t $[else if $conds:doIfCond then $ts]* $[else $e?]?) => do
-    let mut e : Syntax ← e?.getDM `(doSeq|pure PUnit.unit)
+  | `(doElem|if%$tk $cond:doIfCond then $t $[else if%$tks $conds:doIfCond then $ts]* $[else $e?]?) => do
+    let mut e : Syntax ← e?.getDM `(doSeq| skip%$tk)
     let mut eIsSeq := true
     for (cond, t) in Array.zip (conds.reverse.push cond) (ts.reverse.push t) do
       e ← if eIsSeq then pure e else `(doSeq|$(⟨e⟩):doElem)
       e ← match cond with
         | `(doIfCond|let $pat := $d) => `(doElem| match $d:term with | $pat:term => $t | _ => $(⟨e⟩))
-        | `(doIfCond|let $pat ← $d)  => `(doElem| match ← $d    with | $pat:term => $t | _ => $(⟨e⟩))
+        | `(doIfCond|let $pat ← $d)  => `(doElem| match ← $d:term with | $pat:term => $t | _ => $(⟨e⟩))
         | `(doIfCond|$cond:doIfProp) => `(doElem| if $cond:doIfProp then $t else $(⟨e⟩))
         | _                          => Macro.throwUnsupported
       eIsSeq := false
@@ -53,7 +54,7 @@ where
     -- elaborator. However, for Lake.Package.mkBuildArchiveFacetConfig, we still need to postpone.
     doElabToSyntax "then branch of if with condition {cond}" (elabDoSeq thenSeq dec) fun then_ => do
     doElabToSyntax "else branch of if with condition {cond}" (elabDoSeq elseSeq dec) fun else_ => do
-    let mγ ← mkMonadicType (← read).doBlockResultType
+    let mγ ← mkMonadApp (← read).doBlockResultType
     Term.elabTermEnsuringType (← `(if $cond then $then_ else $else_)) mγ
 
   elabDite h cond thenSeq elseSeq dec := do
@@ -61,7 +62,7 @@ where
       elabDoSeq (if then_ then thenSeq else elseSeq) dec
     doElabToSyntax "then branch of if with condition {cond}" (elabDiteBranch true) fun then_ => do
     doElabToSyntax "else branch of if with condition {cond}" (elabDiteBranch false) fun else_ => do
-    let mγ ← mkMonadicType (← read).doBlockResultType
+    let mγ ← mkMonadApp (← read).doBlockResultType
     match h with
     | `(_%$tk) => Term.elabTermEnsuringType (← `(if _%$tk : $cond then $then_ else $else_)) mγ
     | `($h:ident) => Term.elabTermEnsuringType (← `(if $h:ident : $cond then $then_ else $else_)) mγ

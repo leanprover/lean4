@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instStreamRawChar___lam__0(lean_object*);
@@ -47,7 +47,7 @@ goto v_resetjp_5_;
 v_resetjp_5_:
 {
 uint8_t v___x_8_; 
-v___x_8_ = l_String_instDecidableLtRaw___aux__1(v_startPos_3_, v_stopPos_4_);
+v___x_8_ = lean_nat_dec_lt(v_startPos_3_, v_stopPos_4_);
 if (v___x_8_ == 0)
 {
 lean_object* v___x_9_; 
@@ -97,11 +97,13 @@ return v___x_16_;
 }
 lean_object* runtime_initialize_Init_Data_String_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Stream(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Stream(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -27,6 +27,7 @@ trace: x : Nat
 ⊢ P false
 -/
 #guard_msgs in
+set_option backward.defeqAttrib.useBackward true in
 example (x : Nat) : P (id x.succ.succ).isZero := by
   dsimp [Nat.isZero.eq_2]
   trace_state

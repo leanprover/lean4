@@ -7,7 +7,7 @@ elif [[ -f "$1.no_compile" ]]; then DO_COMPILE=
 else DO_COMPILE=1
 fi
 
-rm -f "$1.measurements.jsonl"
+: > "$1.measurements.jsonl"  # always create (possibly empty) so `combine.py` finds it
 
 if [[ -n $DO_COMPILE ]]; then
   run_before "$1"

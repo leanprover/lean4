@@ -290,6 +290,28 @@ partial def casesStringToMono (c : Cases .pure) (_ : c.typeName == ``String) : T
   let k ← k.toMono
   return .let decl k
 
+/-- Eliminate `cases` for `Float`. -/
+partial def casesFloatToMono (c : Cases .pure) (_ : c.typeName == ``Float) : ToMonoM (Code .pure) := do
+  assert! c.alts.size == 1
+  let .alt _ ps k := c.alts[0]! | unreachable!
+  eraseParams ps
+  let p := ps[0]!
+  let decl := { fvarId := p.fvarId, binderName := p.binderName, type := anyExpr, value := .const ``Float.toModel [] #[.fvar c.discr] }
+  modifyLCtx fun lctx => lctx.addLetDecl decl
+  let k ← k.toMono
+  return .let decl k
+
+/-- Eliminate `cases` for `Float32`. -/
+partial def casesFloat32ToMono (c : Cases .pure) (_ : c.typeName == ``Float32) : ToMonoM (Code .pure) := do
+  assert! c.alts.size == 1
+  let .alt _ ps k := c.alts[0]! | unreachable!
+  eraseParams ps
+  let p := ps[0]!
+  let decl := { fvarId := p.fvarId, binderName := p.binderName, type := anyExpr, value := .const ``Float32.toModel [] #[.fvar c.discr] }
+  modifyLCtx fun lctx => lctx.addLetDecl decl
+  let k ← k.toMono
+  return .let decl k
+
 /-- Eliminate `cases` for `Thunk. -/
 partial def casesThunkToMono (c : Cases .pure) (_ : c.typeName == ``Thunk) : ToMonoM (Code .pure) := do
   assert! c.alts.size == 1
@@ -351,8 +373,8 @@ partial def Code.toMono (code : Code .pure) : ToMonoM (Code .pure) := do
   | .jmp fvarId args => return code.updateJmp! fvarId (← args.mapM argToMono)
   | .return .. => return code
   | .cases c =>
-    if h : c.typeName == ``Decidable then
-      decToMono c h
+    if h : c.typeName == ``Decidable ∧ !(← getEnv).contains `Decidable.intro then
+      decToMono c h.1
     else if h : c.typeName == ``Nat then
       casesNatToMono c h
     else if h : c.typeName == ``Int then
@@ -373,6 +395,10 @@ partial def Code.toMono (code : Code .pure) : ToMonoM (Code .pure) := do
       casesFloatArrayToMono c h
     else if h : c.typeName == ``String then
       casesStringToMono c h
+    else if h : c.typeName == ``Float then
+      casesFloatToMono c h
+    else if h : c.typeName == ``Float32 then
+      casesFloat32ToMono c h
     else if h : c.typeName == ``Thunk then
       casesThunkToMono c h
     else if h : c.typeName == ``Task then

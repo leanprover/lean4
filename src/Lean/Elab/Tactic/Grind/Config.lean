@@ -6,32 +6,53 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Elab.Tactic.Grind.Basic
-import Lean.Elab.Tactic.ConfigSetter
-import Lean.Elab.DeprecatedSyntax  -- shake: skip (workaround for `mkConfigSetter` failing to interpret `deprecatedSyntaxExt`, to be fixed)
+import Lean.Elab.ConfigEval
 
 public section
-namespace Lean.Elab.Tactic.Grind
+namespace Lean.Elab.Tactic
 
-/-- Sets a field of the `grind` configuration object. -/
-declare_config_getter setConfigField Grind.Config
+open ConfigEval
 
-def elabConfigItems (init : Grind.Config) (items : Array (TSyntax `Lean.Parser.Tactic.configItem))
-    : TermElabM Grind.Config := do
-  let mut config := init
-  for item in items do
-    match item with
-    | `(Lean.Parser.Tactic.configItem| ($fieldName:ident := true))
-    | `(Lean.Parser.Tactic.configItem| +$fieldName:ident) =>
-      config ← withRef fieldName <| setConfigField config fieldName.getId true
-    | `(Lean.Parser.Tactic.configItem| ($fieldName:ident := false))
-    | `(Lean.Parser.Tactic.configItem| -$fieldName:ident) =>
-      config ← withRef fieldName <| setConfigField config fieldName.getId false
-    | `(Lean.Parser.Tactic.configItem| ($fieldName:ident := $val:num)) =>
-      config ← withRef fieldName <| setConfigField config fieldName.getId (.ofNat val.getNat)
-    | _ => throwErrorAt item "unexpected configuration option"
-  return config
+/--
+Elaborator for grind configurations, with the `(config := ...)` elaborator exposed.
+This allows overriding which structure is used as the expected type when elaborating
+the term, which affects which default values are used in `{...}` structure instance notation.
+-/
+private declare_term_config_elab elabGrindConfigCore Grind.Config
+    (evalConfig : Term → TermElabM Grind.Config) where
+  option config := fun _ item => evalConfig ⟨item.value⟩
 
-def withConfigItems (items : Array (TSyntax `Lean.Parser.Tactic.configItem))
+local macro "make_elab_grind_config" fn:ident struct:ident : command => do
+  let cfg := mkIdent `cfg
+  let init := mkIdent `init
+  let logExceptions := mkIdent `logExceptions
+  `(private local ensure_eval_expr_instance $struct
+    def $fn ($cfg : Syntax)
+        ($init : $struct := {})
+        ($logExceptions : Bool := true) :
+        TacticM Grind.Config := do
+      elabGrindConfigCore $cfg { $init with }
+        (evalConfig := fun c => do
+          let cfg : $struct ← evalExprWithElab c
+          return { cfg with })
+        (logExceptions := $logExceptions && (← read).recover))
+
+make_elab_grind_config elabGrindConfig Grind.Config
+make_elab_grind_config elabGrindConfigInteractive Grind.ConfigInteractive
+make_elab_grind_config elabCutsatConfig Grind.CutsatConfig
+make_elab_grind_config elabLinarithConfig Grind.LinarithConfig
+make_elab_grind_config elabOrderConfig Grind.OrderConfig
+make_elab_grind_config elabGrobnerConfig Grind.GrobnerConfig
+
+namespace Grind
+
+def elabConfigItems (init : Grind.Config) (items : Array Syntax) :
+    TermElabM Grind.Config := do
+  elabGrindConfigCore (mkNullNode items) init
+    (evalConfig := fun c => evalExprWithElab c)
+    (logExceptions := false)
+
+def withConfigItems (items : Array Syntax)
     (k : GrindTacticM α) : GrindTacticM α := do
   if items.isEmpty then
     k

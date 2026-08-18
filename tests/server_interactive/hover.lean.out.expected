@@ -756,3 +756,12 @@
  {"value":
   "```lean\nInfSeq.step.{u_1} {α : Sort u_1} (r : α → α → Prop) {a b : α} : r a b → InfSeq r b → InfSeq r a\n```\n***\nTake a step ",
   "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 354, "character": 16}}
+{"range":
+ {"start": {"line": 354, "character": 16},
+  "end": {"line": 354, "character": 20}},
+ "contents":
+ {"value":
+  "```lean\nmap'.{u_1, u_2} {α : Type u_1} {β : Type u_2} (f : α → β) : List α → List β\n```",
+  "kind": "markdown"}}

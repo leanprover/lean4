@@ -82,8 +82,13 @@ def e3 := a
 -- are transported out
 def f := a
 #guard_msgs in example (h : P a) : P f := by dsimp [f]; exact h
+-- `f.eq_1` etc. are only `[backward_defeq]` (not `[defeq]`) since `f` is semireducible;
+-- so we need to opt into the backward behavior for `dsimp` to use them.
+set_option backward.defeqAttrib.useBackward true in
 #guard_msgs in example (h : P a) : P f := by dsimp [f.eq_1]; exact h
+set_option backward.defeqAttrib.useBackward true in
 #guard_msgs in example (h : P a) : P f := by dsimp [f.eq_def]; exact h
+set_option backward.defeqAttrib.useBackward true in
 #guard_msgs in example (h : P a) : P f := by dsimp [f.eq_unfold]; exact h
 
 

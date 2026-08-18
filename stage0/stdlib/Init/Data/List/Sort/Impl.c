@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Sort.Impl
-// Imports: import all Init.Data.List.Sort.Basic public import Init.Data.List.Sort.Basic import Init.Data.List.Sort.Lemmas import Init.Data.Nat.Linear
+// Imports: import all Init.Data.List.Sort.Basic public import Init.Data.List.Sort.Basic import Init.Data.List.Sort.Lemmas import Init.Data.Nat.Internal.Linear
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -383,12 +383,12 @@ v_head_47_ = lean_ctor_get(v_x_39_, 0);
 lean_inc(v_head_47_);
 v_tail_48_ = lean_ctor_get(v_x_39_, 1);
 lean_inc(v_tail_48_);
-lean_dec_ref(v_x_39_);
+lean_dec_ref_known(v_x_39_, 2);
 v_head_49_ = lean_ctor_get(v_x_40_, 0);
 lean_inc(v_head_49_);
 v_tail_50_ = lean_ctor_get(v_x_40_, 1);
 lean_inc(v_tail_50_);
-lean_dec_ref(v_x_40_);
+lean_dec_ref_known(v_x_40_, 2);
 v___x_51_ = lean_apply_5(v_h__3_44_, v_head_47_, v_tail_48_, v_head_49_, v_tail_50_, v_x_41_);
 return v___x_51_;
 }
@@ -424,12 +424,12 @@ v_head_62_ = lean_ctor_get(v_x_54_, 0);
 lean_inc(v_head_62_);
 v_tail_63_ = lean_ctor_get(v_x_54_, 1);
 lean_inc(v_tail_63_);
-lean_dec_ref(v_x_54_);
+lean_dec_ref_known(v_x_54_, 2);
 v_head_64_ = lean_ctor_get(v_x_55_, 0);
 lean_inc(v_head_64_);
 v_tail_65_ = lean_ctor_get(v_x_55_, 1);
 lean_inc(v_tail_65_);
-lean_dec_ref(v_x_55_);
+lean_dec_ref_known(v_x_55_, 2);
 v___x_66_ = lean_apply_5(v_h__3_59_, v_head_62_, v_tail_63_, v_head_64_, v_tail_65_, v_x_56_);
 return v___x_66_;
 }
@@ -482,12 +482,12 @@ v_head_84_ = lean_ctor_get(v_xs_77_, 0);
 lean_inc(v_head_84_);
 v_tail_85_ = lean_ctor_get(v_xs_77_, 1);
 lean_inc(v_tail_85_);
-lean_dec_ref(v_xs_77_);
+lean_dec_ref_known(v_xs_77_, 2);
 v_head_86_ = lean_ctor_get(v_ys_78_, 0);
 lean_inc(v_head_86_);
 v_tail_87_ = lean_ctor_get(v_ys_78_, 1);
 lean_inc(v_tail_87_);
-lean_dec_ref(v_ys_78_);
+lean_dec_ref_known(v_ys_78_, 2);
 v___x_88_ = lean_apply_4(v_h__3_81_, v_head_84_, v_tail_85_, v_head_86_, v_tail_87_);
 return v___x_88_;
 }
@@ -523,12 +523,12 @@ v_head_98_ = lean_ctor_get(v_xs_91_, 0);
 lean_inc(v_head_98_);
 v_tail_99_ = lean_ctor_get(v_xs_91_, 1);
 lean_inc(v_tail_99_);
-lean_dec_ref(v_xs_91_);
+lean_dec_ref_known(v_xs_91_, 2);
 v_head_100_ = lean_ctor_get(v_ys_92_, 0);
 lean_inc(v_head_100_);
 v_tail_101_ = lean_ctor_get(v_ys_92_, 1);
 lean_inc(v_tail_101_);
-lean_dec_ref(v_ys_92_);
+lean_dec_ref_known(v_ys_92_, 2);
 v___x_102_ = lean_apply_4(v_h__3_95_, v_head_98_, v_tail_99_, v_head_100_, v_tail_101_);
 return v___x_102_;
 }
@@ -660,7 +660,7 @@ if (v_isZero_145_ == 0)
 lean_object* v_one_146_; lean_object* v_n_147_; lean_object* v___x_148_; 
 lean_inc(v_tail_143_);
 lean_inc(v_head_142_);
-lean_dec_ref(v_x_137_);
+lean_dec_ref_known(v_x_137_, 2);
 lean_dec(v_h__2_141_);
 v_one_146_ = lean_unsigned_to_nat(1u);
 v_n_147_ = lean_nat_sub(v_x_138_, v_one_146_);
@@ -700,7 +700,7 @@ if (v_isZero_161_ == 0)
 lean_object* v_one_162_; lean_object* v_n_163_; lean_object* v___x_164_; 
 lean_inc(v_tail_159_);
 lean_inc(v_head_158_);
-lean_dec_ref(v_x_153_);
+lean_dec_ref_known(v_x_153_, 2);
 lean_dec(v_h__2_157_);
 v_one_162_ = lean_unsigned_to_nat(1u);
 v_n_163_ = lean_nat_sub(v_x_154_, v_one_162_);
@@ -1742,7 +1742,7 @@ lean_object* v_head_590_; lean_object* v___x_591_;
 lean_dec(v_h__3_587_);
 v_head_590_ = lean_ctor_get(v_x_583_, 0);
 lean_inc(v_head_590_);
-lean_dec_ref(v_x_583_);
+lean_dec_ref_known(v_x_583_, 2);
 v___x_591_ = lean_apply_2(v_h__2_586_, v_head_590_, v_x_584_);
 return v___x_591_;
 }
@@ -1753,12 +1753,12 @@ lean_inc_ref(v_tail_589_);
 lean_dec(v_h__2_586_);
 v_head_592_ = lean_ctor_get(v_x_583_, 0);
 lean_inc(v_head_592_);
-lean_dec_ref(v_x_583_);
+lean_dec_ref_known(v_x_583_, 2);
 v_head_593_ = lean_ctor_get(v_tail_589_, 0);
 lean_inc(v_head_593_);
 v_tail_594_ = lean_ctor_get(v_tail_589_, 1);
 lean_inc(v_tail_594_);
-lean_dec_ref(v_tail_589_);
+lean_dec_ref_known(v_tail_589_, 2);
 v___x_595_ = lean_apply_4(v_h__3_587_, v_head_592_, v_head_593_, v_tail_594_, v_x_584_);
 return v___x_595_;
 }
@@ -1787,7 +1787,7 @@ lean_object* v_head_605_; lean_object* v___x_606_;
 lean_dec(v_h__3_602_);
 v_head_605_ = lean_ctor_get(v_x_598_, 0);
 lean_inc(v_head_605_);
-lean_dec_ref(v_x_598_);
+lean_dec_ref_known(v_x_598_, 2);
 v___x_606_ = lean_apply_2(v_h__2_601_, v_head_605_, v_x_599_);
 return v___x_606_;
 }
@@ -1798,12 +1798,12 @@ lean_inc_ref(v_tail_604_);
 lean_dec(v_h__2_601_);
 v_head_607_ = lean_ctor_get(v_x_598_, 0);
 lean_inc(v_head_607_);
-lean_dec_ref(v_x_598_);
+lean_dec_ref_known(v_x_598_, 2);
 v_head_608_ = lean_ctor_get(v_tail_604_, 0);
 lean_inc(v_head_608_);
 v_tail_609_ = lean_ctor_get(v_tail_604_, 1);
 lean_inc(v_tail_609_);
-lean_dec_ref(v_tail_604_);
+lean_dec_ref_known(v_tail_604_, 2);
 v___x_610_ = lean_apply_4(v_h__3_602_, v_head_607_, v_head_608_, v_tail_609_, v_x_599_);
 return v___x_610_;
 }
@@ -1813,12 +1813,14 @@ return v___x_610_;
 lean_object* runtime_initialize_Init_Data_List_Sort_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Sort_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Sort_Lemmas(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_List_Sort_Impl(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_List_Sort_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -1828,7 +1830,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_Sort_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -1847,7 +1849,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Init_Data_List_Sort_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Sort_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Sort_Lemmas(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Sort_Impl(uint8_t builtin) {
 lean_object * res;
@@ -1862,7 +1864,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_List_Sort_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_Sort_Impl(builtin);

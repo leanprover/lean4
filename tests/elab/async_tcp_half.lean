@@ -1,8 +1,8 @@
-import Std.Internal.Async
+import Std.Async
 import Std.Internal.UV
 import Std.Net.Addr
 
-open Std.Internal.IO Async
+open Std.Async
 open Std.Net
 
 -- Using this function to create IO Error. For some reason the assert! is not pausing the execution.
@@ -20,14 +20,14 @@ def runJoe (addr: SocketAddress) : Async Unit := do
   client.shutdown
 
 def listenClose : IO Unit := do
-  let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 8080
+  let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 8787
 
   let server ← TCP.Socket.Server.mk
   server.bind addr
   server.listen 128
 
 def acceptClose : IO Unit := do
-  let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 8081
+  let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 8781
 
   let server ← TCP.Socket.Server.mk
   server.bind addr

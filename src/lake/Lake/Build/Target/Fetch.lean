@@ -16,7 +16,7 @@ open Lean
 namespace Lake
 
 variable (defaultPkg : Package) (root : PartialBuildKey) in
-private def PartialBuildKey.fetchInCoreAux
+def PartialBuildKey.fetchInCoreAux
   (self : PartialBuildKey) (facetless : Bool := false)
 : FetchM ((key : BuildKey) × Job (BuildData key)) := do
   match self with
@@ -98,7 +98,7 @@ Fetches the target specified by this key, resolving gaps as needed.
   (·.2.toOpaque) <$> fetchInCore defaultPkg self
 
 variable (root : BuildKey) in
-private def BuildKey.fetchCore
+def BuildKey.fetchCore
   (self : BuildKey)
 : FetchM (Job (BuildData self)) :=
   match self with

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include <vector>
+#include <limits>
 #include "runtime/interrupt.h"
 #include "runtime/sstream.h"
 #include "runtime/flet.h"
@@ -119,11 +120,12 @@ expr type_checker::infer_lambda(expr const & _e, bool infer_only) {
     expr e = _e;
     while (is_lambda(e)) {
         expr d    = instantiate_rev(binding_domain(e), fvars.size(), fvars.data());
-        expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(e), d, binding_info(e));
-        fvars.push_back(fvar);
         if (!infer_only) {
             ensure_sort_core(infer_type_core(d, infer_only), d);
         }
+        /* Extend the local context only after `d` has been checked, as `infer_pi` does. */
+        expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(e), d, binding_info(e));
+        fvars.push_back(fvar);
         e = binding_body(e);
     }
     expr r = infer_type_core(instantiate_rev(e, fvars.size(), fvars.data()), infer_only);
@@ -202,8 +204,6 @@ expr type_checker::infer_let(expr const & _e, bool infer_only) {
     while (is_let(e)) {
         expr type = instantiate_rev(let_type(e), fvars.size(), fvars.data());
         expr val  = instantiate_rev(let_value(e), fvars.size(), fvars.data());
-        expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, let_name(e), type, val);
-        fvars.push_back(fvar);
         if (!infer_only) {
             ensure_sort_core(infer_type_core(type, infer_only), type);
             expr val_type = infer_type_core(val, infer_only);
@@ -211,6 +211,9 @@ expr type_checker::infer_let(expr const & _e, bool infer_only) {
                 throw def_type_mismatch_exception(env(), m_lctx, let_name(e), val_type, type);
             }
         }
+        /* Extend the local context only after `type` and `val` have been checked, as `infer_pi` does. */
+        expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, let_name(e), type, val);
+        fvars.push_back(fvar);
         e = let_body(e);
     }
     expr r = infer_type_core(instantiate_rev(e, fvars.size(), fvars.data()), infer_only);
@@ -218,11 +221,26 @@ expr type_checker::infer_let(expr const & _e, bool infer_only) {
     return m_lctx.mk_pi(fvars, r, true);
 }
 
+/*
+Store the projection index in `result`, and return `false` if it does not fit.
+`nat::is_small` admits up to 63 bits, but projection indices are consumed as `unsigned`, so
+without the upper bound `.proj S 2^32 c` would be silently truncated into `.proj S 0 c`.
+*/
+static bool to_proj_idx(nat const & idx, unsigned & result) {
+    if (!idx.is_small())
+        return false;
+    size_t v = idx.get_small_value();
+    if (v > std::numeric_limits<unsigned>::max())
+        return false;
+    result = static_cast<unsigned>(v);
+    return true;
+}
+
 expr type_checker::infer_proj(expr const & e, bool infer_only) {
     expr type = whnf(infer_type_core(proj_expr(e), infer_only));
-    if (!proj_idx(e).is_small())
+    unsigned idx;
+    if (!to_proj_idx(proj_idx(e), idx))
         throw invalid_proj_exception(env(), m_lctx, e);
-    unsigned idx = proj_idx(e).get_small_value();
     buffer<expr> args;
     expr const & I = get_app_args(type, args);
     if (!is_constant(I))
@@ -271,6 +289,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
     if (has_loose_bvars(e))
         throw kernel_exception(env(), "type checker does not support loose bound variables, replace them with free variables before invoking it");
 
+    scope_rec_depth guard;
     check_system("type checker", /* do_check_interrupted */ true);
 
     auto it = m_st->m_infer_type[infer_only].find(e);
@@ -325,7 +344,11 @@ expr type_checker::ensure_pi(expr const & e, expr const & s) {
 
 /** \brief Return true iff \c e is a proposition */
 bool type_checker::is_prop(expr const & e) {
-    return whnf(infer_type(e)) == mk_Prop();
+    expr s = whnf(infer_type(e));
+    // The level must be tested for zero up to normalization: `imax 1 0` denotes `Prop` without
+    // being syntactically `zero`. Comparing `s` against `Prop` syntactically instead would let
+    // `infer_proj` extract non-proof data out of a proof, contradicting proof irrelevance.
+    return is_sort(s) && normalizes_to_zero(sort_level(s));
 }
 
 /** \brief Apply normalizer extensions to \c e.
@@ -356,7 +379,7 @@ expr type_checker::whnf_fvar(expr const & e, bool cheap_rec, bool cheap_proj) {
 }
 
 /* Auxiliary method for `reduce_proj` */
-optional<expr> type_checker::reduce_proj_core(expr c, unsigned idx) {
+optional<expr> type_checker::reduce_proj_core(expr c, name const & sname, unsigned idx) {
     if (is_string_lit(c))
         c = whnf(string_lit_to_constructor(c));
     buffer<expr> args;
@@ -366,7 +389,13 @@ optional<expr> type_checker::reduce_proj_core(expr c, unsigned idx) {
     constant_info mk_info = env().get(const_name(mk));
     if (!mk_info.is_constructor())
         return none_expr();
-    unsigned nparams = mk_info.to_constructor_val().get_nparams();
+    constructor_val mk_val = mk_info.to_constructor_val();
+    /* `sname` selects which structure's field layout `idx` refers to, so a constructor of any other
+       inductive must not be projected. Only an ill-typed projection can reach this, since
+       `infer_proj` rejects a `sname` that disagrees with the projected expression's type. */
+    if (mk_val.get_induct() != sname)
+        return none_expr();
+    unsigned nparams = mk_val.get_nparams();
     if (nparams + idx < args.size())
         return some_expr(args[nparams + idx]);
     else
@@ -375,15 +404,15 @@ optional<expr> type_checker::reduce_proj_core(expr c, unsigned idx) {
 
 /* If `cheap == true`, then we don't perform delta-reduction when reducing major premise. */
 optional<expr> type_checker::reduce_proj(expr const & e, bool cheap_rec, bool cheap_proj) {
-    if (!proj_idx(e).is_small())
+    unsigned idx;
+    if (!to_proj_idx(proj_idx(e), idx))
         return none_expr();
-    unsigned idx = proj_idx(e).get_small_value();
     expr c;
     if (cheap_proj)
         c = whnf_core(proj_expr(e), cheap_rec, cheap_proj);
     else
         c = whnf(proj_expr(e));
-    return reduce_proj_core(c, idx);
+    return reduce_proj_core(c, proj_sname(e), idx);
 }
 
 static bool is_let_fvar(local_ctx const & lctx, expr const & e) {
@@ -399,6 +428,7 @@ static bool is_let_fvar(local_ctx const & lctx, expr const & e) {
     If `cheap == true`, then we don't perform delta-reduction when reducing major premise of recursors and projections.
     We also do not cache results. */
 expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
+    scope_rec_depth guard;
     check_system("type checker: whnf", /* do_check_interrupted */ true);
 
     // handle easy cases
@@ -1005,17 +1035,17 @@ Recall that the simpler approach used at `Meta.ExprDefEq` cannot be used in the
 kernel since it does not have access to reducibility annotations.
 The approach used here is more complicated, but it is also more powerful.
 */
-bool type_checker::lazy_delta_proj_reduction(expr & t_n, expr & s_n, nat const & idx) {
+bool type_checker::lazy_delta_proj_reduction(expr & t_n, expr & s_n, name const & sname, nat const & idx) {
     while (true) {
         switch (lazy_delta_reduction_step(t_n, s_n)) {
         case reduction_status::Continue:   break;
         case reduction_status::DefEqual:   return true;
         case reduction_status::DefUnknown:
         case reduction_status::DefDiff:
-            if (idx.is_small()) {
-                unsigned i = idx.get_small_value();
-                if (auto t = reduce_proj_core(t_n, i)) {
-                if (auto s = reduce_proj_core(s_n, i)) {
+            unsigned i;
+            if (to_proj_idx(idx, i)) {
+                if (auto t = reduce_proj_core(t_n, sname, i)) {
+                if (auto s = reduce_proj_core(s_n, sname, i)) {
                     return is_def_eq_core(*t, *s);
                 }}
             }
@@ -1054,6 +1084,7 @@ bool type_checker::is_def_eq_unit_like(expr const & t, expr const & s) {
 }
 
 bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
+    scope_rec_depth guard;
     check_system("is_definitionally_equal", /* do_check_interrupted */ true);
     bool use_hash = true;
     lbool r = quick_is_def_eq(t, s, use_hash);
@@ -1098,10 +1129,10 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     if (is_fvar(t_n) && is_fvar(s_n) && fvar_name(t_n) == fvar_name(s_n))
         return true;
 
-    if (is_proj(t_n) && is_proj(s_n) && proj_idx(t_n) == proj_idx(s_n)) {
+    if (is_proj(t_n) && is_proj(s_n) && proj_sname(t_n) == proj_sname(s_n) && proj_idx(t_n) == proj_idx(s_n)) {
         expr t_c = proj_expr(t_n);
         expr s_c = proj_expr(s_n);
-        if (lazy_delta_proj_reduction(t_c, s_c, proj_idx(t_n)))
+        if (lazy_delta_proj_reduction(t_c, s_c, proj_sname(t_n), proj_idx(t_n)))
             return true;
     }
 
@@ -1170,7 +1201,7 @@ type_checker::type_checker(state & st, local_ctx const & lctx, definition_safety
     m_definition_safety(ds), m_lparams(nullptr) {
 }
 
-type_checker::type_checker(type_checker && src):
+type_checker::type_checker(type_checker && src) noexcept:
     m_st_owner(src.m_st_owner), m_st(src.m_st), m_diag(src.m_diag), m_lctx(std::move(src.m_lctx)),
     m_definition_safety(src.m_definition_safety), m_lparams(src.m_lparams) {
     src.m_st_owner = false;

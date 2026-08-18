@@ -47,7 +47,7 @@ trace: [Compiler.saveBase] size: 7
         let _x.3 := sort u;
         return _x.3
       | _ =>
-        let _x.4 := else.1 _;
+        let _x.4 := else.1 ◾;
         return _x.4
 -/
 #guard_msgs in

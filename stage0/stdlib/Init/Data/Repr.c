@@ -873,7 +873,7 @@ else
 lean_object* v_val_200_; lean_object* v___x_201_; lean_object* v___x_202_; lean_object* v___x_203_; lean_object* v___x_204_; lean_object* v___x_205_; 
 v_val_200_ = lean_ctor_get(v_x_197_, 0);
 lean_inc(v_val_200_);
-lean_dec_ref(v_x_197_);
+lean_dec_ref_known(v_x_197_, 1);
 v___x_201_ = ((lean_object*)(l_Option_repr___redArg___closed__3));
 v___x_202_ = lean_unsigned_to_nat(1024u);
 v___x_203_ = lean_apply_2(v_inst_196_, v_val_200_, v___x_202_);
@@ -940,7 +940,7 @@ lean_object* v_val_235_; lean_object* v___x_236_; lean_object* v___x_237_; lean_
 lean_dec_ref(v_inst_232_);
 v_val_235_ = lean_ctor_get(v_x_233_, 0);
 lean_inc(v_val_235_);
-lean_dec_ref(v_x_233_);
+lean_dec_ref_known(v_x_233_, 1);
 v___x_236_ = ((lean_object*)(l_Sum_repr___redArg___closed__1));
 v___x_237_ = lean_unsigned_to_nat(1024u);
 v___x_238_ = lean_apply_2(v_inst_231_, v_val_235_, v___x_237_);
@@ -956,7 +956,7 @@ lean_object* v_val_241_; lean_object* v___x_242_; lean_object* v___x_243_; lean_
 lean_dec_ref(v_inst_231_);
 v_val_241_ = lean_ctor_get(v_x_233_, 0);
 lean_inc(v_val_241_);
-lean_dec_ref(v_x_233_);
+lean_dec_ref_known(v_x_233_, 1);
 v___x_242_ = ((lean_object*)(l_Sum_repr___redArg___closed__3));
 v___x_243_ = lean_unsigned_to_nat(1024u);
 v___x_244_ = lean_apply_2(v_inst_232_, v_val_241_, v___x_243_);
@@ -3043,7 +3043,7 @@ v_trailing_1019_ = lean_ctor_get(v_x_1008_, 2);
 lean_inc_ref(v_trailing_1019_);
 v_endPos_1020_ = lean_ctor_get(v_x_1008_, 3);
 lean_inc(v_endPos_1020_);
-lean_dec_ref(v_x_1008_);
+lean_dec_ref_known(v_x_1008_, 4);
 v___x_1055_ = lean_unsigned_to_nat(1024u);
 v___x_1056_ = lean_nat_dec_le(v___x_1055_, v_prec_1009_);
 if (v___x_1056_ == 0)
@@ -3137,7 +3137,7 @@ lean_inc(v_pos_1059_);
 v_endPos_1060_ = lean_ctor_get(v_x_1008_, 1);
 lean_inc(v_endPos_1060_);
 v_canonical_1061_ = lean_ctor_get_uint8(v_x_1008_, sizeof(void*)*2);
-lean_dec_ref(v_x_1008_);
+lean_dec_ref_known(v_x_1008_, 2);
 v___x_1086_ = lean_unsigned_to_nat(1024u);
 v___x_1087_ = lean_nat_dec_le(v___x_1086_, v_prec_1009_);
 if (v___x_1087_ == 0)
@@ -3258,11 +3258,13 @@ lean_object* runtime_initialize_Init_Data_Format_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Control_Id(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_UInt_BasicAux(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Char_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Repr(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Format_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -73,7 +73,7 @@ def lowerArg (a : LCNF.Arg .impure) : M Arg := do
 def lowerParam (p : LCNF.Param .impure) : M Param := do
   let x ← bindVar p.fvarId
   let ty := toIRType p.type
-  return { x, borrow := p.borrow, ty }
+  return { x, borrow := p.borrow && !ty.isScalar, ty }
 
 @[inline]
 def lowerCtorInfo (i : LCNF.CtorInfo) : CtorInfo :=
@@ -119,7 +119,7 @@ partial def lowerCode (c : LCNF.Code .impure) : M FnBody := do
   | .inc fvarId n check persistent k _ =>
     let .var var ← getFVarValue fvarId | unreachable!
     return .inc var n check persistent (← lowerCode k)
-  | .dec fvarId n check persistent k _ =>
+  | .dec fvarId n check persistent _ k _ =>
     let .var var ← getFVarValue fvarId | unreachable!
     return .dec var n check persistent (← lowerCode k)
   | .del fvarId k _ =>

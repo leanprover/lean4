@@ -364,6 +364,13 @@ In this setting only definitions tagged as `[reducible]` or type class instances
 syntax (name := withReducibleAndInstances) "with_reducible_and_instances " tacticSeq : tactic
 
 /--
+`withImplicit tacs` executes `tacs` using the `.implicit` transparency setting.
+In this setting only definitions tagged as `[reducible]`, `[instance_reducible]` or
+`[implicit_reducible]` are unfolded.
+-/
+syntax (name := withImplicit) "with_implicit " tacticSeq : tactic
+
+/--
 `with_unfolding_all tacs` executes `tacs` using the `.all` transparency setting.
 In this setting all definitions that are not opaque are unfolded.
 -/
@@ -761,11 +768,27 @@ This is a "finishing" tactic modification of `simp`. It has two forms.
   (which has also been simplified). This construction also tends to be
   more robust under changes to the simp lemma set.
 
+  The final match between the simplified `e` and the simplified goal uses
+  **reducible** transparency, so it does not unfold semireducible definitions.
+  Write `simpa [rules, ⋯] using! e` to perform the match at the ambient
+  (default/semireducible) transparency instead.
+
 * `simpa [rules, ⋯]` will simplify the goal and the type of a
   hypothesis `this` if present in the context, then try to close the goal using
   the `assumption` tactic.
+
+As with `simp`, the `!` modifier after `simpa` enables auto-unfolding of
+definitions in the simp set.
 -/
 syntax (name := simpa) "simpa" "?"? "!"? simpaArgsRest : tactic
+
+/-- The arguments to `simpa ... using! e` — like `simpaArgsRest`, but with a
+mandatory `using!` clause selecting the permissive default-transparency close. -/
+syntax simpaUsingBangArgsRest :=
+  optConfig (discharger)? &" only "? (simpArgs)? " using! " term
+
+@[tactic_alt simpa]
+syntax (name := simpaUsingBang) "simpa" "?"? "!"? simpaUsingBangArgsRest : tactic
 
 @[inherit_doc simpa] macro "simpa!" rest:simpaArgsRest : tactic =>
   `(tactic| simpa ! $rest:simpaArgsRest)
@@ -775,6 +798,18 @@ syntax (name := simpa) "simpa" "?"? "!"? simpaArgsRest : tactic
 
 @[inherit_doc simpa] macro "simpa?!" rest:simpaArgsRest : tactic =>
   `(tactic| simpa ?! $rest:simpaArgsRest)
+
+@[inherit_doc simpa, tactic_alt simpa]
+macro "simpa!" rest:simpaUsingBangArgsRest : tactic =>
+  `(tactic| simpa ! $rest:simpaUsingBangArgsRest)
+
+@[inherit_doc simpa, tactic_alt simpa]
+macro "simpa?" rest:simpaUsingBangArgsRest : tactic =>
+  `(tactic| simpa ? $rest:simpaUsingBangArgsRest)
+
+@[inherit_doc simpa, tactic_alt simpa]
+macro "simpa?!" rest:simpaUsingBangArgsRest : tactic =>
+  `(tactic| simpa ?! $rest:simpaUsingBangArgsRest)
 
 /--
 `delta id1 id2 ...` delta-expands the definitions `id1`, `id2`, ....
@@ -1131,6 +1166,31 @@ scope of the tactic.
 syntax (name := classical) "classical" ppDedent(tacticSeq) : tactic
 
 /--
+Configuration for the `impossible` tactic.
+-/
+structure ImpossibleConfig where
+  /-- If true (default: false), abstract the universe parameters of the surrounding
+  declaration as level metavariables in the goal handed to the inner tactic, so it
+  can specialize them by exhibiting witnesses at specific universes. By default
+  these parameters are kept fixed. -/
+  levels : Bool := false
+
+/--
+`impossible by t` uses the tactic `t` to prove that the current goal is impossible
+to prove.
+
+If the goal is `xs ⊢ P`, the tactic `t` sees the goal `¬(∀ xs, P)`. Any expression metavariables in
+the original goal turn into variables in the context.
+
+Universe parameters of the surrounding declaration are kept fixed (not abstracted); the `+levels`
+option turns them into fresh level metavariables instead. Universe metavariables in the goal are
+rejected.
+
+The original goal is closed as if `sorry` was used.
+-/
+syntax (name := impossible) "impossible" optConfig " by " ppDedent(tacticSeq) : tactic
+
+/--
 The `split` tactic is useful for breaking nested if-then-else and `match` expressions into separate cases.
 For a `match` expression with `n` cases, the `split` tactic generates at most `n` subgoals.
 
@@ -1162,16 +1222,6 @@ It is useful when working on the middle of a complex proofs,
 and less messy than commenting the remainder of the proof.
 -/
 macro "stop" tacticSeq : tactic => `(tactic| repeat sorry)
-
-/--
-The tactic `specialize h a₁ ... aₙ` works on local hypothesis `h`.
-The premises of this hypothesis, either universal quantifications or
-non-dependent implications, are instantiated by concrete terms coming
-from arguments `a₁` ... `aₙ`.
-The tactic adds a new hypothesis with the same name `h := h a₁ ... aₙ`
-and tries to clear the previous one.
--/
-syntax (name := specialize) "specialize " term : tactic
 
 /--
 `unhygienic tacs` runs `tacs` with name hygiene disabled.
@@ -1260,8 +1310,8 @@ macro "nomatch " es:term,+ : tactic =>
   `(tactic| exact nomatch $es:term,*)
 
 /--
-Acts like `have`, but removes a hypothesis with the same name as
-this one if possible. For example, if the state is:
+`replace h := e` is like `have h := e`, but it removes a previous hypothesis
+of the same name as this one if possible. For example, if the state is:
 
 ```lean
 f : α → β
@@ -1286,9 +1336,28 @@ h : β
 ⊢ goal
 ```
 
-This can be used to simulate the `specialize` and `apply at` tactics of Coq.
+The tactic `specialize h a₁ ... aₙ` is a way to write `replace h := h a₁ ... aₙ`,
+automatically inferring which hypothesis should be replaced.
+
+The `replace` tactic can be used to simulate Rocq's `apply at` tactic.
 -/
 syntax (name := replace) "replace" letDecl : tactic
+
+/--
+`specialize h a₁ ... aₙ` is equivalent to `replace h := h a₁ ... aₙ`.
+It specializes the local hypothesis `h` by instantiating
+universal quantifications and implications using the concrete terms `a₁` ... `aₙ`.
+The tactic adds a new hypothesis with the same name and tries to remove
+the original `h` if possible.
+
+Example: given `h : ∀ (n : Nat), p n → q n` and `h' : p 2`,
+then `specialize h 2 h'` replaces `h` with `h : q 2`.
+
+The tactic also supports instantiating particular universal quantifiers
+using named argument syntax. Example: given `h : ∀ (m n : Nat), p m n`,
+then `specialize h (n := 2)` replaces `h` with `h : ∀ (m : Nat), p m 2`.
+-/
+syntax (name := specialize) "specialize " term : tactic
 
 /-- `and_intros` applies `And.intro` until it does not make progress. -/
 syntax "and_intros" : tactic
@@ -1348,7 +1417,7 @@ Options:
   It has two key properties: (1) since it uses the kernel, it ignores transparency and can unfold everything,
   and (2) it reduces the `Decidable` instance only once instead of twice.
 - `decide +native` uses the native code compiler (`#eval`) to evaluate the `Decidable` instance,
-  admitting the result via an axiom. This can be significantly more efficient than using reduction, but it is at the cost of increasing the size
+  admitting the result via an axiom.
   This can be significantly more efficient than using reduction, but it is at the cost of increasing the size
   of the trusted code base.
   Namely, it depends on the correctness of the Lean compiler and all definitions with an `@[implemented_by]` attribute.
@@ -1454,6 +1523,7 @@ can be used to:
 * `splitNatSub`: for each appearance of `((a - b : Nat) : Int)`, split on `a ≤ b` if necessary.
 * `splitNatAbs`: for each appearance of `Int.natAbs a`, split on `0 ≤ a` if necessary.
 * `splitMinMax`: for each occurrence of `min a b`, split on `min a b = a ∨ min a b = b`
+
 Currently, all of these are on by default.
 -/
 syntax (name := omega) "omega" optConfig : tactic
@@ -1802,6 +1872,24 @@ The suggestions are printed in the order of their confidence, from highest to lo
 syntax (name := suggestions) "suggestions" : tactic
 
 /--
+`types [T₁, ..., Tₙ]` restricts the structure and enum inductive analysis of the `bv_decide` family
+of tactics to `T₁, ..., Tₙ`. Every other structure or enum inductive is treated as an opaque
+variable, even if the analysis would usually pick it up. This is useful to keep preprocessing
+tractable on goals that mention many types of which only a few matter for the proof.
+-/
+syntax bvTypes := &" types" " [" ident,* "]"
+
+/--
+This tactic works just like `bv_decide` but skips calling a SAT solver by using a proof that is
+already stored on disk. It is called with the name of an LRAT file in the same directory as the
+current Lean file:
+```
+bv_check "proof.lrat"
+```
+-/
+syntax (name := bvCheck) "bv_check" optConfig (bvTypes)? ppSpace str : tactic
+
+/--
 Close fixed-width `BitVec` and `Bool` goals by obtaining a proof from an external SAT solver and
 verifying it inside Lean. The solvable goals are currently limited to
 - the Lean equivalent of [`QF_BV`](https://smt-lib.org/logics-all.shtml#QF_BV)
@@ -1824,22 +1912,21 @@ In order to avoid calling a SAT solver every time, the proof can be cached with 
 If solving your problem relies inherently on using associativity or commutativity, consider enabling
 the `bv.ac_nf` option.
 
+`bv_decide types [T₁, ..., Tₙ]` restricts the analysis of structures and enum inductives to
+`T₁, ..., Tₙ`, treating all other ones as opaque variables.
+
 Note: `bv_decide` trusts the correctness of the code generator and adds a axioms asserting its result.
 
 Note: include `import Std.Tactic.BVDecide`
 -/
-macro (name := bvDecideMacro) (priority:=low) "bv_decide" optConfig : tactic =>
-  Macro.throwError "to use `bv_decide`, please include `import Std.Tactic.BVDecide`"
-
+syntax (name := bvDecide) "bv_decide" optConfig (bvTypes)? : tactic
 
 /--
 Suggest a proof script for a `bv_decide` tactic call. Useful for caching LRAT proofs.
 
 Note: include `import Std.Tactic.BVDecide`
 -/
-macro (name := bvTraceMacro) (priority:=low) "bv_decide?" optConfig : tactic =>
-  Macro.throwError "to use `bv_decide?`, please include `import Std.Tactic.BVDecide`"
-
+syntax (name := bvTrace) "bv_decide?" optConfig (bvTypes)? : tactic
 
 /--
 Run the normalization procedure of `bv_decide` only. Sometimes this is enough to solve basic
@@ -1847,9 +1934,7 @@ Run the normalization procedure of `bv_decide` only. Sometimes this is enough to
 
 Note: include `import Std.Tactic.BVDecide`
 -/
-macro (name := bvNormalizeMacro) (priority:=low) "bv_normalize" optConfig : tactic =>
-  Macro.throwError "to use `bv_normalize`, please include `import Std.Tactic.BVDecide`"
-
+syntax (name := bvNormalize) "bv_normalize" optConfig (bvTypes)? : tactic
 
 /--
 `massumption` is like `assumption`, but operating on a stateful `Std.Do.SPred` goal.
@@ -2238,8 +2323,8 @@ options. Of particular note is `stepLimit = some 42`, which is useful for bisect
 Often, `mvcgen` will be used like this:
 ```
 mvcgen [...]
-case inv1 => by exact I1
-case inv2 => by exact I2
+case inv1 => exact I1
+case inv2 => exact I2
 all_goals (mleave; try grind)
 ```
 There is special syntax for this:
@@ -2294,6 +2379,97 @@ macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
   Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
 
 /--
+`vcgen` will break down a Hoare triple proof goal like `⦃P⦄ prog ⦃Q⦄` into verification conditions,
+provided that all functions used in `prog` have specifications registered with `@[spec]`.
+
+### Program types
+
+`vcgen` works on any program type `Prog` that carries a `Std.WP.WP` interpretation. A monad
+is one such program type. An inductive type of commands is another, once its weakest precondition is
+defined in terms of an operational semantics.
+
+### Verification conditions and specifications
+
+A verification condition is an entailment `pre ⊑ post` in the assertion lattice of the goal. The
+original program `prog` no longer occurs in it. The assertion lattice is any `CompleteLattice`, and
+the entailment is its order, so a verification condition is an ordinary Lean goal that `grind` can
+attack.
+
+A `@[spec]` theorem declares a specification in one of two forms. A Hoare triple
+`foo_spec : ⦃P⦄ foo a b c ⦃Q⦄` states it directly. An equation `baz_eq : baz a b c = ...` states it
+by rewriting.
+
+### Features
+
+When used like `vcgen [foo_spec, bar_def, baz_eq]`, `vcgen` will additionally
+
+* add a Hoare triple specification `foo_spec : ⦃P⦄ foo ... ⦃Q⦄` to the `spec` set for a function
+  `foo` occurring in `prog`,
+* unfold a definition `def bar_def ... := ...` in `prog`,
+* rewrite with an equational specification `baz_eq : baz ... = ...` in `prog`.
+
+### Config options
+
+See `Lean.Elab.Tactic.Do.VCGen.Config` for the options. Of particular note are `stepLimit = some 42`,
+which is useful for bisecting bugs and tracing execution, and `errorOnMissingSpec := false`, which
+leaves a goal whose head has no matching spec as a verification condition for you to discharge.
+
+### Extended syntax
+
+Often, `vcgen` will be used like this:
+```
+vcgen [...] invariants
+· I1
+· I2
+with try finish
+```
+The `with` clause takes one step of `grind` mode, such as `finish`. That step shares the E-graph that
+`vcgen` builds, so it sees the hypotheses of every verification condition. A sequence of steps needs
+explicit grouping, as in `with (s₁; s₂)`.
+
+Invariants also take a labelled form, which is useful for naming inaccessibles:
+```
+vcgen [...] invariants
+| inv1 _ acc _ => I1 acc
+| _ => I2
+```
+
+`vcgen` has two further clauses.
+
+```
+vcgen until f a _ c
+```
+stops VC generation at the first program that matches the pattern, and leaves that program in the
+goal. Holes are written `_`, as in `conv in`.
+
+```
+vcgen frames
+| f a _ c => F
+```
+supplies a frame for a call. Take `mkFreshNat : StateM (Nat × Nat) Nat`, which returns `s.1` and
+increments it. Its specification mentions `s.1` alone:
+```
+@[spec] theorem mkFreshNat_spec :
+    ⦃fun s => ⌜s.1 = n⌝⦄ mkFreshNat ⦃fun r s => ⌜r = n ∧ s.1 = n + 1⌝⦄
+```
+A caller that knows `s.2 = 7` loses that fact at the call, because the postcondition says nothing
+about `s.2`. Writing
+```
+vcgen frames
+| mkFreshNat => fun s => ⌜s.2 = 7⌝
+```
+carries `s.2 = 7` past the call, and `vcgen` proves that `mkFreshNat` preserves it. The named binders
+are in scope in the frame, bound to the matched arguments.
+
+### Invariant suggestions
+
+`vcgen [...] invariants?` suggests invariants for the loops in `prog`. The suggestions are currently
+of limited use. A future release either implements them properly or removes the keyword.
+-/
+macro (name := vcgenMacro) (priority:=low) "vcgen" : tactic =>
+  Macro.throwError "to use `vcgen`, please include `import Std.Tactic.Do`"
+
+/--
 `cbv` performs simplification that closely mimics call-by-value evaluation.
 It reduces terms by unfolding definitions using their defining equations and
 applying matcher equations. The unfolding is propositional, so `cbv` also works
@@ -2307,7 +2483,9 @@ after reduction to close the goal.
 - `cbv` — reduce the goal target
 - `cbv at h` — reduce hypothesis `h`
 - `cbv at h |-` — reduce hypothesis `h` and the goal target
-- `cbv at *` — reduce all non-dependent propositional hypotheses and the goal target
+- `cbv at *` — reduce the goal target and all non-dependent propositional hypotheses
+
+If a hypothesis reduces to `False`, the goal is closed immediately.
 
 `cbv` is not a finishing tactic in general: it may leave a new (simpler) goal.
 
@@ -2386,7 +2564,7 @@ If there are several with the same priority, it is uses the "most recent one". E
   cases d <;> rfl
 ```
 -/
-syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
+syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? unicode(" ←", " <-")? (ppSpace prio)? : attr
 
 /--
 Theorems tagged with the `wf_preprocess` attribute are used during the processing of functions defined
@@ -2400,7 +2578,7 @@ that diverges as compiled to be accepted without an explicit `partial` keyword, 
 remove irrelevant subterms or change the evaluation order by hiding terms under binders. Therefore
 avoid tagging theorems with `[wf_preprocess]` unless they preserve also operational behavior.
 -/
-syntax (name := wf_preprocess) "wf_preprocess" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
+syntax (name := wf_preprocess) "wf_preprocess" (Tactic.simpPre <|> Tactic.simpPost)? unicode(" ←", " <-")? (ppSpace prio)? : attr
 
 /--
 Theorems tagged with the `method_specs_simp` attribute are used by `@[method_specs]` to further
@@ -2412,7 +2590,7 @@ The `method_specs` theorems are created on demand (using the realizable constant
 this simp set should behave the same in all modules. Do not add theorems to it except in the module
 defining the thing you are rewriting.
 -/
-syntax (name := method_specs_simp) "method_specs_simp" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
+syntax (name := method_specs_simp) "method_specs_simp" (Tactic.simpPre <|> Tactic.simpPost)? unicode(" ←", " <-")? (ppSpace prio)? : attr
 
 /--
 Register a theorem as a rewrite rule for `cbv` evaluation of a given definition.
@@ -2422,7 +2600,7 @@ You can instruct `cbv` to rewrite the lemma from right-to-left:
 @[cbv_eval ←] theorem my_thm : rhs = lhs := ...
 ```
 -/
-syntax (name := cbv_eval) "cbv_eval" unicode("← ", "<- ")? (ppSpace ident)? : attr
+syntax (name := cbv_eval) "cbv_eval" unicode(" ←", " <-")? (ppSpace ident)? : attr
 
 /-- The possible `norm_cast` kinds: `elim`, `move`, or `squash`. -/
 syntax normCastLabel := &"elim" <|> &"move" <|> &"squash"

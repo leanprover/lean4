@@ -187,16 +187,16 @@ theorem Pos.find?_bool_eq_some_iff {p : Char → Bool} {s : String} {pos pos' : 
     Slice.Pos.find?_bool_eq_some_iff, endPos_toSlice]
   refine ⟨?_, ?_⟩
   · rintro ⟨pos', ⟨h₁, ⟨h₂, hp⟩, h₃⟩, rfl⟩
-    refine ⟨by simpa [Pos.ofToSlice_le_iff] using h₁,
+    refine ⟨by simpa [Pos.ofToSlice_le_iff] using! h₁,
       ⟨by simpa [← Pos.ofToSlice_inj] using h₂, by simpa [Pos.get_ofToSlice] using hp⟩, ?_⟩
     intro pos'' h₄ h₅
-    simpa using h₃ pos''.toSlice (by simpa [Pos.toSlice_le] using h₄) (by simpa using h₅)
+    simpa using h₃ pos''.toSlice (by simpa [Pos.toSlice_le] using h₄) (by simpa using! h₅)
   · rintro ⟨h₁, ⟨h₂, hp⟩, h₃⟩
     refine ⟨pos'.toSlice, ⟨by simpa [Pos.toSlice_le] using h₁,
       ⟨by simpa [← Pos.toSlice_inj] using h₂, by simpa using hp⟩, fun p hp₁ hp₂ => ?_⟩,
       by simp⟩
     simpa using h₃ (Pos.ofToSlice p)
-      (by simpa [Pos.ofToSlice_le_iff] using hp₁) (by simpa using hp₂)
+      (by simpa [Pos.ofToSlice_le_iff] using! hp₁) (by simpa using! hp₂)
 
 theorem Pos.find?_bool_eq_some_iff_splits {p : Char → Bool} {s : String} {pos : s.Pos}
     {t u : String} (hs : pos.Splits t u) {pos' : s.Pos} :
@@ -221,8 +221,8 @@ theorem Pos.find?_bool_eq_none_iff {p : Char → Bool} {s : String} {pos : s.Pos
     simpa [Pos.get_ofToSlice] using
       h pos'.toSlice (by simpa [Pos.toSlice_le] using h₁) (by simpa [← Pos.toSlice_inj] using h₂)
   · intro h pos' h₁ h₂
-    simpa using h (Pos.ofToSlice pos')
-      (by simpa [Pos.ofToSlice_le_iff] using h₁) (by simpa [← Pos.ofToSlice_inj] using h₂)
+    simpa using! h (Pos.ofToSlice pos')
+      (by simpa [Pos.ofToSlice_le_iff] using! h₁) (by simpa [← Pos.ofToSlice_inj] using h₂)
 
 theorem Pos.find?_bool_eq_none_iff_of_splits {p : Char → Bool} {s : String} {pos : s.Pos}
     {t u : String} (hs : pos.Splits t u) :

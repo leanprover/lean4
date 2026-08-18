@@ -33,6 +33,7 @@ if necessary so that the middle (pivot) element is at index `hi`.
 We then iterate from `k = lo` to `k = hi`, with a pointer `i` starting at `lo`, and
 swapping each element which is less than the pivot to position `i`, and then incrementing `i`.
 -/
+@[inline]
 def qpartition {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat) (w : lo ≤ hi := by omega)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) : {m : Nat // lo ≤ m ∧ m ≤ hi} × Vector α n :=
   let mid := (lo + hi) / 2
@@ -44,7 +45,7 @@ def qpartition {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat) (w
   -- elements in `[i, k)` are greater than or equal to `pivot`,
   -- elements in `[k, hi)` are unexamined,
   -- while `as[hi]` is (by definition) the pivot.
-  let rec loop (as : Vector α n) (i k : Nat)
+  let rec @[specialize] loop (as : Vector α n) (i k : Nat)
       (ilo : lo ≤ i := by omega) (ik : i ≤ k := by omega) (w : k ≤ hi := by omega) :=
     if h : k < hi then
       if lt as[k] pivot then

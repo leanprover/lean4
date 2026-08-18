@@ -91,14 +91,15 @@ The parameters are:
 -/
 def addSuggestion (ref : Syntax) (s : Suggestion) (origSpan? : Option Syntax := none)
     (header : String := "Try this:") (codeActionPrefix? : Option String := none)
-    (diffGranularity : Hint.DiffGranularity := .none) : CoreM Unit := do
+    (diffGranularity : Hint.DiffGranularity := .none)
+    (footer : MessageData := MessageData.nil) : CoreM Unit := do
   let hintSuggestion := {
     span? := origSpan?
     diffGranularity
     toTryThisSuggestion := s
   }
   let suggs ← Hint.mkSuggestionsMessage #[hintSuggestion] ref codeActionPrefix? (forceList := false)
-  logInfoAt ref m!"{header}{suggs}"
+  logInfoAt ref m!"{header}{suggs}{footer}"
 
 set_option linter.unusedVariables false in
 /-- Add a list of "try this" suggestions as a single "try these" suggestion. This has two effects:
@@ -134,7 +135,8 @@ def addSuggestions (ref : Syntax) (suggestions : Array Suggestion)
     (origSpan? : Option Syntax := none) (header : String := "Try these:")
     (style? : Option SuggestionStyle := none)
     (codeActionPrefix? : Option String := none)
-    (diffGranularity : Hint.DiffGranularity := .none) : CoreM Unit := do
+    (diffGranularity : Hint.DiffGranularity := .none)
+    (footer : MessageData := MessageData.nil) : CoreM Unit := do
   if suggestions.isEmpty then throwErrorAt ref "No suggestions available"
   let hintSuggestions := suggestions.map fun s => {
     span? := origSpan?
@@ -142,7 +144,7 @@ def addSuggestions (ref : Syntax) (suggestions : Array Suggestion)
     toTryThisSuggestion := s
   }
   let suggs ← Hint.mkSuggestionsMessage hintSuggestions ref codeActionPrefix? (forceList := true)
-  logInfoAt ref m!"{header}{suggs}"
+  logInfoAt ref m!"{header}{suggs}{footer}"
 
 /-! # Tactic-specific widget hooks -/
 /--

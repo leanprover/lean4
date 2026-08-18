@@ -6,18 +6,18 @@ by {
 }
 
 theorem tst0' {p q : Prop } (h : p ∨ q) : q ∨ p := by
-induction h
-focus
-  apply Or.inr
-  assumption
-focus
-  apply Or.inl
-  assumption
+  induction h
+  focus
+    apply Or.inr
+    assumption
+  focus
+    apply Or.inl
+    assumption
 
 theorem tst1 {p q : Prop } (h : p ∨ q) : q ∨ p := by
-induction h with
-| inr h2 => exact Or.inl h2
-| inl h1 => exact Or.inr h1
+  induction h with
+  | inr h2 => exact Or.inl h2
+  | inl h1 => exact Or.inr h1
 
 theorem tst6 {p q : Prop } (h : p ∨ q) : q ∨ p :=
 by {

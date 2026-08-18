@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Data.ExtTreeMap.Lemmas
 public import Std.Data.ExtTreeSet.Basic
+public import Std.Internal.ForIn.Basic
 
 @[expose] public section
 
@@ -157,11 +158,11 @@ theorem erase_empty [TransCmp cmp] {k : α} : (∅ : ExtTreeSet α cmp).erase k 
 @[simp, grind =]
 theorem erase_eq_empty_iff [TransCmp cmp] {k : α} :
     t.erase k = ∅ ↔ t = ∅ ∨ (t.size = 1 ∧ k ∈ t) := by
-  simpa only [ext_iff] using ExtTreeMap.erase_eq_empty_iff
+  simpa only [ext_iff] using! ExtTreeMap.erase_eq_empty_iff
 
 theorem eq_empty_iff_erase_eq_empty_and_not_mem [TransCmp cmp] (k : α) :
     t = ∅ ↔ t.erase k = ∅ ∧ ¬k ∈ t := by
-  simpa only [ext_iff] using ExtTreeMap.eq_empty_iff_erase_eq_empty_and_not_mem k
+  simpa only [ext_iff] using! ExtTreeMap.eq_empty_iff_erase_eq_empty_and_not_mem k
 
 theorem ne_empty_of_erase_ne_empty [TransCmp cmp] {k : α} (h : t.erase k ≠ ∅) : t ≠ ∅ := by
   simp_all
@@ -879,6 +880,14 @@ theorem forIn_eq_forIn_toList [TransCmp cmp] [Monad m] [LawfulMonad m] {f : α �
     ForIn.forIn t init f = ForIn.forIn t.toList init f :=
   ExtTreeMap.forIn_eq_forIn_keys
 
+@[simp, grind =]
+theorem forIn_toList [TransCmp cmp] (c : ExtTreeSet α cmp) : ForIn.toList c = c.toList :=
+  Std.Internal.ForIn.toList_eq_of_forIn_eq fun _ _ => forIn_eq_forIn_toList
+
+instance [TransCmp cmp] [Monad m] [LawfulMonad m] :
+    Std.Internal.PureForIn m (ExtTreeSet α cmp) α where
+  forIn_eq _ _ _ := by rw [forIn_toList]; exact forIn_eq_forIn_toList
+
 end monadic
 
 @[simp, grind =]
@@ -1015,7 +1024,7 @@ theorem isEmpty_insertMany_list [TransCmp cmp] {l : List α} :
 @[simp]
 theorem insertMany_list_eq_empty_iff [TransCmp cmp] {l : List α} :
     t.insertMany l = ∅ ↔ t = ∅ ∧ l = [] := by
-  simpa only [ext_iff] using ExtTreeMap.insertManyIfNewUnit_list_eq_empty_iff
+  simpa only [ext_iff] using! ExtTreeMap.insertManyIfNewUnit_list_eq_empty_iff
 
 theorem insertMany_list_eq_foldl [TransCmp cmp] {l : List α} :
     t.insertMany l = l.foldl (init := t) fun acc a => acc.insert a := by

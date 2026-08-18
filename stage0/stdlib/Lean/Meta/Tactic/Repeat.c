@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Repeat
-// Imports: public import Lean.Meta.Basic import Init.Data.Nat.Linear import Init.Omega
+// Imports: public import Lean.Meta.Basic import Init.Data.Nat.Internal.Linear import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -246,7 +246,7 @@ v_head_91_ = lean_ctor_get(v_a_76_, 0);
 lean_inc(v_head_91_);
 v_tail_92_ = lean_ctor_get(v_a_76_, 1);
 lean_inc(v_tail_92_);
-lean_dec_ref(v_a_76_);
+lean_dec_ref_known(v_a_76_, 2);
 v_a_75_ = v_head_91_;
 v_a_76_ = v_tail_92_;
 goto _start;
@@ -263,7 +263,7 @@ v_head_97_ = lean_ctor_get(v_a_75_, 0);
 lean_inc_n(v_head_97_, 2);
 v_tail_98_ = lean_ctor_get(v_a_75_, 1);
 lean_inc(v_tail_98_);
-lean_dec_ref(v_a_75_);
+lean_dec_ref_known(v_a_75_, 2);
 v___x_99_ = lean_box(v_a_74_);
 lean_inc_ref(v_inst_71_);
 lean_inc_ref(v_inst_68_);
@@ -304,7 +304,7 @@ lean_object* v_val_118_; lean_object* v___x_119_; lean_object* v___x_120_;
 lean_dec(v_head_104_);
 v_val_118_ = lean_ctor_get(v_____do__lift_115_, 0);
 lean_inc(v_val_118_);
-lean_dec_ref(v_____do__lift_115_);
+lean_dec_ref_known(v_____do__lift_115_, 1);
 v___x_119_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_119_, 0, v_tail_112_);
 lean_ctor_set(v___x_119_, 1, v_a_113_);
@@ -361,7 +361,7 @@ v_head_172_ = lean_ctor_get(v_x_165_, 0);
 lean_inc(v_head_172_);
 v_tail_173_ = lean_ctor_get(v_x_165_, 1);
 lean_inc(v_tail_173_);
-lean_dec_ref(v_x_165_);
+lean_dec_ref_known(v_x_165_, 2);
 v___x_174_ = lean_box(v_x_163_);
 v___x_175_ = lean_apply_5(v_h__2_168_, v_x_162_, v___x_174_, v_head_172_, v_tail_173_, v_x_166_);
 return v___x_175_;
@@ -376,7 +376,7 @@ v_head_176_ = lean_ctor_get(v_x_164_, 0);
 lean_inc(v_head_176_);
 v_tail_177_ = lean_ctor_get(v_x_164_, 1);
 lean_inc(v_tail_177_);
-lean_dec_ref(v_x_164_);
+lean_dec_ref_known(v_x_164_, 2);
 v___x_178_ = lean_box(v_x_163_);
 v___x_179_ = lean_apply_6(v_h__3_169_, v_x_162_, v___x_178_, v_head_176_, v_tail_177_, v_x_165_, v_x_166_);
 return v___x_179_;
@@ -414,7 +414,7 @@ v_head_201_ = lean_ctor_get(v_x_194_, 0);
 lean_inc(v_head_201_);
 v_tail_202_ = lean_ctor_get(v_x_194_, 1);
 lean_inc(v_tail_202_);
-lean_dec_ref(v_x_194_);
+lean_dec_ref_known(v_x_194_, 2);
 v___x_203_ = lean_box(v_x_192_);
 v___x_204_ = lean_apply_5(v_h__2_197_, v_x_191_, v___x_203_, v_head_201_, v_tail_202_, v_x_195_);
 return v___x_204_;
@@ -429,7 +429,7 @@ v_head_205_ = lean_ctor_get(v_x_193_, 0);
 lean_inc(v_head_205_);
 v_tail_206_ = lean_ctor_get(v_x_193_, 1);
 lean_inc(v_tail_206_);
-lean_dec_ref(v_x_193_);
+lean_dec_ref_known(v_x_193_, 2);
 v___x_207_ = lean_box(v_x_192_);
 v___x_208_ = lean_apply_6(v_h__3_198_, v_x_191_, v___x_207_, v_head_205_, v_tail_206_, v_x_194_, v_x_195_);
 return v___x_208_;
@@ -546,7 +546,7 @@ lean_object* v_val_264_; lean_object* v___x_265_;
 lean_dec(v_h__2_261_);
 v_val_264_ = lean_ctor_get(v_____do__lift_259_, 0);
 lean_inc(v_val_264_);
-lean_dec_ref(v_____do__lift_259_);
+lean_dec_ref_known(v_____do__lift_259_, 1);
 v___x_265_ = lean_apply_1(v_h__1_260_, v_val_264_);
 return v___x_265_;
 }
@@ -569,7 +569,7 @@ lean_object* v_val_272_; lean_object* v___x_273_;
 lean_dec(v_h__2_269_);
 v_val_272_ = lean_ctor_get(v_____do__lift_267_, 0);
 lean_inc(v_val_272_);
-lean_dec_ref(v_____do__lift_267_);
+lean_dec_ref_known(v_____do__lift_267_, 1);
 v___x_273_ = lean_apply_1(v_h__1_268_, v_val_272_);
 return v___x_273_;
 }
@@ -865,17 +865,19 @@ return v___x_444_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Basic(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Repeat(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Omega(builtin);
@@ -891,7 +893,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Repeat(uint8_t builtin) {
@@ -901,7 +903,7 @@ _G_initialized = true;
 res = initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);

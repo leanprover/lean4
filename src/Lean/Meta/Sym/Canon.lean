@@ -9,6 +9,7 @@ public import Lean.Meta.Sym.SymM
 import Lean.Meta.Sym.ExprPtr
 import Lean.Meta.SynthInstance
 import Lean.Meta.Sym.SynthInstance
+import Lean.Meta.Sym.Arith.EvalNum
 import Lean.Meta.IntInstTesters
 import Lean.Meta.NatInstTesters
 import Lean.Meta.Sym.Eta
@@ -39,13 +40,16 @@ when, for example, a term had a forward dependency. That is, the term is not dir
 there is a type that depends on it.
 
 - **Eta**: `fun x => f x` → `f`
+- **Beta**: `(fun x => f x) a` → `f a`
 - **Projection**: `⟨a, b⟩.1` → `a` (structure projections, not class projections)
 - **Match/ite/cond**: reduced when discriminant is a constructor or literal
 - **Nat arithmetic**: ground evaluation (`2 + 1` → `3`) and offset normalization
   (`n.succ + 1` → `n + 2`)
 
-**Note**: Eta is applied only if the lambda is occurring inside of a type. For lambdas occurring
-in non type positions, we want to leverage the support in `grind` for lambda-expressions.
+**Note**: Eta and beta are applied only inside of types. They ensure that definitionally equal
+types such as `(fun X => Fin (X.size + 1)) (Vector.singleton 1)` and `Fin 2` become structurally
+identical after canonicalization. For lambdas occurring in non type positions, we want to
+leverage the support in `grind` for lambda-expressions.
 
 ## Instance canonicalization
 
@@ -206,6 +210,12 @@ def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM Should
   else
     return .visit
 
+def mkOffset (e : Expr) (offset : Nat) : Expr :=
+  if offset == 0 then
+    e
+  else
+    mkNatAdd e (mkNatLit offset)
+
 /--
 Reduce a projection function application (e.g., `@Sigma.fst _ _ ⟨a, b⟩` → `a`).
 Class projections are not reduced — they are support elements handled by instance synthesis.
@@ -295,6 +305,15 @@ where
     the same instances.
     -/
     let type ← inferType e
+    if !(← read).insideType && (← isProp type) then
+      /-
+      `e` is a nested proof lacking the `Grind.nestedProof` wrapper (wrapped ones are handled
+      by `canonInstProp`). Preprocessing wraps every closed nested proof, so an unwrapped one
+      can only occur in a binder body that `markNestedSubsingletons` skipped. Resynthesizing
+      it here could produce a closed proof lacking the wrapper, and congruence closure would
+      then treat it as distinct from wrapped occurrences of the same instance. See issue #13655.
+      -/
+      return e
     let type' ← canonInsideType' type
     canonInstCore e type' report
 
@@ -450,10 +469,10 @@ where
 
   postReduce (e : Expr) : CanonM Expr := do
     if isNatArithApp e then
-      if let some e ← evalNat e |>.run then
+      if let some e ← Sym.Arith.evalNat? e |>.run then
         return mkNatLit e
-      else if let some (e, k) ← isOffset? e |>.run then
-        mkOffset e k
+      else if let some (e, k) ← Sym.Arith.isOffset? e |>.run then
+        return mkOffset e k
       else
         return e
     else
@@ -487,6 +506,11 @@ where
     -- Remark: We currently don't normalize dependent-if-then-else occurring in types.
     | _ =>
       let f := e.getAppFn
+      if f.isLambda && (← read).insideType then
+        -- Beta-reduce redexes inside types so that definitionally equal types are
+        -- structurally identical after canonicalization, e.g.
+        -- `(fun X => Fin (X.size + 1)) (Vector.singleton 1)` and `Fin 2`.
+        return (← canon e.headBeta)
       let .const declName _ := f | canonAppAndPost e
       if (← isMatcher declName) then
         canonMatch e

@@ -110,6 +110,9 @@ public abbrev pkg (self : Module) : Package :=
 @[inline] public def ileanFile (self : Module) : FilePath :=
   self.leanLibPath "ilean"
 
+@[inline] public def irSigFile (self : Module) : FilePath :=
+  self.leanLibPath "ir.sig"
+
 @[inline] public def irFile (self : Module) : FilePath :=
   self.leanLibPath "ir"
 
@@ -172,6 +175,12 @@ public def dynlibSuffix := "-1"
 
 @[inline] public def allowImportAll (self : Module) : Bool :=
   self.lib.allowImportAll
+
+@[inline] public def requiresModuleSystem (self : Module) : Bool :=
+  self.lib.requiresModuleSystem
+
+@[inline] public def allowNonModules (self : Module) : Bool :=
+  self.lib.allowNonModules
 
 @[inline] public def dynlibs (self : Module) : TargetArray Dynlib :=
   self.lib.dynlibs

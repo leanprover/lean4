@@ -63,6 +63,14 @@ def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMa
       | throwError "Unknown attribute `[{attrName}]`"
     if let .ok impl := getAttributeImpl (← getEnv) attrName then
       if regularInitAttr.getParam? (← getEnv) impl.ref |>.isSome then  -- skip `builtin_initialize` attributes
+        -- Reject attribute uses where the implementation's module has been loaded for IR only as
+        -- this would make it `inServer`-dependent and confused shake as well (#13599).
+        if let some idx := (← getEnv).getModuleIdxFor? impl.ref then
+          let env ← getEnv
+          if env.header.modules[idx]?.any (!·.hasData) then
+            let modName := env.header.modules[idx]!.module
+            throwError m!"Cannot use attribute `[{attrName}]`: module `{modName}` is loaded for IR \
+              only (reached as a private `meta` dependency). Add an import of `{modName}`."
         recordExtraModUseFromDecl (isMeta := true) impl.ref
     /- The `AttrM` does not have sufficient information for expanding macros in `args`.
       So, we expand them before here before we invoke the attributer handlers implemented using `AttrM`. -/

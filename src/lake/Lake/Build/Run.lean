@@ -50,7 +50,9 @@ structure MonitorContext where
   showTime : Bool
   /-- How often to poll jobs (in milliseconds). -/
   updateFrequency : Nat
-  /-- Cancellation token to set on the first required target failure (`--fail-fast`). -/
+  /-- Whether to set `cancelTk?` on the first required target failure (`--fail-fast`). -/
+  failFast : Bool := false
+  /-- The build's cancellation token, if any. -/
   cancelTk? : Option IO.CancelToken := none
 
 @[inline, instance_reducible] def MonitorContext.logger (ctx : MonitorContext) : MonadLog BaseIO :=
@@ -189,9 +191,11 @@ partial def loop
   (new unfinished : Array OpaqueJob)
 : MonitorM PUnit := do
   let (running, unfinished) ← scanJobs new unfinished
-  if let some tk := (← read).cancelTk? then
-    unless (← get).failures.isEmpty do
-      tk.set
+  let ctx ← read
+  if ctx.failFast then
+    if let some tk := ctx.cancelTk? then
+      unless (← get).failures.isEmpty do
+        tk.set
   if h : 0 < unfinished.size then
     renderProgress running unfinished h
     sleep
@@ -240,6 +244,7 @@ def mkMonitorContext
   return {
     jobs, out, failLv, outLv, minAction, showOptional
     useAnsi, showProgress, showTime, updateFrequency, cancelTk?
+    failFast := cfg.failFast
   }
 
 def monitorJobs'

@@ -8,11 +8,14 @@ module
 prelude
 public import Lake.Check.Axioms
 public import Lake.Check.Compare
+public import Lake.Config.InstallPath
+public import Lake.Util.Exit
 public import Lean.Data.Json.FromToJson
 import Lean.Environment
 import Lean.Replay
 import Init.Data.ToString.Macro
 import Init.System.IO
+import Init.System.Platform
 
 /-!
 # Judging Lean code against the kernel, and against a challenge
@@ -37,8 +40,11 @@ public structure Context where
   legalAxioms : Array Lean.Name
   leanPrefix : System.FilePath
   gitLocation : System.FilePath
+  /-- `LEAN_PATH` for the exporter, so it finds the project's oleans inside the sandbox. -/
+  leanPath : String
   whichLandrun : String
-  whichLean4Export : String
+  whichLake : System.FilePath
+  whichLean4Export : System.FilePath
   externalKernels : (Std.TreeMap String (Array String))
 
 public abbrev M := ReaderT Context IO
@@ -79,22 +85,24 @@ def getLeanPrefix : M System.FilePath := do return (← read).leanPrefix
 @[inline]
 def getGitLocation : M System.FilePath := do return (← read).gitLocation
 
-def queryGitLocation : IO System.FilePath := do
-  let out ← IO.Process.run {
-    cmd := "which",
-    args := #["git"],
-    stdout := .piped,
-  }
-  return out.trimAscii.toString
+/-- Resolves `exe` to an absolute path via `PATH`, or `none` if it is not there. -/
+def whichExe (exe : String) : IO (Option System.FilePath) := do
+  let out ←
+    try IO.Process.output { cmd := "which", args := #[exe] }
+    catch _ => return none
+  if out.exitCode != 0 then
+    return none
+  let path := out.stdout.trimAscii.toString
+  return if path.isEmpty then none else some (path : System.FilePath)
 
-def queryLeanPrefix (projectDir : System.FilePath) : IO System.FilePath := do
-  let out ← IO.Process.run {
-    cmd := "lean",
-    args := #["--print-prefix"],
-    stdout := .piped,
-    cwd := projectDir
-  }
-  return out.trimAscii.toString
+def missingLandrunError (cmd exe : String) : String :=
+s!"`lake {cmd}` needs `{exe}` to sandbox the code it checks, and it was not found.
+
+  Install it from https://github.com/Zouuup/landrun (build from `main`)
+  and put it on PATH, or set COMPARATOR_LANDRUN to its full path.
+
+  There is no unsandboxed mode: the code being checked is untrusted, and it
+  is built and exported inside the sandbox."
 
 def buildLandrunArgs (spawnArgs : LandrunArgs) : Array String :=
   let args := #["--best-effort", "--ro", "/", "--rw", "/dev", "-ldd", "-add-exec"]
@@ -140,14 +148,15 @@ def safeLakeBuild (target : Lean.Name) : M Unit := do
   if !(← System.FilePath.pathExists dotLakeDir) then
     IO.FS.createDir dotLakeDir
 
+  let whichLake := (← read).whichLake
   runSandBoxed {
-    cmd := "lake",
+    cmd := whichLake.toString,
     args := #["build", target.toString],
     envPass := #["PATH", "HOME", "LEAN_ABORT_ON_PANIC"]
     envOverride := #[("LEAN_ABORT_ON_PANIC", some "1")]
     readablePaths := #[projectDir]
     writablePaths := #[dotLakeDir]
-    executablePaths := #[leanPrefix, gitLocation]
+    executablePaths := #[leanPrefix, whichLake, gitLocation]
   }
 
 def safeExport (module : Lean.Name) (decls : Array Lean.Name) : M String := do
@@ -158,14 +167,15 @@ def safeExport (module : Lean.Name) (decls : Array Lean.Name) : M String := do
   let leanPrefix ← getLeanPrefix
   let projectDir ← getProjectDir
   let dotLakeDir := projectDir / ".lake"
+  let whichLean4Export := (← read).whichLean4Export
   runSandBoxedWithStdout {
-    cmd := (← read).whichLean4Export
+    cmd := whichLean4Export.toString
     args := args,
     envPass := #["PATH", "HOME", "LEAN_PATH", "LEAN_ABORT_ON_PANIC"]
-    envOverride := #[("LEAN_ABORT_ON_PANIC", some "1")]
+    envOverride := #[("LEAN_ABORT_ON_PANIC", some "1"), ("LEAN_PATH", some (← read).leanPath)]
     readablePaths := #[projectDir, dotLakeDir]
     writablePaths := #[]
-    executablePaths := #[leanPrefix]
+    executablePaths := #[leanPrefix, whichLean4Export]
   }
 
 def runExternalKernel (kernelName : String) (kernelCommand : Array String)
@@ -338,41 +348,105 @@ public structure Config where
   external_kernels? : Option (Std.TreeMap String (Array String))
   deriving Lean.FromJson, Lean.ToJson, Repr
 
-public def M.run (x : M α) (cfg : Config) : IO α := do
-  let cwd ← IO.Process.getCurrentDir
-  let leanPrefix ← queryLeanPrefix cwd
-  let gitLocation ← queryGitLocation
-  let whichLean4Export := (← IO.getEnv "COMPARATOR_LEAN4EXPORT").getD "lean4export"
+/-- Reports a failure to even start, which is distinct from a judgment. -/
+def cannotRun (msg : String) : IO ExitCode := do
+  IO.eprintln s!"error: {msg}"
+  return 2
+
+/--
+Resolves the external tools the commands need and builds the context they share, or reports why
+that is not possible.
+-/
+def mkContext (cmd : String) (lean : LeanInstall) (lake : LakeInstall)
+    (projectDir : System.FilePath) (leanPath : String) : IO (Except ExitCode Context) := do
+  if !System.Platform.isLinux then
+    return .error (← cannotRun
+      s!"`lake {cmd}` sandboxes the code it checks with `landrun`, which needs Linux Landlock. \
+      There is no unsandboxed mode, so the command is unavailable on this platform.")
+
   let whichLandrun := (← IO.getEnv "COMPARATOR_LANDRUN").getD "landrun"
+  let some landrunPath ← whichExe whichLandrun
+    | return .error (← cannotRun (missingLandrunError cmd whichLandrun))
+  -- Always the bundled exporter: the export format has to match the compiler that produced the
+  -- oleans, so letting this be pointed elsewhere would reintroduce the toolchain-pinning problem.
+  let whichLean4Export := lean.binDir / "leanexport" |>.addExtension System.FilePath.exeExtension
+  let some gitLocation ← whichExe "git"
+    | return .error (← cannotRun s!"`lake {cmd}` needs `git` on PATH to build inside the sandbox")
+
+  return .ok {
+    projectDir := ← IO.FS.realPath projectDir
+    challengeModule := .anonymous
+    solutionModule := .anonymous
+    theoremNames := #[]
+    definitionNames := #[]
+    legalAxioms := #[]
+    leanPrefix := lean.sysroot
+    gitLocation := gitLocation
+    leanPath
+    whichLandrun := landrunPath.toString
+    whichLake := lake.lake
+    whichLean4Export
+    externalKernels := {}
+  }
+
+/-- Resolves the external kernels a configuration asks for. -/
+def resolveExternalKernels (cfg : Config) : IO (Except ExitCode (Std.TreeMap String (Array String))) := do
   let mut externalKernels := cfg.external_kernels?.getD {}
-  let defaultNanoda := "nanoda_bin"
-  let nanodaOverride? ← IO.getEnv "COMPARATOR_NANODA"
-
   if cfg.enable_nanoda?.getD false && !externalKernels.isEmpty then
-    throw <| .userError "Cannot use enable_nanoda and an external kernel list at the same time, register nanoda in the list instead."
-
+    return .error (← cannotRun "cannot use `enable_nanoda` and `external_kernels` at the same \
+      time; register nanoda in the list instead")
   for (kernelName, kernelCommand) in externalKernels do
     if kernelCommand.isEmpty then
-      throw <| .userError s!"{kernelName} has an empty command"
-
+      return .error (← cannotRun s!"`{kernelName}` has an empty command")
   if cfg.enable_nanoda?.getD false then
-    let whichNanoda := nanodaOverride?.getD defaultNanoda
-    externalKernels := externalKernels.insert "nanoda" #[whichNanoda]
-  else if let some nanodaOverride := nanodaOverride? then
-    externalKernels := externalKernels.modify "nanoda" fun cmd => cmd.set! 0 nanodaOverride
+    externalKernels := externalKernels.insert "nanoda" #["nanoda_bin"]
+  for (kernelName, kernelCommand) in externalKernels do
+    if (← whichExe kernelCommand[0]!).isNone then
+      return .error (← cannotRun s!"`{kernelName}` kernel `{kernelCommand[0]!}` was not found")
+  return .ok externalKernels
 
-  ReaderT.run x {
-    projectDir := cwd
-    challengeModule := cfg.challenge_module.toName,
-    solutionModule := cfg.solution_module.toName,
-    theoremNames := cfg.theorem_names.map String.toName,
-    definitionNames := cfg.definition_names.getD #[] |>.map String.toName,
-    legalAxioms := cfg.permitted_axioms.map String.toName,
-    leanPrefix := leanPrefix,
-    gitLocation := gitLocation,
-    whichLean4Export := whichLean4Export,
-    whichLandrun := whichLandrun,
-    externalKernels := externalKernels
-  }
+/--
+Runs `lake challenge`: builds and exports the challenge and the solution in a sandbox, then judges
+the solution against the challenge.
+-/
+public def runChallenge (configFile? : Option System.FilePath) (lean : LeanInstall)
+    (lake : LakeInstall) (projectDir : System.FilePath) (leanPath : String) : IO ExitCode := do
+  let base ←
+    match ← mkContext "challenge" lean lake projectDir leanPath with
+    | .error rc => return rc
+    | .ok ctx => pure ctx
+
+  let some configFile := configFile?
+    | return ← cannotRun "no challenge configuration given; pass `--config <file>`"
+  let contents ←
+    try IO.FS.readFile configFile
+    catch e => return ← cannotRun s!"could not read the configuration: {e}"
+  let cfg ←
+    match Lean.Json.parse contents >>= Lean.fromJson? (α := Config) with
+    | .error e => return ← cannotRun s!"malformed configuration in '{configFile}': {e}"
+    | .ok cfg => pure cfg
+
+  let theoremNames := cfg.theorem_names.map String.toName
+  let definitionNames := cfg.definition_names.getD #[] |>.map String.toName
+  if theoremNames.isEmpty && definitionNames.isEmpty then
+    return ← cannotRun "nothing to check: the configuration names no theorems or definitions"
+  let externalKernels ←
+    match ← resolveExternalKernels cfg with
+    | .error rc => return rc
+    | .ok ks => pure ks
+
+  try
+    ReaderT.run compareIt { base with
+      challengeModule := cfg.challenge_module.toName,
+      solutionModule := cfg.solution_module.toName,
+      theoremNames,
+      definitionNames,
+      legalAxioms := cfg.permitted_axioms.map String.toName,
+      externalKernels
+    }
+    return 0
+  catch e =>
+    IO.eprintln s!"error: {e}"
+    return 1
 
 end Lake.Check

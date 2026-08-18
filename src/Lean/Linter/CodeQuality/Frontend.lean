@@ -33,7 +33,8 @@ structure PackageCheckContext where
   topLevelModule : Name
 
 structure PackageCheck where
-  run : PackageCheckContext → MetaM (Array Entry)
+  ofFn ::
+    run : PackageCheckContext → MetaM (Array Entry)
 
 structure NamedPackageCheck extends PackageCheck where
   declName : Name

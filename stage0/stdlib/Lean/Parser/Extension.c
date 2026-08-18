@@ -6689,8 +6689,8 @@ goto v___jp_1619_;
 }
 else
 {
-lean_dec_ref_known(v_declName_1642_, 2);
 lean_dec(v_pre_1643_);
+lean_dec_ref_known(v_declName_1642_, 2);
 lean_dec_ref(v_compileParserDescr_1616_);
 goto v___jp_1619_;
 }
@@ -13695,8 +13695,8 @@ goto v___jp_4465_;
 }
 else
 {
-lean_dec(v_head_4469_);
 lean_dec_ref_known(v_tail_4468_, 2);
+lean_dec(v_head_4469_);
 lean_dec_ref_known(v_head_4467_, 1);
 lean_dec(v_ref_4463_);
 goto v___jp_4465_;
@@ -13704,16 +13704,16 @@ goto v___jp_4465_;
 }
 else
 {
-lean_dec_ref_known(v_head_4467_, 1);
 lean_dec(v_tail_4468_);
+lean_dec_ref_known(v_head_4467_, 1);
 lean_dec(v_ref_4463_);
 goto v___jp_4465_;
 }
 }
 else
 {
-lean_dec(v_head_4467_);
 lean_dec_ref_known(v_args_4464_, 2);
+lean_dec(v_head_4467_);
 lean_dec(v_ref_4463_);
 goto v___jp_4465_;
 }

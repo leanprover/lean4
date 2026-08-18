@@ -4123,17 +4123,17 @@ v___jp_1406_:
 lean_object* v___x_1415_; 
 lean_inc_ref(v_f_1396_);
 lean_inc_ref(v_p_1395_);
-v___x_1415_ = l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_visit_go___at___00Lean_ForEachExprWhere_visit___at___00Lean_MVarId_getNondepPropHyps_spec__1_spec__3(v_p_1395_, v_f_1396_, v_stopWhenVisited_1397_, v_d_1412_, v___y_1414_, v___y_1407_, v___y_1410_, v___y_1409_, v___y_1411_, v___y_1408_);
+v___x_1415_ = l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_visit_go___at___00Lean_ForEachExprWhere_visit___at___00Lean_MVarId_getNondepPropHyps_spec__1_spec__3(v_p_1395_, v_f_1396_, v_stopWhenVisited_1397_, v_d_1412_, v___y_1414_, v___y_1408_, v___y_1407_, v___y_1411_, v___y_1410_, v___y_1409_);
 if (lean_obj_tag(v___x_1415_) == 0)
 {
 lean_dec_ref_known(v___x_1415_, 1);
 v_e_1398_ = v_b_1413_;
 v_a_1399_ = v___y_1414_;
-v___y_1400_ = v___y_1407_;
-v___y_1401_ = v___y_1410_;
-v___y_1402_ = v___y_1409_;
-v___y_1403_ = v___y_1411_;
-v___y_1404_ = v___y_1408_;
+v___y_1400_ = v___y_1408_;
+v___y_1401_ = v___y_1407_;
+v___y_1402_ = v___y_1411_;
+v___y_1403_ = v___y_1410_;
+v___y_1404_ = v___y_1409_;
 goto _start;
 }
 else
@@ -4156,11 +4156,11 @@ lean_inc_ref(v_binderType_1424_);
 v_body_1425_ = lean_ctor_get(v_e_1398_, 2);
 lean_inc_ref(v_body_1425_);
 lean_dec_ref_known(v_e_1398_, 3);
-v___y_1407_ = v___y_1419_;
-v___y_1408_ = v___y_1423_;
-v___y_1409_ = v___y_1421_;
-v___y_1410_ = v___y_1420_;
-v___y_1411_ = v___y_1422_;
+v___y_1407_ = v___y_1420_;
+v___y_1408_ = v___y_1419_;
+v___y_1409_ = v___y_1423_;
+v___y_1410_ = v___y_1422_;
+v___y_1411_ = v___y_1421_;
 v_d_1412_ = v_binderType_1424_;
 v_b_1413_ = v_body_1425_;
 v___y_1414_ = v___y_1418_;
@@ -4174,11 +4174,11 @@ lean_inc_ref(v_binderType_1426_);
 v_body_1427_ = lean_ctor_get(v_e_1398_, 2);
 lean_inc_ref(v_body_1427_);
 lean_dec_ref_known(v_e_1398_, 3);
-v___y_1407_ = v___y_1419_;
-v___y_1408_ = v___y_1423_;
-v___y_1409_ = v___y_1421_;
-v___y_1410_ = v___y_1420_;
-v___y_1411_ = v___y_1422_;
+v___y_1407_ = v___y_1420_;
+v___y_1408_ = v___y_1419_;
+v___y_1409_ = v___y_1423_;
+v___y_1410_ = v___y_1422_;
+v___y_1411_ = v___y_1421_;
 v_d_1412_ = v_binderType_1426_;
 v_b_1413_ = v_body_1427_;
 v___y_1414_ = v___y_1418_;

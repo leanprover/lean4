@@ -5566,8 +5566,8 @@ return v___x_1812_;
 else
 {
 lean_object* v___x_1813_; 
-lean_dec_ref_known(v_e_1769_, 2);
 lean_dec(v_n_1808_);
+lean_dec_ref_known(v_e_1769_, 2);
 v___x_1813_ = lean_box(1);
 return v___x_1813_;
 }
@@ -5623,8 +5623,8 @@ return v___x_1827_;
 else
 {
 lean_object* v___x_1828_; 
-lean_dec_ref(v_ty_1823_);
 lean_dec_ref_known(v_e_1769_, 2);
+lean_dec_ref(v_ty_1823_);
 v___x_1828_ = lean_box(1);
 return v___x_1828_;
 }

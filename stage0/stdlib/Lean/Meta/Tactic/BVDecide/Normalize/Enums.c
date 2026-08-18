@@ -14149,8 +14149,8 @@ return v___x_4887_;
 else
 {
 lean_object* v___x_4890_; lean_object* v___x_4891_; 
-lean_dec_ref_known(v_arg_4801_, 2);
 lean_dec(v_declName_4802_);
+lean_dec_ref_known(v_arg_4801_, 2);
 v___x_4890_ = ((lean_object*)(l___private_Lean_Meta_Tactic_BVDecide_Normalize_Enums_0__Lean_Meta_Tactic_BVDecide_Normalize_enumToBitVecCtor___closed__0));
 v___x_4891_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_4891_, 0, v___x_4890_);
@@ -14159,15 +14159,15 @@ return v___x_4891_;
 }
 else
 {
-lean_dec_ref_known(v_fn_4800_, 2);
 lean_dec_ref(v_arg_4801_);
+lean_dec_ref_known(v_fn_4800_, 2);
 goto v___jp_4797_;
 }
 }
 else
 {
-lean_dec_ref(v_fn_4800_);
 lean_dec_ref_known(v_e_4786_, 2);
+lean_dec_ref(v_fn_4800_);
 goto v___jp_4797_;
 }
 }
@@ -16142,24 +16142,24 @@ v___jp_5662_:
 lean_object* v___x_5678_; 
 lean_inc_ref(v_f_5645_);
 lean_inc_ref(v_p_5644_);
-v___x_5678_ = l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_visit_go___at___00Lean_ForEachExprWhere_visit___at___00__private_Lean_Meta_Tactic_BVDecide_Normalize_Enums_0__Lean_Meta_Tactic_BVDecide_Normalize_enumsPass_postprocess_spec__9_spec__14(v_p_5644_, v_f_5645_, v_stopWhenVisited_5646_, v_d_5675_, v___y_5677_, v___y_5670_, v___y_5672_, v___y_5666_, v___y_5668_, v___y_5667_, v___y_5669_, v___y_5663_, v___y_5664_, v___y_5671_, v___y_5673_, v___y_5674_, v___y_5665_);
+v___x_5678_ = l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_visit_go___at___00Lean_ForEachExprWhere_visit___at___00__private_Lean_Meta_Tactic_BVDecide_Normalize_Enums_0__Lean_Meta_Tactic_BVDecide_Normalize_enumsPass_postprocess_spec__9_spec__14(v_p_5644_, v_f_5645_, v_stopWhenVisited_5646_, v_d_5675_, v___y_5677_, v___y_5667_, v___y_5668_, v___y_5663_, v___y_5665_, v___y_5673_, v___y_5666_, v___y_5670_, v___y_5669_, v___y_5672_, v___y_5664_, v___y_5671_, v___y_5674_);
 if (lean_obj_tag(v___x_5678_) == 0)
 {
 lean_dec_ref_known(v___x_5678_, 1);
 v_e_5647_ = v_b_5676_;
 v_a_5648_ = v___y_5677_;
-v___y_5649_ = v___y_5670_;
-v___y_5650_ = v___y_5672_;
-v___y_5651_ = v___y_5666_;
-v___y_5652_ = v___y_5668_;
-v___y_5653_ = v___y_5667_;
-v___y_5654_ = v___y_5669_;
-v___y_5655_ = v___y_5663_;
-v___y_5656_ = v___y_5664_;
-v___y_5657_ = v___y_5671_;
-v___y_5658_ = v___y_5673_;
-v___y_5659_ = v___y_5674_;
-v___y_5660_ = v___y_5665_;
+v___y_5649_ = v___y_5667_;
+v___y_5650_ = v___y_5668_;
+v___y_5651_ = v___y_5663_;
+v___y_5652_ = v___y_5665_;
+v___y_5653_ = v___y_5673_;
+v___y_5654_ = v___y_5666_;
+v___y_5655_ = v___y_5670_;
+v___y_5656_ = v___y_5669_;
+v___y_5657_ = v___y_5672_;
+v___y_5658_ = v___y_5664_;
+v___y_5659_ = v___y_5671_;
+v___y_5660_ = v___y_5674_;
 goto _start;
 }
 else
@@ -16182,18 +16182,18 @@ lean_inc_ref(v_binderType_5694_);
 v_body_5695_ = lean_ctor_get(v_e_5647_, 2);
 lean_inc_ref(v_body_5695_);
 lean_dec_ref_known(v_e_5647_, 3);
-v___y_5663_ = v___y_5688_;
-v___y_5664_ = v___y_5689_;
-v___y_5665_ = v___y_5693_;
-v___y_5666_ = v___y_5684_;
-v___y_5667_ = v___y_5686_;
-v___y_5668_ = v___y_5685_;
-v___y_5669_ = v___y_5687_;
-v___y_5670_ = v___y_5682_;
-v___y_5671_ = v___y_5690_;
-v___y_5672_ = v___y_5683_;
-v___y_5673_ = v___y_5691_;
-v___y_5674_ = v___y_5692_;
+v___y_5663_ = v___y_5684_;
+v___y_5664_ = v___y_5691_;
+v___y_5665_ = v___y_5685_;
+v___y_5666_ = v___y_5687_;
+v___y_5667_ = v___y_5682_;
+v___y_5668_ = v___y_5683_;
+v___y_5669_ = v___y_5689_;
+v___y_5670_ = v___y_5688_;
+v___y_5671_ = v___y_5692_;
+v___y_5672_ = v___y_5690_;
+v___y_5673_ = v___y_5686_;
+v___y_5674_ = v___y_5693_;
 v_d_5675_ = v_binderType_5694_;
 v_b_5676_ = v_body_5695_;
 v___y_5677_ = v___y_5681_;
@@ -16207,18 +16207,18 @@ lean_inc_ref(v_binderType_5696_);
 v_body_5697_ = lean_ctor_get(v_e_5647_, 2);
 lean_inc_ref(v_body_5697_);
 lean_dec_ref_known(v_e_5647_, 3);
-v___y_5663_ = v___y_5688_;
-v___y_5664_ = v___y_5689_;
-v___y_5665_ = v___y_5693_;
-v___y_5666_ = v___y_5684_;
-v___y_5667_ = v___y_5686_;
-v___y_5668_ = v___y_5685_;
-v___y_5669_ = v___y_5687_;
-v___y_5670_ = v___y_5682_;
-v___y_5671_ = v___y_5690_;
-v___y_5672_ = v___y_5683_;
-v___y_5673_ = v___y_5691_;
-v___y_5674_ = v___y_5692_;
+v___y_5663_ = v___y_5684_;
+v___y_5664_ = v___y_5691_;
+v___y_5665_ = v___y_5685_;
+v___y_5666_ = v___y_5687_;
+v___y_5667_ = v___y_5682_;
+v___y_5668_ = v___y_5683_;
+v___y_5669_ = v___y_5689_;
+v___y_5670_ = v___y_5688_;
+v___y_5671_ = v___y_5692_;
+v___y_5672_ = v___y_5690_;
+v___y_5673_ = v___y_5686_;
+v___y_5674_ = v___y_5693_;
 v_d_5675_ = v_binderType_5696_;
 v_b_5676_ = v_body_5697_;
 v___y_5677_ = v___y_5681_;

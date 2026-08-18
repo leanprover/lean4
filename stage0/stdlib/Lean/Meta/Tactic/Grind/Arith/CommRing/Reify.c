@@ -15843,15 +15843,15 @@ v_a_4788_ = lean_ctor_get(v___x_4787_, 0);
 lean_inc(v_a_4788_);
 lean_dec_ref_known(v___x_4787_, 1);
 v___x_4789_ = l_Lean_Meta_Sym_shareCommon(v_a_4788_, v___y_4778_, v___y_4779_, v___y_4780_, v___y_4781_, v___y_4782_, v___y_4783_);
-v___y_4734_ = v___y_4777_;
-v___y_4735_ = v___y_4776_;
+v___y_4734_ = v___y_4776_;
+v___y_4735_ = v___y_4777_;
 v___y_4736_ = v___x_4789_;
 goto v___jp_4733_;
 }
 else
 {
-v___y_4734_ = v___y_4777_;
-v___y_4735_ = v___y_4776_;
+v___y_4734_ = v___y_4776_;
+v___y_4735_ = v___y_4777_;
 v___y_4736_ = v___x_4787_;
 goto v___jp_4733_;
 }
@@ -15910,7 +15910,7 @@ lean_inc_n(v_a_4737_, 2);
 lean_dec_ref_known(v___y_4736_, 1);
 v___f_4738_ = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_CommRing_getIntCastFn___at___00Lean_Meta_Grind_Arith_CommRing_isIntCastInst___at___00Lean_Meta_Grind_Arith_CommRing_reifyCore_x3f___at___00Lean_Meta_Grind_Arith_CommRing_ncreify_x3f_spec__0_spec__7_spec__13___lam__0), 2, 1);
 lean_closure_set(v___f_4738_, 0, v_a_4737_);
-v___x_4739_ = l_Lean_Meta_Grind_Arith_CommRing_NonCommRingM_modifyRing___redArg(v___f_4738_, v___y_4735_, v___y_4734_);
+v___x_4739_ = l_Lean_Meta_Grind_Arith_CommRing_NonCommRingM_modifyRing___redArg(v___f_4738_, v___y_4734_, v___y_4735_);
 if (lean_obj_tag(v___x_4739_) == 0)
 {
 lean_object* v___x_4741_; uint8_t v_isShared_4742_; uint8_t v_isSharedCheck_4746_; 

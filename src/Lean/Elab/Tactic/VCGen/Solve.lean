@@ -91,11 +91,12 @@ private def stateMatcherAltNames? (f : Expr) : VCGenM (Option (Array Name)) := d
 
 /-- The program name a hint's binder argument carries: the binder's own name, or the single
 binder name of the matcher alternative when the binder destructures its argument, as the
-invariant closure of a `repeat` or `while` loop does. `whnf` exposes the state lambda of an
-invariant applied to its cursor; the reduced closure is read only for its name and discarded. -/
+invariant closure of a `repeat` or `while` loop does. `reduceHead` exposes the state lambda of
+an invariant applied to its cursor; the reduced closure is read only for its name and discarded. -/
 private def hintName? (binder : Expr) : VCGenM (Option Name) := do
-  let binder ← instantiateMVarsIfMVarAppS binder
-  let binder ← liftMetaM <| whnf binder.cleanupAnnotations
+  let mut binder := binder.cleanupAnnotations
+  unless binder.isLambda do
+    binder ← reduceHead (← instantiateMVarsIfMVarAppS binder).cleanupAnnotations
   if let .lam n _ _ _ := binder then
     if isProgramName n then return some n
   if let some names ← stateMatcherAltNames? binder then

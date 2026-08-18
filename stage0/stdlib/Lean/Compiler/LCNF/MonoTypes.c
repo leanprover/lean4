@@ -551,12 +551,12 @@ return v___x_162_;
 LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Compiler_LCNF_MonoTypes_0__Lean_Compiler_LCNF_toMonoType_visitApp_spec__0(lean_object* v_msg_164_, lean_object* v___y_165_, lean_object* v___y_166_){
 _start:
 {
-lean_object* v___f_168_; lean_object* v___x_3494__overap_169_; lean_object* v___x_170_; 
+lean_object* v___f_168_; lean_object* v___x_3397__overap_169_; lean_object* v___x_170_; 
 v___f_168_ = ((lean_object*)(l_panic___at___00__private_Lean_Compiler_LCNF_MonoTypes_0__Lean_Compiler_LCNF_toMonoType_visitApp_spec__0___closed__0));
-v___x_3494__overap_169_ = lean_panic_fn_borrowed(v___f_168_, v_msg_164_);
+v___x_3397__overap_169_ = lean_panic_fn_borrowed(v___f_168_, v_msg_164_);
 lean_inc(v___y_166_);
 lean_inc_ref(v___y_165_);
-v___x_170_ = lean_apply_3(v___x_3494__overap_169_, v___y_165_, v___y_166_, lean_box(0));
+v___x_170_ = lean_apply_3(v___x_3397__overap_169_, v___y_165_, v___y_166_, lean_box(0));
 return v___x_170_;
 }
 }
@@ -1607,13 +1607,13 @@ return v_res_435_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Compiler_LCNF_MonoTypes_0__Lean_Compiler_LCNF_toMonoType_visitApp_spec__1___boxed(lean_object* v___x_436_, lean_object* v_as_437_, lean_object* v_sz_438_, lean_object* v_i_439_, lean_object* v_b_440_, lean_object* v___y_441_, lean_object* v___y_442_, lean_object* v___y_443_){
 _start:
 {
-uint8_t v___x_3962__boxed_444_; size_t v_sz_boxed_445_; size_t v_i_boxed_446_; lean_object* v_res_447_; 
-v___x_3962__boxed_444_ = lean_unbox(v___x_436_);
+uint8_t v___x_3865__boxed_444_; size_t v_sz_boxed_445_; size_t v_i_boxed_446_; lean_object* v_res_447_; 
+v___x_3865__boxed_444_ = lean_unbox(v___x_436_);
 v_sz_boxed_445_ = lean_unbox_usize(v_sz_438_);
 lean_dec(v_sz_438_);
 v_i_boxed_446_ = lean_unbox_usize(v_i_439_);
 lean_dec(v_i_439_);
-v_res_447_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Compiler_LCNF_MonoTypes_0__Lean_Compiler_LCNF_toMonoType_visitApp_spec__1(v___x_3962__boxed_444_, v_as_437_, v_sz_boxed_445_, v_i_boxed_446_, v_b_440_, v___y_441_, v___y_442_);
+v_res_447_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Compiler_LCNF_MonoTypes_0__Lean_Compiler_LCNF_toMonoType_visitApp_spec__1(v___x_3865__boxed_444_, v_as_437_, v_sz_boxed_445_, v_i_boxed_446_, v_b_440_, v___y_441_, v___y_442_);
 lean_dec(v___y_442_);
 lean_dec_ref(v___y_441_);
 lean_dec_ref(v_as_437_);

@@ -3088,9 +3088,9 @@ return v___x_951_;
 LEAN_EXPORT lean_object* l___private_Lake_Build_Key_0__Lake_BuildKey_quickCmp_match__7_splitter___redArg___boxed(lean_object* v_x_952_, lean_object* v_h__1_953_, lean_object* v_h__2_954_){
 _start:
 {
-uint8_t v_x_17__boxed_955_; lean_object* v_res_956_; 
-v_x_17__boxed_955_ = lean_unbox(v_x_952_);
-v_res_956_ = l___private_Lake_Build_Key_0__Lake_BuildKey_quickCmp_match__7_splitter___redArg(v_x_17__boxed_955_, v_h__1_953_, v_h__2_954_);
+uint8_t v_x_13__boxed_955_; lean_object* v_res_956_; 
+v_x_13__boxed_955_ = lean_unbox(v_x_952_);
+v_res_956_ = l___private_Lake_Build_Key_0__Lake_BuildKey_quickCmp_match__7_splitter___redArg(v_x_13__boxed_955_, v_h__1_953_, v_h__2_954_);
 return v_res_956_;
 }
 }
@@ -3118,9 +3118,9 @@ return v___x_964_;
 LEAN_EXPORT lean_object* l___private_Lake_Build_Key_0__Lake_BuildKey_quickCmp_match__7_splitter___boxed(lean_object* v_motive_965_, lean_object* v_x_966_, lean_object* v_h__1_967_, lean_object* v_h__2_968_){
 _start:
 {
-uint8_t v_x_28__boxed_969_; lean_object* v_res_970_; 
-v_x_28__boxed_969_ = lean_unbox(v_x_966_);
-v_res_970_ = l___private_Lake_Build_Key_0__Lake_BuildKey_quickCmp_match__7_splitter(v_motive_965_, v_x_28__boxed_969_, v_h__1_967_, v_h__2_968_);
+uint8_t v_x_24__boxed_969_; lean_object* v_res_970_; 
+v_x_24__boxed_969_ = lean_unbox(v_x_966_);
+v_res_970_ = l___private_Lake_Build_Key_0__Lake_BuildKey_quickCmp_match__7_splitter(v_motive_965_, v_x_24__boxed_969_, v_h__1_967_, v_h__2_968_);
 return v_res_970_;
 }
 }

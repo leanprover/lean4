@@ -1869,9 +1869,9 @@ return v___x_580_;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Build_0__Lake_resolveModuleTarget___lam__0___boxed(lean_object* v___y_581_, lean_object* v___y_582_){
 _start:
 {
-uint8_t v___y_370__boxed_583_; lean_object* v_res_584_; 
-v___y_370__boxed_583_ = lean_unbox(v___y_581_);
-v_res_584_ = l___private_Lake_CLI_Build_0__Lake_resolveModuleTarget___lam__0(v___y_370__boxed_583_, v___y_582_);
+uint8_t v___y_366__boxed_583_; lean_object* v_res_584_; 
+v___y_366__boxed_583_ = lean_unbox(v___y_581_);
+v_res_584_ = l___private_Lake_CLI_Build_0__Lake_resolveModuleTarget___lam__0(v___y_366__boxed_583_, v___y_582_);
 lean_dec_ref(v___y_582_);
 return v_res_584_;
 }

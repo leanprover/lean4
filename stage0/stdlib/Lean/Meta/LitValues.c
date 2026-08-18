@@ -6464,8 +6464,8 @@ return v___x_1447_;
 else
 {
 lean_object* v___x_1449_; 
-lean_dec_ref_known(v___x_1447_, 1);
 lean_dec(v_a_1448_);
+lean_dec_ref_known(v___x_1447_, 1);
 v___x_1449_ = l_Lean_Meta_instantiateMVarsIfMVarApp___redArg(v_e_1441_, v_a_1443_);
 if (lean_obj_tag(v___x_1449_) == 0)
 {

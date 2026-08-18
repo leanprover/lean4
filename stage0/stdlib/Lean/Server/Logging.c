@@ -1336,13 +1336,13 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Server_Logging_0__Lean_Server_Logging_isMsgAllowed_spec__2___boxed(lean_object* v_val_302_, lean_object* v___x_303_, lean_object* v_as_304_, lean_object* v_i_305_, lean_object* v_stop_306_){
 _start:
 {
-uint8_t v___x_1504__boxed_307_; size_t v_i_boxed_308_; size_t v_stop_boxed_309_; uint8_t v_res_310_; lean_object* v_r_311_; 
-v___x_1504__boxed_307_ = lean_unbox(v___x_303_);
+uint8_t v___x_1496__boxed_307_; size_t v_i_boxed_308_; size_t v_stop_boxed_309_; uint8_t v_res_310_; lean_object* v_r_311_; 
+v___x_1496__boxed_307_ = lean_unbox(v___x_303_);
 v_i_boxed_308_ = lean_unbox_usize(v_i_305_);
 lean_dec(v_i_305_);
 v_stop_boxed_309_ = lean_unbox_usize(v_stop_306_);
 lean_dec(v_stop_306_);
-v_res_310_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Server_Logging_0__Lean_Server_Logging_isMsgAllowed_spec__2(v_val_302_, v___x_1504__boxed_307_, v_as_304_, v_i_boxed_308_, v_stop_boxed_309_);
+v_res_310_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Server_Logging_0__Lean_Server_Logging_isMsgAllowed_spec__2(v_val_302_, v___x_1496__boxed_307_, v_as_304_, v_i_boxed_308_, v_stop_boxed_309_);
 lean_dec_ref(v_as_304_);
 lean_dec_ref(v_val_302_);
 v_r_311_ = lean_box(v_res_310_);

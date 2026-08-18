@@ -4266,9 +4266,9 @@ return v___x_1130_;
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_getMaxArgsAux___boxed(lean_object* v_normalize_1131_, lean_object* v_x_1132_, lean_object* v_x_1133_, lean_object* v_x_1134_){
 _start:
 {
-uint8_t v_x_36__boxed_1135_; lean_object* v_res_1136_; 
-v_x_36__boxed_1135_ = lean_unbox(v_x_1133_);
-v_res_1136_ = l___private_Lean_Level_0__Lean_Level_getMaxArgsAux(v_normalize_1131_, v_x_1132_, v_x_36__boxed_1135_, v_x_1134_);
+uint8_t v_x_31__boxed_1135_; lean_object* v_res_1136_; 
+v_x_31__boxed_1135_ = lean_unbox(v_x_1133_);
+v_res_1136_ = l___private_Lean_Level_0__Lean_Level_getMaxArgsAux(v_normalize_1131_, v_x_1132_, v_x_31__boxed_1135_, v_x_1134_);
 return v_res_1136_;
 }
 }
@@ -4877,9 +4877,9 @@ return v___x_1352_;
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_getMaxArgsAux___at___00Lean_Level_normalize_spec__0___boxed(lean_object* v_x_1353_, lean_object* v_x_1354_, lean_object* v_x_1355_){
 _start:
 {
-uint8_t v_x_676__boxed_1356_; lean_object* v_res_1357_; 
-v_x_676__boxed_1356_ = lean_unbox(v_x_1354_);
-v_res_1357_ = l___private_Lean_Level_0__Lean_Level_getMaxArgsAux___at___00Lean_Level_normalize_spec__0(v_x_1353_, v_x_676__boxed_1356_, v_x_1355_);
+uint8_t v_x_672__boxed_1356_; lean_object* v_res_1357_; 
+v_x_672__boxed_1356_ = lean_unbox(v_x_1354_);
+v_res_1357_ = l___private_Lean_Level_0__Lean_Level_getMaxArgsAux___at___00Lean_Level_normalize_spec__0(v_x_1353_, v_x_672__boxed_1356_, v_x_1355_);
 return v_res_1357_;
 }
 }

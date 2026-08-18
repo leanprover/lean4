@@ -513,7 +513,7 @@ end IteratorTests
 namespace ConfigSyntaxTests
 
 /-! Tests for the ported `(config := …)` syntax. Implemented options change behavior
-silently; `leave` and `jp` are accepted by the parser but warn that they are
+silently; `leave`, `trivial` and `jp` are accepted by the parser but warn that they are
 currently ignored. -/
 
 def trivial_test (n : Nat) : Id Nat := pure n
@@ -522,10 +522,10 @@ def trivial_test (n : Nat) : Id Nat := pure n
 example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by
   vcgen (config := {}) [trivial_test]
 
--- `trivial := false` skips `repeatAndRfl`, leaving a residual entailment.
+/-- warning: vcgen: the `trivial` config option is currently ignored. -/
+#guard_msgs in
 example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by
   vcgen (trivial := false) [trivial_test]
-  trivial
 
 -- `elimLets := false` skips the let-elimination pre-pass (now honored by `vcgen`).
 example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by

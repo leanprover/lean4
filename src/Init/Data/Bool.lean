@@ -682,50 +682,31 @@ but may be used locally.
 
 /-! ### Proof by reflection support  -/
 
-@[expose] protected noncomputable def Internal.Bool.and' (a b : Bool) : Bool :=
-  Bool.rec false b a
-
-@[expose] protected noncomputable def Internal.Bool.or' (a b : Bool) : Bool :=
-  Bool.rec b true a
-
-@[expose] protected noncomputable def Internal.Bool.not' (a : Bool) : Bool :=
-  Bool.rec true false a
-
 /--
 This used to be a variant of `Bool.and` with better kernel behavior, but `Bool.and` was redefined
 to have this kernel-efficient definition.
 -/
-@[deprecated Bool.and (since := "2026-08-18")] def Bool.and' (a b : Bool) : Bool :=
+@[deprecated Bool.and (since := "2026-08-18")]
+abbrev Bool.and' (a b : Bool) : Bool :=
   Bool.and a b
 
 /--
 This used to be a variant of `Bool.or` with better kernel behavior, but `Bool.or` was redefined
 to have this kernel-efficient definition.
 -/
-@[deprecated Bool.or (since := "2026-08-18")] def Bool.or' (a b : Bool) : Bool :=
+@[deprecated Bool.or (since := "2026-08-18")]
+abbrev Bool.or' (a b : Bool) : Bool :=
   Bool.or a b
 
 /--
 This used to be a variant of `Bool.not` with better kernel behavior, but `Bool.not` was redefined
 to have this kernel-efficient definition.
 -/
-@[deprecated Bool.not (since := "2026-08-18")] def Bool.not' (a : Bool) : Bool :=
+@[deprecated Bool.not (since := "2026-08-18")]
+abbrev Bool.not' (a : Bool) : Bool :=
   Bool.not a
 
 section
-
-open Internal
-
-@[simp] theorem Internal.Bool.and'_eq_and (a b : Bool) : Internal.Bool.and' a b = a.and b := by
-  cases a <;> simp [Bool.and']
-
-@[simp] theorem Internal.Bool.or'_eq_or (a b : Bool) : Internal.Bool.or' a b = a.or b := by
-  cases a <;> simp [Bool.or']
-
-@[simp] theorem Internal.Bool.not'_eq_not (a : Bool) : Internal.Bool.not' a = a.not := by
-  cases a <;> simp [Bool.not']
-
-end
 
 theorem Bool.rec_eq {α : Sort _} (b : Bool) {x y : α} : Bool.rec y x b = if b then x else y := by
   cases b <;> simp

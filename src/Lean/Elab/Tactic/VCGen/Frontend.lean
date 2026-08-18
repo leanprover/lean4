@@ -182,12 +182,14 @@ public def inferProgType? (goalType : Expr) : MetaM (Option Expr) := withReducib
 
 /-- Warn about `vcgen` config options that are accepted by the parser but currently
 ignored at runtime. As more options gain implementation support, drop their checks
-here. Options with implemented semantics (`trivial`, `elimLets`, `stepLimit`,
-`invariants?`) are silently accepted. -/
+here. Options with implemented semantics (`elimLets`, `stepLimit`, `invariants?`) are silently
+accepted. -/
 private def warnIgnoredConfig (config : Do.VCGen.Config) : MetaM Unit := do
   let default : Do.VCGen.Config := {}
   if config.leave != default.leave then
     logWarning "vcgen: the `leave` config option is currently ignored."
+  if config.trivial != default.trivial then
+    logWarning "vcgen: the `trivial` config option is currently ignored."
 
 /--
 Build `Sym.Simp.Methods` from a variant name and extra theorems.
@@ -408,7 +410,6 @@ private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := g
   let ctx := { ctx with
     hypSimpMethods,
     frameProcs,
-    trivial := config.trivial,
     useJP := config.jp,
     errorOnMissingSpec := config.errorOnMissingSpec,
     debug := config.debug,

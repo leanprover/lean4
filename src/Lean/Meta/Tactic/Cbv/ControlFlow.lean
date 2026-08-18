@@ -61,29 +61,17 @@ end Lean.Meta.Tactic.Cbv
 namespace Lean.Meta.Sym.Simp
 open Lean.Meta.Sym.Internal
 
+def isCbvNoncomputable (p : Name) : CoreM Bool := do
+  let evalLemmas ← Tactic.Cbv.getCbvEvalLemmas p
+  return evalLemmas.isNone && Lean.isNoncomputable (← getEnv) p
+
 /--
-Given `inst : Decidable p`, returns a result for `p = p'` and the corresponding new instance
-for `Decidable p'`.
+Attempts to synthesize `Decidable p` instance and guards against picking up a `noncomputable` instance
 -/
-def rewriteDecidableInstance (inst : Expr) : SimpM (Result × Expr) :=
-  inst.withApp fun fn args => do
-    if args.isEmpty then
-      return (.rfl, inst)
-    let ty ← Meta.inferType fn
-    let p ← forallTelescopeReducing (whnfType := true) ty fun vars body => do←
-      let_expr Decidable p := body | return (.rfl, inst)
-      unless vars.size = args.size do
-        -- this *feels* unreachable but just to be sure
-        return (.rfl, inst)
-      mkLambdaFVars vars p
-    let p ← shareCommon p
-    let res ← simpAppArgRange (← mkAppNS p args) 0 args.size
-    match res with
-    | .rfl .. => return (res, inst)
-    | .step e' proof done cd =>
-      -- We assume that the function stayed the same
-      let revArgs := e'.getAppRevArgs
-      return (.step (← betaRevS p revArgs) proof done cd, mkAppRev fn revArgs)
+def trySynthComputableInstance (p : Expr) : SymM <| Option Expr := do
+  let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) p) | return .none
+  if (← inst'.getUsedConstants.anyM (isCbvNoncomputable ·)) then return .none
+  shareCommon inst'
 
 /-- Reduce `ite` by matching the `Decidable` instance for `isTrue`/`isFalse`. -/
 def matchIteDecidable (f α c inst a b instToMatch : Expr) (fallback : SimpM Result) : SimpM Result := do
@@ -184,11 +172,10 @@ builtin_cbv_simproc ↓ simpIteCbv (@ite _ _ _ _ _) := fun e => do
       else if (← isFalseExpr c') then
         return .step b (mkApp (e.replaceFn ``ite_eq_right_of_eq_false) h) (contextDependent := cd)
       else
-        let (condRes, inst') ← rewriteDecidableInstance inst
-        match condRes with
-        | .rfl _ cd =>
-          simpAndMatchIteDecidable f α c inst a b do return mkRflResult (done := true) (contextDependent := cd)
-        | .step c' h _ cd =>
+        -- If we got stuck with simplifying `p` then let's try evaluating the original instance
+        simpAndMatchIteDecidable f α c inst a b do
+          -- If we get stuck here, maybe the problem is that we need to look at `Decidable c'`
+          let some inst' ← trySynthComputableInstance c' | return mkRflResult (done := true) (contextDependent := cd)
           simpAndMatchIteDecidableCongr f α c inst a b c' h inst' do
             let e' := e.getBoundedAppFn 4
             let e' ← mkAppS₄ e' c' inst' a b
@@ -314,11 +301,10 @@ builtin_cbv_simproc ↓ simpDIteCbv (@dite _ _ _ _ _) := fun e => do
         let b ← share <| b.betaRev #[h']
         return .step b (mkApp (e.replaceFn ``dite_eq_right_of_eq_false) h) (contextDependent := cd)
       else
-        let (condRes, inst') ← rewriteDecidableInstance inst
-        match condRes with
-        | .rfl _ cd =>
-          simpAndMatchDIteDecidable f α c inst a b do return mkRflResult (done := true) (contextDependent := cd)
-        | .step c' h _ cd =>
+        -- If we get stuck after simplifying `p` to `p'`, then we try to evaluate the original instance
+        simpAndMatchDIteDecidable f α c inst a b do
+          -- Otherwise, we make `Decidable c'` instance and try to evaluate it instead
+          let some inst' ← trySynthComputableInstance c' | return mkRflResult (done := true) (contextDependent := cd)
           simpAndMatchDIteDecidableCongr f α c inst a b c' h inst' do
             let e' := e.getBoundedAppFn 4
             let h ← shareCommon h
@@ -412,16 +398,12 @@ builtin_cbv_simproc ↓ simpDecideCbv (@Decidable.decide _ _) := fun e => do
       else if (← isFalseExpr p') then
         return .step (← getBoolFalseExpr) (mkApp3 (mkConst ``Sym.decide_prop_eq_false) p inst hp) (contextDependent := cd)
       else
-        let (condRes, inst') ← rewriteDecidableInstance inst
-        match condRes with
-        | .rfl _ cd =>
-          simpAndMatchDecideDecidable p inst do return mkRflResult (done := true) (contextDependent := cd)
-        | .step p' hp _ cd =>
-          simpAndMatchDecideDecidableCongr p p' hp inst inst' do
-            let res := (mkConst ``Decidable.decide)
-            let res ← shareCommon res
-            let res ← mkAppS₂ res p' inst'
-            return .step res (mkApp5 (mkConst ``Decidable.decide.congr_simp) p p' hp inst inst') (done := true) (contextDependent := cd)
+        let some inst' ← trySynthComputableInstance p' | return mkRflResult (done := true) (contextDependent := cd)
+        simpAndMatchDecideDecidableCongr p p' hp inst inst' do
+          let res := (mkConst ``Decidable.decide)
+          let res ← shareCommon res
+          let res ← mkAppS₂ res p' inst'
+          return .step res (mkApp5 (mkConst ``Decidable.decide.congr_simp) p p' hp inst inst') (done := true) (contextDependent := cd)
 
 end Lean.Meta.Sym.Simp
 

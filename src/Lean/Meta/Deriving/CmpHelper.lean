@@ -75,6 +75,15 @@ def Kind.mkHelperName : Kind → Name → Name
 def Kind.mkEq (k : Kind) (e : Expr) : Expr :=
   mkApp3 (.const ``Eq [1]) k.indicatorType e k.eqIndicator
 
+def Kind.mkCtorIdxLemmaName (k : Kind) (indName : Name) : Name :=
+  (k.mkHelperName indName).str "of_ctorIdx_ne"
+
+def Kind.mkUnfoldName (k : Kind) (indName ctorName : Name) : Name :=
+  (k.mkHelperName indName).str "unfold" |>.appendCore <| ctorName.replacePrefix indName .anonymous
+
+def Kind.mkReflName (k : Kind) (indName : Name) : Name :=
+  (k.mkHelperName indName).str "refl"
+
 /--
 Given all variables for a minor, returns `(fields, idxOfField, ihs)`.
 -/
@@ -113,18 +122,6 @@ def _root_.Lean.Meta.DiscrTree.atKey (x : DiscrTree α) (keys : Array DiscrTree.
     #[]
   else
     (x.root.find? keys[0]).map (·.atKey keys 1) |>.getD #[]
-
-/--
-Given an index for a motive to the recursor, returns `none` if the motive corresponds to a nested
-occurrence and `some i` if it corresponds to `info.all[i]`.
--/
-def motiveIdxToAllIndex? (info : InductiveVal) (motiveIdx : Nat) : Option Nat :=
-  if motiveIdx = 0 then
-    some 0
-  else if motiveIdx ≤ info.numNested then
-    none
-  else
-    some (motiveIdx - info.numNested)
 
 inductive CmpHelperStrategy where
   | doubleMatch
@@ -199,8 +196,8 @@ def makeCmpHelperDoubleMatch (kind : Kind) (levelParams : List Name) (lparams : 
       mkLambdaFVars lfields innerApp
     outerIter := more
     i := i + 1
-  let type ← mkForallFVars (params ++ moreVars ++ lvars ++ rvars) kind.indicatorType
-  let value ← mkLambdaFVars (params ++ moreVars ++ lvars ++ rvars) outerApp
+  let type ← mkForallFVars (params ++ moreVars ++ lvars ++ rvars) kind.indicatorType (binderInfoForMVars := .default)
+  let value ← mkLambdaFVars (params ++ moreVars ++ lvars ++ rvars) outerApp (binderInfoForMVars := .default)
   makePreDefinitionWithStructuralHint levelParams (kind.mkHelperName indName) type value
     (params.size + moreVars.size + lvars.size - 1)
     (params.size + moreVars.size + lvars.size + rvars.size)
@@ -259,6 +256,35 @@ def makeCmpHelperCtorIdx (kind : Kind) (levelParams : List Name) (lparams : List
     (params.size + moreVars.size + lvars.size + rvars.size)
     info.isUnsafe makePartial
 
+def makeCmpHelperEquation (kind : Kind) (levelParams : List Name) (lparams : List Level)
+    (params : Array Expr) (moreVars : Array Expr) (indName ctorName : Name) (eqn : Expr) :
+    MetaM Unit := do
+  let unfoldThm? ← getUnfoldEqnFor? (kind.mkHelperName indName)
+  lambdaTelescope eqn fun allFields res => do
+    let lfields := allFields[0...allFields.size/2]
+    let rfields := allFields[(allFields.size/2)...*]
+    let lctorApp := mkAppN (mkAppN (.const ctorName lparams) params) lfields
+    let rctorApp := mkAppN (mkAppN (.const ctorName lparams) params) rfields
+    let ltype ← inferType lctorApp
+    let rtype ← inferType rctorApp
+    assert! ltype.getAppFn.isConstOf indName
+    assert! rtype.getAppFn.isConstOf indName
+    let lindices := ltype.getAppArgs.drop params.size
+    let rindices := rtype.getAppArgs.drop params.size
+    let helperApp := mkAppN (mkAppN (.const (kind.mkHelperName indName) lparams) params) moreVars
+    let helperApp := (mkAppN ((mkAppN helperApp lindices).app lctorApp) rindices).app rctorApp
+    let eq := mkApp3 (.const ``Eq [1]) kind.indicatorType helperApp res
+    let mut proof := mkApp2 (.const ``rfl [1]) kind.indicatorType helperApp
+    if let some thm := unfoldThm? then
+      proof := mkAppN (mkAppN (.const thm lparams) params) moreVars
+      proof := (mkAppN ((mkAppN proof lindices).app lctorApp) rindices).app rctorApp
+    let type ← mkForallFVars (params ++ moreVars ++ allFields) eq (binderInfoForMVars := .default)
+    let value ← mkLambdaFVars (params ++ moreVars ++ allFields) proof (binderInfoForMVars := .default)
+    addDecl <| .thmDecl {
+      name := kind.mkUnfoldName indName ctorName
+      levelParams, type, value
+    }
+
 def makeCmpHelpersFromEquations (kind : Kind) (levelParams : List Name) (lparams : List Level)
     (params : Array Expr) (moreVars : Array Expr) (cases : Array (Name × Array Expr))
     (makePartial : Bool) : MetaM Unit := do
@@ -273,6 +299,12 @@ def makeCmpHelpersFromEquations (kind : Kind) (levelParams : List Name) (lparams
   withLCtx {} {} do
     withExporting (isExporting := cases.all (!isPrivateName ·.1)) do
       Elab.Term.TermElabM.run' <| Elab.addPreDefinitions ({}, {}) predefs
+  if makePartial then return
+  for (indName, cases) in cases do
+    let info ← getConstInfoInduct indName
+    let ctors := info.ctors
+    for ctor in ctors, eqn in cases do
+      makeCmpHelperEquation kind levelParams lparams params moreVars indName ctor eqn
 
 partial def computeFwdAndBackDeps (vars : Array Expr) (idxOfVar : FVarIdMap Nat) :
     MetaM (Array (Array Nat) × Array (Array Nat)) := do
@@ -451,19 +483,19 @@ partial def makeCmpHelpers (indName : Name) (kind : Kind) : MetaM Unit := do
       for alt in alts do
         let ty ← inferType alt
         let motiveIdx := idxOfMotive.get! ty.getForallBody.getAppFn.fvarId!
-        let some allIdx := motiveIdxToAllIndex? info motiveIdx | continue
+        unless motiveIdx < eqns.size do continue
         let (eqn, newAcc) ← (recursorAltToEquation kind ty idxOfMotive cmpVars).run acc
-        eqns := eqns.modify allIdx fun (nm, xs) => (nm, xs.push eqn)
+        eqns := eqns.modify motiveIdx fun (nm, xs) => (nm, xs.push eqn)
         acc := newAcc
       let moreVars := acc.entries.map (·.fnMVar) ++ acc.entries.filterMap (·.hypMVar?)
-      for i in *...recInfo.numMotives do
+      for i in *...eqns.size do
         let cmpMVar := cmpVars[i]!.mvarId!
-        if let some allIdx := motiveIdxToAllIndex? info i then
-          let indName := eqns[allIdx]!.1
-          cmpMVar.assign (mkAppN (mkAppN (.const (kind.mkHelperName indName) lparams) params) moreVars)
-          continue
+        let indName := eqns[i]!.1
+        cmpMVar.assign (mkAppN (mkAppN (.const (kind.mkHelperName indName) lparams) params) moreVars)
+      for i in *...info.numNested do
+        let _cmpMVar := cmpVars[i + eqns.size]!.mvarId!
         throwError "TODO: Implement nested cmpVar assignment"
-      makeCmpHelpersFromEquations kind levelParams lparams params moreVars eqns usePartial
+      makeCmpHelpersFromEquations kind levelParams lparams params moreVars eqns (usePartial || info.isUnsafe)
 
 structure CtorInfo where
   /--
@@ -615,9 +647,6 @@ partial def makeRefl (ctx : Context) : MetaM Unit := do
         levelParams, type, value
       }
 
-def mkCtorIdxLemmaName (nm : Name) : Name :=
-  nm.str "ctorIdx_eq"
-
 def withNonNestedContext (indName : Name) (kind : Kind) (k : Context → MetaM α) : MetaM α := do
   let indInfo ← getConstInfoInduct indName
   if indInfo.isNested then
@@ -655,7 +684,7 @@ def withNonNestedContext (indName : Name) (kind : Kind) (k : Context → MetaM �
     | indName :: more =>
       let cmpVarName := (`cmp).appendIndexAfter (cmpVars.size + 1)
       let thing := mkAppN (.const (kind.mkHelperName indName) lparams) allParams
-      let cidxLemma := mkAppN (.const (mkCtorIdxLemmaName <| kind.mkHelperName indName) lparams) allParams
+      let cidxLemma := mkAppN (.const (kind.mkCtorIdxLemmaName indName) lparams) allParams
       let index := cmpVars.size
       withLetDecl cmpVarName (← inferType thing) thing fun var => do
         addCmpVars more (cmpVars.push var) (ctorIdxLemmas.push cidxLemma)
@@ -664,8 +693,7 @@ def withNonNestedContext (indName : Name) (kind : Kind) (k : Context → MetaM �
       let mut ctorInfos := #[]
       for indName in indInfo.all do
         for ctor in (← getConstInfoInduct indName).ctors do
-          let shortName := ctor.replacePrefix indName .anonymous
-          let lemmaName := (kind.mkHelperName indName).str "unfold" ++ shortName
+          let lemmaName := kind.mkUnfoldName indName ctor
           let lemma := mkAppN (.const lemmaName lparams) allParams
           let res ← forallTelescope (← inferType lemma) fun bothCtorFields body => do
             let some (_, _, rhs) := body.eq? | throwError "Invalid lemma:{indentExpr lemma}"

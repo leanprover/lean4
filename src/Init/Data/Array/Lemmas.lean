@@ -147,22 +147,22 @@ theorem getElem_of_getElem? {xs : Array α} : xs[i]? = some a → ∃ h : i < xs
 theorem some_eq_getElem?_iff {xs : Array α} : some b = xs[i]? ↔ ∃ h : i < xs.size, xs[i] = b := by
   rw [eq_comm, getElem?_eq_some_iff]
 
+theorem some_getElem_eq_getElem? (xs : Array α) (i : Nat) (h : i < xs.size) :
+    some xs[i] = xs[i]? := by
+  simp
+
 @[deprecated some_getElem_eq_getElem? (since := "2026-08-18")]
 theorem some_getElem_eq_getElem?_iff (xs : Array α) (i : Nat) (h : i < xs.size) :
     (some xs[i] = xs[i]?) ↔ True := by
   simp
 
-theorem some_getElem_eq_getElem? (xs : Array α) (i : Nat) (h : i < xs.size) :
-    some xs[i] = xs[i]? := by
+theorem getElem?_eq_some_getElem (xs : Array α) (i : Nat) (h : i < xs.size) :
+    xs[i]? = some xs[i] := by
   simp
 
 @[deprecated getElem?_eq_some_getElem (since := "2026-08-18")]
 theorem getElem?_eq_some_getElem_iff (xs : Array α) (i : Nat) (h : i < xs.size) :
     (xs[i]? = some xs[i]) ↔ True := by
-  simp
-
-theorem getElem?_eq_some_getElem (xs : Array α) (i : Nat) (h : i < xs.size) :
-    xs[i]? = some xs[i] := by
   simp
 
 theorem getElem_eq_iff {xs : Array α} {i : Nat} {h : i < xs.size} : xs[i] = x ↔ xs[i]? = some x := by

@@ -63,10 +63,19 @@
               hash = "sha256-o8K4AgG4nmhhb0rTC8Zq7kknw85Q4zkpyoGdXENTiJg=";
             };
             nativeBuildInputs = [ pkgsDist.m4 ];
-            # `--enable-fat` builds all x86 CPU variants and selects at runtime, so the
-            # release binary stays portable; it is not supported on aarch64.
-            configureFlags = [ "--with-pic" "--enable-static" "--disable-shared" ]
-              ++ pkgs.lib.optional (pkgs.stdenv.system == "x86_64-linux") "--enable-fat";
+            configureFlags = [
+              "--with-pic"
+              "--enable-static" "--disable-shared"
+              # GMP's "long long reliability test" in configure relies on pre-c23 C
+              # semantics; force c99 so the compiler check passes (matches nixpkgs' gmp).
+              "CFLAGS=-std=c99"
+              # Pin the build triple so GMP's config.guess does not runtime-probe the CPU
+              # via /proc/cpuinfo, which is broken on the multicore CI runners.
+              "--build=${pkgsDist.stdenv.buildPlatform.config}"
+            ]
+            # `--enable-fat` builds all x86 CPU variants and selects at runtime, keeping the
+            # release binary portable; it is not supported on aarch64.
+            ++ pkgs.lib.optional (pkgs.stdenv.system == "x86_64-linux") "--enable-fat";
             # would need additional linking setup on Linux aarch64, we don't use it anywhere else either
             hardeningDisable = pkgs.lib.optionals (pkgs.stdenv.system == "aarch64-linux") [ "stackprotector" ];
             enableParallelBuilding = true;

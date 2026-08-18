@@ -18,3 +18,9 @@ test_err "Some required targets logged failures" build --fail-fast
 test_exp -f slowA.produced.out
 test_exp ! -f slowB.produced.out
 test_exp ! -f .lake/build/lib/lean/SlowChain/B.olean
+
+# Canceled jobs must not appear in the failure summary (their log is trace-level).
+if grep -E '^- .*(slowB|SlowChain\.B)' produced.out; then
+  echo "FAILURE: canceled job listed as a failure"
+  exit 1
+fi

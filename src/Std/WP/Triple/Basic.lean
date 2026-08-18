@@ -101,6 +101,11 @@ meta def unexpandTriple : Lean.PrettyPrinter.Unexpander
   | `($(_) $c $P $Q $E) => `(⦃ $P ⦄ $c ⦃ $Q; $E ⦄)
   | _ => throw ()
 
+/-- Splits a universally quantified product into its components. `vcgen` applies this backward,
+so a loop's state tuple presents one binder per mutable variable. -/
+theorem forall_prod {α : Type u₁} {β : Type u₂} {P : α × β → Prop} (h : ∀ a b, P (a, b)) :
+    ∀ p, P p := fun p => match p with | (a, b) => h a b
+
 namespace Triple
 
 variable {Prog : Type u} {Value : Type v} [Assertion Pred] [Assertion EPred]

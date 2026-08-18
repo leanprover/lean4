@@ -105,11 +105,13 @@ The introduction itself is a single `Sym.intros` call (which keeps the memoized,
 intro); only the names are chosen here. Returns the goal unchanged when there are no leading
 binders.
 -/
-public def introsHygienic (goal : MVarId) (overrides : Array Name := #[]) : VCGenM MVarId :=
+public def introsHygienic (goal : MVarId) (overrides : Array Name := #[])
+    (stopAtProd : Bool := false) : VCGenM MVarId :=
   goal.withContext do
     let rec collectBinders (type : Expr) (acc : Array (Name × Bool)) : Array (Name × Bool) :=
       match type with
-      | .forallE n _ b _ => collectBinders b (acc.push (n, false))
+      | .forallE n d b _ =>
+        if stopAtProd && d.isAppOf ``Prod then acc else collectBinders b (acc.push (n, false))
       | .letE n _ _ b _ => collectBinders b (acc.push (n, true))
       | _ => acc
     let binders := collectBinders (← goal.getType) #[]

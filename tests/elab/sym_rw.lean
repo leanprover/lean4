@@ -170,5 +170,5 @@ example (a : Nat) (h : myP a) : myP a := by
 error: tactic is only available in `sym =>` mode
 -/
 #guard_msgs in
-example (a b : Nat) (h : a = b) (h' : myP b) : myP a := by
+example (a b : Nat) (h : a = b) : myP a := by
   grind => rw [h]

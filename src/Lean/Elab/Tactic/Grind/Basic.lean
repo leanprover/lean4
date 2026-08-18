@@ -448,8 +448,13 @@ def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM
         if sym then
           /- In sym mode, skip eager intros + by-contradiction. The user controls intro/internalize.
              Preprocess for maximal term sharing, required by Sym operations (introN, BackwardRule.apply, etc.). -/
-          let mvarId ← Sym.preprocessMVar goal.mvarId
-          pure [{ goal with mvarId }]
+          if goal.inconsistent || (← goal.mvarId.isAssigned) then
+            /- Hypothesis internalization closed the goal (e.g. an inconsistent local context).
+               `Sym.preprocessMVar` would overwrite the assignment with a fresh goal. -/
+            pure []
+          else
+            let mvarId ← Sym.preprocessMVar goal.mvarId
+            pure [{ goal with mvarId }]
         else
           let a : Action := Action.intros 0 >> Action.assertAll
           match (← a.run goal) with

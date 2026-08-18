@@ -270,7 +270,10 @@ def grind
         replaceMainGoal []
       if let some seq := seq? then
         let (result, _) ← Grind.GrindTacticM.runAtGoal mvarId' params do
-          Grind.evalGrindTactic seq
+          -- Initialization can close the goal (e.g. an inconsistent local context);
+          -- run the tactic sequence only on a surviving goal.
+          unless (← Grind.getUnsolvedGoals).isEmpty do
+            Grind.evalGrindTactic seq
           -- **Note**: We are returning only the first goal that could not be solved.
           let goal? := if let goal :: _ := (← get).goals then some goal else none
           let result ← Grind.liftGrindM <| Grind.mkResult params goal?
@@ -362,7 +365,10 @@ private def elabGrindConfig' (config : TSyntax ``Lean.Parser.Tactic.optConfig) (
     let params ← mkGrindParams config only' params mvarId
     Grind.withProtectedMCtx config mvarId fun mvarId' => do
       let (result, _) ← Grind.GrindTacticM.runAtGoal mvarId' params (sym := true) do
-        Grind.evalGrindTactic seq
+        -- Initialization can close the goal (e.g. an inconsistent local context);
+        -- run the tactic sequence only on a surviving goal.
+        unless (← Grind.getUnsolvedGoals).isEmpty do
+          Grind.evalGrindTactic seq
         let goal? := if let goal :: _ := (← get).goals then some goal else none
         Grind.liftGrindM <| Grind.mkResult params goal?
       if result.hasFailed then

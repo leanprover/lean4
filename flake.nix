@@ -53,12 +53,27 @@
             buildPhase = "make -j$NIX_BUILD_CORES";
             installPhase = "make install_sw";
           };
+          # Build GMP 6.3.0 statically using pkgsDist's old-glibc stdenv. nixpkgs-older
+          # ships GMP 6.1.2, but Lean requires 6.3.0: earlier versions contain bugs that
+          # can make Lean produce unsound results.
+          gmpForDist = pkgsDist.stdenv.mkDerivation {
+            name = "gmp-static-6.3.0";
+            src = pkgs.fetchurl {
+              url = "https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz";
+              hash = "sha256-o8K4AgG4nmhhb0rTC8Zq7kknw85Q4zkpyoGdXENTiJg=";
+            };
+            nativeBuildInputs = [ pkgsDist.m4 ];
+            # `--enable-fat` builds all x86 CPU variants and selects at runtime, so the
+            # release binary stays portable; it is not supported on aarch64.
+            configureFlags = [ "--with-pic" "--enable-static" "--disable-shared" ]
+              ++ pkgs.lib.optional (pkgs.stdenv.system == "x86_64-linux") "--enable-fat";
+            # would need additional linking setup on Linux aarch64, we don't use it anywhere else either
+            hardeningDisable = pkgs.lib.optionals (pkgs.stdenv.system == "aarch64-linux") [ "stackprotector" ];
+            enableParallelBuilding = true;
+            doCheck = false;
+          };
         in {
-          GMP = (pkgsDist.gmp.override { withStatic = true; }).overrideAttrs (attrs:
-            pkgs.lib.optionalAttrs (pkgs.stdenv.system == "aarch64-linux") {
-              # would need additional linking setup on Linux aarch64, we don't use it anywhere else either
-              hardeningDisable = [ "stackprotector" ];
-            });
+          GMP = gmpForDist;
           LIBUV = pkgsDist.libuv.overrideAttrs (attrs: {
             configureFlags = ["--enable-static"];
             hardeningDisable = [ "stackprotector" ];

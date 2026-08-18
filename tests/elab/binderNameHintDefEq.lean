@@ -2,16 +2,20 @@ module
 
 public section
 
-/-! `binderNameHint`'s `.abbrev` reducibility hints make a definitional comparison unfold the
-marker before its payload, so a marked type compares against its payload in constant time. A
-marker with regular reducibility hints (`myHint` below) unfolds after the payload, and the
-comparison walks the payload's whole reduction chain instead.
+/-! `binderNameHint` carries `.abbrev` reducibility hints so that definitional comparison unfolds
+it eagerly. Consider
 
-Both markers are `[implicit_reducible]`, so a reducible-transparency comparison treats either as
-opaque; at default transparency both may unfold, and the reducibility hints order the unfolding.
-The examples observe that ordering in the elaborator's definitional comparison, where resource
-limits detect it deterministically. The kernel orders its lazy delta by the same hints; the
-marker with regular hints cannot reach it, because elaboration fails first. -/
+    myHint 0 (fun n => n) (W 100000)  =?=  W 100000
+
+Here, `isDefEq` and the kernel both see a constant applied to arguments and must make a choice
+which constant to unfold first. For `ReducibilityHints.regular`, the choice is to unfold `W`
+because it has greater *height* than height 1 for `myHint`, and this problem recurs on the order
+of 100000 times. By contrast, for `.abbrev`, the gadget is chosen and the defeq succeeds in
+constant time.
+
+`myHint` below replicates `binderNameHint` with `.regular` hints: the comparison through it
+exceeds the recursion depth, while the one through `binderNameHint` succeeds within a small
+heartbeat budget. -/
 
 def W : Nat → Prop
   | 0 => True

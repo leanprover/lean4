@@ -144,8 +144,7 @@ example :
   sym =>
     vcgen invariants
       · fun _pref suff r => r + suff.length * 5 ≤ 25
-    -- `cleanupVC` reduced the `ForInStep.yield` that the step's postcondition matches on.
-    case vc3 suff _h b a x => tactic => guard_target =ₛ x + suff.length * 5 ≤ 25; grind
+    case vc3 b a x => finish
     case vc1 => tactic => simp +arith
     case vc2 x _ =>
       tactic => show x < 30; grind

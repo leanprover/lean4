@@ -48,8 +48,6 @@ delta unfold the marker eagerly before checking arguments. The `attribute` line 
 treating the marker as opaque. -/
 abbrev binderNameHint {α : Sort u} {β : Sort v} {γ : Sort w} (v : α) (binder : β) (e : γ) : γ := e
 
-/- One might expect/hope that this was `implicit_reducible` rather than `instance_reducible`.
-Currently, the test `tests/elab/binderNameHintSimp.lean` fails (in a stage 2 build) if we make this change. -/
 set_option allowUnsafeReducibility true in
 attribute [implicit_reducible] binderNameHint
 

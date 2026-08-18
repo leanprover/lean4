@@ -13,15 +13,15 @@ public section
 
 namespace Lean
 
-def casesOnSuffix       := "casesOn"
-def recOnSuffix         := "recOn"
-def brecOnSuffix        := "brecOn"
-def belowSuffix         := "below"
+@[match_pattern, expose] def casesOnSuffix       := "casesOn"
+@[match_pattern, expose] def recOnSuffix         := "recOn"
+@[match_pattern, expose] def brecOnSuffix        := "brecOn"
+@[match_pattern, expose] def belowSuffix         := "below"
 
-def mkCasesOnName (indDeclName : Name) : Name := Name.mkStr indDeclName casesOnSuffix
-def mkRecOnName (indDeclName : Name) : Name   := Name.mkStr indDeclName recOnSuffix
-def mkBRecOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName brecOnSuffix
-def mkBelowName (indDeclName : Name) : Name := Name.mkStr indDeclName belowSuffix
+@[match_pattern, expose] def mkCasesOnName (indDeclName : Name) : Name := Name.mkStr indDeclName casesOnSuffix
+@[match_pattern, expose] def mkRecOnName (indDeclName : Name) : Name   := Name.mkStr indDeclName recOnSuffix
+@[match_pattern, expose] def mkBRecOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName brecOnSuffix
+@[match_pattern, expose] def mkBelowName (indDeclName : Name) : Name := Name.mkStr indDeclName belowSuffix
 
 builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExtension (asyncMode := .async .mainEnv)
 

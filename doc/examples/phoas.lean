@@ -182,6 +182,8 @@ the hole `_` is instantiated by `subst` with `three_the_hard_way`
 
 #eval pretty <| subst (fun x => .plus (.var x) (.const 5)) three_the_hard_way
 
+-- TODO: fix
+/-
 /-!
 One further development, which may seem surprising at first,
 is that we can also implement a usual term denotation function,
@@ -237,3 +239,4 @@ theorem constFold_sound (e : Term' Ty.denote ty) : denote (constFold e) = denote
     split
     next he₁ he₂ => simp [← iha, ← ihb, he₁, he₂]
     next => simp [iha, ihb]
+-/

@@ -212,9 +212,7 @@ def mkBRecOnFromRec (recName : Name) (nParams : Nat)
     -- universe parameter of the type fomer.
     -- same as `typeFormerTypeLevel indVal.type`, but we want to infer it from the
     -- type of the recursor, to be more robust when facing nested induction
-    let majorTypeType ← inferType (← inferType major)
-    let .some ilvl ← typeFormerTypeLevel majorTypeType
-      | throwError "type of type of major premise {major} not a type former"
+    let ilvl ← getLevel (← inferType major)
 
     -- universe level of the resultant type
     let rlvl : Level := mkLevelMax ilvl lvl
@@ -260,7 +258,7 @@ def mkBRecOnFromRec (recName : Name) (nParams : Nat)
       go_val := mkAppN go_val indices
       go_val := mkApp go_val major
 
-      -- All parameters of `.rec` besides the `minors` become parameters of `.bRecOn`, and the `fs`
+      -- All parameters of `.rec` besides the `minors` become parameters of `.brecOn`, and the `fs`
       let below_params := params ++ motives ++ indices ++ #[major] ++ fs
       let motive_app := mkAppN motives[idx]! (indices.push major)
       let below_app := mkAppN belows[idx]! (indices.push major)

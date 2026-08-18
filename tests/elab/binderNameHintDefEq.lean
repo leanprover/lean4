@@ -18,11 +18,12 @@ def myHint {α : Sort u} {β : Sort v} {γ : Sort w} (_v : α) (_binder : β) (e
 set_option maxHeartbeats 400 in
 example : binderNameHint 0 (fun n : Nat => n) (W 100000) = W 100000 := rfl
 
+-- A regular definition in marker position unfolds after the payload: the comparison reduces
+-- `W 100000` and exceeds the default recursion depth.
 /--
 error: maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs in
-set_option maxHeartbeats 400 in
 example : myHint 0 (fun n : Nat => n) (W 100000) = W 100000 := rfl

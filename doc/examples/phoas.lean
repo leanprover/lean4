@@ -182,8 +182,6 @@ the hole `_` is instantiated by `subst` with `three_the_hard_way`
 
 #eval pretty <| subst (fun x => .plus (.var x) (.const 5)) three_the_hard_way
 
--- TODO: fix
-/-
 /-!
 One further development, which may seem surprising at first,
 is that we can also implement a usual term denotation function,
@@ -198,7 +196,7 @@ the `simp` tactic. We also say this is a hint for the Lean term simplifier.
   | .plus a b => denote a + denote b
   | .app f a  => denote f (denote a)
   | .lam f    => fun x => denote (f x)
-  | .let a b  => denote (b (denote a))
+  | .let a b  => have := denote a; denote (b this)
 
 example : denote three_the_hard_way = 3 :=
   rfl
@@ -239,4 +237,3 @@ theorem constFold_sound (e : Term' Ty.denote ty) : denote (constFold e) = denote
     split
     next he₁ he₂ => simp [← iha, ← ihb, he₁, he₂]
     next => simp [iha, ihb]
--/

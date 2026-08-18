@@ -7,9 +7,10 @@ test time) so the tests neither shell out to the `openssl` CLI nor depend on it 
 installed — subprocess spawning in these tests also produced spurious LeakSanitizer reports
 in the sanitizer CI build.
 
-All certificates are signed by `key.pem` (RSA-2048) and are valid until 2126, except
-`expired.pem`, whose validity window is entirely in 2020 (used to verify that expired
-certificates are rejected).
+All certificates are signed by `key.pem` (RSA-2048) and are valid until 2126, with two exceptions:
+`expired.pem`, whose validity window is entirely in 2020 (used to verify that expired certificates
+are rejected), and `weakcert.pem`, which is self-signed under a throwaway 512-bit key that is not
+kept.
 
 | file | subject | notes |
 |---|---|---|
@@ -25,6 +26,8 @@ certificates are rejected).
 | `multisan.pem` | `CN=alpha.test.local` | SAN: `DNS:alpha.test.local, DNS:beta.test.local` |
 | `expired.pem` | `CN=localhost` | valid 2020-01-01 → 2020-01-02 only |
 | `corrupt.pem` | | `cert.pem` with one bit flipped in the first DER byte (`SEQUENCE` tag → `SET`) |
+| `weakcert.pem` | `CN=localhost` | self-signed under a 512-bit RSA key; parses perfectly but is below every security level a build may default to, so it is refused on policy grounds rather than as unreadable PEM |
+| `crl.pem` | | a CRL issued by `cert.pem`; the non-certificate bundle entry that is *not* a private key, so it is what distinguishes "holds no certificates" from "could not be read" |
 
 `corrupt.pem` still has intact PEM armour and valid base64 — it differs from `cert.pem` by a single
 character — so it only fails once the certificate body is decoded, which exercises the
@@ -48,6 +51,13 @@ openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out eckey.pem
 openssl pkey -in key.pem -aes256 -passout pass:lean4 -out enckey.pem
 openssl pkey -in key.pem -aes256 -passout pass: -out emptypwkey.pem
 openssl rsa -in key.pem -traditional -out tradkey.pem
+# 512-bit key kept only long enough to self-sign the certificate; nothing loads it. 1024 bits would
+# sit exactly on security level 1's floor, making the test depend on which level the build defaults to.
+openssl req -x509 -newkey rsa:512 -keyout weakkey.pem -out weakcert.pem -days 36500 -nodes \
+  -subj "/CN=localhost" && rm weakkey.pem
+mkdir -p ca/newcerts && touch ca/index.txt && echo 01 > ca/crlnumber
+printf '[ca]\ndefault_ca=CA_default\n[CA_default]\ndatabase=./ca/index.txt\ncrlnumber=./ca/crlnumber\ndefault_md=sha256\ndefault_crl_days=36500\n' > ca/openssl.cnf
+openssl ca -config ca/openssl.cnf -gencrl -cert cert.pem -keyfile key.pem -out crl.pem && rm -r ca
 python3 -c '
 import base64, hashlib, subprocess, textwrap
 # Legacy RFC 1421 PEM encryption: key = EVP_BytesToKey(MD5, salt=IV, passphrase), 24 bytes for 3DES.

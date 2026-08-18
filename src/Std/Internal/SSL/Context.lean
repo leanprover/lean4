@@ -13,14 +13,19 @@ certificate/key, peer-verification mode, and protocol options shared across all 
 from the same context.
 
 For every context, session tickets and TLS compression are disabled, renegotiation is refused, and
-TLS 1.2 is the minimum version. Session resumption is therefore not supported.
+TLS 1.2 is the minimum version. A server built here therefore offers no session resumption; a client
+does not resume either, since resuming additionally requires selecting a session per connection,
+which the session layer never does.
 
 A context settles who is trusted, not who is being talked to: nothing here checks that a peer
 certificate matches the host it came from. That check belongs to the session layer, which binds a
 hostname per connection.
 
-Encrypted PEM material is rejected rather than prompted for, so no constructor can block on a
-terminal.
+The certificate, key and CA material passed to these constructors is refused outright when it is
+encrypted, rather than prompted for, so no constructor can block on a terminal asking for a
+passphrase. Material reached through `SSL_CERT_FILE` or `SSL_CERT_DIR` is read by OpenSSL with an
+empty passphrase instead: it cannot prompt either, but an encrypted block whose passphrase happens
+to be empty is decrypted and trusted there, where the same bytes in `caFile` would be rejected.
 -/
 
 public section
@@ -77,17 +82,29 @@ Trust-anchor semantics:
 - With `verifyPeer := true` (the default) the client trusts the platform default trust anchors (the
   system root store) and verifies the peer certificate, so connections to public HTTPS servers work
   out of the box. A non-empty `caFile` is trusted *in addition* to those system anchors, so public
-  servers keep working while a private or self-signed CA also becomes trusted. There is no way to
-  trust `caFile` alone, so this cannot be used to pin against a single CA.
+  servers keep working while a private CA also becomes trusted. That CA has to be self-signed: a
+  chain is only accepted once it reaches a self-signed certificate, so trusting an intermediate
+  alone loads without complaint and then fails every handshake. There is no way to trust `caFile`
+  alone, so this cannot be used to pin against a single CA.
 - An empty `caFile` with `verifyPeer := true` uses just the platform default trust anchors. Which
-  anchors those are is platform-specific: the Keychain system roots on macOS, the `ROOT` store on
-  Windows, OpenSSL's configured paths elsewhere. `SSL_CERT_FILE` and `SSL_CERT_DIR` are honoured on
-  every platform, but user-added or explicitly distrusted keychain entries are not consulted.
+  anchors those are is platform-specific: the Keychain on macOS, the `ROOT` store on Windows,
+  OpenSSL's configured paths elsewhere. `SSL_CERT_FILE` and `SSL_CERT_DIR` are honoured on every
+  platform, and are consulted afresh for every context. On macOS the Keychain is read once per
+  process, since doing so costs around a tenth of a second, so a root added to it after the first
+  context is built is not picked up until the process restarts. The per-certificate trust settings
+  decide, so a root added locally (as `mkcert` and `security add-trusted-cert` do) is trusted and
+  one explicitly denied is not; a
+  setting that applies only to a named host, key usage, or application grants no trust, since an
+  anchor cannot carry that restriction. OpenSSL's own bundle is not merged on top of the Keychain,
+  as it would reinstate the roots those settings turned away; it is read only when the Keychain
+  yields no anchor at all. `SSL_CERT_FILE` and `SSL_CERT_DIR` name locations of their own, which are
+  read in addition to the Keychain and do not drag OpenSSL's bundle in with them.
 - `verifyPeer := false` disables peer verification entirely and the CA file is not parsed. This
   cannot be undone: a context built this way can never be made to verify.
 
 `caFile` must be a path without embedded NUL bytes, which is checked before `verifyPeer` is
-consulted. A file containing no certificates is rejected.
+consulted. Where the file is read, private key and CRL entries are ignored — no revocation checking
+is performed — and a file yielding no certificate at all is rejected.
 
 Verifying the peer proves the certificate chains to a trusted anchor; it does **not** prove the
 certificate belongs to the host being connected to. Binding a hostname is the session layer's job.
@@ -108,7 +125,12 @@ hostname verification is left to the session layer:
 - `verifyPeer := false` disables peer verification entirely (the PEM is not parsed).
 
 Unlike `mk`, which takes a path and so rejects embedded NUL bytes, this reads `caPEM` as bytes with
-an explicit length: a NUL is ordinary data and the certificates around it are still parsed.
+an explicit length, so a NUL does not truncate it. It is still an ordinary junk byte to the PEM
+parser, and where it lands decides what happens. A block is recognised only when its line begins with
+`-----BEGIN ` and ends with `-----`, so a NUL breaking either of those fixed parts leaves a line that
+no longer opens a block and that certificate is dropped without a word. A NUL that leaves the block
+open but spoils it — in the type name, in the base64 body, or anywhere in the `-----END` line —
+rejects the whole string, valid certificates alongside it included. Outside any block it is harmless.
 
 Use this when the CA certificate is embedded in the binary rather than on disk.
 -/

@@ -960,11 +960,11 @@ def sepConjFrameProc : FrameInferenceProc := fun i => do
   -- is the footprint. Spec-driven inference cancels `specPre`'s atoms, and the leftover is the
   -- frame.
   let (rest, matched, unpaid) ← matchSepAtoms (← i.pre) (i.providedFrame?.getD specPre)
-  if let some frame := i.providedFrame? then
-    -- If the precondition holds nothing for a pinned frame atom, no partition exists. Defer the
-    -- split VC.
-    unless unpaid.isEmpty do return .framed (·.withDeferredSplitVC frame)
-    return .framed (dischargeSplitVC i · app matched rest unpaid)
+  if i.providedFrame?.isSome then
+    -- Frame checking: the pinned atoms are the frame, the leftover is the footprint. If the
+    -- precondition holds nothing for a pinned atom, the AC step in `dischargeSplitVC` fails, and
+    -- its fallback defers the split VC with the frame assigned.
+    return .framed (dischargeSplitVC i · app matched rest #[])
   else
     -- Nothing paired (for example an unfold equation or a loop spec), or nothing left over:
     -- unframed.

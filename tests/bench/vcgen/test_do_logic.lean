@@ -140,7 +140,10 @@ theorem fib_impl_vcs
   case vc1 h => subst h; apply_rules [ret]
   case vc2 h => apply_rules [loop_pre]
   case vc3 => apply_rules [loop_step]
-  case vc4 => apply_rules [loop_post]
+  case vc4 h pref cur suff _hsplit b _hinv =>
+    -- `cleanupVC` reduced the `ForInStep.yield` that the step's postcondition matches on.
+    guard_target =ₛ I n h (pref ++ [cur]) suff (b.snd, b.fst + b.snd)
+    apply_rules [loop_post]
 
 @[spec]
 theorem mkFreshNat_spec [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :

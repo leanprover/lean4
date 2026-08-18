@@ -70,7 +70,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 uint8_t l_String_Slice_isNat(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
@@ -1040,7 +1040,7 @@ if (v___x_217_ == 0)
 {
 lean_object* v___x_218_; lean_object* v___x_219_; lean_object* v___x_220_; lean_object* v___x_221_; 
 lean_dec_ref(v_type_171_);
-v___x_218_ = lean_string_utf8_extract(v_str_205_, v___x_216_, v___y_207_);
+v___x_218_ = lean_string_utf8_extract_fast(v_str_205_, v___x_216_, v___y_207_);
 lean_dec(v___y_207_);
 lean_dec_ref(v_str_205_);
 v___x_219_ = lean_box(0);

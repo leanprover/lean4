@@ -37,7 +37,7 @@ lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_buildTable(lean_object*);
 uint64_t lean_string_hash(lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Slice_subslice_x21(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_quote(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
@@ -1362,7 +1362,7 @@ lean_object* v_val_417_; lean_object* v___x_418_; lean_object* v___x_419_; lean_
 v_val_417_ = lean_ctor_get(v___x_394_, 0);
 lean_inc(v_val_417_);
 v___x_418_ = lean_unsigned_to_nat(0u);
-v___x_419_ = lean_string_utf8_extract(v_p_383_, v___x_418_, v_val_417_);
+v___x_419_ = lean_string_utf8_extract_fast(v_p_383_, v___x_418_, v_val_417_);
 lean_dec(v_val_417_);
 v___x_420_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_420_, 0, v___x_419_);
@@ -1387,7 +1387,7 @@ else
 lean_object* v___x_391_; lean_object* v___x_392_; lean_object* v___x_393_; 
 lean_dec(v___y_385_);
 v___x_391_ = lean_unsigned_to_nat(0u);
-v___x_392_ = lean_string_utf8_extract(v_p_383_, v___x_391_, v___y_387_);
+v___x_392_ = lean_string_utf8_extract_fast(v_p_383_, v___x_391_, v___y_387_);
 lean_dec(v___y_387_);
 lean_dec_ref(v_p_383_);
 v___x_393_ = lean_alloc_ctor(1, 1, 0);
@@ -1540,7 +1540,7 @@ lean_ctor_set(v___x_443_, 2, v___x_442_);
 v___x_444_ = l_String_Slice_Pos_next_x21(v___x_443_, v_val_440_);
 lean_dec(v_val_440_);
 lean_dec_ref_known(v___x_443_, 3);
-v___x_445_ = lean_string_utf8_extract(v_p_423_, v___x_444_, v___x_442_);
+v___x_445_ = lean_string_utf8_extract_fast(v_p_423_, v___x_444_, v___x_442_);
 lean_dec(v___x_444_);
 lean_dec_ref(v_p_423_);
 v___y_433_ = v___x_445_;
@@ -2857,7 +2857,7 @@ return v_b_771_;
 v___jp_772_:
 {
 lean_object* v___x_776_; lean_object* v___x_777_; 
-v___x_776_ = lean_string_utf8_extract(v_s_767_, v_startInclusive_774_, v_endExclusive_775_);
+v___x_776_ = lean_string_utf8_extract_fast(v_s_767_, v_startInclusive_774_, v_endExclusive_775_);
 lean_dec(v_endExclusive_775_);
 lean_dec(v_startInclusive_774_);
 v___x_777_ = lean_array_push(v_b_771_, v___x_776_);

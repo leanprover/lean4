@@ -124,7 +124,7 @@ extern lean_object* l_Lean_Parser_ParserExtension_instInhabitedState_default;
 lean_object* l_Lean_ScopedEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_nestD(lean_object*);
 extern lean_object* l_Lean_MessageData_nil;
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
@@ -6731,7 +6731,7 @@ return v_b_1986_;
 v___jp_1987_:
 {
 lean_object* v___x_1991_; lean_object* v___x_1992_; lean_object* v___x_1993_; 
-v___x_1991_ = lean_string_utf8_extract(v_val_1982_, v_startInclusive_1989_, v_endExclusive_1990_);
+v___x_1991_ = lean_string_utf8_extract_fast(v_val_1982_, v_startInclusive_1989_, v_endExclusive_1990_);
 lean_dec(v_endExclusive_1990_);
 lean_dec(v_startInclusive_1989_);
 v___x_1992_ = l_Lean_stringToMessageData(v___x_1991_);

@@ -124,14 +124,8 @@ private partial def isConjunctiveIn (qs : Array MVarId) (e : Expr) : Bool :=
   | _ =>
     match e.getAppFn with
     | .mvar m => qs.contains m && e.getAppArgs.all (!occursMVar qs ·)
-    | .const ``binderNameHint _ =>
-      -- `binderNameHint v b e` is definitionally `e`; the hint rides along only to name binders.
-      let args := e.getAppArgs
-      match args[5]? with
-      | some payload =>
-        isConjunctiveIn qs (mkAppN payload (args.extract 6 args.size)) &&
-          (List.range 5).all fun i => !occursMVar qs args[i]!
-      | none => false
+    -- `binderNameHint v b e` is definitionally `e`; the hint rides along only to name binders.
+    | .const ``binderNameHint _ => isConjunctiveIn qs (e.getArg! 5)
     | .const ``EPost.Cons.head _ =>
       -- `EPost.Cons.head` is a `⊓`-morphism (`EPost.Cons.head_meet`); its exception-stack argument
       -- stays in a `⊓`-context, the rest (types and the applied exception) must be `qs`-free.

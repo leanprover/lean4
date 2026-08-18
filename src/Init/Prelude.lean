@@ -4792,6 +4792,17 @@ protected abbrev Quot.liftOn {α : Sort u} {β : Sort v} {r : α → α → Prop
   (q : Quot r) (f : α → β) (c : (a b : α) → r a b → Eq (f a) (f b)) : β :=
   Quot.lift f c q
 
+/-! # Function extensionality -/
+
+/--
+**Function extensionality.** If two functions return equal results for all possible arguments, then
+they are equal.
+
+It is called “extensionality” because it provides a way to prove two objects equal based on the
+properties of the underlying mathematical functions, rather than based on the syntax used to denote
+them. Function extensionality is a theorem that can be [proved using quotient
+types](lean-manual://section/quotient-funext).
+-/
 theorem funext {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x}
     (h : ∀ x, Eq (f x) (g x)) : Eq f g :=
   let eqv (f g : (x : α) → β x) := ∀ x, Eq (f x) (g x)

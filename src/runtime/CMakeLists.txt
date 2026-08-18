@@ -36,6 +36,7 @@ set(
   openssl.cpp
   openssl/context.cpp
   openssl/session.cpp
+  openssl/trust_store.cpp
 )
 if(USE_MIMALLOC)
   list(APPEND RUNTIME_OBJS ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src/static.c)

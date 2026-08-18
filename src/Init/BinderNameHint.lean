@@ -43,10 +43,8 @@ It is ineffective in other positions (hypotheses of rewrite rules) or when used 
 (e.g. `apply`).
 -/
 /- `abbrev` for the sake of the kernel: the `.abbrev` reducibility hints make the kernel's lazy
-delta unfold the marker before the payload's definitions, so the cast a consumed hint leaves
-behind compares payloads by pointer. The `attribute` line restores the `[implicit_reducible]`
-transparency that `abbrev` raises to `[reducible]`, so tactics keep treating the marker as
-opaque. -/
+delta unfold the marker eagerly before checking arguments.
+The `attribute` line restores the `[implicit_reducible]` transparency that `abbrev` raises to `[reducible]`, so tactics keep treating the marker as opaque. -/
 abbrev binderNameHint {α : Sort u} {β : Sort v} {γ : Sort w} (v : α) (binder : β) (e : γ) : γ := e
 
 /- One might expect/hope that this was `implicit_reducible` rather than `instance_reducible`.

@@ -42,3 +42,4 @@ structure Config where
   -/
   inlineDefs := true
   deriving Inhabited
+

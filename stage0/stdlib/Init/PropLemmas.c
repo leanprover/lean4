@@ -434,9 +434,9 @@ return v_x_197_;
 LEAN_EXPORT lean_object* l_decidable__of__bool___redArg___boxed(lean_object* v_x_198_){
 _start:
 {
-uint8_t v_x_36__boxed_199_; uint8_t v_res_200_; lean_object* v_r_201_; 
-v_x_36__boxed_199_ = lean_unbox(v_x_198_);
-v_res_200_ = l_decidable__of__bool___redArg(v_x_36__boxed_199_);
+uint8_t v_x_18__boxed_199_; uint8_t v_res_200_; lean_object* v_r_201_; 
+v_x_18__boxed_199_ = lean_unbox(v_x_198_);
+v_res_200_ = l_decidable__of__bool___redArg(v_x_18__boxed_199_);
 v_r_201_ = lean_box(v_res_200_);
 return v_r_201_;
 }
@@ -450,9 +450,9 @@ return v_x_203_;
 LEAN_EXPORT lean_object* l_decidable__of__bool___boxed(lean_object* v_a_205_, lean_object* v_x_206_, lean_object* v_x_207_){
 _start:
 {
-uint8_t v_x_39__boxed_208_; uint8_t v_res_209_; lean_object* v_r_210_; 
-v_x_39__boxed_208_ = lean_unbox(v_x_206_);
-v_res_209_ = l_decidable__of__bool(v_a_205_, v_x_39__boxed_208_, v_x_207_);
+uint8_t v_x_21__boxed_208_; uint8_t v_res_209_; lean_object* v_r_210_; 
+v_x_21__boxed_208_ = lean_unbox(v_x_206_);
+v_res_209_ = l_decidable__of__bool(v_a_205_, v_x_21__boxed_208_, v_x_207_);
 v_r_210_ = lean_box(v_res_209_);
 return v_r_210_;
 }

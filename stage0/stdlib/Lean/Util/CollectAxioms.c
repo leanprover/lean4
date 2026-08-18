@@ -1246,7 +1246,7 @@ return v___x_365_;
 LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Util_CollectAxioms_0__Lean_CollectAxioms_collectAndGet_spec__0(lean_object* v_msg_366_, lean_object* v___y_367_, lean_object* v___y_368_){
 _start:
 {
-lean_object* v___f_369_; lean_object* v___f_370_; lean_object* v___f_371_; lean_object* v___f_372_; lean_object* v___f_373_; lean_object* v___f_374_; lean_object* v___f_375_; lean_object* v___x_376_; lean_object* v___x_377_; lean_object* v___x_378_; lean_object* v___f_379_; lean_object* v___f_380_; lean_object* v___f_381_; lean_object* v___f_382_; lean_object* v___x_383_; lean_object* v___x_384_; lean_object* v___x_385_; lean_object* v___x_386_; lean_object* v___x_387_; lean_object* v___x_388_; lean_object* v___x_389_; lean_object* v___x_390_; lean_object* v___f_391_; lean_object* v___x_1017__overap_392_; lean_object* v___x_393_; 
+lean_object* v___f_369_; lean_object* v___f_370_; lean_object* v___f_371_; lean_object* v___f_372_; lean_object* v___f_373_; lean_object* v___f_374_; lean_object* v___f_375_; lean_object* v___x_376_; lean_object* v___x_377_; lean_object* v___x_378_; lean_object* v___f_379_; lean_object* v___f_380_; lean_object* v___f_381_; lean_object* v___f_382_; lean_object* v___x_383_; lean_object* v___x_384_; lean_object* v___x_385_; lean_object* v___x_386_; lean_object* v___x_387_; lean_object* v___x_388_; lean_object* v___x_389_; lean_object* v___x_390_; lean_object* v___f_391_; lean_object* v___x_981__overap_392_; lean_object* v___x_393_; 
 v___f_369_ = ((lean_object*)(l_panic___at___00__private_Lean_Util_CollectAxioms_0__Lean_CollectAxioms_collectAndGet_spec__0___closed__0));
 v___f_370_ = ((lean_object*)(l_panic___at___00__private_Lean_Util_CollectAxioms_0__Lean_CollectAxioms_collectAndGet_spec__0___closed__1));
 v___f_371_ = ((lean_object*)(l_panic___at___00__private_Lean_Util_CollectAxioms_0__Lean_CollectAxioms_collectAndGet_spec__0___closed__2));
@@ -1303,10 +1303,10 @@ v___x_389_ = lean_obj_once(&l_panic___at___00__private_Lean_Util_CollectAxioms_0
 v___x_390_ = l_instInhabitedOfMonad___redArg(v___x_388_, v___x_389_);
 v___f_391_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_391_, 0, v___x_390_);
-v___x_1017__overap_392_ = lean_panic_fn_borrowed(v___f_391_, v_msg_366_);
+v___x_981__overap_392_ = lean_panic_fn_borrowed(v___f_391_, v_msg_366_);
 lean_dec_ref(v___f_391_);
 lean_inc_ref(v___y_367_);
-v___x_393_ = lean_apply_2(v___x_1017__overap_392_, v___y_367_, v___y_368_);
+v___x_393_ = lean_apply_2(v___x_981__overap_392_, v___y_367_, v___y_368_);
 return v___x_393_;
 }
 }

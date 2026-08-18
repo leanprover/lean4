@@ -3500,10 +3500,10 @@ return v___x_878_;
 LEAN_EXPORT lean_object* l_reduceCtorEq___lam__2___boxed(lean_object* v___x_928_, lean_object* v___x_929_, lean_object* v_h_930_, lean_object* v___y_931_, lean_object* v___y_932_, lean_object* v___y_933_, lean_object* v___y_934_, lean_object* v___y_935_, lean_object* v___y_936_, lean_object* v___y_937_, lean_object* v___y_938_){
 _start:
 {
-uint8_t v___x_22515__boxed_939_; uint8_t v___x_22516__boxed_940_; lean_object* v_res_941_; 
-v___x_22515__boxed_939_ = lean_unbox(v___x_928_);
-v___x_22516__boxed_940_ = lean_unbox(v___x_929_);
-v_res_941_ = l_reduceCtorEq___lam__2(v___x_22515__boxed_939_, v___x_22516__boxed_940_, v_h_930_, v___y_931_, v___y_932_, v___y_933_, v___y_934_, v___y_935_, v___y_936_, v___y_937_);
+uint8_t v___x_22503__boxed_939_; uint8_t v___x_22504__boxed_940_; lean_object* v_res_941_; 
+v___x_22503__boxed_939_ = lean_unbox(v___x_928_);
+v___x_22504__boxed_940_ = lean_unbox(v___x_929_);
+v_res_941_ = l_reduceCtorEq___lam__2(v___x_22503__boxed_939_, v___x_22504__boxed_940_, v_h_930_, v___y_931_, v___y_932_, v___y_933_, v___y_934_, v___y_935_, v___y_936_, v___y_937_);
 lean_dec(v___y_937_);
 lean_dec_ref(v___y_936_);
 lean_dec(v___y_935_);

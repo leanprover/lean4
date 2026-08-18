@@ -6132,8 +6132,8 @@ else
 {
 lean_del_object(v___x_1786_);
 lean_dec_ref(v_children_1784_);
-lean_dec_ref(v_i_1783_);
 lean_dec_ref_known(v_ctx_x3f_1775_, 1);
+lean_dec_ref(v_i_1783_);
 return v___x_1789_;
 }
 }

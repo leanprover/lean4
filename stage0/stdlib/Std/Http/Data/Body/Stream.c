@@ -2384,9 +2384,9 @@ return v___x_703_;
 LEAN_EXPORT lean_object* l___private_Std_Http_Data_Body_Stream_0__Std_Http_Body_Channel_close_x27___redArg___lam__0___boxed(lean_object* v___x_704_, lean_object* v_knownSize_705_, lean_object* v_closeError_706_, lean_object* v_inst_707_, lean_object* v_____r_708_, lean_object* v___y_709_){
 _start:
 {
-uint8_t v___x_848__boxed_710_; lean_object* v_res_711_; 
-v___x_848__boxed_710_ = lean_unbox(v___x_704_);
-v_res_711_ = l___private_Std_Http_Data_Body_Stream_0__Std_Http_Body_Channel_close_x27___redArg___lam__0(v___x_848__boxed_710_, v_knownSize_705_, v_closeError_706_, v_inst_707_, v_____r_708_, v___y_709_);
+uint8_t v___x_821__boxed_710_; lean_object* v_res_711_; 
+v___x_821__boxed_710_ = lean_unbox(v___x_704_);
+v_res_711_ = l___private_Std_Http_Data_Body_Stream_0__Std_Http_Body_Channel_close_x27___redArg___lam__0(v___x_821__boxed_710_, v_knownSize_705_, v_closeError_706_, v_inst_707_, v_____r_708_, v___y_709_);
 lean_dec(v___y_709_);
 return v_res_711_;
 }
@@ -10355,9 +10355,9 @@ return v___x_3464_;
 LEAN_EXPORT lean_object* l___private_Std_Http_Data_Body_Stream_0__Std_Http_Body_Stream_send_x27___lam__4___boxed(lean_object* v___x_3468_, lean_object* v_x_3469_, lean_object* v___y_3470_){
 _start:
 {
-uint8_t v___x_5848__boxed_3471_; lean_object* v_res_3472_; 
-v___x_5848__boxed_3471_ = lean_unbox(v___x_3468_);
-v_res_3472_ = l___private_Std_Http_Data_Body_Stream_0__Std_Http_Body_Stream_send_x27___lam__4(v___x_5848__boxed_3471_, v_x_3469_);
+uint8_t v___x_5800__boxed_3471_; lean_object* v_res_3472_; 
+v___x_5800__boxed_3471_ = lean_unbox(v___x_3468_);
+v_res_3472_ = l___private_Std_Http_Data_Body_Stream_0__Std_Http_Body_Stream_send_x27___lam__4(v___x_5800__boxed_3471_, v_x_3469_);
 return v_res_3472_;
 }
 }
@@ -10464,9 +10464,9 @@ return v___x_3493_;
 LEAN_EXPORT lean_object* l___private_Std_Http_Data_Body_Stream_0__Std_Http_Body_Stream_send_x27___lam__5___boxed(lean_object* v_a_3497_, lean_object* v_x_3498_, lean_object* v___y_3499_){
 _start:
 {
-uint8_t v_a_5900__boxed_3500_; lean_object* v_res_3501_; 
-v_a_5900__boxed_3500_ = lean_unbox(v_a_3497_);
-v_res_3501_ = l___private_Std_Http_Data_Body_Stream_0__Std_Http_Body_Stream_send_x27___lam__5(v_a_5900__boxed_3500_, v_x_3498_);
+uint8_t v_a_5852__boxed_3500_; lean_object* v_res_3501_; 
+v_a_5852__boxed_3500_ = lean_unbox(v_a_3497_);
+v_res_3501_ = l___private_Std_Http_Data_Body_Stream_0__Std_Http_Body_Stream_send_x27___lam__5(v_a_5852__boxed_3500_, v_x_3498_);
 return v_res_3501_;
 }
 }

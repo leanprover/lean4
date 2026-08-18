@@ -1973,9 +1973,9 @@ return v___x_564_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Compiler_LCNF_AlphaEqv_sortAlts_spec__0___redArg___lam__0___boxed(lean_object* v___x_565_, lean_object* v_x_566_, lean_object* v_x_567_){
 _start:
 {
-uint8_t v___x_429__boxed_568_; uint8_t v_res_569_; lean_object* v_r_570_; 
-v___x_429__boxed_568_ = lean_unbox(v___x_565_);
-v_res_569_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Compiler_LCNF_AlphaEqv_sortAlts_spec__0___redArg___lam__0(v___x_429__boxed_568_, v_x_566_, v_x_567_);
+uint8_t v___x_415__boxed_568_; uint8_t v_res_569_; lean_object* v_r_570_; 
+v___x_415__boxed_568_ = lean_unbox(v___x_565_);
+v_res_569_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Compiler_LCNF_AlphaEqv_sortAlts_spec__0___redArg___lam__0(v___x_415__boxed_568_, v_x_566_, v_x_567_);
 lean_dec_ref(v_x_567_);
 lean_dec_ref(v_x_566_);
 v_r_570_ = lean_box(v_res_569_);

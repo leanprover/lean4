@@ -42,8 +42,6 @@ This gadget is supported by
 It is ineffective in other positions (hypotheses of rewrite rules) or when used by other tactics
 (e.g. `apply`).
 -/
-/- One might expect/hope that this was `implicit_reducible` rather than `instance_reducible`.
-Currently, the test `tests/elab/binderNameHintSimp.lean` fails (in a stage 2 build) if we make this change. -/
 /- `abbrev` for the sake of the kernel: the `.abbrev` reducibility hints make the kernel's lazy
 delta unfold the marker before the payload's definitions, so the cast a consumed hint leaves
 behind compares payloads by pointer. The `attribute` line restores the `[implicit_reducible]`
@@ -51,6 +49,8 @@ transparency that `abbrev` raises to `[reducible]`, so tactics keep treating the
 opaque. -/
 abbrev binderNameHint {α : Sort u} {β : Sort v} {γ : Sort w} (v : α) (binder : β) (e : γ) : γ := e
 
+/- One might expect/hope that this was `implicit_reducible` rather than `instance_reducible`.
+Currently, the test `tests/elab/binderNameHintSimp.lean` fails (in a stage 2 build) if we make this change. -/
 set_option allowUnsafeReducibility true in
 attribute [implicit_reducible] binderNameHint
 

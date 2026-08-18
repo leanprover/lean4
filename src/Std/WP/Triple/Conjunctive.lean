@@ -49,7 +49,7 @@ Let `h₁` establish a basic postcondition `post₁` for `x`, and let `h₂` est
 postcondition `post₂` under the assumption `post₁`. Then `mp h₁ h₂` establishes `post₂` for `x`.
 -/
 theorem mp {x : Prog} [WPConjunctive x]
-    [∀ a : Pred, PreservesSup (meet a)] [∀ a : EPred, PreservesSup (meet a)]
+    [Heyting Pred] [Heyting EPred]
     {pre₁ pre₂ : Pred} {post₁ post₂ : Value → Pred} {epost₁ epost₂ : EPred}
     (h₁ : Triple x pre₁ post₁ epost₁)
     (h₂ : Triple x pre₂ (post₁ ⇨ post₂) (epost₁ ⇨ epost₂)) :
@@ -65,7 +65,7 @@ with postcondition `post`, together with the specification `hgoal` deriving the 
 that holds after a successful run of `obs` already holds before it.
 -/
 theorem observe {Prog' : Type u'} {Value' : Type v'} [WP Prog' Value' Pred EPred]
-    [∀ a : Pred, PreservesSup (meet a)] [∀ a : EPred, PreservesSup (meet a)]
+    [Heyting Pred] [Heyting EPred]
     {obs : Prog} [WPConjunctive obs] {prog : Prog'}
     {pre : Pred} {post : Value → Pred} {epost : EPred}
     {post' : Value' → Pred} {epost' : EPred}

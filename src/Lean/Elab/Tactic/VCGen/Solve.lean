@@ -159,16 +159,18 @@ private def scanSplit? (target : Expr) : VCGenM (Option (Nat × Array Name)) := 
     | Triple _ _ _ _ _ _ _ _ pre _ _ => some pre
     | _ => none
   let some pre := pre? | return none
-  let mut e := pre
+  -- Head-only instantiation per inspected position: the scan walks the chain at the
+  -- precondition's head and never traverses the goal.
+  let mut e ← instantiateMVarsIfMVarAppS pre
   for _ in *...8 do
     unless e.getAppFn.isConstOf ``binderNameHint && e.getAppNumArgs ≥ 6 do break
     let args := e.getAppArgs
     if let .bvar i := args[3]!.cleanupAnnotations then
       if i < k then
-        if let some names ← stateMatcherAltNames? args[4]! then
+        if let some names ← stateMatcherAltNames? (← instantiateMVarsIfMVarAppS args[4]!) then
           if names.size ≥ 2 then
             return some (k - 1 - i, names)
-    e := args[5]!
+    e ← instantiateMVarsIfMVarAppS args[5]!
   return none
 
 /-- Introduce the first `n` leading binders of `goal`, naming them as `introsHygienic` does. -/
@@ -290,13 +292,13 @@ private def splitStateTuple (goal : MVarId) (names : Array Name) : VCGenM MVarId
   -- Peel the right-nested product into components, keeping each layer's `Prod` application.
   let mut comps : Array Expr := #[]
   let mut layers : Array Expr := #[]
-  let mut ty := σ
+  let mut ty ← instantiateMVarsIfMVarAppS σ
   for _ in *...m-1 do
     let_expr Prod α _β := ty
       | throwError "vcgen: state type{indentExpr σ}\ndoes not destructure into {names}"
     comps := comps.push α
     layers := layers.push ty
-    ty := ty.appArg!
+    ty ← instantiateMVarsIfMVarAppS ty.appArg!
   comps := comps.push ty
   -- The tuple of the new binders: component `i` is bound variable `m - 1 - i`.
   let mut tuple : Expr := .bvar 0
@@ -330,14 +332,12 @@ the state tuple of a loop with several mutable variables is split into one binde
 first, named after the program's own destructuring. -/
 private def forallIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
   unless target.isForall do return none
-  if target.hasBinderNameHint then
-    -- The hinted closures reach the goal as spec-rule parameters, so they are metavariables
-    -- until the rule application assigns them. The hints stay in the goal: strategy 0 consumes
-    -- each at its applied position, where the first hint to name a binder wins because a binder
-    -- that already carries an accessible user name keeps it.
-    if let some (prefixLen, names) ← scanSplit? (← instantiateMVarsS target) then
-      let g ← introPrefixHygienic goal prefixLen
-      return some [← splitStateTuple g names]
+  -- Hints stay in the goal: strategy 0 consumes each at its applied position, where the first
+  -- hint to name a binder wins because a binder that already carries an accessible user name
+  -- keeps it. Only the state-tuple split needs a look ahead of introduction.
+  if let some (prefixLen, names) ← scanSplit? target then
+    let g ← introPrefixHygienic goal prefixLen
+    return some [← splitStateTuple g names]
   let (goal, simped) ← match ← simpGoalTelescope goal with
     | .closed => return some []
     | .goal goal' => pure (goal', true)

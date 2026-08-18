@@ -184,16 +184,21 @@ builtin_cbv_simproc ↓ simpIteCbv (@ite _ _ _ _ _) := fun e => do
       else if (← isFalseExpr c') then
         return .step b (mkApp (e.replaceFn ``ite_eq_right_of_eq_false) h) (contextDependent := cd)
       else
-        let (condRes, inst') ← rewriteDecidableInstance inst
-        match condRes with
-        | .rfl _ cd =>
-          simpAndMatchIteDecidable f α c inst a b do return mkRflResult (done := true) (contextDependent := cd)
-        | .step c' h _ cd =>
+        let congrWith (c' h cd inst') :=
           simpAndMatchIteDecidableCongr f α c inst a b c' h inst' do
             let e' := e.getBoundedAppFn 4
             let e' ← mkAppS₄ e' c' inst' a b
             let h' := mkApp3 (e.replaceFn ``Sym.ite_cond_congr) c' inst' h
             return .step e' h' (done := true) (contextDependent := cd)
+        let (condRes, inst') ← rewriteDecidableInstance inst
+        match condRes with
+        | .rfl _ cd' =>
+          simpAndMatchIteDecidable f α c inst a b do
+            let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) c') |
+              return mkRflResult (done := true) (contextDependent := cd)
+            congrWith c' h (cd || cd') inst'
+        | .step c' h _ cd' =>
+          congrWith c' h (cd || cd') inst'
 
 /-- Reduce `dite` by matching the `Decidable` instance for `isTrue`/`isFalse`. -/
 def matchDIteDecidable (f α c inst a b instToMatch : Expr) (fallback : SimpM Result) : SimpM Result := do
@@ -314,11 +319,7 @@ builtin_cbv_simproc ↓ simpDIteCbv (@dite _ _ _ _ _) := fun e => do
         let b ← share <| b.betaRev #[h']
         return .step b (mkApp (e.replaceFn ``dite_eq_right_of_eq_false) h) (contextDependent := cd)
       else
-        let (condRes, inst') ← rewriteDecidableInstance inst
-        match condRes with
-        | .rfl _ cd =>
-          simpAndMatchDIteDecidable f α c inst a b do return mkRflResult (done := true) (contextDependent := cd)
-        | .step c' h _ cd =>
+        let congrWith (c' h cd inst') :=
           simpAndMatchDIteDecidableCongr f α c inst a b c' h inst' do
             let e' := e.getBoundedAppFn 4
             let h ← shareCommon h
@@ -327,6 +328,15 @@ builtin_cbv_simproc ↓ simpDIteCbv (@dite _ _ _ _ _) := fun e => do
             let e' ← mkAppS₄ e' c' inst' a b
             let h' := mkApp3 (e.replaceFn ``Sym.dite_cond_congr) c' inst' h
             return .step e' h' (done := true) (contextDependent := cd)
+        let (condRes, inst') ← rewriteDecidableInstance inst
+        match condRes with
+        | .rfl _ cd' =>
+          simpAndMatchDIteDecidable f α c inst a b do
+            let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) c') |
+              return mkRflResult (done := true) (contextDependent := cd)
+            congrWith c' h (cd || cd') inst'
+        | .step c' h _ cd' =>
+          congrWith c' h (cd || cd') inst'
 
 /-- Reduce `decide` by matching the `Decidable` instance for `isTrue`/`isFalse`. -/
 def matchDecideDecidable (p inst instToMatch : Expr) (fallback : SimpM Result) : SimpM Result := do
@@ -412,16 +422,20 @@ builtin_cbv_simproc ↓ simpDecideCbv (@Decidable.decide _ _) := fun e => do
       else if (← isFalseExpr p') then
         return .step (← getBoolFalseExpr) (mkApp3 (mkConst ``Sym.decide_prop_eq_false) p inst hp) (contextDependent := cd)
       else
-        let (condRes, inst') ← rewriteDecidableInstance inst
-        match condRes with
-        | .rfl _ cd =>
-          simpAndMatchDecideDecidable p inst do return mkRflResult (done := true) (contextDependent := cd)
-        | .step p' hp _ cd =>
+        let congrWith (p' hp cd inst') :=
           simpAndMatchDecideDecidableCongr p p' hp inst inst' do
             let res := (mkConst ``Decidable.decide)
             let res ← shareCommon res
             let res ← mkAppS₂ res p' inst'
             return .step res (mkApp5 (mkConst ``Decidable.decide.congr_simp) p p' hp inst inst') (done := true) (contextDependent := cd)
+        let (condRes, inst') ← rewriteDecidableInstance inst
+        match condRes with
+        | .rfl _ cd' =>
+          simpAndMatchDecideDecidable p inst do
+            let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) p') |
+              return mkRflResult (done := true) (contextDependent := cd)
+            congrWith p' hp (cd || cd') inst'
+        | .step p' hp _ cd' => congrWith p' hp (cd || cd') inst'
 
 end Lean.Meta.Sym.Simp
 

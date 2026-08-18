@@ -186,6 +186,27 @@ instance {σ : Type u} {Pred : Type v} {EPred : Type w} :
     MonadReaderOf σ (PredTrans (σ → Pred) EPred) where
   read := ⟨fun post _epost => fun s => post s s⟩
 
+/-- Unfolding `get` through `apply`. -/
+@[simp, grind =] theorem PredTrans.apply_get {σ : Type u} {Pred : Type v} {EPred : Type w}
+    (post : σ → σ → Pred) (epost : EPred) (s : σ) :
+    (MonadStateOf.get : PredTrans (σ → Pred) EPred σ).apply post epost s = post s s := rfl
+
+/-- Unfolding `set` through `apply`. -/
+@[simp, grind =] theorem PredTrans.apply_set {σ : Type u} {Pred : Type v} {EPred : Type w}
+    (s' : σ) (post : PUnit → σ → Pred) (epost : EPred) (s : σ) :
+    (MonadStateOf.set s' : PredTrans (σ → Pred) EPred PUnit).apply post epost s = post ⟨⟩ s' := rfl
+
+/-- Unfolding `modifyGet` through `apply`. -/
+@[simp, grind =] theorem PredTrans.apply_modifyGet {σ : Type u} {α : Type u} {Pred : Type v}
+    {EPred : Type w} (f : σ → α × σ) (post : α → σ → Pred) (epost : EPred) (s : σ) :
+    (MonadStateOf.modifyGet f : PredTrans (σ → Pred) EPred α).apply post epost s
+      = post (f s).1 (f s).2 := rfl
+
+/-- Unfolding `read` through `apply`. -/
+@[simp, grind =] theorem PredTrans.apply_read {σ : Type u} {Pred : Type v} {EPred : Type w}
+    (post : σ → σ → Pred) (epost : EPred) (s : σ) :
+    (MonadReaderOf.read : PredTrans (σ → Pred) EPred σ).apply post epost s = post s s := rfl
+
 /-- `MonadExceptOf` instance lifted through a state layer:
 delegates `throw` and `tryCatch` to the inner `PredTrans l e` instance. -/
 instance {ε : Type u} {Pred : Type v} {EPred : Type w} {σ : Type z}

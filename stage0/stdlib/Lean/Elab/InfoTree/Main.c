@@ -6082,8 +6082,8 @@ else
 {
 lean_object* v___x_1825_; lean_object* v___x_1827_; 
 lean_dec_ref(v_children_1784_);
-lean_dec_ref(v_i_1783_);
 lean_dec_ref_known(v_ctx_x3f_1775_, 1);
+lean_dec_ref(v_i_1783_);
 v___x_1825_ = ((lean_object*)(l_Lean_Elab_InfoTree_format___closed__3));
 if (v_isShared_1787_ == 0)
 {

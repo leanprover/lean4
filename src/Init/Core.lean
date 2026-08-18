@@ -1165,7 +1165,7 @@ end
 
 @[inline]
 instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (p ↔ q) where
-  decide := (decide p).beq (decide q)
+  decide := decide p == decide q
   reflects_decide :=
     match dp, dq with
     | isTrue  hp, isTrue  hq => ⟨fun _ => hq, fun _ => hp⟩

@@ -97,11 +97,11 @@ abbrev evalUnaryBitVec' (op : {n : Nat} → BitVec n → BitVec n) (αExpr : Exp
   let e ← share <| toExpr (op a.val)
   return .step e (mkApp2 (mkConst ``Eq.refl [1]) αExpr e) (done := true)
 
-abbrev evalBin [ToExpr α] [ToExpr β] (toValue? : Expr → Option α) (op : α → α → β) (a b : Expr) : SimpM Result := do
+abbrev evalBin [ToExpr α] (toValue? : Expr → Option α) (op : α → α → α) (a b : Expr) : SimpM Result := do
   let some a := toValue? a | return .rfl
   let some b := toValue? b | return .rfl
   let e ← share <| toExpr (op a b)
-  return .step e (mkApp2 (mkConst ``Eq.refl [1]) (ToExpr.toTypeExpr (α := β)) e) (done := true)
+  return .step e (mkApp2 (mkConst ``Eq.refl [1]) (ToExpr.toTypeExpr (α := α)) e) (done := true)
 
 abbrev evalBinBool : (op : Bool → Bool → Bool) → (a b : Expr) → SimpM Result := evalBin getBoolValue?
 abbrev evalBinNat : (op : Nat → Nat → Nat) → (a b : Expr) → SimpM Result := evalBin getNatValue?
@@ -708,9 +708,6 @@ public def evalGround (config : EvalStepConfig := {}) : Simproc := fun e =>
   | Inv.inv α _ a => evalInv α a
   | Neg.neg α _ a => return skipIfUnchanged e (← evalNeg α a)
   | Complement.complement α _ a => evalComplement α a
-  | Nat.ble a b => evalBin getNatValue? Nat.ble a b
-  | Nat.beq a b => evalBin getNatValue? Nat.beq a b
-  | Nat.blt a b => evalBin getNatValue? Nat.blt a b
   | Nat.gcd a b => evalBinNat Nat.gcd a b
   | Nat.succ a => evalUnaryNat (· + 1) a
   | Int.gcd a b => evalIntGcd a b

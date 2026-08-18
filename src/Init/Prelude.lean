@@ -1030,7 +1030,7 @@ Boolean equality. This should usually be used via the `a == b` notation.
 This function returns `true` if the booleans are equal or `false` otherwise. The propositional
 connective is `Iff : Prop → Prop → Prop`, written with the `↔` operator.
 
-This function comes with two definional equalities: `(a == true) = a` and `(a == false) = !a`.
+This function comes with two definitional equalities: `(a == true) = a` and `(a == false) = !a`.
 -/
 @[inline, implicit_reducible] def Bool.beq (a b : Bool) : Bool :=
   match b with

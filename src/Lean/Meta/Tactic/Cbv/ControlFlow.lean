@@ -376,7 +376,7 @@ def simpAndMatchDecideDecidableCongr (p p' h inst inst' : Expr) (fallback : Simp
   | some reduced =>
     let reduced ← share reduced
     let refl := mkApp2 (.const ``Eq.refl [1]) (mkConst ``Bool) reduced
-    return .step reduced <| mkApp7 (mkConst ``Sym.decide_congr_reduction) p p' h inst inst' reduced refl
+    return .step reduced <| mkApp7 (mkConst ``Sym.decide_eq_congr) p p' h inst inst' reduced refl
   | none =>
     match (← simp inst') with
     | .rfl _ cd =>

@@ -5447,17 +5447,17 @@ goto v_reusejp_1600_;
 v_reusejp_1600_:
 {
 lean_object* v___x_1602_; lean_object* v___x_1603_; lean_object* v___x_1604_; lean_object* v___x_1605_; uint8_t v___x_1606_; lean_object* v___x_1607_; lean_object* v___x_1608_; 
-lean_inc(v___y_1598_);
+lean_inc(v___y_1597_);
 v___x_1602_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_1602_, 0, v___x_1601_);
-lean_ctor_set(v___x_1602_, 1, v___y_1598_);
+lean_ctor_set(v___x_1602_, 1, v___y_1597_);
 v___x_1603_ = l_Array_repr___redArg(v___x_1540_, v_items_1591_);
 v___x_1604_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_1604_, 0, v___x_1602_);
 lean_ctor_set(v___x_1604_, 1, v___x_1603_);
-lean_inc(v___y_1597_);
+lean_inc(v___y_1598_);
 v___x_1605_ = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(v___x_1605_, 0, v___y_1597_);
+lean_ctor_set(v___x_1605_, 0, v___y_1598_);
 lean_ctor_set(v___x_1605_, 1, v___x_1604_);
 v___x_1606_ = 0;
 v___x_1607_ = lean_alloc_ctor(6, 1, 1);
@@ -5482,8 +5482,8 @@ lean_dec(v_start_1590_);
 v___x_1617_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_1617_, 0, v___x_1616_);
 v___y_1596_ = v___x_1613_;
-v___y_1597_ = v___y_1611_;
-v___y_1598_ = v___x_1612_;
+v___y_1597_ = v___x_1612_;
+v___y_1598_ = v___y_1611_;
 v___y_1599_ = v___x_1617_;
 goto v___jp_1595_;
 }
@@ -5497,8 +5497,8 @@ v___x_1620_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_1620_, 0, v___x_1619_);
 v___x_1621_ = l_Repr_addAppParen(v___x_1620_, v___x_1618_);
 v___y_1596_ = v___x_1613_;
-v___y_1597_ = v___y_1611_;
-v___y_1598_ = v___x_1612_;
+v___y_1597_ = v___x_1612_;
+v___y_1598_ = v___y_1611_;
 v___y_1599_ = v___x_1621_;
 goto v___jp_1595_;
 }

@@ -6,6 +6,7 @@ Authors: Henrik Böving
 module
 
 prelude
+import Init.Data.Erased
 public import Lean.EnvExtension
 public import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.BaseTypes
@@ -62,7 +63,8 @@ def Irrelevant.computeHasTrivialStructure?
   let [ctorName] := info.ctors | return none
   let ctorType ← getOtherDeclBaseType ctorName []
   if ctorType.isErased then return none
-  let some mask ← getRelevantCtorFields? ctorName trivialType
+  let some mask ← getRelevantCtorFields? ctorName fun type =>
+      trivialType type <||> pure (type.getAppFn.isConstOf ``Erased)
     | return none
   let mut result := none
   for h : i in *...mask.size do
@@ -87,6 +89,11 @@ public def Irrelevant.hasTrivialStructure?
   let .inductInfo _ ← getConstInfo declName | return none
   let some info? := infoExt.find? (← getEnv) declName
     | throwError "`{declName}` was not compiled; `compileDecls` must run on inductive types first"
-  return info?
+  if declName == ``NSigma && info?.isNone then
+    -- `NSigma` may have been compiled by a bootstrap compiler that does not yet know `Erased`.
+    computeHasTrivialStructure?
+      (fun type => Meta.isProp type <||> Meta.isTypeFormerType type) declName
+  else
+    return info?
 
 end Lean.Compiler.LCNF

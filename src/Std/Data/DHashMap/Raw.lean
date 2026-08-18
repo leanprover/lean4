@@ -13,14 +13,15 @@ import all Std.Data.DHashMap.Internal.Defs
 public section
 
 /-!
-# Dependent hash maps with unbundled well-formedness invariant
+# Dependent hash maps with a partially unbundled well-formedness invariant
 
 This file develops the type `Std.DHashMap.Raw` of dependent hash
 maps with unbundled well-formedness invariant.
 
-This version is safe to use in nested inductive types. The well-formedness predicate is
-available as `Std.DHashMap.Raw.WF` and we prove in this file that all operations preserve
-well-formedness. When in doubt, prefer `DHashMap` over `DHashMap.Raw`.
+The hashing and probing well-formedness predicate is available as `Std.DHashMap.Raw.WF`, and we
+prove in this file that all operations preserve it. The representation itself carries the erased
+alignment proof for its dependent key and value arrays, so this version cannot currently be used in
+nested inductive types. When in doubt, prefer `DHashMap` over `DHashMap.Raw`.
 
 Lemmas about the operations on `Std.DHashMap.Raw` are available in the module
 `Std.Data.DHashMap.RawLemmas`.
@@ -67,7 +68,7 @@ all the keys and values are equal.
 -/
 structure Equiv (m₁ m₂ : Raw α β) : Prop where
   /-- Internal implementation detail of the hash map -/
-  impl : (toListModel m₁.2).Perm (toListModel m₂.2)
+  impl : (toListModel m₁.buckets).Perm (toListModel m₂.buckets)
 
 @[inherit_doc] scoped infixl:50 " ~m " => Raw.Equiv
 
@@ -80,7 +81,7 @@ The `insert` function on `HashSet` and `HashSet.Raw` behaves differently: it wil
 unchanged if a matching key is already present.
 -/
 @[inline] def insert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) : Raw α β :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     (Raw₀.insert ⟨m, h⟩ a b).1
   else m -- will never happen for well-formed inputs
 
@@ -98,7 +99,7 @@ If there is no mapping for the given key, inserts the given mapping into the map
 returns the map unaltered.
 -/
 @[inline] def insertIfNew [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) : Raw α β :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     (Raw₀.insertIfNew ⟨m, h⟩ a b).1
   else m -- will never happen for well-formed inputs
 
@@ -109,7 +110,7 @@ Equivalent to (but potentially faster than) calling `contains` followed by `inse
 -/
 @[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) :
     Bool × Raw α β :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     let ⟨replaced, ⟨r, _⟩⟩ := Raw₀.containsThenInsert ⟨m, h⟩ a b
     ⟨replaced, r⟩
   else (false, m) -- will never happen for well-formed inputs
@@ -127,7 +128,7 @@ Uses the `LawfulBEq` instance to cast the retrieved value to the correct type.
 -/
 @[inline] def getThenInsertIfNew? [BEq α] [Hashable α] [LawfulBEq α] (m : Raw α β) (a : α)
     (b : β a) : Option (β a) × Raw α β :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     let ⟨previous, ⟨r, _⟩⟩ := Raw₀.getThenInsertIfNew? ⟨m, h⟩ a b
     ⟨previous, r⟩
   else (none, m) -- will never happen for well-formed inputs
@@ -142,7 +143,7 @@ Equivalent to (but potentially faster than) calling `contains` followed by `inse
 -/
 @[inline] def containsThenInsertIfNew [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) :
     Bool × Raw α β :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     let ⟨previous, ⟨r, _⟩⟩ := Raw₀.containsThenInsertIfNew ⟨m, h⟩ a b
     ⟨previous, r⟩
   else (false, m) -- will never happen for well-formed inputs
@@ -153,7 +154,7 @@ Tries to retrieve the mapping for the given key, returning `none` if no such map
 Uses the `LawfulBEq` instance to cast the retrieved value to the correct type.
 -/
 @[inline] def get? [BEq α] [LawfulBEq α] [Hashable α] (m : Raw α β) (a : α) : Option (β a) :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.get? ⟨m, h⟩ a
   else none -- will never happen for well-formed inputs
 
@@ -165,7 +166,7 @@ Observe that this is different behavior than for lists: for lists, `∈` uses `=
 `==` for comparisons, while for hash maps, both use `==`.
 -/
 @[inline] def contains [BEq α] [Hashable α] (m : Raw α β) (a : α) : Bool :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.contains ⟨m, h⟩ a
   else false -- will never happen for well-formed inputs
 
@@ -192,7 +193,7 @@ Uses the `LawfulBEq` instance to cast the retrieved value to the correct type.
 -/
 @[inline] def getD [BEq α] [Hashable α] [LawfulBEq α] (m : Raw α β) (a : α) (fallback : β a) :
     β a :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.getD ⟨m, h⟩ a fallback
   else fallback -- will never happen for well-formed inputs
 
@@ -203,13 +204,13 @@ Uses the `LawfulBEq` instance to cast the retrieved value to the correct type.
 -/
 @[inline] def get! [BEq α] [Hashable α] [LawfulBEq α] (m : Raw α β) (a : α) [Inhabited (β a)] :
     β a :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.get! ⟨m, h⟩ a
   else default -- will never happen for well-formed inputs
 
 /-- Removes the mapping for the given key if it exists. -/
 @[inline] def erase [BEq α] [Hashable α] (m : Raw α β) (a : α) : Raw α β :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.erase ⟨m, h⟩ a
   else m -- will never happen for well-formed inputs
 
@@ -221,7 +222,7 @@ variable {β : Type v}
 Tries to retrieve the mapping for the given key, returning `none` if no such mapping is present.
 -/
 @[inline] def Const.get? [BEq α] [Hashable α] (m : Raw α (fun _ => β)) (a : α) : Option β :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.Const.get? ⟨m, h⟩ a
   else none -- will never happen for well-formed inputs
 
@@ -237,13 +238,13 @@ Retrieves the mapping for the given key. Ensures that such a mapping exists by r
 Tries to retrieve the mapping for the given key, returning `fallback` if no such mapping is present.
 -/
 @[inline] def Const.getD [BEq α] [Hashable α] (m : Raw α (fun _ => β)) (a : α) (fallback : β) : β :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.Const.getD ⟨m, h⟩ a fallback
   else fallback -- will never happen for well-formed inputs
 
 /-- Tries to retrieve the mapping for the given key, panicking if no such mapping is present. -/
 @[inline] def Const.get! [BEq α] [Hashable α] [Inhabited β] (m : Raw α (fun _ => β)) (a : α) : β :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.Const.get! ⟨m, h⟩ a
   else default -- will never happen for well-formed inputs
 
@@ -258,7 +259,7 @@ returned map has a new value inserted.
 -/
 @[inline] def Const.getThenInsertIfNew? [BEq α] [Hashable α] (m : Raw α (fun _ => β)) (a : α)
     (b : β) : Option β × Raw α (fun _ => β) :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     let ⟨replaced, ⟨r, _⟩⟩ := Raw₀.Const.getThenInsertIfNew? ⟨m, h⟩ a b
     ⟨replaced, r⟩
   else (none, m) -- will never happen for well-formed inputs
@@ -270,7 +271,7 @@ Checks if a mapping for the given key exists and returns the key if it does, oth
 The result in the `some` case is guaranteed to be pointer equal to the key in the map.
 -/
 @[inline] def getKey? [BEq α] [Hashable α] (m : Raw α β) (a : α) : Option α :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.getKey? ⟨m, h⟩ a
   else none -- will never happen for well-formed inputs
 
@@ -287,7 +288,7 @@ Checks if a mapping for the given key exists and returns the key if it does, oth
 If a mapping exists the result is guaranteed to be pointer equal to the key in the map.
 -/
 @[inline] def getKeyD [BEq α] [Hashable α] (m : Raw α β) (a : α) (fallback : α) : α :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.getKeyD ⟨m, h⟩ a fallback
   else fallback -- will never happen for well-formed inputs
 
@@ -296,7 +297,7 @@ Checks if a mapping for the given key exists and returns the key if it does, oth
 If no panic occurs the result is guaranteed to be pointer equal to the key in the map.
 -/
 @[inline] def getKey! [BEq α] [Hashable α] [Inhabited α] (m : Raw α β) (a : α) : α :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.getKey! ⟨m, h⟩ a
   else default -- will never happen for well-formed inputs
 
@@ -305,7 +306,7 @@ Checks if a mapping for the given key exists and returns the key-value pair if i
 The key in the returned pair will be `BEq` to the input `a`.
 -/
 @[inline] def getEntry? [BEq α] [Hashable α] (m : Raw α β) (a : α) : Option ((a : α) × β a) :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.getEntry? ⟨m, h⟩ a
   else none -- will never  happen for well-formed inputs
 
@@ -322,7 +323,7 @@ Checks if a mapping for the given key exists and returns the key-value pair if i
 The key in the returned pair will be `BEq` to the input `a`.
 -/
 @[inline] def getEntryD [BEq α] [Hashable α] (m : Raw α β) (a : α) (fallback : (a : α) × β a) : (a : α) × β a :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.getEntryD ⟨m, h⟩ a fallback
   else fallback -- will never happen for well-formed inputs
 
@@ -331,7 +332,7 @@ Checks if a mapping for the given key exists and returns the key-value pair if i
 The key in the returned pair will be `BEq` to the input `a`.
 -/
 @[inline] def getEntry! [BEq α] [Hashable α] [Inhabited ((a : α) × β a)] (m : Raw α β) (a : α) : (a : α) × β a :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.getEntry! ⟨m, h⟩ a
   else default -- will never happen for well-formed inputs
 
@@ -352,14 +353,14 @@ This function ensures that the value is used linearly.
 -/
 @[inline] def modify [BEq α] [LawfulBEq α] [Hashable α] (m : Raw α β) (a : α) (f : β a → β a) :
     Raw α β :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.modify ⟨m, h⟩ a f
   else
     ∅
 
 @[inline, inherit_doc Raw.modify] def Const.modify [BEq α] [EquivBEq α] [Hashable α] {β : Type v}
     (m : Raw α (fun _ => β)) (a : α) (f : β → β) : Raw α (fun _ => β) :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.Const.modify ⟨m, h⟩ a f
   else
     ∅
@@ -372,14 +373,14 @@ This function ensures that the value is used linearly.
 -/
 @[inline] def alter [BEq α] [LawfulBEq α] [Hashable α] (m : Raw α β)
     (a : α) (f : Option (β a) → Option (β a)) : Raw α β :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.alter ⟨m, h⟩ a f
   else
     ∅
 
 @[inline, inherit_doc Raw.alter] def Const.alter [BEq α] [EquivBEq α] [Hashable α] {β : Type v}
     (m : Raw α (fun _ => β)) (a : α) (f : Option β → Option β) : Raw α (fun _ => β) :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.Const.alter ⟨m, h⟩ a f
   else
     ∅
@@ -393,7 +394,7 @@ Monadically computes a value by folding the given function over the mappings in 
 map in the reverse order used by `foldM`.
 -/
 @[inline] def foldRevM (f : δ → (a : α) → β a → m δ) (init : δ) (b : Raw α β) : m δ :=
-  b.buckets.foldrM (fun l acc => l.foldrM (fun a b d => f d a b) acc) init
+  b.foldRevMFrom f init 0
 
 /--
 Internal implementation detail of the hash map.
@@ -412,7 +413,7 @@ map in the reverse order used by `foldM`.
 @[inline, deprecated "Deprecated without replacement. If the order does not matter, use foldM."
   (since := "2025-03-07")]
 def foldRevM (f : δ → (a : α) → β a → m δ) (init : δ) (b : Raw α β) : m δ :=
-  b.buckets.foldrM (fun l acc => l.foldrM (fun a b d => f d a b) acc) init
+  b.foldRevMFrom f init 0
 
 /--
 Folds the given function over the mappings in the hash map in the reverse order used
@@ -448,19 +449,19 @@ only those mappings where the function returns `some` value.
 -/
 @[inline] def filterMap {γ : α → Type w} (f : (a : α) → β a → Option (γ a)) (m : Raw α β) :
     Raw α γ :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.filterMap f ⟨m, h⟩
   else ∅ -- will never happen for well-formed inputs
 
 /-- Updates the values of the hash map by applying the given function to all mappings. -/
 @[inline] def map {γ : α → Type w} (f : (a : α) → β a → γ a) (m : Raw α β) : Raw α γ :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.map f ⟨m, h⟩
   else ∅ -- will never happen for well-formed inputs
 
 /-- Removes all mappings of the hash map for which the given function returns `false`. -/
 @[inline] def filter (f : (a : α) → β a → Bool) (m : Raw α β) : Raw α β :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     Raw₀.filter f ⟨m, h⟩
   else ∅ -- will never happen for well-formed inputs
 
@@ -484,8 +485,8 @@ This function always merges the smaller map into the larger map, so the expected
 `O(min(m₁.size, m₂.size))`.
 -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
-  if h₁ : 0 < m₁.buckets.size then
-    if h₂ : 0 < m₂.buckets.size then
+  if h₁ : 0 < m₁.keyArray.size then
+    if h₂ : 0 < m₂.keyArray.size then
       Raw₀.union ⟨m₁, h₁⟩ ⟨m₂, h₂⟩
     else
       m₁
@@ -501,8 +502,8 @@ This function always merges the smaller map into the larger map, so the expected
 `O(min(m₁.size, m₂.size))`.
 -/
 @[inline] def inter [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
-  if h₁ : 0 < m₁.buckets.size then
-    if h₂ : 0 < m₂.buckets.size then
+  if h₁ : 0 < m₁.keyArray.size then
+    if h₂ : 0 < m₂.keyArray.size then
       Raw₀.inter ⟨m₁, h₁⟩ ⟨m₂, h₂⟩
     else
       m₁
@@ -517,7 +518,7 @@ Compares two hash maps using Boolean equality on keys and values.
 Returns `true` if the maps contain the same key-value pairs, `false` otherwise.
 -/
 def beq [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] (m₁ m₂ : Raw α β) : Bool :=
-  if h : 0 < m₁.buckets.size ∧ 0 < m₂.buckets.size then
+  if h : 0 < m₁.keyArray.size ∧ 0 < m₂.keyArray.size then
     Raw₀.beq ⟨m₁, h.1⟩ ⟨m₂, h.2⟩
   else
     false
@@ -525,7 +526,7 @@ def beq [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] (m₁ m₂ : R
 instance [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] : BEq (Raw α β) := ⟨beq⟩
 
 @[inherit_doc DHashMap.Raw.beq] def Const.beq {β : Type v} [BEq α] [Hashable α] [BEq β] (m₁ m₂ : Raw α (fun _ => β)) : Bool :=
-  if h : 0 < m₁.buckets.size ∧ 0 < m₂.buckets.size then
+  if h : 0 < m₁.keyArray.size ∧ 0 < m₂.keyArray.size then
       Raw₀.Const.beq ⟨m₁, h.1⟩ ⟨m₂, h.2⟩
   else
     false
@@ -537,8 +538,8 @@ This function always iterates through the smaller map, so the expected runtime i
 `O(min(m₁.size, m₂.size))`.
 -/
 @[inline] def diff [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
-  if h₁ : 0 < m₁.buckets.size then
-    if h₂ : 0 < m₂.buckets.size then
+  if h₁ : 0 < m₁.keyArray.size then
+    if h₂ : 0 < m₂.keyArray.size then
       Raw₀.diff ⟨m₁, h₁⟩ ⟨m₂, h₂⟩
     else
       m₁
@@ -568,7 +569,7 @@ appearance.
 -/
 @[inline] def insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
     (m : Raw α β) (l : ρ) : Raw α β :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     (Raw₀.insertMany ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
 
@@ -580,13 +581,13 @@ the first one removes the key.
 -/
 @[inline] def eraseManyEntries [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
     (m : Raw α β) (l : ρ) : Raw α β :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     (Raw₀.eraseManyEntries ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
 
 @[inline, inherit_doc Raw.insertMany] def Const.insertMany {β : Type v} [BEq α] [Hashable α]
     {ρ : Type w} [ForIn Id ρ (α × β)] (m : Raw α (fun _ => β)) (l : ρ) : Raw α (fun _ => β) :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     (Raw₀.Const.insertMany ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
 
@@ -600,7 +601,7 @@ This is mainly useful to implement `HashSet.insertMany`, so if you are consideri
 -/
 @[inline] def Const.insertManyIfNewUnit [BEq α] [Hashable α] {ρ : Type w}
     [ForIn Id ρ α] (m : Raw α (fun _ => Unit)) (l : ρ) : Raw α (fun _ => Unit) :=
-  if h : 0 < m.buckets.size then
+  if h : 0 < m.keyArray.size then
     (Raw₀.Const.insertManyIfNewUnit ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
 
@@ -613,12 +614,12 @@ This is mainly useful to implement `HashSet.ofArray`, so if you are considering 
   Const.insertManyIfNewUnit ∅ l
 
 /--
-Returns the number of buckets in the internal representation of the hash map. This function may be
-useful for things like monitoring system health, but it should be considered an internal
-implementation detail.
+Returns the number of storage cells in the internal representation of the hash map. The historical
+name `numBuckets` is retained for API compatibility. This function may be useful for things like
+monitoring system health, but it should be considered an internal implementation detail.
 -/
 def Internal.numBuckets (m : Raw α β) : Nat :=
-  m.buckets.size
+  m.keyArray.size
 
 end Unverified
 
@@ -677,7 +678,7 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
   -- we can write down `DHashMap.map` and `DHashMap.filterMap` in `AdditionalOperations.lean`
   -- without requiring these proofs just to invoke the operations.
   /-- Internal implementation detail of the hash map -/
-  | wf {α β : _} [BEq α] [Hashable α] {m : Raw α β} : 0 < m.buckets.size →
+  | wf {α β : _} [BEq α] [Hashable α] {m : Raw α β} : 0 < m.keyArray.size →
       (∀ [EquivBEq α] [LawfulHashable α], Raw.WFImp m) → WF m
   /-- Internal implementation detail of the hash map -/
   | emptyWithCapacity₀ {α β : _} [BEq α] [Hashable α] {c} : WF (Raw₀.emptyWithCapacity c : Raw₀ α β).1
@@ -724,7 +725,7 @@ set_option linter.defProp false in
 abbrev WF.empty₀ := @WF.emptyWithCapacity₀
 
 /-- Internal implementation detail of the hash map -/
-theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 < m.buckets.size
+theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 < m.keyArray.size
   | wf h₁ _ => h₁
   | emptyWithCapacity₀ => (Raw₀.emptyWithCapacity _).2
   | insert₀ _ => (Raw₀.insert ⟨_, _⟩ _ _).2
@@ -832,10 +833,11 @@ theorem WF.inter [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF)
   exact WF.inter₀ h₁ h₂
 
 theorem WF.diff₀ [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (Raw₀.diff ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩).val.WF := by
-  simp only [Raw₀.diff]
+  unfold Raw₀.diff
   split
-  . exact @WF.filter₀ α β _ _ m₁ h₁.size_buckets_pos (fun k x => !Raw₀.contains ⟨m₂, h₂.size_buckets_pos⟩ k) h₁
-  . exact (Raw₀.eraseManyEntries ⟨m₁, h₁.size_buckets_pos⟩ m₂).2 _ WF.erase₀ h₁
+  · exact @WF.filter₀ α β _ _ m₁ h₁.size_buckets_pos
+      (fun k _ => !Raw₀.contains ⟨m₂, h₂.size_buckets_pos⟩ k) h₁
+  · exact (Raw₀.eraseManyEntries ⟨m₁, h₁.size_buckets_pos⟩ m₂).2 _ WF.erase₀ h₁
 
 theorem WF.diff [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ \ m₂ : Raw α β).WF := by
   simp [SDiff.sdiff, Std.DHashMap.Raw.diff, h₁.size_buckets_pos, h₂.size_buckets_pos]

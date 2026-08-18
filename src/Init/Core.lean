@@ -1636,6 +1636,7 @@ gen_injective_theorems% Lean.Syntax
 gen_injective_theorems% List
 gen_injective_theorems% MProd
 gen_injective_theorems% NonScalar
+gen_injective_theorems% NOption
 gen_injective_theorems% Option
 gen_injective_theorems% PLift
 gen_injective_theorems% PULift

@@ -2068,8 +2068,8 @@ v___x_577_ = l___private_Lean_Meta_DiscrTree_Main_0__Lean_Meta_DiscrTree_toNatLi
 if (lean_obj_tag(v___x_577_) == 1)
 {
 lean_object* v_val_578_; 
-lean_dec_ref_known(v___x_535_, 2);
 lean_dec(v_declName_569_);
+lean_dec_ref_known(v___x_535_, 2);
 lean_dec(v_a_524_);
 v_val_578_ = lean_ctor_get(v___x_577_, 0);
 lean_inc(v_val_578_);
@@ -2119,8 +2119,8 @@ goto v___jp_570_;
 else
 {
 lean_object* v___x_585_; lean_object* v___x_586_; lean_object* v___x_588_; 
-lean_dec_ref_known(v___x_535_, 2);
 lean_dec(v_declName_569_);
+lean_dec_ref_known(v___x_535_, 2);
 lean_dec(v_a_524_);
 v___x_585_ = lean_box(0);
 v___x_586_ = lean_alloc_ctor(0, 2, 0);
@@ -2150,8 +2150,8 @@ return v___x_588_;
 else
 {
 lean_object* v_a_591_; lean_object* v___x_593_; uint8_t v_isShared_594_; uint8_t v_isSharedCheck_598_; 
-lean_dec_ref_known(v___x_535_, 2);
 lean_dec(v_declName_569_);
+lean_dec_ref_known(v___x_535_, 2);
 lean_dec(v_a_524_);
 lean_dec_ref(v_todo_509_);
 v_a_591_ = lean_ctor_get(v___x_579_, 0);

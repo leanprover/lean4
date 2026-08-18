@@ -18,8 +18,8 @@ This module develops the type `Std.HashSet` of hash sets.
 Lemmas about the operations on `Std.HashSet` are available in the
 module `Std.Data.HashSet.Lemmas`.
 
-See the module `Std.Data.HashSet.Raw` for a variant of this type which is safe to use in
-nested inductive types.
+See the module `Std.Data.HashSet.Raw` for a variant with a partially unbundled well-formedness
+invariant.
 -/
 
 set_option linter.missingDocs true
@@ -34,13 +34,10 @@ namespace Std
 /--
 Hash sets.
 
-This is a simple separate-chaining hash table. The data of the hash set consists of a cached size
-and an array of buckets, where each bucket is a linked list of keys. The number of buckets
-is always a power of two. The hash set doubles its size upon inserting an element such that the
-number of elements is more than 75% of the number of buckets.
-
-The hash table is backed by an `Array`. Users should make sure that the hash set is used linearly to
-avoid expensive copies.
+This is a linear-probing hash table backed by separate flat key and value arrays. Empty cells use
+`NOption`. The number of cells is always a power of two. The hash set doubles its size before an
+insertion that would make it more than 75% full. Users should make sure that the hash set is used
+linearly to avoid expensive copies.
 
 The hash set uses `==` (provided by the `BEq` typeclass) to compare elements and `hash` (provided by
 the `Hashable` typeclass) to hash them. To ensure that the operations behave as expected, `==`
@@ -48,10 +45,11 @@ should be an equivalence relation and `a == b` should imply `hash a = hash b` (s
 `EquivBEq` and `LawfulHashable` typeclasses). Both of these conditions are automatic if the BEq
 instance is lawful, i.e., if `a == b` implies `a = b`.
 
-These hash sets contain a bundled well-formedness invariant, which means that they cannot
-be used in nested inductive types. For these use cases, `Std.Data.HashSet.Raw` and
-`Std.Data.HashSet.Raw.WF` unbundle the invariant from the hash set. When in doubt, prefer
-`HashSet` over `HashSet.Raw`.
+These hash sets contain a bundled well-formedness invariant, which means that they cannot be used
+in nested inductive types. `Std.Data.HashSet.Raw` and `Std.Data.HashSet.Raw.WF` partially unbundle
+this invariant, but the raw representation still carries an array-alignment proof and therefore also
+cannot currently be used in nested inductive types. When in doubt, prefer `HashSet` over
+`HashSet.Raw`.
 -/
 structure HashSet (α : Type u) [BEq α] [Hashable α] where
   /-- Internal implementation detail of the hash set. -/
@@ -299,9 +297,9 @@ in the collection will be present in the returned hash set.
   ⟨HashMap.unitOfArray l⟩
 
 /--
-Returns the number of buckets in the internal representation of the hash set. This function may
-be useful for things like monitoring system health, but it should be considered an internal
-implementation detail.
+Returns the number of storage cells in the internal representation of the hash set. The historical
+name `numBuckets` is retained for API compatibility. This function may be useful for things like
+monitoring system health, but it should be considered an internal implementation detail.
 -/
 def Internal.numBuckets (m : HashSet α) : Nat :=
   HashMap.Internal.numBuckets m.inner

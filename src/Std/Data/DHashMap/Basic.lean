@@ -22,8 +22,8 @@ The operations `map` and `filterMap` on `Std.Data.DHashMap` are defined in the m
 Lemmas about the operations on `Std.Data.DHashMap` are available in the
 module `Std.Data.DHashMap.Lemmas`.
 
-See the module `Std.Data.DHashMap.Raw` for a variant of this type which is safe to use in
-nested inductive types and the module `Std.Data.ExtDHashMap` for a variant with extensionality.
+See the module `Std.Data.DHashMap.Raw` for a variant with a partially unbundled well-formedness
+invariant and the module `Std.Data.ExtDHashMap` for a variant with extensionality.
 
 For implementation notes, see the docstring of the module `Std.Data.DHashMap.Internal.Defs`.
 -/
@@ -44,13 +44,11 @@ open DHashMap.Internal DHashMap.Internal.List
 /--
 Dependent hash maps.
 
-This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
-and an array of buckets, where each bucket is a linked list of key-value pairs. The number of buckets
-is always a power of two. The hash map doubles its size upon inserting an element such that the
-number of elements is more than 75% of the number of buckets.
-
-The hash table is backed by an `Array`. Users should make sure that the hash map is used linearly to
-avoid expensive copies.
+This is a linear-probing hash table backed by separate flat arrays for keys and values. Empty cells
+use `NOption`, and dependent values use `NSigma` so that their keys are erased at runtime. The
+number of cells is always a power of two. The hash map doubles its size before an insertion that
+would make it more than 75% full. Users should make sure that the hash map is used linearly to avoid
+expensive copies.
 
 The hash map uses `==` (provided by the `BEq` typeclass) to compare keys and `hash` (provided by
 the `Hashable` typeclass) to hash them. To ensure that the operations behave as expected, `==`
@@ -58,10 +56,11 @@ should be an equivalence relation and `a == b` should imply `hash a = hash b` (s
 `EquivBEq` and `LawfulHashable` typeclasses). Both of these conditions are automatic if the BEq
 instance is lawful, i.e., if `a == b` implies `a = b`.
 
-These hash maps contain a bundled well-formedness invariant, which means that they cannot
-be used in nested inductive types. For these use cases, `Std.DHashMap.Raw` and
-`Std.DHashMap.Raw.WF` unbundle the invariant from the hash map. When in doubt, prefer
-`DHashMap` over `DHashMap.Raw`.
+These hash maps contain a bundled well-formedness invariant, which means that they cannot be used
+in nested inductive types. `Std.DHashMap.Raw` and `Std.DHashMap.Raw.WF` partially unbundle this
+invariant, but the raw representation still carries a dependent array-alignment proof and therefore
+also cannot currently be used in nested inductive types. When in doubt, prefer `DHashMap` over
+`DHashMap.Raw`.
 
 For a variant that is more convenient for use in proofs because of extensionalities, see
 `Std.ExtDHashMap` which is defined in the module `Std.Data.ExtDHashMap`.

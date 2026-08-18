@@ -38,13 +38,11 @@ namespace Std
 /--
 Extensional dependent hash maps.
 
-This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
-and an array of buckets, where each bucket is a linked list of key-value pairs. The number of buckets
-is always a power of two. The hash map doubles its size upon inserting an element such that the
-number of elements is more than 75% of the number of buckets.
-
-The hash table is backed by an `Array`. Users should make sure that the hash map is used linearly to
-avoid expensive copies.
+This is a linear-probing hash table backed by separate flat arrays for keys and values. Empty cells
+use `NOption`, and dependent values use `NSigma` so that their keys are erased at runtime. The
+number of cells is always a power of two. The hash map doubles its size before an insertion that
+would make it more than 75% full. Users should make sure that the hash map is used linearly to avoid
+expensive copies.
 
 The hash map uses `==` (provided by the `BEq` typeclass) to compare keys and `hash` (provided by
 the `Hashable` typeclass) to hash them. To ensure that the operations behave as expected, `==`
@@ -56,10 +54,11 @@ In contrast to regular dependent hash maps, `Std.ExtDHashMap` offers several ext
 and therefore has more lemmas about equality of hash maps. This however also makes it lose the
 ability to iterate freely over the hash map.
 
-These hash maps contain a bundled well-formedness invariant, which means that they cannot
-be used in nested inductive types. For these use cases, `Std.DHashMap.Raw` and
-`Std.DHashMap.Raw.WF` unbundle the invariant from the hash map. When in doubt, prefer
-`DHashMap` over `DHashMap.Raw`.
+These hash maps contain a bundled well-formedness invariant, which means that they cannot be used
+in nested inductive types. `Std.DHashMap.Raw` and `Std.DHashMap.Raw.WF` partially unbundle this
+invariant, but the raw representation still carries a dependent array-alignment proof and therefore
+also cannot currently be used in nested inductive types. When in doubt, prefer `DHashMap` over
+`DHashMap.Raw`.
 -/
 structure ExtDHashMap (α : Type u) (β : α → Type v) [BEq α] [Hashable α] where
   /-- Internal implementation detail of the hash map. -/

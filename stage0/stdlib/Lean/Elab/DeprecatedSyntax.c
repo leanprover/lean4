@@ -652,8 +652,8 @@ lean_ctor_set(v___x_211_, 0, v___x_210_);
 lean_ctor_set(v___x_211_, 1, v___x_204_);
 v___x_212_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_212_, 0, v___x_211_);
-lean_ctor_set(v___x_212_, 1, v___y_197_);
-v___x_213_ = l_Lean_Linter_logLintIf___redArg(v_inst_183_, v_inst_184_, v_inst_185_, v_inst_186_, v_inst_187_, v___x_200_, v___y_196_, v___x_212_);
+lean_ctor_set(v___x_212_, 1, v___y_196_);
+v___x_213_ = l_Lean_Linter_logLintIf___redArg(v_inst_183_, v_inst_184_, v_inst_185_, v_inst_186_, v_inst_187_, v___x_200_, v___y_197_, v___x_212_);
 return v___x_213_;
 }
 v___jp_214_:
@@ -889,8 +889,8 @@ goto v_reusejp_269_;
 }
 v_reusejp_269_:
 {
-v___y_196_ = v_before_256_;
-v___y_197_ = v___y_215_;
+v___y_196_ = v___y_215_;
+v___y_197_ = v_before_256_;
 v___y_198_ = v___x_262_;
 v___y_199_ = v___x_270_;
 goto v___jp_195_;
@@ -904,8 +904,8 @@ lean_dec(v___x_261_);
 lean_del_object(v___x_259_);
 lean_del_object(v___x_254_);
 v___x_273_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0___closed__17, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0___closed__17_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0___closed__17);
-v___y_196_ = v_before_256_;
-v___y_197_ = v___y_215_;
+v___y_196_ = v___y_215_;
+v___y_197_ = v_before_256_;
 v___y_198_ = v___x_262_;
 v___y_199_ = v___x_273_;
 goto v___jp_195_;

@@ -2925,6 +2925,43 @@ export Option (none some)
 instance {α} : Inhabited (Option α) where
   default := none
 
+namespace NOption
+
+/-- Compiler primitive for constructing a niche-encoded `NOption.none`. -/
+@[extern "lean_noption_none"]
+unsafe def noneInternal {α : Type u} : α := lcCast ()
+
+/-- Compiler primitive for constructing a niche-encoded `NOption.some`. -/
+@[extern "lean_noption_some"]
+unsafe def someInternal {α : Type u} (x : α) : α := x
+
+/-- Compiler primitive for discriminating a niche-encoded `NOption`. -/
+@[extern "lean_noption_is_some"]
+unsafe def isSomeInternal {α : Type u} (_ : @& α) : Bool := false
+
+/-- Compiler primitive for extracting a niche-encoded `NOption` value. -/
+@[extern "lean_noption_get"]
+unsafe def getInternal {α : Type u} (x : α) : α := x
+
+end NOption
+
+/--
+Optional values with a niche-optimized runtime representation.
+
+Unlike `Option`, wrapping a heap object in `NOption.some` does not allocate another object. Values
+whose runtime representation is an inductive constructor also retain their representation. Other
+immediate values may be shifted to leave room for `NOption.none`. An escape object is required only
+when shifting would overflow or the value is itself an escaped `NOption`.
+-/
+inductive NOption (α : Type u) where
+  /-- No value. -/
+  | none : NOption α
+  /-- Some value of type `α`. -/
+  | some (val : α) : NOption α
+
+instance {α} : Inhabited (NOption α) where
+  default := .none
+
 /--
 Gets an optional value, returning a given default on `none`.
 

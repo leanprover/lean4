@@ -1843,8 +1843,8 @@ goto v___jp_464_;
 }
 else
 {
-lean_dec(v_pre_480_);
 lean_dec_ref_known(v_pre_479_, 2);
+lean_dec(v_pre_480_);
 lean_dec_ref_known(v_pre_478_, 2);
 lean_dec_ref_known(v_declName_477_, 2);
 lean_del_object(v___x_462_);

@@ -1,17 +1,25 @@
+module
+
 import Lean
+
+/-!
+Tests that a type built entirely from computationally irrelevant fields is erased by the compiler.
+-/
+
+@[expose] public section
 
 /-- `erased α` is the same as `α`, except that the elements
   of `erased α` are erased in the VM in the same way as types
   and proofs. This can be used to track data without storing it
   literally. -/
-def Erased (α : Sort u) : Sort max 1 u :=
+def TestErased (α : Sort u) : Sort max 1 u :=
   Σ's : α → Prop, ∃ a, (fun b => a = b) = s
 
-namespace Erased
+namespace TestErased
 
 /-- Erase a value. -/
 @[inline]
-def mk {α} (a : α) : Erased α :=
+def mk {α} (a : α) : TestErased α :=
   ⟨fun b => a = b, a, rfl⟩
 
 open Lean.Compiler
@@ -21,7 +29,7 @@ set_option pp.letVarTypes true
 set_option trace.Compiler.saveMono true
 /--
 trace: [Compiler.saveMono] size: 1
-    def Erased.mk (α : lcErased) (a : lcAny) : PSigma lcErased lcAny :=
+    def TestErased.mk (α : lcErased) (a : lcAny) : PSigma lcErased lcAny :=
       let _x.1 : PSigma lcErased lcAny := PSigma.mk ◾ ◾ ◾ ◾;
       return _x.1
 ---
@@ -39,7 +47,7 @@ trace: [Compiler.saveMono] size: 5
 [Compiler.saveMono] size: 9
     def _private.elab.erased.0._eval (a : @&Lean.Elab.Command.Context) (a : @&lcAny) (a.1 : lcVoid) : EST.Out
       Lean.Exception lcAny PUnit :=
-      let _x.2 : String := "Erased";
+      let _x.2 : String := "TestErased";
       let _x.3 : String := "mk";
       let _x.4 : Lean.Name := Lean.Name.mkStr2 _x.2 _x.3;
       let _x.5 : Nat := 1;
@@ -54,4 +62,4 @@ trace: [Compiler.saveMono] size: 5
       return _x.10
 -/
 #guard_msgs in
-run_meta Lean.Compiler.compile #[``Erased.mk]
+run_meta Lean.Compiler.compile #[``TestErased.mk]

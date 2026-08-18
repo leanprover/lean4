@@ -576,20 +576,19 @@ instance assignment. This intentionally does not apply to ordinary implicit (`{.
 that happen to have a class type, which are created with `.natural` kind.
 -/
 private def isInstanceMVar (mvarId : MVarId) : MetaM Bool := do
-  unless (← respectTransparencyAtTypes) &&
-      backward.isDefEq.respectTransparency.instances.get (← getOptions) do
+  unless backward.isDefEq.respectTransparency.instances.get (← getOptions) do
     return false
   unless (← mvarId.getKind) matches .synthetic do return false
   return (← isClass? (← mvarId.getDecl).type).isSome
 
 /--
 Returns `true` if all metavariables whose types influence the type of `e`, a value assigned to an
-instance-typed metavariable unter `backward.isDefEq.respectTransparency.instanceSearchTypes`, are admissible.
-Admissible are:
+instance-typed metavariable unter `backward.isDefEq.respectTransparency.instanceSearchTypes`, are
+admissible. Admissible are:
 
 * metavariables whose own assignments are subject to the same restriction: instance-typed ones
-  (spawned by instance search, see `backward.isDefEq.instanceTypes`) and instance metavariables
-  (see `isInstanceMVar`);
+  (spawned by instance search, see `backward.isDefEq.respectTransparency.instanceSearchTypes`) and
+  instance metavariables (see `isInstanceMVar`);
 * metavariables `isDefEq` cannot assign (from an outer `MetavarContext` depth, or synthetic
   opaque): the current instance search cannot commit them to a wrong-typed value, and their
   eventual assignment is governed by whoever created them.
@@ -622,7 +621,7 @@ where
       else if (← mvarId.isReadOnlyOrSyntheticOpaque) then
         return true
       else if (← mvarId.isInstanceTyped) then
-        return backward.isDefEq.instanceTypes.get (← getOptions)
+        return backward.isDefEq.respectTransparency.instanceSearchTypes.get (← getOptions)
       else
         isInstanceMVar mvarId
     | .app f _ => go f
@@ -709,22 +708,22 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
       -- must check whether types are definitionally equal or not, before assigning and returning true
       let mvarType ← inferType mvar
       let vType ← inferType v
-      if (← respectTransparencyAtTypes) then
-        if (← isInstanceMVar mvar.mvarId!) then
-          if (← spineMVarsAdmissible v) then
-            if (← checkTypesForInstanceTypedMVarAssignment mvarType vType v) then
-              mvar.mvarId!.assign v
-              return true
-          synthInstanceTypedMVarAndUnify mvar v
-        else withImplicitConfig do
-          if (← Meta.isExprDefEqAux mvarType vType) then
+      if (← isInstanceMVar mvar.mvarId!) then
+        if (← spineMVarsAdmissible v) then
+          if (← checkTypesForInstanceTypedMVarAssignment mvarType vType v) then
             mvar.mvarId!.assign v
             return true
-          else
-            if (← isDiagnosticsEnabled) then withInferTypeConfig do
-              if (← Meta.isExprDefEqAux mvarType vType) then
-                trace[diagnostics] "failure when assigning metavariable with type{indentExpr mvarType}\nwhich is not definitionally equal to{indentExpr vType}\nwhen using `.implicit` transparency, but it is with `.default`.\nWorkaround: `set_option backward.isDefEq.respectTransparency.types false`"
-            return false
+        synthInstanceTypedMVarAndUnify mvar v
+      else if (← respectTransparencyAtTypes) then
+        withImplicitConfig do
+        if (← Meta.isExprDefEqAux mvarType vType) then
+          mvar.mvarId!.assign v
+          return true
+        else
+          if (← isDiagnosticsEnabled) then withInferTypeConfig do
+            if (← Meta.isExprDefEqAux mvarType vType) then
+              trace[diagnostics] "failure when assigning metavariable with type{indentExpr mvarType}\nwhich is not definitionally equal to{indentExpr vType}\nwhen using `.implicit` transparency, but it is with `.default`.\nWorkaround: `set_option backward.isDefEq.respectTransparency.types false`"
+          return false
         -- let withCorrectTransparency (x : MetaM Bool) : MetaM Bool :=
         --   if isInstance then withExactInstancesConfig x else withImplicitConfig x
         -- -- withCorrectTransparency do

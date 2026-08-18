@@ -48,7 +48,7 @@ during the outParam check.
 See `assignOutParams` for the implementation.
 -/
 register_builtin_option backward.isDefEq.respectTransparency.outParams : Bool := {
-  defValue := true
+  defValue := false
   descr    := "if true (the default), do not bump transparency to `.default` \
   when checking that a synthesized instance's type matches the original goal type \
   for classes with `outParam`s"

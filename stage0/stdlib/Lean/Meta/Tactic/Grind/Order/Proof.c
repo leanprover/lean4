@@ -3083,7 +3083,7 @@ v___jp_1093_:
 {
 lean_object* v___x_1097_; lean_object* v___x_1098_; lean_object* v___x_1099_; 
 v___x_1097_ = l_Lean_eagerReflBoolTrue;
-v___x_1098_ = l_Lean_mkApp6(v___y_1094_, v_u_1076_, v_v_1077_, v___y_1095_, v___y_1096_, v___x_1097_, v_huv_1079_);
+v___x_1098_ = l_Lean_mkApp6(v___y_1095_, v_u_1076_, v_v_1077_, v___y_1094_, v___y_1096_, v___x_1097_, v_huv_1079_);
 v___x_1099_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1099_, 0, v___x_1098_);
 return v___x_1099_;
@@ -3104,8 +3104,8 @@ v___x_1111_ = l_Int_toNat(v___x_1110_);
 lean_dec(v___x_1110_);
 v___x_1112_ = l_Lean_instToExprInt_mkNat(v___x_1111_);
 v___x_1113_ = l_Lean_mkApp3(v___x_1107_, v___x_1108_, v___x_1109_, v___x_1112_);
-v___y_1094_ = v___y_1103_;
-v___y_1095_ = v___y_1104_;
+v___y_1094_ = v___y_1104_;
+v___y_1095_ = v___y_1103_;
 v___y_1096_ = v___x_1113_;
 goto v___jp_1093_;
 }
@@ -3114,8 +3114,8 @@ else
 lean_object* v___x_1114_; lean_object* v___x_1115_; 
 v___x_1114_ = l_Int_toNat(v_k_1100_);
 v___x_1115_ = l_Lean_instToExprInt_mkNat(v___x_1114_);
-v___y_1094_ = v___y_1103_;
-v___y_1095_ = v___y_1104_;
+v___y_1094_ = v___y_1104_;
+v___y_1095_ = v___y_1103_;
 v___y_1096_ = v___x_1115_;
 goto v___jp_1093_;
 }
@@ -3812,7 +3812,7 @@ v___jp_1492_:
 {
 lean_object* v___x_1496_; lean_object* v___x_1497_; lean_object* v___x_1498_; 
 v___x_1496_ = l_Lean_eagerReflBoolTrue;
-v___x_1497_ = l_Lean_mkApp6(v___y_1493_, v_u_1475_, v_v_1476_, v___y_1494_, v___y_1495_, v___x_1496_, v_huv_1478_);
+v___x_1497_ = l_Lean_mkApp6(v___y_1494_, v_u_1475_, v_v_1476_, v___y_1493_, v___y_1495_, v___x_1496_, v_huv_1478_);
 v___x_1498_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1498_, 0, v___x_1497_);
 return v___x_1498_;
@@ -3833,8 +3833,8 @@ v___x_1510_ = l_Int_toNat(v___x_1509_);
 lean_dec(v___x_1509_);
 v___x_1511_ = l_Lean_instToExprInt_mkNat(v___x_1510_);
 v___x_1512_ = l_Lean_mkApp3(v___x_1506_, v___x_1507_, v___x_1508_, v___x_1511_);
-v___y_1493_ = v___y_1502_;
-v___y_1494_ = v___y_1503_;
+v___y_1493_ = v___y_1503_;
+v___y_1494_ = v___y_1502_;
 v___y_1495_ = v___x_1512_;
 goto v___jp_1492_;
 }
@@ -3843,8 +3843,8 @@ else
 lean_object* v___x_1513_; lean_object* v___x_1514_; 
 v___x_1513_ = l_Int_toNat(v_k_1499_);
 v___x_1514_ = l_Lean_instToExprInt_mkNat(v___x_1513_);
-v___y_1493_ = v___y_1502_;
-v___y_1494_ = v___y_1503_;
+v___y_1493_ = v___y_1503_;
+v___y_1494_ = v___y_1502_;
 v___y_1495_ = v___x_1514_;
 goto v___jp_1492_;
 }

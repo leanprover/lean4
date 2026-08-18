@@ -1152,8 +1152,8 @@ v___x_283_ = lean_nat_dec_eq(v___x_282_, v___x_247_);
 if (v___x_283_ == 0)
 {
 v___y_249_ = v___x_281_;
-v___y_250_ = v___x_282_;
-v___y_251_ = v_e_x27_278_;
+v___y_250_ = v_e_x27_278_;
+v___y_251_ = v___x_282_;
 v___y_252_ = v_left_280_;
 v___y_253_ = v___y_272_;
 v___y_254_ = v___y_274_;
@@ -1163,8 +1163,8 @@ goto v___jp_248_;
 else
 {
 v___y_249_ = v___x_281_;
-v___y_250_ = v___x_282_;
-v___y_251_ = v_e_x27_278_;
+v___y_250_ = v_e_x27_278_;
+v___y_251_ = v___x_282_;
 v___y_252_ = v_left_280_;
 v___y_253_ = v___y_272_;
 v___y_254_ = v___y_274_;
@@ -1233,9 +1233,9 @@ v___jp_248_:
 if (v___y_255_ == 0)
 {
 lean_object* v___x_256_; lean_object* v___x_257_; lean_object* v___x_258_; lean_object* v___x_259_; lean_object* v___x_260_; lean_object* v___x_261_; lean_object* v_e_262_; lean_object* v_right_263_; 
-v___x_256_ = lean_nat_add(v___y_251_, v___y_250_);
-lean_dec(v___y_250_);
+v___x_256_ = lean_nat_add(v___y_250_, v___y_251_);
 lean_dec(v___y_251_);
+lean_dec(v___y_250_);
 v___x_257_ = l_Nat_reprFast(v___x_256_);
 v___x_258_ = lean_string_utf8_byte_size(v___x_257_);
 lean_inc_ref(v___x_257_);

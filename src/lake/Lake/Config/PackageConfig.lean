@@ -335,6 +335,7 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
     as a fallback).
   -/
   builtinLint?, builtinLint : Option Bool := none
+
   /--
   Additional modules imported for each environment
   used in running code quality checks.

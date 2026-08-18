@@ -136,13 +136,12 @@ theorem keysValues_set {keys : Array (NOption α)} {values : Array (NOption (NSi
 /-- Replaces one pair of cells and the cached number of mappings. -/
 @[noinline, expose] def setCell (m : Raw α β) (size : Nat) (i : Nat) (hi : i < m.keyArray.size)
     (key : NOption α) (value : NOption (NSigma β)) (hcell : CellsMatch key value) : Raw α β :=
+  have hiv : i < m.valueArray.size := by simpa [m.keysValues.1] using hi
   { size
     keyArray := m.keyArray.set i key
-    valueArray := m.valueArray.setIfInBounds i value
+    valueArray := m.valueArray.set i value
     keysValues := by
-      have hiv : i < m.valueArray.size := by simpa [m.keysValues.1] using hi
-      simpa [Array.setIfInBounds_def, hiv] using
-        keysValues_set m.keysValues i hi hiv key value hcell }
+      exact keysValues_set m.keysValues i hi hiv key value hcell }
 
 /-- Internal implementation detail of the hash map. -/
 theorem keysValues_setCell (m : Raw α β) (size i : Nat) (hi : i < m.keyArray.size)
@@ -167,15 +166,15 @@ theorem keysValues_setEntry (m : Raw α β) (size i : Nat) (hi : i < m.keyArray.
 /-- Empties one cell. -/
 @[noinline, expose] def clearCell (m : Raw α β) (size : Nat) (i : Nat) (_hi : i < m.keyArray.size) :
     Raw α β :=
+  have hiv : i < m.valueArray.size := by simpa [m.keysValues.1] using _hi
   { size
     keyArray := m.keyArray
-    valueArray := m.valueArray.setIfInBounds i .none
+    valueArray := m.valueArray.set i .none
     keysValues := by
-      have hiv : i < m.valueArray.size := by simpa [m.keysValues.1] using _hi
       have hcell : CellsMatch m.keyArray[i] (NOption.none : NOption (NSigma β)) := by
         cases hkey : m.keyArray[i] <;> simp [CellsMatch]
-      have hset := keysValues_set m.keysValues i _hi hiv m.keyArray[i] .none hcell
-      simpa [Array.setIfInBounds_def, hiv] using hset }
+      simpa only [Array.set_getElem_self _hi] using
+        keysValues_set m.keysValues i _hi hiv m.keyArray[i] .none hcell }
 
 /-- Internal implementation detail of the hash map. -/
 theorem keysValues_clearCell (m : Raw α β) (size i : Nat) (hi : i < m.keyArray.size)
@@ -186,15 +185,15 @@ theorem keysValues_clearCell (m : Raw α β) (size i : Nat) (hi : i < m.keyArray
 /-- Updates a value while retaining the key array. -/
 @[noinline, expose] def setValue (m : Raw α β) (size : Nat) (i : Nat)
     (hi : i < m.keyArray.size) (a : α) (hkey : m.keyArray[i] = .some a) (b : β a) : Raw α β :=
+  have hiv : i < m.valueArray.size := by simpa [m.keysValues.1] using hi
   { size
     keyArray := m.keyArray
-    valueArray := m.valueArray.setIfInBounds i (.some (.mk a b))
+    valueArray := m.valueArray.set i (.some (.mk a b))
     keysValues := by
-      have hiv : i < m.valueArray.size := by simpa [m.keysValues.1] using hi
       have hcell : CellsMatch m.keyArray[i] (.some (.mk a b)) := by
         simp [hkey, CellsMatch]
-      have hset := keysValues_set m.keysValues i hi hiv m.keyArray[i] (.some (.mk a b)) hcell
-      simpa [Array.setIfInBounds_def, hiv] using hset }
+      simpa only [Array.set_getElem_self hi] using
+        keysValues_set m.keysValues i hi hiv m.keyArray[i] (.some (.mk a b)) hcell }
 
 /-- Writing the key already present in a cell is the same as updating only its value. -/
 theorem setEntry_eq_setValue (m : Raw α β) (size i : Nat) (hi : i < m.keyArray.size)
@@ -207,8 +206,7 @@ theorem setEntry_eq_setValue (m : Raw α β) (size i : Nat) (hi : i < m.keyArray
     · subst j
       simpa using hkey.symm
     · rw [Array.getElem_set_ne hi hj (Ne.symm hji)]
-  simp only [setEntry, setCell, setValue, Raw.mk.injEq]
-  exact ⟨trivial, hkeys, trivial⟩
+  simp [setEntry, setCell, setValue, hkeys]
 
 /-- Reconstructs an entry from a pair of matching key and value cells. -/
 @[inline, expose] def CellsMatch.entry? :

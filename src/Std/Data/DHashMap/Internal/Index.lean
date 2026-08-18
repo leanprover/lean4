@@ -24,23 +24,20 @@ set_option autoImplicit false
 
 namespace Std.DHashMap.Internal
 
-/--
-Scramble the hash code in order to protect against bad hash functions.
-
-Example: if `Hashable Float` was implemented using the "identity" reinterpreting the bit pattern as
-a `UInt64`, then the hash codes of all small positive or negative integers would end in around 50
-zeroes, meaning that they all land in bucket 0 in reasonably-sized hash maps.
-
-To counteract this, we xor the hash code with some shifted-down versions of itself, to make sure
-that all of the entropy of the hash code appears in the lower 16 bits at least.
-
-The scrambling operation is very fast. It does not have a measurable impact on performance in the
-insert benchmark.
--/
+/-- Scrambles low-range hash codes while folding high-bit entropy into the indexing bits. -/
 @[inline]
 def scrambleHash (hash : UInt64) : UInt64 :=
   let fold := hash ^^^ (hash >>> 32)
-  fold ^^^ (fold >>> 16)
+  let folded := fold ^^^ (fold >>> 16)
+  -- Low-range hashes commonly come from integer identities; wider hashes usually have entropy.
+  if hash >>> 24 == 0 then
+    -- Keep small-table indices local, but split the low-range cluster in larger tables.
+    if hash >>> 7 == 0 then
+      hash ^^^ ((hash &&& 0x40) <<< 1)
+    else
+      hash * 0x9e3779b97f4a7c15
+  else
+    folded
 
 -- Note that this indexing scheme always produces a valid index, but it only has a chance of
 -- returning every index if sz is a power of two.

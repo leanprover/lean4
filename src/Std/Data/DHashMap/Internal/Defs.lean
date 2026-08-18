@@ -170,6 +170,49 @@ def probeFromAux [BEq α] (m : @& Raw₀ α β) (query : α) :
   let start := mkIdx m.1.keyArray.size m.2 (hash query)
   probeFrom m query m.1.keyArray.size start.1.toNat start.2
 
+private theorem probeFromAux_found_cell [BEq α] (m : Raw₀ α β) (query : α)
+    (firstEmpty : Option (Fin m.1.keyArray.size)) (fuel i : Nat)
+    (hi : i < m.1.keyArray.size) (index : Fin m.1.keyArray.size)
+    (k : α) (v : β k) (hmatch : k == query)
+    (h : m.probeFromAux query firstEmpty fuel i hi = .found index k v hmatch) :
+    m.1.entryAtInBounds? index.1 index.2 = some ⟨k, v⟩ := by
+  induction fuel generalizing firstEmpty i with
+  | zero =>
+    simp only [probeFromAux] at h
+    cases firstEmpty <;> contradiction
+  | succ fuel ih =>
+    rw [probeFromAux.eq_def] at h
+    cases hk : m.1.keyArray[i] with
+    | none =>
+      simp only [hk] at h
+      cases firstEmpty <;> contradiction
+    | some key =>
+      simp only [hk] at h
+      cases he : m.1.entryAtInBounds? i hi with
+      | none =>
+        simp only [he] at h
+        cases hf : firstEmpty with
+        | none =>
+          simp only [hf] at h
+          exact ih (some ⟨i, hi⟩) _ _ h
+        | some first =>
+          simp only [hf] at h
+          exact ih (some first) _ _ h
+      | some p =>
+        rcases p with ⟨k', v'⟩
+        simp only [he] at h
+        split at h
+        · cases h
+          exact he
+        · exact ih firstEmpty _ _ h
+
+private theorem probe_found_cell [BEq α] [Hashable α] (m : Raw₀ α β) (query : α)
+    (index : Fin m.1.keyArray.size) (k : α) (v : β k) (hmatch : k == query)
+    (h : m.probe query = .found index k v hmatch) :
+    m.1.entryAtInBounds? index.1 index.2 = some ⟨k, v⟩ := by
+  unfold probe at h
+  exact probeFromAux_found_cell m query none _ _ _ index k v hmatch h
+
 /-- Searches the physical table for a matching key. -/
 @[specialize] def scan [BEq α] [Hashable α] (m : @& Raw₀ α β) (query : α) :
     ScanResult β query m.1.keyArray.size :=
@@ -243,6 +286,11 @@ decreasing_by all_goals exact Nat.sub_succ_lt_self _ _ hi
 def expand [BEq α] [Hashable α] (m : Raw₀ α β) : Raw₀ α β :=
   let cellCount := m.1.keyArray.size * 2
   let target : Raw₀ α β := emptyWithCellCount cellCount (Nat.mul_pos m.2 Nat.two_pos)
+  m.1.fold (fun target k v => target.insertNoExpand k v) target
+
+/-- Rebuilds the table at its current cell count, discarding tombstones. -/
+def compact [BEq α] [Hashable α] (m : Raw₀ α β) : Raw₀ α β :=
+  let target : Raw₀ α β := emptyWithCellCount m.1.keyArray.size m.2
   m.1.fold (fun target k v => target.insertNoExpand k v) target
 
 /-- Grows the table before an insertion that would exceed a load factor of 0.75. -/
@@ -349,12 +397,26 @@ def get! [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) [Inha
   | some v => v
   | none => panic! "key is not present in hash table"
 
-/-- Removes the entry matching `a`, if present. -/
-def erase [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
+/-- Periodically rebuilds a table after deletion so tombstones cannot accumulate indefinitely. -/
+@[inline] def compactAfterErase [BEq α] [Hashable α] (m : Raw₀ α β) : Raw₀ α β :=
+  if m.1.size == 0 || m.1.size.nextPowerOfTwo == m.1.size then m.compact else m
+
+/-- Removes the entry matching `a` without rebuilding the table. -/
+def eraseNoCompact [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
   match m.scan a with
   | .found i _ _ _ =>
     ⟨m.1.clearCell (m.1.size - 1) i i.isLt,
       by simpa [Raw.clearCell, Raw.setCell] using m.2⟩
+  | .absent => m
+
+/-- Removes the entry matching `a`, if present. -/
+def erase [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
+  match m.scan a with
+  | .found i _ _ _ =>
+    let erased : Raw₀ α β :=
+      ⟨m.1.clearCell (m.1.size - 1) i i.isLt,
+        by simpa [Raw.clearCell, Raw.setCell] using m.2⟩
+    erased.compactAfterErase
   | .absent => m
 
 /-- Internal implementation detail of the hash map. -/
@@ -364,14 +426,35 @@ def erase [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
   | .none => m
   | .some v => m.insert a (f v)
 
+/-- Updates a value in a cell whose key is known to match the query. -/
+@[inline] def setValueForQuery [BEq α] [LawfulBEq α] (m : Raw₀ α β)
+    (i : Fin m.1.keyArray.size) (a : α) (b : β a) : Raw₀ α β :=
+  let cell : { key // m.1.keyArray[i] = key } := ⟨m.1.keyArray[i], rfl⟩
+  match cell with
+  | ⟨.none, _⟩ => m
+  | ⟨.some k, hkey⟩ =>
+    if h : k == a then
+      let b' := cast (congrArg β (eq_of_beq h).symm) b
+      ⟨m.1.setValue m.1.size i.1 i.2 k hkey b',
+        by simpa [Raw.setValue] using m.2⟩
+    else
+      m
+
+theorem setEntry_eq_setValueForQuery [BEq α] [LawfulBEq α] (m : Raw₀ α β)
+    (i : Fin m.1.keyArray.size) (a : α) (hkey : m.1.keyArray[i] = .some a) (b : β a) :
+    (⟨m.1.setEntry m.1.size i.1 i.2 a b,
+      by simpa [Raw.setEntry, Raw.setCell] using m.2⟩ : Raw₀ α β) =
+      m.setValueForQuery i a b := by
+  simp [setValueForQuery, hkey]
+  exact Raw.setEntry_eq_setValue m.1 m.1.size i.1 i.2 a hkey b
+
 /-- Single-probe implementation of `modify`. -/
 @[specialize, inline] def modifyImpl [BEq α] [Hashable α] [LawfulBEq α]
     (m : Raw₀ α β) (a : α) (f : β a → β a) : Raw₀ α β :=
   match m.probe a with
   | .found i _ v h =>
     let v' := f (cast (congrArg β (eq_of_beq h)) v)
-    ⟨m.1.setEntry m.1.size i.1 i.2 a v',
-      by simpa [Raw.setEntry, Raw.setCell] using m.2⟩
+    m.setValueForQuery i a v'
   | .empty .. | .full => m
 
 /-- Internal implementation detail of the hash map. -/
@@ -394,11 +477,12 @@ def erase [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
   | .found i _ v h =>
     match f (some (cast (congrArg β (eq_of_beq h)) v)) with
     | none =>
-      ⟨m.1.clearCell (m.1.size - 1) i.1 i.2,
-        by simpa [Raw.clearCell, Raw.setCell] using m.2⟩
+      let erased : Raw₀ α β :=
+        ⟨m.1.clearCell (m.1.size - 1) i.1 i.2,
+          by simpa [Raw.clearCell, Raw.setCell] using m.2⟩
+      erased.compactAfterErase
     | some v' =>
-      ⟨m.1.setEntry m.1.size i.1 i.2 a v',
-        by simpa [Raw.setEntry, Raw.setCell] using m.2⟩
+      m.setValueForQuery i a v'
   | .empty i =>
     match f none with
     | none => m
@@ -464,15 +548,34 @@ noncomputable def insertIfNew [BEq α] [Hashable α] (m : Raw₀ α β) (a : α)
 
 @[csimp] theorem modify_eq_modifyImpl : @modify = @modifyImpl := by
   funext α β instBEq instHashable instLawfulBEq m a f
-  unfold modify modifyImpl get? scan
-  rw [insert_eq_insertImpl]
-  cases hp : m.probe a <;> simp [hp, insertImpl]
+  cases hp : m.probe a with
+  | found i k v h =>
+    have hentry := probe_found_cell m a i k v h hp
+    have hkey := Raw.keyArray_eq_some_of_entryAtInBounds_eq_some m.1 i i.isLt k v hentry
+    have hka : k = a := eq_of_beq h
+    subst a
+    simpa [modify, modifyImpl, get?, scan, hp, insert_eq_insertImpl, insertImpl] using
+      setEntry_eq_setValueForQuery m i k hkey (f v)
+  | empty | full =>
+    simp [modify, modifyImpl, get?, scan, hp]
 
 @[csimp] theorem alter_eq_alterImpl : @alter = @alterImpl := by
   funext α β instBEq instHashable instLawfulBEq m a f
-  unfold alter alterImpl get? erase scan
-  rw [insert_eq_insertImpl]
-  cases hp : m.probe a <;> simp [hp, insertImpl]
+  cases hp : m.probe a with
+  | found i k v h =>
+    have hentry := probe_found_cell m a i k v h hp
+    have hkey := Raw.keyArray_eq_some_of_entryAtInBounds_eq_some m.1 i i.isLt k v hentry
+    have hka : k = a := eq_of_beq h
+    subst a
+    cases hf : f (some v) with
+    | none =>
+      simp [alter, alterImpl, get?, erase, scan, hp, hf]
+    | some v' =>
+      simpa [alter, alterImpl, get?, erase, scan, hp, hf,
+        insert_eq_insertImpl, insertImpl] using
+        setEntry_eq_setValueForQuery m i k hkey v'
+  | empty | full =>
+    simp [alter, alterImpl, get?, scan, hp, insert_eq_insertImpl, insertImpl]
 
 @[csimp] theorem containsThenInsert_eq_containsThenInsertImpl :
     @containsThenInsert = @containsThenInsertImpl := by
@@ -708,8 +811,10 @@ def get! [BEq α] [Hashable α] [Inhabited β] (m : Raw₀ α (fun _ => β)) (a 
   | .found i _ v _ =>
     match f (some v) with
     | none =>
-      ⟨m.1.clearCell (m.1.size - 1) i.1 i.2,
-        by simpa [Raw.clearCell, Raw.setCell] using m.2⟩
+      let erased : Raw₀ α (fun _ => β) :=
+        ⟨m.1.clearCell (m.1.size - 1) i.1 i.2,
+          by simpa [Raw.clearCell, Raw.setCell] using m.2⟩
+      erased.compactAfterErase
     | some v' =>
       ⟨m.1.setEntry m.1.size i.1 i.2 a v',
         by simpa [Raw.setEntry, Raw.setCell] using m.2⟩

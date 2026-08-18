@@ -149,6 +149,12 @@ decreasing_by all_goals exact Nat.sub_succ_lt_self _ _ ‹_›
     (Raw₀.emptyWithCapacity c : Raw₀ α β).scan a = .absent := by
   simp [Raw₀.emptyWithCapacity]
 
+@[simp] theorem eraseNoCompact_emptyWithCellCount [BEq α] [Hashable α]
+    {n : Nat} (hn : 0 < n) (a : α) :
+    (Raw₀.emptyWithCellCount n hn : Raw₀ α β).eraseNoCompact a =
+      Raw₀.emptyWithCellCount n hn := by
+  rw [Raw₀.eraseNoCompact, scan_emptyWithCellCount]
+
 @[simp] theorem get?_emptyWithCellCount [BEq α] [Hashable α] [LawfulBEq α]
     (n : Nat) (hn : 0 < n) (a : α) :
     (Raw₀.emptyWithCellCount n hn : Raw₀ α β).get? a = none := by
@@ -302,7 +308,7 @@ theorem entryAtInBounds_setEntry_ne (b : Raw α β) (size i j : Nat) (k : α) (v
   split <;> rename_i hjvNew
   · simp only [Raw.setEntry, Raw.setCell]
     rw [Array.getElem_set_ne hi hj' (Ne.symm hne)]
-    rw [Array.getElem_setIfInBounds_ne hjv (Ne.symm hne)]
+    rw [Array.getElem_set_ne hiv hjv (Ne.symm hne)]
   · have : j < (b.setEntry size i hi k v).valueArray.size := by
       simpa [Raw.setEntry, Raw.setCell] using hjv
     contradiction
@@ -328,7 +334,7 @@ theorem entryAtInBounds_clearCell_ne (b : Raw α β) (size i j : Nat)
   unfold Raw.entryAtInBounds?
   split <;> rename_i hjvNew
   · simp only [Raw.clearCell]
-    rw [Array.getElem_setIfInBounds_ne hjv (Ne.symm hne)]
+    rw [Array.getElem_set_ne hiv hjv (Ne.symm hne)]
     rfl
   · have : j < (b.clearCell size i hi).valueArray.size := by
       simpa [Raw.clearCell] using hjv
@@ -1346,7 +1352,7 @@ theorem size_insertNoExpand_le [BEq α] [Hashable α] [EquivBEq α]
 
 theorem foldl_insertNoExpand [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
     (l : List ((a : α) × β a)) (m : Raw₀ α β) (h : Raw.WFImp m.1)
-    (hspace : m.1.size + l.length + 1 < m.1.keyArray.size) :
+    (hspace : m.1.size + l.length < m.1.keyArray.size) :
     let result := l.foldl (fun m p => m.insertNoExpand p.1 p.2) m
     Raw.WFImp result.1 ∧
       (result.1.entriesFrom 0).toList ~
@@ -1361,7 +1367,7 @@ theorem foldl_insertNoExpand [BEq α] [Hashable α] [EquivBEq α] [LawfulHashabl
     have hnext := wfImp_insertNoExpand m h a b hroom
     have hle := size_insertNoExpand_le m h a b
     have hspace' :
-        (m.insertNoExpand a b).1.size + l.length + 1 <
+        (m.insertNoExpand a b).1.size + l.length <
           (m.insertNoExpand a b).1.keyArray.size := by
       rw [keyArray_size_insertNoExpand]
       omega
@@ -1629,6 +1635,30 @@ theorem expand_eq_foldl [BEq α] [Hashable α] (m : Raw₀ α β) :
           (Nat.mul_pos m.2 Nat.two_pos)) := by
   simp [Raw₀.expand, Raw.fold_eq_foldl_entries]
 
+theorem compact_eq_foldl [BEq α] [Hashable α] (m : Raw₀ α β) :
+    m.compact =
+      (m.1.entriesFrom 0).toList.foldl
+        (fun target p => target.insertNoExpand p.1 p.2)
+        (Raw₀.emptyWithCellCount m.1.keyArray.size m.2) := by
+  simp [Raw₀.compact, Raw.fold_eq_foldl_entries]
+
+@[simp] theorem compact_emptyWithCellCount [BEq α] [Hashable α]
+    {n : Nat} (hn : 0 < n) :
+    (Raw₀.emptyWithCellCount n hn : Raw₀ α β).compact =
+      Raw₀.emptyWithCellCount n hn := by
+  rw [compact_eq_foldl, entriesFrom_emptyWithCellCount]
+  simp [Raw₀.emptyWithCellCount]
+
+@[simp] theorem compactAfterErase_emptyWithCellCount [BEq α] [Hashable α]
+    {n : Nat} (hn : 0 < n) :
+    (Raw₀.emptyWithCellCount n hn : Raw₀ α β).compactAfterErase =
+      Raw₀.emptyWithCellCount n hn := by
+  simp [Raw₀.compactAfterErase]
+
+@[simp] theorem erase_emptyWithCapacity_internal [BEq α] [Hashable α] (c : Nat) (a : α) :
+    (Raw₀.emptyWithCapacity c : Raw₀ α β).erase a = Raw₀.emptyWithCapacity c := by
+  simp [Raw₀.erase, Raw₀.emptyWithCapacity]
+
 theorem wfImp_expand [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
     (m : Raw₀ α β) (h : Raw.WFImp m.1) : Raw.WFImp m.expand.1 := by
   let hn := Nat.mul_pos m.2 Nat.two_pos
@@ -1637,7 +1667,7 @@ theorem wfImp_expand [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
   have hlen : (m.1.entriesFrom 0).toList.length = m.1.size := by
     simpa [toListModel_buckets_eq] using h.size_eq.symm
   have hspace :
-      target.1.size + (m.1.entriesFrom 0).toList.length + 1 <
+      target.1.size + (m.1.entriesFrom 0).toList.length <
         target.1.keyArray.size := by
     have htargetSize : target.1.size = 0 := by
       simp [target, Raw₀.emptyWithCellCount]
@@ -1658,7 +1688,7 @@ theorem toListModel_expand [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable 
   have hlen : (m.1.entriesFrom 0).toList.length = m.1.size := by
     simpa [toListModel_buckets_eq] using h.size_eq.symm
   have hspace :
-      target.1.size + (m.1.entriesFrom 0).toList.length + 1 <
+      target.1.size + (m.1.entriesFrom 0).toList.length <
         target.1.keyArray.size := by
     have htargetSize : target.1.size = 0 := by
       simp [target, Raw₀.emptyWithCellCount]
@@ -1680,10 +1710,62 @@ theorem toListModel_expand [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable 
   rw [htarget]
   simpa [toListModel_buckets_eq] using hpInsert
 
+theorem wfImp_compact [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
+    (m : Raw₀ α β) (h : Raw.WFImp m.1) : Raw.WFImp m.compact.1 := by
+  let target : Raw₀ α β := Raw₀.emptyWithCellCount m.1.keyArray.size m.2
+  have ht : Raw.WFImp target.1 := wfImp_emptyWithCellCount m.2
+  have hlen : (m.1.entriesFrom 0).toList.length = m.1.size := by
+    simpa [toListModel_buckets_eq] using h.size_eq.symm
+  have hspace :
+      target.1.size + (m.1.entriesFrom 0).toList.length <
+        target.1.keyArray.size := by
+    have htargetSize : target.1.size = 0 := by
+      simp [target, Raw₀.emptyWithCellCount]
+    have htargetCells : target.1.keyArray.size = m.1.keyArray.size := by
+      simp [target, Raw₀.emptyWithCellCount]
+    rw [htargetSize, htargetCells, hlen]
+    simpa using h.size_lt
+  rw [compact_eq_foldl]
+  exact (foldl_insertNoExpand (m.1.entriesFrom 0).toList target ht hspace).1
+
+theorem toListModel_compact [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
+    (m : Raw₀ α β) (h : Raw.WFImp m.1) :
+    toListModel m.compact.1.buckets ~ toListModel m.1.buckets := by
+  let target : Raw₀ α β := Raw₀.emptyWithCellCount m.1.keyArray.size m.2
+  have ht : Raw.WFImp target.1 := wfImp_emptyWithCellCount m.2
+  have hlen : (m.1.entriesFrom 0).toList.length = m.1.size := by
+    simpa [toListModel_buckets_eq] using h.size_eq.symm
+  have hspace :
+      target.1.size + (m.1.entriesFrom 0).toList.length <
+        target.1.keyArray.size := by
+    have htargetSize : target.1.size = 0 := by
+      simp [target, Raw₀.emptyWithCellCount]
+    have htargetCells : target.1.keyArray.size = m.1.keyArray.size := by
+      simp [target, Raw₀.emptyWithCellCount]
+    rw [htargetSize, htargetCells, hlen]
+    simpa using h.size_lt
+  have hp := (foldl_insertNoExpand (m.1.entriesFrom 0).toList target ht hspace).2
+  rw [compact_eq_foldl, toListModel_buckets_eq]
+  refine hp.trans ?_
+  have hd : Std.Internal.List.DistinctKeys (m.1.entriesFrom 0).toList := by
+    simpa [toListModel_buckets_eq] using h.distinct
+  have hpInsert := List.perm_insertList
+    (l := ([] : List ((a : α) × β a)))
+    (toInsert := (m.1.entriesFrom 0).toList) (.nil) (DistinctKeys.def.mp hd) (by simp)
+  have htarget : target.1.entriesFrom 0 = .nil := by
+    exact entriesFrom_emptyWithCellCount m.2 0
+  rw [htarget]
+  simpa [toListModel_buckets_eq] using hpInsert
+
 theorem size_expand [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
     (m : Raw₀ α β) (h : Raw.WFImp m.1) : m.expand.1.size = m.1.size := by
   rw [(wfImp_expand m h).size_eq, h.size_eq]
   exact (toListModel_expand m h).length_eq
+
+theorem size_compact [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
+    (m : Raw₀ α β) (h : Raw.WFImp m.1) : m.compact.1.size = m.1.size := by
+  rw [(wfImp_compact m h).size_eq, h.size_eq]
+  exact (toListModel_compact m h).length_eq
 
 theorem keyArray_size_foldl_insertNoExpand [BEq α] [Hashable α]
     (l : List ((a : α) × β a)) (m : Raw₀ α β) :
@@ -1697,6 +1779,11 @@ theorem keyArray_size_foldl_insertNoExpand [BEq α] [Hashable α]
 @[simp] theorem keyArray_size_expand [BEq α] [Hashable α] (m : Raw₀ α β) :
     m.expand.1.keyArray.size = m.1.keyArray.size * 2 := by
   rw [expand_eq_foldl, keyArray_size_foldl_insertNoExpand]
+  simp [Raw₀.emptyWithCellCount]
+
+@[simp] theorem keyArray_size_compact [BEq α] [Hashable α] (m : Raw₀ α β) :
+    m.compact.1.keyArray.size = m.1.keyArray.size := by
+  rw [compact_eq_foldl, keyArray_size_foldl_insertNoExpand]
   simp [Raw₀.emptyWithCellCount]
 
 theorem toListModel_expandIfNecessary [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
@@ -1793,16 +1880,16 @@ theorem wfImp_insert [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
     exact wfImp_insertNoExpand m.expandIfNecessary (wfImp_expandIfNecessary m h) a b
       (expandIfNecessary_room m h)
 
-theorem toListModel_erase [BEq α] [Hashable α] [EquivBEq α]
+theorem toListModel_eraseNoCompact [BEq α] [Hashable α] [EquivBEq α]
     {m : Raw₀ α β} {a : α} (h : Raw.WFImp m.1) :
-    toListModel (m.erase a).1.buckets ~
+    toListModel (m.eraseNoCompact a).1.buckets ~
       List.eraseKey a (toListModel m.1.buckets) := by
   have hd : Std.Internal.List.DistinctKeys (m.1.entriesFrom 0).toList := by
     simpa [toListModel_buckets_eq] using h.distinct
   cases hs : m.scan a with
   | found index k v hmatch =>
     have hcell := scan_found_cell m a index k v hmatch hs
-    rw [Raw₀.erase, hs, toListModel_buckets_eq, toListModel_buckets_eq]
+    rw [Raw₀.eraseNoCompact, hs, toListModel_buckets_eq, toListModel_buckets_eq]
     exact clearCell_erase_perm m.1 (m.1.size - 1) index index.isLt h.keysValues a k v
       hcell hmatch hd
   | absent =>
@@ -1813,28 +1900,28 @@ theorem toListModel_erase [BEq α] [Hashable α] [EquivBEq α]
       exact hcRaw
     have hc' : List.containsKey a (toListModel m.1.buckets) = false := by
       simpa [toListModel_buckets_eq] using hc
-    rw [Raw₀.erase, hs, List.eraseKey_of_containsKey_eq_false hc']
+    rw [Raw₀.eraseNoCompact, hs, List.eraseKey_of_containsKey_eq_false hc']
 
-@[simp] theorem keyArray_size_erase [BEq α] [Hashable α]
+@[simp] theorem keyArray_size_eraseNoCompact [BEq α] [Hashable α]
     (m : Raw₀ α β) (a : α) :
-    (m.erase a).1.keyArray.size = m.1.keyArray.size := by
+    (m.eraseNoCompact a).1.keyArray.size = m.1.keyArray.size := by
   cases hs : m.scan a with
-  | found => simp [Raw₀.erase, hs, Raw.clearCell]
-  | absent => simp [Raw₀.erase, hs]
+  | found => simp [Raw₀.eraseNoCompact, hs, Raw.clearCell]
+  | absent => simp [Raw₀.eraseNoCompact, hs]
 
-theorem keysValues_erase [BEq α] [Hashable α]
+theorem keysValues_eraseNoCompact [BEq α] [Hashable α]
     (m : Raw₀ α β) (hkv : Raw.KeysValues m.1.keyArray m.1.valueArray) (a : α) :
-    Raw.KeysValues (m.erase a).1.keyArray (m.erase a).1.valueArray := by
+    Raw.KeysValues (m.eraseNoCompact a).1.keyArray (m.eraseNoCompact a).1.valueArray := by
   cases hs : m.scan a with
   | found index k v hmatch =>
-    rw [Raw₀.erase, hs]
+    rw [Raw₀.eraseNoCompact, hs]
     exact keysValues_clearCell m.1 (m.1.size - 1) index index.isLt hkv
   | absent =>
-    simpa [Raw₀.erase, hs] using hkv
+    simpa [Raw₀.eraseNoCompact, hs] using hkv
 
-theorem size_erase_eq_length_eraseKey [BEq α] [Hashable α] [EquivBEq α]
+theorem size_eraseNoCompact_eq_length_eraseKey [BEq α] [Hashable α] [EquivBEq α]
     (m : Raw₀ α β) (h : Raw.WFImp m.1) (a : α) :
-    (m.erase a).1.size =
+    (m.eraseNoCompact a).1.size =
       (List.eraseKey a (m.1.entriesFrom 0).toList).length := by
   have hsize : m.1.size = (m.1.entriesFrom 0).toList.length := by
     simpa [toListModel_buckets_eq] using h.size_eq
@@ -1845,28 +1932,28 @@ theorem size_erase_eq_length_eraseKey [BEq α] [Hashable α] [EquivBEq α]
     have hc : List.containsKey a (m.1.entriesFrom 0).toList = true := by
       rw [← contains_eq_containsKey_entries m h a]
       exact hcRaw
-    simp [Raw₀.erase, hs, List.length_eraseKey, hc, hsize, Raw.clearCell]
+    simp [Raw₀.eraseNoCompact, hs, List.length_eraseKey, hc, hsize, Raw.clearCell]
   | absent =>
     have hcRaw : m.contains a = false := by
       simp [Raw₀.contains, hs]
     have hc : List.containsKey a (m.1.entriesFrom 0).toList = false := by
       rw [← contains_eq_containsKey_entries m h a]
       exact hcRaw
-    simp [Raw₀.erase, hs, List.length_eraseKey, hc, hsize]
+    simp [Raw₀.eraseNoCompact, hs, List.length_eraseKey, hc, hsize]
 
-theorem wfImp_erase [BEq α] [Hashable α] [EquivBEq α]
+theorem wfImp_eraseNoCompact [BEq α] [Hashable α] [EquivBEq α]
     {m : Raw₀ α β} {a : α} (h : Raw.WFImp m.1) :
-    Raw.WFImp (m.erase a).1 := by
-  have hp := toListModel_erase (a := a) h
-  have hcache := size_erase_eq_length_eraseKey m h a
+    Raw.WFImp (m.eraseNoCompact a).1 := by
+  have hp := toListModel_eraseNoCompact (a := a) h
+  have hcache := size_eraseNoCompact_eq_length_eraseKey m h a
   have hsize : m.1.size = (m.1.entriesFrom 0).toList.length := by
     simpa [toListModel_buckets_eq] using h.size_eq
   refine { cells_pos := ?_, keysValues := ?_, size_eq := ?_, distinct := ?_, size_lt := ?_, reachable := ?_ }
-  · simpa [keyArray_size_erase] using m.2
-  · exact keysValues_erase m h.keysValues a
+  · simpa [keyArray_size_eraseNoCompact] using m.2
+  · exact keysValues_eraseNoCompact m h.keysValues a
   · exact hcache.trans ((by simpa [toListModel_buckets_eq] using hp.length_eq.symm))
   · exact h.distinct.eraseKey.perm hp
-  · rw [keyArray_size_erase, hcache]
+  · rw [keyArray_size_eraseNoCompact, hcache]
     have hle := List.length_eraseKey_le
       (l := (m.1.entriesFrom 0).toList) (k := a)
     have hlt := h.size_lt
@@ -1875,15 +1962,99 @@ theorem wfImp_erase [BEq α] [Hashable α] [EquivBEq α]
     cases hs : m.scan a with
     | found index oldKey oldValue hfound =>
       have hi' : i < m.1.keyArray.size := by
-        simpa [Raw₀.erase, hs, Raw.clearCell] using hi
+        simpa [Raw₀.eraseNoCompact, hs, Raw.clearCell] using hi
       have hkey' : m.1.keyArray[i] = .some k := by
-        simpa [Raw₀.erase, hs, Raw.clearCell] using hkey
-      simpa [Raw₀.erase, hs, Raw.clearCell] using
+        simpa [Raw₀.eraseNoCompact, hs, Raw.clearCell] using hkey
+      simpa [Raw₀.eraseNoCompact, hs, Raw.clearCell] using
         h.reachable i hi' k hkey' query hmatch
     | absent =>
-      have hi' : i < m.1.keyArray.size := by simpa [Raw₀.erase, hs] using hi
-      have hkey' : m.1.keyArray[i] = .some k := by simpa [Raw₀.erase, hs] using hkey
-      simpa [Raw₀.erase, hs] using h.reachable i hi' k hkey' query hmatch
+      have hi' : i < m.1.keyArray.size := by simpa [Raw₀.eraseNoCompact, hs] using hi
+      have hkey' : m.1.keyArray[i] = .some k := by
+        simpa [Raw₀.eraseNoCompact, hs] using hkey
+      simpa [Raw₀.eraseNoCompact, hs] using h.reachable i hi' k hkey' query hmatch
+
+theorem toListModel_compactAfterErase [BEq α] [Hashable α] [EquivBEq α]
+    [LawfulHashable α] (m : Raw₀ α β) (h : Raw.WFImp m.1) :
+    toListModel m.compactAfterErase.1.buckets ~ toListModel m.1.buckets := by
+  simp only [Raw₀.compactAfterErase]
+  split
+  · exact toListModel_compact m h
+  · exact .rfl
+
+theorem wfImp_compactAfterErase [BEq α] [Hashable α] [EquivBEq α]
+    [LawfulHashable α] (m : Raw₀ α β) (h : Raw.WFImp m.1) :
+    Raw.WFImp m.compactAfterErase.1 := by
+  simp only [Raw₀.compactAfterErase]
+  split
+  · exact wfImp_compact m h
+  · exact h
+
+theorem size_compactAfterErase [BEq α] [Hashable α] [EquivBEq α]
+    [LawfulHashable α] (m : Raw₀ α β) (h : Raw.WFImp m.1) :
+    m.compactAfterErase.1.size = m.1.size := by
+  simp only [Raw₀.compactAfterErase]
+  split
+  · exact size_compact m h
+  · rfl
+
+theorem toListModel_erase [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
+    {m : Raw₀ α β} {a : α} (h : Raw.WFImp m.1) :
+    toListModel (m.erase a).1.buckets ~
+      List.eraseKey a (toListModel m.1.buckets) := by
+  cases hs : m.scan a with
+  | found =>
+    have he : m.erase a = (m.eraseNoCompact a).compactAfterErase := by
+      simp [Raw₀.erase, Raw₀.eraseNoCompact, hs]
+    rw [he]
+    exact (toListModel_compactAfterErase (m.eraseNoCompact a)
+      (wfImp_eraseNoCompact h)).trans (toListModel_eraseNoCompact h)
+  | absent =>
+    rw [show m.erase a = m by simp [Raw₀.erase, hs]]
+    simpa [Raw₀.eraseNoCompact, hs] using toListModel_eraseNoCompact (a := a) h
+
+@[simp] theorem keyArray_size_erase [BEq α] [Hashable α]
+    (m : Raw₀ α β) (a : α) :
+    (m.erase a).1.keyArray.size = m.1.keyArray.size := by
+  cases hs : m.scan a with
+  | found =>
+    have he : m.erase a = (m.eraseNoCompact a).compactAfterErase := by
+      simp [Raw₀.erase, Raw₀.eraseNoCompact, hs]
+    rw [he]
+    simp only [Raw₀.compactAfterErase]
+    split
+    · rw [keyArray_size_compact, keyArray_size_eraseNoCompact]
+    · exact keyArray_size_eraseNoCompact m a
+  | absent => simp [Raw₀.erase, hs]
+
+theorem keysValues_erase [BEq α] [Hashable α]
+    (m : Raw₀ α β) (_hkv : Raw.KeysValues m.1.keyArray m.1.valueArray) (a : α) :
+    Raw.KeysValues (m.erase a).1.keyArray (m.erase a).1.valueArray :=
+  (m.erase a).1.keysValues
+
+theorem size_erase_eq_length_eraseKey [BEq α] [Hashable α] [EquivBEq α]
+    [LawfulHashable α] (m : Raw₀ α β) (h : Raw.WFImp m.1) (a : α) :
+    (m.erase a).1.size =
+      (List.eraseKey a (m.1.entriesFrom 0).toList).length := by
+  cases hs : m.scan a with
+  | found =>
+    have he : m.erase a = (m.eraseNoCompact a).compactAfterErase := by
+      simp [Raw₀.erase, Raw₀.eraseNoCompact, hs]
+    rw [he, size_compactAfterErase (m.eraseNoCompact a) (wfImp_eraseNoCompact h)]
+    exact size_eraseNoCompact_eq_length_eraseKey m h a
+  | absent =>
+    rw [show m.erase a = m by simp [Raw₀.erase, hs]]
+    simpa [Raw₀.eraseNoCompact, hs] using size_eraseNoCompact_eq_length_eraseKey m h a
+
+theorem wfImp_erase [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
+    {m : Raw₀ α β} {a : α} (h : Raw.WFImp m.1) :
+    Raw.WFImp (m.erase a).1 := by
+  cases hs : m.scan a with
+  | found =>
+    have he : m.erase a = (m.eraseNoCompact a).compactAfterErase := by
+      simp [Raw₀.erase, Raw₀.eraseNoCompact, hs]
+    rw [he]
+    exact wfImp_compactAfterErase (m.eraseNoCompact a) (wfImp_eraseNoCompact h)
+  | absent => simpa [Raw₀.erase, hs] using h
 
 theorem filterMapStep_keyArray_eq {γ : α → Type w}
     (f : (a : α) → β a → Option (γ a)) (m : Raw₀ α β)
@@ -2579,7 +2750,7 @@ theorem toListModel_insertListₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHa
     apply (ih (wfImp_insert h)).trans
     exact List.insertList_perm_of_perm_first (toListModel_insert h) (wfImp_insert h).distinct
 
-theorem toListModel_eraseListₘ [BEq α] [Hashable α] [EquivBEq α]
+theorem toListModel_eraseListₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
     {m : Raw₀ α β} {l : List α} (h : Raw.WFImp m.1) :
     toListModel (Raw₀.eraseListₘ m l).1.buckets ~
       List.eraseList (toListModel m.1.buckets) l := by
@@ -2714,7 +2885,7 @@ theorem Raw₀.wfImp_insert [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable
     {m : Raw₀ α β} (h : Raw.WFImp m.1) {a : α} {b : β a} :
     Raw.WFImp (m.insert a b).1 := Std.DHashMap.Internal.wfImp_insert h
 
-theorem Raw₀.wfImp_erase [BEq α] [Hashable α] [EquivBEq α]
+theorem Raw₀.wfImp_erase [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
     {m : Raw₀ α β} (h : Raw.WFImp m.1) {a : α} : Raw.WFImp (m.erase a).1 :=
   Std.DHashMap.Internal.wfImp_erase h
 

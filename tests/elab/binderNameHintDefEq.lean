@@ -5,7 +5,12 @@ public section
 /-! `binderNameHint`'s `.abbrev` reducibility hints make a definitional comparison unfold the
 marker before its payload, so a marked type compares against its payload in constant time. A
 marker with regular reducibility hints (`myHint` below) unfolds after the payload, and the
-comparison walks the payload's whole reduction chain instead. -/
+comparison walks the payload's whole reduction chain instead.
+
+The examples observe the unfold ordering in the elaborator's definitional comparison, where
+resource limits detect it deterministically. The kernel orders its lazy delta by the same
+reducibility hints; the marker with regular hints cannot reach it, because elaboration fails
+first. -/
 
 def W : Nat → Prop
   | 0 => True

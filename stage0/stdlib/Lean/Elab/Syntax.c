@@ -107,7 +107,7 @@ extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
 lean_object* l_Lean_Syntax_isStrLit_x3f(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_String_Slice_trimAscii(lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
@@ -8611,7 +8611,7 @@ goto v_resetjp_2764_;
 v_resetjp_2764_:
 {
 lean_object* v_s_2767_; uint8_t v___y_2769_; uint8_t v___y_2770_; uint8_t v___y_2771_; uint8_t v___y_2778_; uint8_t v___y_2779_; uint32_t v___y_2780_; uint8_t v___y_2786_; uint8_t v___y_2787_; uint8_t v___y_2788_; uint8_t v___y_2796_; uint32_t v___y_2797_; uint8_t v___y_2798_; uint8_t v___y_2799_; uint8_t v___y_2804_; uint32_t v___y_2805_; uint32_t v___y_2806_; uint8_t v___y_2807_; uint8_t v___y_2808_; uint8_t v___y_2809_; uint8_t v___y_2814_; uint32_t v___y_2815_; uint32_t v___y_2816_; uint8_t v___y_2817_; uint8_t v___y_2818_; uint8_t v___y_2824_; uint32_t v___y_2825_; uint8_t v___y_2826_; uint32_t v___y_2827_; uint8_t v___y_2839_; uint8_t v___y_2840_; uint32_t v___y_2841_; uint8_t v___y_2851_; uint32_t v___y_2852_; uint8_t v___y_2863_; uint8_t v___y_2871_; uint32_t v___y_2872_; lean_object* v___x_2880_; uint8_t v___x_2881_; 
-v_s_2767_ = lean_string_utf8_extract(v_str_2761_, v_startInclusive_2762_, v_endExclusive_2763_);
+v_s_2767_ = lean_string_utf8_extract_fast(v_str_2761_, v_startInclusive_2762_, v_endExclusive_2763_);
 lean_dec(v_endExclusive_2763_);
 lean_dec(v_startInclusive_2762_);
 lean_dec_ref(v_str_2761_);
@@ -16840,7 +16840,7 @@ lean_inc(v_startInclusive_6306_);
 v_endExclusive_6307_ = lean_ctor_get(v___x_6304_, 2);
 lean_inc(v_endExclusive_6307_);
 lean_dec_ref(v___x_6304_);
-v___x_6308_ = lean_string_utf8_extract(v_str_6305_, v_startInclusive_6306_, v_endExclusive_6307_);
+v___x_6308_ = lean_string_utf8_extract_fast(v_str_6305_, v_startInclusive_6306_, v_endExclusive_6307_);
 lean_dec(v_endExclusive_6307_);
 lean_dec(v_startInclusive_6306_);
 lean_dec_ref(v_str_6305_);

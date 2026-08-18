@@ -151,7 +151,7 @@ theorem some_getElem_eq_getElem? (xs : Array α) (i : Nat) (h : i < xs.size) :
     some xs[i] = xs[i]? := by
   simp
 
-@[deprecated some_getElem_eq_getElem? (since := "2026-08-18")]
+@[deprecated some_getElem_eq_getElem? (since := "2026-08-18") +typeChanged]
 theorem some_getElem_eq_getElem?_iff (xs : Array α) (i : Nat) (h : i < xs.size) :
     (some xs[i] = xs[i]?) ↔ True := by
   simp
@@ -160,7 +160,7 @@ theorem getElem?_eq_some_getElem (xs : Array α) (i : Nat) (h : i < xs.size) :
     xs[i]? = some xs[i] := by
   simp
 
-@[deprecated getElem?_eq_some_getElem (since := "2026-08-18")]
+@[deprecated getElem?_eq_some_getElem (since := "2026-08-18") +typeChanged]
 theorem getElem?_eq_some_getElem_iff (xs : Array α) (i : Nat) (h : i < xs.size) :
     (xs[i]? = some xs[i]) ↔ True := by
   simp

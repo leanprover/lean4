@@ -49,6 +49,14 @@ def testEmptyPassphraseKeyPEM : String := include_cert% "async_ssl_certs/emptypw
 -- different path in every constructor.
 def testEncryptedCertPEM : String := include_cert% "async_ssl_certs/enccert.pem"
 
+-- Self-signed under a 512-bit RSA key. It parses like any other certificate and is turned away by
+-- the security level instead, which is a different failure from unreadable PEM.
+def testWeakCertPEM : String := include_cert% "async_ssl_certs/weakcert.pem"
+
+-- A CRL: the non-certificate bundle entry that is not a private key. It is what separates "this
+-- bundle holds no certificates" from "this bundle could not be read".
+def testCRLPEM : String := include_cert% "async_ssl_certs/crl.pem"
+
 -- Three distinct certificates in one file, the shape of a real CA bundle.
 def testBundlePEM : String := testCertPEM ++ testWildcardCertPEM ++ testMultiSANCertPEM
 
@@ -69,7 +77,7 @@ def testContextCreation (certFile keyFile : String) : IO Unit := do
   let _clientCtx ← Context.Client.mk "" false
 
   -- Non-empty CA file with `verifyPeer := true` exercises the additive trust path: the system
-  -- roots plus the supplied CA (via `SSL_CTX_load_verify_locations`).
+  -- roots plus the supplied CA.
   let _clientCtx2 ← Context.Client.mk certFile true
 
   -- A non-empty CA path with `verifyPeer := false` is accepted, but the CA file is not parsed.
@@ -110,6 +118,14 @@ def setupEncryptedCert : IO String := writeTempFile "enccert.pem" testEncryptedC
 
 def setupExpiredCert : IO String := writeTempFile "expired.pem" testExpiredCertPEM
 
+def setupWeakCert : IO String := writeTempFile "weak.pem" testWeakCertPEM
+
+def setupCRL : IO String := writeTempFile "crl.pem" testCRLPEM
+
+def setupEmptyFile : IO String := writeTempFile "empty.pem" ""
+
+def setupDirectory : IO String := return toString (← IO.FS.createTempDir)
+
 -- A valid leaf followed by a corrupt second certificate, i.e. a chain whose *intermediate* is bad.
 def setupCorruptChain : IO String := writeTempFile "chain.pem" (testCertPEM ++ testCorruptCertPEM)
 
@@ -131,6 +147,17 @@ def assertErrorMessage (label expected : String) (act : IO Unit) : IO Unit := do
     let actual := toString e
     unless actual == expected do
       throw <| IO.userError s!"{label}:\nexpected error: {expected}\nactual error:   {actual}"
+
+-- For a failure whose exact wording depends on the platform's C library or on OpenSSL's ambient
+-- configuration. The set is spelled out so an unexpected *third* message still fails the test.
+def assertErrorMessageOneOf (label : String) (expected : List String) (act : IO Unit) : IO Unit := do
+  match ← act.toBaseIO with
+  | .ok _ => throw <| IO.userError s!"{label}: expected failure, but it succeeded"
+  | .error e =>
+    let actual := toString e
+    unless expected.contains actual do
+      throw <| IO.userError s!"{label}:\nexpected one of:\n\
+        {String.intercalate "\n  --- or ---\n" expected}\nactual error:   {actual}"
 
 -- A missing file reaches OpenSSL's error queue as an `ENOENT` entry, which is turned back into the
 -- corresponding `IO.Error` on the offending path.
@@ -328,9 +355,9 @@ def testMkFromPEMRejectsEncryptedCert : IO Unit := do
     (malformedPEMError "could not read PEM CA certificates from the given string")
     (discard <| Context.Client.mkFromPEM testEncryptedCertPEM true)
 
--- A CA bundle is required to contain at least one certificate. `SSL_CTX_load_verify_locations`
--- reports success for a file holding only a key, which would leave the trust store silently
--- unchanged, so the count is checked explicitly.
+-- A CA bundle is required to contain at least one certificate. A file holding only a key parses
+-- without complaint and would leave the trust store silently unchanged, so the count is checked
+-- explicitly.
 def testMkRejectsCertlessCAFile (keyFile : String) : IO Unit := do
   assertErrorMessage "CA file holding only a private key"
     (malformedFileError keyFile "the CA file contains no certificates")
@@ -354,11 +381,13 @@ def testMkFromPEMRejectsTraditionalKeyOnly : IO Unit := do
     (discard <| Context.Client.mkFromPEM testTraditionalKeyPEM true)
 
 /-!
-`mkFromPEM` hands OpenSSL an explicit length rather than a C string, so a NUL is data and everything
-after it is still parsed. Appending a NUL to a complete certificate would pass either way, so these
-put material the parser must still reach *after* the NUL.
+`mkFromPEM` hands OpenSSL an explicit length rather than a C string, so a NUL does not truncate the
+input. It is still junk to the PEM parser, which needs `-----BEGIN` to start a line, so where the
+NUL sits decides between three outcomes. Appending a NUL to a complete certificate would pass either
+way, so these put material the parser must still reach *after* the NUL.
 -/
 
+-- Terminated by a newline the NUL is skipped like any other junk line.
 def testMkFromPEMReadsPastNul : IO Unit := do
   let _clientCtx ← Context.Client.mkFromPEM ("\x00\n" ++ testCertPEM) true
 
@@ -366,6 +395,40 @@ def testMkFromPEMParsesPastNul : IO Unit := do
   assertErrorMessage "corrupt certificate after a NUL byte"
     (malformedPEMError "could not read PEM CA certificates from the given string")
     (discard <| Context.Client.mkFromPEM (testCertPEM ++ "\x00\n" ++ testCorruptCertPEM) true)
+
+-- Sharing a line with the marker, the NUL hides it and that certificate is dropped without an error
+-- of its own; only the empty bundle behind it is reported.
+def testMkFromPEMDropsCertBehindNul : IO Unit := do
+  assertErrorMessage "certificate behind an unterminated NUL"
+    (malformedPEMError "the given CA PEM string contains no certificates")
+    (discard <| Context.Client.mkFromPEM ("\x00" ++ testCertPEM) true)
+
+-- Inside the body the NUL corrupts the block, which discards the whole bundle rather than just that
+-- certificate.
+def testMkFromPEMRejectsNulInsideCert : IO Unit := do
+  let split := 200
+  assertErrorMessage "NUL inside a certificate body"
+    (malformedPEMError "could not read PEM CA certificates from the given string")
+    (discard <| Context.Client.mkFromPEM
+      ((testCertPEM.take split).toString ++ "\x00" ++ (testCertPEM.drop split).toString) true)
+
+-- Inside the marker's type name the line still opens a block, but the name no longer matches the one
+-- on the `-----END` line, so the whole string is rejected instead of that certificate being skipped.
+-- This is the boundary against `testMkFromPEMDropsCertBehindNul`, where the NUL lands in the fixed
+-- `-----BEGIN ` prefix instead and stops the line opening a block at all.
+def testMkFromPEMRejectsNulInMarkerName : IO Unit := do
+  assertErrorMessage "NUL inside a PEM marker's type name"
+    (malformedPEMError "could not read PEM CA certificates from the given string")
+    (discard <| Context.Client.mkFromPEM
+      (testCertPEM.replace "-----BEGIN CERTIFICATE-----" "-----BEGIN CERTI\x00FICATE-----") true)
+
+-- The block is already open by the time the `-----END` line is read, so a NUL anywhere in it leaves a
+-- block that can never be closed and the whole string is rejected.
+def testMkFromPEMRejectsNulInEndMarker : IO Unit := do
+  assertErrorMessage "NUL inside the END marker"
+    (malformedPEMError "could not read PEM CA certificates from the given string")
+    (discard <| Context.Client.mkFromPEM
+      (testCertPEM.replace "-----END CERTIFICATE-----" "-----END CERTI\x00FICATE-----") true)
 
 -- The whole chain is loaded, not just the leaf, so a corrupt certificate in a later position is
 -- still rejected. This is the observable difference between `SSL_CTX_use_certificate_chain_file`
@@ -382,10 +445,116 @@ def testAcceptsExpiredCert (expiredFile keyFile : String) : IO Unit := do
   let _clientCtx ← Context.Client.mkFromPEM testExpiredCertPEM true
 
 /-!
+A certificate can be refused on policy grounds rather than because it could not be read: the TLS
+security level turns away an RSA key that is too short. Reporting that as unparsable PEM sends the
+reader after a problem their file does not have. The key is 512 bits so that every level a build may
+default to rejects it — OpenSSL defaults to level 2 only since 3.2, and level 1 still admits 1024.
+
+The level is not ours to fix, though: a context inherits it from the ambient `openssl.cnf`, and a build
+configured `DEFAULT@SECLEVEL=0` admits the certificate outright. `weakCertFile` is therefore paired with
+an unrelated key, so the load fails either way and the two failures can be told apart.
+-/
+
+def testMkServerRejectsWeakCert (weakCertFile keyFile : String) : IO Unit := do
+  assertErrorMessageOneOf "512-bit server certificate"
+    [ malformedFileError weakCertFile
+        "the certificate is rejected by the TLS security level (key too small or signature digest too weak)",
+      malformedFileError keyFile "the private key does not match the certificate" ]
+    (discard <| Context.Server.mk weakCertFile keyFile)
+
+-- The security level governs the certificate a server presents, not the anchors a client trusts, so
+-- the very file rejected above still loads as a CA. This is what pins the diagnosis to the security
+-- level rather than to the certificate being malformed.
+def testAcceptsWeakCertAsCA (weakCertFile : String) : IO Unit := do
+  let _clientCtx ← Context.Client.mkFromPEM testWeakCertPEM true
+  let _clientCtx2 ← Context.Client.mk weakCertFile true
+
+/-!
+A bundle entry that is not a certificate is skipped, and a bundle of nothing but such entries is
+rejected for holding no certificates. `tradkey.pem` covers the private-key form; a CRL is the other
+one, and the only one the "a lone CRL" case in the loader is actually about.
+-/
+
+def testMkRejectsCRLOnlyCAFile (crlFile : String) : IO Unit := do
+  assertErrorMessage "CA file holding only a CRL"
+    (malformedFileError crlFile "the CA file contains no certificates")
+    (discard <| Context.Client.mk crlFile true)
+
+def testMkFromPEMRejectsCRLOnly : IO Unit := do
+  assertErrorMessage "CA string holding only a CRL"
+    (malformedPEMError "the given CA PEM string contains no certificates")
+    (discard <| Context.Client.mkFromPEM testCRLPEM true)
+
+def testMkFromPEMSkipsCRL : IO Unit := do
+  let _clientCtx ← Context.Client.mkFromPEM (testCRLPEM ++ testCertPEM) true
+  let _clientCtx2 ← Context.Client.mkFromPEM (testCertPEM ++ testCRLPEM) true
+
+-- A zero-byte file has no PEM armour to fail on, so it parses to an empty bundle and is reported as
+-- holding no certificates rather than as unreadable.
+def testMkRejectsEmptyCAFile (emptyFile : String) : IO Unit := do
+  assertErrorMessage "zero-byte CA file"
+    (malformedFileError emptyFile "the CA file contains no certificates")
+    (discard <| Context.Client.mk emptyFile true)
+
+-- Only the *CA* path treats "" as "use the platform anchors". The server has no such fallback, so an
+-- empty path reaches the OS and fails there.
+def testMkServerRejectsEmptyPaths (certFile keyFile : String) : IO Unit := do
+  assertErrorMessage "empty server cert path"
+    (missingFileError "")
+    (discard <| Context.Server.mk "" keyFile)
+
+  assertErrorMessage "empty server key path"
+    (missingFileError "")
+    (discard <| Context.Server.mk certFile "")
+
+/-!
 The path is reported with the failure whenever the `IO.Error` constructor has room for it. These
 also pin the errno itself, which is what would catch a platform decoding an OS error code through
 the wrong table.
 -/
+
+-- Anything that is not a regular file is classified from its mode rather than by opening it, because
+-- opening is not a reliable test: POSIX `fopen` succeeds on a directory and fails only at the first
+-- read, and a FIFO blocks until a writer appears. The note is *appended* to the failure OpenSSL
+-- actually reported rather than replacing it, because the file type need not be what went wrong —
+-- OpenSSL reads a FIFO or a `/dev/fd` entry as happily as a file on disk, so a mismatched key reached
+-- through one still has to say so.
+def testRejectsDirectoryPaths (dir certFile keyFile : String) : IO Unit := do
+  let note := " (the path is not a regular file)"
+
+  assertErrorMessage "directory as server cert"
+    (malformedFileError dir ("could not read a PEM certificate chain" ++ note))
+    (discard <| Context.Server.mk dir keyFile)
+
+  assertErrorMessage "directory as server key"
+    (malformedFileError dir ("could not read an unencrypted PEM private key" ++ note))
+    (discard <| Context.Server.mk certFile dir)
+
+  -- Which failure this is depends on the C library. On POSIX `BIO_new_file` opens the directory and
+  -- the read that follows yields nothing, so the empty bundle is what gets reported; the Windows CRT
+  -- cannot open a directory as a stream at all, so the BIO is null and the path is unreadable instead.
+  -- Either way the note has to be appended rather than substituted, or which of the two it was is lost.
+  assertErrorMessageOneOf "directory as CA file"
+    [ malformedFileError dir ("the CA file contains no certificates" ++ note),
+      malformedFileError dir ("could not read PEM CA certificates" ++ note) ]
+    (discard <| Context.Client.mk dir true)
+
+-- A character device is the readable non-regular file: OpenSSL opens `/dev/null` and reads it to
+-- completion, so the diagnosis is about what the empty read produced and the file type is only a
+-- footnote.
+def testAppendsNoteToReadableNonRegularFile (certFile : String) : IO Unit := do
+  if System.Platform.isWindows then
+    return
+
+  assertErrorMessage "character device as CA file"
+    (malformedFileError "/dev/null"
+      "the CA file contains no certificates (the path is not a regular file)")
+    (discard <| Context.Client.mk "/dev/null" true)
+
+  assertErrorMessage "character device as server key"
+    (malformedFileError "/dev/null"
+      "could not read an unencrypted PEM private key (the path is not a regular file)")
+    (discard <| Context.Server.mk certFile "/dev/null")
 
 -- Skipped when the permission bits do not bite, which is the case for a privileged user.
 def testMkRejectsUnreadableCAFile (unreadableFile : String) : IO Unit := do
@@ -484,10 +653,14 @@ def testMkRejectsNonDirectoryParent (notADirPath : String) : IO Unit := do
   testMkFromPEMSkipsTraditionalKey
   testMkFromPEMRejectsTraditionalKeyOnly
 
--- NUL is data, not a terminator.
+-- NUL is data, not a terminator, but it is not invisible either.
 #eval do
   testMkFromPEMReadsPastNul
   testMkFromPEMParsesPastNul
+  testMkFromPEMDropsCertBehindNul
+  testMkFromPEMRejectsNulInsideCert
+  testMkFromPEMRejectsNulInMarkerName
+  testMkFromPEMRejectsNulInEndMarker
 
 #eval do
   let (certFile, keyFile) ← setupTestCerts
@@ -496,7 +669,29 @@ def testMkRejectsNonDirectoryParent (notADirPath : String) : IO Unit := do
   testAcceptsExpiredCert (← setupExpiredCert) keyFile
   testMkClientFromPEM certFile
 
+-- Rejected on policy, not for being unreadable.
+#eval do
+  let (_, keyFile) ← setupTestCerts
+  let weakCertFile ← setupWeakCert
+
+  testMkServerRejectsWeakCert weakCertFile keyFile
+  testAcceptsWeakCertAsCA weakCertFile
+
+-- A bundle must hold a certificate, and a CRL is not one.
+#eval do
+  let crlFile ← setupCRL
+
+  testMkRejectsCRLOnlyCAFile crlFile
+  testMkFromPEMRejectsCRLOnly
+  testMkFromPEMSkipsCRL
+  testMkRejectsEmptyCAFile (← setupEmptyFile)
+
 -- OS-level failures keep the path and the real errno.
 #eval do
+  let (certFile, keyFile) ← setupTestCerts
+
   testMkRejectsUnreadableCAFile (← setupUnreadableFile)
   testMkRejectsNonDirectoryParent (← setupNonDirectoryParent)
+  testMkServerRejectsEmptyPaths certFile keyFile
+  testRejectsDirectoryPaths (← setupDirectory) certFile keyFile
+  testAppendsNoteToReadableNonRegularFile certFile

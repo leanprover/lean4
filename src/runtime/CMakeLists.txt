@@ -95,6 +95,7 @@ set(
   openssl.cpp
   cadical.cpp
   openssl/context.cpp
+  openssl/trust_store.cpp
 )
 
 if(CADICAL_INCLUDE_DIR)

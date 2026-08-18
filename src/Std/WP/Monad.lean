@@ -8,7 +8,7 @@ module
 prelude
 public import Std.WP.Monad.Basic
 public import Std.WP.Monad.Instances
-public import Std.WP.Monad.Adequacy
+public import Std.WP.Monad.Sound
 public import Std.WP.Monad.Conjunctive
 public import Std.WP.Monad.Frame
 public import Std.WP.Monad.Lemmas

@@ -48,7 +48,7 @@ def mySum (l : List Nat) : Nat := Id.run do
 
 theorem mySum_correct (l : List Nat) : mySum l = l.sum := by
   generalize h : mySum l = r
-  apply Id.of_wp_run_eq h
+  apply Id.of_run_eq_wp h
   vcgen [mySum] invariants
   · fun _pref suff acc => ⌜acc + suff.sum = l.sum⌝
   with finish

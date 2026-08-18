@@ -241,7 +241,7 @@ def check_all (p : Nat → Prop) [DecidablePred p] (n : Nat) : Bool := Id.run do
 example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
     (∀ i, i < n → p i) ↔ check_all p n := by
   generalize h : check_all p n = x
-  apply Id.of_wp_run_eq h
+  apply Id.of_run_eq_wp h
   vcgen
   case inv1 =>
     exact Invariant.withEarlyReturnNewDo
@@ -352,14 +352,14 @@ def mergeWithAll (m₁ m₂ : ExtTreeMap α β cmp) (f : α → Option β → Op
           r := r.insert a b
     return r
 
--- A demo that `Id.of_wp_run_eq` applies despite universe polymorphism. The `ExtTreeMap`
+-- A demo that `Id.of_run_eq_wp` applies despite universe polymorphism. The `ExtTreeMap`
 -- loops are decomposed by the `PureForIn` specification; the invariants relating the merge
 -- to its two arguments are left open.
 theorem mem_mergeWithAll [LawfulEqCmp cmp] {m₁ m₂ : ExtTreeMap α β cmp}
     {f : α → Option β → Option β → Option β} {a : α} :
     a ∈ mergeWithAll m₁ m₂ f ↔ (a ∈ m₁ ∨ a ∈ m₂) ∧ (f a m₁[a]? m₂[a]?).isSome := by
   generalize h : mergeWithAll m₁ m₂ f = x
-  apply Id.of_wp_run_eq h
+  apply Id.of_run_eq_wp h
   vcgen [mergeWithAll]
   all_goals admit
 
@@ -375,7 +375,7 @@ def subarraySum (xs : Subarray Nat) : Nat := Id.run do
 
 theorem subarraySum_correct {xs : Subarray Nat} : subarraySum xs = xs.toList.sum := by
   generalize h : subarraySum xs = r
-  apply Id.of_wp_run_eq h
+  apply Id.of_run_eq_wp h
   vcgen
   case inv1 => exact fun pref _ s => s = pref.sum
   all_goals simp_all +zetaDelta
@@ -409,14 +409,14 @@ def fast_expo (x n : Nat) : Nat := Id.run do
 
 theorem naive_expo_correct (x n : Nat) : naive_expo x n = x ^ n := by
   generalize h : naive_expo x n = r
-  apply Id.of_wp_run_eq h
+  apply Id.of_run_eq_wp h
   vcgen
   case inv1 => exact fun pref _ y => y = x ^ pref.length
   all_goals simp_all +zetaDelta [Nat.pow_add_one]
 
 theorem fast_expo_correct (x n : Nat) : fast_expo x n = x ^ n := by
   generalize h : fast_expo x n = r
-  apply Id.of_wp_run_eq h
+  apply Id.of_run_eq_wp h
   vcgen
   case inv1 => exact fun pref _ ⟨x', y, e⟩ => x' ^ e * y = x ^ n ∧ e ≤ n - pref.length
   all_goals simp_all +zetaDelta
@@ -566,7 +566,7 @@ def check_all (p : Nat → Prop) [DecidablePred p] (n : Nat) : Bool := Id.run do
 example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
     (∀ i, i < n → p i) ↔ check_all p n := by
   generalize h : check_all p n = x
-  apply Id.of_wp_run_eq h
+  apply Id.of_run_eq_wp h
   vcgen invariants
     · Invariant.withEarlyReturnNewDo
       (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
@@ -577,7 +577,7 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
 example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
     (∀ i, i < n → p i) ↔ check_all p n := by
   generalize h : check_all p n = x
-  apply Id.of_wp_run_eq h
+  apply Id.of_run_eq_wp h
   vcgen invariants
     | inv1 => Invariant.withEarlyReturnNewDo
       (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)

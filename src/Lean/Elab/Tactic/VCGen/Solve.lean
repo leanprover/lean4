@@ -99,7 +99,7 @@ private def tripleUnfold? (goal : MVarId) (target : Expr) : VCGenM (Option MVarI
   return some (← unfoldTriple goal)
 
 /-- Strategy 3b: turn a bare `wp` application target (a `Prop`) into `⊤ ⊑ wp …`. Entry-point
-goals produced by the `of_wp_run_eq` lemmas have this shape. -/
+goals produced by the `of_run_eq_wp` lemmas have this shape. -/
 private def bareWPToLe? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
   let some _ := isWPApp? target | return none
   let newTarget ← mkAppM ``PartialOrder.rel #[← mkAppOptM ``Lean.Order.top #[mkSort 0, none], target]

@@ -125,6 +125,14 @@ The reference counter `m_rc` field also encodes whether the object is single thr
 reference counting is not needed (== 0). We don't use reference counting for objects stored in compact regions, or
 marked as persistent.
 
+Single-threaded counts grow upward (0, 1, 2, ...); multi-threaded counts grow downward (a count of N is stored as
+-N and adjusted atomically). To stay memory-safe when a count would exceed the 32-bit range, we reserve a band of
+deeply negative values as "sticky": a single-threaded count that overflows past INT_MAX wraps directly into it, and
+a multi-threaded count descending toward INT_MIN is caught in it before it can wrap. Once in the sticky range the
+object is frozen: it is never freed and its count is no longer adjusted. See `LEAN_RC_STICKY` / `LEAN_RC_STICKY_DROP`
+for the exact thresholds. This trades an unbounded but astronomically rare memory leak for memory safety under
+reference-count over/underflow.
+
 For "small" objects stored in compact regions, the field `m_cs_sz` contains the object size. For "small" objects not
 stored in compact regions, we use the page information to retrieve its size so that we can reuse
 `m_cs_sz` to store the deletion list inline. Using the page information is not an option with
@@ -373,7 +381,10 @@ static inline void lean_internal_add_rc(lean_object* o, int add) {
     atomic_fetch_add_explicit((_Atomic(int)*)(&(o)->m_rc), add, memory_order_seq_cst);
 #endif
 #else
-    o->m_rc += add;
+    // Use unsigned arithmetic so that overflowing the single-threaded reference count wraps
+    // deterministically into the negative "sticky" range instead of being undefined behavior.
+    // The wrapped value is detected and frozen in `lean_inc_ref_cold_n` (see `LEAN_RC_STICKY`).
+    o->m_rc = (int)((unsigned)o->m_rc + (unsigned)add);
 #endif
 }
 
@@ -594,15 +605,25 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
     return (_Atomic(int)*)(&(o->m_rc));
 }
 
+/* Reference counts that over- or underflow the 32-bit counter land in a deeply negative "sticky" range, and
+   the object is then frozen: it is never freed and its count is no longer adjusted. Reaching this range is
+   astronomically rare in either direction (a single-threaded count overflowing past INT_MAX, or a multi-threaded
+   count descending toward INT_MIN). Because relaxed reads of the count can be slightly stale across threads, we
+   use a wide band with two thresholds so that once a count enters it, it converges monotonically and neither
+   climbs back out nor wraps past INT_MIN, even under in-flight adjustments from other threads:
+   - once `rc <= LEAN_RC_STICKY_DROP`, drops (decrements) stop adjusting the count;
+   - once `rc <= LEAN_RC_STICKY`, increments stop as well. */
+#define LEAN_RC_STICKY      (INT_MIN + 0x10000000)
+#define LEAN_RC_STICKY_DROP (INT_MIN + 0x20000000)
+
+/* Cold path of `lean_inc_ref_n`: handles thread-shared and overflowed (sticky) objects. */
+LEAN_EXPORT void lean_inc_ref_cold_n(lean_object * o, size_t n);
+
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     if (LEAN_LIKELY(lean_is_st(o))) {
         lean_internal_add_rc(o, n);
     } else if (lean_internal_get_rc(o) != 0) {
-#ifdef __cplusplus
-        std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
-#else
-        atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, memory_order_relaxed);
-#endif
+        lean_inc_ref_cold_n(o, n);
     }
 }
 

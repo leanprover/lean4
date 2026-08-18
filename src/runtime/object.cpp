@@ -441,14 +441,6 @@ static object * lean_del_core(object * o, object * todo) {
     }
 }
 
-extern "C" LEAN_EXPORT void lean_inc_ref_cold_n(lean_object * o, size_t n) {
-    // Reached only for thread-shared (rc < 0) objects; single-threaded and persistent objects are
-    // handled inline in `lean_inc_ref_n`. Once the count reaches the sticky range the object is frozen.
-    if (LEAN_UNLIKELY(lean_internal_get_rc(o) <= LEAN_RC_STICKY))
-        return; // over- or underflowed (sticky) count: do not adjust further
-    std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
-}
-
 extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
     if (LEAN_UNLIKELY(lean_internal_get_rc(o) <= LEAN_RC_STICKY_DROP))
         return; // over- or underflowed (sticky) count: never adjust or free

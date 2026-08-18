@@ -383,7 +383,7 @@ static inline void lean_internal_add_rc(lean_object* o, int add) {
 #else
     // Use unsigned arithmetic so that overflowing the single-threaded reference count wraps
     // deterministically into the negative "sticky" range instead of being undefined behavior.
-    // The wrapped value is detected and frozen in `lean_inc_ref_cold_n` (see `LEAN_RC_STICKY`).
+    // The wrapped value is detected and frozen˝ (see `LEAN_RC_STICKY`).
     o->m_rc = (int)((unsigned)o->m_rc + (unsigned)add);
 #endif
 }
@@ -616,14 +616,18 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
 #define LEAN_RC_STICKY      (INT_MIN + 0x10000000)
 #define LEAN_RC_STICKY_DROP (INT_MIN + 0x20000000)
 
-/* Cold path of `lean_inc_ref_n`: handles thread-shared and overflowed (sticky) objects. */
-LEAN_EXPORT void lean_inc_ref_cold_n(lean_object * o, size_t n);
-
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     if (LEAN_LIKELY(lean_is_st(o))) {
         lean_internal_add_rc(o, n);
-    } else if (lean_internal_get_rc(o) != 0) {
-        lean_inc_ref_cold_n(o, n);
+    } else {
+        int rc = lean_internal_get_rc(o);
+        if (rc == 0 || LEAN_UNLIKELY(rc <= LEAN_RC_STICKY))
+            return; // over- or underflowed (sticky) count: do not adjust further
+#ifdef __cplusplus
+        std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
+#else
+        atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, memory_order_relaxed);
+#endif
     }
 }
 

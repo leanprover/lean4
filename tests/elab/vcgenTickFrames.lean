@@ -245,8 +245,7 @@ def tickFrameProc : FrameInferenceProc := .committed fun i app => do
   -- precondition as the footprint.
   let shifted ← mkAppNS (← mkConstS ``Nat.sub) #[ticks, shift]
   app.excess[0]!.assign shifted
-  let pre ← i.pre
-  app.footprint.assign pre
+  app.footprint.assign i.pre
   -- The lattice instances come from the frame operator and the goal entailment.
   let op ← i.mkOpApp
   let costL := op.getAppArgs[0]!
@@ -259,9 +258,8 @@ def tickFrameProc : FrameInferenceProc := .committed fun i app => do
   -- The pointwise order on functions lets `hmeet` apply to the state arguments directly.
   let happ ← mkAppNS hmeet (i.excessArgs.extract 1 i.excessArgs.size)
   let ty ← Sym.inferType happ
-  let le ← i.le
-  let prf ← mkAppNS (← mkConstS ``Lean.Order.PartialOrder.rel_trans le.getAppFn.constLevels!)
-    (le.getAppArgs ++ #[pre, ty.appFn!.appArg!, ty.appArg!, app.proof, happ])
+  let prf ← mkAppNS (← mkConstS ``Lean.Order.PartialOrder.rel_trans i.le.getAppFn.constLevels!)
+    (i.le.getAppArgs ++ #[i.pre, ty.appFn!.appArg!, ty.appArg!, app.proof, happ])
   return { frame := shift, splitVCProof? := prf, subgoals := [hle.mvarId!] }
 
 /-- Register the cost frame inference procedure for `vcgen`, indexed by the `TickT` program type. The

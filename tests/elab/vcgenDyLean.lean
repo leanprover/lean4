@@ -380,7 +380,7 @@ public meta def dyLeanFrameProc : FrameInferenceProc := .uncommitted fun i => do
   let frame ← do
     match i.providedFrame? with
     | some frame => pure frame
-    | none => match (collectAlways (← i.pre)).toList with
+    | none => match (collectAlways i.pre).toList with
       | [] => return none
       | [single] => pure single
       | a :: rest =>

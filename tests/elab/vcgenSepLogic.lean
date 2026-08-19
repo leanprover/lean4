@@ -924,7 +924,7 @@ def dischargeSplitVC (i : FrameInferenceInfo) (app : SpecApp)
     F.mvarId!.assign frameC
     residual.mvarId!.assign (← mkAppM ``Lean.Order.PartialOrder.rel_of_eq
       #[← mkAppM ``Eq.symm #[← mkAppM ``sepConj_emp #[frameC]]])
-  let some q1 ← proveSepConjLe (← i.pre) (← mkAppM ``sepConj #[paidC, frameC])
+  let some q1 ← proveSepConjLe i.pre (← mkAppM ``sepConj #[paidC, frameC])
     | return { frame := F, splitVCProof? := none, subgoals := [F.mvarId!] }
   -- With nothing unpaid, `paidC` is `footprintC`, so `sepConj_emp` is the equation. `Meta.AC`
   -- normalizes the two sides of an `∗ emp` equation in different atom orders and then fails.
@@ -957,7 +957,7 @@ def sepConjFrameProc : FrameInferenceProc := .committed fun i app => do
   -- One cancellation serves both modes. A pinned frame cancels its own atoms, and the leftover
   -- is the footprint. Spec-driven inference cancels `specPre`'s atoms, and the leftover is the
   -- frame.
-  let (rest, matched, unpaid) ← matchSepAtoms (← i.pre) (i.providedFrame?.getD specPre)
+  let (rest, matched, unpaid) ← matchSepAtoms i.pre (i.providedFrame?.getD specPre)
   if i.providedFrame?.isSome then
     -- Frame checking: the pinned atoms are the frame, the leftover is the footprint. If the
     -- precondition holds nothing for a pinned atom, the AC step in `dischargeSplitVC` fails, and
@@ -969,8 +969,7 @@ def sepConjFrameProc : FrameInferenceProc := .committed fun i app => do
     if unpaid.size == matched.size || rest.isEmpty then
       -- Nothing to hold back: frame `emp` and take the whole precondition as the footprint, which
       -- is the unframed application up to `emp ∗ ·` and `emp -∗ ·`, both of which simplify away.
-      let pre ← i.pre
-      app.footprint.assign pre
+      app.footprint.assign i.pre
       let prf ← mkAppM ``Lean.Order.PartialOrder.rel_trans
         #[app.proof, ← mkAppM ``Lean.Order.PartialOrder.rel_of_eq
             #[← mkAppM ``Eq.symm #[← mkAppM ``emp_sepConj #[app.wp]]]]

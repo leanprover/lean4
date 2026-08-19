@@ -514,8 +514,10 @@ private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : Spec
     let procs := (← read).frameProcs.byProg
     let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
     let providedFrame? ← matchFrame? fp info
+    let goalType ← goal.getType
     let inferInfo : FrameInferenceInfo :=
-      { info with goal, providedFrame?, spec? := thm.global?,
+      { info with pre := goalType.appFn!.appArg!, le := goalType.stripArgsN 2
+                  providedFrame?, spec? := thm.global?,
                   mkOpApp := do shareCommon (← fp.mkOpAppM info) }
     match fp.proc with
     | .uncommitted f =>
@@ -527,8 +529,7 @@ private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : Spec
         return some (.goals scope subgoals)
     | .committed f =>
       let (copy, frule, goals, W) ← commitFrameRule goal info fp
-      let le := (← goal.getType).stripArgsN 2
-      let some (app, sgs) ← applySpecToFootprint info specRule le W | return none
+      let some (app, sgs) ← applySpecToFootprint info specRule inferInfo.le W | return none
       let split ← f inferInfo app
       -- A procedure runs the spec at the goal's state arguments unless it chose others.
       for p in app.excess.zip info.excessArgs do

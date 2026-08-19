@@ -66,8 +66,11 @@ public structure SpecApp where
 applied. Extends the program's `wp` metadata (`WPApp`), so `Pred`, `excessArgs`, etc. are available
 directly. -/
 public structure FrameInferenceInfo extends WPApp where
-  /-- The entailment goal `pre ⊑ wp …` the frame rule or spec applies to. -/
-  goal : MVarId
+  /-- What holds going in: the left-hand side of the goal entailment `pre ⊑ wp …`. -/
+  pre : Expr
+  /-- The goal's entailment relation `PartialOrder.rel α inst`, carrier and order instance
+  applied. Apply it to two operands to build an entailment in the goal's order. -/
+  le : Expr
   /-- The frame pinned by a matching `frames` clause, or `none` to infer the frame, e.g. from the
   precondition of the applied spec. -/
   providedFrame? : Option Expr
@@ -77,15 +80,6 @@ public structure FrameInferenceInfo extends WPApp where
   /-- Builds the frame operator `op : R → Pred → Pred`, hash-consed; the selected procedure's
   `FrameProc.mkOpAppM`. -/
   mkOpApp : SymM Expr
-
-/-- The goal's entailment relation `PartialOrder.rel α inst` (carrier and order instance applied);
-apply it to two operands to build an entailment in the goal's order. -/
-public def FrameInferenceInfo.le (i : FrameInferenceInfo) : SymM Expr :=
-  return (← i.goal.getType).stripArgsN 2
-
-/-- What holds going in: the left-hand side of the goal entailment `pre ⊑ wp …`. -/
-public def FrameInferenceInfo.pre (i : FrameInferenceInfo) : SymM Expr :=
-  return (← i.goal.getType).appFn!.appArg!
 
 /-- A frame backward rule together with the positions of its assignable subgoals in the applied
 rule's goal list: the schematic frame and the split VC `pre ⊑ (op frame W) s⃗`, where `W` is the

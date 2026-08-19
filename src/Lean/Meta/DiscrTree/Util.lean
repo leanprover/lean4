@@ -12,7 +12,7 @@ namespace Trie
 /--
 Monadically fold the keys and values stored in a `Trie`.
 -/
- @[specialize]
+@[specialize]
 partial def foldM [Monad m] (initialKeys : Array Key)
     (f : σ → Array Key → α → m σ) : (init : σ) → Trie α → m σ
   | init, Trie.node vs children => do
@@ -30,8 +30,8 @@ def fold (initialKeys : Array Key) (f : σ → Array Key → α → σ) (init : 
 /--
 Monadically fold the values stored in a `Trie`.
 -/
- @[specialize]
- partial def foldValuesM [Monad m] (f : σ → α → m σ) : (init : σ) → Trie α → m σ
+@[specialize]
+partial def foldValuesM [Monad m] (f : σ → α → m σ) : (init : σ) → Trie α → m σ
   | init, node vs children => do
     let s ← vs.foldlM (init := init) f
     children.foldlM (init := s) fun s (_, c) => c.foldValuesM (init := s) f

@@ -173,7 +173,7 @@ static ssl_ctx_ptr mk_ssl_ctx_base(const SSL_METHOD * method, lean_obj_res * err
     }
 
     configure_ctx_options(ctx.get());
-.
+
     if (SSL_CTX_set_min_proto_version(ctx.get(), TLS1_2_VERSION) != 1) {
         *err = mk_openssl_io_error("SSL_CTX_set_min_proto_version failed");
         return nullptr;

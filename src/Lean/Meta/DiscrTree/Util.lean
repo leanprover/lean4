@@ -173,7 +173,14 @@ Any resulting subtrees containing no values will be pruned.
 partial def Trie.mapArraysM (t : DiscrTree.Trie α) (f : Array α → m (Array β)) :
     m (DiscrTree.Trie β) :=
   match t with
-  | .chain k c => Trie.mapArraysM (.node #[] #[(k, c)]) f
+  | .chain k c => do
+    let vs ← f #[] -- Corner case. TODO: remove this and only call `f` for non-empty arrays in node case?
+    let c ← c.mapArraysM f
+    let cs := if c.isEmptyNode then #[] else #[(k, c)]
+    if vs.size > 0 || c.isEmptyNode then
+      return .node vs cs
+    else
+      return .chain k c
   | .node vs children => do
     let vs ← f vs
     let children ← children.filterMapM fun (k, child) => do

@@ -14,13 +14,10 @@ Author: Sofia Rodrigues
 #include <openssl/x509.h>
 #include <openssl/x509_vfy.h>
 #include <openssl/x509v3.h>
-#include <cerrno>
 #include <climits>
-#include <cstdio>
 #include <cstring>
 #include <memory>
 #include <string>
-#include <sys/stat.h>
 
 #endif
 
@@ -36,77 +33,7 @@ static lean_obj_res reject_embedded_nul(b_obj_arg path) {
         : mk_embedded_nul_error(path);
 }
 
-// Reports a failure against a path, as an errno-derived IO error where the errno is meaningful.
-static lean_obj_res mk_ssl_file_error(b_obj_arg file, char const * msg) {
-    ERR_clear_error();
-
-    char const * path = lean_string_cstr(file);
-    int errnum = 0;
-    std::string detail(msg);
-    struct stat st;
-
-    if (stat(path, &st) != 0) {
-        errnum = errno;
-    } else if (S_ISREG(st.st_mode)) {
-        FILE * probe = fopen(path, "rb");
-        if (probe == nullptr) errnum = errno; else fclose(probe);
-    } else {
-        detail += " (the path is not a regular file)";
-    }
-
-    if (errnum == ENOENT || errnum == EACCES || errnum == EPERM || errnum == ENOTDIR ||
-        errnum == ELOOP || errnum == ENAMETOOLONG || errnum == EMFILE || errnum == ENFILE ||
-        errnum == ENOMEM) {
-        return lean_io_result_mk_error(decode_io_error(errnum, file));
-    }
-
-    lean_inc(file);
-    return lean_io_result_mk_error(lean_mk_io_error_invalid_argument_file(
-        file, errnum != 0 ? errnum : EINVAL, mk_string(detail)));
-}
-
 static int reject_encrypted_pem(char *, int, int, void *) { return -1; }
-
-// Reports a failure with no errno behind it, discarding the queue so it cannot taint a later one.
-static lean_obj_res mk_ssl_invalid_argument(char const * msg) {
-    ERR_clear_error();
-    return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string(msg)));
-}
-
-// Whether a certificate was turned away on policy grounds rather than being unreadable as PEM.
-static bool rejected_by_security_level() {
-    unsigned long err = ERR_peek_last_error();
-
-    if (ERR_GET_LIB(err) != ERR_LIB_SSL) return false;
-
-    int reason = ERR_GET_REASON(err);
-    return reason == SSL_R_EE_KEY_TOO_SMALL || reason == SSL_R_CA_KEY_TOO_SMALL ||
-           reason == SSL_R_CA_MD_TOO_WEAK;
-}
-
-lean_object * mk_openssl_error(char const * where, int ssl_err) {
-    std::string msg(where);
-
-    if (ssl_err != 0) msg += " (ssl_error=" + std::to_string(ssl_err) + ")";
-
-    for (int i = 0; i < 10; i++) {
-        unsigned long err = ERR_get_error();
-        if (err == 0) break;
-
-        char err_buf[256];
-        ERR_error_string_n(err, err_buf, sizeof(err_buf));
-
-        msg += i == 0 ? ": " : "; ";
-        msg += err_buf;
-    }
-
-    if (ERR_peek_error() != 0) {
-        msg += "; ... (truncated)";
-        ERR_clear_error();
-    }
-
-    return lean_mk_io_user_error(mk_string(msg));
-}
 
 struct ssl_ctx_deleter { void operator()(SSL_CTX * ctx) const { SSL_CTX_free(ctx); } };
 

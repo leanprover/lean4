@@ -164,7 +164,7 @@ static FILE * io_get_handle(lean_object * hfile) {
    codes, not CRT `errno` values.) `errno` values libuv cannot represent are translated to the
    closest libuv error code; unrecognized values are negated, which `decode_uv_error_impl`
    treats as an unknown error. */
-static int lean_crt_to_uv_err(int err) {
+LEAN_EXPORT int lean_crt_to_uv_err(int err) {
     switch (err) {
     case E2BIG:           return UV_E2BIG;
     case EACCES:          return UV_EACCES;

@@ -301,8 +301,9 @@ def testCloseNotify (certFile keyFile : String) : IO Unit := do
 
 -- A peer may send its last application record and its `close_notify` in a single flight, so both
 -- land in the input BIO together. Starting our own shutdown at that point must neither consume nor
--- reject the record: `closeNotify` reports want-read while plaintext is still undelivered, `read?`
--- hands the record out and only then reports `.closed`, and the shutdown completes afterwards.
+-- reject the record: `closeNotify` reports `none` — our alert is out and the peer's sits behind
+-- plaintext that no socket I/O can carry us past — `read?` hands the record out and only then
+-- reports `.closed`, and a further `closeNotify` completes the shutdown.
 --
 -- OpenSSL rejects an application record read *inside* `SSL_shutdown` as a fatal protocol error
 -- (`application data after close notify`), so the runtime peeks before letting the shutdown read.
@@ -324,13 +325,13 @@ def testCloseNotifyWithPendingData (certFile keyFile : String) : IO Unit := do
   | none => throw <| IO.userError "server closeNotify completed before the peer responded"
   pipeEncrypted serverSess clientSess
 
-  -- Initiating our side of the shutdown must not consume or reject the unread
-  -- application record that precedes the peer's close_notify.
+  -- Initiating our side of the shutdown must not consume or reject the unread application record
+  -- that precedes the peer's close_notify. The alert is already buffered behind that record, so no
+  -- socket input is outstanding and asking for some would strand a caller that loops on this alone.
   let clientClosing ← clientSess.closeNotify
   match clientClosing with
-  | some .read => pure ()
-  | some .write => throw <| IO.userError "client closeNotify should await peer input"
-  | none => throw <| IO.userError "client closeNotify completed with unread application data"
+  | none => pure ()
+  | r => throw <| IO.userError s!"client closeNotify asked for input that had already arrived, got {repr r}"
 
   match ← clientSess.read? 1024 with
   | .data bytes => assertEqStr (String.fromUTF8! bytes) "final"
@@ -358,9 +359,9 @@ def testCloseNotifyWithPendingData (certFile keyFile : String) : IO Unit := do
 -- ---------------------------------------------------------------------------
 
 -- The same shutdown-before-drain race, but the peer has only sent data so far: there is no buffered
--- `close_notify` to finish on. `closeNotify` must send our alert, report want-read, and keep the
--- plaintext intact for as many calls as it takes — a session with undelivered data must survive an
--- early shutdown rather than fail.
+-- `close_notify` to finish on. `closeNotify` must send our alert and keep the plaintext intact for
+-- as many calls as it takes — a session with undelivered data must survive an early shutdown rather
+-- than fail, and must never report an `IOWant` for input that cannot advance it.
 def testCloseNotifyBeforeDrainingData (certFile keyFile : String) : IO Unit := do
   let serverCtx ← Context.Server.mk certFile keyFile
   let clientCtx ← Context.Client.mk "" false
@@ -374,9 +375,8 @@ def testCloseNotifyBeforeDrainingData (certFile keyFile : String) : IO Unit := d
 
   for attempt in [1, 2] do
     match ← clientSess.closeNotify with
-    | some .read => pure ()
-    | some .write => throw <| IO.userError s!"closeNotify {attempt} should await peer input"
-    | none => throw <| IO.userError s!"closeNotify {attempt} completed with plaintext still unread"
+    | none => pure ()
+    | r => throw <| IO.userError s!"closeNotify {attempt} asked for input it could not use, got {repr r}"
 
   match ← clientSess.read? 1024 with
   | .data bytes => assertEqStr (String.fromUTF8! bytes) "final"
@@ -556,20 +556,21 @@ def threw (act : IO α) : IO Bool := do
   let (certFile, keyFile) ← setupTestCerts
   let serverCtx ← Context.Server.mk certFile keyFile
   let clientCtx ← Context.Client.mk "" false
-  let s ← Session.Server.mk serverCtx
-  let c ← Session.Client.mk clientCtx
-  runHandshake s.toSession c.toSession
 
-  -- A corrupt encrypted record fed into the server's input BIO.
-  let garbage := ByteArray.mk (List.replicate 64 (0x17 : UInt8)).toArray
+  -- A corrupt encrypted record fed into the server's input BIO. The record is fatal, so each path
+  -- needs its own session: the torn-down one refuses further input.
+  let corrupted : IO Session.Server := do
+    let s ← Session.Server.mk serverCtx
+    let c ← Session.Client.mk clientCtx
+    runHandshake s.toSession c.toSession
+    discard <| s.feedEncrypted (ByteArray.mk (List.replicate 64 (0x17 : UInt8)).toArray)
+    return s
 
   -- Normal read raises on the fatal record.
-  discard <| s.feedEncrypted garbage
-  let threwNormal ← threw (s.read? 1)
+  let threwNormal ← threw ((← corrupted).read? 1)
 
   -- The peek path (`read? 0`) must ALSO raise, not silently return `.wantIO`.
-  discard <| s.feedEncrypted garbage
-  let threwPeek ← threw (s.read? 0)
+  let threwPeek ← threw ((← corrupted).read? 0)
 
   unless threwNormal && threwPeek do
     throw <| IO.userError
@@ -660,9 +661,10 @@ def errorOf (act : IO α) : IO (Option String) := do
   | .closed => throw <| IO.userError "closeNotify dropped the plaintext queued by write"
   | .wantIO _ => throw <| IO.userError "expected the queued plaintext, got wantIO"
 
--- Once a fatal alert has torn the session down, OpenSSL answers every further operation with a bare
--- `SSL_ERROR_SYSCALL`. Both BIOs are memory BIOs, so that is never a transport EOF, and an aborted
--- session must not be reported as `end of file` — a caller would read that as a clean end of stream.
+-- Once a record has been rejected as fatally malformed, OpenSSL answers every further operation with
+-- a bare `SSL_ERROR_SYSCALL` — no alert is involved, the session is torn down locally. Both BIOs are
+-- memory BIOs, so that is never a transport EOF, and an aborted session must not be reported as
+-- `end of file` — a caller would read that as a clean end of stream.
 #eval do
   let (certFile, keyFile) ← setupTestCerts
   let serverCtx ← Context.Server.mk certFile keyFile
@@ -688,6 +690,31 @@ def errorOf (act : IO α) : IO (Option String) := do
       if (msg.splitOn "end of file").length > 1 then
         throw <| IO.userError s!"{label} after a fatal error reported EOF: {msg}"
 
+-- `read?` and `handshake` short-circuit on the recorded failure and never touch the input BIO again,
+-- so bytes fed to an aborted session are never consumed. Reporting success for them would let a
+-- transport pump grow the BIO without bound while the caller is told the data was accepted.
+#eval do
+  let (certFile, keyFile) ← setupTestCerts
+  let serverCtx ← Context.Server.mk certFile keyFile
+  let clientCtx ← Context.Client.mk "" false
+  let s ← Session.Server.mk serverCtx
+  let c ← Session.Client.mk clientCtx
+  runHandshake s.toSession c.toSession
+
+  discard <| s.feedEncrypted (ByteArray.mk (List.replicate 64 (0x17 : UInt8)).toArray)
+  unless (← errorOf (s.read? 128)).isSome do
+    throw <| IO.userError "a corrupt record must raise"
+
+  let chunk := ByteArray.mk (List.replicate 1024 (0x58 : UInt8)).toArray
+  for i in [0, 1, 2] do
+    match ← errorOf (s.feedEncrypted chunk) with
+    | none =>
+      throw <| IO.userError
+        s!"feedEncrypted #{i} on an aborted session reported success; those bytes are never consumed"
+    | some msg =>
+      if (msg.splitOn "end of file").length > 1 then
+        throw <| IO.userError s!"feedEncrypted after a fatal error reported EOF: {msg}"
+
 -- A corrupt record on an established session reports a wrong record version, which is not the same
 -- condition as a peer that cannot negotiate a TLS version.
 #eval do
@@ -704,6 +731,21 @@ def errorOf (act : IO α) : IO (Option String) := do
   | some msg =>
     unless (msg.splitOn "unrecognized version").length > 1 do
       throw <| IO.userError s!"unexpected corrupt-record message: {msg}"
+
+-- Plaintext HTTP reaching a TLS port is the most common way a server meets a peer that is not
+-- speaking TLS, and OpenSSL diagnoses it specifically rather than as a bad record version. Naming it
+-- is what distinguishes a misdirected client from a genuine handshake failure.
+#eval do
+  let (certFile, keyFile) ← setupTestCerts
+  let serverCtx ← Context.Server.mk certFile keyFile
+  let s ← Session.Server.mk serverCtx
+
+  discard <| s.feedEncrypted "GET / HTTP/1.1\r\nHost: example.com\r\n\r\n".toUTF8
+  match ← errorOf s.handshake with
+  | none => throw <| IO.userError "an HTTP request must fail the TLS handshake"
+  | some msg =>
+    unless (msg.splitOn "plaintext HTTP request").length > 1 do
+      throw <| IO.userError s!"unexpected HTTP-to-TLS message: {msg}"
 
 -- SNI and the hostname check both travel with the handshake, so setting a server name afterwards
 -- cannot take effect and must be rejected instead of silently succeeding.
@@ -730,6 +772,28 @@ def errorOf (act : IO α) : IO (Option String) := do
     match ← errorOf c.closeNotify with
     | none => pure ()
     | some msg => throw <| IO.userError s!"closeNotify #{i} on a fresh session raised: {msg}"
+
+-- Reporting a clean close has to end the session: a fatal error also puts one back in init, so the
+-- branch that reports "nothing to tear down" cannot leave it looking ready to negotiate.
+#eval do
+  let clientCtx ← Context.Client.mk "" false
+  let c ← Session.Client.mk clientCtx
+  discard <| c.closeNotify
+
+  let after : List (String × IO Unit) :=
+    [("handshake", discard <| c.handshake),
+     ("write", discard <| c.write "x".toUTF8),
+     ("read?", discard <| c.read? 128),
+     ("feedEncrypted", discard <| c.feedEncrypted "x".toUTF8)]
+
+  -- The session is finished, but nothing fatal ever happened to it: reporting one would send a
+  -- caller hunting for a protocol failure that only its own teardown caused.
+  for (label, act) in after do
+    match ← errorOf act with
+    | none => throw <| IO.userError s!"{label} drove a session that closeNotify already reported closed"
+    | some msg =>
+      unless (msg.splitOn "closed before it was negotiated").length > 1 do
+        throw <| IO.userError s!"{label} on a session closed before negotiating reported: {msg}"
 
 -- The same holds once a fatal error has torn the session down: the shutdown has nothing left to do.
 #eval do
@@ -809,8 +873,9 @@ def errorOf (act : IO α) : IO (Option String) := do
     | .closed => throw <| IO.userError s!"{label} reported closed before the handshake"
 
 -- The pending-write queue is bounded, so a caller that keeps writing while the session is blocked
--- is refused rather than allowed to buffer without limit. The first write is always admitted: by
--- then `SSL_write` has taken the payload and requires the same bytes back on retry.
+-- is refused rather than allowed to buffer without limit. The first write is always admitted: a
+-- blocked `SSL_write` consumed nothing but requires the same bytes and length back on retry, so
+-- that payload has to be kept whatever its size.
 #eval do
   let clientCtx ← Context.Client.mk "" false
   let c ← Session.Client.mk clientCtx
@@ -964,9 +1029,11 @@ def errorOf (act : IO α) : IO (Option String) := do
     | none => pure ()
     | some msg => throw <| IO.userError s!"closeNotify #{i} after a half-close raised: {msg}"
 
--- Plaintext still to be handed out holds the shutdown back, but only while the peer's alert could
--- still arrive. After `feedEof` no further input is possible, so reporting `.read` would ask the
--- caller for something it can never supply.
+-- A peer's `close_notify` sent behind a final record is buffered the moment that flight arrives, but
+-- OpenSSL cannot report it without consuming the record first — and a shutdown must not consume
+-- plaintext. Reporting `.read` there would strand a caller looping on `closeNotify` alone: the alert
+-- it is told to wait for has already arrived, so no further input can ever come. Looping on
+-- `closeNotify` must terminate whether or not the caller interleaves `read?`.
 #eval do
   let (certFile, keyFile) ← setupTestCerts
   let serverCtx ← Context.Server.mk certFile keyFile
@@ -979,22 +1046,25 @@ def errorOf (act : IO α) : IO (Option String) := do
   discard <| s.closeNotify
   discard <| c.feedEncrypted (← s.drainEncrypted)
 
-  match ← c.closeNotify with
-  | some .read => pure ()
-  | r => throw <| IO.userError s!"undelivered plaintext did not hold the shutdown back, got {repr r}"
-
-  c.feedEof
-
   for i in [0:3] do
     match ← c.closeNotify with
     | none => pure ()
-    | r => throw <| IO.userError s!"closeNotify #{i} still asked for input after feedEof: {repr r}"
+    | r => throw <| IO.userError s!"closeNotify #{i} asked for input that had already arrived: {repr r}"
 
-  -- The shutdown reported done, but the plaintext it was protecting is still there.
+  -- The shutdown reported done, but the plaintext behind which the alert sat is still there.
   match ← c.read? 1024 with
   | .data b => assertEqStr (String.fromUTF8! b) "final-record"
-  | .closed => throw <| IO.userError "closeNotify discarded the plaintext it was holding for"
+  | .closed => throw <| IO.userError "closeNotify discarded the plaintext it stopped short of"
   | .wantIO _ => throw <| IO.userError "expected the buffered plaintext after the shutdown"
+
+  -- Draining the rest reaches the peer's alert, completing the bidirectional shutdown.
+  match ← c.read? 1024 with
+  | .closed => pure ()
+  | _ => throw <| IO.userError "expected the peer's close_notify behind the record"
+
+  match ← c.closeNotify with
+  | none => pure ()
+  | r => throw <| IO.userError s!"shutdown did not complete after the alert was read, got {repr r}"
 
 -- A fatal error is diagnosed by OpenSSL exactly once; afterwards `SSL_in_init`, `SSL_get_shutdown`
 -- and `SSL_want` read the same as on a session that is merely waiting for input, so an undefended
@@ -1110,3 +1180,267 @@ def errorOf (act : IO α) : IO (Option String) := do
   | some msg =>
     unless (msg.splitOn "before buffered data could be sent").length > 1 do
       throw <| IO.userError s!"unexpected closeNotify error: {msg}"
+
+-- Reporting undelivered plaintext is what a teardown path has to hear, but only once: a `finally`
+-- or a retry loop calls `closeNotify` again, and a session that has already reported the loss has
+-- nothing left to say about it.
+#eval do
+  let clientCtx ← Context.Client.mk "" false
+  let c ← Session.Client.mk clientCtx
+  discard <| c.write "never-sent".toUTF8
+
+  match ← errorOf c.closeNotify with
+  | none => throw <| IO.userError "closeNotify reported a clean close while dropping queued plaintext"
+  | some msg =>
+    unless (msg.splitOn "before buffered data could be sent").length > 1 do
+      throw <| IO.userError s!"unexpected closeNotify error: {msg}"
+
+  for i in [0:3] do
+    match ← errorOf c.closeNotify with
+    | none => pure ()
+    | some msg => throw <| IO.userError s!"closeNotify #{i} repeated a loss it had already reported: {msg}"
+
+-- `setServerName` drives nothing, so `SSL_in_before` still reads true on a session teardown already
+-- finished — it has to consult the session's own verdict instead. Accepting a name there would tell
+-- the caller a peer identity had been configured for a handshake that can never run.
+#eval do
+  let clientCtx ← Context.Client.mk "" false
+  let c ← Session.Client.mk clientCtx
+  discard <| c.closeNotify
+
+  match ← errorOf (c.setServerName "example.com") with
+  | none => throw <| IO.userError "setServerName was accepted on a session already reported closed"
+  | some msg =>
+    unless (msg.splitOn "closed before it was negotiated").length > 1 do
+      throw <| IO.userError s!"unexpected setServerName error: {msg}"
+
+-- An address and a hostname are separate reference identities to OpenSSL, and before 3.5 setting
+-- one left the other in place. A second `setServerName` must replace the first outright, or the
+-- handshake is verified against a name the caller has withdrawn and fails on a valid certificate.
+-- OpenSSL 3.5 and later clear both identities themselves, so this only bites on older builds.
+#eval do
+  let (certFile, keyFile) ← setupTestCerts
+  let serverCtx ← Context.Server.mk certFile keyFile
+  let caPEM ← IO.FS.readFile certFile
+  let clientCtx ← Context.Client.mkFromPEM caPEM true
+
+  let s ← Session.Server.mk serverCtx
+  let c ← Session.Client.mk clientCtx
+
+  -- The cert is for CN=localhost; the withdrawn IP must not still be checked against it.
+  c.setServerName "192.0.2.1"
+  c.setServerName "localhost"
+
+  runHandshake c.toSession s.toSession
+  assertEqN (← c.verifyResult) 0 "verifyResult after replacing an IP server name with a hostname"
+
+-- A received fatal alert is queued as `SSL_AD_REASON_OFFSET` plus its descriptor, so the whole band
+-- at and above that offset has to decode as an alert. `close_notify` is descriptor 0, which lands on
+-- the offset exactly: sent at fatal level it is not absorbed as a clean shutdown, so it reaches the
+-- error queue as reason 1000. An exclusive bound drops it through to the generic handshake message.
+#eval do
+  let clientCtx ← Context.Client.mk "" false
+  let c ← Session.Client.mk clientCtx
+
+  -- Drive the ClientHello out so the session is waiting on the server's flight.
+  discard <| c.handshake
+  discard <| c.drainEncrypted
+
+  -- An unencrypted alert record: content type 21, TLS 1.2 record version, level 2 (fatal),
+  -- description 0 (close_notify).
+  let alert := ByteArray.mk #[0x15, 0x03, 0x03, 0x00, 0x02, 0x02, 0x00]
+  discard <| c.feedEncrypted alert
+
+  match ← errorOf c.handshake with
+  | none => throw <| IO.userError "a fatal alert during the handshake was not reported"
+  | some msg =>
+    unless (msg.splitOn "fatal alert").length > 1 do
+      throw <| IO.userError s!"a fatal-level close_notify was not decoded as an alert: {msg}"
+
+-- `SSL_write` is refused once our own `close_notify` has gone out, but that closes only the write
+-- direction: records the peer sent before it saw the alert are still decrypted and waiting. Treating
+-- the refusal as fatal would finish the session and strand them.
+#eval do
+  let (certFile, keyFile) ← setupTestCerts
+  let serverCtx ← Context.Server.mk certFile keyFile
+  let clientCtx ← Context.Client.mk "" false
+  let s ← Session.Server.mk serverCtx
+  let c ← Session.Client.mk clientCtx
+  runHandshake c.toSession s.toSession
+
+  let payload := "peer-record".toUTF8
+  discard <| s.write payload
+  discard <| c.closeNotify
+  pipeEncrypted s.toSession c.toSession
+
+  match ← errorOf (c.write "oops".toUTF8) with
+  | none => throw <| IO.userError "a write after our own close_notify was accepted"
+  | some msg =>
+    unless (msg.splitOn "already shut down").length > 1 do
+      throw <| IO.userError s!"write after close_notify reported the wrong condition: {msg}"
+
+  match ← c.read? 1024 with
+  | .data bytes => assertEqStr (String.fromUTF8! bytes) "peer-record"
+  | _ => throw <| IO.userError "the peer's records were lost by a refused write"
+
+-- `feedEof` fixes the diagnosis of a session that never negotiated, so `closeNotify` and `read?` have
+-- to agree on it whichever runs first. `SSL_shutdown` refuses to run in init and never reads, so the
+-- shutdown path cannot get the verdict from OpenSSL the way the read path does.
+#eval do
+  let clientCtx ← Context.Client.mk "" false
+
+  let readFirst ← do
+    let c ← Session.Client.mk clientCtx
+    discard <| c.handshake
+    discard <| c.drainEncrypted
+    c.feedEof
+    errorOf (c.read? 1024)
+
+  let closeFirst ← do
+    let c ← Session.Client.mk clientCtx
+    discard <| c.handshake
+    discard <| c.drainEncrypted
+    c.feedEof
+    discard <| c.closeNotify
+    errorOf (c.read? 1024)
+
+  match readFirst, closeFirst with
+  | some a, some b =>
+    unless a == b do
+      throw <| IO.userError s!"a truncated stream was classified by call order: '{a}' vs '{b}'"
+  | _, _ => throw <| IO.userError "a truncated stream was not reported after feedEof"
+
+-- A URI authority spells an IPv6 address `[::1]`. OpenSSL parses that form as neither an address nor
+-- a hostname, so without stripping the brackets it goes out as SNI and binds the peer to a reference
+-- name no certificate can carry. An address sends no SNI, so its ClientHello is shorter than a
+-- hostname's by exactly the extension.
+#eval do
+  let clientCtx ← Context.Client.mk "" false
+
+  let helloSize (host : String) : IO Nat := do
+    let c ← Session.Client.mk clientCtx
+    c.setServerName host
+    discard <| c.handshake
+    return (← c.drainEncrypted).size
+
+  let bare ← helloSize "::1"
+  let bracketed ← helloSize "[::1]"
+  let named ← helloSize "abcde"
+
+  unless bare == bracketed do
+    throw <| IO.userError s!"[::1] was not treated as an address: ClientHello {bracketed} vs {bare}"
+  unless named > bare do
+    throw <| IO.userError s!"a hostname did not add an SNI extension: {named} vs {bare}"
+
+-- A trailing dot spells an absolute FQDN. RFC 6066 §3 forbids one in the SNI `HostName`, and
+-- OpenSSL neither rejects it nor strips it before matching, so leaving it on would put a
+-- non-conforming name on the wire and then fail verification against every certificate.
+#eval do
+  let clientCtx ← Context.Client.mk "" false
+
+  let helloSize (host : String) : IO Nat := do
+    let c ← Session.Client.mk clientCtx
+    c.setServerName host
+    discard <| c.handshake
+    return (← c.drainEncrypted).size
+
+  let absolute ← helloSize "localhost."
+  let relative ← helloSize "localhost"
+
+  unless absolute == relative do
+    throw <| IO.userError
+      s!"a trailing dot reached the SNI extension: ClientHello {absolute} vs {relative}"
+
+-- The stripped dot must leave the hostname bound for verification too, not just shorten the SNI.
+#eval do
+  let (certFile, keyFile) ← setupTestCerts
+  let serverCtx ← Context.Server.mk certFile keyFile
+  let caPEM ← IO.FS.readFile certFile
+  let clientCtx ← Context.Client.mkFromPEM caPEM true
+
+  let s ← Session.Server.mk serverCtx
+  let c ← Session.Client.mk clientCtx
+
+  -- The certificate is for CN=localhost, which only matches once the trailing dot is gone.
+  c.setServerName "localhost."
+
+  runHandshake c.toSession s.toSession
+  assertEqN (← c.verifyResult) 0 "verifyResult for an absolute FQDN server name"
+
+-- A bare `"."` is the root, which strips to nothing. It has to be refused as an empty name rather
+-- than reaching `SSL_set1_host`, which answers success for one and verifies against nothing.
+#eval do
+  let clientCtx ← Context.Client.mk "" false
+  let c ← Session.Client.mk clientCtx
+
+  match ← errorOf (c.setServerName ".") with
+  | none => throw <| IO.userError "a bare '.' server name was accepted"
+  | some msg =>
+    unless (msg.splitOn "the server name is empty").length > 1 do
+      throw <| IO.userError s!"unexpected '.' server name error: {msg}"
+
+-- A URI authority reserves the bracketed form for an address, so a bracketed name that is not one is
+-- malformed. Accepting it would put the brackets on the wire as SNI and bind the peer to a name no
+-- certificate can carry, surfacing a round trip later as a certificate mismatch. A scope id is the
+-- realistic way to get here: `a2i_IPADDRESS` does not accept one, so `[fe80::1%25eth0]` — a
+-- well-formed RFC 6874 authority — falls out of the address branch.
+#eval do
+  let clientCtx ← Context.Client.mk "" false
+
+  for host in ["[a]", "[]", "[::1", "[fe80::1%25eth0]"] do
+    let c ← Session.Client.mk clientCtx
+    match ← errorOf (c.setServerName host) with
+    | none => throw <| IO.userError s!"the bracketed server name {host} was accepted"
+    | some msg =>
+      unless (msg.splitOn "not a valid IP address").length > 1 do
+        throw <| IO.userError s!"unexpected error for {host}: {msg}"
+
+  -- The bracketed forms that do parse as an address stay accepted, trailing dot and all.
+  for host in ["[::1]", "[::1].", "[1.2.3.4]"] do
+    let c ← Session.Client.mk clientCtx
+    match ← errorOf (c.setServerName host) with
+    | none => pure ()
+    | some msg => throw <| IO.userError s!"the bracketed address {host} was rejected: {msg}"
+
+-- A TLS 1.2 `ServerHello` followed by a `Certificate` whose DER cannot be parsed. The handshake
+-- fails inside the certificate parser, so it never gets far enough to need a `ServerKeyExchange`.
+def tls12BadCertificateFlight : ByteArray :=
+  let serverHello : Array UInt8 :=
+    #[0x03, 0x03] ++                                              -- legacy_version: TLS 1.2
+    (Array.range 32).map (fun i => (0x41 + i % 26).toUInt8) ++     -- random
+    #[0x00] ++                                                    -- empty session id
+    #[0xC0, 0x2F] ++                                              -- ECDHE-RSA-AES128-GCM-SHA256
+    #[0x00] ++                                                    -- null compression
+    #[0x00, 0x05, 0xFF, 0x01, 0x00, 0x01, 0x00]                   -- renegotiation_info
+  let certificate : Array UInt8 :=
+    #[0x00, 0x00, 0x2B] ++                                        -- certificate_list length
+    #[0x00, 0x00, 0x28] ++                                        -- certificate length
+    Array.replicate 40 (0xA5 : UInt8)                             -- not DER
+  ByteArray.mk (record (handshake 0x02 serverHello) ++ record (handshake 0x0B certificate))
+where
+  handshake (ty : UInt8) (body : Array UInt8) : Array UInt8 :=
+    #[ty, (body.size / 65536).toUInt8, (body.size / 256 % 256).toUInt8, (body.size % 256).toUInt8]
+      ++ body
+  record (body : Array UInt8) : Array UInt8 :=
+    #[0x16, 0x03, 0x03, (body.size / 256).toUInt8, (body.size % 256).toUInt8] ++ body
+
+-- OpenSSL raises its library-wide `ERR_R_*` conditions under `ERR_LIB_SSL` for failures of its own,
+-- and `ERR_GET_REASON` leaves the reason flags on those codes, which lifts them clear of every
+-- `SSL_R_*` and into the band that decodes a received alert. A peer certificate that cannot be
+-- parsed arrives exactly that way, so blaming the peer for it would report a local parse failure as
+-- the peer's verdict on us.
+#eval do
+  let clientCtx ← Context.Client.mk "" false
+  let c ← Session.Client.mk clientCtx
+
+  discard <| c.handshake
+  discard <| c.drainEncrypted
+  discard <| c.feedEncrypted tls12BadCertificateFlight
+
+  match ← errorOf c.handshake with
+  | none => throw <| IO.userError "an unparseable peer certificate must fail the handshake"
+  | some msg =>
+    if (msg.splitOn "fatal alert").length > 1 then
+      throw <| IO.userError s!"a local certificate-parse failure was blamed on the peer: {msg}"
+    unless (msg.splitOn "the TLS handshake failed").length > 1 do
+      throw <| IO.userError s!"unexpected unparseable-certificate error: {msg}"

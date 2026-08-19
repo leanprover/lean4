@@ -36,6 +36,7 @@ set(
   openssl.cpp
   openssl/context.cpp
   openssl/session.cpp
+  openssl/ssl_error.cpp
   openssl/trust_store.cpp
 )
 if(USE_MIMALLOC)

@@ -20,17 +20,18 @@ set_option linter.listVariables true -- Enforce naming conventions for `List`/`A
 namespace Array
 
 @[specialize] def binSearchAux {α : Type u} {β : Type v} (lt : α → α → Bool) (found : Option α → β) (as : Array α) (k : α) :
-    (lo : Fin (as.size + 1)) → (hi : Fin as.size) → (lo.1 ≤ hi.1) → β
+    (lo : Fin (as.size + 1)) → (hi : Fin (as.size + 1)) → (lo.1 < hi.1) → β
   | lo, hi, h =>
     let m := (lo.1 + hi.1)/2
     let a := as[m]
     if lt a k then
-      if h' : m + 1 ≤ hi.1 then
+      if h' : m + 1 < hi.1 then
         binSearchAux lt found as k ⟨m+1, by omega⟩ hi h'
       else found none
     else if lt k a then
-      if h' : m = 0 ∨ m - 1 < lo.1 then found none
-      else binSearchAux lt found as k lo ⟨m-1, by omega⟩ (by simp; omega)
+      if h' : lo < m then
+        binSearchAux lt found as k lo ⟨m, by omega⟩ h'
+      else found none
     else found (some a)
 termination_by lo hi => hi.1 - lo.1
 
@@ -41,16 +42,11 @@ the array, if it is found, or `none` otherwise.
 The array `as` must be sorted according to the comparison operator `lt`, which should be a total
 order.
 
-The optional parameters `lo` and `hi` determine the region of the array indices to be searched. Both
-are inclusive, and default to searching the entire array.
+The optional parameter `lo` allows binary search to only cover an array postfix.
 -/
-@[inline] def binSearch {α : Type} (as : Array α) (k : α) (lt : α → α → Bool) (lo := 0) (hi := as.size - 1) : Option α :=
-  if h : lo < as.size then
-    let hi := if hi < as.size then hi else as.size - 1
-    if w : lo ≤ hi then
-      binSearchAux lt id as k ⟨lo, by omega⟩ ⟨hi, by simp [hi]; split <;> omega⟩ (by simp [hi]; omega)
-    else
-      none
+@[inline] def binSearch {α : Type} (as : Array α) (k : α) (lt : α → α → Bool) (lo := 0) : Option α :=
+  if w : lo < as.size then
+    binSearchAux lt id as k ⟨lo, by omega⟩ ⟨as.size, by simp only [Nat.lt_add_one]⟩ (by simp [w])
   else
     none
 
@@ -61,16 +57,11 @@ element is found, or `false` otherwise.
 The array `as` must be sorted according to the comparison operator `lt`, which should be a total
 order.
 
-The optional parameters `lo` and `hi` determine the region of the array indices to be searched. Both
-are inclusive, and default to searching the entire array.
+The optional parameter `lo` allows binary search to only cover an array postfix.
 -/
-@[inline] def binSearchContains {α : Type} (as : Array α) (k : α) (lt : α → α → Bool) (lo := 0) (hi := as.size - 1) : Bool :=
-  if h : lo < as.size then
-    let hi := if hi < as.size then hi else as.size - 1
-    if w : lo ≤ hi then
-      binSearchAux lt Option.isSome as k ⟨lo, by omega⟩ ⟨hi, by simp [hi]; split <;> omega⟩ (by simp [hi]; omega)
-    else
-      false
+@[inline] def binSearchContains {α : Type} (as : Array α) (k : α) (lt : α → α → Bool) (lo := 0) : Bool :=
+  if w : lo < as.size then
+    binSearchAux lt Option.isSome as k ⟨lo, by omega⟩ ⟨as.size, by omega⟩ (by omega)
   else
     false
 

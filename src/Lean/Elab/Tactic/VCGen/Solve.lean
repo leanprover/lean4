@@ -13,6 +13,7 @@ public import Lean.Meta.Sym.InstantiateS
 public import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.InstantiateMVarsS
+import Init.Data.Prod
 import Lean.Meta.BinderNameHint
 
 open Lean Meta Elab Tactic Sym Sym.Internal
@@ -50,15 +51,13 @@ public inductive SolveResult where
   /-- No further progress possible; emit the current goal as a VC. -/
   | stop (reason : SolveResult.StopReason)
 
-private partial def isDuplicable (e : Expr) : Bool := match e with
+private def isDuplicable : Expr → Bool
   | .bvar .. | .mvar .. | .fvar .. | .const .. | .lit .. | .sort .. => true
   | .mdata _ e | .proj _ _ e => isDuplicable e
   | .lam .. | .forallE .. | .letE .. => false
-  | .app .. => e.isAppOf ``OfNat.ofNat ||
-      -- A tuple of duplicables, such as the destructuring intermediate of a split state tuple.
-      (match_expr e with
-       | Prod.mk _ _ a b => isDuplicable a && isDuplicable b
-       | _ => false)
+  -- A tuple of duplicables, such as the destructuring intermediate of a split state tuple.
+  | .app (.app (.app (.app (.const ``Prod.mk _) _) _) a) b => isDuplicable a && isDuplicable b
+  | e@(.app ..) => e.isAppOf ``OfNat.ofNat
 
 /-- Strip an annotation, such as the `noImplicitLambda` metadata a tactic `have`/`let`/`suffices`
 leaves on the goal, so later strategies and the backward rules they invoke see the bare target. -/
@@ -89,70 +88,51 @@ private def stateMatcherAltNames? (f : Expr) : VCGenM (Option (Array Name)) := d
     alt := b
   return some names
 
-/-- The program name a hint's binder argument carries: the binder's own name, or the single
-binder name of the matcher alternative when the binder destructures its argument, as the
-invariant closure of a `repeat` or `while` loop does. `reduceHead` exposes the state lambda of
-an invariant applied to its cursor; the reduced closure is read only for its name and discarded. -/
-private def hintName? (binder : Expr) : VCGenM (Option Name) := do
+/-- The program names a hint's binder argument carries: its own binder names, or the binder names
+of the matcher alternative when it destructures its argument, as the invariant closure of a
+`repeat` or `while` loop does. `reduceHead` exposes the state lambda of an invariant applied to its
+cursor; the reduced closure is read only for its names and discarded. -/
+private def hintNames (binder : Expr) : VCGenM (Array Name) := do
   let mut binder := binder.cleanupAnnotations
   unless binder.isLambda do
     binder ← reduceHead (← instantiateMVarsIfMVarAppS binder).cleanupAnnotations
   if let .lam n _ _ _ := binder then
-    if isProgramName n then return some n
-  if let some names ← stateMatcherAltNames? binder then
-    if names.size == 1 && isProgramName names[0]! then return some names[0]!
-  return none
+    -- A closure that destructures its argument binds it under a machine name, and the names the
+    -- program gave the components sit on the matcher alternative below.
+    if isProgramName n then return #[n]
+  return (← stateMatcherAltNames? binder).getD #[]
 
 /-- The components of the right-nested tuple `e`, or `#[e]` when `e` is not a `Prod.mk`
 application. -/
-private def tupleLeaves (e : Expr) : Array Expr :=
-  go e #[] 64
-where
-  go (e : Expr) (acc : Array Expr) : Nat → Array Expr
-    | 0 => acc.push e
-    | fuel+1 =>
-      match_expr e with
-      | Prod.mk _ _ a b => go b (acc.push a) fuel
-      | _ => acc.push e
+private partial def tupleLeaves (e : Expr) (acc : Array Expr := #[]) : Array Expr :=
+  match_expr e with
+  | Prod.mk _ _ a b => tupleLeaves b (acc.push a)
+  | _ => acc.push e
 
-/-- Strategy 0: consume a `binderNameHint` that a spec rule's instantiation left at the head of
-`e`, an applied position of the target. Returns the hint's payload with any over-application
+/-- Strategy 0: consume the `binderNameHint`s that a spec rule's instantiation left at the head of
+`e`, an applied position of the target. Returns the innermost payload with any over-application
 reattached, plus the goal with the hinted variables renamed: the first hint wins, because a
-variable that already carries an accessible user name keeps it. Renaming touches only
-local-context metadata. -/
-private def consumeBinderNameHintCore (goal : MVarId) (e : Expr) :
+variable that already carries an accessible user name keeps it. A hinted value that is a tuple
+names one variable per component. Renaming touches only local-context metadata. -/
+private partial def consumeBinderNameHintCore (goal : MVarId) (e : Expr) :
     VCGenM (Option (MVarId × Expr)) := do
   unless e.getAppFn.isConstOf ``binderNameHint do return none
-  let args := e.getAppArgs
-  unless args.size ≥ 6 do return none
-  let hinted := args[3]!
-  let payload := args[5]!
-  let goal ← match hinted with
-    | .fvar fvarId =>
-      if (← fvarId.getDecl).userName.hasMacroScopes then
-        if let some n ← hintName? args[4]! then
-          trace[Elab.Tactic.Do.vcgen] "binder-name-hint: rename {Expr.fvar fvarId} to {n}"
-          liftMetaM <| goal.rename fvarId n
-        else pure goal
-      else pure goal
-    | _ => do
-      -- A split state tuple: the hinted value is the tuple of the introduced components, and
-      -- the matcher alternative of the hint's closure names them.
-      let leaves := tupleLeaves hinted
-      let names? ← if leaves.size ≥ 2 && leaves.all (·.isFVar) then
-        stateMatcherAltNames? (← instantiateMVarsIfMVarAppS args[4]!)
-      else pure none
-      let mut g := goal
-      if let some names := names? then
-        if names.size == leaves.size then
-          for leaf in leaves, n in names do
-            if (← leaf.fvarId!.getDecl).userName.hasMacroScopes && isProgramName n then
-              g ← liftMetaM <| g.rename leaf.fvarId! n
-      pure g
+  let n := e.getAppNumArgs
+  unless n ≥ 6 do return none
+  let leaves := tupleLeaves (e.getArg! 3 n)
+  let names ← hintNames (e.getArg! 4 n)
+  let mut goal := goal
+  if names.size == leaves.size then
+    for leaf in leaves, name in names do
+      let .fvar fvarId := leaf | continue
+      if (← fvarId.getDecl).userName.hasMacroScopes && isProgramName name then
+        trace[Elab.Tactic.Do.vcgen] "binder-name-hint: rename {Expr.fvar fvarId} to {name}"
+        goal ← liftMetaM <| goal.rename fvarId name
   -- Beta-reduce: an over-applied hint leaves the payload applied to the excess arguments, such
   -- as the state a lifted postcondition takes after its result.
-  let stripped ← betaRevS payload (args.extract 6 args.size).reverse
-  return some (goal, stripped)
+  let payload := e.getArg! 5 n
+  let stripped ← if n == 6 then pure payload else betaRevS payload (e.getAppArgs.extract 6 n).reverse
+  return some ((← consumeBinderNameHintCore goal stripped).getD (goal, stripped))
 
 /-- Strategy 0 at the target's own head. -/
 private def consumeBinderNameHint? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
@@ -160,7 +140,7 @@ private def consumeBinderNameHint? (goal : MVarId) (target : Expr) : VCGenM (Opt
   return some (← goal.replaceTargetDefEqFast stripped)
 
 /-- Strategy 1a: split a `∀` over a product into one binder per component, by applying
-`Std.WP.forall_prod` backward, so a loop's state tuple presents one binder per mutable variable.
+`Prod.forall` backward, so a loop's state tuple presents one binder per mutable variable.
 A nested tuple splits over several rounds; `introsHygienic` stops ahead of product binders, so
 every one reaches this rule. -/
 private def splitProdBinder? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
@@ -168,10 +148,12 @@ private def splitProdBinder? (goal : MVarId) (target : Expr) : VCGenM (Option MV
   let dom ← instantiateMVarsIfMVarAppS dom
   let_expr Prod α β := dom | return none
   let us := dom.getAppFn.constLevels!
-  let mk := mkApp4 (.const ``Prod.mk us) α β (.bvar 1) (.bvar 0)
+  let mk ← mkAppNS (← mkConstS ``Prod.mk us) #[α, β, .bvar 1, .bvar 0]
   let newTarget := Expr.forallE `a α (.forallE `b β (body.instantiate1 mk) .default) .default
   let g ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar (← shareCommon newTarget)
-  goal.assign <| mkApp4 (.const ``Std.WP.forall_prod us) α β (.lam `p dom body .default) g
+  let motive := Expr.lam `p dom body .default
+  let prodForall ← mkAppNS (← mkConstS ``Prod.forall us) #[α, β, motive]
+  goal.assign <| mkApp4 (.const ``Iff.mpr []) target newTarget prodForall g
   return some g.mvarId!
 
 /-- Strategy 1: simp the target, then introduce binders if the target is a `∀`. Hints stay in the
@@ -182,7 +164,7 @@ private def forallIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List 
     | .closed => return some []
     | .goal goal' => pure (goal', true)
     | .noProgress => pure (goal, false)
-  let goal' ← introsHygienic goal (stopAtProd := true)
+  let goal' ← introsHygienic goal
   if !simped && goal' == goal then
     throwError "Failed to intro forall target {goal}"
   return some [goal']
@@ -290,15 +272,11 @@ private def instantiateGoal? (goal : MVarId) (target : Expr) : VCGenM (Option MV
   let mut goal := goal
   let mut pre' := pre'
   let mut rhs' := rhs'
-  for _ in *...8 do
-    let some (g, stripped) ← consumeBinderNameHintCore goal pre' | break
+  if let some (g, stripped) ← consumeBinderNameHintCore goal pre' then
     goal := g
-    pre' := stripped
-  if !isSameExpr pre pre' then
     -- A stripped hint exposes the invariant applied to a constructor state; reduce it here.
-    pre' ← reduceHead pre'
-  for _ in *...8 do
-    let some (g, stripped) ← consumeBinderNameHintCore goal rhs' | break
+    pre' ← reduceHead stripped
+  if let some (g, stripped) ← consumeBinderNameHintCore goal rhs' then
     goal := g
     rhs' := stripped
   if isSameExpr α α' && isSameExpr pre pre' && isSameExpr rhs rhs' then return none
@@ -404,7 +382,7 @@ private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
   throwIfUnsupportedJP name val
   -- A split state tuple leaves projection values, `(a, b).fst`; reduce them to the component, so
   -- the destructuring `let`s zeta away instead of piling up as hypotheses.
-  let val ← reduceHead val
+  let val ← if val.isAppOf ``Prod.fst || val.isAppOf ``Prod.snd then reduceHead val else pure val
   if isDuplicable val then
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
     let body' ← Sym.instantiateRevBetaS body #[val]

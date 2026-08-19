@@ -96,31 +96,28 @@ public def isProgramName (n : Name) : Bool :=
   !n.hasMacroScopes && !n.isImplementationDetail
 
 /--
-Introduce all leading binders of `goal` in one pass, naming the `i`-th binder `overrides[i]` when
-given and the binder's own name otherwise. A `let` binder with a program variable's name keeps its
-name verbatim, so the program's own bindings stay accessible in the verification condition; every
-other name goes through `mkFreshBinderNameForTactic`, which `tactic.hygienic` makes inaccessible.
-The introduction itself is a single `Sym.intros` call (which keeps the memoized, sharing-correct
-intro); only the names are chosen here. Returns the goal unchanged when there are no leading
-binders.
+Introduce the leading binders of `goal` in one pass, stopping at a binder over a product, which
+`solve` splits into one binder per component first. A `let` binder with a program variable's name
+keeps its name verbatim, so the program's own bindings stay accessible in the verification
+condition; every other name goes through `mkFreshBinderNameForTactic`, which `tactic.hygienic`
+makes inaccessible. The introduction itself is a single `Sym.intros` call (which keeps the
+memoized, sharing-correct intro); only the names are chosen here. Returns the goal unchanged when
+there are no leading binders.
 -/
-public def introsHygienic (goal : MVarId) (overrides : Array Name := #[])
-    (stopAtProd : Bool := false) : VCGenM MVarId :=
+public def introsHygienic (goal : MVarId) : VCGenM MVarId :=
   goal.withContext do
     let rec collectBinders (type : Expr) (acc : Array (Name × Bool)) : Array (Name × Bool) :=
       match type with
       | .forallE n d b _ =>
-        if stopAtProd && d.isAppOf ``Prod then acc else collectBinders b (acc.push (n, false))
+        if d.isAppOf ``Prod then acc else collectBinders b (acc.push (n, false))
       | .letE n _ _ b _ => collectBinders b (acc.push (n, true))
       | _ => acc
     let binders := collectBinders (← goal.getType) #[]
     if binders.isEmpty then return goal
     let mut names := #[]
-    for h : i in *...binders.size do
-      let (n, isLet) := binders[i]
-      let n := overrides[i]?.getD n
-      let verbatim := isLet && isProgramName n
-      names := names.push (← if verbatim then pure n else Meta.mkFreshBinderNameForTactic n)
+    for (n, isLet) in binders do
+      names := names.push (← if isLet && isProgramName n then pure n
+        else Meta.mkFreshBinderNameForTactic n)
     let .goal _ goal ← Sym.intros goal names | return goal
     return goal
 

@@ -11,6 +11,7 @@ public import Lean.Elab.Tactic.VCGen.ExceptPost
 public import Lean.Elab.Tactic.VCGen.RuleCache
 public import Lean.Elab.Tactic.VCGen.Util
 public import Lean.Meta.Sym.Util
+public import Lean.Meta.Tactic.Replace
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.InstantiateMVarsS
 
@@ -46,8 +47,8 @@ public def introPre (rule : BackwardRule) (goal : MVarId) : VCGenM (MVarId × FV
 
 /--
 Reduce a `Prod.fst` projection on the RHS of `pre ⊑ rhs` to the component it selects. A concrete
-tuple projects to that component. `replaceExceptPostFstBot?` rewrites `(⊥ : _ × _).fst x₁ … xₙ` to
-`⊥`. Returns `none` if the RHS is not such a projection.
+tuple projects to that component. The rule of `mkExceptPostBotRuleCached` reduces
+`(⊥ : _ × _).fst x₁ … xₙ` to `⊥`. Returns `none` if the RHS is not such a projection.
 -/
 public def reduceExceptPostFst? (goal : MVarId) (target α inst pre rhs : Expr) :
     VCGenM (Option MVarId) :=
@@ -56,7 +57,11 @@ public def reduceExceptPostFst? (goal : MVarId) (target α inst pre rhs : Expr) 
     let some epostArg := args[2]? | return none
     -- `(⊥ : _ × _).fst x₁ … xₙ` is propositionally `⊥`. Reduce it to a `pre ⊑ ⊥` VC.
     if epostArg.isAppOf ``Lean.Order.bot then
-      return (← replaceExceptPostFstBot? goal target rhs)
+      let some rule ← mkExceptPostBotRuleCached target rhs |>.run | return none
+      let .goals goals ← rule.applyChecked goal | return none
+      let [goal] := goals
+        | throwError "the `⊥` exception postcondition rule left {goals.length} subgoals"
+      return some goal
     let (epostTarget, index) := peelExceptPostSndChain epostArg
     let some epost ← mkExceptPostAtIndex epostTarget index | return none
     let excessArgs := args.drop 3

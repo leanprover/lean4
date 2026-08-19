@@ -175,6 +175,15 @@ public structure State where
   sound because it is a subterm of the hash-consed goal target.
   -/
   latticeBackwardRuleCache : Std.HashMap (ExprPtr × Nat) BackwardRule := {}
+  /--
+  A cache mapping `⊥` exception postconditions to the backward rule that reduces the projection on
+  them, keyed by the `Prod.fst eh et ⊥` prefix the rule bakes in verbatim and the total argument
+  count that fixes the number of schematic state arguments.
+
+  The prefix is keyed by `ExprPtr`, so lookups compare it by pointer rather than structurally. This is
+  sound because it is a subterm of the hash-consed goal target.
+  -/
+  exceptPostBotBackwardRuleCache : Std.HashMap (ExprPtr × Nat) BackwardRule := {}
   /-- Caches the frame rule (`WP.Frames.op_wp_upperAdjoint_le_wp`), keyed by the `WPMonad` instance
   and the number of excess state arguments. -/
   frameBackwardRuleCache : Std.HashMap (ExprPtr × Nat) FrameBackwardRule := {}

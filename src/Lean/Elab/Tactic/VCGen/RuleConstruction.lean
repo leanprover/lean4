@@ -48,13 +48,13 @@ private def mkPostPointwisePremise (postSpec postTarget postTy : Expr) (ssTypes 
     - Otherwise, if `EPred` is a product, project `epostSpec.fst`/`.snd` and decompose those
     - Otherwise, if `EPred` is `Unit`, trivial via `Unit.unit_le`
     - Otherwise → single mvar for `epostSpec ⊑ epostAbstract` -/
-private partial def decomposeEPredRel (EPred epostSpec epostAbstract : Expr)
+private partial def decomposeProdRel (EPred epostSpec epostAbstract : Expr)
     (stateArgNames : Array Name := #[]) : MetaM Expr := do
   match_expr epostSpec with
   | Prod.mk ehTy etTy head tail =>
     let absHead ← mkAppM ``Prod.fst #[epostAbstract]
     let absTail ← mkAppM ``Prod.snd #[epostAbstract]
-    let hTail ← decomposeEPredRel etTy tail absTail stateArgNames
+    let hTail ← decomposeProdRel etTy tail absTail stateArgNames
     /- Sometimes, even though `epost` is not schematic itself, its components might be schematic.
       Think of a triple of a kind `⦃ pre ⦄ x ⦃ post; epost₁, ⊥, epost₃, ⊥, ... ⦄`.
       In this case we do not want to create new metavariables for `epost₁`, `epost₃`, etc.
@@ -83,7 +83,7 @@ private partial def decomposeEPredRel (EPred epostSpec epostAbstract : Expr)
       let ssTypes ← forallTelescope ehTy fun xs _ => xs.drop 1 |>.mapM (Meta.inferType ·)
       let hHeadTy ← mkPostPointwisePremise specHead absHead headTy ssTypes stateArgNames
       let hHead ← mkFreshExprMVar (userName := `epostImpl) hHeadTy
-      let hTail ← decomposeEPredRel etTy specTail absTail stateArgNames
+      let hTail ← decomposeProdRel etTy specTail absTail stateArgNames
       mkAppM ``Prod.mk_le #[specHead, specTail, epostAbstract, hHead, hTail]
     | _ =>
       -- The terminator is reducibly `PUnit`, under any of its names.
@@ -138,7 +138,7 @@ value, the relation `epostSpec ⊑ epost` is decomposed component by component:
 ```
 ∀ e s₁ ... sₙ, epostSpec.fst e s₁ ... sₙ ⊑ epost.fst e s₁ ... sₙ
 ```
-and recursively for the tail. `decomposeEPredRel` assembles these component VCs using
+and recursively for the tail. `decomposeProdRel` assembles these component VCs using
 `Prod.mk_le` and `Unit.unit_le`. The proof is then generalized with `WP.wp_econs_le`.
 When the spec exception postcondition is `⊥`, no VC is needed and `WP.wp_econs_bot_le` is
 used instead.
@@ -227,7 +227,7 @@ private def mkSpecBackwardProof
       introducing a new premise. This case is quite common, that's why we handle
       it specially.
       The test runs at a fresh metavariable depth, where a schematic component of
-      `epost` such as `E` in `estack⟨E⟩` is read-only. `decomposeEPredRel` below
+      `epost` such as `E` in `estack⟨E⟩` is read-only. `decomposeProdRel` below
       assigns `E` the matching component of `epostAbstract`. -/
     let isBot ← withNewMCtxDepth do
       try
@@ -241,7 +241,7 @@ private def mkSpecBackwardProof
     else
       /- Decompose `epostSpec ⊑ epostAbstract` into per-component proofs
         using `Prod.mk_le` and `Unit.unit_le` -/
-      let hepost ← decomposeEPredRel EPred epostSpec epostAbstract stateArgNames
+      let hepost ← decomposeProdRel EPred epostSpec epostAbstract stateArgNames
       specApplied ← mkAppM ``WP.wp_econs_le #[prog, postAbstract, epostSpec, epostAbstract, hepost, specApplied]
 
   /- By default we always abstract `pre`, since in most of the specifications

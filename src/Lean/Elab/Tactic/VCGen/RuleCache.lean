@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.Tactic.Do.VCGen.Split
 public import Lean.Elab.Tactic.VCGen.Context
+public import Lean.Elab.Tactic.VCGen.ExceptPost
 public import Lean.Elab.Tactic.VCGen.RuleConstruction
 public import Lean.Elab.Tactic.VCGen.LatticeOp
 public import Lean.Elab.Tactic.VCGen.Util
@@ -80,6 +81,23 @@ public def mkLatticeOpRuleCached (rhs : Expr) (op : LatticeOp) :
   if let some rule := (← get).latticeBackwardRuleCache[key]? then return rule
   let rule ← (← mkLatticeOpRule rhs op).shareCommon
   modify fun st => { st with latticeBackwardRuleCache := st.latticeBackwardRuleCache.insert key rule }
+  return rule
+
+/--
+Cached construction of the backward rule that reduces the exception-postcondition projection
+`(⊥ : eh × et).fst x₁ … xₙ` on the right-hand side of `target` to `⊥`. Fails when the projection does
+not reduce; the caller then falls through.
+
+Cache key: the `Prod.fst eh et ⊥` prefix (which the rule bakes in verbatim) and the argument count
+(which fixes the number of schematic state arguments).
+-/
+public def mkExceptPostBotRuleCached (target rhs : Expr) : OptionT VCGenM BackwardRule := do
+  let key := (ExprPtr.mk (rhs.getAppPrefix 3), rhs.getAppNumArgs)
+  if let some rule := (← get).exceptPostBotBackwardRuleCache[key]? then return rule
+  let some rule ← mkExceptPostBotRule target rhs | failure
+  let rule ← rule.shareCommon
+  modify fun st =>
+    { st with exceptPostBotBackwardRuleCache := st.exceptPostBotBackwardRuleCache.insert key rule }
   return rule
 
 /--

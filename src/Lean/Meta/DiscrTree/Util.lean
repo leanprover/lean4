@@ -117,7 +117,7 @@ Checks that a trie node has no values and no children.
 This is only a check for actual trie emptiness (`t.size = 0`) if all operations maintain the
 invariant that no trie node has an empty child node.
 -/
-def Trie.isEmptyNode {α} : Trie α → Bool
+def Trie.isEmptyNode : Trie α → Bool
   | .node vs children => vs.isEmpty && children.isEmpty
 
 /-- Apply a monadic function to the array of values at each node in a `DiscrTree`. -/
@@ -137,9 +137,7 @@ partial def Trie.mapArraysM (t : DiscrTree.Trie α) (f : Array α → m (Array �
 /-- Apply a monadic function to the array of values at each node in a `DiscrTree`. -/
 def mapArraysM (d : DiscrTree α) (f : Array α → m (Array β)) : m (DiscrTree β) := do
   let root ← d.root.mapM (fun t => t.mapArraysM f)
-  let emptyKeys := root.foldl (init := #[]) fun emptyKeys k t =>
-    if t.isEmptyNode then emptyKeys.push k else emptyKeys
-  pure { root := emptyKeys.foldl (init := root) fun hashMap k => hashMap.erase k }
+  pure { root := root.foldl (init := root) fun acc k t => if t.isEmptyNode then acc.erase k else acc }
 
 /-- Apply a function to the array of values at each node in a `DiscrTree`. -/
 def mapArrays (d : DiscrTree α) (f : Array α → Array β) : DiscrTree β :=

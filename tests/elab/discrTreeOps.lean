@@ -79,14 +79,36 @@ info: (f => (node
   logInfo m!"{t.mapArrays (·.map (· + 10))}"
 
 /--
-info: ("A" => (node #[10, 11]))
+info:
+("A" => (node #[10, 11]))
 ("B" => (node #[12]))
 (g => (node (0 => (node #[13, 14, 15]))))
-(f => (node (0 => (node #[16])) (1 => (node #[17, 18])) (2 => (node #[19]))))
+(f => (node
+  (0 => (node #[16]))
+  (1 => (node #[17, 18]))
+  (2 => (node #[19]))
+  (f => (node (1 => (node #[20])) (2 => (node #[21]))))))
 ---
-info: ("A" => (node #[10, 11])) (g => (node (0 => (node #[13, 14, 15])))) (f => (node (1 => (node #[17, 18]))))
+info:
+("A" => (node #[0, 1]))
+("B" => (node #[2]))
+(g => (node (0 => (node #[3, 4, 5]))))
+(f => (node (0 => (node #[6])) (1 => (node #[7, 8])) (2 => (node #[9])) (f => (node (1 => (node #[10]))))))
 ---
-info: ("A" => (node #[10])) (g => (node (0 => (node #[14])))) (f => (node (1 => (node #[18]))))
+info:
+("A" => (node #[0]))
+("B" => (node #[2]))
+(g => (node (0 => (node #[4]))))
+(f => (node (0 => (node #[6])) (1 => (node #[8])) (f => (node (1 => (node #[10]))))))
+---
+info:
+(g => (node (0 => (node #[3, 4, 5]))))
+---
+info:
+("B" => (node #[2]))
+(f => (node (0 => (node #[6])) (2 => (node #[9])) (f => (node (1 => (node #[10])) (2 => (node #[11]))))))
+---
+info: ("A" => (node #[0, 1])) (g => (node (0 => (node #[3, 4, 5])))) (f => (node (1 => (node #[7, 8]))))
 ---
 info:
 -/
@@ -102,11 +124,13 @@ info:
   let t ← t.insert (mkApp (mkConst ``f) (mkNatLit 0)) 6
   let t ← t.insert (mkApp (mkConst ``f) (mkNatLit 1)) 7
   let t ← t.insert (mkApp (mkConst ``f) (mkNatLit 1)) 8
+  let t ← t.insert (mkApp (mkConst ``f) (mkApp (mkConst ``f) (mkNatLit 1))) 10
+  let t ← t.insert (mkApp (mkConst ``f) (mkApp (mkConst ``f) (mkNatLit 2))) 11
   let t ← t.insert (mkApp (mkConst ``f) (mkNatLit 2)) 9
   logInfo m!"{t.mapArrays (·.map (· + 10))}"
-  let t := t.mapArrays (fun arr => if arr.size = 1 then #[] else arr)
-  logInfo m!"{t.mapArrays (·.map (· + 10))}"
-  let t := t.mapArrays (fun arr => arr.filter (· % 2 = 0))
-  logInfo m!"{t.mapArrays (·.map (· + 10))}"
-  let t := t.mapArrays (fun _ => #[])
-  logInfo m!"{t.mapArrays (·.map (· + 10))}"
+  logInfo m!"{t.mapArrays (·.filter (· <= 10))}"
+  logInfo m!"{t.mapArrays (·.filter (· % 2 = 0))}"
+  logInfo m!"{t.mapArrays (fun arr => if arr.size > 2 then arr else #[])}"
+  logInfo m!"{t.mapArrays (fun arr => if arr.size = 1 then arr else #[])}"
+  logInfo m!"{t.mapArrays (fun arr => if arr.size = 1 then #[] else arr)}"
+  logInfo m!"{t.mapArrays (β := String) (fun _ => #[])}"

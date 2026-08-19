@@ -322,12 +322,14 @@ if(USE_GMP MATCHES "ON")
       # An undetermined version is conservatively treated as too old;
       # find_package would otherwise accept it since VERSION_VAR is empty.
       if(NOT GMP_FOUND OR NOT GMP_VERSION)
-        if(GMP_INCLUDE_DIR AND GMP_VERSION)
-          set(_gmp_detail "found GMP ${GMP_VERSION}")
-        elseif(GMP_INCLUDE_DIR)
-          set(_gmp_detail "found a GMP whose version could not be determined")
-        else()
+        if(NOT GMP_INCLUDE_DIR)
           set(_gmp_detail "no GMP was found")
+        elseif(GMP_VERSION)
+          set(_gmp_detail "found GMP ${GMP_VERSION}")
+        elseif(NOT PKG_CONFIG_FOUND)
+          set(_gmp_detail "found a GMP, but no pkg-config to read its version with")
+        else()
+          set(_gmp_detail "found a GMP, but no `gmp.pc` reporting its version")
         endif()
         message(FATAL_ERROR
           "Lean requires GMP 6.3.0 or newer (${_gmp_detail}). "

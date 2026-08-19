@@ -3,27 +3,19 @@ if(GMP_INCLUDE_DIR AND GMP_LIBRARIES)
   set(GMP_FIND_QUIETLY TRUE)
 endif(GMP_INCLUDE_DIR AND GMP_LIBRARIES)
 
-find_path(GMP_INCLUDE_DIR NAMES gmp.h)
-find_library(GMP_LIBRARIES NAMES gmp libgmp)
+# `gmp.pc` is the only reliable source for the version: on Fedora and RHEL `gmp.h`
+# merely dispatches to an arch-specific header and defines no version macros.
+# PkgConfig is not REQUIRED here so that FORCE_GMP still works without it.
+find_package(PkgConfig)
+if(PKG_CONFIG_FOUND)
+  pkg_check_modules(PC_GMP QUIET gmp)
+endif()
+set(GMP_VERSION "${PC_GMP_VERSION}")
+
+find_path(GMP_INCLUDE_DIR NAMES gmp.h HINTS ${PC_GMP_INCLUDEDIR} ${PC_GMP_INCLUDE_DIRS})
+find_library(GMP_LIBRARIES NAMES gmp libgmp HINTS ${PC_GMP_LIBDIR} ${PC_GMP_LIBRARY_DIRS})
 #find_library(GMPXX_LIBRARIES NAMES gmpxx libgmpxx )
 #MESSAGE(STATUS "GMP: " ${GMP_LIBRARIES}) # " " ${GMPXX_LIBRARIES} )
-
-# Extract the version from gmp.h. If the macros do not parse, GMP_VERSION is left
-# unset; callers treat an unknown version as not satisfying the requirement.
-if(GMP_INCLUDE_DIR AND EXISTS "${GMP_INCLUDE_DIR}/gmp.h")
-  file(STRINGS "${GMP_INCLUDE_DIR}/gmp.h" _gmp_version_major_line REGEX "^#define[ \t]+__GNU_MP_VERSION[ \t]+[0-9]+")
-  file(STRINGS "${GMP_INCLUDE_DIR}/gmp.h" _gmp_version_minor_line REGEX "^#define[ \t]+__GNU_MP_VERSION_MINOR[ \t]+[0-9]+")
-  file(STRINGS "${GMP_INCLUDE_DIR}/gmp.h" _gmp_version_patch_line REGEX "^#define[ \t]+__GNU_MP_VERSION_PATCHLEVEL[ \t]+[0-9]+")
-  if(_gmp_version_major_line AND _gmp_version_minor_line AND _gmp_version_patch_line)
-    string(REGEX REPLACE "^#define[ \t]+__GNU_MP_VERSION[ \t]+([0-9]+).*" "\\1" _gmp_version_major "${_gmp_version_major_line}")
-    string(REGEX REPLACE "^#define[ \t]+__GNU_MP_VERSION_MINOR[ \t]+([0-9]+).*" "\\1" _gmp_version_minor "${_gmp_version_minor_line}")
-    string(REGEX REPLACE "^#define[ \t]+__GNU_MP_VERSION_PATCHLEVEL[ \t]+([0-9]+).*" "\\1" _gmp_version_patch "${_gmp_version_patch_line}")
-    set(GMP_VERSION "${_gmp_version_major}.${_gmp_version_minor}.${_gmp_version_patch}")
-  endif()
-  unset(_gmp_version_major_line)
-  unset(_gmp_version_minor_line)
-  unset(_gmp_version_patch_line)
-endif()
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(GMP

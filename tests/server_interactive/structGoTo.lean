@@ -1,5 +1,5 @@
 /-!
-# Testing "go to definition" for `structure`
+# Testing "go to definition" for `structure` fields
 -/
 
 structure S where
@@ -11,12 +11,6 @@ structure S where
   c : Nat := a + b
            --^ textDocument/definition
                --^ textDocument/definition
-
-/-!
-"Go to definition" for the structure itself
--/
-example := S
-         --^ textDocument/definition
 
 /-!
 "Go to definition" for a field

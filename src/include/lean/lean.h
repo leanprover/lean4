@@ -610,20 +610,28 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
    the object is then frozen: it is never freed and its count is no longer adjusted. Reaching this range is
    astronomically rare in either direction (a single-threaded count overflowing past INT_MAX, or a multi-threaded
    count descending toward INT_MIN). Because relaxed reads of the count can be slightly stale across threads, we
-   use a wide band with two thresholds so that once a count enters it, it converges monotonically and neither
-   climbs back out nor wraps past INT_MIN, even under in-flight adjustments from other threads:
+   use a wide band with two thresholds:
    - once `rc <= LEAN_RC_STICKY_DROP`, drops (decrements) stop adjusting the count;
-   - once `rc <= LEAN_RC_STICKY`, increments stop as well. */
+   - once `rc <= LEAN_RC_STICKY`, increments stop as well.
+   A thread whose read predates the count entering the band still commits its adjustment, so the width of
+   the band, and the room between `LEAN_RC_STICKY` and INT_MIN, are what bound how far such adjustments can
+   move a frozen count: it takes more of them in flight at once than the band is wide to lift the count back
+   out or to wrap it past INT_MIN. `LEAN_RC_INC_MAX` bounds what a single one of them contributes. */
 // sync with tests/elab/rc_sticky_thresholds.lean (`LEAN_RC_STICKY`, `LEAN_RC_STICKY_DROP`)
 #define LEAN_RC_STICKY      (INT_MIN + 0x10000000)
 #define LEAN_RC_STICKY_DROP (INT_MIN + 0x20000000)
 
-/* Largest `n` for which a count overflowing under `lean_inc_ref_n` is guaranteed to land at or
-   below `LEAN_RC_STICKY` rather than wrapping clean past it. */
+/* Largest `n` that `lean_inc_ref_n` adjusts the count by inline; above this it defers to
+   `lean_inc_ref_huge_n`, which either applies the whole `n` or leaves the object frozen. Overflow
+   in either direction still lands inside the sticky range for any `n` up to
+   `LEAN_RC_STICKY - INT_MIN`, so this is far below what soundness alone requires: it caps how much
+   of the room below `LEAN_RC_STICKY` one increment can consume, leaving the rest as margin against
+   adjustments in flight on other threads. Code generation only ever emits `n` in the low thousands,
+   so a constant `n` folds this test away and never reaches the bound. */
 // sync with tests/elab/rc_sticky_thresholds.lean (`LEAN_RC_INC_MAX`)
-#define LEAN_RC_INC_MAX ((size_t)(LEAN_RC_STICKY - INT_MIN) + 1)
+#define LEAN_RC_INC_MAX ((size_t)0x10000)
 
-/* Cold path of `lean_inc_ref_n` for counts the sticky range cannot absorb; see `LEAN_RC_INC_MAX`. */
+/* Cold path of `lean_inc_ref_n` for increments above `LEAN_RC_INC_MAX`. */
 LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n);
 
 // sync with tests/elab/rc_sticky_thresholds.lean (`incRefN`)

@@ -474,6 +474,121 @@ error: A `for` loop terminates with the collection it iterates; `decreasing` sta
 example (xs : List Nat) : Id Unit := do
   for _ in xs invariant _ _ => True decreasing xs.length do pure ()
 
+/-! ## A clause binder destructures its argument
+
+Every clause takes the binders a `fun` takes, so a binder may be a pattern. -/
+
+def swapPair (p : Nat × Nat) : Id (Nat × Nat)
+    ensures ⟨a, b⟩ => a = p.2 ∧ b = p.1
+  := pure (p.2, p.1)
+
+#guard_msgs (drop info) in
+#check @swapPair.spec
+
+/-! The `requires` and `invariant` clauses destructure the state of a state monad. The loop has two
+mutable variables, which the invariant names without binding them. -/
+
+def countSum (xs : List Nat) : StateM (Nat × Nat) Unit
+    requires ⟨seen, sum⟩ => seen = 0 ∧ sum = 0
+    ensures _ ⟨seen, _sum⟩ => seen = xs.length
+  := do
+  let mut lo := 0
+  let mut hi := 0
+  for x in xs
+      invariant pref _ ⟨seen, _sum⟩ => seen = pref.length ∧ lo ≤ hi
+    do
+    lo := lo + 1
+    hi := hi + 2
+    modify fun (seen, sum) => (seen + 1, sum + x)
+where finally
+  | spec => all_goals grind
+
+#guard_msgs (drop info) in
+#check @countSum.spec
+
+/-! ## A clause states one case per shape of its arguments
+
+The alternatives of a clause match on its binders in parallel, as `fun | x, y => …` does. -/
+
+def countSumAlts (xs : List Nat) : StateM (Nat × Nat) Unit
+    requires | ⟨seen, sum⟩ => seen = 0 ∧ sum = 0
+    ensures _ ⟨seen, _sum⟩ => seen = xs.length
+  := do
+  for x in xs
+      invariant
+        | pref, _, ⟨seen, _sum⟩ => seen = pref.length
+    do
+    modify fun (seen, sum) => (seen + 1, sum + x)
+where finally
+  | spec => all_goals grind
+
+#guard_msgs (drop info) in
+#check @countSumAlts.spec
+
+/-! A `repeat` or `while` loop binds whether it has left, so its invariant states one assertion per
+case of the loop. The `decreasing` clause destructures the state alongside it. -/
+
+def drainPair (n : Nat) : StateM (Nat × Nat) Unit
+    requires ⟨a, _b⟩ => a ≤ n
+    ensures _ ⟨a, _b⟩ => a = n := do
+  repeat
+      invariant
+        | true, ⟨a, _b⟩ => a = n
+        | false, ⟨a, _b⟩ => a ≤ n
+      decreasing ⟨a, _b⟩ => n - a
+    do
+    let s ← get
+    if s.1 = n then break
+    set (s.1 + 1, s.2)
+where finally
+  | spec => all_goals grind
+
+#guard_msgs (drop info) in
+#check @drainPair.spec
+
+/-! The `decreasing` clause states its measure per shape of the arguments too. -/
+
+def drainPairAlts (n : Nat) : StateM (Nat × Nat) Unit
+    requires ⟨a, _b⟩ => a ≤ n
+    ensures _ ⟨a, _b⟩ => a = n := do
+  repeat
+      invariant exit ⟨a, _b⟩ => a ≤ n ∧ (exit → a = n)
+      decreasing | ⟨a, _b⟩ => n - a
+    do
+    let s ← get
+    if s.1 = n then break
+    set (s.1 + 1, s.2)
+where finally
+  | spec => all_goals grind
+
+#guard_msgs (drop info) in
+#check @drainPairAlts.spec
+
+/-! A pattern counts as one binder, so a clause that binds more than the assertion language takes is
+reported as it is for a plain binder. -/
+
+/--
+error: The invariant of a loop in this monad takes one argument, and this clause has 2 binders. The loop's mutable variables are named without binding them.
+-/
+#guard_msgs in
+example (n : Nat) : StateM Nat Unit := do
+  let mut go := true
+  while go
+      invariant | _, s, _t => s ≤ n
+    do
+    set n
+    go := false
+
+/--
+error: The `invariant` clause takes at least two binders: the elements consumed so far and the elements remaining.
+-/
+#guard_msgs in
+example (xs : List Nat) : Id Nat := do
+  let mut acc := 0
+  for x in xs invariant | _pref => 0 ≤ acc do
+    acc := acc + x
+  return acc
+
 /-! ## The contract telescope is transplanted faithfully to `f.spec`
 
 `f.spec` re-binds the definition's telescope verbatim, applies `f` to exactly the explicit arguments,

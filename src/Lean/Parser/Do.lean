@@ -185,19 +185,22 @@ On a `for` loop the clause is `invariant pref suff a b c => e`, with `pref` boun
 consumed so far and `suff` to the elements remaining. On a `repeat` or `while` loop it is
 `invariant exit a b c => e`, with `exit` bound to whether the loop has left. Any further binders,
 here `a b c`, bind the arguments of the assertion itself, such as the state of a state monad.
+
+A binder destructures its argument, as in `invariant pref suff ⟨lo, hi⟩ => lo ≤ hi`, and the form
+`invariant | pref, suff, ⟨lo, hi⟩ => lo ≤ hi` states one assertion per shape of the arguments.
 -/
 def doLoopInvariant := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "invariant" >>
-    withForbiddens #["do", "decreasing"] basicFun)
+    withForbiddens #["do", "decreasing"] (basicFun <|> ppIndent matchAlts))
 /--
 A `decreasing` clause gives a `repeat` or `while` loop its termination measure, which every
 iteration must lower. The measure is a term over the loop's mutable variables; the form
 `decreasing a b c => e` binds the arguments of the measure itself, such as the state of a state
-monad.
+monad, and the form `decreasing | a, b, c => e` states the measure per shape of those arguments.
 -/
 def doLoopDecreasing := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "decreasing" >>
-    withForbidden "do" (atomic basicFun <|> (ppSpace >> termParser)))
+    withForbidden "do" (atomic basicFun <|> ppIndent matchAlts <|> (ppSpace >> termParser)))
 /--
 `for x in e do s` iterates over `e` assuming `e`'s type has an instance of the `ForIn` typeclass.
 `break` and `continue` are supported inside `for` loops.

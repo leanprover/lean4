@@ -136,10 +136,12 @@ def givenClause := leading_parser
     withForbiddens #["requires", "ensures"]
       (many1 (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder))))
 /-- The `requires P` precondition clause of a `def` contract. The form `requires s => P s` binds the
-arguments of the assertion itself, such as the state of a state monad. -/
+arguments of the assertion itself, such as the state of a state monad, and the form
+`requires | ⟨lo, hi⟩ => lo ≤ hi` states one precondition per shape of those arguments. -/
 def requiresClause := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "requires" >>
-    withForbidden "ensures" (atomic Term.basicFun <|> (ppSpace >> termParser)))
+    withForbidden "ensures"
+      (atomic Term.basicFun <|> ppIndent Term.matchAlts <|> (ppSpace >> termParser)))
 /-- The `ensures b => Q` postcondition clause of a `def` contract, binding the result `b`. -/
 def ensuresClause := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "ensures" >>

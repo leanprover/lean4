@@ -46,7 +46,7 @@ uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Slice_toString(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
@@ -316,7 +316,7 @@ goto v___jp_25_;
 v___jp_18_:
 {
 lean_object* v___x_21_; lean_object* v___x_22_; 
-v___x_21_ = lean_string_append(v___y_19_, v___y_20_);
+v___x_21_ = lean_string_append(v___y_20_, v___y_19_);
 v___x_22_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_22_, 0, v___x_21_);
 return v___x_22_;
@@ -330,8 +330,8 @@ v___x_29_ = lean_obj_once(&l___private_Lean_DocString_Links_0__Lean_initFn___clo
 v___x_30_ = lean_nat_dec_le(v___x_29_, v___x_28_);
 if (v___x_30_ == 0)
 {
-v___y_19_ = v_r_26_;
-v___y_20_ = v___x_27_;
+v___y_19_ = v___x_27_;
+v___y_20_ = v_r_26_;
 goto v___jp_18_;
 }
 else
@@ -343,8 +343,8 @@ v___x_33_ = lean_string_memcmp(v_r_26_, v___x_27_, v___x_32_, v___x_31_, v___x_2
 lean_dec(v___x_32_);
 if (v___x_33_ == 0)
 {
-v___y_19_ = v_r_26_;
-v___y_20_ = v___x_27_;
+v___y_19_ = v___x_27_;
+v___y_20_ = v_r_26_;
 goto v___jp_18_;
 }
 else
@@ -2260,7 +2260,7 @@ goto v___jp_696_;
 v___jp_696_:
 {
 lean_object* v___x_697_; lean_object* v___x_698_; 
-v___x_697_ = lean_string_utf8_extract(v_s_672_, v___x_673_, v_snd_688_);
+v___x_697_ = lean_string_utf8_extract_fast(v_s_672_, v___x_673_, v_snd_688_);
 v___x_698_ = l___private_Lean_DocString_Links_0__Lean_rw(v___x_697_);
 if (lean_obj_tag(v___x_698_) == 0)
 {

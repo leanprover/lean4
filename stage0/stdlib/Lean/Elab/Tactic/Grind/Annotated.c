@@ -48,7 +48,7 @@ lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 lean_object* l_Lean_indentD(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnvironmentHeader_moduleNames(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -824,7 +824,7 @@ _start:
 lean_object* v___x_265_; lean_object* v___x_266_; lean_object* v___x_267_; 
 v___x_265_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated_spec__1_spec__1___redArg___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated_spec__1_spec__1___redArg___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated_spec__1_spec__1___redArg___closed__1);
 v___x_266_ = lean_unsigned_to_nat(0u);
-v___x_267_ = lean_alloc_ctor(0, 10, 0);
+v___x_267_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_267_, 0, v___x_266_);
 lean_ctor_set(v___x_267_, 1, v___x_266_);
 lean_ctor_set(v___x_267_, 2, v___x_266_);
@@ -835,6 +835,7 @@ lean_ctor_set(v___x_267_, 6, v___x_265_);
 lean_ctor_set(v___x_267_, 7, v___x_265_);
 lean_ctor_set(v___x_267_, 8, v___x_265_);
 lean_ctor_set(v___x_267_, 9, v___x_265_);
+lean_ctor_set(v___x_267_, 10, v___x_265_);
 return v___x_267_;
 }
 }
@@ -1198,7 +1199,7 @@ goto v_reusejp_391_;
 v_reusejp_391_:
 {
 lean_object* v___x_393_; lean_object* v___x_394_; lean_object* v___x_396_; 
-v___x_393_ = lean_st_ref_set(v_a_349_, v___x_392_);
+v___x_393_ = lean_st_ref_put(v_a_349_, v___x_392_);
 v___x_394_ = lean_box(0);
 if (v_isShared_369_ == 0)
 {

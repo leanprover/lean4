@@ -46,7 +46,7 @@ uint8_t l_Lean_IR_IRType_isScalar(lean_object*);
 lean_object* l_Lean_IR_findEnvDecl_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_params(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_IR_LocalContext_addLocal(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_addJP(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -368,7 +368,7 @@ _start:
 lean_object* v___x_28_; lean_object* v___x_29_; lean_object* v___x_30_; 
 v___x_28_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_IR_Checker_throwCheckerError_spec__0_spec__0___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_IR_Checker_throwCheckerError_spec__0_spec__0___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_IR_Checker_throwCheckerError_spec__0_spec__0___closed__1);
 v___x_29_ = lean_unsigned_to_nat(0u);
-v___x_30_ = lean_alloc_ctor(0, 10, 0);
+v___x_30_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_30_, 0, v___x_29_);
 lean_ctor_set(v___x_30_, 1, v___x_29_);
 lean_ctor_set(v___x_30_, 2, v___x_29_);
@@ -379,6 +379,7 @@ lean_ctor_set(v___x_30_, 6, v___x_28_);
 lean_ctor_set(v___x_30_, 7, v___x_28_);
 lean_ctor_set(v___x_30_, 8, v___x_28_);
 lean_ctor_set(v___x_30_, 9, v___x_28_);
+lean_ctor_set(v___x_30_, 10, v___x_28_);
 return v___x_30_;
 }
 }
@@ -2035,7 +2036,7 @@ return v___x_475_;
 v___jp_456_:
 {
 lean_object* v___x_460_; lean_object* v___x_461_; 
-v___x_460_ = lean_st_ref_set(v___y_457_, v___y_459_);
+v___x_460_ = lean_st_ref_put(v___y_457_, v___y_459_);
 v___x_461_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_461_, 0, v___y_458_);
 return v___x_461_;

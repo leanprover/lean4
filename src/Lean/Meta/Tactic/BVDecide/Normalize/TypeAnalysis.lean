@@ -9,6 +9,7 @@ prelude
 public import Std.Tactic.BVDecide.Normalize.BitVec
 public import Lean.Meta.Tactic.BVDecide.Normalize.Basic
 public import Lean.Meta.Sym.Simp.SimpM
+public import Lean.Meta.Tactic.BVDecide.Attr
 import Init.ByCases
 import Lean.Meta.Sym.Simp.Theorems
 import Lean.Meta.Sym.Simp.Rewrite
@@ -151,7 +152,7 @@ public partial def typeAnalysisPass : Pass where
     let restrictedTypes ← PreProcessM.getRestrictedTypes
     if let some types := restrictedTypes then
       seedRestrictedTypes types
-    checkContext (← PreProcessM.getGoal) |>.run { restricted := restrictedTypes.isSome }
+    checkContext (← PreProcessM.getTargetMVarId) |>.run { restricted := restrictedTypes.isSome }
     let analysis ← PreProcessM.getTypeAnalysis
     trace[Meta.Tactic.bv] m!"Type analysis found structures: {analysis.interestingStructures.toList}"
     trace[Meta.Tactic.bv] m!"Type analysis found enums: {analysis.interestingEnums.toList}"

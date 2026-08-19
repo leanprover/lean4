@@ -11,7 +11,7 @@ import Lean.Meta.AppBuilder
 public section
 namespace Lean.Meta.Grind
 
-/-- Extension backing the `@[grind homo]` attribute. -/
+/-- Extension backing the `@[grind hom]` attribute. -/
 builtin_initialize homoExt : Sym.Simp.SymSimpExtension ← Sym.Simp.mkSymSimpExt
 
 /-- Returns the homomorphism rules tagged with the `[grind hom]` attribute. -/
@@ -109,7 +109,7 @@ Validates and registers a `[grind hom]` theorem, recording the source type of
 `=`-injection rules. See `validateHomoTheorem`.
 -/
 def addHomoAttr (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
-  Sym.Simp.addSymSimpDecl homoExt "grind hom" declName attrKind (validate := fun declName => do
+  Sym.Simp.addSymSimpDecl homoExt declName attrKind (validate := fun declName => do
     validateHomoTheorem declName
     if let some F ← checkEqInjection? declName then
       homoSourceTypesExt.add F attrKind)
@@ -126,7 +126,7 @@ structure HomoPredTheorem where
 /-- Map from trigger head symbol to the `[grind hom_pred]` theorems it activates. -/
 abbrev HomoPredTheorems := NameMap (List HomoPredTheorem)
 
-/-- Extension backing the `@[grind homo_pred]` attribute. -/
+/-- Extension backing the `@[grind hom_pred]` attribute. -/
 builtin_initialize homoPredExt : SimpleScopedEnvExtension (Name × HomoPredTheorem) HomoPredTheorems ←
   registerSimpleScopedEnvExtension {
     initial  := {}

@@ -533,7 +533,7 @@ theorem cond_false {α : Sort u} {a b : α} : cond false a b = b := rfl
 theorem cond_eq_ite {α} (b : Bool) (t e : α) : cond b t e = if b then t else e := by
   cases b <;> simp [Bool.cond_true, Bool.cond_false]
 
-@[deprecated cond_eq_ite (since := "2025-10-29")]
+@[deprecated cond_eq_ite +typeChanged (since := "2025-10-29")]
 theorem cond_eq_if : (bif b then x else y) = (if b then x else y) := cond_eq_ite b x y
 
 theorem cond_not (b : Bool) (t e : α) : cond (!b) t e = cond b e t := by
@@ -682,29 +682,31 @@ but may be used locally.
 
 /-! ### Proof by reflection support  -/
 
-@[expose] protected noncomputable def Internal.Bool.and' (a b : Bool) : Bool :=
-  Bool.rec false b a
+/--
+This used to be a variant of `Bool.and` with better kernel behavior, but `Bool.and` was redefined
+to have this kernel-efficient definition.
+-/
+@[deprecated Bool.and (since := "2026-08-18")]
+abbrev Bool.and' (a b : Bool) : Bool :=
+  Bool.and a b
 
-@[expose] protected noncomputable def Internal.Bool.or' (a b : Bool) : Bool :=
-  Bool.rec b true a
+/--
+This used to be a variant of `Bool.or` with better kernel behavior, but `Bool.or` was redefined
+to have this kernel-efficient definition.
+-/
+@[deprecated Bool.or (since := "2026-08-18")]
+abbrev Bool.or' (a b : Bool) : Bool :=
+  Bool.or a b
 
-@[expose] protected noncomputable def Internal.Bool.not' (a : Bool) : Bool :=
-  Bool.rec true false a
+/--
+This used to be a variant of `Bool.not` with better kernel behavior, but `Bool.not` was redefined
+to have this kernel-efficient definition.
+-/
+@[deprecated Bool.not (since := "2026-08-18")]
+abbrev Bool.not' (a : Bool) : Bool :=
+  Bool.not a
 
 section
-
-open Internal
-
-@[simp] theorem Internal.Bool.and'_eq_and (a b : Bool) : a.and' b = a.and b := by
-  cases a <;> simp [Bool.and']
-
-@[simp] theorem Internal.Bool.or'_eq_or (a b : Bool) : a.or' b = a.or b := by
-  cases a <;> simp [Bool.or']
-
-@[simp] theorem Internal.Bool.not'_eq_not (a : Bool) : a.not' = a.not := by
-  cases a <;> simp [Bool.not']
-
-end
 
 theorem Bool.rec_eq {α : Sort _} (b : Bool) {x y : α} : Bool.rec y x b = if b then x else y := by
   cases b <;> simp

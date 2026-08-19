@@ -42,7 +42,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_Core_checkSystem(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instantiateMVarsIfMVarApp___redArg(lean_object*, lean_object*);
@@ -4846,7 +4846,7 @@ goto v_reusejp_1429_;
 v_reusejp_1429_:
 {
 lean_object* v___x_1431_; lean_object* v___x_1433_; 
-v___x_1431_ = lean_st_ref_set(v_a_1404_, v___x_1430_);
+v___x_1431_ = lean_st_ref_put(v_a_1404_, v___x_1430_);
 if (v_isShared_1419_ == 0)
 {
 v___x_1433_ = v___x_1418_;
@@ -6585,7 +6585,7 @@ goto v_reusejp_1835_;
 v_reusejp_1835_:
 {
 lean_object* v___x_1837_; lean_object* v___x_1839_; 
-v___x_1837_ = lean_st_ref_set(v_a_1810_, v___x_1836_);
+v___x_1837_ = lean_st_ref_put(v_a_1810_, v___x_1836_);
 if (v_isShared_1825_ == 0)
 {
 v___x_1839_ = v___x_1824_;
@@ -10125,7 +10125,7 @@ goto v_reusejp_2767_;
 v_reusejp_2767_:
 {
 lean_object* v___x_2769_; lean_object* v___x_2771_; 
-v___x_2769_ = lean_st_ref_set(v_a_2742_, v___x_2768_);
+v___x_2769_ = lean_st_ref_put(v_a_2742_, v___x_2768_);
 if (v_isShared_2757_ == 0)
 {
 v___x_2771_ = v___x_2756_;

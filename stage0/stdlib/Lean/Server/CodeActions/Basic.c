@@ -62,7 +62,7 @@ size_t lean_usize_sub(size_t, size_t);
 size_t lean_usize_mul(size_t, size_t);
 uint8_t lean_usize_dec_le(size_t, size_t);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_Json_getObjValD(lean_object*, lean_object*);
 lean_object* l_Lean_Name_fromJson_x3f(lean_object*);
@@ -1407,7 +1407,7 @@ lean_object* v___x_255_; lean_object* v___x_256_; lean_object* v___x_257_; lean_
 v___x_255_ = l___private_Lean_Server_CodeActions_Basic_0__Lean_Server_builtinCodeActionProviders;
 v___x_256_ = lean_st_ref_take(v___x_255_);
 v___x_257_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(v_decl_252_, v_provider_253_, v___x_256_);
-v___x_258_ = lean_st_ref_set(v___x_255_, v___x_257_);
+v___x_258_ = lean_st_ref_put(v___x_255_, v___x_257_);
 v___x_259_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_259_, 0, v___x_258_);
 return v___x_259_;
@@ -1962,7 +1962,7 @@ goto v_reusejp_480_;
 v_reusejp_480_:
 {
 lean_object* v___x_482_; lean_object* v___x_483_; lean_object* v___x_484_; 
-v___x_482_ = lean_st_ref_set(v___y_466_, v___x_481_);
+v___x_482_ = lean_st_ref_put(v___y_466_, v___x_481_);
 v___x_483_ = lean_box(0);
 v___x_484_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_484_, 0, v___x_483_);
@@ -2022,7 +2022,7 @@ _start:
 lean_object* v___x_506_; lean_object* v___x_507_; lean_object* v___x_508_; 
 v___x_506_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Server_CodeActions_Basic_0__Lean_Server_initFn_00___x40_Lean_Server_CodeActions_Basic_1656927832____hygCtx___hyg_2__spec__0_spec__0___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Server_CodeActions_Basic_0__Lean_Server_initFn_00___x40_Lean_Server_CodeActions_Basic_1656927832____hygCtx___hyg_2__spec__0_spec__0___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Server_CodeActions_Basic_0__Lean_Server_initFn_00___x40_Lean_Server_CodeActions_Basic_1656927832____hygCtx___hyg_2__spec__0_spec__0___closed__1);
 v___x_507_ = lean_unsigned_to_nat(0u);
-v___x_508_ = lean_alloc_ctor(0, 10, 0);
+v___x_508_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_508_, 0, v___x_507_);
 lean_ctor_set(v___x_508_, 1, v___x_507_);
 lean_ctor_set(v___x_508_, 2, v___x_507_);
@@ -2033,6 +2033,7 @@ lean_ctor_set(v___x_508_, 6, v___x_506_);
 lean_ctor_set(v___x_508_, 7, v___x_506_);
 lean_ctor_set(v___x_508_, 8, v___x_506_);
 lean_ctor_set(v___x_508_, 9, v___x_506_);
+lean_ctor_set(v___x_508_, 10, v___x_506_);
 return v___x_508_;
 }
 }
@@ -6570,7 +6571,7 @@ v___x_2175_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_2175_, 0, v___f_2171_);
 lean_ctor_set(v___x_2175_, 1, v___f_2174_);
 v___x_2176_ = l_Lean_PersistentHashMap_insert___at___00Lean_Server_registerLspRequestHandler___at___00__private_Lean_Server_CodeActions_Basic_0__Lean_Server_initFn_00___x40_Lean_Server_CodeActions_Basic_275661449____hygCtx___hyg_2__spec__0_spec__4___redArg(v___x_2170_, v_method_2156_, v___x_2175_);
-v___x_2177_ = lean_st_ref_set(v___x_2167_, v___x_2176_);
+v___x_2177_ = lean_st_ref_put(v___x_2167_, v___x_2176_);
 v___x_2178_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2178_, 0, v___x_2177_);
 return v___x_2178_;
@@ -8153,7 +8154,7 @@ v___x_2656_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_2656_, 0, v___f_2652_);
 lean_ctor_set(v___x_2656_, 1, v___f_2655_);
 v___x_2657_ = l_Lean_PersistentHashMap_insert___at___00Lean_Server_registerLspRequestHandler___at___00__private_Lean_Server_CodeActions_Basic_0__Lean_Server_initFn_00___x40_Lean_Server_CodeActions_Basic_275661449____hygCtx___hyg_2__spec__0_spec__4___redArg(v___x_2651_, v_method_2637_, v___x_2656_);
-v___x_2658_ = lean_st_ref_set(v___x_2648_, v___x_2657_);
+v___x_2658_ = lean_st_ref_put(v___x_2648_, v___x_2657_);
 v___x_2659_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2659_, 0, v___x_2658_);
 return v___x_2659_;

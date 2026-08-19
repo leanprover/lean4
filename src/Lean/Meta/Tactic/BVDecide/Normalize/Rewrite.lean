@@ -54,33 +54,17 @@ public def rewriteRulesPass : Pass where
         >> rewriteDsimproc
     }
 
-    let goal ← PreProcessM.getGoal
+    let goal ← PreProcessM.getTargetMVarId
     let changed ← goal.withContext do
       PreProcessM.mapHyps fun hyp => do
-        let hyp ← dsimp dsimpMethods dsimpConfig hyp
-        let hyp ← simp simpMethods simpConfig hyp
-        return hyp
+        let hyp ← PreProcessM.dsimpHyp .rewrite dsimpMethods dsimpConfig hyp
+        PreProcessM.simpHyp .rewrite simpMethods simpConfig hyp
     if (← isTracingEnabledFor `Meta.Tactic.bv) then
       let statistics := (← cache.get).statistics.toArray.qsort (fun a b => a.2 > b.2)
       withTraceNode `Meta.Tactic.bv (fun _ => return "rewriteRules simproc statistics:") do
         for (rule, hits) in statistics do
           trace[Meta.Tactic.bv] m!"{rule}: {hits}"
     return changed
-where
-  dsimp (methods : Sym.DSimp.Methods) (config : Sym.DSimp.Config) (hyp : Hyp) : PreProcessM Hyp := do
-    let dsimpState := { cache := ← PreProcessM.takeRewriteDSimpCache }
-    let (res, s) ← Sym.DSimp.DSimpM.run (methods := methods) (config := config) (s := dsimpState) do
-      Sym.DSimp.dsimp hyp.type
-    PreProcessM.setRewriteDSimpCache s.cache
-    hyp.applyDSimpResult res
-
-  simp (methods : Sym.Simp.Methods) (config : Sym.Simp.Config) (hyp : Hyp) : PreProcessM Hyp := do
-    let simpState := { persistentCache := ← PreProcessM.takeRewriteSimpCache }
-    let (res, s) ← Sym.Simp.SimpM.run (methods := methods) (config := config) (s := simpState) do
-      Sym.Simp.simp hyp.type
-    PreProcessM.setRewriteSimpCache s.persistentCache
-    hyp.applySimpResult res
-
 
 end Normalize
 end Lean.Meta.Tactic.BVDecide

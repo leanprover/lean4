@@ -333,7 +333,7 @@ theorem Nodup.getElem!_inj [Inhabited α] {xs : List α}
 theorem getElem?_inj {l : List α} (h₀ : i < l.length) (h₁ : List.Nodup l) :
     l[i]? = l[j]? ↔ i = j := h₁.getElem?_inj h₀
 
-@[deprecated Nodup.getElem_inj (since := "2026-07-15")]
+@[deprecated Nodup.getElem_inj +typeChanged (since := "2026-07-15")]
 theorem getElem_inj {xs : List α}
     {h₀ : i < xs.length} {h₁ : j < xs.length} (h : Nodup xs) : xs[i] = xs[j] ↔ i = j :=
   h.getElem_inj

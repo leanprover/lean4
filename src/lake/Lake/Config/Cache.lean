@@ -403,7 +403,7 @@ namespace Cache
   cache.artifactDir / artifactPath contentHash ext
 
 /-- Returns the artifact in the Lake cache corresponding the given artifact description. -/
-@[deprecated "Deprecated without replacelement." (since := "2025-03-04")]
+@[deprecated "Deprecated without replacement." (since := "2025-03-04")]
 public def getArtifact? (cache : Cache) (descr : ArtifactDescr) : BaseIO (Option Artifact) := do
   let path := cache.artifactDir / descr.relPath
   let .ok mtime ← getMTime path |>.toBaseIO
@@ -411,7 +411,7 @@ public def getArtifact? (cache : Cache) (descr : ArtifactDescr) : BaseIO (Option
   return some {descr, path, mtime}
 
 /-- Returns the artifact in the Lake cache corresponding the given artifact description. Errors if missing. -/
-@[deprecated "Deprecated without replacelement." (since := "2025-03-04")]
+@[deprecated "Deprecated without replacement." (since := "2025-03-04")]
 public def getArtifact (cache : Cache) (descr : ArtifactDescr) : EIO String Artifact := do
   let path := cache.artifactDir / descr.relPath
   match (← getMTime path |>.toBaseIO) with
@@ -466,10 +466,9 @@ public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : Lo
   | .ok contents =>
     match Json.parse contents >>= fromJson? with
     | .ok out =>
-      return out
+      return some out
     | .error e =>
-      logWarning s!"{path}: invalid JSON: {e}"
-      return none
+      error s!"{path}: invalid JSON: {e}"
   | .error (.noFileOrDirectory ..) => return none
   | .error e => error s!"{path}: read failed: {e}"
 
@@ -564,7 +563,7 @@ def uploadS3
   (file : FilePath) (contentType : String) (url : String) (key : String)
 : LoggerIO Unit := do
   let out ← captureProc' {
-    cmd := "curl"
+    cmd := ← Internal.getCurl
     args := #[
       "-s", "-w", "%{stderr}%{json}\n",
       "--aws-sigv4", "aws:amz:auto:s3", "--user", key,
@@ -883,7 +882,7 @@ def transferArtifacts
         "-s", "-w", "%{stderr}%{json}\n", "--config", path.toString
       ]
   let child ← IO.Process.spawn {
-    cmd := "curl", args
+    cmd := ← Internal.getCurl, args
     stdout := .piped, stderr := .piped
   }
   let s ← monitorTransfer cfg child.stderr child.stdout {}
@@ -963,7 +962,7 @@ where
       ]
     let args := Reservoir.lakeHeaders.foldl (· ++ #["-H", ·]) args
     let spawnArgs := {
-      cmd := "curl", args := args.push url
+      cmd := ← Internal.getCurl, args := args.push url
       stdout := .piped, stderr := .piped
     }
     logVerbose (mkCmdLog spawnArgs)

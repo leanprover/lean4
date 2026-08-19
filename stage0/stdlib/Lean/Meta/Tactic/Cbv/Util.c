@@ -18,7 +18,7 @@ lean_object* l_Lean_Meta_Sym_getStringValue_x3f(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_instantiate_level_mvars(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_getUInt16Value_x3f(lean_object*);
 lean_object* l_Lean_Meta_Sym_getIntValue_x3f(lean_object*);
 lean_object* l_Lean_Meta_isProofQuick(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1318,7 +1318,7 @@ goto v_reusejp_374_;
 v_reusejp_374_:
 {
 lean_object* v___x_376_; lean_object* v___x_377_; 
-v___x_376_ = lean_st_ref_set(v___y_359_, v___x_375_);
+v___x_376_ = lean_st_ref_put(v___y_359_, v___x_375_);
 v___x_377_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_377_, 0, v_snd_365_);
 return v___x_377_;

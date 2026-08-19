@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 import Lean
-import Std.Internal
+import Std.WP
 import Std.Tactic.Do
 
 set_option mvcgen.warning false
@@ -40,7 +40,7 @@ The file is laid out reusable-first: the programs, then the separation logic, th
 lemmas, then the `@[frameproc]`, then the specifications.
 -/
 
-open Lean Order Meta Elab Tactic Sym Sym.Internal Std Internal.Do Std.Internal.Do.CompleteLattice
+open Lean Order Meta Elab Tactic Sym Sym.Internal Std WP
 
 /-! # Programs
 
@@ -484,7 +484,7 @@ noncomputable instance HeapM.instWPMonad : WPMonad HeapM HProp EPost.Nil :=
 @[grind .]
 theorem frames_sepConj {α : Type} (x : HeapM α) (F : HProp) : WP.Frames sepConj x F :=
   WP.Frames.of_frameClosure sepConj sepConj sepConj_assoc
-    ⟨fun y E Q' => WP.wp y.run Q' E, fun _ _ _ => rfl⟩
+    ⟨fun y => WP.wpTrans y.run, fun _ => rfl⟩
 
 /-- Triple introduction from the base `StateM Heap` interpretation: prove the base triple with an
 arbitrary frame `F` held on both sides. -/
@@ -752,7 +752,7 @@ grind_pattern _root_.le_of_le_bot => X ⊑ ⊥, X ⊑ C
 The `@[frameproc]` for `HeapM`: cancel the framed `∗` atoms out of the goal precondition and emit
 the leftover atoms as the footprint. -/
 
-open Lean.Elab.Tactic.Do.Internal Lean.Elab.Tactic.Do.Internal.VCGen
+open Lean.Elab.Tactic.VCGen
 
 /-- Flatten a separating conjunction after mvars are instantiated. -/
 partial def sepAtoms.go (e : Expr) : Array Expr :=

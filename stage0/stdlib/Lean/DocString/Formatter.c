@@ -18,7 +18,7 @@ lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_push___redArg(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Syntax_Traverser_left(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStx(lean_object*, lean_object*, uint8_t);
 extern lean_object* l_Std_Format_defWidth;
 lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -49,7 +49,7 @@ size_t lean_usize_of_nat(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
@@ -583,7 +583,7 @@ goto v_reusejp_55_;
 v_reusejp_55_:
 {
 lean_object* v___x_57_; lean_object* v___x_58_; lean_object* v___x_59_; 
-v___x_57_ = lean_st_ref_set(v___y_42_, v___x_56_);
+v___x_57_ = lean_st_ref_put(v___y_42_, v___x_56_);
 v___x_58_ = lean_box(0);
 v___x_59_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_59_, 0, v___x_58_);
@@ -1502,7 +1502,7 @@ lean_object* v___x_374_; lean_object* v___x_375_; lean_object* v___x_376_; lean_
 v___x_374_ = ((lean_object*)(l___private_Lean_DocString_Formatter_0__Lean_Doc_Parser_pushAtomStrLit___redArg___closed__0));
 lean_inc(v_a_364_);
 v___x_375_ = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_DocString_Formatter_0__Lean_Doc_Parser_versoSyntaxToString_x27_nl_spec__0(v_a_364_, v___x_374_);
-v___x_376_ = lean_string_utf8_extract(v___y_365_, v_startInclusive_372_, v_endExclusive_373_);
+v___x_376_ = lean_string_utf8_extract_fast(v___y_365_, v_startInclusive_372_, v_endExclusive_373_);
 lean_dec(v_endExclusive_373_);
 lean_dec(v_startInclusive_372_);
 v___x_377_ = lean_string_append(v___x_375_, v___x_376_);

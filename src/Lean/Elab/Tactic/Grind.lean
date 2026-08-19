@@ -19,6 +19,8 @@ public import Lean.Elab.Tactic.Grind.Sym
 public import Lean.Elab.Tactic.Grind.Rewrite
 public import Lean.Elab.Tactic.Grind.DSimp
 public import Lean.Elab.Tactic.Grind.Cbv
+public import Lean.Elab.Tactic.Grind.LiftLet
+public import Lean.Elab.Tactic.Grind.LetToHave
 public import Lean.Elab.Tactic.Grind.SimprocDSL
 public import Lean.Elab.Tactic.Grind.SimprocDSLBuiltin
 public import Lean.Elab.Tactic.Grind.RegisterSymSimp

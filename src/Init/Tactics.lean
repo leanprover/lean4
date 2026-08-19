@@ -2378,7 +2378,94 @@ theorem mySum_suggest_invariant (l : List Nat) : mySum l = l.sum := by
 macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
   Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
 
-/-- Experimental Sym-based drop-in for `mvcgen`; see `mvcgen` for documentation. -/
+/--
+`vcgen` will break down a Hoare triple proof goal like `⦃P⦄ prog ⦃Q⦄` into verification conditions,
+provided that all functions used in `prog` have specifications registered with `@[spec]`.
+
+### Program types
+
+`vcgen` works on any program type `Prog` that carries a `Std.WP.WP` interpretation. A monad
+is one such program type. An inductive type of commands is another, once its weakest precondition is
+defined in terms of an operational semantics.
+
+### Verification conditions and specifications
+
+A verification condition is an entailment `pre ⊑ post` in the assertion lattice of the goal. The
+original program `prog` no longer occurs in it. The assertion lattice is any `CompleteLattice`, and
+the entailment is its order, so a verification condition is an ordinary Lean goal that `grind` can
+attack.
+
+A `@[spec]` theorem declares a specification in one of two forms. A Hoare triple
+`foo_spec : ⦃P⦄ foo a b c ⦃Q⦄` states it directly. An equation `baz_eq : baz a b c = ...` states it
+by rewriting.
+
+### Features
+
+When used like `vcgen [foo_spec, bar_def, baz_eq]`, `vcgen` will additionally
+
+* add a Hoare triple specification `foo_spec : ⦃P⦄ foo ... ⦃Q⦄` to the `spec` set for a function
+  `foo` occurring in `prog`,
+* unfold a definition `def bar_def ... := ...` in `prog`,
+* rewrite with an equational specification `baz_eq : baz ... = ...` in `prog`.
+
+### Config options
+
+See `Lean.Elab.Tactic.Do.VCGen.Config` for the options. Of particular note are `stepLimit = some 42`,
+which is useful for bisecting bugs and tracing execution, and `errorOnMissingSpec := false`, which
+leaves a goal whose head has no matching spec as a verification condition for you to discharge.
+
+### Extended syntax
+
+Often, `vcgen` will be used like this:
+```
+vcgen [...] invariants
+· I1
+· I2
+with try finish
+```
+The `with` clause takes one step of `grind` mode, such as `finish`. That step shares the E-graph that
+`vcgen` builds, so it sees the hypotheses of every verification condition. A sequence of steps needs
+explicit grouping, as in `with (s₁; s₂)`.
+
+Invariants also take a labelled form, which is useful for naming inaccessibles:
+```
+vcgen [...] invariants
+| inv1 _ acc _ => I1 acc
+| _ => I2
+```
+
+`vcgen` has two further clauses.
+
+```
+vcgen until f a _ c
+```
+stops VC generation at the first program that matches the pattern, and leaves that program in the
+goal. Holes are written `_`, as in `conv in`.
+
+```
+vcgen frames
+| f a _ c => F
+```
+supplies a frame for a call. Take `mkFreshNat : StateM (Nat × Nat) Nat`, which returns `s.1` and
+increments it. Its specification mentions `s.1` alone:
+```
+@[spec] theorem mkFreshNat_spec :
+    ⦃fun s => ⌜s.1 = n⌝⦄ mkFreshNat ⦃fun r s => ⌜r = n ∧ s.1 = n + 1⌝⦄
+```
+A caller that knows `s.2 = 7` loses that fact at the call, because the postcondition says nothing
+about `s.2`. Writing
+```
+vcgen frames
+| mkFreshNat => fun s => ⌜s.2 = 7⌝
+```
+carries `s.2 = 7` past the call, and `vcgen` proves that `mkFreshNat` preserves it. The named binders
+are in scope in the frame, bound to the matched arguments.
+
+### Invariant suggestions
+
+`vcgen [...] invariants?` suggests invariants for the loops in `prog`. The suggestions are currently
+of limited use. A future release either implements them properly or removes the keyword.
+-/
 macro (name := vcgenMacro) (priority:=low) "vcgen" : tactic =>
   Macro.throwError "to use `vcgen`, please include `import Std.Tactic.Do`"
 

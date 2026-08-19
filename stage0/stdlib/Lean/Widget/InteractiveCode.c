@@ -41,7 +41,7 @@ uint8_t l_Lean_getPPInstantiateMVars(lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValD(lean_object*, lean_object*);
 lean_object* l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpcDecode___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_getStr_x3f(lean_object*);
@@ -2180,7 +2180,7 @@ goto v_reusejp_655_;
 v_reusejp_655_:
 {
 lean_object* v___x_657_; lean_object* v___x_658_; 
-v___x_657_ = lean_st_ref_set(v___y_638_, v___x_656_);
+v___x_657_ = lean_st_ref_put(v___y_638_, v___x_656_);
 v___x_658_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_658_, 0, v_fst_645_);
 return v___x_658_;

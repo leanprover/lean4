@@ -222,7 +222,7 @@ test_err() {
   if match_text "$expected" produced.out; then
     if [ $rc == 0 ]; then
       echo "FAILURE: Lake unexpectedly succeeded"
-      return $rc
+      return 1
     fi
   else
     return 1
@@ -295,7 +295,7 @@ test_no_out() {
   return $rc
 }
 
-test_no_warn() {
+test_no_stderr() {
   echo '$' lake "$@"
   if "$LAKE" "$@" 2>produced.out; then
     diff produced.out /dev/null

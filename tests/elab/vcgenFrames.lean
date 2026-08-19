@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 import Lean
-import Std.Internal
+import Std.WP
 import Std.Tactic.Do
 
 set_option mvcgen.warning false
@@ -26,7 +26,7 @@ lemmas with `grind`. With the monad ground, `grind` derives a usable E-matching 
 discharge step `with finish` closes every VC, including the `Frames` side goal.
 -/
 
-open Lean Order Meta Elab Tactic Sym Std Internal.Do
+open Lean Order Meta Elab Tactic Sym Std WP
 
 abbrev AppState := Nat × Nat
 

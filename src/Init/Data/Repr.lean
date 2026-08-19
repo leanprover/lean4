@@ -228,7 +228,7 @@ Examples:
  * `USize.repr 307 = "307"`
 -/
 @[extern "lean_string_of_usize"]
-protected def _root_.USize.repr (n : @& USize) : String :=
+protected def _root_.USize.repr (n : USize) : String :=
   String.ofList (toDigits 10 n.toNat)
 
 /-- We statically allocate and memoize reprs for small natural numbers. -/

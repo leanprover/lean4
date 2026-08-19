@@ -53,7 +53,7 @@ Note: Use `set_option allowUnsafeReducibility true` to override reducibility sta
 attribute [local irreducible] f
 
 /--
-error: failed to set `[local reducible]` for `f`, recall that `[reducible]` affects the term indexing datastructures used by `simp` and type class resolution
+error: failed to set `[local reducible]` for `f`, recall that `[reducible]` affects the term indexing data structures used by `simp` and type class resolution
 
 Note: Use `set_option allowUnsafeReducibility true` to override reducibility status validation
 -/

@@ -23,7 +23,7 @@ uint8_t l_Lean_Syntax_structEq(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
@@ -418,7 +418,7 @@ goto v_reusejp_46_;
 v_reusejp_46_:
 {
 lean_object* v___x_48_; lean_object* v___x_49_; lean_object* v___x_50_; 
-v___x_48_ = lean_st_ref_set(v_a_33_, v___x_47_);
+v___x_48_ = lean_st_ref_put(v_a_33_, v___x_47_);
 v___x_49_ = lean_box(0);
 v___x_50_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_50_, 0, v___x_49_);
@@ -560,7 +560,7 @@ goto v_reusejp_97_;
 v_reusejp_97_:
 {
 lean_object* v___x_99_; lean_object* v___x_100_; lean_object* v___x_101_; 
-v___x_99_ = lean_st_ref_set(v_a_84_, v___x_98_);
+v___x_99_ = lean_st_ref_put(v_a_84_, v___x_98_);
 v___x_100_ = lean_box(0);
 v___x_101_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_101_, 0, v___x_100_);
@@ -1680,7 +1680,7 @@ v_reusejp_571_:
 {
 lean_object* v___x_573_; lean_object* v___x_574_; lean_object* v___x_575_; 
 lean_ctor_set_uint8(v___x_572_, sizeof(void*)*2, v___x_395_);
-v___x_573_ = lean_st_ref_set(v_a_390_, v___x_572_);
+v___x_573_ = lean_st_ref_put(v_a_390_, v___x_572_);
 v___x_574_ = lean_box(0);
 v___x_575_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_575_, 0, v___x_574_);

@@ -12,6 +12,7 @@ namespace Trie
 /--
 Monadically fold the keys and values stored in a `Trie`.
 -/
+ @[specialize]
 partial def foldM [Monad m] (initialKeys : Array Key)
     (f : σ → Array Key → α → m σ) : (init : σ) → Trie α → m σ
   | init, Trie.node vs children => do
@@ -29,7 +30,8 @@ def fold (initialKeys : Array Key) (f : σ → Array Key → α → σ) (init : 
 /--
 Monadically fold the values stored in a `Trie`.
 -/
-partial def foldValuesM [Monad m] (f : σ → α → m σ) : (init : σ) → Trie α → m σ
+ @[specialize]
+ partial def foldValuesM [Monad m] (f : σ → α → m σ) : (init : σ) → Trie α → m σ
   | init, node vs children => do
     let s ← vs.foldlM (init := init) f
     children.foldlM (init := s) fun s (_, c) => c.foldValuesM (init := s) f
@@ -117,10 +119,12 @@ Checks that a trie node has no values and no children.
 This is only a check for actual trie emptiness (`t.size = 0`) if all operations maintain the
 invariant that no trie node has an empty child node.
 -/
+@[inline]
 def Trie.isEmptyNode : Trie α → Bool
   | .node vs children => vs.isEmpty && children.isEmpty
 
 /-- Apply a monadic function to the array of values at each node in a `DiscrTree`. -/
+@[specialize]
 partial def Trie.mapArraysM (t : DiscrTree.Trie α) (f : Array α → m (Array β)) :
     m (DiscrTree.Trie β) :=
   match t with
@@ -135,11 +139,13 @@ partial def Trie.mapArraysM (t : DiscrTree.Trie α) (f : Array α → m (Array �
     return .node vs children
 
 /-- Apply a monadic function to the array of values at each node in a `DiscrTree`. -/
+@[inline]
 def mapArraysM (d : DiscrTree α) (f : Array α → m (Array β)) : m (DiscrTree β) := do
   let root ← d.root.mapM (fun t => t.mapArraysM f)
   pure { root := root.foldl (init := root) fun acc k t => if t.isEmptyNode then acc.erase k else acc }
 
 /-- Apply a function to the array of values at each node in a `DiscrTree`. -/
+@[inline]
 def mapArrays (d : DiscrTree α) (f : Array α → Array β) : DiscrTree β :=
   Id.run <| d.mapArraysM fun A => pure (f A)
 

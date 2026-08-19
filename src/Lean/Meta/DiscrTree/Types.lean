@@ -39,8 +39,9 @@ Discrimination tree trie. See `DiscrTree`.
 -/
 inductive Trie (α : Type) where
     /--
-    In many uses cases, tries do a lot of their actual discrimination near the root and
-    end up with long chains of singleton nodes. Special-casing 
+    In many uses cases, tries do a lot of their actual discrimination near the root and end up with
+    long chains of singleton nodes. The special-cased `.chain key child` node is equivalent to
+    `.node #[] #[(key, child)]` but is more memory efficient.
     -/
   | chain (key : Key) (child : Trie α) : Trie α
   | node (vs : Array α) (children : Array (Key × Trie α)) : Trie α

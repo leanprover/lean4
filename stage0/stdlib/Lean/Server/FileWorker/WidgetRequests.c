@@ -103,7 +103,7 @@ lean_object* l_Lean_Widget_ppExprTagged(lean_object*, lean_object*, lean_object*
 lean_object* l_Lean_MetavarContext_getExprAssignmentCore_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_instFromJsonLineRange_fromJson(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
-extern lean_object* l_Lean_instImpl_00___x40_Lean_Message_4238524789____hygCtx___hyg_139_;
+extern lean_object* l_Lean_instImpl_00___x40_Lean_Message_4238524789____hygCtx___hyg_150_;
 lean_object* l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpcDecode___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_getNat_x3f(lean_object*);
 lean_object* l_Lean_Widget_TaggedText_stripTags___redArg(lean_object*);
@@ -1126,7 +1126,7 @@ goto v_resetjp_70_;
 v_resetjp_70_:
 {
 lean_object* v___x_73_; lean_object* v___x_74_; lean_object* v_fst_75_; lean_object* v_snd_76_; lean_object* v___x_78_; uint8_t v_isShared_79_; uint8_t v_isSharedCheck_89_; 
-v___x_73_ = l_Lean_instImpl_00___x40_Lean_Message_4238524789____hygCtx___hyg_139_;
+v___x_73_ = l_Lean_instImpl_00___x40_Lean_Message_4238524789____hygCtx___hyg_150_;
 v___x_74_ = l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpcEncode___redArg(v___x_73_, v_msg_68_, v_a_67_);
 lean_dec_ref(v_msg_68_);
 v_fst_75_ = lean_ctor_get(v___x_74_, 0);
@@ -1303,7 +1303,7 @@ goto v_resetjp_115_;
 v_resetjp_115_:
 {
 lean_object* v___x_118_; lean_object* v___x_119_; 
-v___x_118_ = l_Lean_instImpl_00___x40_Lean_Message_4238524789____hygCtx___hyg_139_;
+v___x_118_ = l_Lean_instImpl_00___x40_Lean_Message_4238524789____hygCtx___hyg_150_;
 v___x_119_ = l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpcDecode___redArg(v___x_118_, v_msg_113_, v_a_102_);
 if (lean_obj_tag(v___x_119_) == 0)
 {

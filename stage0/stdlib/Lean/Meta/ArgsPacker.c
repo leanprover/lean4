@@ -8269,11 +8269,11 @@ v___jp_3213_:
 {
 lean_object* v___x_3220_; lean_object* v___x_3221_; lean_object* v___x_3222_; 
 lean_inc(v_i_3201_);
-v___x_3220_ = l_List_get_x21Internal___redArg(v___x_3211_, v___y_3215_, v_i_3201_);
-lean_dec(v___y_3215_);
+v___x_3220_ = l_List_get_x21Internal___redArg(v___x_3211_, v___y_3214_, v_i_3201_);
+lean_dec(v___y_3214_);
 v___x_3221_ = l_Lean_Expr_bindingName_x21(v_a_3210_);
 lean_dec(v_a_3210_);
-v___x_3222_ = l_Lean_Meta_withLocalDeclD___at___00Lean_Meta_ArgsPacker_Unary_uncurryType_spec__1___redArg(v___x_3221_, v___x_3220_, v___y_3214_, v___y_3216_, v___y_3217_, v___y_3218_, v___y_3219_);
+v___x_3222_ = l_Lean_Meta_withLocalDeclD___at___00Lean_Meta_ArgsPacker_Unary_uncurryType_spec__1___redArg(v___x_3221_, v___x_3220_, v___y_3215_, v___y_3216_, v___y_3217_, v___y_3218_, v___y_3219_);
 if (lean_obj_tag(v___x_3222_) == 0)
 {
 lean_object* v_a_3223_; lean_object* v___x_3224_; lean_object* v___x_3225_; 
@@ -8362,8 +8362,8 @@ return v___x_3245_;
 }
 else
 {
-v___y_3214_ = v___f_3235_;
-v___y_3215_ = v_a_3234_;
+v___y_3214_ = v_a_3234_;
+v___y_3215_ = v___f_3235_;
 v___y_3216_ = v___y_3228_;
 v___y_3217_ = v___y_3229_;
 v___y_3218_ = v___y_3230_;
@@ -9224,7 +9224,7 @@ v___jp_3639_:
 lean_object* v___x_3646_; lean_object* v___x_3647_; 
 v___x_3646_ = l_Lean_Expr_bindingName_x21(v_type_3632_);
 lean_dec_ref(v_type_3632_);
-v___x_3647_ = l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_withCurriedDecl___redArg(v_argsPacker_3630_, v___x_3646_, v___y_3641_, v___y_3640_, v___y_3642_, v___y_3643_, v___y_3644_, v___y_3645_);
+v___x_3647_ = l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_withCurriedDecl___redArg(v_argsPacker_3630_, v___x_3646_, v___y_3640_, v___y_3641_, v___y_3642_, v___y_3643_, v___y_3644_, v___y_3645_);
 return v___x_3647_;
 }
 v___jp_3648_:
@@ -9293,8 +9293,8 @@ return v___x_3665_;
 }
 else
 {
-v___y_3640_ = v___f_3654_;
-v___y_3641_ = v_packedMotiveType_3653_;
+v___y_3640_ = v_packedMotiveType_3653_;
+v___y_3641_ = v___f_3654_;
 v___y_3642_ = v___y_3649_;
 v___y_3643_ = v___y_3650_;
 v___y_3644_ = v___y_3651_;

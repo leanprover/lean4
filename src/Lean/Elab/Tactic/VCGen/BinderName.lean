@@ -17,12 +17,18 @@ open Lean Meta Sym Sym.Internal Lean.Order
 namespace Lean.Elab.Tactic.VCGen
 
 /-!
-A specification states a hint over the function whose binder names a value. `Spec.bind` states it
-over the continuation:
+# Names from the program
+
+A specification states the weakest precondition of a program. It also carries the names that the
+program gives to its values. `binderNameHint v binder e` carries one such name. It is the identity
+on `e`, so it states nothing about the program.
+
+`Spec.bind` marks the continuation `f`:
 ```
 Triple (x >>= f) (wp x (fun a => binderNameHint a f (wp (f a) post epost)) epost) post epost
 ```
-so `let acc ← e` reaches its verification condition as `acc` rather than as `a✝`.
+For `let acc ← e`, the continuation `f` binds `acc`. `vcgen` reads that name here and renames the
+variable it introduced for `a`, so the verification condition states `acc` rather than `a✝`.
 -/
 
 /-- The binder names of the matcher a state lambda applies to its own argument:

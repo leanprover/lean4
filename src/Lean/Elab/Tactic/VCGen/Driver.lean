@@ -76,48 +76,6 @@ private def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVa
       others := others.push sg
   return others
 
-/-- `fun r => binderNameHint r post Q` for the postcondition lambda `post = fun r => Q`, with
-`post` itself as the name-carrying binder argument, so the wrap is definitionally equal. `none`
-when `post` is not a lambda binding a program name. -/
-private def wrapPostHint? (post : Expr) : VCGenM (Option Expr) := do
-  let .lam n dom body bi := post | return none
-  unless isProgramName n do return none
-  let postTy ← Sym.inferType post
-  let .forallE _ _ codomain _ := postTy | return none
-  if codomain.hasLooseBVars then return none
-  let hint ← mkConstS ``binderNameHint
-    [← Sym.getLevel dom, ← Sym.getLevel postTy, ← Sym.getLevel codomain]
-  return some (.lam n dom (mkApp6 hint dom postTy codomain (.bvar 0) post body) bi)
-
-/-- Replace the `i`-th argument of the application `e` by `v`. -/
-private def setAppArg (e : Expr) (i : Nat) (v : Expr) : VCGenM Expr := do
-  let args := e.getAppArgs
-  mkAppNS e.getAppFn (args.set! i v)
-
-/--
-Wrap the goal's postcondition lambda in a `binderNameHint`, so a binder that receives the
-program's result takes the name the postcondition binds. Program hints win over this one: hint
-resolution keeps the first user-facing name, and the precondition's hints come first. Handles the
-three entry shapes: a `Triple`, an entailment into a `wp` application, and a bare `wp` application.
--/
-private def hintPostBinder (mvarId : MVarId) : VCGenM MVarId := mvarId.withContext do
-  let target := (← mvarId.getType).consumeMData
-  let mkWPTarget (wpApp : Expr) (k : Expr → VCGenM Expr) : VCGenM (Option Expr) := do
-    let n := wpApp.getAppNumArgs
-    unless n ≥ 10 && wpApp.getAppFn.isConstOf ``Std.WP.wp do return none
-    let some post ← wrapPostHint? (wpApp.getArg! 8 n) | return none
-    return some (← k (← setAppArg wpApp 8 post))
-  let newTarget? ← do
-    if target.isAppOfArity ``Std.WP.Triple 11 then
-      let some post ← wrapPostHint? (target.getArg! 9) | pure none
-      pure (some (← setAppArg target 9 post))
-    else match_expr target with
-      | PartialOrder.rel _ _ _ rhs =>
-        mkWPTarget rhs fun rhs' => setAppArg target 3 rhs'
-      | _ => mkWPTarget target pure
-  let some newTarget := newTarget? | return mvarId
-  mvarId.replaceTargetDefEqFast (← shareCommon newTarget)
-
 /--
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
 Invariant subgoals are handled separately by `handleInvariantSubgoals` directly inside `work`,
@@ -125,12 +83,7 @@ so they never reach this path.
 -/
 public def emitVC (goal : Grind.Goal) : VCGenM Unit := do
   let mut goal := { goal with mvarId := ← elimTopPre goal.mvarId }
-  -- Strip residual hints, such as one applied to a compound value that frame-rule unification
-  -- embedded under a wand, so the discharging tactic sees every atom bare.
-  let target ← goal.mvarId.getType
-  if target.hasBinderNameHint then
-    let target' ← liftMetaM <| Expr.resolveBinderNameHint target
-    goal := { goal with mvarId := ← goal.mvarId.replaceTargetDefEqFast (← shareCommon target') }
+  goal ← goal.eraseBinderNameHints
   goal ← processHypotheses goal
   if goal.inconsistent then return
   let some mvarId ← cleanupVC goal.mvarId | return
@@ -191,7 +144,6 @@ public partial def run (goal : Grind.Goal) (ctx : Context) (scope : Scope)
   -- exposes kernel projections in intermediate terms and restores the invariant in its
   -- final result, so the `shareCommon` kernel-projection check is disabled.
   let ((), state) ← Sym.withoutFoldProjsCheck <| StateRefT'.run (ReaderT.run (do
-      let goal := { goal with mvarId := ← hintPostBinder goal.mvarId }
       work scope goal) ctx) initState
   _ ← state.invariants.mapIdxM fun idx mv => do
     mv.setTag (Name.mkSimple ("inv" ++ toString (idx + 1)))

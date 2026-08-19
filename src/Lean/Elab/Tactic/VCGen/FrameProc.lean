@@ -102,8 +102,6 @@ public def FrameInferenceInfo.specPre? (i : FrameInferenceInfo) : SymM (Option E
     some <$> Meta.abstractMVars (← instantiateMVars specPre)
   let some abs := abs? | return none
   let (_, _, specPre) ← Meta.openAbstractMVarsResult abs
-  -- Strip the `binderNameHint`s the goal's postcondition carries into the instantiation: this view
-  -- feeds matching and footprint construction, where a hint defeats syntactic comparison.
   let specPre ← if specPre.hasBinderNameHint then Expr.resolveBinderNameHint specPre
     else pure specPre
   return some (← shareCommon specPre)

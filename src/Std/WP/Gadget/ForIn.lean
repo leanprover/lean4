@@ -60,11 +60,7 @@ end Gadget
 
 open Gadget
 
-/-! ## Specifications
-
-The `binderNameHint`s take the element and state binder names from the loop body `f` and the
-invariant `inv`, so `vcgen` presents its verification conditions under the source program's
-names. -/
+/-! ## Specifications -/
 
 @[spec]
 theorem Spec.forInPure {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]

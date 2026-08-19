@@ -17,9 +17,55 @@ import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Tactic.Util
 
 /-!
-The metadata a frame inference procedure operates on: the `wp` application metadata `WPApp` and the
-`FrameProc` bundling an inference procedure with its frame operator.
-`@[frameproc]` registration lives in `FrameProcAttr`.
+The protocol between `vcgen`'s solver and a frame inference procedure, and the metadata they pass
+around. `@[frameproc]` registration lives in `FrameProcAttr`.
+
+`?frame` is the part of `P` that `prog` preserves, and that the rule carries past the call.
+`?footprint` is the part of `P` that fits the spec's precondition. `W` is the weakest footprint the
+rule leaves.
+
+```
+goal            P ⊑ wp prog Q E s⃗
+   │ frame rule, introducing ?frame
+   ▼
+split VC        P ⊑ (op ?frame W) s⃗      side goal   Frames op prog ?frame
+   where        W = wp prog (fun a => adj (op ?frame) (Q a)) E
+   │ spec rule, at a target the frameproc named
+   ▼
+spec target     ?footprint ⊑ W t⃗          pre VC      ?footprint ⊑ specP
+                                          post VCs
+```
+
+# Protocol
+
+1. Solver. Look up the candidate specs for `prog` and take the highest priority one. Pick the
+   frameproc for the monad. Both the goal and the selected spec go to the frameproc.
+2. Frameproc, phase one. See the goal and the spec. Answer `decline`, or answer `commit` and name
+   `t⃗`, the state the spec runs at. The length of `t⃗` picks the rule.
+3. Solver. On `decline`, apply the spec to the goal and hand back its subgoals.
+4. Solver. On `commit`, apply the frame rule to a copy of the goal. This yields `?frame`, `W`, the
+   split VC and the side goal.
+5. Solver. Apply the spec at `?footprint ⊑ W t⃗`. On failure, drop the copy and try the next
+   candidate.
+6. Solver. Enter phase two, passing `?frame`, `?footprint`, `W`, `specP`, the pre VC and the proof
+   of the spec target.
+7. Frameproc, phase two. Choose `?frame`. Sometimes only `specP` says which.
+8. Frameproc. Prove the split VC, composing the spec target's proof under `op`. Or defer it. Or
+   leave `?frame` open too.
+9. Frameproc. Discharge the pre VC when its own work proved it. Otherwise the solver forwards it.
+10. Solver. Assign the goal from the copy and return the remaining goals.
+
+# Requirements
+
+11. The separation logic frameproc must assign the logical variables of `specP`. It matches
+    `?l ↦ ?v` against the goal precondition, and that match fixes `?l` and `?v`.
+12. Phase two must read the same application that the proof uses. A second application would carry
+    fresh metavariables, and the values read in phase two would be lost.
+13. `t⃗` cannot depend on `specP`. Only the solver produces `specP`, and it needs the length of `t⃗`
+    first.
+14. A frameproc that declines must be as fast as if there were no frameproc at all.
+15. When the spec rule fails, the solver tries the next candidate.
+16. Emitted VCs are born with as few assigned metavariables as possible, so that sharing is kept.
 -/
 
 open Lean Meta Sym Sym.Internal

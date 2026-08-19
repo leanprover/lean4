@@ -56,7 +56,7 @@ public def reduceExceptPostFst? (goal : MVarId) (target α inst pre rhs : Expr) 
     let some epostArg := args[2]? | return none
     -- `(⊥ : _ × _).fst x₁ … xₙ` is propositionally `⊥`. Reduce it to a `pre ⊑ ⊥` VC.
     if epostArg.isAppOf ``Lean.Order.bot then
-      return (← replaceExceptPostFstBot? goal target fst args)
+      return (← replaceExceptPostFstBot? goal target rhs)
     let (epostTarget, index) := peelExceptPostSndChain epostArg
     let some epost ← mkExceptPostAtIndex epostTarget index | return none
     let excessArgs := args.drop 3
@@ -112,8 +112,7 @@ public def splitForallLe? (goal : MVarId) (rhs : Expr) :
 Reduce a precondition that is the bare top applied to the state arguments introduced by
 `le_of_forall_le`, `(⊤ : σ₁ → … → σₙ → Prop) s₁ … sₙ`, to the bare `(⊤ : Prop)`, rewriting `goal`'s
 target `pre ⊑ rhs` to `⊤ ⊑ rhs`. The equation `pre = ⊤` is built on demand by folding
-`Lean.Order.top_apply` over the excess arguments (mirroring `replaceExceptPostFstBot?`'s `bot_apply`
-fold) and applied with `replaceTargetEq`.
+`Lean.Order.top_apply` over the excess arguments and applied with `replaceTargetEq`.
 
 The proof term is built directly with `mkApp`/`mkConst` and instances extracted from `pre`, avoiding
 `mkAppM`/instance synthesis (both expensive and unable to unify `max`-of-universe-variable instance

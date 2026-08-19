@@ -41,79 +41,44 @@ public partial def peelExceptPostSndChain (curr : Expr) (idx : Nat := 0) : Expr 
     else
       (curr, idx)
 
-/-- The `CCPO` instances of the two components of a `CCPO (eh × et)` instance. -/
-private def prodCCPOComponents? (inst : Expr) : Option (Expr × Expr) :=
-  if inst.isAppOf ``Lean.Order.instCCPOProd then
-    let args := inst.getAppArgs
-    if args.size < 2 then none else some (args[args.size - 2]!, args[args.size - 1]!)
-  else none
+private builtin_initialize botMethodsRef : IO.Ref (Option Sym.Simp.Methods) ← IO.mkRef none
 
-/-- The `CCPO` instance of the codomain of a `CCPO (σ → τ)` instance. -/
-private def piCodomainCCPO? (inst : Expr) : Option Expr :=
-  if inst.isAppOf ``Lean.Order.instCCPOPi then
-    match inst.appArg! with
-    | .lam _ _ body _ => if body.hasLooseBVars then none else some body
-    | _ => none
-  else none
+/--
+The `Sym.simp` methods that reduce `(⊥ : eh × et).fst x₁ … xₙ` to `⊥`. The `pre` method confines the
+traversal to the `Prod.fst`/`⊥` spine, so the state arguments `x₁ … xₙ` are never visited.
+-/
+private def botMethods : SymM Sym.Simp.Methods := do
+  if let some methods ← botMethodsRef.get then return methods
+  let mut thms : Sym.Simp.Theorems := {}
+  for declName in [``Prod.fst_bot, ``Lean.Order.bot_apply] do
+    thms := thms.insert (← Sym.Simp.mkTheoremFromDecl declName)
+  let pre : Sym.Simp.Simproc := fun e => do
+    let f := e.getAppFn
+    return Sym.Simp.mkRflResult (done := !(f.isConstOf ``Prod.fst || f.isConstOf ``Lean.Order.bot))
+  let methods : Sym.Simp.Methods := { pre, post := thms.rewrite }
+  botMethodsRef.set (some methods)
+  return methods
 
 /--
 When the exception postcondition is `⊥`, the RHS of a `pre ⊑ (⊥ : eh × et).fst x₁ … xₙ` goal is
-propositionally—but not definitionally—equal to `⊥`. This rewrites the goal to `pre ⊑ ⊥`,
-constructing the equality proof from `Prod.fst_bot` (for the first projection) and
-`bot_apply` (for each excess argument).
+propositionally—but not definitionally—equal to `⊥`. This rewrites the goal to `pre ⊑ ⊥` by
+simplifying `rhs` with `Prod.fst_bot` and `Lean.Order.bot_apply`, leaving `pre` untouched.
 
-The proof term is built directly with `mkApp`/`mkConst` and instances extracted from the existing
-goal, avoiding `mkAppM`/instance synthesis (which is both expensive and unable to unify `max`-of-
-universe-variable instance levels in the abstract-monad setting).
-
-`fst`/`args` come from `rhs.withApp`, where `rhs = @Prod.fst eh et ⊥ x₁ … xₙ`, and `target`
-is the full `pre ⊑ rhs` entailment. Returns the rewritten goal, or `none` if `args[2]` is not `⊥`
-or the lattice instances are not in the expected shape (the caller then falls through). -/
-public def replaceExceptPostFstBot? (goal : MVarId) (target fst : Expr) (args : Array Expr) :
+`target` is the `pre ⊑ rhs` entailment and `rhs` its right-hand side. Returns the rewritten goal, or
+`none` if `rhs` does not simplify (the caller then falls through). -/
+public def replaceExceptPostFstBot? (goal : MVarId) (target rhs : Expr) :
     SymM (Option MVarId) := do
-  let some eh := args[0]? | return none
-  let some et := args[1]? | return none
-  let some epostArg := args[2]? | return none
-  -- `epostArg = @bot (eh × et) botCCPOInst`
-  let_expr Lean.Order.bot _ botCCPOInst := epostArg | return none
-  let [u, v] := fst.constLevels! | return none
-  let some (chInst, ctInst) := prodCCPOComponents? botCCPOInst | return none
-  -- `p0 : (⊥ : eh × et).fst = (⊥ : eh)`
-  let fstBot := mkApp3 fst eh et epostArg
-  let p0 := mkApp4 (mkConst ``Prod.fst_bot [u, v]) eh et chInst ctInst
-  let some (_, _, b0) := (← Sym.inferType p0).eq? | return none
-  -- Fold `bot_apply` over the excess arguments: `acc : (⊥ : eh × et).fst x₁ … xᵢ = ⊥`.
-  let mut acc := p0
-  let mut curFst := fstBot
-  let mut curBot := b0
-  let mut curTy := eh
-  let mut curCCPO := chInst
-  for x in args.extract 3 args.size do
-    let .forallE _ σ τ _ := curTy | return none
-    if τ.hasLooseBVars then return none
-    let uσ ← Sym.getLevel σ
-    let uτ ← Sym.getLevel τ
-    let some τCCPO := piCodomainCCPO? curCCPO | return none
-    -- `bfa : (⊥ : σ → τ) x = (⊥ : τ)`
-    let bfa := mkApp4 (mkConst ``Lean.Order.bot_apply [← decLevel uσ, ← decLevel uτ]) σ τ τCCPO x
-    let some (_, _, newBot) := (← Sym.inferType bfa).eq? | return none
-    -- `Eq.trans (congrFun acc x) bfa : curFst x = ⊥`
-    let cf := mkApp6 (mkConst ``congrFun [uσ, uτ]) σ (.lam `x σ τ .default) curFst curBot acc x
-    acc := mkApp6 (mkConst ``Eq.trans [uτ]) τ (mkApp curFst x) (mkApp curBot x) newBot cf bfa
-    curFst := mkApp curFst x
-    curBot := newBot
-    curTy := τ
-    curCCPO := τCCPO
-  -- `acc : rhs = ⊥`; lift through `pre ⊑ ·` and replace the target.
+  let .step rhs' h _ _ ← Sym.simp rhs (← botMethods) | return none
   let relArgs := target.getAppArgs
   let some α := relArgs[0]? | return none
   let some inst := relArgs[1]? | return none
   let some pre := relArgs[2]? | return none
+  -- `relPre := (pre ⊑ ·) : α → Prop`
   let relPre := mkApp3 target.getAppFn α inst pre
   let uα ← Sym.getLevel α
   let eqProof :=
-    mkApp6 (mkConst ``congrArg [uα, .succ .zero]) α (mkSort .zero) (mkAppN fst args) curBot relPre acc
-  return some (← goal.replaceTargetEq (mkApp relPre curBot) eqProof)
+    mkApp6 (mkConst ``congrArg [uα, .succ .zero]) α (mkSort .zero) rhs rhs' relPre h
+  return some (← goal.replaceTargetEq (mkApp relPre rhs') eqProof)
 
 
 end Lean.Elab.Tactic.VCGen

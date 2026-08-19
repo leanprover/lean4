@@ -362,7 +362,8 @@ optional<expr> type_checker::reduce_recursor(expr const & e, bool cheap_rec, boo
     if (optional<expr> r = inductive_reduce_rec(env(), e,
                                                 [&](expr const & e) { return cheap_rec ? whnf_core(e, cheap_rec, cheap_proj) : whnf(e); },
                                                 [&](expr const & e) { return infer(e); },
-                                                [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); })) {
+                                                [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); },
+                                                [&](expr const & e) { return is_prop(e); })) {
         return r;
     }
     return none_expr();

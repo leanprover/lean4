@@ -21,9 +21,10 @@ import Init.Grind.Interactive
 /-!
 # Intrinsic verification syntax
 
-A definition carrying `requires P` / `ensures b => Q` clauses expands to the plain definition plus a
-`vcgen`-proven, `@[spec]`-tagged specification theorem `f.spec`. An `assert` element in a `do` block
-elaborates to the assertion gadget that `vcgen` proves in the course of that theorem.
+A definition carrying `given xs` / `requires P` / `ensures b => Q` clauses expands to the plain
+definition plus a `vcgen`-proven, `@[spec]`-tagged specification theorem `f.spec`. An `assert`
+element in a `do` block elaborates to the assertion gadget that `vcgen` proves in the course of that
+theorem.
 -/
 
 public section
@@ -82,35 +83,42 @@ their experimental status from a monad that can read options and log. It reuses 
 private def mkContractNotice (val : Syntax) : Syntax :=
   mkNode ``Lean.Parser.Command.contractDeclVal (val.getArgs.pop.push (mkNullNode #[]))
 
-/-- Expand a `def` carrying `requires`/`ensures` clauses into the plain `def` plus a spec theorem
-`@[spec] theorem f.spec : ⦃P⦄ f args ⦃fun b => Q⦄` proved by `vcgen`. A
-`where finally | spec => steps` section supplies `grind`-mode steps for the verification
-conditions `finish` leaves open. -/
+/-- Expand a `def` carrying `given`/`requires`/`ensures` clauses into the plain `def` plus a spec
+theorem `@[spec] theorem f.spec : ∀ xs, ⦃P⦄ f args ⦃fun b => Q⦄` proved by `vcgen`. A
+`where finally | spec => steps` section supplies `grind`-mode steps for the verification conditions
+`finish` leaves open. -/
 @[builtin_macro Lean.Parser.Command.declaration]
 def expandDefContract : Macro := fun stx => do
   let decl := stx[1]
   unless decl.isOfKind ``Lean.Parser.Command.definition do Macro.throwUnsupported
   -- `definition = "def "(0) >> declId(1) >> optDeclSig(2) >> (declVal <|> contractDeclVal)(3) >> …`
-  -- `contractDeclVal = optional requiresClause(0) >> optional ensuresClause(1) >> declVal(2)`
+  -- `contractDeclVal = optional givenClause(0) >> optional requiresClause(1) >>
+  --   optional ensuresClause(2) >> declVal(3)`
+  -- `givenClause = "given"(0) >> many1 binders(1)`
   let val := decl[3]
   unless val.isOfKind ``Lean.Parser.Command.contractDeclVal do Macro.throwUnsupported
-  let requiresStx := val[0]
-  let ensuresStx := val[1]
+  let givenStx := val[0]
+  let requiresStx := val[1]
+  let ensuresStx := val[2]
   -- Replace the contract-carrying value with its inner `declVal` so the `def` elaborates normally.
-  if requiresStx.isNone && ensuresStx.isNone then
-    return stx.setArg 1 (decl.setArg 3 val[2])
-  let (specStep?, strippedVal) ← extractSpecSection val[2]
+  if givenStx.isNone && requiresStx.isNone && ensuresStx.isNone then
+    return stx.setArg 1 (decl.setArg 3 val[3])
+  let (specStep?, strippedVal) ← extractSpecSection val[3]
   let cleanDeclaration := stx.setArg 1 (decl.setArg 3 strippedVal)
   unless (← Macro.hasDecl ``Std.WP.Triple) do
-    Macro.throwErrorAt (if requiresStx.isNone then ensuresStx else requiresStx)
-      "`requires`/`ensures` contracts elaborate to a `vcgen`-proved specification theorem; \
-add `import Std.WP` to use them."
+    Macro.throwErrorAt
+      (if !givenStx.isNone then givenStx else if !requiresStx.isNone then requiresStx
+       else ensuresStx)
+      "`given`/`requires`/`ensures` contracts elaborate to a `vcgen`-proved specification \
+theorem; add `import Std.WP` to use them."
   let sig := decl[2]
   let fId : Ident := ⟨decl[1][0]⟩
   let specId := mkIdentFrom fId (fId.getId ++ `spec)
   let sigBinders := sig[0].getArgs
+  -- `f.spec` quantifies the `given` binders but applies `f` to the signature's arguments alone.
+  let givenBinders := if givenStx.isNone then #[] else givenStx[0][1].getArgs
   let binders : TSyntaxArray [`ident, ``Lean.Parser.Term.hole, ``Lean.Parser.Term.bracketedBinder] :=
-    sigBinders.map (⟨·⟩)
+    (sigBinders ++ givenBinders).map (⟨·⟩)
   let args := sigBinders.flatMap contractBinderIdents
   let pre : Term ← if requiresStx.isNone then `(⊤) else
     match requiresStx[0] with

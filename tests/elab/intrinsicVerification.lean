@@ -733,3 +733,56 @@ where finally
 
 #guard_msgs (drop info) in
 #check @findMajorityElement.spec
+
+/-! ## The `given` clause binds logical variables -/
+
+def mkFreshNat : StateM Nat Nat
+    given (n : Nat)
+    requires s => s = n
+    ensures r s => r = n ∧ s = n + 1
+  := do
+  let m ← get
+  set (m + 1)
+  pure m
+
+/--
+info: mkFreshNat.spec : ∀ (n : Nat), ⦃ fun s => s = n ⦄ mkFreshNat ⦃ fun r s => r = n ∧ s = n + 1 ⦄
+-/
+#guard_msgs in
+#check @mkFreshNat.spec
+
+def widen (k : Nat) : StateM Nat Unit
+    given (lo hi : Nat) {d : Nat}
+    requires s => lo ≤ s ∧ s ≤ hi ∧ d = k
+    ensures _ s => lo ≤ s + k ∧ s ≤ hi + d
+  := modify (· + k)
+
+/--
+info: widen.spec : ∀ (k lo hi : Nat) {d : Nat},
+  ⦃ fun s => lo ≤ s ∧ s ≤ hi ∧ d = k ⦄ widen k ⦃ fun x s => lo ≤ s + k ∧ s ≤ hi + d ⦄
+-/
+#guard_msgs in
+#check @widen.spec
+
+def peek : StateM Nat Nat
+    given (n : Nat)
+    ensures r s => r = n → s = n
+  := get
+
+/-- info: peek.spec : ∀ (n : Nat), ⦃ ⊤ ⦄ peek ⦃ fun r s => r = n → s = n ⦄ -/
+#guard_msgs in
+#check @peek.spec
+
+def bumpUnconstrained (k : Nat) : StateM Nat Unit
+    given (n : Nat)
+  := modify (· + k)
+
+/-- info: bumpUnconstrained.spec : ∀ (k n : Nat), ⦃ ⊤ ⦄ bumpUnconstrained k ⦃ fun x => ⊤ ⦄ -/
+#guard_msgs in
+#check @bumpUnconstrained.spec
+
+def onOneLine (k : Nat) : Id Nat given (n : Nat) requires k = n ensures r => r = n := pure k
+
+/-- info: onOneLine.spec : ∀ (k n : Nat), ⦃ k = n ⦄ onOneLine k ⦃ fun r => r = n ⦄ -/
+#guard_msgs in
+#check @onOneLine.spec

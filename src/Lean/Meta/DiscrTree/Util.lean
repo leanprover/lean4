@@ -111,16 +111,35 @@ def size (t : DiscrTree α) : Nat :=
 
 variable {m : Type → Type} [Monad m]
 
+/--
+Checks that a trie node has no values and no children.
+
+This is only a check for actual trie emptiness (`t.size = 0`) if all operations maintain the
+invariant that no trie node has an empty child node.
+-/
+def Trie.isEmptyNode {α} : Trie α → Bool
+  | .node vs children => vs.isEmpty && children.isEmpty
+
 /-- Apply a monadic function to the array of values at each node in a `DiscrTree`. -/
 partial def Trie.mapArraysM (t : DiscrTree.Trie α) (f : Array α → m (Array β)) :
     m (DiscrTree.Trie β) :=
   match t with
-  | .node vs children =>
-    return .node (← f vs) (← children.mapM fun (k, t') => do pure (k, ← t'.mapArraysM f))
+  | .node vs children => do
+    let vs ← f vs
+    let children ← children.filterMapM fun (k, child) => do
+      let child ← child.mapArraysM f
+      if child.isEmptyNode then
+        return none
+      else
+        return some (k, child)
+    return .node vs children
 
 /-- Apply a monadic function to the array of values at each node in a `DiscrTree`. -/
 def mapArraysM (d : DiscrTree α) (f : Array α → m (Array β)) : m (DiscrTree β) := do
-  pure { root := ← d.root.mapM (fun t => t.mapArraysM f) }
+  let root ← d.root.mapM (fun t => t.mapArraysM f)
+  let emptyKeys := root.foldl (init := #[]) fun emptyKeys k t =>
+    if t.isEmptyNode then emptyKeys.push k else emptyKeys
+  pure { root := emptyKeys.foldl (init := root) fun hashMap k => hashMap.erase k }
 
 /-- Apply a function to the array of values at each node in a `DiscrTree`. -/
 def mapArrays (d : DiscrTree α) (f : Array α → Array β) : DiscrTree β :=

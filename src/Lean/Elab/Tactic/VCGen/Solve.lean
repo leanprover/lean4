@@ -446,7 +446,7 @@ metavariables: no part of the goal is instantiated with a term that contains the
 precondition VC is the sole bare entailment among the subgoals. The `∀`-quantified subgoals are
 the postcondition VCs. -/
 private def applySpecSymbolic (goal : MVarId) (info : WPApp) (specRule : Sym.BackwardRule) :
-    VCGenM (Option SpecApplication) := do
+    Grind.GrindM (Option SpecApplication) := do
   let goalType ← goal.getType
   let le := goalType.stripArgsN 2
   let fp ← mkFreshExprMVar le.appFn!.appArg!
@@ -507,8 +507,8 @@ private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : Spec
   let procs := (← read).frameProcs.byProg
   let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
   let providedFrame? ← matchFrame? fp info
-  let some app ← applySpecSymbolic goal info specRule | return none
-  match ← fp.proc { info with goal, providedFrame?, spec? := thm.global?, app,
+  match ← fp.proc { info with goal, providedFrame?, spec? := thm.global?,
+                              applySpec := applySpecSymbolic goal info specRule,
                               mkOpApp := do shareCommon (← fp.mkOpAppM info) } with
   | .framed k =>
     let goals ← commitFrameRule goal info fp

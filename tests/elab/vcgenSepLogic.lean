@@ -949,7 +949,7 @@ def sepConjFrameProc : FrameInferenceProc := fun i => do
   -- name. `probe_spec` isolates the report to the one test example below.
   if i.spec? == some `probe_spec then
     logInfo m!"framing for spec {i.spec?}"
-  let app := i.app
+  let some app ← i.applySpec | return .unframed
   let specPre ← shareCommon (← instantiateMVars (← app.preVC.getType).appArg!)
   -- A spec whose precondition mentions its own schematic post cannot frame through the weakest
   -- footprint: the wrapped and the unwrapped post produce different preconditions. `shareCommon`

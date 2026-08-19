@@ -244,7 +244,7 @@ def tickFrameProc : FrameInferenceProc := fun i => do
     | none => instantiateMVarsS ticks
   -- A zero shift frames nothing, for example a `frames` clause that pins `0`.
   if shift.nat? == some 0 then return .unframed
-  let app := i.app
+  let some app ← i.applySpec | return .unframed
   -- Complete the open excess arguments before the decision: the counter shifts, deeper state
   -- stays the goal's.
   let shifted ← mkAppNS (← mkConstS ``Nat.sub) #[ticks, shift]

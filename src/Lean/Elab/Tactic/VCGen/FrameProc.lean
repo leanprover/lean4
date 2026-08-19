@@ -100,10 +100,11 @@ public structure FrameInferenceInfo extends WPApp where
   /-- Declaration name of the `@[spec]` theorem being applied, `none` for a local or syntactic spec.
   A procedure can key a footprint off it, for example through an attribute keyed by spec name. -/
   spec? : Option Name
-  /-- The spec's backward rule applied to the fresh target `?fp ⊑ wp prog ?Q E ?s⃗`. The solver
-  runs the procedure only after this application succeeded, so applicability is settled. The
-  precondition VC shows the spec's precondition in terms of `?s⃗` and the spec's parameters. -/
-  app : SpecApplication
+  /-- Applies the spec's backward rule to the fresh target `?fp ⊑ wp prog ?Q E ?s⃗`, and returns
+  the open application. The application runs on demand, so a procedure that decides without the
+  spec pays nothing for it. `none` when the rule does not apply, which a procedure answers with
+  `unframed`: the solver's own application then fails, and the solver passes the candidate over. -/
+  applySpec : Grind.GrindM (Option SpecApplication)
   /-- Builds the frame operator `op : R → Pred → Pred`, hash-consed; the selected procedure's
   `FrameProc.mkOpAppM`. -/
   mkOpApp : SymM Expr

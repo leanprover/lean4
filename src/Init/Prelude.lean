@@ -1048,14 +1048,16 @@ abbrev Bool.Reflects : Bool → Prop → Prop
   | true, p => p
 
 /--
-Either a proof that `p` is true or a proof that `p` is false. This is equivalent to a `Bool` paired
-with a proof that the `Bool` is `true` if and only if `p` is true.
+A `Bool` (that is, `decide p`) paired with a proof of `p` if `decide p` is `true` or a proof of `¬p`
+if `decide p` is `false`. The easiest way to extract these proofs is to use `of_decide_eq_true` or
+`of_decide_eq_false`.
 
 `Decidable` instances are primarily used via `if`-expressions and the tactic `decide`. In
 conditional expressions, the `Decidable` instance for the proposition is used to select a branch. At
 run time, this case distinction code is identical to that which would be generated for a
 `Bool`-based conditional. In proofs, the tactic `decide` synthesizes an instance of `Decidable p`,
-attempts to reduce it to `isTrue h`, and then succeeds with the proof `h` if it can.
+attempts to reduce `decide p` to `true`, and then succeeds with the proof `of_decide_eq_true rfl`
+if it can.
 
 Because `Decidable` carries data, when writing `@[simp]` lemmas which include a `Decidable` instance
 on the LHS, it is best to use `{_ : Decidable p}` rather than `[Decidable p]` so that non-canonical

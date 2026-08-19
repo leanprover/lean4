@@ -244,7 +244,7 @@ def tickFrameProc : FrameInferenceProc := .committed fun i app => do
   -- Run the spec at the shifted counter, with deeper state left at the goal's, and take the whole
   -- precondition as the footprint.
   let shifted ← mkAppNS (← mkConstS ``Nat.sub) #[ticks, shift]
-  app.excess[0]!.assign shifted
+  app.excessArgs[0]!.mvarId!.assign shifted
   app.footprint.assign i.pre
   -- The lattice instances come from the frame operator and the goal entailment.
   let op ← i.mkOpApp
@@ -254,7 +254,7 @@ def tickFrameProc : FrameInferenceProc := .committed fun i app => do
   let φ ← mkAppNS (← mkConstS ``Nat.le) #[shift, ticks]
   let hle ← mkFreshExprSyntheticOpaqueMVar φ
   let hmeet ← mkAppNS (← mkConstS ``le_ofProp_meet_self us)
-    #[costL, costInst, φ, ← mkAppNS app.wp #[shifted], hle]
+    #[costL, costInst, φ, ← mkAppNS (← app.wp) #[shifted], hle]
   -- The pointwise order on functions lets `hmeet` apply to the state arguments directly.
   let happ ← mkAppNS hmeet (i.excessArgs.extract 1 i.excessArgs.size)
   let ty ← Sym.inferType happ

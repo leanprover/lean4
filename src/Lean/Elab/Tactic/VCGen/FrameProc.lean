@@ -40,21 +40,16 @@ public structure FrameSplit where
   subgoals : List MVarId
 
 /-- A spec rule applied to the target `?fp ⊑ W s⃗`, where `W` is the weakest footprint the frame
-rule left. The post is already the frame rule's upper adjoint, so only the footprint and the state
-arguments are open. A `committed` procedure assigns `footprint` to the footprint it chose, and
-`proof` then proves the target. It assigns `excess` only to run the spec at other state arguments
-than the goal's.
+rule left. Its `WPApp` describes `W s⃗`: the post is already the frame rule's upper adjoint, and
+the excess state arguments are metavariables, so only the footprint and the state are open. A
+`committed` procedure assigns `footprint` to the footprint it chose, and `proof` then proves the
+target. It assigns an entry of `excessArgs` only to run the spec at another state than the goal's.
 
 The solver forwards the application's own obligations, so a procedure returns only the goals it
 creates itself. -/
-public structure SpecApp where
+public structure SpecApp extends WPApp where
   /-- The open footprint `?fp`. -/
   footprint : MVarId
-  /-- The open state arguments the spec runs at. The solver fills whichever the procedure leaves
-  open with the goal's own. -/
-  excess : Array MVarId
-  /-- The weakest footprint `W`, before the state arguments apply. -/
-  wp : Expr
   /-- The spec's precondition VC `?fp ⊑ specP`. The procedure may simplify it further after
   settling `?fp`, for example by cancelling parts of it. In doing so, it may assign metavariables
   occurring in `specP`. -/

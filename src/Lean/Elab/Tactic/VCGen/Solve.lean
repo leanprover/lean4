@@ -451,13 +451,15 @@ private def applySpecToFootprint (info : WPApp) (specRule : Sym.BackwardRule) (l
     Grind.GrindM (Option (SpecApp × List MVarId)) := do
   let fp ← mkFreshExprMVar le.appFn!.appArg!
   let excess ← info.excessArgs.mapM fun a => do mkFreshExprMVar (← Sym.inferType a)
-  let target ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[fp, ← mkAppNS W excess])
+  let rhs ← mkAppNS W excess
+  let target ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[fp, rhs])
   let .goals sgs ← specRule.apply target.mvarId! | return none
   let some preVC ← sgs.findM? fun g => return (← g.getType).isAppOf ``Lean.Order.PartialOrder.rel
     | throwError "frame: spec rule left no precondition VC for{indentExpr info.prog}"
-  let app := { footprint := fp.mvarId!, excess := excess.map (·.mvarId!), wp := W, preVC,
-               proof := target }
-  return some (app, sgs.filter (· != preVC))
+  let some wpApp := isWPApp? rhs
+    | throwError "frame: the weakest footprint is not a `wp` application for{indentExpr info.prog}"
+  return some ({ wpApp with footprint := fp.mvarId!, preVC, proof := target },
+               sgs.filter (· != preVC))
 
 /-- Apply the frame rule for `fp`'s operator and settle the `FrameSplit` a procedure produced:
 assign the frame slot, and discharge the split VC with the procedure's proof unless it deferred.
@@ -532,8 +534,8 @@ private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : Spec
       let some (app, sgs) ← applySpecToFootprint info specRule inferInfo.le W | return none
       let split ← f inferInfo app
       -- A procedure runs the spec at the goal's state arguments unless it chose others.
-      for p in app.excess.zip info.excessArgs do
-        unless ← p.1.isAssigned do p.1.assign p.2
+      for p in app.excessArgs.zip info.excessArgs do
+        unless ← p.1.mvarId!.isAssigned do p.1.mvarId!.assign p.2
       trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` matched {info.prog}; frame:{indentExpr split.frame}"
       let subgoals ← settleFrameRule goals frule split
       goal.assign copy

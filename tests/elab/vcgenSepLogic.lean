@@ -972,7 +972,7 @@ def sepConjFrameProc : FrameInferenceProc := .committed fun i app => do
       app.footprint.assign i.pre
       let prf ← mkAppM ``Lean.Order.PartialOrder.rel_trans
         #[app.proof, ← mkAppM ``Lean.Order.PartialOrder.rel_of_eq
-            #[← mkAppM ``Eq.symm #[← mkAppM ``emp_sepConj #[app.wp]]]]
+            #[← mkAppM ``Eq.symm #[← mkAppM ``emp_sepConj #[← app.wp]]]]
       return { frame := ← mkConstS ``emp, splitVCProof? := prf, subgoals := [] }
     dischargeSplitVC i app rest matched unpaid
 

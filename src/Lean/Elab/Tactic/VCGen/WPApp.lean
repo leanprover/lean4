@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Sym.SymM
+public import Lean.Meta.Sym.AlphaShareBuilder
 import Std.WP.Basic
 
 /-!
@@ -14,7 +15,7 @@ import Std.WP.Basic
 recognize one.
 -/
 
-open Lean Meta Sym
+open Lean Meta Sym Sym.Internal
 
 namespace Lean.Elab.Tactic.VCGen
 
@@ -51,6 +52,9 @@ public def instWP (info : WPApp) : Expr := info.args[6]!
 public def prog (info : WPApp) : Expr := info.args[7]!
 /-- Postcondition argument of `wp`. -/
 public def post (info : WPApp) : Expr := info.args[8]!
+
+/-- The `wp` application itself, before the excess state arguments apply. -/
+public def wp (info : WPApp) : SymM Expr := mkAppNS info.head info.args
 
 end WPApp
 

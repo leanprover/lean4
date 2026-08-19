@@ -58,7 +58,7 @@ fun {P} {α β} {t} {α' β'} {t'} eq_1 eq_2 eq_3 =>
               ((a : tst1) → motive_1 a → motive_2 (tst2.mk a)) →
                 ((s : Nat → myPair (myPair tst2 Bool) tst2) → ((a : Nat) → motive_4 (s a)) → motive_3 (arrow.mk s)) →
                   ((a : myPair tst2 Bool) → (a_1 : tst2) → motive_5 a → motive_2 a_1 → motive_4 (myPair.mk a a_1)) →
-                    ((a : tst2) → (a_1 : Bool) → motive_2 a → motive_5 (myPair.mk a a_1)) → motive_1 t
+                    ((a : tst2) → (a_1 : Bool) → motive_2 a → motive_5 (_root_.myPair.mk a a_1)) → motive_1 t
 13
 @Rbnode.brecOn : {α : Type u_2} →
   {motive : Rbnode α → Sort u_1} → (t : Rbnode α) → ((t : Rbnode α) → Rbnode.below t → motive t) → motive t
@@ -82,9 +82,12 @@ number of indices: 0
 number of motives: 3
 number of minors: 6
 rules:
-for test.Trie.Empty (0 fields): fun motive_1 motive_2 motive_3 Empty mk leaf redNode blackNode mk_1 => Empty
-for test.Trie.mk (2 fields): fun motive_1 motive_2 motive_3 Empty mk leaf redNode blackNode mk_1 a a_1 =>
-  mk a a_1 (Trie.rec_1 Empty mk leaf redNode blackNode mk_1 a_1)
+for test.Trie.Empty (0 fields): fun motive_1 motive_2 motive_3 Empty mk test.Rbnode.leaf test.Rbnode.redNode
+    test.Rbnode.blackNode myPair.mk =>
+  Empty
+for test.Trie.mk (2 fields): fun motive_1 motive_2 motive_3 Empty mk test.Rbnode.leaf test.Rbnode.redNode
+    test.Rbnode.blackNode myPair.mk a a_1 =>
+  mk a a_1 (Trie.rec_1 Empty mk test.Rbnode.leaf test.Rbnode.redNode test.Rbnode.blackNode myPair.mk a_1)
 @[reducible] protected def test.Trie.noConfusion.{u} : {P : Sort u} →
   {t t' : Trie} → t = t' → Trie.noConfusionType P t t' :=
 fun {P} {t t'} eq => eq ▸ t.casesOn (fun k => k) fun a a_1 k => k ⋯ ⋯

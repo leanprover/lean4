@@ -33,7 +33,7 @@ theorem failed_before (x : StructLike Nested) : Nested.rec_1
   (motive_1 := fun _ => Bool) (motive_2 := fun _ => Bool)
   (nest := fun _ _ => true)
   (other := true)
-  (mk := fun _ _ => true)
+  (StructLike.mk := fun _ _ => true)
   x = true
   := rfl
 

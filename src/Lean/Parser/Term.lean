@@ -387,8 +387,9 @@ def basicFun : Parser := leading_parser (withAnonymousAntiquot := false)
   ppAllowUngrouped >> unicodeSymbol "λ" "fun" (preserveForPP := true) >> (basicFun <|> matchAlts)
 
 /-- The body of a clause that binds like `fun`: `⟨lo, hi⟩ => lo ≤ hi` or `| ⟨lo, hi⟩ => lo ≤ hi`.
-The `ppIndent` sets the alternatives under the clause's keyword, where `fun` states them beside it.
-The attribute generates the formatter and parenthesizer that a clause parser needs. -/
+A clause states its keyword under a `ppIndent` of its own, so the alternatives take a further
+`ppIndent` to sit under that keyword. The attribute generates the formatter and the parenthesizer,
+which a clause parser that states this body needs. -/
 @[run_builtin_parser_attribute_hooks]
 def funLikeBody : Parser := basicFun <|> ppIndent matchAlts
 

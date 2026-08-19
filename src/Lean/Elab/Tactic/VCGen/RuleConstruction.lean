@@ -448,7 +448,7 @@ private def analyzeFrameRule (rule : BackwardRule) (opHead : Name) (numExcess : 
       throwError "frame: the frame of the frame rule for `{opHead}` is not one of its parameters"
     let mut framesIdx? := none
     for i in [0:resultPos.size] do
-      if (← premiseType i).isAppOf ``Std.Internal.Do.WP.Frames then
+      if (← premiseType i).isAppOf ``Std.WP.WP.Frames then
         framesIdx? := some i
         break
     let some framesIdx := framesIdx?

@@ -11,7 +11,7 @@ public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.Solve
 public import Lean.Meta.Sym.Grind
 
-open Lean Meta Elab Tactic Sym
+open Lean Meta Elab Tactic Sym Sym.Internal Lean.Order
 open Lean.Elab.Tactic.Do.SpecAttr
 
 namespace Lean.Elab.Tactic.VCGen

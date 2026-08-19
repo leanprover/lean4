@@ -6,6 +6,7 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
+public import Init.BinderNameHint
 public import Std.WP.Triple.Monad
 public import Std.WP.Monad
 public import Std.Do.Triple.SpecLemmas
@@ -66,7 +67,7 @@ theorem Spec.pure (a : α) :
 
 @[spec]
 theorem Spec.bind (x : m α) (f : α → m β) :
-    Triple (x >>= f) (wp x (fun a => wp (f a) post epost) epost) post epost :=
+    Triple (x >>= f) (wp x (fun a => binderNameHint a f (wp (f a) post epost)) epost) post epost :=
   Triple.bind x f (fun a => wp (f a) post epost)
     (Triple.intro PartialOrder.rel_refl) (fun _ => Triple.intro PartialOrder.rel_refl)
 

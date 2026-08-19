@@ -140,9 +140,10 @@ theorem fib_impl_vcs
   case vc1 h => subst h; apply_rules [ret]
   case vc2 h => apply_rules [loop_pre]
   case vc3 => apply_rules [loop_step]
-  case vc4 h pref cur suff _hsplit b _hinv =>
-    -- `cleanupVC` reduced the `ForInStep.yield` that the step's postcondition matches on.
-    guard_target =ₛ I n h (pref ++ [cur]) suff (b.snd, b.fst + b.snd)
+  case vc4 h pref cur suff _hsplit a b _hinv =>
+    -- `cleanupVC` reduced the `ForInStep.yield` that the step's postcondition matches on, and the
+    -- loop's two mutable variables reach the verification condition as separate binders.
+    guard_target =ₛ I n h (pref ++ [cur]) suff ((a, b).snd, (a, b).fst + (a, b).snd)
     apply_rules [loop_post]
 
 @[spec]

@@ -731,10 +731,10 @@ theorem incr_poly (amounts : List Nat) :
 
 end TopBetaReduction
 
-namespace RepeatInvariantOfInvariantAndBreak
+namespace WhileInvariantOfInvariantAndBreak
 
 /-! Verifies a `while` loop whose `vcgen` invariant is supplied via
-`RepeatInvariant.ofInvariantAndBreak`: a loop invariant `inv` that holds after every iteration plus
+`WhileInvariant.ofInvariantAndBreak`: a loop invariant `inv` that holds after every iteration plus
 an `onBreak` condition (here the negated loop condition) that additionally holds once the loop
 exits. -/
 
@@ -750,7 +750,7 @@ def countdown (n : Nat) : StateT Nat Id Unit := do
 theorem countdown_spec (n : Nat) :
     ⦃ fun s => s = 0 ⦄ countdown n ⦃ fun _ s => s = n ⦄ := by
   vcgen [countdown] invariants
-  | inv1 => RepeatInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i _ => i = 0)
+  | inv1 => WhileInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i _ => i = 0)
   | inv2 => .ofMeasure fun i => i
   with finish
 
@@ -764,7 +764,7 @@ def countdownStateful (n : Nat) : StateT Nat Id Unit := do
 theorem countdownStateful_spec (n : Nat) :
     ⦃ fun _ => True ⦄ countdownStateful n ⦃ fun _ s => s = n ⦄ := by
   vcgen [countdownStateful] invariants
-  | inv1 => RepeatInvariant.ofInvariantAndBreak
+  | inv1 => WhileInvariant.ofInvariantAndBreak
       (fun _ s => s ≤ n)
       (fun _ s => s = n)
   | inv2 => .ofMeasure fun _ s => n - s
@@ -787,13 +787,13 @@ def countdownLex (n : Nat) : StateT Nat Id Unit := do
 theorem countdownLex_spec (n : Nat) :
     ⦃ fun _ => True ⦄ countdownLex n ⦃ fun _ _ => True ⦄ := by
   vcgen [countdownLex] invariants
-  | inv1 => RepeatInvariant.ofInvariantAndBreak (fun _ _ => True) (fun _ _ => True)
+  | inv1 => WhileInvariant.ofInvariantAndBreak (fun _ _ => True) (fun _ _ => True)
   | inv2 => .ofMeasure fun (i, j) => (i, j)
-  all_goals simp_all [RepeatVariant.evalsBelow_ofMeasure]
+  all_goals simp_all [Variant.evalsBelow_ofMeasure]
   all_goals subst_vars
   all_goals decreasing_tactic
 
-end RepeatInvariantOfInvariantAndBreak
+end WhileInvariantOfInvariantAndBreak
 namespace WithGrindError
 
 /-! The `with` clause of `vcgen` only accepts a `grind`-mode step (e.g. `finish`, `intro`). A

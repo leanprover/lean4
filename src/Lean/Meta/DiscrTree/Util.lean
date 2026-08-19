@@ -177,10 +177,7 @@ partial def Trie.mapArraysM (t : DiscrTree.Trie α) (f : Array α → m (Array �
     let vs ← f #[] -- Corner case. TODO: remove this and only call `f` for non-empty arrays in node case?
     let c ← c.mapArraysM f
     let cs := if c.isEmptyNode then #[] else #[(k, c)]
-    if vs.size > 0 || c.isEmptyNode then
-      return .node vs cs
-    else
-      return .chain k c
+    return Trie.mkNode vs cs
   | .node vs children => do
     let vs ← f vs
     let children ← children.filterMapM fun (k, child) => do
@@ -189,7 +186,7 @@ partial def Trie.mapArraysM (t : DiscrTree.Trie α) (f : Array α → m (Array �
         return none
       else
         return some (k, child)
-    return .node vs children
+    return Trie.mkNode vs children
 
 /-- Apply a monadic function to the array of values at each node in a `DiscrTree`. -/
 @[inline]

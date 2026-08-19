@@ -25,15 +25,15 @@ hygienic binder introduction, hypothesis-internalization for grind, and the emis
 
 namespace Lean.Elab.Tactic.VCGen
 
-/-- Change `goal`'s `Prop`-typed target to the definitionally-equal `targetNew`, mirroring the goal
-update in `Sym.Simp`: a fresh synthetic-opaque goal cast back through `@id`. Unlike
-`MVarId.replaceTargetDefEq` it skips the `instantiateMVars`/`Expr.equal` round-trip, so it neither
-detects a no-op change nor supports a non-`Prop` target; the caller must pass a genuinely different
-`targetNew` definitionally equal to the current target. -/
+/-- Change `goal`'s `Prop`-typed target to the definitionally-equal `targetNew`, assigning `goal` a
+fresh synthetic-opaque goal for `targetNew`, so the kernel checks the two types against each other.
+Unlike `MVarId.replaceTargetDefEq` it skips the `instantiateMVars`/`Expr.equal` round-trip, so it
+neither detects a no-op change nor supports a non-`Prop` target; the caller must pass a genuinely
+different `targetNew` definitionally equal to the current target. -/
 public def _root_.Lean.MVarId.replaceTargetDefEqFast (goal : MVarId) (targetNew : Expr) :
     MetaM MVarId := goal.withContext do
   let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew (← goal.getTag)
-  goal.assign (mkApp2 (mkConst ``id [.zero]) (← goal.getType) mvarNew)
+  goal.assign mvarNew
   return mvarNew.mvarId!
 
 /-- Internalize a backward rule's pattern into the current `SymM` share table. See

@@ -17,18 +17,22 @@ open Lean Meta Sym Sym.Internal Lean.Order
 namespace Lean.Elab.Tactic.VCGen
 
 /-!
-# Names from the program
+# Accessible names from the program
 
-A specification states the weakest precondition of a program. It also carries the names that the
-program gives to its values. `binderNameHint v binder e` carries one such name. It is the identity
-on `e`, so it states nothing about the program.
+A specification theorem introduces binders, such as the `a` of a lambda `fun a => e`. `vcgen`
+introduces `a` inaccessibly as `a✝`, because `tactic.hygienic` is set.
 
-`Spec.bind` marks the continuation `f`:
+A specification can state where an accessible name comes from. It states such a lambda as
+`fun a => binderNameHint a (fun acc => p) e`, where `fun acc => p` is a subexpression of the
+program. `vcgen` then introduces `a` accessibly as `acc`. This module implements that step.
+`binderNameHint v binder e` is the identity on `e`, so the specification states the same assertion.
+
+`Spec.bind` states the hint over the continuation `f`:
 ```
 Triple (x >>= f) (wp x (fun a => binderNameHint a f (wp (f a) post epost)) epost) post epost
 ```
-For `let acc ← e`, the continuation `f` binds `acc`. `vcgen` reads that name here and renames the
-variable it introduced for `a`, so the verification condition states `acc` rather than `a✝`.
+For a program `let acc ← e`, the continuation `f` is `fun acc => p`. `vcgen` renames the variable it
+introduced for `a` to `acc`, so the verification condition states `acc` rather than `a✝`.
 -/
 
 /-- The binder names of the matcher a state lambda applies to its own argument:

@@ -229,8 +229,12 @@ private def cleanupNatOffsetMajor (e : Expr) : MetaM Expr := do
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let majorIdx := recVal.getMajorIdx
   if h : majorIdx < recArgs.size then do
-    let major := recArgs[majorIdx]
-    let mut major ← if isWFRec recVal.name && (← getTransparency) == .default then
+    let mut major := recArgs[majorIdx]
+    if recVal.k then
+      major ← toCtorWhenK recVal major
+    major ← toCtorWhenStructure recVal major
+    -- If `toCtorWhenStructure` changes the major, then it's already in whnf, no need to call it here. Shouldn't be too expansive in practice
+    major ← if isWFRec recVal.name && (← getTransparency) == .default then
       -- If recursor is `Acc.rec` or `WellFounded.rec` and transparency is default,
       -- then we bump transparency to .all to make sure we can unfold defs defined by WellFounded recursion.
       -- We use this trick because we abstract nested proofs occurring in definitions.
@@ -238,11 +242,8 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
       withTransparency .all <| whnf major
     else
       whnf major
-    if recVal.k then
-      major ← toCtorWhenK recVal major
     major ← major.toCtorIfLit
     major ← cleanupNatOffsetMajor major
-    major ← toCtorWhenStructure recVal major
     match getRecRuleFor recVal major with
     | some rule =>
       let majorArgs := major.getAppArgs

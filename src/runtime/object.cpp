@@ -450,21 +450,25 @@ extern "C" LEAN_EXPORT void lean_inc_ref_cold_n(lean_object * o, size_t n) {
 }
 
 extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
-    if (LEAN_UNLIKELY(lean_internal_get_rc(o) <= LEAN_RC_STICKY_DROP))
-        return; // over- or underflowed (sticky) count: never adjust or free
-    if (lean_internal_get_rc(o) == 1 || std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) == -1) {
-#ifdef LEAN_LAZY_RC
-        push_back(g_to_free, o);
-#else
-        object * todo = nullptr;
-        while (true) {
-            todo = lean_del_core(o, todo);
-            if (todo == nullptr)
-                return;
-            o = pop_back(todo);
-        }
-#endif
+    // `rc == 1` is the hot single-threaded free path and can never be sticky, so the sticky check
+    // is kept out of it.
+    if (lean_internal_get_rc(o) != 1) {
+        if (LEAN_UNLIKELY(lean_internal_get_rc(o) <= LEAN_RC_STICKY_DROP))
+            return; // over- or underflowed (sticky) count: never adjust or free
+        if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) != -1)
+            return;
     }
+#ifdef LEAN_LAZY_RC
+    push_back(g_to_free, o);
+#else
+    object * todo = nullptr;
+    while (true) {
+        todo = lean_del_core(o, todo);
+        if (todo == nullptr)
+            return;
+        o = pop_back(todo);
+    }
+#endif
 }
 
 

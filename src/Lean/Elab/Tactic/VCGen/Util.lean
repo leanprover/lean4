@@ -119,7 +119,7 @@ public def introsHygienicN (goal : MVarId) (n : Nat) : VCGenM MVarId :=
     let .goal _ goal ← Sym.intros goal names | return goal
     return goal
 
-/-- `introsHygienicN` for every binder the goal leads with. -/
+/-- `introsHygienicN` for every non-`Prod` binder the goal leads with. -/
 public def introsHygienic (goal : MVarId) : VCGenM MVarId := do
   introsHygienicN goal (numBindersToIntro (← goal.getType))
 

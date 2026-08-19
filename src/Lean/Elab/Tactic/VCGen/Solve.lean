@@ -51,11 +51,11 @@ public inductive SolveResult where
   /-- No further progress possible; emit the current goal as a VC. -/
   | stop (reason : SolveResult.StopReason)
 
-private def isDuplicable : Expr → Bool
+private def isDuplicable (e : Expr) : Bool := match e with
   | .bvar .. | .mvar .. | .fvar .. | .const .. | .lit .. | .sort .. => true
   | .mdata _ e | .proj _ _ e => isDuplicable e
   | .lam .. | .forallE .. | .letE .. => false
-  | e@(.app ..) => e.isAppOf ``OfNat.ofNat
+  | .app .. => e.isAppOf ``OfNat.ofNat
 
 /-- Strip an annotation, such as the `noImplicitLambda` metadata a tactic `have`/`let`/`suffices`
 leaves on the goal, so later strategies and the backward rules they invoke see the bare target. -/
@@ -63,8 +63,7 @@ private def consumeMData? (goal : MVarId) (target : Expr) : VCGenM (Option MVarI
   unless target.isMData do return none
   return some (← goal.replaceTargetDefEqFast target.consumeMData)
 
-/-- Strategy 1: split `∀ p : Nat × Nat, P p` into `∀ a b, P (a, b)`. Returns `goal` when the
-binder is over another type. -/
+/-- Split `∀ p : Nat × Nat, P p` into `∀ a b, P (a, b)`. -/
 private def splitProdBinder (goal : MVarId) (target : Expr) : VCGenM MVarId :=
   goal.withContext do
   let .forallE _ dom body _ := target | return goal

@@ -17,8 +17,12 @@ open Lean Meta Sym Sym.Internal Lean.Order
 namespace Lean.Elab.Tactic.VCGen
 
 /-!
-`Spec.bind` states `binderNameHint a f …`, so the value `f` binds as `acc` reaches its verification
-condition as `acc` rather than as `a✝`.
+A specification states a hint over the function whose binder names a value. `Spec.bind` states it
+over the continuation:
+```
+Triple (x >>= f) (wp x (fun a => binderNameHint a f (wp (f a) post epost)) epost) post epost
+```
+so `let acc ← e` reaches its verification condition as `acc` rather than as `a✝`.
 -/
 
 /-- The binder names of the matcher a state lambda applies to its own argument:
@@ -74,9 +78,8 @@ private partial def consumeBinderNameHintExpr (goal : MVarId) (e : Expr) :
   let stripped ← if n == 6 then pure payload else betaRevS payload (e.getAppArgs.extract 6 n).reverse
   return some ((← consumeBinderNameHintExpr goal stripped).getD (goal, stripped))
 
-/-- Strategy 0: consume the hints a specification's instantiation leaves at the head of the target,
-or at either side of `pre ⊑ rhs`. A hint at the head of the precondition of a loop's step names the
-loop's binders, and stays out of the hypothesis that the precondition becomes. -/
+/-- Consume the hints of the target, and of either side of `pre ⊑ rhs`. A hint of the precondition
+is consumed before the precondition becomes a hypothesis. -/
 public def consumeBinderNameHint? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
   if let some (goal, stripped) ← consumeBinderNameHintExpr goal target then
     return some (← goal.replaceTargetDefEqFast stripped)

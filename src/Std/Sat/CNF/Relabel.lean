@@ -20,24 +20,32 @@ namespace Clause
 /--
 Change the literal type in a `Clause` from `α` to `β` by using `r`.
 -/
-def relabel (r : α → β) (c : Clause α) : Clause β := c.map (fun (i, n) => (r i, n))
+def relabel (r : α → β) (c : Clause α) : Clause β :=
+  { c with literals := c.literals.map (fun (i, n) => (r i, n))}
 
 @[simp]
-theorem relabel_nil (r : α → β) : Clause.relabel r [] = [] := by simp [relabel]
+theorem relabel_empty (r : α → β) : Clause.relabel r .empty = .empty := by
+  simp [relabel, empty]
+
+@[simp]
+theorem relabel_add (r : α → β) (c : Clause α) :
+    Clause.relabel r (c.add atom pol) = (c.relabel r).add (r atom) pol := by
+  simp [relabel, add]
 
 @[simp] theorem eval_relabel {r : α → β} {a : β → Bool} {c : Clause α} :
     (relabel r c).eval a = c.eval (a ∘ r) := by
-  induction c <;> simp_all [relabel]
+  induction c using induct <;> simp_all
 
 @[simp] theorem relabel_id' : relabel (id : α → α) = id := by funext; simp [relabel]
 
-theorem relabel_congr {c : Clause α} {r1 r2 : α → β} (hw : ∀ v, Mem v c → r1 v = r2 v) :
+theorem relabel_congr {c : Clause α} {r1 r2 : α → β} (hw : ∀ v, VarMem v c → r1 v = r2 v) :
     relabel r1 c = relabel r2 c := by
   simp only [relabel]
   rw [List.map_congr_left]
   intro ⟨v, p⟩ h
   congr
-  apply hw _ (mem_of h)
+  apply hw
+  cases p <;> simp [h, VarMem]
 
 -- We need the unapplied equality later.
 @[simp] theorem relabel_relabel' : relabel r1 ∘ relabel r2 = relabel (r1 ∘ r2) := by
@@ -96,7 +104,7 @@ theorem unsat_relabel {f : CNF α} (r : α → β) (h : Unsat f) :
   simp_all [unsat_def]
 
 private theorem nonempty_or_impossible (f : CNF α) :
-    Nonempty α ∨ ∃ n, f = ⟨Array.replicate n []⟩ := by
+    Nonempty α ∨ ∃ n, f = ⟨Array.replicate n .empty⟩ := by
   apply Classical.byContradiction
   intro h
   simp only [Internal.ext_iff, not_or, not_exists] at h
@@ -106,7 +114,9 @@ private theorem nonempty_or_impossible (f : CNF α) :
   rcases h2 with ⟨x, ⟨_, hx⟩⟩
   apply h1
   apply Nonempty.intro
-  exact (x.head hx).fst
+  refine (x.literals.head ?_).fst
+  cases x
+  simp_all [Clause.empty]
 
 theorem unsat_relabel_iff {f : CNF α} {r : α → β}
     (hw : ∀ {v1 v2}, VarMem v1 f → VarMem v2 f → r v1 = r v2 → v1 = v2) :

@@ -50,7 +50,7 @@ where
       return acc ++ litStr |>.push ' '
     let foldClause acc clause := do
       DimacsM.incrementClauses
-      return (← clause.foldlM (init := acc) foldLit) |>.push '0' |>.push '\n'
+      return (← clause.literals.foldlM (init := acc) foldLit) |>.push '0' |>.push '\n'
     cnf.clauses.foldlM (init := "") foldClause
 
 end CNF

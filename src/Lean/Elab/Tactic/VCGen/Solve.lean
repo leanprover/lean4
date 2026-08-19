@@ -291,8 +291,7 @@ private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
   let .letE name type val body nondep := info.prog.getAppFn | return none
   let appArgs := info.prog.getAppRevArgs
   throwIfUnsupportedJP name val
-  -- `let lo := (a, b).fst` zeta-substitutes once reduced to `let lo := a`.
-  let val ← if val.isAppOf ``Prod.fst || val.isAppOf ``Prod.snd then reduceHead val else pure val
+  let val ← reduceHead val
   if isDuplicable val then
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
     let body' ← Sym.instantiateRevBetaS body #[val]
@@ -308,7 +307,6 @@ private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
     let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
     let target := Expr.letE name type val target nondep
     let goal ← goal.replaceTargetDefEqFast target
-    -- The program binds this value, so its own name is the accessible one.
     let name ← if isProgramName name then pure name else Meta.mkFreshBinderNameForTactic name
     let .goal _ goal ← Sym.intros goal #[name] | return some goal
     return some goal

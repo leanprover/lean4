@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Linter.CodeQuality.Basic
+public import Lean.Message
 public import Lean.Elab.InfoTree.Main
 import Lean.Elab.Command
 
@@ -35,6 +36,10 @@ structure PackageCheckContext where
 structure PackageCheck where
   ofFn ::
     run : PackageCheckContext → MetaM (Array Entry)
+
+structure CheckResult where
+  entries : Array Entry
+  errors : Array MessageData
 
 structure NamedPackageCheck extends PackageCheck where
   declName : Name

@@ -9,6 +9,7 @@ prelude
 public import Lean.Environment
 public import Lean.Message
 public import Lean.Linter.Init
+public import Lean.Linter.CodeQuality.Basic
 public import Lean.Elab.DeclarationRange
 
 public section
@@ -35,11 +36,27 @@ def getAllLints (env : Environment) : Array (Name × Array LintEntry) :=
   env.header.moduleNames.mapIdx fun i mod =>
     (mod, lintLogExt.getModuleEntries env i (level := .server))
 
+builtin_initialize codeQualityLogExt :
+    PersistentEnvExtension CodeQuality.Entry CodeQuality.Entry (Array CodeQuality.Entry) ←
+  registerPersistentEnvExtension {
+    mkInitial     := pure #[]
+    addImportedFn := fun _ => pure #[]
+    addEntryFn    := Array.push
+    exportEntriesFnEx := fun _ entries =>
+      { exported := #[], server := entries, «private» := entries }
+  }
+
+def getAllCodeQualityEntries (env : Environment) : Array (Name × Array CodeQuality.Entry) :=
+  env.header.moduleNames.mapIdx fun i mod =>
+    (mod, codeQualityLogExt.getModuleEntries env i (level := .server))
+
 instance : MonadFileMap (ReaderT FileMap BaseIO) := ⟨read⟩
 
 /--
 Records linter warnings and looks up positions of their associated commands from a build
 into `lintLogExt` so that consumers (e.g. `lake lint`) can recover them from the `.olean`.
+Messages carrying code quality entries (see `Lean.Linter.logCodeQualityEntry`) are recorded
+into `codeQualityLogExt` instead, without any position information.
 -/
 def recordLints (fileMap : FileMap) (env : Environment)
     (commandLints : Array (Option Syntax × MessageLog)) : BaseIO Environment := do
@@ -49,6 +66,8 @@ def recordLints (fileMap : FileMap) (env : Environment)
       | none     => pure none
     let position? : Option Position := declRange?.map (·.pos)
     messages.reportedPlusUnreported.foldlM (init := env) fun env m => do
+      if let some entry := m.data.codeQualityEntry? then
+        return codeQualityLogExt.addEntry env entry
       unless m.data.isLinterMessage do
         return env
       let kind := m.data.kind

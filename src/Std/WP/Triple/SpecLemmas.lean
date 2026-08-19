@@ -6,6 +6,7 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
+public import Init.BinderNameHint
 public import Std.WP.Triple.Monad
 public import Std.WP.Monad
 public import Std.Do.Triple.SpecLemmas
@@ -66,7 +67,7 @@ theorem Spec.pure (a : α) :
 
 @[spec]
 theorem Spec.bind (x : m α) (f : α → m β) :
-    Triple (x >>= f) (wp x (fun a => wp (f a) post epost) epost) post epost :=
+    Triple (x >>= f) (wp x (fun a => binderNameHint a f (wp (f a) post epost)) epost) post epost :=
   Triple.bind x f (fun a => wp (f a) post epost)
     (Triple.intro PartialOrder.rel_refl) (fun _ => Triple.intro PartialOrder.rel_refl)
 
@@ -1872,12 +1873,49 @@ def RepeatInvariant.mk {α β : Type u} {Pred : Type uₚ} (inv : α ⊕ β → 
   rfl
 
 /--
+An invariant for a `while` loop, given as a predicate over the loop's `exit` flag and its state:
+`inv false a` is the `continue` case at `a`; `inv true a` is the `break` case with result `a`.
+-/
+@[spec_invariant_type, simp, grind =]
+def WhileInvariant (α : Type u) (Pred : Type uₚ) :=
+  Bool → α → Pred
+
+/-- State the invariant of a `while` loop, keeping `WhileInvariant` on the term that carries it
+so that a specification matches it without unfolding the definition. -/
+def WhileInvariant.mk {α : Type u} {Pred : Type uₚ} (inv : Bool → α → Pred) :
+    WhileInvariant α Pred :=
+  inv
+
+@[simp, grind =] theorem WhileInvariant.mk_apply {α : Type u} {Pred : Type uₚ}
+    (inv : Bool → α → Pred) (exit : Bool) (a : α) :
+    WhileInvariant.mk inv exit a = inv exit a :=
+  rfl
+
+/-- Read a `WhileInvariant` as the invariant of the `repeatM` loop that a `while` loop unfolds to,
+where the `exit` flag is the cursor's tag. -/
+def WhileInvariant.toRepeatInvariant {α : Type u} {Pred : Type uₚ} (inv : WhileInvariant α Pred) :
+    RepeatInvariant α α Pred :=
+  RepeatInvariant.mk fun
+    | .inl a => inv false a
+    | .inr a => inv true a
+
+@[simp, grind =] theorem WhileInvariant.toRepeatInvariant_inl {α : Type u} {Pred : Type uₚ}
+    (inv : WhileInvariant α Pred) (a : α) :
+    inv.toRepeatInvariant (.inl a) = inv false a :=
+  rfl
+
+@[simp, grind =] theorem WhileInvariant.toRepeatInvariant_inr {α : Type u} {Pred : Type uₚ}
+    (inv : WhileInvariant α Pred) (a : α) :
+    inv.toRepeatInvariant (.inr a) = inv true a :=
+  rfl
+
+/--
 A termination measure for a `repeatM` loop: a type `γ` of measure values equipped with a
 well-founded relation, and a lattice-embedded evaluation of the measure at each cursor.
-Build one from a measure function with `RepeatVariant.ofMeasure`.
+Build one from a measure function with `Variant.ofMeasure`.
 -/
 @[spec_invariant_type]
-structure RepeatVariant (α : Type uα) (Pred : Type u) [Assertion Pred] :
+structure Variant (α : Type uα) (Pred : Type u) [Assertion Pred] :
     Type (max uα (uγ + 1) u) where
   /-- The type of measure values. -/
   {γ : Type uγ}
@@ -1888,19 +1926,19 @@ structure RepeatVariant (α : Type uα) (Pred : Type u) [Assertion Pred] :
   /-- The measure evaluates to some value. -/
   total : ∀ a, (⨆ n, EvalsTo a n) = ⊤
 
-namespace RepeatVariant
+namespace Variant
 
 variable {α : Type uα}
 
 /-- The relation that measure values decrease along. -/
-def rel (v : RepeatVariant α Pred) : v.γ → v.γ → Prop :=
+def rel (v : Variant α Pred) : v.γ → v.γ → Prop :=
   v.wfRel.rel
 
-theorem wf (v : RepeatVariant α Pred) : WellFounded v.rel :=
+theorem wf (v : Variant α Pred) : WellFounded v.rel :=
   v.wfRel.wf
 
 /-- Eliminate the covering join of `EvalsTo` from the left of an entailment. -/
-theorem le_of_total_le (v : RepeatVariant α Pred) (a : α) {P Q : Pred}
+theorem le_of_total_le (v : Variant α Pred) (a : α) {P Q : Pred}
     [PreservesSup (meet P)]
     (h : (⨆ n, v.EvalsTo a n ⊓ P) ⊑ Q) : P ⊑ Q := by
   have h1 : P ⊑ (⨆ n, v.EvalsTo a n) ⊓ P := by
@@ -1910,12 +1948,12 @@ theorem le_of_total_le (v : RepeatVariant α Pred) (a : α) {P Q : Pred}
   exact PartialOrder.rel_trans h1 (PartialOrder.rel_trans h2 h)
 
 /--
-Build a `RepeatVariant` from a measure function `f`. The measure's value type `γ` (its codomain
+Build a `Variant` from a measure function `f`. The measure's value type `γ` (its codomain
 through any `NondetFun` state layers) provides the well-founded relation, e.g. `<` for `Nat` and
 the lexicographic order for products.
 -/
 @[instance_reducible] def ofMeasure {γ : Type uγ} {Fun : Type v'} [NondetFun Pred Fun γ]
-    [WellFoundedRelation γ] (f : α → Fun) : RepeatVariant α Pred where
+    [WellFoundedRelation γ] (f : α → Fun) : Variant α Pred where
   γ := γ
   EvalsTo a n := NondetFun.EvalsTo (f a) n
   total a := NondetFun.total (f a)
@@ -1996,7 +2034,7 @@ theorem rel_ofMeasure {γ : Type uγ} {Fun : Type v'} [NondetFun Pred Fun γ]
     (ofMeasure (Pred := Pred) f).rel n' n ↔ n' < n := Iff.rfl
 
 /-- The measure at cursor `a'` evaluates to a value strictly below `ma`. -/
-noncomputable def EvalsBelow (v : RepeatVariant α Pred) (a' : α) (ma : v.γ) : Pred :=
+noncomputable def EvalsBelow (v : Variant α Pred) (a' : α) (ma : v.γ) : Pred :=
   ⨆ ma', v.EvalsTo a' ma' ⊓ ⌜v.rel ma' ma⌝
 
 open Lean.Order in
@@ -2093,7 +2131,7 @@ usable `@[grind =]` lemmas where the general `evalsBelow_ofMeasure_apply` is not
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃ s₄ s₅ = (f a' < ma) := by
   simp
 
-end RepeatVariant
+end Variant
 
 open Lean.Order in
 /--
@@ -2105,7 +2143,7 @@ finishes with the `.inr` invariant.
 @[spec]
 theorem Spec.repeatM
     {init : α} {f : α → m (α ⊕ β)} [Nonempty β] [∀ P : Pred, PreservesSup (meet P)]
-    (measure : RepeatVariant α Pred)
+    (measure : Variant α Pred)
     (inv : RepeatInvariant α β Pred)
     (einv : EPred)
     (step : ∀ a (ma : measure.γ),
@@ -2157,41 +2195,41 @@ addition to `inv` once the loop is done. For a normal `while` loop `onBreak` can
 negation of the loop condition.
 -/
 @[simp]
-noncomputable abbrev RepeatInvariant.ofInvariantAndBreak {α : Type u} {Pred : Type u} [Assertion Pred]
-    (inv : α → Pred) (onBreak : α → Pred) : RepeatInvariant α α Pred
-  | .inl a => inv a
-  | .inr a => inv a ⊓ onBreak a
+noncomputable abbrev WhileInvariant.ofInvariantAndBreak {α : Type u} {Pred : Type u} [Assertion Pred]
+    (inv : α → Pred) (onBreak : α → Pred) : WhileInvariant α Pred
+  | false, a => inv a
+  | true, a => inv a ⊓ onBreak a
 
 
 /--
-Specification for `forIn` over a `Lean.Loop`. The cursor is `β ⊕ β`: `.inl b` means
-"still iterating with `b`", `.inr b` means "finished with result `b`".
+Specification for `forIn` over a `Lean.Loop`. The invariant takes the loop's `exit` flag:
+`inv false b` means "still iterating with `b`", `inv true b` means "finished with result `b`".
 -/
 @[spec]
 theorem Spec.forIn_loop
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [∀ P : Pred, PreservesSup (meet P)]
-    (measure : RepeatVariant β Pred)
-    (inv : RepeatInvariant β β Pred)
+    (measure : Variant β Pred)
+    (inv : WhileInvariant β Pred)
     (einv : EPred)
     (step : ∀ b (mb : measure.γ),
       Triple
         (f () b)
-        (measure.EvalsTo b mb ⊓ inv (.inl b))
+        (measure.EvalsTo b mb ⊓ inv false b)
         (fun r => match r with
-          | .yield b' => measure.EvalsBelow b' mb ⊓ inv (.inl b')
-          | .done b' => inv (.inr b'))
+          | .yield b' => measure.EvalsBelow b' mb ⊓ inv false b'
+          | .done b' => inv true b')
         einv) :
     Triple
       (forIn l init f)
-      (inv (.inl init))
-      (fun b => inv (.inr b))
+      (inv false init)
+      (fun b => inv true b)
       einv := by
   haveI : Nonempty β := ⟨init⟩
-  change Triple (pre := inv (.inl init)) (_root_.Lean.Loop.forIn l init f)
-    (fun b => inv (.inr b)) einv
+  change Triple (pre := inv false init) (_root_.Lean.Loop.forIn l init f)
+    (fun b => inv true b) einv
   simp only [_root_.Lean.Loop.forIn]
-  apply Spec.repeatM (measure := measure) (inv := inv) (einv := einv)
+  apply Spec.repeatM (measure := measure) (inv := inv.toRepeatInvariant) (einv := einv)
   intro b mb
   apply Triple.bind
   · exact step b mb

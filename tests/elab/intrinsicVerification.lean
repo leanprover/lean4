@@ -370,9 +370,9 @@ def countMeasureOnly (n : Nat) : StateM Nat Unit
 where finally
   | spec =>
     case inv1 =>
-      exact fun c s => match c with
-        | .inl i => s = i ∧ i ≤ n
-        | .inr i => s = i ∧ i = n
+      exact fun exit i s => match exit with
+        | false => s = i ∧ i ≤ n
+        | true => s = i ∧ i = n
     all_goals grind
 
 #guard_msgs (drop info) in
@@ -532,7 +532,7 @@ def sumEvens (xs : List Nat) : Id Nat
     acc := acc + 2 * x
   return acc
 where finally
-  | spec => case vc1 acc h => exact ⟨acc / 2, by omega⟩
+  | spec => case vc1 => exact ⟨acc / 2, by omega⟩
 
 /-- info: sumEvens.spec : ∀ (xs : List Nat), ⦃ ⊤ ⦄ sumEvens xs ⦃ fun r => ∃ k, r = 2 * k ⦄ -/
 #guard_msgs in
@@ -679,7 +679,7 @@ def differenceMinMax (a : Array Int) : Id Int
     i := i + 1
   return mx - mn
 where finally
-  | spec => case vc2 st _ => exact ⟨st.1, st.2.1, by grind, by grind, by grind⟩
+  | spec => case vc2 => exact ⟨mn, mx, by grind, by grind, by grind⟩
 
 #guard_msgs (drop info) in
 #check @differenceMinMax.spec
@@ -733,3 +733,56 @@ where finally
 
 #guard_msgs (drop info) in
 #check @findMajorityElement.spec
+
+/-! ## The `given` clause binds logical variables -/
+
+def mkFreshNat : StateM Nat Nat
+    given (n : Nat)
+    requires s => s = n
+    ensures r s => r = n ∧ s = n + 1
+  := do
+  let m ← get
+  set (m + 1)
+  pure m
+
+/--
+info: mkFreshNat.spec : ∀ (n : Nat), ⦃ fun s => s = n ⦄ mkFreshNat ⦃ fun r s => r = n ∧ s = n + 1 ⦄
+-/
+#guard_msgs in
+#check @mkFreshNat.spec
+
+def widen (k : Nat) : StateM Nat Unit
+    given (lo hi : Nat) {d : Nat}
+    requires s => lo ≤ s ∧ s ≤ hi ∧ d = k
+    ensures _ s => lo ≤ s + k ∧ s ≤ hi + d
+  := modify (· + k)
+
+/--
+info: widen.spec : ∀ (k lo hi : Nat) {d : Nat},
+  ⦃ fun s => lo ≤ s ∧ s ≤ hi ∧ d = k ⦄ widen k ⦃ fun x s => lo ≤ s + k ∧ s ≤ hi + d ⦄
+-/
+#guard_msgs in
+#check @widen.spec
+
+def peek : StateM Nat Nat
+    given (n : Nat)
+    ensures r s => r = n → s = n
+  := get
+
+/-- info: peek.spec : ∀ (n : Nat), ⦃ ⊤ ⦄ peek ⦃ fun r s => r = n → s = n ⦄ -/
+#guard_msgs in
+#check @peek.spec
+
+def bumpUnconstrained (k : Nat) : StateM Nat Unit
+    given (n : Nat)
+  := modify (· + k)
+
+/-- info: bumpUnconstrained.spec : ∀ (k n : Nat), ⦃ ⊤ ⦄ bumpUnconstrained k ⦃ fun x => ⊤ ⦄ -/
+#guard_msgs in
+#check @bumpUnconstrained.spec
+
+def onOneLine (k : Nat) : Id Nat given (n : Nat) requires k = n ensures r => r = n := pure k
+
+/-- info: onOneLine.spec : ∀ (k n : Nat), ⦃ k = n ⦄ onOneLine k ⦃ fun r => r = n ⦄ -/
+#guard_msgs in
+#check @onOneLine.spec

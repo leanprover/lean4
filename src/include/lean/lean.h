@@ -383,7 +383,7 @@ static inline void lean_internal_add_rc(lean_object* o, int add) {
 #else
     // Use unsigned arithmetic so that overflowing the single-threaded reference count wraps
     // deterministically into the negative "sticky" range instead of being undefined behavior.
-    // The wrapped value is detected and frozen in `lean_inc_ref_cold_n` (see `LEAN_RC_STICKY`).
+    // The wrapped value is detected and frozen in `lean_inc_ref_n` (see `LEAN_RC_STICKY`).
     o->m_rc = (int)((unsigned)o->m_rc + (unsigned)add);
 #endif
 }
@@ -616,14 +616,24 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
 #define LEAN_RC_STICKY      (INT_MIN + 0x10000000)
 #define LEAN_RC_STICKY_DROP (INT_MIN + 0x20000000)
 
-/* Cold path of `lean_inc_ref_n`: handles thread-shared and overflowed (sticky) objects. */
-LEAN_EXPORT void lean_inc_ref_cold_n(lean_object * o, size_t n);
-
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     if (LEAN_LIKELY(lean_is_st(o))) {
         lean_internal_add_rc(o, n);
-    } else if (lean_internal_get_rc(o) != 0) {
-        lean_inc_ref_cold_n(o, n);
+    } else if ((unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY) {
+        // Read as unsigned, a persistent count (0) and a sticky count both fall below every live
+        // thread-shared count, so one comparison rejects both. Valid only because `lean_is_st`
+        // has already taken every `rc > 0`.
+        //
+        // The cast is load-bearing. Both `rc == 0 || rc <= LEAN_RC_STICKY` and the signed range
+        // `rc > LEAN_RC_STICKY && rc < 0` denote the same predicate here, but the enclosing
+        // `lean_is_st` test lets the compiler rewrite the latter's `rc < 0` into `rc != 0`; that
+        // union is not a contiguous signed range, and both spell out as a branchless
+        // five-instruction sequence on this hot path.
+#ifdef __cplusplus
+        std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
+#else
+        atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, memory_order_relaxed);
+#endif
     }
 }
 

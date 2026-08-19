@@ -26,36 +26,6 @@ open Lean Meta Sym Sym.Internal
 
 namespace Lean.Elab.Tactic.VCGen
 
-/-- The subgoals of the applied frame rule, by role. -/
-public structure FrameGoals where
-  /-- The schematic frame `?F : R`. -/
-  frame : MVarId
-  /-- The split VC `pre ⊑ (op ?F W) s⃗`, where `W = wp prog (fun a => upperAdjoint (op ?F) (Q a)) E`
-  is the weakest footprint. A residual entailment into `W` left as a subgoal re-enters `solve`,
-  which applies the spec to it. -/
-  splitVC : MVarId
-  /-- The frame condition `WP.Frames op prog ?F`. -/
-  frames : MVarId
-
-/-- The weakest footprint `W` of the split VC `pre ⊑ (op ?F W) s⃗`, with `numExcess` the
-number of excess state arguments `s⃗`. -/
-public def FrameGoals.weakestFootprint (goals : FrameGoals) (numExcess : Nat) : SymM Expr :=
-  return ((← goals.splitVC.getType).appArg!.stripArgsN numExcess).appArg!
-
-/-- Discharge the split VC with `proof` and frame `frame`. The returned subgoals are `subgoals`
-and the frame condition. -/
-public def FrameGoals.withDischargedSplitVC (goals : FrameGoals) (frame proof : Expr)
-    (subgoals : List MVarId := []) : Grind.GrindM (List MVarId) := do
-  goals.frame.assign (← shareCommon frame)
-  goals.splitVC.assign proof
-  return subgoals ++ [goals.frames]
-
-/-- Frame `frame` with the whole split VC left as a subgoal. -/
-public def FrameGoals.withDeferredSplitVC (goals : FrameGoals) (frame : Expr) :
-    Grind.GrindM (List MVarId) := do
-  goals.frame.assign (← shareCommon frame)
-  return [goals.splitVC, goals.frames]
-
 /-- A spec rule applied to the fresh target `?fp ⊑ wp prog ?Q E ?s⃗`. The footprint `?fp`, the post
 `?Q` and the excess state arguments `?s⃗` stay open, so the application binds no more than the
 program determines. A procedure that frames completes the application: it assigns the excess
@@ -68,6 +38,10 @@ public structure SpecApplication where
   footprint : Expr
   /-- The open postcondition `?Q`. -/
   post : Expr
+  /-- The right-hand side `wp prog ?Q E`, before the excess state arguments apply. Once the
+  procedure frames, this is the weakest footprint the frame rule leaves, so a proof of the split
+  VC composes `proof` under the frame operator. -/
+  wp : Expr
   /-- The open excess state arguments `?s⃗`. -/
   excess : Array Expr
   /-- The spec's precondition VC `?fp ⊑ specPre`. `specPre` carries the spec's parameter
@@ -76,17 +50,17 @@ public structure SpecApplication where
   /-- The spec's remaining subgoals. -/
   subgoals : List MVarId
 
-/-- The decision of a `FrameInferenceProc`.
+/-- The decision of a `FrameInferenceProc`, as data the solver carries out.
 
-`unframed` stands down: the solver applies the spec to the goal as-is, and the symbolic
-application stays orphaned. `framed k` commits: the solver applies the frame rule to the goal and
-runs `k` on its subgoals. `k` assigns the schematic frame, discharges what it can of the split VC, and returns the
-subgoals that remain, through `FrameGoals.withDischargedSplitVC` or
-`FrameGoals.withDeferredSplitVC`. The frame rule runs only on the `framed` path, so a stand-down
-costs no rule application. -/
+`unframed` stands down, and the solver applies the spec to the goal as-is. `framed` commits: the
+solver applies the frame rule, assigns `frame` to its schematic frame, and discharges its split VC
+`pre ⊑ (op frame W) s⃗` with `splitVCProof?`, or leaves the split VC as a subgoal when the
+procedure supplies no proof. The returned `subgoals` join the frame condition. A procedure that
+leaves its frame schematic surfaces that metavariable among its own `subgoals`. The frame rule
+runs only on the `framed` path, so a stand-down costs no rule application. -/
 public inductive FrameResult where
   | unframed
-  | framed (k : FrameGoals → Grind.GrindM (List MVarId))
+  | framed (frame : Expr) (splitVCProof? : Option Expr) (subgoals : List MVarId)
 
 /-- The inputs to a `FrameInferenceProc`: the goal, how the frame was requested, and the spec being
 applied. Extends the program's `wp` metadata (`WPApp`), so `Pred`, `excessArgs`, etc. are available
@@ -100,11 +74,6 @@ public structure FrameInferenceInfo extends WPApp where
   /-- Declaration name of the `@[spec]` theorem being applied, `none` for a local or syntactic spec.
   A procedure can key a footprint off it, for example through an attribute keyed by spec name. -/
   spec? : Option Name
-  /-- Applies the spec's backward rule to the fresh target `?fp ⊑ wp prog ?Q E ?s⃗`, and returns
-  the open application. The application runs on demand, so a procedure that decides without the
-  spec pays nothing for it. `none` when the rule does not apply, which a procedure answers with
-  `unframed`: the solver's own application then fails, and the solver passes the candidate over. -/
-  applySpec : Grind.GrindM (Option SpecApplication)
   /-- Builds the frame operator `op : R → Pred → Pred`, hash-consed; the selected procedure's
   `FrameProc.mkOpAppM`. -/
   mkOpApp : SymM Expr
@@ -133,10 +102,19 @@ public structure FrameBackwardRule where
 
 /-- A frame inference procedure: from a `FrameInferenceInfo` (whose `providedFrame?` carries the
 frame of a matching `frames` clause, if any), decide whether to frame; see `FrameResult`. The
-procedure restores any state it invalidated before it stands down. A stand-down orphans the spec
-application, and orphaned applications are dead metavariables. -/
-public abbrev FrameInferenceProc :=
-  FrameInferenceInfo → Grind.GrindM FrameResult
+procedure restores any state it invalidated before it stands down.
+
+The constructor declares whether the procedure reads the applied spec. `pure` decides from the
+goal alone, and the solver applies no spec rule before it. `withSpec` receives the spec applied to
+the fresh target `?fp ⊑ wp prog ?Q E ?s⃗`, so it sees the spec's precondition in terms of the open
+excess state arguments and the spec's parameters, and the solver passes an inapplicable candidate
+over before the procedure runs. A `withSpec` procedure that stands down orphans the application,
+whose metavariables are then dead. -/
+public inductive FrameInferenceProc where
+  /-- Decides from the goal alone. -/
+  | pure (f : FrameInferenceInfo → Grind.GrindM FrameResult)
+  /-- Decides from the goal and the applied spec. -/
+  | withSpec (f : FrameInferenceInfo → SpecApplication → Grind.GrindM FrameResult)
 
 /-- How to decompose a lattice operator `head … s⃗` on the RHS of an entailment: the distribution and
 unfolding `rewrites` that saturate it, and the terminal `⊑`-introduction `terminals` that close the
@@ -188,9 +166,9 @@ footprint re-enters `solve`, and `solve` dispatches the spec candidates afresh. 
 does not read the spec application. -/
 public def FrameInferenceProc.ofFrame?
     (f : FrameInferenceInfo → Grind.GrindM (Option Expr)) : FrameInferenceProc :=
-  fun i => do
+  .pure fun i => do
     let some frame ← f i | return .unframed
-    return .framed (·.withDeferredSplitVC frame)
+    return .framed frame none []
 
 /-- Default frame inference procedure, agnostic of the frame operator: frame the resource pinned by
 a `frames` clause, with the whole split VC deferred. -/

@@ -452,13 +452,29 @@ private def applySpecSymbolic (goal : MVarId) (info : WPApp) (specRule : Sym.Bac
   let fp ← mkFreshExprMVar le.appFn!.appArg!
   let post ← mkFreshExprMVar (← Sym.inferType info.post)
   let excess ← info.excessArgs.mapM fun a => do mkFreshExprMVar (← Sym.inferType a)
-  let wpApp ← mkAppNS (← mkAppNS info.head (info.args.set! 8 post)) excess
-  let target ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[fp, wpApp])
+  let wp ← mkAppNS info.head (info.args.set! 8 post)
+  let target ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[fp, ← mkAppNS wp excess])
   let .goals sgs ← specRule.apply target.mvarId! | return none
   let some preVC ← sgs.findM? fun g => return (← g.getType).isAppOf ``Lean.Order.PartialOrder.rel
     | throwError "frame: spec rule left no precondition VC for{indentExpr info.prog}"
-  return some { proof := target, footprint := fp, post, excess, preVC,
+  return some { proof := target, footprint := fp, post, wp, excess, preVC,
                 subgoals := sgs.filter (· != preVC) }
+
+/-- The subgoals of the applied frame rule, by role. -/
+private structure FrameGoals where
+  /-- The schematic frame `?F : R`. -/
+  frame : MVarId
+  /-- The split VC `pre ⊑ (op ?F W) s⃗`, where `W = wp prog (fun a => upperAdjoint (op ?F) (Q a)) E`
+  is the weakest footprint. A residual entailment into `W` left as a subgoal re-enters `solve`,
+  which applies the spec to it. -/
+  splitVC : MVarId
+  /-- The frame condition `WP.Frames op prog ?F`. -/
+  frames : MVarId
+
+/-- The weakest footprint `W` of the split VC `pre ⊑ (op ?F W) s⃗`, with `numExcess` the number of
+excess state arguments `s⃗`. -/
+private def FrameGoals.weakestFootprint (goals : FrameGoals) (numExcess : Nat) : SymM Expr :=
+  return ((← goals.splitVC.getType).appArg!.stripArgsN numExcess).appArg!
 
 /-- Apply the frame rule for `fp`'s operator, assigning `goal`, and read its subgoals off by the
 positions `mkFrameBackwardRuleCached` recorded at rule construction. -/
@@ -507,16 +523,33 @@ private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : Spec
   let procs := (← read).frameProcs.byProg
   let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
   let providedFrame? ← matchFrame? fp info
-  match ← fp.proc { info with goal, providedFrame?, spec? := thm.global?,
-                              applySpec := applySpecSymbolic goal info specRule,
-                              mkOpApp := do shareCommon (← fp.mkOpAppM info) } with
-  | .framed k =>
+  let inferInfo : FrameInferenceInfo :=
+    { info with goal, providedFrame?, spec? := thm.global?,
+                mkOpApp := do shareCommon (← fp.mkOpAppM info) }
+  -- A `pure` procedure decides from the goal alone, so no spec rule applies before it.
+  let (app?, res) ← match fp.proc with
+    | .pure f => do pure ((none : Option SpecApplication), ← f inferInfo)
+    | .withSpec f => do
+      let some app ← applySpecSymbolic goal info specRule | return none
+      pure (some app, ← f inferInfo app)
+  match res with
+  | .framed frame splitVCProof? subgoals =>
     let goals ← commitFrameRule goal info fp
+    goals.frame.assign (← instantiateMVarsS frame)
+    -- The procedure built its proof against the application's right-hand side. Unifying that with
+    -- the weakest footprint the rule leaves fixes the framed postcondition.
+    if let some app := app? then
+      unless ← isDefEqS (← goals.weakestFootprint info.excessArgs.size) app.wp do
+        throwError "frame: the framed postcondition does not fit{indentExpr info.prog}"
     trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` framed {info.prog}"
-    return some (.goals scope (← (k goals : Grind.GrindM _)))
+    let deferred ← match splitVCProof? with
+      | some prf => do goals.splitVC.assign prf; pure []
+      | none => pure [goals.splitVC]
+    return some (.goals scope (subgoals ++ deferred ++ [goals.frames]))
   | .unframed =>
-    -- The symbolic application stays orphaned: its metavariables are dead. The direct application
-    -- builds its subgoal types by substitution, the invariant the solver pipeline relies on.
+    -- A `withSpec` procedure leaves its application orphaned: its metavariables are dead. The
+    -- direct application builds its subgoal types by substitution, the invariant the solver
+    -- pipeline relies on.
     trace[Elab.Tactic.Do.vcgen] "Applying spec {thm.proof} for {info.prog}. Excess args: {info.excessArgs}"
     let .goals goals ← specRule.applyChecked goal m!"spec rule for{indentExpr info.prog}"
       | return none

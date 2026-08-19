@@ -899,10 +899,10 @@ so the frame is `frame`, and `sepConj_emp` closes the residual and doubles as th
 Both closed goals leave the returned list through the solver's assigned-goal filter. If AC fails
 on `q1` or `hfp`, the split VC survives whole, as deferred framing. -/
 def dischargeSplitVC (i : FrameInferenceInfo) (app : SpecApplication)
-    (frameAtoms footprintAtoms unpaid : Array Expr) : Lean.Meta.Grind.GrindM FrameResult := do
+    (frameAtoms footprintAtoms unpaid : Array Expr) :
+    Lean.Meta.Grind.GrindM (Option FrameSplit) := do
   let footprintC ← sepConjOfAtoms footprintAtoms
-  unless ← isDefEq app.footprint footprintC do
-    throwError "sepConj frameproc: could not fix the footprint"
+  app.footprint.assign footprintC
   if let some hfp ← proveSepConjLe footprintC (← instantiateMVars (← app.preVC.getType).appArg!) then
     app.preVC.assign hfp
   let frameC ← sepConjOfAtoms frameAtoms
@@ -918,12 +918,12 @@ def dischargeSplitVC (i : FrameInferenceInfo) (app : SpecApplication)
     residual.mvarId!.assign (← mkAppM ``Lean.Order.PartialOrder.rel_of_eq
       #[← mkAppM ``Eq.symm #[← mkAppM ``sepConj_emp #[frameC]]])
   let some q1 ← proveSepConjLe (← i.pre) (← mkAppM ``sepConj #[paidC, frameC])
-    | return .framed F none [F.mvarId!]
+    | return some { frame := F, splitVCProof? := none, subgoals := [F.mvarId!] }
   -- With nothing unpaid, `paidC` is `footprintC`, so `sepConj_emp` is the equation. `Meta.AC`
   -- normalizes the two sides of an `∗ emp` equation in different atom orders and then fails.
   let some hfp ← if unpaid.isEmpty then some <$> mkAppM ``sepConj_emp #[footprintC]
     else proveSepConjEq (← mkAppM ``sepConj #[paidC, unpaidC]) footprintC
-    | return .framed F none [F.mvarId!]
+    | return some { frame := F, splitVCProof? := none, subgoals := [F.mvarId!] }
   let prf ← mkAppM ``Lean.Order.PartialOrder.rel_trans #[q1,
     ← mkAppM ``Lean.Order.PartialOrder.rel_trans
       #[← mkAppM ``sepConj_mono_right #[paidC, residual],
@@ -932,7 +932,7 @@ def dischargeSplitVC (i : FrameInferenceInfo) (app : SpecApplication)
               #[← mkAppM ``Eq.trans #[← mkAppM ``sepConj_left_comm #[paidC, F, unpaidC],
                   ← mkAppM ``congrArg #[← mkAppM ``sepConj #[F], hfp]]],
             ← mkAppM ``sepConj_mono_right #[F, app.proof]]]]
-  return .framed F prf subgoals
+  return some { frame := F, splitVCProof? := prf, subgoals }
 
 /-- Automatic frame inference by domain difference: cancel the spec precondition's atoms (its
 footprint) from the goal precondition's atoms, and the leftover atoms are the frame. Example: the
@@ -950,8 +950,8 @@ def sepConjFrameProc : FrameInferenceProc := .withSpec fun i app => do
   -- A spec whose precondition mentions its own schematic post cannot frame through the weakest
   -- footprint: the wrapped and the unwrapped post produce different preconditions. `shareCommon`
   -- on both operands makes the pointer test `isSameExpr` reliable.
-  let post ← shareCommon (← instantiateMVars app.post)
-  if (specPre.find? (isSameExpr · post)).isSome then return .unframed
+  let post ← shareCommon (← instantiateMVars (mkMVar app.post))
+  if (specPre.find? (isSameExpr · post)).isSome then return none
   -- One cancellation serves both modes. A pinned frame cancels its own atoms, and the leftover
   -- is the footprint. Spec-driven inference cancels `specPre`'s atoms, and the leftover is the
   -- frame.
@@ -964,7 +964,7 @@ def sepConjFrameProc : FrameInferenceProc := .withSpec fun i app => do
   else
     -- Nothing paired (for example an unfold equation or a loop spec), or nothing left over:
     -- unframed.
-    if unpaid.size == matched.size || rest.isEmpty then return .unframed
+    if unpaid.size == matched.size || rest.isEmpty then return none
     dischargeSplitVC i app rest matched unpaid
 
 @[frameproc] def heapFP : FrameProc where
@@ -1543,11 +1543,11 @@ example (p top l : Addr) (z v : Nat) (xs : List Nat) :
       pop p
     ⦃ fun r => ⌜r = v⌝ ⊓ (Stack xs p ∗ l ↦ z) ⦄ := by
   vcgen frames | pop p => l ↦ z
-  -- The pinned frame is cancelled, so what is left is to fill the spec's parameters and fold the
-  -- representation into the abstract predicate.
-  case vc4 => exact v
-  case vc5 => exact xs
-  · exact le_Stack (v :: xs) p top
+  -- The pinned frame is cancelled, so what is left is to fold the representation into the abstract
+  -- predicate. That fixes the spec's parameters, and `grind` closes the rest.
+  case vc5 => exact v
+  case vc6 => exact xs
+  case vc2 => exact le_Stack (v :: xs) p top
   all_goals grind
 
 /-- The payload list is a cons only through `hxs`; after `subst` the footprint pairs exactly. -/
@@ -1567,11 +1567,12 @@ example (p top l : Addr) (z v : Nat) (xs : List Nat) (k : Addr) :
       push p v
     ⦃ fun _ => (Stack (v :: xs) p ∗ Pool (k + 3)) ∗ l ↦ z ⦄ := by
   vcgen
-  -- Fill the schematic frame and the spec's unpinned parameter, then fold the representation in
-  -- the residual.
-  case vc1 => exact l ↦ z
-  case vc4 => exact xs
-  · exact PartialOrder.rel_trans
+  -- Fill the schematic frame, then fold the representation in the residual, which fixes the spec's
+  -- unpinned parameter.
+  case vc2 => exact l ↦ z
+  case vc5 => exact xs
+  case vc3 =>
+    exact PartialOrder.rel_trans
       (PartialOrder.rel_of_eq (by grind :
         p ↦ top ∗ IsList xs null top ∗ l ↦ z = l ↦ z ∗ p ↦ top ∗ IsList xs null top))
       (sepConj_mono_right _ (le_Stack xs p top))

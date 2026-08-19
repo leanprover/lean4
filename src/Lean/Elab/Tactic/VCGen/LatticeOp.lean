@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Meta.Sym.Apply
 public import Std.Internal.Order.Heyting
-public import Lean.Elab.Tactic.VCGen.FrameProc
 import Lean.Meta.Sym.Simp.Rewrite
 import Lean.Meta.AppBuilder
 import Lean.Meta.AbstractMVars
@@ -17,6 +16,24 @@ open Lean Meta Sym
 open Lean.Order
 
 namespace Lean.Elab.Tactic.VCGen
+
+/-- How to decompose a lattice operator `head … s⃗` on the RHS of an entailment: the distribution and
+unfolding `rewrites` that saturate it, and the terminal `⊑`-introduction `terminals` that close the
+reduced form. `head` keys the split in the `latticeOps` table. -/
+public structure LatticeOp where
+  /-- Head constant of the operator this split decomposes. Keys the `latticeOps` table. -/
+  head : Name
+  /-- The number of leading arguments held constant during rule construction: the operator's carrier
+  type and its typeclass instances. The operands and excess state arguments after them become the
+  rule's schematic parameters. `2` for a connective over a `CompleteLattice` carrier; `0` for a
+  monomorphic operator. -/
+  numConst : Nat := 2
+  /-- Distribution and unfolding equalities that saturate the operator applied to state arguments. -/
+  rewrites : Array Name := #[]
+  /-- The operator's terminal `⊑`-introduction rule, or `none` when it saturates to another operator's
+  terminal. -/
+  terminal? : Option Name := none
+
 
 
 /-! ## Lattice split rules
@@ -84,13 +101,13 @@ until none applies. Returns the reduced expression and, when a rewrite fired, a 
 -/
 private def saturateLatticeOp (rewrites : Array Name) (e : Expr) (fuel : Nat := 256) :
     SymM (Expr × Option Expr) := do
-  let thms ← rewrites.foldlM (init := ({} : Sym.Simp.Theorems)) fun thms n =>
-    return thms.insert (← Sym.Simp.mkTheoremFromDecl n)
-  let step : Sym.Simp.Simproc := Sym.Simp.Theorems.rewrite thms
+  let thms ← rewrites.foldlM (init := ({} : Simp.Theorems)) fun thms n =>
+    return thms.insert (← Simp.mkTheoremFromDecl n)
+  let step : Simp.Simproc := Simp.Theorems.rewrite thms
   let e₀ ← shareCommon e
   go step e₀ e₀ none fuel
 where
-  go (step : Sym.Simp.Simproc) (e₀ cur : Expr) (proof? : Option Expr) : Nat → SymM (Expr × Option Expr)
+  go (step : Simp.Simproc) (e₀ cur : Expr) (proof? : Option Expr) : Nat → SymM (Expr × Option Expr)
     | 0 => throwError "lattice saturation did not terminate; the rewrite set is likely \
         non-terminating on{indentExpr cur}"
     | fuel + 1 => do
@@ -99,7 +116,7 @@ where
       | .step next h _ _ =>
         let proof ← match proof? with
           | none => pure h
-          | some p => Sym.Simp.mkEqTrans e₀ cur p next h
+          | some p => Simp.mkEqTrans e₀ cur p next h
         go step e₀ next (some proof) fuel
 
 /--

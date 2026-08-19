@@ -55,8 +55,6 @@ private def isDuplicable : Expr → Bool
   | .bvar .. | .mvar .. | .fvar .. | .const .. | .lit .. | .sort .. => true
   | .mdata _ e | .proj _ _ e => isDuplicable e
   | .lam .. | .forallE .. | .letE .. => false
-  -- `(a, b)` of duplicables, as a split state tuple rebuilds it.
-  | .app (.app (.app (.app (.const ``Prod.mk _) _) _) a) b => isDuplicable a && isDuplicable b
   | e@(.app ..) => e.isAppOf ``OfNat.ofNat
 
 /-- Strip an annotation, such as the `noImplicitLambda` metadata a tactic `have`/`let`/`suffices`
@@ -66,7 +64,8 @@ private def consumeMData? (goal : MVarId) (target : Expr) : VCGenM (Option MVarI
   return some (← goal.replaceTargetDefEqFast target.consumeMData)
 
 /-- Strategy 1: split `∀ p : Nat × Nat, P p` into `∀ a b, P (a, b)`. -/
-private def splitProdBinder? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
+private def splitProdBinder? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) :=
+  goal.withContext do
   let .forallE _ dom body _ := target | return none
   let dom ← instantiateMVarsIfMVarAppS dom
   let_expr c@Prod α β := dom | return none
@@ -79,18 +78,30 @@ private def splitProdBinder? (goal : MVarId) (target : Expr) : VCGenM (Option MV
   goal.assign <| mkApp4 (.const ``Iff.mpr []) target newTarget prodForall g
   return some g.mvarId!
 
-/-- Strategy 1: simp the target, then introduce binders if the target is a `∀`. A hint stays in the
-goal until strategy 0 reaches it. -/
+/-- Strategy 1: simp the target, then introduce binders if the target is a `∀`. -/
 private def forallIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
   unless target.isForall do return none
   let (goal, simped) ← match ← simpGoalTelescope goal with
     | .closed => return some []
     | .goal goal' => pure (goal', true)
     | .noProgress => pure (goal, false)
-  let goal' ← introsHygienic goal
-  if !simped && goal' == goal then
+  let mut goal := goal
+  let mut progress := simped
+  while true do
+    let target ← goal.getType
+    unless target.isForall do break
+    let n := numBindersToIntro target
+    if n == 0 then
+      let some goal' ← splitProdBinder? goal target | break
+      goal := goal'
+    else
+      let goal' ← introsHygienic goal n
+      if goal' == goal then break
+      goal := goal'
+    progress := true
+  if !progress then
     throwError "Failed to intro forall target {goal}"
-  return some [goal']
+  return some [goal]
 
 private def throwIfUnsupportedJP (name : Name) (val : Expr) : VCGenM Unit := do
   if (← read).useJP && Lean.Elab.Tactic.Do.isJP name && val.isLambda then
@@ -110,7 +121,7 @@ private def targetLetIntro? (goal : MVarId) (target : Expr) : VCGenM (Option MVa
     return some (← goal.replaceTargetDefEqFast (← Sym.instantiateRevBetaS body #[val]))
   else
     trace[Elab.Tactic.Do.vcgen] "let-intro: {name}"
-    return some (← introsHygienic goal)
+    return some (← introsHygienic goal (numBindersToIntro (← goal.getType)))
 
 /-- Strategy 3: unfold a `Triple` target into the underlying lattice entailment. -/
 private def tripleUnfold? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
@@ -308,7 +319,8 @@ private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
     let target := Expr.letE name type val target nondep
     let goal ← goal.replaceTargetDefEqFast target
     let name ← if isProgramName name then pure name else Meta.mkFreshBinderNameForTactic name
-    let .goal _ goal ← Sym.intros goal #[name] | return some goal
+    let .goal _ goal ← Sym.intros goal #[name]
+      | throwError "Failed to intro the `let` of{indentExpr info.prog}"
     return some goal
 
 /-- Strategy 11b: fold the state arguments of the program's `wp` application, so the symbolic
@@ -567,7 +579,6 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
   -- Phase 1: simplify `target` until it is of the form `pre ⊑ rhs`.
   if let some g ← consumeMData? goal target then return .goals scope [g]
   if let some g ← consumeBinderNameHint? goal target then return .goals scope [g]
-  if let some g ← splitProdBinder? goal target then return .goals scope [g]
   if let some gs ← forallIntro? goal target then return .goals scope gs
   if let some g ← targetLetIntro? goal target then return .goals scope [g]
   if let some g ← tripleUnfold? goal target then return .goals scope [g]

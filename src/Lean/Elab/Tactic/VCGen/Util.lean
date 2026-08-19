@@ -95,25 +95,28 @@ public def processHypotheses (goal : Grind.Goal) : VCGenM Grind.Goal := do
 public def isProgramName (n : Name) : Bool :=
   !n.hasMacroScopes && !n.isImplementationDetail
 
-/--
-Introduce the leading binders of `goal` in one pass, stopping at a binder over a product, which
-`solve` splits into one binder per component first. Every name goes through
-`mkFreshBinderNameForTactic`, which `tactic.hygienic` makes inaccessible: these binders come from a
-specification's telescope, and a binder the program itself states is named where it is introduced.
-Returns the goal unchanged when there are no leading binders.
--/
-public def introsHygienic (goal : MVarId) : VCGenM MVarId :=
+/-- The leading binders of `type`, up to a binder over a product: `solve` splits `∀ p : Nat × Nat`
+into one binder per component before introducing it. -/
+public def numBindersToIntro : Expr → Nat
+  | .forallE _ d b _ => if d.isAppOf ``Prod then 0 else numBindersToIntro b + 1
+  | .letE _ _ _ b _ => numBindersToIntro b + 1
+  | _ => 0
+
+/-- Introduce the first `n` binders of `goal` in one pass. `mkFreshBinderNameForTactic` names each,
+so `tactic.hygienic` makes it inaccessible: a binder the program itself states, such as the value of
+a `let`, is named where it is introduced. -/
+public def introsHygienic (goal : MVarId) (n : Nat) : VCGenM MVarId :=
   goal.withContext do
-    let rec collectBinders (type : Expr) (acc : Array Name) : Array Name :=
-      match type with
-      | .forallE n d b _ => if d.isAppOf ``Prod then acc else collectBinders b (acc.push n)
-      | .letE n _ _ b _ => collectBinders b (acc.push n)
-      | _ => acc
-    let binderNames := collectBinders (← goal.getType) #[]
+    let rec collectBinders : Nat → Expr → Array Name → Array Name
+      | 0, _, acc => acc
+      | n+1, .forallE nm _ b _, acc => collectBinders n b (acc.push nm)
+      | n+1, .letE nm _ _ b _, acc => collectBinders n b (acc.push nm)
+      | _, _, acc => acc
+    let binderNames := collectBinders n (← goal.getType) #[]
     if binderNames.isEmpty then return goal
     let mut names := #[]
-    for n in binderNames do
-      names := names.push (← Meta.mkFreshBinderNameForTactic n)
+    for nm in binderNames do
+      names := names.push (← Meta.mkFreshBinderNameForTactic nm)
     let .goal _ goal ← Sym.intros goal names | return goal
     return goal
 
@@ -145,7 +148,7 @@ public partial def introsExcessArgs (goal : MVarId) :
   unless α.isForall do return none
   let .goals [goal] ← (← read).backwardRules.stateArgIntro.applyChecked goal
     | throwError "failed to apply {.ofConstName ``Lean.Order.le_of_forall_le} to goal{indentExpr type}"
-  let goal ← introsHygienic goal
+  let goal ← introsHygienic goal (numBindersToIntro (← goal.getType))
   return (← introsExcessArgs goal) <|> some goal
 
 /--

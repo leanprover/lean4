@@ -39,7 +39,7 @@ leaving `⊤` as the residual precondition. Returns the new goal and the introdu
 public def introPre (rule : BackwardRule) (goal : MVarId) : VCGenM (MVarId × FVarId) := do
   let .goals [goal] ← rule.applyChecked goal
     | throwError "Failed to apply precondition intro rule to {goal}"
-  let goal ← introsHygienic goal
+  let goal ← introsHygienic goal (numBindersToIntro (← goal.getType))
   let some decl := (← goal.withContext getLCtx).lastDecl
     | throwError "Failed to intro the lifted precondition of {goal}"
   return (goal, decl.fvarId)

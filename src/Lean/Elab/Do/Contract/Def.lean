@@ -10,7 +10,7 @@ public import Std.Tactic.Do.Syntax
 public import Std.WP
 public import Lean.Elab.Util
 public import Lean.Elab.Command
-public import Lean.Elab.Do.Basic
+public import Lean.Elab.Do.Contract.Basic
 import Lean.DocString.Extension
 meta import Lean.Parser.Command
 meta import Lean.Parser.Term

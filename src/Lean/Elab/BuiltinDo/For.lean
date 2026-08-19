@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Elab.BuiltinDo.Basic
+public import Lean.Elab.Do.Contract.Basic
 meta import Lean.Parser.Do
 meta import Std.WP.Gadget.ForIn
 import Init.Control.Do

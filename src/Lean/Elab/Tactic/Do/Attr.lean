@@ -548,7 +548,10 @@ def mkSpecTheoremFromSimpDecl? (declName : Name) (prio : Nat) : MetaM (Option Sp
   -- progress (e.g. `getThe.eq_1 : getThe σ = MonadStateOf.get` after reducible unfolding).
   if pattern.pattern == rhs then return none
   let (pattern, etaArgs) := etaExpandEqPattern pattern eqTy
-  return some { pattern, proof := .global declName, kind := .simp etaArgs, priority := prio }
+  -- A rewrite's precondition is the rewritten `wp` application, whose post slot holds the post:
+  -- conjunctive by construction, so the solver applies it without frame machinery.
+  return some { pattern, proof := .global declName, kind := .simp etaArgs, priority := prio,
+                conjunctivePre := true }
 
 /--
 Create a `SpecTheorem` from an elaborated equational proof term `proof : ∀ xs, lhs = rhs`, keyed on
@@ -562,7 +565,8 @@ def mkSpecTheoremFromSimpExpr? (ref : Syntax) (proof : Expr) (levelParams : List
     return (lhs, (eqTy, rhs))
   if pattern.pattern == rhs then return none
   let (pattern, etaArgs) := etaExpandEqPattern pattern eqTy
-  return some { pattern, proof := .stx (← mkFreshId) ref proof, kind := .simp etaArgs, priority := prio }
+  return some { pattern, proof := .stx (← mkFreshId) ref proof, kind := .simp etaArgs,
+                priority := prio, conjunctivePre := true }
 
 /--
 The unfold theorem `declName.eq_def` through which a definition in a simp set's `toUnfold`

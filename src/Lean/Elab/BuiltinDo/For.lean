@@ -99,20 +99,6 @@ private def checkPureForIn (invClause : Syntax) (h? : Option Syntax) (xs α : Ex
     (extraErrorMsg? := m!"The `invariant` clause is stated over this class, which says that \
       iterating the container produces its elements without effects.")
 
-/-- The assertion language of the `do` block's monad, which `WPMonad` computes as an output
-parameter: synthesizing `WPMonad StateM Nat _ _` assigns `Nat → Prop` for the assertions of
-`StateM Nat`. The result is what the monad's assertions are known to be right here, so a monad
-whose instance is not available reports nothing. The type is built from syntax so that the
-universes and the instance arguments of the class come from elaboration. -/
-private def assertionLanguage? : DoElabM (Option Expr) := do
-  unless (← getEnv).contains ``Std.WP.WPMonad do return none
-  let wpTy ← Term.elabType <| ←
-    `($(mkIdent ``Std.WP.WPMonad) $(← Term.exprToSyntax (← read).monadInfo.m) _ _)
-  let .some _ ← trySynthInstance wpTy | return none
-  let some pred := wpTy.getAppArgs[1]? | return none
-  let pred ← instantiateMVars pred
-  return if pred.hasExprMVar then none else some pred
-
 /-- Report a clause that binds more arguments than the loop's assertions take, such as the state of
 a state monad. The language's arguments are the arrows before its result. -/
 private def checkAssertionBinders (ref : Syntax) (what : String) (binders : Nat)

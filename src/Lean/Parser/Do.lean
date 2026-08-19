@@ -319,12 +319,13 @@ with debug assertions enabled (see the `debugAssertions` option).
   "debug_assert! " >> termParser
 /--
 `assert P` states that `P` holds at this point in the program. The form `assert s => P s` binds the
-arguments of the assertion itself, such as the state of a state monad. `vcgen` reads the assertion
-from the program and proves it; at runtime the element does nothing.
+arguments of the assertion itself, such as the state of a state monad, and the form
+`assert | ⟨lo, hi⟩ => lo ≤ hi` states one assertion per shape of those arguments. `vcgen` reads the
+assertion from the program and proves it; at runtime the element does nothing.
 -/
 @[builtin_doElem_parser default+10] def doAssertion := leading_parser:leadPrec
   nonReservedSymbol "assert" (includeIdent := true) >>
-    (atomic basicFun <|> (ppSpace >> termParser))
+    (atomic basicFun <|> ppIndent matchAlts <|> (ppSpace >> termParser))
 
 @[builtin_doElem_parser] def doRepeat      := leading_parser
   "repeat " >> optional doLoopInvariant >> optional doLoopDecreasing >> doSeq

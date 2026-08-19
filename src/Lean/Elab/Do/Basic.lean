@@ -11,6 +11,7 @@ public import Lean.Elab.Binders
 import Lean.Meta.ProdN
 public import Lean.Parser
 meta import Lean.Parser.Do
+meta import Std.WP.Monad.Basic
 import Init.Omega
 
 public section
@@ -271,6 +272,20 @@ opaque ContInfoRef.toContInfo (m : ContInfoRef) : ContInfo
 /-- Constructs `m α` from `α`. -/
 def mkMonadApp (resultType : Expr) : DoElabM Expr := do
   (← read).ops.toDoOps.mkMonadApp resultType
+
+/-- The assertion language of the `do` block's monad, which `WPMonad` computes as an output
+parameter: synthesizing `WPMonad StateM Nat _ _` assigns `Nat → Prop` for the assertions of
+`StateM Nat`. The result is what the monad's assertions are known to be right here, so a monad
+whose instance is not available reports nothing. The type is built from syntax so that the
+universes and the instance arguments of the class come from elaboration. -/
+def assertionLanguage? : DoElabM (Option Expr) := do
+  unless (← getEnv).contains ``Std.WP.WPMonad do return none
+  let wpTy ← Term.elabType <| ←
+    `($(mkIdent ``Std.WP.WPMonad) $(← Term.exprToSyntax (← read).monadInfo.m) _ _)
+  let .some _ ← trySynthInstance wpTy | return none
+  let some pred := wpTy.getAppArgs[1]? | return none
+  let pred ← instantiateMVars pred
+  return if pred.hasExprMVar then none else some pred
 
 /-- The cached `PUnit` expression. -/
 def mkPUnit : DoElabM Expr := do

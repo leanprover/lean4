@@ -506,6 +506,28 @@ where finally
 #guard_msgs (drop info) in
 #check @countSum.spec
 
+/-! The `assert` element binds the arguments of the assertion in the same way, and the binder that
+does not fit them is reported against the assertion language of the monad. -/
+
+def assertPair (n : Nat) : StateM (Nat × Nat) Unit
+    requires ⟨seen, sum⟩ => seen = 0 ∧ sum = n
+    ensures _ ⟨seen, _sum⟩ => seen = 0
+  := do
+  assert ⟨seen, _sum⟩ => seen = 0
+
+#guard_msgs (drop info) in
+#check @assertPair.spec
+
+/--
+error: Invalid `⟨...⟩` notation: The expected type `Nat` has more than one constructor
+
+Note: This notation can only be used when the expected type is an inductive type with a single constructor
+-/
+#guard_msgs in
+example : StateM Nat Unit := do
+  assert ⟨a, b⟩ => a = 0 ∧ b = 0
+  modify (· + 1)
+
 /-! ## A clause states one case per shape of its arguments
 
 The alternatives of a clause match on its binders in parallel, as `fun | x, y => …` does. -/
@@ -563,6 +585,21 @@ where finally
 
 #guard_msgs (drop info) in
 #check @drainPairAlts.spec
+
+/-! The `assert` element states one assertion per shape of the arguments too. -/
+
+def assertAlts (n : Nat) : StateM (Option Nat) Unit
+    requires s => s = some n
+    ensures _ s => s = some n
+  := do
+  assert
+    | none => False
+    | some v => v = n
+where finally
+  | spec => all_goals grind
+
+#guard_msgs (drop info) in
+#check @assertAlts.spec
 
 /-! A pattern counts as one binder, so a clause that binds more than the assertion language takes is
 reported as it is for a plain binder. -/

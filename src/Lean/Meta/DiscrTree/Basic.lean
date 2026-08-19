@@ -60,9 +60,8 @@ def Key.format : Key → Format
 instance : ToFormat Key := ⟨Key.format⟩
 
 partial def Trie.format [ToFormat α] : Trie α → Format
-  | .chain k c =>
-    -- TODO: Make a separate formatting for chains instead of replicating the node formatting
-    Trie.format (.node #[] #[(k, c)])
+  | .chain k c => Format.group $ Format.paren $
+    "chain " ++ Std.format k ++ " => " ++ format c
   | .node vs cs => Format.group $ Format.paren $
     "node" ++ (if vs.isEmpty then Format.nil else " " ++ Std.format vs)
     ++ Format.join (cs.toList.map fun ⟨k, c⟩ => Format.line ++ Format.paren (Std.format k ++ " => " ++ format c))

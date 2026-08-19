@@ -174,7 +174,7 @@ partial def Trie.mapArraysM (t : DiscrTree.Trie α) (f : Array α → m (Array �
     m (DiscrTree.Trie β) :=
   match t with
   | .chain k c => do
-    let vs ← f #[] -- Corner case. TODO: remove this and only call `f` for non-empty arrays in node case?
+    let vs ← f #[] -- Corner case. Possible future optimization: modify `mapArraysM` semantics to only call `f` for non-empty arrays and then eliminate this line
     let c ← c.mapArraysM f
     let cs := if c.isEmptyNode then #[] else #[(k, c)]
     return Trie.mkNode vs cs

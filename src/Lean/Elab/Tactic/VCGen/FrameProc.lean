@@ -57,15 +57,17 @@ public structure SpecApp extends WPApp where
   /-- The proof of the target entailment. -/
   proof : Expr
 
-/-- The inputs to a `FrameInferenceProc`: the goal, how the frame was requested, and the spec being
-applied. Extends the program's `wp` metadata (`WPApp`), so `Pred`, `excessArgs`, etc. are available
-directly. -/
-public structure FrameInferenceInfo extends WPApp where
+/-- What a `FrameInferenceProc` learns about the goal: the entailment it splits, and how the frame
+was requested. The `wp` application a procedure reasons about is the footprint target's, which
+`SpecApp` carries; the goal's contributes only the three terms below. -/
+public structure FrameInferenceInfo where
   /-- What holds going in: the left-hand side of the goal entailment `pre ⊑ wp …`. -/
   pre : Expr
   /-- The goal's entailment relation `PartialOrder.rel α inst`, carrier and order instance
   applied. Apply it to two operands to build an entailment in the goal's order. -/
   le : Expr
+  /-- The goal's excess state arguments, the ones the split VC applies the frame operator to. -/
+  excessArgs : Array Expr
   /-- The frame pinned by a matching `frames` clause, or `none` to infer the frame, e.g. from the
   precondition of the applied spec. -/
   providedFrame? : Option Expr

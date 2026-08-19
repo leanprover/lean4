@@ -518,9 +518,9 @@ private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : Spec
     let providedFrame? ← matchFrame? fp info
     let goalType ← goal.getType
     let inferInfo : FrameInferenceInfo :=
-      { info with pre := goalType.appFn!.appArg!, le := goalType.stripArgsN 2
-                  providedFrame?, spec? := thm.global?,
-                  mkOpApp := do shareCommon (← fp.mkOpAppM info) }
+      { pre := goalType.appFn!.appArg!, le := goalType.stripArgsN 2
+        excessArgs := info.excessArgs, providedFrame?, spec? := thm.global?,
+        mkOpApp := do shareCommon (← fp.mkOpAppM info) }
     match fp.proc with
     | .uncommitted f =>
       if let some split ← f inferInfo then

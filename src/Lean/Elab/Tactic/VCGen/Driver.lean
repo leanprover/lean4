@@ -83,7 +83,7 @@ so they never reach this path.
 -/
 public def emitVC (goal : Grind.Goal) : VCGenM Unit := do
   let mut goal := { goal with mvarId := ← elimTopPre goal.mvarId }
-  goal ← goal.eraseBinderNameHints
+  goal ← goal.resolveBinderNameHint
   goal ← processHypotheses goal
   if goal.inconsistent then return
   let some mvarId ← cleanupVC goal.mvarId | return
@@ -143,8 +143,7 @@ public partial def run (goal : Grind.Goal) (ctx : Context) (scope : Scope)
   -- VCGen temporarily violates the `SymM` folded-projections invariant: `reduceHead?`
   -- exposes kernel projections in intermediate terms and restores the invariant in its
   -- final result, so the `shareCommon` kernel-projection check is disabled.
-  let ((), state) ← Sym.withoutFoldProjsCheck <| StateRefT'.run (ReaderT.run (do
-      work scope goal) ctx) initState
+  let ((), state) ← Sym.withoutFoldProjsCheck <| StateRefT'.run (ReaderT.run (work scope goal) ctx) initState
   _ ← state.invariants.mapIdxM fun idx mv => do
     mv.setTag (Name.mkSimple ("inv" ++ toString (idx + 1)))
   _ ← state.vcs.mapIdxM fun idx g => do

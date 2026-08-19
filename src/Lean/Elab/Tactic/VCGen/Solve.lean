@@ -65,8 +65,7 @@ private def consumeMData? (goal : MVarId) (target : Expr) : VCGenM (Option MVarI
   unless target.isMData do return none
   return some (← goal.replaceTargetDefEqFast target.consumeMData)
 
-/-- Strategy 1: split `∀ p : Nat × Nat, P p` into `∀ a b, P (a, b)`, so a loop with two mutable
-variables states its verification condition over both. A nested tuple splits over several rounds. -/
+/-- Strategy 1: split `∀ p : Nat × Nat, P p` into `∀ a b, P (a, b)`. -/
 private def splitProdBinder? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
   let .forallE _ dom body _ := target | return none
   let dom ← instantiateMVarsIfMVarAppS dom
@@ -191,17 +190,7 @@ private def instantiateGoal? (goal : MVarId) (target : Expr) : VCGenM (Option MV
   let pre' ← instantiateMVarsIfMVarAppS pre
   let rhs' ← instantiateMVarsIfMVarAppS rhs
   let rhs' := (← instantiateWPProg? rhs').getD rhs'
-  -- Consume the hints the instantiation exposes, in the rebuild it does anyway.
-  let mut goal := goal
-  let mut pre' := pre'
-  let mut rhs' := rhs'
-  if let some (g, stripped) ← consumeBinderNameHintCore goal pre' then
-    goal := g
-    -- The stripped hint exposes `inv pref suff (a, b)`; reduce it to the invariant's body.
-    pre' ← reduceHead stripped
-  if let some (g, stripped) ← consumeBinderNameHintCore goal rhs' then
-    goal := g
-    rhs' := stripped
+  let (goal, pre', rhs') ← consumeEntailmentHints goal pre' rhs'
   if isSameExpr α α' && isSameExpr pre pre' && isSameExpr rhs rhs' then return none
   return some (← goal.replaceTargetDefEqFast (← mkAppNS c #[α', inst, pre', rhs']))
 
@@ -320,7 +309,10 @@ private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
     let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
     let target := Expr.letE name type val target nondep
     let goal ← goal.replaceTargetDefEqFast target
-    return some (← introsHygienic goal)
+    -- The program binds this value, so its own name is the accessible one.
+    let name ← if isProgramName name then pure name else Meta.mkFreshBinderNameForTactic name
+    let .goal _ goal ← Sym.intros goal #[name] | return some goal
+    return some goal
 
 /-- Strategy 11b: fold the state arguments of the program's `wp` application, so the symbolic
 state a spec application threads through the goal is normalized as it is produced rather than left

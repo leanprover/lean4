@@ -97,27 +97,23 @@ public def isProgramName (n : Name) : Bool :=
 
 /--
 Introduce the leading binders of `goal` in one pass, stopping at a binder over a product, which
-`solve` splits into one binder per component first. A `let` binder with a program variable's name
-keeps its name verbatim, so the program's own bindings stay accessible in the verification
-condition; every other name goes through `mkFreshBinderNameForTactic`, which `tactic.hygienic`
-makes inaccessible. The introduction itself is a single `Sym.intros` call (which keeps the
-memoized, sharing-correct intro); only the names are chosen here. Returns the goal unchanged when
-there are no leading binders.
+`solve` splits into one binder per component first. Every name goes through
+`mkFreshBinderNameForTactic`, which `tactic.hygienic` makes inaccessible: these binders come from a
+specification's telescope, and a binder the program itself states is named where it is introduced.
+Returns the goal unchanged when there are no leading binders.
 -/
 public def introsHygienic (goal : MVarId) : VCGenM MVarId :=
   goal.withContext do
-    let rec collectBinders (type : Expr) (acc : Array (Name × Bool)) : Array (Name × Bool) :=
+    let rec collectBinders (type : Expr) (acc : Array Name) : Array Name :=
       match type with
-      | .forallE n d b _ =>
-        if d.isAppOf ``Prod then acc else collectBinders b (acc.push (n, false))
-      | .letE n _ _ b _ => collectBinders b (acc.push (n, true))
+      | .forallE n d b _ => if d.isAppOf ``Prod then acc else collectBinders b (acc.push n)
+      | .letE n _ _ b _ => collectBinders b (acc.push n)
       | _ => acc
-    let binders := collectBinders (← goal.getType) #[]
-    if binders.isEmpty then return goal
+    let binderNames := collectBinders (← goal.getType) #[]
+    if binderNames.isEmpty then return goal
     let mut names := #[]
-    for (n, isLet) in binders do
-      names := names.push (← if isLet && isProgramName n then pure n
-        else Meta.mkFreshBinderNameForTactic n)
+    for n in binderNames do
+      names := names.push (← Meta.mkFreshBinderNameForTactic n)
     let .goal _ goal ← Sym.intros goal names | return goal
     return goal
 

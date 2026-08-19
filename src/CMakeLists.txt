@@ -319,7 +319,7 @@ if(USE_GMP MATCHES "ON")
       endif()
     else()
       find_package(GMP 6.3.0)
-      # An undetermined version (e.g. mpir) is conservatively treated as too old;
+      # An undetermined version is conservatively treated as too old;
       # find_package would otherwise accept it since VERSION_VAR is empty.
       if(NOT GMP_FOUND OR NOT GMP_VERSION)
         if(GMP_INCLUDE_DIR AND GMP_VERSION)

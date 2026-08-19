@@ -63,12 +63,13 @@ private def consumeMData? (goal : MVarId) (target : Expr) : VCGenM (Option MVarI
   unless target.isMData do return none
   return some (← goal.replaceTargetDefEqFast target.consumeMData)
 
-/-- Strategy 1: split `∀ p : Nat × Nat, P p` into `∀ a b, P (a, b)`. -/
-private def splitProdBinder? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) :=
+/-- Strategy 1: split `∀ p : Nat × Nat, P p` into `∀ a b, P (a, b)`. Returns `goal` when the
+binder is over another type. -/
+private def splitProdBinder (goal : MVarId) (target : Expr) : VCGenM MVarId :=
   goal.withContext do
-  let .forallE _ dom body _ := target | return none
+  let .forallE _ dom body _ := target | return goal
   let dom ← instantiateMVarsIfMVarAppS dom
-  let_expr c@Prod α β := dom | return none
+  let_expr c@Prod α β := dom | return goal
   let us := c.constLevels!
   let mk ← mkAppNS (← mkConstS ``Prod.mk us) #[α, β, .bvar 1, .bvar 0]
   let newTarget := Expr.forallE `a α (.forallE `b β (body.instantiate1 mk) .default) .default
@@ -76,30 +77,23 @@ private def splitProdBinder? (goal : MVarId) (target : Expr) : VCGenM (Option MV
   let motive := Expr.lam `p dom body .default
   let prodForall ← mkAppNS (← mkConstS ``Prod.forall us) #[α, β, motive]
   goal.assign <| mkApp4 (.const ``Iff.mpr []) target newTarget prodForall g
-  return some g.mvarId!
+  return g.mvarId!
 
 /-- Strategy 1: simp the target, then introduce binders if the target is a `∀`. -/
-private def forallIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
+private def forallIntro? (oldGoal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
   unless target.isForall do return none
-  let (goal, simped) ← match ← simpGoalTelescope goal with
+  let mut goal ← match ← simpGoalTelescope oldGoal with
     | .closed => return some []
-    | .goal goal' => pure (goal', true)
-    | .noProgress => pure (goal, false)
-  let mut goal := goal
-  let mut progress := simped
-  while true do
-    let target ← goal.getType
-    unless target.isForall do break
+    | .goal goal => pure goal
+    | .noProgress => pure oldGoal
+  let mut target ← goal.getType
+  while target.isForall do
     let n := numBindersToIntro target
-    if n == 0 then
-      let some goal' ← splitProdBinder? goal target | break
-      goal := goal'
-    else
-      let goal' ← introsHygienic goal n
-      if goal' == goal then break
-      goal := goal'
-    progress := true
-  if !progress then
+    let goal' ← if n == 0 then splitProdBinder goal target else introsHygienicN goal n
+    if goal' == goal then break
+    goal := goal'
+    target ← goal.getType
+  if goal == oldGoal then
     throwError "Failed to intro forall target {goal}"
   return some [goal]
 
@@ -121,7 +115,7 @@ private def targetLetIntro? (goal : MVarId) (target : Expr) : VCGenM (Option MVa
     return some (← goal.replaceTargetDefEqFast (← Sym.instantiateRevBetaS body #[val]))
   else
     trace[Elab.Tactic.Do.vcgen] "let-intro: {name}"
-    return some (← introsHygienic goal (numBindersToIntro (← goal.getType)))
+    return some (← introsHygienic goal)
 
 /-- Strategy 3: unfold a `Triple` target into the underlying lattice entailment. -/
 private def tripleUnfold? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do

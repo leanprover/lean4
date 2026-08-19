@@ -95,17 +95,16 @@ public def processHypotheses (goal : Grind.Goal) : VCGenM Grind.Goal := do
 public def isProgramName (n : Name) : Bool :=
   !n.hasMacroScopes && !n.isImplementationDetail
 
-/-- The leading binders of `type`, up to a binder over a product: `solve` splits `∀ p : Nat × Nat`
-into one binder per component before introducing it. -/
+/-- The leading binders of `type`, stopping at a binder over a product: `∀ (n : Nat) (p : α × β)`
+counts one, because `solve` splits `p` into one binder per component first. -/
 public def numBindersToIntro : Expr → Nat
   | .forallE _ d b _ => if d.isAppOf ``Prod then 0 else numBindersToIntro b + 1
   | .letE _ _ _ b _ => numBindersToIntro b + 1
   | _ => 0
 
-/-- Introduce the first `n` binders of `goal` in one pass. `mkFreshBinderNameForTactic` names each,
-so `tactic.hygienic` makes it inaccessible: a binder the program itself states, such as the value of
-a `let`, is named where it is introduced. -/
-public def introsHygienic (goal : MVarId) (n : Nat) : VCGenM MVarId :=
+/-- Introduce the first `n` binders of `goal`, named by `mkFreshBinderNameForTactic`, which
+`tactic.hygienic` makes inaccessible: `∀ acc, acc % 2 = 0` introduces `acc✝`. -/
+public def introsHygienicN (goal : MVarId) (n : Nat) : VCGenM MVarId :=
   goal.withContext do
     let rec collectBinders : Nat → Expr → Array Name → Array Name
       | 0, _, acc => acc
@@ -119,6 +118,10 @@ public def introsHygienic (goal : MVarId) (n : Nat) : VCGenM MVarId :=
       names := names.push (← Meta.mkFreshBinderNameForTactic nm)
     let .goal _ goal ← Sym.intros goal names | return goal
     return goal
+
+/-- `introsHygienicN` for every binder the goal leads with. -/
+public def introsHygienic (goal : MVarId) : VCGenM MVarId := do
+  introsHygienicN goal (numBindersToIntro (← goal.getType))
 
 /--
 Simplify the goal's target with the configured hypothesis simp methods (a no-op without
@@ -148,7 +151,7 @@ public partial def introsExcessArgs (goal : MVarId) :
   unless α.isForall do return none
   let .goals [goal] ← (← read).backwardRules.stateArgIntro.applyChecked goal
     | throwError "failed to apply {.ofConstName ``Lean.Order.le_of_forall_le} to goal{indentExpr type}"
-  let goal ← introsHygienic goal (numBindersToIntro (← goal.getType))
+  let goal ← introsHygienic goal
   return (← introsExcessArgs goal) <|> some goal
 
 /--

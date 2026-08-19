@@ -142,6 +142,8 @@ private def mkForInWithInvariant (invClause : Syntax) (h? : Option Syntax)
 @[builtin_doElem_elab Lean.Parser.Term.doFor] def elabDoFor : DoElab := fun stx dec => do
   let `(doFor| for%$tk $[$h? : ]? $x:ident in $xs $[$inv?:doForInvariant]? do $body) := stx
     | throwUnsupportedSyntax
+  if let some invClause := inv? then
+    warnIntrinsicExperimental invClause.raw[0] m!"`invariant` clause"
   let dec ← dec.ensureUnitAt tk
   checkMutVarsForShadowing #[x]
   let uα ← mkFreshLevelMVar

@@ -614,17 +614,19 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
    climbs back out nor wraps past INT_MIN, even under in-flight adjustments from other threads:
    - once `rc <= LEAN_RC_STICKY_DROP`, drops (decrements) stop adjusting the count;
    - once `rc <= LEAN_RC_STICKY`, increments stop as well. */
+// sync with tests/elab/rc_sticky_thresholds.lean (`LEAN_RC_STICKY`, `LEAN_RC_STICKY_DROP`)
 #define LEAN_RC_STICKY      (INT_MIN + 0x10000000)
 #define LEAN_RC_STICKY_DROP (INT_MIN + 0x20000000)
 
-/* Largest `n` for which a single-threaded count overflowing under `lean_inc_ref_n` is guaranteed to
-   land at or below `LEAN_RC_STICKY` rather than wrapping clean past it. Counts above this are rare
-   enough to be worth an exact overflow test; see `lean_inc_ref_n`. */
+/* Largest `n` for which a count overflowing under `lean_inc_ref_n` is guaranteed to land at or
+   below `LEAN_RC_STICKY` rather than wrapping clean past it. */
+// sync with tests/elab/rc_sticky_thresholds.lean (`LEAN_RC_INC_MAX`)
 #define LEAN_RC_INC_MAX ((size_t)(LEAN_RC_STICKY - INT_MIN) + 1)
 
 /* Cold path of `lean_inc_ref_n` for counts the sticky range cannot absorb; see `LEAN_RC_INC_MAX`. */
 LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n);
 
+// sync with tests/elab/rc_sticky_thresholds.lean (`incRefN`)
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     // A count above this could wrap clean past the sticky range, on either the single-threaded or
     // the thread-shared path, so both are handed to the cold helper. The test is on `n` alone, so a
@@ -638,14 +640,7 @@ static inline void lean_inc_ref_n(lean_object * o, size_t n) {
         lean_internal_add_rc(o, n);
     } else if ((unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY) {
         // Read as unsigned, a persistent count (0) and a sticky count both fall below every live
-        // thread-shared count, so one comparison rejects both. Valid only because `lean_is_st`
-        // has already taken every `rc > 0`.
-        //
-        // The cast is load-bearing. Both `rc == 0 || rc <= LEAN_RC_STICKY` and the signed range
-        // `rc > LEAN_RC_STICKY && rc < 0` denote the same predicate here, but the enclosing
-        // `lean_is_st` test lets the compiler rewrite the latter's `rc < 0` into `rc != 0`; that
-        // union is not a contiguous signed range, and both spell out as a branchless
-        // five-instruction sequence on this hot path.
+        // thread-shared count, so one comparison rejects both.
 #ifdef __cplusplus
         std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
 #else
@@ -660,6 +655,7 @@ static inline void lean_inc_ref(lean_object * o) {
 
 LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);
 
+// sync with tests/elab/rc_sticky_thresholds.lean (`decRef`)
 static inline LEAN_ALWAYS_INLINE void lean_dec_ref(lean_object * o) {
     if (LEAN_LIKELY(lean_internal_get_rc(o) > 1)) {
         lean_internal_sub_rc(o, 1);

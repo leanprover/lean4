@@ -441,6 +441,7 @@ static object * lean_del_core(object * o, object * todo) {
     }
 }
 
+// sync with tests/elab/rc_sticky_thresholds.lean (`incRefHugeN`)
 extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
     // `n` exceeds what the sticky range can absorb, so a plain adjustment could wrap clean past it
     // and leave the count reading as a different kind entirely. Only `lean_mk_array` gets here.
@@ -458,6 +459,7 @@ extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
     }
 }
 
+// sync with tests/elab/rc_sticky_thresholds.lean (`decRefCold`)
 extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
     // `rc == 1` is the hot single-threaded free path and can never be sticky, so the sticky check
     // is kept out of it.

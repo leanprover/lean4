@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Elab.Tactic.VCGen.Context
-public import Lean.Elab.Tactic.VCGen.EPost
+public import Lean.Elab.Tactic.VCGen.ExceptPost
 public import Lean.Elab.Tactic.VCGen.RuleCache
 public import Lean.Elab.Tactic.VCGen.Util
 public import Lean.Meta.Sym.Util
@@ -45,20 +45,20 @@ public def introPre (rule : BackwardRule) (goal : MVarId) : VCGenM (MVarId × FV
   return (goal, decl.fvarId)
 
 /--
-Reduce an `EPost.Cons.head` projection on the RHS of `pre ⊑ rhs` to the underlying component:
-concrete `epost⟨…⟩` values project to the selected component, and `⊥.head x₁ … xₙ` rewrites to
-`⊥` via `replaceEPostHeadBot?`. Returns `none` if the RHS is not such a projection.
+Reduce a `Prod.fst` projection on the RHS of `pre ⊑ rhs` to the component it selects. A concrete
+tuple projects to that component. `replaceExceptPostFstBot?` rewrites `(⊥ : _ × _).fst x₁ … xₙ` to
+`⊥`. Returns `none` if the RHS is not such a projection.
 -/
-public def reduceEPostHead? (goal : MVarId) (target α inst pre rhs : Expr) :
+public def reduceExceptPostFst? (goal : MVarId) (target α inst pre rhs : Expr) :
     VCGenM (Option MVarId) :=
-  rhs.withApp fun head args => do
-    unless head.isConstOf ``EPost.Cons.head do return none
+  rhs.withApp fun fst args => do
+    unless fst.isConstOf ``Prod.fst do return none
     let some epostArg := args[2]? | return none
-    -- `⊥.head x₁ … xₙ` is propositionally `⊥`; reduce it to a clean `pre ⊑ ⊥` VC.
+    -- `(⊥ : _ × _).fst x₁ … xₙ` is propositionally `⊥`. Reduce it to a `pre ⊑ ⊥` VC.
     if epostArg.isAppOf ``Lean.Order.bot then
-      return (← replaceEPostHeadBot? goal target head args)
-    let (epostTarget, index) := peelEPostTailChain epostArg
-    let some epost ← mkEPostAtIndex epostTarget index | return none
+      return (← replaceExceptPostFstBot? goal target fst args)
+    let (epostTarget, index) := peelExceptPostSndChain epostArg
+    let some epost ← mkExceptPostAtIndex epostTarget index | return none
     let excessArgs := args.drop 3
     let rhs ← betaS epost excessArgs
     let newTarget ← mkAppNS target.getAppFn #[α, inst, pre, rhs]
@@ -112,7 +112,7 @@ public def splitForallLe? (goal : MVarId) (rhs : Expr) :
 Reduce a precondition that is the bare top applied to the state arguments introduced by
 `le_of_forall_le`, `(⊤ : σ₁ → … → σₙ → Prop) s₁ … sₙ`, to the bare `(⊤ : Prop)`, rewriting `goal`'s
 target `pre ⊑ rhs` to `⊤ ⊑ rhs`. The equation `pre = ⊤` is built on demand by folding
-`Lean.Order.top_apply` over the excess arguments (mirroring `replaceEPostHeadBot?`'s `bot_apply`
+`Lean.Order.top_apply` over the excess arguments (mirroring `replaceExceptPostFstBot?`'s `bot_apply`
 fold) and applied with `replaceTargetEq`.
 
 The proof term is built directly with `mkApp`/`mkConst` and instances extracted from `pre`, avoiding

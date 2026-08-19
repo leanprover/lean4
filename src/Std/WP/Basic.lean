@@ -33,7 +33,7 @@ Two examples show the range of `Prog`. The error-state monad `EStateM ε σ` has
 error paired with a state is the exception postcondition.
 
 A deep embedding is the second example. A command language `Cmd` with assertions `Env → State → Prop`
-has the instance `WP Cmd Unit (Env → State → Prop) EPost.Nil`. Its `wp` is defined in terms of an
+has the instance `WP Cmd Unit (Env → State → Prop) EStack⟨⟩`. Its `wp` is defined in terms of an
 operational semantics such as an omnisemantics. The file `tests/elab/vcgenImp.lean` carries this
 example in full.
 

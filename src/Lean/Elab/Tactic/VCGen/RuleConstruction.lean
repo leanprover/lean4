@@ -44,51 +44,54 @@ private def mkPostPointwisePremise (postSpec postTarget postTy : Expr) (ssTypes 
       mkForallFVars (#[a] ++ ss') (← mkAppM ``PartialOrder.rel #[lhs, rhs])
 
 /-- Recursively decompose `epostSpec ⊑ epostAbstract` into per-component proofs.
-    - `EPost.Cons.mk head tail` → mvar for `head ⊑ epostAbstract.head`, recurse on tail
-    - `EPost.Nil.mk` → trivial via `EPost.Nil.le`
-    - Otherwise, if `EPred` is `EPost.Cons`, project `epostSpec.head`/`.tail` and decompose those
+    - `(head, tail)` → mvar for `head ⊑ epostAbstract.fst`, recurse on `tail`
+    - Otherwise, if `EPred` is a product, project `epostSpec.fst`/`.snd` and decompose those
+    - Otherwise, if `EPred` is `Unit`, trivial via `Unit.unit_le`
     - Otherwise → single mvar for `epostSpec ⊑ epostAbstract` -/
-private partial def decomposeEPostRel (EPred epostSpec epostAbstract : Expr)
+private partial def decomposeEPredRel (EPred epostSpec epostAbstract : Expr)
     (stateArgNames : Array Name := #[]) : MetaM Expr := do
   match_expr epostSpec with
-  | EPost.Cons.mk ehTy etTy head tail =>
-    let absHead ← mkAppM ``EPost.Cons.head #[epostAbstract]
-    let absTail ← mkAppM ``EPost.Cons.tail #[epostAbstract]
-    let hTail ← decomposeEPostRel etTy tail absTail stateArgNames
+  | Prod.mk ehTy etTy head tail =>
+    let absHead ← mkAppM ``Prod.fst #[epostAbstract]
+    let absTail ← mkAppM ``Prod.snd #[epostAbstract]
+    let hTail ← decomposeEPredRel etTy tail absTail stateArgNames
     /- Sometimes, even though `epost` is not schematic itself, its components might be schematic.
       Think of a triple of a kind `⦃ pre ⦄ x ⦃ post; epost₁, ⊥, epost₃, ⊥, ... ⦄`.
       In this case we do not want to create new metavariables for `epost₁`, `epost₃`, etc.
-      Instead, we will just assign them to `epostAbstract.tail.head` and
-      `epostAbstract.tail.tail.head`, etc. -/
+      Instead, we will just assign them to `epostAbstract.snd.fst` and
+      `epostAbstract.snd.snd.fst`, etc. -/
     if head.isMVar then
       head.mvarId!.assign absHead
-      mkAppM ``EPost.Cons.mk_le_tail #[tail, epostAbstract, hTail]
+      mkAppM ``Prod.mk_le_snd #[tail, epostAbstract, hTail]
     else
       -- Collect state types: e.g. String → Nat → Prop → skip first (exc type), rest are state types
       let ssTypes ← forallTelescope ehTy fun xs _ => xs.drop 1 |>.mapM (Meta.inferType ·)
       let headTy ← Meta.inferType head
       let hHeadTy ← mkPostPointwisePremise head absHead headTy ssTypes stateArgNames
       let hHead ← mkFreshExprMVar (userName := `epostImpl) hHeadTy
-      mkAppM ``EPost.Cons.mk_le #[head, tail, epostAbstract, hHead, hTail]
-  | EPost.Nil.mk => mkAppM ``EPost.Nil.le #[epostAbstract]
+      mkAppM ``Prod.mk_le #[head, tail, epostAbstract, hHead, hTail]
   | _ =>
-    match_expr EPred.consumeMData with
-    | EPost.Cons ehTy etTy =>
-      let specHead ← mkAppM ``EPost.Cons.head #[epostSpec]
-      let specTail ← mkAppM ``EPost.Cons.tail #[epostSpec]
-      let absHead ← mkAppM ``EPost.Cons.head #[epostAbstract]
-      let absTail ← mkAppM ``EPost.Cons.tail #[epostAbstract]
+    let EPred := EPred.consumeMData
+    match_expr EPred with
+    | Prod ehTy etTy =>
+      let specHead ← mkAppM ``Prod.fst #[epostSpec]
+      let specTail ← mkAppM ``Prod.snd #[epostSpec]
+      let absHead ← mkAppM ``Prod.fst #[epostAbstract]
+      let absTail ← mkAppM ``Prod.snd #[epostAbstract]
       let headTy ← Meta.inferType specHead
       -- Collect state types: e.g. String → Nat → Prop → skip first (exc type), rest are state types
       let ssTypes ← forallTelescope ehTy fun xs _ => xs.drop 1 |>.mapM (Meta.inferType ·)
       let hHeadTy ← mkPostPointwisePremise specHead absHead headTy ssTypes stateArgNames
       let hHead ← mkFreshExprMVar (userName := `epostImpl) hHeadTy
-      let hTail ← decomposeEPostRel etTy specTail absTail stateArgNames
-      mkAppM ``EPost.Cons.mk_le #[specHead, specTail, epostAbstract, hHead, hTail]
-    | EPost.Nil => mkAppM ``EPost.Nil.le #[epostAbstract]
+      let hTail ← decomposeEPredRel etTy specTail absTail stateArgNames
+      mkAppM ``Prod.mk_le #[specHead, specTail, epostAbstract, hHead, hTail]
     | _ =>
-      let hTy ← mkAppM ``PartialOrder.rel #[epostSpec, epostAbstract]
-      mkFreshExprMVar (userName := `epostImpl) hTy
+      -- The terminator is reducibly `PUnit`, under any of its names.
+      if (← whnfR EPred).isConstOf ``PUnit then
+        mkAppM ``Unit.unit_le #[epostAbstract]
+      else
+        let hTy ← mkAppM ``PartialOrder.rel #[epostSpec, epostAbstract]
+        mkFreshExprMVar (userName := `epostImpl) hTy
 
 /--
 Create the proof term for the backward rule built from an instantiated spec theorem.
@@ -122,7 +125,7 @@ myPure.spec (n : Nat) : (⊤ : Prop) ⊑ wp (myPure n) (fun r => r = n) epost
 This yields a backward rule of the form:
 ```
 prf : ∀ (n : Nat) (pre : Prop) (hpre : pre ⊑ True)
-  (post : Nat → Prop) (hpost : ∀ r, r = n ⊑ post r) (epost : EPost⟨⟩),
+  (post : Nat → Prop) (hpost : ∀ r, r = n ⊑ post r) (epost : Unit),
   pre ⊑ wp (myPure n) post epost
 ```
 The postcondition VC is pointwise over the return value and over any excess state arguments. The
@@ -130,13 +133,13 @@ proof is generalized with `WP.wp_consequence_le`.
 
 #### Exception postcondition VCs
 
-A VC is also generated for the exception postcondition if it is not schematic. For an `EPost.Cons`
+A VC is also generated for the exception postcondition if it is not schematic. For a product
 value, the relation `epostSpec ⊑ epost` is decomposed component by component:
 ```
-∀ e s₁ ... sₙ, epostSpec.head e s₁ ... sₙ ⊑ epost.head e s₁ ... sₙ
+∀ e s₁ ... sₙ, epostSpec.fst e s₁ ... sₙ ⊑ epost.fst e s₁ ... sₙ
 ```
-and recursively for the tail. `decomposeEPostRel` assembles these component VCs using
-`EPost.Cons.mk_le` and `EPost.Nil.le`; the proof is then generalized with `WP.wp_econs_le`.
+and recursively for the tail. `decomposeEPredRel` assembles these component VCs using
+`Prod.mk_le` and `Unit.unit_le`. The proof is then generalized with `WP.wp_econs_le`.
 When the spec exception postcondition is `⊥`, no VC is needed and `WP.wp_econs_bot_le` is
 used instead.
 
@@ -174,7 +177,7 @@ it for the particular predicate type, exception postcondition type and `WPMonad`
 For `StateM Nat` and one excess state arg `s`, the type produced for `WPMonad.bind_le_wp_bind` becomes
 ```
 prf : ∀ (pre : Prop) (α : Type) (x : StateT Nat Id α) (β : Type)
-  (f : α → StateT Nat Id β) (post : β → Nat → Prop) (epost : EPost⟨⟩) (s : Nat),
+  (f : α → StateT Nat Id β) (post : β → Nat → Prop) (epost : Unit) (s : Nat),
   pre ⊑ wp x (fun a => wp (f a) post epost) epost s →
   pre ⊑ wp (x >>= f) post epost s
 ```
@@ -215,21 +218,21 @@ private def mkSpecBackwardProof
 
   /- abstract concrete `epost` if it is not already abstract -/
   unless epostAbstract.isMVar do
-    /- `EPost⟨t₁, t₂, ..., tₙ⟩`: type of `epost` -/
+    /- `EStack⟨t₁, t₂, ..., tₙ⟩`: type of `epost` -/
     let epostTy ← Meta.inferType epostSpec
     /- mvar `epostAbstract` for new abstract `epost` -/
-    epostAbstract ← mkFreshExprMVar (userName := `EPost) epostTy
+    epostAbstract ← mkFreshExprMVar (userName := `EPred) epostTy
     /- if `epost` is `⊥`, then `epost ⊑ epostAbstract` holds trivially and
       abstracting `epost` can be simply done by `WP.wp_econs_bot_le` without
       introducing a new premise. This case is quite common, that's why we handle
       it specially.
       The test runs at a fresh metavariable depth, where a schematic component of
-      `epost` such as `E` in `epost⟨E⟩` is read-only. `decomposeEPostRel` below
+      `epost` such as `E` in `estack⟨E⟩` is read-only. `decomposeEPredRel` below
       assigns `E` the matching component of `epostAbstract`. -/
     let isBot ← withNewMCtxDepth do
       try
-        let botEPost ← mkAppOptM ``Lean.Order.bot #[epostTy, none]
-        isDefEqGuarded epostSpec botEPost
+        let botEPred ← mkAppOptM ``Lean.Order.bot #[epostTy, none]
+        isDefEqGuarded epostSpec botEPred
       catch _ => pure false
     if isBot then
       /- get the proof of `pre ⊑ wp prog postAbstract epostAbstract`, where `epost (= ⊥)` is abstracted.
@@ -237,8 +240,8 @@ private def mkSpecBackwardProof
       specApplied ← mkAppM ``WP.wp_econs_bot_le #[prog, postAbstract, epostAbstract, specApplied]
     else
       /- Decompose `epostSpec ⊑ epostAbstract` into per-component proofs
-        using `EPost.Cons.mk_le` and `EPost.Nil.le` -/
-      let hepost ← decomposeEPostRel EPred epostSpec epostAbstract stateArgNames
+        using `Prod.mk_le` and `Unit.unit_le` -/
+      let hepost ← decomposeEPredRel EPred epostSpec epostAbstract stateArgNames
       specApplied ← mkAppM ``WP.wp_econs_le #[prog, postAbstract, epostSpec, epostAbstract, hepost, specApplied]
 
   /- By default we always abstract `pre`, since in most of the specifications
@@ -363,7 +366,7 @@ public def mkBackwardRuleForSplit
       return (`s, ← Meta.inferType arg)
     withLocalDeclsDND excessArgNamesTypes fun ss => do
     withLocalDeclD `Post (← mkArrow a info.Pred) fun post => do
-    withLocalDeclD `EPost info.EPred fun epost => do
+    withLocalDeclD `EPred info.EPred fun epost => do
     let mkWP (prog : Expr) : Expr :=
       let args := info.args.take 7 ++ #[prog, post, epost]
       mkAppN (mkAppN info.head args) ss

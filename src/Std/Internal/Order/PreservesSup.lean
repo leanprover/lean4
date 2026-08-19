@@ -130,6 +130,76 @@ instance [∀ a : α, PreservesSup (meet a)] [∀ b : β, PreservesSup (meet b)]
 
 end PProd
 
+section Prod
+
+variable {β : Type v} [CompleteLattice β]
+
+/-- The order on `α × β` is the order on `α ×' β` at the two components. -/
+private theorem prod_le_iff (p q : α × β) :
+    p ⊑ q ↔ (⟨p.fst, p.snd⟩ : α ×' β) ⊑ ⟨q.fst, q.snd⟩ := Iff.rfl
+
+omit [CompleteLattice α] [CompleteLattice β] in
+/-- Two pairs with equal components are equal. -/
+private theorem prod_eq_of_pprod_eq {p q : α × β}
+    (h : (⟨p.fst, p.snd⟩ : α ×' β) = ⟨q.fst, q.snd⟩) : p = q := by
+  cases p; cases q; cases h; rfl
+
+/-- The components of a meet are the meet of the components on `α ×' β`. -/
+private theorem prod_meet_toPProd (p q : α × β) :
+    (⟨(p ⊓ q).fst, (p ⊓ q).snd⟩ : α ×' β) = ⟨p.fst, p.snd⟩ ⊓ ⟨q.fst, q.snd⟩ := by
+  refine PartialOrder.rel_antisymm (le_meet _ _ _ (meet_le_left p q) (meet_le_right p q)) ?_
+  let r : α × β := ((⟨p.fst, p.snd⟩ ⊓ ⟨q.fst, q.snd⟩ : α ×' β).fst,
+                    (⟨p.fst, p.snd⟩ ⊓ ⟨q.fst, q.snd⟩ : α ×' β).snd)
+  exact le_meet r p q (meet_le_left (⟨p.fst, p.snd⟩ : α ×' β) ⟨q.fst, q.snd⟩)
+    (meet_le_right (⟨p.fst, p.snd⟩ : α ×' β) ⟨q.fst, q.snd⟩)
+
+/-- The components of a least upper bound are the least upper bound of the components on
+`α ×' β`. -/
+private theorem prod_sup_toPProd (c : α × β → Prop) :
+    (⟨(CompleteLattice.sup c).fst, (CompleteLattice.sup c).snd⟩ : α ×' β)
+      = CompleteLattice.sup fun x => c (x.fst, x.snd) :=
+  is_sup_unique
+    (fun x => Iff.trans (CompleteLattice.sup_spec c (x.fst, x.snd))
+      ⟨fun h y hy => h (y.fst, y.snd) hy, fun h y hy => h ⟨y.fst, y.snd⟩ hy⟩)
+    (CompleteLattice.sup_spec _)
+
+/-- `mk` of the componentwise meets is the meet on a product. -/
+theorem Prod.mk_meet (p q : α × β) : ((p.fst ⊓ q.fst, p.snd ⊓ q.snd) : α × β) = p ⊓ q :=
+  prod_eq_of_pprod_eq <| by rw [prod_meet_toPProd, ← PProd.mk_meet]
+
+/-- The first component of a meet is the meet of the first components. -/
+@[simp] theorem Prod.fst_meet (p q : α × β) : (p ⊓ q).fst = p.fst ⊓ q.fst := by
+  rw [← Prod.mk_meet]
+
+/-- The second component of a meet is the meet of the second components. -/
+@[simp] theorem Prod.snd_meet (p q : α × β) : (p ⊓ q).snd = p.snd ⊓ q.snd := by
+  rw [← Prod.mk_meet]
+
+/-- The first component of the bottom element is the bottom element. Propositional (not
+definitional), because `⊥` is `csup ∅`, not a constructor application. -/
+theorem Prod.fst_bot {α : Type u} {β : Type v} [CCPO α] [CCPO β] :
+    (⊥ : α × β).fst = (⊥ : α) :=
+  PartialOrder.rel_antisymm (bot_le ((⊥ : α), (⊥ : β))).left (bot_le _)
+
+/-- A product lattice preserves suprema at the two components. -/
+instance [∀ a : α, PreservesSup (meet a)] [∀ b : β, PreservesSup (meet b)] (p : α × β) :
+    PreservesSup (meet p) where
+  map_sup s := by
+    refine PartialOrder.rel_antisymm ?_
+      (sup_le _ fun _ ⟨x, hx, hy⟩ => hy ▸ meet_mono PartialOrder.rel_refl (le_sup s hx))
+    rw [prod_le_iff, prod_meet_toPProd, prod_sup_toPProd, prod_sup_toPProd,
+      PreservesSup.map_sup (f := meet (⟨p.fst, p.snd⟩ : α ×' β))]
+    refine sup_le _ ?_
+    rintro _ ⟨x, hx, rfl⟩
+    exact le_sup _
+      ⟨(x.fst, x.snd), hx, prod_eq_of_pprod_eq (prod_meet_toPProd p (x.fst, x.snd)).symm⟩
+
+end Prod
+
+/-- `Unit` carries a single value, so every map on it preserves suprema. -/
+instance (a : Unit) : PreservesSup (meet a) where
+  map_sup _ := Subsingleton.elim _ _
+
 namespace PreservesSup
 
 /-- The upper adjoint of `f`: the join of all `x` with `f x ⊑ b`. For `f = (a ⊓ ·)` this is Heyting

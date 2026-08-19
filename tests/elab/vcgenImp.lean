@@ -148,13 +148,13 @@ theorem wpCmd_mono {Φ : Env} {c : Cmd} {Q Q' : State → Prop} (hQ : ∀ s, Q s
 
 abbrev Assn := Env → State → Prop
 
-instance : WP Cmd Unit Assn EPost.Nil where
+instance : WP Cmd Unit Assn EStack⟨⟩ where
   wpTrans c := ⟨fun Q _epost Φ s => wpCmd Φ c (Q () Φ) s⟩
   wp_trans_monotone c := by
     intro Q Q' e e' _he hQ Φ s h
     exact wpCmd_mono (fun s' h' => hQ () Φ s' h') s h
 
-variable {Q : Unit → Assn} {epost : EPost.Nil}
+variable {Q : Unit → Assn} {epost : EStack⟨⟩}
 
 /-! ## `wp` equations, one per constructor
 

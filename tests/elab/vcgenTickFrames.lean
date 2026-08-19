@@ -236,20 +236,15 @@ shifted counter proves `pre ⊑ W (ticks - shift) s⃗`. This chains into `le_of
 stated at the cost lattice and applied to `s⃗` through the pointwise order on functions. The tick
 guard `shift ≤ ticks` remains as a subgoal. The chain only typechecks at the shifted counter, so
 it guards the open excess arguments of the spec application. -/
-def tickFrameProc : FrameInferenceProc := .withSpec fun i app => do
-  unless i.Pred.isArrow && i.Pred.bindingDomain!.isConstOf ``Nat do return none
-  let some ticks := i.excessArgs[0]? | return none
+def tickFrameProc : FrameInferenceProc := .committed fun i app => do
+  let ticks := i.excessArgs[0]!
   let shift ← match i.providedFrame? with
     | some r => pure r
     | none => instantiateMVarsS ticks
-  -- A zero shift frames nothing, for example a `frames` clause that pins `0`.
-  if shift.nat? == some 0 then return none
   -- Run the spec at the shifted counter, with deeper state left at the goal's, and take the whole
   -- precondition as the footprint.
   let shifted ← mkAppNS (← mkConstS ``Nat.sub) #[ticks, shift]
   app.excess[0]!.assign shifted
-  for h : idx in [1:app.excess.size] do
-    app.excess[idx]!.assign i.excessArgs[idx]!
   let pre ← i.pre
   app.footprint.assign pre
   -- The lattice instances come from the frame operator and the goal entailment.
@@ -267,8 +262,7 @@ def tickFrameProc : FrameInferenceProc := .withSpec fun i app => do
   let le ← i.le
   let prf ← mkAppNS (← mkConstS ``Lean.Order.PartialOrder.rel_trans le.getAppFn.constLevels!)
     (le.getAppArgs ++ #[pre, ty.appFn!.appArg!, ty.appArg!, app.proof, happ])
-  return some { frame := shift, splitVCProof? := prf
-                subgoals := hle.mvarId! :: app.preVC :: app.subgoals }
+  return { frame := shift, splitVCProof? := prf, subgoals := [hle.mvarId!] }
 
 /-- Register the cost frame inference procedure for `vcgen`, indexed by the `TickT` program type. The
 frame operator `costConj` is built at the base lattice `L` read off the assertion type `Nat → L`, so it

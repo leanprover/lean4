@@ -376,7 +376,7 @@ public meta partial def collectAlways (e : Expr) : Array Expr :=
 
 /-- Frame inference for `Traceful`: gather the precondition's `Always' pᵢ` conjuncts and frame by a
 single `Always'` over their conjunction, `Always' (fun tr => p₁ tr ∧ … ∧ pₙ tr)`. -/
-public meta def dyLeanFrameProc : FrameInferenceProc := .pure fun i => do
+public meta def dyLeanFrameProc : FrameInferenceProc := .uncommitted fun i => do
   let frame ← do
     match i.providedFrame? with
     | some frame => pure frame

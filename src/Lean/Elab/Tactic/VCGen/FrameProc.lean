@@ -34,36 +34,31 @@ public structure FrameSplit where
   /-- The framed resource. A procedure that leaves it schematic surfaces that metavariable among
   its `subgoals`. -/
   frame : Expr
-  /-- A proof of the split VC `pre ⊑ (op frame W) s⃗`, built against `SpecApplication.wp` for `W`. -/
+  /-- A proof of the split VC `pre ⊑ (op frame W) s⃗`, built against `SpecApp.wp` for `W`. -/
   splitVCProof? : Option Expr
   /-- The unassigned subgoals of `splitVCProof?`, and any other goal the procedure leaves. -/
   subgoals : List MVarId
 
-/-- A spec rule applied to the fresh target `?fp ⊑ wp prog ?Q E ?s⃗`. The footprint, the post and the
-excess state arguments are unassigned metavariables. A `FrameInferenceProc.withSpec` assigns them:
+/-- A spec rule applied to the target `?fp ⊑ W s⃗`, where `W` is the weakest footprint the frame
+rule left. The post is already the frame rule's upper adjoint, so only the footprint and the state
+arguments are open. A `committed` procedure assigns `footprint` to the footprint it chose, and
+`proof` then proves the target. It assigns `excess` only to run the spec at other state arguments
+than the goal's.
 
-* `excess` to the state arguments it wants the spec to run at (often the goal's own),
-* `post` to the frame rule's upper-adjoint post, which the solver does when the procedure frames,
-* `footprint` to the footprint it chose.
-
-Cancelling atoms against `preVC` pins the spec's parameters, and those assignments stick. The
-procedure forwards `preVC` and `subgoals` unless it discharges them itself. -/
-public structure SpecApplication where
+The solver forwards the application's own obligations, so a procedure returns only the goals it
+creates itself. -/
+public structure SpecApp where
   /-- The open footprint `?fp`. -/
   footprint : MVarId
-  /-- The open postcondition `?Q`. -/
-  post : MVarId
-  /-- The open excess state arguments `?s⃗`. -/
+  /-- The open state arguments the spec runs at. The solver fills whichever the procedure leaves
+  open with the goal's own. -/
   excess : Array MVarId
-  /-- The right-hand side `wp prog ?Q E`, before the excess state arguments apply. Once the
-  procedure frames, this is the weakest footprint `W`, so a split VC proof composes `proof` under
-  the frame operator. -/
+  /-- The weakest footprint `W`, before the state arguments apply. -/
   wp : Expr
-  /-- The spec's precondition VC `?fp ⊑ specPre`. `specPre` carries the spec's parameter
-  metavariables, so cancelling atoms against it pins them. -/
+  /-- The spec's precondition VC `?fp ⊑ specP`. The procedure may simplify it further after
+  settling `?fp`, for example by cancelling parts of it. In doing so, it may assign metavariables
+  occurring in `specP`. -/
   preVC : MVarId
-  /-- The spec's remaining subgoals. -/
-  subgoals : List MVarId
   /-- The proof of the target entailment. -/
   proof : Expr
 
@@ -108,17 +103,16 @@ public structure FrameBackwardRule where
 frame of a matching `frames` clause, if any), optionally produce a `FrameSplit`; `none` leaves the
 spec to apply directly.
 
-The constructor declares whether the procedure reads the applied spec. `pure` decides from the goal
-alone, and the solver applies no spec rule before it. `withSpec` receives the spec applied to the
-fresh target `?fp ⊑ wp prog ?Q E ?s⃗`, so it sees the spec's precondition in terms of the open excess
-state arguments and the spec's parameters, and the solver passes an inapplicable candidate over
-before the procedure runs. A `withSpec` procedure that answers `none` orphans the application, whose
-metavariables are then dead. -/
+The constructor says where the procedure runs relative to the frame rule. An `uncommitted`
+procedure runs before it and decides whether to frame, from the goal alone, so it can still answer
+`none` and leave the spec to apply as it stands. A `committed` procedure runs after the solver
+applied the frame rule and the spec to the resulting footprint, so it frames by construction and
+has no way to decline; it decides how to frame, reading the spec's precondition off `SpecApp`. -/
 public inductive FrameInferenceProc where
-  /-- Decides from the goal alone. -/
-  | pure (f : FrameInferenceInfo → Grind.GrindM (Option FrameSplit))
-  /-- Decides from the goal and the applied spec. -/
-  | withSpec (f : FrameInferenceInfo → SpecApplication → Grind.GrindM (Option FrameSplit))
+  /-- Runs before the frame rule and decides whether to frame. -/
+  | uncommitted (f : FrameInferenceInfo → Grind.GrindM (Option FrameSplit))
+  /-- Runs after the frame rule and decides how to frame. -/
+  | committed (f : FrameInferenceInfo → SpecApp → Grind.GrindM FrameSplit)
 
 /-- A frame inference procedure registered with `@[frameproc]`, together with its frame operator. The
 `vcgen` frontend selects the one whose `prog` matches the goal program's monad. -/
@@ -149,7 +143,7 @@ public def FrameProcs.insert (s : FrameProcs) (fp : FrameProc) : FrameProcs :=
 
 /-- Default frame inference procedure, agnostic of the frame operator: frame the resource pinned by
 a `frames` clause, with the whole split VC deferred. -/
-public def defaultFrameInferenceProc : FrameInferenceProc := .pure fun i => do
+public def defaultFrameInferenceProc : FrameInferenceProc := .uncommitted fun i => do
   let some frame := i.providedFrame? | return none
   return some { frame, splitVCProof? := none, subgoals := [] }
 

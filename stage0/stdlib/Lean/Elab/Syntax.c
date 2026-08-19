@@ -24891,17 +24891,17 @@ v_res_8989_ = l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_elabSyntaxAbbrev
 return v_res_8989_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Elab_Command_checkRuleKind(lean_object* v_given_8993_, lean_object* v_expected_8994_){
+LEAN_EXPORT uint8_t l_Lean_Elab_Command_checkRuleKind(lean_object* v_actual_8993_, lean_object* v_expected_8994_){
 _start:
 {
 uint8_t v___x_8995_; 
-v___x_8995_ = lean_name_eq(v_given_8993_, v_expected_8994_);
+v___x_8995_ = lean_name_eq(v_actual_8993_, v_expected_8994_);
 if (v___x_8995_ == 0)
 {
 lean_object* v___x_8996_; lean_object* v___x_8997_; uint8_t v___x_8998_; 
 v___x_8996_ = ((lean_object*)(l_Lean_Elab_Command_checkRuleKind___closed__1));
 v___x_8997_ = l_Lean_Name_append(v_expected_8994_, v___x_8996_);
-v___x_8998_ = lean_name_eq(v_given_8993_, v___x_8997_);
+v___x_8998_ = lean_name_eq(v_actual_8993_, v___x_8997_);
 lean_dec(v___x_8997_);
 return v___x_8998_;
 }
@@ -24912,12 +24912,12 @@ return v___x_8995_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Command_checkRuleKind___boxed(lean_object* v_given_8999_, lean_object* v_expected_9000_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Command_checkRuleKind___boxed(lean_object* v_actual_8999_, lean_object* v_expected_9000_){
 _start:
 {
 uint8_t v_res_9001_; lean_object* v_r_9002_; 
-v_res_9001_ = l_Lean_Elab_Command_checkRuleKind(v_given_8999_, v_expected_9000_);
-lean_dec(v_given_8999_);
+v_res_9001_ = l_Lean_Elab_Command_checkRuleKind(v_actual_8999_, v_expected_9000_);
+lean_dec(v_actual_8999_);
 v_r_9002_ = lean_box(v_res_9001_);
 return v_r_9002_;
 }

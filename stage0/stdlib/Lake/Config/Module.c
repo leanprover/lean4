@@ -2829,7 +2829,7 @@ if (v_allowImportAll_1004_ == 0)
 lean_object* v_pkg_1005_; lean_object* v_config_1006_; uint8_t v_allowImportAll_1007_; 
 v_pkg_1005_ = lean_ctor_get(v_lib_1002_, 0);
 v_config_1006_ = lean_ctor_get(v_pkg_1005_, 6);
-v_allowImportAll_1007_ = lean_ctor_get_uint8(v_config_1006_, sizeof(void*)*27 + 5);
+v_allowImportAll_1007_ = lean_ctor_get_uint8(v_config_1006_, sizeof(void*)*28 + 5);
 return v_allowImportAll_1007_;
 }
 else
@@ -3227,7 +3227,7 @@ lean_inc_ref(v_pkg_1156_);
 lean_dec_ref(v_lib_1155_);
 v_config_1157_ = lean_ctor_get(v_pkg_1156_, 6);
 lean_inc_ref(v_config_1157_);
-v_bootstrap_1158_ = lean_ctor_get_uint8(v_config_1157_, sizeof(void*)*27);
+v_bootstrap_1158_ = lean_ctor_get_uint8(v_config_1157_, sizeof(void*)*28);
 if (v_bootstrap_1158_ == 0)
 {
 lean_object* v___x_1159_; 
@@ -3296,7 +3296,7 @@ lean_object* v_lib_1179_; lean_object* v_pkg_1180_; lean_object* v_config_1181_;
 v_lib_1179_ = lean_ctor_get(v_self_1178_, 0);
 v_pkg_1180_ = lean_ctor_get(v_lib_1179_, 0);
 v_config_1181_ = lean_ctor_get(v_pkg_1180_, 6);
-v_precompileModules_1182_ = lean_ctor_get_uint8(v_config_1181_, sizeof(void*)*27 + 1);
+v_precompileModules_1182_ = lean_ctor_get_uint8(v_config_1181_, sizeof(void*)*28 + 1);
 if (v_precompileModules_1182_ == 0)
 {
 lean_object* v_config_1183_; uint8_t v_precompileModules_1184_; 

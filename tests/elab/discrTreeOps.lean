@@ -1,6 +1,7 @@
+import Lean
+
 /-! Exercise basic operations on discrimination trees -/
 
-import Lean
 open Lean Meta
 
 opaque f : Nat → Nat

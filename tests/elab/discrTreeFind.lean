@@ -1,8 +1,9 @@
+import Lean
+
 /-!
 Test basic lookup operations (match, match-liberal, and unify) on discrimination trees.
 -/
 
-import Lean
 open Lean Meta
 
 opaque a : Nat

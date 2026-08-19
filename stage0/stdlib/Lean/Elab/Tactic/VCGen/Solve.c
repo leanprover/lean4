@@ -1734,7 +1734,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_VCGen_Solve_0__Lean_Elab_T
 _start:
 {
 uint8_t v_useJP_396_; 
-v_useJP_396_ = lean_ctor_get_uint8(v_a_387_, sizeof(void*)*5 + 1);
+v_useJP_396_ = lean_ctor_get_uint8(v_a_387_, sizeof(void*)*5);
 if (v_useJP_396_ == 0)
 {
 lean_dec(v_name_385_);
@@ -12979,7 +12979,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_VCGen_Solve_0__Lean_Elab_T
 _start:
 {
 uint8_t v_errorOnMissingSpec_4147_; 
-v_errorOnMissingSpec_4147_ = lean_ctor_get_uint8(v_a_4141_, sizeof(void*)*5 + 2);
+v_errorOnMissingSpec_4147_ = lean_ctor_get_uint8(v_a_4141_, sizeof(void*)*5 + 1);
 if (v_errorOnMissingSpec_4147_ == 0)
 {
 lean_object* v___x_4148_; lean_object* v___x_4149_; lean_object* v___x_4150_; 

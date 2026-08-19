@@ -308,12 +308,31 @@ jobs:
         run: |
           build/$TARGET_STAGE/bin/lean --stats src/Lean.lean
         if: ${{ !matrix.cross }}
+      # Tests must not write into the checked-in source tree; scratch output belongs in an
+      # ignored path. Making tracked files read-only catches a test that edits one even if it
+      # restores the file afterwards, which the tree comparison below cannot see.
+      - name: Protect Source Tree
+        run: |
+          git status --porcelain -unormal | sort > "$RUNNER_TEMP/tree-before"
+          git ls-files -z | xargs -0 chmod a-w
+        if: matrix.test
       - name: Test
         id: test
         run: |
           ulimit -c unlimited  # coredumps
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/$TARGET_STAGE -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
         if: matrix.test
+      # restore write access before any later step (stage 2, benchmarks, `update-stage0`) runs
+      - name: Unprotect Source Tree
+        run: git ls-files -z | xargs -0 chmod u+w
+        if: always() && matrix.test
+      - name: Check Source Tree Clean
+        run: |
+          git status --porcelain -unormal | sort > "$RUNNER_TEMP/tree-after"
+          diff -u "$RUNNER_TEMP/tree-before" "$RUNNER_TEMP/tree-after" && exit 0
+          echo "::error::the test suite left files in the checked-in source tree; write them to an ignored path instead"
+          exit 1
+        if: matrix.test && steps.test.conclusion != 'skipped'
       # copy failed tests' output into the `<failure>` elements shown by the test summary
       - name: Embed Test Output
         run: |

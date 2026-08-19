@@ -50,6 +50,16 @@ partial def size : Trie α → Nat
   | Trie.node vs children =>
     children.foldl (init := vs.size) fun n (_, c) => n + size c
 
+/--
+Checks that a trie node has no values and no children.
+
+This is only a check for actual trie emptiness (`t.size = 0`) if all operations maintain the
+invariant that no trie node has an empty child node.
+-/
+@[inline]
+def isEmptyNode : Trie α → Bool
+  | .node vs children => vs.isEmpty && children.isEmpty
+
 end Trie
 
 
@@ -114,16 +124,9 @@ def size (t : DiscrTree α) : Nat :=
 variable {m : Type → Type} [Monad m]
 
 /--
-Checks that a trie node has no values and no children.
-
-This is only a check for actual trie emptiness (`t.size = 0`) if all operations maintain the
-invariant that no trie node has an empty child node.
+Apply a monadic function to the array of values at each node in a `DiscrTree`.
+Any resulting subtrees containing no values will be pruned.
 -/
-@[inline]
-def Trie.isEmptyNode : Trie α → Bool
-  | .node vs children => vs.isEmpty && children.isEmpty
-
-/-- Apply a monadic function to the array of values at each node in a `DiscrTree`. -/
 @[specialize]
 partial def Trie.mapArraysM (t : DiscrTree.Trie α) (f : Array α → m (Array β)) :
     m (DiscrTree.Trie β) :=

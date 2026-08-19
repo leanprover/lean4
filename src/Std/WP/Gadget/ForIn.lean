@@ -6,6 +6,7 @@ Authors: Sebastian Graf
 module
 
 prelude
+public import Init.BinderNameHint
 public import Std.WP.Triple.SpecLemmas
 public import Std.Internal.ForIn
 
@@ -70,7 +71,9 @@ theorem Spec.forInPure {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
     (step : ∀ pref cur suff (_h : ForIn.toList xs = pref ++ cur :: suff) b,
       Triple
         (f cur b)
-        (inv pref (cur :: suff) b)
+        (binderNameHint pref inv <| binderNameHint suff (inv pref) <|
+          binderNameHint cur f <| binderNameHint b (inv pref (cur :: suff)) <|
+          inv pref (cur :: suff) b)
         (fun r => match r with
           | .yield b' => inv (pref ++ [cur]) suff b'
           | .done b' => inv (ForIn.toList xs) [] b')
@@ -78,7 +81,7 @@ theorem Spec.forInPure {ρ : Type w} [ForIn m ρ α] [ForIn Id ρ α]
     Triple
       (forInPureWithInvariant xs init f inv)
       (inv [] (ForIn.toList xs) init)
-      (fun b => inv (ForIn.toList xs) [] b)
+      (fun b => binderNameHint b (inv (ForIn.toList xs) []) <| inv (ForIn.toList xs) [] b)
       epost := by
   unfold forInPureWithInvariant
   rw [PureForIn.forIn_eq]
@@ -93,7 +96,9 @@ theorem Spec.forInPure' {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
     (step : ∀ pref cur suff (h : ForIn.toList xs = pref ++ cur :: suff) b,
       Triple
         (f cur ((LawfulMemForInId.mem_toList_iff).mp (by simp [h])) b)
-        (inv pref (cur :: suff) b)
+        (binderNameHint pref inv <| binderNameHint suff (inv pref) <|
+          binderNameHint cur f <| binderNameHint b (inv pref (cur :: suff)) <|
+          inv pref (cur :: suff) b)
         (fun r => match r with
           | .yield b' => inv (pref ++ [cur]) suff b'
           | .done b' => inv (ForIn.toList xs) [] b')
@@ -101,7 +106,7 @@ theorem Spec.forInPure' {ρ : Type w} {d : Membership α ρ} [ForIn' m ρ α d]
     Triple
       (forInPureWithInvariant' xs init f inv)
       (inv [] (ForIn.toList xs) init)
-      (fun b => inv (ForIn.toList xs) [] b)
+      (fun b => binderNameHint b (inv (ForIn.toList xs) []) <| inv (ForIn.toList xs) [] b)
       epost := by
   unfold forInPureWithInvariant'
   rw [PureForIn'.forIn'_eq]
@@ -159,7 +164,8 @@ theorem Spec.forInLoop_invariant_variant {Fun : Type} {γ : Type uγ'}
     (step : ∀ b (mb : γ),
       Triple
         (f () b)
-        ((RepeatVariant.ofMeasure (Pred := Pred) measure).EvalsTo b mb ⊓ inv (.inl b))
+        (binderNameHint b inv <|
+          (RepeatVariant.ofMeasure (Pred := Pred) measure).EvalsTo b mb ⊓ inv (.inl b))
         (fun r => match r with
           | .yield b' =>
             (RepeatVariant.ofMeasure (Pred := Pred) measure).EvalsBelow b' mb ⊓ inv (.inl b')
@@ -168,7 +174,7 @@ theorem Spec.forInLoop_invariant_variant {Fun : Type} {γ : Type uγ'}
     Triple
       (forInLoopWithInvariantAndVariant l init f (RepeatInvariant.mk inv) measure)
       (inv (.inl init))
-      (fun b => inv (.inr b))
+      (fun b => binderNameHint b inv <| inv (.inr b))
       einv := by
   unfold forInLoopWithInvariantAndVariant
   exact Spec.forIn_loop (RepeatVariant.ofMeasure measure) inv einv step
@@ -183,7 +189,7 @@ theorem Spec.forInLoop_invariant
     (step : ∀ b (mb : measure.γ),
       Triple
         (f () b)
-        (measure.EvalsTo b mb ⊓ inv (.inl b))
+        (binderNameHint b inv <| measure.EvalsTo b mb ⊓ inv (.inl b))
         (fun r => match r with
           | .yield b' => measure.EvalsBelow b' mb ⊓ inv (.inl b')
           | .done b' => inv (.inr b'))
@@ -191,7 +197,7 @@ theorem Spec.forInLoop_invariant
     Triple
       (forInLoopWithInvariant l init f (RepeatInvariant.mk inv))
       (inv (.inl init))
-      (fun b => inv (.inr b))
+      (fun b => binderNameHint b inv <| inv (.inr b))
       einv := by
   unfold forInLoopWithInvariant
   exact Spec.forIn_loop measure inv einv step
@@ -206,7 +212,8 @@ theorem Spec.forInLoop_variant {Fun : Type} {γ : Type uγ'}
     (step : ∀ b (mb : γ),
       Triple
         (f () b)
-        ((RepeatVariant.ofMeasure (Pred := Pred) measure).EvalsTo b mb ⊓ inv (.inl b))
+        (binderNameHint b inv <|
+          (RepeatVariant.ofMeasure (Pred := Pred) measure).EvalsTo b mb ⊓ inv (.inl b))
         (fun r => match r with
           | .yield b' =>
             (RepeatVariant.ofMeasure (Pred := Pred) measure).EvalsBelow b' mb ⊓ inv (.inl b')
@@ -215,7 +222,7 @@ theorem Spec.forInLoop_variant {Fun : Type} {γ : Type uγ'}
     Triple
       (forInLoopWithVariant l init f measure)
       (inv (.inl init))
-      (fun b => inv (.inr b))
+      (fun b => binderNameHint b inv <| inv (.inr b))
       einv := by
   unfold forInLoopWithVariant
   exact Spec.forIn_loop (RepeatVariant.ofMeasure measure) inv einv step

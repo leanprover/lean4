@@ -441,6 +441,23 @@ static object * lean_del_core(object * o, object * todo) {
     }
 }
 
+extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
+    // `n` exceeds what the sticky range can absorb, so a plain adjustment could wrap clean past it
+    // and leave the count reading as a different kind entirely. Only `lean_mk_array` gets here.
+    if (lean_is_st(o)) {
+        int rc = lean_internal_get_rc(o);
+        if (n > (size_t)(INT_MAX - rc))
+            lean_internal_set_rc(o, LEAN_RC_STICKY);
+        else
+            lean_internal_set_rc(o, rc + (int)n);
+    } else if ((unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY) {
+        // Thread-shared, so the exact test the single-threaded arm uses would need a CAS loop to be
+        // race-free. Freeze instead: at this many references the leak is irrelevant, and once the
+        // count is in the band both increments and drops bail out.
+        std::atomic_store_explicit(lean_get_rc_mt_addr(o), LEAN_RC_STICKY, std::memory_order_relaxed);
+    }
+}
+
 extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
     // `rc == 1` is the hot single-threaded free path and can never be sticky, so the sticky check
     // is kept out of it.

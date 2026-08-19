@@ -383,7 +383,8 @@ static inline void lean_internal_add_rc(lean_object* o, int add) {
 #else
     // Use unsigned arithmetic so that overflowing the single-threaded reference count wraps
     // deterministically into the negative "sticky" range instead of being undefined behavior.
-    // The wrapped value is detected and frozen in `lean_inc_ref_n` (see `LEAN_RC_STICKY`).
+    // The wrapped value is detected and frozen in `lean_inc_ref_n`, which keeps `add` small enough
+    // for the wrap to land inside the sticky range (see `LEAN_RC_INC_MAX`).
     o->m_rc = (int)((unsigned)o->m_rc + (unsigned)add);
 #endif
 }
@@ -616,7 +617,23 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
 #define LEAN_RC_STICKY      (INT_MIN + 0x10000000)
 #define LEAN_RC_STICKY_DROP (INT_MIN + 0x20000000)
 
+/* Largest `n` for which a single-threaded count overflowing under `lean_inc_ref_n` is guaranteed to
+   land at or below `LEAN_RC_STICKY` rather than wrapping clean past it. Counts above this are rare
+   enough to be worth an exact overflow test; see `lean_inc_ref_n`. */
+#define LEAN_RC_INC_MAX ((size_t)(LEAN_RC_STICKY - INT_MIN) + 1)
+
+/* Cold path of `lean_inc_ref_n` for counts the sticky range cannot absorb; see `LEAN_RC_INC_MAX`. */
+LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n);
+
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
+    // A count above this could wrap clean past the sticky range, on either the single-threaded or
+    // the thread-shared path, so both are handed to the cold helper. The test is on `n` alone, so a
+    // constant count folds it away in either direction; only a non-constant count keeps a runtime
+    // compare, and `lean_mk_array` is the sole caller passing one.
+    if (LEAN_UNLIKELY(n > LEAN_RC_INC_MAX)) {
+        lean_inc_ref_huge_n(o, n);
+        return;
+    }
     if (LEAN_LIKELY(lean_is_st(o))) {
         lean_internal_add_rc(o, n);
     } else if ((unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY) {

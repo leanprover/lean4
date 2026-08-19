@@ -105,6 +105,7 @@ public def JobResult.prependLog (log : Log) (self : JobResult α) : JobResult α
   | .error e s => .error ⟨log.size + e.val⟩ <| s.modifyLog (log ++ ·)
 
 /--
+**For internal use only.**
 Log message marking a job continuation canceled by the build's cancellation
 token. Do not match this directly; use `JobResult.isCanceled`.
 -/

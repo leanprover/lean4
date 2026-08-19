@@ -1610,7 +1610,7 @@ theorem Eq.propIntro {a b : Prop} (h₁ : a → b) (h₂ : b → a) : a = b :=
 
 -- Eq for Prop is now decidable if the equivalent Iff is decidable
 instance {p q : Prop} [d : Decidable (p ↔ q)] : Decidable (p = q) :=
-  decidable_of_decidable_of_iff propext_iff.symm
+  decidable_of_decidable_of_iff ⟨propext, Iff.of_eq⟩
 
 /-- Helper theorem for proving injectivity theorems -/
 theorem Lean.injEq_helper {P Q R : Prop} :

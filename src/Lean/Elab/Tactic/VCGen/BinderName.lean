@@ -8,10 +8,11 @@ module
 prelude
 public import Lean.Elab.Tactic.VCGen.Util
 public import Lean.Meta.Sym.InstantiateS
+public import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.BinderNameHint
 
-open Lean Meta Sym
+open Lean Meta Sym Sym.Internal Lean.Order
 
 namespace Lean.Elab.Tactic.VCGen
 
@@ -73,35 +74,25 @@ private partial def consumeBinderNameHintExpr (goal : MVarId) (e : Expr) :
   let stripped ← if n == 6 then pure payload else betaRevS payload (e.getAppArgs.extract 6 n).reverse
   return some ((← consumeBinderNameHintExpr goal stripped).getD (goal, stripped))
 
-/-- `consumeBinderNameHintExpr` at the target's own head. -/
+/-- Strategy 0: consume the hints a specification's instantiation leaves at the head of the target,
+or at either side of `pre ⊑ rhs`. A hint at the head of the precondition of a loop's step names the
+loop's binders, and stays out of the hypothesis that the precondition becomes. -/
 public def consumeBinderNameHint? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
-  let some (goal, stripped) ← consumeBinderNameHintExpr goal target | return none
-  return some (← goal.replaceTargetDefEqFast stripped)
-
-/-- Consume the hints that instantiating a goal exposes at either side of `pre ⊑ rhs`. The
-instantiation puts `binderNameHint pref inv …` at the head of the precondition of a loop's step,
-where the entailment shapes `solve` matches on no longer apply. -/
-public def consumeEntailmentHints (goal : MVarId) (pre rhs : Expr) :
-    VCGenM (MVarId × Expr × Expr) := do
+  if let some (goal, stripped) ← consumeBinderNameHintExpr goal target then
+    return some (← goal.replaceTargetDefEqFast stripped)
+  let_expr PartialOrder.rel α inst pre rhs := target | return none
   let mut goal := goal
-  let mut pre := pre
-  let mut rhs := rhs
+  let mut pre' := pre
+  let mut rhs' := rhs
   if let some (g, stripped) ← consumeBinderNameHintExpr goal pre then
     goal := g
     -- The stripped hint exposes `inv pref suff (a, b)`; reduce it to the invariant's body.
-    pre ← reduceHead stripped
+    pre' ← reduceHead stripped
   if let some (g, stripped) ← consumeBinderNameHintExpr goal rhs then
     goal := g
-    rhs := stripped
-  return (goal, pre, rhs)
-
-/-- Erase the hints a verification condition still carries, such as one that frame-rule unification
-embedded under a wand, so the discharging tactic sees every atom bare. -/
-public def _root_.Lean.Meta.Grind.Goal.resolveBinderNameHint (goal : Grind.Goal) :
-    VCGenM Grind.Goal := do
-  let target ← goal.mvarId.getType
-  unless target.hasBinderNameHint do return goal
-  let target ← shareCommon (← liftMetaM <| Expr.resolveBinderNameHint target)
-  return { goal with mvarId := ← goal.mvarId.replaceTargetDefEqFast target }
+    rhs' := stripped
+  if isSameExpr pre pre' && isSameExpr rhs rhs' then return none
+  let target ← mkAppNS target.getAppFn #[α, inst, pre', rhs']
+  return some (← goal.replaceTargetDefEqFast target)
 
 end Lean.Elab.Tactic.VCGen

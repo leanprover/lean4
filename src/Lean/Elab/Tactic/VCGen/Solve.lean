@@ -190,7 +190,6 @@ private def instantiateGoal? (goal : MVarId) (target : Expr) : VCGenM (Option MV
   let pre' ← instantiateMVarsIfMVarAppS pre
   let rhs' ← instantiateMVarsIfMVarAppS rhs
   let rhs' := (← instantiateWPProg? rhs').getD rhs'
-  let (goal, pre', rhs') ← consumeEntailmentHints goal pre' rhs'
   if isSameExpr α α' && isSameExpr pre pre' && isSameExpr rhs rhs' then return none
   return some (← goal.replaceTargetDefEqFast (← mkAppNS c #[α', inst, pre', rhs']))
 

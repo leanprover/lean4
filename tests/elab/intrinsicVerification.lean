@@ -370,9 +370,9 @@ def countMeasureOnly (n : Nat) : StateM Nat Unit
 where finally
   | spec =>
     case inv1 =>
-      exact fun c s => match c with
-        | .inl i => s = i ∧ i ≤ n
-        | .inr i => s = i ∧ i = n
+      exact fun exit i s => match exit with
+        | false => s = i ∧ i ≤ n
+        | true => s = i ∧ i = n
     all_goals grind
 
 #guard_msgs (drop info) in

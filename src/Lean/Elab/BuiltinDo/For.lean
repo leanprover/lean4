@@ -253,6 +253,10 @@ private def mkForInLoopGadget (g : ForInApp)
   let `(doFor| for%$tk $[$h? : ]? $x:ident in $xs
       $[$inv?:doLoopInvariant]? $[$dec?:doLoopDecreasing]? do $body) := stx
     | throwUnsupportedSyntax
+  if let some invClause := inv? then
+    warnIntrinsicExperimental invClause.raw[0] m!"`invariant` clause"
+  if let some decClause := dec? then
+    warnIntrinsicExperimental decClause.raw[0] m!"`decreasing` clause"
   let dec ← dec.ensureUnitAt tk
   checkMutVarsForShadowing #[x]
   let uα ← mkFreshLevelMVar

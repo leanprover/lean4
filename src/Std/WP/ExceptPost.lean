@@ -187,6 +187,64 @@ theorem EPost.Cons.mk_meet {eh : Type u} {et : Type v}
     (p ⊓ q).tail = p.tail ⊓ q.tail := by rw [← EPost.Cons.mk_meet]
 
 /-!
+## Supremum Preservation
+
+The Heyting arrow `⇨` of an exception postcondition lattice needs `PreservesSup (meet a)` for each
+`a`. `EPost.Nil` carries a single value. The lattice on `EPost.Cons eh et` is the one on `eh ×' et`
+read through the two projections, so `EPost.Cons` inherits the law from the product.
+-/
+
+/-- `EPost.Nil` carries a single value. -/
+instance : Subsingleton EPost.Nil where
+  allEq p q := by cases p; cases q; rfl
+
+instance (a : EPost.Nil) : PreservesSup (meet a) where
+  map_sup _ := Subsingleton.elim _ _
+
+section Cons
+
+variable {eh : Type u} {et : Type v} [CompleteLattice eh] [CompleteLattice et]
+
+/-- The order on `EPost.Cons eh et` is the order on `eh ×' et` read through the projections. -/
+private theorem EPost.Cons.le_iff (p q : EPost.Cons eh et) :
+    p ⊑ q ↔ (⟨p.head, p.tail⟩ : eh ×' et) ⊑ ⟨q.head, q.tail⟩ := Iff.rfl
+
+omit [CompleteLattice eh] [CompleteLattice et] in
+/-- Two `EPost.Cons` values with the same projections are equal. -/
+private theorem EPost.Cons.eq_of_toPProd_eq {p q : EPost.Cons eh et}
+    (h : (⟨p.head, p.tail⟩ : eh ×' et) = ⟨q.head, q.tail⟩) : p = q := by
+  cases p; cases q; cases h; rfl
+
+/-- The projections of a meet are the meet of the projections. -/
+private theorem EPost.Cons.toPProd_meet (p q : EPost.Cons eh et) :
+    (⟨(p ⊓ q).head, (p ⊓ q).tail⟩ : eh ×' et) = ⟨p.head, p.tail⟩ ⊓ ⟨q.head, q.tail⟩ := by
+  simp only [EPost.Cons.head_meet, EPost.Cons.tail_meet]
+  exact PProd.mk_meet ⟨p.head, p.tail⟩ ⟨q.head, q.tail⟩
+
+/-- The projections of a least upper bound are the least upper bound of the projections. -/
+private theorem EPost.Cons.toPProd_sup (c : EPost.Cons eh et → Prop) :
+    (⟨(CompleteLattice.sup c).head, (CompleteLattice.sup c).tail⟩ : eh ×' et)
+      = CompleteLattice.sup fun x => c ⟨x.1, x.2⟩ :=
+  is_sup_unique
+    (fun x => Iff.trans (CompleteLattice.sup_spec c ⟨x.1, x.2⟩)
+      ⟨fun h y hy => h ⟨y.1, y.2⟩ hy, fun h y hy => h ⟨y.head, y.tail⟩ hy⟩)
+    (CompleteLattice.sup_spec _)
+
+instance [∀ a : eh, PreservesSup (meet a)] [∀ a : et, PreservesSup (meet a)]
+    (a : EPost.Cons eh et) : PreservesSup (meet a) where
+  map_sup s := by
+    refine PartialOrder.rel_antisymm ?_
+      (sup_le _ fun _ ⟨x, hx, hy⟩ => hy ▸ meet_mono PartialOrder.rel_refl (le_sup s hx))
+    rw [EPost.Cons.le_iff, EPost.Cons.toPProd_meet, EPost.Cons.toPProd_sup,
+      EPost.Cons.toPProd_sup, PreservesSup.map_sup (f := meet (⟨a.head, a.tail⟩ : eh ×' et))]
+    refine sup_le _ ?_
+    rintro _ ⟨x, hx, rfl⟩
+    exact le_sup _ ⟨⟨x.1, x.2⟩, hx,
+      EPost.Cons.eq_of_toPProd_eq (EPost.Cons.toPProd_meet a ⟨x.1, x.2⟩).symm⟩
+
+end Cons
+
+/-!
 ## Notation
 
 - `EPost⟨e₁, e₂, ...⟩` builds an exception postcondition **type** (nested `EPost.Cons`).

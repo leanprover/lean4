@@ -168,20 +168,18 @@ open Lean.Elab.Do Lean.Parser.Term in
 @[builtin_doElem_elab Lean.Parser.Term.doAssertion]
 def elabDoAssertion : DoElab := fun stx dec => do
   let tk := stx.raw[0]
+  -- The gadget's instances settle the assertion's type only after it elaborates, so a binder that
+  -- destructures its argument is stated at that type here.
   let as : Term ← match stx with
-    | `(doAssertion| assert $f:basicFun) => `(fun $f:basicFun)
-    | `(doAssertion| assert $alts:matchAlts) => `(fun $alts:matchAlts)
+    | `(doAssertion| assert $f:basicFun) => ascribeAssertionArgs (← `(fun $f:basicFun)) 1
+    | `(doAssertion| assert $alts:matchAlts) =>
+      ascribeAssertionArgs (← `(fun $alts:matchAlts)) (Term.getMatchAltsNumPatterns alts)
     | `(doAssertion| assert $p:term) => pure p
     | _ => throwUnsupportedSyntax
   unless (← getEnv).contains ``Gadget.assertGadget do
     throwErrorAt tk
       "the `assert` element elaborates to a `vcgen` gadget; add `import Std.WP` to use it."
   warnIntrinsicExperimental tk m!"`assert` element"
-  -- The gadget's instance arguments determine the type of the assertion, and they are synthesized
-  -- after the assertion elaborates. A binder that destructures its argument needs that type here.
-  let as : Term ← match ← assertionLanguage? with
-    | some pred => `(($as : $(← Term.exprToSyntax pred)))
-    | none => pure as
   let dec ← dec.ensureUnitAt tk
   let e ← Term.elabTermEnsuringType (← `($(mkCIdent ``Gadget.assertGadget) $as)) (← mkMonadApp (← mkPUnit))
   dec.mkBindUnlessPure e

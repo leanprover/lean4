@@ -141,11 +141,11 @@ arguments of the assertion itself, such as the state of a state monad, and the f
 def requiresClause := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "requires" >>
     withForbidden "ensures"
-      (atomic Term.basicFun <|> ppIndent Term.matchAlts <|> (ppSpace >> termParser)))
+      Term.funLikeBodyOrTerm)
 /-- The `ensures b => Q` postcondition clause of a `def` contract, binding the result `b`. -/
 def ensuresClause := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "ensures" >>
-    (Term.basicFun <|> ppIndent Term.matchAlts))
+    Term.funLikeBody)
 /-- The `: type` of a `def`. It may carry contract clauses, so we forbid `given`, `requires` and
 `ensures` in the type. -/
 def defTypeSpec := withForbiddens #["given", "requires", "ensures"] Term.typeSpec

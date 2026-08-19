@@ -386,6 +386,14 @@ def basicFun : Parser := leading_parser (withAnonymousAntiquot := false)
 @[builtin_term_parser] def «fun» := leading_parser:maxPrec
   ppAllowUngrouped >> unicodeSymbol "λ" "fun" (preserveForPP := true) >> (basicFun <|> matchAlts)
 
+/-- The body of a clause that binds like `fun`: `⟨lo, hi⟩ => lo ≤ hi` or `| ⟨lo, hi⟩ => lo ≤ hi`. -/
+@[run_builtin_parser_attribute_hooks]
+def funLikeBody : Parser := basicFun <|> ppIndent matchAlts
+
+/-- `funLikeBody`, or a term that binds nothing: `assert p` beside `assert ⟨a, b⟩ => p`. -/
+@[run_builtin_parser_attribute_hooks]
+def funLikeBodyOrTerm : Parser := atomic funLikeBody <|> (ppSpace >> termParser)
+
 def optExprPrecedence := optional (atomic ":" >> termParser maxPrec)
 def withAnonymousAntiquot := leading_parser
   atomic (" (" >> nonReservedSymbol "withAnonymousAntiquot" >> " := ") >>

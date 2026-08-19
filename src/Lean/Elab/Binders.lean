@@ -492,22 +492,8 @@ private def mkMatchAltVars : Nat → Array Syntax → Array Ident → MacroM (Ar
     let d ← `(@$x:ident)
     mkMatchAltVars n (discrs.push d) (xs.push x)
 
-/--
-  Expand `matchAlts` syntax into the variables its alternatives match on and the `match` over them.
-  Example:
-  ```
-  | 0, true => alt_1
-  | i, _    => alt_2
-  ```
-  yields the variables `x_1 x_2` and the term
-  ```
-  match @x_1, @x_2 with
-  | 0, true => alt_1
-  | i, _    => alt_2
-  ```
-  A binder syntax that reads its binders positionally binds the variables itself and so accepts
-  alternatives.
--/
+/-- The variables `matchAlts` matches on, and the `match` over them: `| 0, b => alt` yields
+`x_1 x_2` and `match @x_1, @x_2 with | 0, b => alt`. See `expandMatchAltsIntoMatch`. -/
 def expandMatchAltsIntoBinders (ref : Syntax) (matchAlts : Syntax) :
     MacroM (Array Ident × Term) := withRef ref do
   let (xs, discrs) ← mkMatchAltVars (getMatchAltsNumPatterns matchAlts) #[] #[]
@@ -566,11 +552,10 @@ def expandMatchAltsIntoBinders (ref : Syntax) (matchAlts : Syntax) :
   ```
   The two definitions should be elaborated without errors and be equivalent.
  -/
-def expandMatchAltsIntoMatch (ref : Syntax) (matchAlts : Syntax) (useExplicit := true) : MacroM Syntax :=
-  withRef ref do
-    let (xs, body) ← expandMatchAltsIntoBinders ref matchAlts
-    xs.foldrM (init := body.raw) fun x body =>
-      if useExplicit then `(@fun $x => $body) else `(fun $x => $body)
+def expandMatchAltsIntoMatch (ref : Syntax) (matchAlts : Syntax) (useExplicit := true) : MacroM Syntax := do
+  let (xs, body) ← expandMatchAltsIntoBinders ref matchAlts
+  xs.foldrM (init := body.raw) fun x body =>
+    if useExplicit then `(@fun $x => $body) else `(fun $x => $body)
 
 def expandMatchAltsIntoMatchTactic (ref : Syntax) (matchAlts : Syntax) : MacroM Syntax :=
   withRef ref do

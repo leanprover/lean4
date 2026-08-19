@@ -112,32 +112,12 @@ private def checkAssertionBinders (ref : Syntax) (what : String) (binders : Nat)
     throwErrorAt ref "The {what} of a loop in this monad takes {takes}, and this clause has \
       {has}. The loop's mutable variables are named without binding them."
 
-/-- The first `n` argument types of the assertion language, as syntax. An argument type that
-mentions an earlier argument is left out, along with the ones after it. -/
-private def assertionArgTypes (pred : Expr) (n : Nat) : DoElabM (Array Term) := do
-  let mut tys := #[]
-  let mut pred := pred
-  while tys.size < n do
-    let .forallE _ d b _ := pred | break
-    if b.hasLooseBVars then break
-    tys := tys.push (← Term.exprToSyntax d)
-    pred := b
-  return tys
-
 /-- Bind the arguments of an assertion, which the clause states after the loop's own binders. The
-binders take their types from the assertion language, so that a binder may destructure its
-argument. -/
-private def mkAssertionFun (binders : TSyntaxArray ``Lean.Parser.Term.funBinder) (body : Term)
-    (pred? : Option Expr) : DoElabM Term := do
+binders are stated at the assertion's argument types, so that a binder may destructure. -/
+private def mkAssertionFun (binders : TSyntaxArray ``Lean.Parser.Term.funBinder) (body : Term) :
+    DoElabM Term := do
   if binders.isEmpty then return body
-  let f ← `(fun $binders* => $body)
-  let some pred := pred? | return f
-  let tys ← assertionArgTypes pred binders.size
-  if tys.size < binders.size then return f
-  -- A clause may bind fewer arguments than the assertion takes, so the result of the ascribed
-  -- function is left to elaboration.
-  let ty ← tys.foldrM (init := ← `(_)) fun ty acc => `($ty → $acc)
-  `(($f : $ty))
+  ascribeAssertionArgs (← `(fun $binders* => $body)) binders.size
 
 /-- The pattern that names the loop's mutable variables in the state tuple, whose layout is
 `[return?, mutVars…, unit?]`; the early-return slot becomes a wildcard. -/
@@ -223,7 +203,7 @@ private def mkForInPureWithInvariant (g : ForInApp) (invClause : TSyntax ``doLoo
   let assertionBinders := binders.drop 2
   let pred? ← assertionLanguage?
   checkAssertionBinders invClause "invariant" assertionBinders.size pred?
-  let invBody ← mkAssertionFun assertionBinders invBody pred?
+  let invBody ← mkAssertionFun assertionBinders invBody
   let invLam ← `(fun $loopBinders* => $(← g.mkStateFun invBody))
   let gadget := if h?.isSome then ``Std.WP.Gadget.forInPureWithInvariant'
     else ``Std.WP.Gadget.forInPureWithInvariant
@@ -242,7 +222,7 @@ private def mkForInLoopGadget (g : ForInApp)
     let exitBinder := binders[0]!
     let assertionBinders := binders.drop 1
     checkAssertionBinders invClause "invariant" assertionBinders.size pred?
-    let invBody ← mkAssertionFun assertionBinders invBody pred?
+    let invBody ← mkAssertionFun assertionBinders invBody
     let cursor := mkIdentFrom invClause (← mkFreshUserName `__c)
     let invBody ← if exitBinder.raw.isOfKind ``hole then pure invBody else
       let exitPat : Term := ⟨exitBinder.raw⟩
@@ -260,7 +240,7 @@ private def mkForInLoopGadget (g : ForInApp)
       | `(doLoopDecreasing| decreasing $measure:term) => pure (#[], measure)
       | _ => throwUnsupportedSyntax
     checkAssertionBinders decClause "measure" binders.size pred?
-    return ((decClause : Syntax), ← g.mkStateFun (← mkAssertionFun binders body pred?))
+    return ((decClause : Syntax), ← g.mkStateFun (← mkAssertionFun binders body))
   let some (ref, gadget, annotations) := (match invArg?, varArg? with
     | some (ref, inv), some (_, var) =>
       some (ref, ``Std.WP.Gadget.forInLoopWithInvariantAndVariant, #[inv, var])

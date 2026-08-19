@@ -530,7 +530,8 @@ example : StateM Nat Unit := do
 
 /-! ## A clause states one case per shape of its arguments
 
-The alternatives of a clause match on its binders in parallel, as `fun | x, y => …` does. -/
+The alternatives of a clause match on its binders in parallel, as `fun | x, y => …` does. The
+`invariant` binds the loop's own binders alongside, so its alternatives match on all three. -/
 
 def countSumAlts (xs : List Nat) : StateM (Nat × Nat) Unit
     requires | ⟨seen, sum⟩ => seen = 0 ∧ sum = 0
@@ -557,24 +558,6 @@ def drainPair (n : Nat) : StateM (Nat × Nat) Unit
       invariant
         | true, ⟨a, _b⟩ => a = n
         | false, ⟨a, _b⟩ => a ≤ n
-      decreasing ⟨a, _b⟩ => n - a
-    do
-    let s ← get
-    if s.1 = n then break
-    set (s.1 + 1, s.2)
-where finally
-  | spec => all_goals grind
-
-#guard_msgs (drop info) in
-#check @drainPair.spec
-
-/-! The `decreasing` clause states its measure per shape of the arguments too. -/
-
-def drainPairAlts (n : Nat) : StateM (Nat × Nat) Unit
-    requires ⟨a, _b⟩ => a ≤ n
-    ensures _ ⟨a, _b⟩ => a = n := do
-  repeat
-      invariant exit ⟨a, _b⟩ => a ≤ n ∧ (exit → a = n)
       decreasing | ⟨a, _b⟩ => n - a
     do
     let s ← get
@@ -584,7 +567,7 @@ where finally
   | spec => all_goals grind
 
 #guard_msgs (drop info) in
-#check @drainPairAlts.spec
+#check @drainPair.spec
 
 /-! The `assert` element states one assertion per shape of the arguments too. -/
 

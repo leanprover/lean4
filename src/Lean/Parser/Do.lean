@@ -191,7 +191,7 @@ A binder destructures its argument, as in `invariant pref suff ⟨lo, hi⟩ => l
 -/
 def doLoopInvariant := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "invariant" >>
-    withForbiddens #["do", "decreasing"] (basicFun <|> ppIndent matchAlts))
+    withForbiddens #["do", "decreasing"] funLikeBody)
 /--
 A `decreasing` clause gives a `repeat` or `while` loop its termination measure, which every
 iteration must lower. The measure is a term over the loop's mutable variables; the form
@@ -200,7 +200,7 @@ monad, and the form `decreasing | a, b, c => e` states the measure per shape of 
 -/
 def doLoopDecreasing := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "decreasing" >>
-    withForbidden "do" (atomic basicFun <|> ppIndent matchAlts <|> (ppSpace >> termParser)))
+    withForbidden "do" funLikeBodyOrTerm)
 /--
 `for x in e do s` iterates over `e` assuming `e`'s type has an instance of the `ForIn` typeclass.
 `break` and `continue` are supported inside `for` loops.
@@ -325,7 +325,7 @@ assertion from the program and proves it; at runtime the element does nothing.
 -/
 @[builtin_doElem_parser default+10] def doAssertion := leading_parser:leadPrec
   nonReservedSymbol "assert" (includeIdent := true) >>
-    (atomic basicFun <|> ppIndent matchAlts <|> (ppSpace >> termParser))
+    funLikeBodyOrTerm
 
 @[builtin_doElem_parser] def doRepeat      := leading_parser
   "repeat " >> optional doLoopInvariant >> optional doLoopDecreasing >> doSeq

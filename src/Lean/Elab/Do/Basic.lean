@@ -11,7 +11,6 @@ public import Lean.Elab.Binders
 import Lean.Meta.ProdN
 public import Lean.Parser
 meta import Lean.Parser.Do
-meta import Std.WP.Monad.Basic
 import Init.Omega
 
 public section
@@ -279,13 +278,28 @@ parameter: synthesizing `WPMonad StateM Nat _ _` assigns `Nat → Prop` for the 
 whose instance is not available reports nothing. The type is built from syntax so that the
 universes and the instance arguments of the class come from elaboration. -/
 def assertionLanguage? : DoElabM (Option Expr) := do
-  unless (← getEnv).contains ``Std.WP.WPMonad do return none
+  let wpMonad := `Std.WP.WPMonad
+  unless (← getEnv).contains wpMonad do return none
   let wpTy ← Term.elabType <| ←
-    `($(mkIdent ``Std.WP.WPMonad) $(← Term.exprToSyntax (← read).monadInfo.m) _ _)
+    `($(mkIdent wpMonad) $(← Term.exprToSyntax (← read).monadInfo.m) _ _)
   let .some _ ← trySynthInstance wpTy | return none
   let some pred := wpTy.getAppArgs[1]? | return none
   let pred ← instantiateMVars pred
   return if pred.hasExprMVar then none else some pred
+
+/-- Ascribe the first `n` argument types of the assertion language to `f`, so that a binder may
+destructure its argument: `fun ⟨lo, hi⟩ => lo ≤ hi` is stated at `Nat × Nat → _`. The result is a
+hole, because a `decreasing` measure ends in the measure type rather than in an assertion. -/
+def ascribeAssertionArgs (f : Term) (n : Nat) : DoElabM Term := do
+  if n == 0 then return f
+  let some pred ← assertionLanguage? | return f
+  let mut tys := #[]
+  let mut pred := pred
+  for _ in *...n do
+    let .forallE _ d b _ := pred | return f
+    tys := tys.push (← Term.exprToSyntax d)
+    pred := b
+  `(($f : $(← tys.foldrM (init := ← `(_)) fun ty acc => `($ty → $acc))))
 
 /-- The cached `PUnit` expression. -/
 def mkPUnit : DoElabM Expr := do

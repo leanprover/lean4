@@ -145,7 +145,7 @@ the same hash-consed expression as `e`, or `none`. Must run in `goal`'s context.
 private def liftedPreFor? (scope : Scope) (e : Expr) : VCGenM (Option LocalDecl) := do
   let some fvarId := scope.lastLiftedPre? | return none
   let some hyp := (← getLCtx).find? fvarId | return none
-  unless (← withNewMCtxDepth <| isDefEqS e hyp.type) do return none
+  unless isSameExpr e hyp.type do return none
   trace[Elab.Tactic.Do.vcgen] "Solved by lifted hypothesis {hyp.userName}"
   return some hyp
 

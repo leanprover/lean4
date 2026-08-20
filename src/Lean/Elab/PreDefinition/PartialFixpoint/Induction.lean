@@ -128,9 +128,6 @@ each predicate, and the meet characterizations of `ImplicationOrder`/`ReverseImp
 -/
 def mkIsMeetProof (predTypes predVars wComponents fInsts : Array Expr)
     (fixpointTypes : Array PartialFixpointType) : MetaM Expr := do
-  -- Note: all carriers and `PartialOrder` instances are passed explicitly. The carriers
-  -- (`ImplicationOrder`/`ReverseImplicationOrder` and their pi types) are definitionally but not
-  -- syntactically equal to the types of the predicates, so instance synthesis cannot find them.
   let componentProofs ← predTypes.mapIdxM fun i predType =>
     forallTelescopeReducing predType fun ts _ => do
       let leafLemma := if isCoinductiveFixpoint fixpointTypes[i]! then
@@ -194,90 +191,84 @@ def deriveInduction (name : Name) (isMutual : Bool) (strong : Bool := false) : M
           return fInst.eta
         -- All definitions from `mutual` block as PProdN
         let packedConclusion ← PProdN.mk 1 fInsts
-        if strong then
-          let predTypes ← PProdN.unpack α infos.size
-          -- For each predicate in the mutual group we generate an appropriate candidate predicate
-          let predicates := (numberNames infos.size "pred").zip predTypes
-          withLocalDeclsDND predicates fun predVars => do
-            -- A joint approximation to the fixpoint
-            let predVar ← PProdN.mk 0 predVars
-            -- The pointwise meet of the candidate predicates and the defined predicates:
-            -- disjunction for coinductive components, conjunction for inductive ones
-            let wComponents ← predTypes.mapIdxM fun i predType =>
-              forallTelescopeReducing predType fun ts _ => do
-                let conn := if isCoinductiveFixpoint eqnInfo.fixpointType[i]! then ``Or else ``And
-                mkLambdaFVars ts <|
-                  mkApp2 (mkConst conn) (mkAppN predVars[i]! ts) (fInsts[i]!.beta ts)
-            let wPacked ← PProdN.mk 0 wComponents
-            let hw ← mkIsMeetProof predTypes predVars wComponents fInsts eqnInfo.fixpointType
-            -- The type of `hw` mentions the folded predicates where the expected argument type
-            -- mentions the `lfp_monotone` application; these are definitionally equal, but only
-            -- the kernel can see this (`lfp_monotone` is not exposed), so we apply `hw` without
-            -- an elaboration-time check.
-            let e' ← mkAppOptM ``lfp_le_of_le_meet_monotone
-              #[α, instcomplete_lattice, F, hmono, predVar, wPacked]
-            let e' := mkApp e' hw
-            -- The type of `e'` is now `F w ⊑ pred → lfp F hmono ⊑ pred`;
-            -- we unfold its premise into per-predicate quantified implications
-            let .forallE _ premiseType _ _ ← inferType e'
-              | throwError "Unexpected type of strong induction principle"
-            let premises ← unfoldPredRelMutual eqnInfo premiseType (reduceConclusion := true)
-            let premises ← premises.mapM fun p => do Core.betaReduce (← PProdN.reduceProjs p)
-            -- Then, we introduce hypotheses
-            withLocalDeclsDND ((numberNames infos.size "hyp").zip premises) fun hypVars => do
-              let packedHyp ← PProdN.mk 0 hypVars
-              let e' := mkApp e' packedHyp
-              -- In the conclusion, we replace the `lfp` application by the folded predicates
-              -- and unfold the partial order relation
-              let conclType ← inferType e'
-              let_expr PartialOrder.rel cType pord _ cPred := conclType
-                | throwError "Unexpected conclusion {conclType}, not an application of PartialOrder.rel"
-              let newConcl ← mkAppOptM ``PartialOrder.rel #[cType, pord, packedConclusion, cPred]
-              let unfolded ← unfoldPredRelMutual eqnInfo newConcl
+        -- For each predicate in the mutual group we generate an appropriate candidate predicate
+        let predTypes ← PProdN.unpack α infos.size
+        let predicates := (numberNames infos.size "pred").zip predTypes
+        withLocalDeclsDND predicates fun predVars => do
+          -- A joint approximation to the fixpoint
+          let predVar ← PProdN.mk 0 predVars
+          if strong then
+              -- The pointwise meet of the candidate predicates and the defined predicates:
+              -- disjunction for coinductive components, conjunction for inductive ones
+              let wComponents ← predTypes.mapIdxM fun i predType =>
+                forallTelescopeReducing predType fun ts _ => do
+                  let conn := if isCoinductiveFixpoint eqnInfo.fixpointType[i]! then ``Or else ``And
+                  mkLambdaFVars ts <|
+                    mkApp2 (mkConst conn) (mkAppN predVars[i]! ts) (fInsts[i]!.beta ts)
+              let wPacked ← PProdN.mk 0 wComponents
+              let hw ← mkIsMeetProof predTypes predVars wComponents fInsts eqnInfo.fixpointType
+              -- The type of `hw` mentions the folded predicates where the expected argument type
+              -- mentions the `lfp_monotone` application; these are definitionally equal, but only
+              -- the kernel can see this (`lfp_monotone` is not exposed), so we apply `hw` without
+              -- an elaboration-time check.
+              let e' ← mkAppOptM ``lfp_le_of_le_meet_monotone
+                #[α, instcomplete_lattice, F, hmono, predVar, wPacked]
+              let e' := mkApp e' hw
+              -- The type of `e'` is now `F w ⊑ pred → lfp F hmono ⊑ pred`;
+              -- we unfold its premise into per-predicate quantified implications
+              let .forallE _ premiseType _ _ ← inferType e'
+                | throwError "Unexpected type of strong induction principle"
+              let premises ← unfoldPredRelMutual eqnInfo premiseType (reduceConclusion := true)
+              let premises ← premises.mapM fun p => do Core.betaReduce (← PProdN.reduceProjs p)
+              -- Then, we introduce hypotheses
+              withLocalDeclsDND ((numberNames infos.size "hyp").zip premises) fun motiveVars => do
+                let packedHyp ← PProdN.mk 0 motiveVars
+                let e' := mkApp e' packedHyp
+                -- In the conclusion, we replace the `lfp` application by the folded predicates
+                -- and unfold the partial order relation
+                let conclType ← inferType e'
+                let_expr PartialOrder.rel cType pord _ cPred := conclType
+                  | throwError "Unexpected conclusion {conclType}, not an application of PartialOrder.rel"
+                let newConcl ← mkAppOptM ``PartialOrder.rel #[cType, pord, packedConclusion, cPred]
+                let unfolded ← unfoldPredRelMutual eqnInfo newConcl
+                -- Definitions with a fixed parameter after a varying one do not eta-reduce to a
+                -- partial application in `fInsts`, leaving beta redexes in the conclusion
+                let unfolded ← unfolded.mapM (Core.betaReduce ·)
+                let conclType ← PProdN.reduceProjs (← PProdN.pack 0 unfolded)
+                let e' ← mkExpectedTypeHint e' conclType
+                -- For the `strong_mutual_induct` variant, we are done.
+                -- Else, project out the appropriate element
+                let e' ← if isMutual then
+                    pure e'
+                  else
+                    PProdN.projM infos.size (eqnInfo.declNames.idxOf name) e'
+                -- Finally, we bind all the free variables with lambdas
+                let e' ← mkLambdaFVars motiveVars e'
+                let e' ← mkLambdaFVars predVars e'
+                let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
+                let e' ← instantiateMVars e'
+                trace[Elab.definition.partialFixpoint.induction] "Complete body of strong fixpoint induction principle:{indentExpr e'}"
+                pure e'
+          else
+            let e' ← mkAppOptM ``lfp_le_of_le_monotone #[α, instcomplete_lattice, F, hmono]
+            -- We get the type of the induction principle
+            let eTyp ← inferType e'
+            -- And unfold the conclusion, upon replacing references to the fixpoint theorem with the defined functions
+            let eTyp ← forallTelescope eTyp fun args body => do
+              let_expr PartialOrder.rel α pord _ pred := body
+                | throwError "Unexpected function type {body}, not an application of PartialOrder.rel"
+              let newBody ← mkAppOptM ``PartialOrder.rel #[α, pord, packedConclusion, pred]
+              let unfolded ← unfoldPredRelMutual eqnInfo newBody
               -- Definitions with a fixed parameter after a varying one do not eta-reduce to a
-              -- partial application in `fInsts`, leaving beta redexes in the conclusion
+              -- partial application in `packedConclusion`, leaving beta redexes in the conclusion
               let unfolded ← unfolded.mapM (Core.betaReduce ·)
-              let conclType ← PProdN.reduceProjs (← PProdN.pack 0 unfolded)
-              let e' ← mkExpectedTypeHint e' conclType
-              -- For the `strong_mutual_induct` variant, we are done.
-              -- Else, project out the appropriate element
-              let e' ← if isMutual then
-                  pure e'
-                else
-                  PProdN.projM infos.size (eqnInfo.declNames.idxOf name) e'
-              -- Finally, we bind all the free variables with lambdas
-              let e' ← mkLambdaFVars hypVars e'
-              let e' ← mkLambdaFVars predVars e'
-              let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
-              let e' ← instantiateMVars e'
-              trace[Elab.definition.partialFixpoint.induction] "Complete body of strong fixpoint induction principle:{indentExpr e'}"
-              pure e'
-        else
-          let e' ← mkAppOptM ``lfp_le_of_le_monotone #[α, instcomplete_lattice, F, hmono]
-          -- We get the type of the induction principle
-          let eTyp ← inferType e'
-          -- And unfold the conclusion, upon replacing references to the fixpoint theorem with the defined functions
-          let eTyp ← forallTelescope eTyp fun args body => do
-            let_expr PartialOrder.rel α pord _ pred := body
-              | throwError "Unexpected function type {body}, not an application of PartialOrder.rel"
-            let newBody ← mkAppOptM ``PartialOrder.rel #[α, pord, packedConclusion, pred]
-            let unfolded ← unfoldPredRelMutual eqnInfo newBody
-            -- Definitions with a fixed parameter after a varying one do not eta-reduce to a
-            -- partial application in `packedConclusion`, leaving beta redexes in the conclusion
-            let unfolded ← unfolded.mapM (Core.betaReduce ·)
-            let newBody ← PProdN.pack 0 unfolded
-            mkForallFVars args newBody
-          let e' ← mkExpectedTypeHint e' eTyp
-          -- We obtain the premises of (co)induction proof principle
-          let motives ← forallTelescope eTyp fun args _ => do
-            let motives ← unfoldPredRelMutual eqnInfo (←inferType args[1]!) (reduceConclusion := true)
-            motives.mapM (fun x => mkForallFVars #[args[0]!] x)
-          -- For each predicate in the mutual group we generate an appropriate candidate predicate
-          let predicates := (numberNames infos.size "pred").zip <| ← PProdN.unpack α infos.size
-          -- Then we make the induction principle more readable, by currying the hypotheses and projecting the conclusion
-          withLocalDeclsDND predicates fun predVars => do
-            -- A joint approximation to the fixpoint
-            let predVar ← PProdN.mk 0 predVars
+              let newBody ← PProdN.pack 0 unfolded
+              mkForallFVars args newBody
+            let e' ← mkExpectedTypeHint e' eTyp
+            -- We obtain the premises of (co)induction proof principle
+            let motives ← forallTelescope eTyp fun args _ => do
+              let motives ← unfoldPredRelMutual eqnInfo (←inferType args[1]!) (reduceConclusion := true)
+              motives.mapM (fun x => mkForallFVars #[args[0]!] x)
             -- All motives get instantiated with the newly created variables
             let newMotives ← motives.mapM (instantiateForall · #[predVar])
             let newMotives ← newMotives.mapM (PProdN.reduceProjs ·)

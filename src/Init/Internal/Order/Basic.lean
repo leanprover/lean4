@@ -377,6 +377,9 @@ Strong Park induction for the least fixpoint of a monotone function `f`: to show
 it suffices to show `f w ⊑ x` where `w` is a greatest lower bound of `x` and `lfp f`.
 The meet is passed as an explicit witness `w` (together with a proof of `is_meet x (lfp f) w`)
 so that callers can supply a definitionally convenient form of it.
+
+This is intended to be used in the construction of the strong induction principles of
+`inductive_fixpoint` and `coinductive_fixpoint`, and not meant to be used otherwise.
 -/
 theorem lfp_le_of_le_meet {f : α → α} (hm : monotone f) {x w : α}
     (hw : is_meet x (lfp f) w) (h : f w ⊑ x) : lfp f ⊑ x :=
@@ -385,6 +388,9 @@ theorem lfp_le_of_le_meet {f : α → α} (hm : monotone f) {x w : α}
 
 /--
 Same as `lfp_le_of_le_meet`, but uses the version of `lfp` that takes a witness of monotonicity.
+
+This is intended to be used in the construction of the strong induction principles of
+`inductive_fixpoint` and `coinductive_fixpoint`, and not meant to be used otherwise.
 -/
 theorem lfp_le_of_le_meet_monotone (f : α → α) {hm : monotone f} (x w : α)
     (hw : is_meet x (lfp_monotone f hm) w) :

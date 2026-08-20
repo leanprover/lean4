@@ -3,8 +3,9 @@ import Std.WP
 
 /-!
 Tests that `vcgen` keeps the exception postcondition of a spec that states it as `estack⟨E⟩` with `E`
-schematic, and that a spec stating `⊥` still weakens without emitting an exception postcondition
-verification condition.
+schematic, that a spec stating `⊥` still weakens without emitting an exception postcondition
+verification condition, and that a goal stating `⊤` closes the projected exception postcondition
+`⊤.fst e` outright.
 -/
 
 set_option mvcgen.warning false
@@ -37,5 +38,15 @@ example : ⦃Q "boom"⦄ boom ⦃fun _ => True; estack⟨Q⟩⦄ := by
 example : ⦃Q "boom"⦄ boom' ⦃fun _ => True; estack⟨Q⟩⦄ := by
   vcgen
 
+/-- Whole-stack-schematic spec derived by `vcgen`: the rigid projection `E.fst "boom"` falls through
+the `Prod.fst` lattice split to the lifted hypothesis. -/
+theorem boom'_spec' {E : EStack⟨String → Prop⟩} :
+    ⦃E.fst "boom"⦄ boom' ⦃fun _ => True; E⦄ := by
+  vcgen
+
 example : ⦃True⦄ boomBot ⦃fun _ => True; estack⟨Q⟩⦄ := by
+  vcgen
+
+/-- Goal exception postcondition `⊤`: the throw site's `⊤.fst "boom"` closes via `le_top`. -/
+example : ⦃True⦄ (throw "boom" : M Unit) ⦃fun _ => True; ⊤⦄ := by
   vcgen

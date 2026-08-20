@@ -165,6 +165,9 @@ public structure LatticeOp where
   /-- The operator's terminal `⊑`-introduction rule, or `none` when it saturates to another operator's
   terminal. -/
   terminal? : Option Name := none
+  /-- Whether the split applies to this RHS. Ops without a terminal decline shapes their rewrites
+  cannot reduce. -/
+  applies? : Expr → Bool := fun _ => true
 
 /-- A frame inference procedure registered with `@[frameproc]`, together with its frame operator. The
 `vcgen` frontend selects the one whose `prog` matches the goal program's monad. -/

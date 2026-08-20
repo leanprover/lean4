@@ -181,6 +181,22 @@ theorem Prod.fst_bot {α : Type u} {β : Type v} [CCPO α] [CCPO β] :
     (⊥ : α × β).fst = (⊥ : α) :=
   PartialOrder.rel_antisymm (bot_le ((⊥ : α), (⊥ : β))).left (bot_le _)
 
+/-- The second component of the bottom element is the bottom element. Propositional (not
+definitional), because `⊥` is `csup ∅`, not a constructor application. -/
+theorem Prod.snd_bot {α : Type u} {β : Type v} [CCPO α] [CCPO β] :
+    (⊥ : α × β).snd = (⊥ : β) :=
+  PartialOrder.rel_antisymm (bot_le ((⊥ : α), (⊥ : β))).right (bot_le _)
+
+/-- The first component of the top element is the top element. Propositional (not
+definitional), because `⊤` is a supremum, not a constructor application. -/
+theorem Prod.fst_top : (⊤ : α × β).fst = (⊤ : α) :=
+  PartialOrder.rel_antisymm (le_top _) (le_top ((⊤ : α), (⊤ : β))).left
+
+/-- The second component of the top element is the top element. Propositional (not
+definitional), because `⊤` is a supremum, not a constructor application. -/
+theorem Prod.snd_top : (⊤ : α × β).snd = (⊤ : β) :=
+  PartialOrder.rel_antisymm (le_top _) (le_top ((⊤ : α), (⊤ : β))).right
+
 /-- A product lattice preserves suprema at the two components. -/
 instance [∀ a : α, PreservesSup (meet a)] [∀ b : β, PreservesSup (meet b)] (p : α × β) :
     PreservesSup (meet p) where

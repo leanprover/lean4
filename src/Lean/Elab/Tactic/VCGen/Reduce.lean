@@ -70,8 +70,7 @@ public partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
       | .proj .. =>
         match ← withReducibleAndInstances <| reduceProjAndUnfold? f with
         | some f' =>
-          let f' ← Sym.shareCommonInc f'
-          let e' := mkAppRev f' rargs
+          let e' ← Sym.shareCommonInc (mkAppRev f' rargs)
           go (some e') e'.getAppFn e'.getAppRevArgs
         | none    => pure lastReduction
       | _ => pure lastReduction

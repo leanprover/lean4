@@ -7,11 +7,11 @@ module
 
 prelude
 public import Lean.Elab.Tactic.VCGen.Context
-public import Lean.Elab.Tactic.VCGen.ExceptPost
 public import Lean.Elab.Tactic.VCGen.RuleCache
 public import Lean.Elab.Tactic.VCGen.Util
 public import Lean.Meta.Sym.Util
 public import Lean.Meta.Tactic.Replace
+public import Std.WP
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.InstantiateMVarsS
 
@@ -46,28 +46,19 @@ public def introPre (rule : BackwardRule) (goal : MVarId) : VCGenM (MVarId × FV
   return (goal, decl.fvarId)
 
 /--
-Reduce a `Prod.fst` projection on the RHS of `pre ⊑ rhs` to the component it selects. A concrete
-tuple projects to that component. The rule of `mkExceptPostBotRuleCached` reduces
-`(⊥ : _ × _).fst x₁ … xₙ` to `⊥`. Returns `none` if the RHS is not such a projection.
+Reduce a `Prod.fst` projection of a concrete tuple on the RHS of `pre ⊑ rhs` to the component it
+selects. An exception postcondition is a tuple with one component per exception layer, so the head
+layer of `pre ⊑ epost.fst` is a `Prod.fst` projection. `reduceHead?` performs the reduction, so a
+`.snd` chain below the projection and excess state arguments reduce in the same pass. Returns
+`none` if the RHS head is not `Prod.fst` or does not reduce; a `⊥`/`⊤` tuple falls through to the
+`Prod.fst` lattice split in `splitLatticeOp?`.
 -/
 public def reduceExceptPostFst? (goal : MVarId) (target α inst pre rhs : Expr) :
-    VCGenM (Option MVarId) :=
-  rhs.withApp fun fst args => do
-    unless fst.isConstOf ``Prod.fst do return none
-    let some epostArg := args[2]? | return none
-    -- `(⊥ : _ × _).fst x₁ … xₙ` is propositionally `⊥`. Reduce it to a `pre ⊑ ⊥` VC.
-    if epostArg.isAppOf ``Lean.Order.bot then
-      let some rule ← mkExceptPostBotRuleCached target rhs |>.run | return none
-      let .goals goals ← rule.applyChecked goal | return none
-      let [goal] := goals
-        | throwError "the `⊥` exception postcondition rule left {goals.length} subgoals"
-      return some goal
-    let (epostTarget, index) := peelExceptPostSndChain epostArg
-    let some epost ← mkExceptPostAtIndex epostTarget index | return none
-    let excessArgs := args.drop 3
-    let rhs ← betaS epost excessArgs
-    let newTarget ← mkAppNS target.getAppFn #[α, inst, pre, rhs]
-    return some (← goal.replaceTargetDefEqFast newTarget)
+    VCGenM (Option MVarId) := do
+  unless rhs.isAppOf ``Prod.fst do return none
+  let some rhs' ← reduceHead? rhs | return none
+  let newTarget ← mkAppNS target.getAppFn #[α, inst, pre, rhs']
+  return some (← goal.replaceTargetDefEqFast newTarget)
 
 /-- Refold a meet upper adjoint `upperAdjoint (meet F) Q s⃗` on the RHS of `pre ⊑ rhs` to the Heyting
 implication `(F ⇨ Q) s⃗`, rewriting `goal` and returning it with its new RHS, so it decomposes through
@@ -86,10 +77,11 @@ private def refoldHimpUpperAdjoint? (goal : MVarId) (rhs : Expr) :
     return some (← goal.replaceTargetDefEqFast newTarget, rhs')
 
 /--
-Decompose a supported lattice connective (`⊓`, `⇨`, `⌜p⌝`, `⊤`, `iInf`) or a registered frame operator on the
-RHS of `pre ⊑ rhs` by saturating it with the built-in and `@[frameproc]` rewrites, closing it with a
-terminal, and point-framing any excess state arguments. Returns `none` if the head is neither a
-built-in connective nor a frame operator, or its rule does not apply.
+Decompose a supported lattice connective (`⊓`, `⇨`, `⌜p⌝`, `⊤`, `iInf`, a `⊥`/`⊤` tuple projection)
+or a registered frame operator on the RHS of `pre ⊑ rhs` by saturating it with the built-in and
+`@[frameproc]` rewrites, closing it with a terminal, and point-framing any excess state arguments.
+Returns `none` if the head is neither a built-in connective nor a frame operator, or its rule does
+not apply.
 
 An embedded proposition `⌜p⌝` is decomposed only when the precondition is `⊤`: its `⊤`-fixed terminal
 `top_le_ofProp` fails to apply otherwise, since turning `pre ⊑ ⌜p⌝` into the subgoal `p` drops `pre`.
@@ -100,6 +92,7 @@ public def splitLatticeOp? (goal : MVarId) (rhs : Expr) :
   let (goal, rhs) := (← refoldHimpUpperAdjoint? goal rhs).getD (goal, rhs)
   let some headName := rhs.getAppFn.constName? | return none
   let some op := latticeOps[headName]? | return none
+  unless op.applies? rhs do return none
   let rule ← mkLatticeOpRuleCached rhs op
   match ← rule.applyChecked goal with
   | .goals goals => return some goals

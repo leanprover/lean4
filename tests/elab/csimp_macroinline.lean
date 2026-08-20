@@ -23,17 +23,18 @@ def myIte' (c : Bool) (t e : Nat) : Nat := if c then t else e
 theorem myIteThm : @myIte = @myIte' := rfl
 
 /--
-trace: [Compiler.init] size: 7
+trace: [Compiler.init] size: 8
     def myIteTest c t e : Nat :=
       let _x.1 := true;
-      let _x.2 := instDecidableEqBool c _x.1;
-      cases _x.2 : Nat
-      | Decidable.isFalse x.3 =>
+      let _x.2 := Bool.decEq c _x.1;
+      let _x.3 := _x.2 # 0;
+      cases _x.3 : Nat
+      | Bool.false =>
         let _x.4 := Nat.add e e;
         return _x.4
-      | Decidable.isTrue x.5 =>
-        let _x.6 := Nat.add t t;
-        return _x.6
+      | Bool.true =>
+        let _x.5 := Nat.add t t;
+        return _x.5
 -/
 #guard_msgs in
 set_option trace.Compiler.init true in

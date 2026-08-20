@@ -1622,6 +1622,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a) {
     }
 }
 
+extern "C" LEAN_EXPORT size_t lean_nat_size_in_bytes(b_lean_obj_arg a) {
+    if (lean_is_scalar(a))
+        return sizeof(size_t); // a scalar occupies one machine word
+    return mpz_value(a).size_in_bytes();
+}
+
 // =======================================
 // Integers
 

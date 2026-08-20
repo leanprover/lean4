@@ -523,11 +523,6 @@ rule applies to the goal.
 A candidate is passed over when no rule fits the goal's monad or when the rule does not apply, so a
 spec guarded by an instance the call site does not provide gives way to a less general one, as does a
 spurious candidate of the over-approximating discrimination tree.
-
-The frame procedure for the monad (the `@[frameproc]` registered for the program type, or the
-default meet frame) is selected per goal, since sub-programs may reach a different monad (e.g. a
-`monadLift`ed base call). A matching `frames` clause is likewise consumed once per goal, before the
-candidate loop, so a passed-over candidate leaves the pinned frame for the next one.
 -/
 private def applySpecs (scope : Scope) (goal : MVarId) (info : WPApp) :
     VCGenM SolveResult := goal.withContext do

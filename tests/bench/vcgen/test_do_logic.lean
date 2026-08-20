@@ -125,7 +125,7 @@ theorem fib_triple_erase : ⦃ True ⦄ fib_impl n ⦃fun r => r = fib_spec n⦄
 
 theorem fib_impl_vcs
     (Q : Nat → Nat → Prop)
-    (E : EPost.Nil)
+    (E : EStack⟨⟩)
     (I : (n : Nat) → (_ : ¬n = 0) →
       Invariant Nat (Prod Nat Nat) Prop)
     (ret : Q 0 0)
@@ -182,7 +182,7 @@ theorem throwing_loop_spec :
   ⦃fun s => s = 4⦄
   throwing_loop
   ⦃fun _ _ => False;
-  epost⟨fun e s => e = 42 ∧ s = 4⟩⦄ := by
+  estack⟨fun e s => e = 42 ∧ s = 4⟩⦄ := by
   vcgen [throwing_loop]
   case inv1 => exact fun _ suff r s => r ≤ 4 ∧ s = 4 ∧ r + suff.sum > 4
   all_goals (simp_all; try grind)

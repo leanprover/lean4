@@ -263,7 +263,7 @@ instance (r : TraceProp): Lean.Order.PreservesSup (Lean.Order.meet r) where
       exact ⟨hytr.1, ⟨x, hx, hytr.2⟩⟩
 
 public
-instance: WPMonad Traceful TraceProp EPost⟨⟩ where
+instance: WPMonad Traceful TraceProp EStack⟨⟩ where
   toWP α := {
     wpTrans f := ⟨fun post _epost => ⟨
       fun trProof =>
@@ -422,7 +422,7 @@ axiom receiveMessage.spec
       (receiveMessage handle)
       (⊤)
       (fun msg => Always' (fun tr => msg.Publishable tr) )
-      epost⟨⟩
+      estack⟨⟩
 
 @[spec]
 axiom sendMessage.spec
@@ -431,7 +431,7 @@ axiom sendMessage.spec
       (sendMessage msg)
       (⟨fun tr => msg.Publishable tr.val⟩)
       (fun _ => ⊤)
-      epost⟨⟩
+      estack⟨⟩
 
 @[spec_invariant_type]
 structure RandUsageAndLabel where
@@ -448,7 +448,7 @@ axiom genRand.spec
       (⟨ fun _ => True ⟩)
       (fun res => Always' (fun tr => res.label tr = usageAndLabel.label res) ⊓
         ⟨ fun tr => RandGeneratedLast tr.val res ⟩)
-      epost⟨⟩
+      estack⟨⟩
 
 @[spec]
 axiom skip.spec
@@ -456,7 +456,7 @@ axiom skip.spec
       (skip)
       (⟨ fun _ => True ⟩)
       (fun _ => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 
 @[spec]
 axiom requireRandJustGenerated.spec
@@ -465,7 +465,7 @@ axiom requireRandJustGenerated.spec
       (requireRandJustGenerated msg)
       (⟨ fun tr => RandGeneratedLast tr.val msg ⟩)
       (fun _ => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 
 @[spec]
 axiom requireLabelPub.spec
@@ -474,7 +474,7 @@ axiom requireLabelPub.spec
       (requireLabelPub msg)
       (⟨ fun tr => msg.label tr.val = Label.pub ⟩)
       (fun _  => ⟨ fun _ => True ⟩ )
-      epost⟨⟩
+      estack⟨⟩
 
 @[spec]
 axiom requireLabelSecret.spec
@@ -483,7 +483,7 @@ axiom requireLabelSecret.spec
       (requireLabelSecret msg)
       (⟨ fun tr => msg.label tr.val = Label.secret ⟩)
       (fun _  => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 
 end TestSetup
 
@@ -675,7 +675,7 @@ theorem testNoNeedToFrame.spec
       (testNoNeedToFrame handle)
       (⟨ fun _ => True ⟩ )
       (fun _  => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 := by vcgen [testNoNeedToFrame] with finish
 
 set_option tactic.hygienic false
@@ -689,7 +689,7 @@ theorem testFrameSimple.spec
       (testFrameSimple handle)
       (⟨ fun _ => True ⟩ )
       (fun _  => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 := by
   vcgen [testFrameSimple]
   all_goals try dsimp only [Lean.Order.PartialOrder.rel]
@@ -702,7 +702,7 @@ theorem testNotAlways.spec
       (testNotAlways)
       (⟨ fun _ => True ⟩)
       (fun _  => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 := by
   vcgen [testNotAlways] invariants
   | inv1 => ⟨ "toto", fun _ => Label.pub ⟩
@@ -716,7 +716,7 @@ theorem testGhostPub.spec
       (testGhostPub)
       (⟨ fun _ => True ⟩)
       (fun _  => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 := by
   vcgen [testGhostPub] invariants
   | inv1 => ⟨"toto", fun _ => Label.pub⟩
@@ -730,7 +730,7 @@ theorem testGhostSecret.spec
       (testGhostSecret)
       (⟨ fun _ => True ⟩ )
       (fun _  => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 := by
   vcgen [testGhostSecret] invariants
   | inv1 => ⟨"toto", fun _ => Label.secret⟩
@@ -745,7 +745,7 @@ theorem testMixed.spec
       (testMixed handle)
       (⟨ fun _ => True ⟩)
       (fun _  => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 := by
   vcgen [testMixed] invariants
   | inv1 => ⟨"toto", fun _ => Label.pub⟩
@@ -760,7 +760,7 @@ theorem testBench10.spec
       (testBench10)
       (⟨ fun _ => True ⟩)
       (fun _  => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 := by
   vcgen [testBench10] with finish
 
@@ -769,7 +769,7 @@ theorem testBench10.spec
 --       (testBench40)
 --       (⟨ fun _ => True ⟩)
 --       (fun _  => ⟨ fun _ => True ⟩)
---       epost⟨⟩
+--       estack⟨⟩
 -- := by
 --   vcgen [testBench40] with finish
 

@@ -500,7 +500,7 @@ instance (F : HProp) : PreservesSup (sepConj F) where
 
 /-- The frame-internalizing weakest precondition: the `frameClosure` of the base `StateM Heap` wp
 over separating conjunction. -/
-noncomputable instance HeapM.instWPMonad : WPMonad HeapM HProp EPost.Nil :=
+noncomputable instance HeapM.instWPMonad : WPMonad HeapM HProp EStack⟨⟩ :=
   WPMonad.of_frameClosure (m := StateM Heap) sepConj sepConj_assoc emp_sepConj StateT.instWPMonad
 
 /-- Every `HeapM` program frames every heap assertion `F`. -/

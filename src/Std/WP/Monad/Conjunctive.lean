@@ -32,14 +32,14 @@ instance Id.instWPConjunctive {α : Type u} (x : Id α) : WPConjunctive x where
 instance Option.instWPConjunctive {α : Type u} (x : Option α) : WPConjunctive x where
   wp_meet_wp_le Q₁ Q₂ E₁ E₂ := by
     cases x <;>
-      simp only [meet_apply, wp, WP.wpTrans, Option.elim] <;>
-      first | exact PartialOrder.rel_refl | exact meet_le_left _ _
+      simp only [meet_apply, wp, WP.wpTrans, pushOption] <;>
+      exact PartialOrder.rel_refl
 
 /-- An `Except ε` program is conjunctive: its `wp` is evaluation at the result. -/
 instance Except.instWPConjunctive {ε α : Type u} (x : Except ε α) : WPConjunctive x where
   wp_meet_wp_le Q₁ Q₂ E₁ E₂ := by
     cases x <;>
-      simp only [meet_apply, wp, WP.wpTrans, EPost.Cons.head_meet] <;>
+      simp only [meet_apply, wp, WP.wpTrans, pushExcept] <;>
       exact PartialOrder.rel_refl
 
 /-- An `EStateM` program is conjunctive: its `wp` is evaluation at the result. -/
@@ -82,13 +82,13 @@ instance OptionT.instWPConjunctive {m : Type u → Type v} {Pred : Type u} {EPre
     {α : Type u} [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     (x : OptionT m α) [base : WPConjunctive x.run] : WPConjunctive x where
   wp_meet_wp_le Q₁ Q₂ E₁ E₂ := by
-    simp only [OptionT.wp_apply_eq, EPost.Cons.tail_meet]
+    simp only [OptionT.wp_apply_eq, Prod.snd_meet]
     refine PartialOrder.rel_trans
-      (base.wp_meet_wp_le (E₁.pushOption Q₁) (E₂.pushOption Q₂) E₁.tail E₂.tail)
+      (base.wp_meet_wp_le (pushOption Q₁ E₁.fst) (pushOption Q₂ E₂.fst) E₁.snd E₂.snd)
       (WP.wp_consequence _ _ _ _ ?_)
     intro o
     cases o <;>
-      simp only [meet_apply, EPost.Cons.pushOption, EPost.Cons.head_meet] <;>
+      simp only [meet_apply, pushOption, Prod.fst_meet] <;>
       exact PartialOrder.rel_refl
 
 /-- An `ExceptT` program lifts conjunctivity from its base monad. -/
@@ -96,13 +96,13 @@ instance ExceptT.instWPConjunctive {m : Type u → Type v} {ε α : Type u} {Pre
     {EPred : Type z} [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     (x : ExceptT ε m α) [base : WPConjunctive x.run] : WPConjunctive x where
   wp_meet_wp_le Q₁ Q₂ E₁ E₂ := by
-    simp only [ExceptT.wp_apply_eq, EPost.Cons.tail_meet]
+    simp only [ExceptT.wp_apply_eq, Prod.snd_meet]
     refine PartialOrder.rel_trans
-      (base.wp_meet_wp_le (E₁.pushExcept Q₁) (E₂.pushExcept Q₂) E₁.tail E₂.tail)
+      (base.wp_meet_wp_le (pushExcept Q₁ E₁.fst) (pushExcept Q₂ E₂.fst) E₁.snd E₂.snd)
       (WP.wp_consequence _ _ _ _ ?_)
     intro e
     cases e <;>
-      simp only [meet_apply, EPost.Cons.pushExcept, EPost.Cons.head_meet] <;>
+      simp only [meet_apply, pushExcept, Prod.fst_meet] <;>
       exact PartialOrder.rel_refl
 
 end Std.WP

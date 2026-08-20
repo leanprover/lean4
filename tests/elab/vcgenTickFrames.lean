@@ -167,7 +167,7 @@ def dropCost : TickM Unit := show StateM Nat Unit from set 0
 
 /-- `dropCost` resets the counter, so `TickT.wp dropCost Q n = False` for every `Q`: a shift
 of `1` leaves the unsatisfiable `1 ≤ 0`. The frame closure rejects programs that lose held ticks. -/
-example (Q : Unit → Nat → Prop) (E : EPost.Nil) (n : Nat) : TickT.wp dropCost Q E n = False := by
+example (Q : Unit → Nat → Prop) (E : EStack⟨⟩) (n : Nat) : TickT.wp dropCost Q E n = False := by
   rw [TickT.wp_apply_eq, iInf_prop_eq_forall]
   refine propext ⟨fun h => ?_, False.elim⟩
   -- `h 1` is the `r = 1` conjunct, which reduces to `⌜1 ≤ 0⌝ ⊓ Q () 0`.
@@ -384,5 +384,5 @@ example : ⦃ fun cost base => cost = 0 ∧ base = 0 ⦄ (tickAndBump)
 /-- The specs thread the exception postcondition `E` unchanged: over a base with exceptions
 (`ExceptT String Id`), `tick` still costs one and leaves the exception branch untouched. -/
 example : ⦃ fun cost => ⌜cost = 0⌝ ⦄ (tick : TickT (ExceptT String Id) Unit)
-    ⦃ fun _ cost => ⌜cost = 1⌝; epost⟨fun _ => (⊤ : Prop)⟩ ⦄ := by
+    ⦃ fun _ cost => ⌜cost = 1⌝; estack⟨fun _ => (⊤ : Prop)⟩ ⦄ := by
   vcgen with finish

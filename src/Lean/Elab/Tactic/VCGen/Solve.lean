@@ -585,7 +585,7 @@ The function performs the following steps in order:
    `σ₁ → ... → σₙ → Base`, introduce all excess state arguments.
 7. **Bare pure precondition introduction**: on the `Prop` lattice, replace a `True`
    precondition by `⊤` and lift any other precondition into the local context.
-8. **EPost projection reduction**: reduce an `EPost.Cons.head` RHS to the projected component.
+8. **Component projection reduction**: reduce a `Prod.fst` RHS to the projected component.
 9. **Lattice decomposition**: decompose `⊓`, `⇨`, `⌜p⌝` and `⊤` RHS connectives.
 10. **Lifted-hypothesis discharge**: close a residual `pre ⊑ ⌜φ⌝` entailment against the most
     recently lifted precondition `h : φ` in the local context, cached in `Scope.lastLiftedPre?`.
@@ -620,9 +620,9 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
   -- (`wpMatch?`, `splitLatticeOp?`) or apply a registered spec (`applySpec`).
   let scope ← scope.collectLocalSpecs goal
 
-  -- Phase 3: shape the `rhs` (reduce an EPost projection, decompose a lattice connective or a
+  -- Phase 3: shape the `rhs` (reduce a component projection, decompose a lattice connective or a
   -- forall, then discharge a residual entailment against the lifted hypothesis).
-  if let some g ← reduceEPostHead? goal target α inst pre rhs then return .goals scope [g]
+  if let some g ← headReduceFstRhs? goal target α inst pre rhs then return .goals scope [g]
   if let some gs ← splitLatticeOp? goal rhs then return .goals scope gs
   if let some gs ← splitForallLe? goal rhs then return .goals scope gs
   if let some gs ← liftedHyp? scope goal α pre rhs then return .goals scope gs

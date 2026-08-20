@@ -22,7 +22,7 @@ pointwise ones of the function space.
 
 `PredTrans Pred EPred` is a monad, so monadic programs can be interpreted by a monad morphism into
 it. This module provides that monad structure, the `apply` simp framework of the monadic
-combinators, and `pushArg`, which adds a state argument.
+combinators, and the `push` family that moves a result type into a postcondition.
 -/
 
 namespace Lean.Order
@@ -143,9 +143,9 @@ theorem PredTrans.apply_ite {Pred : Type u} {EPred : Type v}
   split <;> rfl
 
 /-!
-## State Handling
+## Arguments and Results
 
-Definitions for adding state arguments to predicate transformers.
+Definitions for transformer arguments and results.
 -/
 
 /-- Adds a state argument to a predicate transformer.
@@ -161,6 +161,72 @@ def pushArg {σ : Type u} {Pred : Type v} {EPred : Type w} {α : Type z}
 theorem PredTrans.apply_pushArg {σ : Type u} {Pred : Type v} {EPred : Type w} {α : Type z}
     (x : σ → PredTrans Pred EPred (α × σ)) (post : α → σ → Pred) (epost : EPred) (s : σ) :
     (pushArg x).apply post epost s = (x s).apply (fun (a, s) => post a s) epost := rfl
+
+/-- The postcondition for an `Except ε α` result: `ok a` uses `post a`, and `error e` uses
+`epost e`. -/
+def pushExcept {α : Type u} {ε : Type v} {Pred : Type w}
+    (post : α → Pred) (epost : ε → Pred) : Except ε α → Pred
+  | .ok a => post a
+  | .error e => epost e
+
+/-- A normal result uses the normal postcondition. -/
+@[simp, grind =] theorem pushExcept_ok {α : Type u} {ε : Type v} {Pred : Type w}
+    (post : α → Pred) (epost : ε → Pred) (a : α) :
+    pushExcept post epost (.ok a) = post a := rfl
+
+/-- An exceptional result uses the exception postcondition. -/
+@[simp, grind =] theorem pushExcept_error {α : Type u} {ε : Type v} {Pred : Type w}
+    (post : α → Pred) (epost : ε → Pred) (e : ε) :
+    pushExcept post epost (.error e) = epost e := rfl
+
+/-- The postcondition for an `Option α` result: `some a` uses `post a`, and `none` uses
+`epost ()`. -/
+def pushOption {α : Type u} {Pred : Type w}
+    (post : α → Pred) (epost : Unit → Pred) : Option α → Pred
+  | .some a => post a
+  | .none => epost ()
+
+/-- A present result uses the normal postcondition. -/
+@[simp, grind =] theorem pushOption_some {α : Type u} {Pred : Type w}
+    (post : α → Pred) (epost : Unit → Pred) (a : α) :
+    pushOption post epost (.some a) = post a := rfl
+
+/-- An absent result uses the absent postcondition. -/
+@[simp, grind =] theorem pushOption_none {α : Type u} {Pred : Type w}
+    (post : α → Pred) (epost : Unit → Pred) :
+    pushOption post epost .none = epost () := rfl
+
+/-- Adds an exception postcondition layer to a predicate transformer, mirroring `ExceptT`.
+
+Given a transformer over `Except ε α`, produces one over `α` with an additional exception
+postcondition for `ε`. The normal and error postconditions are combined via `pushExcept`. -/
+def PredTrans.pushExceptT {α : Type u} {ε : Type v} {Pred : Type w} {EPred : Type z}
+    (x : PredTrans Pred EPred (Except ε α)) : PredTrans Pred ((ε → Pred) × EPred) α :=
+  ⟨fun post epost => x.apply (pushExcept post epost.fst) epost.snd⟩
+
+/-- Unfolding lemma for `pushExceptT`. -/
+@[simp, grind =]
+theorem PredTrans.apply_pushExceptT {α ε Pred EPred}
+    (x : PredTrans Pred EPred (Except ε α)) (post : α → Pred)
+    (epost : (ε → Pred) × EPred) :
+    (PredTrans.pushExceptT x).apply post epost
+      = x.apply (pushExcept post epost.fst) epost.snd := rfl
+
+/-- Adds an early-termination layer to a predicate transformer, mirroring `OptionT`.
+
+Given a transformer over `Option α`, produces one over `α` with an additional exception
+postcondition for the `none` case. -/
+def PredTrans.pushOptionT {α : Type u} {Pred : Type u} {EPred : Type v}
+    (x : PredTrans Pred EPred (Option α)) : PredTrans Pred ((Unit → Pred) × EPred) α :=
+  ⟨fun post epost => x.apply (pushOption post epost.fst) epost.snd⟩
+
+/-- Unfolding lemma for `pushOptionT`. -/
+@[simp, grind =]
+theorem PredTrans.apply_pushOptionT {α : Type u} {Pred : Type u} {EPred : Type v}
+    (x : PredTrans Pred EPred (Option α)) (post : α → Pred)
+    (epost : (Unit → Pred) × EPred) :
+    (PredTrans.pushOptionT x).apply post epost
+      = x.apply (pushOption post epost.fst) epost.snd := rfl
 
 /-- Lift a predicate transformer to one with a state argument (pointwise). -/
 instance {σ : Type u} {Pred : Type v} {EPred : Type w} :

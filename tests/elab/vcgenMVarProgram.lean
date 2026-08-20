@@ -38,14 +38,14 @@ axiom wp_bnd : ∀ {k : Nat → Lang} {Φ : Value → Prop},
   wp (Lang.add (k 5) (Lang.nat 0)) Φ →
   wp (Lang.bnd (fun x => Lang.add (k x) (Lang.nat 0))) Φ
 
-instance instWP_Lang : WP Lang Value Prop EPost.Nil where
+instance instWP_Lang : WP Lang Value Prop EStack⟨⟩ where
   wpTrans l := ⟨fun Φ _ => wp l Φ⟩
   wp_trans_monotone x := by
     simp [PredTrans.monotone, Lean.Order.PartialOrder.rel]
     intros; apply wp_mono <;> trivial
 
 @[spec]
-theorem spec_nat {n : Nat} {Φ : Value → Prop} : ⦃ Φ ⟨.nat n, .nat⟩ ⦄ (Lang.nat n) ⦃ Φ; epost⟨⟩⦄ :=
+theorem spec_nat {n : Nat} {Φ : Value → Prop} : ⦃ Φ ⟨.nat n, .nat⟩ ⦄ (Lang.nat n) ⦃ Φ; estack⟨⟩⦄ :=
   Triple.iff.mpr wp_nat
 
 @[spec]
@@ -53,16 +53,16 @@ theorem spec_add {l r} {Φ : Value → Prop} :
     ⦃ Std.WP.wp l
         (fun vl => Std.WP.wp r
           (fun vr => ∀ nl nr, vl.val = Lang.nat nl → vr.val = Lang.nat nr →
-            Φ ⟨.nat (nl + nr), .nat⟩) epost⟨⟩) epost⟨⟩ ⦄
-      (Lang.add l r) ⦃ Φ; epost⟨⟩⦄ := by
+            Φ ⟨.nat (nl + nr), .nat⟩) estack⟨⟩) estack⟨⟩ ⦄
+      (Lang.add l r) ⦃ Φ; estack⟨⟩⦄ := by
   refine Triple.iff.mpr ?_
   simp only [Lean.Order.le_prop_eq_imp]
   intro h; exact wp_add h
 
 @[spec]
 theorem spec_bnd {k : Nat → Lang} {Φ : Value → Prop} :
-    ⦃ Std.WP.wp (Lang.add (k 5) (Lang.nat 0)) Φ epost⟨⟩ ⦄
-      (Lang.bnd (fun x => Lang.add (k x) (Lang.nat 0))) ⦃ Φ; epost⟨⟩⦄ := by
+    ⦃ Std.WP.wp (Lang.add (k 5) (Lang.nat 0)) Φ estack⟨⟩ ⦄
+      (Lang.bnd (fun x => Lang.add (k x) (Lang.nat 0))) ⦃ Φ; estack⟨⟩⦄ := by
   refine Triple.iff.mpr ?_
   simp only [Lean.Order.le_prop_eq_imp]
   intro h; exact wp_bnd h

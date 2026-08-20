@@ -80,16 +80,21 @@ partial def inlineMatchers (e : Expr) : CoreM Expr :=
       return .continue
 
 /--
-Replace nested occurrences of `unsafeRec` names with the safe ones.
+Replace constants that occur in our input for reasons related to Lean's logic vs execution model:
+- nested occurrences of `unsafeRec` names with the safe ones
+- `csimp` tagged names with their efficient equivalent. Note that we still need to run csimp later
+  on because things like macro inlining etc. might open new `csimp` opportunities.
 -/
-private def replaceUnsafeRecNames (value : Expr) : CoreM Expr :=
-  Core.transform value fun e =>
+private def replaceLogicConstants (value : Expr) : CoreM Expr :=
+  Core.transform value fun e => do
     match e with
     | .const declName us =>
-      if let some safeDeclName := isUnsafeRecName? declName then
-        return .done (.const safeDeclName us)
-      else
-        return .done e
+      let e :=
+        if let some safeDeclName := isUnsafeRecName? declName then
+          .const safeDeclName us
+        else
+          e
+      return .done (← CSimp.replaceConstant (← getEnv) e)
     | _ => return .continue
 
 /--
@@ -153,7 +158,7 @@ def toDecl (declName : Name) : CompilerM (Decl .pure) := do
     let (type, value) ← Meta.MetaM.run' do
       let type  ← toLCNFType info.type
       let value ← Meta.lambdaTelescope value fun xs body => do Meta.mkLambdaFVars xs (← Meta.etaExpand body)
-      let value ← replaceUnsafeRecNames value
+      let value ← replaceLogicConstants value
       let value ← macroInline value
       /- Recall that some declarations tagged with `macro_inline` contain matchers. -/
       let value ← inlineMatchers value

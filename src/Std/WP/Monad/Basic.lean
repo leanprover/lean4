@@ -71,14 +71,6 @@ theorem map_le_wp_map (f : α → β) (x : m α) :
   apply WP.wp_consequence
   intro a; exact pure_le_wp_pure (f a) post epost
 
-/-- Variant of `map_le_wp_map` with an explicit postcondition equality hypothesis. -/
-theorem map_le_wp_map' (f : α → β) (x : m α) :
-  ∀ post post' epost (_ : post = fun a => post' (f a)),
-    wp x post epost ⊑ wp (f <$> x) post' epost := by
-  intro post post' epost h
-  subst h
-  apply map_le_wp_map
-
 /-- Soundness of `Seq.seq`: sequencing `f <*> x` preserves the WP. -/
 theorem seq_le_wp_seq (f : m (α → β)) (x : m α) :
   ∀ post epost,

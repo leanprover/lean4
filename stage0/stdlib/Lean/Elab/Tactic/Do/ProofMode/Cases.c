@@ -2013,9 +2013,9 @@ lean_object* v___y_540_ = _args[15];
 lean_object* v___y_541_ = _args[16];
 _start:
 {
-uint8_t v___x_2315__boxed_542_; lean_object* v_res_543_; 
-v___x_2315__boxed_542_ = lean_unbox(v___x_528_);
-v_res_543_ = l_Lean_Elab_Tactic_Do_ProofMode_mCasesExists___redArg___lam__0(v___x_525_, v_snd_526_, v_k_527_, v___x_2315__boxed_542_, v___x_529_, v___x_530_, v___x_531_, v___x_532_, v___x_533_, v___x_534_, v_H_535_, v_x_536_, v___y_537_, v___y_538_, v___y_539_, v___y_540_);
+uint8_t v___x_2308__boxed_542_; lean_object* v_res_543_; 
+v___x_2308__boxed_542_ = lean_unbox(v___x_528_);
+v_res_543_ = l_Lean_Elab_Tactic_Do_ProofMode_mCasesExists___redArg___lam__0(v___x_525_, v_snd_526_, v_k_527_, v___x_2308__boxed_542_, v___x_529_, v___x_530_, v___x_531_, v___x_532_, v___x_533_, v___x_534_, v_H_535_, v_x_536_, v___y_537_, v___y_538_, v___y_539_, v___y_540_);
 lean_dec(v___y_540_);
 lean_dec_ref(v___y_539_);
 lean_dec(v___y_538_);

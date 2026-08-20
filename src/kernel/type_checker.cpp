@@ -7,6 +7,8 @@ Author: Leonardo de Moura
 #include <utility>
 #include <vector>
 #include <limits>
+#include <climits>
+#include <cstdlib>
 #include "runtime/interrupt.h"
 #include "runtime/sstream.h"
 #include "runtime/flet.h"
@@ -26,6 +28,12 @@ static name * g_kernel_fresh = nullptr;
 static expr * g_dont_care    = nullptr;
 static name * g_bool_true    = nullptr;
 static name * g_eager_reduce = nullptr;
+/* Upper bound (in bytes) on the numerals the kernel computes while reducing `Nat`
+   literals (see `reduce_nat`). Protects the kernel from spending unbounded memory
+   and time evaluating giant numerals. Configurable via the `LEAN_NAT_MAX_SIZE`
+   environment variable. */
+static size_t g_nat_max_size = 0;
+static const size_t LEAN_NAT_MAX_SIZE_DEFAULT = 128*1024*1024;    // 128 MB
 static expr * g_nat_zero     = nullptr;
 static expr * g_nat_succ     = nullptr;
 static expr * g_nat_add      = nullptr;
@@ -283,6 +291,35 @@ expr type_checker::infer_proj(expr const & e, bool infer_only) {
     return r;
 }
 
+static size_t nat_size_in_bytes(nat const & n) { return lean_nat_size_in_bytes(n.raw()); }
+
+/* Throw a kernel exception when a `Nat` numeral is larger than `g_nat_max_size`.
+   `num_bytes` is an upper bound on its size. */
+static void check_nat_size(environment const & env, size_t num_bytes) {
+    if (num_bytes > g_nat_max_size)
+        throw kernel_exception(env, "the kernel refused a `Nat` numeral because its "
+            "size exceeds the maximum; increase the LEAN_NAT_MAX_SIZE environment "
+            "variable to allow it");
+}
+
+/* The runtime `Nat.pow` / `Nat.shiftLeft` require their second argument (the
+   exponent / shift amount) to fit in `unsigned int`. Return it as a `size_t`, or
+   throw a clean error instead of the runtime's `lean_internal_panic`. */
+static size_t get_count_arg(environment const & env, nat const & count, char const * op) {
+    if (count > static_cast<unsigned long>(UINT_MAX))
+        throw kernel_exception(env, sstream() << "the kernel refused to evaluate `" << op
+            << "` because its second argument does not fit in a 32-bit unsigned integer");
+    return count.get_small_value();
+}
+
+expr type_checker::infer_lit(expr const & e) {
+    // Bound the size of numerals entering the kernel (e.g. source literals), the
+    // same limit `reduce_nat` enforces on the numerals it computes.
+    if (is_nat_lit(e))
+        check_nat_size(env(), nat_size_in_bytes(lit_value(e).get_nat()));
+    return lit_type(lit_value(e));
+}
+
 /** \brief Return type of expression \c e, if \c infer_only is false, then it also check whether \c e is type correct or not.
     \pre closed(e) */
 expr type_checker::infer_type_core(expr const & e, bool infer_only) {
@@ -298,7 +335,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
 
     expr r;
     switch (e.kind()) {
-    case expr_kind::Lit:      r = lit_type(lit_value(e)); break;
+    case expr_kind::Lit:      r = infer_lit(e); break;
     case expr_kind::MData:    r = infer_type_core(mdata_expr(e), infer_only); break;
     case expr_kind::Proj:     r = infer_proj(e, infer_only); break;
     case expr_kind::FVar:     r = infer_fvar(e);  break;
@@ -344,11 +381,11 @@ expr type_checker::ensure_pi(expr const & e, expr const & s) {
 
 /** \brief Return true iff \c e is a proposition */
 bool type_checker::is_prop(expr const & e) {
-    expr s = whnf(infer_type(e));
+    expr s = ensure_sort(infer_type(e));
     // The level must be tested for zero up to normalization: `imax 1 0` denotes `Prop` without
     // being syntactically `zero`. Comparing `s` against `Prop` syntactically instead would let
     // `infer_proj` extract non-proof data out of a proof, contradicting proof irrelevance.
-    return is_sort(s) && normalizes_to_zero(sort_level(s));
+    return normalizes_to_zero(sort_level(s));
 }
 
 /** \brief Apply normalizer extensions to \c e.
@@ -362,7 +399,8 @@ optional<expr> type_checker::reduce_recursor(expr const & e, bool cheap_rec, boo
     if (optional<expr> r = inductive_reduce_rec(env(), e,
                                                 [&](expr const & e) { return cheap_rec ? whnf_core(e, cheap_rec, cheap_proj) : whnf(e); },
                                                 [&](expr const & e) { return infer(e); },
-                                                [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); })) {
+                                                [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); },
+                                                [&](expr const & e) { return is_prop(e); })) {
         return r;
     }
     return none_expr();
@@ -603,27 +641,52 @@ static inline nat get_nat_val(expr const & e) {
     return lit_value(e).get_nat();
 }
 
-template<typename F> optional<expr> type_checker::reduce_bin_nat_op(F const & f, expr const & e) {
+template<typename F> optional<expr> type_checker::reduce_bin_nat_op(F const & f, expr const & e, bool check_size) {
     expr arg1 = whnf(app_arg(app_fn(e)));
     if (!is_nat_lit_ext(arg1)) return none_expr();
     expr arg2 = whnf(app_arg(e));
     if (!is_nat_lit_ext(arg2)) return none_expr();
     nat v1 = get_nat_val(arg1);
     nat v2 = get_nat_val(arg2);
-    return some_expr(mk_lit(literal(nat(f(v1.raw(), v2.raw())))));
+    nat r(f(v1.raw(), v2.raw()));
+    // `add`/`sub`/`mul` can accumulate large numerals in a recursor loop. Their
+    // operands are already bounded, so computing `r` is cheap; reject once the
+    // result itself exceeds the size limit.
+    if (check_size)
+        check_nat_size(env(), nat_size_in_bytes(r));
+    return some_expr(mk_lit(literal(r)));
 }
-
-#define ReducePowMaxExp 1<<24 // TODO: make it configurable
 
 optional<expr> type_checker::reduce_pow(expr const & e) {
     expr arg1 = whnf(app_arg(app_fn(e)));
     if (!is_nat_lit_ext(arg1)) return none_expr();
     expr arg2 = whnf(app_arg(e));
     if (!is_nat_lit_ext(arg2)) return none_expr();
-    nat v1 = get_nat_val(arg1);
-    nat v2 = get_nat_val(arg2);
-    if (v2 > nat(ReducePowMaxExp)) return none_expr();
-    return some_expr(mk_lit(literal(nat(nat_pow(v1.raw(), v2.raw())))));
+    nat base = get_nat_val(arg1);
+    nat exp  = get_nat_val(arg2);
+    size_t k = get_count_arg(env(), exp, "Nat.pow");
+    // `base^exp` has at most `size(base) * k` bytes (`base <= 1` yields `0`/`1`).
+    // Compare via division to avoid overflowing the product.
+    if (base > nat(1) && k != 0 && nat_size_in_bytes(base) > g_nat_max_size / k)
+        throw kernel_exception(env(), "the kernel refused to evaluate `Nat.pow` because "
+            "the result would exceed the maximum numeral size; increase the "
+            "LEAN_NAT_MAX_SIZE environment variable to allow it");
+    return some_expr(mk_lit(literal(nat(nat_pow(base.raw(), exp.raw())))));
+}
+
+optional<expr> type_checker::reduce_shiftLeft(expr const & e) {
+    expr arg1 = whnf(app_arg(app_fn(e)));
+    if (!is_nat_lit_ext(arg1)) return none_expr();
+    expr arg2 = whnf(app_arg(e));
+    if (!is_nat_lit_ext(arg2)) return none_expr();
+    nat v = get_nat_val(arg1); // value being shifted
+    nat shift = get_nat_val(arg2); // shift amount, in bits
+    // `v <<< shift = v * 2^shift` has about `size(v) + shift/8` bytes; `0 <<< _ = 0`.
+    if (!v.is_zero()) {
+        size_t k = get_count_arg(env(), shift, "Nat.shiftLeft");
+        check_nat_size(env(), nat_size_in_bytes(v) + k / 8 + 1);
+    }
+    return some_expr(mk_lit(literal(nat(lean_nat_shiftl(v.raw(), shift.raw())))));
 }
 
 template<typename F> optional<expr> type_checker::reduce_bin_nat_pred(F const & f, expr const & e) {
@@ -644,14 +707,16 @@ optional<expr> type_checker::reduce_nat(expr const & e) {
             expr arg = whnf(app_arg(e));
             if (!is_nat_lit_ext(arg)) return none_expr();
             nat v = get_nat_val(arg);
-            return some_expr(mk_lit(literal(nat(v+nat(1)))));
+            v = v + nat(1);
+            check_nat_size(env(), nat_size_in_bytes(v));
+            return some_expr(mk_lit(literal(v)));
         }
     } else if (nargs == 2) {
         expr const & f = app_fn(app_fn(e));
         if (!is_constant(f)) return none_expr();
-        if (f == *g_nat_add) return reduce_bin_nat_op(nat_add, e);
-        if (f == *g_nat_sub) return reduce_bin_nat_op(nat_sub, e);
-        if (f == *g_nat_mul) return reduce_bin_nat_op(nat_mul, e);
+        if (f == *g_nat_add) return reduce_bin_nat_op(nat_add, e, /* check_size */ true);
+        if (f == *g_nat_sub) return reduce_bin_nat_op(nat_sub, e, /* check_size */ true);
+        if (f == *g_nat_mul) return reduce_bin_nat_op(nat_mul, e, /* check_size */ true);
         if (f == *g_nat_pow) return reduce_pow(e);
         if (f == *g_nat_gcd) return reduce_bin_nat_op(nat_gcd, e);
         if (f == *g_nat_mod) return reduce_bin_nat_op(nat_mod, e);
@@ -661,7 +726,7 @@ optional<expr> type_checker::reduce_nat(expr const & e) {
         if (f == *g_nat_land) return reduce_bin_nat_op(nat_land, e);
         if (f == *g_nat_lor)  return reduce_bin_nat_op(nat_lor, e);
         if (f == *g_nat_xor)  return reduce_bin_nat_op(nat_lxor, e);
-        if (f == *g_nat_shiftLeft) return reduce_bin_nat_op(lean_nat_shiftl, e);
+        if (f == *g_nat_shiftLeft) return reduce_shiftLeft(e);
         if (f == *g_nat_shiftRight) return reduce_bin_nat_op(lean_nat_shiftr, e);
     }
     return none_expr();
@@ -1237,7 +1302,21 @@ inline static expr * new_persistent_expr_const(name const & n) {
     return e;
 }
 
+/* Read `var` as a byte count, falling back to `default_value` when it is unset
+   or malformed. */
+static size_t read_nat_size_env(char const * var, size_t default_value) {
+    char const * s = getenv(var);
+    if (s == nullptr)
+        return default_value;
+    char * end = nullptr;
+    unsigned long long v = strtoull(s, &end, 10);
+    if (end == s || *end != '\0')
+        return default_value;
+    return static_cast<size_t>(v);
+}
+
 void initialize_type_checker() {
+    g_nat_max_size = read_nat_size_env("LEAN_NAT_MAX_SIZE", LEAN_NAT_MAX_SIZE_DEFAULT);
     g_kernel_fresh = new name("_kernel_fresh");
     mark_persistent(g_kernel_fresh->raw());
     g_bool_true    = new name{"Bool", "true"};

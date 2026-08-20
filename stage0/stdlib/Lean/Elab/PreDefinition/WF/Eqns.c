@@ -1621,9 +1621,9 @@ return v___x_522_;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_Elab_WF_copyPrivateUnfoldTheorem___lam__6___boxed(lean_object* v___x_523_, lean_object* v___x_524_, lean_object* v___y_525_, lean_object* v___y_526_, lean_object* v___y_527_, lean_object* v___y_528_, lean_object* v___y_529_){
 _start:
 {
-uint8_t v___x_15367__boxed_530_; lean_object* v_res_531_; 
-v___x_15367__boxed_530_ = lean_unbox(v___x_524_);
-v_res_531_ = l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_Elab_WF_copyPrivateUnfoldTheorem___lam__6(v___x_523_, v___x_15367__boxed_530_, v___y_525_, v___y_526_, v___y_527_, v___y_528_);
+uint8_t v___x_15335__boxed_530_; lean_object* v_res_531_; 
+v___x_15335__boxed_530_ = lean_unbox(v___x_524_);
+v_res_531_ = l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_Elab_WF_copyPrivateUnfoldTheorem___lam__6(v___x_523_, v___x_15335__boxed_530_, v___y_525_, v___y_526_, v___y_527_, v___y_528_);
 lean_dec(v___y_528_);
 lean_dec_ref(v___y_527_);
 lean_dec(v___y_526_);

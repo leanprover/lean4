@@ -38,6 +38,12 @@ example := foo
 
 abbrev Bar := Nat
 
+/--
+warning: `Foo.foo` is itself deprecated in favor of `Foo.bar`; consider deprecating `Bar.bar` in favor of `Foo.bar` instead
+
+Note: This warning can be disabled with `set_option linter.deprecated.deprecatedTarget false`
+-/
+#guard_msgs in
 @[deprecated Foo.foo (since := "2025-01-01")]
 def Bar.bar : Bar → Bar := id
 

@@ -6,6 +6,7 @@ Authors: Sebastian Graf
 module
 
 prelude
+import Init.BinderNameHint
 public import Lean.Meta.Basic
 public import Std.WP.Triple.Basic
 
@@ -123,6 +124,8 @@ private partial def isConjunctiveIn (qs : Array MVarId) (e : Expr) : Bool :=
   | _ =>
     match e.getAppFn with
     | .mvar m => qs.contains m && e.getAppArgs.all (!occursMVar qs ·)
+    -- `binderNameHint v b e` is definitionally `e`; the hint rides along only to name binders.
+    | .const ``binderNameHint _ => isConjunctiveIn qs (e.getArg! 5)
     | .const ``EPost.Cons.head _ =>
       -- `EPost.Cons.head` is a `⊓`-morphism (`EPost.Cons.head_meet`); its exception-stack argument
       -- stays in a `⊓`-context, the rest (types and the applied exception) must be `qs`-free.

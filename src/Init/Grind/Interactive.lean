@@ -334,6 +334,9 @@ Only available in `sym =>` mode.
 - `simp myVariant` — uses a named variant registered via `register_sym_simp`
 - `simp [thm₁, thm₂, ...]` — default variant with extra rewrite theorems appended to `post`
 - `simp myVariant [thm₁, thm₂, ...]` — named variant with extra theorems
+
+The extra parameters may be theorems, local hypotheses, or definitions. For a definition `f`,
+its equational theorems are used, so `simp [f]` unfolds `f` applications.
 -/
 syntax (name := symSimp) "simp" (ppSpace colGt ident)? (" [" ident,* "]")? : grind
 

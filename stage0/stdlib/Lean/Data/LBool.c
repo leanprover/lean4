@@ -317,10 +317,10 @@ return v_x_84_;
 LEAN_EXPORT lean_object* l_Lean_LBool_and___boxed(lean_object* v_x_86_, lean_object* v_x_87_){
 _start:
 {
-uint8_t v_x_16__boxed_88_; uint8_t v_x_17__boxed_89_; uint8_t v_res_90_; lean_object* v_r_91_; 
-v_x_16__boxed_88_ = lean_unbox(v_x_86_);
-v_x_17__boxed_89_ = lean_unbox(v_x_87_);
-v_res_90_ = l_Lean_LBool_and(v_x_16__boxed_88_, v_x_17__boxed_89_);
+uint8_t v_x_12__boxed_88_; uint8_t v_x_13__boxed_89_; uint8_t v_res_90_; lean_object* v_r_91_; 
+v_x_12__boxed_88_ = lean_unbox(v_x_86_);
+v_x_13__boxed_89_ = lean_unbox(v_x_87_);
+v_res_90_ = l_Lean_LBool_and(v_x_12__boxed_88_, v_x_13__boxed_89_);
 v_r_91_ = lean_box(v_res_90_);
 return v_r_91_;
 }

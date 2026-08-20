@@ -11,7 +11,7 @@ public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.Solve
 public import Lean.Meta.Sym.Grind
 
-open Lean Meta Elab Tactic Sym
+open Lean Meta Elab Tactic Sym Sym.Internal Lean.Order
 open Lean.Elab.Tactic.Do.SpecAttr
 
 namespace Lean.Elab.Tactic.VCGen
@@ -85,14 +85,7 @@ public def emitVC (goal : Grind.Goal) : VCGenM Unit := do
   let mut goal := { goal with mvarId := ← elimTopPre goal.mvarId }
   goal ← processHypotheses goal
   if goal.inconsistent then return
-  -- `trivial`: when false, skip `solveTrivialConjuncts` (which collapses And-chains via rfl);
-  -- emit the goal as-is.
-  let mvarId ←
-    if (← read).trivial then
-      let some mvarId ← solveTrivialConjuncts goal.mvarId | return
-      pure mvarId
-    else
-      pure goal.mvarId
+  let some mvarId ← cleanupVC goal.mvarId | return
   mvarId.setKind .syntheticOpaque
   modify fun s => { s with vcs := s.vcs.push { goal with mvarId } }
 

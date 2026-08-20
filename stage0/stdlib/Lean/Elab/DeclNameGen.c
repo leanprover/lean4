@@ -2484,9 +2484,9 @@ return v___x_589_;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_winnowExpr_visit___lam__0___boxed(lean_object* v_body_603_, lean_object* v_binderName_604_, lean_object* v_binderInfo_605_, lean_object* v_binderType_606_, lean_object* v_arg_607_, lean_object* v___y_608_, lean_object* v___y_609_, lean_object* v___y_610_, lean_object* v___y_611_, lean_object* v___y_612_, lean_object* v___y_613_){
 _start:
 {
-uint8_t v_binderInfo_17487__boxed_614_; lean_object* v_res_615_; 
-v_binderInfo_17487__boxed_614_ = lean_unbox(v_binderInfo_605_);
-v_res_615_ = l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_winnowExpr_visit___lam__0(v_body_603_, v_binderName_604_, v_binderInfo_17487__boxed_614_, v_binderType_606_, v_arg_607_, v___y_608_, v___y_609_, v___y_610_, v___y_611_, v___y_612_);
+uint8_t v_binderInfo_17436__boxed_614_; lean_object* v_res_615_; 
+v_binderInfo_17436__boxed_614_ = lean_unbox(v_binderInfo_605_);
+v_res_615_ = l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_winnowExpr_visit___lam__0(v_body_603_, v_binderName_604_, v_binderInfo_17436__boxed_614_, v_binderType_606_, v_arg_607_, v___y_608_, v___y_609_, v___y_610_, v___y_611_, v___y_612_);
 lean_dec(v___y_612_);
 lean_dec_ref(v___y_611_);
 lean_dec(v___y_610_);

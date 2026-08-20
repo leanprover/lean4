@@ -25,6 +25,12 @@ register_builtin_option linter.deprecated : Bool := {
   descr := "if true, generate deprecation warnings"
 }
 
+register_builtin_option linter.deprecated.deprecatedTarget : Bool := {
+  defValue := true
+  descr := "if true, warn when a `@[deprecated]` attribute points at a declaration that is \
+    itself deprecated"
+}
+
 structure DeprecationEntry where
   newName? : Option Name := none
   text? : Option String := none
@@ -44,7 +50,9 @@ private def areTypesReduciblyDefEq (decl₁ decl₂ : ConstantInfo) : MetaM Bool
   withReducible <| isDefEqGuarded type₁ type₂
 
 builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ←
-  registerParametricAttribute {
+  let ext ← registerParametricAttributeExt (α := DeprecationEntry) `Lean.Linter.deprecatedAttr
+    (preserveOrder := false)
+  registerParametricAttributeForExt (ext := ext) {
     name := `deprecated
     descr := "mark declaration as deprecated",
     getParam := fun declName stx => do
@@ -57,6 +65,20 @@ builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ←
         recordExtraModUseFromDecl (isMeta := false) newName
         if getLinterValue linter.deprecated (← getLinterOptions) then
           let env ← getEnv
+          if linter.deprecated.deprecatedTarget.get (← getOptions) then
+            let disableNote : MessageData := .note m!"This warning can be disabled with \
+              `set_option {linter.deprecated.deprecatedTarget.name} false`"
+            if let some entry := ParametricAttribute.getParamFromExt? ext (preserveOrder := false) env newName then
+              match entry.newName? with
+              | none =>
+                logWarning <| m!"`{.ofConstName newName true}` is itself deprecated, but without an \
+                  explicit replacement; `{.ofConstName declName true}` is being deprecated in favor \
+                  of a deprecated declaration" ++ disableNote
+              | some next =>
+                if next != newName then
+                  logWarning <| m!"`{.ofConstName newName true}` is itself deprecated in favor of \
+                  `{.ofConstName next true}`; consider deprecating `{.ofConstName declName true}` \
+                  in favor of `{.ofConstName next true}` instead" ++ disableNote
           if let some oldDecl := env.find? declName then
             if let some newDecl := env.find? newName then
               if ← MetaM.run' <| areTypesReduciblyDefEq oldDecl newDecl then

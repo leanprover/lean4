@@ -148,7 +148,7 @@ private def liftedPreFor? (scope : Scope) (e : Expr) : VCGenM (Option LocalDecl)
   -- The goal can still mention metavariables the solver assigned after building it, so a pointer
   -- comparison is not enough. `withNewMCtxDepth` keeps unassigned metavariables rigid, so a failed
   -- comparison assigns nothing.
-  unless isSameExpr e hyp.type || (← withNewMCtxDepth <| isDefEqS e hyp.type) do return none
+  unless (← withNewMCtxDepth <| isDefEqS e hyp.type) do return none
   trace[Elab.Tactic.Do.vcgen] "Solved by lifted hypothesis {hyp.userName}"
   return some hyp
 

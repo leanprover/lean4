@@ -209,7 +209,10 @@ LEAN_EXPORT __attribute__((weak)) lean_object * initialize_Init(uint8_t) {
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-/* Core RT has no IO streams; object.cpp references this for panic paths. */
+#if defined(LEAN_WASI)
+/* Core RT has no IO streams; object.cpp references this for panic paths.
+   Host builds resolve these from Init — keep the stubs WASI-only to avoid
+   duplicate symbols when linking ARM64 native programs with leanc. */
 LEAN_EXPORT lean_object * lean_io_eprintln(lean_object * s) {
     lean_dec(s);
     return lean_io_result_mk_ok(lean_box(0));
@@ -219,6 +222,7 @@ LEAN_EXPORT lean_object * lean_io_eprintln(lean_object * s) {
 LEAN_EXPORT lean_object * l_Array_instInhabited(void) {
     return lean_alloc_array(0, 0);
 }
+#endif
 
 LEAN_EXPORT lean_object * lean_nat_add(b_lean_obj_arg a, b_lean_obj_arg b) {
     return lean_native_inline_nat_add(a, b);

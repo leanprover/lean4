@@ -74,3 +74,62 @@ Note: This linter can be disabled with `set_option linter.tacticCheckInstances f
 example (s : S) (a b idx : Nat) (h1 : idx < s.decls.size) :
     (composed s a b).s.decls[idx] = s.decls[idx] := by
   rfl
+
+/-!
+The goal below is type-correct at `.implicit` transparency (`natZero` is `@[implicit_reducible]`,
+so `X natZero` and `X 0` are defeq there), but `simp`/`rw` unify instance-implicit arguments at
+`.instances`, where they are not. The linter reports the stale instance argument that
+`simp only [natZero_def]` left behind.
+-/
+
+class X (n : Nat)
+
+@[implicit_reducible]
+def natZero := 0
+
+instance instXNatZero : X natZero where
+
+theorem natZero_def : natZero = 0 := rfl
+
+def g (n : Nat) [X n] : Nat := n + 1
+
+theorem g_eq {n} [X n] : g n = n + 1 := by
+  simp [g]
+
+/--
+@ +1:27...+2:31
+error: unsolved goals
+⊢ g 0 = 1
+---
+@ +2:2...31
+warning: produced tactic goal contains an instance argument whose type does not match at `.instances` transparency; `simp` and `rw` unify instance-implicit arguments at that transparency, so lemmas mentioning this instance will fail to apply:
+  The instance argument
+    instXNatZero
+  has type
+    X natZero
+  but is expected to have type
+    X 0
+  in the application
+    @g 0 instXNatZero
+
+Note: This linter can be disabled with `set_option linter.tacticCheckInstances false`
+-/
+#guard_msgs (positions := true) in
+example : g natZero = 1 := by
+  simp only [natZero_def, g_eq]
+
+/-!
+The mismatch has to survive down to `.instances` transparency: with an `@[instance_reducible]`
+value the instance argument still matches there, so `g_eq` applies and the linter stays quiet.
+-/
+
+@[instance_reducible]
+def natZeroI := 0
+
+instance instXNatZeroI : X natZeroI where
+
+theorem natZeroI_def : natZeroI = 0 := rfl
+
+#guard_msgs in
+example : g natZeroI = 1 := by
+  simp only [natZeroI_def, g_eq]

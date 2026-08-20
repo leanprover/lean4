@@ -17,16 +17,24 @@ open Lean Elab Command
 open Lean.Linter (logLint)
 
 /--
-Warn when the goal target is not type-correct at `.implicit` transparency.
-This can happen when e.g. `unfold` leaves hypotheses whose types still refer to
-the pre-unfolded definition, preventing `rw`/`simp` from matching patterns.
+Warn when the goal target is not type-correct at `.implicit` transparency, or when it contains an
+instance argument that only has the expected type above `.instances` transparency.
+
+The former happens when e.g. `unfold` leaves hypotheses whose types still refer to the pre-unfolded
+definition, preventing `rw`/`simp` from matching patterns. The latter happens when e.g. an `rfl`
+lemma rewrites a value without updating the instances mentioning it, preventing `rw`/`simp` from
+unifying the instance argument.
 -/
 register_builtin_option linter.tacticCheckInstances : Bool := {
   defValue := false
-  descr := "enable the linter that type-checks every tactic goal at `.implicit` transparency"
+  descr := "enable the linter that type-checks every tactic goal at `.implicit` transparency and \
+    checks its instance arguments at `.instances` transparency"
 }
 
-/-- A linter that runs `Meta.check _ .implicit` on every tactic goal. -/
+/--
+A linter that runs `Meta.check _ .implicit` and `Meta.findInstanceArgMismatch?` on every tactic
+goal.
+-/
 def tacticCheckInstances : Linter where
   run _cmdStx := do
     -- Do *not* check `linter.all` here, this linter is purely for debugging
@@ -56,7 +64,8 @@ def tacticCheckInstances : Linter where
         -- `.implicit` check fails, the defs unfolded at `.default` but not at
         -- `.implicit` are the candidates for `@[implicit_reducible]` and get
         -- reported to the user. The pattern mirrors `mkUnfoldAxiomsNote` in
-        -- `Lean.Meta.Check`.
+        -- `Lean.Meta.Check`. If it succeeds, we look for instance arguments
+        -- that stop matching one transparency level down.
         -- `kind` selects the wording of the warning:
         --   * "initial" — the failure is in `goalsBefore` of the first tactic
         --     (i.e. the `by` block started with a bad goal).
@@ -74,30 +83,37 @@ def tacticCheckInstances : Linter where
             let counterDefault := (← get).diag.unfoldCounter
             -- Reset and try at `.implicit`.
             modify ({ · with diag := origDiag })
-            try
-              Meta.check target .implicit
+            let implicitError? : Option Exception ←
+              try Meta.check target .implicit; pure none catch e => pure (some e)
+            let some e := implicitError? | do
+              -- Type-correct at `.implicit`, but `simp`/`rw` unify instance-implicit arguments at
+              -- `.instances`, where an argument left behind by an earlier rewrite may no longer
+              -- match.
+              let some msg ← Meta.findInstanceArgMismatch? target | return none
+              return some m!"{kind} tactic goal contains an instance argument whose type does \
+                not match at `.instances` transparency; `simp` and `rw` unify instance-implicit \
+                arguments at that transparency, so lemmas mentioning this instance will fail to \
+                apply:{indentD msg}"
+            let counterInst := (← get).diag.unfoldCounter
+            let diff := Meta.subCounters counterDefault counterInst
+            let env ← getEnv
+            let candidates : List MessageData :=
+              diff.toList.filterMap fun (n, count) => do
+                guard <| count > 0
+                guard <| getReducibilityStatusCore env n matches .semireducible
+                guard <| !Meta.isInstanceCore env n
+                return m!"{.ofConstName n}"
+            if candidates.isEmpty then
               return none
-            catch e =>
-              let counterInst := (← get).diag.unfoldCounter
-              let diff := Meta.subCounters counterDefault counterInst
-              let env ← getEnv
-              let candidates : List MessageData :=
-                diff.toList.filterMap fun (n, count) => do
-                  guard <| count > 0
-                  guard <| getReducibilityStatusCore env n matches .semireducible
-                  guard <| !Meta.isInstanceCore env n
-                  return m!"{.ofConstName n}"
-              if candidates.isEmpty then
-                return none
-              let remedy : MessageData := match kind with
-                | "initial" => "consider rephrasing the goal or marking"
-                | _         => "consider using propositional rewriting or marking"
-              return some m!"{kind} tactic goal is not type-correct at \
-                `.implicit` transparency; {remedy} some of the following as \
-                `@[implicit_reducible]`:\
-                {indentD (.joinSep candidates Format.line)}\n\
-                Full error:\
-                {indentD e.toMessageData}"
+            let remedy : MessageData := match kind with
+              | "initial" => "consider rephrasing the goal or marking"
+              | _         => "consider using propositional rewriting or marking"
+            return some m!"{kind} tactic goal is not type-correct at \
+              `.implicit` transparency; {remedy} some of the following as \
+              `@[implicit_reducible]`:\
+              {indentD (.joinSep candidates Format.line)}\n\
+              Full error:\
+              {indentD e.toMessageData}"
           -- Always restore the original diagnostics snapshot.
           modify ({ · with diag := origDiag })
           return result

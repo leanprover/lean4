@@ -252,6 +252,14 @@ structure State where
   usedTheorems : UsedSimps := {}
   numSteps     : Nat := 0
   diag         : Diagnostics := {}
+  /--
+  Whether to check intermediate results for instance arguments that stopped matching at
+  `.instances` transparency. Set from `linter.tacticCheckInstances` by `SimpM.run`, and cleared
+  again once a mismatch has been reported: the linter reports at most one per command.
+  -/
+  checkInstanceArgs : Bool := false
+  /-- Theorem applied by the most recent rewrite; only tracked while `checkInstanceArgs` is set. -/
+  lastThm?     : Option Origin := none
 
 structure Stats where
   usedTheorems : UsedSimps := {}
@@ -308,7 +316,8 @@ opaque dsimp (e : Expr) : SimpM Expr
 
 @[inline] def modifyDiag (f : Diagnostics → Diagnostics) : SimpM Unit := do
   if (← isDiagnosticsEnabled) then
-    modify fun { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag } => { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag := f diag }
+    modify fun { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag, checkInstanceArgs, lastThm? } =>
+      { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag := f diag, checkInstanceArgs, lastThm? }
 
 /--
 Result type for a simplification procedure. We have `pre` and `post` simplification procedures.
@@ -524,6 +533,8 @@ def recordTriedSimpTheorem (thmId : Origin) : SimpM Unit := do
     { s with triedThmCounter := s.triedThmCounter.insert thmId cNew }
 
 def recordSimpTheorem (thmId : Origin) : SimpM Unit := do
+  if (← get).checkInstanceArgs then
+    modify fun s => { s with lastThm? := some thmId }
   modifyDiag fun s =>
     let cNew := if let some c := s.usedThmCounter.find? thmId then c + 1 else 1
     { s with usedThmCounter := s.usedThmCounter.insert thmId cNew }
@@ -990,6 +1001,7 @@ private def updateUsedSimpsWithZetaDelta (ctx : Context) (stats : Stats) : MetaM
 
 def SimpM.run (ctx : Context) (s : State := {}) (methods : Methods := {}) (k : SimpM α) : MetaM (α × State) := do
   let ctx ← ctx.setLctxInitIndices
+  let s := { s with checkInstanceArgs := Linter.linter.tacticCheckInstances.get (← getOptions) }
   withSimpContext ctx do
     let (r, s) ← k methods.toMethodsRef ctx |>.run s
     trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"

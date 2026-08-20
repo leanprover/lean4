@@ -17,6 +17,28 @@ This is not the Kernel type checker, but an auxiliary method for checking
 whether terms produced by tactics and `isDefEq` are type correct.
 -/
 
+namespace Lean.Linter
+
+/--
+Warn when the goal target is not type-correct at `.implicit` transparency, or when it contains an
+instance argument that only has the expected type above `.instances` transparency.
+
+The former happens when e.g. `unfold` leaves hypotheses whose types still refer to the pre-unfolded
+definition, preventing `rw`/`simp` from matching patterns. The latter happens when e.g. an `rfl`
+lemma rewrites a value without updating the instances mentioning it, preventing `rw`/`simp` from
+unifying the instance argument.
+
+The option lives here rather than next to the linter in `Lean.Linter.TacticTypeCheck` because
+`simp` reads it too, to run `findInstanceArgMismatch?` on its intermediate results.
+-/
+register_builtin_option linter.tacticCheckInstances : Bool := {
+  defValue := false
+  descr := "enable the linter that type-checks every tactic goal at `.implicit` transparency and \
+    checks its instance arguments at `.instances` transparency"
+}
+
+end Lean.Linter
+
 namespace Lean.Meta
 
 private def ensureType (e : Expr) : MetaM Unit := do

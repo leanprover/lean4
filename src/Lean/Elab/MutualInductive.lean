@@ -107,9 +107,9 @@ structure InductiveView where
   /-- The declaration docstring. -/
   docString?      : Option (TSyntax ``Lean.Parser.Command.docComment)
   isCoinductive : Bool := false
-  /-- Explicit monotonicity proof from a `monotonicity` clause. Only meaningful for predicates
-  elaborated via the lattice-theoretic fixpoint machinery (`coinductive`, or `inductive` in a
-  mutual clique with `coinductive`). -/
+  /-- Explicit monotonicity proof from a `monotonicity_by` clause, as a `by` term. Only
+  meaningful for predicates elaborated via the lattice-theoretic fixpoint machinery
+  (`coinductive`, or `inductive` in a mutual clique with `coinductive`). -/
   monotonicity?   : Option Term := none
   deriving Inhabited
 
@@ -1720,7 +1720,7 @@ def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Uni
   else
     for e in elabs do
       if let some proof := e.view.monotonicity? then
-        throwErrorAt proof "The `monotonicity` clause is only allowed on `coinductive` predicates, or on `inductive` predicates in a `mutual` block together with a `coinductive` predicate"
+        throwErrorAt proof "`monotonicity_by` is only allowed on `coinductive` predicates, or on `inductive` predicates in a `mutual` block together with a `coinductive` predicate"
     let res ← runTermElabM fun vars => do
       elabInductiveViews vars elabs
     elabInductiveViewsFinalize (elabs.map (·.view)) res

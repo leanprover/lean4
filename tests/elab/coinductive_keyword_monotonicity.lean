@@ -1,5 +1,5 @@
 /-!
-Tests for the `monotonicity` clause on the `coinductive` and `inductive` keywords, which provides
+Tests for the `monotonicity_by` clause on the `coinductive` and `inductive` keywords, which provides
 an explicit monotonicity proof for the underlying lattice-theoretic fixpoint construction,
 analogously to `coinductive_fixpoint monotonicity ...` / `inductive_fixpoint monotonicity ...`.
 -/
@@ -13,7 +13,7 @@ variable (α : Type)
 
 coinductive infSeq (r : α → α → Prop) : α → Prop where
   | step : r a b → infSeq r b → infSeq r a
-monotonicity by repeat monotonicity
+monotonicity_by repeat monotonicity
 
 /--
 info: infSeq.step (α : Type) (r : α → α → Prop) {a b : α} : r a b → infSeq α r b → infSeq α r a
@@ -40,7 +40,7 @@ warning: declaration uses `sorry`
 #guard_msgs in
 coinductive infSeq' (r : α → α → Prop) : α → Prop where
   | step : r a b → infSeq' r b → infSeq' r a
-monotonicity sorry
+monotonicity_by sorry
 
 /--
 info: infSeq'.step (α : Type) (r : α → α → Prop) {a b : α} : r a b → infSeq' α r b → infSeq' α r a
@@ -64,7 +64,7 @@ warning: declaration uses `sorry`
 #guard_msgs in
 coinductive infSeq'' (r : α → α → Prop) : α → Prop where
   | step : r a b → infSeq'' r b → infSeq'' r a
-monotonicity by trace_state; sorry
+monotonicity_by trace_state; sorry
 
 end
 
@@ -86,14 +86,14 @@ warning: declaration uses `sorry`
 #guard_msgs in
 coinductive selfNeg : Prop where
   | mk : ¬selfNeg → selfNeg
-monotonicity ()
+monotonicity_by exact ()
 
 -- Mutual clique of two coinductive predicates, clause on only one member
 
 mutual
   coinductive tick : Prop where
     | mk : tock → tick
-  monotonicity by repeat monotonicity
+  monotonicity_by repeat monotonicity
 
   coinductive tock : Prop where
     | mk : tick → tock
@@ -108,11 +108,11 @@ end
 mutual
   coinductive ping : Prop where
     | mk : ¬pong → ping
-  monotonicity by repeat monotonicity
+  monotonicity_by repeat monotonicity
 
   inductive pong : Prop where
     | mk : ¬ping → pong
-  monotonicity by repeat monotonicity
+  monotonicity_by repeat monotonicity
 end
 
 /-- info: ping.mk : ¬pong → ping -/
@@ -126,22 +126,22 @@ end
 -- The clause is rejected on ordinary inductive types
 
 /--
-error: The `monotonicity` clause is only allowed on `coinductive` predicates, or on `inductive` predicates in a `mutual` block together with a `coinductive` predicate
+error: `monotonicity_by` is only allowed on `coinductive` predicates, or on `inductive` predicates in a `mutual` block together with a `coinductive` predicate
 -/
 #guard_msgs in
 inductive Plain : Prop where
   | mk : Plain
-monotonicity by repeat monotonicity
+monotonicity_by repeat monotonicity
 
 /--
-error: The `monotonicity` clause is only allowed on `coinductive` predicates, or on `inductive` predicates in a `mutual` block together with a `coinductive` predicate
+error: `monotonicity_by` is only allowed on `coinductive` predicates, or on `inductive` predicates in a `mutual` block together with a `coinductive` predicate
 -/
 #guard_msgs in
 mutual
   inductive Even : Nat → Prop where
     | zero : Even 0
     | succ : Odd n → Even (n + 1)
-  monotonicity by repeat monotonicity
+  monotonicity_by repeat monotonicity
 
   inductive Odd : Nat → Prop where
     | succ : Even n → Odd (n + 1)

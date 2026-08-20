@@ -112,7 +112,7 @@ public structure CoinductiveElabData where
   keywords, and hence we need to record this information.
   -/
   isGreatest : Bool
-  /-- Explicit monotonicity proof from the `monotonicity` clause, if provided. -/
+  /-- Explicit monotonicity proof from the `monotonicity_by` clause, if provided. -/
   monotonicity? : Option Term
   deriving Inhabited
 

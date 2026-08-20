@@ -53,34 +53,25 @@
             buildPhase = "make -j$NIX_BUILD_CORES";
             installPhase = "make install_sw";
           };
-          # Build GMP 6.3.0 statically using pkgsDist's old-glibc stdenv. nixpkgs-older
-          # ships GMP 6.1.2, but Lean requires 6.3.0: earlier versions contain bugs that
-          # can make Lean produce unsound results.
-          gmpForDist = pkgsDist.stdenv.mkDerivation {
-            name = "gmp-static-6.3.0";
-            src = pkgs.fetchurl {
-              url = "https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz";
-              hash = "sha256-o8K4AgG4nmhhb0rTC8Zq7kknw85Q4zkpyoGdXENTiJg=";
-            };
-            nativeBuildInputs = [ pkgsDist.m4 ];
-            configureFlags = [
-              "--with-pic"
-              "--enable-static" "--disable-shared"
-              # GMP's "long long reliability test" in configure relies on pre-c23 C
-              # semantics; force c99 so the compiler check passes (matches nixpkgs' gmp).
-              "CFLAGS=-std=c99"
-              # Pin the build triple so GMP's config.guess does not runtime-probe the CPU
-              # via /proc/cpuinfo, which is broken on the multicore CI runners.
+          # nixpkgs-older ships GMP 6.1.2, but Lean requires 6.3.0: earlier versions
+          # contain bugs that can make Lean produce unsound results. Reuse pkgsDist's
+          # own packaging (fat build on x86, PIC, static), built from the same source
+          # as `pkgs.gmp` so releases and development use one GMP version.
+          gmpForDist = (pkgsDist.gmp.override { cxx = false; withStatic = true; }).overrideAttrs (attrs: {
+            name = "gmp-${pkgs.gmp.version}";
+            inherit (pkgs.gmp) src;
+            configureFlags = attrs.configureFlags ++ [
+              "--disable-shared"
+              # nixpkgs 18.03 pins the build triple only on ARM, but GMP's config.guess
+              # runtime-probes the CPU via /proc/cpuinfo on x86 too, which is broken on
+              # the multicore CI runners.
               "--build=${pkgsDist.stdenv.buildPlatform.config}"
-            ]
-            # `--enable-fat` builds all x86 CPU variants and selects at runtime, keeping the
-            # release binary portable; it is not supported on aarch64.
-            ++ pkgs.lib.optional (pkgs.stdenv.system == "x86_64-linux") "--enable-fat";
-            # would need additional linking setup on Linux aarch64, we don't use it anywhere else either
-            hardeningDisable = pkgs.lib.optionals (pkgs.stdenv.system == "aarch64-linux") [ "stackprotector" ];
-            enableParallelBuilding = true;
+            ];
             doCheck = false;
-          };
+          } // pkgs.lib.optionalAttrs (pkgs.stdenv.system == "aarch64-linux") {
+            # would need additional linking setup on Linux aarch64, we don't use it anywhere else either
+            hardeningDisable = [ "stackprotector" ];
+          });
         in {
           GMP = gmpForDist;
           LIBUV = pkgsDist.libuv.overrideAttrs (attrs: {

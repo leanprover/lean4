@@ -17,19 +17,14 @@ open Lean Elab Command
 open Lean.Linter (logLint)
 
 /--
-Warn when the goal target is not type-correct at `.implicit` transparency, or when it contains an
-instance argument that only has the expected type above `.instances` transparency.
-
-The former happens when e.g. `unfold` leaves hypotheses whose types still refer to the pre-unfolded
-definition, preventing `rw`/`simp` from matching patterns. The latter happens when e.g. an `rfl`
-lemma rewrites a value without updating the instances mentioning it, preventing `rw`/`simp` from
-unifying the instance argument.
+Whether a `linter.tacticCheckInstances` warning has already been logged for this command, e.g. by
+`simp` checking its own intermediate results while the command was elaborated.
 -/
-register_builtin_option linter.tacticCheckInstances : Bool := {
-  defValue := false
-  descr := "enable the linter that type-checks every tactic goal at `.implicit` transparency and \
-    checks its instance arguments at `.instances` transparency"
-}
+private def alreadyReported : CommandElabM Bool := do
+  -- `Command.State.messages` is reset per command, but by the time linters run its messages have
+  -- been marked reported, which `MessageLog.toList` does not return.
+  return (← get).messages.reportedPlusUnreported.any
+    (·.data.hasTag (· == linter.tacticCheckInstances.name))
 
 /--
 A linter that runs `Meta.check _ .implicit` and `Meta.findInstanceArgMismatch?` on every tactic
@@ -43,8 +38,10 @@ def tacticCheckInstances : Linter where
     let infoTrees := (← get).infoState.trees.toArray
     -- Once any tactic step in this command has produced a warning, suppress
     -- all further checks: a bad lctx typically persists across many tactic
-    -- steps
-    let warned : IO.Ref Bool ← IO.mkRef false
+    -- steps. `simp` runs the same instance-argument check on its intermediate
+    -- results during elaboration, so start out suppressed if it already
+    -- reported one.
+    let warned : IO.Ref Bool ← IO.mkRef (← alreadyReported)
     for tree in infoTrees do
       -- `postNode` so children are visited before parents: leaf tactic infos
       -- (the actual user-written `unfold`, `rw`, ...) fire before the
@@ -90,9 +87,9 @@ def tacticCheckInstances : Linter where
               -- `.instances`, where an argument left behind by an earlier rewrite may no longer
               -- match.
               let some msg ← Meta.findInstanceArgMismatch? target | return none
-              return some m!"{kind} tactic goal contains an instance argument whose type does \
-                not match at `.instances` transparency; `simp` and `rw` unify instance-implicit \
-                arguments at that transparency, so lemmas mentioning this instance will fail to \
+              return some m!"The {kind} tactic goal has an instance argument whose type does not \
+                match at `.instances` transparency. `simp` and `rw` unify instance-implicit \
+                arguments at that transparency. Lemmas that mention this instance do not \
                 apply:{indentD msg}"
             let counterInst := (← get).diag.unfoldCounter
             let diff := Meta.subCounters counterDefault counterInst

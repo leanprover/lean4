@@ -5,10 +5,7 @@ source ../common.sh
 
 # Copy test data to a working directory to avoid initializing a Git repository
 # inside the checked-in source tree
-WORK_DIR="$PWD/work"
-mkdir -p "$WORK_DIR"
-cp -r bar1 bar2 foo lakefile.lean packages.json "$WORK_DIR/"
-cd "$WORK_DIR"
+copy_to_work bar1 bar2 foo lakefile.lean packages.json
 
 # Since committing a Git repository to a Git repository is not well-supported,
 # We reinitialize the `bar1` repository on each test.

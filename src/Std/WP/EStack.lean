@@ -18,8 +18,8 @@ A monad transformer stack carries one exception postcondition for each transform
 A stack of postconditions is a right-nested `×` chain with the marker type `EStackEnd` as its
 last component. `EStack⟨Nat → σ → Prop, String → σ → Prop⟩` is the stack of
 `ExceptT Nat (ExceptT String (StateM σ))`, and `estack⟨e₁, e₂⟩` is a value of it. The notation
-hides the nesting and the markers. A stack type prints back as `EStack⟨…⟩`, and a stack value
-prints back as `estack⟨…⟩`.
+hides the nesting and the markers. `EStackEnd` and `EStackEnd.mk` are abbreviations of `Unit`
+and `()`, so the unexpanders can recognize a stack while every `Unit` instance still applies.
 
 A base monad has one exception postcondition and no stack, so it does not use the notation:
 `Except ε` carries a bare `ε → Prop`.

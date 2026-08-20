@@ -38,22 +38,22 @@ spec target     ?footprint ⊑ W t⃗          pre VC      ?footprint ⊑ specP
 
 # Protocol
 
-1. Solver. Look up the candidate specs for `prog` and take the highest priority one. A spec with a
-   conjunctive precondition, or a goal whose post is already framed, applies directly: no frameproc
-   runs. Otherwise, pick the frameproc for the monad. The goal, the selected spec, and the frame a
-   `frames` clause pinned, if any, go to the frameproc.
-2. Frameproc, phase one. See those inputs, but not `specP`. Answer `decline`, or answer `commit`
-   and name `t⃗`, the state the spec runs at. The length of `t⃗` picks the rule.
+1. Solver. Look up the candidate specs for `prog` and take the highest priority one.
+   A spec with a conjunctive precondition applies directly: no frameproc runs.
+   Otherwise, look up the frameproc for the program type.
+   The goal, the selected spec, and the matched `frames` clause, if any, go to the frameproc.
+2. Frameproc, phase one. Answer `decline`, or answer `commit` and name `t⃗`, the state the spec runs
+   at. The length of `t⃗` picks the rule.
 3. Solver. On `decline`, apply the spec to the goal and hand back its subgoals.
 4. Solver. On `commit`, apply the frame rule to a copy of the goal. This yields `?frame`, `W`, the
    split VC and the side goal.
 5. Solver. Apply the spec at `?footprint ⊑ W t⃗`. On failure, drop the copy and try the next
    candidate.
-6. Solver. Enter phase two, passing `?frame`, `?footprint`, `W`, `specP`, the pre VC and the proof
-   of the spec target.
+6. Solver. Pass `?frame`, `?footprint`, `W`, `specP`, the pre VC and the proof of the spec target
+   to the frameproc.
 7. Frameproc, phase two. Choose `?frame`. Sometimes only `specP` says which.
-8. Frameproc. Prove the split VC, composing the spec target's proof under `op`. Or defer it. Or
-   leave `?frame` open too.
+8. Frameproc. Prove the split VC, composing the spec target's proof under `op`. It can leave
+   `?frame` open, but never the split VC.
 9. Frameproc. Discharge the pre VC when its own work proved it. Otherwise the solver forwards it.
 10. Solver. Assign the goal from the copy and return the remaining goals.
 
@@ -61,15 +61,17 @@ spec target     ?footprint ⊑ W t⃗          pre VC      ?footprint ⊑ specP
 
 11. The separation logic frameproc must assign the logical variables of `specP`. It matches
     `?l ↦ ?v` against the goal precondition, and that match fixes `?l` and `?v`.
-12. Phase two must read the same application that the proof uses. A second application would carry
-    fresh metavariables, and the values read in phase two would be lost.
+12. The assignment of e.g., `?l` and `?v` requires domain knowledge and cannot easily be
+    reconstructed by e.g., `rfl`. Thus, the assignment produced by the frameproc must persist.
 13. `t⃗` cannot depend on `specP`. Only the solver produces `specP`, and it needs the length of `t⃗`
     first.
-14. A frameproc that declines must be as fast as if there were no frameproc at all.
-15. When the spec rule fails, the solver tries the next candidate.
+14. A frameproc that declines must be as fast as if there were no frameproc mechanism at all.
+15. When the spec rule fails, the solver tries the next candidate. Backtracking after failure must
+    be fast.
 16. Emitted VCs are born with as few assigned metavariables as possible, so that sharing is kept.
-17. Every emitted VC is a hole of the final proof. In particular, when the split VC is deferred,
-    the spec application's proof goes unused, and its pre VC and post VCs must not be emitted.
+17. The frameproc always discharges the split VC, so the spec target's proof is always used, and
+    every emitted VC is a hole of the final proof. The meet frameproc proves its split VC with
+    shared code that supports excess state arguments.
 18. A pinned frame is consumed by the framing that lands, never by an attempt. A candidate that
     falls through must leave the `frames` clause for the next candidate.
 -/

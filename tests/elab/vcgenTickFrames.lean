@@ -234,7 +234,7 @@ count (`i.excessArgs[0]`, the first excess state argument of the `Nat → L` cos
 discharges the split VC `pre ⊑ (costConj shift W) ticks s⃗` itself. The spec applied at the
 shifted counter proves `pre ⊑ W (ticks - shift) s⃗`. This chains into `le_ofProp_meet_self`,
 stated at the cost lattice and applied to `s⃗` through the pointwise order on functions. The tick
-guard `shift ≤ ticks` falls to a nested grind run, or remains as a subgoal. The chain only typechecks at the shifted counter, so
+guard `shift ≤ ticks` remains as a subgoal. The chain only typechecks at the shifted counter, so
 it guards the open excess arguments of the spec application. -/
 def tickFrameProc : FrameInferenceProc := fun i => do
   let ticks := i.unframedApp.excessArgs[0]!
@@ -254,15 +254,9 @@ def tickFrameProc : FrameInferenceProc := fun i => do
     let costInst := op.getAppArgs[1]!
     let us := op.getAppFn.constLevels!
     let φ ← mkAppNS (← mkConstS ``Nat.le) #[shift, ticks]
+    -- A nested `Grind.main` run on a probe metavariable can discharge the guard here. The demo
+    -- keeps it as a subgoal.
     let hle ← mkFreshExprSyntheticOpaqueMVar φ
-    -- Try to discharge the tick guard with a nested grind run; a failed probe stays unused.
-    let guardGoals ← do
-      let probe ← mkFreshExprSyntheticOpaqueMVar φ
-      let solved ← try
-          (·.failure?.isNone) <$> Grind.main probe.mvarId! (← Grind.mkDefaultParams {})
-        catch _ => pure false
-      if solved then hle.mvarId!.assign (← instantiateMVars probe); pure []
-      else pure [hle.mvarId!]
     let hmeet ← mkAppNS (← mkConstS ``le_ofProp_meet_self us)
       #[costL, costInst, φ, ← mkAppNS goal.framedApp.wp #[shifted], hle]
     -- The pointwise order on functions lets `hmeet` apply to the state arguments directly.
@@ -270,7 +264,7 @@ def tickFrameProc : FrameInferenceProc := fun i => do
     let ty ← Sym.inferType happ
     let prf ← mkAppNS (← mkConstS ``Lean.Order.PartialOrder.rel_trans i.le.getAppFn.constLevels!)
       (i.le.getAppArgs ++ #[i.pre, ty.appFn!.appArg!, ty.appArg!, goal.specProof, happ])
-    return { splitVCProof := prf, subgoals := guardGoals }
+    return { splitVCProof := prf, subgoals := [hle.mvarId!] }
 
 /-- Register the cost frame inference procedure for `vcgen`, indexed by the `TickT` program type. The
 frame operator `costConj` is built at the base lattice `L` read off the assertion type `Nat → L`, so it

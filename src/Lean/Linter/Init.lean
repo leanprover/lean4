@@ -162,12 +162,15 @@ def codeQualityMessageTag : Name := `Lean.Linter._codeQuality
 /--
 Logs a message carrying the code quality entry `e` at the position of `stx`. The message is
 logged as silent so it is never displayed to users; it only serves as a carrier for persisting
-the entry into the `.olean` (see `Lean.Linter.recordLints`).
+the entry into the `.olean` (see `Lean.Linter.recordLints`). Like `logLint`, the message is
+tagged with `linterOption.name`, so consumers can attribute the entry to the linter that
+produced it (e.g. to honor `lake lint --lint-only`).
 -/
 def logCodeQualityEntry [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
-    (stx : Syntax) (e : CodeQuality.Entry) : m Unit :=
+    (linterOption : Lean.Option Bool) (stx : Syntax) (e : CodeQuality.Entry) : m Unit :=
   logAt stx (severity := .information) (isSilent := true) <|
     .ofCodeQualityEntry e <|
+    .tagged linterOption.name <|
     .tagged codeQualityMessageTag <| .nil
 
 /-- Returns true if `msg` was produced by `Lean.Linter.logCodeQualityEntry`. -/
@@ -195,7 +198,7 @@ provided linter option is enabled, taking `linter.all` and linter sets into acco
 -/
 def logCodeQualityEntryIf [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadEnv m]
     (linterOption : Lean.Option Bool) (stx : Syntax) (e : CodeQuality.Entry) : m Unit := do
-  if getLinterValue linterOption (← getLinterOptions) then logCodeQualityEntry stx e
+  if getLinterValue linterOption (← getLinterOptions) then logCodeQualityEntry linterOption stx e
 
 abbrev EnvLinterSnapshot := NameMap Bool
 

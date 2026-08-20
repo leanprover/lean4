@@ -1,6 +1,6 @@
 import Lean.Linter.EnvLinter
 
-open Lean Meta Lean.Linter
+open Lean Meta Lean.Linter Lean.Elab.Command
 
 /-- Option gating the dummy env linter; on by default so it fires during the
 build without needing `--linters`. -/
@@ -22,3 +22,22 @@ public meta def dummyMarker : Lean.Linter.EnvLinter.EnvLinter where
     if declName.toString.endsWith "DummyMarker" then
       return some "declaration name ends with 'DummyMarker'"
     return none
+
+/-- Option gating the metric-recording text linter; on by default so entries are recorded
+during the build without needing `--linters`. -/
+register_option linter.declMetric : Bool := {
+  defValue := true
+  descr := "(test) record a code quality entry for every declaration command"
+}
+
+-- A text linter recording a code quality entry (metric `declCommands`, value 1) for every
+-- `declaration` command, attributed to the elaborating module. Exercises the recorded-metrics
+-- side of the code quality output: the entries are persisted into the `.olean` during the build
+-- and recovered by `lake lint --code-quality` without re-elaboration.
+def declMetricLinter : Linter where
+  run cmdStx := do
+    unless cmdStx.getKind == ``Lean.Parser.Command.declaration do return
+    logCodeQualityEntryIf linter.declMetric cmdStx
+      { name := "declCommands", source := .module (← getMainModule), value := .scalar 1.0 }
+
+initialize addLinter declMetricLinter

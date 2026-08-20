@@ -284,18 +284,75 @@ def ensuresAscribed (n : Nat) : Id Nat
 #guard_msgs in
 #check @ensuresAscribed.spec
 
-/-! ## An `ensures` clause written with match alternatives
+/-! ## The binders of a clause
 
-The clause is a `fun`, so it may state the postcondition per shape of the result. -/
+A clause binds like a `fun`, so a binder may name the components of the value it stands for. A
+postcondition that tells the shapes of the result apart states a `match`. -/
+
+def bounds (n : Nat) : Id (Nat × Nat)
+    ensures (lo, hi) => lo ≤ hi
+  := pure (n, n)
+
+#guard_msgs (drop info) in
+#check @bounds.spec
 
 def halve (n : Nat) : Id (Option Nat)
-    ensures
+    ensures r => match r with
       | none => False
       | some v => 2 * v ≤ n
   := pure (some (n / 2))
 
 #guard_msgs (drop info) in
 #check @halve.spec
+
+/-! A `requires`, `invariant` or `assert` clause binds the same way. Here the state of the monad is
+a pair, and every clause names both components. -/
+
+def sumInto (xs : List Nat) : StateM (Nat × Nat) Unit
+    requires (lo, _hi) => lo = 0
+    ensures _ (lo, _hi) => lo = 0 := do
+  assert (lo, _hi) => lo = 0
+  for x in xs invariant _pref _suff (lo, _hi) => lo = 0 do
+    modify fun (lo, hi) => (lo, hi + x)
+
+#guard_msgs (drop info) in
+#check @sumInto.spec
+
+/-! A clause declares the type of the argument it binds, so a projection of the state resolves. -/
+
+def sumIntoProj (xs : List Nat) : StateM (Nat × Nat) Unit
+    requires (lo, _hi) => lo = 0
+    ensures _ (lo, _hi) => lo = 0 := do
+  for x in xs invariant _pref _suff s => s.1 = 0 do
+    modify fun (lo, hi) => (lo, hi + x)
+
+#guard_msgs (drop info) in
+#check @sumIntoProj.spec
+
+/-! A `while` loop states both of its clauses over the state. -/
+
+def countInto : StateM (Nat × Nat) Unit
+    requires (lo, hi) => lo ≤ hi
+    ensures _ (lo, hi) => lo ≤ hi := do
+  while (← get).1 < (← get).2
+      invariant _exit (lo, hi) => lo ≤ hi
+      decreasing (lo, hi) => hi - lo
+    do
+    modify fun (lo, hi) => (lo + 1, hi)
+
+#guard_msgs (drop info) in
+#check @countInto.spec
+
+/-! A binder that leaves a shape of the value out is reported as a missing case. -/
+
+/--
+error: Missing cases:
+none
+-/
+#guard_msgs in
+def halveSome (n : Nat) : Id (Option Nat)
+    ensures (some v) => 2 * v ≤ n
+  := pure (some (n / 2))
 
 /-! ## A `repeat` or `while` loop binds whether it has left
 

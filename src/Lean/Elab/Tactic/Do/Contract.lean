@@ -128,7 +128,6 @@ theorem; add `import Std.WP` to use them."
   let post : Term ← if ensuresStx.isNone then `(fun _ => ⊤) else
     match ensuresStx[0] with
     | `(ensuresClause| ensures $f:basicFun) => `(fun $f:basicFun)
-    | `(ensuresClause| ensures $alts:matchAlts) => `(fun $alts:matchAlts)
     | _ => Macro.throwUnsupported
   let msg : TSyntax `str := ⟨Syntax.mkStrLit <|
     if specStep?.isSome then

@@ -348,9 +348,19 @@ def mkBuildContext
     unless pkg.bootstrap do
       return none
     let dir := pkg.bootstrapIncludeDir
-    let leanH := TextFilePath.mk <|  dir / "lean" / "lean.h"
-    let .ok trace ← (computeTrace (n := IO) leanH).toBaseIO
-      | return none
+    let mut trace := BuildTrace.nil "Lean includes"
+    -- Must be kept up-to-date with the files `lean.h` can include
+    for header in #["lean.h", "config.h", "version.h", "mimalloc.h"] do
+      let leanH := TextFilePath.mk <| dir / "lean" / header
+      match ← (computeTrace (n := IO) leanH).toBaseIO with
+      | .ok fileTrace =>
+        trace := trace.mix fileTrace
+      | .error (.noFileOrDirectory ..) =>
+        -- some headers (e.g., `mimalloc.h`) are optional
+        -- missing required headers will be caught during compilation
+        continue
+      | _ =>
+        return none
     return some (dir, trace)
 }
 

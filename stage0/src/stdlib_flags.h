@@ -1,4 +1,3 @@
-// update me!
 #include "util/options.h"
 
 // [ ] Check box to force CI to test stage 2 and run update-stage0 on PR merge

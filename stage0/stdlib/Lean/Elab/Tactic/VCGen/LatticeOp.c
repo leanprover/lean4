@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.VCGen.LatticeOp
-// Imports: public import Lean.Meta.Sym.Apply public import Std.Internal.Order.Heyting public import Lean.Elab.Tactic.VCGen.FrameProc import Lean.Meta.Sym.Simp.Rewrite import Lean.Meta.AppBuilder import Lean.Meta.AbstractMVars
+// Imports: public import Lean.Meta.Sym.Apply public import Std.Internal.Order.Heyting import Lean.Meta.Sym.Simp.Rewrite import Lean.Meta.AppBuilder import Lean.Meta.AbstractMVars
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3755,21 +3755,21 @@ v___x_1413_ = lean_unsigned_to_nat(1u);
 v___x_1414_ = lean_mk_empty_array_with_capacity(v___x_1413_);
 lean_inc_ref(v___x_1414_);
 v___x_1415_ = lean_array_push(v___x_1414_, v_a_1404_);
-v___x_1416_ = l_Lean_Meta_mkAppM(v___y_1409_, v___x_1415_, v___y_1408_, v___y_1410_, v___y_1407_, v___y_1406_);
+v___x_1416_ = l_Lean_Meta_mkAppM(v___y_1410_, v___x_1415_, v___y_1407_, v___y_1408_, v___y_1409_, v___y_1406_);
 if (lean_obj_tag(v___x_1416_) == 0)
 {
 lean_object* v_a_1417_; lean_object* v___x_1418_; 
 v_a_1417_ = lean_ctor_get(v___x_1416_, 0);
 lean_inc(v_a_1417_);
 lean_dec_ref_known(v___x_1416_, 1);
-v___x_1418_ = l_Lean_Meta_mkCongrArg(v_a_1417_, v___y_1411_, v___y_1408_, v___y_1410_, v___y_1407_, v___y_1406_);
+v___x_1418_ = l_Lean_Meta_mkCongrArg(v_a_1417_, v___y_1411_, v___y_1407_, v___y_1408_, v___y_1409_, v___y_1406_);
 if (lean_obj_tag(v___x_1418_) == 0)
 {
 lean_object* v_a_1419_; lean_object* v___x_1420_; 
 v_a_1419_ = lean_ctor_get(v___x_1418_, 0);
 lean_inc(v_a_1419_);
 lean_dec_ref_known(v___x_1418_, 1);
-v___x_1420_ = l_Lean_Meta_mkEqSymm(v_a_1419_, v___y_1408_, v___y_1410_, v___y_1407_, v___y_1406_);
+v___x_1420_ = l_Lean_Meta_mkEqSymm(v_a_1419_, v___y_1407_, v___y_1408_, v___y_1409_, v___y_1406_);
 if (lean_obj_tag(v___x_1420_) == 0)
 {
 lean_object* v_a_1421_; lean_object* v___x_1422_; lean_object* v___x_1423_; lean_object* v___x_1424_; 
@@ -3778,7 +3778,7 @@ lean_inc(v_a_1421_);
 lean_dec_ref_known(v___x_1420_, 1);
 v___x_1422_ = ((lean_object*)(l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_mkLatticeOpRule_spec__2___closed__2));
 v___x_1423_ = lean_array_push(v___x_1414_, v_a_1421_);
-v___x_1424_ = l_Lean_Meta_mkAppM(v___x_1422_, v___x_1423_, v___y_1408_, v___y_1410_, v___y_1407_, v___y_1406_);
+v___x_1424_ = l_Lean_Meta_mkAppM(v___x_1422_, v___x_1423_, v___y_1407_, v___y_1408_, v___y_1409_, v___y_1406_);
 if (lean_obj_tag(v___x_1424_) == 0)
 {
 lean_object* v_a_1425_; lean_object* v___x_1426_; 
@@ -3787,9 +3787,9 @@ lean_inc(v_a_1425_);
 lean_dec_ref_known(v___x_1424_, 1);
 v___x_1426_ = l_Lean_Expr_app___override(v_a_1425_, v_a_1412_);
 v_prf_1351_ = v___x_1426_;
-v___y_1352_ = v___y_1408_;
-v___y_1353_ = v___y_1410_;
-v___y_1354_ = v___y_1407_;
+v___y_1352_ = v___y_1407_;
+v___y_1353_ = v___y_1408_;
+v___y_1354_ = v___y_1409_;
 v___y_1355_ = v___y_1406_;
 goto v___jp_1350_;
 }
@@ -3997,10 +3997,10 @@ v_a_1475_ = lean_ctor_get(v___x_1474_, 0);
 lean_inc(v_a_1475_);
 lean_dec_ref_known(v___x_1474_, 1);
 v___y_1406_ = v___y_1465_;
-v___y_1407_ = v___y_1464_;
-v___y_1408_ = v___y_1462_;
-v___y_1409_ = v___x_1466_;
-v___y_1410_ = v___y_1463_;
+v___y_1407_ = v___y_1462_;
+v___y_1408_ = v___y_1463_;
+v___y_1409_ = v___y_1464_;
+v___y_1410_ = v___x_1466_;
 v___y_1411_ = v_eqProof_1461_;
 v_a_1412_ = v_a_1475_;
 goto v___jp_1405_;
@@ -4057,10 +4057,10 @@ v_val_1484_ = lean_ctor_get(v___y_1460_, 0);
 lean_inc(v_val_1484_);
 lean_dec_ref_known(v___y_1460_, 1);
 v___y_1406_ = v___y_1465_;
-v___y_1407_ = v___y_1464_;
-v___y_1408_ = v___y_1462_;
-v___y_1409_ = v___x_1466_;
-v___y_1410_ = v___y_1463_;
+v___y_1407_ = v___y_1462_;
+v___y_1408_ = v___y_1463_;
+v___y_1409_ = v___y_1464_;
+v___y_1410_ = v___x_1466_;
 v___y_1411_ = v_eqProof_1461_;
 v_a_1412_ = v_val_1484_;
 goto v___jp_1405_;
@@ -4778,8 +4778,8 @@ goto v___jp_1687_;
 v___jp_1655_:
 {
 lean_object* v___x_1659_; lean_object* v___x_1660_; 
-lean_inc_ref(v___y_1657_);
-v___x_1659_ = l_Array_append___redArg(v___y_1657_, v___y_1658_);
+lean_inc_ref(v___y_1656_);
+v___x_1659_ = l_Array_append___redArg(v___y_1656_, v___y_1658_);
 lean_dec_ref(v___y_1658_);
 v___x_1660_ = l___private_Lean_Elab_Tactic_VCGen_LatticeOp_0__Lean_Elab_Tactic_VCGen_mkLatticeTerminals(v___x_1659_, v_a_1650_, v_a_1651_, v_a_1652_, v_a_1653_);
 lean_dec_ref(v___x_1659_);
@@ -4796,15 +4796,15 @@ v___x_1664_ = lean_mk_array(v_nargs_1663_, v_dummy_1662_);
 v___x_1665_ = lean_unsigned_to_nat(1u);
 v___x_1666_ = lean_nat_sub(v_nargs_1663_, v___x_1665_);
 lean_dec(v_nargs_1663_);
-v___x_1667_ = l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_mkLatticeOpRule_spec__2(v_op_1647_, v___y_1656_, v_a_1661_, v_rhs_1646_, v___x_1664_, v___x_1666_, v_a_1648_, v_a_1649_, v_a_1650_, v_a_1651_, v_a_1652_, v_a_1653_);
+v___x_1667_ = l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_mkLatticeOpRule_spec__2(v_op_1647_, v___y_1657_, v_a_1661_, v_rhs_1646_, v___x_1664_, v___x_1666_, v_a_1648_, v_a_1649_, v_a_1650_, v_a_1651_, v_a_1652_, v_a_1653_);
 lean_dec(v_a_1661_);
-lean_dec_ref(v___y_1656_);
+lean_dec_ref(v___y_1657_);
 return v___x_1667_;
 }
 else
 {
 lean_object* v_a_1668_; lean_object* v___x_1670_; uint8_t v_isShared_1671_; uint8_t v_isSharedCheck_1675_; 
-lean_dec_ref(v___y_1656_);
+lean_dec_ref(v___y_1657_);
 lean_dec_ref(v_op_1647_);
 lean_dec_ref(v_rhs_1646_);
 v_a_1668_ = lean_ctor_get(v___x_1660_, 0);
@@ -4852,8 +4852,8 @@ if (lean_obj_tag(v_terminal_x3f_1677_) == 0)
 {
 lean_object* v___x_1682_; 
 v___x_1682_ = ((lean_object*)(l_Lean_Elab_Tactic_VCGen_LatticeOp_upperAdjoint___closed__3));
-v___y_1656_ = v___y_1680_;
-v___y_1657_ = v___y_1681_;
+v___y_1656_ = v___y_1681_;
+v___y_1657_ = v___y_1680_;
 v___y_1658_ = v___x_1682_;
 goto v___jp_1655_;
 }
@@ -4865,8 +4865,8 @@ v___x_1684_ = lean_unsigned_to_nat(1u);
 v___x_1685_ = lean_mk_empty_array_with_capacity(v___x_1684_);
 lean_inc(v_val_1683_);
 v___x_1686_ = lean_array_push(v___x_1685_, v_val_1683_);
-v___y_1656_ = v___y_1680_;
-v___y_1657_ = v___y_1681_;
+v___y_1656_ = v___y_1681_;
+v___y_1657_ = v___y_1680_;
 v___y_1658_ = v___x_1686_;
 goto v___jp_1655_;
 }
@@ -4993,7 +4993,6 @@ return v_res_1751_;
 }
 lean_object* runtime_initialize_Lean_Meta_Sym_Apply(uint8_t builtin);
 lean_object* runtime_initialize_Std_Internal_Order_Heyting(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Elab_Tactic_VCGen_FrameProc(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_Simp_Rewrite(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_AppBuilder(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_AbstractMVars(uint8_t builtin);
@@ -5008,9 +5007,6 @@ res = runtime_initialize_Lean_Meta_Sym_Apply(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Internal_Order_Heyting(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_VCGen_FrameProc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Sym_Simp_Rewrite(builtin);
@@ -5035,7 +5031,6 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Meta_Sym_Apply(uint8_t builtin);
 lean_object* initialize_Std_Internal_Order_Heyting(uint8_t builtin);
-lean_object* initialize_Lean_Elab_Tactic_VCGen_FrameProc(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Simp_Rewrite(uint8_t builtin);
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin);
 lean_object* initialize_Lean_Meta_AbstractMVars(uint8_t builtin);
@@ -5048,9 +5043,6 @@ res = initialize_Lean_Meta_Sym_Apply(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Internal_Order_Heyting(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_VCGen_FrameProc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Sym_Simp_Rewrite(builtin);

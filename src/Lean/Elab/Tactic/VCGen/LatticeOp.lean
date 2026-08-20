@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Meta.Sym.Apply
 public import Std.Internal.Order.Heyting
-public import Lean.Elab.Tactic.VCGen.FrameProc
 import Lean.Meta.Sym.Simp.Rewrite
 import Lean.Meta.AppBuilder
 import Lean.Meta.AbstractMVars
@@ -17,6 +16,27 @@ open Lean Meta Sym
 open Lean.Order
 
 namespace Lean.Elab.Tactic.VCGen
+
+/-- How to decompose a lattice operator `head … s⃗` on the RHS of an entailment: the distribution and
+unfolding `rewrites` that saturate it, and the terminal `⊑`-introduction `terminals` that close the
+reduced form. `head` keys the split in the `latticeOps` table. -/
+public structure LatticeOp where
+  /-- Head constant of the operator this split decomposes. Keys the `latticeOps` table. -/
+  head : Name
+  /-- The number of leading arguments held constant during rule construction: the operator's carrier
+  type and its typeclass instances. The operands and excess state arguments after them become the
+  rule's schematic parameters. `2` for a connective over a `CompleteLattice` carrier; `0` for a
+  monomorphic operator. -/
+  numConst : Nat := 2
+  /-- Distribution and unfolding equalities that saturate the operator applied to state arguments. -/
+  rewrites : Array Name := #[]
+  /-- The operator's terminal `⊑`-introduction rule, or `none` when it saturates to another operator's
+  terminal. -/
+  terminal? : Option Name := none
+  /-- Whether the split applies to this RHS. Ops without a terminal decline shapes their rewrites
+  cannot reduce. -/
+  applies? : Expr → Bool := fun _ => true
+
 
 
 /-! ## Lattice split rules

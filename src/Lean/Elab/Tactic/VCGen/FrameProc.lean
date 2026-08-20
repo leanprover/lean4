@@ -16,9 +16,7 @@ import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Tactic.Util
 
-/-!
-
-# Frame inference procedure protocol
+/-! # Frame inference procedure protocol
 
 This note describes the protocol between `vcgen`'s solver and a frame inference procedure, and the
 metadata that is passed around.

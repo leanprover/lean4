@@ -372,9 +372,9 @@ return v___x_114_;
 LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___redArg___lam__0___boxed(lean_object* v_a_115_){
 _start:
 {
-uint8_t v_a_668__boxed_116_; lean_object* v_res_117_; 
-v_a_668__boxed_116_ = lean_unbox(v_a_115_);
-v_res_117_ = l_Lean_Server_CancellableT_checkCancelled___redArg___lam__0(v_a_668__boxed_116_);
+uint8_t v_a_626__boxed_116_; lean_object* v_res_117_; 
+v_a_626__boxed_116_ = lean_unbox(v_a_115_);
+v_res_117_ = l_Lean_Server_CancellableT_checkCancelled___redArg___lam__0(v_a_626__boxed_116_);
 return v_res_117_;
 }
 }

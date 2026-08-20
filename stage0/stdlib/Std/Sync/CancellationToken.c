@@ -907,9 +907,9 @@ return v___x_236_;
 LEAN_EXPORT lean_object* l_Std_CancellationToken_Consumer_resolve___lam__0___boxed(lean_object* v___x_238_, lean_object* v___y_239_){
 _start:
 {
-uint8_t v___x_408__boxed_240_; uint8_t v_res_241_; lean_object* v_r_242_; 
-v___x_408__boxed_240_ = lean_unbox(v___x_238_);
-v_res_241_ = l_Std_CancellationToken_Consumer_resolve___lam__0(v___x_408__boxed_240_);
+uint8_t v___x_414__boxed_240_; uint8_t v_res_241_; lean_object* v_r_242_; 
+v___x_414__boxed_240_ = lean_unbox(v___x_238_);
+v_res_241_ = l_Std_CancellationToken_Consumer_resolve___lam__0(v___x_414__boxed_240_);
 v_r_242_ = lean_box(v_res_241_);
 return v_r_242_;
 }
@@ -1696,9 +1696,9 @@ return v___x_503_;
 LEAN_EXPORT lean_object* l_Std_Async_Waiter_race___at___00Std_CancellationToken_selector_spec__0___lam__0___boxed(lean_object* v___x_507_, lean_object* v_x_508_, lean_object* v___y_509_){
 _start:
 {
-uint8_t v___x_6836__boxed_510_; lean_object* v_res_511_; 
-v___x_6836__boxed_510_ = lean_unbox(v___x_507_);
-v_res_511_ = l_Std_Async_Waiter_race___at___00Std_CancellationToken_selector_spec__0___lam__0(v___x_6836__boxed_510_, v_x_508_);
+uint8_t v___x_6592__boxed_510_; lean_object* v_res_511_; 
+v___x_6592__boxed_510_ = lean_unbox(v___x_507_);
+v_res_511_ = l_Std_Async_Waiter_race___at___00Std_CancellationToken_selector_spec__0___lam__0(v___x_6592__boxed_510_, v_x_508_);
 return v_res_511_;
 }
 }
@@ -2261,9 +2261,9 @@ return v___x_696_;
 LEAN_EXPORT lean_object* l_Std_CancellationToken_selector___lam__0___boxed(lean_object* v___x_697_, lean_object* v___y_698_, lean_object* v___y_699_){
 _start:
 {
-uint8_t v___x_7154__boxed_700_; lean_object* v_res_701_; 
-v___x_7154__boxed_700_ = lean_unbox(v___x_697_);
-v_res_701_ = l_Std_CancellationToken_selector___lam__0(v___x_7154__boxed_700_, v___y_698_);
+uint8_t v___x_6910__boxed_700_; lean_object* v_res_701_; 
+v___x_6910__boxed_700_ = lean_unbox(v___x_697_);
+v_res_701_ = l_Std_CancellationToken_selector___lam__0(v___x_6910__boxed_700_, v___y_698_);
 lean_dec(v___y_698_);
 return v_res_701_;
 }

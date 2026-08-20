@@ -135,15 +135,15 @@ LEAN_EXPORT lean_object* l_Bool_not_x27___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Bool_xor(uint8_t v_a_1_, uint8_t v_b_2_){
 _start:
 {
-if (v_a_1_ == 0)
-{
-return v_b_2_;
-}
-else
-{
 if (v_b_2_ == 0)
 {
 return v_a_1_;
+}
+else
+{
+if (v_a_1_ == 0)
+{
+return v_b_2_;
 }
 else
 {

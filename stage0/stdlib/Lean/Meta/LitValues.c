@@ -6908,8 +6908,8 @@ return v___x_1560_;
 else
 {
 lean_object* v___x_1562_; 
-lean_dec(v_a_1561_);
 lean_dec_ref_known(v___x_1560_, 1);
+lean_dec(v_a_1561_);
 v___x_1562_ = l_Lean_Meta_instantiateMVarsIfMVarApp___redArg(v_e_1554_, v_a_1556_);
 if (lean_obj_tag(v___x_1562_) == 0)
 {

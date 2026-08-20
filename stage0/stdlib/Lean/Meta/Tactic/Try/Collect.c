@@ -1462,11 +1462,11 @@ if (v___x_429_ == 0)
 {
 lean_object* v___x_430_; lean_object* v___x_431_; lean_object* v___x_432_; lean_object* v___x_433_; 
 lean_del_object(v___x_424_);
-v___x_430_ = l_Lean_Meta_Grind_grindExt;
-v___x_431_ = lean_box(0);
-v___x_432_ = lean_array_get(v___x_431_, v_val_426_, v___x_428_);
+v___x_430_ = lean_box(0);
+v___x_431_ = l_Lean_Meta_Grind_grindExt;
+v___x_432_ = lean_array_get(v___x_430_, v_val_426_, v___x_428_);
 lean_dec(v_val_426_);
-v___x_433_ = l_Lean_Meta_Grind_Extension_isEMatchTheorem___redArg(v___x_430_, v___x_432_, v_a_409_);
+v___x_433_ = l_Lean_Meta_Grind_Extension_isEMatchTheorem___redArg(v___x_431_, v___x_432_, v_a_409_);
 if (lean_obj_tag(v___x_433_) == 0)
 {
 lean_object* v_a_434_; lean_object* v___x_436_; uint8_t v_isShared_437_; uint8_t v_isSharedCheck_463_; 

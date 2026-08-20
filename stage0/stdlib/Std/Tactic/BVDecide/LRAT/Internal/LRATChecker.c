@@ -295,10 +295,10 @@ return v___x_79_;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqResult___boxed(lean_object* v_x_80_, lean_object* v_y_81_){
 _start:
 {
-uint8_t v_x_13__boxed_82_; uint8_t v_y_14__boxed_83_; uint8_t v_res_84_; lean_object* v_r_85_; 
-v_x_13__boxed_82_ = lean_unbox(v_x_80_);
-v_y_14__boxed_83_ = lean_unbox(v_y_81_);
-v_res_84_ = l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqResult(v_x_13__boxed_82_, v_y_14__boxed_83_);
+uint8_t v_x_20__boxed_82_; uint8_t v_y_21__boxed_83_; uint8_t v_res_84_; lean_object* v_r_85_; 
+v_x_20__boxed_82_ = lean_unbox(v_x_80_);
+v_y_21__boxed_83_ = lean_unbox(v_y_81_);
+v_res_84_ = l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqResult(v_x_20__boxed_82_, v_y_21__boxed_83_);
 v_r_85_ = lean_box(v_res_84_);
 return v_r_85_;
 }

@@ -132,9 +132,9 @@ return v___x_43_;
 LEAN_EXPORT lean_object* l_Std_Barrier_wait___lam__0___boxed(lean_object* v_generationId_44_, lean_object* v___x_45_, lean_object* v___y_46_, lean_object* v___y_47_){
 _start:
 {
-uint8_t v___x_2442__boxed_48_; uint8_t v_res_49_; lean_object* v_r_50_; 
-v___x_2442__boxed_48_ = lean_unbox(v___x_45_);
-v_res_49_ = l_Std_Barrier_wait___lam__0(v_generationId_44_, v___x_2442__boxed_48_, v___y_46_);
+uint8_t v___x_2417__boxed_48_; uint8_t v_res_49_; lean_object* v_r_50_; 
+v___x_2417__boxed_48_ = lean_unbox(v___x_45_);
+v_res_49_ = l_Std_Barrier_wait___lam__0(v_generationId_44_, v___x_2417__boxed_48_, v___y_46_);
 lean_dec(v___y_46_);
 lean_dec(v_generationId_44_);
 v_r_50_ = lean_box(v_res_49_);

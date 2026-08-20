@@ -607,9 +607,9 @@ v___x_194_ = l___private_Lake_CLI_Translate_0__Lake_descopeSyntax(v___x_193_);
 v___x_195_ = lean_uint8_once(&l_Lake_Package_mkConfigString___closed__21, &l_Lake_Package_mkConfigString___closed__21_once, _init_l_Lake_Package_mkConfigString___closed__21);
 v___x_264_ = l_Lean_Kernel_isDiagnosticsEnabled(v_env_187_);
 lean_dec_ref(v_env_187_);
-if (v___x_264_ == 0)
-{
 if (v___x_195_ == 0)
+{
+if (v___x_264_ == 0)
 {
 lean_inc(v___x_183_);
 v_fileName_197_ = v___x_188_;
@@ -630,13 +630,13 @@ goto v___jp_196_;
 }
 else
 {
-v___y_244_ = v___x_264_;
+v___y_244_ = v___x_195_;
 goto v___jp_243_;
 }
 }
 else
 {
-v___y_244_ = v___x_195_;
+v___y_244_ = v___x_264_;
 goto v___jp_243_;
 }
 v___jp_196_:

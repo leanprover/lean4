@@ -217,12 +217,12 @@ return v___x_15_;
 LEAN_EXPORT lean_object* l_instDecidableEqFloat_decEq___boxed(lean_object* v_x_16_, lean_object* v_x_17_){
 _start:
 {
-double v_x_25__boxed_18_; double v_x_26__boxed_19_; uint8_t v_res_20_; lean_object* v_r_21_; 
-v_x_25__boxed_18_ = lean_unbox_float(v_x_16_);
+double v_x_31__boxed_18_; double v_x_32__boxed_19_; uint8_t v_res_20_; lean_object* v_r_21_; 
+v_x_31__boxed_18_ = lean_unbox_float(v_x_16_);
 lean_dec_ref(v_x_16_);
-v_x_26__boxed_19_ = lean_unbox_float(v_x_17_);
+v_x_32__boxed_19_ = lean_unbox_float(v_x_17_);
 lean_dec_ref(v_x_17_);
-v_res_20_ = l_instDecidableEqFloat_decEq(v_x_25__boxed_18_, v_x_26__boxed_19_);
+v_res_20_ = l_instDecidableEqFloat_decEq(v_x_31__boxed_18_, v_x_32__boxed_19_);
 v_r_21_ = lean_box(v_res_20_);
 return v_r_21_;
 }

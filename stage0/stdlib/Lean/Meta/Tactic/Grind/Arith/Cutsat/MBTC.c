@@ -733,16 +733,16 @@ v___jp_54_:
 {
 if (v___y_57_ == 0)
 {
-lean_dec(v___y_56_);
-v___y_50_ = v___y_55_;
+lean_dec(v___y_55_);
+v___y_50_ = v___y_56_;
 goto v___jp_49_;
 }
 else
 {
 lean_object* v___x_58_; 
-v___x_58_ = lean_int_sub(v___y_55_, v___y_56_);
-lean_dec(v___y_56_);
+v___x_58_ = lean_int_sub(v___y_56_, v___y_55_);
 lean_dec(v___y_55_);
+lean_dec(v___y_56_);
 v___y_50_ = v___x_58_;
 goto v___jp_49_;
 }
@@ -756,8 +756,8 @@ v___x_64_ = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Gr
 lean_dec_ref(v___y_61_);
 if (v___x_64_ == 0)
 {
-v___y_55_ = v___x_63_;
-v___y_56_ = v___y_60_;
+v___y_55_ = v___y_60_;
+v___y_56_ = v___x_63_;
 v___y_57_ = v___x_64_;
 goto v___jp_54_;
 }
@@ -768,8 +768,8 @@ v___x_65_ = lean_obj_once(&l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_
 v___x_66_ = lean_int_ediv(v___y_60_, v___x_65_);
 v___x_67_ = lean_int_dec_le(v___x_66_, v___x_63_);
 lean_dec(v___x_66_);
-v___y_55_ = v___x_63_;
-v___y_56_ = v___y_60_;
+v___y_55_ = v___y_60_;
+v___y_56_ = v___x_63_;
 v___y_57_ = v___x_67_;
 goto v___jp_54_;
 }

@@ -918,7 +918,7 @@ if (v___x_450_ == 0)
 lean_object* v___x_451_; lean_object* v___x_452_; lean_object* v___x_453_; lean_object* v___x_454_; lean_object* v___x_455_; lean_object* v___x_456_; lean_object* v___x_457_; lean_object* v___x_458_; lean_object* v___x_459_; 
 lean_dec(v___x_449_);
 lean_dec(v___x_446_);
-v___x_451_ = l_Lean_SourceInfo_fromRef(v_a_420_, v___x_448_);
+v___x_451_ = l_Lean_SourceInfo_fromRef(v_a_420_, v___x_450_);
 v___x_452_ = lean_obj_once(&l_Std_WP___aux__Std__WP__ExceptPost______macroRules__Std__WP__termEPost_u27e8___u27e9__1___closed__8, &l_Std_WP___aux__Std__WP__ExceptPost______macroRules__Std__WP__termEPost_u27e8___u27e9__1___closed__8_once, _init_l_Std_WP___aux__Std__WP__ExceptPost______macroRules__Std__WP__termEPost_u27e8___u27e9__1___closed__8);
 v___x_453_ = lean_obj_once(&l_Std_WP_unexpandEPostCons___closed__2, &l_Std_WP_unexpandEPostCons___closed__2_once, _init_l_Std_WP_unexpandEPostCons___closed__2);
 v___x_454_ = ((lean_object*)(l_Std_WP___aux__Std__WP__ExceptPost______macroRules__Std__WP__termEPost_u27e8___u27e9__1___closed__16));
@@ -1204,7 +1204,7 @@ if (v___x_565_ == 0)
 lean_object* v___x_566_; lean_object* v___x_567_; lean_object* v___x_568_; lean_object* v___x_569_; lean_object* v___x_570_; lean_object* v___x_571_; lean_object* v___x_572_; lean_object* v___x_573_; lean_object* v___x_574_; 
 lean_dec(v___x_564_);
 lean_dec(v___x_561_);
-v___x_566_ = l_Lean_SourceInfo_fromRef(v_a_535_, v___x_563_);
+v___x_566_ = l_Lean_SourceInfo_fromRef(v_a_535_, v___x_565_);
 v___x_567_ = lean_obj_once(&l_Std_WP___aux__Std__WP__ExceptPost______macroRules__Std__WP__termEpost_u27e8___u27e9__1___closed__1, &l_Std_WP___aux__Std__WP__ExceptPost______macroRules__Std__WP__termEpost_u27e8___u27e9__1___closed__1_once, _init_l_Std_WP___aux__Std__WP__ExceptPost______macroRules__Std__WP__termEpost_u27e8___u27e9__1___closed__1);
 v___x_568_ = lean_obj_once(&l_Std_WP_unexpandEPostConsMk___closed__0, &l_Std_WP_unexpandEPostConsMk___closed__0_once, _init_l_Std_WP_unexpandEPostConsMk___closed__0);
 v___x_569_ = ((lean_object*)(l_Std_WP___aux__Std__WP__ExceptPost______macroRules__Std__WP__termEpost_u27e8___u27e9__1___closed__8));

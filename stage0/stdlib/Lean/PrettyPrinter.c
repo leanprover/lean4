@@ -2085,9 +2085,9 @@ v___x_718_ = l_Lean_diagnostics;
 v___x_719_ = lean_uint8_once(&l_Lean_PrettyPrinter_ppExprLegacy___closed__24, &l_Lean_PrettyPrinter_ppExprLegacy___closed__24_once, _init_l_Lean_PrettyPrinter_ppExprLegacy___closed__24);
 v___x_773_ = l_Lean_Kernel_isDiagnosticsEnabled(v_env_716_);
 lean_dec_ref(v_env_716_);
-if (v___x_773_ == 0)
-{
 if (v___x_719_ == 0)
+{
+if (v___x_773_ == 0)
 {
 lean_inc(v___x_607_);
 v___y_721_ = v___x_715_;
@@ -2096,13 +2096,13 @@ goto v___jp_720_;
 }
 else
 {
-v___y_753_ = v___x_773_;
+v___y_753_ = v___x_719_;
 goto v___jp_752_;
 }
 }
 else
 {
-v___y_753_ = v___x_719_;
+v___y_753_ = v___x_773_;
 goto v___jp_752_;
 }
 v___jp_580_:
@@ -2516,9 +2516,9 @@ lean_ctor_set_uint8(v___x_745_, sizeof(void*)*14, v___x_719_);
 v___x_746_ = l_Lean_Option_get___at___00__private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_maybePrependExprSizes_spec__0(v_opts_577_, v___x_718_);
 v___x_747_ = l_Lean_Kernel_isDiagnosticsEnabled(v_env_741_);
 lean_dec_ref(v_env_741_);
-if (v___x_747_ == 0)
-{
 if (v___x_746_ == 0)
+{
+if (v___x_747_ == 0)
 {
 lean_dec_ref(v___x_745_);
 v___y_609_ = v___x_742_;
@@ -2559,7 +2559,7 @@ v___y_682_ = v___x_742_;
 v___y_683_ = v___x_723_;
 v___y_684_ = v___y_722_;
 v___y_685_ = v___x_746_;
-v___y_686_ = v___x_747_;
+v___y_686_ = v___x_746_;
 goto v___jp_680_;
 }
 }
@@ -2582,7 +2582,7 @@ v___y_682_ = v___x_742_;
 v___y_683_ = v___x_723_;
 v___y_684_ = v___y_722_;
 v___y_685_ = v___x_746_;
-v___y_686_ = v___x_746_;
+v___y_686_ = v___x_747_;
 goto v___jp_680_;
 }
 }

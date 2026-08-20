@@ -179,7 +179,7 @@ goto v_reusejp_27_;
 v_reusejp_27_:
 {
 lean_object* v___x_29_; lean_object* v___x_30_; lean_object* v___x_31_; 
-lean_ctor_set_uint8(v___x_28_, sizeof(void*)*2, v___x_22_);
+lean_ctor_set_uint8(v___x_28_, sizeof(void*)*2, v___x_11_);
 v___x_29_ = lean_array_fset(v_entries_3_, v_i_4_, v___x_28_);
 v___x_30_ = lean_unsigned_to_nat(1u);
 v___x_31_ = lean_nat_add(v_i_4_, v___x_30_);

@@ -463,9 +463,9 @@ return v___x_97_;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_instReprFunDeclInfo_repr___boxed(lean_object* v_x_110_, lean_object* v_prec_111_){
 _start:
 {
-uint8_t v_x_177__boxed_112_; lean_object* v_res_113_; 
-v_x_177__boxed_112_ = lean_unbox(v_x_110_);
-v_res_113_ = l_Lean_Compiler_LCNF_Simp_instReprFunDeclInfo_repr(v_x_177__boxed_112_, v_prec_111_);
+uint8_t v_x_171__boxed_112_; lean_object* v_res_113_; 
+v_x_171__boxed_112_ = lean_unbox(v_x_110_);
+v_res_113_ = l_Lean_Compiler_LCNF_Simp_instReprFunDeclInfo_repr(v_x_171__boxed_112_, v_prec_111_);
 lean_dec(v_prec_111_);
 return v_res_113_;
 }

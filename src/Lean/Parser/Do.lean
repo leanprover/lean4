@@ -186,8 +186,7 @@ consumed so far and `suff` to the elements remaining. On a `repeat` or `while` l
 `invariant exit a b c => e`, with `exit` bound to whether the loop has left. Any further binders,
 here `a b c`, bind the arguments of the assertion itself, such as the state of a state monad.
 
-A binder destructures its argument, as in `invariant pref suff ⟨lo, hi⟩ => lo ≤ hi`, and the form
-`invariant | pref, suff, ⟨lo, hi⟩ => lo ≤ hi` states one assertion per shape of the arguments.
+A binder destructures its argument, as in `invariant pref suff ⟨lo, hi⟩ => lo ≤ hi`.
 -/
 def doLoopInvariant := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "invariant" >>

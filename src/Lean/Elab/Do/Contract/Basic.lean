@@ -19,8 +19,8 @@ What the clauses of a contract share. A clause states an assertion of the `do` b
 `WPMonad` computes the type of that assertion.
 -/
 
-/-- The type of an assertion of the `do` block's monad: `StateM Nat` states its assertions at
-`Nat → Prop`. Reports nothing when the monad has no `Std.WP.WPMonad` instance. -/
+/-- Synthesize the `Std.WP.WPMonad` dictionary of the `do` block's monad, and return the assertion
+type that its `outParam` determines: `StateM Nat` gives `Nat → Prop`. -/
 def assertionLanguage? : DoElabM (Option Expr) := do
   let wpMonad := `Std.WP.WPMonad
   unless (← getEnv).contains wpMonad do return none

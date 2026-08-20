@@ -140,8 +140,7 @@ arguments of the assertion itself, such as the state of a state monad, and the f
 `requires | ⟨lo, hi⟩ => lo ≤ hi` states one precondition per shape of those arguments. -/
 def requiresClause := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "requires" >>
-    withForbidden "ensures"
-      Term.funLikeBodyOrTerm)
+    withForbidden "ensures" Term.funLikeBodyOrTerm)
 /-- The `ensures b => Q` postcondition clause of a `def` contract, binding the result `b`. -/
 def ensuresClause := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "ensures" >>

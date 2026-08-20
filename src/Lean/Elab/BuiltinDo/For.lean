@@ -101,14 +101,16 @@ private def checkPureForIn (invClause : Syntax) (h? : Option Syntax) (xs α : Ex
 /-- The assertion language of the `do` block's monad, which `WPMonad` computes as an output
 parameter: synthesizing `WPMonad StateM Nat _ _` assigns `Nat → Prop` for the assertions of
 `StateM Nat`. The result is what the monad's assertions are known to be right here, so a monad
-whose instance is not available reports nothing. The type is built from syntax so that the
-universes and the instance arguments of the class come from elaboration. -/
+whose instance is not available reports nothing. The class's arguments are fresh natural
+metavariables that the found instance assigns, so the query registers no pending instance goals. -/
 private def assertionLanguage? : DoElabM (Option Expr) := do
   unless (← getEnv).contains ``Std.WP.WPMonad do return none
-  let wpTy ← Term.elabType <| ←
-    `($(mkIdent ``Std.WP.WPMonad) $(← Term.exprToSyntax (← read).monadInfo.m) _ _)
-  let .some _ ← trySynthInstance wpTy | return none
-  let some pred := wpTy.getAppArgs[1]? | return none
+  let wpMonad ← mkConstWithFreshMVarLevels ``Std.WP.WPMonad
+  let (args, _, _) ← forallMetaTelescope (← inferType wpMonad)
+  let some m := args[0]? | return none
+  unless ← isDefEq m (← read).monadInfo.m do return none
+  let .some _ ← trySynthInstance (mkAppN wpMonad args) | return none
+  let some pred := args[1]? | return none
   let pred ← instantiateMVars pred
   return if pred.hasExprMVar then none else some pred
 
@@ -125,10 +127,21 @@ private def checkAssertionBinders (ref : Syntax) (what : String) (binders : Nat)
     throwErrorAt ref "The {what} of a loop in this monad takes {takes}, and this clause has \
       {has}. The loop's mutable variables are named without binding them."
 
-/-- Bind the arguments of an assertion, which the clause states after the loop's own binders. -/
-private def mkAssertionFun (binders : TSyntaxArray ``Lean.Parser.Term.funBinder) (body : Term) :
-    DoElabM Term :=
-  if binders.isEmpty then pure body else `(fun $binders* => $body)
+/-- Given the `(lo, hi) => lo ≤ hi` part of `invariant _pref _suff (lo, hi) => lo ≤ hi` in
+`StateM (Nat × Nat)`, return the ascripted lambda `(fun (lo, hi) => lo ≤ hi : Nat × Nat → _)` so
+that the pair successfully elaborates. -/
+private def mkAssertionFun (binders : TSyntaxArray ``Lean.Parser.Term.funBinder) (body : Term)
+    (pred? : Option Expr) : DoElabM Term := do
+  if binders.isEmpty then return body
+  let f ← `(fun $binders* => $body)
+  let some pred := pred? | return f
+  let mut tys := #[]
+  let mut pred := pred
+  for _ in binders do
+    let .forallE _ d b _ := pred | return f
+    tys := tys.push (← Term.exprToSyntax d)
+    pred := b
+  `(($f : $(← tys.foldrM (init := ← `(_)) fun ty acc => `($ty → $acc))))
 
 /-- The pattern that names the loop's mutable variables in the state tuple, whose layout is
 `[return?, mutVars…, unit?]`; the early-return slot becomes a wildcard. -/
@@ -168,8 +181,11 @@ private def ForInApp.mkCall (g : ForInApp) (ref : Syntax) (gadget : Name)
   unless (← getEnv).contains gadget do
     throwErrorAt ref "a loop annotation elaborates to a `vcgen` gadget; \
       add `import Std.WP` to use it."
-  let call ← `($(mkIdent gadget) $(← Term.exprToSyntax g.xs) $(← Term.exprToSyntax g.init)
-    $(← Term.exprToSyntax g.body) $annotations*)
+  -- `open scoped` activates the instances of `Std.WP` and the notation of `Lean.Order` for the
+  -- annotations, as the contract's spec theorem does for the `requires` and `ensures` clauses.
+  let call ← `(open scoped Std.WP Lean.Order in
+    $(mkIdent gadget) $(← Term.exprToSyntax g.xs) $(← Term.exprToSyntax g.init)
+      $(← Term.exprToSyntax g.body) $annotations*)
   Term.elabTermEnsuringType call (mkApp (← read).monadInfo.m g.σ)
 
 /-- The binders and body of an `invariant` clause. An ascription covering the binder list would
@@ -196,8 +212,9 @@ private def mkForInPureWithInvariant (g : ForInApp) (invClause : TSyntax ``doLoo
       consumed so far and the elements remaining."
   let loopBinders := binders.take 2
   let assertionBinders := binders.drop 2
-  checkAssertionBinders invClause "invariant" assertionBinders.size (← assertionLanguage?)
-  let invBody ← mkAssertionFun assertionBinders invBody
+  let pred? ← assertionLanguage?
+  checkAssertionBinders invClause "invariant" assertionBinders.size pred?
+  let invBody ← mkAssertionFun assertionBinders invBody pred?
   let invLam ← `(fun $loopBinders* => $(← g.mkStateFun invBody))
   let gadget := if h?.isSome then ``Std.WP.Gadget.forInPureWithInvariant'
     else ``Std.WP.Gadget.forInPureWithInvariant
@@ -216,7 +233,7 @@ private def mkForInLoopGadget (g : ForInApp)
     let exitBinder := binders[0]!
     let assertionBinders := binders.drop 1
     checkAssertionBinders invClause "invariant" assertionBinders.size pred?
-    let invBody ← mkAssertionFun assertionBinders invBody
+    let invBody ← mkAssertionFun assertionBinders invBody pred?
     let exitVar := mkIdentFrom invClause (← mkFreshUserName `__exit)
     let invBody ← if exitBinder.raw.isOfKind ``hole then pure invBody else
       let exitPat : Term := ⟨exitBinder.raw⟩
@@ -232,7 +249,7 @@ private def mkForInLoopGadget (g : ForInApp)
       | `(doLoopDecreasing| decreasing $measure:term) => pure (#[], measure)
       | _ => throwUnsupportedSyntax
     checkAssertionBinders decClause "measure" binders.size pred?
-    return ((decClause : Syntax), ← g.mkStateFun (← mkAssertionFun binders body))
+    return ((decClause : Syntax), ← g.mkStateFun (← mkAssertionFun binders body pred?))
   let some (ref, gadget, annotations) := (match invArg?, varArg? with
     | some (ref, inv), some (_, var) =>
       some (ref, ``Std.WP.Gadget.forInLoopWithInvariantAndVariant, #[inv, var])

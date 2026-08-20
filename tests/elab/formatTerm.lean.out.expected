@@ -95,10 +95,8 @@ def g✝ (x✝ : Nat✝)
   pure✝ x✝
 def m✝ (x✝ : Nat✝)
     requires x✝ > 0
-    ensures
-      | 0 => False✝
-      | (n✝ + 1) => n✝ ≥ x✝ :=
-  pure✝ x✝
+    ensures (lo✝, hi✝) => lo✝ ≤ hi✝ :=
+  pure✝ (x✝, x✝)
 def h✝ (x✝ : Nat✝) : Id✝ Nat✝
     ensures r✝ => r✝ = x✝ :=
   pure✝ x✝

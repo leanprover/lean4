@@ -1051,7 +1051,7 @@ _start:
 lean_object* v___x_409_; lean_object* v_proof_410_; lean_object* v_excessArgs_411_; lean_object* v_specBackwardRuleCache_412_; lean_object* v___x_413_; lean_object* v___x_414_; lean_object* v___x_415_; lean_object* v___x_416_; lean_object* v_key_417_; lean_object* v___x_418_; 
 v___x_409_ = lean_st_ref_get(v_a_398_);
 v_proof_410_ = lean_ctor_get(v_specThm_395_, 1);
-v_excessArgs_411_ = lean_ctor_get(v_info_396_, 2);
+v_excessArgs_411_ = lean_ctor_get(v_info_396_, 3);
 v_specBackwardRuleCache_412_ = lean_ctor_get(v___x_409_, 0);
 lean_inc_ref(v_specBackwardRuleCache_412_);
 lean_dec(v___x_409_);
@@ -1564,7 +1564,7 @@ v___jp_572_:
 {
 lean_object* v___x_574_; lean_object* v_excessArgs_575_; lean_object* v_splitBackwardRuleCache_576_; lean_object* v___x_577_; lean_object* v___x_578_; lean_object* v___x_579_; lean_object* v_key_580_; lean_object* v___x_581_; 
 v___x_574_ = lean_st_ref_get(v_a_564_);
-v_excessArgs_575_ = lean_ctor_get(v_info_563_, 2);
+v_excessArgs_575_ = lean_ctor_get(v_info_563_, 3);
 v_splitBackwardRuleCache_576_ = lean_ctor_get(v___x_574_, 1);
 lean_inc_ref(v_splitBackwardRuleCache_576_);
 lean_dec(v___x_574_);
@@ -2690,7 +2690,7 @@ _start:
 {
 lean_object* v___x_1027_; lean_object* v_excessArgs_1028_; lean_object* v_frameBackwardRuleCache_1029_; lean_object* v___x_1030_; lean_object* v___x_1031_; lean_object* v_key_1032_; lean_object* v___x_1033_; 
 v___x_1027_ = lean_st_ref_get(v_a_1019_);
-v_excessArgs_1028_ = lean_ctor_get(v_info_1018_, 2);
+v_excessArgs_1028_ = lean_ctor_get(v_info_1018_, 3);
 v_frameBackwardRuleCache_1029_ = lean_ctor_get(v___x_1027_, 3);
 lean_inc_ref(v_frameBackwardRuleCache_1029_);
 lean_dec(v___x_1027_);

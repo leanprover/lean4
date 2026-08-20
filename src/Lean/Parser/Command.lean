@@ -142,8 +142,7 @@ def requiresClause := leading_parser
     withForbidden "ensures" (atomic Term.basicFun <|> (ppSpace >> termParser)))
 /-- The `ensures b => Q` postcondition clause of a `def` contract, binding the result `b`. -/
 def ensuresClause := leading_parser
-  ppIndent (ppLine >> nonReservedSymbol "ensures" >>
-    (Term.basicFun <|> ppIndent Term.matchAlts))
+  ppIndent (ppLine >> nonReservedSymbol "ensures" >> Term.basicFun)
 /-- The `: type` of a `def`. It may carry contract clauses, so we forbid `given`, `requires` and
 `ensures` in the type. -/
 def defTypeSpec := withForbiddens #["given", "requires", "ensures"] Term.typeSpec

@@ -593,7 +593,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
 
   -- Phase 3: shape the `rhs` (reduce a component projection, decompose a lattice connective or a
   -- forall, then discharge a residual entailment against the lifted hypothesis).
-  if let some g ← reduceExceptPostFst? goal target α inst pre rhs then return .goals scope [g]
+  if let some g ← headReduceFstRhs? goal target α inst pre rhs then return .goals scope [g]
   if let some gs ← splitLatticeOp? goal rhs then return .goals scope gs
   if let some gs ← splitForallLe? goal rhs then return .goals scope gs
   if let some gs ← liftedHyp? scope goal α pre rhs then return .goals scope gs

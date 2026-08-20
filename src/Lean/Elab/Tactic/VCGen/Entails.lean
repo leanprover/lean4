@@ -53,7 +53,7 @@ layer of `pre ⊑ epost.fst` is a `Prod.fst` projection. `reduceHead?` performs 
 `none` if the RHS head is not `Prod.fst` or does not reduce; a `⊥`/`⊤` tuple falls through to the
 `Prod.fst` lattice split in `splitLatticeOp?`.
 -/
-public def reduceExceptPostFst? (goal : MVarId) (target α inst pre rhs : Expr) :
+public def headReduceFstRhs? (goal : MVarId) (target α inst pre rhs : Expr) :
     VCGenM (Option MVarId) := do
   unless rhs.isAppOf ``Prod.fst do return none
   let some rhs' ← reduceHead? rhs | return none

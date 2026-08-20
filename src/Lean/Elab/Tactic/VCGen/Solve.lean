@@ -433,13 +433,6 @@ public def matchFrame? (fp : FrameProc) (info : WPApp) : VCGenM (Option Expr) :=
   trace[Elab.Tactic.Do.vcgen] "`frames` matched {info.prog}; frame:{indentExpr frame}"
   return some frame
 
-/-- True iff `post` is the post of a frame residual, `fun a => PreservesSup.upperAdjoint (op frame) (Q a)`.
-The frame rule leaves this shape behind, so a program with such a post is already framed and must not
-be framed again. -/
-private def isFramedPost (post : Expr) : Bool :=
-  let body := if post.isLambda then post.bindingBody! else post
-  body.consumeMData.getAppFn.isConstOf ``Lean.Order.PreservesSup.upperAdjoint
-
 /-- Apply `specRule` to a fresh target `?fp ⊑ wp prog ?Q E ?s⃗`, with the footprint, the post and the
 excess state arguments open. Only the post and the excess arguments differ from the goal's `wp`
 application, the rule's post is schematic, and the excess arguments never decide applicability, so
@@ -447,29 +440,21 @@ applicability here agrees with applicability at the goal. A failed attempt can i
 metavariables: no part of the goal is instantiated with a term that contains them. The spec's
 precondition VC is the sole bare entailment among the subgoals; the `∀`-quantified ones are the
 postcondition VCs. -/
-private def applySpecToFootprint (info : WPApp) (specRule : Sym.BackwardRule) (le W : Expr) :
-    Grind.GrindM (Option (SpecApp × List MVarId)) := do
+private def applySpecToFootprint (info : WPApp) (specRule : Sym.BackwardRule)
+    (le W : Expr) (excessStates : Array Expr) (frame : MVarId) :
+    Grind.GrindM (Option (FrameGoal × List MVarId)) := do
   let fp ← mkFreshExprMVar le.appFn!.appArg!
-  let excess ← info.excessArgs.mapM fun a => do mkFreshExprMVar (← Sym.inferType a)
-  let rhs ← mkAppNS W excess
+  let rhs ← mkAppNS W excessStates
   let target ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[fp, rhs])
   let .goals sgs ← specRule.apply target.mvarId! | return none
   let some preVC ← sgs.findM? fun g => return (← g.getType).isAppOf ``Lean.Order.PartialOrder.rel
     | throwError "frame: spec rule left no precondition VC for{indentExpr info.prog}"
-  let some wpApp := isWPApp? rhs
+  let some framedApp := isWPApp? rhs
     | throwError "frame: the weakest footprint is not a `wp` application for{indentExpr info.prog}"
-  return some ({ wpApp with footprint := fp.mvarId!, preVC, proof := target },
-               sgs.filter (· != preVC))
-
-/-- Apply the frame rule for `fp`'s operator and settle the `FrameSplit` a procedure produced:
-assign the frame slot, and discharge the split VC with the procedure's proof unless it deferred.
-The rule's own goals go back with the procedure's, and the worklist skips the ones this assigns. -/
-private def settleFrameRule (goals : Array MVarId) (frule : FrameBackwardRule)
-    (split : FrameSplit) : VCGenM (List MVarId) := do
-  goals[frule.frameIdx]!.assign (← instantiateMVarsS split.frame)
-  if let some proof := split.splitVCProof? then
-    goals[frule.splitVCIdx]!.assign proof
-  return goals.toList ++ split.subgoals
+  let goal : FrameGoal :=
+    { frame, footprint := fp.mvarId!, framedApp, specPre := (← preVC.getType).appArg!, preVC,
+      specProof := target }
+  return some (goal, sgs.filter (· != preVC))
 
 /-- Apply the frame rule to a copy of `goal`, and read the weakest footprint `W` off its split VC
 `pre ⊑ (op ?F W) s⃗`. The copy keeps candidate fall-through possible: committing to the frame rule
@@ -512,34 +497,30 @@ private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : Spec
         Pred:{indentExpr info.Pred}\n\
         excessArgs: {info.excessArgs}"
     | return none
-  unless thm.conjunctivePre || isFramedPost info.post do
+  unless thm.conjunctivePre do
     let procs := (← read).frameProcs.byProg
     let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
     let providedFrame? ← matchFrame? fp info
     let goalType ← goal.getType
     let inferInfo : FrameInferenceInfo :=
       { pre := goalType.appFn!.appArg!, le := goalType.stripArgsN 2
-        excessArgs := info.excessArgs, providedFrame?, spec? := thm.global?,
+        unframedApp := info, providedFrame?, spec? := thm.global?,
         mkOpApp := do shareCommon (← fp.mkOpAppM info) }
-    match fp.proc with
-    | .uncommitted f =>
-      if let some split ← f inferInfo then
-        trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` matched {info.prog}; frame:{indentExpr split.frame}"
-        let (copy, frule, goals, _) ← commitFrameRule goal info fp
-        let subgoals ← settleFrameRule goals frule split
-        goal.assign copy
-        return some (.goals scope subgoals)
-    | .committed f =>
+    match ← fp.proc inferInfo with
+    | .decline => pure ()
+    | .commit excessStates k =>
+      unless excessStates.size == info.excessArgs.size do
+        throwError "frameproc: the spec must run at {info.excessArgs.size} state arguments \
+          for now, got {excessStates.size}"
       let (copy, frule, goals, W) ← commitFrameRule goal info fp
-      let some (app, sgs) ← applySpecToFootprint info specRule inferInfo.le W | return none
-      let split ← f inferInfo app
-      -- A procedure runs the spec at the goal's state arguments unless it chose others.
-      for p in app.excessArgs.zip info.excessArgs do
-        unless ← p.1.mvarId!.isAssigned do p.1.mvarId!.assign p.2
-      trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` matched {info.prog}; frame:{indentExpr split.frame}"
-      let subgoals ← settleFrameRule goals frule split
+      let some (fgoal, sgs) ←
+          applySpecToFootprint info specRule inferInfo.le W excessStates goals[frule.frameIdx]!
+        | return none
+      let split ← k fgoal
+      trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` framed {info.prog}"
+      goals[frule.splitVCIdx]!.assign split.splitVCProof
       goal.assign copy
-      return some (.goals scope (app.preVC :: sgs ++ subgoals))
+      return some (.goals scope (goals.toList ++ fgoal.preVC :: sgs ++ split.subgoals))
   trace[Elab.Tactic.Do.vcgen] "Applying spec {thm.proof} for {info.prog}. Excess args: {info.excessArgs}"
   let .goals goals ← specRule.applyChecked goal m!"spec rule for{indentExpr info.prog}"
     | return none

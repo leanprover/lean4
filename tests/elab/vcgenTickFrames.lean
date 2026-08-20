@@ -236,31 +236,33 @@ shifted counter proves `pre ⊑ W (ticks - shift) s⃗`. This chains into `le_of
 stated at the cost lattice and applied to `s⃗` through the pointwise order on functions. The tick
 guard `shift ≤ ticks` remains as a subgoal. The chain only typechecks at the shifted counter, so
 it guards the open excess arguments of the spec application. -/
-def tickFrameProc : FrameInferenceProc := .committed fun i app => do
-  let ticks := i.excessArgs[0]!
+def tickFrameProc : FrameInferenceProc := fun i => do
+  let ticks := i.unframedApp.excessArgs[0]!
   let shift ← match i.providedFrame? with
     | some r => pure r
     | none => instantiateMVarsS ticks
-  -- Run the spec at the shifted counter, with deeper state left at the goal's, and take the whole
-  -- precondition as the footprint.
+  -- Run the spec at the shifted counter, with deeper state left at the goal's.
   let shifted ← mkAppNS (← mkConstS ``Nat.sub) #[ticks, shift]
-  app.excessArgs[0]!.mvarId!.assign shifted
-  app.footprint.assign i.pre
-  -- The lattice instances come from the frame operator and the goal entailment.
-  let op ← i.mkOpApp
-  let costL := op.getAppArgs[0]!
-  let costInst := op.getAppArgs[1]!
-  let us := op.getAppFn.constLevels!
-  let φ ← mkAppNS (← mkConstS ``Nat.le) #[shift, ticks]
-  let hle ← mkFreshExprSyntheticOpaqueMVar φ
-  let hmeet ← mkAppNS (← mkConstS ``le_ofProp_meet_self us)
-    #[costL, costInst, φ, ← mkAppNS (← app.wp) #[shifted], hle]
-  -- The pointwise order on functions lets `hmeet` apply to the state arguments directly.
-  let happ ← mkAppNS hmeet (i.excessArgs.extract 1 i.excessArgs.size)
-  let ty ← Sym.inferType happ
-  let prf ← mkAppNS (← mkConstS ``Lean.Order.PartialOrder.rel_trans i.le.getAppFn.constLevels!)
-    (i.le.getAppArgs ++ #[i.pre, ty.appFn!.appArg!, ty.appArg!, app.proof, happ])
-  return { frame := shift, splitVCProof? := prf, subgoals := [hle.mvarId!] }
+  let rest := i.unframedApp.excessArgs.extract 1 i.unframedApp.excessArgs.size
+  return .commit (#[shifted] ++ rest) fun goal => do
+    goal.frame.assign shift
+    -- The whole precondition is the footprint.
+    goal.footprint.assign i.pre
+    -- The lattice instances come from the frame operator and the goal entailment.
+    let op ← i.mkOpApp
+    let costL := op.getAppArgs[0]!
+    let costInst := op.getAppArgs[1]!
+    let us := op.getAppFn.constLevels!
+    let φ ← mkAppNS (← mkConstS ``Nat.le) #[shift, ticks]
+    let hle ← mkFreshExprSyntheticOpaqueMVar φ
+    let hmeet ← mkAppNS (← mkConstS ``le_ofProp_meet_self us)
+      #[costL, costInst, φ, ← mkAppNS (← goal.framedApp.wp) #[shifted], hle]
+    -- The pointwise order on functions lets `hmeet` apply to the state arguments directly.
+    let happ ← mkAppNS hmeet rest
+    let ty ← Sym.inferType happ
+    let prf ← mkAppNS (← mkConstS ``Lean.Order.PartialOrder.rel_trans i.le.getAppFn.constLevels!)
+      (i.le.getAppArgs ++ #[i.pre, ty.appFn!.appArg!, ty.appArg!, goal.specProof, happ])
+    return { splitVCProof := prf, subgoals := [hle.mvarId!] }
 
 /-- Register the cost frame inference procedure for `vcgen`, indexed by the `TickT` program type. The
 frame operator `costConj` is built at the base lattice `L` read off the assertion type `Nat → L`, so it

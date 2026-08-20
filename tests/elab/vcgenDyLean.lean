@@ -376,12 +376,12 @@ public meta partial def collectAlways (e : Expr) : Array Expr :=
 
 /-- Frame inference for `Traceful`: gather the precondition's `Always' pᵢ` conjuncts and frame by a
 single `Always'` over their conjunction, `Always' (fun tr => p₁ tr ∧ … ∧ pₙ tr)`. -/
-public meta def dyLeanFrameProc : FrameInferenceProc := .uncommitted fun i => do
+public meta def dyLeanFrameProc : FrameInferenceProc := fun i => do
   let frame ← do
     match i.providedFrame? with
     | some frame => pure frame
     | none => match (collectAlways i.pre).toList with
-      | [] => return none
+      | [] => return .decline
       | [single] => pure single
       | a :: rest =>
         let preds := (a :: rest).map (·.appArg!)
@@ -390,7 +390,7 @@ public meta def dyLeanFrameProc : FrameInferenceProc := .uncommitted fun i => do
           let last :: initRev := (preds.map (fun p => (mkApp p tr).headBeta)).reverse | unreachable!
           Meta.mkLambdaFVars #[tr] (initRev.foldl (fun acc x => mkApp (mkApp (mkConst ``And) x) acc) last)
         pure (← shareCommon (mkApp a.appFn! combined))
-  return some { frame, splitVCProof? := none, subgoals := [] }
+  return .ofFrame i frame
 
 @[frameproc] public meta def dyLeanFP : FrameProc where
   prog := ``Traceful

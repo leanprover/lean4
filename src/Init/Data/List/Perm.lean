@@ -468,7 +468,7 @@ theorem perm_insert_swap (x y : α) (l : List α) :
   by_cases xl : x ∈ l <;> by_cases yl : y ∈ l <;> simp [xl, yl]
   if xy : x = y then simp [xy] else
   simp [List.insert, xl, yl, xy, Ne.symm xy]
-  constructor
+  constructor!
 
 end LawfulBEq
 

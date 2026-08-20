@@ -131,10 +131,10 @@ public structure FrameSplit where
   /-- The goals the frameproc created, for example a guard it could not discharge. -/
   subgoals : List MVarId
 
-/-- Phase one's answer. `decline` leaves the spec to apply as it stands. `commit` names `t⃗`, the
-state the spec runs at, and continues in phase two once the solver applied the frame rule and the
-spec; see `FrameGoal`. There is no way back after `commit`: when nothing needs framing, frame the
-unit of the operator instead. -/
+/-- Phase one's answer. `decline` leaves the spec to apply without any frame. `commit` names `t⃗`,
+the state the spec runs at, and continues in phase two once the solver applied the frame rule and
+the spec; see `FrameGoal`. There is no way back after `commit`: when nothing needs framing, frame
+the unit of the operator instead. -/
 public inductive FrameDecision where
   | decline
   | commit (excessStates : Array Expr) (k : FrameGoal → Grind.GrindM FrameSplit)

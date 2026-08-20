@@ -90,27 +90,38 @@ open Lean.Elab.Tactic.VCGen
 public def processHypotheses (goal : Grind.Goal) : VCGenM Grind.Goal := do
   if (← read).internalize then Grind.processHypotheses goal else return goal
 
-/--
-Introduce all leading binders of `goal` in one pass, naming the `i`-th binder `overrides[i]` when
-given and the binder's own name otherwise. Accessibility is decided by `tactic.hygienic` via
-`mkFreshBinderNameForTactic`. The introduction itself is a single `Sym.intros` call (which keeps
-the memoized, sharing-correct intro); only the names are chosen here. Returns the goal unchanged
-when there are no leading binders.
--/
-public def introsHygienic (goal : MVarId) (overrides : Array Name := #[]) : VCGenM MVarId :=
+/-- Whether `n` is a program variable's own name: no macro scopes and no implementation-detail
+`__` prefix. Such a name stays accessible in a verification condition. -/
+public def isProgramName (n : Name) : Bool :=
+  !n.hasMacroScopes && !n.isImplementationDetail
+
+/-- The leading binders of `type`, stopping at a binder over a product: `∀ (n : Nat) (p : α × β)`
+counts one, because `solve` splits `p` into one binder per component first. -/
+public def numBindersToIntro : Expr → Nat
+  | .forallE _ d b _ => if d.isAppOf ``Prod then 0 else numBindersToIntro b + 1
+  | .letE _ _ _ b _ => numBindersToIntro b + 1
+  | _ => 0
+
+/-- Introduce the first `n` binders of `goal`, named by `mkFreshBinderNameForTactic`, which
+`tactic.hygienic` makes inaccessible: `∀ acc, acc % 2 = 0` introduces `acc✝`. -/
+public def introsHygienicN (goal : MVarId) (n : Nat) : VCGenM MVarId :=
   goal.withContext do
-    let rec collectBinders (type : Expr) (acc : Array Name) : Array Name :=
-      match type with
-      | .forallE n _ b _ => collectBinders b (acc.push n)
-      | .letE n _ _ b _ => collectBinders b (acc.push n)
-      | _ => acc
-    let binderNames := collectBinders (← goal.getType) #[]
+    let rec collectBinders : Nat → Expr → Array Name → Array Name
+      | 0, _, acc => acc
+      | n+1, .forallE nm _ b _, acc => collectBinders n b (acc.push nm)
+      | n+1, .letE nm _ _ b _, acc => collectBinders n b (acc.push nm)
+      | _, _, acc => acc
+    let binderNames := collectBinders n (← goal.getType) #[]
     if binderNames.isEmpty then return goal
     let mut names := #[]
-    for h : i in *...binderNames.size do
-      names := names.push (← Meta.mkFreshBinderNameForTactic (overrides[i]?.getD binderNames[i]))
+    for nm in binderNames do
+      names := names.push (← Meta.mkFreshBinderNameForTactic nm)
     let .goal _ goal ← Sym.intros goal names | return goal
     return goal
+
+/-- `introsHygienicN` for every non-`Prod` binder the goal leads with. -/
+public def introsHygienic (goal : MVarId) : VCGenM MVarId := do
+  introsHygienicN goal (numBindersToIntro (← goal.getType))
 
 /--
 Simplify the goal's target with the configured hypothesis simp methods (a no-op without

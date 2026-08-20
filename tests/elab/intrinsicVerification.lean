@@ -370,9 +370,9 @@ def countMeasureOnly (n : Nat) : StateM Nat Unit
 where finally
   | spec =>
     case inv1 =>
-      exact fun c s => match c with
-        | .inl i => s = i ∧ i ≤ n
-        | .inr i => s = i ∧ i = n
+      exact fun exit i s => match exit with
+        | false => s = i ∧ i ≤ n
+        | true => s = i ∧ i = n
     all_goals grind
 
 #guard_msgs (drop info) in
@@ -532,7 +532,7 @@ def sumEvens (xs : List Nat) : Id Nat
     acc := acc + 2 * x
   return acc
 where finally
-  | spec => case vc1 acc h => exact ⟨acc / 2, by omega⟩
+  | spec => case vc1 => exact ⟨acc / 2, by omega⟩
 
 /-- info: sumEvens.spec : ∀ (xs : List Nat), ⦃ ⊤ ⦄ sumEvens xs ⦃ fun r => ∃ k, r = 2 * k ⦄ -/
 #guard_msgs in
@@ -679,7 +679,7 @@ def differenceMinMax (a : Array Int) : Id Int
     i := i + 1
   return mx - mn
 where finally
-  | spec => case vc2 st _ => exact ⟨st.1, st.2.1, by grind, by grind, by grind⟩
+  | spec => case vc2 => exact ⟨mn, mx, by grind, by grind, by grind⟩
 
 #guard_msgs (drop info) in
 #check @differenceMinMax.spec

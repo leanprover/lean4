@@ -38,10 +38,12 @@ spec target     ?footprint ⊑ W t⃗          pre VC      ?footprint ⊑ specP
 
 # Protocol
 
-1. Solver. Look up the candidate specs for `prog` and take the highest priority one. Pick the
-   frameproc for the monad. Both the goal and the selected spec go to the frameproc.
-2. Frameproc, phase one. See the goal and the spec. Answer `decline`, or answer `commit` and name
-   `t⃗`, the state the spec runs at. The length of `t⃗` picks the rule.
+1. Solver. Look up the candidate specs for `prog` and take the highest priority one. A spec with a
+   conjunctive precondition, or a goal whose post is already framed, applies directly: no frameproc
+   runs. Otherwise, pick the frameproc for the monad. The goal, the selected spec, and the frame a
+   `frames` clause pinned, if any, go to the frameproc.
+2. Frameproc, phase one. See those inputs, but not `specP`. Answer `decline`, or answer `commit`
+   and name `t⃗`, the state the spec runs at. The length of `t⃗` picks the rule.
 3. Solver. On `decline`, apply the spec to the goal and hand back its subgoals.
 4. Solver. On `commit`, apply the frame rule to a copy of the goal. This yields `?frame`, `W`, the
    split VC and the side goal.
@@ -66,6 +68,10 @@ spec target     ?footprint ⊑ W t⃗          pre VC      ?footprint ⊑ specP
 14. A frameproc that declines must be as fast as if there were no frameproc at all.
 15. When the spec rule fails, the solver tries the next candidate.
 16. Emitted VCs are born with as few assigned metavariables as possible, so that sharing is kept.
+17. Every emitted VC is a hole of the final proof. In particular, when the split VC is deferred,
+    the spec application's proof goes unused, and its pre VC and post VCs must not be emitted.
+18. A pinned frame is consumed by the framing that lands, never by an attempt. A candidate that
+    falls through must leave the `frames` clause for the next candidate.
 -/
 
 open Lean Meta Sym Sym.Internal

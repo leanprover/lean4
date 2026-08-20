@@ -355,6 +355,14 @@ def mkBuildContext'
   registeredJobs := jobs
   leanTrace := .ofHash (pureHash ws.lakeEnv.leanGithash)
     s!"Lean {Lean.versionStringCore}, commit {ws.lakeEnv.leanGithash}"
+  leanIncludeDirs := ← ws.packages.mapM fun pkg => do
+    unless pkg.bootstrap do
+      return none
+    let dir := pkg.bootstrapIncludeDir
+    let leanH := TextFilePath.mk <|  dir / "lean" / "lean.h"
+    let .ok trace ← (computeTrace (n := IO) leanH).toBaseIO
+      | return none
+    return some (dir, trace)
 }
 
 def Workspace.startBuild

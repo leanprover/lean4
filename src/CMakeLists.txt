@@ -1067,7 +1067,25 @@ if(STAGE GREATER 0 AND INSTALL_LICENSE)
   install(FILES "${CMAKE_SOURCE_DIR}/../LICENSE" "${CMAKE_SOURCE_DIR}/../LICENSES" DESTINATION ".")
 endif()
 
-file(COPY ${CMAKE_SOURCE_DIR}/include/lean DESTINATION ${CMAKE_BINARY_DIR}/include FILES_MATCHING PATTERN "*.h")
+# The runtime headers are included from the build tree, both by the C++ sources and by the C files
+# `lean` generates, and are installed from there. Copying them as a build step instead of at
+# configure time keeps the copy current without a reconfiguration.
+add_custom_target(
+  lean-headers
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/include/lean/lean.h"
+    "${CMAKE_SOURCE_DIR}/include/lean/lean_gmp.h" "${CMAKE_SOURCE_DIR}/include/lean/lean_libuv.h"
+    "${CMAKE_BINARY_DIR}/include/lean"
+)
+
+set(LEAN_HEADER_CONSUMERS initialize leanshell make_stdlib)
+if(NOT STAGE GREATER 1)
+  # Later stages reuse the previous stage's C++ artifacts instead of compiling them
+  list(APPEND LEAN_HEADER_CONSUMERS leanrt leanrt_initial-exec util kernel library constructions)
+endif()
+foreach(T ${LEAN_HEADER_CONSUMERS})
+  add_dependencies(${T} lean-headers)
+endforeach()
 
 set(LEAN_INSTALL_PREFIX "" CACHE STRING "If set, set CMAKE_INSTALL_PREFIX to this value + version name")
 if(LEAN_INSTALL_PREFIX)

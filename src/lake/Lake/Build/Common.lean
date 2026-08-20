@@ -851,24 +851,38 @@ which will be computed in the resulting `Job` before building.
     return art.path
 
 /--
+**For internal use only.**
 Build an object file from a source fie job (i.e, a `lean -c` output)
 using the Lean toolchain's C compiler.
 -/
-public def buildLeanO
+public def Internal.buildLeanO
   (oFile : FilePath) (srcJob : Job FilePath)
   (weakArgs traceArgs : Array String := #[])
-  (leanIncludeDir? : Option FilePath := none)
+  (leanIncludeDir? : Option (FilePath × BuildTrace) := none)
 : SpawnM (Job FilePath) :=
   srcJob.mapM fun srcFile => do
     addLeanTrace
+    if let some (_, trace) := leanIncludeDir? then
+      -- Lean-produced C files contain `#include <lean/lean.h>`.
+      -- Usually this dependency is captured by the Lean trace, but not with an override.
+      addTrace trace
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- object files are platform-dependent artifacts
     let art ← buildArtifactUnlessUpToDate oFile (ext := "o") do
       let lean ← getLeanInstall
-      let includeDir := leanIncludeDir?.getD lean.includeDir
+      let includeDir := leanIncludeDir?.elim lean.includeDir (·.1)
       let args := #["-I", includeDir.toString] ++ lean.ccFlags ++ weakArgs ++ traceArgs
       compileO oFile srcFile args lean.cc
     return art.path
+
+/--
+Build an object file from a source fie job (i.e, a `lean -c` output)
+using the Lean toolchain's C compiler.
+-/
+@[inline] public def buildLeanO
+  (oFile : FilePath) (srcJob : Job FilePath)
+  (weakArgs traceArgs : Array String := #[])
+: SpawnM (Job FilePath) := Internal.buildLeanO oFile srcJob weakArgs traceArgs
 
 /-- Build a static library from object file jobs using the Lean toolchain's `ar`. -/
 public def buildStaticLib

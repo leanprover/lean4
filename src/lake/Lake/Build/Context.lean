@@ -81,6 +81,7 @@ public def JobQueue := IO.Ref (Array OpaqueJob)
 /-- A Lake context with a build configuration and additional build data. -/
 public structure BuildContext extends BuildConfig, Context where
   leanTrace : BuildTrace
+  leanIncludeDirs : Array (Option (FilePath × BuildTrace))
   registeredJobs : JobQueue
   /--
   Input-to-output(s) map for hashes of the root package's artifacts.

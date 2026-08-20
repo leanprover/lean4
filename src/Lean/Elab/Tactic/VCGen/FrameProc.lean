@@ -186,7 +186,7 @@ public def FrameDecision.ofFrame (i : FrameInferenceInfo) (frame : Expr) : Frame
     goal.frame.assign frame
     goal.footprint.assign i.pre
     let op ← i.mkOpApp
-    let W ← goal.framedApp.wp
+    let W := goal.framedApp.wp
     let rhs ← mkAppNS (← mkAppNS op #[frame, W]) i.unframedApp.excessArgs
     let m ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS i.le #[i.pre, rhs])
     let some head := op.getAppFn.constName?

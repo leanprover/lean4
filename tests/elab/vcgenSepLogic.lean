@@ -883,7 +883,7 @@ def empSplit (i : FrameInferenceInfo) (goal : FrameGoal) :
   goal.footprint.assign i.pre
   let prf ← mkAppM ``Lean.Order.PartialOrder.rel_trans
     #[goal.specProof, ← mkAppM ``Lean.Order.PartialOrder.rel_of_eq
-        #[← mkAppM ``Eq.symm #[← mkAppM ``emp_sepConj #[← goal.framedApp.wp]]]]
+        #[← mkAppM ``Eq.symm #[← mkAppM ``emp_sepConj #[goal.framedApp.wp]]]]
   return { splitVCProof := prf, subgoals := [] }
 
 /-- Discharge the split VC for a cancellation result. Continue `matchSepAtoms`'s example:

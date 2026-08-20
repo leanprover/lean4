@@ -24,6 +24,8 @@ Common metadata for a goal whose right-hand side is a weakest-precondition appli
 `pre ⊑ wp Prog Value Pred EPred instAL instEAL instWP prog post epost s₁ ... sₙ`.
 -/
 public structure WPApp where
+  /-- The whole `wp` application, including the excess state arguments. -/
+  expr : Expr
   /-- The `wp` function head, separated from its explicit core arguments. -/
   head : Expr
   /-- The ordered core arguments of the `wp` application:
@@ -54,7 +56,7 @@ public def prog (info : WPApp) : Expr := info.args[7]!
 public def post (info : WPApp) : Expr := info.args[8]!
 
 /-- The `wp` application itself, before the excess state arguments apply. -/
-public def wp (info : WPApp) : SymM Expr := mkAppNS info.head info.args
+public def wp (info : WPApp) : Expr := info.expr.stripArgsN info.excessArgs.size
 
 end WPApp
 
@@ -62,7 +64,7 @@ end WPApp
 public def isWPApp? (rhs : Expr) : Option WPApp :=
   rhs.withApp fun head args =>
     if head.isConstOf ``Std.WP.wp && args.size ≥ 10 then
-      some { head, args := args.take 10, excessArgs := args.drop 10 }
+      some { expr := rhs, head, args := args.take 10, excessArgs := args.drop 10 }
     else
       none
 

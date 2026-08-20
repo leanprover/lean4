@@ -653,7 +653,7 @@ the syntax `partial_fixpoint monotonicity by $tac` the proof can be done manuall
 @[builtin_doc] def partialFixpoint := leading_parser
   withPosition (
     "partial_fixpoint" >>
-    optional (checkColGt "indentation" >> nonReservedSymbol "monotonicity " >>
+    optional (checkColGt "indentation" >> "monotonicity " >>
               checkColGt "indented monotonicity proof" >> termParser))
 
 /--
@@ -670,7 +670,7 @@ of monotonicity if needed.
 def coinductiveFixpoint := leading_parser
   withPosition (
     "coinductive_fixpoint" >>
-    optional (checkColGt "indentation" >> nonReservedSymbol "monotonicity " >>
+    optional (checkColGt "indentation" >> "monotonicity " >>
               checkColGt "indented monotonicity proof" >> termParser))
 
 /--
@@ -687,7 +687,7 @@ of monotonicity if needed.
 def inductiveFixpoint := leading_parser
   withPosition (
     "inductive_fixpoint" >>
-    optional (checkColGt "indentation" >> nonReservedSymbol "monotonicity " >>
+    optional (checkColGt "indentation" >> "monotonicity " >>
               checkColGt "indented monotonicity proof" >> termParser))
 
 /--

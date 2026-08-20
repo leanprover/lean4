@@ -19,6 +19,6 @@ using lemma tagged with `@[partial_fixpoint_monotone]`.
 This tactic is mostly used internally by lean in `partial_fixpoint` definitions, but
 can be useful on its own for debugging or when proving new `@[partial_fixpoint_monotone]` lemmas.
 -/
-scoped syntax (name := monotonicity) "monotonicity" : tactic
+scoped syntax (name := «monotonicity») "monotonicity" : tactic
 
 end Lean.Order

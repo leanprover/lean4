@@ -85,6 +85,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (isCoi
     let computedFields ← (decl[5].getOptional?.map (·[1].getArgs) |>.getD #[]).mapM fun cf => withRef cf do
       return { ref := cf, modifiers := cf[0], fieldId := cf[1].getId, type := ⟨cf[3]⟩, matchAlts := ⟨cf[4]⟩ }
     let classes ← getOptDerivingClasses decl[6]
+    let monotonicity? : Option Term := decl[7].getOptional?.map fun stx => ⟨stx[1]⟩
     if decl[3][0].isToken ":=" then
       -- https://github.com/leanprover/lean4/issues/5236
       withRef decl[0] <| Linter.logLintIf Linter.linter.deprecated decl[3]
@@ -100,6 +101,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (isCoi
       computedFields
       docString?
       isCoinductive := isCoinductive
+      monotonicity?
     }
 
 private def isInductiveFamily (numParams : Nat) (indFVar : Expr) : TermElabM Bool := do

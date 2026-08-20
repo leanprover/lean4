@@ -98,7 +98,9 @@ where
     let_expr WP.wp m _ps _instWP α e := wp | onFail goal name
     -- NB: e here is a monadic expression, in the "object language"
     let e ← instantiateMVarsIfMVarApp e
-    let e := e.headBeta
+    -- `consumeMData` so that mdata (e.g. `save_info` from postponed elaboration in the `do` block)
+    -- does not hide a matcher application from `getSplitInfo?`.
+    let e := e.consumeMData.headBeta
     let goal := goal.withNewProg e -- to persist the instantiation of `e` and `trans`
     withTraceNode `Elab.Tactic.Do.vcgen (msg := fun _ => return m!"Program: {e}") do
 

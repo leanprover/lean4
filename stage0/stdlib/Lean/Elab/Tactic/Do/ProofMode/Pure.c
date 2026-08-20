@@ -6413,9 +6413,9 @@ return v___y_2426_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_pureTrivial___lam__0___boxed(lean_object* v___y_2428_, lean_object* v_x_2429_){
 _start:
 {
-uint8_t v___y_9301__boxed_2430_; uint8_t v_res_2431_; lean_object* v_r_2432_; 
-v___y_9301__boxed_2430_ = lean_unbox(v___y_2428_);
-v_res_2431_ = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_pureTrivial___lam__0(v___y_9301__boxed_2430_, v_x_2429_);
+uint8_t v___y_9286__boxed_2430_; uint8_t v_res_2431_; lean_object* v_r_2432_; 
+v___y_9286__boxed_2430_ = lean_unbox(v___y_2428_);
+v_res_2431_ = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_pureTrivial___lam__0(v___y_9286__boxed_2430_, v_x_2429_);
 lean_dec(v_x_2429_);
 v_r_2432_ = lean_box(v_res_2431_);
 return v_r_2432_;

@@ -55,6 +55,20 @@ instance {ε : Type u} {Pred : Type v} {EPred : Type w} :
   throw e := ⟨fun _post epost => epost.head e⟩
   tryCatch x handle := ⟨fun post epost => x.apply post ⟨(fun e => (handle e).apply post epost), epost.tail⟩⟩
 
+/-- Unfolding `throw` through `apply`: the head exception postcondition at the thrown value. -/
+@[simp, grind =] theorem PredTrans.apply_throw {ε : Type u} {α : Type u} {Pred : Type u}
+    {EPred : Type w} (e : ε) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
+    (MonadExceptOf.throw e : PredTrans Pred (EPost.Cons (ε → Pred) EPred) α).apply post epost
+      = epost.head e := rfl
+
+/-- Unfolding `tryCatch` through `apply`: the handler replaces the head exception postcondition. -/
+@[simp, grind =] theorem PredTrans.apply_tryCatch {ε : Type u} {α : Type u} {Pred : Type u}
+    {EPred : Type w} (x : PredTrans Pred (EPost.Cons (ε → Pred) EPred) α)
+    (handle : ε → PredTrans Pred (EPost.Cons (ε → Pred) EPred) α)
+    (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
+    (MonadExceptOf.tryCatch x handle).apply post epost
+      = x.apply post ⟨fun e => (handle e).apply post epost, epost.tail⟩ := rfl
+
 /-- `MonadExceptOf` instance lifted through an unrelated exception layer:
 delegates to the inner instance, threading the extra exception postcondition. -/
 instance {ε : Type u} {Pred : Type v} {EPred : Type w} {ε' : Type u}

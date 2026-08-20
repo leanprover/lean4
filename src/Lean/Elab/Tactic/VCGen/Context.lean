@@ -108,10 +108,6 @@ public structure Context where
   frameProcs : FrameProcs := {}
   /-- User-customizable simp methods used to pre-simplify hypotheses. -/
   hypSimpMethods : Option Sym.Simp.Methods := none
-  /-- The `trivial` config option: when `true` (default), `Driver.emitVC` runs
-  `solveTrivialConjuncts` to collapse trivial `And.intro` chains; when `false`, the goal is
-  emitted as-is. -/
-  trivial : Bool := true
   /-- The `jp` config option: when `true`, `tryLetIntro` recognises `__do_jp` lets
   whose body is a splitter and sets up shared-continuation handling instead of
   zeta-unfolding. When `false` (default, matching original `mvcgen`), every call

@@ -4369,12 +4369,12 @@ return v___x_1362_;
 LEAN_EXPORT lean_object* l_Lean_MVarId_withReverted___redArg___lam__0___boxed(lean_object* v_fst_1365_, lean_object* v_sz_1366_, lean_object* v___x_1367_, lean_object* v___x_1368_, lean_object* v___y_1369_, lean_object* v___y_1370_, lean_object* v___y_1371_, lean_object* v___y_1372_, lean_object* v___y_1373_){
 _start:
 {
-size_t v_sz_boxed_1374_; size_t v___x_3386__boxed_1375_; lean_object* v_res_1376_; 
+size_t v_sz_boxed_1374_; size_t v___x_3362__boxed_1375_; lean_object* v_res_1376_; 
 v_sz_boxed_1374_ = lean_unbox_usize(v_sz_1366_);
 lean_dec(v_sz_1366_);
-v___x_3386__boxed_1375_ = lean_unbox_usize(v___x_1367_);
+v___x_3362__boxed_1375_ = lean_unbox_usize(v___x_1367_);
 lean_dec(v___x_1367_);
-v_res_1376_ = l_Lean_MVarId_withReverted___redArg___lam__0(v_fst_1365_, v_sz_boxed_1374_, v___x_3386__boxed_1375_, v___x_1368_, v___y_1369_, v___y_1370_, v___y_1371_, v___y_1372_);
+v_res_1376_ = l_Lean_MVarId_withReverted___redArg___lam__0(v_fst_1365_, v_sz_boxed_1374_, v___x_3362__boxed_1375_, v___x_1368_, v___y_1369_, v___y_1370_, v___y_1371_, v___y_1372_);
 lean_dec(v___y_1372_);
 lean_dec_ref(v___y_1371_);
 lean_dec(v___y_1370_);

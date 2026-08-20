@@ -50,7 +50,7 @@ attribute [lia hom] wu_add
 axiom bad : Nat
 
 /--
-error: Cannot add `grind hom` attribute to `bad`: It is not a proposition nor a definition with equation theorems.
+error: cannot use `bad` as a simp theorem, it is not a proposition nor a definition with equational theorems
 -/
 #guard_msgs in
 attribute [grind hom] bad

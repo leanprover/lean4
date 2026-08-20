@@ -5136,10 +5136,10 @@ return v___x_1756_;
 LEAN_EXPORT lean_object* l_String_Slice_contains___redArg___lam__1___boxed(lean_object* v___x_1757_, lean_object* v_x1_1758_, lean_object* v_x2_1759_, lean_object* v_x3_1760_){
 _start:
 {
-uint8_t v___x_86__boxed_1761_; uint8_t v_x3_89__boxed_1762_; lean_object* v_res_1763_; 
-v___x_86__boxed_1761_ = lean_unbox(v___x_1757_);
-v_x3_89__boxed_1762_ = lean_unbox(v_x3_1760_);
-v_res_1763_ = l_String_Slice_contains___redArg___lam__1(v___x_86__boxed_1761_, v_x1_1758_, v_x2_1759_, v_x3_89__boxed_1762_);
+uint8_t v___x_82__boxed_1761_; uint8_t v_x3_85__boxed_1762_; lean_object* v_res_1763_; 
+v___x_82__boxed_1761_ = lean_unbox(v___x_1757_);
+v_x3_85__boxed_1762_ = lean_unbox(v_x3_1760_);
+v_res_1763_ = l_String_Slice_contains___redArg___lam__1(v___x_82__boxed_1761_, v_x1_1758_, v_x2_1759_, v_x3_85__boxed_1762_);
 lean_dec_ref(v_x1_1758_);
 return v_res_1763_;
 }

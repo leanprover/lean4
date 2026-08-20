@@ -19,22 +19,21 @@ open Lean Meta Sym Lean.Order
 
 /-!
 Generic `VCGenM` helpers: checked backward-rule application, telescope-aware `simp` driver,
-hygienic binder introduction, hypothesis-internalization for grind, and the trivial-conjunct
-collapser `solveTrivialConjuncts`. None of these know anything about the entailment shapes `solve`
-decomposes.
+hygienic binder introduction, hypothesis-internalization for grind, and the emission-time cleanup
+`cleanupVC`. None of these know anything about the entailment shapes `solve` decomposes.
 -/
 
 namespace Lean.Elab.Tactic.VCGen
 
-/-- Change `goal`'s `Prop`-typed target to the definitionally-equal `targetNew`, mirroring the goal
-update in `Sym.Simp`: a fresh synthetic-opaque goal cast back through `@id`. Unlike
-`MVarId.replaceTargetDefEq` it skips the `instantiateMVars`/`Expr.equal` round-trip, so it neither
-detects a no-op change nor supports a non-`Prop` target; the caller must pass a genuinely different
-`targetNew` definitionally equal to the current target. -/
+/-- Change `goal`'s `Prop`-typed target to the definitionally-equal `targetNew`, assigning `goal` a
+fresh synthetic-opaque goal for `targetNew`, so the kernel checks the two types against each other.
+Unlike `MVarId.replaceTargetDefEq` it skips the `instantiateMVars`/`Expr.equal` round-trip, so it
+neither detects a no-op change nor supports a non-`Prop` target; the caller must pass a genuinely
+different `targetNew` definitionally equal to the current target. -/
 public def _root_.Lean.MVarId.replaceTargetDefEqFast (goal : MVarId) (targetNew : Expr) :
     MetaM MVarId := goal.withContext do
   let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew (← goal.getTag)
-  goal.assign (mkApp2 (mkConst ``id [.zero]) (← goal.getType) mvarNew)
+  goal.assign mvarNew
   return mvarNew.mvarId!
 
 /-- Internalize a backward rule's pattern into the current `SymM` share table. See
@@ -147,20 +146,25 @@ public partial def introsExcessArgs (goal : MVarId) :
 /--
 Solves conjunctions whose leaves are `True` or `e₁ = e₂`, and returns a residual goal containing
 exactly the conjuncts that could not be solved.
+The goal is head-reduced first, so a conjunction that a `match` on a constructor or a projection
+of a tuple leaves behind a redex is still recognized.
 This procedure may assign metavariables in `e₁`/`e₂`, for example for `e = ?m` it will assign
 `?m := e`.
 -/
-public partial def solveTrivialConjuncts (goal : MVarId) : VCGenM (Option MVarId) :=
+public partial def cleanupVC (goal : MVarId) : VCGenM (Option MVarId) :=
     goal.withContext do
   let ctx ← read
   let ty ← instantiateMVars (← goal.getType)
+  let (goal, ty) ← match ← reduceHead? ty with
+    | some ty' => pure (← goal.replaceTargetDefEqFast ty', ty')
+    | none => pure (goal, ty)
   if ty.isAppOf ``True then
     goal.assign (mkConst ``True.intro)
     return none
   else if ty.isAppOf ``And then
     let .goals [g₁, g₂] ← ctx.backwardRules.andIntro.applyChecked goal
-      | throwError "solveTrivialConjuncts: failed to apply {.ofConstName ``And.intro} to{indentExpr ty}"
-    match ← solveTrivialConjuncts g₁, ← solveTrivialConjuncts g₂ with
+      | throwError "cleanupVC: failed to apply {.ofConstName ``And.intro} to{indentExpr ty}"
+    match ← cleanupVC g₁, ← cleanupVC g₂ with
     | none,    none    => return none
     | some g,  none    => return some g
     | none,    some g  => return some g

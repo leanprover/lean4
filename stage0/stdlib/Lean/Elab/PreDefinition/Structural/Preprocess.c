@@ -345,12 +345,12 @@ return v_r_55_;
 LEAN_EXPORT lean_object* l_panic___at___00Lean_Elab_Structural_preprocess_spec__0(lean_object* v_msg_57_, lean_object* v___y_58_, lean_object* v___y_59_){
 _start:
 {
-lean_object* v___f_61_; lean_object* v___x_840__overap_62_; lean_object* v___x_63_; 
+lean_object* v___f_61_; lean_object* v___x_835__overap_62_; lean_object* v___x_63_; 
 v___f_61_ = ((lean_object*)(l_panic___at___00Lean_Elab_Structural_preprocess_spec__0___closed__0));
-v___x_840__overap_62_ = lean_panic_fn_borrowed(v___f_61_, v_msg_57_);
+v___x_835__overap_62_ = lean_panic_fn_borrowed(v___f_61_, v_msg_57_);
 lean_inc(v___y_59_);
 lean_inc_ref(v___y_58_);
-v___x_63_ = lean_apply_3(v___x_840__overap_62_, v___y_58_, v___y_59_, lean_box(0));
+v___x_63_ = lean_apply_3(v___x_835__overap_62_, v___y_58_, v___y_59_, lean_box(0));
 return v___x_63_;
 }
 }

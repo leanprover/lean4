@@ -5000,10 +5000,10 @@ return v___x_1015_;
 LEAN_EXPORT lean_object* l_Lean_Doc_Parser_instOrdUnorderedListType___lam__0___boxed(lean_object* v_x_1016_, lean_object* v_x_1017_){
 _start:
 {
-uint8_t v_x_69__boxed_1018_; uint8_t v_x_70__boxed_1019_; uint8_t v_res_1020_; lean_object* v_r_1021_; 
-v_x_69__boxed_1018_ = lean_unbox(v_x_1016_);
-v_x_70__boxed_1019_ = lean_unbox(v_x_1017_);
-v_res_1020_ = l_Lean_Doc_Parser_instOrdUnorderedListType___lam__0(v_x_69__boxed_1018_, v_x_70__boxed_1019_);
+uint8_t v_x_61__boxed_1018_; uint8_t v_x_62__boxed_1019_; uint8_t v_res_1020_; lean_object* v_r_1021_; 
+v_x_61__boxed_1018_ = lean_unbox(v_x_1016_);
+v_x_62__boxed_1019_ = lean_unbox(v_x_1017_);
+v_res_1020_ = l_Lean_Doc_Parser_instOrdUnorderedListType___lam__0(v_x_61__boxed_1018_, v_x_62__boxed_1019_);
 v_r_1021_ = lean_box(v_res_1020_);
 return v_r_1021_;
 }
@@ -15982,8 +15982,8 @@ goto v___jp_5780_;
 }
 else
 {
-lean_dec_ref_known(v_kind_5796_, 2);
 lean_dec(v_pre_5797_);
+lean_dec_ref_known(v_kind_5796_, 2);
 lean_dec(v___x_5792_);
 lean_dec_ref(v_a_5778_);
 lean_dec_ref(v_p_5777_);

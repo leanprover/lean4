@@ -1081,9 +1081,9 @@ return v___x_289_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Eqns_deltaLHS___lam__0___boxed(lean_object* v___x_291_, lean_object* v_x_292_){
 _start:
 {
-uint8_t v___x_1020__boxed_293_; uint8_t v_res_294_; lean_object* v_r_295_; 
-v___x_1020__boxed_293_ = lean_unbox(v___x_291_);
-v_res_294_ = l_Lean_Elab_Eqns_deltaLHS___lam__0(v___x_1020__boxed_293_, v_x_292_);
+uint8_t v___x_991__boxed_293_; uint8_t v_res_294_; lean_object* v_r_295_; 
+v___x_991__boxed_293_ = lean_unbox(v___x_291_);
+v_res_294_ = l_Lean_Elab_Eqns_deltaLHS___lam__0(v___x_991__boxed_293_, v_x_292_);
 lean_dec(v_x_292_);
 v_r_295_ = lean_box(v_res_294_);
 return v_r_295_;

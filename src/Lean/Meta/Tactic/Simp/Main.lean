@@ -11,6 +11,7 @@ public import Lean.Meta.Tactic.Simp.Diagnostics
 public import Lean.Meta.Match.Value
 public import Lean.Meta.MonadSimp
 public import Lean.Util.CollectLooseBVars
+import Lean.Linter.Init
 import Lean.Meta.HaveTelescope
 import Lean.PrettyPrinter
 import Lean.ExtraModUses
@@ -647,12 +648,43 @@ def congr (e : Expr) : SimpM Result := do
   else
     congrDefault e
 
+/--
+Report the first instance argument in `eNew` whose type stopped matching at `.instances`
+transparency, blaming the theorem that was applied most recently.
+
+`simp` reaches such a term when it rewrites a value an instance argument's type depends on without
+being able to rewrite the instance along with it, which leaves every later lemma about that
+instance inapplicable. The state is often transient — a later rewrite in the same `simp` call may
+remove it again — so the tactic goals the `tacticCheckInstances` linter inspects need not show any
+trace of it.
+-/
+private def reportInstanceArgMismatch (eNew : Expr) : SimpM Unit := do
+  let some msg ← (try findInstanceArgMismatch? eNew catch _ => pure none) | return
+  -- At most one report per command, and stop checking once we have one: the check is a full
+  -- traversal of every intermediate result.
+  modify fun s => { s with checkInstanceArgs := false }
+  let alreadyReported := (← Core.getMessageLog).reportedPlusUnreported.any
+    (·.data.hasTag (· == Linter.linter.tacticCheckInstances.name))
+  if alreadyReported then return
+  let rewrote ← match (← get).lastThm? with
+    | some thm => do pure m!"`simp` rewrote a term with {← ppOrigin thm}."
+    | none     => pure m!"`simp` rewrote a term."
+  Linter.logLint Linter.linter.tacticCheckInstances (← getRef)
+    m!"{rewrote} The new term has an instance argument whose type does not match at \
+      `.instances` transparency:{indentD msg}\n\
+      For the rest of this `simp` call, lemmas that mention this instance do not apply."
+
 def simpApp (e : Expr) : SimpM Result := do
   if isOfNatNatLit e || isOfScientificLit e || isCharLit e then
     -- Recall that we fold "orphan" kernel Nat literals `n` into `OfNat.ofNat n`
     return { expr := e }
   else
-    congr e
+    let r ← congr e
+    -- Check here rather than once per simplified subterm: congruence is what leaves an instance
+    -- argument behind, and a `post` rewrite may well repair the result before it is cached.
+    if (← get).checkInstanceArgs && r.expr != e then
+      reportInstanceArgMismatch r.expr
+    return r
 
 def simpStep (e : Expr) : SimpM Result := do
   match e with

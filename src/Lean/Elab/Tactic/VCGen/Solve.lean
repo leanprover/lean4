@@ -466,7 +466,8 @@ metavariables: no part of the goal is instantiated with a term that contains the
 precondition VC is the sole bare entailment among the subgoals; the `∀`-quantified ones are the
 postcondition VCs. -/
 private def applySpecToFootprint (info : WPApp) (specRule : Sym.BackwardRule)
-    (le W : Expr) (excessStates : Array Expr) (frame : MVarId) :
+    (le W : Expr) (excessStates : Array Expr) (frame : MVarId)
+    (splitLatticeOp? : MVarId → Grind.GrindM (Option (List MVarId))) :
     Grind.GrindM (Option (FrameGoal × List MVarId)) := do
   let fp ← mkFreshExprMVar le.appFn!.appArg!
   let rhs ← mkAppNS W excessStates
@@ -478,7 +479,7 @@ private def applySpecToFootprint (info : WPApp) (specRule : Sym.BackwardRule)
     | throwError "frame: the weakest footprint is not a `wp` application for{indentExpr info.prog}"
   let goal : FrameGoal :=
     { frame, footprint := fp.mvarId!, framedApp, specPre := (← preVC.getType).appArg!, preVC,
-      specProof := target }
+      specProof := target, splitLatticeOp? }
   return some (goal, sgs.filter (· != preVC))
 
 /-- Apply the frame rule to a copy of `goal`, and read the weakest footprint `W` off its split VC
@@ -532,8 +533,14 @@ private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : Spec
         throwError "frameproc: the spec must run at {info.excessArgs.size} state arguments \
           for now, got {excessStates.size}"
       let (copy, frule, goals, W) ← commitFrameRule goal info fp
+      let splitLatticeOp? : MVarId → Grind.GrindM (Option (List MVarId)) ←
+        liftWith (m := Grind.GrindM) fun run => pure fun m => run do
+          let ty ← m.getType
+          let_expr Lean.Order.PartialOrder.rel _ _ _ rhs := ty | return none
+          splitLatticeOp? m rhs
       let some (fgoal, sgs) ←
           applySpecToFootprint info specRule inferInfo.le W excessStates goals[frule.frameIdx]!
+            splitLatticeOp?
         | return none
       let split ← k fgoal
       trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` framed {info.prog}"

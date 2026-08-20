@@ -10,7 +10,6 @@ public import Lean.Elab.Tactic.VCGen.WPApp
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.AlphaShareBuilder
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Elab.Tactic.VCGen.LatticeOp
 import Std.Internal.Order.Basic
 import Lean.Meta.AppBuilder
 import Lean.Meta.Sym.InferType
@@ -122,6 +121,9 @@ public structure FrameGoal where
   preVC : MVarId
   /-- The proof of the footprint target `?footprint ⊑ W t⃗`. -/
   specProof : Expr
+  /-- Decompose an entailment goal `x ⊑ (op …) s⃗` through the lattice split registered for the
+  operator head. `none` when no split is registered or the rule does not apply. -/
+  splitLatticeOp? : MVarId → Grind.GrindM (Option (List MVarId))
 
 /-- What phase two returns: a proof of the split VC `pre ⊑ (op ?frame W) s⃗`, and the goals the
 frameproc itself created. Goals of the frame rule and of the spec need no forwarding. -/
@@ -178,23 +180,17 @@ public def FrameProcs.insert (s : FrameProcs) (fp : FrameProc) : FrameProcs :=
   { byProg := s.byProg.insert fp.prog fp }
 
 /-- Commit to `frame`, take the whole precondition as the footprint, and discharge the split VC
-through the operator's registered lattice split. Fits any frameproc that frames a known resource,
-for example from a `frames` clause. -/
+with `FrameGoal.splitLatticeOp?`. Fits any frameproc whose operator has a registered lattice split,
+for example the default meet frame. -/
 public def FrameDecision.ofFrame (i : FrameInferenceInfo) (frame : Expr) : FrameDecision :=
   .commit i.unframedApp.excessArgs fun goal => do
     let frame ← shareCommon frame
     goal.frame.assign frame
     goal.footprint.assign i.pre
-    let op ← i.mkOpApp
-    let W := goal.framedApp.wp
-    let rhs ← mkAppNS (← mkAppNS op #[frame, W]) i.unframedApp.excessArgs
+    let rhs ← mkAppNS (← mkAppNS (← i.mkOpApp) #[frame, goal.framedApp.wp]) i.unframedApp.excessArgs
     let m ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS i.le #[i.pre, rhs])
-    let some head := op.getAppFn.constName?
-      | throwError "frameproc: the frame operator has no head constant{indentExpr op}"
-    let some latOp := latticeOps[head]?
-      | throwError "frameproc: no lattice split registered for `{head}`"
-    let .goals gs ← (← mkLatticeOpRule rhs latOp).apply m.mvarId!
-      | throwError "frameproc: the `{head}` split does not apply to{indentExpr (← m.mvarId!.getType)}"
+    let some gs ← goal.splitLatticeOp? m.mvarId!
+      | throwError "frameproc: no lattice split applies to{indentExpr (← m.mvarId!.getType)}"
     -- The split leaves `pre ⊑ frame s⃗` and `pre ⊑ W s⃗`; `specProof` proves the second.
     let subgoals ← gs.filterM fun g => do
       if (isWPApp? (← g.getType).appArg!).isSome then g.assign goal.specProof; return false

@@ -101,14 +101,16 @@ private def checkPureForIn (invClause : Syntax) (h? : Option Syntax) (xs α : Ex
 /-- The assertion language of the `do` block's monad, which `WPMonad` computes as an output
 parameter: synthesizing `WPMonad StateM Nat _ _` assigns `Nat → Prop` for the assertions of
 `StateM Nat`. The result is what the monad's assertions are known to be right here, so a monad
-whose instance is not available reports nothing. The type is built from syntax so that the
-universes and the instance arguments of the class come from elaboration. -/
+whose instance is not available reports nothing. The class's arguments are fresh natural
+metavariables that the found instance assigns, so the query registers no pending instance goals. -/
 private def assertionLanguage? : DoElabM (Option Expr) := do
   unless (← getEnv).contains ``Std.WP.WPMonad do return none
-  let wpTy ← Term.elabType <| ←
-    `($(mkIdent ``Std.WP.WPMonad) $(← Term.exprToSyntax (← read).monadInfo.m) _ _)
-  let .some _ ← trySynthInstance wpTy | return none
-  let some pred := wpTy.getAppArgs[1]? | return none
+  let wpMonad ← mkConstWithFreshMVarLevels ``Std.WP.WPMonad
+  let (args, _, _) ← forallMetaTelescope (← inferType wpMonad)
+  let some m := args[0]? | return none
+  unless ← isDefEq m (← read).monadInfo.m do return none
+  let .some _ ← trySynthInstance (mkAppN wpMonad args) | return none
+  let some pred := args[1]? | return none
   let pred ← instantiateMVars pred
   return if pred.hasExprMVar then none else some pred
 
@@ -168,8 +170,11 @@ private def ForInApp.mkCall (g : ForInApp) (ref : Syntax) (gadget : Name)
   unless (← getEnv).contains gadget do
     throwErrorAt ref "a loop annotation elaborates to a `vcgen` gadget; \
       add `import Std.WP` to use it."
-  let call ← `($(mkIdent gadget) $(← Term.exprToSyntax g.xs) $(← Term.exprToSyntax g.init)
-    $(← Term.exprToSyntax g.body) $annotations*)
+  -- `open scoped` activates the instances of `Std.WP` and the notation of `Lean.Order` for the
+  -- annotations, as the contract's spec theorem does for the `requires` and `ensures` clauses.
+  let call ← `(open scoped Std.WP Lean.Order in
+    $(mkIdent gadget) $(← Term.exprToSyntax g.xs) $(← Term.exprToSyntax g.init)
+      $(← Term.exprToSyntax g.body) $annotations*)
   Term.elabTermEnsuringType call (mkApp (← read).monadInfo.m g.σ)
 
 /-- The binders and body of an `invariant` clause. An ascription covering the binder list would

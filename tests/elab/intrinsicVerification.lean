@@ -39,6 +39,52 @@ def onlyRequire (n : Nat) : Id Nat
 #guard_msgs in
 #check @onlyRequire.spec
 
+/-! Loop annotations and `assert` also elaborate with nothing opened: the `do` elaborator
+activates the scoped instances of `Std.WP` for the annotation terms. -/
+
+def countDownNoOpen (n : Nat) : Id Nat
+    ensures r => r = 0 := do
+  let mut i := n
+  while i > 0
+      invariant exit => if exit then i = 0 else True
+      decreasing i
+    do
+    i := i - 1
+  return i
+
+#guard_msgs (drop info) in
+#check @countDownNoOpen.spec
+
+def sumNoOpen (xs : List Nat) : StateM Nat Unit
+    requires s => s = 0
+    ensures _ s => s = xs.sum
+  := do
+  for x in xs invariant pref _ s => s = pref.sum do
+    modify (· + x)
+
+#guard_msgs (drop info) in
+#check @sumNoOpen.spec
+
+def assertNoOpen (n : Nat) : Id Nat
+    requires n > 0
+    ensures r => r ≥ 2
+  := do
+  let d := 2 * n
+  assert d ≥ 2
+  return d
+
+#guard_msgs (drop info) in
+#check @assertNoOpen.spec
+
+-- A loop annotation elaborates without a contract on the definition.
+def decreasingNoOpen (n : Nat) : Id Nat := do
+  let mut i := n
+  while i > 0
+      decreasing i
+    do
+    i := i - 1
+  return i
+
 open Std.WP Lean.Order
 
 /-! ## An `ensures` contract with a `for … invariant` loop, proved with no manual steps -/

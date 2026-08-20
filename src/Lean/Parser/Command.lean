@@ -140,8 +140,7 @@ arguments of the assertion itself, such as the state of a state monad. -/
 def requiresClause := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "requires" >>
     withForbidden "ensures" (atomic Term.basicFun <|> (ppSpace >> termParser)))
-/-- The `ensures b => Q` postcondition clause of a `def` contract, binding the result `b`. A binder
-may name the components of the result, as in `ensures (lo, hi) => lo ≤ hi`. -/
+/-- The `ensures b => Q` postcondition clause of a `def` contract, binding the result `b`. -/
 def ensuresClause := leading_parser
   ppIndent (ppLine >> nonReservedSymbol "ensures" >> Term.basicFun)
 /-- The `: type` of a `def`. It may carry contract clauses, so we forbid `given`, `requires` and

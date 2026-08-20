@@ -125,9 +125,9 @@ private def checkAssertionBinders (ref : Syntax) (what : String) (binders : Nat)
     throwErrorAt ref "The {what} of a loop in this monad takes {takes}, and this clause has \
       {has}. The loop's mutable variables are named without binding them."
 
-/-- Bind the arguments of an assertion, which the clause states after the loop's own binders. The
-result declares their types, so `invariant _pref _suff (lo, hi) => lo ≤ hi` in `StateM (Nat × Nat)`
-reads as `(fun (lo, hi) => lo ≤ hi : Nat × Nat → _)`. -/
+/-- Given the `(lo, hi) => lo ≤ hi` part of `invariant _pref _suff (lo, hi) => lo ≤ hi` in
+`StateM (Nat × Nat)`, return the ascripted lambda `(fun (lo, hi) => lo ≤ hi : Nat × Nat → _)` so
+that the pair successfully elaborates. -/
 private def mkAssertionFun (binders : TSyntaxArray ``Lean.Parser.Term.funBinder) (body : Term)
     (pred? : Option Expr) : DoElabM Term := do
   if binders.isEmpty then return body

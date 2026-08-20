@@ -162,12 +162,19 @@ private def ForInApp.mkCall (g : ForInApp) (ref : Syntax) (gadget : Name)
   Term.elabTermEnsuringType call (mkApp (← read).monadInfo.m g.σ)
 
 /-- The binders of a clause stated as alternatives, and its body: `| pref, suff, ⟨lo, hi⟩ => e`
-gives three fresh binders and `(fun | pref, suff, ⟨lo, hi⟩ => e) x✝ y✝ z✝`. -/
+gives the binders `pref suff x✝` and the body `(fun | pref, suff, ⟨lo, hi⟩ => e) pref suff x✝`. A
+binder takes the name of the pattern it stands for, so the program's own names reach the
+verification condition; a pattern that names no variable takes a fresh name. -/
 private def destructMatchAlts (ref : Syntax) (alts : TSyntax ``Lean.Parser.Term.matchAlts)
     (numLeading : Nat) : DoElabM (TSyntaxArray ``Lean.Parser.Term.funBinder × Term) := do
   let n := Term.getMatchAltsNumPatterns alts
   let f ← ascribeAssertionArgs (← `(fun $alts:matchAlts)) (n - numLeading) numLeading
-  let xs ← (Array.range n).mapM fun _ => do
+  let pats := alts.raw[0][0][1][0].getSepArgs
+  let xs ← (Array.range n).mapM fun i => do
+    if let some pat := pats[i]? then
+      -- A pattern that names a constructor, such as `true`, binds nothing.
+      if pat.isIdent && (← resolveGlobalName pat.getId).isEmpty then
+        return ⟨pat⟩
     return mkIdentFrom ref (← mkFreshUserName `x)
   return (xs.map (⟨·.raw⟩), ← `($f $xs*))
 

@@ -486,16 +486,14 @@ frame procedure produces a split. `none` when no backward rule fits the goal's m
 rule does not apply.
 
 - A spec with a conjunctive precondition, or an already-framed residual, applies its spec directly.
-- Otherwise the frame procedure for the monad is selected (the `@[frameproc]` registered for the
-  program type, or the default meet frame). The choice is per node, since sub-programs may reach a
-  different monad (e.g. a `monadLift`ed base call).
-- An explicit `frames` clause elaborates a frame and passes it to the procedure.
-- Failing that, the procedure may read the spec's precondition through
+- Otherwise the frame procedure `fp` runs, with `providedFrame?` carrying the frame pinned by a
+  matching `frames` clause (both selected once per goal in `applySpecs`).
+- Without a pinned frame, the procedure may read the spec's precondition through
   `FrameInferenceInfo.specPre?`: no split applies the spec directly; a split applies the frame rule
   instead, so the spec re-applies against the framed residual where its VCs are solvable.
 -/
-private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
-    VCGenM (Option SolveResult) := do
+private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem)
+    (fp : FrameProc) (providedFrame? : Option Expr) : VCGenM (Option SolveResult) := do
   let some specRule ←
     try
       mkBackwardRuleFromSpecCached thm info |>.run
@@ -507,9 +505,6 @@ private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : Spec
         excessArgs: {info.excessArgs}"
     | return none
   unless thm.conjunctivePre || isFramedPost info.post do
-    let procs := (← read).frameProcs.byProg
-    let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
-    let providedFrame? ← matchFrame? fp info
     let inferInfo : FrameInferenceInfo :=
       { info with goal, providedFrame?, spec? := thm.global?, specRule,
                   mkOpApp := do shareCommon (← fp.mkOpAppM info) }
@@ -532,8 +527,12 @@ spurious candidate of the over-approximating discrimination tree.
 private def applySpecs (scope : Scope) (goal : MVarId) (info : WPApp) :
     VCGenM SolveResult := goal.withContext do
   let candidates ← SpecTheorems.findSpecs scope.specs info.prog
+  let procs := (← read).frameProcs.byProg
+  let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
+  let providedFrame? ←
+    if candidates.isEmpty || isFramedPost info.post then pure none else matchFrame? fp info
   for thm in candidates do
-    if let some res ← applySpec scope goal info thm then
+    if let some res ← applySpec scope goal info thm fp providedFrame? then
       return res
     trace[Elab.Tactic.Do.vcgen] "Failed to apply spec {thm.proof} for {info.prog}"
   stopOrErrorOnMissingSpec info.prog info.M candidates

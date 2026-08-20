@@ -1,9 +1,9 @@
-import Std.Internal.Do
+import Std.WP
 import Std.Tactic.Do
 
 /-! Tests that `vcgen` is usable as a step inside `sym => …` blocks. -/
 
-open Std.Internal.Do Lean.Order
+open Std.WP Lean.Order
 
 set_option mvcgen.warning false
 set_option warn.sorry false
@@ -109,7 +109,7 @@ example :
     ⦃ fun r => r < 30 ⦄ := by
   sym =>
     vcgen invariants
-      · fun xs r => r + xs.suffix.length * 5 ≤ 25
+      · fun _pref suff r => r + suff.length * 5 ≤ 25
     <;> finish
 
 /-! ## `invariants?` (suggest mode) inside `sym =>` -/
@@ -126,7 +126,7 @@ info: There were no suggestions for missing invariants.
 #guard_msgs (info) in
 theorem mySum_suggest (l : List Nat) : mySum l = l.sum := by
   generalize h : mySum l = r
-  apply Std.Internal.Do.Id.of_wp_run_eq h
+  apply Std.WP.Id.of_run_eq_wp h
   sym =>
     vcgen [mySum] invariants?
     all_goals tactic => admit
@@ -143,7 +143,7 @@ example :
     ⦃ fun r => r < 30 ⦄ := by
   sym =>
     vcgen invariants
-      · fun xs r => r + xs.suffix.length * 5 ≤ 25
+      · fun _pref suff r => r + suff.length * 5 ≤ 25
     case vc3 b a x => finish
     case vc1 => tactic => simp +arith
     case vc2 x _ =>

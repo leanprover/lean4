@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Async
 public import Std.Http
+public import Std.Internal.ForIn
 public import Std.Internal.Parsec
 public import Std.Internal.UV
 public import Std.Internal.Do

@@ -6,7 +6,7 @@ Basic add/sub loop in `StateM`: each `step` adds then subtracts the same value, 
 loop preserves the state. Exercises the `get`/`set` `StateT` specs in the simplest setting.
 -/
 
-open Lean Meta Order Std.Internal.Do
+open Lean Meta Order Std.WP
 
 namespace AddSubCancel
 

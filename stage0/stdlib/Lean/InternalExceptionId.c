@@ -26,7 +26,7 @@ lean_object* lean_st_mk_ref(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_mk_io_user_error(lean_object*);
@@ -214,7 +214,7 @@ if (v___x_57_ == 0)
 lean_object* v___x_58_; lean_object* v___x_59_; lean_object* v___x_60_; lean_object* v___x_61_; lean_object* v___x_62_; 
 v___x_58_ = lean_st_ref_take(v___x_55_);
 v___x_59_ = lean_array_push(v___x_58_, v_name_53_);
-v___x_60_ = lean_st_ref_set(v___x_55_, v___x_59_);
+v___x_60_ = lean_st_ref_put(v___x_55_, v___x_59_);
 v___x_61_ = lean_array_get_size(v___x_56_);
 lean_dec(v___x_56_);
 v___x_62_ = lean_alloc_ctor(0, 1, 0);

@@ -129,18 +129,27 @@ def declId := leading_parser
 -- @[builtin_doc] -- FIXME: suppress the hover
 def declSig := leading_parser
   many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.typeSpec
-/-- The `require P` precondition clause of a `def` contract. -/
-def requireClause := leading_parser
-  ppIndent (ppSpace >> nonReservedSymbol "require" >> ppSpace >> withForbidden "ensures" termParser)
+/-- The `given xs` clause of a `def` contract. It binds logical variables and scopes them over the
+`requires` and `ensures` clauses. A logical variable belongs to the specification alone. -/
+def givenClause := leading_parser
+  ppIndent (ppLine >> nonReservedSymbol "given" >>
+    withForbiddens #["requires", "ensures"]
+      (many1 (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder))))
+/-- The `requires P` precondition clause of a `def` contract. The form `requires s => P s` binds the
+arguments of the assertion itself, such as the state of a state monad. -/
+def requiresClause := leading_parser
+  ppIndent (ppLine >> nonReservedSymbol "requires" >>
+    withForbidden "ensures" (atomic Term.basicFun <|> (ppSpace >> termParser)))
 /-- The `ensures b => Q` postcondition clause of a `def` contract, binding the result `b`. -/
 def ensuresClause := leading_parser
-  ppIndent (ppSpace >> nonReservedSymbol "ensures" >> Term.basicFun)
-/-- The `: type` of a `def`. It may carry contract clauses, so we forbid `require`/`ensures` in the type. -/
-def defTypeSpec := withForbiddens #["require", "ensures"] Term.typeSpec
+  ppIndent (ppLine >> nonReservedSymbol "ensures" >> Term.basicFun)
+/-- The `: type` of a `def`. It may carry contract clauses, so we forbid `given`, `requires` and
+`ensures` in the type. -/
+def defTypeSpec := withForbiddens #["given", "requires", "ensures"] Term.typeSpec
 /-- `optDeclSig` matches the signature of a declaration with optional type: a list of binders and then possibly `: type` -/
 -- @[builtin_doc] -- FIXME: suppress the hover
 def optDeclSig := leading_parser
-  withForbiddens #["require", "ensures"]
+  withForbiddens #["given", "requires", "ensures"]
     (many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder))) >>
   optional defTypeSpec
 /-- Right-hand side of a `:=` in a declaration, a term. -/
@@ -194,12 +203,12 @@ def whereStructInst  := leading_parser
   -- Issue #753 shows an example that fails to be parsed when we used `Term.whereDecls`.
   withAntiquot (mkAntiquot "declVal" decl_name% (isPseudoKind := true)) <|
     declValSimple <|> declValEqns <|> whereStructInst
-/-- `require P`/`ensures b => Q` contract clauses followed by the value of a `def`. Tried only
-after `declVal` fails, so contract-free definitions parse without probing for the clauses.
-`withoutInfo` avoids collecting `declVal`'s tokens and kinds a second time at startup; they are
-already registered through the `declVal` alternative of `definition`. -/
+/-- `given xs`/`requires P`/`ensures b => Q` contract clauses followed by the value of a `def`.
+Tried only after `declVal` fails, so contract-free definitions parse without probing for the
+clauses. `withoutInfo` avoids collecting `declVal`'s tokens and kinds a second time at startup; they
+are already registered through the `declVal` alternative of `definition`. -/
 def contractDeclVal := leading_parser
-  optional requireClause >> optional ensuresClause >> withoutInfo declVal
+  optional givenClause >> optional requiresClause >> optional ensuresClause >> withoutInfo declVal
 def «abbrev»         := leading_parser
   "abbrev " >> declId >> ppIndent optDeclSig >> declVal
 def derivingClass    := leading_parser

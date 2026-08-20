@@ -2,7 +2,8 @@ import Std.Tactic.BVDecide
 
 /--
 error: The prover found a potentially spurious counterexample:
-- The following potentially relevant hypotheses could not be used: [h]
+- The following potentially relevant hypotheses could not be used:
+  - 0 < b.toNat derived via assumption h
 Consider the following assignment:
 b = 0#64
 -/

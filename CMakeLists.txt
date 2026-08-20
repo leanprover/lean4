@@ -25,7 +25,7 @@ foreach(var ${vars})
     if(var MATCHES "USE_GMP|CHECK_OLEAN_VERSION|LEAN_VERSION_.*|LEAN_SPECIAL_VERSION_DESC")
       # must forward options that generate incompatible .olean format
       list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
-    elseif(var MATCHES "LLVM*|PKG_CONFIG|USE_LAKE|USE_MIMALLOC")
+    elseif(var MATCHES "LLVM*|PKG_CONFIG|USE_LAKE|USE_MIMALLOC|FORCE_GMP")
       list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
     endif()
   elseif(var MATCHES "USE_MIMALLOC")
@@ -108,7 +108,13 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
         DOWNLOAD
           https://github.com/digama0/leangz/releases/download/${LEANTAR_VERSION}/leantar-${LEANTAR_VERSION}-${LEANTAR_TARGET}${LEANTAR_ARCHIVE_SUFFIX}
         ${CMAKE_BINARY_DIR}/leantar${LEANTAR_ARCHIVE_SUFFIX}
+        STATUS LEANTAR_DOWNLOAD_STATUS
       )
+      list(GET LEANTAR_DOWNLOAD_STATUS 0 LEANTAR_DOWNLOAD_CODE)
+      if(NOT LEANTAR_DOWNLOAD_CODE EQUAL 0)
+        list(GET LEANTAR_DOWNLOAD_STATUS 1 LEANTAR_DOWNLOAD_ERROR)
+        message(FATAL_ERROR "Failed to download leantar: ${LEANTAR_DOWNLOAD_ERROR}")
+      endif()
       file(
         ARCHIVE_EXTRACT
         INPUT ${CMAKE_BINARY_DIR}/leantar${LEANTAR_ARCHIVE_SUFFIX}
@@ -125,7 +131,7 @@ if(USE_MIMALLOC)
     mimalloc
     GIT_REPOSITORY https://github.com/microsoft/mimalloc
     GIT_BRANCH dev3
-    GIT_TAG v3.4.3
+    GIT_TAG v3.4.4
     # Unnecessarily deep directory structure, but it saves us from a complicated
     # stage0 update for now. If we ever update the other dependencies like
     # cadical, it might be worth reorganizing the directory structure.

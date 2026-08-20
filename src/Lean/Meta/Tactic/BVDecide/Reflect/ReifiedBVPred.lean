@@ -6,7 +6,9 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVExpr
+public import Lean.Meta.Tactic.BVDecide.Reflect.Basic
+import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVExpr
+import Lean.Meta.Sym.InferType
 
 /-!
 Provides the logic for reifying predicates on `BitVec`.
@@ -29,11 +31,12 @@ public def boolAtom (origExpr : Expr) : M (Option ReifiedBVPred) := do
     BitVec.getLsb (BitVec.ofBool t) 0 : Bool
   We can prove that this is equivalent to `t`. This allows us to have boolean variables in BVPred.
   -/
-  let ty ← inferType origExpr
+  let ty ← Sym.inferType origExpr
   let_expr Bool := ty | return none
-  let atom ← ReifiedBVExpr.mkAtom (mkApp (mkConst ``BitVec.ofBool) origExpr) 1 false
-  let bvExpr : BVPred := .getLsbD atom.bvExpr 0
-  let expr := mkApp3 (mkConst ``BVPred.getLsbD) (toExpr 1) atom.expr (toExpr 0)
+  let atomExpr ← Sym.share <| mkApp (mkConst ``BitVec.ofBool) origExpr
+  let atom ← ReifiedBVExpr.mkAtom atomExpr 1 false
+  let bvExpr := .getLsbD atom.bvExpr 0
+  let expr ← Sym.share <| mkApp3 (mkConst ``BVPred.getLsbD) (toExpr 1) atom.expr (toExpr 0)
   let proof := do
     -- ofBool_congr does not hold definitionally, if this ever becomes an issue we need to find
     -- a more clever encoding for boolean atoms
@@ -56,13 +59,7 @@ public def mkBinPred (lhs rhs : ReifiedBVExpr) (lhsExpr rhsExpr : Expr) (pred : 
   if h : lhs.width = rhs.width then
     let congrThm := congrThmOfBinPred pred
     let bvExpr : BVPred := .bin (w := lhs.width) lhs.bvExpr pred (h ▸ rhs.bvExpr)
-    let expr :=
-      mkApp4
-        (mkConst ``BVPred.bin)
-        (toExpr lhs.width)
-        lhs.expr
-        (toExpr pred)
-        rhs.expr
+    let expr ← Sym.share <| mkApp4 (mkConst ``BVPred.bin) (toExpr lhs.width) lhs.expr (toExpr pred) rhs.expr
     let proof := do
       let lhsEval ← ReifiedBVExpr.mkEvalExpr lhs.width lhs.expr
       let rhsEval ← ReifiedBVExpr.mkEvalExpr rhs.width rhs.expr
@@ -96,7 +93,7 @@ public def mkGetLsbD (sub : ReifiedBVExpr) (subExpr : Expr) (idx : Nat) (origExp
     M ReifiedBVPred := do
   let bvExpr : BVPred := .getLsbD sub.bvExpr idx
   let idxExpr := toExpr idx
-  let expr := mkApp3 (mkConst ``BVPred.getLsbD) (toExpr sub.width) sub.expr idxExpr
+  let expr ← Sym.share <| mkApp3 (mkConst ``BVPred.getLsbD) (toExpr sub.width) sub.expr idxExpr
   let proof := do
     -- This is safe as `getLsbD_congr` holds definitionally if the arguments are defeq.
     let some subProof ← sub.evalsAtAtoms | return none

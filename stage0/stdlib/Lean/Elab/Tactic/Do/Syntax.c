@@ -57,7 +57,7 @@ lean_object* l_Lean_Elab_Term_tryPostponeIfMVar(lean_object*, lean_object*, lean
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
@@ -1845,7 +1845,7 @@ goto v_reusejp_738_;
 v_reusejp_738_:
 {
 lean_object* v___x_740_; lean_object* v___x_741_; 
-v___x_740_ = lean_st_ref_set(v___y_721_, v___x_739_);
+v___x_740_ = lean_st_ref_put(v___y_721_, v___x_739_);
 v___x_741_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_741_, 0, v_fst_728_);
 return v___x_741_;

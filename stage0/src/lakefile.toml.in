@@ -49,7 +49,11 @@ leanOptions.linter.coreInternal = true
 # Uncomment to limit number of reported errors further in case of overwhelming cmdline output
 #weakLeanArgs = ["-DmaxErrors=1"]
 
+# CMake's `LEANC_EXTRA_CC_FLAGS`
 moreLeancArgs = [${LEAN_MORE_LEANC_ARGS_TOML}]
+
+# CMake's `LEANC_INTERNAL_FLAGS`
+weakLeancArgs = [${LEAN_WEAK_LEANC_ARGS_TOML}]
 
 ${LEAN_EXTRA_LAKEFILE_TOML}
 

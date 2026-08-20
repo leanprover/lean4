@@ -6,8 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Data.Int.Linear
+public import Lean.Meta.Tactic.Grind.Arith.Util
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -342,24 +342,6 @@ structure State where
   - `Int.Internal.Linear.emod_le`
   -/
   divMod : PHashSet (Expr × Int) := {}
-  /--
-  Mapping from a type `α` to its corresponding `ToIntInfo` object idx in `toInfos`, which contains
-  the information needed to embed `α` terms into `Int` terms.
-  -/
-  toIntIds : PHashMap ExprPtr (Option Nat) := {}
-  toIntInfos : PArray ToIntInfo := {}
-  /--
-  For each type `α` in `toIntInfos`, the mapping `toIntVarMap` contains a mapping
-  from a α-term `e` to the pair `(toInt e, α)`.
-  -/
-  toIntTermMap : PHashMap ExprPtr ToIntTermInfo := {}
-  -- Note: the terms in the range `toIntTermMap` may not have been internalized.
-  -- Note: we may reconsider this design decision to simplify model construction.
-  /--
-  Mapping from `a : α` (where `ToInt α`) to `toInt a` that has been internalized.
-  We use this information during model construction.
-  -/
-  toIntVarMap : PHashMap ExprPtr Expr := {}
   /--
   `usedCommRing` is `true` if the `CommRing` has been used to normalize expressions.
   -/

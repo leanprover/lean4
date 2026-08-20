@@ -93,7 +93,7 @@ of sort `Type`
 Regression test: This used to give a deprecation warning on the first `#check`.
 -/
 def MyNS1.List.nil' : List Nat := []
-@[deprecated MyNS1.List.nil' (since := "forever")] def MyNS2.List.nil' : List Int := []
+@[deprecated MyNS1.List.nil' +typeChanged (since := "forever")] def MyNS2.List.nil' : List Int := []
 
 /-- info: MyNS1.List.nil' : List Nat -/
 #guard_msgs in

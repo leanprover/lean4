@@ -229,7 +229,7 @@ inductive IterStep (α β) where
   | yield : (it : α) → (out : β) → IterStep α β
   /--
   `IterStep.skip it` describes the situation that an iterator does not emit anything in this
-  iteration and provides `it'` as the succeeding iterator.
+  iteration and provides `it` as the succeeding iterator.
 
   Allowing `skip` steps is necessary to generate efficient code from a loop over an iterator.
   -/

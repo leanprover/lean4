@@ -26,7 +26,7 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_mkAtom(lean_object*);
 lean_object* lean_uv_timer_reset(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_io_promise_resolve(lean_object*, lean_object*);
 lean_object* l_Int_toNat(lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
@@ -714,7 +714,7 @@ v___jp_139_:
 uint8_t v___x_141_; lean_object* v___x_142_; lean_object* v___x_143_; 
 v___x_141_ = 1;
 v___x_142_ = lean_box(v___x_141_);
-v___x_143_ = lean_st_ref_set(v_finished_136_, v___x_142_);
+v___x_143_ = lean_st_ref_put(v_finished_136_, v___x_142_);
 if (v___y_140_ == 0)
 {
 lean_object* v___x_144_; 

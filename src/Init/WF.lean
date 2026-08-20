@@ -179,6 +179,90 @@ theorem fix_eq (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x)
   fixF_eq F x (apply hwf x)
 end WellFounded
 
+namespace Acc
+variable {α : Sort u} {r : α → α → Prop}
+
+/--
+A replacement for `Acc.rec` at motives that are not propositions.
+
+`Acc.rec` eliminates only into `Prop`, so that the kernel never has to reduce a proof.
+`Acc.rec'` has the unrestricted signature — any motive in `Sort v`, including one that
+mentions the accessibility proof — and obtains it from `Classical.choice` instead of from
+`Acc.rec`. Compiled code is unaffected: the `@[csimp]` lemma `Acc.rec'_eq_recC` rewrites it to
+a directly recursive implementation.
+
+What is lost is the iota rule: `Acc.rec' intro (Acc.intro x h)` is only propositionally equal
+to `intro x h …`, via `Acc.rec'_intro`. To port code that used the unrestricted `Acc.rec`:
+
+* rewrite `Acc.rec`, `Acc.recOn`, `Acc.ndrec` and `Acc.ndrecOn` to `Acc.rec'`, `Acc.recOn'`,
+  `Acc.ndrec'` and `Acc.ndrecOn'`, and `induction h with | intro ..` to
+  `induction h using Acc.rec' with | intro ..`;
+* prove unfolding equations with `Acc.rec'_eq` where `rfl` used to work. Since `rw` matches on
+  the head symbol, `Acc.recOn'` and friends have to be unfolded first, as in
+  `rw [myDef, Acc.recOn', Acc.rec'_eq]`.
+-/
+@[elab_as_elim] noncomputable def rec' {motive : (a : α) → Acc r a → Sort v}
+    (intro : (x : α) → (h : (y : α) → r y x → Acc r y) →
+      ((y : α) → (hy : r y x) → motive y (h y hy)) → motive x (Acc.intro x h))
+    {a : α} (t : Acc r a) : motive a t :=
+  -- The motive is closed over the accessibility proof so that it fits `fixFImpl`'s
+  -- proof-independent `C`; this stays in `Sort v` because `Acc r x` is a proposition.
+  WellFounded.fixFImpl (C := fun x => (h : Acc r x) → motive x h)
+    (fun x ih h => intro x (fun _ hy => h.inv hy) (fun y hy => ih y hy (h.inv hy)))
+    a t t
+
+/-- The propositional replacement for the iota rule of `Acc.rec`. -/
+theorem rec'_intro {motive : (a : α) → Acc r a → Sort v}
+    (intro : (x : α) → (h : (y : α) → r y x → Acc r y) →
+      ((y : α) → (hy : r y x) → motive y (h y hy)) → motive x (Acc.intro x h))
+    (x : α) (h : (y : α) → r y x → Acc r y) :
+    -- `motive` is passed explicitly: `rec'` is `@[elab_as_elim]`, and letting the eliminator
+    -- elaborator infer it here yields a motive that ignores its `Acc` argument, which no
+    -- longer matches actual `Acc.rec'` applications.
+    rec' (motive := motive) intro (Acc.intro x h)
+      = intro x h (fun y hy => rec' (motive := motive) intro (h y hy)) := by
+  let C : α → Sort v := fun x => (h : Acc r x) → motive x h
+  let F : (x : α) → ((y : α) → r y x → C y) → C x :=
+    fun x ih h => intro x (fun _ hy => h.inv hy) (fun y hy => ih y hy (h.inv hy))
+  have h1 : WellFounded.FixGraph F x (WellFounded.fixFImpl F x (Acc.intro x h)) :=
+    WellFounded.fixFImpl_graph F x _
+  have h2 : WellFounded.FixGraph F x (F x (fun y hy => WellFounded.fixFImpl F y (h y hy))) :=
+    WellFounded.FixGraph.mk x _ (fun y hy => WellFounded.fixFImpl_graph F y (h y hy))
+  exact congrFun (WellFounded.FixGraph_funct F (Acc.intro x h) _ _ h1 h2) (Acc.intro x h)
+
+/--
+Unfolds `Acc.rec'` at an arbitrary accessibility proof, which is what proofs that used to close
+an unfolding equation by `rfl` need. Unlike `Acc.rec'_intro` this matches any `Acc.rec' intro t`,
+since `t` need not be in `Acc.intro _ _` form.
+-/
+theorem rec'_eq {motive : (a : α) → Acc r a → Sort v}
+    (intro : (x : α) → (h : (y : α) → r y x → Acc r y) →
+      ((y : α) → (hy : r y x) → motive y (h y hy)) → motive x (Acc.intro x h))
+    {a : α} (t : Acc r a) :
+    rec' (motive := motive) intro t
+      = intro a (fun _ hy => t.inv hy) (fun _ hy => rec' (motive := motive) intro (t.inv hy)) :=
+  rec'_intro intro a fun _ hy => t.inv hy
+
+/-- `Acc.recOn` at motives that are not propositions. See `Acc.rec'`. -/
+@[elab_as_elim, reducible] noncomputable def recOn' {motive : (a : α) → Acc r a → Sort v}
+    {a : α} (t : Acc r a)
+    (intro : (x : α) → (h : (y : α) → r y x → Acc r y) →
+      ((y : α) → (hy : r y x) → motive y (h y hy)) → motive x (Acc.intro x h)) : motive a t :=
+  rec' intro t
+
+/-- `Acc.ndrec` at motives that are not propositions. See `Acc.rec'`. -/
+@[reducible] noncomputable def ndrec' {C : α → Sort v}
+    (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → r y x → C y) → C x)
+    {a : α} (n : Acc r a) : C a :=
+  rec' m n
+
+/-- `Acc.ndrecOn` at motives that are not propositions. See `Acc.rec'`. -/
+@[reducible] noncomputable def ndrecOn' {C : α → Sort v} {a : α} (n : Acc r a)
+    (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → r y x → C y) → C x) : C a :=
+  rec' m n
+
+end Acc
+
 open WellFounded
 
 -- Empty relation is well-founded

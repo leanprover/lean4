@@ -15,7 +15,7 @@ import Std.WP.Basic
 recognize one.
 -/
 
-open Lean Meta Sym Sym.Internal
+open Lean Meta Sym
 
 namespace Lean.Elab.Tactic.VCGen
 

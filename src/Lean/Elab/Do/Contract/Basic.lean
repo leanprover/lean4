@@ -19,11 +19,8 @@ What the clauses of a contract share. A clause states an assertion of the `do` b
 `WPMonad` computes the type of that assertion.
 -/
 
-/-- The assertion language of the `do` block's monad, which `WPMonad` computes as an output
-parameter: synthesizing `WPMonad StateM Nat _ _` assigns `Nat → Prop` for the assertions of
-`StateM Nat`. The result is what the monad's assertions are known to be right here, so a monad
-whose instance is not available reports nothing. The type is built from syntax so that the
-universes and the instance arguments of the class come from elaboration. -/
+/-- The type of an assertion of the `do` block's monad: `StateM Nat` states its assertions at
+`Nat → Prop`. Reports nothing when the monad has no `Std.WP.WPMonad` instance. -/
 def assertionLanguage? : DoElabM (Option Expr) := do
   let wpMonad := `Std.WP.WPMonad
   unless (← getEnv).contains wpMonad do return none
@@ -34,13 +31,16 @@ def assertionLanguage? : DoElabM (Option Expr) := do
   let pred ← instantiateMVars pred
   return if pred.hasExprMVar then none else some pred
 
-/-- Ascribe the first `n` argument types of the assertion language to `f`, so that a binder may
-destructure its argument: `fun ⟨lo, hi⟩ => lo ≤ hi` is stated at `Nat × Nat → _`. The result is a
-hole, because a `decreasing` measure ends in the measure type rather than in an assertion. -/
-def ascribeAssertionArgs (f : Term) (n : Nat) : DoElabM Term := do
-  if n == 0 then return f
+/-- Ascribe the first `n` argument types of the assertion language to `f`, after `numLeading` holes
+for the binders a clause states first. In `StateM (Nat × Nat)`, `f = fun ⟨lo, hi⟩ => lo ≤ hi` and
+`n = 1` give `(fun ⟨lo, hi⟩ => lo ≤ hi : Nat × Nat → _)`. The result stays a hole, because a
+`decreasing` measure ends in the measure type. -/
+def ascribeAssertionArgs (f : Term) (n : Nat) (numLeading : Nat := 0) : DoElabM Term := do
+  if n == 0 && numLeading == 0 then return f
   let some pred ← assertionLanguage? | return f
   let mut tys := #[]
+  for _ in *...numLeading do
+    tys := tys.push (← `(_))
   let mut pred := pred
   for _ in *...n do
     let .forallE _ d b _ := pred | return f

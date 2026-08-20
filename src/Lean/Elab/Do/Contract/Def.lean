@@ -168,8 +168,6 @@ open Lean.Elab.Do Lean.Parser.Term in
 @[builtin_doElem_elab Lean.Parser.Term.doAssertion]
 def elabDoAssertion : DoElab := fun stx dec => do
   let tk := stx.raw[0]
-  -- The gadget's instances settle the assertion's type only after it elaborates, so a binder that
-  -- destructures its argument is stated at that type here.
   let as : Term ← match stx with
     | `(doAssertion| assert $f:basicFun) => ascribeAssertionArgs (← `(fun $f:basicFun)) 1
     | `(doAssertion| assert $alts:matchAlts) =>

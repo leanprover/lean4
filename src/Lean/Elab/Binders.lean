@@ -482,23 +482,25 @@ def expandWhereDeclsOpt (whereDeclsOpt : Syntax) (body : Syntax) : MacroM Syntax
     expandWhereDecls whereDeclsOpt[0] body
 
 /--
-One variable per pattern of an alternative, together with the discriminants that match on them.
-Helper function for `expandMatchAltsIntoBinders` and `expandMatchAltsIntoMatchTactic`.
+ Helper function for `expandMatchAltsIntoMatch`.
 -/
-private def mkMatchAltVars : Nat → Array Syntax → Array Ident → MacroM (Array Ident × Array Syntax)
-  | 0,   discrs, xs => return (xs, discrs)
+private def expandMatchAltsIntoMatchAux (matchAlts : Syntax) (isTactic : Bool) (useExplicit : Bool) : Nat → Array Syntax → Array Ident → MacroM Syntax
+  | 0,   discrs, xs => do
+    if isTactic then
+      `(tactic|match $[$discrs:term],* with $matchAlts:matchAlts)
+    else
+      let stx ← `(match $[$discrs:term],* with $matchAlts:matchAlts)
+      clearInMatch stx xs
   | n+1, discrs, xs => withFreshMacroScope do
     let x ← `(x) -- If this were implementation-detail, the `contradiction` tactic used by match would not find it.
     let d ← `(@$x:ident)
-    mkMatchAltVars n (discrs.push d) (xs.push x)
-
-/-- The variables `matchAlts` matches on, and the `match` over them: `| 0, b => alt` yields
-`x_1 x_2` and `match @x_1, @x_2 with | 0, b => alt`. See `expandMatchAltsIntoMatch`. -/
-def expandMatchAltsIntoBinders (ref : Syntax) (matchAlts : Syntax) :
-    MacroM (Array Ident × Term) := withRef ref do
-  let (xs, discrs) ← mkMatchAltVars (getMatchAltsNumPatterns matchAlts) #[] #[]
-  let stx ← `(match $[$discrs:term],* with $matchAlts:matchAlts)
-  return (xs, ← clearInMatch stx xs)
+    let body ← expandMatchAltsIntoMatchAux matchAlts isTactic useExplicit n (discrs.push d) (xs.push x)
+    if isTactic then
+      `(tactic| intro $x:term; $body:tactic)
+    else if useExplicit then
+      `(@fun $x => $body)
+    else
+      `(fun $x => $body)
 
 /--
   Expand `matchAlts` syntax into a full `match`-expression.
@@ -552,16 +554,11 @@ def expandMatchAltsIntoBinders (ref : Syntax) (matchAlts : Syntax) :
   ```
   The two definitions should be elaborated without errors and be equivalent.
  -/
-def expandMatchAltsIntoMatch (ref : Syntax) (matchAlts : Syntax) (useExplicit := true) : MacroM Syntax := do
-  let (xs, body) ← expandMatchAltsIntoBinders ref matchAlts
-  xs.foldrM (init := body.raw) fun x body =>
-    if useExplicit then `(@fun $x => $body) else `(fun $x => $body)
+def expandMatchAltsIntoMatch (ref : Syntax) (matchAlts : Syntax) (useExplicit := true) : MacroM Syntax :=
+  withRef ref <| expandMatchAltsIntoMatchAux matchAlts (isTactic := false) (useExplicit := useExplicit) (getMatchAltsNumPatterns matchAlts) #[] #[]
 
 def expandMatchAltsIntoMatchTactic (ref : Syntax) (matchAlts : Syntax) : MacroM Syntax :=
-  withRef ref do
-    let (xs, discrs) ← mkMatchAltVars (getMatchAltsNumPatterns matchAlts) #[] #[]
-    let body ← `(tactic| match $[$discrs:term],* with $matchAlts:matchAlts)
-    xs.foldrM (init := body.raw) fun x body => `(tactic| intro $x:term; $body:tactic)
+  withRef ref <| expandMatchAltsIntoMatchAux matchAlts (isTactic := true) (useExplicit := false) (getMatchAltsNumPatterns matchAlts) #[] #[]
 
 /--
 Sanity-checks the number of patterns in each alternative of a definition by pattern matching.

@@ -22,17 +22,6 @@ open System
 
 namespace Lake
 
-/-- Create a fresh build context from a workspace and a build configuration. -/
-@[deprecated "Deprecated without replacement." (since := "2025-01-08")]
-public def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext := do
-  return {
-    opaqueWs := ws,
-    toBuildConfig := config,
-    registeredJobs := ← IO.mkRef #[],
-    leanTrace := .ofHash (pureHash ws.lakeEnv.leanGithash)
-      s!"Lean {Lean.versionStringCore}, commit {ws.lakeEnv.leanGithash}"
-  }
-
 /-- Unicode icons that make up the spinner in animation order. -/
 def Monitor.spinnerFrames :=
   #['⣾','⣷','⣯','⣟','⡿','⢿','⣻','⣽']
@@ -332,7 +321,7 @@ def monitorJob (ctx : MonitorContext) (job : Job α) : BaseIO (BuildResult α) :
   else
     return {toMonitorResult := result, out := .error "build failed"}
 
-def mkBuildContext'
+def mkBuildContext
   (ws : Workspace) (cfg : BuildConfig) (jobs : JobQueue)
 : BaseIO BuildContext := return {
   opaqueWs := ws
@@ -397,7 +386,7 @@ public def Workspace.runFetchM
 : IO α := do
   let jobs ← mkJobQueue
   let mctx ← mkMonitorContext cfg jobs
-  let bctx ← mkBuildContext' ws cfg jobs
+  let bctx ← mkBuildContext ws cfg jobs
   let job ← startBuild bctx build caption
   let result ← monitorJob mctx job
   finalizeBuild cfg bctx mctx result
@@ -426,7 +415,7 @@ public def Workspace.checkNoBuild
   let jobs ← mkJobQueue
   let cfg := {noBuild := true}
   let mctx ← mkMonitorContext cfg jobs
-  let bctx ← mkBuildContext' ws cfg jobs
+  let bctx ← mkBuildContext ws cfg jobs
   let job ← startBuild bctx build
   let result ← monitorBuild mctx job
   return result.isOk -- `isOk` means no failures, and thus no `--no-build` failures
@@ -437,7 +426,7 @@ public def Workspace.runBuild
 : IO α := do
   let jobs ← mkJobQueue
   let mctx ← mkMonitorContext cfg jobs
-  let bctx ← mkBuildContext' ws cfg jobs
+  let bctx ← mkBuildContext ws cfg jobs
   let job ← startBuild bctx build
   let result ← monitorBuild mctx job
   finalizeBuild cfg bctx mctx result

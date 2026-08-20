@@ -91,3 +91,26 @@ example (xs : List Nat) : ⦃ True ⦄ (sumMemEvens xs : Id Nat) ⦃ fun r => �
   vcgen
   case vc2 => trace_state; sorry
   all_goals sorry
+
+/-! A clause stated as alternatives names its binders after the patterns they stand for. -/
+
+def sumEvensAlts (xs : List Nat) : Id Nat := do
+  let mut acc := 0
+  for x in xs invariant | _cur, _suff => acc % 2 = 0 do
+    acc := acc + 2 * x
+  return acc
+
+/--
+trace: xs _cur : List Nat
+x : Nat
+_suff : List Nat
+_h✝ : ForIn.toList xs = _cur ++ x :: _suff
+acc : Nat
+a✝ : acc % 2 = 0
+⊢ (acc + 2 * x) % 2 = 0
+-/
+#guard_msgs (trace) in
+example (xs : List Nat) : ⦃True⦄ sumEvensAlts xs ⦃fun r => ∃ k, r = 2 * k⦄ := by
+  vcgen [sumEvensAlts]
+  case vc2 => trace_state; sorry
+  all_goals sorry

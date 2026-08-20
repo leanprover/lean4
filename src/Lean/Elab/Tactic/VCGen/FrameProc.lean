@@ -17,23 +17,30 @@ import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Tactic.Util
 
 /-!
-The protocol between `vcgen`'s solver and a frame inference procedure, and the metadata they pass
-around. `@[frameproc]` registration lives in `FrameProcAttr`.
 
-`?frame` is the part of `P` that `prog` preserves, and that the rule carries past the call.
-`?footprint` is the part of `P` that fits the spec's precondition. `W` is the weakest footprint the
-rule leaves.
+# Frame inference procedure protocol
+
+This note describes the protocol between `vcgen`'s solver and a frame inference procedure, and the
+metadata that is passed around.
+
+The job of the frame inference procedure is to decide whether to frame the goal, and if so, how to
+frame it, by assigning metavariables `?frame` and `?footprint` and producing the proofs supporting
+that split.
+`?frame` is the part of `P` that `prog` preserves. `?footprint` is the part of `P` that fits the
+spec's precondition. `W` is the weakest footprint the rule leaves.
 
 ```
-goal            P ⊑ wp prog Q E s⃗
+goal          : P ⊑ wp prog Q E s⃗
    │ frame rule, introducing ?frame
    ▼
-split VC        P ⊑ (op ?frame W) s⃗      side goal   Frames op prog ?frame
+split VC      : P ⊑ (op ?frame W) s⃗      side goal: Frames op prog ?frame
    where        W = wp prog (fun a => adj (op ?frame) (Q a)) E
    │ spec rule, at a target the frameproc named
    ▼
-spec target     ?footprint ⊑ W t⃗          pre VC      ?footprint ⊑ specP
-                                          post VCs
+spec target   : ?footprint ⊑ W t⃗
+   where
+    pre VC    : ?footprint ⊑ specP
+    post VCs  : ...
 ```
 
 # Protocol

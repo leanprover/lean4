@@ -26,10 +26,6 @@ Author: Sofia Rodrigues
 
 namespace lean {
 
-// Every anchor the Keychain offers for TLS, or null if even the empty list could not be built.
-static STACK_OF(X509) * g_keychain_anchors = nullptr;
-static std::once_flag g_keychain_anchors_once;
-
 #if defined(__APPLE__) || defined(LEAN_WINDOWS)
 
 // A variable set to the empty string names no path, so it is reported as unset. OpenSSL's own check is
@@ -190,6 +186,10 @@ static bool trusted_as_tls_anchor(SecCertificateRef cert, CFArrayRef const * lis
 
     return false;
 }
+
+// Every anchor the Keychain offers for TLS, or null if even the empty list could not be built.
+static STACK_OF(X509) * g_keychain_anchors = nullptr;
+static std::once_flag g_keychain_anchors_once;
 
 static void collect_keychain_anchors() {
     g_keychain_anchors = sk_X509_new_null();

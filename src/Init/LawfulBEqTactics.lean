@@ -34,10 +34,9 @@ theorem deriving_lawful_beq_helper_dep {x y : α} [BEq α] [ReflBEq α]
     (inst : (x == y) = true → x = y)
     (k : (h : x = y) → t (h ▸ ReflBEq.rfl) = true → P) :
     (if h : (x == y) then t h else false) = true → P := by
-  intro h
-  split at h
-  · exact k (inst ‹_›) h
-  · cases h
+  split
+  · exact k (inst ‹_›)
+  · nofun
 
 theorem deriving_lawful_beq_helper_nd {x y : α} [BEq α] [ReflBEq α]
     {P : Prop}

@@ -483,8 +483,6 @@ public def elabVCGen : Tactic := fun stx => withMainContext do
   -- still rename them with `case vcN h => …`.
   let params ← Grind.mkDefaultParams { clean := false }
   let (_, state) ← Grind.GrindTacticM.runAtGoal goal params (sym := true) do
-    -- Hypothesis internalization during `runAtGoal` initialization can close the goal
-    -- (e.g. an inconsistent local context); run the vcgen step only on a surviving goal.
     unless (← Grind.getUnsolvedGoals).isEmpty do
       Grind.evalGrindTactic step
   replaceMainGoal (state.goals.map (·.mvarId))

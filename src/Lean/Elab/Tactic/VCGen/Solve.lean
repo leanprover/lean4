@@ -455,42 +455,57 @@ public def matchFrame? (fp : FrameProc) (info : WPApp) : VCGenM (Option Expr) :=
   trace[Elab.Tactic.Do.vcgen] "`frames` matched {info.prog}; frame:{indentExpr frame}"
   return some frame
 
-/-- True iff `post` is the post of a frame residual, `fun a => PreservesSup.upperAdjoint (op frame) (Q a)`.
-The frame rule leaves this shape behind, so a program with such a post is already framed and must not
-be framed again. -/
-private def isFramedPost (post : Expr) : Bool :=
-  let body := if post.isLambda then post.bindingBody! else post
-  body.consumeMData.getAppFn.isConstOf ``Lean.Order.PreservesSup.upperAdjoint
+/-- Apply `specRule` to a fresh target `?fp ⊑ wp prog ?Q E ?s⃗`.
+Return the completed `FrameGoal` to pass to the frameproc. -/
+private def applySpecToFootprint (info : WPApp) (specRule : Sym.BackwardRule)
+    (le W : Expr) (excessStates : Array Expr) (frame : MVarId)
+    (splitLatticeOp? : MVarId → Grind.GrindM (Option (List MVarId))) :
+    Grind.GrindM (Option (FrameGoal × List MVarId)) := do
+  let fp ← mkFreshExprMVar le.appFn!.appArg!
+  let rhs ← mkAppNS W excessStates
+  let target ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[fp, rhs])
+  let .goals sgs ← specRule.apply target.mvarId! | return none
+  let some preVC ← sgs.findM? fun g => return (← g.getType).isAppOf ``Lean.Order.PartialOrder.rel
+    | throwError "frame: spec rule left no precondition VC for{indentExpr info.prog}"
+  let some framedApp := isWPApp? rhs
+    | throwError "frame: the weakest footprint is not a `wp` application for{indentExpr info.prog}"
+  let goal : FrameGoal :=
+    { frame, footprint := fp.mvarId!, framedApp, specPre := (← preVC.getType).appArg!, preVC,
+      specProof := target, splitLatticeOp? }
+  return some (goal, sgs)
 
-/-- Apply the frame rule for `fp`'s operator and the inferred `FrameSplit`. Assign the frame slot,
-then read the weakest footprint `W` off the now-concrete split VC `pre ⊑ (op frame W) s⃗` and fill the
-split's `residualPre` with it, so the procedure's proof (built against that metavariable) discharges
-the split VC. The proof's `subgoals` remain; the assigned slot goals are skipped by the worklist. -/
-private def applyFrameRule (goal : MVarId) (info : WPApp) (fp : FrameProc)
-    (split : FrameSplit) : VCGenM (List MVarId) := do
+/-- Apply the frame rule to a copy of `goal`, and read the weakest footprint `W` off its split VC
+`pre ⊑ (op ?F W) s⃗`. The copy keeps candidate fall-through possible: committing to the frame rule
+has no undo, so a spec that turns out not to apply leaves the copy orphaned and the goal untouched. -/
+private def commitFrameRule (goal : MVarId) (info : WPApp) (fp : FrameProc) :
+    VCGenM (Expr × FrameBackwardRule × Array MVarId × Expr) := do
   let frule ← mkFrameBackwardRuleCached fp info
-  let .goals goals ← frule.rule.applyChecked goal m!"frame rule for{indentExpr info.prog}"
+  let copy ← mkFreshExprSyntheticOpaqueMVar (← goal.getType)
+  let .goals goals ← frule.rule.applyChecked copy.mvarId! m!"frame rule for{indentExpr info.prog}"
     | throwError "frame: failed to apply rule for{indentExpr info.prog}"
   let goals := goals.toArray
-  goals[frule.frameIdx]!.assign split.frame
   let vcType ← goals[frule.splitVCIdx]!.getType
   let_expr Lean.Order.PartialOrder.rel _ _ _ rhs := vcType
     | throwError "frame: split VC is not an entailment{indentExpr vcType}"
-  split.residualPre.assign (rhs.stripArgsN info.excessArgs.size).appArg!
-  goals[frule.splitVCIdx]!.assign split.splitVCProof
-  return goals.toList ++ split.subgoals
+  return (copy, frule, goals, (rhs.stripArgsN info.excessArgs.size).appArg!)
+
+/-- `splitLatticeOp?` as a `GrindM` callback for `FrameGoal`, closed over the rule cache. -/
+private def splitLatticeOpCallback : VCGenM (MVarId → Grind.GrindM (Option (List MVarId))) :=
+  liftWith (m := Grind.GrindM) fun run => pure fun m => run do
+    let ty ← m.getType
+    let_expr Lean.Order.PartialOrder.rel _ _ _ rhs := ty | return none
+    splitLatticeOp? m rhs
 
 /--
-Apply the selected `@[spec]` theorem `thm` to a spec-ready program `info.prog`, framing first when a
-frame procedure produces a split. `none` when no backward rule fits the goal's monad, or when the
-rule does not apply.
+Apply the selected `@[spec]` theorem `thm` to a spec-ready program `info.prog`. `none` when no
+backward rule fits the goal's monad, or when the rule does not apply.
 
-- A spec with a conjunctive precondition, or an already-framed residual, applies its spec directly.
-- Otherwise the frame procedure `fp` runs, with `providedFrame?` carrying the frame pinned by a
-  matching `frames` clause (both selected once per goal in `applySpecs`).
-- Without a pinned frame, the procedure may read the spec's precondition through
-  `FrameInferenceInfo.specPre?`: no split applies the spec directly; a split applies the frame rule
-  instead, so the spec re-applies against the framed residual where its VCs are solvable.
+A spec with a conjunctive precondition applies directly. Otherwise the frame procedure `fp` runs,
+with `providedFrame?` carrying the frame a `frames` clause pinned (both selected once per goal in
+`applySpecs`). On `decline` the spec applies directly as well. On `commit` the solver applies the
+frame rule to a copy of the goal, applies the spec at the weakest footprint, and runs the commit
+continuation; see `FrameProc.lean`. When the spec does not apply to the footprint, the copy is
+dropped and the candidate falls through.
 -/
 private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem)
     (fp : FrameProc) (providedFrame? : Option Expr) : VCGenM (Option SolveResult) := do
@@ -504,13 +519,28 @@ private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : Spec
         Pred:{indentExpr info.Pred}\n\
         excessArgs: {info.excessArgs}"
     | return none
-  unless thm.conjunctivePre || isFramedPost info.post do
+  unless thm.conjunctivePre do
+    let target ← goal.getType
     let inferInfo : FrameInferenceInfo :=
-      { info with goal, providedFrame?, spec? := thm.global?, specRule,
-                  mkOpApp := do shareCommon (← fp.mkOpAppM info) }
-    if let some split ← fp.proc inferInfo then
-      trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` matched {info.prog}; frame:{indentExpr split.frame}"
-      return some (.goals scope (← applyFrameRule goal info fp (← split.instantiateMVarsS)))
+      { pre := target.appFn!.appArg!, le := target.stripArgsN 2
+        unframedApp := info, providedFrame?, spec? := thm.global?,
+        mkOpApp := do shareCommon (← fp.mkOpAppM info) }
+    match ← fp.proc inferInfo with
+    | .decline => pure ()
+    | .commit excessStates k =>
+      unless excessStates.size == info.excessArgs.size do
+        throwError "frameproc: the spec must run at {info.excessArgs.size} state arguments \
+          for now, got {excessStates.size}"
+      let (copy, frule, goals, W) ← commitFrameRule goal info fp
+      let some (fgoal, sgs) ←
+          applySpecToFootprint info specRule inferInfo.le W excessStates goals[frule.frameIdx]!
+            (← splitLatticeOpCallback)
+        | return none
+      let split ← k fgoal
+      trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` framed {info.prog}"
+      goals[frule.splitVCIdx]!.assign split.splitVCProof
+      goal.assign copy
+      return some (.goals scope (goals.toList ++ fgoal.preVC :: sgs ++ split.subgoals))
   trace[Elab.Tactic.Do.vcgen] "Applying spec {thm.proof} for {info.prog}. Excess args: {info.excessArgs}"
   let .goals goals ← specRule.applyChecked goal m!"spec rule for{indentExpr info.prog}"
     | return none
@@ -530,7 +560,7 @@ private def applySpecs (scope : Scope) (goal : MVarId) (info : WPApp) :
   let procs := (← read).frameProcs.byProg
   let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
   let providedFrame? ←
-    if candidates.isEmpty || isFramedPost info.post then pure none else matchFrame? fp info
+    if candidates.isEmpty then pure none else matchFrame? fp info
   for thm in candidates do
     if let some res ← applySpec scope goal info thm fp providedFrame? then
       return res

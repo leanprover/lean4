@@ -380,8 +380,8 @@ public meta def dyLeanFrameProc : FrameInferenceProc := fun i => do
   let frame ← do
     match i.providedFrame? with
     | some frame => pure frame
-    | none => match (collectAlways (← i.pre)).toList with
-      | [] => return none
+    | none => match (collectAlways i.pre).toList with
+      | [] => return .decline
       | [single] => pure single
       | a :: rest =>
         let preds := (a :: rest).map (·.appArg!)
@@ -390,7 +390,7 @@ public meta def dyLeanFrameProc : FrameInferenceProc := fun i => do
           let last :: initRev := (preds.map (fun p => (mkApp p tr).headBeta)).reverse | unreachable!
           Meta.mkLambdaFVars #[tr] (initRev.foldl (fun acc x => mkApp (mkApp (mkConst ``And) x) acc) last)
         pure (← shareCommon (mkApp a.appFn! combined))
-  return some (← FrameSplit.withDeferredSplitVC i frame)
+  return .ofFrame i frame
 
 @[frameproc] public meta def dyLeanFP : FrameProc where
   prog := ``Traceful

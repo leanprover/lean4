@@ -289,9 +289,9 @@ open Lean.Elab.Tactic.VCGen
 
 /-- Frames the pinned resource for `mkFreshNat_spec_lossy` and declines every other spec. -/
 def selectiveFrameProc : FrameInferenceProc := fun i => do
-  let some frame := i.providedFrame? | return none
-  unless i.spec? == some ``mkFreshNat_spec_lossy do return none
-  return some (← FrameSplit.withDeferredSplitVC i frame)
+  let some frame := i.providedFrame? | return .decline
+  unless i.spec? == some ``mkFreshNat_spec_lossy do return .decline
+  return .ofFrame i frame
 
 /-- The meet frame operator with `selectiveFrameProc` as inference procedure. -/
 @[frameproc] def selectiveFP : FrameProc where

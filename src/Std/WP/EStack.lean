@@ -14,11 +14,12 @@ set_option linter.missingDocs true
 /-!
 # Exception Postcondition Stack Notation
 
-A monad transformer stack carries one exception postcondition for each transformer that throws,
-and `EStack⟨⟩` closes the stack. `EStack⟨Nat → σ → Prop, String → σ → Prop⟩` is the stack of
+A monad transformer stack carries one exception postcondition for each transformer that throws.
+A stack of postconditions is a right-nested `×` chain with the marker type `EStackEnd` as its
+last component. `EStack⟨Nat → σ → Prop, String → σ → Prop⟩` is the stack of
 `ExceptT Nat (ExceptT String (StateM σ))`, and `estack⟨e₁, e₂⟩` is a value of it. The notation
-hides the nesting and the `EStack⟨⟩` terminator of the `×` chain. A stack type prints back as
-`EStack⟨…⟩`; a stack value prints as an ordinary tuple, because `()` carries no stack marker.
+hides the nesting and the marker. A stack type prints back as `EStack⟨…⟩`. A stack value prints
+as a tuple, because the value `()` carries no marker.
 
 A base monad has one exception postcondition and no stack, so it does not use the notation:
 `Except ε` carries a bare `ε → Prop`.
@@ -26,8 +27,8 @@ A base monad has one exception postcondition and no stack, so it does not use th
 
 namespace Std.WP
 
-/-- The end of an exception postcondition stack. Reducibly `Unit`, so every `Unit` instance
-applies, and a named constant, so the stack notation prints only on a stack. -/
+/-- The last component of an exception postcondition stack. It reduces to `Unit`, so every
+`Unit` instance applies. It is a named constant, so only a stack prints as `EStack⟨…⟩`. -/
 abbrev EStackEnd := Unit
 
 /-- Exception postcondition stack **type**: `EStack⟨ε₁ → l, ε₂ → l⟩` is `(ε₁ → l) × (ε₂ → l) × EStack⟨⟩`. -/
@@ -43,11 +44,11 @@ macro_rules
   | `(estack⟨$x⟩) => `(($x, ()))
   | `(estack⟨$x, $xs,*⟩) => `(($x, estack⟨$xs,*⟩))
 
-/-- Pretty-print `EStackEnd` as `EStack⟨⟩`. -/
+/-- Prints `EStackEnd` as `EStack⟨⟩`. -/
 @[app_unexpander EStackEnd] meta def unexpandEStackEnd : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(EStack⟨⟩)
 
-/-- Pretty-print a product that ends in `EStack⟨⟩` as `EStack⟨e₁, e₂, ...⟩`. -/
+/-- Prints a product that ends in `EStack⟨⟩` as `EStack⟨e₁, e₂, …⟩`. -/
 @[app_unexpander Prod] meta def unexpandEStack : Lean.PrettyPrinter.Unexpander
   | `($(_) $x $xs) =>
     match xs with

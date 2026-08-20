@@ -10,7 +10,6 @@ Author: Sofia Rodrigues
 #include <openssl/crypto.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
-#include <mutex>
 
 namespace lean {
 
@@ -20,18 +19,13 @@ void initialize_openssl() {
 void finalize_openssl() {}
 
 bool ensure_openssl_initialized() {
-    static bool ok = false;
-    static std::once_flag once;
-
-    std::call_once(once, []() {
-        // `OPENSSL_INIT_NO_ATEXIT` is the load-bearing flag. By default OpenSSL registers
-        // `atexit(OPENSSL_cleanup)`, which tears down global state — among it the ENGINE lock that
-        // `SSL_CTX_new` reads — while other threads may still be inside OpenSSL, dereferencing the
-        // freed lock. Lean hands work to a thread pool that can outlive `main`, so that handler
-        // must not be installed. Nothing then frees OpenSSL's globals, which is intended: they stay
-        // reachable from static storage for the life of the process.
-        ok = OPENSSL_init_ssl(OPENSSL_INIT_NO_ATEXIT, nullptr) == 1;
-    });
+    // `OPENSSL_INIT_NO_ATEXIT` is the load-bearing flag. By default OpenSSL registers
+    // `atexit(OPENSSL_cleanup)`, which tears down global state — among it the ENGINE lock that
+    // `SSL_CTX_new` reads — while other threads may still be inside OpenSSL, dereferencing the
+    // freed lock. Lean hands work to a thread pool that can outlive `main`, so that handler
+    // must not be installed. Nothing then frees OpenSSL's globals, which is intended: they stay
+    // reachable from static storage for the life of the process.
+    static const bool ok = OPENSSL_init_ssl(OPENSSL_INIT_NO_ATEXIT, nullptr) == 1;
 
     return ok;
 }

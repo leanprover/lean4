@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.WP.Triple.SpecLemmas
-// Imports: public import Std.WP.Triple.Monad public import Std.WP.Monad public import Std.Do.Triple.SpecLemmas public import Init.Data.Range.Polymorphic.Iterators import Init.Data.Range.Polymorphic public import Init.Data.Slice.Array public import Init.Data.Iterators.Lemmas.Combinators.FilterMap public import Init.Data.Range import Init.Data.Iterators.Lemmas import Init.Data.List.Nat.Range import Init.Data.List.Nat.TakeDrop import Init.Data.List.Range import Init.Data.List.TakeDrop import Init.Data.Nat.Mod import Init.Data.Slice.Lemmas import Init.Omega public import Init.Data.String.Defs public import Init.Data.String.Iterate import Init.Data.String.Lemmas.Splits import Init.Data.String.Termination import Init.Data.String.Lemmas.Iterate public import Std.Internal.ForIn
+// Imports: public import Init.BinderNameHint public import Std.WP.Triple.Monad public import Std.WP.Monad public import Std.Do.Triple.SpecLemmas public import Init.Data.Range.Polymorphic.Iterators import Init.Data.Range.Polymorphic public import Init.Data.Slice.Array public import Init.Data.Iterators.Lemmas.Combinators.FilterMap public import Init.Data.Range import Init.Data.Iterators.Lemmas import Init.Data.List.Nat.Range import Init.Data.List.Nat.TakeDrop import Init.Data.List.Range import Init.Data.List.TakeDrop import Init.Data.Nat.Mod import Init.Data.Slice.Lemmas import Init.Omega public import Init.Data.String.Defs public import Init.Data.String.Iterate import Init.Data.String.Lemmas.Splits import Init.Data.String.Termination import Init.Data.String.Lemmas.Iterate public import Std.Internal.ForIn
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,9 +19,15 @@ LEAN_EXPORT lean_object* l___private_Std_WP_Triple_SpecLemmas_0__List_forIn_x27_
 LEAN_EXPORT lean_object* l___private_Std_WP_Triple_SpecLemmas_0__List_forIn_x27__cons_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_WP_RepeatInvariant_mk___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_WP_RepeatInvariant_mk(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_WP_RepeatVariant_ofMeasure___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_WP_RepeatVariant_ofMeasure___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_WP_RepeatVariant_ofMeasure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_WP_WhileInvariant_mk___redArg(lean_object*, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_WP_WhileInvariant_mk___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_WP_WhileInvariant_mk(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_WP_WhileInvariant_mk___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_WP_WhileInvariant_toRepeatInvariant___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_WP_WhileInvariant_toRepeatInvariant(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_WP_Variant_ofMeasure___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_WP_Variant_ofMeasure___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_WP_Variant_ofMeasure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_WP_Triple_SpecLemmas_0__Lean_Loop_forIn_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_WP_Triple_SpecLemmas_0__Lean_Loop_forIn_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_WP_Triple_SpecLemmas_0__Std_WP_Except_wpInst_match__1_splitter___redArg(lean_object* v_x_1_, lean_object* v_h__1_2_, lean_object* v_h__2_3_){
@@ -140,86 +146,158 @@ v___x_42_ = lean_apply_1(v_inv_40_, v_a_41_);
 return v___x_42_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_WP_RepeatVariant_ofMeasure___redArg___lam__0(lean_object* v_f_43_, lean_object* v_inst_44_, lean_object* v_a_45_, lean_object* v_n_46_){
+LEAN_EXPORT lean_object* l_Std_WP_WhileInvariant_mk___redArg(lean_object* v_inv_43_, uint8_t v_a_44_, lean_object* v_a_45_){
 _start:
 {
-lean_object* v___x_47_; lean_object* v___x_48_; 
-v___x_47_ = lean_apply_1(v_f_43_, v_a_45_);
-v___x_48_ = lean_apply_2(v_inst_44_, v___x_47_, v_n_46_);
-return v___x_48_;
+lean_object* v___x_46_; lean_object* v___x_47_; 
+v___x_46_ = lean_box(v_a_44_);
+v___x_47_ = lean_apply_2(v_inv_43_, v___x_46_, v_a_45_);
+return v___x_47_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_WP_RepeatVariant_ofMeasure___redArg(lean_object* v_inst_49_, lean_object* v_inst_50_, lean_object* v_f_51_){
+LEAN_EXPORT lean_object* l_Std_WP_WhileInvariant_mk___redArg___boxed(lean_object* v_inv_48_, lean_object* v_a_49_, lean_object* v_a_50_){
 _start:
 {
-lean_object* v___f_52_; lean_object* v___x_53_; 
-v___f_52_ = lean_alloc_closure((void*)(l_Std_WP_RepeatVariant_ofMeasure___redArg___lam__0), 4, 2);
-lean_closure_set(v___f_52_, 0, v_f_51_);
-lean_closure_set(v___f_52_, 1, v_inst_49_);
-v___x_53_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_53_, 0, v_inst_50_);
-lean_ctor_set(v___x_53_, 1, v___f_52_);
-return v___x_53_;
+uint8_t v_a_9__boxed_51_; lean_object* v_res_52_; 
+v_a_9__boxed_51_ = lean_unbox(v_a_49_);
+v_res_52_ = l_Std_WP_WhileInvariant_mk___redArg(v_inv_48_, v_a_9__boxed_51_, v_a_50_);
+return v_res_52_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_WP_RepeatVariant_ofMeasure(lean_object* v_Pred_54_, lean_object* v_inst_55_, lean_object* v_00_u03b1_56_, lean_object* v_00_u03b3_57_, lean_object* v_Fun_58_, lean_object* v_inst_59_, lean_object* v_inst_60_, lean_object* v_f_61_){
+LEAN_EXPORT lean_object* l_Std_WP_WhileInvariant_mk(lean_object* v_00_u03b1_53_, lean_object* v_Pred_54_, lean_object* v_inv_55_, uint8_t v_a_56_, lean_object* v_a_57_){
 _start:
 {
-lean_object* v___x_62_; 
-v___x_62_ = l_Std_WP_RepeatVariant_ofMeasure___redArg(v_inst_59_, v_inst_60_, v_f_61_);
-return v___x_62_;
+lean_object* v___x_58_; lean_object* v___x_59_; 
+v___x_58_ = lean_box(v_a_56_);
+v___x_59_ = lean_apply_2(v_inv_55_, v___x_58_, v_a_57_);
+return v___x_59_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_WP_Triple_SpecLemmas_0__Lean_Loop_forIn_match__1_splitter___redArg(lean_object* v_____do__lift_63_, lean_object* v_h__1_64_, lean_object* v_h__2_65_){
+LEAN_EXPORT lean_object* l_Std_WP_WhileInvariant_mk___boxed(lean_object* v_00_u03b1_60_, lean_object* v_Pred_61_, lean_object* v_inv_62_, lean_object* v_a_63_, lean_object* v_a_64_){
 _start:
 {
-if (lean_obj_tag(v_____do__lift_63_) == 0)
+uint8_t v_a_19__boxed_65_; lean_object* v_res_66_; 
+v_a_19__boxed_65_ = lean_unbox(v_a_63_);
+v_res_66_ = l_Std_WP_WhileInvariant_mk(v_00_u03b1_60_, v_Pred_61_, v_inv_62_, v_a_19__boxed_65_, v_a_64_);
+return v_res_66_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_WP_WhileInvariant_toRepeatInvariant___redArg(lean_object* v_inv_67_, lean_object* v_a_68_){
+_start:
 {
-lean_object* v_a_66_; lean_object* v___x_67_; 
-lean_dec(v_h__2_65_);
-v_a_66_ = lean_ctor_get(v_____do__lift_63_, 0);
-lean_inc(v_a_66_);
-lean_dec_ref_known(v_____do__lift_63_, 1);
-v___x_67_ = lean_apply_1(v_h__1_64_, v_a_66_);
-return v___x_67_;
+if (lean_obj_tag(v_a_68_) == 0)
+{
+lean_object* v_val_69_; uint8_t v___x_70_; lean_object* v___x_71_; lean_object* v___x_72_; 
+v_val_69_ = lean_ctor_get(v_a_68_, 0);
+lean_inc(v_val_69_);
+lean_dec_ref_known(v_a_68_, 1);
+v___x_70_ = 0;
+v___x_71_ = lean_box(v___x_70_);
+v___x_72_ = lean_apply_2(v_inv_67_, v___x_71_, v_val_69_);
+return v___x_72_;
 }
 else
 {
-lean_object* v_a_68_; lean_object* v___x_69_; 
-lean_dec(v_h__1_64_);
-v_a_68_ = lean_ctor_get(v_____do__lift_63_, 0);
-lean_inc(v_a_68_);
-lean_dec_ref_known(v_____do__lift_63_, 1);
-v___x_69_ = lean_apply_1(v_h__2_65_, v_a_68_);
-return v___x_69_;
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_WP_Triple_SpecLemmas_0__Lean_Loop_forIn_match__1_splitter(lean_object* v_00_u03b2_70_, lean_object* v_motive_71_, lean_object* v_____do__lift_72_, lean_object* v_h__1_73_, lean_object* v_h__2_74_){
-_start:
-{
-if (lean_obj_tag(v_____do__lift_72_) == 0)
-{
-lean_object* v_a_75_; lean_object* v___x_76_; 
-lean_dec(v_h__2_74_);
-v_a_75_ = lean_ctor_get(v_____do__lift_72_, 0);
-lean_inc(v_a_75_);
-lean_dec_ref_known(v_____do__lift_72_, 1);
-v___x_76_ = lean_apply_1(v_h__1_73_, v_a_75_);
+lean_object* v_val_73_; uint8_t v___x_74_; lean_object* v___x_75_; lean_object* v___x_76_; 
+v_val_73_ = lean_ctor_get(v_a_68_, 0);
+lean_inc(v_val_73_);
+lean_dec_ref_known(v_a_68_, 1);
+v___x_74_ = 1;
+v___x_75_ = lean_box(v___x_74_);
+v___x_76_ = lean_apply_2(v_inv_67_, v___x_75_, v_val_73_);
 return v___x_76_;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Std_WP_WhileInvariant_toRepeatInvariant(lean_object* v_00_u03b1_77_, lean_object* v_Pred_78_, lean_object* v_inv_79_, lean_object* v_a_80_){
+_start:
+{
+lean_object* v___x_81_; 
+v___x_81_ = l_Std_WP_WhileInvariant_toRepeatInvariant___redArg(v_inv_79_, v_a_80_);
+return v___x_81_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_WP_Variant_ofMeasure___redArg___lam__0(lean_object* v_f_82_, lean_object* v_inst_83_, lean_object* v_a_84_, lean_object* v_n_85_){
+_start:
+{
+lean_object* v___x_86_; lean_object* v___x_87_; 
+v___x_86_ = lean_apply_1(v_f_82_, v_a_84_);
+v___x_87_ = lean_apply_2(v_inst_83_, v___x_86_, v_n_85_);
+return v___x_87_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_WP_Variant_ofMeasure___redArg(lean_object* v_inst_88_, lean_object* v_inst_89_, lean_object* v_f_90_){
+_start:
+{
+lean_object* v___f_91_; lean_object* v___x_92_; 
+v___f_91_ = lean_alloc_closure((void*)(l_Std_WP_Variant_ofMeasure___redArg___lam__0), 4, 2);
+lean_closure_set(v___f_91_, 0, v_f_90_);
+lean_closure_set(v___f_91_, 1, v_inst_88_);
+v___x_92_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_92_, 0, v_inst_89_);
+lean_ctor_set(v___x_92_, 1, v___f_91_);
+return v___x_92_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_WP_Variant_ofMeasure(lean_object* v_Pred_93_, lean_object* v_inst_94_, lean_object* v_00_u03b1_95_, lean_object* v_00_u03b3_96_, lean_object* v_Fun_97_, lean_object* v_inst_98_, lean_object* v_inst_99_, lean_object* v_f_100_){
+_start:
+{
+lean_object* v___x_101_; 
+v___x_101_ = l_Std_WP_Variant_ofMeasure___redArg(v_inst_98_, v_inst_99_, v_f_100_);
+return v___x_101_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_WP_Triple_SpecLemmas_0__Lean_Loop_forIn_match__1_splitter___redArg(lean_object* v_____do__lift_102_, lean_object* v_h__1_103_, lean_object* v_h__2_104_){
+_start:
+{
+if (lean_obj_tag(v_____do__lift_102_) == 0)
+{
+lean_object* v_a_105_; lean_object* v___x_106_; 
+lean_dec(v_h__2_104_);
+v_a_105_ = lean_ctor_get(v_____do__lift_102_, 0);
+lean_inc(v_a_105_);
+lean_dec_ref_known(v_____do__lift_102_, 1);
+v___x_106_ = lean_apply_1(v_h__1_103_, v_a_105_);
+return v___x_106_;
+}
 else
 {
-lean_object* v_a_77_; lean_object* v___x_78_; 
-lean_dec(v_h__1_73_);
-v_a_77_ = lean_ctor_get(v_____do__lift_72_, 0);
-lean_inc(v_a_77_);
-lean_dec_ref_known(v_____do__lift_72_, 1);
-v___x_78_ = lean_apply_1(v_h__2_74_, v_a_77_);
-return v___x_78_;
+lean_object* v_a_107_; lean_object* v___x_108_; 
+lean_dec(v_h__1_103_);
+v_a_107_ = lean_ctor_get(v_____do__lift_102_, 0);
+lean_inc(v_a_107_);
+lean_dec_ref_known(v_____do__lift_102_, 1);
+v___x_108_ = lean_apply_1(v_h__2_104_, v_a_107_);
+return v___x_108_;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Std_WP_Triple_SpecLemmas_0__Lean_Loop_forIn_match__1_splitter(lean_object* v_00_u03b2_109_, lean_object* v_motive_110_, lean_object* v_____do__lift_111_, lean_object* v_h__1_112_, lean_object* v_h__2_113_){
+_start:
+{
+if (lean_obj_tag(v_____do__lift_111_) == 0)
+{
+lean_object* v_a_114_; lean_object* v___x_115_; 
+lean_dec(v_h__2_113_);
+v_a_114_ = lean_ctor_get(v_____do__lift_111_, 0);
+lean_inc(v_a_114_);
+lean_dec_ref_known(v_____do__lift_111_, 1);
+v___x_115_ = lean_apply_1(v_h__1_112_, v_a_114_);
+return v___x_115_;
+}
+else
+{
+lean_object* v_a_116_; lean_object* v___x_117_; 
+lean_dec(v_h__1_112_);
+v_a_116_ = lean_ctor_get(v_____do__lift_111_, 0);
+lean_inc(v_a_116_);
+lean_dec_ref_known(v_____do__lift_111_, 1);
+v___x_117_ = lean_apply_1(v_h__2_113_, v_a_116_);
+return v___x_117_;
+}
+}
+}
+lean_object* runtime_initialize_Init_BinderNameHint(uint8_t builtin);
 lean_object* runtime_initialize_Std_WP_Triple_Monad(uint8_t builtin);
 lean_object* runtime_initialize_Std_WP_Monad(uint8_t builtin);
 lean_object* runtime_initialize_Std_Do_Triple_SpecLemmas(uint8_t builtin);
@@ -249,6 +327,9 @@ lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize_runtime_module();
+res = runtime_initialize_Init_BinderNameHint(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Std_WP_Triple_Monad(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -324,6 +405,7 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
+lean_object* initialize_Init_BinderNameHint(uint8_t builtin);
 lean_object* initialize_Std_WP_Triple_Monad(uint8_t builtin);
 lean_object* initialize_Std_WP_Monad(uint8_t builtin);
 lean_object* initialize_Std_Do_Triple_SpecLemmas(uint8_t builtin);
@@ -351,6 +433,9 @@ LEAN_EXPORT lean_object* initialize_Std_WP_Triple_SpecLemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_BinderNameHint(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Std_WP_Triple_Monad(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

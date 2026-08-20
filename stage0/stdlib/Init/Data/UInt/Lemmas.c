@@ -6264,7 +6264,7 @@ v___x_2633_ = l_Lean_Syntax_node2(v___x_2181_, v___x_2625_, v___x_2190_, v___x_2
 v___x_2634_ = l_Lean_Syntax_node7(v___x_2181_, v___x_2182_, v___x_2626_, v___x_2553_, v___x_2627_, v___x_2553_, v___x_2628_, v___x_2553_, v___x_2633_);
 lean_inc_ref_n(v___x_2624_, 8);
 v___x_2635_ = l_Lean_Syntax_node3(v___x_2181_, v___x_2622_, v___x_2624_, v___x_2634_, v___x_2358_);
-lean_inc_n(v___x_2621_, 11);
+lean_inc_n(v___x_2621_, 12);
 lean_inc_ref(v___x_2619_);
 v___x_2636_ = l_Lean_Syntax_node4(v___x_2181_, v___x_2617_, v___x_2619_, v___x_2621_, v___x_2635_, v___x_2190_);
 v___x_2637_ = l_Lean_Syntax_node1(v___x_2181_, v___x_2182_, v___x_2636_);
@@ -7663,7 +7663,7 @@ v___x_3572_ = ((lean_object*)(l___aux__Init__Data__UInt__Lemmas______macroRules_
 v___x_3573_ = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(v___x_3573_, 0, v___x_2181_);
 lean_ctor_set(v___x_3573_, 1, v___x_3571_);
-v___x_3574_ = l_Lean_Syntax_node1(v___x_2181_, v___x_3572_, v___x_3573_);
+v___x_3574_ = l_Lean_Syntax_node2(v___x_2181_, v___x_3572_, v___x_3573_, v___x_2621_);
 v___x_3575_ = l_Lean_Syntax_node2(v___x_2181_, v___x_3138_, v___x_3139_, v___x_3532_);
 lean_inc_n(v___x_3574_, 2);
 v___x_3576_ = l_Lean_Syntax_node3(v___x_2181_, v___x_2182_, v___x_3574_, v___x_2921_, v___x_3575_);

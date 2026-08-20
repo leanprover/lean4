@@ -145,9 +145,6 @@ the same hash-consed expression as `e`, or `none`. Must run in `goal`'s context.
 private def liftedPreFor? (scope : Scope) (e : Expr) : VCGenM (Option LocalDecl) := do
   let some fvarId := scope.lastLiftedPre? | return none
   let some hyp := (← getLCtx).find? fvarId | return none
-  -- The goal can still mention metavariables the solver assigned after building it, so a pointer
-  -- comparison is not enough. `withNewMCtxDepth` keeps unassigned metavariables rigid, so a failed
-  -- comparison assigns nothing.
   unless (← withNewMCtxDepth <| isDefEqS e hyp.type) do return none
   trace[Elab.Tactic.Do.vcgen] "Solved by lifted hypothesis {hyp.userName}"
   return some hyp
@@ -458,13 +455,8 @@ public def matchFrame? (fp : FrameProc) (info : WPApp) : VCGenM (Option Expr) :=
   trace[Elab.Tactic.Do.vcgen] "`frames` matched {info.prog}; frame:{indentExpr frame}"
   return some frame
 
-/-- Apply `specRule` to a fresh target `?fp ⊑ wp prog ?Q E ?s⃗`, with the footprint, the post and the
-excess state arguments open. Only the post and the excess arguments differ from the goal's `wp`
-application, the rule's post is schematic, and the excess arguments never decide applicability, so
-applicability here agrees with applicability at the goal. A failed attempt can introduce dead
-metavariables: no part of the goal is instantiated with a term that contains them. The spec's
-precondition VC is the sole bare entailment among the subgoals; the `∀`-quantified ones are the
-postcondition VCs. -/
+/-- Apply `specRule` to a fresh target `?fp ⊑ wp prog ?Q E ?s⃗`.
+Return the completed `FrameGoal` to pass to the frameproc. -/
 private def applySpecToFootprint (info : WPApp) (specRule : Sym.BackwardRule)
     (le W : Expr) (excessStates : Array Expr) (frame : MVarId)
     (splitLatticeOp? : MVarId → Grind.GrindM (Option (List MVarId))) :
@@ -480,7 +472,7 @@ private def applySpecToFootprint (info : WPApp) (specRule : Sym.BackwardRule)
   let goal : FrameGoal :=
     { frame, footprint := fp.mvarId!, framedApp, specPre := (← preVC.getType).appArg!, preVC,
       specProof := target, splitLatticeOp? }
-  return some (goal, sgs.filter (· != preVC))
+  return some (goal, sgs)
 
 /-- Apply the frame rule to a copy of `goal`, and read the weakest footprint `W` off its split VC
 `pre ⊑ (op ?F W) s⃗`. The copy keeps candidate fall-through possible: committing to the frame rule
@@ -496,6 +488,13 @@ private def commitFrameRule (goal : MVarId) (info : WPApp) (fp : FrameProc) :
   let_expr Lean.Order.PartialOrder.rel _ _ _ rhs := vcType
     | throwError "frame: split VC is not an entailment{indentExpr vcType}"
   return (copy, frule, goals, (rhs.stripArgsN info.excessArgs.size).appArg!)
+
+/-- `splitLatticeOp?` as a `GrindM` callback for `FrameGoal`, closed over the rule cache. -/
+private def splitLatticeOpCallback : VCGenM (MVarId → Grind.GrindM (Option (List MVarId))) :=
+  liftWith (m := Grind.GrindM) fun run => pure fun m => run do
+    let ty ← m.getType
+    let_expr Lean.Order.PartialOrder.rel _ _ _ rhs := ty | return none
+    splitLatticeOp? m rhs
 
 /--
 Apply the selected `@[spec]` theorem `thm` to a spec-ready program `info.prog`. `none` when no
@@ -521,9 +520,9 @@ private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : Spec
         excessArgs: {info.excessArgs}"
     | return none
   unless thm.conjunctivePre do
-    let goalType ← goal.getType
+    let target ← goal.getType
     let inferInfo : FrameInferenceInfo :=
-      { pre := goalType.appFn!.appArg!, le := goalType.stripArgsN 2
+      { pre := target.appFn!.appArg!, le := target.stripArgsN 2
         unframedApp := info, providedFrame?, spec? := thm.global?,
         mkOpApp := do shareCommon (← fp.mkOpAppM info) }
     match ← fp.proc inferInfo with
@@ -533,14 +532,9 @@ private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : Spec
         throwError "frameproc: the spec must run at {info.excessArgs.size} state arguments \
           for now, got {excessStates.size}"
       let (copy, frule, goals, W) ← commitFrameRule goal info fp
-      let splitLatticeOp? : MVarId → Grind.GrindM (Option (List MVarId)) ←
-        liftWith (m := Grind.GrindM) fun run => pure fun m => run do
-          let ty ← m.getType
-          let_expr Lean.Order.PartialOrder.rel _ _ _ rhs := ty | return none
-          splitLatticeOp? m rhs
       let some (fgoal, sgs) ←
           applySpecToFootprint info specRule inferInfo.le W excessStates goals[frule.frameIdx]!
-            splitLatticeOp?
+            (← splitLatticeOpCallback)
         | return none
       let split ← k fgoal
       trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` framed {info.prog}"

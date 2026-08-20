@@ -707,7 +707,9 @@ optional<expr> type_checker::reduce_nat(expr const & e) {
             expr arg = whnf(app_arg(e));
             if (!is_nat_lit_ext(arg)) return none_expr();
             nat v = get_nat_val(arg);
-            return some_expr(mk_lit(literal(nat(v+nat(1)))));
+            v = v + nat(1);
+            check_nat_size(env(), nat_size_in_bytes(v));
+            return some_expr(mk_lit(literal(v)));
         }
     } else if (nargs == 2) {
         expr const & f = app_fn(app_fn(e));

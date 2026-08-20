@@ -367,6 +367,10 @@ def Zipper.FinitenessRelation : FinitenessRelation (Zipper α β) Id where
 public instance Zipper.instFinite : Finite (Zipper α β) Id :=
   .of_finitenessRelation Zipper.FinitenessRelation
 
+public instance Zipper.instIteratorLoop {m : Type (max u v) → Type w} [Monad m] :
+    IteratorLoop (Zipper α β) Id m :=
+  .defaultImplementation
+
 public def Zipper.iter (t : Zipper α β) : Iter (α := Zipper α β) ((a : α) × β a) := ⟨t⟩
 
 public def Zipper.iterOfTree (t : Impl α β) : Iter (α := Zipper α β) ((a : α) × β a) :=
@@ -478,6 +482,11 @@ def RxcIterator.FinitenessRelation [Ord α] : FinitenessRelation (RxcIterator α
 
 public instance instFinite [Ord α] : Finite (RxcIterator α β) Id :=
   .of_finitenessRelation RxcIterator.FinitenessRelation
+
+public instance RxcIterator.instIteratorLoop [Ord α]
+    {m : Type (max u v) → Type w} [Monad m] :
+    IteratorLoop (RxcIterator α β) Id m :=
+  .defaultImplementation
 
 @[simp]
 theorem RxcIterator.step_done [Ord α] {upper : α} : ({ iter := .done, upper := upper } : RxcIterator α β).step = .done := rfl
@@ -606,6 +615,11 @@ def RxoIterator.instFinitenessRelation [Ord α] : FinitenessRelation (RxoIterato
 
 public instance Rxo.instFinite [Ord α] : Finite (RxoIterator α β) Id :=
   .of_finitenessRelation RxoIterator.instFinitenessRelation
+
+public instance RxoIterator.instIteratorLoop [Ord α]
+    {m : Type (max u v) → Type w} [Monad m] :
+    IteratorLoop (RxoIterator α β) Id m :=
+  .defaultImplementation
 
 @[simp]
 theorem RxoIterator.step_done [Ord α] {upper : α} : ({ iter := .done, upper := upper } : RxoIterator α β).step = .done := rfl

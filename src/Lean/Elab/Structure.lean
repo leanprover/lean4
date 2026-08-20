@@ -1068,7 +1068,7 @@ where
                 go (i+1)
             | .autoParam _ =>
               if let some type := view.type? then
-                throwErrorAt type "Invalid field: Uexpected type for field `{view.name}` when setting auto-param tactic for inherited field"
+                throwErrorAt type "Invalid field: Unexpected type for field `{view.name}` when setting auto-param tactic for inherited field"
               unless view.binders.getArgs.isEmpty do
                 throwErrorAt view.binders "Invalid field: Unexpected binders for field `{view.name}` when setting auto-param tactic for inherited field"
               withExporting (isExporting := wasExporting) do

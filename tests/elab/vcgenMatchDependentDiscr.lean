@@ -1,5 +1,5 @@
 import Std.Tactic.Do
-import Std.Internal.Do
+import Std.WP
 
 /-!
 Regression test for `mvcgen`/`vcgen` splitting a `match` whose discriminant telescope is
@@ -16,7 +16,7 @@ def prog (n : Nat) (h : 0 < n) : StateM Nat Unit := do
   | m+1, _ => set m
 
 section
-open Lean.Order Std.Internal.Do
+open Lean.Order Std.WP
 
 example (n : Nat) (h : 0 < n) :
     ⦃fun _ => True⦄ prog n h ⦃fun _ _ => True⦄ := by

@@ -17,7 +17,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_FVarIdSet_insert(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -130,7 +130,7 @@ goto v_reusejp_17_;
 v_reusejp_17_:
 {
 lean_object* v___x_19_; lean_object* v___x_20_; lean_object* v___x_21_; 
-v___x_19_ = lean_st_ref_set(v_a_2_, v___x_18_);
+v___x_19_ = lean_st_ref_put(v_a_2_, v___x_18_);
 v___x_20_ = lean_box(0);
 v___x_21_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_21_, 0, v___x_20_);

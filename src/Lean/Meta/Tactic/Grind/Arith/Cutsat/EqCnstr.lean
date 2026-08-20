@@ -15,6 +15,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.EvalNum
 import Lean.Meta.NatInstTesters
 import Init.Omega
@@ -424,28 +425,12 @@ private def processNewNatEq (a b : Expr) : GoalM Unit := do
   let c := { p, h := .coreToInt a b thm lhs rhs : EqCnstr }
   c.assertCore
 
-private def processNewToIntEq (a b : Expr) : ToIntM Unit := do
-  let gen := max (← getGeneration a) (← getGeneration b)
-  let (a', h₁) ← toInt a
-  let (b', h₂) ← toInt b
-  let thm := mkApp6 (← getInfo).ofEq a b a' b' h₁ h₂
-  let lhs ← toLinearExpr a' gen
-  let rhs ← toLinearExpr b' gen
-  let p := lhs.sub rhs |>.norm
-  let c := { p, h := .coreToInt a b thm lhs rhs : EqCnstr }
-  c.assertCore
-
 def processNewEq (a b : Expr) : GoalM Unit := do
   unless (← getConfig).lia do return ()
   if (← isNatTerm a <&&> isNatTerm b) then
     processNewNatEq a b
   else if (← isIntTerm a <&&> isIntTerm b) then
     processNewIntEq a b
-  else
-    let some α ← getToIntTermType? a | return ()
-    let some β ← getToIntTermType? b | return ()
-    unless isSameExpr α β do return ()
-    ToIntM.run α do processNewToIntEq a b
 
 private def processNewIntDiseq (a b : Expr) : GoalM Unit := do
   -- Remark: we don't need to use comm ring to normalize these polynomials because they are
@@ -479,32 +464,18 @@ private def processNewNatDiseq (a b : Expr) : GoalM Unit := do
   c.assertCore
   return ()
 
-private def processNewToIntDiseq (a b : Expr) : ToIntM Unit := do
-  let gen := max (← getGeneration a) (← getGeneration b)
-  let (a', h₁) ← toInt a
-  let (b', h₂) ← toInt b
-  let thm := mkApp6 (← getInfo).ofDiseq a b a' b' h₁ h₂
-  let lhs ← toLinearExpr a' gen
-  let rhs ← toLinearExpr b' gen
-  let p := lhs.sub rhs |>.norm
-  let c := { p, h := .coreToInt a b thm lhs rhs : DiseqCnstr }
-  c.assertCore
-
 def processNewDiseq (a b : Expr) : GoalM Unit := do
   unless (← getConfig).lia do return ()
   if (← isNatTerm a <&&> isNatTerm b) then
     processNewNatDiseq a b
   else if (← isIntTerm a <&&> isIntTerm b) then
     processNewIntDiseq a b
-  else
-    let some α ← getToIntTermType? a | return ()
-    let some β ← getToIntTermType? b | return ()
-    unless isSameExpr α β do return ()
-    ToIntM.run α do processNewToIntDiseq a b
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
-  | add | mul | num | div | mod | sub | pow | natAbs | toNat | natCast | neg | toInt | finVal | finMk
+  -- TODO: hardcoded embedding support: kinds for the embedding accessors
+  -- (`Fin.val`, `BitVec.toNat`, `BitVec.toInt`, `UInt??.toBitVec`, ...) and `Fin.mk`.
+  | add | mul | num | div | mod | sub | pow | natAbs | toNat | natCast | neg | finVal | finMk
   deriving BEq, Repr
 
 private def getKindAndType? (e : Expr) : GrindM (Option (SupportedTermKind × Expr)) :=
@@ -523,8 +494,8 @@ private def getKindAndType? (e : Expr) : GrindM (Option (SupportedTermKind × Ex
   | Int.toNat _ => return some (.toNat, Nat.mkType)
   | NatCast.natCast α _ _ => return some (.natCast, α)
   | Fin.val _ _ => return some (.finVal, Nat.mkType)
-  | Grind.ToInt.toInt _ _ _ _ => return some (.toInt, Int.mkType)
-  | Fin.mk n _ _ => return some (.finMk, ← shareCommon (mkApp (mkConst ``Fin) n))
+  | Fin.mk n _ _ => return some (.finMk, mkApp (mkConst ``Fin) n)
+  | Fin.succ n _ => return some (.finMk, mkApp (mkConst ``Fin) (mkNatAdd n (mkNatLit 1)))
   | _ => return none
 
 private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : Bool := Id.run do
@@ -533,7 +504,7 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
   -- TODO: document `NatCast.natCast` case.
   -- Remark: we added it to prevent natCast_sub from being expanded twice.
   if declName == ``NatCast.natCast then return true
-  if k matches .div | .mod | .sub | .pow | .neg | .natAbs | .toNat | .natCast | .toInt | .finVal | .finMk then return false
+  if k matches .div | .mod | .sub | .pow | .neg | .natAbs | .toNat | .natCast | .finVal | .finMk then return false
   if declName == ``HAdd.hAdd || declName == ``LE.le || declName == ``Dvd.dvd then return true
   match k with
   | .add => return false
@@ -629,21 +600,6 @@ private def propagateMod (e : Expr) : GoalM Unit := do
     else
       discard <| mkVar e
 
-private def propagateToInt (e : Expr) : GoalM Unit := do
-  let_expr Grind.ToInt.toInt α _ _ a := e | return ()
-  if (← isToIntTerm a) then
-    -- Save the mapping `a ==> e` for model construction
-    modify' fun s => { s with toIntVarMap := s.toIntVarMap.insert { expr := a } e }
-    return ()
-  let some (eToInt, he) ← toInt? a α | return ()
-  discard <| mkVar e
-  if isSameExpr e eToInt then return ()
-  modify' fun s => { s with
-    toIntTermMap := s.toIntTermMap.insert { expr := a } { eToInt, he, α }
-  }
-  let prop := mkIntEq e eToInt
-  pushNewFact <| mkExpectedPropHint he prop
-
 private def propagateNatAbs (e : Expr) : GoalM Unit := do
   let_expr Int.natAbs a := e | return ()
   pushNewFact <| mkApp (mkConst ``Lean.Omega.Int.ofNat_natAbs) a
@@ -652,19 +608,12 @@ private def propagateToNat (e : Expr) : GoalM Unit := do
   let_expr Int.toNat a := e | return ()
   pushNewFact <| mkApp (mkConst ``Nat.ToInt.ofNat_toNat) a
 
-private def isToIntForbiddenParent (parent? : Option Expr) : GrindM Bool := do
-  if let some parent := parent? then
-    return (← getKindAndType? parent).isSome
-  else
-    return false
-
 private def internalizeIntTerm (e type : Expr) (parent? : Option Expr) (k : SupportedTermKind) : GoalM Unit := do
   if isForbiddenParent parent? k then return ()
   trace[grind.debug.lia.internalize] "{e} : {type}"
   match k with
   | .div => propagateDiv e
   | .mod => propagateMod e
-  | .toInt => propagateToInt e
   | _ => internalizeInt e
 
 private def propagateNatSub (e : Expr) : GoalM Unit := do
@@ -711,16 +660,26 @@ private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : Supp
     let c := { p := .add (-1) x p, h := .defnNat e'h.2 x e'' : EqCnstr }
     c.assert
 
-private def internalizeToIntTerm (e type : Expr) : GoalM Unit := do
-  if (← isToIntTerm e) then return () -- already internalized
-  if let some (eToInt, he) ← toInt? e type then
-    trace[grind.debug.lia.internalize] "{e} : {type}"
-    trace[grind.debug.lia.toInt] "{e} ==> {eToInt}"
-    let α := type
-    modify' fun s => { s with
-      toIntTermMap := s.toIntTermMap.insert { expr := e } { eToInt, he, α }
-    }
-    cutsatExt.markTerm e
+def isEmbeddingApp? (e : Expr) : Option Expr :=
+  match_expr e with
+  | Fin.val _ a => some a
+  | BitVec.toNat _ a =>
+    match_expr a with
+    | UInt8.toBitVec a => some a
+    | UInt16.toBitVec a => some a
+    | UInt32.toBitVec a => some a
+    | UInt64.toBitVec a => some a
+    | USize.toBitVec a => some a
+    | _ => some a
+  | BitVec.toInt _ a =>
+    match_expr a with
+    | Int8.toBitVec a => some a
+    | Int16.toBitVec a => some a
+    | Int32.toBitVec a => some a
+    | Int64.toBitVec a => some a
+    | ISize.toBitVec a => some a
+    | _ => some a
+  | _ => none
 
 /--
 Internalizes an integer (and `Nat`) expression. Here are the different cases that are handled.
@@ -733,61 +692,60 @@ Internalizes an integer (and `Nat`) expression. Here are the different cases tha
 -/
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).lia do return ()
-  if let some (k, type) ← getKindAndType? e then
-    if type.isConstOf ``Int then
-      internalizeIntTerm e type parent? k
-    else if type.isConstOf ``Nat then
-      internalizeNatTerm e type parent? k
-    else
-      if (← isToIntForbiddenParent parent?) then return ()
-      internalizeToIntTerm e type
-  else
+  if let some arg := isEmbeddingApp? e then
     /-
-    Remark: types implementing the `ToInt` class have a finite number
-    of elements. Thus, we must internalize all of them. Otherwise,
-    `grind` would fail to solve
-    ```
-    example (a : Fin 2) : a ≠ 0 → a ≠ 1 → False := by
-      grind
-    ```
-    It is not sufficient to internalize only the terms occurring in equalities and inequalities.
-    Here is an example where we must internalize `a`.
-    ```
-    example (a : Fin 2) (f : Fin 2 → Nat) : f 0 = 1 → f 1 = 1 → f a = 1 → False := by
-      grind
-    ```
-    Note that is not sufficient to internalize only the local declarations (e.g., `a`).
-    ```
-    example (g : Nat → Fin 2) (f : Fin 2 → Nat) : f 0 = 1 → f 1 = 1 → f (g 1) = 1 → False := by
-      grind
-    ```
-    That said, we currently do **not** support model-based theory combination for `ToInt` types.
-    Thus, we consider the extra terms occurring in equalities.
-
-    Recall that skip internalizing `Int` variables occurring in terms such as
-    ```
-    a = b
-    ```
-    is fine, because `Int` has an infinite number of elements, just using
-    the information in core, we can always find an assignment for them if even they have
-    not been internalized.
-
-    TODO: infer type and internalize all terms `a : α` s.t. `[ToInt α]` after we add
-    model-based theory combination for `ToInt`. One concern is performance, we will have
-    to use `inferType` again, and perform some form of canonicalization. Running
-    `ToInt` for them may be too expensive because the `ToInt` type class has output parameters.
-    Perhaps, we should have a `HasToInt` auxiliary class without output parameters.
+    The argument of an embedding application is a solver term: model-based theory combination compares
+    the assignments of such arguments occurring at the same position of the same
+    function, using the values of their marker applications.
     -/
-    let_expr Eq α a b := e | return ()
-    unless (← alreadyInternalized e) do
+    cutsatExt.markTerm arg
+  let some (k, type) ← getKindAndType? e | return ()
+  if type.isConstOf ``Int then
+    internalizeIntTerm e type parent? k
+  else if type.isConstOf ``Nat then
+    internalizeNatTerm e type parent? k
+  else
+    if isForbiddenParent parent? k then return ()
+    if k matches .num then
       /-
-      **Note**: Core invokes `Solver.internalize` for top-level equations that are not internalized.
-      There is no point of processing them since this module has handlers for `newEq` and
-      `newDiseq`.
+      Numerals that can be evaluated are only marked as solver terms; model-based theory
+      combination computes their values directly. We do not create accessor applications
+      for them: the accessor would just be rewritten to a value, asserting a redundant
+      equality that is broadcast to all solvers (e.g., noise in the ring solver basis).
+      Remark: numerals are not necessarily normalized (e.g., `(-1 : Fin 4)`, `(300 : UInt8)`).
+
+      Numerals that cannot be evaluated (e.g., `(1 : Fin (n + 2))`) are processed like any
+      other term: E-matching theorems are often keyed on their accessor applications
+      (e.g., `Fin.val_one`).
       -/
-      return ()
-    unless (← getToIntId? α).isSome do return ()
-    internalizeToIntTerm a α
-    internalizeToIntTerm b α
+      if (← canBeEvaluated type) then
+        cutsatExt.markTerm e
+        return ()
+    if (← hasVar e) then return ()
+    let internalizeMarker (marker : Expr) : GoalM Unit := do
+      Grind.internalize marker (← getGeneration e)
+    match_expr type with
+    | Fin n =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``Fin.val) n e)
+    | BitVec n =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``BitVec.toNat) n e)
+    | UInt8 =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``BitVec.toNat) (mkNatLit 8) (mkApp (mkConst ``UInt8.toBitVec) e))
+    | UInt16 =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``BitVec.toNat) (mkNatLit 16) (mkApp (mkConst ``UInt16.toBitVec) e))
+    | UInt32 =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``BitVec.toNat) (mkNatLit 32) (mkApp (mkConst ``UInt32.toBitVec) e))
+    | UInt64 =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``BitVec.toNat) (mkNatLit 64) (mkApp (mkConst ``UInt64.toBitVec) e))
+    | Int8 =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``BitVec.toInt) (mkNatLit 8) (mkApp (mkConst ``Int8.toBitVec) e))
+    | Int16 =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``BitVec.toInt) (mkNatLit 16) (mkApp (mkConst ``Int16.toBitVec) e))
+    | Int32 =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``BitVec.toInt) (mkNatLit 32) (mkApp (mkConst ``Int32.toBitVec) e))
+    | Int64 =>
+      internalizeMarker <| ← shareCommon (mkApp2 (mkConst ``BitVec.toInt) (mkNatLit 64) (mkApp (mkConst ``Int64.toBitVec) e))
+    -- Skipping USize and ISize for now.
+    | _ => return ()
 
 end Lean.Meta.Grind.Arith.Cutsat

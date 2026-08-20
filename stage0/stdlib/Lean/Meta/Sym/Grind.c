@@ -21,7 +21,7 @@ lean_object* lean_st_mk_ref(lean_object*);
 lean_object* l_Lean_Meta_Sym_instantiateMVarsS(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_getIssues___redArg(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_Meta_Grind_processHypotheses(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2079,7 +2079,7 @@ goto v_reusejp_651_;
 v_reusejp_651_:
 {
 lean_object* v___x_653_; lean_object* v___x_654_; 
-v___x_653_ = lean_st_ref_set(v___y_634_, v___x_652_);
+v___x_653_ = lean_st_ref_put(v___y_634_, v___x_652_);
 v___x_654_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_654_, 0, v_fst_641_);
 return v___x_654_;
@@ -2196,7 +2196,7 @@ goto v_reusejp_705_;
 v_reusejp_705_:
 {
 lean_object* v___x_707_; lean_object* v___x_708_; lean_object* v___x_709_; 
-v___x_707_ = lean_st_ref_set(v_a_686_, v___x_706_);
+v___x_707_ = lean_st_ref_put(v_a_686_, v___x_706_);
 v___x_708_ = lean_box(0);
 v___x_709_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_709_, 0, v___x_708_);

@@ -123,15 +123,6 @@ theorem of_concat_eq_concat {as bs : List α} {a b : α} (h : as.concat a = bs.c
 
 /-! ## Equality -/
 
-/--
-Checks whether two lists have the same length and their elements are pairwise `BEq`. Normally used
-via the `==` operator.
--/
-protected def beq [BEq α] : List α → List α → Bool
-  | [],    []    => true
-  | a::as, b::bs => a == b && List.beq as bs
-  | _,     _     => false
-
 @[simp] theorem beq_nil_nil [BEq α] : List.beq ([] : List α) ([] : List α) = true := rfl
 @[simp] theorem beq_cons_nil [BEq α] {a : α} {as : List α} : List.beq (a::as) [] = false := rfl
 @[simp] theorem beq_nil_cons [BEq α] {a : α} {as : List α} : List.beq [] (a::as) = false := rfl
@@ -968,10 +959,11 @@ abbrev extract (l : List α) (start : Nat := 0) (stop : Nat := l.length) : List 
 @[simp] theorem extract_eq_take_drop {l : List α} {start stop : Nat} :
     l.extract start stop = (l.drop start).take (stop - start) := rfl
 
-set_option linter.defProp false in
-set_option linter.missingDocs false in
 @[deprecated extract_eq_take_drop (since := "2026-02-06")]
-def extract_eq_drop_take := @extract_eq_take_drop
+theorem extract_eq_drop_take {l : List α} {start stop : Nat} :
+    l.extract start stop = (l.drop start).take (stop - start) :=
+  extract_eq_take_drop
+
 
 /-! ### takeWhile -/
 
@@ -1575,7 +1567,7 @@ Examples:
 -/
 def eraseP (p : α → Bool) : List α → List α
   | [] => []
-  | a :: l => bif p a then l else a :: eraseP p l
+  | a :: l => if p a then l else a :: eraseP p l
 
 /-! ### eraseIdx -/
 
@@ -1700,7 +1692,7 @@ Examples:
   /-- Auxiliary for `findIdx`: `findIdx.go p l n = findIdx p l + n` -/
   @[specialize] go : List α → Nat → Nat
   | [], n => n
-  | a :: l, n => bif p a then n else go l (n + 1)
+  | a :: l, n => if p a then n else go l (n + 1)
 
 @[simp, grind =] theorem findIdx_nil {p : α → Bool} : [].findIdx p = 0 := rfl
 
@@ -1805,7 +1797,7 @@ Examples:
   /-- Auxiliary for `countP`: `countP.go p l acc = countP p l + acc`. -/
   @[specialize] go : List α → Nat → Nat
   | [], acc => acc
-  | x :: xs, acc => bif p x then go xs (acc + 1) else go xs acc
+  | x :: xs, acc => if p x then go xs (acc + 1) else go xs acc
 
 /-! ### count -/
 

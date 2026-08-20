@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.OfNat
-// Imports: public import Init.GrindInstances.ToInt public import Init.Data.Nat.Div.Basic import Init.ByCases import Init.Data.Int.DivMod.Lemmas import Init.Data.Int.LemmasAux import Init.Data.Int.Pow import Init.Omega
+// Imports: public import Init.Data.Nat.Div.Basic public import Init.Data.Int.Basic public import Init.Data.Int.DivMod.Basic public import Init.Data.Cast import Init.ByCases import Init.Data.Int.DivMod.Lemmas import Init.Data.Int.LemmasAux import Init.Data.Int.Pow import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -47,8 +47,10 @@ v_r_8_ = lean_box(v_res_7_);
 return v_r_8_;
 }
 }
-lean_object* runtime_initialize_Init_GrindInstances_ToInt(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Div_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Cast(uint8_t builtin);
 lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Int_LemmasAux(uint8_t builtin);
@@ -61,10 +63,16 @@ lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize_runtime_module();
-res = runtime_initialize_Init_GrindInstances_ToInt(builtin);
+res = runtime_initialize_Init_Data_Nat_Div_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Div_Basic(builtin);
+res = runtime_initialize_Init_Data_Int_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int_DivMod_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Cast(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_ByCases(builtin);
@@ -91,8 +99,10 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Div_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Cast(uint8_t builtin);
 lean_object* initialize_Init_ByCases(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin);
@@ -103,10 +113,16 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Int_OfNat(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_GrindInstances_ToInt(builtin);
+res = initialize_Init_Data_Nat_Div_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Div_Basic(builtin);
+res = initialize_Init_Data_Int_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_DivMod_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Cast(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_ByCases(builtin);

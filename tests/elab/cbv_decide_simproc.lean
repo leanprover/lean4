@@ -46,7 +46,12 @@ of_eq_true
 
 /--
 trace: x : Nat
-⊢ decide (x = 4) = true
+⊢ (match x, 4 with
+    | Nat.zero, Nat.zero => true
+    | Nat.zero, n.succ => false
+    | n.succ, Nat.zero => false
+    | a.succ, a_1.succ => a.beq a_1) =
+    true
 ---
 warning: declaration uses `sorry`
 -/

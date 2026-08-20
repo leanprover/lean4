@@ -193,9 +193,9 @@ theorem take_eq_append_getElem_of_pos {i} {l : List α} (h₁ : 0 < i) (h₂ : i
   match i, h₁ with
   | i + 1, _ => take_succ_eq_append_getElem (by omega)
 
-theorem dropLast_take {i : Nat} {l : List α} (h : i < l.length) :
+theorem dropLast_take {i : Nat} {l : List α} (h : i ≤ l.length) :
     (l.take i).dropLast = l.take (i - 1) := by
-  simp only [dropLast_eq_take, length_take, Nat.le_of_lt h, Nat.min_eq_left, take_take, sub_le]
+  simp only [dropLast_eq_take, length_take, h, Nat.min_eq_left, take_take, sub_le]
 
 theorem take_eq_dropLast {l : List α} {i : Nat} (h : i + 1 = l.length) :
     l.take i = l.dropLast := by
@@ -512,7 +512,7 @@ theorem false_of_mem_take_findIdx {xs : List α} {p : α → Bool} (h : x ∈ xs
   | cons x xs ih =>
     cases i
     · simp
-    · simp only [take_succ_cons, findIdx_cons, ih, cond_eq_ite]
+    · simp only [take_succ_cons, findIdx_cons, ih]
       split
       · simp
       · rw [Nat.add_min_add_right]
@@ -522,7 +522,7 @@ theorem false_of_mem_take_findIdx {xs : List α} {p : α → Bool} (h : x ∈ xs
   induction xs with
   | nil => simp
   | cons x xs ih =>
-    simp [findIdx_cons, cond_eq_ite]
+    simp [findIdx_cons]
     split <;> split <;> simp_all [Nat.add_min_add_right]
 
 /-! ### findIdx? -/
@@ -546,7 +546,7 @@ theorem takeWhile_eq_take_findIdx_not {xs : List α} {p : α → Bool} :
   induction xs with
   | nil => simp
   | cons x xs ih =>
-    simp only [takeWhile_cons, ih, findIdx_cons, cond_eq_ite, Bool.not_eq_eq_eq_not, Bool.not_true]
+    simp only [takeWhile_cons, ih, findIdx_cons, Bool.not_eq_eq_eq_not, Bool.not_true]
     split <;> simp_all
 
 theorem dropWhile_eq_drop_findIdx_not {xs : List α} {p : α → Bool} :
@@ -554,7 +554,7 @@ theorem dropWhile_eq_drop_findIdx_not {xs : List α} {p : α → Bool} :
   induction xs with
   | nil => simp
   | cons x xs ih =>
-    simp only [dropWhile_cons, ih, findIdx_cons, cond_eq_ite, Bool.not_eq_eq_eq_not, Bool.not_true]
+    simp only [dropWhile_cons, ih, findIdx_cons, Bool.not_eq_eq_eq_not, Bool.not_true]
     split <;> simp_all
 
 /-! ### rotateLeft -/

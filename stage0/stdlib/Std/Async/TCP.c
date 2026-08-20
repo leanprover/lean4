@@ -17,7 +17,7 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* lean_io_promise_resolve(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_task_pure(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 lean_object* lean_mk_io_user_error(lean_object*);
 lean_object* lean_io_promise_result_opt(lean_object*);
@@ -1178,7 +1178,7 @@ v___jp_233_:
 uint8_t v___x_235_; lean_object* v___x_236_; lean_object* v___x_237_; 
 v___x_235_ = 1;
 v___x_236_ = lean_box(v___x_235_);
-v___x_237_ = lean_st_ref_set(v_finished_230_, v___x_236_);
+v___x_237_ = lean_st_ref_put(v_finished_230_, v___x_236_);
 if (v___y_234_ == 0)
 {
 lean_object* v___x_238_; 
@@ -3314,7 +3314,7 @@ v___jp_876_:
 uint8_t v___x_878_; lean_object* v___x_879_; lean_object* v___x_880_; 
 v___x_878_ = 1;
 v___x_879_ = lean_box(v___x_878_);
-v___x_880_ = lean_st_ref_set(v_finished_867_, v___x_879_);
+v___x_880_ = lean_st_ref_put(v_finished_867_, v___x_879_);
 if (v___y_877_ == 0)
 {
 lean_object* v___x_881_; 

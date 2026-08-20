@@ -35,6 +35,9 @@ attribute [bv_normalize] Bool.xor_not_self
 attribute [bv_normalize] Bool.not_not
 attribute [bv_normalize] Bool.cond_not
 
+theorem Bool.eq_false_of_not_eq_true {b : Bool} (h : (!b) = true) : b = false :=
+  by decide +revert
+
 @[bv_normalize]
 theorem ite_eq_cond {b : Bool} {x y : α} : (if b = true then x else y) = (bif b then x else y) := by
   rw [cond_eq_ite]
@@ -284,82 +287,111 @@ theorem BitVec.mul_ite_zero''' {c : Bool} {a t : BitVec w} :
     ((bif c then t else 0#w) * a) = (bif c then t * a else 0#w) := by
   cases c <;> simp
 
-@[bv_normalize low]
+@[bv_normalize]
 theorem BitVec.beq_one_eq_ite {b : Bool} {a : BitVec 1} :
     ((a == 1#1) == b) = (a == bif b then 1#1 else 0#1) := by
   decide +revert
 
-@[bv_normalize low]
+@[bv_normalize]
 theorem BitVec.one_beq_eq_ite {b : Bool} {a : BitVec 1} :
     ((1#1 == a) == b) = (a == bif b then 1#1 else 0#1) := by
   decide +revert
 
-@[bv_normalize low]
+@[bv_normalize]
 theorem BitVec.beq_one_eq_ite' {b : Bool} {a : BitVec 1} :
     (b == (a == 1#1)) = (a == bif b then 1#1 else 0#1) := by
   decide +revert
 
-@[bv_normalize low]
+@[bv_normalize]
 theorem BitVec.one_beq_eq_ite' {b : Bool} {a : BitVec 1} :
     (b == (1#1 == a)) = (a == bif b then 1#1 else 0#1) := by
   decide +revert
 
-@[bv_normalize low]
+@[bv_normalize]
 theorem BitVec.beq_zero_eq_ite {b : Bool} {a : BitVec 1} :
     ((a == 0#1) == b) = (a == bif b then 0#1 else 1#1) := by
   decide +revert
 
-@[bv_normalize low]
+@[bv_normalize]
 theorem BitVec.zero_beq_eq_ite {b : Bool} {a : BitVec 1} :
     ((0#1 == a) == b) = (a == bif b then 0#1 else 1#1) := by
   decide +revert
 
-@[bv_normalize low]
+@[bv_normalize]
 theorem BitVec.beq_zero_eq_ite' {b : Bool} {a : BitVec 1} :
     (b == (a == 0#1)) = (a == bif b then 0#1 else 1#1) := by
   decide +revert
 
-@[bv_normalize low]
+@[bv_normalize]
 theorem BitVec.zero_beq_eq_ite' {b : Bool} {a : BitVec 1} :
     (b == (0#1 == a)) = (a == bif b then 0#1 else 1#1) := by
   decide +revert
 
-@[bv_normalize low]
+@[bv_normalize]
+theorem BitVec.ite_beq_zero : ∀ (t : BitVec 1), (bif t == 0#1 then 0#1 else 1#1) = t := by
+  decide
+
+@[bv_normalize]
+theorem BitVec.ite_zero_beq : ∀ (t : BitVec 1), (bif 0#1 == t then 0#1 else 1#1) = t := by
+  decide
+
+@[bv_normalize]
+theorem BitVec.ite_beq_one : ∀ (t : BitVec 1), (bif t == 1#1 then 1#1 else 0#1) = t := by
+  decide
+
+@[bv_normalize]
+theorem BitVec.ite_one_beq : ∀ (t : BitVec 1), (bif 1#1 == t then 1#1 else 0#1) = t := by
+  decide
+
+@[bv_normalize]
+theorem BitVec.ite_beq_zero_not : ∀ (t : BitVec 1), (bif t == 0#1 then 1#1 else 0#1) = ~~~t := by
+  decide
+
+@[bv_normalize]
+theorem BitVec.ite_zero_beq_not : ∀ (t : BitVec 1), (bif 0#1 == t then 1#1 else 0#1) = ~~~t := by
+  decide
+
+@[bv_normalize]
+theorem BitVec.ite_beq_one_not : ∀ (t : BitVec 1), (bif t == 1#1 then 0#1 else 1#1) = ~~~t := by
+  decide
+
+@[bv_normalize]
+theorem BitVec.ite_one_beq_not : ∀ (t : BitVec 1), (bif 1#1 == t then 0#1 else 1#1) = ~~~t := by
+  decide
+
+@[bv_normalize]
 theorem Bool.beq_not_ite {a b c : Bool} :
     (a == !bif c then a else b) = (!c && (a == !b)) := by
   decide +revert
 
-@[bv_normalize low]
+@[bv_normalize]
 theorem Bool.beq_not_ite' {a b c : Bool} :
     (a == !bif c then b else a) = (c && (a == !b)) := by
   decide +revert
 
-@[bv_normalize low]
+@[bv_normalize]
 theorem Bool.not_ite_beq {a b c : Bool} :
     ((!bif c then a else b) == a) = (!c && (a == !b)) := by
   decide +revert
 
-@[bv_normalize low]
+@[bv_normalize]
 theorem Bool.not_ite_beq' {a b c : Bool} :
     ((!bif c then b else a) == a) = (c && (a == !b)) := by
   decide +revert
 
-@[bv_normalize low]
+-- The following four theorems are used in the bvBeq simproc.
 theorem BitVec.beq_not_ite {a b : BitVec (w + 1)} {c : Bool} :
     (a == ~~~bif c then a else b) = (!c && (a == ~~~b)) := by
   cases c <;> simp
 
-@[bv_normalize low]
 theorem BitVec.beq_not_ite' {a b : BitVec (w + 1)} {c : Bool} :
     (a == ~~~bif c then b else a) = (c && (a == ~~~b)) := by
   cases c <;> simp
 
-@[bv_normalize low]
 theorem BitVec.not_ite_beq {a b : BitVec (w + 1)} {c : Bool} :
     ((~~~bif c then a else b) == a) = (!c && (~~~b == a)) := by
   cases c <;> simp
 
-@[bv_normalize low]
 theorem BitVec.not_ite_beq' {a b : BitVec (w + 1)} {c : Bool} :
     ((~~~bif c then b else a) == a) = (c && (~~~b == a)) := by
   cases c <;> simp

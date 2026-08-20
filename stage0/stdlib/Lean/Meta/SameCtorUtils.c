@@ -882,16 +882,16 @@ goto v_reusejp_263_;
 }
 v_reusejp_263_:
 {
-lean_object* v___x_265_; lean_object* v___x_266_; lean_object* v___x_2065__overap_267_; lean_object* v___x_268_; 
+lean_object* v___x_265_; lean_object* v___x_266_; lean_object* v___x_2063__overap_267_; lean_object* v___x_268_; 
 v___x_265_ = lean_box(0);
 v___x_266_ = l_instInhabitedOfMonad___redArg(v___x_264_, v___x_265_);
-v___x_2065__overap_267_ = lean_panic_fn_borrowed(v___x_266_, v_msg_210_);
+v___x_2063__overap_267_ = lean_panic_fn_borrowed(v___x_266_, v_msg_210_);
 lean_dec(v___x_266_);
 lean_inc(v___y_214_);
 lean_inc_ref(v___y_213_);
 lean_inc(v___y_212_);
 lean_inc_ref(v___y_211_);
-v___x_268_ = lean_apply_5(v___x_2065__overap_267_, v___y_211_, v___y_212_, v___y_213_, v___y_214_, lean_box(0));
+v___x_268_ = lean_apply_5(v___x_2063__overap_267_, v___y_211_, v___y_212_, v___y_213_, v___y_214_, lean_box(0));
 return v___x_268_;
 }
 }
@@ -1369,14 +1369,14 @@ return v_res_452_;
 LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Meta_SameCtorUtils_0__Lean_Meta_withSharedCtorIndices_go_spec__0___redArg(lean_object* v_msg_454_, lean_object* v___y_455_, lean_object* v___y_456_, lean_object* v___y_457_, lean_object* v___y_458_){
 _start:
 {
-lean_object* v___f_460_; lean_object* v___x_685__overap_461_; lean_object* v___x_462_; 
+lean_object* v___f_460_; lean_object* v___x_536__overap_461_; lean_object* v___x_462_; 
 v___f_460_ = ((lean_object*)(l_panic___at___00__private_Lean_Meta_SameCtorUtils_0__Lean_Meta_withSharedCtorIndices_go_spec__0___redArg___closed__0));
-v___x_685__overap_461_ = lean_panic_fn_borrowed(v___f_460_, v_msg_454_);
+v___x_536__overap_461_ = lean_panic_fn_borrowed(v___f_460_, v_msg_454_);
 lean_inc(v___y_458_);
 lean_inc_ref(v___y_457_);
 lean_inc(v___y_456_);
 lean_inc_ref(v___y_455_);
-v___x_462_ = lean_apply_5(v___x_685__overap_461_, v___y_455_, v___y_456_, v___y_457_, v___y_458_, lean_box(0));
+v___x_462_ = lean_apply_5(v___x_536__overap_461_, v___y_455_, v___y_456_, v___y_457_, v___y_458_, lean_box(0));
 return v___x_462_;
 }
 }

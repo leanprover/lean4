@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 import Lean
-import Std.Internal
+import Std.WP
 import Std.Tactic.Do
 
 set_option mvcgen.warning false
@@ -26,7 +26,7 @@ lemmas with `grind`. With the monad ground, `grind` derives a usable E-matching 
 discharge step `with finish` closes every VC, including the `Frames` side goal.
 -/
 
-open Lean Order Meta Elab Tactic Sym Std Internal.Do
+open Lean Order Meta Elab Tactic Sym Std WP
 
 abbrev AppState := Nat × Nat
 
@@ -265,3 +265,46 @@ example {m : Type → Type v} {Pred : Type w} {EPred : Type w'} [Monad m] [Asser
     ⦃ fun r s => ⌜r = n ∧ s.1 = n + 1⌝ ⦄ := by
   unfold mkFreshNat
   vcgen <;> simp_all
+
+/-! ## A pinned frame survives a passed-over spec candidate
+
+`mkFreshNat_spec_guarded` is the highest-priority candidate, but its `Never γ` instance is never
+synthesizable, so its rule fails to apply and the next candidate runs. `selectiveFP` frames only
+`mkFreshNat_spec_lossy`, so the `frames` clause must still pin the frame when that next candidate
+applies: the clause is matched once per goal, not once per candidate. -/
+
+/-- An unsatisfiable instance guard: a spec rule with a `Never γ` premise never applies. -/
+class Never (α : Type) : Prop where
+  absurd : False
+
+/-- The lossy spec, guarded by an instance on a `γ` that nothing determines. -/
+@[spec high]
+theorem mkFreshNat_spec_guarded {γ : Type} [Never γ] [Monad m] [Assertion Pred] [Assertion EPred]
+    [WPMonad m Pred EPred] :
+    ⦃ fun s => ⌜s.1 = n⌝ ⦄ (mkFreshNat : StateT AppState m Nat)
+    ⦃ fun r s => ⌜r = n ∧ s.1 = n + 1⌝ ⦄ :=
+  (Never.absurd (α := γ)).elim
+
+open Lean.Elab.Tactic.VCGen
+
+/-- Frames the pinned resource for `mkFreshNat_spec_lossy` and declines every other spec. -/
+def selectiveFrameProc : FrameInferenceProc := fun i => do
+  let some frame := i.providedFrame? | return .decline
+  unless i.spec? == some ``mkFreshNat_spec_lossy do return .decline
+  return .ofFrame i frame
+
+/-- The meet frame operator with `selectiveFrameProc` as inference procedure. -/
+@[frameproc] def selectiveFP : FrameProc where
+  prog := ``StateT
+  mkOpAppM := fun info => Lean.Meta.mkAppOptM ``Lean.Order.meet #[info.Pred, none]
+  mkResourceTy := fun info => pure info.Pred
+  opHead := ``Lean.Order.meet
+  proc := selectiveFrameProc
+
+/-- `mkFreshNat_spec_guarded` is passed over; the clause still frames `s.2 = 7` when
+`mkFreshNat_spec_lossy` applies. -/
+theorem recovers_snd_second_candidate [Assertion Pred] [Assertion EPred] [WPMonad Id Pred EPred]
+    [∀ β (y : Id β), WPConjunctive y] [∀ a : Pred, PreservesSup (meet a)] :
+    ⦃ fun s => ⌜s.1 = 0 ∧ s.2 = 7⌝ ⦄ (mkFreshNat : StateT AppState Id Nat)
+    ⦃ fun r s => ⌜r = 0 ∧ s.2 = 7⌝ ⦄ := by
+  vcgen frames | mkFreshNat => fun s => ⌜s.2 = 7⌝ with finish

@@ -74,7 +74,8 @@ example (x y : BitVec 32) (a : Bool) (h : x < y) : (x = y) ↔ a := by
 -- False counter examples but correctly detected as such.
 /--
 error: The prover found a potentially spurious counterexample:
-- The following potentially relevant hypotheses could not be used: [h]
+- The following potentially relevant hypotheses could not be used:
+  - x.toNat = y.toNat derived via assumption h
 Consider the following assignment:
 x = 4294967295#32
 y = 2147483647#32
@@ -87,7 +88,8 @@ def zeros (w : Nat) : BitVec w := 0#w
 
 /--
 error: The prover found a potentially spurious counterexample:
-- It abstracted the following unsupported expressions as opaque variables: [zeros 32]
+- It abstracted the following unsupported expressions as opaque variables:
+  - zeros 32
 Consider the following assignment:
 x = 4294967295#32
 zeros 32 = 4294967295#32
@@ -98,8 +100,10 @@ example (x : BitVec 32) (h : x = zeros 32) : x = 0 := by
 
 /--
 error: The prover found a potentially spurious counterexample:
-- It abstracted the following unsupported expressions as opaque variables: [zeros 32]
-- The following potentially relevant hypotheses could not be used: [h1]
+- It abstracted the following unsupported expressions as opaque variables:
+  - zeros 32
+- The following potentially relevant hypotheses could not be used:
+  - x.toNat = y.toNat derived via assumption h1
 Consider the following assignment:
 x = 4294967295#32
 zeros 32 = 4294967295#32

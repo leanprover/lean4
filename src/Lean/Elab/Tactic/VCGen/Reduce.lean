@@ -9,8 +9,10 @@ prelude
 public import Lean.Meta.Sym.SymM
 import Lean.Meta.WHNF
 import Lean.Meta.Sym.Util
+import Lean.Meta.Sym.InstantiateS
+import Lean.Meta.Sym.AlphaShareBuilder
 
-open Lean Meta Sym
+open Lean Meta Sym Sym.Internal
 
 namespace Lean.Elab.Tactic.VCGen
 
@@ -40,8 +42,8 @@ no further progress is made:
 4. **Projection delta**: `Struct.field x` → `x.5` (unfolds projection *functions*,
    progress only if followed by proj-reduction)
 
-Returns `none` when no reduction was possible. Maintains maximal sharing via `shareCommonInc`
-and the SymM no-exposed-reducibles invariant.
+Returns `none` when no reduction was possible. Maintains maximal sharing via the `SymM`
+sharing builders and `shareCommonInc`, and the SymM no-exposed-reducibles invariant.
 -/
 public partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
   withReducible <| go none e.getAppFn e.getAppRevArgs
@@ -52,8 +54,7 @@ public partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
       | .app f a => go lastReduction f (rargs.push a)
       | .lam .. =>
         if rargs.size = 0 then return lastReduction
-        let e' := f.betaRev rargs
-        let e' ← Sym.shareCommonInc e'
+        let e' ← betaRevS f rargs
         go (some e') e'.getAppFn e'.getAppRevArgs
       | .const name .. =>
         -- projections
@@ -70,7 +71,8 @@ public partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
       | .proj .. =>
         match ← withReducibleAndInstances <| reduceProjAndUnfold? f with
         | some f' =>
-          let e' ← Sym.shareCommonInc (mkAppRev f' rargs)
+          let f' ← Sym.shareCommonInc f'
+          let e' ← mkAppRevS f' rargs
           go (some e') e'.getAppFn e'.getAppRevArgs
         | none    => pure lastReduction
       | _ => pure lastReduction

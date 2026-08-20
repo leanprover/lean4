@@ -1236,7 +1236,7 @@ theorem of_decide_eq_self_eq_true [inst : DecidableEq α] (a : α) : Eq (decide 
   | isTrue  _  => rfl
   | isFalse h₁ => absurd rfl h₁
 
--- TODO: consider marking as `macro_inline` once the compiler supports it
+-- TODO: consider marking as `macro_inline` once the compiler supports it (#14859)
 @[inline] instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (And p q) where
   decide := and (decide p) (decide q)
   reflects_decide :=
@@ -1245,7 +1245,7 @@ theorem of_decide_eq_self_eq_true [inst : DecidableEq α] (a : α) : Eq (decide 
     | isTrue   _, isFalse hq => fun h => hq h.2
     | isFalse hp, _          => fun h => hp (And.left h)
 
--- TODO: consider marking as `macro_inline` once the compiler supports it
+-- TODO: consider marking as `macro_inline` once the compiler supports it (#14859)
 @[inline] instance [dp : Decidable p] [dq : Decidable q] : Decidable (Or p q) where
   decide := or (decide p) (decide q)
   reflects_decide :=

@@ -175,7 +175,11 @@ def elabDoAssertion : DoElab := fun stx dec => do
       "the `assert` element elaborates to a `vcgen` gadget; add `import Std.WP` to use it."
   warnIntrinsicExperimental tk m!"`assert` element"
   let dec ← dec.ensureUnitAt tk
-  let e ← Term.elabTermEnsuringType (← `($(mkCIdent ``Gadget.assertGadget) $as)) (← mkMonadApp (← mkPUnit))
+  -- `open scoped` activates the instances of `Std.WP` and the notation of `Lean.Order` for the
+  -- assertion, as the contract's spec theorem does for the `requires` and `ensures` clauses.
+  let e ← Term.elabTermEnsuringType
+    (← `(open scoped Std.WP Lean.Order in $(mkCIdent ``Gadget.assertGadget) $as))
+    (← mkMonadApp (← mkPUnit))
   dec.mkBindUnlessPure e
 
 end Lean.Elab.Tactic.Do

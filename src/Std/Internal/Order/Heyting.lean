@@ -31,6 +31,11 @@ section Basic
 
 variable {α : Type u} [CompleteLattice α]
 
+/-- A complete lattice whose meets preserve suprema. The Heyting implication `⇨` is then a right
+adjoint, and `⊓` distributes over suprema of arbitrary families. The literature also calls such a
+lattice a frame. -/
+abbrev Heyting (α : Type u) [CompleteLattice α] : Prop := ∀ a : α, PreservesSup (meet a)
+
 /-- Heyting implication: the upper adjoint of the lattice meet. For `Prop` it is `→`. -/
 noncomputable def himp {α : Type u} [CompleteLattice α] (a b : α) : α :=
   PreservesSup.upperAdjoint (meet a) b
@@ -101,7 +106,7 @@ section Derived
 set_option linter.unusedSectionVars false
 
 variable {l : Type u} [CompleteLattice l] {P P' Q Q' R R' T : l} {φ φ₁ φ₂ : Prop}
-variable [∀ a : l, PreservesSup (meet a)]
+variable [Heyting l]
 
 /-! ### Connectives -/
 
@@ -197,7 +202,7 @@ end Derived
 
 /-- `⊤ ⊑ (P ⇨ Q)` iff `P ⊑ Q`. -/
 @[simp] theorem top_le_himp_iff {l : Type u} [CompleteLattice l]
-    [∀ a : l, PreservesSup (meet a)] (P Q : l) :
+    [Heyting l] (P Q : l) :
     ((⊤ : l) ⊑ P ⇨ Q) ↔ (P ⊑ Q) :=
   ⟨fun h => rel_trans
     (le_meet _ _ _ (le_top _) rel_refl)

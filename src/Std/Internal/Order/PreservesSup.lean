@@ -75,6 +75,61 @@ instance {σ : Type v} {β : σ → Type u} [∀ s, CompleteLattice (β s)]
     · rintro ⟨g, ⟨x, hx, rfl⟩, hgt⟩
       exact ⟨x t, ⟨x, hx, rfl⟩, by rw [← hgt, meet_apply]⟩
 
+section PProd
+
+variable {β : Type v} [CompleteLattice β]
+
+private theorem pprod_le {p q : α ×' β} (h₁ : p.1 ⊑ q.1) (h₂ : p.2 ⊑ q.2) : p ⊑ q := by
+  exact ⟨h₁, h₂⟩
+
+/-- `mk` of the componentwise meets is the meet on a product. -/
+theorem PProd.mk_meet (p q : α ×' β) : (⟨p.1 ⊓ q.1, p.2 ⊓ q.2⟩ : α ×' β) = p ⊓ q :=
+  PartialOrder.rel_antisymm
+    (le_meet _ _ _ (pprod_le (meet_le_left _ _) (meet_le_left _ _))
+      (pprod_le (meet_le_right _ _) (meet_le_right _ _)))
+    (pprod_le (le_meet _ _ _ (meet_le_left p q).1 (meet_le_right p q).1)
+      (le_meet _ _ _ (meet_le_left p q).2 (meet_le_right p q).2))
+
+/-- `mk` of the componentwise least upper bounds is the least upper bound on a product. -/
+theorem PProd.mk_sup (c : α ×' β → Prop) :
+    (⟨CompleteLattice.sup fun a => ∃ b, c ⟨a, b⟩,
+      CompleteLattice.sup fun b => ∃ a, c ⟨a, b⟩⟩ : α ×' β) = CompleteLattice.sup c :=
+  PartialOrder.rel_antisymm
+    (pprod_le (sup_le _ fun _ ⟨_, hc⟩ => (le_sup c hc).1)
+      (sup_le _ fun _ ⟨_, hc⟩ => (le_sup c hc).2))
+    (sup_le c fun y hy => pprod_le (le_sup _ ⟨y.2, hy⟩) (le_sup _ ⟨y.1, hy⟩))
+
+private theorem fst_meet (p q : α ×' β) : (p ⊓ q).1 = p.1 ⊓ q.1 := by rw [← PProd.mk_meet]
+private theorem snd_meet (p q : α ×' β) : (p ⊓ q).2 = p.2 ⊓ q.2 := by rw [← PProd.mk_meet]
+
+private theorem fst_sup (c : α ×' β → Prop) :
+    (CompleteLattice.sup c).1 = CompleteLattice.sup fun a => ∃ b, c ⟨a, b⟩ := by
+  rw [← PProd.mk_sup]
+
+private theorem snd_sup (c : α ×' β → Prop) :
+    (CompleteLattice.sup c).2 = CompleteLattice.sup fun b => ∃ a, c ⟨a, b⟩ := by
+  rw [← PProd.mk_sup]
+
+/-- A product lattice preserves suprema componentwise: meets, least upper bounds and the order all
+act on the two components separately. -/
+instance [∀ a : α, PreservesSup (meet a)] [∀ b : β, PreservesSup (meet b)] (p : α ×' β) :
+    PreservesSup (meet p) where
+  map_sup s := by
+    refine PartialOrder.rel_antisymm (pprod_le ?_ ?_)
+      (sup_le _ fun _ ⟨x, hx, hy⟩ => hy ▸ meet_mono PartialOrder.rel_refl (le_sup s hx))
+    · simp only [fst_meet, fst_sup]
+      rw [PreservesSup.map_sup (f := meet p.1)]
+      refine sup_le _ ?_
+      rintro _ ⟨a, ⟨b, hs⟩, rfl⟩
+      exact le_sup _ ⟨p.2 ⊓ b, ⟨a, b⟩, hs, PProd.mk_meet p ⟨a, b⟩⟩
+    · simp only [snd_meet, snd_sup]
+      rw [PreservesSup.map_sup (f := meet p.2)]
+      refine sup_le _ ?_
+      rintro _ ⟨b, ⟨a, hs⟩, rfl⟩
+      exact le_sup _ ⟨p.1 ⊓ a, ⟨a, b⟩, hs, PProd.mk_meet p ⟨a, b⟩⟩
+
+end PProd
+
 namespace PreservesSup
 
 /-- The upper adjoint of `f`: the join of all `x` with `f x ⊑ b`. For `f = (a ⊓ ·)` this is Heyting

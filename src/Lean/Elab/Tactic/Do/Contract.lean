@@ -9,6 +9,7 @@ prelude
 public import Std.Tactic.Do.Syntax
 public import Std.WP
 public import Lean.Elab.Util
+public import Lean.Elab.Command
 public import Lean.Elab.Do.Basic
 import Lean.DocString.Extension
 meta import Lean.Parser.Command
@@ -20,9 +21,10 @@ import Init.Grind.Interactive
 /-!
 # Intrinsic verification syntax
 
-A definition carrying `requires P` / `ensures b => Q` clauses expands to the plain definition plus a
-`vcgen`-proven, `@[spec]`-tagged specification theorem `f.spec`. An `assert` element in a `do` block
-elaborates to the assertion gadget that `vcgen` proves in the course of that theorem.
+A definition carrying `given xs` / `requires P` / `ensures b => Q` clauses expands to the plain
+definition plus a `vcgen`-proven, `@[spec]`-tagged specification theorem `f.spec`. An `assert`
+element in a `do` block elaborates to the assertion gadget that `vcgen` proves in the course of that
+theorem.
 -/
 
 public section
@@ -75,35 +77,48 @@ private def extractSpecSection (v : Syntax) : MacroM (Option Syntax × Syntax) :
   let wf' := wf.setArg 2 (mkNullNode others)
   return (some specs[0]![3], setPath v path (mkNullNode #[wd.setArg 2 (mkNullNode #[wf'])]))
 
-/-- Expand a `def` carrying `requires`/`ensures` clauses into the plain `def` plus a spec theorem
-`@[spec] theorem f.spec : ⦃P⦄ f args ⦃fun b => Q⦄` proved by `vcgen`. A
-`where finally | spec => steps` section supplies `grind`-mode steps for the verification
-conditions `finish` leaves open. -/
+/-- The marker command carrying a `def`'s contract clauses to `elabContractNotice`, which reports
+their experimental status from a monad that can read options and log. It reuses the
+`contractDeclVal` kind, which is never itself a command, and drops the definition's value. -/
+private def mkContractNotice (val : Syntax) : Syntax :=
+  mkNode ``Lean.Parser.Command.contractDeclVal (val.getArgs.pop.push (mkNullNode #[]))
+
+/-- Expand a `def` carrying `given`/`requires`/`ensures` clauses into the plain `def` plus a spec
+theorem `@[spec] theorem f.spec : ∀ xs, ⦃P⦄ f args ⦃fun b => Q⦄` proved by `vcgen`. A
+`where finally | spec => steps` section supplies `grind`-mode steps for the verification conditions
+`finish` leaves open. -/
 @[builtin_macro Lean.Parser.Command.declaration]
 def expandDefContract : Macro := fun stx => do
   let decl := stx[1]
   unless decl.isOfKind ``Lean.Parser.Command.definition do Macro.throwUnsupported
   -- `definition = "def "(0) >> declId(1) >> optDeclSig(2) >> (declVal <|> contractDeclVal)(3) >> …`
-  -- `contractDeclVal = optional requiresClause(0) >> optional ensuresClause(1) >> declVal(2)`
+  -- `contractDeclVal = optional givenClause(0) >> optional requiresClause(1) >>
+  --   optional ensuresClause(2) >> declVal(3)`
+  -- `givenClause = "given"(0) >> many1 binders(1)`
   let val := decl[3]
   unless val.isOfKind ``Lean.Parser.Command.contractDeclVal do Macro.throwUnsupported
-  let requiresStx := val[0]
-  let ensuresStx := val[1]
+  let givenStx := val[0]
+  let requiresStx := val[1]
+  let ensuresStx := val[2]
   -- Replace the contract-carrying value with its inner `declVal` so the `def` elaborates normally.
-  if requiresStx.isNone && ensuresStx.isNone then
-    return stx.setArg 1 (decl.setArg 3 val[2])
-  let (specStep?, strippedVal) ← extractSpecSection val[2]
+  if givenStx.isNone && requiresStx.isNone && ensuresStx.isNone then
+    return stx.setArg 1 (decl.setArg 3 val[3])
+  let (specStep?, strippedVal) ← extractSpecSection val[3]
   let cleanDeclaration := stx.setArg 1 (decl.setArg 3 strippedVal)
   unless (← Macro.hasDecl ``Std.WP.Triple) do
-    Macro.throwErrorAt (if requiresStx.isNone then ensuresStx else requiresStx)
-      "`requires`/`ensures` contracts elaborate to a `vcgen`-proved specification theorem; \
-add `import Std.WP` to use them."
+    Macro.throwErrorAt
+      (if !givenStx.isNone then givenStx else if !requiresStx.isNone then requiresStx
+       else ensuresStx)
+      "`given`/`requires`/`ensures` contracts elaborate to a `vcgen`-proved specification \
+theorem; add `import Std.WP` to use them."
   let sig := decl[2]
   let fId : Ident := ⟨decl[1][0]⟩
   let specId := mkIdentFrom fId (fId.getId ++ `spec)
   let sigBinders := sig[0].getArgs
+  -- `f.spec` quantifies the `given` binders but applies `f` to the signature's arguments alone.
+  let givenBinders := if givenStx.isNone then #[] else givenStx[0][1].getArgs
   let binders : TSyntaxArray [`ident, ``Lean.Parser.Term.hole, ``Lean.Parser.Term.bracketedBinder] :=
-    sigBinders.map (⟨·⟩)
+    (sigBinders ++ givenBinders).map (⟨·⟩)
   let args := sigBinders.flatMap contractBinderIdents
   let pre : Term ← if requiresStx.isNone then `(⊤) else
     match requiresStx[0] with
@@ -137,7 +152,16 @@ discharge them in a `where finally | spec => ...` section of the definition"⟩
       first
       | done
       | fail $msg)
-  return mkNullNode #[cleanDeclaration, thm]
+  return mkNullNode #[mkContractNotice val, cleanDeclaration, thm]
+
+open Lean.Elab.Do in
+/-- Report the experimental status of each contract clause the notice carries. -/
+@[builtin_command_elab Lean.Parser.Command.contractDeclVal]
+def elabContractNotice : Elab.Command.CommandElab := fun stx => do
+  for clause in stx.getArgs.pop do
+    unless clause.isNone do
+      let kw := clause[0][0]
+      warnIntrinsicExperimental kw m!"`{kw.getAtomVal}` clause"
 
 open Lean.Elab.Do Lean.Parser.Term in
 @[builtin_doElem_elab Lean.Parser.Term.doAssertion]
@@ -150,6 +174,7 @@ def elabDoAssertion : DoElab := fun stx dec => do
   unless (← getEnv).contains ``Gadget.assertGadget do
     throwErrorAt tk
       "the `assert` element elaborates to a `vcgen` gadget; add `import Std.WP` to use it."
+  warnIntrinsicExperimental tk m!"`assert` element"
   let dec ← dec.ensureUnitAt tk
   let e ← Term.elabTermEnsuringType (← `($(mkCIdent ``Gadget.assertGadget) $as)) (← mkMonadApp (← mkPUnit))
   dec.mkBindUnlessPure e

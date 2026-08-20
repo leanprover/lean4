@@ -10,7 +10,6 @@ public import Lean.Elab.BuiltinDo.Basic
 meta import Lean.Parser.Do
 meta import Std.WP.Gadget.ForIn
 import Init.Control.Do
-import Init.Data.Sum.Basic
 import Init.While
 import Lean.Meta.ProdN
 
@@ -162,12 +161,6 @@ structure ForInApp where
 private def ForInApp.mkStateFun (g : ForInApp) (e : Term) : DoElabM Term :=
   `(fun $(g.statePat) => $e)
 
-/-- Abstract `e` over the cursor of a `repeat` loop, so that `e` may name the loop's mutable
-variables whether the loop is iterating or done. -/
-private def ForInApp.mkCursorFun (g : ForInApp) (cursor : Ident) (e : Term) : DoElabM Term :=
-  `(fun $cursor:ident => match $cursor:ident with
-      | .inl $(g.statePat) | .inr $(g.statePat) => $e)
-
 /-- Elaborate the gadget application that replaces the loop. The gadgets live downstream of this
 module, so `gadget` is an unresolved name that resolves in the user's context. -/
 private def ForInApp.mkCall (g : ForInApp) (ref : Syntax) (gadget : Name)
@@ -211,9 +204,9 @@ private def mkForInPureWithInvariant (g : ForInApp) (invClause : TSyntax ``doLoo
   g.mkCall invClause gadget #[invLam]
 
 /-- Rebuild the loop of a `repeat` as a call to the gadget carrying the annotations the loop states.
-Both clauses name the loop's mutable variables directly. The `invariant` clause is a function of the
-`Bool` that says whether the loop has left; the cursor's own payload is the state tuple, which the
-mutable variables already name. -/
+Both clauses name the loop's mutable variables directly. The `invariant` clause takes the `Bool`
+that says whether the loop has left, followed by the state tuple, which the mutable variables
+already name. -/
 private def mkForInLoopGadget (g : ForInApp)
     (inv? : Option (TSyntax ``doLoopInvariant)) (dec? : Option (TSyntax ``doLoopDecreasing)) :
     DoElabM (Option Expr) := do
@@ -224,16 +217,15 @@ private def mkForInLoopGadget (g : ForInApp)
     let assertionBinders := binders.drop 1
     checkAssertionBinders invClause "invariant" assertionBinders.size pred?
     let invBody ← mkAssertionFun assertionBinders invBody
-    let cursor := mkIdentFrom invClause (← mkFreshUserName `__c)
+    let exitVar := mkIdentFrom invClause (← mkFreshUserName `__exit)
     let invBody ← if exitBinder.raw.isOfKind ``hole then pure invBody else
       let exitPat : Term := ⟨exitBinder.raw⟩
-      let hasLeft ← `($(mkIdent ``Sum.isRight) $cursor:ident)
-      `(match $hasLeft:term with | $exitPat => $invBody)
-    -- `RepeatInvariant.mk` keeps the clause's declared type on the term. A bare lambda carries the
+      `(match $exitVar:ident with | $exitPat => $invBody)
+    -- `WhileInvariant.mk` keeps the clause's declared type on the term. A bare lambda carries the
     -- unfolded type, and a specification's instance arguments are synthesized before the check that
     -- would unfold it.
-    return ((invClause : Syntax), ← `($(mkIdent ``Std.WP.RepeatInvariant.mk)
-      $(← g.mkCursorFun cursor invBody)))
+    return ((invClause : Syntax), ← `($(mkIdent ``Std.WP.WhileInvariant.mk)
+      fun $exitVar:ident $(g.statePat) => $invBody))
   let varArg? ← dec?.mapM fun decClause => do
     let (binders, body) ← match decClause with
       | `(doLoopDecreasing| decreasing $binders* => $body) => pure (binders, body)
@@ -253,6 +245,10 @@ private def mkForInLoopGadget (g : ForInApp)
   let `(doFor| for%$tk $[$h? : ]? $x:ident in $xs
       $[$inv?:doLoopInvariant]? $[$dec?:doLoopDecreasing]? do $body) := stx
     | throwUnsupportedSyntax
+  if let some invClause := inv? then
+    warnIntrinsicExperimental invClause.raw[0] m!"`invariant` clause"
+  if let some decClause := dec? then
+    warnIntrinsicExperimental decClause.raw[0] m!"`decreasing` clause"
   let dec ← dec.ensureUnitAt tk
   checkMutVarsForShadowing #[x]
   let uα ← mkFreshLevelMVar

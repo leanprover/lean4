@@ -9,7 +9,7 @@ module
 prelude
 
 public import Init.Data.Float
-public import Std.Data.TreeMap
+public import Std.Data.TreeMap.Basic
 public import Init.Data.Ord
 public import Lean.Data.Json
 

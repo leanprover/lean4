@@ -5,7 +5,12 @@ Tests for `dsimp.resynthInstances`: after a definitional rewrite of an argument,
 `dsimp` check the instance arguments whose types depend on it at `.instances` transparency.
 A resynthesized instance is adopted when it is defeq to the old one at `.implicit`
 transparency; otherwise the rewrite of the argument is refused.
+
+The check is enabled explicitly so that the tests are independent of the option's default,
+which differs between toolchain branches.
 -/
+
+set_option dsimp.resynthInstances true
 
 class X (n : Nat)
 

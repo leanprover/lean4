@@ -28,7 +28,7 @@ struct lean_ssl_session_object {
     SSL* ssl = nullptr;
 
     // Plaintext OpenSSL would not take yet, replayed once the socket I/O it is waiting on completes.
-    std::deque<std::vector<char>> pending_writes;
+    std::deque<std::vector<uint8_t>> pending_writes;
 
     // Total bytes held in `pending_writes`, kept in step with the queue so `lean_ssl_write` can
     // bound it without walking the deque.

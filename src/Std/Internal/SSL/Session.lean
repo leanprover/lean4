@@ -140,9 +140,11 @@ opaque handshake (ssl : @& Session) : IO (Option IOWant)
 Writes plaintext application data. Returns `none` when everything written so far has been encrypted,
 or `some w` when socket I/O of kind `w` is needed to finish. `data` is accepted either way, so never
 pass it again: retry with `write ByteArray.empty` after the I/O until it reports `none`. Always
-`drainEncrypted` afterwards whatever the result. Raises `IO.Error.resourceExhausted` if too much
-plaintext is already waiting to be encrypted, in which case `data` was not accepted and can be
-passed again later; `IO.Error.invalidArgument` for a `data` larger than `Int32.maxValue` bytes;
+`drainEncrypted` afterwards whatever the result. A raise always leaves `data` unaccepted, so a
+session that survives one holds no more plaintext than it did before the call. Raises
+`IO.Error.resourceExhausted` if too much plaintext is already waiting to be encrypted, in which case
+`data` can be passed again later; `IO.Error.invalidArgument` for a `data` larger than
+`Int32.maxValue` bytes;
 `IO.Error.protocolError` for a non-empty `data` after `closeNotify`, which closes the write
 direction alone and leaves `read?` usable; and once the session has finished, including
 `IO.Error.unexpectedEof` on a truncated input stream.

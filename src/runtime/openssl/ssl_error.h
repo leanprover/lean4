@@ -97,10 +97,6 @@ lean_obj_res mk_ssl_write_queue_full();
 // nothing is owed to OpenSSL and the session stays usable: the payload is simply refused.
 lean_obj_res mk_ssl_enqueue_rejected();
 
-// The queue could not take plaintext OpenSSL has asked to be replayed. Nothing can present that
-// payload again, and OpenSSL refuses a retry carrying different bytes, so the session is finished.
-lean_obj_res mk_ssl_enqueue_failed(ssl_error_state* st);
-
 #endif
 
 }

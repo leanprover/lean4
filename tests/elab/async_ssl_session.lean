@@ -189,35 +189,43 @@ def testReadZero (certFile keyFile : String) : IO Unit := do
   | .closed   => throw <| IO.userError "read? 0 returned .closed unexpectedly"
 
 -- ---------------------------------------------------------------------------
--- Test: successive writes reach the peer in the order they were made.
+-- Test: queued writes reach the peer in the order they were made.
 -- ---------------------------------------------------------------------------
 
+-- Memory BIOs are always writable, so a post-handshake `SSL_write` never blocks and never queues.
+-- Writing before the handshake is what fills `pending_writes`, making this an ordering test of the
+-- queue rather than of TLS record delivery.
 def testPendingWriteOrder (certFile keyFile : String) : IO Unit := do
   let serverCtx ← Context.Server.mk certFile keyFile
   let clientCtx ← Context.Client.mk "" false
 
   let serverSess ← Session.Server.mk serverCtx
   let clientSess ← Session.Client.mk clientCtx
+
+  let msgs := #["first", "second", "third"]
+  for m in msgs do
+    match ← clientSess.write m.toUTF8 with
+    | some .read => pure ()
+    | some .write => throw <| IO.userError s!"queueing '{m}' should block on read, not write"
+    | none => throw <| IO.userError s!"'{m}' was taken immediately, so the queue is left untested"
+
   runHandshake clientSess serverSess
 
-  -- The handshake is complete, so every write is taken immediately and the pending-write queue
-  -- stays empty; this covers ordering alone, not the queue.
-  let msgs := #["first".toUTF8, "second".toUTF8, "third".toUTF8]
-  for m in msgs do
-    discard <| clientSess.write m
-    pipeEncrypted clientSess serverSess
+  -- The empty write flushes the whole queue; the peer must see one stream in the original order.
+  unless (← clientSess.write ByteArray.empty).isNone do
+    throw <| IO.userError "the queued plaintext did not flush after the handshake"
+  pipeEncrypted clientSess serverSess
 
-  let mut received : Array String := #[]
+  let expected := String.join msgs.toList
+  let mut received := ""
   for _ in msgs do
-    let r ← serverSess.read? 1024
-    match r with
-    | .data b => received := received.push (String.fromUTF8! b)
-    | _       => throw <| IO.userError "expected data in pending write order test"
+    if received.length < expected.length then
+      match ← serverSess.read? 1024 with
+      | .data b => received := received ++ String.fromUTF8! b
+      | _ => throw <| IO.userError s!"expected more queued plaintext, got '{received}'"
 
-  for i in List.range msgs.size do
-    let expected := String.fromUTF8! msgs[i]!
-    unless received[i]! == expected do
-      throw <| IO.userError s!"write order mismatch at {i}: expected '{expected}', got '{received[i]!}'"
+  unless received == expected do
+    throw <| IO.userError s!"write order mismatch: expected '{expected}', got '{received}'"
 
 -- ---------------------------------------------------------------------------
 -- Test: verifyResultString returns a non-empty string after handshake.
@@ -1282,6 +1290,31 @@ def errorOf (act : IO α) : IO (Option String) := do
   match ← c.read? 1024 with
   | .data bytes => assertEqStr (String.fromUTF8! bytes) "peer-record"
   | _ => throw <| IO.userError "the peer's records were lost by a refused write"
+
+-- A `write` refused after our own `close_notify` was never accepted, so there is no plaintext to
+-- lose and the teardown that follows is a clean one. `write` queues the payload before offering it
+-- to `SSL_write`, and the refusal leaves it there, so a session that reports the loss is reporting
+-- bytes it declined to take -- out of the `closeNotify` a teardown path runs unconditionally.
+#eval do
+  let (certFile, keyFile) ← setupTestCerts
+  let serverCtx ← Context.Server.mk certFile keyFile
+  let clientCtx ← Context.Client.mk "" false
+  let s ← Session.Server.mk serverCtx
+  let c ← Session.Client.mk clientCtx
+  runHandshake c.toSession s.toSession
+
+  discard <| c.closeNotify
+
+  match ← errorOf (c.write "refused".toUTF8) with
+  | none => throw <| IO.userError "a write after our own close_notify was accepted"
+  | some msg =>
+    unless (msg.splitOn "already shut down").length > 1 do
+      throw <| IO.userError s!"write after close_notify reported the wrong condition: {msg}"
+
+  match ← errorOf c.closeNotify with
+  | none => pure ()
+  | some msg =>
+    throw <| IO.userError s!"closeNotify reported plaintext lost that write had refused: {msg}"
 
 -- `feedEof` fixes the diagnosis of a session that never negotiated, so `closeNotify` and `read?` have
 -- to agree on it whichever runs first. `SSL_shutdown` refuses to run in init and never reads, so the

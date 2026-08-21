@@ -10,8 +10,8 @@ Author: Sofia Rodrigues
 #include "runtime/openssl/context.h"
 #include "runtime/openssl/ssl_error.h"
 
-#include <climits>
 #include <cstring>
+#include <limits>
 #include <memory>
 #include <new>
 
@@ -37,6 +37,10 @@ static void lean_ssl_session_finalizer(void* ptr) {
 void initialize_openssl_session() {
     g_ssl_session_external_class = lean_register_external_class(lean_ssl_session_finalizer, [](void*, lean_object*) {});
 }
+
+// `SSL_write`, `BIO_write` and `BIO_read` all take their length as an `int`, so a `ByteArray` that
+// does not fit has to be refused rather than silently truncated by the cast.
+static constexpr size_t ssl_max_io_bytes = (size_t)std::numeric_limits<int>::max();
 
 // `IOWant` is an enum inductive, so it is an unboxed `uint8_t` (`read` = 0, `write` = 1). How it is
 // stored depends on the constructor holding it, and the two wrappers below differ:
@@ -66,15 +70,17 @@ static lean_obj_res mk_read_result_closed() {
     return lean_io_result_mk_ok(lean_box(2));
 }
 
+static unsigned iowant_of(int ssl_err) { return ssl_err == SSL_ERROR_WANT_READ ? 0 : 1; }
+
 static lean_obj_res mk_option_iowant(int ssl_err) {
     lean_object* r = lean_alloc_ctor(1, 1, 0);
-    lean_ctor_set(r, 0, lean_box(ssl_err == SSL_ERROR_WANT_READ ? 0 : 1));
+    lean_ctor_set(r, 0, lean_box(iowant_of(ssl_err)));
     return lean_io_result_mk_ok(r);
 }
 
 static lean_obj_res mk_read_result_want(int ssl_err) {
     lean_object* r = lean_alloc_ctor(1, 0, 1);
-    lean_ctor_set_uint8(r, 0, ssl_err == SSL_ERROR_WANT_READ ? 0 : 1);
+    lean_ctor_set_uint8(r, 0, (uint8_t)iowant_of(ssl_err));
     return lean_io_result_mk_ok(r);
 }
 
@@ -109,12 +115,18 @@ static void ssl_session_info_callback(const SSL* ssl, int where, int) {
 enum class ssl_write_step { completed, blocked, failed };
 enum class ssl_session_role { server, client };
 
-// Bounds `pending + data` while the queue is still blocked.
+// `err` is the `SSL_get_error` code behind a `blocked` or `failed` step, and 0 otherwise.
+struct ssl_write_result {
+    ssl_write_step step;
+    int err;
+};
+
+// Bounds the backlog `write` may add to once the queue is non-empty.
 static constexpr size_t ssl_max_pending_write_bytes = 1 << 20;
 
 // Copies plaintext OpenSSL would not take yet so it can be retried once the socket I/O it is
 // waiting on completes.
-static bool ssl_enqueue_pending_write(lean_ssl_session_object* obj, const char* data, size_t size) {
+static bool ssl_enqueue_pending_write(lean_ssl_session_object* obj, const uint8_t* data, size_t size) {
     try {
         obj->pending_writes.emplace_back(data, data + size);
     } catch (std::bad_alloc&) {
@@ -128,41 +140,40 @@ static bool ssl_enqueue_pending_write(lean_ssl_session_object* obj, const char* 
 // `size` must fit in an `int`; `lean_ssl_write` rejects oversized payloads before they can reach
 // this function or the pending queue. `SSL_MODE_ENABLE_PARTIAL_WRITE` is not set, so a positive
 // return means the whole chunk was taken.
-static ssl_write_step try_ssl_write(lean_ssl_session_object* obj, const char* data, size_t size, int* out_err) {
+static ssl_write_result try_ssl_write(lean_ssl_session_object* obj, const uint8_t* data, size_t size) {
     if (size == 0) {
-        return ssl_write_step::completed;
+        return {ssl_write_step::completed, 0};
     }
 
     ERR_clear_error();
     int rc = SSL_write(obj->ssl, data, (int)size);
     if (rc > 0) {
-        return ssl_write_step::completed;
+        return {ssl_write_step::completed, 0};
     }
 
     int err = SSL_get_error(obj->ssl, rc);
-    *out_err = err;
 
     if (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) {
-        return ssl_write_step::blocked;
+        return {ssl_write_step::blocked, err};
     }
 
-    return ssl_write_step::failed;
+    return {ssl_write_step::failed, err};
 }
 
-static ssl_write_step try_flush_pending_writes(lean_ssl_session_object* obj, int* out_err) {
+static ssl_write_result try_flush_pending_writes(lean_ssl_session_object* obj) {
     while (!obj->pending_writes.empty()) {
         auto& pw = obj->pending_writes.front();
-        ssl_write_step step = try_ssl_write(obj, pw.data(), pw.size(), out_err);
+        ssl_write_result written = try_ssl_write(obj, pw.data(), pw.size());
 
-        if (step != ssl_write_step::completed) {
-            return step;
+        if (written.step != ssl_write_step::completed) {
+            return written;
         }
 
         obj->pending_bytes -= pw.size();
         obj->pending_writes.pop_front();
     }
 
-    return ssl_write_step::completed;
+    return {ssl_write_step::completed, 0};
 }
 
 static lean_obj_res mk_flush_error(lean_ssl_session_object* obj, int err) {
@@ -173,13 +184,12 @@ static lean_obj_res mk_flush_error(lean_ssl_session_object* obj, int err) {
 // caller is told about the socket I/O that is actually outstanding. A failed flush is raised here
 // rather than deferred to the next `write`.
 static lean_obj_res flush_and_return_want(lean_ssl_session_object* obj, int base_want) {
-    int flush_err = 0;
-    ssl_write_step flushed = try_flush_pending_writes(obj, &flush_err);
-    if (flushed == ssl_write_step::failed) {
-        return mk_flush_error(obj, flush_err);
+    ssl_write_result flushed = try_flush_pending_writes(obj);
+    if (flushed.step == ssl_write_step::failed) {
+        return mk_flush_error(obj, flushed.err);
     }
 
-    return mk_read_result_want(flushed == ssl_write_step::blocked ? flush_err : base_want);
+    return mk_read_result_want(flushed.step == ssl_write_step::blocked ? flushed.err : base_want);
 }
 
 // RAII structs.
@@ -384,64 +394,45 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_write(b_obj_arg ssl, b_obj_arg data
     }
 
     size_t data_len = lean_sarray_size(data);
-    const char* payload = (const char*)lean_sarray_cptr(data);
+    const uint8_t* payload = (const uint8_t*)lean_sarray_cptr(data);
 
-    if (data_len > INT_MAX) {
+    if (data_len > ssl_max_io_bytes) {
         return mk_ssl_invalid_argument("the data to write is too large");
     }
 
-    // The queue is flushed ahead of `data` so writes reach the peer in the order they were made.
-    if (!ssl_obj->pending_writes.empty()) {
-        int flush_err = 0;
-        ssl_write_step flushed = try_flush_pending_writes(ssl_obj, &flush_err);
+    if (data_len > 0) {
+        if (!ssl_obj->pending_writes.empty()) {
+            size_t room = ssl_obj->pending_bytes < ssl_max_pending_write_bytes
+                ? ssl_max_pending_write_bytes - ssl_obj->pending_bytes
+                : 0;
 
-        if (flushed == ssl_write_step::failed) {
-            return mk_flush_error(ssl_obj, flush_err);
-        }
-
-        if (flushed == ssl_write_step::blocked) {
-            if (data_len > 0) {
-                size_t room = ssl_obj->pending_bytes < ssl_max_pending_write_bytes
-                    ? ssl_max_pending_write_bytes - ssl_obj->pending_bytes
-                    : 0;
-
-                if (data_len > room) {
-                    return mk_ssl_write_queue_full();
-                }
-
-                if (!ssl_enqueue_pending_write(ssl_obj, payload, data_len)) {
-                    return mk_ssl_enqueue_rejected();
-                }
+            if (data_len > room) {
+                return mk_ssl_write_queue_full();
             }
-
-            return mk_option_iowant(flush_err);
         }
-    }
 
-    if (data_len == 0) {
-        return mk_option_iowant_none();
-    }
-
-    int err = 0;
-    ssl_write_step step = try_ssl_write(ssl_obj, payload, data_len, &err);
-
-    if (step == ssl_write_step::completed) {
-        return mk_option_iowant_none();
-    }
-
-    // Queue plaintext so it is retried after the required socket I/O completes. `SSL_write` did not
-    // accept it — a blocked write returns without consuming anything — but it does require the same
-    // bytes and length back on the retry, so the payload has to be replayed verbatim and cannot be
-    // refused for its size; the bound above is what stops the queue growing from here.
-    if (step == ssl_write_step::blocked) {
+        // OpenSSL has not seen this plaintext, so refusing it leaves the session usable.
         if (!ssl_enqueue_pending_write(ssl_obj, payload, data_len)) {
-            return mk_ssl_enqueue_failed(&ssl_obj->err);
+            return mk_ssl_enqueue_rejected();
         }
-
-        return mk_option_iowant(err);
     }
 
-    return mk_ssl_error(ssl_obj->ssl, &ssl_obj->err, err, "could not send data over the TLS session");
+    ssl_write_result flushed = try_flush_pending_writes(ssl_obj);
+
+    if (flushed.step == ssl_write_step::blocked) {
+        return mk_option_iowant(flushed.err);
+    }
+
+    if (flushed.step == ssl_write_step::failed) {
+        if (data_len > 0 && !ssl_obj->pending_writes.empty()) {
+            ssl_obj->pending_bytes -= ssl_obj->pending_writes.back().size();
+            ssl_obj->pending_writes.pop_back();
+        }
+
+        return mk_ssl_error(ssl_obj->ssl, &ssl_obj->err, flushed.err, "could not send data over the TLS session");
+    }
+
+    return mk_option_iowant_none();
 }
 
 /* Std.Internal.SSL.Session.read? (ssl : @& Session) (maxBytes : UInt64) : IO ReadResult */
@@ -499,7 +490,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_feed_encrypted(b_obj_arg ssl, b_obj
         return lean_io_result_mk_ok(lean_box_uint64(0));
     }
 
-    if (data_len > INT_MAX) {
+    if (data_len > ssl_max_io_bytes) {
         return mk_ssl_invalid_argument("the encrypted data to feed is too large");
     }
 
@@ -542,7 +533,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_drain_encrypted(b_obj_arg ssl) {
         return lean_io_result_mk_ok(lean_mk_empty_byte_array(lean_box(0)));
     }
 
-    if (pending > INT_MAX) {
+    if (pending > ssl_max_io_bytes) {
         return mk_openssl_io_error("BIO_pending output too large");
     }
 
@@ -579,6 +570,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_pending_plaintext(b_obj_arg ssl) {
     int pending = SSL_pending(ssl_obj->ssl);
     return lean_io_result_mk_ok(lean_box_uint64(pending > 0 ? (uint64_t)pending : 0));
 }
+
+static bool peer_closed(SSL* ssl) { return (SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) != 0; }
 
 // Records the failure the teardown has just hit and answers with what the shutdown can still
 // report.
@@ -665,17 +658,16 @@ static lean_obj_res close_notify_flush(lean_ssl_session_object* obj) {
         return nullptr;
     }
 
-    int flush_err = 0;
-    ssl_write_step flushed = try_flush_pending_writes(obj, &flush_err);
+    ssl_write_result flushed = try_flush_pending_writes(obj);
 
     // The flush is the last chance to deliver this plaintext, so its failure is the loss the
     // teardown has to hear about rather than a second, separate diagnosis.
-    if (flushed == ssl_write_step::failed) {
+    if (flushed.step == ssl_write_step::failed) {
         return finish_nothing_to_close(obj);
     }
 
-    if (flushed == ssl_write_step::blocked) {
-        return mk_option_iowant(flush_err);
+    if (flushed.step == ssl_write_step::blocked) {
+        return mk_option_iowant(flushed.err);
     }
 
     return nullptr;
@@ -701,7 +693,7 @@ static lean_obj_res close_notify_finish_init(lean_ssl_session_object* obj) {
     // The peek may have taken in the peer's `close_notify` itself: the message can no longer be
     // finished and the alert can no longer go out, so there is nothing left to exchange rather than
     // input to wait for.
-    if ((SSL_get_shutdown(obj->ssl) & SSL_RECEIVED_SHUTDOWN) != 0) {
+    if (peer_closed(obj->ssl)) {
         return report_nothing_to_close(obj);
     }
 
@@ -726,7 +718,7 @@ static lean_obj_res close_notify_await_peer(lean_ssl_session_object* obj) {
         return mk_option_iowant_none();
     }
 
-    if ((SSL_get_shutdown(obj->ssl) & SSL_RECEIVED_SHUTDOWN) != 0) {
+    if (peer_closed(obj->ssl)) {
         return mk_option_iowant_none();
     }
 
@@ -749,7 +741,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_close_notify(b_obj_arg ssl) {
         return report_nothing_to_close(obj);
     }
 
-    if (obj->negotiated && SSL_in_init(s) && (SSL_get_shutdown(s) & SSL_RECEIVED_SHUTDOWN) != 0) {
+    if (obj->negotiated && SSL_in_init(s) && peer_closed(s)) {
         return report_nothing_to_close(obj);
     }
 
@@ -767,7 +759,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_close_notify(b_obj_arg ssl) {
         }
     }
 
-    if ((SSL_get_shutdown(s) & SSL_RECEIVED_SHUTDOWN) != 0) {
+    if (peer_closed(s)) {
         return mk_option_iowant_none();
     }
 

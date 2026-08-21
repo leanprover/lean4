@@ -296,13 +296,6 @@ lean_obj_res mk_ssl_enqueue_rejected() {
         mk_string("could not buffer the plaintext to send over the TLS session")));
 }
 
-lean_obj_res mk_ssl_enqueue_failed(ssl_error_state* st) {
-    ERR_clear_error();
-    st->failed = true;
-    return lean_io_result_mk_error(lean_mk_io_error_resource_exhausted(ENOMEM,
-        mk_string("could not buffer the plaintext the TLS session asked to be resent")));
-}
-
 #endif
 
 }

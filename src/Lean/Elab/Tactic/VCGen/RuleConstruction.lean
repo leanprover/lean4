@@ -303,32 +303,6 @@ private def eqSpecToWp? (info : WPApp) (eqPrf eqType : Expr) :
   return (specProof, ← instantiateMVars (← Meta.inferType specProof))
 
 /--
-Decide whether the goal's `WP` instance `instWP` matches the spec's `instWP'`, assigning the spec's
-metavariables inside `instWP'` on success.
-
-The plain `isDefEq` handles the common case where both sides spell the instance the same way, e.g.
-both through the blanket `WPMonad.toWP` route; head congruence then assigns the spec's `WPMonad`
-metavariable. When the spellings differ (say, the goal carries a registered bespoke `WP` instance
-while the spec was stated through the blanket route), the heads mismatch and no reducibility
-setting can close the gap while the spec's `WPMonad` is still a metavariable. In that case, pin
-the spec's instance type against the goal's, synthesize the spec's outstanding instance parameters
-(`xs`/`bs` are the spec's telescope), and compare the two now-concrete spellings at instance
-transparency, the level at which `instance`-command definitions unfold.
--/
-private def isDefEqInstWP (instWP instWP' : Expr) (xs : Array Expr) (bs : Array BinderInfo) :
-    MetaM Bool := do
-  if ← isDefEqGuarded instWP instWP' then return true
-  unless ← isDefEqGuarded (← Meta.inferType instWP') (← Meta.inferType instWP) do return false
-  for x in xs, b in bs do
-    if b == .instImplicit && !(← x.mvarId!.isAssigned) then
-      let ty ← instantiateMVars (← Meta.inferType x)
-      unless ty.hasExprMVar do
-        if let .some val ← trySynthInstance ty then
-          discard <| isDefEqGuarded x val
-  let instWP' ← instantiateMVars instWP'
-  withTransparency .instances <| isDefEqGuarded instWP instWP'
-
-/--
 Try to build a backward rule from a single spec theorem.
 
 For a spec already in `⊑ wp` form (`pre ⊑ wp prog post epost`, where the lattice type is
@@ -342,14 +316,14 @@ canonical, re-synthesized form as the internalized goals the rule is applied to;
 in `VCGen.Driver`.
 
 - `info.Pred`: the goal's lattice type (e.g. `Nat → Prop`)
-- `info.instWP`: the `WPMonad` instance for the goal monad
+- `info.instWP`: the `WP` instance of the goal's `wp` application
 - `info.excessArgs`: free variables representing state args from
   `info.Pred = σ1 → ... → σn → Prop`
 -/
 public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
     (stateArgNames : Array Name := #[]) : OptionT SymM BackwardRule := do
   -- Instantiate the spec theorem, creating metavars for all universally quantified params
-  let (xs, bs, specProof, specType) ← specThm.instantiate
+  let (_xs, _bs, specProof, specType) ← specThm.instantiate
   -- Equality specs (the simp side of `@[spec]`) are normalized to `⊑ wp` form, then handled like
   -- any ordinary `⊑ wp` spec.
   let (specProof, specType) ←
@@ -360,7 +334,7 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
   guard <| ← isDefEqGuarded info.Pred Pred'
   let_expr Std.WP.wp _Prog' _Value' _Pred' _EPred' _instAL' _instEAL' instWP' prog postSpec epostSpec := rhs
     | throwError "target not a wp application {rhs}"
-  guard <| ← isDefEqInstWP info.instWP instWP' xs bs
+  guard <| ← withDefault <| isDefEqGuarded info.instWP instWP'
   -- Use local excess-state binders so explicit post premises can be re-lifted to `⊑`.
   -- Name them positionally from `stateArgNames` (else `s`) so the rule's binders carry good names.
   let mut ss := #[]

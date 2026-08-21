@@ -192,7 +192,7 @@ private def toCtorWhenStructure (recVal : RecursorVal) (major : Expr): MetaM Exp
       return major
     match majorType.getAppFn with
     | Expr.const d us =>
-      if !recVal.hasSortPolyMotive then
+      if recVal.levelParams.length == us.length then
         return major -- We do not perform eta for non-singleton propositions, see implementation in the kernel
       else
         let some ctorName ← getFirstCtor d | pure major

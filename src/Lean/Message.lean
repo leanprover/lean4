@@ -390,7 +390,7 @@ where
 Maximum number of trace node children to display by default to prevent slowdowns from rendering. In
 the info view, more children can be expanded interactively.
 -/
-register_option maxTraceChildren : Nat := {
+register_builtin_option maxTraceChildren : Nat := {
   defValue := 50
   descr := "Maximum number of trace node children to display"
 }

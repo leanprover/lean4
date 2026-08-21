@@ -528,6 +528,7 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
       (skipInstances := !cfg.instances)
       (pre := pre)
       (post := post)
+      (postApp := fixResynthInstancesD)
 
 def visitFn (e : Expr) : SimpM Result := do
   let f := e.getAppFn
@@ -680,6 +681,9 @@ def simpApp (e : Expr) : SimpM Result := do
     return { expr := e }
   else
     let r ← congr e
+    -- All argument-wise rebuilds (`simpAppUsingCongr`, `congrArgs`, `tryAutoCongrTheorem?`)
+    -- flow through here, so one fix-up covers them.
+    let r ← fixResynthInstances e r
     -- Check here rather than once per simplified subterm: congruence is what leaves an instance
     -- argument behind, and a `post` rewrite may well repair the result before it is cached.
     if (← get).checkInstanceArgs && r.expr != e then

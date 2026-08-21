@@ -6,7 +6,6 @@ Authors: Sebastian Graf, Vladimir Gladshtein
 module
 
 prelude
-public import Lean.Elab.Tactic.Do.VCGen.SuggestInvariant
 public import Lean.Elab.Tactic.Do.VCGen
 public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.Driver
@@ -243,17 +242,19 @@ to alt syntax. Bullet form `· $rhs` is positional (1-based: bullet at index `i`
 maps to key `i+1`); labelled form `| inv<n> $args* => $rhs` is keyed by the
 parsed `n`, so out-of-order labels are supported.
 
-Returns `none` for the `invariants?` form (delegated to upstream `elabInvariants`)
-and `none` when no `invariants` clause is provided. Errors on mixed bullet/labelled
-forms (one or the other is enforced by the `dotOrCase` flag in the upstream
+The `invariants?` form warns that suggestions are not available in `vcgen` and parses its
+alternatives like `invariants`. Returns `none` when no `invariants` clause is provided. Errors on
+mixed bullet/labelled forms (one or the other is enforced by the `dotOrCase` flag in the upstream
 elaborator; we replicate that check here).
 -/
 private def parseInvariantMap (stx : Syntax) :
     TermElabM (Option (Std.HashMap Nat Syntax)) := do
   let some altsStx := stx.getOptional? | return none
-  -- The `invariants?` (suggest) form is handled separately by upstream's `elabInvariants`.
   match altsStx with
-  | `(invariantAlts| invariants? $_*) => return none
+  | `(invariantAlts| invariants? $_*) =>
+    logWarningAt altsStx[0] "Invariant suggestions have not been ported from `mvcgen` and the \
+      feature is slated for removal. If you found the old feature useful, send Sebastian Graf a \
+      message."
   | _ => pure ()
   let stx' : TSyntax ``invariantAlts := ⟨altsStx⟩
   match stx' with
@@ -430,9 +431,6 @@ def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
     return result
   if let some frameStx := result.unmatchedFrames[0]? then
     throwErrorAt frameStx "`frames` alternative matched no program in the goal"
-  if args.invariantAlts?.isNone then
-    runTacticM (goals := result.invariants.toList) <|
-      elabInvariants stx[5] result.invariants (suggestInvariant (result.vcs.map (·.mvarId)))
   let invariants ← result.invariants.filterM (not <$> ·.isAssigned)
   let newGoals ← Lean.Elab.Tactic.Grind.liftGrindM do
     let invGoals ← invariants.toList.mapM Grind.mkGoalCore

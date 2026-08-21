@@ -25,6 +25,9 @@ example (s : S) (a b idx : Nat) (h1 : idx < s.decls.size)
   sorry
 
 set_option linter.tacticCheckInstances true
+-- The cases below exercise the linter on stale instance arguments; disable the resynth guard so
+-- the stale terms are actually produced.
+set_option dsimp.resynthInstances false
 
 /--
 @ +4:2...17

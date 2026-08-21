@@ -21,6 +21,22 @@ register_builtin_option backward.dsimp.instances : Bool := {
     descr    := "Let `dsimp` and `simp` simplify instance terms"
   }
 
+/--
+After a definitional rewrite of an argument, check the instance arguments whose types depend on
+it at `.instances` transparency; adopt a resynthesized instance when one exists and is defeq at
+`.implicit`, and refuse the rewrite otherwise. See `Simp.resynthInstanceArgs`.
+-/
+register_builtin_option dsimp.resynthInstances : Bool := {
+    defValue := true
+    descr    := "check instance arguments after definitional rewrites of the arguments they \
+      depend on; adopt a resynthesized instance when possible, refuse the rewrite otherwise"
+  }
+
+register_builtin_option dsimp.resynthInstances.warning : Bool := {
+    defValue := true
+    descr    := "warn when `dsimp.resynthInstances` refuses a rewrite"
+  }
+
 /-- The result of simplifying some expression `e`. -/
 structure Result where
   /-- The simplified version of `e` -/
@@ -76,6 +92,8 @@ structure Context where
   maxDischargeDepth : UInt32 := UInt32.ofNatClamp config.maxDischargeDepth
   simpTheorems      : SimpTheoremsArray := {}
   congrTheorems     : SimpCongrTheorems := {}
+  /-- See `dsimp.resynthInstances`. Set by `mkContext`. -/
+  resynthInstances  : Bool := false
   /--
   Stores the "parent" term for the term being simplified.
   If a simplification procedure result depends on this value,
@@ -180,6 +198,7 @@ def mkContext (config : Config := {}) (simpTheorems : SimpTheoremsArray := {}) (
     config, userConfig, simpTheorems, congrTheorems
     metaConfig := (← mkMetaConfig config)
     indexConfig := (← mkIndexConfig config)
+    resynthInstances := dsimp.resynthInstances.get (← getOptions)
   }
 
 def Context.setConfig (context : Context) (config : Config) : MetaM Context := do
@@ -258,8 +277,13 @@ structure State where
   again once a mismatch has been reported: the linter reports at most one per command.
   -/
   checkInstanceArgs : Bool := false
-  /-- Theorem applied by the most recent rewrite; only tracked while `checkInstanceArgs` is set. -/
+  /--
+  Theorem applied by the most recent rewrite; only tracked while `checkInstanceArgs` or
+  `Context.resynthInstances` is set.
+  -/
   lastThm?     : Option Origin := none
+  /-- Whether `resynthInstanceArgs` already warned about a refused rewrite in this run. -/
+  resynthWarned : Bool := false
 
 structure Stats where
   usedTheorems : UsedSimps := {}
@@ -316,8 +340,10 @@ opaque dsimp (e : Expr) : SimpM Expr
 
 @[inline] def modifyDiag (f : Diagnostics → Diagnostics) : SimpM Unit := do
   if (← isDiagnosticsEnabled) then
-    modify fun { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag, checkInstanceArgs, lastThm? } =>
-      { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag := f diag, checkInstanceArgs, lastThm? }
+    modify fun { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag, checkInstanceArgs,
+                 lastThm?, resynthWarned } =>
+      { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag := f diag, checkInstanceArgs,
+        lastThm?, resynthWarned }
 
 /--
 Result type for a simplification procedure. We have `pre` and `post` simplification procedures.
@@ -533,7 +559,7 @@ def recordTriedSimpTheorem (thmId : Origin) : SimpM Unit := do
     { s with triedThmCounter := s.triedThmCounter.insert thmId cNew }
 
 def recordSimpTheorem (thmId : Origin) : SimpM Unit := do
-  if (← get).checkInstanceArgs then
+  if (← get).checkInstanceArgs || (← readThe Simp.Context).resynthInstances then
     modify fun s => { s with lastThm? := some thmId }
   modifyDiag fun s =>
     let cNew := if let some c := s.usedThmCounter.find? thmId then c + 1 else 1
@@ -652,6 +678,137 @@ where
       elimDummyEqRec e.appFn!.appFn!.appArg!
     else
       e
+
+/-- The binder domain of the `j`-th argument of `fType`, instantiated with `args[0..j-1]`. -/
+private def instantiatedBinderDomain? (fType : Expr) (args : Array Expr) (j : Nat) :
+    SimpM (Option Expr) := do
+  let mut t := fType
+  for i in [0:j] do
+    t ← whnfD t
+    let .forallE _ _ b _ := t | return none
+    t := b.instantiate1 args[i]!
+  t ← whnfD t
+  let .forallE _ d _ _ := t | return none
+  return some d
+
+/--
+Check the instance arguments of `f` after its arguments changed from `origArgs` to `args0`.
+An instance argument whose type depends on a changed argument is checked against its new binder
+domain at `.instances` transparency. On a mismatch, synthesize an instance of the new domain and
+adopt it if it is defeq to the old instance at `.implicit` transparency; otherwise revert the
+changed arguments the instance depends on, i.e. refuse those rewrites.
+
+The arguments an instance depends on are only ever changed definitionally (they have forward
+dependencies, so `simp` cannot rewrite them with a proof), which makes both adoption and
+reversion transparent to an already-built `Result.proof?`. `e` is the original application, used
+for messages. See `dsimp.resynthInstances`.
+-/
+def resynthInstanceArgs (e f : Expr) (origArgs args0 : Array Expr) : SimpM (Array Expr) := do
+  let infos := (← getFunInfoNArgs f args0.size).paramInfo
+  let n := min (min infos.size args0.size) origArgs.size
+  let mut relevant := false
+  for j in [0:n] do
+    if infos[j]!.isInstance && infos[j]!.backDeps.any (fun i => i < n && args0[i]! != origArgs[i]!) then
+      relevant := true
+      break
+  unless relevant do return args0
+  let fType ← inferType f
+  let mut args := args0
+  let mut rounds := 0
+  repeat
+    rounds := rounds + 1
+    if rounds > n + 1 then break
+    let mut dirty := false
+    for j in [0:n] do
+      let info := infos[j]!
+      unless info.isInstance do continue
+      unless info.backDeps.any (fun i => i < n && args[i]! != origArgs[i]!) do continue
+      let some expected ← instantiatedBinderDomain? fType args j | continue
+      let instOld := args[j]!
+      let actual ← inferType instOld
+      if ← withNewMCtxDepth <| withReducibleAndInstances <| isDefEqGuarded actual expected then
+        continue
+      let adopt? : Option Expr ← withNewMCtxDepth do
+        let inst'? ← try
+            match ← trySynthInstance expected with
+            | .some v => pure (some v)
+            | _ => pure none
+          catch _ => pure none
+        match inst'? with
+        | some inst' =>
+          if ← withTransparency .implicit <| isDefEqGuarded instOld inst' then
+            pure (some inst')
+          else
+            pure none
+        | none => pure none
+      match adopt? with
+      | some inst' =>
+        if inst' != instOld then
+          trace[Meta.Tactic.simp.resynthInstances] "adopted resynthesized instance \
+            in{indentExpr e}\nold instance{indentExpr instOld}\nnew instance{indentExpr inst'}"
+          args := args.set! j inst'
+          dirty := true
+      | none =>
+        -- Refuse: revert the changed arguments this instance depends on, and reset instance
+        -- arguments that depend on the reverted positions.
+        let mut reverted : Array Nat := #[]
+        for i in info.backDeps do
+          if i < n && args[i]! != origArgs[i]! then
+            -- Guard: reverting is only sound for definitional changes.
+            if ← withNewMCtxDepth <| withDefault <| isDefEqGuarded args[i]! origArgs[i]! then
+              args := args.set! i origArgs[i]!
+              reverted := reverted.push i
+        unless reverted.isEmpty do
+          for k in [0:n] do
+            if infos[k]!.isInstance && infos[k]!.backDeps.any reverted.contains
+                && args[k]! != origArgs[k]! then
+              if ← withNewMCtxDepth <| withDefault <| isDefEqGuarded args[k]! origArgs[k]! then
+                args := args.set! k origArgs[k]!
+          dirty := true
+          trace[Meta.Tactic.simp.resynthInstances] "refused rewrite in{indentExpr e}\n\
+            instance argument{indentExpr instOld}\nhas type{indentExpr actual}\n\
+            but is expected to have type{indentExpr expected}"
+          unless (← get).resynthWarned do
+            modify fun s => { s with resynthWarned := true }
+            if dsimp.resynthInstances.warning.get (← getOptions) then
+              let cause ← match (← get).lastThm? with
+                | some thm => do pure m!"A rewrite with {← ppOrigin thm}"
+                | none     => pure m!"A rewrite"
+              logWarning <| m!"{cause} changed an argument of{indentExpr e}\n\
+                The instance argument{indentExpr instOld}\nthen does not have the expected \
+                type at `.instances` transparency, and no usable replacement instance was \
+                found. The rewrite was not applied here." ++
+                .note m!"Disable this warning with `set_option \
+                  dsimp.resynthInstances.warning false`, or the whole check with `set_option \
+                  dsimp.resynthInstances false`."
+    unless dirty do break
+  return args
+
+/--
+Apply `resynthInstanceArgs` to the result of simplifying the application `e`. The reverted or
+adopted arguments are defeq to the ones they replace, so `r.proof?` remains valid.
+-/
+def fixResynthInstances (e : Expr) (r : Result) : SimpM Result := do
+  unless (← readThe Simp.Context).resynthInstances do return r
+  let eNew := r.expr
+  unless e.isApp && eNew.isApp && eNew.getAppNumArgs == e.getAppNumArgs do return r
+  let origArgs := e.getAppArgs
+  let newArgs := eNew.getAppArgs
+  if origArgs == newArgs then return r
+  let fixed ← resynthInstanceArgs e eNew.getAppFn origArgs newArgs
+  if fixed == newArgs then return r
+  return { r with expr := mkAppN eNew.getAppFn fixed }
+
+/-- `fixResynthInstances` for `dsimp`'s application rebuild. -/
+def fixResynthInstancesD (orig new : Expr) : SimpM Expr := do
+  unless (← readThe Simp.Context).resynthInstances do return new
+  unless orig.isApp && new.isApp && new.getAppNumArgs == orig.getAppNumArgs do return new
+  let origArgs := orig.getAppArgs
+  let newArgs := new.getAppArgs
+  if origArgs == newArgs then return new
+  let fixed ← resynthInstanceArgs orig new.getAppFn origArgs newArgs
+  if fixed == newArgs then return new
+  return mkAppN new.getAppFn fixed
 
 /--
 Given a simplified function result `r` and arguments `args`, simplify arguments using `simp` and `dsimp`.

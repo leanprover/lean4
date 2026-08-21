@@ -377,7 +377,7 @@ goto v_resetjp_68_;
 v_resetjp_68_:
 {
 lean_object* v_registeredJobs_71_; lean_object* v___x_72_; lean_object* v___x_73_; lean_object* v___x_74_; uint8_t v___x_75_; lean_object* v_job_77_; 
-v_registeredJobs_71_ = lean_ctor_get(v_a_47_, 3);
+v_registeredJobs_71_ = lean_ctor_get(v_a_47_, 4);
 v___x_72_ = lean_st_ref_take(v_registeredJobs_71_);
 v___x_73_ = ((lean_object*)(l___private_Lake_Build_ExternLib_0__Lake_ExternLib_recBuildStatic___closed__1));
 v___x_74_ = lean_string_append(v___x_57_, v___x_73_);
@@ -1296,7 +1296,7 @@ goto v_resetjp_443_;
 v_resetjp_443_:
 {
 lean_object* v_registeredJobs_446_; lean_object* v___x_447_; lean_object* v___x_448_; lean_object* v___x_449_; uint8_t v___x_450_; lean_object* v___x_451_; lean_object* v___x_452_; lean_object* v___x_453_; uint8_t v___x_454_; lean_object* v_job_456_; 
-v_registeredJobs_446_ = lean_ctor_get(v_a_422_, 3);
+v_registeredJobs_446_ = lean_ctor_get(v_a_422_, 4);
 v___x_447_ = lean_st_ref_take(v_registeredJobs_446_);
 v___x_448_ = ((lean_object*)(l___private_Lake_Build_ExternLib_0__Lake_ExternLib_recBuildStatic___closed__0));
 v___x_449_ = l_Lean_Name_str___override(v_name_426_, v___x_448_);
@@ -1850,7 +1850,7 @@ goto v_resetjp_660_;
 v_resetjp_660_:
 {
 lean_object* v_registeredJobs_663_; lean_object* v___x_664_; lean_object* v___x_665_; lean_object* v___x_666_; uint8_t v___x_667_; lean_object* v___x_668_; lean_object* v___x_669_; lean_object* v___x_670_; uint8_t v___x_671_; lean_object* v_job_673_; 
-v_registeredJobs_663_ = lean_ctor_get(v_a_640_, 3);
+v_registeredJobs_663_ = lean_ctor_get(v_a_640_, 4);
 v___x_664_ = lean_st_ref_take(v_registeredJobs_663_);
 v___x_665_ = ((lean_object*)(l___private_Lake_Build_ExternLib_0__Lake_ExternLib_recBuildStatic___closed__0));
 v___x_666_ = l_Lean_Name_str___override(v_name_644_, v___x_665_);

@@ -1654,9 +1654,9 @@ v___x_570_ = l_Lean_diagnostics;
 v___x_571_ = l_Lean_Option_get___at___00Lean_Compiler_compile_spec__2(v___x_492_, v___x_570_);
 v___x_622_ = l_Lean_Kernel_isDiagnosticsEnabled(v_env_489_);
 lean_dec_ref(v_env_489_);
-if (v___x_622_ == 0)
-{
 if (v___x_571_ == 0)
+{
+if (v___x_622_ == 0)
 {
 v_fileName_573_ = v_fileName_472_;
 v_fileMap_574_ = v_fileMap_473_;
@@ -1676,13 +1676,13 @@ goto v___jp_572_;
 }
 else
 {
-v___y_601_ = v___x_622_;
+v___y_601_ = v___x_571_;
 goto v___jp_600_;
 }
 }
 else
 {
-v___y_601_ = v___x_571_;
+v___y_601_ = v___x_622_;
 goto v___jp_600_;
 }
 v___jp_493_:
@@ -2161,9 +2161,9 @@ goto v___jp_572_;
 LEAN_EXPORT lean_object* l_Lean_Compiler_compile___lam__1___boxed(lean_object* v___x_625_, lean_object* v___x_626_, lean_object* v___x_627_, lean_object* v___f_628_, lean_object* v_declNames_629_, lean_object* v___x_630_, lean_object* v___y_631_, lean_object* v___y_632_, lean_object* v___y_633_){
 _start:
 {
-uint8_t v___x_6993__boxed_634_; lean_object* v_res_635_; 
-v___x_6993__boxed_634_ = lean_unbox(v___x_626_);
-v_res_635_ = l_Lean_Compiler_compile___lam__1(v___x_625_, v___x_6993__boxed_634_, v___x_627_, v___f_628_, v_declNames_629_, v___x_630_, v___y_631_, v___y_632_);
+uint8_t v___x_6957__boxed_634_; lean_object* v_res_635_; 
+v___x_6957__boxed_634_ = lean_unbox(v___x_626_);
+v_res_635_ = l_Lean_Compiler_compile___lam__1(v___x_625_, v___x_6957__boxed_634_, v___x_627_, v___f_628_, v_declNames_629_, v___x_630_, v___y_631_, v___y_632_);
 lean_dec(v___y_632_);
 return v_res_635_;
 }

@@ -362,9 +362,9 @@ return v___x_88_;
 LEAN_EXPORT lean_object* l_Std_Notify_Consumer_resolve___redArg___lam__0___boxed(lean_object* v___x_90_, lean_object* v___y_91_){
 _start:
 {
-uint8_t v___x_400__boxed_92_; uint8_t v_res_93_; lean_object* v_r_94_; 
-v___x_400__boxed_92_ = lean_unbox(v___x_90_);
-v_res_93_ = l_Std_Notify_Consumer_resolve___redArg___lam__0(v___x_400__boxed_92_);
+uint8_t v___x_406__boxed_92_; uint8_t v_res_93_; lean_object* v_r_94_; 
+v___x_406__boxed_92_ = lean_unbox(v___x_90_);
+v_res_93_ = l_Std_Notify_Consumer_resolve___redArg___lam__0(v___x_406__boxed_92_);
 v_r_94_ = lean_box(v_res_93_);
 return v_r_94_;
 }

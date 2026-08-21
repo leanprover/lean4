@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.WP.Triple.Basic
-// Imports: public import Std.WP.Basic public import Std.WP.ExceptPost
+// Imports: public import Std.WP.Basic public import Std.WP.EStack
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,12 +14,12 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Name_mkStr1(lean_object*);
-lean_object* l_String_toRawSubstring_x27(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
+lean_object* l_String_toRawSubstring_x27(lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
@@ -260,40 +260,40 @@ static const lean_object* l_Std_WP_tripleBinderNotation___closed__7 = (const lea
 static const lean_ctor_object l_Std_WP_tripleBinderNotation___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 3}, .m_objs = {((lean_object*)&l_Std_WP_tripleBinderNotation___closed__1_value),((lean_object*)(((size_t)(60) << 1) | 1)),((lean_object*)&l_Std_WP_tripleBinderNotation___closed__7_value)}};
 static const lean_object* l_Std_WP_tripleBinderNotation___closed__8 = (const lean_object*)&l_Std_WP_tripleBinderNotation___closed__8_value;
 LEAN_EXPORT const lean_object* l_Std_WP_tripleBinderNotation = (const lean_object*)&l_Std_WP_tripleBinderNotation___closed__8_value;
-static const lean_string_object l_Std_WP_tripleEPost___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 12, .m_capacity = 12, .m_length = 11, .m_data = "tripleEPost"};
-static const lean_object* l_Std_WP_tripleEPost___closed__0 = (const lean_object*)&l_Std_WP_tripleEPost___closed__0_value;
-static const lean_ctor_object l_Std_WP_tripleEPost___closed__1_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Std_WP_Triple_Basic_0__Std_WP_hintProgram___closed__9_value),LEAN_SCALAR_PTR_LITERAL(48, 144, 193, 124, 159, 137, 91, 218)}};
-static const lean_ctor_object l_Std_WP_tripleEPost___closed__1_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_WP_tripleEPost___closed__1_value_aux_0),((lean_object*)&l___private_Std_WP_Triple_Basic_0__Std_WP_hintProgram___closed__10_value),LEAN_SCALAR_PTR_LITERAL(193, 201, 27, 53, 82, 85, 158, 17)}};
-static const lean_ctor_object l_Std_WP_tripleEPost___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_WP_tripleEPost___closed__1_value_aux_1),((lean_object*)&l_Std_WP_tripleEPost___closed__0_value),LEAN_SCALAR_PTR_LITERAL(3, 111, 8, 199, 61, 219, 248, 153)}};
-static const lean_object* l_Std_WP_tripleEPost___closed__1 = (const lean_object*)&l_Std_WP_tripleEPost___closed__1_value;
-static const lean_string_object l_Std_WP_tripleEPost___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "; "};
-static const lean_object* l_Std_WP_tripleEPost___closed__2 = (const lean_object*)&l_Std_WP_tripleEPost___closed__2_value;
-static const lean_ctor_object l_Std_WP_tripleEPost___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 5}, .m_objs = {((lean_object*)&l_Std_WP_tripleEPost___closed__2_value)}};
-static const lean_object* l_Std_WP_tripleEPost___closed__3 = (const lean_object*)&l_Std_WP_tripleEPost___closed__3_value;
-static const lean_ctor_object l_Std_WP_tripleEPost___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 2}, .m_objs = {((lean_object*)&l_Std_WP_tripleNotation___closed__3_value),((lean_object*)&l_Std_WP_tripleNotation___closed__35_value),((lean_object*)&l_Std_WP_tripleEPost___closed__3_value)}};
-static const lean_object* l_Std_WP_tripleEPost___closed__4 = (const lean_object*)&l_Std_WP_tripleEPost___closed__4_value;
-static const lean_ctor_object l_Std_WP_tripleEPost___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 2}, .m_objs = {((lean_object*)&l_Std_WP_tripleNotation___closed__3_value),((lean_object*)&l_Std_WP_tripleEPost___closed__4_value),((lean_object*)&l_Std_WP_tripleNotation___closed__8_value)}};
-static const lean_object* l_Std_WP_tripleEPost___closed__5 = (const lean_object*)&l_Std_WP_tripleEPost___closed__5_value;
-static const lean_ctor_object l_Std_WP_tripleEPost___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 2}, .m_objs = {((lean_object*)&l_Std_WP_tripleNotation___closed__3_value),((lean_object*)&l_Std_WP_tripleEPost___closed__5_value),((lean_object*)&l_Std_WP_tripleNotation___closed__37_value)}};
-static const lean_object* l_Std_WP_tripleEPost___closed__6 = (const lean_object*)&l_Std_WP_tripleEPost___closed__6_value;
-static const lean_ctor_object l_Std_WP_tripleEPost___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 3}, .m_objs = {((lean_object*)&l_Std_WP_tripleEPost___closed__1_value),((lean_object*)(((size_t)(60) << 1) | 1)),((lean_object*)&l_Std_WP_tripleEPost___closed__6_value)}};
-static const lean_object* l_Std_WP_tripleEPost___closed__7 = (const lean_object*)&l_Std_WP_tripleEPost___closed__7_value;
-LEAN_EXPORT const lean_object* l_Std_WP_tripleEPost = (const lean_object*)&l_Std_WP_tripleEPost___closed__7_value;
-static const lean_string_object l_Std_WP_tripleBinderEPost___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 18, .m_capacity = 18, .m_length = 17, .m_data = "tripleBinderEPost"};
-static const lean_object* l_Std_WP_tripleBinderEPost___closed__0 = (const lean_object*)&l_Std_WP_tripleBinderEPost___closed__0_value;
-static const lean_ctor_object l_Std_WP_tripleBinderEPost___closed__1_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Std_WP_Triple_Basic_0__Std_WP_hintProgram___closed__9_value),LEAN_SCALAR_PTR_LITERAL(48, 144, 193, 124, 159, 137, 91, 218)}};
-static const lean_ctor_object l_Std_WP_tripleBinderEPost___closed__1_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_WP_tripleBinderEPost___closed__1_value_aux_0),((lean_object*)&l___private_Std_WP_Triple_Basic_0__Std_WP_hintProgram___closed__10_value),LEAN_SCALAR_PTR_LITERAL(193, 201, 27, 53, 82, 85, 158, 17)}};
-static const lean_ctor_object l_Std_WP_tripleBinderEPost___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_WP_tripleBinderEPost___closed__1_value_aux_1),((lean_object*)&l_Std_WP_tripleBinderEPost___closed__0_value),LEAN_SCALAR_PTR_LITERAL(130, 172, 45, 252, 143, 117, 188, 55)}};
-static const lean_object* l_Std_WP_tripleBinderEPost___closed__1 = (const lean_object*)&l_Std_WP_tripleBinderEPost___closed__1_value;
-static const lean_ctor_object l_Std_WP_tripleBinderEPost___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 2}, .m_objs = {((lean_object*)&l_Std_WP_tripleNotation___closed__3_value),((lean_object*)&l_Std_WP_tripleBinderNotation___closed__6_value),((lean_object*)&l_Std_WP_tripleEPost___closed__3_value)}};
-static const lean_object* l_Std_WP_tripleBinderEPost___closed__2 = (const lean_object*)&l_Std_WP_tripleBinderEPost___closed__2_value;
-static const lean_ctor_object l_Std_WP_tripleBinderEPost___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 2}, .m_objs = {((lean_object*)&l_Std_WP_tripleNotation___closed__3_value),((lean_object*)&l_Std_WP_tripleBinderEPost___closed__2_value),((lean_object*)&l_Std_WP_tripleNotation___closed__8_value)}};
-static const lean_object* l_Std_WP_tripleBinderEPost___closed__3 = (const lean_object*)&l_Std_WP_tripleBinderEPost___closed__3_value;
-static const lean_ctor_object l_Std_WP_tripleBinderEPost___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 2}, .m_objs = {((lean_object*)&l_Std_WP_tripleNotation___closed__3_value),((lean_object*)&l_Std_WP_tripleBinderEPost___closed__3_value),((lean_object*)&l_Std_WP_tripleNotation___closed__37_value)}};
-static const lean_object* l_Std_WP_tripleBinderEPost___closed__4 = (const lean_object*)&l_Std_WP_tripleBinderEPost___closed__4_value;
-static const lean_ctor_object l_Std_WP_tripleBinderEPost___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 3}, .m_objs = {((lean_object*)&l_Std_WP_tripleBinderEPost___closed__1_value),((lean_object*)(((size_t)(60) << 1) | 1)),((lean_object*)&l_Std_WP_tripleBinderEPost___closed__4_value)}};
-static const lean_object* l_Std_WP_tripleBinderEPost___closed__5 = (const lean_object*)&l_Std_WP_tripleBinderEPost___closed__5_value;
-LEAN_EXPORT const lean_object* l_Std_WP_tripleBinderEPost = (const lean_object*)&l_Std_WP_tripleBinderEPost___closed__5_value;
+static const lean_string_object l_Std_WP_tripleExceptPost___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 17, .m_capacity = 17, .m_length = 16, .m_data = "tripleExceptPost"};
+static const lean_object* l_Std_WP_tripleExceptPost___closed__0 = (const lean_object*)&l_Std_WP_tripleExceptPost___closed__0_value;
+static const lean_ctor_object l_Std_WP_tripleExceptPost___closed__1_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Std_WP_Triple_Basic_0__Std_WP_hintProgram___closed__9_value),LEAN_SCALAR_PTR_LITERAL(48, 144, 193, 124, 159, 137, 91, 218)}};
+static const lean_ctor_object l_Std_WP_tripleExceptPost___closed__1_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_WP_tripleExceptPost___closed__1_value_aux_0),((lean_object*)&l___private_Std_WP_Triple_Basic_0__Std_WP_hintProgram___closed__10_value),LEAN_SCALAR_PTR_LITERAL(193, 201, 27, 53, 82, 85, 158, 17)}};
+static const lean_ctor_object l_Std_WP_tripleExceptPost___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_WP_tripleExceptPost___closed__1_value_aux_1),((lean_object*)&l_Std_WP_tripleExceptPost___closed__0_value),LEAN_SCALAR_PTR_LITERAL(160, 247, 187, 229, 229, 170, 136, 174)}};
+static const lean_object* l_Std_WP_tripleExceptPost___closed__1 = (const lean_object*)&l_Std_WP_tripleExceptPost___closed__1_value;
+static const lean_string_object l_Std_WP_tripleExceptPost___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "; "};
+static const lean_object* l_Std_WP_tripleExceptPost___closed__2 = (const lean_object*)&l_Std_WP_tripleExceptPost___closed__2_value;
+static const lean_ctor_object l_Std_WP_tripleExceptPost___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 5}, .m_objs = {((lean_object*)&l_Std_WP_tripleExceptPost___closed__2_value)}};
+static const lean_object* l_Std_WP_tripleExceptPost___closed__3 = (const lean_object*)&l_Std_WP_tripleExceptPost___closed__3_value;
+static const lean_ctor_object l_Std_WP_tripleExceptPost___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 2}, .m_objs = {((lean_object*)&l_Std_WP_tripleNotation___closed__3_value),((lean_object*)&l_Std_WP_tripleNotation___closed__35_value),((lean_object*)&l_Std_WP_tripleExceptPost___closed__3_value)}};
+static const lean_object* l_Std_WP_tripleExceptPost___closed__4 = (const lean_object*)&l_Std_WP_tripleExceptPost___closed__4_value;
+static const lean_ctor_object l_Std_WP_tripleExceptPost___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 2}, .m_objs = {((lean_object*)&l_Std_WP_tripleNotation___closed__3_value),((lean_object*)&l_Std_WP_tripleExceptPost___closed__4_value),((lean_object*)&l_Std_WP_tripleNotation___closed__8_value)}};
+static const lean_object* l_Std_WP_tripleExceptPost___closed__5 = (const lean_object*)&l_Std_WP_tripleExceptPost___closed__5_value;
+static const lean_ctor_object l_Std_WP_tripleExceptPost___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 2}, .m_objs = {((lean_object*)&l_Std_WP_tripleNotation___closed__3_value),((lean_object*)&l_Std_WP_tripleExceptPost___closed__5_value),((lean_object*)&l_Std_WP_tripleNotation___closed__37_value)}};
+static const lean_object* l_Std_WP_tripleExceptPost___closed__6 = (const lean_object*)&l_Std_WP_tripleExceptPost___closed__6_value;
+static const lean_ctor_object l_Std_WP_tripleExceptPost___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 3}, .m_objs = {((lean_object*)&l_Std_WP_tripleExceptPost___closed__1_value),((lean_object*)(((size_t)(60) << 1) | 1)),((lean_object*)&l_Std_WP_tripleExceptPost___closed__6_value)}};
+static const lean_object* l_Std_WP_tripleExceptPost___closed__7 = (const lean_object*)&l_Std_WP_tripleExceptPost___closed__7_value;
+LEAN_EXPORT const lean_object* l_Std_WP_tripleExceptPost = (const lean_object*)&l_Std_WP_tripleExceptPost___closed__7_value;
+static const lean_string_object l_Std_WP_tripleBinderExceptPost___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 23, .m_capacity = 23, .m_length = 22, .m_data = "tripleBinderExceptPost"};
+static const lean_object* l_Std_WP_tripleBinderExceptPost___closed__0 = (const lean_object*)&l_Std_WP_tripleBinderExceptPost___closed__0_value;
+static const lean_ctor_object l_Std_WP_tripleBinderExceptPost___closed__1_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Std_WP_Triple_Basic_0__Std_WP_hintProgram___closed__9_value),LEAN_SCALAR_PTR_LITERAL(48, 144, 193, 124, 159, 137, 91, 218)}};
+static const lean_ctor_object l_Std_WP_tripleBinderExceptPost___closed__1_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_WP_tripleBinderExceptPost___closed__1_value_aux_0),((lean_object*)&l___private_Std_WP_Triple_Basic_0__Std_WP_hintProgram___closed__10_value),LEAN_SCALAR_PTR_LITERAL(193, 201, 27, 53, 82, 85, 158, 17)}};
+static const lean_ctor_object l_Std_WP_tripleBinderExceptPost___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_WP_tripleBinderExceptPost___closed__1_value_aux_1),((lean_object*)&l_Std_WP_tripleBinderExceptPost___closed__0_value),LEAN_SCALAR_PTR_LITERAL(144, 152, 16, 19, 212, 119, 73, 10)}};
+static const lean_object* l_Std_WP_tripleBinderExceptPost___closed__1 = (const lean_object*)&l_Std_WP_tripleBinderExceptPost___closed__1_value;
+static const lean_ctor_object l_Std_WP_tripleBinderExceptPost___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 2}, .m_objs = {((lean_object*)&l_Std_WP_tripleNotation___closed__3_value),((lean_object*)&l_Std_WP_tripleBinderNotation___closed__6_value),((lean_object*)&l_Std_WP_tripleExceptPost___closed__3_value)}};
+static const lean_object* l_Std_WP_tripleBinderExceptPost___closed__2 = (const lean_object*)&l_Std_WP_tripleBinderExceptPost___closed__2_value;
+static const lean_ctor_object l_Std_WP_tripleBinderExceptPost___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 2}, .m_objs = {((lean_object*)&l_Std_WP_tripleNotation___closed__3_value),((lean_object*)&l_Std_WP_tripleBinderExceptPost___closed__2_value),((lean_object*)&l_Std_WP_tripleNotation___closed__8_value)}};
+static const lean_object* l_Std_WP_tripleBinderExceptPost___closed__3 = (const lean_object*)&l_Std_WP_tripleBinderExceptPost___closed__3_value;
+static const lean_ctor_object l_Std_WP_tripleBinderExceptPost___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 2}, .m_objs = {((lean_object*)&l_Std_WP_tripleNotation___closed__3_value),((lean_object*)&l_Std_WP_tripleBinderExceptPost___closed__3_value),((lean_object*)&l_Std_WP_tripleNotation___closed__37_value)}};
+static const lean_object* l_Std_WP_tripleBinderExceptPost___closed__4 = (const lean_object*)&l_Std_WP_tripleBinderExceptPost___closed__4_value;
+static const lean_ctor_object l_Std_WP_tripleBinderExceptPost___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 3}, .m_objs = {((lean_object*)&l_Std_WP_tripleBinderExceptPost___closed__1_value),((lean_object*)(((size_t)(60) << 1) | 1)),((lean_object*)&l_Std_WP_tripleBinderExceptPost___closed__4_value)}};
+static const lean_object* l_Std_WP_tripleBinderExceptPost___closed__5 = (const lean_object*)&l_Std_WP_tripleBinderExceptPost___closed__5_value;
+LEAN_EXPORT const lean_object* l_Std_WP_tripleBinderExceptPost = (const lean_object*)&l_Std_WP_tripleBinderExceptPost___closed__5_value;
 static const lean_string_object l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleNotation__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "Triple"};
 static const lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleNotation__1___closed__0 = (const lean_object*)&l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleNotation__1___closed__0_value;
 static lean_once_cell_t l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleNotation__1___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
@@ -356,10 +356,10 @@ static const lean_string_object l_Std_WP___aux__Std__WP__Triple__Basic______macr
 static const lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleBinderNotation__1___closed__7 = (const lean_object*)&l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleBinderNotation__1___closed__7_value;
 LEAN_EXPORT lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleBinderNotation__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleBinderNotation__1___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleEPost__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleEPost__1___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleBinderEPost__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleBinderEPost__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleExceptPost__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleExceptPost__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleBinderExceptPost__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleBinderExceptPost__1___boxed(lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Std_WP_unexpandTriple___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 5, .m_data = "term⊥"};
 static const lean_object* l_Std_WP_unexpandTriple___closed__0 = (const lean_object*)&l_Std_WP_unexpandTriple___closed__0_value;
 static const lean_ctor_object l_Std_WP_unexpandTriple___closed__1_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Std_WP_Triple_Basic_0__Std_WP_isSplitProgram___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
@@ -1032,11 +1032,11 @@ lean_dec_ref(v_a_585_);
 return v_res_587_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleEPost__1(lean_object* v_x_588_, lean_object* v_a_589_, lean_object* v_a_590_){
+LEAN_EXPORT lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleExceptPost__1(lean_object* v_x_588_, lean_object* v_a_589_, lean_object* v_a_590_){
 _start:
 {
 lean_object* v___x_591_; uint8_t v___x_592_; 
-v___x_591_ = ((lean_object*)(l_Std_WP_tripleEPost___closed__1));
+v___x_591_ = ((lean_object*)(l_Std_WP_tripleExceptPost___closed__1));
 lean_inc(v_x_588_);
 v___x_592_ = l_Lean_Syntax_isOfKind(v_x_588_, v___x_591_);
 if (v___x_592_ == 0)
@@ -1195,20 +1195,20 @@ return v___x_628_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleEPost__1___boxed(lean_object* v_x_646_, lean_object* v_a_647_, lean_object* v_a_648_){
+LEAN_EXPORT lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleExceptPost__1___boxed(lean_object* v_x_646_, lean_object* v_a_647_, lean_object* v_a_648_){
 _start:
 {
 lean_object* v_res_649_; 
-v_res_649_ = l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleEPost__1(v_x_646_, v_a_647_, v_a_648_);
+v_res_649_ = l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleExceptPost__1(v_x_646_, v_a_647_, v_a_648_);
 lean_dec_ref(v_a_647_);
 return v_res_649_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleBinderEPost__1(lean_object* v_x_650_, lean_object* v_a_651_, lean_object* v_a_652_){
+LEAN_EXPORT lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleBinderExceptPost__1(lean_object* v_x_650_, lean_object* v_a_651_, lean_object* v_a_652_){
 _start:
 {
 lean_object* v___x_653_; uint8_t v___x_654_; 
-v___x_653_ = ((lean_object*)(l_Std_WP_tripleBinderEPost___closed__1));
+v___x_653_ = ((lean_object*)(l_Std_WP_tripleBinderExceptPost___closed__1));
 lean_inc(v_x_650_);
 v___x_654_ = l_Lean_Syntax_isOfKind(v_x_650_, v___x_653_);
 if (v___x_654_ == 0)
@@ -1410,11 +1410,11 @@ return v___x_718_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleBinderEPost__1___boxed(lean_object* v_x_736_, lean_object* v_a_737_, lean_object* v_a_738_){
+LEAN_EXPORT lean_object* l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleBinderExceptPost__1___boxed(lean_object* v_x_736_, lean_object* v_a_737_, lean_object* v_a_738_){
 _start:
 {
 lean_object* v_res_739_; 
-v_res_739_ = l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleBinderEPost__1(v_x_736_, v_a_737_, v_a_738_);
+v_res_739_ = l_Std_WP___aux__Std__WP__Triple__Basic______macroRules__Std__WP__tripleBinderExceptPost__1(v_x_736_, v_a_737_, v_a_738_);
 lean_dec_ref(v_a_737_);
 return v_res_739_;
 }
@@ -1478,7 +1478,7 @@ if (v___x_771_ == 0)
 {
 lean_object* v___x_772_; lean_object* v___x_773_; lean_object* v___x_774_; lean_object* v___x_775_; lean_object* v___x_776_; lean_object* v___x_777_; lean_object* v___x_778_; lean_object* v___x_779_; lean_object* v___x_780_; lean_object* v___x_781_; lean_object* v___x_782_; lean_object* v___x_783_; lean_object* v___x_784_; lean_object* v___x_785_; lean_object* v___x_786_; lean_object* v___x_787_; lean_object* v___x_788_; lean_object* v___x_789_; lean_object* v___x_790_; lean_object* v___x_791_; lean_object* v___x_792_; lean_object* v___x_793_; lean_object* v___x_794_; lean_object* v___x_795_; lean_object* v___x_796_; 
 v___x_772_ = l_Lean_SourceInfo_fromRef(v_a_749_, v___x_771_);
-v___x_773_ = ((lean_object*)(l_Std_WP_tripleEPost___closed__1));
+v___x_773_ = ((lean_object*)(l_Std_WP_tripleExceptPost___closed__1));
 v___x_774_ = ((lean_object*)(l_Std_WP_unexpandTriple___closed__2));
 lean_inc_n(v___x_772_, 4);
 v___x_775_ = lean_alloc_ctor(2, 2, 0);
@@ -1595,7 +1595,7 @@ return v_res_823_;
 }
 }
 lean_object* runtime_initialize_Std_WP_Basic(uint8_t builtin);
-lean_object* runtime_initialize_Std_WP_ExceptPost(uint8_t builtin);
+lean_object* runtime_initialize_Std_WP_EStack(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_WP_Triple_Basic(uint8_t builtin) {
@@ -1606,7 +1606,7 @@ lean_initialize_runtime_module();
 res = runtime_initialize_Std_WP_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_WP_ExceptPost(builtin);
+res = runtime_initialize_Std_WP_EStack(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -1619,7 +1619,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_WP_Basic(uint8_t builtin);
-lean_object* initialize_Std_WP_ExceptPost(uint8_t builtin);
+lean_object* initialize_Std_WP_EStack(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_WP_Triple_Basic(uint8_t builtin) {
 lean_object * res;
@@ -1628,7 +1628,7 @@ _G_initialized = true;
 res = initialize_Std_WP_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_WP_ExceptPost(builtin);
+res = initialize_Std_WP_EStack(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_WP_Triple_Basic(builtin);

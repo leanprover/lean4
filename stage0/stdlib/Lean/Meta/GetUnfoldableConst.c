@@ -518,7 +518,7 @@ v___x_109_ = lean_unbox(v_a_81_);
 v___x_110_ = l_Lean_instBEqReducibilityStatus_beq(v___x_109_, v___x_108_);
 if (v___x_110_ == 0)
 {
-v___y_100_ = v___x_110_;
+v___y_100_ = v___x_87_;
 goto v___jp_99_;
 }
 else
@@ -616,7 +616,7 @@ lean_dec(v_a_81_);
 v___x_103_ = l_Lean_instBEqReducibilityStatus_beq(v___x_102_, v___x_101_);
 if (v___x_103_ == 0)
 {
-v___y_90_ = v___x_103_;
+v___y_90_ = v___x_87_;
 goto v___jp_89_;
 }
 else
@@ -2739,8 +2739,8 @@ return v___x_866_;
 }
 default: 
 {
-lean_dec(v_val_819_);
 lean_dec_ref_known(v___x_818_, 1);
+lean_dec(v_val_819_);
 lean_dec(v_constName_806_);
 goto v___jp_812_;
 }

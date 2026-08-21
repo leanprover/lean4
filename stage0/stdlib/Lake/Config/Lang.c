@@ -294,9 +294,9 @@ return v___x_73_;
 LEAN_EXPORT lean_object* l_Lake_instReprConfigLang_repr___boxed(lean_object* v_x_82_, lean_object* v_prec_83_){
 _start:
 {
-uint8_t v_x_121__boxed_84_; lean_object* v_res_85_; 
-v_x_121__boxed_84_ = lean_unbox(v_x_82_);
-v_res_85_ = l_Lake_instReprConfigLang_repr(v_x_121__boxed_84_, v_prec_83_);
+uint8_t v_x_117__boxed_84_; lean_object* v_res_85_; 
+v_x_117__boxed_84_ = lean_unbox(v_x_82_);
+v_res_85_ = l_Lake_instReprConfigLang_repr(v_x_117__boxed_84_, v_prec_83_);
 lean_dec(v_prec_83_);
 return v_res_85_;
 }
@@ -346,10 +346,10 @@ return v___x_100_;
 LEAN_EXPORT lean_object* l_Lake_instDecidableEqConfigLang___boxed(lean_object* v_x_101_, lean_object* v_y_102_){
 _start:
 {
-uint8_t v_x_13__boxed_103_; uint8_t v_y_14__boxed_104_; uint8_t v_res_105_; lean_object* v_r_106_; 
-v_x_13__boxed_103_ = lean_unbox(v_x_101_);
-v_y_14__boxed_104_ = lean_unbox(v_y_102_);
-v_res_105_ = l_Lake_instDecidableEqConfigLang(v_x_13__boxed_103_, v_y_14__boxed_104_);
+uint8_t v_x_20__boxed_103_; uint8_t v_y_21__boxed_104_; uint8_t v_res_105_; lean_object* v_r_106_; 
+v_x_20__boxed_103_ = lean_unbox(v_x_101_);
+v_y_21__boxed_104_ = lean_unbox(v_y_102_);
+v_res_105_ = l_Lake_instDecidableEqConfigLang(v_x_20__boxed_103_, v_y_21__boxed_104_);
 v_r_106_ = lean_box(v_res_105_);
 return v_r_106_;
 }

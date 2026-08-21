@@ -39,6 +39,52 @@ def onlyRequire (n : Nat) : Id Nat
 #guard_msgs in
 #check @onlyRequire.spec
 
+/-! Loop annotations and `assert` also elaborate with nothing opened: the `do` elaborator
+activates the scoped instances of `Std.WP` for the annotation terms. -/
+
+def countDownNoOpen (n : Nat) : Id Nat
+    ensures r => r = 0 := do
+  let mut i := n
+  while i > 0
+      invariant exit => if exit then i = 0 else True
+      decreasing i
+    do
+    i := i - 1
+  return i
+
+#guard_msgs (drop info) in
+#check @countDownNoOpen.spec
+
+def sumNoOpen (xs : List Nat) : StateM Nat Unit
+    requires s => s = 0
+    ensures _ s => s = xs.sum
+  := do
+  for x in xs invariant pref _ s => s = pref.sum do
+    modify (· + x)
+
+#guard_msgs (drop info) in
+#check @sumNoOpen.spec
+
+def assertNoOpen (n : Nat) : Id Nat
+    requires n > 0
+    ensures r => r ≥ 2
+  := do
+  let d := 2 * n
+  assert d ≥ 2
+  return d
+
+#guard_msgs (drop info) in
+#check @assertNoOpen.spec
+
+-- A loop annotation elaborates without a contract on the definition.
+def decreasingNoOpen (n : Nat) : Id Nat := do
+  let mut i := n
+  while i > 0
+      decreasing i
+    do
+    i := i - 1
+  return i
+
 open Std.WP Lean.Order
 
 /-! ## An `ensures` contract with a `for … invariant` loop, proved with no manual steps -/
@@ -284,18 +330,75 @@ def ensuresAscribed (n : Nat) : Id Nat
 #guard_msgs in
 #check @ensuresAscribed.spec
 
-/-! ## An `ensures` clause written with match alternatives
+/-! ## The binders of a clause
 
-The clause is a `fun`, so it may state the postcondition per shape of the result. -/
+A clause binds like a `fun`, so a binder may name the components of the value it stands for. A
+postcondition that tells the shapes of the result apart states a `match`. -/
+
+def bounds (n : Nat) : Id (Nat × Nat)
+    ensures (lo, hi) => lo ≤ hi
+  := pure (n, n)
+
+#guard_msgs (drop info) in
+#check @bounds.spec
 
 def halve (n : Nat) : Id (Option Nat)
-    ensures
+    ensures r => match r with
       | none => False
       | some v => 2 * v ≤ n
   := pure (some (n / 2))
 
 #guard_msgs (drop info) in
 #check @halve.spec
+
+/-! A `requires`, `invariant` or `assert` clause binds the same way. Here the state of the monad is
+a pair, and every clause names both components. -/
+
+def sumInto (xs : List Nat) : StateM (Nat × Nat) Unit
+    requires (lo, _hi) => lo = 0
+    ensures _ (lo, _hi) => lo = 0 := do
+  assert (lo, _hi) => lo = 0
+  for x in xs invariant _pref _suff (lo, _hi) => lo = 0 do
+    modify fun (lo, hi) => (lo, hi + x)
+
+#guard_msgs (drop info) in
+#check @sumInto.spec
+
+/-! A clause declares the type of the argument it binds, so a projection of the state resolves. -/
+
+def sumIntoProj (xs : List Nat) : StateM (Nat × Nat) Unit
+    requires (lo, _hi) => lo = 0
+    ensures _ (lo, _hi) => lo = 0 := do
+  for x in xs invariant _pref _suff s => s.1 = 0 do
+    modify fun (lo, hi) => (lo, hi + x)
+
+#guard_msgs (drop info) in
+#check @sumIntoProj.spec
+
+/-! A `while` loop states both of its clauses over the state. -/
+
+def countInto : StateM (Nat × Nat) Unit
+    requires (lo, hi) => lo ≤ hi
+    ensures _ (lo, hi) => lo ≤ hi := do
+  while (← get).1 < (← get).2
+      invariant _exit (lo, hi) => lo ≤ hi
+      decreasing (lo, hi) => hi - lo
+    do
+    modify fun (lo, hi) => (lo + 1, hi)
+
+#guard_msgs (drop info) in
+#check @countInto.spec
+
+/-! A binder that leaves a shape of the value out is reported as a missing case. -/
+
+/--
+error: Missing cases:
+none
+-/
+#guard_msgs in
+def halveSome (n : Nat) : Id (Option Nat)
+    ensures (some v) => 2 * v ≤ n
+  := pure (some (n / 2))
 
 /-! ## A `repeat` or `while` loop binds whether it has left
 
@@ -370,9 +473,9 @@ def countMeasureOnly (n : Nat) : StateM Nat Unit
 where finally
   | spec =>
     case inv1 =>
-      exact fun c s => match c with
-        | .inl i => s = i ∧ i ≤ n
-        | .inr i => s = i ∧ i = n
+      exact fun exit i s => match exit with
+        | false => s = i ∧ i ≤ n
+        | true => s = i ∧ i = n
     all_goals grind
 
 #guard_msgs (drop info) in
@@ -532,7 +635,7 @@ def sumEvens (xs : List Nat) : Id Nat
     acc := acc + 2 * x
   return acc
 where finally
-  | spec => case vc1 acc h => exact ⟨acc / 2, by omega⟩
+  | spec => case vc1 => exact ⟨acc / 2, by omega⟩
 
 /-- info: sumEvens.spec : ∀ (xs : List Nat), ⦃ ⊤ ⦄ sumEvens xs ⦃ fun r => ∃ k, r = 2 * k ⦄ -/
 #guard_msgs in
@@ -679,7 +782,7 @@ def differenceMinMax (a : Array Int) : Id Int
     i := i + 1
   return mx - mn
 where finally
-  | spec => case vc2 st _ => exact ⟨st.1, st.2.1, by grind, by grind, by grind⟩
+  | spec => case vc2 => exact ⟨mn, mx, by grind, by grind, by grind⟩
 
 #guard_msgs (drop info) in
 #check @differenceMinMax.spec
@@ -733,3 +836,56 @@ where finally
 
 #guard_msgs (drop info) in
 #check @findMajorityElement.spec
+
+/-! ## The `given` clause binds logical variables -/
+
+def mkFreshNat : StateM Nat Nat
+    given (n : Nat)
+    requires s => s = n
+    ensures r s => r = n ∧ s = n + 1
+  := do
+  let m ← get
+  set (m + 1)
+  pure m
+
+/--
+info: mkFreshNat.spec : ∀ (n : Nat), ⦃ fun s => s = n ⦄ mkFreshNat ⦃ fun r s => r = n ∧ s = n + 1 ⦄
+-/
+#guard_msgs in
+#check @mkFreshNat.spec
+
+def widen (k : Nat) : StateM Nat Unit
+    given (lo hi : Nat) {d : Nat}
+    requires s => lo ≤ s ∧ s ≤ hi ∧ d = k
+    ensures _ s => lo ≤ s + k ∧ s ≤ hi + d
+  := modify (· + k)
+
+/--
+info: widen.spec : ∀ (k lo hi : Nat) {d : Nat},
+  ⦃ fun s => lo ≤ s ∧ s ≤ hi ∧ d = k ⦄ widen k ⦃ fun x s => lo ≤ s + k ∧ s ≤ hi + d ⦄
+-/
+#guard_msgs in
+#check @widen.spec
+
+def peek : StateM Nat Nat
+    given (n : Nat)
+    ensures r s => r = n → s = n
+  := get
+
+/-- info: peek.spec : ∀ (n : Nat), ⦃ ⊤ ⦄ peek ⦃ fun r s => r = n → s = n ⦄ -/
+#guard_msgs in
+#check @peek.spec
+
+def bumpUnconstrained (k : Nat) : StateM Nat Unit
+    given (n : Nat)
+  := modify (· + k)
+
+/-- info: bumpUnconstrained.spec : ∀ (k n : Nat), ⦃ ⊤ ⦄ bumpUnconstrained k ⦃ fun x => ⊤ ⦄ -/
+#guard_msgs in
+#check @bumpUnconstrained.spec
+
+def onOneLine (k : Nat) : Id Nat given (n : Nat) requires k = n ensures r => r = n := pure k
+
+/-- info: onOneLine.spec : ∀ (k n : Nat), ⦃ k = n ⦄ onOneLine k ⦃ fun r => r = n ⦄ -/
+#guard_msgs in
+#check @onOneLine.spec

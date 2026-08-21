@@ -3899,14 +3899,14 @@ return v_res_1367_;
 LEAN_EXPORT lean_object* l_panic___at___00Lean_Meta_Grind_addHomoPredAttr_spec__1(lean_object* v_msg_1369_, lean_object* v___y_1370_, lean_object* v___y_1371_, lean_object* v___y_1372_, lean_object* v___y_1373_){
 _start:
 {
-lean_object* v___f_1375_; lean_object* v___x_2406__overap_1376_; lean_object* v___x_1377_; 
+lean_object* v___f_1375_; lean_object* v___x_2163__overap_1376_; lean_object* v___x_1377_; 
 v___f_1375_ = ((lean_object*)(l_panic___at___00Lean_Meta_Grind_addHomoPredAttr_spec__1___closed__0));
-v___x_2406__overap_1376_ = lean_panic_fn_borrowed(v___f_1375_, v_msg_1369_);
+v___x_2163__overap_1376_ = lean_panic_fn_borrowed(v___f_1375_, v_msg_1369_);
 lean_inc(v___y_1373_);
 lean_inc_ref(v___y_1372_);
 lean_inc(v___y_1371_);
 lean_inc_ref(v___y_1370_);
-v___x_1377_ = lean_apply_5(v___x_2406__overap_1376_, v___y_1370_, v___y_1371_, v___y_1372_, v___y_1373_, lean_box(0));
+v___x_1377_ = lean_apply_5(v___x_2163__overap_1376_, v___y_1370_, v___y_1371_, v___y_1372_, v___y_1373_, lean_box(0));
 return v___x_1377_;
 }
 }

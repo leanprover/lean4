@@ -6,6 +6,7 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
+public import Init.BinderNameHint
 public import Std.WP.Triple.Monad
 public import Std.WP.Monad
 public import Std.Do.Triple.SpecLemmas
@@ -66,7 +67,7 @@ theorem Spec.pure (a : α) :
 
 @[spec]
 theorem Spec.bind (x : m α) (f : α → m β) :
-    Triple (x >>= f) (wp x (fun a => wp (f a) post epost) epost) post epost :=
+    Triple (x >>= f) (wp x (fun a => binderNameHint a f (wp (f a) post epost)) epost) post epost :=
   Triple.bind x f (fun a => wp (f a) post epost)
     (Triple.intro PartialOrder.rel_refl) (fun _ => Triple.intro PartialOrder.rel_refl)
 
@@ -98,14 +99,14 @@ theorem Spec.monadLift_ReaderT (x : m α) (post : α → ρ → Pred) :
 
 
 @[spec]
-theorem Spec.monadLift_ExceptT (x : m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
-    Triple (MonadLift.monadLift x : ExceptT ε m α) (wp x post epost.tail) post epost :=
+theorem Spec.monadLift_ExceptT (x : m α) (post : α → Pred) (epost : (ε → Pred) × EPred) :
+    Triple (MonadLift.monadLift x : ExceptT ε m α) (wp x post epost.snd) post epost :=
   Triple.intro (WPMonad.le_wp_monadLift_ExceptT_apply x post epost)
 
 
 @[spec]
-theorem Spec.monadLift_OptionT (x : m α) (post : α → Pred) (epost : EPost.Cons Pred EPred) :
-    Triple (MonadLift.monadLift x : OptionT m α) (wp x post epost.tail) post epost :=
+theorem Spec.monadLift_OptionT (x : m α) (post : α → Pred) (epost : (Unit → Pred) × EPred) :
+    Triple (MonadLift.monadLift x : OptionT m α) (wp x post epost.snd) post epost :=
   Triple.intro (WPMonad.le_wp_monadLift_OptionT_apply x)
 
 @[spec]
@@ -146,17 +147,17 @@ theorem Spec.monadMap_ReaderT
 
 @[spec]
 theorem Spec.monadMap_ExceptT
-    (f : ∀{β}, m β → m β) {α} (x : ExceptT ε m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
+    (f : ∀{β}, m β → m β) {α} (x : ExceptT ε m α) (post : α → Pred) (epost : (ε → Pred) × EPred) :
     Triple (MonadFunctor.monadMap (m := m) f x : ExceptT ε m α)
-      (wp (f x.run) (epost.pushExcept post) epost.tail) post epost :=
+      (wp (f x.run) (pushExcept post epost.fst) epost.snd) post epost :=
   Triple.intro (by rw [WPMonad.wp_monadMap_ExceptT_apply_eq])
 
 
 @[spec]
 theorem Spec.monadMap_OptionT
-    (f : ∀{β}, m β → m β) {α} (x : OptionT m α) (post : α → Pred) (epost : EPost.Cons Pred EPred) :
+    (f : ∀{β}, m β → m β) {α} (x : OptionT m α) (post : α → Pred) (epost : (Unit → Pred) × EPred) :
     Triple (MonadFunctor.monadMap (m := m) f x : OptionT m α)
-      (wp (f x.run) (epost.pushOption post) epost.tail) post epost :=
+      (wp (f x.run) (pushOption post epost.fst) epost.snd) post epost :=
   Triple.intro (by rw [WPMonad.wp_monadMap_OptionT_apply_eq])
 
 
@@ -192,20 +193,20 @@ theorem Spec.liftWith_ReaderT
 
 @[spec]
 theorem Spec.liftWith_ExceptT
-    (f : (∀{β}, ExceptT ε m β → m (Except ε β)) → m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
+    (f : (∀{β}, ExceptT ε m β → m (Except ε β)) → m α) (post : α → Pred) (epost : (ε → Pred) × EPred) :
     Triple (MonadControl.liftWith (m:=m) f : ExceptT ε m α)
-      (wp (f (fun x => x.run)) post epost.tail) post epost :=
+      (wp (f (fun x => x.run)) post epost.snd) post epost :=
   Triple.intro (by
     simp [WPMonad.wp_liftWith_ExceptT_apply_eq f]
     exact WPMonad.map_le_wp_map Except.ok (f (fun x => x.run))
-      (epost.pushExcept post) epost.tail)
+      (pushExcept post epost.fst) epost.snd)
 
 
 @[spec]
 theorem Spec.liftWith_OptionT
-    (f : (∀{β}, OptionT m β → m (Option β)) → m α) (post : α → Pred) (epost : EPost.Cons Pred EPred) :
+    (f : (∀{β}, OptionT m β → m (Option β)) → m α) (post : α → Pred) (epost : (Unit → Pred) × EPred) :
     Triple (MonadControl.liftWith (m:=m) f : OptionT m α)
-      (wp (f (fun x => x.run)) post epost.tail) post epost :=
+      (wp (f (fun x => x.run)) post epost.snd) post epost :=
   Triple.intro (WPMonad.le_wp_liftWith_OptionT_apply f)
 
 
@@ -224,16 +225,16 @@ theorem Spec.restoreM_ReaderT (x : m α) (post : α → ρ → Pred) :
 
 
 @[spec]
-theorem Spec.restoreM_ExceptT (x : m (@Except.{u, u} ε α)) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
+theorem Spec.restoreM_ExceptT (x : m (@Except.{u, u} ε α)) (post : α → Pred) (epost : (ε → Pred) × EPred) :
     Triple (MonadControl.restoreM (m:=m) x : ExceptT ε m α)
-      (wp x (epost.pushExcept post) epost.tail) post epost :=
+      (wp x (pushExcept post epost.fst) epost.snd) post epost :=
   Triple.intro (by rw [WPMonad.wp_restoreM_ExceptT_apply_eq])
 
 
 @[spec]
-theorem Spec.restoreM_OptionT (x : m (Option α)) (post : α → Pred) (epost : EPost.Cons Pred EPred) :
+theorem Spec.restoreM_OptionT (x : m (Option α)) (post : α → Pred) (epost : (Unit → Pred) × EPred) :
     Triple (MonadControl.restoreM (m:=m) x : OptionT m α)
-      (wp x (epost.pushOption post) epost.tail) post epost :=
+      (wp x (pushOption post epost.fst) epost.snd) post epost :=
   Triple.intro (by rw [WPMonad.wp_restoreM_OptionT_apply_eq])
 
 /-! # `MonadControlT` -/
@@ -336,41 +337,41 @@ theorem Spec.UnfoldLift.withReader [MonadFunctor m n] [MonadWithReaderOf ρ m] (
 
 
 @[spec]
-theorem Spec.run_ExceptT (x : ExceptT ε m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
+theorem Spec.run_ExceptT (x : ExceptT ε m α) (post : α → Pred) (epost : (ε → Pred) × EPred) :
     Triple (x.run : m (@Except.{u, u} ε α))
       (wp x post epost)
-      (epost.pushExcept post)
-      epost.tail :=
+      (pushExcept post epost.fst)
+      epost.snd :=
   Triple.intro (by simp [PartialOrder.rel_refl])
 
 
 @[spec]
-theorem Spec.throw_ExceptT (err : ε) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
-    Triple (MonadExceptOf.throw err : ExceptT ε m α) (epost.head err) post epost :=
-  Triple.intro (by simpa [EPost.Cons.pushExcept] using!
+theorem Spec.throw_ExceptT (err : ε) (post : α → Pred) (epost : (ε → Pred) × EPred) :
+    Triple (MonadExceptOf.throw err : ExceptT ε m α) (epost.fst err) post epost :=
+  Triple.intro (by simpa [pushExcept] using!
     (WPMonad.pure_le_wp_pure (m := m) (x := Except.error err)
-      (post := epost.pushExcept post)
-      (epost := epost.tail)))
+      (post := pushExcept post epost.fst)
+      (epost := epost.snd)))
 
 
 @[spec]
-theorem Spec.tryCatch_ExceptT (x : ExceptT ε m α) (h : ε → ExceptT ε m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
+theorem Spec.tryCatch_ExceptT (x : ExceptT ε m α) (h : ε → ExceptT ε m α) (post : α → Pred) (epost : (ε → Pred) × EPred) :
     Triple (MonadExceptOf.tryCatch x h : ExceptT ε m α)
-      (wp x post ⟨fun e => wp (h e) post epost, epost.tail⟩) post epost :=
+      (wp x post ⟨fun e => wp (h e) post epost, epost.snd⟩) post epost :=
   Triple.intro (WPMonad.le_wp_tryCatch_ExceptT_apply x h)
 
 
 @[spec]
-theorem Spec.orElse_ExceptT (x : ExceptT ε m α) (h : Unit → ExceptT ε m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
+theorem Spec.orElse_ExceptT (x : ExceptT ε m α) (h : Unit → ExceptT ε m α) (post : α → Pred) (epost : (ε → Pred) × EPred) :
     Triple (OrElse.orElse x h : ExceptT ε m α)
-      (wp x post ⟨fun _ => wp (h ()) post epost, epost.tail⟩) post epost :=
+      (wp x post ⟨fun _ => wp (h ()) post epost, epost.snd⟩) post epost :=
   Triple.intro (WPMonad.le_wp_orElse_ExceptT_apply x h)
 
 
 @[spec]
-theorem Spec.adapt_ExceptT (f : ε → ε') (x : ExceptT ε m α) (post : α → Pred) (epost : EPost.Cons (ε' → Pred) EPred) :
+theorem Spec.adapt_ExceptT (f : ε → ε') (x : ExceptT ε m α) (post : α → Pred) (epost : (ε' → Pred) × EPred) :
     Triple (ExceptT.adapt f x : ExceptT ε' m α)
-      (wp x post ⟨fun e => epost.head (f e), epost.tail⟩) post epost :=
+      (wp x post ⟨fun e => epost.fst (f e), epost.snd⟩) post epost :=
   Triple.intro (WPMonad.le_wp_adapt_ExceptT_apply f x)
 
 /-! # `Except` -/
@@ -378,52 +379,52 @@ theorem Spec.adapt_ExceptT (f : ε → ε') (x : ExceptT ε m α) (post : α →
 
 @[spec]
 theorem Spec.throw_Except (err : ε) :
-    Triple (MonadExceptOf.throw err : Except ε α) (epost.head err) post epost :=
+    Triple (MonadExceptOf.throw err : Except ε α) (epost err) post epost :=
   Triple.intro (by rw [WPMonad.wp_throw_Except_apply_eq]; rfl)
 
 
 @[spec]
 theorem Spec.tryCatch_Except (x : Except ε α) (h : ε → Except ε α) :
     Triple (MonadExceptOf.tryCatch x h : Except ε α)
-      (wp x post epost⟨fun e => wp (h e) post epost⟩) post epost :=
+      (wp x post (fun e => wp (h e) post epost)) post epost :=
   Triple.intro (by rw [WPMonad.wp_tryCatch_Except_apply_eq]; rfl)
 
 
 @[spec]
 theorem Spec.orElse_Except (x : Except ε α) (h : Unit → Except ε α) :
     Triple (OrElse.orElse x h : Except ε α)
-      (wp x post epost⟨fun (_ : ε) => wp (h ()) post epost⟩) post epost :=
+      (wp x post (fun (_ : ε) => wp (h ()) post epost)) post epost :=
   Triple.intro (by simp only [wp, WP.wpTrans, OrElse.orElse, MonadExcept.orElse]; cases x <;> rfl)
 
 /-! # `OptionT` -/
 
 
 @[spec]
-theorem Spec.run_OptionT (x : OptionT m α) (post : α → Pred) (epost : EPost.Cons Pred EPred) :
+theorem Spec.run_OptionT (x : OptionT m α) (post : α → Pred) (epost : (Unit → Pred) × EPred) :
     Triple (x.run : m (Option α))
       (wp x post epost)
-      (epost.pushOption post)
-      epost.tail :=
+      (pushOption post epost.fst)
+      epost.snd :=
   Triple.intro (by rw [← OptionT.wp_apply_eq])
 
 
 @[spec]
-theorem Spec.throw_OptionT (err : PUnit) (post : α → Pred) (epost : EPost.Cons Pred EPred) :
-    Triple (MonadExceptOf.throw err : OptionT m α) epost.head post epost :=
+theorem Spec.throw_OptionT (err : PUnit) (post : α → Pred) (epost : (Unit → Pred) × EPred) :
+    Triple (MonadExceptOf.throw err : OptionT m α) (epost.fst ()) post epost :=
   Triple.intro (WPMonad.le_wp_throw_OptionT_apply err)
 
 
 @[spec]
-theorem Spec.tryCatch_OptionT (x : OptionT m α) (h : PUnit → OptionT m α) (post : α → Pred) (epost : EPost.Cons Pred EPred) :
+theorem Spec.tryCatch_OptionT (x : OptionT m α) (h : PUnit → OptionT m α) (post : α → Pred) (epost : (Unit → Pred) × EPred) :
     Triple (MonadExceptOf.tryCatch x h : OptionT m α)
-      (wp x post ⟨wp (h ⟨⟩) post epost, epost.tail⟩) post epost :=
+      (wp x post ⟨fun _ => wp (h ⟨⟩) post epost, epost.snd⟩) post epost :=
   Triple.intro (WPMonad.le_wp_tryCatch_OptionT_apply x h)
 
 
 @[spec]
-theorem Spec.orElse_OptionT (x : OptionT m α) (h : Unit → OptionT m α) (post : α → Pred) (epost : EPost.Cons Pred EPred) :
+theorem Spec.orElse_OptionT (x : OptionT m α) (h : Unit → OptionT m α) (post : α → Pred) (epost : (Unit → Pred) × EPred) :
     Triple (OrElse.orElse x h : OptionT m α)
-      (wp x post ⟨wp (h ()) post epost, epost.tail⟩) post epost :=
+      (wp x post ⟨fun _ => wp (h ()) post epost, epost.snd⟩) post epost :=
   Triple.intro (WPMonad.le_wp_orElse_OptionT_apply x h)
 
 /-! # `Option` -/
@@ -431,21 +432,21 @@ theorem Spec.orElse_OptionT (x : OptionT m α) (h : Unit → OptionT m α) (post
 
 @[spec]
 theorem Spec.throw_Option (err : PUnit) :
-    Triple (MonadExceptOf.throw err : Option α) epost post epost :=
+    Triple (MonadExceptOf.throw err : Option α) (epost ()) post epost :=
   Triple.intro (by rw [WPMonad.wp_throw_Option_apply_eq]; rfl)
 
 
 @[spec]
 theorem Spec.tryCatch_Option (x : Option α) (h : PUnit → Option α) :
     Triple (MonadExceptOf.tryCatch x h : Option α)
-      (wp x post (wp (h ⟨⟩) post epost)) post epost :=
+      (wp x post (fun _ => wp (h ⟨⟩) post epost)) post epost :=
   Triple.intro (by rw [WPMonad.wp_tryCatch_Option_apply_eq]; rfl)
 
 
 @[spec]
-theorem Spec.orElse_Option (x : Option α) (h : Unit → Option α) (post : α → Prop) (epost : Prop) :
+theorem Spec.orElse_Option (x : Option α) (h : Unit → Option α) (post : α → Prop) (epost : Unit → Prop) :
     Triple (OrElse.orElse x h : Option α)
-      (wp x post (wp (h ()) post epost)) post epost :=
+      (wp x post (fun _ => wp (h ()) post epost)) post epost :=
   Triple.intro (by rw [WPMonad.wp_orElse_Option_apply_eq]; rfl)
 
 /-! # `EStateM` -/
@@ -532,18 +533,18 @@ theorem Spec.throw_StateT [MonadExceptOf ε m] (err : ε) (post : α → σ → 
 
 
 @[spec]
-theorem Spec.throw_ExceptT_lift [MonadExceptOf ε m] (err : ε) (post : α → Pred) (epost : EPost.Cons (ε' → Pred) EPred) :
+theorem Spec.throw_ExceptT_lift [MonadExceptOf ε m] (err : ε) (post : α → Pred) (epost : (ε' → Pred) × EPred) :
     Triple (MonadExceptOf.throw (ε:=ε) err : ExceptT ε' m α)
       (wp (MonadExceptOf.throw (ε:=ε) err : m (@Except.{u, u} ε' α))
-        (fun r => match r with | .ok a => post a | .error e => epost.head e) epost.tail) post epost :=
+        (fun r => match r with | .ok a => post a | .error e => epost.fst e) epost.snd) post epost :=
   Triple.intro (by rw [WPMonad.wp_throw_lift_ExceptT_apply_eq]; apply WP.wp_consequence; intro r; cases r <;> rfl)
 
 
 @[spec]
-theorem Spec.throw_Option_lift [MonadExceptOf ε m] (err : ε) (post : α → Pred) (epost : EPost.Cons Pred EPred) :
+theorem Spec.throw_Option_lift [MonadExceptOf ε m] (err : ε) (post : α → Pred) (epost : (Unit → Pred) × EPred) :
     Triple (MonadExceptOf.throw (ε:=ε) err : OptionT m α)
       (wp (MonadExceptOf.throw (ε:=ε) err : m (Option α))
-        (epost.pushOption post) epost.tail) post epost :=
+        (pushOption post epost.fst) epost.snd) post epost :=
   Triple.intro (by rw [WPMonad.wp_throw_lift_OptionT_apply_eq])
 
 
@@ -567,19 +568,19 @@ theorem Spec.tryCatch_StateT [MonadExceptOf ε m] (x : StateT σ m α) (h : ε �
 
 @[spec]
 theorem Spec.tryCatch_ExceptT_lift [MonadExceptOf ε m] (x : ExceptT ε' m α) (h : ε → ExceptT ε' m α)
-    (post : α → Pred) (epost : EPost.Cons (ε' → Pred) EPred) :
+    (post : α → Pred) (epost : (ε' → Pred) × EPred) :
     Triple (MonadExceptOf.tryCatch (ε:=ε) x h : ExceptT ε' m α)
       (wp (MonadExceptOf.tryCatch (ε:=ε) x h : m (@Except.{u, u} ε' α))
-        (fun | .ok a => post a | .error e => epost.head e) epost.tail) post epost :=
+        (fun | .ok a => post a | .error e => epost.fst e) epost.snd) post epost :=
   Triple.intro (by rw [WPMonad.wp_tryCatch_lift_ExceptT_apply_eq]; apply WP.wp_consequence; intro r; cases r <;> rfl)
 
 
 @[spec]
 theorem Spec.tryCatch_OptionT_lift [MonadExceptOf ε m] (x : OptionT m α) (h : ε → OptionT m α)
-    (post : α → Pred) (epost : EPost.Cons Pred EPred) :
+    (post : α → Pred) (epost : (Unit → Pred) × EPred) :
     Triple (MonadExceptOf.tryCatch (ε:=ε) x h : OptionT m α)
       (wp (MonadExceptOf.tryCatch (ε:=ε) x h : m (Option α))
-        (epost.pushOption post) epost.tail) post epost :=
+        (pushOption post epost.fst) epost.snd) post epost :=
   Triple.intro (by rw [WPMonad.wp_tryCatch_lift_OptionT_apply_eq])
 
 -- /-! # `MonadFunctorT` / `MonadControlT` transitivity -/
@@ -1872,12 +1873,49 @@ def RepeatInvariant.mk {α β : Type u} {Pred : Type uₚ} (inv : α ⊕ β → 
   rfl
 
 /--
+An invariant for a `while` loop, given as a predicate over the loop's `exit` flag and its state:
+`inv false a` is the `continue` case at `a`; `inv true a` is the `break` case with result `a`.
+-/
+@[spec_invariant_type, simp, grind =]
+def WhileInvariant (α : Type u) (Pred : Type uₚ) :=
+  Bool → α → Pred
+
+/-- State the invariant of a `while` loop, keeping `WhileInvariant` on the term that carries it
+so that a specification matches it without unfolding the definition. -/
+def WhileInvariant.mk {α : Type u} {Pred : Type uₚ} (inv : Bool → α → Pred) :
+    WhileInvariant α Pred :=
+  inv
+
+@[simp, grind =] theorem WhileInvariant.mk_apply {α : Type u} {Pred : Type uₚ}
+    (inv : Bool → α → Pred) (exit : Bool) (a : α) :
+    WhileInvariant.mk inv exit a = inv exit a :=
+  rfl
+
+/-- Read a `WhileInvariant` as the invariant of the `repeatM` loop that a `while` loop unfolds to,
+where the `exit` flag is the cursor's tag. -/
+def WhileInvariant.toRepeatInvariant {α : Type u} {Pred : Type uₚ} (inv : WhileInvariant α Pred) :
+    RepeatInvariant α α Pred :=
+  RepeatInvariant.mk fun
+    | .inl a => inv false a
+    | .inr a => inv true a
+
+@[simp, grind =] theorem WhileInvariant.toRepeatInvariant_inl {α : Type u} {Pred : Type uₚ}
+    (inv : WhileInvariant α Pred) (a : α) :
+    inv.toRepeatInvariant (.inl a) = inv false a :=
+  rfl
+
+@[simp, grind =] theorem WhileInvariant.toRepeatInvariant_inr {α : Type u} {Pred : Type uₚ}
+    (inv : WhileInvariant α Pred) (a : α) :
+    inv.toRepeatInvariant (.inr a) = inv true a :=
+  rfl
+
+/--
 A termination measure for a `repeatM` loop: a type `γ` of measure values equipped with a
 well-founded relation, and a lattice-embedded evaluation of the measure at each cursor.
-Build one from a measure function with `RepeatVariant.ofMeasure`.
+Build one from a measure function with `Variant.ofMeasure`.
 -/
 @[spec_invariant_type]
-structure RepeatVariant (α : Type uα) (Pred : Type u) [Assertion Pred] :
+structure Variant (α : Type uα) (Pred : Type u) [Assertion Pred] :
     Type (max uα (uγ + 1) u) where
   /-- The type of measure values. -/
   {γ : Type uγ}
@@ -1888,19 +1926,19 @@ structure RepeatVariant (α : Type uα) (Pred : Type u) [Assertion Pred] :
   /-- The measure evaluates to some value. -/
   total : ∀ a, (⨆ n, EvalsTo a n) = ⊤
 
-namespace RepeatVariant
+namespace Variant
 
 variable {α : Type uα}
 
 /-- The relation that measure values decrease along. -/
-def rel (v : RepeatVariant α Pred) : v.γ → v.γ → Prop :=
+def rel (v : Variant α Pred) : v.γ → v.γ → Prop :=
   v.wfRel.rel
 
-theorem wf (v : RepeatVariant α Pred) : WellFounded v.rel :=
+theorem wf (v : Variant α Pred) : WellFounded v.rel :=
   v.wfRel.wf
 
 /-- Eliminate the covering join of `EvalsTo` from the left of an entailment. -/
-theorem le_of_total_le (v : RepeatVariant α Pred) (a : α) {P Q : Pred}
+theorem le_of_total_le (v : Variant α Pred) (a : α) {P Q : Pred}
     [PreservesSup (meet P)]
     (h : (⨆ n, v.EvalsTo a n ⊓ P) ⊑ Q) : P ⊑ Q := by
   have h1 : P ⊑ (⨆ n, v.EvalsTo a n) ⊓ P := by
@@ -1910,12 +1948,12 @@ theorem le_of_total_le (v : RepeatVariant α Pred) (a : α) {P Q : Pred}
   exact PartialOrder.rel_trans h1 (PartialOrder.rel_trans h2 h)
 
 /--
-Build a `RepeatVariant` from a measure function `f`. The measure's value type `γ` (its codomain
+Build a `Variant` from a measure function `f`. The measure's value type `γ` (its codomain
 through any `NondetFun` state layers) provides the well-founded relation, e.g. `<` for `Nat` and
 the lexicographic order for products.
 -/
 @[instance_reducible] def ofMeasure {γ : Type uγ} {Fun : Type v'} [NondetFun Pred Fun γ]
-    [WellFoundedRelation γ] (f : α → Fun) : RepeatVariant α Pred where
+    [WellFoundedRelation γ] (f : α → Fun) : Variant α Pred where
   γ := γ
   EvalsTo a n := NondetFun.EvalsTo (f a) n
   total a := NondetFun.total (f a)
@@ -1996,7 +2034,7 @@ theorem rel_ofMeasure {γ : Type uγ} {Fun : Type v'} [NondetFun Pred Fun γ]
     (ofMeasure (Pred := Pred) f).rel n' n ↔ n' < n := Iff.rfl
 
 /-- The measure at cursor `a'` evaluates to a value strictly below `ma`. -/
-noncomputable def EvalsBelow (v : RepeatVariant α Pred) (a' : α) (ma : v.γ) : Pred :=
+noncomputable def EvalsBelow (v : Variant α Pred) (a' : α) (ma : v.γ) : Pred :=
   ⨆ ma', v.EvalsTo a' ma' ⊓ ⌜v.rel ma' ma⌝
 
 open Lean.Order in
@@ -2093,7 +2131,7 @@ usable `@[grind =]` lemmas where the general `evalsBelow_ofMeasure_apply` is not
     (ofMeasure (Pred := σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → Prop) f).EvalsBelow a' ma s₁ s₂ s₃ s₄ s₅ = (f a' < ma) := by
   simp
 
-end RepeatVariant
+end Variant
 
 open Lean.Order in
 /--
@@ -2105,7 +2143,7 @@ finishes with the `.inr` invariant.
 @[spec]
 theorem Spec.repeatM
     {init : α} {f : α → m (α ⊕ β)} [Nonempty β] [∀ P : Pred, PreservesSup (meet P)]
-    (measure : RepeatVariant α Pred)
+    (measure : Variant α Pred)
     (inv : RepeatInvariant α β Pred)
     (einv : EPred)
     (step : ∀ a (ma : measure.γ),
@@ -2157,41 +2195,41 @@ addition to `inv` once the loop is done. For a normal `while` loop `onBreak` can
 negation of the loop condition.
 -/
 @[simp]
-noncomputable abbrev RepeatInvariant.ofInvariantAndBreak {α : Type u} {Pred : Type u} [Assertion Pred]
-    (inv : α → Pred) (onBreak : α → Pred) : RepeatInvariant α α Pred
-  | .inl a => inv a
-  | .inr a => inv a ⊓ onBreak a
+noncomputable abbrev WhileInvariant.ofInvariantAndBreak {α : Type u} {Pred : Type u} [Assertion Pred]
+    (inv : α → Pred) (onBreak : α → Pred) : WhileInvariant α Pred
+  | false, a => inv a
+  | true, a => inv a ⊓ onBreak a
 
 
 /--
-Specification for `forIn` over a `Lean.Loop`. The cursor is `β ⊕ β`: `.inl b` means
-"still iterating with `b`", `.inr b` means "finished with result `b`".
+Specification for `forIn` over a `Lean.Loop`. The invariant takes the loop's `exit` flag:
+`inv false b` means "still iterating with `b`", `inv true b` means "finished with result `b`".
 -/
 @[spec]
 theorem Spec.forIn_loop
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     [∀ P : Pred, PreservesSup (meet P)]
-    (measure : RepeatVariant β Pred)
-    (inv : RepeatInvariant β β Pred)
+    (measure : Variant β Pred)
+    (inv : WhileInvariant β Pred)
     (einv : EPred)
     (step : ∀ b (mb : measure.γ),
       Triple
         (f () b)
-        (measure.EvalsTo b mb ⊓ inv (.inl b))
+        (measure.EvalsTo b mb ⊓ inv false b)
         (fun r => match r with
-          | .yield b' => measure.EvalsBelow b' mb ⊓ inv (.inl b')
-          | .done b' => inv (.inr b'))
+          | .yield b' => measure.EvalsBelow b' mb ⊓ inv false b'
+          | .done b' => inv true b')
         einv) :
     Triple
       (forIn l init f)
-      (inv (.inl init))
-      (fun b => inv (.inr b))
+      (inv false init)
+      (fun b => inv true b)
       einv := by
   haveI : Nonempty β := ⟨init⟩
-  change Triple (pre := inv (.inl init)) (_root_.Lean.Loop.forIn l init f)
-    (fun b => inv (.inr b)) einv
+  change Triple (pre := inv false init) (_root_.Lean.Loop.forIn l init f)
+    (fun b => inv true b) einv
   simp only [_root_.Lean.Loop.forIn]
-  apply Spec.repeatM (measure := measure) (inv := inv) (einv := einv)
+  apply Spec.repeatM (measure := measure) (inv := inv.toRepeatInvariant) (einv := einv)
   intro b mb
   apply Triple.bind
   · exact step b mb

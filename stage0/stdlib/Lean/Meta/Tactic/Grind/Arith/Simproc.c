@@ -3395,8 +3395,8 @@ goto v___jp_643_;
 }
 else
 {
-lean_dec_ref_known(v___x_687_, 2);
 lean_dec(v_tail_688_);
+lean_dec_ref_known(v___x_687_, 2);
 lean_dec_ref(v_arg_672_);
 lean_dec_ref(v_arg_661_);
 lean_dec_ref(v_arg_658_);
@@ -6643,7 +6643,7 @@ lean_object* v___x_2402_; lean_object* v___x_2404_;
 v___x_2402_ = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(v___x_2402_, 0, v___x_2395_);
 lean_ctor_set(v___x_2402_, 1, v___x_2401_);
-lean_ctor_set_uint8(v___x_2402_, sizeof(void*)*2, v___x_2336_);
+lean_ctor_set_uint8(v___x_2402_, sizeof(void*)*2, v___x_2366_);
 if (v_isShared_2345_ == 0)
 {
 lean_ctor_set_tag(v___x_2344_, 0);

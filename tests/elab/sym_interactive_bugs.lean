@@ -19,3 +19,11 @@ example : ∃ x, x = a := by
   sym =>
     apply Exists.intro
     apply Eq.refl
+
+-- The goal is closed while preprocessing the contradictory hypothesis, before the
+-- tactic sequence runs. `sym` must not preprocess the already assigned metavariable.
+example (h : false = true) : True = True := by
+  sym => done
+
+example (h : False) : 1 = 2 := by
+  sym => done

@@ -482,8 +482,9 @@ public def elabVCGen : Tactic := fun stx => withMainContext do
   -- `clean := false` keeps inaccessible binder names (no `exposeNames`), so users can
   -- still rename them with `case vcN h => …`.
   let params ← Grind.mkDefaultParams { clean := false }
-  let (_, state) ← Grind.GrindTacticM.runAtGoal goal params (sym := true) <|
-    Grind.evalGrindTactic step
+  let (_, state) ← Grind.GrindTacticM.runAtGoal goal params (sym := true) do
+    unless (← Grind.getUnsolvedGoals).isEmpty do
+      Grind.evalGrindTactic step
   replaceMainGoal (state.goals.map (·.mvarId))
 
 end Lean.Elab.Tactic.VCGen

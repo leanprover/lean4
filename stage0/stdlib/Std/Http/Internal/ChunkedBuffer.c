@@ -402,9 +402,9 @@ return v___x_98_;
 LEAN_EXPORT lean_object* l_Std_Http_Internal_ChunkedBuffer_toByteArray___lam__0___boxed(lean_object* v___x_99_, lean_object* v_x1_100_, lean_object* v_x2_101_){
 _start:
 {
-uint8_t v___x_92__boxed_102_; lean_object* v_res_103_; 
-v___x_92__boxed_102_ = lean_unbox(v___x_99_);
-v_res_103_ = l_Std_Http_Internal_ChunkedBuffer_toByteArray___lam__0(v___x_92__boxed_102_, v_x1_100_, v_x2_101_);
+uint8_t v___x_94__boxed_102_; lean_object* v_res_103_; 
+v___x_94__boxed_102_ = lean_unbox(v___x_99_);
+v_res_103_ = l_Std_Http_Internal_ChunkedBuffer_toByteArray___lam__0(v___x_94__boxed_102_, v_x1_100_, v_x2_101_);
 lean_dec_ref(v_x2_101_);
 return v_res_103_;
 }

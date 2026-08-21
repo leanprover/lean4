@@ -21,9 +21,9 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_instDecidableEquivOfTransCmpOfLawfulEqCm
 LEAN_EXPORT uint8_t l_Std_DTreeMap_instDecidableEquivOfTransCmpOfLawfulEqCmpOfLawfulBEq___redArg(lean_object* v_cmp_1_, lean_object* v_inst_2_, lean_object* v_t_u2081_3_, lean_object* v_t_u2082_4_){
 _start:
 {
-uint8_t v_this_5_; 
-v_this_5_ = l_Std_DTreeMap_Internal_Impl_beq___redArg(v_cmp_1_, v_inst_2_, v_t_u2081_3_, v_t_u2082_4_);
-return v_this_5_;
+uint8_t v___x_5_; 
+v___x_5_ = l_Std_DTreeMap_Internal_Impl_beq___redArg(v_cmp_1_, v_inst_2_, v_t_u2081_3_, v_t_u2082_4_);
+return v___x_5_;
 }
 }
 LEAN_EXPORT lean_object* l_Std_DTreeMap_instDecidableEquivOfTransCmpOfLawfulEqCmpOfLawfulBEq___redArg___boxed(lean_object* v_cmp_6_, lean_object* v_inst_7_, lean_object* v_t_u2081_8_, lean_object* v_t_u2082_9_){
@@ -38,9 +38,9 @@ return v_r_11_;
 LEAN_EXPORT uint8_t l_Std_DTreeMap_instDecidableEquivOfTransCmpOfLawfulEqCmpOfLawfulBEq(lean_object* v_00_u03b1_12_, lean_object* v_00_u03b2_13_, lean_object* v_cmp_14_, lean_object* v_inst_15_, lean_object* v_inst_16_, lean_object* v_inst_17_, lean_object* v_inst_18_, lean_object* v_t_u2081_19_, lean_object* v_t_u2082_20_){
 _start:
 {
-uint8_t v_this_21_; 
-v_this_21_ = l_Std_DTreeMap_Internal_Impl_beq___redArg(v_cmp_14_, v_inst_17_, v_t_u2081_19_, v_t_u2082_20_);
-return v_this_21_;
+uint8_t v___x_21_; 
+v___x_21_ = l_Std_DTreeMap_Internal_Impl_beq___redArg(v_cmp_14_, v_inst_17_, v_t_u2081_19_, v_t_u2082_20_);
+return v___x_21_;
 }
 }
 LEAN_EXPORT lean_object* l_Std_DTreeMap_instDecidableEquivOfTransCmpOfLawfulEqCmpOfLawfulBEq___boxed(lean_object* v_00_u03b1_22_, lean_object* v_00_u03b2_23_, lean_object* v_cmp_24_, lean_object* v_inst_25_, lean_object* v_inst_26_, lean_object* v_inst_27_, lean_object* v_inst_28_, lean_object* v_t_u2081_29_, lean_object* v_t_u2082_30_){

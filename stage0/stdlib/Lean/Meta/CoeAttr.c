@@ -784,9 +784,9 @@ return v___x_99_;
 LEAN_EXPORT lean_object* l_Lean_Meta_instReprCoeFnType_repr___boxed(lean_object* v_x_112_, lean_object* v_prec_113_){
 _start:
 {
-uint8_t v_x_177__boxed_114_; lean_object* v_res_115_; 
-v_x_177__boxed_114_ = lean_unbox(v_x_112_);
-v_res_115_ = l_Lean_Meta_instReprCoeFnType_repr(v_x_177__boxed_114_, v_prec_113_);
+uint8_t v_x_171__boxed_114_; lean_object* v_res_115_; 
+v_x_171__boxed_114_ = lean_unbox(v_x_112_);
+v_res_115_ = l_Lean_Meta_instReprCoeFnType_repr(v_x_171__boxed_114_, v_prec_113_);
 lean_dec(v_prec_113_);
 return v_res_115_;
 }
@@ -848,10 +848,10 @@ return v___x_133_;
 LEAN_EXPORT lean_object* l_Lean_Meta_instDecidableEqCoeFnType___boxed(lean_object* v_x_134_, lean_object* v_y_135_){
 _start:
 {
-uint8_t v_x_13__boxed_136_; uint8_t v_y_14__boxed_137_; uint8_t v_res_138_; lean_object* v_r_139_; 
-v_x_13__boxed_136_ = lean_unbox(v_x_134_);
-v_y_14__boxed_137_ = lean_unbox(v_y_135_);
-v_res_138_ = l_Lean_Meta_instDecidableEqCoeFnType(v_x_13__boxed_136_, v_y_14__boxed_137_);
+uint8_t v_x_20__boxed_136_; uint8_t v_y_21__boxed_137_; uint8_t v_res_138_; lean_object* v_r_139_; 
+v_x_20__boxed_136_ = lean_unbox(v_x_134_);
+v_y_21__boxed_137_ = lean_unbox(v_y_135_);
+v_res_138_ = l_Lean_Meta_instDecidableEqCoeFnType(v_x_20__boxed_136_, v_y_21__boxed_137_);
 v_r_139_ = lean_box(v_res_138_);
 return v_r_139_;
 }

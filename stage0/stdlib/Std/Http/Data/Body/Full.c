@@ -422,10 +422,10 @@ return v___x_66_;
 LEAN_EXPORT lean_object* l___private_Std_Http_Data_Body_Full_0__Std_Http_Body_Full_instBEqState_beq___boxed(lean_object* v_x_67_, lean_object* v_y_68_){
 _start:
 {
-uint8_t v_x_17__boxed_69_; uint8_t v_y_18__boxed_70_; uint8_t v_res_71_; lean_object* v_r_72_; 
-v_x_17__boxed_69_ = lean_unbox(v_x_67_);
-v_y_18__boxed_70_ = lean_unbox(v_y_68_);
-v_res_71_ = l___private_Std_Http_Data_Body_Full_0__Std_Http_Body_Full_instBEqState_beq(v_x_17__boxed_69_, v_y_18__boxed_70_);
+uint8_t v_x_21__boxed_69_; uint8_t v_y_22__boxed_70_; uint8_t v_res_71_; lean_object* v_r_72_; 
+v_x_21__boxed_69_ = lean_unbox(v_x_67_);
+v_y_22__boxed_70_ = lean_unbox(v_y_68_);
+v_res_71_ = l___private_Std_Http_Data_Body_Full_0__Std_Http_Body_Full_instBEqState_beq(v_x_21__boxed_69_, v_y_22__boxed_70_);
 v_r_72_ = lean_box(v_res_71_);
 return v_r_72_;
 }

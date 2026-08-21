@@ -675,9 +675,9 @@ v___x_176_ = l_Lean_diagnostics;
 v___x_177_ = l_Lean_Option_get___at___00Lean_Elab_Eqns_tryURefl_spec__1(v___x_175_, v___x_176_);
 v___x_231_ = l_Lean_Kernel_isDiagnosticsEnabled(v_env_171_);
 lean_dec_ref(v_env_171_);
-if (v___x_231_ == 0)
-{
 if (v___x_177_ == 0)
+{
+if (v___x_231_ == 0)
 {
 v_fileName_179_ = v_fileName_157_;
 v_fileMap_180_ = v_fileMap_158_;
@@ -697,13 +697,13 @@ goto v___jp_178_;
 }
 else
 {
-v___y_210_ = v___x_231_;
+v___y_210_ = v___x_177_;
 goto v___jp_209_;
 }
 }
 else
 {
-v___y_210_ = v___x_177_;
+v___y_210_ = v___x_231_;
 goto v___jp_209_;
 }
 v___jp_150_:

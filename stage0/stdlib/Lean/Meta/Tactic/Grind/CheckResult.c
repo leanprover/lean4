@@ -299,10 +299,10 @@ return v___x_80_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instBEqCheckResult_beq___boxed(lean_object* v_x_81_, lean_object* v_y_82_){
 _start:
 {
-uint8_t v_x_17__boxed_83_; uint8_t v_y_18__boxed_84_; uint8_t v_res_85_; lean_object* v_r_86_; 
-v_x_17__boxed_83_ = lean_unbox(v_x_81_);
-v_y_18__boxed_84_ = lean_unbox(v_y_82_);
-v_res_85_ = l_Lean_Meta_Grind_instBEqCheckResult_beq(v_x_17__boxed_83_, v_y_18__boxed_84_);
+uint8_t v_x_21__boxed_83_; uint8_t v_y_22__boxed_84_; uint8_t v_res_85_; lean_object* v_r_86_; 
+v_x_21__boxed_83_ = lean_unbox(v_x_81_);
+v_y_22__boxed_84_ = lean_unbox(v_y_82_);
+v_res_85_ = l_Lean_Meta_Grind_instBEqCheckResult_beq(v_x_21__boxed_83_, v_y_22__boxed_84_);
 v_r_86_ = lean_box(v_res_85_);
 return v_r_86_;
 }
@@ -493,9 +493,9 @@ return v___x_136_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instReprCheckResult_repr___boxed(lean_object* v_x_153_, lean_object* v_prec_154_){
 _start:
 {
-uint8_t v_x_233__boxed_155_; lean_object* v_res_156_; 
-v_x_233__boxed_155_ = lean_unbox(v_x_153_);
-v_res_156_ = l_Lean_Meta_Grind_instReprCheckResult_repr(v_x_233__boxed_155_, v_prec_154_);
+uint8_t v_x_225__boxed_155_; lean_object* v_res_156_; 
+v_x_225__boxed_155_ = lean_unbox(v_x_153_);
+v_res_156_ = l_Lean_Meta_Grind_instReprCheckResult_repr(v_x_225__boxed_155_, v_prec_154_);
 lean_dec(v_prec_154_);
 return v_res_156_;
 }

@@ -885,9 +885,9 @@ return v___x_193_;
 LEAN_EXPORT lean_object* l_Std_Time_instReprWeekday_repr___boxed(lean_object* v_x_222_, lean_object* v_prec_223_){
 _start:
 {
-uint8_t v_x_401__boxed_224_; lean_object* v_res_225_; 
-v_x_401__boxed_224_ = lean_unbox(v_x_222_);
-v_res_225_ = l_Std_Time_instReprWeekday_repr(v_x_401__boxed_224_, v_prec_223_);
+uint8_t v_x_387__boxed_224_; lean_object* v_res_225_; 
+v_x_387__boxed_224_ = lean_unbox(v_x_222_);
+v_res_225_ = l_Std_Time_instReprWeekday_repr(v_x_387__boxed_224_, v_prec_223_);
 lean_dec(v_prec_223_);
 return v_res_225_;
 }
@@ -1013,10 +1013,10 @@ return v___x_257_;
 LEAN_EXPORT lean_object* l_Std_Time_instDecidableEqWeekday___boxed(lean_object* v_x_258_, lean_object* v_y_259_){
 _start:
 {
-uint8_t v_x_13__boxed_260_; uint8_t v_y_14__boxed_261_; uint8_t v_res_262_; lean_object* v_r_263_; 
-v_x_13__boxed_260_ = lean_unbox(v_x_258_);
-v_y_14__boxed_261_ = lean_unbox(v_y_259_);
-v_res_262_ = l_Std_Time_instDecidableEqWeekday(v_x_13__boxed_260_, v_y_14__boxed_261_);
+uint8_t v_x_20__boxed_260_; uint8_t v_y_21__boxed_261_; uint8_t v_res_262_; lean_object* v_r_263_; 
+v_x_20__boxed_260_ = lean_unbox(v_x_258_);
+v_y_21__boxed_261_ = lean_unbox(v_y_259_);
+v_res_262_ = l_Std_Time_instDecidableEqWeekday(v_x_20__boxed_260_, v_y_21__boxed_261_);
 v_r_263_ = lean_box(v_res_262_);
 return v_r_263_;
 }
@@ -2518,9 +2518,9 @@ return v___x_722_;
 LEAN_EXPORT lean_object* l_Std_Time_Weekday_isWeekend___boxed(lean_object* v_x_723_){
 _start:
 {
-uint8_t v_x_26__boxed_724_; uint8_t v_res_725_; lean_object* v_r_726_; 
-v_x_26__boxed_724_ = lean_unbox(v_x_723_);
-v_res_725_ = l_Std_Time_Weekday_isWeekend(v_x_26__boxed_724_);
+uint8_t v_x_22__boxed_724_; uint8_t v_res_725_; lean_object* v_r_726_; 
+v_x_22__boxed_724_ = lean_unbox(v_x_723_);
+v_res_725_ = l_Std_Time_Weekday_isWeekend(v_x_22__boxed_724_);
 v_r_726_ = lean_box(v_res_725_);
 return v_r_726_;
 }

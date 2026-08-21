@@ -12,9 +12,9 @@ spec, at chain lengths 250, 500 and 750. The VCs are left to `sorry`, so the tim
 generation alone.
 -/
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
-open Lean Order Parser Meta Elab Tactic Sym Std Internal.Do
+open Lean Order Parser Meta Elab Tactic Sym Std WP
 open AdcChain
 
 set_option maxRecDepth 10000

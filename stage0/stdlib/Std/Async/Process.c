@@ -889,12 +889,12 @@ return v___x_322_;
 LEAN_EXPORT lean_object* l_Std_IO_Process_instDecidableEqPId_decEq___boxed(lean_object* v_x_323_, lean_object* v_x_324_){
 _start:
 {
-uint64_t v_x_25__boxed_325_; uint64_t v_x_26__boxed_326_; uint8_t v_res_327_; lean_object* v_r_328_; 
-v_x_25__boxed_325_ = lean_unbox_uint64(v_x_323_);
+uint64_t v_x_31__boxed_325_; uint64_t v_x_32__boxed_326_; uint8_t v_res_327_; lean_object* v_r_328_; 
+v_x_31__boxed_325_ = lean_unbox_uint64(v_x_323_);
 lean_dec_ref(v_x_323_);
-v_x_26__boxed_326_ = lean_unbox_uint64(v_x_324_);
+v_x_32__boxed_326_ = lean_unbox_uint64(v_x_324_);
 lean_dec_ref(v_x_324_);
-v_res_327_ = l_Std_IO_Process_instDecidableEqPId_decEq(v_x_25__boxed_325_, v_x_26__boxed_326_);
+v_res_327_ = l_Std_IO_Process_instDecidableEqPId_decEq(v_x_31__boxed_325_, v_x_32__boxed_326_);
 v_r_328_ = lean_box(v_res_327_);
 return v_r_328_;
 }
@@ -953,12 +953,12 @@ return v___x_344_;
 LEAN_EXPORT lean_object* l_Std_IO_Process_instOrdPId_ord___boxed(lean_object* v_x_345_, lean_object* v_x_346_){
 _start:
 {
-uint64_t v_x_75__boxed_347_; uint64_t v_x_76__boxed_348_; uint8_t v_res_349_; lean_object* v_r_350_; 
-v_x_75__boxed_347_ = lean_unbox_uint64(v_x_345_);
+uint64_t v_x_70__boxed_347_; uint64_t v_x_71__boxed_348_; uint8_t v_res_349_; lean_object* v_r_350_; 
+v_x_70__boxed_347_ = lean_unbox_uint64(v_x_345_);
 lean_dec_ref(v_x_345_);
-v_x_76__boxed_348_ = lean_unbox_uint64(v_x_346_);
+v_x_71__boxed_348_ = lean_unbox_uint64(v_x_346_);
 lean_dec_ref(v_x_346_);
-v_res_349_ = l_Std_IO_Process_instOrdPId_ord(v_x_75__boxed_347_, v_x_76__boxed_348_);
+v_res_349_ = l_Std_IO_Process_instOrdPId_ord(v_x_70__boxed_347_, v_x_71__boxed_348_);
 v_r_350_ = lean_box(v_res_349_);
 return v_r_350_;
 }

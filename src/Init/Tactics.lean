@@ -11,6 +11,29 @@ set_option linter.missingDocs true -- keep it documented
 namespace Lean.Parser.Tactic
 
 /--
+`+opt` is short for `(opt := true)`. It sets the `opt` configuration option to `true`.
+-/
+syntax posConfigItem := " +" noWs ident
+/--
+`-opt` is short for `(opt := false)`. It sets the `opt` configuration option to `false`.
+-/
+syntax negConfigItem := " -" noWs ident
+/--
+`(opt := val)` sets the `opt` configuration option to `val`.
+
+As a special case, `(config := ...)` sets the entire configuration.
+-/
+syntax valConfigItem := atomic(" (" notFollowedBy(&"discharger" <|> &"disch") ident " := ") withoutPosition(term) ")"
+/-- A configuration item for a tactic configuration. -/
+syntax configItem := posConfigItem <|> negConfigItem <|> valConfigItem
+
+/-- Configuration options for tactics. -/
+syntax optConfig := (colGt configItem)*
+
+/-- Optional configuration option for tactics. (Deprecated. Replace `(config)?` with `optConfig`.) -/
+syntax config := atomic(" (" &"config") " := " withoutPosition(term) ")"
+
+/--
 `as_aux_lemma => tac` does the same as `tac`, except that it wraps the resulting expression
 into an auxiliary lemma. In some cases, this significantly reduces the size of expressions
 because the proof term is not duplicated.
@@ -252,11 +275,31 @@ syntax (name := refine') "refine' " term : tactic
 /-- `exfalso` converts a goal `⊢ tgt` into `⊢ False` by applying `False.elim`. -/
 macro "exfalso" : tactic => `(tactic| refine False.elim ?_)
 
+/-- Configuration for the `constructor` tactic. -/
+structure ConstructorConfig where
+  /--
+  If `true` (default: `false`), then the first matching constructor is used without checking whether
+  any of the remaining constructors match as well. Otherwise, a warning is issued when more than one
+  constructor matches.
+  -/
+  first : Bool := false
+
 /--
 If the main goal's target type is an inductive type, `constructor` solves it with
 the first matching constructor, or else fails.
+
+If more than one constructor matches, `constructor` still uses the first one, but it issues a
+warning. Use `constructor!`, which is short for `constructor +first`, to select the first matching
+constructor without a warning. To choose a specific constructor of a two-constructor inductive type,
+use `left` or `right`.
 -/
-syntax (name := constructor) "constructor" : tactic
+syntax (name := constructor) "constructor" optConfig : tactic
+
+/--
+`constructor!` is short for `constructor +first`: it solves the main goal with the first matching
+constructor of its target type, without checking whether any further constructors match.
+-/
+syntax (name := constructorBang) "constructor!" optConfig : tactic
 
 /--
 Applies the first constructor when
@@ -473,29 +516,6 @@ macro "admit" : tactic => `(tactic| sorry)
 It synthesizes a value of any target type by typeclass inference.
 -/
 macro "infer_instance" : tactic => `(tactic| exact inferInstance)
-
-/--
-`+opt` is short for `(opt := true)`. It sets the `opt` configuration option to `true`.
--/
-syntax posConfigItem := " +" noWs ident
-/--
-`-opt` is short for `(opt := false)`. It sets the `opt` configuration option to `false`.
--/
-syntax negConfigItem := " -" noWs ident
-/--
-`(opt := val)` sets the `opt` configuration option to `val`.
-
-As a special case, `(config := ...)` sets the entire configuration.
--/
-syntax valConfigItem := atomic(" (" notFollowedBy(&"discharger" <|> &"disch") ident " := ") withoutPosition(term) ")"
-/-- A configuration item for a tactic configuration. -/
-syntax configItem := posConfigItem <|> negConfigItem <|> valConfigItem
-
-/-- Configuration options for tactics. -/
-syntax optConfig := (colGt configItem)*
-
-/-- Optional configuration option for tactics. (Deprecated. Replace `(config)?` with `optConfig`.) -/
-syntax config := atomic(" (" &"config") " := " withoutPosition(term) ")"
 
 /-- The `*` location refers to all hypotheses and the goal. -/
 syntax locationWildcard := " *"
@@ -2382,9 +2402,12 @@ macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
 `vcgen` will break down a Hoare triple proof goal like `⦃P⦄ prog ⦃Q⦄` into verification conditions,
 provided that all functions used in `prog` have specifications registered with `@[spec]`.
 
+`vcgen` is experimental and subject to change. `set_option experimental.vcgen true` acknowledges
+its experimental status and silences the warning that each call reports.
+
 ### Program types
 
-`vcgen` works on any program type `Prog` that carries a `Std.Internal.Do.WP` interpretation. A monad
+`vcgen` works on any program type `Prog` that carries a `Std.WP.WP` interpretation. A monad
 is one such program type. An inductive type of commands is another, once its weakest precondition is
 defined in terms of an operational semantics.
 
@@ -2463,8 +2486,8 @@ are in scope in the frame, bound to the matched arguments.
 
 ### Invariant suggestions
 
-`vcgen [...] invariants?` suggests invariants for the loops in `prog`. The suggestions are currently
-of limited use. A future release either implements them properly or removes the keyword.
+`vcgen [...] invariants?` warns that invariant suggestions are not available in `vcgen` and that
+the keyword is slated for removal. Alternatives after `invariants?` elaborate like `invariants`.
 -/
 macro (name := vcgenMacro) (priority:=low) "vcgen" : tactic =>
   Macro.throwError "to use `vcgen`, please include `import Std.Tactic.Do`"

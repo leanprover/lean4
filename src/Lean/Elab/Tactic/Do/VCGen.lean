@@ -113,7 +113,7 @@ where
       else
         leave (← onWPApp (goal.withNewProg e') name)
 
-    -- if, dite and match-expressions (without `+jp` which is handled by `onJoinPoint`)
+    -- if, dite, cond and match-expressions (without `+jp` which is handled by `onJoinPoint`)
     if let .some info ← getSplitInfo? e then
       return ← onSplit goal info name
 

@@ -1,5 +1,5 @@
 import Std.Tactic.Do
-import Std.Internal.Do
+import Std.WP
 
 /-!
 Regression test for `mvcgen`/`vcgen` splitting a `match` whose discriminant telescope is
@@ -9,6 +9,7 @@ discriminant with its abstract counterpart, so the pre-splitter motive stays typ
 -/
 
 set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 /-- The second discriminant `h : 0 < n` mentions the first discriminant `n`. -/
 def prog (n : Nat) (h : 0 < n) : StateM Nat Unit := do
@@ -16,7 +17,7 @@ def prog (n : Nat) (h : 0 < n) : StateM Nat Unit := do
   | m+1, _ => set m
 
 section
-open Lean.Order Std.Internal.Do
+open Lean.Order Std.WP
 
 example (n : Nat) (h : 0 < n) :
     ⦃fun _ => True⦄ prog n h ⦃fun _ _ => True⦄ := by

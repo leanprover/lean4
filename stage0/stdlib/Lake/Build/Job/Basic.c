@@ -770,9 +770,9 @@ return v___x_171_;
 LEAN_EXPORT lean_object* l_Lake_instReprJobAction_repr___boxed(lean_object* v_x_196_, lean_object* v_prec_197_){
 _start:
 {
-uint8_t v_x_345__boxed_198_; lean_object* v_res_199_; 
-v_x_345__boxed_198_ = lean_unbox(v_x_196_);
-v_res_199_ = l_Lake_instReprJobAction_repr(v_x_345__boxed_198_, v_prec_197_);
+uint8_t v_x_333__boxed_198_; lean_object* v_res_199_; 
+v_x_333__boxed_198_ = lean_unbox(v_x_196_);
+v_res_199_ = l_Lake_instReprJobAction_repr(v_x_333__boxed_198_, v_prec_197_);
 lean_dec(v_prec_197_);
 return v_res_199_;
 }
@@ -870,10 +870,10 @@ return v___x_226_;
 LEAN_EXPORT lean_object* l_Lake_instDecidableEqJobAction___boxed(lean_object* v_x_227_, lean_object* v_y_228_){
 _start:
 {
-uint8_t v_x_13__boxed_229_; uint8_t v_y_14__boxed_230_; uint8_t v_res_231_; lean_object* v_r_232_; 
-v_x_13__boxed_229_ = lean_unbox(v_x_227_);
-v_y_14__boxed_230_ = lean_unbox(v_y_228_);
-v_res_231_ = l_Lake_instDecidableEqJobAction(v_x_13__boxed_229_, v_y_14__boxed_230_);
+uint8_t v_x_20__boxed_229_; uint8_t v_y_21__boxed_230_; uint8_t v_res_231_; lean_object* v_r_232_; 
+v_x_20__boxed_229_ = lean_unbox(v_x_227_);
+v_y_21__boxed_230_ = lean_unbox(v_y_228_);
+v_res_231_ = l_Lake_instDecidableEqJobAction(v_x_20__boxed_229_, v_y_21__boxed_230_);
 v_r_232_ = lean_box(v_res_231_);
 return v_r_232_;
 }
@@ -1120,10 +1120,10 @@ return v___x_308_;
 LEAN_EXPORT lean_object* l_Lake_JobAction_verb___boxed(lean_object* v_failed_309_, lean_object* v_x_310_){
 _start:
 {
-uint8_t v_failed_boxed_311_; uint8_t v_x_256__boxed_312_; lean_object* v_res_313_; 
+uint8_t v_failed_boxed_311_; uint8_t v_x_136__boxed_312_; lean_object* v_res_313_; 
 v_failed_boxed_311_ = lean_unbox(v_failed_309_);
-v_x_256__boxed_312_ = lean_unbox(v_x_310_);
-v_res_313_ = l_Lake_JobAction_verb(v_failed_boxed_311_, v_x_256__boxed_312_);
+v_x_136__boxed_312_ = lean_unbox(v_x_310_);
+v_res_313_ = l_Lake_JobAction_verb(v_failed_boxed_311_, v_x_136__boxed_312_);
 return v_res_313_;
 }
 }

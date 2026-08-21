@@ -1,5 +1,5 @@
 import Std.Tactic.Do
-import Std.Internal.Do
+import Std.WP
 
 /-!
 Regression test for a *dependent* assertion language `(st : State) → st.Invariant → Prop`. Its order
@@ -8,9 +8,9 @@ applied to a dependent function lattice. `vcgen` must report a clear error inste
 it runs out of heartbeats. Extracted from a user report.
 -/
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
-open Std.Internal.Do
+open Std.WP
 
 opaque State : Type
 opaque State.Invariant : State → Prop
@@ -39,7 +39,7 @@ An `abbrev`, so the carrier unfolds to the dependent Pi and `Assertion`/`Partial
 pointwise function-lattice instances. -/
 abbrev StateProp := (st : State) → st.Invariant → Prop
 
-instance Stateful.instWP {α : Type} : WP (Stateful α) α StateProp EPost⟨⟩ where
+instance Stateful.instWP {α : Type} : WP (Stateful α) α StateProp EStack⟨⟩ where
   wpTrans f := ⟨fun post _epost =>
     fun st _ =>
       let (optRes, stOut) := f.run st
@@ -51,14 +51,14 @@ instance Stateful.instWP {α : Type} : WP (Stateful α) α StateProp EPost⟨⟩
     simp only [Lean.Order.PredTrans.monotone, Lean.Order.PartialOrder.rel, Stateful.run]; grind
 
 theorem Stateful.wpTrans_apply_eq {α : Type} (x : Stateful α)
-    (post : α → StateProp) (epost : EPost⟨⟩) (st : State) (h : st.Invariant) :
+    (post : α → StateProp) (epost : EStack⟨⟩) (st : State) (h : st.Invariant) :
     wp x post epost st h
       = ∃ h' : (x st).2.Invariant,
           match (x st).1 with
           | none => True
           | some r => post r (x st).2 h' := rfl
 
-instance : WPMonad Stateful StateProp EPost⟨⟩ where
+instance : WPMonad Stateful StateProp EStack⟨⟩ where
   toWP _ := Stateful.instWP
   pure_le_wp_pure x post epost := by
     intro st h hp; exact ⟨h, hp⟩
@@ -69,8 +69,8 @@ instance : WPMonad Stateful StateProp EPost⟨⟩ where
 
 /--
 error: failed to apply Lean.Order.le_of_forall_le to goal
-  Lean.Order.PartialOrder.rel (fun x x_1 => True) (wp (pure PUnit.unit) (fun x x_1 x_2 => True) epost⟨⟩)
+  Lean.Order.PartialOrder.rel (fun x x_1 => True) (wp (pure PUnit.unit) (fun x x_1 x_2 => True) PUnit.unit)
 -/
 #guard_msgs in
-example : ⦃ fun _ _ => True ⦄ (pure () : Stateful Unit) ⦃ fun _ _ _ => True; epost⟨⟩ ⦄ := by
+example : ⦃ fun _ _ => True ⦄ (pure () : Stateful Unit) ⦃ fun _ _ _ => True; estack⟨⟩ ⦄ := by
   vcgen

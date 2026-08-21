@@ -25,7 +25,7 @@ private def alphaHash (e : Expr) : UInt64 :=
   | .bvar .. | .mvar .. | .const .. | .fvar .. | .sort .. | .lit .. =>
     hash e
   | .app f a => mixHash (hashChild f) (hashChild a)
-  | .letE _ _ v b _ => mixHash (hashChild v) (hashChild b)
+  | .letE _ _ v b nondep => mixHash (if nondep then 17 else 19) (mixHash (hashChild v) (hashChild b))
   | .forallE _ d b _ | .lam _ d b _ => mixHash (hashChild d) (hashChild b)
   | .mdata _ b => mixHash 13 (hashChild b)
   | .proj n i b => mixHash (mixHash (hash n) (hash i)) (hashChild b)
@@ -37,9 +37,9 @@ private def alphaEq (e₁ e₂ : Expr) : Bool := Id.run do
   | .app f₁ a₁ =>
     let .app f₂ a₂ := e₂ | false
     isSameExpr f₁ f₂ && isSameExpr a₁ a₂
-  | .letE _ _ v₁ b₁ _ =>
-    let .letE _ _ v₂ b₂ _ := e₂ | false
-    isSameExpr v₁ v₂ && isSameExpr b₁ b₂
+  | .letE _ _ v₁ b₁ nondep₁ =>
+    let .letE _ _ v₂ b₂ nondep₂ := e₂ | false
+    nondep₁ == nondep₂ && isSameExpr v₁ v₂ && isSameExpr b₁ b₂
   | .forallE _ d₁ b₁ _ =>
     let .forallE _ d₂ b₂ _ := e₂ | false
     isSameExpr d₁ d₂ && isSameExpr b₁ b₂

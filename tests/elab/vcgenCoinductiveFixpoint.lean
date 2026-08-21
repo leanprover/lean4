@@ -1,10 +1,10 @@
-import Std.Internal.Do
+import Std.WP
 import Std.Tactic.Do
 
 /-!
 # `coinductive_fixpoint` beside a `vcgen` proof
 
-`Prop` is an assertion lattice, so `Std.Internal.Do` carries a `PartialOrder Prop` instance,
+`Prop` is an assertion lattice, so `Std.WP` carries a `PartialOrder Prop` instance,
 re-scoped from `Std.Internal.Order`.
 
 The monotonicity solver of `partial_fixpoint` tries `ind_impl` before `coind_impl`. On a mutual
@@ -15,12 +15,12 @@ instance through the pointwise lift, so `ind_impl` applies and wins on order.
 This test pins how far that reaches. A single coinductive definition and a `vcgen` proof coexist.
 A mutual block that mixes `inductive_fixpoint` and `coinductive_fixpoint` over an implication does
 not. See the `mixed3` and `mixed4` cases of `coinductive_predicates.lean`, which elaborate when
-`Std.Internal.Do` is not open.
+`Std.WP` is not open.
 -/
 
-open Std.Internal.Do Lean.Order
+open Std.WP Lean.Order
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 /-! ## What works: a coinductive predicate beside a `vcgen` proof -/
 
@@ -48,7 +48,7 @@ def mySum (l : List Nat) : Nat := Id.run do
 
 theorem mySum_correct (l : List Nat) : mySum l = l.sum := by
   generalize h : mySum l = r
-  apply Id.of_wp_run_eq h
+  apply Id.of_run_eq_wp h
   vcgen [mySum] invariants
   · fun _pref suff acc => ⌜acc + suff.sum = l.sum⌝
   with finish

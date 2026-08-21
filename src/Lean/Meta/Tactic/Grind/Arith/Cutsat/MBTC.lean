@@ -16,28 +16,6 @@ private def isSignedType (α : Expr) : Bool :=
   α.isConstOf ``Int8 || α.isConstOf ``Int16 || α.isConstOf ``Int32 || α.isConstOf ``Int64
 
 /--
-Returns the modulus of the embedded type `α` (`n` for `Fin n`, `2^w` for the fixed-width
-types) if it is known. Numerals of embedded types with known modulus are not given
-embedding-accessor applications: their embedded value is computed directly (e.g., during
-model-based theory combination).
--/
-def modulus? (α : Expr) : GoalM (Option Nat) := do
-  match_expr α with
-  | Fin n => getNatValue? n
-  | BitVec w =>
-    let some w ← getNatValue? w | return none
-    return some (2 ^ w)
-  | UInt8 => return some (2 ^ 8)
-  | UInt16 => return some (2 ^ 16)
-  | UInt32 => return some (2 ^ 32)
-  | UInt64 => return some (2 ^ 64)
-  | Int8 => return some (2 ^ 8)
-  | Int16 => return some (2 ^ 16)
-  | Int32 => return some (2 ^ 32)
-  | Int64 => return some (2 ^ 64)
-  | _ => return none -- `USize`/`ISize`: platform-dependent width
-
-/--
 Returns the embedded (`Fin.val`/`toNat`/`toInt`) value of a numeral of an embedded type
 (e.g., `(2 : Fin 3) ↦ 2`, `(-1 : Fin 4) ↦ 3`, `(200 : Int8) ↦ -56`). Numerals have no
 embedding-accessor application in the E-graph, so their value is computed directly.
@@ -45,7 +23,7 @@ embedding-accessor application in the E-graph, so their value is computed direct
 private def getEmbeddedLitValue? (e : Expr) : GoalM (Option Rat) := do
   let value? (α k : Expr) (neg : Bool) : GoalM (Option Rat) := do
     let some k ← getNatValue? k | return none
-    let some m ← modulus? α | return none
+    let some m ← getLitValueModulus? α | return none
     let m : Int := m
     let k : Int := if neg then -(k : Int) else (k : Int)
     let v := k % m

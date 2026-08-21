@@ -9,7 +9,7 @@ prelude
 public import Lean.Meta.Tactic.Simp
 public import Lean.Meta.Sym.Pattern
 public import Std.Tactic.Do.Syntax
-public import Std.Internal.Do.Triple.Basic
+public import Std.WP.Triple.Basic
 public import Lean.Elab.Tactic.Do.ConjunctivePre
 import Init.While
 import Init.Syntax
@@ -240,7 +240,7 @@ end Lean.Elab.Tactic.Do.SpecAttr
 
 namespace Lean.Elab.Tactic.VCGen.SpecAttr
 
-open Lean Meta Std.Internal.Do Lean.Order
+open Lean Meta Std.WP Lean.Order
 
 /--
 The kind of a spec theorem.
@@ -339,12 +339,12 @@ structure SpecTheorem where
   /-- The proof for the theorem. -/
   proof : SpecProof
   /-- The kind of spec theorem: triple or simp. -/
-  kind : SpecTheoremKind := .triple
+  kind : SpecTheoremKind
   /-- Whether the precondition is conjunctive in the spec's postconditions, so applying the spec
   directly carries any frame and `vcgen` skips the frame machinery. Opt out with a trivial `Q = Q`
   premise. -/
-  conjunctivePre : Bool := false
-  priority : Nat := eval_prio default
+  conjunctivePre : Bool
+  priority : Nat
   deriving Inhabited
 
 instance : BEq SpecTheorem where
@@ -486,7 +486,7 @@ private def mkSpecTheorem (type : Expr) (proof : SpecProof) (prio : Nat) : MetaM
   let some _ ← selectProg type | return none
   let pattern ← mkSpecPatternFromExpr expr levelParams
   let conjunctivePre ← isConjunctiveInPosts type binders
-  return some { pattern, proof, priority := prio, conjunctivePre }
+  return some { pattern, proof, kind := .triple, priority := prio, conjunctivePre }
 
 def mkSpecTheoremFromConst (declName : Name) (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
   let info := (← getAsyncConstInfo declName).toConstantVal
@@ -548,7 +548,8 @@ def mkSpecTheoremFromSimpDecl? (declName : Name) (prio : Nat) : MetaM (Option Sp
   -- progress (e.g. `getThe.eq_1 : getThe σ = MonadStateOf.get` after reducible unfolding).
   if pattern.pattern == rhs then return none
   let (pattern, etaArgs) := etaExpandEqPattern pattern eqTy
-  return some { pattern, proof := .global declName, kind := .simp etaArgs, priority := prio }
+  return some { pattern, proof := .global declName, kind := .simp etaArgs, priority := prio,
+                conjunctivePre := true }
 
 /--
 Create a `SpecTheorem` from an elaborated equational proof term `proof : ∀ xs, lhs = rhs`, keyed on
@@ -562,7 +563,8 @@ def mkSpecTheoremFromSimpExpr? (ref : Syntax) (proof : Expr) (levelParams : List
     return (lhs, (eqTy, rhs))
   if pattern.pattern == rhs then return none
   let (pattern, etaArgs) := etaExpandEqPattern pattern eqTy
-  return some { pattern, proof := .stx (← mkFreshId) ref proof, kind := .simp etaArgs, priority := prio }
+  return some { pattern, proof := .stx (← mkFreshId) ref proof, kind := .simp etaArgs,
+                priority := prio, conjunctivePre := true }
 
 /--
 The unfold theorem `declName.eq_def` through which a definition in a simp set's `toUnfold`
@@ -698,7 +700,7 @@ def mkSpecAttr : AttributeImpl where
         specAttr.addSpecTheoremFromConst declName prio attrKind
       catch _ =>
       try
-        -- New metatheory `Std.Internal.Do.Triple` / `⊑ wp` specs.
+        -- New metatheory `Std.WP.Triple` / `⊑ wp` specs.
         _root_.Lean.Elab.Tactic.VCGen.SpecAttr.specAttr.addSpecTheoremFromConst declName prio attrKind
       catch _ =>
       -- Equality / unfold specs: register for legacy `mvcgen` via `mvcgen_simp`, and for the new

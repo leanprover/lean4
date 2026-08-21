@@ -19,7 +19,7 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_registerNamespace(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_modifyScope___redArg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_commandElabAttribute;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -407,7 +407,7 @@ goto v_reusejp_88_;
 v_reusejp_88_:
 {
 lean_object* v___x_90_; lean_object* v___f_91_; lean_object* v___x_92_; 
-v___x_90_ = lean_st_ref_set(v_a_65_, v___x_89_);
+v___x_90_ = lean_st_ref_put(v_a_65_, v___x_89_);
 v___f_91_ = lean_alloc_closure((void*)(l___private_Lean_Elab_Command_WithWeakNamespace_0__Lean_Elab_Command_withWeakNamespace___redArg___lam__0), 2, 1);
 lean_closure_set(v___f_91_, 0, v___x_86_);
 v___x_92_ = l_Lean_Elab_Command_modifyScope___redArg(v___f_91_, v_a_65_);

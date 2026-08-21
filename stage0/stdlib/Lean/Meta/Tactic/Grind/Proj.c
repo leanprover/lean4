@@ -22,7 +22,7 @@ lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -412,7 +412,7 @@ goto v_reusejp_125_;
 v_reusejp_125_:
 {
 lean_object* v___x_127_; lean_object* v___x_128_; lean_object* v___x_130_; 
-v___x_127_ = lean_st_ref_set(v___y_88_, v___x_126_);
+v___x_127_ = lean_st_ref_put(v___y_88_, v___x_126_);
 v___x_128_ = lean_box(0);
 if (v_isShared_95_ == 0)
 {

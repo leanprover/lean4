@@ -32,16 +32,18 @@ abbrev xor : Bool → Bool → Bool := bne
 recommended_spelling "xor" for "^^" in [xor, «term_^^_»]
 
 instance (p : Bool → Prop) [inst : DecidablePred p] : Decidable (∀ x, p x) :=
-  match inst true, inst false with
-  | isFalse ht, _ => isFalse fun h => absurd (h _) ht
-  | _, isFalse hf => isFalse fun h => absurd (h _) hf
-  | isTrue ht, isTrue hf => isTrue fun | true => ht | false => hf
+  Decidable.intro (p true && p false)
+    (match inst true, inst false with
+    | isFalse ht, _ => fun h => absurd (h _) ht
+    | isTrue _, isFalse hf => fun h => absurd (h _) hf
+    | isTrue ht, isTrue hf => fun | true => ht | false => hf)
 
 instance (p : Bool → Prop) [inst : DecidablePred p] : Decidable (∃ x, p x) :=
-  match inst true, inst false with
-  | isTrue ht, _ => isTrue ⟨_, ht⟩
-  | _, isTrue hf => isTrue ⟨_, hf⟩
-  | isFalse ht, isFalse hf => isFalse fun | ⟨true, h⟩ => absurd h ht | ⟨false, h⟩ => absurd h hf
+  Decidable.intro (p true || p false)
+    (match inst true, inst false with
+    | isTrue ht, _ => ⟨_, ht⟩
+    | isFalse _, isTrue hf => ⟨_, hf⟩
+    | isFalse ht, isFalse hf => fun | ⟨true, h⟩ => absurd h ht | ⟨false, h⟩ => absurd h hf)
 
 @[simp] theorem default_bool : default = false := rfl
 
@@ -636,15 +638,15 @@ protected theorem decide_coe (b : Bool) [Decidable (b = true)] : decide (b = tru
   cases dp with | _ p => simp [p]
 
 @[bool_to_prop]
-theorem and_eq_decide (p q : Bool) : (p && q) = decide (p ∧ q) := by simp
+theorem and_eq_decide (p q : Bool) : (p && q) = decide (p ∧ q) := rfl
 
 @[bool_to_prop]
-theorem or_eq_decide (p q : Bool) : (p || q) = decide (p ∨ q) := by simp
+theorem or_eq_decide (p q : Bool) : (p || q) = decide (p ∨ q) := rfl
 
 @[bool_to_prop]
-theorem decide_beq_decide (p q : Prop) [dpq : Decidable (p ↔ q)] [dp : Decidable p] [dq : Decidable q] :
-    (decide p == decide q) = decide (p ↔ q) := by
-  cases dp with | _ p => simp [p]
+theorem decide_beq_decide (p q : Prop) [dp : Decidable p] [dq : Decidable q] :
+    (decide p == decide q) = decide (p ↔ q) :=
+  rfl
 
 end Bool
 
@@ -682,29 +684,31 @@ but may be used locally.
 
 /-! ### Proof by reflection support  -/
 
-@[expose] protected noncomputable def Internal.Bool.and' (a b : Bool) : Bool :=
-  Bool.rec false b a
+/--
+This used to be a variant of `Bool.and` with better kernel behavior, but `Bool.and` was redefined
+to have this kernel-efficient definition.
+-/
+@[deprecated Bool.and (since := "2026-08-18")]
+abbrev Bool.and' (a b : Bool) : Bool :=
+  Bool.and a b
 
-@[expose] protected noncomputable def Internal.Bool.or' (a b : Bool) : Bool :=
-  Bool.rec b true a
+/--
+This used to be a variant of `Bool.or` with better kernel behavior, but `Bool.or` was redefined
+to have this kernel-efficient definition.
+-/
+@[deprecated Bool.or (since := "2026-08-18")]
+abbrev Bool.or' (a b : Bool) : Bool :=
+  Bool.or a b
 
-@[expose] protected noncomputable def Internal.Bool.not' (a : Bool) : Bool :=
-  Bool.rec true false a
+/--
+This used to be a variant of `Bool.not` with better kernel behavior, but `Bool.not` was redefined
+to have this kernel-efficient definition.
+-/
+@[deprecated Bool.not (since := "2026-08-18")]
+abbrev Bool.not' (a : Bool) : Bool :=
+  Bool.not a
 
 section
-
-open Internal
-
-@[simp] theorem Internal.Bool.and'_eq_and (a b : Bool) : a.and' b = a.and b := by
-  cases a <;> simp [Bool.and']
-
-@[simp] theorem Internal.Bool.or'_eq_or (a b : Bool) : a.or' b = a.or b := by
-  cases a <;> simp [Bool.or']
-
-@[simp] theorem Internal.Bool.not'_eq_not (a : Bool) : a.not' = a.not := by
-  cases a <;> simp [Bool.not']
-
-end
 
 theorem Bool.rec_eq {α : Sort _} (b : Bool) {x y : α} : Bool.rec y x b = if b then x else y := by
   cases b <;> simp

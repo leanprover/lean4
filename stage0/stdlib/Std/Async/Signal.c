@@ -23,7 +23,7 @@ lean_object* lean_mk_io_user_error(lean_object*);
 lean_object* lean_io_map_task(lean_object*, lean_object*, lean_object*, uint8_t);
 uint8_t lean_io_get_task_state(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_io_promise_resolve(lean_object*, lean_object*);
 lean_object* lean_task_pure(lean_object*);
 lean_object* lean_uv_signal_next(lean_object*);
@@ -2047,9 +2047,9 @@ return v___x_553_;
 LEAN_EXPORT lean_object* l_Std_Async_instReprSignal_repr___boxed(lean_object* v_x_642_, lean_object* v_prec_643_){
 _start:
 {
-uint8_t v_x_1241__boxed_644_; lean_object* v_res_645_; 
-v_x_1241__boxed_644_ = lean_unbox(v_x_642_);
-v_res_645_ = l_Std_Async_instReprSignal_repr(v_x_1241__boxed_644_, v_prec_643_);
+uint8_t v_x_1197__boxed_644_; lean_object* v_res_645_; 
+v_x_1197__boxed_644_ = lean_unbox(v_x_642_);
+v_res_645_ = l_Std_Async_instReprSignal_repr(v_x_1197__boxed_644_, v_prec_643_);
 lean_dec(v_prec_643_);
 return v_res_645_;
 }
@@ -2339,10 +2339,10 @@ return v___x_720_;
 LEAN_EXPORT lean_object* l_Std_Async_instDecidableEqSignal___boxed(lean_object* v_x_721_, lean_object* v_y_722_){
 _start:
 {
-uint8_t v_x_13__boxed_723_; uint8_t v_y_14__boxed_724_; uint8_t v_res_725_; lean_object* v_r_726_; 
-v_x_13__boxed_723_ = lean_unbox(v_x_721_);
-v_y_14__boxed_724_ = lean_unbox(v_y_722_);
-v_res_725_ = l_Std_Async_instDecidableEqSignal(v_x_13__boxed_723_, v_y_14__boxed_724_);
+uint8_t v_x_20__boxed_723_; uint8_t v_y_21__boxed_724_; uint8_t v_res_725_; lean_object* v_r_726_; 
+v_x_20__boxed_723_ = lean_unbox(v_x_721_);
+v_y_21__boxed_724_ = lean_unbox(v_y_722_);
+v_res_725_ = l_Std_Async_instDecidableEqSignal(v_x_20__boxed_723_, v_y_21__boxed_724_);
 v_r_726_ = lean_box(v_res_725_);
 return v_r_726_;
 }
@@ -2362,10 +2362,10 @@ return v___x_731_;
 LEAN_EXPORT lean_object* l_Std_Async_instBEqSignal_beq___boxed(lean_object* v_x_732_, lean_object* v_y_733_){
 _start:
 {
-uint8_t v_x_17__boxed_734_; uint8_t v_y_18__boxed_735_; uint8_t v_res_736_; lean_object* v_r_737_; 
-v_x_17__boxed_734_ = lean_unbox(v_x_732_);
-v_y_18__boxed_735_ = lean_unbox(v_y_733_);
-v_res_736_ = l_Std_Async_instBEqSignal_beq(v_x_17__boxed_734_, v_y_18__boxed_735_);
+uint8_t v_x_21__boxed_734_; uint8_t v_y_22__boxed_735_; uint8_t v_res_736_; lean_object* v_r_737_; 
+v_x_21__boxed_734_ = lean_unbox(v_x_732_);
+v_y_22__boxed_735_ = lean_unbox(v_y_733_);
+v_res_736_ = l_Std_Async_instBEqSignal_beq(v_x_21__boxed_734_, v_y_22__boxed_735_);
 v_r_737_ = lean_box(v_res_736_);
 return v_r_737_;
 }
@@ -3023,7 +3023,7 @@ v___jp_894_:
 uint8_t v___x_896_; lean_object* v___x_897_; lean_object* v___x_898_; 
 v___x_896_ = 1;
 v___x_897_ = lean_box(v___x_896_);
-v___x_898_ = lean_st_ref_set(v_finished_891_, v___x_897_);
+v___x_898_ = lean_st_ref_put(v_finished_891_, v___x_897_);
 if (v___y_895_ == 0)
 {
 lean_object* v___x_899_; 

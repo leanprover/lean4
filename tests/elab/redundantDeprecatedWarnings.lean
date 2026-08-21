@@ -51,7 +51,12 @@ def myFun (n : Nat) : Nat := Id.run do
 instance : BEq Nat where
   beq m n := m == baz n
 
-/-- warning: `baz` has been deprecated: Use `foo` instead -/
+/--
+warning: `baz` has been deprecated: Use `foo` instead
+
+Hint: Replace the deprecated name:
+  b̵a̵z̵f̲o̲o̲
+-/
 #guard_msgs in
 mutual
   inductive NotDep : Prop where

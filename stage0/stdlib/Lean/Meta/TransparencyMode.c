@@ -347,10 +347,10 @@ return v___x_60_;
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_lt___boxed(lean_object* v_x_61_, lean_object* v_x_62_){
 _start:
 {
-uint8_t v_x_137__boxed_63_; uint8_t v_x_138__boxed_64_; uint8_t v_res_65_; lean_object* v_r_66_; 
-v_x_137__boxed_63_ = lean_unbox(v_x_61_);
-v_x_138__boxed_64_ = lean_unbox(v_x_62_);
-v_res_65_ = l_Lean_Meta_TransparencyMode_lt(v_x_137__boxed_63_, v_x_138__boxed_64_);
+uint8_t v_x_105__boxed_63_; uint8_t v_x_106__boxed_64_; uint8_t v_res_65_; lean_object* v_r_66_; 
+v_x_105__boxed_63_ = lean_unbox(v_x_61_);
+v_x_106__boxed_64_ = lean_unbox(v_x_62_);
+v_res_65_ = l_Lean_Meta_TransparencyMode_lt(v_x_105__boxed_63_, v_x_106__boxed_64_);
 v_r_66_ = lean_box(v_res_65_);
 return v_r_66_;
 }

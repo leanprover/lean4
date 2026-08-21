@@ -25,6 +25,12 @@ register_builtin_option linter.deprecated : Bool := {
   descr := "if true, generate deprecation warnings"
 }
 
+register_builtin_option linter.deprecated.deprecatedTarget : Bool := {
+  defValue := true
+  descr := "if true, warn when a `@[deprecated]` attribute points at a declaration that is \
+    itself deprecated"
+}
+
 structure DeprecationEntry where
   newName? : Option Name := none
   text? : Option String := none
@@ -44,7 +50,9 @@ private def areTypesReduciblyDefEq (decl₁ decl₂ : ConstantInfo) : MetaM Bool
   withReducible <| isDefEqGuarded type₁ type₂
 
 builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ←
-  registerParametricAttribute {
+  let ext ← registerParametricAttributeExt (α := DeprecationEntry) `Lean.Linter.deprecatedAttr
+    (preserveOrder := false)
+  registerParametricAttributeForExt (ext := ext) {
     name := `deprecated
     descr := "mark declaration as deprecated",
     getParam := fun declName stx => do
@@ -57,6 +65,20 @@ builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ←
         recordExtraModUseFromDecl (isMeta := false) newName
         if getLinterValue linter.deprecated (← getLinterOptions) then
           let env ← getEnv
+          if linter.deprecated.deprecatedTarget.get (← getOptions) then
+            let disableNote : MessageData := .note m!"This warning can be disabled with \
+              `set_option {linter.deprecated.deprecatedTarget.name} false`"
+            if let some entry := ParametricAttribute.getParamFromExt? ext (preserveOrder := false) env newName then
+              match entry.newName? with
+              | none =>
+                logWarning <| m!"`{.ofConstName newName true}` is itself deprecated, but without an \
+                  explicit replacement; `{.ofConstName declName true}` is being deprecated in favor \
+                  of a deprecated declaration" ++ disableNote
+              | some next =>
+                if next != newName then
+                  logWarning <| m!"`{.ofConstName newName true}` is itself deprecated in favor of \
+                  `{.ofConstName next true}`; consider deprecating `{.ofConstName declName true}` \
+                  in favor of `{.ofConstName next true}` instead" ++ disableNote
           if let some oldDecl := env.find? declName then
             if let some newDecl := env.find? newName then
               if ← MetaM.run' <| areTypesReduciblyDefEq oldDecl newDecl then
@@ -108,7 +130,16 @@ def _root_.Lean.MessageData.isDeprecationWarning (msg : MessageData) : Bool :=
 def getDeprecatedNewName (env : Environment) (declName : Name) : Option Name := do
   (← deprecatedAttr.getParam? env declName).newName?
 
-def checkDeprecated (declName : Name) : MetaM Unit := do
+private def mkDeprecationHint? (declName newName : Name) : MetaM (Option MessageData) := do
+  let ref ← getRef
+  let .ident _ _ writtenName _ := ref | return none
+  if writtenName.hasMacroScopes then return none
+  unless (ref.getRange? (canonicalOnly := true)).isSome do return none
+  unless (← resolveGlobalName writtenName) == [(declName, [])] do return none
+  let some replacement ← unresolveNameGlobalAvoidingLocals? newName | return none
+  return some (← m!"Replace the deprecated name:".hint #[replacement.toString] (ref? := some ref))
+
+def checkDeprecated (declName : Name) (allowSuggestion : Bool) : MetaM Unit := do
   if getLinterValue linter.deprecated (← getLinterOptions) then
     let some attr := deprecatedAttr.getParam? (← getEnv) declName | pure ()
     let extraMsg ← match attr.text?, attr.newName? with
@@ -121,7 +152,8 @@ def checkDeprecated (declName : Name) : MetaM Unit := do
         let newPfx := newName.getPrefix
         let some oldDecl := env.find? declName | pure msg
         let some newDecl := env.find? newName | pure msg
-        if !(← areTypesReduciblyDefEq oldDecl newDecl) then
+        let typesReduciblyDefEq ← areTypesReduciblyDefEq oldDecl newDecl
+        if !typesReduciblyDefEq then
           msg := msg ++ .note m!"The updated constant has a different type:{indentExpr newDecl.type}\
             \ninstead of{indentExpr oldDecl.type}"
         unless oldPfx.isAnonymous do
@@ -137,6 +169,9 @@ def checkDeprecated (declName : Name) : MetaM Unit := do
             let pfxCompStr := if _ : pfxComps.length > 1 then m!"at least the last component `{pfxComps[0]}` of " else ""
             msg := msg ++ .note m!"`{.ofConstName newName true}` is protected. References to this \
               constant must include {pfxCompStr}its prefix `{newPfx}` even when inside its namespace."
+        if allowSuggestion && typesReduciblyDefEq then
+           if let some hint ← mkDeprecationHint? declName newName then
+            msg := msg ++ hint
         pure msg
     logWarning <| .tagged ``deprecatedAttr <|
       m!"`{.ofConstName declName true}` has been deprecated" ++ extraMsg

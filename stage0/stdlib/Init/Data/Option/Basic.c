@@ -211,15 +211,15 @@ return v___x_6_;
 }
 else
 {
-lean_object* v_val_7_; lean_object* v_val_8_; lean_object* v___x_9_; uint8_t v___x_10_; 
+lean_object* v_val_7_; lean_object* v_val_8_; lean_object* v_decide_9_; uint8_t v___x_10_; 
 v_val_7_ = lean_ctor_get(v_a_2_, 0);
 lean_inc(v_val_7_);
 lean_dec_ref_known(v_a_2_, 1);
 v_val_8_ = lean_ctor_get(v_b_3_, 0);
 lean_inc(v_val_8_);
 lean_dec_ref_known(v_b_3_, 1);
-v___x_9_ = lean_apply_2(v_inst_1_, v_val_7_, v_val_8_);
-v___x_10_ = lean_unbox(v___x_9_);
+v_decide_9_ = lean_apply_2(v_inst_1_, v_val_7_, v_val_8_);
+v___x_10_ = lean_unbox(v_decide_9_);
 return v___x_10_;
 }
 }

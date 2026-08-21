@@ -3600,9 +3600,9 @@ return v___x_985_;
 LEAN_EXPORT lean_object* l_Std_Http_instReprMethod_repr___boxed(lean_object* v_x_1146_, lean_object* v_prec_1147_){
 _start:
 {
-uint8_t v_x_2249__boxed_1148_; lean_object* v_res_1149_; 
-v_x_2249__boxed_1148_ = lean_unbox(v_x_1146_);
-v_res_1149_ = l_Std_Http_instReprMethod_repr(v_x_2249__boxed_1148_, v_prec_1147_);
+uint8_t v_x_2169__boxed_1148_; lean_object* v_res_1149_; 
+v_x_2169__boxed_1148_ = lean_unbox(v_x_1146_);
+v_res_1149_ = l_Std_Http_instReprMethod_repr(v_x_2169__boxed_1148_, v_prec_1147_);
 lean_dec(v_prec_1147_);
 return v_res_1149_;
 }
@@ -3638,10 +3638,10 @@ return v___x_1158_;
 LEAN_EXPORT lean_object* l_Std_Http_instBEqMethod_beq___boxed(lean_object* v_x_1159_, lean_object* v_y_1160_){
 _start:
 {
-uint8_t v_x_17__boxed_1161_; uint8_t v_y_18__boxed_1162_; uint8_t v_res_1163_; lean_object* v_r_1164_; 
-v_x_17__boxed_1161_ = lean_unbox(v_x_1159_);
-v_y_18__boxed_1162_ = lean_unbox(v_y_1160_);
-v_res_1163_ = l_Std_Http_instBEqMethod_beq(v_x_17__boxed_1161_, v_y_18__boxed_1162_);
+uint8_t v_x_21__boxed_1161_; uint8_t v_y_22__boxed_1162_; uint8_t v_res_1163_; lean_object* v_r_1164_; 
+v_x_21__boxed_1161_ = lean_unbox(v_x_1159_);
+v_y_22__boxed_1162_ = lean_unbox(v_y_1160_);
+v_res_1163_ = l_Std_Http_instBEqMethod_beq(v_x_21__boxed_1161_, v_y_22__boxed_1162_);
 v_r_1164_ = lean_box(v_res_1163_);
 return v_r_1164_;
 }
@@ -4147,10 +4147,10 @@ return v___x_1293_;
 LEAN_EXPORT lean_object* l_Std_Http_instDecidableEqMethod___boxed(lean_object* v_x_1294_, lean_object* v_y_1295_){
 _start:
 {
-uint8_t v_x_13__boxed_1296_; uint8_t v_y_14__boxed_1297_; uint8_t v_res_1298_; lean_object* v_r_1299_; 
-v_x_13__boxed_1296_ = lean_unbox(v_x_1294_);
-v_y_14__boxed_1297_ = lean_unbox(v_y_1295_);
-v_res_1298_ = l_Std_Http_instDecidableEqMethod(v_x_13__boxed_1296_, v_y_14__boxed_1297_);
+uint8_t v_x_20__boxed_1296_; uint8_t v_y_21__boxed_1297_; uint8_t v_res_1298_; lean_object* v_r_1299_; 
+v_x_20__boxed_1296_ = lean_unbox(v_x_1294_);
+v_y_21__boxed_1297_ = lean_unbox(v_y_1295_);
+v_res_1298_ = l_Std_Http_instDecidableEqMethod(v_x_20__boxed_1296_, v_y_21__boxed_1297_);
 v_r_1299_ = lean_box(v_res_1298_);
 return v_r_1299_;
 }

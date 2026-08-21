@@ -1,4 +1,4 @@
-import Std.Internal.Do
+import Std.WP
 import Std.Tactic.Do
 
 /-!
@@ -9,6 +9,7 @@ abbreviation before it is recognized as a `Triple`.
 -/
 
 set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 /-! `mvcgen` over a legacy `Std.Do` triple. `foo` is `irreducible`, so the
 postcondition `r = 1` can only be discharged via the registered spec (`r = 0`). -/
@@ -30,10 +31,10 @@ example :
 
 end
 
-/-! `vcgen` over a new-metatheory `Std.Internal.Do` triple. `G` is an `axiom`,
+/-! `vcgen` over a new-metatheory `Std.WP` triple. `G` is an `axiom`,
 so discharging `wp⟦G⟧` requires the registered spec. -/
 section
-open Std.Internal.Do Lean.Order
+open Std.WP Lean.Order
 set_option warn.sorry false
 
 axiom G : StateM Nat Unit

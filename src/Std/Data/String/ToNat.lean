@@ -97,6 +97,7 @@ namespace String.Slice
 
 open Std.Do in
 set_option mvcgen.warning false in
+set_option linter.deprecated.syntax false in
 theorem isNat_iff' {s : String.Slice} :
     s.isNat = true ↔
         s.copy.toList ≠ [] ∧

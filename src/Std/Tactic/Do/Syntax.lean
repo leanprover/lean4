@@ -437,11 +437,15 @@ syntax (name := mvcgen) "mvcgen" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
   (invariantAlts)? (vcAlts)? : tactic
 
+deprecated_syntax Lean.Parser.Tactic.mvcgen "use `vcgen` instead" (since := "2026-08-21")
+
 /--
 A hint tactic that expands to `mvcgen invariants?`.
 -/
 syntax (name := mvcgenHint) "mvcgen?" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")? : tactic
+
+deprecated_syntax Lean.Parser.Tactic.mvcgenHint "use `vcgen` instead" (since := "2026-08-21")
 
 -- Prototypical Sym-based variant of `mvcgen`; see `mvcgen` for documentation.
 -- Same surface syntax modulo `vcAlts`, replaced by `simplifying_assumptions … with …`.

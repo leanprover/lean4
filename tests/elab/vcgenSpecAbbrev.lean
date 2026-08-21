@@ -8,7 +8,7 @@ The triple is recovered from the proof's type and must be reduced through the
 abbreviation before it is recognized as a `Triple`.
 -/
 
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 set_option experimental.vcgen true
 
 /-! `mvcgen` over a legacy `Std.Do` triple. `foo` is `irreducible`, so the

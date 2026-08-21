@@ -2000,8 +2000,8 @@ return v___x_516_;
 else
 {
 lean_object* v___x_520_; 
-lean_dec_ref(v_a_502_);
 lean_dec_ref_known(v_a_493_, 2);
+lean_dec_ref(v_a_502_);
 lean_dec_ref(v_wrap_492_);
 v___x_520_ = lean_box(0);
 return v___x_520_;

@@ -1567,10 +1567,10 @@ return v_b_360_;
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Std_Http_Internal_unquoteHttpString_x3f_spec__1___redArg___boxed(lean_object* v___x_430_, lean_object* v___x_431_, lean_object* v_s_432_, lean_object* v_a_433_, lean_object* v_b_434_){
 _start:
 {
-uint32_t v___x_2507__boxed_435_; lean_object* v_res_436_; 
-v___x_2507__boxed_435_ = lean_unbox_uint32(v___x_430_);
+uint32_t v___x_2503__boxed_435_; lean_object* v_res_436_; 
+v___x_2503__boxed_435_ = lean_unbox_uint32(v___x_430_);
 lean_dec(v___x_430_);
-v_res_436_ = l_WellFounded_opaqueFix_u2083___at___00Std_Http_Internal_unquoteHttpString_x3f_spec__1___redArg(v___x_2507__boxed_435_, v___x_431_, v_s_432_, v_a_433_, v_b_434_);
+v_res_436_ = l_WellFounded_opaqueFix_u2083___at___00Std_Http_Internal_unquoteHttpString_x3f_spec__1___redArg(v___x_2503__boxed_435_, v___x_431_, v_s_432_, v_a_433_, v_b_434_);
 lean_dec_ref(v_s_432_);
 lean_dec_ref(v___x_431_);
 return v_res_436_;
@@ -1703,10 +1703,10 @@ return v___x_473_;
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Std_Http_Internal_unquoteHttpString_x3f_spec__1___boxed(lean_object* v___x_474_, lean_object* v___x_475_, lean_object* v_s_476_, lean_object* v_inst_477_, lean_object* v_R_478_, lean_object* v_a_479_, lean_object* v_b_480_, lean_object* v_c_481_){
 _start:
 {
-uint32_t v___x_2702__boxed_482_; lean_object* v_res_483_; 
-v___x_2702__boxed_482_ = lean_unbox_uint32(v___x_474_);
+uint32_t v___x_2698__boxed_482_; lean_object* v_res_483_; 
+v___x_2698__boxed_482_ = lean_unbox_uint32(v___x_474_);
 lean_dec(v___x_474_);
-v_res_483_ = l_WellFounded_opaqueFix_u2083___at___00Std_Http_Internal_unquoteHttpString_x3f_spec__1(v___x_2702__boxed_482_, v___x_475_, v_s_476_, v_inst_477_, v_R_478_, v_a_479_, v_b_480_, v_c_481_);
+v_res_483_ = l_WellFounded_opaqueFix_u2083___at___00Std_Http_Internal_unquoteHttpString_x3f_spec__1(v___x_2698__boxed_482_, v___x_475_, v_s_476_, v_inst_477_, v_R_478_, v_a_479_, v_b_480_, v_c_481_);
 lean_dec_ref(v_s_476_);
 lean_dec_ref(v___x_475_);
 return v_res_483_;

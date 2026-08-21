@@ -1306,10 +1306,10 @@ return v_x_173_;
 LEAN_EXPORT lean_object* l_Lake_Backend_orPreferLeft___boxed(lean_object* v_x_175_, lean_object* v_x_176_){
 _start:
 {
-uint8_t v_x_16__boxed_177_; uint8_t v_x_17__boxed_178_; uint8_t v_res_179_; lean_object* v_r_180_; 
-v_x_16__boxed_177_ = lean_unbox(v_x_175_);
-v_x_17__boxed_178_ = lean_unbox(v_x_176_);
-v_res_179_ = l_Lake_Backend_orPreferLeft(v_x_16__boxed_177_, v_x_17__boxed_178_);
+uint8_t v_x_12__boxed_177_; uint8_t v_x_13__boxed_178_; uint8_t v_res_179_; lean_object* v_r_180_; 
+v_x_12__boxed_177_ = lean_unbox(v_x_175_);
+v_x_13__boxed_178_ = lean_unbox(v_x_176_);
+v_res_179_ = l_Lake_Backend_orPreferLeft(v_x_12__boxed_177_, v_x_13__boxed_178_);
 v_r_180_ = lean_box(v_res_179_);
 return v_r_180_;
 }
@@ -2098,9 +2098,9 @@ return v___x_491_;
 LEAN_EXPORT lean_object* l_Lake_BuildType_leanOptions___boxed(lean_object* v_x_492_){
 _start:
 {
-uint8_t v_x_70__boxed_493_; lean_object* v_res_494_; 
-v_x_70__boxed_493_ = lean_unbox(v_x_492_);
-v_res_494_ = l_Lake_BuildType_leanOptions(v_x_70__boxed_493_);
+uint8_t v_x_66__boxed_493_; lean_object* v_res_494_; 
+v_x_66__boxed_493_ = lean_unbox(v_x_492_);
+v_res_494_ = l_Lake_BuildType_leanOptions(v_x_66__boxed_493_);
 return v_res_494_;
 }
 }

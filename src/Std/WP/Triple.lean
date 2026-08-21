@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.WP.Triple.Basic
+public import Std.WP.Triple.Conjunctive
 public import Std.WP.Triple.Monad
 public import Std.WP.Triple.SpecLemmas
 

@@ -26,7 +26,7 @@ The `vcgen` tactic, split across the modules above.
 - `VCGen.RuleConstruction` — SymM rule constructors from spec/simp/split info.
 - `VCGen.Context` — `VCGenM`, its `Context`/`State`, the bundle of pre-built rules.
 - `VCGen.EPost` — exception-postcondition decomposition helpers.
-- `VCGen.Util` — generic VCGenM helpers (`introsHygienic`, `simpGoalTelescope`, `solveTrivialConjuncts`).
+- `VCGen.Util` — generic VCGenM helpers (`introsHygienic`, `simpGoalTelescope`, `cleanupVC`).
 - `VCGen.RuleCache` — VCGenM cache wrappers around the SymM rule constructors.
 - `VCGen.Entails` — entailment-shaped goal decomposition (Triple unfolding, state/precondition intro, EPost and lattice steps).
 - `VCGen.Solve` — the main `solve` step / `SolveResult`.

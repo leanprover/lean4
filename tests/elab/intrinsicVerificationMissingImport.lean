@@ -2,6 +2,8 @@
 metatheory reports a helpful error naming the missing import, rather than a downstream elaboration
 failure. -/
 
+set_option experimental.intrinsic true
+
 /--
 error: `requires`/`ensures` contracts elaborate to a `vcgen`-proved specification theorem; add `import Std.WP` to use them.
 -/

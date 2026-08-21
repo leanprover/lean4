@@ -175,7 +175,11 @@ theorem Spec.liftWith_StateT
     (f : (∀{β}, StateT σ m β → m (β × σ)) → m α) (post : α → σ → Pred) :
     Triple (MonadControl.liftWith (m:=m) f : StateT σ m α)
       (fun s => wp (f (fun x => x.run s)) (fun a => post a s) epost) post epost :=
-  Triple.intro (by intro s; simp [WPMonad.wp_liftWith_StateT_apply_eq f]; apply WPMonad.map_le_wp_map'; ext; rfl)
+  Triple.intro (by
+    intro s
+    simp [WPMonad.wp_liftWith_StateT_apply_eq f]
+    exact WPMonad.map_le_wp_map (fun a => (a, s)) (f (fun x => x.run s))
+      (fun ⟨a, s⟩ => post a s) epost)
 
 
 @[spec]
@@ -191,7 +195,10 @@ theorem Spec.liftWith_ExceptT
     (f : (∀{β}, ExceptT ε m β → m (Except ε β)) → m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
     Triple (MonadControl.liftWith (m:=m) f : ExceptT ε m α)
       (wp (f (fun x => x.run)) post epost.tail) post epost :=
-  Triple.intro (by simp [WPMonad.wp_liftWith_ExceptT_apply_eq f]; apply WPMonad.map_le_wp_map'; ext; rfl)
+  Triple.intro (by
+    simp [WPMonad.wp_liftWith_ExceptT_apply_eq f]
+    exact WPMonad.map_le_wp_map Except.ok (f (fun x => x.run))
+      (epost.pushExcept post) epost.tail)
 
 
 @[spec]

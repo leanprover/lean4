@@ -2929,8 +2929,8 @@ return v___x_864_;
 else
 {
 lean_dec_ref(v___y_823_);
-v___y_810_ = v_a_834_;
-v___y_811_ = v___x_838_;
+v___y_810_ = v___x_838_;
+v___y_811_ = v_a_834_;
 goto v___jp_809_;
 }
 }
@@ -3270,8 +3270,8 @@ return v___x_968_;
 v___jp_809_:
 {
 uint8_t v___x_812_; 
-v___x_812_ = lean_nat_dec_eq(v___y_810_, v___y_811_);
-lean_dec(v___y_810_);
+v___x_812_ = lean_nat_dec_eq(v___y_811_, v___y_810_);
+lean_dec(v___y_811_);
 if (v___x_812_ == 0)
 {
 uint8_t v___x_813_; lean_object* v___x_814_; lean_object* v___x_815_; 

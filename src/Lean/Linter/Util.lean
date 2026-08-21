@@ -74,3 +74,17 @@ def getNewDecls (t : InfoTree) : List Name :=
       else
         acc
     | _ => acc
+
+open Elab in
+def findMatchingDecl? [Monad m] [MonadInfoTree m] [MonadEnv m] [MonadFileMap m]
+    (stx : Syntax) : m (Option Name) := do
+  let some stxRange ← getDeclarationRange? stx | return none
+  let mut best? : Option (Name × DeclarationRange) := none
+  for t in ← getInfoTrees do
+    for declName in getNewDecls t do
+      let some ranges ← findDeclarationRangesCore? declName | continue
+      let r := ranges.range
+      unless !r.pos.lt stxRange.pos && !stxRange.endPos.lt r.endPos do continue
+      if best?.all fun (_, b) => r.pos.lt b.pos then
+        best? := some (declName, r)
+  return best?.map (·.1)

@@ -27,7 +27,7 @@ it at `.instances` transparency; adopt a resynthesized instance when one exists 
 `.implicit`, and refuse the rewrite otherwise. See `Simp.resynthInstanceArgs`.
 -/
 register_builtin_option dsimp.resynthInstances : Bool := {
-    defValue := true
+    defValue := false
     descr    := "check instance arguments after definitional rewrites of the arguments they \
       depend on; adopt a resynthesized instance when possible, refuse the rewrite otherwise"
   }

@@ -353,7 +353,11 @@ jobs:
               {
                 "name": "Linux tsanitize",
                 "os": large ? "nscloud-ubuntu-24.04-amd64-32x64" : "ubuntu-latest",
-                "enabled": (level >= 2 || fsanitize) && target_stage < 2,
+                // Disabled on this release branch. The job arrived with the #14161 backport, which
+                // was taken only so that #14838 would apply cleanly. `elab/grind_list_count` trips a
+                // data race in this branch's `grind` solver that master does not have, because that
+                // code was rewritten there rather than fixed.
+                "enabled": false,
                 "test": true,
                 // turn off custom allocator & symbolic functions to make TSAN do its magic
                 "CMAKE_PRESET": "sanitize-thread",

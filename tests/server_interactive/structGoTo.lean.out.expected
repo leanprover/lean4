@@ -37,3 +37,30 @@
   "originSelectionRange":
   {"start": {"line": 17, "character": 21},
    "end": {"line": 17, "character": 22}}}]
+{"textDocument": {"uri": "file:///structGoTo.lean"},
+ "position": {"line": 26, "character": 2}}
+{"range":
+ {"start": {"line": 26, "character": 2}, "end": {"line": 26, "character": 3}},
+ "contents": {"value": "```lean\na : Nat\n```", "kind": "markdown"}}
+{"version": 1,
+ "uri": "file:///structGoTo.lean",
+ "isIncremental": false,
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 28, "character": 2}, "end": {"line": 28, "character": 3}},
+   "message": "Field `a` has already been declared",
+   "fullRange":
+   {"start": {"line": 28, "character": 2},
+    "end": {"line": 28, "character": 3}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 32, "character": 7},
+    "end": {"line": 32, "character": 15}},
+   "message": "Unknown identifier `SInvalid`",
+   "fullRange":
+   {"start": {"line": 32, "character": 7},
+    "end": {"line": 32, "character": 15}},
+   "code": "lean.unknownIdentifier"}]}

@@ -38,14 +38,13 @@ where
       false
 
   convertClause (clause : Array Int) : CNF.Clause Nat :=
-    ⟨clause.toList.filterMap fun int =>
+    .ofLiterals <| clause.toList.filterMap fun int =>
       if int > 0 then
         some (int.natAbs - 1, true)
       else if int < 0 then
         some (int.natAbs - 1, false)
       else
         none
-    ⟩
 
 theorem unsat_of_go {state : State} {proof : Array IntAction} {idx : Nat}
     (h : check.go state proof idx) : CNF.Unsat state.toCNF := by

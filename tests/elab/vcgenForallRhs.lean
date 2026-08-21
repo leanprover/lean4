@@ -7,7 +7,7 @@ any `Pi` assertion lattice (`iInf_apply` + `le_iInf`), including when the `iInf`
 state arguments.
 -/
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 open Std.WP
 open Lean.Order

@@ -2402,6 +2402,9 @@ macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
 `vcgen` will break down a Hoare triple proof goal like `⦃P⦄ prog ⦃Q⦄` into verification conditions,
 provided that all functions used in `prog` have specifications registered with `@[spec]`.
 
+`vcgen` is experimental and subject to change. `set_option experimental.vcgen true` acknowledges
+its experimental status and silences the warning that each call reports.
+
 ### Program types
 
 `vcgen` works on any program type `Prog` that carries a `Std.WP.WP` interpretation. A monad
@@ -2483,8 +2486,8 @@ are in scope in the frame, bound to the matched arguments.
 
 ### Invariant suggestions
 
-`vcgen [...] invariants?` suggests invariants for the loops in `prog`. The suggestions are currently
-of limited use. A future release either implements them properly or removes the keyword.
+`vcgen [...] invariants?` warns that invariant suggestions are not available in `vcgen` and that
+the keyword is slated for removal. Alternatives after `invariants?` elaborate like `invariants`.
 -/
 macro (name := vcgenMacro) (priority:=low) "vcgen" : tactic =>
   Macro.throwError "to use `vcgen`, please include `import Std.Tactic.Do`"

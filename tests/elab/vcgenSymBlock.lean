@@ -5,7 +5,7 @@ import Std.Tactic.Do
 
 open Std.WP Lean.Order
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 set_option warn.sorry false
 
 /-! ## Trivial postcondition: `vcgen` closes the goal -/

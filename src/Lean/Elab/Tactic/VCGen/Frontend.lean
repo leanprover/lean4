@@ -23,6 +23,12 @@ import Lean.Meta.Sym.ProofInstInfo
 open Lean Parser Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do Lean.Elab.Tactic.VCGen.SpecAttr
 
+register_builtin_option experimental.vcgen : Bool := {
+  defValue := false
+  descr := "acknowledge that the `vcgen` tactic is experimental and subject to change; `true` \
+silences the warning that each `vcgen` call reports"
+}
+
 namespace Lean.Elab.Tactic.VCGen
 
 /-!
@@ -386,9 +392,10 @@ private def elabFrameDB (progTy : Expr) (alts : Array Syntax) : TermElabM FrameD
 
 /-- Parse `vcgen` arguments. -/
 private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.withContext do
-  if mvcgen.warning.get (← getOptions) then
+  unless experimental.vcgen.get (← getOptions) do
     logWarningAt stx "The `vcgen` tactic is an experimental drop-in replacement for `mvcgen` \
-      that will eventually replace it. Avoid using it in production projects."
+      that will eventually replace it; `set_option experimental.vcgen true` acknowledges its \
+      experimental status and silences this warning."
   let config ← runTacticM <| elabConfig stx[1]
   warnIgnoredConfig config
   -- `elimLets` defaults to `false` in `vcgen` (vs. `true` in upstream `mvcgen`):

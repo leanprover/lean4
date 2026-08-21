@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import repos
-from github import Github, UnknownObjectException
+from github import Github, GithubException, UnknownObjectException
 from github.GitRef import GitRef
 from rich import print
 from rich.markup import escape as e
@@ -817,7 +817,17 @@ class LeanChecker(RepoChecker):
             self.cl.fail(f"{what} not triggered")
             return
 
-        workflow.create_dispatch(ref=grepo.default_branch)
+        # Dispatching requires admin rights on lean4-api-docs, which not every
+        # release manager has.
+        try:
+            workflow.create_dispatch(ref=grepo.default_branch)
+        except GithubException as exc:
+            message = (
+                exc.data.get("message", exc) if isinstance(exc.data, dict) else exc
+            )
+            self.cl.fail(f"{what} not triggered: {e(str(message))}")
+            return
+
         self.cl.success(f"{what} triggered")
 
     def check_zulip_post(self) -> None:

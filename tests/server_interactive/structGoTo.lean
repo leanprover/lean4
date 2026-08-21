@@ -27,8 +27,9 @@ structure SInvalid where
   a : Nat
 --^ textDocument/hover
   a : Nat
---^ collectDiagnostics
 
 -- Check that the structure is never added to the environment:
 #check SInvalid
-      --^ collectDiagnostics
+
+--^ collectDiagnostics
+--

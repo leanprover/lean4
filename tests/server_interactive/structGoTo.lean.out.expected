@@ -57,10 +57,10 @@
   {"source": "Lean 4",
    "severity": 1,
    "range":
-   {"start": {"line": 32, "character": 7},
-    "end": {"line": 32, "character": 15}},
+   {"start": {"line": 31, "character": 7},
+    "end": {"line": 31, "character": 15}},
    "message": "Unknown identifier `SInvalid`",
    "fullRange":
-   {"start": {"line": 32, "character": 7},
-    "end": {"line": 32, "character": 15}},
+   {"start": {"line": 31, "character": 7},
+    "end": {"line": 31, "character": 15}},
    "code": "lean.unknownIdentifier"}]}

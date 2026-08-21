@@ -131,23 +131,6 @@ theorem mySum_suggest (l : List Nat) : mySum l = l.sum := by
     vcgen [mySum] invariants?
     all_goals tactic => admit
 
-/--
-warning: Invariant suggestions have not been ported from `mvcgen` and the feature is slated for removal. If you found the old feature useful, send Sebastian Graf a message.
--/
-#guard_msgs (warning) in
-example :
-    ⦃ (True : Prop) ⦄
-    (do
-      let mut x := 0
-      for i in [1:5] do
-        x := x + i
-      pure x : Id Nat)
-    ⦃ fun r => r < 30 ⦄ := by
-  sym =>
-    vcgen invariants?
-      · fun _pref suff r => r + suff.length * 5 ≤ 25
-    <;> finish
-
 /-! ## Selecting `vcgen` goals by their `vc<n>` tags with `case` -/
 
 example :

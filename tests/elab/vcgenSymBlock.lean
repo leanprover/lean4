@@ -121,7 +121,9 @@ def mySum (l : List Nat) : Nat := Id.run do
   return acc
 
 /--
-info: There were no suggestions for missing invariants.
+info: Try this:
+  [apply] invariants
+  · fun pref suff letMuts => pref = [] ∧ letMuts = 0 ∨ suff = [] ∧ letMuts = l.sum
 -/
 #guard_msgs (info) in
 theorem mySum_suggest (l : List Nat) : mySum l = l.sum := by

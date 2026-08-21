@@ -6,8 +6,8 @@ Authors: Sebastian Graf, Vladimir Gladshtein
 module
 
 prelude
-public import Lean.Elab.Tactic.Do.VCGen.SuggestInvariant
 public import Lean.Elab.Tactic.Do.VCGen
+public import Lean.Elab.Tactic.VCGen.SuggestInvariant
 public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.Driver
 public import Lean.Elab.Tactic.VCGen.FrameProcAttr
@@ -432,7 +432,7 @@ def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
     throwErrorAt frameStx "`frames` alternative matched no program in the goal"
   if args.invariantAlts?.isNone then
     runTacticM (goals := result.invariants.toList) <|
-      elabInvariants stx[5] result.invariants (suggestInvariant (result.vcs.map (·.mvarId)))
+      elabInvariants stx[5] result.invariants (VCGen.suggestInvariant (result.vcs.map (·.mvarId)))
   let invariants ← result.invariants.filterM (not <$> ·.isAssigned)
   let newGoals ← Lean.Elab.Tactic.Grind.liftGrindM do
     let invGoals ← invariants.toList.mapM Grind.mkGoalCore

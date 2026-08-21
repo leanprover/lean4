@@ -406,7 +406,12 @@ def elabInvariants (stx : Syntax) (invariants : Array MVarId) (suggestInvariant 
           continue
         -- A failing suggestion (e.g. an invariant shape the analysis does not understand)
         -- degrades to "no suggestion" rather than failing the tactic.
-        let invariant? ← try some <$> suggestInvariant mv catch _ => pure none
+        let invariant? ←
+          try
+            some <$> suggestInvariant mv
+          catch ex =>
+            trace[Elab.Tactic.Do.vcgen] "invariant suggestion for {mv.name} failed: {ex.toMessageData}"
+            pure none
         if let some invariant := invariant? then
           suggestions := suggestions.push (← `(invariantDotAlt| · $invariant))
       let alts' := alts ++ suggestions

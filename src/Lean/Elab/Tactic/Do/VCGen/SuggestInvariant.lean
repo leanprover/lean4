@@ -158,7 +158,7 @@ def hasEarlyReturn (vcs : Array MVarId) (inv : MVarId) (letMutsTy : Expr) : Meta
 
   return (ρ, σ)
 
-def collectFVarsToRevert (e : Expr)(dontRevert : FVarId → Bool) : MetaM (Array Expr) := do
+public def collectFVarsToRevert (e : Expr) (dontRevert : FVarId → Bool) : MetaM (Array Expr) := do
   let mut xs := (collectFVars {} e).fvarIds |>.filter (not ∘ dontRevert) |>.map mkFVar
   repeat do
     let new ← collectForwardDeps xs false
@@ -319,7 +319,7 @@ def duplicateMVar (m : MVarId) : MetaM MVarId := do
   return e.mvarId!
 
 /-- Remove the macro scopes introduced by quote expansion from the syntax. -/
-def eraseQuoteMacroScopesFromSyntax : Syntax → Syntax
+public def eraseQuoteMacroScopesFromSyntax : Syntax → Syntax
   | Syntax.ident info rawVal val preresolved =>
     if rawVal.contains '@' then
       -- This was an inaccessible name in the proof state. Its raw val looks like
@@ -337,7 +337,7 @@ def eraseQuoteMacroScopesFromSyntax : Syntax → Syntax
   | Syntax.missing => Syntax.missing
 
 /-- Remove the macro scopes introduced by quote expansion from the syntax. -/
-def eraseQuoteMacroScopesFromTSyntax (syn : TSyntax name) : TSyntax name :=
+public def eraseQuoteMacroScopesFromTSyntax (syn : TSyntax name) : TSyntax name :=
   ⟨eraseQuoteMacroScopesFromSyntax syn.raw⟩
 
 /--

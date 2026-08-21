@@ -12,7 +12,6 @@ public import Lean.Elab.Tactic.VCGen.Reduce
 public import Lean.Elab.Tactic.VCGen.SpecDB
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
-import Lean.Meta.Sym.Canon
 meta import Std.WP.Frame
 
 open Lean Meta Elab Tactic Sym
@@ -284,7 +283,7 @@ exposes in the premise program (e.g. for class projection unfold equations like
 `MonadState.modifyGet.eq_1`) are reduced by `wpHeadReduce?` before the next spec lookup.
 -/
 private def eqSpecToWp? (info : WPApp) (eqPrf eqType : Expr) :
-    OptionT SymM (Expr × Expr) := do
+    OptionT MetaM (Expr × Expr) := do
   let_expr Eq eqα _lhs _rhs := eqType
     | throwError "simp spec is not an equation: {eqType}"
   -- Unify the equation's type with the goal's program type. First-order approximation decomposes
@@ -316,7 +315,7 @@ same way.
   `info.Pred = σ1 → ... → σn → Prop`
 -/
 public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
-    (stateArgNames : Array Name := #[]) : OptionT SymM BackwardRule := do
+    (stateArgNames : Array Name := #[]) : OptionT MetaM BackwardRule := do
   -- Instantiate the spec theorem, creating metavars for all universally quantified params
   let (_xs, _bs, specProof, specType) ← specThm.instantiate
   -- Equality specs (the simp side of `@[spec]`) are normalized to `⊑ wp` form, then handled like
@@ -329,6 +328,8 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
   guard <| ← isDefEqGuarded info.Pred Pred'
   let_expr Std.WP.wp _Prog' _Value' _Pred' _EPred' _instAL' _instEAL' instWP' prog postSpec epostSpec := rhs
     | throwError "target not a wp application {rhs}"
+  -- `withDefault`: the goal can carry a registered `WP` instance (e.g. `Id.wpInst`) while the
+  -- spec spells `WPMonad.toWP ?inst`; default transparency unfolds both after `?inst` synthesis.
   guard <| ← withDefault <| isDefEqGuarded info.instWP instWP'
   -- Use local excess-state binders so explicit post premises can be re-lifted to `⊑`.
   -- Name them positionally from `stateArgNames` (else `s`) so the rule's binders carry good names.
@@ -339,8 +340,7 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
     ssTypes := ssTypes.push ty
     ss := ss.push <| ← mkFreshExprMVar (userName := stateArgNames[i]?.getD `s) ty
   let res ← mkSpecBackwardProof pre prog postSpec epostSpec specProof info.EPred ss ssTypes stateArgNames
-  let expr ← Sym.canon res.expr
-  mkBackwardRuleFromExpr expr res.paramNames.toList
+  mkBackwardRuleFromExpr res.expr res.paramNames.toList
 
 /-! ## Split rules -/
 
@@ -446,7 +446,7 @@ condition `WP.Frames op prog F`, with the frame `F` left schematic and the weake
 frame. `analyzeFrameRule` records the positions of the schematic slots.
 -/
 public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
-    SymM FrameBackwardRule := do
+    MetaM FrameBackwardRule := do
   -- Pin the program and the operator, leaving everything else schematic;
   -- `tryMkBackwardRuleFromSpec` turns the unassigned metavariables into rule parameters.
   let op ← fp.mkOpAppM info

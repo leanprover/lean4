@@ -10,7 +10,6 @@ public import Lean.Elab.Tactic.Meta
 public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.Solve
 public import Lean.Meta.Sym.Grind
-import Lean.Meta.Sym.Canon
 
 open Lean Meta Elab Tactic Sym Sym.Internal Lean.Order
 open Lean.Elab.Tactic.Do.SpecAttr
@@ -94,16 +93,8 @@ private structure WorkItem where
   goal : Grind.Goal
   scope : Scope
 
-/--
-Canonicalizes the goal target with `Sym.canon`, so its instance arguments (e.g. the `WP`
-instance of a `wp` application) match the canonicalized rules from `tryMkBackwardRuleFromSpec`.
--/
-private def canonTarget (mvarId : MVarId) : SymM MVarId := do
-  mvarId.replaceTargetDefEqFast (← shareCommon (← Sym.canon (← mvarId.getType)))
-
 public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
   let mvarId ← preprocessMVar goal.mvarId
-  let mvarId ← canonTarget mvarId
   let mut worklist : Array WorkItem := #[{ goal := { goal with mvarId }, scope }]
   while let some s := worklist.back? do
     worklist := worklist.pop

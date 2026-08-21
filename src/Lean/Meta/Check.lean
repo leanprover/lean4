@@ -387,6 +387,8 @@ where
   visitApp (f a : Expr) : MetaM (Option MessageData) := do
     let (expectedType, binfo) ← try getFunctionDomain f catch _ => return none
     unless binfo.isInstImplicit do return none
+    if let some className ← isClass? expectedType then
+      if isLaxInstanceDefeqClass (← getEnv) className then return none
     let aType ← try inferType a catch _ => return none
     let defEqAt (transparency : TransparencyMode) : MetaM Bool :=
       withoutModifyingState <| withTransparency transparency <| isDefEqGuarded expectedType aType

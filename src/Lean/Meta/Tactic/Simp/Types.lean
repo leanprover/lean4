@@ -694,7 +694,8 @@ private def instantiatedBinderDomain? (fType : Expr) (args : Array Expr) (j : Na
 /--
 Check the instance arguments of `f` after its arguments changed from `origArgs` to `args0`.
 An instance argument whose type depends on a changed argument is checked against its new binder
-domain at `.instances` transparency. On a mismatch, synthesize an instance of the new domain and
+domain at `.instances` transparency; classes exempted by `isLaxInstanceDefeqClass` (marked
+`@[lax_instance_defeq]`, or propositional) are skipped. On a mismatch, synthesize an instance of the new domain and
 adopt it if it is defeq to the old instance at `.implicit` transparency; otherwise revert the
 changed arguments the instance depends on, i.e. refuse those rewrites.
 
@@ -724,6 +725,8 @@ def resynthInstanceArgs (e f : Expr) (origArgs args0 : Array Expr) : SimpM (Arra
       unless info.isInstance do continue
       unless info.backDeps.any (fun i => i < n && args[i]! != origArgs[i]!) do continue
       let some expected ← instantiatedBinderDomain? fType args j | continue
+      if let some className ← isClass? expected then
+        if isLaxInstanceDefeqClass (← getEnv) className then continue
       let instOld := args[j]!
       let actual ← inferType instOld
       if ← withNewMCtxDepth <| withReducibleAndInstances <| isDefEqGuarded actual expected then

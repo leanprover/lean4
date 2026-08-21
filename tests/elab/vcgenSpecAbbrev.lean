@@ -9,6 +9,7 @@ abbreviation before it is recognized as a `Triple`.
 -/
 
 set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 /-! `mvcgen` over a legacy `Std.Do` triple. `foo` is `irreducible`, so the
 postcondition `r = 1` can only be discharged via the registered spec (`r = 0`). -/

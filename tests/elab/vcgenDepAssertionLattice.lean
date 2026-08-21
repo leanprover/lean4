@@ -8,7 +8,7 @@ applied to a dependent function lattice. `vcgen` must report a clear error inste
 it runs out of heartbeats. Extracted from a user report.
 -/
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 open Std.WP
 

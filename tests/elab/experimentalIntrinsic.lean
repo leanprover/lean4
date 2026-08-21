@@ -7,7 +7,7 @@ introduces the form, and `set_option experimental.intrinsic true` silences those
 
 open Std.WP
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 /--
 warning: The `requires` clause is part of the experimental intrinsic verification syntax; `set_option experimental.intrinsic true` acknowledges its experimental status and silences this warning.

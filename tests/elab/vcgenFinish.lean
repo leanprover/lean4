@@ -14,7 +14,7 @@ before the `vcgen` step runs.
 -/
 
 open Std.WP Lean.Order
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 set_option linter.unusedVariables false
 
 abbrev M := StateM (List Nat)

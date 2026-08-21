@@ -11,11 +11,47 @@ public import Lean.Meta.Match.MatchEqs
 public import Lean.Meta.Tactic.FVarSubst
 import Lean.Meta.Tactic.Subst
 
+/-!
+# The match lifter theorem construction
+
+For each matcher and `casesOn`, this module constructs the realizable constant `matcher.lifter`.
+This theorem proves that applications on matchers can be moved into each alternative and is in this
+sense similar to the theorems `apply_ite` and `apply_dite` available for if-then-else.
+
+Unlike `apply_ite` and `apply_dite` however, the lifter theorems for matchers and `casesOn`s allow
+for the function to depend on the discriminants.
+
+The arguments to a lifter theorem are, in order:
+1. The parameters for the matcher
+2. The original motive
+3. The new motive
+4. The function applied to the matcher, mapping the original motive to the new motive
+5. The discriminants for the matcher
+6. The alternatives for the matcher
+
+Furthermore, the lifter theorem has the same level parameters as the matcher with one additional in
+front for the universe of the new motive. As an example, here is the lifter theorem for a simple
+`List α` matcher:
+```
+theorem test.match_1.lifter.{u_3, u_1, u_2} : ∀ {α : Type u_1} (motive : List α → Sort u_2)
+  {motive' : List α → Sort u_3} (f : (l : List α) → motive l → motive' l) (l : List α)
+  (h_1 : Unit → motive []) (h_2 : (head : α) → (tail : List α) → motive (head :: tail)),
+  f l
+      (match l with
+      | [] => h_1 ()
+      | head :: tail => h_2 head tail) =
+    match l with
+    | [] => f [] (h_1 _)
+    | head :: tail => f (head :: tail) (h_2 head tail) :=
+```
+-/
+
 namespace Lean.Meta.Match
 
-@[match_pattern, expose]
+public def lifterSuffix := "lifter"
+
 public def mkLifterName (matcherName : Name) : Name :=
-  matcherName.str "lifter"
+  matcherName.str lifterSuffix
 
 def proveLifterCore (matcherName : Name) (matcherInfo : MatcherInfo) (eqnInfo : MatchEqns) : MetaM Unit := do
   let val ← getConstVal matcherName
@@ -39,7 +75,7 @@ def proveLifterCore (matcherName : Name) (matcherInfo : MatcherInfo) (eqnInfo : 
     let discrs := vars[matcherInfo.getFirstDiscrPos...matcherInfo.getFirstAltPos].toArray
     let alts := vars[matcherInfo.getFirstAltPos...matcherInfo.arity].toArray
     let motive'Type ← mkForallFVars discrs (.sort elimLvl')
-    withLocalDeclD `motive' motive'Type fun motive' => do
+    withLocalDecl `motive' (← motive.fvarId!.getBinderInfo) motive'Type fun motive' => do
     withLocalDeclD `f (← mkForallFVars discrs (← mkArrow (mkAppN motive discrs) (mkAppN motive' discrs))) fun fn => do
     let matchApp := mkAppN (.const matcherName lparams) vars
     let lhs := (mkAppN fn discrs).app matchApp
@@ -54,7 +90,6 @@ def proveLifterCore (matcherName : Name) (matcherInfo : MatcherInfo) (eqnInfo : 
     let splitterApp := (mkAppN (.const splitterName splitLParams) params).app splitterMotive
     let mut splitterApp := mkAppN splitterApp discrs
     let mut splitterType ← inferType splitterApp
-    assert! alts.size ≤ splitterType.getForallArity
     for h : i in 0...splitterInfo.altInfos.size do
       let altInfo := splitterInfo.altInfos[i]
       let eqn? := eqnInfo.eqnNames[i]?
@@ -63,6 +98,8 @@ def proveLifterCore (matcherName : Name) (matcherInfo : MatcherInfo) (eqnInfo : 
         let some (motive'App, lhs, rhs) := eq.eq? |
           throwError "Unexpected goal{indentExpr eq}\nin context{(← mkFreshExprMVar eq).mvarId!}"
         let some eqn := eqn? |
+          -- this case is for `casesOn`s where we don't have equations
+          -- instead, just prove this with `rfl`
           mkLambdaFVars splitterVars (mkApp2 (.const ``rfl [elimLvl']) motive'App lhs)
         assert! motive'App.getAppFn == motive'
         assert! lhs.getAppFn == fn
@@ -103,21 +140,29 @@ def proveLifterCore (matcherName : Name) (matcherInfo : MatcherInfo) (eqnInfo : 
       levelParams, type, value
     }
 
+/--
+Only matchers and `casesOn`s that can eliminate into any universe have lifter theorems.
+-/
 def hasLifter (env : Environment) (name : Name) : Bool := Id.run do
   if let some info := getMatcherInfoCore? env name then
     return info.uElimPos?.isSome
   else
-    let mkCasesOnName indName := name | return false
+    let .str indName sfx := name | return false
+    unless sfx == casesOnSuffix do return false
     let some info := isInductiveCore? env indName | return false
     let some val := env.findConstVal? name | return false
     if val.levelParams.length ≤ info.levelParams.length then
       return false
     return true
 
+/--
+Like `getMatcherInfo?` but also returns information for `casesOn` recursors.
+-/
 public def getPseudoMatcherInfo? (name : Name) : MetaM (Option MatcherInfo) := do
   if let some info ← getMatcherInfo? name then
     return some info
-  let mkCasesOnName indName := name | return none
+  let .str indName sfx := name | return none
+  unless sfx == casesOnSuffix do return none
   let some info ← isInductive? indName | return none
   let val ← getConstVal name
   return some {
@@ -136,41 +181,24 @@ public def getPseudoMatcherInfo? (name : Name) : MetaM (Option MatcherInfo) := d
   }
 
 def proveLifter (name : Name) : MetaM Bool := do
-  if let some info ← getMatcherInfo? name then
-    if info.uElimPos?.isSome then
-      realizeConst name (mkLifterName name) <| withoutExporting do
-        proveLifterCore name info (← getEquationsFor name)
-      return true
-    return false
-  let mkCasesOnName indName := name | return false
-  let some info ← isInductive? indName | return false
-  let val ← getConstVal name
-  if val.levelParams.length ≤ info.levelParams.length then
-    return false
-  let matcherInfo := {
-    numParams := info.numParams
-    numDiscrs := info.numIndices + 1
-    altInfos := ← info.ctors.toArray.mapM fun ctor => do
-      let info ← getConstInfoCtor ctor
-      pure {
-        numFields := info.numFields
-        numOverlaps := 0
-        hasUnitThunk := false
-      }
-    uElimPos? := some 0
-    discrInfos := Array.replicate (info.numIndices + 1) {}
-    overlaps := {}
-  }
+  let some info ← getPseudoMatcherInfo? name | return false
+  if info.uElimPos?.isNone then return false
   realizeConst name (mkLifterName name) <| withoutExporting do
-    proveLifterCore name matcherInfo {
-      eqnNames := #[]
-      splitterName := name -- `casesOn` also acts as the splitter
-      splitterMatchInfo := matcherInfo
-    }
+    let eqns ←
+      if isCasesOnRecursor (← getEnv) name then
+        pure {
+          eqnNames := #[] -- just use `rfl` in the proof instead
+          splitterName := name -- `casesOn` also acts as the splitter
+          splitterMatchInfo := info
+        }
+      else getEquationsFor name
+    proveLifterCore name info eqns
   return true
 
 public def getLifterFor? (name : Name) : MetaM (Option Name) := do
   if (← getEnv).contains (mkLifterName name) then
+    unless hasLifter (← getEnv) name do
+      return none
     return some (mkLifterName name)
   if ← proveLifter name then
     return some (mkLifterName name)
@@ -179,11 +207,13 @@ public def getLifterFor? (name : Name) : MetaM (Option Name) := do
 builtin_initialize
   registerReservedNamePredicate fun env nm =>
     match nm with
-    | mkLifterName nm' => hasLifter env nm'
+    | .str nm' sfx => sfx == lifterSuffix && hasLifter env nm'
     | _ => false
   registerReservedNameAction fun nm => do
     match nm with
-    | mkLifterName nm' => (proveLifter nm').run'
+    | .str nm' sfx =>
+      unless sfx == lifterSuffix do return false
+      (proveLifter nm').run'
     | _ => pure false
 
 end Lean.Meta.Match

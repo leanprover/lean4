@@ -2313,6 +2313,8 @@ macro (name := mspecMacro) (priority:=low) "mspec" : tactic =>
 `mvcgen` will break down a Hoare triple proof goal like `⦃P⦄ prog ⦃Q⦄` into verification conditions,
 provided that all functions used in `prog` have specifications registered with `@[spec]`.
 
+`mvcgen` is deprecated in favor of `vcgen`.
+
 ### Verification Conditions and specifications
 
 A verification condition is an entailment in the stateful logic of `Std.Do.SPred`

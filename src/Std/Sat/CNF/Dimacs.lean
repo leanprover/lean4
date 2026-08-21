@@ -48,9 +48,12 @@ where
       DimacsM.handleLit lit
       let litStr := if lit.2 then s!"{lit.1 + 1}" else s!"-{lit.1 + 1}"
       return acc ++ litStr |>.push ' '
-    let foldClause acc clause := do
+    let foldClause acc (clause : Clause Nat) := do
       DimacsM.incrementClauses
-      return (← clause.literals.foldlM (init := acc) foldLit) |>.push '0' |>.push '\n'
+      let mut acc := acc
+      for lit in clause do
+        acc ← foldLit acc lit
+      return acc.push '0' |>.push '\n'
     cnf.clauses.foldlM (init := "") foldClause
 
 end CNF

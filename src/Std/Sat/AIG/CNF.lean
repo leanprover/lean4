@@ -35,8 +35,8 @@ Produce a Tseitin style CNF for a `Decl.atom`, using `output` as the tree node v
 -/
 def atomToCNF (output : α) (atom : α) : CNF α :=
   CNF.empty
-    |>.add (CNF.Clause.empty |>.add atom .false |>.add output .true)
-    |>.add (CNF.Clause.empty |>.add atom .true |>.add output .false)
+    |>.add (CNF.Clause.empty |>.add output .true |>.add atom .false)
+    |>.add (CNF.Clause.empty |>.add output .false |>.add atom .true)
 
 /--
 Produce a Tseitin style CNF for a `Decl.gate`, using `output` as the tree node variable.
@@ -47,9 +47,9 @@ def gateToCNF (output : α) (lhs rhs : α) (linv rinv : Bool) : CNF α :=
   -- a ↔ (¬b and c) as CNF: (¬a ∨ ¬b) ∧ (¬a ∨ c) ∧ (a ∨ b ∨ ¬c)
   -- a ↔ (¬b and ¬c) as CNF: (¬a ∨ ¬b) ∧ (¬a ∨ ¬c) ∧ (a ∨ b ∨ c)
   CNF.empty
-    |>.add (CNF.Clause.empty |>.add lhs !linv |>.add output .false)
-    |>.add (CNF.Clause.empty |>.add rhs !rinv |>.add output .false)
-    |>.add (CNF.Clause.empty |>.add rhs rinv |>.add lhs linv |>.add output .true)
+    |>.add (CNF.Clause.empty |>.add output .false |>.add lhs !linv)
+    |>.add (CNF.Clause.empty |>.add output .false |>.add rhs !rinv)
+    |>.add (CNF.Clause.empty |>.add output .true |>.add lhs linv |>.add rhs rinv)
 
 /--
 Produce a Tseitin style CNF for an if-then-else gate, using `output` as the tree node variable.
@@ -58,10 +58,10 @@ def iteToCNF (output : α) (cond ifTrue ifFalse : α) (cinv tinv finv : Bool) : 
   -- o ↔ (c ? t : f) as implications: (c ∧ t → o) ∧ (c ∧ ¬t → ¬o) ∧ (¬c ∧ f → o) ∧ (¬c ∧ ¬f → ¬o)
   -- o ↔ (c ? t : f) as CNF: (¬c ∨ ¬t ∨ o) ∧ (¬c ∨ t ∨ ¬o) ∧ (c ∨ ¬f ∨ o) ∧ (c ∨ f ∨ ¬o)
   CNF.empty
-    |>.add (CNF.Clause.empty |>.add output .true |>.add ifTrue tinv |>.add cond cinv)
-    |>.add (CNF.Clause.empty |>.add output .false |>.add ifTrue !tinv |>.add cond cinv)
-    |>.add (CNF.Clause.empty |>.add output .true |>.add ifFalse finv |>.add cond !cinv)
-    |>.add (CNF.Clause.empty |>.add output .false |>.add ifFalse !finv |>.add cond !cinv)
+    |>.add (CNF.Clause.empty |>.add cond cinv |>.add ifTrue tinv |>.add output .true)
+    |>.add (CNF.Clause.empty |>.add cond cinv |>.add ifTrue !tinv |>.add output .false)
+    |>.add (CNF.Clause.empty |>.add cond !cinv |>.add ifFalse finv |>.add output .true)
+    |>.add (CNF.Clause.empty |>.add cond !cinv |>.add ifFalse !finv |>.add output .false)
 
 @[simp]
 theorem falseToCNF_eval :

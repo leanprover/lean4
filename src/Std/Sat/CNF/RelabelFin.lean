@@ -25,12 +25,18 @@ namespace CNF
 /--
 Obtain the literal with the largest identifier in `c`.
 -/
-def Clause.maxLiteral (c : Clause Nat) : Option Nat := (c.literals.map (·.1)) |>.max?
+def Clause.maxLiteral (c : Clause Nat) : Option Nat := c.atoms.max?
+
+private theorem Clause.maxLiteral_eq {c : Clause Nat} :
+    c.maxLiteral = (c.literals.map (·.1)).max? := by
+  show c.atoms.max? = _
+  rw [← Array.max?_toList, ← Clause.map_fst_literals]
 
 theorem Clause.of_maxLiteral_eq_some (c : Clause Nat) (h : c.maxLiteral = some maxLit) :
     ∀ lit, VarMem lit c → lit ≤ maxLit := by
   intro lit hlit
-  simp only [maxLiteral, List.max?_eq_some_iff, List.mem_map, forall_exists_index, and_imp,
+  rw [Clause.maxLiteral_eq] at h
+  simp only [List.max?_eq_some_iff, List.mem_map, forall_exists_index, and_imp,
     forall_apply_eq_imp_iff₂] at h
   simp only [VarMem] at hlit
   rcases h with ⟨_, hbar⟩
@@ -46,12 +52,13 @@ theorem Clause.maxLiteral_eq_some_of_mem (c : Clause Nat) (h : VarMem l c) :
   all_goals
     have h1 := List.ne_nil_of_mem h
     have h2 := not_congr <| @List.max?_eq_none_iff _ (c.literals.map (·.1)) _
-    simp [← Option.ne_none_iff_exists', h1, h2, maxLiteral]
+    simp [← Option.ne_none_iff_exists', h1, h2, Clause.maxLiteral_eq]
 
 theorem Clause.of_maxLiteral_eq_none (c : Clause Nat) (h : c.maxLiteral = none) :
     ∀ lit, ¬VarMem lit c := by
   intro lit hlit
-  simp only [maxLiteral, List.max?_eq_none_iff, List.map_eq_nil_iff] at h
+  rw [Clause.maxLiteral_eq] at h
+  simp only [List.max?_eq_none_iff, List.map_eq_nil_iff] at h
   have : c = .empty := by
     cases c
     simp_all [empty]

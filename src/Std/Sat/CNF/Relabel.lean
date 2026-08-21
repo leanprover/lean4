@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Sat.CNF.Basic
+import Init.Data.List.Nat.Range
 
 @[expose] public section
 
@@ -20,38 +21,59 @@ namespace Clause
 /--
 Change the literal type in a `Clause` from `α` to `β` by using `r`.
 -/
-def relabel (r : α → β) (c : Clause α) : Clause β :=
-  { c with literals := c.literals.map (fun (i, n) => (r i, n))}
+def relabel (r : α → β) (c : Clause α) : Clause β where
+  atoms := c.atoms.map r
+  polarities := c.polarities
+  size_polarities := by rw [c.size_polarities, Array.size_map]
+  isBool_polarities := c.isBool_polarities
+
+@[simp]
+theorem polarity_relabel {r : α → β} {c : Clause α} {i : Nat} :
+    (c.relabel r).polarity i = c.polarity i := rfl
+
+@[simp]
+theorem literals_relabel {r : α → β} {c : Clause α} :
+    (c.relabel r).literals = c.literals.map (fun (i, n) => (r i, n)) := by
+  simp only [literals, relabel, Array.toList_map, List.zipIdx_map, List.map_map]
+  apply List.map_congr_left
+  intro ⟨x, i⟩ h
+  simp [Prod.map, polarity]
 
 @[simp]
 theorem relabel_empty (r : α → β) : Clause.relabel r .empty = .empty := by
-  simp [relabel, empty]
+  apply Clause.ext
+  simp
 
 @[simp]
 theorem relabel_add (r : α → β) (c : Clause α) :
     Clause.relabel r (c.add atom pol) = (c.relabel r).add (r atom) pol := by
-  simp [relabel, add]
+  apply Clause.ext
+  simp
 
 @[simp] theorem eval_relabel {r : α → β} {a : β → Bool} {c : Clause α} :
     (relabel r c).eval a = c.eval (a ∘ r) := by
   induction c using induct <;> simp_all
 
-@[simp] theorem relabel_id' : relabel (id : α → α) = id := by funext; simp [relabel]
+@[simp] theorem relabel_id' : relabel (id : α → α) = id := by
+  funext c
+  apply Clause.ext
+  simp
 
 theorem relabel_congr {c : Clause α} {r1 r2 : α → β} (hw : ∀ v, VarMem v c → r1 v = r2 v) :
     relabel r1 c = relabel r2 c := by
-  simp only [relabel]
-  rw [List.map_congr_left]
+  apply Clause.ext
+  simp only [literals_relabel]
+  apply List.map_congr_left
   intro ⟨v, p⟩ h
-  congr
+  simp only [Prod.mk.injEq, and_true]
   apply hw
   cases p <;> simp [h, VarMem]
 
 -- We need the unapplied equality later.
 @[simp] theorem relabel_relabel' : relabel r1 ∘ relabel r2 = relabel (r1 ∘ r2) := by
-  funext i
-  simp only [Function.comp_apply, relabel, List.map_map]
-  rfl
+  funext c
+  apply Clause.ext
+  simp [Function.comp_def, List.map_map]
 
 end Clause
 
@@ -115,8 +137,7 @@ private theorem nonempty_or_impossible (f : CNF α) :
   apply h1
   apply Nonempty.intro
   refine (x.literals.head ?_).fst
-  cases x
-  simp_all [Clause.empty]
+  simpa using hx
 
 theorem unsat_relabel_iff {f : CNF α} {r : α → β}
     (hw : ∀ {v1 v2}, VarMem v1 f → VarMem v2 f → r v1 = r v2 → v1 = v2) :

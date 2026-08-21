@@ -33,7 +33,7 @@ theorem mem_unit {l : Literal α} : l ∈ unit atom pol ↔ l = (atom, pol) := b
   simp [unit_def]
 
 theorem unit_ne_empty {atom : α} : unit atom pol ≠ (empty : Clause α) := by
-  simp [unit_def, add, empty]
+  simp [unit_def]
 
 @[simp]
 theorem VarMem_unit {v : α} : VarMem v (unit atom pol) ↔ v = atom := by

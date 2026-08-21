@@ -87,12 +87,10 @@ def bind (x : PredTrans Pred EPred α) (f : α → PredTrans Pred EPred β) :
     PredTrans Pred EPred β :=
   ⟨fun post epost => x.apply (fun a => (f a).apply post epost) epost⟩
 
-/-- `Monad` instance for `PredTrans`, via `PredTrans.pure` and `PredTrans.bind`. -/
 instance instMonad : Monad (PredTrans Pred EPred) where
   pure := pure
   bind := bind
 
-/-- `PredTrans` is a lawful monad: all monad laws hold definitionally. -/
 instance instLawfulMonad : LawfulMonad (PredTrans Pred EPred) where
   map_const := funext fun _ => funext fun _ => ext fun _ _ => rfl
   id_map _ := ext fun _ _ => rfl
@@ -206,7 +204,6 @@ theorem apply_liftArg {σ : Type z} (x : PredTrans Pred EPred α)
     (liftArg x : PredTrans (σ → Pred) EPred α).apply post epost s
       = x.apply (fun a => post a s) epost := rfl
 
-/-- Lift a predicate transformer to one with a state argument, via `PredTrans.liftArg`. -/
 instance {σ : Type z} : MonadLift (PredTrans Pred EPred) (PredTrans (σ → Pred) EPred) where
   monadLift := liftArg
 
@@ -312,8 +309,6 @@ def tryCatch {ε : Type z} (x : PredTrans Pred ((ε → Pred) × EPred) α)
     PredTrans Pred ((ε → Pred) × EPred) α :=
   ⟨fun post epost => x.apply post ((fun e => (handle e).apply post epost), epost.snd)⟩
 
-/-- `MonadExceptOf` instance for the outermost exception layer, via `PredTrans.throw` and
-`PredTrans.tryCatch`. -/
 instance {ε : Type z} : MonadExceptOf ε (PredTrans Pred ((ε → Pred) × EPred)) where
   throw := throw
   tryCatch := tryCatch
@@ -355,8 +350,6 @@ theorem apply_popExcept {eh : Type z} (x : PredTrans Pred (eh × EPred) α) (h :
     (post : α → Pred) (epost : EPred) :
     (x.popExcept h).apply post epost = x.apply post (h, epost) := rfl
 
-/-- `MonadExceptOf` instance lifted through an unrelated exception layer: `throw` and `tryCatch`
-delegate to the inner instance via `PredTrans.liftExcept` and `PredTrans.popExcept`. -/
 instance {ε : Type u} {Pred : Type v} {EPred : Type w} {ε' : Type u}
     [MonadExceptOf ε (PredTrans Pred EPred)] :
     MonadExceptOf ε (PredTrans Pred ((ε' → Pred) × EPred)) where
@@ -384,13 +377,11 @@ computed by `f`. -/
 def modifyGet {σ α : Type z} (f : σ → α × σ) : PredTrans (σ → Pred) EPred α :=
   ⟨fun post _epost s => post (f s).1 (f s).2⟩
 
-/-- `MonadStateOf` instance, via `PredTrans.get`, `PredTrans.set` and `PredTrans.modifyGet`. -/
 instance {σ : Type z} : MonadStateOf σ (PredTrans (σ → Pred) EPred) where
   get := get
   set := set
   modifyGet := modifyGet
 
-/-- `MonadReaderOf` instance: `read` behaves like `PredTrans.get`. -/
 instance {σ : Type z} : MonadReaderOf σ (PredTrans (σ → Pred) EPred) where
   read := get
 
@@ -415,8 +406,6 @@ instance {σ : Type z} : MonadReaderOf σ (PredTrans (σ → Pred) EPred) where
     (post : σ → σ → Pred) (epost : EPred) (s : σ) :
     (MonadReaderOf.read : PredTrans (σ → Pred) EPred σ).apply post epost s = post s s := rfl
 
-/-- `MonadExceptOf` instance lifted through a state layer: `throw` and `tryCatch` delegate to
-the inner instance via `PredTrans.liftArg`, `PredTrans.popArg` and `PredTrans.pushArg`. -/
 instance {ε : Type u'} {σ : Type z} [MonadExceptOf ε (PredTrans Pred EPred)] :
     MonadExceptOf ε (PredTrans (σ → Pred) EPred) where
   throw e := liftArg (MonadExceptOf.throw (m := PredTrans Pred EPred) e)

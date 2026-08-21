@@ -53,14 +53,14 @@ theorem eat_spec_finish (s0 : List Nat) (fuel : Nat) (hfuel : s0.length < fuel) 
 /-! An inconsistent local context closes the goal during initialisation, leaving nothing for the
 `vcgen` step. The first example is the same goal without the contradictory hypothesis. -/
 
-example : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ r, r = 3 ⦄ := by
+example : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ fun r => r = 3 ⦄ := by
   vcgen
 
-example (hFalse : false = true) : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ r, r = 3 ⦄ := by
+example (hFalse : false = true) : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ fun r => r = 3 ⦄ := by
   vcgen
 
-example (hFalse : False) : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ r, r = 3 ⦄ := by
+example (hFalse : False) : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ fun r => r = 3 ⦄ := by
   vcgen
 
-example (hFalse : false = true) : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ r, r = 3 ⦄ := by
+example (hFalse : false = true) : ⦃ True ⦄ (pure 3 : Id Nat) ⦃ fun r => r = 3 ⦄ := by
   vcgen with finish

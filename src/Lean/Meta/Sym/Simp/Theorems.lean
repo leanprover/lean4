@@ -9,6 +9,8 @@ public import Lean.Meta.Sym.Pattern
 public import Lean.Meta.DiscrTree
 import Lean.Meta.Sym.Simp.DiscrTree
 import Lean.Meta.AppBuilder
+import Lean.Meta.Tactic.Simp.SimpTheorems -- for `ignoreEquations`
+import Lean.Meta.Eqns -- for `getEqnsFor?`
 import Lean.ExtraModUses
 import Init.Omega
 import Init.Data.Range.Polymorphic.Iterators
@@ -116,16 +118,16 @@ rewrite rule in `Sym.simp`. Handles:
 - `¬ p` — adapted to `p = False`
 - `p ↔ q` — adapted to `p = q`
 - `p` (proposition) — adapted to `p = True`
+
+Callers must ensure the theorem's type is a proposition; `type` may contain loose bound
+variables for the stripped quantifiers, so we cannot check it here.
 -/
 private def selectEqKey (type : Expr) : MetaM (Expr × Expr × EqAdaptation) := do
   match_expr type with
   | Eq _ lhs rhs => return (lhs, rhs, .eq)
   | Not p => return (p, mkConst ``False, .eqFalse)
   | Iff lhs rhs => return (lhs, rhs, .iff)
-  | _ =>
-    unless (← isProp type) do
-      throwError "cannot use as a simp theorem, conclusion is not a proposition{indentExpr type}"
-    return (type, mkConst ``True, .eqTrue)
+  | _ => return (type, mkConst ``True, .eqTrue)
 
 /--
 Wrap a proof expression according to the adaptation applied to its type.
@@ -171,7 +173,21 @@ private def mkRhsVarMask (numVars : Nat) (rhs : Expr) : Nat := Id.run do
       mask := mask ||| (1 <<< i)
   return mask
 
+/--
+Throws an error if `type` is not a proposition. `declName?` is the name of the candidate
+theorem, if it is a global declaration.
+-/
+private def ensurePropType (type : Expr) (declName? : Option Name := none) : MetaM Unit := do
+  unless (← isProp type) do
+    let decl := match declName? with
+      | some declName => m!" `{.ofConstName declName}`"
+      | none => m!""
+    throwError "cannot use{decl} as a simp theorem, its type is not a proposition{indentExpr type}"
+
+/-- Create a `Theorem` from a declaration. Handles equalities, `¬`, `↔`, and propositions. -/
 def mkTheoremFromDecl (declName : Name) : MetaM Theorem := do
+  let info ← getConstInfo declName
+  ensurePropType info.type declName
   let (pattern, (rhs, adaptation)) ← mkPatternFromDeclWithKey declName selectEqKey (zetaReduceLHSOnly := true)
   let expr ← wrapProof pattern (mkConst declName) adaptation
   let perm := isPerm pattern.varTypes.size pattern.pattern rhs
@@ -180,11 +196,36 @@ def mkTheoremFromDecl (declName : Name) : MetaM Theorem := do
 
 /-- Create a `Theorem` from a proof expression. Handles equalities, `¬`, `↔`, and propositions. -/
 def mkTheoremFromExpr (e : Expr) : MetaM Theorem := do
+  ensurePropType (← inferType e)
   let (pattern, (rhs, adaptation)) ← mkPatternFromExprWithKey e [] selectEqKey (zetaReduceLHSOnly := true)
   let expr ← wrapProof pattern e adaptation
   let perm := isPerm pattern.varTypes.size pattern.pattern rhs
   let rhsVarMask := mkRhsVarMask pattern.varTypes.size rhs
   return { expr, pattern, rhs, perm, rhsVarMask }
+
+/--
+Returns the names of the theorems contributed by `declName` when it is used as a `Sym.simp`
+theorem. A proposition contributes itself. A definition contributes its equational theorems,
+so that `simp [f]` unfolds `f` applications.
+-/
+def getSimpTheoremNames (declName : Name) : MetaM (Array Name) := do
+  let info ← getAsyncConstInfo declName
+  if (← isProp info.sig.get.type) then
+    return #[declName]
+  unless info.kind matches .defn do
+    throwError "cannot use `{.ofConstName declName}` as a simp theorem, it is not a proposition nor a definition with equational theorems"
+  if (← Simp.ignoreEquations declName) then
+    throwError "cannot use `{.ofConstName declName}` as a simp theorem, it is a reducible definition or a projection, and `Sym.simp` does not support unfolding them"
+  let some eqns ← getEqnsFor? declName
+    | throwError "cannot use `{.ofConstName declName}` as a simp theorem, it does not have equational theorems"
+  return eqns
+
+/--
+Creates the `Theorem`s contributed by `declName` when it is used as a `Sym.simp` theorem.
+See `getSimpTheoremNames`.
+-/
+def mkTheoremsFromDecl (declName : Name) : MetaM (Array Theorem) := do
+  (← getSimpTheoremNames declName).mapM mkTheoremFromDecl
 
 /--
 Environment extension storing a set of `Sym.Simp` theorems.

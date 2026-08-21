@@ -20,7 +20,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 lean_object* l_Lean_mkLevelParam(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_swap(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -1580,7 +1580,8 @@ lean_inc(v_head_433_);
 v_tail_434_ = lean_ctor_get(v___x_432_, 1);
 lean_inc(v_tail_434_);
 lean_dec_ref_known(v___x_432_, 2);
-v___x_435_ = lean_st_ref_set(v_a_430_, v_tail_434_);
+v___x_435_ = lean_st_ref_swap(v_a_430_, v_tail_434_);
+lean_dec(v___x_435_);
 v___x_436_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_436_, 0, v_head_433_);
 v___x_437_ = lean_alloc_ctor(0, 1, 0);
@@ -1855,7 +1856,7 @@ _start:
 lean_object* v___x_539_; lean_object* v___x_540_; lean_object* v___x_541_; 
 v___x_539_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00__private_Lean_Meta_DiscrTree_Basic_0__Lean_Meta_DiscrTree_keysAsPattern_go_spec__0_spec__0_spec__2_spec__4_spec__6_spec__8_spec__10_spec__11___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00__private_Lean_Meta_DiscrTree_Basic_0__Lean_Meta_DiscrTree_keysAsPattern_go_spec__0_spec__0_spec__2_spec__4_spec__6_spec__8_spec__10_spec__11___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00__private_Lean_Meta_DiscrTree_Basic_0__Lean_Meta_DiscrTree_keysAsPattern_go_spec__0_spec__0_spec__2_spec__4_spec__6_spec__8_spec__10_spec__11___closed__1);
 v___x_540_ = lean_unsigned_to_nat(0u);
-v___x_541_ = lean_alloc_ctor(0, 10, 0);
+v___x_541_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_541_, 0, v___x_540_);
 lean_ctor_set(v___x_541_, 1, v___x_540_);
 lean_ctor_set(v___x_541_, 2, v___x_540_);
@@ -1866,6 +1867,7 @@ lean_ctor_set(v___x_541_, 6, v___x_539_);
 lean_ctor_set(v___x_541_, 7, v___x_539_);
 lean_ctor_set(v___x_541_, 8, v___x_539_);
 lean_ctor_set(v___x_541_, 9, v___x_539_);
+lean_ctor_set(v___x_541_, 10, v___x_539_);
 return v___x_541_;
 }
 }

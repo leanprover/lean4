@@ -24,7 +24,8 @@ t : Int32
 h✝¹ : ¬t.toBitVec.uaddOverflow (Int32.toBitVec 1) = true
 h✝ : (t + 1).toBitVec.uaddOverflow (Int32.toBitVec 3000) = true
 ⊢ ⏎
-  ⊢ₛ wp⟦Except.error "error"⟧ (PostCond.noThrow fun r => ⌜True⌝)Message: ⏎
+  ⊢ₛ wp⟦Except.error "error"⟧ (PostCond.noThrow fun r => ⌜True⌝)
+Message: ⏎
   maximum recursion depth has been reached
   use `set_option maxRecDepth <num>` to increase limit
   use `set_option diagnostics true` to get diagnostic information

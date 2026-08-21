@@ -23,6 +23,22 @@ builtin_initialize registerTraceClass `Elab.do
 builtin_initialize registerTraceClass `Elab.do.match
 builtin_initialize registerTraceClass `Elab.do.step
 
+register_builtin_option experimental.intrinsic : Bool := {
+  defValue := false
+  descr := "acknowledge that the intrinsic verification syntax (the contract clauses of a `def`, \
+the `assert` element, and the `invariant` and `decreasing` clauses of a loop) is experimental and \
+subject to change; `true` silences the warning that each of these forms reports"
+}
+
+/-- Report that an intrinsic verification form is experimental, at the keyword `kw` that introduces
+it. `what` names the form, as in ``m!"`assert` element"``. -/
+def warnIntrinsicExperimental [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
+    (kw : Syntax) (what : MessageData) : m Unit := do
+  unless experimental.intrinsic.get (← getOptions) do
+    logWarningAt kw m!"The {what} is part of the experimental intrinsic verification syntax; \
+      `set_option experimental.intrinsic true` acknowledges its experimental status and silences \
+      this warning."
+
 structure MonadInfo where
   /-- The inferred type of the monad of type `Type u → Type v`. -/
   m : Expr

@@ -16,7 +16,7 @@ extern "C" {
 uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_LCtx_addLetDecl(uint8_t, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
@@ -228,7 +228,7 @@ goto v_reusejp_40_;
 v_reusejp_40_:
 {
 lean_object* v___x_42_; lean_object* v___x_44_; 
-v___x_42_ = lean_st_ref_set(v_a_18_, v___x_41_);
+v___x_42_ = lean_st_ref_put(v_a_18_, v___x_41_);
 if (v_isShared_30_ == 0)
 {
 lean_ctor_set_tag(v___x_29_, 0);
@@ -436,7 +436,7 @@ goto v_reusejp_114_;
 v_reusejp_114_:
 {
 lean_object* v___x_116_; lean_object* v___x_118_; 
-v___x_116_ = lean_st_ref_set(v_a_92_, v___x_115_);
+v___x_116_ = lean_st_ref_put(v_a_92_, v___x_115_);
 if (v_isShared_104_ == 0)
 {
 lean_ctor_set_tag(v___x_103_, 0);
@@ -2808,7 +2808,7 @@ goto v_reusejp_679_;
 v_reusejp_679_:
 {
 lean_object* v___x_681_; lean_object* v___x_682_; 
-v___x_681_ = lean_st_ref_set(v_a_657_, v___x_680_);
+v___x_681_ = lean_st_ref_put(v_a_657_, v___x_680_);
 v___x_682_ = l_Lean_Compiler_LCNF_Code_applyRenaming(v_pu_653_, v_value_664_, v_r_655_, v_a_656_, v_a_657_, v_a_658_, v_a_659_);
 if (lean_obj_tag(v___x_682_) == 0)
 {

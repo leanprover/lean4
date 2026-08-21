@@ -18,7 +18,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Meta_instantiateMVarsIfMVarApp___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
@@ -6818,7 +6818,7 @@ goto v_reusejp_1527_;
 v_reusejp_1527_:
 {
 lean_object* v___x_1529_; lean_object* v___x_1530_; 
-v___x_1529_ = lean_st_ref_set(v___y_1510_, v___x_1528_);
+v___x_1529_ = lean_st_ref_put(v___y_1510_, v___x_1528_);
 v___x_1530_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1530_, 0, v_fst_1517_);
 return v___x_1530_;

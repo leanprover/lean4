@@ -124,7 +124,7 @@ public partial def structuresPass : Pass where
   run' := do
     let interesting := (← PreProcessM.getTypeAnalysis).interestingStructures
     if interesting.isEmpty then return false
-    let goal ← PreProcessM.getGoal
+    let goal ← PreProcessM.getTargetMVarId
     goal.withContext do
       let mut worklist := #[]
       for decl in ← getLCtx do

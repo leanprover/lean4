@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
@@ -215,7 +215,7 @@ goto _start;
 v___jp_17_:
 {
 lean_object* v___x_21_; lean_object* v___x_22_; uint32_t v___x_23_; uint32_t v___x_24_; uint8_t v___x_25_; 
-v___x_21_ = lean_string_utf8_extract(v_str_7_, v_startInclusive_19_, v_endExclusive_20_);
+v___x_21_ = lean_string_utf8_extract_fast(v_str_7_, v_startInclusive_19_, v_endExclusive_20_);
 lean_dec(v_endExclusive_20_);
 lean_dec(v_startInclusive_19_);
 v___x_22_ = lean_unsigned_to_nat(0u);

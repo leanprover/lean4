@@ -32,7 +32,7 @@ lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 size_t lean_array_size(lean_object*);
@@ -1144,7 +1144,7 @@ goto v_reusejp_241_;
 v_reusejp_241_:
 {
 lean_object* v___x_243_; lean_object* v___x_244_; lean_object* v___x_246_; 
-v___x_243_ = lean_st_ref_set(v___y_204_, v___x_242_);
+v___x_243_ = lean_st_ref_put(v___y_204_, v___x_242_);
 v___x_244_ = lean_box(0);
 if (v_isShared_211_ == 0)
 {

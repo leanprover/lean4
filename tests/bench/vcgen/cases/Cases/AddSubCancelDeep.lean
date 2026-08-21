@@ -5,7 +5,7 @@ import Std.Tactic.Do
 Same loop as `AddSubCancel` but threaded through a deep monad transformer stack.
 -/
 
-open Lean Parser Meta Elab Tactic Sym Lean.Order Std.Internal.Do
+open Lean Parser Meta Elab Tactic Sym Lean.Order Std.WP
 
 namespace AddSubCancelDeep
 

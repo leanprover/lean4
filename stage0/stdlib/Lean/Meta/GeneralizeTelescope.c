@@ -18,7 +18,7 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp(lean_obje
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 size_t lean_array_size(lean_object*);
@@ -1239,7 +1239,7 @@ goto v_reusejp_457_;
 v_reusejp_457_:
 {
 lean_object* v___x_459_; lean_object* v___x_460_; 
-v___x_459_ = lean_st_ref_set(v___y_440_, v___x_458_);
+v___x_459_ = lean_st_ref_put(v___y_440_, v___x_458_);
 v___x_460_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_460_, 0, v_fst_447_);
 return v___x_460_;

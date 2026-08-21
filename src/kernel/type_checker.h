@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/local_ctx.h"
 #include "kernel/expr_maps.h"
-#include "kernel/equiv_manager.h"
 
 namespace lean {
 /** \brief Lean Type Checker. It can also be used to infer types, check whether a
@@ -31,7 +30,14 @@ public:
         infer_cache               m_infer_type[2];
         expr_map<expr>            m_whnf_core;
         expr_map<expr>            m_whnf;
-        equiv_manager             m_eqv_manager;
+        /* Positive and negative caches for `is_def_eq`. Since kernel expressions contain no
+           metavariables and free variables are globally unique with fixed types, the result of
+           `is_def_eq` is a function of its two arguments, so both results can be cached and shared
+           across calls. We intentionally use plain pair sets (not an equivalence-closure/union-find
+           structure): `is_def_eq` is a sound but incomplete semi-decision procedure and is therefore
+           not transitive, so taking a transitive closure of successful pairs would make its result
+           depend on evaluation order. */
+        expr_pair_set             m_success;
         expr_pair_set             m_failure;
         expr_map<expr>            m_unfold;
         friend type_checker;
@@ -80,7 +86,7 @@ private:
     bool is_def_eq_binding(expr t, expr s);
     bool is_def_eq(level const & l1, level const & l2);
     bool is_def_eq(levels const & ls1, levels const & ls2);
-    lbool quick_is_def_eq(expr const & t, expr const & s, bool use_hash = false);
+    lbool quick_is_def_eq(expr const & t, expr const & s);
     lbool is_def_eq_offset(expr const & t, expr const & s);
     bool is_def_eq_args(expr t, expr s);
     bool try_eta_expansion_core(expr const & t, expr const & s);
@@ -98,6 +104,8 @@ private:
     bool is_def_eq_unit_like(expr const & t, expr const & s);
     bool failed_before(expr const & t, expr const & s) const;
     void cache_failure(expr const & t, expr const & s);
+    bool succeeded_before(expr const & t, expr const & s) const;
+    void cache_success(expr const & t, expr const & s);
     reduction_status lazy_delta_reduction_step(expr & t_n, expr & s_n);
     lbool lazy_delta_reduction(expr & t_n, expr & s_n);
     bool lazy_delta_proj_reduction(expr & t_n, expr & s_n, name const & sname, nat const & idx);

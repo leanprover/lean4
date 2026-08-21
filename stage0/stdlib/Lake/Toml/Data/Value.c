@@ -59,7 +59,7 @@ lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, 
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_Lake_Toml_RBDict_mkEmpty___redArg(lean_object*);
 lean_object* l_String_Slice_posLE(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_ctorElim___redArg(lean_object*, lean_object*);
@@ -2547,7 +2547,7 @@ lean_ctor_set(v___x_785_, 1, v___x_783_);
 lean_ctor_set(v___x_785_, 2, v___x_784_);
 v___x_786_ = l_String_Slice_Pos_revSkipWhile___at___00Lake_Toml_ppTable_spec__0(v___x_785_, v___x_784_);
 lean_dec_ref_known(v___x_785_, 3);
-v___x_787_ = lean_string_utf8_extract(v___x_782_, v___x_783_, v___x_786_);
+v___x_787_ = lean_string_utf8_extract_fast(v___x_782_, v___x_783_, v___x_786_);
 lean_dec(v___x_786_);
 lean_dec_ref(v___x_782_);
 v___x_788_ = lean_string_push(v___x_787_, v___x_780_);

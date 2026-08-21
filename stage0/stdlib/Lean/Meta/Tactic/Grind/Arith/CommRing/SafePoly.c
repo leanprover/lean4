@@ -4932,8 +4932,8 @@ return v___x_1476_;
 }
 else
 {
-lean_dec(v_a_1477_);
 lean_dec_ref_known(v___x_1476_, 1);
+lean_dec(v_a_1477_);
 v_p_1452_ = v_p_1475_;
 goto _start;
 }
@@ -5390,8 +5390,8 @@ return v___x_1582_;
 else
 {
 lean_object* v_a_1591_; lean_object* v___x_1593_; uint8_t v_isShared_1594_; uint8_t v_isSharedCheck_1598_; 
-lean_dec(v_val_1525_);
 lean_dec_ref_known(v_a_1521_, 1);
+lean_dec(v_val_1525_);
 lean_del_object(v___x_1516_);
 lean_dec(v_v_1513_);
 lean_dec(v_k_1512_);

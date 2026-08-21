@@ -50,7 +50,7 @@ attribute [lia hom] wu_add
 axiom bad : Nat
 
 /--
-error: Cannot add `grind hom` attribute to `bad`: It is not a proposition nor a definition with equation theorems.
+error: cannot use `bad` as a simp theorem, it is not a proposition nor a definition with equational theorems
 -/
 #guard_msgs in
 attribute [grind hom] bad
@@ -121,14 +121,3 @@ homomorphism rules translate concrete types; generic injections cannot be tracke
 -/
 #guard_msgs in
 attribute [grind hom] toI_eq
-
-/-! `reset_grind_attrs%` clears the homo extension and the recorded source types. -/
-
-reset_grind_attrs%
-
-#guard_msgs in
-run_meta checkMatches
-
-/-- info: false -/
-#guard_msgs in
-run_meta logInfo m!"{(← getHomoSourceTypes).contains ``W}"

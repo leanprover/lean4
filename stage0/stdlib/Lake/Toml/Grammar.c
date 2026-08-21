@@ -4230,13 +4230,13 @@ return v___x_1150_;
 LEAN_EXPORT lean_object* l___private_Lake_Toml_Grammar_0__Lake_Toml_decNumeralAuxFn(lean_object* v_startPos_1166_, lean_object* v_c_1167_, lean_object* v_s_1168_){
 _start:
 {
-lean_object* v___y_1170_; uint32_t v___y_1171_; lean_object* v___y_1172_; uint8_t v___y_1173_; lean_object* v___y_1178_; uint8_t v___y_1179_; lean_object* v___y_1184_; uint8_t v___y_1185_; lean_object* v_toInputContext_1189_; lean_object* v_pos_1190_; uint8_t v___x_1191_; 
+uint32_t v___y_1170_; lean_object* v___y_1171_; lean_object* v___y_1172_; uint8_t v___y_1173_; lean_object* v___y_1178_; uint8_t v___y_1179_; lean_object* v___y_1184_; uint8_t v___y_1185_; lean_object* v_toInputContext_1189_; lean_object* v_pos_1190_; uint8_t v___x_1191_; 
 v_toInputContext_1189_ = lean_ctor_get(v_c_1167_, 0);
 v_pos_1190_ = lean_ctor_get(v_s_1168_, 2);
 v___x_1191_ = l_Lean_Parser_InputContext_atEnd(v_toInputContext_1189_, v_pos_1190_);
 if (v___x_1191_ == 0)
 {
-lean_object* v_inputString_1192_; lean_object* v___y_1194_; uint32_t v___y_1195_; lean_object* v___y_1196_; uint8_t v___y_1197_; uint32_t v___y_1219_; lean_object* v___y_1220_; lean_object* v___y_1221_; uint8_t v___y_1222_; uint32_t v_curr_1236_; lean_object* v_nextPos_1237_; uint8_t v___y_1239_; uint32_t v___x_1260_; uint8_t v___x_1261_; 
+lean_object* v_inputString_1192_; lean_object* v___y_1194_; uint32_t v___y_1195_; lean_object* v___y_1196_; uint8_t v___y_1197_; lean_object* v___y_1219_; lean_object* v___y_1220_; uint32_t v___y_1221_; uint8_t v___y_1222_; uint32_t v_curr_1236_; lean_object* v_nextPos_1237_; uint8_t v___y_1239_; uint32_t v___x_1260_; uint8_t v___x_1261_; 
 v_inputString_1192_ = lean_ctor_get(v_toInputContext_1189_, 0);
 v_curr_1236_ = lean_string_utf8_get_fast(v_inputString_1192_, v_pos_1190_);
 v_nextPos_1237_ = lean_string_utf8_next_fast(v_inputString_1192_, v_pos_1190_);
@@ -4287,8 +4287,8 @@ v___x_1206_ = 48;
 v___x_1207_ = lean_uint32_dec_le(v___x_1206_, v_curr_1202_);
 if (v___x_1207_ == 0)
 {
-v___y_1170_ = v_nextPos_1203_;
-v___y_1171_ = v_curr_1202_;
+v___y_1170_ = v_curr_1202_;
+v___y_1171_ = v_nextPos_1203_;
 v___y_1172_ = v_s_1199_;
 v___y_1173_ = v___x_1207_;
 goto v___jp_1169_;
@@ -4298,8 +4298,8 @@ else
 uint32_t v___x_1208_; uint8_t v___x_1209_; 
 v___x_1208_ = 57;
 v___x_1209_ = lean_uint32_dec_le(v_curr_1202_, v___x_1208_);
-v___y_1170_ = v_nextPos_1203_;
-v___y_1171_ = v_curr_1202_;
+v___y_1170_ = v_curr_1202_;
+v___y_1171_ = v_nextPos_1203_;
 v___y_1172_ = v_s_1199_;
 v___y_1173_ = v___x_1209_;
 goto v___jp_1169_;
@@ -4344,13 +4344,13 @@ v___jp_1218_:
 if (v___y_1222_ == 0)
 {
 lean_object* v___x_1223_; 
-v___x_1223_ = l___private_Lake_Toml_Grammar_0__Lake_Toml_decNumberSepFn(v_startPos_1166_, v___y_1219_, v___y_1220_, v_c_1167_, v___y_1221_);
+v___x_1223_ = l___private_Lake_Toml_Grammar_0__Lake_Toml_decNumberSepFn(v_startPos_1166_, v___y_1221_, v___y_1219_, v_c_1167_, v___y_1220_);
 return v___x_1223_;
 }
 else
 {
 lean_object* v_s_1224_; lean_object* v_pos_1225_; uint8_t v___x_1226_; 
-v_s_1224_ = l_Lean_Parser_ParserState_setPos(v___y_1221_, v___y_1220_);
+v_s_1224_ = l_Lean_Parser_ParserState_setPos(v___y_1220_, v___y_1219_);
 v_pos_1225_ = lean_ctor_get(v_s_1224_, 2);
 lean_inc(v_pos_1225_);
 v___x_1226_ = l_Lean_Parser_InputContext_atEnd(v_toInputContext_1189_, v_pos_1225_);
@@ -4423,9 +4423,9 @@ v___x_1248_ = 48;
 v___x_1249_ = lean_uint32_dec_le(v___x_1248_, v_curr_1244_);
 if (v___x_1249_ == 0)
 {
-v___y_1219_ = v_curr_1244_;
-v___y_1220_ = v_nextPos_1245_;
-v___y_1221_ = v_s_1241_;
+v___y_1219_ = v_nextPos_1245_;
+v___y_1220_ = v_s_1241_;
+v___y_1221_ = v_curr_1244_;
 v___y_1222_ = v___x_1249_;
 goto v___jp_1218_;
 }
@@ -4434,9 +4434,9 @@ else
 uint32_t v___x_1250_; uint8_t v___x_1251_; 
 v___x_1250_ = 57;
 v___x_1251_ = lean_uint32_dec_le(v_curr_1244_, v___x_1250_);
-v___y_1219_ = v_curr_1244_;
-v___y_1220_ = v_nextPos_1245_;
-v___y_1221_ = v_s_1241_;
+v___y_1219_ = v_nextPos_1245_;
+v___y_1220_ = v_s_1241_;
+v___y_1221_ = v_curr_1244_;
 v___y_1222_ = v___x_1251_;
 goto v___jp_1218_;
 }
@@ -4491,13 +4491,13 @@ v___jp_1169_:
 if (v___y_1173_ == 0)
 {
 lean_object* v___x_1174_; 
-v___x_1174_ = l___private_Lake_Toml_Grammar_0__Lake_Toml_decNumberSepFn(v_startPos_1166_, v___y_1171_, v___y_1170_, v_c_1167_, v___y_1172_);
+v___x_1174_ = l___private_Lake_Toml_Grammar_0__Lake_Toml_decNumberSepFn(v_startPos_1166_, v___y_1170_, v___y_1171_, v_c_1167_, v___y_1172_);
 return v___x_1174_;
 }
 else
 {
 lean_object* v_s_1175_; lean_object* v___x_1176_; 
-v_s_1175_ = l_Lean_Parser_ParserState_setPos(v___y_1172_, v___y_1170_);
+v_s_1175_ = l_Lean_Parser_ParserState_setPos(v___y_1172_, v___y_1171_);
 v___x_1176_ = l___private_Lake_Toml_Grammar_0__Lake_Toml_decNumberAuxFn(v_startPos_1166_, v_c_1167_, v_s_1175_);
 return v___x_1176_;
 }

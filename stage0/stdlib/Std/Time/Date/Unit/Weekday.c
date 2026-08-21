@@ -2518,9 +2518,9 @@ return v___x_722_;
 LEAN_EXPORT lean_object* l_Std_Time_Weekday_isWeekend___boxed(lean_object* v_x_723_){
 _start:
 {
-uint8_t v_x_26__boxed_724_; uint8_t v_res_725_; lean_object* v_r_726_; 
-v_x_26__boxed_724_ = lean_unbox(v_x_723_);
-v_res_725_ = l_Std_Time_Weekday_isWeekend(v_x_26__boxed_724_);
+uint8_t v_x_22__boxed_724_; uint8_t v_res_725_; lean_object* v_r_726_; 
+v_x_22__boxed_724_ = lean_unbox(v_x_723_);
+v_res_725_ = l_Std_Time_Weekday_isWeekend(v_x_22__boxed_724_);
 v_r_726_ = lean_box(v_res_725_);
 return v_r_726_;
 }

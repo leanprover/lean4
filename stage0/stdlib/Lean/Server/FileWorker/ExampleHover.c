@@ -20,7 +20,7 @@ uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -335,7 +335,7 @@ if (v___x_81_ == 0)
 lean_object* v___x_82_; lean_object* v_s_83_; lean_object* v___x_84_; lean_object* v___x_85_; 
 v___x_82_ = ((lean_object*)(l___private_Lean_Server_FileWorker_ExampleHover_0__Lean_Server_FileWorker_Hover_addCommentAt___closed__2));
 v_s_83_ = lean_string_append(v___x_71_, v___x_82_);
-v___x_84_ = lean_string_utf8_extract(v_line_69_, v_snd_76_, v___x_77_);
+v___x_84_ = lean_string_utf8_extract_fast(v_line_69_, v_snd_76_, v___x_77_);
 lean_dec(v_snd_76_);
 lean_dec_ref(v_line_69_);
 v___x_85_ = lean_string_append(v_s_83_, v___x_84_);
@@ -481,7 +481,7 @@ goto _start;
 else
 {
 lean_object* v___x_128_; lean_object* v___x_129_; lean_object* v___x_131_; 
-v___x_128_ = lean_string_utf8_extract(v_s_103_, v_fst_110_, v___x_118_);
+v___x_128_ = lean_string_utf8_extract_fast(v_s_103_, v_fst_110_, v___x_118_);
 lean_dec(v_fst_110_);
 v___x_129_ = lean_array_push(v_fst_106_, v___x_128_);
 if (v_isShared_114_ == 0)
@@ -601,7 +601,7 @@ v___x_162_ = lean_nat_dec_eq(v_snd_161_, v_fst_160_);
 if (v___x_162_ == 0)
 {
 lean_object* v___x_163_; lean_object* v___x_164_; 
-v___x_163_ = lean_string_utf8_extract(v_s_155_, v_fst_160_, v_snd_161_);
+v___x_163_ = lean_string_utf8_extract_fast(v_s_155_, v_fst_160_, v_snd_161_);
 lean_dec(v_snd_161_);
 lean_dec(v_fst_160_);
 v___x_164_ = lean_array_push(v_fst_159_, v___x_163_);

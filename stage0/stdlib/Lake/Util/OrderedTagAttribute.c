@@ -51,7 +51,7 @@ lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___redArg(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Attribute_Builtin_ensureNoArgs(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_instBEqAttributeKind_beq(uint8_t, uint8_t);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
@@ -703,7 +703,7 @@ _start:
 lean_object* v___x_177_; lean_object* v___x_178_; lean_object* v___x_179_; 
 v___x_177_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lake_registerOrderedTagAttribute_spec__0_spec__0___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lake_registerOrderedTagAttribute_spec__0_spec__0___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lake_registerOrderedTagAttribute_spec__0_spec__0___closed__1);
 v___x_178_ = lean_unsigned_to_nat(0u);
-v___x_179_ = lean_alloc_ctor(0, 10, 0);
+v___x_179_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_179_, 0, v___x_178_);
 lean_ctor_set(v___x_179_, 1, v___x_178_);
 lean_ctor_set(v___x_179_, 2, v___x_178_);
@@ -714,6 +714,7 @@ lean_ctor_set(v___x_179_, 6, v___x_177_);
 lean_ctor_set(v___x_179_, 7, v___x_177_);
 lean_ctor_set(v___x_179_, 8, v___x_177_);
 lean_ctor_set(v___x_179_, 9, v___x_177_);
+lean_ctor_set(v___x_179_, 10, v___x_177_);
 return v___x_179_;
 }
 }
@@ -1223,7 +1224,7 @@ goto v_reusejp_362_;
 v_reusejp_362_:
 {
 lean_object* v___x_364_; lean_object* v___x_365_; lean_object* v___x_367_; 
-v___x_364_ = lean_st_ref_set(v___y_340_, v___x_363_);
+v___x_364_ = lean_st_ref_put(v___y_340_, v___x_363_);
 v___x_365_ = lean_box(0);
 if (v_isShared_344_ == 0)
 {

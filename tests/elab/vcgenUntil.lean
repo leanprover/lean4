@@ -1,4 +1,4 @@
-import Std.Internal.Do
+import Std.WP
 import Lean
 import Std
 import Std.Tactic.Do
@@ -8,7 +8,7 @@ set_option warn.sorry false
 
 /-! Tests for the `vcgen until <pattern>` stop condition. -/
 
-open Std.Internal.Do Lean.Order
+open Std.WP Lean.Order
 
 namespace MVCGenUntil
 

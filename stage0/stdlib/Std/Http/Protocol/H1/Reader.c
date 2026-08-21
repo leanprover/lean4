@@ -2404,9 +2404,9 @@ return v___x_769_;
 LEAN_EXPORT lean_object* l_Std_Http_Protocol_H1_Reader_instBEqState_beq___boxed(lean_object* v_dir_770_, lean_object* v_x_771_, lean_object* v_x_772_){
 _start:
 {
-uint8_t v_dir_218__boxed_773_; uint8_t v_res_774_; lean_object* v_r_775_; 
-v_dir_218__boxed_773_ = lean_unbox(v_dir_770_);
-v_res_774_ = l_Std_Http_Protocol_H1_Reader_instBEqState_beq(v_dir_218__boxed_773_, v_x_771_, v_x_772_);
+uint8_t v_dir_178__boxed_773_; uint8_t v_res_774_; lean_object* v_r_775_; 
+v_dir_178__boxed_773_ = lean_unbox(v_dir_770_);
+v_res_774_ = l_Std_Http_Protocol_H1_Reader_instBEqState_beq(v_dir_178__boxed_773_, v_x_771_, v_x_772_);
 lean_dec(v_x_772_);
 lean_dec(v_x_771_);
 v_r_775_ = lean_box(v_res_774_);

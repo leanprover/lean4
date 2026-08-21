@@ -10,6 +10,7 @@ public import Lean.Elab.Tactic.Meta
 public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.Solve
 public import Lean.Meta.Sym.Grind
+import Lean.Meta.Sym.Canon
 
 open Lean Meta Elab Tactic Sym Sym.Internal Lean.Order
 open Lean.Elab.Tactic.Do.SpecAttr
@@ -93,8 +94,26 @@ private structure WorkItem where
   goal : Grind.Goal
   scope : Scope
 
+/--
+Canonicalize the goal target with `Sym.canon`, so instance arguments take their canonical,
+re-synthesized form. In particular, the `WP` instance of a `wp` application in the target becomes
+the instance that `synthInstance` returns, whichever way the goal spelled it (a registered bespoke
+`WP` instance or the blanket `WPMonad.toWP` route). Backward rules built from spec theorems are
+canonicalized the same way in `tryMkBackwardRuleFromSpec`, so rule application matches the target
+structurally.
+-/
+private def canonTarget (mvarId : MVarId) : SymM MVarId := do
+  let mvarDecl ← mvarId.getDecl
+  let type ← shareCommon (← Sym.canon mvarDecl.type)
+  if isSameExpr type mvarDecl.type then return mvarId
+  let mvarNew ← mkFreshExprMVarAt mvarDecl.lctx mvarDecl.localInstances type .syntheticOpaque
+    mvarDecl.userName
+  mvarId.assign mvarNew
+  return mvarNew.mvarId!
+
 public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
   let mvarId ← preprocessMVar goal.mvarId
+  let mvarId ← canonTarget mvarId
   let mut worklist : Array WorkItem := #[{ goal := { goal with mvarId }, scope }]
   while let some s := worklist.back? do
     worklist := worklist.pop

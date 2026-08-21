@@ -18,8 +18,7 @@ open Lean.Order Std.WP
 /-!
 # WPMonad Instances
 
-The weakest precondition interpretation of the base monads and of the monad transformers, together
-with the `PredTrans` helpers that push a result type into an exception postcondition layer.
+The weakest precondition interpretation of the base monads and of the monad transformers.
 
 A monad that throws carries the exception postcondition itself. A transformer stacks a product
 layer on the exception postcondition of the monad below it, and `EStack⟨⟩` closes the stack.
@@ -50,39 +49,6 @@ instance Id.instWPMonad : WPMonad Id.{u} Prop EStack⟨⟩ where
   toWP _ := Id.wpInst
   pure_le_wp_pure _ _ _ := PartialOrder.rel_refl
   bind_le_wp_bind _ _ _ _ := PartialOrder.rel_refl
-
-/-- `MonadExceptOf` instance for the outermost exception layer:
-`throw` invokes the head exception postcondition, `tryCatch` intercepts it. -/
-instance {ε : Type u} {Pred : Type v} {EPred : Type w} :
-    MonadExceptOf ε (PredTrans Pred ((ε → Pred) × EPred)) where
-  throw e := ⟨fun _post epost => epost.fst e⟩
-  tryCatch x handle := ⟨fun post epost => x.apply post ((fun e => (handle e).apply post epost), epost.snd)⟩
-
-/-- Unfolding `throw` through `apply`: the head exception postcondition at the thrown value. -/
-@[simp, grind =] theorem PredTrans.apply_throw {ε : Type u} {α : Type u} {Pred : Type u}
-    {EPred : Type w} (e : ε) (post : α → Pred) (epost : (ε → Pred) × EPred) :
-    (MonadExceptOf.throw e : PredTrans Pred ((ε → Pred) × EPred) α).apply post epost
-      = epost.fst e := rfl
-
-/-- Unfolding `tryCatch` through `apply`: the handler replaces the head exception postcondition. -/
-@[simp, grind =] theorem PredTrans.apply_tryCatch {ε : Type u} {α : Type u} {Pred : Type u}
-    {EPred : Type w} (x : PredTrans Pred ((ε → Pred) × EPred) α)
-    (handle : ε → PredTrans Pred ((ε → Pred) × EPred) α)
-    (post : α → Pred) (epost : (ε → Pred) × EPred) :
-    (MonadExceptOf.tryCatch x handle).apply post epost
-      = x.apply post ((fun e => (handle e).apply post epost), epost.snd) := rfl
-
-/-- `MonadExceptOf` instance lifted through an unrelated exception layer:
-delegates to the inner instance, threading the extra exception postcondition. -/
-instance {ε : Type u} {Pred : Type v} {EPred : Type w} {ε' : Type u}
-    [MonadExceptOf ε (PredTrans Pred EPred)] :
-    MonadExceptOf ε (PredTrans Pred ((ε' → Pred) × EPred)) where
-  throw x := ⟨fun post epost => (throw (m := PredTrans Pred EPred) x).apply post epost.snd⟩
-  tryCatch x handle := ⟨fun post epost =>
-    (tryCatch (m := PredTrans Pred EPred)
-      (⟨fun post' epost' => x.apply post' (epost.fst, epost')⟩)
-      (fun e => ⟨fun post' epost' => (handle e).apply post' (epost.fst, epost')⟩)).apply
-      post epost.snd⟩
 
 /-- `ExceptT`'s `WP` interpretation: lift the base interpretation by adding an exception
 postcondition layer. -/
@@ -163,7 +129,7 @@ theorem OptionT.wp_apply_eq {α : Type u} {Pred : Type u} {EPred}
 @[instance_reducible] def StateT.wpInst {EPred : Type v} {σ : Type u} {Pred : Type w}
   [Assertion Pred] [Assertion EPred] [WP (m (α × σ)) (α × σ) Pred EPred] :
     WP (StateT σ m α) α (σ → Pred) EPred where
-  wpTrans x := pushArg (WP.wpTrans <| x.run ·)
+  wpTrans x := PredTrans.pushArg (WP.wpTrans <| x.run ·)
   wp_trans_monotone x := fun post post' epost epost' hepost hpost s => by
     apply WP.wp_consequence_econs (x := x.run s)
     · intro ⟨a, s'⟩

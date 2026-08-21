@@ -808,8 +808,6 @@ class LeanChecker(RepoChecker):
         self.cl.success(f"{what} updated")
 
     def check_api_docs_workflow(self) -> None:
-        grepo = self.github.get_repo(repos.LEAN4_API_DOCS.gh_full_name)
-        workflow = grepo.get_workflow("docs.yaml")
         url = "https://github.com/leanprover/lean4-api-docs/actions/workflows/docs.yaml"
         what = f"[u link={url}]docs.yaml workflow[/u link] on [b]{e(repos.LEAN4_API_DOCS.gh_full_name)}[/b]"
 
@@ -818,14 +816,18 @@ class LeanChecker(RepoChecker):
             return
 
         # Dispatching requires admin rights on lean4-api-docs, which not every
-        # release manager has.
+        # release manager has. This check is independent of the ones after it, so
+        # record a failure rather than letting the API error end the run.
         try:
-            workflow.create_dispatch(ref=grepo.default_branch)
+            grepo = self.github.get_repo(repos.LEAN4_API_DOCS.gh_full_name)
+            workflow = grepo.get_workflow("docs.yaml")
+            triggered = workflow.create_dispatch(ref=grepo.default_branch)
         except GithubException as exc:
-            message = (
-                exc.data.get("message", exc) if isinstance(exc.data, dict) else exc
-            )
-            self.cl.fail(f"{what} not triggered: {e(str(message))}")
+            self.cl.fail(f"{what} not triggered: {e(str(exc))}")
+            return
+
+        if not triggered:
+            self.cl.fail(f"{what} not triggered")
             return
 
         self.cl.success(f"{what} triggered")

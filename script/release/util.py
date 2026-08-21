@@ -2,7 +2,6 @@ import datetime
 import re
 import shlex
 import subprocess
-import urllib.parse
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from os import PathLike
@@ -377,7 +376,14 @@ def edit(
 #########
 
 
-def fmt_pr(pr: PullRequest | Issue) -> str:
+@dataclass
+class CreatedPR:
+    number: int
+    title: str
+    html_url: str
+
+
+def fmt_pr(pr: PullRequest | Issue | CreatedPR) -> str:
     return f"[link={pr.html_url}][green]#{pr.number}[/green] [b u]{e(pr.title)}[/b u][/link]"
 
 
@@ -402,18 +408,35 @@ def create_pr(grepo: Repository, head: str, base: str, title: str) -> PullReques
     return grepo.create_pull(head=head, base=base, title=title)
 
 
-# https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/using-query-parameters-to-create-a-pull-request
-def create_pr_url(
-    base: ReleaseRepo,
-    base_branch: str,
-    head: ReleaseRepo,
-    head_branch: str,
+# The REST API can't express a pull request between two repositories owned by the
+# same organization: `head` carries only an owner, so it can't say which of that
+# owner's repositories the branch lives in. GraphQL takes the head repository's
+# node ID instead.
+def create_cross_repo_pr(
+    github: Github,
+    grepo: Repository,
+    head_grepo: Repository,
+    head: str,
+    base: str,
     title: str,
-    body: str = "",
-) -> str:
-    url = f"{base.gh_url}/compare/{base_branch}...{head.gh_owner}:{head.gh_name}:{head_branch}"
-    params = {"title": title, "body": body}
-    return f"{url}?{urllib.parse.urlencode(params)}"
+) -> CreatedPR:
+    # `headRefName` stays a bare branch name: the head repository is already
+    # pinned by `headRepositoryId`, so it needs no `owner:` prefix.
+    _, data = github.requester.graphql_named_mutation(
+        "createPullRequest",
+        {
+            "repositoryId": grepo.node_id,
+            "headRepositoryId": head_grepo.node_id,
+            "headRefName": head,
+            "baseRefName": base,
+            "title": title,
+        },
+        # Everything needed to report the result, so that creating the pull
+        # request takes a single request and can't half-succeed.
+        "pullRequest { number title url }",
+    )
+    pr = data["pullRequest"]
+    return CreatedPR(number=pr["number"], title=pr["title"], html_url=pr["url"])
 
 
 ###################

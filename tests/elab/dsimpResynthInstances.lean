@@ -101,6 +101,91 @@ example : g natZero = 1 := by
   simp only [natZero_def, g_eq]
 
 /-!
+A class marked `@[lax_instance_defeq]` is exempt: the rewrite goes through unchecked as in the
+old behavior, producing the stale term `@gZ 0 instZNatZeroZ`. Since the class is also exempt
+from the strict assignment check in `isDefEq`, `gZ_eq` still applies (the instance assignment
+is checked at `.implicit`, where `natZeroZ` unfolds), and the goal closes silently.
+-/
+
+@[lax_instance_defeq]
+class Z (n : Nat)
+
+@[implicit_reducible]
+def natZeroZ := 0
+
+instance instZNatZeroZ : Z natZeroZ where
+
+theorem natZeroZ_def : natZeroZ = 0 := rfl
+
+def gZ (m : Nat) [Z m] : Nat := m + 1
+
+theorem gZ_eq {m} [Z m] : gZ m = m + 1 := by
+  simp [gZ]
+
+#guard_msgs in
+example : gZ natZeroZ = 1 := by
+  simp only [natZeroZ_def, gZ_eq]
+
+/-!
+The attribute can be applied retroactively and locally; outside the section, `X` is strict
+again.
+-/
+
+section
+attribute [local lax_instance_defeq] X
+
+#guard_msgs in
+example : g natZero = 1 := by
+  simp only [natZero_def, g_eq]
+
+end
+
+/--
+warning: A rewrite with natZero_def changed an argument of
+  g natZero
+The instance argument
+  instXNatZero
+then does not have the expected type at `.instances` transparency, and no usable replacement instance was found. The rewrite was not applied here.
+
+Note: Disable this warning with `set_option dsimp.resynthInstances.warning false`, or the whole check with `set_option dsimp.resynthInstances false`.
+-/
+#guard_msgs in
+example : g natZero = 1 := by
+  simp only [natZero_def, g_eq]
+
+/-!
+Only classes can be marked.
+-/
+
+/--
+error: invalid `lax_instance_defeq`, `Nat.add` is not a class
+-/
+#guard_msgs in
+attribute [lax_instance_defeq] Nat.add
+
+/-!
+Propositional classes are exempt by default, without the attribute; same behavior as above.
+-/
+
+class P (n : Nat) : Prop
+
+@[implicit_reducible]
+def natZeroP := 0
+
+instance instPNatZeroP : P natZeroP where
+
+theorem natZeroP_def : natZeroP = 0 := rfl
+
+def gP (m : Nat) [P m] : Nat := m + 1
+
+theorem gP_eq {m} [P m] : gP m = m + 1 := by
+  simp [gP]
+
+#guard_msgs in
+example : gP natZeroP = 1 := by
+  simp only [natZeroP_def, gP_eq]
+
+/-!
 `dsimp.resynthInstances := false` restores the old behavior: the stale term `@g 0 instXNatZero`
 is produced, `g_eq` no longer applies, and the goal remains open.
 -/

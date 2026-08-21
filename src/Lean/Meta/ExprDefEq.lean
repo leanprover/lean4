@@ -573,13 +573,15 @@ parameter, identified by `.synthetic` kind together with a class type.
 Assignments to these are checked at exactly `.instances` transparency, so an ambient
 `.default`/`.all` does not let semireducible definitions be unfolded while checking the type of an
 instance assignment. This intentionally does not apply to ordinary implicit (`{..}`) metavariables
-that happen to have a class type, which are created with `.natural` kind.
+that happen to have a class type, which are created with `.natural` kind, nor to classes exempted
+by `isLaxInstanceDefeqClass` (marked `@[lax_instance_defeq]`, or propositional).
 -/
 private def isInstanceMVar (mvarId : MVarId) : MetaM Bool := do
   unless backward.isDefEq.respectTransparency.instances.get (← getOptions) do
     return false
   unless (← mvarId.getKind) matches .synthetic do return false
-  return (← isClass? (← mvarId.getDecl).type).isSome
+  let some className ← isClass? (← mvarId.getDecl).type | return false
+  return !isLaxInstanceDefeqClass (← getEnv) className
 
 /--
 Returns `true` if all metavariables whose types influence the type of `e`, a value assigned to an

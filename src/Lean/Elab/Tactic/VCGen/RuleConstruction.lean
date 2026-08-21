@@ -310,11 +310,6 @@ For a spec already in `⊑ wp` form (`pre ⊑ wp prog post epost`, where the lat
 `lhs = rhs` is first normalized to `wp rhs Q E ⊑ wp lhs Q E` via `eqSpecToWp?` and then handled the
 same way.
 
-The abstracted rule is canonicalized with `Sym.canon` before pattern extraction, so the instance
-arguments baked into its conclusion (e.g. the `WP` instance of the `wp` application) take the same
-canonical, re-synthesized form as the internalized goals the rule is applied to; see `canonTarget`
-in `VCGen.Driver`.
-
 - `info.Pred`: the goal's lattice type (e.g. `Nat → Prop`)
 - `info.instWP`: the `WP` instance of the goal's `wp` application
 - `info.excessArgs`: free variables representing state args from

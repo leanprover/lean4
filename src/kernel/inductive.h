@@ -66,12 +66,16 @@ inline expr to_cnstr_when_structure(environment const & env, const lean::recurso
     if (!is_structure_like(env, induct_name) || is_constructor_app(env, e))
         return e;
     expr e_type = whnf(infer_type(e));
-    if (!is_constant(get_app_fn(e_type), induct_name))  // Why is this check done ? if we're reducing, we already know the recursor expression to be type-correct, checking it again here should be not useful
+    expr const fn = get_app_fn(e_type);
+    if (!is_constant(fn, induct_name))  // Why is this check done ? if we're reducing, we already know the recursor expression to be type-correct, checking it again here should be not useful
         return e;
-    if (!rec_val.has_sort_poly_motive())
-        return e;
-inline optional<expr> inductive_reduce_rec(environment const & env, expr const & e,
-                                           IS_PROP const & is_prop) {
+    if (length(rec_val.to_constant_val().get_lparams()) == length(const_levels(fn)))
+        return e; // We do not perform eta for non-singleton propositions, see implementation in the kernel
+    return expand_eta_struct(env, e_type, e);
+}
+
+template<typename WHNF, typename INFER, typename IS_DEF_EQ>
+inline optional<expr> inductive_reduce_rec(environment const & env, expr const & e) {
     expr const & rec_fn   = get_app_fn(e);
     if (!is_constant(rec_fn)) return none_expr();
     optional<constant_info> rec_info = env.find(const_name(rec_fn));

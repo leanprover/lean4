@@ -22,17 +22,6 @@ open System
 
 namespace Lake
 
-/-- Create a fresh build context from a workspace and a build configuration. -/
-@[deprecated "Deprecated without replacement." (since := "2025-01-08")]
-public def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext := do
-  return {
-    opaqueWs := ws,
-    toBuildConfig := config,
-    registeredJobs := ← IO.mkRef #[],
-    leanTrace := .ofHash (pureHash ws.lakeEnv.leanGithash)
-      s!"Lean {Lean.versionStringCore}, commit {ws.lakeEnv.leanGithash}"
-  }
-
 /-- Unicode icons that make up the spinner in animation order. -/
 def Monitor.spinnerFrames :=
   #['⣾','⣷','⣯','⣟','⡿','⢿','⣻','⣽']
@@ -332,7 +321,7 @@ def monitorJob (ctx : MonitorContext) (job : Job α) : BaseIO (BuildResult α) :
   else
     return {toMonitorResult := result, out := .error "build failed"}
 
-def mkBuildContext'
+def mkBuildContext
   (ws : Workspace) (cfg : BuildConfig) (jobs : JobQueue)
 : BaseIO BuildContext := return {
   opaqueWs := ws
@@ -355,6 +344,24 @@ def mkBuildContext'
   registeredJobs := jobs
   leanTrace := .ofHash (pureHash ws.lakeEnv.leanGithash)
     s!"Lean {Lean.versionStringCore}, commit {ws.lakeEnv.leanGithash}"
+  leanIncludeDirs := ← ws.packages.mapM fun pkg => do
+    unless pkg.bootstrap do
+      return none
+    let dir := pkg.bootstrapIncludeDir
+    let mut trace := BuildTrace.nil "Lean includes"
+    -- Must be kept up-to-date with the files `lean.h` can include
+    for header in #["lean.h", "config.h", "version.h", "mimalloc.h"] do
+      let leanH := TextFilePath.mk <| dir / "lean" / header
+      match ← (computeTrace (n := IO) leanH).toBaseIO with
+      | .ok fileTrace =>
+        trace := trace.mix fileTrace
+      | .error (.noFileOrDirectory ..) =>
+        -- some headers (e.g., `mimalloc.h`) are optional
+        -- missing required headers will be caught during compilation
+        continue
+      | _ =>
+        return none
+    return some (dir, trace)
 }
 
 def Workspace.startBuild
@@ -389,7 +396,7 @@ public def Workspace.runFetchM
 : IO α := do
   let jobs ← mkJobQueue
   let mctx ← mkMonitorContext cfg jobs
-  let bctx ← mkBuildContext' ws cfg jobs
+  let bctx ← mkBuildContext ws cfg jobs
   let job ← startBuild bctx build caption
   let result ← monitorJob mctx job
   finalizeBuild cfg bctx mctx result
@@ -418,7 +425,7 @@ public def Workspace.checkNoBuild
   let jobs ← mkJobQueue
   let cfg := {noBuild := true}
   let mctx ← mkMonitorContext cfg jobs
-  let bctx ← mkBuildContext' ws cfg jobs
+  let bctx ← mkBuildContext ws cfg jobs
   let job ← startBuild bctx build
   let result ← monitorBuild mctx job
   return result.isOk -- `isOk` means no failures, and thus no `--no-build` failures
@@ -429,7 +436,7 @@ public def Workspace.runBuild
 : IO α := do
   let jobs ← mkJobQueue
   let mctx ← mkMonitorContext cfg jobs
-  let bctx ← mkBuildContext' ws cfg jobs
+  let bctx ← mkBuildContext ws cfg jobs
   let job ← startBuild bctx build
   let result ← monitorBuild mctx job
   finalizeBuild cfg bctx mctx result

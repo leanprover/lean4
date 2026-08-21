@@ -274,11 +274,19 @@ def pl(n: int, singular: str, plural: str | None = None) -> str:
     return f"{n} {singular if n == 1 else plural}"
 
 
+def get_author(repo: Repo) -> str:
+    name = str(repo.config_reader().get_value("user", "name", ""))
+    if not name:
+        raise SystemExit("Failed to read `user.name` from git config")
+    return name
+
+
 def main(version: Version, refman: Path):
     util.initialize_rich()
     github = util.get_github_instance()
 
     repo = Repo(Path(__file__).parent.parent.parent)
+    author = get_author(repo)
     grepo = github.get_repo(repos.LEAN4.gh_full_name)
     release = grepo.get_release(version.tag)
     date = release.published_at.astimezone(datetime.timezone.utc)
@@ -292,7 +300,7 @@ def main(version: Version, refman: Path):
     lines.append("/-")
     lines.append(f"Copyright (c) {date.year} Lean FRO LLC. All rights reserved.")
     lines.append("Released under Apache 2.0 license as described in the file LICENSE.")
-    lines.append("Author: Joscha Mennicken")
+    lines.append(f"Author: {author}")
     lines.append("-/")
     lines.append("")
     lines.append("import VersoManual")

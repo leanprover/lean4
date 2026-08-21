@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Authors: Sebastian Ullrich, Mac Malone, Claude Code
-source ../common.sh
+source ../../tests/common.sh
 
 # A `bootstrap` package compiles its C files against the Lean headers in its own build
 # directory rather than the toolchain's, so the toolchain githash does not identify them.

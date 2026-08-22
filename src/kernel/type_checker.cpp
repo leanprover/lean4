@@ -399,8 +399,8 @@ optional<expr> type_checker::reduce_recursor(expr const & e, bool cheap_rec, boo
     if (optional<expr> r = inductive_reduce_rec(env(), e,
                                                 [&](expr const & e) { return cheap_rec ? whnf_core(e, cheap_rec, cheap_proj) : whnf(e); },
                                                 [&](expr const & e) { return infer(e); },
-                                                [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); },
-                                                [&](expr const & e) { return is_prop(e); })) {
+                                                [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); }
+                                                )) {
         return r;
     }
     return none_expr();
@@ -883,7 +883,7 @@ bool type_checker::should_eta_recursors(expr const & t, expr const & s) {
     // Should this be != instead of > ?
     if (t_args.size() > rec_val.get_major_idx()) return false;
     return
-        rec_val.is_k() || is_structure_like(env(), rec_val.get_major_induct());
+        rec_val.is_k() || is_non_rec_structure(env(), rec_val.get_major_induct());
 }
 
 bool type_checker::should_eta(expr const & t, expr const & s) {
@@ -915,7 +915,7 @@ bool type_checker::try_eta_struct_core(expr const & t_, expr const & s_) {
     constant_info f_info = env().get(const_name(f));
     if (!f_info.is_constructor()) return false;
     constructor_val f_val = f_info.to_constructor_val();
-    if (!is_structure_like(env(), f_val.get_induct())) return false;
+    if (!is_non_rec_structure(env(), f_val.get_induct())) return false;
     expr t_type = infer_type(t);
     expr s_type = infer_type(s);
     if (!is_def_eq(t_type,s_type)) return false;
@@ -1207,17 +1207,17 @@ bool type_checker::is_unit_like(expr const & t) {
     }
     I = instantiate_rev(I, fvars.size(), fvars.data());
     I = get_app_args(I, args);
-    if (!is_constant(I)) 
+    if (!is_constant(I))
         return false;
     name I_name = const_name(I);
-    if (!is_structure_like(env(), I_name))
+    if (!is_non_rec_structure(env(), I_name))
         return false;
     name ctor_name = head(env().get(I_name).to_inductive_val().get_cnstrs());
     constant_val ctor_val = env().get(ctor_name).to_constructor_val().to_constant_val();
     expr ctor_ty = ctor_val.get_type();
     ctor_ty = instantiate_lparams(ctor_ty, ctor_val.get_lparams(), const_levels(I));
     // `I` is a structure, and in particular has no indices. Furthermore, it is a type, so `args.size() = I_val.nparams()`
-    for (unsigned i = 0; i < args.size(); i++) 
+    for (unsigned i = 0; i < args.size(); i++)
         ctor_ty = binding_body(ctor_ty);
     ctor_ty = instantiate_rev(ctor_ty, args.size(), args.data());
     // Check that every field (read, every domain) of the constructor are themselves unit-like
@@ -1240,9 +1240,9 @@ bool type_checker::is_def_eq_unit_like(expr const & t, expr const & s) {
     expr t_type = whnf(infer_type(t));
     if (!is_unit_like(t_type))
         return false;
-    //This should always be true under the invariant that terms that get compared must be known to have defeq types 
+    //This should always be true under the invariant that terms that get compared must be known to have defeq types
     // Also, should this be is_def_eq_core or is_def_eq ?
-    if (is_def_eq_core(t_type, infer_type(s))) 
+    if (is_def_eq_core(t_type, infer_type(s)))
         return true;
     return false;
 }

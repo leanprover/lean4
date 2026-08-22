@@ -186,7 +186,7 @@ where
         k a' b'
 
   go ctorVal us := do
-    if !isStructureLike (← getEnv) ctorVal.induct then
+    if !isNonRecStructure (← getEnv) ctorVal.induct then
       trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
       return false
     if !(← isDefEq (← inferType a) (← inferType b)) then
@@ -220,7 +220,7 @@ private def shouldEtaRecursors (a b : Expr) : MetaM Bool := do
   let .recInfo recVal := t_info | return false
   -- Should this be `!=` instead of `>` ?
   if args.size > recVal.getMajorIdx then return false
-  return recVal.k || isStructureLike (← getEnv) recVal.getMajorInduct
+  return recVal.k || isNonRecStructure (← getEnv) recVal.getMajorInduct
 
 private def shouldEta (a b : Expr) : MetaM Bool :=
   -- withTraceNode `Meta.isDefEq (return m!"{exceptEmoji ·} shouldEta {a} =?= {b}") do
@@ -2382,7 +2382,7 @@ private def cacheUnitLike (key : ExprConfigCacheKey) (b : Bool) : MetaM Bool := 
 private partial def isUnitLikeType (e : Expr) : MetaM Bool :=
   forallTelescopeReducing (whnfType := true) e fun _ tType => do
     let hd := tType.getAppFn
-    matchConstStructureLike hd (fun _ => pure false) fun _ _ ctorVal => do
+    matchConstNonRecStructure hd (fun _ => pure false) fun _ _ ctorVal => do
       let ctorType := ctorVal.type
           |>.instantiateLevelParams ctorVal.levelParams hd.constLevels!
           -- `tType` is a structure, and in particular has no indices. Furthermore, it is a type, so `args.size() = I_val.nparams()`

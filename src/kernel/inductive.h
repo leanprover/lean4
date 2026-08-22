@@ -63,7 +63,7 @@ template<typename WHNF, typename INFER>
 inline expr to_cnstr_when_structure(environment const & env, const lean::recursor_val &rec_val, expr const & e,
                                     WHNF const & whnf, INFER const & infer_type) {
     name const & induct_name = rec_val.get_major_induct();
-    if (!is_structure_like(env, induct_name) || is_constructor_app(env, e))
+    if (!is_non_rec_structure(env, induct_name) || is_constructor_app(env, e))
         return e;
     expr e_type = whnf(infer_type(e));
     expr const fn = get_app_fn(e_type);
@@ -75,7 +75,7 @@ inline expr to_cnstr_when_structure(environment const & env, const lean::recurso
 }
 
 template<typename WHNF, typename INFER, typename IS_DEF_EQ>
-inline optional<expr> inductive_reduce_rec(environment const & env, expr const & e) {
+inline optional<expr> inductive_reduce_rec(environment const & env, expr const & e, WHNF const & whnf, INFER const & infer_type, IS_DEF_EQ const & is_def_eq) {
     expr const & rec_fn   = get_app_fn(e);
     if (!is_constant(rec_fn)) return none_expr();
     optional<constant_info> rec_info = env.find(const_name(rec_fn));
@@ -103,7 +103,6 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     if (rule->get_nfields() > major_args.size()) return none_expr();
     if (length(const_levels(rec_fn)) != length(rec_info->get_lparams())) return none_expr();
     expr rhs = instantiate_lparams(rule->get_rhs(), rec_info->get_lparams(), const_levels(rec_fn));
-       equal to the number of parameters in the recursor when we have
     unsigned nparams = major_args.size() - rule->get_nfields();
     /* apply fields from major premise */
     rhs      = mk_app(rhs, rule->get_nfields(), major_args.data() + nparams);

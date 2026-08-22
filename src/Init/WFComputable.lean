@@ -13,15 +13,24 @@ import Init.WFTactics
 # Compilable Acc.rec' and WellFounded.fix
 
 This module supplies `@[csimp]` lemmas so that `Acc.rec'`, `WellFounded.fixF` and
-`WellFounded.fix` compile to direct recursive code, even though their
-logical definitions go through `Classical.choice`.
+`WellFounded.fix` compile to direct recursive code, even though their logical definitions are
+noncomputable.
 
-Under the no-large-elim-of-Acc experiment, `Acc.rec` is restricted to
-`Prop` motives, so the csimp rules are stated for `Acc.rec'` and friends,
-which have the unrestricted signature.
+`Acc.rec` is restricted to `Prop` motives, so the csimp rules are stated for `Acc.rec'` and
+friends, which have the unrestricted signature.
+
+Without this, the following code would fail to compile, as `WellFounded.fix` is noncomputable.
+
+```
+def log2p1 : Nat → Nat :=
+  WellFounded.fix Nat.lt_wfRel.2 fun n IH =>
+    let m := n / 2
+    if h : m < n then
+      IH m h + 1
+    else
+      0
+```
 -/
-
-universe u v
 
 namespace Acc
 
@@ -29,10 +38,8 @@ public instance wfRel {r : α → α → Prop} : WellFoundedRelation { val // Ac
   rel := InvImage r (·.1)
   wf  := ⟨fun ac => InvImage.accessible _ ac.2⟩
 
--- The `α`/`r` binders are explicit and ordered as in `Acc.rec'`; `@[csimp]` demands that both
--- sides of the replacement theorem have identical universe parameter lists.
-variable {α : Sort u} {r : α → α → Prop}
-
+-- `@[csimp]` demands that both sides of a replacement theorem have identical universe parameter
+-- lists, so the implementations below list the motive's universe first, as `Acc.rec'` does.
 /-- A compilable version of `Acc.rec'`. -/
 @[specialize, elab_as_elim] public def recC {motive : (a : α) → Acc r a → Sort v}
     (intro : (x : α) → (h : ∀ (y : α), r y x → Acc r y) →

@@ -185,14 +185,18 @@ variable {α : Sort u} {r : α → α → Prop}
 /--
 A replacement for `Acc.rec` at motives that are not propositions.
 
-`Acc.rec` eliminates only into `Prop`, so that the kernel never has to reduce a proof.
-`Acc.rec'` has the unrestricted signature — any motive in `Sort v`, including one that
-mentions the accessibility proof — and obtains it from `Classical.choice` instead of from
-`Acc.rec`. Compiled code is unaffected: the `@[csimp]` lemma `Acc.rec'_eq_recC` rewrites it to
-a directly recursive implementation.
+`Acc.rec'` has the same signature as `Acc.rec` — any motive in `Sort v`, including one that
+mentions the accessibility proof — but obtains its result from `Classical.choice` rather than by
+recursion, and is `@[irreducible]`. Compiled code is unaffected: the `@[csimp]` lemma
+`Acc.rec'_eq_recC` rewrites it to a directly recursive implementation.
 
-What is lost is the iota rule: `Acc.rec' intro (Acc.intro x h)` is only propositionally equal
-to `intro x h …`, via `Acc.rec'_intro`. To port code that used the unrestricted `Acc.rec`:
+It is intended for use ahead of a planned change that restricts `Acc.rec` to `Prop` motives, so
+that the kernel never has to reduce a proof. Code that eliminates an accessibility proof into data
+can move to `Acc.rec'` today and keep working across that change.
+
+What such a move costs is the iota rule: `Acc.rec' intro (Acc.intro x h)` is only propositionally
+equal to `intro x h …`, via `Acc.rec'_intro`. To port code that uses `Acc.rec` at a non-`Prop`
+motive:
 
 * rewrite `Acc.rec`, `Acc.recOn`, `Acc.ndrec` and `Acc.ndrecOn` to `Acc.rec'`, `Acc.recOn'`,
   `Acc.ndrec'` and `Acc.ndrecOn'`, and `induction h with | intro ..` to
@@ -201,7 +205,8 @@ to `intro x h …`, via `Acc.rec'_intro`. To port code that used the unrestricte
   the head symbol, `Acc.recOn'` and friends have to be unfolded first, as in
   `rw [myDef, Acc.recOn', Acc.rec'_eq]`.
 -/
-@[elab_as_elim] noncomputable def rec' {motive : (a : α) → Acc r a → Sort v}
+@[irreducible, elab_as_elim] noncomputable def rec'.{v', u'} {α : Sort u'} {r : α → α → Prop}
+    {motive : (a : α) → Acc r a → Sort v'}
     (intro : (x : α) → (h : (y : α) → r y x → Acc r y) →
       ((y : α) → (hy : r y x) → motive y (h y hy)) → motive x (Acc.intro x h))
     {a : α} (t : Acc r a) : motive a t :=
@@ -211,6 +216,7 @@ to `intro x h …`, via `Acc.rec'_intro`. To port code that used the unrestricte
     (fun x ih h => intro x (fun _ hy => h.inv hy) (fun y hy => ih y hy (h.inv hy)))
     a t t
 
+unseal rec' in
 /-- The propositional replacement for the iota rule of `Acc.rec`. -/
 theorem rec'_intro {motive : (a : α) → Acc r a → Sort v}
     (intro : (x : α) → (h : (y : α) → r y x → Acc r y) →
@@ -244,20 +250,21 @@ theorem rec'_eq {motive : (a : α) → Acc r a → Sort v}
   rec'_intro intro a fun _ hy => t.inv hy
 
 /-- `Acc.recOn` at motives that are not propositions. See `Acc.rec'`. -/
-@[elab_as_elim, reducible] noncomputable def recOn' {motive : (a : α) → Acc r a → Sort v}
-    {a : α} (t : Acc r a)
+@[elab_as_elim, reducible] noncomputable def recOn'.{v', u'} {α : Sort u'}
+    {r : α → α → Prop} {motive : (a : α) → Acc r a → Sort v'} {a : α} (t : Acc r a)
     (intro : (x : α) → (h : (y : α) → r y x → Acc r y) →
       ((y : α) → (hy : r y x) → motive y (h y hy)) → motive x (Acc.intro x h)) : motive a t :=
   rec' intro t
 
 /-- `Acc.ndrec` at motives that are not propositions. See `Acc.rec'`. -/
-@[reducible] noncomputable def ndrec' {C : α → Sort v}
+@[reducible] noncomputable def ndrec'.{v', u'} {α : Sort u'} {r : α → α → Prop} {C : α → Sort v'}
     (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → r y x → C y) → C x)
     {a : α} (n : Acc r a) : C a :=
   rec' m n
 
 /-- `Acc.ndrecOn` at motives that are not propositions. See `Acc.rec'`. -/
-@[reducible] noncomputable def ndrecOn' {C : α → Sort v} {a : α} (n : Acc r a)
+@[reducible] noncomputable def ndrecOn'.{v', u'} {α : Sort u'} {r : α → α → Prop}
+    {C : α → Sort v'} {a : α} (n : Acc r a)
     (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → r y x → C y) → C x) : C a :=
   rec' m n
 

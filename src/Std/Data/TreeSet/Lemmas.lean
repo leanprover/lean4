@@ -2398,6 +2398,12 @@ private theorem equiv_iff_equiv : t₁ ~m t₂ ↔ t₁.1.Equiv t₂.1 :=
 theorem equiv_empty_iff_isEmpty : t ~m empty ↔ t.isEmpty :=
   equiv_iff_equiv.trans TreeMap.equiv_empty_iff_isEmpty
 
+theorem inter_equiv_empty_comm [TransCmp cmp] :
+    (t₁ ∩ t₂) ~m ∅ ↔ (t₂ ∩ t₁) ~m ∅ := by
+  change (t₁ ∩ t₂) ~m empty ↔ (t₂ ∩ t₁) ~m empty
+  rw [equiv_empty_iff_isEmpty, equiv_empty_iff_isEmpty, ← Bool.eq_iff_iff]
+  exact isEmpty_inter_comm
+
 theorem empty_equiv_iff_isEmpty : empty ~m t ↔ t.isEmpty :=
   Equiv.comm.trans equiv_empty_iff_isEmpty
 

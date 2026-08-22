@@ -1029,6 +1029,11 @@ theorem isEmpty_inter_comm [EquivBEq α] [LawfulHashable α] :
     (m₁ ∩ m₂).isEmpty = (m₂ ∩ m₁).isEmpty :=
   ExtHashMap.isEmpty_inter_comm
 
+theorem inter_eq_empty_comm [EquivBEq α] [LawfulHashable α] :
+    m₁ ∩ m₂ = ∅ ↔ m₂ ∩ m₁ = ∅ := by
+  rw [← isEmpty_iff, ← isEmpty_iff, ← Bool.eq_iff_iff]
+  exact isEmpty_inter_comm
+
 end Inter
 
 section Diff

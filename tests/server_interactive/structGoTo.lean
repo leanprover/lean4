@@ -2,6 +2,8 @@
 # Testing "go to definition" for `structure` fields
 -/
 
+--^ collectDiagnostics
+
 structure S where
   a : Nat
   /- Dependence in type -/
@@ -30,6 +32,3 @@ structure SInvalid where
 
 -- Check that the structure is never added to the environment:
 #check SInvalid
-
---^ collectDiagnostics
---

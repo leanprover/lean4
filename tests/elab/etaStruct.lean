@@ -62,11 +62,11 @@ def frob : Nat × Nat → Nat × Nat
 
 example (x : Nat × Nat) : (frob x).2 = 42 := rfl
 
-example (x y : Unit) : x = y := rfl
+example (x y : Unit) : x = y := Unit.ext x y
 
 opaque f : Nat → Unit
 opaque g : Nat → Unit
 
-example (x y : Nat) : f x = f y := rfl
+example (x y : Nat) : f x = f y := Unit.ext _ _
 
-example (x y : Nat) : f x = g y := rfl
+example (x y : Nat) : f x = g y := Unit.ext _ _

@@ -310,7 +310,7 @@ For a spec already in `⊑ wp` form (`pre ⊑ wp prog post epost`, where the lat
 same way.
 
 - `info.Pred`: the goal's lattice type (e.g. `Nat → Prop`)
-- `info.instWP`: the `WPMonad` instance for the goal monad
+- `info.instWP`: the `WP` instance of the goal's `wp` application
 - `info.excessArgs`: free variables representing state args from
   `info.Pred = σ1 → ... → σn → Prop`
 -/
@@ -328,7 +328,9 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
   guard <| ← isDefEqGuarded info.Pred Pred'
   let_expr Std.WP.wp _Prog' _Value' _Pred' _EPred' _instAL' _instEAL' instWP' prog postSpec epostSpec := rhs
     | throwError "target not a wp application {rhs}"
-  guard <| ← isDefEqGuarded info.instWP instWP'
+  -- `withDefault`: the goal can carry a registered `WP` instance (e.g. `Id.wpInst`) while the
+  -- spec spells `WPMonad.toWP ?inst`; default transparency unfolds both after `?inst` synthesis.
+  guard <| ← withDefault <| isDefEqGuarded info.instWP instWP'
   -- Use local excess-state binders so explicit post premises can be re-lifted to `⊑`.
   -- Name them positionally from `stateArgNames` (else `s`) so the rule's binders carry good names.
   let mut ss := #[]

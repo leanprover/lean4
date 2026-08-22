@@ -39,6 +39,10 @@ structure MonitorContext where
   showTime : Bool
   /-- How often to poll jobs (in milliseconds). -/
   updateFrequency : Nat
+  /-- Whether to set `cancelTk?` on the first required target failure (`--fail-fast`). -/
+  failFast : Bool := false
+  /-- The build's cancellation token, if any. -/
+  cancelTk? : Option IO.CancelToken := none
 
 @[inline, instance_reducible] def MonitorContext.logger (ctx : MonitorContext) : MonadLog BaseIO :=
   .stream ctx.out ctx.outLv ctx.useAnsi
@@ -172,10 +176,15 @@ def sleep : MonitorM PUnit := do
   let now ← IO.monoMsNow
   modify fun s => {s with lastUpdate := now}
 
- partial def loop
+partial def loop
   (new unfinished : Array OpaqueJob)
 : MonitorM PUnit := do
   let (running, unfinished) ← scanJobs new unfinished
+  let ctx ← read
+  if ctx.failFast then
+    if let some tk := ctx.cancelTk? then
+      unless (← get).failures.isEmpty do
+        tk.set
   if h : 0 < unfinished.size then
     renderProgress running unfinished h
     sleep
@@ -207,7 +216,10 @@ public structure MonitorResult where
 @[inline] def MonitorResult.isOk (self : MonitorResult) : Bool :=
   self.failures.isEmpty
 
-def mkMonitorContext (cfg : BuildConfig) (jobs : JobQueue) : BaseIO MonitorContext := do
+def mkMonitorContext
+  (cfg : BuildConfig) (jobs : JobQueue)
+  (cancelTk? : Option IO.CancelToken := none)
+: BaseIO MonitorContext := do
   let out ← cfg.out.get
   let useAnsi ← cfg.ansiMode.isEnabled out
   let outLv := cfg.outLv
@@ -220,7 +232,8 @@ def mkMonitorContext (cfg : BuildConfig) (jobs : JobQueue) : BaseIO MonitorConte
   let updateFrequency := 100
   return {
     jobs, out, failLv, outLv, minAction, showOptional
-    useAnsi, showProgress, showTime, updateFrequency
+    useAnsi, showProgress, showTime, updateFrequency, cancelTk?
+    failFast := cfg.failFast
   }
 
 def monitorJobs'
@@ -323,6 +336,7 @@ def monitorJob (ctx : MonitorContext) (job : Job α) : BaseIO (BuildResult α) :
 
 def mkBuildContext
   (ws : Workspace) (cfg : BuildConfig) (jobs : JobQueue)
+  (cancelTk? : Option IO.CancelToken := none)
 : BaseIO BuildContext := return {
   opaqueWs := ws
   toBuildConfig := {cfg with
@@ -344,6 +358,7 @@ def mkBuildContext
   registeredJobs := jobs
   leanTrace := .ofHash (pureHash ws.lakeEnv.leanGithash)
     s!"Lean {Lean.versionStringCore}, commit {ws.lakeEnv.leanGithash}"
+  cancelTk?
   leanIncludeDirs := ← ws.packages.mapM fun pkg => do
     unless pkg.bootstrap do
       return none
@@ -395,8 +410,9 @@ public def Workspace.runFetchM
   (ws : Workspace) (build : FetchM α) (cfg : BuildConfig := {}) (caption := "job computation")
 : IO α := do
   let jobs ← mkJobQueue
-  let mctx ← mkMonitorContext cfg jobs
-  let bctx ← mkBuildContext ws cfg jobs
+  let cancelTk? ← if cfg.failFast then some <$> IO.CancelToken.new else pure none
+  let mctx ← mkMonitorContext cfg jobs cancelTk?
+  let bctx ← mkBuildContext ws cfg jobs cancelTk?
   let job ← startBuild bctx build caption
   let result ← monitorJob mctx job
   finalizeBuild cfg bctx mctx result
@@ -435,8 +451,9 @@ public def Workspace.runBuild
   (ws : Workspace) (build : FetchM (Job α)) (cfg : BuildConfig := {})
 : IO α := do
   let jobs ← mkJobQueue
-  let mctx ← mkMonitorContext cfg jobs
-  let bctx ← mkBuildContext ws cfg jobs
+  let cancelTk? ← if cfg.failFast then some <$> IO.CancelToken.new else pure none
+  let mctx ← mkMonitorContext cfg jobs cancelTk?
+  let bctx ← mkBuildContext ws cfg jobs cancelTk?
   let job ← startBuild bctx build
   let result ← monitorBuild mctx job
   finalizeBuild cfg bctx mctx result

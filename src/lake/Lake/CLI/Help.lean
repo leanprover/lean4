@@ -460,6 +460,11 @@ artifacts. If no mappings are found, Lake will backtrack the Git history up to
 `--max-revs`, looking for a revision with mappings. If `--max-revs` is 0, Lake
 will search the repository's entire history (or as far as Git will allow).
 
+A service configured with `revDiscovery = \"head\"` does not backtrack: only the
+current commit's mapping is consulted, isolating the download to that exact
+revision. `--max-revs` does not apply to such a service and is ignored with a
+warning. An explicit `--rev` still selects the revision to look up.
+
 By default, Lake will download both the input-to-output mappings and the
 output artifacts for a package. By using `--mappings-only`, Lake will only
 download the mappings and delay downloading artifacts until they are needed.
@@ -603,7 +608,7 @@ def helpCacheServices :=
 USAGE:
   lake cache services
 
-Prints the name of each configured remote cache services (one per line).
+Prints the name of each configured remote cache service (one per line).
 Additional services can be added by modifying the system Lake configuration.
 The exact location of the this configuration file is system dependent and can
 be set by `LAKE_CONFIG`, but it is usually located at `~/.lake/config.toml`.
@@ -619,7 +624,17 @@ The configuration of the system cache could look something like the following:
   artifactEndpoint = \"https://my-s3.com/a0\"
   revisionEndpoint = \"https://my-s3.com/r0\"
 
-If no `cache.defaultService` is configured, Lake will use Reservoir by default."
+If no `cache.defaultService` is configured, Lake will use Reservoir by default.
+
+A service may also set `revDiscovery` to control how `cache get` finds a
+revision's mapping when no `--rev` is given:
+
+  revDiscovery = \"nearest\"   # walk Git history to the nearest cached revision (default)
+  revDiscovery = \"head\"      # only the current commit's mapping; no history walk
+
+With `head`, a build is only served the cache of the exact commit it is on; no
+other revision's mapping is consulted. `--max-revs` does not override this; it
+is ignored with a warning so the policy is always respected."
 
 def helpScriptCli :=
 "Manage Lake scripts

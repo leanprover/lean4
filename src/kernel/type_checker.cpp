@@ -1174,8 +1174,8 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     r = try_string_lit_expansion(t_n, s_n);
     if (r != l_undef) return r == l_true;
 
-    if (is_def_eq_unit_like(t_n, s_n))
-        return true;
+    // if (is_def_eq_unit_like(t_n, s_n))
+        // return true;
 
     return false;
 }

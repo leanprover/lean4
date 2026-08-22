@@ -6341,30 +6341,30 @@ goto v___jp_1947_;
 v___jp_1961_:
 {
 uint8_t v___x_1964_; 
-v___x_1964_ = lean_nat_dec_lt(v___x_1934_, v___y_1962_);
+v___x_1964_ = lean_nat_dec_lt(v___x_1934_, v___y_1963_);
 if (v___x_1964_ == 0)
 {
-lean_dec_ref(v___y_1963_);
-lean_dec(v___y_1962_);
+lean_dec(v___y_1963_);
+lean_dec_ref(v___y_1962_);
 goto v___jp_1958_;
 }
 else
 {
 if (v___x_1964_ == 0)
 {
-lean_dec_ref(v___y_1963_);
-lean_dec(v___y_1962_);
+lean_dec(v___y_1963_);
+lean_dec_ref(v___y_1962_);
 goto v___jp_1958_;
 }
 else
 {
 size_t v___x_1965_; size_t v___x_1966_; uint8_t v___x_1967_; 
 v___x_1965_ = ((size_t)0ULL);
-v___x_1966_ = lean_usize_of_nat(v___y_1962_);
-lean_dec(v___y_1962_);
+v___x_1966_ = lean_usize_of_nat(v___y_1963_);
+lean_dec(v___y_1963_);
 lean_inc(v___x_1957_);
-v___x_1967_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__4(v___x_1957_, v___y_1963_, v___x_1965_, v___x_1966_);
-lean_dec_ref(v___y_1963_);
+v___x_1967_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__4(v___x_1957_, v___y_1962_, v___x_1965_, v___x_1966_);
+lean_dec_ref(v___y_1962_);
 if (v___x_1967_ == 0)
 {
 goto v___jp_1958_;
@@ -6394,16 +6394,16 @@ v___x_1973_ = lean_array_get_size(v_a_1972_);
 v___x_1974_ = lean_nat_dec_lt(v___x_1934_, v___x_1973_);
 if (v___x_1974_ == 0)
 {
-v___y_1962_ = v___x_1973_;
-v___y_1963_ = v_a_1972_;
+v___y_1962_ = v_a_1972_;
+v___y_1963_ = v___x_1973_;
 goto v___jp_1961_;
 }
 else
 {
 if (v___x_1974_ == 0)
 {
-v___y_1962_ = v___x_1973_;
-v___y_1963_ = v_a_1972_;
+v___y_1962_ = v_a_1972_;
+v___y_1963_ = v___x_1973_;
 goto v___jp_1961_;
 }
 else
@@ -6414,8 +6414,8 @@ v___x_1976_ = lean_usize_of_nat(v___x_1973_);
 v___x_1977_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__5(v_a_1972_, v___x_1975_, v___x_1976_);
 if (v___x_1977_ == 0)
 {
-v___y_1962_ = v___x_1973_;
-v___y_1963_ = v_a_1972_;
+v___y_1962_ = v_a_1972_;
+v___y_1963_ = v___x_1973_;
 goto v___jp_1961_;
 }
 else

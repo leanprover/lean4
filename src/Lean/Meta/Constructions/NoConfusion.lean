@@ -289,14 +289,15 @@ two constructor applications with different fields but same indices.
 def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
   -- Do not do anything unless can_elim_to_type.
   let .inductInfo indVal ← getConstInfo declName | return
-  let recInfo ← getConstInfo (mkRecName declName)
-  unless recInfo.levelParams.length > indVal.levelParams.length do return
+  unless (← hasConst (mkCasesOnName declName)) do return
+  let casesOnInfo ← getConstInfo (mkCasesOnName declName)
+  unless casesOnInfo.levelParams.length > indVal.levelParams.length do return
   if (← isPropFormerType indVal.type) then return
   let noConfusionName := Name.mkStr declName "noConfusion"
 
-  -- We take the level names from `.rec`, as that conveniently has an extra level parameter that
+  -- We take the level names from `.casesOn`, as that conveniently has an extra level parameter that
   -- is distinct from the ones from the inductive
-  let (v::us) := recInfo.levelParams.map mkLevelParam | throwError "unexpected number of level parameters in {recInfo.name}"
+  let (v::us) := casesOnInfo.levelParams.map mkLevelParam | throwError "unexpected number of level parameters in {casesOnInfo.name}"
 
   for ctor in indVal.ctors do
     let ctorInfo ← getConstInfoCtor ctor
@@ -343,7 +344,7 @@ def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
             let name := ctor.str "noConfusion"
             addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
               (name        := name)
-              (levelParams := recInfo.levelParams)
+              (levelParams := casesOnInfo.levelParams)
               (type        := (← inferType e))
               (value       := e)
               (hints       := ReducibilityHints.abbrev)
@@ -356,8 +357,9 @@ def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
 def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   -- Do not do anything unless can_elim_to_type. TODO: Extract to util
   let .inductInfo indVal ← getConstInfo declName | return
-  let recInfo ← getConstInfo (mkRecName declName)
-  unless recInfo.levelParams.length > indVal.levelParams.length do return
+  unless (← hasConst (mkCasesOnName declName)) do return
+  let casesOnInfo ← getConstInfo (mkCasesOnName declName)
+  unless casesOnInfo.levelParams.length > indVal.levelParams.length do return
   if (← isPropFormerType indVal.type) then return
 
   mkNoConfusionType declName

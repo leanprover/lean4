@@ -258,6 +258,10 @@ NB: Not all operations on `MatcherApp` can handle one `matcherName` is a splitte
 If `addEqualities` is true, then equalities connecting the discriminant to the parameters of the
 alternative (like in `match h : x with …`) are be added, if not already there.
 
+Such an equality says nothing about a discriminant that is a proof, so it is skipped. Callers that
+use the equalities to substitute the discriminant away, rather than to reason with them, can set
+`addProofEqualities` to get the homogeneous ones anyway.
+
 This function works even if the type of alternatives do *not* fit the inferred type. This
 allows you to post-process the `MatcherApp` with `MatcherApp.inferMatchType`, which will
 infer a type, given all the alternatives.
@@ -268,6 +272,7 @@ def transform
     (matcherApp : MatcherApp)
     (useSplitter := false)
     (addEqualities : Bool := false)
+    (addProofEqualities : Bool := false)
     (onParams : Expr → n Expr := pure)
     (onMotive : Array Expr → Expr → n Expr := fun _ e => pure e)
     (onAlt : Nat → Expr → TransformAltFVars → Expr → n Expr := fun _ _ _ e => pure e)
@@ -299,15 +304,22 @@ def transform
     let mut addHEqualities : Array (Option Bool) := #[]
     let mut discrInfos' := #[]
     for arg in motiveArgs, discr in discrs', di in matcherApp.discrInfos do
-      if addEqualities && di.hName?.isNone then
-        if ← isProof arg then
-          addHEqualities := addHEqualities.push none
-          discrInfos' := discrInfos'.push di
-        else
+      let heq? ←
+        if addEqualities && di.hName?.isNone then
           let heq ← mkEqHEq discr arg
-          motiveBody' ← liftMetaM <| mkArrow heq motiveBody'
-          addHEqualities := addHEqualities.push heq.isHEq
-          discrInfos' := discrInfos'.push { hName? := some .anonymous }
+          /- An equation for a discriminant that is a proof states nothing. A homogeneous one is
+             still worth having when the caller substitutes the discriminant away rather than
+             reasoning with it; a heterogeneous one cannot be substituted, so it is pure noise. -/
+          if (← isProof arg) && !(addProofEqualities && !heq.isHEq) then
+            pure none
+          else
+            pure (some heq)
+        else
+          pure none
+      if let some heq := heq? then
+        motiveBody' ← liftMetaM <| mkArrow heq motiveBody'
+        addHEqualities := addHEqualities.push heq.isHEq
+        discrInfos' := discrInfos'.push { hName? := some .anonymous }
       else
         addHEqualities := addHEqualities.push none
         discrInfos' := discrInfos'.push di

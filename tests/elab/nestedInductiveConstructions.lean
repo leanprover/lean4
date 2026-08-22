@@ -140,8 +140,8 @@ fun {motive_1} {motive_2} t =>
   Tree.rec.{(max (u + 1) u_1) + 1, u} (fun a a_ih => PProd.{u_1, max (u + 1) u_1} (motive_2 a) a_ih)
     PUnit.{max (u + 1) u_1}
     (fun head tail head_ih tail_ih =>
-      PProd.{max (max 1 u_1) (u + 1) u_1, max (max 1 u_1) (u + 1) u_1}
-        (PProd.{u_1, max (u + 1) u_1} (motive_1 head) head_ih) (PProd.{u_1, max (u + 1) u_1} (motive_2 tail) tail_ih))
+      PProd.{max (u + 1) u_1, max (u + 1) u_1} (PProd.{u_1, max (u + 1) u_1} (motive_1 head) head_ih)
+        (PProd.{u_1, max (u + 1) u_1} (motive_2 tail) tail_ih))
     t
 -/
 #guard_msgs in
@@ -154,8 +154,8 @@ fun {motive_1} {motive_2} t =>
   Tree.rec_1.{(max (u + 1) u_1) + 1, u} (fun a a_ih => PProd.{u_1, max (u + 1) u_1} (motive_2 a) a_ih)
     PUnit.{max (u + 1) u_1}
     (fun head tail head_ih tail_ih =>
-      PProd.{max (max 1 u_1) (u + 1) u_1, max (max 1 u_1) (u + 1) u_1}
-        (PProd.{u_1, max (u + 1) u_1} (motive_1 head) head_ih) (PProd.{u_1, max (u + 1) u_1} (motive_2 tail) tail_ih))
+      PProd.{max (u + 1) u_1, max (u + 1) u_1} (PProd.{u_1, max (u + 1) u_1} (motive_1 head) head_ih)
+        (PProd.{u_1, max (u + 1) u_1} (motive_2 tail) tail_ih))
     t
 -/
 #guard_msgs in

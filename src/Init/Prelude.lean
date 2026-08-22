@@ -619,13 +619,14 @@ structure Prod (α : Type u) (β : Type v) where
 
 attribute [unbox] Prod
 
+set_option bootstrap.inductiveCheckResultingUniverse false in
 /--
 A product type in which the types may be propositions, usually written `α ×' β`.
 
 This type is primarily used internally and as an implementation detail of proof automation. It is
 rarely useful in hand-written code.
 -/
-structure PProd (α : Sort u) (β : Sort v) where
+structure PProd (α : Sort u) (β : Sort v) : Sort (max u v) where
   /-- The first element of a pair. -/
   fst : α
   /-- The second element of a pair. -/

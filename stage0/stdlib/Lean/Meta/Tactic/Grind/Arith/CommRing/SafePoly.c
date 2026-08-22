@@ -4956,8 +4956,8 @@ return v___x_1482_;
 }
 else
 {
-lean_dec_ref_known(v___x_1482_, 1);
 lean_dec(v_a_1483_);
+lean_dec_ref_known(v___x_1482_, 1);
 v_p_1458_ = v_p_1481_;
 goto _start;
 }

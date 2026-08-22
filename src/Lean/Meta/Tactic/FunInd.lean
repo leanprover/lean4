@@ -690,7 +690,7 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
       let (mask, absMotiveBody) ← mkLambdaFVarsMasked matcherApp.discrs motiveBody
 
       let matcherApp' ← matcherApp.transform (useSplitter := true)
-        (addEqualities := true)
+        (addEqualities := true) (addProofEqualities := true)
         (onParams := (foldAndCollect oldIH newIH isRecCall ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (Array.mask mask xs)))
         (onAlt := fun altIdx expAltType _altFVars alt => M2.branch do
@@ -713,7 +713,7 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
       let (mask, absMotiveBody) ← mkLambdaFVarsMasked matcherApp.discrs goal
 
       let matcherApp' ← matcherApp.transform (useSplitter := true)
-        (addEqualities := true)
+        (addEqualities := true) (addProofEqualities := true)
         (onParams := (foldAndCollect oldIH newIH isRecCall ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (Array.mask mask xs)))
         (onAlt := fun altIdx expAltType _altFVars alt => M2.branch do
@@ -976,6 +976,12 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
         if scrut.isAppOfArity ``PSigma.mk 4 then
           let #[_, _, x, y] := scrut.getAppArgs | unreachable!
           let e' := (k.beta #[x, y]).beta extra
+          return .visit e'
+        /- A tuple of proofs is itself a proof, and proofs get abstracted into auxiliary theorems,
+           so the scrutinee is not a constructor application. `PSigma.casesOn` takes its scrutinee
+           apart with projections, which reduce here regardless. -/
+        if ← isProof scrut then
+          let e' := (k.beta #[.proj ``PSigma 0 scrut, .proj ``PSigma 1 scrut]).beta extra
           return .visit e'
     -- Look for PSigma projection
     if f.isConstOf ``PSigma.fst then

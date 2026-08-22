@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.ProjFns
+import Lean.Meta.WHNF
 import Lean.Meta.Tactic.Cases
 namespace Lean.Meta
 
@@ -21,8 +22,8 @@ This module provides the `casesOnStuckLHS` tactic, used by
   apply `cases xMajor`. -/
 public partial def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
   let target ← mvarId.getType
-  if let some (_, lhs) ← matchEqHEqLHS? target then
-    if let some fvarId ← findFVar? lhs then
+  if let some (_, lhs) ← mvarId.withContext <| matchEqHEqLHS? target then
+    if let some fvarId ← mvarId.withContext <| findFVar? lhs then
       return (←  mvarId.cases fvarId).map fun s => s.mvarId
   throwError "'casesOnStuckLHS' failed"
 where
@@ -45,7 +46,10 @@ where
           matchConstRec f (fun _ => return none) fun recVal _ => do
             if recVal.getMajorIdx >= args.size then
               return none
-            let major := args[recVal.getMajorIdx]!.consumeMData
+            /- The `casesOn` of a structure whose recursor only eliminates into `Prop` (such as
+               `PSigma`) takes its scrutinee apart with projections instead of by iota, so the major
+               premise here can be a projection of a constructor application. -/
+            let major := (← whnfCore args[recVal.getMajorIdx]!).consumeMData
             if major.isFVar then
               return some major.fvarId!
             else

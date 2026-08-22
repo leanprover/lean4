@@ -1119,7 +1119,7 @@ end LevelInference
 /--
 Heuristic: users don't tend to want types that are universe polymorphic across both `Prop` and `Type _`.
 This can be disabled by setting the option `bootstrap.inductiveCheckResultingUniverse` to false,
-unless one of the inductive commands requires it (for instance `structure` due to projections).
+unless one of the inductive commands requires it.
 -/
 private def checkResultingUniversePolymorphism (views : Array InductiveView) (u : Level) (_numParams : Nat) (_indTypes : List InductiveType) : TermElabM Unit := do
   let doErrFor := fun view =>

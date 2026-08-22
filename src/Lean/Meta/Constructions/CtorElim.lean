@@ -217,8 +217,9 @@ public def mkCtorElim (indName : Name) : MetaM Unit := do
   unless indVal.numCtors > 1 do return
   -- Do not do anything unless its a type and can elim to type
   if (← isPropFormerType indVal.type) then return
-  let recInfo ← getConstInfo (mkRecName indName)
-  unless recInfo.levelParams.length > indVal.levelParams.length do return
+  unless (← hasConst (mkCasesOnName indName)) do return
+  let casesOnInfo ← getConstInfo (mkCasesOnName indName)
+  unless casesOnInfo.levelParams.length > indVal.levelParams.length do return
 
   -- Expose if indName is not private
   withExporting (isExporting := ! isPrivateName indName) do

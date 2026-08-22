@@ -16029,8 +16029,8 @@ goto v___jp_5782_;
 }
 else
 {
-lean_dec(v_pre_5799_);
 lean_dec_ref_known(v_kind_5798_, 2);
+lean_dec(v_pre_5799_);
 lean_dec(v___x_5794_);
 lean_dec_ref(v_a_5780_);
 lean_dec_ref(v_p_5779_);

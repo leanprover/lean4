@@ -160,6 +160,44 @@ partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
           enableRealizationsForConst declName
 
 /--
+Whether the recursor of `indVal` only eliminates into `Prop`. This happens for a type whose
+resulting universe can be `Prop` for some instantiation of its universe parameters, such as
+`PSigma`, which lives in `Sort (max u v)`.
+-/
+private def hasPropOnlyRec (indVal : InductiveVal) : MetaM Bool := do
+  let recInfo ← getConstInfoRec (mkRecName indVal.name)
+  return recInfo.levelParams.length == indVal.levelParams.length
+
+/--
+Create a `sizeOf` function with name `declName` for the single-constructor type `indName`, whose
+recursor is unusable here because it only eliminates into `Prop`. Projections take the fields apart
+instead.
+-/
+private def mkSizeOfFnViaProjs (indName : Name) (declName : Name) : MetaM Unit := do
+  let indVal ← getConstInfoInduct indName
+  let ctorVal ← getConstInfoCtor indVal.ctors.head!
+  let us := indVal.levelParams.map mkLevelParam
+  forallBoundedTelescope indVal.type indVal.numParams fun params _ =>
+    mkLocalInstances params fun localInsts =>
+      withLocalDeclD `m (mkAppN (mkConst indName us) params) fun major => do
+        let mut val ← mkNumeral (mkConst ``Nat) 1
+        for i in *...ctorVal.numFields do
+          let field := Expr.proj indName i major
+          unless (← ignoreField field) do
+            val ← mkAdd val (← mkAppM ``SizeOf.sizeOf #[field])
+        withInstImplicitAsImplicit params do
+          let sizeOfParams := params ++ localInsts ++ #[major]
+          addDecl <| Declaration.defnDecl {
+            name        := declName
+            levelParams := indVal.levelParams
+            type        := ← mkForallFVars sizeOfParams (mkConst ``Nat)
+            value       := ← mkLambdaFVars sizeOfParams val
+            safety      := DefinitionSafety.safe
+            hints       := ReducibilityHints.abbrev
+          }
+          enableRealizationsForConst declName
+
+/--
   Create `sizeOf` functions for all inductive datatypes in the mutual inductive declaration containing `typeName`
   The resulting array contains the generated functions names. The `NameMap` maps recursor names into the generated function names.
   There is a function for each element of the mutual inductive declaration, and for auxiliary recursors for nested inductive types.
@@ -173,7 +211,10 @@ def mkSizeOfFns (typeName : Name) : MetaM (Array Name × NameMap Name) := do
   for indTypeName in indInfo.all do
     let sizeOfName := baseName.appendIndexAfter i
     let recName := mkRecName indTypeName
-    mkSizeOfFn recName sizeOfName
+    if (← hasPropOnlyRec (← getConstInfoInduct indTypeName)) then
+      mkSizeOfFnViaProjs indTypeName sizeOfName
+    else
+      mkSizeOfFn recName sizeOfName
     recMap := recMap.insert recName sizeOfName
     result := result.push sizeOfName
     i := i + 1
@@ -496,6 +537,11 @@ def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
     if (← getEnv).contains ``SizeOf && genSizeOf.get (← getOptions) && !(← isInductivePredicate typeName) then
       withTraceNode `Meta.sizeOf (fun _ => return m!"{typeName}") do
         unless indInfo.isUnsafe do
+          for indTypeName in indInfo.all do
+            let indVal ← getConstInfoInduct indTypeName
+            -- Without a recursor into `Type` we need projections, which require a structure.
+            if (← hasPropOnlyRec indVal) && !(indVal.numCtors == 1 && indVal.numIndices == 0 && !indVal.isRec) then
+              return
           let (fns, recMap) ← mkSizeOfFns typeName
           for indTypeName in indInfo.all, fn in fns do
             let indInfo ← getConstInfoInduct indTypeName

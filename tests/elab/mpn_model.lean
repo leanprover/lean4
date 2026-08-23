@@ -1561,6 +1561,222 @@ theorem div1_spec (numer : Array Digit) (denom : Digit) (hd : 0 < denom.toNat)
   rw [hm, Nat.add_sub_cancel]
   rfl
 
+/-! ## Correctness of step D3 -/
+
+/-- Normalization keeps the trial digit within one of a single digit. -/
+private theorem q_le_of_inv {q r vtop u2 : Nat} (hinv : u2 = q * vtop + r)
+    (hu2 : u2 ≤ vtop * base + (base - 1)) (hnorm : base ≤ 2 * vtop) : q ≤ base + 1 := by
+  rcases Nat.lt_or_ge q (base + 2) with h | h
+  · omega
+  · exfalso
+    have h1 : (base + 2) * vtop ≤ q * vtop := Nat.mul_le_mul_right _ h
+    have h2 : (base + 2) * vtop = base * vtop + 2 * vtop := by grind
+    have h3 : vtop * base = base * vtop := Nat.mul_comm _ _
+    simp only [base] at *
+    omega
+
+/-- Step D3's test, read arithmetically. -/
+private theorem recheck_test_iff (dn2 nu : Digit) (q r : DoubleDigit)
+    (hq : q.toNat ≤ base + 1) (hr : r.toNat < base) :
+    ((q >>> 32 != 0 || q * dn2.toUInt64 > ((r <<< 32) + nu.toUInt64)) = true)
+      = (base ≤ q.toNat ∨ base * r.toNat + nu.toNat < q.toNat * dn2.toNat) := by
+  have hd2 : dn2.toNat < base := dn2.toNat_lt_size
+  have hnu : nu.toNat < base := nu.toNat_lt_size
+  have hq64 : q.toNat < 2 ^ 64 := q.toNat_lt_size
+  have hbase : (base : Nat) = 4294967296 := rfl
+  have hshr : (q >>> 32).toNat = q.toNat / 4294967296 := by
+    rw [UInt64.toNat_shiftRight, show (32 : UInt64).toNat % 64 = 32 from rfl,
+      Nat.shiftRight_eq_div_pow]
+  have hmul : (q * dn2.toUInt64).toNat = q.toNat * dn2.toNat := by
+    rw [UInt64.toNat_mul, UInt32.toNat_toUInt64]
+    refine Nat.mod_eq_of_lt ?_
+    calc q.toNat * dn2.toNat ≤ (base + 1) * (base - 1) := Nat.mul_le_mul hq (by omega)
+      _ < 2 ^ 64 := by simp only [base]; omega
+  have hshl : ((r <<< 32) + nu.toUInt64).toNat = base * r.toNat + nu.toNat := by
+    have h1 : (r <<< 32).toNat = r.toNat * 4294967296 := by
+      rw [UInt64.toNat_shiftLeft, show (32 : UInt64).toNat % 64 = 32 from rfl, Nat.shiftLeft_eq]
+      refine Nat.mod_eq_of_lt ?_
+      simp only [base] at hr; omega
+    rw [UInt64.toNat_add, h1, UInt32.toNat_toUInt64,
+      Nat.mod_eq_of_lt (by simp only [base] at hr hnu ⊢; omega)]
+    simp only [base]
+    omega
+  simp only [bne_iff_ne, ne_eq, gt_iff_lt, UInt64.lt_iff_toNat_lt, hmul, hshl,
+    Bool.or_eq_true, decide_eq_true_eq]
+  have hz : (¬ (q >>> 32 = 0)) = (base ≤ q.toNat) := by
+    rw [eq_iff_iff]
+    constructor
+    · intro h
+      have : (q >>> 32).toNat ≠ 0 := fun h0 => h (UInt64.toNat_inj.mp (by rw [h0]; rfl))
+      rw [hshr] at this
+      simp only [base]; omega
+    · intro h h0
+      have : (q >>> 32).toNat = 0 := by rw [h0]; rfl
+      rw [hshr] at this
+      simp only [base] at h; omega
+  rw [hz]
+
+private theorem shr32_lt (x : DoubleDigit) : ((x >>> 32 == 0) = true) = (x.toNat < base) := by
+  have hx : x.toNat < 2 ^ 64 := x.toNat_lt_size
+  have hshr : (x >>> 32).toNat = x.toNat / 4294967296 := by
+    rw [UInt64.toNat_shiftRight, show (32 : UInt64).toNat % 64 = 32 from rfl,
+      Nat.shiftRight_eq_div_pow]
+  rw [eq_iff_iff]
+  simp only [beq_iff_eq]
+  constructor
+  · intro h
+    have : (x >>> 32).toNat = 0 := by rw [h]; rfl
+    rw [hshr] at this
+    simp only [base]; omega
+  · intro h
+    refine UInt64.toNat_inj.mp ?_
+    rw [hshr]
+    simp only [base] at h
+    have : x.toNat / 4294967296 = 0 := by omega
+    rw [this]; rfl
+
+private theorem toNat_pred {q : DoubleDigit} (h : 0 < q.toNat) :
+    (q - 1).toNat = q.toNat - 1 := by
+  have h2 : q.toNat < 2 ^ 64 := q.toNat_lt_size
+  rw [UInt64.toNat_sub, show (1 : UInt64).toNat = 1 from rfl]
+  omega
+
+private theorem toNat_add_digit (r : DoubleDigit) (d : Digit) (hr : r.toNat < base) :
+    (r + d.toUInt64).toNat = r.toNat + d.toNat := by
+  have hd : d.toNat < base := d.toNat_lt_size
+  simp only [base] at hr hd
+  rw [UInt64.toNat_add, UInt32.toNat_toUInt64]
+  exact Nat.mod_eq_of_lt (by omega)
+
+set_option maxHeartbeats 400000 in
+/--
+Step D3's postcondition: the trial digit it returns fits in a single digit and
+is either exact or one too big, which is what makes the single add-back of step
+D6 enough. Every decrement it performs is justified, so it never undershoots.
+-/
+theorem recheck_spec (dn1 dn2 nu : Digit) (k vrest ulow u2 V U : Nat)
+    (hV : V = (dn1.toNat * base + dn2.toNat) * base ^ k + vrest)
+    (hU : U = u2 * base ^ (k+1) + nu.toNat * base ^ k + ulow)
+    (hnorm : base ≤ 2 * dn1.toNat)
+    (hvrest : vrest < base ^ k) (hulow : ulow < base ^ k)
+    (hu2 : u2 ≤ dn1.toNat * base + (base - 1))
+    (hUV : U < V * base) :
+    ∀ q r : DoubleDigit,
+      u2 = q.toNat * dn1.toNat + r.toNat → r.toNat < base → U / V ≤ q.toNat →
+      (recheck dn1 dn2 nu q r).1.toNat < base ∧
+      U / V ≤ (recheck dn1 dn2 nu q r).1.toNat ∧
+      (recheck dn1 dn2 nu q r).1.toNat ≤ U / V + 1 := by
+  have hvtop1 : 1 ≤ dn1.toNat := by simp only [base] at hnorm; omega
+  have hd2 : dn2.toNat < base := dn2.toNat_lt_size
+  have hpow : 0 < base ^ k := Nat.pow_pos (by simp [base])
+  have hVpos : 0 < V := by
+    rw [hV]
+    have h1 : 1 * base ^ k ≤ (dn1.toNat * base + dn2.toNat) * base ^ k :=
+      Nat.mul_le_mul_right _ (by simp only [base] at hvtop1 ⊢; omega)
+    omega
+  have hqlt : U / V < base := Nat.div_lt_of_lt_mul hUV
+  -- a firing test always means the estimate is genuinely too big
+  have fires : ∀ q r : DoubleDigit, u2 = q.toNat * dn1.toNat + r.toNat → r.toNat < base →
+      (q >>> 32 != 0 || q * dn2.toUInt64 > ((r <<< 32) + nu.toUInt64)) = true →
+      U / V < q.toNat := by
+    intro q r hinv hr hfire
+    have hq := q_le_of_inv hinv hu2 hnorm
+    rw [recheck_test_iff dn2 nu q r hq hr] at hfire
+    rcases hfire with h | h
+    · omega
+    · exact KnuthD.div_lt_of_test hV hVpos hU hulow hinv h
+  -- exit with the test failing: `le_succ_div_of_not_test` applies directly
+  have exitFail : ∀ q r : DoubleDigit, u2 = q.toNat * dn1.toNat + r.toNat → r.toNat < base →
+      U / V ≤ q.toNat →
+      ¬ ((q >>> 32 != 0 || q * dn2.toUInt64 > ((r <<< 32) + nu.toUInt64)) = true) →
+      q.toNat < base ∧ U / V ≤ q.toNat ∧ q.toNat ≤ U / V + 1 := by
+    intro q r hinv hr hle hfail
+    have hq := q_le_of_inv hinv hu2 hnorm
+    have harith : ¬ (base ≤ q.toNat ∨ base * r.toNat + nu.toNat < q.toNat * dn2.toNat) := by
+      rw [← recheck_test_iff dn2 nu q r hq hr]; exact hfail
+    have hf1 : q.toNat < base := by
+      rcases Nat.lt_or_ge q.toNat base with h | h
+      · exact h
+      · exact absurd (Or.inl h) harith
+    have hf2 : q.toNat * dn2.toNat ≤ base * r.toNat + nu.toNat := by
+      rcases Nat.lt_or_ge (base * r.toNat + nu.toNat) (q.toNat * dn2.toNat) with h | h
+      · exact absurd (Or.inr h) harith
+      · exact h
+    exact ⟨hf1, hle, KnuthD.le_succ_div_of_not_test hV hVpos hU hinv hvrest hvtop1 hf1 hf2⟩
+  -- exit with `r_hat` past the base: the test would fail there anyway
+  have exitBig : ∀ q r : DoubleDigit, u2 = q.toNat * dn1.toNat + r.toNat → r.toNat < base →
+      U / V < q.toNat → base ≤ (r + dn1.toUInt64).toNat →
+      (q - 1).toNat < base ∧ U / V ≤ (q - 1).toNat ∧ (q - 1).toNat ≤ U / V + 1 := by
+    intro q r hinv hr hdec hrbig
+    have hqpos : 0 < q.toNat := Nat.lt_of_le_of_lt (Nat.zero_le _) hdec
+    have hqn : (q - 1).toNat = q.toNat - 1 := toNat_pred hqpos
+    have hrn : (r + dn1.toUInt64).toNat = r.toNat + dn1.toNat := toNat_add_digit r dn1 hr
+    have hinv' : u2 = (q - 1).toNat * dn1.toNat + (r + dn1.toUInt64).toNat := by
+      obtain ⟨m, hm⟩ : ∃ m, q.toNat = m + 1 :=
+        ⟨q.toNat - 1, (Nat.succ_pred_eq_of_pos hqpos).symm⟩
+      rw [hqn, hrn, hm, Nat.add_sub_cancel]
+      rw [hm] at hinv
+      grind
+    have hqsmall : (q - 1).toNat < base := by
+      refine Nat.lt_of_mul_lt_mul_right (a := dn1.toNat) ?_
+      simp only [base] at hu2 hrbig hinv' ⊢; omega
+    refine ⟨hqsmall, by rw [hqn]; exact Nat.le_pred_of_lt hdec, ?_⟩
+    refine KnuthD.le_succ_div_of_not_test hV hVpos hU hinv' hvrest hvtop1 hqsmall ?_
+    calc (q - 1).toNat * dn2.toNat ≤ (base - 1) * (base - 1) :=
+          Nat.mul_le_mul (by omega) (by omega)
+      _ ≤ base * (r + dn1.toUInt64).toNat := by
+          have h1 : base * base ≤ base * (r + dn1.toUInt64).toNat := Nat.mul_le_mul_left _ hrbig
+          simp only [base] at h1 ⊢; omega
+      _ ≤ base * (r + dn1.toUInt64).toNat + nu.toNat := Nat.le_add_right _ _
+  -- the loop itself, by induction on a bound for the trial digit
+  have main : ∀ (n : Nat) (q r : DoubleDigit), q.toNat ≤ n →
+      u2 = q.toNat * dn1.toNat + r.toNat → r.toNat < base → U / V ≤ q.toNat →
+      (recheck dn1 dn2 nu q r).1.toNat < base ∧
+      U / V ≤ (recheck dn1 dn2 nu q r).1.toNat ∧
+      (recheck dn1 dn2 nu q r).1.toNat ≤ U / V + 1 := by
+    intro n
+    induction n with
+    | zero =>
+      intro q r hqn hinv hr hle
+      by_cases hfire : (q >>> 32 != 0 || q * dn2.toUInt64 > ((r <<< 32) + nu.toUInt64)) = true
+      · have hq0 : q.toNat = 0 := Nat.le_zero.mp hqn
+        exact absurd (fires q r hinv hr hfire) (by rw [hq0]; exact Nat.not_lt_zero _)
+      · rw [recheck.eq_def]
+        simp [Bool.eq_false_iff.mpr hfire]
+        exact exitFail q r hinv hr hle hfire
+    | succ n ih =>
+      intro q r hqn hinv hr hle
+      by_cases hfire : (q >>> 32 != 0 || q * dn2.toUInt64 > ((r <<< 32) + nu.toUInt64)) = true
+      · have hdec := fires q r hinv hr hfire
+        have hqpos : 0 < q.toNat := Nat.lt_of_le_of_lt (Nat.zero_le _) hdec
+        have hqp : (q - 1).toNat = q.toNat - 1 := toNat_pred hqpos
+        have hrn : (r + dn1.toUInt64).toNat = r.toNat + dn1.toNat := toNat_add_digit r dn1 hr
+        by_cases hr2 : ((r + dn1.toUInt64) >>> 32 == 0) = true
+        · have hrlt : (r + dn1.toUInt64).toNat < base := by rw [← shr32_lt]; exact hr2
+          rw [recheck.eq_def]
+          simp only [hfire, hr2, ite_true]
+          refine ih (q - 1) (r + dn1.toUInt64)
+            (by rw [hqp]
+                exact Nat.le_of_lt_succ (Nat.lt_of_lt_of_le (Nat.sub_lt hqpos Nat.one_pos) hqn))
+            ?_ hrlt (by rw [hqp]; exact Nat.le_pred_of_lt hdec)
+          obtain ⟨m, hm⟩ : ∃ m, q.toNat = m + 1 :=
+            ⟨q.toNat - 1, (Nat.succ_pred_eq_of_pos hqpos).symm⟩
+          rw [hqp, hrn, hm, Nat.add_sub_cancel]
+          rw [hm] at hinv
+          grind
+        · have hrbig : base ≤ (r + dn1.toUInt64).toNat := by
+            rcases Nat.lt_or_ge (r + dn1.toUInt64).toNat base with h | h
+            · exact absurd (shr32_lt (r + dn1.toUInt64) ▸ h) hr2
+            · exact h
+          rw [recheck.eq_def]
+          simp [hfire, Bool.eq_false_iff.mpr hr2]
+          exact exitBig q r hinv hr hdec hrbig
+      · rw [recheck.eq_def]
+        simp [Bool.eq_false_iff.mpr hfire]
+        exact exitFail q r hinv hr hle hfire
+  intro q r h1 h2 h3
+  exact main q.toNat q r (Nat.le_refl _) h1 h2 h3
+
 /-!
 ## Differential testing against `Nat`
 

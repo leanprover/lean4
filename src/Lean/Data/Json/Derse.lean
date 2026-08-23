@@ -6,6 +6,8 @@ Authors: Henrik Böving
 module
 
 prelude
+import Init.Data.Range.Polymorphic.Nat
+import Init.Data.Range.Polymorphic.Iterators
 public import Std.Internal.Derse.Se.Serializer.Json
 public import Lean.Data.Json.Printer
 

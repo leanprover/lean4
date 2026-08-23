@@ -1,8 +1,13 @@
 module
 
 prelude
--- TODO: minize import
-public import Init
+public import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.Consumers
+public import Init.Data.ByteArray.Basic
+public import Init.Data.SInt.Basic
+public import Init.Data.Float
+public import Init.Data.Vector.Basic
+public import Init.Data.Vector.Monadic
 
 public section
 
@@ -37,6 +42,8 @@ class Serializer (σ : outParam (Type u)) (m : Type u → Type v) (ρ : outParam
   serializeUnit : m ρ
   serializeUnitStructure (typeName : String) : m ρ
   serializeUnitAlt (typeName : String) (altIdx : UInt64) (altName : String) : m ρ
+  serializeNewtypeAltWith {α : Type u} (typeName : String) (altIdx : UInt64) (altName : String)
+    (val : α) (ser : α → m ρ) : m ρ
 
   SeqState : Type u
   serializeSeqBegin (size? : Option Nat) : m SeqState
@@ -74,13 +81,17 @@ class Serializer (σ : outParam (Type u)) (m : Type u → Type v) (ρ : outParam
     (fieldName : String) (val : α) (ser : α → m ρ) : m NamedAltState
   serializeNamedAltEnd (state : NamedAltState) : m ρ
 
-/--
-The counterpart of `serde`'s `Serialize` trait: a value that knows how to describe itself to an
-arbitrary `Serializer`.
--/
 class Serialize (α : Sort o) where
   serialize {σ : Type u} {m : Type u → Type v} {ρ : Type u} {ε : Type w} [Monad m]
     [MonadStateOf σ m] [MonadExceptOf ε m] [Serializer σ m ρ ε] (value : α) : m ρ
+
+/--
+Lets `partial` serialization functions, such as the ones `deriving Serialize` generates for
+recursive types, discharge the inhabitation requirement on their return type `m ρ`.
+-/
+instance {σ : Type u} {m : Type u → Type v} {ρ : Type u} {ε : Type w} [Monad m]
+    [MonadStateOf σ m] [MonadExceptOf ε m] [Serializer σ m ρ ε] : Nonempty (m ρ) :=
+  ⟨Serializer.serializeUnit⟩
 
 namespace Serializer
 
@@ -106,8 +117,6 @@ end States
 variable {σ : Type u} {m : Type u → Type v} {ρ : Type u} {ε : Type w} [Monad m]
   [MonadStateOf σ m] [MonadExceptOf ε m] [Serializer σ m ρ ε] {α : Type u} [Serialize α]
 
--- TODO: make these state based APIs callback based?
-
 @[inline]
 def serializeSome (val : α) : m ρ :=
   serializeSomeWith val Serialize.serialize
@@ -117,6 +126,10 @@ def serializeOption (val? : Option α) : m ρ :=
   match val? with
   | none => serializeNone (σ := σ) (m := m) (ρ := ρ) (ε := ε)
   | some val => serializeSome val
+
+@[inline]
+def serializeNewtypeAlt (typeName : String) (altIdx : UInt64) (altName : String) (val : α) : m ρ :=
+  serializeNewtypeAltWith typeName altIdx altName val Serialize.serialize
 
 @[inline]
 def serializeSeqElem (state : seqState σ m ρ ε) (val : α) : m (seqState σ m ρ ε) :=

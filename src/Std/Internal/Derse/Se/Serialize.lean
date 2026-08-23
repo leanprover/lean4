@@ -1,6 +1,7 @@
 module
 
 prelude
+public import Init.Data.String.Slice
 public import Std.Internal.Derse.Se.Basic
 public import Std.Data.Iterators.Producers.Array
 public import Std.Data.HashSet.Basic
@@ -118,11 +119,8 @@ instance [Serialize α] [Serialize β] : Serialize (TreeMap α β cmp) where
 instance [Serialize α] [∀ k, Serialize (β k)] [BEq α] [Hashable α] : Serialize (DHashMap α β) where
   serialize xs := Serializer.serializeDMap xs.iter
 
-/-
-TODO: this one errors at the moment
 instance [Serialize α] [∀ k, Serialize (β k)] : Serialize (DTreeMap α β cmp) where
   serialize xs := Serializer.serializeDMap xs.iter
--/
 
 instance [Serialize α] [Serialize β] : Serialize (α × β) where
   serialize xs := Serializer.serializeProd xs

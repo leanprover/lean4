@@ -1,5 +1,7 @@
 module
 prelude
+public import Init.System.IO
+public import Init.Data.ToString.Name
 public import Std.Internal.Derse.Se.Basic
 public import Std.Internal.Derse.Se.Serialize
 
@@ -103,7 +105,6 @@ public class Formatter (φ : Type) where
   beginObjectValue [Writer ω m] [Monad m] : JsonT ω φ m Unit
   endObjectValue [Writer ω m] [Monad m] : JsonT ω φ m Unit
 
--- TODO
 instance : MonadExceptOf Empty (JsonT ω φ m) where
   throw := nofun
   tryCatch mx _ := mx
@@ -143,6 +144,15 @@ instance [Writer ω m] [Formatter φ] [Monad m] :
   serializeUnit := do Formatter.beginObject; Formatter.endObject
   serializeUnitStructure _ := do Formatter.beginObject; Formatter.endObject
   serializeUnitAlt _ _ altName := Formatter.writeStringNoEscape altName
+  serializeNewtypeAltWith _ _ altName val ser := do
+    Formatter.beginObject
+    Formatter.beginObjectKey true
+    Formatter.writeStringNoEscape altName
+    Formatter.endObjectKey
+    Formatter.beginObjectValue
+    ser val
+    Formatter.endObjectValue
+    Formatter.endObject
 
   SeqState := Aux
   serializeSeqBegin _ := do
@@ -155,7 +165,6 @@ instance [Writer ω m] [Formatter φ] [Monad m] :
     return { first := false }
   serializeSeqEnd _ := Formatter.endArray
 
-  -- TODO: dedup code?
   TupleState := Aux
   serializeTupleBegin _ := do
     Formatter.beginArray
@@ -173,7 +182,6 @@ instance [Writer ω m] [Formatter φ] [Monad m] :
     return Aux.mk true
   serializeMapKeyWith aux val ser := do
     Formatter.beginObjectKey aux.first
-    -- TODO: We need to employ a custom auxiliary serializer here
     ser val
     Formatter.endObjectKey
     return { first := false }
@@ -235,6 +243,7 @@ instance [Writer ω m] [Formatter φ] [Monad m] :
     Formatter.endObjectValue
     return { first := false }
   serializeNamedAltEnd _ := do
+    Formatter.endObject
     Formatter.endObjectValue
     Formatter.endObject
 
@@ -246,14 +255,16 @@ rendering from `Lean.Json`; it moves here once that infrastructure is available 
 -/
 public structure CompactFormatter where
 
+def CompactFormatter.new : CompactFormatter := {}
+
 public structure PrettyFormatter where
   currentIndent : Nat := 0
   hasValue : Bool := false
   indent : String := "  "
 
-namespace Json
+def PrettyFormatter.new : PrettyFormatter := {}
 
--- TODO : default arguments for formatter
+namespace Json
 
 public def toString [Serialize α] [Formatter φ] (xs : α) (fmt : φ) : String := runST fun _ => do
   let buf ← StringBuffer.new

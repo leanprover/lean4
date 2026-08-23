@@ -274,43 +274,54 @@ def mul (a b : Array Digit) : Array Digit := mulLoop a b b.size
 
 /-! ## division -/
 
+/-- `for i in [0:n] do if p i then d := d + 1 else break` -/
+private def countWhile (p : Nat → Bool) : Nat → Nat → Nat
+  | 0, _ => 0
+  | fuel+1, i => if p i then 1 + countWhile p fuel (i+1) else 0
+
 /--
-`div_normalize`. Returns the shift `d` together with the normalized numerator
-(`lnum+1` digits) and denominator (`lden` digits).
+The leading-zero count of `x`, as `div_normalize`'s `while` loop computes it.
 
 NOTE: the C++ `while (lden > 0 && ((denom[lden-1] << d) & MASK_FIRST) == 0) d++;`
 shifts by `d == 32` once the top denominator digit is zero, which is undefined
-behaviour. The bounded loop below stops at 32 instead. Callers reach `mpn_div`
+behaviour. The bounded count below stops at 32 instead. Callers reach `mpn_div`
 only through `mpz`, whose sizes are normalized, so the top digit is nonzero
-unless the denominator is zero.
+unless the denominator is zero, which `lean_nat_div` rejects first.
 -/
-def divNormalize (numer denom : Array Digit) : Nat × Array Digit × Array Digit := Id.run do
+def leadingZeros (x : Digit) : Nat :=
+  countWhile (fun i => (x <<< (UInt32.ofNat i)) &&& maskFirst == 0) digitBits 0
+
+/--
+`len` digits of `a` shifted left by `d` bits: digit `i` is
+`(a[i] << d) | (a[i-1] >> (32-d))`. The `d == 0` case is separate because the
+C++ needs it to be: shifting a digit by 32 is undefined there.
+
+Each output digit reads only the input, so this is the two `div_normalize`
+loops written as the map they are.
+-/
+def shiftLeftDigits (a : Array Digit) (d len : Nat) : Array Digit :=
+  (Array.range len).map fun i =>
+    if d == 0 then a.getD i 0
+    else (a.getD i 0 <<< UInt32.ofNat d) |||
+      (if i == 0 then 0 else a.getD (i-1) 0 >>> UInt32.ofNat (digitBits - d))
+
+/--
+`div_normalize`. Returns the shift `d` together with the normalized numerator
+(`lnum+1` digits) and denominator (`lden` digits).
+-/
+def divNormalize (numer denom : Array Digit) : Nat × Array Digit × Array Digit :=
   let lnum := numer.size
   let lden := denom.size
-  let mut d := 0
-  if lden > 0 then
-    for i in [0:digitBits] do
-      if (denom[lden-1]! <<< (UInt32.ofNat i)) &&& maskFirst == 0 then d := d + 1 else break
-  let mut n_numer : Array Digit := Array.replicate (lnum + 1) 0
-  let mut n_denom : Array Digit := Array.replicate lden 0
-  if d == 0 then
-    for i in [0:lnum] do n_numer := n_numer.set! i numer[i]!
-    for i in [0:lden] do n_denom := n_denom.set! i denom[i]!
-  else if lnum != 0 then
-    let sh : Digit := UInt32.ofNat d
-    let firstBits (x : Digit) : Digit := x >>> (UInt32.ofNat (digitBits - d))
-    n_numer := n_numer.set! lnum (firstBits numer[lnum-1]!)
-    for k in [0:lnum-1] do
-      let i := lnum - 1 - k
-      n_numer := n_numer.set! i ((numer[i]! <<< sh) ||| firstBits numer[i-1]!)
-    n_numer := n_numer.set! 0 (numer[0]! <<< sh)
-    for k in [0:lden-1] do
-      let i := lden - 1 - k
-      n_denom := n_denom.set! i ((denom[i]! <<< sh) ||| firstBits denom[i-1]!)
-    if lden > 0 then n_denom := n_denom.set! 0 (denom[0]! <<< sh)
+  let d := if lden = 0 then 0 else leadingZeros denom[lden-1]!
+  if d = 0 then
+    (0, shiftLeftDigits numer 0 (lnum+1), shiftLeftDigits denom 0 lden)
+  else if lnum ≠ 0 then
+    (d, shiftLeftDigits numer d (lnum+1), shiftLeftDigits denom d lden)
   else
-    d := 0
-  return (d, n_numer, n_denom)
+    -- NOTE: with a nonzero shift and an empty numerator the C++ leaves both
+    -- buffers zeroed and reports `d = 0`. No caller reaches it: `mpn_div` and
+    -- `mpn_to_string` both pass `lnum ≥ 1`.
+    (0, Array.replicate (lnum+1) 0, Array.replicate lden 0)
 
 /-- `div_unnormalize`. Produces `lden` remainder digits. -/
 def divUnnormalize (numer : Array Digit) (lden d : Nat) : Array Digit := Id.run do
@@ -842,6 +853,125 @@ theorem le_succ_div_of_not_test {b k vtop vsnd vrest v u u2 u3 ulow qhat rhat : 
     omega
 
 end KnuthD
+
+/-! ## Correctness of `div_normalize`'s shift -/
+
+theorem toNat_shl (x : Digit) {d : Nat} (hd : d < digitBits) :
+    (x <<< (UInt32.ofNat d)).toNat = (x.toNat * 2 ^ d) % base := by
+  have hm : (UInt32.ofNat d).toNat % 32 = d := by simp [digitBits] at hd ⊢; omega
+  rw [UInt32.toNat_shiftLeft, hm, Nat.shiftLeft_eq]
+  rfl
+
+theorem toNat_shr (y : Digit) {e : Nat} (he : e < digitBits) :
+    (y >>> (UInt32.ofNat e)).toNat = y.toNat / 2 ^ e := by
+  have hm : (UInt32.ofNat e).toNat % 32 = e := by simp [digitBits] at he ⊢; omega
+  rw [UInt32.toNat_shiftRight, hm, Nat.shiftRight_eq_div_pow]
+
+/--
+Recombining two adjacent digits under a left shift by `d`: the `|` in
+`div_normalize` cannot carry, because the low `d` bits of the shifted digit are
+zero and the bits arriving from below are less than `2^d`.
+-/
+theorem toNat_shl_or_shr (x y : Digit) {d : Nat} (hd0 : 0 < d) (hd : d < digitBits) :
+    ((x <<< (UInt32.ofNat d)) ||| (y >>> (UInt32.ofNat (digitBits - d)))).toNat
+      = (x.toNat * 2 ^ d) % base + y.toNat / 2 ^ (digitBits - d) := by
+  simp only [digitBits] at hd hd0 ⊢
+  have hy : y.toNat < 2 ^ 32 := y.toNat_lt_size
+  have hlt : y.toNat / 2 ^ (32 - d) < 2 ^ d := by
+    apply Nat.div_lt_of_lt_mul
+    rw [← Nat.pow_add, show 32 - d + d = 32 by omega]
+    exact hy
+  have hsplit : (x.toNat * 2 ^ d) % base = (x.toNat % 2 ^ (32 - d)) <<< d := by
+    have hb : base = 2 ^ (32 - d) * 2 ^ d := by
+      rw [← Nat.pow_add, show 32 - d + d = 32 by omega]; rfl
+    rw [hb, Nat.mul_mod_mul_right, Nat.shiftLeft_eq]
+  rw [UInt32.toNat_or, toNat_shl x (by simp [digitBits]; omega),
+    toNat_shr y (by simp [digitBits]; omega), hsplit, Nat.shiftLeft_add_eq_or_of_lt hlt]
+
+/-- The bits that digit `j-1` sends up into digit `j` under a left shift by `d`. -/
+private def shiftCarry (a : Array Digit) (d j : Nat) : Nat :=
+  if j = 0 then 0 else (a.getD (j-1) 0).toNat / 2 ^ (digitBits - d)
+
+private theorem shiftCarry_eq (a : Array Digit) {d j : Nat} (hd0 : 0 < d) (hd : d < digitBits)
+    (hj : j ≠ 0) : shiftCarry a d j = (a.getD (j-1) 0).toNat * 2 ^ d / base := by
+  simp only [shiftCarry, hj, ite_false, digitBits] at *
+  have hb : base = 2 ^ (32 - d) * 2 ^ d := by
+    rw [← Nat.pow_add, show 32 - d + d = 32 by omega]; rfl
+  rw [hb, Nat.mul_div_mul_right _ _ (Nat.two_pow_pos d)]
+
+private theorem getD_shiftLeftDigits_zero (a : Array Digit) (len j : Nat) (hj : j < len) :
+    (shiftLeftDigits a 0 len).getD j 0 = a.getD j 0 := by
+  simp [shiftLeftDigits, hj]
+
+private theorem getD_shiftLeftDigits_head (a : Array Digit) {d len : Nat} (hd0 : 0 < d)
+    (hlen : 0 < len) :
+    (shiftLeftDigits a d len).getD 0 0 = a.getD 0 0 <<< UInt32.ofNat d := by
+  simp [shiftLeftDigits, hlen, Nat.ne_of_gt hd0]
+
+private theorem getD_shiftLeftDigits_tail (a : Array Digit) {d len j : Nat} (hd0 : 0 < d)
+    (hj : j < len) (hj0 : j ≠ 0) :
+    (shiftLeftDigits a d len).getD j 0
+      = (a.getD j 0 <<< UInt32.ofNat d) ||| (a.getD (j-1) 0 >>> UInt32.ofNat (digitBits - d)) := by
+  simp [shiftLeftDigits, hj, Nat.ne_of_gt hd0, hj0]
+
+private theorem shift_combine {Oj C C' P Dj A B T : Nat}
+    (hih : Oj + C * P = Dj * T)
+    (hdm : A * T % B + B * (A * T / B) = A * T)
+    (hC' : C' = A * T / B) :
+    Oj + (A * T % B + C) * P + C' * (P * B) = (Dj + A * P) * T := by
+  subst hC'; grind
+
+/-- The shifted digits denote `2^d` times the original, modulo what falls off the top. -/
+theorem denoteN_shiftLeftDigits (a : Array Digit) {d : Nat} (hd0 : 0 < d) (hd : d < digitBits)
+    {len j : Nat} (hj : j ≤ len) :
+    denoteN (shiftLeftDigits a d len) j + shiftCarry a d j * base ^ j = denoteN a j * 2 ^ d := by
+  induction j with
+  | zero => simp [denoteN, shiftCarry]
+  | succ j ih =>
+    have hdigit : ((shiftLeftDigits a d len).getD j 0).toNat
+        = (a.getD j 0).toNat * 2 ^ d % base + shiftCarry a d j := by
+      rcases Nat.eq_zero_or_pos j with hj0 | hj0
+      · subst hj0
+        rw [getD_shiftLeftDigits_head a hd0 (by omega), toNat_shl _ hd]
+        simp [shiftCarry]
+      · rw [getD_shiftLeftDigits_tail a hd0 (by omega) (by omega), toNat_shl_or_shr _ _ hd0 hd]
+        simp only [shiftCarry, Nat.ne_of_gt hj0, ite_false]
+    have hC' : shiftCarry a d (j+1) = (a.getD j 0).toNat * 2 ^ d / base := by
+      rw [shiftCarry_eq a hd0 hd (Nat.succ_ne_zero j)]; simp
+    have hdm := Nat.div_add_mod ((a.getD j 0).toNat * 2 ^ d) base
+    rw [denoteN, denoteN, hdigit, Nat.pow_succ]
+    exact shift_combine (ih (by omega)) (by omega) hC'
+
+theorem size_shiftLeftDigits (a : Array Digit) (d len : Nat) :
+    (shiftLeftDigits a d len).size = len := by simp [shiftLeftDigits]
+
+/--
+A left shift by `d` bits multiplies the denotation by `2^d`, provided the result
+still fits in `len` digits. `div_normalize` gives the numerator one extra digit
+for exactly this reason, and chooses `d` so the denominator does not overflow.
+-/
+theorem denote_shiftLeftDigits (a : Array Digit) {d : Nat} (hd : d < digitBits)
+    {len : Nat} (hlen : a.size ≤ len) (hfit : denote a * 2 ^ d < base ^ len) :
+    denote (shiftLeftDigits a d len) = denote a * 2 ^ d := by
+  have hout : denote (shiftLeftDigits a d len) = denoteN (shiftLeftDigits a d len) len := by
+    rw [denote, size_shiftLeftDigits]
+  have ha : denoteN a len = denote a := denoteN_of_ge a hlen
+  rcases Nat.eq_zero_or_pos d with hd0 | hd0
+  · subst hd0
+    have hcongr : ∀ i, i < len → (shiftLeftDigits a 0 len).getD i 0 = a.getD i 0 := by
+      intro i hi; exact getD_shiftLeftDigits_zero a len i hi
+    rw [hout, denoteN_congr hcongr, ha]; simp
+  · have hmain := denoteN_shiftLeftDigits a hd0 hd (Nat.le_refl len)
+    rw [ha] at hmain
+    -- nothing can fall off the top, so the carry out of the last digit is zero
+    have hzero : shiftCarry a d len = 0 := by
+      rcases Nat.eq_zero_or_pos (shiftCarry a d len) with h | h
+      · exact h
+      · exact absurd hmain (by
+          have : base ^ len ≤ shiftCarry a d len * base ^ len := Nat.le_mul_of_pos_left _ h
+          omega)
+    rw [hzero, Nat.zero_mul, Nat.add_zero] at hmain
+    rw [hout, hmain]
 
 /-!
 ## Differential testing against `Nat`

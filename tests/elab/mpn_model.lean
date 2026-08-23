@@ -727,9 +727,9 @@ theorem mulLoop_spec (a b : Array Digit) (m : Nat) (hm : m ≤ b.size) :
       have hsame : ∀ i, i < (mulLoop a b m).size →
           ((mulLoop a b m).set! (m + a.size) 0).getD i 0 = (mulLoop a b m).getD i 0 := by
         intro i _
-        rcases Nat.decEq i (m + a.size) with h | h
-        · exact getD_set!_ne _ _ _ _ h
+        by_cases h : i = m + a.size
         · subst h; rw [getD_set!_eq _ _ _ hfits, hzero _ (Nat.le_refl _)]
+        · exact getD_set!_ne _ _ _ _ h
       refine ⟨by simp [hsz], ?_, ?_⟩
       · intro idx hidx
         rw [getD_set!_ne _ _ _ _ (by omega), hzero idx (by omega)]

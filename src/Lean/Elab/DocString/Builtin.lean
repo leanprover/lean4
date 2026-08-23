@@ -140,10 +140,15 @@ private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m Lean.Syntax.
 /--
 Checks that a name exists when it is expected to.
 -/
-meta def checkNameExists : PostponedCheckHandler := fun _ info => do
-  let some {name} := info.get? PostponedName
-    | throwError "Expected `{.ofConstName ``PostponedName}`, got `{.ofConstName info.typeName}`"
+-- The builtin attribute will be available after the next stage0 update. Get rid of the
+-- builtin_initialize line and uncomment the attribute line once that's happened.
+-- @[builtin_deferred_doc_check PostponedName]
+def checkNameExists : DeferredCheckHandler := fun d => do
+  let some ⟨name⟩ := d.get? PostponedName
+    | throwError "internal error: expected a `{.ofConstName ``PostponedName}`"
   discard <| realizeGlobalConstNoOverload (mkIdent name)
+
+builtin_initialize DeferredCheck.addBuiltinHandler ``PostponedName checkNameExists
 
 private def getQualified (x : Name) : DocM (Array Name) := do
   -- We don't want to check whether the empty name is a suffix of names
@@ -201,9 +206,7 @@ def name (full : Option Ident := none) (scope : DocScope := .local)
           expectedType? := some t
         }
         let data : Data.Local := {name := x, lctx := ← getLCtx, type := t, fvarId := e.fvarId!}
-        return .other {
-          val := .mk data
-        } #[.code s.getString]
+        return .custom data #[.code s.getString]
   match scope with
   | .local =>
     let x ←
@@ -226,19 +229,12 @@ def name (full : Option Ident := none) (scope : DocScope := .local)
               logErrorAt s m!"{err.toMessageData}{h}"
             else logErrorAt s m!"{err.toMessageData}"
             return .code s!"{n.raw.getId}"
-    return .other { val := .mk (Data.Const.mk x) } #[.code s.getString]
+    return .custom (Data.Const.mk x) #[.code s.getString]
   | .import xs =>
     let name :=
       if let some r := full then r.getId
       else x
-    -- There should be a reference to the future task saved here, so doc rendering tools can
-    -- create a link.
-    let val : PostponedCheck := {
-      handler := ``checkNameExists
-      imports := xs.map (⟨·⟩)
-      info := .mk { name : PostponedName }
-    }
-    return .other { val := .mk val } #[.code s.getString]
+    return .deferred (← addDeferredCheck (.mk (PostponedName.mk name)) xs (← getRef)) #[.code s.getString]
 
 private def similarNames (x : Name) (xs : Array Name) : Array Name := Id.run do
   let s := x.toString
@@ -292,7 +288,7 @@ def module (checked : flag true) (xs : TSyntaxArray `inline) : DocM (Inline Elab
         else m!"Either disable the existence check or use an imported module:".hint ss (ref? := some ref)
       logErrorAt n m!"Module is not transitively imported by the current module.{h}"
 
-  return .other {val := .mk (Data.ModuleName.mk x)} #[.code s.getString]
+  return .custom (Data.ModuleName.mk x) #[.code s.getString]
 
 
 private def introduceAntiquotes (stx : Syntax) : DocM Unit :=
@@ -342,9 +338,7 @@ def tactic (checked : flag true) (xs : TSyntaxArray `inline) : DocM (Inline Elab
       else
         let found := found[0]
         addConstInfo s found.internalName
-        return .other {
-            val := .mk { name := found.internalName : Data.Tactic}
-          } #[.code s.getString]
+        return .custom { name := found.internalName : Data.Tactic} #[.code s.getString]
       try
         let p := whitespace >> categoryParserFn `tactic
         let stx ← parseStrLit p s
@@ -394,9 +388,7 @@ def conv (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
     try
       let t ← getConvTactic s
       addConstInfo s t
-      return .other {
-          val := .mk { name := t : Data.ConvTactic}
-        } #[.code s.getString]
+      return .custom { name := t : Data.ConvTactic} #[.code s.getString]
     catch
       | e => exns := exns.push e
     try
@@ -426,7 +418,7 @@ def attr (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
         -- here `a` is of kind `attrInstance`, which is `("scoped" <|> "local")? attr`
         validateAttr a[1]
 
-      return .other {val := .mk <| Data.Attributes.mk stx} #[
+      return .custom (Data.Attributes.mk stx) #[
         .code s.getString
       ]
     catch
@@ -435,7 +427,7 @@ def attr (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
     try
       let stx ← parseStrLit attrParser.fn s
       validateAttr stx
-      return .other {val := .mk <| Data.Attribute.mk stx} #[
+      return .custom (Data.Attribute.mk stx) #[
         .code s.getString
       ]
     catch
@@ -492,7 +484,7 @@ def syntaxCat (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let x ← parseStrLit rawIdentFn s
   let c := x.getId
   if (← validateCat ⟨x⟩) then
-    return .other {val := .mk (Data.SyntaxCat.mk c)} #[.code (toString c)]
+    return .custom (Data.SyntaxCat.mk c) #[.code (toString c)]
   else
     return .code (toString c)
 
@@ -519,7 +511,7 @@ def «syntax» (cat : Ident) (xs : TSyntaxArray `inline) : DocM (Inline ElabInli
     let cat := cat.getId
     let stx ← parseStrLit (categoryParserFn cat) s
     introduceAntiquotes stx
-    return .other {val := .mk (Data.Syntax.mk cat stx)} #[.code s.getString]
+    return .custom (Data.Syntax.mk cat stx) #[.code s.getString]
   else
     return .code s.getString
 
@@ -996,7 +988,7 @@ def lean (name : Option Ident := none) (error warning : flag false) («show» : 
   if «show» then
     if h : trees.size > 0 then
       let hl := Data.LeanBlock.mk (← highlightSyntax trees (mkNullNode cmds))
-      return .other {val := .mk hl} #[.code code.getString]
+      return .custom hl #[.code code.getString]
     else
       return .code code.getString
   else
@@ -1131,7 +1123,7 @@ def leanRole (type : Option StrLit := none) (xs : TSyntaxArray `inline) : DocM (
     withoutErrToSorry <| discard <| elabExtraTerm stx[0] ty?
   if h : trees.size > 0 then
     let tm := Data.LeanTerm.mk (← highlightSyntax trees stx)
-    return .other {val := .mk tm} #[.code s.getString]
+    return .custom tm #[.code s.getString]
   else
     -- No info
     return .code s.getString
@@ -1152,7 +1144,7 @@ def leanTerm (code : StrLit) : DocM (Block ElabInline ElabBlock) := do
     withoutErrToSorry <| discard <| elabExtraTerm stx[0] ty?
   if h : trees.size > 0 then
     let tm := Data.LeanTerm.mk (← highlightSyntax trees stx)
-    return .other {val := .mk tm} #[.code code.getString]
+    return .custom tm #[.code code.getString]
   else
     -- No info
     return .code code.getString
@@ -1212,7 +1204,7 @@ def option (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
           (toString optionName, some <| .option optionName decl.declName), (" ", none),
           (valStr, some valHl)
         ]
-        return .other {val := .mk <| Data.SetOption.mk ⟨code⟩} #[
+        return .custom (Data.SetOption.mk ⟨code⟩) #[
           .code s.getString
         ]
       catch
@@ -1227,9 +1219,7 @@ def option (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
         let decl ← getOptionDecl optionName
         pushInfoLeaf <| .ofOptionInfo { stx, optionName, declName := decl.declName }
 
-        return .other {
-          val := .mk <| Data.Option.mk optionName decl.declName
-        } #[
+        return .custom (Data.Option.mk optionName decl.declName) #[
           .code s.getString
         ]
       catch
@@ -1280,7 +1270,7 @@ def assert' (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
     let mut code := (← highlightSyntax trees lhsStx) ++ " = " ++ (← highlightSyntax trees rhsStx)
     if let some tyStx := tyStx? then
       code := code ++ " : " ++ (← highlightSyntax trees tyStx)
-    return .other {val := .mk <| Data.LeanTerm.mk code} #[.code str]
+    return .custom (Data.LeanTerm.mk code) #[.code str]
   else
     -- No info
     return .code str
@@ -1301,7 +1291,7 @@ def assert (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
     | _ => throwErrorAt stx m!"Expected equality type"
   if trees.size > 0 then
     let tm := Data.LeanTerm.mk (← highlightSyntax trees stx)
-    return .other {val := .mk tm} #[.code s.getString]
+    return .custom tm #[.code s.getString]
   else
     -- No info
     return .code s.getString

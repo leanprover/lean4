@@ -48,7 +48,9 @@ syntax grindFilter := (colGt grind_filter)?
 A `grind` tactic is a program which receives a `grind` goal. -/
 declare_syntax_cat grind (behavior := both)
 
-syntax grindStep := grind ("|" (colGt ppSpace grind_filter)?)?
+-- The `colGt` before `"|"` prevents the step from consuming a `|` that belongs to an enclosing
+-- tactic (e.g. the next alternative of a `match`, see issue #13822).
+syntax grindStep := grind (colGt "|" (colGt ppSpace grind_filter)?)?
 
 syntax grindSeq1Indented := sepBy1IndentSemicolon(grindStep)
 syntax grindSeqBracketed := "{" withoutPosition(sepByIndentSemicolon(grindStep)) "}"
@@ -191,6 +193,15 @@ sequence of `grind` tactics.
 macro dot:unicode("· ", ". ") s:grindSeq : grind => `(grind| next%$dot =>%$dot $s:grindSeq )
 
 /--
+* `case tag => tac` focuses on the goal with case name `tag` and solves it using `tac`,
+  or else fails.
+* `case tag x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses
+  with inaccessible names to the given names.
+* `case tag₁ | tag₂ => tac` is equivalent to `(case tag₁ => tac); (case tag₂ => tac)`.
+-/
+syntax (name := «case») "case " sepBy1(caseArg, " | ") " => " grindSeq : grind
+
+/--
 `any_goals tac` applies the tactic `tac` to every goal,
 concatenating the resulting goals for successful tactic applications.
 If the tactic fails on all of the goals, the entire `any_goals` tactic fails.
@@ -323,6 +334,9 @@ Only available in `sym =>` mode.
 - `simp myVariant` — uses a named variant registered via `register_sym_simp`
 - `simp [thm₁, thm₂, ...]` — default variant with extra rewrite theorems appended to `post`
 - `simp myVariant [thm₁, thm₂, ...]` — named variant with extra theorems
+
+The extra parameters may be theorems, local hypotheses, or definitions. For a definition `f`,
+its equational theorems are used, so `simp [f]` unfolds `f` applications.
 -/
 syntax (name := symSimp) "simp" (ppSpace colGt ident)? (" [" ident,* "]")? : grind
 
@@ -336,6 +350,20 @@ Only available in `sym =>` mode.
 - `dsimp myVariant [id₁, id₂, ...]` — named variant with extra declarations
 -/
 syntax (name := symDSimp) "dsimp" (ppSpace colGt ident)? (" [" ("*" <|> ident),* "]")? : grind
+
+/--
+`rw [h₁, ..., hₙ]` rewrites the goal target using the given equations or iffs, left to right.
+Use `← h` to rewrite right to left. Only available in `sym =>` mode, and it only rewrites the
+target: in `sym =>` mode hypotheses are never modified.
+
+Premises of a conditional rewrite rule that cannot be resolved by unification or type class
+resolution become new goals.
+
+`rw` is **not** a high-performance tactic: it does not exploit the maximal sharing maintained
+by `sym =>` mode, and should be used for surgical changes to the goal, not for bulk
+simplification. Use `simp`/`dsimp` variants for that.
+-/
+syntax (name := symRw) "rw " rwRuleSeq : grind
 
 /-- `exact e` closes the main goal if its target type matches that of `e`. -/
 macro "exact " e:term : grind => `(grind| tactic => exact $e:term)
@@ -362,5 +390,56 @@ generator.
 This is a variant of `cbv` that only works in `sym =>` mode.
 -/
 syntax (name := symCbv) "cbv" : grind
+
+/--
+`lift_lets` moves the `let`/`have` declarations of the goal target toward the root,
+as far out as their dependencies allow. Nested declarations are flattened, and
+declarations with syntactically equal types and values are merged. Declarations under
+`fun`/`∀` binders are not lifted. The new goal is definitionally equal to the original
+one.
+
+Unlike the standalone `lift_lets` tactic, this variant does not support the `at`
+location syntax: in `sym =>` mode hypotheses are never modified.
+
+Only available in `sym =>` mode.
+-/
+syntax (name := symLiftLets) "lift_lets" : grind
+
+/--
+`let_to_have` converts the nondependent `let` declarations of the goal target into
+`have` declarations. The new goal is definitionally equal to the original one.
+
+Unlike the standalone `let_to_have` tactic, this variant does not support the `at`
+location syntax: in `sym =>` mode hypotheses are never modified.
+
+Only available in `sym =>` mode.
+-/
+syntax (name := symLetToHave) "let_to_have" : grind
+
+@[inherit_doc Lean.Parser.Tactic.bvNormalize]
+syntax (name := bvNormalize) "bv_normalize" optConfig (bvTypes)? : grind
+
+@[inherit_doc Lean.Parser.Tactic.bvDecide]
+syntax (name := bvDecide) "bv_decide" optConfig (bvTypes)? : grind
+
+@[inherit_doc Lean.Parser.Tactic.bvTrace]
+syntax (name := bvTrace) "bv_decide?" optConfig (bvTypes)? : grind
+
+@[inherit_doc Lean.Parser.Tactic.bvCheck]
+syntax (name := bvCheck) "bv_check" optConfig (bvTypes)? ppSpace str : grind
+
+/--
+This tactic acts as an incremental pre-processor for `bv_decide` in `sym` or `grind` mode. Users
+can run `bv_decide_push` during arbitrary parts of their proof to make `bv_decide` run its
+pre-processor on the current goal state. It then stores as much information as possible from this
+pre-processor run for subsequent goals to speed up their invocations of `bv_decide` or
+`bv_decide_push`.
+
+Note that `bv_decide_push` can only store context independent information. For example, it has to
+assume that in the future more structures or enums might occur in the goal and thus cannot
+incrementalize type-based pre-processing. For this reason it also does not support a `types` clause.
+-/
+syntax (name := bvDecidePush) "bv_decide_push" optConfig : grind
+
 end Grind
 end Lean.Parser.Tactic

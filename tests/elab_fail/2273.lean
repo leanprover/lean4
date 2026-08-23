@@ -21,10 +21,10 @@ For this test we just hard code the `allowSynthFailures` option into `apply'`.
 elab "apply'" e:term : tactic => do
   evalApplyLikeTactic (·.apply · { allowSynthFailures := true }) e
 
+@[instance_reducible]
 def instP (n : Nat) : P n := {}
 
 example : True := by
   apply' foo
   apply instP
   exact 37
-

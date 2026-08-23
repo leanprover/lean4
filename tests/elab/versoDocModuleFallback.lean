@@ -19,7 +19,9 @@ info: Markdown:
 Verso:
 { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Module docs should parse as Verso here (fallback from ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.Option _ } #[Lean.Doc.Inline.code "doc.verso"],
+                Lean.Doc.Inline.other
+                  ElabInline.custom (.mk `Lean.Doc.Data.Option _)
+                  #[Lean.Doc.Inline.code "doc.verso"],
                 Lean.Doc.Inline.text ")."],
             Lean.Doc.Block.para
               #[Lean.Doc.Inline.bold #[Lean.Doc.Inline.text "Bold"], Lean.Doc.Inline.text " and ",

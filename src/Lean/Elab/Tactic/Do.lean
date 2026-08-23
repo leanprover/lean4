@@ -9,7 +9,7 @@ prelude
 public import Lean.Elab.Tactic.Do.ProofMode
 public import Lean.Elab.Tactic.Do.Syntax
 public import Lean.Elab.Tactic.Do.Attr
+public import Lean.Elab.Tactic.Do.Contract
 public import Lean.Elab.Tactic.Do.LetElim
 public import Lean.Elab.Tactic.Do.Spec
 public import Lean.Elab.Tactic.Do.VCGen
-public import Lean.Elab.Tactic.Do.Internal

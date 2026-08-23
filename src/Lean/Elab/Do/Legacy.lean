@@ -1563,10 +1563,13 @@ mutual
      `doFor` is of the form
      ```
      def doForDecl := leading_parser termParser >> " in " >> withForbidden "do" termParser
-     def doFor := leading_parser "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
+     def doFor := leading_parser "for " >> sepBy1 doForDecl ", " >> optional doLoopInvariant >> " do " >> doSeq
      ```
   -/
   partial def doForToCode (doFor : Syntax) (doElems : List Syntax) : M CodeBlock := do
+    -- The `invariant` and `decreasing` clauses elaborate to `vcgen` gadgets, which only the new
+    -- `do` elaborator builds.
+    unless doFor[2].isNone && doFor[3].isNone do throwUnsupportedSyntax
     let doForDecls := doFor[1].getSepArgs
     if h : doForDecls.size > 1 then
       /-
@@ -1593,7 +1596,7 @@ mutual
       let y  := doForDecl[1]
       let ys := doForDecl[3]
       let doForDecls := doForDecls.eraseIdx 1
-      let body := doFor[3]
+      let body := doFor[5]
       withFreshMacroScope do
         /- Recall that `@` (explicit) disables `coeAtOutParam`.
            We used `@` at `Stream` functions to make sure `resultIsOutParamSupport` is not used. -/
@@ -1612,7 +1615,7 @@ mutual
       let x         := doForDecls[0]![1]
       withRef x <| checkNotShadowingMutable (← getPatternVarsEx x)
       let xs        := doForDecls[0]![3]
-      let forElems  := getDoSeqElems doFor[3]
+      let forElems  := getDoSeqElems doFor[5]
       let forInBodyCodeBlock ← withFor (doSeqToCode forElems)
       let ⟨uvars, forInBody⟩ ← mkForInBody x forInBodyCodeBlock
       let ctx ← read
@@ -1795,7 +1798,8 @@ mutual
           else if k == ``Parser.Term.doUnless then
             doUnlessToCode doElem doElems
           else if k == ``Parser.Term.doRepeat then
-            let seq := doElem[1]
+            unless doElem[1].isNone && doElem[2].isNone do throwUnsupportedSyntax
+            let seq := doElem[3]
             let expanded ← `(doElem| for _ in Loop.mk do $seq)
             doSeqToCode (expanded :: doElems)
           else if k == ``Parser.Term.doFor then withFreshMacroScope do

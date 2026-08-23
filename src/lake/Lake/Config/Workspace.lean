@@ -134,7 +134,7 @@ public theorem wsIdx_root_lt {ws : Workspace} :
   ws.lakeEnv.enableArtifactCache? <|> ws.root.enableArtifactCache?
 
 /-- Whether the Lake artifact cache should be enabled by default for packages in the workspace. -/
-@[deprecated enableArtifactCache? (since := "2026-02-03")]
+@[deprecated enableArtifactCache? +typeChanged (since := "2026-02-03")]
 public def enableArtifactCache (ws : Workspace) : Bool :=
   ws.enableArtifactCache?.getD false
 
@@ -398,9 +398,9 @@ the workspace's {lean}`leanSrcPath` and Lake's {name (full := LakeInstall.srcDir
 public def augmentedLeanSrcPath (self : Workspace) : SearchPath :=
   self.leanSrcPath ++ self.lakeEnv.leanSrcPath
 
-/-
-The detected `sharedLibPathEnv` value of the environment augmented with
-the workspace's `libPath` and Lean installation's shared library directories.
+/--
+The detected {name}`sharedLibPathEnvVar` value of the environment augmented with
+the workspace's {name}`sharedLibPath` and Lean installation's shared library directories.
 
 The order is Lean's, the workspace's, and then the environment's.
 Lean's comes first because Lean needs to load its own shared libraries from this path.

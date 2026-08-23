@@ -6,16 +6,21 @@ Authors: Sebastian Graf
 module
 public import Lean
 public import Std.Tactic.Do
-public import Std.Internal.Do
-public import Std.Internal.Do.Triple.SpecLemmas
+public import Std.WP
+public import Std.WP.Triple.SpecLemmas
 open Lean Parser Meta Elab Tactic Sym
 
+/-- Runs `k` and additionally returns its wall-clock time in hundredths of a millisecond. -/
 def timeItMs (k : MetaM α) : MetaM (α × UInt64) := do
   let startTime ← IO.monoNanosNow
   let a ← k
   let endTime ← IO.monoNanosNow
-  let ms := (endTime - startTime).toFloat / 1000000.0
-  return (a, ms.toUInt64)
+  return (a, ((endTime - startTime) / 10000).toUInt64)
+
+/-- Formats a time in hundredths of a millisecond as milliseconds with two decimal places. -/
+def fmtMs (hms : UInt64) : String :=
+  let frac := hms % 100
+  s!"{hms / 100}.{if frac < 10 then "0" else ""}{frac}"
 
 /-- Helper function for executing a tactic `k` for solving `$(goal) n`. -/
 def driver (goal : Name) (unfold : List Name) (n : Nat) (discharge : MetaM (TSyntax `tactic)) (k : MVarId → MetaM (List MVarId)) : MetaM Unit := do
@@ -30,7 +35,7 @@ def driver (goal : Name) (unfold : List Name) (n : Nat) (discharge : MetaM (TSyn
     | .goal mvarId => return mvarId
     | .noProgress => throwError "No progress when simping {mvarId}!"
     | .closed => throwError "Simp closed goal {mvarId}"
-  -- IO.println s!"time spent unfolding: {_unfoldMs} ms"
+  -- IO.println s!"time spent unfolding: {fmtMs _unfoldMs} ms"
   let (mvarIds, ms) ← timeItMs do k mvarId
   let discharge ← discharge
   let dischargePp ← PrettyPrinter.ppTactic discharge
@@ -41,20 +46,20 @@ def driver (goal : Name) (unfold : List Name) (n : Nat) (discharge : MetaM (TSyn
         let ([], _) ← Lean.Elab.runTactic mvarId discharge.raw {} {}
           | throwError "{dischargePp} failed to solve {mvarId}"
   let (expr, instMs) ← timeItMs (instantiateMVars mvar)
-  -- Emulate the shareCommonPreDefs step before sending the term to the kernel.
-  -- If we don't do this, kernel checking time balloons.
-  let expr ← SymM.run (shareCommon expr)
+  -- Apply the `shareCommonPreDefs` structural sharing before sending the term to the
+  -- kernel. If we don't do this, kernel checking time balloons.
+  let expr := Lean.ShareCommon.shareCommon expr
   let (_, kernelMs) ← timeItMs (checkWithKernel expr)
   let label := s!"{goal.getPrefix}({n}):"
   let pad := "".pushn ' ' (24 - min label.length 24)
-  let mut msg := s!"{label}{pad}{ms} ms"
+  let mut msg := s!"{label}{pad}{fmtMs ms} ms"
   if let some dischargeMs := dischargeMs? then
-    msg := msg ++ s!", {mvarIds.length} VCs by {dischargePp}: {dischargeMs} ms"
+    msg := msg ++ s!", {mvarIds.length} VCs by {dischargePp}: {fmtMs dischargeMs} ms"
   else
     msg := msg ++ s!", {mvarIds.length} VCs"
-  if instMs > 1000 then
-    msg := msg ++ s!", instantiate > 1000ms: {instMs} ms"
-  msg := msg ++ s!", kernel: {kernelMs} ms"
+  if instMs > 100000 then
+    msg := msg ++ s!", instantiate > 1000ms: {fmtMs instMs} ms"
+  msg := msg ++ s!", kernel: {fmtMs kernelMs} ms"
   IO.println msg
 
 def solveUsingTactic (goal : Name) (unfold : List Name) (n : Nat) (solve : MetaM (TSyntax `tactic)) (discharge : MetaM (TSyntax `tactic)) : MetaM Unit := do

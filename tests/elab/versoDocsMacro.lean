@@ -31,7 +31,7 @@ defWithDoc macroGenerated
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Built on ",
                 Lean.Doc.Inline.other
-                  { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ }
+                  ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _)
                   #[Lean.Doc.Inline.code "Nat.succ"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
@@ -49,7 +49,7 @@ defBare macroBare
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Returns ",
                 Lean.Doc.Inline.other
-                  { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ }
+                  ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _)
                   #[Lean.Doc.Inline.code "Nat.succ"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
@@ -71,7 +71,7 @@ defCodeBlock macroCodeBlock
 /--
 info: { text := #[Lean.Doc.Block.para #[Lean.Doc.Inline.text "A code block:"],
             Lean.Doc.Block.other
-              { val := Dynamic.mk `Lean.Doc.Data.LeanBlock _ }
+              ElabBlock.custom (.mk `Lean.Doc.Data.LeanBlock _)
               #[Lean.Doc.Block.code "#check Nat.succ\n"]],
   subsections := #[] }
 -/

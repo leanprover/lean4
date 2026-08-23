@@ -44,17 +44,17 @@ private def checkRoundTrip (label : String) (parts : List (String ⊕ Nat)) : IO
   checkName s!"roundtrip {label}" demangled name
 
 -- ============================================================================
--- String.mangle
+-- String.Internal.mangle
 -- ============================================================================
 
-#eval check "mangle alphanumeric" (String.mangle "hello") "hello"
-#eval check "mangle underscore" (String.mangle "a_b") "a__b"
-#eval check "mangle double underscore" (String.mangle "__") "____"
-#eval check "mangle dot" (String.mangle ".") "_x2e"
-#eval check "mangle a.b" (String.mangle "a.b") "a_x2eb"
-#eval check "mangle lambda" (String.mangle "\u03bb") "_u03bb"
-#eval check "mangle astral" (String.mangle (String.singleton (Char.ofNat 0x1d55c))) "_U0001d55c"
-#eval check "mangle empty" (String.mangle "") ""
+#eval check "mangle alphanumeric" (String.Internal.mangle "hello") "hello"
+#eval check "mangle underscore" (String.Internal.mangle "a_b") "a__b"
+#eval check "mangle double underscore" (String.Internal.mangle "__") "____"
+#eval check "mangle dot" (String.Internal.mangle ".") "_x2e"
+#eval check "mangle a.b" (String.Internal.mangle "a.b") "a_x2eb"
+#eval check "mangle lambda" (String.Internal.mangle "\u03bb") "_u03bb"
+#eval check "mangle astral" (String.Internal.mangle (String.singleton (Char.ofNat 0x1d55c))) "_U0001d55c"
+#eval check "mangle empty" (String.Internal.mangle "") ""
 
 -- ============================================================================
 -- Name.mangle
@@ -164,21 +164,21 @@ private def checkRoundTrip (label : String) (parts : List (String ⊕ Nat)) : IO
 -- ============================================================================
 
 #eval do
-  let mangled := Name.mangle `Lean.Meta.foo (s!"lp_{String.mangle "std"}_")
+  let mangled := Name.mangle `Lean.Meta.foo (s!"lp_{String.Internal.mangle "std"}_")
   checkSome "lp_ simple" (demangleSymbol mangled) "Lean.Meta.foo (std)"
 
 #eval do
-  let mangled := Name.mangle `Lean.Meta.foo (s!"lp_{String.mangle "my_pkg"}_")
+  let mangled := Name.mangle `Lean.Meta.foo (s!"lp_{String.Internal.mangle "my_pkg"}_")
   checkSome "lp_ underscore pkg" (demangleSymbol mangled) "Lean.Meta.foo (my_pkg)"
 
 #eval do
   -- Package with escaped chars (hyphen → _x2d): split must not break mid-escape
-  let mangled := Name.mangle `Lean.Meta.foo (s!"lp_{String.mangle "my-pkg"}_")
+  let mangled := Name.mangle `Lean.Meta.foo (s!"lp_{String.Internal.mangle "my-pkg"}_")
   checkSome "lp_ escaped pkg" (demangleSymbol mangled) "Lean.Meta.foo (my-pkg)"
 
 #eval do
   let name := mkName [.inl "_private", .inl "X", .inr 0, .inl "Y", .inl "foo"]
-  let mangled := name.mangle (s!"lp_{String.mangle "pkg"}_")
+  let mangled := name.mangle (s!"lp_{String.Internal.mangle "pkg"}_")
   checkSome "lp_ private decl" (demangleSymbol mangled) "Y.foo [private] (pkg)"
 
 -- ============================================================================
@@ -194,7 +194,7 @@ private def checkRoundTrip (label : String) (parts : List (String ⊕ Nat)) : IO
   checkSome "init l_ private" (demangleSymbol mangled) "[init] Y.foo [private]"
 
 #eval do
-  let mangled := Name.mangle `Lean.Meta.foo (s!"lp_{String.mangle "std"}_")
+  let mangled := Name.mangle `Lean.Meta.foo (s!"lp_{String.Internal.mangle "std"}_")
   checkSome "init lp_" (demangleSymbol ("_init_" ++ mangled))
     "[init] Lean.Meta.foo (std)"
 
@@ -208,7 +208,7 @@ private def checkRoundTrip (label : String) (parts : List (String ⊕ Nat)) : IO
   (demangleSymbol "initialize_l_Lean_Meta_foo") "[module_init] Lean.Meta.foo"
 
 #eval do
-  let mangled := Name.mangle `Lean.Meta.foo (s!"lp_{String.mangle "std"}_")
+  let mangled := Name.mangle `Lean.Meta.foo (s!"lp_{String.Internal.mangle "std"}_")
   checkSome "initialize lp_" (demangleSymbol ("initialize_" ++ mangled))
     "[module_init] Lean.Meta.foo (std)"
 

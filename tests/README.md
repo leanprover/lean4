@@ -145,6 +145,22 @@ Otherwise, create a new test directory or pile:
    by updating the directory structure section above.
 5. Optionally update [`lint.py`](lint.py) if it makes sense.
 
+### Keep the source tree clean
+
+A test may not write into the checked-in source tree. CI enforces this by making tracked files
+read-only for the duration of the test run and by comparing `git status` before and after, so a
+test that violates it fails even if it tidies up afterwards.
+
+In practice this means:
+
+* Scratch output must land in an ignored path. Follow the pile's convention where there is one:
+  the `_tmp_` prefix in [`compile`](compile/.gitignore) and [`compile_bench`](compile_bench/.gitignore),
+  `produced.*` under [`lake`](lake/.gitignore) and [`pkg`](pkg/.gitignore). Otherwise add a
+  `.gitignore` entry next to the test.
+* A test that needs to edit its own inputs, or to initialize a Git repository, must work on a
+  copy. Lake tests have `copy_to_work` in [`lake/tests/common.sh`](lake/tests/common.sh) for this;
+  it copies into the ignored `work/` directory and `cd`s there.
+
 ## How to write a benchmark?
 
 When writing a benchmark, consider that most benchmarks are also executed as tests.
@@ -249,6 +265,15 @@ These bash variables (set via `<file>.init.sh`) are used by the run script:
   A bash variable containing the expected exit code of the program.
   When set to `nonzero` instead of a numerical value, the exit code must not be 0.
 
+- `TEST_REPEAT`:
+  A number specifying how often to repeat the benchmark.
+  The resulting measurements are averaged.
+  Has no effect when testing.
+
+- `TEST_REPEAT_DROP_HIGHEST`, `TEST_REPEAT_DROP_LOWEST`:
+  A number specifying how many extreme measurements to drop before averaging.
+  Only takes effect if `TEST_REPEAT` is set.
+
 For performance reasons, elab tests can use prebuilt header snapshots.
 Building the snapshots and wiring them into the ctest suite (as the `build_lean_header_snapshots.sh` setup fixture) is gated by the `LEAN_HEADER_SNAPSHOTS` CMake option, which currently defaults to `OFF`.
 Use of the snapshots at runtime is further controlled by the `LEAN_HEADER_SNAPSHOTS` environment variable:
@@ -309,6 +334,15 @@ These bash variables (set via `<file>.init.sh`) are used by the run script:
 - `TEST_EXIT`:
   A bash variable containing the expected exit code of the program.
   When set to `nonzero` instead of a numerical value, the exit code must not be 0.
+
+- `TEST_REPEAT`:
+  A number specifying how often to repeat the benchmark.
+  The resulting measurements are averaged.
+  Has no effect when testing.
+
+- `TEST_REPEAT_DROP_HIGHEST`, `TEST_REPEAT_DROP_LOWEST`:
+  A number specifying how many extreme measurements to drop before averaging.
+  Only takes effect if `TEST_REPEAT` is set.
 
 ## The `interactive` test pile
 

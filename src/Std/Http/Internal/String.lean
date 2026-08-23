@@ -22,7 +22,7 @@ parameter values and chunk extensions.
 
 namespace Std.Http.Internal
 
-open Char
+open Std.Http.Internal.Char
 
 set_option linter.all true
 

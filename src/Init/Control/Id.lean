@@ -36,7 +36,7 @@ def containsFive (xs : List Nat) : Bool := Id.run do
 true
 ```
 -/
-@[expose] def Id (type : Type u) : Type u := type
+@[expose, implicit_reducible] def Id (type : Type u) : Type u := type
 
 namespace Id
 
@@ -82,9 +82,9 @@ instance : LawfulMonadAttach Id where
 end Id
 
 /-- Turn a collection with a pure `ForIn` instance into an array. -/
-def ForIn.toArray {α : Type u} [inst : ForIn Id ρ α] (xs : ρ) : Array α :=
+@[expose] def ForIn.toArray {α : Type u} [inst : ForIn Id ρ α] (xs : ρ) : Array α :=
   ForIn.forIn xs Array.empty (fun a acc => pure (.yield (acc.push a))) |> Id.run
 
 /-- Turn a collection with a pure `ForIn` instance into a list. -/
-def ForIn.toList {α : Type u} [ForIn Id ρ α] (xs : ρ) : List α :=
+@[expose] def ForIn.toList {α : Type u} [ForIn Id ρ α] (xs : ρ) : List α :=
   ForIn.toArray xs |>.toList

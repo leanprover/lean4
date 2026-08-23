@@ -1,15 +1,23 @@
 # One half of the adaptation PR CI; the other half lives in `pr-release.yml`.
-name: Adaptation PR CI
+name: Adaptation PR
 
 on:
   pull_request_target:
-    types: [labeled]
-    branches: [master]
+    types:
+      - labeled
+      - closed
+      - reopened
+      - converted_to_draft
+      - ready_for_review
+      - synchronize
 
 jobs:
-  main:
+  create-adaptation-pr:
     runs-on: ubuntu-slim
-    if: github.event.label.name == 'downstream' && github.repository == 'leanprover/lean4'
+    if: >
+      github.repository == 'leanprover/lean4'
+      && github.event.action != 'synchronize'
+      && (github.event.action != 'labeled' || github.event.label.name == 'downstream')
     steps:
       # Determine the PR toolchain tag (see `pr-release.yml` for how it is
       # produced) and whether the corresponding release already exists in
@@ -66,6 +74,7 @@ jobs:
           fetch-depth: 0
 
       - name: Create adaptation PR
+        id: create-adaptation-pr
         uses: leanprover/downstream-lean4/.downstream/actions/adaptation-pr-create@master
         with:
           app-token: ${{ steps.app-token.outputs.token }}
@@ -74,5 +83,41 @@ jobs:
           upstream-ci-green: ${{ steps.toolchain.outputs.exists }}
           downstream-repo: leanprover/downstream-lean4
           downstream-clone: downstream
-          downstream-label: adaptation
           override-toolchain: ${{ steps.toolchain.outputs.toolchain }}
+
+      - name: Add toolchain-available label to adaptation PR
+        if: fromJSON(steps.toolchain.outputs.exists) && steps.create-adaptation-pr.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          ADAPTATION_PR: ${{ steps.create-adaptation-pr.outputs.number }}
+        run: gh pr edit "$ADAPTATION_PR" --repo leanprover/downstream-lean4 --add-label toolchain-available
+
+  remove-toolchain-available:
+    runs-on: ubuntu-slim
+    if: >
+      github.repository == 'leanprover/lean4'
+      && github.event.action == 'synchronize'
+      && contains(github.event.pull_request.labels.*.name, 'downstream')
+    steps:
+      - name: Create GitHub App token
+        uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ vars.DOWNSTREAM_LEAN4_APP_CLIENT_ID }}
+          private-key: ${{ secrets.DOWNSTREAM_LEAN4_APP_PRIVATE_KEY }}
+          repositories: downstream-lean4
+
+      - name: Find adaptation PR
+        id: find-adaptation-pr
+        uses: leanprover/downstream-lean4/.downstream/actions/adaptation-pr-find@master
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          upstream-pr: ${{ github.event.pull_request.number }}
+          downstream-repo: leanprover/downstream-lean4
+
+      - name: Remove toolchain-available label from adaptation PR
+        if: steps.find-adaptation-pr.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          ADAPTATION_PR: ${{ steps.find-adaptation-pr.outputs.number }}
+        run: gh pr edit "$ADAPTATION_PR" --repo leanprover/downstream-lean4 --remove-label toolchain-available

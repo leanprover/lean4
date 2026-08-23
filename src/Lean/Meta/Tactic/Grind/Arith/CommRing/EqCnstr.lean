@@ -156,8 +156,30 @@ def EqCnstr.simplifyUsingNumEq0 (c : EqCnstr) : RingM EqCnstr := do
   let .num k := c'.p | return c
   return { c with p := c.p.normEq0 k.natAbs, h := .numEq0 k.natAbs c' c }
 
-/-- Simplify the given equation constraint using the current basis. -/
-def EqCnstr.simplify (c : EqCnstr) : RingM EqCnstr := do
+/--
+Simplify the given equation constraint using the current basis.
+
+**Note**: This function (and `simplifyBasis`) runs with `checkCoeffDvd := true`. It rewrites a
+monomial `k'*m'` using an equation with leading term `k*m` only if `k ∣ k'` (or the ring
+implements `NoNatZeroDivisors`). Rewriting without this restriction requires multiplying the
+equation by `k/gcd k k' ≠ ±1` first, and *replacing* an equation with the result loses
+information: `p = 0` cannot be recovered from `(k/gcd k k') * p = 0` in an arbitrary
+commutative ring. The consequences of the skipped rewrites are not lost: a skipped rewrite at
+the leading monomial coincides with the S-polynomial computed by `superposeWith`, so it is
+derived non-destructively. The price is that the basis is not
+fully interreduced (e.g., `2*x = 0` and `3*x = 0` may coexist), and reduction is an incomplete
+ideal-membership test in rings without `NoNatZeroDivisors` (e.g., `x = 0` is not derived from
+`2*x = 0` and `3*x = 0`). The complete alternative is a strong Gröbner basis over `Int`
+(Kandri-Rody & Kapur): replace multiply-through rewriting with Euclidean remainder reduction
+on coefficients (`k' = q*k + r`, so the equation is never multiplied by a constant), and
+additionally superpose gcd-polynomials (Bézout combinations producing `gcd k k'` times the lcm
+of the leading monomials). We should consider this option in the future.
+
+**Note**: If using `withCheckCoeffDvd` becomes too expensive when one does not have
+`NoNatZeroDivisors`, we will add a flag to perform the simplification anyway even if
+information is lost.
+-/
+def EqCnstr.simplify (c : EqCnstr) : RingM EqCnstr := withCheckCoeffDvd do
   let mut c := c
   repeat
     c ← simplifyUsingNumEq0 c
@@ -186,6 +208,14 @@ def EqCnstr.checkConstant (c : EqCnstr) : RingM Bool := do
     if let some c' := (← getCommRing).numEq0? then
       let .num m := c'.p | unreachable!
       let (g, a, b) := gcdExt n m
+      if g == m then
+        /-
+        `n` is a multiple of the current `numEq0`; the new constraint is redundant.
+        We must not set `numEq0Updated` here: superposition may keep regenerating the
+        same constant, and requeueing the basis each time would loop until `maxSteps`.
+        -/
+        trace_goal[grind.ring.assert.trivial] "{← c.denoteExpr}"
+        return true
       c := { c with p := .num g, h := .gcd a b c c' }
     modifyCommRing fun s => { s with numEq0? := some c, numEq0Updated := true }
     trace_goal[grind.ring.assert.store] "{← c.denoteExpr}"
@@ -220,6 +250,12 @@ def addToBasisCore (c : EqCnstr) : RingM Unit := do
 
 def EqCnstr.addToQueue (c : EqCnstr) : RingM Unit := do
   if (← checkMaxSteps) then return ()
+  /-
+  Superposition may produce constant polynomials since the basis is not fully
+  interreduced (see **Note** at `EqCnstr.simplify`). `checkConstant` processes them
+  immediately; the queue must not contain constant polynomials.
+  -/
+  if (← c.checkConstant) then return ()
   trace_goal[grind.ring.assert.queue] "{← c.denoteExpr}"
   if (← checkMaxDegree c.p) then return () -- discard
   modifyCommRing fun s => { s with queue := s.queue.insert c }
@@ -265,7 +301,13 @@ def EqCnstr.toMonic (c : EqCnstr) : RingM EqCnstr := do
     return { c with p := c.p.mulConst (-1), h := .mul (-1) c }
   return c
 
-def EqCnstr.simplifyBasis (c : EqCnstr) : RingM Unit := do
+/--
+Simplifies the basis using `c`. Every equation that `c` rewrites is removed from the basis
+and requeued in its rewritten form.
+
+See **Note** at `EqCnstr.simplify` for why `checkCoeffDvd` must be enabled here.
+-/
+def EqCnstr.simplifyBasis (c : EqCnstr) : RingM Unit := withCheckCoeffDvd do
   trace[grind.debug.ring.simpBasis] "using: {← c.denoteExpr}"
   let .add _ m _ := c.p | return ()
   let rec go (basis : List EqCnstr) (acc : List EqCnstr) : RingM (List EqCnstr) := do
@@ -275,11 +317,20 @@ def EqCnstr.simplifyBasis (c : EqCnstr) : RingM Unit := do
       match c'.p with
       | .add _ m' _ =>
         if m.divides m' then
-          let c'' ← c'.simplifyWithExhaustively c
-          trace[grind.debug.ring.simpBasis] "simplified: {← c''.denoteExpr}"
-          unless (← checkConstant c'') do
-            addToQueue c''
-          go basis acc
+          /-
+          **Note**: Only the first `simplifyWithCore` step is inspected because it decides basis
+          membership: if it returns `none` (the leading monomial divides, but the rewrite is blocked by
+          the `checkCoeffDvd` restriction), `c'` must remain in the basis untouched.
+          -/
+          if let some c'' ← c'.simplifyWithCore c then
+            let c'' ← c''.simplifyWithExhaustively c
+            trace[grind.debug.ring.simpBasis] "simplified: {← c''.denoteExpr}"
+            unless (← checkConstant c'') do
+              addToQueue c''
+            go basis acc
+          else
+            -- The rewrite was skipped because of the `checkCoeffDvd` restriction. Keep `c'`.
+            go basis (c' :: acc)
         else
           go basis (c' :: acc)
       | _ => go basis (c' :: acc)

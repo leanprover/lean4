@@ -60,7 +60,7 @@ public abbrev FetchFnT (α : Type u) (β : Type v) (m : Type v → Type w) :=
 We can then use the such a monad as the basis for a fetch function itself.
 -/
 
-/-
+/--
 A `DFetchFn` that utilizes another `DFetchFn` equipped to the monad to
 fetch values. It is thus usually implemented recursively via some variation
 of the `recFetch` function below, hence the "rec" in both names.

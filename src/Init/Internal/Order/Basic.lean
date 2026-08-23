@@ -757,6 +757,73 @@ theorem admissible_pprod_snd {α : Sort u} {β : Sort v} [CCPO α] [CCPO β] (P 
 
 end pprod_order
 
+section prod_order
+
+open PartialOrder
+
+variable {α : Type u} {β : Type v}
+
+/-- The order on `α × β` is the order on `α ×' β` at the two components. -/
+instance instPartialOrderProd [PartialOrder α] [PartialOrder β] : PartialOrder (α × β) where
+  rel a b := (⟨a.fst, a.snd⟩ : α ×' β) ⊑ ⟨b.fst, b.snd⟩
+  rel_refl := rel_refl
+  rel_trans ha hb := rel_trans ha hb
+  rel_antisymm := fun {a b} ha hb => by
+    have := rel_antisymm (α := α ×' β) ha hb
+    cases a; cases b; cases this; rfl
+
+/-- A pair is below `p` when both components are below the components of `p`. -/
+theorem Prod.mk_le [PartialOrder α] [PartialOrder β] (a : α) (b : β) (p : α × β)
+    (ha : a ⊑ p.fst) (hb : b ⊑ p.snd) : (a, b) ⊑ p :=
+  ⟨ha, hb⟩
+
+/-- A pair with the first component of `p` is below `p` when its second component is below the
+second component of `p`. -/
+theorem Prod.mk_le_snd [PartialOrder α] [PartialOrder β] (b : β) (p : α × β)
+    (hb : b ⊑ p.snd) : (p.fst, b) ⊑ p :=
+  ⟨rel_refl, hb⟩
+
+/-- A least upper bound of the pairs of `c` in `α ×' β` is one in `α × β`. -/
+theorem Prod.is_sup_of_pprod [PartialOrder α] [PartialOrder β] {c : α × β → Prop}
+    {s : α ×' β} (h : is_sup (fun p : α ×' β => c (p.fst, p.snd)) s) : is_sup c (s.fst, s.snd) :=
+  fun q => Iff.trans (h ⟨q.fst, q.snd⟩)
+    ⟨fun h p hp => h ⟨p.fst, p.snd⟩ hp, fun h p hp => h (p.fst, p.snd) hp⟩
+
+/-- The chain-complete suprema of `α × β` are those of `α ×' β` at the two components. -/
+instance instCCPOProd [CCPO α] [CCPO β] : CCPO (α × β) where
+  has_csup {c} hc :=
+    have hc' : chain (fun p : α ×' β => c (p.fst, p.snd)) := fun _ _ h₁ h₂ => hc _ _ h₁ h₂
+    ⟨_, Prod.is_sup_of_pprod (CCPO.csup_spec hc')⟩
+
+/-- The suprema of `α × β` are those of `α ×' β` at the two components. -/
+instance instCompleteLatticeProd [CompleteLattice α] [CompleteLattice β] :
+    CompleteLattice (α × β) where
+  has_sup c :=
+    ⟨_, Prod.is_sup_of_pprod (CompleteLattice.sup_spec fun p : α ×' β => c (p.fst, p.snd))⟩
+
+end prod_order
+
+section unit_order
+
+open PartialOrder
+
+instance instPartialOrderUnit : PartialOrder Unit where
+  rel _ _ := True
+  rel_refl := trivial
+  rel_trans _ _ := trivial
+  rel_antisymm _ _ := Subsingleton.elim _ _
+
+/-- The unique `Unit` value is below every `Unit` value. -/
+theorem Unit.unit_le (u : Unit) : () ⊑ u := trivial
+
+instance instCCPOUnit : CCPO Unit where
+  has_csup _ := ⟨(), fun _ => ⟨fun _ _ _ => trivial, fun _ => trivial⟩⟩
+
+instance instCompleteLatticeUnit : CompleteLattice Unit where
+  has_sup _ := ⟨(), fun _ => ⟨fun _ _ _ => trivial, fun _ => trivial⟩⟩
+
+end unit_order
+
 section flat_order
 
 variable {α : Sort u}
@@ -768,6 +835,23 @@ set_option linter.unusedVariables false in
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
 @[expose] def FlatOrder {α : Sort u} (b : α) := α
+
+def FlatOrder.mk {α : Sort u} (b : α) (x : α) : FlatOrder b := x
+
+def FlatOrder.inner {α : Sort u} {b : α} (x : FlatOrder b) : α := x
+
+theorem FlatOrder.mk_inner {α : Sort u} {b : α} {x : FlatOrder b} :
+    FlatOrder.mk b x.inner = x :=
+  (rfl)
+
+theorem FlatOrder.inner_mk {α : Sort u} {b : α} {x : α} :
+    (FlatOrder.mk b x).inner = x :=
+  (rfl)
+
+@[simp]
+theorem FlatOrder.mk_inj {α : Sort u} {b : α} {x y : α} :
+    FlatOrder.mk b x = FlatOrder.mk b y ↔ x = y :=
+  Iff.rfl
 
 variable {b : α}
 
@@ -795,7 +879,7 @@ private theorem Classical.some_spec₂ {α : Sort _} {p : α → Prop} {h : ∃ 
 noncomputable def flat_csup (c : FlatOrder b → Prop) : FlatOrder b := by
   by_cases h : ∃ (x : FlatOrder b), c x ∧ x ≠ b
   · exact Classical.choose h
-  · exact b
+  · exact .mk b b
 
 theorem flat_csup_is_sup (c : FlatOrder b → Prop) (hc : chain c) :
     is_sup c (flat_csup c) := by
@@ -840,7 +924,7 @@ theorem flat_csup_eq (c : FlatOrder b → Prop) (hchain : chain c) :
   · apply flat_csup_is_sup _ hchain
   · apply CCPO.csup_spec
 
-theorem admissible_flatOrder (P : FlatOrder b → Prop) (hnot : P b) : admissible P := by
+theorem admissible_flatOrder (P : FlatOrder b → Prop) (hnot : P (.mk b b)) : admissible P := by
   intro c hchain h
   by_cases h' : ∃ (x : FlatOrder b), c x ∧ x ≠ b
   · simp [← flat_csup_eq, flat_csup, h']
@@ -891,6 +975,7 @@ instance : MonoBind Option where
 
 theorem Option.admissible_eq_some (P : Prop) (y : α) :
     admissible (fun (x : Option α) => x = some y → P) := by
+  change admissible fun x : FlatOrder none => x = .mk _ (some y) → P
   apply admissible_flatOrder; simp
 
 instance [inst : ∀ α, PartialOrder (m α)] : PartialOrder (ExceptT ε m α) := inst _

@@ -26,7 +26,7 @@ meta def codeTargetName (xs : TSyntaxArray `inline) : DocM Name :=
 /-- Includes another declaration's docstring. The target is looked up when rendering to Markdown. -/
 @[doc_role]
 meta def include_docstring (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
-  return .other { val := .mk (IncludeDoc.mk (← codeTargetName xs)) } #[]
+  return .custom (IncludeDoc.mk (← codeTargetName xs)) #[]
 
 /-- The renderer looks up and renders the target's docstring when the including docstring is shown. -/
 @[doc_inline_md]

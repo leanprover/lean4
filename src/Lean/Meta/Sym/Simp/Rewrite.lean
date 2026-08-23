@@ -14,7 +14,7 @@ import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.InstantiateMVarsS
 import Init.Data.Range.Polymorphic.Iterators
 namespace Lean.Meta.Sym.Simp
-open Grind
+open Lean.Meta.Grind
 
 /--
 Creates proof term for a rewriting step.
@@ -37,6 +37,7 @@ public def Theorem.rewrite (thm : Theorem) (e : Expr) (d : Discharger := dischar
   Thus, we must ensure that all assigned variables have be instantiate.
   -/
   withNewMCtxDepth do
+  let mvarCounterSaved := (← getMCtx).mvarCounter
   if let some result ← thm.pattern.match? e then
     -- **Note**: Potential optimization: check whether pattern covers all variables.
     let mut args := result.args.toVector
@@ -53,16 +54,26 @@ public def Theorem.rewrite (thm : Theorem) (e : Expr) (d : Discharger := dischar
           args := args.set i arg
         else
           let decl ← mvarId.getDecl
-          match (← d decl.type) with
-          | .failed cd =>
-            isCD := isCD || cd
-            -- Failed to discharge hypothesis.
-            return mkRflResultCD isCD
-          | .solved val cd =>
-            isCD := isCD || cd
-            let val ← instantiateMVarsS val
-            mvarId.assign val
-            args := args.set i val
+          -- Metavariables created by `match?` (index ≥ `mvarCounterSaved`) stand for
+          -- hypotheses/instances not covered by the pattern and must be discharged.
+          -- Metavariables occurring in `e` itself are opaque atoms; leave them as-is.
+          if decl.index ≥ mvarCounterSaved then
+            match (← d decl.type) with
+            | .failed cd =>
+              isCD := isCD || cd
+              -- Failed to discharge hypothesis.
+              return mkRflResultCD isCD
+            | .solved val cd =>
+              isCD := isCD || cd
+              -- Dischargers are not required to return maximally shared proofs. Sharing is
+              -- needed only when the hypothesis occurs in `rhs`, and the proof consequently
+              -- becomes part of the resulting term.
+              let val ← if thm.rhsVarMask.testBit i then
+                shareCommon (← instantiateMVars val)
+              else
+                instantiateMVars val
+              mvarId.assign val
+              args := args.set i val
       else if arg.hasMVar then
         let arg ← instantiateMVarsS arg
         args := args.set i arg
@@ -88,7 +99,7 @@ public def Theorems.rewrite (thms : Theorems) (d : Discharger := dischargeNone) 
   -- and theorem B succeeds with cd=false, the result is still cd=true: in another
   -- context A might succeed (with higher priority) and produce a different result.
   let mut anyCD := false
-  for (thm, numExtra) in thms.getMatchWithExtra e do
+  for (thm, numExtra) in thms.getMatchWithExtra (← getMCtx) e do
     let result ← if numExtra == 0 then
       thm.rewrite e d
     else

@@ -64,7 +64,7 @@ info: { text := #[Lean.Doc.Block.para #[Lean.Doc.Inline.text "First inner functi
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Second inner function is ",
                 Lean.Doc.Inline.other
-                  { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ }
+                  ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _)
                   #[Lean.Doc.Inline.code "outer.inner2"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
@@ -82,7 +82,7 @@ def withType := helper
 /--
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "What is the type of ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.Const _ } #[Lean.Doc.Inline.code "helper"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.Const _) #[Lean.Doc.Inline.code "helper"],
                 Lean.Doc.Inline.text "?. "]],
   subsections := #[] }
 -/
@@ -103,7 +103,7 @@ def withParam := go 1
 /--
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Returns ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "n"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "n"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
 -/
@@ -121,7 +121,7 @@ def withParamNoType := go 1
 /--
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Returns ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "n"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "n"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
 -/
@@ -139,9 +139,9 @@ def withParams := go 1 2
 /--
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Sums ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "n"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "n"],
                 Lean.Doc.Inline.text " and ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "m"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "m"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
 -/
@@ -159,9 +159,9 @@ def withMixedParams := go 1 2
 /--
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Sums ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "n"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "n"],
                 Lean.Doc.Inline.text " and ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "m"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "m"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
 -/
@@ -178,7 +178,7 @@ def withLetRec : Nat :=
 /--
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Returns ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "n"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "n"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
 -/
@@ -195,7 +195,7 @@ def bareOne x := x + 5
 /--
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Returns ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "x"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "x"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
 -/
@@ -209,9 +209,9 @@ def bareMany x y := x + y + (0 : Nat)
 /--
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Sums ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "x"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "x"],
                 Lean.Doc.Inline.text " and ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "y"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "y"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
 -/
@@ -225,9 +225,9 @@ def bareMixed (x : Nat) y := x + y
 /--
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Sums ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "x"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "x"],
                 Lean.Doc.Inline.text " and ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "y"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "y"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
 -/
@@ -259,7 +259,7 @@ def withIdentHole := go 1 2
 /--
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Returns ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "x"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "x"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
 -/
@@ -275,7 +275,7 @@ def binderDefault (x : Nat := 0) := x
 /--
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Returns ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "x"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "x"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
 -/
@@ -289,7 +289,7 @@ def binderTacticDefault (x : Nat := by exact 0) := x
 /--
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Returns ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "x"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "x"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
 -/
@@ -303,7 +303,7 @@ def namedInstBinder [inst : Inhabited Nat] := (default : Nat)
 /--
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Uses ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "inst"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "inst"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
 -/
@@ -317,7 +317,7 @@ def strictImplicit ⦃x : Nat⦄ := (0 : Nat)
 /--
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Ignores ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "x"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "x"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
 -/
@@ -339,10 +339,10 @@ def orderMid := go "x" true 0
 /--
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.other
-                  { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ }
+                  ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _)
                   #[Lean.Doc.Inline.code "s.length"],
                 Lean.Doc.Inline.text " then ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "n + 1"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "n + 1"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
 -/
@@ -361,7 +361,7 @@ def orderEnds := go 0 "y" false
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Just ",
                 Lean.Doc.Inline.other
-                  { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ }
+                  ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _)
                   #[Lean.Doc.Inline.code "t.length"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
@@ -381,9 +381,9 @@ def captureLeadHole (c : Nat) := go 1 2
 /--
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Captures ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "c"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "c"],
                 Lean.Doc.Inline.text ", returns ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "y"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "y"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
 -/
@@ -398,7 +398,7 @@ def implicitHoleThenNamed {_ : Nat} (m : Nat) := m
 /--
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Returns ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "m"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "m"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
 -/
@@ -412,7 +412,7 @@ def strictImplicitHoleThenNamed ⦃_ : Nat⦄ (y : Nat) := y
 /--
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Returns ",
-                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ } #[Lean.Doc.Inline.code "y"],
+                Lean.Doc.Inline.other ElabInline.custom (.mk `Lean.Doc.Data.LeanTerm _) #[Lean.Doc.Inline.code "y"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
 -/

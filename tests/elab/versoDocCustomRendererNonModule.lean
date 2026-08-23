@@ -50,7 +50,7 @@ deriving TypeName
 /-- Includes another declaration's docstring. The target is looked up when rendering to Markdown. -/
 @[doc_role]
 def include_docstring (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
-  return .other { val := .mk (IncludeDoc.mk (← codeTargetName xs)) } #[]
+  return .custom (IncludeDoc.mk (← codeTargetName xs)) #[]
 
 /-- The renderer receives the decoded `IncludeDoc` directly, never a `Dynamic`. -/
 @[doc_inline_md]
@@ -83,7 +83,7 @@ deriving TypeName
 /-- Wraps its content in a custom element that has no renderer. -/
 @[doc_role]
 def passthrough (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
-  return .other { val := .mk Unrendered.mk } (← xs.mapM elabInline)
+  return .custom Unrendered.mk (← xs.mapM elabInline)
 
 /-- Fallback shows {passthrough}[the content] here. -/
 def Baz : Nat := 2
@@ -102,7 +102,7 @@ deriving TypeName
 /-- Wraps its content in an element rendered by a non-terminating renderer. -/
 @[doc_role]
 def slow (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
-  return .other { val := .mk Slow.mk } (← xs.mapM elabInline)
+  return .custom Slow.mk (← xs.mapM elabInline)
 
 @[doc_inline_md]
 def slowRender : InlineMdRendererOf Slow := fun _go _data _content => do
@@ -129,7 +129,7 @@ deriving TypeName
 /-- References a constant by its shortest name valid where the docstring is rendered. -/
 @[doc_role]
 def qualName (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
-  return .other { val := .mk (QualName.mk (← codeTargetName xs)) } #[]
+  return .custom (QualName.mk (← codeTargetName xs)) #[]
 
 @[doc_inline_md]
 def qualNameRender : InlineMdRendererOf QualName := fun _go data _content => do
@@ -173,7 +173,7 @@ deriving TypeName
 /-- Shows a declaration's signature, pretty-printed when the docstring is rendered. -/
 @[doc_role]
 def sig (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
-  return .other { val := .mk (SigData.mk (← codeTargetName xs)) } #[]
+  return .custom (SigData.mk (← codeTargetName xs)) #[]
 
 @[doc_inline_md]
 def sigRender : InlineMdRendererOf SigData := fun _go data _content => do
@@ -197,7 +197,7 @@ deriving TypeName
 /-- Wraps its content in an element whose renderer fails after rendering the content. -/
 @[doc_role]
 def leaky (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
-  return .other { val := .mk Leaky.mk } (← xs.mapM elabInline)
+  return .custom Leaky.mk (← xs.mapM elabInline)
 
 @[doc_inline_md]
 def leakyRender : InlineMdRendererOf Leaky := fun go _data content => do
@@ -235,7 +235,7 @@ abbrev AliasedSyn := Aliased
 /-- Stores an `Aliased` element, with distinct fallback content. -/
 @[doc_role]
 def aliased (_xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
-  return .other { val := .mk (Aliased.mk "rendered via alias") } #[.text "fallback"]
+  return .custom (Aliased.mk "rendered via alias") #[.text "fallback"]
 
 /-- The renderer is declared against the alias rather than `Aliased` itself. -/
 @[doc_inline_md]
@@ -259,7 +259,7 @@ deriving TypeName
 /-- A directive that wraps its blocks in a custom element. -/
 @[doc_directive]
 def banner (xs : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
-  return .other { val := .mk Banner.mk } (← xs.mapM elabBlock)
+  return .custom Banner.mk (← xs.mapM elabBlock)
 
 /-- The renderer brackets the rendered block content. -/
 @[doc_block_md]
@@ -295,7 +295,7 @@ deriving TypeName
 /-- A directive whose element type has no Markdown renderer. -/
 @[doc_directive]
 def plainBlock (xs : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
-  return .other { val := .mk PlainBlock.mk } (← xs.mapM elabBlock)
+  return .custom PlainBlock.mk (← xs.mapM elabBlock)
 
 /--
 :::plainBlock
@@ -317,7 +317,7 @@ deriving TypeName
 /-- A directive rendered by a non-terminating renderer. -/
 @[doc_directive]
 def slowBlock (xs : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
-  return .other { val := .mk SlowBlock.mk } (← xs.mapM elabBlock)
+  return .custom SlowBlock.mk (← xs.mapM elabBlock)
 
 @[doc_block_md]
 def slowBlockRender : BlockMdRendererOf SlowBlock := fun _goI _goB _data _content => do

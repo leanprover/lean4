@@ -23,9 +23,7 @@ builtin_grind_propagator propagateLE ↓LE.le := fun e => do
 builtin_grind_propagator propagateLT ↓LT.lt := fun e => do
   if (← isEqTrue e) then
     Linear.propagateIneq e (eqTrue := true)
-    Cutsat.propagateLt e (eqTrue := true)
   else if (← isEqFalse e) then
     Linear.propagateIneq e (eqTrue := false)
-    Cutsat.propagateLt e (eqTrue := false)
 
 end Lean.Meta.Grind.Arith

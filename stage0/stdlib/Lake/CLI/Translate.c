@@ -16,7 +16,7 @@ extern "C" {
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 size_t lean_array_size(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -49,14 +49,14 @@ extern lean_object* l_Std_Format_defWidth;
 lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_String_Slice_trimAscii(lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_toString(lean_object*);
 lean_object* l_Lean_InternalExceptionId_getName(lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Kernel_enableDiag(lean_object*, uint8_t);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t l_Lean_Kernel_isDiagnosticsEnabled(lean_object*);
 lean_object* l_Lake_Package_mkTomlConfig(lean_object*, lean_object*);
 lean_object* l_Lake_Toml_ppTable(lean_object*);
@@ -188,7 +188,8 @@ goto v_resetjp_18_;
 v_resetjp_18_:
 {
 lean_object* v___x_21_; lean_object* v___x_23_; 
-v___x_21_ = lean_erase_macro_scopes(v_val_16_);
+v___x_21_ = l_Lean_Name_eraseMacroScopes(v_val_16_);
+lean_dec(v_val_16_);
 if (v_isShared_20_ == 0)
 {
 lean_ctor_set(v___x_19_, 2, v___x_21_);
@@ -606,9 +607,9 @@ v___x_194_ = l___private_Lake_CLI_Translate_0__Lake_descopeSyntax(v___x_193_);
 v___x_195_ = lean_uint8_once(&l_Lake_Package_mkConfigString___closed__21, &l_Lake_Package_mkConfigString___closed__21_once, _init_l_Lake_Package_mkConfigString___closed__21);
 v___x_264_ = l_Lean_Kernel_isDiagnosticsEnabled(v_env_187_);
 lean_dec_ref(v_env_187_);
-if (v___x_264_ == 0)
-{
 if (v___x_195_ == 0)
+{
+if (v___x_264_ == 0)
 {
 lean_inc(v___x_183_);
 v_fileName_197_ = v___x_188_;
@@ -629,13 +630,13 @@ goto v___jp_196_;
 }
 else
 {
-v___y_244_ = v___x_264_;
+v___y_244_ = v___x_195_;
 goto v___jp_243_;
 }
 }
 else
 {
-v___y_244_ = v___x_195_;
+v___y_244_ = v___x_264_;
 goto v___jp_243_;
 }
 v___jp_196_:
@@ -695,7 +696,7 @@ lean_inc(v_startInclusive_222_);
 v_endExclusive_223_ = lean_ctor_get(v___x_220_, 2);
 lean_inc(v_endExclusive_223_);
 lean_dec_ref(v___x_220_);
-v___x_224_ = lean_string_utf8_extract(v_str_221_, v_startInclusive_222_, v_endExclusive_223_);
+v___x_224_ = lean_string_utf8_extract_fast(v_str_221_, v_startInclusive_222_, v_endExclusive_223_);
 lean_dec(v_endExclusive_223_);
 lean_dec(v_startInclusive_222_);
 lean_dec_ref(v_str_221_);
@@ -830,7 +831,7 @@ goto v_reusejp_258_;
 v_reusejp_258_:
 {
 lean_object* v___x_260_; 
-v___x_260_ = lean_st_ref_set(v___x_183_, v___x_259_);
+v___x_260_ = lean_st_ref_put(v___x_183_, v___x_259_);
 lean_inc(v___x_183_);
 v_fileName_197_ = v___x_188_;
 v_fileMap_198_ = v___x_189_;
@@ -945,11 +946,13 @@ lean_object* runtime_initialize_Lean_PrettyPrinter(uint8_t builtin);
 lean_object* runtime_initialize_Lake_CLI_Translate_Toml(uint8_t builtin);
 lean_object* runtime_initialize_Lake_CLI_Translate_Lean(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Load_Lean_Elab(uint8_t builtin);
+void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_CLI_Translate(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize();
 res = runtime_initialize_Lake_Config_Lang(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

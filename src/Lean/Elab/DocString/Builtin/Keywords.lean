@@ -384,7 +384,7 @@ def kwImpl (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anonymous
       if let some h ← makeHint m!"Specify the syntax kind:" #[s!" (of := {k'})"] then
         logInfo h
 
-    return .other {val := .mk (Data.Atom.mk k catName)} #[.code s.getString]
+    return .custom (Data.Atom.mk k catName) #[.code s.getString]
 where
   categorySuggestions (c candidates) := Id.run do
     if c.isAnonymous then
@@ -443,14 +443,19 @@ public def kw? (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anony
 /--
 Checks that a syntax kind name exists.
 -/
-public meta def checkKindExists : PostponedCheckHandler := fun _ info => do
-  let some k := info.get? PostponedKind
-    | throwError "Expected a `{.ofConstName ``PostponedKind}` but got a `{.ofConstName info.typeName}`"
-  let k ← realizeGlobalConstNoOverload (mkIdent k.name)
+-- The builtin attribute will be available after the next stage0 update. Get rid of the
+-- builtin_initialize line and uncomment the attribute line once that's happened.
+-- @[builtin_deferred_doc_check PostponedKind]
+public def checkKindExists : DeferredCheckHandler := fun d => do
+  let some ⟨kindName⟩ := d.get? PostponedKind
+    | throwError "internal error: expected a `{.ofConstName ``PostponedKind}`"
+  let k ← realizeGlobalConstNoOverload (mkIdent kindName)
   let env ← getEnv
   let parsers := Lean.Parser.parserExtension.getState env
   unless parsers.kinds.contains k do
     throwError m!"Not a syntax kind: `{.ofConstName k}`"
+
+builtin_initialize DeferredCheck.addBuiltinHandler ``PostponedKind checkKindExists
 
 
 @[inherit_doc kw, builtin_doc_role]
@@ -481,8 +486,7 @@ public def kw! (of : Option Ident := none) (scope : DocScope := .local)
     unless parsers.kinds.contains k do
       logErrorAt s m!"Not a syntax kind: `{.ofConstName k}`"
   | .import xs =>
-    let postponed : PostponedCheck := {handler := ``checkKindExists, imports := xs.map (⟨·⟩), info := .mk (PostponedKind.mk of'.getId)}
-    return .other {val := .mk postponed } #[.code s.getString]
+    return .deferred (← addDeferredCheck (.mk (PostponedKind.mk of'.getId)) xs (← getRef)) #[.code s.getString]
 
   pure <| .code s.getString
 

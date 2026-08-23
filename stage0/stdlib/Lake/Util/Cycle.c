@@ -539,9 +539,9 @@ return v___x_184_;
 LEAN_EXPORT lean_object* l_Lake_guardCycle___redArg___lam__0___boxed(lean_object* v_inst_185_, lean_object* v_key_186_, lean_object* v___x_187_, lean_object* v_x_188_){
 _start:
 {
-uint8_t v___x_153__boxed_189_; uint8_t v_res_190_; lean_object* v_r_191_; 
-v___x_153__boxed_189_ = lean_unbox(v___x_187_);
-v_res_190_ = l_Lake_guardCycle___redArg___lam__0(v_inst_185_, v_key_186_, v___x_153__boxed_189_, v_x_188_);
+uint8_t v___x_108__boxed_189_; uint8_t v_res_190_; lean_object* v_r_191_; 
+v___x_108__boxed_189_ = lean_unbox(v___x_187_);
+v_res_190_ = l_Lake_guardCycle___redArg___lam__0(v_inst_185_, v_key_186_, v___x_108__boxed_189_, v_x_188_);
 v_r_191_ = lean_box(v_res_190_);
 return v_r_191_;
 }
@@ -688,11 +688,13 @@ return v___x_246_;
 }
 }
 lean_object* runtime_initialize_Init_Data_ToString(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Util_Cycle(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_ToString(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

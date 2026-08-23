@@ -129,10 +129,29 @@ def declId := leading_parser
 -- @[builtin_doc] -- FIXME: suppress the hover
 def declSig := leading_parser
   many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.typeSpec
+/-- The `given xs` clause of a `def` contract. It binds logical variables and scopes them over the
+`requires` and `ensures` clauses. A logical variable belongs to the specification alone. -/
+def givenClause := leading_parser
+  ppIndent (ppLine >> nonReservedSymbol "given" >>
+    withForbiddens #["requires", "ensures"]
+      (many1 (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder))))
+/-- The `requires P` precondition clause of a `def` contract. The form `requires s => P s` binds the
+arguments of the assertion itself, such as the state of a state monad. -/
+def requiresClause := leading_parser
+  ppIndent (ppLine >> nonReservedSymbol "requires" >>
+    withForbidden "ensures" (atomic Term.basicFun <|> (ppSpace >> termParser)))
+/-- The `ensures b => Q` postcondition clause of a `def` contract, binding the result `b`. -/
+def ensuresClause := leading_parser
+  ppIndent (ppLine >> nonReservedSymbol "ensures" >> Term.basicFun)
+/-- The `: type` of a `def`. It may carry contract clauses, so we forbid `given`, `requires` and
+`ensures` in the type. -/
+def defTypeSpec := withForbiddens #["given", "requires", "ensures"] Term.typeSpec
 /-- `optDeclSig` matches the signature of a declaration with optional type: a list of binders and then possibly `: type` -/
 -- @[builtin_doc] -- FIXME: suppress the hover
 def optDeclSig := leading_parser
-  many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.optType
+  withForbiddens #["given", "requires", "ensures"]
+    (many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder))) >>
+  optional defTypeSpec
 /-- Right-hand side of a `:=` in a declaration, a term. -/
 def declBody : Parser :=
   /-
@@ -184,6 +203,12 @@ def whereStructInst  := leading_parser
   -- Issue #753 shows an example that fails to be parsed when we used `Term.whereDecls`.
   withAntiquot (mkAntiquot "declVal" decl_name% (isPseudoKind := true)) <|
     declValSimple <|> declValEqns <|> whereStructInst
+/-- `given xs`/`requires P`/`ensures b => Q` contract clauses followed by the value of a `def`.
+Tried only after `declVal` fails, so contract-free definitions parse without probing for the
+clauses. `withoutInfo` avoids collecting `declVal`'s tokens and kinds a second time at startup; they
+are already registered through the `declVal` alternative of `definition`. -/
+def contractDeclVal := leading_parser
+  optional givenClause >> optional requiresClause >> optional ensuresClause >> withoutInfo declVal
 def «abbrev»         := leading_parser
   "abbrev " >> declId >> ppIndent optDeclSig >> declVal
 def derivingClass    := leading_parser
@@ -192,7 +217,8 @@ def derivingClasses  := sepBy1 derivingClass ", "
 def optDefDeriving   :=
   optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance" >> notSymbol "noncomputable") >> derivingClasses)
 def definition     := leading_parser
-  "def " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> declVal >> optDefDeriving
+  "def " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >>
+  (declVal <|> contractDeclVal) >> optDefDeriving
 def «theorem»        := leading_parser
   "theorem " >> recover declId skipUntilWsOrDelim >> ppIndent declSig >> declVal
 def «opaque»         := leading_parser
@@ -560,7 +586,8 @@ Use `#check_assertions!` to only show unsatisfied assertions.
 @[builtin_command_parser] def checkAssertions := leading_parser
   "#check_assertions" >> optional "!"
 /--
-`#eval e` evaluates the expression `e` by compiling and evaluating it.
+`#eval e` evaluates the expression `e` by compiling it and running the compiled code. It then
+prints the resulting value.
 
 * The command attempts to use `ToExpr`, `Repr`, or `ToString` instances to print the result.
 * If `e` is a monadic value of type `m ty`, then the command tries to adapt the monad `m`

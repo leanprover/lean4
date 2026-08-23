@@ -8,8 +8,13 @@ configurations are currently disabled, so the code has no automated coverage.
 
 This file transliterates it statement by statement so that the algorithms can
 be checked against `Nat`, which is what `#eval mpnCheck` at the bottom does, and
-so that they can be proved correct, which `denote_add` does for `mpn_add`.
-Deviations from the C++ are marked `NOTE:`.
+so that they can be proved correct, which `denote_add` and `denote_sub` do for
+`mpn_add` and `mpn_sub`. Deviations from the C++ are marked `NOTE:`.
+
+A transliteration is only worth as much as its fidelity to the original, so
+`Mpn.Test.emit` prints the model's results in the format that
+`mpn_model_crosscheck.cpp` prints the real `mpn.cpp`'s in, on the same
+pseudorandom operands; the two agree byte for byte.
 -/
 
 namespace Mpn
@@ -610,6 +615,37 @@ def run (trials : Nat) (seed : UInt64) (maxLen : Nat) : Array String := Id.run d
     s := s''
     fs := fs ++ check a b
   return fs
+
+/--
+Print the results for `trials` operand pairs in the format
+`mpn_model_crosscheck.cpp` uses, so that model and C++ can be diffed.
+-/
+def emit (trials : Nat) (maxLen : Nat) (seed : UInt64) : IO Unit := do
+  let vec (tag : String) (v : Array Digit) : String :=
+    v.foldl (fun acc d => acc ++ " " ++ ToString.toString d.toNat) tag
+  let mut s := seed
+  for t in [0:trials] do
+    s := nextRand s
+    let la := ((s >>> 33).toNat % maxLen) + 1
+    s := nextRand s
+    let lb := ((s >>> 33).toNat % maxLen) + 1
+    let (a, s') := drawArray la s
+    let (b, s'') := drawArray lb s'
+    s := s''
+    IO.println s!"case {t}"
+    IO.println (vec "a" a)
+    IO.println (vec "b" b)
+    IO.println s!"compare {Mpn.compare a b}"
+    IO.println (vec "add" (add a b))
+    let (d, borrow) := sub a b
+    IO.println (vec "sub" d)
+    IO.println s!"borrow {borrow.toNat}"
+    IO.println (vec "mul" (mul a b))
+    if lb ≤ la && b.back! != 0 then
+      let (q, r, _) := div a b
+      IO.println (vec "quot" q)
+      IO.println (vec "rem" r)
+    IO.println s!"str {Mpn.toString a}"
 
 end Test
 

@@ -68,6 +68,10 @@ static bool trust_store_has_no_certs(X509_STORE * store) {
 
 #if defined(__APPLE__)
 
+// Every anchor the Keychain offers for TLS, or null if even the empty list could not be built.
+static STACK_OF(X509) * g_keychain_anchors = nullptr;
+static std::once_flag g_keychain_anchors_once;
+
 static bool cf_is(CFTypeRef value, CFTypeID type) {
     return value != nullptr && CFGetTypeID(value) == type;
 }

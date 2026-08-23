@@ -8,8 +8,9 @@ configurations are currently disabled, so the code has no automated coverage.
 
 This file transliterates it statement by statement so that the algorithms can
 be checked against `Nat`, which is what `#eval mpnCheck` at the bottom does, and
-so that they can be proved correct, which `denote_add` and `denote_sub` do for
-`mpn_add` and `mpn_sub`. Deviations from the C++ are marked `NOTE:`.
+so that they can be proved correct, which `denote_add`, `denote_sub` and
+`denote_mul` do for `mpn_add`, `mpn_sub` and `mpn_mul`. Deviations from the C++
+are marked `NOTE:`.
 
 A transliteration is only worth as much as its fidelity to the original, so
 `Mpn.Test.emit` prints the model's results in the format that
@@ -110,6 +111,57 @@ theorem denote_pop_of_back_zero (c : Array Digit) (h : 0 < c.size)
   rw [hexpand, denoteN, hlast]
   simpa [denote] using denoteN_pop c (Nat.le_refl c.pop.size)
 
+theorem getD_set!_ne (c : Array Digit) (idx n : Nat) (d : Digit) (h : n ≠ idx) :
+    (c.set! idx d).getD n 0 = c.getD n 0 := by
+  simp [Ne.symm h]
+
+theorem getD_set!_eq (c : Array Digit) (idx : Nat) (d : Digit) (h : idx < c.size) :
+    (c.set! idx d).getD idx 0 = d := by
+  simp [h]
+
+theorem getD_replicate_zero (n i : Nat) : (Array.replicate n (0 : Digit)).getD i 0 = 0 := by
+  simp [Array.getElem?_replicate]; split <;> rfl
+
+/-- `denoteN` only looks at the first `n` digits. -/
+theorem denoteN_congr {c c' : Array Digit} {n : Nat}
+    (h : ∀ i, i < n → c.getD i 0 = c'.getD i 0) : denoteN c n = denoteN c' n := by
+  induction n with
+  | zero => rfl
+  | succ n ih => rw [denoteN, denoteN, ih (fun i hi => h i (by omega)), h n (by omega)]
+
+theorem denoteN_replicate_zero (n m : Nat) :
+    denoteN (Array.replicate n (0 : Digit)) m = 0 := by
+  induction m with
+  | zero => rfl
+  | succ m ih => rw [denoteN, ih, getD_replicate_zero]; simp
+
+theorem denote_replicate_zero (n : Nat) : denote (Array.replicate n (0 : Digit)) = 0 :=
+  denoteN_replicate_zero n _
+
+theorem denoteN_set!_of_le (c : Array Digit) (idx : Nat) (d : Digit) {n : Nat} (h : n ≤ idx) :
+    denoteN (c.set! idx d) n = denoteN c n :=
+  denoteN_congr fun i hi => getD_set!_ne c idx i d (by omega)
+
+theorem denoteN_set!_succ (c : Array Digit) (idx : Nat) (d : Digit) (h : idx < c.size) :
+    denoteN (c.set! idx d) (idx + 1) = denoteN c idx + d.toNat * base ^ idx := by
+  rw [denoteN, denoteN_set!_of_le c idx d (Nat.le_refl _), getD_set!_eq c idx d h]
+
+/-- Zero digits from `n` up do not contribute, so `denoteN` saturates at `n`. -/
+theorem denoteN_of_high_zero (c : Array Digit) {n m : Nat} (hnm : n ≤ m)
+    (h : ∀ idx, n ≤ idx → c.getD idx 0 = 0) : denoteN c m = denoteN c n := by
+  induction m with
+  | zero => have : n = 0 := by omega
+            subst this; rfl
+  | succ m ih =>
+    rcases Nat.lt_or_ge m n with h' | h'
+    · have : n = m + 1 := by omega
+      subst this; rfl
+    · rw [denoteN, h m h', ih h']; simp
+
+theorem denote_of_high_zero (c : Array Digit) {n : Nat} (hn : n ≤ c.size)
+    (h : ∀ idx, n ≤ idx → c.getD idx 0 = 0) : denote c = denoteN c n :=
+  denoteN_of_high_zero c hn h
+
 /-! ## `mpn_compare` -/
 
 /--
@@ -180,26 +232,45 @@ def sub (a b : Array Digit) : Array Digit × Digit :=
 
 /-! ## `mpn_mul` -/
 
+/-- One iteration of `mpn_mul`'s inner loop: `c[i+j] := a[i] * v_j + c[i+j] + k`. -/
+def mulInnerStep (a : Array Digit) (v_j : Digit) (j : Nat)
+    (s : Array Digit × Digit) (i : Nat) : Array Digit × Digit :=
+  let (c, k) := s
+  let u_i := a.getD i 0
+  let t : DoubleDigit :=
+    u_i.toUInt64 * v_j.toUInt64 + (c.getD (i + j) 0).toUInt64 + k.toUInt64
+  (c.set! (i + j) (lo t), hi t)
+
+/-- `mpn_mul`'s inner loop over `lnga` digits of `a`, leaving a carry. -/
+def mulInner (a : Array Digit) (v_j : Digit) (j : Nat) (c : Array Digit) (lnga : Nat) :
+    Array Digit × Digit :=
+  (List.range lnga).foldl (mulInnerStep a v_j j) (c, 0)
+
+/--
+One iteration of `mpn_mul`'s outer loop. The `v_j == 0` branch is Knuth's
+optional shortcut: with a zero multiplier the inner loop would leave `c`
+untouched and its carry at zero anyway.
+-/
+def mulOuterStep (a b : Array Digit) (c : Array Digit) (j : Nat) : Array Digit :=
+  let v_j := b.getD j 0
+  if v_j == 0 then
+    c.set! (j + a.size) 0
+  else
+    let (c, k) := mulInner a v_j j c a.size
+    c.set! (j + a.size) k
+
+/--
+`mpn_mul`'s outer loop over the first `m` digits of `b`.
+
+NOTE: the C++ zeroes only `c[0..lnga)` and relies on the outer loop to write
+every digit from `lnga` up; zeroing the whole buffer here computes the same
+result and states the invariant more simply.
+-/
+def mulLoop (a b : Array Digit) (m : Nat) : Array Digit :=
+  (List.range m).foldl (mulOuterStep a b) (Array.replicate (a.size + b.size) 0)
+
 /-- `mpn_mul`. Returns `lnga + lngb` digits. -/
-def mul (a b : Array Digit) : Array Digit := Id.run do
-  let lnga := a.size
-  let lngb := b.size
-  -- the C++ zeroes only `c[0..lnga)`; every later digit is written below
-  let mut c : Array Digit := Array.replicate (lnga + lngb) 0
-  for j in [0:lngb] do
-    let v_j := b[j]!
-    if v_j == 0 then
-      c := c.set! (j + lnga) 0
-    else
-      let mut k : Digit := 0
-      for i in [0:lnga] do
-        let u_i := a[i]!
-        let t : DoubleDigit :=
-          u_i.toUInt64 * v_j.toUInt64 + (c.getD (i + j) 0).toUInt64 + k.toUInt64
-        c := c.set! (i + j) (lo t)
-        k := hi t
-      c := c.set! (j + lnga) k
-  return c
+def mul (a b : Array Digit) : Array Digit := mulLoop a b b.size
 
 /-! ## division -/
 
@@ -514,13 +585,152 @@ theorem denote_sub (a b : Array Digit) :
   simpa only [sub, denoteN_of_ge a (Nat.le_max_left ..),
     denoteN_of_ge b (Nat.le_max_right ..)] using hval
 
+/-! ## Correctness of `mpn_mul` -/
+
+/-- Splitting a 64-bit accumulator into its two digits loses nothing. -/
+theorem lo_add_hi (t : DoubleDigit) : (lo t).toNat + (hi t).toNat * base = t.toNat := by
+  have h := UInt64.toNat_lt_size t
+  have hs : (UInt64.size : Nat) = 18446744073709551616 := rfl
+  have h32 : (UInt64.toNat 32 % 64) = 32 := rfl
+  simp only [lo, hi, base, UInt64.toNat_toUInt32, UInt64.toNat_shiftRight, hs, h32,
+    Nat.shiftRight_eq_div_pow] at *
+  omega
+
+/--
+The inner-loop accumulator `a[i] * v_j + c[i+j] + k` cannot overflow 64 bits: it
+is at most `(2^32-1)^2 + 2*(2^32-1) = 2^64 - 1`. This is what makes the digit
+identity exact rather than modular, and it is the one place where `mpn_mul`'s
+correctness depends on `mpn_double_digit` being twice as wide as `mpn_digit`.
+-/
+theorem mulStep_toNat (x y z w : Digit) :
+    (x.toUInt64 * y.toUInt64 + z.toUInt64 + w.toUInt64).toNat
+      = x.toNat * y.toNat + z.toNat + w.toNat := by
+  have hx := UInt32.toNat_lt_size x
+  have hy := UInt32.toNat_lt_size y
+  have hz := UInt32.toNat_lt_size z
+  have hw := UInt32.toNat_lt_size w
+  have hs : (UInt32.size : Nat) = 4294967296 := rfl
+  rw [hs] at hx hy hz hw
+  have hb : x.toNat * y.toNat ≤ 4294967295 * 4294967295 :=
+    Nat.mul_le_mul (by omega) (by omega)
+  simp only [UInt64.toNat_mul, UInt64.toNat_add, UInt32.toNat_toUInt64]
+  omega
+
+private theorem mulInner_combine {dc k p P Q ai v dc0 dna c0ij B lot hit : Nat}
+    (hp : p = P * Q)
+    (hval : dc + k * p = dc0 + dna * v * P)
+    (hdig : lot + hit * B = ai * v + c0ij + k) :
+    dc + lot * p + hit * (p * B) = dc0 + c0ij * p + (dna + ai * Q) * v * P := by
+  subst hp; grind
+
+/--
+The inner loop of `mpn_mul` adds `a * v_j` into `c` starting at digit `j`. It
+touches only digits `j` up to `j + n` and leaves the overflow in its carry.
+-/
+theorem mulInner_spec (a : Array Digit) (v : Digit) (j : Nat) (c₀ : Array Digit) (n : Nat)
+    (hn : j + n ≤ c₀.size) :
+    (mulInner a v j c₀ n).1.size = c₀.size ∧
+    (∀ idx, (idx < j ∨ j + n ≤ idx) →
+      (mulInner a v j c₀ n).1.getD idx 0 = c₀.getD idx 0) ∧
+    denoteN (mulInner a v j c₀ n).1 (j + n) + (mulInner a v j c₀ n).2.toNat * base ^ (j + n)
+      = denoteN c₀ (j + n) + denoteN a n * v.toNat * base ^ j := by
+  induction n with
+  | zero => exact ⟨rfl, fun _ _ => rfl, by simp [mulInner, denoteN]⟩
+  | succ n ih =>
+    obtain ⟨hsz, huntouched, hval⟩ := ih (by omega)
+    have hstep : mulInner a v j c₀ (n+1) = mulInnerStep a v j (mulInner a v j c₀ n) n := by
+      simp [mulInner, List.range_succ, List.foldl_append]
+    -- the digit this step reads has not been written yet
+    have hread : (mulInner a v j c₀ n).1.getD (n + j) 0 = c₀.getD (n + j) 0 :=
+      huntouched _ (Or.inr (by omega))
+    have hlt : n + j < (mulInner a v j c₀ n).1.size := by rw [hsz]; omega
+    rw [hstep]
+    simp only [mulInnerStep, hread]
+    refine ⟨by simp [hsz], ?_, ?_⟩
+    · intro idx hidx
+      rw [getD_set!_ne _ _ _ _ (by omega), huntouched idx (by omega)]
+    · rw [show j + (n+1) = (n + j) + 1 by omega, denoteN_set!_succ _ _ _ hlt,
+        show denoteN c₀ ((n+j)+1)
+            = denoteN c₀ (n+j) + (c₀.getD (n+j) 0).toNat * base ^ (n+j) from rfl,
+        show denoteN a (n+1) = denoteN a n + (a.getD n 0).toNat * base ^ n from rfl,
+        show n + j = j + n by omega, Nat.pow_succ]
+      exact mulInner_combine (Nat.pow_add base j n) hval
+        (by rw [lo_add_hi, mulStep_toNat, show j + n = n + j by omega])
+
+/--
+The outer loop of `mpn_mul` accumulates `a * b` digit by digit: after `m`
+iterations the buffer denotes `a` times the first `m` digits of `b`, and every
+digit from `m + lnga` up is still zero.
+-/
+theorem mulLoop_spec (a b : Array Digit) (m : Nat) (hm : m ≤ b.size) :
+    (mulLoop a b m).size = a.size + b.size ∧
+    (∀ idx, m + a.size ≤ idx → (mulLoop a b m).getD idx 0 = 0) ∧
+    denote (mulLoop a b m) = denote a * denoteN b m := by
+  induction m with
+  | zero =>
+    refine ⟨by simp [mulLoop], fun idx _ => ?_, ?_⟩
+    · rw [mulLoop, List.range_zero, List.foldl_nil]; exact getD_replicate_zero _ _
+    · rw [mulLoop, List.range_zero, List.foldl_nil, denote_replicate_zero]; rfl
+  | succ m ih =>
+    obtain ⟨hsz, hzero, hval⟩ := ih (by omega)
+    have hstep : mulLoop a b (m+1) = mulOuterStep a b (mulLoop a b m) m := by
+      simp [mulLoop, List.range_succ, List.foldl_append]
+    have hb : denoteN b (m+1) = denoteN b m + (b.getD m 0).toNat * base ^ m := rfl
+    have hfits : m + a.size < (mulLoop a b m).size := by rw [hsz]; omega
+    rw [hstep]
+    simp only [mulOuterStep]
+    split <;> rename_i hv
+    · -- `v_j == 0`: the digit about to be written is already zero
+      have hv0 : (b.getD m 0).toNat = 0 := by
+        simp only [beq_iff_eq] at hv; rw [hv]; rfl
+      have hsame : ∀ i, i < (mulLoop a b m).size →
+          ((mulLoop a b m).set! (m + a.size) 0).getD i 0 = (mulLoop a b m).getD i 0 := by
+        intro i _
+        rcases Nat.decEq i (m + a.size) with h | h
+        · exact getD_set!_ne _ _ _ _ h
+        · subst h; rw [getD_set!_eq _ _ _ hfits, hzero _ (Nat.le_refl _)]
+      refine ⟨by simp [hsz], ?_, ?_⟩
+      · intro idx hidx
+        rw [getD_set!_ne _ _ _ _ (by omega), hzero idx (by omega)]
+      · rw [hb, hv0, Nat.zero_mul, Nat.add_zero, ← hval, denote, denote,
+          Array.size_set!]
+        exact denoteN_congr hsame
+    · -- the general case: run the inner loop, then store its carry
+      obtain ⟨hisz, hiunt, hival⟩ := mulInner_spec a (b.getD m 0) m (mulLoop a b m) a.size (by omega)
+      have hcarry : m + a.size < (mulInner a (b.getD m 0) m (mulLoop a b m) a.size).1.size := by
+        rw [hisz, hsz]; omega
+      have hhigh : ∀ idx, (m + a.size) + 1 ≤ idx →
+          (((mulInner a (b.getD m 0) m (mulLoop a b m) a.size).1).set! (m + a.size)
+            (mulInner a (b.getD m 0) m (mulLoop a b m) a.size).2).getD idx 0 = 0 := by
+        intro idx hidx
+        rw [getD_set!_ne _ _ _ _ (by omega), hiunt idx (Or.inr (by omega)), hzero idx (by omega)]
+      refine ⟨by rw [Array.size_set!, hisz, hsz], ?_, ?_⟩
+      · intro idx hidx
+        exact hhigh idx (by omega)
+      · rw [denote_of_high_zero _ (by rw [Array.size_set!, hisz, hsz]; omega) hhigh,
+          denoteN_set!_succ _ _ _ hcarry, hival,
+          ← denote_of_high_zero (mulLoop a b m) (by rw [hsz]; omega)
+            (fun idx h => hzero idx (by omega)),
+          hval, hb]
+        show denote a * denoteN b m + denote a * (b.getD m 0).toNat * base ^ m
+            = denote a * (denoteN b m + (b.getD m 0).toNat * base ^ m)
+        rw [Nat.mul_add, Nat.mul_assoc]
+
+/-- `mpn_mul` computes the product. -/
+theorem denote_mul (a b : Array Digit) : denote (mul a b) = denote a * denote b :=
+  (mulLoop_spec a b b.size (Nat.le_refl _)).2.2
+
+/-- `mpn_mul` writes exactly `lnga + lngb` digits, as its callers assume. -/
+theorem size_mul (a b : Array Digit) : (mul a b).size = a.size + b.size :=
+  (mulLoop_spec a b b.size (Nat.le_refl _)).1
+
 /-!
 ## Differential testing against `Nat`
 
-`mpn_sub`, `mpn_mul`, `mpn_div` and `mpn_to_string` are not proved here; they
-are checked against `Nat` on pseudorandom inputs instead. The digit generator
-is biased towards `0`, `1` and `2^32-1` so that carries, borrows and Knuth's
-quotient correction step fire often.
+`mpn_compare`, `mpn_div` and `mpn_to_string` are not proved here; they are
+checked against `Nat` on pseudorandom inputs instead, as are the proved
+routines. The digit generator is biased towards `0`, `1` and `2^32-1` so that
+carries, borrows and Knuth's quotient correction step fire often.
 -/
 
 namespace Test

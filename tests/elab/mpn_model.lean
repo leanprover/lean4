@@ -378,38 +378,44 @@ def div1 (numer : Array Digit) (denom : Digit) : Array Digit × Array Digit :=
   div1Loop denom numer (Array.replicate (numer.size - 1) 0) (numer.size - 1)
 
 /--
-The `recheck:` correction loop of `div_n`. Knuth bounds it at two iterations;
-fuel exhaustion is reported so `mpnCheck` can notice if that is ever wrong.
+The `recheck:` correction loop of `div_n`, i.e. step D3 of Knuth's Algorithm D.
+
+The loop terminates because the trial digit strictly decreases on every pass and
+the test cannot fire at zero: `q_hat >= BASE` is false there, and
+`q_hat * denom[n-2] > ...` reads `0 > ...`. Knuth bounds the loop at two passes,
+but that bound is a performance property, not what makes the loop total.
 -/
-private def recheck (dn1 dn2 : Digit) (nu : Digit) :
-    Nat → DoubleDigit → DoubleDigit → DoubleDigit × DoubleDigit × Bool
-  | 0, q_hat, r_hat => (q_hat, r_hat, true)
-  | fuel+1, q_hat, r_hat =>
-    if q_hat >>> 32 != 0 || q_hat * dn2.toUInt64 > ((r_hat <<< 32) + nu.toUInt64) then
-      let q_hat := q_hat - 1
-      let r_hat := r_hat + dn1.toUInt64
-      if r_hat >>> 32 == 0 then recheck dn1 dn2 nu fuel q_hat r_hat
-      else (q_hat, r_hat, false)
-    else (q_hat, r_hat, false)
+def recheck (dn1 dn2 nu : Digit) (q_hat r_hat : DoubleDigit) : DoubleDigit × DoubleDigit :=
+  if q_hat >>> 32 != 0 || q_hat * dn2.toUInt64 > ((r_hat <<< 32) + nu.toUInt64) then
+    let q' := q_hat - 1
+    let r' := r_hat + dn1.toUInt64
+    if r' >>> 32 == 0 then recheck dn1 dn2 nu q' r' else (q', r')
+  else (q_hat, r_hat)
+termination_by q_hat.toNat
+decreasing_by
+  rename_i h _
+  have hq : q_hat ≠ 0 := by intro h0; subst h0; simp at h
+  have h1 : q_hat.toNat ≠ 0 := fun h0 => hq (UInt64.toNat_inj.mp (by rw [h0]; rfl))
+  have h2 : q_hat.toNat < 2 ^ 64 := q_hat.toNat_lt_size
+  show (q_hat - 1).toNat < q_hat.toNat
+  rw [UInt64.toNat_sub, show (1 : UInt64).toNat = 1 from rfl]
+  omega
 
 /--
 `div_n`, i.e. Knuth's Algorithm D. Returns the updated numerator (holding the
-normalized remainder), `m` quotient digits, and whether the correction loop ran
-out of fuel.
+normalized remainder) and `m` quotient digits.
 -/
-def divN (numer denom : Array Digit) : Array Digit × Array Digit × Bool := Id.run do
+def divN (numer denom : Array Digit) : Array Digit × Array Digit := Id.run do
   let n := denom.size
   let m := numer.size - n
   let mut u := numer
   let mut quot : Array Digit := Array.replicate m 0
-  let mut stuck := false
   for k in [0:m] do
     let j := m - 1 - k
     let temp : DoubleDigit := (u[j+n]!.toUInt64 <<< 32) ||| u[j+n-1]!.toUInt64
     let q_hat := temp / denom[n-1]!.toUInt64
     let r_hat := temp % denom[n-1]!.toUInt64
-    let (q_hat, _, s) := recheck denom[n-1]! denom[n-2]! (u.getD (j+n-2) 0) 8 q_hat r_hat
-    stuck := stuck || s
+    let q_hat := (recheck denom[n-1]! denom[n-2]! (u.getD (j+n-2) 0) q_hat r_hat).1
     let q_hat_small := lo q_hat
     let ms := mul #[q_hat_small] denom
     let (diff, borrow) := sub (u.extract j (j+n+1)) ms
@@ -419,11 +425,10 @@ def divN (numer denom : Array Digit) : Array Digit × Array Digit × Bool := Id.
       quot := quot.set! j (quot[j]! - 1)
       let ab := add denom (u.extract j (j+n+1))
       for i in [0:n+1] do u := u.set! (j+i) (ab.getD i 0)
-  return (u, quot, stuck)
+  return (u, quot)
 
 /--
-`mpn_div`. Returns `lnum - lden + 1` quotient digits, `lden` remainder digits,
-and whether `div_n`'s correction loop ran out of fuel.
+`mpn_div`. Returns `lnum - lden + 1` quotient digits and `lden` remainder digits.
 
 NOTE: the `lnum < lden` branch of the C++ computes its loop bound
 `lnum - lden + 1` in `size_t`, which underflows to `SIZE_MAX` whenever
@@ -431,22 +436,21 @@ NOTE: the `lnum < lden` branch of the C++ computes its loop bound
 checks `lden <= lnum` first, so the branch is dead; the model returns an empty
 quotient there.
 -/
-def div (numer denom : Array Digit) : Array Digit × Array Digit × Bool := Id.run do
+def div (numer denom : Array Digit) : Array Digit × Array Digit := Id.run do
   let lnum := numer.size
   let lden := denom.size
   if lnum < lden then
     let quot : Array Digit := Array.replicate (lnum + 1 - lden) 0
     let rem : Array Digit := (Array.range lden).map fun i => numer.getD i 0
-    return (quot, rem, false)
+    return (quot, rem)
   if lnum == 1 && lden == 1 then
-    return (#[numer[0]! / denom[0]!], #[numer[0]! % denom[0]!], false)
+    return (#[numer[0]! / denom[0]!], #[numer[0]! % denom[0]!])
   else if lnum == lden && numer[lnum-1]! < denom[lden-1]! then
     let quot : Array Digit := Array.replicate (lnum - lden + 1) 0
     let rem : Array Digit := (Array.range lden).map fun i => numer.getD i 0
-    return (quot, rem, false)
+    return (quot, rem)
   else
     let (d, u, v) := divNormalize numer denom
-    let mut stuck := false
     let mut u := u
     let mut quot : Array Digit := Array.replicate (lnum - lden + 1) 0
     if lden == 1 then
@@ -454,12 +458,11 @@ def div (numer denom : Array Digit) : Array Digit × Array Digit × Bool := Id.r
       u := u'
       for i in [0:min q.size quot.size] do quot := quot.set! i q[i]!
     else
-      let (u', q, s) := divN u v
+      let (u', q) := divN u v
       u := u'
-      stuck := s
       for i in [0:min q.size quot.size] do quot := quot.set! i q[i]!
     let rem := divUnnormalize u lden d
-    return (quot, rem, stuck)
+    return (quot, rem)
 
 /-! ## `mpn_to_string` -/
 
@@ -1630,8 +1633,7 @@ def check (a b : Array Digit) : Array String := Id.run do
 
   -- `mpn_div` requires `lden <= lnum` and a nonzero top denominator digit
   if b.size > 0 && b.size <= a.size && b.back! != 0 then
-    let (q, r, stuck) := div a b
-    if stuck then fs := fs.push s!"div {ctx}: div_n correction loop exhausted its fuel"
+    let (q, r) := div a b
     if q.size != a.size - b.size + 1 then
       fs := fs.push s!"div {ctx}: quotient length {q.size}, expected {a.size - b.size + 1}"
     if r.size != b.size then
@@ -1686,7 +1688,7 @@ def emit (trials : Nat) (maxLen : Nat) (seed : UInt64) : IO Unit := do
     IO.println s!"borrow {borrow.toNat}"
     IO.println (vec "mul" (mul a b))
     if lb ≤ la && b.back! != 0 then
-      let (q, r, _) := div a b
+      let (q, r) := div a b
       IO.println (vec "quot" q)
       IO.println (vec "rem" r)
     IO.println s!"str {Mpn.toString a}"

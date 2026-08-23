@@ -75,6 +75,7 @@ int main(int argc, char ** argv) {
             emit("div", A / B);
             emit("mod", A % B);
         }
+        { mpz g; gcd(g, A, B); emit("gcd", g); }
         { mpz r(A); r &= B; emit("and", r); }
         { mpz r(A); r |= B; emit("or", r); }
         { mpz r(A); r ^= B; emit("xor", r); }

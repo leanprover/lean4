@@ -3067,6 +3067,46 @@ def Num.xor (a b : Num) : Num :=
 @[simp] theorem Num.val_xor (a b : Num) : (a.xor b).val = a.val ^^^ b.val := by
   rw [Num.xor, Num.val_ofArray, denote_bitwiseDigits_xor, Num.val, Num.val]
 
+/-! ### `gcd`, as `mpz` implements it -/
+
+/--
+Euclid's loop, as `gcd` in `mpz.cpp` runs it: replace the pair by the smaller
+value and the remainder until the remainder is zero. It terminates because the
+remainder is below the divisor.
+-/
+def Num.gcdLoop (a b : Num) : Num :=
+  if b.val = 0 then a else Num.gcdLoop b (a.mod b)
+termination_by b.val
+decreasing_by
+  rename_i hne
+  rw [Num.val_mod a b hne]
+  exact Nat.mod_lt _ (by omega)
+
+/-- `gcd`: order the operands, then run Euclid. -/
+def Num.gcd (a b : Num) : Num :=
+  if Mpn.compare a.digits b.digits < 0 then Num.gcdLoop b a else Num.gcdLoop a b
+
+private theorem Nat.gcd_step (m n : Nat) : Nat.gcd m n = Nat.gcd n (m % n) := by
+  rw [Nat.gcd_comm m n, Nat.gcd_rec n m, Nat.gcd_comm]
+
+theorem Num.val_gcdLoop (a b : Num) : (a.gcdLoop b).val = Nat.gcd a.val b.val := by
+  rw [Num.gcdLoop]
+  split <;> rename_i h
+  · rw [h]; simp
+  · rw [Num.val_gcdLoop b (a.mod b), Num.val_mod a b h, ← Nat.gcd_step]
+termination_by b.val
+decreasing_by
+  rename_i hne
+  rw [Num.val_mod a b hne]
+  exact Nat.mod_lt _ (by omega)
+
+/-- `gcd` computes the greatest common divisor. -/
+theorem Num.val_gcd (a b : Num) : (a.gcd b).val = Nat.gcd a.val b.val := by
+  rw [Num.gcd]
+  split
+  · rw [Num.val_gcdLoop, Nat.gcd_comm]
+  · rw [Num.val_gcdLoop]
+
 /-!
 ## Differential testing against `Nat`
 
@@ -3226,6 +3266,7 @@ def emitNum (trials : Nat) (maxLen : Nat) (seed : UInt64) : IO Unit := do
     if B.val != 0 then
       IO.println s!"div {(A.div B).val}"
       IO.println s!"mod {(A.mod B).val}"
+    IO.println s!"gcd {(A.gcd B).val}"
     IO.println s!"and {(A.land B).val}"
     IO.println s!"or {(A.lor B).val}"
     IO.println s!"xor {(A.xor B).val}"

@@ -2988,6 +2988,85 @@ theorem Num.val_shiftRight (a : Num) (k : Nat) : (a.shiftRight k).val = a.val / 
             rw [denote, hext],
         ← hdiv, Nat.div_div_eq_div_mul, base_pow, ← Nat.pow_add, hk]
 
+/-! ### Bitwise operations, as `mpz` implements them -/
+
+/-- Digit `i` of a value, read off its denotation. -/
+theorem denote_digit (a : Array Digit) (i : Nat) :
+    denote a / base ^ i % base = (a.getD i 0).toNat := by
+  have hb : base ^ (i+1) = base ^ i * base := Nat.pow_succ base i
+  have hlow : denoteN a i < base ^ i := denoteN_lt a i
+  rw [← Nat.mod_mul_right_div_self, ← hb, ← denoteN_mod, denoteN,
+    Nat.add_mul_div_right _ _ (Nat.pow_pos (by simp [base])), Nat.div_eq_of_lt hlow, Nat.zero_add]
+
+/-- Bit `j` of a value is bit `j % 32` of its digit `j / 32`. -/
+theorem testBit_denote (a : Array Digit) (j : Nat) :
+    (denote a).testBit j = (a.getD (j / digitBits) 0).toNat.testBit (j % digitBits) := by
+  obtain ⟨q, r, hr, hj⟩ : ∃ q r, r < 32 ∧ j = r + 32 * q :=
+    ⟨j / 32, j % 32, Nat.mod_lt _ (by omega), by omega⟩
+  subst hj
+  have hq : (r + 32 * q) / digitBits = q := by simp only [digitBits]; omega
+  have hrm : (r + 32 * q) % digitBits = r := by simp only [digitBits]; omega
+  rw [hq, hrm, Nat.testBit_add, ← base_pow, ← denote_digit a q,
+    show (base : Nat) = 2 ^ 32 from rfl, Nat.testBit_mod_two_pow]
+  simp [hr]
+
+/-- `mpz::operator&=` and friends: combine digits pointwise. -/
+def bitwiseDigits (f : Digit → Digit → Digit) (a b : Array Digit) : Array Digit :=
+  (Array.range (max a.size b.size)).map fun i => f (a.getD i 0) (b.getD i 0)
+
+@[simp] theorem size_bitwiseDigits (f : Digit → Digit → Digit) (a b : Array Digit) :
+    (bitwiseDigits f a b).size = max a.size b.size := by simp [bitwiseDigits]
+
+private theorem getD_bitwiseDigits (f : Digit → Digit → Digit) (hf : f 0 0 = 0)
+    (a b : Array Digit) (i : Nat) :
+    (bitwiseDigits f a b).getD i 0 = f (a.getD i 0) (b.getD i 0) := by
+  rcases Nat.lt_or_ge i (max a.size b.size) with h | h
+  · rw [bitwiseDigits]; simp [h]
+  · rw [getD_of_ge _ (by rw [size_bitwiseDigits]; omega), getD_of_ge a (by omega),
+      getD_of_ge b (by omega), hf]
+
+theorem denote_bitwiseDigits_and (a b : Array Digit) :
+    denote (bitwiseDigits (· &&& ·) a b) = denote a &&& denote b := by
+  refine Nat.eq_of_testBit_eq fun j => ?_
+  rw [testBit_denote, getD_bitwiseDigits _ (by decide) a b, UInt32.toNat_and,
+    Nat.testBit_and, Nat.testBit_and, testBit_denote, testBit_denote]
+
+theorem denote_bitwiseDigits_or (a b : Array Digit) :
+    denote (bitwiseDigits (· ||| ·) a b) = denote a ||| denote b := by
+  refine Nat.eq_of_testBit_eq fun j => ?_
+  rw [testBit_denote, getD_bitwiseDigits _ (by decide) a b, UInt32.toNat_or,
+    Nat.testBit_or, Nat.testBit_or, testBit_denote, testBit_denote]
+
+theorem denote_bitwiseDigits_xor (a b : Array Digit) :
+    denote (bitwiseDigits (· ^^^ ·) a b) = denote a ^^^ denote b := by
+  refine Nat.eq_of_testBit_eq fun j => ?_
+  rw [testBit_denote, getD_bitwiseDigits _ (by decide) a b, UInt32.toNat_xor,
+    Nat.testBit_xor, Nat.testBit_xor, testBit_denote, testBit_denote]
+
+/-- `mpz::operator&=`. -/
+def Num.land (a b : Num) : Num :=
+  Num.ofArray (bitwiseDigits (· &&& ·) a.digits b.digits)
+    (by rw [size_bitwiseDigits]; have := a.size_pos; omega)
+
+/-- `mpz::operator|=`. -/
+def Num.lor (a b : Num) : Num :=
+  Num.ofArray (bitwiseDigits (· ||| ·) a.digits b.digits)
+    (by rw [size_bitwiseDigits]; have := a.size_pos; omega)
+
+/-- `mpz::operator^=`. -/
+def Num.xor (a b : Num) : Num :=
+  Num.ofArray (bitwiseDigits (· ^^^ ·) a.digits b.digits)
+    (by rw [size_bitwiseDigits]; have := a.size_pos; omega)
+
+@[simp] theorem Num.val_land (a b : Num) : (a.land b).val = a.val &&& b.val := by
+  rw [Num.land, Num.val_ofArray, denote_bitwiseDigits_and, Num.val, Num.val]
+
+@[simp] theorem Num.val_lor (a b : Num) : (a.lor b).val = a.val ||| b.val := by
+  rw [Num.lor, Num.val_ofArray, denote_bitwiseDigits_or, Num.val, Num.val]
+
+@[simp] theorem Num.val_xor (a b : Num) : (a.xor b).val = a.val ^^^ b.val := by
+  rw [Num.xor, Num.val_ofArray, denote_bitwiseDigits_xor, Num.val, Num.val]
+
 /-!
 ## Differential testing against `Nat`
 
@@ -3147,6 +3226,9 @@ def emitNum (trials : Nat) (maxLen : Nat) (seed : UInt64) : IO Unit := do
     if B.val != 0 then
       IO.println s!"div {(A.div B).val}"
       IO.println s!"mod {(A.mod B).val}"
+    IO.println s!"and {(A.land B).val}"
+    IO.println s!"or {(A.lor B).val}"
+    IO.println s!"xor {(A.xor B).val}"
     IO.println s!"shl {(A.shiftLeft k).val}"
     IO.println s!"shr {(A.shiftRight k).val}"
     IO.println s!"k {k}"

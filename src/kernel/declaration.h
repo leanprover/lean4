@@ -463,8 +463,11 @@ public:
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
     unsigned get_num_lparams() const { return length(get_lparams()); }
     expr const & get_type() const { return to_constant_val().get_type(); }
+    /** \brief Only definitions have values for the purpose of reduction and
+        type checking. Theorems used to be like that; now they are treated like
+        opaque declarations. */
     bool has_value(bool allow_opaque = false) const {
-        return is_theorem() || is_definition() || (allow_opaque && is_opaque());
+        return is_definition() || (allow_opaque && (is_theorem() || is_opaque()));
     }
     reducibility_hints const & get_hints() const;
 

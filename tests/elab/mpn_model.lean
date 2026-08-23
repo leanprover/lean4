@@ -308,20 +308,22 @@ def shiftLeftDigits (a : Array Digit) (d len : Nat) : Array Digit :=
 /--
 `div_normalize`. Returns the shift `d` together with the normalized numerator
 (`lnum+1` digits) and denominator (`lden` digits).
+
+The C++ branches three ways, but its `d == 0` copy is exactly `shiftLeftDigits`
+at `d = 0`, so only the degenerate case needs its own branch.
+
+NOTE: with a nonzero shift and an empty numerator the C++ leaves both buffers
+zeroed and reports `d = 0`. No caller reaches it: `mpn_div` and `mpn_to_string`
+both pass `lnum ≥ 1`.
 -/
 def divNormalize (numer denom : Array Digit) : Nat × Array Digit × Array Digit :=
   let lnum := numer.size
   let lden := denom.size
-  let d := if lden = 0 then 0 else leadingZeros denom[lden-1]!
-  if d = 0 then
-    (0, shiftLeftDigits numer 0 (lnum+1), shiftLeftDigits denom 0 lden)
-  else if lnum ≠ 0 then
-    (d, shiftLeftDigits numer d (lnum+1), shiftLeftDigits denom d lden)
+  let d := if lden = 0 then 0 else leadingZeros (denom.getD (lden - 1) 0)
+  if lnum = 0 && d ≠ 0 then
+    (0, Array.replicate (lnum + 1) 0, Array.replicate lden 0)
   else
-    -- NOTE: with a nonzero shift and an empty numerator the C++ leaves both
-    -- buffers zeroed and reports `d = 0`. No caller reaches it: `mpn_div` and
-    -- `mpn_to_string` both pass `lnum ≥ 1`.
-    (0, Array.replicate (lnum+1) 0, Array.replicate lden 0)
+    (d, shiftLeftDigits numer d (lnum + 1), shiftLeftDigits denom d lden)
 
 /-- `div_unnormalize`. Produces `lden` remainder digits. -/
 def divUnnormalize (numer : Array Digit) (lden d : Nat) : Array Digit := Id.run do
@@ -972,6 +974,255 @@ theorem denote_shiftLeftDigits (a : Array Digit) {d : Nat} (hd : d < digitBits)
           omega)
     rw [hzero, Nat.zero_mul, Nat.add_zero] at hmain
     rw [hout, hmain]
+
+/-! ## Correctness of `div_normalize`'s shift amount -/
+
+private theorem and_top_eq_zero_iff {y : Nat} (hy : y < 4294967296) :
+    (y &&& 2147483648 = 0) ↔ y < 2147483648 := by
+  have hpow : (2147483648 : Nat) = 2 ^ 31 := by rfl
+  constructor
+  · intro h
+    have hb : y.testBit 31 = false := by
+      by_cases hb : y.testBit 31
+      · exfalso
+        have hand : (y &&& 2147483648).testBit 31 = true := by
+          rw [Nat.testBit_and, hb, hpow, Nat.testBit_two_pow_self]; rfl
+        rw [h] at hand; simp at hand
+      · simpa using hb
+    rw [Nat.testBit_eq_decide_div_mod_eq] at hb
+    simp only [decide_eq_false_iff_not] at hb
+    have h2 : y / 2 ^ 31 < 2 := by rw [← hpow] at *; omega
+    rw [← hpow] at hb h2
+    omega
+  · intro h
+    have hb : y.testBit 31 = false := Nat.testBit_lt_two_pow (by rw [← hpow]; exact h)
+    apply Nat.eq_of_testBit_eq
+    intro i
+    rw [Nat.testBit_and, Nat.zero_testBit, hpow, Nat.testBit_two_pow]
+    by_cases h31 : (31 : Nat) = i
+    · subst h31; simp [hb]
+    · simp [h31]
+
+/-- `div_normalize`'s `(x << d) & MASK_FIRST == 0` test reads the top bit. -/
+private theorem topBit_test (y : Digit) :
+    (y &&& maskFirst == 0) = decide (y.toNat < 2147483648) := by
+  have hy : y.toNat < 4294967296 := y.toNat_lt_size
+  have hand : (y &&& maskFirst).toNat = y.toNat &&& 2147483648 := by
+    rw [UInt32.toNat_and]; rfl
+  have hiff : (y &&& maskFirst = 0) ↔ y.toNat < 2147483648 := by
+    constructor
+    · intro h
+      have h0 : (y &&& maskFirst).toNat = 0 := by rw [h]; rfl
+      rw [hand] at h0
+      exact (and_top_eq_zero_iff hy).mp h0
+    · intro h
+      have h0 : y.toNat &&& 2147483648 = 0 := (and_top_eq_zero_iff hy).mpr h
+      rw [← hand] at h0
+      exact UInt32.toNat_inj.mp (by rw [h0]; rfl)
+  rw [Bool.eq_iff_iff]
+  simp only [beq_iff_eq, decide_eq_true_eq]
+  exact hiff
+
+private theorem countWhile_le (p : Nat → Bool) (fuel i : Nat) : countWhile p fuel i ≤ fuel := by
+  induction fuel generalizing i with
+  | zero => simp [countWhile]
+  | succ fuel ih =>
+    simp only [countWhile]
+    split
+    · have := ih (i+1); omega
+    · omega
+
+private theorem countWhile_holds (p : Nat → Bool) (fuel i j : Nat)
+    (hj : j < countWhile p fuel i) : p (i + j) := by
+  induction fuel generalizing i j with
+  | zero => simp [countWhile] at hj
+  | succ fuel ih =>
+    simp only [countWhile] at hj
+    split at hj <;> rename_i hp
+    · rcases Nat.eq_zero_or_pos j with h | h
+      · subst h; simpa using hp
+      · have hstep := ih (i+1) (j-1) (by omega)
+        rw [show i + 1 + (j - 1) = i + j by omega] at hstep
+        exact hstep
+    · omega
+
+private theorem countWhile_stop (p : Nat → Bool) (fuel i : Nat)
+    (h : countWhile p fuel i < fuel) : ¬ p (i + countWhile p fuel i) := by
+  induction fuel generalizing i with
+  | zero => omega
+  | succ fuel ih =>
+    by_cases hp : p i
+    · have hc : countWhile p (fuel+1) i = 1 + countWhile p fuel (i+1) := by simp [countWhile, hp]
+      rw [hc] at h ⊢
+      rw [show i + (1 + countWhile p fuel (i+1)) = i + 1 + countWhile p fuel (i+1) by omega]
+      exact ih (i+1) (by omega)
+    · have hc : countWhile p (fuel+1) i = 0 := by simp [countWhile, hp]
+      rw [hc]; simpa using hp
+
+/-- The predicate `leadingZeros` counts, in arithmetic terms. -/
+private theorem leadingZeros_pred (x : Digit) {i : Nat} (hi : i < digitBits) :
+    ((x <<< (UInt32.ofNat i)) &&& maskFirst == 0)
+      = decide (x.toNat * 2 ^ i % base < 2147483648) := by
+  rw [topBit_test, toNat_shl x hi]
+
+/--
+`div_normalize` shifts by exactly enough to set the top bit of the leading
+denominator digit: the shifted digit lands in `[2^31, 2^32)`, which is what
+normalization means and what Knuth's Algorithm D assumes of its divisor.
+-/
+theorem leadingZeros_spec (x : Digit) (hx : 0 < x.toNat) :
+    leadingZeros x < digitBits ∧
+      2147483648 ≤ x.toNat * 2 ^ leadingZeros x ∧ x.toNat * 2 ^ leadingZeros x < base := by
+  have hxlt : x.toNat < base := x.toNat_lt_size
+  have hdle : leadingZeros x ≤ digitBits := countWhile_le _ _ _
+  -- every step the loop took means the value had not yet reached the top bit
+  have hbelow : ∀ i, i < leadingZeros x → x.toNat * 2 ^ i < 2147483648 := by
+    intro i
+    induction i with
+    | zero =>
+      intro hlt
+      have hp := countWhile_holds _ digitBits 0 0 (by simpa [leadingZeros] using hlt)
+      rw [Nat.zero_add, leadingZeros_pred x (by omega)] at hp
+      simp only [decide_eq_true_eq, Nat.pow_zero, Nat.mul_one, Nat.mod_eq_of_lt hxlt] at hp
+      simpa using hp
+    | succ i ih =>
+      intro hlt
+      have hprev := ih (by omega)
+      have hfit : x.toNat * 2 ^ (i+1) < base := by
+        rw [Nat.pow_succ, ← Nat.mul_assoc]; simp only [base]; omega
+      have hp := countWhile_holds _ digitBits 0 (i+1) (by simpa [leadingZeros] using hlt)
+      rw [Nat.zero_add, leadingZeros_pred x (by omega)] at hp
+      simp only [decide_eq_true_eq, Nat.mod_eq_of_lt hfit] at hp
+      exact hp
+  have hdlt : leadingZeros x < digitBits := by
+    rcases Nat.lt_or_ge (leadingZeros x) digitBits with h | h
+    · exact h
+    · exfalso
+      have h31 := hbelow 31 (by simp only [digitBits] at h; omega)
+      rw [show (2:Nat) ^ 31 = 2147483648 from rfl] at h31
+      omega
+  have hfit : x.toNat * 2 ^ leadingZeros x < base := by
+    rcases Nat.eq_zero_or_pos (leadingZeros x) with h | h
+    · rw [h]; simpa using hxlt
+    · obtain ⟨m, hm⟩ : ∃ m, leadingZeros x = m + 1 := ⟨leadingZeros x - 1, by omega⟩
+      have hprev := hbelow m (by omega)
+      rw [hm, Nat.pow_succ, ← Nat.mul_assoc]
+      simp only [base]; omega
+  refine ⟨hdlt, ?_, hfit⟩
+  have hstop : ¬ ((x <<< UInt32.ofNat (leadingZeros x)) &&& maskFirst == 0) := by
+    have hs := countWhile_stop (fun i => (x <<< UInt32.ofNat i) &&& maskFirst == 0) digitBits 0
+      (by simpa [leadingZeros] using hdlt)
+    simpa [leadingZeros] using hs
+  rw [leadingZeros_pred x hdlt] at hstop
+  simp only [decide_eq_true_eq, Nat.not_lt, Nat.mod_eq_of_lt hfit] at hstop
+  exact hstop
+
+/-! ## Correctness of `div_normalize` -/
+
+/-- Shifting a digit left can only add to it, never lose its own bits. -/
+private theorem le_getD_shiftLeftDigits (a : Array Digit) {d len j : Nat} (hd : d < digitBits)
+    (hj : j < len) :
+    (a.getD j 0).toNat * 2 ^ d % base ≤ ((shiftLeftDigits a d len).getD j 0).toNat := by
+  rcases Nat.eq_zero_or_pos d with hd0 | hd0
+  · subst hd0
+    rw [getD_shiftLeftDigits_zero a len j hj, Nat.pow_zero, Nat.mul_one]
+    exact Nat.mod_le _ _
+  · rcases Nat.eq_zero_or_pos j with hj0 | hj0
+    · subst hj0
+      rw [getD_shiftLeftDigits_head a hd0 (by omega), toNat_shl _ hd]
+      exact Nat.le_refl _
+    · rw [getD_shiftLeftDigits_tail a hd0 hj (by omega), toNat_shl_or_shr _ _ hd0 hd]
+      exact Nat.le_add_right _ _
+
+/-- Under the preconditions every caller satisfies, `div_normalize` shifts both operands. -/
+private theorem divNormalize_eq (numer denom : Array Digit) (hnum : 0 < numer.size)
+    (hden : 0 < denom.size) :
+    divNormalize numer denom =
+      (leadingZeros (denom.getD (denom.size - 1) 0),
+       shiftLeftDigits numer (leadingZeros (denom.getD (denom.size - 1) 0)) (numer.size + 1),
+       shiftLeftDigits denom (leadingZeros (denom.getD (denom.size - 1) 0)) denom.size) := by
+  simp only [divNormalize, Nat.ne_of_gt hden, ite_false, Nat.ne_of_gt hnum,
+    Bool.false_and, decide_false, ite_false]
+  rfl
+
+/--
+`div_normalize`. The numerator gains a digit and both operands are multiplied by
+`2^d`, where `d` is chosen so the leading denominator digit ends up with its top
+bit set, which is what Knuth's Algorithm D assumes of its divisor.
+-/
+theorem divNormalize_spec (numer denom : Array Digit) (hnum : 0 < numer.size)
+    (hden : 0 < denom.size) (htop : 0 < (denom.getD (denom.size - 1) 0).toNat) :
+    (divNormalize numer denom).1 < digitBits ∧
+    (divNormalize numer denom).2.1.size = numer.size + 1 ∧
+    (divNormalize numer denom).2.2.size = denom.size ∧
+    denote (divNormalize numer denom).2.1 = denote numer * 2 ^ (divNormalize numer denom).1 ∧
+    denote (divNormalize numer denom).2.2 = denote denom * 2 ^ (divNormalize numer denom).1 ∧
+    2147483648 ≤ ((divNormalize numer denom).2.2.getD (denom.size - 1) 0).toNat := by
+  obtain ⟨hdlt, hlo, hhi⟩ := leadingZeros_spec (denom.getD (denom.size - 1) 0) htop
+  rw [divNormalize_eq numer denom hnum hden]
+  dsimp only
+  refine ⟨hdlt, size_shiftLeftDigits .., size_shiftLeftDigits .., ?_, ?_, ?_⟩
+  · -- the numerator has a spare digit, so `2^d < base` is room enough
+    refine denote_shiftLeftDigits numer hdlt (by omega) ?_
+    have h1 : denote numer < base ^ numer.size := denoteN_lt numer numer.size
+    have h2 : (2:Nat) ^ (leadingZeros (denom.getD (denom.size - 1) 0)) ≤ base := by
+      calc (2:Nat) ^ (leadingZeros (denom.getD (denom.size - 1) 0)) ≤ 2 ^ 32 :=
+            Nat.pow_le_pow_right (by omega) (by simp only [digitBits] at hdlt; omega)
+        _ = base := rfl
+    calc denote numer * 2 ^ (leadingZeros (denom.getD (denom.size - 1) 0))
+        < base ^ numer.size * 2 ^ (leadingZeros (denom.getD (denom.size - 1) 0)) :=
+          (Nat.mul_lt_mul_right (Nat.two_pow_pos _)).mpr h1
+      _ ≤ base ^ numer.size * base := Nat.mul_le_mul_left _ h2
+      _ = base ^ (numer.size + 1) := (Nat.pow_succ base numer.size).symm
+  · -- the denominator has no spare digit; `d` was chosen so it does not need one
+    refine denote_shiftLeftDigits denom hdlt (Nat.le_refl _) ?_
+    have hsplit : denote denom
+        < ((denom.getD (denom.size - 1) 0).toNat + 1) * base ^ (denom.size - 1) := by
+      have hlow : denoteN denom (denom.size - 1) < base ^ (denom.size - 1) :=
+        denoteN_lt denom (denom.size - 1)
+      have hden' : denote denom = denoteN denom (denom.size - 1)
+          + (denom.getD (denom.size - 1) 0).toNat * base ^ (denom.size - 1) := by
+        obtain ⟨m, hm⟩ : ∃ m, denom.size = m + 1 := ⟨denom.size - 1, by omega⟩
+        rw [denote, hm, Nat.add_sub_cancel]
+        rfl
+      rw [hden', Nat.add_mul, Nat.one_mul]
+      omega
+    -- `t * 2^d < base` forces `(t + 1) * 2^d ≤ base`
+    have hstep : ((denom.getD (denom.size - 1) 0).toNat + 1)
+        * 2 ^ (leadingZeros (denom.getD (denom.size - 1) 0)) ≤ base := by
+      have hd32 : leadingZeros (denom.getD (denom.size - 1) 0) < 32 := by
+        simp only [digitBits] at hdlt; omega
+      have hb : base = 2 ^ (32 - leadingZeros (denom.getD (denom.size - 1) 0))
+          * 2 ^ (leadingZeros (denom.getD (denom.size - 1) 0)) := by
+        rw [← Nat.pow_add, show 32 - leadingZeros (denom.getD (denom.size - 1) 0)
+          + leadingZeros (denom.getD (denom.size - 1) 0) = 32 by omega]; rfl
+      have hlt : (denom.getD (denom.size - 1) 0).toNat
+          < 2 ^ (32 - leadingZeros (denom.getD (denom.size - 1) 0)) := by
+        refine Nat.lt_of_mul_lt_mul_right (a := 2 ^ leadingZeros (denom.getD (denom.size - 1) 0)) ?_
+        rw [← hb]; exact hhi
+      calc ((denom.getD (denom.size - 1) 0).toNat + 1)
+            * 2 ^ (leadingZeros (denom.getD (denom.size - 1) 0))
+          ≤ 2 ^ (32 - leadingZeros (denom.getD (denom.size - 1) 0))
+            * 2 ^ (leadingZeros (denom.getD (denom.size - 1) 0)) :=
+            Nat.mul_le_mul_right _ (by omega)
+        _ = base := hb.symm
+    calc denote denom * 2 ^ (leadingZeros (denom.getD (denom.size - 1) 0))
+        < ((denom.getD (denom.size - 1) 0).toNat + 1) * base ^ (denom.size - 1)
+            * 2 ^ (leadingZeros (denom.getD (denom.size - 1) 0)) :=
+          (Nat.mul_lt_mul_right (Nat.two_pow_pos _)).mpr hsplit
+      _ = (((denom.getD (denom.size - 1) 0).toNat + 1)
+            * 2 ^ (leadingZeros (denom.getD (denom.size - 1) 0))) * base ^ (denom.size - 1) := by
+          grind
+      _ ≤ base * base ^ (denom.size - 1) := Nat.mul_le_mul_right _ hstep
+      _ = base ^ denom.size := by
+          rw [Nat.mul_comm, ← Nat.pow_succ]
+          congr 1
+          omega
+  · -- the shifted leading digit keeps the bits `leadingZeros` put in place
+    have hle := le_getD_shiftLeftDigits denom (d := leadingZeros (denom.getD (denom.size - 1) 0))
+      (len := denom.size) (j := denom.size - 1) hdlt (by omega)
+    rw [Nat.mod_eq_of_lt hhi] at hle
+    omega
 
 /-!
 ## Differential testing against `Nat`

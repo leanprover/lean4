@@ -2305,6 +2305,58 @@ theorem divNStep_spec (denom u quot : Array Digit) (j k m : Nat)
       rw [hqeq] at hdwval; omega
     exact final u1 q hu1sz hu1low hu1high (by rw [hu1win, hdw_eq]) hqeq
 
+/--
+The loop invariant of `div_n`: the quotient digits written so far times the
+divisor, plus what is left in `u`, account for the numerator, and what is left
+is always below the divisor scaled by the digits still to come.
+-/
+theorem divNLoop_spec (denom : Array Digit) (k m : Nat)
+    (hk : denom.size = k + 2)
+    (hnorm : base ≤ 2 * (denom.getD (k+1) 0).toNat) :
+    ∀ (p : Nat) (u quot : Array Digit), p ≤ m →
+      u.size = m + denom.size → quot.size = m →
+      (∀ i, p + denom.size ≤ i → u.getD i 0 = 0) →
+      (∀ i, i < p → quot.getD i 0 = 0) →
+      denote u < denote denom * base ^ p →
+      (divNLoop denom u quot p).1.size = m + denom.size ∧
+      (divNLoop denom u quot p).2.size = m ∧
+      denote (divNLoop denom u quot p).1 < denote denom ∧
+      denote (divNLoop denom u quot p).2 * denote denom + denote (divNLoop denom u quot p).1
+        = denote quot * denote denom + denote u := by
+  intro p
+  induction p with
+  | zero =>
+    intro u quot _ husz hqsz _ _ hbound
+    refine ⟨husz, hqsz, ?_, rfl⟩
+    show denote u < denote denom
+    simpa using hbound
+  | succ p ih =>
+    intro u quot hp husz hqsz hhigh hqz hbound
+    obtain ⟨h1, h2, h3, h4, h5, h6⟩ := divNStep_spec denom u quot p k m hk hnorm husz hqsz
+      (by omega) (hqz p (by omega)) hhigh hbound
+    rw [divNLoop]
+    obtain ⟨g1, g2, g3, g4⟩ := ih (divNStep denom (u, quot) p).1 (divNStep denom (u, quot) p).2
+      (by omega) (by rw [h1, husz]) h2 h3
+      (fun i hi => by rw [h4 i (by omega)]; exact hqz i (by omega)) h5
+    exact ⟨g1, g2, g3, by rw [g4, h6]⟩
+
+/-- `div_n` divides: quotient times divisor plus remainder is the numerator. -/
+theorem divN_spec (numer denom : Array Digit) (k : Nat)
+    (hk : denom.size = k + 2)
+    (hnorm : base ≤ 2 * (denom.getD (k+1) 0).toNat)
+    (hsz : denom.size ≤ numer.size)
+    (hbound : denote numer < denote denom * base ^ (numer.size - denom.size)) :
+    (divN numer denom).2.size = numer.size - denom.size ∧
+    denote (divN numer denom).1 < denote denom ∧
+    denote (divN numer denom).2 * denote denom + denote (divN numer denom).1 = denote numer := by
+  obtain ⟨g1, g2, g3, g4⟩ := divNLoop_spec denom k (numer.size - denom.size) hk hnorm
+    (numer.size - denom.size) numer (Array.replicate (numer.size - denom.size) 0)
+    (Nat.le_refl _) (by omega) (by simp) (fun i hi => getD_of_ge numer (by omega))
+    (fun i _ => getD_replicate_zero _ _) hbound
+  rw [divN]
+  refine ⟨g2, g3, ?_⟩
+  rw [g4, denote_replicate_zero, Nat.zero_mul, Nat.zero_add]
+
 /-!
 ## Differential testing against `Nat`
 

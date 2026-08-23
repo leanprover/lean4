@@ -66,6 +66,18 @@ example (x : Pair fun _ : True => True) : Nat :=
   | ⟨_, _⟩ => 42
 
 /-!
+The library types whose resulting universe can be `Prop`.
+-/
+
+example : Prop := PProd True True
+example : Type := PProd True Nat
+example : Prop := PSigma (fun _ : True => True)
+example : Type := PSigma (fun _ : True => Nat)
+example : Prop := PULift.{0} True
+example : Type := PULift.{1} True
+example : Type := PULift.{0} Nat
+
+/-!
 `Exists` is a genuine `Prop` with a field that is not a proof, so it has no projections and keeps
 its recursor-based `casesOn`.
 -/

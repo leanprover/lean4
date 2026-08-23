@@ -983,6 +983,7 @@ theorem ULift.down_up {α : Type u} (a : α) : Eq (down (up.{v} a)) a := rfl
 instance [Inhabited α] : Inhabited (ULift α) where
   default := ULift.up default
 
+set_option bootstrap.inductiveCheckResultingUniverse false in
 /--
 Lifts a type or proposition to a higher universe level.
 
@@ -992,7 +993,7 @@ It also subsumes `PLift`.
 -/
 -- The universe variable `r` is written first so that `ULift.{r} α` can be used
 -- when `s` can be inferred from the type of `α`.
-structure PULift.{r, s} (α : Sort s) : Sort (max s r 1) where
+structure PULift.{r, s} (α : Sort s) : Sort (max s r) where
   /-- Wraps a value to increase its type's universe level. -/
   up ::
   /-- Extracts a wrapped value from a universe-lifted type. -/

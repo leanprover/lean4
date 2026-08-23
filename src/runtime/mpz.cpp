@@ -819,14 +819,17 @@ mpz mpz::emod(mpz const & n, mpz const & d) {
 }
 
 mpz mpz::pow(unsigned int p) const {
-    unsigned mask = 1;
+    // Consume the exponent's bits from the bottom. Iterating a doubling mask
+    // instead would not terminate for `p >= 2^31`: the mask overflows to zero
+    // and `mask <= p` then holds forever.
     mpz power(*this);
     mpz result(1);
-    while (mask <= p) {
-        if (mask & p)
+    while (p != 0) {
+        if (p & 1)
             result *= power;
-        power *= power;
-        mask = mask << 1;
+        p >>= 1;
+        if (p != 0)
+            power *= power;
     }
     return result;
 }

@@ -1893,6 +1893,171 @@ theorem denoteN_split_window (a : Array Digit) (k : Nat) :
   rw [denoteN, denoteN, denoteN, hp]
   grind
 
+/-! ## Truncation -/
+
+private theorem denoteN_add_high (a : Array Digit) (m : Nat) :
+    ∀ n, m ≤ n → ∃ K, denoteN a n = denoteN a m + K * base ^ m := by
+  intro n
+  induction n with
+  | zero => intro h; exact ⟨0, by have : m = 0 := by omega
+                                  subst this; simp⟩
+  | succ n ih =>
+    intro h
+    rcases Nat.eq_or_lt_of_le h with h' | h'
+    · exact ⟨0, by rw [← h']; simp⟩
+    · obtain ⟨K, hK⟩ := ih (by omega)
+      refine ⟨K + (a.getD n 0).toNat * base ^ (n - m), ?_⟩
+      rw [denoteN, hK, Nat.add_mul, Nat.mul_assoc, ← Nat.pow_add,
+        show n - m + m = n by omega]
+      omega
+
+/-- Reading only the first `m` digits is truncation to `base ^ m`. -/
+theorem denoteN_mod (a : Array Digit) (m : Nat) : denoteN a m = denote a % base ^ m := by
+  rcases Nat.lt_or_ge m a.size with h | h
+  · obtain ⟨K, hK⟩ := denoteN_add_high a m a.size (by omega)
+    rw [denote, hK, Nat.add_mul_mod_self_right, Nat.mod_eq_of_lt (denoteN_lt a m)]
+  · rw [denoteN_of_ge a h, Nat.mod_eq_of_lt]
+    exact Nat.lt_of_lt_of_le (denoteN_lt a a.size)
+      (Nat.pow_le_pow_right (by simp [base]) h)
+
+theorem denote_singleton (x : Digit) : denote #[x] = x.toNat := by
+  simp [denote, denoteN]
+
+theorem size_sub (a b : Array Digit) : (sub a b).1.size = max a.size b.size :=
+  (subLoop_spec a b (max a.size b.size)).1
+
+/-! ## Correctness of `div_n` -/
+
+/--
+The trial digit `div_n` computes for the window at `j` is exact or one too high.
+This is `recheck_spec` with the window's digits read off the array.
+-/
+private theorem divNStep_qhat (denom u : Array Digit) (j k : Nat)
+    (hk : denom.size = k + 2)
+    (hnorm : base ≤ 2 * (denom.getD (k+1) 0).toNat)
+    (hsz : j + k + 3 ≤ u.size)
+    (hW : denote (u.extract j (j+k+3)) < denote denom * base)
+    (qh : DoubleDigit)
+    (hqh : qh = (recheck (denom.getD (k+1) 0) (denom.getD k 0) (u.getD (j+k) 0)
+        ((((u.getD (j+k+2) 0).toUInt64 <<< 32) ||| (u.getD (j+k+1) 0).toUInt64)
+          / (denom.getD (k+1) 0).toUInt64)
+        ((((u.getD (j+k+2) 0).toUInt64 <<< 32) ||| (u.getD (j+k+1) 0).toUInt64)
+          % (denom.getD (k+1) 0).toUInt64)).1) :
+    qh.toNat < base ∧
+    denote (u.extract j (j+k+3)) / denote denom ≤ qh.toNat ∧
+    qh.toNat ≤ denote (u.extract j (j+k+3)) / denote denom + 1 := by
+  have hvtop1 : 1 ≤ (denom.getD (k+1) 0).toNat := by simp only [base] at hnorm; omega
+  have hpk : 0 < base ^ k := Nat.pow_pos (by simp [base])
+  have hpk1 : 0 < base ^ (k+1) := Nat.pow_pos (by simp [base])
+  -- the divisor, split at its top two digits
+  have hV : denote denom
+      = ((denom.getD (k+1) 0).toNat * base + (denom.getD k 0).toNat) * base ^ k + denoteN denom k := by
+    rw [denote, hk]; exact denoteN_split_two denom k
+  have hvrest : denoteN denom k < base ^ k := denoteN_lt denom k
+  -- the window, split in the shape step D3 reads it
+  have hWsz : (u.extract j (j+k+3)).size = k + 3 := by simp; omega
+  have hwin : ∀ i, i < k + 3 → (u.extract j (j+k+3)).getD i 0 = u.getD (j+i) 0 :=
+    fun i hi => getD_extract u j (j+k+3) i (by omega) (by omega)
+  have hU : denote (u.extract j (j+k+3))
+      = ((u.getD (j+k+2) 0).toNat * base + (u.getD (j+k+1) 0).toNat) * base ^ (k+1)
+        + (u.getD (j+k) 0).toNat * base ^ k + denoteN (u.extract j (j+k+3)) k := by
+    rw [denote, hWsz, denoteN_split_window]
+    rw [hwin (k+2) (by omega), hwin (k+1) (by omega), hwin k (by omega)]
+    rfl
+  have hulow : denoteN (u.extract j (j+k+3)) k < base ^ k := denoteN_lt _ k
+  -- the two-digit window that the trial digit is computed from
+  have htemp : ((((u.getD (j+k+2) 0).toUInt64 <<< 32) ||| (u.getD (j+k+1) 0).toUInt64)).toNat
+      = (u.getD (j+k+2) 0).toNat * base + (u.getD (j+k+1) 0).toNat := toNat_window _ _
+  have hq0 : ((((u.getD (j+k+2) 0).toUInt64 <<< 32) ||| (u.getD (j+k+1) 0).toUInt64)
+        / (denom.getD (k+1) 0).toUInt64).toNat
+      = ((u.getD (j+k+2) 0).toNat * base + (u.getD (j+k+1) 0).toNat)
+          / (denom.getD (k+1) 0).toNat := by
+    rw [UInt64.toNat_div, htemp, UInt32.toNat_toUInt64]
+  have hr0 : ((((u.getD (j+k+2) 0).toUInt64 <<< 32) ||| (u.getD (j+k+1) 0).toUInt64)
+        % (denom.getD (k+1) 0).toUInt64).toNat
+      = ((u.getD (j+k+2) 0).toNat * base + (u.getD (j+k+1) 0).toNat)
+          % (denom.getD (k+1) 0).toNat := by
+    rw [UInt64.toNat_mod, htemp, UInt32.toNat_toUInt64]
+  -- the loop invariant of step D3 holds on entry
+  have hinv0 : (u.getD (j+k+2) 0).toNat * base + (u.getD (j+k+1) 0).toNat
+      = ((((u.getD (j+k+2) 0).toUInt64 <<< 32) ||| (u.getD (j+k+1) 0).toUInt64)
+          / (denom.getD (k+1) 0).toUInt64).toNat * (denom.getD (k+1) 0).toNat
+        + ((((u.getD (j+k+2) 0).toUInt64 <<< 32) ||| (u.getD (j+k+1) 0).toUInt64)
+          % (denom.getD (k+1) 0).toUInt64).toNat := by
+    rw [hq0, hr0]; exact (Nat.div_add_mod' _ _).symm
+  have hrlt : ((((u.getD (j+k+2) 0).toUInt64 <<< 32) ||| (u.getD (j+k+1) 0).toUInt64)
+        % (denom.getD (k+1) 0).toUInt64).toNat < base := by
+    rw [hr0]
+    exact Nat.lt_of_lt_of_le (Nat.mod_lt _ (by omega))
+      (Nat.le_of_lt (denom.getD (k+1) 0).toNat_lt_size)
+  -- the divisor's leading digit bounds the two-digit window
+  have hVlt : denote denom < ((denom.getD (k+1) 0).toNat + 1) * base ^ (k+1) := by
+    have hd2 : (denom.getD k 0).toNat < base := (denom.getD k 0).toNat_lt_size
+    have hstep : (denom.getD k 0).toNat * base ^ k + denoteN denom k < base ^ (k+1) := by
+      have h1 : (denom.getD k 0).toNat * base ^ k ≤ (base - 1) * base ^ k :=
+        Nat.mul_le_mul_right _ (by simp only [base] at hd2 ⊢; omega)
+      have h2 : (base - 1) * base ^ k + base ^ k = base ^ (k+1) := by
+        rw [Nat.pow_succ]; simp only [base]; grind
+      omega
+    have h3 : ((denom.getD (k+1) 0).toNat + 1) * base ^ (k+1)
+        = (denom.getD (k+1) 0).toNat * base * base ^ k + base ^ (k+1) := by
+      rw [Nat.pow_succ, Nat.add_mul, Nat.one_mul]; grind
+    rw [hV, Nat.add_mul]
+    omega
+  have hu2bound : (u.getD (j+k+2) 0).toNat * base + (u.getD (j+k+1) 0).toNat
+      ≤ (denom.getD (k+1) 0).toNat * base + (base - 1) := by
+    have hge : ((u.getD (j+k+2) 0).toNat * base + (u.getD (j+k+1) 0).toNat) * base ^ (k+1)
+        ≤ denote (u.extract j (j+k+3)) := by rw [hU]; omega
+    have hlt : denote (u.extract j (j+k+3))
+        < (((denom.getD (k+1) 0).toNat + 1) * base) * base ^ (k+1) := by
+      calc denote (u.extract j (j+k+3)) < denote denom * base := hW
+        _ < (((denom.getD (k+1) 0).toNat + 1) * base ^ (k+1)) * base :=
+            (Nat.mul_lt_mul_right (by simp [base])).mpr hVlt
+        _ = (((denom.getD (k+1) 0).toNat + 1) * base) * base ^ (k+1) := by grind
+    have := Nat.lt_of_mul_lt_mul_right (a := base ^ (k+1)) (Nat.lt_of_le_of_lt hge hlt)
+    simp only [base] at this ⊢; omega
+  -- Theorem A: the initial estimate is not too small
+  have hle0 : denote (u.extract j (j+k+3)) / denote denom
+      ≤ ((u.getD (j+k+2) 0).toNat * base + (u.getD (j+k+1) 0).toNat)
+          / (denom.getD (k+1) 0).toNat := by
+    have hVd : denote denom / base ^ (k+1) = (denom.getD (k+1) 0).toNat := by
+      rw [hV]
+      have h1 : ((denom.getD (k+1) 0).toNat * base + (denom.getD k 0).toNat) * base ^ k
+          + denoteN denom k
+          = (denom.getD (k+1) 0).toNat * base ^ (k+1)
+            + ((denom.getD k 0).toNat * base ^ k + denoteN denom k) := by
+        rw [Nat.pow_succ]; grind
+      have h2 : (denom.getD k 0).toNat * base ^ k + denoteN denom k < base ^ (k+1) := by
+        have hd2 : (denom.getD k 0).toNat < base := (denom.getD k 0).toNat_lt_size
+        have ha : (denom.getD k 0).toNat * base ^ k ≤ (base - 1) * base ^ k :=
+          Nat.mul_le_mul_right _ (by simp only [base] at hd2 ⊢; omega)
+        have hb : (base - 1) * base ^ k + base ^ k = base ^ (k+1) := by
+          rw [Nat.pow_succ]; simp only [base]; grind
+        omega
+      rw [h1, Nat.mul_comm, Nat.mul_add_div hpk1, Nat.div_eq_of_lt h2, Nat.add_zero]
+    have hUd : denote (u.extract j (j+k+3)) / base ^ (k+1)
+        = (u.getD (j+k+2) 0).toNat * base + (u.getD (j+k+1) 0).toNat := by
+      rw [hU]
+      have h2 : (u.getD (j+k) 0).toNat * base ^ k + denoteN (u.extract j (j+k+3)) k
+          < base ^ (k+1) := by
+        have hd3 : (u.getD (j+k) 0).toNat < base := (u.getD (j+k) 0).toNat_lt_size
+        have ha : (u.getD (j+k) 0).toNat * base ^ k ≤ (base - 1) * base ^ k :=
+          Nat.mul_le_mul_right _ (by simp only [base] at hd3 ⊢; omega)
+        have hb : (base - 1) * base ^ k + base ^ k = base ^ (k+1) := by
+          rw [Nat.pow_succ]; simp only [base]; grind
+        omega
+      rw [Nat.add_assoc, Nat.mul_comm, Nat.mul_add_div hpk1, Nat.div_eq_of_lt h2, Nat.add_zero]
+    have := KnuthD.le_qhat (u := denote (u.extract j (j+k+3))) (v := denote denom)
+      (P := base ^ (k+1)) hpk1 (by rw [hVd]; omega)
+    rw [hVd, hUd] at this
+    exact this
+  subst hqh
+  exact recheck_spec (denom.getD (k+1) 0) (denom.getD k 0) (u.getD (j+k) 0) k
+    (denoteN denom k) (denoteN (u.extract j (j+k+3)) k)
+    ((u.getD (j+k+2) 0).toNat * base + (u.getD (j+k+1) 0).toNat)
+    (denote denom) (denote (u.extract j (j+k+3)))
+    hV hU hnorm hvrest hulow hu2bound hW _ _ hinv0 hrlt (by rw [hq0]; exact hle0)
+
 /-!
 ## Differential testing against `Nat`
 

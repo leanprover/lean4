@@ -346,27 +346,36 @@ def shiftRightDigits (a : Array Digit) (d len : Nat) : Array Digit :=
 def divUnnormalize (numer : Array Digit) (lden d : Nat) : Array Digit :=
   shiftRightDigits numer d lden
 
+/-- One iteration of `div_1`'s loop, dividing the two-digit window at `j` by `denom`. -/
+def div1Step (denom : Digit) (s : Array Digit × Array Digit) (j : Nat) :
+    Array Digit × Array Digit :=
+  let (u, quot) := s
+  let temp : DoubleDigit := ((u.getD j 0).toUInt64 <<< 32) ||| (u.getD (j-1) 0).toUInt64
+  let q_hat := temp / denom.toUInt64
+  let ms := temp - q_hat * denom.toUInt64
+  let borrow := ms > temp
+  let u := u.set! (j-1) (lo ms)
+  let u := u.set! j (hi ms)
+  let quot := quot.set! (j-1) (lo q_hat)
+  if borrow then
+    -- NOTE: dead. `ms` is `temp % denom`, which cannot exceed `temp`, and
+    -- `q_hat * denom` cannot overflow because `q_hat` is `temp / denom`.
+    (u.set! j ((u.getD (j-1) 0) + denom), quot.set! (j-1) ((quot.getD (j-1) 0) - 1))
+  else (u, quot)
+
+/-- `div_1`'s loop, running from digit `j` down to digit 1. -/
+def div1Loop (denom : Digit) (u quot : Array Digit) : Nat → Array Digit × Array Digit
+  | 0 => (u, quot)
+  | j+1 =>
+    let s := div1Step denom (u, quot) (j+1)
+    div1Loop denom s.1 s.2 j
+
 /--
 `div_1`. Single-digit division; returns the updated numerator (holding the
-remainder) and `numer.size - 1` quotient digits.
+remainder in its lowest digit) and `numer.size - 1` quotient digits.
 -/
-def div1 (numer : Array Digit) (denom : Digit) : Array Digit × Array Digit := Id.run do
-  let n := numer.size
-  let mut u := numer
-  let mut quot : Array Digit := Array.replicate (n - 1) 0
-  for k in [0:n-1] do
-    let j := n - 1 - k
-    let temp : DoubleDigit := (u[j]!.toUInt64 <<< 32) ||| u[j-1]!.toUInt64
-    let q_hat := temp / denom.toUInt64
-    let ms := temp - q_hat * denom.toUInt64
-    let borrow := ms > temp
-    u := u.set! (j-1) (lo ms)
-    u := u.set! j (hi ms)
-    quot := quot.set! (j-1) (lo q_hat)
-    if borrow then
-      quot := quot.set! (j-1) (quot[j-1]! - 1)
-      u := u.set! j (u[j-1]! + denom)
-  return (u, quot)
+def div1 (numer : Array Digit) (denom : Digit) : Array Digit × Array Digit :=
+  div1Loop denom numer (Array.replicate (numer.size - 1) 0) (numer.size - 1)
 
 /--
 The `recheck:` correction loop of `div_n`. Knuth bounds it at two iterations;
@@ -1356,6 +1365,198 @@ theorem denote_shiftRightDigits (a : Array Digit) {d : Nat} (hd : d < digitBits)
       omega
     rw [← hfull, Nat.mul_comm, Nat.mul_add_div (Nat.two_pow_pos d),
       Nat.div_eq_of_lt hlo, Nat.add_zero]
+
+/-! ## Correctness of `div_1` -/
+
+private theorem lo_of_lt (x : DoubleDigit) (h : x.toNat < base) : (lo x).toNat = x.toNat := by
+  have hla := lo_add_hi x
+  have hl : (lo x).toNat < base := (lo x).toNat_lt_size
+  rcases Nat.eq_zero_or_pos (hi x).toNat with h0 | h0
+  · rw [h0, Nat.zero_mul, Nat.add_zero] at hla; exact hla
+  · exact absurd hla (by have : base ≤ (hi x).toNat * base := Nat.le_mul_of_pos_left _ h0; omega)
+
+private theorem hi_of_lt (x : DoubleDigit) (h : x.toNat < base) : hi x = 0 := by
+  have hla := lo_add_hi x
+  have hlo := lo_of_lt x h
+  have : (hi x).toNat = 0 := by
+    rcases Nat.eq_zero_or_pos (hi x).toNat with h0 | h0
+    · exact h0
+    · exact absurd hla (by have : base ≤ (hi x).toNat * base := Nat.le_mul_of_pos_left _ h0; omega)
+  exact UInt32.toNat_inj.mp (by rw [this]; rfl)
+
+/-- The two-digit window `(u[j] << 32) | u[j-1]` that `div_1` and `div_n` divide. -/
+private theorem toNat_window (x y : Digit) :
+    ((x.toUInt64 <<< 32) ||| y.toUInt64).toNat = x.toNat * base + y.toNat := by
+  have hx : x.toNat < 4294967296 := x.toNat_lt_size
+  have hy : y.toNat < 4294967296 := y.toNat_lt_size
+  have hshl : (x.toUInt64 <<< 32).toNat = x.toNat <<< 32 := by
+    rw [UInt64.toNat_shiftLeft, UInt32.toNat_toUInt64, show (32 : UInt64).toNat % 64 = 32 from rfl]
+    refine Nat.mod_eq_of_lt ?_
+    rw [Nat.shiftLeft_eq]
+    calc x.toNat * 2 ^ 32 < 4294967296 * 2 ^ 32 :=
+          (Nat.mul_lt_mul_right (Nat.two_pow_pos 32)).mpr hx
+      _ = 2 ^ 64 := by rfl
+  rw [UInt64.toNat_or, hshl, UInt32.toNat_toUInt64,
+    ← Nat.shiftLeft_add_eq_or_of_lt (i := 32) (by exact hy), Nat.shiftLeft_eq]
+  rfl
+
+/-- The numeric core of a `div_1` step: an exact division whose add-back is dead. -/
+private theorem u64_divmod (T d : DoubleDigit) (hd : 0 < d.toNat) (hdb : d.toNat < base)
+    (hTlt : T.toNat < d.toNat * base) :
+    (lo (T / d)).toNat = T.toNat / d.toNat ∧
+    (lo (T - (T / d) * d)).toNat = T.toNat % d.toNat ∧
+    hi (T - (T / d) * d) = 0 ∧
+    ¬ ((T - (T / d) * d) > T) := by
+  have hT64 : T.toNat < 2 ^ 64 := T.toNat_lt_size
+  have hqlt : T.toNat / d.toNat < base :=
+    Nat.div_lt_of_lt_mul hTlt
+  have hq : (T / d).toNat = T.toNat / d.toNat := UInt64.toNat_div ..
+  have hprod : ((T / d) * d).toNat = T.toNat / d.toNat * d.toNat := by
+    have hle : T.toNat / d.toNat * d.toNat ≤ T.toNat := Nat.div_mul_le_self _ _
+    rw [UInt64.toNat_mul, hq]
+    exact Nat.mod_eq_of_lt (by omega)
+  have hms : (T - (T / d) * d).toNat = T.toNat % d.toNat := by
+    have hdm := Nat.div_add_mod' T.toNat d.toNat
+    rw [UInt64.toNat_sub, hprod]
+    omega
+  have hmslt : (T - (T / d) * d).toNat < base := by
+    rw [hms]; exact Nat.lt_trans (Nat.mod_lt _ hd) hdb
+  refine ⟨by rw [lo_of_lt _ (by rw [hq]; omega), hq], by rw [lo_of_lt _ hmslt, hms],
+    hi_of_lt _ hmslt, ?_⟩
+  simp only [gt_iff_lt, UInt64.lt_iff_toNat_lt, hms, Nat.not_lt]
+  exact Nat.mod_le _ _
+
+/-- Each `div_1` step divides its two-digit window exactly. -/
+private theorem div1Step_eq (denom : Digit) (u quot : Array Digit) (j : Nat)
+    (hd : 0 < denom.toNat) (hlt : (u.getD (j+1) 0).toNat < denom.toNat) :
+    ∃ q r : Digit,
+      q.toNat = ((u.getD (j+1) 0).toNat * base + (u.getD j 0).toNat) / denom.toNat ∧
+      r.toNat = ((u.getD (j+1) 0).toNat * base + (u.getD j 0).toNat) % denom.toNat ∧
+      div1Step denom (u, quot) (j+1) = ((u.set! j r).set! (j+1) 0, quot.set! j q) := by
+  obtain ⟨W, hW⟩ : ∃ W : DoubleDigit,
+      W = ((u.getD (j+1) 0).toUInt64 <<< 32) ||| (u.getD j 0).toUInt64 := ⟨_, rfl⟩
+  have hlow : (u.getD j 0).toNat < base := (u.getD j 0).toNat_lt_size
+  have hd64 : 0 < denom.toUInt64.toNat := by rw [UInt32.toNat_toUInt64]; exact hd
+  have hdb64 : denom.toUInt64.toNat < base := by
+    rw [UInt32.toNat_toUInt64]; exact denom.toNat_lt_size
+  have hWn : W.toNat = (u.getD (j+1) 0).toNat * base + (u.getD j 0).toNat := by
+    rw [hW, toNat_window]
+  have hTlt : W.toNat < denom.toUInt64.toNat * base := by
+    rw [hWn, UInt32.toNat_toUInt64]
+    calc (u.getD (j+1) 0).toNat * base + (u.getD j 0).toNat
+        < ((u.getD (j+1) 0).toNat + 1) * base := by grind
+      _ ≤ denom.toNat * base := Nat.mul_le_mul_right _ (by omega)
+  obtain ⟨hq, hr, hhi, hnb⟩ := u64_divmod W denom.toUInt64 hd64 hdb64 hTlt
+  rw [UInt32.toNat_toUInt64] at hq hr
+  refine ⟨lo (W / denom.toUInt64), lo (W - (W / denom.toUInt64) * denom.toUInt64), ?_, ?_, ?_⟩
+  · rw [hq, hWn]
+  · rw [hr, hWn]
+  · simp only [div1Step, Nat.add_sub_cancel, ← hW]
+    simp [hhi, hnb]
+
+private theorem denoteN_set!_of_zero (c : Array Digit) (idx : Nat) (d : Digit)
+    (hidx : idx < c.size) (hz : c.getD idx 0 = 0) :
+    ∀ n, idx < n → denoteN (c.set! idx d) n = denoteN c n + d.toNat * base ^ idx := by
+  intro n
+  induction n with
+  | zero => omega
+  | succ n ih =>
+    intro hn
+    rcases Nat.lt_or_ge idx n with h | h
+    · rw [denoteN, denoteN, ih h, getD_set!_ne c idx n d (by omega)]
+      omega
+    · have hidxn : idx = n := by omega
+      subst hidxn
+      rw [denoteN, denoteN, denoteN_set!_of_le c idx d (Nat.le_refl _),
+        getD_set!_eq c idx d hidx, hz]
+      simp
+
+theorem denote_set!_of_zero (c : Array Digit) (idx : Nat) (d : Digit)
+    (hidx : idx < c.size) (hz : c.getD idx 0 = 0) :
+    denote (c.set! idx d) = denote c + d.toNat * base ^ idx := by
+  rw [denote, Array.size_set!, denote]
+  exact denoteN_set!_of_zero c idx d hidx hz c.size (by omega)
+
+private theorem div1_combine {Q D Nj uj1 nj q r P B N : Nat}
+    (hqr : q * D + r = uj1 * B + nj)
+    (hval : Q * D + (Nj + nj * P) + uj1 * (P * B) = N) :
+    (Q + q * P) * D + Nj + r * P = N := by
+  grind
+
+/--
+The loop invariant of `div_1`: the quotient digits written so far, times the
+divisor, plus the numerator digits not yet consumed and the running one-digit
+remainder, account for the whole numerator.
+-/
+theorem div1Loop_spec (denom : Digit) (numer : Array Digit) (hd : 0 < denom.toNat) :
+    ∀ (j : Nat) (u quot : Array Digit), u.size = numer.size → quot.size = numer.size - 1 →
+      j < numer.size →
+      (∀ i, i < j → u.getD i 0 = numer.getD i 0) →
+      (∀ i, i < j → quot.getD i 0 = 0) →
+      (u.getD j 0).toNat < denom.toNat →
+      denote quot * denom.toNat + denoteN numer j + (u.getD j 0).toNat * base ^ j
+        = denoteN numer numer.size →
+      ((div1Loop denom u quot j).1.getD 0 0).toNat < denom.toNat ∧
+      (div1Loop denom u quot j).2.size = numer.size - 1 ∧
+      denote (div1Loop denom u quot j).2 * denom.toNat
+          + ((div1Loop denom u quot j).1.getD 0 0).toNat = denoteN numer numer.size := by
+  intro j
+  induction j with
+  | zero =>
+    intro u quot hu hq _ _ _ hrem hval
+    refine ⟨hrem, hq, ?_⟩
+    show denote quot * denom.toNat + (u.getD 0 0).toNat = denoteN numer numer.size
+    simpa [denoteN] using hval
+  | succ j ih =>
+    intro u quot hu hq hjn hlow hqz hrem hval
+    obtain ⟨q, r, hqv, hrv, hstep⟩ := div1Step_eq denom u quot j hd hrem
+    have hjq : j < quot.size := by omega
+    have hju : j < u.size := by omega
+    have hnj : u.getD j 0 = numer.getD j 0 := hlow j (by omega)
+    have hset : (u.set! j r).getD j 0 = r := getD_set!_eq u j r hju
+    rw [div1Loop, hstep]
+    refine ih ((u.set! j r).set! (j+1) 0) (quot.set! j q) (by simp [hu]) (by simp [hq])
+      (by omega) ?_ ?_ ?_ ?_
+    · intro i hi
+      rw [getD_set!_ne _ _ _ _ (by omega), getD_set!_ne _ _ _ _ (by omega)]
+      exact hlow i (by omega)
+    · intro i hi
+      rw [getD_set!_ne _ _ _ _ (by omega)]
+      exact hqz i (by omega)
+    · rw [getD_set!_ne _ _ _ _ (by omega), hset, hrv]
+      exact Nat.lt_of_lt_of_le (Nat.mod_lt _ hd) (Nat.le_refl _)
+    · rw [getD_set!_ne _ _ _ _ (by omega), hset,
+        denote_set!_of_zero quot j q hjq (hqz j (by omega)), hrv]
+      have hqr : q.toNat * denom.toNat + r.toNat
+          = (u.getD (j+1) 0).toNat * base + (numer.getD j 0).toNat := by
+        rw [hqv, hrv, hnj]
+        exact Nat.div_add_mod' _ _
+      have hvalj : denote quot * denom.toNat
+          + (denoteN numer j + (numer.getD j 0).toNat * base ^ j)
+          + (u.getD (j+1) 0).toNat * (base ^ j * base) = denoteN numer numer.size := by
+        rw [← Nat.pow_succ]; exact hval
+      rw [← hrv]
+      exact div1_combine hqr hvalj
+
+/--
+`div_1` computes a quotient and a one-digit remainder, given that the leading
+numerator digit is already below the divisor, which is what normalization
+arranges. Its `lean_unreachable()` for `q_hat >= BASE` is unreachable for the
+same reason.
+-/
+theorem div1_spec (numer : Array Digit) (denom : Digit) (hd : 0 < denom.toNat)
+    (hn : 0 < numer.size)
+    (htop : (numer.getD (numer.size - 1) 0).toNat < denom.toNat) :
+    ((div1 numer denom).1.getD 0 0).toNat < denom.toNat ∧
+    (div1 numer denom).2.size = numer.size - 1 ∧
+    denote (div1 numer denom).2 * denom.toNat + ((div1 numer denom).1.getD 0 0).toNat
+      = denoteN numer numer.size := by
+  refine div1Loop_spec denom numer hd (numer.size - 1) numer _ rfl (by simp) (by omega)
+    (fun _ _ => rfl) (fun i _ => getD_replicate_zero _ _) htop ?_
+  rw [denote_replicate_zero, Nat.zero_mul, Nat.zero_add]
+  obtain ⟨m, hm⟩ : ∃ m, numer.size = m + 1 := ⟨numer.size - 1, by omega⟩
+  rw [hm, Nat.add_sub_cancel]
+  rfl
 
 /-!
 ## Differential testing against `Nat`

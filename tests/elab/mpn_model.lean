@@ -1647,9 +1647,7 @@ private theorem shr32_lt (x : DoubleDigit) : ((x >>> 32 == 0) = true) = (x.toNat
 
 private theorem toNat_pred {q : DoubleDigit} (h : 0 < q.toNat) :
     (q - 1).toNat = q.toNat - 1 := by
-  have h2 : q.toNat < 2 ^ 64 := q.toNat_lt_size
-  rw [UInt64.toNat_sub, show (1 : UInt64).toNat = 1 from rfl]
-  omega
+  grind
 
 private theorem toNat_add_digit (r : DoubleDigit) (d : Digit) (hr : r.toNat < base) :
     (r + d.toUInt64).toNat = r.toNat + d.toNat := by
@@ -2092,9 +2090,7 @@ theorem divNTrial_spec (denom u : Array Digit) (j k : Nat)
 
 
 private theorem toNat_pred32 {q : Digit} (h : 0 < q.toNat) : (q - 1).toNat = q.toNat - 1 := by
-  have h2 : q.toNat < 2 ^ 32 := q.toNat_lt_size
-  rw [UInt32.toNat_sub, show (1 : UInt32).toNat = 1 from rfl]
-  omega
+  grind
 
 set_option maxHeartbeats 1000000 in
 /--

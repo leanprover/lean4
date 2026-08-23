@@ -8,9 +8,9 @@ configurations are currently disabled, so the code has no automated coverage.
 
 This file transliterates it statement by statement so that the algorithms can
 be checked against `Nat`, which is what `#eval mpnCheck` at the bottom does, and
-so that they can be proved correct, which `denote_add`, `denote_sub` and
-`denote_mul` do for `mpn_add`, `mpn_sub` and `mpn_mul`. Deviations from the C++
-are marked `NOTE:`.
+so that they can be proved correct: `denote_add`, `denote_sub`, `denote_mul`
+and `div_spec` do that for `mpn_add`, `mpn_sub`, `mpn_mul` and `mpn_div`, the
+last by way of Knuth's Algorithm D. Deviations from the C++ are marked `NOTE:`.
 
 A transliteration is only worth as much as its fidelity to the original, so
 `Mpn.Test.emit` prints the model's results in the format that
@@ -452,33 +452,20 @@ NOTE: the `lnum < lden` branch of the C++ computes its loop bound
 checks `lden <= lnum` first, so the branch is dead; the model returns an empty
 quotient there.
 -/
-def div (numer denom : Array Digit) : Array Digit × Array Digit := Id.run do
+def div (numer denom : Array Digit) : Array Digit × Array Digit :=
   let lnum := numer.size
   let lden := denom.size
   if lnum < lden then
-    let quot : Array Digit := Array.replicate (lnum + 1 - lden) 0
-    let rem : Array Digit := (Array.range lden).map fun i => numer.getD i 0
-    return (quot, rem)
-  if lnum == 1 && lden == 1 then
-    return (#[numer[0]! / denom[0]!], #[numer[0]! % denom[0]!])
-  else if lnum == lden && numer[lnum-1]! < denom[lden-1]! then
-    let quot : Array Digit := Array.replicate (lnum - lden + 1) 0
-    let rem : Array Digit := (Array.range lden).map fun i => numer.getD i 0
-    return (quot, rem)
+    (Array.replicate (lnum + 1 - lden) 0, (Array.range lden).map fun i => numer.getD i 0)
+  else if lnum = 1 && lden = 1 then
+    (#[numer.getD 0 0 / denom.getD 0 0], #[numer.getD 0 0 % denom.getD 0 0])
+  else if lnum = lden && numer.getD (lnum-1) 0 < denom.getD (lden-1) 0 then
+    (Array.replicate (lnum - lden + 1) 0, (Array.range lden).map fun i => numer.getD i 0)
   else
     let (d, u, v) := divNormalize numer denom
-    let mut u := u
-    let mut quot : Array Digit := Array.replicate (lnum - lden + 1) 0
-    if lden == 1 then
-      let (u', q) := div1 u v[0]!
-      u := u'
-      for i in [0:min q.size quot.size] do quot := quot.set! i q[i]!
-    else
-      let (u', q) := divN u v
-      u := u'
-      for i in [0:min q.size quot.size] do quot := quot.set! i q[i]!
-    let rem := divUnnormalize u lden d
-    return (quot, rem)
+    let (u, q) := if lden = 1 then div1 u (v.getD 0 0) else divN u v
+    let quot := copyInto (Array.replicate (lnum - lden + 1) 0) q 0 (min q.size (lnum - lden + 1))
+    (quot, divUnnormalize u lden d)
 
 /-! ## `mpn_to_string` -/
 
@@ -2346,6 +2333,7 @@ theorem divN_spec (numer denom : Array Digit) (k : Nat)
     (hnorm : base ≤ 2 * (denom.getD (k+1) 0).toNat)
     (hsz : denom.size ≤ numer.size)
     (hbound : denote numer < denote denom * base ^ (numer.size - denom.size)) :
+    (divN numer denom).1.size = numer.size ∧
     (divN numer denom).2.size = numer.size - denom.size ∧
     denote (divN numer denom).1 < denote denom ∧
     denote (divN numer denom).2 * denote denom + denote (divN numer denom).1 = denote numer := by
@@ -2354,16 +2342,223 @@ theorem divN_spec (numer denom : Array Digit) (k : Nat)
     (Nat.le_refl _) (by omega) (by simp) (fun i hi => getD_of_ge numer (by omega))
     (fun i _ => getD_replicate_zero _ _) hbound
   rw [divN]
-  refine ⟨g2, g3, ?_⟩
+  refine ⟨by rw [g1]; omega, g2, g3, ?_⟩
   rw [g4, denote_replicate_zero, Nat.zero_mul, Nat.zero_add]
+
+/-! ## Correctness of `mpn_div` -/
+
+private theorem div_mod_of_eq {q V r N : Nat} (hV : 0 < V) (heq : q * V + r = N) (hr : r < V) :
+    q = N / V ∧ r = N % V := by
+  subst heq
+  rw [Nat.mul_comm, Nat.mul_add_div hV, Nat.div_eq_of_lt hr, Nat.add_zero,
+    Nat.mul_add_mod, Nat.mod_eq_of_lt hr]
+  exact ⟨rfl, rfl⟩
+
+/-- Same length, smaller leading digit: smaller number. -/
+theorem denote_lt_of_top_lt (a b : Array Digit) (hs : a.size = b.size) (hpos : 0 < a.size)
+    (h : (a.getD (a.size - 1) 0).toNat < (b.getD (b.size - 1) 0).toNat) : denote a < denote b := by
+  obtain ⟨t, ht⟩ : ∃ t, a.size = t + 1 := ⟨a.size - 1, by omega⟩
+  have hbt : b.size = t + 1 := by rw [← hs, ht]
+  have hta : a.size - 1 = t := by omega
+  have htb : b.size - 1 = t := by omega
+  rw [hta, htb] at h
+  have ha : denote a = denoteN a t + (a.getD t 0).toNat * base ^ t := by rw [denote, ht]; rfl
+  have hb : denote b = denoteN b t + (b.getD t 0).toNat * base ^ t := by rw [denote, hbt]; rfl
+  have h1 : denoteN a t < base ^ t := denoteN_lt a t
+  have h3 : ((a.getD t 0).toNat + 1) * base ^ t ≤ (b.getD t 0).toNat * base ^ t :=
+    Nat.mul_le_mul_right _ (by omega)
+  have h4 : ((a.getD t 0).toNat + 1) * base ^ t = (a.getD t 0).toNat * base ^ t + base ^ t := by
+    rw [Nat.add_mul, Nat.one_mul]
+  omega
+
+theorem denote_range_map (a : Array Digit) (n : Nat) (h : a.size = n) :
+    denote ((Array.range n).map fun i => a.getD i 0) = denote a := by
+  have hsz : ((Array.range n).map fun i => a.getD i 0).size = n := by simp
+  rw [denote, hsz, denoteN_congr (c' := a) (fun i hi => by simp [hi]), denote, h]
+
+theorem denote_copyInto_replicate (src : Array Digit) (n len : Nat) (h : len ≤ n) :
+    denote (copyInto (Array.replicate n 0) src 0 len) = denoteN src len := by
+  have hrsz : (Array.replicate n (0 : Digit)).size = n := by simp
+  have hsz : (copyInto (Array.replicate n 0) src 0 len).size = n := by rw [size_copyInto, hrsz]
+  have hhigh : ∀ i, len ≤ i → (copyInto (Array.replicate n 0) src 0 len).getD i 0 = 0 := by
+    intro i hi
+    rw [getD_copyInto_of_ge _ _ 0 len i (by omega)]
+    exact getD_replicate_zero _ _
+  rw [denote_of_high_zero _ (n := len) (by rw [hsz]; omega) hhigh]
+  have hc := denoteN_copyInto (Array.replicate n 0) src 0 len (by rw [hrsz]; omega)
+  simpa [denoteN] using hc
+
+/-- Both operands scaled by the same amount: same quotient, remainder scaled. -/
+private theorem div_mod_scaled (N D t : Nat) (ht : 0 < t) :
+    (N * t) / (D * t) = N / D ∧ (N * t) % (D * t) = (N % D) * t :=
+  ⟨Nat.mul_div_mul_right _ _ ht, Nat.mul_mod_mul_right ..⟩
+
+set_option maxHeartbeats 1000000 in
+/--
+`mpn_div` divides: what it returns are the quotient and remainder of the
+operands. The preconditions are the ones every in-tree caller satisfies, since
+`mpz` keeps its sizes normalized and `lean_nat_div` rejects a zero divisor.
+-/
+theorem div_spec (numer denom : Array Digit)
+    (hden : 0 < denom.size) (hsz : denom.size ≤ numer.size)
+    (htop : 0 < (denom.getD (denom.size - 1) 0).toNat) :
+    denote (div numer denom).1 = denote numer / denote denom ∧
+    denote (div numer denom).2 = denote numer % denote denom := by
+  have hnum : 0 < numer.size := by omega
+  have hVpos : 0 < denote denom := by
+    obtain ⟨t, ht⟩ : ∃ t, denom.size = t + 1 := ⟨denom.size - 1, by omega⟩
+    have hd : denote denom = denoteN denom t + (denom.getD t 0).toNat * base ^ t := by
+      rw [denote, ht]; rfl
+    have ht1 : denom.size - 1 = t := by omega
+    rw [ht1] at htop
+    have h1 : 1 * base ^ t ≤ (denom.getD t 0).toNat * base ^ t :=
+      Nat.mul_le_mul_right _ (by omega)
+    have hp : 0 < base ^ t := Nat.pow_pos (by simp [base])
+    omega
+  rw [div]
+  simp only [show ¬ (numer.size < denom.size) from by omega, ite_false]
+  by_cases hB : (numer.size = 1 && denom.size = 1) = true
+  · -- both single digit: the hardware divide
+    simp only [hB, ite_true]
+    simp only [Bool.and_eq_true, decide_eq_true_eq] at hB
+    have hN : denote numer = (numer.getD 0 0).toNat := by rw [denote, hB.1]; simp [denoteN]
+    have hD : denote denom = (denom.getD 0 0).toNat := by rw [denote, hB.2]; simp [denoteN]
+    exact ⟨by rw [denote_singleton, UInt32.toNat_div, hN, hD],
+      by rw [denote_singleton, UInt32.toNat_mod, hN, hD]⟩
+  · simp only [Bool.eq_false_iff.mpr hB, Bool.false_eq_true, ite_false]
+    by_cases hC : (numer.size = denom.size &&
+        numer.getD (numer.size-1) 0 < denom.getD (denom.size-1) 0) = true
+    · -- numerator already smaller: quotient zero
+      simp only [hC, ite_true]
+      simp only [Bool.and_eq_true, decide_eq_true_eq] at hC
+      have hlt : denote numer < denote denom :=
+        denote_lt_of_top_lt numer denom hC.1 hnum (by
+          simpa [UInt32.lt_iff_toNat_lt] using hC.2)
+      exact ⟨by rw [denote_replicate_zero, Nat.div_eq_of_lt hlt],
+        by rw [denote_range_map numer denom.size hC.1, Nat.mod_eq_of_lt hlt]⟩
+    · simp only [Bool.eq_false_iff.mpr hC, Bool.false_eq_true, ite_false]
+      -- the general path: normalize, divide, unnormalize
+      obtain ⟨dd, u, v, hduv⟩ : ∃ dd u v, divNormalize numer denom = (dd, u, v) := ⟨_, _, _, rfl⟩
+      obtain ⟨hd32, husz, hvsz, huval, hvval, hvnorm⟩ :=
+        divNormalize_spec numer denom hnum hden htop
+      rw [hduv] at hd32 husz hvsz huval hvval hvnorm ⊢
+      dsimp only at hd32 husz hvsz huval hvval hvnorm ⊢
+      have h2d : 0 < 2 ^ dd := Nat.pow_pos (by omega)
+      have hdle : (2:Nat) ^ dd ≤ 2147483648 := by
+        simp only [digitBits] at hd32
+        calc (2:Nat) ^ dd ≤ 2 ^ 31 := Nat.pow_le_pow_right (by omega) (by omega)
+          _ = 2147483648 := by rfl
+      have hVpos' : 0 < denote v := by rw [hvval]; exact Nat.mul_pos hVpos h2d
+      have hNlt : denote numer < base ^ numer.size := denoteN_lt numer numer.size
+      -- the divisor's leading digit, and what it forces about `u`'s
+      have hvsplit : denote v = denoteN v (denom.size - 1)
+          + (v.getD (denom.size - 1) 0).toNat * base ^ (denom.size - 1) := by
+        obtain ⟨t, ht⟩ : ∃ t, denom.size = t + 1 := ⟨denom.size - 1, by omega⟩
+        have ht1 : denom.size - 1 = t := by omega
+        rw [ht1, denote, hvsz, ht]; rfl
+      have husplit : denote u = denoteN u numer.size
+          + (u.getD numer.size 0).toNat * base ^ numer.size := by
+        rw [denote, husz]; rfl
+      have hutop : (u.getD numer.size 0).toNat < 2 ^ dd := by
+        have h1 : denoteN u numer.size < base ^ numer.size := denoteN_lt u numer.size
+        have h2 : denote u < 2 ^ dd * base ^ numer.size := by
+          rw [huval, Nat.mul_comm]
+          exact (Nat.mul_lt_mul_left h2d).mpr hNlt
+        exact Nat.lt_of_mul_lt_mul_right (a := base ^ numer.size) (by omega)
+      -- run the inner division
+      obtain ⟨u', q, hres⟩ : ∃ u' q,
+          (if denom.size = 1 then div1 u (v.getD 0 0) else divN u v) = (u', q) := ⟨_, _, rfl⟩
+      have hmain : q.size = numer.size - denom.size + 1 ∧
+          denote q = denote u / denote v ∧
+          denoteN u' denom.size = denote u % denote v := by
+        by_cases h1 : denom.size = 1
+        · rw [show (if denom.size = 1 then div1 u (v.getD 0 0) else divN u v)
+              = div1 u (v.getD 0 0) from by simp [h1]] at hres
+          have hv0 : 2147483648 ≤ (v.getD 0 0).toNat := by
+            have he : denom.size - 1 = 0 := by omega
+            rw [he] at hvnorm; exact hvnorm
+          have hvd : 0 < (v.getD 0 0).toNat := by omega
+          have hvdD : denote v = (v.getD 0 0).toNat := by rw [denote, hvsz, h1]; simp [denoteN]
+          obtain ⟨g1, g2, g3⟩ := div1_spec u (v.getD 0 0) hvd (by omega)
+            (by have hh : u.size - 1 = numer.size := by omega
+                rw [hh]; omega)
+          rw [hres] at g1 g2 g3
+          dsimp only at g1 g2 g3
+          rw [← denote] at g3
+          obtain ⟨e1, e2⟩ := div_mod_of_eq (V := (v.getD 0 0).toNat) hvd g3 g1
+          rw [← hvdD] at e1 e2
+          refine ⟨by rw [g2, husz, h1]; omega, e1, ?_⟩
+          rw [h1, denoteN, denoteN, ← e2]; simp
+        · rw [show (if denom.size = 1 then div1 u (v.getD 0 0) else divN u v)
+              = divN u v from by simp [h1]] at hres
+          have hk : denom.size = (denom.size - 2) + 2 := by omega
+          have hvk : v.size = (denom.size - 2) + 2 := by rw [hvsz]; omega
+          have hidx : denom.size - 2 + 1 = denom.size - 1 := by omega
+          have hnorm2 : base ≤ 2 * (v.getD (denom.size - 2 + 1) 0).toNat := by
+            rw [hidx]; simp only [base]; omega
+          have hbnd : denote u < denote v * base ^ (u.size - v.size) := by
+            have hb1 : (v.getD (denom.size - 1) 0).toNat * base ^ (denom.size - 1) ≤ denote v := by
+              omega
+            have hb2 : 2147483648 * base ^ (denom.size - 1) ≤ denote v :=
+              Nat.le_trans (Nat.mul_le_mul_right _ hvnorm) hb1
+            have hb3 : denote v * base ^ (u.size - v.size)
+                ≥ 2147483648 * base ^ (denom.size - 1) * base ^ (u.size - v.size) :=
+              Nat.mul_le_mul_right _ hb2
+            have hb4 : base ^ (denom.size - 1) * base ^ (u.size - v.size) = base ^ numer.size := by
+              rw [← Nat.pow_add]; congr 1; rw [husz, hvsz]; omega
+            have hb5 : denote u < 2147483648 * base ^ numer.size := by
+              rw [huval]
+              calc denote numer * 2 ^ dd ≤ denote numer * 2147483648 :=
+                    Nat.mul_le_mul_left _ hdle
+                _ < base ^ numer.size * 2147483648 := (Nat.mul_lt_mul_right (by omega)).mpr hNlt
+                _ = 2147483648 * base ^ numer.size := Nat.mul_comm ..
+            have hb6 : 2147483648 * base ^ (denom.size - 1) * base ^ (u.size - v.size)
+                = 2147483648 * base ^ numer.size := by rw [Nat.mul_assoc, hb4]
+            omega
+          obtain ⟨g0, g1, g2, g3⟩ := divN_spec u v (denom.size - 2) hvk hnorm2 (by omega) hbnd
+          rw [hres] at g0 g1 g2 g3
+          dsimp only at g0 g1 g2 g3
+          obtain ⟨e1, e2⟩ := div_mod_of_eq hVpos' g3 g2
+          have hhz : ∀ i, denom.size ≤ i → u'.getD i 0 = 0 := by
+            intro i hi
+            have hlt : denote u' < base ^ denom.size :=
+              Nat.lt_trans g2 (by rw [← hvsz]; exact denoteN_lt v v.size)
+            rcases Nat.eq_zero_or_pos (u'.getD i 0).toNat with h | h
+            · exact UInt32.toNat_inj.mp (by rw [h]; rfl)
+            · exfalso
+              have hge : base ^ i ≤ denote u' := by
+                have h1 : 1 * base ^ i ≤ (u'.getD i 0).toNat * base ^ i :=
+                  Nat.mul_le_mul_right _ (by omega)
+                have h2 : (u'.getD i 0).toNat * base ^ i ≤ denoteN u' (i+1) := by
+                  rw [denoteN]; omega
+                have h3 : denoteN u' (i+1) ≤ denote u' := by
+                  rcases Nat.lt_or_ge (i+1) u'.size with h' | h'
+                  · obtain ⟨K, hK⟩ := denoteN_add_high u' (i+1) u'.size (by omega)
+                    rw [denote]; omega
+                  · rw [denoteN_of_ge u' h']; exact Nat.le_refl _
+                omega
+              have : base ^ denom.size ≤ base ^ i :=
+                Nat.pow_le_pow_right (by simp [base]) hi
+              omega
+          refine ⟨by rw [g1, husz, hvsz]; omega, e1, ?_⟩
+          rw [← denote_of_high_zero u' (n := denom.size) (by rw [g0, husz]; omega) hhz]
+          exact e2
+      obtain ⟨hqsz, hqval, hrval⟩ := hmain
+      rw [hres]
+      constructor
+      · rw [show min q.size (numer.size - denom.size + 1) = q.size from by omega,
+          denote_copyInto_replicate q (numer.size - denom.size + 1) q.size (by omega),
+          ← denote, hqval, huval, hvval, Nat.mul_div_mul_right _ _ h2d]
+      · rw [divUnnormalize, denote_shiftRightDigits u' hd32 hden, hrval, huval, hvval,
+          Nat.mul_mod_mul_right, Nat.mul_div_cancel _ h2d]
 
 /-!
 ## Differential testing against `Nat`
 
-`mpn_compare`, `mpn_div` and `mpn_to_string` are not proved here; they are
-checked against `Nat` on pseudorandom inputs instead, as are the proved
-routines. The digit generator is biased towards `0`, `1` and `2^32-1` so that
-carries, borrows and Knuth's quotient correction step fire often.
+`mpn_compare` and `mpn_to_string` are not proved here; they are checked against
+`Nat` on pseudorandom inputs instead, as are the proved routines. The digit
+generator is biased towards `0`, `1` and `2^32-1` so that carries, borrows and
+Knuth's quotient correction step fire often.
 -/
 
 namespace Test

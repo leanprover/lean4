@@ -3,11 +3,14 @@ import Module.Basic
 import Module.Imported
 import Module.ImportedAll
 import Module.ImportedPrivateImported
+import Module.MetaImportedPrivateImported
 import Module.PrivateImported
 import Module.ImportedAllPrivateImported
 import Module.ImportedAllImportedAll
 import Module.NonModule
 import Module.MetaImported
+import Module.MetaEnumDeriving
+import Module.NoncomputableRecOn
 
 /-! # Module system basic tests -/
 

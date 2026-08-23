@@ -756,7 +756,14 @@ where doCompile := do
   withoutExporting do
     let state ← Core.saveState
     try
-      compileDeclsImpl decls
+      if logErrors then
+        compileDeclsImpl decls
+      else
+        -- The caller interprets compilation failures (marking the decls `noncomputable` below)
+        -- instead of reporting them, so they must surface now rather than in `leanir`; see
+        -- `compiler.eagerToDecl` in `Lean.Compiler.Options` (set by raw name, cyclic import).
+        withOptions (·.setBool `compiler.eagerToDecl true) do
+          compileDeclsImpl decls
     catch e =>
       state.restore
       for decl in decls do

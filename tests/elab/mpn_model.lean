@@ -20,8 +20,9 @@ C++ are marked `NOTE:`.
 
 A transliteration is only worth as much as its fidelity to the original, so
 `Mpn.Test.emit` prints the model's results in the format that
-`mpn_model_crosscheck.cpp` prints the real `mpn.cpp`'s in, on the same
-pseudorandom operands; the two agree byte for byte.
+`mpn_model_crosscheck.cpp` prints the real `mpn.cpp`'s in, and `Mpn.Test.emitNum`
+does the same against `mpz_crosscheck.cpp` for the `mpz` layer below. On the
+same pseudorandom operands both agree byte for byte.
 -/
 
 namespace Mpn
@@ -2835,6 +2836,158 @@ theorem Num.val_mod (a b : Num) (hb : b.val ≠ 0) : (a.mod b).val = a.val % b.v
   · rw [Num.val_ofArray]
     exact (div_spec a.digits b.digits b.size_pos (by omega) (b.top_pos hb)).2
 
+/-! ### Shifts, as `mpz` implements them -/
+
+/-- `mpz::is_zero()`. -/
+def Num.isZero (a : Num) : Bool := a.digits.size = 1 && a.digits.getD 0 0 == 0
+
+/-- `mul2k`: shift left by `k` bits, then normalize. -/
+def Num.shiftLeft (a : Num) (k : Nat) : Num :=
+  if k = 0 || a.isZero then a
+  else
+    Num.ofArray
+      (shiftLeftDigits ((Array.replicate (k / digitBits) 0) ++ a.digits)
+        (k % digitBits) (a.digits.size + k / digitBits + 1))
+      (by rw [size_shiftLeftDigits]; exact Nat.succ_pos _)
+
+/-- `div2k`: shift right by `k` bits, then normalize. -/
+def Num.shiftRight (a : Num) (k : Nat) : Num :=
+  if k = 0 || a.isZero then a
+  else if h : a.digits.size ≤ k / digitBits then ⟨#[0], by simp, by simp⟩
+  else
+    Num.ofArray
+      (shiftRightDigits (a.digits.extract (k / digitBits) a.digits.size)
+        (k % digitBits) (a.digits.size - k / digitBits))
+      (by rw [size_shiftRightDigits]; omega)
+
+/-- Any digit array as a `Num`, for building test values. -/
+def Num.ofArray! (a : Array Digit) : Num :=
+  if h : 0 < a.size then Num.ofArray a h else ⟨#[0], by simp, by simp⟩
+
+@[simp] theorem Num.val_ofArray! (a : Array Digit) (h : 0 < a.size) :
+    (Num.ofArray! a).val = denote a := by
+  unfold Num.ofArray!
+  split <;> rename_i h2
+  · exact Num.val_ofArray a h2
+  · exact absurd h h2
+theorem base_pow (w : Nat) : base ^ w = 2 ^ (32 * w) := by
+  rw [show (base : Nat) = 2 ^ 32 from rfl, ← Nat.pow_mul]
+
+private theorem getD_zeros_append_lt (w i : Nat) (b : Array Digit) (h : i < w) :
+    ((Array.replicate w (0 : Digit)) ++ b).getD i 0 = 0 := by
+  simp [Array.getElem?_append, h]
+
+private theorem getD_zeros_append_ge (w i : Nat) (b : Array Digit) (h : w ≤ i) :
+    ((Array.replicate w (0 : Digit)) ++ b).getD i 0 = b.getD (i - w) 0 := by
+  simp [Array.getElem?_append, Nat.not_lt.mpr h]
+
+private theorem denoteN_of_all_zero (c : Array Digit) (n : Nat)
+    (h : ∀ i, i < n → c.getD i 0 = 0) : denoteN c n = 0 := by
+  induction n with
+  | zero => rfl
+  | succ n ih => rw [denoteN, ih (fun i hi => h i (by omega)), h n (by omega)]; simp
+
+/-- Prepending `w` zero digits multiplies the denotation by `base ^ w`. -/
+theorem denote_zeros_append (b : Array Digit) (w : Nat) :
+    denote ((Array.replicate w (0 : Digit)) ++ b) = denote b * base ^ w := by
+  have hsz : ((Array.replicate w (0 : Digit)) ++ b).size = w + b.size := by simp
+  have key : ∀ j, denoteN ((Array.replicate w (0 : Digit)) ++ b) (w + j) = denoteN b j * base ^ w := by
+    intro j
+    induction j with
+    | zero =>
+      have hzero : denoteN ((Array.replicate w (0 : Digit)) ++ b) w = 0 :=
+        denoteN_of_all_zero _ w (fun i hi => getD_zeros_append_lt w i b hi)
+      simpa [denoteN] using hzero
+    | succ j ih =>
+      rw [show w + (j+1) = (w + j) + 1 by omega, denoteN, ih,
+        getD_zeros_append_ge w (w+j) b (by omega), show w + j - w = j by omega, denoteN,
+        Nat.add_mul, Nat.mul_assoc, ← Nat.pow_add, Nat.add_comm j w]
+  rw [denote, hsz, key b.size, denote]
+
+theorem Num.val_isZero (a : Num) (h : a.isZero) : a.val = 0 := by
+  simp only [Num.isZero, Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq] at h
+  rw [Num.val, denote, h.1]
+  simp [denoteN, h.2]
+
+/-- `mul2k` shifts left: it multiplies by `2^k`. -/
+theorem Num.val_shiftLeft (a : Num) (k : Nat) : (a.shiftLeft k).val = a.val * 2 ^ k := by
+  rw [Num.shiftLeft]
+  split <;> rename_i h
+  · simp only [Bool.or_eq_true, decide_eq_true_eq] at h
+    rcases h with h | h
+    · rw [h]; simp
+    · rw [Num.val_isZero a h]; simp
+  · simp only [Bool.or_eq_true, decide_eq_true_eq, not_or] at h
+    have hbit : k % digitBits < digitBits := Nat.mod_lt _ (by simp [digitBits])
+    have hpad : denote ((Array.replicate (k / digitBits) (0 : Digit)) ++ a.digits)
+        = a.val * base ^ (k / digitBits) := denote_zeros_append a.digits _
+    have hfit : denote ((Array.replicate (k / digitBits) (0 : Digit)) ++ a.digits)
+        * 2 ^ (k % digitBits) < base ^ (a.digits.size + k / digitBits + 1) := by
+      have h1 : a.val < base ^ a.digits.size := a.val_lt
+      have h2 : (2:Nat) ^ (k % digitBits) ≤ base := by
+        calc (2:Nat) ^ (k % digitBits) ≤ 2 ^ 32 :=
+              Nat.pow_le_pow_right (by omega) (by simp only [digitBits] at hbit ⊢; omega)
+          _ = base := rfl
+      calc denote ((Array.replicate (k / digitBits) (0 : Digit)) ++ a.digits)
+            * 2 ^ (k % digitBits)
+          = a.val * base ^ (k / digitBits) * 2 ^ (k % digitBits) := by rw [hpad]
+        _ < base ^ a.digits.size * base ^ (k / digitBits) * 2 ^ (k % digitBits) := by
+            refine (Nat.mul_lt_mul_right (Nat.two_pow_pos _)).mpr ?_
+            exact (Nat.mul_lt_mul_right (Nat.pow_pos (by simp [base]))).mpr h1
+        _ ≤ base ^ a.digits.size * base ^ (k / digitBits) * base :=
+            Nat.mul_le_mul_left _ h2
+        _ = base ^ (a.digits.size + k / digitBits + 1) := by
+            rw [← Nat.pow_add, ← Nat.pow_succ]
+    rw [Num.val_ofArray,
+      denote_shiftLeftDigits _ hbit (by simp; omega) hfit, hpad, Nat.mul_assoc,
+      base_pow, ← Nat.pow_add]
+    congr 2
+    simp only [digitBits]
+    omega
+
+/-- `div2k` shifts right: it divides by `2^k`. -/
+theorem Num.val_shiftRight (a : Num) (k : Nat) : (a.shiftRight k).val = a.val / 2 ^ k := by
+  have hbit : k % digitBits < digitBits := Nat.mod_lt _ (by simp [digitBits])
+  have hk : 32 * (k / digitBits) + k % digitBits = k := by
+    simp only [digitBits]; omega
+  rw [Num.shiftRight]
+  split <;> rename_i h
+  · simp only [Bool.or_eq_true, decide_eq_true_eq] at h
+    rcases h with h | h
+    · rw [h]; simp
+    · rw [Num.val_isZero a h]; simp
+  · split <;> rename_i h2
+    · -- the shift clears every digit
+      show denote #[0] = _
+      rw [denote_singleton, show ((0 : Digit)).toNat = 0 from rfl]
+      refine (Nat.div_eq_of_lt ?_).symm
+      have h1 : a.val < base ^ a.digits.size := a.val_lt
+      have h3 : base ^ a.digits.size ≤ 2 ^ k := by
+        rw [base_pow]
+        exact Nat.pow_le_pow_right (by omega) (by simp only [digitBits] at h2 ⊢; omega)
+      omega
+    · -- the general case: drop `k / 32` digits, then shift the rest
+      have hw : k / digitBits ≤ a.digits.size := by omega
+      have hext : (a.digits.extract (k / digitBits) a.digits.size).size
+          = a.digits.size - k / digitBits := by simp
+      have hsplit : a.val = denoteN a.digits (k / digitBits)
+          + denote (a.digits.extract (k / digitBits) a.digits.size) * base ^ (k / digitBits) := by
+        rw [Num.val, denote]
+        exact denoteN_extract (j := k / digitBits) a.digits a.digits.size hw (Nat.le_refl _)
+      have hlow : denoteN a.digits (k / digitBits) < base ^ (k / digitBits) :=
+        denoteN_lt a.digits _
+      have hdiv : a.val / base ^ (k / digitBits)
+          = denote (a.digits.extract (k / digitBits) a.digits.size) := by
+        rw [hsplit, Nat.add_mul_div_right _ _ (Nat.pow_pos (by simp [base])),
+          Nat.div_eq_of_lt hlow, Nat.zero_add]
+      rw [Num.val_ofArray,
+        denote_shiftRightDigits _ hbit (by omega),
+        show denoteN (a.digits.extract (k / digitBits) a.digits.size)
+            (a.digits.size - k / digitBits)
+          = denote (a.digits.extract (k / digitBits) a.digits.size) from by
+            rw [denote, hext],
+        ← hdiv, Nat.div_div_eq_div_mul, base_pow, ← Nat.pow_add, hk]
+
 /-!
 ## Differential testing against `Nat`
 
@@ -2966,6 +3119,37 @@ def emit (trials : Nat) (maxLen : Nat) (seed : UInt64) : IO Unit := do
       IO.println (vec "quot" q)
       IO.println (vec "rem" r)
     IO.println s!"str {Mpn.toString a}"
+
+/--
+Print the `mpz`-layer results in the format `mpz_crosscheck.cpp` uses, so the
+two can be diffed.
+-/
+def emitNum (trials : Nat) (maxLen : Nat) (seed : UInt64) : IO Unit := do
+  let mut s := seed
+  for t in [0:trials] do
+    s := nextRand s
+    let la := ((s >>> 33).toNat % maxLen) + 1
+    s := nextRand s
+    let lb := ((s >>> 33).toNat % maxLen) + 1
+    let (da, s') := drawArray la s
+    let (db, s'') := drawArray lb s'
+    s := s''
+    s := nextRand s
+    let k := (s >>> 33).toNat % 100
+    let A := Num.ofArray! da
+    let B := Num.ofArray! db
+    IO.println s!"case {t}"
+    IO.println s!"a {A.val}"
+    IO.println s!"b {B.val}"
+    IO.println s!"add {(A.add B).val}"
+    IO.println s!"sub {(A.sub B).val}"
+    IO.println s!"mul {(A.mul B).val}"
+    if B.val != 0 then
+      IO.println s!"div {(A.div B).val}"
+      IO.println s!"mod {(A.mod B).val}"
+    IO.println s!"shl {(A.shiftLeft k).val}"
+    IO.println s!"shr {(A.shiftRight k).val}"
+    IO.println s!"k {k}"
 
 end Test
 

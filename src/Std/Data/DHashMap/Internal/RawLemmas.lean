@@ -13,6 +13,7 @@ import all Std.Data.DHashMap.Raw
 import all Std.Data.DHashMap.Basic
 import all Std.Data.DHashMap.RawDef
 meta import Std.Data.DHashMap.Basic
+import all Lean.Log
 
 public section
 
@@ -108,31 +109,33 @@ macro_rules
       | apply Raw₀.wf_insertMany₀ | apply Raw₀.Const.wf_insertMany₀
       | apply Raw₀.Const.wf_insertManyIfNewUnit₀ | apply Raw₀.wf_union₀
       | apply Raw.WF.filter₀ | apply Raw₀.wf_map₀ | apply Raw₀.wf_filterMap₀
-      | apply Raw.WF.emptyWithCapacity₀ | apply Raw.WF.inter₀ | apply Raw₀.wf_diff₀ | apply Raw.WF.inter₀) <;> wf_trivial)
+      | apply Raw.WF.emptyWithCapacity₀ | apply Raw.WF.inter₀ | apply Raw₀.wf_diff₀ | apply Raw.WF.inter₀
+      | apply Raw.WF.fst_partition₀ | apply Raw.WF.snd_partition₀) <;> wf_trivial)
 
 /-- Internal implementation detail of the hash map -/
 scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff] } )
 
 open Lean
 
-private meta def modifyMap : Std.DHashMap Name (fun _ => Name) :=
+private meta def modifyMap : Std.DHashMap Name (fun _ => Array Name) :=
   .ofList
-    [⟨`insert, ``toListModel_insert⟩,
-     ⟨`erase, ``toListModel_erase⟩,
-     ⟨`insertIfNew, ``toListModel_insertIfNew⟩,
-     ⟨`insertMany, ``toListModel_insertMany_list⟩,
-     ⟨`union, ``toListModel_union⟩,
-     ⟨`inter, ``toListModel_inter⟩,
-     ⟨`diff, ``toListModel_diff⟩,
-     ⟨`Const.insertMany, ``Const.toListModel_insertMany_list⟩,
-     ⟨`Const.insertManyIfNewUnit, ``Const.toListModel_insertManyIfNewUnit_list⟩,
-     ⟨`alter, ``toListModel_alter⟩,
-     ⟨`modify, ``toListModel_modify⟩,
-     ⟨`Const.alter, ``Const.toListModel_alter⟩,
-     ⟨`Const.modify, ``Const.toListModel_modify⟩,
-     ⟨`filter, ``toListModel_filter⟩,
-     ⟨`map, ``toListModel_map⟩,
-     ⟨`filterMap, ``toListModel_filterMap⟩]
+    [⟨`insert, #[``toListModel_insert]⟩,
+     ⟨`erase, #[``toListModel_erase]⟩,
+     ⟨`insertIfNew, #[``toListModel_insertIfNew]⟩,
+     ⟨`insertMany, #[``toListModel_insertMany_list]⟩,
+     ⟨`union, #[``toListModel_union]⟩,
+     ⟨`inter, #[``toListModel_inter]⟩,
+     ⟨`diff, #[``toListModel_diff]⟩,
+     ⟨`Const.insertMany, #[``Const.toListModel_insertMany_list]⟩,
+     ⟨`Const.insertManyIfNewUnit, #[``Const.toListModel_insertManyIfNewUnit_list]⟩,
+     ⟨`alter, #[``toListModel_alter]⟩,
+     ⟨`modify, #[``toListModel_modify]⟩,
+     ⟨`Const.alter, #[``Const.toListModel_alter]⟩,
+     ⟨`Const.modify, #[``Const.toListModel_modify]⟩,
+     ⟨`filter, #[``toListModel_filter]⟩,
+     ⟨`map, #[``toListModel_map]⟩,
+     ⟨`filterMap, #[``toListModel_filterMap]⟩,
+     ⟨`partition, #[``toListModel_fst_partition, ``toListModel_snd_partition]⟩]
 
 private theorem perm_map_congr_left {α : Type u} {β : Type v} {l l' : List α} {f : α → β}
     {l₂ : List β} (h : l.Perm l') : (l.map f).Perm l₂ ↔ (l'.map f).Perm l₂ :=
@@ -184,6 +187,7 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
 /-- Internal implementation detail of the hash map -/
 scoped syntax "simp_to_model" (" [" (ident,*) "]")? ("using" term)? : tactic
 
+-- call equiv, filter, partition
 macro_rules
 | `(tactic| simp_to_model $[[$names,*]]? $[using $using?]?) => do
   let mut queryNames : Array Name := #[]
@@ -194,6 +198,7 @@ macro_rules
       queryNames := queryNames.push query
       for c in congr do
         congrNames := congrNames.push (← c)
+  -- queryNames = [Equiv], next if not executed
   if queryNames.isEmpty then
     for (q, c) in queryMap.valuesArray do
       queryNames := queryNames.push q
@@ -202,8 +207,11 @@ macro_rules
   let mut congrModify : Array (TSyntax `term) := #[]
   if let some modifyNames := names then
     for modify in modifyNames.getElems.flatMap
-        (fun n => modifyMap.get? (Lean.Syntax.getId n) |>.toArray) do
+        -- changed to allow arrays
+        (fun n => modifyMap.getD (Lean.Syntax.getId n) #[]) do
+      -- modify ∈ [toListModel_filter, toListModel_fst_partition, toListModel_snd_partition]
       for congr in congrNames do
+        -- unclear how this works
         congrModify := congrModify.push (← `($congr:term ($(mkIdent modify) ..)))
   `(tactic|
     (simp (discharger := with_reducible wf_trivial) only
@@ -5218,7 +5226,6 @@ end Const
 end map
 
 section partition
-
 theorem fst_partition_not_eq_snd_partition [EquivBEq α] [LawfulHashable α]
     {p : (a : α) → β a → Bool} :
     (m.partition (fun a b => ! p a b)).fst = (m.partition p).snd := by
@@ -5308,13 +5315,9 @@ private theorem mem_toList_fst_partition [EquivBEq α] [LawfulHashable α] (h : 
 theorem fst_partition_equiv_filter [EquivBEq α] [LawfulHashable α]
     {p : (a : α) → β a → Bool} (h : m.1.WF)  :
     (m.partition p).1.1.Equiv (m.filter p).1 := by
-  rw [equiv_iff_toList_perm_toList]
-  refine List.Perm.trans ?_ (toList_filter m).symm
-  rw [List.perm_ext_iff_of_nodup]
-  · intro a
-    simp [mem_toList_fst_partition _ h]
-  · apply nodup_toList _ Raw.WF.fst_partition₀
-  · apply List.Sublist.nodup List.filter_sublist (nodup_toList m h)
+  simp_to_model [partition, Equiv, filter]
+  apply toListModel_fst_partition
+  wf_trivial
 
 theorem snd_partition_equiv_filter_not [EquivBEq α] [LawfulHashable α]
     {p : (a : α) → β a → Bool} (h : m.1.WF)  :

@@ -60,7 +60,7 @@ def mkPULiftDown (e : Expr) : MetaM Expr := do
 def mkNatLookupTableLifting (n : Expr) (es : Array Expr) : MetaM Expr := do
   let u ← maxLevels es
   let u' := reassocMax (mkLevelMax' u 1).normalize
-  let es ← es.mapM (mkPULift u)
+  let es ← es.mapM (mkPULift u')
   mkNatLookupTable n (.sort u') es
 
 def mkCtorElimTypeName (indName : Name) : Name :=

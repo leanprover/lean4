@@ -309,6 +309,18 @@ def «structure»          := leading_parser
   declModifiers false >>
   («abbrev» <|> definition <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
    «inductive» <|> «coinductive» <|> classInductive <|> «structure»)
+
+/--
+`recall` restates a previous declaration for illustrative purposes and checks that its type and
+optional value are definitionally equal to the original declaration.
+-/
+@[builtin_command_parser] def recall := leading_parser
+  optional docComment >> "recall " >> ident >> ppIndent optDeclSig >> optional declVal
+
+/-- `recall?` suggests a `recall` statement for a previous declaration. -/
+@[builtin_command_parser] def recall? := leading_parser
+  "recall? " >> ident
+
 @[builtin_command_parser] def «deriving»     := leading_parser
   "deriving " >> optional "noncomputable " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover termParser skip) ", "
 def sectionHeader := leading_parser

@@ -238,17 +238,10 @@ def makeCmpHelperCtorIdx (kind : Kind) (levelParams : List Name) (lparams : List
     ctors := moreCtors
     altsType := more
     i := i + 1
-  let ctorIdxBEq := mkApp2 (.const ``Nat.beq []) rctorIdx lctorIdx
-  let ctorIdxBEqEq := mkApp2 (.const ``Eq [1]) (.const ``Bool []) ctorIdxBEq
-  let ctorIdxBEqEqRefl := mkApp2 (.const ``rfl [1]) (.const ``Bool []) ctorIdxBEq
-  let ctorIdxEqImp := .forallE `hidx (.app ctorIdxBEqEq (.bvar 0)) kind.indicatorType .default
-  let motive := .lam `b (.const ``Bool []) ctorIdxEqImp .default
-  let falseBranch := .lam `hidx (.app ctorIdxBEqEq (.const ``false [])) (kind.falseBranch lctorIdx rctorIdx) .default
-  let trueBranch :=
-    .lam `hidx (.app ctorIdxBEqEq (.const ``true []))
-      (.app casesOnApp (mkApp3 (.const ``Nat.eq_of_beq_eq_true []) rctorIdx lctorIdx (.bvar 0)))
-      .default
-  let boolCases := mkApp5 (.const ``Bool.casesOn [1]) motive ctorIdxBEq falseBranch trueBranch ctorIdxBEqEqRefl
+  let ctorIdxEq := mkApp3 (.const ``Eq [1]) Nat.mkType rctorIdx lctorIdx
+  let ctorIdxDecEq := mkApp2 (.const ``Nat.decEq []) rctorIdx lctorIdx
+  let falseBranch := .lam `hidx (mkNot ctorIdxEq) (kind.falseBranch lctorIdx rctorIdx) .default
+  let boolCases := mkApp5 (.const ``dite [1]) kind.indicatorType ctorIdxEq ctorIdxDecEq casesOnApp falseBranch
   let type ← mkForallFVars (params ++ moreVars ++ lvars ++ rvars) kind.indicatorType (binderInfoForMVars := .default)
   let value ← mkLambdaFVars (params ++ moreVars ++ lvars ++ rvars) boolCases (binderInfoForMVars := .default)
   makePreDefinitionWithStructuralHint levelParams (kind.mkHelperName indName) type value

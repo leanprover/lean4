@@ -725,6 +725,125 @@ theorem size_mul (a b : Array Digit) : (mul a b).size = a.size + b.size :=
   (mulLoop_spec a b b.size (Nat.le_refl _)).1
 
 /-!
+## Towards `mpn_div`: Knuth's quotient-digit estimate
+
+The arithmetic core of Knuth's Algorithm D, as pure `Nat` statements.
+
+Digits are written relative to the divisor's length: with `n` divisor digits and
+`k = n - 2`,
+
+  v = (vtop * b + vsnd) * b^k + vrest      vrest < b^k,  vsnd < b,  1 ≤ vtop
+  u = u2 * b^(k+1) + u3 * b^k + ulow       ulow < b^k,   u3 < b
+
+so `u2` is the top two dividend digits and `u3` the next one down. `qhat` and
+`rhat` are the trial quotient digit and its remainder, `u2 = qhat * vtop + rhat`
+with `rhat < vtop`; step D3's test is `qhat * vsnd > b * rhat + u3`.
+-/
+
+namespace KnuthD
+
+
+/-- Knuth 4.3.1 Theorem A: the trial quotient digit is never too small. -/
+theorem le_qhat {u v P : Nat} (hP : 0 < P) (hv : 0 < v / P) :
+    u / v ≤ (u / P) / (v / P) := by
+  calc u / v ≤ u / (P * (v / P)) :=
+        Nat.div_le_div_left (Nat.mul_div_le v P) (Nat.mul_pos hP hv)
+    _ = u / P / (v / P) := (Nat.div_div_eq_div_mul u P (v / P)).symm
+
+/--
+Knuth 4.3.1 exercise 19: when step D3's test fires, the trial digit really is
+too big, so decrementing it cannot undershoot the true quotient digit.
+-/
+theorem lt_of_test {b k vtop vsnd vrest u u2 u3 ulow qhat rhat : Nat}
+    (hu : u = u2 * b ^ (k+1) + u3 * b ^ k + ulow) (hulow : ulow < b ^ k)
+    (hu2 : u2 = qhat * vtop + rhat)
+    (hfire : b * rhat + u3 < qhat * vsnd) :
+    u < qhat * ((vtop * b + vsnd) * b ^ k + vrest) := by
+  have hpow : b ^ (k+1) = b ^ k * b := Nat.pow_succ b k
+  calc u = u2 * (b ^ k * b) + u3 * b ^ k + ulow := by rw [hu, hpow]
+    _ < qhat * vtop * (b ^ k * b) + (b * rhat + u3 + 1) * b ^ k := by
+        rw [hu2]; have : (qhat * vtop + rhat) * (b ^ k * b) + u3 * b ^ k + b ^ k
+            = qhat * vtop * (b ^ k * b) + (b * rhat + u3 + 1) * b ^ k := by grind
+        omega
+    _ ≤ qhat * vtop * (b ^ k * b) + (qhat * vsnd) * b ^ k :=
+        Nat.add_le_add_left (Nat.mul_le_mul_right _ (by omega)) _
+    _ = qhat * ((vtop * b + vsnd) * b ^ k) := by grind
+    _ ≤ qhat * ((vtop * b + vsnd) * b ^ k + vrest) :=
+        Nat.mul_le_mul_left _ (Nat.le_add_right _ _)
+
+/--
+The converse: when step D3's test fails, the trial digit is at most one too big,
+which is exactly what makes the single add-back of step D6 enough. Only
+`1 ≤ vtop` and `qhat < b` are needed, not the full normalization.
+-/
+theorem le_succ_of_not_test {b k vtop vsnd vrest u u2 u3 ulow qhat rhat : Nat}
+    (hu : u = u2 * b ^ (k+1) + u3 * b ^ k + ulow)
+    (hu2 : u2 = qhat * vtop + rhat)
+    (hvrest : vrest < b ^ k) (hvtop : 1 ≤ vtop) (hqhat : qhat < b)
+    (hfail : qhat * vsnd ≤ b * rhat + u3) :
+    qhat * ((vtop * b + vsnd) * b ^ k + vrest)
+      ≤ u + ((vtop * b + vsnd) * b ^ k + vrest) := by
+  have hpow : b ^ (k+1) = b ^ k * b := Nat.pow_succ b k
+  -- `qhat` times the divisor's leading part already fits under `u`
+  have hmain : qhat * ((vtop * b + vsnd) * b ^ k) ≤ u := by
+    calc qhat * ((vtop * b + vsnd) * b ^ k)
+        = qhat * vtop * (b ^ k * b) + (qhat * vsnd) * b ^ k := by grind
+      _ ≤ qhat * vtop * (b ^ k * b) + (b * rhat + u3) * b ^ k :=
+          Nat.add_le_add_left (Nat.mul_le_mul_right _ hfail) _
+      _ = u2 * (b ^ k * b) + u3 * b ^ k := by rw [hu2]; grind
+      _ ≤ u := by rw [hu, hpow]; omega
+  -- and the low part of the divisor that this ignores is itself below the divisor
+  have hslack : qhat * vrest ≤ (vtop * b + vsnd) * b ^ k + vrest := by
+    have h1 : qhat * vrest ≤ b * b ^ k := Nat.mul_le_mul (by omega) (by omega)
+    have h2 : b * b ^ k ≤ (vtop * b + vsnd) * b ^ k := by
+      refine Nat.mul_le_mul_right _ ?_
+      calc b = 1 * b := (Nat.one_mul b).symm
+        _ ≤ vtop * b := Nat.mul_le_mul_right b hvtop
+        _ ≤ vtop * b + vsnd := Nat.le_add_right _ _
+    exact Nat.le_trans (Nat.le_trans h1 h2) (Nat.le_add_right _ _)
+  calc qhat * ((vtop * b + vsnd) * b ^ k + vrest)
+      = qhat * ((vtop * b + vsnd) * b ^ k) + qhat * vrest := by grind
+    _ ≤ u + ((vtop * b + vsnd) * b ^ k + vrest) := Nat.add_le_add hmain hslack
+
+/-!
+Restated against the divisor `v` and the true quotient digit `u / v`, which is
+the form the loop proof consumes: after step D3 the trial digit is either exact
+or one too big, and every decrement it performs is justified.
+-/
+
+/-- A trial digit whose test fires is strictly above the true quotient digit. -/
+theorem div_lt_of_test {b k vtop vsnd vrest v u u2 u3 ulow qhat rhat : Nat}
+    (hv : v = (vtop * b + vsnd) * b ^ k + vrest) (hvpos : 0 < v)
+    (hu : u = u2 * b ^ (k+1) + u3 * b ^ k + ulow) (hulow : ulow < b ^ k)
+    (hu2 : u2 = qhat * vtop + rhat)
+    (hfire : b * rhat + u3 < qhat * vsnd) :
+    u / v < qhat :=
+  (Nat.div_lt_iff_lt_mul hvpos).mpr <| by
+    have := lt_of_test (vrest := vrest) hu hulow hu2 hfire
+    rw [hv]; omega
+
+/-- A trial digit whose test fails is at most one above the true quotient digit. -/
+theorem le_succ_div_of_not_test {b k vtop vsnd vrest v u u2 u3 ulow qhat rhat : Nat}
+    (hv : v = (vtop * b + vsnd) * b ^ k + vrest) (hvpos : 0 < v)
+    (hu : u = u2 * b ^ (k+1) + u3 * b ^ k + ulow)
+    (hu2 : u2 = qhat * vtop + rhat)
+    (hvrest : vrest < b ^ k) (hvtop : 1 ≤ vtop) (hqhat : qhat < b)
+    (hfail : qhat * vsnd ≤ b * rhat + u3) :
+    qhat ≤ u / v + 1 := by
+  have hle : qhat * v ≤ u + v := by
+    have := le_succ_of_not_test (vsnd := vsnd) hu hu2 hvrest hvtop hqhat hfail
+    rw [hv]; omega
+  rcases qhat with _ | m
+  · exact Nat.zero_le _
+  · have hm : m * v ≤ u := by
+      have : (m+1) * v = m * v + v := by grind
+      omega
+    have := (Nat.le_div_iff_mul_le hvpos).mpr hm
+    omega
+
+end KnuthD
+
+/-!
 ## Differential testing against `Nat`
 
 `mpn_compare`, `mpn_div` and `mpn_to_string` are not proved here; they are

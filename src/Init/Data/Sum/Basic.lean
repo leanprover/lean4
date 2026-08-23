@@ -48,6 +48,29 @@ namespace Sum
 
 deriving instance BEq for Sum
 
+section BEq
+
+variable [BEq α] [BEq β] [LawfulBEq α] [LawfulBEq β]
+
+instance : LawfulBEq (α ⊕ β) where
+  rfl {a} := by
+    cases a with
+    | inl x => exact BEq.refl x
+    | inr y => exact BEq.refl y
+  eq_of_beq {a b} h := by
+    have ft : ¬false == true := by decide
+    cases a with
+    | inl x =>
+      cases b with
+      | inl z => exact congrArg inl (eq_of_beq h)
+      | inr w => exact absurd h ft
+    | inr y =>
+      cases b with
+      | inl z => exact absurd h ft
+      | inr w => exact congrArg inr (eq_of_beq h)
+
+end BEq
+
 section get
 
 /-- Checks whether a sum is the left injection `inl`. -/

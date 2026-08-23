@@ -6,6 +6,11 @@ arrays of `uint32_t` digits. It is the arithmetic Lean uses when built with
 `USE_GMP=OFF` (the 32-bit and WebAssembly targets); both of those CI
 configurations are currently disabled, so the code has no automated coverage.
 
+The kernel reaches it: `type_checker::reduce_nat` reduces `Nat.add`, `sub`,
+`mul`, `pow`, `gcd`, `div`, `mod`, `beq` and `ble` through `mpz` and hence
+through every routine here except `mpn_to_string`, whose only caller is
+printing.
+
 This file transliterates it statement by statement so that the algorithms can
 be checked against `Nat`, which is what `#eval mpnCheck` at the bottom does, and
 so that they can be proved correct: `denote_add`, `denote_sub`, `denote_mul`
@@ -2598,6 +2603,237 @@ theorem compare_spec (a b : Array Digit) :
     compare a b = if denote b < denote a then 1 else if denote a < denote b then -1 else 0 := by
   rw [compare, compareLoop_spec, denoteN_of_ge a (Nat.le_max_left ..),
     denoteN_of_ge b (Nat.le_max_right ..)]
+
+/-!
+## The `mpz` layer
+
+Every `mpn` specification above takes its preconditions as hypotheses: a
+nonempty digit array, a divisor no longer than the dividend, a nonzero leading
+divisor digit. `mpz` is what establishes them, by keeping every value in a
+normalized shape and by sizing the buffers it hands to `mpn`. Bundling that
+shape into a type discharges the preconditions once, structurally, instead of
+assuming them at each use.
+-/
+
+/--
+A digit array in the shape `mpz` keeps it: at least one digit, and no leading
+zero digit unless the value is a single zero. `mpz::set` establishes it.
+-/
+structure Num where
+  digits : Array Digit
+  size_pos : 0 < digits.size
+  top_ne_zero : 1 < digits.size → (digits.getD (digits.size - 1) 0).toNat ≠ 0
+
+/-- The natural number a `Num` denotes. -/
+def Num.val (a : Num) : Nat := denote a.digits
+
+theorem size_trim_pos (c : Array Digit) (h : 0 < c.size) : 0 < (trim c).size := by
+  unfold trim
+  split <;> rename_i hc
+  · simp only [Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq] at hc
+    exact size_trim_pos c.pop (by simp; omega)
+  · exact h
+termination_by c.size
+decreasing_by simp_all; omega
+
+theorem trim_top_ne_zero (c : Array Digit) :
+    1 < (trim c).size → ((trim c).getD ((trim c).size - 1) 0).toNat ≠ 0 := by
+  unfold trim
+  split <;> rename_i hc
+  · simp only [Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq] at hc
+    exact trim_top_ne_zero c.pop
+  · intro hgt he
+    simp only [Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq, not_and] at hc
+    exact hc hgt (UInt32.toNat_inj.mp (by rw [he]; rfl))
+termination_by c.size
+decreasing_by simp_all; omega
+
+/-- `mpz::set`: drop leading zero digits, keeping at least one. -/
+def Num.ofArray (a : Array Digit) (h : 0 < a.size) : Num :=
+  ⟨trim a, size_trim_pos a h, trim_top_ne_zero a⟩
+
+@[simp] theorem Num.val_ofArray (a : Array Digit) (h : 0 < a.size) :
+    (Num.ofArray a h).val = denote a := denote_trim a
+
+/-- A normalized value below `base ^ (size - 1)` can only be a single zero. -/
+theorem Num.pow_le_val (a : Num) (h : 1 < a.digits.size) :
+    base ^ (a.digits.size - 1) ≤ a.val := by
+  obtain ⟨t, ht⟩ : ∃ t, a.digits.size = t + 1 := ⟨a.digits.size - 1, by omega⟩
+  have hval : a.val = denoteN a.digits t + (a.digits.getD t 0).toNat * base ^ t := by
+    rw [Num.val, denote, ht]; rfl
+  have htop : (a.digits.getD t 0).toNat ≠ 0 := by
+    have := a.top_ne_zero h
+    rwa [show a.digits.size - 1 = t from by omega] at this
+  have h1 : 1 * base ^ t ≤ (a.digits.getD t 0).toNat * base ^ t :=
+    Nat.mul_le_mul_right _ (by omega)
+  rw [show a.digits.size - 1 = t from by omega]
+  omega
+
+theorem Num.val_lt (a : Num) : a.val < base ^ a.digits.size := denoteN_lt a.digits a.digits.size
+
+/-- Normalization makes the digit count monotone in the value. -/
+theorem Num.size_le_of_val_le (a b : Num) (h : a.val ≤ b.val) :
+    a.digits.size ≤ b.digits.size := by
+  rcases Nat.lt_or_ge b.digits.size a.digits.size with hs | hs
+  · exfalso
+    rcases Nat.lt_or_ge 1 a.digits.size with h1 | h1
+    · have hb : b.val < base ^ b.digits.size := b.val_lt
+      have ha : base ^ (a.digits.size - 1) ≤ a.val := a.pow_le_val h1
+      have hmono : base ^ b.digits.size ≤ base ^ (a.digits.size - 1) :=
+        Nat.pow_le_pow_right (by simp [base]) (by omega)
+      omega
+    · have h2 := a.size_pos
+      have h3 := b.size_pos
+      omega
+  · exact hs
+
+/-- A nonzero normalized value has a nonzero leading digit. -/
+theorem Num.top_pos (a : Num) (h : a.val ≠ 0) :
+    0 < (a.digits.getD (a.digits.size - 1) 0).toNat := by
+  rcases Nat.lt_or_ge 1 a.digits.size with h1 | h1
+  · have := a.top_ne_zero h1; omega
+  · have hsz : a.digits.size = 1 := by have := a.size_pos; omega
+    have : a.val = (a.digits.getD 0 0).toNat := by rw [Num.val, denote, hsz]; simp [denoteN]
+    rw [hsz]
+    simp only [Nat.sub_self]
+    omega
+theorem size_add_pos (a b : Array Digit) : 0 < (Mpn.add a b).size := by
+  rw [add]; exact size_trim_pos _ (by simp)
+
+theorem size_div_quot (numer denom : Array Digit) (hden : 0 < denom.size)
+    (hsz : denom.size ≤ numer.size) :
+    (div numer denom).1.size = numer.size - denom.size + 1 := by
+  rw [div]
+  simp only [show ¬ (numer.size < denom.size) from by omega, ite_false]
+  split <;> rename_i hB
+  · simp only [Bool.and_eq_true, decide_eq_true_eq] at hB
+    simp [hB.1, hB.2]
+  · split <;> rename_i hC
+    · simp
+    · simp [size_copyInto]
+
+theorem size_div_rem (numer denom : Array Digit) (hden : 0 < denom.size)
+    (hsz : denom.size ≤ numer.size) : (div numer denom).2.size = denom.size := by
+  rw [div]
+  simp only [show ¬ (numer.size < denom.size) from by omega, ite_false]
+  split <;> rename_i hB
+  · simp only [Bool.and_eq_true, decide_eq_true_eq] at hB
+    simp [hB.2]
+  · split <;> rename_i hC
+    · simp
+    · simp [divUnnormalize, size_shiftRightDigits]
+
+/-! ### The operations `mpz` builds on `mpn` -/
+
+/-- `mpn_compare` lifted to normalized values. -/
+def Num.compare (a b : Num) : Int := Mpn.compare a.digits b.digits
+
+theorem Num.compare_spec (a b : Num) :
+    a.compare b = if b.val < a.val then 1 else if a.val < b.val then -1 else 0 :=
+  Mpn.compare_spec a.digits b.digits
+
+/-- `mpz::operator+=` on non-negative values: `mpn_add`, then normalize. -/
+def Num.add (a b : Num) : Num := Num.ofArray (Mpn.add a.digits b.digits) (size_add_pos ..)
+
+@[simp] theorem Num.val_add (a b : Num) : (a.add b).val = a.val + b.val := by
+  rw [Num.add, Num.val_ofArray, denote_add, Num.val, Num.val]
+
+/-- `mpz::operator*=`: `mpn_mul`, then normalize. -/
+def Num.mul (a b : Num) : Num :=
+  Num.ofArray (Mpn.mul a.digits b.digits) (by rw [size_mul]; have := a.size_pos; omega)
+
+@[simp] theorem Num.val_mul (a b : Num) : (a.mul b).val = a.val * b.val := by
+  rw [Num.mul, Num.val_ofArray, denote_mul, Num.val, Num.val]
+
+/--
+`Nat.sub` at the `mpz` layer: compare, and either return zero, as
+`lean_nat_big_sub` does when the difference would be negative, or subtract and
+normalize.
+-/
+def Num.sub (a b : Num) : Num :=
+  if Mpn.compare a.digits b.digits ≤ 0 then ⟨#[0], by simp, by simp⟩
+  else Num.ofArray (Mpn.sub a.digits b.digits).1 (by
+    rw [size_sub]; have := a.size_pos; omega)
+
+@[simp] theorem Num.val_sub (a b : Num) : (a.sub b).val = a.val - b.val := by
+  have hc : Mpn.compare a.digits b.digits
+      = if b.val < a.val then 1 else if a.val < b.val then -1 else 0 := Num.compare_spec a b
+  rw [Num.sub]
+  split <;> rename_i h
+  · -- the guard says the difference would be negative, so the result is zero
+    have hle : a.val ≤ b.val := by
+      rcases Nat.lt_or_ge b.val a.val with hlt | hle
+      · exfalso
+        have h1 : Mpn.compare a.digits b.digits = 1 := by rw [hc]; simp [hlt]
+        omega
+      · exact hle
+    show denote #[0] = _
+    rw [denote_singleton, show ((0 : Digit)).toNat = 0 from rfl]
+    omega
+  · have hlt : b.val < a.val := by
+      rcases Nat.lt_or_ge b.val a.val with hlt | hle
+      · exact hlt
+      · exfalso
+        refine h ?_
+        rw [hc]
+        rcases Nat.lt_or_ge a.val b.val with h2 | h2
+        · simp [Nat.not_lt.mpr hle, h2]
+        · simp [Nat.not_lt.mpr hle, Nat.not_lt.mpr h2]
+    -- with `b` below `a` the subtraction cannot borrow out of the top digit
+    have hd := denote_sub a.digits b.digits
+    have hlen : (Mpn.sub a.digits b.digits).1.size = max a.digits.size b.digits.size := size_sub ..
+    have hsmall : denote (Mpn.sub a.digits b.digits).1
+        < base ^ (max a.digits.size b.digits.size) := by
+      rw [denote, hlen]; exact denoteN_lt _ _
+    simp only [Num.val] at hlt
+    have hb0 : (Mpn.sub a.digits b.digits).2.toNat = 0 := by
+      rcases Nat.eq_zero_or_pos (Mpn.sub a.digits b.digits).2.toNat with h0 | h0
+      · exact h0
+      · exfalso
+        have hge : base ^ (max a.digits.size b.digits.size)
+            ≤ (Mpn.sub a.digits b.digits).2.toNat * base ^ (max a.digits.size b.digits.size) :=
+          Nat.le_mul_of_pos_left _ h0
+        omega
+    rw [hb0, Nat.zero_mul, Nat.add_zero] at hd
+    rw [Num.val_ofArray]
+    simp only [Num.val]
+    omega
+
+/-- `mpz::div`: return zero if the divisor is longer, else `mpn_div` and normalize. -/
+def Num.div (a b : Num) : Num :=
+  if h : a.digits.size < b.digits.size then ⟨#[0], by simp, by simp⟩
+  else Num.ofArray (Mpn.div a.digits b.digits).1 (by
+    rw [size_div_quot _ _ b.size_pos (by omega)]; omega)
+
+/-- `mpz::rem`: return the dividend if the divisor is longer, else `mpn_div` and normalize. -/
+def Num.mod (a b : Num) : Num :=
+  if h : a.digits.size < b.digits.size then a
+  else Num.ofArray (Mpn.div a.digits b.digits).2 (by
+    rw [size_div_rem _ _ b.size_pos (by omega)]; exact b.size_pos)
+
+theorem Num.val_div (a b : Num) (hb : b.val ≠ 0) : (a.div b).val = a.val / b.val := by
+  rw [Num.div]
+  split <;> rename_i h
+  · have hlt : a.val < b.val := by
+      rcases Nat.lt_or_ge a.val b.val with h2 | h2
+      · exact h2
+      · exact absurd (Num.size_le_of_val_le b a h2) (by omega)
+    show denote #[0] = _
+    rw [denote_singleton, Nat.div_eq_of_lt hlt]
+    rfl
+  · rw [Num.val_ofArray]
+    exact (div_spec a.digits b.digits b.size_pos (by omega) (b.top_pos hb)).1
+
+theorem Num.val_mod (a b : Num) (hb : b.val ≠ 0) : (a.mod b).val = a.val % b.val := by
+  rw [Num.mod]
+  split <;> rename_i h
+  · have hlt : a.val < b.val := by
+      rcases Nat.lt_or_ge a.val b.val with h2 | h2
+      · exact h2
+      · exact absurd (Num.size_le_of_val_le b a h2) (by omega)
+    rw [Nat.mod_eq_of_lt hlt]
+  · rw [Num.val_ofArray]
+    exact (div_spec a.digits b.digits b.size_pos (by omega) (b.top_pos hb)).2
 
 /-!
 ## Differential testing against `Nat`

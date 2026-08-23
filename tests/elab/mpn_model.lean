@@ -1840,6 +1840,59 @@ theorem denoteN_extract (a : Array Digit) {j : Nat} :
         show k - j + j = k by omega]
       omega
 
+/-! ## Bulk digit copies -/
+
+theorem size_copyInto (dst src : Array Digit) (j len : Nat) :
+    (copyInto dst src j len).size = dst.size := by
+  induction len with
+  | zero => rfl
+  | succ len ih => rw [copyInto, Array.size_set!, ih]
+
+theorem getD_copyInto_of_lt (dst src : Array Digit) (j len i : Nat) (h : i < j) :
+    (copyInto dst src j len).getD i 0 = dst.getD i 0 := by
+  induction len with
+  | zero => rfl
+  | succ len ih => rw [copyInto, getD_set!_ne _ _ _ _ (by omega), ih]
+
+theorem getD_copyInto_of_ge (dst src : Array Digit) (j len i : Nat) (h : j + len ≤ i) :
+    (copyInto dst src j len).getD i 0 = dst.getD i 0 := by
+  induction len with
+  | zero => rfl
+  | succ len ih => rw [copyInto, getD_set!_ne _ _ _ _ (by omega), ih (by omega)]
+
+theorem denoteN_copyInto (dst src : Array Digit) (j : Nat) :
+    ∀ len, j + len ≤ dst.size →
+      denoteN (copyInto dst src j len) (j + len) = denoteN dst j + denoteN src len * base ^ j := by
+  intro len
+  induction len with
+  | zero => intro _; simp [copyInto, denoteN]
+  | succ len ih =>
+    intro h
+    have hsz : (copyInto dst src j len).size = dst.size := size_copyInto ..
+    rw [show j + (len+1) = (j + len) + 1 by omega, copyInto,
+      denoteN_set!_succ _ _ _ (by rw [hsz]; omega), ih (by omega), denoteN,
+      Nat.add_mul, Nat.mul_assoc, ← Nat.pow_add, show len + j = j + len by omega]
+    omega
+
+/-! ## Two-digit decomposition -/
+
+/-- The top two digits of an `n+2`-digit array, split off. -/
+theorem denoteN_split_two (a : Array Digit) (k : Nat) :
+    denoteN a (k+2)
+      = ((a.getD (k+1) 0).toNat * base + (a.getD k 0).toNat) * base ^ k + denoteN a k := by
+  have hp : base ^ (k+1) = base ^ k * base := Nat.pow_succ base k
+  rw [denoteN, denoteN, hp]
+  grind
+
+/-- The same split for an `n+3`-digit window, in the shape Algorithm D uses. -/
+theorem denoteN_split_window (a : Array Digit) (k : Nat) :
+    denoteN a (k+3)
+      = ((a.getD (k+2) 0).toNat * base + (a.getD (k+1) 0).toNat) * base ^ (k+1)
+        + (a.getD k 0).toNat * base ^ k + denoteN a k := by
+  have hp : base ^ (k+2) = base ^ (k+1) * base := Nat.pow_succ base (k+1)
+  rw [denoteN, denoteN, denoteN, hp]
+  grind
+
 /-!
 ## Differential testing against `Nat`
 

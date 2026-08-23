@@ -21,3 +21,4 @@ public import Lean.Elab.Deriving.Ord
 public import Lean.Elab.Deriving.ToExpr
 public import Lean.Elab.Deriving.ReflBEq
 public import Lean.Elab.Deriving.LawfulBEq
+public import Lean.Elab.Deriving.Serialize

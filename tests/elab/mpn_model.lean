@@ -9,8 +9,9 @@ configurations are currently disabled, so the code has no automated coverage.
 This file transliterates it statement by statement so that the algorithms can
 be checked against `Nat`, which is what `#eval mpnCheck` at the bottom does, and
 so that they can be proved correct: `denote_add`, `denote_sub`, `denote_mul`
-and `div_spec` do that for `mpn_add`, `mpn_sub`, `mpn_mul` and `mpn_div`, the
-last by way of Knuth's Algorithm D. Deviations from the C++ are marked `NOTE:`.
+`div_spec` and `compare_spec` do that for `mpn_add`, `mpn_sub`, `mpn_mul`,
+`mpn_div` (by way of Knuth's Algorithm D) and `mpn_compare`. Deviations from the
+C++ are marked `NOTE:`.
 
 A transliteration is only worth as much as its fidelity to the original, so
 `Mpn.Test.emit` prints the model's results in the format that
@@ -164,19 +165,19 @@ theorem denote_of_high_zero (c : Array Digit) {n : Nat} (hn : n ≤ c.size)
 
 /-! ## `mpn_compare` -/
 
-/--
-`mpn_compare`. The C++ latches `res` and runs the loop to completion; returning
-early is observationally the same.
--/
-def compare (a b : Array Digit) : Int := Id.run do
-  let len := max a.size b.size
-  for k in [0:len] do
-    let j := len - 1 - k
+/-- `mpn_compare`'s loop, scanning digits from `j-1` down to 0. -/
+def compareLoop (a b : Array Digit) : Nat → Int
+  | 0 => 0
+  | j+1 =>
     let u_j := a.getD j 0
     let v_j := b.getD j 0
-    if u_j > v_j then return 1
-    if u_j < v_j then return -1
-  return 0
+    if u_j > v_j then 1 else if u_j < v_j then -1 else compareLoop a b j
+
+/--
+`mpn_compare`. The C++ latches `res` and runs the loop to completion; stopping
+at the first difference is observationally the same.
+-/
+def compare (a b : Array Digit) : Int := compareLoop a b (max a.size b.size)
 
 /-! ## `mpn_add` -/
 
@@ -2552,11 +2553,57 @@ theorem div_spec (numer denom : Array Digit)
       · rw [divUnnormalize, denote_shiftRightDigits u' hd32 hden, hrval, huval, hvval,
           Nat.mul_mod_mul_right, Nat.mul_div_cancel _ h2d]
 
+/-! ## Correctness of `mpn_compare` -/
+
+/-- A bigger leading digit outweighs everything below it. -/
+private theorem denoteN_lt_of_digit_lt (a b : Array Digit) (n : Nat)
+    (h : (a.getD n 0).toNat < (b.getD n 0).toNat) : denoteN a (n+1) < denoteN b (n+1) := by
+  have h1 : denoteN a n < base ^ n := denoteN_lt a n
+  have h2 : ((a.getD n 0).toNat + 1) * base ^ n ≤ (b.getD n 0).toNat * base ^ n :=
+    Nat.mul_le_mul_right _ (by omega)
+  have h3 : ((a.getD n 0).toNat + 1) * base ^ n
+      = (a.getD n 0).toNat * base ^ n + base ^ n := by rw [Nat.add_mul, Nat.one_mul]
+  have h4 : (b.getD n 0).toNat * base ^ n ≤ denoteN b (n+1) := by rw [denoteN]; omega
+  rw [denoteN]
+  omega
+
+/-- The scan reports the order of the digits it has seen. -/
+theorem compareLoop_spec (a b : Array Digit) (n : Nat) :
+    compareLoop a b n =
+      if denoteN b n < denoteN a n then 1 else if denoteN a n < denoteN b n then -1 else 0 := by
+  induction n with
+  | zero => simp [compareLoop, denoteN]
+  | succ n ih =>
+    have hgt : (a.getD n 0 > b.getD n 0) = ((b.getD n 0).toNat < (a.getD n 0).toNat) := by
+      simp [UInt32.lt_iff_toNat_lt]
+    have hlt : (a.getD n 0 < b.getD n 0) = ((a.getD n 0).toNat < (b.getD n 0).toNat) := by
+      simp [UInt32.lt_iff_toNat_lt]
+    rw [compareLoop]
+    simp only [hgt, hlt]
+    rcases Nat.lt_trichotomy (a.getD n 0).toNat (b.getD n 0).toNat with h | h | h
+    · have hd := denoteN_lt_of_digit_lt a b n h
+      simp only [show ((b.getD n 0).toNat < (a.getD n 0).toNat) = False from eq_false (by omega),
+        show ((a.getD n 0).toNat < (b.getD n 0).toNat) = True from eq_true h,
+        show (denoteN b (n+1) < denoteN a (n+1)) = False from eq_false (by omega),
+        show (denoteN a (n+1) < denoteN b (n+1)) = True from eq_true hd, ite_true, ite_false]
+    · have hdeq : a.getD n 0 = b.getD n 0 := UInt32.toNat_inj.mp h
+      simp only [ih, denoteN, hdeq]
+      simp
+    · have hd := denoteN_lt_of_digit_lt b a n h
+      simp only [show ((b.getD n 0).toNat < (a.getD n 0).toNat) = True from eq_true h,
+        show (denoteN b (n+1) < denoteN a (n+1)) = True from eq_true hd, ite_true]
+
+/-- `mpn_compare` reports the order of its operands. -/
+theorem compare_spec (a b : Array Digit) :
+    compare a b = if denote b < denote a then 1 else if denote a < denote b then -1 else 0 := by
+  rw [compare, compareLoop_spec, denoteN_of_ge a (Nat.le_max_left ..),
+    denoteN_of_ge b (Nat.le_max_right ..)]
+
 /-!
 ## Differential testing against `Nat`
 
-`mpn_compare` and `mpn_to_string` are not proved here; they are checked against
-`Nat` on pseudorandom inputs instead, as are the proved routines. The digit
+`mpn_to_string` is not proved here; it is checked against `Nat` on pseudorandom
+inputs instead, as are the proved routines. The digit
 generator is biased towards `0`, `1` and `2^32-1` so that carries, borrows and
 Knuth's quotient correction step fire often.
 -/

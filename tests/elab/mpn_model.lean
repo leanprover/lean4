@@ -401,31 +401,45 @@ decreasing_by
   rw [UInt64.toNat_sub, show (1 : UInt64).toNat = 1 from rfl]
   omega
 
+/-- `for i in [0:len] do dst := dst.set! (j+i) src[i]!` -/
+def copyInto (dst src : Array Digit) (j : Nat) : Nat → Array Digit
+  | 0 => dst
+  | len+1 => (copyInto dst src j len).set! (j + len) (src.getD len 0)
+
+/-- One iteration of `div_n`'s outer loop, producing quotient digit `j`. -/
+def divNStep (denom : Array Digit) (s : Array Digit × Array Digit) (j : Nat) :
+    Array Digit × Array Digit :=
+  let (u, quot) := s
+  let n := denom.size
+  let temp : DoubleDigit :=
+    ((u.getD (j+n) 0).toUInt64 <<< 32) ||| (u.getD (j+n-1) 0).toUInt64
+  let q_hat := temp / (denom.getD (n-1) 0).toUInt64
+  let r_hat := temp % (denom.getD (n-1) 0).toUInt64
+  let q_hat :=
+    (recheck (denom.getD (n-1) 0) (denom.getD (n-2) 0) (u.getD (j+n-2) 0) q_hat r_hat).1
+  let q_hat_small := lo q_hat
+  let ms := mul #[q_hat_small] denom
+  let (diff, borrow) := sub (u.extract j (j+n+1)) ms
+  let u := copyInto u diff j (n+1)
+  if borrow != 0 then
+    -- step D6: the estimate was one too high, so add the divisor back
+    let ab := add denom (u.extract j (j+n+1))
+    (copyInto u ab j (n+1), quot.set! j (q_hat_small - 1))
+  else (u, quot.set! j q_hat_small)
+
+/-- `div_n`'s outer loop, running from quotient digit `m-1` down to digit 0. -/
+def divNLoop (denom : Array Digit) (u quot : Array Digit) : Nat → Array Digit × Array Digit
+  | 0 => (u, quot)
+  | m+1 =>
+    let s := divNStep denom (u, quot) m
+    divNLoop denom s.1 s.2 m
+
 /--
 `div_n`, i.e. Knuth's Algorithm D. Returns the updated numerator (holding the
 normalized remainder) and `m` quotient digits.
 -/
-def divN (numer denom : Array Digit) : Array Digit × Array Digit := Id.run do
-  let n := denom.size
-  let m := numer.size - n
-  let mut u := numer
-  let mut quot : Array Digit := Array.replicate m 0
-  for k in [0:m] do
-    let j := m - 1 - k
-    let temp : DoubleDigit := (u[j+n]!.toUInt64 <<< 32) ||| u[j+n-1]!.toUInt64
-    let q_hat := temp / denom[n-1]!.toUInt64
-    let r_hat := temp % denom[n-1]!.toUInt64
-    let q_hat := (recheck denom[n-1]! denom[n-2]! (u.getD (j+n-2) 0) q_hat r_hat).1
-    let q_hat_small := lo q_hat
-    let ms := mul #[q_hat_small] denom
-    let (diff, borrow) := sub (u.extract j (j+n+1)) ms
-    for i in [0:n+1] do u := u.set! (j+i) diff[i]!
-    quot := quot.set! j q_hat_small
-    if borrow != 0 then
-      quot := quot.set! j (quot[j]! - 1)
-      let ab := add denom (u.extract j (j+n+1))
-      for i in [0:n+1] do u := u.set! (j+i) (ab.getD i 0)
-  return (u, quot)
+def divN (numer denom : Array Digit) : Array Digit × Array Digit :=
+  divNLoop denom numer (Array.replicate (numer.size - denom.size) 0) (numer.size - denom.size)
 
 /--
 `mpn_div`. Returns `lnum - lden + 1` quotient digits and `lden` remainder digits.
@@ -1776,6 +1790,55 @@ theorem recheck_spec (dn1 dn2 nu : Digit) (k vrest ulow u2 V U : Nat)
         exact exitFail q r hinv hr hle hfire
   intro q r h1 h2 h3
   exact main q.toNat q r (Nat.le_refl _) h1 h2 h3
+
+/-! ## Slices -/
+
+theorem getD_extract (a : Array Digit) (j k i : Nat) (h : i < k - j) (hk : k ≤ a.size) :
+    (a.extract j k).getD i 0 = a.getD (j+i) 0 := by
+  have h1 : i < (a.extract j k).size := by simp; omega
+  have h2 : j + i < a.size := by omega
+  simp [h2, Nat.min_eq_left hk, h]
+
+theorem denote_extract_zero (a : Array Digit) (j : Nat) : denote (a.extract j j) = 0 := by
+  rw [denote]
+  have : (a.extract j j).size = 0 := by simp; omega
+  rw [this]; rfl
+
+/-- Reading a slice out of the middle: `a`'s low digits plus the slice, shifted. -/
+theorem denoteN_extract (a : Array Digit) {j : Nat} :
+    ∀ k, j ≤ k → k ≤ a.size →
+      denoteN a k = denoteN a j + denote (a.extract j k) * base ^ j := by
+  intro k
+  induction k with
+  | zero =>
+    intro hjk _
+    have : j = 0 := by omega
+    subst this
+    rw [denote_extract_zero]; simp [denoteN]
+  | succ k ih =>
+    intro hjk hk
+    rcases Nat.eq_or_lt_of_le hjk with h | h
+    · subst h
+      rw [denote_extract_zero]
+      omega
+    · have hjk' : j ≤ k := by omega
+      have hsz : (a.extract j (k+1)).size = k + 1 - j := by simp; omega
+      have hpush : denote (a.extract j (k+1))
+          = denote (a.extract j k) + (a.getD k 0).toNat * base ^ (k - j) := by
+        have hsz' : (a.extract j k).size = k - j := by simp; omega
+        have hagree : ∀ i, i < k - j →
+            (a.extract j (k+1)).getD i 0 = (a.extract j k).getD i 0 := by
+          intro i hi
+          rw [getD_extract a j (k+1) i (by omega) (by omega),
+            getD_extract a j k i (by omega) (by omega)]
+        have hlast : (a.extract j (k+1)).getD (k - j) 0 = a.getD k 0 := by
+          rw [getD_extract a j (k+1) (k-j) (by omega) (by omega)]
+          congr 1; omega
+        rw [denote, hsz, show k + 1 - j = (k - j) + 1 by omega, denoteN,
+          denoteN_congr hagree, hlast, denote, hsz']
+      rw [denoteN, ih hjk' (by omega), hpush, Nat.add_mul, Nat.mul_assoc, ← Nat.pow_add,
+        show k - j + j = k by omega]
+      omega
 
 /-!
 ## Differential testing against `Nat`

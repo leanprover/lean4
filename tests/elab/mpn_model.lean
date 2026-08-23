@@ -406,18 +406,20 @@ def copyInto (dst src : Array Digit) (j : Nat) : Nat → Array Digit
   | 0 => dst
   | len+1 => (copyInto dst src j len).set! (j + len) (src.getD len 0)
 
+/-- The trial quotient digit `div_n` forms for the window at `j`, after step D3. -/
+def divNTrial (denom u : Array Digit) (j : Nat) : Digit :=
+  let n := denom.size
+  let temp : DoubleDigit :=
+    ((u.getD (j+n) 0).toUInt64 <<< 32) ||| (u.getD (j+n-1) 0).toUInt64
+  lo (recheck (denom.getD (n-1) 0) (denom.getD (n-2) 0) (u.getD (j+n-2) 0)
+      (temp / (denom.getD (n-1) 0).toUInt64) (temp % (denom.getD (n-1) 0).toUInt64)).1
+
 /-- One iteration of `div_n`'s outer loop, producing quotient digit `j`. -/
 def divNStep (denom : Array Digit) (s : Array Digit × Array Digit) (j : Nat) :
     Array Digit × Array Digit :=
   let (u, quot) := s
   let n := denom.size
-  let temp : DoubleDigit :=
-    ((u.getD (j+n) 0).toUInt64 <<< 32) ||| (u.getD (j+n-1) 0).toUInt64
-  let q_hat := temp / (denom.getD (n-1) 0).toUInt64
-  let r_hat := temp % (denom.getD (n-1) 0).toUInt64
-  let q_hat :=
-    (recheck (denom.getD (n-1) 0) (denom.getD (n-2) 0) (u.getD (j+n-2) 0) q_hat r_hat).1
-  let q_hat_small := lo q_hat
+  let q_hat_small := divNTrial denom u j
   let ms := mul #[q_hat_small] denom
   let (diff, borrow) := sub (u.extract j (j+n+1)) ms
   let u := copyInto u diff j (n+1)
@@ -1932,20 +1934,13 @@ theorem size_sub (a b : Array Digit) : (sub a b).1.size = max a.size b.size :=
 The trial digit `div_n` computes for the window at `j` is exact or one too high.
 This is `recheck_spec` with the window's digits read off the array.
 -/
-private theorem divNStep_qhat (denom u : Array Digit) (j k : Nat)
+theorem divNTrial_spec (denom u : Array Digit) (j k : Nat)
     (hk : denom.size = k + 2)
     (hnorm : base ≤ 2 * (denom.getD (k+1) 0).toNat)
     (hsz : j + k + 3 ≤ u.size)
-    (hW : denote (u.extract j (j+k+3)) < denote denom * base)
-    (qh : DoubleDigit)
-    (hqh : qh = (recheck (denom.getD (k+1) 0) (denom.getD k 0) (u.getD (j+k) 0)
-        ((((u.getD (j+k+2) 0).toUInt64 <<< 32) ||| (u.getD (j+k+1) 0).toUInt64)
-          / (denom.getD (k+1) 0).toUInt64)
-        ((((u.getD (j+k+2) 0).toUInt64 <<< 32) ||| (u.getD (j+k+1) 0).toUInt64)
-          % (denom.getD (k+1) 0).toUInt64)).1) :
-    qh.toNat < base ∧
-    denote (u.extract j (j+k+3)) / denote denom ≤ qh.toNat ∧
-    qh.toNat ≤ denote (u.extract j (j+k+3)) / denote denom + 1 := by
+    (hW : denote (u.extract j (j+k+3)) < denote denom * base) :
+    denote (u.extract j (j+k+3)) / denote denom ≤ (divNTrial denom u j).toNat ∧
+    (divNTrial denom u j).toNat ≤ denote (u.extract j (j+k+3)) / denote denom + 1 := by
   have hvtop1 : 1 ≤ (denom.getD (k+1) 0).toNat := by simp only [base] at hnorm; omega
   have hpk : 0 < base ^ k := Nat.pow_pos (by simp [base])
   have hpk1 : 0 < base ^ (k+1) := Nat.pow_pos (by simp [base])
@@ -2051,12 +2046,23 @@ private theorem divNStep_qhat (denom u : Array Digit) (j k : Nat)
       (P := base ^ (k+1)) hpk1 (by rw [hVd]; omega)
     rw [hVd, hUd] at this
     exact this
-  subst hqh
-  exact recheck_spec (denom.getD (k+1) 0) (denom.getD k 0) (u.getD (j+k) 0) k
+  obtain ⟨hqlt, hq1, hq2⟩ := recheck_spec (denom.getD (k+1) 0) (denom.getD k 0) (u.getD (j+k) 0) k
     (denoteN denom k) (denoteN (u.extract j (j+k+3)) k)
     ((u.getD (j+k+2) 0).toNat * base + (u.getD (j+k+1) 0).toNat)
     (denote denom) (denote (u.extract j (j+k+3)))
     hV hU hnorm hvrest hulow hu2bound hW _ _ hinv0 hrlt (by rw [hq0]; exact hle0)
+  have hdt : divNTrial denom u j
+      = lo (recheck (denom.getD (k+1) 0) (denom.getD k 0) (u.getD (j+k) 0)
+          ((((u.getD (j+k+2) 0).toUInt64 <<< 32) ||| (u.getD (j+k+1) 0).toUInt64)
+            / (denom.getD (k+1) 0).toUInt64)
+          ((((u.getD (j+k+2) 0).toUInt64 <<< 32) ||| (u.getD (j+k+1) 0).toUInt64)
+            % (denom.getD (k+1) 0).toUInt64)).1 := by
+    simp only [divNTrial, hk]
+    rfl
+  rw [hdt, lo_of_lt _ hqlt]
+  exact ⟨hq1, hq2⟩
+
+
 
 /-!
 ## Differential testing against `Nat`

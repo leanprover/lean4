@@ -11,6 +11,7 @@ public import Lean.Elab.Binders
 public import Lean.Elab.Command.Scope
 public import Lean.Elab.SetOption
 import Lean.Elab.DeprecatedSyntax
+import Lean.Linter.PersistentLintLog
 public meta import Lean.Parser.Command
 
 public section
@@ -37,6 +38,7 @@ structure State where
   traceState     : TraceState := {}
   snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
   prevLinterStates : Option (Task (Array LinterState)) := none
+  codeQualityEntryTasks : Array (Task (Array Linter.CodeQuality.Entry)) := #[]
   deriving Nonempty
 
 structure Context where
@@ -335,11 +337,13 @@ instance : MonadLog CommandElabM where
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := currNamespace, openDecls := openDecls } msg.data }
     modify fun s => { s with messages := s.messages.add msg }
 
-def runLinters (stx : Syntax) (promise : Option (IO.Promise InfoTree) := .none) : CommandElabM Unit := do
+def runLinters (stx : Syntax) (infoTreePromise? : Option (IO.Promise InfoTree) := .none)
+    (codeQualityEntriesPromise? : Option (IO.Promise (Array Linter.CodeQuality.Entry)) := .none) : CommandElabM Unit := do
   profileitM Exception "linting" (← getOptions) do
     withTraceNode `Elab.lint (fun _ => return m!"running linters") do
       let linters ← lintersRef.get
       let producedInfoTrees ← IO.mkRef ({} : PersistentArray InfoTree)
+      let producedCodeQualityEntries ← IO.mkRef (#[] : Array Linter.CodeQuality.Entry)
       unless linters.isEmpty do
         for linter in linters do
           withTraceNode `Elab.lint (fun _ => return m!"running linter: {.ofConstName linter.name}")
@@ -358,14 +362,21 @@ def runLinters (stx : Syntax) (promise : Option (IO.Promise InfoTree) := .none) 
               -- TODO: it would be good to preserve even more state (#4363) but preserving info
               -- trees currently breaks from linters adding context-less info nodes
               let newInfoState ← getInfoState
+              let newState := Linter.codeQualityLogExt.getState (← get).env
               if newInfoState.enabled then
                 producedInfoTrees.modify fun old =>
                   old.append (newInfoState.trees.foldl (·.push ·) {} (start := originalSize))
               modify fun s => { savedState with messages := s.messages, traceState := s.traceState }
-      if let some promise := promise then
+              let oldStateSize := (Linter.codeQualityLogExt.getState (env := savedState.env)).size
+              producedCodeQualityEntries.modify (· ++ newState.extract oldStateSize)
+
+      if let some infoTreePromise := infoTreePromise? then
         if (← getInfoState).enabled then
-          promise.resolve <|
+          infoTreePromise.resolve <|
             mkLinterInfoGroupNode (← producedInfoTrees.get)
+
+      if let some codeQualityEntriesPromise := codeQualityEntriesPromise? then
+        codeQualityEntriesPromise.resolve (← producedCodeQualityEntries.get)
 
 def runModuleLinters (cmds : Array Syntax) : CommandElabM Unit := do
   profileitM Exception "module linting" (← getOptions) do
@@ -388,7 +399,7 @@ def runModuleLinters (cmds : Array Syntax) : CommandElabM Unit := do
               modify fun s => { savedState with messages := s.messages, traceState := s.traceState }
 
 def runStatefulLinters (stx : Syntax) (prev : Array LinterState)
-    (promise : Option (IO.Promise InfoTree) := .none) : CommandElabM (Array LinterState) := do
+    (infoTreePromise? : Option (IO.Promise InfoTree) := .none) : CommandElabM (Array LinterState) := do
   profileitM Exception "stateful linting" (← getOptions) do
     withTraceNode `Elab.lint (fun _ => return m!"running stateful linters") do
       let linters ← statefulLintersRef.get
@@ -424,9 +435,9 @@ def runStatefulLinters (stx : Syntax) (prev : Array LinterState)
       for l in linters do
         postSt := postSt.push (← run "post" i (pure prev[i]!) (l.post stx prev preSt))
         i := i + 1
-      if let some promise := promise then
+      if let some infoTreePromise := infoTreePromise? then
         if (← getInfoState).enabled then
-          promise.resolve <|
+          infoTreePromise.resolve <|
             mkLinterInfoGroupNode (← producedInfoTrees.get)
       return postSt
 
@@ -507,11 +518,13 @@ def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : Comma
 
 open Language in
 def runLintersAsync (stx : Syntax) (cmds : Array Syntax) : CommandElabM Unit := do
+  let codeQualityEntriesPromise ← IO.Promise.new (α := Array Linter.CodeQuality.Entry)
   if !Elab.async.get (← getOptions) then
     withoutModifyingEnv do
-      runLinters stx
+      runLinters stx (codeQualityEntriesPromise? := codeQualityEntriesPromise)
       if Parser.isTerminalCommand stx then
         runModuleLinters cmds
+      modify fun s => { s with codeQualityEntryTasks := s.codeQualityEntryTasks.push <| codeQualityEntriesPromise.resultD #[] }
     return
 
   -- We create a promise for the info trees produced by the linters
@@ -533,7 +546,7 @@ def runLintersAsync (stx : Syntax) (cmds : Array Syntax) : CommandElabM Unit := 
     let messages := messages.markAllReported
     modify fun st => { st with messages := st.messages ++ messages }
     modifyInfoState fun _ => infoSt
-    runLinters stx lintersInfoPromise
+    runLinters stx lintersInfoPromise codeQualityEntriesPromise
     if Parser.isTerminalCommand stx then
         -- TODO: support code actions in module linters
         -- Currently, code actions provided by terminal command are ignored
@@ -543,6 +556,7 @@ def runLintersAsync (stx : Syntax) (cmds : Array Syntax) : CommandElabM Unit := 
     BaseIO.mapTask (t := treeTask) fun _ =>
       lintAct infoSt
   logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
+  modify fun s => {s with codeQualityEntryTasks := s.codeQualityEntryTasks.push <| codeQualityEntriesPromise.resultD #[] }
 
   let infoHole ← liftCoreM mkFreshMVarId
   modifyInfoState fun s => { s with

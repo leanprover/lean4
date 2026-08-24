@@ -55,8 +55,6 @@ instance : MonadFileMap (ReaderT FileMap BaseIO) := ⟨read⟩
 /--
 Records linter warnings and looks up positions of their associated commands from a build
 into `lintLogExt` so that consumers (e.g. `lake lint`) can recover them from the `.olean`.
-Messages carrying code quality entries (see `Lean.Linter.logCodeQualityEntry`) are recorded
-into `codeQualityLogExt` instead, without any position information.
 -/
 def recordLints (fileMap : FileMap) (env : Environment)
     (commandLints : Array (Option Syntax × MessageLog)) : BaseIO Environment := do
@@ -66,8 +64,6 @@ def recordLints (fileMap : FileMap) (env : Environment)
       | none     => pure none
     let position? : Option Position := declRange?.map (·.pos)
     messages.reportedPlusUnreported.foldlM (init := env) fun env m => do
-      if let some entry := m.data.codeQualityEntry? then
-        return codeQualityLogExt.addEntry env entry
       unless m.data.isLinterMessage do
         return env
       let kind := m.data.kind
@@ -75,5 +71,17 @@ def recordLints (fileMap : FileMap) (env : Environment)
         return env
       let sm ← m.serialize
       return lintLogExt.addEntry env { linter := kind, message := sm, position?, file := m.fileName }
+
+def logCodeQualityEntry [Monad m] [MonadEnv m]
+    (e : CodeQuality.Entry) : m Unit :=
+  modifyEnv (codeQualityLogExt.addEntry · e)
+
+/--
+Similar to `logLintIf`, but for `logCodeQualityEntry` - i.e. it logs an entry only if the
+provided linter option is enabled, taking `linter.all` and linter sets into account.
+-/
+def logCodeQualityEntryIf [Monad m] [MonadOptions m] [MonadEnv m]
+    (linterOption : Lean.Option Bool) (e : CodeQuality.Entry) : m Unit := do
+  if getLinterValue linterOption (← getLinterOptions) then logCodeQualityEntry e
 
 end Lean.Linter

@@ -243,6 +243,13 @@ def computedField    := leading_parser
 def computedFields   := leading_parser
   "with" >> manyIndent (ppLine >> ppGroup computedField)
 /--
+Manually prove that the predicate functor is `Lean.Order.monotone`, instead of relying on the
+proof search performed by the `Lean.Order.monotonicity` tactic. Only supported on `coinductive`
+predicates and on `inductive` predicates that share a `mutual` block with a `coinductive` one.
+-/
+@[builtin_doc] def monotonicityBy := leading_parser
+  ppDedent ppLine >> "monotonicity_by " >> Tactic.tacticSeqIndentGt
+/--
 In Lean, every concrete type other than the universes
 and every type constructor other than dependent arrows
 is an instance of a general family of type constructions known as inductive types.
@@ -263,10 +270,10 @@ for more information.
 -/
 @[builtin_doc] def «inductive» := leading_parser
   "inductive " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >>
-  many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving
+  many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving >> optional monotonicityBy
 @[builtin_doc] def «coinductive» := leading_parser
   "coinductive " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >>
-  many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving
+  many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving >> optional monotonicityBy
 def classInductive   := leading_parser
   atomic (group (symbol "class " >> "inductive ")) >>
   recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >>

@@ -311,9 +311,9 @@ jobs:
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
                 // We are not warning-free yet on all platforms, start with Linux
-                // Do not (yet) use Lake cache on release
-                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror" + (level < 3 ? " -DUSE_LAKE_CACHE=ON" : ""),
-                // A stamped build would reject the `.olean`s the cache holds from other commits.
+                // A stamped build would reject the `.olean`s the cache holds from other commits, so
+                // it neither enables the cache for the build nor transfers it.
+                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror" + (stamped ? "" : " -DUSE_LAKE_CACHE=ON"),
                 "lake-cache": !stamped,
               },
               {

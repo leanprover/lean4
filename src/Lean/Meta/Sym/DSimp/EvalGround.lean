@@ -41,6 +41,12 @@ abbrev evalUnaryInt16 : (op : Int16 → Int16) → (a : Expr) → DSimpM Result 
 abbrev evalUnaryInt32 : (op : Int32 → Int32) → (a : Expr) → DSimpM Result := evalUnary getInt32Value?
 abbrev evalUnaryInt64 : (op : Int64 → Int64) → (a : Expr) → DSimpM Result := evalUnary getInt64Value?
 
+def evalLog2 (a : Expr) (maxExponent : Nat) : DSimpM Result := do
+  let some n := getNatValue? a | return .rfl
+  if n > 2^maxExponent then return .rfl
+  let e ← share <| toExpr n.log2
+  return .step e (done := true)
+
 abbrev evalUnaryFin' (op : {n : Nat} → Fin n → Fin n) (a : Expr) : DSimpM Result := do
   let some a := getFinValue? a | return .rfl
   let e ← share <| toExpr (op a.val)
@@ -519,6 +525,7 @@ public def evalGround (config : EvalStepConfig := {}) : DSimproc := fun e =>
   | Complement.complement α _ a => evalComplement α a
   | Nat.gcd a b => evalBinNat Nat.gcd a b
   | Nat.succ a => evalUnaryNat (· + 1) a
+  | Nat.log2 a => evalLog2 a config.maxExponent
   | Int.gcd a b => evalIntGcd a b
   | Int.tdiv a b => evalBinInt Int.tdiv a b
   | Int.fdiv a b => evalBinInt Int.fdiv a b

@@ -314,11 +314,11 @@ def «structure»          := leading_parser
 `recall` restates a previous declaration for illustrative purposes and checks that its type and
 optional value are definitionally equal to the original declaration.
 -/
-@[builtin_command_parser] def recall := leading_parser
+@[builtin_command_parser] def recallCmd := leading_parser
   optional docComment >> "recall " >> ident >> ppIndent optDeclSig >> optional declVal
 
 /-- `recall?` suggests a `recall` statement for a previous declaration. -/
-@[builtin_command_parser] def recall? := leading_parser
+@[builtin_command_parser] def recallQuestionCmd := leading_parser
   "recall? " >> ident
 
 @[builtin_command_parser] def «deriving»     := leading_parser

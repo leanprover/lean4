@@ -30,9 +30,9 @@ private def mkRecallSuggestion (declName : Name) : MetaM String := do
   let sig := toString (← PrettyPrinter.ppTerm ⟨stx⟩)
   return s!"recall {sig}"
 
-@[builtin_command_elab Lean.Parser.Command.«recall?»]
+@[builtin_command_elab Lean.Parser.Command.recallQuestionCmd]
 def elabRecall? : CommandElab
-  | `(Parser.Command.«recall?»| recall?%$tk $id:ident) => withoutModifyingEnv do
+  | `(Parser.Command.recallQuestionCmd| recall?%$tk $id:ident) => withoutModifyingEnv do
     let declName := id.getId
     addConstInfo id declName
     let _ ← getConstInfo declName
@@ -41,9 +41,9 @@ def elabRecall? : CommandElab
       Tactic.TryThis.addSuggestion tk (suggestion : String) (origSpan? := ← getRef)
   | _ => throwUnsupportedSyntax
 
-@[builtin_command_elab Lean.Parser.Command.recall]
+@[builtin_command_elab Lean.Parser.Command.recallCmd]
 def elabRecall : CommandElab
-  | `(Parser.Command.recall|
+  | `(Parser.Command.recallCmd|
       $[$_doc?:docComment]? recall $id:ident $sig:optDeclSig $[$val?:declVal]?) =>
     -- `recall` doesn't introduce new definitions, so suppress the unused variable linter.
     withScope (fun sc => { sc with opts := sc.opts.set `linter.unusedVariables false }) <|

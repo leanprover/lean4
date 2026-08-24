@@ -453,6 +453,12 @@ def evalBitVecOfNat (n a : Expr) : DSimpM Result := do
   let e ← share <| toExpr (BitVec.ofNat n a)
   return .step e (done := true)
 
+def evalBitVecOfNatClamp (n a : Expr) : DSimpM Result := do
+  let some n := getNatValue? n | return .rfl
+  let some a := getNatValue? a | return .rfl
+  let e ← share <| toExpr (BitVec.ofNatClamp n a)
+  return .step e (done := true)
+
 def evalInt8ToBitVec (a : Expr) : DSimpM Result := do
   let some v := getInt8Value? a | return .rfl
   let e ← share <| toExpr v.toBitVec
@@ -580,6 +586,7 @@ public def evalGround (config : EvalStepConfig := {}) : DSimproc := fun e =>
   | BitVec.allOnes n => evalBitVecAllOnes n
   | BitVec.toNat _ a => evalBitVecToNat a
   | BitVec.ofNat n a => evalBitVecOfNat n a
+  | BitVec.ofNatClamp n a => evalBitVecOfNatClamp n a
   | BitVec.toInt _ a => evalBitVecToInt a
   | BitVec.ofInt n i => evalBitVecOfInt n i
   | BitVec.toFin _ a => evalBitVecToFin a

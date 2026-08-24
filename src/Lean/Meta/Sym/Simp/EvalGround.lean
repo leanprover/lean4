@@ -601,8 +601,14 @@ def evalBitVecOfNat (n a : Expr) : SimpM Result := do
   let some a ← getNatValue? a |>.run | return .rfl
   if (← getNatValue? n |>.run).isSome then return .rfl -- already in normal form
   let some n ← evalNat n |>.run | return .rfl -- TODO: consider using dsimp
-  let r ← share (toExpr (BitVec.ofNat n a))
+  let r ← share <| toExpr (BitVec.ofNat n a)
   return .step r (mkRflBitVec r n) (done := true)
+
+def evalBitVecOfNatClamp (n a : Expr) : SimpM Result := do
+  let some nv := getNatValue? n | return .rfl
+  let some av := getNatValue? a | return .rfl
+  let r ← share <| toExpr (BitVec.ofNatClamp nv av)
+  return .step r (mkRflBitVec r nv) (done := true)
 
 def evalBitVecToInt (a : Expr) : SimpM Result := do
   let some a := getBitVecValue? a | return .rfl
@@ -776,6 +782,7 @@ public def evalGround (config : EvalStepConfig := {}) : Simproc := fun e =>
   | BitVec.allOnes n => evalBitVecAllOnes n
   | BitVec.toNat _ a => evalBitVecToNat a
   | BitVec.ofNat n a => evalBitVecOfNat n a
+  | BitVec.ofNatClamp n a => evalBitVecOfNatClamp n a
   | BitVec.toInt _ a => evalBitVecToInt a
   | BitVec.ofInt n i => evalBitVecOfInt n i
   | BitVec.toFin _ a => evalBitVecToFin a

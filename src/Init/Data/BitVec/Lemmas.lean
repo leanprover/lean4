@@ -2104,7 +2104,7 @@ theorem getElem_shiftLeft' {x : BitVec w₁} {y : BitVec w₂} {i : Nat} (h : i 
   simp
   omega
 
-theorem shiftLeft_ofNat_eq {x : BitVec w} {k : Nat} : x <<< (BitVec.ofNat w k) = x <<< (k % 2^w) := rfl
+theorem shiftLeft_ofNat_eq {x : BitVec w} {v k : Nat} : x <<< (BitVec.ofNat v k) = x <<< (k % 2^v) := rfl
 
 /-! ### ushiftRight -/
 
@@ -2252,7 +2252,7 @@ theorem setWidth_ushiftRight_eq_extractLsb {b : BitVec w} : (b >>> w').setWidth 
 theorem ushiftRight_eq' (x : BitVec w₁) (y : BitVec w₂) :
     x >>> y = x >>> y.toNat := rfl
 
-theorem ushiftRight_ofNat_eq {x : BitVec w} {k : Nat} : x >>> (BitVec.ofNat w k) = x >>> (k % 2^w) := rfl
+theorem ushiftRight_ofNat_eq {x : BitVec w} {v k : Nat} : x >>> (BitVec.ofNat v k) = x >>> (k % 2^v) := rfl
 
 @[simp]
 theorem ushiftRight_self (n : BitVec w) : n >>> n.toNat = 0#w := by
@@ -2357,7 +2357,7 @@ theorem sshiftRight_or_distrib (x y : BitVec w) (n : Nat) :
 
 
 @[grind =]
-theorem sshiftRight'_ofNat_eq_sshiftRight {x : BitVec w} {k : Nat} : x.sshiftRight' (BitVec.ofNat w k) = x.sshiftRight (k % 2^w) := rfl
+theorem sshiftRight'_ofNat_eq_sshiftRight {x : BitVec w} {v k : Nat} : x.sshiftRight' (BitVec.ofNat v k) = x.sshiftRight (k % 2^v) := rfl
 
 /-- The msb after arithmetic shifting right equals the original msb. -/
 @[simp]
@@ -2497,6 +2497,11 @@ theorem toInt_sshiftRight {x : BitVec w} {n : Nat} :
     norm_cast at *
     exact Int.bmod_eq_of_le (by omega) (by omega)
 
+theorem sshiftRight_eq_sshiftRight_of_le {x : BitVec w} {m n : Nat} (h₁ : w ≤ m) (h₂ : w ≤ n) :
+    x.sshiftRight m = x.sshiftRight n := by
+  ext i h
+  rw [getElem_sshiftRight, getElem_sshiftRight, dite_eq_right (by omega), dite_eq_right (by omega)]
+
 /-! ### sshiftRight reductions from BitVec to Nat -/
 
 @[simp, grind =]
@@ -2555,6 +2560,87 @@ theorem getMsbD_sshiftRight' {x y: BitVec w} {i : Nat} :
 
 theorem msb_sshiftRight' {x y: BitVec w} :
     (x.sshiftRight' y).msb = x.msb := by simp
+
+/-! ### ofNatClamp -/
+
+theorem ofNatClamp_eq_ofNat {w n : Nat} (hn : n < 2 ^ w) :
+    BitVec.ofNatClamp w n = BitVec.ofNat w n := by
+  rw [ofNatClamp, dite_eq_left hn, ofNatLT_eq_ofNat]
+
+theorem ofNatClamp_eq_ofNat_of_le {w n : Nat} (hn : 2 ^ w ≤ n) :
+    BitVec.ofNatClamp w n = BitVec.ofNat w (2 ^ w - 1) := by
+  rw [ofNatClamp, dite_eq_right (by omega), ofNatLT_eq_ofNat]
+
+theorem ofNatClamp_eq_allOnes_of_le {w n : Nat} (hn : 2 ^ w ≤ n) :
+    BitVec.ofNatClamp w n = BitVec.allOnes w := by
+  rw [ofNatClamp, dite_eq_right (by omega)]
+  rfl
+
+theorem toNat_ofNatClamp_of_lt {w n : Nat} (hn : n < 2 ^ w) :
+    (BitVec.ofNatClamp w n).toNat = n := by
+  rw [ofNatClamp, dite_eq_left hn, toNat_ofNatLT]
+
+theorem toNat_ofNatClamp_of_le {w n : Nat} (hn : 2 ^ w ≤ n) :
+    (BitVec.ofNatClamp w n).toNat = 2 ^ w - 1 := by
+  rw [ofNatClamp, dite_eq_right (by omega), toNat_ofNatLT]
+
+theorem toNat_ofNatClamp {w n : Nat} :
+    (BitVec.ofNatClamp w n).toNat = min n (2 ^ w - 1) := by
+  by_cases h : n < 2 ^ w
+  · rw [toNat_ofNatClamp_of_lt h]; omega
+  · rw [toNat_ofNatClamp_of_le (by omega)]; omega
+
+theorem toNat_ofNatClamp_le (w n : Nat) : (BitVec.ofNatClamp w n).toNat ≤ n := by
+  rw [toNat_ofNatClamp]
+  omega
+
+@[simp] theorem ofNatClamp_toNat (x : BitVec w) : BitVec.ofNatClamp w x.toNat = x := by
+  apply eq_of_toNat_eq
+  rw [toNat_ofNatClamp_of_lt x.isLt]
+
+theorem toFin_ofNatClamp_of_lt {w n : Nat} (hn : n < 2 ^ w) :
+    (BitVec.ofNatClamp w n).toFin = ⟨n, hn⟩ := by
+  rw [ofNatClamp, dite_eq_left hn]
+  rfl
+
+theorem toFin_ofNatClamp_of_le {w n : Nat} (hn : 2 ^ w ≤ n) :
+    (BitVec.ofNatClamp w n).toFin =
+      ⟨2 ^ w - 1, Nat.sub_lt (Nat.two_pow_pos w) Nat.one_pos⟩ := by
+  rw [ofNatClamp, dite_eq_right (by omega)]
+  rfl
+
+@[simp] theorem ofNatClamp_finVal (n : Fin (2 ^ w)) :
+    BitVec.ofNatClamp w n.val = BitVec.ofFin n := by
+  rw [ofNatClamp, dite_eq_left n.isLt]
+  rfl
+
+theorem getLsbD_ofNatClamp {w n i : Nat} :
+    (BitVec.ofNatClamp w n).getLsbD i = (min n (2 ^ w - 1)).testBit i := by
+  rw [← toNat_ofNatClamp (w := w) (n := n), testBit_toNat]
+
+theorem ushiftRight_eq_ushiftRight_ofNatClamp {w n v : Nat} {x : BitVec w} (h : w < 2 ^ v) :
+    x >>> n = x >>> BitVec.ofNatClamp v n := by
+  rw [ushiftRight_eq']
+  by_cases hn : n < 2 ^ v
+  · rw [toNat_ofNatClamp_of_lt hn]
+  · rw [toNat_ofNatClamp_of_le (Nat.le_of_not_lt hn), ushiftRight_eq_zero (by omega),
+      ushiftRight_eq_zero (by omega)]
+
+theorem shiftLeft_eq_shiftLeft_ofNatClamp {w n v : Nat} {x : BitVec w} (h : w < 2 ^ v) :
+    x <<< n = x <<< BitVec.ofNatClamp v n := by
+  rw [shiftLeft_eq']
+  by_cases hn : n < 2 ^ v
+  · rw [toNat_ofNatClamp_of_lt hn]
+  · rw [toNat_ofNatClamp_of_le (Nat.le_of_not_lt hn), shiftLeft_eq_zero (by omega),
+      shiftLeft_eq_zero (by omega)]
+
+theorem sshiftRight_eq_sshiftRight'_ofNatClamp {w n v : Nat} {x : BitVec w} (h : w < 2 ^ v) :
+    x.sshiftRight n = x.sshiftRight' (BitVec.ofNatClamp v n) := by
+  rw [sshiftRight_eq']
+  by_cases hn : n < 2 ^ v
+  · rw [toNat_ofNatClamp_of_lt hn]
+  · rw [toNat_ofNatClamp_of_le (Nat.le_of_not_lt hn)]
+    exact sshiftRight_eq_sshiftRight_of_le (by omega) (by omega)
 
 /-! ### signExtend -/
 

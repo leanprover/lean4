@@ -65,3 +65,4 @@ public import Lean.Meta.MonadSimp
 public import Lean.Meta.HaveTelescope
 public import Lean.Meta.Deriving.CmpHelper
 public import Lean.Meta.Deriving.CmdPos
+public import Lean.Meta.Deriving.Util

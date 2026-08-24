@@ -7,9 +7,11 @@ module
 
 prelude
 public import Lean.Elab.PreDefinition
+public import Lean.Elab.Deriving.Basic
 import Lean.Elab.PreDefinition
 import Lean.Meta.Constructions.CtorElim
 import Lean.Meta.Constructions.CtorIdx
+import Lean.Meta.Deriving.Util
 
 public section
 
@@ -19,6 +21,8 @@ inductive Kind where
   | beq
   | ord
 deriving Repr
+
+def kinds : Array Kind := #[.beq, .ord]
 
 def Kind.indicatorType : Kind → Expr
   | .beq => .const ``Bool []
@@ -78,11 +82,49 @@ def Kind.mkEq (k : Kind) (e : Expr) : Expr :=
 def Kind.mkCtorIdxLemmaName (k : Kind) (indName : Name) : Name :=
   (k.mkHelperName indName).str "of_ctorIdx_ne"
 
-def Kind.mkUnfoldName (k : Kind) (indName ctorName : Name) : Name :=
-  (k.mkHelperName indName).str "unfold" |>.appendCore <| ctorName.replacePrefix indName .anonymous
+def Kind.mkUnfoldName (k : Kind) (_indName ctorName : Name) : Name :=
+  match k with
+  | .beq => ctorName.str "_beqHelper_unfold"
+  | .ord => ctorName.str "_ordHelper_unfold"
 
 def Kind.mkReflName (k : Kind) (indName : Name) : Name :=
   (k.mkHelperName indName).str "refl"
+
+def Kind.className : Kind → Name
+  | .beq => ``BEq
+  | .ord => ``Ord
+
+def Kind.classCtor : Kind → Level → Expr → Expr
+  | .beq, u, α => .app (.const ``BEq.mk [u]) α
+  | .ord, u, α => .app (.const ``Ord.mk [u]) α
+
+def Kind.cmpField : Kind → Level → Expr → Expr
+  | .beq, u, α => .app (.const ``BEq.beq [u]) α
+  | .ord, u, α => .app (.const ``Ord.compare [u]) α
+
+def Kind.reflClassName : Kind → Name
+  | .beq => ``ReflBEq
+  | .ord => ``Std.ReflOrd
+
+def Kind.reflCtor : Kind → Level → Expr → (inst : Expr) → Expr
+  | .beq, u, α, inst => mkApp2 (.const ``ReflBEq.mk [u]) α inst
+  | .ord, u, α, inst => mkApp2 (.const ``Std.ReflCmp.mk [u]) α (.app (ord.cmpField u α) inst)
+
+def Kind.reflField : Kind → Level → Expr → (inst : Expr) → Expr
+  | .beq, u, α, inst => mkApp2 (.const ``ReflBEq.rfl [u]) α inst
+  | .ord, u, α, inst => mkApp2 (.const ``Std.ReflCmp.compare_self [u]) α (.app (ord.cmpField u α) inst)
+
+def Kind.lawfulEqClassName : Kind → Name
+  | .beq => ``LawfulBEq
+  | .ord => ``Std.LawfulEqOrd
+
+def Kind.lawfulEqCtor : Kind → Level → Expr → (inst : Expr) → Expr
+  | .beq, u, α, inst => mkApp2 (.const ``LawfulBEq.mk [u]) α inst
+  | .ord, u, α, inst => mkApp2 (.const ``Std.LawfulEqCmp.mk [u]) α (.app (ord.cmpField u α) inst)
+
+def Kind.lawfulEqField : Kind → Level → Expr → (inst : Expr) → Expr
+  | .beq, u, α, inst => mkApp2 (.const ``LawfulBEq.eq_of_beq [u]) α inst
+  | .ord, u, α, inst => mkApp2 (.const ``Std.LawfulEqCmp.eq_of_compare [u]) α (.app (ord.cmpField u α) inst)
 
 /--
 Given all variables for a minor, returns `(fields, idxOfField, ihs)`.
@@ -278,6 +320,104 @@ def makeCmpHelperEquation (kind : Kind) (levelParams : List Name) (lparams : Lis
       levelParams, type, value
     }
 
+-- Not (c.ctorIdx = c'.ctorIdx) → helper c c' = kind.falseBranch c.ctorIdx c'.ctorIdx
+def makeCmpHelperCtorIdxLawDoubleMatch (kind : Kind) (levelParams : List Name)
+    (lparams : List Level) (params : Array Expr) (moreVars : Array Expr) (indName : Name) :
+    MetaM Unit := do
+  let unfoldThm? ← getUnfoldEqnFor? (kind.mkHelperName indName)
+  let casesOnAppBase := mkAppN (.const (mkCasesOnName indName) (0 :: lparams)) params
+  let casesOnType ← inferType casesOnAppBase
+  let .forallE _ motiveType body _ := casesOnType | unreachable!
+  forallTelescope motiveType fun lvars _ => do
+  forallTelescope motiveType fun rvars _ => do
+  let lctorIdx := mkAppN (mkAppN (.const (mkCtorIdxName indName) lparams) params) lvars
+  let rctorIdx := mkAppN (mkAppN (.const (mkCtorIdxName indName) lparams) params) rvars
+  let ctorIdxEq := mkApp3 (.const ``Eq [1]) Nat.mkType rctorIdx lctorIdx
+  let cmp := mkAppN (mkAppN (.const (kind.mkHelperName indName) lparams) params) moreVars
+  let cmp := mkAppN (mkAppN cmp lvars) rvars
+  let rhs := mkApp3 (.const ``Eq [1]) kind.indicatorType cmp (kind.falseBranch lctorIdx rctorIdx)
+  let goal ← mkArrow (mkNot ctorIdxEq) rhs
+  let motive ← mkLambdaFVars lvars goal
+  let mut outerIter := (body.instantiate1 motive).getForallBodyMaxDepth lvars.size
+  let mut i := 0
+  let mut outerApp := mkAppN (casesOnAppBase.app motive) lvars
+  repeat
+    let .forallE _ laltType more _ := outerIter | break
+    outerApp := outerApp.app <| ← forallTelescope laltType fun lfields newGoal => do
+      let mut j := 0
+      let innerMotive ← mkLambdaFVars rvars newGoal.headBeta
+      let mut innerApp := mkAppN (casesOnAppBase.app innerMotive) rvars
+      let mut innerIter := (body.instantiate1 innerMotive).getForallBodyMaxDepth rvars.size
+      repeat
+        let .forallE _ raltType more _ := innerIter | break
+        innerApp := innerApp.app <| ← forallTelescope raltType fun rfields goal => do
+          let .forallE _ t b _ := goal.headBeta | unreachable!
+          let val ←
+            if i = j then
+              pure <| mkApp3 (mkConst ``absurd [0])
+                (mkApp3 (.const ``Eq [1]) Nat.mkType (mkRawNatLit i) (mkRawNatLit i)) b
+                (mkApp2 (.const ``Eq.refl [1]) Nat.mkType (mkRawNatLit i))
+            else
+              let lhs := b.appFn!.appArg!
+              assert! lhs.isAppOf (kind.mkHelperName indName)
+              let mut proof := mkApp2 (.const ``rfl [1]) kind.indicatorType (kind.compareIndices i j)
+              if let some thm := unfoldThm? then
+                proof := lhs.replaceFn thm
+              pure <| .lam `x t proof .default
+          mkLambdaFVars rfields val
+        innerIter := more
+        j := j + 1
+      mkLambdaFVars lfields innerApp
+    outerIter := more
+    i := i + 1
+  let type ← mkForallFVars (params ++ moreVars ++ lvars ++ rvars) goal (binderInfoForMVars := .default)
+  let value ← mkLambdaFVars (params ++ moreVars ++ lvars ++ rvars) outerApp (binderInfoForMVars := .default)
+  addDecl <| .thmDecl {
+    name := kind.mkCtorIdxLemmaName indName
+    levelParams, type, value
+  }
+
+def makeCmpHelperCtorIdxLaw (kind : Kind) (levelParams : List Name)
+    (lparams : List Level) (params : Array Expr) (moreVars : Array Expr) (indName : Name) :
+    MetaM Unit := do
+  let unfoldThm? ← getUnfoldEqnFor? (kind.mkHelperName indName)
+  let casesOnAppBase := mkAppN (.const (mkCasesOnName indName) (0 :: lparams)) params
+  let casesOnType ← inferType casesOnAppBase
+  let .forallE _ motiveType _ _ := casesOnType | unreachable!
+  forallTelescope motiveType fun lvars _ => do
+  forallTelescope motiveType fun rvars _ => do
+  let vars := params ++ moreVars ++ lvars ++ rvars
+  let cmp := mkAppN (.const (kind.mkHelperName indName) lparams) vars
+  let (mid, eqProof) ← match unfoldThm? with
+    | none =>
+      let info ← getConstInfo (kind.mkHelperName indName)
+      let rhs := (← instantiateValueLevelParams info lparams).beta vars
+      let proof := mkApp2 (.const ``rfl [1]) kind.indicatorType cmp
+      pure (rhs, proof)
+    | some thm =>
+      let proof := mkAppN (.const thm lparams) vars
+      let some (_, _, rhs) := (← inferType proof).eq? | throwError "Unexpected unfolding theorem"
+      pure (rhs, proof)
+  unless mid.isAppOf ``dite do
+    return ← makeCmpHelperCtorIdxLawDoubleMatch kind levelParams lparams params moreVars indName
+  let lctorIdx := mkAppN (mkAppN (.const (mkCtorIdxName indName) lparams) params) lvars
+  let rctorIdx := mkAppN (mkAppN (.const (mkCtorIdxName indName) lparams) params) rvars
+  let ctorIdxEq := mkApp3 (.const ``Eq [1]) Nat.mkType rctorIdx lctorIdx
+  let ctorIdxDecEq := mkApp2 (.const ``Nat.decEq []) rctorIdx lctorIdx
+  let rhs := kind.falseBranch lctorIdx rctorIdx
+  let goalRhs := mkApp3 (.const ``Eq [1]) kind.indicatorType cmp rhs
+  let goal ← mkArrow (mkNot ctorIdxEq) goalRhs
+  let proof := mkApp6 (.const ``dite_eq_right [1]) ctorIdxEq ctorIdxDecEq (.bvar 0)
+    kind.indicatorType mid.appFn!.appArg! mid.appArg!
+  let proof := mkApp6 (.const ``Eq.trans [1]) kind.indicatorType cmp mid rhs eqProof proof
+  let proof : Expr := .lam `h (mkNot ctorIdxEq) proof .default
+  let type ← mkForallFVars (params ++ moreVars ++ lvars ++ rvars) goal (binderInfoForMVars := .default)
+  let value ← mkLambdaFVars (params ++ moreVars ++ lvars ++ rvars) proof (binderInfoForMVars := .default)
+  addDecl <| .thmDecl {
+    name := kind.mkCtorIdxLemmaName indName
+    levelParams, type, value
+  }
+
 def makeCmpHelpersFromEquations (kind : Kind) (levelParams : List Name) (lparams : List Level)
     (params : Array Expr) (moreVars : Array Expr) (cases : Array (Name × Array Expr))
     (makePartial : Bool) : MetaM Unit := do
@@ -289,8 +429,11 @@ def makeCmpHelpersFromEquations (kind : Kind) (levelParams : List Name) (lparams
     else
       let predef ← makeCmpHelperCtorIdx kind levelParams lparams params moreVars indName ctorCases makePartial
       predefs := predefs.push predef
+  let env ← getEnv
+  let doExpose := cases.all fun (indName, _) =>
+    !isPrivateName indName && (isInductiveCore? env indName).any (·.ctors.all (!isPrivateName ·))
   withLCtx {} {} do
-    withExporting (isExporting := cases.all (!isPrivateName ·.1)) do
+    withExporting (isExporting := doExpose) do
       Elab.Term.TermElabM.run' <| Elab.addPreDefinitions ({}, {}) predefs
   if makePartial then return
   for (indName, cases) in cases do
@@ -298,6 +441,8 @@ def makeCmpHelpersFromEquations (kind : Kind) (levelParams : List Name) (lparams
     let ctors := info.ctors
     for ctor in ctors, eqn in cases do
       makeCmpHelperEquation kind levelParams lparams params moreVars indName ctor eqn
+    if 2 ≤ cases.size then
+      makeCmpHelperCtorIdxLaw kind levelParams lparams params moreVars indName
 
 partial def computeFwdAndBackDeps (vars : Array Expr) (idxOfVar : FVarIdMap Nat) :
     MetaM (Array (Array Nat) × Array (Array Nat)) := do
@@ -485,9 +630,40 @@ partial def makeCmpHelpers (indName : Name) (kind : Kind) : MetaM Unit := do
         let cmpMVar := cmpVars[i]!.mvarId!
         let indName := eqns[i]!.1
         cmpMVar.assign (mkAppN (mkAppN (.const (kind.mkHelperName indName) lparams) params) moreVars)
-      for i in *...info.numNested do
-        let _cmpMVar := cmpVars[i + eqns.size]!.mvarId!
-        throwError "TODO: Implement nested cmpVar assignment"
+      if info.isNested then
+        let mut recVarInfos := #[]
+        let mut recVarValues := #[]
+        for i in *...eqns.size do
+          let motiveType ← inferType motives[i]!
+          let arity := motiveType.getForallArity
+          let res ← forallBoundedTelescope motiveType (some (arity - 1)) fun indices body => do
+            let .forallE _ ty _ _ := body | unreachable!
+            let some lvl ← getDecLevel? ty | pure none
+            withLocalDeclD `a ty fun a => do
+            withLocalDeclD `b ty fun b => do
+              let cmpApp := (mkAppN ((mkAppN cmpVars[i]! indices).app a) indices).app b
+              let type ← mkForallFVars indices (.app (.const kind.className [lvl]) ty)
+              let value ← mkLambdaFVars indices
+                (.app (kind.classCtor lvl ty) (← mkLambdaFVars #[a, b] cmpApp))
+              pure (some (type, value))
+          if let some (instType, instVal) := res then
+            recVarInfos := recVarInfos.push ((`recinst).appendIndexAfter (i + 1), instType)
+            recVarValues := recVarValues.push instVal
+        withLocalDeclsDND recVarInfos fun recVars => do
+          assert! recInfo.numMotives == eqns.size + info.numNested
+          for i in *...info.numNested do
+            let cmpMVar := cmpVars[i + eqns.size]!.mvarId!
+            let motiveType ← inferType motives[i + eqns.size]!
+            if motiveType.getForallArity != 1 then
+              forallTelescope motiveType fun vars _ => do
+                throwError "Unsupported nested type with indices while deriving \
+                  `{.ofConstName kind.className}`{indentExpr (← inferType vars.back!)}"
+            let .forallE _ ty _ _ := motiveType | unreachable!
+            let lvl ← getDecLevel ty
+            let inst ← prependError m!"Failed to synthesize instance for nested type{indentExpr ty}" do
+              synthInstance (.app (.const kind.className [lvl]) ty)
+            let val := .app (kind.cmpField lvl ty) (inst.replaceFVars recVars recVarValues)
+            cmpMVar.assign val
       makeCmpHelpersFromEquations kind levelParams lparams params moreVars eqns (usePartial || info.isUnsafe)
 
 structure CtorInfo where
@@ -707,3 +883,64 @@ def withNonNestedContext (indName : Name) (kind : Kind) (k : Context → MetaM �
       }
       k ctx
   addCmpVars indInfo.all #[] #[] varInfo
+
+open Deriving
+
+def deriveCmpClass (k : Kind) : Elab.DerivingHandler := mkInductiveDerivingHandler (needSucc := true) do
+  if ← eliminatesToProp then
+    return false
+  let indInfo := (← read).indInfo
+  unless (← getEnv).contains (k.mkHelperName indInfo.name) do
+    makeCmpHelpers indInfo.name k
+  let helperApp := mkAppN (.const (k.mkHelperName indInfo.name) (← read).lparams) (← read).indParams
+  let helperType ← inferType helperApp
+  let nargs := helperType.getForallArity
+  let helperVarsCount := nargs - 2 * (indInfo.numIndices + 1)
+  let values ← forallBoundedTelescope helperType helperVarsCount fun vars _ => do
+    let mut values := #[]
+    let mut instMap : FVarIdMap Expr := {}
+    for var in vars do
+      let varType ← inferType var
+      let arity := varType.getForallArity
+      let body := varType.getForallBody
+      if body.isAppOf ``Eq then
+        -- lawfulness hypothesis
+        let val ← forallBoundedTelescope varType (some (arity - 3)) fun vars body => do
+          let .forallE _ ty (.forallE _ _ (.forallE _ (mkApp2 _eq lhs _) _ _) _) _ := body | unreachable!
+          let .fvar f := lhs.getAppFn | unreachable!
+          let some inst := instMap.get? f | unreachable!
+          let inst := inst.beta vars
+          let lvl ← getDecLevel ty
+          let lawInst ← synthInstanceDeriving <| mkApp2 (.const k.lawfulEqClassName [lvl]) ty inst
+          mkLambdaFVars vars <| .app (k.lawfulEqField lvl ty inst) lawInst
+        values := values.push val
+      else
+        -- comparison function
+        let (val, inst) ← forallBoundedTelescope varType (some (arity - 2)) fun vars body => do
+          let .forallE _ ty _ _ := body | unreachable!
+          let lvl ← getDecLevel ty
+          let inst ← synthInstanceDeriving <| .app (.const k.className [lvl]) ty
+          return (← mkLambdaFVars vars <| .app (k.cmpField lvl ty) inst, ← mkLambdaFVars vars inst)
+        values := values.push val
+        instMap := instMap.insert var.fvarId! inst
+    pure values
+  let hyps ← produceInstanceHyps
+  let lvl ← decLevel (← read).indLevel
+  for name in (← read).names do
+    let indApp := mkAppN (.const name (← read).lparams) (← read).indParams
+    forallTelescopeReducing (← inferType indApp) fun indices _ => do
+      let indApp := mkAppN indApp indices
+      withLocalDeclD `a indApp fun a => do
+      withLocalDeclD `b indApp fun b => do
+      let helperApp := mkAppN (.const (k.mkHelperName name) (← read).lparams) (← read).indParams
+      let helperApp := mkAppN helperApp values
+      let helperApp := (mkAppN ((mkAppN helperApp indices).app a) indices).app b
+      mkInstanceForDeriving hyps (← mkForallFVars indices <| .app (.const k.className [lvl]) indApp)
+        (← mkLambdaFVars indices <| .app (k.classCtor lvl indApp) (← mkLambdaFVars #[a, b] helperApp))
+  return true
+
+builtin_initialize
+  for kind in kinds do
+    Elab.registerDerivingHandler kind.className (deriveCmpClass kind)
+
+end Lean.Meta.CmpHelper

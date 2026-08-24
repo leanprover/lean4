@@ -599,11 +599,11 @@ case 1:
 if (lean_obj_tag(v_x_85_) == 1)
 {
 uint8_t v_v_90_; 
-v_v_90_ = lean_ctor_get_uint8(v_x_84_, 0);
+v_v_90_ = lean_ctor_get_uint8(v_x_85_, 0);
 if (v_v_90_ == 0)
 {
 uint8_t v_v_91_; 
-v_v_91_ = lean_ctor_get_uint8(v_x_85_, 0);
+v_v_91_ = lean_ctor_get_uint8(v_x_84_, 0);
 if (v_v_91_ == 0)
 {
 uint8_t v___x_92_; 
@@ -618,7 +618,7 @@ return v_v_90_;
 else
 {
 uint8_t v_v_93_; 
-v_v_93_ = lean_ctor_get_uint8(v_x_85_, 0);
+v_v_93_ = lean_ctor_get_uint8(v_x_84_, 0);
 return v_v_93_;
 }
 }

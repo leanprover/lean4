@@ -33,17 +33,17 @@ def adc : StateM S Unit := modify fun s =>
 /-! Accessor-style specs: the instruction body is unfolded exactly once, in the spec
 proof; VC generation only ever sees the component equations. -/
 
-@[spec] theorem movRax_spec (i : BitVec 64) (post : PUnit → S → Prop) (epost : EPost.Nil) :
+@[spec] theorem movRax_spec (i : BitVec 64) (post : PUnit → S → Prop) (epost : EStack⟨⟩) :
     ⦃ fun s => ∀ s' : S, s'.rax = i → s'.rbx = s.rbx → s'.cf = s.cf → post ⟨⟩ s' ⦄
       movRax i ⦃ post; epost ⦄ :=
   ⟨fun _ h => h _ rfl rfl rfl⟩
 
-@[spec] theorem movRbx_spec (i : BitVec 64) (post : PUnit → S → Prop) (epost : EPost.Nil) :
+@[spec] theorem movRbx_spec (i : BitVec 64) (post : PUnit → S → Prop) (epost : EStack⟨⟩) :
     ⦃ fun s => ∀ s' : S, s'.rax = s.rax → s'.rbx = i → s'.cf = s.cf → post ⟨⟩ s' ⦄
       movRbx i ⦃ post; epost ⦄ :=
   ⟨fun _ h => h _ rfl rfl rfl⟩
 
-@[spec] theorem adc_spec (post : PUnit → S → Prop) (epost : EPost.Nil) :
+@[spec] theorem adc_spec (post : PUnit → S → Prop) (epost : EStack⟨⟩) :
     ⦃ fun s => ∀ s' : S,
         s'.rax = s.rax + s.rbx + BitVec.ofNat 64 s.cf.toNat →
         s'.rbx = s.rbx →

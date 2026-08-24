@@ -8,10 +8,7 @@ module
 prelude
 public import Lean.Linter.EnvLinter
 public import Lean.Linter.PersistentLintLog
-import Lean.CoreM
-import Lean.DocString.Extension
 import Lean.Elab.DocString.Builtin.Postponed
-import Lake.Config.Workspace
 import Lean.Linter.CodeQuality
 
 open Lean Lean.Core Meta Linter
@@ -41,9 +38,12 @@ public structure Args where
   mods : Array Name := #[]
   /-- Whether to only run the user provided linters -/
   lintOnly : Bool := false
-  /-- Whether to record linter warnings as `set_option <linter> false in` exceptions
-  by editing the source files in place. -/
+  /-- Whether to run linting, record linter warnings as `set_option <linter> false in` exceptions
+  by editing the source files in place, or running the code quality checking.-/
   mode : Mode := .report
+  /-- An array of modules containing code quality checks that are
+  imported alongside each top-level module -/
+  checks : Array Name := #[]
   /-- Source search path used to resolve modules to their `.lean` files when recording
   exceptions for environment linters. Populated from the workspace's `LEAN_SRC_PATH`, since
   `getSrcSearchPath` alone does not cover package sources during a `lake lint` run. -/
@@ -98,6 +98,10 @@ private inductive DeferredCheckOutcome where
   failures whose position could not be resolved.
   -/
   | recorded (records : Array ExceptionRecord) (unlocated : Bool)
+
+private structure PackageCodeQualityCheckOutcome where
+  entries : Array CodeQuality.Entry
+  failed : Bool
 
 private def collectTextLints
     (env : Environment) (pkgRoot : Name) :
@@ -383,12 +387,27 @@ private def runEnvironmentLinters (args : Args) (linterOpts : Linter.LinterOptio
       return .codeQualityChecks codeQualityEntries
   return outcome
 
+private def runPackageCodeQualityChecks (sp : SearchPath) (env : Environment)
+    (mod : Name) : IO PackageCodeQualityCheckOutcome := do
+  let ⟨(outcome, anyFailed), _⟩ ← CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do
+    let mut anyFailed : Bool := false
+    let checks ← CodeQuality.getPackageChecks
+    let ⟨outcome, errors⟩ ← CodeQuality.runPackageChecks checks
+      { srcSearchPath := sp, topLevelModule := mod }
+    if !errors.isEmpty then
+      anyFailed := true
+    for error in errors do
+      IO.eprintln (← error.format)
+    return (outcome, anyFailed)
+  return ⟨outcome, anyFailed⟩
+
 public def run (args : Args) : IO UInt32 := do
   let mods := args.mods
   if mods.isEmpty then
     IO.eprintln "lake lint: no modules specified for builtin linting"
     return 1
   let envLinterModule : Import := { module := `Lean.Linter.EnvLinter }
+  let checkImports : Array Import := args.checks.map fun c => { module := c }
 
   let sp := args.srcSearchPath ++ (← getSrcSearchPath)
 
@@ -412,7 +431,7 @@ public def run (args : Args) : IO UInt32 := do
     let isModule ← getIsModule modData
     let level := if isModule then OLeanLevel.server else OLeanLevel.private
     unsafe region.free
-    let env ← importModules #[{ module := mod }, envLinterModule] {}
+    let env ← importModules (#[{ module := mod }, envLinterModule] ++ checkImports) {}
       (trustLevel := 1024) (loadExts := true) (level := level)
 
     -- We create `LinterOptions` out of the passed overrides
@@ -442,7 +461,11 @@ public def run (args : Args) : IO UInt32 := do
     | .codeQualityChecks entries =>
       codeQualityEntries := codeQualityEntries ++ entries
 
-    unless args.mode == .codeQuality do
+    if args.mode == .codeQuality then
+      let ⟨entries, failed⟩ ← runPackageCodeQualityChecks sp env mod
+      codeQualityEntries := codeQualityEntries ++ entries
+      if failed then anyFailed := true
+    else
       let deferredResults ← runDeferredChecks args linterOpts sp env mod.getRoot docCheckedModules
       docCheckedModules := deferredResults.checkedModules
       match deferredResults.outcome with
@@ -461,6 +484,6 @@ public def run (args : Args) : IO UInt32 := do
   | .codeQuality =>
     for entry in codeQualityEntries do
       IO.println <| toJson entry
-    return 0
+    return if anyFailed then 1 else 0
 
 end Lake.BuiltinLint

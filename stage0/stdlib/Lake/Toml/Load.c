@@ -500,22 +500,22 @@ lean_dec_ref(v_stxStack_110_);
 v___x_143_ = lean_uint8_once(&l_Lake_Toml_loadToml___closed__19, &l_Lake_Toml_loadToml___closed__19_once, _init_l_Lake_Toml_loadToml___closed__19);
 v___x_208_ = l_Lean_Kernel_isDiagnosticsEnabled(v_env_137_);
 lean_dec_ref(v_env_137_);
-if (v___x_208_ == 0)
-{
 if (v___x_143_ == 0)
+{
+if (v___x_208_ == 0)
 {
 v___y_188_ = v___x_112_;
 goto v___jp_187_;
 }
 else
 {
-v___y_188_ = v___x_208_;
+v___y_188_ = v___x_143_;
 goto v___jp_187_;
 }
 }
 else
 {
-v___y_188_ = v___x_143_;
+v___y_188_ = v___x_208_;
 goto v___jp_187_;
 }
 v___jp_144_:

@@ -58,6 +58,7 @@ public structure LakeOptions where
   trustHash : Bool := true
   allowEmpty : Bool := false
   noBuild : Bool := false
+  failFast : Bool := false
   noCache : Option Bool := none
   failLv : LogLevel := .error
   outLv? : Option LogLevel := .none
@@ -136,6 +137,7 @@ def LakeOptions.mkBuildConfig
   oldMode := opts.oldMode
   trustHash := opts.trustHash
   noBuild := opts.noBuild
+  failFast := opts.failFast
   verbosity := opts.verbosity
   failLv := opts.failLv
   outLv := opts.outLv
@@ -281,6 +283,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--json"        => modifyThe LakeOptions ({· with outFormat := .json})
 | "--allow-empty" => modifyThe LakeOptions ({· with allowEmpty := true})
 | "--no-build"    => modifyThe LakeOptions ({· with noBuild := true})
+| "--fail-fast"   => modifyThe LakeOptions ({· with failFast := true})
 | "--no-cache"    => modifyThe LakeOptions ({· with noCache := true})
 | "--try-cache"   => modifyThe LakeOptions ({· with noCache := false})
 | "--rehash"      => modifyThe LakeOptions ({· with trustHash := false})
@@ -367,6 +370,17 @@ def lakeLongOption : (opt : String) → CliM PUnit
     modifyLintOnlyFlag true
   let spec ← takeOptArg "--lint-only" "comma-separated linter spec"
   parseLintersSpec spec
+| "--checks" => do
+  let spec ← takeOptArg "--checks" "comma-separated module names"
+  let mut checks : Array Lean.Name := #[]
+  for raw in spec.split (· == ',') do
+    let s := raw.trimAscii
+    unless s.isEmpty do
+      checks := checks.push s.toName
+  modifyThe LakeOptions fun opts =>
+    { opts with runBuiltinLint := true, builtinOnly := true,
+                builtinLint.checks := opts.builtinLint.checks ++ checks,
+                builtinLint.mode := .codeQuality }
 
 -- Shared options
 | "--force" => modifyThe LakeOptions ({· with shake.force := true})
@@ -1053,8 +1067,15 @@ private def runBuiltinLint
   if mods.isEmpty then
     error "no modules specified and there are no applicable default targets"
   let args := opts.builtinLint
-  let args := {args with mods, srcSearchPath := ws.augmentedLeanSrcPath}
-  let specs ← parseTargetSpecs ws (mods.map (s!"+{·}") |>.toList)
+  let checks := (ws.root.config.checks ++ args.checks).foldl (init := #[])
+    fun acc c => if acc.contains c then acc else acc.push c
+  for c in checks do
+    unless (ws.findTargetModule? c).isSome do
+      error s!"unknown checks module `{c}`; it must be a module of a package in the workspace"
+  let args := { args with mods, checks, srcSearchPath := ws.augmentedLeanSrcPath }
+  -- Checks modules are imported alongside each lint target, so they must be built as well.
+  let buildMods := mods ++ checks.filter (!mods.contains ·)
+  let specs ← parseTargetSpecs ws (buildMods.map (s!"+{·}") |>.toList)
   let lintOpts := BuiltinLint.leanOptOverrides args
   let overrides : Lean.NameMap Lean.LeanOptions :=
     if lintOpts.values.isEmpty then

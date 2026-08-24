@@ -66,6 +66,7 @@ private:
     expr ensure_pi_core(expr e, expr const & s);
     void check_level(level const & l);
     expr infer_fvar(expr const & e);
+    expr infer_lit(expr const & e);
     expr infer_constant(expr const & e, bool infer_only);
     expr infer_lambda(expr const & e, bool infer_only);
     expr infer_pi(expr const & e, bool infer_only);
@@ -114,9 +115,10 @@ private:
     expr check_ignore_undefined_universes(expr const & e);
     optional<expr> try_unfold_proj_app(expr const & e);
 
-    template<typename F> optional<expr> reduce_bin_nat_op(F const & f, expr const & e);
+    template<typename F> optional<expr> reduce_bin_nat_op(F const & f, expr const & e, bool check_size = false);
     template<typename F> optional<expr> reduce_bin_nat_pred(F const & f, expr const & e);
     optional<expr> reduce_pow(expr const & e);
+    optional<expr> reduce_shiftLeft(expr const & e);
     optional<expr> reduce_nat(expr const & e);
 public:
     // The following two constructor are used only by the old compiler and should be deleted with it

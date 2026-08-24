@@ -566,10 +566,10 @@ return v___x_54_;
 LEAN_EXPORT lean_object* l_Lean_Compiler_instBEqSpecializeAttributeKind_beq___boxed(lean_object* v_x_55_, lean_object* v_y_56_){
 _start:
 {
-uint8_t v_x_17__boxed_57_; uint8_t v_y_18__boxed_58_; uint8_t v_res_59_; lean_object* v_r_60_; 
-v_x_17__boxed_57_ = lean_unbox(v_x_55_);
-v_y_18__boxed_58_ = lean_unbox(v_y_56_);
-v_res_59_ = l_Lean_Compiler_instBEqSpecializeAttributeKind_beq(v_x_17__boxed_57_, v_y_18__boxed_58_);
+uint8_t v_x_21__boxed_57_; uint8_t v_y_22__boxed_58_; uint8_t v_res_59_; lean_object* v_r_60_; 
+v_x_21__boxed_57_ = lean_unbox(v_x_55_);
+v_y_22__boxed_58_ = lean_unbox(v_y_56_);
+v_res_59_ = l_Lean_Compiler_instBEqSpecializeAttributeKind_beq(v_x_21__boxed_57_, v_y_22__boxed_58_);
 v_r_60_ = lean_box(v_res_59_);
 return v_r_60_;
 }

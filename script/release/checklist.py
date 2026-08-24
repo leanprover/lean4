@@ -827,12 +827,6 @@ class LeanChecker(RepoChecker):
             self.cl.fail(f"{what} not posted")
             return
 
-        proofwidgets = self.github.get_repo(repos.PROOFWIDGETS4.gh_full_name)
-        proofwidgets_tag = util.get_proofwidgets_release_for(proofwidgets, self.version)
-        if proofwidgets_tag is None:
-            self.cl.fail("ProofWidgets release tag not found")
-            return
-
         release_notes_url = f"https://lean-lang.org/doc/reference/latest/releases/{self.version.stable}/"
 
         msg = ""
@@ -842,9 +836,26 @@ class LeanChecker(RepoChecker):
             msg += f"We have a new release candidate of Lean, `{self.version.tag}`. "
         msg += f"See the [release notes]({release_notes_url}) for more information."
         msg += "\n\n"
-        msg += "The usual repos are all available with the new toolchain "
-        msg += f"at their respective `{self.version.tag}` tags "
-        msg += f"(and ProofWidgets at `{proofwidgets_tag.name}`). "
+
+        if self.version.patch > 0:
+            # Patch releases only update the repos marked `patch_release`, and
+            # ProofWidgets is not one of them.
+            names = [f"`{r.gh_name}`" for r in repos.ALL if r.patch_release]
+            msg += f"{util.join_and(names)} are available with the new toolchain "
+            msg += f"at their respective `{self.version.tag}` tags. "
+        else:
+            proofwidgets = self.github.get_repo(repos.PROOFWIDGETS4.gh_full_name)
+            proofwidgets_tag = util.get_proofwidgets_release_for(
+                proofwidgets, self.version
+            )
+            if proofwidgets_tag is None:
+                self.cl.fail("ProofWidgets release tag not found")
+                return
+
+            msg += "The usual repos are all available with the new toolchain "
+            msg += f"at their respective `{self.version.tag}` tags "
+            msg += f"(and ProofWidgets at `{proofwidgets_tag.name}`). "
+
         msg += "We encourage all projects downstream "
         msg += f"to update to `{self.version.tag}` when possible, and "
         msg += "to release their own corresponding toolchain tags after updating."

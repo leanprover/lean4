@@ -1261,9 +1261,9 @@ return v___x_349_;
 LEAN_EXPORT lean_object* l_Lean_Elab_instReprDocElabKind_repr___boxed(lean_object* v_x_366_, lean_object* v_prec_367_){
 _start:
 {
-uint8_t v_x_233__boxed_368_; lean_object* v_res_369_; 
-v_x_233__boxed_368_ = lean_unbox(v_x_366_);
-v_res_369_ = l_Lean_Elab_instReprDocElabKind_repr(v_x_233__boxed_368_, v_prec_367_);
+uint8_t v_x_225__boxed_368_; lean_object* v_res_369_; 
+v_x_225__boxed_368_ = lean_unbox(v_x_366_);
+v_res_369_ = l_Lean_Elab_instReprDocElabKind_repr(v_x_225__boxed_368_, v_prec_367_);
 lean_dec(v_prec_367_);
 return v_res_369_;
 }

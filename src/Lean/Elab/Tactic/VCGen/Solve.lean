@@ -9,10 +9,12 @@ prelude
 public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.RuleCache
 public import Lean.Elab.Tactic.VCGen.Entails
+public import Lean.Elab.Tactic.VCGen.BinderName
 public import Lean.Meta.Sym.InstantiateS
 public import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.InstantiateMVarsS
+import Init.Data.Prod
 
 open Lean Meta Elab Tactic Sym Sym.Internal
 open Lean.Elab.Tactic.VCGen.SpecAttr
@@ -61,17 +63,38 @@ private def consumeMData? (goal : MVarId) (target : Expr) : VCGenM (Option MVarI
   unless target.isMData do return none
   return some (← goal.replaceTargetDefEqFast target.consumeMData)
 
+/-- Split `∀ p : Nat × Nat, P p` into `∀ a b, P (a, b)`. -/
+private def splitProdBinder (goal : MVarId) (target : Expr) : VCGenM MVarId :=
+  goal.withContext do
+  let .forallE _ dom body _ := target | return goal
+  let dom ← instantiateMVarsIfMVarAppS dom
+  let_expr c@Prod α β := dom | return goal
+  let us := c.constLevels!
+  let mk ← mkAppNS (← mkConstS ``Prod.mk us) #[α, β, .bvar 1, .bvar 0]
+  let newTarget := Expr.forallE `a α (.forallE `b β (body.instantiate1 mk) .default) .default
+  let g ← liftMetaM <| mkFreshExprSyntheticOpaqueMVar (← shareCommon newTarget)
+  let motive := Expr.lam `p dom body .default
+  let prodForall ← mkAppNS (← mkConstS ``Prod.forall us) #[α, β, motive]
+  goal.assign <| mkApp4 (.const ``Iff.mpr []) target newTarget prodForall g
+  return g.mvarId!
+
 /-- Strategy 1: simp the target, then introduce binders if the target is a `∀`. -/
-private def forallIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
+private def forallIntro? (oldGoal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
   unless target.isForall do return none
-  let (goal, simped) ← match ← simpGoalTelescope goal with
+  let mut goal ← match ← simpGoalTelescope oldGoal with
     | .closed => return some []
-    | .goal goal' => pure (goal', true)
-    | .noProgress => pure (goal, false)
-  let goal' ← introsHygienic goal
-  if !simped && goal' == goal then
+    | .goal goal => pure goal
+    | .noProgress => pure oldGoal
+  let mut target ← goal.getType
+  while target.isForall do
+    let n := numBindersToIntro target
+    let goal' ← if n == 0 then splitProdBinder goal target else introsHygienicN goal n
+    if goal' == goal then break
+    goal := goal'
+    target ← goal.getType
+  if goal == oldGoal then
     throwError "Failed to intro forall target {goal}"
-  return some [goal']
+  return some [goal]
 
 private def throwIfUnsupportedJP (name : Name) (val : Expr) : VCGenM Unit := do
   if (← read).useJP && Lean.Elab.Tactic.Do.isJP name && val.isLambda then
@@ -272,6 +295,7 @@ private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
   let .letE name type val body nondep := info.prog.getAppFn | return none
   let appArgs := info.prog.getAppRevArgs
   throwIfUnsupportedJP name val
+  let val ← reduceHead val
   if isDuplicable val then
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
     let body' ← Sym.instantiateRevBetaS body #[val]
@@ -287,8 +311,9 @@ private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
     let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
     let target := Expr.letE name type val target nondep
     let goal ← goal.replaceTargetDefEqFast target
-    let .goal _ goal ← Sym.intros goal
-      | throwError "Failed to intro hoisted let"
+    let name ← if isProgramName name then pure name else Meta.mkFreshBinderNameForTactic name
+    let .goal _ goal ← Sym.intros goal #[name]
+      | throwError "Failed to intro the `let` of{indentExpr info.prog}"
     return some goal
 
 /-- Strategy 11b: fold the state arguments of the program's `wp` application, so the symbolic
@@ -430,47 +455,60 @@ public def matchFrame? (fp : FrameProc) (info : WPApp) : VCGenM (Option Expr) :=
   trace[Elab.Tactic.Do.vcgen] "`frames` matched {info.prog}; frame:{indentExpr frame}"
   return some frame
 
-/-- True iff `post` is the post of a frame residual, `fun a => PreservesSup.upperAdjoint (op frame) (Q a)`.
-The frame rule leaves this shape behind, so a program with such a post is already framed and must not
-be framed again. -/
-private def isFramedPost (post : Expr) : Bool :=
-  let body := if post.isLambda then post.bindingBody! else post
-  body.consumeMData.getAppFn.isConstOf ``Lean.Order.PreservesSup.upperAdjoint
+/-- Apply `specRule` to a fresh target `?fp ⊑ wp prog ?Q E ?s⃗`.
+Return the completed `FrameGoal` to pass to the frameproc. -/
+private def applySpecToFootprint (info : WPApp) (specRule : Sym.BackwardRule)
+    (le W : Expr) (excessStates : Array Expr) (frame : MVarId)
+    (splitLatticeOp? : MVarId → Grind.GrindM (Option (List MVarId))) :
+    Grind.GrindM (Option (FrameGoal × List MVarId)) := do
+  let fp ← mkFreshExprMVar le.appFn!.appArg!
+  let rhs ← mkAppNS W excessStates
+  let target ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS le #[fp, rhs])
+  let .goals sgs ← specRule.apply target.mvarId! | return none
+  let some preVC ← sgs.findM? fun g => return (← g.getType).isAppOf ``Lean.Order.PartialOrder.rel
+    | throwError "frame: spec rule left no precondition VC for{indentExpr info.prog}"
+  let some framedApp := isWPApp? rhs
+    | throwError "frame: the weakest footprint is not a `wp` application for{indentExpr info.prog}"
+  let goal : FrameGoal :=
+    { frame, footprint := fp.mvarId!, framedApp, specPre := (← preVC.getType).appArg!, preVC,
+      specProof := target, splitLatticeOp? }
+  return some (goal, sgs)
 
-/-- Apply the frame rule for `fp`'s operator and the inferred `FrameSplit`. Assign the frame slot,
-then read the weakest footprint `W` off the now-concrete split VC `pre ⊑ (op frame W) s⃗` and fill the
-split's `residualPre` with it, so the procedure's proof (built against that metavariable) discharges
-the split VC. The proof's `subgoals` remain; the assigned slot goals are skipped by the worklist. -/
-private def applyFrameRule (goal : MVarId) (info : WPApp) (fp : FrameProc)
-    (split : FrameSplit) : VCGenM (List MVarId) := do
+/-- Apply the frame rule to a copy of `goal`, and read the weakest footprint `W` off its split VC
+`pre ⊑ (op ?F W) s⃗`. The copy keeps candidate fall-through possible: committing to the frame rule
+has no undo, so a spec that turns out not to apply leaves the copy orphaned and the goal untouched. -/
+private def commitFrameRule (goal : MVarId) (info : WPApp) (fp : FrameProc) :
+    VCGenM (Expr × FrameBackwardRule × Array MVarId × Expr) := do
   let frule ← mkFrameBackwardRuleCached fp info
-  let .goals goals ← frule.rule.applyChecked goal m!"frame rule for{indentExpr info.prog}"
+  let copy ← mkFreshExprSyntheticOpaqueMVar (← goal.getType)
+  let .goals goals ← frule.rule.applyChecked copy.mvarId! m!"frame rule for{indentExpr info.prog}"
     | throwError "frame: failed to apply rule for{indentExpr info.prog}"
   let goals := goals.toArray
-  goals[frule.frameIdx]!.assign split.frame
   let vcType ← goals[frule.splitVCIdx]!.getType
   let_expr Lean.Order.PartialOrder.rel _ _ _ rhs := vcType
     | throwError "frame: split VC is not an entailment{indentExpr vcType}"
-  split.residualPre.assign (rhs.stripArgsN info.excessArgs.size).appArg!
-  goals[frule.splitVCIdx]!.assign split.splitVCProof
-  return goals.toList ++ split.subgoals
+  return (copy, frule, goals, (rhs.stripArgsN info.excessArgs.size).appArg!)
+
+/-- `splitLatticeOp?` as a `GrindM` callback for `FrameGoal`, closed over the rule cache. -/
+private def splitLatticeOpCallback : VCGenM (MVarId → Grind.GrindM (Option (List MVarId))) :=
+  liftWith (m := Grind.GrindM) fun run => pure fun m => run do
+    let ty ← m.getType
+    let_expr Lean.Order.PartialOrder.rel _ _ _ rhs := ty | return none
+    splitLatticeOp? m rhs
 
 /--
-Apply the selected `@[spec]` theorem `thm` to a spec-ready program `info.prog`, framing first when a
-frame procedure produces a split. `none` when no backward rule fits the goal's monad, or when the
-rule does not apply.
+Apply the selected `@[spec]` theorem `thm` to a spec-ready program `info.prog`. `none` when no
+backward rule fits the goal's monad, or when the rule does not apply.
 
-- A spec with a conjunctive precondition, or an already-framed residual, applies its spec directly.
-- Otherwise the frame procedure for the monad is selected (the `@[frameproc]` registered for the
-  program type, or the default meet frame). The choice is per node, since sub-programs may reach a
-  different monad (e.g. a `monadLift`ed base call).
-- An explicit `frames` clause elaborates a frame and passes it to the procedure.
-- Failing that, the procedure may read the spec's precondition through
-  `FrameInferenceInfo.specPre?`: no split applies the spec directly; a split applies the frame rule
-  instead, so the spec re-applies against the framed residual where its VCs are solvable.
+A spec with a conjunctive precondition applies directly. Otherwise the frame procedure `fp` runs,
+with `providedFrame?` carrying the frame a `frames` clause pinned (both selected once per goal in
+`applySpecs`). On `decline` the spec applies directly as well. On `commit` the solver applies the
+frame rule to a copy of the goal, applies the spec at the weakest footprint, and runs the commit
+continuation; see `FrameProc.lean`. When the spec does not apply to the footprint, the copy is
+dropped and the candidate falls through.
 -/
-private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
-    VCGenM (Option SolveResult) := do
+private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem)
+    (fp : FrameProc) (providedFrame? : Option Expr) : VCGenM (Option SolveResult) := do
   let some specRule ←
     try
       mkBackwardRuleFromSpecCached thm info |>.run
@@ -481,16 +519,28 @@ private def applySpec (scope : Scope) (goal : MVarId) (info : WPApp) (thm : Spec
         Pred:{indentExpr info.Pred}\n\
         excessArgs: {info.excessArgs}"
     | return none
-  unless thm.conjunctivePre || isFramedPost info.post do
-    let procs := (← read).frameProcs.byProg
-    let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
-    let providedFrame? ← matchFrame? fp info
+  unless thm.conjunctivePre do
+    let target ← goal.getType
     let inferInfo : FrameInferenceInfo :=
-      { info with goal, providedFrame?, spec? := thm.global?, specRule,
-                  mkOpApp := do shareCommon (← fp.mkOpAppM info) }
-    if let some split ← fp.proc inferInfo then
-      trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` matched {info.prog}; frame:{indentExpr split.frame}"
-      return some (.goals scope (← applyFrameRule goal info fp (← split.instantiateMVarsS)))
+      { pre := target.appFn!.appArg!, le := target.stripArgsN 2
+        unframedApp := info, providedFrame?, spec? := thm.global?,
+        mkOpApp := do shareCommon (← fp.mkOpAppM info) }
+    match ← fp.proc inferInfo with
+    | .decline => pure ()
+    | .commit excessStates k =>
+      unless excessStates.size == info.excessArgs.size do
+        throwError "frameproc: the spec must run at {info.excessArgs.size} state arguments \
+          for now, got {excessStates.size}"
+      let (copy, frule, goals, W) ← commitFrameRule goal info fp
+      let some (fgoal, sgs) ←
+          applySpecToFootprint info specRule inferInfo.le W excessStates goals[frule.frameIdx]!
+            (← splitLatticeOpCallback)
+        | return none
+      let split ← k fgoal
+      trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` framed {info.prog}"
+      goals[frule.splitVCIdx]!.assign split.splitVCProof
+      goal.assign copy
+      return some (.goals scope (goals.toList ++ fgoal.preVC :: sgs ++ split.subgoals))
   trace[Elab.Tactic.Do.vcgen] "Applying spec {thm.proof} for {info.prog}. Excess args: {info.excessArgs}"
   let .goals goals ← specRule.applyChecked goal m!"spec rule for{indentExpr info.prog}"
     | return none
@@ -507,8 +557,12 @@ spurious candidate of the over-approximating discrimination tree.
 private def applySpecs (scope : Scope) (goal : MVarId) (info : WPApp) :
     VCGenM SolveResult := goal.withContext do
   let candidates ← SpecTheorems.findSpecs scope.specs info.prog
+  let procs := (← read).frameProcs.byProg
+  let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
+  let providedFrame? ←
+    if candidates.isEmpty then pure none else matchFrame? fp info
   for thm in candidates do
-    if let some res ← applySpec scope goal info thm then
+    if let some res ← applySpec scope goal info thm fp providedFrame? then
       return res
     trace[Elab.Tactic.Do.vcgen] "Failed to apply spec {thm.proof} for {info.prog}"
   stopOrErrorOnMissingSpec info.prog info.M candidates
@@ -531,7 +585,7 @@ The function performs the following steps in order:
    `σ₁ → ... → σₙ → Base`, introduce all excess state arguments.
 7. **Bare pure precondition introduction**: on the `Prop` lattice, replace a `True`
    precondition by `⊤` and lift any other precondition into the local context.
-8. **EPost projection reduction**: reduce an `EPost.Cons.head` RHS to the projected component.
+8. **Component projection reduction**: reduce a `Prod.fst` RHS to the projected component.
 9. **Lattice decomposition**: decompose `⊓`, `⇨`, `⌜p⌝` and `⊤` RHS connectives.
 10. **Lifted-hypothesis discharge**: close a residual `pre ⊑ ⌜φ⌝` entailment against the most
     recently lifted precondition `h : φ` in the local context, cached in `Scope.lastLiftedPre?`.
@@ -546,6 +600,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
 
   -- Phase 1: simplify `target` until it is of the form `pre ⊑ rhs`.
   if let some g ← consumeMData? goal target then return .goals scope [g]
+  if let some g ← consumeBinderNameHint? goal target then return .goals scope [g]
   if let some gs ← forallIntro? goal target then return .goals scope gs
   if let some g ← targetLetIntro? goal target then return .goals scope [g]
   if let some g ← tripleUnfold? goal target then return .goals scope [g]
@@ -565,9 +620,9 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
   -- (`wpMatch?`, `splitLatticeOp?`) or apply a registered spec (`applySpec`).
   let scope ← scope.collectLocalSpecs goal
 
-  -- Phase 3: shape the `rhs` (reduce an EPost projection, decompose a lattice connective or a
+  -- Phase 3: shape the `rhs` (reduce a component projection, decompose a lattice connective or a
   -- forall, then discharge a residual entailment against the lifted hypothesis).
-  if let some g ← reduceEPostHead? goal target α inst pre rhs then return .goals scope [g]
+  if let some g ← headReduceFstRhs? goal target α inst pre rhs then return .goals scope [g]
   if let some gs ← splitLatticeOp? goal rhs then return .goals scope gs
   if let some gs ← splitForallLe? goal rhs then return .goals scope gs
   if let some gs ← liftedHyp? scope goal α pre rhs then return .goals scope gs

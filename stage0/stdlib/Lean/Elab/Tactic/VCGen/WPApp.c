@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.VCGen.WPApp
-// Imports: public import Lean.Meta.Sym.SymM import Std.WP.Basic
+// Imports: public import Lean.Meta.Sym.SymM public import Lean.Meta.Sym.AlphaShareBuilder import Std.WP.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -27,6 +27,7 @@ lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isApp(lean_object*);
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
+lean_object* l_Lean_Expr_stripArgsN(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_Prog(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_Prog___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_M(lean_object*);
@@ -43,6 +44,8 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_prog(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_prog___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_post(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_post___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_wp(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_wp___boxed(lean_object*);
 static const lean_string_object l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "Std"};
 static const lean_object* l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0___closed__0 = (const lean_object*)&l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0___closed__0_value;
 static const lean_string_object l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "WP"};
@@ -54,7 +57,7 @@ static const lean_ctor_object l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_V
 static const lean_ctor_object l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0___closed__3_value_aux_2 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0___closed__3_value_aux_1),((lean_object*)&l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0___closed__1_value),LEAN_SCALAR_PTR_LITERAL(124, 118, 39, 144, 78, 10, 170, 168)}};
 static const lean_ctor_object l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0___closed__3_value_aux_2),((lean_object*)&l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0___closed__2_value),LEAN_SCALAR_PTR_LITERAL(182, 255, 127, 189, 81, 246, 28, 251)}};
 static const lean_object* l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0___closed__3 = (const lean_object*)&l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0___closed__3_value;
-LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_once_cell_t l_Lean_Elab_Tactic_VCGen_isWPApp_x3f___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_Tactic_VCGen_isWPApp_x3f___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_isWPApp_x3f(lean_object*);
@@ -62,7 +65,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_Prog(lean_object* v_info
 _start:
 {
 lean_object* v_args_2_; lean_object* v___x_3_; lean_object* v___x_4_; lean_object* v___x_5_; 
-v_args_2_ = lean_ctor_get(v_info_1_, 1);
+v_args_2_ = lean_ctor_get(v_info_1_, 2);
 v___x_3_ = l_Lean_instInhabitedExpr;
 v___x_4_ = lean_unsigned_to_nat(0u);
 v___x_5_ = lean_array_get_borrowed(v___x_3_, v_args_2_, v___x_4_);
@@ -83,7 +86,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_M(lean_object* v_info_8_
 _start:
 {
 lean_object* v_args_9_; lean_object* v___x_10_; lean_object* v___x_11_; lean_object* v___x_12_; uint8_t v___x_13_; 
-v_args_9_ = lean_ctor_get(v_info_8_, 1);
+v_args_9_ = lean_ctor_get(v_info_8_, 2);
 v___x_10_ = l_Lean_instInhabitedExpr;
 v___x_11_ = lean_unsigned_to_nat(0u);
 v___x_12_ = lean_array_get_borrowed(v___x_10_, v_args_9_, v___x_11_);
@@ -114,7 +117,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_Value(lean_object* v_inf
 _start:
 {
 lean_object* v_args_18_; lean_object* v___x_19_; lean_object* v___x_20_; lean_object* v___x_21_; 
-v_args_18_ = lean_ctor_get(v_info_17_, 1);
+v_args_18_ = lean_ctor_get(v_info_17_, 2);
 v___x_19_ = l_Lean_instInhabitedExpr;
 v___x_20_ = lean_unsigned_to_nat(1u);
 v___x_21_ = lean_array_get_borrowed(v___x_19_, v_args_18_, v___x_20_);
@@ -135,7 +138,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_Pred(lean_object* v_info
 _start:
 {
 lean_object* v_args_25_; lean_object* v___x_26_; lean_object* v___x_27_; lean_object* v___x_28_; 
-v_args_25_ = lean_ctor_get(v_info_24_, 1);
+v_args_25_ = lean_ctor_get(v_info_24_, 2);
 v___x_26_ = l_Lean_instInhabitedExpr;
 v___x_27_ = lean_unsigned_to_nat(2u);
 v___x_28_ = lean_array_get_borrowed(v___x_26_, v_args_25_, v___x_27_);
@@ -156,7 +159,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_EPred(lean_object* v_inf
 _start:
 {
 lean_object* v_args_32_; lean_object* v___x_33_; lean_object* v___x_34_; lean_object* v___x_35_; 
-v_args_32_ = lean_ctor_get(v_info_31_, 1);
+v_args_32_ = lean_ctor_get(v_info_31_, 2);
 v___x_33_ = l_Lean_instInhabitedExpr;
 v___x_34_ = lean_unsigned_to_nat(3u);
 v___x_35_ = lean_array_get_borrowed(v___x_33_, v_args_32_, v___x_34_);
@@ -177,7 +180,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_instWP(lean_object* v_in
 _start:
 {
 lean_object* v_args_39_; lean_object* v___x_40_; lean_object* v___x_41_; lean_object* v___x_42_; 
-v_args_39_ = lean_ctor_get(v_info_38_, 1);
+v_args_39_ = lean_ctor_get(v_info_38_, 2);
 v___x_40_ = l_Lean_instInhabitedExpr;
 v___x_41_ = lean_unsigned_to_nat(6u);
 v___x_42_ = lean_array_get_borrowed(v___x_40_, v_args_39_, v___x_41_);
@@ -198,7 +201,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_prog(lean_object* v_info
 _start:
 {
 lean_object* v_args_46_; lean_object* v___x_47_; lean_object* v___x_48_; lean_object* v___x_49_; 
-v_args_46_ = lean_ctor_get(v_info_45_, 1);
+v_args_46_ = lean_ctor_get(v_info_45_, 2);
 v___x_47_ = l_Lean_instInhabitedExpr;
 v___x_48_ = lean_unsigned_to_nat(7u);
 v___x_49_ = lean_array_get_borrowed(v___x_47_, v_args_46_, v___x_48_);
@@ -219,7 +222,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_post(lean_object* v_info
 _start:
 {
 lean_object* v_args_53_; lean_object* v___x_54_; lean_object* v___x_55_; lean_object* v___x_56_; 
-v_args_53_ = lean_ctor_get(v_info_52_, 1);
+v_args_53_ = lean_ctor_get(v_info_52_, 2);
 v___x_54_ = l_Lean_instInhabitedExpr;
 v___x_55_ = lean_unsigned_to_nat(8u);
 v___x_56_ = lean_array_get_borrowed(v___x_54_, v_args_53_, v___x_55_);
@@ -236,74 +239,96 @@ lean_dec_ref(v_info_57_);
 return v_res_58_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0(lean_object* v_x_66_, lean_object* v_x_67_, lean_object* v_x_68_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_wp(lean_object* v_info_59_){
 _start:
 {
-uint8_t v___y_70_; 
-if (lean_obj_tag(v_x_66_) == 5)
+lean_object* v_expr_60_; lean_object* v_excessArgs_61_; lean_object* v___x_62_; lean_object* v___x_63_; 
+v_expr_60_ = lean_ctor_get(v_info_59_, 0);
+v_excessArgs_61_ = lean_ctor_get(v_info_59_, 3);
+v___x_62_ = lean_array_get_size(v_excessArgs_61_);
+v___x_63_ = l_Lean_Expr_stripArgsN(v_expr_60_, v___x_62_);
+return v___x_63_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_wp___boxed(lean_object* v_info_64_){
+_start:
 {
-lean_object* v_fn_79_; lean_object* v_arg_80_; lean_object* v___x_81_; lean_object* v___x_82_; lean_object* v___x_83_; 
-v_fn_79_ = lean_ctor_get(v_x_66_, 0);
-lean_inc_ref(v_fn_79_);
-v_arg_80_ = lean_ctor_get(v_x_66_, 1);
-lean_inc_ref(v_arg_80_);
-lean_dec_ref_known(v_x_66_, 2);
-v___x_81_ = lean_array_set(v_x_67_, v_x_68_, v_arg_80_);
-v___x_82_ = lean_unsigned_to_nat(1u);
-v___x_83_ = lean_nat_sub(v_x_68_, v___x_82_);
-lean_dec(v_x_68_);
-v_x_66_ = v_fn_79_;
-v_x_67_ = v___x_81_;
-v_x_68_ = v___x_83_;
+lean_object* v_res_65_; 
+v_res_65_ = l_Lean_Elab_Tactic_VCGen_WPApp_wp(v_info_64_);
+lean_dec_ref(v_info_64_);
+return v_res_65_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0(lean_object* v_rhs_73_, lean_object* v_x_74_, lean_object* v_x_75_, lean_object* v_x_76_){
+_start:
+{
+uint8_t v___y_78_; 
+if (lean_obj_tag(v_x_74_) == 5)
+{
+lean_object* v_fn_87_; lean_object* v_arg_88_; lean_object* v___x_89_; lean_object* v___x_90_; lean_object* v___x_91_; 
+v_fn_87_ = lean_ctor_get(v_x_74_, 0);
+lean_inc_ref(v_fn_87_);
+v_arg_88_ = lean_ctor_get(v_x_74_, 1);
+lean_inc_ref(v_arg_88_);
+lean_dec_ref_known(v_x_74_, 2);
+v___x_89_ = lean_array_set(v_x_75_, v_x_76_, v_arg_88_);
+v___x_90_ = lean_unsigned_to_nat(1u);
+v___x_91_ = lean_nat_sub(v_x_76_, v___x_90_);
+lean_dec(v_x_76_);
+v_x_74_ = v_fn_87_;
+v_x_75_ = v___x_89_;
+v_x_76_ = v___x_91_;
 goto _start;
 }
 else
 {
-lean_object* v___x_85_; uint8_t v___x_86_; 
-lean_dec(v_x_68_);
-v___x_85_ = ((lean_object*)(l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0___closed__3));
-v___x_86_ = l_Lean_Expr_isConstOf(v_x_66_, v___x_85_);
-if (v___x_86_ == 0)
+lean_object* v___x_93_; uint8_t v___x_94_; 
+lean_dec(v_x_76_);
+v___x_93_ = ((lean_object*)(l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0___closed__3));
+v___x_94_ = l_Lean_Expr_isConstOf(v_x_74_, v___x_93_);
+if (v___x_94_ == 0)
 {
-v___y_70_ = v___x_86_;
-goto v___jp_69_;
+v___y_78_ = v___x_94_;
+goto v___jp_77_;
 }
 else
 {
-lean_object* v___x_87_; lean_object* v___x_88_; uint8_t v___x_89_; 
-v___x_87_ = lean_unsigned_to_nat(10u);
-v___x_88_ = lean_array_get_size(v_x_67_);
-v___x_89_ = lean_nat_dec_le(v___x_87_, v___x_88_);
-v___y_70_ = v___x_89_;
-goto v___jp_69_;
+lean_object* v___x_95_; lean_object* v___x_96_; uint8_t v___x_97_; 
+v___x_95_ = lean_unsigned_to_nat(10u);
+v___x_96_ = lean_array_get_size(v_x_75_);
+v___x_97_ = lean_nat_dec_le(v___x_95_, v___x_96_);
+v___y_78_ = v___x_97_;
+goto v___jp_77_;
 }
 }
-v___jp_69_:
+v___jp_77_:
 {
-if (v___y_70_ == 0)
+if (v___y_78_ == 0)
 {
-lean_object* v___x_71_; 
-lean_dec_ref(v_x_67_);
-lean_dec_ref(v_x_66_);
-v___x_71_ = lean_box(0);
-return v___x_71_;
+lean_object* v___x_79_; 
+lean_dec_ref(v_x_75_);
+lean_dec_ref(v_x_74_);
+lean_dec_ref(v_rhs_73_);
+v___x_79_ = lean_box(0);
+return v___x_79_;
 }
 else
 {
-lean_object* v___x_72_; lean_object* v___x_73_; lean_object* v___x_74_; lean_object* v___x_75_; lean_object* v___x_76_; lean_object* v___x_77_; lean_object* v___x_78_; 
-v___x_72_ = lean_unsigned_to_nat(10u);
-v___x_73_ = lean_unsigned_to_nat(0u);
-v___x_74_ = l_Array_extract___redArg(v_x_67_, v___x_73_, v___x_72_);
-v___x_75_ = lean_array_get_size(v_x_67_);
-v___x_76_ = l_Array_extract___redArg(v_x_67_, v___x_72_, v___x_75_);
-lean_dec_ref(v_x_67_);
-v___x_77_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_77_, 0, v_x_66_);
-lean_ctor_set(v___x_77_, 1, v___x_74_);
-lean_ctor_set(v___x_77_, 2, v___x_76_);
-v___x_78_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_78_, 0, v___x_77_);
-return v___x_78_;
+lean_object* v___x_80_; lean_object* v___x_81_; lean_object* v___x_82_; lean_object* v___x_83_; lean_object* v___x_84_; lean_object* v___x_85_; lean_object* v___x_86_; 
+v___x_80_ = lean_unsigned_to_nat(10u);
+v___x_81_ = lean_unsigned_to_nat(0u);
+v___x_82_ = l_Array_extract___redArg(v_x_75_, v___x_81_, v___x_80_);
+v___x_83_ = lean_array_get_size(v_x_75_);
+v___x_84_ = l_Array_extract___redArg(v_x_75_, v___x_80_, v___x_83_);
+lean_dec_ref(v_x_75_);
+v___x_85_ = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(v___x_85_, 0, v_rhs_73_);
+lean_ctor_set(v___x_85_, 1, v_x_74_);
+lean_ctor_set(v___x_85_, 2, v___x_82_);
+lean_ctor_set(v___x_85_, 3, v___x_84_);
+v___x_86_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_86_, 0, v___x_85_);
+return v___x_86_;
 }
 }
 }
@@ -311,28 +336,30 @@ return v___x_78_;
 static lean_object* _init_l_Lean_Elab_Tactic_VCGen_isWPApp_x3f___closed__0(void){
 _start:
 {
-lean_object* v___x_90_; lean_object* v_dummy_91_; 
-v___x_90_ = lean_box(0);
-v_dummy_91_ = l_Lean_Expr_sort___override(v___x_90_);
-return v_dummy_91_;
+lean_object* v___x_98_; lean_object* v_dummy_99_; 
+v___x_98_ = lean_box(0);
+v_dummy_99_ = l_Lean_Expr_sort___override(v___x_98_);
+return v_dummy_99_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_isWPApp_x3f(lean_object* v_rhs_92_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_isWPApp_x3f(lean_object* v_rhs_100_){
 _start:
 {
-lean_object* v_dummy_93_; lean_object* v_nargs_94_; lean_object* v___x_95_; lean_object* v___x_96_; lean_object* v___x_97_; lean_object* v___x_98_; 
-v_dummy_93_ = lean_obj_once(&l_Lean_Elab_Tactic_VCGen_isWPApp_x3f___closed__0, &l_Lean_Elab_Tactic_VCGen_isWPApp_x3f___closed__0_once, _init_l_Lean_Elab_Tactic_VCGen_isWPApp_x3f___closed__0);
-v_nargs_94_ = l_Lean_Expr_getAppNumArgs(v_rhs_92_);
-lean_inc(v_nargs_94_);
-v___x_95_ = lean_mk_array(v_nargs_94_, v_dummy_93_);
-v___x_96_ = lean_unsigned_to_nat(1u);
-v___x_97_ = lean_nat_sub(v_nargs_94_, v___x_96_);
-lean_dec(v_nargs_94_);
-v___x_98_ = l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0(v_rhs_92_, v___x_95_, v___x_97_);
-return v___x_98_;
+lean_object* v_dummy_101_; lean_object* v_nargs_102_; lean_object* v___x_103_; lean_object* v___x_104_; lean_object* v___x_105_; lean_object* v___x_106_; 
+v_dummy_101_ = lean_obj_once(&l_Lean_Elab_Tactic_VCGen_isWPApp_x3f___closed__0, &l_Lean_Elab_Tactic_VCGen_isWPApp_x3f___closed__0_once, _init_l_Lean_Elab_Tactic_VCGen_isWPApp_x3f___closed__0);
+v_nargs_102_ = l_Lean_Expr_getAppNumArgs(v_rhs_100_);
+lean_inc(v_nargs_102_);
+v___x_103_ = lean_mk_array(v_nargs_102_, v_dummy_101_);
+v___x_104_ = lean_unsigned_to_nat(1u);
+v___x_105_ = lean_nat_sub(v_nargs_102_, v___x_104_);
+lean_dec(v_nargs_102_);
+lean_inc_ref(v_rhs_100_);
+v___x_106_ = l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_VCGen_isWPApp_x3f_spec__0(v_rhs_100_, v_rhs_100_, v___x_103_, v___x_105_);
+return v___x_106_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Sym_SymM(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Sym_AlphaShareBuilder(uint8_t builtin);
 lean_object* runtime_initialize_Std_WP_Basic(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
@@ -342,6 +369,9 @@ if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Sym_SymM(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Sym_AlphaShareBuilder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_WP_Basic(builtin);
@@ -357,6 +387,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Meta_Sym_SymM(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Sym_AlphaShareBuilder(uint8_t builtin);
 lean_object* initialize_Std_WP_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_VCGen_WPApp(uint8_t builtin) {
@@ -364,6 +395,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Meta_Sym_SymM(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Sym_AlphaShareBuilder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_WP_Basic(builtin);

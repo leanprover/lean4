@@ -122,10 +122,10 @@ return v_res_15_;
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_String_utf16Length_spec__0___redArg(lean_object* v___x_16_, lean_object* v_s_17_, lean_object* v_a_18_, lean_object* v_b_19_){
 _start:
 {
-lean_object* v___x_20_; uint8_t v___x_21_; 
+lean_object* v___x_20_; uint8_t v_decide_21_; 
 v___x_20_ = lean_unsigned_to_nat(0u);
-v___x_21_ = lean_nat_dec_eq(v_a_18_, v___x_20_);
-if (v___x_21_ == 0)
+v_decide_21_ = lean_nat_dec_eq(v_a_18_, v___x_20_);
+if (v_decide_21_ == 0)
 {
 lean_object* v___x_22_; lean_object* v___x_23_; lean_object* v_prevPos_24_; uint32_t v___x_25_; lean_object* v___x_26_; lean_object* v___x_27_; 
 v___x_22_ = lean_unsigned_to_nat(1u);

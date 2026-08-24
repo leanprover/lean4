@@ -357,15 +357,15 @@ return v_a_90_;
 }
 case 1:
 {
-if (v_a_89_ == 0)
-{
-return v_a_90_;
-}
-else
-{
 if (v_a_90_ == 0)
 {
 return v_a_89_;
+}
+else
+{
+if (v_a_89_ == 0)
+{
+return v_a_90_;
 }
 else
 {
@@ -377,9 +377,9 @@ return v___x_91_;
 }
 case 2:
 {
-if (v_a_89_ == 0)
-{
 if (v_a_90_ == 0)
+{
+if (v_a_89_ == 0)
 {
 uint8_t v___x_92_; 
 v___x_92_ = 1;
@@ -387,12 +387,12 @@ return v___x_92_;
 }
 else
 {
-return v_a_89_;
+return v_a_90_;
 }
 }
 else
 {
-return v_a_90_;
+return v_a_89_;
 }
 }
 default: 
@@ -412,11 +412,11 @@ return v_a_89_;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_Gate_eval___boxed(lean_object* v_x_93_, lean_object* v_a_94_, lean_object* v_a_95_){
 _start:
 {
-uint8_t v_x_229__boxed_96_; uint8_t v_a_230__boxed_97_; uint8_t v_a_231__boxed_98_; uint8_t v_res_99_; lean_object* v_r_100_; 
-v_x_229__boxed_96_ = lean_unbox(v_x_93_);
-v_a_230__boxed_97_ = lean_unbox(v_a_94_);
-v_a_231__boxed_98_ = lean_unbox(v_a_95_);
-v_res_99_ = l_Std_Tactic_BVDecide_Gate_eval(v_x_229__boxed_96_, v_a_230__boxed_97_, v_a_231__boxed_98_);
+uint8_t v_x_212__boxed_96_; uint8_t v_a_213__boxed_97_; uint8_t v_a_214__boxed_98_; uint8_t v_res_99_; lean_object* v_r_100_; 
+v_x_212__boxed_96_ = lean_unbox(v_x_93_);
+v_a_213__boxed_97_ = lean_unbox(v_a_94_);
+v_a_214__boxed_98_ = lean_unbox(v_a_95_);
+v_res_99_ = l_Std_Tactic_BVDecide_Gate_eval(v_x_212__boxed_96_, v_a_213__boxed_97_, v_a_214__boxed_98_);
 v_r_100_ = lean_box(v_res_99_);
 return v_r_100_;
 }

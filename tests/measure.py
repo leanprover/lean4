@@ -42,7 +42,12 @@ class Result:
 PERF_METRICS = {
     "task-clock": PerfMetric("task-clock", factor=1e-9, unit="s"),
     "wall-clock": PerfMetric("duration_time", factor=1e-9, unit="s"),
-    "instructions": PerfMetric("instructions"),
+    # `:u` restricts the count to user mode. Kernel-mode instructions depend on page cache state,
+    # memory pressure and kernel version rather than on Lean, and contribute practically all of the
+    # run-to-run variance; their cost is already covered by `cycles`, `task-clock`, `wall-clock` and
+    # `maxrss`. The modifier also pins the meaning of the metric, which otherwise silently depends
+    # on the measuring machine's `perf_event_paranoid`.
+    "instructions": PerfMetric("instructions:u"),
     "cycles": PerfMetric("cycles"),
 }
 

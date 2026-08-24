@@ -13,10 +13,15 @@ printing.
 
 This file transliterates it statement by statement so that the algorithms can
 be checked against `Nat`, which is what `#eval mpnCheck` at the bottom does, and
-so that they can be proved correct: `denote_add`, `denote_sub`, `denote_mul`
+so that they can be proved correct: `denote_add`, `denote_sub`, `denote_mul`,
 `div_spec` and `compare_spec` do that for `mpn_add`, `mpn_sub`, `mpn_mul`,
-`mpn_div` (by way of Knuth's Algorithm D) and `mpn_compare`. Deviations from the
-C++ are marked `NOTE:`.
+`mpn_div` (by way of Knuth's Algorithm D) and `mpn_compare`.
+
+Each definition quotes the C++ it stands for, so the two can be read side by
+side without opening the source. Deviations are marked `NOTE:`; the recurring
+ones are that a loop over a mutable buffer becomes a fold or a map over the
+digits it writes, and that a `while` whose bound is an argument about the values
+becomes a structural or well-founded recursion.
 
 A transliteration is only worth as much as its fidelity to the original, so
 `Mpn.Test.emit` prints the model's results in the format that
@@ -27,14 +32,25 @@ same pseudorandom operands both agree byte for byte.
 
 namespace Mpn
 
+/-- `mpn_digit`, which `mpn.h` fixes at `uint32_t`. -/
 abbrev Digit := UInt32
+
+/-- `typedef uint64_t mpn_double_digit;` -/
 abbrev DoubleDigit := UInt64
 
+/-- `#define DIGIT_BITS (sizeof(mpn_digit)*8)` -/
 def digitBits : Nat := 32
+
+/-- `#define BASE ((mpn_double_digit)0x01 << DIGIT_BITS)` -/
 def base : Nat := 4294967296
+
+/-- `#define MASK_FIRST (~((mpn_digit)(-1) >> 1))` -/
 def maskFirst : Digit := 0x80000000
 
+/-- `(t << DIGIT_BITS) >> DIGIT_BITS`: the low half of a double digit. -/
 private def lo (t : DoubleDigit) : Digit := t.toUInt32
+
+/-- `t >> DIGIT_BITS`: the high half of a double digit. -/
 private def hi (t : DoubleDigit) : Digit := (t >>> 32).toUInt32
 
 /-! ## Denotation -/
@@ -171,7 +187,20 @@ theorem denote_of_high_zero (c : Array Digit) {n : Nat} (hn : n ≤ c.size)
 
 /-! ## `mpn_compare` -/
 
-/-- `mpn_compare`'s loop, scanning digits from `j-1` down to 0. -/
+/--
+`mpn_compare`'s loop, scanning digits from `j-1` down to 0:
+```
+    size_t j = max(lnga, lngb) - 1;
+    for (; j != (size_t)-1 && res == 0; j--) {
+        mpn_digit const & u_j = (j < lnga) ? a[j] : zero;
+        mpn_digit const & v_j = (j < lngb) ? b[j] : zero;
+        if (u_j > v_j)
+            res = 1;
+        else if (u_j < v_j)
+            res = -1;
+    }
+```
+-/
 def compareLoop (a b : Array Digit) : Nat → Int
   | 0 => 0
   | j+1 =>
@@ -187,7 +216,16 @@ def compare (a b : Array Digit) : Int := compareLoop a b (max a.size b.size)
 
 /-! ## `mpn_add` -/
 
-/-- One iteration of `mpn_add`'s loop body. -/
+/--
+One iteration of `mpn_add`'s loop body:
+```
+        mpn_digit const & u_j = (j < lnga) ? a[j] : zero;
+        mpn_digit const & v_j = (j < lngb) ? b[j] : zero;
+        r = u_j + v_j; c1 = r < u_j;
+        c[j] = r + k;  c2 = c[j] < r;
+        k = c1 | c2;
+```
+-/
 def addStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Digit × Digit :=
   let (c, k) := s
   let u_j := a.getD j 0
@@ -198,19 +236,34 @@ def addStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Dig
   let c2 := cj < r
   (c.push cj, if c1 || c2 then 1 else 0)
 
-/-- `mpn_add`'s digit loop: `len` result digits plus the final carry. -/
+/--
+`mpn_add`'s digit loop, `len` result digits plus the final carry:
+```
+    size_t len = max(lnga, lngb);
+    mpn_digit k = 0;
+    for (size_t j = 0; j < len; j++) { ... }
+    c[len] = k;
+```
+-/
 def addLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit :=
   (List.range len).foldl (addStep a b) (#[], 0)
 
-/-- `for (os = len+1; os > 1 && c[os-1] == 0; ) os--;` -/
+/--
+`mpn_add`'s trimming of the result length:
+```
+    size_t &os = *plngc;
+    for (os = len+1; os > 1 && c[os-1] == 0; ) os--;
+```
+-/
 def trim (c : Array Digit) : Array Digit :=
   if 1 < c.size && c.getD (c.size - 1) 0 == 0 then trim c.pop else c
 termination_by c.size
 decreasing_by simp_all; omega
 
 /--
-`mpn_add`. The C++ writes `len+1` digits into a caller-supplied buffer and
-returns the trimmed length in `*plngc`; here the trimmed prefix is the result.
+`mpn_add`, Knuth's Algorithm A. The C++ writes `len+1` digits into a
+caller-supplied buffer and returns the trimmed length in `*plngc`; here the
+trimmed prefix is the result.
 -/
 def add (a b : Array Digit) : Array Digit :=
   let len := max a.size b.size
@@ -219,6 +272,16 @@ def add (a b : Array Digit) : Array Digit :=
 
 /-! ## `mpn_sub` -/
 
+/--
+One iteration of `mpn_sub`'s loop body:
+```
+        mpn_digit const & u_j = (j < lnga) ? a[j] : zero;
+        mpn_digit const & v_j = (j < lngb) ? b[j] : zero;
+        r = u_j - v_j; c1 = r > u_j;
+        c[j] = r - k;  c2 = c[j] > r;
+        k = c1 | c2;
+```
+-/
 def subStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Digit × Digit :=
   let (c, k) := s
   let u_j := a.getD j 0
@@ -229,17 +292,39 @@ def subStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Dig
   let c2 := cj > r
   (c.push cj, if c1 || c2 then 1 else 0)
 
-/-- `mpn_sub`'s digit loop: `len` result digits plus the final borrow. -/
+/--
+`mpn_sub`'s digit loop, `len` result digits plus the final borrow:
+```
+    size_t len = max(lnga, lngb);
+    mpn_digit & k = *pborrow; k = 0;
+    for (size_t j = 0; j < len; j++) { ... }
+```
+-/
 def subLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit :=
   (List.range len).foldl (subStep a b) (#[], 0)
 
-/-- `mpn_sub`. Returns the `max lnga lngb` result digits and the final borrow. -/
+/--
+`mpn_sub`, Knuth's Algorithm S. Returns the `max lnga lngb` result digits and
+the final borrow, which the C++ writes through `pborrow`.
+-/
 def sub (a b : Array Digit) : Array Digit × Digit :=
   subLoop a b (max a.size b.size)
 
 /-! ## `mpn_mul` -/
 
-/-- One iteration of `mpn_mul`'s inner loop: `c[i+j] := a[i] * v_j + c[i+j] + k`. -/
+/--
+One iteration of `mpn_mul`'s inner loop:
+```
+                mpn_digit const & u_i = a[i];
+                mpn_double_digit t;
+                t = ((mpn_double_digit)u_i * (mpn_double_digit)v_j) +
+                    (mpn_double_digit) c[i+j] +
+                    (mpn_double_digit) k;
+
+                c[i+j] = (t << DIGIT_BITS) >> DIGIT_BITS;
+                k = t >> DIGIT_BITS;
+```
+-/
 def mulInnerStep (a : Array Digit) (v_j : Digit) (j : Nat)
     (s : Array Digit × Digit) (i : Nat) : Array Digit × Digit :=
   let (c, k) := s
@@ -248,15 +333,32 @@ def mulInnerStep (a : Array Digit) (v_j : Digit) (j : Nat)
     u_i.toUInt64 * v_j.toUInt64 + (c.getD (i + j) 0).toUInt64 + k.toUInt64
   (c.set! (i + j) (lo t), hi t)
 
-/-- `mpn_mul`'s inner loop over `lnga` digits of `a`, leaving a carry. -/
+/--
+`mpn_mul`'s inner loop over `lnga` digits of `a`, leaving a carry:
+```
+            k = 0;
+            for (i = 0; i < lnga; i++) { ... }
+```
+-/
 def mulInner (a : Array Digit) (v_j : Digit) (j : Nat) (c : Array Digit) (lnga : Nat) :
     Array Digit × Digit :=
   (List.range lnga).foldl (mulInnerStep a v_j j) (c, 0)
 
 /--
-One iteration of `mpn_mul`'s outer loop. The `v_j == 0` branch is Knuth's
-optional shortcut: with a zero multiplier the inner loop would leave `c`
-untouched and its carry at zero anyway.
+One iteration of `mpn_mul`'s outer loop:
+```
+        mpn_digit const & v_j = b[j];
+        if (v_j == 0) { // This branch may be omitted according to Knuth.
+            c[j+lnga] = 0;
+        }
+        else {
+            k = 0;
+            for (i = 0; i < lnga; i++) { ... }
+            c[j+lnga] = k;
+        }
+```
+The `v_j == 0` branch is Knuth's optional shortcut: with a zero multiplier the
+inner loop would leave `c` untouched and its carry at zero anyway.
 -/
 def mulOuterStep (a b : Array Digit) (c : Array Digit) (j : Nat) : Array Digit :=
   let v_j := b.getD j 0
@@ -267,8 +369,13 @@ def mulOuterStep (a b : Array Digit) (c : Array Digit) (j : Nat) : Array Digit :
     c.set! (j + a.size) k
 
 /--
-`mpn_mul`'s outer loop over the first `m` digits of `b`.
+`mpn_mul`'s outer loop over the first `m` digits of `b`:
+```
+    for (unsigned i = 0; i < lnga; i++)
+        c[i] = 0;
 
+    for (size_t j = 0; j < lngb; j++) { ... }
+```
 NOTE: the C++ zeroes only `c[0..lnga)` and relies on the outer loop to write
 every digit from `lnga` up; zeroing the whole buffer here computes the same
 result and states the invariant more simply.
@@ -276,7 +383,7 @@ result and states the invariant more simply.
 def mulLoop (a b : Array Digit) (m : Nat) : Array Digit :=
   (List.range m).foldl (mulOuterStep a b) (Array.replicate (a.size + b.size) 0)
 
-/-- `mpn_mul`. Returns `lnga + lngb` digits. -/
+/-- `mpn_mul`, Knuth's Algorithm M. Returns `lnga + lngb` digits. -/
 def mul (a b : Array Digit) : Array Digit := mulLoop a b b.size
 
 /-! ## division -/
@@ -287,24 +394,33 @@ private def countWhile (p : Nat → Bool) : Nat → Nat → Nat
   | fuel+1, i => if p i then 1 + countWhile p fuel (i+1) else 0
 
 /--
-The leading-zero count of `x`, as `div_normalize`'s `while` loop computes it.
-
-NOTE: the C++ `while (lden > 0 && ((denom[lden-1] << d) & MASK_FIRST) == 0) d++;`
-shifts by `d == 32` once the top denominator digit is zero, which is undefined
-behaviour. The bounded count below stops at 32 instead. Callers reach `mpn_div`
-only through `mpz`, whose sizes are normalized, so the top digit is nonzero
-unless the denominator is zero, which `lean_nat_div` rejects first.
+The leading-zero count of `x`, as `div_normalize`'s `while` loop computes it:
+```
+    size_t d = 0;
+    while (lden > 0 && ((denom[lden-1] << d) & MASK_FIRST) == 0) d++;
+```
+NOTE: that loop shifts by `d == 32` once the top denominator digit is zero,
+which is undefined behaviour. The bounded count below stops at 32 instead.
+Callers reach `mpn_div` only through `mpz`, whose sizes are normalized, so the
+top digit is nonzero unless the denominator is zero, which `lean_nat_div`
+rejects first.
 -/
 def leadingZeros (x : Digit) : Nat :=
   countWhile (fun i => (x <<< (UInt32.ofNat i)) &&& maskFirst == 0) digitBits 0
 
 /--
-`len` digits of `a` shifted left by `d` bits: digit `i` is
-`(a[i] << d) | (a[i-1] >> (32-d))`. The `d == 0` case is separate because the
-C++ needs it to be: shifting a digit by 32 is undefined there.
-
-Each output digit reads only the input, so this is the two `div_normalize`
-loops written as the map they are.
+`len` digits of `a` shifted left by `d` bits, which is what both of
+`div_normalize`'s shifting loops do:
+```
+        mpn_digit q = FIRST_BITS(d, numer[lnum-1]);
+        n_numer[lnum] = q;
+        for (size_t i = lnum-1; i > 0; i--)
+            n_numer[i] = (numer[i] << d) | FIRST_BITS(d, numer[i-1]);
+        n_numer[0] = numer[0] << d;
+```
+Each output digit reads only the input, so the loop is written here as the map
+it is. The `d == 0` case is separate because the C++ needs it to be: shifting a
+digit by 32 is undefined there.
 -/
 def shiftLeftDigits (a : Array Digit) (d len : Nat) : Array Digit :=
   (Array.range len).map fun i =>
@@ -314,8 +430,24 @@ def shiftLeftDigits (a : Array Digit) (d len : Nat) : Array Digit :=
 
 /--
 `div_normalize`. Returns the shift `d` together with the normalized numerator
-(`lnum+1` digits) and denominator (`lden` digits).
+(`lnum+1` digits) and denominator (`lden` digits):
+```
+    n_numer.resize(lnum+1);
+    n_denom.resize(lden);
 
+    if (d == 0) {
+        n_numer[lnum] = 0;
+        for (size_t i = 0; i < lnum; i++)
+            n_numer[i] = numer[i];
+        for (size_t i = 0; i < lden; i++)
+            n_denom[i] = denom[i];
+    }
+    else if (lnum != 0) { ... }
+    else {
+        d = 0;
+    }
+    return d;
+```
 The C++ branches three ways, but its `d == 0` copy is exactly `shiftLeftDigits`
 at `d = 0`, so only the degenerate case needs its own branch.
 
@@ -332,15 +464,20 @@ def divNormalize (numer denom : Array Digit) : Nat × Array Digit × Array Digit
   else
     (d, shiftLeftDigits numer d (lnum + 1), shiftLeftDigits denom d lden)
 
-/-- The low `d` bits of a digit, as `div_unnormalize`'s `LAST_BITS` computes them. -/
+/-- `#define LAST_BITS(N, X) (((X) << (DIGIT_BITS-(N))) >> (DIGIT_BITS-(N)))` -/
 def lastBits (x : Digit) (d : Nat) : Digit :=
   (x <<< (UInt32.ofNat (digitBits - d))) >>> (UInt32.ofNat (digitBits - d))
 
 /--
-`len` digits of `a` shifted right by `d` bits: digit `i` is
-`(a[i] >> d) | (lastBits a[i+1] << (32-d))`. The top digit takes nothing from
-above, as the C++ does, and `d == 0` is separate for the same reason as in
-`shiftLeftDigits`.
+`len` digits of `a` shifted right by `d` bits, which is `div_unnormalize`'s
+nonzero-shift branch:
+```
+        for (size_t i = 0; i < denom.size()-1; i++)
+            rem[i] = numer[i] >> d | (LAST_BITS(d, numer[i+1]) << (DIGIT_BITS-d));
+        rem[denom.size()-1] = numer[denom.size()-1] >> d;
+```
+The top digit takes nothing from above, as the C++ does, and `d == 0` is
+separate for the same reason as in `shiftLeftDigits`.
 -/
 def shiftRightDigits (a : Array Digit) (d len : Nat) : Array Digit :=
   (Array.range len).map fun i =>
@@ -349,11 +486,39 @@ def shiftRightDigits (a : Array Digit) (d len : Nat) : Array Digit :=
       (if i + 1 == len then 0
        else lastBits (a.getD (i+1) 0) d <<< UInt32.ofNat (digitBits - d))
 
-/-- `div_unnormalize`. Produces `lden` remainder digits. -/
+/--
+`div_unnormalize`. Produces `lden` remainder digits; the `d == 0` branch is
+`shiftRightDigits` at `d = 0`:
+```
+    if (d == 0) {
+        for (size_t i = 0; i < denom.size(); i++)
+            rem[i] = numer[i];
+    }
+    else { ... }
+```
+-/
 def divUnnormalize (numer : Array Digit) (lden d : Nat) : Array Digit :=
   shiftRightDigits numer d lden
 
-/-- One iteration of `div_1`'s loop, dividing the two-digit window at `j` by `denom`. -/
+/--
+One iteration of `div_1`'s loop, dividing the two-digit window at `j` by `denom`:
+```
+        temp = (((mpn_double_digit)numer[j]) << DIGIT_BITS) | ((mpn_double_digit)numer[j-1]);
+        q_hat = temp / (mpn_double_digit) denom;
+        if (q_hat >= BASE) {
+            lean_unreachable(); // is this reachable with normalized v?
+        }
+        ms = temp - (q_hat * (mpn_double_digit) denom);
+        borrow = ms > temp;
+        numer[j-1] = (mpn_digit) ms;
+        numer[j] = ms >> DIGIT_BITS;
+        quot[j-1] = (mpn_digit) q_hat;
+        if (borrow) {
+            quot[j-1]--;
+            numer[j] = numer[j-1] + denom;
+        }
+```
+-/
 def div1Step (denom : Digit) (s : Array Digit × Array Digit) (j : Nat) :
     Array Digit × Array Digit :=
   let (u, quot) := s
@@ -370,7 +535,12 @@ def div1Step (denom : Digit) (s : Array Digit × Array Digit) (j : Nat) :
     (u.set! j ((u.getD (j-1) 0) + denom), quot.set! (j-1) ((quot.getD (j-1) 0) - 1))
   else (u, quot)
 
-/-- `div_1`'s loop, running from digit `j` down to digit 1. -/
+/--
+`div_1`'s loop, running from digit `j` down to digit 1:
+```
+    for (size_t j = numer.size()-1; j > 0; j--) { ... }
+```
+-/
 def div1Loop (denom : Digit) (u quot : Array Digit) : Nat → Array Digit × Array Digit
   | 0 => (u, quot)
   | j+1 =>
@@ -385,8 +555,16 @@ def div1 (numer : Array Digit) (denom : Digit) : Array Digit × Array Digit :=
   div1Loop denom numer (Array.replicate (numer.size - 1) 0) (numer.size - 1)
 
 /--
-The `recheck:` correction loop of `div_n`, i.e. step D3 of Knuth's Algorithm D.
-
+The `recheck:` correction loop of `div_n`, i.e. step D3 of Knuth's Algorithm D:
+```
+        recheck:
+        if (q_hat >= BASE ||
+            ((q_hat * denom[n-2]) > ((r_hat << DIGIT_BITS) + numer[j+n-2]))) {
+                q_hat--;
+                r_hat += denom[n-1];
+                if (r_hat < BASE) goto recheck;
+        }
+```
 The loop terminates because the trial digit strictly decreases on every pass and
 the test cannot fire at zero: `q_hat >= BASE` is false there, and
 `q_hat * denom[n-2] > ...` reads `0 > ...`. Knuth bounds the loop at two passes,
@@ -408,12 +586,25 @@ decreasing_by
   rw [UInt64.toNat_sub, show (1 : UInt64).toNat = 1 from rfl]
   omega
 
-/-- `for i in [0:len] do dst := dst.set! (j+i) src[i]!` -/
+/--
+`div_n`'s copy of an add-back result into the numerator window:
+```
+            for (size_t i = 0; i < n+1; i++)
+                numer[j+i] = ab[i];
+```
+-/
 def copyInto (dst src : Array Digit) (j : Nat) : Nat → Array Digit
   | 0 => dst
   | len+1 => (copyInto dst src j len).set! (j + len) (src.getD len 0)
 
-/-- The trial quotient digit `div_n` forms for the window at `j`, after step D3. -/
+/--
+The trial quotient digit `div_n` forms for the window at `j`, after step D3:
+```
+        temp = (((mpn_double_digit)numer[j+n]) << DIGIT_BITS) | ((mpn_double_digit)numer[j+n-1]);
+        q_hat = temp / (mpn_double_digit) denom[n-1];
+        r_hat = temp % (mpn_double_digit) denom[n-1];
+```
+-/
 def divNTrial (denom u : Array Digit) (j : Nat) : Digit :=
   let n := denom.size
   let temp : DoubleDigit :=
@@ -421,7 +612,23 @@ def divNTrial (denom u : Array Digit) (j : Nat) : Digit :=
   lo (recheck (denom.getD (n-1) 0) (denom.getD (n-2) 0) (u.getD (j+n-2) 0)
       (temp / (denom.getD (n-1) 0).toUInt64) (temp % (denom.getD (n-1) 0).toUInt64)).1
 
-/-- One iteration of `div_n`'s outer loop, producing quotient digit `j`. -/
+/--
+One iteration of `div_n`'s outer loop, producing quotient digit `j`:
+```
+        mpn_digit q_hat_small = (mpn_digit)q_hat;
+        mpn_mul(&q_hat_small, 1, denom.data(), n, ms.data());
+        mpn_sub(&numer[j], n+1, ms.data(), n+1, &numer[j], &borrow);
+        quot[j] = q_hat_small;
+        if (borrow) {
+            quot[j]--;
+            ab.resize(n+2);
+            size_t real_size;
+            mpn_add(denom.data(), n, &numer[j], n+1, ab.data(), n+2, &real_size);
+            for (size_t i = 0; i < n+1; i++)
+                numer[j+i] = ab[i];
+        }
+```
+-/
 def divNStep (denom : Array Digit) (s : Array Digit × Array Digit) (j : Nat) :
     Array Digit × Array Digit :=
   let (u, quot) := s
@@ -436,7 +643,14 @@ def divNStep (denom : Array Digit) (s : Array Digit × Array Digit) (j : Nat) :
     (copyInto u ab j (n+1), quot.set! j (q_hat_small - 1))
   else (u, quot.set! j q_hat_small)
 
-/-- `div_n`'s outer loop, running from quotient digit `m-1` down to digit 0. -/
+/--
+`div_n`'s outer loop, running from quotient digit `m-1` down to digit 0:
+```
+    size_t m = numer.size() - denom.size();
+    size_t n = denom.size();
+    for (size_t j = m-1; j != (size_t)-1; j--) { ... }
+```
+-/
 def divNLoop (denom : Array Digit) (u quot : Array Digit) : Nat → Array Digit × Array Digit
   | 0 => (u, quot)
   | m+1 =>
@@ -451,8 +665,27 @@ def divN (numer denom : Array Digit) : Array Digit × Array Digit :=
   divNLoop denom numer (Array.replicate (numer.size - denom.size) 0) (numer.size - denom.size)
 
 /--
-`mpn_div`. Returns `lnum - lden + 1` quotient digits and `lden` remainder digits.
-
+`mpn_div`. Returns `lnum - lden + 1` quotient digits and `lden` remainder digits:
+```
+    if (lnum == 1 && lden == 1) {
+        *quot = numer[0] / denom[0];
+        *rem  = numer[0] % denom[0];
+    }
+    else if (lnum < lden || (lnum == lden && numer[lnum-1] < denom[lden-1])) {
+        *quot = 0;
+        for (size_t i = 0; i < lden; i++)
+            rem[i] = (i < lnum) ? numer[i] : 0;
+    }
+    else  {
+        mpn_buffer u, v, t_ms, t_ab;
+        size_t d = div_normalize(numer, lnum, denom, lden, u, v);
+        if (lden == 1)
+            div_1(u, v[0], quot);
+        else
+            div_n(u, v, quot, rem, t_ms, t_ab);
+        div_unnormalize(u, v, d, rem);
+    }
+```
 NOTE: the `lnum < lden` branch of the C++ computes its loop bound
 `lnum - lden + 1` in `size_t`, which underflows to `SIZE_MAX` whenever
 `lden > lnum + 1` and then overruns the quotient buffer. Every in-tree caller
@@ -477,7 +710,24 @@ def div (numer denom : Array Digit) : Array Digit × Array Digit :=
 /-! ## `mpn_to_string` -/
 
 /--
-`mpn_to_string`.
+`mpn_to_string`, repeated division by ten:
+```
+        size_t j = 0;
+        mpn_digit rem;
+        mpn_digit ten = 10;
+        while (!temp.empty() && (temp.size() > 1 || temp[0] != 0)) {
+            size_t d = div_normalize(&temp[0], temp.size(), &ten, 1, t_numer, t_denom);
+            div_1(t_numer, t_denom[0], &temp[0]);
+            div_unnormalize(t_numer, t_denom, d, &rem);
+            buf[j++] = '0' + rem;
+            while (!temp.empty() && temp.back() == 0)
+                temp.pop_back();
+        }
+```
+The C++ reverses the digits in place afterwards; the model collects them and
+reverses at the end. Its `while` is bounded here so that the definition is
+structurally terminating: `32 * lng + 16` is past the number of decimal digits
+any `lng`-digit value has.
 
 NOTE: for `lng == 0` the C++ decrements `j` from `0` past the end of `size_t`
 and then swaps around `SIZE_MAX/2` character pairs. `mpz::m_size` is always at
@@ -490,7 +740,6 @@ def toString (a : Array Digit) : String := Id.run do
   let mut temp := a
   let mut digits : Array Char := #[]
   let ten : Array Digit := #[10]
-  -- `while (!temp.empty() && (temp.size() > 1 || temp[0] != 0))`
   for _ in [0:32 * lng + 16] do
     if temp.isEmpty || (temp.size == 1 && temp[0]! == 0) then break
     let (d, t_numer, t_denom) := divNormalize temp ten
@@ -2640,7 +2889,13 @@ theorem trim_top_ne_zero (c : Array Digit) :
 termination_by c.size
 decreasing_by simp_all; omega
 
-/-- `mpz::set`: drop leading zero digits, keeping at least one. -/
+/--
+`mpz::set`, which drops leading zero digits, keeping at least one:
+```
+    while (sz > 1 && digits[sz - 1] == 0)
+        sz--;
+```
+-/
 def Num.ofArray (a : Array Digit) (h : 0 < a.size) : Num :=
   ⟨trim a, size_trim_pos a h, trim_top_ne_zero a⟩
 
@@ -2717,20 +2972,37 @@ theorem size_div_rem (numer denom : Array Digit) (hden : 0 < denom.size)
 
 /-! ### The operations `mpz` builds on `mpn` -/
 
-/-- `mpn_compare` lifted to normalized values. -/
+/-- `mpn_compare` lifted to normalized values, as `mpz::operator+=` calls it. -/
 def Num.compare (a b : Num) : Int := Mpn.compare a.digits b.digits
 
 theorem Num.compare_spec (a b : Num) :
     a.compare b = if b.val < a.val then 1 else if a.val < b.val then -1 else 0 :=
   Mpn.compare_spec a.digits b.digits
 
-/-- `mpz::operator+=` on non-negative values: `mpn_add`, then normalize. -/
+/--
+`mpz::operator+=` on non-negative values, its `m_sign == sign` arm:
+```
+        size_t new_sz = std::max(m_size, sz)+1;
+        size_t real_sz;
+        tmp.ensure_capacity(new_sz);
+        mpn_add(m_digits, m_size, digits, sz, tmp.begin(), new_sz, &real_sz);
+        set(real_sz, tmp.begin());
+```
+-/
 def Num.add (a b : Num) : Num := Num.ofArray (Mpn.add a.digits b.digits) (size_add_pos ..)
 
 @[simp] theorem Num.val_add (a b : Num) : (a.add b).val = a.val + b.val := by
   rw [Num.add, Num.val_ofArray, denote_add, Num.val, Num.val]
 
-/-- `mpz::operator*=`: `mpn_mul`, then normalize. -/
+/--
+`mpz::mul` on non-negative values:
+```
+    size_t new_sz = m_size + sz;
+    tmp.ensure_capacity(new_sz);
+    mpn_mul(m_digits, m_size, digits, sz, tmp.begin());
+    set(new_sz, tmp.begin());
+```
+-/
 def Num.mul (a b : Num) : Num :=
   Num.ofArray (Mpn.mul a.digits b.digits) (by rw [size_mul]; have := a.size_pos; omega)
 
@@ -2738,9 +3010,20 @@ def Num.mul (a b : Num) : Num :=
   rw [Num.mul, Num.val_ofArray, denote_mul, Num.val, Num.val]
 
 /--
-`Nat.sub` at the `mpz` layer: compare, and either return zero, as
-`lean_nat_big_sub` does when the difference would be negative, or subtract and
-normalize.
+`Nat.sub` at the `mpz` layer, the `r <= 0` arms of `mpz::add` with a negated
+operand, which `lean_nat_big_sub` clamps to zero:
+```
+        int r = mpn_compare(m_digits, m_size, digits, sz);
+        if (r == 0) {
+            operator=(0);
+            return *this;
+        } else if (r < 0) { ... } else {
+            size_t new_sz = m_size;
+            tmp.ensure_capacity(new_sz);
+            mpn_sub(m_digits, m_size, digits, sz, tmp.begin(), &borrow);
+            set(new_sz, tmp.begin());
+        }
+```
 -/
 def Num.sub (a b : Num) : Num :=
   if Mpn.compare a.digits b.digits ≤ 0 then ⟨#[0], by simp, by simp⟩
@@ -2791,13 +3074,35 @@ def Num.sub (a b : Num) : Num :=
     simp only [Num.val]
     omega
 
-/-- `mpz::div`: return zero if the divisor is longer, else `mpn_div` and normalize. -/
+/--
+`mpz::div` on non-negative values:
+```
+    if (sz > m_size) {
+        operator=(0);
+        return *this;
+    }
+    size_t q_sz = m_size - sz + 1;
+    size_t r_sz = sz;
+    mpn_div(m_digits, m_size, digits, sz, q1.begin(), r1.begin());
+    set(q_sz, q1.begin());
+```
+-/
 def Num.div (a b : Num) : Num :=
   if h : a.digits.size < b.digits.size then ⟨#[0], by simp, by simp⟩
   else Num.ofArray (Mpn.div a.digits b.digits).1 (by
     rw [size_div_quot _ _ b.size_pos (by omega)]; omega)
 
-/-- `mpz::rem`: return the dividend if the divisor is longer, else `mpn_div` and normalize. -/
+/--
+`mpz::rem` on non-negative values, which differs from `mpz::div` only in
+returning the dividend unchanged for a longer divisor and keeping `r1`:
+```
+    if (sz > m_size) {
+        return *this;
+    }
+    mpn_div(m_digits, m_size, digits, sz, q1.begin(), r1.begin());
+    set(r_sz, r1.begin());
+```
+-/
 def Num.mod (a b : Num) : Num :=
   if h : a.digits.size < b.digits.size then a
   else Num.ofArray (Mpn.div a.digits b.digits).2 (by
@@ -2829,10 +3134,22 @@ theorem Num.val_mod (a b : Num) (hb : b.val ≠ 0) : (a.mod b).val = a.val % b.v
 
 /-! ### Shifts, as `mpz` implements them -/
 
-/-- `mpz::is_zero()`. -/
+/-- `mpz::is_zero()`, which a normalized value satisfies only as a single zero digit. -/
 def Num.isZero (a : Num) : Bool := a.digits.size = 1 && a.digits.getD 0 0 == 0
 
-/-- `mul2k`: shift left by `k` bits, then normalize. -/
+/--
+`mul2k`: shift left by `k` bits, then normalize:
+```
+    unsigned word_shift  = k / (8 * sizeof(mpn_digit));
+    unsigned bit_shift   = k % (8 * sizeof(mpn_digit));
+    size_t   new_sz      = old_sz + word_shift + 1;
+    for (size_t i = 0; i < word_shift; i++) ds.push_back(0);
+    for (size_t i = 0; i < old_sz; i++) ds.push_back(b.m_digits[i]);
+    ds.push_back(0);
+    if (bit_shift > 0) { ... }
+    a.set(new_sz, ds.begin());
+```
+-/
 def Num.shiftLeft (a : Num) (k : Nat) : Num :=
   if k = 0 || a.isZero then a
   else
@@ -2841,7 +3158,21 @@ def Num.shiftLeft (a : Num) (k : Nat) : Num :=
         (k % digitBits) (a.digits.size + k / digitBits + 1))
       (by rw [size_shiftLeftDigits]; exact Nat.succ_pos _)
 
-/-- `div2k`: shift right by `k` bits, then normalize. -/
+/--
+`div2k`: shift right by `k` bits, then normalize:
+```
+    unsigned digit_shift = k / (8 * sizeof(mpn_digit));
+    if (digit_shift >= b.m_size) {
+        a = 0;
+        return;
+    }
+    size_t new_sz       = sz - digit_shift;
+    unsigned bit_shift  = k % (8 * sizeof(mpn_digit));
+    unsigned comp_shift = (8 * sizeof(mpn_digit)) - bit_shift;
+    ...
+    a.set(new_sz, ds.begin());
+```
+-/
 def Num.shiftRight (a : Num) (k : Nat) : Num :=
   if k = 0 || a.isZero then a
   else if h : a.digits.size ≤ k / digitBits then ⟨#[0], by simp, by simp⟩
@@ -3001,7 +3332,19 @@ theorem testBit_denote (a : Array Digit) (j : Nat) :
     show (base : Nat) = 2 ^ 32 from rfl, Nat.testBit_mod_two_pow]
   simp [hr]
 
-/-- `mpz::operator&=` and friends: combine digits pointwise. -/
+/--
+`mpz::operator&=` and friends, which combine digits pointwise over the longer
+length, reading absent digits as zero:
+```
+    size_t sz = std::max(m_size, o.m_size);
+    for (size_t i = 0; i < sz; i++) {
+        mpn_digit u_i = (i < m_size)   ? m_digits[i]   : 0;
+        mpn_digit v_i = (i < o.m_size) ? o.m_digits[i] : 0;
+        r.push_back(u_i & v_i);
+    }
+    set(sz, r.begin());
+```
+-/
 def bitwiseDigits (f : Digit → Digit → Digit) (a b : Array Digit) : Array Digit :=
   (Array.range (max a.size b.size)).map fun i => f (a.getD i 0) (b.getD i 0)
 
@@ -3061,9 +3404,20 @@ def Num.xor (a b : Num) : Num :=
 /-! ### `gcd`, as `mpz` implements it -/
 
 /--
-Euclid's loop, as `gcd` in `mpz.cpp` runs it: replace the pair by the smaller
-value and the remainder until the remainder is zero. It terminates because the
-remainder is below the divisor.
+Euclid's loop, as `gcd` in `mpz.cpp` runs it:
+```
+        while (true) {
+            aux = rem(tmp1, tmp2);
+            if (aux.is_zero()) {
+                swap(g, tmp2);
+                break;
+            }
+            swap(tmp1, tmp2);
+            swap(tmp2, aux);
+        }
+```
+It terminates because the remainder is below the divisor, which is what the
+`termination_by` below records.
 -/
 def Num.gcdLoop (a b : Num) : Num :=
   if b.val = 0 then a else Num.gcdLoop b (a.mod b)
@@ -3073,7 +3427,16 @@ decreasing_by
   rw [Num.val_mod a b hne]
   exact Nat.mod_lt _ (by omega)
 
-/-- `gcd`: order the operands, then run Euclid. -/
+/--
+`gcd`: order the operands, then run Euclid:
+```
+    if (tmp1 < tmp2)
+        swap(tmp1, tmp2);
+    if (tmp2.is_zero()) {
+        swap(g, tmp1);
+    } else { ... }
+```
+-/
 def Num.gcd (a b : Num) : Num :=
   if Mpn.compare a.digits b.digits < 0 then Num.gcdLoop b a else Num.gcdLoop a b
 
@@ -3110,14 +3473,27 @@ private theorem toNat_shiftRight_one (p : Digit) : (p >>> 1).toNat = p.toNat / 2
 private theorem toNat_and_one (p : Digit) : (p &&& 1).toNat = p.toNat % 2 := by
   rw [UInt32.toNat_and, show (1 : Digit).toNat = 1 from rfl, Nat.and_one_is_mod]
 
-/-- `result *= power` for a set low bit, the body of `pow`'s `if (p & 1)`. -/
+/-- `if (p & 1) result *= power;`, the conditional multiply in `mpz::pow`. -/
 def Num.powMul (power result : Num) (p : Digit) : Num :=
   if p &&& 1 = 1 then result.mul power else result
 
 /--
-`pow`'s loop: consume the exponent's bits from the bottom, multiplying `power`
-into `result` where a bit is set and squaring it for the next bit. The squaring
-is skipped once the remaining exponent is zero, as in `mpz.cpp`.
+`mpz::pow`'s loop:
+```
+    mpz power(*this);
+    mpz result(1);
+    while (p != 0) {
+        if (p & 1)
+            result *= power;
+        p >>= 1;
+        if (p != 0)
+            power *= power;
+    }
+    return result;
+```
+The exponent's bits are consumed from the bottom, `power` multiplied into
+`result` where a bit is set and squared for the next bit. The final squaring is
+skipped once the remaining exponent is zero, as in the C++.
 -/
 def Num.powLoop (power result : Num) (p : Digit) : Num :=
   if p = 0 then result

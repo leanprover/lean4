@@ -248,30 +248,39 @@ partial def fetchTransImportArts
     let input ← (← mod.input.fetch).await
     let importAll := strictOr nonModule imp.importAll
     return enqueue importAll imp.isMeta input q
-  walk directArts {} q
+  walk directArts {} {} q
 where
-  walk s (metaVisited : NameSet) (q : Array TransImportEntry) := do
+  walk s (allVisited metaVisited : NameSet) (q : Array TransImportEntry) := do
     if h : 0 < q.size then
       let {mod, importAll, needsMeta} := q.back
       let q := q.pop
-      if let some arts := s.find? mod.name then
-        /-
-        A module system `import` may need to be promoted to a
-        wider import (`meta import`, `import all`) on another branch.
-        -/
-        -- Only re-process a module sitting at the plain public-module level: `.server` present =>
-        -- module, no `.private` => not already `import all`. An entry already at `import all` (with
-        -- `.private`) or a non-module (no `.server`) must not be re-inserted, as that would demote it.
-        let needsMeta := needsMeta && !metaVisited.contains mod.name
-        unless (importAll || needsMeta) && arts.oleanServer?.isSome && arts.oleanPrivate?.isNone do
-          return ← walk s metaVisited q
+      /-
+      A module system `import` may need to be promoted to a
+      wider import (`meta import`, `import all`) on another branch.
+
+      Track the two import dimensions separately: `allVisited` = raised to `.private` by
+      `import all`; `metaVisited` = made meta-reachable by a `meta import`. An `import all` visit
+      must not mark a module meta-visited, otherwise a later `meta` visit is skipped and the
+      module's children never inherit the meta requirement.
+      -/
+      let doAll := importAll && !allVisited.contains mod.name
+      let doMeta := needsMeta && !metaVisited.contains mod.name
+      let existing? := s.find? mod.name
+      -- Re-process an existing entry only to widen a module-system entry (`.server` present) with a
+      -- newly-required dimension. Otherwise, leave it untouched (nothing new, or a non-module entry).
+      if let some arts := existing? then
+        unless arts.oleanServer?.isSome && (doAll || doMeta) do
+          return ← walk s allVisited metaVisited q
+      let allVisited := if importAll then allVisited.insert mod.name else allVisited
+      let metaVisited := if needsMeta then metaVisited.insert mod.name else metaVisited
+      -- Widest level seen so far, never below an existing entry's (no demotion).
+      let wantAll := allVisited.contains mod.name || existing?.any (·.oleanPrivate?.isSome)
       let info ← (← mod.exportInfo.fetch).await
-      let arts := if importAll then info.allArts else info.arts
-      let s := s.insert mod.name arts
-      let metaVisited := if importAll || needsMeta then metaVisited.insert mod.name else metaVisited
+      let s := s.insert mod.name (if wantAll then info.allArts else info.arts)
       let input ← (← mod.input.fetch).await
+      -- `import all`/`meta import` are transitive. Propagate both flags to children.
       let q := enqueue importAll needsMeta input q
-      walk s metaVisited q
+      walk s allVisited metaVisited q
     else
       return s
   enqueue importAll needsMeta input q :=

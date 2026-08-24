@@ -342,6 +342,12 @@ def evalIntBDiv (a b : Expr) : SimpM Result := do
   let e ← share <| toExpr (Int.bdiv a b)
   return .step e (mkApp2 (mkConst ``Eq.refl [1]) Int.mkType e) (done := true)
 
+def evalLog2 (a : Expr) (maxExponent : Nat) : SimpM Result := do
+  let some n := getNatValue? a | return .rfl
+  if n > 2^maxExponent then return .rfl
+  let e ← share <| toExpr n.log2
+  return .step e (mkApp2 (mkConst ``Eq.refl [1]) Nat.mkType e) (done := true)
+
 abbrev evalBinPred (toValue? : Expr → Option α) (trueThm falseThm : Expr) (op : α → α → Bool) (a b : Expr) : SimpM Result := do
   let some va := toValue? a | return .rfl
   let some vb := toValue? b | return .rfl
@@ -710,6 +716,7 @@ public def evalGround (config : EvalStepConfig := {}) : Simproc := fun e =>
   | Complement.complement α _ a => evalComplement α a
   | Nat.gcd a b => evalBinNat Nat.gcd a b
   | Nat.succ a => evalUnaryNat (· + 1) a
+  | Nat.log2 a => evalLog2 a config.maxExponent
   | Int.gcd a b => evalIntGcd a b
   | Int.tdiv a b => evalBinInt Int.tdiv a b
   | Int.fdiv a b => evalBinInt Int.fdiv a b

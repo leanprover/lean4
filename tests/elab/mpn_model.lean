@@ -1,32 +1,26 @@
 /-!
-# Lean transliteration of the runtime's GMP-free bignum core
+# Lean transcription and verification of the built-in MPN bignum implementation
 
-`src/runtime/mpn.cpp` implements multi-precision naturals as little-endian
-arrays of `uint32_t` digits. It is the arithmetic Lean uses when built with
-`USE_GMP=OFF` (the 32-bit and WebAssembly targets); both of those CI
-configurations are currently disabled, so the code has no automated coverage.
+`src/runtime/mpn.cpp` implements multi-precision naturals as little-endian arrays of `uint32_t`
+digits. It is the arithmetic Lean uses when built with `USE_GMP=OFF`.
 
-The kernel reaches it: `type_checker::reduce_nat` reduces `Nat.add`, `sub`,
-`mul`, `pow`, `gcd`, `div`, `mod`, `beq` and `ble` through `mpz` and hence
-through every routine here except `mpn_to_string`, whose only caller is
-printing.
+Under `USE_GMP=OFF`, the implementation becomes part of the TCB: `type_checker::reduce_nat` reduces
+`Nat.add`, `sub`, `mul`, `pow`, `gcd`, `div`, `mod`, `beq` and `ble` through `mpz` and hence through
+every routine here except `mpn_to_string`, whose only caller is printing.
 
-This file transliterates it statement by statement so that the algorithms can
-be checked against `Nat`, which is what `#eval mpnCheck` at the bottom does, and
-so that they can be proved correct: `denote_add`, `denote_sub`, `denote_mul`,
-`div_spec` and `compare_spec` do that for `mpn_add`, `mpn_sub`, `mpn_mul`,
-`mpn_div` (by way of Knuth's Algorithm D) and `mpn_compare`.
+This file transliterates it statement by statement so that the algorithms can be checked against
+`Nat`, which is what `#eval mpnCheck` at the bottom does, and so that they can be proved correct:
+`denote_add`, `denote_sub`, `denote_mul`, `div_spec` and `compare_spec` do that for `mpn_add`,
+`mpn_sub`, `mpn_mul`, `mpn_div` (by way of Knuth's Algorithm D) and `mpn_compare`.
 
-Each definition quotes the C++ it stands for, so the two can be read side by
-side without opening the source. Deviations are marked `NOTE:`; the recurring
-ones are that a loop over a mutable buffer becomes a fold or a map over the
-digits it writes, and that a `while` whose bound is an argument about the values
-becomes a structural or well-founded recursion.
+Each definition quotes the C++ it stands for, so the two can be read side by side without opening
+the source. Deviations are marked `NOTE:`; the recurring ones are that a loop over a mutable buffer
+becomes a fold or a map over the digits it writes, and that a `while` whose bound is an argument
+about the values becomes a structural or well-founded recursion.
 
-A transliteration is only worth as much as its fidelity to the original, so
-`Mpn.Test.emit` prints the model's results in the format that
-`mpn_model_crosscheck.cpp` prints the real `mpn.cpp`'s in, and `Mpn.Test.emitNum`
-does the same against `mpz_crosscheck.cpp` for the `mpz` layer below. On the
+A transliteration is only worth as much as its fidelity to the original, so `Mpn.Test.emit` prints
+the model's results in the format that `mpn_model_crosscheck.cpp` prints the real `mpn.cpp`'s in,
+and `Mpn.Test.emitNum` does the same against `mpz_crosscheck.cpp` for the `mpz` layer below. On the
 same pseudorandom operands both agree byte for byte.
 -/
 
@@ -604,6 +598,10 @@ The trial quotient digit `div_n` forms for the window at `j`, after step D3:
         q_hat = temp / (mpn_double_digit) denom[n-1];
         r_hat = temp % (mpn_double_digit) denom[n-1];
 ```
+NOTE: `n-2` is truncated subtraction here, so a denominator shorter than two
+digits reads `denom[0]` twice, where the C++ underflows `n-2` in `size_t` and
+reads out of bounds. Neither is reached: `mpn_div` sends `lden == 1` to `div_1`,
+`div_n` asserts `denom.size() > 1`, and `divN_spec` assumes `denom.size = k+2`.
 -/
 def divNTrial (denom u : Array Digit) (j : Nat) : Digit :=
   let n := denom.size

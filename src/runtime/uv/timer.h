@@ -33,15 +33,15 @@ typedef struct {
     lean_object *   m_promise;     // The associated promise for asynchronous results.
     uint64_t        m_timeout;     // Timeout duration in milliseconds.
     bool            m_repeating;   // Flag indicating if the timer is repeating.
-    uv_timer_state  m_state;       // The state of the timer. Beyond the API description on the Lean
-                                   // side this state has the invariant:
-                                   // `m_state != TIMER_STATE_INITIAL` -> `m_promise != NULL`
+    uv_timer_state  m_state;       // The state of the timer.
 } lean_uv_timer_object;
 
 // =======================================
 // Timer object manipulation functions.
 static inline lean_object* lean_uv_timer_new(lean_uv_timer_object * s) { return lean_alloc_external(g_uv_timer_external_class, s); }
 static inline lean_uv_timer_object* lean_to_uv_timer(lean_object * o) { return (lean_uv_timer_object*)(lean_get_external_data(o)); }
+
+void lean_uv_timer_shutdown(lean_object * obj, uv_deferred_teardown & deferred);
 
 #else
 

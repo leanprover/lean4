@@ -188,6 +188,10 @@ private def toInt32 : Signal → Int32
 
 /--
 `Signal.Waiter` can be used to handle a specific signal once.
+
+The event loop is torn down at process exit. A `wait` that is still pending at that point fails the
+same way `stop` makes it fail, and every operation below then fails with `UV_ECANCELED` instead of
+starting new work.
 -/
 structure Waiter where
   private ofNative ::
@@ -220,8 +224,8 @@ def wait (s : Signal.Waiter) : IO (AsyncTask Int) := do
 /--
 If:
 - `s` is still running this stops `s` without resolving any remaining `AsyncTask`s that were created
-  through `wait`. Note that if another `AsyncTask` is binding on any of these it is going hang
-  forever without further intervention.
+  through `wait`. Those tasks fail once the last reference to their promise is dropped, rather than
+  producing a value.
 - `s` is not yet or not anymore running this is a no-op.
 -/
 @[inline]
@@ -235,8 +239,8 @@ does not start the signal waiter.
 def selector (s : Signal.Waiter) : Selector Unit :=
   {
     tryFn := do
-      let signalWaiter : AsyncTask _ ← async s.wait
-      if ← IO.hasFinished signalWaiter then
+      let signalWaiter ← s.native.next
+      if ← signalWaiter.isResolved then
         return some ()
       else
         s.native.cancel
@@ -244,9 +248,9 @@ def selector (s : Signal.Waiter) : Selector Unit :=
 
     registerFn waiter := do
       let signalWaiter ← s.wait
-      discard <| AsyncTask.mapIO (x := signalWaiter) fun _ => do
+      BaseIO.chainTask (t := signalWaiter) fun res => do
         let lose := return ()
-        let win promise := promise.resolve (.ok ())
+        let win promise := promise.resolve (res.map fun _ => ())
         waiter.race lose win
 
     unregisterFn := s.native.cancel

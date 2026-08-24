@@ -16,6 +16,16 @@ namespace lean {
 
 using namespace std;
 
+typedef struct {
+    uv_getaddrinfo_t req;
+    uv_pending_req   pending;
+} dns_addrinfo_req;
+
+typedef struct {
+    uv_getnameinfo_t req;
+    uv_pending_req   pending;
+} dns_nameinfo_req;
+
 bool is_safe_ascii_str(const char *s, size_t len) {
     while (len > 0) {
         char c = *s++;
@@ -45,14 +55,17 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
         return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("service is not ASCII")));
     }
 
-    uv_getaddrinfo_t* resolver = (uv_getaddrinfo_t*)malloc(sizeof(uv_getaddrinfo_t));
-    if (resolver == nullptr) {
+    dns_addrinfo_req* owner = (dns_addrinfo_req*)malloc(sizeof(dns_addrinfo_req));
+
+    if (owner == nullptr) {
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
 
+    uv_getaddrinfo_t* resolver = &owner->req;
+    resolver->data = owner;
+
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
-    resolver->data = promise;
 
 
     struct addrinfo hints;
@@ -67,16 +80,30 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
         default: hints.ai_family = PF_UNSPEC; break;
     }
 
-    event_loop_lock(&global_ev);
+    if (!event_loop_lock(&global_ev)) {
+        lean_dec(promise);
+        free(owner);
+        return lean_uv_loop_unavailable_error();
+    }
+
     lean_inc(promise);
 
     int result = uv_getaddrinfo(global_ev.loop, resolver, [](uv_getaddrinfo_t* req, int status, struct addrinfo* res) {
-        lean_object* promise = (lean_object*) req->data;
+        dns_addrinfo_req* owner = (dns_addrinfo_req*)req->data;
+        lean_object* promise = owner->pending.promise;
+
+        event_loop_unregister_request(&global_ev, &owner->pending);
+
+        if (promise == nullptr) {
+            uv_freeaddrinfo(res);
+            free(owner);
+            return;
+        }
 
         if (status != 0) {
             lean_promise_resolve_with_code(status, promise);
             lean_dec(promise);
-            free(req);
+            free(owner);
             return;
         }
 
@@ -106,19 +133,23 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
         uv_freeaddrinfo(res);
         lean_dec(promise);
 
-        free(req);
+        free(owner);
     }, name_cstr, service_cstr, &hints);
 
     if (result != 0) {
         lean_dec(promise); // The structure does not own it.
         lean_dec(promise); // We are not going to return it.
 
-        free(resolver);
+        free(owner);
 
         event_loop_unlock(&global_ev);
 
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
+
+    // Registered only after a successful submit, and before unlocking: the completion callback runs
+    // on the loop thread, which cannot take the mutex until we release it.
+    event_loop_register_request(&global_ev, &owner->pending, (uv_req_t*)resolver, promise, nullptr);
 
     event_loop_unlock(&global_ev);
     return lean_io_result_mk_ok(promise);
@@ -126,28 +157,43 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 
 // Std.Internal.IO.Async.DNS.getNameInfo (host : @& SocketAddress) : IO (IO.Promise (Except IO.Error (String × String)))
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
-    uv_getnameinfo_t* req = (uv_getnameinfo_t*)malloc(sizeof(uv_getnameinfo_t));
-    if (req == nullptr) {
+    dns_nameinfo_req* owner = (dns_nameinfo_req*)malloc(sizeof(dns_nameinfo_req));
+    if (owner == nullptr) {
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
+    uv_getnameinfo_t* req = &owner->req;
+    req->data = owner;
 
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
-    req->data = promise;
 
     sockaddr_storage addr_ptr;
     lean_socket_address_to_sockaddr_storage(addr, &addr_ptr);
 
-    event_loop_lock(&global_ev);
+    if (!event_loop_lock(&global_ev)) {
+        lean_dec(promise);
+        free(owner);
+        return lean_uv_loop_unavailable_error();
+    }
     lean_inc(promise);
 
     int result = uv_getnameinfo(global_ev.loop, req, [](uv_getnameinfo_t* req, int status, const char* hostname, const char* service) {
-        lean_object* promise = (lean_object*) req->data;
+        dns_nameinfo_req* owner = (dns_nameinfo_req*)req->data;
+        lean_object* promise = owner->pending.promise;
+
+        event_loop_unregister_request(&global_ev, &owner->pending);
+
+        if (promise == nullptr) {
+            // Teardown abandoned this request and already released the promise. The worker is done
+            // with `owner` by the time it calls back, so freeing it here is safe.
+            free(owner);
+            return;
+        }
 
         if (status != 0) {
             lean_promise_resolve_with_code(status, promise);
             lean_dec(promise);
-            free(req);
+            free(owner);
             return;
         }
 
@@ -158,19 +204,21 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
         lean_promise_resolve(mk_except_ok(r), promise);
         lean_dec(promise);
 
-        free(req);
+        free(owner);
     }, (const struct sockaddr*)&addr_ptr, 0);
 
     if (result != 0) {
         lean_dec(promise); // The structure does not own it.
         lean_dec(promise); // We are not going to return it.
 
-        free(req);
+        free(owner);
 
         event_loop_unlock(&global_ev);
 
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
+
+    event_loop_register_request(&global_ev, &owner->pending, (uv_req_t*)req, promise, nullptr);
 
     event_loop_unlock(&global_ev);
     return lean_io_result_mk_ok(promise);

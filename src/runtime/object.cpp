@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "runtime/interrupt.h"
 #include "runtime/buffer.h"
 #include "runtime/io.h"
+#include "runtime/libuv.h"
 #include "runtime/hash.h"
 
 #if defined(__GLIBC__) || defined(__APPLE__)
@@ -1097,8 +1098,17 @@ extern "C" LEAN_EXPORT void lean_init_task_manager() {
     lean_init_task_manager_using(get_lean_num_threads());
 }
 
+bool task_manager_is_running() {
+    return g_task_manager != nullptr;
+}
+
 extern "C" LEAN_EXPORT void lean_finalize_task_manager() {
     if (g_task_manager) {
+        // Teardown settles the promises left pending on the event loop, which goes through the task
+        // manager, so it has to run while that is still up. This is the only place both are in
+        // scope; `finalize_runtime_module` only reaches `finalize_libuv` for a runtime that never
+        // started a task manager, and therefore never had a promise to settle.
+        finalize_libuv();
         delete g_task_manager;
         g_task_manager = nullptr;
     }
@@ -1114,10 +1124,7 @@ scoped_task_manager::scoped_task_manager(unsigned num_workers) {
 }
 
 scoped_task_manager::~scoped_task_manager() {
-    if (g_task_manager) {
-        delete g_task_manager;
-        g_task_manager = nullptr;
-    }
+    lean_finalize_task_manager();
 }
 
 void deactivate_task(lean_task_object * t) {

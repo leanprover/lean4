@@ -80,6 +80,9 @@ The promise resolves when some data is available or an error occurs. If the sock
 has not been previously bound with `bind`, it is automatically bound to `0.0.0.0`
 (all interfaces) with a random port.
 Furthermore calling this function in parallel with `recvSelector` is not supported.
+
+Fails with `UV_EMSGSIZE` if the datagram is larger than `size`: the kernel discards the remainder, so
+the truncated prefix is dropped rather than reported as a complete read.
 -/
 @[inline]
 def recv (s : Socket) (size : UInt64) : Async (ByteArray × Option SocketAddress) :=
@@ -91,6 +94,8 @@ and provides that data. If the socket has not been previously bound with `bind`,
 automatically bound to `0.0.0.0` (all interfaces) with a random port.
 Calling this function does starts the data wait, only when it's used with `Selectable.one` or `combine`.
 It must not be called in parallel with `recv`.
+
+Fails with `UV_EMSGSIZE` if the datagram is larger than `size`, like `recv`.
 -/
 def recvSelector (s : Socket) (size : UInt64) : Selector (ByteArray × Option SocketAddress) :=
  {
@@ -105,23 +110,19 @@ def recvSelector (s : Socket) (size : UInt64) : Selector (ByteArray × Option So
         s.native.cancelRecv
         return none
     registerFn waiter := do
-      let readableWaiter ← s.native.waitReadable
+      let readableWaiter : AsyncTask _ := .ofPromise (← s.native.waitReadable)
 
-      -- If we get cancelled the promise will be dropped so prepare for that
-      discard <| IO.mapTask (t := readableWaiter.result?) fun res => do
-        match res with
-        | none => return ()
-        | some res =>
-          let lose := return ()
-          let win promise := do
-            try
-              discard <| IO.ofExcept res
-              -- We know that this read should not block
-              let res ← (s.recv size).block
-              promise.resolve (.ok res)
-            catch e =>
-              promise.resolve (.error e)
-          waiter.race lose win
+      discard <| IO.mapTask (t := readableWaiter) fun res => do
+        let lose := return ()
+        let win promise := do
+          try
+            discard <| IO.ofExcept res
+            -- We know that this read should not block
+            let res ← (s.recv size).block
+            promise.resolve (.ok res)
+          catch e =>
+            promise.resolve (.error e)
+        waiter.race lose win
 
     unregisterFn := s.native.cancelRecv
   }

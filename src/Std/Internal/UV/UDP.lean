@@ -22,6 +22,11 @@ private opaque SocketImpl : NonemptyType.{0}
 
 /--
 Represents a UDP socket.
+
+The event loop is torn down at process exit. Any promise still pending at that point is dropped, so
+a computation waiting on it fails instead of producing a value, and every operation below then fails
+with `UV_ECANCELED` instead of starting new work. The exception is `cancelRecv`, which succeeds as a
+no-op: teardown has already dropped every pending promise, so there is nothing left for it to cancel.
 -/
 def Socket : Type := SocketImpl.type
 
@@ -60,6 +65,9 @@ opaque send (socket : @& Socket) (data : Array ByteArray) (addr : @& Option Sock
 Receives data from an UDP socket. `size` is for the maximum bytes to receive. The promise
 resolves when some data is available or an error occurs.
 Furthermore calling this function in parallel with `waitReadable` is not supported.
+
+Fails with `UV_EMSGSIZE` if the datagram is larger than `size`: the kernel discards the remainder, so
+the truncated prefix is dropped rather than reported as a complete read.
 -/
 @[extern "lean_uv_udp_recv"]
 opaque recv (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error (ByteArray × Option SocketAddress)))
@@ -73,8 +81,9 @@ opaque waitReadable (socket : @& Socket) : IO (IO.Promise (Except IO.Error Unit)
 
 /--
 Cancels a receive operation in the form of `recv` or `waitReadable` if there is currently one
-pending. This resolves their returned `IO.Promise` to `none`. This function is considered dangerous,
-as improper use can cause data loss, and is therefore not exposed to the top-level API.
+pending. Their returned `IO.Promise` is dropped rather than resolved, so a computation waiting on it
+fails instead of producing a value. This function is considered dangerous, as improper use can cause
+data loss, and is therefore not exposed to the top-level API.
 Note that this function is idempotent and as such can be called multiple times on the same socket
 without causing errors, in particular also without a receive running in the first place.
 -/

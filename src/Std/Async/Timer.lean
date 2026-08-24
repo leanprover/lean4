@@ -19,6 +19,10 @@ namespace Async
 /--
 `Sleep` can be used to sleep for some duration once.
 The underlying timer has millisecond resolution.
+
+The event loop is torn down at process exit. A `wait` that is still pending at that point fails the
+same way `stop` makes it fail, and every operation below then fails with `UV_ECANCELED` instead of
+starting new work.
 -/
 structure Sleep where
   private ofNative ::
@@ -57,9 +61,9 @@ def reset (s : Sleep) : Async Unit :=
 
 /--
 If:
-- `s` is still running this stops `s` without completing any remaining `Async` computations that were created
-  through `wait`. Note that if another `Async` computation is binding on any of these it will hang
-  forever without further intervention.
+- `s` is still running this stops `s` without completing any remaining `Async` computations that were
+  created through `wait`. Those computations fail once the last reference to their promise is
+  dropped, rather than producing a value.
 - `s` is not yet or not anymore running this is a no-op.
 -/
 @[inline]
@@ -80,14 +84,12 @@ def selector (s : Sleep) : Selector Unit :=
         return none
 
     registerFn waiter := do
-      let sleepWaiter ← s.native.next
-      BaseIO.chainTask sleepWaiter.result? fun
-        | none => do
-          return ()
-        | some _ =>
-          let lose := return ()
-          let win promise := promise.resolve (.ok ())
-          waiter.race lose win
+      let sleepWaiter : AsyncTask Unit := .ofPurePromise (← s.native.next)
+
+      BaseIO.chainTask (t := sleepWaiter) fun res => do
+        let lose := return ()
+        let win promise := promise.resolve res
+        waiter.race lose win
 
     unregisterFn := s.native.cancel
   }
@@ -111,6 +113,10 @@ def Selector.sleep (duration : Std.Time.Millisecond.Offset) : Async (Selector Un
 /--
 `Interval` can be used to repeatedly wait for some duration like a clock.
 The underlying timer has millisecond resolution.
+
+The event loop is torn down at process exit. A `tick` that is still pending at that point fails the
+same way `stop` makes it fail, and every operation below then fails with `UV_ECANCELED` instead of
+starting new work.
 -/
 structure Interval where
   private ofNative ::
@@ -154,9 +160,9 @@ def reset (i : Interval) : IO Unit :=
 
 /--
 If:
-- `i` is still running this stops `i` without completing any remaining `Async` computations that were created
-  through `tick`. Note that if another `Async` computation is binding on any of these it will hang
-  forever without further intervention.
+- `i` is still running this stops `i` without completing any remaining `Async` computations that were
+  created through `tick`. Those computations fail once the last reference to their promise is
+  dropped, rather than producing a value.
 - `i` is not yet or not anymore running this is a no-op.
 -/
 @[inline]

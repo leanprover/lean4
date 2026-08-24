@@ -26,6 +26,7 @@ import Init.Data.Nat.MinMax
 import Init.Data.Nat.Mod
 import Init.Data.Nat.Simproc
 import Init.TacticsExtra
+public import Init.PropLemmas
 
 public section
 
@@ -883,6 +884,28 @@ theorem lt_trichotomy (x y : BitVec w) :
 
 /-! ### setWidth, zeroExtend and truncate -/
 
+theorem getLsbD_eq_decide_getElem (x : BitVec w) (i : Nat) :
+    BitVec.getLsbD x i = decide (∃ h : i < w, x[i]'h = true) := by
+  by_cases h : i < w
+  · simp [h]
+  · rw [Bool.eq_iff_iff]
+    constructor
+    · simp_all
+    · intro h2
+      rw [decide_eq_true_eq] at h2
+      rcases h2 with ⟨h3, h4⟩
+      contradiction
+
+@[grind =]
+theorem getElem_setWidth'_eq_decide_getElem (x : BitVec w) (i : Nat) (h : w ≤ v) (hi : i < v) :
+    (setWidth' h x)[i] = decide (∃ h : i < w, x[i]) := by
+  simp [getLsbD_eq_decide_getElem, getElem_setWidth']
+
+@[grind =]
+theorem getElem_setWidth_eq_decide_getElem (m : Nat) (x : BitVec n) (i : Nat) (h : i < m) :
+    (setWidth m x)[i] = decide (∃ h : i < n, x[i]'h) := by
+  simp [getLsbD_eq_decide_getElem]
+
 @[simp]
 theorem truncate_eq_setWidth {v : Nat} {x : BitVec w} :
   truncate v x = setWidth v x := rfl
@@ -1126,9 +1149,14 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
   (extractLsb hi lo x).toFin = Fin.ofNat (2 ^ (hi - lo + 1)) (x.toNat >>> lo) := by
   simp [extractLsb]
 
-@[simp, grind =] theorem getElem_extractLsb' {start len : Nat} {x : BitVec n} {i : Nat} (h : i < len) :
-    (extractLsb' start len x)[i] = x.getLsbD (start+i) := by
+@[simp] theorem getElem_extractLsb' {start len : Nat} {x : BitVec n} {i : Nat} (h : i < len) :
+    (extractLsb' start len x)[i] = x.getLsbD (start + i) := by
   simp [getElem_eq_testBit_toNat, getLsbD, h]
+
+@[grind =] theorem getElem_extractLsb'_eq_decide_getElem {start len : Nat} {x : BitVec n}
+    {i : Nat} (h : i < len) :
+    (extractLsb' start len x)[i] = ∃ h : start+i < n, x[start+i]'h := by
+  simp [getLsbD_eq_decide_getElem]
 
 @[simp, grind =] theorem getLsbD_extractLsb' (start len : Nat) (x : BitVec n) (i : Nat) :
     (extractLsb' start len x).getLsbD i = (i < len && x.getLsbD (start+i)) := by
@@ -1213,9 +1241,14 @@ let x' = x.extractLsb' 7 5  =   _ _ 9 8 7
       x.getMsbD (w - (start + len)))) := by
   simp [BitVec.msb, getMsbD_extractLsb']
 
-@[simp, grind =] theorem getElem_extract {hi lo : Nat} {x : BitVec n} {i : Nat} (h : i < hi - lo + 1) :
+@[simp] theorem getElem_extract {hi lo : Nat} {x : BitVec n} {i : Nat} (h : i < hi - lo + 1) :
     (extractLsb hi lo x)[i] = getLsbD x (lo+i) := by
   simp [getElem_eq_testBit_toNat, getLsbD, h]
+
+@[grind =] theorem getElem_extract_eq_decide_getElem {hi lo : Nat} {x : BitVec n} {i : Nat}
+    (h : i < hi - lo + 1) :
+    (extractLsb hi lo x)[i] = decide (∃ h : lo+i < n, x[lo+i]'h) := by
+  simp [getLsbD_eq_decide_getElem]
 
 @[simp] theorem getLsbD_extract (hi lo : Nat) (x : BitVec n) (i : Nat) :
     getLsbD (extractLsb hi lo x) i = (i ≤ (hi-lo) && getLsbD x (lo+i)) := by
@@ -2082,9 +2115,13 @@ theorem shiftLeft_ofNat_eq {x : BitVec w} {k : Nat} : x <<< (BitVec.ofNat w k) =
     getLsbD (x >>> i) j = getLsbD x (i+j) := by
   unfold getLsbD ; simp
 
-@[simp, grind =] theorem getElem_ushiftRight (x : BitVec w) (i n : Nat) (h : i < w) :
+@[simp] theorem getElem_ushiftRight (x : BitVec w) (i n : Nat) (h : i < w) :
     (x >>> n)[i] = x.getLsbD (n + i) := by
   simp [getElem_eq_testBit_toNat, toNat_ushiftRight, Nat.testBit_shiftRight, getLsbD]
+
+@[grind =] theorem getElem_ushiftRight_eq_decide_getElem (x : BitVec w) (i n : Nat) (h : i < w) :
+    (x >>> n)[i] = decide (∃ h : n + i < w, x[n + i]) := by
+  simp [getLsbD_eq_decide_getElem]
 
 theorem ushiftRight_xor_distrib (x y : BitVec w) (n : Nat) :
     (x ^^^ y) >>> n = (x >>> n) ^^^ (y >>> n) := by

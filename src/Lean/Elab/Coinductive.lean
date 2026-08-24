@@ -112,6 +112,8 @@ public structure CoinductiveElabData where
   keywords, and hence we need to record this information.
   -/
   isGreatest : Bool
+  /-- Explicit monotonicity proof from the `monotonicity_by` clause, if provided. -/
+  monotonicity? : Option Term
   deriving Inhabited
 
 
@@ -481,7 +483,7 @@ public def elabCoinductive (coinductiveElabData : Array CoinductiveElabData) : T
         terminationBy? := .none
         partialFixpoint? := .some {
             ref := coinductiveElabData[idx]!.ref
-            term? := .none
+            term? := coinductiveElabData[idx]!.monotonicity?
             fixpointType := if coinductiveElabData[idx]!.isGreatest then
                               .coinductiveFixpoint else .inductiveFixpoint
         }

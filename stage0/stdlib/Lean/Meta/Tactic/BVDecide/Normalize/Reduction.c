@@ -1463,7 +1463,7 @@ goto v_resetjp_567_;
 v_resetjp_567_:
 {
 lean_object* v___x_570_; lean_object* v___x_571_; lean_object* v___x_573_; 
-v___x_570_ = lean_box(v___x_532_);
+v___x_570_ = lean_box(v___x_519_);
 v___x_571_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_571_, 0, v___x_570_);
 if (v_isShared_529_ == 0)

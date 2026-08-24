@@ -107,6 +107,10 @@ structure InductiveView where
   /-- The declaration docstring. -/
   docString?      : Option (TSyntax ``Lean.Parser.Command.docComment)
   isCoinductive : Bool := false
+  /-- Explicit monotonicity proof from a `monotonicity_by` clause, as a `by` term. Only
+  meaningful for predicates elaborated via the lattice-theoretic fixpoint machinery
+  (`coinductive`, or `inductive` in a mutual clique with `coinductive`). -/
+  monotonicity?   : Option Term := none
   deriving Inhabited
 
 /-- Elaborated header for an inductive type before fvars for each inductive are added to the local context. -/
@@ -1698,6 +1702,7 @@ def InductiveViewToCoinductiveElab (e : InductiveElabStep1) : CoinductiveElabDat
   modifiers := e.view.modifiers
   ctorSyntax := e.view.ctors.map (·.ref)
   isGreatest := e.view.isCoinductive
+  monotonicity? := e.view.monotonicity?
 
 def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Unit := do
   let elabs ← runTermElabM fun _ => inductives.mapM fun (modifiers, stx) => mkInductiveView modifiers stx
@@ -1713,6 +1718,9 @@ def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Uni
       discard <| flatElabs.mapM fun e => MetaM.run' do mkSumOfProducts e.view.declName
       elabCoinductive (flatElabs.map InductiveViewToCoinductiveElab)
   else
+    for e in elabs do
+      if let some proof := e.view.monotonicity? then
+        throwErrorAt proof "`monotonicity_by` is only allowed on `coinductive` predicates, or on `inductive` predicates in a `mutual` block together with a `coinductive` predicate"
     let res ← runTermElabM fun vars => do
       elabInductiveViews vars elabs
     elabInductiveViewsFinalize (elabs.map (·.view)) res

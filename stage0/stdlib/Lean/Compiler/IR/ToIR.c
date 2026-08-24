@@ -2373,9 +2373,9 @@ return v___x_827_;
 LEAN_EXPORT lean_object* l_Lean_IR_ToIR_lowerLet___lam__6___boxed(lean_object* v_args_830_, lean_object* v_i_831_, lean_object* v_updateHeader_832_, lean_object* v_continueLet_833_, lean_object* v_var_834_, lean_object* v___y_835_, lean_object* v___y_836_, lean_object* v___y_837_, lean_object* v___y_838_){
 _start:
 {
-uint8_t v_updateHeader_9436__boxed_839_; lean_object* v_res_840_; 
-v_updateHeader_9436__boxed_839_ = lean_unbox(v_updateHeader_832_);
-v_res_840_ = l_Lean_IR_ToIR_lowerLet___lam__6(v_args_830_, v_i_831_, v_updateHeader_9436__boxed_839_, v_continueLet_833_, v_var_834_, v___y_835_, v___y_836_, v___y_837_);
+uint8_t v_updateHeader_9430__boxed_839_; lean_object* v_res_840_; 
+v_updateHeader_9430__boxed_839_ = lean_unbox(v_updateHeader_832_);
+v_res_840_ = l_Lean_IR_ToIR_lowerLet___lam__6(v_args_830_, v_i_831_, v_updateHeader_9430__boxed_839_, v_continueLet_833_, v_var_834_, v___y_835_, v___y_836_, v___y_837_);
 lean_dec(v___y_837_);
 lean_dec_ref(v___y_836_);
 lean_dec(v___y_835_);

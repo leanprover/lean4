@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.WP.Gadget.ForIn
-// Imports: public import Std.WP.Triple.SpecLemmas public import Std.Internal.ForIn
+// Imports: public import Init.BinderNameHint public import Std.WP.Triple.SpecLemmas public import Std.Internal.ForIn
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -326,6 +326,7 @@ lean_dec(v_inv_181_);
 return v_res_183_;
 }
 }
+lean_object* runtime_initialize_Init_BinderNameHint(uint8_t builtin);
 lean_object* runtime_initialize_Std_WP_Triple_SpecLemmas(uint8_t builtin);
 lean_object* runtime_initialize_Std_Internal_ForIn(uint8_t builtin);
 void lean_initialize_runtime_module();
@@ -335,6 +336,9 @@ lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize_runtime_module();
+res = runtime_initialize_Init_BinderNameHint(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Std_WP_Triple_SpecLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -350,6 +354,7 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
+lean_object* initialize_Init_BinderNameHint(uint8_t builtin);
 lean_object* initialize_Std_WP_Triple_SpecLemmas(uint8_t builtin);
 lean_object* initialize_Std_Internal_ForIn(uint8_t builtin);
 static bool _G_initialized = false;
@@ -357,6 +362,9 @@ LEAN_EXPORT lean_object* initialize_Std_WP_Gadget_ForIn(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_BinderNameHint(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Std_WP_Triple_SpecLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

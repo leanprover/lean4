@@ -501,10 +501,10 @@ return v___x_128_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_Search_instBEqKind_beq___boxed(lean_object* v_x_129_, lean_object* v_y_130_){
 _start:
 {
-uint8_t v_x_17__boxed_131_; uint8_t v_y_18__boxed_132_; uint8_t v_res_133_; lean_object* v_r_134_; 
-v_x_17__boxed_131_ = lean_unbox(v_x_129_);
-v_y_18__boxed_132_ = lean_unbox(v_y_130_);
-v_res_133_ = l_Lean_Meta_Grind_Arith_Cutsat_Search_instBEqKind_beq(v_x_17__boxed_131_, v_y_18__boxed_132_);
+uint8_t v_x_21__boxed_131_; uint8_t v_y_22__boxed_132_; uint8_t v_res_133_; lean_object* v_r_134_; 
+v_x_21__boxed_131_ = lean_unbox(v_x_129_);
+v_y_22__boxed_132_ = lean_unbox(v_y_130_);
+v_res_133_ = l_Lean_Meta_Grind_Arith_Cutsat_Search_instBEqKind_beq(v_x_21__boxed_131_, v_y_22__boxed_132_);
 v_r_134_ = lean_box(v_res_133_);
 return v_r_134_;
 }

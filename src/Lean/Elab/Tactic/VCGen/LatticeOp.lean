@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Meta.Sym.Apply
 public import Std.Internal.Order.Heyting
-public import Lean.Elab.Tactic.VCGen.FrameProc
 import Lean.Meta.Sym.Simp.Rewrite
 import Lean.Meta.AppBuilder
 import Lean.Meta.AbstractMVars
@@ -17,6 +16,27 @@ open Lean Meta Sym
 open Lean.Order
 
 namespace Lean.Elab.Tactic.VCGen
+
+/-- How to decompose a lattice operator `head … s⃗` on the RHS of an entailment: the distribution and
+unfolding `rewrites` that saturate it, and the terminal `⊑`-introduction `terminals` that close the
+reduced form. `head` keys the split in the `latticeOps` table. -/
+public structure LatticeOp where
+  /-- Head constant of the operator this split decomposes. Keys the `latticeOps` table. -/
+  head : Name
+  /-- The number of leading arguments held constant during rule construction: the operator's carrier
+  type and its typeclass instances. The operands and excess state arguments after them become the
+  rule's schematic parameters. `2` for a connective over a `CompleteLattice` carrier; `0` for a
+  monomorphic operator. -/
+  numConst : Nat := 2
+  /-- Distribution and unfolding equalities that saturate the operator applied to state arguments. -/
+  rewrites : Array Name := #[]
+  /-- The operator's terminal `⊑`-introduction rule, or `none` when it saturates to another operator's
+  terminal. -/
+  terminal? : Option Name := none
+  /-- Whether the split applies to this RHS. Ops without a terminal decline shapes their rewrites
+  cannot reduce. -/
+  applies? : Expr → Bool := fun _ => true
+
 
 
 /-! ## Lattice split rules
@@ -52,10 +72,29 @@ public def LatticeOp.upperAdjoint : LatticeOp :=
 public def LatticeOp.iInf : LatticeOp :=
   { head := ``Lean.Order.iInf, numConst := 3,
     rewrites := #[``Lean.Order.iInf_apply], terminal? := ``Lean.Order.le_iInf }
+/-- Whether a projection application `@Prod.fst/snd eh et epost x₁ … xₙ` projects a `⊥`/`⊤` tuple,
+the only operand shape the `fst`/`snd` rewrites reduce. -/
+private def projectsBotOrTop (rhs : Expr) : Bool :=
+  rhs.getAppArgs[2]?.any fun epost =>
+    epost.isAppOf ``Lean.Order.bot || epost.isAppOf ``Lean.Order.top
+
+/-- The projection `(⊥/⊤ : _ × _).fst` of an exception-postcondition tuple: reduces to the bare
+`⊥`/`⊤` via `Prod.fst_bot`/`Prod.fst_top` and the pointwise `bot_apply`/`top_apply`. `numConst := 3`
+holds the tuple operand concrete, since which rewrite fires depends on it; only the excess state
+arguments go schematic. No terminal: the `⊥` residual becomes the subgoal, the `⊤` residual closes
+with `le_top`. `applies?` declines every other operand, whose projection the rewrites cannot
+reduce. -/
+public def LatticeOp.fst : LatticeOp :=
+  { head := ``Prod.fst, numConst := 3, applies? := projectsBotOrTop,
+    rewrites := #[``Prod.fst_bot, ``Prod.fst_top, ``Lean.Order.bot_apply, ``Lean.Order.top_apply] }
+@[inherit_doc LatticeOp.fst]
+public def LatticeOp.snd : LatticeOp :=
+  { head := ``Prod.snd, numConst := 3, applies? := projectsBotOrTop,
+    rewrites := #[``Prod.snd_bot, ``Prod.snd_top, ``Lean.Order.bot_apply, ``Lean.Order.top_apply] }
 
 /-- The built-in connective splits, whose rewrites and terminals seed every saturation. -/
 public def builtinLatticeOps : Array LatticeOp :=
-  #[.meet, .himp, .ofProp, .top, .upperAdjoint, .iInf]
+  #[.meet, .himp, .ofProp, .top, .upperAdjoint, .iInf, .fst, .snd]
 
 /-- Lattice splits of the built-in connectives, keyed by operator head. `splitLatticeOp?` looks a
 head up here. -/
@@ -135,7 +174,8 @@ value arguments are made schematic; `rewrites` saturate the operator through its
 unfolding equalities, the terminal keyed by the reduced head fires, and any state arguments left
 over-applied by the terminal are point-framed onto the precondition. When the reduced head has no
 registered terminal, the saturated `pre ⊑ reduced` is handed back as the sole subgoal. Throws when the
-operator neither reduces nor has a terminal, since its rule would be the identity.
+operator neither reduces nor has a terminal, since its rule would be the identity; the operator's
+`applies?` filter keeps such shapes away from rule construction.
 
 For `⊓`, produces `∀ a b s⃗ pre, pre ⊑ a s⃗ → pre ⊑ b s⃗ → pre ⊑ (a ⊓ b) s⃗`. For the opaque residual
 `upperAdjoint f b`, produces `∀ f b s⃗ pre, f (fun u⃗ => ⌜u⃗ = s⃗⌝ ⊓ pre) ⊑ b → pre ⊑ upperAdjoint f b s⃗`.

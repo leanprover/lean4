@@ -108,6 +108,9 @@ option(LAZY_RC "LAZY_RC" OFF)
 option(RUNTIME_STATS "RUNTIME_STATS" OFF)
 option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared libraries (Linux)" ON)
 option(USE_GMP "USE_GMP" ON)
+# GMP versions before 6.3.0 contain bugs that can make Lean produce unsound results.
+# When ON, build against whatever GMP is available even if it is older than 6.3.0.
+option(FORCE_GMP "Build against the available GMP even if older than the required 6.3.0" OFF)
 option(USE_MIMALLOC "use mimalloc" ON)
 set(LEAN_MI_SECURE 0 CACHE STRING "Configure mimalloc memory safety mitigations (https://github.com/microsoft/mimalloc/blob/v2.2.7/include/mimalloc/types.h#L56-L60)")
 
@@ -298,8 +301,47 @@ if(USE_GMP MATCHES "ON")
     include_directories(${GMP_INSTALL_PREFIX}/include)
     set(GMP_LIBRARIES "${GMP_INSTALL_PREFIX}/lib/libgmp.a")
   else()
-    # GMP
-    find_package(GMP 5.0.5 REQUIRED)
+    # GMP. Versions before 6.3.0 contain bugs that can make Lean produce unsound
+    # results, so require 6.3.0 unless the user opts out via FORCE_GMP.
+    if(FORCE_GMP)
+      find_package(GMP REQUIRED)
+      if(NOT GMP_VERSION OR GMP_VERSION VERSION_LESS 6.3.0)
+        if(GMP_VERSION)
+          set(_gmp_forced_version "GMP ${GMP_VERSION}")
+        else()
+          set(_gmp_forced_version "a GMP whose version could not be determined")
+        endif()
+        message(WARNING
+          "FORCE_GMP is set: building against ${_gmp_forced_version}, which does not meet the "
+          "required GMP 6.3.0. Versions before 6.3.0 contain bugs that can cause Lean to produce "
+          "UNSOUND (i.e., INCORRECT) results in corner cases. Independent kernels that do not depend "
+          "on GMP will catch the unsoundness. Build only if you understand the risk.")
+      endif()
+    else()
+      find_package(GMP 6.3.0)
+      # An undetermined version is conservatively treated as too old;
+      # find_package would otherwise accept it since VERSION_VAR is empty.
+      if(NOT GMP_FOUND OR NOT GMP_VERSION)
+        if(NOT GMP_INCLUDE_DIR)
+          set(_gmp_detail "no GMP was found")
+        elseif(GMP_VERSION)
+          set(_gmp_detail "found GMP ${GMP_VERSION}")
+        elseif(NOT PKG_CONFIG_FOUND)
+          set(_gmp_detail "found a GMP, but no pkg-config to read its version with")
+        else()
+          set(_gmp_detail "found a GMP, but no `gmp.pc` reporting its version")
+        endif()
+        message(FATAL_ERROR
+          "Lean requires GMP 6.3.0 or newer (${_gmp_detail}). "
+          "GMP versions before 6.3.0 contain bugs that can cause Lean to produce UNSOUND "
+          "(i.e., INCORRECT) results in corner cases. Independent kernels that do not depend on GMP "
+          "will catch the unsoundness.\n"
+          "Choose one of:\n"
+          "  * Install GMP >= 6.3.0, then reconfigure; or\n"
+          "  * -DUSE_GMP=OFF   use Lean's built-in bignum implementation (safest; some performance cost); or\n"
+          "  * -DFORCE_GMP=ON  build against the GMP that is present anyway (NOT recommended: Lean may produce unsound results).")
+      endif()
+    endif()
     include_directories(${GMP_INCLUDE_DIR})
   endif()
   if(NOT LEAN_STANDALONE)
@@ -1067,7 +1109,25 @@ if(STAGE GREATER 0 AND INSTALL_LICENSE)
   install(FILES "${CMAKE_SOURCE_DIR}/../LICENSE" "${CMAKE_SOURCE_DIR}/../LICENSES" DESTINATION ".")
 endif()
 
-file(COPY ${CMAKE_SOURCE_DIR}/include/lean DESTINATION ${CMAKE_BINARY_DIR}/include FILES_MATCHING PATTERN "*.h")
+# The runtime headers are included from the build tree, both by the C++ sources and by the C files
+# `lean` generates, and are installed from there. Copying them as a build step instead of at
+# configure time keeps the copy current without a reconfiguration.
+add_custom_target(
+  lean-headers
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/include/lean/lean.h"
+    "${CMAKE_SOURCE_DIR}/include/lean/lean_gmp.h" "${CMAKE_SOURCE_DIR}/include/lean/lean_libuv.h"
+    "${CMAKE_BINARY_DIR}/include/lean"
+)
+
+set(LEAN_HEADER_CONSUMERS initialize leanshell make_stdlib)
+if(NOT STAGE GREATER 1)
+  # Later stages reuse the previous stage's C++ artifacts instead of compiling them
+  list(APPEND LEAN_HEADER_CONSUMERS leanrt leanrt_initial-exec util kernel library constructions)
+endif()
+foreach(T ${LEAN_HEADER_CONSUMERS})
+  add_dependencies(${T} lean-headers)
+endforeach()
 
 set(LEAN_INSTALL_PREFIX "" CACHE STRING "If set, set CMAKE_INSTALL_PREFIX to this value + version name")
 if(LEAN_INSTALL_PREFIX)

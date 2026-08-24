@@ -7,7 +7,7 @@ import Lean
 import Std.WP
 import Std.Tactic.Do
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 /-!
 # Do-logic tests for `vcgen`
@@ -125,7 +125,7 @@ theorem fib_triple_erase : ⦃ True ⦄ fib_impl n ⦃fun r => r = fib_spec n⦄
 
 theorem fib_impl_vcs
     (Q : Nat → Nat → Prop)
-    (E : EPost.Nil)
+    (E : EStack⟨⟩)
     (I : (n : Nat) → (_ : ¬n = 0) →
       Invariant Nat (Prod Nat Nat) Prop)
     (ret : Q 0 0)
@@ -140,9 +140,10 @@ theorem fib_impl_vcs
   case vc1 h => subst h; apply_rules [ret]
   case vc2 h => apply_rules [loop_pre]
   case vc3 => apply_rules [loop_step]
-  case vc4 h pref cur suff _hsplit b _hinv =>
-    -- `cleanupVC` reduced the `ForInStep.yield` that the step's postcondition matches on.
-    guard_target =ₛ I n h (pref ++ [cur]) suff (b.snd, b.fst + b.snd)
+  case vc4 h pref cur suff _hsplit a b _hinv =>
+    -- `cleanupVC` reduced the `ForInStep.yield` that the step's postcondition matches on, and the
+    -- loop's two mutable variables reach the verification condition as separate binders.
+    guard_target =ₛ I n h (pref ++ [cur]) suff ((a, b).snd, (a, b).fst + (a, b).snd)
     apply_rules [loop_post]
 
 @[spec]
@@ -181,7 +182,7 @@ theorem throwing_loop_spec :
   ⦃fun s => s = 4⦄
   throwing_loop
   ⦃fun _ _ => False;
-  epost⟨fun e s => e = 42 ∧ s = 4⟩⦄ := by
+  estack⟨fun e s => e = 42 ∧ s = 4⟩⦄ := by
   vcgen [throwing_loop]
   case inv1 => exact fun _ suff r s => r ≤ 4 ∧ s = 4 ∧ r + suff.sum > 4
   all_goals (simp_all; try grind)
@@ -730,10 +731,10 @@ theorem incr_poly (amounts : List Nat) :
 
 end TopBetaReduction
 
-namespace RepeatInvariantOfInvariantAndBreak
+namespace WhileInvariantOfInvariantAndBreak
 
 /-! Verifies a `while` loop whose `vcgen` invariant is supplied via
-`RepeatInvariant.ofInvariantAndBreak`: a loop invariant `inv` that holds after every iteration plus
+`WhileInvariant.ofInvariantAndBreak`: a loop invariant `inv` that holds after every iteration plus
 an `onBreak` condition (here the negated loop condition) that additionally holds once the loop
 exits. -/
 
@@ -749,7 +750,7 @@ def countdown (n : Nat) : StateT Nat Id Unit := do
 theorem countdown_spec (n : Nat) :
     ⦃ fun s => s = 0 ⦄ countdown n ⦃ fun _ s => s = n ⦄ := by
   vcgen [countdown] invariants
-  | inv1 => RepeatInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i _ => i = 0)
+  | inv1 => WhileInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i _ => i = 0)
   | inv2 => .ofMeasure fun i => i
   with finish
 
@@ -763,7 +764,7 @@ def countdownStateful (n : Nat) : StateT Nat Id Unit := do
 theorem countdownStateful_spec (n : Nat) :
     ⦃ fun _ => True ⦄ countdownStateful n ⦃ fun _ s => s = n ⦄ := by
   vcgen [countdownStateful] invariants
-  | inv1 => RepeatInvariant.ofInvariantAndBreak
+  | inv1 => WhileInvariant.ofInvariantAndBreak
       (fun _ s => s ≤ n)
       (fun _ s => s = n)
   | inv2 => .ofMeasure fun _ s => n - s
@@ -786,13 +787,13 @@ def countdownLex (n : Nat) : StateT Nat Id Unit := do
 theorem countdownLex_spec (n : Nat) :
     ⦃ fun _ => True ⦄ countdownLex n ⦃ fun _ _ => True ⦄ := by
   vcgen [countdownLex] invariants
-  | inv1 => RepeatInvariant.ofInvariantAndBreak (fun _ _ => True) (fun _ _ => True)
+  | inv1 => WhileInvariant.ofInvariantAndBreak (fun _ _ => True) (fun _ _ => True)
   | inv2 => .ofMeasure fun (i, j) => (i, j)
-  all_goals simp_all [RepeatVariant.evalsBelow_ofMeasure]
+  all_goals simp_all [Variant.evalsBelow_ofMeasure]
   all_goals subst_vars
   all_goals decreasing_tactic
 
-end RepeatInvariantOfInvariantAndBreak
+end WhileInvariantOfInvariantAndBreak
 namespace WithGrindError
 
 /-! The `with` clause of `vcgen` only accepts a `grind`-mode step (e.g. `finish`, `intro`). A

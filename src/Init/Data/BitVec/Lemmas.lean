@@ -897,6 +897,11 @@ theorem getLsbD_eq_decide_getElem (x : BitVec w) (i : Nat) :
       contradiction
 
 @[grind =]
+theorem getElem_setWidth'_eq_decide_getElem (x : BitVec w) (i : Nat) (h : w ≤ v) (hi : i < v) :
+    (setWidth' h x)[i] = decide (∃ h : i < w, x[i]) := by
+  simp [getLsbD_eq_decide_getElem, getElem_setWidth']
+
+@[grind =]
 theorem getElem_setWidth_eq_decide_getElem (m : Nat) (x : BitVec n) (i : Nat) (h : i < m) :
     (setWidth m x)[i] = decide (∃ h : i < n, x[i]'h) := by
   simp [getLsbD_eq_decide_getElem]

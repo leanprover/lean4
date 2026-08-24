@@ -115,7 +115,6 @@ theorem ofNat_toNat (m : Nat) (x : BitVec n) : BitVec.ofNat m x.toNat = setWidth
   apply eq_of_toNat_eq
   simp only [toNat_ofNat, toNat_setWidth]
 
-@[grind =]
 theorem getElem_setWidth' (x : BitVec w) (i : Nat) (h : w ≤ v) (hi : i < v) :
     (setWidth' h x)[i] = x.getLsbD i := by
   rw [getElem_eq_testBit_toNat, toNat_setWidth', getLsbD]

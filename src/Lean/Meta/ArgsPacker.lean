@@ -95,6 +95,20 @@ where
       args[i]!
 
 /--
+  Given a (dependent) tuple `t` (using `PSigma`) of the given arity.
+  Return an array containing its "elements".
+  Example: `mkTupleElems a 4` returns `#[a.1, a.2.1, a.2.2.1, a.2.2.2]`.
+  -/
+private def mkTupleElems (t : Expr) (arity : Nat) : Array Expr := Id.run do
+  if arity = 0 then return #[]
+  let mut result := #[]
+  let mut t := t
+  for _ in *...(arity - 1 : Nat) do
+    result := result.push (mkProj ``PSigma 0 t)
+    t := mkProj ``PSigma 1 t
+  result.push t
+
+/--
 Unpacks a unary packed argument created with `Unary.pack`.
 
 Throws an error if the expression is not of that form.
@@ -108,23 +122,12 @@ def unpack (arity : Nat) (e : Expr) : Option (Array Expr) := do
       args := args.push (e.getArg! 2)
       e := e.getArg! 3
     else
-      none
+      /- A tuple whose remaining components are all proofs is itself a proof, and `simp` (which runs
+         over the packed definition during preprocessing) rewrites a proof by casting it rather than
+         by rebuilding the constructor application. Projections work on any such expression. -/
+      return args ++ mkTupleElems e (arity - args.size)
   args := args.push e
   return args
-
-/--
-  Given a (dependent) tuple `t` (using `PSigma`) of the given arity.
-  Return an array containing its "elements".
-  Example: `mkTupleElems a 4` returns `#[a.1, a.2.1, a.2.2.1, a.2.2.2]`.
-  -/
-private def mkTupleElems (t : Expr) (arity : Nat) : Array Expr := Id.run do
-  if arity = 0 then return #[]
-  let mut result := #[]
-  let mut t := t
-  for _ in *...(arity - 1 : Nat) do
-    result := result.push (mkProj ``PSigma 0 t)
-    t := mkProj ``PSigma 1 t
-  result.push t
 
 /--
 Given a type `t` of the form `(x : A) → (y : B[x]) → … → (z : D[x,y]) → R[x,y,z]`

@@ -619,13 +619,14 @@ structure Prod (α : Type u) (β : Type v) where
 
 attribute [unbox] Prod
 
+set_option bootstrap.inductiveCheckResultingUniverse false in
 /--
 A product type in which the types may be propositions, usually written `α ×' β`.
 
 This type is primarily used internally and as an implementation detail of proof automation. It is
 rarely useful in hand-written code.
 -/
-structure PProd (α : Sort u) (β : Sort v) where
+structure PProd (α : Sort u) (β : Sort v) : Sort (max u v) where
   /-- The first element of a pair. -/
   fst : α
   /-- The second element of a pair. -/
@@ -982,6 +983,7 @@ theorem ULift.down_up {α : Type u} (a : α) : Eq (down (up.{v} a)) a := rfl
 instance [Inhabited α] : Inhabited (ULift α) where
   default := ULift.up default
 
+set_option bootstrap.inductiveCheckResultingUniverse false in
 /--
 Lifts a type or proposition to a higher universe level.
 
@@ -991,7 +993,7 @@ It also subsumes `PLift`.
 -/
 -- The universe variable `r` is written first so that `ULift.{r} α` can be used
 -- when `s` can be inferred from the type of `α`.
-structure PULift.{r, s} (α : Sort s) : Sort (max s r 1) where
+structure PULift.{r, s} (α : Sort s) : Sort (max s r) where
   /-- Wraps a value to increase its type's universe level. -/
   up ::
   /-- Extracts a wrapped value from a universe-lifted type. -/

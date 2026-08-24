@@ -283,6 +283,7 @@ structure Sigma {α : Type u} (β : α → Type v) where
 
 attribute [unbox] Sigma
 
+set_option bootstrap.inductiveCheckResultingUniverse false in
 /--
 Fully universe-polymorphic dependent pairs, in which the second element's type depends on the value
 of the first element and both types are allowed to be propositions. The type `PSigma β` is typically
@@ -298,7 +299,7 @@ first component is not typically useful due to proof irrelevance: there's no poi
 specific proof because all proofs are equal anyway.
 -/
 @[pp_using_anonymous_constructor]
-structure PSigma {α : Sort u} (β : α → Sort v) where
+structure PSigma {α : Sort u} (β : α → Sort v) : Sort (max u v) where
   /-- Constructs a fully universe-polymorphic dependent pair. -/
   mk ::
   /--

@@ -463,7 +463,7 @@ def structureSyntaxToView (modifiers : Modifiers) (stx : Syntax) : TermElabM Str
       binders
       type?
       allowIndices := false
-      allowSortPolymorphism := false
+      allowSortPolymorphism := true
       ctors := #[ctor]
       parents
       fields

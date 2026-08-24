@@ -1759,16 +1759,16 @@ goto v___jp_487_;
 }
 v___jp_499_:
 {
-if (v___y_500_ == 0)
+if (v___y_501_ == 0)
 {
-v___y_495_ = v___y_501_;
+v___y_495_ = v___y_500_;
 v___y_496_ = v___y_502_;
 goto v___jp_494_;
 }
 else
 {
-v___y_495_ = v___y_501_;
-v___y_496_ = v___y_500_;
+v___y_495_ = v___y_500_;
+v___y_496_ = v___y_501_;
 goto v___jp_494_;
 }
 }
@@ -1779,8 +1779,8 @@ v___x_506_ = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_hexDigit___closed_
 v___x_507_ = lean_uint8_dec_le(v___x_506_, v_c_486_);
 if (v___x_507_ == 0)
 {
-v___y_500_ = v___y_505_;
-v___y_501_ = v___y_504_;
+v___y_500_ = v___y_504_;
+v___y_501_ = v___y_505_;
 v___y_502_ = v___x_507_;
 goto v___jp_499_;
 }
@@ -1789,8 +1789,8 @@ else
 uint8_t v___x_508_; uint8_t v___x_509_; 
 v___x_508_ = lean_uint8_once(&l_Std_Internal_Parsec_ByteArray_hexDigit___closed__3, &l_Std_Internal_Parsec_ByteArray_hexDigit___closed__3_once, _init_l_Std_Internal_Parsec_ByteArray_hexDigit___closed__3);
 v___x_509_ = lean_uint8_dec_le(v_c_486_, v___x_508_);
-v___y_500_ = v___y_505_;
-v___y_501_ = v___y_504_;
+v___y_500_ = v___y_504_;
+v___y_501_ = v___y_505_;
 v___y_502_ = v___x_509_;
 goto v___jp_499_;
 }

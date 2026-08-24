@@ -304,6 +304,38 @@ the final borrow, which the C++ writes through `pborrow`.
 def sub (a b : Array Digit) : Array Digit × Digit :=
   subLoop a b (max a.size b.size)
 
+
+/--
+`mpn_sub` writing its result back over its first operand, which is how `div_n`
+calls it:
+```
+        mpn_sub(&numer[j], n+1, ms.data(), n+1, &numer[j], &borrow);
+```
+Each iteration reads `u[off+i]` and then writes it, and no later iteration
+reads it again, so the aliasing is safe. `subInPlace_spec` below is that
+statement: the result agrees digit for digit with running `mpn_sub` into a
+separate buffer.
+-/
+def subInPlaceStep (b : Array Digit) (off : Nat) (s : Array Digit × Digit) (i : Nat) :
+    Array Digit × Digit :=
+  let (u, k) := s
+  let u_i := u.getD (off + i) 0
+  let v_i := b.getD i 0
+  let r := u_i - v_i
+  let c1 := r > u_i
+  let ci := r - k
+  let c2 := ci > r
+  (u.set! (off + i) ci, if c1 || c2 then 1 else 0)
+
+/-- `mpn_sub`'s digit loop run in place over `u[off..off+len)`. -/
+def subInPlace (u b : Array Digit) (off len : Nat) : Array Digit × Digit :=
+  (List.range len).foldl (subInPlaceStep b off) (u, 0)
+
+private theorem subInPlace_succ (u b : Array Digit) (off len : Nat) :
+    subInPlace u b off (len+1) = subInPlaceStep b off (subInPlace u b off len) len := by
+  simp [subInPlace, List.range_succ, List.foldl_append]
+
+
 /-! ## `mpn_mul` -/
 
 /--
@@ -626,6 +658,9 @@ One iteration of `div_n`'s outer loop, producing quotient digit `j`:
                 numer[j+i] = ab[i];
         }
 ```
+The `mpn_sub` writes its result back over `&numer[j]`, its own first operand,
+so `subInPlace` is used here rather than `sub`; `subInPlace_eq` is what makes
+that aliasing sound.
 -/
 def divNStep (denom : Array Digit) (s : Array Digit × Array Digit) (j : Nat) :
     Array Digit × Array Digit :=
@@ -633,8 +668,7 @@ def divNStep (denom : Array Digit) (s : Array Digit × Array Digit) (j : Nat) :
   let n := denom.size
   let q_hat_small := divNTrial denom u j
   let ms := mul #[q_hat_small] denom
-  let (diff, borrow) := sub (u.extract j (j+n+1)) ms
-  let u := copyInto u diff j (n+1)
+  let (u, borrow) := subInPlace u ms j (n+1)
   if borrow != 0 then
     -- step D6: the estimate was one too high, so add the divisor back
     let ab := add denom (u.extract j (j+n+1))
@@ -872,6 +906,48 @@ theorem denote_sub (a b : Array Digit) :
   obtain ⟨_, _, hval⟩ := subLoop_spec a b (max a.size b.size)
   simpa only [sub, denoteN_of_ge a (Nat.le_max_left ..),
     denoteN_of_ge b (Nat.le_max_right ..)] using hval
+
+/--
+Running `mpn_sub` in place over `u[off..off+len)` gives what running it into a
+separate buffer `w` gives, and touches nothing outside that window.
+
+The window is what makes the aliasing safe: the digit the step at `i` reads has
+not been written yet, because every earlier step wrote a strictly smaller index.
+That is `hread` in the proof below.
+-/
+theorem subInPlace_spec (u b w : Array Digit) (off len : Nat)
+    (hfits : off + len ≤ u.size)
+    (hw : ∀ i, i < len → w.getD i 0 = u.getD (off + i) 0) :
+    (subInPlace u b off len).1.size = u.size
+    ∧ (subInPlace u b off len).2 = (subLoop w b len).2
+    ∧ (∀ i, i < len →
+        (subInPlace u b off len).1.getD (off + i) 0 = (subLoop w b len).1.getD i 0)
+    ∧ (∀ i, ¬(off ≤ i ∧ i < off + len) →
+        (subInPlace u b off len).1.getD i 0 = u.getD i 0) := by
+  induction len with
+  | zero => exact ⟨rfl, rfl, fun i h => absurd h (Nat.not_lt_zero i), fun _ _ => rfl⟩
+  | succ n ih =>
+    obtain ⟨hsz, hk, hdig, hout⟩ := ih (by omega) (fun i hi => hw i (by omega))
+    have hstep : subLoop w b (n+1) = subStep w b (subLoop w b n) n := by
+      simp [subLoop, List.range_succ, List.foldl_append]
+    have hread : (subInPlace u b off n).1.getD (off + n) 0 = w.getD n 0 := by
+      rw [hout (off + n) (by omega), hw n (by omega)]
+    have hlensz : (subLoop w b n).1.size = n := (subLoop_spec w b n).1
+    have hpush : ∀ (c : Array Digit) (d : Digit) (t : Nat), t = c.size →
+        (c.push d).getD t 0 = d := by
+      intro c d t h; subst h; exact getD_push_eq c d
+    rw [subInPlace_succ, hstep]
+    simp only [subInPlaceStep, subStep, hread, hk]
+    refine ⟨by simp [hsz], ?_, ?_, ?_⟩
+    · trivial
+    · intro t ht
+      rcases Nat.lt_or_ge t n with h | h
+      · rw [getD_set!_ne _ _ _ _ (by omega), hdig t h, getD_push_lt _ _ (by omega)]
+      · have htn : t = n := by omega
+        subst htn
+        rw [getD_set!_eq _ _ _ (by omega), hpush _ _ _ hlensz.symm]
+    · intro t ht
+      rw [getD_set!_ne _ _ _ _ (by omega), hout t (by omega)]
 
 /-! ## Correctness of `mpn_mul` -/
 
@@ -2340,6 +2416,39 @@ private theorem toNat_pred32 {q : Digit} (h : 0 < q.toNat) : (q - 1).toNat = q.t
   grind
 
 set_option maxHeartbeats 1000000 in
+private theorem array_ext_getD {a b : Array Digit} (hs : a.size = b.size)
+    (h : ∀ i, a.getD i 0 = b.getD i 0) : a = b :=
+  Array.ext hs fun i h1 h2 => by
+    have hi := h i
+    simpa [Array.getD, h1, h2] using hi
+
+private theorem sub_eq_subLoop (a b : Array Digit) (len : Nat)
+    (ha : a.size = len) (hb : b.size = len) : sub a b = subLoop a b len := by
+  rw [sub, ha, hb, Nat.max_self]
+
+/--
+Subtracting in place is subtracting into a fresh buffer and copying the result
+back, which is what lets `div_n` pass `&numer[j]` as both an input and the
+output of `mpn_sub`.
+-/
+theorem subInPlace_eq (u b : Array Digit) (off len : Nat) (hfits : off + len ≤ u.size) :
+    subInPlace u b off len
+      = (copyInto u (subLoop (u.extract off (off+len)) b len).1 off len,
+         (subLoop (u.extract off (off+len)) b len).2) := by
+  obtain ⟨hsz, hk, hdig, hout⟩ :=
+    subInPlace_spec u b (u.extract off (off+len)) off len hfits
+      (fun i hi => getD_extract u off (off+len) i (by omega) (by omega))
+  refine Prod.ext ?_ hk
+  refine array_ext_getD (by rw [hsz, size_copyInto]) (fun i => ?_)
+  rcases Nat.lt_or_ge i off with h | h
+  · rw [hout i (by omega), getD_copyInto_of_lt _ _ _ _ _ h]
+  rcases Nat.lt_or_ge i (off + len) with h2 | h2
+  · obtain ⟨t, ht⟩ : ∃ t, i = off + t := ⟨i - off, by omega⟩
+    subst ht
+    rw [hdig t (by omega), getD_copyInto_mid _ _ _ _ _ (by omega) (by omega) (by omega),
+      Nat.add_sub_cancel_left]
+  · rw [hout i (by omega), getD_copyInto_of_ge _ _ _ _ _ h2]
+
 /--
 One step of `div_n`: it writes the true quotient digit and leaves the window
 holding the partial remainder, which is below the divisor.
@@ -2387,12 +2496,18 @@ theorem divNStep_spec (denom u quot : Array Digit) (j k m : Nat)
   obtain ⟨dw, hdw⟩ : ∃ x, x = sub (u.extract j (j + denom.size + 1)) ms := ⟨_, rfl⟩
   obtain ⟨u1, hu1⟩ : ∃ x, x = copyInto u dw.1 j (denom.size + 1) := ⟨_, rfl⟩
   rw [← hq] at hq1 hq2
+  -- the in-place subtraction agrees with subtracting into a fresh buffer
+  have hip : subInPlace u ms j (denom.size + 1) = (u1, dw.2) := by
+    have hdwl : dw = subLoop (u.extract j (j + (denom.size + 1))) ms (denom.size + 1) := by
+      rw [hdw, show j + denom.size + 1 = j + (denom.size + 1) from by omega]
+      exact sub_eq_subLoop _ _ _ (by simp; omega) (by rw [hms, size_mul]; exact Nat.add_comm _ _)
+    rw [subInPlace_eq u ms j (denom.size + 1) (by omega), hu1, hdwl]
   have hstep : divNStep denom (u, quot) j =
       if dw.2 != 0 then
         (copyInto u1 (add denom (u1.extract j (j + denom.size + 1))) j (denom.size + 1),
          quot.set! j (q - 1))
       else (u1, quot.set! j q) := by
-    simp only [divNStep, ← hq, ← hms, ← hdw, ← hu1]
+    simp only [divNStep, ← hq, ← hms, hip]
   -- the subtraction
   have hmssz : ms.size = 1 + denom.size := by rw [hms]; exact size_mul ..
   have hmsval : denote ms = q.toNat * denote denom := by

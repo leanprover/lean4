@@ -71,6 +71,7 @@ int main(int argc, char ** argv) {
         if (A >= B) emit("sub", A - B);
         else emit("sub", mpz(0u));
         emit("mul", A * B);
+        emit("pow", A.pow(k % 5));
         if (!(B == mpz(0u))) {
             emit("div", A / B);
             emit("mod", A % B);

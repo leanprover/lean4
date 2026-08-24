@@ -2601,6 +2601,10 @@ divisor digit. `mpz` is what establishes them, by keeping every value in a
 normalized shape and by sizing the buffers it hands to `mpn`. Bundling that
 shape into a type discharges the preconditions once, structurally, instead of
 assuming them at each use.
+`pow` is the one routine here that is not a wrapper around `mpn`: it squares and
+multiplies through `Num.mul`. `Num.val_pow` covers it, and being a well-founded
+recursion on the exponent it terminates by construction, which the loop in
+`mpz.cpp` did not for exponents at or above `2^31`.
 -/
 
 /--
@@ -3094,6 +3098,79 @@ theorem Num.val_gcd (a b : Num) : (a.gcd b).val = Nat.gcd a.val b.val := by
   · rw [Num.val_gcdLoop, Nat.gcd_comm]
   · rw [Num.val_gcdLoop]
 
+/-- `mpz(1)`. -/
+def Num.one : Num := ⟨#[1], by simp, by simp⟩
+
+@[simp] theorem Num.val_one : Num.one.val = 1 := denote_singleton 1
+
+private theorem toNat_shiftRight_one (p : Digit) : (p >>> 1).toNat = p.toNat / 2 := by
+  rw [UInt32.toNat_shiftRight, show (1 : Digit).toNat % 32 = 1 from rfl,
+    Nat.shiftRight_eq_div_pow, Nat.pow_one]
+
+private theorem toNat_and_one (p : Digit) : (p &&& 1).toNat = p.toNat % 2 := by
+  rw [UInt32.toNat_and, show (1 : Digit).toNat = 1 from rfl, Nat.and_one_is_mod]
+
+/-- `result *= power` for a set low bit, the body of `pow`'s `if (p & 1)`. -/
+def Num.powMul (power result : Num) (p : Digit) : Num :=
+  if p &&& 1 = 1 then result.mul power else result
+
+/--
+`pow`'s loop: consume the exponent's bits from the bottom, multiplying `power`
+into `result` where a bit is set and squaring it for the next bit. The squaring
+is skipped once the remaining exponent is zero, as in `mpz.cpp`.
+-/
+def Num.powLoop (power result : Num) (p : Digit) : Num :=
+  if p = 0 then result
+  else if p >>> 1 = 0 then Num.powMul power result p
+  else Num.powLoop (power.mul power) (Num.powMul power result p) (p >>> 1)
+termination_by p.toNat
+decreasing_by
+  rename_i hne _
+  rw [toNat_shiftRight_one]
+  have : p.toNat ≠ 0 := fun h0 => hne (UInt32.toNat_inj.mp (by rw [h0]; rfl))
+  omega
+
+/-- `pow`: square and multiply, starting from `mpz(1)`. -/
+def Num.pow (a : Num) (p : Digit) : Num := Num.powLoop a Num.one p
+
+theorem Num.val_powMul (power result : Num) (p : Digit) :
+    (Num.powMul power result p).val = result.val * power.val ^ (p.toNat % 2) := by
+  rw [Num.powMul]
+  split <;> rename_i hb
+  · have : p.toNat % 2 = 1 := by rw [← toNat_and_one, hb]; rfl
+    rw [this, Num.val_mul, Nat.pow_one]
+  · have h1 : (p &&& 1).toNat ≠ 1 := fun hx => hb (UInt32.toNat_inj.mp (by rw [hx]; rfl))
+    have h2 := toNat_and_one p
+    have : p.toNat % 2 = 0 := by omega
+    rw [this, Nat.pow_zero, Nat.mul_one]
+
+theorem Num.val_powLoop (power result : Num) (p : Digit) :
+    (Num.powLoop power result p).val = result.val * power.val ^ p.toNat := by
+  rw [Num.powLoop]
+  split <;> rename_i h
+  · subst h; simp
+  · have hp : p.toNat ≠ 0 := fun h0 => h (UInt32.toNat_inj.mp (by rw [h0]; rfl))
+    split <;> rename_i h1
+    · have h2 : p.toNat / 2 = 0 := by rw [← toNat_shiftRight_one, h1]; rfl
+      rw [Num.val_powMul]
+      have : p.toNat % 2 = p.toNat := by omega
+      rw [this]
+    · rw [Num.val_powLoop, Num.val_powMul, toNat_shiftRight_one, Num.val_mul,
+        Nat.mul_pow, ← Nat.pow_add, Nat.mul_assoc, ← Nat.pow_add]
+      have : p.toNat % 2 + (p.toNat / 2 + p.toNat / 2) = p.toNat := by omega
+      rw [this]
+termination_by p.toNat
+decreasing_by
+  rename_i hne _
+  rw [toNat_shiftRight_one]
+  have : p.toNat ≠ 0 := fun h0 => hne (UInt32.toNat_inj.mp (by rw [h0]; rfl))
+  omega
+
+/-- `pow` raises to a power. It terminates for every exponent, including `2^31`
+and above, where the `mpz.cpp` loop this replaces used to spin forever. -/
+theorem Num.val_pow (a : Num) (p : Digit) : (a.pow p).val = a.val ^ p.toNat := by
+  rw [Num.pow, Num.val_powLoop, Num.val_one, Nat.one_mul]
+
 /-!
 ## Differential testing against `Nat`
 
@@ -3250,6 +3327,7 @@ def emitNum (trials : Nat) (maxLen : Nat) (seed : UInt64) : IO Unit := do
     IO.println s!"add {(A.add B).val}"
     IO.println s!"sub {(A.sub B).val}"
     IO.println s!"mul {(A.mul B).val}"
+    IO.println s!"pow {(A.pow (k % 5).toUInt32).val}"
     if B.val != 0 then
       IO.println s!"div {(A.div B).val}"
       IO.println s!"mod {(A.mod B).val}"
@@ -3276,6 +3354,14 @@ def mpnCheck : IO Unit := do
     let fs := Test.run trials seed maxLen
     failures := failures + fs.size
     for f in fs.extract 0 5 do IO.println f
+  for p in [0x80000000, 0xFFFFFFFF] do
+    let e := (p : Nat).toUInt32
+    if (Num.one.pow e).val != 1 then
+      failures := failures + 1
+      IO.println s!"pow: 1^{p} gave {(Num.one.pow e).val}"
+    if ((Num.ofArray! #[0]).pow e).val != 0 then
+      failures := failures + 1
+      IO.println s!"pow: 0^{p} gave {((Num.ofArray! #[0]).pow e).val}"
   IO.println s!"mpn: {failures} disagreements with Nat"
 
 end Mpn

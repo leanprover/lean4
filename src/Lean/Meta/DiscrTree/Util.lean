@@ -51,7 +51,21 @@ partial def size : Trie α → Nat
     children.foldl (init := vs.size) fun n (_, c) => n + size c
 
 /--
-Checks that a trie node has no values and no children.
+Returns the values stored at the current trie node.
+Equivalent to `t.asNode.1`.
+-/
+def nodeValues : Trie α → Array α
+  | .node vs _ => vs
+
+/--
+Returns the child nodes of the current trie node.
+Equivalent to `t.asNode.2`.
+-/
+def nodeChildren : Trie α → Array (Key × Trie α)
+  | .node _ cs => cs
+
+/--
+Checks whether a trie node is empty (no values and no children).
 
 This is only a check for actual trie emptiness (`t.size = 0`) if all operations maintain the
 invariant that no trie node has an empty child node.

@@ -1,0 +1,13 @@
+name = "codegen"
+defaultTargets = ["codegen"]
+
+[leanOptions]
+experimental.module = true
+compiler.postponeCompile = true
+
+[[lean_lib]]
+name = "Test"
+
+[[lean_exe]]
+name = "codegen"
+root = "Main"

@@ -70,14 +70,11 @@ inductive BaseFoo (t : Type u -> Type v) (α : Type u)
 
 /--
 error: (kernel) application type mismatch
-  Eq.trans (congrArg (Nat.add 1) (Foo3._sizeOf_3_eq v))
-    (Eq.symm
-      (@BaseFoo.some.sizeOf_spec Box Foo3 (fun a => @Box._sizeOf_inst a (instSizeOfDefault a)) Foo3._sizeOf_inst v))
+  Eq.trans (congrArg (Nat.add 1) (Foo3._sizeOf_3_eq v)) (Eq.symm (BaseFoo.some.sizeOf_spec v))
 argument has type
-  1 + sizeOf v = sizeOf (@BaseFoo.some Box Foo3 v)
+  1 + sizeOf v = sizeOf (BaseFoo.some v)
 but function has type
-  Nat.add 1 (sizeOf v) = sizeOf (@BaseFoo.some Box Foo3 v) →
-    Nat.add 1 (Foo3._sizeOf_3 v) = sizeOf (@BaseFoo.some Box Foo3 v)
+  Nat.add 1 (sizeOf v) = sizeOf (BaseFoo.some v) → Nat.add 1 (Foo3._sizeOf_3 v) = sizeOf (BaseFoo.some v)
 -/
 #guard_msgs(pass trace, all) in
 structure Foo3 where

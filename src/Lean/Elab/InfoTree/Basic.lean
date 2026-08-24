@@ -91,6 +91,16 @@ def InfoState.substituteLazy (s : InfoState) : Task InfoState :=
     lazyAssignment := {}
   }
 
+structure LinterInfoGroup where
+  deriving TypeName
+
+def mkLinterInfoGroupNode (trees : PersistentArray InfoTree) : InfoTree :=
+  InfoTree.node (Info.ofCustomInfo { stx := .missing, value := Dynamic.mk (⟨⟩ : LinterInfoGroup) }) trees
+
+def pushInfoChild : InfoTree → InfoTree → InfoTree
+  | .context ctx (.node i cs), child => .context ctx (.node i (cs.push child))
+  | t, _ => t
+
 def Info.toElabInfo? : Info → Option ElabInfo
   | ofTacticInfo i         => some i.toElabInfo
   | ofTermInfo i           => some i.toElabInfo

@@ -213,7 +213,7 @@ jobs:
         name: Upload Lake Cache
         # Caching on cancellation created some mysterious issues perhaps related to improper build
         # shutdown. Also, since this needs access to secrets, it cannot be run on forks.
-        if: matrix.name == 'Linux release' && !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        if: matrix.lake-cache && !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         run: |
           curl --version
           cd src
@@ -283,12 +283,31 @@ jobs:
         run: |
           build/$TARGET_STAGE/bin/lean --stats src/Lean.lean
         if: ${{ !matrix.cross }}
+      # Tests must not write into the checked-in source tree; scratch output belongs in an
+      # ignored path. Making tracked files read-only catches a test that edits one even if it
+      # restores the file afterwards, which the tree comparison below cannot see.
+      - name: Protect Source Tree
+        run: |
+          git status --porcelain -unormal | sort > "$RUNNER_TEMP/tree-before"
+          git ls-files -z | xargs -0 chmod a-w
+        if: matrix.test
       - name: Test
         id: test
         run: |
           ulimit -c unlimited  # coredumps
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/$TARGET_STAGE -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
         if: matrix.test
+      # restore write access before any later step (stage 2, benchmarks, `update-stage0`) runs
+      - name: Unprotect Source Tree
+        run: git ls-files -z | xargs -0 chmod u+w
+        if: always() && matrix.test
+      - name: Check Source Tree Clean
+        run: |
+          git status --porcelain -unormal | sort > "$RUNNER_TEMP/tree-after"
+          diff -u "$RUNNER_TEMP/tree-before" "$RUNNER_TEMP/tree-after" && exit 0
+          echo "::error::the test suite left files in the checked-in source tree; write them to an ignored path instead"
+          exit 1
+        if: matrix.test && steps.test.conclusion != 'skipped'
       # copy failed tests' output into the `<failure>` elements shown by the test summary
       - name: Embed Test Output
         run: |
@@ -322,8 +341,14 @@ jobs:
           git config user.email "stage0@lean-fro.org"
           git config user.name "update-stage0"
           make -C build update-stage0
-          git commit --allow-empty -m "chore: update-stage0"
+          # An empty commit changes `Lean.githash` without changing the stage0 tree hash that keys
+          # Lake's traces, leaving stage 1 `.olean`s stale with respect to the rebuilt binaries. If
+          # stage0 is unchanged, there is nothing to rebootstrap anyway, so exit early.
+          git diff --cached --quiet -- stage0 && exit 0 || git commit -m "chore: update-stage0"
           time make -C build -j$NPROC
+          # Set Lake's githash to the new stage0 hash used during the build (for the tests).
+          # Updating `GITHUB_ENV` would only apply to future steps (which do not need it).
+          export LEAN_GITHASH=$(cat build/stage1/lake-githash)
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC
         if: matrix.check-rebootstrap
       - name: CCache stats

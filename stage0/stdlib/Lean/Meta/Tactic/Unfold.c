@@ -40,7 +40,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_applySimpResultToLocalDecl(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
@@ -1425,7 +1425,7 @@ goto v_reusejp_424_;
 v_reusejp_424_:
 {
 lean_object* v___x_426_; lean_object* v___x_427_; 
-v___x_426_ = lean_st_ref_set(v___y_407_, v___x_425_);
+v___x_426_ = lean_st_ref_put(v___y_407_, v___x_425_);
 v___x_427_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_427_, 0, v_fst_414_);
 return v___x_427_;
@@ -1948,14 +1948,14 @@ return v_res_640_;
 LEAN_EXPORT lean_object* l_panic___at___00Lean_Meta_unfoldLocalDecl_spec__0(lean_object* v_msg_642_, lean_object* v___y_643_, lean_object* v___y_644_, lean_object* v___y_645_, lean_object* v___y_646_){
 _start:
 {
-lean_object* v___f_648_; lean_object* v___x_976__overap_649_; lean_object* v___x_650_; 
+lean_object* v___f_648_; lean_object* v___x_784__overap_649_; lean_object* v___x_650_; 
 v___f_648_ = ((lean_object*)(l_panic___at___00Lean_Meta_unfoldLocalDecl_spec__0___closed__0));
-v___x_976__overap_649_ = lean_panic_fn_borrowed(v___f_648_, v_msg_642_);
+v___x_784__overap_649_ = lean_panic_fn_borrowed(v___f_648_, v_msg_642_);
 lean_inc(v___y_646_);
 lean_inc_ref(v___y_645_);
 lean_inc(v___y_644_);
 lean_inc_ref(v___y_643_);
-v___x_650_ = lean_apply_5(v___x_976__overap_649_, v___y_643_, v___y_644_, v___y_645_, v___y_646_, lean_box(0));
+v___x_650_ = lean_apply_5(v___x_784__overap_649_, v___y_643_, v___y_644_, v___y_645_, v___y_646_, lean_box(0));
 return v___x_650_;
 }
 }
@@ -2761,11 +2761,13 @@ return v_res_926_;
 lean_object* runtime_initialize_Lean_Meta_Tactic_Delta(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Simp_Main(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_WHNF(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Unfold(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Delta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

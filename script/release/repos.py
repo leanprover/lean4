@@ -202,6 +202,9 @@ MATHLIB4 = ReleaseRepo(
     rc1_pr_base="bump",
     release_tag="lean",
     stable_branch="stable",
+    # There needs to be a tagged release for patch releases so that the mathlib
+    # cache is available for the new toolchain.
+    patch_release=True,
     strong_deps=[BATTERIES, QUOTE4, AESOP, PROOFWIDGETS4, IMPORT_GRAPH, PLAUSIBLE],
 )
 _register(MATHLIB4)
@@ -224,6 +227,10 @@ CSLIB = ReleaseRepo(
     rc1_pr_base="bump",
     release_tag="lean",
     stable_branch="stable",
+    # If there's a tagged mathlib patch release, there should be an equivalent
+    # tagged cslib release with bumped mathlib. All the other deps should stay
+    # the same.
+    patch_release=True,
     strong_deps=[MATHLIB4],
 )
 _register(CSLIB)
@@ -393,6 +400,10 @@ DOC_GEN4 = ReleaseRepo(
     github=("leanprover", "doc-gen4"),
     rc1_pr_base="downstream",
     release_tag="lean",
+    # https://github.com/leanprover-community/docgen-action/ uses the toolchain
+    # version to determine the doc-gen4 version to use, so there needs to be a
+    # tagged release for patch releases as well.
+    patch_release=True,
     strong_deps=[BIBTEX_QUERY, LEAN4_UNICODE_BASIC, LEAN4_CLI, LEANSQLITE],
     # Doc-gen4 shouldn't lag behind mathlib if possible because of downstream
     # users, and doc-gen4 benchmarks failing for a short while is an acceptable

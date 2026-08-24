@@ -8,7 +8,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4 CACHE STRING "")
-set(LEAN_VERSION_MINOR 34 CACHE STRING "")
+set(LEAN_VERSION_MINOR 35 CACHE STRING "")
 set(LEAN_VERSION_PATCH 0 CACHE STRING "")
 set(LEAN_VERSION_IS_RELEASE 0 CACHE STRING "") # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -108,6 +108,9 @@ option(LAZY_RC "LAZY_RC" OFF)
 option(RUNTIME_STATS "RUNTIME_STATS" OFF)
 option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared libraries (Linux)" ON)
 option(USE_GMP "USE_GMP" ON)
+# GMP versions before 6.3.0 contain bugs that can make Lean produce unsound results.
+# When ON, build against whatever GMP is available even if it is older than 6.3.0.
+option(FORCE_GMP "Build against the available GMP even if older than the required 6.3.0" OFF)
 option(USE_MIMALLOC "use mimalloc" ON)
 set(LEAN_MI_SECURE 0 CACHE STRING "Configure mimalloc memory safety mitigations (https://github.com/microsoft/mimalloc/blob/v2.2.7/include/mimalloc/types.h#L56-L60)")
 
@@ -298,8 +301,47 @@ if(USE_GMP MATCHES "ON")
     include_directories(${GMP_INSTALL_PREFIX}/include)
     set(GMP_LIBRARIES "${GMP_INSTALL_PREFIX}/lib/libgmp.a")
   else()
-    # GMP
-    find_package(GMP 5.0.5 REQUIRED)
+    # GMP. Versions before 6.3.0 contain bugs that can make Lean produce unsound
+    # results, so require 6.3.0 unless the user opts out via FORCE_GMP.
+    if(FORCE_GMP)
+      find_package(GMP REQUIRED)
+      if(NOT GMP_VERSION OR GMP_VERSION VERSION_LESS 6.3.0)
+        if(GMP_VERSION)
+          set(_gmp_forced_version "GMP ${GMP_VERSION}")
+        else()
+          set(_gmp_forced_version "a GMP whose version could not be determined")
+        endif()
+        message(WARNING
+          "FORCE_GMP is set: building against ${_gmp_forced_version}, which does not meet the "
+          "required GMP 6.3.0. Versions before 6.3.0 contain bugs that can cause Lean to produce "
+          "UNSOUND (i.e., INCORRECT) results in corner cases. Independent kernels that do not depend "
+          "on GMP will catch the unsoundness. Build only if you understand the risk.")
+      endif()
+    else()
+      find_package(GMP 6.3.0)
+      # An undetermined version is conservatively treated as too old;
+      # find_package would otherwise accept it since VERSION_VAR is empty.
+      if(NOT GMP_FOUND OR NOT GMP_VERSION)
+        if(NOT GMP_INCLUDE_DIR)
+          set(_gmp_detail "no GMP was found")
+        elseif(GMP_VERSION)
+          set(_gmp_detail "found GMP ${GMP_VERSION}")
+        elseif(NOT PKG_CONFIG_FOUND)
+          set(_gmp_detail "found a GMP, but no pkg-config to read its version with")
+        else()
+          set(_gmp_detail "found a GMP, but no `gmp.pc` reporting its version")
+        endif()
+        message(FATAL_ERROR
+          "Lean requires GMP 6.3.0 or newer (${_gmp_detail}). "
+          "GMP versions before 6.3.0 contain bugs that can cause Lean to produce UNSOUND "
+          "(i.e., INCORRECT) results in corner cases. Independent kernels that do not depend on GMP "
+          "will catch the unsoundness.\n"
+          "Choose one of:\n"
+          "  * Install GMP >= 6.3.0, then reconfigure; or\n"
+          "  * -DUSE_GMP=OFF   use Lean's built-in bignum implementation (safest; some performance cost); or\n"
+          "  * -DFORCE_GMP=ON  build against the GMP that is present anyway (NOT recommended: Lean may produce unsound results).")
+      endif()
+    endif()
     include_directories(${GMP_INCLUDE_DIR})
   endif()
   if(NOT LEAN_STANDALONE)
@@ -627,7 +669,7 @@ endif()
 
 # The stage0 tree hash. For non-release builds this is embedded as `Lean.githash`.
 # It is also the githash Lake always needs to use for its traces. It is passed via `LEAN_GITHASH`
-# in `stdlib.make` and propagated to the cache steps by CI. This esnures that stage1 `.olean`s stay
+# in `stdlib.make` and propagated to the cache steps by CI. This ensures that stage1 `.olean`s stay
 # reusable across commits that do not touch stage0.
 execute_process(
   COMMAND git rev-parse HEAD:stage0
@@ -1121,10 +1163,16 @@ function(toml_escape IN OUTVAR)
 endfunction()
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_CC "${LEANC_CC}")
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_FLAGS "${LEANC_INTERNAL_FLAGS}")
-string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_LINKER_FLAGS "${LEANC_INTERNAL_LINKER_FLAGS}")
 
 toml_escape("${LEAN_EXTRA_OPTS}" LEAN_EXTRA_OPTS_TOML)
-toml_escape("${LEANC_EXTRA_CC_FLAGS} ${LEANC_INTERNAL_FLAGS} ${LEANC_INTERNAL_LINKER_FLAGS}" LEAN_MORE_LEANC_ARGS_TOML)
+toml_escape("${LEANC_EXTRA_CC_FLAGS}" LEAN_MORE_LEANC_ARGS_TOML)
+# These are passed as untraced arguments because they include the sysroot path.
+# However, as they are untraced, Lake will not invalidate build artifacts if the sysroot changes.
+# As such, care must be taken when changing sysroots. Locally, artifacts can be manually cleaned via
+# `clean-stdlib` and `lake cache clean`. In CI, this behavior is currently desirable. The portable
+# release build populates the cache, and non-release builds using the host sysroot consume it.
+# If this changed or reversed, the setup here would also need changing.
+toml_escape("${LEANC_INTERNAL_FLAGS}" LEAN_WEAK_LEANC_ARGS_TOML)
 
 if(CMAKE_BUILD_TYPE MATCHES "Debug|Release|RelWithDebInfo|MinSizeRel")
   set(CMAKE_BUILD_TYPE_TOML "${CMAKE_BUILD_TYPE}")

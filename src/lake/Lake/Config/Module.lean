@@ -209,8 +209,10 @@ public def dynlibSuffix := "-1"
 @[inline] public def weakLinkArgs (self : Module) : Array String :=
   self.lib.weakLinkArgs
 
-@[inline] public def leanIncludeDir? (self : Module) : Option FilePath :=
-  self.pkg.leanIncludeDir?
+/-- **For internal use only.** -/
+@[inline, deprecated "Deprecated without replacement." (since := "2026-08-19")]
+public def leanIncludeDir? (self : Module) : Option FilePath :=
+  if self.pkg.bootstrap then some <| self.pkg.bootstrapIncludeDir else none
 
 @[inline] public def platformIndependent (self : Module) : Option Bool :=
   self.lib.platformIndependent

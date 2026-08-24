@@ -344,8 +344,8 @@ jobs:
                 // * `pkg/|lake/` tests sometimes time out (likely even hang), related to Lake CI
                 //   failures?
                 // * `kernelMaxRecDepth` stack-overflows in the interpreter.
-                // * `elab_bench` is too expensive to run with fsanitize (also can e.g. stack overflow).
-                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|elab_bench/'"
+                // * `*bench` is too expensive to run with fsanitize (also can e.g. stack overflow).
+                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/'"
               },
               {
                 "name": "Linux tsanitize",

@@ -38,7 +38,7 @@ open Nat
 @[simp, grind =] theorem eraseP_nil : [].eraseP p = [] := rfl
 
 @[grind =] theorem eraseP_cons {a : α} {l : List α} :
-    (a :: l).eraseP p = bif p a then l else a :: l.eraseP p := rfl
+    (a :: l).eraseP p = if p a then l else a :: l.eraseP p := rfl
 
 @[simp] theorem eraseP_cons_of_pos {l : List α} {p} (h : p a) : (a :: l).eraseP p = l := by
   simp [eraseP_cons, h]
@@ -55,7 +55,7 @@ theorem eraseP_of_forall_not {l : List α} (h : ∀ a, a ∈ l → ¬p a) : l.er
   induction xs with
   | nil => simp
   | cons x xs ih =>
-    simp only [eraseP_cons, cond_eq_ite]
+    simp only [eraseP_cons]
     split <;> rename_i h
     · simp only [reduceCtorEq, cons.injEq, false_or]
       constructor
@@ -175,8 +175,7 @@ theorem eraseP_filterMap {f : α → Option β} : ∀ {l : List α},
       rw [h, eraseP_cons]
       by_cases w : p b
       · simp [w]
-      · simp only [w, cond_false]
-        rw [filterMap_cons_some h, eraseP_filterMap]
+      · simp [w, filterMap_cons_some h, eraseP_filterMap]
 
 @[grind =]
 theorem eraseP_filter {f : α → Bool} {l : List α} :
@@ -322,6 +321,7 @@ theorem eraseP_eq_eraseIdx {xs : List α} {p : α → Bool} :
     · simp [h]
     · simp only [h]
       rw [ih]
+      simp only [Bool.false_eq_true, ↓reduceIte]
       split <;> simp [*]
 
 /-! ### erase -/
@@ -349,7 +349,6 @@ theorem erase_eq_eraseP' (a : α) (l : List α) : l.erase a = l.eraseP (· == a)
   · simp
   next b t ih =>
     rw [erase_cons, eraseP_cons, ih]
-    if h : b == a then simp [h] else simp [h]
 
 -- The arguments are intentionally explicit.
 theorem erase_eq_eraseP [LawfulBEq α] (a : α) : ∀ (l : List α), l.erase a = l.eraseP (a == ·)

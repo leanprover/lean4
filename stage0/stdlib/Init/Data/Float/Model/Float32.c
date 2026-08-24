@@ -197,12 +197,12 @@ return v___x_3_;
 LEAN_EXPORT lean_object* l_Float32_instDecidableEqModel_decEq___boxed(lean_object* v_x_4_, lean_object* v_x_5_){
 _start:
 {
-uint32_t v_x_33__boxed_6_; uint32_t v_x_34__boxed_7_; uint8_t v_res_8_; lean_object* v_r_9_; 
-v_x_33__boxed_6_ = lean_unbox_uint32(v_x_4_);
+uint32_t v_x_39__boxed_6_; uint32_t v_x_40__boxed_7_; uint8_t v_res_8_; lean_object* v_r_9_; 
+v_x_39__boxed_6_ = lean_unbox_uint32(v_x_4_);
 lean_dec(v_x_4_);
-v_x_34__boxed_7_ = lean_unbox_uint32(v_x_5_);
+v_x_40__boxed_7_ = lean_unbox_uint32(v_x_5_);
 lean_dec(v_x_5_);
-v_res_8_ = l_Float32_instDecidableEqModel_decEq(v_x_33__boxed_6_, v_x_34__boxed_7_);
+v_res_8_ = l_Float32_instDecidableEqModel_decEq(v_x_39__boxed_6_, v_x_40__boxed_7_);
 v_r_9_ = lean_box(v_res_8_);
 return v_r_9_;
 }
@@ -1284,11 +1284,13 @@ lean_object* runtime_initialize_Init_Data_Float_Model_Format_Valid(uint8_t built
 lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Pack_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Operations(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Order_Factories(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Float_Model_Float32(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Float_Model_Format_Valid(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

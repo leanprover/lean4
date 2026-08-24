@@ -18,7 +18,7 @@ namespace Lean
 Enables the 'unnecessary `simpa`' linter. This will report if a use of
 `simpa` could be proven using `simp` or `simp at h` instead.
 -/
-register_option linter.unnecessarySimpa : Bool := {
+register_builtin_option linter.unnecessarySimpa : Bool := {
   defValue := true
   descr := "enable the 'unnecessary simpa' linter"
 }

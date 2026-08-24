@@ -2,13 +2,13 @@ module
 
 import Lean
 import Std.Tactic.Do
-public import Std.Internal.Do
-import Std.Internal.Do.Triple.SpecLemmas
-public meta import Lean.Elab.Tactic.Do.Internal.VCGen.FrameProc
-public meta import Lean.Elab.Tactic.Do.Internal.VCGen.FrameProcAttr
-public meta import Lean.Elab.Tactic.Do.Internal.VCGen.RuleConstruction
+public import Std.WP
+import Std.WP.Triple.SpecLemmas
+public meta import Lean.Elab.Tactic.VCGen.FrameProc
+public meta import Lean.Elab.Tactic.VCGen.FrameProcAttr
+public meta import Lean.Elab.Tactic.VCGen.RuleConstruction
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 open Lean.Order
 
@@ -200,7 +200,7 @@ section MvcgenSetup
 
 variable [ExecTraceTypes] [ProofTraceTypes]
 
-open Std.Internal.Do
+open Std.WP
 open Lean.Order
 
 public
@@ -263,7 +263,7 @@ instance (r : TraceProp): Lean.Order.PreservesSup (Lean.Order.meet r) where
       exact ⟨hytr.1, ⟨x, hx, hytr.2⟩⟩
 
 public
-instance: WPMonad Traceful TraceProp EPost⟨⟩ where
+instance: WPMonad Traceful TraceProp EStack⟨⟩ where
   toWP α := {
     wpTrans f := ⟨fun post _epost => ⟨
       fun trProof =>
@@ -278,7 +278,7 @@ instance: WPMonad Traceful TraceProp EPost⟨⟩ where
     ⟩⟩
 
     wp_trans_monotone x := by
-      simp only [Std.Internal.Do.PredTrans.monotone, Lean.Order.PartialOrder.rel]
+      simp only [Lean.Order.PredTrans.monotone, Lean.Order.PartialOrder.rel]
       grind
   }
 
@@ -328,7 +328,7 @@ theorem Always'_implies_self
 
 grind_pattern Always'_implies_self => Always' p ⟨ tr, h_inv ⟩
 
-open Std.Internal.Do
+open Std.WP
 open Lean.Order
 
 theorem always_frame
@@ -338,7 +338,7 @@ theorem always_frame
   (p: ProofTrace → Prop)
   : WP.Frames Lean.Order.meet f (Always' p)
 where
-  conj_wp_le_wp_conj Q E := by
+  op_wp_le_wp_op Q E := by
     simp only [PartialOrder.rel, my_meet_apply, and_imp, Subtype.forall]
     dsimp only [wp, Always', WP.wpTrans]
     simp [my_meet_apply]
@@ -362,7 +362,7 @@ grind_pattern always_meet => Always' p1 ⊓ Always' p2
 
 section DyLeanFrameProc
 open Lean Meta Elab Tactic Sym
-open Lean.Elab.Tactic.Do.Internal Lean.Elab.Tactic.Do.Internal.VCGen
+open Lean.Elab.Tactic.VCGen
 
 /-- Collect the `Always'` conjuncts of a precondition, descending through `⊓`. These are the frames
 that transport to any extension of the current trace. -/
@@ -376,24 +376,28 @@ public meta partial def collectAlways (e : Expr) : Array Expr :=
 
 /-- Frame inference for `Traceful`: gather the precondition's `Always' pᵢ` conjuncts and frame by a
 single `Always'` over their conjunction, `Always' (fun tr => p₁ tr ∧ … ∧ pₙ tr)`. -/
-public meta def dyLeanFrameProc : FrameInferenceProc := fun _R pre _info _specPre => do
-  match (collectAlways pre).toList with
-  | [] => return none
-  | [single] => return some single
-  | a :: rest =>
-    let preds := (a :: rest).map (·.appArg!)
-    let domTy := (← Meta.inferType preds.head!).bindingDomain!
-    let combined ← Meta.withLocalDeclD `tr domTy fun tr => do
-      let last :: initRev := (preds.map (fun p => (mkApp p tr).headBeta)).reverse | unreachable!
-      Meta.mkLambdaFVars #[tr] (initRev.foldl (fun acc x => mkApp (mkApp (mkConst ``And) x) acc) last)
-    return some (← shareCommon (mkApp a.appFn! combined))
+public meta def dyLeanFrameProc : FrameInferenceProc := fun i => do
+  let frame ← do
+    match i.providedFrame? with
+    | some frame => pure frame
+    | none => match (collectAlways i.pre).toList with
+      | [] => return .decline
+      | [single] => pure single
+      | a :: rest =>
+        let preds := (a :: rest).map (·.appArg!)
+        let domTy := (← Meta.inferType preds.head!).bindingDomain!
+        let combined ← Meta.withLocalDeclD `tr domTy fun tr => do
+          let last :: initRev := (preds.map (fun p => (mkApp p tr).headBeta)).reverse | unreachable!
+          Meta.mkLambdaFVars #[tr] (initRev.foldl (fun acc x => mkApp (mkApp (mkConst ``And) x) acc) last)
+        pure (← shareCommon (mkApp a.appFn! combined))
+  return .ofFrame i frame
 
 @[frameproc] public meta def dyLeanFP : FrameProc where
   prog := ``Traceful
   mkOpAppM := fun info => Meta.mkAppOptM ``Lean.Order.meet #[info.Pred, none]
-  resourceTy := fun info => pure info.Pred
-  op := { head := ``Lean.Order.meet }
-  proc := some dyLeanFrameProc
+  mkResourceTy := fun info => pure info.Pred
+  opHead := ``Lean.Order.meet
+  proc := dyLeanFrameProc
 end DyLeanFrameProc
 
 variable [ExecTraceTypes]
@@ -414,20 +418,20 @@ variable [ProofTraceTypes]
 @[spec]
 axiom receiveMessage.spec
   (handle: Nat)
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (receiveMessage handle)
       (⊤)
       (fun msg => Always' (fun tr => msg.Publishable tr) )
-      epost⟨⟩
+      estack⟨⟩
 
 @[spec]
 axiom sendMessage.spec
   (msg: Bytes)
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (sendMessage msg)
       (⟨fun tr => msg.Publishable tr.val⟩)
       (fun _ => ⊤)
-      epost⟨⟩
+      estack⟨⟩
 
 @[spec_invariant_type]
 structure RandUsageAndLabel where
@@ -439,47 +443,47 @@ opaque RandGeneratedLast: ProofTrace → Bytes → Prop
 @[spec]
 axiom genRand.spec
   (size: Nat) (usageAndLabel: RandUsageAndLabel)
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (genRand size)
       (⟨ fun _ => True ⟩)
       (fun res => Always' (fun tr => res.label tr = usageAndLabel.label res) ⊓
         ⟨ fun tr => RandGeneratedLast tr.val res ⟩)
-      epost⟨⟩
+      estack⟨⟩
 
 @[spec]
 axiom skip.spec
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (skip)
       (⟨ fun _ => True ⟩)
       (fun _ => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 
 @[spec]
 axiom requireRandJustGenerated.spec
   (msg: Bytes)
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (requireRandJustGenerated msg)
       (⟨ fun tr => RandGeneratedLast tr.val msg ⟩)
       (fun _ => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 
 @[spec]
 axiom requireLabelPub.spec
   (msg: Bytes)
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (requireLabelPub msg)
       (⟨ fun tr => msg.label tr.val = Label.pub ⟩)
       (fun _  => ⟨ fun _ => True ⟩ )
-      epost⟨⟩
+      estack⟨⟩
 
 @[spec]
 axiom requireLabelSecret.spec
   (msg: Bytes)
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (requireLabelSecret msg)
       (⟨ fun tr => msg.label tr.val = Label.secret ⟩)
       (fun _  => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 
 end TestSetup
 
@@ -631,7 +635,7 @@ def testBench40: Traceful Unit := do
   let _ ← sendMessage msg38
   let _ ← sendMessage msg39
 
-open Std.Internal.Do
+open Std.WP
 
 variable [ProofTraceTypes]
 
@@ -667,11 +671,11 @@ theorem blah5 {p q : TraceProp} (h : ∀ tr, p.val tr → q.val tr) : p ⊑ q :=
 
 theorem testNoNeedToFrame.spec
   (handle: Nat)
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (testNoNeedToFrame handle)
       (⟨ fun _ => True ⟩ )
       (fun _  => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 := by vcgen [testNoNeedToFrame] with finish
 
 set_option tactic.hygienic false
@@ -681,11 +685,11 @@ set_option tactic.hygienic false
 -- robust `try dsimp/intro/simp at pre; grind` sweep over the resulting frame side goals.
 theorem testFrameSimple.spec
   (handle: Nat)
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (testFrameSimple handle)
       (⟨ fun _ => True ⟩ )
       (fun _  => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 := by
   vcgen [testFrameSimple]
   all_goals try dsimp only [Lean.Order.PartialOrder.rel]
@@ -694,11 +698,11 @@ theorem testFrameSimple.spec
   all_goals grind
 
 theorem testNotAlways.spec
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (testNotAlways)
       (⟨ fun _ => True ⟩)
       (fun _  => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 := by
   vcgen [testNotAlways] invariants
   | inv1 => ⟨ "toto", fun _ => Label.pub ⟩
@@ -708,11 +712,11 @@ theorem testNotAlways.spec
   all_goals grind
 
 theorem testGhostPub.spec
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (testGhostPub)
       (⟨ fun _ => True ⟩)
       (fun _  => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 := by
   vcgen [testGhostPub] invariants
   | inv1 => ⟨"toto", fun _ => Label.pub⟩
@@ -722,11 +726,11 @@ theorem testGhostPub.spec
   all_goals grind
 
 theorem testGhostSecret.spec
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (testGhostSecret)
       (⟨ fun _ => True ⟩ )
       (fun _  => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 := by
   vcgen [testGhostSecret] invariants
   | inv1 => ⟨"toto", fun _ => Label.secret⟩
@@ -737,11 +741,11 @@ theorem testGhostSecret.spec
 
 theorem testMixed.spec
   (handle: Nat)
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (testMixed handle)
       (⟨ fun _ => True ⟩)
       (fun _  => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 := by
   vcgen [testMixed] invariants
   | inv1 => ⟨"toto", fun _ => Label.pub⟩
@@ -752,20 +756,20 @@ theorem testMixed.spec
   all_goals grind
 
 theorem testBench10.spec
-  : Std.Internal.Do.Triple
+  : Std.WP.Triple
       (testBench10)
       (⟨ fun _ => True ⟩)
       (fun _  => ⟨ fun _ => True ⟩)
-      epost⟨⟩
+      estack⟨⟩
 := by
   vcgen [testBench10] with finish
 
 -- theorem testBench40.spec
---   : Std.Internal.Do.Triple
+--   : Std.WP.Triple
 --       (testBench40)
 --       (⟨ fun _ => True ⟩)
 --       (fun _  => ⟨ fun _ => True ⟩)
---       epost⟨⟩
+--       estack⟨⟩
 -- := by
 --   vcgen [testBench40] with finish
 

@@ -521,17 +521,16 @@ stored in the cached input-to-content mapping.
 @[specialize] def getArtifactsUsingCache?
   [ResolveOutputs α] (inputHash : Hash) (pkg : Package)
 : JobM (Option α) := do
-  if let some out ← (← getLakeCache).readOutputs? pkg.cacheScope inputHash then
-    try
-      return some (← resolveOutputs out)
-    catch e =>
-      let log ← takeLogFrom e
-      let msg := s!"input '{inputHash.toString.take 7}' found in package artifact cache, \
-        but some output(s) have issues:"
-      let msg := log.entries.foldl (s!"{·}\n- {·.message}") msg
-      logWarning msg
-      return none
-  else
+  try
+    (← (← getLakeCache).readOutputs? pkg.cacheScope inputHash).mapM resolveOutputs
+  catch e =>
+    let log ← takeLogFrom e
+    let msg := s!"input '{inputHash.toString.take 7}' found in package artifact cache, \
+      but some output(s) have issues:"
+    let msg := log.entries.foldl (s!"{·}\n- {·.message}") msg
+    -- Must be `trace` to avoid breaking `--wfail` / `--iofail` builds
+    -- TODO: Figure out a way to split cache and build failures
+    logVerbose msg
     return none
 
 open ResolveOutputs in
@@ -606,7 +605,7 @@ public def resolveArtifact
         | .ok mtime =>
           return {descr, path, mtime}
         | .error e =>
-          error s!"downloaded succeeded, but artifact failed to resolve: {e}"
+          error s!"download succeeded, but artifact failed to resolve: {e}"
       else
         error s!"artifact cache service is not configured: {service}"
     else
@@ -852,45 +851,38 @@ which will be computed in the resulting `Job` before building.
     return art.path
 
 /--
-Computes a trace over the headers in a Lean include directory (e.g., `lean/lean.h`).
-The headers are hashed as binary files; the object files they are traced for are
-platform-dependent anyway, so normalizing line endings would not make any reusable.
+**For internal use only.**
+Build an object file from a source fie job (i.e, a `lean -c` output)
+using the Lean toolchain's C compiler.
 -/
-public def computeLeanIncludeTrace (dir : FilePath) : IO BuildTrace := do
-  unless (← dir.pathExists) do
-    return .nil dir.toString
-  let ps ← (← dir.walkDir).filterM fun p => return !(← p.isDir)
-  -- Makes the order of files consistent across platforms
-  let ps := ps.qsort (toString · < toString ·)
-  ps.foldlM (init := .nil dir.toString) fun trace p =>
-    return trace.mix (← computeTrace p)
+public def Internal.buildLeanO
+  (oFile : FilePath) (srcJob : Job FilePath)
+  (weakArgs traceArgs : Array String := #[])
+  (leanIncludeDir? : Option (FilePath × BuildTrace) := none)
+: SpawnM (Job FilePath) :=
+  srcJob.mapM fun srcFile => do
+    addLeanTrace
+    if let some (_, trace) := leanIncludeDir? then
+      -- Lean-produced C files contain `#include <lean/lean.h>`.
+      -- Usually this dependency is captured by the Lean trace, but not with an override.
+      addTrace trace
+    addPureTrace traceArgs "traceArgs"
+    addPlatformTrace -- object files are platform-dependent artifacts
+    let art ← buildArtifactUnlessUpToDate oFile (ext := "o") do
+      let lean ← getLeanInstall
+      let includeDir := leanIncludeDir?.elim lean.includeDir (·.1)
+      let args := #["-I", includeDir.toString] ++ lean.ccFlags ++ weakArgs ++ traceArgs
+      compileO oFile srcFile args lean.cc
+    return art.path
 
 /--
 Build an object file from a source fie job (i.e, a `lean -c` output)
 using the Lean toolchain's C compiler.
 -/
-public def buildLeanO
+@[inline] public def buildLeanO
   (oFile : FilePath) (srcJob : Job FilePath)
   (weakArgs traceArgs : Array String := #[])
-  (leanIncludeDir? : Option FilePath := none)
-: SpawnM (Job FilePath) :=
-  srcJob.mapM fun srcFile => do
-    addLeanTrace
-    if let some dir := leanIncludeDir? then
-      -- The Lean trace identifies the toolchain whose headers a module's C file is compiled
-      -- against. A bootstrapping build overrides the include directory, so those headers are
-      -- traced directly instead.
-      addTrace <| ← match ← getLeanIncludeTrace? dir with
-        | some trace => pure trace
-        | none => computeLeanIncludeTrace dir
-    addPureTrace traceArgs "traceArgs"
-    addPlatformTrace -- object files are platform-dependent artifacts
-    let art ← buildArtifactUnlessUpToDate oFile (ext := "o") do
-      let lean ← getLeanInstall
-      let includeDir := leanIncludeDir?.getD lean.includeDir
-      let args := #["-I", includeDir.toString] ++ lean.ccFlags ++ weakArgs ++ traceArgs
-      compileO oFile srcFile args lean.cc
-    return art.path
+: SpawnM (Job FilePath) := Internal.buildLeanO oFile srcJob weakArgs traceArgs
 
 /-- Build a static library from object file jobs using the Lean toolchain's `ar`. -/
 public def buildStaticLib
@@ -978,14 +970,19 @@ public def buildSharedLibSync
   (linkObjs : Array FilePath) (linkLibs : Array Dynlib)
   (args : Array String := #[]) (linker := "c++")
   (plugin := false) (linkDeps := Platform.isWindows)
+  (macosxDeploymentTarget? : Option String := none)
 : JobM Dynlib := do
   -- shared libraries are platform-dependent artifacts
   addPlatformTrace
+  let macosxDeploymentTarget? :=
+    macosxDeploymentTarget? <|> (← getMacOSXDeploymentTarget?)
+  if let some ver := macosxDeploymentTarget? then
+    addPureTrace ver "MACOSX_DEPLOYMENT_TARGET"
   -- Lean plugins are required to have a specific name
   -- and thus need to restored from the cache with that name
   let art ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := true) do
     let baseArgs ← mkLinkArgs linkObjs linkLibs linkDeps
-    compileSharedLib libFile (baseArgs ++ args) linker
+    compileSharedLib libFile (baseArgs ++ args) linker macosxDeploymentTarget?
   return {name := libName, path := art.path, deps := linkLibs, plugin}
 
 /--
@@ -1008,12 +1005,14 @@ public def buildSharedLib
   (weakArgs traceArgs : Array String := #[]) (linker := "c++")
   (extraDepTrace : JobM _ := pure BuildTrace.nil)
   (plugin := false) (linkDeps := Platform.isWindows)
+  (macosxDeploymentTarget? : Option String := none)
 : SpawnM (Job Dynlib) :=
   (Job.collectArray linkObjs "linkObjs").bindM (sync := true) fun objs => do
   (Job.collectArray linkLibs "linkLibs").mapM fun libs => do
     addTrace (← extraDepTrace)
     addPureTrace traceArgs "traceArgs"
-    buildSharedLibSync libName libFile objs libs (weakArgs ++ traceArgs) linker plugin linkDeps
+    buildSharedLibSync libName libFile objs libs (weakArgs ++ traceArgs)
+      linker plugin linkDeps macosxDeploymentTarget?
 
 /--
 Build a shared library linking Lean by using the Lean toolchain's linker.
@@ -1022,8 +1021,7 @@ The library will statically link in `linkObjs` (e.g., object files or
 static libraries) and, if `linkDeps := true`, dynamically link to `linkLibs`
 (and their transitive `deps`).
 
-Additional arguments to the linker can be provided via `weakArgs` and `traceArgs`.
-`traceArgs` will be included in the build's input trace, `weakArgs` will not.
+Additional arguments to the linker can be provided via `args`.
 
 If `plugin := true`, the resulting `Dynlib` will be marked as a Lean plugin.
 This means it is expected to have a `initialize_<libName>` symbol.
@@ -1033,6 +1031,7 @@ public def buildLeanSharedLibSync
   (linkObjs : Array FilePath) (linkLibs : Array Dynlib)
   (args : Array String := #[]) (plugin := false)
   (linkDeps := Platform.isWindows)
+  (macosxDeploymentTarget? : Option String := none)
 : JobM Dynlib := do
   addLeanTrace
   addPlatformTrace -- shared libraries are platform-dependent artifacts
@@ -1040,7 +1039,7 @@ public def buildLeanSharedLibSync
   -- and thus need to restored from the cache with that name
   let art ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := true) do
     let args ← mkLeanLinkArgs linkObjs linkLibs args linkDeps (sharedLean := true)
-    compileSharedLib libFile args (← getLeanCc)
+    compileSharedLib libFile args (← getLeanCc) macosxDeploymentTarget?
   return {name := libName, path := art.path, deps := linkLibs, plugin}
 
 /--
@@ -1061,11 +1060,13 @@ public def buildLeanSharedLib
   (linkObjs : Array (Job FilePath)) (linkLibs : Array (Job Dynlib))
   (weakArgs traceArgs : Array String := #[]) (plugin := false)
   (linkDeps := Platform.isWindows)
+  (macosxDeploymentTarget? : Option String := none)
 : SpawnM (Job Dynlib) :=
   (Job.collectArray linkObjs "linkObjs").bindM (sync := true) fun objs => do
   (Job.collectArray linkLibs "linkLibs").mapM fun libs => do
     addPureTrace traceArgs "traceArgs"
-    buildLeanSharedLibSync libName libFile objs libs (weakArgs ++ traceArgs) plugin linkDeps
+    buildLeanSharedLibSync libName libFile objs libs (weakArgs ++ traceArgs)
+      plugin linkDeps macosxDeploymentTarget?
 
 /--
 Build an executable linking Lean by using the Lean toolchain's linker.
@@ -1084,12 +1085,18 @@ Additional arguments to the linker can be provided via `args`.
 public def buildLeanExeSync
   (exeFile : FilePath) (linkObjs : Array FilePath) (linkLibs : Array Dynlib)
   (args : Array String := #[]) (sharedLean : Bool := false)
+  (macosxDeploymentTarget? : Option String := none)
 : JobM FilePath := do
   addLeanTrace
-  addPlatformTrace -- executables are platform-dependent artifacts
+  -- executables are platform-dependent artifacts
+  addPlatformTrace
+  let macosxDeploymentTarget? :=
+    macosxDeploymentTarget? <|> (← getMacOSXDeploymentTarget?)
+  if let some ver := macosxDeploymentTarget? then
+    addPureTrace ver "MACOSX_DEPLOYMENT_TARGET"
   let art ← buildArtifactUnlessUpToDate exeFile (ext := FilePath.exeExtension) (exe := true) (restore := true) do
     let args ← mkLeanLinkArgs linkObjs linkLibs args (linkDeps := true) sharedLean
-    compileExe exeFile args (← getLeanCc)
+    compileExe exeFile args (← getLeanCc) macosxDeploymentTarget?
   return art.path
 
 /--
@@ -1111,8 +1118,9 @@ public def buildLeanExe
   (exeFile : FilePath)
   (linkObjs : Array (Job FilePath)) (linkLibs : Array (Job Dynlib))
   (weakArgs traceArgs : Array String := #[]) (sharedLean : Bool := false)
+  (macosxDeploymentTarget? : Option String := none)
 : SpawnM (Job FilePath) :=
   (Job.collectArray linkObjs "linkObjs").bindM (sync := true) fun objs => do
   (Job.collectArray linkLibs "linkLibs").mapM fun libs => do
     addPureTrace traceArgs "traceArgs"
-    buildLeanExeSync exeFile objs libs (weakArgs ++ traceArgs) sharedLean
+    buildLeanExeSync exeFile objs libs (weakArgs ++ traceArgs) sharedLean macosxDeploymentTarget?

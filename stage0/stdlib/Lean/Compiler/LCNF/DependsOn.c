@@ -455,13 +455,13 @@ v___x_136_ = lean_array_get_size(v_args_133_);
 v___x_137_ = lean_nat_dec_lt(v___x_135_, v___x_136_);
 if (v___x_137_ == 0)
 {
-return v___x_134_;
+return v___x_137_;
 }
 else
 {
 if (v___x_137_ == 0)
 {
-return v___x_134_;
+return v___x_137_;
 }
 else
 {
@@ -563,13 +563,13 @@ v___x_162_ = lean_array_get_size(v_args_159_);
 v___x_163_ = lean_nat_dec_lt(v___x_161_, v___x_162_);
 if (v___x_163_ == 0)
 {
-return v___x_160_;
+return v___x_163_;
 }
 else
 {
 if (v___x_163_ == 0)
 {
-return v___x_160_;
+return v___x_163_;
 }
 else
 {
@@ -744,13 +744,13 @@ v___x_220_ = lean_array_get_size(v_args_217_);
 v___x_221_ = lean_nat_dec_lt(v___x_219_, v___x_220_);
 if (v___x_221_ == 0)
 {
-return v___x_218_;
+return v___x_221_;
 }
 else
 {
 if (v___x_221_ == 0)
 {
-return v___x_218_;
+return v___x_221_;
 }
 else
 {
@@ -787,13 +787,13 @@ v___x_232_ = lean_array_get_size(v_alts_228_);
 v___x_233_ = lean_nat_dec_lt(v___x_231_, v___x_232_);
 if (v___x_233_ == 0)
 {
-return v___x_230_;
+return v___x_233_;
 }
 else
 {
 if (v___x_233_ == 0)
 {
-return v___x_230_;
+return v___x_233_;
 }
 else
 {
@@ -1340,11 +1340,13 @@ return v_r_409_;
 }
 }
 lean_object* runtime_initialize_Lean_Compiler_LCNF_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF_DependsOn(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Compiler_LCNF_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

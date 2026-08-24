@@ -117,21 +117,6 @@ The accumulated value is combined with the each element of the list in order, us
 
 It is equivalent to `it.toList.foldlM`.
 
-This function is deprecated. Instead of `it.allowNontermination.foldM`, use `it.foldM`.
--/
-@[always_inline, inline, deprecated Iter.foldM (since := "2025-12-04")]
-def Iter.Partial.foldM {m : Type x → Type x'} [Monad m]
-    {α : Type w} {β : Type w} {γ : Type x} [Iterator α Id β]
-    [IteratorLoop α Id m] (f : γ → β → m γ)
-    (init : γ) (it : Iter.Partial (α := α) β) : m γ :=
-  it.it.foldM (init := init) f
-
-/--
-Folds a monadic function over an iterator from the left, accumulating a value starting with `init`.
-The accumulated value is combined with the each element of the list in order, using `f`.
-
-It is equivalent to `it.toList.foldlM`.
-
 This variant terminates after finitely many steps and requires a proof that the iterator is
 finite. If such a proof is not available, consider using `Iter.foldM`.
 -/
@@ -153,20 +138,6 @@ def Iter.fold {α : Type w} {β : Type w} {γ : Type x} [Iterator α Id β]
     [IteratorLoop α Id Id] (f : γ → β → γ)
     (init : γ) (it : Iter (α := α) β) : γ :=
   ForIn.forIn (m := Id) it init (fun x acc => ForInStep.yield (f acc x))
-
-/--
-Folds a function over an iterator from the left, accumulating a value starting with `init`.
-The accumulated value is combined with the each element of the list in order, using `f`.
-
-It is equivalent to `it.toList.foldl`.
-
-This function is deprecated. Instead of `it.allowNontermination.fold`, use `it.fold`.
--/
-@[always_inline, inline, deprecated Iter.fold (since := "2025-12-04")]
-def Iter.Partial.fold {α : Type w} {β : Type w} {γ : Type x} [Iterator α Id β]
-    [IteratorLoop α Id Id] (f : γ → β → γ)
-    (init : γ) (it : Iter.Partial (α := α) β) : γ :=
-  it.it.fold (init := init) f
 
 /--
 Folds a function over an iterator from the left, accumulating a value starting with `init`.
@@ -358,39 +329,6 @@ of the iterator, in order. Returns `none` if `f` returns `none` for all outputs.
 `O(|it|)`. Short-circuits when `f` returns `some _`. The outputs of `it` are
 examined in order of iteration.
 
-This function is deprecated. Instead of `it.allowNontermination.findSomeM?`, use `it.findSomeM?`.
-
-Example:
-```lean example
-#eval [7, 6, 5, 8, 1, 2, 6].iter.findSomeM? fun i => do
-  if i < 5 then
-    return some (i * 10)
-  if i ≤ 6 then
-    IO.println s!"Almost! {i}"
-  return none
-```
-```output
-Almost! 6
-Almost! 5
-```
-```output
-some 10
-```
--/
-@[inline, deprecated Iter.findSomeM? (since := "2025-12-04")]
-def Iter.Partial.findSomeM? {α β : Type w} {γ : Type x} {m : Type x → Type w'} [Monad m]
-    [Iterator α Id β] [IteratorLoop α Id m] (it : Iter.Partial (α := α) β)
-    (f : β → m (Option γ)) :
-    m (Option γ) :=
-  it.it.findSomeM? f
-
-/--
-Returns the first non-`none` result of applying the monadic function `f` to each output
-of the iterator, in order. Returns `none` if `f` returns `none` for all outputs.
-
-`O(|it|)`. Short-circuits when `f` returns `some _`. The outputs of `it` are
-examined in order of iteration.
-
 This variant terminates after finitely many steps and requires a proof that the iterator is
 finite. If such a proof is not available, consider using `Iter.findSomeM?`.
 
@@ -437,25 +375,6 @@ def Iter.findSome? {α β : Type w} {γ : Type x} [Iterator α Id β]
     [IteratorLoop α Id Id] (it : Iter (α := α) β) (f : β → Option γ) :
     Option γ :=
   Id.run (it.findSomeM? (pure <| f ·))
-
-/--
-Returns the first non-`none` result of applying `f` to each output of the iterator, in order.
-Returns `none` if `f` returns `none` for all outputs.
-
-`O(|it|)`. Short-circuits when `f` returns `some _`.The outputs of `it` are examined in order of
-iteration.
-
-This function is deprecated. Instead of `it.allowNontermination.findSome?`, use `it.findSome?`.
-
-Examples:
- * `[7, 6, 5, 8, 1, 2, 6].iter.allowNontermination.findSome? (fun x => if x < 5 then some (10 * x) else none) = some 10`
- * `[7, 6, 5, 8, 1, 2, 6].iter.allowNontermination.findSome? (fun x => if x < 1 then some (10 * x) else none) = none`
--/
-@[inline, deprecated Iter.findSome? (since := "2025-12-04")]
-def Iter.Partial.findSome? {α β : Type w} {γ : Type x} [Iterator α Id β]
-    [IteratorLoop α Id Id] (it : Iter.Partial (α := α) β) (f : β → Option γ) :
-    Option γ :=
-  it.it.findSome? f
 
 /--
 Returns the first non-`none` result of applying `f` to each output of the iterator, in order.
@@ -517,38 +436,6 @@ Returns the first output of the iterator for which the monadic predicate `p` ret
 `O(|it|)`. Short-circuits when `f` returns `true`. The outputs of `it` are examined in order of
 iteration.
 
-This function is deprecated. Instead of `it.ensureTermination.findM?`, use `it.findM?`.
-
-Example:
-```lean example
-#eval [7, 6, 5, 8, 1, 2, 6].iter.findM? fun i => do
-  if i < 5 then
-    return true
-  if i ≤ 6 then
-    IO.println s!"Almost! {i}"
-  return false
-```
-```output
-Almost! 6
-Almost! 5
-```
-```output
-some 1
-```
--/
-@[inline, deprecated Iter.findM? (since := "2025-12-04")]
-def Iter.Partial.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α Id β]
-    [IteratorLoop α Id m] (it : Iter.Partial (α := α) β) (f : β → m (ULift Bool)) :
-    m (Option β) :=
-  it.it.findM? f
-
-/--
-Returns the first output of the iterator for which the monadic predicate `p` returns `true`, or
-`none` if no such element is found.
-
-`O(|it|)`. Short-circuits when `f` returns `true`. The outputs of `it` are examined in order of
-iteration.
-
 This variant requires terminates after finitely many steps and requires a proof that the iterator is
 finite. If such a proof is not available, consider using `Iter.findM?`.
 
@@ -593,24 +480,6 @@ Examples:
 def Iter.find? {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     (it : Iter (α := α) β) (f : β → Bool) : Option β :=
   Id.run (it.findM? (pure <| .up <| f ·))
-
-/--
-Returns the first output of the iterator for which the predicate `p` returns `true`, or `none` if
-no such output is found.
-
-`O(|it|)`. Short-circuits upon encountering the first match. The elements in `it` are examined in
-order of iteration.
-
-This function is deprecated. Instead of `it.allowNontermination.find?`, use `it.find?`.
-
-Examples:
-* `[7, 6, 5, 8, 1, 2, 6].iter.allowNontermination.find? (· < 5) = some 1`
-* `[7, 6, 5, 8, 1, 2, 6].iter.allowNontermination.find? (· < 1) = none`
--/
-@[inline, deprecated Iter.find? (since := "2025-12-04")]
-def Iter.Partial.find? {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
-    (it : Iter.Partial (α := α) β) (f : β → Bool) : Option β :=
-  it.it.find? f
 
 /--
 Returns the first output of the iterator for which the predicate `p` returns `true`, or `none` if
@@ -715,35 +584,5 @@ This function's runtime is linear in the number of steps taken by the iterator.
 def Iter.length {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     (it : Iter (α := α) β) : Nat :=
   it.toIterM.length.run.down
-
-@[inline, inherit_doc Iter.length, deprecated Iter.length (since := "2026-01-28"), expose]
-def Iter.count := @Iter.length
-
-@[inline, inherit_doc Iter.length, deprecated Iter.length (since := "2025-10-29"), expose]
-def Iter.size := @Iter.length
-
-/--
-Steps through the whole iterator, counting the number of outputs emitted.
-
-**Performance**:
-
-This function's runtime is linear in the number of steps taken by the iterator.
--/
-@[always_inline, inline, expose, deprecated Iter.length (since := "2025-12-04")]
-def Iter.Partial.count {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
-    (it : Iter.Partial (α := α) β) : Nat :=
-  it.it.toIterM.length.run.down
-
-/--
-Steps through the whole iterator, counting the number of outputs emitted.
-
-**Performance**:
-
-This function's runtime is linear in the number of steps taken by the iterator.
--/
-@[always_inline, inline, expose, deprecated Iter.length (since := "2025-10-29")]
-def Iter.Partial.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
-    (it : Iter.Partial (α := α) β) : Nat :=
-  it.it.length
 
 end Std

@@ -360,6 +360,10 @@ public def id? (self : Package) : Option PkgId :=
 @[inline] public def leanLibDir (self : Package) : FilePath :=
   self.buildDir / self.config.leanLibDir.normalize
 
+/-- **For internal use only.** The directory containing Lean header files in a bootstrap package. -/
+@[inline] public def bootstrapIncludeDir (self : Package) : FilePath :=
+  self.buildDir / "include"
+
 /--
 Where static libraries for the package are located.
 The package's `buildDir` joined with its `nativeLibDir` configuration.
@@ -377,13 +381,6 @@ The package's `buildDir` joined with its `nativeLibDir` configuration.
 /-- The package's `buildDir` joined with its `binDir` configuration. -/
 @[inline] public def binDir (self : Package) : FilePath :=
   self.buildDir / self.config.binDir.normalize
-
-/--
-The directory of Lean headers a bootstrapping package compiles its C files against,
-replacing the ones of the toolchain building it.
--/
-@[inline] public def leanIncludeDir? (self : Package) : Option FilePath :=
-  if self.bootstrap then some <| self.buildDir / "include" else none
 
 /-- The package's `buildDir` joined with its `irDir` configuration. -/
 @[inline] public def irDir (self : Package) : FilePath :=

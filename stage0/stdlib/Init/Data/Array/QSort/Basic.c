@@ -1454,9 +1454,9 @@ return v___x_489_;
 LEAN_EXPORT lean_object* l_Array_qsortOrd___redArg___lam__0___boxed(lean_object* v_ord_495_, lean_object* v___x_496_, lean_object* v_x_497_, lean_object* v_y_498_){
 _start:
 {
-uint8_t v___x_63__boxed_499_; uint8_t v_res_500_; lean_object* v_r_501_; 
-v___x_63__boxed_499_ = lean_unbox(v___x_496_);
-v_res_500_ = l_Array_qsortOrd___redArg___lam__0(v_ord_495_, v___x_63__boxed_499_, v_x_497_, v_y_498_);
+uint8_t v___x_65__boxed_499_; uint8_t v_res_500_; lean_object* v_r_501_; 
+v___x_65__boxed_499_ = lean_unbox(v___x_496_);
+v_res_500_ = l_Array_qsortOrd___redArg___lam__0(v_ord_495_, v___x_65__boxed_499_, v_x_497_, v_y_498_);
 v_r_501_ = lean_box(v_res_500_);
 return v_r_501_;
 }
@@ -1529,11 +1529,13 @@ return v___x_520_;
 lean_object* runtime_initialize_Init_Data_Vector_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Ord_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Array_QSort_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Vector_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

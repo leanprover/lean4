@@ -2123,13 +2123,7 @@ theorem divNStep_spec (denom u quot : Array Digit) (j k m : Nat)
     have h := denoteN_lt denom denom.size
     rw [← denote, hk] at h; exact h
   have hVpos : 0 < denote denom := by
-    have hsplit : denote denom
-        = ((denom.getD (k+1) 0).toNat * base + (denom.getD k 0).toNat) * base ^ k
-          + denoteN denom k := by rw [denote, hk]; exact denoteN_split_two denom k
-    have h1 : 1 * base ^ k
-        ≤ ((denom.getD (k+1) 0).toNat * base + (denom.getD k 0).toNat) * base ^ k :=
-      Nat.mul_le_mul_right _ (by simp only [base] at hvtop1 ⊢; omega)
-    omega
+    grind
   -- the window, and its bound
   have hwin_eq : denote u = denoteN u j + denote (u.extract j (j+k+3)) * base ^ j := by
     rw [denote_of_high_zero u (n := j+k+3) (by omega) (fun i hi => hhigh i (by omega))]
@@ -2137,7 +2131,7 @@ theorem divNStep_spec (denom u quot : Array Digit) (j k m : Nat)
   have hW : denote (u.extract j (j+k+3)) < denote denom * base := by
     have h1 : denote (u.extract j (j+k+3)) * base ^ j ≤ denote u := by rw [hwin_eq]; omega
     have h2 : denote denom * base ^ (j+1) = denote denom * base * base ^ j := by
-      rw [Nat.pow_succ]; grind
+      grind
     exact Nat.lt_of_mul_lt_mul_right (Nat.lt_of_le_of_lt h1 (h2 ▸ hbound))
   obtain ⟨hq1, hq2⟩ := divNTrial_spec denom u j k hk hnorm hsz3 hW
   -- name the pieces of the step
@@ -2157,9 +2151,9 @@ theorem divNStep_spec (denom u quot : Array Digit) (j k m : Nat)
   have hmsval : denote ms = q.toNat * denote denom := by
     rw [hms, denote_mul, denote_singleton]
   have hextsz : (u.extract j (j + denom.size + 1)).size = denom.size + 1 := by
-    simp; omega
+    grind
   have hmax : max (u.extract j (j + denom.size + 1)).size ms.size = denom.size + 1 := by
-    rw [hextsz, hmssz]; omega
+    grind
   have hdwsz : dw.1.size = denom.size + 1 := by rw [hdw, size_sub, hmax]
   have hdwval : denote dw.1 + denote ms
       = denote (u.extract j (j+k+3)) + dw.2.toNat * base ^ (denom.size + 1) := by
@@ -2199,7 +2193,7 @@ theorem divNStep_spec (denom u quot : Array Digit) (j k m : Nat)
       Nat.mod_lt _ hVpos
     have hu'sz0 : j + denom.size + 1 ≤ u'.size := by rw [hsz', husz]; omega
     have hextsz' : (u'.extract j (j + denom.size + 1)).size = denom.size + 1 := by
-      simp; omega
+      grind
     -- the window's top digit has become zero
     have htop : u'.getD (j + denom.size) 0 = 0 := by
       have hsplit : denote (u'.extract j (j + denom.size + 1))
@@ -2220,10 +2214,7 @@ theorem divNStep_spec (denom u quot : Array Digit) (j k m : Nat)
         rw [hwin'] at hge
         omega
     have hzero : ∀ i, j + denom.size ≤ i → u'.getD i 0 = 0 := by
-      intro i hi
-      rcases Nat.eq_or_lt_of_le hi with h | h
-      · rw [← h]; exact htop
-      · rw [hhigh' i (by omega)]; exact hhigh i (by omega)
+      grind
     have hden' : denote u' = denoteN u j + (denote (u.extract j (j+k+3)) % denote denom) * base ^ j := by
       have hu'sz : j + denom.size + 1 ≤ u'.size := by rw [hsz', husz]; omega
       rw [denote_of_high_zero u' (n := j + denom.size + 1) hu'sz
@@ -2292,7 +2283,7 @@ theorem divNStep_spec (denom u quot : Array Digit) (j k m : Nat)
       have := (Nat.le_div_iff_mul_le hVpos).mpr hle2
       omega
     have hdw_eq : denote dw.1 = denote (u.extract j (j+k+3)) % denote denom := by
-      rw [hqeq] at hdwval; omega
+      grind
     exact final u1 q hu1sz hu1low hu1high (by rw [hu1win, hdw_eq]) hqeq
 
 /--

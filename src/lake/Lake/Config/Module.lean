@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lake.Config.LeanLib
+public import Lean.Compiler.Options
 
 namespace Lake
 open Lean System
@@ -119,6 +120,9 @@ public abbrev pkg (self : Module) : Package :=
 @[inline] public def traceFile (self : Module) : FilePath :=
   self.leanLibPath "trace"
 
+@[inline] public def irTraceFile (self : Module) : FilePath :=
+  self.leanLibPath "ir.trace"
+
 @[inline] public def irPath (ext : String) (self : Module) : FilePath :=
   self.filePath self.pkg.irDir ext
 
@@ -127,6 +131,9 @@ public abbrev pkg (self : Module) : Package :=
 
 @[inline] public def setupFile (self : Module) : FilePath :=
   self.irPath "setup.json"
+
+@[inline] public def irSetupFile (self : Module) : FilePath :=
+  self.irPath "irsetup.json"
 
 @[inline] public def cFile (self : Module) : FilePath :=
   self.irPath "c"
@@ -190,6 +197,9 @@ public def dynlibSuffix := "-1"
 
 @[inline] public def leanOptions (self : Module) : LeanOptions :=
   self.lib.leanOptions
+
+@[inline] public def postponeCompile (self : Module) : Bool :=
+  Compiler.compiler.postponeCompile.get self.leanOptions.toOptions
 
 @[inline] public def leanArgs (self : Module) : Array String :=
   self.lib.leanArgs

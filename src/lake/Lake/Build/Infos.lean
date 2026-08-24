@@ -83,6 +83,7 @@ builtin_facet imports : Module => Array Module
 /-- Dynamic information computed about a module before building. -/
 public structure ModulePreSetup where
   trace : BuildTrace
+  irSigTrace : BuildTrace
   srcMTime : MTime
   srcFile : FilePath
   isModule : Bool
@@ -181,6 +182,9 @@ namespace Module
 @[inherit_doc exportInfoFacet] public abbrev exportInfo (self : Module) :=
   self.facetCore exportInfoFacet
 
+@[inherit_doc metaExportInfoFacet] public abbrev metaExportInfo (self : Module) :=
+  self.facetCore metaExportInfoFacet
+
 @[inherit_doc importArtsFacet] public abbrev importArts (self : Module) :=
   self.facetCore importArtsFacet
 
@@ -189,6 +193,9 @@ namespace Module
 
 @[inherit_doc leanArtsFacet] public abbrev leanArts (self : Module) :=
   self.facetCore leanArtsFacet
+
+@[inherit_doc irArtsFacet] public abbrev irArts (self : Module) :=
+  self.facetCore irArtsFacet
 
 @[inherit_doc oleanFacet] public abbrev olean (self : Module) :=
   self.facetCore oleanFacet

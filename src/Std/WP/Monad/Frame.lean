@@ -27,7 +27,7 @@ namespace Std.WP
 /-- Reinterpret a `WPMonad m` so its weakest precondition is the `frameClosure` of the
 base wp over a family of supremum-preserving resource operators `op r` that act by `comp` with
 unit `e`.
-The resource frame rule then holds by construction (`WP.Frames.of_frameClosure`).
+The resource frame rule then holds by construction (`WP.frames_of_frameClosure`).
 
 A separation logic depends on this property: every frame `op r` passes through the `wp` of every
 program. A caller of a spec picks a frame and applies the frame rule for that frame. -/
@@ -47,11 +47,11 @@ program. A caller of a spec picks a frame and applies the frame rule for that fr
           (fun a => (((base.toWP _).wpTrans (f a)).frameClosure op).apply post E') E'
         ⊑ (((base.toWP _).wpTrans (x >>= f)).frameClosure op).apply post E'
     refine (PredTrans.le_frameClosure_iff op _).mpr fun r => ?_
-    refine PartialOrder.rel_trans (PredTrans.frameClosure_frames op comp hact _ _ _ r) ?_
+    refine PartialOrder.rel_trans (PredTrans.frameClosure_frames op comp hact _ r _ _) ?_
     refine PartialOrder.rel_trans (PredTrans.frameClosure_le op e hunit _ _ _) ?_
     refine PartialOrder.rel_trans ?_ (base.bind_le_wp_bind x f (fun a => op r (post a)) E')
     refine WP.wp_consequence x _ _ E' fun a => ?_
-    exact PartialOrder.rel_trans (PredTrans.frameClosure_frames op comp hact _ _ _ r)
+    exact PartialOrder.rel_trans (PredTrans.frameClosure_frames op comp hact _ r _ _)
       (PredTrans.frameClosure_le op e hunit _ _ _)
 
 end Std.WP

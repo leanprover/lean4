@@ -188,15 +188,15 @@ noncomputable instance TickT.instWPMonad [Assertion Pred] [Assertion EPred] [WPM
 /-- The internalized frame rule: every program frames every shift `F` with respect to `costConj`. -/
 @[grind .]
 theorem frames_costConj [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    {α : Type} (x : TickT m α) (F : Nat) : WP.Frames costConj x F :=
-  WP.Frames.of_frameClosure costConj (· + ·) costConj_add
+    {α : Type} (x : TickT m α) (F : Nat) : PredTrans.Frames costConj (WP.wpTrans x) F :=
+  WP.frames_of_frameClosure costConj (· + ·) costConj_add
     ⟨fun y => WP.wpTrans y.run, fun _ => rfl⟩
 
 /-- The frame rule, pointwise: holding `F` commutes into the postcondition of any `TickT` program. -/
 theorem tickFrames [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     {α : Type} (x : TickT m α) (F : Nat) (Q : α → Nat → Pred) (E : EPred) :
     F ⋆ TickT.wp x Q E ⊑ TickT.wp x (fun a => F ⋆ Q a) E :=
-  (frames_costConj (Pred := Pred) (EPred := EPred) x F).op_wp_le_wp_op Q E
+  frames_costConj (Pred := Pred) (EPred := EPred) x F Q E
 
 /-- The sharp cost spec for `tick`: it costs exactly one unit. Threads the shift `r` through the
 base `tick` spec. -/

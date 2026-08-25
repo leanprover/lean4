@@ -278,7 +278,7 @@ instance: WPMonad Traceful TraceProp EStack⟨⟩ where
     ⟩⟩
 
     wp_trans_monotone x := by
-      simp only [Lean.Order.PredTrans.monotone, Lean.Order.PartialOrder.rel]
+      simp only [Lean.Order.PredTrans.Monotone, Lean.Order.PartialOrder.rel]
       grind
   }
 
@@ -336,15 +336,14 @@ theorem always_frame
   {α: Type}
   (f: Traceful α)
   (p: ProofTrace → Prop)
-  : WP.Frames Lean.Order.meet f (Always' p)
-where
-  op_wp_le_wp_op Q E := by
-    simp only [PartialOrder.rel, my_meet_apply, and_imp, Subtype.forall]
-    dsimp only [wp, Always', WP.wpTrans]
-    simp [my_meet_apply]
-    grind [Trace.le_trans]
+  : PredTrans.Frames Lean.Order.meet (WP.wpTrans f) (Always' p) := by
+  intro Q E
+  simp only [PartialOrder.rel, my_meet_apply, and_imp, Subtype.forall]
+  dsimp only [wp, Always', WP.wpTrans]
+  simp [my_meet_apply]
+  grind [Trace.le_trans]
 
-grind_pattern always_frame => WP.Frames Lean.Order.meet f (Always' p)
+grind_pattern always_frame => PredTrans.Frames Lean.Order.meet (WP.wpTrans f) (Always' p)
 
 @[simp]
 theorem always_meet

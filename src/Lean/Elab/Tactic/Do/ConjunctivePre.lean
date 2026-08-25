@@ -25,7 +25,7 @@ post-VC may be unprovable: `Q` often needs information from `P` that `x` never t
 knows nothing about it. The classical fix is framing: strengthen the spec to
 `P' ⊓ F ⊑ wp x (fun v => Q' v ⊓ F)` and apply that instead, yielding
 
-    (1) P ⊑ P' ⊓ F        (2) Q' ⊓ F ⊑ Q        (3) WP.Frames x F
+    (1) P ⊑ P' ⊓ F        (2) Q' ⊓ F ⊑ Q        (3) PredTrans.Frames (· ⊓ ·) (wpTrans x) F
 
 where (3) makes the strengthening sound. The `F` must be specified: which part of `P` to carry is
 hard to guess and undecidable in general, and guessing it is the frameproc's job.
@@ -50,8 +50,8 @@ From (h₁)–(h₃), the framed application's conclusion is derived:
       ⊑ wp x (fun v => Q v ⊓ F)             -- the spec
 
 So everything (1)–(3) could establish already follows from the emitted VC and the framed route's
-own inputs: every admissible `F` is carried implicitly, none named, and no `WP.Frames` obligation
-arises (`WP.Frames.of_conjunctive` is this derivation with `specPre := wp x`). A schematic post
+own inputs: every admissible `F` is carried implicitly, none named, and no `PredTrans.Frames`
+obligation arises (`WP.frames_of_conjunctive` is this derivation with `specPre := wp x`). A schematic post
 alone does not suffice — a premise mentioning `Q` breaks the subsumption (see below). The
 derivation only needs the composite `P ⊑ specPre (fun _ => F)`, which (h₂) and (h₃) imply: for
 `get` it admits every `F` implied by `P`; for `modify f`, everything `P` guarantees about the

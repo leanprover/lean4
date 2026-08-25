@@ -3939,6 +3939,9 @@ def NatObj.val : NatObj → Nat
   | .small n _ => n
   | .big m _ => m.val
 
+/-- What `panic!` falls back to; `lean_internal_panic` does not return at all. -/
+instance : Inhabited NatObj := ⟨.small 0 (Nat.zero_le _)⟩
+
 /-- `mpz_to_nat`: re-box anything that fits in a scalar. -/
 def mpzToNat (m : Num) : NatObj :=
   if h : m.val ≤ maxSmallNat then .small m.val h else .big m (by omega)
@@ -4468,10 +4471,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_big_shiftr(b_lean_obj_arg a1, b_lea
 NOTE: the scalar path's `s2 < 64` test is not there for the answer's sake - a
 scalar shifted by 64 or more is zero either way - but because `>>` by the
 operand width or more is undefined in C++, the same hazard `div_normalize` runs
-into. `hb` is the panic: past `UINT_MAX` the shift is only allowed when it
-zeroes the value anyway.
+into.
+
+NOTE: `a.log2() >= s` is `2 ^ s ≤ a` for a nonzero `a`, which a `big` object
+always is, so that is how the panic's guard is written here.
 -/
-def natShiftRight (a b : NatObj) (_hb : base ≤ b.val → a.val < 2 ^ b.val) : NatObj :=
+def natShiftRight (a b : NatObj) : NatObj :=
   match a, b with
   | .small n₁ h₁, .small n₂ _ =>
     .small (if n₂ < 64 then n₁ >>> n₂ else 0) (by
@@ -4480,10 +4485,13 @@ def natShiftRight (a b : NatObj) (_hb : base ≤ b.val → a.val < 2 ^ b.val) : 
       · exact Nat.zero_le _)
   | _, .big _ _ => .small 0 (Nat.zero_le _)
   | .big m₁ _, .small n₂ _ =>
-    if n₂ < base then mpzToNat (m₁.shiftRight n₂) else .small 0 (Nat.zero_le _)
+    if base ≤ n₂ then
+      if 2 ^ n₂ ≤ m₁.val then panic! "Nat.shiftr exponent is too big"
+      else .small 0 (Nat.zero_le _)
+    else mpzToNat (m₁.shiftRight n₂)
 
 @[simp] theorem natShiftRight_val (a b : NatObj) (hb : base ≤ b.val → a.val < 2 ^ b.val) :
-    (natShiftRight a b hb).val = a.val >>> b.val := by
+    (natShiftRight a b).val = a.val >>> b.val := by
   have hzero : ∀ x y : Nat, x < 2 ^ y → (0 : Nat) = x >>> y := by
     intro x y h; rw [Nat.shiftRight_eq_div_pow]; exact (Nat.div_eq_of_lt h).symm
   cases a with
@@ -4507,10 +4515,13 @@ def natShiftRight (a b : NatObj) (_hb : base ≤ b.val → a.val < 2 ^ b.val) : 
   | big m₁ h₁ =>
     cases b with
     | small n₂ h₂ =>
-      show (if n₂ < base then mpzToNat _ else _).val = m₁.val >>> n₂
+      show (if base ≤ n₂ then (if 2 ^ n₂ ≤ m₁.val then _ else _) else mpzToNat _).val
+        = m₁.val >>> n₂
       split <;> rename_i h
+      · have hlt : m₁.val < 2 ^ n₂ := hb (by show base ≤ n₂; omega)
+        simp only [show ¬(2 ^ n₂ ≤ m₁.val) from by omega, ite_false]
+        exact hzero m₁.val n₂ hlt
       · rw [mpzToNat_val, Num.val_shiftRight, Nat.shiftRight_eq_div_pow]
-      · exact hzero m₁.val n₂ (hb (by show base ≤ n₂; omega))
     | big m₂ h₂ =>
       show (0 : Nat) = m₁.val >>> m₂.val
       refine hzero m₁.val m₂.val (hb ?_)
@@ -4542,17 +4553,20 @@ The panic is the precondition `hb`: an exponent past `UINT_MAX` has no answer to
 give. A `big` object is never zero, so testing the scalar for zero is testing
 the value.
 -/
-def natShiftLeft (a b : NatObj) (_hb : b.val < base) : NatObj :=
+def natShiftLeft (a b : NatObj) : NatObj :=
   if a.val = 0 then .small 0 (Nat.zero_le _)
+  else if base ≤ b.val then panic! "Nat.shiftl exponent is too big"
   else mpzToNat (a.toNum.shiftLeft b.val)
 
 @[simp] theorem natShiftLeft_val (a b : NatObj) (hb : b.val < base) :
-    (natShiftLeft a b hb).val = a.val <<< b.val := by
+    (natShiftLeft a b).val = a.val <<< b.val := by
   rw [natShiftLeft]
   split <;> rename_i h
   · show (0 : Nat) = _
     rw [h, Nat.shiftLeft_eq, Nat.zero_mul]
-  · rw [mpzToNat_val, Num.val_shiftLeft, NatObj.val_toNum, Nat.shiftLeft_eq]
+  · split <;> rename_i h2
+    · exact absurd h2 (by omega)
+    · rw [mpzToNat_val, Num.val_shiftLeft, NatObj.val_toNum, Nat.shiftLeft_eq]
 
 /--
 `lean_nat_lxor`:
@@ -4624,16 +4638,30 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_a
         return mpz_to_nat(mpz_value(a1).pow(lean_unbox(a2)));
 }
 ```
-The exponent is an object here, not an `unsigned`; `hp` is the panic, and it is
-also what bounds `type_checker::reduce_pow` to `UINT_MAX`. Both arms raise the
-value `toNum` reads off the object, so they collapse.
+The exponent is an object here rather than an `unsigned`, and the guard is what
+bounds `type_checker::reduce_pow` to `UINT_MAX`. A `big` object exceeds
+`UINT_MAX` on its own, so `!lean_is_scalar(a2) || lean_unbox(a2) > UINT_MAX` is
+the single test `base ≤ p.val`.
 -/
-def natPow (a p : NatObj) (_hp : p.val < base) : NatObj :=
-  mpzToNat (a.toNum.pow (UInt32.ofNat p.val))
+def natPow (a p : NatObj) : NatObj :=
+  if base ≤ p.val then panic! "Nat.pow exponent is too big"
+  else
+    match a with
+    | .small n _ => mpzToNat ((Num.ofSizeT n).pow (UInt32.ofNat p.val))
+    | .big m _ => mpzToNat (m.pow (UInt32.ofNat p.val))
 
 @[simp] theorem natPow_val (a p : NatObj) (hp : p.val < base) :
-    (natPow a p hp).val = a.val ^ p.val := by
-  rw [natPow, mpzToNat_val, Num.val_pow, NatObj.val_toNum,
-    UInt32.toNat_ofNat_of_lt' hp]
+    (natPow a p).val = a.val ^ p.val := by
+  unfold natPow
+  split <;> rename_i h
+  · exact absurd h (by omega)
+  · cases a with
+    | small n hn =>
+      rw [mpzToNat_val, Num.val_pow, UInt32.toNat_ofNat_of_lt' hp,
+        Num.val_ofSizeT n (small_lt_base_sq hn)]
+      rfl
+    | big m _ =>
+      rw [mpzToNat_val, Num.val_pow, UInt32.toNat_ofNat_of_lt' hp]
+      rfl
 
 end Mpn

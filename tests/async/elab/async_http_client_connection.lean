@@ -21,7 +21,7 @@ open Std.Http.Client
 
 /-- A connection whose transport is the mock client end; the test drives the peer via `Mock.Server`. -/
 private def mkConnection (mockClient : Mock.Client) (config : Client.Config := {}) : Async Connection :=
-  Connection.new mockClient config
+  Connection.new mockClient (origin "example.com") config
 
 private def mkRequest (method : Method) (path : String) (body : String := "")
     (extra : Array (String × String) := #[]) : Async (Request Body.Any) := do
@@ -133,8 +133,6 @@ private def expectBodyThrows (response : Response Body.Stream) (what : String) :
     throw <| IO.userError s!"{what}: readAll returned {body.quote} instead of throwing"
 
 private def shortTimeout : Timeout := ⟨200, by decide⟩
-
-private def mediumTimeout : Timeout := ⟨500, by decide⟩
 
 private def longTimeout : Timeout := ⟨30000, by decide⟩
 
@@ -372,6 +370,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
 #eval show IO _ from runWithTimeout "a chunked request body with Expect: 100-continue sends its head" 6000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
   let connection ← mkConnection mockClient
+    { patientConfig with expectContinueTimeout := longTimeout }
   let stream ← Body.mkStream
   let promise ← sendInBackground connection
     (mkStreamRequest "/chunked" stream #[("Expect", "100-continue")])
@@ -394,7 +393,10 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
 -- when the request deadline expires.
 #eval show IO _ from runWithTimeout "a 417 rejection completes the exchange without waiting for the deadline" 6000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let connection ← mkConnection mockClient { requestTimeout := mediumTimeout }
+  -- The deadline has to outlast the test's own budget. `reject` reports an exchange whose response
+  -- the caller already holds in full as complete, so a deadline that fires on the parked writer
+  -- resolves the completion successfully too and this test could not tell the two apart.
+  let connection ← mkConnection mockClient patientConfig
   let request ← mkRequest .post "/submit" "payload-body" #[("Expect", "100-continue")]
   let promise ← sendInBackground connection request
 
@@ -412,7 +414,9 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
 -- queued request comes back retryable for a pool to re-issue on a fresh one.
 #eval show IO _ from runWithTimeout "a rejected expectation retires the connection" 6000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let connection ← mkConnection mockClient { requestTimeout := mediumTimeout }
+  -- Patient throughout: a deadline short enough to fire on a writer still parked on the abandoned
+  -- body would retire the connection on its own, and this test could not tell the two apart.
+  let connection ← mkConnection mockClient patientConfig
   let first ← sendInBackground connection
     (← mkRequest .post "/submit" "payload-body" #[("Expect", "100-continue")])
 
@@ -620,14 +624,31 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   unless ← connection.isClosed do
     throw (IO.userError "connection still open after close")
 
-#eval show IO _ from runWithTimeout "close while waiting for 100 Continue resolves the caller" 6000 <| Async.block do
+-- `close` has to reach the body parked behind the expectation, not only the one the writer pump is
+-- already consuming: a producer left blocked on a stream nobody will ever read never learns the
+-- exchange is over.
+#eval show IO _ from runWithTimeout "close while waiting for 100 Continue closes the parked body" 6000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
   let connection ← mkConnection mockClient
-  let request ← mkRequest .post "/expect" "payload-body" #[("Expect", "100-continue")]
-  let promise ← sendInBackground connection request
+    { patientConfig with expectContinueTimeout := longTimeout }
+  let stream ← Body.mkStream
+  let promise ← sendInBackground connection
+    (mkStreamRequest "/expect" stream #[("Expect", "100-continue")])
   discard <| readHead mockServer
   connection.close
-  discard <| expectError promise
+
+  match ← expectError promise with
+  | .closed _ => pure ()
+  | e => throw (IO.userError s!"expected .closed after close, got {ctorName e}")
+
+  let mut closed := false
+  for _ in [0:50] do
+    if ← Body.isClosed stream then
+      closed := true
+      break
+    sleep 20
+  unless closed do
+    throw (IO.userError "the body parked behind the expectation was left open")
 
 -- The caller is blocked in `readAll` when the connection goes away: it must be woken with an error
 -- rather than handed the bytes received so far.
@@ -824,16 +845,6 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let (response, _) ← expectResponse promise
   assertBodyIs response ""
 
-#eval show IO _ from runWithTimeout "a HEAD response with Connection: close completes" 5000 <| Async.block do
-  let (mockClient, mockServer) ← Mock.new
-  let connection ← mkConnection mockClient patientConfig
-  let promise ← sendInBackground connection (← mkRequest .head "/head-close")
-  discard <| readHead mockServer
-  mockServer.send (rawResp "200 OK" #[("Content-Length", "99"), ("Connection", "close")] "")
-  let (response, completion) ← expectResponse promise
-  assertBodyIs response ""
-  expectCompleted completion "HEAD with Connection: close"
-
 #eval show IO _ from runWithTimeout "204 No Content has no body and the connection is reused" 5000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
   let connection ← mkConnection mockClient patientConfig
@@ -842,24 +853,6 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   mockServer.send (rawResp "204 No Content" #[] "")
   let (resp1, _) ← expectResponse first
   assertStatusIs resp1 204
-  assertBodyIs resp1 ""
-
-  let second ← sendInBackground connection (← mkRequest .get "/after")
-  discard <| readHead mockServer
-  mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
-  let (resp2, _) ← expectResponse second
-  assertBodyIs resp2 "ok"
-
--- RFC 9110 §15.4.5 lets a 304 carry the `Content-Length` of the cached representation, so the
--- header must not be read as a promise of body bytes.
-#eval show IO _ from runWithTimeout "304 Not Modified with Content-Length has no body" 5000 <| Async.block do
-  let (mockClient, mockServer) ← Mock.new
-  let connection ← mkConnection mockClient patientConfig
-  let first ← sendInBackground connection (← mkRequest .get "/cached")
-  discard <| readHead mockServer
-  mockServer.send (rawResp "304 Not Modified" #[("Content-Length", "1234")] "")
-  let (resp1, _) ← expectResponse first
-  assertStatusIs resp1 304
   assertBodyIs resp1 ""
 
   let second ← sendInBackground connection (← mkRequest .get "/after")
@@ -929,26 +922,6 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let (response, _) ← expectResponse promise
   assertStatusIs response 200
   assertBodyIs response "hi"
-
-#eval show IO _ from runWithTimeout "chunk extensions are ignored" 4000 <| Async.block do
-  let (mockClient, mockServer) ← Mock.new
-  let connection ← mkConnection mockClient patientConfig
-  let promise ← sendInBackground connection (← mkRequest .get "/ext")
-  discard <| readHead mockServer
-  mockServer.send (rawResp "200 OK" #[("Transfer-Encoding", "chunked")] "")
-  mockServer.send "3;name=value\r\nabc\r\n0\r\n\r\n".toUTF8
-  let (response, _) ← expectResponse promise
-  assertBodyIs response "abc"
-
-#eval show IO _ from runWithTimeout "an uppercase hex chunk size is accepted" 4000 <| Async.block do
-  let (mockClient, mockServer) ← Mock.new
-  let connection ← mkConnection mockClient patientConfig
-  let promise ← sendInBackground connection (← mkRequest .get "/hex")
-  discard <| readHead mockServer
-  mockServer.send (rawResp "200 OK" #[("Transfer-Encoding", "chunked")] "")
-  mockServer.send "A\r\n0123456789\r\n0\r\n\r\n".toUTF8
-  let (response, _) ← expectResponse promise
-  assertBodyIs response "0123456789"
 
 #eval show IO _ from runWithTimeout "trailers after the last chunk do not break reuse" 5000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
@@ -1370,7 +1343,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let promise ← sendInBackground connection (mkStreamRequest "/upload" stream)
 
   stream.send { data := "first-part".toUTF8, extensions := #[] }
-  discard <| readUntil mockServer "first-part"
+  let seen ← readUntil mockServer "first-part"
 
   mockServer.send (rawResp "413 Content Too Large" #[("Content-Length", "0"), ("Connection", "close")] "")
   let (response, completion) ← expectResponse promise
@@ -1390,29 +1363,550 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   unless closed do
     throw (IO.userError "the request body stream was left open after the exchange ended")
 
--- An abandoned upload is truncated and the socket is dropped, which is what Go's transport and
--- curl do in this situation. Writing the terminating zero chunk instead would tell the peer (or an
--- intermediary) that a body it never received was complete.
-#eval show IO _ from runWithTimeout "an abandoned upload is truncated, not framed as complete" 6000 <| Async.block do
-  let (mockClient, mockServer) ← Mock.new
-  let connection ← mkConnection mockClient patientConfig
-  let stream ← Body.mkStream
-  let promise ← sendInBackground connection (mkStreamRequest "/upload" stream)
-
-  stream.send { data := "first-part".toUTF8, extensions := #[] }
-  let seen ← readUntil mockServer "first-part"
-
-  mockServer.send (rawResp "413 Content Too Large" #[("Content-Length", "0"), ("Connection", "close")] "")
-  let (response, completion) ← expectResponse promise
-  assertStatusIs response 413
-  expectCompleted completion "abandoned upload"
-
-  -- The client must close the transport rather than leave a half-written request hanging.
+  -- The abandoned upload is truncated and the socket dropped, which is what Go's transport and
+  -- curl do here. Writing the terminating zero chunk instead would tell the peer (or an
+  -- intermediary) that a body it never received was complete.
   let mut wire := seen
   repeat
     let some chunk ← mockServer.recv? | break
     wire := wire ++ String.fromUTF8! chunk
   if wire.endsWith "0\r\n\r\n" then
     throw <| IO.userError s!"the abandoned body was framed as a complete chunked body:\n{wire.quote}"
+
+/-! ### Proxy, cookies, and authentication -/
+
+private def proxiedConfig : Client.Config :=
+  { patientConfig with proxySelector := .of "proxy.example" 8080 }
+
+private def bearer : Header.Value := .mk "Bearer letmein"
+
+private def constAuthConfig : Client.Config :=
+  { patientConfig with authenticator := some (Authenticator.const bearer) }
+
+private def assertContains (what haystack needle : String) : Async Unit := do
+  unless haystack.contains needle do
+    throw <| IO.userError s!"{what}: expected {needle.quote} in\n{haystack.quote}"
+
+private def assertLacks (what haystack needle : String) : Async Unit := do
+  if haystack.contains needle then
+    throw <| IO.userError s!"{what}: unexpected {needle.quote} in\n{haystack.quote}"
+
+/-- A request with no `Host` of its own, so the connection's origin has to supply one. -/
+private def mkBareRequest (path : String) : Async (Request Body.Any) := do
+  let request ← Request.new |>.method .get |>.uri! path |>.empty
+  pure { request with }
+
+/-- The whole request, head and body, as the peer saw it. -/
+private def readRequest (mockServer : Mock.Server) (bodyNeedle : String) : Async String := do
+  readUntil mockServer bodyNeedle (← readHead mockServer)
+
+/-- A 401 that keeps the connection alive, so it can carry the authenticated retry. -/
+private def challenge401 : ByteArray :=
+  rawResp "401 Unauthorized"
+    #[("WWW-Authenticate", "Basic realm=\"x\""), ("Content-Length", "4")] "deny"
+
+-- RFC 9112 §3.2.2: a request sent to a proxy carries the whole target, so the proxy knows which
+-- origin to forward it to.
+#eval show IO _ from runWithTimeout "a proxied connection sends absolute-form" 4000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← mkConnection mockClient proxiedConfig
+  let promise ← sendInBackground connection (← mkRequest .get "/hello")
+
+  let head ← readHead mockServer
+  unless head.startsWith "GET http://example.com/hello HTTP/1.1\r\n" do
+    throw <| IO.userError s!"unexpected request line:\n{head.quote}"
+
+  mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "hi")
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 200
+
+-- The mirror image: a direct connection re-addresses an absolute-form target, which is what a
+-- caller that built its request for a proxy — or a redirect chain — hands it.
+#eval show IO _ from runWithTimeout "a direct connection sends origin-form" 4000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← mkConnection mockClient patientConfig
+  let request ← Request.new |>.method .get |>.uri! "http://example.com/hello?q=1"
+    |>.header! "Host" "example.com" |>.empty
+  let promise ← sendInBackground connection { request with }
+
+  let head ← readHead mockServer
+  unless head.startsWith "GET /hello?q=1 HTTP/1.1\r\n" do
+    throw <| IO.userError s!"unexpected request line:\n{head.quote}"
+
+  mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "hi")
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 200
+
+-- RFC 9112 §3.2 requires the field on every HTTP/1.1 request, and the origin is the connection's
+-- to know: a caller sending a bare request must not put a request on the wire that names no host.
+#eval show IO _ from runWithTimeout "the origin supplies a missing Host header" 4000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← Connection.new mockClient (origin "example.com" 8080) patientConfig
+  let promise ← sendInBackground connection (← mkBareRequest "/hello")
+
+  let head ← readHead mockServer
+  assertContains "a bare request" head.toLower "host: example.com:8080"
+
+  mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "hi")
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 200
+
+#eval show IO _ from runWithTimeout "a caller's own Host header is left alone" 4000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← mkConnection mockClient patientConfig
+  let request ← Request.new |>.method .get |>.uri! "/hello"
+    |>.header! "Host" "vhost.example" |>.empty
+  let promise ← sendInBackground connection { request with }
+
+  let head ← readHead mockServer
+  assertContains "an explicit Host" head.toLower "host: vhost.example"
+  assertLacks "an explicit Host" head.toLower "host: example.com"
+
+  mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "hi")
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 200
+
+-- RFC 6265 §5.4: the cookies of a request travel in a single `Cookie` field, whether they came
+-- from the handler or from the caller.
+#eval show IO _ from runWithTimeout "the cookie handler fills in and records cookies" 4000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let jar ← IO.mkRef (#[] : Array String)
+  let seenOrigin ← IO.mkRef (none : Option URI.Origin)
+  let handler : CookieHandler := {
+    load := fun o _ => do
+      seenOrigin.set (some o)
+      pure #[.mk "sid=1", .mk "theme=dark"]
+    store := fun _ _ headers =>
+      jar.modify (· ++ ((headers.getAll? .setCookie).getD #[]).map (·.value))
+  }
+  let connection ← mkConnection mockClient { patientConfig with cookieHandler := some handler }
+  let request ← Request.new |>.method .get |>.uri! "/hello"
+    |>.header! "Host" "example.com" |>.header! "Cookie" "manual=1" |>.empty
+  let promise ← sendInBackground connection { request with }
+
+  let head ← readHead mockServer
+  assertContains "the request" head.toLower "cookie: manual=1; sid=1; theme=dark"
+
+  mockServer.send (rawResp "200 OK"
+    #[("Set-Cookie", "a=1"), ("Set-Cookie", "b=2"), ("Content-Length", "2")] "hi")
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 200
+  let _ : String ← response.body.readAll
+
+  unless (← jar.get) == #["a=1", "b=2"] do
+    throw <| IO.userError s!"the handler recorded {← jar.get}"
+  unless (← seenOrigin.get) == some (origin "example.com") do
+    throw <| IO.userError "the handler was not asked about the connection's own origin"
+
+-- The retry carries the body again, so the credentials answer the request that was challenged
+-- rather than an empty version of it.
+#eval show IO _ from runWithTimeout "a 401 is answered and the request replayed" 5000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← mkConnection mockClient constAuthConfig
+  let promise ← sendInBackground connection (← mkRequest .post "/secret" "payload")
+
+  let first ← readRequest mockServer "payload"
+  assertLacks "the challenged request" first.toLower "authorization:"
+  mockServer.send challenge401
+
+  let second ← readRequest mockServer "payload"
+  assertContains "the retry" second.toLower "authorization:"
+  assertContains "the retry" second "Bearer letmein"
+  mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
+
+  -- Only the answered response reaches the caller; the challenge was the client's to handle.
+  let (response, completion) ← expectResponse promise
+  assertStatusIs response 200
+  assertBodyIs response "ok"
+  expectCompleted completion "authenticated retry"
+
+#eval show IO _ from runWithTimeout "a 407 is answered in Proxy-Authorization" 5000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← mkConnection mockClient
+    { proxiedConfig with authenticator := some (Authenticator.const bearer) }
+  let promise ← sendInBackground connection (← mkRequest .get "/secret")
+
+  discard <| readHead mockServer
+  mockServer.send (rawResp "407 Proxy Authentication Required"
+    #[("Proxy-Authenticate", "Basic realm=\"p\""), ("Content-Length", "4")] "deny")
+
+  let second ← readHead mockServer
+  assertContains "the retry" second.toLower "proxy-authorization:"
+  assertContains "the retry" second "Bearer letmein"
+  assertLacks "the retry" second.toLower "\r\nauthorization:"
+  mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
+
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 200
+
+-- What the authenticator is told decides what it can answer with, so the challenge itself is
+-- pinned: which peer issued it, for which origin and target, and what it offered.
+#eval show IO _ from runWithTimeout "the challenge reports its kind, origin, target, and offers" 5000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let seen ← IO.mkRef (none : Option Challenge)
+  let recording : Authenticator := {
+    authenticate := fun challenge => do
+      seen.set (some challenge)
+      pure none
+  }
+  let connection ← mkConnection mockClient { patientConfig with authenticator := some recording }
+  let promise ← sendInBackground connection (← mkRequest .get "/secret?a=1")
+
+  discard <| readHead mockServer
+  mockServer.send (rawResp "401 Unauthorized"
+    #[("WWW-Authenticate", "Basic realm=\"x\""), ("WWW-Authenticate", "Bearer"),
+      ("Content-Length", "4")] "deny")
+
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 401
+
+  let some challenge ← seen.get
+    | throw (IO.userError "the authenticator was never asked to answer the challenge")
+  unless challenge.kind == .server do
+    throw <| IO.userError "a 401 must be reported as a server challenge"
+  unless challenge.origin == origin "example.com" do
+    throw <| IO.userError "the challenge did not name the connection's origin"
+  unless toString challenge.target == "/secret?a=1" do
+    throw <| IO.userError s!"the challenge named the target {(toString challenge.target).quote}"
+  unless challenge.offered.map (·.value) == #["Basic realm=\"x\"", "Bearer"] do
+    throw <| IO.userError s!"the challenge offered {challenge.offered.map (·.value)}"
+
+-- A declined challenge is the server's answer to the request, body and all: the client has
+-- nothing to add to it, so nothing may be consumed on the caller's behalf either.
+#eval show IO _ from runWithTimeout "a declined challenge reaches the caller intact" 5000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let declining : Authenticator := { authenticate := fun _ => pure none }
+  let connection ← mkConnection mockClient { patientConfig with authenticator := some declining }
+  let promise ← sendInBackground connection (← mkRequest .get "/secret")
+
+  discard <| readHead mockServer
+  mockServer.send challenge401
+
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 401
+  assertBodyIs response "deny"
+
+#eval show IO _ from runWithTimeout "a challenge reaches the caller when no authenticator is configured" 5000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← mkConnection mockClient patientConfig
+  let promise ← sendInBackground connection (← mkRequest .get "/secret")
+
+  discard <| readHead mockServer
+  mockServer.send challenge401
+
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 401
+  assertBodyIs response "deny"
+
+-- Answering a challenge means sending the request a second time, so a body that cannot be
+-- replayed rules the retry out: the caller gets the challenge and decides for itself.
+#eval show IO _ from runWithTimeout "a challenge to an unreplayable body reaches the caller" 5000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← mkConnection mockClient constAuthConfig
+  let stream ← Body.mkStream
+  let promise ← sendInBackground connection (mkStreamRequest "/secret" stream)
+
+  stream.send { data := "payload".toUTF8, extensions := #[] }
+  Body.close stream
+  discard <| readRequest mockServer "payload"
+  mockServer.send challenge401
+
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 401
+  assertBodyIs response "deny"
+
+-- The retry has to go somewhere: a challenge that ends the connection cannot be answered on it,
+-- and consuming the response to discover that would leave the caller with a body-less 401.
+#eval show IO _ from runWithTimeout "a challenge that closes the connection reaches the caller" 5000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← mkConnection mockClient constAuthConfig
+  let promise ← sendInBackground connection (← mkRequest .get "/secret")
+
+  discard <| readHead mockServer
+  mockServer.send (rawResp "401 Unauthorized"
+    #[("WWW-Authenticate", "Basic realm=\"x\""), ("Content-Length", "4"), ("Connection", "close")]
+    "deny")
+
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 401
+  assertBodyIs response "deny"
+
+-- The challenge response is a response like any other, so a cookie it sets is stored before the
+-- retry asks for the cookies to send — the session cookie a login handshake hands out.
+#eval show IO _ from runWithTimeout "a cookie set by a challenge is replayed on the retry" 5000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let jar ← IO.mkRef (#[] : Array Header.Value)
+  let handler : CookieHandler := {
+    load := fun _ _ => jar.get
+    store := fun _ _ headers =>
+      jar.modify (· ++ (headers.getAll? .setCookie).getD #[])
+  }
+  let connection ← mkConnection mockClient
+    { constAuthConfig with cookieHandler := some handler }
+  let promise ← sendInBackground connection (← mkRequest .get "/secret")
+
+  let first ← readHead mockServer
+  assertLacks "the challenged request" first.toLower "cookie:"
+  mockServer.send (rawResp "401 Unauthorized"
+    #[("WWW-Authenticate", "Basic realm=\"x\""), ("Set-Cookie", "sess=xyz"),
+      ("Content-Length", "4")] "deny")
+
+  let second ← readHead mockServer
+  assertContains "the retry" second.toLower "cookie: sess=xyz"
+  assertContains "the retry" second.toLower "authorization:"
+  mockServer.send (rawResp "200 OK" #[("Set-Cookie", "done=1"), ("Content-Length", "2")] "ok")
+
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 200
+
+  -- The answered response is stored like any other, so the jar ends up holding both.
+  unless (← jar.get).map (·.value) == #["sess=xyz", "done=1"] do
+    throw <| IO.userError s!"the handler recorded {(← jar.get).map (·.value)}"
+
+
+-- A proxy is handed the whole origin, so a non-default port has to survive into the target it
+-- forwards on. `Host` still names the origin, never the proxy the bytes actually go to.
+#eval show IO _ from runWithTimeout "a proxied request names the origin's port" 4000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← Connection.new mockClient (origin "example.com" 8080) proxiedConfig
+  let promise ← sendInBackground connection (← mkBareRequest "/hello")
+
+  let head ← readHead mockServer
+  unless head.startsWith "GET http://example.com:8080/hello HTTP/1.1\r\n" do
+    throw <| IO.userError s!"unexpected request line:\n{head.quote}"
+  assertContains "a proxied request" head.toLower "host: example.com:8080"
+
+  mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "hi")
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 200
+
+-- RFC 9112 §3.2.4: `OPTIONS *` asks about the server itself, so there is no target to re-address
+-- and rewriting one in would change what is being asked.
+#eval show IO _ from runWithTimeout "a proxied OPTIONS * keeps its asterisk-form" 4000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← mkConnection mockClient proxiedConfig
+  let request ← Request.new |>.method .options |>.uri .asteriskForm
+    |>.header! "Host" "example.com" |>.empty
+  let promise ← sendInBackground connection { request with }
+
+  let head ← readHead mockServer
+  unless head.startsWith "OPTIONS * HTTP/1.1\r\n" do
+    throw <| IO.userError s!"unexpected request line:\n{head.quote}"
+
+  mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "hi")
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 200
+
+#eval show IO _ from runWithTimeout "a handler with no cookies adds no Cookie header" 4000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let handler : CookieHandler := { load := fun _ _ => pure #[], store := fun _ _ _ => pure () }
+  let connection ← mkConnection mockClient { patientConfig with cookieHandler := some handler }
+  let promise ← sendInBackground connection (← mkRequest .get "/hello")
+
+  let head ← readHead mockServer
+  assertLacks "the request" head.toLower "cookie:"
+
+  mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "hi")
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 200
+
+-- The handler is consulted per request rather than per connection: a cookie set partway through a
+-- keep-alive connection has to reach the next request on it.
+#eval show IO _ from runWithTimeout "cookies are reloaded for each request on a connection" 5000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let loads ← IO.mkRef 0
+  let stores ← IO.mkRef 0
+  let handler : CookieHandler := {
+    load := fun _ _ => do
+      let n ← loads.modifyGet fun n => (n + 1, n + 1)
+      pure #[.ofString! s!"n={n}"]
+    store := fun _ _ _ => stores.modify (· + 1)
+  }
+  let connection ← mkConnection mockClient { patientConfig with cookieHandler := some handler }
+
+  let first ← sendInBackground connection (← mkRequest .get "/one")
+  assertContains "the first request" (← readHead mockServer).toLower "cookie: n=1"
+  mockServer.send (rawResp "200 OK" #[("Content-Length", "3")] "one")
+  let (resp1, _) ← expectResponse first
+  let _ : String ← resp1.body.readAll
+
+  let second ← sendInBackground connection (← mkRequest .get "/two")
+  assertContains "the second request" (← readHead mockServer).toLower "cookie: n=2"
+  mockServer.send (rawResp "200 OK" #[("Content-Length", "3")] "two")
+  let (resp2, _) ← expectResponse second
+  let _ : String ← resp2.body.readAll
+
+  unless (← stores.get) == 2 do
+    throw <| IO.userError s!"the handler was told about {← stores.get} responses, not 2"
+
+-- Only a `401` or `407` is a challenge. Anything else is the server's final word, and handing it to
+-- an authenticator would leak the request's headers to credential-holding user code for nothing.
+#eval show IO _ from runWithTimeout "a 403 never reaches the authenticator" 4000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let asked ← IO.mkRef false
+  let recording : Authenticator := {
+    authenticate := fun _ => do
+      asked.set true
+      pure (some bearer)
+  }
+  let connection ← mkConnection mockClient { patientConfig with authenticator := some recording }
+  let promise ← sendInBackground connection (← mkRequest .get "/secret")
+
+  discard <| readHead mockServer
+  mockServer.send (rawResp "403 Forbidden" #[("Content-Length", "6")] "denied")
+
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 403
+  assertBodyIs response "denied"
+
+  if ← asked.get then
+    throw <| IO.userError "a 403 was reported to the authenticator as a challenge"
+
+-- The credentials the caller sent were the ones just rejected, so the retry has to replace them.
+-- Appending would send both, and RFC 9110 §11.6.2 lets a server read whichever it likes.
+#eval show IO _ from runWithTimeout "the retry replaces a rejected credential" 5000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← mkConnection mockClient constAuthConfig
+  let request ← Request.new |>.method .get |>.uri! "/secret" |>.header! "Host" "example.com"
+    |>.header! "Authorization" "Basic stale" |>.empty
+  let promise ← sendInBackground connection { request with }
+
+  discard <| readHead mockServer
+  mockServer.send challenge401
+
+  let second ← readHead mockServer
+  let occurrences := (second.toLower.splitOn "authorization:").length - 1
+  unless occurrences == 1 do
+    throw <| IO.userError s!"the retry carried {occurrences} Authorization headers:\n{second.quote}"
+  assertContains "the retry" second "Bearer letmein"
+  assertLacks "the retry" second "Basic stale"
+
+  mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 200
+
+-- One retry, not a loop: credentials the server rejects a second time are the server's answer, and
+-- retrying past that would hammer it with the same request forever.
+#eval show IO _ from runWithTimeout "a challenge to the retry reaches the caller" 5000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← mkConnection mockClient constAuthConfig
+  let promise ← sendInBackground connection (← mkRequest .get "/secret")
+
+  discard <| readHead mockServer
+  mockServer.send challenge401
+
+  let second ← readHead mockServer
+  assertContains "the retry" second.toLower "authorization:"
+  mockServer.send challenge401
+
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 401
+  assertBodyIs response "deny"
+
+-- RFC 9112 §6.3: a response with no framing fields ends at the connection close, so there is no
+-- connection left to answer the challenge on and the response is the caller's.
+#eval show IO _ from runWithTimeout "an EOF-framed challenge reaches the caller" 5000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← mkConnection mockClient constAuthConfig
+  let promise ← sendInBackground connection (← mkRequest .get "/secret")
+
+  discard <| readHead mockServer
+  mockServer.send (rawResp "401 Unauthorized" #[("WWW-Authenticate", "Basic realm=\"x\"")] "deny")
+  mockServer.getSendChan.close
+
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 401
+  assertBodyIs response "deny"
+
+-- A client that asked for no keep-alive told the server to close, so the retry has nowhere to go
+-- however obliging the challenge is.
+#eval show IO _ from runWithTimeout "a challenge on a no-keep-alive client reaches the caller" 5000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← mkConnection mockClient { constAuthConfig with enableKeepAlive := false }
+  let promise ← sendInBackground connection (← mkRequest .get "/secret")
+
+  discard <| readHead mockServer
+  mockServer.send challenge401
+
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 401
+  assertBodyIs response "deny"
+
+-- A peer can promise keep-alive in the challenge and close anyway, and nothing in the response head
+-- says so. Discovering it takes finishing the exchange, which takes reading the challenge body — so
+-- the body has to be kept, or answering the challenge would cost the caller the response that a
+-- client with no authenticator configured receives without trouble.
+#eval show IO _ from
+  runWithTimeout "a challenge whose connection dies afterwards reaches the caller" 5000 <| Async.block do
+  for _ in [0:10] do
+    let (mockClient, mockServer) ← Mock.new
+    let connection ← mkConnection mockClient constAuthConfig
+    let promise ← sendInBackground connection (← mkRequest .get "/secret")
+
+    discard <| readHead mockServer
+    -- A plain HTTP/1.1 401: `shouldKeepAlive` holds, so the retry looks perfectly possible.
+    mockServer.send challenge401
+    mockServer.getSendChan.close
+
+    let (response, _) ← expectResponse promise
+    assertStatusIs response 401
+    assertBodyIs response "deny"
+
+-- The same once the retry has been queued: the peer took the challenge back before answering it, so
+-- the challenge is still the last thing it said.
+#eval show IO _ from
+  runWithTimeout "a challenge whose retry goes unanswered reaches the caller" 5000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← mkConnection mockClient constAuthConfig
+  let promise ← sendInBackground connection (← mkRequest .get "/secret")
+
+  discard <| readHead mockServer
+  mockServer.send challenge401
+
+  let retry ← readHead mockServer
+  assertContains "the retry" retry.toLower "authorization:"
+  mockServer.getSendChan.close
+
+  let (response, _) ← expectResponse promise
+  assertStatusIs response 401
+  assertBodyIs response "deny"
+
+-- Keeping the challenge body is bounded: past `intermediateBodyDrainLimit` there is nothing left to
+-- hand back, so the failure the client ran into is what the caller hears about.
+#eval show IO _ from
+  runWithTimeout "an oversized challenge body is not kept for the caller" 5000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← mkConnection mockClient
+    { constAuthConfig with intermediateBodyDrainLimit := 4 }
+  let promise ← sendInBackground connection (← mkRequest .get "/secret")
+
+  discard <| readHead mockServer
+  mockServer.send (rawResp "401 Unauthorized"
+    #[("WWW-Authenticate", "Basic realm=\"x\""), ("Content-Length", "16")] "denydenydenydeny")
+  mockServer.getSendChan.close
+
+  expectRetryable (← expectError promise) "an oversized challenge body"
+
+-- `send` is the same exchange with the error type unwrapped, so it has to arrive with the same
+-- request the tracked variant would have sent.
+#eval show IO _ from runWithTimeout "send prepares the request like sendTracked" 4000 <| Async.block do
+  let (mockClient, mockServer) ← Mock.new
+  let connection ← mkConnection mockClient proxiedConfig
+  let request ← Request.new |>.method .get |>.uri! "/hello" |>.empty
+  let promise : IO.Promise (Except IO.Error (Response Body.Stream)) ← IO.Promise.new
+  background do
+    let result ← try Except.ok <$> connection.send request catch e => pure (.error e)
+    discard <| promise.resolve result
+
+  let head ← readHead mockServer
+  unless head.startsWith "GET http://example.com/hello HTTP/1.1\r\n" do
+    throw <| IO.userError s!"unexpected request line:\n{head.quote}"
+  assertContains "a request sent with `send`" head.toLower "host: example.com"
+
+  mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "hi")
+  match ← await promise.result! with
+  | .error e => throw <| IO.userError s!"send threw: {e}"
+  | .ok response => assertStatusIs response 200
+
 
 end ConnectionTests

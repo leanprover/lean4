@@ -416,10 +416,9 @@ def bvShiftRight (α lhs rhs : Expr) : SimprocM (Sym.Simp.Result) := do
   else
     let_expr BitVec.ofNat nExpr kExpr := rhs | return .rfl
     let some n := Sym.getNatValue? nExpr | return .rfl
-    if w != n then return .rfl
     let some k := Sym.getNatValue? kExpr | return .rfl
-    let expr ← BitVec.mkNatShiftRight lhs (← mkLit (k % 2 ^ w)) wExpr
-    let proof := mkApp3 (mkConst ``BitVec.ushiftRight_ofNat_eq) wExpr lhs kExpr
+    let expr ← BitVec.mkNatShiftRight lhs (← mkLit (k % 2 ^ n)) wExpr
+    let proof := mkApp4 (mkConst ``BitVec.ushiftRight_ofNat_eq) wExpr lhs nExpr kExpr
     countRule `bvShiftRight.ushiftRightOfNat
     return .step expr proof
 
@@ -565,13 +564,11 @@ where
 
 def bvShiftLeft (α lhs rhs : Expr) : SimprocM (Sym.Simp.Result) := do
   let_expr BitVec wExpr := α | return .rfl
-  let some w := Sym.getNatValue? wExpr | return .rfl
   let_expr BitVec.ofNat nExpr kExpr := rhs | return .rfl
   let some n := Sym.getNatValue? nExpr | return .rfl
-  if w != n then return .rfl
   let some k := Sym.getNatValue? kExpr | return .rfl
-  let expr ← BitVec.mkNatShiftLeft lhs (← mkLit (k % 2 ^ w)) wExpr
-  let proof := mkApp3 (mkConst ``BitVec.shiftLeft_ofNat_eq) wExpr lhs kExpr
+  let expr ← BitVec.mkNatShiftLeft lhs (← mkLit (k % 2 ^ n)) wExpr
+  let proof := mkApp4 (mkConst ``BitVec.shiftLeft_ofNat_eq) wExpr lhs nExpr kExpr
   countRule `bvShiftLeft
   return .step expr proof
 
@@ -580,11 +577,9 @@ def bvSshiftRight' (nExpr mExpr lhs rhs : Expr) : SimprocM (Sym.Simp.Result) := 
   let some m := Sym.getNatValue? mExpr | return .rfl
   if n != m then return .rfl
   let_expr BitVec.ofNat wExpr kExpr := rhs | return .rfl
-  let some w := Sym.getNatValue? wExpr | return .rfl
-  if n != w then return .rfl
   let some k := Sym.getNatValue? kExpr | return .rfl
-  let expr ← BitVec.mkSshiftRight lhs (← mkLit (k % 2 ^ w)) wExpr
-  let proof := mkApp3 (mkConst ``BitVec.sshiftRight'_ofNat_eq_sshiftRight) wExpr lhs kExpr
+  let expr ← BitVec.mkSshiftRight lhs (← mkLit (k % 2 ^ n)) wExpr
+  let proof := mkApp4 (mkConst ``BitVec.sshiftRight'_ofNat_eq_sshiftRight) wExpr lhs nExpr kExpr
   countRule `bvSshiftRight'
   return .step expr proof
 

@@ -472,6 +472,12 @@ def mul (a b : Array Digit) : Array Digit := mulLoop a b b.size
 
 /-! ## division -/
 
+private theorem toUInt64_ne_zero {x : Digit} (h : 0 < x.toNat) : x.toUInt64 ≠ 0 := by
+  intro h0
+  have hz : x.toUInt64.toNat = 0 := by rw [h0]; rfl
+  rw [UInt32.toNat_toUInt64] at hz
+  omega
+
 theorem sub_digitBits_lt {d : Nat} (h : 0 < d) : digitBits - d < digitBits := by
   simp only [digitBits]; omega
 
@@ -622,7 +628,10 @@ def div1Step (denom : Digit) (s : Array Digit × Array Digit) (j : Nat) :
     Array Digit × Array Digit :=
   let (u, quot) := s
   let temp : DoubleDigit := ((u.getD j 0).toUInt64 <<< 32) ||| (u.getD (j-1) 0).toUInt64
-  let q_hat := temp / denom.toUInt64
+  -- NOTE: `mpn_div` asserts a nonzero leading denominator digit before reaching
+  -- `div_1`, so the C++ divides unguarded. The guard is what lets the division
+  -- go through `CPP.divD`; `div1_spec` assumes `0 < denom` and never takes it.
+  let q_hat := if h : denom.toUInt64 = 0 then 0 else CPP.divD temp denom.toUInt64 h
   let ms := temp - q_hat * denom.toUInt64
   let borrow := ms > temp
   let u := u.set! (j-1) (lo ms)
@@ -712,8 +721,12 @@ def divNTrial (denom u : Array Digit) (j : Nat) : Digit :=
   let n := denom.size
   let temp : DoubleDigit :=
     ((u.getD (j+n) 0).toUInt64 <<< 32) ||| (u.getD (j+n-1) 0).toUInt64
-  lo (recheck (denom.getD (n-1) 0) (denom.getD (n-2) 0) (u.getD (j+n-2) 0)
-      (temp / (denom.getD (n-1) 0).toUInt64) (temp % (denom.getD (n-1) 0).toUInt64)).1
+  -- NOTE: guarded for the same reason as in `div1Step`; `divNTrial_spec`'s
+  -- normalization hypothesis puts the leading digit at or above `2^31`.
+  let dn1 := (denom.getD (n-1) 0).toUInt64
+  let q_hat := if h : dn1 = 0 then 0 else CPP.divD temp dn1 h
+  let r_hat := if h : dn1 = 0 then 0 else CPP.modD temp dn1 h
+  lo (recheck (denom.getD (n-1) 0) (denom.getD (n-2) 0) (u.getD (j+n-2) 0) q_hat r_hat).1
 
 /--
 One iteration of `div_n`'s outer loop, producing quotient digit `j`:
@@ -803,7 +816,11 @@ def div (numer denom : Array Digit) : Array Digit × Array Digit :=
   if lnum < lden then
     (Array.replicate (lnum + 1 - lden) 0, (Array.range lden).map fun i => numer.getD i 0)
   else if lnum = 1 && lden = 1 then
-    (#[numer.getD 0 0 / denom.getD 0 0], #[numer.getD 0 0 % denom.getD 0 0])
+    -- NOTE: guarded for the same reason as in `div1Step`; the C++ reaches this
+    -- only past `lean_assert(denom[lden-1] != 0)`.
+    if h : denom.getD 0 0 = 0 then (#[0], #[numer.getD 0 0])
+    else (#[CPP.div (numer.getD 0 0) (denom.getD 0 0) h],
+          #[CPP.mod (numer.getD 0 0) (denom.getD 0 0) h])
   else if lnum = lden && numer.getD (lnum-1) 0 < denom.getD (lden-1) 0 then
     (Array.replicate (lnum - lden + 1) 0, (Array.range lden).map fun i => numer.getD i 0)
   else
@@ -1822,7 +1839,8 @@ private theorem div1Step_eq (denom : Digit) (u quot : Array Digit) (j : Nat)
   refine ⟨lo (W / denom.toUInt64), lo (W - (W / denom.toUInt64) * denom.toUInt64), ?_, ?_, ?_⟩
   · rw [hq, hWn]
   · rw [hr, hWn]
-  · simp only [div1Step, Nat.add_sub_cancel, ← hW]
+  · have hnz : denom.toUInt64 ≠ 0 := toUInt64_ne_zero hd
+    simp only [div1Step, Nat.add_sub_cancel, ← hW, hnz, dite_false, CPP.divD_eq]
     simp [hhi, hnb]
 
 private theorem denoteN_set!_of_zero (c : Array Digit) (idx : Nat) (d : Digit)
@@ -2440,7 +2458,10 @@ theorem divNTrial_spec (denom u : Array Digit) (j k : Nat)
             / (denom.getD (k+1) 0).toUInt64)
           ((((u.getD (j+k+2) 0).toUInt64 <<< 32) ||| (u.getD (j+k+1) 0).toUInt64)
             % (denom.getD (k+1) 0).toUInt64)).1 := by
-    simp only [divNTrial, hk]
+    have hnz : (denom.getD (k+1) 0).toUInt64 ≠ 0 :=
+      toUInt64_ne_zero (by simp only [base] at hnorm; omega)
+    simp only [divNTrial, hk, show k + 2 - 1 = k + 1 from rfl, show k + 2 - 2 = k from rfl,
+      hnz, dite_false, CPP.divD_eq, CPP.modD_eq]
     rfl
   rw [hdt, lo_of_lt _ hqlt]
   exact ⟨hq1, hq2⟩
@@ -2814,6 +2835,11 @@ theorem div_spec (numer denom : Array Digit)
     simp only [Bool.and_eq_true, decide_eq_true_eq] at hB
     have hN : denote numer = (numer.getD 0 0).toNat := by rw [denote, hB.1]; simp [denoteN]
     have hD : denote denom = (denom.getD 0 0).toNat := by rw [denote, hB.2]; simp [denoteN]
+    have hnz : denom.getD 0 0 ≠ 0 := by
+      intro h0
+      rw [hB.2, Nat.sub_self, h0] at htop
+      simp at htop
+    simp only [hnz, dite_false, CPP.div_eq, CPP.mod_eq]
     exact ⟨by rw [denote_singleton, UInt32.toNat_div, hN, hD],
       by rw [denote_singleton, UInt32.toNat_mod, hN, hD]⟩
   · simp only [Bool.eq_false_iff.mpr hB, Bool.false_eq_true, ite_false]
@@ -3103,7 +3129,7 @@ theorem size_div_quot (numer denom : Array Digit) (hden : 0 < denom.size)
   simp only [show ¬ (numer.size < denom.size) from by omega, ite_false]
   split <;> rename_i hB
   · simp only [Bool.and_eq_true, decide_eq_true_eq] at hB
-    simp [hB.1, hB.2]
+    split <;> simp [hB.1, hB.2]
   · split <;> rename_i hC
     · simp
     · simp [size_copyInto]
@@ -3114,7 +3140,7 @@ theorem size_div_rem (numer denom : Array Digit) (hden : 0 < denom.size)
   simp only [show ¬ (numer.size < denom.size) from by omega, ite_false]
   split <;> rename_i hB
   · simp only [Bool.and_eq_true, decide_eq_true_eq] at hB
-    simp [hB.2]
+    split <;> simp [hB.2]
   · split <;> rename_i hC
     · simp
     · simp [divUnnormalize, size_shiftRightDigits]

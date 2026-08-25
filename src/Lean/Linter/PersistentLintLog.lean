@@ -72,6 +72,15 @@ def recordLints (fileMap : FileMap) (env : Environment)
       let sm ← m.serialize
       return lintLogExt.addEntry env { linter := kind, message := sm, position?, file := m.fileName }
 
+/--
+Records the code quality entry `e` into `codeQualityLogExt` so that it is persisted into the
+`.olean` and can be recovered by consumers via `getAllCodeQualityEntries`.
+
+This can be safely used in Linters. While regular `Lean.Linter`s, module linters, and stateful
+linters all have their environment changes discarded after running, entries they log are
+captured per command (see `Command.State.codeQualityEntryTasks`) and merged into the final
+environment in `runFrontend`.
+-/
 def logCodeQualityEntry [Monad m] [MonadEnv m]
     (e : CodeQuality.Entry) : m Unit :=
   modifyEnv (codeQualityLogExt.addEntry · e)

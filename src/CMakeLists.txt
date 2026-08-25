@@ -546,7 +546,7 @@ endif()
 
 # flags for user binaries = flags for toolchain binaries + Lake
 set(LEANC_STATIC_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lLake")
-if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+if(CMAKE_SYSTEM_NAME MATCHES "Linux|NetBSD")
   set(LEANC_SHARED_LINKER_FLAGS " ${TOOLCHAIN_SHARED_LINKER_FLAGS} -Wl,--as-needed -lLake_shared -Wl,--no-as-needed")
 else()
   set(LEANC_SHARED_LINKER_FLAGS " ${TOOLCHAIN_SHARED_LINKER_FLAGS} -lLake_shared")
@@ -593,7 +593,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " -lm")
 endif()
 
-if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+if(CMAKE_SYSTEM_NAME MATCHES "Linux|NetBSD")
   if(BSYMBOLIC)
     string(APPEND LEANC_SHARED_LINKER_FLAGS " -Wl,-Bsymbolic")
     string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,-Bsymbolic")

@@ -37,7 +37,11 @@ extern "C" {
 #include <stdnoreturn.h>
 #define LEAN_NORETURN _Noreturn
 #else
+#if defined(__GNUC__) || defined(__clang__)
+#define LEAN_ALLOCA(s) __builtin_alloca(s)
+#else
 #define LEAN_ALLOCA(s) alloca(s)
+#endif
 #define LEAN_NORETURN __attribute__((noreturn))
 #endif
 

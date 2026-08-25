@@ -153,7 +153,6 @@ name const & recursor_val::get_major_induct() const {
     return const_name(*t);
 }
 
-
 bool recursor_val::is_k() const { return lean_recursor_k(to_obj_arg()); }
 bool recursor_val::is_unsafe() const { return lean_recursor_is_unsafe(to_obj_arg()); }
 

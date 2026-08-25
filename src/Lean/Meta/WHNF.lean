@@ -175,7 +175,8 @@ def mkProjFn (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) 
   \pre `inductName` is `C`.
 
   If `Meta.Config.etaStruct` is `false` or the condition above does not hold, this method just returns `major`. -/
-private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr := do
+private def toCtorWhenStructure (recVal : RecursorVal) (major : Expr): MetaM Expr := do
+  let inductName := recVal.getMajorInduct
   unless (← useEtaStruct inductName) do
     return major
   let env ← getEnv
@@ -191,8 +192,8 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
       return major
     match majorType.getAppFn with
     | Expr.const d us =>
-      if (← whnfD (← inferType majorType)) == mkSort Level.zero then
-        return major -- We do not perform eta for propositions, see implementation in the kernel
+      if recVal.levelParams.length == us.length then
+        return major -- We do not perform eta for non-singleton propositions, see implementation in the kernel
       else
         let some ctorName ← getFirstCtor d | pure major
         let ctorInfo ← getConstInfoCtor ctorName
@@ -228,8 +229,12 @@ private def cleanupNatOffsetMajor (e : Expr) : MetaM Expr := do
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let majorIdx := recVal.getMajorIdx
   if h : majorIdx < recArgs.size then do
-    let major := recArgs[majorIdx]
-    let mut major ← if isWFRec recVal.name && (← getTransparency) == .default then
+    let mut major := recArgs[majorIdx]
+    if recVal.k then
+      major ← toCtorWhenK recVal major
+    major ← toCtorWhenStructure recVal major
+    -- If `toCtorWhenStructure` changes the major, then it's already in whnf, no need to call it here. Shouldn't be too expansive in practice
+    major ← if isWFRec recVal.name && (← getTransparency) == .default then
       -- If recursor is `Acc.rec` or `WellFounded.rec` and transparency is default,
       -- then we bump transparency to .all to make sure we can unfold defs defined by WellFounded recursion.
       -- We use this trick because we abstract nested proofs occurring in definitions.
@@ -237,11 +242,8 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
       withTransparency .all <| whnf major
     else
       whnf major
-    if recVal.k then
-      major ← toCtorWhenK recVal major
     major ← major.toCtorIfLit
     major ← cleanupNatOffsetMajor major
-    major ← toCtorWhenStructure recVal.getMajorInduct major
     match getRecRuleFor recVal major with
     | some rule =>
       let majorArgs := major.getAppArgs

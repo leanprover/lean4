@@ -1306,12 +1306,8 @@ def recComputeModuleLinkInfo
   let mut libJobs := #[]
   for facet in root.nativeFacets shouldExport do
     objJobs := objJobs.push <| ← facet.fetch root
-  let imports ← match (← (← root.transImports.fetch).wait) with
-    | .ok imports _ => pure imports
-    | r@(.error ..) =>
-      -- Canceled is not a bad import; fail silently (the module's own job reports it).
-      if r.isCanceled then failure
-      error s!"bad imports (see the '{root.name.toString}' job for details)"
+  let some imports ← (← root.transImports.fetch).waitUnlessCanceled?
+    | error s!"bad imports (see the '{root.name.toString}' job for details)"
   for mod in imports do
     for facet in mod.nativeFacets shouldExport do
       objJobs := objJobs.push <| ← facet.fetch mod

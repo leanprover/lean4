@@ -51,13 +51,8 @@ where
       col := {col with modSet := col.modSet.insert root}
       -- Importers report failures reached through imports. Directly reached modules
       -- stay in the collection so their build jobs report those failures.
-      let imps ← match (← (← root.imports.fetch).wait) with
-        | .ok imps _ => pure imps
-        | r@(.error ..) =>
-          -- Canceled is not a bad import; the module's own job reports it.
-          if r.isCanceled then
-            return if viaImport then col else {col with mods := col.mods.push root}
-          let col' := {col with hasErrors := true}
+      let some imps ← (← root.imports.fetch).waitUnlessCanceled?
+        | let col' := {col with hasErrors := true}
           return if viaImport then col' else {col' with mods := col'.mods.push root}
       for mod in imps do
         if mod.lib.name = self.name then

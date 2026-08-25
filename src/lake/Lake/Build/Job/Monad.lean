@@ -192,6 +192,20 @@ public protected def await (self : Job α) : LogIO α := do
   | .error n {log, ..} => log.replay; throw n
   | .ok a {log, ..} => log.replay; pure a
 
+/-- Fail the current job as canceled (no log entry; see `JobState.canceled`). -/
+public def cancelJob : JobM α := do
+  modify ({· with canceled := true})
+  failure
+
+/--
+Like `wait?`, but a canceled job cancels the current job as well (via
+`cancelJob`), so `none` only ever means a genuine failure.
+-/
+public def waitUnlessCanceled? (self : Job α) : JobM (Option α) := do
+  match (← self.wait) with
+  | .ok a _ => return some a
+  | r@(.error ..) => if r.isCanceled then cancelJob else return none
+
 /--
 The result of a job continuation canceled by the build's cancellation token
 (see `BuildConfig.failFast`). The trace-level entry only gives `Job.await` a

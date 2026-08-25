@@ -51,9 +51,24 @@ partial def size : Trie α → Nat
     children.foldl (init := vs.size) fun n (_, c) => n + size c
 
 /--
+Generate a trie node from values and an array of children.
+-/
+@[inline]
+def mkNode (vs : Array α) (cs : Array (Key × Trie α)) : Trie α :=
+  .node vs cs
+
+/--
+Inspect a trie node as an array of values and an array of children.
+-/
+@[inline]
+def asNode : Trie α → Array α × Array (Key × Trie α)
+  | .node vs cs => ⟨vs, cs⟩
+
+/--
 Returns the values stored at the current trie node.
 Equivalent to `t.asNode.1`.
 -/
+@[inline]
 def nodeValues : Trie α → Array α
   | .node vs _ => vs
 
@@ -61,6 +76,7 @@ def nodeValues : Trie α → Array α
 Returns the child nodes of the current trie node.
 Equivalent to `t.asNode.2`.
 -/
+@[inline]
 def nodeChildren : Trie α → Array (Key × Trie α)
   | .node _ cs => cs
 

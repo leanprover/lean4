@@ -3789,6 +3789,193 @@ and above, where the `mpz.cpp` loop this replaces used to spin forever. -/
 theorem Num.val_pow (a : Num) (p : Digit) : (a.pow p).val = a.val ^ p.toNat := by
   rw [Num.pow, Num.val_powLoop, Num.val_one, Nat.one_mul]
 
+
+/-!
+## The `lean_object` layer
+
+`lean_nat_div` and its siblings dispatch on how a `Nat` is represented: a
+`size_t` scalar carrying a tag bit, or a pointer to an `mpz`. The `mpz` case
+never holds a value small enough to be a scalar, because `mpz_to_nat` re-boxes
+anything that fits:
+```
+static inline obj_res mpz_to_nat(mpz const & m) {
+    if (m.is_size_t() && m.get_size_t() <= LEAN_MAX_SMALL_NAT)
+        return lean_box(m.get_size_t());
+    else
+        return mpz_to_nat_core(m);
+}
+```
+The fast paths rely on that invariant without checking it, since `lean_assert`
+compiles out of a release build. Bundling it into the type is what makes those
+assertions provable here.
+
+Representing the tagged pointer itself would need addresses, so the pointer is
+where the transliteration stops: what is modelled is the choice between the two
+representations, on a 64-bit target.
+-/
+
+/-- `#define LEAN_MAX_SMALL_NAT (SIZE_MAX >> 1)` -/
+def maxSmallNat : Nat := 2 ^ 63 - 1
+
+/-- `lean_box(n) = (lean_object*)(((size_t)(n) << 1) | 1)` -/
+def box (n : Nat) : UInt64 := (UInt64.ofNat n <<< 1) ||| 1
+
+/-- `lean_unbox(o) = (size_t)(o) >> 1` -/
+def unbox (o : UInt64) : Nat := (o >>> 1).toNat
+
+/--
+Boxing is injective on the scalar range. The tag costs exactly one bit, which is
+why `LEAN_MAX_SMALL_NAT` is `SIZE_MAX >> 1` and not something else: one more and
+the shift would overflow.
+-/
+theorem unbox_box (n : Nat) (h : n ≤ maxSmallNat) : unbox (box n) = n := by
+  have hn : n < 2 ^ 64 := by simp only [maxSmallNat] at h; omega
+  have hlt : 2 * n < 2 ^ 64 := by simp only [maxSmallNat] at h; omega
+  have hofNat : (UInt64.ofNat n).toNat = n := by
+    exact UInt64.toNat_ofNat_of_lt' hn
+  have hshift : (UInt64.ofNat n <<< 1).toNat = 2 * n := by
+    rw [UInt64.toNat_shiftLeft, show (1 : UInt64).toNat % 64 = 1 from rfl, hofNat,
+      Nat.shiftLeft_eq, Nat.pow_one, Nat.mul_comm]
+    exact Nat.mod_eq_of_lt hlt
+  have hor : (2 * n) ||| 1 = 2 * n + 1 := by
+    apply Nat.eq_of_testBit_eq
+    intro i
+    rw [Nat.testBit_or]
+    cases i with
+    | zero => simp [Nat.testBit_zero, Nat.mul_mod_right]
+    | succ i =>
+      have h1 : (2 * n + 1) / 2 = n := by omega
+      have h2 : (2 * n) / 2 = n := by omega
+      simp [Nat.testBit_succ, h1, h2]
+  unfold unbox box
+  rw [UInt64.toNat_shiftRight, show (1 : UInt64).toNat % 64 = 1 from rfl,
+    UInt64.toNat_or, hshift, show (1 : UInt64).toNat = 1 from rfl, hor,
+    Nat.shiftRight_eq_div_pow, Nat.pow_one]
+  omega
+
+/--
+A `Nat` object: a boxed scalar, or an `mpz`. The `big` case is never small
+enough to be boxed, which is the invariant `mpz_to_nat` maintains.
+-/
+inductive NatObj where
+  | small (n : Nat) (h : n ≤ maxSmallNat)
+  | big (m : Num) (h : maxSmallNat < m.val)
+
+/-- The natural number an object denotes. -/
+def NatObj.val : NatObj → Nat
+  | .small n _ => n
+  | .big m _ => m.val
+
+/-- `mpz_to_nat`: re-box anything that fits in a scalar. -/
+def mpzToNat (m : Num) : NatObj :=
+  if h : m.val ≤ maxSmallNat then .small m.val h else .big m (by omega)
+
+@[simp] theorem mpzToNat_val (m : Num) : (mpzToNat m).val = m.val := by
+  unfold mpzToNat; split <;> rfl
+
+/-- `mpz::of_size_t`, which needs two digits for a scalar. -/
+def Num.ofSizeT (n : Nat) : Num :=
+  Num.ofArray! #[UInt32.ofNat (n % base), UInt32.ofNat (n / base)]
+
+@[simp] theorem Num.val_ofSizeT (n : Nat) (h : n < base ^ 2) : (Num.ofSizeT n).val = n := by
+  have hbpos : 0 < base := by simp [base]
+  have hlo : (UInt32.ofNat (n % base)).toNat = n % base :=
+    UInt32.toNat_ofNat_of_lt' (Nat.mod_lt _ hbpos)
+  have hhib : n / base < base := by
+    rw [Nat.pow_two] at h; exact Nat.div_lt_of_lt_mul (by omega)
+  have hhi : (UInt32.ofNat (n / base)).toNat = n / base :=
+    UInt32.toNat_ofNat_of_lt' hhib
+  have hd : denote #[UInt32.ofNat (n % base), UInt32.ofNat (n / base)]
+      = (n % base) + (n / base) * base := by
+    simp [denote, denoteN, hlo, hhi]
+  rw [Num.ofSizeT, Num.val_ofArray! _ (by simp), hd, Nat.mul_comm]
+  exact Nat.mod_add_div n base
+
+/--
+`lean_nat_div`, and `lean_nat_big_div` behind it:
+```
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        size_t n1 = lean_unbox(a1);
+        size_t n2 = lean_unbox(a2);
+        if (n2 == 0) return lean_box(0); else return lean_box(n1 / n2);
+    } else {
+        return lean_nat_big_div(a1, a2);
+    }
+```
+```
+    if (lean_is_scalar(a1)) {
+        lean_assert(mpz_value(a2) != 0);
+        lean_assert(mpz::of_size_t(lean_unbox(a1)) / mpz_value(a2) == 0);
+        return lean_box(0);
+    } else if (lean_is_scalar(a2)) {
+        usize n2 = lean_unbox(a2);
+        return n2 == 0 ? a2 : mpz_to_nat(mpz_value(a1) / mpz::of_size_t(n2));
+    } else {
+        lean_assert(mpz_value(a2) != 0);
+        return mpz_to_nat(mpz_value(a1) / mpz_value(a2));
+    }
+```
+-/
+def natDiv : NatObj → NatObj → NatObj
+  | .small n₁ h₁, .small n₂ _ =>
+    if n₂ = 0 then .small 0 (Nat.zero_le _)
+    else .small (n₁ / n₂) (Nat.le_trans (Nat.div_le_self ..) h₁)
+  | .small _ _, .big _ _ => .small 0 (Nat.zero_le _)
+  | .big m₁ _, .small n₂ h₂ =>
+    if h : n₂ = 0 then .small 0 (Nat.zero_le _)
+    else mpzToNat (m₁.div (Num.ofSizeT n₂) (by
+      rw [Num.val_ofSizeT n₂ (by simp only [maxSmallNat, base] at *; omega)]; exact h))
+  | .big m₁ _, .big m₂ h₂ => mpzToNat (m₁.div m₂ (by omega))
+
+/--
+`lean_nat_div` divides, for every pair of objects. There is no precondition:
+division by zero is a branch rather than an assumption, and the branch that
+returns zero without dividing is sound because a `big` object never holds a
+value a scalar could have held, which is what the type records and what the
+`lean_assert` in the C++ only checks in a debug build.
+-/
+theorem natDiv_val (a b : NatObj) : (natDiv a b).val = a.val / b.val := by
+  cases a with
+  | small n₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      simp only [natDiv]
+      split <;> rename_i h
+      · subst h; simp [NatObj.val]
+      · rfl
+    | big m₂ h₂ =>
+      simp only [natDiv, NatObj.val]
+      exact (Nat.div_eq_of_lt (by omega)).symm
+  | big m₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      simp only [natDiv]
+      split <;> rename_i h
+      · subst h; simp [NatObj.val]
+      · rw [mpzToNat_val, Num.val_div, NatObj.val, NatObj.val,
+          Num.val_ofSizeT n₂ (by simp only [maxSmallNat, base] at *; omega)]
+    | big m₂ h₂ =>
+      simp only [natDiv]
+      rw [mpzToNat_val, Num.val_div, NatObj.val, NatObj.val]
+
+/--
+The assertion `lean_nat_big_div` makes and a release build then drops:
+```
+    if (lean_is_scalar(a1)) {
+        lean_assert(mpz::of_size_t(lean_unbox(a1)) / mpz_value(a2) == 0);
+        return lean_box(0);
+    }
+```
+It returns the answer without dividing, which is right because a scalar cannot
+reach the range an `mpz` object occupies. That is the invariant `mpz_to_nat`
+maintains and the one this type carries.
+-/
+theorem natDiv_small_big (n : Nat) (h : n ≤ maxSmallNat) (m : Num) (hm : maxSmallNat < m.val) :
+    (natDiv (.small n h) (.big m hm)).val = 0 := by
+  rw [natDiv_val]
+  show n / m.val = 0
+  exact Nat.div_eq_of_lt (by omega)
+
 /-!
 ## Differential testing against `Nat`
 

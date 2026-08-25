@@ -269,10 +269,11 @@ void mpn_div(mpn_digit const * numer, size_t const lnum,
              mpn_digit const * denom, size_t const lden,
              mpn_digit * quot,
              mpn_digit * rem) {
+    lean_assert(lden > 0 && lden <= lnum);
 
     if (lnum < lden) {
-        for (size_t i = 0; i < (lnum-lden+1); i++)
-            quot[i] = 0;
+        // No quotient digit exists here: `lnum - lden + 1` is not positive, and
+        // computing it in `size_t` would wrap and overrun `quot`.
         for (size_t i = 0; i < lden; i++)
             rem[i] = (i < lnum) ? numer[i] : 0;
         return;
@@ -320,6 +321,7 @@ void mpn_div(mpn_digit const * numer, size_t const lnum,
 
 char * mpn_to_string(mpn_digit const * a, size_t const lng, char * buf, size_t const lbuf) {
     lean_assert(buf && lbuf > 0);
+    lean_assert(lng > 0);
 
     if (lng == 1) {
 #ifdef _WINDOWS

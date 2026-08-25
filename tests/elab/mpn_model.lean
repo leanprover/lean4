@@ -1012,11 +1012,13 @@ def divN (numer denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUIn
         div_unnormalize(u, v, d, rem);
     }
 ```
-NOTE: the `lnum < lden` branch of the C++ computes its loop bound
-`lnum - lden + 1` in `size_t`, which underflows to `SIZE_MAX` whenever
-`lden > lnum + 1` and then overruns the quotient buffer. Every in-tree caller
-checks `lden <= lnum` first, so the branch is dead; the model returns an empty
-quotient there.
+The preconditions are the ones `mpn_div` asserts, and they make its `lnum < lden`
+branch dead, which is why it is `absurd` here.
+
+That branch used to zero `quot[0 .. lnum-lden+1)`, a bound computed in `size_t`
+that wraps whenever `lden > lnum + 1` and then overruns the buffer. The loop
+never legitimately iterates, since `lnum < lden` puts the bound at or below
+zero, and it has been removed.
 -/
 def div (numer denom : Array Digit) (hden : 0 < denom.size)
     (hsz : denom.size ≤ numer.size)
@@ -1077,7 +1079,7 @@ any `lng`-digit value has.
 
 NOTE: for `lng == 0` the C++ decrements `j` from `0` past the end of `size_t`
 and then swaps around `SIZE_MAX/2` character pairs. `mpz::m_size` is always at
-least one, so no caller can reach it.
+least one, so no caller reaches it, and `mpn_to_string` now asserts `lng > 0`.
 -/
 def toString (a : Array Digit) : String := Id.run do
   let lng := a.size

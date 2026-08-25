@@ -721,7 +721,7 @@ goto v_resetjp_271_;
 v_resetjp_271_:
 {
 lean_object* v_registeredJobs_274_; lean_object* v___x_275_; uint8_t v___x_276_; lean_object* v___x_277_; lean_object* v___x_278_; lean_object* v___x_279_; uint8_t v___x_280_; lean_object* v_job_282_; 
-v_registeredJobs_274_ = lean_ctor_get(v_a_247_, 3);
+v_registeredJobs_274_ = lean_ctor_get(v_a_247_, 4);
 v___x_275_ = lean_st_ref_take(v_registeredJobs_274_);
 v___x_276_ = 1;
 v___x_277_ = l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(v_name_252_, v___x_276_);

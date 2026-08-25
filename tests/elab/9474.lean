@@ -2,7 +2,7 @@ import Std.Tactic.Do
 
 open Std.Do
 
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 
 noncomputable def setZeroHead : StateM (List Nat) Unit := do
   modify fun _ => [1, 0, 1, 2, 3, 4, 5]

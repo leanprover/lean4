@@ -10,7 +10,7 @@ goal's program is the metavariable standing for `k`, applied to `5`, and `vcgen`
 instantiating it.
 -/
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 open Std.WP
 open Lean.Order

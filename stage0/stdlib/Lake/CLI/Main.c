@@ -42482,7 +42482,7 @@ goto v_resetjp_12139_;
 v_resetjp_12139_:
 {
 lean_object* v_registeredJobs_12142_; lean_object* v___x_12143_; lean_object* v___x_12144_; uint8_t v___x_12145_; lean_object* v_job_12147_; 
-v_registeredJobs_12142_ = lean_ctor_get(v___y_12105_, 3);
+v_registeredJobs_12142_ = lean_ctor_get(v___y_12105_, 4);
 v___x_12143_ = lean_st_ref_take(v_registeredJobs_12142_);
 v___x_12144_ = l_Lake_PartialBuildKey_toString(v_v_12111_);
 v___x_12145_ = 0;

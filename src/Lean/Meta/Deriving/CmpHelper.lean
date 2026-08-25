@@ -94,13 +94,19 @@ def Kind.className : Kind → Name
   | .beq => ``BEq
   | .ord => ``Ord
 
+def Kind.classCtorName : Kind → Name
+  | .beq => ``BEq.mk
+  | .ord => ``Ord.mk
+
 def Kind.classCtor : Kind → Level → Expr → Expr
-  | .beq, u, α => .app (.const ``BEq.mk [u]) α
-  | .ord, u, α => .app (.const ``Ord.mk [u]) α
+  | k, u, α => .app (.const k.classCtorName [u]) α
+
+def Kind.cmpFieldName : Kind → Name
+  | .beq => ``BEq.beq
+  | .ord => ``Ord.compare
 
 def Kind.cmpField : Kind → Level → Expr → Expr
-  | .beq, u, α => .app (.const ``BEq.beq [u]) α
-  | .ord, u, α => .app (.const ``Ord.compare [u]) α
+  | k, u, α => .app (.const k.cmpFieldName [u]) α
 
 def Kind.reflClassName : Kind → Name
   | .beq => ``ReflBEq
@@ -939,8 +945,51 @@ def deriveCmpClass (k : Kind) : Elab.DerivingHandler := mkInductiveDerivingHandl
         (← mkLambdaFVars indices <| .app (k.classCtor lvl indApp) (← mkLambdaFVars #[a, b] helperApp))
   return true
 
+def deriveReflCmpClass (k : Kind) : Elab.DerivingHandler :=
+    deriveSimpleLawTypeClass k.className fun inst instValue => do
+  let name := (← read).names[0]!
+  let mkApp2 (.const nm [u]) α cmpFn := instValue | return false
+  unless nm == k.classCtorName do return false
+  withLocalDeclD `a α fun var => do
+  let cmp := cmpFn.betaRev #[var, var]
+  unless cmp.isAppOf (k.mkHelperName name) do return false
+  if ← isNested then
+    throwError "Deriving `{.ofConstName k.reflClassName}` is not supported for nested inductives"
+  let nvars := (← read).indInfo.numIndices + 1
+  let rvars := cmp.getAppArgsN nvars
+  let head := cmp.getBoundedAppFn nvars
+  let lvars := head.getAppArgsN nvars
+  let head := head.getBoundedAppFn nvars
+  unless lvars == rvars do
+    throwError "Expected left-hand and right-hand side variables to be equal:{indentExpr cmp}"
+  unless (← getEnv).contains (k.mkReflName name) do
+    withNonNestedContext name k makeRefl
+  let proof := head.replaceFn (k.mkReflName name)
+  let proofType ← inferType proof
+  let arity := proofType.getForallArity
+  let nhyps := arity - nvars
+  let hyps ← forallBoundedTelescope proofType nhyps fun hypVars _ => do
+    hypVars.mapM fun hypVar => do
+      let ty ← inferType hypVar
+      forallTelescope ty fun hypParams body => do
+        let mkApp3 (.const ``Eq _) _ (mkApp4 (.const cmp us) ty inst a b) _ := body |
+          throwError "Unexpected hypothesis{indentExpr body}"
+        unless cmp == k.cmpFieldName do
+          throwError "Unexpected hypothesis{indentExpr body}"
+        unless a == b do
+          throwError "Unexpected hypothesis{indentExpr body}"
+        let reflInst ← synthInstanceDeriving (mkApp2 (.const k.reflClassName us) ty inst)
+        mkLambdaFVars hypParams <| mkApp2 (k.reflField us[0]! ty inst) reflInst a
+  let proof := mkAppN (mkAppN proof hyps) lvars
+  let proof ← mkLambdaFVars #[var] proof
+  let proof := (k.reflCtor u α inst).app proof
+  let type := mkApp2 (.const k.reflClassName [u]) α inst
+  mkInstanceForDeriving (← produceInstanceHyps) type proof
+  return true
+
 builtin_initialize
   for kind in kinds do
     Elab.registerDerivingHandler kind.className (deriveCmpClass kind)
+    Elab.registerDerivingHandler kind.reflClassName (deriveReflCmpClass kind)
 
 end Lean.Meta.CmpHelper

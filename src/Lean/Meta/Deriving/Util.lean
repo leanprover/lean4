@@ -60,7 +60,44 @@ def Lean.mkInstance (name : Name) (levelParams : List Name) (type value : Expr)
       modifyEnv (addNoncomputable · name)
   enableRealizationsForConst name
 
+/--
+Creates a new metavariable in the local context `lctx`, reverting any free variables in `ty` that
+do not occur in `lctx`. The return value will be an application of the metavariable with the
+reverted variables.
+
+Note: This function assumes that the `lctx` is a subprefix of the current local context.
+-/
+def Lean.Meta.mkFreshRevertedMVarAt (ty : Expr) (lctx : LocalContext) (linsts : LocalInstances) :
+    MetaM Expr := do
+  let ty ← instantiateMVars ty
+  let state ← (collectFVars {} ty).addDependencies
+  let toRevert := (← getLCtx).getFVarIds.filter (fun f => state.fvarSet.contains f && !lctx.contains f)
+  let toRevert := toRevert.map Expr.fvar
+  let ty' ← mkForallFVars toRevert ty
+  let mvar ← mkFreshExprMVarAt lctx linsts ty' .syntheticOpaque
+  return mkAppN mvar toRevert
+
 namespace Lean.Meta.Deriving
+
+private def goodKeys (keys : Array DiscrTree.Key) : Bool := Id.run do
+  let some (.const _ _) := keys[0]? | return false
+  let mut constFragment : Option Name := none
+  for h : i in 1...keys.size do
+    match keys[i] with
+    | .const nm _ =>
+      if nm == ``Eq then
+        -- hack for `DecidableEq`
+        continue
+      if constFragment.isSome then
+        return false
+      constFragment := some nm
+    | .star => continue
+    | _ => return false
+  return constFragment.isSome
+
+private def goodOutputKeys (keys : Array DiscrTree.Key) : Bool := Id.run do
+  let some (.const _ _ : DiscrTree.Key) := keys[0]? | return false
+  return keys.all (start := 1) (· matches .star | .const ``Eq _)
 
 /--
 Given a list of metavariables corresponding to instance obligations, returns a suitable list of
@@ -70,8 +107,80 @@ Precondition: The current local context must be a prefix of the local contexts o
 all metavariables.
 -/
 def filterInstanceObligations (mvars : Array MVarId) : MetaM (Array MVarId) := do
-  -- Do all sorts of filtering things
-  return mvars
+  let mut newMVars : Array MVarId := #[]
+  let mut stack : Array (MVarId × Bool) := mvars.reverse.map (·, true)
+  let origLInsts ← getLocalInstances
+  let mut lctx ← getLCtx
+  let mut linsts ← getLocalInstances
+  let mut timeout := 100
+  while h : !stack.isEmpty do
+    let (back, allowCanonicalInstanceReduction) := stack.back (by simp_all [Array.size_pos_iff])
+    stack := stack.pop
+    let type ← back.getType
+    let some className ← isClass? type |
+      -- if this wasn't reported before, report now
+      throwError "type class instance expected{indentExpr type}"
+    if let .some res ← withLCtx lctx linsts (trySynthInstance type) then
+      back.assign res
+      continue
+    unless allowCanonicalInstanceReduction do
+      -- avoid loops
+      newMVars := newMVars.push back
+      -- we simply add the new metavariables as local instances for instance synthesis to pick up
+      -- that way we can detect redundant instances more effectively
+      linsts := linsts.push { className, fvar := .mvar back }
+      continue
+    -- This step tries to reduce e.g. `BEq (List α)` to `BEq α`
+    let mctx ← getMCtx
+    let res ← forallTelescopeReducing (whnfType := true) type fun vars body => do
+      -- try to apply instance
+      trace[Elab.Deriving] "Trying to reduce {body}"
+      let instances ← getGlobalInstancesIndex
+      let matching ← instances.getUnify body
+      trace[Elab.Deriving] "Instances: {matching}"
+      let matching := matching.filter fun inst => goodKeys inst.keys
+      trace[Elab.Deriving] "Good instances: {matching}"
+      let #[instEntry] := matching | return none
+      let some name := instEntry.globalName? | return none
+      let c ← mkConstWithFreshMVarLevels name
+      let (args, bis, instBody) ← forallMetaTelescopeReducing (← inferType c)
+      let mut outVars := #[]
+      for arg in args, bi in bis do
+        if bi.isInstImplicit then
+          if instBody.containsMVar arg.mvarId! then
+            continue
+          let keys ← DiscrTree.mkPath (← inferType arg)
+          let newMVar ← mkFreshRevertedMVarAt (← inferType arg) lctx origLInsts
+          arg.mvarId!.assign newMVar
+          outVars := outVars.push (newMVar.getAppFn.mvarId!, goodOutputKeys keys)
+      unless ← isDefEqI instBody body do
+        trace[Elab.Deriving] "Failed to unify"
+        return none
+      let c ← instantiateMVars c
+      if c.hasLevelMVar then
+        trace[Elab.Deriving] "Remaining level metavariables in {c}"
+        return none
+      let mctx' ← getMCtx
+      let mut res := c
+      for arg in args, bi in bis do
+        let arg ← instantiateMVars arg
+        -- all metavariables that were there before should be synthetic opaque
+        if arg.hasLevelMVar then
+          trace[Elab.Deriving] "Remaining level metavariables in {arg}"
+          return none
+        if arg.hasAnyMVar (fun m => !(mctx'.getDecl m).kind.isSyntheticOpaque) then
+          trace[Elab.Deriving] "Remaining metavariables in {arg}"
+          return none
+        res := res.app arg
+      back.assign (← mkLambdaFVars vars res)
+      return some outVars
+    if let some outVars := res then
+      stack := outVars.foldr (fun x as => as.push x) stack
+    else
+      setMCtx mctx
+      newMVars := newMVars.push back
+      linsts := linsts.push { className, fvar := .mvar back }
+  return newMVars
 
 structure Deriving.State where
   instanceMVars : Array MVarId := #[]
@@ -90,8 +199,8 @@ structure Deriving.Context where
   /-- Level parameters for the inductive type -/
   lparams : List Level
   /--
-  Parameters for the inductive type. By default, this coincides with `params` but this doesn't
-  have to be the case in general. These have to type-check in `paramLCtx`.
+  Parameters (and potentially indices) for the inductive type. By default, this coincides with
+  `params` but this doesn't have to be the case in general. These have to type-check in `paramLCtx`.
   -/
   indParams : Array Expr
   /--
@@ -129,8 +238,8 @@ def produceInstanceHyps : DerivingM (Array Expr) := do
 def mkInstanceForDeriving (instanceHyps : Array Expr) (type value : Expr) : DerivingM Unit := do
   let allVars := (← read).params ++ instanceHyps
   let instName ← mkInstanceNameOfType type
-  let type ← mkForallFVars allVars type (binderInfoForMVars := .instImplicit)
-  let value ← mkLambdaFVars allVars value (binderInfoForMVars := .instImplicit)
+  let type ← instantiateMVars <| ← mkForallFVars allVars (← instantiateMVars type) (binderInfoForMVars := .instImplicit)
+  let value ← instantiateMVars <| ← mkLambdaFVars allVars (← instantiateMVars value) (binderInfoForMVars := .instImplicit)
   let shouldExpose := (value.find? (·.constName?.any isPrivateName)).isNone
   withExporting (isExporting := shouldExpose) do
     discard <| mkInstance instName (← read).levelParams type value
@@ -326,6 +435,52 @@ def mkInductiveDerivingHandler (perMutualBlock : DerivingM Bool) (needSucc : Boo
     unless res do
       -- backtrack
       set state
+      return false
+  return true
+
+def deriveSimpleLawTypeClass (derivedFrom : Name)
+    (perInstance : (inst : Expr) → (instValue : Expr) → DerivingM Bool) :
+    DerivingHandler := fun names => liftTermElabM do
+  let instances ← getGlobalInstancesIndex
+  for name in names do
+    let some info ← isInductive? name | return false
+    let arity := info.numParams + info.numIndices
+    let instanceEntries := instances.getEntriesWithKeys
+      (#[.const derivedFrom 1, .const name arity] ++ Array.replicate arity .star)
+    if instanceEntries.isEmpty then
+      throwError "There is no `{.ofConstName derivedFrom}` instance for `{.ofConstName name}`"
+    let #[instEntry] := instanceEntries |
+      throwError "There are multiple `{.ofConstName derivedFrom}` instances for \
+        `{.ofConstName name}`, namely: {.andList (instanceEntries.map (·.val)).toList}"
+    let some instName := instEntry.globalName? |
+      throwError "Expected instance to have a global name:{indentExpr instEntry.val}"
+    let .defnInfo instInfo ← getConstInfo instName |
+      throwError "Instance `{.ofConstName instName}` does not have an exposed body"
+    let levelParams := instInfo.levelParams
+    let res ← forallTelescopeReducing (whnfType := true) instInfo.type fun vars res => do
+      unless res.isAppOfArity derivedFrom 1 do
+        throwError "Expected result type of instance {.ofConstName instName} to be the class \
+          {.ofConstName derivedFrom} but found{indentExpr res}"
+      let indApp := (← whnfR res.appArg!)
+      indApp.withApp fun indFn indArgs => do
+        unless indFn.isConstOf name do
+          throwError "Expected argument of instance {MessageData.ofConstName instName} to be an \
+            application of the type {MessageData.ofConstName name} but found:{indentExpr indApp}"
+        let instApp := mkAppN (.const instInfo.name (instInfo.levelParams.map Level.param)) vars
+        let instValue := instInfo.value.beta vars
+        let ctx := {
+          levelParams
+          params := vars
+          paramLCtx := ← getLCtx
+          paramLInsts := ← getLocalInstances
+          indInfo := info
+          lparams := indFn.constLevels!
+          indParams := indArgs
+          indLevel := ← getLevel indApp
+          names := #[name]
+        }
+        (perInstance instApp instValue ctx).run' {}
+    unless res do
       return false
   return true
 

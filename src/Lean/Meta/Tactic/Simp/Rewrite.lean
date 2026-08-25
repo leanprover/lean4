@@ -164,6 +164,11 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
   let mut extraArgs := #[]
   let mut e := e
   for _ in *...numExtraArgs do
+    -- `numExtraArgs` may exceed the raw application spine: the non-indexed path
+    -- computes it from a reduced form of `e`, and `simprocCore` can shorten `e`
+    -- after the candidates were selected. Decline rather than panic in the
+    -- partial accessors below.
+    unless e.isApp do return none
     extraArgs := extraArgs.push e.appArg!
     e := e.appFn!
   extraArgs := extraArgs.reverse

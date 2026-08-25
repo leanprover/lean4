@@ -190,6 +190,12 @@ def SimprocEntry.try (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM 
   let mut extraArgs := #[]
   let mut e := e
   for _ in *...numExtraArgs do
+    -- `numExtraArgs` was computed by `getMatchWithExtra` for the expression as
+    -- it was when the candidates were selected. `simprocCore` rewrites `e` when
+    -- an earlier candidate returns `.continue (some r)`, so by the time a later
+    -- candidate runs the count can exceed the current application spine.
+    -- Decline rather than panic in the partial accessors below.
+    unless e.isApp do return .continue
     extraArgs := extraArgs.push e.appArg!
     e := e.appFn!
   extraArgs := extraArgs.reverse
@@ -206,6 +212,12 @@ def SimprocEntry.tryD (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM
   let mut extraArgs := #[]
   let mut e := e
   for _ in *...numExtraArgs do
+    -- `numExtraArgs` was computed by `getMatchWithExtra` for the expression as
+    -- it was when the candidates were selected. `simprocCore` rewrites `e` when
+    -- an earlier candidate returns `.continue (some r)`, so by the time a later
+    -- candidate runs the count can exceed the current application spine.
+    -- Decline rather than panic in the partial accessors below.
+    unless e.isApp do return .continue
     extraArgs := extraArgs.push e.appArg!
     e := e.appFn!
   extraArgs := extraArgs.reverse

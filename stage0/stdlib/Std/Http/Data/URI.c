@@ -1169,9 +1169,9 @@ return v___x_284_;
 LEAN_EXPORT lean_object* l_Std_Http_URI_Path_parse_x3f___lam__0___boxed(lean_object* v___x_300_, lean_object* v___x_301_, lean_object* v___y_302_){
 _start:
 {
-uint8_t v___x_274__boxed_303_; lean_object* v_res_304_; 
-v___x_274__boxed_303_ = lean_unbox(v___x_301_);
-v_res_304_ = l_Std_Http_URI_Path_parse_x3f___lam__0(v___x_300_, v___x_274__boxed_303_, v___y_302_);
+uint8_t v___x_273__boxed_303_; lean_object* v_res_304_; 
+v___x_273__boxed_303_ = lean_unbox(v___x_301_);
+v_res_304_ = l_Std_Http_URI_Path_parse_x3f___lam__0(v___x_300_, v___x_273__boxed_303_, v___y_302_);
 return v_res_304_;
 }
 }
@@ -1276,11 +1276,13 @@ return v_res_331_;
 }
 lean_object* runtime_initialize_Std_Http_Data_URI_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Data_URI_Parser(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Http_Data_URI(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Http_Data_URI_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

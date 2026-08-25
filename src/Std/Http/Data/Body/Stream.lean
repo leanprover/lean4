@@ -664,12 +664,15 @@ error so consumers observe the failure instead of a clean end-of-stream.
 -/
 def stream (gen : Stream → Async Unit) : Async Stream := do
   let s ← mkStream
+  s.setKnownSize (some .chunked)
+
   background <| do
     try
       gen s
       s.close
     catch err =>
       s.closeWithError err
+
   return s
 
 /--
@@ -737,7 +740,6 @@ def stream
     (gen : Body.Stream → Async Unit) :
     Async (Request Body.Stream) := do
   let s ← Body.stream gen
-  s.setKnownSize (some .chunked)
 
   return Request.Builder.body builder s
 
@@ -754,7 +756,6 @@ def stream
     (gen : Body.Stream → Async Unit) :
     Async (Response Body.Stream) := do
   let s ← Body.stream gen
-  s.setKnownSize (some .chunked)
 
   return Response.Builder.body builder s
 

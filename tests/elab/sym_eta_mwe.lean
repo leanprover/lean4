@@ -42,7 +42,7 @@ info: GOOD: getMatch and brute-force agree
   let e ← instantiateMVars (← getConstInfo ``lookupTerm).value?.get!
   let e ← SymM.run (shareCommon e)
 
-  let treeResults := Sym.getMatch tree e
+  let treeResults := Sym.getMatch (← getMCtx) tree e
   let mut bruteResults : Array Name := #[]
   for (name, pat) in #[(``Spec.IterM.forIn_map, patMap), (``Spec.forIn_iterM_id, patGeneric)] do
     if let some _ ← SymM.run (pat.match? e) then

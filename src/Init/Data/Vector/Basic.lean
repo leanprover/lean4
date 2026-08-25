@@ -28,6 +28,8 @@ public section
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
+-- Disable linter for the `toArray` field
+set_option linter.listVariables false in
 /-- `Vector α n` is an `Array α` with size `n`. -/
 structure Vector (α : Type u) (n : Nat) where
   /-- The underlying array. -/

@@ -32,7 +32,7 @@ goal          : P ⊑ wp prog Q E s⃗
    │ frame rule, introducing ?frame
    ▼
 split VC      : P ⊑ (op ?frame W) s⃗      side goal: Frames op (wpTrans prog) ?frame
-   where        W = wp prog (fun a => adj (op ?frame) (Q a)) E
+   where        W = wp prog (fun a => adj (op ?frame) (Q a)) (adj (opE ?frame) E)
    │ spec rule, at a target the frameproc named
    ▼
 spec target   : ?footprint ⊑ W t⃗
@@ -108,7 +108,7 @@ public structure FrameGoal where
   frame : MVarId
   /-- The open footprint `?footprint`. Assign it to the part of `pre` that pays the spec. -/
   footprint : MVarId
-  /-- The framed application `W t⃗`, where `W = wp prog (fun a => adj (op ?frame) (Q a)) E` and `t⃗`
+  /-- The framed application `W t⃗`, where `W = wp prog (fun a => adj (op ?frame) (Q a)) (adj (opE ?frame) E)` and `t⃗`
   is the state named in phase one. `specProof` proves the entailment into it. -/
   framedApp : WPApp
   /-- The spec's precondition, with the spec's logical variables live: assignments made while

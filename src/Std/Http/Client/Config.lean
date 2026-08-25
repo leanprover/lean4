@@ -11,6 +11,7 @@ public import Std.Http.Protocol.H1
 public import Std.Http.Client.Authenticator
 public import Std.Http.Client.CookieHandler
 public import Std.Http.Client.Proxy
+public import Std.Http.Client.Error
 
 public section
 
@@ -161,10 +162,15 @@ structure Config where
   maxResponseBodySize : Option Nat := none
 
   /--
-  Maximum number of bytes drained from an intermediate redirect response body
-  before the redirected request is sent.
+  Maximum number of bytes read from the body of an intermediate response the client answers
+  itself — a redirect it follows, or a challenge it authenticates — before the follow-up
+  request is sent. A body larger than this is abandoned rather than read to its end.
+
+  The bytes are held until the follow-up is known to have reached the peer, so an intermediate
+  response the client turns out to be unable to answer can still be delivered whole. One abandoned
+  for exceeding this limit cannot be, and the failure is reported instead.
   -/
-  redirectBodyDrainLimit : Nat := 1024 * 1024
+  intermediateBodyDrainLimit : Nat := 1024 * 1024
 
 namespace RequestOverrides
 
@@ -184,9 +190,9 @@ namespace Config
 /--
 Total header-block allowance implied by the client's own limits: `maxResponseHeaders` field lines,
 each as long as `maxHeaderNameSize` and `maxHeaderValueSize` permit, plus the four bytes `": "` and
-`CRLF` contribute per line. Deriving it keeps those three settings jointly reachable — the machine's
-own aggregate default is smaller than they describe, so a response well inside all of them would
-otherwise be rejected.
+`CRLF` contribute per line. Deriving it keeps those three settings jointly reachable — the
+machine's own aggregate default is smaller than they describe, so a response well inside all of
+them would otherwise be rejected.
 -/
 def headerBlockSize (config : Config) : Nat :=
   config.maxResponseHeaders * (config.maxHeaderNameSize + config.maxHeaderValueSize + 4)

@@ -47,6 +47,64 @@ private def lo (t : DoubleDigit) : Digit := t.toUInt32
 /-- `t >> DIGIT_BITS`: the high half of a double digit. -/
 private def hi (t : DoubleDigit) : Digit := (t >>> 32).toUInt32
 
+
+/-!
+## The C++ operations that can be undefined
+
+Lean's operations are total where the C++'s are not: `x <<< d` masks the shift
+amount to `d % 32`, division by zero is zero, and `Nat` subtraction truncates.
+That makes a direct transliteration *defined* where the original is undefined,
+which is only sound while the undefined cases are unreachable.
+
+Each operation below wraps one of them with the hypothesis that pins it down.
+Taking the hypothesis in the definition rather than in a theorem about it means
+a use site cannot be written without discharging it, so the preconditions
+propagate to the callers that establish them instead of being restated at each
+specification.
+-/
+namespace CPP
+
+/-- `x << d` on `mpn_digit`; a shift by the operand width or more is undefined. -/
+def shl (x : Digit) (d : Nat) (_h : d < digitBits) : Digit := x <<< UInt32.ofNat d
+
+/-- `x >> d` on `mpn_digit`. -/
+def shr (x : Digit) (d : Nat) (_h : d < digitBits) : Digit := x >>> UInt32.ofNat d
+
+/-- `t << d` on `mpn_double_digit`. -/
+def shlD (t : DoubleDigit) (d : Nat) (_h : d < 2 * digitBits) : DoubleDigit :=
+  t <<< UInt64.ofNat d
+
+/-- `t >> d` on `mpn_double_digit`. -/
+def shrD (t : DoubleDigit) (d : Nat) (_h : d < 2 * digitBits) : DoubleDigit :=
+  t >>> UInt64.ofNat d
+
+/-- `a / b` on `mpn_double_digit`; division by zero is undefined. -/
+def divD (a b : DoubleDigit) (_h : b ≠ 0) : DoubleDigit := a / b
+
+/-- `a % b` on `mpn_double_digit`. -/
+def modD (a b : DoubleDigit) (_h : b ≠ 0) : DoubleDigit := a % b
+
+/-- `a / b` on `mpn_digit`. -/
+def div (a b : Digit) (_h : b ≠ 0) : Digit := a / b
+
+/-- `a % b` on `mpn_digit`. -/
+def mod (a b : Digit) (_h : b ≠ 0) : Digit := a % b
+
+/-- `a - b` in `size_t`, which wraps to a huge value rather than going negative. -/
+def sizeSub (a b : Nat) (_h : b ≤ a) : Nat := a - b
+
+@[simp] theorem shl_eq (x : Digit) (d : Nat) (h) : shl x d h = x <<< UInt32.ofNat d := rfl
+@[simp] theorem shr_eq (x : Digit) (d : Nat) (h) : shr x d h = x >>> UInt32.ofNat d := rfl
+@[simp] theorem shlD_eq (t : DoubleDigit) (d : Nat) (h) : shlD t d h = t <<< UInt64.ofNat d := rfl
+@[simp] theorem shrD_eq (t : DoubleDigit) (d : Nat) (h) : shrD t d h = t >>> UInt64.ofNat d := rfl
+@[simp] theorem divD_eq (a b : DoubleDigit) (h) : divD a b h = a / b := rfl
+@[simp] theorem modD_eq (a b : DoubleDigit) (h) : modD a b h = a % b := rfl
+@[simp] theorem div_eq (a b : Digit) (h) : div a b h = a / b := rfl
+@[simp] theorem mod_eq (a b : Digit) (h) : mod a b h = a % b := rfl
+@[simp] theorem sizeSub_eq (a b : Nat) (h) : sizeSub a b h = a - b := rfl
+
+end CPP
+
 /-! ## Denotation -/
 
 /-- The first `j` digits of `a`, little-endian, read as a natural. -/
@@ -490,9 +548,17 @@ def divNormalize (numer denom : Array Digit) : Nat × Array Digit × Array Digit
   else
     (d, shiftLeftDigits numer d (lnum + 1), shiftLeftDigits denom d lden)
 
-/-- `#define LAST_BITS(N, X) (((X) << (DIGIT_BITS-(N))) >> (DIGIT_BITS-(N)))` -/
-def lastBits (x : Digit) (d : Nat) : Digit :=
-  (x <<< (UInt32.ofNat (digitBits - d))) >>> (UInt32.ofNat (digitBits - d))
+theorem sub_digitBits_lt {d : Nat} (h : 0 < d) : digitBits - d < digitBits := by
+  simp only [digitBits]; omega
+
+/--
+`#define LAST_BITS(N, X) (((X) << (DIGIT_BITS-(N))) >> (DIGIT_BITS-(N)))`
+
+Undefined for `N == 0`, where both shifts are by the operand width, so the
+positivity of `d` is taken here rather than assumed by the callers.
+-/
+def lastBits (x : Digit) (d : Nat) (hd : 0 < d) : Digit :=
+  CPP.shr (CPP.shl x (digitBits - d) (sub_digitBits_lt hd)) (digitBits - d) (sub_digitBits_lt hd)
 
 /--
 `len` digits of `a` shifted right by `d` bits, which is `div_unnormalize`'s
@@ -505,12 +571,13 @@ nonzero-shift branch:
 The top digit takes nothing from above, as the C++ does, and `d == 0` is
 separate for the same reason as in `shiftLeftDigits`.
 -/
-def shiftRightDigits (a : Array Digit) (d len : Nat) : Array Digit :=
+def shiftRightDigits (a : Array Digit) (d len : Nat) (hd : d < digitBits) : Array Digit :=
   (Array.range len).map fun i =>
-    if d == 0 then a.getD i 0
-    else (a.getD i 0 >>> UInt32.ofNat d) |||
+    if h : d = 0 then a.getD i 0
+    else CPP.shr (a.getD i 0) d hd |||
       (if i + 1 == len then 0
-       else lastBits (a.getD (i+1) 0) d <<< UInt32.ofNat (digitBits - d))
+       else CPP.shl (lastBits (a.getD (i+1) 0) d (by omega)) (digitBits - d)
+              (sub_digitBits_lt (by omega)))
 
 /--
 `div_unnormalize`. Produces `lden` remainder digits; the `d == 0` branch is
@@ -523,8 +590,8 @@ def shiftRightDigits (a : Array Digit) (d len : Nat) : Array Digit :=
     else { ... }
 ```
 -/
-def divUnnormalize (numer : Array Digit) (lden d : Nat) : Array Digit :=
-  shiftRightDigits numer d lden
+def divUnnormalize (numer : Array Digit) (lden d : Nat) (hd : d < digitBits) : Array Digit :=
+  shiftRightDigits numer d lden hd
 
 /--
 One iteration of `div_1`'s loop, dividing the two-digit window at `j` by `denom`:
@@ -1578,10 +1645,11 @@ theorem divNormalize_spec (numer denom : Array Digit) (hnum : 0 < numer.size)
 /-! ## Correctness of `div_unnormalize` -/
 
 theorem toNat_lastBits (x : Digit) {d : Nat} (hd0 : 0 < d) (hd : d < digitBits) :
-    (lastBits x d).toNat = x.toNat % 2 ^ d := by
+    (lastBits x d hd0).toNat = x.toNat % 2 ^ d := by
   have hx : x.toNat < 2 ^ 32 := x.toNat_lt_size
   have hd' : d < 32 := by simpa [digitBits] using hd
-  rw [lastBits, toNat_shr _ (by simp [digitBits]; omega), toNat_shl _ (by simp [digitBits]; omega)]
+  simp only [lastBits, CPP.shr_eq, CPP.shl_eq]
+  rw [toNat_shr _ (by simp [digitBits]; omega), toNat_shl _ (by simp [digitBits]; omega)]
   simp only [digitBits]
   have hb : base = 2 ^ d * 2 ^ (32 - d) := by
     rw [← Nat.pow_add, show d + (32 - d) = 32 by omega]; rfl
@@ -1593,7 +1661,7 @@ shift, the `|` cannot carry, since `a[i] >> d` is below `2^(32-d)` and the bits
 arriving from above are a multiple of it.
 -/
 theorem toNat_shr_or_shl (x y : Digit) {d : Nat} (hd0 : 0 < d) (hd : d < digitBits) :
-    ((x >>> (UInt32.ofNat d)) ||| (lastBits y d <<< (UInt32.ofNat (digitBits - d)))).toNat
+    ((x >>> (UInt32.ofNat d)) ||| (lastBits y d hd0 <<< (UInt32.ofNat (digitBits - d)))).toNat
       = x.toNat / 2 ^ d + y.toNat % 2 ^ d * 2 ^ (digitBits - d) := by
   have hx : x.toNat < 2 ^ 32 := x.toNat_lt_size
   have hlow : x.toNat / 2 ^ d < 2 ^ (digitBits - d) := by
@@ -1601,7 +1669,7 @@ theorem toNat_shr_or_shl (x y : Digit) {d : Nat} (hd0 : 0 < d) (hd : d < digitBi
     apply Nat.div_lt_of_lt_mul
     rw [← Nat.pow_add, show d + (32 - d) = 32 by omega]
     exact hx
-  have hhigh : (lastBits y d <<< (UInt32.ofNat (digitBits - d))).toNat
+  have hhigh : (lastBits y d hd0 <<< (UInt32.ofNat (digitBits - d))).toNat
       = (y.toNat % 2 ^ d) <<< (digitBits - d) := by
     rw [toNat_shl _ (by simp only [digitBits] at hd0 ⊢; omega), toNat_lastBits y hd0 hd,
       Nat.shiftLeft_eq]
@@ -1613,21 +1681,22 @@ theorem toNat_shr_or_shl (x y : Digit) {d : Nat} (hd0 : 0 < d) (hd : d < digitBi
   rw [UInt32.toNat_or, hhigh, toNat_shr _ (by simp only [digitBits] at hd ⊢; omega),
     Nat.or_comm, ← Nat.shiftLeft_add_eq_or_of_lt hlow, Nat.shiftLeft_eq, Nat.add_comm]
 
-private theorem getD_shiftRightDigits_zero (a : Array Digit) (len j : Nat) (hj : j < len) :
-    (shiftRightDigits a 0 len).getD j 0 = a.getD j 0 := by
+private theorem getD_shiftRightDigits_zero (a : Array Digit) (len j : Nat) (hj : j < len)
+    (hd : 0 < digitBits) : (shiftRightDigits a 0 len hd).getD j 0 = a.getD j 0 := by
   simp [shiftRightDigits, hj]
 
 private theorem getD_shiftRightDigits_last (a : Array Digit) {d len : Nat} (hd0 : 0 < d)
-    (hlen : 0 < len) :
-    (shiftRightDigits a d len).getD (len - 1) 0 = a.getD (len - 1) 0 >>> UInt32.ofNat d := by
-  simp [shiftRightDigits, Nat.ne_of_gt hd0, show len - 1 < len by omega, show len - 1 + 1 = len by omega]
+    (hd : d < digitBits) (hlen : 0 < len) :
+    (shiftRightDigits a d len hd).getD (len - 1) 0 = a.getD (len - 1) 0 >>> UInt32.ofNat d := by
+  simp [shiftRightDigits, CPP.shr, Nat.ne_of_gt hd0, show len - 1 < len by omega,
+    show len - 1 + 1 = len by omega]
 
 private theorem getD_shiftRightDigits_mid (a : Array Digit) {d len j : Nat} (hd0 : 0 < d)
-    (hj : j < len) (hj' : j + 1 ≠ len) :
-    (shiftRightDigits a d len).getD j 0
+    (hd : d < digitBits) (hj : j < len) (hj' : j + 1 ≠ len) :
+    (shiftRightDigits a d len hd).getD j 0
       = (a.getD j 0 >>> UInt32.ofNat d) |||
-        (lastBits (a.getD (j+1) 0) d <<< UInt32.ofNat (digitBits - d)) := by
-  simp [shiftRightDigits, Nat.ne_of_gt hd0, hj, hj']
+        (lastBits (a.getD (j+1) 0) d hd0 <<< UInt32.ofNat (digitBits - d)) := by
+  simp [shiftRightDigits, CPP.shr, CPP.shl, Nat.ne_of_gt hd0, hj, hj']
 
 private theorem shiftRight_combine {Rj rj xj xj1 P T U B Nj lo0 : Nat}
     (hB : U * T = B)
@@ -1637,8 +1706,8 @@ private theorem shiftRight_combine {Rj rj xj xj1 P T U B Nj lo0 : Nat}
     (Rj + rj * P) * T + lo0 = Nj + xj * P + xj1 % T * (P * B) := by
   subst hrj hB; grind
 
-theorem size_shiftRightDigits (a : Array Digit) (d len : Nat) :
-    (shiftRightDigits a d len).size = len := by simp [shiftRightDigits]
+theorem size_shiftRightDigits (a : Array Digit) (d len : Nat) (hd : d < digitBits) :
+    (shiftRightDigits a d len hd).size = len := by simp [shiftRightDigits]
 
 /--
 The loop invariant of the right shift: the digits written so far, scaled back up
@@ -1647,14 +1716,14 @@ by `2^d` and given the bits that fell off the bottom, account for the digits of
 -/
 theorem denoteN_shiftRightDigits (a : Array Digit) {d : Nat} (hd0 : 0 < d) (hd : d < digitBits)
     {len j : Nat} (hj : j < len) :
-    denoteN (shiftRightDigits a d len) j * 2 ^ d + (a.getD 0 0).toNat % 2 ^ d
+    denoteN (shiftRightDigits a d len hd) j * 2 ^ d + (a.getD 0 0).toNat % 2 ^ d
       = denoteN a j + (a.getD j 0).toNat % 2 ^ d * base ^ j := by
   induction j with
   | zero => simp [denoteN]
   | succ j ih =>
-    have hmid : ((shiftRightDigits a d len).getD j 0).toNat
+    have hmid : ((shiftRightDigits a d len hd).getD j 0).toNat
         = (a.getD j 0).toNat / 2 ^ d + (a.getD (j+1) 0).toNat % 2 ^ d * 2 ^ (digitBits - d) := by
-      rw [getD_shiftRightDigits_mid a hd0 (by omega) (by omega), toNat_shr_or_shl _ _ hd0 hd]
+      rw [getD_shiftRightDigits_mid a hd0 hd (by omega) (by omega), toNat_shr_or_shl _ _ hd0 hd]
     have hB : 2 ^ (digitBits - d) * 2 ^ d = base := by
       simp only [digitBits] at hd hd0 ⊢
       rw [← Nat.pow_add, show 32 - d + d = 32 by omega]; rfl
@@ -1668,26 +1737,26 @@ theorem denoteN_shiftRightDigits (a : Array Digit) {d : Nat} (hd0 : 0 < d) (hd :
 -/
 theorem denote_shiftRightDigits (a : Array Digit) {d : Nat} (hd : d < digitBits) {len : Nat}
     (hlen : 0 < len) :
-    denote (shiftRightDigits a d len) = denoteN a len / 2 ^ d := by
-  have hsize : (shiftRightDigits a d len).size = len := size_shiftRightDigits ..
+    denote (shiftRightDigits a d len hd) = denoteN a len / 2 ^ d := by
+  have hsize : (shiftRightDigits a d len hd).size = len := size_shiftRightDigits _ _ _ hd
   rcases Nat.eq_zero_or_pos d with hd0 | hd0
   · subst hd0
-    have hcongr : ∀ i, i < len → (shiftRightDigits a 0 len).getD i 0 = a.getD i 0 :=
-      fun i hi => getD_shiftRightDigits_zero a len i hi
+    have hcongr : ∀ i, i < len → (shiftRightDigits a 0 len hd).getD i 0 = a.getD i 0 :=
+      fun i hi => getD_shiftRightDigits_zero a len i hi hd
     rw [denote, hsize, denoteN_congr hcongr]
     simp
-  · have hlast : ((shiftRightDigits a d len).getD (len-1) 0).toNat
+  · have hlast : ((shiftRightDigits a d len hd).getD (len-1) 0).toNat
         = (a.getD (len-1) 0).toNat / 2 ^ d := by
-      rw [getD_shiftRightDigits_last a hd0 hlen, toNat_shr _ hd]
+      rw [getD_shiftRightDigits_last a hd0 hd hlen, toNat_shr _ hd]
     have hinv := denoteN_shiftRightDigits a hd0 hd (len := len) (j := len - 1) (by omega)
     have hdm := Nat.div_add_mod (a.getD (len-1) 0).toNat (2 ^ d)
     have hlo : (a.getD 0 0).toNat % 2 ^ d < 2 ^ d := Nat.mod_lt _ (Nat.two_pow_pos d)
     -- fold the last digit in, which owes nothing downward
-    have hfull : denote (shiftRightDigits a d len) * 2 ^ d + (a.getD 0 0).toNat % 2 ^ d
+    have hfull : denote (shiftRightDigits a d len hd) * 2 ^ d + (a.getD 0 0).toNat % 2 ^ d
         = denoteN a len := by
-      have hexp : denote (shiftRightDigits a d len)
-          = denoteN (shiftRightDigits a d len) (len-1)
-            + ((shiftRightDigits a d len).getD (len-1) 0).toNat * base ^ (len-1) := by
+      have hexp : denote (shiftRightDigits a d len hd)
+          = denoteN (shiftRightDigits a d len hd) (len-1)
+            + ((shiftRightDigits a d len hd).getD (len-1) 0).toNat * base ^ (len-1) := by
         obtain ⟨m, hm⟩ : ∃ m, len = m + 1 := ⟨len - 1, by omega⟩
         rw [denote, hsize, hm, Nat.add_sub_cancel]; rfl
       have hexpa : denoteN a len
@@ -3292,7 +3361,7 @@ def Num.shiftRight (a : Num) (k : Nat) : Num :=
   else
     Num.ofArray
       (shiftRightDigits (a.digits.extract (k / digitBits) a.digits.size)
-        (k % digitBits) (a.digits.size - k / digitBits))
+        (k % digitBits) (a.digits.size - k / digitBits) (Nat.mod_lt _ (by simp [digitBits])))
       (by rw [size_shiftRightDigits]; omega)
 
 /-- Any digit array as a `Num`, for building test values. -/

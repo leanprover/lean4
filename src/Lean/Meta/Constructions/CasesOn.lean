@@ -40,9 +40,8 @@ def mkCasesOnViaProjs? (declName : Name) (elimName : Name) : MetaM (Option Defin
   -- For a recursive inductive the minor premise of `I.rec` also takes induction hypotheses
   unless indVal.numCtors == 1 && indVal.numIndices == 0 && !indVal.isRec do return none
   unless (← isPropFormerType indVal.type) do return none
+  unless (← isLargeEliminating declName) do return none
   let recInfo ← getConstInfoRec (mkRecName declName)
-  -- A large-eliminating recursor carries one more level parameter than the type: its motive universe
-  unless recInfo.levelParams.length > indVal.levelParams.length do return none
   let ctorVal ← getConstInfoCtor indVal.ctors.head!
   withLCtx {} {} do
     -- `recInfo.type` is `∀ params (motive : I params → Sort u) (minor : …) (t : I params), motive t`

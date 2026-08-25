@@ -186,7 +186,15 @@ def Simprocs.add (s : Simprocs) (declName : Name) (post : Bool) : CoreM Simprocs
     throwError "Invalid `[simproc]` attribute: `{.ofConstName declName}` is not a simproc"
   return s.addCore keys declName post proc
 
+/--
+Applies `s` to `e` after peeling off `numExtraArgs` trailing arguments.
+
+`numExtraArgs` may be stale: `simprocCore` collects all candidates for one expression up front and
+then rewrites that expression as it goes, so `e` may by now have fewer arguments than the expression
+the candidate was selected for. Such a candidate declines.
+-/
 def SimprocEntry.try (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM Step := do
+  if e.getAppNumArgs < numExtraArgs then return .continue
   let mut extraArgs := #[]
   let mut e := e
   for _ in *...numExtraArgs do
@@ -203,6 +211,7 @@ def SimprocEntry.try (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM 
 
 /-- Similar to `try`, but only consider `DSimproc` case. That is, if `s.proc` is a `Simproc`, treat it as a `.continue`. -/
 def SimprocEntry.tryD (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM DStep := do
+  if e.getAppNumArgs < numExtraArgs then return .continue
   let mut extraArgs := #[]
   let mut e := e
   for _ in *...numExtraArgs do

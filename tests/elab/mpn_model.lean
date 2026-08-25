@@ -3823,34 +3823,106 @@ def box (n : Nat) : UInt64 := (UInt64.ofNat n <<< 1) ||| 1
 /-- `lean_unbox(o) = (size_t)(o) >> 1` -/
 def unbox (o : UInt64) : Nat := (o >>> 1).toNat
 
+/-- A tagged value is odd, and the tag is the only thing bit 0 carries. -/
+private theorem two_mul_or_one (n : Nat) : 2 * n ||| 1 = 2 * n + 1 := by
+  apply Nat.eq_of_testBit_eq
+  intro i
+  rw [Nat.testBit_or]
+  cases i with
+  | zero => simp [Nat.testBit_zero, Nat.mul_mod_right]
+  | succ i =>
+    have h1 : (2 * n + 1) / 2 = n := by omega
+    have h2 : (2 * n) / 2 = n := by omega
+    simp [Nat.testBit_succ, h1, h2]
+
+/-- `&` on two tagged values combines the payloads and keeps the tag. -/
+private theorem two_mul_add_one_and (m n : Nat) :
+    (2 * m + 1) &&& (2 * n + 1) = 2 * (m &&& n) + 1 := by
+  apply Nat.eq_of_testBit_eq
+  intro i
+  rw [Nat.testBit_and]
+  cases i with
+  | zero => simp [Nat.testBit_zero]
+  | succ i =>
+    have h1 : (2 * m + 1) / 2 = m := by omega
+    have h2 : (2 * n + 1) / 2 = n := by omega
+    have h3 : (2 * (m &&& n) + 1) / 2 = m &&& n := by omega
+    simp [Nat.testBit_succ, h1, h2, h3, Nat.testBit_and]
+
+/-- `|` on two tagged values, for the same reason. -/
+private theorem two_mul_add_one_or (m n : Nat) :
+    (2 * m + 1) ||| (2 * n + 1) = 2 * (m ||| n) + 1 := by
+  apply Nat.eq_of_testBit_eq
+  intro i
+  rw [Nat.testBit_or]
+  cases i with
+  | zero => simp [Nat.testBit_zero]
+  | succ i =>
+    have h1 : (2 * m + 1) / 2 = m := by omega
+    have h2 : (2 * n + 1) / 2 = n := by omega
+    have h3 : (2 * (m ||| n) + 1) / 2 = m ||| n := by omega
+    simp [Nat.testBit_succ, h1, h2, h3, Nat.testBit_or]
+
+/-- The number a box holds, before the tag is stripped. -/
+theorem toNat_box (n : Nat) (h : n ≤ maxSmallNat) : (box n).toNat = 2 * n + 1 := by
+  have hn : n < 2 ^ 64 := by simp only [maxSmallNat] at h; omega
+  have hlt : 2 * n < 2 ^ 64 := by simp only [maxSmallNat] at h; omega
+  have hofNat : (UInt64.ofNat n).toNat = n := UInt64.toNat_ofNat_of_lt' hn
+  have hshift : (UInt64.ofNat n <<< 1).toNat = 2 * n := by
+    rw [UInt64.toNat_shiftLeft, show (1 : UInt64).toNat % 64 = 1 from rfl, hofNat,
+      Nat.shiftLeft_eq, Nat.pow_one, Nat.mul_comm]
+    exact Nat.mod_eq_of_lt hlt
+  rw [box, UInt64.toNat_or, hshift, show (1 : UInt64).toNat = 1 from rfl]
+  exact two_mul_or_one n
+
 /--
 Boxing is injective on the scalar range. The tag costs exactly one bit, which is
 why `LEAN_MAX_SMALL_NAT` is `SIZE_MAX >> 1` and not something else: one more and
 the shift would overflow.
 -/
 theorem unbox_box (n : Nat) (h : n ≤ maxSmallNat) : unbox (box n) = n := by
-  have hn : n < 2 ^ 64 := by simp only [maxSmallNat] at h; omega
-  have hlt : 2 * n < 2 ^ 64 := by simp only [maxSmallNat] at h; omega
-  have hofNat : (UInt64.ofNat n).toNat = n := by
-    exact UInt64.toNat_ofNat_of_lt' hn
-  have hshift : (UInt64.ofNat n <<< 1).toNat = 2 * n := by
-    rw [UInt64.toNat_shiftLeft, show (1 : UInt64).toNat % 64 = 1 from rfl, hofNat,
-      Nat.shiftLeft_eq, Nat.pow_one, Nat.mul_comm]
-    exact Nat.mod_eq_of_lt hlt
-  have hor : (2 * n) ||| 1 = 2 * n + 1 := by
-    apply Nat.eq_of_testBit_eq
-    intro i
-    rw [Nat.testBit_or]
-    cases i with
-    | zero => simp [Nat.testBit_zero, Nat.mul_mod_right]
-    | succ i =>
-      have h1 : (2 * n + 1) / 2 = n := by omega
-      have h2 : (2 * n) / 2 = n := by omega
-      simp [Nat.testBit_succ, h1, h2]
-  unfold unbox box
-  rw [UInt64.toNat_shiftRight, show (1 : UInt64).toNat % 64 = 1 from rfl,
-    UInt64.toNat_or, hshift, show (1 : UInt64).toNat = 1 from rfl, hor,
-    Nat.shiftRight_eq_div_pow, Nat.pow_one]
+  rw [unbox, UInt64.toNat_shiftRight, show (1 : UInt64).toNat % 64 = 1 from rfl,
+    toNat_box n h, Nat.shiftRight_eq_div_pow, Nat.pow_one]
+  omega
+
+/--
+`lean_nat_land`'s fast path never unboxes:
+```
+        return (lean_object*)((size_t)(a1) & (size_t)(a2));
+```
+It can do that because the tag bit is set in both operands, so `&` leaves it
+set and the payload bits combine on their own.
+-/
+theorem box_and (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
+    box m &&& box n = box (m &&& n) := by
+  have hmn : m &&& n ≤ maxSmallNat := Nat.le_trans (Nat.and_le_left ..) hm
+  refine UInt64.toNat_inj.mp ?_
+  rw [UInt64.toNat_and, toNat_box m hm, toNat_box n hn, toNat_box _ hmn]
+  exact two_mul_add_one_and m n
+
+/-- `lean_nat_lor`'s fast path, for the same reason as `land`. -/
+theorem box_or (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
+    box m ||| box n = box (m ||| n) := by
+  have hmn : m ||| n ≤ maxSmallNat := by
+    simp only [maxSmallNat] at *
+    exact Nat.lt_succ_iff.mp (Nat.or_lt_two_pow (n := 63) (by omega) (by omega))
+  refine UInt64.toNat_inj.mp ?_
+  rw [UInt64.toNat_or, toNat_box m hm, toNat_box n hn, toNat_box _ hmn]
+  exact two_mul_add_one_or m n
+
+/--
+`lean_nat_le`'s fast path compares the boxed values directly:
+```
+        // This comparison is UB according to the standard but allowed as per the
+        // GCC documentation and the address sanitizer does not complain about it.
+        return a1 < a2;
+```
+Boxing is monotone, so the comparison on the tagged values is the comparison on
+the numbers. Only the pointer comparison itself is outside the standard.
+-/
+theorem box_le_box (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
+    (box m ≤ box n) ↔ m ≤ n := by
+  rw [UInt64.le_iff_toNat_le, toNat_box m hm, toNat_box n hn]
   omega
 
 /--
@@ -3975,6 +4047,347 @@ theorem natDiv_small_big (n : Nat) (h : n ≤ maxSmallNat) (m : Num) (hm : maxSm
   rw [natDiv_val]
   show n / m.val = 0
   exact Nat.div_eq_of_lt (by omega)
+
+/-- The `mpz` an object denotes, which is what `lean_nat_big_*` reads. -/
+def NatObj.toNum : NatObj → Num
+  | .small n _ => Num.ofSizeT n
+  | .big m _ => m
+
+private theorem small_lt_base_sq {n : Nat} (h : n ≤ maxSmallNat) : n < base ^ 2 := by
+  simp only [maxSmallNat, base] at *; omega
+
+@[simp] theorem NatObj.val_toNum (a : NatObj) : a.toNum.val = a.val := by
+  cases a with
+  | small n h => rw [toNum, NatObj.val, Num.val_ofSizeT n (small_lt_base_sq h)]
+  | big m _ => rfl
+
+/-- `lean_usize_to_nat`: box it if it fits, otherwise allocate an `mpz`. -/
+def usizeToNat (n : Nat) (h64 : n < base ^ 2) : NatObj :=
+  if h : n ≤ maxSmallNat then .small n h
+  else .big (Num.ofSizeT n) (by rw [Num.val_ofSizeT n h64]; omega)
+
+@[simp] theorem usizeToNat_val (n : Nat) (h64 : n < base ^ 2) : (usizeToNat n h64).val = n := by
+  unfold usizeToNat; split
+  · rfl
+  · rw [NatObj.val, Num.val_ofSizeT n h64]
+
+/--
+`lean_nat_add`:
+```
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2)))
+        return lean_usize_to_nat(lean_unbox(a1) + lean_unbox(a2));
+    else
+        return lean_nat_big_add(a1, a2);
+```
+The scalar sum cannot overflow `size_t`: two scalars are at most `2^63 - 1`, so
+their sum is below `2^64`. That is the headroom the tag bit leaves, and the
+reason this path needs no check.
+-/
+def natAdd : NatObj → NatObj → NatObj
+  | .small n₁ h₁, .small n₂ h₂ =>
+    usizeToNat (n₁ + n₂) (by simp only [maxSmallNat, base] at *; omega)
+  | a, b => mpzToNat (a.toNum.add b.toNum)
+
+@[simp] theorem natAdd_val (a b : NatObj) : (natAdd a b).val = a.val + b.val := by
+  cases a with
+  | small n₁ h₁ =>
+    cases b with
+    | small n₂ h₂ => simp only [natAdd]; rw [usizeToNat_val]; rfl
+    | big m₂ _ => simp only [natAdd]; rw [mpzToNat_val, Num.val_add, NatObj.val_toNum,
+        NatObj.val_toNum]
+  | big m₁ _ =>
+    cases b <;> (simp only [natAdd]
+                 rw [mpzToNat_val, Num.val_add, NatObj.val_toNum, NatObj.val_toNum])
+
+/-- `lean_nat_sub`, which clamps at zero as `Nat` subtraction does. -/
+def natSub : NatObj → NatObj → NatObj
+  | .small n₁ h₁, .small n₂ _ =>
+    if n₁ < n₂ then .small 0 (Nat.zero_le _) else .small (n₁ - n₂) (by omega)
+  | a, b => mpzToNat (a.toNum.sub b.toNum)
+
+@[simp] theorem natSub_val (a b : NatObj) : (natSub a b).val = a.val - b.val := by
+  cases a with
+  | small n₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      simp only [natSub]
+      split <;> rename_i h
+      · show (0 : Nat) = n₁ - n₂; omega
+      · rfl
+    | big m₂ _ => simp only [natSub]; rw [mpzToNat_val, Num.val_sub, NatObj.val_toNum,
+        NatObj.val_toNum]
+  | big m₁ _ =>
+    cases b <;> (simp only [natSub]
+                 rw [mpzToNat_val, Num.val_sub, NatObj.val_toNum, NatObj.val_toNum])
+
+/--
+`lean_nat_mul`:
+```
+        size_t n1 = lean_unbox(a1);
+        if (n1 == 0) return a1;
+        size_t n2 = lean_unbox(a2);
+        size_t r  = n1*n2;
+        if (r <= LEAN_MAX_SMALL_NAT && r / n1 == n2) return lean_box(r);
+        else return lean_nat_overflow_mul(n1, n2);
+```
+NOTE: `r / n1 == n2` is there to catch the `size_t` wraparound in `n1*n2`.
+`Nat` does not wrap, so the size test alone decides the same branch here.
+-/
+def natMul : NatObj → NatObj → NatObj
+  | .small n₁ _, .small n₂ _ =>
+    if n₁ = 0 then .small 0 (Nat.zero_le _)
+    else if h : n₁ * n₂ ≤ maxSmallNat then .small (n₁ * n₂) h
+    else mpzToNat ((Num.ofSizeT n₁).mul (Num.ofSizeT n₂))
+  | a, b => mpzToNat (a.toNum.mul b.toNum)
+
+@[simp] theorem natMul_val (a b : NatObj) : (natMul a b).val = a.val * b.val := by
+  cases a with
+  | small n₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      simp only [natMul]
+      split <;> rename_i h
+      · subst h; simp [NatObj.val]
+      · split
+        · rfl
+        · rw [mpzToNat_val, Num.val_mul, Num.val_ofSizeT n₁ (small_lt_base_sq h₁),
+            Num.val_ofSizeT n₂ (small_lt_base_sq h₂)]
+          rfl
+    | big m₂ _ => simp only [natMul]; rw [mpzToNat_val, Num.val_mul, NatObj.val_toNum,
+        NatObj.val_toNum]
+  | big m₁ _ =>
+    cases b <;> (simp only [natMul]
+                 rw [mpzToNat_val, Num.val_mul, NatObj.val_toNum, NatObj.val_toNum])
+
+/-- `lean_nat_mod`, which returns the dividend when the divisor is zero. -/
+def natMod : NatObj → NatObj → NatObj
+  | .small n₁ h₁, .small n₂ _ =>
+    if n₂ = 0 then .small n₁ h₁
+    else .small (n₁ % n₂) (Nat.le_trans (Nat.mod_le ..) h₁)
+  | a, b => if h : b.toNum.val = 0 then a else mpzToNat (a.toNum.mod b.toNum h)
+
+@[simp] theorem natMod_val (a b : NatObj) : (natMod a b).val = a.val % b.val := by
+  cases a with
+  | small n₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      simp only [natMod]
+      split <;> rename_i h
+      · subst h; simp [NatObj.val]
+      · rfl
+    | big m₂ h₂ =>
+      simp only [natMod]
+      split <;> rename_i h
+      · simp only [NatObj.val_toNum, NatObj.val] at h; omega
+      · rw [mpzToNat_val, Num.val_mod, NatObj.val_toNum, NatObj.val_toNum]
+  | big m₁ h₁ =>
+    cases b <;> (
+      simp only [natMod]
+      split <;> rename_i h
+      · simp only [NatObj.val_toNum] at h; rw [h]; simp
+      · rw [mpzToNat_val, Num.val_mod, NatObj.val_toNum, NatObj.val_toNum])
+
+/--
+`lean_nat_land`, whose scalar path never unboxes:
+```
+        return (lean_object*)((size_t)(a1) & (size_t)(a2));
+```
+-/
+def natLand : NatObj → NatObj → NatObj
+  | .small n₁ h₁, .small n₂ h₂ =>
+    .small (unbox (box n₁ &&& box n₂)) (by
+      rw [box_and n₁ n₂ h₁ h₂, unbox_box _ (Nat.le_trans (Nat.and_le_left ..) h₁)]
+      exact Nat.le_trans (Nat.and_le_left ..) h₁)
+  | a, b => mpzToNat (a.toNum.land b.toNum)
+
+@[simp] theorem natLand_val (a b : NatObj) : (natLand a b).val = a.val &&& b.val := by
+  cases a with
+  | small n₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      show unbox (box n₁ &&& box n₂) = _
+      rw [box_and n₁ n₂ h₁ h₂, unbox_box _ (Nat.le_trans (Nat.and_le_left ..) h₁)]
+      rfl
+    | big m₂ _ => simp only [natLand]; rw [mpzToNat_val, Num.val_land, NatObj.val_toNum,
+        NatObj.val_toNum]
+  | big m₁ _ =>
+    cases b <;> (simp only [natLand]
+                 rw [mpzToNat_val, Num.val_land, NatObj.val_toNum, NatObj.val_toNum])
+
+/-- `lean_nat_lor`, which keeps the tag for the same reason as `land`. -/
+def natLor : NatObj → NatObj → NatObj
+  | .small n₁ h₁, .small n₂ h₂ =>
+    .small (unbox (box n₁ ||| box n₂)) (by
+      have hb : n₁ ||| n₂ ≤ maxSmallNat := by
+        simp only [maxSmallNat] at *
+        exact Nat.lt_succ_iff.mp (Nat.or_lt_two_pow (n := 63) (by omega) (by omega))
+      rw [box_or n₁ n₂ h₁ h₂, unbox_box _ hb]; exact hb)
+  | a, b => mpzToNat (a.toNum.lor b.toNum)
+
+@[simp] theorem natLor_val (a b : NatObj) : (natLor a b).val = a.val ||| b.val := by
+  cases a with
+  | small n₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      have hb : n₁ ||| n₂ ≤ maxSmallNat := by
+        simp only [maxSmallNat] at *
+        exact Nat.lt_succ_iff.mp (Nat.or_lt_two_pow (n := 63) (by omega) (by omega))
+      show unbox (box n₁ ||| box n₂) = _
+      rw [box_or n₁ n₂ h₁ h₂, unbox_box _ hb]
+      rfl
+    | big m₂ _ => simp only [natLor]; rw [mpzToNat_val, Num.val_lor, NatObj.val_toNum,
+        NatObj.val_toNum]
+  | big m₁ _ =>
+    cases b <;> (simp only [natLor]
+                 rw [mpzToNat_val, Num.val_lor, NatObj.val_toNum, NatObj.val_toNum])
+
+private theorem compare_le_zero (x y : Num) : (x.compare y ≤ 0) ↔ (x.val ≤ y.val) := by
+  rw [Num.compare_spec]
+  split <;> rename_i h1
+  · simp; omega
+  · split <;> rename_i h2 <;> simp <;> omega
+
+/--
+`lean_nat_le`, whose scalar path compares the tagged values directly. The C++
+notes that the pointer comparison is undefined by the standard and relied on
+anyway; what is modelled here is that boxing is monotone, so the comparison
+answers the same question.
+-/
+def natBle : NatObj → NatObj → Bool
+  | .small n₁ _, .small n₂ _ => box n₁ ≤ box n₂
+  | a, b => a.toNum.compare b.toNum ≤ 0
+
+@[simp] theorem natBle_val (a b : NatObj) : natBle a b = decide (a.val ≤ b.val) := by
+  cases a with
+  | small n₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      show decide (box n₁ ≤ box n₂) = _
+      simp only [decide_eq_decide]
+      exact box_le_box n₁ n₂ h₁ h₂
+    | big m₂ _ =>
+      show decide (_ ≤ (0 : Int)) = _
+      simp only [compare_le_zero, NatObj.val_toNum]
+  | big m₁ _ =>
+    cases b <;> (show decide (_ ≤ (0 : Int)) = _
+                 simp only [compare_le_zero, NatObj.val_toNum])
+
+/-- Boxing is injective, which is what makes the pointer comparison meaningful. -/
+theorem box_inj (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
+    box m = box n ↔ m = n := by
+  constructor
+  · intro h; rw [← unbox_box m hm, ← unbox_box n hn, h]
+  · intro h; rw [h]
+
+/--
+`lean_nat_eq`, whose scalar path compares the tagged values directly:
+```
+        // This comparison is UB according to the standard but allowed as per the
+        // GCC documentation and the address sanitizer does not complain about it.
+        return a1 == a2;
+```
+-/
+def natBeq : NatObj → NatObj → Bool
+  | .small n₁ _, .small n₂ _ => box n₁ == box n₂
+  | a, b => a.toNum.compare b.toNum == 0
+
+@[simp] theorem natBeq_val (a b : NatObj) : natBeq a b = decide (a.val = b.val) := by
+  have hcmp : ∀ x y : Num, (x.compare y == 0) = decide (x.val = y.val) := by
+    intro x y
+    rw [Num.compare_spec]
+    split <;> rename_i h1
+    · simp; omega
+    · split <;> rename_i h2 <;> simp <;> omega
+  cases a with
+  | small n₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      show (box n₁ == box n₂) = decide (n₁ = n₂)
+      by_cases h : n₁ = n₂
+      · subst h; simp
+      · have hne : box n₁ ≠ box n₂ := fun hb => h ((box_inj n₁ n₂ h₁ h₂).mp hb)
+        simp [hne, h]
+    | big m₂ _ => show (_ == 0) = _; rw [hcmp]; simp only [NatObj.val_toNum]
+  | big m₁ _ =>
+    cases b <;> (show (_ == 0) = _; rw [hcmp]; simp only [NatObj.val_toNum])
+
+/-- `lean_nat_succ`. -/
+def natSucc : NatObj → NatObj
+  | .small n h => usizeToNat (n + 1) (by simp only [maxSmallNat, base] at *; omega)
+  | a => mpzToNat (a.toNum.add Num.one)
+
+@[simp] theorem natSucc_val (a : NatObj) : (natSucc a).val = a.val + 1 := by
+  cases a with
+  | small n h => simp only [natSucc]; rw [usizeToNat_val]; rfl
+  | big m _ => simp only [natSucc]; rw [mpzToNat_val, Num.val_add, Num.val_one, NatObj.val_toNum]
+
+/--
+`lean_nat_shiftr`:
+```
+        size_t r = (s2 < sizeof(size_t)*8) ? s1 >> s2 : 0;
+```
+NOTE: the `s2 < 64` test is not there for the answer's sake - a scalar shifted
+by 64 or more is zero either way - but because `>>` by the operand width or more
+is undefined in C++, the same hazard `div_normalize` runs into.
+-/
+def natShiftRight : NatObj → NatObj → NatObj
+  | .small n₁ h₁, .small n₂ _ =>
+    .small (if n₂ < 64 then n₁ >>> n₂ else 0) (by
+      split
+      · exact Nat.le_trans (by rw [Nat.shiftRight_eq_div_pow]; exact Nat.div_le_self ..) h₁
+      · exact Nat.zero_le _)
+  | a, b => mpzToNat (a.toNum.shiftRight b.val)
+
+@[simp] theorem natShiftRight_val (a b : NatObj) :
+    (natShiftRight a b).val = a.val >>> b.val := by
+  cases a with
+  | small n₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      show (if n₂ < 64 then n₁ >>> n₂ else 0) = _
+      split <;> rename_i h
+      · rfl
+      · show (0 : Nat) = n₁ >>> n₂
+        rw [Nat.shiftRight_eq_div_pow]
+        refine (Nat.div_eq_of_lt ?_).symm
+        have : (2:Nat) ^ 64 ≤ 2 ^ n₂ := Nat.pow_le_pow_right (by omega) (by omega)
+        simp only [maxSmallNat] at h₁; omega
+    | big m₂ _ =>
+      simp only [natShiftRight]
+      rw [mpzToNat_val, Num.val_shiftRight, NatObj.val_toNum, Nat.shiftRight_eq_div_pow]
+  | big m₁ _ =>
+    cases b <;> (simp only [natShiftRight]
+                 rw [mpzToNat_val, Num.val_shiftRight, NatObj.val_toNum,
+                   Nat.shiftRight_eq_div_pow])
+
+/-- `lean_nat_shiftl`, which has no scalar fast path: the header only declares it. -/
+def natShiftLeft (a b : NatObj) : NatObj := mpzToNat (a.toNum.shiftLeft b.val)
+
+@[simp] theorem natShiftLeft_val (a b : NatObj) :
+    (natShiftLeft a b).val = a.val <<< b.val := by
+  rw [natShiftLeft, mpzToNat_val, Num.val_shiftLeft, NatObj.val_toNum, Nat.shiftLeft_eq]
+
+/-- `lean_nat_xor`, likewise declared rather than inlined. -/
+def natXor (a b : NatObj) : NatObj := mpzToNat (a.toNum.xor b.toNum)
+
+@[simp] theorem natXor_val (a b : NatObj) : (natXor a b).val = a.val ^^^ b.val := by
+  rw [natXor, mpzToNat_val, Num.val_xor, NatObj.val_toNum, NatObj.val_toNum]
+
+/-- `lean_nat_gcd`, likewise. -/
+def natGcd (a b : NatObj) : NatObj := mpzToNat (a.toNum.gcd b.toNum)
+
+@[simp] theorem natGcd_val (a b : NatObj) : (natGcd a b).val = Nat.gcd a.val b.val := by
+  rw [natGcd, mpzToNat_val, Num.val_gcd, NatObj.val_toNum, NatObj.val_toNum]
+
+/--
+`lean_nat_pow`. The exponent is an `unsigned`, which is what bounds
+`type_checker::reduce_pow` to `UINT_MAX`, so it is a digit here rather than an
+object.
+-/
+def natPow (a : NatObj) (p : Digit) : NatObj := mpzToNat (a.toNum.pow p)
+
+@[simp] theorem natPow_val (a : NatObj) (p : Digit) : (natPow a p).val = a.val ^ p.toNat := by
+  rw [natPow, mpzToNat_val, Num.val_pow, NatObj.val_toNum]
 
 /-!
 ## Differential testing against `Nat`

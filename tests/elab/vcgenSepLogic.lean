@@ -501,13 +501,14 @@ instance (F : HProp) : PreservesSup (sepConj F) where
 /-- The frame-internalizing weakest precondition: the `frameClosure` of the base `StateM Heap` wp
 over separating conjunction. -/
 noncomputable instance HeapM.instWPMonad : WPMonad HeapM HProp EStack⟨⟩ :=
-  WPMonad.of_frameClosure (m := StateM Heap) sepConj sepConj_assoc emp_sepConj StateT.instWPMonad
+  WPMonad.of_frameClosure (m := StateM Heap) sepConj (fun _ E => E)
+    sepConj_assoc (fun _ _ _ => rfl) emp_sepConj (fun _ => rfl) StateT.instWPMonad
 
 /-- Every `HeapM` program frames every heap assertion `F`. -/
 @[grind .]
 theorem frames_sepConj {α : Type} (x : HeapM α) (F : HProp) :
-    PredTrans.Frames sepConj (WP.wpTrans x) F :=
-  WP.frames_of_frameClosure sepConj sepConj sepConj_assoc
+    PredTrans.Frames sepConj (fun _ E => E) (WP.wpTrans x) F :=
+  WP.frames_of_frameClosure sepConj sepConj sepConj_assoc (fun _ _ _ => rfl)
     ⟨fun y => WP.wpTrans y.run, fun _ => rfl⟩
 
 /-- Triple introduction from the base `StateM Heap` interpretation: prove the base triple with an

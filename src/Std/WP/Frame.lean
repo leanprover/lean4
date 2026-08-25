@@ -32,58 +32,70 @@ namespace Std.WP
 variable {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred : Type z}
   [Assertion Pred] [Assertion EPred] [WP Prog Value Pred EPred]
 
-/-- The framed spec `vcgen` applies for `x`, when each `op r` preserves suprema: framing `x` by `F`
-makes `op F (wp x (fun a => PreservesSup.upperAdjoint (op F) (Q a)))` a precondition for `wp x Q`. -/
+/-- The framed spec `vcgen` applies for `x`: framing `x` by `F` makes the wp at the two weakest
+footprints, `upperAdjoint (op F) ∘ Q` and `upperAdjoint (opE F) E`, a precondition for `wp x Q E`
+under `op F`. The companion `opE` and its supremum preservation come from the `EFrame` instance. -/
 theorem WP.op_wp_upperAdjoint_le_wp {R : Type t} (op : R → Pred → Pred)
-    [∀ r, PreservesSup (op r)] {x : Prog} {F : R}
-    (hframes : (WP.wpTrans x).Frames op F) :
-    ∀ Q E, op F (wp x (fun a => PreservesSup.upperAdjoint (op F) (Q a)) E) ⊑ wp x Q E :=
+    [∀ r, PreservesSup (op r)] {opE : R → EPred → EPred} [EFrame op EPred opE]
+    {x : Prog} {F : R}
+    (hframes : (WP.wpTrans x).Frames op opE F) :
+    ∀ Q E, op F (wp x (fun a => PreservesSup.upperAdjoint (op F) (Q a))
+        (PreservesSup.upperAdjoint (opE F) E)) ⊑ wp x Q E :=
   fun Q E =>
     PredTrans.Frames.op_apply_upperAdjoint_le_apply op (WP.wp_trans_monotone x) hframes Q E
 
-/-- If `wp` is built as the `frameClosure op` of a base predicate transformer `f x` (the frame
+/-- If `wp` is built as the `frameClosure op opE` of a base predicate transformer `f x` (the frame
 rule internalized into `wp`), then every program frames every resource `F` with respect to `op`. -/
 theorem WP.frames_of_frameClosure {R : Type t} (op : R → Pred → Pred) [∀ r, PreservesSup (op r)]
+    {opE : R → EPred → EPred}
     (comp : R → R → R) (hact : ∀ r r' a, op (comp r r') a = op r (op r' a))
+    (hactE : ∀ r r' E, opE (comp r r') E = opE r (opE r' E))
     {x : Prog} {F : R}
     (h : ∃ f : Prog → PredTrans Pred EPred Value,
-      ∀ x : Prog, WP.wpTrans x = (f x).frameClosure op) :
-    (WP.wpTrans x).Frames op F := by
+      ∀ x : Prog, WP.wpTrans x = (f x).frameClosure op opE) :
+    (WP.wpTrans x).Frames op opE F := by
   obtain ⟨f, hf⟩ := h
   rw [hf x]
-  exact PredTrans.frameClosure_frames op comp hact (f x) F
+  exact PredTrans.frameClosure_frames op comp hact hactE (f x) F
 
-/-- If `wp x` is conjunctive, then `x` frames `(F ⊓ ·)` when `F` holds before and after running `x`. -/
-theorem WP.frames_of_conjunctive {x : Prog} [WPConjunctive x] {F : Pred}
-    (h : ∀ E, F ⊑ wp x (fun _ => F) E) :
-    (WP.wpTrans x).Frames (· ⊓ ·) F :=
-  PredTrans.Frames.of_conjunctive (WP.wp_trans_monotone x) WPConjunctive.wp_meet_wp_le h
+/-- If `wp x` is conjunctive, then `x` frames `(F ⊓ ·)` when `F` holds before and after running `x`,
+with exceptional exits paying the frame's image `opE F ⊤`. -/
+theorem WP.frames_of_conjunctive {x : Prog} [WPConjunctive x]
+    {opE : Pred → EPred → EPred} {F : Pred}
+    (hF : F ⊑ wp x (fun _ => F) (opE F ⊤))
+    (hE : ∀ E, opE F ⊤ ⊓ E ⊑ opE F E) :
+    (WP.wpTrans x).Frames (· ⊓ ·) opE F :=
+  PredTrans.Frames.of_conjunctive (WP.wp_trans_monotone x) WPConjunctive.wp_meet_wp_le hF hE
 
 /-- Reinterpret a `WP` so its weakest precondition is the `frameClosure` of the base
-wp over a family of supremum-preserving resource operators `op r`. -/
+wp over a family of supremum-preserving resource operators `op r` and its exception-channel
+companion `opE r`. -/
 @[instance_reducible] noncomputable def WP.of_frameClosure {R : Type t} (op : R → Pred → Pred)
-    [∀ r, PreservesSup (op r)] (base : WP Prog Value Pred EPred) : WP Prog Value Pred EPred where
-  wpTrans x := (base.wpTrans x).frameClosure op
+    [∀ r, PreservesSup (op r)] (opE : R → EPred → EPred) [∀ r, PreservesSup (opE r)]
+    (base : WP Prog Value Pred EPred) : WP Prog Value Pred EPred where
+  wpTrans x := (base.wpTrans x).frameClosure op opE
   wp_trans_monotone x := PredTrans.monotone_frameClosure op (base.wp_trans_monotone x)
 
 omit [WP Prog Value Pred EPred] in
 /-- Characterization of the `WP.of_frameClosure` weakest precondition: landing below it is landing
-below the base wp with every resource `op r` framed onto the pre- and postcondition. -/
+below the base wp with every resource `op r` framed onto the pre- and postconditions. -/
 theorem WP.of_frameClosure_le_wp_iff {R : Type t} (op : R → Pred → Pred) [∀ r, PreservesSup (op r)]
+    (opE : R → EPred → EPred) [∀ r, PreservesSup (opE r)]
     (base : WP Prog Value Pred EPred) (x : Prog) (Q : Value → Pred) (E : EPred) (pre : Pred) :
-    pre ⊑ (WP.of_frameClosure op base).wp x Q E ↔
-      ∀ r, op r pre ⊑ base.wp x (fun a => op r (Q a)) E :=
+    pre ⊑ (WP.of_frameClosure op opE base).wp x Q E ↔
+      ∀ r, op r pre ⊑ base.wp x (fun a => op r (Q a)) (opE r E) :=
   PredTrans.le_frameClosure_iff op (base.wpTrans x)
 
 omit [WP Prog Value Pred EPred] in
 /-- Introduction rule for the weakest precondition of a `WP.of_frameClosure` interpretation,
 selected by the witness equation `heq`: land below the base wp with every resource framed on. -/
 theorem WP.le_wp_of_frameClosure_eq {R : Type t} {op : R → Pred → Pred} [∀ r, PreservesSup (op r)]
-    {base I : WP Prog Value Pred EPred} (heq : I = WP.of_frameClosure op base)
+    {opE : R → EPred → EPred} [∀ r, PreservesSup (opE r)]
+    {base I : WP Prog Value Pred EPred} (heq : I = WP.of_frameClosure op opE base)
     {x : Prog} {Q : Value → Pred} {E : EPred} {pre : Pred}
-    (h : ∀ r, op r pre ⊑ base.wp x (fun a => op r (Q a)) E) :
+    (h : ∀ r, op r pre ⊑ base.wp x (fun a => op r (Q a)) (opE r E)) :
     pre ⊑ I.wp x Q E := by
   subst heq
-  exact (WP.of_frameClosure_le_wp_iff op base x Q E pre).mpr h
+  exact (WP.of_frameClosure_le_wp_iff op opE base x Q E pre).mpr h
 
 end Std.WP

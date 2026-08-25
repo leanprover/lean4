@@ -41,6 +41,14 @@ class PreservesSup {α : Type u} [CompleteLattice α] (f : α → α) : Prop whe
   map_sup (s : α → Prop) :
     f (CompleteLattice.sup s) = CompleteLattice.sup (fun y => ∃ x, s x ∧ y = f x)
 
+/-- The identity preserves suprema. -/
+instance preservesSup_id : PreservesSup (fun a : α => a) where
+  map_sup s := by
+    show CompleteLattice.sup s = _
+    congr 1
+    funext y
+    exact propext ⟨fun hy => ⟨y, hy, rfl⟩, fun ⟨x, hx, hxy⟩ => hxy ▸ hx⟩
+
 instance (a : Prop) : PreservesSup (meet a) where
   map_sup s := by
     show a ⊓ CompleteLattice.sup s = CompleteLattice.sup (fun y => ∃ x, s x ∧ y = a ⊓ x)
@@ -174,6 +182,22 @@ theorem Prod.mk_meet (p q : α × β) : ((p.fst ⊓ q.fst, p.snd ⊓ q.snd) : α
 /-- The second component of a meet is the meet of the second components. -/
 @[simp] theorem Prod.snd_meet (p q : α × β) : (p ⊓ q).snd = p.snd ⊓ q.snd := by
   rw [← Prod.mk_meet]
+
+/-- `mk` of the componentwise least upper bounds is the least upper bound on a product. -/
+theorem Prod.mk_sup (c : α × β → Prop) :
+    ((CompleteLattice.sup fun a => ∃ b, c (a, b),
+      CompleteLattice.sup fun b => ∃ a, c (a, b)) : α × β) = CompleteLattice.sup c :=
+  prod_eq_of_pprod_eq <| by rw [prod_sup_toPProd, ← PProd.mk_sup]
+
+/-- The first component of a least upper bound is the least upper bound of the first components. -/
+theorem Prod.fst_sup (c : α × β → Prop) :
+    (CompleteLattice.sup c).fst = CompleteLattice.sup fun a => ∃ b, c (a, b) := by
+  rw [← Prod.mk_sup]
+
+/-- The second component of a least upper bound is the least upper bound of the second components. -/
+theorem Prod.snd_sup (c : α × β → Prop) :
+    (CompleteLattice.sup c).snd = CompleteLattice.sup fun b => ∃ a, c (a, b) := by
+  rw [← Prod.mk_sup]
 
 /-- The first component of the bottom element is the bottom element. Propositional (not
 definitional), because `⊥` is `csup ∅`, not a constructor application. -/

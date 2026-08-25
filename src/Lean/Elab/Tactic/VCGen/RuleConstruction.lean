@@ -449,7 +449,7 @@ public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
   -- `tryMkBackwardRuleFromSpec` turns the unassigned metavariables into rule parameters.
   let op ← fp.mkOpAppM info
   let specProof ← mkAppOptM ``Std.WP.WP.op_wp_upperAdjoint_le_wp
-    ((info.args.take 7).map some ++ #[none, some op, none])
+    ((info.args.take 7).map some ++ #[none, some op, none, none, none])
   let some specThm ← mkSpecTheoremFromStx (← getRef) specProof
     | throwError "frame: could not build the frame spec for operator{indentExpr op}"
   let some rule ← (tryMkBackwardRuleFromSpec specThm info).run

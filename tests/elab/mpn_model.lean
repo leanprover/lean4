@@ -9,19 +9,17 @@ Under `USE_GMP=OFF`, the implementation becomes part of the TCB: `type_checker::
 every routine here except `mpn_to_string`, whose only caller is printing.
 
 This file transliterates it statement by statement so that the algorithms can be checked against
-`Nat`, which is what `#eval mpnCheck` at the bottom does, and so that they can be proved correct:
-`denote_add`, `denote_sub`, `denote_mul`, `div_spec` and `compare_spec` do that for `mpn_add`,
-`mpn_sub`, `mpn_mul`, `mpn_div` (by way of Knuth's Algorithm D) and `mpn_compare`.
+`Nat`: `denote_add`, `denote_sub`, `denote_mul`, `div_spec` and `compare_spec` do that for
+`mpn_add`, `mpn_sub`, `mpn_mul`, `mpn_div` (by way of Knuth's Algorithm D) and `mpn_compare`.
+`mpn_to_string` is the one routine with no proof.
 
 Each definition quotes the C++ it stands for, so the two can be read side by side without opening
 the source. Deviations are marked `NOTE:`; the recurring ones are that a loop over a mutable buffer
 becomes a fold or a map over the digits it writes, and that a `while` whose bound is an argument
 about the values becomes a structural or well-founded recursion.
 
-A transliteration is only worth as much as its fidelity to the original, so `Mpn.Test.emit` prints
-the model's results in the format that `mpn_model_crosscheck.cpp` prints the real `mpn.cpp`'s in,
-and `Mpn.Test.emitNum` does the same against `mpz_crosscheck.cpp` for the `mpz` layer below. On the
-same pseudorandom operands both agree byte for byte.
+A transliteration is only worth as much as its fidelity to the original, and nothing here checks
+that mechanically: it rests on reading the two side by side, which is what the quoted C++ is for.
 -/
 
 namespace Mpn
@@ -3935,7 +3933,8 @@ inductive NatObj where
   | small (n : Nat) (h : n ≤ maxSmallNat)
   | big (m : Num) (h : maxSmallNat < m.val)
 
-/-- The natural number an object denotes. -/
+/-- The natural number an object denotes; a reading of the representation, with
+no counterpart in the C++. -/
 def NatObj.val : NatObj → Nat
   | .small n _ => n
   | .big m _ => m.val
@@ -3968,15 +3967,22 @@ def Num.ofSizeT (n : Nat) : Num :=
 /--
 `lean_nat_div`, and `lean_nat_big_div` behind it:
 ```
+static inline lean_obj_res lean_nat_div(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
         size_t n1 = lean_unbox(a1);
         size_t n2 = lean_unbox(a2);
-        if (n2 == 0) return lean_box(0); else return lean_box(n1 / n2);
+        if (n2 == 0)
+            return lean_box(0);
+        else
+            return lean_box(n1 / n2);
     } else {
         return lean_nat_big_div(a1, a2);
     }
+}
 ```
 ```
+extern "C" LEAN_EXPORT object * lean_nat_big_div(object * a1, object * a2) {
+    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
     if (lean_is_scalar(a1)) {
         lean_assert(mpz_value(a2) != 0);
         lean_assert(mpz::of_size_t(lean_unbox(a1)) / mpz_value(a2) == 0);
@@ -3988,6 +3994,7 @@ def Num.ofSizeT (n : Nat) : Num :=
         lean_assert(mpz_value(a2) != 0);
         return mpz_to_nat(mpz_value(a1) / mpz_value(a2));
     }
+}
 ```
 -/
 def natDiv : NatObj → NatObj → NatObj
@@ -4063,7 +4070,17 @@ private theorem small_lt_base_sq {n : Nat} (h : n ≤ maxSmallNat) : n < base ^ 
   | small n h => rw [toNum, NatObj.val, Num.val_ofSizeT n (small_lt_base_sq h)]
   | big m _ => rfl
 
-/-- `lean_usize_to_nat`: box it if it fits, otherwise allocate an `mpz`. -/
+/--
+`lean_usize_to_nat`:
+```
+static inline lean_obj_res lean_usize_to_nat(size_t n) {
+    if (LEAN_LIKELY(n <= LEAN_MAX_SMALL_NAT))
+        return lean_box(n);
+    else
+        return lean_big_usize_to_nat(n);
+}
+```
+-/
 def usizeToNat (n : Nat) (h64 : n < base ^ 2) : NatObj :=
   if h : n ≤ maxSmallNat then .small n h
   else .big (Num.ofSizeT n) (by rw [Num.val_ofSizeT n h64]; omega)
@@ -4076,10 +4093,12 @@ def usizeToNat (n : Nat) (h64 : n < base ^ 2) : NatObj :=
 /--
 `lean_nat_add`:
 ```
+static inline LEAN_ALWAYS_INLINE lean_obj_res lean_nat_add(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2)))
         return lean_usize_to_nat(lean_unbox(a1) + lean_unbox(a2));
     else
         return lean_nat_big_add(a1, a2);
+}
 ```
 The scalar sum cannot overflow `size_t`: two scalars are at most `2^63 - 1`, so
 their sum is below `2^64`. That is the headroom the tag bit leaves, and the
@@ -4101,7 +4120,23 @@ def natAdd : NatObj → NatObj → NatObj
     cases b <;> (simp only [natAdd]
                  rw [mpzToNat_val, Num.val_add, NatObj.val_toNum, NatObj.val_toNum])
 
-/-- `lean_nat_sub`, which clamps at zero as `Nat` subtraction does. -/
+/--
+`lean_nat_sub`, which clamps at zero as `Nat` subtraction does:
+```
+static inline LEAN_ALWAYS_INLINE lean_obj_res lean_nat_sub(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        size_t n1 = lean_unbox(a1);
+        size_t n2 = lean_unbox(a2);
+        if (n1 < n2)
+            return lean_box(0);
+        else
+            return lean_box(n1 - n2);
+    } else {
+        return lean_nat_big_sub(a1, a2);
+    }
+}
+```
+-/
 def natSub : NatObj → NatObj → NatObj
   | .small n₁ h₁, .small n₂ _ =>
     if n₁ < n₂ then .small 0 (Nat.zero_le _) else .small (n₁ - n₂) (by omega)
@@ -4125,12 +4160,21 @@ def natSub : NatObj → NatObj → NatObj
 /--
 `lean_nat_mul`:
 ```
+static inline LEAN_ALWAYS_INLINE lean_obj_res lean_nat_mul(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
         size_t n1 = lean_unbox(a1);
-        if (n1 == 0) return a1;
+        if (n1 == 0)
+            return a1;
         size_t n2 = lean_unbox(a2);
         size_t r  = n1*n2;
-        if (r <= LEAN_MAX_SMALL_NAT && r / n1 == n2) return lean_box(r);
-        else return lean_nat_overflow_mul(n1, n2);
+        if (r <= LEAN_MAX_SMALL_NAT && r / n1 == n2)
+            return lean_box(r);
+        else
+            return lean_nat_overflow_mul(n1, n2);
+    } else {
+        return lean_nat_big_mul(a1, a2);
+    }
+}
 ```
 NOTE: `r / n1 == n2` is there to catch the `size_t` wraparound in `n1*n2`.
 `Nat` does not wrap, so the size test alone decides the same branch here.
@@ -4161,7 +4205,23 @@ def natMul : NatObj → NatObj → NatObj
     cases b <;> (simp only [natMul]
                  rw [mpzToNat_val, Num.val_mul, NatObj.val_toNum, NatObj.val_toNum])
 
-/-- `lean_nat_mod`, which returns the dividend when the divisor is zero. -/
+/--
+`lean_nat_mod`, which returns the dividend when the divisor is zero:
+```
+static inline lean_obj_res lean_nat_mod(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        size_t n1 = lean_unbox(a1);
+        size_t n2 = lean_unbox(a2);
+        if (n2 == 0)
+            return lean_box(n1);
+        else
+            return lean_box(n1 % n2);
+    } else {
+        return lean_nat_big_mod(a1, a2);
+    }
+}
+```
+-/
 def natMod : NatObj → NatObj → NatObj
   | .small n₁ h₁, .small n₂ _ =>
     if n₂ = 0 then .small n₁ h₁
@@ -4192,8 +4252,16 @@ def natMod : NatObj → NatObj → NatObj
 /--
 `lean_nat_land`, whose scalar path never unboxes:
 ```
+static inline lean_obj_res lean_nat_land(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
         return (lean_object*)((size_t)(a1) & (size_t)(a2));
+    } else {
+        return lean_nat_big_land(a1, a2);
+    }
+}
 ```
+It can do that because the tag bit is set in both operands, so `&` leaves it set
+and the payload bits combine on their own.
 -/
 def natLand : NatObj → NatObj → NatObj
   | .small n₁ h₁, .small n₂ h₂ =>
@@ -4216,7 +4284,18 @@ def natLand : NatObj → NatObj → NatObj
     cases b <;> (simp only [natLand]
                  rw [mpzToNat_val, Num.val_land, NatObj.val_toNum, NatObj.val_toNum])
 
-/-- `lean_nat_lor`, which keeps the tag for the same reason as `land`. -/
+/--
+`lean_nat_lor`, which keeps the tag for the same reason as `land`:
+```
+static inline lean_obj_res lean_nat_lor(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        return (lean_object*)((size_t)(a1) | (size_t)(a2));
+    } else {
+        return lean_nat_big_lor(a1, a2);
+    }
+}
+```
+-/
 def natLor : NatObj → NatObj → NatObj
   | .small n₁ h₁, .small n₂ h₂ =>
     .small (unbox (box n₁ ||| box n₂)) (by
@@ -4250,10 +4329,20 @@ private theorem compare_le_zero (x y : Num) : (x.compare y ≤ 0) ↔ (x.val ≤
   · split <;> rename_i h2 <;> simp <;> omega
 
 /--
-`lean_nat_le`, whose scalar path compares the tagged values directly. The C++
-notes that the pointer comparison is undefined by the standard and relied on
-anyway; what is modelled here is that boxing is monotone, so the comparison
-answers the same question.
+`lean_nat_le`, whose scalar path compares the tagged values directly:
+```
+static inline LEAN_ALWAYS_INLINE bool lean_nat_le(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        // This comparison is UB according to the standard but allowed as per the
+        // GCC documentation and the address sanitizer does not complain about it.
+        return a1 <= a2;
+    } else {
+        return lean_nat_big_le(a1, a2);
+    }
+}
+```
+Boxing is monotone, so the comparison on the tagged values is the comparison on
+the numbers; only the pointer comparison itself is outside the standard.
 -/
 def natBle : NatObj → NatObj → Bool
   | .small n₁ _, .small n₂ _ => box n₁ ≤ box n₂
@@ -4284,9 +4373,15 @@ theorem box_inj (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
 /--
 `lean_nat_eq`, whose scalar path compares the tagged values directly:
 ```
+static inline LEAN_ALWAYS_INLINE bool lean_nat_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
         // This comparison is UB according to the standard but allowed as per the
         // GCC documentation and the address sanitizer does not complain about it.
         return a1 == a2;
+    } else {
+        return lean_nat_big_eq(a1, a2);
+    }
+}
 ```
 -/
 def natBeq : NatObj → NatObj → Bool
@@ -4313,7 +4408,17 @@ def natBeq : NatObj → NatObj → Bool
   | big m₁ _ =>
     cases b <;> (show (_ == 0) = _; rw [hcmp]; simp only [NatObj.val_toNum])
 
-/-- `lean_nat_succ`. -/
+/--
+`lean_nat_succ`:
+```
+static inline lean_obj_res lean_nat_succ(b_lean_obj_arg a) {
+    if (LEAN_LIKELY(lean_is_scalar(a)))
+        return lean_usize_to_nat(lean_unbox(a) + 1);
+    else
+        return lean_nat_big_succ(a);
+}
+```
+-/
 def natSucc : NatObj → NatObj
   | .small n h => usizeToNat (n + 1) (by simp only [maxSmallNat, base] at *; omega)
   | a => mpzToNat (a.toNum.add Num.one)
@@ -4326,7 +4431,16 @@ def natSucc : NatObj → NatObj
 /--
 `lean_nat_shiftr`:
 ```
+static inline lean_obj_res lean_nat_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        size_t s1 = lean_unbox(a1);
+        size_t s2 = lean_unbox(a2);
         size_t r = (s2 < sizeof(size_t)*8) ? s1 >> s2 : 0;
+        return lean_box(r);
+    } else {
+        return lean_nat_big_shiftr(a1, a2);
+    }
+}
 ```
 NOTE: the `s2 < 64` test is not there for the answer's sake - a scalar shifted
 by 64 or more is zero either way - but because `>>` by the operand width or more
@@ -4362,27 +4476,35 @@ def natShiftRight : NatObj → NatObj → NatObj
                  rw [mpzToNat_val, Num.val_shiftRight, NatObj.val_toNum,
                    Nat.shiftRight_eq_div_pow])
 
-/-- `lean_nat_shiftl`, which has no scalar fast path: the header only declares it. -/
+/--
+`lean_nat_shiftl`, which the header only declares, so the dispatch lives in
+`object.cpp` rather than inline:
+```
+LEAN_EXPORT lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2);
+```
+-/
 def natShiftLeft (a b : NatObj) : NatObj := mpzToNat (a.toNum.shiftLeft b.val)
 
 @[simp] theorem natShiftLeft_val (a b : NatObj) :
     (natShiftLeft a b).val = a.val <<< b.val := by
   rw [natShiftLeft, mpzToNat_val, Num.val_shiftLeft, NatObj.val_toNum, Nat.shiftLeft_eq]
 
-/-- `lean_nat_xor`, likewise declared rather than inlined. -/
+/-- `LEAN_EXPORT lean_obj_res lean_nat_xor(b_lean_obj_arg a1, b_lean_obj_arg a2);` -/
 def natXor (a b : NatObj) : NatObj := mpzToNat (a.toNum.xor b.toNum)
 
 @[simp] theorem natXor_val (a b : NatObj) : (natXor a b).val = a.val ^^^ b.val := by
   rw [natXor, mpzToNat_val, Num.val_xor, NatObj.val_toNum, NatObj.val_toNum]
 
-/-- `lean_nat_gcd`, likewise. -/
+/-- `LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2);` -/
 def natGcd (a b : NatObj) : NatObj := mpzToNat (a.toNum.gcd b.toNum)
 
 @[simp] theorem natGcd_val (a b : NatObj) : (natGcd a b).val = Nat.gcd a.val b.val := by
   rw [natGcd, mpzToNat_val, Num.val_gcd, NatObj.val_toNum, NatObj.val_toNum]
 
 /--
-`lean_nat_pow`. The exponent is an `unsigned`, which is what bounds
+`LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2);`
+
+The exponent is an `unsigned`, which is what bounds
 `type_checker::reduce_pow` to `UINT_MAX`, so it is a digit here rather than an
 object.
 -/
@@ -4391,199 +4513,4 @@ def natPow (a : NatObj) (p : Digit) : NatObj := mpzToNat (a.toNum.pow p)
 @[simp] theorem natPow_val (a : NatObj) (p : Digit) : (natPow a p).val = a.val ^ p.toNat := by
   rw [natPow, mpzToNat_val, Num.val_pow, NatObj.val_toNum]
 
-/-!
-## Differential testing against `Nat`
-
-`mpn_to_string` is not proved here; it is checked against `Nat` on pseudorandom
-inputs instead, as are the proved routines. The digit
-generator is biased towards `0`, `1` and `2^32-1` so that carries, borrows and
-Knuth's quotient correction step fire often.
--/
-
-namespace Test
-
-/-- xorshift64. -/
-def nextRand (s : UInt64) : UInt64 :=
-  let s := s ^^^ (s <<< 13)
-  let s := s ^^^ (s >>> 7)
-  s ^^^ (s <<< 17)
-
-def drawDigit (s : UInt64) : Digit × UInt64 :=
-  let s := nextRand s
-  let sel := (s >>> 59) % 8
-  let d : Digit :=
-    if sel == 0 then 0
-    else if sel == 1 then 0xFFFFFFFF
-    else if sel == 2 then 1
-    else s.toUInt32
-  (d, s)
-
-def drawArray (n : Nat) (s : UInt64) : Array Digit × UInt64 := Id.run do
-  let mut out : Array Digit := Array.emptyWithCapacity n
-  let mut s := s
-  for _ in [0:n] do
-    let (d, s') := drawDigit s
-    out := out.push d
-    s := s'
-  return (out, s)
-
-/-- Every way one pair of operands can disagree with `Nat`. -/
-def check (a b : Array Digit) : Array String := Id.run do
-  let mut fs : Array String := #[]
-  let ctx := s!"a={a.map (·.toNat)} b={b.map (·.toNat)}"
-  let na := denote a
-  let nb := denote b
-  let len := max a.size b.size
-
-  let c := compare a b
-  let expected : Int := if na > nb then 1 else if na < nb then -1 else 0
-  if c != expected then fs := fs.push s!"compare {ctx}: got {c}, expected {expected}"
-
-  -- `mpn_add` asserts `len > 0`
-  if len > 0 then
-    let s := add a b
-    if denote s != na + nb then fs := fs.push s!"add {ctx}: got {denote s}, expected {na + nb}"
-    if s.size == 0 || s.size > len + 1 then
-      fs := fs.push s!"add {ctx}: trimmed length {s.size} outside 1..{len+1}"
-    if s.size > 1 && s.back! == 0 then
-      fs := fs.push s!"add {ctx}: trimmed length leaves a redundant leading zero"
-
-    -- `c = a - b + borrow * B^len`
-    let (d, k) := sub a b
-    if d.size != len then fs := fs.push s!"sub {ctx}: length {d.size}, expected {len}"
-    if denote d + nb != na + k.toNat * base ^ len then
-      fs := fs.push s!"sub {ctx}: digits {denote d}, borrow {k.toNat}"
-    if (k != 0) != decide (na < nb) then
-      fs := fs.push s!"sub {ctx}: borrow {k.toNat} but a<b is {decide (na < nb)}"
-
-  let p := mul a b
-  if p.size != a.size + b.size then
-    fs := fs.push s!"mul {ctx}: length {p.size}, expected {a.size + b.size}"
-  if denote p != na * nb then fs := fs.push s!"mul {ctx}: got {denote p}, expected {na * nb}"
-
-  -- `mpn_div` requires `lden <= lnum` and a nonzero top denominator digit
-  if h : 0 < b.size ∧ b.size ≤ a.size ∧ (b.getD (b.size - 1) 0).toNat ≠ 0 then
-    let (q, r) := div a b h.1 h.2.1 (Nat.pos_of_ne_zero h.2.2)
-    if q.size != a.size - b.size + 1 then
-      fs := fs.push s!"div {ctx}: quotient length {q.size}, expected {a.size - b.size + 1}"
-    if r.size != b.size then
-      fs := fs.push s!"div {ctx}: remainder length {r.size}, expected {b.size}"
-    if denote q != na / nb then fs := fs.push s!"div {ctx}: quotient {denote q}, expected {na / nb}"
-    if denote r != na % nb then fs := fs.push s!"div {ctx}: remainder {denote r}, expected {na % nb}"
-
-  if a.size > 0 then
-    let str := Mpn.toString a
-    if str != ToString.toString na then
-      fs := fs.push s!"toString {ctx}: got {str}, expected {na}"
-
-  return fs
-
-def run (trials : Nat) (seed : UInt64) (maxLen : Nat) : Array String := Id.run do
-  let mut fs : Array String := #[]
-  let mut s := seed
-  for _ in [0:trials] do
-    s := nextRand s
-    let la := ((s >>> 33).toNat % maxLen) + 1
-    s := nextRand s
-    let lb := ((s >>> 33).toNat % maxLen) + 1
-    let (a, s') := drawArray la s
-    let (b, s'') := drawArray lb s'
-    s := s''
-    fs := fs ++ check a b
-  return fs
-
-/--
-Print the results for `trials` operand pairs in the format
-`mpn_model_crosscheck.cpp` uses, so that model and C++ can be diffed.
--/
-def emit (trials : Nat) (maxLen : Nat) (seed : UInt64) : IO Unit := do
-  let vec (tag : String) (v : Array Digit) : String :=
-    v.foldl (fun acc d => acc ++ " " ++ ToString.toString d.toNat) tag
-  let mut s := seed
-  for t in [0:trials] do
-    s := nextRand s
-    let la := ((s >>> 33).toNat % maxLen) + 1
-    s := nextRand s
-    let lb := ((s >>> 33).toNat % maxLen) + 1
-    let (a, s') := drawArray la s
-    let (b, s'') := drawArray lb s'
-    s := s''
-    IO.println s!"case {t}"
-    IO.println (vec "a" a)
-    IO.println (vec "b" b)
-    IO.println s!"compare {Mpn.compare a b}"
-    IO.println (vec "add" (add a b))
-    let (d, borrow) := sub a b
-    IO.println (vec "sub" d)
-    IO.println s!"borrow {borrow.toNat}"
-    IO.println (vec "mul" (mul a b))
-    if h : 0 < b.size ∧ b.size ≤ a.size ∧ (b.getD (b.size - 1) 0).toNat ≠ 0 then
-      let (q, r) := div a b h.1 h.2.1 (Nat.pos_of_ne_zero h.2.2)
-      IO.println (vec "quot" q)
-      IO.println (vec "rem" r)
-    IO.println s!"str {Mpn.toString a}"
-
-/--
-Print the `mpz`-layer results in the format `mpz_crosscheck.cpp` uses, so the
-two can be diffed.
--/
-def emitNum (trials : Nat) (maxLen : Nat) (seed : UInt64) : IO Unit := do
-  let mut s := seed
-  for t in [0:trials] do
-    s := nextRand s
-    let la := ((s >>> 33).toNat % maxLen) + 1
-    s := nextRand s
-    let lb := ((s >>> 33).toNat % maxLen) + 1
-    let (da, s') := drawArray la s
-    let (db, s'') := drawArray lb s'
-    s := s''
-    s := nextRand s
-    let k := (s >>> 33).toNat % 100
-    let A := Num.ofArray! da
-    let B := Num.ofArray! db
-    IO.println s!"case {t}"
-    IO.println s!"a {A.val}"
-    IO.println s!"b {B.val}"
-    IO.println s!"add {(A.add B).val}"
-    IO.println s!"sub {(A.sub B).val}"
-    IO.println s!"mul {(A.mul B).val}"
-    IO.println s!"pow {(A.pow (k % 5).toUInt32).val}"
-    if h : B.val ≠ 0 then
-      IO.println s!"div {(A.div B h).val}"
-      IO.println s!"mod {(A.mod B h).val}"
-    IO.println s!"gcd {(A.gcd B).val}"
-    IO.println s!"and {(A.land B).val}"
-    IO.println s!"or {(A.lor B).val}"
-    IO.println s!"xor {(A.xor B).val}"
-    IO.println s!"shl {(A.shiftLeft k).val}"
-    IO.println s!"shr {(A.shiftRight k).val}"
-    IO.println s!"k {k}"
-
-end Test
-
-/--
-Cross-check every `mpn` routine against `Nat` on pseudorandom operands. The
-trial counts are kept low enough to stay cheap in CI; raising them by two orders
-of magnitude still reports no disagreement.
--/
-def mpnCheck : IO Unit := do
-  let mut failures := 0
-  for (trials, maxLen, seed) in
-      [(800, 3, 0x9E3779B97F4A7C15), (800, 6, 0x2545F4914F6CDD1D),
-       (250, 10, 0xDEADBEEFCAFEBABE), (80, 20, 0x0123456789ABCDEF)] do
-    let fs := Test.run trials seed maxLen
-    failures := failures + fs.size
-    for f in fs.extract 0 5 do IO.println f
-  for p in [0x80000000, 0xFFFFFFFF] do
-    let e := (p : Nat).toUInt32
-    if (Num.one.pow e).val != 1 then
-      failures := failures + 1
-      IO.println s!"pow: 1^{p} gave {(Num.one.pow e).val}"
-    if ((Num.ofArray! #[0]).pow e).val != 0 then
-      failures := failures + 1
-      IO.println s!"pow: 0^{p} gave {((Num.ofArray! #[0]).pow e).val}"
-  IO.println s!"mpn: {failures} disagreements with Nat"
-
 end Mpn
-
-#eval Mpn.mpnCheck

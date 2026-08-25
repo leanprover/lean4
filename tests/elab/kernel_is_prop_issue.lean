@@ -19,9 +19,13 @@ def gateStep (x : Bool) (n : Nat) (ih : (m : Nat) → m < n → Bool) : Bool :=
 def gateRun (x : Bool) (n : Nat) (h : Acc (· < ·) n) : Bool :=
   Acc.rec (fun m _ => gateStep x m) h
 opaque gateSeed : Acc (· < ·) 1 := Nat.lt_wfRel.wf.apply 1
+-- These `Acc` proofs must be definitions: as arguments of `gateA`/`gateB` they would be abstracted
+-- into theorems, and the kernel does not unfold theorems, so `Acc.rec` would be stuck on them.
+def gateUnfolded : Acc (· < ·) 1 := Acc.intro 1 fun _ => Acc.inv gateSeed
+def gatePred : Acc (· < ·) 0 := Acc.inv gateSeed (Nat.lt_succ_self 0)
 def gateA := gateRun false 1 gateSeed
-def gateB := gateRun false 1 (Acc.intro 1 fun _ => Acc.inv gateSeed)
-def gateC := gateRun false 0 (Acc.inv gateSeed (Nat.lt_succ_self 0))
+def gateB := gateRun false 1 gateUnfolded
+def gateC := gateRun false 0 gatePred
 theorem gateRun_eq (x : Bool) (n : Nat) (h : Acc (· < ·) n) : gateRun x n h = x := by
   induction h with
   | intro n smaller ih =>

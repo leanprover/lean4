@@ -144,7 +144,7 @@ optional<level> dec_level(level const & l) {
     an element of the inductive datatype named \c I, and \c c must have \c nparams parameters. */
 bool has_constructor(environment const & env, name const & c, name const & I, unsigned nparams) {
     auto d = env.find(c);
-    if (!d || d->has_value())
+    if (!d || !d->is_constructor())
         return false;
     expr type = d->get_type();
     unsigned i = 0;

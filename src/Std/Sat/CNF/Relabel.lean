@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Sat.CNF.Basic
+public import Std.Sat.CNF.Sat
 import Init.Data.List.Nat.Range
 
 @[expose] public section
@@ -52,7 +53,7 @@ theorem relabel_add (r : α → β) (c : Clause α) :
 
 @[simp] theorem eval_relabel {r : α → β} {a : β → Bool} {c : Clause α} :
     (relabel r c).eval a = c.eval (a ∘ r) := by
-  induction c using induct <;> simp_all
+  induction c using inductionOn <;> simp_all
 
 @[simp] theorem relabel_id' : relabel (id : α → α) = id := by
   funext c
@@ -66,8 +67,7 @@ theorem relabel_congr {c : Clause α} {r1 r2 : α → β} (hw : ∀ v, VarMem v 
   apply List.map_congr_left
   intro ⟨v, p⟩ h
   simp only [Prod.mk.injEq, and_true]
-  apply hw
-  cases p <;> simp [h, VarMem]
+  exact hw v (VarMem_iff_exists_mem_literals.mpr ⟨p, h⟩)
 
 -- We need the unapplied equality later.
 @[simp] theorem relabel_relabel' : relabel r1 ∘ relabel r2 = relabel (r1 ∘ r2) := by
@@ -116,7 +116,7 @@ theorem relabel_congr {f : CNF α} {r1 r2 : α → β} (hw : ∀ v, VarMem v f �
   intro c h
   apply Clause.relabel_congr
   intro v m
-  exact hw _ (VarMem_of h m)
+  exact hw _ (VarMem_of (Internal.mem_iff.mpr h) m)
 
 theorem sat_relabel {f : CNF α} (h : Sat (r1 ∘ r2) f) : Sat r1 (relabel r2 f) := by
   simp_all [sat_def]

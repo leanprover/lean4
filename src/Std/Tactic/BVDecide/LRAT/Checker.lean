@@ -6,7 +6,7 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Tactic.BVDecide.LRAT.NewInternal.Checker
+public import Std.Tactic.BVDecide.LRAT.Internal.Checker
 
 @[expose] public section
 
@@ -20,12 +20,11 @@ open Std.Sat
 namespace Std.Tactic.BVDecide
 namespace LRAT
 
-open Std.Tactic.BVDecide.LRAT
 /--
 Check whether `lratProof` is a valid LRAT certificate for the unsatisfiability of `cnf`.
 -/
 def check (lratProof : Array IntAction) (cnf : CNF Nat) : Bool :=
-  NewInternal.check cnf lratProof
+  Internal.check lratProof cnf
 
 /--
 If the `check` functions succeeds on `lratProof` and `cnf` then the `cnf` is unsatisfiable.
@@ -33,7 +32,7 @@ If the `check` functions succeeds on `lratProof` and `cnf` then the `cnf` is uns
 theorem check_sound (lratProof : Array IntAction) (cnf : CNF Nat) :
     check lratProof cnf → cnf.Unsat := by
   unfold check
-  exact NewInternal.unsat_of_check
+  exact Internal.unsat_of_check
 
 end LRAT
 end Std.Tactic.BVDecide

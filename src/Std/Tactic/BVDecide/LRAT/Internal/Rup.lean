@@ -6,25 +6,28 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Tactic.BVDecide.LRAT.NewInternal.Basic
-public import Std.Tactic.BVDecide.LRAT.NewInternal.Assignment
+public import Std.Tactic.BVDecide.LRAT.Internal.Basic
+public import Std.Tactic.BVDecide.LRAT.Internal.Assignment
 import Init.Omega
 import Init.ByCases
 import Std.Sat.CNF.SpecLemmas
 import Std.Tactic.Do
 
-namespace Std.Tactic.BVDecide.LRAT.NewInternal
+namespace Std.Tactic.BVDecide.LRAT.Internal
+
+set_option mvcgen.warning false
 
 open Std.Sat Std.Do
 
-inductive PropagateResult where
+public inductive PropagateResult where
   | conflict
   | extended (assign : Assignment)
   | error
 
 namespace State
 
-def propagateHints (s : State) (assign : Assignment) (hints : Array Nat) : PropagateResult := Id.run do
+public def propagateHints (s : State) (assign : Assignment) (hints : Array Nat) :
+    PropagateResult := Id.run do
   let mut assign := assign
   for hintIdx in hints do
     let some hintClause := s.get? hintIdx | return .error
@@ -48,15 +51,14 @@ def propagateHints (s : State) (assign : Assignment) (hints : Array Nat) : Propa
     | some _ => continue
   return .extended assign
 
-def checkPropagate (s : State) (assign : Assignment) (rupHints : Array Nat) : Bool :=
+public def checkPropagate (s : State) (assign : Assignment) (rupHints : Array Nat) : Bool :=
   propagateHints s assign rupHints matches .conflict
 
 public def checkRup (s : State) (clause : CNF.Clause Nat) (rupHints : Array Nat) : Bool := Id.run do
   let some assignment := Assignment.ofClause clause | return true
   checkPropagate s assignment rupHints
 
-set_option mvcgen.warning false
-
+set_option linter.deprecated.syntax false in
 theorem propagateHints_spec (s : State) (assign : Assignment) (hints : Array Nat) :
     match propagateHints s assign hints with
     | .conflict => CNF.Unsat (s.toCNF ++ assign.toCNF)
@@ -194,18 +196,18 @@ theorem propagateHints_spec (s : State) (assign : Assignment) (hints : Array Nat
     simp only [h1, true_and, reduceCtorEq, false_and, exists_false, or_false] at ih
     exact CNF.entails_trans ih CNF.append_entails_right
 
-theorem unsat_of_propagateHints_eq_conflict (h : propagateHints s assign hints = .conflict) :
+public theorem unsat_of_propagateHints_eq_conflict (h : propagateHints s assign hints = .conflict) :
     CNF.Unsat (s.toCNF ++ assign.toCNF) := by
   have := propagateHints_spec s assign hints
   simpa [h] using this
 
-theorem entails_of_propagateHints_eq_extended
+public theorem entails_of_propagateHints_eq_extended
     (h : propagateHints s assign hints = .extended newAssign) :
     CNF.Entails (s.toCNF ++ assign.toCNF) newAssign.toCNF := by
   have := propagateHints_spec s assign hints
   simpa [h] using this
 
-theorem unsat_of_checkPropagate (h : checkPropagate s assign rupHints) :
+public theorem unsat_of_checkPropagate (h : checkPropagate s assign rupHints) :
     CNF.Unsat (s.toCNF ++ assign.toCNF) := by
   unfold checkPropagate at h
   split at h
@@ -227,4 +229,4 @@ public theorem entails_clause_of_checkRup {s : State} {clause : CNF.Clause Nat}
 
 end State
 
-end Std.Tactic.BVDecide.LRAT.NewInternal
+end Std.Tactic.BVDecide.LRAT.Internal

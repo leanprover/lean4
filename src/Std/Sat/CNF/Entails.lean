@@ -6,7 +6,7 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Sat.CNF.Basic
+public import Std.Sat.CNF.Sat
 
 public section
 
@@ -36,10 +36,6 @@ theorem entails_clause_def {f : CNF α} {c : Clause α} :
     EntailsClause f c ↔ ∀ a, Sat a f → Clause.Sat a c := by
   simp [EntailsClause]
 
-theorem entails_clause_of_forall_sat {f : CNF α} {c : Clause α} (h : ∀ a, c.Sat a) :
-    EntailsClause f c := by
-  simp [entails_clause_def, h]
-
 theorem entails_of_forall_sat (f1 f2 : CNF α) (h : ∀ a, f2.Sat a) :
     Entails f1 f2 := by
   simp [entails_def, h]
@@ -65,6 +61,15 @@ theorem entails_add_iff {f g : CNF α} {c : Clause α} :
 theorem entails_of_all_mem (f1 f2 : CNF α) (h : ∀ c ∈ f1, c ∈ f2) : Entails f2 f1 := by
   rw [entails_def]
   simp +contextual [sat_iff_all_mem_sat, h]
+
+theorem entails_iff_all_mem_entails_clause {f g : CNF α} :
+    Entails f g ↔ ∀ c ∈ g, EntailsClause f c := by
+  rw [entails_def]
+  constructor
+  · intro h c hc a ha
+    exact sat_of_mem (h a ha) hc
+  · intro h a ha
+    exact sat_of_all_mem_sat fun c hc => entails_clause_def.mp (h c hc) a ha
 
 theorem unsat_of_entails_unsat {f1 f2 : CNF α} (h1 : Unsat f2) (h2 : Entails f1 f2) :
     Unsat f1 := by
@@ -111,6 +116,30 @@ theorem entails_append_comm {f1 f2 : CNF α} : Entails (f1 ++ f2) (f2 ++ f1) := 
   · exact append_entails_right
   · exact append_entails_left
 
+theorem entails_clause_append_iff {f : CNF α} {c1 c2 : Clause α} :
+    EntailsClause f (c1 ++ c2) ↔ ∀ a, Sat a f → (Clause.Sat a c1 ∨ Clause.Sat a c2) := by
+  simp [entails_clause_def]
+
+theorem entails_clause_append_of_forall {f : CNF α} {c1 c2 : Clause α}
+    (h : ∀ a, Sat a f → (Clause.Sat a c1 ∨ Clause.Sat a c2)) : EntailsClause f (c1 ++ c2) :=
+  entails_clause_append_iff.mpr h
+
+theorem entails_clause_append_left {f : CNF α} {c1 c2 : Clause α} (h : EntailsClause f c1) :
+    EntailsClause f (c1 ++ c2) :=
+  entails_clause_append_of_forall fun a ha => Or.inl (entails_clause_def.mp h a ha)
+
+theorem entails_clause_append_right {f : CNF α} {c1 c2 : Clause α} (h : EntailsClause f c2) :
+    EntailsClause f (c1 ++ c2) :=
+  entails_clause_append_of_forall fun a ha => Or.inr (entails_clause_def.mp h a ha)
+
+theorem entails_clause_append_comm {f : CNF α} {c1 c2 : Clause α} (h : EntailsClause f (c1 ++ c2)) :
+    EntailsClause f (c2 ++ c1) :=
+  entails_clause_append_of_forall fun a ha => (entails_clause_append_iff.mp h a ha).symm
+
+theorem unsat_of_entails_clause_append_unsat {f : CNF α} {c1 c2 : Clause α}
+    (h1 : Clause.Unsat c1) (h2 : Clause.Unsat c2) (h3 : EntailsClause f (c1 ++ c2)) : Unsat f :=
+  unsat_of_entails_clause_unsat (Clause.unsat_append.mpr ⟨h1, h2⟩) h3
+
 theorem entails_clause_of_mem {f : CNF α} {c : Clause α} (h : c ∈ f) : EntailsClause f c := by
   rw [entails_clause_def]
   intro a ha
@@ -150,6 +179,31 @@ theorem unsat_iff_entails_clause_empty {f : CNF α} : Unsat f ↔ EntailsClause 
     exact absurd ha (unsat_iff_not_sat.mp h a)
   · intro h
     exact unsat_of_entails_clause_unsat Clause.unsat_empty h
+
+def BiEntails (f1 f2 : CNF α) : Prop :=
+  Entails f1 f2 ∧ Entails f2 f1
+
+theorem biEntails_def : BiEntails f1 f2 ↔ Entails f1 f2 ∧ Entails f2 f1 := by
+  simp [BiEntails]
+
+@[refl]
+theorem biEntails_refl : BiEntails f f := by
+  simp [BiEntails, entails_refl]
+
+theorem biEntails_trans {f1 f2 f3 : CNF α} (h1 : BiEntails f1 f2) (h2 : BiEntails f2 f3) :
+    BiEntails f1 f3 := by
+  unfold BiEntails at *
+  constructor
+  · apply entails_trans h1.left h2.left
+  · apply entails_trans h2.right h1.right
+
+@[symm]
+theorem biEntails_symm (h : BiEntails f1 f2) : BiEntails f2 f1 := by
+  rw [biEntails_def] at h ⊢
+  exact ⟨h.right, h.left⟩
+
+theorem biEntails_comm : BiEntails f1 f2 ↔ BiEntails f2 f1 :=
+  ⟨biEntails_symm, biEntails_symm⟩
 
 end CNF
 

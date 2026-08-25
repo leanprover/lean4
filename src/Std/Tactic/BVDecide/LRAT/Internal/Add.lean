@@ -6,9 +6,9 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Tactic.BVDecide.LRAT.NewInternal.Basic
+public import Std.Tactic.BVDecide.LRAT.Internal.Basic
 
-namespace Std.Tactic.BVDecide.LRAT.NewInternal
+namespace Std.Tactic.BVDecide.LRAT.Internal
 
 open Std.Sat
 
@@ -18,7 +18,8 @@ namespace State
 public def add (s : State) (clause : CNF.Clause Nat) : State :=
   { s with formula := s.formula.push (some clause) }
 
-theorem add_toCNF_eq_toCNF_add {s : State} {c : CNF.Clause Nat} :
+@[simp]
+public theorem add_toCNF_eq_toCNF_add {s : State} {c : CNF.Clause Nat} :
     (s.add c).toCNF = s.toCNF.add c := by
   simp [toCNF, add, CNF.add]
 
@@ -30,5 +31,4 @@ public theorem entails_add_of_entails_clause {s : State} {c : CNF.Clause Nat}
 
 end State
 
-
-end Std.Tactic.BVDecide.LRAT.NewInternal
+end Std.Tactic.BVDecide.LRAT.Internal

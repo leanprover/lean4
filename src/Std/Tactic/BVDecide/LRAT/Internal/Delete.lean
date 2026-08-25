@@ -6,10 +6,10 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Tactic.BVDecide.LRAT.NewInternal.Basic
+public import Std.Tactic.BVDecide.LRAT.Internal.Basic
 import Init.ByCases
 
-namespace Std.Tactic.BVDecide.LRAT.NewInternal
+namespace Std.Tactic.BVDecide.LRAT.Internal
 
 open Std.Sat
 
@@ -44,4 +44,4 @@ public theorem entails_deleteMany {s : State} :
 
 end State
 
-end Std.Tactic.BVDecide.LRAT.NewInternal
+end Std.Tactic.BVDecide.LRAT.Internal

@@ -8,8 +8,11 @@ module
 prelude
 public import Std.Sat.CNF.Basic
 public import Std.Sat.CNF.Literal
+public import Std.Sat.CNF.Sat
 public import Std.Sat.CNF.Relabel
 public import Std.Sat.CNF.RelabelFin
 public import Std.Sat.CNF.Dimacs
 public import Std.Sat.CNF.Entails
 public import Std.Sat.CNF.Unit
+public import Std.Sat.CNF.Negation
+public import Std.Sat.CNF.Redundancy

@@ -6,11 +6,11 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Tactic.BVDecide.LRAT.NewInternal.Rup
+public import Std.Tactic.BVDecide.LRAT.Internal.Rup
 
 public section
 
-namespace Std.Tactic.BVDecide.LRAT.NewInternal
+namespace Std.Tactic.BVDecide.LRAT.Internal
 
 open Std.Sat
 
@@ -27,4 +27,4 @@ theorem entails_clause_empty_of_checkEmpty {s : State} {rupHints : Array Nat}
 
 end State
 
-end Std.Tactic.BVDecide.LRAT.NewInternal
+end Std.Tactic.BVDecide.LRAT.Internal

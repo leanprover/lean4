@@ -33,9 +33,11 @@ resting on it is proved here instead: `natDiv_small_big` is one, and the arms of
 `natBle` and `natBeq` that answer without computing are others.
 
 Each definition quotes the C++ it stands for, so the two can be read side by side without opening
-the source. Deviations are marked `NOTE:`; the recurring ones are that a loop over a mutable buffer
-becomes a fold or a map over the digits it writes, and that a `while` whose bound is an argument
-about the values becomes a structural or well-founded recursion.
+the source. Deviations are marked `NOTE:`. A `for` loop is an `Id.run do` loop with `let mut`,
+paired with a bridge lemma reducing it to the fold its proof inducts over. What still deviates is
+that a loop writing each output digit from the input alone is a map over the digits it writes, and
+that a `while` or a `goto` whose bound is an argument about the values becomes a structural or
+well-founded recursion.
 
 A transliteration is only worth as much as its fidelity to the original, and nothing here checks
 that mechanically: it rests on reading the two side by side, which is what the quoted C++ is for.
@@ -387,10 +389,51 @@ def compareLoop (a b : Array Digit) : Nat → Int
     if u_j > v_j then 1 else if u_j < v_j then -1 else compareLoop a b j
 
 /--
-`mpn_compare`. The C++ latches `res` and runs the loop to completion; stopping
-at the first difference is observationally the same.
+`mpn_compare`:
+```
+int mpn_compare(mpn_digit const * a, size_t const lnga,
+                mpn_digit const * b, size_t const lngb) {
+    int res = 0;
+
+    size_t j = max(lnga, lngb) - 1;
+    for (; j != (size_t)-1 && res == 0; j--) { ... }
+    return res;
+}
+```
+The `res == 0` in the loop condition is what stops it at the first difference,
+which the `break` here stands for.
 -/
-def compare (a b : Array Digit) : Int := compareLoop a b (max a.size b.size)
+def compare (a b : Array Digit) : Int := Id.run do
+  let mut res : Int := 0
+  for j in (List.range (max a.size b.size)).reverse do
+    if res != 0 then break
+    let u_j := a.getD j 0
+    let v_j := b.getD j 0
+    if u_j > v_j then res := 1
+    else if u_j < v_j then res := -1
+  return res
+
+/-- The loop as the descending recursion its proof inducts over. -/
+theorem compare_eq (a b : Array Digit) :
+    compare a b = compareLoop a b (max a.size b.size) := by
+  simp only [compare, Id.run]
+  generalize max a.size b.size = n
+  induction n with
+  | zero => rfl
+  | succ n ih =>
+    rw [List.range_succ, List.reverse_append]
+    simp only [List.reverse_cons, List.reverse_nil, List.nil_append, List.cons_append,
+      List.forIn_cons, compareLoop]
+    simp only [bne_self_eq_false, Bool.false_eq_true, ite_false]
+    split
+    · cases h : (List.range n).reverse with
+      | nil => rfl
+      | cons x xs => simp only [List.forIn_cons]; rfl
+    · split
+      · cases h : (List.range n).reverse with
+        | nil => rfl
+        | cons x xs => simp only [List.forIn_cons]; rfl
+      · exact ih
 
 /-! ## `mpn_add` -/
 
@@ -1049,9 +1092,17 @@ decreasing_by
                 numer[j+i] = ab[i];
 ```
 -/
-def copyInto (dst src : Array Digit) (j : Nat) : Nat → Array Digit
-  | 0 => dst
-  | len+1 => (copyInto dst src j len).set! (j + len) (src.getD len 0)
+def copyInto (dst src : Array Digit) (j : Nat) (len : Nat) : Array Digit := Id.run do
+  let mut dst := dst
+  for i in List.range len do
+    dst := dst.set! (j + i) (src.getD i 0)
+  return dst
+
+/-- One iteration of it, peeled off the end. -/
+theorem copyInto_succ (dst src : Array Digit) (j len : Nat) :
+    copyInto dst src j (len+1) = (copyInto dst src j len).set! (j + len) (src.getD len 0) := by
+  simp [copyInto, Id.run, List.range_succ]
+  rfl
 
 /--
 The trial quotient digit `div_n` forms for the window at `j`, after step D3:
@@ -2440,19 +2491,19 @@ theorem size_copyInto (dst src : Array Digit) (j len : Nat) :
     (copyInto dst src j len).size = dst.size := by
   induction len with
   | zero => rfl
-  | succ len ih => rw [copyInto, Array.size_set!, ih]
+  | succ len ih => rw [copyInto_succ, Array.size_set!, ih]
 
 theorem getD_copyInto_of_lt (dst src : Array Digit) (j len i : Nat) (h : i < j) :
     (copyInto dst src j len).getD i 0 = dst.getD i 0 := by
   induction len with
   | zero => rfl
-  | succ len ih => rw [copyInto, getD_set!_ne _ _ _ _ (by omega), ih]
+  | succ len ih => rw [copyInto_succ, getD_set!_ne _ _ _ _ (by omega), ih]
 
 theorem getD_copyInto_of_ge (dst src : Array Digit) (j len i : Nat) (h : j + len ≤ i) :
     (copyInto dst src j len).getD i 0 = dst.getD i 0 := by
   induction len with
   | zero => rfl
-  | succ len ih => rw [copyInto, getD_set!_ne _ _ _ _ (by omega), ih (by omega)]
+  | succ len ih => rw [copyInto_succ, getD_set!_ne _ _ _ _ (by omega), ih (by omega)]
 
 theorem denoteN_copyInto (dst src : Array Digit) (j : Nat) :
     ∀ len, j + len ≤ dst.size →
@@ -2463,7 +2514,7 @@ theorem denoteN_copyInto (dst src : Array Digit) (j : Nat) :
   | succ len ih =>
     intro h
     have hsz : (copyInto dst src j len).size = dst.size := size_copyInto ..
-    rw [show j + (len+1) = (j + len) + 1 by omega, copyInto,
+    rw [show j + (len+1) = (j + len) + 1 by omega, copyInto_succ,
       denoteN_set!_succ _ _ _ (by rw [hsz]; omega), ih (by omega), denoteN,
       Nat.add_mul, Nat.mul_assoc, ← Nat.pow_add, show len + j = j + len by omega]
     omega
@@ -2477,11 +2528,11 @@ theorem getD_copyInto_mid (dst src : Array Digit) (j : Nat) :
   | succ len ih =>
     intro i h1 h2 h3
     rcases Nat.lt_or_ge i (j + len) with h | h
-    · rw [copyInto, getD_set!_ne _ _ _ _ (by omega)]
+    · rw [copyInto_succ, getD_set!_ne _ _ _ _ (by omega)]
       exact ih i h1 h (by omega)
     · have hi : i = j + len := by omega
       subst hi
-      rw [copyInto, getD_set!_eq _ _ _ (by rw [size_copyInto]; omega)]
+      rw [copyInto_succ, getD_set!_eq _ _ _ (by rw [size_copyInto]; omega)]
       congr 1
       omega
 
@@ -3243,7 +3294,7 @@ theorem compareLoop_spec (a b : Array Digit) (n : Nat) :
 /-- `mpn_compare` reports the order of its operands. -/
 theorem compare_spec (a b : Array Digit) :
     compare a b = if denote b < denote a then 1 else if denote a < denote b then -1 else 0 := by
-  rw [compare, compareLoop_spec, denoteN_of_ge a (Nat.le_max_left ..),
+  rw [compare_eq, compareLoop_spec, denoteN_of_ge a (Nat.le_max_left ..),
     denoteN_of_ge b (Nat.le_max_right ..)]
 
 /-!

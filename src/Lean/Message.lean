@@ -11,7 +11,6 @@ prelude
 public import Init.Data.Slice.Array
 public import Lean.Util.PPExt
 public import Lean.Util.Sorry
-public import Lean.Linter.CodeQuality.Basic
 import Init.Data.String.Search
 import Init.Data.Format.Macro
 import Init.Data.Iterators.Consumers.Collect
@@ -20,8 +19,6 @@ import Init.Data.String.Length
 public section
 
 namespace Lean
-
-open Linter
 
 /--
 Creates a string describing an error message `msg` produced at `pos`, optionally ending at `endPos`,
@@ -214,17 +211,6 @@ def kind : MessageData → Name
 def originatingSyntax? : MessageData → Option Syntax × MessageData
   | ofOriginatingSyntax stx msg => (some stx, msg)
   | msg => (none, msg)
-
-/--
-Extracts the code quality entry from a message produced by `Lean.Linter.logCodeQualityEntry`,
-looking through the context wrappers added by `logAt`/`addMessageContext`.
--/
-partial def codeQualityEntry? : MessageData → Option CodeQuality.Entry
-  | withContext _ msg             => codeQualityEntry? msg
-  | withNamingContext _ msg       => codeQualityEntry? msg
-  | tagged _ msg                  => codeQualityEntry? msg
-  | ofOriginatingSyntax _ msg     => codeQualityEntry? msg
-  | _                             => none
 
 def isTrace : MessageData → Bool
   | withContext _ msg         => msg.isTrace

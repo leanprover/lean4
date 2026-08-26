@@ -2,16 +2,32 @@
 # Lean transcription and verification of the built-in MPN bignum implementation
 
 `src/runtime/mpn.cpp` implements multi-precision naturals as little-endian arrays of `uint32_t`
-digits. It is the arithmetic Lean uses when built with `USE_GMP=OFF`.
+digits. It is the arithmetic Lean uses when built with `USE_GMP=OFF`, and under that flag it is
+part of the TCB.
 
-Under `USE_GMP=OFF`, the implementation becomes part of the TCB: `type_checker::reduce_nat` reduces
-`Nat.add`, `sub`, `mul`, `pow`, `gcd`, `div`, `mod`, `beq` and `ble` through `mpz` and hence through
-every routine here except `mpn_to_string`, whose only caller is printing.
+`type_checker::reduce_nat` reduces `Nat.succ`, `add`, `sub`, `mul`, `pow`, `gcd`, `mod`, `div`,
+`beq`, `ble`, `land`, `lor`, `xor`, `shiftLeft` and `shiftRight`. This file follows all fifteen
+down through the three layers they pass through.
 
-This file transliterates it statement by statement so that the algorithms can be checked against
-`Nat`: `denote_add`, `denote_sub`, `denote_mul`, `div_spec` and `compare_spec` do that for
+`lean_object` is the outermost: a `Nat` is a tagged scalar or a pointer to an `mpz`. `NatObj`
+carries that choice with the invariant `mpz_to_nat` maintains, and `natAdd_val` and its siblings
+prove each operation computes what `Nat` does. Only the three that can panic carry a hypothesis,
+which says the guard did not fire.
+
+`mpz` is the signed wrapper, whose non-negative part is `Num`. `Num.val_add` and its siblings prove
+that layer. The `Num` type carries the normalization `mpz::set` establishes, so the preconditions
+`mpn` needs are discharged structurally rather than assumed.
+
+`mpn` is the bottom. `denote_add`, `denote_sub`, `denote_mul`, `div_spec` and `compare_spec` prove
 `mpn_add`, `mpn_sub`, `mpn_mul`, `mpn_div` (by way of Knuth's Algorithm D) and `mpn_compare`.
-`mpn_to_string` is the one routine with no proof.
+`mpn_to_string` is the one routine with no proof; the kernel does not reach it.
+
+Preconditions are arguments of the definitions rather than hypotheses of the specifications, so a
+use site cannot be written without discharging them, and the operations the C++ leaves undefined
+outside a range go through `CPP`, which takes the hypothesis that pins each one down. Where the C++
+asserts a fact that a release build then drops, since `lean_assert` is `DEBUG_CODE`, the branch
+resting on it is proved here instead: `natDiv_small_big` is one, and the arms of `natSub`, `natMod`,
+`natBle` and `natBeq` that answer without computing are others.
 
 Each definition quotes the C++ it stands for, so the two can be read side by side without opening
 the source. Deviations are marked `NOTE:`; the recurring ones are that a loop over a mutable buffer
@@ -21,7 +37,6 @@ about the values becomes a structural or well-founded recursion.
 A transliteration is only worth as much as its fidelity to the original, and nothing here checks
 that mechanically: it rests on reading the two side by side, which is what the quoted C++ is for.
 -/
-
 namespace Mpn
 
 /-- `mpn_digit`, which `mpn.h` fixes at `uint32_t`. -/
@@ -3949,6 +3964,21 @@ def mpzToNat (m : Num) : NatObj :=
 @[simp] theorem mpzToNat_val (m : Num) : (mpzToNat m).val = m.val := by
   unfold mpzToNat; split <;> rfl
 
+/--
+`mpz_to_nat_core`, which allocates without re-boxing:
+```
+object * mpz_to_nat_core(mpz const & m) {
+    lean_assert(!m.is_size_t() || m.get_size_t() > LEAN_MAX_SMALL_NAT);
+    return alloc_mpz(m);
+}
+```
+Its assertion is the invariant `big` already carries, so it is the constructor.
+-/
+def mpzToNatCore (m : Num) (h : maxSmallNat < m.val) : NatObj := .big m h
+
+@[simp] theorem mpzToNatCore_val (m : Num) (h : maxSmallNat < m.val) :
+    (mpzToNatCore m h).val = m.val := rfl
+
 /-- `mpz::of_size_t`, which needs two digits for a scalar. -/
 def Num.ofSizeT (n : Nat) : Num :=
   Num.ofArray! #[UInt32.ofNat (n % base), UInt32.ofNat (n / base)]
@@ -4110,18 +4140,26 @@ reason this path needs no check.
 def natAdd : NatObj → NatObj → NatObj
   | .small n₁ h₁, .small n₂ h₂ =>
     usizeToNat (n₁ + n₂) (by simp only [maxSmallNat, base] at *; omega)
-  | a, b => mpzToNat (a.toNum.add b.toNum)
+  | .small n₁ _, .big m₂ h₂ =>
+    mpzToNatCore ((Num.ofSizeT n₁).add m₂) (by rw [Num.val_add]; omega)
+  | .big m₁ h₁, .small n₂ _ =>
+    mpzToNatCore (m₁.add (Num.ofSizeT n₂)) (by rw [Num.val_add]; omega)
+  | .big m₁ h₁, .big m₂ _ => mpzToNatCore (m₁.add m₂) (by rw [Num.val_add]; omega)
 
 @[simp] theorem natAdd_val (a b : NatObj) : (natAdd a b).val = a.val + b.val := by
   cases a with
   | small n₁ h₁ =>
     cases b with
     | small n₂ h₂ => simp only [natAdd]; rw [usizeToNat_val]; rfl
-    | big m₂ _ => simp only [natAdd]; rw [mpzToNat_val, Num.val_add, NatObj.val_toNum,
-        NatObj.val_toNum]
+    | big m₂ _ =>
+      simp only [natAdd]
+      rw [mpzToNatCore_val, Num.val_add, Num.val_ofSizeT n₁ (small_lt_base_sq h₁)]; rfl
   | big m₁ _ =>
-    cases b <;> (simp only [natAdd]
-                 rw [mpzToNat_val, Num.val_add, NatObj.val_toNum, NatObj.val_toNum])
+    cases b with
+    | small n₂ h₂ =>
+      simp only [natAdd]
+      rw [mpzToNatCore_val, Num.val_add, Num.val_ofSizeT n₂ (small_lt_base_sq h₂)]; rfl
+    | big m₂ _ => simp only [natAdd]; rw [mpzToNatCore_val, Num.val_add]; rfl
 
 /--
 `lean_nat_sub`, which clamps at zero as `Nat` subtraction does:
@@ -4143,7 +4181,10 @@ static inline LEAN_ALWAYS_INLINE lean_obj_res lean_nat_sub(b_lean_obj_arg a1, b_
 def natSub : NatObj → NatObj → NatObj
   | .small n₁ h₁, .small n₂ _ =>
     if n₁ < n₂ then .small 0 (Nat.zero_le _) else .small (n₁ - n₂) (by omega)
-  | a, b => mpzToNat (a.toNum.sub b.toNum)
+  | .small _ _, .big _ _ => .small 0 (Nat.zero_le _)
+  | .big m₁ _, .small n₂ _ => mpzToNat (m₁.sub (Num.ofSizeT n₂))
+  | .big m₁ _, .big m₂ _ =>
+    if m₁.val < m₂.val then .small 0 (Nat.zero_le _) else mpzToNat (m₁.sub m₂)
 
 @[simp] theorem natSub_val (a b : NatObj) : (natSub a b).val = a.val - b.val := by
   cases a with
@@ -4154,11 +4195,17 @@ def natSub : NatObj → NatObj → NatObj
       split <;> rename_i h
       · show (0 : Nat) = n₁ - n₂; omega
       · rfl
-    | big m₂ _ => simp only [natSub]; rw [mpzToNat_val, Num.val_sub, NatObj.val_toNum,
-        NatObj.val_toNum]
-  | big m₁ _ =>
-    cases b <;> (simp only [natSub]
-                 rw [mpzToNat_val, Num.val_sub, NatObj.val_toNum, NatObj.val_toNum])
+    | big m₂ h₂ => show (0 : Nat) = n₁ - m₂.val; omega
+  | big m₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      simp only [natSub]
+      rw [mpzToNat_val, Num.val_sub, Num.val_ofSizeT n₂ (small_lt_base_sq h₂)]; rfl
+    | big m₂ _ =>
+      simp only [natSub]
+      split <;> rename_i h
+      · show (0 : Nat) = m₁.val - m₂.val; omega
+      · rw [mpzToNat_val, Num.val_sub]; rfl
 
 /--
 `lean_nat_mul`:
@@ -4229,7 +4276,12 @@ def natMod : NatObj → NatObj → NatObj
   | .small n₁ h₁, .small n₂ _ =>
     if n₂ = 0 then .small n₁ h₁
     else .small (n₁ % n₂) (Nat.le_trans (Nat.mod_le ..) h₁)
-  | a, b => if h : b.toNum.val = 0 then a else mpzToNat (a.toNum.mod b.toNum h)
+  | .small n₁ h₁, .big _ _ => .small n₁ h₁
+  | .big m₁ h₁, .small n₂ h₂ =>
+    if h : n₂ = 0 then .big m₁ h₁
+    else mpzToNat (m₁.mod (Num.ofSizeT n₂) (by
+      rw [Num.val_ofSizeT n₂ (by simp only [maxSmallNat, base] at *; omega)]; exact h))
+  | .big m₁ _, .big m₂ h₂ => mpzToNat (m₁.mod m₂ (by omega))
 
 @[simp] theorem natMod_val (a b : NatObj) : (natMod a b).val = a.val % b.val := by
   cases a with
@@ -4241,16 +4293,16 @@ def natMod : NatObj → NatObj → NatObj
       · subst h; simp [NatObj.val]
       · rfl
     | big m₂ h₂ =>
-      simp only [natMod]
-      split <;> rename_i h
-      · simp only [NatObj.val_toNum, NatObj.val] at h; omega
-      · rw [mpzToNat_val, Num.val_mod, NatObj.val_toNum, NatObj.val_toNum]
+      show n₁ = n₁ % m₂.val
+      exact (Nat.mod_eq_of_lt (by omega)).symm
   | big m₁ h₁ =>
-    cases b <;> (
+    cases b with
+    | small n₂ h₂ =>
       simp only [natMod]
       split <;> rename_i h
-      · simp only [NatObj.val_toNum] at h; rw [h]; simp
-      · rw [mpzToNat_val, Num.val_mod, NatObj.val_toNum, NatObj.val_toNum])
+      · subst h; show m₁.val = m₁.val % 0; simp
+      · rw [mpzToNat_val, Num.val_mod, Num.val_ofSizeT n₂ (small_lt_base_sq h₂)]; rfl
+    | big m₂ _ => simp only [natMod]; rw [mpzToNat_val, Num.val_mod]; rfl
 
 /--
 `lean_nat_land`, whose scalar path never unboxes:
@@ -4349,22 +4401,26 @@ the numbers; only the pointer comparison itself is outside the standard.
 -/
 def natBle : NatObj → NatObj → Bool
   | .small n₁ _, .small n₂ _ => box n₁ ≤ box n₂
-  | a, b => a.toNum.compare b.toNum ≤ 0
+  | .small _ _, .big _ _ => true
+  | .big _ _, .small _ _ => false
+  | .big m₁ _, .big m₂ _ => m₁.compare m₂ ≤ 0
 
 @[simp] theorem natBle_val (a b : NatObj) : natBle a b = decide (a.val ≤ b.val) := by
   cases a with
   | small n₁ h₁ =>
     cases b with
     | small n₂ h₂ =>
-      show decide (box n₁ ≤ box n₂) = _
+      show decide (box n₁ ≤ box n₂) = decide (n₁ ≤ n₂)
       simp only [decide_eq_decide]
       exact box_le_box n₁ n₂ h₁ h₂
+    | big m₂ h₂ => exact (decide_eq_true (by omega : n₁ ≤ m₂.val)).symm
+  | big m₁ h₁ =>
+    cases b with
+    | small n₂ h₂ => exact (decide_eq_false (by omega : ¬ (m₁.val ≤ n₂))).symm
     | big m₂ _ =>
-      show decide (_ ≤ (0 : Int)) = _
-      simp only [compare_le_zero, NatObj.val_toNum]
-  | big m₁ _ =>
-    cases b <;> (show decide (_ ≤ (0 : Int)) = _
-                 simp only [compare_le_zero, NatObj.val_toNum])
+      show decide (m₁.compare m₂ ≤ (0 : Int)) = decide (m₁.val ≤ m₂.val)
+      simp only [decide_eq_decide]
+      exact compare_le_zero m₁ m₂
 
 /-- Boxing is injective, which is what makes the pointer comparison meaningful. -/
 theorem box_inj (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
@@ -4389,7 +4445,9 @@ static inline LEAN_ALWAYS_INLINE bool lean_nat_eq(b_lean_obj_arg a1, b_lean_obj_
 -/
 def natBeq : NatObj → NatObj → Bool
   | .small n₁ _, .small n₂ _ => box n₁ == box n₂
-  | a, b => a.toNum.compare b.toNum == 0
+  | .small _ _, .big _ _ => false
+  | .big _ _, .small _ _ => false
+  | .big m₁ _, .big m₂ _ => m₁.compare m₂ == 0
 
 @[simp] theorem natBeq_val (a b : NatObj) : natBeq a b = decide (a.val = b.val) := by
   have hcmp : ∀ x y : Num, (x.compare y == 0) = decide (x.val = y.val) := by
@@ -4407,9 +4465,11 @@ def natBeq : NatObj → NatObj → Bool
       · subst h; simp
       · have hne : box n₁ ≠ box n₂ := fun hb => h ((box_inj n₁ n₂ h₁ h₂).mp hb)
         simp [hne, h]
-    | big m₂ _ => show (_ == 0) = _; rw [hcmp]; simp only [NatObj.val_toNum]
-  | big m₁ _ =>
-    cases b <;> (show (_ == 0) = _; rw [hcmp]; simp only [NatObj.val_toNum])
+    | big m₂ h₂ => exact (decide_eq_false (by omega : ¬ (n₁ = m₂.val))).symm
+  | big m₁ h₁ =>
+    cases b with
+    | small n₂ h₂ => exact (decide_eq_false (by omega : ¬ (m₁.val = n₂))).symm
+    | big m₂ _ => show (m₁.compare m₂ == 0) = decide (m₁.val = m₂.val); exact hcmp m₁ m₂
 
 /--
 `lean_nat_succ`:
@@ -4424,12 +4484,12 @@ static inline lean_obj_res lean_nat_succ(b_lean_obj_arg a) {
 -/
 def natSucc : NatObj → NatObj
   | .small n h => usizeToNat (n + 1) (by simp only [maxSmallNat, base] at *; omega)
-  | a => mpzToNat (a.toNum.add Num.one)
+  | .big m h => mpzToNatCore (m.add Num.one) (by rw [Num.val_add, Num.val_one]; omega)
 
 @[simp] theorem natSucc_val (a : NatObj) : (natSucc a).val = a.val + 1 := by
   cases a with
   | small n h => simp only [natSucc]; rw [usizeToNat_val]; rfl
-  | big m _ => simp only [natSucc]; rw [mpzToNat_val, Num.val_add, Num.val_one, NatObj.val_toNum]
+  | big m _ => simp only [natSucc]; rw [mpzToNatCore_val, Num.val_add, Num.val_one]; rfl
 
 /--
 `lean_nat_shiftr`, and `lean_nat_big_shiftr` behind it:

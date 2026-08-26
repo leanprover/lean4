@@ -35,6 +35,7 @@ local instance : Std.Associative (· * · : α → α → α) where
 @[local simp] def r : (α × α) → (α × α) → Prop
   | (a, b), (c, d) => ∃ k, a + d + k = b + c + k
 
+@[implicit_reducible]
 def Q := Quot (r α)
 
 variable {α}

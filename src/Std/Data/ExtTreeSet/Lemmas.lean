@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Data.ExtTreeMap.Lemmas
 public import Std.Data.ExtTreeSet.Basic
+public import Std.Internal.ForIn.Basic
 
 @[expose] public section
 
@@ -878,6 +879,14 @@ theorem forIn_eq_forIn [TransCmp cmp] [Monad m] [LawfulMonad m] {f : α → δ �
 theorem forIn_eq_forIn_toList [TransCmp cmp] [Monad m] [LawfulMonad m] {f : α → δ → m (ForInStep δ)} {init : δ} :
     ForIn.forIn t init f = ForIn.forIn t.toList init f :=
   ExtTreeMap.forIn_eq_forIn_keys
+
+@[simp, grind =]
+theorem forIn_toList [TransCmp cmp] (c : ExtTreeSet α cmp) : ForIn.toList c = c.toList :=
+  Std.Internal.ForIn.toList_eq_of_forIn_eq fun _ _ => forIn_eq_forIn_toList
+
+instance [TransCmp cmp] [Monad m] [LawfulMonad m] :
+    Std.Internal.PureForIn m (ExtTreeSet α cmp) α where
+  forIn_eq _ _ _ := by rw [forIn_toList]; exact forIn_eq_forIn_toList
 
 end monadic
 

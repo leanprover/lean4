@@ -180,7 +180,7 @@ namespace Int
 
 @[simp]
 public theorem toInt?_repr (a : Int) : a.repr.toInt? = some a := by
-  rw [repr_eq_if]
+  rw [repr_eq_ite]
   split <;> (simp; omega)
 
 @[simp]

@@ -1101,7 +1101,7 @@ theorem forall_mem_iff_forall_getElem {P : α → Prop} {xs : Vector α n} :
     (∀ x ∈ xs, P x) ↔ ∀ (i : Nat) (hi : i < n), P (xs[i]) := by
   cases xs; simp [*, Array.forall_mem_iff_forall_getElem]
 
-@[deprecated forall_mem_iff_forall_getElem (since := "2026-01-29")]
+@[deprecated forall_mem_iff_forall_getElem +typeChanged (since := "2026-01-29")]
 theorem forall_getElem {xs : Vector α n} {p : α → Prop} :
     (∀ (i : Nat) h, p (xs[i]'h)) ↔ ∀ a, a ∈ xs → p a :=
   forall_mem_iff_forall_getElem.symm
@@ -1736,7 +1736,7 @@ theorem getElem_append_left {xs : Vector α n} {ys : Vector α m} (hi : i < n) :
 @[simp]
 theorem getElem_append_right {xs : Vector α n} {ys : Vector α m} (h : i < n + m) (hi : n ≤ i) :
     (xs ++ ys)[i] = ys[i - n] := by
-  rw [getElem_append, dif_neg (by omega)]
+  rw [getElem_append, dite_eq_right (by omega)]
 
 theorem getElem?_append_left {xs : Vector α n} {ys : Vector α m} (hn : i < n) :
     (xs ++ ys)[i]? = xs[i]? := by
@@ -1813,7 +1813,7 @@ theorem append_eq_append_iff {ws : Vector α n} {xs : Vector α m} {ys : Vector 
   simp only [mk_append_mk, Array.append_eq_append_iff, mk_eq, toArray_cast]
   constructor
   · rintro (⟨as, rfl, rfl⟩ | ⟨cs, rfl, rfl⟩)
-    · rw [dif_pos (by simp)]
+    · rw [dite_eq_left (by simp)]
       exact ⟨as.toVector.cast (by simp), by simp⟩
     · split <;> rename_i h
       · have hc : cs.size = 0 := by simp at h; omega
@@ -1861,7 +1861,7 @@ theorem append_eq_append_iff {ws : Vector α n} {xs : Vector α m} {ys : Vector 
 @[simp] theorem set_append_right {xs : Vector α n} {ys : Vector α m} {i : Nat} {x : α}
     (h' : i < n + m) (h : n ≤ i) :
     (xs ++ ys).set i x = xs ++ ys.set (i - n) x := by
-  rw [set_append, dif_neg (by omega)]
+  rw [set_append, dite_eq_right (by omega)]
 
 @[grind =] theorem setIfInBounds_append {xs : Vector α n} {ys : Vector α m} {i : Nat} {x : α} :
     (xs ++ ys).setIfInBounds i x =
@@ -1881,7 +1881,7 @@ theorem append_eq_append_iff {ws : Vector α n} {xs : Vector α m} {ys : Vector 
 @[simp] theorem setIfInBounds_append_right {xs : Vector α n} {ys : Vector α m} {i : Nat} {x : α}
     (h : n ≤ i) :
     (xs ++ ys).setIfInBounds i x = xs ++ ys.setIfInBounds (i - n) x := by
-  rw [setIfInBounds_append, if_neg (by omega)]
+  rw [setIfInBounds_append, ite_eq_right (by omega)]
 
 @[simp, grind =] theorem map_append {f : α → β} {xs : Vector α n} {ys : Vector α m} :
     map f (xs ++ ys) = map f xs ++ map f ys := by

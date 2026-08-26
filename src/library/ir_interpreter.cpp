@@ -946,6 +946,9 @@ private:
                     // originally borrowed parameters because the wrapper will decrement these after the call.
                     // Basically the wrapper is more homogeneous (removing both unboxed and borrowed parameters) than we
                     // would need in this instance.
+                    // A scalar parameter would break this: `box_t` allocates a box that this call alone owns and the
+                    // wrapper's decrement frees. `Lean.IR.ToIR.lowerParam` establishes that such a parameter is owned.
+                    lean_assert(!type_is_scalar(t));
                     inc(args2[i]);
                 }
             }
@@ -1126,7 +1129,7 @@ public:
 
     object * run_init(name const & decl, name const & init_decl) {
         try {
-            object * args[] = {};
+            object * args[] = { io_mk_world() };
             object * r = call_boxed(init_decl, 1, args);
             if (io_result_is_ok(r)) {
                 object * o = io_result_get_value(r);

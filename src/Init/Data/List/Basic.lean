@@ -123,15 +123,6 @@ theorem of_concat_eq_concat {as bs : List α} {a b : α} (h : as.concat a = bs.c
 
 /-! ## Equality -/
 
-/--
-Checks whether two lists have the same length and their elements are pairwise `BEq`. Normally used
-via the `==` operator.
--/
-protected def beq [BEq α] : List α → List α → Bool
-  | [],    []    => true
-  | a::as, b::bs => a == b && List.beq as bs
-  | _,     _     => false
-
 @[simp] theorem beq_nil_nil [BEq α] : List.beq ([] : List α) ([] : List α) = true := rfl
 @[simp] theorem beq_cons_nil [BEq α] {a : α} {as : List α} : List.beq (a::as) [] = false := rfl
 @[simp] theorem beq_nil_cons [BEq α] {a : α} {as : List α} : List.beq [] (a::as) = false := rfl
@@ -474,8 +465,8 @@ We define the basic functional programming operations on `List`:
 
 /-! ### map -/
 
-@[simp, grind =] theorem map_nil {f : α → β} : map f [] = [] := rfl
-@[simp, grind =] theorem map_cons {f : α → β} {a : α} {l : List α} : map f (a :: l) = f a :: map f l := rfl
+@[simp, grind =] theorem map_nil {f : α → β} : map f [] = [] := id rfl
+@[simp, grind =] theorem map_cons {f : α → β} {a : α} {l : List α} : map f (a :: l) = f a :: map f l := id rfl
 
 /-! ### filter -/
 
@@ -702,6 +693,7 @@ Creates a list that contains `n` copies of `a`.
 * `List.replicate 0 "zero" = []`
 * `List.replicate 2 ' ' = [' ', ' ']`
 -/
+@[implicit_reducible]
 def replicate : (n : Nat) → (a : α) → List α
   | 0,   _ => []
   | n+1, a => a :: replicate n a
@@ -769,6 +761,7 @@ Examples:
 * `["grape"].isEmpty = false`
 * `["apple", "banana"].isEmpty = false`
 -/
+@[implicit_reducible]
 def isEmpty : List α → Bool
   | []     => true
   | _ :: _ => false
@@ -937,8 +930,8 @@ def drop : (n : Nat) → (xs : List α) → List α
 
 @[simp, grind =] theorem drop_nil : ([] : List α).drop i = [] := by
   cases i <;> rfl
-@[simp, grind =] theorem drop_zero {l : List α} : l.drop 0 = l := rfl
-@[simp, grind =] theorem drop_succ_cons {a : α} {l : List α} {i : Nat} : (a :: l).drop (i + 1) = l.drop i := rfl
+@[simp, grind =] theorem drop_zero {l : List α} : l.drop 0 = l := id rfl
+@[simp, grind =] theorem drop_succ_cons {a : α} {l : List α} {i : Nat} : (a :: l).drop (i + 1) = l.drop i := id rfl
 
 theorem drop_eq_nil_of_le {as : List α} {i : Nat} (h : as.length ≤ i) : as.drop i = [] := by
   match as, i with
@@ -966,10 +959,11 @@ abbrev extract (l : List α) (start : Nat := 0) (stop : Nat := l.length) : List 
 @[simp] theorem extract_eq_take_drop {l : List α} {start stop : Nat} :
     l.extract start stop = (l.drop start).take (stop - start) := rfl
 
-set_option linter.defProp false in
-set_option linter.missingDocs false in
 @[deprecated extract_eq_take_drop (since := "2026-02-06")]
-def extract_eq_drop_take := @extract_eq_take_drop
+theorem extract_eq_drop_take {l : List α} {start stop : Nat} :
+    l.extract start stop = (l.drop start).take (stop - start) :=
+  extract_eq_take_drop
+
 
 /-! ### takeWhile -/
 
@@ -1055,11 +1049,11 @@ def dropLast {α} : List α → List α
   | [_]   => []
   | a::as => a :: dropLast as
 
-@[simp, grind =] theorem dropLast_nil : ([] : List α).dropLast = [] := rfl
-@[simp, grind =] theorem dropLast_singleton : [x].dropLast = [] := rfl
+@[simp, grind =] theorem dropLast_nil : ([] : List α).dropLast = [] := (rfl)
+@[simp, grind =] theorem dropLast_singleton : [x].dropLast = [] := (rfl)
 
 @[simp, grind =] theorem dropLast_cons_cons :
-    (x::y::zs).dropLast = x :: (y::zs).dropLast := rfl
+    (x::y::zs).dropLast = x :: (y::zs).dropLast := (rfl)
 
 @[deprecated dropLast_cons_cons (since := "2026-02-26")]
 theorem dropLast_cons₂ : (x::y::zs).dropLast = x :: (y::zs).dropLast := dropLast_cons_cons
@@ -1573,7 +1567,7 @@ Examples:
 -/
 def eraseP (p : α → Bool) : List α → List α
   | [] => []
-  | a :: l => bif p a then l else a :: eraseP p l
+  | a :: l => if p a then l else a :: eraseP p l
 
 /-! ### eraseIdx -/
 
@@ -1698,7 +1692,7 @@ Examples:
   /-- Auxiliary for `findIdx`: `findIdx.go p l n = findIdx p l + n` -/
   @[specialize] go : List α → Nat → Nat
   | [], n => n
-  | a :: l, n => bif p a then n else go l (n + 1)
+  | a :: l, n => if p a then n else go l (n + 1)
 
 @[simp, grind =] theorem findIdx_nil {p : α → Bool} : [].findIdx p = 0 := rfl
 
@@ -1803,7 +1797,7 @@ Examples:
   /-- Auxiliary for `countP`: `countP.go p l acc = countP p l + acc`. -/
   @[specialize] go : List α → Nat → Nat
   | [], acc => acc
-  | x :: xs, acc => bif p x then go xs (acc + 1) else go xs acc
+  | x :: xs, acc => if p x then go xs (acc + 1) else go xs acc
 
 /-! ### count -/
 
@@ -2124,10 +2118,10 @@ def range' : (start len : Nat) → (step : Nat := 1) → List Nat
   | _, 0, _ => []
   | s, n+1, step => s :: range' (s+step) n step
 
-@[simp, grind =] theorem range'_zero : range' s 0 step = [] := rfl
-@[simp, grind =] theorem range'_one {s step : Nat} : range' s 1 step = [s] := rfl
+@[simp, grind =] theorem range'_zero : range' s 0 step = [] := (rfl)
+@[simp, grind =] theorem range'_one {s step : Nat} : range' s 1 step = [s] := (rfl)
 -- The following theorem is intentionally not a simp lemma.
-theorem range'_succ : range' s (n + 1) step = s :: range' (s + step) n step := rfl
+theorem range'_succ : range' s (n + 1) step = s :: range' (s + step) n step := (rfl)
 
 /-! ### zipIdx -/
 

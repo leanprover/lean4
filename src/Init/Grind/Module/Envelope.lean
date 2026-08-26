@@ -32,7 +32,7 @@ local instance : Std.Commutative (· + · : α → α → α) where
 @[local simp] def r : (α × α) → (α × α) → Prop
   | (a, b), (c, d) => ∃ k, a + d + k = b + c + k
 
-def Q := Quot (r α)
+@[expose, implicit_reducible] def Q := Quot (r α)
 
 variable {α}
 
@@ -161,10 +161,10 @@ theorem add_zsmul (a b : Int) (c : Q α) : zsmul (a + b) c = add (zsmul a c) (zs
   induction c using Q.ind with | _ c
   rcases c with ⟨c₁, c₂⟩; simp
   by_cases hb : b < 0
-  · simp only [if_pos hb]
+  · simp only [ite_eq_left hb]
     by_cases ha : a < 0
-    · simp only [if_pos ha]
-      rw [if_pos (by omega)]
+    · simp only [ite_eq_left ha]
+      rw [ite_eq_left (by omega)]
       apply Quot.sound
       refine ⟨0, ?_⟩
       rw [Int.natAbs_add_of_nonpos (by omega) (by omega), NatModule.add_nsmul, NatModule.add_nsmul]
@@ -180,7 +180,7 @@ theorem add_zsmul (a b : Int) (c : Q α) : zsmul (a + b) c = add (zsmul a c) (zs
         have : (a + b).natAbs + b.natAbs = a.natAbs := by omega
         simp [← this]
         ac_rfl
-  · simp only [if_neg hb]
+  · simp only [ite_eq_right hb]
     by_cases ha : a < 0
     · split
       · apply Quot.sound
@@ -193,8 +193,8 @@ theorem add_zsmul (a b : Int) (c : Q α) : zsmul (a + b) c = add (zsmul a c) (zs
         have : (a + b).natAbs + a.natAbs = b.natAbs := by omega
         simp [← this]
         ac_rfl
-    · simp only [if_neg ha]
-      rw [if_neg (by omega)]
+    · simp only [ite_eq_right ha]
+      rw [ite_eq_right (by omega)]
       apply Quot.sound
       refine ⟨0, ?_⟩
       rw [Int.natAbs_add_of_nonneg (by omega) (by omega), NatModule.add_nsmul, NatModule.add_nsmul]

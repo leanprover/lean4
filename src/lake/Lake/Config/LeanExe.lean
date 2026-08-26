@@ -77,7 +77,7 @@ The file name of binary executable
   self.config.supportInterpreter
 
 /--
-Additional link argyments to pass `leanc` when linking the module root
+Additional link arguments to pass `leanc` when linking the module root
 into a binary executable. This excludes the arguments already present in
 `self.root.linkArgs`.
 

@@ -11,7 +11,7 @@ import Lean.Meta.Tactic.Grind.MarkAccessible
 import Lean.Elab.SyntheticMVars
 import Lean.Meta.Tactic.Grind.Solve
 namespace Lean.Elab.Tactic.Grind
-open Meta Grind
+open Meta Lean.Meta.Grind
 
 /-- Elaborate `stx` in the current `MVarContext`. If given, the `expectedType` will be used to help
 elaboration but not enforced (use `elabTermEnsuringType` to enforce an expected type). -/

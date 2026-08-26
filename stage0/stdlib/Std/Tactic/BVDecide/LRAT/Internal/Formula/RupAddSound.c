@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddSound
-// Imports: public import Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddResult import Init.ByCases import Init.Data.Array.Bootstrap import Init.Data.Int.OfNat import Init.Data.Nat.Linear import Init.Data.Nat.Simproc
+// Imports: public import Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddResult import Init.ByCases import Init.Data.Array.Bootstrap import Init.Data.Int.OfNat import Init.Data.Nat.Internal.Linear import Init.Data.Nat.Simproc
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -579,13 +579,15 @@ lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAdd
 lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Int_OfNat(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Simproc(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddSound(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddResult(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -598,7 +600,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Int_OfNat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_Simproc(builtin);
@@ -617,7 +619,7 @@ lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddResult(u
 lean_object* initialize_Init_ByCases(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_OfNat(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Simproc(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddSound(uint8_t builtin) {
@@ -636,7 +638,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Int_OfNat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Simproc(builtin);

@@ -294,8 +294,8 @@ private def isQuotInit (env : Environment) : Bool :=
 
 /-- Type check given declaration and add it to the environment -/
 @[extern "lean_add_decl"]
-opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
-  (cancelTk? : @& Option IO.CancelToken) : Except Exception Environment
+opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (maxRecDepth : USize)
+  (decl : @& Declaration) (cancelTk? : @& Option IO.CancelToken) : Except Exception Environment
 
 /--
 Add declaration to kernel without type checking it.
@@ -583,10 +583,7 @@ structure Environment where
   private asyncConstsMap : VisibilityMap AsyncConsts := default
   /-- Information about this asynchronous branch of the environment, if any. -/
   private asyncCtx?   : Option AsyncContext := none
-  /--
-  Realized values belonging to imported declarations. Must be initialized by calling
-  `enableRealizationsForImports`.
-  -/
+  /-- Realized values belonging to imported declarations. Initialized by `finalizeImport`. -/
   private importRealizationCtx? : Option RealizationContext
   /--
   Realized values belonging to local declarations. This is a map from local declarations, which
@@ -639,8 +636,10 @@ def allImportedModuleNames (env : Environment) : Array Name :=
 private def asyncConsts (env : Environment) : AsyncConsts :=
   env.asyncConstsMap.get env
 
--- Used only when the kernel calls into the interpreter, and in `Lean.Kernel.Exception.mkCtx`. In
--- both cases, the environment should be temporary and not leak into elaboration.
+/--
+Constructs an elaboration environment from a given kernel environment's constants. All constants are
+accessible in both the private and public scope. All other data is empty.
+-/
 @[export lean_elab_environment_of_kernel_env]
 def ofKernelEnv (env : Kernel.Environment) : Environment :=
   { base.private := env, base.public := env, importRealizationCtx? := none }
@@ -685,8 +684,8 @@ def unlockAsync (env : Environment) : Environment :=
   { env with asyncCtx? := none }
 
 @[extern "lean_elab_add_decl"]
-private opaque addDeclCheck (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
-  (cancelTk? : @& Option IO.CancelToken) : Except Kernel.Exception Environment
+private opaque addDeclCheck (env : Environment) (maxHeartbeats : USize) (maxRecDepth : USize)
+  (decl : @& Declaration) (cancelTk? : @& Option IO.CancelToken) : Except Kernel.Exception Environment
 
 @[extern "lean_elab_add_decl_without_checking"]
 private opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) :
@@ -698,15 +697,15 @@ Adds given declaration to the environment, type checking it unless `doCheck` is 
 This is a plumbing function for the implementation of `Lean.addDecl`, most users should use it
 instead.
 -/
-def addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
-    (cancelTk? : @& Option IO.CancelToken) (doCheck := true) :
+def addDeclCore (env : Environment) (maxHeartbeats : USize) (maxRecDepth : USize)
+    (decl : @& Declaration) (cancelTk? : @& Option IO.CancelToken) (doCheck := true) :
     Except Kernel.Exception Environment := do
   if let some ctx := env.asyncCtx? then
     if let some n := decl.getTopLevelNames.find? (!ctx.mayContain ·) then
       throw <| .other s!"cannot add declaration {n} to environment as it is restricted to the \
         prefix {ctx.declPrefix}"
   let mut env ← if doCheck then
-    addDeclCheck env maxHeartbeats decl cancelTk?
+    addDeclCheck env maxHeartbeats maxRecDepth decl cancelTk?
   else
     addDeclWithoutChecking env decl
 
@@ -775,7 +774,11 @@ private opaque isReservedName (env : Environment) (name : Name) : Bool
 /-- `findAsync?` after `base` access -/
 private def findAsyncCore? (env : Environment) (n : Name) (skipRealize := false) :
     Option AsyncConstantInfo := do
-  env.findAsyncConst? n (skipRealize := skipRealize) |>.map (·.constInfo)
+  if let some c := env.findAsyncConst? n (skipRealize := skipRealize) then
+    return c.constInfo
+  -- Also query local kernel map eventually; this should only be needed on `ofKernelEnv` results as
+  -- after importing, the `base` local map is and stays empty.
+  return .ofConstantInfo (← env.base.get env |>.constants.map₂.find? n)
 
 /-- Like `findAsyncCore?`; allocating tasks is (currently?) too costly to do always. -/
 private def findTaskCore (env : Environment) (n : Name) (skipRealize := false) :
@@ -794,9 +797,8 @@ private def findTaskCore (env : Environment) (n : Name) (skipRealize := false) :
         if let some c := allRealizations.find? n then
           return c.constInfo
         none
-    -- Not in the kernel environment nor in the name prefix of a known environment branch: undefined
-    -- by `addDeclCore` invariant.
-    .pure none
+    -- see `findAsyncCore?`
+    .pure <| .ofConstantInfo <$> (env.base.get env |>.constants.map₂.find? n)
 
 /--
 Looks up the given declaration name in the environment, avoiding forcing any in-progress elaboration
@@ -1527,7 +1529,6 @@ def registerEnvExtension {σ : Type} (mkInitial : IO σ)
 
 private def mkInitialExtensionStates : IO (Array EnvExtensionState) := EnvExtension.mkInitialExtStates
 
-@[export lean_mk_empty_environment]
 def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
   let initializing ← IO.initializing
   if initializing then throw (IO.userError "environment objects cannot be created during initialization")
@@ -2612,7 +2613,7 @@ where
           return panic! s!"{c.constInfo.name} must be definition/theorem"
       -- realized kernel additions cannot be interrupted - which would be bad anyway as they can be
       -- reused between snapshots
-      kenv ← ofExcept <| kenv.addDeclCore 0 decl none
+      kenv ← ofExcept <| kenv.addDeclCore 0 0 decl none
     return kenv
 
 /-- Like `evalConst`, but first check that `constName` indeed is a declaration of type `typeName`.
@@ -2840,12 +2841,19 @@ Sets `Environment.isExporting` to the given value while executing `x`. No-op if
 -/
 def withExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : m α)
     (isExporting := true) : m α := do
-  let old := (← getEnv).isExporting
-  modifyEnv (·.setExporting isExporting)
-  try
+  let env ← getEnv
+  let old := env.isExporting
+  if !env.header.isModule || old == isExporting then
+    -- `setExporting` would be a no-op. We skip the `modifyEnv` calls because `modifyEnv`
+    -- invalidates caches (e.g., the whole `Meta.State.cache`), which is very costly when
+    -- this function is used in hot paths (e.g., equation lemma retrieval inside `grind`).
     x
-  finally
-    modifyEnv (·.setExporting old)
+  else
+    modifyEnv (·.setExporting isExporting)
+    try
+      x
+    finally
+      modifyEnv (·.setExporting old)
 
 /-- If `when` is true, sets `Environment.isExporting` to false while executing `x`. -/
 def withoutExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : m α)

@@ -76,7 +76,6 @@ builtin_initialize reducibilityExtraExt : SimpleScopedEnvExtension (Name × Redu
     finalizeImport := fun d => d.switch
   }
 
-@[export lean_get_reducibility_status]
 def getReducibilityStatusCore (env : Environment) (declName : Name) : ReducibilityStatus :=
   let m := reducibilityExtraExt.getState env
   if let some status := m.find? declName then
@@ -100,10 +99,6 @@ private def setReducibilityStatusCore (env : Environment) (declName : Name) (sta
   else
     -- `scoped` and `local` must be handled by `reducibilityExtraExt`
     reducibilityExtraExt.addCore env (declName, status) attrKind currNamespace
-
-@[export lean_set_reducibility_status]
-private def setReducibilityStatusImp (env : Environment) (declName : Name) (status : ReducibilityStatus) : Environment :=
-  setReducibilityStatusCore env declName status .global .anonymous
 
 /-
 TODO: it would be great if we could distinguish between the following two situations
@@ -161,11 +156,14 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
         unless statusOld matches .semireducible do
           throwError "failed to set `[instance_reducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
       | .semireducible =>
-        throwError "failed to set `[semireducible]` for `{.ofConstName declName}`, declarations are `[semireducible]` by default{suffix}"
+        if statusOld matches .semireducible then do
+          throwError "failed to set `[semireducible]` for `{.ofConstName declName}` because it already is `[semireducible]`{suffix}"
+        else
+          throwError "failed to set `[semireducible]` for `{.ofConstName declName}`{suffix}"
     | .local =>
       match status with
       | .reducible =>
-        throwError "failed to set `[local reducible]` for `{.ofConstName declName}`, recall that `[reducible]` affects the term indexing datastructures used by `simp` and type class resolution{suffix}"
+        throwError "failed to set `[local reducible]` for `{.ofConstName declName}`, recall that `[reducible]` affects the term indexing data structures used by `simp` and type class resolution{suffix}"
       | .irreducible =>
         unless statusOld matches .semireducible | .implicitReducible | .instanceReducible do
           throwError "failed to set `[local irreducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]`, `[implicit_reducible]` nor `[instance_reducible]` expected{suffix}"

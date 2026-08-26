@@ -83,7 +83,7 @@ def evalGrindSeq : GrindTactic := fun stx =>
 @[builtin_grind_tactic paren] def evalParen : GrindTactic := fun stx =>
   evalGrindTactic stx[1]
 
-open Meta Grind
+open Meta Lean.Meta.Grind
 
 @[builtin_grind_tactic finish] def evalFinish : GrindTactic := fun stx => withMainContext do
   let `(grind| finish $[$configItems]* $[only%$only]? $[[$params?,*]]?) := stx | throwUnsupportedSyntax
@@ -252,7 +252,7 @@ where
         elabEMatchTheorem declName (.default false) minIndexable
       else
         return thms.toArray
-    | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC | .norm .. | .unfold =>
+    | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC | .norm .. | .unfold | .homo | .homoPred =>
       throwError "invalid modifier"
 
 def logAnchor (c : SplitInfo) : TermElabM Unit := do
@@ -287,7 +287,18 @@ def split? (c : SplitInfo) : Action := fun goal kna kp => do
     Action.splitCore c numCases isRec (stopAtFirstFailure := false) (compress := false) >> Action.intros genNew >> Action.assertAll
   a goal kna kp
 
-@[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => withMainContext do
+/--
+Drains the pending raw facts (e.g., queued by `internalize_all` in `sym` mode) before a
+case-split tactic, so that split candidates are inspected in a fully propagated state and
+the queued facts are not preprocessed once per subgoal created by the split.
+Returns `true` if draining closed the goal.
+-/
+def drainRawFacts : GrindTacticM Bool := do
+  match (← liftActionCore Action.assertAll) with
+  | .closed => return true
+  | .subgoals => return false
+
+@[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => do
   let (anchor, ordinal) ← match stx with
     | `(grind| cases #$anchor:hexnum) => pure ((anchor : TSyntax `hexnum), 1)
     | `(grind| cases #$anchor:hexnum/$i:num) =>
@@ -295,6 +306,8 @@ def split? (c : SplitInfo) : Action := fun goal kna kp => do
         throwErrorAt i "invalid anchor ordinal, it must be ≥ 1"
       pure (anchor, i.getNat)
     | _ => throwUnsupportedSyntax
+  if (← drainRawFacts) then return ()
+  withMainContext do
   let anchorRef ← elabAnchorRef anchor
   let c? ← liftGoalM do
     let mut remaining := ordinal
@@ -345,8 +358,10 @@ def mkCasesSuggestions (candidates : Array SplitCandidateWithAnchor) (numDigits 
     }
   return suggestions
 
-@[builtin_grind_tactic casesTrace] def evalCasesTrace : GrindTactic := fun stx => withMainContext do
+@[builtin_grind_tactic casesTrace] def evalCasesTrace : GrindTactic := fun stx => do
   let `(grind| cases? $[$filter?]?) := stx | throwUnsupportedSyntax
+  if (← drainRawFacts) then return ()
+  withMainContext do
   let filter ← elabFilter filter?
   let { candidates, numDigits } ← liftGoalM <| getSplitCandidateAnchors filter.eval
   let suggestions ← mkCasesSuggestions candidates numDigits
@@ -354,6 +369,13 @@ def mkCasesSuggestions (candidates : Array SplitCandidateWithAnchor) (numDigits 
   return ()
 
 @[builtin_grind_tactic casesNext] def evalCasesNext : GrindTactic := fun _ => do
+  /-
+  **Note**: We cannot use `Action.assertAll >> Action.splitNext` here: `assertAll` is
+  always applicable, and `>>` treats the second action's "not applicable" as a skip, so
+  the composition would never fail. `cases_next` must fail when there is no split
+  candidate (see `grind_finish_trace.lean`); `repeat`/`first` idioms rely on it.
+  -/
+  if (← drainRawFacts) then return ()
   liftAction (Action.splitNext (stopAtFirstFailure := false))
 
 @[builtin_grind_tactic Parser.Tactic.Grind.focus] def evalFocus : GrindTactic := fun stx => do
@@ -419,6 +441,7 @@ public def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIden
 @[builtin_grind_tactic «next»] def evalNext : GrindTactic := fun stx => do
   let `(grind| next%$nextTk $hs* =>%$arr $seq:grindSeq) := stx | throwUnsupportedSyntax
   let goal :: goals ← getUnsolvedGoals | throwNoGoalsToBeSolved
+  -- **Note**: `renameInaccessibles` resets cached anchors.
   let mvarId ← renameInaccessibles goal.mvarId hs
   let goal := { goal with mvarId }
   setGoals [goal]
@@ -426,6 +449,53 @@ public def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIden
   withCaseRef arr seq <| closeUsingOrAdmit <| withTacticInfoContext (mkNullNode #[nextTk, arr]) <|
     evalGrindTactic stx[3]
   setGoals goals
+
+/--
+Searches `goals` for one whose case tag matches `tag`, using the same heuristic as the
+standard `case` tactic: prefer an exact match, then a suffix match, then a prefix match.
+-/
+private def findGrindTag? (goals : List Goal) (tag : Name) : GrindTacticM (Option Goal) := do
+  let byName (p : Name → Name → Bool) : GrindTacticM (Option Goal) :=
+    goals.findM? fun g => return p tag (← g.mvarId.getDecl).userName.eraseMacroScopes
+  if let some g ← byName (· == ·) then return some g
+  if let some g ← byName (·.isSuffixOf ·) then return some g
+  byName (·.isPrefixOf ·)
+
+/--
+Returns the goal selected by the case tag `tag` together with the remaining goals.
+If `tag` is a hole (`_`), the main goal is selected.
+-/
+private def getCaseGoal (tag : TSyntax ``binderIdent) : GrindTacticM (Goal × List Goal) := do
+  let gs ← getUnsolvedGoals
+  if let `(binderIdent| $tagId:ident) := tag then
+    let tagId := tagId.getId.eraseMacroScopes
+    let some g ← findGrindTag? gs tagId | notFound gs tagId
+    return (g, gs.filter (·.mvarId != g.mvarId))
+  else
+    let g ← getMainGoal
+    return (g, gs.filter (·.mvarId != g.mvarId))
+where
+  notFound {α} (available : List Goal) (tag : Name) : GrindTacticM α := do
+    let names := (← available.mapM fun g => return (← g.mvarId.getDecl).userName)
+      |>.filter (· != .anonymous) |>.eraseDups
+    let hint := match names with
+      | []      => m!"There are no cases to select."
+      | [name]  => m!"The only available case tag is `{name}`."
+      | names   => m!"Available tags: {MessageData.joinSep (names.map (m!"`{·}`")) ", "}"
+    throwError "Case tag `{tag}` not found.\n{hint}"
+
+@[builtin_grind_tactic «case»] def evalCase : GrindTactic := fun stx => do
+  let `(grind| case%$caseTk $[$tags $hss*]|* =>%$arr $seq:grindSeq) := stx | throwUnsupportedSyntax
+  for tag in tags, hs in hss do
+    let (goal, goals) ← getCaseGoal tag
+    -- **Note**: `renameInaccessibles` resets cached anchors.
+    let mvarId ← renameInaccessibles goal.mvarId hs
+    let goal := { goal with mvarId }
+    setGoals [goal]
+    goal.mvarId.setTag Name.anonymous
+    withCaseRef arr seq <| closeUsingOrAdmit <| withTacticInfoContext (mkNullNode #[caseTk, arr]) <|
+      evalGrindTactic seq
+    setGoals goals
 
 @[builtin_grind_tactic nestedTacticCore] def evalNestedTactic : GrindTactic := fun stx => do
   let `(grind| tactic%$tacticTk =>%$arr $seq:tacticSeq) := stx | throwUnsupportedSyntax

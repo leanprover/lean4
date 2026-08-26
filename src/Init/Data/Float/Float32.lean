@@ -49,6 +49,26 @@ instance : Nonempty Float32 :=
   ⟨⟨default⟩⟩
 
 /--
+The special floating-point value `NaN`, short for “not a number”. This value comes up as the result
+of erroneous computation like `0 / 0`.
+
+Comparing any value with `NaN` using `==`, `<`, `≤` results in `false`, including `nan == nan`
+and `nan ≤ nan`. However, comparing with `NaN` using propositional equality will result in `true`
+if and only if the other value is also `NaN`, which means that `nan = nan` is true.
+
+Note: While there are many bit patterns that represent a “not a number” value, they are all equal
+in the logical model of `Float32`, that is, all floating-point values `f : Float32` with `f.isNaN`
+are propositionally equal to `nan`.
+-/
+def Float32.nan : Float32 := .ofModel .nan
+
+/--
+The special floating-point value `+Inf`, short for positive infinity, used as a result for
+overflowing computations like `1 / 0`.
+-/
+def Float32.inf : Float32 := .ofModel .inf
+
+/--
 Adds two 32-bit floating-point numbers according to IEEE 754. Typically used via the `+` operator.
 
 This function has a logical model in terms of `Float32.Model`. It is compiled to the C addition operator.
@@ -226,9 +246,11 @@ This function has a logical model in terms of `Float32.Model`.
   fun a => a.toModel.toUSize
 
 /--
-Checks whether a floating point number is `NaN` ("not a number") value.
+Checks whether a floating point number is a `NaN` ("not a number") value.
 
 `NaN` values result from operations that might otherwise be errors, such as dividing zero by zero.
+
+This function returns `true` if and only if the input is propositionally equal to `Float32.nan`.
 
 This function has a logical model in terms of `Float32.Model`. It is compiled to the C operator `isnan`.
 -/

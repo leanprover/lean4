@@ -16,6 +16,7 @@ public import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 public import Lean.Meta.Tactic.Grind.Inv
 public import Lean.Meta.Tactic.Grind.Proof
 public import Lean.Meta.Tactic.Grind.Propagate
+public import Lean.Meta.Tactic.Grind.BitVec
 public import Lean.Meta.Tactic.Grind.PP
 public import Lean.Meta.Tactic.Grind.Simp
 public import Lean.Meta.Tactic.Grind.Ctor
@@ -39,6 +40,7 @@ public import Lean.Meta.Tactic.Grind.VarRename
 public import Lean.Meta.Tactic.Grind.ProofUtil
 public import Lean.Meta.Tactic.Grind.PropagateInj
 public import Lean.Meta.Tactic.Grind.Order
+public import Lean.Meta.Tactic.Grind.Homomorphism
 public import Lean.Meta.Tactic.Grind.Anchor
 public import Lean.Meta.Tactic.Grind.Action
 public import Lean.Meta.Tactic.Grind.EMatchTheoremParam
@@ -47,6 +49,7 @@ public import Lean.Meta.Tactic.Grind.Filter
 public import Lean.Meta.Tactic.Grind.CollectParams
 public import Lean.Meta.Tactic.Grind.Finish
 public import Lean.Meta.Tactic.Grind.RegisterCommand
+public import Lean.Meta.Tactic.Grind.BVDecide
 public section
 namespace Lean
 

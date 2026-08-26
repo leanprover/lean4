@@ -6,9 +6,9 @@ Authors: Sebastian Graf
 import Cases.MatchIota
 import Driver
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
-open Lean Order Parser Meta Elab Tactic Sym Std Internal.Do
+open Lean Order Parser Meta Elab Tactic Sym Std WP
 open MatchIota
 
 set_option maxRecDepth 10000

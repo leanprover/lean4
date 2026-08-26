@@ -349,16 +349,11 @@ Examples:
 - `(ofPosixString ".hidden.tar.gz" |>.get!).filePrefix = some ".hidden"`
 - `(ofPosixString "Makefile" |>.get!).filePrefix = some "Makefile"`
 -/
-def filePrefix (p : Path) : Option String :=
-  p.fileName.map fun name =>
-    let name := name.value
-    let (leadingDot, rest) :=
-      if name.startsWith "." && name.length > 1 then (".", name.drop 1 |>.toString)
-      else ("", name)
-
-    let parts := rest.split "." |>.toArray
-    if parts.isEmpty then name
-    else leadingDot ++ parts[0]!.toString
+def filePrefix (p : Path) : Option String := do
+  let name := (← p.fileName).value
+  let afterInitialDot := (name.skipPrefix? '.').getD name.startPos
+  let nextDot := (name.sliceFrom afterInitialDot).find '.'
+  return (name.slice afterInitialDot (String.Pos.ofSliceFrom nextDot) String.Pos.le_ofSliceFrom).copy
 
 /--
 The last file extension, validated as an `Extension` (without the leading `.`).

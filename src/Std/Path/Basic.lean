@@ -330,13 +330,9 @@ Examples:
 def fileStem (p : Path) : Option String := do
   let name := (← p.fileName).value
 
-  let (searchIn, hadLeadingDot) :=
-    if name.startsWith "." && name.length > 1 then (String.ofList name.toList.tail, true)
-    else (name, false)
-
-  match splitAtLastDot searchIn with
+  match name.revFind? '.' with
   | none => some name
-  | some (stem, _)  => if hadLeadingDot then some <| "." ++ stem else some stem.toString
+  | some lastDot => if lastDot = name.startPos then some name else some (name.sliceTo lastDot).copy
 
 /--
 The filename stem before the first extension (i.e. before the first `.` after any leading dot).

@@ -7,6 +7,10 @@ module
 
 prelude
 public import Init.Data.ByteArray.Pack
+import Init.ByCases
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Extract
+import Init.Data.Array.Lemmas
 import Init.Data.ByteArray.Lemmas
 import Init.Data.UInt
 import Init.Data.BitVec

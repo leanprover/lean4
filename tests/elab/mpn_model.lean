@@ -11,9 +11,9 @@ down through the three layers they pass through.
 
 `lean_object` is the outermost: a `Nat` is a tagged scalar or a pointer to an `mpz`. `NatObj`
 carries that choice with the invariant `mpz_to_nat` maintains, and `natAdd_val` and its siblings
-prove each operation computes what `Nat` does. Only the three that can panic carry a hypothesis:
-for `natShiftLeft_val` and `natPow_val` it says the exponent guard did not fire, and for
-`natShiftRight_val` that where it did, the shift zeroes the value rather than panicking.
+prove each operation computes what `Nat` does. The three that can panic assume the condition under
+which the C++ does not, rather than discharging it; nothing above this layer is modelled, so those
+are the only assumptions the file rests on.
 
 `mpz` is the signed wrapper, whose non-negative part is `Num`. `Num.val_add` and its siblings prove
 that layer. The `Num` type carries the normalization `mpz::set` establishes, so the preconditions

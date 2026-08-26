@@ -277,12 +277,20 @@ theorem BitVec.shiftLeft_zero' (n : BitVec w) : n <<< 0#w' = n := by
   simp
 
 @[bv_normalize]
+theorem BitVec.zero_shiftLeft' (n : BitVec w) : 0#w' <<< n = 0#w' := by
+  rw [_root_.BitVec.shiftLeft_eq', _root_.BitVec.zero_shiftLeft]
+
+@[bv_normalize]
 theorem BitVec.shiftLeft_neg {x : BitVec w₁} {y : BitVec w₂} :
     (~~~x + 1#w₁) <<< y = ~~~(x <<< y) + 1 := by
   simp [← BitVec.neg_eq_not_add, _root_.BitVec.shiftLeft_neg]
 
 attribute [bv_normalize] BitVec.zero_sshiftRight
 attribute [bv_normalize] BitVec.sshiftRight_zero
+
+@[bv_normalize]
+theorem BitVec.zero_sshiftRight' (n : BitVec w) : (0#w').sshiftRight' n = 0#w' := by
+  rw [_root_.BitVec.sshiftRight_eq', _root_.BitVec.zero_sshiftRight]
 
 attribute [bv_normalize] BitVec.zero_ushiftRight
 attribute [bv_normalize] BitVec.ushiftRight_zero
@@ -292,6 +300,10 @@ theorem BitVec.ushiftRight_zero' (n : BitVec w) : n >>> 0#w' = n := by
   ext i
   simp only [(· >>> ·)]
   simp
+
+@[bv_normalize]
+theorem BitVec.zero_ushiftRight' (n : BitVec w) : 0#w' >>> n = 0#w' := by
+  rw [_root_.BitVec.ushiftRight_eq', _root_.BitVec.zero_ushiftRight]
 
 theorem BitVec.ushiftRight_self (n : BitVec w) : n >>> n = 0#w := by
   simp
@@ -363,6 +375,11 @@ theorem BitVec.udiv_ofNat_eq_of_lt (w : Nat) (x : BitVec w) (n : Nat) (k : Nat) 
 theorem BitVec.extractLsb'_ite {x y : BitVec w} (s l : Nat) :
     BitVec.extractLsb' s l (bif c then x else y) = bif c then (BitVec.extractLsb' s l x) else (BitVec.extractLsb' s l y) := by
   cases c <;> simp
+
+/-- Used in the `extractLsb'` simproc to reduce extraction at a symbolic offset to a shift. -/
+theorem BitVec.extractLsb'_eq_setWidth_ushiftRight (x : BitVec w) (s l : Nat) :
+    BitVec.extractLsb' s l x = (x >>> s).setWidth l :=
+  BitVec.setWidth_ushiftRight_eq_extractLsb.symm
 
 @[deprecated Std.Tactic.BVDecide.Normalize.BitVec.extractLsb'_ite (since := "2026-07-21")]
 theorem BitVec.extractLsb'_if {w : Nat} {c : Bool} {x : BitVec w} {y : BitVec w} (s : Nat) (l : Nat) : BitVec.extractLsb' s l (bif c then x else y) = bif c then BitVec.extractLsb' s l x else BitVec.extractLsb' s l y := Std.Tactic.BVDecide.Normalize.BitVec.extractLsb'_ite s l

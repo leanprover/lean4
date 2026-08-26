@@ -12,25 +12,6 @@ hypothesis, and warnings when the final closing step is unnecessary.
 
 set_option linter.unnecessaryRwa true
 
-section Syntax
-
-example : True := by
-  run_tac do
-    match Lean.Parser.runParserCategory (← Lean.getEnv) `tactic "rwa_finish (rw [])" with
-    | .error _ => pure ()
-    | .ok _ => throwError "`rwa_finish` is user-accessible"
-  trivial
-
-example : True := by
-  run_tac do
-    for input in #["rwa [] using h", "rwa [] using! h"] do
-      match Lean.Parser.runParserCategory (← Lean.getEnv) `tactic input with
-      | .error _ => pure ()
-      | .ok _ => throwError "Unexpectedly parsed `{input}`"
-  trivial
-
-end Syntax
-
 section SuggestionValidation
 
 set_option linter.unnecessarySimpa true

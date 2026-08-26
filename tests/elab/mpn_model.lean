@@ -85,6 +85,15 @@ amount to `d % 32`, division by zero is zero, and `Nat` subtraction truncates.
 That makes a direct transliteration *defined* where the original is undefined,
 which is only sound while the undefined cases are unreachable.
 
+A shift is the subtle one. The standard leaves `E1 << E2` undefined once `E2`
+reaches the width of the *promoted* `E1`, which is not in general the width of
+the type written in the source. `uint32_t` promotes to `unsigned int` rather
+than `int`, since `int` cannot represent all its values, so the bound for a
+digit shift is 32; `uint64_t` has rank at least `int` already and is not
+promoted, so the bound for a double digit is 64. Those happen to be `DIGIT_BITS`
+and `2 * DIGIT_BITS`, because `mpn_digit` is exactly `unsigned int` wide, which
+is why the bounds below are written in terms of `digitBits`.
+
 Each operation below wraps one of them with the hypothesis that pins it down.
 Taking the hypothesis in the definition rather than in a theorem about it means
 a use site cannot be written without discharging it, so the preconditions
@@ -93,17 +102,17 @@ specification.
 -/
 namespace CPP
 
-/-- `x << d` on `mpn_digit`; a shift by the operand width or more is undefined. -/
+/-- `x << d` on `mpn_digit`, bounded by the width `uint32_t` promotes to. -/
 def shl (x : Digit) (d : Nat) (_h : d < digitBits) : Digit := x <<< UInt32.ofNat d
 
-/-- `x >> d` on `mpn_digit`. -/
+/-- `x >> d` on `mpn_digit`, bounded the same way. -/
 def shr (x : Digit) (d : Nat) (_h : d < digitBits) : Digit := x >>> UInt32.ofNat d
 
-/-- `t << d` on `mpn_double_digit`. -/
+/-- `t << d` on `mpn_double_digit`, which is not promoted, so its own width bounds it. -/
 def shlD (t : DoubleDigit) (d : Nat) (_h : d < 2 * digitBits) : DoubleDigit :=
   t <<< UInt64.ofNat d
 
-/-- `t >> d` on `mpn_double_digit`. -/
+/-- `t >> d` on `mpn_double_digit`, bounded the same way. -/
 def shrD (t : DoubleDigit) (d : Nat) (_h : d < 2 * digitBits) : DoubleDigit :=
   t >>> UInt64.ofNat d
 

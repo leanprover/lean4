@@ -367,21 +367,8 @@ theorem denote_of_high_zero (c : Array Digit) {n : Nat} (hn : n ≤ c.size)
 
 /-! ## `mpn_compare` -/
 
-/--
-`mpn_compare`'s loop, scanning digits from `j-1` down to 0:
-```
-    size_t j = max(lnga, lngb) - 1;
-    for (; j != (size_t)-1 && res == 0; j--) {
-        mpn_digit const & u_j = (j < lnga) ? a[j] : zero;
-        mpn_digit const & v_j = (j < lngb) ? b[j] : zero;
-        if (u_j > v_j)
-            res = 1;
-        else if (u_j < v_j)
-            res = -1;
-    }
-```
--/
-def compareLoop (a b : Array Digit) : Nat → Int
+/-- The loop above as a recursion, for `compare_eq` to induct over. -/
+private def compareLoop (a b : Array Digit) : Nat → Int
   | 0 => 0
   | j+1 =>
     let u_j := a.getD j 0
@@ -396,7 +383,14 @@ int mpn_compare(mpn_digit const * a, size_t const lnga,
     int res = 0;
 
     size_t j = max(lnga, lngb) - 1;
-    for (; j != (size_t)-1 && res == 0; j--) { ... }
+    for (; j != (size_t)-1 && res == 0; j--) {
+        mpn_digit const & u_j = (j < lnga) ? a[j] : zero;
+        mpn_digit const & v_j = (j < lngb) ? b[j] : zero;
+        if (u_j > v_j)
+            res = 1;
+        else if (u_j < v_j)
+            res = -1;
+    }
     return res;
 }
 ```
@@ -437,17 +431,8 @@ theorem compare_eq (a b : Array Digit) :
 
 /-! ## `mpn_add` -/
 
-/--
-One iteration of `mpn_add`'s loop body:
-```
-        mpn_digit const & u_j = (j < lnga) ? a[j] : zero;
-        mpn_digit const & v_j = (j < lngb) ? b[j] : zero;
-        r = u_j + v_j; c1 = r < u_j;
-        c[j] = r + k;  c2 = c[j] < r;
-        k = c1 | c2;
-```
--/
-def addStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Digit × Digit :=
+/-- One iteration of the loop below, for `addLoop_eq` to fold over. -/
+private def addStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Digit × Digit :=
   let (c, k) := s
   let u_j := a.getD j 0
   let v_j := b.getD j 0
@@ -462,7 +447,13 @@ def addStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Dig
 ```
     size_t len = max(lnga, lngb);
     mpn_digit k = 0;
-    for (size_t j = 0; j < len; j++) { ... }
+    for (size_t j = 0; j < len; j++) {
+        mpn_digit const & u_j = (j < lnga) ? a[j] : zero;
+        mpn_digit const & v_j = (j < lngb) ? b[j] : zero;
+        r = u_j + v_j; c1 = r < u_j;
+        c[j] = r + k;  c2 = c[j] < r;
+        k = c1 | c2;
+    }
     c[len] = k;
 ```
 -/
@@ -510,17 +501,8 @@ def add (a b : Array Digit) : Array Digit :=
 
 /-! ## `mpn_sub` -/
 
-/--
-One iteration of `mpn_sub`'s loop body:
-```
-        mpn_digit const & u_j = (j < lnga) ? a[j] : zero;
-        mpn_digit const & v_j = (j < lngb) ? b[j] : zero;
-        r = u_j - v_j; c1 = r > u_j;
-        c[j] = r - k;  c2 = c[j] > r;
-        k = c1 | c2;
-```
--/
-def subStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Digit × Digit :=
+/-- One iteration of the loop below, for `subLoop_eq` to fold over. -/
+private def subStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Digit × Digit :=
   let (c, k) := s
   let u_j := a.getD j 0
   let v_j := b.getD j 0
@@ -535,7 +517,13 @@ def subStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Dig
 ```
     size_t len = max(lnga, lngb);
     mpn_digit & k = *pborrow; k = 0;
-    for (size_t j = 0; j < len; j++) { ... }
+    for (size_t j = 0; j < len; j++) {
+        mpn_digit const & u_j = (j < lnga) ? a[j] : zero;
+        mpn_digit const & v_j = (j < lngb) ? b[j] : zero;
+        r = u_j - v_j; c1 = r > u_j;
+        c[j] = r - k;  c2 = c[j] > r;
+        k = c1 | c2;
+    }
 ```
 -/
 def subLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
@@ -566,18 +554,8 @@ def sub (a b : Array Digit) : Array Digit × Digit :=
   subLoop a b (max a.size b.size)
 
 
-/--
-`mpn_sub` writing its result back over its first operand, which is how `div_n`
-calls it:
-```
-        mpn_sub(&numer[j], n+1, ms.data(), n+1, &numer[j], &borrow);
-```
-Each iteration reads `u[off+i]` and then writes it, and no later iteration
-reads it again, so the aliasing is safe. `subInPlace_spec` below is that
-statement: the result agrees digit for digit with running `mpn_sub` into a
-separate buffer.
--/
-def subInPlaceStep (b : Array Digit) (off : Nat) (s : Array Digit × Digit) (i : Nat) :
+/-- One iteration of the loop below, for `subInPlace_foldl` to fold over. -/
+private def subInPlaceStep (b : Array Digit) (off : Nat) (s : Array Digit × Digit) (i : Nat) :
     Array Digit × Digit :=
   let (u, k) := s
   let u_i := u.getD (off + i) 0
@@ -588,7 +566,16 @@ def subInPlaceStep (b : Array Digit) (off : Nat) (s : Array Digit × Digit) (i :
   let c2 := ci > r
   (u.set! (off + i) ci, if c1 || c2 then 1 else 0)
 
-/-- `mpn_sub`'s digit loop run in place over `u[off..off+len)`. -/
+/--
+`mpn_sub`'s digit loop, writing its result back over its first operand, which is
+how `div_n` calls it:
+```
+        mpn_sub(&numer[j], n+1, ms.data(), n+1, &numer[j], &borrow);
+```
+Each iteration reads `u[off+i]` and then writes it, and no later iteration reads
+it again, so the aliasing is safe. `subInPlace_spec` below is that statement:
+the result agrees digit for digit with running `mpn_sub` into a separate buffer.
+-/
 def subInPlace (u b : Array Digit) (off len : Nat) : Array Digit × Digit := Id.run do
   let mut u := u
   let mut k : Digit := 0
@@ -618,20 +605,8 @@ private theorem subInPlace_succ (u b : Array Digit) (off len : Nat) :
 
 /-! ## `mpn_mul` -/
 
-/--
-One iteration of `mpn_mul`'s inner loop:
-```
-                mpn_digit const & u_i = a[i];
-                mpn_double_digit t;
-                t = ((mpn_double_digit)u_i * (mpn_double_digit)v_j) +
-                    (mpn_double_digit) c[i+j] +
-                    (mpn_double_digit) k;
-
-                c[i+j] = (t << DIGIT_BITS) >> DIGIT_BITS;
-                k = t >> DIGIT_BITS;
-```
--/
-def mulInnerStep (a : Array Digit) (v_j : Digit) (j : Nat)
+/-- One iteration of the loop below, for `mulInner_eq` to fold over. -/
+private def mulInnerStep (a : Array Digit) (v_j : Digit) (j : Nat)
     (s : Array Digit × Digit) (i : Nat) : Array Digit × Digit :=
   let (c, k) := s
   let u_i := a.getD i 0
@@ -643,7 +618,16 @@ def mulInnerStep (a : Array Digit) (v_j : Digit) (j : Nat)
 `mpn_mul`'s inner loop over `lnga` digits of `a`, leaving a carry:
 ```
             k = 0;
-            for (i = 0; i < lnga; i++) { ... }
+            for (i = 0; i < lnga; i++) {
+                mpn_digit const & u_i = a[i];
+                mpn_double_digit t;
+                t = ((mpn_double_digit)u_i * (mpn_double_digit)v_j) +
+                    (mpn_double_digit) c[i+j] +
+                    (mpn_double_digit) k;
+
+                c[i+j] = (t << DIGIT_BITS) >> DIGIT_BITS;
+                k = t >> DIGIT_BITS;
+            }
 ```
 -/
 def mulInner (a : Array Digit) (v_j : Digit) (j : Nat) (c : Array Digit) (lnga : Nat) :
@@ -3896,17 +3880,31 @@ length, reading absent digits as zero:
 `&`, which is why one definition parameterized by the digit operation covers all
 three.
 -/
-def bitwiseDigits (f : Digit → Digit → Digit) (a b : Array Digit) : Array Digit :=
-  (Array.range (max a.size b.size)).map fun i => f (a.getD i 0) (b.getD i 0)
+def bitwiseDigits (f : Digit → Digit → Digit) (a b : Array Digit) : Array Digit := Id.run do
+  let sz := max a.size b.size
+  let mut r : Array Digit := #[]
+  for i in List.range sz do
+    let u_i := a.getD i 0
+    let v_i := b.getD i 0
+    r := r.push (f u_i v_i)
+  return r
+
+/-- The loop as the map its proofs read digitwise. -/
+theorem bitwiseDigits_eq (f : Digit → Digit → Digit) (a b : Array Digit) :
+    bitwiseDigits f a b
+      = (List.map (fun i => f (a.getD i 0) (b.getD i 0))
+          (List.range (max a.size b.size))).toArray := by
+  simp [bitwiseDigits, Id.run]
+  rfl
 
 @[simp] theorem size_bitwiseDigits (f : Digit → Digit → Digit) (a b : Array Digit) :
-    (bitwiseDigits f a b).size = max a.size b.size := by simp [bitwiseDigits]
+    (bitwiseDigits f a b).size = max a.size b.size := by simp [bitwiseDigits_eq]
 
 private theorem getD_bitwiseDigits (f : Digit → Digit → Digit) (hf : f 0 0 = 0)
     (a b : Array Digit) (i : Nat) :
     (bitwiseDigits f a b).getD i 0 = f (a.getD i 0) (b.getD i 0) := by
   rcases Nat.lt_or_ge i (max a.size b.size) with h | h
-  · rw [bitwiseDigits]; simp [h]
+  · rw [bitwiseDigits_eq]; simp [h]
   · rw [getD_of_ge _ (by rw [size_bitwiseDigits]; omega), getD_of_ge a (by omega),
       getD_of_ge b (by omega), hf]
 

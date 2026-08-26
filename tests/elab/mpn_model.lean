@@ -3229,7 +3229,28 @@ theorem size_div_rem (numer denom : Array Digit) (hden : 0 < denom.size)
 
 /-! ### The operations `mpz` builds on `mpn` -/
 
-/-- `mpn_compare` lifted to normalized values, as `mpz::operator+=` calls it. -/
+/--
+`cmp`, on the non-negative values a `Num` holds:
+```
+int cmp(mpz const & a, mpz const & b) {
+    if (a.m_sign) {
+        if (b.m_sign) {
+            return mpn_compare(b.m_digits, b.m_size, a.m_digits, a.m_size);
+        } else {
+            return -1; // `a` is negative and `b` is nonnegative
+        }
+    } else {
+        if (b.m_sign) {
+            return 1; // `a` is nonnegative and `b` is negative
+        } else {
+            return mpn_compare(a.m_digits, a.m_size, b.m_digits, b.m_size);
+        }
+    }
+}
+```
+`operator<` and its siblings are `cmp` against zero, which is how `mpz::add`
+orders its operands and how `lean_nat_big_le` compares two `mpz`.
+-/
 def Num.compare (a b : Num) : Int := Mpn.compare a.digits b.digits
 
 theorem Num.compare_spec (a b : Num) :
@@ -3267,20 +3288,37 @@ def Num.mul (a b : Num) : Num :=
   rw [Num.mul, Num.val_ofArray, denote_mul, Num.val, Num.val]
 
 /--
-`Nat.sub` at the `mpz` layer, the `r <= 0` arms of `mpz::add` with a negated
-operand, which `lean_nat_big_sub` clamps to zero:
+`Nat.sub` at the `mpz` layer. `mpz::operator-=` is `add` with the operand's sign
+flipped:
+```
+mpz & mpz::operator-=(mpz const & o) {
+    return add(!o.m_sign, o.m_size, o.m_digits);
+}
+```
+so a difference of two non-negative values takes `add`'s opposite-sign arm:
 ```
         int r = mpn_compare(m_digits, m_size, digits, sz);
         if (r == 0) {
             operator=(0);
             return *this;
-        } else if (r < 0) { ... } else {
+        } else if (r < 0) {
+            size_t new_sz = sz;
+            tmp.ensure_capacity(new_sz);
+            mpn_sub(digits, sz, m_digits, m_size, tmp.begin(), &borrow);
+            lean_assert(borrow==0);
+            m_sign = sign;
+            set(new_sz, tmp.begin());
+        } else {
             size_t new_sz = m_size;
             tmp.ensure_capacity(new_sz);
             mpn_sub(m_digits, m_size, digits, sz, tmp.begin(), &borrow);
+            lean_assert(borrow == 0);
             set(new_sz, tmp.begin());
         }
 ```
+The `r < 0` arm is where the result would go negative and `m_sign` is set;
+`lean_nat_big_sub` clamps that case to zero instead, which is what `Nat`
+subtraction does and what this returns.
 -/
 def Num.sub (a b : Num) : Num :=
   if Mpn.compare a.digits b.digits ≤ 0 then ⟨#[0], by simp, by simp⟩
@@ -3391,7 +3429,15 @@ theorem Num.val_mod (a b : Num) (hb : b.val ≠ 0) : (a.mod b hb).val = a.val % 
 
 /-! ### Shifts, as `mpz` implements them -/
 
-/-- `mpz::is_zero()`, which a normalized value satisfies only as a single zero digit. -/
+/--
+`mpz::is_zero()`, which on the GMP-free path is exactly the shape a normalized
+value has:
+```
+    bool is_zero() const {
+        return m_size == 1 && m_digits[0] == 0;
+    }
+```
+-/
 def Num.isZero (a : Num) : Bool := a.digits.size = 1 && a.digits.getD 0 0 == 0
 
 /--
@@ -3403,9 +3449,21 @@ def Num.isZero (a : Num) : Bool := a.digits.size = 1 && a.digits.getD 0 0 == 0
     for (size_t i = 0; i < word_shift; i++) ds.push_back(0);
     for (size_t i = 0; i < old_sz; i++) ds.push_back(b.m_digits[i]);
     ds.push_back(0);
-    if (bit_shift > 0) { ... }
+    if (bit_shift > 0) {
+        unsigned comp_shift = (8 * sizeof(mpn_digit)) - bit_shift;
+        mpn_digit prev = 0;
+        for (size_t i = word_shift; i < new_sz; i++) {
+            mpn_digit new_prev = (ds[i] >> comp_shift);
+            ds[i] <<= bit_shift;
+            ds[i] |= prev;
+            prev = new_prev;
+        }
+    }
     a.set(new_sz, ds.begin());
 ```
+NOTE: that loop carries the bits it displaces forward in `prev`, where
+`div_normalize` reads them back out of `a[i-1]`. The two write the same digits,
+so `shiftLeftDigits` serves both, but only one of the two shapes appears here.
 -/
 def Num.shiftLeft (a : Num) (k : Nat) : Num :=
   if k = 0 || a.isZero then a
@@ -3427,9 +3485,39 @@ def Num.shiftLeft (a : Num) (k : Nat) : Num :=
     size_t new_sz       = sz - digit_shift;
     unsigned bit_shift  = k % (8 * sizeof(mpn_digit));
     unsigned comp_shift = (8 * sizeof(mpn_digit)) - bit_shift;
-    ...
+    digit_buffer ds;
+    ds.append(b.m_size, b.m_digits);
+    if (new_sz < sz) {
+        size_t i       = 0;
+        size_t j       = digit_shift;
+        if (bit_shift != 0) {
+            for (; i < new_sz - 1; i++, j++) {
+                ds[i] = ds[j];
+                ds[i] >>= bit_shift;
+                ds[i] |= (ds[j+1] << comp_shift);
+            }
+            ds[i] = ds[j];
+            ds[i] >>= bit_shift;
+        }
+        else {
+            for (; i < new_sz; i++, j++) {
+                ds[i] = ds[j];
+            }
+        }
+    }
+    else {
+        size_t i = 0;
+        for (; i < new_sz - 1; i++) {
+            ds[i] >>= bit_shift;
+            ds[i] |= (ds[i+1] << comp_shift);
+        }
+        ds[i] >>= bit_shift;
+    }
     a.set(new_sz, ds.begin());
 ```
+NOTE: the two arms differ only in whether the digits are moved down by
+`digit_shift` as they are shifted; both write what `shiftRightDigits` writes,
+applied to the digits from `digit_shift` up.
 -/
 def Num.shiftRight (a : Num) (k : Nat) : Num :=
   if k = 0 || a.isZero then a
@@ -3602,6 +3690,9 @@ length, reading absent digits as zero:
     }
     set(sz, r.begin());
 ```
+`operator|=` and `operator^=` are the same function with `|` and `^` in place of
+`&`, which is why one definition parameterized by the digit operation covers all
+three.
 -/
 def bitwiseDigits (f : Digit → Digit → Digit) (a b : Array Digit) : Array Digit :=
   (Array.range (max a.size b.size)).map fun i => f (a.getD i 0) (b.getD i 0)
@@ -3979,7 +4070,33 @@ def mpzToNatCore (m : Num) (h : maxSmallNat < m.val) : NatObj := .big m h
 @[simp] theorem mpzToNatCore_val (m : Num) (h : maxSmallNat < m.val) :
     (mpzToNatCore m h).val = m.val := rfl
 
-/-- `mpz::of_size_t`, which needs two digits for a scalar. -/
+/--
+`mpz::of_size_t`, which on a 64-bit target is `init_uint64`:
+```
+    static mpz of_size_t(size_t v) {
+        if (sizeof(size_t) == sizeof(uint64))
+            return mpz((uint64) v);
+        else
+            return mpz((unsigned) v);
+    }
+```
+```
+void mpz::init_uint64(uint64 v) {
+    m_sign = false;
+    if (v <= std::numeric_limits<unsigned>::max()) {
+        allocate(1);
+        m_digits[0] = v;
+    } else {
+        allocate(2);
+        m_digits[0] = static_cast<mpn_digit>(v);
+        m_digits[1] = static_cast<mpn_digit>(v >> 8*sizeof(mpn_digit));
+    }
+}
+```
+NOTE: the C++ branches on whether one digit is enough; this always writes two
+and lets `mpz::set`'s trimming drop the second, which leaves the same value in
+the same normalized shape.
+-/
 def Num.ofSizeT (n : Nat) : Num :=
   Num.ofArray! #[UInt32.ofNat (n % base), UInt32.ofNat (n / base)]
 

@@ -44,7 +44,7 @@ private def emptyAny : Body.Any := Body.Any.ofBody ({} : Body.Empty)
 /-- Send in the background so the test can act as the server while the exchange is in flight. -/
 private def sendInBackground (connection : Connection) (request : Request Body.Any)
     (overrides : RequestOverrides := {}) :
-    Async (IO.Promise (Except Error (Response Body.Stream × IO.Promise (Except Error Unit)))) := do
+    Async (IO.Promise (Except Error TrackedResponse)) := do
   let promise ← IO.Promise.new
   background do
     let result ← try connection.sendTracked request overrides
@@ -72,17 +72,17 @@ private def readUntil (mockServer : Mock.Server) (needle : String) (seen : Strin
     acc := acc ++ String.fromUTF8! chunk
   pure acc
 
-private def expectResponse (promise : IO.Promise (Except Error (Response Body.Stream × IO.Promise (Except Error Unit))))
-    : Async (Response Body.Stream × IO.Promise (Except Error Unit)) := do
+private def expectResponse (promise : IO.Promise (Except Error TrackedResponse))
+    : Async TrackedResponse := do
   match ← await promise.result! with
   | .ok pair => pure pair
   | .error e => throw (IO.userError s!"expected a response, got error: {e}")
 
-private def expectError (promise : IO.Promise (Except Error (Response Body.Stream × IO.Promise (Except Error Unit))))
+private def expectError (promise : IO.Promise (Except Error TrackedResponse))
     : Async Error := do
   match ← await promise.result! with
   | .error e => pure e
-  | .ok (resp, _) => throw (IO.userError s!"expected an error, got {resp.line.status.toCode}")
+  | .ok ⟨resp, _⟩ => throw (IO.userError s!"expected an error, got {resp.line.status.toCode}")
 
 /-- Names the `Error` constructor, so a misclassification is visible in the failure message. -/
 private def ctorName : Error → String
@@ -169,7 +169,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
 
   mockServer.send (rawResp "200 OK" #[("Content-Length", "5"), ("X-Trace", "abc")] "world")
 
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
   match response.line.headers.get? (.mk "x-trace") with
   | none => throw <| IO.userError "response header X-Trace was not delivered"
@@ -190,7 +190,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   mockServer.send (rawResp "200 OK" #[("Transfer-Encoding", "chunked")] "")
   mockServer.send (Test.chunk "abc" ++ Test.chunk "def" ++ Test.chunkEnd).toUTF8
 
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   let body : String ← response.body.readAll
   unless body == "abcdef" do
     throw <| IO.userError s!"expected body \"abcdef\", got {body.quote}"
@@ -203,7 +203,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "hi")
 
-  let (response, completion) ← expectResponse promise
+  let ⟨response, completion⟩ ← expectResponse promise
   let _ : String ← response.body.readAll
   expectCompleted completion "plain exchange"
 
@@ -218,7 +218,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   unless head1.startsWith "GET /one " do
     throw <| IO.userError s!"unexpected first request:\n{head1.quote}"
   mockServer.send (rawResp "200 OK" #[("Content-Length", "3")] "one")
-  let (resp1, _) ← expectResponse first
+  let ⟨resp1, _⟩ ← expectResponse first
   assertStatusIs resp1 200
   let body1 : String ← resp1.body.readAll
   unless body1 == "one" do
@@ -229,7 +229,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   unless head2.startsWith "GET /two " do
     throw <| IO.userError s!"second request did not reuse the connection:\n{head2.quote}"
   mockServer.send (rawResp "200 OK" #[("Content-Length", "3")] "two")
-  let (resp2, _) ← expectResponse second
+  let ⟨resp2, _⟩ ← expectResponse second
   assertStatusIs resp2 200
   let body2 : String ← resp2.body.readAll
   unless body2 == "two" do
@@ -272,7 +272,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
     { requestTimeout := some longTimeout }
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Content-Length", "3")] "one")
-  let (resp1, _) ← expectResponse first
+  let ⟨resp1, _⟩ ← expectResponse first
   let _ : String ← resp1.body.readAll
 
   -- No override this time: the connection's own 200ms timeout must apply again.
@@ -303,7 +303,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let first ← sendInBackground connection (← mkRequest .get "/one")
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Content-Length", "3")] "one")
-  let (resp1, _) ← expectResponse first
+  let ⟨resp1, _⟩ ← expectResponse first
   let _ : String ← resp1.body.readAll
 
   let second ← sendInBackground connection (← mkRequest .get "/two")
@@ -361,7 +361,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   discard <| readUntil mockServer "payload-body" head
 
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
 
 -- With no known body size the writer only flushes the head once body bytes (or producer EOF) are
@@ -385,7 +385,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   discard <| readUntil mockServer "payload-body" head
 
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
 
 -- A rejected expectation leaves the writer parked on a body that must never be sent. The machine
@@ -403,7 +403,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   discard <| readHead mockServer
   mockServer.send (rawResp "417 Expectation Failed" #[("Content-Length", "0")] "")
 
-  let (response, completion) ← expectResponse promise
+  let ⟨response, completion⟩ ← expectResponse promise
   assertStatusIs response 417
   let _ : String ← response.body.readAll
   expectCompleted completion "417 rejection"
@@ -422,7 +422,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
 
   discard <| readHead mockServer
   mockServer.send (rawResp "417 Expectation Failed" #[("Content-Length", "0")] "")
-  let (resp1, _) ← expectResponse first
+  let ⟨resp1, _⟩ ← expectResponse first
   assertStatusIs resp1 417
   let _ : String ← resp1.body.readAll
   expectRetiredWithin connection 1000 "417 with an unsent Content-Length body"
@@ -452,7 +452,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   mockServer.send ("HTTP/1.1 103 Early Hints\r\nLink: </s.css>; rel=preload\r\n\r\n".toUTF8
     ++ rawResp "200 OK" #[("Content-Length", "5")] "world")
 
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
   let body : String ← response.body.readAll
   unless body == "world" do
@@ -471,7 +471,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Content-Length", "6"), ("Connection", "close")] "billed")
 
-  let (response, completion) ← expectResponse promise
+  let ⟨response, completion⟩ ← expectResponse promise
   assertStatusIs response 200
   assertBodyIs response "billed"
   expectCompleted completion "Connection: close"
@@ -488,7 +488,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   sleep 50
 
   mockServer.send (rawResp "200 OK" #[("Connection", "close"), ("Content-Length", "3")] "one")
-  let (resp, _) ← expectResponse first
+  let ⟨resp, _⟩ ← expectResponse first
   let _ : String ← resp.body.readAll
 
   expectRetryable (← expectError second) "request queued behind Connection: close"
@@ -503,7 +503,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Content-Length", "5")] "world")
 
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   match ← response.body.getKnownSize with
   | some (.fixed 5) => pure ()
   | other => throw <| IO.userError s!"expected some (.fixed 5), got {repr other}"
@@ -518,7 +518,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[] "streamed")
 
-  let (response, completion) ← expectResponse promise
+  let ⟨response, completion⟩ ← expectResponse promise
   match ← response.body.getKnownSize with
   | none => pure ()
   | other => throw <| IO.userError s!"expected none for an EOF-framed body, got {repr other}"
@@ -535,7 +535,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Transfer-Encoding", "chunked")] "")
 
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   match ← response.body.getKnownSize with
   | some .chunked => pure ()
   | other => throw <| IO.userError s!"expected some .chunked, got {repr other}"
@@ -578,7 +578,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
 
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Content-Length", "10")] "abcd")
-  let (response, completion) ← expectResponse promise
+  let ⟨response, completion⟩ ← expectResponse promise
   assertStatusIs response 200
   mockServer.close
 
@@ -592,7 +592,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
 
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Transfer-Encoding", "chunked")] "")
-  let (response, completion) ← expectResponse promise
+  let ⟨response, completion⟩ ← expectResponse promise
   mockServer.send (Test.chunk "abc").toUTF8
   mockServer.send "zzzz\r\n".toUTF8
 
@@ -659,7 +659,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
 
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Content-Length", "10")] "ab")
-  let (response, completion) ← expectResponse promise
+  let ⟨response, completion⟩ ← expectResponse promise
 
   let readPromise ← IO.Promise.new
   background do
@@ -785,7 +785,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
         throw <| IO.userError s!"request /{path} was sent twice"
       served := served.push path
       mockServer.send (rawResp "200 OK" #[("Content-Length", toString path.length)] path)
-      let (resp, _) ← expectResponse (if path == "alpha" then pa else pb)
+      let ⟨resp, _⟩ ← expectResponse (if path == "alpha" then pa else pb)
       let body : String ← resp.body.readAll
       unless body == path do
         throw <| IO.userError s!"caller for /{path} received body {body.quote}"
@@ -824,7 +824,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let first ← sendInBackground connection (← mkRequest .head "/head")
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Content-Length", "12")] "")
-  let (resp1, _) ← expectResponse first
+  let ⟨resp1, _⟩ ← expectResponse first
   assertStatusIs resp1 200
   assertBodyIs resp1 ""
 
@@ -833,7 +833,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   unless head2.startsWith "GET /after " do
     throw <| IO.userError s!"the connection was not reusable after a HEAD:\n{head2.quote}"
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
-  let (resp2, _) ← expectResponse second
+  let ⟨resp2, _⟩ ← expectResponse second
   assertBodyIs resp2 "ok"
 
 #eval show IO _ from runWithTimeout "a HEAD response framed as chunked has no body" 4000 <| Async.block do
@@ -842,7 +842,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let promise ← sendInBackground connection (← mkRequest .head "/head-chunked")
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Transfer-Encoding", "chunked")] "")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertBodyIs response ""
 
 #eval show IO _ from runWithTimeout "204 No Content has no body and the connection is reused" 5000 <| Async.block do
@@ -851,14 +851,14 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let first ← sendInBackground connection (← mkRequest .delete "/gone")
   discard <| readHead mockServer
   mockServer.send (rawResp "204 No Content" #[] "")
-  let (resp1, _) ← expectResponse first
+  let ⟨resp1, _⟩ ← expectResponse first
   assertStatusIs resp1 204
   assertBodyIs resp1 ""
 
   let second ← sendInBackground connection (← mkRequest .get "/after")
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
-  let (resp2, _) ← expectResponse second
+  let ⟨resp2, _⟩ ← expectResponse second
   assertBodyIs resp2 "ok"
 
 /-! ### Response parsing -/
@@ -869,7 +869,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let promise ← sendInBackground connection (← mkRequest .get "/noreason")
   discard <| readHead mockServer
   mockServer.send "HTTP/1.1 200 \r\nContent-Length: 2\r\n\r\nhi".toUTF8
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
   assertBodyIs response "hi"
 
@@ -879,7 +879,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let promise ← sendInBackground connection (← mkRequest .get "/weird")
   discard <| readHead mockServer
   mockServer.send (rawResp "599 Whatever" #[("Content-Length", "2")] "hi")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 599
   assertBodyIs response "hi"
 
@@ -892,7 +892,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK"
     #[("Set-Cookie", "a=1"), ("Set-Cookie", "b=2"), ("Content-Length", "0")] "")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   match response.line.headers.getAll? (.mk "set-cookie") with
   | some values =>
     unless values.size == 2 do
@@ -908,7 +908,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let raw := rawResp "200 OK" #[("Content-Length", "5")] "hello"
   for i in [0:raw.size] do
     mockServer.send (raw.extract i (i + 1))
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertBodyIs response "hello"
 
 -- RFC 9110 §15.2: a client must be able to skip a 1xx it never asked for.
@@ -919,7 +919,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   discard <| readHead mockServer
   mockServer.send "HTTP/1.1 100 Continue\r\n\r\n".toUTF8
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "hi")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
   assertBodyIs response "hi"
 
@@ -930,13 +930,13 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Transfer-Encoding", "chunked")] "")
   mockServer.send "3\r\nabc\r\n0\r\nX-Checksum: deadbeef\r\n\r\n".toUTF8
-  let (resp1, _) ← expectResponse first
+  let ⟨resp1, _⟩ ← expectResponse first
   assertBodyIs resp1 "abc"
 
   let second ← sendInBackground connection (← mkRequest .get "/after")
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
-  let (resp2, _) ← expectResponse second
+  let ⟨resp2, _⟩ ← expectResponse second
   assertBodyIs resp2 "ok"
 
 #eval show IO _ from runWithTimeout "a chunked body cut short by EOF fails the read" 5000 <| Async.block do
@@ -946,7 +946,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Transfer-Encoding", "chunked")] "")
   mockServer.send "3\r\nabc\r\n".toUTF8
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   mockServer.close
   expectBodyThrows response "chunked body cut short by EOF"
 
@@ -1012,7 +1012,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let first ← sendInBackground connection (← mkRequest .get "/one")
   discard <| readHead mockServer
   mockServer.send "HTTP/1.0 200 OK\r\nContent-Length: 3\r\nConnection: keep-alive\r\n\r\none".toUTF8
-  let (resp1, _) ← expectResponse first
+  let ⟨resp1, _⟩ ← expectResponse first
   assertBodyIs resp1 "one"
 
   let second ← sendInBackground connection (← mkRequest .get "/two")
@@ -1026,7 +1026,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let promise ← sendInBackground connection (← mkRequest .get "/one")
   discard <| readHead mockServer
   mockServer.send "HTTP/1.0 200 OK\r\nContent-Length: 3\r\n\r\none".toUTF8
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertBodyIs response "one"
   expectRetiredWithin connection 1000 "HTTP/1.0 without keep-alive"
 
@@ -1038,7 +1038,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   unless head.toLower.contains "connection: close" do
     throw <| IO.userError s!"keep-alive was disabled but the request did not say so:\n{head.quote}"
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertBodyIs response "ok"
   expectRetiredWithin connection 1000 "enableKeepAlive := false"
 
@@ -1049,7 +1049,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let first ← sendInBackground connection (← mkRequest .get "/one")
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Content-Length", "3")] "one")
-  let (resp1, _) ← expectResponse first
+  let ⟨resp1, _⟩ ← expectResponse first
   assertBodyIs resp1 "one"
 
   let second ← sendInBackground connection (← mkRequest .get "/two")
@@ -1070,7 +1070,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
     let first ← sendInBackground connection (← mkRequest .get "/unread")
     discard <| readHead mockServer
     mockServer.send (rawResp "200 OK" #[("Content-Length", "5")] "hello")
-    let (resp1, _) ← expectResponse first
+    let ⟨resp1, _⟩ ← expectResponse first
     assertStatusIs resp1 200
 
     -- That window is a handful of instructions wide, so shift where `close` falls relative to the
@@ -1084,7 +1084,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
     unless head2.startsWith "GET /after " do
       throw <| IO.userError s!"the connection was not reusable after an unread body:\n{head2.quote}"
     mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
-    let (resp2, _) ← expectResponse second
+    let ⟨resp2, _⟩ ← expectResponse second
     assertBodyIs resp2 "ok"
     connection.close
 
@@ -1095,13 +1095,13 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Content-Length", "3")] "one")
   mockServer.send "GARBAGE\r\n".toUTF8
-  let (resp1, _) ← expectResponse first
+  let ⟨resp1, _⟩ ← expectResponse first
   assertBodyIs resp1 "one"
 
   let second ← sendInBackground connection (← mkRequest .get "/two")
   match ← await second.result! with
   | .error _ => pure ()
-  | .ok (resp, _) =>
+  | .ok ⟨resp, _⟩ =>
     throw <| IO.userError s!"junk between responses surfaced as a response: {resp.line.status.toCode}"
 
 /-! ### Request framing -/
@@ -1130,7 +1130,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   unless head.toLower.contains "connection: close" do
     throw <| IO.userError s!"the request did not carry Connection: close:\n{head.quote}"
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertBodyIs response "ok"
 
 /-! ### Timeout scoping -/
@@ -1142,7 +1142,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let promise ← sendInBackground connection (← mkRequest .get "/stall")
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Content-Length", "10")] "abcd")
-  let (response, completion) ← expectResponse promise
+  let ⟨response, completion⟩ ← expectResponse promise
   expectBodyThrows response "stalled response body"
   expectCompletionFailed completion "stalled response body"
 
@@ -1153,7 +1153,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let promise ← sendInBackground connection (← mkRequest .get "/slow")
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Content-Length", "5")] "")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   background do
     for c in ["a", "b", "c", "d", "e"] do
       sleep 150
@@ -1179,7 +1179,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let first ← sendInBackground connection (← mkRequest .get "/one")
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Content-Length", "3")] "one")
-  let (resp1, _) ← expectResponse first
+  let ⟨resp1, _⟩ ← expectResponse first
   assertBodyIs resp1 "one"
 
   let second ← sendInBackground connection (← mkRequest .get "/two")
@@ -1187,7 +1187,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   discard <| readHead mockServer
   sleep 1200
   mockServer.send (rawResp "200 OK" #[("Content-Length", "3")] "two")
-  let (resp2, _) ← expectResponse second
+  let ⟨resp2, _⟩ ← expectResponse second
   assertBodyIs resp2 "two"
 
 /-! ### Response body limits -/
@@ -1198,7 +1198,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let promise ← sendInBackground connection (← mkRequest .get "/exact")
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Content-Length", "5")] "hello")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertBodyIs response "hello"
 
 #eval show IO _ from runWithTimeout "the body limit is reported on the completion promise" 4000 <| Async.block do
@@ -1207,7 +1207,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let promise ← sendInBackground connection (← mkRequest .get "/big")
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Content-Length", "20")] "aaaaaaaaaaaaaaaaaaaa")
-  let (response, completion) ← expectResponse promise
+  let ⟨response, completion⟩ ← expectResponse promise
   expectBodyThrows response "oversized body"
   match ← await completion.result! with
   | .error .bodyLimitExceeded => pure ()
@@ -1223,7 +1223,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
     let promise ← sendInBackground connection (← mkRequest .get s!"/r{i}")
     discard <| readHead mockServer
     mockServer.send (rawResp "200 OK" #[("Content-Length", "5")] "hello")
-    let (response, _) ← expectResponse promise
+    let ⟨response, _⟩ ← expectResponse promise
     assertBodyIs response "hello"
 
 -- Closing the response stream routes the rest of the body through the connection's internal drain
@@ -1236,7 +1236,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let promise ← sendInBackground connection (← mkRequest .get "/abandoned")
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Content-Length", "20")] "aaaaaaaaaaaaaaaaaaaa")
-  let (response, completion) ← expectResponse promise
+  let ⟨response, completion⟩ ← expectResponse promise
 
   -- The caller reads nothing and walks away.
   Body.close response.body
@@ -1253,7 +1253,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   discard <| readHead mockServer
   mockServer.send (rawResp "200 OK" #[("Transfer-Encoding", "chunked")] "")
   mockServer.send (Test.chunk "abc" ++ Test.chunk "def" ++ Test.chunkEnd).toUTF8
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   expectBodyThrows response "chunked body over the limit"
 
 /-! ### Exchanges that would otherwise stall -/
@@ -1272,7 +1272,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let head ← readHead mockServer
   discard <| readUntil mockServer "payload-body" head
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
 
 -- Same fallback with a producer-driven body: the head is flushed up front (chunked framing), the
@@ -1303,7 +1303,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
 
   discard <| readUntil mockServer "payload-body" head
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
 
 -- The fallback must stand down once the interim response arrives: a timer that still fires would
@@ -1321,7 +1321,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   -- Sit well past the fallback deadline before finishing the exchange.
   sleep 500
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
 
   connection.close
@@ -1346,7 +1346,7 @@ private def settledWithin {α : Type} (task : Task α) (ms : Nat) : Async Bool :
   let seen ← readUntil mockServer "first-part"
 
   mockServer.send (rawResp "413 Content Too Large" #[("Content-Length", "0"), ("Connection", "close")] "")
-  let (response, completion) ← expectResponse promise
+  let ⟨response, completion⟩ ← expectResponse promise
   assertStatusIs response 413
   assertBodyIs response ""
 
@@ -1417,7 +1417,7 @@ private def challenge401 : ByteArray :=
     throw <| IO.userError s!"unexpected request line:\n{head.quote}"
 
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "hi")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
 
 -- The mirror image: a direct connection re-addresses an absolute-form target, which is what a
@@ -1434,7 +1434,7 @@ private def challenge401 : ByteArray :=
     throw <| IO.userError s!"unexpected request line:\n{head.quote}"
 
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "hi")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
 
 -- RFC 9112 §3.2 requires the field on every HTTP/1.1 request, and the origin is the connection's
@@ -1448,7 +1448,7 @@ private def challenge401 : ByteArray :=
   assertContains "a bare request" head.toLower "host: example.com:8080"
 
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "hi")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
 
 #eval show IO _ from runWithTimeout "a caller's own Host header is left alone" 4000 <| Async.block do
@@ -1463,7 +1463,7 @@ private def challenge401 : ByteArray :=
   assertLacks "an explicit Host" head.toLower "host: example.com"
 
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "hi")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
 
 -- RFC 6265 §5.4: the cookies of a request travel in a single `Cookie` field, whether they came
@@ -1489,7 +1489,7 @@ private def challenge401 : ByteArray :=
 
   mockServer.send (rawResp "200 OK"
     #[("Set-Cookie", "a=1"), ("Set-Cookie", "b=2"), ("Content-Length", "2")] "hi")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
   let _ : String ← response.body.readAll
 
@@ -1515,7 +1515,7 @@ private def challenge401 : ByteArray :=
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
 
   -- Only the answered response reaches the caller; the challenge was the client's to handle.
-  let (response, completion) ← expectResponse promise
+  let ⟨response, completion⟩ ← expectResponse promise
   assertStatusIs response 200
   assertBodyIs response "ok"
   expectCompleted completion "authenticated retry"
@@ -1536,7 +1536,7 @@ private def challenge401 : ByteArray :=
   assertLacks "the retry" second.toLower "\r\nauthorization:"
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
 
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
 
 -- What the authenticator is told decides what it can answer with, so the challenge itself is
@@ -1557,7 +1557,7 @@ private def challenge401 : ByteArray :=
     #[("WWW-Authenticate", "Basic realm=\"x\""), ("WWW-Authenticate", "Bearer"),
       ("Content-Length", "4")] "deny")
 
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 401
 
   let some challenge ← seen.get
@@ -1582,7 +1582,7 @@ private def challenge401 : ByteArray :=
   discard <| readHead mockServer
   mockServer.send challenge401
 
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 401
   assertBodyIs response "deny"
 
@@ -1594,7 +1594,7 @@ private def challenge401 : ByteArray :=
   discard <| readHead mockServer
   mockServer.send challenge401
 
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 401
   assertBodyIs response "deny"
 
@@ -1611,7 +1611,7 @@ private def challenge401 : ByteArray :=
   discard <| readRequest mockServer "payload"
   mockServer.send challenge401
 
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 401
   assertBodyIs response "deny"
 
@@ -1627,7 +1627,7 @@ private def challenge401 : ByteArray :=
     #[("WWW-Authenticate", "Basic realm=\"x\""), ("Content-Length", "4"), ("Connection", "close")]
     "deny")
 
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 401
   assertBodyIs response "deny"
 
@@ -1656,7 +1656,7 @@ private def challenge401 : ByteArray :=
   assertContains "the retry" second.toLower "authorization:"
   mockServer.send (rawResp "200 OK" #[("Set-Cookie", "done=1"), ("Content-Length", "2")] "ok")
 
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
 
   -- The answered response is stored like any other, so the jar ends up holding both.
@@ -1677,7 +1677,7 @@ private def challenge401 : ByteArray :=
   assertContains "a proxied request" head.toLower "host: example.com:8080"
 
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "hi")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
 
 -- RFC 9112 §3.2.4: `OPTIONS *` asks about the server itself, so there is no target to re-address
@@ -1694,7 +1694,7 @@ private def challenge401 : ByteArray :=
     throw <| IO.userError s!"unexpected request line:\n{head.quote}"
 
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "hi")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
 
 #eval show IO _ from runWithTimeout "a handler with no cookies adds no Cookie header" 4000 <| Async.block do
@@ -1707,7 +1707,7 @@ private def challenge401 : ByteArray :=
   assertLacks "the request" head.toLower "cookie:"
 
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "hi")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
 
 -- The handler is consulted per request rather than per connection: a cookie set partway through a
@@ -1727,13 +1727,13 @@ private def challenge401 : ByteArray :=
   let first ← sendInBackground connection (← mkRequest .get "/one")
   assertContains "the first request" (← readHead mockServer).toLower "cookie: n=1"
   mockServer.send (rawResp "200 OK" #[("Content-Length", "3")] "one")
-  let (resp1, _) ← expectResponse first
+  let ⟨resp1, _⟩ ← expectResponse first
   let _ : String ← resp1.body.readAll
 
   let second ← sendInBackground connection (← mkRequest .get "/two")
   assertContains "the second request" (← readHead mockServer).toLower "cookie: n=2"
   mockServer.send (rawResp "200 OK" #[("Content-Length", "3")] "two")
-  let (resp2, _) ← expectResponse second
+  let ⟨resp2, _⟩ ← expectResponse second
   let _ : String ← resp2.body.readAll
 
   unless (← stores.get) == 2 do
@@ -1755,7 +1755,7 @@ private def challenge401 : ByteArray :=
   discard <| readHead mockServer
   mockServer.send (rawResp "403 Forbidden" #[("Content-Length", "6")] "denied")
 
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 403
   assertBodyIs response "denied"
 
@@ -1782,7 +1782,7 @@ private def challenge401 : ByteArray :=
   assertLacks "the retry" second "Basic stale"
 
   mockServer.send (rawResp "200 OK" #[("Content-Length", "2")] "ok")
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 200
 
 -- One retry, not a loop: credentials the server rejects a second time are the server's answer, and
@@ -1799,7 +1799,7 @@ private def challenge401 : ByteArray :=
   assertContains "the retry" second.toLower "authorization:"
   mockServer.send challenge401
 
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 401
   assertBodyIs response "deny"
 
@@ -1814,7 +1814,7 @@ private def challenge401 : ByteArray :=
   mockServer.send (rawResp "401 Unauthorized" #[("WWW-Authenticate", "Basic realm=\"x\"")] "deny")
   mockServer.getSendChan.close
 
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 401
   assertBodyIs response "deny"
 
@@ -1828,7 +1828,7 @@ private def challenge401 : ByteArray :=
   discard <| readHead mockServer
   mockServer.send challenge401
 
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 401
   assertBodyIs response "deny"
 
@@ -1848,7 +1848,7 @@ private def challenge401 : ByteArray :=
     mockServer.send challenge401
     mockServer.getSendChan.close
 
-    let (response, _) ← expectResponse promise
+    let ⟨response, _⟩ ← expectResponse promise
     assertStatusIs response 401
     assertBodyIs response "deny"
 
@@ -1867,7 +1867,7 @@ private def challenge401 : ByteArray :=
   assertContains "the retry" retry.toLower "authorization:"
   mockServer.getSendChan.close
 
-  let (response, _) ← expectResponse promise
+  let ⟨response, _⟩ ← expectResponse promise
   assertStatusIs response 401
   assertBodyIs response "deny"
 

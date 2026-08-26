@@ -3,6 +3,12 @@ source ../common.sh
 
 ./clean.sh
 
+# `lake samply` can bail out partway -- most often because the runner does not
+# allow profiling -- and this test then skips early, so the cleanup at the
+# bottom is not reached on every path. Clean up on exit instead, otherwise a
+# skipped run leaves raw.json.gz in the source tree.
+trap 'rm -f produced.out ./*.json.gz' EXIT
+
 # Skip if samply is not installed
 if ! command -v samply &>/dev/null; then
   echo "SKIP: samply not found"
@@ -54,5 +60,3 @@ print(f'demangled profile: {len(d[\"threads\"])} threads, {total_strings} string
 assert total_strings > 0, 'expected non-empty stringArray in profile threads'
 "
 
-# Cleanup
-rm -f produced.out raw.json.gz demangled.json.gz

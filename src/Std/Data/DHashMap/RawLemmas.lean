@@ -5232,6 +5232,13 @@ theorem equiv_empty_iff_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m ~m ∅ ↔ m.isEmpty :=
   equiv_emptyWithCapacity_iff_isEmpty h
 
+theorem inter_equiv_empty_comm [EquivBEq α] [LawfulHashable α]
+    {m₁ m₂ : DHashMap.Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁ ∩ m₂) ~m ∅ ↔ (m₂ ∩ m₁) ~m ∅ := by
+  rw [equiv_empty_iff_isEmpty (h₁.inter h₂), equiv_empty_iff_isEmpty (h₂.inter h₁),
+    ← Bool.eq_iff_iff]
+  exact isEmpty_inter_comm h₁ h₂
+
 theorem emptyWithCapacity_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} (h : m.WF) :
     emptyWithCapacity c ~m m ↔ m.isEmpty :=
   Equiv.comm.trans (equiv_emptyWithCapacity_iff_isEmpty h)

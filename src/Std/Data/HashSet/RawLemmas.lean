@@ -1540,6 +1540,13 @@ theorem equiv_empty_iff_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m ~m ∅ ↔ m.isEmpty :=
   equiv_emptyWithCapacity_iff_isEmpty h
 
+theorem inter_equiv_empty_comm [EquivBEq α] [LawfulHashable α]
+    {m₁ m₂ : HashSet.Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁ ∩ m₂) ~m ∅ ↔ (m₂ ∩ m₁) ~m ∅ := by
+  rw [equiv_empty_iff_isEmpty (h₁.inter h₂), equiv_empty_iff_isEmpty (h₂.inter h₁),
+    ← Bool.eq_iff_iff]
+  exact isEmpty_inter_comm h₁ h₂
+
 theorem equiv_iff_toList_perm {m₁ m₂ : Raw α} [EquivBEq α] [LawfulHashable α] :
     m₁ ~m m₂ ↔ m₁.toList.Perm m₂.toList :=
   ⟨Equiv.toList_perm, Equiv.of_toList_perm⟩

@@ -90,7 +90,7 @@ public def Package.test
   (pkg : Package) (args : List String := []) (buildConfig : BuildConfig := {})
 : LakeT IO UInt32 := do
   let cfgArgs := pkg.testDriverArgs
-  let pkgName := pkg.name.toString (escape := false)
+  let pkgName := pkg.prettyName
 
   -- Collect all drivers to run
   let mut allDrivers : Array String := #[]

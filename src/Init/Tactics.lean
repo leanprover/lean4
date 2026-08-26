@@ -636,9 +636,42 @@ macro (name := rwSeq) "rw " c:optConfig s:rwRuleSeq l:(location)? : tactic =>
     `(tactic| (rewrite $c [$rs,*] $(l)?; with_annotate_state $rbrak (try (with_reducible rfl))))
   | _ => Macro.throwUnsupported
 
-/-- `rwa` is short-hand for `rw; assumption`. -/
-macro "rwa " rws:rwRuleSeq loc:(location)? : tactic =>
-  `(tactic| (rw $rws:rwRuleSeq $[$loc:location]?; assumption))
+/--
+`rwa [rules]` rewrites the target of the first goal using `rules`, then tries to close that goal
+using `assumption`. `rwa [rules] at h` instead rewrites the type of `h` and tries to close the main
+goal using `h`.
+
+As with `rw`, `rwa` first tries to close rewritten goals using reducible reflexivity. If this already
+closes the main goal, `rwa` emits a warning suggesting `rw`. It tries to close side goals generated
+by rewriting using `assumption`, leaving any that cannot be closed. Goals other than the initial
+first goal are not affected.
+-/
+macro (name := rwa) tk:"rwa " rws:rwRuleSeq : tactic => do
+  if ← Macro.hasDecl `Lean.Elab.Tactic.evalRwa then
+    Macro.throwUnsupported
+  let _ := tk
+  `(tactic|
+    focus (
+      rewrite $rws:rwRuleSeq
+      focus (first
+        | with_reducible rfl
+        | assumption)
+      all_goals (first | with_reducible rfl | assumption | skip)))
+
+@[inherit_doc rwa, tactic_alt rwa]
+macro (name := rwaAt) tk:"rwa " rws:rwRuleSeq " at " h:term:max : tactic => do
+  if ← Macro.hasDecl `Lean.Elab.Tactic.evalRwaAt then
+    Macro.throwUnsupported
+  let _ := tk
+  let hyp ← `(locationHyp| $h:term)
+  let loc ← `(location| at $hyp:locationHyp)
+  `(tactic|
+    focus (
+      rewrite $rws:rwRuleSeq $loc:location
+      focus (first
+        | with_reducible rfl
+        | exact $h)
+      all_goals (first | with_reducible rfl | assumption | skip)))
 
 /--
 The `injection` tactic is based on the fact that constructors of inductive data

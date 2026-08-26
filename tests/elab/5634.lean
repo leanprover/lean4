@@ -105,7 +105,22 @@ Regression test: unnecessary `simpa`
 def foo (n : α) := [n]
 
 /--
-warning: Try `simp at h` instead of `simpa using h`
+warning: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+-/
+#guard_msgs in
+example : True := by
+  simpa
+
+/--
+warning: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp [foo] at h
 
 Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
 -/

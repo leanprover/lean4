@@ -33,10 +33,11 @@ resting on it is proved here instead: `natDiv_small_big` is one, and the arms of
 `natBle` and `natBeq` that answer without computing are others.
 
 Each definition quotes the C++ it stands for, so the two can be read side by side without opening
-the source. Deviations are marked `NOTE:`. Every `for` loop is an `Id.run do` loop with `let mut`,
-paired with a bridge lemma reducing it to the fold or map its proof reads, so what the proofs work
-on and what the C++ writes are separate. What still deviates is that a `while` or a `goto` whose
-bound is an argument about the values becomes a structural or well-founded recursion.
+the source. Deviations are marked `NOTE:`. A loop that runs over a range is an `Id.run do` loop
+with `let mut`, paired with a bridge lemma reducing it to the fold or map its proof reads, so what
+the proofs work on and what the C++ writes stay separate. A loop that instead stops on a condition
+about the digits - `trim`, `leadingZerosGo`, `recheck` - is a recursion with `termination_by`,
+which is what carries the argument that it stops at all.
 
 A transliteration is only worth as much as its fidelity to the original, and nothing here checks
 that mechanically: it rests on reading the two side by side, which is what the quoted C++ is for.

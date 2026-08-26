@@ -14,7 +14,7 @@ import Lean.Meta.WHNF
 import Lean.Meta.AppBuilder
 import Init.Sym.Lemmas
 namespace Lean.Meta.Sym.Simp
-open Internal
+open Lean.Meta.Sym.Internal
 
 /--
 Simplifies a non-dependent `if-then-else` expression.
@@ -23,7 +23,7 @@ def simpIte : Simproc := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 5 then return .rfl (done := true)
   propagateOverApplied e (numArgs - 5) fun e => do
-    let_expr f@ite α c _ a b := e | return .rfl
+    let_expr f@ite α c inst a b := e | return .rfl
     -- **cd propagation**: `cd` from `simp c` is propagated to ALL branches.
     -- When `cd = true`, `simp c` might produce a different result in another context
     -- (e.g., a conditional rewrite could change `c`). This means the entire `ite`
@@ -32,16 +32,16 @@ def simpIte : Simproc := fun e => do
     match (← simp c) with
     | .rfl _ cd =>
       if (← isTrueExpr c) then
-        return .step a (mkApp3 (mkConst ``ite_true f.constLevels!) α a b) (contextDependent := cd)
+        return .step a (mkApp4 (mkConst ``ite_true f.constLevels!) α inst a b) (contextDependent := cd)
       else if (← isFalseExpr  c) then
-        return .step b (mkApp3 (mkConst ``ite_false f.constLevels!) α a b) (contextDependent := cd)
+        return .step b (mkApp4 (mkConst ``ite_false f.constLevels!) α inst a b) (contextDependent := cd)
       else
         return mkRflResult (done := true) (contextDependent := cd)
     | .step c' h _ cd =>
       if (← isTrueExpr c') then
-        return .step a (mkApp (e.replaceFn ``ite_cond_eq_true) h) (contextDependent := cd)
+        return .step a (mkApp (e.replaceFn ``ite_eq_left_of_eq_true) h) (contextDependent := cd)
       else if (← isFalseExpr c') then
-        return .step b (mkApp (e.replaceFn ``ite_cond_eq_false) h) (contextDependent := cd)
+        return .step b (mkApp (e.replaceFn ``ite_eq_right_of_eq_false) h) (contextDependent := cd)
       else
         let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) c') | return .rfl
         let inst' ← shareCommon inst'
@@ -57,27 +57,27 @@ def simpDIte : Simproc := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 5 then return .rfl (done := true)
   propagateOverApplied e (numArgs - 5) fun e => do
-    let_expr f@dite α c _ a b := e | return .rfl
+    let_expr f@dite α c inst a b := e | return .rfl
     -- See `simpIte` for why `cd` is propagated to all branches.
     match (← simp c) with
     | .rfl _ cd =>
       if (← isTrueExpr c) then
         let a' ← share <| a.betaRev #[mkConst ``True.intro]
-        return .step a' (mkApp3 (mkConst ``dite_true f.constLevels!) α a b) (contextDependent := cd)
+        return .step a' (mkApp4 (mkConst ``dite_true f.constLevels!) α inst a b) (contextDependent := cd)
       else if (← isFalseExpr c) then
         let b' ← share <| b.betaRev #[mkConst ``not_false]
-        return .step b' (mkApp3 (mkConst ``dite_false f.constLevels!) α a b) (contextDependent := cd)
+        return .step b' (mkApp4 (mkConst ``dite_false f.constLevels!) α inst a b) (contextDependent := cd)
       else
         return mkRflResult (done := true) (contextDependent := cd)
     | .step c' h _ cd =>
       if (← isTrueExpr c') then
         let h' ← shareCommon <| mkOfEqTrueCore c h
         let a ← share <| a.betaRev #[h']
-        return .step a (mkApp (e.replaceFn ``dite_cond_eq_true) h) (contextDependent := cd)
+        return .step a (mkApp (e.replaceFn ``dite_eq_left_of_eq_true) h) (contextDependent := cd)
       else if (← isFalseExpr c') then
         let h' ← shareCommon <| mkOfEqFalseCore c h
         let b ← share <| b.betaRev #[h']
-        return .step b (mkApp (e.replaceFn ``dite_cond_eq_false) h) (contextDependent := cd)
+        return .step b (mkApp (e.replaceFn ``dite_eq_right_of_eq_false) h) (contextDependent := cd)
       else
         let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) c') | return .rfl
         let inst' ← shareCommon inst'

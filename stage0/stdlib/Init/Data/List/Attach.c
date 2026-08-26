@@ -452,9 +452,9 @@ return v___x_139_;
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_filter_match__1_splitter___redArg___boxed(lean_object* v_x_140_, lean_object* v_h__1_141_, lean_object* v_h__2_142_){
 _start:
 {
-uint8_t v_x_26__boxed_143_; lean_object* v_res_144_; 
-v_x_26__boxed_143_ = lean_unbox(v_x_140_);
-v_res_144_ = l___private_Init_Data_List_Attach_0__List_filter_match__1_splitter___redArg(v_x_26__boxed_143_, v_h__1_141_, v_h__2_142_);
+uint8_t v_x_24__boxed_143_; lean_object* v_res_144_; 
+v_x_24__boxed_143_ = lean_unbox(v_x_140_);
+v_res_144_ = l___private_Init_Data_List_Attach_0__List_filter_match__1_splitter___redArg(v_x_24__boxed_143_, v_h__1_141_, v_h__2_142_);
 return v_res_144_;
 }
 }
@@ -482,9 +482,9 @@ return v___x_152_;
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_filter_match__1_splitter___boxed(lean_object* v_motive_153_, lean_object* v_x_154_, lean_object* v_h__1_155_, lean_object* v_h__2_156_){
 _start:
 {
-uint8_t v_x_37__boxed_157_; lean_object* v_res_158_; 
-v_x_37__boxed_157_ = lean_unbox(v_x_154_);
-v_res_158_ = l___private_Init_Data_List_Attach_0__List_filter_match__1_splitter(v_motive_153_, v_x_37__boxed_157_, v_h__1_155_, v_h__2_156_);
+uint8_t v_x_35__boxed_157_; lean_object* v_res_158_; 
+v_x_35__boxed_157_ = lean_unbox(v_x_154_);
+v_res_158_ = l___private_Init_Data_List_Attach_0__List_filter_match__1_splitter(v_motive_153_, v_x_35__boxed_157_, v_h__1_155_, v_h__2_156_);
 return v_res_158_;
 }
 }
@@ -492,11 +492,13 @@ lean_object* runtime_initialize_Init_Data_List_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Count(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Subtype_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_List_Attach(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_List_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

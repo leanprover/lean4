@@ -62,6 +62,7 @@ public import Lean.Elab.MatchExpr
 public import Lean.Elab.Tactic.Doc
 public import Lean.Elab.Time
 public import Lean.Elab.RecommendedSpelling
+public import Lean.Elab.Recall
 public import Lean.Elab.InfoTrees
 public import Lean.Elab.ErrorExplanation
 public import Lean.Elab.DocString

@@ -54,59 +54,6 @@ export ELAN_TOOLCHAIN=
 
 echo "# TESTS"
 
-# Test `--repo` validation
-test_err "must contain exactly one '/'" cache get --repo='invalid'
-test_err 'invalid characters in repository name' cache get --repo='!/invalid'
-
-# Test `--mappings-only` validation
-test_err '`--mappings-only` is not supported' cache get --mappings-only bogus.jsonl
-with_cdn_endpoints  test_err '`--mappings-only` requires services' cache get --mappings-only
-
-# Test `--service` validation
-test_err 'service `bogus` not found in system configuration' \
-  cache get --service='bogus'
-test_err 'service `bogus` not found in system configuration'\
-  cache put bogus.jsonl --scope='bogus' --service='bogus'
-
-# Test `cache get` command errors for bad configurations
-test_err 'the `--platform` and `--toolchain` options do nothing' \
-  cache get bogus.jsonl --scope='bogus' --platform='bogus' --wfail
-test_err 'the `--platform` and `--toolchain` options do nothing' \
-  cache get bogus.jsonl --scope='bogus' --toolchain='bogus' --wfail
-test_err 'a custom endpoint must be set (not Reservoir)' cache get --scope='bogus'
-with_cdn_endpoints test_err 'the `--scope` or `--repo` option must be set' cache get
-LAKE_CACHE_ARTIFACT_ENDPOINT=bogus test_err 'both environment variables must be set' cache get
-LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'both environment variables must be set' cache get
-
-# Test `cache put` command errors for bad configurations
-with_upload_endpoints test_err 'the `--scope` or `--repo` option must be set' cache put bogus.jsonl
-test_err 'the `--service` option must be set' \
-  cache put bogus.jsonl --scope='bogus'
-LAKE_CACHE_KEY= test_err 'the `--service` option must be set' \
-  cache put bogus.jsonl --scope='bogus'
-LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
-  cache put bogus.jsonl --scope='bogus'
-LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
-  cache put bogus.jsonl --scope='bogus'
-
-# Test `cache put-staged` command errors for bad configurations
-with_upload_endpoints test_err 'the `--scope` or `--repo` option must be set' \
-  cache put-staged bogus
-test_err 'the `--service` option must be set' \
-  cache put-staged bogus --scope='bogus'
-LAKE_CACHE_KEY= test_err 'the `--service` option must be set' \
-  cache put-staged bogus --scope='bogus'
-LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
-  cache put-staged bogus --scope='bogus'
-LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'these environment variables must be set' \
-  cache put-staged bogus --scope='bogus'
-
-# Test `cache add` command errors for bad configurations
-test_err '`--scope` and `--repo` require `--service`' \
-  cache add bogus.jsonl --scope='bogus'
-test_err '`--scope` and `--repo` require `--service`' \
-  cache add bogus.jsonl --repo='leanprover/bogus'
-
 # Test revision failure (with Reservoir)
 REV=$(git rev-parse HEAD)
 test_err "revision not found" cache get --repo='leanprover/bogus' --rev='bogus'

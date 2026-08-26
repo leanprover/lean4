@@ -56,7 +56,7 @@ folder to gdb, or use `gdb $(elan which lean)`.
 
 It is also possible to generate releases that others can use,
 simply by pushing a tag to your fork of the Lean 4 github repository
-(and waiting about an hour; check the `Actions` tab for completion).
+(and waiting for some time; check the `Actions` tab for completion).
 If you push `my-tag` to a fork in your github account `my_name`,
 you can then put `my_name/lean4:my-tag` in your `lean-toolchain` file in a project using `lake`.
 (You must use a tag name that does not start with a numeral, or contain `_`).

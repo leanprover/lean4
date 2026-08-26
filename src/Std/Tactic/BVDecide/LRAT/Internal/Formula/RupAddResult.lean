@@ -7,12 +7,11 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.LRAT.Internal.Formula.Lemmas
-public import Init.GrindInstances.ToInt
 import Init.ByCases
 import Init.Data.Array.Bootstrap
 import Init.Data.Fin.Lemmas
 import Init.Data.Int.OfNat
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Nat.Simproc
 
 -- TODO: remove after stage0 update

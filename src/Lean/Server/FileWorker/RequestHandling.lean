@@ -20,6 +20,7 @@ public import Lean.Widget.Diff
 public section
 
 namespace Lean.Server.FileWorker
+open Lean
 open Lsp
 open RequestM
 open Snapshots

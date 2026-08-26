@@ -9,6 +9,7 @@ prelude
 import Std.Data.DTreeMap.Internal.Lemmas
 public import Std.Data.DTreeMap.AdditionalOperations
 public import Init.Data.Array.Perm
+public import Std.Internal.ForIn.Basic
 import Init.Data.List.Pairwise
 import Init.Data.Prod
 
@@ -1393,6 +1394,14 @@ theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m]
     {f : (a : α) × β a → δ → m (ForInStep δ)} {init : δ} :
     ForIn.forIn t init f = ForIn.forIn t.toList init f :=
   Impl.forIn_eq_forIn_toList (f := f)
+
+@[simp, grind =]
+theorem forIn_toList (c : DTreeMap α β cmp) : ForIn.toList c = c.toList :=
+  Std.Internal.ForIn.toList_eq_of_forIn_eq fun _ _ => forIn_eq_forIn_toList
+
+instance [Monad m] [LawfulMonad m] :
+    Std.Internal.PureForIn m (DTreeMap α β cmp) ((a : α) × β a) where
+  forIn_eq _ _ _ := by rw [forIn_toList]; exact forIn_eq_forIn_toList
 
 theorem forIn_eq_forIn_toArray [Monad m] [LawfulMonad m]
     {f : (a : α) × β a → δ → m (ForInStep δ)} {init : δ} :
@@ -6106,7 +6115,7 @@ end Equiv
 section Equiv
 
 /-- Implementation detail of the tree map -/
-@[implicit_reducible]
+@[instance_reducible]
 def isSetoid (α : Type u) (β : α → Type v) (cmp : α → α → Ordering := by exact compare) :
     Setoid (Std.DTreeMap α β cmp) where
   r := Equiv

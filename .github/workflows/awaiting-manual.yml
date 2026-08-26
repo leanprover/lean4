@@ -15,7 +15,7 @@ jobs:
       - name: Check awaiting-manual label
         id: check-awaiting-manual-label
         if: github.event_name == 'pull_request_target'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const { labels, number: prNumber } = context.payload.pull_request;
@@ -29,7 +29,7 @@ jobs:
               core.info('PR is marked "awaiting-manual" but neither "breaks-manual" nor "builds-manual" labels are present.');
               core.setOutput('awaiting', 'true');
             }
-      
+
       - name: Wait for manual compatibility
         if: github.event_name == 'pull_request_target' && steps.check-awaiting-manual-label.outputs.awaiting == 'true'
         run: |

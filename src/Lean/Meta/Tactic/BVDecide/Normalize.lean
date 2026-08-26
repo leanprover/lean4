@@ -6,7 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Elab.Tactic.FalseOrByContra
 public import Lean.Meta.Tactic.BVDecide.Normalize.Basic
 public import Lean.Meta.Tactic.BVDecide.Normalize.ApplyControlFlow
 public import Lean.Meta.Tactic.BVDecide.Normalize.Simproc
@@ -19,6 +18,12 @@ public import Lean.Meta.Tactic.BVDecide.Normalize.IntToBitVec
 public import Lean.Meta.Tactic.BVDecide.Normalize.Enums
 public import Lean.Meta.Tactic.BVDecide.Normalize.TypeAnalysis
 public import Lean.Meta.Tactic.BVDecide.Normalize.ShortCircuit
+public import Lean.Meta.Tactic.BVDecide.Normalize.Reduction
+public import Lean.Meta.Tactic.BVDecide.Normalize.CollectHyps
+import Lean.Meta.Sym.Util
+import Lean.Meta.Sym.Intro
+import Lean.Meta.Sym.Grind
+import Lean.Meta.Tactic.Grind.BVDecide.Types
 
 /-!
 This module contains the implementation of `bv_normalize`, the preprocessing tactic for `bv_decide`.
@@ -44,21 +49,36 @@ def passPipeline : PreProcessM (List Pass) := do
 
   return passPipeline
 
-public def bvNormalize (g : MVarId) (cfg : Elab.Tactic.BVDecide.BVDecideConfig) :
-    MetaM (Option MVarId) := do
-  withTraceNode `Meta.Tactic.bv (fun _ => return "Preprocessing goal") do
-    (go g).run cfg g
-where
-  go (g : MVarId) : PreProcessM (Option MVarId) := do
-    let some g' ← g.falseOrByContra | return none
-    let mut g := g'
+/--
+Runs `x` with the caches that a previous `bv_decide_push` left in the grind goal. In
+`bv_decide_push` mode the caches of this run are handed back to the goal afterwards, such that
+future invocations of the pre-processor on this goal can pick them up again.
+-/
+def withCaches (x : PreProcessM α) : PreProcessM α := do
+  if let some caches ← PreProcessM.withGrindGoal Grind.BVDecide.getCaches then
+    PreProcessM.setCaches caches
+  let res ← x
+  if ← PreProcessM.isPushMode then
+    discard <| PreProcessM.withGrindGoal <| Grind.BVDecide.setCaches (← PreProcessM.getCaches)
+  return res
 
-    trace[Meta.Tactic.bv] m!"Running preprocessing pipeline on:\n{g}"
+public def bvNormalize : PreProcessM Bool := do
+  withTraceNode `Meta.Tactic.bv (fun _ => return "Preprocessing goal") do
+    if ← PreProcessM.collectTargetHyps then return true
+    withCaches runPipeline
+where
+  /--
+  Runs all passes on the hypotheses collected from the target. Returns `true` if a pass closed the
+  goal.
+  -/
+  runPipeline : PreProcessM Bool := do
+    trace[Meta.Tactic.bv] m!"Running preprocessing pipeline"
     let cfg ← PreProcessM.getConfig
 
     if cfg.structures || cfg.enums then
-      let some g' ← typeAnalysisPass.run g | return none
-      g := g'
+      if ← typeAnalysisPass.run then return true
+
+    if ← reductionPass.run then return true
 
     /-
     There is a tension between the structures and enums pass at play:
@@ -77,28 +97,24 @@ where
        invocation that is going to happen in the enums pass anyway and should thus be cheap.
     -/
     if cfg.structures then
-      let some g' ← structuresPass.run g | return none
-      g := g'
+      if ← structuresPass.run then return true
 
     if cfg.enums then
-      let some g' ← enumsPass.run g | return none
-      g := g'
+      if ← enumsPass.run then return true
 
     if cfg.fixedInt then
-      let some g' ← intToBitVecPass.run g | return none
-      g := g'
+      if ← intToBitVecPass.run then return true
 
-    trace[Meta.Tactic.bv] m!"Running fixpoint pipeline on:\n{g}"
     let pipeline ← passPipeline
-    let some g' ← Pass.fixpointPipeline pipeline g | return none
+    if ← Pass.fixpointPipeline pipeline then return true
     /-
     Run short circuiting once post fixpoint, as it increases the size of terms with
     the aim of exposing potential short-circuit reasoning to the solver.
     -/
     if cfg.shortCircuit then
-      shortCircuitPass |>.run g'
-    else
-      return g'
+      if ← shortCircuitPass.run then return true
+
+    return false
 
 end Normalize
 end Lean.Meta.Tactic.BVDecide

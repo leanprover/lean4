@@ -17,11 +17,9 @@ public section
 /-!
 # Body.Full
 
-A body backed by a fixed `ByteArray` held in a `Mutex`.
-
-The byte array is consumed at most once: the first call to `recv` atomically takes the data
-and returns it as a single chunk; subsequent calls return `none` (end-of-stream).
-Closing the body discards any unconsumed data.
+A body backed by a fixed `ByteArray`. The first call to `recv` returns the full byte array
+as a single chunk; subsequent calls return `none` (end-of-stream). Closing the body marks it
+closed. `resetInPlace` resets state to `ready` so the body can be read again.
 -/
 
 namespace Std.Http.Body
@@ -29,76 +27,83 @@ open Std Async
 
 set_option linter.all true
 
-/--
-A body backed by a fixed, mutex-protected `ByteArray`.
+private inductive Full.State where
+  | ready
+  | sent
+  | closed
+deriving BEq, Nonempty
 
-The data is consumed on the first read. Once consumed (or explicitly closed), the body
-behaves as a closed, empty channel.
+/--
+A body backed by a fixed `ByteArray`.
+
+Unlike `Body.Stream`, a `Full` body is replayable: `resetInPlace` resets the state to
+`ready` so the same body can be read again.
 -/
 structure Full where
   private mk ::
-  private state : Mutex (Option ByteArray)
+  private data : ByteArray
+  private state : Mutex Full.State
 deriving Nonempty
 
 namespace Full
 
-private def takeChunk : AtomicT (Option ByteArray) Async (Option Chunk) := do
+private def takeChunk (full : Full) : AtomicT State Async (Option Chunk) := do
   match ← get with
-  | none =>
-    pure none
-  | some data =>
-    set (none : Option ByteArray)
-    if data.isEmpty then
+  | .closed => pure none
+  | .ready =>
+    set State.sent
+    if full.data.isEmpty then
       pure none
     else
-      pure (some (Chunk.ofByteArray data))
+      pure (some (Chunk.ofByteArray full.data))
+  | .sent => pure none
 
 /--
 Creates a `Full` body from a `ByteArray`.
 -/
 def ofByteArray (data : ByteArray) : Async Full := do
-  let state ← Mutex.new (some data)
-  return { state }
+  let state ← Mutex.new State.ready
+  return { data, state }
 
 /--
 Creates a `Full` body from a `String`.
 -/
 def ofString (data : String) : Async Full := do
-  let state ← Mutex.new (some data.toUTF8)
-  return { state }
+  let state ← Mutex.new State.ready
+  return { data := data.toUTF8, state }
 
 /--
 Receives the body data. Returns the full byte array on the first call as a single chunk,
-then `none` on all subsequent calls.
+then `none` on all subsequent calls until the cursor is reset.
 -/
 def recv (full : Full) : Async (Option Chunk) :=
   full.state.atomically do
-    takeChunk
+    takeChunk full
 
 /--
 Closes the body, discarding any unconsumed data.
 -/
 def close (full : Full) : Async Unit :=
   full.state.atomically do
-    set (none : Option ByteArray)
+    set State.closed
 
 /--
-Returns `true` when the data has been consumed or the body has been closed.
+Returns `true` when the body has been closed or consumed.
 -/
 def isClosed (full : Full) : Async Bool :=
   full.state.atomically do
-    return (← get).isNone
+    return (← get) != .ready
 
 /--
 Returns the known size of the remaining data.
-Returns `some (.fixed n)` with the current byte count, or `some (.fixed 0)` if the body has
-already been consumed or closed.
+Returns `some (.fixed n)` with the byte count if not yet consumed, `some (.fixed 0)` otherwise.
 -/
 def getKnownSize (full : Full) : Async (Option Body.Length) :=
   full.state.atomically do
     match ← get with
-    | none => pure (some (.fixed 0))
-    | some data => pure (some (.fixed data.size))
+    | .closed => pure (some (.fixed 0))
+    | .ready  => pure (some (.fixed full.data.size))
+    | .sent   => pure (some (.fixed 0))
 
 /--
 Non-blocking receive. `Full` bodies are always in-memory, so data is always
@@ -106,7 +111,7 @@ immediately available. Returns `some chunk` on first call, `some none` (EOF)
 once consumed or closed.
 -/
 def tryRecv (full : Full) : Async (Option (Option Chunk)) := do
-  return some (← full.state.atomically takeChunk)
+  return some (← full.state.atomically (takeChunk full))
 
 /--
 Selector that immediately resolves to the remaining chunk (or EOF).
@@ -114,7 +119,7 @@ Selector that immediately resolves to the remaining chunk (or EOF).
 def recvSelector (full : Full) : Selector (Option Chunk) where
   tryFn := do
     let chunk ← full.state.atomically do
-      takeChunk
+      takeChunk full
     pure (some chunk)
 
   registerFn waiter := do
@@ -122,12 +127,21 @@ def recvSelector (full : Full) : Selector (Option Chunk) where
       let lose := pure ()
 
       let win promise := do
-        let chunk ← takeChunk
+        let chunk ← takeChunk full
         promise.resolve (.ok chunk)
 
       waiter.race lose win
 
   unregisterFn := pure ()
+
+/--
+Resets the cursor to position zero so the body can be re-read from the start.
+Since `Full.data` is always preserved in the struct, this always works regardless of
+whether `close` was previously called (e.g. by the connection loop after EOF).
+-/
+def resetInPlace (full : Full) : Async Unit :=
+  full.state.atomically do
+    set Full.State.ready
 
 end Full
 
@@ -140,7 +154,14 @@ instance : Http.Body Full where
   getKnownSize := Full.getKnownSize
   setKnownSize _ _ := pure ()
 
-instance : Coe Full Any := ⟨Any.ofBody⟩
+/--
+`Full` is replayable: `resetInPlace` resets the cursor to zero so the body can be re-read
+from the start.
+-/
+instance : Replayable Full where
+  resetInPlace := Full.resetInPlace
+
+instance : Coe Full Any := ⟨Any.ofReplayableBody⟩
 
 instance : Coe (Response Full) (Response Any) where
   coe f := { f with }

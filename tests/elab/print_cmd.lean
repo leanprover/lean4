@@ -5,7 +5,7 @@ private def foo (x : Nat) : Nat := x + 1
 /-- info: hello -/
 #guard_msgs in #print "hello"
 /--
-info: def id.{u} : {α : Sort u} → α → α :=
+info: @[implicit_reducible] def id.{u} : {α : Sort u} → α → α :=
 fun {α} a => a
 -/
 #guard_msgs in #print id

@@ -691,7 +691,7 @@ lean_object* v___x_106_;
 v___x_106_ = l_Lean_Elab_elabSimprocPattern(v_stx_100_, v_a_101_, v_a_102_, v_a_103_, v_a_104_);
 if (lean_obj_tag(v___x_106_) == 0)
 {
-lean_object* v_a_107_; lean_object* v___x_108_; lean_object* v_config_109_; uint8_t v_trackZetaDelta_110_; lean_object* v_zetaDeltaSet_111_; lean_object* v_lctx_112_; lean_object* v_localInstances_113_; lean_object* v_defEqCtx_x3f_114_; lean_object* v_synthPendingDepth_115_; lean_object* v_canUnfold_x3f_116_; uint8_t v_univApprox_117_; uint8_t v_inTypeClassResolution_118_; uint8_t v_cacheInferType_119_; uint64_t v___x_120_; uint8_t v___x_121_; lean_object* v___x_122_; lean_object* v___x_123_; lean_object* v___x_124_; 
+lean_object* v_a_107_; lean_object* v___x_108_; lean_object* v_config_109_; uint8_t v_trackZetaDelta_110_; lean_object* v_zetaDeltaSet_111_; lean_object* v_lctx_112_; lean_object* v_localInstances_113_; lean_object* v_defEqCtx_x3f_114_; lean_object* v_synthPendingDepth_115_; lean_object* v_customCanUnfoldPredicate_x3f_116_; uint8_t v_univApprox_117_; uint8_t v_inTypeClassResolution_118_; uint8_t v_cacheInferType_119_; uint64_t v___x_120_; uint8_t v___x_121_; lean_object* v___x_122_; lean_object* v___x_123_; lean_object* v___x_124_; 
 v_a_107_ = lean_ctor_get(v___x_106_, 0);
 lean_inc(v_a_107_);
 lean_dec_ref_known(v___x_106_, 1);
@@ -703,7 +703,7 @@ v_lctx_112_ = lean_ctor_get(v_a_101_, 2);
 v_localInstances_113_ = lean_ctor_get(v_a_101_, 3);
 v_defEqCtx_x3f_114_ = lean_ctor_get(v_a_101_, 4);
 v_synthPendingDepth_115_ = lean_ctor_get(v_a_101_, 5);
-v_canUnfold_x3f_116_ = lean_ctor_get(v_a_101_, 6);
+v_customCanUnfoldPredicate_x3f_116_ = lean_ctor_get(v_a_101_, 6);
 v_univApprox_117_ = lean_ctor_get_uint8(v_a_101_, sizeof(void*)*7 + 1);
 v_inTypeClassResolution_118_ = lean_ctor_get_uint8(v_a_101_, sizeof(void*)*7 + 2);
 v_cacheInferType_119_ = lean_ctor_get_uint8(v_a_101_, sizeof(void*)*7 + 3);
@@ -713,7 +713,7 @@ lean_inc_ref(v_config_109_);
 v___x_122_ = lean_alloc_ctor(0, 1, 8);
 lean_ctor_set(v___x_122_, 0, v_config_109_);
 lean_ctor_set_uint64(v___x_122_, sizeof(void*)*1, v___x_120_);
-lean_inc(v_canUnfold_x3f_116_);
+lean_inc(v_customCanUnfoldPredicate_x3f_116_);
 lean_inc(v_synthPendingDepth_115_);
 lean_inc(v_defEqCtx_x3f_114_);
 lean_inc_ref(v_localInstances_113_);
@@ -726,7 +726,7 @@ lean_ctor_set(v___x_123_, 2, v_lctx_112_);
 lean_ctor_set(v___x_123_, 3, v_localInstances_113_);
 lean_ctor_set(v___x_123_, 4, v_defEqCtx_x3f_114_);
 lean_ctor_set(v___x_123_, 5, v_synthPendingDepth_115_);
-lean_ctor_set(v___x_123_, 6, v_canUnfold_x3f_116_);
+lean_ctor_set(v___x_123_, 6, v_customCanUnfoldPredicate_x3f_116_);
 lean_ctor_set_uint8(v___x_123_, sizeof(void*)*7, v_trackZetaDelta_110_);
 lean_ctor_set_uint8(v___x_123_, sizeof(void*)*7 + 1, v_univApprox_117_);
 lean_ctor_set_uint8(v___x_123_, sizeof(void*)*7 + 2, v_inTypeClassResolution_118_);
@@ -814,7 +814,7 @@ _start:
 lean_object* v___x_143_; lean_object* v___x_144_; lean_object* v___x_145_; 
 v___x_143_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_checkSimprocType_spec__1_spec__2___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_checkSimprocType_spec__1_spec__2___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_checkSimprocType_spec__1_spec__2___closed__1);
 v___x_144_ = lean_unsigned_to_nat(0u);
-v___x_145_ = lean_alloc_ctor(0, 10, 0);
+v___x_145_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_145_, 0, v___x_144_);
 lean_ctor_set(v___x_145_, 1, v___x_144_);
 lean_ctor_set(v___x_145_, 2, v___x_144_);
@@ -825,6 +825,7 @@ lean_ctor_set(v___x_145_, 6, v___x_143_);
 lean_ctor_set(v___x_145_, 7, v___x_143_);
 lean_ctor_set(v___x_145_, 8, v___x_143_);
 lean_ctor_set(v___x_145_, 9, v___x_143_);
+lean_ctor_set(v___x_145_, 10, v___x_143_);
 return v___x_145_;
 }
 }
@@ -1842,8 +1843,8 @@ goto v___jp_464_;
 }
 else
 {
-lean_dec(v_pre_480_);
 lean_dec_ref_known(v_pre_479_, 2);
+lean_dec(v_pre_480_);
 lean_dec_ref_known(v_pre_478_, 2);
 lean_dec_ref_known(v_declName_477_, 2);
 lean_del_object(v___x_462_);
@@ -1854,8 +1855,8 @@ goto v___jp_464_;
 }
 else
 {
-lean_dec(v_pre_479_);
 lean_dec_ref_known(v_pre_478_, 2);
+lean_dec(v_pre_479_);
 lean_dec_ref_known(v_declName_477_, 2);
 lean_del_object(v___x_462_);
 v___y_465_ = v_a_456_;
@@ -3016,11 +3017,13 @@ return v_res_1080_;
 lean_object* runtime_initialize_Init_Simproc(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Simp_Simproc(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Command(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic_Simproc(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Simproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -119,5 +119,5 @@ def lineStart (map : FileMap) (line : Nat) : String.Pos.Raw :=
 end FileMap
 end Lean
 
-def String.toFileMap (s : String) : Lean.FileMap :=
+def Lean.String.toFileMap (s : String) : Lean.FileMap :=
   Lean.FileMap.ofString s

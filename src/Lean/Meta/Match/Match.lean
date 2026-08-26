@@ -146,7 +146,12 @@ where
 private def withAlts {α} (motive : Expr) (discrs : Array Expr) (discrInfos : Array DiscrInfo)
     (lhss : List AltLHS) (isSplitter : Option Overlaps)
     (k : List Alt → Array Expr → Array AltParamInfo → MetaM α) : MetaM α :=
-  loop lhss [] #[] #[] #[]
+  let overlappingAlts : Std.HashSet Nat :=
+    match isSplitter with
+    | none => {}
+    | some overlaps =>
+      overlaps.map.fold (fun set _ overlapping => set.insertMany overlapping) {}
+  loop lhss [] #[] #[] #[] overlappingAlts
 where
   mkSplitterHyps (idx : Nat) (lhs : AltLHS) (notAlts : Array Expr) : MetaM (Array Expr × Array Nat) := do
     withExistingLocalDecls lhs.fvarDecls do
@@ -179,15 +184,17 @@ where
       notAlt ← mkForallFVars (discrs ++ xs) notAlt
       return notAlt
 
-  loop (lhss : List AltLHS) (alts : List Alt) (minors : Array Expr) (altInfos : Array AltParamInfo) (notAlts : Array Expr) : MetaM α := do
+  loop (lhss : List AltLHS) (alts : List Alt) (minors : Array Expr) (altInfos : Array AltParamInfo) (notAlts : Array Expr) (overlappingAlts : Std.HashSet Nat) : MetaM α := do
     match lhss with
     | [] => k alts.reverse minors altInfos
     | lhs::lhss =>
-      let idx       := alts.length
+      let idx := notAlts.size
       let xs := lhs.fvarDecls.toArray.map LocalDecl.toExpr
       let (notAltHs, notAltIdxs) ← if isSplitter.isSome then mkSplitterHyps idx lhs notAlts else pure (#[], #[])
       let minorType ← mkMinorType xs lhs notAltHs
-      let notAlt ← mkNotAlt xs lhs
+      -- We only compute a `notAlt` if the index of the current alternative is part of the overlaps,
+      -- that is `idx ∈ isSplitter.get!.overlapping idx'` for some alternative index `idx'`.
+      let notAlt ← if overlappingAlts.contains idx then mkNotAlt xs lhs else pure default
       let hasParams := !xs.isEmpty || !notAltHs.isEmpty || discrInfos.any fun info => info.hName?.isSome
       let minorType := if hasParams then minorType else mkSimpleThunkType minorType
       let minorName := (`h).appendIndexAfter (idx+1)
@@ -199,7 +206,7 @@ where
         let fvarDecls ← lhs.fvarDecls.mapM instantiateLocalDeclMVars
         let alt    := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := fvarDecls, patterns := lhs.patterns, cnstrs := [], notAltIdxs := notAltIdxs }
         let alts   := alt :: alts
-        loop lhss alts minors altInfos (notAlts.push notAlt)
+        loop lhss alts minors altInfos (notAlts.push notAlt) overlappingAlts
 
 structure State where
   /-- Used alternatives -/
@@ -1108,9 +1115,12 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) (isSplitte
       -- matcher bodies should always be exported, if not private anyway
       withExporting do
         addDecl decl
-      -- if `matcher` is not private, we mark it as `implicit_reducible` too
+      -- If `matcher` is not private, mark it `[instance_reducible]` so that TC synthesis
+      -- can unfold it. Matchers aren't strictly type class instances, but TC instances often
+      -- contain `match` expressions in their bodies (e.g. `instance : Decidable (match ...)`),
+      -- and these matchers must unfold at `.instances` transparency to compare instance terms.
       unless isPrivateName name do
-        setReducibilityStatus name .implicitReducible
+        setReducibilityStatus name .instanceReducible
       unless isSplitter do
         modifyEnv fun env => matcherExt.modifyState env fun s => s.insert key name
         addMatcherInfo name mi

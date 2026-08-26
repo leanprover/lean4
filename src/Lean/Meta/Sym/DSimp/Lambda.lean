@@ -22,7 +22,11 @@ where
   go (e : Expr) (fvars : Array Expr) (modified : Bool) : DSimpM Result := do
     match e with
     | .lam n d b c =>
-      match (← dsimp (← instantiateRevBetaS d fvars)) with
+      -- Instantiate the binder domain against the already-introduced `fvars` *before* creating
+      -- the local declaration, otherwise the decl retains loose bound variables referring to
+      -- earlier binders in this telescope.
+      let d ← instantiateRevBetaS d fvars
+      match (← dsimp d) with
       | .rfl _ => withLocalDecl n c d fun x => go b (fvars.push x) modified
       | .step d' _ => withLocalDecl n c d' fun x => go b (fvars.push x) true
     | _ =>

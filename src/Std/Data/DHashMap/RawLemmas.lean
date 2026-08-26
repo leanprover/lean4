@@ -4287,7 +4287,7 @@ theorem mem_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)
 
 theorem mem_alter_of_beq [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} (h : m.WF)
     (he : k == k') : k' ∈ m.alter k f ↔ (f (m.get? k)).isSome := by
-  rw [mem_alter h, if_pos he]
+  rw [mem_alter h, ite_eq_left he]
 
 @[simp]
 theorem contains_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
@@ -4510,7 +4510,7 @@ theorem mem_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β �
 
 theorem mem_alter_of_beq [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β → Option β}
     (h : m.WF) (he : k == k') : k' ∈ Const.alter m k f ↔ (f (Const.get? m k)).isSome := by
-  rw [mem_alter h, if_pos he]
+  rw [mem_alter h, ite_eq_left he]
 
 @[simp]
 theorem contains_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β}

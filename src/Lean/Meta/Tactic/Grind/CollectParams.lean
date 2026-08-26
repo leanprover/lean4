@@ -59,6 +59,7 @@ partial def collect (tac : TGrind) : Collect Unit := do
       | _ => return ()
   | `(grind| $tac₁:grind <;> $tac₂:grind) => collect tac₁; collect tac₂
   | `(grind| cases $a:anchor) => pushAnchor a
+  | `(grind| cases $a:anchor/$_:num) => pushAnchor a
   | `(grind| use [$params,*]) =>
     collectInstantiateParams params
   | `(grind| instantiate $[only]? $[approx]? $[[$params?,*]]?) =>

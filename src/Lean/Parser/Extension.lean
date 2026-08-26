@@ -649,6 +649,59 @@ def withOpenDeclFn (p : ParserFn) : ParserFn := fun c s =>
 @[inline] def withOpenDecl : Parser → Parser := withFn withOpenDeclFn
 
 /--
+Converts the syntax of a value from a `set_option` to a `DataValue`, matching the forms accepted by
+the `optionValue` parser. Returns `none` for an unrecognized value, in which case the option is left
+unchanged during parsing and the error is reported during elaboration.
+-/
+private def optionValueToDataValue? (val : Syntax) : Option DataValue :=
+  if let some s := val.isStrLit? then some (.ofString s)
+  else if let some n := val.isNatLit? then some (.ofNat n)
+  else if let .atom _ "true" := val then some (.ofBool true)
+  else if let .atom _ "false" := val then some (.ofBool false)
+  else none
+
+/-- Sets the option named by `nameStx` to the value parsed from `valStx` in the parser context. -/
+private def withSetOptionValueFnCore (nameStx valStx : Syntax) (p : ParserFn) : ParserFn :=
+  match optionValueToDataValue? valStx with
+  | some v =>
+    adaptUncacheableContextFn (insertOption v) p
+  | none => p
+where
+  insertOption v c := { c with
+    options := c.options.insert nameStx.getId.eraseMacroScopes v
+  }
+
+/--
+If the parsing stack's last element is a `set_option` command, then its value is set in the context
+while parsing `p`.
+-/
+def withSetOptionFn (p : ParserFn) : ParserFn := fun c s =>
+  if s.stxStack.size > 0 then
+    let stx := s.stxStack.back
+    if stx.getKind == `Lean.Parser.Command.set_option then
+      withSetOptionValueFnCore stx[1] stx[3] p c s
+    else
+      p c s
+  else
+    p c s
+
+@[inline] def withSetOption : Parser → Parser := withFn withSetOptionFn
+
+/--
+If the parsing stack ends with an the option name and value, then the option is set in the context
+while parsing `p`. The value is the top of the stack and the name is the identifier two entries
+below it.
+-/
+def withSetOptionValueFn (p : ParserFn) : ParserFn := fun c s =>
+  let sz := s.stxStack.size
+  if sz ≥ 3 then
+    withSetOptionValueFnCore (s.stxStack.get! (sz - 3)) s.stxStack.back p c s
+  else
+    p c s
+
+@[inline] def withSetOptionValue : Parser → Parser := withFn withSetOptionValueFn
+
+/--
 Helper environment extension that gives us access to built-in aliases in pure parser functions.
 -/
 builtin_initialize aliasExtension : EnvExtension (NameMap ParserAliasValue) ←

@@ -19,7 +19,8 @@ fun x h =>
                 ite_congr (Eq.trans (congrFun' (congrArg Eq h) x) (eq_self x)) (fun a => Eq.refl 1) fun a =>
                   Eq.refl (y + 1)))))
         1))
-    (of_eq_true (Eq.trans (congrFun' (congrArg Eq (ite_cond_eq_true 1 (x * x + 1) (Eq.refl True))) 1) (eq_self 1)))
+    (of_eq_true
+      (Eq.trans (congrFun' (congrArg Eq (ite_eq_left_of_eq_true 1 (x * x + 1) (Eq.refl True))) 1) (eq_self 1)))
 x : Nat
 h : f (f x) = x
 ⊢ (have y := x * x;
@@ -41,7 +42,8 @@ fun x h =>
                 ite_congr (Eq.trans (congrFun' (congrArg Eq h) x) (eq_self x)) (fun a => Eq.refl 1) fun a =>
                   Eq.refl (y + 1)))))
         1))
-    (of_eq_true (Eq.trans (congrFun' (congrArg Eq (ite_cond_eq_true 1 (x * x + 1) (Eq.refl True))) 1) (eq_self 1)))
+    (of_eq_true
+      (Eq.trans (congrFun' (congrArg Eq (ite_eq_left_of_eq_true 1 (x * x + 1) (Eq.refl True))) 1) (eq_self 1)))
 x z : Nat
 h : f (f x) = x
 h' : z = x

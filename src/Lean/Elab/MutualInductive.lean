@@ -104,9 +104,13 @@ structure InductiveView where
   ctors           : Array CtorView
   computedFields  : Array ComputedFieldView
   derivingClasses : Array DerivingClassView
-  /-- The declaration docstring, and whether it's Verso -/
-  docString?      : Option (TSyntax ``Lean.Parser.Command.docComment × Bool)
+  /-- The declaration docstring. -/
+  docString?      : Option (TSyntax ``Lean.Parser.Command.docComment)
   isCoinductive : Bool := false
+  /-- Explicit monotonicity proof from a `monotonicity_by` clause, as a `by` term. Only
+  meaningful for predicates elaborated via the lattice-theoretic fixpoint machinery
+  (`coinductive`, or `inductive` in a mutual clique with `coinductive`). -/
+  monotonicity?   : Option Term := none
   deriving Inhabited
 
 /-- Elaborated header for an inductive type before fvars for each inductive are added to the local context. -/
@@ -1547,8 +1551,9 @@ private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
   let hasProd := env.contains ``Prod
   let hasNat  := env.contains ``Nat
   for n in declNames do
-    mkRecOn n
+    -- `mkRecOn` reuses `casesOn` where it can, so build that first
     if hasUnit then mkCasesOn n
+    mkRecOn n
     if hasNat then mkCtorIdx n
     if hasNat then mkCtorElim n
     if hasUnit && hasEq && hasHEq then mkNoConfusion n
@@ -1678,16 +1683,15 @@ private def elabInductiveViewsPostprocessing (views : Array InductiveView) :
   liftTermElabM <| Term.withDeclName view0.declName do withRef ref do
     for view in views do
       withRef view.declId do
-        if let some (doc, verso) := view.docString? then
-          addDocStringOf verso view.declName view.binders doc
+        if let some doc := view.docString? then
+          addDocString view.declName view.binders doc
       for ctor in view.ctors do
         withRef ctor.declId do
-          if let some (doc, verso) := ctor.modifiers.docString? then
-            addDocStringOf verso ctor.declName ctor.binders doc
+          if let some doc := ctor.modifiers.docString? then
+            addDocString ctor.declName ctor.binders doc
 
     for view in views do withRef view.declId <|
-      unless (views.any (·.isCoinductive)) do
-        Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
+      Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
 
     -- Term info is added here so that docstrings are maximally available in the environment for hovers
     addTermInfoViews views
@@ -1699,6 +1703,7 @@ def InductiveViewToCoinductiveElab (e : InductiveElabStep1) : CoinductiveElabDat
   modifiers := e.view.modifiers
   ctorSyntax := e.view.ctors.map (·.ref)
   isGreatest := e.view.isCoinductive
+  monotonicity? := e.view.monotonicity?
 
 def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Unit := do
   let elabs ← runTermElabM fun _ => inductives.mapM fun (modifiers, stx) => mkInductiveView modifiers stx
@@ -1714,6 +1719,9 @@ def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Uni
       discard <| flatElabs.mapM fun e => MetaM.run' do mkSumOfProducts e.view.declName
       elabCoinductive (flatElabs.map InductiveViewToCoinductiveElab)
   else
+    for e in elabs do
+      if let some proof := e.view.monotonicity? then
+        throwErrorAt proof "`monotonicity_by` is only allowed on `coinductive` predicates, or on `inductive` predicates in a `mutual` block together with a `coinductive` predicate"
     let res ← runTermElabM fun vars => do
       elabInductiveViews vars elabs
     elabInductiveViewsFinalize (elabs.map (·.view)) res

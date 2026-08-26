@@ -44,6 +44,18 @@ public instance [Monad m] [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] 
     cases h'
     exact a.1.2
 
+public instance {ε : Type u} : WeaklyLawfulMonadAttach (Except ε) where
+  map_attach {α x} := by cases x <;> rfl
+
+public instance {ε : Type u} : LawfulMonadAttach (Except ε) where
+  canReturn_map_imp {α P x a} h := by
+    cases x with
+    | ok b =>
+      obtain ⟨v, hv⟩ := b
+      have hva : v = a := by simpa [MonadAttach.CanReturn, Functor.map, Except.map] using h
+      exact hva ▸ hv
+    | error e => simp [MonadAttach.CanReturn, Functor.map, Except.map] at h
+
 public instance [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] :
     WeaklyLawfulMonadAttach (ExceptT ε m) where
   map_attach {α} x := by

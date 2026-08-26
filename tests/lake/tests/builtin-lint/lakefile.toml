@@ -20,3 +20,6 @@ name = "ExtraViolations"
 
 [[lean_lib]]
 name = "TextLints"
+
+[[lean_lib]]
+name = "ForwardRef"

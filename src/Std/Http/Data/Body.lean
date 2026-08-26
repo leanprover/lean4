@@ -12,6 +12,7 @@ public import Std.Http.Data.Body.Any
 public import Std.Http.Data.Body.Stream
 public import Std.Http.Data.Body.Empty
 public import Std.Http.Data.Body.Full
+public import Std.Http.Data.Body.Replayable
 
 public section
 

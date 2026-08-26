@@ -646,32 +646,35 @@ closes the main goal, `rwa` emits a warning suggesting `rw`. It tries to close s
 by rewriting using `assumption`, leaving any that cannot be closed. Goals other than the initial
 first goal are not affected.
 -/
-macro (name := rwa) tk:"rwa " rws:rwRuleSeq : tactic => do
-  if ← Macro.hasDecl `Lean.Elab.Tactic.evalRwa then
-    Macro.throwUnsupported
-  let _ := tk
-  `(tactic|
-    focus (
-      rewrite $rws:rwRuleSeq
-      focus (first
-        | with_reducible rfl
-        | assumption)
-      all_goals (first | with_reducible rfl | assumption | skip)))
+syntax (name := rwa) "rwa " rwRuleSeq : tactic
 
 @[inherit_doc rwa, tactic_alt rwa]
-macro (name := rwaAt) tk:"rwa " rws:rwRuleSeq " at " h:term:max : tactic => do
-  if ← Macro.hasDecl `Lean.Elab.Tactic.evalRwaAt then
-    Macro.throwUnsupported
-  let _ := tk
-  let hyp ← `(locationHyp| $h:term)
-  let loc ← `(location| at $hyp:locationHyp)
-  `(tactic|
-    focus (
-      rewrite $rws:rwRuleSeq $loc:location
-      focus (first
-        | with_reducible rfl
-        | exact $h)
-      all_goals (first | with_reducible rfl | assumption | skip)))
+syntax (name := rwaAt) "rwa " rwRuleSeq " at " term:max : tactic
+
+-- These expansions allow the old stage0 to elaborate `rwa` while bootstrapping.
+macro_rules
+  | `(tactic| rwa $rws:rwRuleSeq) => do
+    if ← Macro.hasDecl `Lean.Elab.Tactic.evalRwa then
+      Macro.throwUnsupported
+    `(tactic|
+      focus (
+        rewrite $rws:rwRuleSeq
+        focus (first
+          | with_reducible rfl
+          | assumption)
+        all_goals (first | with_reducible rfl | assumption | skip)))
+  | `(tactic| rwa $rws:rwRuleSeq at $h:term) => do
+    if ← Macro.hasDecl `Lean.Elab.Tactic.evalRwaAt then
+      Macro.throwUnsupported
+    let hyp ← `(locationHyp| $h:term)
+    let loc ← `(location| at $hyp:locationHyp)
+    `(tactic|
+      focus (
+        rewrite $rws:rwRuleSeq $loc:location
+        focus (first
+          | with_reducible rfl
+          | exact $h)
+        all_goals (first | with_reducible rfl | assumption | skip)))
 
 /--
 The `injection` tactic is based on the fact that constructors of inductive data

@@ -368,14 +368,17 @@ Examples:
 - `(ofPosixString "Makefile" |>.get!).extension = none`
 -/
 def extension (p : Path) : Option Extension :=
-  p.fileName.bind fun name =>
-    let name := name.value
-    let searchIn :=
-      if name.startsWith "." && name.length > 1 then name.extract name.startPos.next! name.endPos
-      else name
+def extension (p : Path) : Option Extension := do
+  let name := (← p.fileName).value
 
-    splitAtLastDot searchIn
-    |>.bind (Extension.ofString? ·.2.toString)
+  match name.revFind? '.' with
+  | none => none
+  | some lastDot =>
+    if lastDot = name.startPos then
+      none
+    else
+      Extension.ofString? (name.sliceFrom lastDot.next!).copy
+
 
 /--
 True if the file name has at least one extension.

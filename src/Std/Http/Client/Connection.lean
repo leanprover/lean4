@@ -87,6 +87,21 @@ def onComplete (pending : PendingRequest) : BaseIO Unit :=
 end PendingRequest
 
 /--
+A response whose head has arrived, paired with the promise reporting how its exchange ended.
+-/
+structure TrackedResponse where
+  /--
+  The response as the peer sent it. Its body is still streaming while the exchange runs.
+  -/
+  response : Response Body.Stream
+
+  /--
+  Resolves when the connection has finished the exchange and is ready for the next request, or with
+  the failure that ended it after the head was delivered.
+  -/
+  completion : IO.Promise (Except Error Unit)
+
+/--
 An HTTP client connection that sends sequential requests over a persistent transport.
 -/
 structure Connection where
@@ -137,10 +152,10 @@ Events produced by the async select loop in `pollNextEvent`.
 Each variant corresponds to one possible outcome of waiting for I/O.
 -/
 private inductive Recv
-  | bytes (x : Option ByteArray)
-  | requestBody (x : Option Chunk)
-  | bodyInterest (x : Bool)
-  | request (x : Option PendingRequest)
+  | bytes (data : Option ByteArray)
+  | requestBody (chunk : Option Chunk)
+  | bodyInterest (interested : Bool)
+  | request (pending : Option PendingRequest)
   | timeout
   | continueTimeout
   | shutdown
@@ -418,6 +433,32 @@ def responseStreamAbandoned (s : ConnectionState) : Bool :=
   s.inFlight.any (·.responseStreamAbandoned)
 
 /--
+The caller's response stream while the machine holds body bytes it can hand over, i.e. exactly while
+the loop's next move is the caller's to make: what the poll waits on, and what stands the socket
+inactivity bound down, since no byte from the peer is needed to advance.
+-/
+@[inline]
+def pullableResponseStream (s : ConnectionState) : Option Body.Stream :=
+  if s.machine.canPullBodyNow ∧ ¬s.responseStreamAbandoned then s.responseStream else none
+
+/--
+`true` while the loop's next move is the caller's to make: the machine holds transport bytes it has
+not consumed and a response stream the caller still owns to decode them into, so it can advance
+without another byte from the peer.
+-/
+@[inline]
+def awaitsBodyPull (s : ConnectionState) : Bool :=
+  s.pullableResponseStream.isSome ∧ s.machine.hasBufferedInput
+
+/--
+`true` while every wait the loop is parked on is the caller's rather than the peer's: it holds body
+bytes the caller has not pulled, or it is waiting on the body the caller is still producing.
+-/
+@[inline]
+def awaitsCaller (s : ConnectionState) : Bool :=
+  s.awaitsBodyPull ∨ s.requestBody.isSome
+
+/--
 `true` when the response body parsed so far already exceeds `maxResponseBodySize`.
 
 The machine counts every body byte it decodes, whether the caller pulled it or the loop discarded
@@ -508,7 +549,9 @@ private def pollNextEvent
   -- machine is in when the loop happens to park.
 
   if state.machine.needsInput then
-    selectables := selectables.push (timer (← Selector.sleep state.socketTimeout) .timeout)
+
+    unless state.awaitsCaller do
+      selectables := selectables.push (timer (← Selector.sleep state.socketTimeout) .timeout)
 
     let expectedBytes := state.expectData
       |>.getD state.config.defaultRequestBufferSize
@@ -543,10 +586,9 @@ private def pollNextEvent
   -- closed: that report is itself the wake-up, so nothing is lost, whereas a closedness test here
   -- would drop the body exactly when `close` lands in the gap, parking the loop with no source that
   -- can ever wake the drainable body.
-  if state.machine.canPullBodyNow ∧ ¬state.responseStreamAbandoned then
-    if let some responseBody := state.responseStream then
-      selectables := selectables.push
-        (.case responseBody.interestSelector (pure <| .bodyInterest ·))
+  if let some responseBody := state.pullableResponseStream then
+    selectables := selectables.push
+      (.case responseBody.interestSelector (pure <| .bodyInterest ·))
 
   try Selectable.one selectables catch e => pure (.failed e)
 
@@ -663,12 +705,42 @@ private def startRequest
   }
 
 /--
-Transition for a `.bodyInterest true` event: pulls the next chunk out of the H1 machine, enforces
-`maxResponseBodySize`, and publishes the chunk. The `shouldClose` flag reports the size limit, the
-one outcome here that ends the connection; a send onto a stream the caller closed under us is not an
-error, since the loop drains the rest of the body itself.
+Hands a pulled chunk to the caller's response stream, bounded by the exchange deadline and by the
+connection's cancellation. Reports the failure that ended the wait, or `none` once the chunk is the
+caller's.
 -/
-private def pullResponseBody (state : ConnectionState) : Async (ConnectionState × Bool) := do
+private def deliverResponseChunk
+    (connectionContext : CancellationContext) (deadline : Option Timestamp)
+    (body : Body.Stream) (pulled : H1.PulledChunk) : Async (Option Error) := do
+  let handed ← try body.trySend pulled.chunk pulled.incomplete catch _ => pure true
+  if handed then
+    return none
+
+  let parked : Std.CloseableChannel Unit ← Std.CloseableChannel.new
+
+  background do
+    try body.send pulled.chunk pulled.incomplete catch _ => pure ()
+    try parked.close catch _ => pure ()
+
+  let mut selectables : Array (Selectable (Option Error)) := #[
+    .case parked.recvSelector (fun _ => pure none),
+    .case connectionContext.doneSelector (fun _ => pure (some (.closed "connection shutdown")))
+  ]
+
+  if let some deadline := deadline then
+    let now ← Timestamp.now
+    selectables := selectables.push
+      (.case (← Selector.sleep (deadline - now).toMilliseconds) (fun _ => pure (some .timeout)))
+
+  try Selectable.one selectables catch e => pure (some (.io e))
+
+/--
+Transition for a `.bodyInterest true` event: pulls the next chunk out of the H1 machine, enforces
+`maxResponseBodySize`, and hands the chunk to the caller. The `shouldClose` flag reports the two
+outcomes here that end the connection: the size limit, and a hand-over that outlived the exchange.
+-/
+private def pullResponseBody (connectionContext : CancellationContext) (state : ConnectionState) :
+    Async (ConnectionState × Bool) := do
   let (newMachine, pulledChunk) := state.machine.pullBody
   let mut state := { state with machine := newMachine }
 
@@ -677,7 +749,8 @@ private def pullResponseBody (state : ConnectionState) : Async (ConnectionState 
       return (← abortState state .bodyLimitExceeded, true)
 
     if let some body := state.responseStream then
-      try body.send pulled.chunk pulled.incomplete catch _ => pure ()
+      if let some err ← deliverResponseChunk connectionContext state.requestDeadline body pulled then
+        return (← abortState state err, true)
 
       if pulled.final then
         state ← finishResponseBody state
@@ -688,8 +761,8 @@ private def pullResponseBody (state : ConnectionState) : Async (ConnectionState 
 Processes a single async I/O event, returning the updated state and a `shouldClose` flag
 that tells the main loop to exit.
 -/
-private def handleRecvEvent (baseConfig : Config) (state : ConnectionState) :
-    Recv → Async (ConnectionState × Bool)
+private def handleRecvEvent (baseConfig : Config) (connectionContext : CancellationContext)
+    (state : ConnectionState) : Recv → Async (ConnectionState × Bool)
   | .bytes (some bytes) =>
     pure ({ state with machine := state.machine.feed bytes }, false)
 
@@ -705,7 +778,7 @@ private def handleRecvEvent (baseConfig : Config) (state : ConnectionState) :
 
   | .bodyInterest interested => do
     if interested then
-      pullResponseBody state
+      pullResponseBody connectionContext state
     else
       return (state.mapInFlight ({ · with responseStreamAbandoned := true }), false)
 
@@ -846,7 +919,7 @@ private def run
       if state.waitingOnIO then
         state := { state with requiresData := false }
         let event ← pollNextEvent socket requestChannel connectionContext state
-        let (newState, shouldClose) ← handleRecvEvent config state event
+        let (newState, shouldClose) ← handleRecvEvent config connectionContext state event
         state := newState
         if shouldClose then break
 
@@ -1008,7 +1081,7 @@ what lets a challenge that turns out to be unanswerable still reach the caller w
 ruled out before its body was touched does.
 -/
 private def unansweredChallenge (response : Response Body.Stream) (captured : ByteArray) :
-    Async (Response Body.Stream × IO.Promise (Except Error Unit)) := do
+    Async TrackedResponse := do
   let body ← Body.mkStream
   Body.setKnownSize body (some (.fixed captured.size))
 
@@ -1020,14 +1093,14 @@ private def unansweredChallenge (response : Response Body.Stream) (captured : By
 
   let completion ← IO.Promise.new
   completion.resolve (.ok ())
-  return ({ response with body }, completion)
+  return { response := { response with body }, completion }
 
 /--
 Queues a request on the background loop and awaits its response head, together with the promise
 that reports the end of the exchange. The request goes on the wire exactly as given.
 -/
 private def dispatch (connection : Connection) (request : Request Body.Any) (requestOverrides : RequestOverrides) :
-    Async (Except Error (Response Body.Stream × IO.Promise (Except Error Unit))) := do
+    Async (Except Error TrackedResponse) := do
   let responsePromise ← IO.Promise.new
   let completionPromise ← IO.Promise.new
 
@@ -1037,7 +1110,7 @@ private def dispatch (connection : Connection) (request : Request Body.Any) (req
   let .ok _ ← await task
     | return .error (.closed "connection closed before request could be sent")
 
-  return (← await responsePromise.result!).map (·, completionPromise)
+  return (← await responsePromise.result!).map ({ response := ·, completion := completionPromise })
 
 /--
 Runs one exchange on the connection: completes `request` against it, queues it, and hands the
@@ -1045,13 +1118,13 @@ response headers to the configured cookie handler. Returns the request as it wen
 alongside the outcome, since a challenge is answered against that form rather than the caller's.
 -/
 private def exchange (connection : Connection) (request : Request Body.Any) (requestOverrides : RequestOverrides) :
-    Async (Request Body.Any × Except Error (Response Body.Stream × IO.Promise (Except Error Unit))) := do
+    Async (Request Body.Any × Except Error TrackedResponse) := do
   let sent ← connection.prepareRequest request
   let outcome ← connection.dispatch sent requestOverrides
 
-  if let .ok (response, _) := outcome then
+  if let .ok tracked := outcome then
     connection.config.cookieHandler.forM
-      (·.store connection.origin sent.line.uri response.line.headers)
+      (·.store connection.origin sent.line.uri tracked.response.line.headers)
 
   return (sent, outcome)
 
@@ -1060,10 +1133,10 @@ Queues a request and awaits its response, together with a completion promise tha
 resolves when the connection is ready for the next request.
 -/
 def sendTracked (connection : Connection) (request : Request Body.Any) (requestOverrides : RequestOverrides := {}) :
-    Async (Except Error (Response Body.Stream × IO.Promise (Except Error Unit))) := do
+    Async (Except Error TrackedResponse) := do
   let (sent, attempt) ← connection.exchange request requestOverrides
 
-  let .ok (response, completion) := attempt | return attempt
+  let .ok ⟨response, completion⟩ := attempt | return attempt
 
   let some (name, credential) ← connection.challengeAnswer sent response.line
     | return attempt
@@ -1101,8 +1174,7 @@ Use `sendTracked` to receive failures as a typed `Error` instead of a thrown exc
 def send {β : Type} [Coe β Body.Any] (connection : Connection) (request : Request β)
     (requestOverrides : RequestOverrides := {}) : Async (Response Body.Stream) := do
   let sent ← connection.sendTracked { request with } requestOverrides
-  let (response, _) ← Error.throwOrPure sent
-  return response
+  return (← Error.throwOrPure sent).response
 
 /--
 Waits for the background loop to exit.

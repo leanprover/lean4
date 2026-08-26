@@ -534,6 +534,14 @@ def canPullBodyNow (machine : Machine dir) : Bool :=
   machine.canPullBody && !machine.pullBodyStalled
 
 /--
+Returns `true` while the reader still holds transport bytes it has not consumed, i.e. it can make
+progress on the current message without another read from the peer.
+-/
+@[inline]
+def hasBufferedInput (machine : Machine dir) : Bool :=
+  !machine.reader.input.atEnd
+
+/--
 Decoded body bytes accepted for the message the reader is on, reset for every new message. Counts
 bytes the machine drained internally as well as bytes handed out by `pullBody`, so a caller
 enforcing its own body limit gets the same total whether or not the body is being consumed.

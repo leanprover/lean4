@@ -72,7 +72,7 @@ private def sendInBackground (connection : Connection) (request : Request Body.A
     let outcome ←
       try
         match ← connection.sendTracked request with
-        | .ok (response, _) => pure (Outcome.response response.line.status.toCode)
+        | .ok ⟨response, _⟩ => pure (Outcome.response response.line.status.toCode)
         | .error e => pure (Outcome.failed e)
       catch e => pure (Outcome.threw e)
     discard <| promise.resolve outcome
@@ -212,7 +212,10 @@ transport shutdown.
 private def failingBodyRequest (gate : IO.Promise Unit) : Async (Request Body.Any) := do
   let stream ← Body.stream fun s => do
     s.send (Chunk.ofByteArray "abc".toUTF8)
-    await gate.result!
+    -- `result?`, not `result!`: a gate the test drops on its way out of a failed assertion parks a
+    -- `result!` producer here for good, and the exchange it holds open outlives the failure that
+    -- should have been reported.
+    discard <| await gate.result?
     throw (IO.userError "producer exploded")
   pure { (Request.new |>.method .post |>.uri! "/upload" |>.header! "Host" "example.com"
     |>.body stream) with }
@@ -233,11 +236,18 @@ private def failingBodyRequest (gate : IO.Promise Unit) : Async (Request Body.An
     let gate ← IO.Promise.new
     let promise ← sendInBackground connection (← failingBodyRequest gate)
 
-    let onWire ← readUntil mockServer "abc"
-    unless onWire.contains "3\r\nabc\r\n" ∧ !onWire.contains "0\r\n\r\n" do
-      throw <| IO.userError s!"expected a partial chunked body on the wire, got {onWire.quote}"
+    -- The whole chunk is named, not just its data: `readUntil` stops at the first byte that
+    -- completes the needle, so waiting for `abc` alone can return before the CRLF that closes the
+    -- chunk has been read, and the framing assertion below then races the writer's last write.
+    let onWire ← readUntil mockServer "3\r\nabc\r\n"
 
+    -- Released before anything below can throw: the producer is parked on this promise, and a gate
+    -- dropped unresolved leaves it parked for good, so a failing assertion would hang the test
+    -- instead of reporting itself.
     discard <| gate.resolve ()
+
+    if onWire.contains "0\r\n\r\n" then
+      throw <| IO.userError s!"expected a partial chunked body on the wire, got {onWire.quote}"
 
     match ← await promise.result! with
     | .response status =>
@@ -250,6 +260,11 @@ private def failingBodyRequest (gate : IO.Promise Unit) : Async (Request Body.An
         throw <| IO.userError s!"a request whose body producer failed after {onWire.quote} was on \
           the wire is reported as {ctorName e}, which `Error.isRetryable` accepts: a retry layer \
           will replay the request and send the body a second time"
+      -- Named rather than merely non-retryable: `.timeout` is non-retryable too, so an exchange
+      -- that stalled instead of reporting the producer's failure would satisfy the check above
+      -- without the behaviour under test existing at all.
+      unless (ctorName e).startsWith ".io" ∧ (ctorName e).contains "producer exploded" do
+        throw <| IO.userError s!"expected the producer's own error, got {ctorName e}"
 
     -- The loop closes the bodies it owns as it winds down. The body that raised is not one of
     -- them: it closed itself, and its lock is held by the producer that raised, which
@@ -288,5 +303,7 @@ private def failingBodyRequest (gate : IO.Promise Unit) : Async (Request Body.An
   | .failed e =>
     if e.isRetryable then
       throw <| IO.userError s!"a raising request body is reported as the retryable {ctorName e}"
+    unless (ctorName e).startsWith ".io" ∧ (ctorName e).contains "producer exploded" do
+      throw <| IO.userError s!"expected the producer's own error, got {ctorName e}"
 
 end ConnectionBugTests

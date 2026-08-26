@@ -52,7 +52,7 @@ lean_object* l_Lean_Meta_DefEq_isInstLENat(lean_object*, lean_object*, lean_obje
 lean_object* l_Lean_Meta_KExprMap_find_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_KExprMap_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_swap(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_evalNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DefEq_isInstHAddNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2879,7 +2879,8 @@ goto v_reusejp_870_;
 v_reusejp_870_:
 {
 lean_object* v___x_872_; lean_object* v___x_873_; lean_object* v___x_875_; 
-v___x_872_ = lean_st_ref_set(v_a_831_, v___x_871_);
+v___x_872_ = lean_st_ref_swap(v_a_831_, v___x_871_);
+lean_dec(v___x_872_);
 v___x_873_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_873_, 0, v___x_863_);
 if (v_isShared_868_ == 0)
@@ -6826,11 +6827,13 @@ lean_object* runtime_initialize_Lean_Data_RArray(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_NatInstTesters(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Offset(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Simp_Arith_Nat_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Util_SortExprs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

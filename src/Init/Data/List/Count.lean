@@ -49,9 +49,7 @@ protected theorem countP_go_eq_add {l} : countP.go p l n = n + countP.go p l 0 :
     if h : p hd then simp [h, Nat.add_assoc] else simp [h]
 
 @[simp] theorem countP_cons_of_pos {l} (pa : p a) : countP p (a :: l) = countP p l + 1 := by
-  have : countP.go p (a :: l) 0 = countP.go p l 1 := show cond .. = _ by rw [pa]; rfl
-  unfold countP
-  rw [this, Nat.add_comm, List.countP_go_eq_add]
+  simp [countP, countP.go, pa, List.countP_go_eq_add (n := 1), Nat.add_comm]
 
 @[simp] theorem countP_cons_of_neg {l} (pa : ¬p a) : countP p (a :: l) = countP p l := by
   simp [countP, countP.go, pa]

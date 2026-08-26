@@ -48,6 +48,12 @@ environment environment::add_quot() const {
     if (is_quot_initialized())
         return *this;
     check_eq_type(*this);
+    /* The `add_core` calls below overwrite, so a name already taken would be silently replaced,
+       leaving any declaration checked against the old constant ill typed. */
+    check_name(*quot_consts::g_quot);
+    check_name(*quot_consts::g_quot_mk);
+    check_name(*quot_consts::g_quot_lift);
+    check_name(*quot_consts::g_quot_ind);
     environment new_env = *this;
     name u_name("u");
     local_ctx lctx;

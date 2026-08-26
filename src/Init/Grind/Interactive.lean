@@ -334,6 +334,9 @@ Only available in `sym =>` mode.
 - `simp myVariant` — uses a named variant registered via `register_sym_simp`
 - `simp [thm₁, thm₂, ...]` — default variant with extra rewrite theorems appended to `post`
 - `simp myVariant [thm₁, thm₂, ...]` — named variant with extra theorems
+
+The extra parameters may be theorems, local hypotheses, or definitions. For a definition `f`,
+its equational theorems are used, so `simp [f]` unfolds `f` applications.
 -/
 syntax (name := symSimp) "simp" (ppSpace colGt ident)? (" [" ident,* "]")? : grind
 
@@ -387,5 +390,56 @@ generator.
 This is a variant of `cbv` that only works in `sym =>` mode.
 -/
 syntax (name := symCbv) "cbv" : grind
+
+/--
+`lift_lets` moves the `let`/`have` declarations of the goal target toward the root,
+as far out as their dependencies allow. Nested declarations are flattened, and
+declarations with syntactically equal types and values are merged. Declarations under
+`fun`/`∀` binders are not lifted. The new goal is definitionally equal to the original
+one.
+
+Unlike the standalone `lift_lets` tactic, this variant does not support the `at`
+location syntax: in `sym =>` mode hypotheses are never modified.
+
+Only available in `sym =>` mode.
+-/
+syntax (name := symLiftLets) "lift_lets" : grind
+
+/--
+`let_to_have` converts the nondependent `let` declarations of the goal target into
+`have` declarations. The new goal is definitionally equal to the original one.
+
+Unlike the standalone `let_to_have` tactic, this variant does not support the `at`
+location syntax: in `sym =>` mode hypotheses are never modified.
+
+Only available in `sym =>` mode.
+-/
+syntax (name := symLetToHave) "let_to_have" : grind
+
+@[inherit_doc Lean.Parser.Tactic.bvNormalize]
+syntax (name := bvNormalize) "bv_normalize" optConfig (bvTypes)? : grind
+
+@[inherit_doc Lean.Parser.Tactic.bvDecide]
+syntax (name := bvDecide) "bv_decide" optConfig (bvTypes)? : grind
+
+@[inherit_doc Lean.Parser.Tactic.bvTrace]
+syntax (name := bvTrace) "bv_decide?" optConfig (bvTypes)? : grind
+
+@[inherit_doc Lean.Parser.Tactic.bvCheck]
+syntax (name := bvCheck) "bv_check" optConfig (bvTypes)? ppSpace str : grind
+
+/--
+This tactic acts as an incremental pre-processor for `bv_decide` in `sym` or `grind` mode. Users
+can run `bv_decide_push` during arbitrary parts of their proof to make `bv_decide` run its
+pre-processor on the current goal state. It then stores as much information as possible from this
+pre-processor run for subsequent goals to speed up their invocations of `bv_decide` or
+`bv_decide_push`.
+
+Note that `bv_decide_push` can only store context independent information. For example, it has to
+assume that in the future more structures or enums might occur in the goal and thus cannot
+incrementalize type-based pre-processing. For this reason it also does not support a `types` clause.
+-/
+syntax (name := bvDecidePush) "bv_decide_push" optConfig : grind
+
 end Grind
 end Lean.Parser.Tactic

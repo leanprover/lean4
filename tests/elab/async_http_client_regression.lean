@@ -55,7 +55,7 @@ private def locationHeaders (location : String) : Headers :=
 
 /-- The request target `decideRedirect` plans for a 302 to `location`, from `basePath`. -/
 private def plannedTarget (location : String) (basePath : String := "/start") : String :=
-  match decideRedirect (testOrigin "example.com") (requestHead .get basePath) true false .v11 .found
+  match decideRedirect (testOrigin "example.com") (requestHead .get basePath) true .v11 .found
       (locationHeaders location) with
   | .done => "<not followed>"
   | .follow plan => toString plan.target
@@ -119,9 +119,9 @@ private def responseSizeAndBody (method : Method) (status : String)
     (headers : Array (String × String)) (body : String := "") :
     Async (Option Body.Length × String) := do
   let (mockClient, mockServer) ← Mock.new
-  let connection ← Client.Connection.new mockServer {}
+  let connection ← Client.Connection.new mockServer (testOrigin "example.com") {}
   let request ← Request.new |>.method method |>.uri! "/x" |>.header! "Host" "example.com" |>.empty
-  let promise : IO.Promise (Except Client.Error (Response Body.Stream × IO.Promise (Except Client.Error Unit)))
+  let promise : IO.Promise (Except Client.Error Client.TrackedResponse)
     ← IO.Promise.new
   background do
     let result ← try connection.sendTracked { request with } catch e => pure (.error (.io e))
@@ -130,7 +130,7 @@ private def responseSizeAndBody (method : Method) (status : String)
   mockClient.send (rawResp status (headers ++ #[("Connection", "close")]) body)
   match ← await promise.result! with
   | .error e => throw (IO.userError s!"client error: {e}")
-  | .ok (response, _) =>
+  | .ok ⟨response, _⟩ =>
     let size ← response.body.getKnownSize
     let received : String ← response.body.readAll
     pure (size, received)
@@ -169,13 +169,13 @@ private def assertAdvertisesNoBody (what : String) (result : Option Body.Length 
 #eval show IO _ from
   runWithTimeout "101 Switching Protocols ends the exchange" 5000 <| Async.block do
   let (mockClient, mockServer) ← Mock.new
-  let connection ← Client.Connection.new mockServer
+  let connection ← Client.Connection.new mockServer (testOrigin "example.com")
     ({ requestTimeout := ⟨700, by decide⟩ } : Client.Config)
   let request ← Request.new |>.method .get |>.uri! "/x"
     |>.header! "Host" "example.com"
     |>.header! "Connection" "Upgrade"
     |>.header! "Upgrade" "websocket" |>.empty
-  let promise : IO.Promise (Except Client.Error (Response Body.Stream × IO.Promise (Except Client.Error Unit)))
+  let promise : IO.Promise (Except Client.Error Client.TrackedResponse)
     ← IO.Promise.new
   background do
     let result ← try connection.sendTracked { request with } catch e => pure (.error (.io e))
@@ -184,7 +184,7 @@ private def assertAdvertisesNoBody (what : String) (result : Option Body.Length 
   mockClient.send
     "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n\r\n".toUTF8
   match ← await promise.result! with
-  | .ok (response, _) =>
+  | .ok ⟨response, _⟩ =>
     response.body.close
     unless response.line.status.toCode == 101 do
       throw <| IO.userError s!"expected 101, got {response.line.status.toCode}"

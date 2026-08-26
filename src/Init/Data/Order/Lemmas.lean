@@ -165,7 +165,7 @@ public instance {α : Type u} [LT α] [LE α] [LawfulOrderLT α] :
     intro h h'
     exact h.2.elim h'.1
 
-@[deprecated instIrreflOfAsymm (since := "2025-10-24")]
+@[deprecated instIrreflOfAsymm +typeChanged (since := "2025-10-24")]
 public theorem instIrreflLtOfIsPreorderOfLawfulOrderLT {α : Type u} [LT α] [LE α]
     [LawfulOrderLT α] : Std.Irrefl (α := α) (· < ·) := inferInstance
 
@@ -201,7 +201,7 @@ public instance {α : Type u} {_ : LT α} [LE α] [LawfulOrderLT α]
     simp only [not_lt] at hab hbc ⊢
     exact le_trans hbc hab
 
-@[deprecated Asymm.total_not (since := "2025-10-24")]
+@[deprecated Asymm.total_not +typeChanged (since := "2025-10-24")]
 public theorem instTotalNotLtOfLawfulOrderLTOfLe {α : Type u} {_ : LT α} [LE α] [LawfulOrderLT α]
     : Total (α := α) (¬ · < ·) := Asymm.total_not
 

@@ -52,7 +52,7 @@ theorem toNat_ofNat (x w : Nat) : (BitVec.ofNat w x).toNat = x % 2^w := by
         (∀ i (hi : i < n), x[i] = y[i]) → x = y :=
   fun h => BitVec.eq_of_getLsbD_eq (h ↑·)
 
-@[simp, grind =] theorem toNat_append (x : BitVec m) (y : BitVec n) :
+@[simp] theorem toNat_append (x : BitVec m) (y : BitVec n) :
     (x ++ y).toNat = x.toNat <<< n ||| y.toNat :=
   rfl
 
@@ -99,7 +99,7 @@ theorem toNat_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
     (setWidth' p x).toNat = x.toNat := by
   simp only [setWidth', toNat_ofNatLT]
 
-@[simp, bitvec_to_nat, grind =]
+@[simp, bitvec_to_nat]
 theorem toNat_setWidth (i : Nat) (x : BitVec n) :
     (setWidth i x).toNat = x.toNat % 2^i := by
   let ⟨x, lt_n⟩ := x
@@ -115,12 +115,11 @@ theorem ofNat_toNat (m : Nat) (x : BitVec n) : BitVec.ofNat m x.toNat = setWidth
   apply eq_of_toNat_eq
   simp only [toNat_ofNat, toNat_setWidth]
 
-@[grind =]
 theorem getElem_setWidth' (x : BitVec w) (i : Nat) (h : w ≤ v) (hi : i < v) :
     (setWidth' h x)[i] = x.getLsbD i := by
   rw [getElem_eq_testBit_toNat, toNat_setWidth', getLsbD]
 
-@[simp, grind =]
+@[simp]
 theorem getElem_setWidth (m : Nat) (x : BitVec n) (i : Nat) (h : i < m) :
     (setWidth m x)[i] = x.getLsbD i := by
   rw [setWidth]

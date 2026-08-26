@@ -621,16 +621,26 @@ scoped syntax (name := withAnnotateTerm) "with_annotate_term " rawStx ppSpace te
 syntax (name := modCast) "mod_cast " term : term
 
 /--
+Indicates that a deprecated declaration's replacement intentionally has a different type.
+
+The `configItem` parsers are not available here, so we hand-roll this.
+-/
+syntax deprecatedTypeChanged :=
+  (" +" noWs &"typeChanged") <|> (atomic(" (" &"typeChanged" " := ") &"true" ")")
+
+/--
 The attribute `@[deprecated]` on a declaration indicates that the declaration
 is discouraged for use in new code, and/or should be migrated away from in
 existing code. It may be removed in a future version of the library.
 
 * `@[deprecated myBetterDef]` means that `myBetterDef` is the suggested replacement.
 * `@[deprecated myBetterDef "use myBetterDef instead"]` allows customizing the deprecation message.
+* `@[deprecated myBetterDef +typeChanged]` indicates that the replacement intentionally has a
+  different type. `(typeChanged := true)` is an equivalent syntax.
 * `@[deprecated (since := "2024-04-21")]` records when the deprecation was first applied.
 -/
 syntax (name := deprecated) "deprecated" (ppSpace ident)? (ppSpace str)?
-    (" (" &"since" " := " str ")")? : attr
+    (deprecatedTypeChanged)? (" (" &"since" " := " str ")")? : attr
 
 /--
 The attribute `@[deprecated_arg old new]` marks a named parameter as deprecated.

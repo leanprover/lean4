@@ -21,7 +21,7 @@ lean_object* lean_st_mk_ref(lean_object*);
 lean_object* l_Lean_Meta_Sym_instantiateMVarsS(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_getIssues___redArg(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_Meta_Grind_processHypotheses(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2079,7 +2079,7 @@ goto v_reusejp_651_;
 v_reusejp_651_:
 {
 lean_object* v___x_653_; lean_object* v___x_654_; 
-v___x_653_ = lean_st_ref_set(v___y_634_, v___x_652_);
+v___x_653_ = lean_st_ref_put(v___y_634_, v___x_652_);
 v___x_654_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_654_, 0, v_fst_641_);
 return v___x_654_;
@@ -2196,7 +2196,7 @@ goto v_reusejp_705_;
 v_reusejp_705_:
 {
 lean_object* v___x_707_; lean_object* v___x_708_; lean_object* v___x_709_; 
-v___x_707_ = lean_st_ref_set(v_a_686_, v___x_706_);
+v___x_707_ = lean_st_ref_put(v_a_686_, v___x_706_);
 v___x_708_ = lean_box(0);
 v___x_709_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_709_, 0, v___x_708_);
@@ -2756,11 +2756,13 @@ lean_object* runtime_initialize_Lean_Meta_Sym_Util(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_InstantiateMVarsS(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Solve(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Assumption(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Sym_Grind(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Grind_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

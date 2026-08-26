@@ -264,6 +264,17 @@ def runWithTimeout (name : String) (timeoutMs : Nat := 3000) (action : IO Unit) 
         loop n
   loop ticks
 
+/-- A domain-name host, for tests that name their peers as literals. -/
+def hostName! (host : String) : URI.Host :=
+  match URI.DomainName.ofString? host with
+  | some name => .name name
+  | none => panic! s!"invalid host name: {host.quote}"
+
+/-- The origin a mock client connection is opened for. -/
+def origin (host : String := "example.com") (port : UInt16 := 80) (scheme : String := "http") :
+    URI.Origin :=
+  { scheme := URI.Scheme.ofString! scheme, host := hostName! host, port }
+
 /-- Build a raw HTTP/1.1 response. -/
 def rawResp
     (status : String) (hdrs : Array (String × String)) (body : String) : ByteArray :=

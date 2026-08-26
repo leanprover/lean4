@@ -515,6 +515,18 @@ partial def drain
       loop consumed
   loop 0
 
+/--
+Collapses the pieces buffered by `send ... (incomplete := true)` with the chunk that completes them.
+-/
+private def mergeIncomplete (pending : Option Chunk) (chunk : Chunk) : Chunk :=
+  match pending with
+  | some pending =>
+    {
+      data := pending.data ++ chunk.data
+      extensions := if pending.extensions.isEmpty then chunk.extensions else pending.extensions
+    }
+  | none => chunk
+
 private def collapseForSend
     (stream : Stream)
     (chunk : Chunk)
@@ -527,13 +539,7 @@ private def collapseForSend
     if st.closed then
       return .error (.userError "channel closed")
 
-    let merged := match st.pendingIncompleteChunk with
-      | some pending =>
-        {
-          data := pending.data ++ chunk.data
-          extensions := if pending.extensions.isEmpty then chunk.extensions else pending.extensions
-        }
-      | none => chunk
+    let merged := mergeIncomplete st.pendingIncompleteChunk chunk
 
     if incomplete then
       set { st with pendingIncompleteChunk := some merged }
@@ -606,6 +612,47 @@ def send (stream : Stream) (chunk : Chunk) (incomplete : Bool := false) : Async 
     send' stream toSend
 
 /--
+Hands a chunk to a consumer that is already waiting, never parking for one to arrive.
+-/
+def trySend (stream : Stream) (chunk : Chunk) (incomplete : Bool := false) : Async Bool := do
+  let result : Except IO.Error Bool ← stream.state.atomically do
+    Channel.pruneFinishedWaiters
+    let st ← get
+
+    if st.closed then
+      return .error (IO.Error.userError "channel closed")
+
+    let merged := mergeIncomplete st.pendingIncompleteChunk chunk
+
+    if incomplete then
+      set { st with pendingIncompleteChunk := some merged }
+      return .ok true
+
+    if merged.data.isEmpty ∧ merged.extensions.isEmpty then
+      set { st with pendingIncompleteChunk := none }
+      return .ok true
+
+    let some consumer := st.pendingConsumer | return .ok false
+
+    -- A select-mode consumer that loses the race here is gone for good, so there is no one left to
+    -- hand the chunk to either way; only a delivery that actually landed clears the buffer.
+    if ← consumer.resolve (.ok (some merged)) then
+      set {
+        st with
+        pendingConsumer := none
+        pendingIncompleteChunk := none
+        knownSize := Channel.decreaseKnownSize st.knownSize merged
+      }
+      return .ok true
+    else
+      set { st with pendingConsumer := none }
+      return .ok false
+
+  match result with
+  | .error err => throw err
+  | .ok delivered => return delivered
+
+/--
 Returns `true` when a consumer is currently blocked waiting for data.
 -/
 def hasInterest (stream : Stream) : Async Bool :=
@@ -664,12 +711,15 @@ error so consumers observe the failure instead of a clean end-of-stream.
 -/
 def stream (gen : Stream → Async Unit) : Async Stream := do
   let s ← mkStream
+  s.setKnownSize (some .chunked)
+
   background <| do
     try
       gen s
       s.close
     catch err =>
       s.closeWithError err
+
   return s
 
 /--
@@ -737,7 +787,6 @@ def stream
     (gen : Body.Stream → Async Unit) :
     Async (Request Body.Stream) := do
   let s ← Body.stream gen
-  s.setKnownSize (some .chunked)
 
   return Request.Builder.body builder s
 
@@ -754,7 +803,6 @@ def stream
     (gen : Body.Stream → Async Unit) :
     Async (Response Body.Stream) := do
   let s ← Body.stream gen
-  s.setKnownSize (some .chunked)
 
   return Response.Builder.body builder s
 

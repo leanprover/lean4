@@ -518,7 +518,7 @@ v___x_109_ = lean_unbox(v_a_81_);
 v___x_110_ = l_Lean_instBEqReducibilityStatus_beq(v___x_109_, v___x_108_);
 if (v___x_110_ == 0)
 {
-v___y_100_ = v___x_110_;
+v___y_100_ = v___x_87_;
 goto v___jp_99_;
 }
 else
@@ -616,7 +616,7 @@ lean_dec(v_a_81_);
 v___x_103_ = l_Lean_instBEqReducibilityStatus_beq(v___x_102_, v___x_101_);
 if (v___x_103_ == 0)
 {
-v___y_90_ = v___x_103_;
+v___y_90_ = v___x_87_;
 goto v___jp_89_;
 }
 else
@@ -1657,7 +1657,7 @@ _start:
 lean_object* v___x_484_; lean_object* v___x_485_; lean_object* v___x_486_; 
 v___x_484_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_Meta_getUnfoldableConst_x3f_spec__0_spec__0_spec__1_spec__2___redArg___closed__1, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_Meta_getUnfoldableConst_x3f_spec__0_spec__0_spec__1_spec__2___redArg___closed__1_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_Meta_getUnfoldableConst_x3f_spec__0_spec__0_spec__1_spec__2___redArg___closed__1);
 v___x_485_ = lean_unsigned_to_nat(0u);
-v___x_486_ = lean_alloc_ctor(0, 10, 0);
+v___x_486_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_486_, 0, v___x_485_);
 lean_ctor_set(v___x_486_, 1, v___x_485_);
 lean_ctor_set(v___x_486_, 2, v___x_485_);
@@ -1668,6 +1668,7 @@ lean_ctor_set(v___x_486_, 6, v___x_484_);
 lean_ctor_set(v___x_486_, 7, v___x_484_);
 lean_ctor_set(v___x_486_, 8, v___x_484_);
 lean_ctor_set(v___x_486_, 9, v___x_484_);
+lean_ctor_set(v___x_486_, 10, v___x_484_);
 return v___x_486_;
 }
 }
@@ -2775,11 +2776,13 @@ return v_res_875_;
 }
 lean_object* runtime_initialize_Lean_Meta_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Match_MatchPatternAttr(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_GetUnfoldableConst(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

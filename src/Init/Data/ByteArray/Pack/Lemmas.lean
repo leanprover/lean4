@@ -43,9 +43,9 @@ bit-recombination identity, discharged by `getLsbD` extensionality. -/
 theorem getUInt16LE!_setUInt16LE!_self (a : ByteArray) (off : Nat) (v : UInt16)
     (h : off + 2 ≤ a.size) : (a.setUInt16LE! off v).getUInt16LE! off = v := by
   unfold getUInt16LE! setUInt16LE!
-  rw [if_pos h]
+  rw [ite_eq_left h]
   simp only [size_set!, get!_eq_getElem!]
-  rw [if_pos h]
+  rw [ite_eq_left h]
   simp (disch := (first | omega | (simp only [size_set!]; omega))) only
     [getElem!_set!_self, getElem!_set!_ne]
   apply UInt16.toBitVec_inj.mp
@@ -61,9 +61,9 @@ theorem getUInt16LE!_setUInt16LE!_self (a : ByteArray) (off : Nat) (v : UInt16)
 theorem getUInt16BE!_setUInt16BE!_self (a : ByteArray) (off : Nat) (v : UInt16)
     (h : off + 2 ≤ a.size) : (a.setUInt16BE! off v).getUInt16BE! off = v := by
   unfold getUInt16BE! setUInt16BE!
-  rw [if_pos h]
+  rw [ite_eq_left h]
   simp only [size_set!, get!_eq_getElem!]
-  rw [if_pos h]
+  rw [ite_eq_left h]
   simp (disch := (first | omega | (simp only [size_set!]; omega))) only
     [getElem!_set!_self, getElem!_set!_ne]
   apply UInt16.toBitVec_inj.mp
@@ -79,9 +79,9 @@ theorem getUInt16BE!_setUInt16BE!_self (a : ByteArray) (off : Nat) (v : UInt16)
 theorem getUInt32LE!_setUInt32LE!_self (a : ByteArray) (off : Nat) (v : UInt32)
     (h : off + 4 ≤ a.size) : (a.setUInt32LE! off v).getUInt32LE! off = v := by
   unfold getUInt32LE! setUInt32LE!
-  rw [if_pos h]
+  rw [ite_eq_left h]
   simp only [size_set!, get!_eq_getElem!]
-  rw [if_pos h]
+  rw [ite_eq_left h]
   simp (disch := (first | omega | (simp only [size_set!]; omega))) only
     [getElem!_set!_self, getElem!_set!_ne]
   apply UInt32.toBitVec_inj.mp
@@ -97,9 +97,9 @@ theorem getUInt32LE!_setUInt32LE!_self (a : ByteArray) (off : Nat) (v : UInt32)
 theorem getUInt32BE!_setUInt32BE!_self (a : ByteArray) (off : Nat) (v : UInt32)
     (h : off + 4 ≤ a.size) : (a.setUInt32BE! off v).getUInt32BE! off = v := by
   unfold getUInt32BE! setUInt32BE!
-  rw [if_pos h]
+  rw [ite_eq_left h]
   simp only [size_set!, get!_eq_getElem!]
-  rw [if_pos h]
+  rw [ite_eq_left h]
   simp (disch := (first | omega | (simp only [size_set!]; omega))) only
     [getElem!_set!_self, getElem!_set!_ne]
   apply UInt32.toBitVec_inj.mp
@@ -115,9 +115,9 @@ theorem getUInt32BE!_setUInt32BE!_self (a : ByteArray) (off : Nat) (v : UInt32)
 theorem getUInt64LE!_setUInt64LE!_self (a : ByteArray) (off : Nat) (v : UInt64)
     (h : off + 8 ≤ a.size) : (a.setUInt64LE! off v).getUInt64LE! off = v := by
   unfold getUInt64LE! setUInt64LE!
-  rw [if_pos h]
+  rw [ite_eq_left h]
   simp only [size_set!, get!_eq_getElem!]
-  rw [if_pos h]
+  rw [ite_eq_left h]
   simp (disch := (first | omega | (simp only [size_set!]; omega))) only
     [getElem!_set!_self, getElem!_set!_ne]
   apply UInt64.toBitVec_inj.mp
@@ -134,9 +134,9 @@ theorem getUInt64LE!_setUInt64LE!_self (a : ByteArray) (off : Nat) (v : UInt64)
 theorem getUInt64BE!_setUInt64BE!_self (a : ByteArray) (off : Nat) (v : UInt64)
     (h : off + 8 ≤ a.size) : (a.setUInt64BE! off v).getUInt64BE! off = v := by
   unfold getUInt64BE! setUInt64BE!
-  rw [if_pos h]
+  rw [ite_eq_left h]
   simp only [size_set!, get!_eq_getElem!]
-  rw [if_pos h]
+  rw [ite_eq_left h]
   simp (disch := (first | omega | (simp only [size_set!]; omega))) only
     [getElem!_set!_self, getElem!_set!_ne]
   apply UInt64.toBitVec_inj.mp
@@ -205,7 +205,7 @@ theorem getUInt16LE!_setUInt16LE!_of_disjoint (a : ByteArray) (o₁ o₂ : Nat) 
     (a.setUInt16LE! o₁ v).getUInt16LE! o₂ = a.getUInt16LE! o₂ := by
   unfold getUInt16LE!
   simp only [size_setUInt16LE!, get!_eq_getElem!]
-  rw [if_pos h₂, if_pos h₂,
+  rw [ite_eq_left h₂, ite_eq_left h₂,
       getElem!_setUInt16LE!_of_outside _ _ _ _ (by omega),
       getElem!_setUInt16LE!_of_outside _ _ _ _ (by omega)]
 
@@ -214,7 +214,7 @@ theorem getUInt16BE!_setUInt16BE!_of_disjoint (a : ByteArray) (o₁ o₂ : Nat) 
     (a.setUInt16BE! o₁ v).getUInt16BE! o₂ = a.getUInt16BE! o₂ := by
   unfold getUInt16BE!
   simp only [size_setUInt16BE!, get!_eq_getElem!]
-  rw [if_pos h₂, if_pos h₂,
+  rw [ite_eq_left h₂, ite_eq_left h₂,
       getElem!_setUInt16BE!_of_outside _ _ _ _ (by omega),
       getElem!_setUInt16BE!_of_outside _ _ _ _ (by omega)]
 
@@ -223,7 +223,7 @@ theorem getUInt32LE!_setUInt32LE!_of_disjoint (a : ByteArray) (o₁ o₂ : Nat) 
     (a.setUInt32LE! o₁ v).getUInt32LE! o₂ = a.getUInt32LE! o₂ := by
   unfold getUInt32LE!
   simp only [size_setUInt32LE!, get!_eq_getElem!]
-  rw [if_pos h₂, if_pos h₂,
+  rw [ite_eq_left h₂, ite_eq_left h₂,
       getElem!_setUInt32LE!_of_outside _ _ _ _ (by omega),
       getElem!_setUInt32LE!_of_outside _ _ _ _ (by omega),
       getElem!_setUInt32LE!_of_outside _ _ _ _ (by omega),
@@ -234,7 +234,7 @@ theorem getUInt32BE!_setUInt32BE!_of_disjoint (a : ByteArray) (o₁ o₂ : Nat) 
     (a.setUInt32BE! o₁ v).getUInt32BE! o₂ = a.getUInt32BE! o₂ := by
   unfold getUInt32BE!
   simp only [size_setUInt32BE!, get!_eq_getElem!]
-  rw [if_pos h₂, if_pos h₂,
+  rw [ite_eq_left h₂, ite_eq_left h₂,
       getElem!_setUInt32BE!_of_outside _ _ _ _ (by omega),
       getElem!_setUInt32BE!_of_outside _ _ _ _ (by omega),
       getElem!_setUInt32BE!_of_outside _ _ _ _ (by omega),
@@ -245,7 +245,7 @@ theorem getUInt64LE!_setUInt64LE!_of_disjoint (a : ByteArray) (o₁ o₂ : Nat) 
     (a.setUInt64LE! o₁ v).getUInt64LE! o₂ = a.getUInt64LE! o₂ := by
   unfold getUInt64LE!
   simp only [size_setUInt64LE!, get!_eq_getElem!]
-  rw [if_pos h₂, if_pos h₂,
+  rw [ite_eq_left h₂, ite_eq_left h₂,
       getElem!_setUInt64LE!_of_outside _ _ _ _ (by omega),
       getElem!_setUInt64LE!_of_outside _ _ _ _ (by omega),
       getElem!_setUInt64LE!_of_outside _ _ _ _ (by omega),
@@ -260,7 +260,7 @@ theorem getUInt64BE!_setUInt64BE!_of_disjoint (a : ByteArray) (o₁ o₂ : Nat) 
     (a.setUInt64BE! o₁ v).getUInt64BE! o₂ = a.getUInt64BE! o₂ := by
   unfold getUInt64BE!
   simp only [size_setUInt64BE!, get!_eq_getElem!]
-  rw [if_pos h₂, if_pos h₂,
+  rw [ite_eq_left h₂, ite_eq_left h₂,
       getElem!_setUInt64BE!_of_outside _ _ _ _ (by omega),
       getElem!_setUInt64BE!_of_outside _ _ _ _ (by omega),
       getElem!_setUInt64BE!_of_outside _ _ _ _ (by omega),

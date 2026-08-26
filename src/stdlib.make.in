@@ -215,7 +215,7 @@ leanchecker: $(OUTBIN)/leanchecker$(EXE)
 # Statically linked so that it gets its own mimalloc; see `LEANCHECKER_PARANOID_LINKER_FLAGS`.
 # Stripped because static linking makes it two orders of magnitude larger than the other binaries
 # and it neither runs the interpreter nor exports anything.
-$(OUTBIN)/leanchecker-paranoid$(EXE): $(OUTARC)/libLeanChecker.a $(OUTARC)/libmimalloc_paranoid.a
+$(OUTBIN)/leanchecker-paranoid$(EXE): $(OUTARC)/libLeanChecker.a $(OUTARC)/libmimalloc_paranoid.a $(OUTARC)/libinitialize_minimal.a
 	$(link-preamble)
 	$(LEANC_SH) $< ${LEANCHECKER_PARANOID_LINKER_FLAGS_MAKE} ${LEANC_OPTS} -o $@
 	"${CMAKE_STRIP}" $@

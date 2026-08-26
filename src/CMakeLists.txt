@@ -995,7 +995,7 @@ else()
   # NOTE: `mimalloc_paranoid` in front of `leanrt` and no `leanshared` to replace default allocator
   set(
     LEANCHECKER_PARANOID_LINKER_FLAGS
-    "${CMAKE_EXE_LINKER_FLAGS} -lmimalloc_paranoid ${LEANC_STATIC_LINKER_FLAGS}"
+    "${CMAKE_EXE_LINKER_FLAGS} -lmimalloc_paranoid -linitialize_minimal ${LEANC_STATIC_LINKER_FLAGS}"
   )
 
 endif()
@@ -1031,7 +1031,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     add_custom_target(
       leanchecker-paranoid
       WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-      DEPENDS lake_shared mimalloc_paranoid
+      DEPENDS lake_shared mimalloc_paranoid initialize_minimal
       COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanchecker-paranoid
       VERBATIM
     )

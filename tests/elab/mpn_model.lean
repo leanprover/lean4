@@ -46,19 +46,25 @@ abbrev Digit := UInt32
 /-- `typedef uint64_t mpn_double_digit;` -/
 abbrev DoubleDigit := UInt64
 
-/-- `#define DIGIT_BITS (sizeof(mpn_digit)*8)` -/
+/--
+`#define DIGIT_BITS (sizeof(mpn_digit)*8)`
+
+NOTE: the value, not the expression. `digitBits` and `base` appear in nearly
+every arithmetic proof below, and `omega` needs a literal to work with: deriving
+them costs 35 and 70 broken proofs respectively.
+-/
 def digitBits : Nat := 32
 
-/-- `#define BASE ((mpn_double_digit)0x01 << DIGIT_BITS)` -/
+/-- `#define BASE ((mpn_double_digit)0x01 << DIGIT_BITS)`, likewise the value. -/
 def base : Nat := 4294967296
 
-/-- `#define MASK_FIRST (~((mpn_digit)(-1) >> 1))` -/
+/-- `#define MASK_FIRST (~((mpn_digit)(-1) >> 1))`, likewise. -/
 def maskFirst : Digit := 0x80000000
 
-/-- `(t << DIGIT_BITS) >> DIGIT_BITS`: the low half of a double digit. -/
+/-- `(t << DIGIT_BITS) >> DIGIT_BITS`, which for a `uint64_t` is its low word. -/
 private def lo (t : DoubleDigit) : Digit := t.toUInt32
 
-/-- `t >> DIGIT_BITS`: the high half of a double digit. -/
+/-- `t >> DIGIT_BITS`, which is its high word. -/
 private def hi (t : DoubleDigit) : Digit := (t >>> 32).toUInt32
 
 

@@ -23,8 +23,8 @@ def Lean.mkInstanceNameOfType (type : Expr) : TermElabM Name := do
     return name
 
 def Lean.mkInstance (name : Name) (levelParams : List Name) (type value : Expr)
-    (isMeta : Bool := false) (compile : Bool := true)
-    (prio : Nat := eval_prio default) : TermElabM Unit := do
+    (isMeta : Bool) (compile : Bool := true) (prio : Nat := eval_prio default) :
+    TermElabM Unit := do
   let env ← getEnv
   let isUnsafe := env.hasUnsafe type || env.hasUnsafe value
   let isProp ← isProp type
@@ -214,6 +214,10 @@ structure Deriving.Context where
   The names of the declarations within `indInfo.all` that we should generate instances for.
   -/
   names : Array Name
+  /--
+  Whether the generated instances should be `meta`.
+  -/
+  isMeta : Bool
 
 abbrev DerivingM := ReaderT Deriving.Context <| StateRefT Deriving.State TermElabM
 
@@ -242,7 +246,7 @@ def mkInstanceForDeriving (instanceHyps : Array Expr) (type value : Expr) : Deri
   let value ← instantiateMVars <| ← mkLambdaFVars allVars (← instantiateMVars value) (binderInfoForMVars := .instImplicit)
   let shouldExpose := (value.find? (·.constName?.any isPrivateName)).isNone
   withExporting (isExporting := shouldExpose) do
-    discard <| mkInstance instName (← read).levelParams type value
+    discard <| mkInstance instName (← read).levelParams type value (← read).isMeta
 
 def isRecursive : DerivingM Bool := do
   return (← read).indInfo.isRec
@@ -430,6 +434,7 @@ def mkInductiveDerivingHandler (perMutualBlock : DerivingM Bool) (needSucc : Boo
           indParams := params
           indLevel := indLevel'
           names := names
+          isMeta := names.all (isMarkedMeta (← getEnv))
         }
         (perMutualBlock.run ctx).run' {}
     unless res do
@@ -478,6 +483,7 @@ def deriveSimpleLawTypeClass (derivedFrom : Name)
           indParams := indArgs
           indLevel := ← getLevel indApp
           names := #[name]
+          isMeta := isMarkedMeta (← getEnv) name
         }
         (perInstance instApp instValue ctx).run' {}
     unless res do

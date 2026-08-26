@@ -176,13 +176,16 @@ inductive CmpHelperStrategy where
   | withCtorIdx
 
 def makePreDefinitionWithStructuralHint (levelParams : List Name) (declName : Name)
-    (type value : Expr) (majorIdx : Nat) (numArgs : Nat) (isUnsafe : Bool) (makePartial : Bool) :
-    MetaM Elab.PreDefinition := do
+    (type value : Expr) (majorIdx : Nat) (numArgs : Nat) (isUnsafe : Bool) (isMeta : Bool)
+    (makePartial : Bool) : MetaM Elab.PreDefinition := do
+  if isMeta then
+    modifyEnv (markMeta · declName)
   let ref ← getRef
   return {
     ref, levelParams, type, value, declName
     kind := .def
     modifiers := {
+      computeKind := if isMeta then .meta else .regular
       recKind := if makePartial && !isUnsafe then .partial else .default
       attrs := #[{
         name := `specialize
@@ -249,7 +252,7 @@ def makeCmpHelperDoubleMatch (kind : Kind) (levelParams : List Name) (lparams : 
   makePreDefinitionWithStructuralHint levelParams (kind.mkHelperName indName) type value
     (params.size + moreVars.size + lvars.size - 1)
     (params.size + moreVars.size + lvars.size + rvars.size)
-    info.isUnsafe makePartial
+    info.isUnsafe (isMarkedMeta (← getEnv) info.name) makePartial
 
 def makeCmpHelperCtorIdx (kind : Kind) (levelParams : List Name) (lparams : List Level)
     (params : Array Expr) (moreVars : Array Expr) (indName : Name) (ctorCases : Array Expr)
@@ -295,7 +298,7 @@ def makeCmpHelperCtorIdx (kind : Kind) (levelParams : List Name) (lparams : List
   makePreDefinitionWithStructuralHint levelParams (kind.mkHelperName indName) type value
     (params.size + moreVars.size + lvars.size - 1)
     (params.size + moreVars.size + lvars.size + rvars.size)
-    info.isUnsafe makePartial
+    info.isUnsafe (isMarkedMeta (← getEnv) info.name) makePartial
 
 def makeCmpHelperEquation (kind : Kind) (levelParams : List Name) (lparams : List Level)
     (params : Array Expr) (moreVars : Array Expr) (indName ctorName : Name) (eqn : Expr) :
@@ -489,8 +492,8 @@ def FnAccumulatorEntry.addHyp (kind : Kind) (e : FnAccumulatorEntry) : MetaM FnA
   let hypType ← forallTelescope fnType fun vars _ => do
     let a := vars[vars.size - 2]!
     let b := vars[vars.size - 1]!
-    let eqType := kind.mkEq <| mkAppN e.fnMVar vars
-    mkForallFVars vars <| .forallE `heq eqType (← mkEq a b) .default
+    let cmpEq := kind.mkEq <| mkAppN e.fnMVar vars
+    mkForallFVars vars <| .forallE `heq cmpEq (← mkEq a b) .default
   let hypMVar ← mkFreshExprSyntheticOpaqueMVar hypType (`h |>.appendIndexAfter (e.idx + 1))
   return { e with hypMVar? := hypMVar }
 
@@ -734,6 +737,7 @@ structure Context where
   recInfo : RecursorVal
 
 partial def makeRefl (ctx : Context) : MetaM Unit := do
+  let kind := ctx.kind
   let recInfo := ctx.recInfo
   let elimLvlParam :: levelParams := recInfo.levelParams |
     throwError "Invalid level parameters for recursor"
@@ -742,7 +746,7 @@ partial def makeRefl (ctx : Context) : MetaM Unit := do
     forallTelescope (← inferType fn) fun fnVars _ => do
       let fnVars := fnVars.pop
       let last := fnVars.back!
-      let type ← mkForallFVars fnVars (ctx.kind.mkEq (.app (mkAppN fn fnVars) last))
+      let type ← mkForallFVars fnVars (kind.mkEq (.app (mkAppN fn fnVars) last))
       return ((`refl).appendIndexAfter (i + 1), type)
   withLocalDeclsDND reflHypInfos fun reflHyps => do
   let type ← instantiateForall type ctx.params
@@ -756,7 +760,7 @@ partial def makeRefl (ctx : Context) : MetaM Unit := do
       let motiveVar := recVars[i]!
       let motive ← forallTelescope (← inferType motiveVar) fun vars _ => do
         let cmpApp := mkAppN (mkAppN cmpVar vars) vars
-        mkLambdaFVars vars (ctx.kind.mkEq cmpApp)
+        mkLambdaFVars vars (kind.mkEq cmpApp)
       motives := motives.push motive
       idxOfMotive := idxOfMotive.insert motiveVar.fvarId! i
     let mut minors : Array Expr := .emptyWithCapacity recInfo.numMinors
@@ -769,7 +773,7 @@ partial def makeRefl (ctx : Context) : MetaM Unit := do
         let cmpFn := ctx.cmpVars[motiveIdx]!
         let motiveArgs := body.getAppArgs
         let comparison := mkAppN (mkAppN cmpFn motiveArgs) motiveArgs
-        -- Prove `ctx.kind.mkEq e`
+        -- Prove `kind.mkEq e`
         let rec proveRefl (e : Expr) : MetaM Expr := do
           let fn := e.getAppFn
           if let .fvar f := fn then
@@ -780,18 +784,18 @@ partial def makeRefl (ctx : Context) : MetaM Unit := do
                 let varIdx := idxOfField.get! fn.fvarId!
                 let ih := ihs[varIdx]!.get!
                 return mkAppN ih args
-          else if fn == ctx.kind.eqIndicator then
-            return mkApp2 (.const ``rfl [1]) ctx.kind.indicatorType fn
-          else if fn == ctx.kind.chain then
+          else if fn == kind.eqIndicator then
+            return mkApp2 (.const ``rfl [1]) kind.indicatorType fn
+          else if fn == kind.chain then
             let #[lhs, rhs] := e.getAppArgs | unreachable!
             let leftProof ← proveRefl lhs
             let rightProof ← proveRefl rhs
-            return mkApp4 ctx.kind.chainIntro lhs rhs leftProof rightProof
-          else if fn == ctx.kind.dependentChain then
+            return mkApp4 kind.chainIntro lhs rhs leftProof rightProof
+          else if fn == kind.dependentChain then
             let #[lhs, rhs] := e.getAppArgs | unreachable!
             let leftProof ← proveRefl lhs
             let rightProof ← proveRefl (rhs.betaRev #[leftProof])
-            return mkApp4 ctx.kind.dependentChainIntro lhs rhs leftProof rightProof
+            return mkApp4 kind.dependentChainIntro lhs rhs leftProof rightProof
           else if fn.isConstOf ``Eq.rec || fn.isConstOf ``Eq.ndrec then
             let args := e.getAppArgs
             -- the left and right hand sides should be syntactically equal (the same field)
@@ -803,8 +807,8 @@ partial def makeRefl (ctx : Context) : MetaM Unit := do
         let unfoldLemma := mkAppN (mkAppN info.unfoldLemma fields) fields
         let unfolded := info.unfoldResult.beta (fields ++ fields)
         let proof ← proveRefl unfolded
-        let proof := mkApp6 (.const ``Eq.trans [1]) ctx.kind.indicatorType
-          comparison unfolded ctx.kind.eqIndicator unfoldLemma proof
+        let proof := mkApp6 (.const ``Eq.trans [1]) kind.indicatorType
+          comparison unfolded kind.eqIndicator unfoldLemma proof
         mkLambdaFVars vars proof
       minors := minors.push (minor.replaceFVars motiveVars motives)
     let recLParams := 0 :: recInfo.levelParams.tail.map Level.param
@@ -813,14 +817,55 @@ partial def makeRefl (ctx : Context) : MetaM Unit := do
       let some name := name | continue
       let some cmpValue ← cmpVar.fvarId!.getValue? | throwError "{cmpVar} does not have a value"
       forallTelescope (← inferType motiveVar) fun motiveArgs _ => do
-      let resType := ctx.kind.mkEq <| mkAppN (mkAppN cmpValue motiveArgs) motiveArgs
+      let resType := kind.mkEq <| mkAppN (mkAppN cmpValue motiveArgs) motiveArgs
       let type ← mkForallFVars (ctx.allParams ++ reflHyps ++ motiveArgs) resType
       let recApp := mkAppN (.const (mkRecName name) recLParams) recArgs
       let value ← mkLambdaFVars (ctx.allParams ++ reflHyps) <| ← mkLetFVars ctx.cmpVars recApp
       addDecl <| .thmDecl {
-        name := .str (ctx.kind.mkHelperName name) "refl"
+        name := .str (kind.mkHelperName name) "refl"
         levelParams, type, value
       }
+
+partial def makeLawfulEq (ctx : Context) : MetaM Unit := do
+  let kind := ctx.kind
+  let recInfo := ctx.recInfo
+  let elimLvlParam :: levelParams := recInfo.levelParams |
+    throwError "Invalid level parameters for recursor"
+  let type := recInfo.type.instantiateLevelParams [elimLvlParam] [.zero]
+  let mut lawfulHypInfos := #[]
+  for h : i in 0...ctx.functions.size do
+    if ctx.hyps[i]!.isSome then continue
+    let fn := ctx.functions[i]
+    let type ← forallTelescope (← inferType fn) fun vars _ => do
+      let a := vars[vars.size - 2]!
+      let b := vars[vars.size - 1]!
+      let cmpEq := kind.mkEq <| mkAppN fn vars
+      mkForallFVars vars <| .forallE `heq cmpEq (← mkEq a b) .default
+    lawfulHypInfos := lawfulHypInfos.push ((`h).appendIndexAfter (i + 1), type)
+  withLocalDeclsDND lawfulHypInfos fun newLawfulHyps => do
+  -- Reassemble the lawfulness hypotheses; we have old ones that are required for the helper
+  -- and new ones we have added above. However, we need them in the right order for later
+  let mut allLawfulHyps := #[]
+  let mut newHypIdx := 0
+  for i in 0...ctx.functions.size do
+    if let some hyp := ctx.hyps[i]! then
+      allLawfulHyps := allLawfulHyps.push hyp
+    else
+      allLawfulHyps := allLawfulHyps.push newLawfulHyps[newHypIdx]!
+      newHypIdx := newHypIdx + 1
+  let type ← instantiateForall type ctx.params
+  forallTelescope type fun recVars _ => do
+    let motiveVars := recVars.take recInfo.numMotives
+    let mut motives : Array Expr := .emptyWithCapacity recInfo.numMotives
+    let mut idxOfMotive : FVarIdMap Nat := {}
+    for i in 0...recInfo.numMotives do
+      let some cmpVar := ctx.cmpVars[i]? |
+        throwError "Comparison variable unavailable for motive at index {i}"
+      let motiveVar := recVars[i]!
+      let motive ← forallTelescope (← inferType motiveVar) fun vars _ => do
+        let cmpApp := mkAppN (mkAppN cmpVar vars) vars
+        mkLambdaFVars vars (ctx.kind.mkEq cmpApp)
+      motives := motives.push motive
 
 def withNonNestedContext (indName : Name) (kind : Kind) (k : Context → MetaM α) : MetaM α := do
   let indInfo ← getConstInfoInduct indName

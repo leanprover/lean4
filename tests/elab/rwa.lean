@@ -152,22 +152,23 @@ example (h : n = m) : n = m := by
   rwa [h]
 
 /-!
-The warning is still emitted when rewriting produces a side goal that cannot be
-closed by `assumption`. The side goal remains after `rwa`.
+No warning is emitted when rewriting produces side goals, whether or not `rwa`
+can close them using `assumption`.
 -/
 
-/--
-warning: `rw` already closes the goal
-
-Hint: Use `rw` instead of `rwa`:
-  [apply] rw [conditionalEq a b p]
-
-Note: This linter can be disabled with `set_option linter.unnecessaryRwa false`
--/
 #guard_msgs in
 example (mkp : True → p) : a = b := by
   rwa [conditionalEq a b p]
   exact mkp trivial
+
+#guard_msgs in
+example (hp : p) : a = b := by
+  rwa [conditionalEq a b p]
+
+#guard_msgs in
+set_option linter.unusedVariables false in
+example (ha : P a) (hp : p) : (0 : Nat) = 0 := by
+  rwa [conditionalEq a b p] at ha
 
 /--
 warning: `rw` already closes the goal
@@ -192,3 +193,7 @@ example (hp : p) (h : p ↔ q) : q := by
   rwa [← h]
 
 end Unnecessary
+
+example {a b c : Nat} (h : a = b) (h' : b = c) : a = b ∧ b = c := by
+  constructor
+  rwa [h]

@@ -43,11 +43,16 @@ private def evalRwaCore (ref : Syntax) (rewrite replacement close : TSyntax `tac
   Tactic.focus do
     let initialState ← saveState
     evalTactic rewrite
-    Tactic.focus <|
+    let closedByRfl ← Tactic.focus <|
       (do
         evalTactic (← `(tactic| with_reducible rfl))
-        logUnnecessaryRwa initialState ref replacement) <|>
-      evalTactic close
+        pure true) <|>
+      (do
+        evalTactic close
+        pure false)
+    let sideGoals ← getUnsolvedGoals
+    if closedByRfl && sideGoals.isEmpty then
+      logUnnecessaryRwa initialState ref replacement
     evalTactic (← `(tactic| all_goals (first | with_reducible rfl | assumption | skip)))
 
 @[builtin_tactic Lean.Parser.Tactic.rwa]

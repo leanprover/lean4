@@ -631,7 +631,7 @@ instance : LawfulUpwardEnumerableLeast? ISize where
     refine ⟨ISize.minValue, rfl, (x.toInt - ISize.minValue.toInt).toNat, ?_⟩
     simp only [succMany?, Int.ofNat_toNat, ofIntLE_eq_ofInt, maxValueSealed]
     rw [Int.max_eq_left, Int.sub_eq_add_neg, Int.add_comm _ (-minValue.toInt), ← Int.add_assoc,
-      ← Int.sub_eq_add_neg, Int.sub_self, Int.zero_add, dif_pos (toInt_le x), ofInt_toInt]
+      ← Int.sub_eq_add_neg, Int.sub_self, Int.zero_add, dite_eq_left (toInt_le x), ofInt_toInt]
     have := minValue_le_toInt x
     omega
 

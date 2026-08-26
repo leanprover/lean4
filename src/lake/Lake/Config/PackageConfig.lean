@@ -337,6 +337,12 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   builtinLint?, builtinLint : Option Bool := none
 
   /--
+  Additional modules imported for each environment
+  used in running code quality checks.
+  -/
+  checks : Array Name := #[]
+
+  /--
   Whether this package is expected to function only on a single toolchain
   (the package's toolchain).
 

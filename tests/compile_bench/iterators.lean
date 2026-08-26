@@ -52,7 +52,7 @@ section Primes
 
 def numDivisors (n : Nat) := (1...=n).iter
   |>.filter (n % · = 0)
-  |>.count
+  |>.length
 
 def isPrime (n : Nat) := numDivisors n == 2
 

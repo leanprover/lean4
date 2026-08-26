@@ -154,7 +154,7 @@ test_exp -f .lake/build/lib/lean/Test.ilean
 
 # Verify that things work properly if the cached artifact is removed
 test_cmd rm -f "$cache_art"
-test_out "⚠ [4/4] Replayed Test:c.o" build +Test:o -v --no-build
+test_out "Replayed Test:c.o" build +Test:o -v --no-build
 test_exp -f "$cache_art" # artifact should be re-cached
 test_cmd rm -r "$CACHE_DIR/outputs"
 test_out "Replayed Test:c.o" build +Test:o -v --no-build
@@ -271,6 +271,31 @@ test_exp -d "$CACHE_DIR"
 test_run cache clean
 test_exp ! -d "$CACHE_DIR"
 
+# Verify cached artifacts are not re-downloaded and that
+# artifacts sharing a content hash across extensions are restored locally
+# (and thus that artifacts are deduplicated by hash)
+rm -rf "$CACHE_DIR"
+mkdir -p "$CACHE_DIR/artifacts"
+hsh=0123456789abcdef
+schema_ver=2026-03-17 # cache map schema version
+echo "arbitrary artifact contents" > "$CACHE_DIR/artifacts/$hsh.o"
+# An already-cached artifact is not re-downloaded
+cat <<EOF > .lake/dummy-outputs.jsonl
+"$schema_ver"
+["aaaaaaaaaaaaaaaa","$hsh.o"]
+EOF
+test_run cache get .lake/dummy-outputs.jsonl --scope=test
+# A shared content hash restores each extension by local copy
+test_exp ! -f "$CACHE_DIR/artifacts/$hsh.dup"
+cat <<EOF > .lake/dummy-outputs.jsonl
+"$schema_ver"
+["aaaaaaaaaaaaaaaa","$hsh.o"]
+["bbbbbbbbbbbbbbbb","$hsh.dup"]
+EOF
+test_run cache get .lake/dummy-outputs.jsonl --scope=test
+test_exp -f "$CACHE_DIR/artifacts/$hsh.dup"
+test_cmd cmp -s "$CACHE_DIR/artifacts/$hsh.o" "$CACHE_DIR/artifacts/$hsh.dup"
+
 # Verify all artifacts restore from the cache and
 # use the build directory with `restoreAllArtifacts`
 test_cmd rm -rf "$CACHE_DIR" .lake/build
@@ -304,7 +329,15 @@ test_restored +Module:olean.server Module.olean.server
 test_restored +Module:olean.private Module.olean.private
 test_restored +Module:ir Module.ir
 
-# Verify that invalid outputs do not break Lake
+# Verify that a hard linked restored executable is given the right
+# permissions to run even if the cached artifact lacked them (e.g.,
+# because it came from `lake cache get`)
+test_cmd chmod 444 $CACHE_DIR/artifacts/*
+test_cmd rm -rf .lake/build/bin
+test_run exe test
+
+# Verify that invalid outputs do not break Lake.
+# https://github.com/leanprover/lean4/issues/14670
 if command -v jq > /dev/null; then # skip if no jq found
   libPath=$($LAKE query Test:static)
   test_cmd rm -f $libPath
@@ -312,11 +345,11 @@ if command -v jq > /dev/null; then # skip if no jq found
   echo $inputHash
   test_cmd rm -f $libPath.trace
   echo bogus > "$CACHE_DIR/outputs/test/$inputHash.json"
-  test_out 'invalid JSON' build Test:static
+  test_out 'invalid JSON' build Test:static -v --iofail
   test_exp -f $libPath
   test_cmd rm -f $libPath $libPath.trace
   echo '"bogus"' > "$CACHE_DIR/outputs/test/$inputHash.json"
-  test_out 'some output(s) have issues' build Test:static
+  test_out 'some output(s) have issues' build Test:static -v --iofail
   test_exp -f $libPath
 fi
 

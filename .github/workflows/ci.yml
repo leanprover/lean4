@@ -28,6 +28,10 @@ jobs:
   # This job determines various settings for the following CI runs; see the `outputs` for details
   configure:
     runs-on: ubuntu-latest
+    env:
+      # don't schedule nightlies on forks
+      IS_NIGHTLY: ${{ (github.event_name == 'schedule' && github.repository == 'leanprover/lean4') || inputs.action == 'release nightly' }}
+      IS_LEAN4_REPO_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.repository == 'leanprover/lean4' }}
     outputs:
       # The build matrix, dynamically generated here
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -47,12 +51,18 @@ jobs:
       RELEASE_TAG: ${{ steps.set-release.outputs.RELEASE_TAG }}
 
     steps:
-      - name: Checkout
+      - name: Checkout (full)
         uses: actions/checkout@v6
-        # don't schedule nightlies on forks
-        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly' || (startsWith(github.ref, 'refs/tags/') && github.repository == 'leanprover/lean4')
+        if: env.IS_NIGHTLY == 'true' || env.IS_LEAN4_REPO_TAG == 'true'
+      - name: Checkout (sparse)
+        uses: actions/checkout@v6
+        if: env.IS_NIGHTLY != 'true' && env.IS_LEAN4_REPO_TAG != 'true'
+        with:
+          sparse-checkout: |
+            src/stdlib_flags.h
+            stage0/src/stdlib_flags.h
       - name: Set Nightly
-        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly'
+        if: env.IS_NIGHTLY == 'true'
         id: set-nightly
         run: |
           if [[ -n '${{ secrets.PUSH_NIGHTLY_TOKEN }}' ]]; then
@@ -189,6 +199,9 @@ jobs:
           check_level=0
           fast=false
           lake_ci=false
+          fsanitize=false
+          macos_arm=false
+          target_stage=1
 
           if [[ -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outputs.RELEASE_TAG }}" ]]; then
             check_level=3
@@ -209,12 +222,24 @@ jobs:
             if echo "$labels" | grep -q "fast-ci"; then
               fast=true
             fi
+            if echo "$labels" | grep -q "fsanitize-ci"; then
+              fsanitize=true
+            fi
+            if echo "$labels" | grep -q "macos-arm-ci"; then
+              macos_arm=true
+            fi
+            if ! diff src/stdlib_flags.h stage0/src/stdlib_flags.h; then
+              target_stage=2
+            fi
           fi
 
           {
             echo "check-level=$check_level"
             echo "fast=$fast"
             echo "lake-ci=$lake_ci"
+            echo "fsanitize=$fsanitize"
+            echo "macos-arm=$macos_arm"
+            echo "target-stage=$target_stage"
           } >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ github.token }}
@@ -237,7 +262,15 @@ jobs:
           script: |
             const level = ${{ steps.set-level.outputs.check-level }};
             const fast = ${{ steps.set-level.outputs.fast }};
+            const fsanitize = ${{ steps.set-level.outputs.fsanitize }};
+            const macos_arm = ${{ steps.set-level.outputs.macos-arm }};
+            const target_stage = ${{ steps.set-level.outputs.target-stage }};
             const lakeCi = "${{ steps.set-level.outputs.lake-ci }}" == "true";
+            // A release build stamps the commit githash into its `.olean`s and enforces it, which
+            // makes every artifact commit-specific and thus unusable to the caches. Only what we
+            // actually ship is built that way; everything below it builds unstamped so that it can
+            // reuse cached artifacts.
+            const stamped = level >= 2;
             console.log(`level: ${level}, fast: ${fast}`);
             // use large runners where available (original repo)
             let large = ${{ github.repository == 'leanprover/lean4' }};
@@ -256,16 +289,16 @@ jobs:
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/22.1.4/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
-                // foreign code may be linked against more recent glibc
-                // reverse-ffi needs to be updated to link to LLVM libraries
-                "CTEST_OPTIONS": "-E 'foreign|leanlaketest_reverse-ffi'",
                 "CMAKE_OPTIONS": "-DLLVM=ON -DLLVM_CONFIG=${GITHUB_WORKSPACE}/build/llvm-host/bin/llvm-config"
               }, */
               {
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
                 "os": large ? chonk : "ubuntu-latest",
-                "release": true,
+                "release": stamped,
+                // Unstamped builds are published too (`pr-release.yml`, `grove.yml`), so always pack
+                // and upload the artifact.
+                "upload": true,
                 "enabled": true,
                 "check-rebootstrap": level >= 1,
                 // Done as part of test-bench
@@ -278,29 +311,16 @@ jobs:
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
                 // We are not warning-free yet on all platforms, start with Linux
-                // Do not (yet) use Lake cache on release
-                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror" + (level < 3 ? " -DUSE_LAKE_CACHE=ON" : ""),
-                "lake-actions-cache": level < 3,
-                // foreign code may be linked against more recent glibc
-                "CTEST_OPTIONS": "-E 'foreign'",
-              },
-              {
-                "name": "Linux Lake (Cached)",
-                "os": large ? "nscloud-ubuntu-24.04-amd64-8x16" : "ubuntu-latest",
-                "enabled": true,
-                "check-rebootstrap": level >= 1,
-                // Done as part of test-bench
-                //"check-stage3": level >= 2,
-                "test": true,
-                "secondary": true,
-                // NOTE: `test-bench` currently seems to be broken on `ubuntu-latest`
-                "test-bench": large && level >= 2,
-                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror -DUSE_LAKE_CACHE=ON",
+                // A stamped build would reject the `.olean`s the cache holds from other commits, so
+                // it neither enables the cache for the build nor transfers it.
+                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror" + (stamped ? "" : " -DUSE_LAKE_CACHE=ON"),
+                "lake-cache": !stamped,
               },
               {
                 "name": "Linux RelWithAssert",
-                "os": "ubuntu-latest",
-                "enabled": level >= 2,
+                // Started running out of disk on GitHub standard runners
+                "os": "nscloud-ubuntu-24.04-amd64-8x16",
+                "enabled": large && level >= 2,
                 "test": true,
                 "CMAKE_PRESET": "relwithassert",
                 // * `elab_bench/big_do` crashes with exit code 134
@@ -309,25 +329,35 @@ jobs:
               },
               {
                 "name": "Linux fsanitize",
-                // Always run on large if available, more reliable regarding timeouts
-                "os": large ? "nscloud-ubuntu-24.04-amd64-16x32" : "ubuntu-latest",
-                "enabled": level >= 2,
-                // do not fail nightlies on this for now
-                "secondary": level <= 2,
+                // Always run on large if available, more reliable regarding timeouts.
+                // Building stage 2 with fsanitize needs > 32GB.
+                "os": large ? (target_stage >= 2 ? "nscloud-ubuntu-24.04-amd64-32x64" : "nscloud-ubuntu-24.04-amd64-8x16") : "ubuntu-latest",
+                "enabled": level >= 2 || fsanitize,
                 "test": true,
                 // turn off custom allocator & symbolic functions to make LSAN do its magic
                 "CMAKE_PRESET": "sanitize",
                 // * `StackOverflow*` correctly triggers ubsan.
-                // * `reverse-ffi` fails to link in sanitizers.
                 // * `interactive` and `async_select_channel` fail nondeterministically, would need
                 //   to be investigated..
                 // * 9366 is too close to timeout.
-                // * `bv_` sometimes times out calling into cadical even though we should be using
-                //   the standard compile flags for it.
                 // * `grind_guide` always times out.
                 // * `pkg/|lake/` tests sometimes time out (likely even hang), related to Lake CI
                 //   failures?
-                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel|9366|run/bv_|grind_guide|grind_bitvec2|grind_constProp|grind_indexmap|grind_list|grind_lint|grind_array_attach|grind_ite_trace|pkg/|lake/'"
+                // * `kernelMaxRecDepth` stack-overflows in the interpreter.
+                // * `*bench` is too expensive to run with fsanitize (also can e.g. stack overflow).
+                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/'"
+              },
+              {
+                "name": "Linux tsanitize",
+                "os": large ? "nscloud-ubuntu-24.04-amd64-32x64" : "ubuntu-latest",
+                "enabled": (level >= 2 || fsanitize) && target_stage < 2,
+                "test": true,
+                // turn off custom allocator & symbolic functions to make TSAN do its magic
+                "CMAKE_PRESET": "sanitize-thread",
+                // We take a small subset of tests for tsan and run with reduced test parallelism.
+                // This is necessary as running tsan in parallel on all of our test suite would
+                // easily OOM the runner.
+                "CTEST_OPTIONS": "-j2 -E 'async_http_body|async_http_dispatch|async_http_encode|async_http_fuzz|async_http_response_framing|async_http_hang_regressions|task_iterators' -R '(compile/534)|(elab/(async.*|sync_.*|task.*|bv_bitwise|net_addr|networkInterfaces|openssl|idbg.*|Process|handleLocking|ioNulBytes|ioRandomBytes|libuv|readDir|realPath|st_test|stateRef|grind_list_count|vcgenSymBlock|doControlInfoAggregate))'"
               },
               {
                 "name": "macOS",
@@ -340,13 +370,13 @@ jobs:
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
-                "CTEST_OPTIONS": "-E 'leanlaketest_hello'", // started failing from unpack
               },
               {
                 "name": "macOS aarch64",
-                "enabled": level >= 1,
+                "enabled": level >= 1 || macos_arm,
+                "test": level >= 2,
                 // standard GH runner only comes with 7GB so use large runner if possible when running tests
-                "os": large ? "nscloud-macos-sequoia-arm64-6x14" : "macos-15",
+                "os": large && (fast || level >= 2) ? "nscloud-macos-sequoia-arm64-6x14" : "macos-15",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
                 "shell": "bash -euxo pipefail {0}",
@@ -369,7 +399,7 @@ jobs:
               },
               {
                 "name": "Linux aarch64",
-                "os": "nscloud-ubuntu-22.04-arm64-4x16",
+                "os": "ubuntu-24.04-arm",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-linux_aarch64",
                 "release": true,
                 "enabled": level >= 2,
@@ -477,12 +507,14 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     needs: build
+    permissions:
+      contents: write
     steps:
       - uses: actions/download-artifact@v8
         with:
           path: artifacts
       - name: Release
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
         with:
           files: artifacts/*/*
           fail_on_unmatched_files: true
@@ -490,6 +522,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Update release.lean-lang.org
+        if: github.repository == 'leanprover/lean4'
         run: |
           gh workflow -R leanprover/release-index run update-index.yml
         env:
@@ -528,7 +561,7 @@ jobs:
           echo -e "\n*Full commit log*\n" >> diff.md
           git log --oneline "$last_tag"..HEAD | sed 's/^/* /' >> diff.md
       - name: Release Nightly
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
         with:
           body_path: diff.md
           prerelease: true
@@ -536,8 +569,7 @@ jobs:
           fail_on_unmatched_files: true
           tag_name: ${{ needs.configure.outputs.nightly }}
           repository: ${{ github.repository_owner }}/lean4-nightly
-        env:
-          GITHUB_TOKEN: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
+          token: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
       - name: Update release.lean-lang.org
         run: |
           gh workflow -R leanprover/release-index run update-index.yml

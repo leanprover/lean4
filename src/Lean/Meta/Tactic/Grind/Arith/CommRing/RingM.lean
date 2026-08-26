@@ -39,6 +39,11 @@ structure RingM.Context where
   the simplification anyway, we may end up with a proof that `k * q = 0`, but
   we cannot deduce `q = 0` since the ring does not implement `NoNatZeroDivisors`
   See comment at `PolyDerivation`.
+
+  We also need it when destructively simplifying equations, i.e., when *replacing* an
+  equation with its simplified form (`EqCnstr.simplify` and `EqCnstr.simplifyBasis`):
+  the rewrite multiplies the equation by `k₁ = k/gcd k k'`, and the result is weaker than
+  the original equation when `k₁ ≠ ±1`. See **Note** at `EqCnstr.simplify`.
   -/
   checkCoeffDvd : Bool := false
 

@@ -23,7 +23,24 @@ private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m Lean.Syntax.
 variable [Monad m] [MonadFileMap m] [MonadEnv m]
 variable [MonadError m] [AddMessageContext m] [MonadLog m] [MonadOptions m]
 
+/--
+Parses a string literal's contents directly from its decoded value rather than from the source file.
+This is used when the literal has no source position, as in a docstring that came from a macro.
+-/
+private def parseFromContents (p : ParserFn) (contents : String) : m Syntax := do
+  let env ← getEnv
+  let ictx := mkInputContext contents (← getFileName)
+  let s := p.run ictx { env, options := ← getOptions } (getTokenTable env) (mkParserState contents)
+  if !s.allErrors.isEmpty then
+    throwError (s.toErrorMsg ictx)
+  else if ictx.atEnd s.pos then
+    pure s.stxStack.back
+  else
+    throwError ((s.mkError "end of input").toErrorMsg ictx)
+
 def parseStrLit (p : ParserFn) (s : StrLit) : m Syntax := do
+  if (s.raw.getPos? (canonicalOnly := true)).isNone then
+    return ← parseFromContents p s.getString
   let text ← getFileMap
   let env ← getEnv
   let ⟨pos, endPos⟩ ← strLitRange s
@@ -43,6 +60,8 @@ def parseStrLit (p : ParserFn) (s : StrLit) : m Syntax := do
     throwError ((s.mkError "end of input").toErrorMsg ictx)
 
 def parseQuotedStrLit (p : ParserFn) (strLit : StrLit) : m Syntax := do
+  if (strLit.raw.getPos? (canonicalOnly := true)).isNone then
+    return ← parseFromContents p strLit.getString
   let text ← getFileMap
   let env ← getEnv
   let ⟨pos, _⟩ ← strLitRange strLit
@@ -100,6 +119,18 @@ where
     return n
 
 def parseStrLit' (p : ParserFn) (s : StrLit) : m (Syntax × Bool) := do
+  if (s.raw.getPos? (canonicalOnly := true)).isNone then
+    let contents := s.getString
+    let env ← getEnv
+    let ictx := mkInputContext contents (← getFileName)
+    let st := p.run ictx { env, options := ← getOptions } (getTokenTable env) (mkParserState contents)
+    let err ←
+      if !st.allErrors.isEmpty then
+        logError (st.toErrorMsg ictx); pure true
+      else if !ictx.atEnd st.pos then
+        logError ((st.mkError "end of input").toErrorMsg ictx); pure true
+      else pure false
+    return (st.stxStack.back, err)
   let text ← getFileMap
   let env ← getEnv
   let endPos := s.raw.getTailPos? true |>.get!

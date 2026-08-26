@@ -142,15 +142,21 @@ public theorem LawfulOrderMax.of_ord (α : Type u) [Ord α] [Max α] [LE α] [La
   toLawfulOrderSup := .of_ord α compare_max_isLE_iff
   max_eq_or := max_eq_or
 
-public theorem min_eq_if_isLE_compare {α : Type u} [Ord α] [LE α] {_ : Min α}
+public theorem min_eq_ite_isLE_compare {α : Type u} [Ord α] [LE α] {_ : Min α}
     [LawfulOrderOrd α] [LawfulOrderLeftLeaningMin α] {a b : α} :
     min a b = if (compare a b).isLE then a else b := by
-  open Classical in simp [min_eq_if, isLE_compare]
+  open Classical in simp [min_eq_ite, isLE_compare]
 
-public theorem max_eq_if_isGE_compare {α : Type u} [Ord α] [LE α] {_ : Max α}
+@[deprecated Std.min_eq_ite_isLE_compare (since := "2026-07-21")]
+public theorem min_eq_if_isLE_compare {α : Type u} [Ord α] [LE α] {_ : Min α} [Std.LawfulOrderOrd α] [Std.LawfulOrderLeftLeaningMin α] {a : α} {b : α} : Min.min a b = if (Ord.compare a b).isLE = Bool.true then a else b := Std.min_eq_ite_isLE_compare
+
+public theorem max_eq_ite_isGE_compare {α : Type u} [Ord α] [LE α] {_ : Max α}
     [LawfulOrderOrd α] [LawfulOrderLeftLeaningMax α]
     {a b : α} : max a b = if (compare a b).isGE then a else b := by
-  open Classical in simp [max_eq_if, isGE_compare]
+  open Classical in simp [max_eq_ite, isGE_compare]
+
+@[deprecated Std.max_eq_ite_isGE_compare (since := "2026-07-21")]
+public theorem max_eq_if_isGE_compare {α : Type u} [Ord α] [LE α] {_ : Max α} [Std.LawfulOrderOrd α] [Std.LawfulOrderLeftLeaningMax α] {a : α} {b : α} : Max.max a b = if (Ord.compare a b).isGE = Bool.true then a else b := Std.max_eq_ite_isGE_compare
 
 theorem min_le_min [LE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] [IsLinearOrder α] (a b : α) : min a b ≤ min b a := by
   apply (LawfulOrderInf.le_min_iff (min a b) b a).2

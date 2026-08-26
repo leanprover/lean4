@@ -1,3 +1,5 @@
+import Std.Tactic.Do
+
 /-!
 # Lean transcription and verification of the built-in MPN bignum implementation
 
@@ -38,6 +40,9 @@ about the values becomes a structural or well-founded recursion.
 A transliteration is only worth as much as its fidelity to the original, and nothing here checks
 that mechanically: it rests on reading the two side by side, which is what the quoted C++ is for.
 -/
+open Std Do
+set_option mvcgen.warning false
+
 namespace Mpn
 
 /-- `mpn_digit`, which `mpn.h` fixes at `uint32_t`. -/
@@ -418,8 +423,25 @@ def addStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Dig
     c[len] = k;
 ```
 -/
-def addLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit :=
-  (List.range len).foldl (addStep a b) (#[], 0)
+def addLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
+  let mut c : Array Digit := #[]
+  let mut k : Digit := 0
+  for j in List.range len do
+    let u_j := a.getD j 0
+    let v_j := b.getD j 0
+    let r := u_j + v_j
+    let c1 := r < u_j
+    let cj := r + k
+    let c2 := cj < r
+    c := c.push cj
+    k := if c1 || c2 then 1 else 0
+  return (c, k)
+
+/-- The loop as the fold its proof inducts over. -/
+theorem addLoop_eq (a b : Array Digit) (len : Nat) :
+    addLoop a b len = (List.range len).foldl (fun s j => addStep a b s j) (#[], 0) := by
+  simp [addLoop, addStep, Id.run]
+  rfl
 
 /--
 `mpn_add`'s trimming of the result length:
@@ -473,8 +495,25 @@ def subStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Dig
     for (size_t j = 0; j < len; j++) { ... }
 ```
 -/
-def subLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit :=
-  (List.range len).foldl (subStep a b) (#[], 0)
+def subLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
+  let mut c : Array Digit := #[]
+  let mut k : Digit := 0
+  for j in List.range len do
+    let u_j := a.getD j 0
+    let v_j := b.getD j 0
+    let r := u_j - v_j
+    let c1 := r > u_j
+    let cj := r - k
+    let c2 := cj > r
+    c := c.push cj
+    k := if c1 || c2 then 1 else 0
+  return (c, k)
+
+/-- The loop as the fold its proof inducts over. -/
+theorem subLoop_eq (a b : Array Digit) (len : Nat) :
+    subLoop a b len = (List.range len).foldl (fun s j => subStep a b s j) (#[], 0) := by
+  simp [subLoop, subStep, Id.run]
+  rfl
 
 /--
 `mpn_sub`, Knuth's Algorithm S. Returns the `max lnga lngb` result digits and
@@ -507,12 +546,31 @@ def subInPlaceStep (b : Array Digit) (off : Nat) (s : Array Digit × Digit) (i :
   (u.set! (off + i) ci, if c1 || c2 then 1 else 0)
 
 /-- `mpn_sub`'s digit loop run in place over `u[off..off+len)`. -/
-def subInPlace (u b : Array Digit) (off len : Nat) : Array Digit × Digit :=
-  (List.range len).foldl (subInPlaceStep b off) (u, 0)
+def subInPlace (u b : Array Digit) (off len : Nat) : Array Digit × Digit := Id.run do
+  let mut u := u
+  let mut k : Digit := 0
+  for i in List.range len do
+    let u_i := u.getD (off + i) 0
+    let v_i := b.getD i 0
+    let r := u_i - v_i
+    let c1 := r > u_i
+    let ci := r - k
+    let c2 := ci > r
+    u := u.set! (off + i) ci
+    k := if c1 || c2 then 1 else 0
+  return (u, k)
+
+/-- The loop as the fold its proof inducts over. -/
+theorem subInPlace_foldl (u b : Array Digit) (off len : Nat) :
+    subInPlace u b off len
+      = (List.range len).foldl (fun s i => subInPlaceStep b off s i) (u, 0) := by
+  simp [subInPlace, subInPlaceStep, Id.run]
+  rfl
 
 private theorem subInPlace_succ (u b : Array Digit) (off len : Nat) :
     subInPlace u b off (len+1) = subInPlaceStep b off (subInPlace u b off len) len := by
-  simp [subInPlace, List.range_succ, List.foldl_append]
+  rw [subInPlace_foldl, subInPlace_foldl]
+  simp [List.range_succ, List.foldl_append]
 
 
 /-! ## `mpn_mul` -/
@@ -547,7 +605,23 @@ def mulInnerStep (a : Array Digit) (v_j : Digit) (j : Nat)
 -/
 def mulInner (a : Array Digit) (v_j : Digit) (j : Nat) (c : Array Digit) (lnga : Nat) :
     Array Digit × Digit :=
-  (List.range lnga).foldl (mulInnerStep a v_j j) (c, 0)
+    Id.run do
+  let mut c := c
+  let mut k : Digit := 0
+  for i in List.range lnga do
+    let u_i := a.getD i 0
+    let t : DoubleDigit :=
+      u_i.toUInt64 * v_j.toUInt64 + (c.getD (i + j) 0).toUInt64 + k.toUInt64
+    c := c.set! (i + j) (lo t)
+    k := hi t
+  return (c, k)
+
+/-- The loop as the fold its proof inducts over. -/
+theorem mulInner_eq (a : Array Digit) (v_j : Digit) (j : Nat) (c : Array Digit) (lnga : Nat) :
+    mulInner a v_j j c lnga
+      = (List.range lnga).foldl (fun s i => mulInnerStep a v_j j s i) (c, 0) := by
+  simp [mulInner, mulInnerStep, Id.run]
+  rfl
 
 /--
 One iteration of `mpn_mul`'s outer loop:
@@ -585,8 +659,19 @@ NOTE: the C++ zeroes only `c[0..lnga)` and relies on the outer loop to write
 every digit from `lnga` up; zeroing the whole buffer here computes the same
 result and states the invariant more simply.
 -/
-def mulLoop (a b : Array Digit) (m : Nat) : Array Digit :=
-  (List.range m).foldl (mulOuterStep a b) (Array.replicate (a.size + b.size) 0)
+def mulLoop (a b : Array Digit) (m : Nat) : Array Digit := Id.run do
+  let mut c := Array.replicate (a.size + b.size) 0
+  for j in List.range m do
+    c := mulOuterStep a b c j
+  return c
+
+/-- The loop as the fold its proof inducts over. -/
+theorem mulLoop_eq (a b : Array Digit) (m : Nat) :
+    mulLoop a b m
+      = (List.range m).foldl (fun c j => mulOuterStep a b c j)
+          (Array.replicate (a.size + b.size) 0) := by
+  simp [mulLoop, Id.run]
+  rfl
 
 /-- `mpn_mul`, Knuth's Algorithm M. Returns `lnga + lngb` digits. -/
 def mul (a b : Array Digit) : Array Digit := mulLoop a b b.size
@@ -1182,7 +1267,8 @@ theorem addLoop_spec (a b : Array Digit) (len : Nat) :
   | succ len ih =>
     obtain ⟨hsz, hk, hval⟩ := ih
     have hstep : addLoop a b (len+1) = addStep a b (addLoop a b len) len := by
-      simp [addLoop, List.range_succ, List.foldl_append]
+      rw [addLoop_eq, addLoop_eq]
+      simp [List.range_succ, List.foldl_append]
     rw [hstep]
     refine ⟨by simp [addStep, hsz], addStep_carry_le .., ?_⟩
     have hd := addStep_digit (a.getD len 0) (b.getD len 0) (addLoop a b len).2 hk
@@ -1245,7 +1331,8 @@ theorem subLoop_spec (a b : Array Digit) (len : Nat) :
   | succ len ih =>
     obtain ⟨hsz, hk, hval⟩ := ih
     have hstep : subLoop a b (len+1) = subStep a b (subLoop a b len) len := by
-      simp [subLoop, List.range_succ, List.foldl_append]
+      rw [subLoop_eq, subLoop_eq]
+      simp [List.range_succ, List.foldl_append]
     rw [hstep]
     refine ⟨by simp [subStep, hsz], subStep_borrow_le .., ?_⟩
     have hd := subStep_digit (a.getD len 0) (b.getD len 0) (subLoop a b len).2 hk
@@ -1289,7 +1376,8 @@ theorem subInPlace_spec (u b w : Array Digit) (off len : Nat)
   | succ n ih =>
     obtain ⟨hsz, hk, hdig, hout⟩ := ih (by omega) (fun i hi => hw i (by omega))
     have hstep : subLoop w b (n+1) = subStep w b (subLoop w b n) n := by
-      simp [subLoop, List.range_succ, List.foldl_append]
+      rw [subLoop_eq, subLoop_eq]
+      simp [List.range_succ, List.foldl_append]
     have hread : (subInPlace u b off n).1.getD (off + n) 0 = w.getD n 0 := by
       rw [hout (off + n) (by omega), hw n (by omega)]
     have hlensz : (subLoop w b n).1.size = n := (subLoop_spec w b n).1
@@ -1363,7 +1451,8 @@ theorem mulInner_spec (a : Array Digit) (v : Digit) (j : Nat) (c₀ : Array Digi
   | succ n ih =>
     obtain ⟨hsz, huntouched, hval⟩ := ih (by omega)
     have hstep : mulInner a v j c₀ (n+1) = mulInnerStep a v j (mulInner a v j c₀ n) n := by
-      simp [mulInner, List.range_succ, List.foldl_append]
+      rw [mulInner_eq, mulInner_eq]
+      simp [List.range_succ, List.foldl_append]
     -- the digit this step reads has not been written yet
     have hread : (mulInner a v j c₀ n).1.getD (n + j) 0 = c₀.getD (n + j) 0 :=
       huntouched _ (Or.inr (by omega))
@@ -1392,13 +1481,14 @@ theorem mulLoop_spec (a b : Array Digit) (m : Nat) (hm : m ≤ b.size) :
     denote (mulLoop a b m) = denote a * denoteN b m := by
   induction m with
   | zero =>
-    refine ⟨by simp [mulLoop], fun idx _ => ?_, ?_⟩
-    · rw [mulLoop, List.range_zero, List.foldl_nil]; exact getD_replicate_zero _ _
-    · rw [mulLoop, List.range_zero, List.foldl_nil, denote_replicate_zero]; rfl
+    refine ⟨by simp [mulLoop_eq], fun idx _ => ?_, ?_⟩
+    · rw [mulLoop_eq, List.range_zero, List.foldl_nil]; exact getD_replicate_zero _ _
+    · rw [mulLoop_eq, List.range_zero, List.foldl_nil, denote_replicate_zero]; rfl
   | succ m ih =>
     obtain ⟨hsz, hzero, hval⟩ := ih (by omega)
     have hstep : mulLoop a b (m+1) = mulOuterStep a b (mulLoop a b m) m := by
-      simp [mulLoop, List.range_succ, List.foldl_append]
+      rw [mulLoop_eq, mulLoop_eq]
+      simp [List.range_succ, List.foldl_append]
     have hb : denoteN b (m+1) = denoteN b m + (b.getD m 0).toNat * base ^ m := rfl
     have hfits : m + a.size < (mulLoop a b m).size := by rw [hsz]; omega
     rw [hstep]

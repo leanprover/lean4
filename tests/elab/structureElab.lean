@@ -551,7 +551,7 @@ structure F1 where
 structure F2 where
   x (n : Nat) : Nat
 /--
-error: Invalid field: Uexpected type for field `x` when setting auto-param tactic for inherited field
+error: Invalid field: Unexpected type for field `x` when setting auto-param tactic for inherited field
 -/
 #guard_msgs in
 structure F3 extends F2 where

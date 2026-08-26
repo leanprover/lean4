@@ -48,11 +48,16 @@ instance : MonadTail Id where
   instCCPO _ := inferInstanceAs (CCPO (FlatOrder (b := Classical.ofNonempty)))
   bind_mono_right h := h _
 
-instance {σ : Type u} {m : Type u → Type v} [Monad m] [MonadTail m] [Nonempty σ] :
+instance {σ : Type u} {m : Type u → Type v} [Monad m] [MonadTail m] :
     MonadTail (StateT σ m) where
-  instCCPO α := inferInstanceAs (CCPO (σ → m (α × σ)))
+  instCCPO α :=
+    letI : CCPO (σ → m (α × σ)) := @instCCPOPi _ _ fun s =>
+      haveI : Nonempty σ := ⟨s⟩
+      MonadTail.instCCPO _
+    inferInstanceAs (CCPO (σ → m (α × σ)))
   bind_mono_right h := by
     intro s
+    have : Nonempty σ := ⟨s⟩
     show StateT.bind _ _ s ⊑ StateT.bind _ _ s
     simp only [StateT.bind]
     apply MonadTail.bind_mono_right (m := m)
@@ -103,7 +108,7 @@ instance {ρ : Type u} {m : Type u → Type v} [Monad m] [MonadTail m] :
 
 set_option linter.missingDocs false in
 noncomputable def ST.bot' [Nonempty α] (s : Void σ) : @FlatOrder (ST.Out σ α) (.mk Classical.ofNonempty (Classical.choice ⟨s⟩)) :=
-  .mk Classical.ofNonempty (Classical.choice ⟨s⟩)
+  .mk _ (.mk Classical.ofNonempty (Classical.choice ⟨s⟩))
 
 instance [Nonempty α] : CCPO (ST σ α) where
   rel := PartialOrder.rel (α := ∀ s, FlatOrder (ST.bot' s))

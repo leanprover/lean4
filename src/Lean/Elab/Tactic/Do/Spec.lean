@@ -30,6 +30,9 @@ public def findSpec (database : SpecTheorems) (wp : Expr) : MetaM SpecTheorem :=
   trace[Elab.Tactic.Do.spec] "Candidates for {prog}: {candidates.map (·.proof)}"
   let specs ← candidates.filterM fun spec => do
     let (_, _, _, type) ← spec.proof.instantiate
+    -- Reduce reducible abbreviations so a proof whose type is an abbreviation like
+    -- `abbrev s := ⦃P⦄ prog ⦃Q⦄` is recognized as a triple spec.
+    let type ← whnfR type
     trace[Elab.Tactic.Do.spec] "{spec.proof} instantiates to {type}"
     let_expr c@Triple m ps instWP α specProg _P _Q := type | throwError "Not a triple: {type}"
     let check := isDefEqGuarded wp (mkApp5 (mkConst ``WP.wp c.constLevels!) m ps instWP α specProg)
@@ -177,6 +180,9 @@ public def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag
 
   -- Fully instantiate the specThm without instantiating its MVars to `wp` yet
   let (mvars, _, spec, specTy) ← specThm.proof.instantiate
+  -- Reduce reducible abbreviations so a proof whose type is an abbreviation like
+  -- `abbrev s := ⦃P⦄ prog ⦃Q⦄` is recognized as a triple spec.
+  let specTy ← whnfR specTy
 
   -- Instantiation creates `.natural` MVars, which possibly get instantiated by the def eq checks
   -- below when they occur in `P` or `Q`.

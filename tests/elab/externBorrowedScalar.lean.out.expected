@@ -1,0 +1,7 @@
+[Compiler.IR] [result]
+    extern _private.elab.externBorrowedScalar.0.usizeReprBorrowed (x_1 : usize) : obj
+    def _private.elab.externBorrowedScalar.0.usizeReprBorrowed._boxed (x_1 : tobj) : obj :=
+      let x_2 : usize := unbox x_1;
+      dec x_1;
+      let x_3 : obj := _private.elab.externBorrowedScalar.0.usizeReprBorrowed x_2;
+      ret x_3

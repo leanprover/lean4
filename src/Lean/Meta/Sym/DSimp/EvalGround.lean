@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Sym.DSimp.DSimpM
 import Lean.Meta.Sym.LitValues
+import Lean.Meta.Offset
 namespace Lean.Meta.Sym.DSimp
 
 /-!
@@ -27,6 +28,7 @@ abbrev evalUnary [ToExpr α] (toValue? : Expr → Option α) (op : α → α) (a
   let e ← share <| toExpr (op a)
   return .step e (done := true)
 
+abbrev evalUnaryBool : (op : Bool → Bool) → (a : Expr) → DSimpM Result := evalUnary getBoolValue?
 abbrev evalUnaryNat : (op : Nat → Nat) → (a : Expr) → DSimpM Result := evalUnary getNatValue?
 abbrev evalUnaryInt : (op : Int → Int) → (a : Expr) → DSimpM Result := evalUnary getIntValue?
 abbrev evalUnaryRat : (op : Rat → Rat) → (a : Expr) → DSimpM Result := evalUnary getRatValue?
@@ -38,6 +40,12 @@ abbrev evalUnaryInt8 : (op : Int8 → Int8) → (a : Expr) → DSimpM Result := 
 abbrev evalUnaryInt16 : (op : Int16 → Int16) → (a : Expr) → DSimpM Result := evalUnary getInt16Value?
 abbrev evalUnaryInt32 : (op : Int32 → Int32) → (a : Expr) → DSimpM Result := evalUnary getInt32Value?
 abbrev evalUnaryInt64 : (op : Int64 → Int64) → (a : Expr) → DSimpM Result := evalUnary getInt64Value?
+
+def evalLog2 (a : Expr) (maxExponent : Nat) : DSimpM Result := do
+  let some n := getNatValue? a | return .rfl
+  if n > 2^maxExponent then return .rfl
+  let e ← share <| toExpr n.log2
+  return .step e (done := true)
 
 abbrev evalUnaryFin' (op : {n : Nat} → Fin n → Fin n) (a : Expr) : DSimpM Result := do
   let some a := getFinValue? a | return .rfl
@@ -55,6 +63,7 @@ abbrev evalBin [ToExpr α] (toValue? : Expr → Option α) (op : α → α → �
   let e ← share <| toExpr (op a b)
   return .step e (done := true)
 
+abbrev evalBinBool : (op : Bool → Bool → Bool) → (a b : Expr) → DSimpM Result := evalBin getBoolValue?
 abbrev evalBinNat : (op : Nat → Nat → Nat) → (a b : Expr) → DSimpM Result := evalBin getNatValue?
 abbrev evalBinInt : (op : Int → Int → Int) → (a b : Expr) → DSimpM Result := evalBin getIntValue?
 abbrev evalBinRat : (op : Rat → Rat → Rat) → (a b : Expr) → DSimpM Result := evalBin getRatValue?
@@ -300,6 +309,7 @@ abbrev evalBinBoolPred (toValue? : Expr → Option α) (op : α → α → Bool)
   let e ← share (toExpr r)
   return .step e (done := true)
 
+abbrev evalBinBoolPredBool : (op : Bool → Bool → Bool) → (a b : Expr) → DSimpM Result := evalBinBoolPred getBoolValue?
 abbrev evalBinBoolPredNat : (op : Nat → Nat → Bool) → (a b : Expr) → DSimpM Result := evalBinBoolPred getNatValue?
 abbrev evalBinBoolPredInt : (op : Int → Int → Bool) → (a b : Expr) → DSimpM Result := evalBinBoolPred getIntValue?
 abbrev evalBinBoolPredRat : (op : Rat → Rat → Bool) → (a b : Expr) → DSimpM Result := evalBinBoolPred getRatValue?
@@ -335,6 +345,7 @@ abbrev evalBinBoolPredBitVec (op : {n : Nat} → BitVec n → BitVec n → Bool)
 macro "declare_eval_bin_bool_pred" id:ident op:term : command =>
   `(def $id:ident (α : Expr) (a b : Expr) : DSimpM Result :=
   match_expr α with
+  | Bool => evalBinBoolPredBool $op a b
   | Nat => evalBinBoolPredNat $op a b
   | Int => evalBinBoolPredInt $op a b
   | Rat => evalBinBoolPredRat $op a b
@@ -353,6 +364,140 @@ macro "declare_eval_bin_bool_pred" id:ident op:term : command =>
 
 declare_eval_bin_bool_pred evalBEq (· == ·)
 declare_eval_bin_bool_pred evalBNe (· != ·)
+
+abbrev evalBitVecNatBitVec (op : {n : Nat} → BitVec n → Nat → BitVec n) (a i : Expr) : DSimpM Result := do
+  let some a := getBitVecValue? a | return .rfl
+  let some i := getNatValue? i | return .rfl
+  let e ← share <| toExpr <| op a.val i
+  return .step e (done := true)
+
+abbrev evalBitVecNatBool (op : {n : Nat} → BitVec n → Nat → Bool) (a i : Expr) : DSimpM Result := do
+  let some a := getBitVecValue? a | return .rfl
+  let some i := getNatValue? i | return .rfl
+  let e ← share <| toExpr <| op a.val i
+  return .step e (done := true)
+
+abbrev evalBitVecExtend (op : {n : Nat} → (v : Nat) → BitVec n → BitVec v) (v a : Expr) : DSimpM Result := do
+  let some v := getNatValue? v | return .rfl
+  let some a := getBitVecValue? a | return .rfl
+  let e ← share <| toExpr <| op v a.val
+  return .step e (done := true)
+
+def evalBitVecAppend (a b : Expr) : DSimpM Result := do
+  let some a := getBitVecValue? a | return .rfl
+  let some b := getBitVecValue? b | return .rfl
+  let e ← share <| toExpr (a.val ++ b.val)
+  return .step e (done := true)
+
+def evalBitVecCast (m a : Expr) : DSimpM Result := do
+  let some m := getNatValue? m | return .rfl
+  let some a := getBitVecValue? a | return .rfl
+  let e ← share <| toExpr <| BitVec.ofNat m a.val.toNat
+  return .step e (done := true)
+
+def evalBitVecShiftLeftZeroExtend (a m : Expr) : DSimpM Result := do
+  let some a := getBitVecValue? a | return .rfl
+  let some m := getNatValue? m | return .rfl
+  let e ← share <| toExpr <|a.val.shiftLeftZeroExtend m
+  return .step e (done := true)
+
+def evalBitVecExtractLsb' (start len a : Expr) : DSimpM Result := do
+  let some start := getNatValue? start | return .rfl
+  let some len := getNatValue? len | return .rfl
+  let some a := getBitVecValue? a | return .rfl
+  let e ← share <| toExpr <| a.val.extractLsb' start len
+  return .step e (done := true)
+
+def evalBitVecReplicate (i a : Expr) : DSimpM Result := do
+  let some i := getNatValue? i | return .rfl
+  let some a := getBitVecValue? a | return .rfl
+  let e ← share <| toExpr <| a.val.replicate i
+  return .step e (done := true)
+
+def evalBitVecAllOnes (n : Expr) : DSimpM Result := do
+  let some n := getNatValue? n | return .rfl
+  let e ← share <| toExpr <| BitVec.allOnes n
+  return .step e (done := true)
+
+def evalBitVecToNat (a : Expr) : DSimpM Result := do
+  let some a := getBitVecValue? a | return .rfl
+  let e ← share <| toExpr a.val.toNat
+  return .step e (done := true)
+
+def evalBitVecToInt (a : Expr) : DSimpM Result := do
+  let some a := getBitVecValue? a | return .rfl
+  let e ← share <| toExpr a.val.toInt
+  return .step e (done := true)
+
+def evalBitVecOfInt (n i : Expr) : DSimpM Result := do
+  let some n := getNatValue? n | return .rfl
+  let some i := getIntValue? i | return .rfl
+  let e ← share <| toExpr <| BitVec.ofInt n i
+  return .step e (done := true)
+
+def evalBitVecToFin (a : Expr) : DSimpM Result := do
+  let some a := getBitVecValue? a | return .rfl
+  let e ← share <| toExpr a.val.toFin
+  return .step e (done := true)
+
+def evalBitVecOfFin (n a : Expr) : DSimpM Result := do
+  let some n := getNatValue? n | return .rfl
+  let some a := getFinValue? a | return .rfl
+  let e ← share <| toExpr <| BitVec.ofNat n a.val.val
+  return .step e (done := true)
+
+def evalBitVecOfNat (n a : Expr) : DSimpM Result := do
+  let some a := getNatValue? a | return .rfl
+  if (getNatValue? n).isSome then return .rfl -- already in normal form
+  let some n ← evalNat n |>.run | return .rfl
+  let e ← share <| toExpr (BitVec.ofNat n a)
+  return .step e (done := true)
+
+def evalBitVecOfNatClamp (n a : Expr) : DSimpM Result := do
+  let some n := getNatValue? n | return .rfl
+  let some a := getNatValue? a | return .rfl
+  let e ← share <| toExpr (BitVec.ofNatClamp n a)
+  return .step e (done := true)
+
+def evalInt8ToBitVec (a : Expr) : DSimpM Result := do
+  let some v := getInt8Value? a | return .rfl
+  let e ← share <| toExpr v.toBitVec
+  return .step e (done := true)
+
+def evalInt16ToBitVec (a : Expr) : DSimpM Result := do
+  let some v := getInt16Value? a | return .rfl
+  let e ← share <| toExpr v.toBitVec
+  return .step e (done := true)
+
+def evalInt32ToBitVec (a : Expr) : DSimpM Result := do
+  let some v := getInt32Value? a | return .rfl
+  let e ← share <| toExpr v.toBitVec
+  return .step e (done := true)
+
+def evalInt64ToBitVec (a : Expr) : DSimpM Result := do
+  let some v := getInt64Value? a | return .rfl
+  let e ← share <| toExpr v.toBitVec
+  return .step e (done := true)
+
+def evalUInt8ToBitVec (a : Expr) : DSimpM Result := do
+  let some v := getUInt8Value? a | return .rfl
+  let e ← share <| toExpr v.toBitVec
+  return .step e (done := true)
+
+def evalUInt16ToBitVec (a : Expr) : DSimpM Result := do
+  let some v := getUInt16Value? a | return .rfl
+  let e ← share <| toExpr v.toBitVec
+  return .step e (done := true)
+
+def evalUInt32ToBitVec (a : Expr) : DSimpM Result := do
+  let some v := getUInt32Value? a | return .rfl
+  let e ← share <| toExpr v.toBitVec
+  return .step e (done := true)
+
+def evalUInt64ToBitVec (a : Expr) : DSimpM Result := do
+  let some v := getUInt64Value? a | return .rfl
+  let e ← share <| toExpr v.toBitVec
+  return .step e (done := true)
 
 public structure EvalStepConfig where
   maxExponent := 255
@@ -386,6 +531,7 @@ public def evalGround (config : EvalStepConfig := {}) : DSimproc := fun e =>
   | Complement.complement α _ a => evalComplement α a
   | Nat.gcd a b => evalBinNat Nat.gcd a b
   | Nat.succ a => evalUnaryNat (· + 1) a
+  | Nat.log2 a => evalLog2 a config.maxExponent
   | Int.gcd a b => evalIntGcd a b
   | Int.tdiv a b => evalBinInt Int.tdiv a b
   | Int.fdiv a b => evalBinInt Int.fdiv a b
@@ -395,6 +541,64 @@ public def evalGround (config : EvalStepConfig := {}) : DSimproc := fun e =>
   | Int.bmod a b => evalIntBMod a b
   | BEq.beq α _ a b => evalBEq α a b
   | bne α _ a b => evalBNe α a b
+  | Bool.and x y => evalBinBool Bool.and x y
+  | Bool.or x y => evalBinBool Bool.or x y
+  | Bool.not x => evalUnaryBool Bool.not x
+  | HAppend.hAppend α _ _ _ a b =>
+    match_expr α with
+    | BitVec _ => evalBitVecAppend a b
+    | _ => return .rfl
+  | getElem α _ _ _ _ a i _ =>
+    match_expr α with
+    | BitVec _ => evalBitVecNatBool BitVec.getLsbD a i
+    | _ => return .rfl
+  | BitVec.append _ _ a b => evalBitVecAppend a b
+  | BitVec.shiftLeft _ a i => evalBitVecNatBitVec BitVec.shiftLeft a i
+  | BitVec.ushiftRight _ a i => evalBitVecNatBitVec BitVec.ushiftRight a i
+  | BitVec.sshiftRight _ a i => evalBitVecNatBitVec BitVec.sshiftRight a i
+  | BitVec.sshiftRight' _ _ a b => evalBinBitVec' BitVec.sshiftRight' a b
+  | BitVec.rotateLeft _ a i => evalBitVecNatBitVec BitVec.rotateLeft a i
+  | BitVec.rotateRight _ a i => evalBitVecNatBitVec BitVec.rotateRight a i
+  | BitVec.udiv _ a b => evalBinBitVec' BitVec.udiv a b
+  | BitVec.umod _ a b => evalBinBitVec' BitVec.umod a b
+  | BitVec.sdiv _ a b => evalBinBitVec' BitVec.sdiv a b
+  | BitVec.smod _ a b => evalBinBitVec' BitVec.smod a b
+  | BitVec.srem _ a b => evalBinBitVec' BitVec.srem a b
+  | BitVec.smtUDiv _ a b => evalBinBitVec' BitVec.smtUDiv a b
+  | BitVec.smtSDiv _ a b => evalBinBitVec' BitVec.smtSDiv a b
+  | BitVec.abs _ a => evalUnaryBitVec' BitVec.abs a
+  | BitVec.clz _ a => evalUnaryBitVec' BitVec.clz a
+  | BitVec.cpop _ a => evalUnaryBitVec' BitVec.cpop a
+  | BitVec.ult _ a b => evalBinBoolPredBitVec BitVec.ult a b
+  | BitVec.ule _ a b => evalBinBoolPredBitVec BitVec.ule a b
+  | BitVec.slt _ a b => evalBinBoolPredBitVec BitVec.slt a b
+  | BitVec.sle _ a b => evalBinBoolPredBitVec BitVec.sle a b
+  | BitVec.getLsbD _ a i => evalBitVecNatBool BitVec.getLsbD a i
+  | BitVec.getMsbD _ a i => evalBitVecNatBool BitVec.getMsbD a i
+  | BitVec.setWidth _ v a => evalBitVecExtend BitVec.setWidth v a
+  | BitVec.zeroExtend _ v a => evalBitVecExtend BitVec.zeroExtend v a
+  | BitVec.signExtend _ v a => evalBitVecExtend BitVec.signExtend v a
+  | BitVec.setWidth' _ w _ a => evalBitVecExtend BitVec.setWidth w a
+  | BitVec.cast _ m _ a => evalBitVecCast m a
+  | BitVec.shiftLeftZeroExtend _ a m => evalBitVecShiftLeftZeroExtend a m
+  | BitVec.extractLsb' _ start len a => evalBitVecExtractLsb' start len a
+  | BitVec.replicate _ i a => evalBitVecReplicate i a
+  | BitVec.allOnes n => evalBitVecAllOnes n
+  | BitVec.toNat _ a => evalBitVecToNat a
+  | BitVec.ofNat n a => evalBitVecOfNat n a
+  | BitVec.ofNatClamp n a => evalBitVecOfNatClamp n a
+  | BitVec.toInt _ a => evalBitVecToInt a
+  | BitVec.ofInt n i => evalBitVecOfInt n i
+  | BitVec.toFin _ a => evalBitVecToFin a
+  | BitVec.ofFin n a => evalBitVecOfFin n a
+  | Int8.toBitVec a => evalInt8ToBitVec a
+  | Int16.toBitVec a => evalInt16ToBitVec a
+  | Int32.toBitVec a => evalInt32ToBitVec a
+  | Int64.toBitVec a => evalInt64ToBitVec a
+  | UInt8.toBitVec a => evalUInt8ToBitVec a
+  | UInt16.toBitVec a => evalUInt16ToBitVec a
+  | UInt32.toBitVec a => evalUInt32ToBitVec a
+  | UInt64.toBitVec a => evalUInt64ToBitVec a
   | _  => return .rfl
 
 end Lean.Meta.Sym.DSimp

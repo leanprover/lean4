@@ -1141,15 +1141,8 @@ else
 lean_object* v_val_369_; uint8_t v___x_370_; 
 v_val_369_ = lean_ctor_get(v_lowerBound_362_, 0);
 v___x_370_ = lean_int_dec_le(v_val_369_, v_t_361_);
-if (v___x_370_ == 0)
-{
-return v___x_370_;
-}
-else
-{
 v___y_365_ = v___x_370_;
 goto v___jp_364_;
-}
 }
 v___jp_364_:
 {
@@ -1159,16 +1152,16 @@ return v___y_365_;
 }
 else
 {
-lean_object* v_val_366_; uint8_t v___x_367_; 
-v_val_366_ = lean_ctor_get(v_upperBound_363_, 0);
-v___x_367_ = lean_int_dec_le(v_t_361_, v_val_366_);
-if (v___x_367_ == 0)
+if (v___y_365_ == 0)
 {
-return v___x_367_;
+return v___y_365_;
 }
 else
 {
-return v___y_365_;
+lean_object* v_val_366_; uint8_t v___x_367_; 
+v_val_366_ = lean_ctor_get(v_upperBound_363_, 0);
+v___x_367_ = lean_int_dec_le(v_t_361_, v_val_366_);
+return v___x_367_;
 }
 }
 }
@@ -2955,11 +2948,13 @@ lean_object* runtime_initialize_Init_Data_ToString_Macro(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega_Int(uint8_t builtin);
 lean_object* runtime_initialize_Init_PropLemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_RCases(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Omega_Constraint(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Omega_Coeffs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

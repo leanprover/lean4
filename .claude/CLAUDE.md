@@ -7,6 +7,26 @@ To build Lean you should use `make -j$(nproc) -C build/release`.
 The build uses `ccache`, and in a sandbox `ccache` may complain about read-only file systems.
 Use `CCACHE_READONLY` and `CCACHE_TEMPDIR` instead of disabling ccache completely.
 
+### Garbage-collected Nix store paths
+
+On NixOS the CMake caches pin absolute `/nix/store/...` paths for `gmp`, `libuv` and `openssl`.
+A `nix-collect-garbage` run deletes those store paths while the caches keep pointing at them, so
+the next configure-triggering change (e.g. checking out a revision with a different `stage0/`)
+fails with `fatal error: 'gmp.h' file not found` or `clang: error: no such file or directory:
+'/nix/store/...-gmp-with-cxx-6.3.0/lib/libgmp.so'`.
+
+Only the caches are stale; the environment's `CMAKE_PREFIX_PATH` still lists live paths. Drop the
+pinned entries so the next configure re-detects them, then build as usual:
+
+```bash
+script/refresh-cmake-deps.sh stage0/src build/release/stage0
+script/refresh-cmake-deps.sh src        build/release/stage1
+script/refresh-cmake-deps.sh src        build/release/stage2  # only if stage2 is configured
+```
+
+Note the differing source directory: stage0 configures from `stage0/src`, the later stages from
+`src`. This only rewrites cache entries; it does not delete build outputs.
+
 ## Running Tests
 
 See `tests/README.md` for full documentation. Quick reference:
@@ -51,6 +71,16 @@ When asked to implement new features:
 * begin by reviewing existing relevant code and tests
 * write comprehensive tests first (expecting that these will initially fail)
 * and then iterate on the implementation until the tests pass.
+
+## Comments
+
+Inline comments should be concise. Use them for important, non-obvious facts about the code at hand. Avoid comments that:
+
+- restate the code, repeat a type signature, or describe a general API contract;
+- document old behavior, rejected alternatives, or the history of the change (that belongs in the PR body or commit message);
+- explain API usage that belongs with the API definition instead of this call site.
+
+Rewrite a stale comment instead of adding a new one beside it. If a fact applies generally, document it at the definition.
 
 ## Success Criteria
 

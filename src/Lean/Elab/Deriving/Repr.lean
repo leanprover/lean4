@@ -15,7 +15,7 @@ public section
 namespace Lean.Elab.Deriving.Repr
 open Lean.Parser.Term
 open Meta
-open Std
+open _root_.Std
 
 def mkReprHeader (indVal : InductiveVal) : TermElabM Header := do
   let header ← mkHeader `Repr 1 indVal

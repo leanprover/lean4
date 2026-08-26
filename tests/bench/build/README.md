@@ -23,6 +23,11 @@ The following metrics are collected from `lakeprof report`:
 - `build/lakeprof/longest build path//wall-clock`
 - `build/lakeprof/longest rebuild path//wall-clock`
 
+The following metrics are collected from a combination of `lakeprof report` and the per-module instructions:
+
+- `build/lakeprof/longest build path//instructions`
+- `build/lakeprof/longest rebuild path//instructions`
+
 The following metrics are collected individually for each module:
 
 - `build/module/<name>//lines`
@@ -33,5 +38,5 @@ The following metrics are collected individually for each module:
 - `build/module/<name>//bytes .olean.server`
 - `build/module/<name>//bytes .olean.private`
 
-If the file `build_upload_lakeprof_report` is present in the repo root,
-the lakeprof report will be uploaded once the benchmark run concludes.
+If the `LAKEPROF_UPLOAD_URL` environment variable is set,
+the lakeprof report will be uploaded to that URL prefix once the benchmark run concludes.

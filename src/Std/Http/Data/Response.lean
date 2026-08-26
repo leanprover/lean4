@@ -89,7 +89,7 @@ instance : ToString Head where
     toString r.headers ++
     "\r\n"
 
-open Internal in
+open Std.Http.Internal in
 instance : Encode .v11 Head where
   encode buffer r :=
     let buffer := Encode.encode (v := .v11) buffer r.version

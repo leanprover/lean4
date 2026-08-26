@@ -41,3 +41,29 @@ fail with `Unknown constant` in this public theorem signature. -/
 public theorem hmulDefaultPrivacy (m : Nat) : ∀ n, m * n = m * n := by
   intro n
   rfl
+
+public structure StructWithPrivImportedFieldType where
+  private field : UInt8Struct
+deriving Inhabited
+
+/-!
+Construct and extract values of a public type whose only field's type is privately imported.
+The defining module is the only place that sees the private field type, so trivial structure
+optimizations (eliding constructor, unboxing type) should be disabled.
+-/
+
+/--
+trace: [Compiler.result] size: 2
+    def mkSwpift n : obj :=
+      let _x.1 := ctor_0.0.1[_private.Module.PrivateImported.0.StructWithPrivImportedFieldType.mk];
+      sset _x.1[0, 0] := n;
+      return _x.1
+[Compiler.result] size: 2
+    def mkSwpift._boxed n : obj :=
+      let n.boxed := unbox n;
+      let res := mkSwpift n.boxed;
+      return res
+-/
+#guard_msgs in
+set_option trace.Compiler.result true in
+public def mkSwpift (n : UInt8) : StructWithPrivImportedFieldType := ⟨⟨n⟩⟩

@@ -32,11 +32,6 @@ public structure CompactedRegion where
   /-- Whether the region's buffer is backed by a memory mapping of its file. -/
   isMemoryMapped : Bool
   /--
-  Paths of the dep regions this region depends on, recorded at load time so a consumer can re-open
-  them after a snapshot round-trip.
-  -/
-  depPaths       : Array System.FilePath
-  /--
   Logical base address the region's mapping is relative to (`olean_header.base_addr`), used to
   translate cross-region pointers when this region is used as a dependency.
   -/

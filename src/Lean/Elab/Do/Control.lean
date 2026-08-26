@@ -248,7 +248,7 @@ handlers funnelling into `liftedStack` and set the doBlock result type to
 `liftedDoBlockResultType`. Semantically
 `MonadControl.liftWith fun runInBase => elabElem (runInBase pure)`. Conts
 passed to `elabElem` are implicitly wrapped in `runInBase`, realised later by
-`ControlStack.synthesizeConts` once the transformer stack `t` is fixed by
+`ControlStack.mkBreak`/`mkContinue`/`mkReturn` once the transformer stack `t` is fixed by
 aggregating effects across *all* `lift` sites for this lifter.
 -/
 def EffectForwarder.lift (l : EffectForwarder) (elabElem : DoElemCont → DoElabM Expr) : DoElabM Expr := do

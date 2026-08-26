@@ -47,8 +47,10 @@ participate in `getLinterValue` like any user-declared set.
 -/
 builtin_initialize builtinLinterSetsRef : IO.Ref (Array (Name × NameSet)) ← IO.mkRef #[]
 
-/-- Register a builtin linter set entry. Only valid during initialization;
-use `register_builtin_linter_set` rather than calling this directly. -/
+/--
+  Register a builtin linter set entry.
+  Only valid during initialization.
+-/
 def addBuiltinLinterSet (setName : Name) (linterNames : NameSet) : IO Unit := do
   builtinLinterSetsRef.modify (·.push (setName, linterNames))
 
@@ -107,6 +109,12 @@ register_builtin_option linter.extra : Bool := {
     only available via `lake lint`. An extra linter early-returns unless this option is true."
 }
 
+register_builtin_option linter.coreInternal : Bool := {
+  defValue := false
+  descr := "enables the set of core-internal linters — linters that enforce conventions of the \
+    Lean repository itself and are not intended for use by non-core projects."
+}
+
 /--
 Global registry of options associated with environment linters.
 These are precisely options, whose value will be snapshotted during `addDecl`.
@@ -136,12 +144,35 @@ def logLint [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
     (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit :=
   let disable := .note m!"This linter can be disabled with `set_option {linterOption.name} false`"
   logWarningAt stx <|
+    .ofOriginatingSyntax stx <|
     .tagged linterOption.name <|
     .tagged linterMessageTag m!"{msg}{disable}"
 
 /-- Returns true if `msg` was produced by `Lean.Linter.logLint` (and therefore by a linter). -/
 def _root_.Lean.MessageData.isLinterMessage (msg : MessageData) : Bool :=
   msg.hasTag (· == linterMessageTag)
+
+/--
+Tag attached by `logCodeQualityEntry` so consumers
+can distinguish code quality entry-bearing messages from other tagged messages
+such as named errors or unknown-identifier messages.
+-/
+def codeQualityMessageTag : Name := `Lean.Linter._codeQuality
+
+/--
+Logs a message carrying the code quality entry `e` at the position of `stx`. The message is
+logged as silent so it is never displayed to users; it only serves as a carrier for persisting
+the entry into the `.olean` (see `Lean.Linter.recordLints`).
+-/
+def logCodeQualityEntry [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
+    (stx : Syntax) (e : CodeQuality.Entry) : m Unit :=
+  logAt stx (severity := .information) (isSilent := true) <|
+    .ofCodeQualityEntry e <|
+    .tagged codeQualityMessageTag <| .nil
+
+/-- Returns true if `msg` was produced by `Lean.Linter.logCodeQualityEntry`. -/
+def _root_.Lean.MessageData.isCodeQualityMessage (msg : MessageData) : Bool :=
+  msg.hasTag (· == codeQualityMessageTag)
 
 /--
 If `linterOption` is enabled, print a linter warning message at the position determined by `stx`.
@@ -157,6 +188,14 @@ Whether a linter option is enabled or not is determined by the following sequenc
 def logLintIf [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadEnv m]
     (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit := do
   if getLinterValue linterOption (← getLinterOptions) then logLint linterOption stx msg
+
+/--
+Similar to `logLintIf`, but for `logCodeQualityEntry` - i.e. it logs an entry only if the
+provided linter option is enabled, taking `linter.all` and linter sets into account.
+-/
+def logCodeQualityEntryIf [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadEnv m]
+    (linterOption : Lean.Option Bool) (stx : Syntax) (e : CodeQuality.Entry) : m Unit := do
+  if getLinterValue linterOption (← getLinterOptions) then logCodeQualityEntry stx e
 
 abbrev EnvLinterSnapshot := NameMap Bool
 

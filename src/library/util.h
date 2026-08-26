@@ -198,18 +198,8 @@ expr mk_bool_true();
 expr mk_bool_false();
 expr to_bool_expr(bool b);
 
-/* Similar to is_head_beta, but ignores annotations around the function. */
-bool is_annotated_head_beta(expr const & t);
-/* Similar to head_beta_reduce, but also reduces annotations around the function. */
-expr annotated_head_beta_reduce(expr const & t);
-
 bool is_exists(expr const & e, expr & A, expr & p);
 bool is_exists(expr const & e);
-
-expr try_eta(expr const & e);
-expr beta_reduce(expr t);
-expr eta_reduce(expr t);
-expr beta_eta_reduce(expr t);
 
 enum class implicit_infer_kind { Implicit, RelaxedImplicit };
 

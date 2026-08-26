@@ -30,12 +30,12 @@ unsafe def replayFromImports (module : Name) : IO Unit := do
   -- Collect constants from last ("most private") part, which subsumes all prior ones
   for name in parts[parts.size-1].1.constNames, ci in parts[parts.size-1].1.constants do
     newConstants := newConstants.insert name ci
-  let env' ← env.replay newConstants
-  env'.freeRegions
+  discard <| env.toKernelEnv.replay newConstants
+  env.freeRegions
 
 unsafe def replayFromFresh (module : Name) : IO Unit := do
   Lean.withImportModules #[{module}] {} fun env => do
-    discard <| (← mkEmptyEnvironment).replay env.constants.map₁
+    discard <| (← mkEmptyEnvironment).toKernelEnv.replay env.constants.map₁
 
 /-- Read the name of the main module from the `lake-manifest`. -/
 -- This has been copied from `ImportGraph.getCurrentModule` in the

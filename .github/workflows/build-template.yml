@@ -52,10 +52,12 @@ jobs:
       MACOSX_DEPLOYMENT_TARGET: 11.0
     steps:
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@main
+        uses: DeterminateSystems/nix-installer-action@ef8a148080ab6020fd15196c2084a2eea5ff2d25 # v22
         if: runner.os == 'Linux' && !matrix.cmultilib
+        with:
+          summarize: false
       - name: Install MSYS2
-        uses: msys2/setup-msys2@v2
+        uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
         with:
           msystem: clang64
           # `:` means do not prefix with msystem
@@ -70,6 +72,10 @@ jobs:
         with:
           # the default is to use a virtual merge commit between the PR and master: just use the PR
           ref: ${{ github.event.pull_request.head.sha }}
+          # `lake cache get` walks git history to resolve a cached ancestor revision, so on
+          # push/merge_group it needs more than the default single commit. (PRs instead get depth
+          # from the "CI Merge Checkout" step below.)
+          fetch-depth: ${{ (matrix.lake-cache && github.event_name != 'pull_request') && 10 || 1 }}
       - name: Open Nix shell once
         run: true
         if: runner.os == 'Linux'
@@ -78,12 +84,12 @@ jobs:
       # (needs to be after "Install *" to use the right shell)
       - name: CI Merge Checkout
         run: |
-          git fetch --depth=${{ matrix.name == 'Linux Lake (Cached)' && '10' || '1' }} origin ${{ github.sha }}
+          git fetch --depth=${{ matrix.lake-cache && '10' || '1' }} origin ${{ github.sha }}
           git checkout FETCH_HEAD flake.nix flake.lock script/prepare-* tests/elab/importStructure.lean
         if: github.event_name == 'pull_request'
       # (needs to be after "Checkout" so files don't get overridden)
       - name: Setup emsdk
-        uses: mymindstorm/setup-emsdk@v14
+        uses: emscripten-core/setup-emsdk@4528d102f7230f0e7b276855c01ea1159be0e984 # v16
         with:
           version: 3.1.44
           actions-cache-folder: emsdk
@@ -94,23 +100,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gcc-multilib g++-multilib ccache libuv1-dev:i386 libssl-dev:i386 pkgconf:i386
         if: matrix.cmultilib
-      - name: Restore Cache
-        id: restore-cache
-        uses: actions/cache/restore@v5
+      - name: Restore CCache
+        id: restore-ccache
+        uses: actions/cache/restore@v6
         with:
-          # NOTE: must be in sync with `save` below and with `restore-cache` in `update-stage0.yml`
-          path: |
-            .ccache
-            ${{ matrix.lake-actions-cache && 'build/stage1/**/*.trace
-            build/stage1/**/*.olean*
-            build/stage1/**/*.ilean
-            build/stage1/**/*.ir
-            build/stage1/**/*.c
-            build/stage1/**/*.c.o*' || '' }}
-          key: ${{ matrix.name }}-build-v4-${{ github.sha }}
+          # NOTE: must be in sync with `save` below and with "Restore CCache" in `update-stage0.yml`
+          path: .ccache
+          key: ${{ matrix.name }}-build-v5-${{ github.sha }}
           # fall back to (latest) previous cache
           restore-keys: |
-            ${{ matrix.name }}-build-v4
+            ${{ matrix.name }}-build-v5
       # open nix-shell once for initial setup
       - name: Setup
         run: |
@@ -131,11 +130,17 @@ jobs:
           [ -d build ] || mkdir build
           cd build
           # arguments passed to `cmake`
-          OPTIONS=(-DWFAIL=ON)
-          if [[ -n '${{ matrix.release }}' ]]; then
-            # this also enables githash embedding into stage 1 library, which prohibits reusing
-            # `.olean`s across commits, so we don't do it in the fast non-release CI
+          # opt into `LEAN_HEADER_SNAPSHOTS` as suspected issue with incremental builds does not
+          # affect CI
+          OPTIONS=(-DWFAIL=ON -DLEAN_HEADER_SNAPSHOTS=ON)
+          if [[ '${{ matrix.release }}' == true ]]; then
+            # Embeds the githash into stage 1 library and checks it.
+            # This prohibits reusing `.olean`s from any build not so stamped,
+            # so we don't do it in the fast non-release CI.
             OPTIONS+=(-DCHECK_OLEAN_VERSION=ON)
+            # Replace the system-wide cache with a job-level one to avoid ingesting mismatched
+            # oleans from other builds on self-hosted runners.
+            echo "LAKE_CACHE_DIR=" >> "$GITHUB_ENV"
           fi
           if [[ -n '${{ matrix.cross_target }}' ]]; then
             # used by `prepare-llvm`
@@ -149,10 +154,10 @@ jobs:
             cp -r stage1 stage3
             eval "OPTIONS+=($PREPARE)"
           fi
-          if [[ -n '${{ matrix.release }}' && -n '${{ inputs.nightly }}' ]]; then
+          if [[ '${{ matrix.release }}' == true && -n '${{ inputs.nightly }}' ]]; then
             OPTIONS+=(-DLEAN_SPECIAL_VERSION_DESC=${{ inputs.nightly }})
           fi
-          if [[ -n '${{ matrix.release }}' && -n '${{ inputs.RELEASE_TAG }}' ]]; then
+          if [[ '${{ matrix.release }}' == true && -n '${{ inputs.RELEASE_TAG }}' ]]; then
             OPTIONS+=(-DLEAN_VERSION_MAJOR=${{ inputs.LEAN_VERSION_MAJOR }})
             OPTIONS+=(-DLEAN_VERSION_MINOR=${{ inputs.LEAN_VERSION_MINOR }})
             OPTIONS+=(-DLEAN_VERSION_PATCH=${{ inputs.LEAN_VERSION_PATCH }})
@@ -165,8 +170,25 @@ jobs:
         run: |
           ulimit -c unlimited  # coredumps
           time make -C build stage1-configure -j$NPROC
+          # Key every subsequent Lake invocation's cache trace the same way as the CMake-driven
+          # stdlib build, using the githash the stage1 configure emitted (see `src/CMakeLists.txt`).
+          echo "LEAN_GITHASH=$(cat build/stage1/lake-githash)" >> "$GITHUB_ENV"
+      - name: Check for stage0 update
+        id: check-stage0
+        # A stage0 update replaces the bootstrap compiler, which invalidates every Lake artifact
+        # (Lake does not track stage0), so there is nothing reusable in the cache to download.
+        # `github.sha` is the pushed commit (push/merge_group) or the virtual merge commit (PRs),
+        # so `github.sha^1` is the parent / PR base to diff `stage0` against in both cases.
+        if: matrix.lake-cache
+        run: |
+          sha='${{ github.sha }}'
+          if git rev-parse --verify --quiet "$sha^1" >/dev/null && ! git diff --quiet "$sha^1" "$sha" -- stage0; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Download Lake Cache
-        if: matrix.name == 'Linux Lake (Cached)'
+        if: matrix.lake-cache && steps.check-stage0.outputs.changed != 'true'
         run: |
           cd src
           ../build/stage0/bin/lake cache get --repo=${{ github.repository }}
@@ -176,29 +198,22 @@ jobs:
         run: |
           ulimit -c unlimited  # coredumps
           time make -C build $TARGET_STAGE -j$NPROC
-      # Should be done as early as possible and in particular *before* "Check rebootstrap" which
-      # changes the state of stage1/
-      - name: Save Cache
+      # Should be done as early as possible, and the Lake cache upload below in particular *before*
+      # "Check rebootstrap" which changes the state of stage1/
+      - name: Save CCache
         # Caching on cancellation created some mysterious issues perhaps related to improper build
         # shutdown
-        if: steps.restore-cache.outputs.cache-hit != 'true' && !cancelled()
-        uses: actions/cache/save@v5
+        if: steps.restore-ccache.outputs.cache-hit != 'true' && !cancelled()
+        uses: actions/cache/save@v6
         with:
           # NOTE: must be in sync with `restore` above
-          path: |
-            .ccache
-            ${{ matrix.lake-actions-cache && 'build/stage1/**/*.trace
-            build/stage1/**/*.olean*
-            build/stage1/**/*.ilean
-            build/stage1/**/*.ir
-            build/stage1/**/*.c
-            build/stage1/**/*.c.o*' || '' }}
-          key: ${{ steps.restore-cache.outputs.cache-primary-key }}
+          path: .ccache
+          key: ${{ steps.restore-ccache.outputs.cache-primary-key }}
       - id: upload-lake-cache
         name: Upload Lake Cache
         # Caching on cancellation created some mysterious issues perhaps related to improper build
         # shutdown. Also, since this needs access to secrets, it cannot be run on forks.
-        if: matrix.name == 'Linux release' && !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        if: matrix.lake-cache && !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         run: |
           curl --version
           cd src
@@ -209,11 +224,16 @@ jobs:
           LAKE_CACHE_ARTIFACT_ENDPOINT: ${{ vars.LAKE_CACHE_ENDPOINT }}/a1
           LAKE_CACHE_REVISION_ENDPOINT: ${{ vars.LAKE_CACHE_ENDPOINT }}/r1
         timeout-minutes: 20 # prevent excessive hanging from network issues
-        continue-on-error: true
       - name: Verify Lake Cache
         if: steps.upload-lake-cache.outcome == 'success'
+        # `lake cache clean` deletes the entire configured cache directory, which for a build using
+        # the system-wide cache would be the one shared with every other job on the runner, so give
+        # the round trip a throwaway directory of its own.
+        env:
+          LAKE_CACHE_DIR: ${{ github.workspace }}/build/verify-lake-cache
         run: |
-          mv build/stage1/lib/lean build/stage1/lib/lean.bak
+          cp -r build/stage1 build/stage1.bak
+          rm -rf build/stage1/lib
           cd src
           ../build/stage0/bin/lake cache clean
           ../build/stage0/bin/lake cache get --repo=${{ github.repository }}
@@ -221,9 +241,13 @@ jobs:
         continue-on-error: true
       - name: Restore Build
         if: steps.upload-lake-cache.outcome == 'success'
+        env:
+          LAKE_CACHE_DIR: ${{ github.workspace }}/build/verify-lake-cache
         run: |
-          rm -rf build/stage1/lib/lean
-          mv build/stage1/lib/lean.bak build/stage1/lib/lean
+          rm -rf build/stage1
+          mv build/stage1.bak build/stage1
+          cd src
+          ../build/stage0/bin/lake cache clean
       - name: Install
         run: |
           make -C build/$TARGET_STAGE install
@@ -250,8 +274,8 @@ jobs:
           else
             ${{ matrix.tar || 'tar' }} cf - $dir | zstd -T0 --no-progress -o pack/$dir.tar.zst
           fi
-      - uses: actions/upload-artifact@v5
-        if: matrix.release
+      - uses: actions/upload-artifact@v7
+        if: matrix.release || matrix.upload
         with:
           name: build-${{ matrix.name }}
           path: pack/*
@@ -259,6 +283,15 @@ jobs:
         run: |
           build/$TARGET_STAGE/bin/lean --stats src/Lean.lean
         if: ${{ !matrix.cross }}
+      # Tests must not write into the checked-in source tree; scratch output belongs in an
+      # ignored path. Making tracked files read-only catches a test that edits one even if it
+      # restores the file afterwards, which the tree comparison below cannot see.
+      - name: Protect Source Tree
+        run: |
+          git status --porcelain -unormal | sort > "$RUNNER_TEMP/tree-before"
+          git ls-files -z | xargs -0 chmod a-w
+        if: matrix.test
+
       - name: Lower perf_event_paranoid for samply
         # Best-effort: some runners lack sudo or won't allow this. The `lake samply`
         # test self-skips if `samply record` fails.
@@ -270,8 +303,24 @@ jobs:
           ulimit -c unlimited  # coredumps
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/$TARGET_STAGE -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
         if: matrix.test
+      # restore write access before any later step (stage 2, benchmarks, `update-stage0`) runs
+      - name: Unprotect Source Tree
+        run: git ls-files -z | xargs -0 chmod u+w
+        if: always() && matrix.test
+      - name: Check Source Tree Clean
+        run: |
+          git status --porcelain -unormal | sort > "$RUNNER_TEMP/tree-after"
+          diff -u "$RUNNER_TEMP/tree-before" "$RUNNER_TEMP/tree-after" && exit 0
+          echo "::error::the test suite left files in the checked-in source tree; write them to an ignored path instead"
+          exit 1
+        if: matrix.test && steps.test.conclusion != 'skipped'
+      # copy failed tests' output into the `<failure>` elements shown by the test summary
+      - name: Embed Test Output
+        run: |
+          python3 script/junit_embed_output.py build/$TARGET_STAGE/test-results.xml
+        if: always() && steps.test.conclusion == 'failure'
       - name: Test Summary
-        uses: test-summary/action@31493c76ec9e7aa675f1585d3ed6f1da69269a86 # v2.4
+        uses: test-summary/action@37b508cfee6d4d080eedd00b5bb240a6a784a6a5 # v2.6
         with:
           paths: build/${{ env.TARGET_STAGE }}/test-results.xml
         # prefix `if` above with `always` so it's run even if tests failed
@@ -298,8 +347,14 @@ jobs:
           git config user.email "stage0@lean-fro.org"
           git config user.name "update-stage0"
           make -C build update-stage0
-          git commit --allow-empty -m "chore: update-stage0"
+          # An empty commit changes `Lean.githash` without changing the stage0 tree hash that keys
+          # Lake's traces, leaving stage 1 `.olean`s stale with respect to the rebuilt binaries. If
+          # stage0 is unchanged, there is nothing to rebootstrap anyway, so exit early.
+          git diff --cached --quiet -- stage0 && exit 0 || git commit -m "chore: update-stage0"
           time make -C build -j$NPROC
+          # Set Lake's githash to the new stage0 hash used during the build (for the tests).
+          # Updating `GITHUB_ENV` would only apply to future steps (which do not need it).
+          export LEAN_GITHASH=$(cat build/stage1/lake-githash)
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC
         if: matrix.check-rebootstrap
       - name: CCache stats

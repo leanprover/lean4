@@ -389,7 +389,7 @@ mutual
 
 end
 
-/- Prove SizeOf spec lemma of the form `sizeOf <ctor-application> = 1 + sizeOf <field_1> + ... + sizeOf <field_n> -/
+/-- Prove SizeOf spec lemma of the form `sizeOf <ctor-application> = 1 + sizeOf <field_1> + ... + sizeOf <field_n> -/
 partial def main (lhs rhs : Expr) : M Expr := do
   if (← isDefEq lhs rhs) then
     mkEqRefl rhs
@@ -493,7 +493,8 @@ def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
   prependError m!"failed to generate `SizeOf` instance for `{.ofConstName typeName}`:" do
     let indInfo ← withoutExporting <| getConstInfoInduct typeName
     withExporting (isExporting := !isPrivateName typeName && !indInfo.ctors.any isPrivateName) do
-    if (← getEnv).contains ``SizeOf && genSizeOf.get (← getOptions) && !(← isInductivePredicate typeName) then
+    if (← getEnv).contains ``SizeOf && genSizeOf.get (← getOptions) && !(← isInductivePredicate typeName)
+       && (← isLargeEliminating typeName) then
       withTraceNode `Meta.sizeOf (fun _ => return m!"{typeName}") do
         unless indInfo.isUnsafe do
           let (fns, recMap) ← mkSizeOfFns typeName

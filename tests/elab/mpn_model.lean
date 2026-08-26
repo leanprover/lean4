@@ -325,6 +325,12 @@ theorem getD_set!_eq (c : Array Digit) (idx : Nat) (d : Digit) (h : idx < c.size
 theorem getD_replicate_zero (n i : Nat) : (Array.replicate n (0 : Digit)).getD i 0 = 0 := by
   simp [Array.getElem?_replicate]; split <;> rfl
 
+private theorem array_ext_getD {a b : Array Digit} (hs : a.size = b.size)
+    (h : ∀ i, a.getD i 0 = b.getD i 0) : a = b :=
+  Array.ext hs fun i h1 h2 => by
+    have hi := h i
+    simpa [Array.getD, h1, h2] using hi
+
 /-- `denoteN` only looks at the first `n` digits. -/
 theorem denoteN_congr {c c' : Array Digit} {n : Nat}
     (h : ∀ i, i < n → c.getD i 0 = c'.getD i 0) : denoteN c n = denoteN c' n := by
@@ -367,14 +373,6 @@ theorem denote_of_high_zero (c : Array Digit) {n : Nat} (hn : n ≤ c.size)
 
 /-! ## `mpn_compare` -/
 
-/-- The loop above as a recursion, for `compare_eq` to induct over. -/
-private def compareLoop (a b : Array Digit) : Nat → Int
-  | 0 => 0
-  | j+1 =>
-    let u_j := a.getD j 0
-    let v_j := b.getD j 0
-    if u_j > v_j then 1 else if u_j < v_j then -1 else compareLoop a b j
-
 /--
 `mpn_compare`:
 ```
@@ -407,6 +405,14 @@ def compare (a b : Array Digit) : Int := Id.run do
     else if u_j < v_j then res := -1
   return res
 
+/-- The loop above as a recursion, for `compare_eq` to induct over. -/
+private def compareLoop (a b : Array Digit) : Nat → Int
+  | 0 => 0
+  | j+1 =>
+    let u_j := a.getD j 0
+    let v_j := b.getD j 0
+    if u_j > v_j then 1 else if u_j < v_j then -1 else compareLoop a b j
+
 /-- The loop as the descending recursion its proof inducts over. -/
 theorem compare_eq (a b : Array Digit) :
     compare a b = compareLoop a b (max a.size b.size) := by
@@ -430,17 +436,6 @@ theorem compare_eq (a b : Array Digit) :
       · exact ih
 
 /-! ## `mpn_add` -/
-
-/-- One iteration of the loop below, for `addLoop_eq` to fold over. -/
-private def addStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Digit × Digit :=
-  let (c, k) := s
-  let u_j := a.getD j 0
-  let v_j := b.getD j 0
-  let r := u_j + v_j
-  let c1 := r < u_j
-  let cj := r + k
-  let c2 := cj < r
-  (c.push cj, if c1 || c2 then 1 else 0)
 
 /--
 `mpn_add`'s digit loop, `len` result digits plus the final carry:
@@ -470,6 +465,17 @@ def addLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
     c := c.push cj
     k := if c1 || c2 then 1 else 0
   return (c, k)
+
+/-- One iteration of the loop below, for `addLoop_eq` to fold over. -/
+private def addStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Digit × Digit :=
+  let (c, k) := s
+  let u_j := a.getD j 0
+  let v_j := b.getD j 0
+  let r := u_j + v_j
+  let c1 := r < u_j
+  let cj := r + k
+  let c2 := cj < r
+  (c.push cj, if c1 || c2 then 1 else 0)
 
 /-- The loop as the fold its proof inducts over. -/
 theorem addLoop_eq (a b : Array Digit) (len : Nat) :
@@ -501,17 +507,6 @@ def add (a b : Array Digit) : Array Digit :=
 
 /-! ## `mpn_sub` -/
 
-/-- One iteration of the loop below, for `subLoop_eq` to fold over. -/
-private def subStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Digit × Digit :=
-  let (c, k) := s
-  let u_j := a.getD j 0
-  let v_j := b.getD j 0
-  let r := u_j - v_j
-  let c1 := r > u_j
-  let cj := r - k
-  let c2 := cj > r
-  (c.push cj, if c1 || c2 then 1 else 0)
-
 /--
 `mpn_sub`'s digit loop, `len` result digits plus the final borrow:
 ```
@@ -540,6 +535,17 @@ def subLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
     k := if c1 || c2 then 1 else 0
   return (c, k)
 
+/-- One iteration of the loop below, for `subLoop_eq` to fold over. -/
+private def subStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Digit × Digit :=
+  let (c, k) := s
+  let u_j := a.getD j 0
+  let v_j := b.getD j 0
+  let r := u_j - v_j
+  let c1 := r > u_j
+  let cj := r - k
+  let c2 := cj > r
+  (c.push cj, if c1 || c2 then 1 else 0)
+
 /-- The loop as the fold its proof inducts over. -/
 theorem subLoop_eq (a b : Array Digit) (len : Nat) :
     subLoop a b len = (List.range len).foldl (fun s j => subStep a b s j) (#[], 0) := by
@@ -553,18 +559,6 @@ the final borrow, which the C++ writes through `pborrow`.
 def sub (a b : Array Digit) : Array Digit × Digit :=
   subLoop a b (max a.size b.size)
 
-
-/-- One iteration of the loop below, for `subInPlace_foldl` to fold over. -/
-private def subInPlaceStep (b : Array Digit) (off : Nat) (s : Array Digit × Digit) (i : Nat) :
-    Array Digit × Digit :=
-  let (u, k) := s
-  let u_i := u.getD (off + i) 0
-  let v_i := b.getD i 0
-  let r := u_i - v_i
-  let c1 := r > u_i
-  let ci := r - k
-  let c2 := ci > r
-  (u.set! (off + i) ci, if c1 || c2 then 1 else 0)
 
 /--
 `mpn_sub`'s digit loop, writing its result back over its first operand, which is
@@ -590,6 +584,18 @@ def subInPlace (u b : Array Digit) (off len : Nat) : Array Digit × Digit := Id.
     k := if c1 || c2 then 1 else 0
   return (u, k)
 
+/-- One iteration of the loop below, for `subInPlace_foldl` to fold over. -/
+private def subInPlaceStep (b : Array Digit) (off : Nat) (s : Array Digit × Digit) (i : Nat) :
+    Array Digit × Digit :=
+  let (u, k) := s
+  let u_i := u.getD (off + i) 0
+  let v_i := b.getD i 0
+  let r := u_i - v_i
+  let c1 := r > u_i
+  let ci := r - k
+  let c2 := ci > r
+  (u.set! (off + i) ci, if c1 || c2 then 1 else 0)
+
 /-- The loop as the fold its proof inducts over. -/
 theorem subInPlace_foldl (u b : Array Digit) (off len : Nat) :
     subInPlace u b off len
@@ -604,15 +610,6 @@ private theorem subInPlace_succ (u b : Array Digit) (off len : Nat) :
 
 
 /-! ## `mpn_mul` -/
-
-/-- One iteration of the loop below, for `mulInner_eq` to fold over. -/
-private def mulInnerStep (a : Array Digit) (v_j : Digit) (j : Nat)
-    (s : Array Digit × Digit) (i : Nat) : Array Digit × Digit :=
-  let (c, k) := s
-  let u_i := a.getD i 0
-  let t : DoubleDigit :=
-    u_i.toUInt64 * v_j.toUInt64 + (c.getD (i + j) 0).toUInt64 + k.toUInt64
-  (c.set! (i + j) (lo t), hi t)
 
 /--
 `mpn_mul`'s inner loop over `lnga` digits of `a`, leaving a carry:
@@ -642,6 +639,15 @@ def mulInner (a : Array Digit) (v_j : Digit) (j : Nat) (c : Array Digit) (lnga :
     c := c.set! (i + j) (lo t)
     k := hi t
   return (c, k)
+
+/-- One iteration of the loop below, for `mulInner_eq` to fold over. -/
+private def mulInnerStep (a : Array Digit) (v_j : Digit) (j : Nat)
+    (s : Array Digit × Digit) (i : Nat) : Array Digit × Digit :=
+  let (c, k) := s
+  let u_i := a.getD i 0
+  let t : DoubleDigit :=
+    u_i.toUInt64 * v_j.toUInt64 + (c.getD (i + j) 0).toUInt64 + k.toUInt64
+  (c.set! (i + j) (lo t), hi t)
 
 /-- The loop as the fold its proof inducts over. -/
 theorem mulInner_eq (a : Array Digit) (v_j : Digit) (j : Nat) (c : Array Digit) (lnga : Nat) :
@@ -2731,12 +2737,6 @@ private theorem toNat_pred32 {q : Digit} (h : 0 < q.toNat) : (q - 1).toNat = q.t
   grind
 
 set_option maxHeartbeats 1000000 in
-private theorem array_ext_getD {a b : Array Digit} (hs : a.size = b.size)
-    (h : ∀ i, a.getD i 0 = b.getD i 0) : a = b :=
-  Array.ext hs fun i h1 h2 => by
-    have hi := h i
-    simpa [Array.getD, h1, h2] using hi
-
 private theorem sub_eq_subLoop (a b : Array Digit) (len : Nat)
     (ha : a.size = len) (hb : b.size = len) : sub a b = subLoop a b len := by
   rw [sub, ha, hb, Nat.max_self]

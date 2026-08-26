@@ -340,13 +340,9 @@ Examples:
 def fileStem (p : Path) : Option String := do
   let name := (← p.fileName).value
 
-  let (searchIn, hadLeadingDot) :=
-    if name.startsWith "." && name.length > 1 then (String.ofList name.toList.tail, true)
-    else (name, false)
-
-  match splitAtLastDot searchIn with
+  match name.revFind? '.' with
   | none => some name
-  | some (stem, _)  => if hadLeadingDot then some <| "." ++ stem else some stem.toString
+  | some lastDot => if lastDot = name.startPos then some name else some (name.sliceTo lastDot).copy
 
 /--
 The filename stem before the first extension (i.e. before the first `.` after any leading dot).
@@ -359,16 +355,11 @@ Examples:
 - `(ofPosixString ".hidden.tar.gz" |>.get!).filePrefix = some ".hidden"`
 - `(ofPosixString "Makefile" |>.get!).filePrefix = some "Makefile"`
 -/
-def filePrefix (p : Path) : Option String :=
-  p.fileName.map fun name =>
-    let name := name.value
-    let (leadingDot, rest) :=
-      if name.startsWith "." && name.length > 1 then (".", name.drop 1 |>.toString)
-      else ("", name)
-
-    let parts := rest.split "." |>.toArray
-    if parts.isEmpty then name
-    else leadingDot ++ parts[0]!.toString
+def filePrefix (p : Path) : Option String := do
+  let name := (← p.fileName).value
+  let afterInitialDot := (name.skipPrefix? '.').getD name.startPos
+  let nextDot := (name.sliceFrom afterInitialDot).find '.'
+  return (name.slice afterInitialDot (String.Pos.ofSliceFrom nextDot) String.Pos.le_ofSliceFrom).copy
 
 /--
 The last file extension, validated as an `Extension` (without the leading `.`).
@@ -383,14 +374,17 @@ Examples:
 - `(ofPosixString "Makefile" |>.get!).extension = none`
 -/
 def extension (p : Path) : Option Extension :=
-  p.fileName.bind fun name =>
-    let name := name.value
-    let searchIn :=
-      if name.startsWith "." && name.length > 1 then name.extract name.startPos.next! name.endPos
-      else name
+def extension (p : Path) : Option Extension := do
+  let name := (← p.fileName).value
 
-    splitAtLastDot searchIn
-    |>.bind (Extension.ofString? ·.2.toString)
+  match name.revFind? '.' with
+  | none => none
+  | some lastDot =>
+    if lastDot = name.startPos then
+      none
+    else
+      Extension.ofString? (name.sliceFrom lastDot.next!).copy
+
 
 /--
 True if the file name has at least one extension.

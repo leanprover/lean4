@@ -126,10 +126,11 @@ inductive Path.Component where
   | winPrefix (value : Path.Prefix)
 
   /--
-  The root separator (`/` on POSIX, `\` on Windows).
+  The root separator, as written: `/` for a POSIX path, `\` for a Windows one.
 
-  Present as the first component of every absolute path. Relative paths never
-  start with `root`.
+  Always the first component, save for a Windows prefix ahead of it. The stored separator is what
+  tells the two syntaxes apart once a path is parsed, and `Path.isAbsolute` reads it: `/foo` is
+  absolute, while a Windows `\foo` is relative to the current drive.
   -/
   | root (value : String)
 
@@ -154,6 +155,6 @@ inductive Path.Component where
   The `value` is the raw segment string (e.g. `"src"`, `"Main.lean"`).
   -/
   | normal (value : String)
-deriving Inhabited, BEq, Hashable, Repr, Ord
+deriving Inhabited, Hashable, Repr, Ord
 
 end Std

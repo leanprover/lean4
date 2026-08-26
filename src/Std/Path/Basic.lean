@@ -38,7 +38,7 @@ All structural operations (`join`, `parent`, `normalize`, etc.) work directly on
 array, so they are pure and require no OS calls. Platform-specific behaviour is limited to parsing
 (`fromString`) and rendering (`toString`), which are `IO` actions.
 
-Use `Path.ofPosixString` or `Path.ofWindowsString` for pure construction from string literals
+Use `Path.ofPosixString` or `Path.ofWindowsString` for pure construction from strings
 when the platform format is known at compile time.
 -/
 structure Path where
@@ -60,7 +60,7 @@ private def get (path : Path) (idx : Nat) : Option Path.Component :=
 
 /--
 A valid file name: non-empty, not `.` or `..`, and contains no separator (`/`, `\`) or null byte
-characters. Satisfied by `by decide` for string literals.
+characters. Satisfied by `by decide` for strings.
 -/
 abbrev ValidFileName (x : String) : Prop :=
   ¬x.isEmpty ∧ x ≠ "." ∧ x ≠ ".." ∧ x.toList.all (not <| · matches '\\' | '/' | '\x00')
@@ -176,41 +176,6 @@ def isEmpty (p : Path) : Bool :=
   p.components.isEmpty
 
 /--
-True if `p` is anchored: its first component is a `root`, a prefix followed by a `root`, or a prefix
-that is absolute on its own (see `Prefix.hasImplicitRoot`, e.g. `\\server\share`).
-
-This is purely component-based and does not depend on the host platform. Note this differs from
-Python and Rust on Windows: a rooted path with no drive letter (e.g. `\foo`) is treated as absolute
-here, whereas they treat it as drive-relative (resolved against the current drive). Consequently
-`join` replaces the left side when the right side is such a path, rather than keeping the left drive.
--/
-def isAbsolute (p : Path) : Bool :=
-  match p.get 0, p.get 1 with
-  | some (.root _), _ => true
-  | some (.winPrefix _), some (.root _) => true
-  | some (.winPrefix pfx), _ => pfx.hasImplicitRoot
-  | _, _ => false
-
-/--
-True if `p` is not absolute.
--/
-@[inline]
-def isRelative (p : Path) : Bool :=
-  ¬p.isAbsolute
-
-
-/--
-Append `other` to `p`.
-
-If `other` is an absolute path (see `isAbsolute`), `other` replaces `p` entirely — same semantics as
-Python's `PurePath.__truediv__` and Rust's `Path::join`.
--/
-@[inline]
-def join (p p₂ : Path) : Path :=
-  if p₂.isAbsolute then p₂
-  else { components := p.components ++ p₂.components }
-
-/--
 The Windows prefix of `p`, if it has one.
 
 Returns `none` on POSIX paths and on Windows paths with no prefix (e.g. `foo\bar` or `\foo`).
@@ -232,8 +197,8 @@ def drive? (p : Path) : Option String :=
 /--
 The root separator string (`"/"` or `"\\"`) if the path has one written out; `none` otherwise.
 
-A path can be absolute without a root of its own, when its prefix supplies one (e.g.
-`\\server\share`); `isAbsolute` accounts for that, this does not.
+A path can start at a root without one of its own, when its prefix supplies it (e.g.
+`\\server\share`); `hasRoot` accounts for that, this does not.
 -/
 def root? (p : Path) : Option String :=
   match p.get 0, p.get 1 with
@@ -242,21 +207,64 @@ def root? (p : Path) : Option String :=
   | _, _ => none
 
 /--
+True if `p` starts at a root: it has a root of its own, or a prefix that supplies one (see
+`Prefix.hasImplicitRoot`, e.g. `\\server\share`).
+
+Weaker than `isAbsolute`: a Windows path can start at a root and still be relative, since `\foo`
+names the root of whichever drive is current.
+-/
+def hasRoot (p : Path) : Bool :=
+  p.root?.isSome || p.winPrefix?.any Prefix.hasImplicitRoot
+
+/--
+True if `p` names a location that depends on no current directory.
+
+A POSIX path is absolute exactly when it has a root. A Windows path needs both a prefix and a root:
+`C:\foo` and `\\server\share` are absolute, while `C:foo` is relative to the working directory of
+drive `C:` and `\foo` to whichever drive is current.
+
+The verdict is fixed by the syntax `p` was parsed with, not by the host platform.
+-/
+def isAbsolute (p : Path) : Bool :=
+  match p.get 0, p.get 1 with
+  | some (.winPrefix _), some (.root _) => true
+  | some (.winPrefix pfx), _ => pfx.hasImplicitRoot
+  | some (.root sep), _ => sep == "/"
+  | _, _ => false
+
+/--
+True if `p` names a location only in relation to a current directory.
+
+A POSIX path is relative exactly when it has no root. A Windows path is relative when it lacks a
+prefix, a root, or both, and what it is relative to differs in each case: `foo\bar` resolves against
+the working directory, `C:foo` against the working directory of drive `C:`, and `\foo` against the
+root of whichever drive is current. That last one has a root, so `hasRoot` says nothing about
+whether a path is relative.
+-/
+@[inline]
+def isRelative (p : Path) : Bool :=
+  !p.isAbsolute
+
+/--
+Append `other` to `p`.
+
+`other` replaces `p` entirely if it is absolute or brings a Windows prefix of its own. If it is
+rooted but has no prefix (a Windows `\foo`, relative to the current drive), it keeps only `p`'s
+prefix: `C:\a` joined with `\b` is `C:\b`.
+-/
+@[inline]
+def join (p p₂ : Path) : Path :=
+  if p₂.isAbsolute || p₂.winPrefix?.isSome then p₂
+  else if p₂.hasRoot then
+    { components := p.winPrefix?.elim #[] (#[.winPrefix ·]) ++ p₂.components }
+  else { components := p.components ++ p₂.components }
+
+/--
 Prefix concatenated with root (e.g. `"C:\\"`, `"\\\\server\\share\\"`, `"/"`, or `""` for a relative
 path).
 -/
 def anchor (p : Path) : String :=
   (p.winPrefix?.elim "" Prefix.toWindowsString) ++ (p.root?.getD "")
-
-/--
-The number of `normal` components in `p` (drive prefix, root, `.`, and `..` are not counted).
-
-Examples:
-- `depth (ofPosixString "/usr/local/bin" |>.get!) = 3`
-- `depth (ofPosixString ".." |>.get!) = 0`
--/
-def depth (p : Path) : Nat :=
-  p.components.foldl (fun acc c => match c with | .normal _ => acc + 1 | _ => acc) 0
 
 /--
 Resolve `.` components and eliminate `..` components syntactically.
@@ -301,11 +309,13 @@ def parent (path : Path) : Option Path :=
     else some { components := cs }
 
 /--
-True if `p` is an absolute path with no further components (i.e. only a root, with an optional
-drive prefix). Examples: `"/"`, `"C:\\"`.
+True if `p` starts at a root and has no further components (i.e. only a root, with an optional
+drive prefix). Examples: `"/"`, `"C:\\"`, `"\\"`.
+
+Uses `hasRoot`, not `isAbsolute`, so the drive-relative `"\\"` counts.
 -/
 def isRoot (p : Path) : Bool :=
-  p.isAbsolute && p.parent.isNone
+  p.hasRoot && p.parent.isNone
 
 /--
 The last `normal` component (i.e. the file or directory name), validated as a `Filename`.
@@ -545,10 +555,10 @@ True if `p` starts with `prefix` (component-wise, not as a raw string prefix).
 `ofPosixString "/usr/local"` starts with `ofPosixString "/usr"` but not with `ofPosixString "/us"`.
 -/
 def startsWith (p prefx : Path) : Bool :=
-  p.components.extract 0 prefx.components.size == prefx.components
+  prefx.components.isPrefixOf p.components.extract
 
 /--
-True if `p` ends with `suffix` (component-wise), matching Rust's `Path::ends_with`.
+True if `p` ends with `suffix` (component-wise).
 
 Matching is on whole components from the back, so `"/usr/bin".endsWith "bin"` and
 `"/usr/bin".endsWith "usr/bin"` are both `true`, but `"/usr/bin".endsWith "sr/bin"` is `false`. A root
@@ -578,13 +588,11 @@ The result is purely syntactic: it does not consult the file system and treats e
 component of `base` as a directory to ascend from (so `base` should usually be `normalize`d first if
 it contains `.` or `..`).
 
-Returns `none` if `base` and `target` have different roots (e.g. different drive letters or network
-shares on Windows, or one absolute and one relative).
+Returns `none` if `base` and `target` have different anchors (e.g. different drive letters or
+network shares on Windows, or one absolute and one relative).
 -/
 def relativeTo? (base target : Path) : Option Path :=
-  if base.winPrefix? != target.winPrefix? then
-    none
-  else if base.isAbsolute != target.isAbsolute then
+  if base.anchor != target.anchor then
     none
   else
     let bc := base.components
@@ -754,9 +762,10 @@ Resolve `p` against the process's current working directory if it is relative.
 
 If `p` is already absolute, it is returned unchanged. A drive-relative Windows path (e.g. `C:foo`) is
 resolved against the current directory with its drive prefix dropped, since the per-drive working
-directory is not available. No symlinks are resolved; use `resolve` for that.
+directory is not available; a rooted one with no drive (e.g. `\foo`) takes the current directory's
+drive. No symlinks are resolved; use `resolve` for that.
 -/
-def toAbsoluteCwd (p : Path) : IO Path := do
+def cwd (p : Path) : IO Path := do
   if p.isAbsolute then return p
   let cwdPath ← fromString (← Internal.UV.System.cwd)
   -- Only a drive prefix can reach here: every other prefix is absolute on its own.
@@ -769,7 +778,7 @@ def toAbsoluteCwd (p : Path) : IO Path := do
 Make `p` absolute and resolve all symlinks, returning the canonical path.
 
 Fails with an `IO.Error` if any component of the path does not exist on the file system.
-Unlike `toAbsoluteCwd`, this performs actual file system access and resolves symlinks.
+Unlike `cwd`, this performs actual file system access and resolves symlinks.
 -/
 def resolve (p : Path) : IO Path :=
   fromString =<< Internal.UV.System.realPath =<< p.toString

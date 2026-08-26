@@ -98,7 +98,7 @@ private def parsePrefix : Parser (Option Path.Prefix) :=
   pure none
 
 def posixPathParser : Parser (Array Path.Component) := do
-  let hasRoot ← flag (pchar '/')
+  let hasRoot ← «matches» (pchar '/')
   discard <| manyChars (attempt (pchar '/'))
 
   let init := if hasRoot then #[.root "/"] else #[]
@@ -114,7 +114,7 @@ def posixPathParser : Parser (Array Path.Component) := do
 def windowsPathParser : Parser (Array Path.Component) := do
   let pfx ← parsePrefix
   let prefixInit := pfx.elim #[] (#[.winPrefix ·])
-  let hasRoot ← flag (satisfy isWinSep)
+  let hasRoot ← «matches» (satisfy isWinSep)
   discard <| manyChars (attempt (satisfy isWinSep))
 
   let init := if hasRoot then prefixInit.push (.root "\\") else prefixInit

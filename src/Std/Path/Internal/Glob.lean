@@ -66,7 +66,7 @@ open Std Path.Internal Std.Internal Parsec String
 Parse the body of a `[...]` character class, after the opening `[`.
 -/
 private partial def globClassBody : Parser (Array (Char ⊕ Char × Char)) := do
-  if ← flag (pchar ']') then return #[]
+  if ← Parser.matches (pchar ']') then return #[]
   let c ← satisfy (· != ']')
   let elem ← attempt (do
       let _ ← pchar '-'
@@ -83,7 +83,7 @@ private def globPart : Parser GlobPart :=
     | '*' => return .star
     | '?' => return .question
     | '[' =>
-      let negated ← flag (pchar '!')
+      let negated ← Parser.matches (pchar '!')
       return .charClass negated (← globClassBody)
     | c => return .lit c
 

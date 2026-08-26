@@ -193,9 +193,23 @@ section Absolute
 #guard (posix "/").isAbsolute = true
 #guard (win "C:\\foo").isAbsolute = true
 #guard (win "C:foo").isAbsolute = false   -- drive-relative (no root)
-#guard (win "\\foo").isAbsolute = true    -- root without drive
+-- A Windows root with no prefix names the root of whichever drive is current, so it is relative.
+#guard (win "\\foo").isAbsolute = false
+#guard (win "\\").isAbsolute = false
+#guard (win "/foo").isAbsolute = false    -- `/` is just a separator in Windows syntax
 #guard (posix "/usr").isRelative = false
 #guard (posix "usr").isRelative = true
+#guard (win "\\foo").isRelative = true
+
+-- `hasRoot` is the weaker predicate: it holds for the drive-relative paths above, and for a prefix
+-- that supplies a root without writing one out.
+#guard (posix "/usr").hasRoot = true
+#guard (posix "usr").hasRoot = false
+#guard (win "\\foo").hasRoot = true
+#guard (win "C:\\foo").hasRoot = true
+#guard (win "C:foo").hasRoot = false
+#guard (win "\\\\server\\share").hasRoot = true
+#guard (win "\\\\?\\C:").hasRoot = false
 
 end Absolute
 
@@ -245,6 +259,14 @@ section Join
 #guard ((posix "a/b").join (default : Path)).toPosixString = "a/b"
 -- Windows: absolute right replaces left
 #guard ((win "C:\\foo").join (win "D:\\bar")).toWindowsString = "D:\\bar"
+-- Windows: a right side carrying a prefix replaces the left even when it is drive-relative
+#guard ((win "C:\\foo").join (win "D:bar")).toWindowsString = "D:bar"
+#guard ((win "C:\\foo").join (win "C:bar")).toWindowsString = "C:bar"
+-- Windows: a rooted right side with no prefix is relative to the current drive, so it keeps the
+-- left prefix and drops everything else
+#guard ((win "C:\\a\\b").join (win "\\c")).toWindowsString = "C:\\c"
+#guard ((win "\\\\server\\share\\a").join (win "\\b")).toWindowsString = "\\\\server\\share\\b"
+#guard ((win "a\\b").join (win "\\c")).toWindowsString = "\\c"
 
 end Join
 
@@ -525,7 +547,7 @@ section StartEnd
 #guard (posix "/usr/local/bin").endsWith (posix "local/bin") = true
 #guard (posix "/usr/local/bin").endsWith (posix "bin") = true
 #guard (posix "/usr/local/bin").endsWith (posix "/usr/local/bin") = true
--- a relative suffix matches whole components from the back, even just behind the root (matches Rust)
+-- a relative suffix matches whole components from the back, even just behind the root
 #guard (posix "/usr/local/bin").endsWith (posix "usr/local/bin") = true
 #guard (posix "/a").endsWith (posix "a") = true
 -- but the match is component-wise, not a substring
@@ -585,6 +607,11 @@ section RelativeTo
 #guard ((posix "a/b").relativeTo? (posix "a/c")).map (·.toPosixString) = some "../c"
 -- Windows: different drive → none
 #guard (win "C:\\foo").relativeTo? (win "D:\\foo") = none
+-- Windows: drive-rooted and cwd-relative paths have different anchors
+#guard (win "\\a").relativeTo? (win "b") = none
+#guard ((win "\\a").relativeTo? (win "\\b")).map (·.toWindowsString) = some "..\\b"
+-- a POSIX root and a Windows root are different anchors too
+#guard (posix "/a").relativeTo? (win "\\b") = none
 
 -- documented invariant: `(base.join r).normalize = target.normalize`
 private def relInvariant (base target : Path) : Bool :=
@@ -703,8 +730,9 @@ section IsRoot
 #guard (posix "/").isRoot = true
 -- Windows drive root
 #guard (win "C:\\").isRoot = true
--- Windows root without drive
+-- Windows root without drive: a root path, though not an absolute one
 #guard (win "\\").isRoot = true
+#guard (win "\\").isAbsolute = false
 -- absolute but not root (has normal components)
 #guard (posix "/usr").isRoot = false
 #guard (win "C:\\foo").isRoot = false

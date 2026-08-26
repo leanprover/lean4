@@ -16,14 +16,17 @@ public section
 
 A platform-neutral file system path library for Lean.
 
-`Std.Path` replaces `System.FilePath` with a richer representation. Instead of a plain `String`
-wrapper, paths are stored as `Array Path.Component`.
+A `Path` is a parsed path: an `Array Path.Component`, where a component is a Windows prefix, a root
+separator, `.`, `..`, or a normal segment.
 
 - All structural operations (`join`, `parent`, `normalize`, `startsWith`, …) are **pure**: they work
   on the component array without OS calls or string scanning.
 
 - Platform-specific behaviour is confined to `IO` actions: `Path.fromString` and `Path.toString` use
   the runtime separator; `Path.resolve` calls into the OS.
+
+`Std.Path` is meant to replace `System.FilePath`, which stores a path as a plain `String` and
+rescans it for separators on every operation.
 
 ## Quick Start
 

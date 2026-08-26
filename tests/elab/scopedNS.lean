@@ -40,7 +40,7 @@ due to the absence of the instance above
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ---
-error: cannot evaluate, types are not computationally relevant
+error: Cannot evaluate, types are not computationally relevant
 -/
 #guard_msgs in
 set_option pp.mvars false in
@@ -48,7 +48,7 @@ set_option pp.mvars false in
 
 
 -- Test 3: Scoped attribute
-def myInstance : Inhabited Nat := ⟨42⟩
+@[reducible] def myInstance : Inhabited Nat := ⟨42⟩
 
 scoped[MyNS] attribute [instance] myInstance
 

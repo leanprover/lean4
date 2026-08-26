@@ -29,7 +29,7 @@ theorem memcmpStr_eq_true_iff {lhs rhs : String} {lstart rstart len : String.Pos
   simp [Pos.Raw.le_iff] at h₁ h₂
   by_cases hc : len.byteIdx < curr.byteIdx
   · rw [ByteArray.extract_eq_empty_iff.2, ByteArray.extract_eq_empty_iff.2, memcmpStr.go,
-      dif_neg (Std.not_lt.2 (Std.le_of_lt (Pos.Raw.lt_iff.2 hc)))]
+      dite_eq_right (Std.not_lt.2 (Std.le_of_lt (Pos.Raw.lt_iff.2 hc)))]
     simp only
     all_goals simp; omega
   · simp only [Pos.Raw.byteIdx_offsetBy]

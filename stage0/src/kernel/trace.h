@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include <string>
 #include "library/elab_environment.h"
 #include "util/options.h"
-#include "util/message_definitions.h"
 
 namespace lean {
 void register_trace_class(name const & n, name const & decl_name = {});

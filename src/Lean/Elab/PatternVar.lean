@@ -9,7 +9,7 @@ prelude
 public import Lean.Elab.Arg
 public import Lean.Elab.MatchAltView
 public import Init.Syntax
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Omega
 
 public section

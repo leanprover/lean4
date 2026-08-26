@@ -12,6 +12,8 @@ public section
 
 open Lean Meta Elab Tactic Parser.Tactic
 
+namespace Lean.Elab.Tactic
+
 @[builtin_tactic as_aux_lemma]
 def elabAsAuxLemma : Lean.Elab.Tactic.Tactic
 | `(tactic| as_aux_lemma => $s) => withMainContext do
@@ -23,3 +25,5 @@ def elabAsAuxLemma : Lean.Elab.Tactic.Tactic
   let e ← mkAuxTheorem (← mvarId.getType) e
   mvarId.assign e
 | _ => throwError "Invalid as_aux_lemma syntax"
+
+end Lean.Elab.Tactic

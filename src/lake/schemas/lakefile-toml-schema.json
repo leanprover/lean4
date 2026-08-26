@@ -149,6 +149,16 @@
                     },
                     "default": [],
                     "description": "Build key identifiers of Lean plugin targets to load during the elaboration of a module (via `lean --plugin`).\n\nFormat: `<target>[:<facet>]*`, where:\n- `<target>` is of the form `@<package>`, `@<package>/<targetName>`, +<module>` or `@<package>/+<module>`,\n- `<package>` may be empty to reference the default package,\n- `<facet>` is the name of a target facet."
+                },
+                "requiresModuleSystem": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether this package or library should be considered designed for use with the module system.\n\nIf enabled, Lake emits a warning whenever a module imports a module of this code unit without itself using the module system (i.e., without a `module` header). This applies both to downstream consumers and to non-module files within the same package, signalling that the code unit's API expects the visibility and elaboration semantics of the module system.\n\nImporters can opt out of the warning by setting `allowNonModules = true` on their own package or library."
+                },
+                "allowNonModules": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether this package or library permits non-module-system files without warning.\n\nBy default, when a non-module-system file in this code unit imports a module from a code unit that has set `requiresModuleSystem` (which may include this one itself), Lake emits a warning. Setting this to `true` suppresses those warnings, declaring that the code unit is knowingly mixing non-module-system files with module-system dependencies."
                 }
             }
         },
@@ -191,7 +201,7 @@
                         "libPrefixOnWindows": {
                             "type": "boolean",
                             "default": false,
-                            "description": "Whether static and shared binaries of this library should be prefixed with `lib` on Windows.\n\nUnlike Unix, Windows does not require native libraries to start with `lib` and, by convention, they usually do not. However, for consistent naming across all platforms, users may wish to enable this.\n\nDefaults to `false`."
+                            "description": "Whether static and shared binaries of this library should be prefixed with `lib` on Windows.\n\nUnlike Unix, Windows does not require native libraries to start with `lib` and, by convention, they usually do not. However, for consistent naming across all platforms, users may wish to enable this."
                         },
                         "allowImportAll": {
                             "type": "boolean",

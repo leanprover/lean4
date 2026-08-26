@@ -24,10 +24,11 @@ elab_environment elab_environment::add(declaration const & d, bool check) const 
     return elab_environment(lean_elab_environment_update_base_after_kernel_add(this->to_obj_arg(), kenv.to_obj_arg(), d.to_obj_arg()));
 }
 
-extern "C" LEAN_EXPORT object * lean_elab_add_decl(object * env, size_t max_heartbeat, object * decl,
-    object * opt_cancel_tk) {
+extern "C" LEAN_EXPORT object * lean_elab_add_decl(object * env, size_t max_heartbeat, size_t max_rec_depth,
+    object * decl, object * opt_cancel_tk) {
     scope_max_heartbeat s(max_heartbeat);
-    scope_cancel_tk s2(is_scalar(opt_cancel_tk) ? nullptr : cnstr_get(opt_cancel_tk, 0));
+    scope_max_rec_depth s2(max_rec_depth);
+    scope_cancel_tk s3(is_scalar(opt_cancel_tk) ? nullptr : cnstr_get(opt_cancel_tk, 0));
     return catch_kernel_exceptions<elab_environment>([&]() {
             return elab_environment(env).add(declaration(decl, true));
         });

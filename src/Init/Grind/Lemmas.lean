@@ -7,6 +7,7 @@ module
 prelude
 public import Init.Grind.Ring.Basic
 public import Init.NotationExtra
+public import Init.GetElem
 import Init.ByCases
 import Init.Classical
 import Init.Data.Bool
@@ -192,6 +193,26 @@ theorem Nat.xor_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : 
 theorem Nat.or_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : b = k₂) : k == k₁ ||| k₂ → a ||| b = k := by simp_all
 theorem Nat.shiftLeft_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : b = k₂) : k == k₁ <<< k₂ → a <<< b = k := by simp_all
 theorem Nat.shiftRight_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : b = k₂) : k == k₁ >>> k₂ → a >>> b = k := by simp_all
+
+/-! Literal evaluation propagators -/
+
+theorem eval_congr₁ {α : Sort u} {β : Sort v} {f : α → β} {a a' : α} {b : β}
+    (h₁ : a = a') (h₂ : f a' = b) : f a = b := by
+  subst h₁; exact h₂
+
+theorem eval_congr₂ {α₁ : Sort u} {α₂ : Sort v} {β : Sort w} {f : α₁ → α₂ → β}
+    {a₁ a₁' : α₁} {a₂ a₂' : α₂} {b : β}
+    (h₁ : a₁ = a₁') (h₂ : a₂ = a₂') (h₃ : f a₁' a₂' = b) : f a₁ a₂ = b := by
+  subst h₁; subst h₂; exact h₃
+
+/-
+**Note**: the universe parameter order in the following theorem must match
+`GetElem.getElem` since the propagators reuse its level list.
+-/
+theorem getElem_congr {coll : Type u} {idx : Type v} {elem : Type w} {valid : coll → idx → Prop}
+    [GetElem coll idx elem valid] {as bs : coll} {i j : idx} {w₁ : valid as i} {a : elem}
+    (h₁ : as = bs) (h₂ : i = j) (h₃ : ∀ w₂ : valid bs j, bs[j]'w₂ = a) : as[i]'w₁ = a := by
+  subst h₁; subst h₂; exact h₃ w₁
 
 /-! Semiring propagators -/
 

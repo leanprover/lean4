@@ -178,6 +178,36 @@ open Std Http Internal Test
       assertContains r "response0" *>
       assertContains r "response1")
 
+  check "Response.stream defaults to chunked"
+    (raw := mkGetClose "/stream-builder-default")
+    (handler := fun _ => do
+      let res ← Response.ok.stream fun s => do
+        s.send <| Chunk.ofByteArray "hello".toUTF8
+        s.send <| Chunk.ofByteArray "world".toUTF8
+      return (res : Response Body.Any))
+    (expect := fun r =>
+      assertStatus r "HTTP/1.1 200" *>
+      assertContains r "Transfer-Encoding: chunked" *>
+      assertContains r "hello" *>
+      assertContains r "world")
+
+  check "setKnownSize inside Response.stream overrides the chunked default"
+    (raw := mkGetClose "/stream-builder-sized")
+    (handler := fun _ => do
+      let ready : Std.Channel Unit ← Std.Channel.new
+      let res ← Response.ok.stream fun s => do
+        s.setKnownSize (some (.fixed 10))
+        let _ ← ready.send ()
+        s.send <| Chunk.ofByteArray "abcde".toUTF8
+        s.send <| Chunk.ofByteArray "fghij".toUTF8
+      let _ ← Selectable.one #[.case ready.recvSelector pure]
+      return (res : Response Body.Any))
+    (expect := fun r =>
+      assertStatus r "HTTP/1.1 200" *>
+      assertContains r "Content-Length: 10" *>
+      assertAbsent r "Transfer-Encoding: chunked" *>
+      assertContains r "abcdefghij")
+
   check "fixed-length overflow: output stops at announced length"
     (raw := mkGetClose "/overflow")
     (handler := fun _ => do

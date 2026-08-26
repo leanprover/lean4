@@ -260,7 +260,7 @@ public def id? (self : Package) : Option PkgId :=
 
 /-- The packages `remoteUrl` as an `Option` (`none` if empty). -/
 @[inline] public def remoteUrl? (self : Package) : Option String :=
-  if self.remoteUrl.isEmpty then some self.remoteUrl else none
+  if self.remoteUrl.isEmpty then none else some self.remoteUrl
 
 /-- The package's `lakeDir` joined with its `buildArchive`. -/
 @[inline] public def buildArchiveFile (self : Package) : FilePath :=
@@ -297,6 +297,14 @@ public def id? (self : Package) : Option PkgId :=
 /-- The package's `allowImportAll` configuration. -/
 @[inline] public def allowImportAll (self : Package) : Bool :=
   self.config.allowImportAll
+
+/-- The package's `requiresModuleSystem` configuration. -/
+@[inline] public def requiresModuleSystem (self : Package) : Bool :=
+  self.config.requiresModuleSystem
+
+/-- The package's `allowNonModules` configuration. -/
+@[inline] public def allowNonModules (self : Package) : Bool :=
+  self.config.allowNonModules
 
 /-- The package's `dynlibs` configuration. -/
 @[inline] public def dynlibs (self : Package) : TargetArray Dynlib :=
@@ -353,6 +361,10 @@ public def id? (self : Package) : Option PkgId :=
 /-- The package's `buildDir` joined with its `leanLibDir` configuration. -/
 @[inline] public def leanLibDir (self : Package) : FilePath :=
   self.buildDir / self.config.leanLibDir.normalize
+
+/-- **For internal use only.** The directory containing Lean header files in a bootstrap package. -/
+@[inline] public def bootstrapIncludeDir (self : Package) : FilePath :=
+  self.buildDir / "include"
 
 /--
 Where static libraries for the package are located.

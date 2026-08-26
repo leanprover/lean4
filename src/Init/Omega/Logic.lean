@@ -48,8 +48,8 @@ theorem Decidable.and_not_of_not_imp [Decidable a] (h : ¬(a → b)) : a ∧ ¬b
 theorem ite_disjunction {α : Type u} {P : Prop} [Decidable P] {a b : α} :
     (P ∧ (if P then a else b) = a) ∨ (¬ P ∧ (if P then a else b) = b) :=
   if h : P then
-    .inl ⟨h, if_pos h⟩
+    .inl ⟨h, ite_eq_left h⟩
   else
-    .inr ⟨h, if_neg h⟩
+    .inr ⟨h, ite_eq_right h⟩
 
 end Lean.Omega

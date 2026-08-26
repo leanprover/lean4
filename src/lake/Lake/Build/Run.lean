@@ -22,17 +22,6 @@ open System
 
 namespace Lake
 
-/-- Create a fresh build context from a workspace and a build configuration. -/
-@[deprecated "Deprecated without replacement." (since := "2025-01-08")]
-public def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext := do
-  return {
-    opaqueWs := ws,
-    toBuildConfig := config,
-    registeredJobs := ← IO.mkRef #[],
-    leanTrace := .ofHash (pureHash ws.lakeEnv.leanGithash)
-      s!"Lean {Lean.versionStringCore}, commit {ws.lakeEnv.leanGithash}"
-  }
-
 /-- Unicode icons that make up the spinner in animation order. -/
 def Monitor.spinnerFrames :=
   #['⣾','⣷','⣯','⣟','⡿','⢿','⣻','⣽']
@@ -50,8 +39,12 @@ structure MonitorContext where
   showTime : Bool
   /-- How often to poll jobs (in milliseconds). -/
   updateFrequency : Nat
+  /-- Whether to set `cancelTk?` on the first required target failure (`--fail-fast`). -/
+  failFast : Bool := false
+  /-- The build's cancellation token, if any. -/
+  cancelTk? : Option IO.CancelToken := none
 
-@[inline, implicit_reducible] def MonitorContext.logger (ctx : MonitorContext) : MonadLog BaseIO :=
+@[inline, instance_reducible] def MonitorContext.logger (ctx : MonitorContext) : MonadLog BaseIO :=
   .stream ctx.out ctx.outLv ctx.useAnsi
 
 /-- State of the Lake build monitor. -/
@@ -183,10 +176,15 @@ def sleep : MonitorM PUnit := do
   let now ← IO.monoMsNow
   modify fun s => {s with lastUpdate := now}
 
- partial def loop
+partial def loop
   (new unfinished : Array OpaqueJob)
 : MonitorM PUnit := do
   let (running, unfinished) ← scanJobs new unfinished
+  let ctx ← read
+  if ctx.failFast then
+    if let some tk := ctx.cancelTk? then
+      unless (← get).failures.isEmpty do
+        tk.set
   if h : 0 < unfinished.size then
     renderProgress running unfinished h
     sleep
@@ -218,7 +216,10 @@ public structure MonitorResult where
 @[inline] def MonitorResult.isOk (self : MonitorResult) : Bool :=
   self.failures.isEmpty
 
-def mkMonitorContext (cfg : BuildConfig) (jobs : JobQueue) : BaseIO MonitorContext := do
+def mkMonitorContext
+  (cfg : BuildConfig) (jobs : JobQueue)
+  (cancelTk? : Option IO.CancelToken := none)
+: BaseIO MonitorContext := do
   let out ← cfg.out.get
   let useAnsi ← cfg.ansiMode.isEnabled out
   let outLv := cfg.outLv
@@ -231,7 +232,8 @@ def mkMonitorContext (cfg : BuildConfig) (jobs : JobQueue) : BaseIO MonitorConte
   let updateFrequency := 100
   return {
     jobs, out, failLv, outLv, minAction, showOptional
-    useAnsi, showProgress, showTime, updateFrequency
+    useAnsi, showProgress, showTime, updateFrequency, cancelTk?
+    failFast := cfg.failFast
   }
 
 def monitorJobs'
@@ -332,11 +334,22 @@ def monitorJob (ctx : MonitorContext) (job : Job α) : BaseIO (BuildResult α) :
   else
     return {toMonitorResult := result, out := .error "build failed"}
 
-def mkBuildContext'
+def mkBuildContext
   (ws : Workspace) (cfg : BuildConfig) (jobs : JobQueue)
+  (cancelTk? : Option IO.CancelToken := none)
 : BaseIO BuildContext := return {
   opaqueWs := ws
-  toBuildConfig := cfg
+  toBuildConfig := {cfg with
+    macosxDeploymentTarget? := ← id do
+      if System.Platform.isOSX then
+        match cfg.macosxDeploymentTarget? with
+        | some ver => return some ver
+        | none =>
+          -- TODO: Consider adding `MACOSX_DEPLOYMENT_TARGET` to `Lake.Env`
+          return some <| (← IO.getEnv "MACOSX_DEPLOYMENT_TARGET").getD "99.0"
+      else
+        return cfg.macosxDeploymentTarget?
+    }
   outputsRef? := ← id do
     if cfg.outputsFile?.isSome then
       some <$> CacheRef.mk
@@ -345,6 +358,25 @@ def mkBuildContext'
   registeredJobs := jobs
   leanTrace := .ofHash (pureHash ws.lakeEnv.leanGithash)
     s!"Lean {Lean.versionStringCore}, commit {ws.lakeEnv.leanGithash}"
+  cancelTk?
+  leanIncludeDirs := ← ws.packages.mapM fun pkg => do
+    unless pkg.bootstrap do
+      return none
+    let dir := pkg.bootstrapIncludeDir
+    let mut trace := BuildTrace.nil "Lean includes"
+    -- Must be kept up-to-date with the files `lean.h` can include
+    for header in #["lean.h", "config.h", "version.h", "mimalloc.h"] do
+      let leanH := TextFilePath.mk <| dir / "lean" / header
+      match ← (computeTrace (n := IO) leanH).toBaseIO with
+      | .ok fileTrace =>
+        trace := trace.mix fileTrace
+      | .error (.noFileOrDirectory ..) =>
+        -- some headers (e.g., `mimalloc.h`) are optional
+        -- missing required headers will be caught during compilation
+        continue
+      | _ =>
+        return none
+    return some (dir, trace)
 }
 
 def Workspace.startBuild
@@ -378,8 +410,9 @@ public def Workspace.runFetchM
   (ws : Workspace) (build : FetchM α) (cfg : BuildConfig := {}) (caption := "job computation")
 : IO α := do
   let jobs ← mkJobQueue
-  let mctx ← mkMonitorContext cfg jobs
-  let bctx ← mkBuildContext' ws cfg jobs
+  let cancelTk? ← if cfg.failFast then some <$> IO.CancelToken.new else pure none
+  let mctx ← mkMonitorContext cfg jobs cancelTk?
+  let bctx ← mkBuildContext ws cfg jobs cancelTk?
   let job ← startBuild bctx build caption
   let result ← monitorJob mctx job
   finalizeBuild cfg bctx mctx result
@@ -408,7 +441,7 @@ public def Workspace.checkNoBuild
   let jobs ← mkJobQueue
   let cfg := {noBuild := true}
   let mctx ← mkMonitorContext cfg jobs
-  let bctx ← mkBuildContext' ws cfg jobs
+  let bctx ← mkBuildContext ws cfg jobs
   let job ← startBuild bctx build
   let result ← monitorBuild mctx job
   return result.isOk -- `isOk` means no failures, and thus no `--no-build` failures
@@ -418,8 +451,9 @@ public def Workspace.runBuild
   (ws : Workspace) (build : FetchM (Job α)) (cfg : BuildConfig := {})
 : IO α := do
   let jobs ← mkJobQueue
-  let mctx ← mkMonitorContext cfg jobs
-  let bctx ← mkBuildContext' ws cfg jobs
+  let cancelTk? ← if cfg.failFast then some <$> IO.CancelToken.new else pure none
+  let mctx ← mkMonitorContext cfg jobs cancelTk?
+  let bctx ← mkBuildContext ws cfg jobs cancelTk?
   let job ← startBuild bctx build
   let result ← monitorBuild mctx job
   finalizeBuild cfg bctx mctx result

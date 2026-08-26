@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues
 */
 #include <cstring>
+#include <string>
 #include "runtime/uv/system.h"
 
 namespace lean {
@@ -109,7 +110,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_cpu_info() {
     return lean_io_result_mk_ok(lean_cpu_infos);
 }
 
-// Std.Internal.UV.System.cwd : IO String
+// Std.Internal.UV.System.cwd : IO ByteArray
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_cwd() {
     char buffer[PATH_MAX];
     size_t size = sizeof(buffer);
@@ -120,8 +121,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_cwd() {
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
 
-    lean_object* lean_cwd = lean_mk_string(buffer);
-    return lean_io_result_mk_ok(lean_cwd);
+    // `uv_cwd` sets `size` to the length of the path it wrote, excluding the terminating NUL.
+    lean_object* path = lean_alloc_sarray(1, size, size);
+    memcpy(lean_sarray_cptr(path), buffer, size);
+    return lean_io_result_mk_ok(path);
 }
 
 // Std.Internal.UV.System.chdir : @& String → IO Unit
@@ -134,7 +137,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_chdir(b_obj_arg path) {
     int result = uv_chdir(path_str);
 
     if (result < 0) {
-        lean_inc(path);
         return lean_io_result_mk_error(lean_decode_uv_error(result, path));
     }
 
@@ -554,24 +556,36 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_available_memory() {
 #endif
 }
 
-// Std.Internal.UV.System.realPath : @& String → IO String
+// Std.Internal.UV.System.realPath : @& ByteArray → IO ByteArray
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_realpath(b_obj_arg path) {
-    const char* path_str = lean_string_cstr(path);
-    if (strlen(path_str) != lean_string_size(path) - 1) {
-        return mk_embedded_nul_error(path);
+    const char* path_data = (const char*)lean_sarray_cptr(path);
+    size_t path_size = lean_sarray_size(path);
+
+    // No platform permits an embedded NUL in a path, and the OS would take it as the end of one.
+    if (memchr(path_data, '\0', path_size) != nullptr) {
+        lean_obj_res str = lean_mk_string_from_bytes(path_data, path_size);
+        lean_obj_res err = mk_embedded_nul_error(str);
+        lean_dec(str);
+        return err;
     }
 
+    std::string path_str(path_data, path_size);
+
     uv_fs_t req;
-    int result = uv_fs_realpath(nullptr, &req, path_str, nullptr);
+    int result = uv_fs_realpath(nullptr, &req, path_str.c_str(), nullptr);
 
     if (result < 0) {
-        lean_inc(path);
-        lean_obj_res err = lean_io_result_mk_error(lean_decode_uv_error(result, path));
+        lean_obj_res str = lean_mk_string_from_bytes(path_data, path_size);
+        lean_obj_res err = lean_io_result_mk_error(lean_decode_uv_error(result, str));
+        lean_dec(str);
         uv_fs_req_cleanup(&req);
         return err;
     }
 
-    lean_object* resolved = lean_mk_string((const char*)req.ptr);
+    const char* resolved_str = (const char*)req.ptr;
+    size_t resolved_size = strlen(resolved_str);
+    lean_object* resolved = lean_alloc_sarray(1, resolved_size, resolved_size);
+    memcpy(lean_sarray_cptr(resolved), resolved_str, resolved_size);
     uv_fs_req_cleanup(&req);
     return lean_io_result_mk_ok(resolved);
 }
@@ -620,7 +634,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_cpu_info() {
     );
 }
 
-// Std.Internal.UV.System.cwd : IO String
+// Std.Internal.UV.System.cwd : IO ByteArray
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_cwd() {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
@@ -769,7 +783,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_available_memory() {
     );
 }
 
-// Std.Internal.UV.System.realPath : @& String → IO String
+// Std.Internal.UV.System.realPath : @& ByteArray → IO ByteArray
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_realpath(b_obj_arg path) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")

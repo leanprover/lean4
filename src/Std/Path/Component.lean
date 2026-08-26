@@ -13,132 +13,131 @@ public import Init.Data.Repr
 public import Init.Data.BEq
 public import Init.Data.Hashable
 public import Init.Data.ToString.Basic
-public import Init.Data.Ord.String
+public import Init.Data.Ord.Basic
+public import Std.Path.Internal.Bytes
 
 public section
 
 /-!
-# Path.Component
+# Path.Anchor and Path.Segment
 
-The `Path.Component` type, the parsed building block of a `Std.Path`, and the `Path.Prefix` type of
-Windows path prefixes. The `Path` structure itself is defined in `Std.Path.Basic`.
+The two pieces a `Std.Path` is built from: `Path.Anchor`, what the path is anchored to and the sole
+carrier of its POSIX/Windows flavour, and `Path.Segment`, one `.`, `..`, or ordinary name. The
+`Path` structure itself is defined in `Std.Path.Basic`.
 -/
 
 namespace Std
 
-/--
-What a Windows path is anchored to, ahead of its root: a drive letter, a network share, or a device.
-POSIX paths never have a prefix.
-
-Prefixes are only produced by parsing a Windows-style string, and only as the first component of a
-path.
--/
-inductive Path.Prefix where
-
-  /--
-  A drive letter, e.g. `C:` in `C:\Windows`. The `value` includes the trailing colon.
-  -/
-  | disk (value : String)
-
-  /--
-  A UNC share, e.g. `\\server\share`. `share` is empty for a path that names only a server.
-  -/
-  | unc (server share : String)
-
-  /--
-  A path in the device namespace, e.g. `\\.\COM42` or `\\.\pipe\name`, where `value` is the first
-  segment after `\\.\`.
-  -/
-  | deviceNS (value : String)
-
-  /--
-  A verbatim path, e.g. `\\?\cat_pics`, which Windows hands to the filesystem without normalizing
-  it. `value` is the first segment after `\\?\`.
-  -/
-  | verbatim (value : String)
-
-  /--
-  A verbatim drive letter, e.g. `\\?\C:`. The `value` includes the trailing colon.
-  -/
-  | verbatimDisk (value : String)
-
-  /--
-  A verbatim UNC share, e.g. `\\?\UNC\server\share`.
-  -/
-  | verbatimUNC (server share : String)
-deriving Inhabited, BEq, Hashable, Repr, Ord
-
-namespace Path.Prefix
+open Path.Internal
 
 /--
-Render the prefix in Windows form, without a trailing separator.
+What a path is anchored to.
+
+This is the only place a path's platform flavour lives: `posix` and `windows` fix the syntax the
+path was parsed with and will be rendered in, while `neutral` fixes neither. Every other part of a
+`Path` — its segments — means the same thing on both platforms.
 -/
-def toWindowsString : Prefix → String
-  | .disk value => value
-  | .unc server share => "\\\\" ++ server ++ (if share.isEmpty then "" else "\\" ++ share)
-  | .deviceNS value => "\\\\.\\" ++ value
-  | .verbatim value => "\\\\?\\" ++ value
-  | .verbatimDisk value => "\\\\?\\" ++ value
-  | .verbatimUNC server share =>
-    "\\\\?\\UNC\\" ++ server ++ (if share.isEmpty then "" else "\\" ++ share)
+inductive Path.Anchor where
+
+  /--
+  Nothing: the path is relative to the working directory, such as `src/Main.lean`.
+  -/
+  | neutral
+
+  /--
+  The POSIX root `/`. Always absolute.
+  -/
+  | posix
+
+  /--
+  A Windows anchor: an optional prefix and whether a root separator follows it, e.g. `C:\`, `C:`,
+  `\`, or `\\server\share`.
+
+  `pre` holds the prefix as written, without a trailing separator. Only a bare drive letter leaves
+  the anchor relative, so `Internal.isDrivePrefix` is all the structure it needs.
+
+  Build this with `Anchor.ofWindows`, which maps the prefixless, rootless combination — which
+  anchors the path to nothing at all — onto `neutral`.
+  -/
+  | windows (pre : Option ByteArray) (rooted : Bool)
+deriving Inhabited, BEq, DecidableEq, Hashable
+
+namespace Path.Anchor
 
 /--
-Whether this is a verbatim (`\\?\`) prefix. Windows applies no normalization of its own to such a
-path, so `.` and `..` in it are taken literally by the filesystem rather than resolved.
+A Windows anchor with prefix `pre` and a root separator if `rooted`.
+
+A Windows path with neither is anchored to nothing, so it is `neutral`: `a\b` and `a/b` parse to the
+same value as the POSIX `a/b`.
 -/
-def isVerbatim : Prefix → Bool
-  | .verbatim _ | .verbatimDisk _ | .verbatimUNC _ _ => true
-  | _ => false
+def ofWindows (pre : Option ByteArray) (rooted : Bool) : Anchor :=
+  if pre.isNone && !rooted then .neutral else .windows pre rooted
 
 /--
-The drive letter with its trailing colon (e.g. `"C:"`), for the two prefixes that name one.
+The Windows prefix this anchor carries, as raw bytes and without a trailing separator, if any.
 -/
-def drive? : Prefix → Option String
-  | .disk value | .verbatimDisk value => some value
+def prefix? : Anchor → Option ByteArray
+  | .windows pre _ => pre
   | _ => none
 
 /--
-Whether the prefix names an absolute location on its own, without a root following it.
+The drive-letter prefix with its trailing colon (e.g. the bytes of `"C:"`), for the one prefix that
+names a drive.
 
-A drive letter does not: `C:foo` is relative to the working directory of drive `C:`. Every other
-prefix does, so `\\server\share` and `\\?\cat_pics` are absolute as they stand.
+Returns `none` on POSIX anchors, on Windows anchors with no prefix, and on prefixes that name no
+drive (`\\server\share`, `\\.\COM42`); a verbatim path is unparsed, so this returns `none` even for
+`\\?\C:\foo`.
 -/
-def hasImplicitRoot : Prefix → Bool
-  | .disk _ | .verbatimDisk _ => false
-  | _ => true
-
-end Path.Prefix
+def drive? (a : Anchor) : Option ByteArray :=
+  a.prefix?.filter isDrivePrefix
 
 /--
-A single parsed segment of a file system path.
+The root separator the anchor writes out (`/` or `\`), or `none` if it writes none.
 
-Paths are stored as `Array Component`, so all structural operations (parent, join, normalize) work
-directly on this array without re-scanning strings.
+An anchor can start at a root without writing a separator, when its prefix supplies one (e.g.
+`\\server\share`); `hasRoot` accounts for that, this does not.
 -/
-inductive Path.Component where
+def root? : Anchor → Option ByteArray
+  | .posix => some slashBytes
+  | .windows _ true => some backslashBytes
+  | _ => none
 
-  /--
-  A Windows path prefix, e.g. `"C:"` or `"\\\\server\\share"` (without the trailing separator).
+/--
+Whether the anchor starts at a root: it writes a root separator, or carries a prefix that supplies
+one (any prefix but a bare drive letter, e.g. `\\server\share`).
 
-  Only produced when parsing a Windows-style string, and only in first position. POSIX paths never
-  contain this component.
-  -/
-  | winPrefix (value : Path.Prefix)
+Weaker than `isAbsolute`: a Windows path can start at a root and still be relative, since `\foo`
+names the root of whichever drive is current.
+-/
+def hasRoot (a : Anchor) : Bool :=
+  a.root?.isSome || a.prefix?.any (!isDrivePrefix ·)
 
-  /--
-  The root separator, as written: `/` for a POSIX path, `\` for a Windows one.
+/--
+Whether the anchor names a location that depends on no current directory.
 
-  Always the first component, save for a Windows prefix ahead of it. The stored separator is what
-  tells the two syntaxes apart once a path is parsed, and `Path.isAbsolute` reads it: `/foo` is
-  absolute, while a Windows `\foo` is relative to the current drive.
-  -/
-  | root (value : String)
+`posix` always does. A Windows anchor needs a prefix, plus either a root of its own or one implied
+by that prefix: `C:\foo` and `\\server\share` are absolute, while `C:foo` is relative to the working
+directory of drive `C:` and `\foo` to whichever drive is current.
+-/
+def isAbsolute : Anchor → Bool
+  | .neutral => false
+  | .posix => true
+  | .windows pre rooted => pre.any fun b => rooted || !isDrivePrefix b
+
+end Path.Anchor
+
+/--
+A single segment of a file system path: one name, or one `.` or `..`.
+
+Segments carry no platform information — that lives entirely in `Path.Anchor` — so the segment array
+of a `Path` means the same thing whichever syntax the path is rendered in.
+-/
+inductive Path.Segment where
 
   /--
   The special `.` segment, meaning "current directory".
 
-  Preserved during parsing so that round-trips are lossless; `Path.normalize`
-  removes these.
+  Preserved during parsing so that round-trips are lossless; `Path.normalize` removes these.
   -/
   | current
 
@@ -152,9 +151,39 @@ inductive Path.Component where
   /--
   An ordinary path segment — a file or directory name with no separators.
 
-  The `value` is the raw segment string (e.g. `"src"`, `"Main.lean"`).
+  The `value` is the raw segment (e.g. the bytes of `"src"` or `"Main.lean"`).
   -/
-  | normal (value : String)
-deriving Inhabited, Hashable, Repr, Ord
+  | normal (value : ByteArray)
+deriving Inhabited, BEq, DecidableEq, Hashable
+
+namespace Path.Segment
+
+/--
+Classify the raw bytes of one segment, recognizing the two special names.
+-/
+def ofBytes (b : ByteArray) : Segment :=
+  if isDotSegment b then
+    if b.size == 1 then .current else .parent
+  else
+    .normal b
+
+/--
+The segment as raw bytes, as it is written in a path.
+-/
+def toBytes : Segment → ByteArray
+  | .current => dotBytes
+  | .parent => dotDotBytes
+  | .normal value => value
+
+/--
+The segment decoded as UTF-8, with every byte that is not part of a well-formed encoding replaced by
+`U+FFFD`. Use `toBytes` to get the segment back exactly as it was parsed.
+-/
+protected def toString (s : Segment) : String :=
+  String.fromUTF8Lossy s.toBytes
+
+instance : ToString Segment := ⟨Segment.toString⟩
+
+end Path.Segment
 
 end Std

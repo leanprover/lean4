@@ -192,6 +192,30 @@ the corresponding string, or panics if the array is not a valid UTF-8 encoding o
 @[inline, expose] def String.fromUTF8! (a : ByteArray) : String :=
   if h : a.IsValidUTF8 then fromUTF8 a h else panic! "invalid UTF-8 string"
 
+/--
+Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.org/wiki/UTF-8) into
+the corresponding string, replacing every byte that is not part of a well-formed encoding with the
+Unicode replacement character `U+FFFD`.
+
+Decoding never fails, but it loses information: distinct byte arrays can decode to the same string,
+and `String.toUTF8` does not in general recover the input. Use `String.fromUTF8?` to reject invalid
+input instead.
+-/
+@[expose] def String.fromUTF8Lossy (a : ByteArray) : String :=
+  go 0 ""
+where
+  go (i : Nat) (acc : String) : String :=
+    if i < a.size then
+      match ByteArray.utf8DecodeChar? a i with
+      | some c => go (i + c.utf8Size) (acc.push c)
+      | none => go (i + 1) (acc.push '\ufffd')
+    else
+      acc
+  termination_by a.size - i
+  decreasing_by
+    · have := c.utf8Size_pos; omega
+    · omega
+
 @[simp]
 theorem String.empty_append {s : String} : "" ++ s = s := by
   simp [← String.toByteArray_inj]

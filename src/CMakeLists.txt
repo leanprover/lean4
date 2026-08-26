@@ -812,6 +812,9 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--whole-archive -lleanmanifest -Wl,--no-whole-archive")
 endif()
 
+# for later stages, this defines only `mimalloc_paranoid`; the rest is imported below instead
+add_subdirectory(runtime)
+
 if(STAGE GREATER 1)
   # reuse C++ parts, which don't change
   add_library(leanrt_initial-exec STATIC IMPORTED)
@@ -847,7 +850,6 @@ if(STAGE GREATER 1)
     add_dependencies(leancpp copy-lean-h-bc)
   endif()
 else()
-  add_subdirectory(runtime)
   if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     add_dependencies(leanrt libuv)
     add_dependencies(leanrt_initial-exec libuv)

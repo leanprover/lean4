@@ -978,12 +978,29 @@ def div1Step (denom : Digit) (hden : denom.toUInt64 ≠ 0)
     for (size_t j = numer.size()-1; j > 0; j--) { ... }
 ```
 -/
-def div1Loop (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Array Digit) :
-    Nat → Array Digit × Array Digit
-  | 0 => (u, quot)
-  | j+1 =>
-    let s := div1Step denom hden (u, quot) (j+1)
-    div1Loop denom hden s.1 s.2 j
+def div1Loop (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Array Digit)
+    (m : Nat) : Array Digit × Array Digit := Id.run do
+  let mut s := (u, quot)
+  for j in (List.range m).reverse do
+    s := div1Step denom hden s (j+1)
+  return s
+
+/-- The loop as the descending recursion its proof inducts over. -/
+theorem div1Loop_eq (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Array Digit)
+    (m : Nat) :
+    div1Loop denom hden u quot m
+      = (List.range m).reverse.foldl (fun s j => div1Step denom hden s (j+1)) (u, quot) := by
+  simp [div1Loop, Id.run]
+  rfl
+
+/-- One step of it, peeled off the top as the C++ counts down. -/
+theorem div1Loop_succ (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Array Digit)
+    (m : Nat) :
+    div1Loop denom hden u quot (m+1)
+      = div1Loop denom hden (div1Step denom hden (u, quot) (m+1)).1
+          (div1Step denom hden (u, quot) (m+1)).2 m := by
+  rw [div1Loop_eq, div1Loop_eq, List.range_succ, List.reverse_append]
+  simp
 
 /--
 `div_1`. Single-digit division; returns the updated numerator (holding the
@@ -1100,11 +1117,28 @@ def divNStep (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt6
 ```
 -/
 def divNLoop (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
-    (u quot : Array Digit) : Nat → Array Digit × Array Digit
-  | 0 => (u, quot)
-  | m+1 =>
-    let s := divNStep denom hv (u, quot) m
-    divNLoop denom hv s.1 s.2 m
+    (u quot : Array Digit) (m : Nat) : Array Digit × Array Digit := Id.run do
+  let mut s := (u, quot)
+  for j in (List.range m).reverse do
+    s := divNStep denom hv s j
+  return s
+
+/-- The loop as the descending recursion its proof inducts over. -/
+theorem divNLoop_eq (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
+    (u quot : Array Digit) (m : Nat) :
+    divNLoop denom hv u quot m
+      = (List.range m).reverse.foldl (fun s j => divNStep denom hv s j) (u, quot) := by
+  simp [divNLoop, Id.run]
+  rfl
+
+/-- One step of it, peeled off the top as the C++ counts down. -/
+theorem divNLoop_succ (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
+    (u quot : Array Digit) (m : Nat) :
+    divNLoop denom hv u quot (m+1)
+      = divNLoop denom hv (divNStep denom hv (u, quot) m).1
+          (divNStep denom hv (u, quot) m).2 m := by
+  rw [divNLoop_eq, divNLoop_eq, List.range_succ, List.reverse_append]
+  simp
 
 /--
 `div_n`, i.e. Knuth's Algorithm D. Returns the updated numerator (holding the
@@ -2093,7 +2127,7 @@ theorem div1Loop_spec (denom : Digit) (numer : Array Digit) (hd : 0 < denom.toNa
     have hju : j < u.size := by omega
     have hnj : u.getD j 0 = numer.getD j 0 := hlow j (by omega)
     have hset : (u.set! j r).getD j 0 = r := getD_set!_eq u j r hju
-    rw [div1Loop, hstep]
+    rw [div1Loop_succ, hstep]
     refine ih ((u.set! j r).set! (j+1) 0) (quot.set! j q) (by simp [hu]) (by simp [hq])
       (by omega) ?_ ?_ ?_ ?_
     · intro i hi
@@ -2923,7 +2957,7 @@ theorem divNLoop_spec (denom : Array Digit) (k m : Nat)
     intro u quot hp husz hqsz hhigh hqz hbound
     obtain ⟨h1, h2, h3, h4, h5, h6⟩ := divNStep_spec denom u quot p k m hk hnorm husz hqsz
       (by omega) (hqz p (by omega)) hhigh hbound
-    rw [divNLoop]
+    rw [divNLoop_succ]
     obtain ⟨g1, g2, g3, g4⟩ := ih (divNStep denom (norm_top_ne_zero hk hnorm) (u, quot) p).1 (divNStep denom (norm_top_ne_zero hk hnorm) (u, quot) p).2
       (by omega) (by rw [h1, husz]) h2 h3
       (fun i hi => by rw [h4 i (by omega)]; exact hqz i (by omega)) h5

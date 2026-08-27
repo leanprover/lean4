@@ -214,21 +214,6 @@ mpz mpz::pow(unsigned int exp) const {
     return r;
 }
 
-mpz mpz::pow(mpz const & exp) const {
-    lean_assert(exp >= 0);
-    mpz result(1);
-    mpz base(*this);
-    mpz e(exp);
-    while (!e.is_zero()) {
-        if (e.mod8() & 1) {
-            result *= base;
-        }
-        base *= base;
-        div2k(e, e, 1);
-    }
-    return result;
-}
-
 mpz mpz::powm(mpz const & exp, mpz const & m) const {
     lean_assert(m != 0);
     mpz r;
@@ -849,21 +834,6 @@ mpz mpz::pow(unsigned int p) const {
             result *= power;
         power *= power;
         mask = mask << 1;
-    }
-    return result;
-}
-
-mpz mpz::pow(mpz const & exp) const {
-    lean_assert(!exp.is_neg());
-    mpz result(1);
-    mpz base(*this);
-    mpz e(exp);
-    while (!e.is_zero()) {
-        if (e.mod8() & 1) {
-            result *= base;
-        }
-        base *= base;
-        div2k(e, e, 1);
     }
     return result;
 }

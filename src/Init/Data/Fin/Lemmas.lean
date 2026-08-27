@@ -1222,23 +1222,20 @@ protected theorem zero_mul [NeZero n] (k : Fin n) : (0 : Fin n) * k = 0 := by
 Exponentiation on `Fin n` by repeated squaring, backed by the fast `Nat.powMod`
 extern. `npow x y` computes `x ^ y` with the result reduced modulo `n`.
 -/
-def npow [NeZero n] (x : Fin n) (y : Nat) : Fin n :=
-  ⟨Nat.powMod x.val y n, by rw [Nat.powMod_def]; exact Nat.mod_lt _ (Nat.pos_of_neZero n)⟩
+def npow (x : Fin n) (y : Nat) : Fin n :=
+  ⟨Nat.powMod x.val y n, by rw [Nat.powMod_def]; exact Nat.mod_lt _ x.pos⟩
 
-instance [NeZero n] : HPow (Fin n) Nat (Fin n) where
-  hPow := Fin.npow
-
-instance [NeZero n] : Pow (Fin n) Nat where
+instance : NatPow (Fin n) where
   pow := Fin.npow
 
-@[simp] theorem val_pow [NeZero n] (a : Fin n) (k : Nat) :
+@[simp] theorem val_pow (a : Fin n) (k : Nat) :
     (a ^ k).val = a.val ^ k % n :=
   Nat.powMod_def a.val k n
 
-@[simp] theorem pow_zero [NeZero n] (a : Fin n) : a ^ 0 = 1 := by
+@[simp] protected theorem pow_zero [NeZero n] (a : Fin n) : a ^ 0 = 1 := by
   ext; exact Nat.powMod_zero a.val n
 
-@[simp] theorem pow_succ [NeZero n] (a : Fin n) (k : Nat) : a ^ (k + 1) = a ^ k * a := by
+protected theorem pow_succ (a : Fin n) (k : Nat) : a ^ (k + 1) = a ^ k * a := by
   ext; exact Nat.powMod_succ a.val k n
 
 end Fin

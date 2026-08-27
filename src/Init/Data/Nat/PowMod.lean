@@ -16,22 +16,19 @@ public section
 namespace Nat
 
 /--
-Modular exponentiation: `powMod b e m` computes `b ^ e % m`, but overridden at
-runtime to use an efficient implementation (GMP's `mpz_powm`) which performs
-modular reduction at each step of repeated squaring. This avoids materializing
-the (potentially enormous) intermediate value `b ^ e`.
+Computes `b ^ e % m` without ever forming the intermediate value `b ^ e`.
 
-Because `Nat.mod` satisfies `n % 0 = n`, we also have `powMod b e 0 = b ^ e`.
+Because `Nat.mod` satisfies `n % 0 = n`, `powMod b e 0` is `b ^ e`.
 
-The logical model is square-and-multiply, halving `e` at each step and reducing
-modulo `m` so that no intermediate exceeds `m * m`. It is defined by well-founded
-recursion via `WellFounded.Nat.fix`, which reduces in the kernel, so `powMod`
-evaluates in `O(log e)` steps under `decide` and `rfl`. The naive model
-`b ^ e % m` cannot: it would materialize the (astronomically large) `b ^ e`.
+`powMod` is not definitionally equal to `b ^ e % m`. Its logical model is
+square-and-multiply, so that concrete exponents reduce in `O(log e)` steps rather
+than forming `b ^ e`; use `powMod_def` to rewrite to the naive form for symbolic
+reasoning.
 
-The `@[semireducible]` attribute keeps the definition unfoldable by `decide` and
-`rfl`; without it, well-founded definitions are marked `@[irreducible]`, which
-blocks reduction at default transparency before the kernel is ever reached.
+Examples:
+* `powMod 3 4 5 = 1`
+* `powMod 2 10 1000 = 24`
+* `powMod 3 4 0 = 81`
 -/
 @[expose, semireducible, extern "lean_nat_powmod"]
 def powMod (b e m : @& Nat) : Nat :=
@@ -42,22 +39,16 @@ def powMod (b e m : @& Nat) : Nat :=
 termination_by e
 decreasing_by omega
 
-/--
-`powMod` agrees with the naive `b ^ e % m`. Marked `@[simp]` so that symbolic
-reasoning unfolds to the naive form (with its full lemma library); concrete
-evaluation by `decide` instead reduces the efficient definition and is unaffected
-by this lemma.
--/
 @[simp] theorem powMod_def (b e m : Nat) : powMod b e m = b ^ e % m := by
   fun_induction powMod b e m with
   | case1 b => rw [Nat.pow_zero]
   | case2 b e hne r hodd ih =>
-    show powMod (b * b % m) (e / 2) m * b % m = b ^ e % m
+    subst r
     have hod : 2 * (e / 2) + 1 = e := by omega
     rw [ih, ← Nat.pow_mod, ← Nat.pow_two, ← Nat.pow_mul, Nat.mod_mul_mod,
       ← Nat.pow_succ, Nat.succ_eq_add_one, hod]
   | case3 b e hne r heven ih =>
-    show powMod (b * b % m) (e / 2) m = b ^ e % m
+    subst r
     have hev : 2 * (e / 2) = e := by omega
     rw [ih, ← Nat.pow_mod, ← Nat.pow_two, ← Nat.pow_mul, hev]
 

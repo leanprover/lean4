@@ -109,8 +109,8 @@ instance (n : Nat) [NeZero n] : CommRing (Fin n) where
   mul_one := Fin.mul_one
   left_distrib := Fin.left_distrib
   zero_mul := Fin.zero_mul
-  pow_zero a := Fin.pow_zero a
-  pow_succ a k := Fin.pow_succ a k
+  pow_zero := Fin.pow_zero
+  pow_succ := Fin.pow_succ
   ofNat_succ := Fin.ofNat_succ
   sub_eq_add_neg := Fin.sub_eq_add_neg
   intCast_neg := Fin.intCast_neg

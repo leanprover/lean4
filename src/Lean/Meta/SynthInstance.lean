@@ -1083,7 +1083,7 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
   let synthInstanceHeartbeats := getN `synthInstance.maxHeartbeats 20000
   let maxRecDepth             := getN `maxRecDepth 512
   let exponentiationThreshold := getN `exponentiation.threshold 256
-  withReader (fun ctx => { ctx with synthDefEqFlags? := some flags }) do
+  withReader (fun ctx => { ctx with synthDefEqFlags := flags.toContextWord }) do
   withTraceNode `Meta.synthInstance
     (fun _ => return m!"{← instantiateMVars type}") do
   withConfig (fun _ => synthInstanceConfig) do

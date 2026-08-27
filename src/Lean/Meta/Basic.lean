@@ -398,6 +398,15 @@ def ofFlags (respectTransparency respectTransparencyTypes respectTransparencyIns
     flag lazyWhnfCore 0x040 ||| flag smartUnfolding 0x080 |||
     flag throwOnStuckAfterApp 0x100
 
+/--
+Marks a flag word as present in `Meta.Context.synthDefEqFlags`, so that "no flag set" stays
+distinguishable from "outside a query". Chosen above the flag bits, so the accessors ignore it.
+-/
+def armedBit : UInt32 := 0x8000
+
+/-- The `Meta.Context.synthDefEqFlags` word for `f`. -/
+@[inline] def toContextWord (f : SynthDefEqFlags) : UInt32 := f.bits ||| armedBit
+
 end SynthDefEqFlags
 
 -- Remark: we don't need to store `Config.toKey` because typeclass resolution uses a fixed configuration.
@@ -622,8 +631,13 @@ structure Context where
   Remark: `synthPending` fails if `synthPendingDepth > maxSynthPendingDepth`.
   -/
   synthPendingDepth : Nat                  := 0
-  /-- Set per type class resolution query; see `SynthDefEqFlags`. -/
-  synthDefEqFlags?  : Option SynthDefEqFlags := none
+  /--
+  The resolved definitional-equality flags, set per type class resolution query; `0` outside a
+  query. Stored as a bare word rather than an `Option` because this context is reconstructed by
+  every `withConfig`/`withTransparency`-style scope, where a pointer field costs a reference
+  count operation each time. See `SynthDefEqFlags.toContextWord`.
+  -/
+  synthDefEqFlags   : UInt32 := 0
   /--
   A predicate to control whether a constant can be unfolded or not at `whnf`.
   If set, overrides `Config.canUnfoldPredicateConfig`.
@@ -1319,9 +1333,11 @@ accessors.
 -/
 @[inline] def getSynthDefEqFlag (proj : SynthDefEqFlags → Bool) (fallback : Options → Bool) :
     MetaM Bool := do
-  match (← read).synthDefEqFlags? with
-  | some flags => return proj flags
-  | none       => return fallback (← getOptions)
+  let w := (← read).synthDefEqFlags
+  if w == 0 then
+    return fallback (← getOptions)
+  else
+    return proj ⟨w⟩
 
 @[inline] def withInTypeClassResolution : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with inTypeClassResolution := true })

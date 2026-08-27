@@ -168,49 +168,41 @@ theorem toNat_shr (y : Digit) {e : Nat} (he : e < digitBits) :
 
 private theorem and_top_eq_zero_iff {y : Nat} (hy : y < 4294967296) :
     (y &&& 2147483648 = 0) ↔ y < 2147483648 := by
-  have hpow : (2147483648 : Nat) = 2 ^ 31 := by rfl
+  have hpow : (2147483648 : Nat) = 2 ^ 31 := rfl
   constructor
   · intro h
     have hb : y.testBit 31 = false := by
       by_cases hb : y.testBit 31
       · exfalso
-        have hand : (y &&& 2147483648).testBit 31 = true := by
-          rw [Nat.testBit_and, hb, hpow, Nat.testBit_two_pow_self]; rfl
+        have hand : (y &&& 2147483648).testBit 31 = true := by grind
         rw [h] at hand; simp at hand
       · simpa using hb
     rw [Nat.testBit_eq_decide_div_mod_eq] at hb
     simp only [decide_eq_false_iff_not] at hb
-    have h2 : y / 2 ^ 31 < 2 := by rw [← hpow] at *; omega
-    rw [← hpow] at hb h2
     omega
   · intro h
-    have hb : y.testBit 31 = false := Nat.testBit_lt_two_pow (by rw [← hpow]; exact h)
     apply Nat.eq_of_testBit_eq
     intro i
-    rw [Nat.testBit_and, Nat.zero_testBit, hpow, Nat.testBit_two_pow]
+    rw [Nat.testBit_and, hpow, Nat.testBit_two_pow]
     by_cases h31 : (31 : Nat) = i
-    · subst h31; simp [hb]
+    · grind
     · simp [h31]
 
 /-- `div_normalize`'s `(x << d) & MASK_FIRST == 0` test reads the top bit. -/
 private theorem topBit_test (y : Digit) :
     (y &&& maskFirst == 0) = decide (y.toNat < 2147483648) := by
   have hy : y.toNat < 4294967296 := y.toNat_lt_size
-  have hand : (y &&& maskFirst).toNat = y.toNat &&& 2147483648 := by
-    rw [UInt32.toNat_and]; rfl
+  have hand : (y &&& maskFirst).toNat = y.toNat &&& 2147483648 := rfl
   have hiff : (y &&& maskFirst = 0) ↔ y.toNat < 2147483648 := by
     constructor
     · intro h
       have h0 : (y &&& maskFirst).toNat = 0 := by rw [h]; rfl
-      rw [hand] at h0
       exact (and_top_eq_zero_iff hy).mp h0
     · intro h
       have h0 : y.toNat &&& 2147483648 = 0 := (and_top_eq_zero_iff hy).mpr h
       rw [← hand] at h0
       exact UInt32.toNat_inj.mp (by rw [h0]; rfl)
-  rw [Bool.eq_iff_iff]
-  simp only [beq_iff_eq, decide_eq_true_eq]
-  exact hiff
+  grind
 
 /--
 Recombining two adjacent digits under a left shift by `d`: the `|` in
@@ -243,16 +235,18 @@ def denoteN (a : Array Digit) : Nat → Nat
 /-- `a` read as a little-endian base-`2^32` natural. -/
 def denote (a : Array Digit) : Nat := denoteN a a.size
 
+theorem size_set! (a : Array Digit) (i : Nat) (d : Digit) : (a.set! i d).size = a.size :=
+  Array.size_setIfInBounds
+
 theorem getD_lt (a : Array Digit) (j : Nat) : (a.getD j 0).toNat < base := by
   simp only [Array.getD]
   split <;> exact UInt32.toNat_lt_size ..
 
-theorem getD_of_ge (a : Array Digit) {j : Nat} (h : a.size ≤ j) : a.getD j 0 = 0 := by
-  simp [Nat.not_lt_of_ge h]
+theorem getD_of_ge (a : Array Digit) {j : Nat} (h : a.size ≤ j) : a.getD j 0 = 0 := by grind
 
 theorem getD_push_lt (c : Array Digit) (d : Digit) {j : Nat} (h : j < c.size) :
     (c.push d).getD j 0 = c.getD j 0 := by
-  simp [Array.getElem?_push, Nat.ne_of_lt h, h]
+  simp [Array.getElem?_push, Nat.ne_of_lt h]
 
 theorem getD_push_eq (c : Array Digit) (d : Digit) : (c.push d).getD c.size 0 = d := by simp
 
@@ -264,12 +258,11 @@ theorem getD_pop_lt (c : Array Digit) {j : Nat} (h : j < c.pop.size) :
 
 theorem denoteN_lt (a : Array Digit) (j : Nat) : denoteN a j < base ^ j := by
   induction j with
-  | zero => simp [denoteN, base_eq]
+  | zero => simp [denoteN]
   | succ j ih =>
     have hd := getD_lt a j
     have key : base ^ j + (base - 1) * base ^ j = base ^ (j+1) := by
-      rw [Nat.pow_succ]; generalize base ^ j = p; rw [base_eq]; omega
-    simp only [denoteN]
+      rw [base_eq]; omega
     calc denoteN a j + (a.getD j 0).toNat * base ^ j
         < base ^ j + (base - 1) * base ^ j :=
           Nat.add_lt_add_of_lt_of_le ih (Nat.mul_le_mul_right _ (by omega))
@@ -285,7 +278,7 @@ theorem denoteN_of_ge (a : Array Digit) {j : Nat} (h : a.size ≤ j) :
     rcases Nat.lt_or_ge j a.size with h' | h'
     · have : a.size = j + 1 := by omega
       simp [denote, this]
-    · rw [denoteN, getD_of_ge a h', ih h']; simp
+    · simp [denoteN, getD_of_ge a h', ih h']
 
 theorem denoteN_push (c : Array Digit) (d : Digit) {j : Nat} (h : j ≤ c.size) :
     denoteN (c.push d) j = denoteN c j := by
@@ -308,7 +301,7 @@ theorem denoteN_pop (c : Array Digit) {j : Nat} (h : j ≤ c.pop.size) :
 theorem denote_pop_of_back_zero (c : Array Digit) (h : 0 < c.size)
     (hz : c.getD (c.size - 1) 0 = 0) : denote c.pop = denote c := by
   have hsz : c.pop.size = c.size - 1 := Array.size_pop
-  have hlast : c.getD c.pop.size 0 = 0 := by rw [hsz]; exact hz
+  have hlast : c.getD c.pop.size 0 = 0 := by grind
   have hexpand : denote c = denoteN c (c.pop.size + 1) := by
     rw [denote]; congr 1; omega
   rw [hexpand, denoteN, hlast]
@@ -359,13 +352,11 @@ theorem denoteN_set!_succ (c : Array Digit) (idx : Nat) (d : Digit) (h : idx < c
 theorem denoteN_of_high_zero (c : Array Digit) {n m : Nat} (hnm : n ≤ m)
     (h : ∀ idx, n ≤ idx → c.getD idx 0 = 0) : denoteN c m = denoteN c n := by
   induction m with
-  | zero => have : n = 0 := by omega
-            subst this; rfl
+  | zero => grind
   | succ m ih =>
     rcases Nat.lt_or_ge m n with h' | h'
-    · have : n = m + 1 := by omega
-      subst this; rfl
-    · rw [denoteN, h m h', ih h']; simp
+    · grind
+    · simp [denoteN, h m h', ih h']
 
 theorem denote_of_high_zero (c : Array Digit) {n : Nat} (hn : n ≤ c.size)
     (h : ∀ idx, n ≤ idx → c.getD idx 0 = 0) : denote c = denoteN c n :=
@@ -606,7 +597,7 @@ theorem subInPlace_foldl (u b : Array Digit) (off len : Nat) :
 private theorem subInPlace_succ (u b : Array Digit) (off len : Nat) :
     subInPlace u b off (len+1) = subInPlaceStep b off (subInPlace u b off len) len := by
   rw [subInPlace_foldl, subInPlace_foldl]
-  simp [List.range_succ, List.foldl_append]
+  simp [List.range_succ]
 
 
 /-! ## `mpn_mul` -/
@@ -765,28 +756,18 @@ theorem leadingZerosGo_spec (x : Digit) (hx : 0 < x.toNat) (d : Nat) (hd : d < d
   · split <;> rename_i hp
     · -- the top bit is still clear, so the value can double and stay in range
       have hpe := leadingZeros_pred x hd
-      rw [hp] at hpe
-      have hlt : x.toNat * 2 ^ d < 2147483648 := by
-        rw [← hmod]; exact of_decide_eq_true hpe.symm
+      have hlt : x.toNat * 2 ^ d < 2147483648 := by grind
       exact leadingZerosGo_spec x hx (d+1) h (by
         rw [Nat.pow_succ, ← Nat.mul_assoc]; simp only [base_eq] at hlt ⊢; omega)
     · -- the top bit is set, so this is the shift `div_normalize` reports
       have hpe := leadingZeros_pred x hd
-      have hpf : (CPP.shl x d hd &&& maskFirst == 0) = false := by simpa using hp
-      rw [hpf] at hpe
-      have hge : ¬ (x.toNat * 2 ^ d < 2147483648) := by
-        rw [← hmod]; exact of_decide_eq_false hpe.symm
+      have hge : ¬ (x.toNat * 2 ^ d < 2147483648) := by grind
       refine ⟨?_, hfit⟩
       show 2147483648 ≤ x.toNat * 2 ^ d
       omega
   · -- the last shift the loop can take; a nonzero digit already reaches the top
-    refine ⟨?_, hfit⟩
     have hb : digitBits = 32 := rfl
-    have hd31 : d = 31 := by omega
-    subst hd31
-    show 2147483648 ≤ x.toNat * 2 ^ 31
-    calc (2147483648 : Nat) = 1 * 2 ^ 31 := by rfl
-      _ ≤ x.toNat * 2 ^ 31 := Nat.mul_le_mul_right _ hx
+    grind
 termination_by digitBits - d
 decreasing_by simp only [digitBits_eq] at *; omega
 
@@ -888,13 +869,13 @@ private theorem getD_shiftLeftDigits_zero (a : Array Digit) (len j : Nat) (hj : 
 private theorem getD_shiftLeftDigits_head (a : Array Digit) {d len : Nat} (hd0 : 0 < d)
     (hd : d < digitBits) (hlen : 0 < len) :
     (shiftLeftDigits a d len hd).getD 0 0 = a.getD 0 0 <<< UInt32.ofNat d := by
-  simp [shiftLeftDigits_eq, CPP.shl, hlen, Nat.ne_of_gt hd0]
+  simp [shiftLeftDigits_eq, hlen, Nat.ne_of_gt hd0]
 
 private theorem getD_shiftLeftDigits_tail (a : Array Digit) {d len j : Nat} (hd0 : 0 < d)
     (hd : d < digitBits) (hj : j < len) (hj0 : j ≠ 0) :
     (shiftLeftDigits a d len hd).getD j 0
       = (a.getD j 0 <<< UInt32.ofNat d) ||| (a.getD (j-1) 0 >>> UInt32.ofNat (digitBits - d)) := by
-  simp [shiftLeftDigits_eq, CPP.shl, CPP.shr, hj, Nat.ne_of_gt hd0, hj0]
+  simp [shiftLeftDigits_eq, hj, Nat.ne_of_gt hd0, hj0]
 
 /-- Shifting a digit left can only add to it, never lose its own bits. -/
 private theorem le_getD_shiftLeftDigits (a : Array Digit) {d len j : Nat} (hd : d < digitBits)
@@ -902,7 +883,7 @@ private theorem le_getD_shiftLeftDigits (a : Array Digit) {d len j : Nat} (hd : 
     (a.getD j 0).toNat * 2 ^ d % base ≤ ((shiftLeftDigits a d len hd).getD j 0).toNat := by
   rcases Nat.eq_zero_or_pos d with hd0 | hd0
   · subst hd0
-    rw [getD_shiftLeftDigits_zero a len j hj hd, Nat.pow_zero, Nat.mul_one]
+    rw [getD_shiftLeftDigits_zero a len j hj hd, Nat.mul_one]
     exact Nat.mod_le _ _
   · rcases Nat.eq_zero_or_pos j with hj0 | hj0
     · subst hj0
@@ -958,9 +939,7 @@ private theorem divNormalize_eq (numer denom : Array Digit) (hnum : 0 < numer.si
          (leadingZeros (denom.getD (denom.size - 1) 0)).isLt,
        shiftLeftDigits denom (leadingZeros (denom.getD (denom.size - 1) 0)).val denom.size
          (leadingZeros (denom.getD (denom.size - 1) 0)).isLt) := by
-  simp only [divNormalize, Nat.ne_of_gt hden, ite_false, Nat.ne_of_gt hnum,
-    Bool.false_and, decide_false, ite_false]
-  rfl
+  simp [divNormalize, Nat.ne_of_gt hden, Nat.ne_of_gt hnum]
 
 
 /-- Normalization does not change the denominator's length. -/
@@ -982,7 +961,6 @@ theorem divNormalize_top_pos (numer denom : Array Digit) (hnum : 0 < numer.size)
   rw [divNormalize_eq numer denom hnum hden]
   dsimp only
   have hle := le_getD_shiftLeftDigits denom
-    (d := (leadingZeros (denom.getD (denom.size - 1) 0)).val)
     (len := denom.size) (j := denom.size - 1) hdlt (by omega)
   rw [Nat.mod_eq_of_lt hhi] at hle
   omega
@@ -1424,14 +1402,12 @@ theorem addLoop_spec (a b : Array Digit) (len : Nat) :
     obtain ⟨hsz, hk, hval⟩ := ih
     have hstep : addLoop a b (len+1) = addStep a b (addLoop a b len) len := by
       rw [addLoop_eq, addLoop_eq]
-      simp [List.range_succ, List.foldl_append]
+      simp [List.range_succ]
     rw [hstep]
     refine ⟨by simp [addStep, hsz], addStep_carry_le .., ?_⟩
     have hd := addStep_digit (a.getD len 0) (b.getD len 0) (addLoop a b len).2 hk
     show denote ((addLoop a b len).1.push _) + _ * base ^ (len+1) = _
-    rw [show denoteN a (len+1) = denoteN a len + (a.getD len 0).toNat * base ^ len from rfl,
-        show denoteN b (len+1) = denoteN b len + (b.getD len 0).toNat * base ^ len from rfl,
-        denote_push, hsz, Nat.pow_succ]
+    rw [denote_push, hsz]
     exact add_combine hval hd
 
 theorem denote_trim (c : Array Digit) : denote (trim c) = denote c := by
@@ -1488,14 +1464,12 @@ theorem subLoop_spec (a b : Array Digit) (len : Nat) :
     obtain ⟨hsz, hk, hval⟩ := ih
     have hstep : subLoop a b (len+1) = subStep a b (subLoop a b len) len := by
       rw [subLoop_eq, subLoop_eq]
-      simp [List.range_succ, List.foldl_append]
+      simp [List.range_succ]
     rw [hstep]
     refine ⟨by simp [subStep, hsz], subStep_borrow_le .., ?_⟩
     have hd := subStep_digit (a.getD len 0) (b.getD len 0) (subLoop a b len).2 hk
     show denote ((subLoop a b len).1.push _) + _ = _
-    rw [show denoteN a (len+1) = denoteN a len + (a.getD len 0).toNat * base ^ len from rfl,
-        show denoteN b (len+1) = denoteN b len + (b.getD len 0).toNat * base ^ len from rfl,
-        denote_push, hsz, Nat.pow_succ]
+    rw [denote_push, hsz]
     exact sub_combine hval hd
 
 /--
@@ -1532,10 +1506,8 @@ theorem subInPlace_spec (u b w : Array Digit) (off len : Nat)
   | succ n ih =>
     obtain ⟨hsz, hk, hdig, hout⟩ := ih (by omega) (fun i hi => hw i (by omega))
     have hstep : subLoop w b (n+1) = subStep w b (subLoop w b n) n := by
-      rw [subLoop_eq, subLoop_eq]
-      simp [List.range_succ, List.foldl_append]
-    have hread : (subInPlace u b off n).1.getD (off + n) 0 = w.getD n 0 := by
-      rw [hout (off + n) (by omega), hw n (by omega)]
+      simp [subLoop_eq, List.range_succ]
+    have hread : (subInPlace u b off n).1.getD (off + n) 0 = w.getD n 0 := by grind
     have hlensz : (subLoop w b n).1.size = n := (subLoop_spec w b n).1
     have hpush : ∀ (c : Array Digit) (d : Digit) (t : Nat), t = c.size →
         (c.push d).getD t 0 = d := by
@@ -1578,7 +1550,6 @@ theorem mulStep_toNat (x y z w : Digit) :
   have hz := UInt32.toNat_lt_size z
   have hw := UInt32.toNat_lt_size w
   have hs : (UInt32.size : Nat) = 4294967296 := rfl
-  rw [hs] at hx hy hz hw
   have hb : x.toNat * y.toNat ≤ 4294967295 * 4294967295 :=
     Nat.mul_le_mul (by omega) (by omega)
   simp only [UInt64.toNat_mul, UInt64.toNat_add, UInt32.toNat_toUInt64]
@@ -1588,8 +1559,7 @@ private theorem mulInner_combine {dc k p P Q ai v dc0 dna c0ij B lot hit : Nat}
     (hp : p = P * Q)
     (hval : dc + k * p = dc0 + dna * v * P)
     (hdig : lot + hit * B = ai * v + c0ij + k) :
-    dc + lot * p + hit * (p * B) = dc0 + c0ij * p + (dna + ai * Q) * v * P := by
-  subst hp; grind
+    dc + lot * p + hit * (p * B) = dc0 + c0ij * p + (dna + ai * Q) * v * P := by grind
 
 /--
 The inner loop of `mpn_mul` adds `a * v_j` into `c` starting at digit `j`. It
@@ -1608,23 +1578,20 @@ theorem mulInner_spec (a : Array Digit) (v : Digit) (j : Nat) (c₀ : Array Digi
     obtain ⟨hsz, huntouched, hval⟩ := ih (by omega)
     have hstep : mulInner a v j c₀ (n+1) = mulInnerStep a v j (mulInner a v j c₀ n) n := by
       rw [mulInner_eq, mulInner_eq]
-      simp [List.range_succ, List.foldl_append]
+      simp [List.range_succ]
     -- the digit this step reads has not been written yet
     have hread : (mulInner a v j c₀ n).1.getD (n + j) 0 = c₀.getD (n + j) 0 :=
       huntouched _ (Or.inr (by omega))
-    have hlt : n + j < (mulInner a v j c₀ n).1.size := by rw [hsz]; omega
+    have hlt : n + j < (mulInner a v j c₀ n).1.size := by omega
     rw [hstep]
     simp only [mulInnerStep, hread]
     refine ⟨by simp [hsz], ?_, ?_⟩
     · intro idx hidx
       rw [getD_set!_ne _ _ _ _ (by omega), huntouched idx (by omega)]
     · rw [show j + (n+1) = (n + j) + 1 by omega, denoteN_set!_succ _ _ _ hlt,
-        show denoteN c₀ ((n+j)+1)
-            = denoteN c₀ (n+j) + (c₀.getD (n+j) 0).toNat * base ^ (n+j) from rfl,
-        show denoteN a (n+1) = denoteN a n + (a.getD n 0).toNat * base ^ n from rfl,
-        show n + j = j + n by omega, Nat.pow_succ]
+        show n + j = j + n by omega]
       exact mulInner_combine (Nat.pow_add base j n) hval
-        (by rw [lo_add_hi, mulStep_toNat, show j + n = n + j by omega])
+        (by rw [lo_add_hi, mulStep_toNat])
 
 /--
 The outer loop of `mpn_mul` accumulates `a * b` digit by digit: after `m`
@@ -1638,21 +1605,21 @@ theorem mulLoop_spec (a b : Array Digit) (m : Nat) (hm : m ≤ b.size) :
   induction m with
   | zero =>
     refine ⟨by simp [mulLoop_eq], fun idx _ => ?_, ?_⟩
-    · rw [mulLoop_eq, List.range_zero, List.foldl_nil]; exact getD_replicate_zero _ _
+    · exact getD_replicate_zero _ _
     · rw [mulLoop_eq, List.range_zero, List.foldl_nil, denote_replicate_zero]; rfl
   | succ m ih =>
     obtain ⟨hsz, hzero, hval⟩ := ih (by omega)
     have hstep : mulLoop a b (m+1) = mulOuterStep a b (mulLoop a b m) m := by
       rw [mulLoop_eq, mulLoop_eq]
-      simp [List.range_succ, List.foldl_append]
+      simp [List.range_succ]
     have hb : denoteN b (m+1) = denoteN b m + (b.getD m 0).toNat * base ^ m := rfl
-    have hfits : m + a.size < (mulLoop a b m).size := by rw [hsz]; omega
+    have hfits : m + a.size < (mulLoop a b m).size := by omega
     rw [hstep]
     simp only [mulOuterStep]
     split <;> rename_i hv
     · -- `v_j == 0`: the digit about to be written is already zero
       have hv0 : (b.getD m 0).toNat = 0 := by
-        simp only [beq_iff_eq] at hv; rw [hv]; rfl
+        simp only [beq_iff_eq] at hv; simp [hv]
       have hsame : ∀ i, i < (mulLoop a b m).size →
           ((mulLoop a b m).set! (m + a.size) 0).getD i 0 = (mulLoop a b m).getD i 0 := by
         intro i _
@@ -1660,28 +1627,26 @@ theorem mulLoop_spec (a b : Array Digit) (m : Nat) (hm : m ≤ b.size) :
         · subst h; rw [getD_set!_eq _ _ _ hfits, hzero _ (Nat.le_refl _)]
         · exact getD_set!_ne _ _ _ _ h
       refine ⟨by simp [hsz], ?_, ?_⟩
-      · intro idx hidx
-        rw [getD_set!_ne _ _ _ _ (by omega), hzero idx (by omega)]
-      · rw [hb, hv0, Nat.zero_mul, Nat.add_zero, ← hval, denote, denote,
-          Array.size_set!]
+      · grind
+      · rw [hb, hv0, Nat.zero_mul, Nat.add_zero, ← hval, denote,
+          size_set!]
         exact denoteN_congr hsame
     · -- the general case: run the inner loop, then store its carry
       obtain ⟨hisz, hiunt, hival⟩ := mulInner_spec a (b.getD m 0) m (mulLoop a b m) a.size (by omega)
       have hcarry : m + a.size < (mulInner a (b.getD m 0) m (mulLoop a b m) a.size).1.size := by
-        rw [hisz, hsz]; omega
+        omega
       have hhigh : ∀ idx, (m + a.size) + 1 ≤ idx →
           (((mulInner a (b.getD m 0) m (mulLoop a b m) a.size).1).set! (m + a.size)
             (mulInner a (b.getD m 0) m (mulLoop a b m) a.size).2).getD idx 0 = 0 := by
         intro idx hidx
         rw [getD_set!_ne _ _ _ _ (by omega), hiunt idx (Or.inr (by omega)), hzero idx (by omega)]
-      refine ⟨by rw [Array.size_set!, hisz, hsz], ?_, ?_⟩
-      · intro idx hidx
-        exact hhigh idx (by omega)
-      · rw [denote_of_high_zero _ (by rw [Array.size_set!, hisz, hsz]; omega) hhigh,
+      refine ⟨by rw [size_set!, hisz, hsz], ?_, ?_⟩
+      · grind
+      · rw [denote_of_high_zero _ (by rw [size_set!]; omega) hhigh,
           denoteN_set!_succ _ _ _ hcarry, hival,
           ← denote_of_high_zero (mulLoop a b m) (by rw [hsz]; omega)
             (fun idx h => hzero idx (by omega)),
-          hval, hb]
+          hval]
         show denote a * denoteN b m + denote a * (b.getD m 0).toNat * base ^ m
             = denote a * (denoteN b m + (b.getD m 0).toNat * base ^ m)
         rw [Nat.mul_add, Nat.mul_assoc]
@@ -1753,15 +1718,14 @@ theorem le_succ_of_not_test {b k vtop vsnd vrest u u2 u3 ulow qhat rhat : Nat}
     (hfail : qhat * vsnd ≤ b * rhat + u3) :
     qhat * ((vtop * b + vsnd) * b ^ k + vrest)
       ≤ u + ((vtop * b + vsnd) * b ^ k + vrest) := by
-  have hpow : b ^ (k+1) = b ^ k * b := Nat.pow_succ b k
   -- `qhat` times the divisor's leading part already fits under `u`
   have hmain : qhat * ((vtop * b + vsnd) * b ^ k) ≤ u := by
     calc qhat * ((vtop * b + vsnd) * b ^ k)
         = qhat * vtop * (b ^ k * b) + (qhat * vsnd) * b ^ k := by grind
       _ ≤ qhat * vtop * (b ^ k * b) + (b * rhat + u3) * b ^ k :=
           Nat.add_le_add_left (Nat.mul_le_mul_right _ hfail) _
-      _ = u2 * (b ^ k * b) + u3 * b ^ k := by rw [hu2]; grind
-      _ ≤ u := by rw [hu, hpow]; omega
+      _ = u2 * (b ^ k * b) + u3 * b ^ k := by grind
+      _ ≤ u := by grind
   -- and the low part of the divisor that this ignores is itself below the divisor
   have hslack : qhat * vrest ≤ (vtop * b + vsnd) * b ^ k + vrest := by
     have h1 : qhat * vrest ≤ b * b ^ k := Nat.mul_le_mul (by omega) (by omega)
@@ -1771,9 +1735,7 @@ theorem le_succ_of_not_test {b k vtop vsnd vrest u u2 u3 ulow qhat rhat : Nat}
         _ ≤ vtop * b := Nat.mul_le_mul_right b hvtop
         _ ≤ vtop * b + vsnd := Nat.le_add_right _ _
     exact Nat.le_trans (Nat.le_trans h1 h2) (Nat.le_add_right _ _)
-  calc qhat * ((vtop * b + vsnd) * b ^ k + vrest)
-      = qhat * ((vtop * b + vsnd) * b ^ k) + qhat * vrest := by grind
-    _ ≤ u + ((vtop * b + vsnd) * b ^ k + vrest) := Nat.add_le_add hmain hslack
+  grind
 
 /-!
 Restated against the divisor `v` and the true quotient digit `u / v`, which is
@@ -1830,8 +1792,7 @@ private theorem shift_combine {Oj C C' P Dj A B T : Nat}
     (hih : Oj + C * P = Dj * T)
     (hdm : A * T % B + B * (A * T / B) = A * T)
     (hC' : C' = A * T / B) :
-    Oj + (A * T % B + C) * P + C' * (P * B) = (Dj + A * P) * T := by
-  subst hC'; grind
+    Oj + (A * T % B + C) * P + C' * (P * B) = (Dj + A * P) * T := by grind
 
 /-- The shifted digits denote `2^d` times the original, modulo what falls off the top. -/
 theorem denoteN_shiftLeftDigits (a : Array Digit) {d : Nat} (hd0 : 0 < d) (hd : d < digitBits)
@@ -1849,9 +1810,9 @@ theorem denoteN_shiftLeftDigits (a : Array Digit) {d : Nat} (hd0 : 0 < d) (hd : 
       · rw [getD_shiftLeftDigits_tail a hd0 hd (by omega) (by omega), toNat_shl_or_shr _ _ hd0 hd]
         simp only [shiftCarry, Nat.ne_of_gt hj0, ite_false]
     have hC' : shiftCarry a d (j+1) = (a.getD j 0).toNat * 2 ^ d / base := by
-      rw [shiftCarry_eq a hd0 hd (Nat.succ_ne_zero j)]; simp
+      simp [shiftCarry_eq a hd0 hd (Nat.succ_ne_zero j)]
     have hdm := Nat.div_add_mod ((a.getD j 0).toNat * 2 ^ d) base
-    rw [denoteN, denoteN, hdigit, Nat.pow_succ]
+    rw [denoteN, hdigit]
     exact shift_combine (ih (by omega)) (by omega) hC'
 
 /--
@@ -1869,7 +1830,7 @@ theorem denote_shiftLeftDigits (a : Array Digit) {d : Nat} (hd : d < digitBits)
   · subst hd0
     have hcongr : ∀ i, i < len → (shiftLeftDigits a 0 len hd).getD i 0 = a.getD i 0 := by
       intro i hi; exact getD_shiftLeftDigits_zero a len i hi hd
-    rw [hout, denoteN_congr hcongr, ha]; simp
+    simp [hout, denoteN_congr hcongr, ha]
   · have hmain := denoteN_shiftLeftDigits a hd0 hd (Nat.le_refl len)
     rw [ha] at hmain
     -- nothing can fall off the top, so the carry out of the last digit is zero
@@ -1879,8 +1840,7 @@ theorem denote_shiftLeftDigits (a : Array Digit) {d : Nat} (hd : d < digitBits)
       · exact absurd hmain (by
           have : base ^ len ≤ shiftCarry a d len * base ^ len := Nat.le_mul_of_pos_left _ h
           omega)
-    rw [hzero, Nat.zero_mul, Nat.add_zero] at hmain
-    rw [hout, hmain]
+    grind
 
 /-! ## Correctness of `div_normalize`'s shift amount -/
 
@@ -1914,7 +1874,6 @@ theorem divNormalize_spec (numer denom : Array Digit) (hnum : 0 < numer.size)
         < base ^ numer.size * 2 ^ (leadingZeros (denom.getD (denom.size - 1) 0)).val :=
           (Nat.mul_lt_mul_right (Nat.two_pow_pos _)).mpr h1
       _ ≤ base ^ numer.size * base := Nat.mul_le_mul_left _ h2
-      _ = base ^ (numer.size + 1) := (Nat.pow_succ base numer.size).symm
   · -- the denominator has no spare digit; `d` was chosen so it does not need one
     refine denote_shiftLeftDigits denom hdlt (Nat.le_refl _) ?_
     have hsplit : denote denom
@@ -1924,9 +1883,9 @@ theorem divNormalize_spec (numer denom : Array Digit) (hnum : 0 < numer.size)
       have hden' : denote denom = denoteN denom (denom.size - 1)
           + (denom.getD (denom.size - 1) 0).toNat * base ^ (denom.size - 1) := by
         obtain ⟨m, hm⟩ : ∃ m, denom.size = m + 1 := ⟨denom.size - 1, by omega⟩
-        rw [denote, hm, Nat.add_sub_cancel]
+        rw [denote, hm]
         rfl
-      rw [hden', Nat.add_mul, Nat.one_mul]
+      rw [Nat.add_mul]
       omega
     -- `t * 2^d < base` forces `(t + 1) * 2^d ≤ base`
     have hstep : ((denom.getD (denom.size - 1) 0).toNat + 1)
@@ -1969,7 +1928,6 @@ theorem divNormalize_spec (numer denom : Array Digit) (hnum : 0 < numer.size)
 
 theorem toNat_lastBits (x : Digit) {d : Nat} (hd0 : 0 < d) (hd : d < digitBits) :
     (lastBits x d hd0).toNat = x.toNat % 2 ^ d := by
-  have hx : x.toNat < 2 ^ 32 := x.toNat_lt_size
   have hd' : d < 32 := by simpa [digitBits_eq] using hd
   simp only [lastBits, CPP.shr_eq, CPP.shl_eq]
   rw [toNat_shr _ (by simp [digitBits_eq]; omega), toNat_shl _ (by simp [digitBits_eq]; omega)]
@@ -2011,7 +1969,7 @@ private theorem getD_shiftRightDigits_zero (a : Array Digit) (len j : Nat) (hj :
 private theorem getD_shiftRightDigits_last (a : Array Digit) {d len : Nat} (hd0 : 0 < d)
     (hd : d < digitBits) (hlen : 0 < len) :
     (shiftRightDigits a d len hd).getD (len - 1) 0 = a.getD (len - 1) 0 >>> UInt32.ofNat d := by
-  simp [shiftRightDigits_eq, CPP.shr, Nat.ne_of_gt hd0, show len - 1 < len by omega,
+  simp [shiftRightDigits_eq, Nat.ne_of_gt hd0, show len - 1 < len by omega,
     show len - 1 + 1 = len by omega]
 
 private theorem getD_shiftRightDigits_mid (a : Array Digit) {d len j : Nat} (hd0 : 0 < d)
@@ -2019,15 +1977,14 @@ private theorem getD_shiftRightDigits_mid (a : Array Digit) {d len j : Nat} (hd0
     (shiftRightDigits a d len hd).getD j 0
       = (a.getD j 0 >>> UInt32.ofNat d) |||
         (lastBits (a.getD (j+1) 0) d hd0 <<< UInt32.ofNat (digitBits - d)) := by
-  simp [shiftRightDigits_eq, CPP.shr, CPP.shl, Nat.ne_of_gt hd0, hj, hj']
+  simp [shiftRightDigits_eq, Nat.ne_of_gt hd0, hj, hj']
 
 private theorem shiftRight_combine {Rj rj xj xj1 P T U B Nj lo0 : Nat}
     (hB : U * T = B)
     (hih : Rj * T + lo0 = Nj + xj % T * P)
     (hrj : rj = xj / T + xj1 % T * U)
     (hdm : xj % T + T * (xj / T) = xj) :
-    (Rj + rj * P) * T + lo0 = Nj + xj * P + xj1 % T * (P * B) := by
-  subst hrj hB; grind
+    (Rj + rj * P) * T + lo0 = Nj + xj * P + xj1 % T * (P * B) := by grind
 
 theorem size_shiftRightDigits (a : Array Digit) (d len : Nat) (hd : d < digitBits) :
     (shiftRightDigits a d len hd).size = len := by simp [shiftRightDigits_eq]
@@ -2051,7 +2008,6 @@ theorem denoteN_shiftRightDigits (a : Array Digit) {d : Nat} (hd0 : 0 < d) (hd :
       simp only [digitBits_eq] at hd hd0 ⊢
       rw [← Nat.pow_add, show 32 - d + d = 32 by omega]; rfl
     have hdm := Nat.div_add_mod (a.getD j 0).toNat (2 ^ d)
-    rw [denoteN, denoteN, Nat.pow_succ]
     exact shiftRight_combine hB (ih (by omega)) hmid (by omega)
 
 /--
@@ -2066,8 +2022,7 @@ theorem denote_shiftRightDigits (a : Array Digit) {d : Nat} (hd : d < digitBits)
   · subst hd0
     have hcongr : ∀ i, i < len → (shiftRightDigits a 0 len hd).getD i 0 = a.getD i 0 :=
       fun i hi => getD_shiftRightDigits_zero a len i hi hd
-    rw [denote, hsize, denoteN_congr hcongr]
-    simp
+    simp [denote, hsize, denoteN_congr hcongr]
   · have hlast : ((shiftRightDigits a d len hd).getD (len-1) 0).toNat
         = (a.getD (len-1) 0).toNat / 2 ^ d := by
       rw [getD_shiftRightDigits_last a hd0 hd hlen, toNat_shr _ hd]
@@ -2081,12 +2036,12 @@ theorem denote_shiftRightDigits (a : Array Digit) {d : Nat} (hd : d < digitBits)
           = denoteN (shiftRightDigits a d len hd) (len-1)
             + ((shiftRightDigits a d len hd).getD (len-1) 0).toNat * base ^ (len-1) := by
         obtain ⟨m, hm⟩ : ∃ m, len = m + 1 := ⟨len - 1, by omega⟩
-        rw [denote, hsize, hm, Nat.add_sub_cancel]; rfl
+        rw [denote, hsize, hm]; rfl
       have hexpa : denoteN a len
           = denoteN a (len-1) + (a.getD (len-1) 0).toNat * base ^ (len-1) := by
         obtain ⟨m, hm⟩ : ∃ m, len = m + 1 := ⟨len - 1, by omega⟩
-        rw [hm, Nat.add_sub_cancel]; rfl
-      rw [hexp, hlast, hexpa, Nat.add_mul]
+        rw [hm]; rfl
+      rw [hexp, hlast, Nat.add_mul]
       have : (a.getD (len-1) 0).toNat / 2 ^ d * base ^ (len-1) * 2 ^ d
           + (a.getD (len-1) 0).toNat % 2 ^ d * base ^ (len-1)
           = (a.getD (len-1) 0).toNat * base ^ (len-1) := by grind
@@ -2098,14 +2053,12 @@ theorem denote_shiftRightDigits (a : Array Digit) {d : Nat} (hd : d < digitBits)
 
 private theorem lo_of_lt (x : DoubleDigit) (h : x.toNat < base) : (lo x).toNat = x.toNat := by
   have hla := lo_add_hi x
-  have hl : (lo x).toNat < base := (lo x).toNat_lt_size
   rcases Nat.eq_zero_or_pos (hi x).toNat with h0 | h0
-  · rw [h0, Nat.zero_mul, Nat.add_zero] at hla; exact hla
+  · grind
   · exact absurd hla (by have : base ≤ (hi x).toNat * base := Nat.le_mul_of_pos_left _ h0; omega)
 
 private theorem hi_of_lt (x : DoubleDigit) (h : x.toNat < base) : hi x = 0 := by
   have hla := lo_add_hi x
-  have hlo := lo_of_lt x h
   have : (hi x).toNat = 0 := by
     rcases Nat.eq_zero_or_pos (hi x).toNat with h0 | h0
     · exact h0
@@ -2118,13 +2071,12 @@ private theorem toNat_window (x y : Digit) :
   have hx : x.toNat < 4294967296 := x.toNat_lt_size
   have hy : y.toNat < 4294967296 := y.toNat_lt_size
   have hshl : (x.toUInt64 <<< 32).toNat = x.toNat <<< 32 := by
-    rw [UInt64.toNat_shiftLeft, UInt32.toNat_toUInt64, show (32 : UInt64).toNat % 64 = 32 from rfl]
     refine Nat.mod_eq_of_lt ?_
     rw [Nat.shiftLeft_eq]
     calc x.toNat * 2 ^ 32 < 4294967296 * 2 ^ 32 :=
           (Nat.mul_lt_mul_right (Nat.two_pow_pos 32)).mpr hx
-      _ = 2 ^ 64 := by rfl
-  rw [UInt64.toNat_or, hshl, UInt32.toNat_toUInt64,
+      _ = 2 ^ 64 := rfl
+  rw [UInt64.toNat_or, hshl,
     ← Nat.shiftLeft_add_eq_or_of_lt (i := 32) (by exact hy), Nat.shiftLeft_eq]
   rfl
 
@@ -2151,7 +2103,7 @@ private theorem u64_divmod (T d : DoubleDigit) (hd : 0 < d.toNat) (hdb : d.toNat
     rw [hms]; exact Nat.lt_trans (Nat.mod_lt _ hd) hdb
   refine ⟨by rw [lo_of_lt _ (by rw [hq]; omega), hq], by rw [lo_of_lt _ hmslt, hms],
     hi_of_lt _ hmslt, ?_⟩
-  simp only [gt_iff_lt, UInt64.lt_iff_toNat_lt, hms, Nat.not_lt]
+  simp only [UInt64.lt_iff_toNat_lt, hms, Nat.not_lt]
   exact Nat.mod_le _ _
 
 /-- Each `div_1` step divides its two-digit window exactly. -/
@@ -2166,7 +2118,7 @@ private theorem div1Step_eq (denom : Digit) (u quot : Array Digit) (j : Nat)
   have hlow : (u.getD j 0).toNat < base := (u.getD j 0).toNat_lt_size
   have hd64 : 0 < denom.toUInt64.toNat := by rw [UInt32.toNat_toUInt64]; exact hd
   have hdb64 : denom.toUInt64.toNat < base := by
-    rw [UInt32.toNat_toUInt64]; exact denom.toNat_lt_size
+    exact denom.toNat_lt_size
   have hWn : W.toNat = (u.getD (j+1) 0).toNat * base + (u.getD j 0).toNat := by
     rw [hW, toNat_window]
   have hTlt : W.toNat < denom.toUInt64.toNat * base := by
@@ -2180,7 +2132,7 @@ private theorem div1Step_eq (denom : Digit) (u quot : Array Digit) (j : Nat)
   · rw [hq, hWn]
   · rw [hr, hWn]
   · have hnz : denom.toUInt64 ≠ 0 := toUInt64_ne_zero hd
-    simp only [div1Step, Nat.add_sub_cancel, ← hW, CPP.divD_eq]
+    simp only [div1Step, Nat.add_sub_cancel, ← hW]
     simp [hhi, hnb]
 
 private theorem denoteN_set!_of_zero (c : Array Digit) (idx : Nat) (d : Digit)
@@ -2192,7 +2144,7 @@ private theorem denoteN_set!_of_zero (c : Array Digit) (idx : Nat) (d : Digit)
   | succ n ih =>
     intro hn
     rcases Nat.lt_or_ge idx n with h | h
-    · rw [denoteN, denoteN, ih h, getD_set!_ne c idx n d (by omega)]
+    · rw [denoteN, denoteN, getD_set!_ne c idx n d (by omega)]
       omega
     · have hidxn : idx = n := by omega
       subst hidxn
@@ -2203,7 +2155,7 @@ private theorem denoteN_set!_of_zero (c : Array Digit) (idx : Nat) (d : Digit)
 theorem denote_set!_of_zero (c : Array Digit) (idx : Nat) (d : Digit)
     (hidx : idx < c.size) (hz : c.getD idx 0 = 0) :
     denote (c.set! idx d) = denote c + d.toNat * base ^ idx := by
-  rw [denote, Array.size_set!, denote]
+  rw [denote, size_set!]
   exact denoteN_set!_of_zero c idx d hidx hz c.size (by omega)
 
 private theorem div1_combine {Q D Nj uj1 nj q r P B N : Nat}
@@ -2240,8 +2192,7 @@ theorem div1Loop_spec (denom : Digit) (numer : Array Digit) (hd : 0 < denom.toNa
   | zero =>
     intro u quot hu hq _ _ _ hrem hval
     refine ⟨hrem, hq, ?_⟩
-    show denote quot * denom.toNat + (u.getD 0 0).toNat = denoteN numer numer.size
-    simpa [denoteN] using hval
+    simpa [div1Loop, denoteN] using hval
   | succ j ih =>
     intro u quot hu hq hjn hlow hqz hrem hval
     obtain ⟨q, r, hqv, hrv, hstep⟩ := div1Step_eq denom u quot j hd hrem
@@ -2269,7 +2220,7 @@ theorem div1Loop_spec (denom : Digit) (numer : Array Digit) (hd : 0 < denom.toNa
       have hvalj : denote quot * denom.toNat
           + (denoteN numer j + (numer.getD j 0).toNat * base ^ j)
           + (u.getD (j+1) 0).toNat * (base ^ j * base) = denoteN numer numer.size := by
-        rw [← Nat.pow_succ]; exact hval
+        exact hval
       rw [← hrv]
       exact div1_combine hqr hvalj
 
@@ -2290,7 +2241,7 @@ theorem div1_spec (numer : Array Digit) (denom : Digit) (hd : 0 < denom.toNat)
     (fun _ _ => rfl) (fun i _ => getD_replicate_zero _ _) htop ?_
   rw [denote_replicate_zero, Nat.zero_mul, Nat.zero_add]
   obtain ⟨m, hm⟩ : ∃ m, numer.size = m + 1 := ⟨numer.size - 1, by omega⟩
-  rw [hm, Nat.add_sub_cancel]
+  rw [hm]
   rfl
 
 /-! ## Correctness of step D3 -/
@@ -2302,8 +2253,6 @@ private theorem q_le_of_inv {q r vtop u2 : Nat} (hinv : u2 = q * vtop + r)
   · omega
   · exfalso
     have h1 : (base + 2) * vtop ≤ q * vtop := Nat.mul_le_mul_right _ h
-    have h2 : (base + 2) * vtop = base * vtop + 2 * vtop := by grind
-    have h3 : vtop * base = base * vtop := Nat.mul_comm _ _
     simp only [base_eq] at *
     omega
 
@@ -2314,62 +2263,51 @@ private theorem recheck_test_iff (dn2 nu : Digit) (q r : DoubleDigit)
       = (base ≤ q.toNat ∨ base * r.toNat + nu.toNat < q.toNat * dn2.toNat) := by
   have hd2 : dn2.toNat < base := dn2.toNat_lt_size
   have hnu : nu.toNat < base := nu.toNat_lt_size
-  have hq64 : q.toNat < 2 ^ 64 := q.toNat_lt_size
-  have hbase : (base : Nat) = 4294967296 := rfl
   have hshr : (q >>> 32).toNat = q.toNat / 4294967296 := by
     rw [UInt64.toNat_shiftRight, show (32 : UInt64).toNat % 64 = 32 from rfl,
       Nat.shiftRight_eq_div_pow]
   have hmul : (q * dn2.toUInt64).toNat = q.toNat * dn2.toNat := by
-    rw [UInt64.toNat_mul, UInt32.toNat_toUInt64]
     refine Nat.mod_eq_of_lt ?_
     calc q.toNat * dn2.toNat ≤ (base + 1) * (base - 1) := Nat.mul_le_mul hq (by omega)
       _ < 2 ^ 64 := by simp only [base_eq]; omega
   have hshl : ((r <<< 32) + nu.toUInt64).toNat = base * r.toNat + nu.toNat := by
     have h1 : (r <<< 32).toNat = r.toNat * 4294967296 := by
-      rw [UInt64.toNat_shiftLeft, show (32 : UInt64).toNat % 64 = 32 from rfl, Nat.shiftLeft_eq]
-      refine Nat.mod_eq_of_lt ?_
+      rw [UInt64.toNat_shiftLeft, show (32 : UInt64).toNat % 64 = 32 from rfl]
       simp only [base_eq] at hr; omega
-    rw [UInt64.toNat_add, h1, UInt32.toNat_toUInt64,
+    rw [UInt64.toNat_add, UInt32.toNat_toUInt64,
       Nat.mod_eq_of_lt (by simp only [base_eq] at hr hnu ⊢; omega)]
     simp only [base_eq]
     omega
-  simp only [bne_iff_ne, ne_eq, gt_iff_lt, UInt64.lt_iff_toNat_lt, hmul, hshl,
+  simp only [bne_iff_ne, ne_eq, UInt64.lt_iff_toNat_lt, hmul, hshl,
     Bool.or_eq_true, decide_eq_true_eq]
   have hz : (¬ (q >>> 32 = 0)) = (base ≤ q.toNat) := by
     rw [eq_iff_iff]
     constructor
     · intro h
       have : (q >>> 32).toNat ≠ 0 := fun h0 => h (UInt64.toNat_inj.mp (by rw [h0]; rfl))
-      rw [hshr] at this
       simp only [base_eq]; omega
     · intro h h0
       have : (q >>> 32).toNat = 0 := by rw [h0]; rfl
-      rw [hshr] at this
       simp only [base_eq] at h; omega
   rw [hz]
 
 private theorem shr32_lt (x : DoubleDigit) : ((x >>> 32 == 0) = true) = (x.toNat < base) := by
-  have hx : x.toNat < 2 ^ 64 := x.toNat_lt_size
   have hshr : (x >>> 32).toNat = x.toNat / 4294967296 := by
     rw [UInt64.toNat_shiftRight, show (32 : UInt64).toNat % 64 = 32 from rfl,
       Nat.shiftRight_eq_div_pow]
-  rw [eq_iff_iff]
-  simp only [beq_iff_eq]
+  simp [eq_iff_iff]
   constructor
   · intro h
     have : (x >>> 32).toNat = 0 := by rw [h]; rfl
-    rw [hshr] at this
-    simp only [base_eq]; omega
+    omega
   · intro h
     refine UInt64.toNat_inj.mp ?_
-    rw [hshr]
-    simp only [base_eq] at h
-    have : x.toNat / 4294967296 = 0 := by omega
-    rw [this]; rfl
+    grind
 
 private theorem toNat_pred {q : DoubleDigit} (h : 0 < q.toNat) :
     (q - 1).toNat = q.toNat - 1 := by
-  grind
+  have := q.toNat_lt_size
+  simp [UInt64.toNat_sub, UInt64.size] at *; omega
 
 private theorem toNat_add_digit (r : DoubleDigit) (d : Digit) (hr : r.toNat < base) :
     (r + d.toUInt64).toNat = r.toNat + d.toNat := by
@@ -2378,7 +2316,6 @@ private theorem toNat_add_digit (r : DoubleDigit) (d : Digit) (hr : r.toNat < ba
   rw [UInt64.toNat_add, UInt32.toNat_toUInt64]
   exact Nat.mod_eq_of_lt (by omega)
 
-set_option maxHeartbeats 400000 in
 /--
 Step D3's postcondition: the trial digit it returns fits in a single digit and
 is either exact or one too big, which is what makes the single add-back of step
@@ -2398,9 +2335,7 @@ theorem recheck_spec (dn1 dn2 nu : Digit) (k vrest ulow u2 V U : Nat)
       (recheck dn1 dn2 nu q r).1.toNat ≤ U / V + 1 := by
   have hvtop1 : 1 ≤ dn1.toNat := by simp only [base_eq] at hnorm; omega
   have hd2 : dn2.toNat < base := dn2.toNat_lt_size
-  have hpow : 0 < base ^ k := Nat.pow_pos (by simp [base_eq])
   have hVpos : 0 < V := by
-    rw [hV]
     have h1 : 1 * base ^ k ≤ (dn1.toNat * base + dn2.toNat) * base ^ k :=
       Nat.mul_le_mul_right _ (by simp only [base_eq] at hvtop1 ⊢; omega)
     omega
@@ -2424,14 +2359,8 @@ theorem recheck_spec (dn1 dn2 nu : Digit) (k vrest ulow u2 V U : Nat)
     have hq := q_le_of_inv hinv hu2 hnorm
     have harith : ¬ (base ≤ q.toNat ∨ base * r.toNat + nu.toNat < q.toNat * dn2.toNat) := by
       rw [← recheck_test_iff dn2 nu q r hq hr]; exact hfail
-    have hf1 : q.toNat < base := by
-      rcases Nat.lt_or_ge q.toNat base with h | h
-      · exact h
-      · exact absurd (Or.inl h) harith
-    have hf2 : q.toNat * dn2.toNat ≤ base * r.toNat + nu.toNat := by
-      rcases Nat.lt_or_ge (base * r.toNat + nu.toNat) (q.toNat * dn2.toNat) with h | h
-      · exact absurd (Or.inr h) harith
-      · exact h
+    have hf1 : q.toNat < base := by omega
+    have hf2 : q.toNat * dn2.toNat ≤ base * r.toNat + nu.toNat := by omega
     exact ⟨hf1, hle, KnuthD.le_succ_div_of_not_test hV hVpos hU hinv hvrest hvtop1 hf1 hf2⟩
   -- exit with `r_hat` past the base: the test would fail there anyway
   have exitBig : ∀ q r : DoubleDigit, u2 = q.toNat * dn1.toNat + r.toNat → r.toNat < base →
@@ -2444,7 +2373,6 @@ theorem recheck_spec (dn1 dn2 nu : Digit) (k vrest ulow u2 V U : Nat)
     have hinv' : u2 = (q - 1).toNat * dn1.toNat + (r + dn1.toUInt64).toNat := by
       obtain ⟨m, hm⟩ : ∃ m, q.toNat = m + 1 :=
         ⟨q.toNat - 1, (Nat.succ_pred_eq_of_pos hqpos).symm⟩
-      rw [hqn, hrn, hm, Nat.add_sub_cancel]
       rw [hm] at hinv
       grind
     have hqsmall : (q - 1).toNat < base := by
@@ -2469,8 +2397,7 @@ theorem recheck_spec (dn1 dn2 nu : Digit) (k vrest ulow u2 V U : Nat)
     | zero =>
       intro q r hqn hinv hr hle
       by_cases hfire : (q >>> 32 != 0 || q * dn2.toUInt64 > ((r <<< 32) + nu.toUInt64)) = true
-      · have hq0 : q.toNat = 0 := Nat.le_zero.mp hqn
-        exact absurd (fires q r hinv hr hfire) (by rw [hq0]; exact Nat.not_lt_zero _)
+      · grind
       · rw [recheck.eq_def]
         simp [Bool.eq_false_iff.mpr hfire]
         exact exitFail q r hinv hr hle hfire
@@ -2484,22 +2411,21 @@ theorem recheck_spec (dn1 dn2 nu : Digit) (k vrest ulow u2 V U : Nat)
         by_cases hr2 : ((r + dn1.toUInt64) >>> 32 == 0) = true
         · have hrlt : (r + dn1.toUInt64).toNat < base := by rw [← shr32_lt]; exact hr2
           rw [recheck.eq_def]
-          simp only [hfire, hr2, ite_true]
+          simp only [hfire, hr2]
           refine ih (q - 1) (r + dn1.toUInt64)
             (by rw [hqp]
                 exact Nat.le_of_lt_succ (Nat.lt_of_lt_of_le (Nat.sub_lt hqpos Nat.one_pos) hqn))
             ?_ hrlt (by rw [hqp]; exact Nat.le_pred_of_lt hdec)
           obtain ⟨m, hm⟩ : ∃ m, q.toNat = m + 1 :=
             ⟨q.toNat - 1, (Nat.succ_pred_eq_of_pos hqpos).symm⟩
-          rw [hqp, hrn, hm, Nat.add_sub_cancel]
+          rw [hrn]
           rw [hm] at hinv
           grind
         · have hrbig : base ≤ (r + dn1.toUInt64).toNat := by
             rcases Nat.lt_or_ge (r + dn1.toUInt64).toNat base with h | h
             · exact absurd (shr32_lt (r + dn1.toUInt64) ▸ h) hr2
             · exact h
-          rw [recheck.eq_def]
-          simp [hfire, Bool.eq_false_iff.mpr hr2]
+          simp [recheck.eq_def, hfire, Bool.eq_false_iff.mpr hr2]
           exact exitBig q r hinv hr hdec hrbig
       · rw [recheck.eq_def]
         simp [Bool.eq_false_iff.mpr hfire]
@@ -2511,13 +2437,12 @@ theorem recheck_spec (dn1 dn2 nu : Digit) (k vrest ulow u2 V U : Nat)
 
 theorem getD_extract (a : Array Digit) (j k i : Nat) (h : i < k - j) (hk : k ≤ a.size) :
     (a.extract j k).getD i 0 = a.getD (j+i) 0 := by
-  have h1 : i < (a.extract j k).size := by simp; omega
   have h2 : j + i < a.size := by omega
   simp [h2, Nat.min_eq_left hk, h]
 
 theorem denote_extract_zero (a : Array Digit) (j : Nat) : denote (a.extract j j) = 0 := by
   rw [denote]
-  have : (a.extract j j).size = 0 := by simp; omega
+  have : (a.extract j j).size = 0 := by grind
   rw [this]; rfl
 
 /-- Reading a slice out of the middle: `a`'s low digits plus the slice, shifted. -/
@@ -2538,10 +2463,10 @@ theorem denoteN_extract (a : Array Digit) {j : Nat} :
       rw [denote_extract_zero]
       omega
     · have hjk' : j ≤ k := by omega
-      have hsz : (a.extract j (k+1)).size = k + 1 - j := by simp; omega
+      have hsz : (a.extract j (k+1)).size = k + 1 - j := by grind
       have hpush : denote (a.extract j (k+1))
           = denote (a.extract j k) + (a.getD k 0).toNat * base ^ (k - j) := by
-        have hsz' : (a.extract j k).size = k - j := by simp; omega
+        have hsz' : (a.extract j k).size = k - j := by grind
         have hagree : ∀ i, i < k - j →
             (a.extract j (k+1)).getD i 0 = (a.extract j k).getD i 0 := by
           intro i hi
@@ -2552,7 +2477,7 @@ theorem denoteN_extract (a : Array Digit) {j : Nat} :
           congr 1; omega
         rw [denote, hsz, show k + 1 - j = (k - j) + 1 by omega, denoteN,
           denoteN_congr hagree, hlast, denote, hsz']
-      rw [denoteN, ih hjk' (by omega), hpush, Nat.add_mul, Nat.mul_assoc, ← Nat.pow_add,
+      rw [denoteN, hpush, Nat.add_mul, Nat.mul_assoc, ← Nat.pow_add,
         show k - j + j = k by omega]
       omega
 
@@ -2562,7 +2487,7 @@ theorem size_copyInto (dst src : Array Digit) (j len : Nat) :
     (copyInto dst src j len).size = dst.size := by
   induction len with
   | zero => rfl
-  | succ len ih => rw [copyInto_succ, Array.size_set!, ih]
+  | succ len ih => rw [copyInto_succ, size_set!, ih]
 
 theorem getD_copyInto_of_lt (dst src : Array Digit) (j len i : Nat) (h : i < j) :
     (copyInto dst src j len).getD i 0 = dst.getD i 0 := by
@@ -2586,7 +2511,7 @@ theorem denoteN_copyInto (dst src : Array Digit) (j : Nat) :
     intro h
     have hsz : (copyInto dst src j len).size = dst.size := size_copyInto ..
     rw [show j + (len+1) = (j + len) + 1 by omega, copyInto_succ,
-      denoteN_set!_succ _ _ _ (by rw [hsz]; omega), ih (by omega), denoteN,
+      denoteN_set!_succ _ _ _ (by rw [hsz]; omega), denoteN,
       Nat.add_mul, Nat.mul_assoc, ← Nat.pow_add, show len + j = j + len by omega]
     omega
 
@@ -2595,7 +2520,7 @@ theorem getD_copyInto_mid (dst src : Array Digit) (j : Nat) :
       (copyInto dst src j len).getD i 0 = src.getD (i - j) 0 := by
   intro len
   induction len with
-  | zero => intro i _ h _; omega
+  | zero => omega
   | succ len ih =>
     intro i h1 h2 h3
     rcases Nat.lt_or_ge i (j + len) with h | h
@@ -2604,16 +2529,14 @@ theorem getD_copyInto_mid (dst src : Array Digit) (j : Nat) :
     · have hi : i = j + len := by omega
       subst hi
       rw [copyInto_succ, getD_set!_eq _ _ _ (by rw [size_copyInto]; omega)]
-      congr 1
-      omega
+      simp
 
 /-- After a copy, the window at `j` reads back exactly the digits that were written. -/
 theorem denote_extract_copyInto (dst src : Array Digit) (j len : Nat)
     (hsz : j + len ≤ dst.size) :
     denote ((copyInto dst src j len).extract j (j + len)) = denoteN src len := by
   have hcsz : (copyInto dst src j len).size = dst.size := size_copyInto ..
-  have hesz : ((copyInto dst src j len).extract j (j + len)).size = len := by
-    simp [hcsz]; omega
+  have hesz : ((copyInto dst src j len).extract j (j + len)).size = len := by grind
   have hagree : ∀ i, i < len →
       ((copyInto dst src j len).extract j (j + len)).getD i 0 = src.getD i 0 := by
     intro i hi
@@ -2656,7 +2579,7 @@ private theorem denoteN_add_high (a : Array Digit) (m : Nat) :
     · exact ⟨0, by rw [← h']; simp⟩
     · obtain ⟨K, hK⟩ := ih (by omega)
       refine ⟨K + (a.getD n 0).toNat * base ^ (n - m), ?_⟩
-      rw [denoteN, hK, Nat.add_mul, Nat.mul_assoc, ← Nat.pow_add,
+      rw [denoteN, Nat.add_mul, Nat.mul_assoc, ← Nat.pow_add,
         show n - m + m = n by omega]
       omega
 
@@ -2688,8 +2611,7 @@ theorem divNTrial_spec (denom u : Array Digit) (j k : Nat)
     (hW : denote (u.extract j (j+k+3)) < denote denom * base) :
     denote (u.extract j (j+k+3)) / denote denom ≤ (divNTrial denom u (norm_top_ne_zero hk hnorm) j).toNat ∧
     (divNTrial denom u (norm_top_ne_zero hk hnorm) j).toNat ≤ denote (u.extract j (j+k+3)) / denote denom + 1 := by
-  have hvtop1 : 1 ≤ (denom.getD (k+1) 0).toNat := by simp only [base_eq] at hnorm; omega
-  have hpk : 0 < base ^ k := Nat.pow_pos (by simp [base_eq])
+  have hvtop1 : 1 ≤ (denom.getD (k+1) 0).toNat := by grind
   have hpk1 : 0 < base ^ (k+1) := Nat.pow_pos (by simp [base_eq])
   -- the divisor, split at its top two digits
   have hV : denote denom
@@ -2697,7 +2619,7 @@ theorem divNTrial_spec (denom u : Array Digit) (j k : Nat)
     rw [denote, hk]; exact denoteN_split_two denom k
   have hvrest : denoteN denom k < base ^ k := denoteN_lt denom k
   -- the window, split in the shape step D3 reads it
-  have hWsz : (u.extract j (j+k+3)).size = k + 3 := by simp; omega
+  have hWsz : (u.extract j (j+k+3)).size = k + 3 := by grind
   have hwin : ∀ i, i < k + 3 → (u.extract j (j+k+3)).getD i 0 = u.getD (j+i) 0 :=
     fun i hi => getD_extract u j (j+k+3) i (by omega) (by omega)
   have hU : denote (u.extract j (j+k+3))
@@ -2739,11 +2661,11 @@ theorem divNTrial_spec (denom u : Array Digit) (j k : Nat)
       have h1 : (denom.getD k 0).toNat * base ^ k ≤ (base - 1) * base ^ k :=
         Nat.mul_le_mul_right _ (by simp only [base_eq] at hd2 ⊢; omega)
       have h2 : (base - 1) * base ^ k + base ^ k = base ^ (k+1) := by
-        rw [Nat.pow_succ]; simp only [base_eq]; grind
+        simp [ base]; omega
       omega
     have h3 : ((denom.getD (k+1) 0).toNat + 1) * base ^ (k+1)
         = (denom.getD (k+1) 0).toNat * base * base ^ k + base ^ (k+1) := by
-      rw [Nat.pow_succ, Nat.add_mul, Nat.one_mul]; grind
+      grind
     rw [hV, Nat.add_mul]
     omega
   have hu2bound : (u.getD (j+k+2) 0).toNat * base + (u.getD (j+k+1) 0).toNat
@@ -2768,13 +2690,13 @@ theorem divNTrial_spec (denom u : Array Digit) (j k : Nat)
           + denoteN denom k
           = (denom.getD (k+1) 0).toNat * base ^ (k+1)
             + ((denom.getD k 0).toNat * base ^ k + denoteN denom k) := by
-        rw [Nat.pow_succ]; grind
+        grind
       have h2 : (denom.getD k 0).toNat * base ^ k + denoteN denom k < base ^ (k+1) := by
         have hd2 : (denom.getD k 0).toNat < base := (denom.getD k 0).toNat_lt_size
         have ha : (denom.getD k 0).toNat * base ^ k ≤ (base - 1) * base ^ k :=
           Nat.mul_le_mul_right _ (by simp only [base_eq] at hd2 ⊢; omega)
         have hb : (base - 1) * base ^ k + base ^ k = base ^ (k+1) := by
-          rw [Nat.pow_succ]; simp only [base_eq]; grind
+          simp [ base]; omega
         omega
       rw [h1, Nat.mul_comm, Nat.mul_add_div hpk1, Nat.div_eq_of_lt h2, Nat.add_zero]
     have hUd : denote (u.extract j (j+k+3)) / base ^ (k+1)
@@ -2786,7 +2708,7 @@ theorem divNTrial_spec (denom u : Array Digit) (j k : Nat)
         have ha : (u.getD (j+k) 0).toNat * base ^ k ≤ (base - 1) * base ^ k :=
           Nat.mul_le_mul_right _ (by simp only [base_eq] at hd3 ⊢; omega)
         have hb : (base - 1) * base ^ k + base ^ k = base ^ (k+1) := by
-          rw [Nat.pow_succ]; simp only [base_eq]; grind
+          simp [Nat.pow_succ, base]; grind
         omega
       rw [Nat.add_assoc, Nat.mul_comm, Nat.mul_add_div hpk1, Nat.div_eq_of_lt h2, Nat.add_zero]
     have := KnuthD.le_qhat (u := denote (u.extract j (j+k+3))) (v := denote denom)
@@ -2804,10 +2726,7 @@ theorem divNTrial_spec (denom u : Array Digit) (j k : Nat)
             / (denom.getD (k+1) 0).toUInt64)
           ((((u.getD (j+k+2) 0).toUInt64 <<< 32) ||| (u.getD (j+k+1) 0).toUInt64)
             % (denom.getD (k+1) 0).toUInt64)).1 := by
-    have hnz : (denom.getD (k+1) 0).toUInt64 ≠ 0 :=
-      toUInt64_ne_zero (by simp only [base_eq] at hnorm; omega)
-    simp only [divNTrial, hk, show k + 2 - 1 = k + 1 from rfl, show k + 2 - 2 = k from rfl,
-      CPP.divD_eq, CPP.modD_eq]
+    simp only [divNTrial, hk]
     rfl
   rw [hdt, lo_of_lt _ hqlt]
   exact ⟨hq1, hq2⟩
@@ -2815,9 +2734,9 @@ theorem divNTrial_spec (denom u : Array Digit) (j k : Nat)
 
 
 private theorem toNat_pred32 {q : Digit} (h : 0 < q.toNat) : (q - 1).toNat = q.toNat - 1 := by
-  grind
+  have := q.toNat_lt_size
+  simp [UInt32.toNat_sub, UInt32.size] at *; omega
 
-set_option maxHeartbeats 1000000 in
 private theorem sub_eq_subLoop (a b : Array Digit) (len : Nat)
     (ha : a.size = len) (hb : b.size = len) : sub a b = subLoop a b len := by
   rw [sub, ha, hb, Nat.max_self]
@@ -2868,9 +2787,6 @@ theorem divNStep_spec (denom u quot : Array Digit) (j k m : Nat)
       = denote quot * denote denom + denote u := by
   have hjs : j + denom.size + 1 = j + k + 3 := by omega
   have hsz3 : j + k + 3 ≤ u.size := by omega
-  have hvtop1 : 1 ≤ (denom.getD (k+1) 0).toNat := by simp only [base_eq] at hnorm; omega
-  have hpj : 0 < base ^ j := Nat.pow_pos (by simp [base_eq])
-  have hpk : 0 < base ^ k := Nat.pow_pos (by simp [base_eq])
   have hVlt : denote denom < base ^ (k+2) := by
     have h := denoteN_lt denom denom.size
     rw [← denote, hk] at h; exact h
@@ -2881,7 +2797,7 @@ theorem divNStep_spec (denom u quot : Array Digit) (j k m : Nat)
     rw [denote_of_high_zero u (n := j+k+3) (by omega) (fun i hi => hhigh i (by omega))]
     exact denoteN_extract u (j+k+3) (by omega) (by omega)
   have hW : denote (u.extract j (j+k+3)) < denote denom * base := by
-    have h1 : denote (u.extract j (j+k+3)) * base ^ j ≤ denote u := by rw [hwin_eq]; omega
+    have h1 : denote (u.extract j (j+k+3)) * base ^ j ≤ denote u := by omega
     have h2 : denote denom * base ^ (j+1) = denote denom * base * base ^ j := by
       grind
     exact Nat.lt_of_mul_lt_mul_right (Nat.lt_of_le_of_lt h1 (h2 ▸ hbound))
@@ -2908,8 +2824,6 @@ theorem divNStep_spec (denom u quot : Array Digit) (j k m : Nat)
   have hmssz : ms.size = 1 + denom.size := by rw [hms]; exact size_mul ..
   have hmsval : denote ms = q.toNat * denote denom := by
     rw [hms, denote_mul, denote_singleton]
-  have hextsz : (u.extract j (j + denom.size + 1)).size = denom.size + 1 := by
-    grind
   have hmax : max (u.extract j (j + denom.size + 1)).size ms.size = denom.size + 1 := by
     grind
   have hdwsz : dw.1.size = denom.size + 1 := by rw [hdw, size_sub, hmax]
@@ -2949,7 +2863,7 @@ theorem divNStep_spec (denom u quot : Array Digit) (j k m : Nat)
     intro u' qd hsz' hlow' hhigh' hwin' hqd
     have hmodlt : denote (u.extract j (j+k+3)) % denote denom < denote denom :=
       Nat.mod_lt _ hVpos
-    have hu'sz0 : j + denom.size + 1 ≤ u'.size := by rw [hsz', husz]; omega
+    have hu'sz0 : j + denom.size + 1 ≤ u'.size := by rw [hsz']; omega
     have hextsz' : (u'.extract j (j + denom.size + 1)).size = denom.size + 1 := by
       grind
     -- the window's top digit has become zero
@@ -2968,13 +2882,13 @@ theorem divNStep_spec (denom u quot : Array Digit) (j k m : Nat)
         have hmul : base ^ (k+2) ≤ (u'.getD (j + denom.size) 0).toNat * base ^ (k+2) :=
           Nat.le_mul_of_pos_left _ h
         have hge : base ^ (k+2) ≤ denote (u'.extract j (j + denom.size + 1)) := by
-          rw [hsplit]; omega
+          omega
         rw [hwin'] at hge
         omega
     have hzero : ∀ i, j + denom.size ≤ i → u'.getD i 0 = 0 := by
       grind
     have hden' : denote u' = denoteN u j + (denote (u.extract j (j+k+3)) % denote denom) * base ^ j := by
-      have hu'sz : j + denom.size + 1 ≤ u'.size := by rw [hsz', husz]; omega
+      have hu'sz : j + denom.size + 1 ≤ u'.size := by rw [hsz']; omega
       rw [denote_of_high_zero u' (n := j + denom.size + 1) hu'sz
           (fun i hi => hzero i (by omega)),
         denoteN_extract (j := j) u' (j + denom.size + 1) (by omega) hu'sz, hwin',
@@ -2993,7 +2907,6 @@ theorem divNStep_spec (denom u quot : Array Digit) (j k m : Nat)
       grind
   rw [hstep]
   have hdm := Nat.div_add_mod' (denote (u.extract j (j+k+3))) (denote denom)
-  have hmodlt : denote (u.extract j (j+k+3)) % denote denom < denote denom := Nat.mod_lt _ hVpos
   by_cases hb : (dw.2 != 0) = true
   · -- step D6 fired: the estimate was one too high, so add the divisor back
     simp only [hb, ite_true]
@@ -3012,7 +2925,7 @@ theorem divNStep_spec (denom u quot : Array Digit) (j k m : Nat)
       toNat_pred32 (by rw [hqeq]; exact Nat.succ_pos _)
     have hqV : q.toNat * denote denom
         = denote (u.extract j (j+k+3)) / denote denom * denote denom + denote denom := by
-      rw [hqeq]; grind
+      grind
     have habv : denote (add denom (u1.extract j (j + denom.size + 1)))
         = denote (u.extract j (j+k+3)) % denote denom + base ^ (denom.size + 1) := by
       rw [denote_add, hu1win]
@@ -3067,8 +2980,7 @@ theorem divNLoop_spec (denom : Array Digit) (k m : Nat)
   | zero =>
     intro u quot _ husz hqsz _ _ hbound
     refine ⟨husz, hqsz, ?_, rfl⟩
-    show denote u < denote denom
-    simpa using hbound
+    simpa [divNLoop] using hbound
   | succ p ih =>
     intro u quot hp husz hqsz hhigh hqz hbound
     obtain ⟨h1, h2, h3, h4, h5, h6⟩ := divNStep_spec denom u quot p k m hk hnorm husz hqsz
@@ -3110,7 +3022,7 @@ private theorem div_mod_of_eq {q V r N : Nat} (hV : 0 < V) (heq : q * V + r = N)
 theorem denote_lt_of_top_lt (a b : Array Digit) (hs : a.size = b.size) (hpos : 0 < a.size)
     (h : (a.getD (a.size - 1) 0).toNat < (b.getD (b.size - 1) 0).toNat) : denote a < denote b := by
   obtain ⟨t, ht⟩ : ∃ t, a.size = t + 1 := ⟨a.size - 1, by omega⟩
-  have hbt : b.size = t + 1 := by rw [← hs, ht]
+  have hbt : b.size = t + 1 := by omega
   have hta : a.size - 1 = t := by omega
   have htb : b.size - 1 = t := by omega
   rw [hta, htb] at h
@@ -3119,9 +3031,7 @@ theorem denote_lt_of_top_lt (a b : Array Digit) (hs : a.size = b.size) (hpos : 0
   have h1 : denoteN a t < base ^ t := denoteN_lt a t
   have h3 : ((a.getD t 0).toNat + 1) * base ^ t ≤ (b.getD t 0).toNat * base ^ t :=
     Nat.mul_le_mul_right _ (by omega)
-  have h4 : ((a.getD t 0).toNat + 1) * base ^ t = (a.getD t 0).toNat * base ^ t + base ^ t := by
-    rw [Nat.add_mul, Nat.one_mul]
-  omega
+  grind
 
 theorem denote_range_map (a : Array Digit) (n : Nat) (h : a.size = n) :
     denote ((Array.range n).map fun i => a.getD i 0) = denote a := by
@@ -3145,7 +3055,6 @@ private theorem div_mod_scaled (N D t : Nat) (ht : 0 < t) :
     (N * t) / (D * t) = N / D ∧ (N * t) % (D * t) = (N % D) * t :=
   ⟨Nat.mul_div_mul_right _ _ ht, Nat.mul_mod_mul_right ..⟩
 
-set_option maxHeartbeats 1000000 in
 /--
 `mpn_div` divides: what it returns are the quotient and remainder of the
 operands. The preconditions are the ones every in-tree caller satisfies, since
@@ -3175,12 +3084,6 @@ theorem div_spec (numer denom : Array Digit)
     simp only [Bool.and_eq_true, decide_eq_true_eq] at hB
     have hN : denote numer = (numer.getD 0 0).toNat := by rw [denote, hB.1]; simp [denoteN]
     have hD : denote denom = (denom.getD 0 0).toNat := by rw [denote, hB.2]; simp [denoteN]
-    have hnz : denom.getD 0 0 ≠ 0 := by
-      have hz : denom.size - 1 = 0 := by omega
-      rw [hz] at htop
-      intro h0
-      rw [h0] at htop
-      simp at htop
     simp only [CPP.div_eq, CPP.mod_eq]
     exact ⟨by rw [denote_singleton, UInt32.toNat_div, hN, hD],
       by rw [denote_singleton, UInt32.toNat_mod, hN, hD]⟩
@@ -3210,20 +3113,18 @@ theorem div_spec (numer denom : Array Digit)
       have hdle : (2:Nat) ^ dd.val ≤ 2147483648 := by
         simp only [digitBits_eq] at hd32
         calc (2:Nat) ^ dd.val ≤ 2 ^ 31 := Nat.pow_le_pow_right (by omega) (by omega)
-          _ = 2147483648 := by rfl
+          _ = 2147483648 := rfl
       have hVpos' : 0 < denote v := by rw [hvval]; exact Nat.mul_pos hVpos h2d
       have hNlt : denote numer < base ^ numer.size := denoteN_lt numer numer.size
       -- the divisor's leading digit, and what it forces about `u`'s
       have hvsplit : denote v = denoteN v (denom.size - 1)
           + (v.getD (denom.size - 1) 0).toNat * base ^ (denom.size - 1) := by
         obtain ⟨t, ht⟩ : ∃ t, denom.size = t + 1 := ⟨denom.size - 1, by omega⟩
-        have ht1 : denom.size - 1 = t := by omega
-        rw [ht1, denote, hvsz, ht]; rfl
+        rw [denote, hvsz, ht]; rfl
       have husplit : denote u = denoteN u numer.size
           + (u.getD numer.size 0).toNat * base ^ numer.size := by
         rw [denote, husz]; rfl
       have hutop : (u.getD numer.size 0).toNat < 2 ^ dd.val := by
-        have h1 : denoteN u numer.size < base ^ numer.size := denoteN_lt u numer.size
         have h2 : denote u < 2 ^ dd.val * base ^ numer.size := by
           rw [huval, Nat.mul_comm]
           exact (Nat.mul_lt_mul_left h2d).mpr hNlt
@@ -3242,7 +3143,7 @@ theorem div_spec (numer denom : Array Digit)
             rw [hvi, show (0 : Nat) = denom.size - 1 from by omega]; exact hvnorm
           have hvd : 0 < (v.getD (v.size - 1) 0).toNat := by omega
           have hvdD : denote v = (v.getD (v.size - 1) 0).toNat := by
-            rw [hvi, denote, hvsz, h1]; simp [denoteN]
+            simp [denote, hvsz, h1, denoteN]
           obtain ⟨g1, g2, g3⟩ := div1_spec u (v.getD (v.size - 1) 0) hvd (by omega)
             (by have hh : u.size - 1 = numer.size := by omega
                 rw [hh]; omega)
@@ -3252,10 +3153,9 @@ theorem div_spec (numer denom : Array Digit)
           obtain ⟨e1, e2⟩ := div_mod_of_eq (V := (v.getD (v.size - 1) 0).toNat) hvd g3 g1
           rw [← hvdD] at e1 e2
           refine ⟨by rw [g2, husz, h1]; omega, e1, ?_⟩
-          rw [h1, denoteN, denoteN, ← e2]; simp
+          simp [h1, denoteN, denoteN, ← e2]
         · rw [show (if denom.size = 1 then div1 u (v.getD (v.size - 1) 0) hnzv else divN u v hnzv)
               = divN u v hnzv from by simp [h1]] at hres
-          have hk : denom.size = (denom.size - 2) + 2 := by omega
           have hvk : v.size = (denom.size - 2) + 2 := by rw [hvsz]; omega
           have hidx : denom.size - 2 + 1 = denom.size - 1 := by omega
           have hnorm2 : base ≤ 2 * (v.getD (denom.size - 2 + 1) 0).toNat := by
@@ -3269,7 +3169,7 @@ theorem div_spec (numer denom : Array Digit)
                 ≥ 2147483648 * base ^ (denom.size - 1) * base ^ (u.size - v.size) :=
               Nat.mul_le_mul_right _ hb2
             have hb4 : base ^ (denom.size - 1) * base ^ (u.size - v.size) = base ^ numer.size := by
-              rw [← Nat.pow_add]; congr 1; rw [husz, hvsz]; omega
+              rw [← Nat.pow_add]; congr 1; omega
             have hb5 : denote u < 2147483648 * base ^ numer.size := by
               rw [huval]
               calc denote numer * 2 ^ dd.val ≤ denote numer * 2147483648 :=
@@ -3325,7 +3225,7 @@ private theorem denoteN_lt_of_digit_lt (a b : Array Digit) (n : Nat)
   have h2 : ((a.getD n 0).toNat + 1) * base ^ n ≤ (b.getD n 0).toNat * base ^ n :=
     Nat.mul_le_mul_right _ (by omega)
   have h3 : ((a.getD n 0).toNat + 1) * base ^ n
-      = (a.getD n 0).toNat * base ^ n + base ^ n := by rw [Nat.add_mul, Nat.one_mul]
+      = (a.getD n 0).toNat * base ^ n + base ^ n := by grind
   have h4 : (b.getD n 0).toNat * base ^ n ≤ denoteN b (n+1) := by rw [denoteN]; omega
   rw [denoteN]
   omega
@@ -3337,10 +3237,8 @@ theorem compareLoop_spec (a b : Array Digit) (n : Nat) :
   induction n with
   | zero => simp [compareLoop, denoteN]
   | succ n ih =>
-    have hgt : (a.getD n 0 > b.getD n 0) = ((b.getD n 0).toNat < (a.getD n 0).toNat) := by
-      simp [UInt32.lt_iff_toNat_lt]
-    have hlt : (a.getD n 0 < b.getD n 0) = ((a.getD n 0).toNat < (b.getD n 0).toNat) := by
-      simp [UInt32.lt_iff_toNat_lt]
+    have hgt : (a.getD n 0 > b.getD n 0) = ((b.getD n 0).toNat < (a.getD n 0).toNat) := rfl
+    have hlt : (a.getD n 0 < b.getD n 0) = ((a.getD n 0).toNat < (b.getD n 0).toNat) := rfl
     rw [compareLoop]
     simp only [hgt, hlt]
     rcases Nat.lt_trichotomy (a.getD n 0).toNat (b.getD n 0).toNat with h | h | h
@@ -3348,13 +3246,11 @@ theorem compareLoop_spec (a b : Array Digit) (n : Nat) :
       simp only [show ((b.getD n 0).toNat < (a.getD n 0).toNat) = False from eq_false (by omega),
         show ((a.getD n 0).toNat < (b.getD n 0).toNat) = True from eq_true h,
         show (denoteN b (n+1) < denoteN a (n+1)) = False from eq_false (by omega),
-        show (denoteN a (n+1) < denoteN b (n+1)) = True from eq_true hd, ite_true, ite_false]
+        show (denoteN a (n+1) < denoteN b (n+1)) = True from eq_true hd, ite_true]
     · have hdeq : a.getD n 0 = b.getD n 0 := UInt32.toNat_inj.mp h
-      simp only [ih, denoteN, hdeq]
-      simp
+      simp [ih, denoteN, hdeq]
     · have hd := denoteN_lt_of_digit_lt b a n h
-      simp only [show ((b.getD n 0).toNat < (a.getD n 0).toNat) = True from eq_true h,
-        show (denoteN b (n+1) < denoteN a (n+1)) = True from eq_true hd, ite_true]
+      omega
 
 /-- `mpn_compare` reports the order of its operands. -/
 theorem compare_spec (a b : Array Digit) :
@@ -3392,7 +3288,7 @@ def Num.val (a : Num) : Nat := denote a.digits
 theorem size_trim_pos (c : Array Digit) (h : 0 < c.size) : 0 < (trim c).size := by
   unfold trim
   split <;> rename_i hc
-  · simp only [Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq] at hc
+  · simp only [Bool.and_eq_true, decide_eq_true_eq] at hc
     exact size_trim_pos c.pop (by simp; omega)
   · exact h
 termination_by c.size
@@ -3402,7 +3298,7 @@ theorem trim_top_ne_zero (c : Array Digit) :
     1 < (trim c).size → ((trim c).getD ((trim c).size - 1) 0).toNat ≠ 0 := by
   unfold trim
   split <;> rename_i hc
-  · simp only [Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq] at hc
+  · simp only [Bool.and_eq_true] at hc
     exact trim_top_ne_zero c.pop
   · intro hgt he
     simp only [Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq, not_and] at hc
@@ -3434,8 +3330,7 @@ theorem Num.pow_le_val (a : Num) (h : 1 < a.digits.size) :
     rwa [show a.digits.size - 1 = t from by omega] at this
   have h1 : 1 * base ^ t ≤ (a.digits.getD t 0).toNat * base ^ t :=
     Nat.mul_le_mul_right _ (by omega)
-  rw [show a.digits.size - 1 = t from by omega]
-  omega
+  grind
 
 theorem Num.val_lt (a : Num) : a.val < base ^ a.digits.size := denoteN_lt a.digits a.digits.size
 
@@ -3462,21 +3357,17 @@ theorem Num.top_pos (a : Num) (h : a.val ≠ 0) :
   · have := a.top_ne_zero h1; omega
   · have hsz : a.digits.size = 1 := by have := a.size_pos; omega
     have : a.val = (a.digits.getD 0 0).toNat := by rw [Num.val, denote, hsz]; simp [denoteN]
-    rw [hsz]
-    simp only [Nat.sub_self]
-    omega
+    grind
 theorem size_add_pos (a b : Array Digit) : 0 < (Mpn.add a b).size := by
-  rw [add]; exact size_trim_pos _ (by simp)
+  exact size_trim_pos _ (by simp)
 
 theorem size_div_quot (numer denom : Array Digit) (hden : 0 < denom.size)
     (hsz : denom.size ≤ numer.size)
     (htop : 0 < (denom.getD (denom.size - 1) 0).toNat) :
     (div numer denom hden hsz htop).1.size = numer.size - denom.size + 1 := by
-  rw [div]
-  simp only [show ¬ (numer.size < denom.size) from by omega, dite_false]
+  simp [div, show ¬ (numer.size < denom.size) from by omega]
   split <;> rename_i hB
-  · simp only [Bool.and_eq_true, decide_eq_true_eq] at hB
-    simp [hB.1, hB.2]
+  · grind
   · split <;> rename_i hC
     · simp
     · simp [size_copyInto]
@@ -3485,11 +3376,9 @@ theorem size_div_rem (numer denom : Array Digit) (hden : 0 < denom.size)
     (hsz : denom.size ≤ numer.size)
     (htop : 0 < (denom.getD (denom.size - 1) 0).toNat) :
     (div numer denom hden hsz htop).2.size = denom.size := by
-  rw [div]
-  simp only [show ¬ (numer.size < denom.size) from by omega, dite_false]
+  simp [div, show ¬ (numer.size < denom.size) from by omega]
   split <;> rename_i hB
-  · simp only [Bool.and_eq_true, decide_eq_true_eq] at hB
-    simp [hB.2]
+  · grind
   · split <;> rename_i hC
     · simp
     · simp [divUnnormalize, size_shiftRightDigits]
@@ -3598,24 +3487,13 @@ def Num.sub (a b : Num) : Num :=
   rw [Num.sub]
   split <;> rename_i h
   · -- the guard says the difference would be negative, so the result is zero
-    have hle : a.val ≤ b.val := by
-      rcases Nat.lt_or_ge b.val a.val with hlt | hle
-      · exfalso
-        have h1 : Mpn.compare a.digits b.digits = 1 := by rw [hc]; simp [hlt]
-        omega
-      · exact hle
     show denote #[0] = _
     rw [denote_singleton, show ((0 : Digit)).toNat = 0 from rfl]
     omega
   · have hlt : b.val < a.val := by
       rcases Nat.lt_or_ge b.val a.val with hlt | hle
       · exact hlt
-      · exfalso
-        refine h ?_
-        rw [hc]
-        rcases Nat.lt_or_ge a.val b.val with h2 | h2
-        · simp [Nat.not_lt.mpr hle, h2]
-        · simp [Nat.not_lt.mpr hle, Nat.not_lt.mpr h2]
+      · omega
     -- with `b` below `a` the subtraction cannot borrow out of the top digit
     have hd := denote_sub a.digits b.digits
     have hlen : (Mpn.sub a.digits b.digits).1.size = max a.digits.size b.digits.size := size_sub ..
@@ -3631,7 +3509,7 @@ def Num.sub (a b : Num) : Num :=
             ≤ (Mpn.sub a.digits b.digits).2.toNat * base ^ (max a.digits.size b.digits.size) :=
           Nat.le_mul_of_pos_left _ h0
         omega
-    rw [hb0, Nat.zero_mul, Nat.add_zero] at hd
+    rw [hb0] at hd
     rw [Num.val_ofArray]
     simp only [Num.val]
     omega
@@ -3677,8 +3555,7 @@ theorem Num.val_div (a b : Num) (hb : b.val ≠ 0) : (a.div b hb).val = a.val / 
       rcases Nat.lt_or_ge a.val b.val with h2 | h2
       · exact h2
       · exact absurd (Num.size_le_of_val_le b a h2) (by omega)
-    show denote #[0] = _
-    rw [denote_singleton, Nat.div_eq_of_lt hlt]
+    rw [Nat.div_eq_of_lt hlt]
     rfl
   · rw [Num.val_ofArray]
     exact (div_spec a.digits b.digits b.size_pos (by omega) (b.top_pos hb)).1
@@ -3841,8 +3718,7 @@ theorem denote_zeros_append (b : Array Digit) (w : Nat) :
 
 theorem Num.val_isZero (a : Num) (h : a.isZero) : a.val = 0 := by
   simp only [Num.isZero, Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq] at h
-  rw [Num.val, denote, h.1]
-  simp [denoteN, h.2]
+  simp [Num.val, denote, h.1, denoteN, h.2]
 
 /-- `mul2k` shifts left: it multiplies by `2^k`. -/
 theorem Num.val_shiftLeft (a : Num) (k : Nat) : (a.shiftLeft k).val = a.val * 2 ^ k := by
@@ -3850,9 +3726,9 @@ theorem Num.val_shiftLeft (a : Num) (k : Nat) : (a.shiftLeft k).val = a.val * 2 
   split <;> rename_i h
   · simp only [Bool.or_eq_true, decide_eq_true_eq] at h
     rcases h with h | h
-    · rw [h]; simp
-    · rw [Num.val_isZero a h]; simp
-  · simp only [Bool.or_eq_true, decide_eq_true_eq, not_or] at h
+    · simp [h]
+    · simp [Num.val_isZero a h]
+  · simp only [Bool.or_eq_true, decide_eq_true_eq] at h
     have hbit : k % digitBits < digitBits := Nat.mod_lt _ (by simp [digitBits_eq])
     have hpad : denote ((Array.replicate (k / digitBits) (0 : Digit)) ++ a.digits)
         = a.val * base ^ (k / digitBits) := denote_zeros_append a.digits _
@@ -3865,7 +3741,7 @@ theorem Num.val_shiftLeft (a : Num) (k : Nat) : (a.shiftLeft k).val = a.val * 2 
           _ = base := rfl
       calc denote ((Array.replicate (k / digitBits) (0 : Digit)) ++ a.digits)
             * 2 ^ (k % digitBits)
-          = a.val * base ^ (k / digitBits) * 2 ^ (k % digitBits) := by rw [hpad]
+          = a.val * base ^ (k / digitBits) * 2 ^ (k % digitBits) := by grind
         _ < base ^ a.digits.size * base ^ (k / digitBits) * 2 ^ (k % digitBits) := by
             refine (Nat.mul_lt_mul_right (Nat.two_pow_pos _)).mpr ?_
             exact (Nat.mul_lt_mul_right (Nat.pow_pos (by simp [base_eq]))).mpr h1
@@ -3889,12 +3765,10 @@ theorem Num.val_shiftRight (a : Num) (k : Nat) : (a.shiftRight k).val = a.val / 
   split <;> rename_i h
   · simp only [Bool.or_eq_true, decide_eq_true_eq] at h
     rcases h with h | h
-    · rw [h]; simp
-    · rw [Num.val_isZero a h]; simp
+    · simp [h]
+    · simp [Num.val_isZero a h]
   · split <;> rename_i h2
     · -- the shift clears every digit
-      show denote #[0] = _
-      rw [denote_singleton, show ((0 : Digit)).toNat = 0 from rfl]
       refine (Nat.div_eq_of_lt ?_).symm
       have h1 : a.val < base ^ a.digits.size := a.val_lt
       have h3 : base ^ a.digits.size ≤ 2 ^ k := by
@@ -3907,7 +3781,6 @@ theorem Num.val_shiftRight (a : Num) (k : Nat) : (a.shiftRight k).val = a.val / 
           = a.digits.size - k / digitBits := by simp
       have hsplit : a.val = denoteN a.digits (k / digitBits)
           + denote (a.digits.extract (k / digitBits) a.digits.size) * base ^ (k / digitBits) := by
-        rw [Num.val, denote]
         exact denoteN_extract (j := k / digitBits) a.digits a.digits.size hw (Nat.le_refl _)
       have hlow : denoteN a.digits (k / digitBits) < base ^ (k / digitBits) :=
         denoteN_lt a.digits _
@@ -3985,7 +3858,7 @@ private theorem getD_bitwiseDigits (f : Digit → Digit → Digit) (hf : f 0 0 =
     (a b : Array Digit) (i : Nat) :
     (bitwiseDigits f a b).getD i 0 = f (a.getD i 0) (b.getD i 0) := by
   rcases Nat.lt_or_ge i (max a.size b.size) with h | h
-  · rw [bitwiseDigits_eq]; simp [h]
+  · simp [bitwiseDigits_eq, h]
   · rw [getD_of_ge _ (by rw [size_bitwiseDigits]; omega), getD_of_ge a (by omega),
       getD_of_ge b (by omega), hf]
 
@@ -4075,7 +3948,7 @@ private theorem Nat.gcd_step (m n : Nat) : Nat.gcd m n = Nat.gcd n (m % n) := by
 theorem Num.val_gcdLoop (a b : Num) : (a.gcdLoop b).val = Nat.gcd a.val b.val := by
   rw [Num.gcdLoop]
   split <;> rename_i h
-  · rw [h]; simp
+  · simp [h]
   · rw [Num.val_gcdLoop b (a.mod b h), Num.val_mod a b h, ← Nat.gcd_step]
 termination_by b.val
 decreasing_by
@@ -4095,12 +3968,9 @@ def Num.one : Num := ⟨#[1], by simp, by simp⟩
 
 @[simp] theorem Num.val_one : Num.one.val = 1 := denote_singleton 1
 
-private theorem toNat_shiftRight_one (p : Digit) : (p >>> 1).toNat = p.toNat / 2 := by
-  rw [UInt32.toNat_shiftRight, show (1 : Digit).toNat % 32 = 1 from rfl,
-    Nat.shiftRight_eq_div_pow, Nat.pow_one]
+private theorem toNat_shiftRight_one (p : Digit) : (p >>> 1).toNat = p.toNat / 2 := rfl
 
-private theorem toNat_and_one (p : Digit) : (p &&& 1).toNat = p.toNat % 2 := by
-  rw [UInt32.toNat_and, show (1 : Digit).toNat = 1 from rfl, Nat.and_one_is_mod]
+private theorem toNat_and_one (p : Digit) : (p &&& 1).toNat = p.toNat % 2 := by simp
 
 /-- `if (p & 1) result *= power;`, the conditional multiply in `mpz::pow`. -/
 def Num.powMul (power result : Num) (p : Digit) : Num :=
@@ -4145,9 +4015,7 @@ theorem Num.val_powMul (power result : Num) (p : Digit) :
   · have : p.toNat % 2 = 1 := by rw [← toNat_and_one, hb]; rfl
     rw [this, Num.val_mul, Nat.pow_one]
   · have h1 : (p &&& 1).toNat ≠ 1 := fun hx => hb (UInt32.toNat_inj.mp (by rw [hx]; rfl))
-    have h2 := toNat_and_one p
-    have : p.toNat % 2 = 0 := by omega
-    rw [this, Nat.pow_zero, Nat.mul_one]
+    simp_all
 
 theorem Num.val_powLoop (power result : Num) (p : Digit) :
     (Num.powLoop power result p).val = result.val * power.val ^ p.toNat := by
@@ -4162,8 +4030,7 @@ theorem Num.val_powLoop (power result : Num) (p : Digit) :
       rw [this]
     · rw [Num.val_powLoop, Num.val_powMul, toNat_shiftRight_one, Num.val_mul,
         Nat.mul_pow, ← Nat.pow_add, Nat.mul_assoc, ← Nat.pow_add]
-      have : p.toNat % 2 + (p.toNat / 2 + p.toNat / 2) = p.toNat := by omega
-      rw [this]
+      grind
 termination_by p.toNat
 decreasing_by
   rename_i hne _
@@ -4214,13 +4081,9 @@ def unbox (o : UInt64) : Nat := (o >>> 1).toNat
 private theorem two_mul_or_one (n : Nat) : 2 * n ||| 1 = 2 * n + 1 := by
   apply Nat.eq_of_testBit_eq
   intro i
-  rw [Nat.testBit_or]
   cases i with
-  | zero => simp [Nat.testBit_zero, Nat.mul_mod_right]
-  | succ i =>
-    have h1 : (2 * n + 1) / 2 = n := by omega
-    have h2 : (2 * n) / 2 = n := by omega
-    simp [Nat.testBit_succ, h1, h2]
+  | zero => simp [Nat.mul_mod_right]
+  | succ i => grind
 
 /-- `&` on two tagged values combines the payloads and keeps the tag. -/
 private theorem two_mul_add_one_and (m n : Nat) :
@@ -4234,7 +4097,7 @@ private theorem two_mul_add_one_and (m n : Nat) :
     have h1 : (2 * m + 1) / 2 = m := by omega
     have h2 : (2 * n + 1) / 2 = n := by omega
     have h3 : (2 * (m &&& n) + 1) / 2 = m &&& n := by omega
-    simp [Nat.testBit_succ, h1, h2, h3, Nat.testBit_and]
+    simp [Nat.testBit_succ, h1, h2, h3]
 
 /-- `|` on two tagged values, for the same reason. -/
 private theorem two_mul_add_one_or (m n : Nat) :
@@ -4248,7 +4111,7 @@ private theorem two_mul_add_one_or (m n : Nat) :
     have h1 : (2 * m + 1) / 2 = m := by omega
     have h2 : (2 * n + 1) / 2 = n := by omega
     have h3 : (2 * (m ||| n) + 1) / 2 = m ||| n := by omega
-    simp [Nat.testBit_succ, h1, h2, h3, Nat.testBit_or]
+    simp [Nat.testBit_succ, h1, h2, h3]
 
 /-- The number a box holds, before the tag is stripped. -/
 theorem toNat_box (n : Nat) (h : n ≤ maxSmallNat) : (box n).toNat = 2 * n + 1 := by
@@ -4256,10 +4119,10 @@ theorem toNat_box (n : Nat) (h : n ≤ maxSmallNat) : (box n).toNat = 2 * n + 1 
   have hlt : 2 * n < 2 ^ 64 := by simp only [maxSmallNat] at h; omega
   have hofNat : (UInt64.ofNat n).toNat = n := UInt64.toNat_ofNat_of_lt' hn
   have hshift : (UInt64.ofNat n <<< 1).toNat = 2 * n := by
-    rw [UInt64.toNat_shiftLeft, show (1 : UInt64).toNat % 64 = 1 from rfl, hofNat,
-      Nat.shiftLeft_eq, Nat.pow_one, Nat.mul_comm]
+    rw [UInt64.toNat_shiftLeft, hofNat,
+      Nat.shiftLeft_eq, Nat.mul_comm]
     exact Nat.mod_eq_of_lt hlt
-  rw [box, UInt64.toNat_or, hshift, show (1 : UInt64).toNat = 1 from rfl]
+  rw [box, UInt64.toNat_or, hshift]
   exact two_mul_or_one n
 
 /--
@@ -4269,7 +4132,7 @@ the shift would overflow.
 -/
 theorem unbox_box (n : Nat) (h : n ≤ maxSmallNat) : unbox (box n) = n := by
   rw [unbox, UInt64.toNat_shiftRight, show (1 : UInt64).toNat % 64 = 1 from rfl,
-    toNat_box n h, Nat.shiftRight_eq_div_pow, Nat.pow_one]
+    toNat_box n h]
   omega
 
 /--
@@ -4382,7 +4245,7 @@ def Num.ofSizeT (n : Nat) : Num :=
   Num.ofArray! #[UInt32.ofNat (n % base), UInt32.ofNat (n / base)]
 
 @[simp] theorem Num.val_ofSizeT (n : Nat) (h : n < base ^ 2) : (Num.ofSizeT n).val = n := by
-  have hbpos : 0 < base := by simp [base_eq]
+  have hbpos : 0 < base := by grind
   have hlo : (UInt32.ofNat (n % base)).toNat = n % base :=
     UInt32.toNat_ofNat_of_lt' (Nat.mod_lt _ hbpos)
   have hhib : n / base < base := by
@@ -4458,7 +4321,7 @@ theorem natDiv_val (a b : NatObj) : (natDiv a b).val = a.val / b.val := by
       · subst h; simp [NatObj.val]
       · rfl
     | big m₂ h₂ =>
-      simp only [natDiv, NatObj.val]
+      simp only [NatObj.val]
       exact (Nat.div_eq_of_lt (by omega)).symm
   | big m₁ h₁ =>
     cases b with
@@ -4485,10 +4348,7 @@ reach the range an `mpz` object occupies. That is the invariant `mpz_to_nat`
 maintains and the one this type carries.
 -/
 theorem natDiv_small_big (n : Nat) (h : n ≤ maxSmallNat) (m : Num) (hm : maxSmallNat < m.val) :
-    (natDiv (.small n h) (.big m hm)).val = 0 := by
-  rw [natDiv_val]
-  show n / m.val = 0
-  exact Nat.div_eq_of_lt (by omega)
+    (natDiv (.small n h) (.big m hm)).val = 0 := rfl
 
 /-- The `mpz` an object denotes, which is what `lean_nat_big_*` reads. -/
 def NatObj.toNum : NatObj → Num
@@ -4780,8 +4640,8 @@ def natLor : NatObj → NatObj → NatObj
 private theorem compare_le_zero (x y : Num) : (x.compare y ≤ 0) ↔ (x.val ≤ y.val) := by
   rw [Num.compare_spec]
   split <;> rename_i h1
-  · simp; omega
-  · split <;> rename_i h2 <;> simp <;> omega
+  · omega
+  · omega
 
 /--
 `lean_nat_le`, whose scalar path compares the tagged values directly:
@@ -4827,7 +4687,7 @@ theorem box_inj (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
     box m = box n ↔ m = n := by
   constructor
   · intro h; rw [← unbox_box m hm, ← unbox_box n hn, h]
-  · intro h; rw [h]
+  · grind
 
 /--
 `lean_nat_eq`, whose scalar path compares the tagged values directly:
@@ -4854,15 +4714,15 @@ def natBeq : NatObj → NatObj → Bool
     intro x y
     rw [Num.compare_spec]
     split <;> rename_i h1
-    · simp; omega
-    · split <;> rename_i h2 <;> simp <;> omega
+    · grind
+    · grind
   cases a with
   | small n₁ h₁ =>
     cases b with
     | small n₂ h₂ =>
       show (box n₁ == box n₂) = decide (n₁ = n₂)
       by_cases h : n₁ = n₂
-      · subst h; simp
+      · grind
       · have hne : box n₁ ≠ box n₂ := fun hb => h ((box_inj n₁ n₂ h₁ h₂).mp hb)
         simp [hne, h]
     | big m₂ h₂ => exact (decide_eq_false (by omega : ¬ (n₁ = m₂.val))).symm
@@ -4889,7 +4749,7 @@ def natSucc : NatObj → NatObj
 @[simp] theorem natSucc_val (a : NatObj) : (natSucc a).val = a.val + 1 := by
   cases a with
   | small n h => simp only [natSucc]; rw [usizeToNat_val]; rfl
-  | big m _ => simp only [natSucc]; rw [mpzToNatCore_val, Num.val_add, Num.val_one]; rfl
+  | big m _ => simp only [natSucc]; rw [mpzToNatCore_val, Num.val_add]; rfl
 
 /--
 `lean_nat_shiftr`, and `lean_nat_big_shiftr` behind it:
@@ -4966,7 +4826,6 @@ def natShiftRight (a b : NatObj) : NatObj :=
         simp only [maxSmallNat] at h₁
         omega
     | big m₂ h₂ =>
-      show (0 : Nat) = n₁ >>> m₂.val
       refine hzero n₁ m₂.val (hb ?_)
       show base ≤ m₂.val
       simp only [maxSmallNat] at h₂
@@ -4979,11 +4838,10 @@ def natShiftRight (a b : NatObj) : NatObj :=
         = m₁.val >>> n₂
       split <;> rename_i h
       · have hlt : m₁.val < 2 ^ n₂ := hb (by show base ≤ n₂; omega)
-        simp only [show ¬(2 ^ n₂ ≤ m₁.val) from by omega, ite_false]
+        simp only [show ¬(2 ^ n₂ ≤ m₁.val) from by omega]
         exact hzero m₁.val n₂ hlt
       · rw [mpzToNat_val, Num.val_shiftRight, Nat.shiftRight_eq_div_pow]
     | big m₂ h₂ =>
-      show (0 : Nat) = m₁.val >>> m₂.val
       refine hzero m₁.val m₂.val (hb ?_)
       show base ≤ m₂.val
       simp only [maxSmallNat] at h₂

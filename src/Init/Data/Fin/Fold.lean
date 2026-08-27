@@ -24,7 +24,7 @@ nesting to the left.
 Example:
  * `Fin.foldl 3 (· + ·.val) (0 : Nat) = ((0 + (0 : Fin 3).val) + (1 : Fin 3).val) + (2 : Fin 3).val`
 -/
-@[inline, expose] def foldl : (n : Nat) → (α → Fin n → α) → α → α
+@[specialize, expose] def foldl : (n : Nat) → (α → Fin n → α) → α → α
   | 0, _, init => init
   | n+1, f, init => foldl n (fun x i => f x i.succ) (f init 0)
 

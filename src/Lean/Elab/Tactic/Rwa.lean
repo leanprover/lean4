@@ -63,9 +63,12 @@ private def evalRwaCore (ref : Syntax) (rewrite : TacticM α) (replacement : TSy
 private def closeUsingFVar (fvarId : FVarId) : TacticM Unit := withMainContext do
   let mvarId ← getMainGoal
   let fvar := mkFVar fvarId
+  let fvarType ← Meta.inferType fvar
+  let target ← mvarId.getType
   unless ← Meta.withAssignableSyntheticOpaque <|
-      Meta.isDefEq (← Meta.inferType fvar) (← mvarId.getType) do
-    Meta.throwTacticEx `rwa mvarId
+      Meta.isDefEq fvarType target do
+    throwError "Type mismatch: The rewritten hypothesis{indentExpr fvar}\n\
+      {← Meta.mkHasTypeButIsExpectedMsg fvarType target}"
   closeMainGoal `rwa fvar
 
 @[builtin_tactic Lean.Parser.Tactic.rwa]

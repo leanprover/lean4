@@ -112,6 +112,18 @@ example (ha : P a) (hq : q) (h : a = b) : q := by
   fail_if_success rwa [h] at ha
   exact hq
 
+/--
+error: Type mismatch: The rewritten hypothesis
+  ha
+has type
+  P b
+but is expected to have type
+  q
+-/
+#guard_msgs in
+example (ha : P a) (hq : q) (h : a = b) : q := by
+  rwa [h] at ha
+
 example (ha : P a) (hp : p) : P b := by
   rwa [conditionalEq a b p] at ha
 
@@ -126,6 +138,29 @@ example (ha : P a) (h : a = b) : P b ∧ True := by
   trivial
 
 end AtHypothesis
+
+section EquationTheorems
+
+/-!
+Rewriting at a hypothesis with a definition that unfolds via equation theorems exercises the
+retry across equation lemmas in `foldRWRulesSeq`, including threading the rewritten hypothesis
+through to subsequent rules.
+-/
+
+private def shrink : Nat → Nat
+  | 0 => 0
+  | n + 1 => n
+
+-- The first equation theorem does not apply, so rewriting must fall back to the second.
+example {P : Nat → Prop} {n : Nat} (h : P (shrink (n + 1))) : P n := by
+  rwa [shrink] at h
+
+-- The hypothesis produced by the equation-theorem rewrite is rewritten by the next rule and
+-- still closes the goal.
+example {P : Nat → Prop} {n m : Nat} (h : P (shrink (n + 1))) (h' : n = m) : P m := by
+  rwa [shrink, h'] at h
+
+end EquationTheorems
 
 section DeprecatedMultiLocation
 

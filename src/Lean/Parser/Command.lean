@@ -932,7 +932,13 @@ strongly connected component of the block.
 The recursors are axiom-free, with one exception: if a `Prop` member has a
 constructor field that is a *function into* a data member, recursing on it has
 to choose data witnesses pointwise, and the recursors that do so depend on
-`Classical.choice`.
+`Classical.choice`.  That does not cost computability: the choice happens under
+a `Prop`, so it carries no computational content.
+
+The recursors are computable.  The code generator compiles no recursor
+application at all -- `X.rec` no more than `Nat.rec` -- so each `X.mutualRec` is
+given a compiled companion that does the same recursion by cases, and
+definitions built from it both reduce in the kernel and `#eval`.
 
 A block whose members all live at the same universe is emitted natively, so
 `mutual_multiuniverse` accepts everything `mutual` does and means the same

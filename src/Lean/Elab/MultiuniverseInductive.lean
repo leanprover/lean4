@@ -12,6 +12,7 @@ import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CtorElim
 import Lean.Meta.IndPredBelow
 import Lean.Meta.Injective
+import Lean.Compiler.Old
 
 public section
 
@@ -85,6 +86,10 @@ The one place a choice principle is unavoidable is a `Prop` member with a
 constructor field that is a *function into* a data member: the data witnesses
 then have to be selected pointwise, which needs `Classical.choice`.  A block
 without such a field produces axiom-free recursors.
+
+The recursors are also computable, which takes a little work, as the code
+generator compiles no recursor application at all; see the section on
+companions below.
 -/
 
 namespace Lean.Elab.MultiuniverseInductive
@@ -272,16 +277,20 @@ private partial def resultToProp : Expr → Expr
 
 /--
 Add a plain safe definition and hand it to the code generator.  `logErrors :=
-false` makes the compiler mark a declaration `noncomputable` rather than fail,
-which is the right behaviour for the `Prop` members' constructors and for the
-block-wide recursors (a bare recursor application is never compilable, exactly
-as for `Nat.rec`).
+false` makes the compiler mark a declaration `noncomputable` rather than report
+an error.
+
+`compile := false` leaves code generation to someone else, and is how the data
+members' recursors are added: their bodies are recursor applications and so are
+not compilable as written, and the companions emitted afterwards are compiled
+in their place.
 -/
 def addDef (name : Name) (levelParams : List Name) (type value : Expr)
-    (hints : ReducibilityHints := .regular 0) : MetaM Unit := do
+    (hints : ReducibilityHints := .regular 0) (compile := true) : MetaM Unit := do
   let decl := Declaration.defnDecl { name, levelParams, type, value, hints, safety := .safe }
   addDecl decl
-  compileDecl decl (logErrors := false)
+  if compile then
+    compileDecl decl (logErrors := false)
 
 /--
 Add an inductive declaration and everything Lean normally builds alongside one.
@@ -329,14 +338,15 @@ private def mkNESig (α β : Expr) : MetaM Expr := do
   mkAppM ``Nonempty #[← mkAppOptM ``PSigma #[some α, some β]]
 
 /--
-The levels to instantiate the recursor `recName` at, given that its motives
-live at `elim` and the block's own levels are `own`.  A small-eliminating
-`Prop` has no separate elimination universe, so the extra level is only
-prepended when the recursor actually has one.
+The levels to instantiate the eliminator `elimName` -- a recursor or a
+`casesOn` -- at, given that its motives live at `elim` and the block's own
+levels are `own`.  A small-eliminating `Prop` has no separate elimination
+universe, so the extra level is only prepended when the eliminator actually has
+one.
 -/
-private def recLevelsFor (recName : Name) (elim : Level) (own : List Level) :
+private def elimLevelsFor (elimName : Name) (elim : Level) (own : List Level) :
     MetaM (List Level) := do
-  let info ← getConstInfoRec recName
+  let info ← getConstInfo elimName
   if info.levelParams.length == own.length then
     return own
   else
@@ -599,7 +609,7 @@ private def aliasNativeRecs (b : Block) : MetaM Unit := do
     let rn := b.members[i]!.name ++ `rec
     let info ← getConstInfoRec rn
     addDef (b.recName i) info.levelParams info.type
-      (mkConst rn (info.levelParams.map Level.param))
+      (mkConst rn (info.levelParams.map Level.param)) (compile := false)
 
 /-- A homogeneous block is an ordinary `mutual` block; emit it unchanged, so
 that `mutual_multiuniverse` is a strict superset of `mutual`. -/
@@ -703,7 +713,7 @@ private def emitSquashSCC (b : Block) (s : Nat) : MetaM Unit := do
             mkLambdaFVars (jidxs ++ #[tv]) (shadowOf j jidxs)
         motives := motives.push mot
       let recName := m.name ++ `rec
-      let recFn := mkConst recName (← recLevelsFor recName .zero b.ownLevels)
+      let recFn := mkConst recName (← elimLevelsFor recName .zero b.ownLevels)
       let ty0 ← instantiateForall (← inferType recFn) params
       let ty1 ← instantiateForall ty0 motives
       let minors ← buildArgs ty1 ctorIdx.size fun q minorTy =>
@@ -818,15 +828,22 @@ private def withRecTelescope (b : Block) (i : Nat)
                     ++ #[BinderInfo.default]
             return (forceBinderInfos ty bis, ← mkLambdaFVars all body)
 
-/-- `X_j.mutualRec` applied at the current motives and minors, lifted pointwise
-through any leading `∀`s of `v`'s type. -/
-private def recCall (b : Block) (params motives minors : Array Expr) (j : Nat) (v : Expr) :
-    MetaM Expr := do
+/-- `nameOf j` -- `X_j.mutualRec`, or the companion of it built below -- applied
+at the current motives and minors, lifted pointwise through any leading `∀`s of
+`v`'s type.  Every recursor in the block takes the same arguments, so the ones
+we already have are exactly the ones it wants. -/
+private def recCallTo (b : Block) (nameOf : Nat → Name) (levels : List Level)
+    (params motives minors : Array Expr) (j : Nat) (v : Expr) : MetaM Expr := do
   forallTelescope (← inferType v) fun ys body => do
     let allArgs := body.getAppArgs
     let jidxs := allArgs.extract b.numParams allArgs.size
-    let r := mkConst (b.recName j) b.recLevels
+    let r := mkConst (nameOf j) levels
     mkLambdaFVars ys (mkAppN r (params ++ motives ++ minors ++ jidxs ++ #[mkAppN v ys]))
+
+/-- `X_j.mutualRec` applied at the current motives and minors. -/
+private def recCall (b : Block) (params motives minors : Array Expr) (j : Nat) (v : Expr) :
+    MetaM Expr :=
+  recCallTo b b.recName b.recLevels params motives minors j v
 
 /--
 Build the body of a shadow minor premise, walking the constructor's fields.
@@ -908,7 +925,7 @@ private def mkPropRecBody (b : Block) (i : Nat)
         mkLambdaFVars (jidxs ++ #[tv]) body
     smotives := smotives.push mot
   let recName := shadowName b.members[i]!.name ++ `rec
-  let recFn := mkConst recName (← recLevelsFor recName .zero b.ownLevels)
+  let recFn := mkConst recName (← elimLevelsFor recName .zero b.ownLevels)
   let ty0 ← instantiateForall (← inferType recFn) params
   let ty1 ← instantiateForall ty0 smotives
   let sminors ← buildArgs ty1 b.allCtors.size fun q minorTy => do
@@ -933,7 +950,7 @@ private def mkDataRecBody (b : Block) (i : Nat)
         mkLambdaFVars (jidxs ++ #[tv]) (mkAppN motives[j]! (jidxs ++ #[tv]))
     nmotives := nmotives.push mot
   let recName := b.members[i]!.name ++ `rec
-  let recFn := mkConst recName (← recLevelsFor recName (b.motiveLevel i) b.ownLevels)
+  let recFn := mkConst recName (← elimLevelsFor recName (b.motiveLevel i) b.ownLevels)
   let ty0 ← instantiateForall (← inferType recFn) params
   let ty1 ← instantiateForall ty0 nmotives
   let ctorIdx := sccCtorIndices b s
@@ -966,11 +983,161 @@ private def emitRec (b : Block) (i : Nat) : MetaM Unit := do
       mkPropRecBody b i params motives minors idxs major
     else
       mkDataRecBody b i params motives minors idxs major
-  addDef (b.recName i) b.recLevelParams ty val
+  -- a data member's recursor is left uncompiled: its body is a recursor
+  -- application, so compiling it here would fail and mark it `noncomputable`,
+  -- and its code comes instead from the companion emitted afterwards.  A `Prop`
+  -- member's is a proof, so it erases and may as well go through now
+  addDef (b.recName i) b.recLevelParams ty val (compile := m.isProp)
   -- a `Prop` member has no native recursor under its user-facing name, so the
   -- block-wide one may as well also answer to `X.rec`
   if m.isProp then
     addDef (m.name ++ `rec) b.recLevelParams ty val
+
+/-! ### Making the recursors computable
+
+The code generator compiles no recursor application at all -- `X.rec` exactly
+as little as `Nat.rec` -- so a `mutualRec` whose body is one would be
+`noncomputable`, and so would everything downstream of it.  That would be a real
+loss: the point of keeping the data members as honest inductives is that the
+block stays computable, and `mutualRec` is the only way to write a recursion
+that genuinely crosses members.
+
+The restriction is about the shape of the term, not about the function: the
+same recursion written with `match` compiles fine, in a lowered block and in an
+ordinary `mutual` one alike.  Lean's own structural recursion is in this
+position too, and gets out of it by pairing each definition with a `partial`
+companion `f._unsafe_rec` that recurses directly instead of going through
+`brecOn`; the code generator looks the companion up by name and compiles that.
+Do the same here: give each data member's `mutualRec` a companion that splits
+on its major premise with `X.casesOn`, which the code generator does compile,
+and calls itself and its siblings directly for the induction hypotheses.
+
+The companions are compiler-only.  They are never unfolded by the kernel, never
+appear in a term, and leave `mutualRec` itself untouched, so the iota rules and
+`#print axioms` are exactly what they were.  A `Prop` member needs none: the
+result of its recursor is a `Prop`, hence so is the recursor's whole type, so it
+is a proof and is erased.
+
+Compiling a companion is what compiles the recursor: the code generator strips
+the `_unsafe_rec` suffix from the name and from every self-reference, so the
+code it produces is the recursor's.  The recursors therefore have to be in the
+environment already, uncompiled, when the companions are added -- the same
+order `Lean.Elab.addAndCompilePartialRec` is used in.
+-/
+
+/-- The compiler-only companion of `X_i.mutualRec`. -/
+def Block.unsafeRecName (b : Block) (i : Nat) : Name :=
+  Compiler.mkUnsafeRecName (b.recName i)
+
+/--
+The body of `X_i.mutualRec._unsafe_rec`: one `X_i.casesOn`, with every induction
+hypothesis supplied by a direct call.  `levels` are the levels the companions
+are instantiated at, which differ between the lowered and the native path.
+-/
+private def mkUnsafeRecBody (b : Block) (levels : List Level) (i : Nat)
+    (params motives minors idxs : Array Expr) (major : Expr) : MetaM Expr := do
+  let m := b.members[i]!
+  let ai ← instantiateForall m.type params
+  let mot ← forallTelescope ai fun jidxs _ => do
+    let dTy := mkAppN (mkConst m.name b.ownLevels) (params ++ jidxs)
+    withLocalDeclD `t dTy fun tv =>
+      mkLambdaFVars (jidxs ++ #[tv]) (mkAppN motives[i]! (jidxs ++ #[tv]))
+  let casesName := m.name ++ `casesOn
+  let elim ← getLevel (mkAppN motives[i]! (idxs ++ #[major]))
+  let casesFn := mkConst casesName (← elimLevelsFor casesName elim b.ownLevels)
+  let ty0 ← instantiateForall (← inferType casesFn) params
+  let ty1 ← instantiateForall ty0 #[mot]
+  let ty2 ← instantiateForall ty1 (idxs ++ #[major])
+  -- the `Prop` members' recursors are proofs, so they have no companion and are
+  -- called under their own names
+  let nameOf (j : Nat) : Name :=
+    if b.members[j]!.isProp then b.recName j else b.unsafeRecName j
+  let mut ctorIdx := #[]
+  for q in *...b.allCtors.size do
+    if b.allCtors[q]!.owner == i then
+      ctorIdx := ctorIdx.push q
+  let cminors ← buildArgs ty2 ctorIdx.size fun q minorTy => do
+    let gq := ctorIdx[q]!
+    let c := b.allCtors[gq]!
+    -- `casesOn` offers no induction hypotheses, so its minor premise binds the
+    -- fields and nothing else
+    forallBoundedTelescope minorTy (some c.numFields) fun fields _ => do
+      let mut ihs := #[]
+      for k in *...c.numFields do
+        if let some rf := c.fields[k]! then
+          ihs := ihs.push (← recCallTo b nameOf levels params motives minors rf.member fields[k]!)
+      mkLambdaFVars fields (mkAppN minors[gq]! (fields ++ ihs))
+  return mkAppN casesFn (params ++ #[mot] ++ idxs ++ #[major] ++ cminors)
+
+/-- Add the companions as one mutual block, so that they can call each other. -/
+private def addUnsafeRecs (defns : Array DefinitionVal) : MetaM Unit := do
+  if defns.isEmpty then return
+  let decl := Declaration.mutualDefnDecl defns.toList
+  addDecl decl
+  compileDecl decl (logErrors := false)
+
+/-- Companions for a lowered block, whose recursors all have the uniform
+signature. -/
+private def emitUnsafeRecs (b : Block) : MetaM Unit := do
+  let mut names := #[]
+  for i in *...b.size do
+    unless b.members[i]!.isProp do
+      names := names.push (b.unsafeRecName i)
+  let all := names.toList
+  let mut defns := #[]
+  for i in *...b.size do
+    if b.members[i]!.isProp then continue
+    let (type, value) ← withRecTelescope b i fun params motives minors idxs major =>
+      mkUnsafeRecBody b b.recLevels i params motives minors idxs major
+    defns := defns.push
+      { name := b.unsafeRecName i, levelParams := b.recLevelParams, type, value,
+        hints := .opaque, safety := .partial, all }
+  addUnsafeRecs defns
+
+/--
+Companions for a homogeneous block, whose `mutualRec`s are aliases of the
+native recursors and so have the native signature -- one elimination universe
+for the whole block rather than one per component.
+-/
+private def emitNativeUnsafeRecs (b : Block) : MetaM Unit := do
+  -- an all-`Prop` homogeneous block computes nothing, so it gets no companion;
+  -- compile the aliases as they stand, which erases the small-eliminating ones
+  -- and leaves a large-eliminating one `noncomputable`, just as its own `rec` is
+  if b.members.all (·.isProp) then
+    for i in *...b.size do
+      compileDecl (.defnDecl (← getConstInfoDefn (b.recName i))) (logErrors := false)
+    return
+  let info ← getConstInfoRec (b.members[0]!.name ++ `rec)
+  -- the native recursor of a mutual block ranges over every member; if some
+  -- future change makes that false, compile the aliases as they stand, which
+  -- fails quietly and leaves them `noncomputable`
+  unless info.numMotives == b.size && info.numMinors == b.allCtors.size do
+    for i in *...b.size do
+      compileDecl (.defnDecl (← getConstInfoDefn (b.recName i))) (logErrors := false)
+    return
+  let levels := info.levelParams.map Level.param
+  let mut names := #[]
+  for i in *...b.size do
+    names := names.push (b.unsafeRecName i)
+  let all := names.toList
+  let nfront := info.numParams + info.numMotives + info.numMinors
+  let mut defns := #[]
+  for i in *...b.size do
+    let ri ← getConstInfoRec (b.members[i]!.name ++ `rec)
+    let value ←
+      forallBoundedTelescope ri.type (some nfront) fun front rest =>
+        forallBoundedTelescope rest (some (ri.numIndices + 1)) fun tail _ => do
+          let params  := front.extract 0 info.numParams
+          let motives := front.extract info.numParams (info.numParams + info.numMotives)
+          let minors  := front.extract (info.numParams + info.numMotives) front.size
+          let idxs    := tail.extract 0 ri.numIndices
+          let major   := tail[ri.numIndices]!
+          let body ← mkUnsafeRecBody b levels i params motives minors idxs major
+          mkLambdaFVars (front ++ tail) body
+    defns := defns.push
+      { name := b.unsafeRecName i, levelParams := ri.levelParams, type := ri.type, value,
+        hints := .opaque, safety := .partial, all }
+  addUnsafeRecs defns
 
 /--
 Lower an elaborated `mutual_multiuniverse` block to ordinary declarations.
@@ -982,6 +1149,7 @@ def lower (inp : Input) : MetaM Unit := do
   let b ← analyze inp
   if b.isHomogeneous then
     emitNative b
+    emitNativeUnsafeRecs b
     return
   if b.hasProp then
     emitShadow b
@@ -998,5 +1166,6 @@ def lower (inp : Input) : MetaM Unit := do
   for s in *...b.sccs.size do
     for i in b.sccs[s]! do
       emitRec b i
+  emitUnsafeRecs b
 
 end Lean.Elab.MultiuniverseInductive

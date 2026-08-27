@@ -26,6 +26,15 @@ def boxTag {α : Type} : Box α → Nat
 #guard_msgs in
 #eval boxTag (Box.back (Wrap.mk (Box.val 3 Nat)))
 
+-- the same thing through the block-wide recursor, which is computable too
+def boxTag' {α : Type} : Box α → Nat :=
+  @Box.mutualRec α (fun _ => True) (fun _ => Nat)
+    (fun _ _ => trivial) (fun _ _ => 0) (fun _ _ => 1)
+
+/-- info: 1 -/
+#guard_msgs in
+#eval boxTag' (Box.back (Wrap.mk (Box.val 3 Nat)))
+
 /-! ## Indices, with the data member carrying data
 
 `Ev n` says `n` is even; `Od n` is a *datum* attached to an odd `n`.  The two
@@ -61,6 +70,19 @@ example (n : Nat) (e : Ev n) (k : Nat)
     @Od.mutualRec mE mO cz cs co (n + 1) (Od.succ n e k)
       = co n e k (@Ev.mutualRec mE mO cz cs co n e) := rfl
 
+-- and it is computable, indices and all.  Only one level of payload is
+-- reachable: the recursion into `Od` goes through `Ev`, whose motive is a
+-- `Prop`, so there is nothing to accumulate -- which is the whole point.
+def odPayload : (n : Nat) → Od n → Nat :=
+  @Od.mutualRec (fun _ _ => True) (fun _ _ => Nat)
+    trivial (fun _ _ _ => trivial) (fun _ _ k _ => k)
+
+example : odPayload 3 three = 9 := rfl
+
+/-- info: 9 -/
+#guard_msgs in
+#eval odPayload 3 three
+
 /-! ## A function *into* a data member
 
 This is the one shape that needs a choice principle: to recurse into a
@@ -90,6 +112,19 @@ end
 /-- info: 'Stream'.rec' does not depend on any axioms -/
 #guard_msgs in
 #print axioms Stream'.rec
+
+-- depending on `Classical.choice` and being computable are not in conflict
+-- here: the choice happens under a `Prop`, so it has no computational content
+-- and the compiled code never reaches it
+def sLen : Stream' → Nat :=
+  @Stream'.mutualRec (fun _ => True) (fun _ => Nat)
+    (fun _ _ => trivial) (fun _ _ ih => ih + 1) 0 (fun _ _ => 0)
+
+example : sLen (Stream'.cons Nat (Stream'.cons Bool Stream'.nil)) = 2 := rfl
+
+/-- info: 2 -/
+#guard_msgs in
+#eval sLen (Stream'.cons Nat (Stream'.cons Bool Stream'.nil))
 
 /-! ## No `Prop` member at all
 
@@ -251,6 +286,31 @@ end
 #guard_msgs in
 #eval gxSize (GX.mk (GY.mk (GX.leaf 5)))
 
+-- so does the block-wide recursor, both within the component and across it
+def gxDepth : GX → Nat :=
+  @GX.mutualRec (fun _ => True) (fun _ => Nat) (fun _ => Nat) (fun _ => Nat)
+    (fun _ _ => trivial) (fun _ _ => trivial)
+    (fun _ ih => ih + 1) (fun n => n)
+    (fun _ ih => ih + 1) (fun _ _ => 0)
+    (fun _ _ _ ihx ihy => ihx + ihy)
+
+def gzSize : GZ → Nat :=
+  @GZ.mutualRec (fun _ => True) (fun _ => Nat) (fun _ => Nat) (fun _ => Nat)
+    (fun _ _ => trivial) (fun _ _ => trivial)
+    (fun _ ih => ih + 1) (fun n => n)
+    (fun _ ih => ih + 1) (fun _ _ => 0)
+    (fun _ _ _ ihx ihy => ihx + ihy)
+
+example : gxDepth (GX.mk (GY.mk (GX.leaf 5))) = 7 := rfl
+
+/-- info: 7 -/
+#guard_msgs in
+#eval gxDepth (GX.mk (GY.mk (GX.leaf 5)))
+
+/-- info: 7 -/
+#guard_msgs in
+#eval gzSize (GZ.mk (GX.mk (GY.mk (GX.leaf 5))) (GY.fromP (GP.fromX (GX.leaf 2))) (Type 0))
+
 /-! ## Universe polymorphism -/
 
 mutual_multiuniverse
@@ -289,6 +349,14 @@ def uTag {α : Type u} : UD α → Nat
 #guard_msgs in
 #eval uTag (UD.val (3 : Nat) Nat)
 
+def uTag' {α : Type u} : UD α → Nat :=
+  @UD.mutualRec α (fun _ => True) (fun _ => Nat)
+    (fun _ _ => trivial) (fun _ _ => 0) (fun _ _ => 1)
+
+/-- info: 1 -/
+#guard_msgs in
+#eval uTag' (UD.back (UP.mk (UD.val (3 : Nat) Nat)))
+
 /-! ## A homogeneous block is an ordinary `mutual` block
 
 `mutual_multiuniverse` accepts everything `mutual` does and means the same
@@ -308,3 +376,46 @@ example : @T1.mutualRec = @T1.rec := rfl
 /-- info: 'T1.rec' does not depend on any axioms -/
 #guard_msgs in
 #print axioms T1.rec
+
+-- the alias still gets a compiled companion, so `mutualRec` is computable here
+-- as well, even though the recursor it unfolds to is not
+def t1Depth : T1 → Nat :=
+  @T1.mutualRec (fun _ => Nat) (fun _ => Nat)
+    (fun _ ih => ih + 1) (fun _ ih => ih + 1) 0
+
+example : t1Depth (T1.mk (T2.mk (T1.mk T2.stop))) = 3 := rfl
+
+/-- info: 3 -/
+#guard_msgs in
+#eval t1Depth (T1.mk (T2.mk (T1.mk T2.stop)))
+
+/-! ## An all-`Prop` homogeneous block
+
+There is nothing to compute here, so no companion is emitted: the recursors are
+proofs and are erased.  Such a block still has to come out of the native path in
+one piece. -/
+
+mutual_multiuniverse
+inductive PEven : Nat → Prop where
+  | zero : PEven 0
+  | succ : (n : Nat) → POdd n → PEven (n + 1)
+inductive POdd : Nat → Prop where
+  | succ : (n : Nat) → PEven n → POdd (n + 1)
+end
+
+example : @PEven.mutualRec = @PEven.rec := rfl
+
+example : POdd 3 := .succ 2 (.succ 1 (.succ 0 .zero))
+
+theorem POdd.ne_zero : ∀ n, POdd n → n ≠ 0 :=
+  @POdd.mutualRec (fun _ _ => True) (fun n _ => n ≠ 0)
+    trivial (fun _ _ _ => trivial) (fun n _ _ => Nat.succ_ne_zero n)
+
+-- `propext` comes from `Nat.succ_ne_zero`, not from the block
+/-- info: 'POdd.ne_zero' depends on axioms: [propext] -/
+#guard_msgs in
+#print axioms POdd.ne_zero
+
+/-- info: 'POdd.mutualRec' does not depend on any axioms -/
+#guard_msgs in
+#print axioms POdd.mutualRec

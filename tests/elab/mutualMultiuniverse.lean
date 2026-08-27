@@ -162,11 +162,39 @@ example (n : Nat) (a : A) (b : B) : B.fromA n a ≠ B.wrap b := by
   intro h; cases h
 
 /-! The block-wide recursor is what to use when the recursion genuinely crosses
-members.  It is `noncomputable` for exactly the reason `Nat.rec` is: the code
-generator does not compile bare recursor applications. -/
+members, and it is computable.  The code generator compiles no recursor
+application -- `B.rec` no more than `Nat.rec` -- so `B.mutualRec` is given a
+compiled companion that does the same recursion by cases, and definitions built
+from it both reduce in the kernel and evaluate. -/
 
-noncomputable def depth : B → Nat :=
+def depth : B → Nat :=
   @B.mutualRec (fun _ => True) (fun _ => Nat) (fun _ => Nat)
     (fun _ _ => trivial) (fun _ _ => trivial)
     (fun _ _ _ => 0) (fun _ ih => ih + 1)
     (fun _ _ => 0) (fun n _ => n) (fun _ _ ihb ihc => ihb + ihc)
+
+def depthC : C → Nat :=
+  @C.mutualRec (fun _ => True) (fun _ => Nat) (fun _ => Nat)
+    (fun _ _ => trivial) (fun _ _ => trivial)
+    (fun _ _ _ => 0) (fun _ ih => ih + 1)
+    (fun _ _ => 0) (fun n _ => n) (fun _ _ ihb ihc => ihb + ihc)
+
+example : depth (B.wrap (B.wrap (B.fromA 5 (A.fromC (C.higherUniv 3 Nat))))) = 2 := rfl
+
+/-- info: 2 -/
+#guard_msgs in
+#eval depth (B.wrap (B.wrap (B.fromA 5 (A.fromC (C.higherUniv 3 Nat)))))
+
+-- `C.pair` folds a `Type 0` value into a `Type 2` recursion, so this crosses
+-- both the `Prop` member and the two data universes
+example : depthC (C.pair (B.wrap (B.fromA 4 (A.fromC (C.higherUniv 1 Nat))))
+    (C.higherUniv 10 Nat)) = 11 := rfl
+
+/-- info: 11 -/
+#guard_msgs in
+#eval depthC (C.pair (B.wrap (B.fromA 4 (A.fromC (C.higherUniv 1 Nat)))) (C.higherUniv 10 Nat))
+
+-- the companion is compiler-only, so it changes nothing about the term
+/-- info: 'depth' does not depend on any axioms -/
+#guard_msgs in
+#print axioms depth

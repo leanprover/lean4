@@ -74,3 +74,21 @@ inductive U1 : Prop where
 inductive U2 : Type 0 where
   | mk : (t : Type 1) → U1 → U2
 end
+
+/-! ## A large-eliminating `Prop` is reported the way `mutual` reports it
+
+`mutualRec` is computable wherever the block has data to compute with.  A
+block that is all `Prop` has none, so a large-eliminating member's `mutualRec`
+is `noncomputable`, exactly as that member's own `rec` is -- and says so
+rather than failing inside the code generator. -/
+
+mutual_multiuniverse
+inductive Sq : Prop where
+  | mk : Sq
+end
+
+/--
+error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'Sq.mutualRec', which is 'noncomputable'
+-/
+#guard_msgs in
+def sqNat : Sq → Nat := fun s => Sq.mutualRec (motive := fun _ => Nat) 5 s

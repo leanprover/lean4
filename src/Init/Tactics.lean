@@ -663,6 +663,7 @@ macro (name := rwaAtLegacyLocation) (priority := low) "rwa " rws:rwRuleSeq
 deprecated_syntax Lean.Parser.Tactic.rwaAtLegacyLocation
   "use `rw [...] at ... <;> assumption` instead" (since := "2026-08-27")
 
+-- TODO: remove after stage0 update
 -- These expansions allow the old stage0 to elaborate `rwa` while bootstrapping.
 macro_rules
   | `(tactic| rwa $rws:rwRuleSeq) => do

@@ -15,6 +15,7 @@ public section
 namespace Lean.Elab.Tactic
 open scoped Lean.Parser.Tactic
 
+-- TODO: remove after stage0 update
 -- Macro elaboration cannot inspect builtin tactic registrations, so expose an internal marker.
 builtin_initialize
   registerReservedNamePredicate fun _ name => name == `Lean.Elab.Tactic.rwaBuiltin

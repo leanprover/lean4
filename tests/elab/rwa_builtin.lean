@@ -9,6 +9,8 @@ Tests that the builtin `rwa` elaborator is preferred to its bootstrap macro even
 `Lean.Elab.Tactic.Rwa` is not imported.
 -/
 
+-- TODO: remove after stage0 update
+
 set_option linter.unnecessaryRwa true
 set_option linter.deprecated.syntax true
 

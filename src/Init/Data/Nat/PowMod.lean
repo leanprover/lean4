@@ -16,13 +16,16 @@ public section
 namespace Nat
 
 /--
-Computes `b ^ e % m` without ever forming the intermediate value `b ^ e`.
+Computes `b ^ e % m` by square-and-multiply, reducing modulo `m` at each step so
+that no intermediate value exceeds `m * m`.
 
-Because `Nat.mod` satisfies `n % 0 = n`, `powMod b e 0` is `b ^ e`.
+Because `Nat.mod` satisfies `n % 0 = n`, `powMod b e 0` is `b ^ e`. That case is
+the exception to the bound above: there the intermediates are as large as the
+result.
 
-`powMod` is not definitionally equal to `b ^ e % m`. Its logical model is
-square-and-multiply, so that concrete exponents reduce in `O(log e)` steps rather
-than forming `b ^ e`; use `powMod_def` to rewrite to the naive form for symbolic
+`powMod` is not definitionally equal to `b ^ e % m`. Concrete exponents reduce in
+`O(log e)` steps under `decide`, which `b ^ e % m` could not. `powMod_def` is a
+`simp` lemma, so `simp` rewrites `powMod` back to `b ^ e % m` for symbolic
 reasoning.
 
 Examples:

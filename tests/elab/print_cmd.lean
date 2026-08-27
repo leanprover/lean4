@@ -56,17 +56,15 @@ for Nat.succ (1 fields): fun motive zero succ n => succ n (Nat.rec zero succ n)
 -/
 #guard_msgs in #print Nat.rec
 /--
-info: recursor Acc.rec.{u_1, u} : {α : Sort u} →
-  {r : α → α → Prop} →
-    {motive : (a : α) → Acc r a → Sort u_1} →
-      ((x : α) → (h : ∀ (y : α), r y x → Acc r y) → ((y : α) → (a : r y x) → motive y ⋯) → motive x ⋯) →
-        {a : α} → (t : Acc r a) → motive a t
+info: recursor Acc.rec.{u} : ∀ {α : Sort u} {r : α → α → Prop} {motive : (a : α) → Acc r a → Prop},
+  (∀ (x : α) (h : ∀ (y : α), r y x → Acc r y), (∀ (y : α) (a : r y x), motive y ⋯) → motive x ⋯) →
+    ∀ {a : α} (t : Acc r a), motive a t
 number of parameters: 2
 number of indices: 1
 number of motives: 1
 number of minors: 1
 rules:
-for Acc.intro (2 fields): fun {α} r motive intro x h => intro x h fun y a => Acc.rec intro ⋯
+for Acc.intro (2 fields): fun {α} r motive intro x h => intro x h fun y a => Acc.rec intro (h y a)
 -/
 #guard_msgs in #print Acc.rec
 /--

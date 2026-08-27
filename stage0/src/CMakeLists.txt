@@ -637,8 +637,7 @@ endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Windows" AND NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   # export symbols for the interpreter (done via `LEAN_EXPORT` for Windows)
-  string(APPEND LEAN_DYN_EXE_LINKER_FLAGS " -rdynamic")
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -rdynamic")
+  string(APPEND CMAKE_DYN_EXE_LINKER_FLAGS " -rdynamic")
   # hide all other symbols
   string(APPEND CMAKE_CXX_FLAGS " -fvisibility=hidden -fvisibility-inlines-hidden")
   string(APPEND LEANC_EXTRA_CC_FLAGS " -fvisibility=hidden")
@@ -813,6 +812,9 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--whole-archive -lleanmanifest -Wl,--no-whole-archive")
 endif()
 
+# for later stages, this defines only `mimalloc_paranoid`; the rest is imported below instead
+add_subdirectory(runtime)
+
 if(STAGE GREATER 1)
   # reuse C++ parts, which don't change
   add_library(leanrt_initial-exec STATIC IMPORTED)
@@ -848,7 +850,6 @@ if(STAGE GREATER 1)
     add_dependencies(leancpp copy-lean-h-bc)
   endif()
 else()
-  add_subdirectory(runtime)
   if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     add_dependencies(leanrt libuv)
     add_dependencies(leanrt_initial-exec libuv)
@@ -989,7 +990,14 @@ else()
     VERBATIM
   )
 
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -lInit_shared -lleanshared_2 -lleanshared_1 -lleanshared")
+  string(APPEND CMAKE_DYN_EXE_LINKER_FLAGS " -lInit_shared -lleanshared_2 -lleanshared_1 -lleanshared")
+
+  # NOTE: `mimalloc_paranoid` in front of `leanrt` and no `leanshared` to replace default allocator
+  set(
+    LEANCHECKER_PARANOID_LINKER_FLAGS
+    "${CMAKE_EXE_LINKER_FLAGS} -lmimalloc_paranoid -linitialize_minimal ${LEANC_STATIC_LINKER_FLAGS}"
+  )
+
 endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
@@ -1017,6 +1025,17 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanchecker
     VERBATIM
   )
+
+  # Not `ALL` as it's big; release CI builds it explicitly.
+  if(USE_MIMALLOC)
+    add_custom_target(
+      leanchecker-paranoid
+      WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+      DEPENDS lake_shared mimalloc_paranoid initialize_minimal
+      COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanchecker-paranoid
+      VERBATIM
+    )
+  endif()
 endif()
 
 if(PREV_STAGE)
@@ -1151,6 +1170,14 @@ endif()
 
 # Escape for `make`. Yes, twice.
 string(REPLACE "$" "\\\$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
+string(REPLACE "$" "\\\$$" CMAKE_DYN_EXE_LINKER_FLAGS_MAKE "${CMAKE_DYN_EXE_LINKER_FLAGS}")
+string(
+  REPLACE
+  "$"
+  "\\\$$"
+  LEANCHECKER_PARANOID_LINKER_FLAGS_MAKE
+  "${LEANCHECKER_PARANOID_LINKER_FLAGS}"
+)
 configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
 
 # hacky

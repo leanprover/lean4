@@ -1756,9 +1756,9 @@ goto _start;
 LEAN_EXPORT lean_object* l_List_filterTR_loop___at___00Lean_Elab_Deriving_withoutExposeFromCtors_spec__4___boxed(lean_object* v___x_711_, lean_object* v_a_712_, lean_object* v_a_713_){
 _start:
 {
-uint8_t v___x_3705__boxed_714_; lean_object* v_res_715_; 
-v___x_3705__boxed_714_ = lean_unbox(v___x_711_);
-v_res_715_ = l_List_filterTR_loop___at___00Lean_Elab_Deriving_withoutExposeFromCtors_spec__4(v___x_3705__boxed_714_, v_a_712_, v_a_713_);
+uint8_t v___x_3707__boxed_714_; lean_object* v_res_715_; 
+v___x_3707__boxed_714_ = lean_unbox(v___x_711_);
+v_res_715_ = l_List_filterTR_loop___at___00Lean_Elab_Deriving_withoutExposeFromCtors_spec__4(v___x_3707__boxed_714_, v_a_712_, v_a_713_);
 return v_res_715_;
 }
 }
@@ -1844,9 +1844,9 @@ return v___x_737_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_withoutExposeFromCtors___redArg___lam__0___boxed(lean_object* v___x_740_, lean_object* v_sc_741_){
 _start:
 {
-uint8_t v___x_3802__boxed_742_; lean_object* v_res_743_; 
-v___x_3802__boxed_742_ = lean_unbox(v___x_740_);
-v_res_743_ = l_Lean_Elab_Deriving_withoutExposeFromCtors___redArg___lam__0(v___x_3802__boxed_742_, v_sc_741_);
+uint8_t v___x_3804__boxed_742_; lean_object* v_res_743_; 
+v___x_3804__boxed_742_ = lean_unbox(v___x_740_);
+v_res_743_ = l_Lean_Elab_Deriving_withoutExposeFromCtors___redArg___lam__0(v___x_3804__boxed_742_, v_sc_741_);
 return v_res_743_;
 }
 }

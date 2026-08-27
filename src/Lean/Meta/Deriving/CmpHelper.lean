@@ -821,6 +821,23 @@ structure Context where
   -/
   recInfo : RecursorVal
 
+def Context.mkLemmas (ctx : Context) (motiveVars motives minors newHyps : Array Expr)
+    (nameGen : Kind → Name → Name) := do
+  let recLParams := 0 :: ctx.recInfo.levelParams.tail.map Level.param
+  let recArgs := ctx.params ++ motives ++ minors
+  for motiveVar in motiveVars, motive in motives, name? in ctx.associatedNames, cmpVar in ctx.cmpVars do
+    let some name := name? | continue
+    let some cmpValue ← cmpVar.fvarId!.getValue? | throwError "{cmpVar} does not have a value"
+    forallTelescope (← inferType motiveVar) fun motiveArgs _ => do
+      let resType := motive.beta motiveArgs |>.replaceFVar cmpVar cmpValue
+      let type ← mkForallFVars (ctx.allParams ++ newHyps ++ motiveArgs) resType
+      let recApp := mkAppN (.const (mkRecName name) recLParams) recArgs
+      let value ← mkLambdaFVars (ctx.allParams ++ newHyps) <| ← mkLetFVars ctx.cmpVars recApp
+      addDecl <| .thmDecl {
+        name := nameGen ctx.kind name
+        levelParams := ctx.recInfo.levelParams.tail, type, value
+      }
+
 /-- Proves `e = kind.eqIndicator`. -/
 @[inline]
 private partial def proveRefl (ctx : Context) (kind : Kind) (reflHyps : Array Expr)
@@ -866,7 +883,7 @@ where
 partial def makeRefl (ctx : Context) : MetaM Unit := do
   let kind := ctx.kind
   let recInfo := ctx.recInfo
-  let elimLvlParam :: levelParams := recInfo.levelParams |
+  let elimLvlParam :: _ := recInfo.levelParams |
     throwError "Invalid level parameters for recursor"
   let type := recInfo.type.instantiateLevelParams [elimLvlParam] [.zero]
   let reflHypInfos ← ctx.functions.mapIdxM fun i fn => do
@@ -907,7 +924,7 @@ partial def makeRefl (ctx : Context) : MetaM Unit := do
           comparison unfolded kind.eqIndicator unfoldLemma proof
         mkLambdaFVars vars proof
       minors := minors.push (minor.replaceFVars motiveVars motives)
-    let recLParams := 0 :: recInfo.levelParams.tail.map Level.param
+    /-let recLParams := 0 :: recInfo.levelParams.tail.map Level.param
     let recArgs := ctx.params ++ motives ++ minors
     for motiveVar in motiveVars, name in ctx.associatedNames, cmpVar in ctx.cmpVars do
       let some name := name | continue
@@ -918,9 +935,10 @@ partial def makeRefl (ctx : Context) : MetaM Unit := do
       let recApp := mkAppN (.const (mkRecName name) recLParams) recArgs
       let value ← mkLambdaFVars (ctx.allParams ++ reflHyps) <| ← mkLetFVars ctx.cmpVars recApp
       addDecl <| .thmDecl {
-        name := .str (kind.mkHelperName name) "refl"
+        name := kind.mkReflName name
         levelParams, type, value
-      }
+      }-/
+    ctx.mkLemmas motiveVars motives minors reflHyps Kind.mkReflName
 
 /--
 Given `lhs = rhs`, try to prove `lhs.getAppFn = rhs.getAppFn` assuming that `lhs.getAppArgs` have
@@ -1019,7 +1037,7 @@ where
 partial def makeLawfulEq (ctx : Context) : MetaM Unit := do
   let kind := ctx.kind
   let recInfo := ctx.recInfo
-  let elimLvlParam :: levelParams := recInfo.levelParams |
+  let elimLvlParam :: _ := recInfo.levelParams |
     throwError "Invalid level parameters for recursor"
   let type := recInfo.type.instantiateLevelParams [elimLvlParam] [.zero]
   let mut lawfulHypInfos := #[]
@@ -1108,7 +1126,9 @@ partial def makeLawfulEq (ctx : Context) : MetaM Unit := do
               (kind.elimEqOfNe cmpApp (mkAppRev ctorIdxFn motiveRevArgs) (mkAppN ctorIdxFn rvars)
                 (ctorIdxLemma.app (.bvar 0)) (.bvar 0) rhs) .default
             let dite := mkApp5 (.const ``dite [0]) body condType decCondType thenBranch elseBranch
-            mkLambdaFVars rvars dite
+            mkLambdaFVars (vars ++ rvars) dite
+      minors := minors.push minor
+      ctx.mkLemmas motiveVars motives minors newLawfulHyps Kind.mkLawfulName
 
 def withNonNestedContext (indName : Name) (kind : Kind) (k : Context → MetaM α) : MetaM α := do
   let indInfo ← getConstInfoInduct indName

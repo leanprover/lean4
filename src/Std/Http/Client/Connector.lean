@@ -28,34 +28,40 @@ open Time
 set_option linter.all true
 
 /--
-Opens a new transport connection to a target `(scheme, host, port)` and wraps it in a `Connection`.
+Opens a new transport connection for `origin` and wraps it in a `Connection`.
 
 Supply your own function to customize DNS resolution or transport selection (plain TCP, TLS,
-Unix socket). `scheme` is provided so implementations can dispatch between plain and encrypted
-transports; `config.proxy` is available for proxy routing.
+Unix socket). `origin.scheme` is provided so implementations can dispatch between plain and
+encrypted transports; `config.proxySelector` names the endpoint to dial for `origin`.
+
+The `Connection` handed back must be opened for the same `origin`, since that is the origin its
+requests are addressed to and its cookies and credentials are scoped by.
 
 Failures are reported as a typed `Error` (usually `Error.connect`). An exception thrown by a
-connector is also treated as a connect failure by the pool.
+connector is also treated as a connect failure by the client.
 -/
-abbrev Connector := URI.Scheme → URI.Host → UInt16 → Config → Async (Except Error Connection)
+abbrev Connector := URI.Origin → Config → Async (Except Error Connection)
 
 /--
-The default connector: resolves `host` via the system DNS, iterates over the returned
+The default connector: resolves the origin's host via the system DNS, iterates over the returned
 addresses, and opens a TCP socket to the first one that succeeds.
 
-When `config.proxy` is set, the TCP connection is made to the proxy address instead
-and the original `host`/`port` are left for the HTTP layer to handle.
+When `config.proxySelector` routes `origin` through a proxy, the TCP connection is made to the
+proxy address instead and the origin is left for the HTTP layer to address.
 -/
-def Connector.tcp : Connector := fun scheme host port config => do
+def Connector.tcp : Connector := fun origin config => do
 
-  if scheme.val == "https" then
+  if origin.scheme.val == "https" then
     return .error (.connect "default TCP connector does not support https.")
 
-  if scheme.val != "http" then
+  if origin.scheme.val != "http" then
     return .error (.connect
-      s!"default TCP connector only supports http, got scheme {scheme.val.quote}")
+      s!"default TCP connector only supports http, got scheme {origin.scheme.val.quote}")
 
-  let (connectHost, connectPort) := config.proxy.getD (toString host, port)
+  let (connectHost, connectPort) :=
+    match config.proxySelector.select origin with
+    | .direct => (toString origin.host, origin.port)
+    | .http proxyHost proxyPort => (proxyHost, proxyPort)
   let addrs ←
     try DNS.getAddrInfo connectHost (toString connectPort)
     catch err => return .error (.connect (toString err))
@@ -72,7 +78,7 @@ def Connector.tcp : Connector := fun scheme host port config => do
     try
       let socket ← Socket.Client.mk
       socket.connect socketAddr
-      return .ok (← Connection.new socket config)
+      return .ok (← Connection.new socket origin config)
     catch err =>
       lastErr := .connect (toString err)
 

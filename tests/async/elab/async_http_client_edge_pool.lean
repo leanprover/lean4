@@ -22,11 +22,11 @@ open Test.ClientHelpers
   let (mockClient1, mockServer1) ← Mock.new
   let connectCount ← IO.mkRef 0
 
-  let connect : Client.Connector := fun _ _ _ config => do
+  let connect : Client.Connector := fun origin config => do
     let n ← connectCount.get
     connectCount.set (n + 1)
     match n with
-    | 0 => return .ok (← Client.Connection.new mockServer1 (config := config))
+    | 0 => return .ok (← Client.Connection.new mockServer1 origin config)
     | _ => throw (IO.userError "pool opened more connections than expected")
 
   let client ← Client.new {} connect
@@ -107,12 +107,12 @@ open Test.ClientHelpers
   let (_mockClient2, mockServer2) ← Mock.new
   let connectCount ← IO.mkRef 0
 
-  let connect : Client.Connector := fun _ _ _ config => do
+  let connect : Client.Connector := fun origin config => do
     let n ← connectCount.get
     connectCount.set (n + 1)
     match n with
-    | 0 => return .ok (← Client.Connection.new mockServer1 (config := config))
-    | 1 => return .ok (← Client.Connection.new mockServer2 (config := config))
+    | 0 => return .ok (← Client.Connection.new mockServer1 origin config)
+    | 1 => return .ok (← Client.Connection.new mockServer2 origin config)
     | _ => throw (IO.userError "pool opened more connections than expected")
 
   let client ← Client.new {} connect
@@ -185,12 +185,12 @@ open Test.ClientHelpers
   let (_mockClient2, mockServer2) ← Mock.new
   let connectCount ← IO.mkRef 0
 
-  let connect : Client.Connector := fun _ _ _ config => do
+  let connect : Client.Connector := fun origin config => do
     let n ← connectCount.get
     connectCount.set (n + 1)
     match n with
-    | 0 => return .ok (← Client.Connection.new mockServer1 (config := config))
-    | 1 => return .ok (← Client.Connection.new mockServer2 (config := config))
+    | 0 => return .ok (← Client.Connection.new mockServer1 origin config)
+    | 1 => return .ok (← Client.Connection.new mockServer2 origin config)
     | _ => throw (IO.userError "pool opened more connections than expected")
 
   let client ← Client.new {} connect
@@ -264,12 +264,12 @@ open Test.ClientHelpers
   let (mockClient2, mockServer2) ← Mock.new
   let connectCount ← IO.mkRef 0
 
-  let connect : Client.Connector := fun _ _ _ config => do
+  let connect : Client.Connector := fun origin config => do
     let n ← connectCount.get
     connectCount.set (n + 1)
     match n with
-    | 0 => return .ok (← Client.Connection.new mockServer1 (config := config))
-    | 1 => return .ok (← Client.Connection.new mockServer2 (config := config))
+    | 0 => return .ok (← Client.Connection.new mockServer1 origin config)
+    | 1 => return .ok (← Client.Connection.new mockServer2 origin config)
     | _ => throw (IO.userError "pool opened more connections than expected")
 
   let client ← Client.new {} connect
@@ -361,15 +361,15 @@ open Test.ClientHelpers
   let (mockClient2, mockServer2) ← Mock.new
   let originalConnectCount ← IO.mkRef 0
 
-  let connect : Client.Connector := fun _scheme host _port config => do
-    if toString host == "other.example" then
-      throw (IO.userError s!"redirect target dial failed for {host}")
+  let connect : Client.Connector := fun origin config => do
+    if toString origin.host == "other.example" then
+      throw (IO.userError s!"redirect target dial failed for {origin.host}")
     else
       let n ← originalConnectCount.get
       originalConnectCount.set (n + 1)
       match n with
-      | 0 => return .ok (← Client.Connection.new mockServer1 (config := config))
-      | 1 => return .ok (← Client.Connection.new mockServer2 (config := config))
+      | 0 => return .ok (← Client.Connection.new mockServer1 origin config)
+      | 1 => return .ok (← Client.Connection.new mockServer2 origin config)
       | _ => throw (IO.userError "opened too many original-origin connections")
 
   -- Retries are disabled: this test asserts the state the pool is left in after a
@@ -649,15 +649,15 @@ open Test.ClientHelpers
   let released ← IO.mkRef false
   let secondSawReleased ← IO.mkRef true
 
-  let connect : Client.Connector := fun _ _ _ config => do
+  let connect : Client.Connector := fun origin config => do
     let callNo ← calls.atomically <| modifyGet fun n => (n, n + 1)
     if callNo == 0 then
       discard <| firstStarted.resolve ()
       await releaseFirst.result!
-      return .ok (← Client.Connection.new mockServer1 (config := config))
+      return .ok (← Client.Connection.new mockServer1 origin config)
     else
       secondSawReleased.set (← released.get)
-      return .ok (← Client.Connection.new mockServer2 (config := config))
+      return .ok (← Client.Connection.new mockServer2 origin config)
 
   let client ← Client.new {} connect
   let some domainA := URI.DomainName.ofString? "a.example"
@@ -698,12 +698,12 @@ open Test.ClientHelpers
   Async.block do
   let (mockClient, mockServer) ← Mock.new
   let calls ← IO.mkRef 0
-  let connect : Client.Connector := fun _ _ _ config => do
+  let connect : Client.Connector := fun origin config => do
     let callNo ← calls.get
     calls.set (callNo + 1)
     if callNo == 0 then
       throw (IO.userError "synthetic first connect failure")
-    return .ok (← Client.Connection.new mockServer (config := config))
+    return .ok (← Client.Connection.new mockServer origin config)
   let client ← Client.new {} connect (maxRetries := 1)
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
@@ -738,11 +738,11 @@ open Test.ClientHelpers
   let (mockClient1, mockServer1) ← Mock.new
   let (_mockClient2, mockServer2) ← Mock.new
   let calls ← IO.mkRef 0
-  let connect : Client.Connector := fun _ _ _ config => do
+  let connect : Client.Connector := fun origin config => do
     let callNo ← calls.get
     calls.set (callNo + 1)
     let mockServer := if callNo == 0 then mockServer1 else mockServer2
-    return .ok (← Client.Connection.new mockServer (config := config))
+    return .ok (← Client.Connection.new mockServer origin config)
   let client ← Client.new {} connect (maxRetries := 3)
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
@@ -777,11 +777,11 @@ open Test.ClientHelpers
   let (mockClient1, mockServer1) ← Mock.new
   let (mockClient2, mockServer2) ← Mock.new
   let calls ← IO.mkRef 0
-  let connect : Client.Connector := fun _ _ _ config => do
+  let connect : Client.Connector := fun origin config => do
     let callNo ← calls.get
     calls.set (callNo + 1)
     let mockServer := if callNo == 0 then mockServer1 else mockServer2
-    return .ok (← Client.Connection.new mockServer (config := config))
+    return .ok (← Client.Connection.new mockServer origin config)
   let client ← Client.new {} connect (maxRetries := 3)
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
@@ -834,11 +834,11 @@ open Test.ClientHelpers
   let (mockClient1, mockServer1) ← Mock.new
   let (mockClient2, mockServer2) ← Mock.new
   let calls ← IO.mkRef 0
-  let connect : Client.Connector := fun _ _ _ config => do
+  let connect : Client.Connector := fun origin config => do
     let callNo ← calls.get
     calls.set (callNo + 1)
     let mockServer := if callNo == 0 then mockServer1 else mockServer2
-    return .ok (← Client.Connection.new mockServer (config := config))
+    return .ok (← Client.Connection.new mockServer origin config)
   let client ← Client.new {} connect (maxRetries := 1)
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
@@ -884,11 +884,11 @@ open Test.ClientHelpers
   let (mockClient1, mockServer1) ← Mock.new
   let (mockClient2, mockServer2) ← Mock.new
   let calls ← IO.mkRef 0
-  let connect : Client.Connector := fun _ _ _ config => do
+  let connect : Client.Connector := fun origin config => do
     let callNo ← calls.get
     calls.set (callNo + 1)
     let mockServer := if callNo == 0 then mockServer1 else mockServer2
-    return .ok (← Client.Connection.new mockServer (config := config))
+    return .ok (← Client.Connection.new mockServer origin config)
   let client ← Client.new {} connect (maxRetries := 0)
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")

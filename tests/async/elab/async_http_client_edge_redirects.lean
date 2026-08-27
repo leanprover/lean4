@@ -515,16 +515,12 @@ open Test.ClientHelpers
       s!"expected GET /new, got:\n{redirectText.quote}"
 
 -- ============================================================
--- Section 11 — Per-request `onlySafeRedirects` override
+-- Section 11 — A 302 on POST is followed
 -- ============================================================
--- `RequestOverrides.onlySafeRedirects` gates automatic following for unsafe methods
--- on a single request without changing the client-wide `Config`. The two tests below
--- send the identical POST/302 exchange and differ only in the override.
+-- The client follows a redirect whatever the request method was, with the RFC 9110 §15.4.4
+-- POST→GET downgrade applied to the follow-up.
 
--- Control: with the default policy (`onlySafeRedirects := false`) a 302 on POST is
--- followed with the RFC 9110 §15.4.4 POST→GET downgrade.
-
-#eval show IO _ from runWithTimeout "302 on POST is followed under the default policy" 3000 <|
+#eval show IO _ from runWithTimeout "302 on POST is followed" 3000 <|
   Async.block do
   let (mockClient, mockServer) ← Mock.new
   let client ← mkClient mockServer
@@ -552,43 +548,6 @@ open Test.ClientHelpers
   let redirectText := String.fromUTF8! redirectBytes
   unless redirectText.startsWith "GET /done" do
     throw <| IO.userError s!"expected GET /done after POST downgrade, got:\n{redirectText.quote}"
-
--- With `onlySafeRedirects := some true` the same exchange stops at the 302: POST is not
--- a safe method, so the response is handed to the caller and no second request is sent.
-
-#eval show IO _ from runWithTimeout "onlySafeRedirects override stops a 302 on POST" 3000 <|
-  Async.block do
-  let (mockClient, mockServer) ← Mock.new
-  let client ← mkClient mockServer
-
-  let req ← Request.new |>.method .post |>.uri! "/submit"
-    |>.header! "Host" "example.com" |>.text "payload"
-  let p ← sendInBackground client req { onlySafeRedirects := some true }
-
-  -- Keep-alive: the control test above sends the identical exchange, so the override must be the
-  -- only difference between following and not. A closing 3xx would stop the chain by itself.
-  let _ ← drainRequest mockClient
-  mockClient.send (rawResp "302 Found"
-    #[("Location", "/done"),
-      ("Content-Length", "0"),
-      ("Connection", "keep-alive")] "")
-
-  let followed ← IO.mkRef (none : Option ByteArray)
-  background do
-    followed.set (← mockClient.recv?)
-
-  match ← await p.result! with
-  | Except.error e => throw (IO.userError s!"client error: {e}")
-  | Except.ok resp =>
-    resp.body.close
-    unless resp.line.status == .found do
-      throw <| IO.userError
-        s!"expected the 302 returned as-is under onlySafeRedirects, got {resp.line.status.toCode}"
-
-  IO.sleep 100
-  if let some bytes ← followed.get then
-    throw <| IO.userError
-      s!"onlySafeRedirects did not stop the POST redirect:\n{(String.fromUTF8! bytes).quote}"
 
 -- ============================================================
 -- Section 8 — Redirects across a connection the response ended

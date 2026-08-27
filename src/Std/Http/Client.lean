@@ -156,7 +156,7 @@ private def openConnection (client : Client) (origin : URI.Origin) :
 
   let connectTask ← async (t := AsyncTask) do
     try
-      client.connect origin.scheme origin.host origin.port client.config
+      client.connect origin client.config
     catch err =>
       pure (.error (.connect (toString err)))
 
@@ -266,63 +266,6 @@ private def buildRedirectRequest (plan : RedirectPlan)
     extensions := request.extensions
   }
 
-private def toAbsoluteForm {t : Type} (request : Request t)
-    (scheme : URI.Scheme) (host : URI.Host) (port : UInt16) : Request t :=
-  match request.line.uri with
-  | .originForm path query =>
-    { request with
-        line := { request.line with uri := .absoluteForm {
-          scheme,
-          path,
-          query := query,
-          authority := some { host, port := .value port }
-          fragment := none
-        }
-      }
-    }
-  | _ => request
-
--- Normalize absolute-form URIs back to origin-form for direct (non-proxy) connections.
--- RFC 9112 §3.2.2: servers for direct connections expect origin-form; absolute-form is
--- only required when sending through an HTTP proxy.
-private def toOriginForm {t : Type} (request : Request t) : Request t :=
-  match request.line.uri with
-  | .absoluteForm af =>
-    { request with line := { request.line with uri := .originForm af.path af.query } }
-  | _ => request
-
-private def rewriteForProxy (hop : Hop) (request : Request Body.Any) : Request Body.Any :=
-  if hop.connection.config.proxy.isSome then
-    toAbsoluteForm request hop.origin.scheme hop.origin.host hop.origin.port
-  else
-    toOriginForm request
-
--- RFC 9112 §3.2 requires a `Host` on every HTTP/1.1 request, and only this layer knows the origin
--- the hop is dispatched to. Redirect planning deliberately rewrites `Host` only when the request
--- already had one, so a chain that started without it would otherwise reach a new host bare.
-private def withHostHeader (hop : Hop) (request : Request Body.Any) : Request Body.Any :=
-  if request.line.headers.contains .host then
-    request
-  else
-    { request with
-        line := { request.line with
-          headers := request.line.headers.insert .host (.ofString! hop.origin.hostHeader) } }
-
-/--
-`true` when the connection that delivered `head` survives the exchange, so the next hop of a
-redirect chain may reuse it. A response either asks for closure outright or ends its body at the
-close: RFC 9112 §6.3 gives a response carrying neither `Content-Length` nor `Transfer-Encoding` no
-other framing, unless its status forbids content in the first place.
-
-`config` decides this as much as the response does: a client with `enableKeepAlive := false` asked
-for closure itself, and the connection is retired no matter how obliging the server's head is.
--/
-private def allowsConnectionReuse (config : Config) (head : Response.Head) : Bool :=
-  let bodyless :=
-    head.status.isInformational ∨ head.status == .noContent ∨ head.status == .notModified
-  config.enableKeepAlive ∧ Message.Head.shouldKeepAlive (dir := .sending) head ∧
-    (bodyless ∨ (Message.Head.getSize (dir := .sending) head (allowEOFBody := false)).isSome)
-
 /--
 Performs one request/response hop through the middleware chain. Failures flow through the
 chain as a typed `Except Error`; an exception thrown by a middleware itself is wrapped
@@ -342,9 +285,9 @@ private def dispatchHop (client : Client) (hop : Hop) (request : Request Body.An
   let inner : Request Body.Any → Async (Except Error (Response Body.Stream)) :=
       fun req => do
     match ← hop.connection.sendTracked req overrides with
-    | .ok (response, completion) =>
-      completionRef.set (some completion)
-      return .ok response
+    | .ok tracked =>
+      completionRef.set (some tracked.completion)
+      return .ok tracked.response
     | .error e => return .error e
   let chain := client.middlewares.foldr (fun mw next req => mw req next) inner
   match ← try chain request catch err => pure (.error (.io err)) with
@@ -371,18 +314,17 @@ private def targetKey : RequestTarget → String
   | t => toString t
 
 /--
-Decides whether `response` continues the redirect chain, given the effective `config` for this
-request. Returns the plan to follow, or `none` when the response is delivered to the caller as-is:
-the hop budget is spent, the response is not a followable redirect, or the target was already
-visited.
+Decides whether `response` continues the redirect chain. Returns the plan to follow, or `none` when
+the response is delivered to the caller as-is: the hop budget is spent, the response is not a
+followable redirect, or the target was already visited.
 -/
-private def evaluateRedirect (hop : Hop) (config : Config) (request : Request Body.Any)
+private def evaluateRedirect (hop : Hop) (request : Request Body.Any)
     (response : Response Body.Stream) (remaining : Nat)
     (history : Array (URI.Origin × String)) : Option RedirectPlan := Id.run do
   if remaining = 0 then return none
 
   let .follow plan :=
-      decideRedirect hop.origin request.line request.body.reset?.isSome config.onlySafeRedirects
+      decideRedirect hop.origin request.line request.body.reset?.isSome
         response.line.version response.line.status response.line.headers
     | return none
 
@@ -395,9 +337,9 @@ Points the chain at the connection the next hop must use: the current one when t
 this origin and the redirect response left it usable, otherwise a fresh one for the plan's origin,
 with the outgoing connection retired first.
 -/
-private def advanceHop (client : Client) (hop : Hop) (config : Config) (plan : RedirectPlan)
-    (response : Response Body.Stream) : Async (Except Error Hop) := do
-  if !plan.isCrossOrigin ∧ allowsConnectionReuse config response.line then
+private def advanceHop (client : Client) (hop : Hop) (config : Config) (method : Method)
+    (plan : RedirectPlan) (response : Response Body.Stream) : Async (Except Error Hop) := do
+  if !plan.isCrossOrigin ∧ Connection.leavesConnectionReusable config method response.line then
     if !(← hop.connection.isClosed) then return .ok hop
 
   client.retireConnection hop.connection hop.origin
@@ -414,17 +356,16 @@ private partial def sendWithRedirects
   -- Recomputed per hop: a cross-origin swap may land on a connection with a different `Config`.
   let config := overrides.apply hop.connection.config
   let history := history.push (hop.origin, targetKey request.line.uri)
-  let request := withHostHeader hop (rewriteForProxy hop request)
 
   match ← dispatchHop client hop request overrides with
   | .error e => return .error e
   | .ok (response, completion) =>
-    match evaluateRedirect hop config request response remaining history with
+    match evaluateRedirect hop request response remaining history with
     | none => return .ok response
     | some plan =>
       -- Draining the redirect body and rebuilding the request run user-supplied `Body` code;
       -- an exception thrown there must still retire the checked-out connection.
-      let drainLimit := config.redirectBodyDrainLimit.toUInt64
+      let drainLimit := config.intermediateBodyDrainLimit.toUInt64
       let next : Except Error (Hop × Request Body.Any) ←
         try
           response.body.drain (drainLimit := some drainLimit)
@@ -432,7 +373,7 @@ private partial def sendWithRedirects
           if let some completion := completion then
             discard <| await completion.result!
           let newRequest ← buildRedirectRequest plan request
-          match ← advanceHop client hop config plan response with
+          match ← advanceHop client hop config request.line.method plan response with
           | .error e => pure (.error e)
           | .ok hop => pure (.ok (hop, newRequest))
         catch err =>

@@ -8,11 +8,11 @@ module
 prelude
 public import Lean.PrettyPrinter.Formatter
 public import Lean.PrettyPrinter.Parenthesizer
-meta import Lean.Hygiene
 -- for `run_builtin_parser_attribute_hooks`
 import all Lean.Parser.Types
 import all Lean.Parser.Basic
 import all Lean.Parser.Extension
+public meta import Lean.Hygiene
 
 public section
 
@@ -26,7 +26,7 @@ attribute [run_builtin_parser_attribute_hooks]
   unicodeSymbol nonReservedSymbol
   withCache withResetCache withPosition withPositionAfterLinebreak withoutPosition withForbidden withoutForbidden setExpected
   incQuotDepth decQuotDepth suppressInsideQuot evalInsideQuot
-  withOpen withOpenDecl
+  withOpen withOpenDecl withSetOption withSetOptionValue
   dbgTraceState
 
 /-- The parser `optional(p)`, or `(p)?`, parses `p` if it succeeds,

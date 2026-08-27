@@ -6,8 +6,9 @@ Authors: Joe Hendrix
 module
 
 prelude
-public import Init.Data.Bool
-public import Init.Data.Nat.Lemmas
+public import Init.Grind.Tactics
+import Init.Data.Bool
+import Init.Data.Nat.Lemmas
 
 public section
 

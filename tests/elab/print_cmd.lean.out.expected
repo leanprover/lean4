@@ -1,0 +1,5 @@
+inductive Nat : Type
+number of parameters: 0
+constructors:
+Nat.zero : Nat
+Nat.succ : Nat → Nat

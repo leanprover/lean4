@@ -7,6 +7,10 @@ module
 
 prelude
 public import Init.Grind.Ring.Basic
+public import Init.Data.Int.Lemmas
+public import Init.Data.Int.Pow
+import Init.Data.Int.DivMod.Lemmas
+import Init.Meta
 
 public section
 

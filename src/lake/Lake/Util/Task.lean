@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Control.Option
+public import Init.Control.Except
 
 namespace Lake
 

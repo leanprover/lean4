@@ -6,7 +6,9 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-public import Init.ByCases
+public import Init.Data.Nat.Basic
+import Init.ByCases
+import Init.PropLemmas
 
 public section
 
@@ -56,7 +58,7 @@ protected theorem min_le_right (a b : Nat) : min a b ≤ b := by
 protected theorem min_le_left (a b : Nat) : min a b ≤ a :=
   Nat.min_comm .. ▸ Nat.min_le_right ..
 
-@[simp] protected theorem min_eq_left {a b : Nat} (h : a ≤ b) : min a b = a := if_pos h
+@[simp] protected theorem min_eq_left {a b : Nat} (h : a ≤ b) : min a b = a := ite_eq_left h
 @[simp] protected theorem min_eq_right {a b : Nat} (h : b ≤ a) : min a b = b :=
   Nat.min_comm .. ▸ Nat.min_eq_left h
 
@@ -115,7 +117,7 @@ protected theorem le_max_left (a b : Nat) : a ≤ max a b := by
 protected theorem le_max_right (a b : Nat) : b ≤ max a b :=
    Nat.max_comm .. ▸ Nat.le_max_left ..
 
-@[simp] protected theorem max_eq_right {a b : Nat} (h : a ≤ b) : max a b = b := if_pos h
+@[simp] protected theorem max_eq_right {a b : Nat} (h : a ≤ b) : max a b = b := ite_eq_left h
 
 @[simp] protected theorem max_eq_left {a b : Nat} (h : b ≤ a) : max a b = a :=
   Nat.max_comm .. ▸ Nat.max_eq_right h

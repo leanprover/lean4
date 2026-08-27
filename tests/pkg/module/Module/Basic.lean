@@ -52,6 +52,10 @@ This is a current compiler limitation for `module`s that may be lifted in the fu
 #guard_msgs in
 public def Fun.mk (f : Nat → Nat) : Fun := f
 
+public structure UInt8Struct where
+  x : UInt8
+deriving Inhabited
+
 #guard_msgs(drop warning) in
 /-- A theorem. -/
 public theorem t : f = 1 := testSorry
@@ -227,19 +231,19 @@ public def f.eq_def := 1
 #guard_msgs in
 public def fexp.eq_def := 1
 
-/-- info: @[defeq] private theorem f.eq_def : f = 1 -/
+/-- info: @[backward_defeq] private theorem f.eq_def : f = 1 -/
 #guard_msgs in #print sig f.eq_def
 
-/-- info: @[defeq] private theorem f.eq_unfold : f = 1 -/
+/-- info: @[backward_defeq] private theorem f.eq_unfold : f = 1 -/
 #guard_msgs in #print sig f.eq_unfold
 
-/-- info: @[defeq] theorem fexp.eq_def : fexp = 1 -/
+/-- info: @[backward_defeq] theorem fexp.eq_def : fexp = 1 -/
 #guard_msgs in #print sig fexp.eq_def
 
-/-- info: @[defeq] theorem fexp.eq_unfold : fexp = 1 -/
+/-- info: @[backward_defeq] theorem fexp.eq_unfold : fexp = 1 -/
 #guard_msgs in #print sig fexp.eq_unfold
 
-/-- info: @[defeq] private theorem f_struct.eq_1 : f_struct 0 = 0 -/
+/-- info: @[backward_defeq] private theorem f_struct.eq_1 : f_struct 0 = 0 -/
 #guard_msgs in #print sig f_struct.eq_1
 
 /--
@@ -423,13 +427,17 @@ meta structure Foo where
 deriving TypeName
 
 /--
-info: private meta def instTypeNameFoo : TypeName Foo :=
+info: @[instance_reducible] private meta def instTypeNameFoo : TypeName Foo :=
 inst✝
 -/
 #guard_msgs in
 #print instTypeNameFoo
 
 public meta def pubMeta := 1
+
+/-- error: Invalid `meta` definition `veryMeta`, `f` not marked `meta` -/
+#guard_msgs in
+meta def veryMeta := f
 
 /-! `#eval` should accept `meta` and non-`meta`. -/
 
@@ -487,15 +495,29 @@ public structure S
 def S.s := 1
 
 /--
-error: Invalid field `s`: The environment does not contain `S.s`
+error: Invalid field `s`: The environment does not contain `S.s`, so it is not possible to project the field `s` from an expression
   s
-has type
-  S
+of type `S`
 
 Note: A private declaration `S.s` (from the current module) exists but would need to be public to access here.
 -/
 #guard_msgs in
 @[expose] public def useS (s : S) := s.s
+
+/-! Private dot notation access through structure inheritance should still
+identify the private declaration on the base structure. -/
+
+public structure SDerived extends S
+
+/--
+error: Invalid field `s`: The environment does not contain `SDerived.s`, so it is not possible to project the field `s` from an expression
+  s
+of type `SDerived`
+
+Note: A private declaration `S.s` (from the current module) exists but would need to be public to access here.
+-/
+#guard_msgs in
+@[expose] public def useSDerived (s : SDerived) := s.s
 
 /- `meta` should trump `noncomputable`. -/
 
@@ -511,3 +533,59 @@ public meta def delab : Lean.PrettyPrinter.Delaborator.Delab :=
 
 public def noMetaDelab : Lean.PrettyPrinter.Delaborator.Delab :=
   default
+
+/-- error: Cannot make suggestions for private names -/
+#guard_msgs in
+@[suggest_for Bar1]
+def FooBar1 := 4
+
+/-- error: Cannot make suggestions for private names -/
+#guard_msgs in
+@[suggest_for Bar2]
+meta def FooBar2 := 4
+
+#guard_msgs in
+@[suggest_for Bar3 FooBar1 FooBar2]
+public def FooBar3 := 4
+
+/-- #11672: Check that `by` creates aux theorems with correct type in presence of opaque defs. -/
+
+@[no_expose] public def five : Nat := 5
+
+public class A where
+  a : five = 5
+  b : Nat
+
+public instance : A where
+  a := by rfl
+  b := 0
+
+-- should NOT be `five = five`, which is not a valid proof of `A.a` in the public scope
+/--
+info: theorem instA._proof_1 : five = 5 :=
+Eq.refl five
+-/
+#guard_msgs in
+#print instA._proof_1
+
+/-- Setup for #11715. -/
+
+public structure OpOperand2 where
+  nextUse : Option Nat
+
+public def func (ctx : Nat) (operand : OpOperand2) : Nat :=
+  match operand.nextUse with
+  | none => ctx
+  | some _nextPtr => ctx
+
+/-- Setup for #12833. -/
+public def Namespaced.def := 0
+
+/-! Setup for the default-instance visibility test in `Module.PrivateImported`. -/
+
+public structure CustomMulT where
+  x : Nat
+
+@[default_instance]
+public instance instHMulNatCustom : HMul Nat CustomMulT CustomMulT where
+  hMul a b := { x := a + b.x }

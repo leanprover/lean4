@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.String.Slice
+import Init.Data.Iterators.Consumers.Collect  -- shake: keep (used in verso)
 
 set_option doc.verso true
 
@@ -25,9 +26,9 @@ section
 open String.Slice Pattern
 
 variable {ρ : Type} {σ : Slice → Type}
-variable [∀ s, Std.Iterators.Iterator (σ s) Id (SearchStep s)]
+variable [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
 variable [∀ s, Std.Iterators.Finite (σ s) Id]
-variable [∀ s, Std.Iterators.IteratorLoop (σ s) Id Id]
+variable [∀ s, Std.IteratorLoop (σ s) Id Id]
 
 
 /--
@@ -94,7 +95,7 @@ Examples:
 @[inline]
 def Pos.find?  {s : String} (pos : s.Pos) (pattern : ρ)
     [ToForwardSearcher pattern σ] : Option s.Pos :=
-  (pos.toSlice.find? pattern).map (·.ofSlice)
+  (pos.toSlice.find? pattern).map Pos.ofToSlice
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in after the position
@@ -109,7 +110,7 @@ Examples:
 @[inline]
 def Pos.find {s : String} (pos : s.Pos) (pattern : ρ) [ToForwardSearcher pattern σ] :
     s.Pos :=
-  (pos.toSlice.find pattern).ofSlice
+  ofToSlice (pos.toSlice.find pattern)
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in a string {name}`s`. If
@@ -124,7 +125,7 @@ Examples:
 -/
 @[inline]
 def find? (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : Option s.Pos :=
-  s.startPos.find? pattern
+  (s.toSlice.find? pattern).map Pos.ofToSlice
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in a slice {name}`s`. If there
@@ -139,7 +140,7 @@ Examples:
 -/
 @[inline]
 def find (s : String) (pattern : ρ) [ToForwardSearcher pattern σ] : s.Pos :=
-  s.startPos.find pattern
+  Pos.ofToSlice (s.toSlice.find pattern)
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in a slice {name}`s` that is
@@ -172,7 +173,7 @@ Examples:
 @[inline]
 def Pos.revFind? {s : String} (pos : s.Pos) (pattern : ρ) [ToBackwardSearcher pattern σ] :
     Option s.Pos :=
-  (pos.toSlice.revFind? pattern).map (·.ofSlice)
+  (pos.toSlice.revFind? pattern).map Pos.ofToSlice
 
 /--
 Finds the position of the first match of the pattern {name}`pattern` in a string, starting
@@ -188,55 +189,11 @@ Examples:
 -/
 @[inline]
 def revFind? (s : String) (pattern : ρ) [ToBackwardSearcher pattern σ] : Option s.Pos :=
-  s.endPos.revFind? pattern
+  (s.toSlice.revFind? pattern).map Pos.ofToSlice
 
 @[export lean_string_posof]
 def Internal.posOfImpl (s : String) (c : Char) : Pos.Raw :=
   (s.find c).offset
-
-@[deprecated String.Pos.find (since := "2025-11-19")]
-def findAux (s : String) (p : Char → Bool) (stopPos : Pos.Raw) (pos : Pos.Raw) : Pos.Raw :=
-  if h : pos ≤ stopPos ∧ pos.IsValid s ∧ stopPos.IsValid s then
-    (String.Slice.mk s (s.pos pos h.2.1) (s.pos stopPos h.2.2)
-      (by simp [Pos.le_iff, h.1])).find p |>.str.offset
-  else stopPos
-
-@[deprecated String.Pos.find (since := "2025-11-19")]
-def posOfAux (s : String) (c : Char) (stopPos : Pos.Raw) (pos : Pos.Raw) : Pos.Raw :=
-  if h : pos ≤ stopPos ∧ pos.IsValid s ∧ stopPos.IsValid s then
-    (String.Slice.mk s (s.pos pos h.2.1) (s.pos stopPos h.2.2)
-      (by simp [Pos.le_iff, h.1])).find c |>.str.offset
-  else stopPos
-
-@[deprecated String.find (since := "2025-11-19")]
-def posOf (s : String) (c : Char) : Pos.Raw :=
-  (s.find c).offset
-
-@[deprecated String.Pos.revFind? (since := "2025-11-19")]
-def revPosOfAux (s : String) (c : Char) (pos : Pos.Raw) : Option Pos.Raw :=
-  s.pos? pos |>.bind (·.revFind? c) |>.map (·.offset)
-
-@[deprecated String.revFind? (since := "2025-11-19")]
-def revPosOf (s : String) (c : Char) : Option Pos.Raw :=
-  s.revFind? c |>.map (·.offset)
-
-@[deprecated String.Pos.revFind? (since := "2025-11-19")]
-def revFindAux (s : String) (p : Char → Bool) (pos : Pos.Raw) : Option Pos.Raw :=
-  s.pos? pos |>.bind (·.revFind? p) |>.map (·.offset)
-
-@[deprecated String.revFind? (since := "2025-11-19")]
-def revFind (s : String) (p : Char → Bool) : Option Pos.Raw :=
-  s.revFind? p |>.map (·.offset)
-
-/--
-Returns the position of the beginning of the line that contains the position {name}`pos`.
-
-Lines are ended by {lean}`'\n'`, and the returned position is either {lean}`0 : String.Pos.Raw` or
-immediately after a {lean}`'\n'` character.
--/
-@[deprecated String.Pos.revFind? (since := "2025-11-19")]
-def findLineStart (s : String) (pos : String.Pos.Raw) : String.Pos.Raw :=
-  s.pos? pos |>.bind (·.revFind? '\n') |>.map (·.offset) |>.getD s.startPos.offset
 
 /--
 Splits a string at each subslice that matches the pattern {name}`pat`.
@@ -250,7 +207,7 @@ Examples:
  * {lean}`("coffee tea water".split Char.isWhitespace).toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
  * {lean}`("coffee tea water".split ' ').toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
  * {lean}`("coffee tea water".split " tea ").toList == ["coffee".toSlice, "water".toSlice]`
- * {lean}`("ababababa".split "aba").toList == ["coffee".toSlice, "water".toSlice]`
+ * {lean}`("ababababa".split "aba").toList == ["".toSlice, "b".toSlice, "ba".toSlice]`
  * {lean}`("baaab".split "aa").toList == ["b".toSlice, "ab".toSlice]`
 -/
 @[inline]
@@ -273,25 +230,30 @@ Examples:
 def splitInclusive (s : String) (pat : ρ) [ToForwardSearcher pat σ] :=
   (s.toSlice.splitInclusive pat : Std.Iter String.Slice)
 
-@[deprecated String.Slice.foldl (since := "2025-11-20")]
-def foldlAux {α : Type u} (f : α → Char → α) (s : String) (stopPos : Pos.Raw) (i : Pos.Raw) (a : α) : α :=
-  s.slice! (s.pos! i) (s.pos! stopPos) |>.foldl f a
-
 /--
-Folds a function over a string from the start, accumulating a value starting with {name}`init`. The
-accumulated value is combined with each character in order, using {name}`f`.
+Checks whether a string has a match of the pattern {name}`pat` anywhere.
+
+This function is generic over all currently supported patterns.
 
 Examples:
- * {lean}`"coffee tea water".foldl (fun n c => if c.isWhitespace then n + 1 else n) 0 = 2`
- * {lean}`"coffee tea and water".foldl (fun n c => if c.isWhitespace then n + 1 else n) 0 = 3`
- * {lean}`"coffee tea water".foldl (·.push ·) "" = "coffee tea water"`
+ * {lean}`"coffee tea water".contains Char.isWhitespace = true`
+ * {lean}`"tea".contains (fun (c : Char) => c == 'X') = false`
+ * {lean}`"coffee tea water".contains "tea" = true`
 -/
-@[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : String) : α :=
-  s.toSlice.foldl f init
+@[inline, suggest_for String.some]
+def contains (s : String) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
+  s.toSlice.contains pat
 
-@[export lean_string_foldl]
-def Internal.foldlImpl (f : String → Char → String) (init : String) (s : String) : String :=
-  String.foldl f init s
+@[export lean_string_contains]
+def Internal.containsImpl (s : String) (c : Char) : Bool :=
+  String.contains s c
+
+@[inline, inherit_doc contains] def any (s : String) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
+  s.contains pat
+
+@[export lean_string_any]
+def Internal.anyImpl (s : String) (p : Char → Bool) :=
+  String.any s p
 
 /--
 Checks whether the string can be interpreted as the decimal representation of a natural number.
@@ -359,6 +321,78 @@ Examples:
   s.toSlice.toNat!
 
 /--
+Interprets a string as the decimal representation of an integer, returning it. Returns {lean}`none`
+if the string does not contain a decimal integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading `+` characters are not allowed.
+
+Use {name (scope := "Init.Data.String.Search")}`String.isInt` to check whether {name}`String.toInt?`
+would return {lean}`some`. {name (scope := "Init.Data.String.Search")}`String.toInt!` is an
+alternative that panics instead of returning {lean}`none` when the string is not an integer.
+
+Examples:
+ * {lean}`"".toInt? = none`
+ * {lean}`"-".toInt? = none`
+ * {lean}`"0".toInt? = some 0`
+ * {lean}`"5".toInt? = some 5`
+ * {lean}`"-5".toInt? = some (-5)`
+ * {lean}`"587".toInt? = some 587`
+ * {lean}`"-587".toInt? = some (-587)`
+ * {lean}`" 5".toInt? = none`
+ * {lean}`"2-3".toInt? = none`
+ * {lean}`"0xff".toInt? = none`
+-/
+@[inline] def toInt? (s : String) : Option Int :=
+  s.toSlice.toInt?
+
+/--
+Checks whether the string can be interpreted as the decimal representation of an integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading `+` characters are not allowed.
+
+Use {name}`String.toInt?` or {name (scope := "Init.Data.String.Search")}`String.toInt!` to convert
+such a string to an integer.
+
+Examples:
+ * {lean}`"".isInt = false`
+ * {lean}`"-".isInt = false`
+ * {lean}`"0".isInt = true`
+ * {lean}`"-0".isInt = true`
+ * {lean}`"5".isInt = true`
+ * {lean}`"587".isInt = true`
+ * {lean}`"-587".isInt = true`
+ * {lean}`"+587".isInt = false`
+ * {lean}`" 5".isInt = false`
+ * {lean}`"2-3".isInt = false`
+ * {lean}`"0xff".isInt = false`
+-/
+@[inline] def isInt (s : String) : Bool :=
+  s.toSlice.isInt
+
+/--
+Interprets a string as the decimal representation of an integer, returning it. Panics if the string
+does not contain a decimal integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading `+` characters are not allowed.
+
+Use {name}`String.isInt` to check whether {name}`String.toInt!` would return a value.
+{name}`String.toInt?` is a safer alternative that returns {lean}`none` instead of panicking when the
+string is not an integer.
+
+Examples:
+ * {lean}`"0".toInt! = 0`
+ * {lean}`"5".toInt! = 5`
+ * {lean}`"587".toInt! = 587`
+ * {lean}`"-587".toInt! = -587`
+-/
+@[inline] def toInt! (s : String) : Int :=
+  s.toSlice.toInt!
+
+
+/--
 Returns the first character in {name}`s`. If {name}`s` is empty, returns {name}`none`.
 
 Examples:
@@ -404,88 +438,6 @@ Examples:
 -/
 @[inline, expose] def back (s : String) : Char :=
   s.toSlice.back
-
-theorem Slice.Pos.ofSlice_ne_endPos {s : String} {p : s.toSlice.Pos}
-    (h : p ≠ s.toSlice.endPos) : p.ofSlice ≠ s.endPos := by
-  rwa [ne_eq, ← Pos.toSlice_inj, toSlice_ofSlice, ← endPos_toSlice]
-
-@[inline]
-def Internal.toSliceWithProof {s : String} :
-    { p : s.toSlice.Pos // p ≠ s.toSlice.endPos } → { p : s.Pos // p ≠ s.endPos } :=
-  fun ⟨p, h⟩ => ⟨p.ofSlice, Slice.Pos.ofSlice_ne_endPos h⟩
-
-/--
-Creates an iterator over all valid positions within {name}`s`.
-
-Examples
- * {lean}`("abc".positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', 'c']`
- * {lean}`("abc".positions.map (·.val.offset.byteIdx) |>.toList) = [0, 1, 2]`
- * {lean}`("ab∀c".positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', '∀', 'c']`
- * {lean}`("ab∀c".positions.map (·.val.offset.byteIdx) |>.toList) = [0, 1, 2, 5]`
--/
-@[inline]
-def positions (s : String) :=
-  (s.toSlice.positions.map Internal.toSliceWithProof : Std.Iter { p : s.Pos // p ≠ s.endPos })
-
-/--
-Creates an iterator over all characters (Unicode code points) in {name}`s`.
-
-Examples:
- * {lean}`"abc".chars.toList = ['a', 'b', 'c']`
- * {lean}`"ab∀c".chars.toList = ['a', 'b', '∀', 'c']`
--/
-@[inline]
-def chars (s : String) :=
-  (s.toSlice.chars : Std.Iter Char)
-
-/--
-Creates an iterator over all valid positions within {name}`s`, starting from the last valid
-position and iterating towards the first one.
-
-Examples
- * {lean}`("abc".revPositions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['c', 'b', 'a']`
- * {lean}`("abc".revPositions.map (·.val.offset.byteIdx) |>.toList) = [2, 1, 0]`
- * {lean}`("ab∀c".revPositions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['c', '∀', 'b', 'a']`
- * {lean}`("ab∀c".toSlice.revPositions.map (·.val.offset.byteIdx) |>.toList) = [5, 2, 1, 0]`
--/
-@[inline]
-def revPositions (s : String) :=
-  (s.toSlice.revPositions.map Internal.toSliceWithProof : Std.Iter { p : s.Pos // p ≠ s.endPos })
-
-/--
-Creates an iterator over all characters (Unicode code points) in {name}`s`, starting from the end
-of the slice and iterating towards the start.
-
-Example:
- * {lean}`"abc".revChars.toList = ['c', 'b', 'a']`
- * {lean}`"ab∀c".revChars.toList = ['c', '∀', 'b', 'a']`
--/
-@[inline]
-def revChars (s : String) :=
-  (s.toSlice.revChars : Std.Iter Char)
-
-/--
-Creates an iterator over all bytes in {name}`s`.
-
-Examples:
- * {lean}`"abc".byteIterator.toList = [97, 98, 99]`
- * {lean}`"ab∀c".byteIterator.toList = [97, 98, 226, 136, 128, 99]`
--/
-@[inline]
-def byteIterator (s : String) :=
-  (s.toSlice.bytes : Std.Iter UInt8)
-
-/--
-Creates an iterator over all bytes in {name}`s`, starting from the last one and iterating towards
-the first one.
-
-Examples:
- * {lean}`"abc".revBytes.toList = [99, 98, 97]`
- * {lean}`"ab∀c".revBytes.toList = [99, 128, 136, 226, 98, 97]`
--/
-@[inline]
-def revBytes (s : String) :=
-  (s.toSlice.revBytes : Std.Iter UInt8)
 
 /--
 Creates an iterator over all lines in {name}`s` with the line ending characters `\r\n` or `\n` being

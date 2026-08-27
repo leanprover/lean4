@@ -9,21 +9,24 @@ module
 prelude
 public import Lean.Data.Lsp.BasicAux
 public import Lean.DeclarationRange
+import Init.Data.String.Search
 
 public section
 
 /-! LSP uses UTF-16 for indexing, so we need to provide some primitives
 to interact with Lean strings using UTF-16 indices. -/
 
-namespace Char
+open Lean String
+
+namespace Lean.Char
 
 /-- Returns the number of bytes required to encode this `Char` in UTF-16. -/
 def utf16Size (c : Char) : UInt32 :=
   if c.val ≤ 0xFFFF then 1 else 2
 
-end Char
+end Lean.Char
 
-namespace String
+namespace Lean.String
 
 private def csize16 (c : Char) : Nat :=
   c.utf16Size.toNat
@@ -61,7 +64,7 @@ def codepointPosToUtf8PosFrom (s : String) : String.Pos.Raw → Nat → String.P
   | utf8pos, 0 => utf8pos
   | utf8pos, p+1 => codepointPosToUtf8PosFrom s (utf8pos.next s) p
 
-end String
+end Lean.String
 
 namespace Lean
 namespace FileMap

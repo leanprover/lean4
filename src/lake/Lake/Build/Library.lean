@@ -12,6 +12,7 @@ import Lake.Build.Targets
 import Lake.Build.Job.Register
 import Lake.Build.Target.Fetch
 import Lake.Build.Infos
+import Lake.Util.Proc
 
 /-! # Library Facet Builds
 Build function definitions for a library's builtin facets.
@@ -23,36 +24,47 @@ namespace Lake
 
 /-! ## Build Lean & Static Lib -/
 
+private structure ModuleCollection where
+  mods : Array Module := #[]
+  modSet : ModuleSet := ∅
+  hasErrors : Bool := false
+
 /--
 Collect the local modules of a library.
 That is, the modules from `getModuleArray` plus their local transitive imports.
 -/
-private partial def LeanLib.recCollectLocalModules
+partial def LeanLib.recCollectLocalModules
   (self : LeanLib) : FetchM (Job (Array Module))
 := ensureJob do
-  let mut mods := #[]
-  let mut modSet := ModuleSet.empty
+  let mut col : ModuleCollection := {}
   for mod in (← self.getModuleArray) do
-    (mods, modSet) ← go mod mods modSet
-  return Job.pure mods
+    col ← go mod col (viaImport := false)
+  if col.hasErrors then
+    -- This is not considered a fatal error because we want the modules
+    -- built to provide better error categorization in the monitor.
+    logError s!"{self.name}: some modules have bad imports or could not be read"
+  return Job.pure col.mods
 where
-  go root mods modSet := do
-    let mut mods := mods
-    let mut modSet := modSet
-    unless modSet.contains root do
-      modSet := modSet.insert root
-      let imps ← (← root.imports.fetch).await
+  go root col (viaImport : Bool) := do
+    let mut col := col
+    unless col.modSet.contains root do
+      col := {col with modSet := col.modSet.insert root}
+      -- Importers report failures reached through imports. Directly reached modules
+      -- stay in the collection so their build jobs report those failures.
+      let some imps ← (← root.imports.fetch).wait?
+        | let col' := {col with hasErrors := true}
+          return if viaImport then col' else {col' with mods := col'.mods.push root}
       for mod in imps do
         if mod.lib.name = self.name then
-          (mods, modSet) ← go mod mods modSet
-      mods := mods.push root
-    return (mods, modSet)
+          col ← go mod col (viaImport := true)
+      col := {col with mods := col.mods.push root}
+    return col
 
 /-- The `LibraryFacetConfig` for the builtin `modulesFacet`. -/
-private def LeanLib.modulesFacetConfig : LibraryFacetConfig modulesFacet :=
+def LeanLib.modulesFacetConfig : LibraryFacetConfig modulesFacet :=
   mkFacetJobConfig LeanLib.recCollectLocalModules (buildable := false)
 
-private def LeanLib.recBuildLean
+def LeanLib.recBuildLean
   (self : LeanLib) : FetchM (Job Unit)
 := do
   let mods ← (← self.modules.fetch).await
@@ -63,7 +75,7 @@ private def LeanLib.recBuildLean
 public def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
   mkFacetJobConfig LeanLib.recBuildLean
 
-@[specialize] private def LeanLib.recBuildStatic
+@[specialize] def LeanLib.recBuildStatic
   (self : LeanLib) (shouldExport : Bool) : FetchM (Job FilePath)
 := do
   let suffix :=
@@ -77,14 +89,31 @@ public def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
     mod.nativeFacets shouldExport |>.mapM (·.fetch mod)
   let moreOJobs ← self.moreLinkObjs.mapM (·.fetchIn self.pkg)
   let libFile := if shouldExport then self.staticExportLibFile else self.staticLibFile
-  /-
-  The Lean core build requires a thin static library with exported symbols
-  as part of its build process on Windows. However, core is also built without the
-  bundled `llvm-ar`, which is usually a version of `ar` without support for thin archives
-  on macOS. Thus, we have to special case using thin archives on the Windows core build.
-  -/
-  let thin := self.pkg.bootstrap && System.Platform.isWindows && shouldExport
-  buildStaticLib libFile (oJobs ++ moreOJobs) (thin := thin)
+  let bootstrap := self.pkg.bootstrap
+  (Job.collectArray (oJobs ++ moreOJobs) "objs").mapM fun oFiles => do
+    let art ← buildArtifactUnlessUpToDate libFile (ext := "a") (restore := true) do
+      if bootstrap then
+        -- The Lean core build is not built with the bundled `llvm-ar`,
+        -- so it must be special-cased to resolve issues with the system `ar`.
+        if System.Platform.isOSX then
+          -- macOS BSD `ar` does not support `@file` response files.
+          -- Use `libtool -static -filelist` instead, which handles long argument lists natively.
+          createParentDirs libFile
+          let filelistPath := libFile.addExtension "filelist"
+          let h ← IO.FS.Handle.mk filelistPath .write
+          oFiles.forM fun f => h.putStr s!"{f}\n"
+          proc {cmd := "libtool", args := #["-static", "-o", libFile.toString,
+            "-filelist", filelistPath.toString]}
+        else if System.Platform.isWindows then
+          -- The Lean core build requires a thin static library
+          -- with exported symbols as part of its build process on Windows.
+          compileStaticLib libFile oFiles (← getLeanAr) (thin := shouldExport)
+        else
+          -- The normal build process currently works fine on Linux.
+          compileStaticLib libFile oFiles (← getLeanAr)
+      else
+        compileStaticLib libFile oFiles (← getLeanAr)
+    return art.path
 
 /-- The `LibraryFacetConfig` for the builtin `staticFacet`. -/
 public def LeanLib.staticFacetConfig : LibraryFacetConfig staticFacet :=
@@ -96,7 +125,7 @@ public def LeanLib.staticExportFacetConfig : LibraryFacetConfig staticExportFace
 
 /-! ## Build Shared Lib -/
 
-private def LeanLib.recBuildShared (self : LeanLib) : FetchM (Job Dynlib) := do
+def LeanLib.recBuildShared (self : LeanLib) : FetchM (Job Dynlib) := do
   withRegisterJob s!"{self.name}:shared" <| withCurrPackage self.pkg do
   let mods ← (← self.modules.fetch).await
   let objJobs ← mods.flatMapM fun mod =>
@@ -131,8 +160,8 @@ public def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
 
 /--
 Build extra target dependencies of the library (e.g., `extraDepTargets`, `needs`). -/
-private def LeanLib.recBuildExtraDepTargets (self : LeanLib) : FetchM (Job Unit) := do
-  let mut job := Job.nil s!"{self.pkg.name}/{self.name}:extraDep"
+def LeanLib.recBuildExtraDepTargets (self : LeanLib) : FetchM (Job Unit) := do
+  let mut job := Job.nil s!"{self.pkg.baseName}/{self.name}:extraDep"
   job := job.mix (← self.pkg.extraDep.fetch)
   for target in self.extraDepTargets do
     job := job.mix (← self.pkg.fetchTargetJob target)
@@ -145,7 +174,7 @@ public def LeanLib.extraDepFacetConfig : LibraryFacetConfig extraDepFacet :=
   mkFacetJobConfig LeanLib.recBuildExtraDepTargets
 
 /-- Build the default facets for the library. -/
-private def LeanLib.recBuildDefaultFacets (self : LeanLib) : FetchM (Job Unit) := do
+def LeanLib.recBuildDefaultFacets (self : LeanLib) : FetchM (Job Unit) := do
   Job.mixArray <$> self.defaultFacets.mapM fun facet => do
     let job ← (self.facetCore facet).fetch
     return job.toOpaque

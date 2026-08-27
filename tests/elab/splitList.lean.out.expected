@@ -1,0 +1,36 @@
+@len.eq_1 : ∀ {α : Type u_1}, len [] = 0
+@len.eq_2 : ∀ {α : Type u_1} (a : α), len [a] = 1
+@len.eq_3 : ∀ {α : Type u_1} (a b : α) (as : List α),
+  len (a :: b :: as) =
+    match h : a :: b :: as, h₂ : splitList (a :: b :: as), ⋯ with
+    | .(fst ++ snd), ListSplit.split fst snd, h₁ =>
+      have this := ⋯;
+      have dec₁ := ⋯;
+      have dec₂ := ⋯;
+      len fst + len snd
+@len.eq_def : ∀ {α : Type u_1} (x : List α),
+  len x =
+    match x with
+    | [] => 0
+    | [a] => 1
+    | l@h₁:(a :: b :: as) =>
+      match h : l, h₂ : splitList l, h₁ with
+      | .(fst ++ snd), ListSplit.split fst snd, h₁ =>
+        have this := ⋯;
+        have dec₁ := ⋯;
+        have dec₂ := ⋯;
+        len fst + len snd
+@len.eq_1 : ∀ {α : Type u_1}, len [] = 0
+@len.eq_2 : ∀ {α : Type u_1} (a : α), len [a] = 1
+@len.eq_3 : ∀ {α : Type u_1} (a b : α) (as : List α),
+  len (a :: b :: as) =
+    match h : a :: b :: as, h₂ : splitList (a :: b :: as), ⋯ with
+    | .(fst ++ snd), ListSplit.split fst snd, h₁ => len fst + len snd
+@len.eq_def : ∀ {α : Type u_1} (x : List α),
+  len x =
+    match x with
+    | [] => 0
+    | [a] => 1
+    | l@h₁:(a :: b :: as) =>
+      match h : l, h₂ : splitList l, h₁ with
+      | .(fst ++ snd), ListSplit.split fst snd, h₁ => len fst + len snd

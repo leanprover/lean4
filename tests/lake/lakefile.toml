@@ -11,4 +11,3 @@ name = "lake"
 root = "LakeMain"
 needs = ["Lake"]
 supportInterpreter = true
-leanOptions.experimental.module = true

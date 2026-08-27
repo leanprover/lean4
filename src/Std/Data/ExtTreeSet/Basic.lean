@@ -446,16 +446,12 @@ order.
 def forIn [TransCmp cmp] (f : α → δ → m (ForInStep δ)) (init : δ) (t : ExtTreeSet α cmp) : m δ :=
   t.inner.forIn (fun a _ c => f a c) init
 
-/-
-Note: We ignore the monad instance provided by `forM` / `forIn` and instead use the one from the
-instance in order to get the `LawfulMonad m` assumption
--/
 
-instance [TransCmp cmp] [inst : Monad m] [LawfulMonad m] : ForM m (ExtTreeSet α cmp) α where
-  forM t f := @forM _ _ _ inst _ _ f t
+instance [TransCmp cmp] [Monad m] [LawfulMonad m] : ForM m (ExtTreeSet α cmp) α where
+  forM t f := forM f t
 
-instance [TransCmp cmp] [inst : Monad m] [LawfulMonad m] : ForIn m (ExtTreeSet α cmp) α where
-  forIn m init f := @forIn _ _ _ _ inst _ _ f init m
+instance [TransCmp cmp] [Monad m] [LawfulMonad m] : ForIn m (ExtTreeSet α cmp) α where
+  forIn m init f := forIn f init m
 
 /-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
 @[inline]
@@ -533,6 +529,31 @@ def inter [TransCmp cmp] (t₁ t₂ : ExtTreeSet α cmp) : ExtTreeSet α cmp := 
 
 instance [TransCmp cmp] : Inter (ExtTreeSet α cmp) := ⟨inter⟩
 
+instance [TransCmp cmp] : BEq (ExtTreeSet α cmp) where
+  beq m₁ m₂ := ExtDTreeMap.Const.beq m₁.inner.inner m₂.inner.inner
+
+instance [TransCmp cmp] : ReflBEq (ExtTreeSet α cmp) where
+  rfl := ExtDTreeMap.Const.beq_of_eq _ _ rfl
+
+instance [TransCmp cmp] [LawfulEqCmp cmp] : LawfulBEq (ExtTreeSet α cmp) where
+  eq_of_beq {a} {b} hyp := by
+    have ⟨⟨_⟩⟩ := a
+    have ⟨⟨_⟩⟩ := b
+    simp only [mk.injEq, ExtTreeMap.mk.injEq] at |- hyp
+    exact ExtDTreeMap.Const.eq_of_beq _ _ hyp
+
+/--
+Computes the difference of the given tree sets.
+
+This function always iterates through the smaller set.
+-/
+@[inline]
+def diff [TransCmp cmp] (t₁ t₂ : ExtTreeSet α cmp) : ExtTreeSet α cmp := ⟨ExtTreeMap.diff t₁.inner t₂.inner⟩
+
+instance [TransCmp cmp] : SDiff (ExtTreeSet α cmp) := ⟨diff⟩
+
+instance {α : Type u} {cmp : α → α → Ordering} [LawfulEqCmp cmp] [TransCmp cmp] : DecidableEq (ExtTreeSet α cmp) :=
+  fun _ _ => decidable_of_iff _ beq_iff_eq
 
 /--
 Erases multiple items from the tree set by iterating over the given collection and calling erase.

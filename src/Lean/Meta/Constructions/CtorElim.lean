@@ -12,7 +12,6 @@ import Lean.Meta.CompletionName
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.NatTable
 import Lean.Elab.App
-import Lean.Meta.Tactic.Simp.Attr
 
 namespace Lean
 
@@ -218,8 +217,7 @@ public def mkCtorElim (indName : Name) : MetaM Unit := do
   unless indVal.numCtors > 1 do return
   -- Do not do anything unless its a type and can elim to type
   if (← isPropFormerType indVal.type) then return
-  let recInfo ← getConstInfo (mkRecName indName)
-  unless recInfo.levelParams.length > indVal.levelParams.length do return
+  unless (← isLargeEliminating indName) do return
 
   -- Expose if indName is not private
   withExporting (isExporting := ! isPrivateName indName) do
@@ -232,7 +230,7 @@ public def mkCtorElim (indName : Name) : MetaM Unit := do
 Generate the `.toCtorIdx` and `.ctor.elim` definitions for the given inductive.
 
 This attribute is only meant to be used in `Init.Prelude` to build these constructions for
-types where we did not generate them imediatelly (due to `set_option genCtorIdx false`).
+types where we did not generate them immediately (due to `set_option genCtorIdx false`).
 -/
 @[builtin_doc]
 builtin_initialize registerBuiltinAttribute {

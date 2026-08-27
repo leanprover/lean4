@@ -9,8 +9,10 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.Meta.Tactic.Split
-import Lean.Meta.Match.MatchEqs
+import Lean.Meta.Tactic.Refl
+import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.SplitIf
+import Lean.Meta.Tactic.Contradiction
 
 /-!
 This module contains helpers useful to prove unfolding and/or equational theorems.
@@ -47,7 +49,7 @@ public def tryContradiction (mvarId : MVarId) : MetaM Bool := do
   mvarId.contradictionCore { genDiseq := true }
 
 partial def whnfAux (e : Expr) : MetaM Expr := do
-  let e ← whnfI e -- Must reduce instances too, otherwise it will not be able to reduce `(Nat.rec ... ... (OfNat.ofNat 0))`
+  let e ← whnfR e
   let f := e.getAppFn
   match f with
   | .proj _ _ s => return mkAppN (f.updateProj! (← whnfAux s)) e.getAppArgs

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Util.Trace
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
 

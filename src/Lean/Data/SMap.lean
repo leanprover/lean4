@@ -8,6 +8,9 @@ module
 prelude
 public import Std.Data.HashMap.Basic
 public import Lean.Data.PersistentHashMap
+public import Std.Data.HashMap.Iterator
+public import Lean.Data.Iterators.Producers.PersistentHashMap
+public import Init.Data.Iterators.Combinators.Append
 
 public section
 universe u v w w'
@@ -80,11 +83,14 @@ def forM [Monad m] (s : SMap α β) (f : α → β → m PUnit) : m PUnit := do
   s.map₁.forM f
   s.map₂.forM f
 
-instance : ForM m (SMap α β) (α × β) where
+instance [Monad m] : ForM m (SMap α β) (α × β) where
   forM s f := forM s fun x y => f (x, y)
 
-instance : ForIn m (SMap α β) (α × β) where
+instance [Monad m] : ForIn m (SMap α β) (α × β) where
   forIn := ForM.forIn
+
+def iter (s : SMap α β) :=
+  s.map₁.iter.append s.map₂.iter
 
 /-- Move from stage 1 into stage 2. -/
 def switch (m : SMap α β) : SMap α β :=
@@ -109,7 +115,7 @@ def toList (m : SMap α β) : List (α × β) :=
 
 end SMap
 
-def _root_.List.toSMap [BEq α] [Hashable α] (es : List (α × β)) : SMap α β :=
+def List.toSMap [BEq α] [Hashable α] (es : List (α × β)) : SMap α β :=
   es.foldl (init := {}) fun s (a, b) => s.insert a b
 
 instance {_ : BEq α} {_ : Hashable α} [Repr α] [Repr β] : Repr (SMap α β) where

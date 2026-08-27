@@ -12,3 +12,4 @@ public import Std.Data.TreeMap.Raw.Lemmas
 public import Std.Data.TreeMap.Raw.WF
 public import Std.Data.TreeMap.Raw.Iterator
 public import Std.Data.TreeMap.Raw.Slice
+public import Std.Data.TreeMap.Raw.DecidableEquiv

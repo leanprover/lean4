@@ -9,6 +9,7 @@ module
 prelude
 public import Lean.Data.DeclarationRange
 public import Lean.Data.OpenDecl
+public import Lean.Data.PPContext
 public import Lean.MetavarContext
 public import Lean.Environment
 public import Lean.Widget.Types
@@ -18,12 +19,23 @@ public section
 namespace Lean.Elab
 
 /--
-Context after executing `liftTermElabM`.
+Context at the `CommandElabM/TermElabM` level. Created by `elabCommand` at the top level and then
+nestedly when relevant fields are affected (e.g. just before discarding the `mctx` when exiting from
+`TermElabM`).
+
 Note that the term information collected during elaboration may contain metavariables, and their
 assignments are stored at `mctx`.
 -/
 structure CommandContextInfo where
   env           : Environment
+  /--
+  Final environment at the end of `elabCommand`; empty for nested contexts. This environment can be
+  used to access information about the fully-elaborated current declaration such as declaration
+  ranges. It may not be a strict superset of `env` in case of backtracking, so `env` should be
+  preferred to access information about the elaboration context at the time this context object was
+  created.
+  -/
+  cmdEnv?       : Option Environment := none
   fileMap       : FileMap
   mctx          : MetavarContext := {}
   options       : Options        := {}
@@ -197,8 +209,10 @@ regular delaboration settings. Additionally, omissions come with a reason for om
 structure DelabTermInfo extends TermInfo where
   /-- A source position to use for "go to definition", to override the default. -/
   location? : Option DeclarationLocation := none
-  /-- Text to use to override the docstring. -/
-  docString? : Option String := none
+  /-- Text to use to override the docstring. The string may be dynamic text. It is an `IO` action
+  so that it can be computed only when it is used. The action receives a `PPContext` so that the
+  action does not need to create a closure with the meta state. -/
+  mkDocString? : Option (PPContext → IO String) := none
   /-- Whether to use explicit mode when pretty printing the term on hover. -/
   explicit : Bool := true
 

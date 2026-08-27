@@ -15,8 +15,12 @@ dynamically convert expressions from other types into `Int` expressions
 and these expressions must be normalized inside of the cutsat module.
 -/
 
-/-- Converts the given integer expression into `Int.Linear.Expr` -/
-partial def toLinearExpr (e : Expr) (generation : Nat := 0) : GoalM Int.Linear.Expr := do
+/-
+**Note**: It is safe to use (the more efficient) structural instances tests here because `grind` uses the canonicalizer.
+-/
+open Structural in
+/-- Converts the given integer expression into `Int.Internal.Linear.Expr` -/
+partial def toLinearExpr (e : Expr) (generation : Nat := 0) : GoalM Int.Internal.Linear.Expr := do
   let toVar (e : Expr) := do
     let e ← shareCommon e
     if (← alreadyInternalized e) then

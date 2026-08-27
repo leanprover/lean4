@@ -6,7 +6,8 @@ Authors: Mario Carneiro
 module
 
 prelude
-import Lean.DocString.Add
+import Lean.Elab.InfoTree.Main
+import Lean.DocString.Markdown
 
 namespace Lean
 
@@ -16,7 +17,7 @@ Uses documentation from a specified declaration.
 `@[inherit_doc decl]` is used to inherit the documentation from the declaration `decl`.
 -/
 @[builtin_doc]
-public builtin_initialize
+builtin_initialize
   registerBuiltinAttribute {
     name := `inherit_doc
     descr := "inherit documentation from a specified declaration"

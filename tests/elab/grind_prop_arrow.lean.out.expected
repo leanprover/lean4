@@ -1,0 +1,15 @@
+[grind.eqc] (p ∨ ∀ (h : i + 1 ≤ a.size), f a i ⋯ = true) = True
+[grind.eqc] (i + 1 ≤ b.size) = True
+[grind.eqc] a = b
+[grind.eqc] a.size = b.size
+[grind.eqc] ↑b.size = ↑a.size
+[grind.eqc] (i + 1 ≤ a.size) = True
+[grind.eqc] (∀ (h : i + 1 ≤ a.size), f a i ⋯ = true) = (f a i ⋯ = true)
+[grind.eqc] (i < a.size) = True
+[grind.eqc] p = False
+[grind.eqc] (p ∨ ∀ (h : i + 1 ≤ a.size), f a i ⋯ = true) = ∀ (h : i + 1 ≤ a.size), f a i ⋯ = true
+[grind.eqc] f a i ⋯ = true
+[grind.eqc] f b i ⋯ = false
+[grind.eqc] (i < b.size) = True
+[grind.eqc] ⋯ ≍ ⋯
+[grind.eqc] f b i ⋯ = f a i ⋯

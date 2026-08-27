@@ -7,7 +7,13 @@ module
 
 prelude
 import all Init.Data.List.Basic
-public import Init.Data.List.Lemmas
+public import Init.BinderPredicates
+public import Init.Ext
+import Init.ByCases
+import Init.Data.Bool
+import Init.Data.List.Lemmas
+import Init.Data.Nat.Div.Basic
+import Init.Data.Option.Lemmas
 
 public section
 
@@ -174,7 +180,7 @@ theorem drop_set {l : List α} {i j : Nat} {a : α} :
 
 theorem set_drop {l : List α} {i j : Nat} {a : α} :
     (l.drop i).set j a = (l.set (i + j) a).drop i := by
-  rw [drop_set, if_neg, add_sub_self_left]
+  rw [drop_set, ite_eq_right, add_sub_self_left]
   exact (Nat.not_lt).2 (le_add_right ..)
 
 theorem take_concat_get {l : List α} {i : Nat} (h : i < l.length) :
@@ -203,7 +209,7 @@ theorem take_succ_eq_append_getElem {i} {l : List α} (h : i < l.length) : l.tak
   match l with
   | [] => simp
   | x :: xs =>
-    simpa using take_append_getLast (x :: xs) (by simp)
+    simpa using! take_append_getLast (x :: xs) (by simp)
 
 theorem drop_left : ∀ {l₁ l₂ : List α}, drop (length l₁) (l₁ ++ l₂) = l₂
   | [], _ => rfl
@@ -224,10 +230,10 @@ theorem take_left' {l₁ l₂ : List α} {i} (h : length l₁ = i) : take i (l�
 theorem take_add_one {l : List α} {i : Nat} : l.take (i + 1) = l.take i ++ l[i]?.toList := by
   induction l generalizing i with
   | nil =>
-    simp only [take_nil, Option.toList, getElem?_nil, append_nil]
+    simp only [take_nil, Option.toList, append_nil, getElem?_nil]
   | cons hd tl hl =>
     cases i
-    · simp only [take, Option.toList, getElem?_cons_zero, nil_append]
+    · simp only [take, Option.toList, nil_append, getElem?_cons, ↓reduceIte]
     · simp only [take, hl, getElem?_cons_succ, cons_append]
 
 @[deprecated take_add_one (since := "2025-10-26")]
@@ -250,7 +256,7 @@ theorem dropLast_eq_take {l : List α} : l.dropLast = l.take (l.length - 1) := b
   | [], i => by simp
   | l, 0 => by simp
   | _ :: tl, n + 1 => by
-    dsimp
+    simp
     rw [map_drop]
 
 theorem drop_eq_extract {l : List α} {k : Nat} :
@@ -262,7 +268,7 @@ theorem drop_eq_extract {l : List α} {k : Nat} :
     | 0 => simp
     | _ + 1 =>
       simp only [List.drop_succ_cons, List.length_cons, ih]
-      simp only [List.extract_eq_drop_take, List.drop_succ_cons, Nat.succ_sub_succ]
+      simp only [List.extract_eq_take_drop, List.drop_succ_cons, Nat.succ_sub_succ]
 
 /-! ### takeWhile and dropWhile -/
 
@@ -290,6 +296,14 @@ theorem dropWhile_cons :
 @[simp] theorem dropWhile_cons_of_neg {a : α} {l : List α} (h : ¬ p a) :
     (a :: l).dropWhile p = a :: l := by
   simp [dropWhile_cons, h]
+
+theorem dropWhile_beq_eq_self_of_head?_ne [BEq α] [LawfulBEq α] {a : α} {l : List α}
+    (h : l.head? ≠ some a) : l.dropWhile (· == a) = l := by
+  cases l with
+  | nil => simp
+  | cons hd tl =>
+    rw [List.dropWhile_cons_of_neg]
+    simpa [beq_iff_eq] using h
 
 theorem head?_takeWhile {p : α → Bool} {l : List α} : (l.takeWhile p).head? = l.head?.filter p := by
   cases l with

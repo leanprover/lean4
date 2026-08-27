@@ -16,7 +16,7 @@ public import Std.Data.Iterators.Producers.Monadic.Array
 This module provides an iterator for arrays that is accessible via `Array.iter`.
 -/
 
-namespace Std.Iterators
+open Std Std.Iterators Std.Iterators.Types
 
 /--
 Returns a finite iterator for the given array starting at the given index.
@@ -29,8 +29,8 @@ The monadic version of this iterator is `Array.iterFromIdxM`.
 * `Finite` instance: always
 * `Productive` instance: always
 -/
-@[always_inline, inline]
-def _root_.Array.iterFromIdx {α : Type w} (l : Array α) (pos : Nat) :
+@[cbv_opaque, always_inline, inline]
+def Array.iterFromIdx {α : Type w} (l : Array α) (pos : Nat) :
     Iter (α := ArrayIterator α) α :=
   ((l.iterFromIdxM Id pos).toIter : Iter α)
 
@@ -45,9 +45,7 @@ The monadic version of this iterator is `Array.iterM`.
 * `Finite` instance: always
 * `Productive` instance: always
 -/
-@[always_inline, inline]
-def _root_.Array.iter {α : Type w} (l : Array α) :
+@[cbv_opaque, always_inline, inline]
+def Array.iter {α : Type w} (l : Array α) :
     Iter (α := ArrayIterator α) α :=
   ((l.iterM Id).toIter : Iter α)
-
-end Std.Iterators

@@ -6,9 +6,10 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lean.Parser.Types
 import Lake.Toml.ParserUtil
 import Lean.Parser
+public import Lean.PrettyPrinter.Formatter
+public import Lean.PrettyPrinter.Parenthesizer
 
 /-!
 # TOML Grammar
@@ -589,7 +590,7 @@ public def numeralAntiquot :=
   mkAntiquot "dateTime" `Lake.Toml.dateTime (anonymous := false) <|>
   mkAntiquot "numeral" `Lake.Toml.numeral (isPseudoKind := true)
 
-/- A value starting with a numeral. Either a TOML date-time, float, or integer. -/
+/-- A value starting with a numeral. Either a TOML date-time, float, or integer. -/
 public def numeral : Parser :=
   withAntiquot numeralAntiquot $ dynamicNode numeralFn
 

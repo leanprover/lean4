@@ -14,7 +14,8 @@ public import Std.Data.Iterators.Combinators.Monadic.StepSize
 This module provides a combinator that only yields every `n`-th element of another iterator.
 -/
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 @[always_inline, inline, inherit_doc IterM.stepSize]
 def Iter.stepSize [Iterator α Id β] [IteratorAccess α Id]
@@ -22,4 +23,4 @@ def Iter.stepSize [Iterator α Id β] [IteratorAccess α Id]
     Iter (α := Types.StepSizeIterator α Id β) β :=
   (it.toIterM.stepSize n).toIter
 
-end Std.Iterators
+end Std

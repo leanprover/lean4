@@ -5,12 +5,10 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind
-import Init.Simproc
 import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.Tactic.Grind.ProveEq
-import Lean.Meta.Tactic.Grind.PropagatorAttr
+public import Lean.Meta.Tactic.Grind.PropagatorAttr
 public section
 namespace Lean.Meta.Grind
 /-
@@ -282,7 +280,6 @@ where
     trace_goal[grind.debug.matchCond] "go?: {← inferType h}"
     let some (α?, lhs, rhs) := isEqHEq? (← inferType h)
       | return none
-    let target ← (← get).mvarId.getType
     -- We use `shareCommon` here because we may accessing a new expression
     -- created when we infer the type of the `noConfusion` term below
     let lhs ← shareCommon lhs
@@ -300,7 +297,8 @@ where
       let some ctorLhs ← isConstructorApp? root.self | return none
       let some ctorRhs ← isConstructorApp? rhs | return none
       -- See comment on `shareCommon` above.
-      let h ← mkNoConfusion target h
+      -- Recall that `match`-expression conditions always have `False` as their conclusion.
+      let h ← mkNoConfusion (← getFalseExpr) h
       if ctorLhs.name ≠ ctorRhs.name then
         return some h
       else
@@ -319,6 +317,15 @@ where
         return none
     else
       return none
+
+/--
+Returns `true` if `e` looks like a `match`-pattern instance: a metavariable (pattern
+variable), a constructor application, or a literal value.
+-/
+private def isPatternLike (e : Expr) : GoalM Bool := do
+  if e.getAppFn.isMVar then return true
+  if (← isConstructorApp? e).isSome then return true
+  isLitValue e
 
 /--
 Given a `match`-expression condition `e` that is known to be equal to `True`,
@@ -359,11 +366,25 @@ partial def tryToProveFalse (e : Expr) : GoalM Unit := do
       if target then
         let some (α?, lhs, rhs) := isEqHEq? (← inferType arg)
           | return none
-        let lhs' ← go lhs
-        trace[grind.debug.matchCond.proveFalse] "{lhs'} =?= {rhs}"
-        unless (← isDefEqD lhs' rhs) do
-          return none
         let isHEq := α?.isSome
+        let rhs ← instantiateMVars rhs
+        let lhs' ← if (← pure !rhs.hasExprMVar <&&> isEqv lhs rhs) then
+          -- The congruence closure already knows that `lhs = rhs`.
+          pure rhs
+        else
+          let lhs' ← go lhs
+          trace[grind.debug.matchCond.proveFalse] "{lhs'} =?= {rhs}"
+          /-
+          `rhs` is pattern-like for actual `match`-expression conditions. For hypotheses that
+          merely have the shape of a condition (e.g., `h : a = b → False` where `b` is not a
+          constructor application), `isDefEqD` may trigger arbitrarily expensive reductions
+          trying to decide `a =?= b`. See issue #14441.
+          -/
+          unless (← isPatternLike rhs) do
+            return none
+          unless (← isDefEqD lhs' rhs) do
+            return none
+          pure lhs'
         let some lhsEqLhs' ← if isHEq then proveHEq? lhs lhs' else proveEq? lhs lhs'
           | return none
         unless (← isDefEq arg lhsEqLhs') do

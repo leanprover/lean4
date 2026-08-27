@@ -6,7 +6,8 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Init.Data.Nat.Log2
+public import Init.Prelude
+import Init.Data.Nat.Log2
 
 public section
 

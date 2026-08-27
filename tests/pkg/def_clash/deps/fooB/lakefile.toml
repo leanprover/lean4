@@ -2,4 +2,3 @@ name = "fooB"
 
 [[lean_lib]]
 name = "FooB"
-leanOptions.experimental.module = true

@@ -4,12 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joe Hendrix
 -/
 module
-
 prelude
-public import Init.PropLemmas
-
+public import Init.Data.Fin.Basic
+import Init.PropLemmas
+import Init.WFTactics
+import Init.Hints
 public section
-
 namespace Fin
 
 /--
@@ -69,7 +69,7 @@ private theorem hIterateFrom_elim {P : Nat → Sort _}(Q : ∀(i : Nat), P i →
     have g : ¬ (i < n) := by simp at p; simp [p]
     have r : Q n (_root_.cast (congrArg P p) s) :=
       @Eq.rec Nat i (fun k eq => Q k (_root_.cast (congrArg P eq) s)) init n p
-    simp only [g, r, dite_false]
+    simp only [g, dite_false]; exact r
   | succ j inv =>
     unfold hIterateFrom
     have d : Nat.succ i + j = n := by simp [Nat.succ_add]; exact p
@@ -77,7 +77,7 @@ private theorem hIterateFrom_elim {P : Nat → Sort _}(Q : ∀(i : Nat), P i →
     simp only [g]
     exact inv _ _ (step ⟨i,g⟩ s init) d
 
-/-
+/--
 `hIterate_elim` provides a mechanism for showing that the result of
 `hIterate` satisfies a property `Q stop` by showing that the states
 at the intermediate indices `i : start ≤ i < stop` satisfy `Q i`.
@@ -88,7 +88,7 @@ theorem hIterate_elim {P : Nat → Sort _} (Q : ∀(i : Nat), P i → Prop)
     Q n (hIterate P s f) := by
   exact hIterateFrom_elim _ _ _ _ init step
 
-/-
+/--
 `hIterate_eq`provides a mechanism for replacing `hIterate P s f` with a
 function `state` showing that matches the steps performed by `hIterate`.
 

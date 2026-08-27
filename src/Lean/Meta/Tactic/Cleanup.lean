@@ -8,11 +8,11 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.Meta.CollectFVars
-import Lean.Meta.Tactic.Clear
+import Lean.Meta.Tactic.Util
 
 namespace Lean.Meta
 
-private partial def cleanupCore (mvarId : MVarId) (toPreserve : Array FVarId) (indirectProps : Bool) : MetaM MVarId := do
+partial def cleanupCore (mvarId : MVarId) (toPreserve : Array FVarId) (indirectProps : Bool) : MetaM MVarId := do
   mvarId.withContext do
     mvarId.checkNotAssigned `cleanup
     let used ← collectUsed |>.run' (false, {})
@@ -72,7 +72,7 @@ where
   - It occurs in the target type, or
   - There is a relevant variable `y` that depends on `x`, or
   - If `indirectProps` is true, the type of `x` is a proposition and it depends on a relevant variable `y`.
-  - If `indirectProps` is true, `x` is a local declartation and its value mentions a relevant variable `y`.
+  - If `indirectProps` is true, `x` is a local declaration and its value mentions a relevant variable `y`.
 
   By default, `toPreserve := #[]` and `indirectProps := true`. These settings are used in the mathlib tactic `extract_goal`
   to give the user more control over which variables to include.

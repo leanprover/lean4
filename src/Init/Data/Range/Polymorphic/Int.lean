@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Range.Polymorphic.Instances
-public import Init.Data.Int.Order
 import Init.Omega
 
 public section

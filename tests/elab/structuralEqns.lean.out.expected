@@ -1,0 +1,71 @@
+@List.map.eq_1 : ∀ {α : Type u_1} {β : Type u_2} (f : α → β), List.map f [] = []
+@List.map.eq_2 : ∀ {α : Type u_1} {β : Type u_2} (f : α → β) (head : α) (tail : List α),
+  List.map f (head :: tail) = f head :: List.map f tail
+@List.map.eq_def : ∀ {α : Type u_1} {β : Type u_2} (f : α → β) (x : List α),
+  List.map f x =
+    match x with
+    | [] => []
+    | a :: as => f a :: List.map f as
+foo.eq_1 (xs ys : List Nat) (z : Nat) (zs_2 : List Nat) : foo xs ys (z :: zs_2) = foo xs ys zs_2
+foo.eq_2 (xs zs : List Nat) (x_1 : ∀ (z : Nat) (zs_1 : List Nat), zs = z :: zs_1 → False) : foo xs [] zs = [1]
+foo.eq_def (xs ys zs : List Nat) :
+  foo xs ys zs =
+    match (xs, ys) with
+    | (xs', ys') =>
+      match zs with
+      | z :: zs => foo xs ys zs
+      | x =>
+        match ys' with
+        | [] => [1]
+        | x => [2]
+g.eq_1 (y : Nat) (ys : List Nat) : g [] (y :: ys) = y
+g.eq_2 (x✝ : List Nat) (x_2 : ∀ (y : Nat) (ys : List Nat), x✝ = y :: ys → False) : g [] x✝ = 0
+g.eq_3 (x✝ : List Nat) (x1 : Nat) : g [x1] x✝ = g [] x✝
+g.eq_4 (x_2 : Nat) (xs : List Nat) (y : Nat) (ys : List Nat) (x_3 : xs = [] → False) :
+  g (x_2 :: xs) (y :: ys) = g xs ys + y
+g.eq_5 (x_2 : Nat) (xs : List Nat) (x_3 : xs = [] → False) : g (x_2 :: xs) [] = g xs []
+g.eq_def (x✝ x✝¹ : List Nat) :
+  g x✝ x✝¹ =
+    match x✝, x✝¹ with
+    | [], y :: ys => y
+    | [], ys => 0
+    | [x1], ys => g [] ys
+    | x :: xs, y :: ys => g xs ys + y
+    | x :: xs, [] => g xs []
+h.eq_1 (y : Nat) : h [] y = y
+h.eq_2 (x : Nat) (xs_2 : List Nat) : h (x :: xs_2) 0 = h xs_2 10
+h.eq_def (xs : List Nat) (y : Nat) :
+  h xs y =
+    match xs with
+    | [] => y
+    | x :: xs =>
+      match y with
+      | 0 => h xs 10
+      | y.succ => h xs y
+r.eq_1 (i : Nat) : r i Nat.zero = i + 1
+r.eq_2 (i : Nat) : r i Nat.zero.succ = i + i * 2
+r.eq_3 (i j_3 : Nat) : r i j_3.succ.succ = i + i * r i j_3
+r.eq_def (i j : Nat) :
+  r i j =
+    i +
+      match j with
+      | Nat.zero => 1
+      | j.succ =>
+        i *
+          match j with
+          | Nat.zero => 2
+          | j.succ => r i j
+@bla.eq_1 : ∀ {α : Sort u_1} (f g : α → α → α) (a i : α), bla f g a i Nat.zero = f i i
+@bla.eq_2 : ∀ {α : Sort u_1} (f g : α → α → α) (a i : α), bla f g a i Nat.zero.succ = f i (g i a)
+@bla.eq_3 : ∀ {α : Sort u_1} (f g : α → α → α) (a i : α) (j_3 : Nat),
+  bla f g a i j_3.succ.succ = f i (g i (bla f g a i j_3))
+@bla.eq_def : ∀ {α : Sort u_1} (f g : α → α → α) (a i : α) (j : Nat),
+  bla f g a i j =
+    f i
+      (match j with
+      | Nat.zero => i
+      | j.succ =>
+        g i
+          (match j with
+          | Nat.zero => a
+          | j.succ => bla f g a i j))

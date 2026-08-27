@@ -1,0 +1,15 @@
+def foo.f : {α : Type} → [self : foo α] → α :=
+fun α [self : foo α] => self.1
+def foo.f' : {α : Type} → [c : foo α] → α :=
+fun {α} [foo α] => foo.f
+foo.f : α
+foo.f' : α
+theorem bar.f : bar → ∀ {m : Nat}, m = 0 :=
+fun self => self.1
+def bar.f' : bar → ∀ {m : Nat}, m = 0 :=
+bar.f
+fun {m} => h.f : ∀ {m : Nat}, m = 0
+h.f : m = 0
+h.f : m = 0
+h.f : 0 = 0
+bar.f' h : m = 0

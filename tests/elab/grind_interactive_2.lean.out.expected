@@ -1,0 +1,6 @@
+grind_interactive_2.lean:3:8-3:14: warning: declaration uses `sorry`
+[eqc] Equivalence classes
+  [eqc] {a, b, c}
+Try these:
+  [apply] grind only [sq_inj]
+  [apply] grind => instantiate only [sq_inj]

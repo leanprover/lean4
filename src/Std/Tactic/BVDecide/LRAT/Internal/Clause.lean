@@ -8,6 +8,8 @@ prelude
 public import Std.Data.HashMap
 public import Std.Sat.CNF.Basic
 public import Std.Tactic.BVDecide.LRAT.Internal.Assignment
+import Init.Data.List.Erase
+import Init.Data.List.Pairwise
 @[expose] public section
 
 namespace Std.Tactic.BVDecide

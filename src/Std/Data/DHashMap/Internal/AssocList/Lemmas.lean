@@ -9,6 +9,8 @@ prelude
 public import Std.Data.DHashMap.Internal.AssocList.Basic
 import all Std.Data.DHashMap.Internal.AssocList.Basic
 public import Std.Data.Internal.List.Associative
+import Init.ByCases
+import Init.Data.Array.Bootstrap
 
 public section
 
@@ -96,7 +98,7 @@ theorem getEntry?_eq [BEq α] {l : AssocList α β} {a : α} :
   induction l
   · simp only [getEntry?, toList_nil, getEntry?_nil]
   next k v t ih =>
-    simp only [getEntry?, ih, toList_cons, getEntry?_cons, Bool.ite_eq_cond_iff]
+    simp only [getEntry?, ih, toList_cons, getEntry?_cons]
 
 @[simp]
 theorem getEntryD_eq [BEq α] {l : AssocList α β} {a : α} {fallback : (a : α) × β a} :
@@ -104,7 +106,7 @@ theorem getEntryD_eq [BEq α] {l : AssocList α β} {a : α} {fallback : (a : α
   induction l
   · simp only [getEntryD, toList_nil, getEntryD_nil]
   next k v t ih =>
-    simp only [getEntryD, ih, toList_cons, getEntryD_cons, Bool.ite_eq_cond_iff]
+    simp only [getEntryD, ih, toList_cons, getEntryD_cons]
 
 @[simp]
 theorem getEntry!_eq [BEq α] {l : AssocList α β} {a : α} [Inhabited ((a : α) × β a)] :
@@ -112,7 +114,7 @@ theorem getEntry!_eq [BEq α] {l : AssocList α β} {a : α} [Inhabited ((a : α
   induction l
   · simp only [getEntry!, toList_nil, getEntry!_nil]
   next k v t ih =>
-    simp only [getEntry!, ih, toList_cons, List.getEntry!_cons, Bool.ite_eq_cond_iff]
+    simp only [getEntry!, ih, toList_cons, List.getEntry!_cons]
 
 @[simp]
 theorem getCastD_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} {fallback : β a} :
@@ -128,7 +130,7 @@ theorem getD_eq {β : Type v} [BEq α] {l : AssocList α (fun _ => β)} {a : α}
   induction l
   · simp [getD, List.getValueD]
   · simp_all [getD, List.getValueD, List.getValueD, List.getValue?_cons,
-      Bool.apply_cond (fun x => Option.getD x fallback)]
+      apply_ite (fun x => Option.getD x fallback)]
 
 @[simp]
 theorem panicWithPosWithDecl_eq [Inhabited α] {modName declName line col msg} :
@@ -147,8 +149,7 @@ theorem get!_eq {β : Type v} [BEq α] [Inhabited β] {l : AssocList α (fun _ =
     l.get! a = getValue! a l.toList := by
   induction l
   · simp [get!, List.getValue!]
-  · simp_all [get!, List.getValue!, List.getValue!, List.getValue?_cons,
-      Bool.apply_cond Option.get!]
+  · simp_all [get!, List.getValue!, List.getValue!, List.getValue?_cons, apply_ite Option.get!]
 
 @[simp]
 theorem getKey?_eq [BEq α] {l : AssocList α β} {a : α} :
@@ -167,14 +168,14 @@ theorem getKeyD_eq [BEq α] {l : AssocList α β} {a fallback : α} :
     l.getKeyD a fallback = List.getKeyD a l.toList fallback := by
   induction l
   · simp [getKeyD, List.getKeyD]
-  · simp_all [getKeyD, List.getKeyD, Bool.apply_cond (fun x => Option.getD x fallback)]
+  · simp_all [getKeyD, List.getKeyD, apply_ite (fun x => Option.getD x fallback)]
 
 @[simp]
 theorem getKey!_eq [BEq α] [Inhabited α] {l : AssocList α β} {a : α} :
     l.getKey! a = List.getKey! a l.toList := by
   induction l
   · simp [getKey!, List.getKey!]
-  · simp_all [getKey!, List.getKey!, Bool.apply_cond Option.get!]
+  · simp_all [getKey!, List.getKey!, apply_ite Option.get!]
 
 @[simp]
 theorem toList_replace [BEq α] {l : AssocList α β} {a : α} {b : β a} :

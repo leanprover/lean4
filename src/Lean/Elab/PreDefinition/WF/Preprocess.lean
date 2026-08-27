@@ -48,7 +48,7 @@ The process proceeds in these steps, to guide the transformation:
 
    The `binderNameHint` preserves the user-chosen name in `f` if that is a lambda.
 
-   The `wfParam` on the right hand side ensurses that doubly-nested recursion works.
+   The `wfParam` on the right hand side ensures that doubly-nested recursion works.
 
 4. All left-over `wfParam` gadgets are removed.
 
@@ -58,10 +58,14 @@ The simplifier is used to perform steps 2 (using simprocs) and 3 (using rewrite 
 
 open Lean Meta
 
+namespace Lean
+
 register_builtin_option wf.preprocess : Bool := {
   defValue := true
   descr := "pre-process definitions defined by well-founded recursion with the `wf_preprocess` simp set"
 }
+
+end Lean
 
 namespace Lean.Elab.WF
 
@@ -89,7 +93,7 @@ def mkWfParam (e : Expr) : MetaM Expr :=
   mkAppM ``wfParam #[e]
 
 /-- `f (wfParam x) ==> wfParam (f x)` if `f` is a projection -/
-builtin_dsimproc paramProj (_) := fun e => do
+builtin_dsimproc_decl paramProj (_) := fun e => do
   if h : e.isApp then
     let some a' := isWfParam? (e.appArg h) | return .continue
     let f := e.getAppFn
@@ -101,7 +105,7 @@ builtin_dsimproc paramProj (_) := fun e => do
     return .continue
 
 /-- `match (wfParam x) with con y => alt[y] ==> match x with con y => alt[wfParam y] -/
-builtin_dsimproc paramMatcher (_) := fun e => do
+builtin_dsimproc_decl paramMatcher (_) := fun e => do
   let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true)  | return .continue
   unless matcherApp.discrs.any (isWfParam? · |>.isSome) do return .continue
   let discrs' := matcherApp.discrs.map (fun e => isWfParam? e |>.getD e)
@@ -148,7 +152,7 @@ otherwise `... ==> let x : T := e; body[x]`. (Applies to `have`s too.)
 
 Note: simprocs are provided the head of a let telescope, but not intermediate lets.
 -/
-builtin_dsimproc paramLet (_) := fun e => do
+builtin_dsimproc_decl paramLet (_) := fun e => do
   unless e.isLet || anyLetValueIsWfParam e do return .continue
   return .continue (← processParamLet e)
 

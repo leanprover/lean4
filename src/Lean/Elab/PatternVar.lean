@@ -6,9 +6,11 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Hint
 public import Lean.Elab.Arg
 public import Lean.Elab.MatchAltView
+public import Init.Syntax
+import Init.Data.Nat.Internal.Linear
+import Init.Omega
 
 public section
 
@@ -67,35 +69,15 @@ private def throwCtorExpected {α} (ident : Option Syntax) : M α := do
 
   if candidates.size = 0 then
     throwError message
-  else if h : candidates.size = 1 then
-    throwError message ++ .hint' m!"`{candidates[0]}` is similar"
-  else
-    let sorted := candidates.qsort (·.toString < ·.toString)
-    let diff :=
-      if candidates.size > 10 then [m!" (or {candidates.size - 10} others)"]
-      else []
-    let suggestions : MessageData := .group <|
-      .joinSep ((sorted.extract 0 10 |>.toList |>.map (showName env)) ++ diff)
-        ("," ++ Format.line)
-    throwError message ++ .group (.hint' ("These are similar:" ++ .nestD (Format.line ++ suggestions)))
-where
-  -- Create some `MessageData` for a name that shows it without an `@`, but with the metadata that
-  -- makes infoview hovers and the like work. This technique only works because the names are known
-  -- to be global constants, so we don't need the local context.
-  showName (env : Environment) (n : Name) : MessageData :=
-    let params :=
-      env.constants.find?' n |>.map (·.levelParams.map Level.param) |>.getD []
-    .ofFormatWithInfos {
-      fmt := "'" ++ .tag 0 (format n) ++ "'",
-      infos :=
-        .ofList [(0, .ofTermInfo {
-          lctx := .empty,
-          expr := .const n params,
-          stx := .ident .none (toString n).toRawSubstring n [.decl n []],
-          elaborator := `Delab,
-          expectedType? := none
-        })] _
-    }
+  -- Sort for deterministic output (iteration order of `env.constants` is not stable)
+  candidates := candidates.qsort Name.lt
+  let oneOfThese := if h : candidates.size = 1 then m!"`{candidates[0]}`" else m!"one of these"
+  let hint ← m!"Using {oneOfThese} would be valid:".hint (ref? := idStx) (candidates.map fun candidate => {
+    suggestion := mkIdent candidate
+    toCodeActionTitle? := .some (s!"Change to {·}")
+    messageData? := .some m!"`{.ofConstName candidate}`",
+  })
+  throwError message ++ hint
 
 private def throwInvalidPattern {α} : M α :=
   throwError "Invalid pattern"
@@ -340,7 +322,7 @@ where
     if f.getKind == ``Parser.Term.dotIdent then
       let namedArgsNew ← namedArgs.mapM fun
         -- We must ensure that `ref[1]` remains original to allow named-argument hints
-        | { ref, name, val := Arg.stx arg } => withRef ref do `(Lean.Parser.Term.namedArgument| ($(ref[1]) := $(← collect arg)))
+        | { ref, name, val := Arg.stx arg, .. } => withRef ref do `(Lean.Parser.Term.namedArgument| ($(ref[1]) := $(← collect arg)))
         | _ => unreachable!
       let mut argsNew ← args.mapM fun | Arg.stx arg => collect arg | _ => unreachable!
       if ellipsis then
@@ -435,7 +417,7 @@ where
       else
         throwCtorExpected (some fId)
 
-def main (alt : MatchAltView) : M MatchAltView := do
+def main (alt : MatchAltView k) : M (MatchAltView k) := do
   let patterns ← alt.patterns.mapM fun p => do
     trace[Elab.match] "collecting variables at pattern: {p}"
     collect p
@@ -447,7 +429,7 @@ end CollectPatternVars
 Collect pattern variables occurring in the `match`-alternative object views.
 It also returns the updated views.
 -/
-def collectPatternVars (alt : MatchAltView) : TermElabM (Array PatternVar × MatchAltView) := do
+def collectPatternVars (alt : MatchAltView k) : TermElabM (Array PatternVar × MatchAltView k) := do
   let (alt, s) ← (CollectPatternVars.main alt).run {}
   return (s.vars, alt)
 

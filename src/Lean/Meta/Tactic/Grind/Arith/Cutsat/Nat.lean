@@ -5,11 +5,9 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Init.Data.Int.OfNat
 import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 import Lean.Meta.NatInstTesters
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
@@ -29,6 +27,10 @@ def mkNatVar (e : Expr) : GoalM (Expr × Expr) := do
 
 private def intIte : Expr := mkApp (mkConst ``ite [1]) Int.mkType
 
+/-
+**Note**: It is safe to use (the more efficient) structural instances tests here because `grind` uses the canonicalizer.
+-/
+open Structural in
 private partial def natToInt' (e : Expr) : GoalM (Expr × Expr) := do
   match_expr e with
   | HAdd.hAdd _ _ _ inst a b =>
@@ -77,16 +79,13 @@ private partial def natToInt' (e : Expr) : GoalM (Expr × Expr) := do
     else
       mkNatVar e
   | Fin.val n a =>
-    let type ← shareCommon (mkApp (mkConst ``Fin) n)
-    if let some (a', h) ← toInt? a type then
-      let h := mkApp4 (mkConst ``Nat.ToInt.finVal) n a a' h
-      return (a' , h)
-    else
-      -- `n` is not a numeral, but we can still assert `e < n`
-      let alreadyProcessed := (← get').natToIntMap.contains { expr := e }
-      let r ← mkNatVar e
-      unless alreadyProcessed do pushNewFact <| mkApp2 (mkConst ``Fin.isLt) n a
-      return r
+    -- `Fin.val` is treated as an opaque `Nat` variable; the range fact `Fin.isLt` is
+    -- the one piece of `Fin`-specific information asserted here. Value-level reasoning
+    -- for `Fin` is provided by the `[grind hom]` rules.
+    let alreadyProcessed := (← get').natToIntMap.contains { expr := e }
+    let r ← mkNatVar e
+    unless alreadyProcessed do pushNewFact <| mkApp2 (mkConst ``Fin.isLt) n a
+    return r
   | _ => mkNatVar e
 
 /--
@@ -115,6 +114,10 @@ def assertNatCast (e : Expr) (x : Var) : GoalM Unit := do
 def isNatTerm (e : Expr) : GoalM Bool :=
   return (← get').natToIntMap.contains { expr := e }
 
+/-
+**Note**: It is safe to use (the more efficient) structural instances tests here because `grind` uses the canonicalizer.
+-/
+open Structural in
 private partial def isNonneg (e : Expr) : MetaM Bool := do
   match_expr e with
   | OfNat.ofNat _ _ _ =>

@@ -23,7 +23,7 @@ namespace Lean
 open Meta
 
 /--
-Helper for `mkCasesOnSameCtor` that constructs a heterogenous matcher (indices may differ)
+Helper for `mkCasesOnSameCtor` that constructs a heterogeneous matcher (indices may differ)
 and does not include the equality proof in the motive (so it's not a the shape of a matcher) yet.
 -/
 public def mkCasesOnSameCtorHet (declName : Name) (indName : Name) : MetaM Unit := do
@@ -95,13 +95,14 @@ public def mkCasesOnSameCtorHet (declName : Name) (indName : Name) : MetaM Unit 
         mkLambdaFVars (params ++ #[motive] ++ ism1 ++ ism2 ++ #[heq] ++ alts) e
 
   withExporting (isExporting := !isPrivateName declName) do
-    addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+    addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
       (name        := declName)
       (levelParams := casesOnInfo.levelParams)
       (type        := (← inferType e))
       (value       := e)
       (hints       := ReducibilityHints.abbrev)
     ))
+  modifyEnv fun env => markMatcherLike env declName
   modifyEnv fun env => markAuxRecursor env declName
   modifyEnv fun env => addToCompletionBlackList env declName
   modifyEnv fun env => addProtected env declName
@@ -128,7 +129,7 @@ this module can be dropped.
 
 Note that for some data types where the indices determine the constructor (e.g. `Vec`), this leads
 to less efficient code than the normal matcher, as this needs to read the constructor tag on both
-arguments, wheras the normal matcher produces code that reads just the first argument’s tag, and
+arguments, whereas the normal matcher produces code that reads just the first argument’s tag, and
 then boldly reads the second argument’s fields.
 -/
 public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := do
@@ -213,7 +214,9 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
           numDiscrs := info.numIndices + 3
           altInfos
           uElimPos? := some 0
-          discrInfos := #[{}, {}, {}]}
+          discrInfos := #[{}, {}, {}]
+          overlaps := {}
+        }
 
         -- Compare attributes with `mkMatcherAuxDefinition`
         withExporting (isExporting := !isPrivateName declName) do

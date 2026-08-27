@@ -7,9 +7,18 @@ module
 
 prelude
 public import Init.Data.Nat.Coprime
-public import Init.Data.Hashable
-public import Init.Data.OfScientific
-import Init.Data.Int.Bitwise
+public import Init.Data.OfScientific.Basic
+public import Init.Data.Int.DivMod.Basic
+public import Init.Data.String.Defs
+public import Init.Data.ToString.Macro
+public import Init.Data.ToString.Extra
+import Init.Data.Hashable
+import Init.Data.Int.DivMod.Bootstrap
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Int.Pow
+import Init.Data.Nat.Dvd
 
 @[expose] public section
 
@@ -20,6 +29,7 @@ Rational numbers, implemented as a pair of integers `num / den` such that the
 denominator is positive and the numerator and denominator are coprime.
 -/
 -- `Rat` is not tagged with the `ext` attribute, since this is more often than not undesirable
+@[suggest_for ℚ]
 structure Rat where
   /-- Constructs a rational number from components.
   We rename the constructor to `mk'` to avoid a clash with the smart constructor. -/
@@ -265,6 +275,7 @@ unfold it. Use `Rat.add_def` instead.)
 instance : Add Rat := ⟨Rat.add⟩
 
 /-- Negation of rational numbers. -/
+@[implicit_reducible]
 protected def neg (a : Rat) : Rat :=
   { a with num := -a.num, reduced := by rw [Int.natAbs_neg]; exact a.reduced }
 
@@ -312,5 +323,9 @@ protected def ceil (a : Rat) : Int :=
     a.num
   else
     a.num / a.den + 1
+
+/-- The absolute value of a rational number `a` is `a` if `a ≥ 0` and `-a` if `a ≤ 0`. -/
+protected def abs (a : Rat) : Rat :=
+  if 0 ≤ a then a else -a
 
 end Rat

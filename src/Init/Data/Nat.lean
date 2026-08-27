@@ -17,8 +17,8 @@ public import Init.Data.Nat.Bitwise
 public import Init.Data.Nat.Control
 public import Init.Data.Nat.Log2
 public import Init.Data.Nat.Power2
-public import Init.Data.Nat.Linear
-public import Init.Data.Nat.SOM
+public import Init.Data.Nat.Internal
+public import Init.Data.Nat.Internal
 public import Init.Data.Nat.Lemmas
 public import Init.Data.Nat.Mod
 public import Init.Data.Nat.Lcm
@@ -26,3 +26,5 @@ public import Init.Data.Nat.Compare
 public import Init.Data.Nat.Simproc
 public import Init.Data.Nat.Fold
 public import Init.Data.Nat.Order
+public import Init.Data.Nat.ToString
+public import Init.Data.Nat.Sqrt

@@ -6,7 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Vector.Lemmas
+public import Init.Data.Vector.Basic
+import Init.Data.Vector.Lemmas
 
 public section
 
@@ -25,7 +26,7 @@ theorem isEqv_eq_decide (xs ys : Vector α n) (r) :
     Vector.isEqv xs ys r = decide (∀ (i : Nat) (h' : i < n), r xs[i] ys[i]) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, h⟩
-  simp [Array.isEqv_eq_decide, h]
+  simp -implicitDefEqProofs [Array.isEqv_eq_decide, h]
 
 @[simp] theorem isEqv_toArray [BEq α] (xs ys : Vector α n) : (xs.toArray.isEqv ys.toArray r) = (xs.isEqv ys r) := by
   simp [isEqv_eq_decide, Array.isEqv_eq_decide]
@@ -48,19 +49,6 @@ theorem isEqv_self [DecidableEq α] (xs : Vector α n) : Vector.isEqv xs xs (· 
 theorem beq_eq_decide [BEq α] (xs ys : Vector α n) :
     (xs == ys) = decide (∀ (i : Nat) (h' : i < n), xs[i] == ys[i]) := by
   simp [BEq.beq, isEqv_eq_decide]
-
-@[deprecated mk_beq_mk (since := "2025-05-26")]
-theorem beq_mk [BEq α] (xs ys : Array α) (ha : xs.size = n) (hb : ys.size = n) :
-    (mk xs ha == mk ys hb) = (xs == ys) := by
-  simp
-
-@[deprecated toArray_beq_toArray (since := "2025-05-26")]
-theorem beq_toArray [BEq α] (xs ys : Vector α n) : (xs.toArray == ys.toArray) = (xs == ys) := by
-  simp
-
-@[deprecated toList_beq_toList (since := "2025-05-26")]
-theorem beq_toList [BEq α] (xs ys : Vector α n) : (xs.toList == ys.toList) = (xs == ys) := by
-  simp
 
 instance [BEq α] [ReflBEq α] : ReflBEq (Vector α n) where
   rfl := by simp [BEq.beq, isEqv_self_beq]

@@ -67,6 +67,7 @@ def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (alsoCases
         matcherName   := declName
         matcherLevels := declLevels.toArray
         uElimPos?, discrInfos, params, motive, discrs, alts, remaining, altInfos
+        overlaps := {} -- CasesOn constructor have no overlaps
       }
 
   return none

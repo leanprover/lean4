@@ -8,8 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Match.MatcherApp
-import Lean.Meta.Tactic.Grind.MatchCond
-import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Cases
 public section
 namespace Lean.Meta.Grind
 

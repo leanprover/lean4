@@ -7,10 +7,13 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+import Init.Data.UInt.Lemmas
 
 public section
 
 open Lean Meta Simp
+
+namespace Lean
 
 macro "declare_uint_simprocs" typeName:ident : command =>
 let ofNat := typeName.getId ++ `ofNat
@@ -20,23 +23,23 @@ let fromExpr := mkIdent `fromExpr
 `(
 namespace $typeName
 
-def $fromExpr (e : Expr) : SimpM (Option $typeName) := do
+private def $fromExpr (e : Expr) : SimpM (Option $typeName) := do
   let some (n, _) ← getOfNatValue? e $(quote typeName.getId) | return none
   return $(mkIdent ofNat) n
 
-@[inline] def reduceBin (declName : Name) (arity : Nat) (op : $typeName → $typeName → $typeName) (e : Expr) : SimpM DStep := do
+@[inline] private def reduceBin (declName : Name) (arity : Nat) (op : $typeName → $typeName → $typeName) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← ($fromExpr e.appFn!.appArg!) | return .continue
   let some m ← ($fromExpr e.appArg!) | return .continue
   return .done <| toExpr (op n m)
 
-@[inline] def reduceBinPred (declName : Name) (arity : Nat) (op : $typeName → $typeName → Bool) (e : Expr) : SimpM Step := do
+@[inline] private def reduceBinPred (declName : Name) (arity : Nat) (op : $typeName → $typeName → Bool) (e : Expr) : SimpM Step := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← ($fromExpr e.appFn!.appArg!) | return .continue
   let some m ← ($fromExpr e.appArg!) | return .continue
   evalPropStep e (op n m)
 
-@[inline] def reduceBoolPred (declName : Name) (arity : Nat) (op : $typeName → $typeName → Bool) (e : Expr) : SimpM DStep := do
+@[inline] private def reduceBoolPred (declName : Name) (arity : Nat) (op : $typeName → $typeName → Bool) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← ($fromExpr e.appFn!.appArg!) | return .continue
   let some m ← ($fromExpr e.appArg!) | return .continue
@@ -83,9 +86,17 @@ builtin_dsimproc [seval] isValue ((OfNat.ofNat _ : $typeName)) := fun e => do
 end $typeName
 )
 
+end Lean
+
+-- The linter exemptions sit on the macro invocations because linters run once per top-level
+-- command and would not see a `set_option … in` inside the macro expansion.
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 declare_uint_simprocs UInt8
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 declare_uint_simprocs UInt16
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 declare_uint_simprocs UInt32
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 declare_uint_simprocs UInt64
 
 /-
@@ -94,10 +105,11 @@ However, we do reduce natural literals using the fact this opaque value is at le
 -/
 namespace USize
 
-def fromExpr (e : Expr) : SimpM (Option USize) := do
+private def fromExpr (e : Expr) : SimpM (Option USize) := do
   let some (n, _) ← getOfNatValue? e ``USize | return none
   return USize.ofNat n
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc [simp, seval] reduceToNat (USize.toNat _) := fun e => do
   let_expr USize.toNat e ← e | return .continue
   let some (n, _) ← getOfNatValue? e ``USize | return .continue

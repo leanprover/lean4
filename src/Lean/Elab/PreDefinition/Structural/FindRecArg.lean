@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.PreDefinition.TerminationMeasure
 public import Lean.Elab.PreDefinition.Structural.Basic
 public import Lean.Elab.PreDefinition.Structural.RecArgInfo
+import Init.Omega
 
 public section
 
@@ -21,7 +22,8 @@ def prettyParam (xs : Array Expr) (i : Nat) : MetaM MessageData := do
   addMessageContextFull <| if n.hasMacroScopes then m!"#{i+1}" else m!"{x}"
 
 def prettyRecArg (xs : Array Expr) (value : Expr) (recArgInfo : RecArgInfo) : MetaM MessageData := do
-  lambdaTelescope value fun ys _ => prettyParam (xs ++ ys) recArgInfo.recArgPos
+  lambdaTelescope value fun ys _ =>
+    prettyParam (recArgInfo.fixedParamPerm.buildArgs xs ys) recArgInfo.recArgPos
 
 def prettyParameterSet (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
     (recArgInfos : Array RecArgInfo) : MetaM MessageData := do
@@ -194,7 +196,8 @@ def argsInGroup (group : IndGroupInst) (xs : Array Expr) (value : Expr)
     -- Can this argument be understood as the auxiliary type former of a nested inductive?
     if nestedTypeFormers.isEmpty then return .none
     lambdaTelescope value fun ys _ => do
-      let x := (xs++ys)[recArgInfo.recArgPos]!
+      let args := recArgInfo.fixedParamPerm.buildArgs xs ys
+      let x := args[recArgInfo.recArgPos]!
       for nestedTypeFormer in nestedTypeFormers, indIdx in group.all.size...group.numMotives do
         let xType ← whnfD (← inferType x)
         let (indIndices, _, type) ← forallMetaTelescope nestedTypeFormer
@@ -210,7 +213,7 @@ def argsInGroup (group : IndGroupInst) (xs : Array Expr) (value : Expr)
           if let some (_index, _y) ← hasBadIndexDep? ys indIndices then
             -- throwError "its type {indInfo.name} is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}"
             continue
-          let indicesPos := indIndices.map fun index => match (xs++ys).idxOf? index with | some i => i | none => unreachable!
+          let indicesPos := indIndices.map fun index => match args.idxOf? index with | some i => i | none => unreachable!
           return .some
             { fnName       := recArgInfo.fnName
               fixedParamPerm  := recArgInfo.fixedParamPerm
@@ -234,9 +237,27 @@ def allCombinations (xss : Array (Array α)) : Option (Array (Array α)) :=
     some (go 0 #[])
 
 
-def tryAllArgs (fnNames : Array Name) (fixedParamPerms : FixedParamPerms) (xs : Array Expr)
-   (values : Array Expr) (termMeasure?s : Array (Option TerminationMeasure)) (k : Array RecArgInfo → M α) : M α := do
+/-- A candidate argument combination to try for structural recursion. -/
+structure RecArgCandidate where
+  group : IndGroupInst
+  comb : Array RecArgInfo
+
+/-- Result of `findRecArgCandidates`: candidate combinations and a diagnostic report. -/
+structure RecArgCandidates where
+  candidates : Array RecArgCandidate
+  report : MessageData
+
+/--
+Precompute all candidate argument combinations for structural recursion.
+This performs the analysis that may need function axioms in the environment
+(via `isDefEq`, `inferType`, etc.) but does not run the callback that
+attempts to eliminate mutual recursion.
+-/
+def findRecArgCandidates (fnNames : Array Name) (fixedParamPerms : FixedParamPerms) (xs : Array Expr)
+    (values : Array Expr) (termMeasure?s : Array (Option TerminationMeasure)) :
+    MetaM RecArgCandidates := do
   let mut report := m!""
+  let mut candidates := #[]
   -- Gather information on all possible recursive arguments
   let mut recArgInfoss := #[]
   for fnName in fnNames, value in values, termMeasure? in termMeasure?s, fixedParamPerm in fixedParamPerms.perms do
@@ -262,23 +283,30 @@ def tryAllArgs (fnNames : Array Name) (fixedParamPerms : FixedParamPerms) (xs : 
       continue
     if let some combs := allCombinations recArgInfoss' then
       for comb in combs do
-        try
-          -- Check that the group actually has a brecOn (we used to check this in getRecArgInfo,
-          -- but in the first phase we do not want to rule-out non-recursive types like `Array`, which
-          -- are ok in a nested group. This logic can maybe simplified)
-          unless (← hasConst (group.brecOnName 0)) do
-            throwError "the type {group} does not have a `.brecOn` recursor"
-          let r ← k comb
-          trace[Elab.definition.structural] "tryAllArgs report:\n{report}"
-          return r
-        catch e =>
-          let m ← prettyParameterSet fnNames xs values comb
-          report := report ++ m!"Cannot use {m}:{indentD e.toMessageData}\n"
+        candidates := candidates.push { group, comb }
     else
-          report := report ++ m!"Too many possible combinations of parameters of type {group} (or " ++
-            m!"please indicate the recursive argument explicitly using `termination_by structural`).\n"
+      report := report ++ m!"Too many possible combinations of parameters of type {group} (or " ++
+        m!"please indicate the recursive argument explicitly using `termination_by structural`).\n"
+  return { candidates, report }
+
+/--
+Try each candidate argument combination for structural recursion.
+Uses `commitIfNoEx` to backtrack on failure.
+-/
+def tryCandidates (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
+    (candidates : RecArgCandidates) (k : Array RecArgInfo → MetaM α) : MetaM α := do
+  let mut report := candidates.report
+  for candidate in candidates.candidates do
+    try
+      return ← commitIfNoEx do
+        unless (← hasConst (candidate.group.brecOnName 0)) do
+          throwError "the type {candidate.group} does not have a `.brecOn` recursor"
+        k candidate.comb
+    catch e =>
+      let m ← prettyParameterSet fnNames xs values candidate.comb
+      report := report ++ m!"Cannot use {m}:{indentD e.toMessageData}\n"
   report := m!"failed to infer structural recursion:\n" ++ report
-  trace[Elab.definition.structural] "tryAllArgs:\n{report}"
+  trace[Elab.definition.structural] "tryCandidates:\n{report}"
   throwError report
 
 end Lean.Elab.Structural

@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
+open Sym.Arith (MonadCanon)
 
 structure NonCommSemiringM.Context where
   semiringId : Nat

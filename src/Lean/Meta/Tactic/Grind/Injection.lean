@@ -8,9 +8,8 @@ prelude
 public import Lean.Meta.Basic
 import Lean.Meta.Tactic.Clear
 import Lean.Meta.AppBuilder
-
+import Lean.Meta.CtorRecognizer
 public section
-
 namespace Lean.Meta.Grind
 /--
 The `grind` tactic includes an auxiliary `injection?` tactic that is not intended for direct use by users.

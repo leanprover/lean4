@@ -8,7 +8,7 @@ module
 prelude
 -- This import is necessary to ensure that any users of the `logNamedError` macros have access to
 -- all declared explanations:
-public import Lean.ErrorExplanations
+public import Lean.ErrorExplanation
 
 public section
 
@@ -86,8 +86,7 @@ If `msg` is tagged as a named error, appends the error description widget displa
 corresponding error name and explanation link. Otherwise, returns `msg` unaltered.
 -/
 private def MessageData.appendDescriptionWidgetIfNamed (msg : MessageData) : MessageData :=
-  let kind := stripNestedTags msg.kind
-  match errorNameOfKind? kind with
+  match msg.stripNestedTags.errorName? with
   | some errorName =>
     let url := manualRoot ++ s!"find/?domain={errorExplanationManualDomain}&name={errorName}"
     let inst := {
@@ -102,13 +101,6 @@ private def MessageData.appendDescriptionWidgetIfNamed (msg : MessageData) : Mes
     -- console output
     msg.composePreservingKind <| .ofWidget inst .nil
   | none => msg
-where
-  /-- Remove any `` `nested `` name components prepended by `throwNestedTacticEx`. -/
-  stripNestedTags : Name → Name
-  | .str p "nested" => stripNestedTags p
-  | .str p s => .str (stripNestedTags p) s
-  | .num p n => .num (stripNestedTags p) n
-  | .anonymous => .anonymous
 
 /--
 Log the message `msgData` at the position provided by `ref` with the given `severity`.

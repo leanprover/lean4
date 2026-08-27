@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Option.Basic
-public import Init.Control.Except
+public import Init.Control.MonadAttach
 
 public section
 
@@ -21,7 +21,7 @@ instance : ToBool (Option α) := ⟨Option.isSome⟩
 Adds the ability to fail to a monad. Unlike ordinary exceptions, there is no way to signal why a
 failure occurred.
 -/
-@[expose] def OptionT (m : Type u → Type v) (α : Type u) : Type v :=
+@[expose, implicit_reducible] def OptionT (m : Type u → Type v) (α : Type u) : Type v :=
   m (Option α)
 
 /--
@@ -111,6 +111,12 @@ instance : MonadExceptOf PUnit (OptionT m) where
 instance (ε : Type u) [MonadExceptOf ε m] : MonadExceptOf ε (OptionT m) where
   throw e           := OptionT.mk <| throwThe ε e
   tryCatch x handle := OptionT.mk <| tryCatchThe ε x handle
+
+instance [MonadAttach m] : MonadAttach (OptionT m) where
+  CanReturn x a := MonadAttach.CanReturn x.run (some a)
+  attach x := .mk ((fun
+      | ⟨some a, h⟩ => some ⟨a, h⟩
+      | ⟨none, _⟩ => none) <$> MonadAttach.attach x.run)
 
 end OptionT
 

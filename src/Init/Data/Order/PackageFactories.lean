@@ -6,7 +6,11 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Order.LemmasExtra
+public import Init.Data.Order.LemmasExtra  -- shake: keep (instance inlined by `haveI`)
+public import Init.Data.Order.FactoriesExtra
+public import Init.Data.Order.Factories -- shake: keep (autoparam filling `Min.leftLeaningOfLE`)
+import Init.Data.Bool
+import Init.Data.Order.Lemmas
 
 namespace Std
 
@@ -43,7 +47,7 @@ public instance instLawfulOrderBEqOfDecidableLE {α : Type u} [LE α] [Decidable
   beq_iff_le_and_ge := by simp [BEq.beq]
 
 /-- If `LT` can be characterized in terms of a decidable `LE`, then `LT` is decidable either. -/
-@[expose]
+@[inline, expose, instance_reducible]
 public def decidableLTOfLE {α : Type u} [LE α] {_ : LT α} [DecidableLE α] [LawfulOrderLT α] :
     DecidableLT α :=
   fun a b =>
@@ -88,10 +92,11 @@ public structure Packages.PreorderOfLEArgs (α : Type u) where
       have := lt_iff
       DecidableLT α := by
     extract_lets
-    haveI := @_root_.Std.LawfulOrderLT.mk (lt_iff := by assumption) ..
     first
     | infer_instance
+    | (haveI := @_root_.Std.LawfulOrderLT.mk (lt_iff := by assumption) ..; infer_instance)
     | exact _root_.Std.FactoryInstances.decidableLTOfLE
+    | (haveI := @_root_.Std.LawfulOrderLT.mk (lt_iff := by assumption) ..; exact _root_.Std.FactoryInstances.decidableLTOfLE)
     | fail "Failed to automatically derive that `LT` is decidable. \
             Please ensure that a `DecidableLT` instance can be synthesized or \
             manually provide the field `decidableLT`."
@@ -166,7 +171,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, namely `le_refl` and `le_trans`, can be omitted if `Refl` and `Trans`
   instances can be synthesized.
 -/
-@[expose]
+@[inline, expose, instance_reducible]
 public def PreorderPackage.ofLE (α : Type u)
     (args : Packages.PreorderOfLEArgs α := by exact {}) : PreorderPackage α where
   toLE := args.le
@@ -251,7 +256,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, namely `le_refl`, `le_trans` and `le_antisymm`, can be omitted if `Refl`,
   `Trans` and `Antisymm` instances can be synthesized.
 -/
-@[expose]
+@[inline, expose, instance_reducible]
 public def PartialOrderPackage.ofLE (α : Type u)
     (args : Packages.PartialOrderOfLEArgs α := by exact {}) : PartialOrderPackage α where
   toPreorderPackage := .ofLE α args.toPreorderOfLEArgs
@@ -380,7 +385,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, namely `le_total` and `le_trans`, can be omitted if `Total` and `Trans`
   instances can be synthesized.
 -/
-@[expose]
+@[inline, expose, instance_reducible]
 public def LinearPreorderPackage.ofLE (α : Type u)
     (args : Packages.LinearPreorderOfLEArgs α := by exact {}) : LinearPreorderPackage α where
   toPreorderPackage := .ofLE α args.toPreorderOfLEArgs
@@ -423,7 +428,7 @@ public structure Packages.LinearOrderOfLEArgs (α : Type u) extends
       ∀ a b : α, Min.min a b = if a ≤ b then a else b := by
     extract_lets
     first
-    | exact fun a b => _root_.Std.min_eq_if (a := a) (b := b)
+    | exact fun a b => _root_.Std.min_eq_ite (a := a) (b := b)
     | fail "Failed to automatically prove that `min` is left-leaning. \
             Please ensure that a `LawfulOrderLeftLeaningMin` instance can be synthesized or \
             manually provide the field `min_eq`."
@@ -432,7 +437,7 @@ public structure Packages.LinearOrderOfLEArgs (α : Type u) extends
       ∀ a b : α, Max.max a b = if b ≤ a then a else b := by
     extract_lets
     first
-    | exact fun a b => _root_.Std.max_eq_if (a := a) (b := b)
+    | exact fun a b => _root_.Std.max_eq_ite (a := a) (b := b)
     | fail "Failed to automatically prove that `max` is left-leaning. \
             Please ensure that a `LawfulOrderLeftLeaningMax` instance can be synthesized or \
             manually provide the field `max_eq`."
@@ -482,7 +487,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, namely `le_total`, `le_trans` and `le_antisymm`, can be omitted if
   `Total`, `Trans` and `Antisymm` instances can be synthesized.
 -/
-@[expose]
+@[inline, expose, instance_reducible]
 public def LinearOrderPackage.ofLE (α : Type u)
     (args : Packages.LinearOrderOfLEArgs α := by exact {}) : LinearOrderPackage α where
   toLinearPreorderPackage := .ofLE α args.toLinearPreorderOfLEArgs
@@ -642,7 +647,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, for example `transOrd`, can be omitted if a matching instance can be
   synthesized.
 -/
-@[expose]
+@[inline, expose, instance_reducible]
 public def LinearPreorderPackage.ofOrd (α : Type u)
     (args : Packages.LinearPreorderOfOrdArgs α := by exact {}) : LinearPreorderPackage α :=
   letI := args.ord
@@ -663,7 +668,7 @@ public def LinearPreorderPackage.ofOrd (α : Type u)
         isGE_compare]
     decidableLE := args.decidableLE
     decidableLT := args.decidableLT
-    le_refl a := by simp [← isLE_compare]
+    le_refl a := by simp
     le_total a b := by cases h : compare a b <;> simp [h, ← isLE_compare (a := a), ← isGE_compare (a := a)]
     le_trans a b c := by simpa [← isLE_compare] using TransOrd.isLE_trans }
 
@@ -730,7 +735,7 @@ public structure Packages.LinearOrderOfOrdArgs (α : Type u) extends
       ∀ a b : α, Min.min a b = if (compare a b).isLE then a else b := by
     extract_lets
     first
-    | exact fun a b => _root_.Std.min_eq_if_isLE_compare (a := a) (b := b)
+    | exact fun a b => _root_.Std.min_eq_ite_isLE_compare (a := a) (b := b)
     | fail "Failed to automatically prove that `min` is left-leaning. \
             Please ensure that a `LawfulOrderLeftLeaningMin` instance can be synthesized or \
             manually provide the field `min_eq`."
@@ -739,7 +744,7 @@ public structure Packages.LinearOrderOfOrdArgs (α : Type u) extends
       ∀ a b : α, Max.max a b = if (compare a b).isGE then a else b := by
     extract_lets
     first
-    | exact fun a b => _root_.Std.max_eq_if_isGE_compare (a := a) (b := b)
+    | exact fun a b => _root_.Std.max_eq_ite_isGE_compare (a := a) (b := b)
     | fail "Failed to automatically prove that `max` is left-leaning. \
             Please ensure that a `LawfulOrderLeftLeaningMax` instance can be synthesized or \
             manually provide the field `max_eq`."
@@ -788,7 +793,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 * Other proof obligations, such as `transOrd`, can be omitted if matching instances can be
   synthesized.
 -/
-@[expose]
+@[inline, expose, instance_reducible]
 public def LinearOrderPackage.ofOrd (α : Type u)
     (args : Packages.LinearOrderOfOrdArgs α := by exact {}) : LinearOrderPackage α :=
   letI := LinearPreorderPackage.ofOrd α args.toLinearPreorderOfOrdArgs

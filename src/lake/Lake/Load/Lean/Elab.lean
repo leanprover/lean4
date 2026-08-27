@@ -6,16 +6,13 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Util.Log
 public import Lake.Load.Config
-public import Lean.Environment
-import Lean.Compiler.IR
+import Lean.Compiler.IR.CompilerM
 import Lean.Elab.Frontend
 import Lake.DSL.Extensions
-import Lake.DSL.Attributes
-import Lake.Load.Config
-import Lake.Build.Trace
 import Lake.Util.JsonObject
+import Init.System.Platform
+import Lake.DSL.AttributesCore
 
 /-! # Lean Configuration Elaborator
 
@@ -37,6 +34,8 @@ public def importModulesUsingCache
 : IO Environment := do
   if let some env := (← importEnvCache.get)[imports]? then
     return env
+
+  unsafe enableInitializersExecution  -- needed for `loadExts`
   let env ← importModules (loadExts := true) imports opts trustLevel
   importEnvCache.modify (·.insert imports env)
   return env
@@ -60,7 +59,7 @@ public def configModuleName : Name := `lakefile
 
 /-- Elaborate `configFile` with the given package directory and options. -/
 def elabConfigFile
-  (pkgName : Name) (pkgDir : FilePath) (lakeOpts : NameMap String)
+  (pkgIdx : Nat) (pkgName : Name) (pkgDir : FilePath) (lakeOpts : NameMap String)
   (leanOpts := Options.empty) (configFile := pkgDir / defaultLeanConfigFile)
 : LogIO Environment := do
 
@@ -68,11 +67,11 @@ def elabConfigFile
   let input ← IO.FS.readFile configFile
   let inputCtx := Parser.mkInputContext input configFile.toString
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
-  let (env, messages) ← processHeader header leanOpts inputCtx messages
+  let (env, messages) ← StateT.run (processHeader header leanOpts inputCtx) messages
   let env := env.setMainModule configModuleName
 
   -- Configure extensions
-  let env := nameExt.setState env pkgName
+  let env := nameExt.setState env ⟨pkgIdx, pkgName⟩
   let env := dirExt.setState env pkgDir
   let env := optsExt.setState env lakeOpts
 
@@ -89,6 +88,7 @@ def elabConfigFile
   else
     return s.commandState.env
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 `Lean.Kernel.Environment.add` is now private, this is an exported helper wrapping it for
 `Lean.Environment`.
@@ -164,6 +164,7 @@ where
     |>.insert ``IR.declMapExt
 
 structure ConfigTrace where
+  idx : Nat
   name : Name
   platform : String
   leanHash : String
@@ -179,8 +180,7 @@ toolchain). Otherwise, elaborate the configuration and save it to the `.olean`.
 public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
   let some configName := FilePath.mk <$> cfg.configFile.fileName
     | error "invalid configuration file name"
-  let pkgName := cfg.pkgName.toString (escape := false)
-  let configDir := cfg.lakeDir / "config" / pkgName
+  let configDir := cfg.configDir
   IO.FS.createDirAll configDir
   let olean := configDir / configName.withExtension "olean"
   let traceFile := configDir / configName.withExtension "olean.trace"
@@ -197,7 +197,7 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
   imported and the (shared) lock is then released.
 
   If the trace is out-of-date, Lake upgrades the trace to read-write handle
-  with an exclusive lock. Lake does this by first acquiring a exclusive lock to
+  with an exclusive lock. Lake does this by first acquiring an exclusive lock to
   configuration's lock file (i.e. `olean.lock`). While holding this lock, Lake
   releases the shared lock on the trace, re-opens the trace with a read-write
   handle, and acquires an exclusive lock on the trace. It then releases its
@@ -211,7 +211,7 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
 
     This is because we are already holding a shared lock on the trace.
     If multiple process race for this lock, one will get it and then
-    wait for an exclusive lock one the trace file, but be blocked by the
+    wait for an exclusive lock on the trace file, but be blocked by the
     other process with a shared lock waiting on this file.
 
     While there is likely a way to sequence this to avoid erroring,
@@ -245,9 +245,14 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
     | .ok _ | .error (.noFileOrDirectory ..) =>
       h.putStrLn <| Json.pretty <| toJson
         {platform := System.Platform.target, leanHash := cfg.lakeEnv.leanGithash,
-          configHash, name := cfg.pkgName, options := lakeOpts : ConfigTrace}
+          configHash, idx := cfg.pkgIdx, name := cfg.pkgName, options := lakeOpts : ConfigTrace}
+      -- Flush before `truncate` (which sets the file size without flushing buffered
+      -- writes) and before the slow elaboration below, so a process killed
+      -- mid-elaboration leaves a valid trace rather than a NUL-byte size placeholder.
+      h.flush
       h.truncate
-      let env ← elabConfigFile cfg.pkgName cfg.pkgDir lakeOpts cfg.leanOpts cfg.configFile
+      let env ← elabConfigFile
+        cfg.pkgIdx cfg.pkgName cfg.pkgDir lakeOpts cfg.leanOpts cfg.configFile
       Lean.writeModule env olean
       h.unlock
       return env
@@ -261,14 +266,13 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
     else
       h.lock (exclusive := false)
       let contents ← h.readToEnd
-      let errMsg := "compiled configuration is invalid; run with '-R' to reconfigure"
       match Json.parse contents with
       | .ok json =>
         match fromJson? json with
         | .ok (trace : ConfigTrace) =>
-          let upToDate :=
-            (← olean.pathExists) ∧ trace.name = cfg.pkgName ∧ trace.configHash = configHash ∧
-            trace.platform = System.Platform.target ∧ trace.leanHash = cfg.lakeEnv.leanGithash
+          let upToDate := (← olean.pathExists) ∧
+            trace.idx = cfg.pkgIdx ∧ trace.name = cfg.pkgName ∧  trace.configHash = configHash ∧
+            trace.platform = System.Platform.target ∧  trace.leanHash = cfg.lakeEnv.leanGithash
           if upToDate then
             let env ← importConfigFileCore olean cfg.leanOpts
             h.unlock
@@ -280,9 +284,9 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
           | .ok (opts : NameMap String) =>
             elabConfig (← acquireTrace h) opts
           | .error _ =>
-            error errMsg
+            elabConfig (← acquireTrace h) cfg.lakeOpts
       | .error _ =>
-        error errMsg
+        elabConfig (← acquireTrace h) cfg.lakeOpts
   if (← traceFile.pathExists) then
     validateTrace <| ← IO.FS.Handle.mk traceFile .read
   else

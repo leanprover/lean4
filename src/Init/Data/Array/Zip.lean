@@ -7,7 +7,14 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-public import Init.Data.Array.TakeDrop
+public import Init.Control.Lawful
+public import Init.Data.Function
+import Init.Data.Array.Lemmas
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Zip
+import Init.Data.Option.Lemmas
+import Init.Data.Prod
+import Init.Omega
 
 public section
 
@@ -352,14 +359,6 @@ theorem zipWithM_eq_mapM_id_zipWith {m : Type v → Type w} [Monad m] [LawfulMon
   simp [List.zipWithM_toArray, ← List.zipWithM'_eq_zipWithM]
 
 /-! ### unzip -/
-
-@[deprecated fst_unzip (since := "2025-05-26")]
-theorem unzip_fst : (unzip l).fst = l.map Prod.fst := by
-  simp
-
-@[deprecated snd_unzip (since := "2025-05-26")]
-theorem unzip_snd : (unzip l).snd = l.map Prod.snd := by
-  simp
 
 @[grind =]
 theorem unzip_eq_map {xs : Array (α × β)} : unzip xs = (xs.map Prod.fst, xs.map Prod.snd) := by

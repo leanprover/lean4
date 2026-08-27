@@ -4,13 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Delta
 public import Lean.Meta.Tactic.Simp.Main
-
+import Lean.Meta.WHNF
 public section
-
 namespace Lean.Meta
 
 private def getSimpUnfoldContext : MetaM Simp.Context := do
@@ -25,7 +23,7 @@ def unfold (e : Expr) (declName : Name) : MetaM Simp.Result := do
     return { expr  := (← deltaExpand e (· == declName)) }
 where
   pre (unfoldThm : Name) (e : Expr) : SimpM Simp.Step := do
-    match (← withReducible <| Simp.tryTheorem? e { origin := .decl unfoldThm, proof := mkConst unfoldThm, rfl := (← isRflTheorem unfoldThm) }) with
+    match (← withReducible <| Simp.tryTheorem? e { origin := .decl unfoldThm, proof := mkConst unfoldThm, rfl := (← isRflTheorem unfoldThm), backwardRfl := (← isBackwardRflTheorem unfoldThm) }) with
     | none   => pure ()
     | some r => match (← reduceMatcher? r.expr) with
       | .reduced e' => return .done { r with expr := e' }

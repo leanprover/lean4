@@ -6,9 +6,9 @@ Author: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Data.ByteArray.Basic
 public import Init.Data.String.PosRaw
 import Init.Data.ByteArray.Lemmas
+import Init.Omega
 
 /-!
 # Preliminary developments for strings
@@ -90,7 +90,7 @@ Examples:
  * `"abc" ++ "def" = "abcdef"`
  * `"" ++ "" = ""`
 -/
-@[extern "lean_string_append", expose]
+@[extern "lean_string_append", expose, implicit_reducible]
 def String.append (s : String) (t : @& String) : String where
   toByteArray := s.toByteArray ++ t.toByteArray
   isValidUTF8 := s.isValidUTF8.append t.isValidUTF8
@@ -179,8 +179,16 @@ theorem append_left_inj {s₁ s₂ : String} (t : String) :
     s₁ ++ t = s₂ ++ t ↔ s₁ = s₂ := by
   simp [← toByteArray_inj]
 
+@[simp]
+theorem append_right_inj (s : String) {t₁ t₂ : String} :
+    s ++ t₁ = s ++ t₂ ↔ t₁ = t₂ := by
+  simp [← toByteArray_inj]
+
 theorem append_assoc {s₁ s₂ s₃ : String} : s₁ ++ s₂ ++ s₃ = s₁ ++ (s₂ ++ s₃) := by
   simp [← toByteArray_inj, ByteArray.append_assoc]
+
+instance : Std.Associative (α := String) (· ++ ·) where
+  assoc _ _ _ := append_assoc
 
 @[simp]
 theorem utf8ByteSize_eq_zero_iff {s : String} : s.utf8ByteSize = 0 ↔ s = "" := by
@@ -225,7 +233,7 @@ Examples:
  * `"empty".isEmpty = false`
  * `" ".isEmpty = false`
 -/
-@[inline] def isEmpty (s : String) : Bool :=
+@[inline, expose] def isEmpty (s : String) : Bool :=
   s.utf8ByteSize == 0
 
 @[export lean_string_isempty]
@@ -414,7 +422,7 @@ instance : Inhabited Slice where
 /--
 Returns a slice that contains the entire string.
 -/
-@[inline, expose] -- expose for the defeq `s.toSlice.str = s`.
+@[inline, expose, implicit_reducible] -- expose for the defeq `s.toSlice.str = s`.
 def toSlice (s : String) : Slice where
   str := s
   startInclusive := s.startPos
@@ -463,7 +471,7 @@ theorem Pos.Raw.byteIdx_sub_slice {p : Pos.Raw} {s : Slice} :
     (p - s).byteIdx = p.byteIdx - s.utf8ByteSize := rfl
 
 /-- The end position of a slice, as a `Pos.Raw`. -/
-@[expose, inline]
+@[expose, inline, implicit_reducible]
 def Slice.rawEndPos (s : Slice) : Pos.Raw where
   byteIdx := s.utf8ByteSize
 
@@ -630,6 +638,32 @@ def Slice.Pos.byte {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : UInt8 :=
 theorem push_eq_append (c : Char) : String.push s c = s ++ singleton c := by
   simp
 
+/--
+Checks whether a slice is empty.
+
+Empty slices have {name}`utf8ByteSize` {lean}`0`.
+
+Examples:
+ * {lean}`"".toSlice.isEmpty = true`
+ * {lean}`" ".toSlice.isEmpty = false`
+-/
+@[inline]
+def Slice.isEmpty (s : Slice) : Bool := s.utf8ByteSize == 0
+
+@[simp]
+theorem Slice.Pos.le_refl {s : Slice} (p : s.Pos) : p ≤ p := by
+  simp [le_iff]
+
+theorem Slice.Pos.lt_trans {s : Slice} {p q r : s.Pos} : p < q → q < r → p < r := by
+  simpa [Pos.lt_iff, Pos.Raw.lt_iff] using Nat.lt_trans
+
+@[simp]
+theorem Pos.le_refl {s : String} (p : s.Pos) : p ≤ p := by
+  simp [Pos.le_iff]
+
+theorem Pos.lt_trans {s : String} {p q r : s.Pos} : p < q → q < r → p < r := by
+  simpa [Pos.lt_iff, Pos.Raw.lt_iff] using Nat.lt_trans
+
 @[deprecated String.toRawSubstring (since := "2025-11-18")]
 def toSubstring (s : String) : Substring.Raw :=
   s.toRawSubstring
@@ -651,7 +685,20 @@ abbrev endValidPos (s : String) : s.Pos :=
   s.endPos
 
 @[deprecated String.toByteArray (since := "2025-11-24")]
-abbrev String.bytes (s : String) : ByteArray :=
+abbrev bytes (s : String) : ByteArray :=
   s.toByteArray
+
+/--
+Returns the length of the string `s`, assuming the string is comprised only of ASCII characters.
+
+This is implemented as a synonym for `s.utf8ByteSize`, which takes constant time.
+-/
+@[inline]
+def lengthAssumingAscii (s : String) : Nat :=
+  s.utf8ByteSize
+
+@[simp]
+theorem lengthAssumingAscii_eq {s : String} : s.lengthAssumingAscii = s.utf8ByteSize :=
+  (rfl)
 
 end String

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Data.Int.Linear
 public import Lean.Util.SortExprs
@@ -12,10 +11,9 @@ public import Lean.Meta.IntInstTesters
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.KExprMap
 public import Lean.Data.RArray
-
+import Lean.Meta.LitValues
 public section
-
-namespace Int.Linear
+namespace Int.Internal.Linear
 
 /-- Converts the linear polynomial into the "simplified" expression -/
 def Poly.toExpr (p : Poly) : Expr :=
@@ -46,22 +44,22 @@ where
 deriving instance Repr for Poly
 deriving instance Repr for Expr
 
-end Int.Linear
+end Int.Internal.Linear
 
 namespace Lean.Meta.Simp.Arith.Int
 
-def ofPoly (p : Int.Linear.Poly) : Expr :=
-  open Int.Linear.Poly in
+def ofPoly (p : Int.Internal.Linear.Poly) : Expr :=
+  open Int.Internal.Linear.Poly in
   match p with
   | .num v => mkApp (mkConst ``num) (toExpr v)
   | .add k v p => mkApp3 (mkConst ``add) (toExpr k) (toExpr v) (ofPoly p)
 
-instance : ToExpr Int.Linear.Poly where
+instance : ToExpr Int.Internal.Linear.Poly where
   toExpr a := ofPoly a
-  toTypeExpr := mkConst ``Int.Linear.Poly
+  toTypeExpr := mkConst ``Int.Internal.Linear.Poly
 
-def ofLinearExpr (e : Int.Linear.Expr) : Expr :=
-  open Int.Linear.Expr in
+def ofLinearExpr (e : Int.Internal.Linear.Expr) : Expr :=
+  open Int.Internal.Linear.Expr in
   match e with
   | .num v    => mkApp (mkConst ``num) (toExpr v)
   | .var i    => mkApp (mkConst ``var) (mkNatLit i)
@@ -71,11 +69,11 @@ def ofLinearExpr (e : Int.Linear.Expr) : Expr :=
   | .mulL k a => mkApp2 (mkConst ``mulL) (toExpr k) (ofLinearExpr a)
   | .mulR a k => mkApp2 (mkConst ``mulR) (ofLinearExpr a) (toExpr k)
 
-instance : ToExpr Int.Linear.Expr where
+instance : ToExpr Int.Internal.Linear.Expr where
   toExpr a := ofLinearExpr a
-  toTypeExpr := mkConst ``Int.Linear.Expr
+  toTypeExpr := mkConst ``Int.Internal.Linear.Expr
 
-def _root_.Int.Linear.Expr.denoteExpr (ctx : Nat → Expr) (e : Int.Linear.Expr) : MetaM Expr := do
+def _root_.Int.Internal.Linear.Expr.denoteExpr (ctx : Nat → Expr) (e : Int.Internal.Linear.Expr) : MetaM Expr := do
   match e with
   | .num v    => return Lean.toExpr v
   | .var x    => return ctx x
@@ -85,13 +83,13 @@ def _root_.Int.Linear.Expr.denoteExpr (ctx : Nat → Expr) (e : Int.Linear.Expr)
   | .mulL k a => return mkIntMul (toExpr k) (← denoteExpr ctx a)
   | .mulR a k => return mkIntMul (← denoteExpr ctx a) (toExpr k)
 
-def _root_.Int.Linear.Poly.denoteExpr (ctx : Nat → Expr) (p : Int.Linear.Poly) : MetaM Expr := do
+def _root_.Int.Internal.Linear.Poly.denoteExpr (ctx : Nat → Expr) (p : Int.Internal.Linear.Poly) : MetaM Expr := do
   match p with
   | .num k => return toExpr k
   | .add 1 x p => go (ctx x) p
   | .add k x p => go (mkIntMul (toExpr k) (ctx x)) p
 where
-  go (r : Expr)  (p : Int.Linear.Poly) : MetaM Expr :=
+  go (r : Expr)  (p : Int.Internal.Linear.Poly) : MetaM Expr :=
     match p with
     | .num 0 => return r
     | .num k => return mkIntAdd r (toExpr k)
@@ -106,9 +104,9 @@ structure State where
 
 abbrev M := StateRefT State MetaM
 
-open Int.Linear.Expr
+open Int.Internal.Linear.Expr
 
-def addAsVar (e : Expr) : M Int.Linear.Expr := do
+def addAsVar (e : Expr) : M Int.Internal.Linear.Expr := do
   if let some x ← (← get).varMap.find? e then
     return var x
   else
@@ -117,14 +115,14 @@ def addAsVar (e : Expr) : M Int.Linear.Expr := do
     set { varMap := (← s.varMap.insert e x), vars := s.vars.push e : State }
     return var x
 
-partial def toLinearExpr (e : Expr) : M Int.Linear.Expr := do
+partial def toLinearExpr (e : Expr) : M Int.Internal.Linear.Expr := do
   match e with
   | .mdata _ e            => toLinearExpr e
   | .app ..               => visit e
   | .mvar ..              => visit e
   | _                     => addAsVar e
 where
-  visit (e : Expr) : M Int.Linear.Expr := do
+  visit (e : Expr) : M Int.Internal.Linear.Expr := do
     let mul (a b : Expr) := do
       match (← getIntValue? a) with
       | some k => return .mulL k (← toLinearExpr b)
@@ -137,32 +135,32 @@ where
       else addAsVar e
     | Int.neg a => return .neg (← toLinearExpr a)
     | Neg.neg _ i a =>
-      if (← isInstNegInt i) then return .neg (← toLinearExpr a)
+      if (← DefEq.isInstNegInt i) then return .neg (← toLinearExpr a)
       else addAsVar e
     | Int.add a b => return .add (← toLinearExpr a) (← toLinearExpr b)
     | Add.add _ i a b =>
-      if (← isInstAddInt i) then return .add (← toLinearExpr a) (← toLinearExpr b)
+      if (← DefEq.isInstAddInt i) then return .add (← toLinearExpr a) (← toLinearExpr b)
       else addAsVar e
     | HAdd.hAdd _ _ _ i a b =>
-      if (← isInstHAddInt i) then return .add (← toLinearExpr a) (← toLinearExpr b)
+      if (← DefEq.isInstHAddInt i) then return .add (← toLinearExpr a) (← toLinearExpr b)
       else addAsVar e
     | Int.sub a b => return .sub (← toLinearExpr a) (← toLinearExpr b)
     | Sub.sub _ i a b =>
-      if (← isInstSubInt i) then return .sub (← toLinearExpr a) (← toLinearExpr b)
+      if (← DefEq.isInstSubInt i) then return .sub (← toLinearExpr a) (← toLinearExpr b)
       else addAsVar e
     | HSub.hSub _ _ _ i a b =>
-      if (← isInstHSubInt i) then return .sub (← toLinearExpr a) (← toLinearExpr b)
+      if (← DefEq.isInstHSubInt i) then return .sub (← toLinearExpr a) (← toLinearExpr b)
       else addAsVar e
     | Int.mul a b => mul a b
     | Mul.mul _ i a b =>
-      if (← isInstMulInt i) then mul a b
+      if (← DefEq.isInstMulInt i) then mul a b
       else addAsVar e
     | HMul.hMul _ _ _ i a b =>
-      if (← isInstHMulInt i) then mul a b
+      if (← DefEq.isInstHMulInt i) then mul a b
       else addAsVar e
     | _ => addAsVar e
 
-partial def eqCnstr? (e : Expr) : M (Option (Int.Linear.Expr × Int.Linear.Expr)) := OptionT.run do
+partial def eqCnstr? (e : Expr) : M (Option (Int.Internal.Linear.Expr × Int.Internal.Linear.Expr)) := OptionT.run do
   let_expr Eq α a b ← e | failure
   let_expr Int ← α | failure
   let a ← toLinearExpr a
@@ -176,29 +174,29 @@ partial def eqCnstr? (e : Expr) : M (Option (Int.Linear.Expr × Int.Linear.Expr)
   | .var _, .var _ | .var _, .num _ | .num _, .var _ => failure
   | _, _ => return (a, b)
 
-partial def leCnstr? (e : Expr) : M (Option (Int.Linear.Expr × Int.Linear.Expr)) := OptionT.run do
+partial def leCnstr? (e : Expr) : M (Option (Int.Internal.Linear.Expr × Int.Internal.Linear.Expr)) := OptionT.run do
   match_expr e with
   | Int.le a b =>
     return (← toLinearExpr a, ← toLinearExpr b)
   | Int.lt a b =>
     return (.add (← toLinearExpr a) (.num 1), ← toLinearExpr b)
   | LE.le _ i a b =>
-    guard (← isInstLEInt i)
+    guard (← DefEq.isInstLEInt i)
     return (← toLinearExpr a, ← toLinearExpr b)
   | LT.lt _ i a b =>
-    guard (← isInstLTInt i)
+    guard (← DefEq.isInstLTInt i)
     return (.add (← toLinearExpr a) (.num 1), ← toLinearExpr b)
   | GE.ge _ i a b =>
-    guard (← isInstLEInt i)
+    guard (← DefEq.isInstLEInt i)
     return (← toLinearExpr b, ← toLinearExpr a)
   | GT.gt _ i a b =>
-    guard (← isInstLTInt i)
+    guard (← DefEq.isInstLTInt i)
     return (.add (← toLinearExpr b) (.num 1), ← toLinearExpr a)
   | _ => failure
 
-partial def dvdCnstr? (e : Expr) : M (Option (Int × Int.Linear.Expr)) := OptionT.run do
+partial def dvdCnstr? (e : Expr) : M (Option (Int × Int.Internal.Linear.Expr)) := OptionT.run do
   let_expr Dvd.dvd _ inst k b ← e | failure
-  guard (← isInstDvdInt inst)
+  guard (← DefEq.isInstDvdInt inst)
   let some k ← getIntValue? k | failure
   return (k, ← toLinearExpr b)
 
@@ -208,7 +206,7 @@ def run (x : M α) : MetaM (α × Array Expr) := do
 
 end ToLinear
 
-def toLinearExpr (e : Expr) : MetaM (Int.Linear.Expr × Array Expr) := do
+def toLinearExpr (e : Expr) : MetaM (Int.Internal.Linear.Expr × Array Expr) := do
   let (e, atoms) ← ToLinear.run (ToLinear.toLinearExpr e)
   if atoms.size == 1 then
     return (e, atoms)
@@ -218,7 +216,7 @@ def toLinearExpr (e : Expr) : MetaM (Int.Linear.Expr × Array Expr) := do
     return (e, atoms)
 
 @[inline]
-private def adapter (e : Expr) (k : Expr → ToLinear.M (Option (Int.Linear.Expr × Int.Linear.Expr))) : MetaM (Option (Int.Linear.Expr × Int.Linear.Expr × Array Expr)) := do
+private def adapter (e : Expr) (k : Expr → ToLinear.M (Option (Int.Internal.Linear.Expr × Int.Internal.Linear.Expr))) : MetaM (Option (Int.Internal.Linear.Expr × Int.Internal.Linear.Expr × Array Expr)) := do
   let (some (lhs, rhs), atoms) ← ToLinear.run (k e)
     | return none
   if atoms.size <= 1 then
@@ -231,13 +229,13 @@ private def adapter (e : Expr) (k : Expr → ToLinear.M (Option (Int.Linear.Expr
     let rhs := rhs.applyPerm perm
     return some (lhs, rhs, atoms)
 
-def eqCnstr? (e : Expr) : MetaM (Option (Int.Linear.Expr × Int.Linear.Expr × Array Expr)) := do
+def eqCnstr? (e : Expr) : MetaM (Option (Int.Internal.Linear.Expr × Int.Internal.Linear.Expr × Array Expr)) := do
   adapter e ToLinear.eqCnstr?
 
-def leCnstr? (e : Expr) : MetaM (Option (Int.Linear.Expr × Int.Linear.Expr × Array Expr)) := do
+def leCnstr? (e : Expr) : MetaM (Option (Int.Internal.Linear.Expr × Int.Internal.Linear.Expr × Array Expr)) := do
   adapter e ToLinear.leCnstr?
 
-def dvdCnstr? (e : Expr) : MetaM (Option (Int × Int.Linear.Expr × Array Expr)) := do
+def dvdCnstr? (e : Expr) : MetaM (Option (Int × Int.Internal.Linear.Expr × Array Expr)) := do
   let (some (d, e), atoms) ← ToLinear.run (ToLinear.dvdCnstr? e)
     | return none
   if atoms.size <= 1 then

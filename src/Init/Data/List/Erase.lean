@@ -7,7 +7,18 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Find
+public import Init.BinderPredicates
+public import Init.Ext
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Data.Bool
+import Init.Data.List.Find
+import Init.Data.List.Pairwise
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Lemmas
+import Init.Omega
+import Init.TacticsExtra
 
 public section
 
@@ -27,7 +38,7 @@ open Nat
 @[simp, grind =] theorem eraseP_nil : [].eraseP p = [] := rfl
 
 @[grind =] theorem eraseP_cons {a : α} {l : List α} :
-    (a :: l).eraseP p = bif p a then l else a :: l.eraseP p := rfl
+    (a :: l).eraseP p = if p a then l else a :: l.eraseP p := rfl
 
 @[simp] theorem eraseP_cons_of_pos {l : List α} {p} (h : p a) : (a :: l).eraseP p = l := by
   simp [eraseP_cons, h]
@@ -44,7 +55,7 @@ theorem eraseP_of_forall_not {l : List α} (h : ∀ a, a ∈ l → ¬p a) : l.er
   induction xs with
   | nil => simp
   | cons x xs ih =>
-    simp only [eraseP_cons, cond_eq_ite]
+    simp only [eraseP_cons]
     split <;> rename_i h
     · simp only [reduceCtorEq, cons.injEq, false_or]
       constructor
@@ -114,7 +125,7 @@ protected theorem Sublist.eraseP : l₁ <+ l₂ → l₁.eraseP p <+ l₂.eraseP
     by_cases h : p a
     · simpa [h] using s.eraseP.trans eraseP_sublist
     · simpa [h] using s.eraseP.cons _
-  | .cons₂ a s => by
+  | .cons_cons a s => by
     by_cases h : p a
     · simpa [h] using s
     · simpa [h] using s.eraseP
@@ -164,8 +175,7 @@ theorem eraseP_filterMap {f : α → Option β} : ∀ {l : List α},
       rw [h, eraseP_cons]
       by_cases w : p b
       · simp [w]
-      · simp only [w, cond_false]
-        rw [filterMap_cons_some h, eraseP_filterMap]
+      · simp [w, filterMap_cons_some h, eraseP_filterMap]
 
 @[grind =]
 theorem eraseP_filter {f : α → Bool} {l : List α} :
@@ -311,6 +321,7 @@ theorem eraseP_eq_eraseIdx {xs : List α} {p : α → Bool} :
     · simp [h]
     · simp only [h]
       rw [ih]
+      simp only [Bool.false_eq_true, ↓reduceIte]
       split <;> simp [*]
 
 /-! ### erase -/
@@ -324,13 +335,13 @@ variable [BEq α]
   simp [erase_cons]
 
 @[simp] theorem erase_cons_tail {a b : α} {l : List α} (h : ¬(b == a)) :
-    (b :: l).erase a = b :: l.erase a := by simp only [erase_cons, if_neg h]
+    (b :: l).erase a = b :: l.erase a := by simp only [erase_cons, ite_eq_right h]
 
 theorem erase_of_not_mem [LawfulBEq α] {a : α} : ∀ {l : List α}, a ∉ l → l.erase a = l
   | [], _ => rfl
   | b :: l, h => by
     rw [mem_cons, not_or] at h
-    simp only [erase_cons, if_neg, erase_of_not_mem h.2, beq_iff_eq, Ne.symm h.1, not_false_eq_true]
+    simp only [erase_cons, ite_eq_right, erase_of_not_mem h.2, beq_iff_eq, Ne.symm h.1, not_false_eq_true]
 
 -- The arguments are intentionally explicit.
 theorem erase_eq_eraseP' (a : α) (l : List α) : l.erase a = l.eraseP (· == a) := by
@@ -338,7 +349,6 @@ theorem erase_eq_eraseP' (a : α) (l : List α) : l.erase a = l.eraseP (· == a)
   · simp
   next b t ih =>
     rw [erase_cons, eraseP_cons, ih]
-    if h : b == a then simp [h] else simp [h]
 
 -- The arguments are intentionally explicit.
 theorem erase_eq_eraseP [LawfulBEq α] (a : α) : ∀ (l : List α), l.erase a = l.eraseP (a == ·)
@@ -562,12 +572,14 @@ theorem length_eraseIdx_of_lt {l : List α} {i} (h : i < length l) :
 
 @[simp, grind =] theorem eraseIdx_zero {l : List α} : eraseIdx l 0 = l.tail := by cases l <;> rfl
 
-@[grind =]
 theorem eraseIdx_eq_take_drop_succ :
     ∀ (l : List α) (i : Nat), l.eraseIdx i = l.take i ++ l.drop (i + 1)
   | nil, _ => by simp
   | a::l, 0 => by simp
   | a::l, i + 1 => by simp [eraseIdx_eq_take_drop_succ l i]
+
+grind_pattern eraseIdx_eq_take_drop_succ => l.eraseIdx i, l.take i
+grind_pattern eraseIdx_eq_take_drop_succ => l.eraseIdx i, l.drop (i + 1)
 
 -- See `Init.Data.List.Nat.Erase` for `getElem?_eraseIdx` and `getElem_eraseIdx`.
 
@@ -693,7 +705,7 @@ theorem erase_eq_eraseIdx_of_idxOf [BEq α] [LawfulBEq α]
   · right
     obtain ⟨as, bs, rfl, h'⟩ := eq_append_cons_of_mem h
     refine ⟨as, bs, h', by simp, ?_⟩
-    rw [idxOf_append, if_neg h', idxOf_cons_self, eraseIdx_append_of_length_le] <;>
+    rw [idxOf_append, ite_eq_right h', idxOf_cons_self, eraseIdx_append_of_length_le] <;>
       simp
   · left
     refine ⟨h, ?_⟩

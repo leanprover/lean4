@@ -6,8 +6,11 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Vector.Lemmas
-public import Init.Data.Array.Erase
+public import Init.BinderPredicates
+public import Init.Data.Vector.Basic
+import Init.Data.Array.Erase
+import Init.Data.Vector.Lemmas
+import Init.Omega
 
 public section
 
@@ -24,11 +27,13 @@ open Nat
 
 /-! ### eraseIdx -/
 
-@[grind =]
 theorem eraseIdx_eq_take_drop_succ {xs : Vector α n} {i : Nat} (h) :
     xs.eraseIdx i = (xs.take i ++ xs.drop (i + 1)).cast (by omega) := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.eraseIdx_eq_take_drop_succ, *]
+
+grind_pattern eraseIdx_eq_take_drop_succ => xs.eraseIdx i h, xs.take i
+grind_pattern eraseIdx_eq_take_drop_succ => xs.eraseIdx i h, xs.drop i
 
 @[grind =]
 theorem getElem?_eraseIdx {xs : Vector α n} {i : Nat} (h : i < n) {j : Nat} :
@@ -61,13 +66,15 @@ theorem mem_of_mem_eraseIdx {xs : Vector α n} {i : Nat} {h} {a : α} (h : a ∈
 
 grind_pattern mem_of_mem_eraseIdx => a ∈ xs.eraseIdx i
 
-theorem eraseIdx_append_of_lt_size {xs : Vector α n} {k : Nat} (hk : k < n) (xs' : Vector α n) (h) :
+theorem eraseIdx_append_of_lt_size {xs : Vector α n} {k : Nat} (hk : k < n)
+    (xs' : Vector α m) (h) :
     eraseIdx (xs ++ xs') k = (eraseIdx xs k ++ xs').cast (by omega) := by
   rcases xs with ⟨xs⟩
   rcases xs' with ⟨xs'⟩
   simp [Array.eraseIdx_append_of_lt_size, *]
 
-theorem eraseIdx_append_of_length_le {xs : Vector α n} {k : Nat} (hk : n ≤ k) (xs' : Vector α n) (h) :
+theorem eraseIdx_append_of_length_le {xs : Vector α n} {k : Nat} (hk : n ≤ k)
+    (xs' : Vector α m) (h) :
     eraseIdx (xs ++ xs') k = (xs ++ eraseIdx xs' (k - n)).cast (by omega) := by
   rcases xs with ⟨xs⟩
   rcases xs' with ⟨xs'⟩

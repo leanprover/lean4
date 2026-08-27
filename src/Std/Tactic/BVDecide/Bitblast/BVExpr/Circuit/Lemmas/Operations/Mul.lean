@@ -10,6 +10,8 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Add
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftLeft
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
+import Init.Data.BitVec.Bootstrap
+import Init.Omega
 
 @[expose] public section
 
@@ -172,7 +174,7 @@ theorem denote_blast (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
       rw [BitVec.mulRec_zero_eq]
       simp only [Nat.succ_eq_add_one, RefVec.denote_ite,
         denote_blastConst,
-        BitVec.ofNat_eq_ofNat, BitVec.getLsbD_zero, Bool.if_false_right,
+        BitVec.ofNat_eq_ofNat, BitVec.getLsbD_zero, Bool.ite_false_right,
         Bool.decide_eq_true]
       split
       next heq =>

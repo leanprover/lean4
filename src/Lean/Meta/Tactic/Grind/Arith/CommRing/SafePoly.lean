@@ -6,8 +6,9 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
+public import Lean.Meta.Sym.Arith.Poly
 import Lean.Meta.Tactic.Grind.Arith.EvalNum
+import Init.Data.Nat.Internal.Linear
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 /-!
@@ -114,5 +115,80 @@ def _root_.Lean.Grind.CommRing.Poly.spolM (p₁ p₂ : Poly) : RingM Grind.CommR
     let spol ← combine p₁ p₂
     return { spol, m₁, m₂, k₁ := c₁, k₂ := c₂ }
   | _, _ => return {}
+
+/-- Returns `some (val, x)` if `m` contains a variable `x` whose the denotation is `val⁻¹`. -/
+def _root_.Lean.Grind.CommRing.Mon.findInvNumeralVar? (m : Mon) : RingM (Option (Nat × Var)) := do
+  match m with
+  | .unit => return none
+  | .mult pw m =>
+    let e := (← getRing).vars[pw.x]!
+    let_expr Inv.inv _ _ a := e | m.findInvNumeralVar?
+    let_expr OfNat.ofNat _ n _ := a | m.findInvNumeralVar?
+    let some n ← getNatValue? n | m.findInvNumeralVar?
+    return some (n, pw.x)
+
+/-- Returns `some (val, x)` if `p` contains a variable `x` whose the denotation is `val⁻¹`. -/
+def _root_.Lean.Grind.CommRing.Poly.findInvNumeralVar? (p : Poly) : RingM (Option (Nat × Var)) := do
+  match p with
+  | .num _ => return none
+  | .add _ m p =>
+    let some r ← m.findInvNumeralVar? | p.findInvNumeralVar?
+    return some r
+
+/--
+Result of simplifying a polynomial `p₁` using a polynomial `p₂`.
+
+The simplification rewrites the first monomial of `p₁` that can be divided
+by the leading monomial of `p₂`.
+-/
+structure SimpResult where
+  /-- The resulting simplified polynomial after rewriting. -/
+  p  : Poly := .num 0
+  /-- The integer coefficient multiplied with polynomial `p₁` in the rewriting step. -/
+  k₁ : Int  := 0
+  /-- The integer coefficient multiplied with polynomial `p₂` during rewriting. -/
+  k₂ : Int  := 0
+  /-- The monomial factor applied to polynomial `p₂`. -/
+  m₂ : Mon  := .unit
+
+/--
+Simplifies polynomial `p₁` using polynomial `p₂` by rewriting.
+
+This function attempts to rewrite `p₁` by eliminating the first occurrence of
+the leading monomial of `p₂`.
+
+If `checkCoeffDvd` is `true` (and the ring does not implement `NoNatZeroDivisors`),
+a monomial is rewritten only if its coefficient is divisible by the leading
+coefficient of `p₂`, i.e., only if the rewrite does not multiply `p₁` by a
+constant `k₁ ≠ ±1`. See `RingM.Context.checkCoeffDvd`.
+-/
+def _root_.Lean.Grind.CommRing.Poly.simpM? (p₁ p₂ : Poly) : RingM (Option SimpResult) := do
+  match p₂ with
+  | .add k₂' m₂ p₂ =>
+    let checkCoeff := (← checkCoeffDvd) && !(← noZeroDivisors)
+    let rec go? (p₁ : Poly) : RingM (Option SimpResult) := do
+      match p₁ with
+      | .add k₁' m₁ p₁ =>
+        if m₂.divides m₁ && (!checkCoeff || k₂' ∣ k₁') then
+          let m₂ := m₁.div m₂
+          let g  := Nat.gcd k₁'.natAbs k₂'.natAbs
+          let k₁ := k₂'/g
+          let k₂ := -k₁'/g
+          let p  ← (← p₂.mulMonM k₂ m₂).combineM (← p₁.mulConstM k₁)
+          return some { p, k₁, k₂, m₂ }
+        else if let some r ← go? p₁ then
+          if let some char ← nonzeroChar? then
+            let k := (k₁'*r.k₁) % char
+            if k == 0 then
+              return some r
+            else
+              return some { r with p := .add k m₁ r.p }
+          else
+            return some { r with p := .add (k₁'*r.k₁) m₁ r.p }
+        else
+          return none
+      | .num _ => return none
+    go? p₁
+  | _ => return none
 
 end Lean.Meta.Grind.Arith.CommRing

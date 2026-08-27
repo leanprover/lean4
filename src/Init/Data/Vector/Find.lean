@@ -8,7 +8,13 @@ module
 prelude
 import all Init.Data.Array.Basic
 import all Init.Data.Vector.Basic
-public import Init.Data.Vector.Range
+public import Init.Data.Vector.Attach
+import Init.Data.Array.Find
+import Init.Data.Bool
+import Init.Data.Fin.Lemmas
+import Init.Data.List.Find
+import Init.Data.List.Impl
+import Init.Data.Subtype.Basic
 
 public section
 
@@ -81,6 +87,10 @@ theorem findSome?_eq_some_iff {f : α → Option β} {xs : Vector α n} {b : β}
     exact ⟨ys.size, zs.size, by simp, ⟨ys, rfl⟩, a, ⟨zs, rfl⟩, by simp, h₁, by simpa using h₂⟩
   · rintro ⟨k₁, k₂, h, ys, a, zs, w, h₁, h₂⟩
     exact ⟨ys.toArray, a, zs.toArray, by simp [w], h₁, by simpa using h₂⟩
+
+theorem isSome_findSome? {xs : Vector α n} {f : α → Option β} :
+    (xs.findSome? f).isSome = xs.any (f · |>.isSome) := by
+  simp [← findSome?_toList, List.isSome_findSome?]
 
 @[simp, grind =] theorem findSome?_guard {xs : Vector α n} : findSome? (Option.guard p) xs = find? p xs := by
   rcases xs with ⟨xs, rfl⟩
@@ -159,9 +169,6 @@ theorem findSome?_replicate : findSome? f (replicate n a) = if n = 0 then none e
     findRev? p (xs.push a) = findRev? p xs := by
   cases xs; simp [h]
 
-@[deprecated findRev?_push_of_neg (since := "2025-06-12")]
-abbrev findRev?_cons_of_neg := @findRev?_push_of_neg
-
 @[grind =]
 theorem finRev?_push {xs : Vector α n} :
     findRev? p (xs.push a) = (Option.guard p a).or (xs.findRev? p) := by
@@ -186,6 +193,10 @@ theorem find?_eq_some_iff_append {xs : Vector α n} :
     exact ⟨h, as.size, bs.size, by simp, ⟨as, rfl⟩, ⟨bs, rfl⟩, by simp, by simpa using w⟩
   · rintro ⟨h, k₁, k₂, w, as, bs, h', w'⟩
     exact ⟨h, as.toArray, bs.toArray, by simp [h'], by simpa using w'⟩
+
+theorem isSome_find? {xs : Vector α n} {f : α → Bool} :
+    (xs.find? f).isSome = xs.any (f ·) := by
+  simp [← find?_toList, List.isSome_find?]
 
 theorem find?_push {xs : Vector α n} : (xs.push a).find? p = (xs.find? p).or (if p a then some a else none) := by
   rcases xs with ⟨xs, rfl⟩
@@ -285,7 +296,7 @@ theorem find?_pmap {P : α → Prop} {f : (a : α) → P a → β} {xs : Vector 
   rfl
 
 theorem find?_eq_some_iff_getElem {xs : Vector α n} {p : α → Bool} {b : α} :
-    xs.find? p = some b ↔ p b ∧ ∃ i h, xs[i] = b ∧ ∀ j : Nat, (hj : j < i) → !p xs[j] := by
+    xs.find? p = some b ↔ p b ∧ ∃ (i : Nat) (h : i < n), xs[i] = b ∧ ∀ j : Nat, (hj : j < i) → !p xs[j] := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.find?_eq_some_iff_getElem]
 
@@ -343,5 +354,17 @@ theorem isNone_findFinIdx? {xs : Vector α n} {p : α → Bool} :
     xs.findFinIdx? f = xs.unattach.findFinIdx? g := by
   rcases xs with ⟨xs, rfl⟩
   simp [hf, Function.comp_def]
+
+/-! ### find? and findFinIdx? -/
+
+theorem find?_eq_map_findFinIdx?_getElem {xs : Vector α n} {p : α → Bool} :
+    xs.find? p = (xs.findFinIdx? p).map (xs[·]) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.find?_eq_map_findFinIdx?_getElem]
+
+theorem findFinIdx?_eq_bind_find?_finIdxOf? [BEq α] [LawfulBEq α] {xs : Vector α n} {p : α → Bool} :
+    xs.findFinIdx? p = (xs.find? p).bind (xs.finIdxOf? ·) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.findFinIdx?_eq_bind_find?_finIdxOf?]
 
 end Vector

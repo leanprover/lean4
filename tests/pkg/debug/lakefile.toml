@@ -2,9 +2,7 @@ name = "debug"
 
 [[lean_exe]]
 name = "release"
-root = "Main"
 
 [[lean_exe]]
 name = "debug"
-root = "Main"
 buildType = "debug"

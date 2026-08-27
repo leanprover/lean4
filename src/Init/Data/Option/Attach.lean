@@ -6,8 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Option.Array
 public import Init.Data.Array.Attach
+public import Init.Data.Option.Lemmas
+import Init.Data.Bool
+import Init.Data.Option.Array
+import Init.Data.Option.List
+import Init.Data.Subtype.Basic
 
 public section
 
@@ -318,7 +322,7 @@ If this function is encountered in a proof state, the right approach is usually 
 
 It is a synonym for `Option.map Subtype.val`.
 -/
-@[expose]
+@[expose, implicit_reducible]
 def unattach {α : Type _} {p : α → Prop} (o : Option { x // p x }) := o.map (·.val)
 
 @[simp] theorem unattach_none {p : α → Prop} : (none : Option { x // p x }).unattach = none := rfl
@@ -435,4 +439,40 @@ theorem all_unattach {p : α → Prop} {o : Option { x // p x }} {q : α → Boo
     o.unattach.all q = o.all (q ∘ Subtype.val) := by
   cases o <;> simp
 
+@[always_inline]
+instance : MonadAttach Option where
+  CanReturn x a := x = some a
+  attach x := x.attach
+
+instance : LawfulMonadAttach Option where
+  map_attach {α} x := by simp [MonadAttach.attach]
+  canReturn_map_imp {α P x a} := by
+    cases x
+    · simp [MonadAttach.CanReturn]
+    · simp +contextual [MonadAttach.CanReturn, eq_comm, Subtype.property]
+
 end Option
+
+namespace OptionT
+
+instance [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m] :
+    WeaklyLawfulMonadAttach (OptionT m) where
+  map_attach {α} x := by
+    apply OptionT.ext
+    conv => rhs; rw [← WeaklyLawfulMonadAttach.map_attach (x := x.run)]
+    simp only [Functor.map, OptionT.bind, OptionT.mk, MonadAttach.attach, map_eq_pure_bind, bind_assoc]
+    apply bind_congr; intro a
+    match a with
+    | ⟨some a, _⟩ => simp [OptionT.pure, OptionT.mk]
+    | ⟨none, _⟩ => simp
+
+instance [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] :
+    LawfulMonadAttach (OptionT m) where
+  canReturn_map_imp {α P x a} h := by
+    simp only [MonadAttach.CanReturn, OptionT.run_map] at h
+    have := LawfulMonadAttach.canReturn_map_imp' h
+    simp only [Option.map_eq_some_iff] at this
+    obtain ⟨_, _, a, rfl, rfl⟩ := this
+    exact a.property
+
+end OptionT

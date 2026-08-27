@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Hashable
 public import Lean.Level
+import Init.Omega
 
 public section
 
@@ -72,7 +73,7 @@ inductive BinderInfo where
   | default
   /-- Implicit binder annotation, e.g., `{x : α}` -/
   | implicit
-  /-- Strict implicit binder annotation, e.g., `{{ x : α }}` -/
+  /-- Strict implicit binder annotation, e.g., `⦃x : α⦄` -/
   | strictImplicit
   /-- Local instance binder annotation, e.g., `[Decidable α]` -/
   | instImplicit
@@ -106,7 +107,7 @@ def BinderInfo.isImplicit : BinderInfo → Bool
   | BinderInfo.implicit => true
   | _                   => false
 
-/-- Return `true` if the given `BinderInfo` is a strict implicit annotation (e.g., `{{α : Type u}}`) -/
+/-- Return `true` if the given `BinderInfo` is a strict implicit annotation (e.g., `⦃α : Type u⦄`) -/
 def BinderInfo.isStrictImplicit : BinderInfo → Bool
   | BinderInfo.strictImplicit => true
   | _                         => false
@@ -216,9 +217,9 @@ instance : Repr FVarId where
 A set of unique free variable identifiers.
 This is a persistent data structure implemented using `Std.TreeSet`. -/
 @[expose] def FVarIdSet := Std.TreeSet FVarId (Name.quickCmp ·.name ·.name)
-  deriving Inhabited, EmptyCollection
+  deriving Inhabited, EmptyCollection, Singleton
 
-instance : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
+instance [Monad m] : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
 def FVarIdSet.insert (s : FVarIdSet) (fvarId : FVarId) : FVarIdSet :=
   Std.TreeSet.insert s fvarId
@@ -252,7 +253,7 @@ instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (S
 instance : Inhabited (FVarIdMap α) where
   default := {}
 
-/-- Universe metavariable Id   -/
+/-- Expression metavariable Id   -/
 structure MVarId where
   name : Name
   deriving Inhabited, BEq, Hashable
@@ -272,7 +273,7 @@ def MVarIdSet.ofList (l : List MVarId) : MVarIdSet :=
 def MVarIdSet.ofArray (l : Array MVarId) : MVarIdSet :=
   Std.TreeSet.ofArray l _
 
-instance : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
+instance [Monad m] : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
 @[expose] def MVarIdMap (α : Type) := Std.TreeMap MVarId α (Name.quickCmp ·.name ·.name)
 
@@ -281,7 +282,7 @@ def MVarIdMap.insert (s : MVarIdMap α) (mvarId : MVarId) (a : α) : MVarIdMap �
 
 instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (Std.TreeMap _ _ _))
 
-instance : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
+instance [Monad m] : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
 
 instance : Inhabited (MVarIdMap α) where
   default := {}
@@ -300,8 +301,8 @@ inductive Expr where
   of a variable in the expression where there is a variable binder
   above it (i.e. introduced by a `lam`, `forallE`, or `letE`).
 
-  The `deBruijnIndex` parameter is the *de-Bruijn* index for the bound
-  variable. See [the Wikipedia page on de-Bruijn indices](https://en.wikipedia.org/wiki/De_Bruijn_index)
+  The `deBruijnIndex` parameter is the *de Bruijn* index for the bound
+  variable. See [the Wikipedia page on de Bruijn indices](https://en.wikipedia.org/wiki/De_Bruijn_index)
   for additional information.
 
   For example, consider the expression `fun x : Nat => forall y : Nat, x = y`.
@@ -320,16 +321,16 @@ inductive Expr where
   | bvar (deBruijnIndex : Nat)
 
   /--
-  The `fvar` constructor represent free variables. These *free* variable
-  occurrences are not bound by an earlier `lam`, `forallE`, or `letE`
+  The `fvar` constructor represents free variables. Such a *free* variable
+  occurrence is not bound by an earlier `lam`, `forallE`, or `letE`
   constructor and its binder exists in a local context only.
 
-  Note that Lean uses the *locally nameless approach*. See [McBride and McKinna](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.2479&rep=rep1&type=pdf)
+  Note that Lean uses the *locally nameless approach*. See [McBride and McKinna](https://doi.org/10.1145/1017472.1017477)
   for additional details.
 
   When "visiting" the body of a binding expression (i.e. `lam`, `forallE`, or `letE`),
   bound variables are converted into free variables using a unique identifier,
-  and their user-facing name, type, value (for `LetE`), and binder annotation
+  and their user-facing name, type, value (for `letE`), and binder annotation
   are stored in the `LocalContext`.
   -/
   | fvar (fvarId : FVarId)
@@ -362,7 +363,7 @@ inductive Expr where
   A function application.
 
   For example, the natural number one, i.e. `Nat.succ Nat.zero` is represented as
-  ``Expr.app (.const `Nat.succ []) (.const .zero [])``.
+  ``Expr.app (.const `Nat.succ []) (.const `Nat.zero [])``.
   Note that multiple arguments are represented using partial application.
 
   For example, the two argument application `f x y` is represented as
@@ -382,7 +383,7 @@ inductive Expr where
   | lam (binderName : Name) (binderType : Expr) (body : Expr) (binderInfo : BinderInfo)
 
   /--
-  A dependent arrow `(a : α) → β)` (aka forall-expression) where `β` may dependent
+  A dependent arrow `(a : α) → β)` (aka forall-expression) where `β` may depend
   on `a`. Note that this constructor is also used to represent non-dependent arrows
   where `β` does not depend on `a`.
 
@@ -446,18 +447,24 @@ inductive Expr where
 
   /--
   Projection-expressions. They are redundant, but are used to create more compact
-  terms, speedup reduction, and implement eta for structures.
-  The type of `struct` must be an structure-like inductive type. That is, it has only one
-  constructor, is not recursive, and it is not an inductive predicate. The kernel and elaborators
-  check whether the `typeName` matches the type of `struct`, and whether the (zero-based) index
-  is valid (i.e., it is smaller than the number of constructor fields).
-  When exporting Lean developments to other systems, `proj` can be replaced with `typeName`.`rec`
+  terms, speed up reduction, and implement eta for structures.
+  The type of `struct` must be a one-constructor inductive type.
+  If `I.mk` is the constructor of an `m`-parameter inductive type `I`,
+  then ``.proj `I k (@I.mk p1 ... pm f0 f1 ...)`` is definitionally equal to `fk`.
+
+  The kernel and elaborator check whether the `typeName` matches the type of `struct`,
+  whether the zero-based index is valid (it must be smaller than the number of constructor fields),
+  and whether the projection itself is valid (for inductive predicates, the fields must be propositions).
+  When exporting Lean developments to other systems, `proj` can be replaced with `typeName.rec`
   applications.
+  Non-recursive structures (one-constructor inductive types with no indices) have an eta rule:
+  if `e : I p1 ... pm`, then `e` and `@I.mk p1 ... pm e.1 e.2 ... e.n` are definitionally equal.
 
   Example, given `a : Nat × Bool`, `a.1` is represented as
   ```
   .proj `Prod 0 a
   ```
+  and `a` is definitionally equal to `@Prod.mk Nat Bool a.1 a.2` by the structure eta rule.
   -/
   | proj (typeName : Name) (idx : Nat) (struct : Expr)
 with
@@ -601,7 +608,6 @@ Export functions.
 @[export lean_expr_has_fvar] def hasFVarEx : Expr → Bool := hasFVar
 @[export lean_expr_has_expr_mvar] def hasExprMVarEx : Expr → Bool := hasExprMVar
 @[export lean_expr_has_level_mvar] def hasLevelMVarEx : Expr → Bool := hasLevelMVar
-@[export lean_expr_has_mvar] def hasMVarEx : Expr → Bool := hasMVar
 @[export lean_expr_has_level_param] def hasLevelParamEx : Expr → Bool := hasLevelParam
 @[export lean_expr_loose_bvar_range] def looseBVarRangeEx (e : Expr) : UInt32 := e.data.looseBVarRange
 @[export lean_expr_binder_info] def binderInfoEx : Expr → BinderInfo := binderInfo
@@ -676,7 +682,18 @@ def mkForall (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
 
 /-- Return `Unit -> type`. Do not confuse with `Thunk type` -/
 def mkSimpleThunkType (type : Expr) : Expr :=
-  mkForall Name.anonymous .default (mkConst `Unit) type
+  /-
+  **Note**: We must not use `Name.anonymous` as the binder name.  If a tactic introduces
+  this binder using its name, the resulting local declaration named `Name.anonymous`
+  matches the terminal step of `resolveLocalName`'s component-stripping, capturing every
+  identifier in scope and breaking name resolution and pretty printing for the entire
+  local context.
+
+  Another possible fix is to modify `resolveLocalName` to ignore local declarations
+  whose user name is `Name.anonymous`, making name resolution robust against any
+  producer of anonymous local declarations.
+  -/
+  mkForall `_ .default (mkConst `Unit) type
 
 /-- Return `fun (_ : Unit), e` -/
 def mkSimpleThunk (type : Expr) : Expr :=
@@ -708,7 +725,7 @@ def mkSimpleThunk (type : Expr) : Expr :=
   .lit l
 
 /--
-Return the "raw" natural number `.lit (.natVal n)`.
+Returns the "raw" natural number `.lit (.natVal n)`.
 This is not the default representation used by the Lean frontend.
 See `mkNatLit`.
 -/
@@ -716,13 +733,21 @@ See `mkNatLit`.
   mkLit (.natVal n)
 
 /--
-Return a natural number literal used in the frontend. It is a `OfNat.ofNat` application.
+Returns `instOfNatNat n : OfNat Nat n`
+-/
+def mkInstOfNatNat (n : Expr) : Expr :=
+  mkApp (mkConst ``instOfNatNat) n
+
+def mkNatLitCore (n : Expr) : Expr :=
+  mkApp3 (mkConst ``OfNat.ofNat [Level.zero]) (mkConst ``Nat) n (mkInstOfNatNat n)
+
+/--
+Returns a natural number literal used in the frontend. It is a `OfNat.ofNat` application.
 Recall that all theorems and definitions containing numeric literals are encoded using
 `OfNat.ofNat` applications in the frontend.
 -/
 @[match_pattern, expose] def mkNatLit (n : Nat) : Expr :=
-  let r := mkRawNatLit n
-  mkApp3 (mkConst ``OfNat.ofNat [levelZero]) (mkConst ``Nat) r (mkApp (mkConst ``instOfNatNat) r)
+  mkNatLitCore (mkRawNatLit n)
 
 /-- Return the string literal `.lit (.strVal s)` -/
 @[match_pattern, expose] def mkStrLit (s : String) : Expr :=
@@ -858,7 +883,7 @@ Return `true` if the given expression is a free variable with the given id.
 Examples:
 - `isFVarOf (.fvar id) id` is `true`
 - ``isFVarOf (.fvar id) id'`` is `false`
-- ``isFVarOf (.sort levelZero) id`` is `false`
+- ``isFVarOf (.sort Level.zero) id`` is `false`
 -/
 def isFVarOf : Expr → FVarId → Bool
   | .fvar fvarId, fvarId' => fvarId == fvarId'
@@ -952,17 +977,29 @@ def isCharLit : Expr → Bool
   | app (const c _) a => c == ``Char.ofNat && a.isRawNatLit
   | _                 => false
 
+/--
+If the expression is a constant, return that name.
+Otherwise panic.
+-/
 def constName! : Expr → Name
   | const n _ => n
   | _         => panic! "constant expected"
 
+/--
+If the expression is a constant, return that name.
+Otherwise return `Option.none`.
+-/
 def constName? : Expr → Option Name
   | const n _ => some n
   | _         => none
 
-/-- If the expression is a constant, return that name. Otherwise return `Name.anonymous`. -/
+/--
+If the expression is a constant, return that name.
+Otherwise return `Name.anonymous`.
+-/
 def constName (e : Expr) : Name :=
   e.constName?.getD Name.anonymous
+
 
 def constLevels! : Expr → List Level
   | const _ ls => ls
@@ -1154,7 +1191,7 @@ private def getAppArgsAux : Expr → Array Expr → Nat → Array Expr
 
 /-- Given `f a₁ a₂ ... aₙ`, returns `#[a₁, ..., aₙ]` -/
 @[inline] def getAppArgs (e : Expr) : Array Expr :=
-  let dummy := mkSort levelZero
+  let dummy := mkSort Level.zero
   let nargs := e.getAppNumArgs
   getAppArgsAux e (.replicate nargs dummy) (nargs-1)
 
@@ -1169,7 +1206,7 @@ In particular, given `f a₁ a₂ ... aₙ`, returns `#[aₖ₊₁, ..., aₙ]`
 where `k` is minimal such that the size of this array is at most `maxArgs`.
 -/
 @[inline] def getBoundedAppArgs (maxArgs : Nat) (e : Expr) : Array Expr :=
-  let dummy := mkSort levelZero
+  let dummy := mkSort Level.zero
   let nargs := min maxArgs e.getAppNumArgs
   getBoundedAppArgsAux e (.replicate nargs dummy) nargs
 
@@ -1187,7 +1224,7 @@ private def getAppRevArgsAux : Expr → Array Expr → Array Expr
 
 /-- Given `e = f a₁ a₂ ... aₙ`, returns `k f #[a₁, ..., aₙ]`. -/
 @[inline] def withApp (e : Expr) (k : Expr → Array Expr → α) : α :=
-  let dummy := mkSort levelZero
+  let dummy := mkSort Level.zero
   let nargs := e.getAppNumArgs
   withAppAux k e (.replicate nargs dummy) (nargs-1)
 
@@ -1201,7 +1238,7 @@ Note that `f` may be an application.
 The resulting array has size `n` even if `f.getAppNumArgs < n`.
 -/
 @[inline] def getAppArgsN (e : Expr) (n : Nat) : Array Expr :=
-  let dummy := mkSort levelZero
+  let dummy := mkSort Level.zero
   loop n e (.replicate n dummy)
 where
   loop : Nat → Expr → Array Expr → Array Expr
@@ -1595,6 +1632,15 @@ def getNumHeadLambdas : Expr → Nat
   | _ => 0
 
 /--
+Returns the "body" of a nested lambda expression, like in `Expr.getForallBody`.
+The number of skipped lambdas is given by `Expr.getNumHeadLambdas`.
+-/
+def getLambdaBody : Expr → Expr
+  | .lam _ _ b _ => getLambdaBody b
+  | .mdata _ b => getLambdaBody b
+  | e => e
+
+/--
 Return true if the given expression is the function of an expression that is target for (head) beta reduction.
 If `useZeta = true`, then `let`-expressions are visited. That is, it assumes
 that zeta-reduction (aka let-expansion) is going to be used.
@@ -1660,7 +1706,6 @@ def getAutoParamTactic? (e : Expr) : Option Expr :=
     none
 
 /-- Return `true` if `e` is of the form `outParam _` -/
-@[export lean_is_out_param]
 def isOutParam (e : Expr) : Bool :=
   e.isAppOfArity ``outParam 1
 
@@ -1723,6 +1768,12 @@ def isFalse (e : Expr) : Bool :=
 
 def isTrue (e : Expr) : Bool :=
   e.cleanupAnnotations.isConstOf ``True
+
+def isBoolFalse (e : Expr) : Bool :=
+  e.cleanupAnnotations.isConstOf ``false
+
+def isBoolTrue (e : Expr) : Bool :=
+  e.cleanupAnnotations.isConstOf ``true
 
 /--
 `getForallArity type` returns the arity of a `forall`-type. This function consumes nested annotations,
@@ -1998,50 +2049,6 @@ def setAppPPExplicitForExposingMVars (e : Expr) : Expr :=
     mkAppN f args |>.setPPExplicit true
   | _      => e
 
-/--
-Returns true if `e` is an expression of the form `letFun v f`.
-Ideally `f` is a lambda, but we do not require that here.
-Warning: if the `let_fun` is applied to additional arguments (such as in `(let_fun f := id; id) 1`), this function returns `false`.
--/
-@[deprecated Expr.isHave (since := "2025-06-29")]
-def isLetFun (e : Expr) : Bool := e.isAppOfArity ``letFun 4
-
-/--
-Recognizes a `let_fun` expression.
-For `let_fun n : t := v; b`, returns `some (n, t, v, b)`, which are the first four arguments to `Lean.Expr.letE`.
-Warning: if the `let_fun` is applied to additional arguments (such as in `(let_fun f := id; id) 1`), this function returns `none`.
-
-`let_fun` expressions are encoded as `letFun v (fun (n : t) => b)`.
-They can be created using `Lean.Meta.mkLetFun`.
-
-If in the encoding of `let_fun` the last argument to `letFun` is eta reduced, this returns `Name.anonymous` for the binder name.
--/
-@[deprecated Expr.isHave (since := "2025-06-29")]
-def letFun? (e : Expr) : Option (Name × Expr × Expr × Expr) :=
-  match e with
-  | .app (.app (.app (.app (.const ``letFun _) t) _β) v) f =>
-    match f with
-    | .lam n _ b _ => some (n, t, v, b)
-    | _ => some (.anonymous, t, v, .app (f.liftLooseBVars 0 1) (.bvar 0))
-  | _ => none
-
-/--
-Like `Lean.Expr.letFun?`, but handles the case when the `let_fun` expression is possibly applied to additional arguments.
-Returns those arguments in addition to the values returned by `letFun?`.
--/
-@[deprecated Expr.isHave (since := "2025-06-29")]
-def letFunAppArgs? (e : Expr) : Option (Array Expr × Name × Expr × Expr × Expr) := do
-  guard <| 4 ≤ e.getAppNumArgs
-  guard <| e.isAppOf ``letFun
-  let args := e.getAppArgs
-  let t := args[0]!
-  let v := args[2]!
-  let f := args[3]!
-  let rest := args.extract 4 args.size
-  match f with
-  | .lam n _ b _ => some (rest, n, t, v, b)
-  | _ => some (rest, .anonymous, t, v, .app (f.liftLooseBVars 0 1) (.bvar 0))
-
 /-- Maps `f` on each immediate child of the given expression. -/
 @[specialize]
 def traverseChildren [Applicative M] (f : Expr → M Expr) : Expr → M Expr
@@ -2202,23 +2209,23 @@ namespace Nat
 protected def mkType : Expr := mkConst ``Nat
 
 def mkInstAdd : Expr := mkConst ``instAddNat
-def mkInstHAdd : Expr := mkApp2 (mkConst ``instHAdd [levelZero]) Nat.mkType mkInstAdd
+def mkInstHAdd : Expr := mkApp2 (mkConst ``instHAdd [Level.zero]) Nat.mkType mkInstAdd
 
 def mkInstSub : Expr := mkConst ``instSubNat
-def mkInstHSub : Expr := mkApp2 (mkConst ``instHSub [levelZero]) Nat.mkType mkInstSub
+def mkInstHSub : Expr := mkApp2 (mkConst ``instHSub [Level.zero]) Nat.mkType mkInstSub
 
 def mkInstMul : Expr := mkConst ``instMulNat
-def mkInstHMul : Expr := mkApp2 (mkConst ``instHMul [levelZero]) Nat.mkType mkInstMul
+def mkInstHMul : Expr := mkApp2 (mkConst ``instHMul [Level.zero]) Nat.mkType mkInstMul
 
 def mkInstDiv : Expr := mkConst ``Nat.instDiv
-def mkInstHDiv : Expr := mkApp2 (mkConst ``instHDiv [levelZero]) Nat.mkType mkInstDiv
+def mkInstHDiv : Expr := mkApp2 (mkConst ``instHDiv [Level.zero]) Nat.mkType mkInstDiv
 
 def mkInstMod : Expr := mkConst ``Nat.instMod
-def mkInstHMod : Expr := mkApp2 (mkConst ``instHMod [levelZero]) Nat.mkType mkInstMod
+def mkInstHMod : Expr := mkApp2 (mkConst ``instHMod [Level.zero]) Nat.mkType mkInstMod
 
 def mkInstNatPow : Expr := mkConst ``instNatPowNat
-def mkInstPow  : Expr := mkApp2 (mkConst ``instPowNat [levelZero]) Nat.mkType mkInstNatPow
-def mkInstHPow : Expr := mkApp3 (mkConst ``instHPow [levelZero, levelZero]) Nat.mkType Nat.mkType mkInstPow
+def mkInstPow  : Expr := mkApp2 (mkConst ``instPowNat [Level.zero]) Nat.mkType mkInstNatPow
+def mkInstHPow : Expr := mkApp3 (mkConst ``instHPow [Level.zero, Level.zero]) Nat.mkType Nat.mkType mkInstPow
 
 def mkInstLT : Expr := mkConst ``instLTNat
 def mkInstLE : Expr := mkConst ``instLENat
@@ -2284,23 +2291,23 @@ protected def mkType : Expr := mkConst ``Int
 def mkInstNeg : Expr := mkConst ``Int.instNegInt
 
 def mkInstAdd : Expr := mkConst ``Int.instAdd
-def mkInstHAdd : Expr := mkApp2 (mkConst ``instHAdd [levelZero]) Int.mkType mkInstAdd
+def mkInstHAdd : Expr := mkApp2 (mkConst ``instHAdd [Level.zero]) Int.mkType mkInstAdd
 
 def mkInstSub : Expr := mkConst ``Int.instSub
-def mkInstHSub : Expr := mkApp2 (mkConst ``instHSub [levelZero]) Int.mkType mkInstSub
+def mkInstHSub : Expr := mkApp2 (mkConst ``instHSub [Level.zero]) Int.mkType mkInstSub
 
 def mkInstMul : Expr := mkConst ``Int.instMul
-def mkInstHMul : Expr := mkApp2 (mkConst ``instHMul [levelZero]) Int.mkType mkInstMul
+def mkInstHMul : Expr := mkApp2 (mkConst ``instHMul [Level.zero]) Int.mkType mkInstMul
 
 def mkInstDiv : Expr := mkConst ``Int.instDiv
-def mkInstHDiv : Expr := mkApp2 (mkConst ``instHDiv [levelZero]) Int.mkType mkInstDiv
+def mkInstHDiv : Expr := mkApp2 (mkConst ``instHDiv [Level.zero]) Int.mkType mkInstDiv
 
 def mkInstMod : Expr := mkConst ``Int.instMod
-def mkInstHMod : Expr := mkApp2 (mkConst ``instHMod [levelZero]) Int.mkType mkInstMod
+def mkInstHMod : Expr := mkApp2 (mkConst ``instHMod [Level.zero]) Int.mkType mkInstMod
 
 def mkInstPow : Expr := mkConst ``Int.instNatPow
-def mkInstPowNat  : Expr := mkApp2 (mkConst ``instPowNat [levelZero]) Int.mkType mkInstPow
-def mkInstHPow : Expr := mkApp3 (mkConst ``instHPow [levelZero, levelZero]) Int.mkType Nat.mkType mkInstPowNat
+def mkInstPowNat  : Expr := mkApp2 (mkConst ``instPowNat [Level.zero]) Int.mkType mkInstPow
+def mkInstHPow : Expr := mkApp3 (mkConst ``instHPow [Level.zero, Level.zero]) Int.mkType Nat.mkType mkInstPowNat
 
 def mkInstLT : Expr := mkConst ``Int.instLTInt
 def mkInstLE : Expr := mkConst ``Int.instLEInt
@@ -2392,22 +2399,45 @@ def mkIntDvd (a b : Expr) : Expr :=
 
 def mkIntLit (n : Int) : Expr :=
   let r := mkRawNatLit n.natAbs
-  let r := mkApp3 (mkConst ``OfNat.ofNat [levelZero]) Int.mkType r (mkApp (mkConst ``instOfNat) r)
+  let r := mkApp3 (mkConst ``OfNat.ofNat [Level.zero]) Int.mkType r (mkApp (mkConst ``instOfNat) r)
   if n < 0 then
     mkIntNeg r
   else
     r
 
 def reflBoolTrue : Expr :=
-  mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.true)
+  mkApp2 (mkConst ``Eq.refl [Level.one]) (mkConst ``Bool) (mkConst ``Bool.true)
 
 def reflBoolFalse : Expr :=
-  mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.false)
+  mkApp2 (mkConst ``Eq.refl [Level.one]) (mkConst ``Bool) (mkConst ``Bool.false)
 
 def eagerReflBoolTrue : Expr :=
   mkApp2 (mkConst ``eagerReduce [0]) (mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) (mkConst ``Bool.true) (mkConst ``Bool.true)) reflBoolTrue
 
 def eagerReflBoolFalse : Expr :=
   mkApp2 (mkConst ``eagerReduce [0]) (mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) (mkConst ``Bool.false) (mkConst ``Bool.false)) reflBoolFalse
+
+/--
+Replaces the head constant in a function application chain with a different constant.
+
+Given an expression that is either a constant or a function application chain,
+replaces the head constant with `declName` while preserving all arguments and universe levels.
+
+**Examples**:
+- `f.replaceFn g` → `g` (where `f` is a constant)
+- `(f a b c).replaceFn g` → `g a b c`
+- `(@f.{u, v} a b).replaceFn g` → `@g.{u, v} a b`
+
+**Panics**: If the expression is neither a constant nor a function application.
+
+**Use case**: Useful for substituting one function for another while maintaining
+the same application structure, such as replacing a theorem with a related theorem
+that has the same type and universe parameters.
+-/
+def Expr.replaceFn (e : Expr) (declName : Name) : Expr :=
+  match e with
+  | .app f a    => mkApp (f.replaceFn declName) a
+  | .const _ us => mkConst declName us
+  | _ => panic! "function application or constant expected"
 
 end Lean

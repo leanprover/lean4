@@ -65,7 +65,7 @@ set so that it can hold the given number of elements without reallocating. It is
 use the empty collection notations `∅` and `{}` to create an empty hash set with the default
 capacity.
 -/
-@[inline] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) : HashSet α :=
+@[cbv_opaque, inline] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) : HashSet α :=
   ⟨HashMap.emptyWithCapacity capacity⟩
 
 instance [BEq α] [Hashable α] : EmptyCollection (HashSet α) where
@@ -91,7 +91,7 @@ Note: this non-replacement behavior is true for `HashSet` and `HashSet.Raw`.
 The `insert` function on `HashMap`, `DHashMap`, `HashMap.Raw` and `DHashMap.Raw` behaves
 differently: it will overwrite an existing mapping.
 -/
-@[inline] def insert (m : HashSet α) (a : α) : HashSet α :=
+@[cbv_opaque, inline] def insert (m : HashSet α) (a : α) : HashSet α :=
   ⟨m.inner.insertIfNew a ()⟩
 
 instance : Singleton α (HashSet α) := ⟨fun a => (∅ : HashSet α).insert a⟩
@@ -126,7 +126,7 @@ instance [BEq α] [Hashable α] {m : HashSet α} {a : α} : Decidable (a ∈ m) 
   inferInstanceAs (Decidable (a ∈ m.inner))
 
 /-- Removes the element if it exists. -/
-@[inline] def erase (m : HashSet α) (a : α) : HashSet α :=
+@[cbv_opaque, inline] def erase (m : HashSet α) (a : α) : HashSet α :=
   ⟨m.inner.erase a⟩
 
 /-- The number of elements present in the set -/
@@ -206,14 +206,14 @@ order.
     (f : α → β → m (ForInStep β)) (init : β) (b : HashSet α) : m β :=
   b.inner.forIn (fun a _ acc => f a acc) init
 
-instance [BEq α] [Hashable α] {m : Type v → Type w} : ForM m (HashSet α) α where
+instance [BEq α] [Hashable α] {m : Type v → Type w} [Monad m] : ForM m (HashSet α) α where
   forM m f := m.forM f
 
-instance [BEq α] [Hashable α] {m : Type v → Type w} : ForIn m (HashSet α) α where
+instance [BEq α] [Hashable α] {m : Type v → Type w} [Monad m] : ForIn m (HashSet α) α where
   forIn m init f := m.forIn f init
 
 /-- Removes all elements from the hash set for which the given function returns `false`. -/
-@[inline] def filter (f : α → Bool) (m : HashSet α) : HashSet α :=
+@[cbv_opaque, inline] def filter (f : α → Bool) (m : HashSet α) : HashSet α :=
   ⟨m.inner.filter fun a _ => f a⟩
 
 /--
@@ -258,6 +258,28 @@ This function always iterates through the smaller set, so the expected runtime i
   ⟨HashMap.inter m₁.inner m₂.inner⟩
 
 instance [BEq α] [Hashable α] : Inter (HashSet α) := ⟨inter⟩
+
+
+/--
+Compares two hash sets using Boolean equality on keys.
+
+Returns `true` if the sets contain the same keys, `false` otherwise.
+-/
+def beq [BEq α] (m₁ m₂ : HashSet α) : Bool :=
+  HashMap.beq m₁.inner m₂.inner
+
+instance [BEq α] : BEq (HashSet α) := ⟨beq⟩
+
+/--
+Computes the difference of the given hash sets.
+
+This function always iterates through the smaller set, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def diff [BEq α] [Hashable α] (m₁ m₂ : HashSet α) : HashSet α :=
+  ⟨HashMap.diff m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : SDiff (HashSet α) := ⟨diff⟩
 
 section Unverified
 

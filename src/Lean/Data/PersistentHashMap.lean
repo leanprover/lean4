@@ -8,7 +8,11 @@ module
 prelude
 public import Init.Data.Array.BasicAux
 public import Init.Data.UInt.Basic
-import Init.Data.String.Basic
+public import Init.Control.Except
+public import Init.Data.Array.Basic
+import Init.Data.String.Defs
+import Init.Data.ToString.Macro
+import Init.Data.Array.Lemmas
 
 public section
 
@@ -150,7 +154,7 @@ partial def findAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.s
     else findAtAux keys vals heq (i+1) k
   else none
 
-partial def findAux [BEq α] : Node α β → USize → α → Option β
+partial def findAux [BEq α] : @&Node α β → USize → α → Option β
   | Node.entries entries, h, k =>
     let j     := (mod2Shift h shift).toNat
     match entries[j]! with
@@ -159,7 +163,7 @@ partial def findAux [BEq α] : Node α β → USize → α → Option β
     | Entry.entry k' v => if k == k' then some v else none
   | Node.collision keys vals heq, _, k => findAtAux keys vals heq 0 k
 
-def find? {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → Option β
+def find? {_ : BEq α} {_ : Hashable α} : @&PersistentHashMap α β → α → Option β
   | { root }, k => findAux root (hash k |>.toUSize) k
 
 instance {_ : BEq α} {_ : Hashable α} : GetElem (PersistentHashMap α β) α (Option β) fun _ _ => True where
@@ -181,7 +185,7 @@ partial def findEntryAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : k
     else findEntryAtAux keys vals heq (i+1) k
   else none
 
-partial def findEntryAux [BEq α] : Node α β → USize → α → Option (α × β)
+partial def findEntryAux [BEq α] : @&Node α β → USize → α → Option (α × β)
   | Node.entries entries, h, k =>
     let j     := (mod2Shift h shift).toNat
     match entries[j]! with
@@ -190,8 +194,30 @@ partial def findEntryAux [BEq α] : Node α β → USize → α → Option (α �
     | Entry.entry k' v => if k == k' then some (k', v) else none
   | Node.collision keys vals heq, _, k => findEntryAtAux keys vals heq 0 k
 
-def findEntry? {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → Option (α × β)
+def findEntry? {_ : BEq α} {_ : Hashable α} : @&PersistentHashMap α β → α → Option (α × β)
   | { root }, k => findEntryAux root (hash k |>.toUSize) k
+
+partial def findKeyDAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) (i : Nat) (k : α) (k₀ : α) : α :=
+  if h : i < keys.size then
+    let k' := keys[i]
+    if k == k' then k'
+    else findKeyDAtAux keys vals heq (i+1) k k₀
+  else k₀
+
+partial def findKeyDAux [BEq α] : Node α β → USize → α → α → α
+  | .entries entries, h, k, k₀ =>
+    let j     := (mod2Shift h shift).toNat
+    match entries[j]! with
+    | .null       => k₀
+    | .ref node   => findKeyDAux node (div2Shift h shift) k k₀
+    | .entry k' _ => if k == k' then k' else k₀
+  | .collision keys vals heq, _, k, k₀ => findKeyDAtAux keys vals heq 0 k k₀
+
+/--
+A more efficient `m.findEntry? a |>.map (·.1) |>.getD a₀`
+-/
+@[inline] def findKeyD {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) (a : α) (a₀ : α) : α :=
+  findKeyDAux m.root (hash a |>.toUSize) a a₀
 
 partial def containsAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) (i : Nat) (k : α) : Bool :=
   if h : i < keys.size then
@@ -263,6 +289,60 @@ def erase {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → Pe
     let h := hash k |>.toUSize
     { root := eraseAux root h k }
 
+@[specialize]
+partial def alterAux [BEq α] [Hashable α] (f : Option β → Option β) : Node α β → USize →
+    USize → α → Node α β
+  | n@(Node.collision keys vals heq), h, d, k =>
+    match keys.finIdxOf? k with
+    | some idx =>
+      have : idx < vals.size := heq ▸ idx.isLt
+      let v' := vals[idx]
+      /-
+      This could also be done with more `unsafe` to avoid erase then push but is hopefully not the
+      bottleneck.
+      -/
+      let keys := keys.eraseIdx idx
+      let vals := vals.eraseIdx idx
+      match f (some v') with
+      | some v =>
+        let keys := keys.push k
+        let vals := vals.push v
+        Node.collision keys vals (by simp +zetaDelta [heq])
+      | none   =>
+        Node.collision keys vals (by simp +zetaDelta [heq])
+    | none     =>
+      match f none with
+      | some v => insertAux n h d k v
+      | none   => n
+  | Node.entries entries, h, d, k =>
+    let j     := (mod2Shift h shift).toNat
+    Node.entries <| entries.modify j fun
+      | Entry.null        =>
+        match f none with
+        | some v => Entry.entry k v
+        | none   => Entry.null
+      | Entry.entry k' v' =>
+        if k == k' then
+          match f (some v') with
+          | some v => Entry.entry k v
+          | none   => Entry.null
+        else
+          match f none with
+          | some v => Entry.ref <| mkCollisionNode k' v' k v
+          | none => Entry.entry k' v'
+      | Entry.ref node    =>
+        let newNode := alterAux f node (div2Shift h shift) (d + 1) k
+        match isUnaryNode newNode with
+        | none        => Entry.ref newNode
+        | some (k, v) => Entry.entry k v
+
+@[inline]
+def alter {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → (Option β → Option β) →
+    PersistentHashMap α β
+  | { root }, k, f =>
+    let h := hash k |>.toUSize
+    { root := alterAux f root h 1 k }
+
 section
 variable {m : Type w → Type w'} [Monad m]
 variable {σ : Type w}
@@ -295,7 +375,7 @@ def foldl {_ : BEq α} {_ : Hashable α} (map : PersistentHashMap α β) (f : σ
   Id.run <| map.foldlM (pure <| f · · ·) init
 
 protected def forIn {_ : BEq α} {_ : Hashable α} [Monad m]
-    (map : PersistentHashMap α β) (init : σ) (f : α × β → σ → m (ForInStep σ)) : m σ := do
+    (map : @&PersistentHashMap α β) (init : σ) (f : α × β → σ → m (ForInStep σ)) : m σ := do
   let intoError : ForInStep σ → Except σ σ
   | .done s => .error s
   | .yield s => .ok s
@@ -304,7 +384,7 @@ protected def forIn {_ : BEq α} {_ : Hashable α} [Monad m]
   match result with
   | .ok s | .error s => pure s
 
-instance {_ : BEq α} {_ : Hashable α} : ForIn m (PersistentHashMap α β) (α × β) where
+instance {_ : BEq α} {_ : Hashable α} [Monad m] : ForIn m (PersistentHashMap α β) (α × β) where
   forIn := PersistentHashMap.forIn
 
 end

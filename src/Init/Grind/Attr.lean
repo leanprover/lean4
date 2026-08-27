@@ -143,7 +143,7 @@ the `grind_pattern` command, which lets you specify how `grind` should
 match and use particular theorems.
 
 Example:
-- `grind [usr myThm]` means `grind` is using `myThm`, but with the
+- `grind [usr myThm]` means `grind` is using `myThm`, but with
   the custom pattern you defined with `grind_pattern`.
 -/
 syntax grindUsr    := &"usr"
@@ -198,6 +198,90 @@ Given an application `f a₁ a₂ … aₙ`, when `funCC := true`,
 -/
 syntax grindFunCC  := &"funCC"
 /--
+The `hom` modifier marks a theorem as a homomorphism rule for `grind`.
+
+Homomorphism rules translate terms from a source domain into a target domain that has a
+dedicated solver. A collection of homomorphism rules encodes an algebra homomorphism
+`h : A → B`: each rule states how `h` commutes with a source-domain operation, as in
+`h (f x y) = g (h x) (h y)`. Example: injecting bitvector operations into integer
+arithmetic using `BitVec.toNat`:
+```
+@[grind hom] theorem toNat_add (x y : BitVec w) :
+    (x + y).toNat = (x.toNat + y.toNat) % 2^w
+```
+The rules must be unconditional equations (or `Iff`s). They are applied to fixpoint
+outside the E-graph, and only the final result is internalized.
+-/
+syntax grindHom    := &"hom"
+/--
+The `hom_pred` modifier marks a theorem as a homomorphism predicate for `grind`.
+
+Homomorphism predicates are facts that `grind` instantiates eagerly for the terms it
+internalizes. The conclusion of the theorem must contain an application `f a₁ … aₙ`
+whose trailing arguments are exactly the theorem's explicit parameters; the head
+symbol `f` becomes the trigger. Whenever `grind` internalizes a term with head `f`,
+the theorem is instantiated with the term's trailing arguments, and the resulting
+fact is asserted. Typical uses are range facts for injection functions, and
+translations of relations into a target domain. Examples:
+```
+@[grind hom_pred] theorem BitVec.toNat_range (x : BitVec w) : x.toNat < 2^w
+@[grind hom_pred] theorem UInt8.le_iff (a b : UInt8) : a ≤ b ↔ a.toBitVec ≤ b.toBitVec
+```
+The first theorem is triggered by terms of the form `BitVec.toNat x`, and the second
+one by `a ≤ b` applications. `grind` uses the types of `a` and `b` to discard
+irrelevant instantiations.
+-/
+syntax grindHomPred := &"hom_pred"
+/--
+The `norm` modifier instructs `grind` to use a theorem as a normalization rule. That is,
+the theorem is applied during the preprocessing step.
+This feature is meant for advanced users who understand how the preprocessor and `grind`'s search
+procedure interact with each other.
+New users can still benefit from this feature by restricting its use to theorems that completely
+eliminate a symbol from the goal. Example:
+```
+theorem max_def : max n m = if n ≤ m then m else n
+```
+For a negative example, consider:
+```
+opaque f : Int → Int → Int → Int
+theorem fax1 : f x 0 1 = 1 := sorry
+theorem fax2 : f 1 x 1 = 1 := sorry
+attribute [grind norm] fax1
+attribute [grind =] fax2
+
+example (h : c = 1) : f c 0 c = 1 := by
+  grind -- fails
+```
+In this example, `fax1` is a normalization rule, but it is not applicable to the input goal since
+`f c 0 c` is not an instance of `f x 0 1`. However, `f c 0 c` matches the pattern `f 1 x 1` modulo
+the equality `c = 1`. Thus, `grind` instantiates `fax2` with `x := 0`, producing the equality
+`f 1 0 1 = 1`, which the normalizer simplifies to `True`. As a result, nothing useful is learned.
+In the future, we plan to include linters to automatically detect issues like these.
+Example:
+```
+opaque f : Nat → Nat
+opaque g : Nat → Nat
+
+@[grind norm] axiom fax : f x = x + 2
+@[grind norm ←] axiom fg : f x = g x
+
+example : f x ≥ 2 := by grind
+example : f x ≥ g x := by grind
+example : f x + g x ≥ 4 := by grind
+```
+-/
+syntax grindNorm  := &"norm" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore(" ←" <|> " <-")?
+/--
+The `unfold` modifier instructs `grind` to unfold the given definition during the preprocessing step.
+Example:
+```
+@[grind unfold] def h (x : Nat) := 2 * x
+example : 6 ∣ 3*h x := by grind
+```
+-/
+syntax grindUnfold := &"unfold"
+/--
 `symbol <prio>` sets the priority of a constant for `grind`’s pattern-selection
 procedure. `grind` prefers patterns that contain higher-priority symbols.
 Example:
@@ -224,7 +308,8 @@ syntax grindMod :=
     grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd
     <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
     <|> grindCases <|> grindIntro <|> grindExt <|> grindGen <|> grindSym <|> grindInj
-    <|> grindFunCC <|> grindDef
+    <|> grindFunCC <|> grindHomPred <|> grindHom
+    <|> grindNorm <|> grindUnfold <|> grindDef
 
 /--
 Marks a theorem or definition for use by the `grind` tactic.
@@ -255,6 +340,7 @@ theorem fg_eq (h : x > 0) : f (g x) = x
 -- With minimal subexpression:
 @[grind! <-] theorem fg_eq (h : x > 0) : f (g x) = x
 -- Pattern selected: `g x`
+```
 -/
 syntax (name := grind!) "grind!" (ppSpace grindMod)? : attr
 /--
@@ -267,5 +353,23 @@ Like `@[grind!]`, but also prints the pattern(s) selected by `grind`
 as info messages. Combines minimal subexpression selection with debugging output.
 -/
 syntax (name := grind!?) "grind!?" (ppSpace grindMod)? : attr
+
+/--
+Marks a theorem or definition for use by the `lia` (linear integer arithmetic) tactic.
+
+`lia` is `grind` restricted to the `cutsat` solver. It does not use the `@[grind]` lemma
+set, but `cutsat` benefits from a small amount of instantiation, e.g. of `Nat.max_def` and
+`Nat.min_def`. Lemmas tagged with `@[lia]` form a dedicated set that `lia` instantiates via
+E-matching, without enabling the much larger `@[grind]` set.
+
+The modifiers are the same as for `@[grind]`, e.g. `@[lia =]`, `@[lia ←]`, `@[lia →]`.
+-/
+syntax (name := lia) "lia" (ppSpace grindMod)? : attr
+/-- Like `@[lia]`, but enforces the minimal indexable subexpression condition (see `@[grind!]`). -/
+syntax (name := lia!) "lia!" (ppSpace grindMod)? : attr
+/-- Like `@[lia]`, but also prints the pattern(s) selected by `lia` as info messages. -/
+syntax (name := lia?) "lia?" (ppSpace grindMod)? : attr
+/-- Like `@[lia!]`, but also prints the pattern(s) selected by `lia` as info messages. -/
+syntax (name := lia!?) "lia!?" (ppSpace grindMod)? : attr
 end Attr
 end Lean.Parser

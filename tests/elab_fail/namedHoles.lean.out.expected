@@ -1,0 +1,19 @@
+namedHoles.lean:9:12-9:14: error: Application type mismatch: The last
+  ?x
+argument has type
+  Nat
+but is expected to have type
+  Bool
+in the application
+  f ?x ?x
+f ?x sorry : Nat
+g ?x ?x : Nat
+20
+foo (fun x => ?hole) ?hole : Nat
+bla ?hole fun x => ?hole : Nat
+namedHoles.lean:35:38-35:43: error: synthetic hole has already been defined with an incompatible local context
+boo (fun x => ?hole) fun y => sorry : Nat
+11
+12
+namedHoles.lean:58:28-58:33: error: synthetic hole has already been defined and assigned to value incompatible with the current context
+  y

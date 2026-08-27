@@ -1,0 +1,5 @@
+grind_try_trace.lean:218:0-218:7: warning: declaration uses `sorry`
+Try these:
+  [apply] [grind =] for pattern: [@List.length #1 (@List.reverse _ #0)]
+  [apply] [grind =_] for pattern: [@List.length #1 #0]
+  [apply] [grind! .] for pattern: [@List.reverse #1 #0]

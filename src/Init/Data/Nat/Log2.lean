@@ -6,7 +6,10 @@ Authors: Gabriel Ebner, Robin Arnez
 module
 
 prelude
-public import Init.Data.Nat.Linear
+public import Init.Grind.Tactics
+import Init.Data.Nat.Div.Basic
+import Init.NotationExtra
+import Init.WFTactics
 
 public section
 
@@ -16,7 +19,7 @@ theorem log2_terminates : ∀ n, n ≥ 2 → n / 2 < n
   | 2, _ => by decide
   | 3, _ => by decide
   | n+4, _ => by
-    rw [div_eq, if_pos]
+    rw [div_eq_ite, ite_eq_left]
     refine succ_lt_succ (Nat.lt_trans ?_ (lt_succ_self _))
     exact log2_terminates (n+2) (by simp)
     simp
@@ -35,7 +38,7 @@ Examples:
  * `Nat.log2 7 = 2`
  * `Nat.log2 8 = 3`
 -/
-@[extern "lean_nat_log2"]
+@[expose, extern "lean_nat_log2"]
 def log2 (n : @& Nat) : Nat :=
   -- Lean "assembly"
   n.rec (fun _ => nat_lit 0) (fun _ ih n =>

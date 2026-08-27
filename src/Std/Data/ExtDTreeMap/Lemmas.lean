@@ -7,6 +7,8 @@ module
 
 prelude
 public import Std.Data.ExtDTreeMap.Basic
+public import Std.Internal.ForIn.Basic
+import Init.Data.List.Pairwise
 
 @[expose] public section
 
@@ -115,7 +117,7 @@ theorem isEmpty_eq_size_beq_zero : t.isEmpty = (t.size == 0) :=
 
 theorem eq_empty_iff_size_eq_zero [TransCmp cmp] : t = ∅ ↔ t.size = 0 := by
   cases t with | mk t
-  simpa only [← isEmpty_iff, ← decide_eq_decide, Bool.decide_eq_true] using isEmpty_eq_size_beq_zero
+  simpa only [← isEmpty_iff, ← decide_eq_decide, Bool.decide_eq_true] using! isEmpty_eq_size_beq_zero
 
 @[grind =] theorem size_insert [TransCmp cmp] {k : α} {v : β k} :
     (t.insert k v).size = if t.contains k then t.size else t.size + 1 :=
@@ -870,7 +872,7 @@ theorem getKeyD_eq_of_mem [TransCmp cmp] [LawfulEqCmp cmp] {k fallback : α} (h'
 theorem insertIfNew_ne_empty [TransCmp cmp] {k : α} {v : β k} :
     t.insertIfNew k v ≠ ∅ := by
   cases t with | mk t
-  simpa only [← isEmpty_iff, ne_eq, Bool.not_eq_true] using DTreeMap.isEmpty_insertIfNew
+  simpa only [← isEmpty_iff, ne_eq, Bool.not_eq_true] using! DTreeMap.isEmpty_insertIfNew
 
 @[simp, grind =]
 theorem contains_insertIfNew [TransCmp cmp] {k a : α} {v : β k} :
@@ -1003,6 +1005,8 @@ theorem getThenInsertIfNew?_fst [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v : �
 theorem getThenInsertIfNew?_snd [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v : β k} :
     (t.getThenInsertIfNew? k v).2 = t.insertIfNew k v :=
   t.inductionOn fun _ => congrArg mk DTreeMap.getThenInsertIfNew?_snd
+
+theorem mem_of_get_eq [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v : β k} {w} (_ : t.get k w = v) : k ∈ t := w
 
 namespace Const
 
@@ -1206,6 +1210,14 @@ theorem forIn_eq_forIn_toList [TransCmp cmp] [Monad m] [LawfulMonad m]
     {f : (a : α) × β a → δ → m (ForInStep δ)} {init : δ} :
     ForIn.forIn t init f = ForIn.forIn t.toList init f :=
   t.inductionOn fun _ => DTreeMap.forIn_eq_forIn_toList
+
+@[simp, grind =]
+theorem forIn_toList [TransCmp cmp] (c : ExtDTreeMap α β cmp) : ForIn.toList c = c.toList :=
+  Std.Internal.ForIn.toList_eq_of_forIn_eq fun _ _ => forIn_eq_forIn_toList
+
+instance [TransCmp cmp] [Monad m] [LawfulMonad m] :
+    Std.Internal.PureForIn m (ExtDTreeMap α β cmp) ((a : α) × β a) where
+  forIn_eq _ _ _ := by rw [forIn_toList]; exact forIn_eq_forIn_toList
 
 theorem foldlM_eq_foldlM_keys [TransCmp cmp] [Monad m] [LawfulMonad m] {f : δ → α → m δ} {init : δ} :
     t.foldlM (fun d a _ => f d a) init = t.keys.foldlM f init :=
@@ -1522,6 +1534,13 @@ theorem insertMany_list_eq_empty_iff [TransCmp cmp] {l : List ((a : α) × β a)
     t.insertMany l = ∅ ↔ t = ∅ ∧ l = [] := by
   simp only [← isEmpty_iff, isEmpty_insertMany_list, Bool.and_eq_true, List.isEmpty_iff]
 
+theorem insertMany_list_eq_foldl [TransCmp cmp] {l : List ((a : α) × β a)} :
+    t.insertMany l = l.foldl (init := t) fun acc p => acc.insert p.1 p.2 := by
+  refine t.inductionOn fun m => ?_
+  rw [insertMany_list_mk, List.foldl_hom (g₁ := fun acc p => acc.insert p.1 p.2)]
+  · exact sound DTreeMap.insertMany_list_equiv_foldl
+  · exact fun _ _ => rfl
+
 namespace Const
 
 variable {β : Type v} {t : ExtDTreeMap α β cmp}
@@ -1772,6 +1791,13 @@ theorem getD_insertMany_list_of_mem [TransCmp cmp]
   simp only [insertMany_list_mk]
   exact DTreeMap.Const.getD_insertMany_list_of_mem k_eq distinct mem
 
+theorem insertMany_list_eq_foldl [TransCmp cmp] {l : List (α × β)} :
+    insertMany t l = l.foldl (init := t) fun acc p => acc.insert p.1 p.2 := by
+  refine t.inductionOn fun m => ?_
+  rw [insertMany_list_mk, List.foldl_hom (g₁ := fun acc p => acc.insert p.1 p.2)]
+  · exact sound DTreeMap.Const.insertMany_list_equiv_foldl
+  · exact fun _ _ => rfl
+
 variable {t : ExtDTreeMap α Unit cmp}
 
 @[simp]
@@ -1965,6 +1991,13 @@ theorem getD_insertManyIfNewUnit_list [TransCmp cmp]
     getD (insertManyIfNewUnit t l) k fallback = () :=
   rfl
 
+theorem insertManyIfNewUnit_list_eq_foldl [TransCmp cmp] {l : List α} :
+    insertManyIfNewUnit t l = l.foldl (init := t) fun acc a => acc.insertIfNew a () := by
+  refine t.inductionOn fun t => ?_
+  rw [insertManyIfNewUnit_list_mk, List.foldl_hom (g₁ := fun acc a => acc.insertIfNew a ())]
+  · exact sound DTreeMap.Const.insertManyIfNewUnit_list_equiv_foldl
+  · exact fun _ _ => rfl
+
 end Const
 
 @[simp, grind =]
@@ -2109,7 +2142,11 @@ grind_pattern size_ofList_le => (ofList l cmp).size
 @[simp]
 theorem ofList_eq_empty_iff [TransCmp cmp] {l : List ((a : α) × β a)} :
     ofList l cmp = ∅ ↔ l = [] := by
-  simpa [← isEmpty_iff, ← List.isEmpty_iff] using DTreeMap.isEmpty_ofList
+  simpa [← isEmpty_iff, ← List.isEmpty_iff] using! DTreeMap.isEmpty_ofList
+
+theorem ofList_eq_foldl [TransCmp cmp] {l : List ((a : α) × β a)} :
+    ofList l cmp = l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2 := by
+  rw [ofList_eq_insertMany_empty, insertMany_list_eq_foldl]
 
 namespace Const
 
@@ -2255,7 +2292,11 @@ grind_pattern size_ofList_le => (ofList l cmp).size
 @[simp]
 theorem ofList_eq_empty_iff [TransCmp cmp] {l : List (α × β)} :
     ofList l cmp = ∅ ↔ l = [] := by
-  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using DTreeMap.Const.isEmpty_ofList
+  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using! DTreeMap.Const.isEmpty_ofList
+
+theorem ofList_eq_foldl [TransCmp cmp] {l : List (α × β)} :
+    ofList l cmp = l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2 := by
+  rw [ofList_eq_insertMany_empty, insertMany_list_eq_foldl]
 
 @[simp]
 theorem unitOfList_nil : unitOfList ([] : List α) cmp = (∅ : ExtDTreeMap α Unit cmp) := rfl
@@ -2270,6 +2311,11 @@ theorem unitOfList_cons [TransCmp cmp] {hd : α} {tl : List α} :
       insertManyIfNewUnit ((∅ : ExtDTreeMap α Unit cmp).insertIfNew hd ()) tl := by
   conv => rhs; apply insertManyIfNewUnit_list_mk
   exact congrArg mk DTreeMap.Const.unitOfList_cons
+
+theorem unitOfList_eq_insertManyIfNewUnit_empty [TransCmp cmp] {l : List α} :
+    unitOfList l cmp = insertManyIfNewUnit ∅ l := by
+  conv => rhs; apply insertManyIfNewUnit_list_mk
+  exact congrArg mk DTreeMap.Const.unitOfList_eq_insertManyIfNewUnit_empty
 
 @[simp]
 theorem contains_unitOfList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List α} {k : α} :
@@ -2339,7 +2385,7 @@ theorem size_unitOfList_le [TransCmp cmp] {l : List α} :
 @[simp]
 theorem unitOfList_eq_empty_iff [TransCmp cmp] {l : List α} :
     unitOfList l cmp = ∅ ↔ l = [] := by
-  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using DTreeMap.Const.isEmpty_unitOfList
+  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using! DTreeMap.Const.isEmpty_unitOfList
 
 @[simp]
 theorem get?_unitOfList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List α} {k : α} :
@@ -2360,6 +2406,10 @@ theorem get!_unitOfList [TransCmp cmp] {l : List α} {k : α} :
 theorem getD_unitOfList [TransCmp cmp] {l : List α} {k : α} {fallback : Unit} :
     getD (unitOfList l cmp) k fallback = () :=
   rfl
+
+theorem unitOfList_eq_foldl [TransCmp cmp] {l : List α} :
+    unitOfList l cmp = l.foldl (init := ∅) fun acc a => acc.insertIfNew a () := by
+  rw [unitOfList_eq_insertManyIfNewUnit_empty, insertManyIfNewUnit_list_eq_foldl]
 
 end Const
 
@@ -2977,13 +3027,329 @@ theorem get!_inter_of_not_mem_left [TransCmp cmp] [Inhabited β]
 
 end Const
 
+section Diff
+
+variable {t₁ t₂ : ExtDTreeMap α β cmp}
+
+@[simp]
+theorem diff_eq [TransCmp cmp] : t₁.diff t₂ = t₁ \ t₂ := by
+  simp only [SDiff.sdiff]
+
+/- contains -/
+@[simp]
+theorem contains_diff [TransCmp cmp] {k : α} :
+    (t₁ \ t₂).contains k = (t₁.contains k && !t₂.contains k) :=
+  t₁.inductionOn₂ t₂ fun _ _ => DTreeMap.contains_diff
+
+/- mem -/
+@[simp]
+theorem mem_diff_iff [TransCmp cmp] {k : α} :
+    k ∈ t₁ \ t₂ ↔ k ∈ t₁ ∧ k ∉ t₂ :=
+  t₁.inductionOn₂ t₂ fun _ _ => DTreeMap.mem_diff_iff
+
+theorem not_mem_diff_of_not_mem_left [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₁) :
+    ¬k ∈ t₁ \ t₂ := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.not_mem_diff_of_not_mem_left h
+
+theorem not_mem_diff_of_mem_right [TransCmp cmp]
+    {k : α} (h : k ∈ t₂) :
+    ¬k ∈ t₁ \ t₂ := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.not_mem_diff_of_mem_right h
+
+/- get? -/
+theorem get?_diff [TransCmp cmp] [LawfulEqCmp cmp] {k : α} :
+    (t₁ \ t₂).get? k =
+    if k ∈ t₂ then none else t₁.get? k :=
+  t₁.inductionOn₂ t₂ fun _ _ => DTreeMap.get?_diff
+
+theorem get?_diff_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} (h : ¬k ∈ t₂) :
+    (t₁ \ t₂).get? k = t₁.get? k := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.get?_diff_of_not_mem_right h
+
+theorem get?_diff_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} (h : ¬k ∈ t₁) :
+    (t₁ \ t₂).get? k = none := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.get?_diff_of_not_mem_left h
+
+theorem get?_diff_of_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} (h : k ∈ t₂) :
+    (t₁ \ t₂).get? k = none := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.get?_diff_of_mem_right h
+
+/- get -/
+theorem get_diff [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} {h_mem : k ∈ t₁ \ t₂} :
+    (t₁ \ t₂).get k h_mem =
+    t₁.get k (mem_diff_iff.1 h_mem).1 := by
+  induction t₁ with
+  | mk a =>
+    induction t₂ with
+    | mk b =>
+      apply DTreeMap.get_diff
+
+/- getD -/
+theorem getD_diff [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} {fallback : β k} :
+    (t₁ \ t₂).getD k fallback =
+    if k ∈ t₂ then fallback else t₁.getD k fallback :=
+  t₁.inductionOn₂ t₂ fun _ _ => DTreeMap.getD_diff
+
+theorem getD_diff_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} {fallback : β k} (h : ¬k ∈ t₂) :
+    (t₁ \ t₂).getD k fallback = t₁.getD k fallback := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.getD_diff_of_not_mem_right h
+
+theorem getD_diff_of_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} {fallback : β k} (h : k ∈ t₂) :
+    (t₁ \ t₂).getD k fallback = fallback := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.getD_diff_of_mem_right h
+
+theorem getD_diff_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} {fallback : β k} (h : ¬k ∈ t₁) :
+    (t₁ \ t₂).getD k fallback = fallback := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.getD_diff_of_not_mem_left h
+
+/- get! -/
+theorem get!_diff [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} [Inhabited (β k)] :
+    (t₁ \ t₂).get! k =
+    if k ∈ t₂ then default else t₁.get! k :=
+  t₁.inductionOn₂ t₂ fun _ _ => DTreeMap.get!_diff
+
+theorem get!_diff_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} [Inhabited (β k)] (h : ¬k ∈ t₂) :
+    (t₁ \ t₂).get! k = t₁.get! k := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.get!_diff_of_not_mem_right h
+
+theorem get!_diff_of_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} [Inhabited (β k)] (h : k ∈ t₂) :
+    (t₁ \ t₂).get! k = default := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.get!_diff_of_mem_right h
+
+theorem get!_diff_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} [Inhabited (β k)] (h : ¬k ∈ t₁) :
+    (t₁ \ t₂).get! k = default := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.get!_diff_of_not_mem_left h
+
+/- getKey? -/
+theorem getKey?_diff [TransCmp cmp] {k : α} :
+    (t₁ \ t₂).getKey? k =
+    if k ∈ t₂ then none else t₁.getKey? k :=
+  t₁.inductionOn₂ t₂ fun _ _ => DTreeMap.getKey?_diff
+
+theorem getKey?_diff_of_not_mem_right [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₂) :
+    (t₁ \ t₂).getKey? k = t₁.getKey? k := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.getKey?_diff_of_not_mem_right h
+
+theorem getKey?_diff_of_not_mem_left [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₁) :
+    (t₁ \ t₂).getKey? k = none := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.getKey?_diff_of_not_mem_left h
+
+theorem getKey?_diff_of_mem_right [TransCmp cmp]
+    {k : α} (h : k ∈ t₂) :
+    (t₁ \ t₂).getKey? k = none := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.getKey?_diff_of_mem_right h
+
+/- getKey -/
+theorem getKey_diff [TransCmp cmp]
+    {k : α} {h_mem : k ∈ t₁ \ t₂} :
+    (t₁ \ t₂).getKey k h_mem =
+    t₁.getKey k (mem_diff_iff.1 h_mem).1 := by
+  induction t₁ with
+  | mk a =>
+    induction t₂ with
+    | mk b =>
+      apply DTreeMap.getKey_diff
+
+/- getKeyD -/
+theorem getKeyD_diff [TransCmp cmp] {k fallback : α} :
+    (t₁ \ t₂).getKeyD k fallback =
+    if k ∈ t₂ then fallback else t₁.getKeyD k fallback :=
+  t₁.inductionOn₂ t₂ fun _ _ => DTreeMap.getKeyD_diff
+
+theorem getKeyD_diff_of_not_mem_right [TransCmp cmp] {k fallback : α} (h : ¬k ∈ t₂) :
+    (t₁ \ t₂).getKeyD k fallback = t₁.getKeyD k fallback := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.getKeyD_diff_of_not_mem_right h
+
+theorem getKeyD_diff_of_mem_right [TransCmp cmp] {k fallback : α} (h : k ∈ t₂) :
+    (t₁ \ t₂).getKeyD k fallback = fallback := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.getKeyD_diff_of_mem_right h
+
+theorem getKeyD_diff_of_not_mem_left [TransCmp cmp] {k fallback : α} (h : ¬k ∈ t₁) :
+    (t₁ \ t₂).getKeyD k fallback = fallback := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.getKeyD_diff_of_not_mem_left h
+
+/- getKey! -/
+theorem getKey!_diff [Inhabited α] [TransCmp cmp] {k : α} :
+    (t₁ \ t₂).getKey! k =
+    if k ∈ t₂ then default else t₁.getKey! k :=
+  t₁.inductionOn₂ t₂ fun _ _ => DTreeMap.getKey!_diff
+
+theorem getKey!_diff_of_not_mem_right [Inhabited α] [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₂) :
+    (t₁ \ t₂).getKey! k = t₁.getKey! k := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.getKey!_diff_of_not_mem_right h
+
+theorem getKey!_diff_of_mem_right [Inhabited α] [TransCmp cmp]
+    {k : α} (h : k ∈ t₂) :
+    (t₁ \ t₂).getKey! k = default := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.getKey!_diff_of_mem_right h
+
+theorem getKey!_diff_of_not_mem_left [Inhabited α] [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₁) :
+    (t₁ \ t₂).getKey! k = default := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.getKey!_diff_of_not_mem_left h
+
+/- size -/
+theorem size_diff_le_size_left [TransCmp cmp] :
+    (t₁ \ t₂).size ≤ t₁.size :=
+  t₁.inductionOn₂ t₂ fun _ _ => DTreeMap.size_diff_le_size_left
+
+theorem size_diff_eq_size_left [TransCmp cmp]
+    (h : ∀ (a : α), a ∈ t₁ → a ∉ t₂) :
+    (t₁ \ t₂).size = t₁.size := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.size_diff_eq_size_left h
+
+theorem size_diff_add_size_inter_eq_size_left [TransCmp cmp] :
+    (t₁ \ t₂).size + (t₁ ∩ t₂).size = t₁.size :=
+  t₁.inductionOn₂ t₂ fun _ _ => DTreeMap.size_diff_add_size_inter_eq_size_left
+
+/- isEmpty -/
+@[simp]
+theorem isEmpty_diff_left [TransCmp cmp] (h : t₁.isEmpty) :
+    (t₁ \ t₂).isEmpty = true := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.isEmpty_diff_left h
+
+theorem isEmpty_diff_iff [TransCmp cmp] :
+    (t₁ \ t₂).isEmpty ↔ ∀ k, k ∈ t₁ → k ∈ t₂ :=
+  t₁.inductionOn₂ t₂ fun _ _ => DTreeMap.isEmpty_diff_iff
+
+end Diff
+
+namespace Const
+
+variable {β : Type v} {t₁ t₂ : ExtDTreeMap α (fun _ => β) cmp}
+
+/- get? -/
+theorem get?_diff [TransCmp cmp] {k : α} :
+    Const.get? (t₁ \ t₂) k =
+    if k ∈ t₂ then none else Const.get? t₁ k :=
+  t₁.inductionOn₂ t₂ fun _ _ => DTreeMap.Const.get?_diff
+
+theorem get?_diff_of_not_mem_right [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₂) :
+    Const.get? (t₁ \ t₂) k = Const.get? t₁ k := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.Const.get?_diff_of_not_mem_right h
+
+theorem get?_diff_of_not_mem_left [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₁) :
+    Const.get? (t₁ \ t₂) k = none := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.Const.get?_diff_of_not_mem_left h
+
+theorem get?_diff_of_mem_right [TransCmp cmp]
+    {k : α} (h : k ∈ t₂) :
+    Const.get? (t₁ \ t₂) k = none := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.Const.get?_diff_of_mem_right h
+
+/- get -/
+theorem get_diff [TransCmp cmp]
+    {k : α} {h_mem : k ∈ t₁ \ t₂} :
+    Const.get (t₁ \ t₂) k h_mem =
+    Const.get t₁ k (mem_diff_iff.1 h_mem).1 := by
+  induction t₁ with
+  | mk a =>
+    induction t₂ with
+    | mk b =>
+      apply DTreeMap.Const.get_diff
+
+/- getD -/
+theorem getD_diff [TransCmp cmp]
+    {k : α} {fallback : β} :
+    Const.getD (t₁ \ t₂) k fallback =
+    if k ∈ t₂ then fallback else Const.getD t₁ k fallback :=
+  t₁.inductionOn₂ t₂ fun _ _ => DTreeMap.Const.getD_diff
+
+theorem getD_diff_of_not_mem_right [TransCmp cmp]
+    {k : α} {fallback : β} (h : ¬k ∈ t₂) :
+    Const.getD (t₁ \ t₂) k fallback = Const.getD t₁ k fallback := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.Const.getD_diff_of_not_mem_right h
+
+theorem getD_diff_of_mem_right [TransCmp cmp]
+    {k : α} {fallback : β} (h : k ∈ t₂) :
+    Const.getD (t₁ \ t₂) k fallback = fallback := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.Const.getD_diff_of_mem_right h
+
+theorem getD_diff_of_not_mem_left [TransCmp cmp]
+    {k : α} {fallback : β} (h : ¬k ∈ t₁) :
+    Const.getD (t₁ \ t₂) k fallback = fallback := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.Const.getD_diff_of_not_mem_left h
+
+/- get! -/
+theorem get!_diff [TransCmp cmp] [Inhabited β]
+    {k : α} :
+    Const.get! (t₁ \ t₂) k =
+    if k ∈ t₂ then default else Const.get! t₁ k :=
+  t₁.inductionOn₂ t₂ fun _ _ => DTreeMap.Const.get!_diff
+
+theorem get!_diff_of_not_mem_right [TransCmp cmp] [Inhabited β]
+    {k : α} (h : ¬k ∈ t₂) :
+    Const.get! (t₁ \ t₂) k = Const.get! t₁ k := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.Const.get!_diff_of_not_mem_right h
+
+theorem get!_diff_of_mem_right [TransCmp cmp] [Inhabited β]
+    {k : α} (h : k ∈ t₂) :
+    Const.get! (t₁ \ t₂) k = default := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.Const.get!_diff_of_mem_right h
+
+theorem get!_diff_of_not_mem_left [TransCmp cmp] [Inhabited β]
+    {k : α} (h : ¬k ∈ t₁) :
+    Const.get! (t₁ \ t₂) k = default := by
+  revert h
+  exact t₁.inductionOn₂ t₂ fun _ _ h => DTreeMap.Const.get!_diff_of_not_mem_left h
+
+end Const
+
 section Alter
 
 theorem alter_eq_empty_iff_erase_eq_empty [TransCmp cmp] [LawfulEqCmp cmp] {k : α}
     {f : Option (β k) → Option (β k)} :
     t.alter k f = ∅ ↔ t.erase k = ∅ ∧ f (t.get? k) = none := by
   cases t with | mk t
-  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using
+  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using!
     DTreeMap.isEmpty_alter_eq_isEmpty_erase
 
 @[simp]
@@ -3202,7 +3568,7 @@ theorem alter_eq_empty_iff_erase_eq_empty [TransCmp cmp] {k : α}
     {f : Option β → Option β} :
     alter t k f = ∅ ↔ t.erase k = ∅ ∧ f (get? t k) = none := by
   cases t with | mk t
-  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using
+  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using!
     DTreeMap.Const.isEmpty_alter_eq_isEmpty_erase
 
 @[simp]
@@ -3423,7 +3789,7 @@ variable [LawfulEqCmp cmp]
 theorem modify_eq_empty_iff {k : α} {f : β k → β k} :
     t.modify k f = ∅ ↔ t = ∅ := by
   cases t with | mk t
-  simpa only [← isEmpty_iff, Bool.coe_iff_coe] using DTreeMap.isEmpty_modify
+  simpa only [← isEmpty_iff, Bool.coe_iff_coe] using! DTreeMap.isEmpty_modify
 
 @[grind =]
 theorem contains_modify {k k' : α} {f : β k → β k} :
@@ -3564,7 +3930,7 @@ variable {β : Type v} {t : ExtDTreeMap α β cmp}
 theorem modify_eq_empty_iff {k : α} {f : β → β} :
     modify t k f = ∅ ↔ t = ∅ := by
   cases t with | mk t
-  simpa only [← isEmpty_iff, Bool.coe_iff_coe] using DTreeMap.Const.isEmpty_modify
+  simpa only [← isEmpty_iff, Bool.coe_iff_coe] using! DTreeMap.Const.isEmpty_modify
 
 @[grind =]
 theorem contains_modify {k k' : α} {f : β → β} :
@@ -3798,6 +4164,18 @@ theorem minKey?_mem [TransCmp cmp] {km} :
     (hkm : t.minKey? = some km) →
     km ∈ t :=
   t.inductionOn fun _ => DTreeMap.minKey?_mem
+
+@[simp] theorem min?_keys [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] :
+    t.keys.min? = t.minKey? :=
+  t.inductionOn fun _ => DTreeMap.min?_keys
+
+@[simp] theorem head?_keys [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] :
+    t.keys.head? = t.minKey? :=
+  t.inductionOn fun _ => DTreeMap.head?_keys
 
 theorem isSome_minKey?_of_contains [TransCmp cmp] {k} :
     (hc : t.contains k) → t.minKey?.isSome :=

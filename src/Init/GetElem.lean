@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Util
+public import Init.Data.Option.Basic
 
 public section
 
@@ -116,7 +117,7 @@ macro:max x:term noWs "[" i:term "]" noWs "?" : term => `(getElem? $x $i)
 
 /--
 The syntax `arr[i]!` gets the `i`'th element of the collection `arr` and
-panics `i` is out of bounds.
+panics if `i` is out of bounds.
 -/
 macro:max x:term noWs "[" i:term "]" noWs "!" : term => `(getElem! $x $i)
 
@@ -170,13 +171,13 @@ instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (v
     (c : cont) (i : idx) (h : dom c i) : c[i]? = some (c[i]'h) := by
   have : Decidable (dom c i) := .isTrue h
   rw [getElem?_def]
-  exact dif_pos h
+  exact dite_eq_left h
 
 @[simp, grind =] theorem getElem?_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) (h : ¬dom c i) : c[i]? = none := by
   have : Decidable (dom c i) := .isFalse h
   rw [getElem?_def]
-  exact dif_neg h
+  exact dite_eq_right h
 
 @[simp, grind =] theorem getElem!_pos [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     [Inhabited elem] (c : cont) (i : idx) (h : dom c i) :
@@ -239,6 +240,9 @@ theorem some_eq_getElem?_iff [GetElem? cont idx elem dom] [LawfulGetElem cont id
 theorem getElem_of_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     {c : cont} {i : idx} [Decidable (dom c i)] (h : c[i]? = some e) : Exists fun h : dom c i => c[i] = e :=
   getElem?_eq_some_iff.mp h
+
+theorem of_getElem_eq [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    {c : cont} {i : idx} [Decidable (dom c i)] {h} (_ : c[i] = e) : dom c i := h
 
 @[simp] theorem some_getElem_eq_getElem?_iff [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     {c : cont} {i : idx} [Decidable (dom c i)] (h : dom c i):
@@ -315,6 +319,7 @@ theorem getElem_cons_drop_succ_eq_drop {as : List α} {i : Nat} (h : i < as.leng
 
 /-- Internal implementation of `as[i]?`. Do not use directly. -/
 -- We still keep it public for reduction purposes
+@[implicit_reducible]
 def get?Internal : (as : List α) → (i : Nat) → Option α
   | a::_,  0   => some a
   | _::as, n+1 => get?Internal as n
@@ -363,8 +368,10 @@ instance : GetElem? (List α) Nat α fun as i => i < as.length where
 theorem none_eq_getElem?_iff {l : List α} {i : Nat} : none = l[i]? ↔ length l ≤ i := by
   simp [eq_comm (a := none)]
 
-@[grind =]
 theorem getElem?_eq_none (h : length l ≤ i) : l[i]? = none := getElem?_eq_none_iff.mpr h
+
+grind_pattern getElem?_eq_none => l.length, l[i]? where
+  guard l.length ≤ i
 
 instance : LawfulGetElem (List α) Nat α fun as i => i < as.length where
   getElem?_def as i h := by
@@ -375,7 +382,7 @@ instance : LawfulGetElem (List α) Nat α fun as i => i < as.length where
     | cons a as ih =>
       cases i with
       | zero => rfl
-      | succ i => simpa using ih i
+      | succ i => simpa using! ih i
 
 end List
 
@@ -399,7 +406,7 @@ instance : LawfulGetElem (Array α) Nat α fun xs i => i < xs.size where
     split <;> rfl
 
 @[simp] theorem getInternal_eq_getElem (a : Array α) (i : Nat) (h) :
-    a.getInternal i h = a[i] := rfl
+    a.getInternal i h = a[i] := id rfl
 
 @[simp] theorem get!Internal_eq_getElem! [Inhabited α] (a : Array α) (i : Nat) :
     a.get!Internal i = a[i]! := by

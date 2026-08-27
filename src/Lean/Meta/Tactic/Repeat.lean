@@ -7,6 +7,8 @@ module
 
 prelude
 public import Lean.Meta.Basic
+import Init.Data.Nat.Internal.Linear
+import Init.Omega
 
 public section
 

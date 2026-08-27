@@ -1,0 +1,46 @@
+Failure @55 (⟨3, 0⟩): '['; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
+Final stack:
+  (Lean.Doc.Syntax.para
+   "para{"
+   [(Lean.Doc.Syntax.role
+     "{"
+     `tactic
+     []
+     "}"
+     "["
+     [(Lean.Doc.Syntax.code
+       "`"
+       (str "\"rw\"")
+       "`")]
+     "]")
+    (Lean.Doc.Syntax.role
+     "{"
+     `lit
+     []
+     "}"
+     "["
+     [(Lean.Doc.Syntax.code
+       "`"
+       (str "\" [t] \"")
+       "`")]
+     "]")
+    (Lean.Doc.Syntax.role
+     "{"
+     `kw
+     []
+     "}"
+     "["
+     [(Lean.Doc.Syntax.code
+       "`"
+       (str "\"at\"")
+       "`")]
+     "]")
+    (Lean.Doc.Syntax.role
+     "{"
+     `lit
+     []
+     "}"
+     "["
+     [(Lean.Doc.Syntax.footnote <missing>)]
+     "]")])
+Remaining: "test"

@@ -16,8 +16,6 @@ public import Init.Data.Slice.Operations
 This module provides iterators over slices from `Std.Slice` via `Std.Slice.iter`.
 -/
 
-open Std Slice Iterators
-
 /--
 Returns an iterator over the given slice. This iterator will emit the elements of the slice
 in increasing order of the indices.

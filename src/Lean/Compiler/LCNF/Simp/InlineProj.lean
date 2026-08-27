@@ -39,7 +39,7 @@ and the free variable containing the result (`FVarId`). The resulting `FVarId` o
 subset of `Array CodeDecl`. However, this method does try to filter the relevant ones.
 We rely on the `used` var set available in `SimpM` to filter them. See `attachCodeDecls`.
 -/
-partial def inlineProjInst? (e : LetValue) : SimpM (Option (Array CodeDecl × FVarId)) := do
+partial def inlineProjInst? (e : LetValue .pure) : SimpM (Option (Array (CodeDecl .pure) × FVarId)) := do
   let .proj _ i s := e | return none
   let sType ← getType s
   unless (← isClass? sType).isSome do return none
@@ -52,7 +52,7 @@ partial def inlineProjInst? (e : LetValue) : SimpM (Option (Array CodeDecl × FV
     eraseCodeDecls decls
     return none
 where
-  visit (fvarId : FVarId) (projs : List Nat) : OptionT (StateRefT (Array CodeDecl) SimpM) FVarId := do
+  visit (fvarId : FVarId) (projs : List Nat) : OptionT (StateRefT (Array (CodeDecl .pure)) SimpM) FVarId := do
     let some letDecl ← findLetDecl? fvarId | failure
     match letDecl.value with
     | .proj _ i s => visit s (i :: projs)
@@ -72,7 +72,7 @@ where
         else
           visit fvarId projs
       else
-        let some decl ← getDecl? declName | failure
+        let some ⟨.pure, decl⟩ ← getDecl? declName | failure
         match decl.value with
         | .code code =>
           guard (!decl.recursive && decl.getArity == args.size)
@@ -82,7 +82,7 @@ where
           visitCode code projs
         | .extern .. => failure
 
-  visitCode (code : Code) (projs : List Nat) : OptionT (StateRefT (Array CodeDecl) SimpM) FVarId := do
+  visitCode (code : Code .pure) (projs : List Nat) : OptionT (StateRefT (Array (CodeDecl .pure)) SimpM) FVarId := do
     match code with
     | .let decl k => modify (·.push (.let decl)); visitCode k projs
     | .fun decl k => modify (·.push (.fun decl)); visitCode k projs

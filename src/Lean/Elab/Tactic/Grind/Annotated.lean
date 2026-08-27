@@ -7,9 +7,7 @@ module
 prelude
 public import Lean.Elab.Command
 import Init.Grind.Annotated
-public import Std.Time.Format
-
-@[expose] public section
+import Std.Time.Format
 
 namespace Lean.Elab.Tactic.Grind
 open Command Std.Time
@@ -25,6 +23,12 @@ builtin_initialize grindAnnotatedExt : SimplePersistentEnvExtension Name NameSet
     addImportedFn := fun entries => entries.foldl (fun s arr => arr.foldl NameSet.insert s) ∅
     asyncMode := .sync
   }
+
+/-- Check if a module has been marked as grind-annotated. -/
+public def isGrindAnnotatedModule (env : Environment) (modIdx : ModuleIdx) : Bool :=
+  let state := grindAnnotatedExt.getState env
+  let moduleName := env.header.moduleNames[modIdx.toNat]!
+  state.contains moduleName
 
 @[builtin_command_elab Lean.Parser.Command.grindAnnotated]
 def elabGrindAnnotated : CommandElab := fun stx => do

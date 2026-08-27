@@ -16,6 +16,7 @@ namespace Lean
 inductive NamePart
   | str (s : String)
   | num (n : Nat)
+  deriving BEq, Inhabited
 
 instance : ToString NamePart where
   toString

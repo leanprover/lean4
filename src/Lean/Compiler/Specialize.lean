@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Basic
+import Init.Omega
 
 public section
 
@@ -22,6 +23,17 @@ Marks a definition to never be specialized during code generation.
 @[builtin_doc]
 builtin_initialize nospecializeAttr : TagAttribute ←
   registerTagAttribute `nospecialize "mark definition to never be specialized"
+
+/--
+Marks a type for weak specialization: Parameters of this type are only specialized when
+another argument already triggers specialization. Unlike `@[nospecialize]`, if specialization
+happens for other reasons, parameters of this type will participate in the specialization
+rather than being ignored.
+-/
+@[builtin_doc]
+builtin_initialize weakSpecializeAttr : TagAttribute ←
+  registerTagAttribute `weak_specialize
+    "mark type for weak specialization: instances are only specialized when another argument already triggers specialization"
 
 private def elabSpecArgs (declName : Name) (args : Array Syntax) : MetaM (Array Nat) := do
   if args.isEmpty then return #[]
@@ -80,5 +92,8 @@ def hasSpecializeAttribute (env : Environment) (declName : Name) : Bool :=
 
 def hasNospecializeAttribute (env : Environment) (declName : Name) : Bool :=
   nospecializeAttr.hasTag env declName
+
+def hasWeakSpecializeAttribute (env : Environment) (declName : Name) : Bool :=
+  weakSpecializeAttr.hasTag env declName
 
 end Lean.Compiler

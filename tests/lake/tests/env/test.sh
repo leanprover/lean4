@@ -20,25 +20,26 @@ test_run env printenv LEAN_GITHASH
 test_run env printenv LEAN_SYSROOT
 test_out "ar" env printenv LEAN_AR
 test_run env printenv LEAN_PATH
-test_out "hello" -d ../../examples/hello env printenv LEAN_PATH
+test_out "hello" -d hello env printenv LEAN_PATH
 test_out "lake" env printenv LEAN_SRC_PATH
-test_out "hello" -d ../../examples/hello env printenv LEAN_SRC_PATH
-test_out "hello" -d ../../examples/hello env printenv PATH
-LAKE_CACHE_DIR= test_out "hello" -d ../../examples/hello env printenv PATH
+test_out "hello" -d hello env printenv LEAN_SRC_PATH
+test_out "hello" -d hello env printenv PATH
+LAKE_CACHE_DIR= test_out "hello" -d hello env printenv PATH
 
 # Test other variables are set
 test_eq "false" env printenv LAKE_NO_CACHE
-test_eq "false" env printenv LAKE_ARTIFACT_CACHE
 
 # Test that a workspace always sets the cache directory
-LAKE_CACHE_DIR= test_run env -d ../../examples/hello env printenv LAKE_CACHE_DIR
+LAKE_CACHE_DIR= test_run env -d hello env printenv LAKE_CACHE_DIR
 
 # Test that `env` preserves the input environment for certain variables
 echo "# TEST: Setting variables for lake env"
 test_eq "foo" env env ELAN_TOOLCHAIN=foo $LAKE env printenv ELAN_TOOLCHAIN
 test_out "foo" env env -u LAKE_CACHE_DIR ELAN_HOME=/ ELAN_TOOLCHAIN=foo \
   $LAKE env printenv LAKE_CACHE_DIR
+LAKE_CONFIG=foo test_eq "foo" env printenv LAKE_CONFIG
 LAKE_CACHE_DIR=foo test_eq "foo" env printenv LAKE_CACHE_DIR
+LAKE_CACHE_SERVICE=foo test_eq "foo" env printenv LAKE_CACHE_SERVICE
 LEAN_GITHASH=foo test_eq "foo" env printenv LEAN_GITHASH
 LEAN_AR=foo test_eq "foo" env printenv LEAN_AR
 LEAN_CC=foo test_eq "foo" env printenv LEAN_CC
@@ -46,7 +47,20 @@ LEAN_CC=foo test_eq "foo" env printenv LEAN_CC
 # Test `LAKE_ARTIFACT_CACHE` setting and default
 LAKE_ARTIFACT_CACHE=true test_eq "true" env printenv LAKE_ARTIFACT_CACHE
 LAKE_ARTIFACT_CACHE=false test_eq "false" env printenv LAKE_ARTIFACT_CACHE
-LAKE_ARTIFACT_CACHE= test_eq "false" env printenv LAKE_ARTIFACT_CACHE
+LAKE_ARTIFACT_CACHE= test_eq "" env printenv LAKE_ARTIFACT_CACHE
+LAKE_ARTIFACT_CACHE= test_eq "" -d hello env printenv LAKE_ARTIFACT_CACHE
+LAKE_ARTIFACT_CACHE= test_eq "true" -f enableArtifactCache.toml env printenv LAKE_ARTIFACT_CACHE
+LAKE_ARTIFACT_CACHE= test_eq "false" -f disableArtifactCache.toml env printenv LAKE_ARTIFACT_CACHE
+test_cmd rm lake-manifest.json
+
+# Test `LAKE_RESTORE_ARTIFACTS` setting and default
+LAKE_RESTORE_ARTIFACTS=true test_eq "true" env printenv LAKE_RESTORE_ARTIFACTS
+LAKE_RESTORE_ARTIFACTS=false test_eq "false" env printenv LAKE_RESTORE_ARTIFACTS
+LAKE_RESTORE_ARTIFACTS= test_eq "" env printenv LAKE_RESTORE_ARTIFACTS
+LAKE_RESTORE_ARTIFACTS= test_eq "" -d hello env printenv LAKE_RESTORE_ARTIFACTS
+LAKE_RESTORE_ARTIFACTS= test_eq "true" -f restoreAllArtifacts.toml env printenv LAKE_RESTORE_ARTIFACTS
+LAKE_RESTORE_ARTIFACTS= test_eq "false" -f noRestoreArtifacts.toml env printenv LAKE_RESTORE_ARTIFACTS
+test_cmd rm lake-manifest.json
 
 # Test `LAKE_PKG_URL_MAP` setting and errors
 echo "# TEST: LAKE_PKG_URL_MAP"
@@ -64,11 +78,11 @@ elif [ "$UNAME" = Darwin ]; then
 # https://apple.stackexchange.com/questions/212945/unable-to-set-dyld-fallback-library-path-in-shell-on-osx-10-11-1
 set -x
 $LAKE env | grep DYLD_LIBRARY_PATH | grep --color lib/lean
-$LAKE -d ../../examples/hello env | grep DYLD_LIBRARY_PATH | grep --color examples/hello
+$LAKE -d hello env | grep DYLD_LIBRARY_PATH | grep --color tests/env/hello
 set +x
 else
 test_out "lib/lean" env printenv LD_LIBRARY_PATH
-test_out "examples/hello" -d ../../examples/hello env printenv LD_LIBRARY_PATH
+test_out "tests/env/hello" -d hello env printenv LD_LIBRARY_PATH
 fi
 
 # Cleanup

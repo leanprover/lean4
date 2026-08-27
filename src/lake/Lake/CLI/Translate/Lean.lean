@@ -8,7 +8,6 @@ module
 prelude
 public import Lake.Config.Package
 import Lake.DSL.Syntax
-import Lake.Config.Package
 meta import Lean.Parser.Module
 meta import Lake.Config.LeanLibConfig
 meta import Lake.Config.LeanExeConfig
@@ -221,7 +220,6 @@ protected def PathPatDescr.toLean? (p : PathPatDescr) : Option Term :=
 
 instance : ToLean? PathPatDescr := ⟨PathPatDescr.toLean?⟩
 
-set_option linter.deprecated false in
 @[inline] protected def PartialBuildKey.toLean (k : PartialBuildKey) : Term :=
   go k []
 where
@@ -262,14 +260,17 @@ def Dependency.mkRequire (cfg : Dependency) : RequireDecl := Unhygienic.run do
       `(fromSource|$(toLean dir):term)
     | .git url rev? subDir? =>
       `(fromSource|git $(toLean url) $[@ $(rev?.map toLean)]? $[/ $(subDir?.map toLean)]?)
-  let ver? ←
-    if let some ver := cfg.version? then
-      if ver.startsWith "git#" then
-        some <$> `(verSpec|git $(toLean <| ver.drop 4 |>.copy))
-      else
-        some <$> `(verSpec|$(toLean ver):term)
-    else
-      pure none
+  let ver? ← id do
+    match cfg.version with
+    | .none => return none
+    | .git rev =>
+      match cfg.src? with
+      | some (.git (rev := some gitRev) ..) =>
+        if gitRev == rev then
+          return none -- will be derived from the source above
+        else some <$> `(verSpec|git $(toLean rev))
+      | _ => some <$> `(verSpec|git $(toLean rev))
+    | .ver ver => some <$> `(verSpec|$(toLean ver.toString):term)
   let scope? := if cfg.scope.isEmpty then none else some (toLean cfg.scope)
   let opts? := if cfg.opts.isEmpty then none else some <| Unhygienic.run do
     cfg.opts.foldlM (init := mkCIdent ``NameMap.empty) fun stx opt val =>
@@ -350,7 +351,7 @@ protected def InputDirConfig.mkCommand
 
 @[inline] def Package.mkTargetCommands
   (pkg : Package) (defaultTargets : NameSet) (kind : Name)
-  (mkCommand : {n : Name} → ConfigType kind pkg.name n → Bool → Command)
+  (mkCommand : {n : Name} → ConfigType kind pkg.keyName n → Bool → Command)
 : Array Command :=
   pkg.targetDecls.filterMap fun t => (t.config? kind).map fun cfg =>
     mkCommand cfg (defaultTargets.contains t.name)
@@ -359,7 +360,7 @@ protected def InputDirConfig.mkCommand
 
 /-- Create a Lean module that encodes the declarative configuration of the package. -/
 public def Package.mkLeanConfig (pkg : Package) : TSyntax ``module := Unhygienic.run do
-  let pkgConfig : PackageConfig pkg.name pkg.origName :=
+  let pkgConfig : PackageConfig pkg.keyName pkg.origName :=
     {pkg.config with testDriver := pkg.testDriver, lintDriver := pkg.lintDriver}
   let defaultTargets := pkg.defaultTargets.foldl NameSet.insert NameSet.empty
   `(module|

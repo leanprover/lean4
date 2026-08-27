@@ -9,10 +9,9 @@ prelude
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Simp.Main
-import Lean.Util.OccursCheck
-import Lean.PrettyPrinter.Delaborator
 import Lean.Elab.Tactic.Do.ProofMode.MGoal
 import Std.Tactic.Do -- Needed for use of `mleave` in quote
+import Init.Data.Array.Mem
 
 namespace Lean.Elab.Tactic.Do
 
@@ -92,21 +91,21 @@ def classifyInvariantUse (assertion : Expr) (inv : MVarId) : ClassifyInvariantUs
   let_expr List.Cursor.mk _α _l pref suff _prf := cursor | return .unknownInvariantUse -- dito
   let mut acc := letMutsTuple
   let mut letMuts := #[]
-  while acc.isAppOfArity ``MProd.mk 4 do
+  while acc.isAppOfArity ``Prod.mk 4 do
     letMuts := letMuts.push (acc.getArg! 2)
     acc := acc.getArg! 3
   letMuts := letMuts.push acc
   return .success { conditionIdx, cursorPrefix := pref, cursorSuffix := suff, letMuts, letMutsTuple, stateArgs }
 
 /--
-Returns `some (ρ, σ)` if `letMutsTy` is of the form `MProd (Option ρ) σ` and every VC in `vcs`
+Returns `some (ρ, σ)` if `letMutsTy` is of the form `Prod (Option ρ) σ` and every VC in `vcs`
 uses the `Option ρ` component according to early return semantics.
 * `ρ` is the type of early return (`Unit` in case of `break`)
-* `σ` is an `n`-ary `MProd`, carrying the current value of the `let mut` variables.
-  NB: When `n=0`, we have `MProd (Option ρ) PUnit` rather than `Option ρ`.
+* `σ` is an `n`-ary `Prod`, carrying the current value of the `let mut` variables.
+  NB: When `n=0`, we have `Prod (Option ρ) PUnit` rather than `Option ρ`.
 -/
 def hasEarlyReturn (vcs : Array MVarId) (inv : MVarId) (letMutsTy : Expr) : MetaM (Option (Expr × Expr)) := do
-  if !(letMutsTy.isAppOf ``MProd) || letMutsTy.getAppNumArgs < 2 then return none
+  if !(letMutsTy.isAppOf ``Prod) || letMutsTy.getAppNumArgs < 2 then return none
   let_expr Option ρ := letMutsTy.getArg! 0 | return none
   let σ := letMutsTy.getArg! 1
 
@@ -159,12 +158,22 @@ def hasEarlyReturn (vcs : Array MVarId) (inv : MVarId) (letMutsTy : Expr) : Meta
 
   return (ρ, σ)
 
+def collectFVarsToRevert (e : Expr)(dontRevert : FVarId → Bool) : MetaM (Array Expr) := do
+  let mut xs := (collectFVars {} e).fvarIds |>.filter (not ∘ dontRevert) |>.map mkFVar
+  repeat do
+    let new ← collectForwardDeps xs false
+    let new := new.filter (not <| dontRevert ·.fvarId!)
+    if new.size == xs.size then xs := new; break
+    let types ← new.mapM inferType
+    let forbidden := .ofArray new
+    let s := (types.foldl collectFVars {visitedExpr := forbidden}).fvarIds |>.filter (not ∘ dontRevert)
+    xs := new ++ s.map mkFVar
+    if s.isEmpty then break -- no need for another iteration; collectForwardDeps is idempotent
+  return xs
+
 /-- Largely lifted from `Lean.MetavarContext.MkBinding.mkAuxMVarType`. -/
 def revertFVarsInTypeExcept (e : Expr) (dontRevert : FVarId → Bool) : MetaM Expr := do
-  let xs := (collectFVars {} e).fvarIds
-    |>.filter (not ∘ dontRevert)
-    |>.map mkFVar
-  let xs ← collectForwardDeps xs false
+  let xs ← collectFVarsToRevert e dontRevert
   let lctx ← getLCtx
   let_expr c@SPred _σs := (← inferType e) | return e
   let lvl := c.constLevels![0]!
@@ -209,8 +218,8 @@ def SuccessPoint.clause (p : SuccessPoint) : Expr :=
 
 /-- The last syntactic element of a `FailureCond`. -/
 inductive ExceptCondsDefault where
-  /-- `()`. This means we can suggest `post⟨...⟩`. -/
-  | unit
+  /-- `PUnit.unit`. This means we can suggest `post⟨...⟩`. -/
+  | punit
   /-- `ExceptConds.false`. This means we can suggest `⇓ _ => _`. -/
   | false
   /-- `ExceptConds.true`. This means we can suggest `⇓? _ => _`. -/
@@ -229,7 +238,7 @@ When the default is not defeq to `ExceptConds.false`, we use it as the default.
 -/
 structure FailureCondHints where
   points : Array Expr := #[]
-  default : ExceptCondsDefault := .unit
+  default : ExceptCondsDefault := .punit
 
 /-- Look at how `inv` is used in the `vcs` and collect hints about how `inv` should be instantiated.
 In case it succeeds, there will be
@@ -293,8 +302,8 @@ def collectInvariantHints (vcs : Array MVarId) (inv : MVarId) (xs : Expr) (letMu
         -- Just overwrite the existing entry. Computing a join here is overkill for the few cases
         -- where this is going to be used.
         failureConds := { failureConds with points := points }
-        if conds.isConstOf ``Unit.unit then
-          failureConds := { failureConds with default := .unit }
+        if conds.isConstOf ``PUnit.unit then
+          failureConds := { failureConds with default := .punit }
         else if conds.isAppOfArity ``ExceptConds.false 1 then
           failureConds := { failureConds with default := .false }
         else if conds.isAppOfArity ``ExceptConds.true 1 then
@@ -399,25 +408,25 @@ public def suggestInvariant (vcs : Array MVarId) (inv : MVarId) : TacticM Term :
   --
   -- Finally, build the syntax for the suggestion. It's a giant configuration space mess, because
   -- 1. Generally want to suggest something using `⇓ ⟨xs, letMuts⟩ => ...`, i.e. `PostCond.noThrow`.
-  -- 2. However, on early return we want to suggest something using `Invariant.withEarlyReturn`.
+  -- 2. However, on early return we want to suggest something using `Invariant.withEarlyReturnNewDo`.
   -- 3. When there are non-`False` failure conditions, we cannot suggest `⇓ ⟨xs, letMuts⟩ => ...`.
   --    We might be able to suggest `⇓? ⟨xs, letMuts⟩ => ...` (`True` failure condition),
-  --    or `post⟨...⟩` (more than 0 failure handlers, but ending in `()`), and fall back to
-  --    `by exact ⟨...⟩` (not ending in `()`).
-  -- 4. Similarly for the `onExcept` argument of `Invariant.withEarlyReturn`.
+  --    or `post⟨...⟩` (more than 0 failure handlers, but ending in `PUnit.unit`), and fall back to
+  --    `by exact ⟨...⟩` (not ending in `PUnit.unit`).
+  -- 4. Similarly for the `onExcept` argument of `Invariant.withEarlyReturnNewDo`.
   -- Hence the spaghetti code.
   --
   if let some (ρ, σ) ← hasEarlyReturn vcs inv letMutsTy then
     -- logWarning m!"Found early return for {inv}!"
-    -- Suggest an invariant using `Invariant.withEarlyReturn`.
+    -- Suggest an invariant using `Invariant.withEarlyReturnNewDo`.
     if let some (success, onReturn, failureConds) := suggestion? then
       -- First construct `onContinue` and `onReturn` clause and simplify them according to the
-      -- definition of `Invariant.withEarlyReturn`.
+      -- definition of `Invariant.withEarlyReturnNewDo`.
       let (onContinue, onReturn) ← withLocalDeclD `xs (mkApp2 (mkConst ``List.Cursor us) α l) fun xs =>
         withLocalDeclD `r ρ fun r =>
         withLocalDeclD `letMuts σ fun letMuts => do
-        let onContinue := success.beta #[xs, ← mkAppM ``MProd.mk #[← mkNone ρ, letMuts]]
-        let onReturn := onReturn.beta #[← mkAppM ``MProd.mk #[← mkSome ρ r, letMuts]]
+        let onContinue := success.beta #[xs, ← mkAppM ``Prod.mk #[← mkNone ρ, letMuts]]
+        let onReturn := onReturn.beta #[← mkAppM ``Prod.mk #[← mkSome ρ r, letMuts]]
         let ctx ← Simp.mkContext
           (config := {})
           (simpTheorems := #[(← Meta.getSimpTheorems)])
@@ -429,22 +438,22 @@ public def suggestInvariant (vcs : Array MVarId) (inv : MVarId) : TacticM Term :
       -- Now the configuration mess.
       if failureConds.points.isEmpty then
         match failureConds.default with
-        | .false | .unit =>
-          `(Invariant.withEarlyReturn (onReturn := fun r letMuts => $onReturn) (onContinue := fun xs letMuts => $onContinue))
+        | .false | .punit =>
+          `(Invariant.withEarlyReturnNewDo (onReturn := fun r letMuts => $onReturn) (onContinue := fun xs letMuts => $onContinue))
         -- we handle the following two cases here rather than through
         -- `postCondWithMultipleConditions` below because that would insert a superfluous `by exact _`.
         | .true =>
-          `(Invariant.withEarlyReturn (onReturn := fun r letMuts => $onReturn) (onContinue := fun xs letMuts => $onContinue (onExcept := ExceptConds.true)))
+          `(Invariant.withEarlyReturnNewDo (onReturn := fun r letMuts => $onReturn) (onContinue := fun xs letMuts => $onContinue (onExcept := ExceptConds.true)))
         | .other e =>
-          `(Invariant.withEarlyReturn (onReturn := fun r letMuts => $onReturn) (onContinue := fun xs letMuts => $onContinue (onExcept := $(← Lean.PrettyPrinter.delab e))))
+          `(Invariant.withEarlyReturnNewDo (onReturn := fun r letMuts => $onReturn) (onContinue := fun xs letMuts => $onContinue (onExcept := $(← Lean.PrettyPrinter.delab e))))
       else -- need the postcondition long form as `onExcept` arg
         let mut terms : Array Term := #[]
         for point in failureConds.points do
           terms := terms.push (← Lean.PrettyPrinter.delab point)
         let onExcept ← postCondWithMultipleConditions terms failureConds.default
-        `(Invariant.withEarlyReturn (onReturn := fun r letMuts => $onReturn) (onContinue := fun xs letMuts => $onContinue) (onExcept := $onExcept))
+        `(Invariant.withEarlyReturnNewDo (onReturn := fun r letMuts => $onReturn) (onContinue := fun xs letMuts => $onContinue) (onExcept := $onExcept))
     else -- No suggestion. Just fill in `_`.
-      `(Invariant.withEarlyReturn (onReturn := fun r letMuts => _) (onContinue := fun xs letMuts => _))
+      `(Invariant.withEarlyReturnNewDo (onReturn := fun r letMuts => _) (onContinue := fun xs letMuts => _))
   else if let some (success, _, failureConds) := suggestion? then
     -- No early return, but we do have a suggestion.
     withLocalDeclD `xs (mkApp2 (mkConst ``List.Cursor us) α l) fun xs =>
@@ -469,7 +478,7 @@ where
   postCondWithMultipleConditions (handlers : Array Term) (default : ExceptCondsDefault) : MetaM Term := do
     let handlers := Syntax.TSepArray.ofElems (sep := ",") handlers
     match default with
-    | .unit => `(post⟨$handlers,*⟩)
+    | .punit => `(post⟨$handlers,*⟩)
     -- See the comment in `post⟨_⟩` syntax for why we emit `by exact` here.
     | .false => `(by exact ⟨$handlers,*, ExceptConds.false⟩)
     | .true => `(by exact ⟨$handlers,*, ExceptConds.true⟩)

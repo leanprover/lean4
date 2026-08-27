@@ -119,7 +119,7 @@ into the workspace's `packagesDir`.
 from <path>
 ```
 
-Lake loads the package located a fixed `path` relative to the
+Lake loads the package located at a fixed `path` relative to the
 requiring package's directory.
 
 **Git Dependencies**
@@ -137,7 +137,7 @@ subdirectory is specified).
 public syntax fromClause :=
   " from " fromSource
 
-/-
+/--
 A `NameMap String` of Lake options used to configure the dependency.
 This is equivalent to passing `-K` options to the dependency on the command line.
 -/
@@ -164,7 +164,7 @@ public syntax depSpec :=
 Adds a new package dependency to the workspace. The general syntax is:
 
 ```
-require ["<scope>" /] <pkg-name> [@ <version>]
+require ["<scope>" /] <pkg-name> [@ [git]? <version>]
   [from <source>] [with <options>]
 ```
 
@@ -402,6 +402,11 @@ scoped syntax (name := scriptDecl)
 Defines the `v!"<ver>"` syntax for version literals.
 -/
 
+/-- Helper gadget for decoding versions from arbitrary terms. -/
+scoped syntax:lead (name := evalVer)
+  "eval_ver%" term
+: term
+
 /-- A Lake version literal. -/
 scoped syntax:max (name := verLit)
   "v!" noWs interpolatedStr(term)
@@ -459,7 +464,7 @@ meta if System.Platform.isWindows then
 extern_lib winOnlyLib := ...
 else meta if System.Platform.isOSX then
 extern_lib macOnlyLib := ...
-else
+else meta if System.Platform.isLinux then
 extern_lib linuxOnlyLib := ...
 ```
 -/

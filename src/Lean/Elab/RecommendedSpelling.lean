@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Elab.Command
-import Lean.ExtraModUses
 
 public section
 
@@ -32,7 +31,7 @@ open Lean.Parser.Command
 def allRecommendedSpellings : MetaM (Array RecommendedSpelling) := do
   let all := recommendedSpellingExt.toEnvExtension.getState (← getEnv)
       |>.importedEntries
-      |>.push (recommendedSpellingExt.exportEntriesFn (← getEnv) (recommendedSpellingExt.getState (← getEnv)) .exported)
+      |>.push ((recommendedSpellingExt.exportEntriesFn (← getEnv) (recommendedSpellingExt.getState (← getEnv))).exported)
   return all.flatMap id
 
 end Lean.Elab.Term.Doc

@@ -6,7 +6,9 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Classical
+public meta import Init.Grind.Tactics
+public import Init.Grind.Tactics
+public import Init.SimpLemmas
 
 public section
 
@@ -25,9 +27,11 @@ macro_rules
 
 /-! ## if-then-else -/
 
-@[simp] theorem if_true {_ : Decidable True} (t e : α) : ite True t e = t := if_pos trivial
+@[deprecated ite_true (since := "2026-07-21")]
+theorem if_true {_ : Decidable True} (t e : α) : ite True t e = t := ite_eq_left trivial
 
-@[simp] theorem if_false {_ : Decidable False} (t e : α) : ite False t e = e := if_neg id
+@[deprecated ite_false (since := "2026-07-21")]
+theorem if_false {_ : Decidable False} (t e : α) : ite False t e = e := ite_eq_right id
 
 theorem ite_id [Decidable c] {α} (t : α) : (if c then t else t) = t := by split <;> rfl
 
@@ -42,11 +46,11 @@ theorem apply_ite (f : α → β) (P : Prop) [Decidable P] (x y : α) :
   apply_dite f P (fun _ => x) (fun _ => y)
 
 /-- A `dite` whose results do not actually depend on the condition may be reduced to an `ite`. -/
-@[simp] theorem dite_eq_ite [Decidable P] :
+@[simp] theorem dite_eq_ite {_ : Decidable P} :
   (dite P (fun _ => a) (fun _ => b)) = ite P a b := rfl
 
 -- Remark: dite and ite are "defally equal" when we ignore the proofs.
-@[deprecated dite_eq_ite (since := "2025-10-29")]
+@[deprecated dite_eq_ite +typeChanged (since := "2025-10-29")]
 theorem dif_eq_if (c : Prop) {h : Decidable c} {α : Sort u} (t : α) (e : α) : dite c (fun _ => t) (fun _ => e) = ite c t e :=
   match h with
   | isTrue _    => rfl

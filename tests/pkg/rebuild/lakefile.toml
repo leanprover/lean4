@@ -3,4 +3,3 @@ defaultTargets = ["Rebuild"]
 
 [[lean_lib]]
 name = "Rebuild"
-leanOptions = { experimental.module = true }

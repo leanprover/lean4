@@ -20,7 +20,7 @@ cp llvm/bin/llvm-ar stage1/bin/
 # dependencies of the above
 cp $(ldd llvm/bin/{clang,lld,llvm-ar}.exe | cut -f3 -d' ' --only-delimited | grep -E 'llvm|clang64') stage1/bin
 # lean.h dependencies
-cp llvm/lib/clang/*/include/{std*,__std*,limits}.h stage1/include/clang
+cp llvm/lib/clang/*/include/{std*,__std*,limits,float,__float*}.h stage1/include/clang
 # single Windows dependency
 echo '
 // https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-seterrormode
@@ -40,14 +40,14 @@ cp /clang64/lib/{crtbegin,crtend,crt2,dllcrt2}.o stage1/lib/
 # tells the compiler how to dynamically link against `bcrypt.dll` (which is located in the System32 folder).
 # This distinction is relevant specifically for `libicu.a`/`icu.dll` because there we want updates to the time zone database to
 # be delivered to users via Windows Update without having to recompile Lean or Lean programs.
-cp /clang64/lib/lib{m,bcrypt,mingw32,moldname,mingwex,msvcrt,pthread,advapi32,shell32,user32,kernel32,ucrtbase,psapi,iphlpapi,userenv,ws2_32,dbghelp,ole32,icu}.* /clang64/lib/libgmp.a /clang64/lib/libuv.a llvm/lib/lib{c++,c++abi,unwind}.a stage1/lib/
+cp /clang64/lib/lib{m,bcrypt,mingw32,moldname,mingwex,msvcrt,pthread,advapi32,shell32,user32,kernel32,ucrtbase,psapi,iphlpapi,userenv,ws2_32,dbghelp,ole32,icu,crypt32,gdi32}.* /clang64/lib/libgmp.a /clang64/lib/libuv.a /clang64/lib/libssl.a /clang64/lib/libcrypto.a llvm/lib/lib{c++,c++abi,unwind}.a stage1/lib/
 echo -n " -DLEAN_STANDALONE=ON"
 echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang.exe -DCMAKE_C_COMPILER_WORKS=1 -DCMAKE_CXX_COMPILER=$PWD/llvm/bin/clang++.exe -DCMAKE_CXX_COMPILER_WORKS=1 -DLEAN_CXX_STDLIB='-lc++ -lc++abi'"
 echo -n " -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_CXX_COMPILER=clang++"
 echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter /clang64/include/'"
 echo -n " -DLEANC_INTERNAL_FLAGS='--sysroot ROOT -nostdinc -isystem ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang.exe"
-echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='--sysroot ROOT -L ROOT/lib -Wl,-Bstatic -lgmp $(pkg-config --static --libs libuv) -lunwind -Wl,-Bdynamic -fuse-ld=lld'"
-# when not using the above flags, link GMP dynamically/as usual. Always link ICU dynamically.
-echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-lgmp $(pkg-config --libs libuv) -lucrtbase'"
+echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='--sysroot ROOT -L ROOT/lib -Wl,-Bstatic -lgmp $(pkg-config --static --libs libuv) -lssl -lcrypto -lunwind -Wl,-Bdynamic -lcrypt32 -lgdi32 -fuse-ld=lld'"
+# when not using the above flags, link GMP/libuv/OpenSSL dynamically/as usual. Always link ICU dynamically.
+echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-lgmp $(pkg-config --libs libuv) -lssl -lcrypto -lcrypt32 -lgdi32 -lucrtbase'"
 # do not set `LEAN_CC` for tests
 echo -n " -DLEAN_TEST_VARS=''"

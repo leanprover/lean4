@@ -6,10 +6,18 @@ Author: Markus Himmel
 module
 
 prelude
-public import Init.Data.UInt.Bitwise
 import Init.Data.Char.Lemmas
 public import Init.Data.ByteArray.Basic
 import Init.Data.ByteArray.Lemmas
+public import Init.Data.UInt.Basic
+import Init.Data.BitVec.Bootstrap
+import Init.Data.BitVec.Lemmas
+import Init.Data.Nat.Internal.Linear
+import Init.Data.Nat.MinMax
+import Init.Data.Option.Lemmas
+import Init.Data.UInt.Bitwise
+import Init.Data.UInt.Lemmas
+import Init.Omega
 
 /-!
 # UTF-8 decoding
@@ -56,7 +64,7 @@ public theorem Char.utf8Size_eq (c : Char) : c.utf8Size = 1 ∨ c.utf8Size = 2 �
   match c.utf8Size, c.utf8Size_pos, c.utf8Size_le_four with
   | 1, _, _ | 2, _, _ | 3, _, _ | 4, _, _ => simp
 
-theorem Char.toNat_val_le {c : Char} : c.val.toNat ≤ 0x10ffff := by
+theorem Char.toNat_le {c : Char} : c.toNat ≤ 0x10ffff := by
   have := c.valid
   simp [UInt32.isValidChar, Nat.isValidChar] at this
   omega
@@ -86,7 +94,7 @@ public def String.utf8EncodeCharFast (c : Char) : List UInt8 :=
      (v >>>  6).toUInt8 &&& 0x3f ||| 0x80,
               v.toUInt8 &&& 0x3f ||| 0x80]
 
-private theorem Nat.add_two_pow_eq_or_of_lt {b : Nat} (i : Nat) (b_lt : b < 2 ^ i) (a : Nat) :
+theorem Nat.add_two_pow_eq_or_of_lt {b : Nat} (i : Nat) (b_lt : b < 2 ^ i) (a : Nat) :
     b + 2 ^ i * a = b ||| 2 ^ i * a := by
   rw [Nat.add_comm, Nat.or_comm, Nat.two_pow_add_eq_or_of_lt b_lt]
 
@@ -185,10 +193,10 @@ theorem helper₄ (s : Nat) (c : BitVec w₀) (v : BitVec w') (w : Nat) :
 -- TODO: possibly it makes sense to factor out this proof
 theorem String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_one {c : Char} (h : c.utf8Size = 1) :
     ((String.utf8EncodeChar c)[0]'(by simp [h])).toBitVec = 0#1 ++ c.val.toBitVec.extractLsb' 0 7 := by
-  have h₀ : c.val.toNat < 128 := by
-    suffices c.val.toNat ≤ 127 by omega
+  have h₀ : c.toNat < 128 := by
+    suffices c.toNat ≤ 127 by omega
     simpa [Char.utf8Size_eq_one_iff, UInt32.le_iff_toNat_le] using h
-  have h₁ : c.val.toNat < 256 := by omega
+  have h₁ : c.toNat < 256 := by omega
   rw [← BitVec.toNat_inj, BitVec.toNat_append]
   simp [-Char.toUInt8_val, utf8EncodeChar_eq_singleton h, Nat.mod_eq_of_lt h₀, Nat.mod_eq_of_lt h₁]
 
@@ -200,7 +208,7 @@ theorem String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_two {c : Char
 
 theorem String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_two {c : Char} (h : c.utf8Size = 2) :
     ((String.utf8EncodeChar c)[1]'(by simp [h])).toBitVec = 0b10#2 ++ c.val.toBitVec.extractLsb' 0 6 := by
-  simpa [String.utf8EncodeChar_eq_cons_cons h] using helper₄ 0 c.val.toBitVec 2#2 6
+  simpa [String.utf8EncodeChar_eq_cons_cons h] using! helper₄ 0 c.val.toBitVec 2#2 6
 
 /-! ### Size three -/
 
@@ -214,7 +222,7 @@ theorem String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_three {c : Cha
 
 theorem String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_three {c : Char} (h : c.utf8Size = 3) :
     ((String.utf8EncodeChar c)[2]'(by simp [h])).toBitVec = 0b10#2 ++ c.val.toBitVec.extractLsb' 0 6 := by
-  simpa [String.utf8EncodeChar_eq_cons_cons_cons h] using helper₄ 0 c.val.toBitVec 0b10#2 6
+  simpa [String.utf8EncodeChar_eq_cons_cons_cons h] using! helper₄ 0 c.val.toBitVec 0b10#2 6
 
 /-! ### Size four -/
 
@@ -232,7 +240,7 @@ theorem String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_four {c : Char
 
 theorem String.toBitVec_getElem_utf8EncodeChar_three_of_utf8Size_eq_four {c : Char} (h : c.utf8Size = 4) :
     ((String.utf8EncodeChar c)[3]'(by simp [h])).toBitVec = 0b10#2 ++ c.val.toBitVec.extractLsb' 0 6 := by
-  simpa [String.utf8EncodeChar_eq_cons_cons_cons_cons h] using helper₄ 0 c.val.toBitVec 0b10#2 6
+  simpa [String.utf8EncodeChar_eq_cons_cons_cons_cons h] using! helper₄ 0 c.val.toBitVec 0b10#2 6
 
 namespace ByteArray.utf8DecodeChar?
 
@@ -247,7 +255,7 @@ public inductive FirstByte where
   | twoMore : FirstByte
   | threeMore : FirstByte
 
-@[inline, expose]
+@[inline, expose, implicit_reducible]
 public def parseFirstByte (b : UInt8) : FirstByte :=
   if b &&& 0x80 == 0 then
     .done
@@ -355,7 +363,7 @@ theorem toBitVec_eq_of_parseFirstByte_eq_threeMore {b : UInt8} (h : parseFirstBy
 public def isInvalidContinuationByte (b : UInt8) : Bool :=
   b &&& 0xc0 != 0x80
 
-theorem isInvalidContinutationByte_eq_false_iff {b : UInt8} :
+theorem isInvalidContinuationByte_eq_false_iff {b : UInt8} :
     isInvalidContinuationByte b = false ↔ b &&& 0xc0 = 0x80 := by
   simp [isInvalidContinuationByte]
 
@@ -376,25 +384,25 @@ theorem parseFirstByte_eq_invalid_of_isInvalidContinuationByte_eq_false {b : UIn
   | .done =>
     rw [toBitVec_eq_of_parseFirstByte_eq_done h] at hb
     have := congrArg (·[7]) hb
-    simp only at this
+    try simp only at this -- TODO(kmill) remove after stage0 update
     rw [BitVec.getElem_append, BitVec.getElem_append] at this
     simp at this
   | .oneMore =>
     rw [toBitVec_eq_of_parseFirstByte_eq_oneMore h] at hb
     have := congrArg (·[6]) hb
-    simp only at this
+    try simp only at this -- TODO(kmill) remove after stage0 update
     rw [BitVec.getElem_append, BitVec.getElem_append] at this
     simp at this
   | .twoMore =>
     rw [toBitVec_eq_of_parseFirstByte_eq_twoMore h] at hb
     have := congrArg (·[6]) hb
-    simp only at this
+    try simp only at this -- TODO(kmill) remove after stage0 update
     rw [BitVec.getElem_append, BitVec.getElem_append] at this
     simp at this
   | .threeMore =>
     rw [toBitVec_eq_of_parseFirstByte_eq_threeMore h] at hb
     have := congrArg (·[6]) hb
-    simp only at this
+    try simp only at this -- TODO(kmill) remove after stage0 update
     rw [BitVec.getElem_append, BitVec.getElem_append] at this
     simp at this
   | .invalid => rfl
@@ -460,7 +468,7 @@ theorem helper₅ {w : UInt8} (h : parseFirstByte w = .done) : w < 128 := by
   rw [BitVec.toNat_append]
   simpa using Nat.mod_lt _ (by decide)
 
-@[inline, expose]
+@[inline, expose, implicit_reducible]
 public def assemble₁ (w : UInt8) (h : parseFirstByte w = .done) : Option Char :=
   some ⟨w.toUInt32, ?done⟩
 where finally
@@ -529,7 +537,7 @@ public def assemble₂ (w x : UInt8) : Option Char :=
   else
     let r := assemble₂Unchecked w x
     if r < 0x80 then
-      none -- overlong encodinlg
+      none -- overlong encoding
     else
       some ⟨r, ?onemore⟩
 where finally
@@ -969,9 +977,9 @@ theorem assemble₄_eq_some_iff_utf8EncodeChar_eq {w x y z : UInt8} {c : Char} :
         BitVec.extractLsb'_append_extractLsb'_eq_extractLsb' (by simp),
         BitVec.extractLsb'_append_extractLsb'_eq_extractLsb' (by simp),
         ← BitVec.setWidth_eq_extractLsb' (by simp), BitVec.setWidth_setWidth_eq_self]
-      have := c.toNat_val_le
+      have := c.toNat_le
       simp only [Nat.reduceAdd, BitVec.lt_def, UInt32.toNat_toBitVec, BitVec.toNat_twoPow,
-        Nat.reducePow, Nat.reduceMod, gt_iff_lt]
+        Nat.reducePow, Nat.reduceMod, gt_iff_lt, Char.toNat_val]
       omega
 
 theorem verify₄_eq_isSome_assemble₄ {w x y z : UInt8} :
@@ -996,7 +1004,7 @@ Decodes and returns the `Char` whose UTF-8 encoding begins at `i` in `bytes`.
 
 Returns `none` if `i` is not the start of a valid UTF-8 encoding of a character.
 -/
-@[inline, expose]
+@[inline, expose, implicit_reducible]
 public def ByteArray.utf8DecodeChar? (bytes : ByteArray) (i : Nat) : Option Char :=
   if h₀ : i < bytes.size then
     match h : parseFirstByte bytes[i] with
@@ -1113,30 +1121,35 @@ theorem utf8Size_le_of_utf8DecodeChar?_eq_some {b : ByteArray} {c : Char} :
   | case8 => simp
   | case9 => simp
 
+set_option backward.isDefEq.respectTransparency false in
 theorem utf8DecodeChar?_eq_assemble₁ {b : ByteArray} (hb : 1 ≤ b.size) (h : parseFirstByte b[0] = .done) :
     b.utf8DecodeChar? 0 = assemble₁ b[0] h := by
   fun_cases ByteArray.utf8DecodeChar?
   all_goals try (simp_all; done)
   all_goals omega
 
+set_option backward.isDefEq.respectTransparency false in
 theorem utf8DecodeChar?_eq_assemble₂ {b : ByteArray} (hb : 2 ≤ b.size) (h : parseFirstByte b[0] = .oneMore) :
     b.utf8DecodeChar? 0 = assemble₂ b[0] b[1] := by
   fun_cases ByteArray.utf8DecodeChar?
   all_goals try (simp_all; done)
   all_goals omega
 
+set_option backward.isDefEq.respectTransparency false in
 theorem utf8DecodeChar?_eq_assemble₃ {b : ByteArray} (hb : 3 ≤ b.size) (h : parseFirstByte b[0] = .twoMore) :
     b.utf8DecodeChar? 0 = assemble₃ b[0] b[1] b[2] := by
   fun_cases ByteArray.utf8DecodeChar?
   all_goals try (simp_all; done)
   all_goals omega
 
+set_option backward.isDefEq.respectTransparency false in
 theorem utf8DecodeChar?_eq_assemble₄ {b : ByteArray} (hb : 4 ≤ b.size) (h : parseFirstByte b[0] = .threeMore) :
     b.utf8DecodeChar? 0 = assemble₄ b[0] b[1] b[2] b[3] := by
   fun_cases ByteArray.utf8DecodeChar?
   all_goals try (simp_all; done)
   all_goals omega
 
+set_option backward.isDefEq.respectTransparency false in
 theorem utf8DecodeChar?_append_eq_assemble₁ {l : List UInt8} {b : ByteArray} (hl : l.length = 1) (h : parseFirstByte l[0] = .done) :
     (l.toByteArray ++ b).utf8DecodeChar? 0 = assemble₁ l[0] h := by
   have : (l.toByteArray ++ b)[0]'(by simp [hl]; omega) = l[0] := by
@@ -1396,6 +1409,7 @@ scalar value.
 public def IsUTF8FirstByte (c : UInt8) : Prop :=
   c &&& 0x80 = 0 ∨ c &&& 0xe0 = 0xc0 ∨ c &&& 0xf0 = 0xe0 ∨ c &&& 0xf8 = 0xf0
 
+@[inline]
 public instance {c : UInt8} : Decidable c.IsUTF8FirstByte :=
   inferInstanceAs <| Decidable (c &&& 0x80 = 0 ∨ c &&& 0xe0 = 0xc0 ∨ c &&& 0xf0 = 0xe0 ∨ c &&& 0xf8 = 0xf0)
 
@@ -1440,6 +1454,9 @@ public def utf8ByteSize (c : UInt8) (_h : c.IsUTF8FirstByte) : Nat :=
     3
   else
     4
+
+public theorem utf8ByteSize_pos (c : UInt8) (h : c.IsUTF8FirstByte) : 0 < c.utf8ByteSize h := by
+  fun_cases utf8ByteSize <;> simp
 
 def _root_.ByteArray.utf8DecodeChar?.FirstByte.utf8ByteSize : FirstByte → Nat
   | .invalid => 0

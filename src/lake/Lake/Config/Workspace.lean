@@ -11,50 +11,107 @@ public import Lake.Config.LeanExe
 public import Lake.Config.ExternLib
 public import Lake.Config.FacetConfig
 public import Lake.Config.TargetConfig
-meta import all Lake.Util.OpaqueType
+public import Lake.Config.LakeConfig
+meta import Lake.Util.OpaqueType
+import Lean.DocString.Syntax
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Lemmas
+
+set_option doc.verso true
 
 open System
 open Lean (Name LeanOptions)
 
 namespace Lake
 
-/-- A Lake workspace -- the top-level package directory. -/
-public structure Workspace : Type where
-  /-- The root package of the workspace. -/
-  root : Package
-  /-- The detected `Lake.Env` of the workspace. -/
+/--
+**For internal use only.**
+Computes the cache to use for the package based on the environment.
+-/
+public def computeLakeCache (pkg : Package) (lakeEnv : Lake.Env) : Cache :=
+  if pkg.bootstrap then
+    lakeEnv.lakeSystemCache?.getD ⟨pkg.lakeDir / "cache"⟩
+  else
+    lakeEnv.lakeCache?.getD ⟨pkg.lakeDir / "cache"⟩
+
+public structure Workspace.Raw : Type where
+  /-- The detected {lean}`Lake.Env` of the workspace. -/
   lakeEnv : Lake.Env
+  /-- The Lake configuration from the system configuration file. -/
+  lakeConfig : LoadedLakeConfig
   /-- The Lake cache. -/
-  lakeCache : Cache :=
-    if root.bootstrap then lakeEnv.lakeSystemCache?.getD ⟨root.lakeDir / "cache"⟩
-    else lakeEnv.lakeCache?.getD ⟨root.lakeDir / "cache"⟩
+  lakeCache : Cache
   /--
   The CLI arguments Lake was run with.
-  Used by `lake update` to perform a restart of Lake on a toolchain update.
-  A value of `none` means that Lake is not restartable via the CLI.
+  Used by {lit}`lake update` to perform a restart of Lake on a toolchain update.
+  A value of {lean}`none` means that Lake is not restartable via the CLI.
   -/
   lakeArgs? : Option (Array String) := none
   /--
   The packages within the workspace
-  (in `require` declaration order with the root coming first).
+  (in {lit}`require` declaration order with the root coming first).
   -/
-  packages : Array Package := {}
+  packages : Array Package := #[]
   /-- Name-package map of packages within the workspace. -/
   packageMap : DNameMap NPackage := {}
   /-- Configuration map of facets defined in the workspace. -/
-  facetConfigs : DNameMap FacetConfig := {}
+  facetConfigs : FacetConfigMap := {}
+  deriving Nonempty
 
-public instance : Nonempty Workspace :=
-  have : Inhabited Package := Classical.inhabited_of_nonempty inferInstance
-  ⟨by constructor <;> exact default⟩
+public structure Workspace.Raw.WF (ws : Workspace.Raw) : Prop where
+  size_packages_pos : 0 < ws.packages.size
+  packages_wsIdx : ∀ (h : i < ws.packages.size), (ws.packages[i]'h).wsIdx = i
+  depIdxs_packages : ∀ pkg ∈ ws.packages, ∀ i ∈ pkg.depIdxs, i < ws.packages.size
+
+/-- A Lake workspace -- the top-level package directory. -/
+public structure Workspace extends raw : Workspace.Raw, wf : raw.WF
+
+/-- Constructs an arbitrary well-formed workspace with {lean}`n` packages. -/
+noncomputable def Workspace.ofSize (n : Nat) (h : 0 < n) : Workspace := {
+  lakeEnv := default
+  lakeConfig := Classical.ofNonempty
+  lakeCache := Classical.ofNonempty
+  packages := (0...<n).toArray.map fun i =>
+    {(Classical.ofNonempty : Package) with wsIdx := i, depIdxs := #[]}
+  size_packages_pos := by
+    simp [Std.Rco.size, Std.Rxo.HasSize.size, Std.Rxc.HasSize.size, h]
+  packages_wsIdx {i} h := by
+    simp [Std.Rco.getElem_toArray_eq, Std.PRange.succMany?]
+  depIdxs_packages := by simp
+}
+
+theorem Workspace.size_packages_ofSize :
+  (ofSize n h).packages.size = n
+:= by simp [ofSize, Std.Rco.size, Std.Rxo.HasSize.size, Std.Rxc.HasSize.size]
+
+public instance : Nonempty Workspace := ⟨.ofSize 1 Nat.zero_lt_one⟩
 
 public hydrate_opaque_type OpaqueWorkspace Workspace
 
+/-- Returns the names of the root modules of the package's default targets. -/
+public def Package.defaultTargetRoots (self : Package) : Array Lean.Name :=
+  self.defaultTargets.flatMap fun target =>
+    if let some lib := self.findLeanLib? target then
+      lib.roots
+    else if let some exe := self.findLeanExe? target then
+      #[exe.root.name]
+    else
+      #[]
+
 namespace Workspace
 
+/-- The root package of the workspace. -/
+@[inline] public def root (self : Workspace) : Package :=
+  self.packages[0]'self.size_packages_pos
+
+/-- **For internal use only.** -/
+public theorem wsIdx_root_lt {ws : Workspace} :
+  ws.root.wsIdx < ws.packages.size
+:= ws.packages_wsIdx _ ▸ ws.size_packages_pos
+
 /-- **For internal use.** Whether this workspace is Lean itself.  -/
-@[inline] def bootstrap (ws : Workspace) : Bool :=
-  ws.root.bootstrap
+@[inline] def bootstrap (self : Workspace) : Bool :=
+  self.root.bootstrap
 
 /-- The path to the workspace's directory (i.e., the directory of the root package). -/
 @[inline] public def dir (self : Workspace) : FilePath :=
@@ -64,41 +121,88 @@ namespace Workspace
 @[inline] public def config (self : Workspace) : WorkspaceConfig :=
   self.root.config.toWorkspaceConfig
 
-/-- The path to the workspace' Lake directory relative to `dir`. -/
+/-- The path to the workspace' Lake directory relative to {lean}`dir`. -/
 @[inline] public def relLakeDir (self : Workspace) : FilePath :=
   self.root.relLakeDir
 
-/-- The full path to the workspace's Lake directory (e.g., `.lake`). -/
+/-- The full path to the workspace's Lake directory (e.g., {lit}`.lake`). -/
 @[inline] public def lakeDir (self : Workspace) : FilePath :=
   self.root.lakeDir
 
 /-- Whether the Lake artifact cache should be enabled by default for packages in the workspace. -/
-@[inline] public def enableArtifactCache (ws : Workspace) : Bool :=
-  ws.lakeEnv.enableArtifactCache
+@[inline] public def enableArtifactCache? (ws : Workspace) : Option Bool :=
+  ws.lakeEnv.enableArtifactCache? <|> ws.root.enableArtifactCache?
+
+/-- Whether the Lake artifact cache should be enabled by default for packages in the workspace. -/
+@[deprecated enableArtifactCache? +typeChanged (since := "2026-02-03")]
+public def enableArtifactCache (ws : Workspace) : Bool :=
+  ws.enableArtifactCache?.getD false
 
 /-- Whether the Lake artifact cache should is enabled for workspace's root package. -/
-public def isRootArtifactCacheEnabled (ws : Workspace) : Bool :=
-  ws.root.enableArtifactCache?.getD ws.enableArtifactCache
+public def isRootArtifactCacheWritable (ws : Workspace) : Bool :=
+  ws.enableArtifactCache?.getD false
 
-/-- The path to the workspace's remote packages directory relative to `dir`. -/
+/-- Whether the Lake artifact cache should is enabled for workspace's root package. -/
+@[deprecated isRootArtifactCacheWritable (since := "2026-02-03")]
+public abbrev isRootArtifactCacheEnabled (ws : Workspace) : Bool :=
+  ws.isRootArtifactCacheWritable
+
+/-- Whether artifacts should be restored by default from the Lake cache for packages in the workspace. -/
+@[inline] public def restoreAllArtifacts? (ws : Workspace) : Option Bool :=
+  ws.lakeEnv.restoreAllArtifacts? <|> ws.root.restoreAllArtifacts?
+
+/-- Returns the toolchain identifier for the Lake cache corresponding the workspace's toolchain. -/
+@[inline] public def cacheToolchain (ws : Workspace) : CacheToolchain :=
+  ws.lakeEnv.cacheToolchain
+
+/--
+Returns the cache service used by default for downloads (e.g., for {lit}`lake cache get`).
+
+This is configured through `cache.defaultService` in the system Lake configuration.
+If unconfigured, Lake defaults to using Reservoir.
+-/
+@[inline] public def defaultCacheService (ws : Workspace) : CacheService :=
+  ws.lakeConfig.defaultCacheService
+
+/--
+Returns the cache service (if any) used by default for uploads (e.g., for {lit}`lake cache put`).
+
+This is configured through {lit}`cache.defaultUploadService` in the system Lake configuration.
+-/
+@[inline] public def defaultCacheUploadService? (ws : Workspace) : Option CacheService :=
+  ws.lakeConfig.defaultCacheUploadService?
+
+/--
+Returns the configured cache service with the given name.
+
+This is configured through {lit}`cache.service` entries in the system Lake configuration.
+-/
+@[inline] public def findCacheService? (ws : Workspace) (service : String) : Option CacheService :=
+  ws.lakeConfig.cacheServices.find? (.mkSimple service)
+
+/-- The path to the workspace's remote packages directory relative to {lean}`dir`. -/
 @[inline] public def relPkgsDir (self : Workspace) : FilePath :=
   self.root.relPkgsDir
 
-/-- The workspace's `dir` joined with its `relPkgsDir`. -/
+/-- The workspace's {lean}`dir` joined with its {lean}`relPkgsDir`. -/
 @[inline] public def pkgsDir (self : Workspace) : FilePath :=
   self.root.pkgsDir
 
-/-- Arguments to pass to `lean` for files outside a library (e.g., via `lake lean`). -/
+/-- Arguments to pass to {lit}`lean` for files outside a library (e.g., via {lit}`lake lean`). -/
 @[inline] public def leanArgs (self : Workspace) : Array String :=
   self.root.moreLeanArgs
 
-/-- Options to pass to `lean` for files outside a library (e.g., via `lake lean`). -/
+/-- Options to pass to {lit}`lean` for files outside a library (e.g., via {lit}`lake lean`). -/
 @[inline] public def leanOptions (self : Workspace) : LeanOptions :=
   self.root.leanOptions
 
 /-- Options to pass to the Lean server when editing Lean files outside a library. -/
 @[inline] public def serverOptions (self : Workspace) : LeanOptions :=
   self.root.moreServerOptions
+
+/-- Returns the names of the root modules of the workpace root's default targets. -/
+@[inline] public def defaultTargetRoots (self : Workspace) : Array Lean.Name :=
+  self.root.defaultTargetRoots
 
 /-- The workspace's Lake manifest. -/
 @[inline] public def manifestFile (self : Workspace) : FilePath :=
@@ -108,13 +212,56 @@ public def isRootArtifactCacheEnabled (ws : Workspace) : Bool :=
 @[inline] public def packageOverridesFile (self : Workspace) : FilePath :=
   self.lakeDir / "package-overrides.json"
 
-/-- Add a package to the workspace. -/
-public def addPackage (pkg : Package) (self : Workspace) : Workspace :=
-  {self with packages := self.packages.push pkg, packageMap := self.packageMap.insert pkg.name pkg}
+/-- **For internal use only.** Add a well-formed package to the workspace. -/
+@[inline] public def addPackage'
+  (pkg : Package) (self : Workspace)
+  (h_wsIdx : pkg.wsIdx = self.packages.size) (h_depIdxs : pkg.depIdxs = #[])
+: Workspace := {self with
+  packages := self.packages.push pkg
+  packageMap := self.packageMap.insert pkg.keyName pkg
+  size_packages_pos := by simp
+  packages_wsIdx {i} i_lt := by
+    cases Nat.lt_add_one_iff_lt_or_eq.mp <| Array.size_push .. ▸ i_lt with
+    | inl i_lt => simpa [Array.getElem_push_lt i_lt] using self.packages_wsIdx i_lt
+    | inr i_eq => simpa [i_eq] using h_wsIdx
+  depIdxs_packages {p} p_mem {i} i_mem := by
+    simp only [Array.size_push]
+    cases Array.mem_push.mp p_mem with
+    | inl p_mem => exact Nat.lt_add_one_of_lt <| self.depIdxs_packages p p_mem i i_mem
+    | inr p_eq => simp [p_eq, h_depIdxs] at i_mem
+}
 
-/-- Try to find a package within the workspace with the given name. -/
-@[inline] public protected def findPackage? (name : Name) (self : Workspace) : Option (NPackage name) :=
-  self.packageMap.get? name
+/-- **For internal use only.** -/
+public theorem packages_addPackage' :
+  (addPackage' pkg ws h h').packages = ws.packages.push pkg
+:= by rfl
+
+/-- Add a package to the workspace. -/
+@[inline] public def addPackage (pkg : Package) (self : Workspace) : Workspace :=
+  self.addPackage' {pkg with wsIdx := self.packages.size, depIdxs := #[]} rfl rfl
+
+/-- Returns the unique package in the workspace (if any) that is identified by  {lean}`keyName`. -/
+@[inline] public protected def findPackageByKey? (keyName : Name) (self : Workspace) : Option (NPackage keyName) :=
+  self.packageMap.get? keyName
+
+/--
+Returns the first package in the workspace (if any) that has been assigned the {lean}`name`.
+
+This can be used to find the package corresponding to a user-provided name. If the package's unique
+identifier is already available, use {name (full := Workspace.findPackageByKey?)}`findPackageByKey?`
+instead.
+-/
+@[inline] public protected def findPackageByName? (name : Name) (self : Workspace) : Option Package :=
+  self.packages.find? (·.baseName == name)
+
+/--
+**Deprecated.** If attempting to find the package corresponding to a user-provided name,
+use {name (full := Workspace.findPackageByName?)}`findPackageByName?`. Otherwise, if the package's
+unique identifier is available, use {name (full := Workspace.findPackageByKey?)}`findPackageByKey?`.
+-/
+@[deprecated "Use `findPackageByKey?` or `findPackageByName?` instead" (since := "2025-12-03")]
+public protected abbrev findPackage? (name : Name) (self : Workspace) : Option (NPackage name) :=
+  self.findPackageByKey? name
 
 /-- Try to find a script in the workspace with the given name. -/
 public protected def findScript? (script : Name) (self : Workspace) : Option Script :=
@@ -132,11 +279,15 @@ public def isBuildableModule (mod : Name) (self : Workspace) : Bool :=
 public protected def findModule? (mod : Name) (self : Workspace) : Option Module :=
   self.packages.findSome? (·.findModule? mod)
 
+/-- For each package in the workspace, locate the named, buildable, importable, local module. -/
+public protected def findModules (mod : Name) (self : Workspace) : Array Module :=
+  self.packages.filterMap (·.findModule? mod)
+
 /-- Locate the named, buildable, but not necessarily importable, module in the workspace. -/
 public def findTargetModule? (mod : Name) (self : Workspace) : Option Module :=
   self.packages.findSome? (·.findTargetModule? mod)
 
-/-- Returns the buildable module in the workspace whose source file is `path`.  -/
+/-- Returns the buildable module in the workspace whose source file is {lean}`path`.  -/
 public def findModuleBySrc? (path : FilePath) (self : Workspace) : Option Module :=
   self.packages.findSome? (·.findModuleBySrc? path)
 
@@ -153,23 +304,28 @@ public protected def findExternLib? (name : Name) (self : Workspace) : Option Ex
   self.packages.findSome? fun pkg => pkg.findExternLib? name
 
 /-- Try to find a target configuration in the workspace with the given name. -/
-public def findTargetConfig? (name : Name) (self : Workspace) : Option ((pkg : Package) × TargetConfig pkg.name name) :=
+public def findTargetConfig? (name : Name) (self : Workspace) : Option ((pkg : Package) × TargetConfig pkg.keyName name) :=
   self.packages.findSome? fun pkg => pkg.findTargetConfig? name <&> (⟨pkg, ·⟩)
 
 /-- Try to find a target declaration in the workspace with the given name.  -/
-public def findTargetDecl? (name : Name) (self : Workspace) : Option ((pkg : Package) × NConfigDecl pkg.name name) :=
+public def findTargetDecl? (name : Name) (self : Workspace) : Option ((pkg : Package) × NConfigDecl pkg.keyName name) :=
   self.packages.findSome? fun pkg => pkg.findTargetDecl? name <&> (⟨pkg, ·⟩)
 
 /-- Add a facet to the workspace. -/
-public def addFacetConfig {name} (cfg : FacetConfig name) (self : Workspace) : Workspace :=
-  {self with facetConfigs := self.facetConfigs.insert name cfg}
+@[inline] public def addFacetConfig {name} (cfg : FacetConfig name) (self : Workspace) : Workspace :=
+  {self with facetConfigs := self.facetConfigs.insert cfg}
+
+/-- **For internal use only.** -/
+public theorem packages_addFacetConfig :
+  (addFacetConfig cfg ws).packages = ws.packages
+:= by rfl
 
 /-- Try to find a facet configuration in the workspace with the given name. -/
-public def findFacetConfig? (name : Name) (self : Workspace) : Option (FacetConfig name) :=
+@[inline] public def findFacetConfig? (name : Name) (self : Workspace) : Option (FacetConfig name) :=
   self.facetConfigs.get? name
 
 /-- Add a module facet to the workspace. -/
-public def addModuleFacetConfig (cfg : ModuleFacetConfig name) (self : Workspace) : Workspace :=
+@[inline] public def addModuleFacetConfig (cfg : ModuleFacetConfig name) (self : Workspace) : Workspace :=
   self.addFacetConfig cfg.toFacetConfig
 
 /-- Try to find a module facet configuration in the workspace with the given name. -/
@@ -177,7 +333,7 @@ public def findModuleFacetConfig? (name : Name) (self : Workspace) : Option (Mod
   self.findFacetConfig? name |>.bind (·.toKind? Module.facetKind)
 
 /-- Add a package facet to the workspace. -/
-public def addPackageFacetConfig (cfg : PackageFacetConfig name) (self : Workspace) : Workspace :=
+@[inline] public def addPackageFacetConfig (cfg : PackageFacetConfig name) (self : Workspace) : Workspace :=
   self.addFacetConfig cfg.toFacetConfig
 
 /-- Try to find a package facet configuration in the workspace with the given name. -/
@@ -185,22 +341,22 @@ public def findPackageFacetConfig? (name : Name) (self : Workspace) : Option (Pa
   self.findFacetConfig? name |>.bind (·.toKind? Package.facetKind)
 
 /-- Add a library facet to the workspace. -/
-public def addLibraryFacetConfig (cfg : LibraryFacetConfig name) (self : Workspace) : Workspace :=
+@[inline] public def addLibraryFacetConfig (cfg : LibraryFacetConfig name) (self : Workspace) : Workspace :=
   self.addFacetConfig cfg.toFacetConfig
 
 /-- Try to find a library facet configuration in the workspace with the given name. -/
 public def findLibraryFacetConfig? (name : Name) (self : Workspace) : Option (LibraryFacetConfig name) :=
   self.findFacetConfig? name |>.bind (·.toKind? LeanLib.facetKind)
 
-/-- The workspace's binary directories (which are added to `Path`). -/
+/-- The workspace's binary directories (which are added to {lit}`PATH`). -/
 public def binPath (self : Workspace) : SearchPath :=
   self.packages.foldl (fun dirs pkg => pkg.binDir :: dirs) []
 
-/-- The workspace's Lean library directories (which are added to `LEAN_PATH`). -/
+/-- The workspace's Lean library directories (which are added to {lit}`LEAN_PATH`). -/
 public def leanPath (self : Workspace) : SearchPath :=
   self.packages.foldl (fun dirs pkg => pkg.leanLibDir :: dirs) []
 
-/-- The workspace's source directories (which are added to `LEAN_SRC_PATH`). -/
+/-- The workspace's source directories (which are added to {lit}`LEAN_SRC_PATH`). -/
 public def leanSrcPath (self : Workspace) : SearchPath :=
   self.packages.foldl (init := {}) fun dirs pkg =>
     pkg.targetDecls.foldr (init := dirs) fun cfg dirs =>
@@ -210,16 +366,17 @@ public def leanSrcPath (self : Workspace) : SearchPath :=
         dirs
 
 /--
-The workspace's shared library path (e.g., for `--load-dynlib`).
-This is added to the `sharedLibPathEnvVar` by `lake env`.
+The workspace's shared library path (e.g., for {lit}`--load-dynlib`).
+This is added to the {lean}`sharedLibPathEnvVar` by {lit}`lake env`.
 -/
 public def sharedLibPath (self : Workspace) : SearchPath :=
    self.packages.foldr (fun pkg dirs => pkg.sharedLibDir :: dirs) []
 
 /--
-The detected `PATH` of the environment augmented with
-the workspace's `binDir` and Lean and Lake installations' `binDir`.
-On Windows, also adds the workspace shared library path.
+The augmented {lit}`PATH` of the workspace environment.
+
+This prepends the detected {lean}`self.lakeEnv.path` of the system environment with
+the workspace's {lean}`binPath`. On Windows, it also adds the workspace's {lean}`sharedLibPath`.
 -/
 public def augmentedPath (self : Workspace) : SearchPath :=
   if Platform.isWindows then
@@ -228,24 +385,24 @@ public def augmentedPath (self : Workspace) : SearchPath :=
     self.binPath ++ self.lakeEnv.path
 
 /--
-The detected `LEAN_PATH` of the environment augmented with
-the workspace's `leanPath` and Lake's `libDir`.
+The detected {lit}`LEAN_PATH` of the environment augmented with
+the workspace's {lean}`leanPath` and Lake's {name (full := LakeInstall.libDir)}`libDir`.
 -/
 public def augmentedLeanPath (self : Workspace) : SearchPath :=
   self.leanPath ++ self.lakeEnv.leanPath
 
 /--
-The detected `LEAN_SRC_PATH` of the environment augmented with
-the workspace's `leanSrcPath` and Lake's `srcDir`.
+The detected {lit}`LEAN_SRC_PATH` of the environment augmented with
+the workspace's {lean}`leanSrcPath` and Lake's {name (full := LakeInstall.srcDir)}`srcDir`.
 -/
 public def augmentedLeanSrcPath (self : Workspace) : SearchPath :=
   self.leanSrcPath ++ self.lakeEnv.leanSrcPath
 
-/-
-The detected `sharedLibPathEnv` value of the environment augmented with
-the workspace's `libPath` and Lean installation's shared library directories.
+/--
+The detected {name}`sharedLibPathEnvVar` value of the environment augmented with
+the workspace's {name}`sharedLibPath` and Lean installation's shared library directories.
 
-The order is Lean's, the workspace's, and then the enviroment's.
+The order is Lean's, the workspace's, and then the environment's.
 Lean's comes first because Lean needs to load its own shared libraries from this path.
 Giving the workspace greater precedence can break this (e.g., when bootstrapping),
 -/
@@ -254,11 +411,14 @@ public def augmentedSharedLibPath (self : Workspace) : SearchPath :=
 
 /--
 The detected environment augmented with Lake's and the workspace's configuration.
-These are the settings use by `lake env` / `Lake.env` to run executables.
+These are the settings use by {lit}`lake env` / {name (scope := "Lake.CLI.Actions")}`Lake.env`
+to run executables.
 -/
 public def augmentedEnvVars (self : Workspace) : Array (String × Option String) :=
   let vars := self.lakeEnv.baseVars ++ #[
     ("LAKE_CACHE_DIR", some self.lakeCache.dir.toString),
+    ("LAKE_ARTIFACT_CACHE", if let some b := self.enableArtifactCache? then toString b else ""),
+    ("LAKE_RESTORE_ARTIFACTS", if let some b := self.restoreAllArtifacts? then toString b else ""),
     ("LEAN_PATH", some self.augmentedLeanPath.toString),
     ("LEAN_SRC_PATH", some self.augmentedLeanSrcPath.toString),
     -- Allow the Lean version to change dynamically within core

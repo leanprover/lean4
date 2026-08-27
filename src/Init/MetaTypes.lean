@@ -25,17 +25,111 @@ structure Module where
 namespace Meta
 
 /--
-Which constants should be unfolded?
+Controls which constants `isDefEq` (definitional equality) and `whnf` (weak head normal form)
+are allowed to unfold.
+
+## Background: "try-hard" vs "speculative" modes
+
+During **type checking of user input**, we assume the input is most likely correct, and we want
+Lean to try hard before reporting a failure. Here, it is fine to unfold `[semireducible]` definitions
+(the `.default` setting).
+
+During **proof automation** (`simp`, `rw`, type class resolution), we perform many speculative
+`isDefEq` calls — most of which *fail*. In this setting, we do *not* want to try hard: unfolding
+too many definitions is a performance footgun. This is why `.reducible` exists.
+
+## The transparency hierarchy
+
+The levels form a linear order: `none < reducible < instances < implicit < default < all`.
+Each level unfolds everything the previous level does, plus more:
+
+- **`reducible`**: Only unfolds `[reducible]` definitions. Used for speculative `isDefEq` checks
+  (e.g., discrimination tree lookups in `simp`, type class resolution). Think of `[reducible]` as
+  `[inline]` for type checking and indexing.
+
+- **`instances`**: Also unfolds `[instance_reducible]` definitions (auto-applied to type class
+  instances by the `instance` command). Primarily but not exclusively used during type class synthesis
+  when unifying an instance's type with the expected type. Constants that play a role in an instance's
+  discrimination pattern must not be instance-reducible; they must at least be implicit-reducible.
+  For example, if `id : α → α` was instance-reducible, under some circumstances an instance of type
+  `C (id x)` can be applied when an instance of type `C x` is requested. If this is undesirable,
+  `id` (in this example) should be at most implicit-reducible.
+  Most users should follow a simple rule: Make declarations that are meant to return instances but
+  were not declared using the `instance` command instance-reducible.
+  Most users will never need to manually annotate anything else with `[instance_reducible]` and they
+  should not unless they understand what they do. There are some more subtle corners of the
+  elaborator where instance-reducible constants have a special role, such as in the lazy WHNF
+  mechanism and the generation of `sizeOf` equational lemmas. `[instance_reducible]` also affects
+  the compiler's specialization and inlining behavior.
+
+- **`implicit`**: Also unfolds `[implicit_reducible]` definitions. Implicit arguments and instance
+  arguments are always checked at implicit transparency, even if the ambient transparency is `reducible`
+  or `instances`. It is usually cheaper to compare terms at implicit transparency than it is to
+  compare them at default transparency (see below) because it is more restrictive at unfolding.
+  Tactics such as `simp` unify lemmas with subterms at `reducible` transparency. For example, when
+  `simp` applies a lemma to a subterm, it puts metavariables in the place of its parameters and then
+  unifies the lemma's conclusion with the subterm at `reducible` transparency, bumping the
+  transparency to `implicit` for implicit and instance arguments. When `simp` does not apply a lemma
+  that it should, it can be because `simp` would need to unfold a semireducible declaration during
+  the unification process. In that case, marking that declaration `[implicit_reducible]` can be a
+  solution.
+
+  `[implicit_reducible]` is the right annotation in several situations, such as the following ones.
+
+  - Because instance arguments are always compared at (at least) implicit transparency,
+    marking constants as `[implicit_reducible]` can prevent instance diamonds.
+  - Operations used in type parameters (such as in the `n` of `Fin n`) should, as a basic rule,
+    be implicit-reducible, at least as soon as `backward.isDefEq.respectTransparency.types` is
+    enabled, because types during metavariable assignments are then compared at implicit
+    transparency.
+  - The left-hand side and right-hand side of a `rfl` lemma should be definitionally equal at
+    implicit transparency. Marking constants as `[implicit_reducible]` allows for more `rfl` lemmas.
+
+  The downside is that every implicit-reducible constant makes the definitional equality checker
+  do more unfolding, which can get expensive.
+- **`default`**: Also unfolds `[semireducible]` definitions (anything not `[irreducible]`).
+  Used for type checking user input where we want to try hard.
+
+- **`all`**: Also unfolds `[irreducible]` definitions. Rarely used.
+
+## Implicit arguments and transparency
+
+When proof automation (e.g., `simp`, `rw`) applies a lemma, explicit arguments are checked at the
+caller's transparency (typically `.reducible`). But implicit arguments are often "invisible" to the
+user — if a lemma fails to apply because of an implicit argument mismatch, the user is confused.
+Historically, Lean bumped transparency to `.default` for implicit arguments, but this eventually
+became a performance bottleneck in Mathlib. The option `backward.isDefEq.respectTransparency true`
+(default: `true`) disables this bump. Instead, implicit arguments (`{..}`) and instance-implicit
+arguments (`[..]`) are checked at `.implicit` (so implicit-reducible definitions additionally unfold
+and instance diamonds resolve), or at the
+caller's transparency when `backward.isDefEq.implicitBump` is `false`.
+
+See also: `ReducibilityStatus`, `backward.isDefEq.respectTransparency`,
+`backward.whnf.reducibleClassField`.
 -/
+-- Note: the constructors below are not in the `none < reducible < instances < implicit < default < all`
+-- order described in the docstring above. Reordering them induces a bootstrap problem that is
+-- non-trivial to repair.
 inductive TransparencyMode where
   /-- Unfolds all constants, even those tagged as `@[irreducible]`. -/
   | all
-  /-- Unfolds all constants except those tagged as `@[irreducible]`. -/
+  /-- Unfolds all constants except those tagged as `@[irreducible]`. Used for type checking
+  user-written terms where we expect the input to be correct and want to try hard. -/
   | default
-  /-- Unfolds only constants tagged with the `@[reducible]` attribute. -/
+  /-- Unfolds only constants tagged with the `@[reducible]` attribute. Used for speculative
+  `isDefEq` in proof automation (`simp`, `rw`, type class resolution) where most checks fail
+  and we must not try too hard. -/
   | reducible
-  /-- Unfolds reducible constants and constants tagged with the `@[instance]` attribute. -/
+  /-- Unfolds reducible constants and constants tagged with `@[instance_reducible]` (e.g. type
+  class instances). Does *not* unfold `[implicit_reducible]`. -/
   | instances
+  /-- Do not unfold anything. -/
+  | none
+  /--
+  Unfolds reducible, `[instance_reducible]`, and `[implicit_reducible]` constants.
+  Used for checking definitional equality of implicit and instance-implicit arguments.
+  -/
+  | implicit
   deriving Inhabited, BEq
 
 /-- Which structure types should eta be used with? -/
@@ -130,12 +224,23 @@ structure Config where
   Unused `have`s are still removed if `zeta` or `zetaUnused` are true.
   -/
   zetaHave : Bool := true
+  /--
+  If `locals` is `true`, `dsimp` will unfold all definitions from the current file.
+  For local theorems, use `+suggestions` instead.
+  -/
+  locals : Bool := false
+  /--
+  If `instances` is `true`, `dsimp` will visit instance arguments.
+  If option `backward.dsimp.instances` is `true`, it overrides this field.
+  -/
+  instances : Bool := false
   deriving Inhabited, BEq
 
 end DSimp
 
 namespace Simp
 
+@[inline, expose]
 def defaultMaxSteps := 100000
 
 /--
@@ -295,6 +400,21 @@ structure Config where
   and attempt to use the resulting suggestions as parameters to the `simp` tactic.
   -/
   suggestions : Bool := false
+  /--
+  Maximum number of library suggestions to use. If `none`, uses the default limit.
+  Only relevant when `suggestions` is `true`.
+  -/
+  maxSuggestions : Option Nat := none
+  /--
+  If `locals` is `true`, `simp` will unfold all definitions from the current file.
+  For local theorems, use `+suggestions` instead.
+  -/
+  locals : Bool := false
+  /--
+  If `instances` is `true`, `simp` will visit instance arguments.
+  If option `backward.dsimp.instances` is `true`, it overrides this field.
+  -/
+  instances : Bool := false
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`
@@ -304,7 +424,7 @@ structure ConfigCtx extends Config where
 /--
 A neutral configuration for `simp`, turning off all reductions and other built-in simplifications.
 -/
-def neutralConfig : Simp.Config := {
+@[expose] def neutralConfig : Simp.Config := {
   zeta              := false
   beta              := false
   eta               := false
@@ -361,7 +481,7 @@ structure ExtractLetsConfig where
   /-- If true (default: false), eliminate unused lets rather than extract them. -/
   usedOnly : Bool := false
   /-- If true (default: true), reuse local declarations that have syntactically equal values.
-  Note that even when false, the caching strategy for `extract_let`s may result in fewer extracted let bindings than expected. -/
+  Note that even when false, the caching strategy for `extract_lets` may result in fewer extracted let bindings than expected. -/
   merge : Bool := true
   /-- When merging is enabled, if true (default: true), make use of pre-existing local definitions in the local context. -/
   useContext : Bool := true
@@ -379,5 +499,26 @@ Configuration for the `lift_lets` tactic.
 structure LiftLetsConfig extends ExtractLetsConfig where
   lift := true
   preserveBinderNames := true
+
+namespace Command
+
+structure ReduceConfig where
+  /-- Do reductions of types and propositions. Default: `false`. -/
+  types : Bool := false
+  /-- Do reductions of proof terms. Default: `false`. -/
+  proofs : Bool := false
+  /-- In applications, do reductions of implicit arguments. Default: `false`. -/
+  implicits : Bool := false
+  /-- Transparency mode for reduction. Default: `all`. -/
+  transparency : TransparencyMode := .all
+  /-- Use "smart unfolding" when reducing definitions, to ensure the primitive recursors
+  are not exposed. Default: `false`. -/
+  smartUnfolding : Bool := false
+  /-- Typecheck the elaborated term before reducing. Default: `true`. -/
+  check : Bool := true
+  /-- Ignore stuck typeclass synthesis while elaborating the term. Default: `false`. -/
+  ignoreStuckTC : Bool := false
+
+end Command
 
 end Lean.Meta

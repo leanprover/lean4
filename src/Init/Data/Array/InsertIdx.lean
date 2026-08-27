@@ -6,7 +6,11 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Array.Lemmas
+public import Init.Data.Array.Basic
+import Init.Data.List.Nat.InsertIdx
+import Init.Data.List.ToArray
+import Init.Data.Nat.Lemmas
+import Init.Omega
 
 public section
 
@@ -52,11 +56,6 @@ theorem eraseIdx_insertIdx_self {i : Nat} {xs : Array α} (h : i ≤ xs.size) :
     (xs.insertIdx i a).eraseIdx i (by simp; omega) = xs := by
   rcases xs with ⟨xs⟩
   simp_all
-
-@[deprecated eraseIdx_insertIdx_self (since := "2025-06-15")]
-theorem eraseIdx_insertIdx {i : Nat} {xs : Array α} (h : i ≤ xs.size) :
-    (xs.insertIdx i a).eraseIdx i (by simp; omega) = xs := by
-  simp [eraseIdx_insertIdx_self]
 
 theorem insertIdx_eraseIdx_of_ge {as : Array α}
     (w₁ : i < as.size) (w₂ : j ≤ (as.eraseIdx i).size) (h : i ≤ j) :
@@ -123,7 +122,7 @@ theorem getElem_insertIdx_self {xs : Array α} {x : α} {i : Nat} (w : i ≤ xs.
 theorem getElem_insertIdx_of_gt {xs : Array α} {x : α} {i k : Nat} (w : k ≤ xs.size) (h : k > i) :
     (xs.insertIdx i x)[k]'(by simp; omega) = xs[k - 1]'(by omega) := by
   simp [getElem_insertIdx]
-  rw [dif_neg (by omega), dif_neg (by omega)]
+  rw [dite_eq_right (by omega), dite_eq_right (by omega)]
 
 @[grind =]
 theorem getElem?_insertIdx {xs : Array α} {x : α} {i k : Nat} (h : i ≤ xs.size) :
@@ -140,15 +139,15 @@ theorem getElem?_insertIdx {xs : Array α} {x : α} {i k : Nat} (h : i ≤ xs.si
 
 theorem getElem?_insertIdx_of_lt {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.size) (h : k < i) :
     (xs.insertIdx i x)[k]? = xs[k]? := by
-  rw [getElem?_insertIdx, if_pos h]
+  rw [getElem?_insertIdx, ite_eq_left h]
 
 theorem getElem?_insertIdx_self {xs : Array α} {x : α} {i : Nat} (w : i ≤ xs.size) :
     (xs.insertIdx i x)[i]? = some x := by
-  rw [getElem?_insertIdx, if_neg (by omega), if_pos rfl, if_pos w]
+  rw [getElem?_insertIdx, ite_eq_right (by omega), ite_eq_left rfl, ite_eq_left w]
 
 theorem getElem?_insertIdx_of_ge {xs : Array α} {x : α} {i k : Nat} (w : i < k) (h : k ≤ xs.size) :
     (xs.insertIdx i x)[k]? = xs[k - 1]? := by
-  rw [getElem?_insertIdx, if_neg (by omega), if_neg (by omega)]
+  rw [getElem?_insertIdx, ite_eq_right (by omega), ite_eq_right (by omega)]
 
 end InsertIdx
 

@@ -6,9 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Lemmas.Consumers.Collect
 public import Init.Data.Iterators.Producers.List
-public import Init.Data.Iterators.Lemmas.Producers.Monadic.List
+import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.Iterators.Lemmas.Producers.Monadic.List
 
 @[expose] public section
 
@@ -19,34 +19,31 @@ This module provides lemmas about the interactions of `List.iter` with `Iter.ste
 collectors.
 -/
 
-namespace Std.Iterators
+open Std Std.Iterators
 
 variable {β : Type w}
 
 @[simp]
-theorem _root_.List.step_iter_nil :
+theorem List.step_iter_nil :
     (([] : List β).iter).step = ⟨.done, rfl⟩ := by
-  simp [Iter.step, IterM.step, Iterator.step, List.iter, List.iterM, toIterM]
+  simp [Iter.step, IterM.step, Iterator.step, List.iter, List.iterM]
 
 @[simp]
-theorem _root_.List.step_iter_cons {x : β} {xs : List β} :
+theorem List.step_iter_cons {x : β} {xs : List β} :
     ((x :: xs).iter).step = ⟨.yield xs.iter x, rfl⟩ := by
-  simp [List.iter, List.iterM, toIterM, IterM.toIter, Iter.step, Iter.toIterM, IterM.step,
-    Iterator.step]
+  simp [List.iter, List.iterM, IterM.toIter, Iter.step_eq]
 
-@[simp]
-theorem _root_.List.toArray_iter {l : List β} :
+@[cbv_eval, simp, grind =]
+theorem List.toArray_iter {l : List β} :
     l.iter.toArray = l.toArray := by
   simp [List.iter, List.toArray_iterM, Iter.toArray_eq_toArray_toIterM]
 
-@[simp]
-theorem _root_.List.toList_iter {l : List β} :
+@[cbv_eval, simp, grind =]
+theorem List.toList_iter {l : List β} :
     l.iter.toList = l := by
   simp [List.iter, List.toList_iterM]
 
-@[simp]
-theorem _root_.List.toListRev_iter {l : List β} :
+@[simp, grind =]
+theorem List.toListRev_iter {l : List β} :
     l.iter.toListRev = l.reverse := by
   simp [List.iter, Iter.toListRev_eq_toListRev_toIterM, List.toListRev_iterM]
-
-end Std.Iterators

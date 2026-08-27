@@ -9,7 +9,13 @@ prelude
 public import Init.Data.Nat.Compare
 public import Std.Data.DTreeMap.Internal.Balanced
 public import Std.Data.DTreeMap.Internal.Ordered
-import Init.BinderPredicates
+public import Init.BinderPredicates
+public import Init.Data.Option.BasicAux
+import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Internal.Linear
+import Init.Omega
+import Init.RCases
+import Init.WFTactics
 
 @[expose] public section
 
@@ -216,7 +222,7 @@ def get [Ord α] (t : Impl α δ) (k : α) (hlk : t.contains k = true) : δ :=
     | .eq => v'
 
 /-- Returns the value for the key `k`, or panics if such a key does not exist. -/
-def get! [Ord α] (t : Impl α δ) (k : α) [Inhabited δ] : δ :=
+def get! [Ord α] [Inhabited δ] (t : Impl α δ) (k : α) : δ :=
   match t with
   | .leaf => panic! "Key is not present in map"
   | .inner _ k' v' l r =>
@@ -290,8 +296,22 @@ def forIn {m} [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (ini
   | ForInStep.done d => return d
   | ForInStep.yield d => return d
 
-instance : ForIn m (Impl α β) ((a : α) × β a) where
+instance [Monad m] : ForIn m (Impl α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
+
+/-- Implementation detail. -/
+@[inline]
+def any (t : Impl α β) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
+  for ⟨a, b⟩ in t do
+    if p a b then return true
+  return false
+
+/-- Implementation detail. -/
+@[inline]
+def all (t : Impl α β) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
+  for ⟨a, b⟩ in t do
+    if p a b = false then return false
+  return true
 
 /-- Returns a `List` of the keys in order. -/
 @[inline] def keys (t : Impl α β) : List α :=

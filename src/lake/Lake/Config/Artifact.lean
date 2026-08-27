@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lake.Build.Trace
-import Init.Data.String.Search
 
 open System Lean
 
@@ -56,9 +55,9 @@ public def ofFilePath? (path : FilePath) : Except String ArtifactDescr := do
       | throw "expected artifact file name to be a content hash"
     return {hash, ext := ""}
   else
-    let some hash := Hash.ofString? <| s.startPos.extract pos
+    let some hash := Hash.ofString? <| s.extract s.startPos pos
       | throw "expected artifact file name to be a content hash"
-    let ext := (pos.next h).extract s.endPos
+    let ext := s.extract (pos.next h) s.endPos
     return {hash, ext}
 
 public protected def fromJson? (data : Json) : Except String ArtifactDescr := do
@@ -76,7 +75,7 @@ public structure Artifact extends descr : ArtifactDescr where
   path : FilePath
   /-- The artifact's. This is used, for example, as a caption in traces. -/
   name := path.toString
-  /-- The artifact's modification time (or `0` if unknown). -/
+  /-- The artifact's modification time. -/
   mtime : MTime
   deriving Inhabited, Repr
 

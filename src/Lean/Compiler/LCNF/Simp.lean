@@ -24,7 +24,7 @@ public section
 namespace Lean.Compiler.LCNF
 open Simp
 
-def Decl.simp? (decl : Decl) : SimpM (Option Decl) := do
+def Decl.simp? (decl : Decl .pure) : SimpM (Option (Decl .pure)) := do
   let .code code := decl.value | return none
   updateFunDeclInfo code
   traceM `Compiler.simp.inline.info do return m!"{decl.name}:{Format.nest 2 (← (← get).funDeclInfoMap.format)}"
@@ -42,7 +42,7 @@ def Decl.simp? (decl : Decl) : SimpM (Option Decl) := do
   else
     return none
 
-partial def Decl.simp (decl : Decl) (config : Config) : CompilerM Decl := do
+partial def Decl.simp (decl : Decl .pure) (config : Config) : CompilerM (Decl .pure) := do
   let mut config := config
   if (← isTemplateLike decl) then
     /-
@@ -54,7 +54,7 @@ partial def Decl.simp (decl : Decl) (config : Config) : CompilerM Decl := do
     config := { config with etaPoly := false, inlinePartial := false }
   go decl config
 where
-  go (decl : Decl) (config : Config) : CompilerM Decl := do
+  go (decl : Decl .pure) (config : Config) : CompilerM (Decl .pure) := do
     if let some decl ← decl.simp? |>.run { config, declName := decl.name } |>.run' {} |>.run {} then
       -- TODO: bound number of steps?
       go decl config
@@ -62,7 +62,8 @@ where
       return decl
 
 def simp (config : Config := {}) (occurrence : Nat := 0) (phase := Phase.base) : Pass :=
-  .mkPerDeclaration `simp (Decl.simp · config) phase (occurrence := occurrence)
+  phase.withPurityCheck .pure fun h =>
+    .mkPerDeclaration `simp phase (h ▸ (Decl.simp · config)) (occurrence := occurrence)
 
 builtin_initialize
   registerTraceClass `Compiler.simp (inherited := true)

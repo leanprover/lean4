@@ -11,7 +11,7 @@ namespace Lean.Meta.Grind
 Given an auto-generated `grind` tactic script, collect params for
 single shot `finish` or top-level `grind` tactic.
 -/
-abbrev TParam := TSyntax ``Parser.Tactic.grindParam
+public abbrev TParam := TSyntax ``Parser.Tactic.grindParam
 abbrev TAnchor := TSyntax ``Parser.Tactic.anchor
 
 namespace Collector
@@ -59,6 +59,7 @@ partial def collect (tac : TGrind) : Collect Unit := do
       | _ => return ()
   | `(grind| $tac₁:grind <;> $tac₂:grind) => collect tac₁; collect tac₂
   | `(grind| cases $a:anchor) => pushAnchor a
+  | `(grind| cases $a:anchor/$_:num) => pushAnchor a
   | `(grind| use [$params,*]) =>
     collectInstantiateParams params
   | `(grind| instantiate $[only]? $[approx]? $[[$params?,*]]?) =>
@@ -93,16 +94,20 @@ Given a `grind` tactic sequence, extracts parameters and builds a `grind only` t
 It returns at most two. The first tactic uses anchors to restrict the search if applicable.
 The second does not restrict the search using anchors. The second option is included only if there
 are anchors.
+
+The `extraParams` are additional parameters (e.g., term arguments from the original `grind?` call)
+that should always be included in the suggestion.
 -/
-public def mkGrindOnlyTactics (cfg : TSyntax `Lean.Parser.Tactic.optConfig) (seq : List TGrind) : CoreM (Array (TSyntax `tactic)) := do
+public def mkGrindOnlyTactics (cfg : TSyntax `Lean.Parser.Tactic.optConfig) (seq : List TGrind)
+    (extraParams : Array TParam := #[]) : CoreM (Array (TSyntax `tactic)) := do
   let (hasSorry, params, anchors) ← collectParamsCore seq
   if hasSorry then return #[]
-  let allParams := params ++ anchors
+  let allParams := params ++ anchors ++ extraParams
   let s₁ ← mkTac allParams
   if anchors.isEmpty then
     return #[s₁]
   else
-    let s₂ ← mkTac params
+    let s₂ ← mkTac (params ++ extraParams)
     return #[s₁, s₂]
 where
   mkTac (params : Array TParam) : CoreM (TSyntax `tactic) :=

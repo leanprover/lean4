@@ -6,9 +6,12 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.UInt.Basic
 import all Init.Data.UInt.BasicAux
-public import Init.Data.Array.Extract
+public import Init.Data.Array.DecidableEq
+public import Init.Data.List.Attach
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Lemmas
+import Init.Omega
 
 set_option doc.verso true
 
@@ -17,12 +20,20 @@ universe u
 
 namespace ByteArray
 
-deriving instance BEq for ByteArray
+@[extern "lean_sarray_dec_eq"]
+def beq (lhs rhs : @& ByteArray) : Bool :=
+  lhs.data == rhs.data
+
+instance : BEq ByteArray where
+  beq := beq
 
 attribute [ext] ByteArray
 
-instance : DecidableEq ByteArray :=
-  fun _ _ => decidable_of_decidable_of_iff ByteArray.ext_iff.symm
+@[extern "lean_sarray_dec_eq"]
+def decEq (lhs rhs : @& ByteArray) : Decidable (lhs = rhs) :=
+  decidable_of_decidable_of_iff ByteArray.ext_iff.symm
+
+instance : DecidableEq ByteArray := decEq
 
 instance : Inhabited ByteArray where
   default := empty
@@ -64,7 +75,7 @@ Retrieves the byte at the indicated index. Callers must prove that the index is 
 Use {name}`uget` for a more efficient alternative or {name}`get!` for a variant that panics if the
 index is out of bounds.
 -/
-@[extern "lean_byte_array_fget"]
+@[extern "lean_byte_array_fget", implicit_reducible]
 def get : (a : @& ByteArray) → (i : @& Nat) → (h : i < a.size := by get_elem_tactic) → UInt8
   | ⟨bs⟩, i, _ => bs[i]
 
@@ -132,6 +143,11 @@ Copies the bytes with indices {name}`b` (inclusive) to {name}`e` (exclusive) to 
 def extract (a : ByteArray) (b e : Nat) : ByteArray :=
   a.copySlice b empty 0 (e - b)
 
+/--
+Appends two byte arrays using fast array primitives instead of converting them into lists and back.
+
+In compiled code, this function replaces calls to {name}`ByteArray.append`.
+-/
 @[inline]
 protected def fastAppend (a : ByteArray) (b : ByteArray) : ByteArray :=
   -- we assume that `append`s may be repeated, so use asymptotic growing; use `copySlice` directly to customize
@@ -243,7 +259,7 @@ protected def forIn {β : Type v} {m : Type v → Type w} [Monad m] (as : ByteAr
       | ForInStep.yield b => loop i (Nat.le_of_lt h') b
   loop as.size (Nat.le_refl _) b
 
-instance : ForIn m ByteArray UInt8 where
+instance [Monad m] : ForIn m ByteArray UInt8 where
   forIn := ByteArray.forIn
 
 /--
@@ -264,6 +280,8 @@ unsafe def foldlMUnsafe {β : Type v} {m : Type v → Type w} [Monad m] (f : β 
   if start < stop then
     if stop ≤ as.size then
       fold (USize.ofNat start) (USize.ofNat stop) init
+    else if start < as.size then
+      fold (USize.ofNat start) (USize.ofNat as.size) init
     else
       pure init
   else
@@ -459,5 +477,3 @@ def prevn : Iterator → Nat → Iterator
 
 end Iterator
 end ByteArray
-
-instance : ToString ByteArray := ⟨fun bs => bs.toList.toString⟩

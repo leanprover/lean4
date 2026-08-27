@@ -6,7 +6,8 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-public import Init.PropLemmas
+public import Init.Data.Int.Basic
+import Init.PropLemmas
 
 public section
 
@@ -28,13 +29,6 @@ theorem subNatNat_of_sub_eq_succ {m n k : Nat} (h : n - m = succ k) : subNatNat 
 @[simp, norm_cast] theorem natCast_mul (n m : Nat) : (↑(n * m) : Int) = n * m := rfl
 @[norm_cast] theorem natCast_succ (n : Nat) : (succ n : Int) = n + 1 := rfl
 @[norm_cast] theorem natCast_add_one (n : Nat) : ((n + 1 : Nat) : Int) = n + 1 := rfl
-
-@[deprecated natCast_add (since := "2025-04-17")]
-theorem ofNat_add (n m : Nat) : (↑(n + m) : Int) = n + m := rfl
-@[deprecated natCast_mul (since := "2025-04-17")]
-theorem ofNat_mul (n m : Nat) : (↑(n * m) : Int) = n * m := rfl
-@[deprecated natCast_succ (since := "2025-04-17")]
-theorem ofNat_succ (n : Nat) : (succ n : Int) = n + 1 := rfl
 
 theorem neg_ofNat_zero : -((0 : Nat) : Int) = 0 := rfl
 theorem neg_ofNat_succ (n : Nat) : -(succ n : Int) = -[n+1] := rfl
@@ -340,6 +334,12 @@ protected theorem sub_sub_self (a b : Int) : a - (a - b) = b := by
 @[simp] protected theorem add_sub_cancel (a b : Int) : a + b - b = a :=
   Int.add_neg_cancel_right a b
 
+protected theorem add_sub_add_right (n k m : Int) : (n + k) - (m + k) = n - m := by
+  rw [Int.add_comm m, ← Int.sub_sub, Int.add_sub_cancel]
+
+protected theorem add_sub_add_left (k n m : Int) : (k + n) - (k + m) = n - m := by
+  rw [Int.add_comm k, Int.add_comm k, Int.add_sub_add_right]
+
 protected theorem add_sub_assoc (a b c : Int) : a + b - c = a + (b - c) := by
   rw [Int.sub_eq_add_neg, Int.add_assoc, Int.add_neg_eq_sub]
 
@@ -364,7 +364,8 @@ protected theorem subNatNat_eq_coe {m n : Nat} : subNatNat m n = ↑m - ↑n := 
   rw [← Int.subNatNat_eq_coe]
   refine subNatNat_elim m n (fun m n i => toNat i = m - n) (fun i n => ?_) (fun i n => ?_)
   · exact (Nat.add_sub_cancel_left ..).symm
-  · dsimp; rw [Nat.add_assoc, Nat.sub_eq_zero_of_le (Nat.le_add_right ..)]; rfl
+  · try dsimp -- TODO(kmill) remove after stage0 update
+    rw [Nat.add_assoc, Nat.sub_eq_zero_of_le (Nat.le_add_right ..)]; rfl
 
 theorem toNat_of_nonpos : ∀ {z : Int}, z ≤ 0 → z.toNat = 0
   | 0, _ => rfl
@@ -553,6 +554,7 @@ protected theorem mul_eq_zero {a b : Int} : a * b = 0 ↔ a = 0 ∨ b = 0 := by
   | .ofNat 0, _, _ => by simp
   | _, .ofNat 0, _ => by simp
   | .ofNat (_+1), .negSucc _, h => by cases h
+  | .negSucc _, .negSucc _, h => by cases h
 
 protected theorem mul_ne_zero {a b : Int} (a0 : a ≠ 0) (b0 : b ≠ 0) : a * b ≠ 0 :=
   Or.rec a0 b0 ∘ Int.mul_eq_zero.mp

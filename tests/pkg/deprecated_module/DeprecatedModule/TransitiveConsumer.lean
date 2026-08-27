@@ -1,0 +1,3 @@
+module
+
+import DeprecatedModule.Transitive

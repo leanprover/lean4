@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Control.Lawful.Basic
+import Init.SimpLemmas
 
 public section
 
@@ -20,7 +21,7 @@ Adds exceptions of type `ε` to a monad `m`.
 Instead of using `Except ε` to model exceptions, this implementation uses continuation passing
 style. This has different performance characteristics from `ExceptT ε`.
 -/
-@[expose] def ExceptCpsT (ε : Type u) (m : Type u → Type v) (α : Type u) := (β : Type u) → (α → m β) → (ε → m β) → m β
+@[expose, instance_reducible] def ExceptCpsT (ε : Type u) (m : Type u → Type v) (α : Type u) := (β : Type u) → (α → m β) → (ε → m β) → m β
 
 namespace ExceptCpsT
 
@@ -31,13 +32,12 @@ Use a monadic action that may throw an exception as an action that may return an
 def run {ε α : Type u} [Monad m] (x : ExceptCpsT ε m α) : m (Except ε α) :=
   x _ (fun a => pure (Except.ok a)) (fun e => pure (Except.error e))
 
-set_option linter.unusedVariables false in  -- `s` unused
 /--
 Use a monadic action that may throw an exception by providing explicit success and failure
 continuations.
 -/
-@[always_inline, inline]
-def runK {ε α : Type u} (x : ExceptCpsT ε m α) (s : ε) (ok : α → m β) (error : ε → m β) : m β :=
+@[always_inline, inline, expose, deprecated_arg s (since := "2026-07-16")]
+def runK {ε α : Type u} (x : ExceptCpsT ε m α) (ok : α → m β) (error : ε → m β) : m β :=
   x _ ok error
 
 /--
@@ -75,6 +75,15 @@ instance [Monad m] : MonadLift m (ExceptCpsT σ m) where
 instance [Inhabited ε] : Inhabited (ExceptCpsT ε m α) where
   default := fun _ _ k₂ => k₂ default
 
+/--
+For continuation monads, it is not possible to provide a computable `MonadAttach` instance that
+actually adds information about the return value. Therefore, this instance always attaches a proof
+of `True`.
+-/
+instance : MonadAttach (ExceptCpsT ε m) := .trivial
+
+@[simp] theorem throw_bind [Monad m] (e : ε) (f : α → ExceptCpsT ε m β) : (throw e >>= f : ExceptCpsT ε m β) = throw e := rfl
+
 @[simp] theorem run_pure [Monad m] : run (pure x : ExceptCpsT ε m α) = pure (Except.ok x) := rfl
 
 @[simp] theorem run_lift {α ε : Type u} [Monad m] (x : m α) : run (ExceptCpsT.lift x : ExceptCpsT ε m α) = (x >>= fun a => pure (Except.ok a) : m (Except ε α)) := rfl
@@ -83,7 +92,20 @@ instance [Inhabited ε] : Inhabited (ExceptCpsT ε m α) where
 
 @[simp] theorem run_bind_lift [Monad m] (x : m α) (f : α → ExceptCpsT ε m β) : run (ExceptCpsT.lift x >>= f : ExceptCpsT ε m β) = x >>= fun a => run (f a) := rfl
 
-@[simp] theorem run_bind_throw [Monad m] (e : ε) (f : α → ExceptCpsT ε m β) : run (throw e >>= f : ExceptCpsT ε m β) = run (throw e) := rfl
+@[deprecated throw_bind +typeChanged (since := "2026-03-13")]
+theorem run_bind_throw [Monad m] (e : ε) (f : α → ExceptCpsT ε m β) : run (throw e >>= f : ExceptCpsT ε m β) = run (throw e) := rfl
+
+@[simp] theorem runK_pure :
+    runK (pure x : ExceptCpsT ε m α) ok error = ok x := rfl
+
+@[simp] theorem runK_lift {α ε : Type u} [Monad m] (x : m α) (ok : α → m β) (error : ε → m β) :
+    runK (ExceptCpsT.lift x : ExceptCpsT ε m α) ok error = x >>= ok := rfl
+
+@[simp] theorem runK_throw [Monad m] :
+    runK (throw e : ExceptCpsT ε m β) ok error = error e := rfl
+
+@[simp] theorem runK_bind_lift [Monad m] (x : m α) (f : α → ExceptCpsT ε m β) :
+    runK (ExceptCpsT.lift x >>= f : ExceptCpsT ε m β) ok error = x >>= fun a => runK (f a) ok error := rfl
 
 @[simp] theorem runCatch_pure [Monad m] : runCatch (pure x : ExceptCpsT α m α) = pure x := rfl
 
@@ -94,6 +116,7 @@ instance [Inhabited ε] : Inhabited (ExceptCpsT ε m α) where
 
 @[simp] theorem runCatch_bind_lift [Monad m] (x : m α) (f : α → ExceptCpsT β m β) : runCatch (ExceptCpsT.lift x >>= f : ExceptCpsT β m β) = x >>= fun a => runCatch (f a) := rfl
 
-@[simp] theorem runCatch_bind_throw [Monad m] (e : β) (f : α → ExceptCpsT β m β) : runCatch (throw e >>= f : ExceptCpsT β m β) = pure e := rfl
+@[deprecated throw_bind +typeChanged (since := "2026-03-13")]
+theorem runCatch_bind_throw [Monad m] (e : β) (f : α → ExceptCpsT β m β) : runCatch (throw e >>= f : ExceptCpsT β m β) = pure e := rfl
 
 end ExceptCpsT

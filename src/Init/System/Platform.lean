@@ -6,7 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.String.Bootstrap
+public import Init.Data.Nat.Div.Basic
+public import Init.SimpLemmas
+import Init.Data.Nat.Basic
+import Init.Data.String.Bootstrap
 
 public section
 
@@ -21,6 +24,10 @@ Checks whether the current platform is Windows.
 Checks whether the current platform is macOS.
 -/
 @[extern "lean_system_platform_osx"] opaque getIsOSX : Unit → Bool
+/--
+Checks whether the current platform is Linux.
+-/
+@[extern "lean_system_platform_linux"] opaque getIsLinux : Unit → Bool
 /--
 Checks whether the current platform is [Emscripten](https://emscripten.org/).
 -/
@@ -37,6 +44,11 @@ Is the current platform macOS?
 def isOSX : Bool := getIsOSX ()
 
 /--
+Is the current platform Linux?
+-/
+def isLinux : Bool := getIsLinux ()
+
+/--
 Is the current platform [Emscripten](https://emscripten.org/)?
 -/
 def isEmscripten : Bool := getIsEmscripten ()
@@ -51,6 +63,12 @@ compiled.
 The LLVM target triple of the current platform. Empty if missing when Lean was compiled.
 -/
 def target : String := getTarget ()
+
+/--
+The platform's native concurrency limit (number of hardware threads), or `0` if indeterminate.
+-/
+@[extern "lean_internal_get_hardware_concurrency"]
+opaque Internal.getHardwareConcurrency : Unit → UInt32
 
 @[simp]
 theorem numBits_pos : 0 < numBits := by

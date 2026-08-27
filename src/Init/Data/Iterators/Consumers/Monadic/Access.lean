@@ -8,9 +8,12 @@ module
 prelude
 public import Init.Data.Iterators.Basic
 
+set_option linter.missingDocs true
+
 public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 /--
 `it.IsPlausibleNthOutputStep n step` is the proposition that according to the
@@ -56,8 +59,8 @@ theorem IterM.not_isPlausibleNthOutputStep_yield {α β : Type w} {m : Type w �
 
 /--
 `IteratorAccess α m` provides efficient implementations for random access or iterators that support
-it. `it.nextAtIdx? n` either returns the step in which the `n`-th value of `it` is emitted
-(necessarily of the form `.yield _ _`) or `.done` if `it` terminates before emitting the `n`-th
+it. `it.nextAtIdx? n` either returns the step in which the `n`th value of `it` is emitted
+(necessarily of the form `.yield _ _`) or `.done` if `it` terminates before emitting the `n`th
 value.
 
 For monadic iterators, the monadic effects of this operation may differ from manually iterating
@@ -67,6 +70,11 @@ is guaranteed to plausible in the sense of `IterM.IsPlausibleNthOutputStep`.
 This class is experimental and users of the iterator API should not explicitly depend on it.
 -/
 class IteratorAccess (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
+  /--
+  `nextAtIdx? it n` either returns the step in which the `n`th value of `it` is emitted
+  (necessarily of the form `.yield _ _`) or `.done` if `it` terminates before emitting the `n`th
+  value.
+  -/
   nextAtIdx? (it : IterM (α := α) m β) (n : Nat) :
     m (PlausibleIterStep (it.IsPlausibleNthOutputStep n))
 
@@ -105,4 +113,4 @@ def IterM.atIdx? [Iterator α m β] [IteratorAccess α m] [Monad m] (it : IterM 
   | .skip _ => return none
   | .done => return none
 
-end Std.Iterators
+end Std

@@ -1,0 +1,119 @@
+{"textDocument": {"uri": "file:///completionDeprecation.lean"},
+ "position": {"line": 25, "character": 28}}
+{"items":
+ [{"tags": [1],
+   "label": "foo4",
+   "kind": 3,
+   "data":
+   ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo4"]},
+  {"tags": [1],
+   "label": "foo8",
+   "kind": 3,
+   "data":
+   ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo8"]},
+  {"tags": [1],
+   "label": "foo5",
+   "kind": 3,
+   "data":
+   ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo5"]},
+  {"tags": [1],
+   "label": "foo7",
+   "kind": 3,
+   "data":
+   ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo7"]},
+  {"label": "foo1",
+   "kind": 3,
+   "data":
+   ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo1"]},
+  {"tags": [1],
+   "label": "foo6",
+   "kind": 3,
+   "data":
+   ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo6"]},
+  {"tags": [1],
+   "label": "foo3",
+   "kind": 3,
+   "data":
+   ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo3"]},
+  {"label": "foo2",
+   "kind": 3,
+   "data":
+   ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo2"]}],
+ "isIncomplete": false}
+Resolution of foo4:
+{"tags": [1],
+ "label": "foo4",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "(some (`SomeStructure.foo4` has been deprecated.))\n\nA docstring. ",
+  "kind": "markdown"},
+ "detail": "SomeStructure → Nat",
+ "data":
+ ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo4"]}
+Resolution of foo8:
+{"tags": [1],
+ "label": "foo8",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "(some (`SomeStructure.foo8` has been deprecated; please use `SomeStructure.foo1` instead.))\n\nA docstring. ",
+  "kind": "markdown"},
+ "detail": "SomeStructure → Nat",
+ "data":
+ ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo8"]}
+Resolution of foo5:
+{"tags": [1],
+ "label": "foo5",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "`SomeStructure.foo5` has been deprecated, use `SomeStructure.foo1` instead.",
+  "kind": "markdown"},
+ "detail": "SomeStructure → Nat",
+ "data":
+ ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo5"]}
+Resolution of foo7:
+{"tags": [1],
+ "label": "foo7",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "`SomeStructure.foo7` has been deprecated; please use `SomeStructure.foo1` instead.",
+  "kind": "markdown"},
+ "detail": "SomeStructure → Nat",
+ "data":
+ ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo7"]}
+Resolution of foo1:
+{"label": "foo1",
+ "kind": 3,
+ "detail": "SomeStructure → Nat",
+ "data":
+ ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo1"]}
+Resolution of foo6:
+{"tags": [1],
+ "label": "foo6",
+ "kind": 3,
+ "documentation":
+ {"value":
+  "(some (`SomeStructure.foo6` has been deprecated, use `SomeStructure.foo1` instead.))\n\nA docstring. ",
+  "kind": "markdown"},
+ "detail": "SomeStructure → Nat",
+ "data":
+ ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo6"]}
+Resolution of foo3:
+{"tags": [1],
+ "label": "foo3",
+ "kind": 3,
+ "documentation":
+ {"value": "`SomeStructure.foo3` has been deprecated.", "kind": "markdown"},
+ "detail": "SomeStructure → Nat",
+ "data":
+ ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo3"]}
+Resolution of foo2:
+{"label": "foo2",
+ "kind": 3,
+ "documentation": {"value": "A docstring. ", "kind": "markdown"},
+ "detail": "SomeStructure → Nat",
+ "data":
+ ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo2"]}

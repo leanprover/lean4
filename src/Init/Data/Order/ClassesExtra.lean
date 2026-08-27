@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Order.Classes
 public import Init.Data.Ord.Basic
 
 namespace Std
@@ -35,5 +34,7 @@ public theorem LawfulOrderOrd.isLE_compare_eq_false {α : Type u} [Ord α] [LE �
 public theorem LawfulOrderOrd.isGE_compare_eq_false {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] {a b : α} :
     (compare a b).isGE = false ↔ ¬ b ≤ a := by
   simp [← isGE_compare]
+
+public abbrev LawfulOrderCmp (cmp : α → α → Ordering) [LE α] := @Std.LawfulOrderOrd α ⟨cmp⟩ _
 
 end Std

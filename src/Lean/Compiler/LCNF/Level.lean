@@ -105,45 +105,45 @@ open Lean.CollectLevelParams
 abbrev visitType (type : Expr) : Visitor :=
   visitExpr type
 
-def visitArg (arg : Arg) : Visitor :=
+def visitArg (arg : Arg .pure) : Visitor :=
   match arg with
   | .erased | .fvar .. => id
-  | .type e => visitType e
+  | .type e _ => visitType e
 
-def visitArgs (args : Array Arg) : Visitor :=
+def visitArgs (args : Array (Arg .pure)) : Visitor :=
   fun s => args.foldl (init := s) fun s arg => visitArg arg s
 
-def visitLetValue (e : LetValue) : Visitor :=
+def visitLetValue (e : LetValue .pure) : Visitor :=
   match e with
   | .erased | .lit .. | .proj .. => id
-  | .const _ us args => visitLevels us ∘ visitArgs args
+  | .const _ us args _ => visitLevels us ∘ visitArgs args
   | .fvar _ args => visitArgs args
 
-def visitParam (p : Param) : Visitor :=
+def visitParam (p : Param .pure) : Visitor :=
   visitType p.type
 
-def visitParams (ps : Array Param) : Visitor :=
+def visitParams (ps : Array (Param .pure)) : Visitor :=
   fun s => ps.foldl (init := s) fun s p => visitParam p s
 
 mutual
-  partial def visitAlt (alt : Alt) : Visitor :=
+  partial def visitAlt (alt : Alt .pure) : Visitor :=
     match alt with
     | .default k => visitCode k
-    | .alt _ ps k => visitCode k ∘ visitParams ps
+    | .alt _ ps k _ => visitCode k ∘ visitParams ps
 
-  partial def visitAlts (alts : Array Alt) : Visitor :=
+  partial def visitAlts (alts : Array (Alt .pure)) : Visitor :=
     fun s => alts.foldl (init := s) fun s alt => visitAlt alt s
 
-  partial def visitCode : Code → Visitor
+  partial def visitCode : Code .pure → Visitor
     | .let decl k => visitCode k ∘ visitLetValue decl.value ∘ visitType decl.type
-    | .fun decl k | .jp decl k => visitCode k ∘ visitCode decl.value ∘ visitParams decl.params ∘ visitType decl.type
+    | .fun decl k _ | .jp decl k => visitCode k ∘ visitCode decl.value ∘ visitParams decl.params ∘ visitType decl.type
     | .cases c => visitAlts c.alts ∘ visitType c.resultType
     | .unreach type => visitType type
     | .return _ => id
     | .jmp _ args => visitArgs args
 end
 
-def visitDeclValue : DeclValue → Visitor
+def visitDeclValue : DeclValue .pure → Visitor
   | .code c => visitCode c
   | .extern .. => id
 
@@ -156,7 +156,7 @@ open CollectLevelParams
 Collect universe level parameters collecting in the type, parameters, and value, and then
 set `decl.levelParams` with the resulting value.
 -/
-def Decl.setLevelParams (decl : Decl) : Decl :=
+def Decl.setLevelParams (decl : Decl .pure) : Decl .pure :=
   let levelParams := (visitDeclValue decl.value ∘ visitParams decl.params ∘ visitType decl.type) {} |>.params.toList
   { decl with levelParams }
 

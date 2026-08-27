@@ -6,8 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.NotationExtra
-public meta import Init.Data.String.Basic
+public meta import Init.Data.String.Defs
+public import Init.Grind.Tactics
 
 public section
 

@@ -7,6 +7,8 @@ module
 
 prelude
 public import Lean.Elab.Command
+import Init.Data.String.Modify
+import Init.Omega
 
 public section
 
@@ -93,8 +95,8 @@ private partial def winnowExpr (e : Expr) : MetaM Expr := do
           visit (body.instantiate1 arg)
     | .letE _n _t v b _ => visit (b.instantiate1 v)
     | .sort .. =>
-      if e.isProp then return .sort levelZero
-      else if e.isType then return .sort levelOne
+      if e.isProp then return .sort Level.zero
+      else if e.isType then return .sort Level.one
       else return .sort (.param `u)
     | .const name .. => return .const name []
     | .mdata _ e' => visit e'

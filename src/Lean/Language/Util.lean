@@ -11,6 +11,7 @@ module
 
 prelude
 public import Lean.Elab.InfoTree
+import Init.Data.Format.Macro
 
 public section
 

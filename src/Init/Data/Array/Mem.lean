@@ -6,7 +6,11 @@ Authors: Leonardo de Moura, Joachim Breitner
 module
 
 prelude
-public import Init.Data.List.BasicAux
+public import Init.Data.Array.Basic
+public import Init.WFTactics
+import Init.Data.List.BasicAux
+import Init.Data.Nat.Internal.Linear
+meta import Init.MetaTypes
 
 public section
 
@@ -21,7 +25,7 @@ theorem sizeOf_lt_of_mem [SizeOf α] {as : Array α} (h : a ∈ as) : sizeOf a <
 
 theorem sizeOf_get [SizeOf α] (as : Array α) (i : Nat) (h : i < as.size) : sizeOf as[i] < sizeOf as := by
   cases as with | _ as
-  simpa using Nat.lt_trans (List.sizeOf_get _ ⟨i, h⟩) (by simp +arith)
+  simpa using! Nat.lt_trans (List.sizeOf_get _ ⟨i, h⟩) (by simp +arith)
 
 @[simp] theorem sizeOf_getElem [SizeOf α] (as : Array α) (i : Nat) (h : i < as.size) :
   sizeOf (as[i]'h) < sizeOf as := sizeOf_get _ _ h

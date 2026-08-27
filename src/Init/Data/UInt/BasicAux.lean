@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Data.BitVec.BasicAux
+public import Init.Data.Fin.Basic
+import Init.Data.Nat.Div.Basic
 
 public section
 
@@ -32,11 +34,12 @@ the number is too large.
 
 Returns `2^8 - 1` for natural numbers greater than or equal to `2^8`.
 -/
+def UInt8.ofNatClamp (n : Nat) : UInt8 :=
+  ⟨BitVec.ofNatClamp 8 n⟩
+
+@[inherit_doc UInt8.ofNatClamp, deprecated UInt8.ofNatClamp (since := "2026-05-04")]
 def UInt8.ofNatTruncate (n : Nat) : UInt8 :=
-  if h : n < UInt8.size then
-    UInt8.ofNatLT n h
-  else
-    UInt8.ofNatLT (UInt8.size - 1) (by decide)
+  UInt8.ofNatClamp n
 
 /--
 Converts a natural number to an 8-bit unsigned integer, wrapping on overflow.
@@ -57,7 +60,7 @@ Converts an 8-bit unsigned integer to an arbitrary-precision natural number.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_to_nat"]
+@[extern "lean_uint8_to_nat", tagged_return, implicit_reducible]
 def UInt8.toNat (n : UInt8) : Nat := n.toBitVec.toNat
 
 instance UInt8.instOfNat : OfNat UInt8 n := ⟨UInt8.ofNat n⟩
@@ -76,7 +79,7 @@ Examples:
  * `UInt16.ofNat 32770 = 32770`
  * `UInt16.ofNat 65537 = 1`
 -/
-@[extern "lean_uint16_of_nat"]
+@[extern "lean_uint16_of_nat", implicit_reducible]
 def UInt16.ofNat (n : @& Nat) : UInt16 := ⟨BitVec.ofNat 16 n⟩
 /--
 Converts a natural number to a 16-bit unsigned integer, returning the largest representable value if
@@ -84,11 +87,12 @@ the number is too large.
 
 Returns `2^16 - 1` for natural numbers greater than or equal to `2^16`.
 -/
+def UInt16.ofNatClamp (n : Nat) : UInt16 :=
+  ⟨BitVec.ofNatClamp 16 n⟩
+
+@[inherit_doc UInt16.ofNatClamp, deprecated UInt16.ofNatClamp (since := "2026-05-04")]
 def UInt16.ofNatTruncate (n : Nat) : UInt16 :=
-  if h : n < UInt16.size then
-    UInt16.ofNatLT n h
-  else
-    UInt16.ofNatLT (UInt16.size - 1) (by decide)
+  UInt16.ofNatClamp n
 
 /--
 Converts a natural number to a 16-bit unsigned integer, wrapping on overflow.
@@ -108,7 +112,7 @@ Converts a 16-bit unsigned integer to an arbitrary-precision natural number.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint16_to_nat"]
+@[extern "lean_uint16_to_nat", tagged_return, implicit_reducible]
 def UInt16.toNat (n : UInt16) : Nat := n.toBitVec.toNat
 /--
 Converts 16-bit unsigned integers to 8-bit unsigned integers. Wraps around on overflow.
@@ -140,7 +144,7 @@ Examples:
  * `UInt32.ofNat 65539 = 65539`
  * `UInt32.ofNat 4_294_967_299 = 3`
 -/
-@[extern "lean_uint32_of_nat"]
+@[extern "lean_uint32_of_nat", implicit_reducible]
 def UInt32.ofNat (n : @& Nat) : UInt32 := ⟨BitVec.ofNat 32 n⟩
 
 /--
@@ -149,11 +153,12 @@ the number is too large.
 
 Returns `2^32 - 1` for natural numbers greater than or equal to `2^32`.
 -/
+def UInt32.ofNatClamp (n : Nat) : UInt32 :=
+  ⟨BitVec.ofNatClamp 32 n⟩
+
+@[inherit_doc UInt32.ofNatClamp, deprecated UInt32.ofNatClamp (since := "2026-05-04")]
 def UInt32.ofNatTruncate (n : Nat) : UInt32 :=
-  if h : n < UInt32.size then
-    UInt32.ofNatLT n h
-  else
-    UInt32.ofNatLT (UInt32.size - 1) (by decide)
+  UInt32.ofNatClamp n
 /--
 Converts a natural number to a 32-bit unsigned integer, wrapping on overflow.
 
@@ -185,7 +190,7 @@ Converts 8-bit unsigned integers to 32-bit unsigned integers.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_to_uint32"]
+@[extern "lean_uint8_to_uint32", implicit_reducible]
 def UInt8.toUInt32 (a : UInt8) : UInt32 := ⟨⟨a.toNat, Nat.lt_trans a.toBitVec.isLt (by decide)⟩⟩
 /--
 Converts 16-bit unsigned integers to 32-bit unsigned integers.
@@ -207,6 +212,28 @@ theorem UInt32.lt_ofNatLT_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UIn
   simp only [(· < ·), BitVec.toNat, ofNatLT, BitVec.ofNatLT, ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat,
     Fin.ofNat, Nat.mod_eq_of_lt h2, imp_self]
 
+
+/--
+Adds two 32-bit unsigned integers, wrapping around on overflow. Usually accessed via the `+`
+operator.
+
+This function is overridden at runtime with an efficient implementation.
+-/
+@[extern "lean_uint32_add", implicit_reducible]
+protected def UInt32.add (a b : UInt32) : UInt32 := ⟨a.toBitVec + b.toBitVec⟩
+
+/--
+Subtracts one 32-bit unsigned integer from another, wrapping around on underflow. Usually accessed
+via the `-` operator.
+
+This function is overridden at runtime with an efficient implementation.
+-/
+@[extern "lean_uint32_sub", implicit_reducible]
+protected def UInt32.sub (a b : UInt32) : UInt32 := ⟨a.toBitVec - b.toBitVec⟩
+
+instance : Add UInt32       := ⟨UInt32.add⟩
+instance : Sub UInt32       := ⟨UInt32.sub⟩
+
 /-- Converts a `UInt64` into the corresponding `Fin UInt64.size`. -/
 def UInt64.toFin (x : UInt64) : Fin UInt64.size := x.toBitVec.toFin
 
@@ -221,7 +248,7 @@ Examples:
  * `UInt64.ofNat 4_294_967_299 = 4_294_967_299`
  * `UInt64.ofNat 18_446_744_073_709_551_620 = 4`
 -/
-@[extern "lean_uint64_of_nat"]
+@[extern "lean_uint64_of_nat", implicit_reducible]
 def UInt64.ofNat (n : @& Nat) : UInt64 := ⟨BitVec.ofNat 64 n⟩
 /--
 Converts a natural number to a 64-bit unsigned integer, returning the largest representable value if
@@ -229,11 +256,12 @@ the number is too large.
 
 Returns `2^64 - 1` for natural numbers greater than or equal to `2^64`.
 -/
+def UInt64.ofNatClamp (n : Nat) : UInt64 :=
+  ⟨BitVec.ofNatClamp 64 n⟩
+
+@[inherit_doc UInt64.ofNatClamp, deprecated UInt64.ofNatClamp (since := "2026-05-04")]
 def UInt64.ofNatTruncate (n : Nat) : UInt64 :=
-  if h : n < UInt64.size then
-    UInt64.ofNatLT n h
-  else
-    UInt64.ofNatLT (UInt64.size - 1) (by decide)
+  UInt64.ofNatClamp n
 /--
 Converts a natural number to a 64-bit unsigned integer, wrapping on overflow.
 
@@ -251,7 +279,7 @@ Converts a 64-bit unsigned integer to an arbitrary-precision natural number.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint64_to_nat"]
+@[extern "lean_uint64_to_nat", implicit_reducible]
 def UInt64.toNat (n : UInt64) : Nat := n.toBitVec.toNat
 /--
 Converts 64-bit unsigned integers to 8-bit unsigned integers. Wraps around on overflow.
@@ -316,11 +344,12 @@ large.
 Returns `USize.size - 1`, which is  `2^64 - 1` or `2^32 - 1` depending on the platform, for natural
 numbers greater than or equal to `USize.size`.
 -/
+def USize.ofNatClamp (n : Nat) : USize :=
+  ⟨BitVec.ofNatClamp System.Platform.numBits n⟩
+
+@[inherit_doc USize.ofNatClamp, deprecated USize.ofNatClamp (since := "2026-05-04")]
 def USize.ofNatTruncate (n : Nat) : USize :=
-  if h : n < USize.size then
-    USize.ofNatLT n h
-  else
-    USize.ofNatLT (USize.size - 1) (Nat.pred_lt (Nat.ne_zero_of_lt USize.size_pos))
+  USize.ofNatClamp n
 @[inherit_doc USize.ofNat] abbrev Nat.toUSize := USize.ofNat
 /--
 Converts a word-sized unsigned integer to an arbitrary-precision natural number.
@@ -375,7 +404,7 @@ Examples:
  * `(if (5 : USize) < 5 then "yes" else "no") = "no"`
  * `show ¬((7 : USize) < 7) by decide`
 -/
-@[extern "lean_usize_dec_lt"]
+@[extern "lean_usize_dec_lt", instance_reducible]
 def USize.decLt (a b : USize) : Decidable (a < b) :=
   inferInstanceAs (Decidable (a.toBitVec < b.toBitVec))
 
@@ -391,7 +420,7 @@ Examples:
  * `(if (5 : USize) ≤ 15 then "yes" else "no") = "yes"`
  * `show (7 : USize) ≤ 7 by decide`
 -/
-@[extern "lean_usize_dec_le"]
+@[extern "lean_usize_dec_le", instance_reducible]
 def USize.decLe (a b : USize) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec ≤ b.toBitVec))
 

@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
+open Sym.Arith
 /-!
 Helper functions for converting reified terms back into their denotations.
 -/

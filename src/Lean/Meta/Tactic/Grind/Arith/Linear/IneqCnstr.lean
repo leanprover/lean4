@@ -7,13 +7,10 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
-import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
-import Lean.Meta.Tactic.Grind.Arith.Linear.Var
+import Lean.Meta.Tactic.Grind.Arith.Linear.Den
 import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
-import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
-import Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule
 namespace Lean.Meta.Grind.Arith.Linear
 
 def isInstOf (fn? : Option Expr) (inst : Expr) : Bool :=
@@ -48,6 +45,8 @@ def propagateCommRingIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : 
   if eqTrue then
     let p := (lhs.sub rhs).toPoly
     let c : RingIneqCnstr := { p, strict, h := .core e lhs rhs }
+    let c ← c.cleanupDenominators
+    let p := c.p
     let lhs ← p.toIntModuleExpr generation
     let some lhs ← reify? lhs (skipVar := false) generation | return ()
     let p := lhs.norm
@@ -57,6 +56,8 @@ def propagateCommRingIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : 
     let p := (rhs.sub lhs).toPoly
     let strict := !strict
     let c : RingIneqCnstr := { p, strict, h := .notCore e lhs rhs }
+    let c ← c.cleanupDenominators
+    let p := c.p
     let lhs ← p.toIntModuleExpr generation
     let some lhs ← reify? lhs (skipVar := false) generation | return ()
     let p := lhs.norm

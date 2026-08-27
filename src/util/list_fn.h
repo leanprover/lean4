@@ -125,7 +125,7 @@ list<T> append(list<T> const & l1, list<T> const & l2) {
 /** \brief Given list <tt>(a_0, ..., a_k)</tt>, return list <tt>(f(a_0), ..., f(a_k))</tt>. */
 template<typename To, typename From, typename F>
 list<To> map2(list<From> const & l, F && f) {
-    static_assert(std::is_same<typename std::result_of<F(From const &)>::type, To>::value,
+    static_assert(std::is_same<typename std::invoke_result<F(From const &)>::type, To>::value,
                   "map: return type of f is not equal to input type");
     if (is_nil(l)) {
         return list<To>();
@@ -271,7 +271,7 @@ list<T> map_reuse(list<T> const & l, F && f, Eq const & eq = Eq()) {
 /** \brief Given list <tt>(a_0, ..., a_k)</tt>, exec f(a_0); f(a_1); ... f(a_k)</tt>. */
 template<typename T, typename F>
 void for_each(list<T> const & l, F && f) {
-    static_assert(std::is_same<typename std::result_of<F(T const &)>::type, void>::value,
+    static_assert(std::is_same<typename std::invoke_result<F(T const &)>::type, void>::value,
                   "for_each: return type of f is not void");
     typedef typename list<T>::cell cell;
     cell * it = l.raw();
@@ -285,7 +285,7 @@ void for_each(list<T> const & l, F && f) {
     exec f(a_0, b_0); f(a_1, b_1); ... f(a_k, b_k)</tt>. */
 template<typename T1, typename T2, typename F>
 void for_each2(list<T1> const & l1, list<T2> const & l2, F && f) {
-    static_assert(std::is_same<typename std::result_of<F(T1 const &, T2 const &)>::type, void>::value,
+    static_assert(std::is_same<typename std::invoke_result<F(T1 const &, T2 const &)>::type, void>::value,
                   "for_each2: return type of f is not void");
     typedef typename list<T1>::cell cell1;
     typedef typename list<T2>::cell cell2;
@@ -303,7 +303,7 @@ void for_each2(list<T1> const & l1, list<T2> const & l2, F && f) {
     exec f(a_0, b_0, c_0); f(a_1, b_1, c_1); ... f(a_k, b_k, c_k)</tt>. */
 template<typename T1, typename T2, typename T3, typename F>
 void for_each3(list<T1> const & l1, list<T2> const & l2, list<T3> const & l3, F && f) {
-    static_assert(std::is_same<typename std::result_of<F(T1 const &, T2 const &, T3 const &)>::type, void>::value,
+    static_assert(std::is_same<typename std::invoke_result<F(T1 const &, T2 const &, T3 const &)>::type, void>::value,
                   "for_each2: return type of f is not void");
     typedef typename list<T1>::cell cell1;
     typedef typename list<T2>::cell cell2;
@@ -322,7 +322,7 @@ void for_each3(list<T1> const & l1, list<T2> const & l2, list<T3> const & l3, F 
 /** \brief Compare two lists using the binary predicate p. */
 template<typename T, typename P>
 bool compare(list<T> const & l1, list<T> const & l2, P && p) {
-    static_assert(std::is_same<typename std::result_of<P(T const &, T const &)>::type, bool>::value,
+    static_assert(std::is_same<typename std::invoke_result<P(T const &, T const &)>::type, bool>::value,
                   "compare: return type of f is not bool");
     auto it1 = l1.begin();
     auto it2 = l2.begin();

@@ -7,8 +7,11 @@ module
 prelude
 public import Lean.Meta.Tactic.Simp.Simproc
 import Init.Simproc
-import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Tactic.Clear
+import Lean.Meta.Sym.Util
+public import Init.Grind.Config
+import Init.Grind.Util
+import Lean.Structure
 public section
 namespace Lean.Meta.Grind
 /--
@@ -54,48 +57,10 @@ def _root_.Lean.MVarId.transformTarget (mvarId : MVarId) (f : Expr → MetaM Exp
   return mvarNew.mvarId!
 
 /--
-Returns `true` if `declName` is the name of a grind helper declaration that
-should not be unfolded by `unfoldReducible`.
--/
-def isGrindGadget (declName : Name) : Bool :=
-  declName == ``Grind.EqMatch
-
-def isUnfoldReducibleTarget (e : Expr) : CoreM Bool := do
-  let env ← getEnv
-  return Option.isSome <| e.find? fun e => Id.run do
-    let .const declName _ := e | return false
-    if getReducibilityStatusCore env declName matches .reducible then
-      -- Remark: it is wasteful to unfold projection functions since
-      -- kernel projections are folded again in the `foldProjs` preprocessing step.
-      return !isGrindGadget declName && !env.isProjectionFn declName
-    else
-      return false
-
-/--
-Auxiliary function for implementing `unfoldReducible` and `unfoldReducibleSimproc`.
-Performs a single step.
--/
-def unfoldReducibleStep (e : Expr) : MetaM TransformStep := do
-  let .const declName _ := e.getAppFn | return .continue
-  unless (← isReducible declName) do return .continue
-  if isGrindGadget declName then return .continue
-  -- See comment at isUnfoldReducibleTarget.
-  if (← getEnv).isProjectionFn declName then return .continue
-  let some v ← unfoldDefinition? e | return .continue
-  return .visit v
-
-/--
-Unfolds all `reducible` declarations occurring in `e`.
--/
-def unfoldReducible (e : Expr) : MetaM Expr := do
-  if !(← isUnfoldReducibleTarget e) then return e
-  Meta.transform e (pre := unfoldReducibleStep)
-
-/--
 Unfolds all `reducible` declarations occurring in the goal's target.
 -/
 def _root_.Lean.MVarId.unfoldReducible (mvarId : MVarId) : MetaM MVarId :=
-  mvarId.transformTarget Grind.unfoldReducible
+  mvarId.transformTarget Sym.unfoldReducible
 
 /--
 Beta-reduces the goal's target.
@@ -153,60 +118,17 @@ def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
   let pre (e : Expr) := do
     match e with
     | .letE .. | .lam .. => return .done e
-    | .mdata _ e => return .continue e
+    | .mdata _ e => return .visit e
     | _ => return .continue e
   Core.transform e (pre := pre)
 
 /--
 Converts nested `Expr.proj`s into projection applications if possible.
 -/
-def foldProjs (e : Expr) : MetaM Expr := do
-  if Option.isNone <| e.find? fun e => e.isProj then return e
-  let post (e : Expr) := do
-    let .proj structName idx s := e | return .done e
-    let some info := getStructureInfo? (← getEnv) structName |
-      trace[grind.issues] "found `Expr.proj` but `{structName}` is not marked as structure{indentExpr e}"
-      return .done e
-    if h : idx < info.fieldNames.size then
-      let fieldName := info.fieldNames[idx]
-      /-
-      In the test `grind_cat.lean`, the following operation fails if we are not using default
-      transparency. We get the following error.
-      ```
-      error: AppBuilder for 'mkProjection', structure expected
-        T
-      has type
-        F ⟶ G
-      ```
-      We should make `mkProjection` more robust.
+def foldProjs (e : Expr) : MetaM Expr :=
+  Sym.foldProjs e
 
-      The `mkProjection` function may create new kernel projections. So, we must use `.visit`.
-      -/
-      return .visit (← withDefault <| mkProjection s fieldName)
-    else
-      trace[grind.issues] "found `Expr.proj` with invalid field index `{idx}`{indentExpr e}"
-      return .done e
-  Meta.transform e (post := post)
-
-/-- Quick filter for checking whether we can skip `normalizeLevels`. -/
-private def levelsAlreadyNormalized (e : Expr) : Bool :=
-  Option.isNone <| e.find? fun
-    | .const _ us => us.any (! ·.isAlreadyNormalizedCheap)
-    | .sort u => !u.isAlreadyNormalizedCheap
-    | _ => false
-
-/--
-Normalizes universe levels in constants and sorts.
--/
-def normalizeLevels (e : Expr) : CoreM Expr := do
-  if levelsAlreadyNormalized e then return e
-  let pre (e : Expr) := do
-    match e with
-    | .sort u => return .done <| e.updateSort! u.normalize
-    | .const _ us => return .done <| e.updateConst! (us.map Level.normalize)
-    | _ => return .continue
-  Core.transform e (pre := pre)
-
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Normalizes the given expression using the `grind` simplification theorems and simprocs.
 This function is used for normalizing E-matching patterns. Note that it does not return a proof.

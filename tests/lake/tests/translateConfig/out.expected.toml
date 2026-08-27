@@ -9,7 +9,7 @@ pp.unicode.fun = true
 [[require]]
 name = "baz"
 scope = "foo"
-version = "git#abcdef"
+rev = "abcdef"
 
 [[require]]
 name = "foo"

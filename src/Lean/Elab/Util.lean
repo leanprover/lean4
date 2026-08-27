@@ -110,6 +110,7 @@ private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options)
 @[implemented_by evalSyntaxConstantUnsafe]
 opaque evalSyntaxConstant (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax := throw ""
 
+/-- safety: requires that `mkConst typeName _` and `γ` are definitionally equal -/
 unsafe def mkElabAttribute (γ) (attrBuiltinName attrName : Name) (parserNamespace : Name) (typeName : Name) (kind : String)
     (attrDeclName : Name := by exact decl_name%) : IO (KeyedDeclsAttribute γ) :=
   KeyedDeclsAttribute.init {
@@ -159,10 +160,10 @@ def expandMacroImpl? (env : Environment) : Syntax → MacroM (Option (Name × Ex
       let stx' ← withFreshMacroScope (e.value stx)
       if !e.isBuiltin then
         modify fun st => { st with expandedMacroDecls := e.declName :: st.expandedMacroDecls }
-      return (e.declName, Except.ok stx')
+      return some (e.declName, Except.ok stx')
     catch
       | Macro.Exception.unsupportedSyntax => pure ()
-      | ex                                => return (e.declName, Except.error ex)
+      | ex                                => return some (e.declName, Except.error ex)
   return none
 
 class MonadMacroAdapter (m : Type → Type) extends MonadQuotation m where
@@ -186,7 +187,11 @@ def liftMacroM [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [M
       match (← expandMacroImpl? env stx) with
       | some (_, stx?) => liftExcept stx?
       | none           => return none
-    hasDecl          := fun declName => return env.contains declName
+    hasDecl          := fun declName => do
+      -- this is used (by mkUnusedBaseName) to find available names, so check
+      -- for both private and public names
+      let env := env.setExporting false
+      return env.contains (mkPrivateName env declName) || env.contains (privateToUserName declName)
     getCurrNamespace := return currNamespace
     resolveNamespace := fun n => return ResolveName.resolveNamespace env currNamespace openDecls n
     resolveGlobalName := fun n => return ResolveName.resolveGlobalName env opts currNamespace openDecls n

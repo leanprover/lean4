@@ -9,20 +9,12 @@ Author: Leonardo de Moura
 #include <string>
 #include "library/elab_environment.h"
 #include "util/options.h"
-#include "util/message_definitions.h"
 
 namespace lean {
 void register_trace_class(name const & n, name const & decl_name = {});
-void register_trace_class_alias(name const & n, name const & alias);
-bool is_trace_enabled();
 bool is_trace_class_enabled(name const & n);
 
-#define lean_is_trace_enabled(CName) (::lean::is_trace_enabled() && ::lean::is_trace_class_enabled(CName))
-
 class scope_trace_env {
-    unsigned                 m_enable_sz;
-    unsigned                 m_disable_sz;
-    elab_environment const * m_old_env;
     options     const *      m_old_opts;
     void init(elab_environment * env, options * opts);
 public:
@@ -47,7 +39,7 @@ tout & operator<<(tout const & out, T const & t) {
 std::ostream & operator<<(std::ostream & ios, tclass const &);
 
 #define lean_trace(CName, CODE) {               \
-if (lean_is_trace_enabled(CName)) {             \
+if (lean::is_trace_class_enabled(CName)) {      \
     tout() << tclass(CName); CODE               \
 }}
 

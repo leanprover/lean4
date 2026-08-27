@@ -12,7 +12,8 @@ public section
 
 namespace Lean
 
-builtin_initialize noncomputableExt : TagDeclarationExtension ← mkTagDeclarationExtension
+-- `sync` as it's written to from both main branch and codegen branch
+builtin_initialize noncomputableExt : TagDeclarationExtension ← mkTagDeclarationExtension (asyncMode := .sync)
 
 /-- Mark in the environment extension that the given declaration has been declared by the user as `noncomputable`. -/
 def addNoncomputable (env : Environment) (declName : Name) : Environment :=
@@ -21,7 +22,7 @@ def addNoncomputable (env : Environment) (declName : Name) : Environment :=
 /--
 Returns `true` when the given declaration is tagged `noncomputable`.
 -/
-def isNoncomputable (env : Environment) (declName : Name) : Bool :=
-  noncomputableExt.isTagged env declName
+def isNoncomputable (env : Environment) (declName : Name) (asyncMode := noncomputableExt.toEnvExtension.asyncMode) : Bool :=
+  noncomputableExt.isTagged (asyncMode := asyncMode) env declName
 
 end Lean

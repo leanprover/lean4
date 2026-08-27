@@ -1,0 +1,9 @@
+Try these:
+  [apply] [grind =] for pattern: [@List.length #3 (@List.set _ #2 #1 #0)]
+  [apply] [grind! .] for pattern: [@List.set #3 #2 #1 #0]
+Try these:
+  [apply] [grind =] for pattern: [@getElem (List #5) `[Nat] _ _ _ (@List.set _ #4 #3 #1) #2 #0]
+  [apply] [grind →] for pattern: [@LE.le `[Nat] `[instLENat] (#2 + 1) (@List.length #5 (@List.set _ #4 #3 #1))]
+grind_ematch_theorem_activation.lean:8:0-8:7: warning: declaration uses `sorry`
+Try this:
+  [apply] [grind .] for pattern: [@P #0 (@OfNat.ofNat (Fin _) `[0] _)]

@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Diagnostics
 public import Lean.Meta.Tactic.Refl
-public import Lean.Elab.Binders
 public import Lean.Elab.Open
 public import Lean.Elab.Eval
 public import Lean.Elab.SetOption
@@ -15,7 +14,6 @@ public import Lean.Elab.Tactic.ElabTerm
 public import Lean.Elab.Do
 import Lean.Meta.Tactic.Replace
 import Lean.Elab.Tactic.RenameInaccessibles
-meta import Lean.Parser.Command
 public section
 
 namespace Lean.Elab.Tactic
@@ -40,8 +38,16 @@ where
   -- `stx[0]` is the next tactic step, if any
   goEven stx := do
     if stx.getNumArgs == 0 then
+      -- No more tactic steps, but if the parent still passed us a tactic snapshot
+      -- bundle (e.g. for an empty `by` body) we must resolve its promise so that
+      -- consumers walking the snapshot tree (like the language-server info-tree
+      -- lookup) don't block waiting on a promise nothing else will resolve.
+      if let some snap := (← readThe Term.Context).tacSnap? then
+        snap.new.resolve default
       return
-    let tac := stx[0]
+    let untrimmedTac := stx[0]
+    -- Use trimmed syntax for reuse so appending whitespace doesn't break it
+    let tac := untrimmedTac.unsetTrailing
     /-
     Each `goEven` step creates three promises under incrementality and reuses their older versions
     where possible:
@@ -61,32 +67,51 @@ where
     if let some snap := (← readThe Term.Context).tacSnap? then
       if let some old := snap.old? then
         let oldParsed := old.val.get
-        oldInner? := oldParsed.inner? |>.map (⟨oldParsed.stx, ·⟩)
-    -- compare `stx[0]` for `finished`/`next` reuse, focus on remainder of script
-    Term.withNarrowedTacticReuse (stx := stx) (fun stx => (stx[0], mkNullNode stx.getArgs[1...*])) fun stxs => do
+        -- (access to `raw` is correct here as this value is passed into the reuse context)
+        oldInner? := oldParsed.transformed.raw.inner? |>.map (⟨oldParsed.transformed.raw.stx, ·⟩)
+    -- compare (trimmed) `tac` for `finished`/`next` reuse, focus on remainder of script
+    Term.withNarrowedTacticReuse (stx := stx) (fun stx => (stx[0].unsetTrailing, mkNullNode stx.getArgs[1...*])) fun stxs => do
       let some snap := (← readThe Term.Context).tacSnap?
-        | do evalTactic tac; goOdd stxs
+        -- NOTE: make sure to use `untrimmedTac` in this non-incremental case since there is no
+        -- reuse opportunity anyway and we skip the whitespace save below
+        | do evalTactic untrimmedTac; goOdd stxs
       let mut reusableResult? := none
       let mut oldNext? := none
       if let some old := snap.old? then
         -- `tac` must be unchanged given the narrow above; let's reuse `finished`'s state!
-        let oldParsed := old.val.get
+        -- (access to `raw`: as above)
+        let oldParsed := old.val.get.transformed.raw
         if let some state := oldParsed.finished.get.state? then
           reusableResult? := some ((), state)
           -- only allow `next` reuse in this case
-          oldNext? := oldParsed.next[0]?.map (⟨old.stx, ·⟩)
+          oldNext? := old.val.get.next[0]?.map (⟨old.stx, ·⟩)
 
       let next ← IO.Promise.new
       let finished ← IO.Promise.new
       let inner ← IO.Promise.new
       let cancelTk? := (← readThe Core.Context).cancelTk?
       snap.new.resolve {
-        desc := tac.getKind.toString
-        diagnostics := .empty
-        stx := tac
-        inner? := some { stx? := tac, task := inner.resultD default, cancelTk? }
-        finished := { stx? := tac, task := finished.resultD default, cancelTk? }
-        next := #[{ stx? := stxs, task := next.resultD default, cancelTk? }]
+        transformed.transform.addTrailing := untrimmedTac.getTrailing?.getD default
+        transformed.raw := {
+          desc := tac.getKind.toString
+          diagnostics := .empty
+          stx := tac
+          inner? := some { stx? := tac, task := inner.resultD default, cancelTk? }
+          finished := {
+            stx? := tac, task := finished.resultD default, cancelTk?
+            -- Do not report range as it is identical to `inner?`'s and should not cover up
+            -- incremental reporting done in the latter.
+            reportingRange := .skip
+          }
+        }
+        next := #[{
+          stx? := stxs, task := next.resultD default, cancelTk?
+          -- Do not fall back to `inherit` if there are no more tactics as that would cover up
+          -- incremental reporting done in `inner?`. Do use default range in all other cases so that
+          -- reporting ranges are properly nested.
+          reportingRange :=
+            if stxs.getNumArgs == 0 then .skip else SnapshotTask.defaultReportingRange stxs
+        }]
       }
       -- Run `tac` in a fresh info tree state and store resulting state in snapshot for
       -- incremental reporting, then add back saved trees. Here we rely on `evalTactic`
@@ -106,7 +131,10 @@ where
           moreSnaps := (← Core.getAndEmptySnapshotTasks)
         }
       finally
-        modifyInfoState fun s => { s with trees := trees ++ s.trees }
+        -- New trees are not guarded by a transformation here so add back trailing eagerly. Unlikely
+        -- to be a bottleneck but could be optimized by adding a transformation node to `InfoTree`.
+        let trailing := untrimmedTac.getTrailing?.getD default
+        modifyInfoState fun s => { s with trees := trees ++ s.trees.map (·.addTrailing trailing) }
 
       withTheReader Term.Context ({ · with tacSnap? := some {
         new := next
@@ -179,11 +207,16 @@ private def getOptRotation (stx : Syntax) : Nat :=
   finally
     popScope
 
-@[builtin_tactic Parser.Tactic.set_option] def elabSetOption : Tactic := fun stx => do
-  let options ← Elab.elabSetOption stx[1] stx[3]
+@[builtin_tactic Parser.Tactic.set_option, builtin_incremental]
+def elabSetOption : Tactic := fun stx => do
+  let (options, decl) ← Elab.elabSetOption stx[1] stx[3]
+  withRef stx[1] <| Elab.checkDeprecatedOption (stx[1].getId.eraseMacroScopes) decl
   withOptions (fun _ => options) do
     try
-      evalTactic stx[5]
+      -- disable incrementality for `diagnostics` as reuse would skip counter accumulation in
+      -- reused steps and thus under-report in `reportDiag` below
+      Term.withoutTacticIncrementality (stx[1].getId == `diagnostics) do
+        Term.withNarrowedArgTacticReuse (argIdx := 5) evalTactic stx
     finally
       if stx[1].getId == `diagnostics then
         reportDiag
@@ -486,14 +519,21 @@ def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : 
 /--
   Searches for a metavariable `g` s.t. `tag` is its exact name.
   If none then searches for a metavariable `g` s.t. `tag` is a suffix of its name.
-  If none, then it searches for a metavariable `g` s.t. `tag` is a prefix of its name. -/
+  If none, then it searches for a metavariable `g` s.t. `tag` is a prefix of its name.
+
+  We erase macro scopes from the metavariable's user name before comparing, so that
+  user-written tags match even when a previous tactic left hygienic macro scopes at
+  the end of the tag (e.g. `e_a.yield._@._internal._hyg.0`, where `yield` is not the
+  literal last component of the name). Case tags written by the user are never
+  macro-scoped, so erasing scopes on the mvar side is sufficient.
+-/
 private def findTag? (mvarIds : List MVarId) (tag : Name) : TacticM (Option MVarId) := do
-  match (← mvarIds.findM? fun mvarId => return tag == (← mvarId.getDecl).userName) with
+  match (← mvarIds.findM? fun mvarId => return tag == (← mvarId.getDecl).userName.eraseMacroScopes) with
   | some mvarId => return mvarId
   | none =>
-  match (← mvarIds.findM? fun mvarId => return tag.isSuffixOf (← mvarId.getDecl).userName) with
+  match (← mvarIds.findM? fun mvarId => return tag.isSuffixOf (← mvarId.getDecl).userName.eraseMacroScopes) with
   | some mvarId => return mvarId
-  | none => mvarIds.findM? fun mvarId => return tag.isPrefixOf (← mvarId.getDecl).userName
+  | none => mvarIds.findM? fun mvarId => return tag.isPrefixOf (← mvarId.getDecl).userName.eraseMacroScopes
 
 private def getCaseGoals (tag : TSyntax ``binderIdent) : TacticM (MVarId × List MVarId) := do
   let gs ← getUnsolvedGoals

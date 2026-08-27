@@ -10,13 +10,15 @@ public import Init.Data.Array.QSort
 public import Lean.Data.PersistentHashSet
 public import Lean.Hygiene
 public import Init.Data.Option.Coe
+import Init.Data.Nat.Internal.Linear
 
 public section
 
+namespace Lean
+
+-- This is intentionally in the `Lean` namespace to avoid polluting the `Nat` namespace.
 def Nat.imax (n m : Nat) : Nat :=
   if m = 0 then 0 else Nat.max n m
-
-namespace Lean
 
 /--
  Cached hash code, cached results, and other data for `Level`.
@@ -74,13 +76,13 @@ instance : Repr LMVarId where
 @[expose] def LMVarIdSet := Std.TreeSet LMVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
-instance : ForIn m LMVarIdSet LMVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
+instance [Monad m] : ForIn m LMVarIdSet LMVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
 @[expose] def LMVarIdMap (α : Type) := Std.TreeMap LMVarId α (Name.quickCmp ·.name ·.name)
 
 instance : EmptyCollection (LMVarIdMap α) := inferInstanceAs (EmptyCollection (Std.TreeMap _ _ _))
 
-instance : ForIn m (LMVarIdMap α) (LMVarId × α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
+instance [Monad m] : ForIn m (LMVarIdMap α) (LMVarId × α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
 
 instance : Inhabited (LMVarIdMap α) where
   default := {}
@@ -128,8 +130,8 @@ def hasParam (u : Level) : Bool :=
 
 end Level
 
-@[expose] def levelZero :=
-  Level.zero
+@[deprecated Level.zero (since := "2026-02-27")] -- This was previously required in order to get the computed field `data` to work, but it is no longer needed.
+abbrev levelZero := Level.zero
 
 def mkLevelMVar (mvarId : LMVarId) :=
   Level.mvar mvarId
@@ -146,9 +148,12 @@ def mkLevelMax (u v : Level) :=
 def mkLevelIMax (u v : Level) :=
   Level.imax u v
 
-def levelOne := mkLevelSucc levelZero
+abbrev Level.one := mkLevelSucc .zero
 
-@[export lean_level_mk_zero] def mkLevelZeroEx : Unit → Level := fun _ => levelZero
+@[deprecated Level.one (since := "2026-02-27")]
+abbrev levelOne := Level.one
+
+@[export lean_level_mk_zero] def mkLevelZeroEx : Unit → Level := fun _ => .zero
 @[export lean_level_mk_succ] def mkLevelSuccEx : Level → Level := mkLevelSucc
 @[export lean_level_mk_mvar] def mkLevelMVarEx : LMVarId → Level := mkLevelMVar
 @[export lean_level_mk_param] def mkLevelParamEx : Name → Level := mkLevelParam
@@ -212,8 +217,8 @@ def isAlwaysZero : Level → Bool
   | max l₁ l₂    => isAlwaysZero l₁ && isAlwaysZero l₂
   | imax _  l₂   => isAlwaysZero l₂
 
-@[expose] def ofNat : Nat → Level
-  | 0   => levelZero
+@[expose, implicit_reducible] def ofNat : Nat → Level
+  | 0   => Level.zero
   | n+1 => mkLevelSucc (ofNat n)
 
 instance instOfNat (n : Nat) : OfNat Level n where
@@ -303,14 +308,14 @@ def isAlreadyNormalizedCheap : Level → Bool
   | succ u  => isAlreadyNormalizedCheap u
   | _       => false
 
-/- Auxiliary function used at `normalize` -/
+/-- Auxiliary function used at `normalize` -/
 private def mkIMaxAux : Level → Level → Level
   | _,    zero   => zero
   | zero, u      => u
   | succ zero, u => u
   | u₁,   u₂     => if u₁ == u₂ then u₁ else mkLevelIMax u₁ u₂
 
-/- Auxiliary function used at `normalize` -/
+/-- Auxiliary function used at `normalize` -/
 @[specialize] private partial def getMaxArgsAux (normalize : Level → Level) : Level → Bool → Array Level → Array Level
   | max l₁ l₂, alreadyNormalized, lvls => getMaxArgsAux normalize l₂ alreadyNormalized (getMaxArgsAux normalize l₁ alreadyNormalized lvls)
   | l,           false,             lvls => getMaxArgsAux normalize (normalize l) true lvls
@@ -320,14 +325,15 @@ private def accMax (result : Level) (prev : Level) (offset : Nat) : Level :=
   if result.isZero then prev.addOffset offset
   else mkLevelMax result (prev.addOffset offset)
 
-/- Auxiliary function used at `normalize`.
+/--
+   Auxiliary function used at `normalize`.
    Remarks:
    - `lvls` are sorted using `normLt`
    - `extraK` is the outer offset of the `max` term. We will push it inside.
    - `i` is the current array index
    - `prev + prevK` is the "previous" level that has not been added to `result` yet.
    - `result` is the accumulator
- -/
+-/
 private partial def mkMaxAux (lvls : Array Level) (extraK : Nat) (i : Nat) (prev : Level) (prevK : Nat) (result : Level) : Level :=
   if h : i < lvls.size then
     let lvl   := lvls[i]
@@ -340,9 +346,10 @@ private partial def mkMaxAux (lvls : Array Level) (extraK : Nat) (i : Nat) (prev
   else
     accMax result prev (extraK + prevK)
 
-/-
+/--
   Auxiliary function for `normalize`. It assumes `lvls` has been sorted using `normLt`.
-  It finds the first position that is not an explicit universe. -/
+  It finds the first position that is not an explicit universe.
+-/
 private partial def skipExplicit (lvls : Array Level) (i : Nat) : Nat :=
   if h : i < lvls.size then
     let lvl := lvls[i]
@@ -365,7 +372,7 @@ private partial def isExplicitSubsumedAux (lvls : Array Level) (maxExplicit : Na
   else
     false
 
-/- Auxiliary function for `normalize`. See `isExplicitSubsumedAux` -/
+/-- Auxiliary function for `normalize`. See `isExplicitSubsumedAux` -/
 private def isExplicitSubsumed (lvls : Array Level) (firstNonExplicit : Nat) : Bool :=
   if firstNonExplicit == 0 then false
   else
@@ -387,7 +394,7 @@ partial def normalize (l : Level) : Level :=
       let lvl₁  := lvls[i]!
       let prev  := lvl₁.getLevelOffset
       let prevK := lvl₁.getOffset
-      mkMaxAux lvls k (i+1) prev prevK levelZero
+      mkMaxAux lvls k (i+1) prev prevK Level.zero
     | imax l₁ l₂ =>
       if l₂.isNeverZero then addOffset (normalize (mkLevelMax l₁ l₂)) k
       else
@@ -437,18 +444,27 @@ def Result.imax : Result → Result → Result
   | f, Result.imaxNode Fs => Result.imaxNode (f::Fs)
   | f₁, f₂                => Result.imaxNode [f₁, f₂]
 
-def toResult (l : Level) (mvars : Bool) : Result :=
+structure Context where
+  mvars : Bool
+  lIndex? : LMVarId → Option Nat
+
+abbrev M := ReaderM Context
+
+def toResult (l : Level) : M Result := do
   match l with
-  | zero       => Result.num 0
-  | succ l     => Result.succ (toResult l mvars)
-  | max l₁ l₂  => Result.max (toResult l₁ mvars) (toResult l₂ mvars)
-  | imax l₁ l₂ => Result.imax (toResult l₁ mvars) (toResult l₂ mvars)
-  | param n    => Result.leaf n
+  | zero       => return Result.num 0
+  | succ l     => return Result.succ (← toResult l)
+  | max l₁ l₂  => return Result.max (← toResult l₁) (← toResult l₂)
+  | imax l₁ l₂ => return Result.imax (← toResult l₁) (← toResult l₂)
+  | param n    => return Result.leaf n
   | mvar n     =>
-    if mvars then
-      Result.leaf <| n.name.replacePrefix `_uniq (Name.mkSimple "?u")
+    if !(← read).mvars then
+      return Result.leaf `_
+    else if let some i := (← read).lIndex? n then
+      return Result.leaf <| Name.num (Name.mkSimple "?u") (i + 1)
     else
-      Result.leaf `_
+      -- Undefined mvar, use internal name
+      return Result.leaf <| n.name.replacePrefix `_uniq (Name.mkSimple "?_mvar")
 
 private def parenIfFalse : Format → Bool → Format
   | f, true  => f
@@ -465,7 +481,7 @@ mutual
     | Result.offset f 0,     r => format f r
     | Result.offset f (k+1), r =>
       let f' := format f false;
-      parenIfFalse (f' ++ "+" ++ Std.format (k+1)) r
+      parenIfFalse (f' ++ " + " ++ Std.format (k+1)) r
     | Result.maxNode fs,    r => parenIfFalse (Format.group <| "max"  ++ formatLst fs) r
     | Result.imaxNode fs,   r => parenIfFalse (Format.group <| "imax" ++ formatLst fs) r
 end
@@ -483,20 +499,20 @@ protected partial def Result.quote (r : Result) (prec : Nat) : Syntax.Level :=
 
 end PP
 
-protected def format (u : Level) (mvars : Bool) : Format :=
-  (PP.toResult u mvars).format true
+protected def format (u : Level) (mvars : Bool) (lIndex? : LMVarId → Option Nat) : Format :=
+  (PP.toResult u) |>.run { mvars, lIndex? } |>.format true
 
 instance : ToFormat Level where
-  format u := Level.format u (mvars := true)
+  format u := Level.format u (mvars := true) (lIndex? := fun _ => none)
 
 instance : ToString Level where
   toString u := Format.pretty (format u)
 
-protected def quote (u : Level) (prec : Nat := 0) (mvars : Bool := true) : Syntax.Level :=
-  (PP.toResult u (mvars := mvars)).quote prec
+protected def quote (u : Level) (prec : Nat := 0) (mvars : Bool := true) (lIndex? : LMVarId → Option Nat) : Syntax.Level :=
+  (PP.toResult u) |>.run { mvars, lIndex? } |>.quote prec
 
 instance : Quote Level `level where
-  quote := Level.quote
+  quote := Level.quote (lIndex? := fun _ => none)
 
 end Level
 
@@ -516,7 +532,7 @@ end Level
   else
     elseK ()
 
-/- Similar to `mkLevelMax`, but applies cheap simplifications -/
+/-- Similar to `mkLevelMax`, but applies cheap simplifications -/
 def mkLevelMax' (u v : Level) : Level :=
   mkLevelMaxCore u v fun _ => mkLevelMax u v
 
@@ -530,7 +546,7 @@ def simpLevelMax' (u v : Level) (d : Level) : Level :=
   else if u == v then u
   else elseK ()
 
-/- Similar to `mkLevelIMax`, but applies cheap simplifications -/
+/-- Similar to `mkLevelIMax`, but applies cheap simplifications -/
 def mkLevelIMax' (u v : Level) : Level :=
   mkLevelIMaxCore u v fun _ => mkLevelIMax u v
 
@@ -579,7 +595,7 @@ def updateIMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
   | _        => panic! "imax level expected"
 
 def mkNaryMax : List Level → Level
-  | []    => levelZero
+  | []    => Level.zero
   | [u]   => u
   | u::us => mkLevelMax' u (mkNaryMax us)
 
@@ -655,7 +671,13 @@ def Level.find? (u : Level) (p : Level → Bool) : Option Level :=
 def Level.any (u : Level) (p : Level → Bool) : Bool :=
   u.find? p |>.isSome
 
-end Lean
+/--
+Converts a natural number to the corresponding `Lean.Level`.
 
+This is intentionally in the `Lean` namespace to avoid polluting the `Nat` namespace. Note that
+after `open Lean`, `n.toLevel` will work for `n : Nat`.
+-/
 abbrev Nat.toLevel (n : Nat) : Lean.Level :=
   Lean.Level.ofNat n
+
+end Lean

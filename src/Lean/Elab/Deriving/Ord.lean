@@ -12,6 +12,7 @@ import Lean.Elab.Deriving.Util
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CasesOnSameCtor
 import Lean.Meta.SameCtorUtils
+import Init.Data.Array.OfFn
 
 register_builtin_option deriving.ord.linear_construction_threshold : Nat := {
   defValue := 10
@@ -74,7 +75,7 @@ where
         let rPat ← `(@$(mkIdent ctorName):ident $ctorArgs2:term*)
         let patterns := indPatterns ++ #[lPat, rPat]
         let ltPatterns := indPatterns ++ #[lPat, ←`(_)]
-        let gtPatterns := indPatterns ++ #[←`(_), rPat]
+        let gtPatterns := indPatterns ++ #[←`(_), lPat] -- Use the lPat again, we don’t want the `.(a)` pattern here
         let rhs ← rhsCont (← `(Ordering.eq))
         pure #[←`(matchAltExpr| | $[$(patterns):term],* => $rhs:term),
                ←`(matchAltExpr| | $[$(ltPatterns):term],* => Ordering.lt),
@@ -88,7 +89,7 @@ def mkMatchNew (header : Header) (indVal : InductiveVal) : TermElabM Term := do
   let x1 := mkIdent header.targetNames[0]!
   let x2 := mkIdent header.targetNames[1]!
   let ctorIdxName := mkCtorIdxName indVal.name
-  -- NB: the getMatcherInfo? assumes all mathcers are called `match_`
+  -- NB: the getMatcherInfo? assumes all matchers are called `match_`
   let casesOnSameCtorName ← mkFreshUserName (indVal.name ++ `match_on_same_ctor)
   mkCasesOnSameCtor casesOnSameCtorName indVal.name
   let alts ← Array.ofFnM (n := indVal.numCtors) fun ⟨ctorIdx, _⟩ => do

@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.BitVec.Basic
-import Init.Data.Order.Factories
 
 @[expose] public section
 
@@ -30,7 +29,7 @@ operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_add"]
+@[extern "lean_uint8_add", implicit_reducible]
 protected def UInt8.add (a b : UInt8) : UInt8 := ⟨a.toBitVec + b.toBitVec⟩
 /--
 Subtracts one 8-bit unsigned integer from another, wrapping around on underflow. Usually accessed
@@ -38,7 +37,7 @@ via the `-` operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_sub"]
+@[extern "lean_uint8_sub", implicit_reducible]
 protected def UInt8.sub (a b : UInt8) : UInt8 := ⟨a.toBitVec - b.toBitVec⟩
 /--
 Multiplies two 8-bit unsigned integers, wrapping around on overflow.  Usually accessed via the `*`
@@ -46,7 +45,7 @@ operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_mul"]
+@[extern "lean_uint8_mul", implicit_reducible]
 protected def UInt8.mul (a b : UInt8) : UInt8 := ⟨a.toBitVec * b.toBitVec⟩
 /--
 Unsigned division for 8-bit unsigned integers, discarding the remainder. Usually accessed
@@ -56,7 +55,7 @@ This operation is sometimes called “floor division.” Division by zero is def
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_div"]
+@[extern "lean_uint8_div", implicit_reducible]
 protected def UInt8.div (a b : UInt8) : UInt8 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
 /--
 The power operation, raising an 8-bit unsigned integer to a natural number power,
@@ -82,12 +81,12 @@ Examples:
 * `UInt8.mod 4 2 = 0`
 * `UInt8.mod 4 0 = 4`
 -/
-@[extern "lean_uint8_mod"]
+@[extern "lean_uint8_mod", implicit_reducible]
 protected def UInt8.mod (a b : UInt8) : UInt8 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 
 -- Note: This is deprecated, but still used in the `HMod` instance below.
 set_option linter.missingDocs false in
-@[deprecated UInt8.mod (since := "2024-09-23")]
+@[deprecated UInt8.mod +typeChanged (since := "2024-09-23")]
 protected def UInt8.modn (a : UInt8) (n : Nat) : UInt8 := ⟨Fin.modn a.toFin n⟩
 /--
 Bitwise and for 8-bit unsigned integers. Usually accessed via the `&&&` operator.
@@ -96,7 +95,7 @@ Each bit of the resulting integer is set if the corresponding bits of both input
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_land"]
+@[extern "lean_uint8_land", implicit_reducible]
 protected def UInt8.land (a b : UInt8) : UInt8 := ⟨a.toBitVec &&& b.toBitVec⟩
 /--
 Bitwise or for 8-bit unsigned integers. Usually accessed via the `|||` operator.
@@ -187,7 +186,18 @@ lowercase value, otherwise leave it untouched.
 -/
 @[inline]
 def UInt8.toAsciiLower (b : UInt8) : UInt8 :=
-  if b >= 65 && b <= 90 then (b + 32) else b
+  -- LLVM also manages to turn the naive `if` into branchless code, but this implementation happens
+  -- to generate slighly better assembly.
+  b + ((decide (b - 65 < 26)).toUInt8 <<< 5)
+
+/--
+If `b` is the ASCII value of a lowercase character return the corresponding
+uppercase value, otherwise leave it untouched.
+-/
+@[inline]
+def UInt8.toAsciiUpper (b : UInt8) : UInt8 :=
+  -- See comment on `toAsciiLower` above.
+  b - ((decide (b - 97 < 26)).toUInt8 <<< 5)
 
 /-- Converts a `Fin UInt16.size` into the corresponding `UInt16`. -/
 @[inline] def UInt16.ofFin (a : Fin UInt16.size) : UInt16 := ⟨⟨a⟩⟩
@@ -201,7 +211,7 @@ operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint16_add"]
+@[extern "lean_uint16_add", implicit_reducible]
 protected def UInt16.add (a b : UInt16) : UInt16 := ⟨a.toBitVec + b.toBitVec⟩
 /--
 Subtracts one 16-bit unsigned integer from another, wrapping around on underflow. Usually accessed
@@ -209,7 +219,7 @@ via the `-` operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint16_sub"]
+@[extern "lean_uint16_sub", implicit_reducible]
 protected def UInt16.sub (a b : UInt16) : UInt16 := ⟨a.toBitVec - b.toBitVec⟩
 /--
 Multiplies two 16-bit unsigned integers, wrapping around on overflow.  Usually accessed via the `*`
@@ -217,7 +227,7 @@ operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint16_mul"]
+@[extern "lean_uint16_mul", implicit_reducible]
 protected def UInt16.mul (a b : UInt16) : UInt16 := ⟨a.toBitVec * b.toBitVec⟩
 /--
 Unsigned division for 16-bit unsigned integers, discarding the remainder. Usually accessed
@@ -227,7 +237,7 @@ This operation is sometimes called “floor division.” Division by zero is def
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint16_div"]
+@[extern "lean_uint16_div", implicit_reducible]
 protected def UInt16.div (a b : UInt16) : UInt16 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
 /--
 The power operation, raising a 16-bit unsigned integer to a natural number power,
@@ -253,12 +263,12 @@ Examples:
 * `UInt16.mod 4 2 = 0`
 * `UInt16.mod 4 0 = 4`
 -/
-@[extern "lean_uint16_mod"]
+@[extern "lean_uint16_mod", implicit_reducible]
 protected def UInt16.mod (a b : UInt16) : UInt16 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 
 -- Note: This is deprecated, but still used in the `HMod` instance below.
 set_option linter.missingDocs false in
-@[deprecated UInt16.mod (since := "2024-09-23")]
+@[deprecated UInt16.mod +typeChanged (since := "2024-09-23")]
 protected def UInt16.modn (a : UInt16) (n : Nat) : UInt16 := ⟨Fin.modn a.toFin n⟩
 /--
 Bitwise and for 16-bit unsigned integers. Usually accessed via the `&&&` operator.
@@ -373,7 +383,7 @@ Examples:
  * `(if (5 : UInt16) < 5 then "yes" else "no") = "no"`
  * `show ¬((7 : UInt16) < 7) by decide`
 -/
-@[extern "lean_uint16_dec_lt"]
+@[extern "lean_uint16_dec_lt", instance_reducible]
 def UInt16.decLt (a b : UInt16) : Decidable (a < b) :=
   inferInstanceAs (Decidable (a.toBitVec < b.toBitVec))
 
@@ -390,7 +400,7 @@ Examples:
  * `(if (5 : UInt16) ≤ 15 then "yes" else "no") = "yes"`
  * `show (7 : UInt16) ≤ 7 by decide`
 -/
-@[extern "lean_uint16_dec_le"]
+@[extern "lean_uint16_dec_le", instance_reducible]
 def UInt16.decLe (a b : UInt16) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec ≤ b.toBitVec))
 
@@ -406,28 +416,12 @@ instance : Min UInt16 := minOfLe
 def UInt32.ofInt (x : Int) : UInt32 := ofNat (x % 2 ^ 32).toNat
 
 /--
-Adds two 32-bit unsigned integers, wrapping around on overflow. Usually accessed via the `+`
-operator.
-
-This function is overridden at runtime with an efficient implementation.
--/
-@[extern "lean_uint32_add"]
-protected def UInt32.add (a b : UInt32) : UInt32 := ⟨a.toBitVec + b.toBitVec⟩
-/--
-Subtracts one 32-bit unsigned integer from another, wrapping around on underflow. Usually accessed
-via the `-` operator.
-
-This function is overridden at runtime with an efficient implementation.
--/
-@[extern "lean_uint32_sub"]
-protected def UInt32.sub (a b : UInt32) : UInt32 := ⟨a.toBitVec - b.toBitVec⟩
-/--
 Multiplies two 32-bit unsigned integers, wrapping around on overflow.  Usually accessed via the `*`
 operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint32_mul"]
+@[extern "lean_uint32_mul", implicit_reducible]
 protected def UInt32.mul (a b : UInt32) : UInt32 := ⟨a.toBitVec * b.toBitVec⟩
 /--
 Unsigned division for 32-bit unsigned integers, discarding the remainder. Usually accessed
@@ -437,7 +431,7 @@ This operation is sometimes called “floor division.” Division by zero is def
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint32_div"]
+@[extern "lean_uint32_div", implicit_reducible]
 protected def UInt32.div (a b : UInt32) : UInt32 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
 /--
 The power operation, raising a 32-bit unsigned integer to a natural number power,
@@ -463,12 +457,12 @@ Examples:
 * `UInt32.mod 4 2 = 0`
 * `UInt32.mod 4 0 = 4`
 -/
-@[extern "lean_uint32_mod"]
+@[extern "lean_uint32_mod", implicit_reducible]
 protected def UInt32.mod (a b : UInt32) : UInt32 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 
 -- Note: This is deprecated, but still used in the `HMod` instance below.
 set_option linter.missingDocs false in
-@[deprecated UInt32.mod (since := "2024-09-23")]
+@[deprecated UInt32.mod +typeChanged (since := "2024-09-23")]
 protected def UInt32.modn (a : UInt32) (n : Nat) : UInt32 := ⟨Fin.modn a.toFin n⟩
 /--
 Bitwise and for 32-bit unsigned integers. Usually accessed via the `&&&` operator.
@@ -517,17 +511,15 @@ protected def UInt32.shiftRight (a b : UInt32) : UInt32 := ⟨a.toBitVec >>> (UI
 Strict inequality of 32-bit unsigned integers, defined as inequality of the corresponding
 natural numbers. Usually accessed via the `<` operator.
 -/
--- These need to be exposed as `Init.Prelude` already has an instance for bootstrapping puproses and
+-- These need to be exposed as `Init.Prelude` already has an instance for bootstrapping purposes and
 -- they should be defeq
-@[expose] protected def UInt32.lt (a b : UInt32) : Prop := a.toBitVec < b.toBitVec
+protected def UInt32.lt (a b : UInt32) : Prop := a.toBitVec < b.toBitVec
 /--
 Non-strict inequality of 32-bit unsigned integers, defined as inequality of the corresponding
 natural numbers. Usually accessed via the `≤` operator.
 -/
-@[expose] protected def UInt32.le (a b : UInt32) : Prop := a.toBitVec ≤ b.toBitVec
+protected def UInt32.le (a b : UInt32) : Prop := a.toBitVec ≤ b.toBitVec
 
-instance : Add UInt32       := ⟨UInt32.add⟩
-instance : Sub UInt32       := ⟨UInt32.sub⟩
 instance : Mul UInt32       := ⟨UInt32.mul⟩
 instance : Pow UInt32 Nat   := ⟨UInt32.pow⟩
 instance : Mod UInt32       := ⟨UInt32.mod⟩
@@ -584,7 +576,7 @@ operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint64_add"]
+@[extern "lean_uint64_add", implicit_reducible]
 protected def UInt64.add (a b : UInt64) : UInt64 := ⟨a.toBitVec + b.toBitVec⟩
 /--
 Subtracts one 64-bit unsigned integer from another, wrapping around on underflow. Usually accessed
@@ -592,7 +584,7 @@ via the `-` operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint64_sub"]
+@[extern "lean_uint64_sub", implicit_reducible]
 protected def UInt64.sub (a b : UInt64) : UInt64 := ⟨a.toBitVec - b.toBitVec⟩
 /--
 Multiplies two 64-bit unsigned integers, wrapping around on overflow.  Usually accessed via the `*`
@@ -600,7 +592,7 @@ operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint64_mul"]
+@[extern "lean_uint64_mul", implicit_reducible]
 protected def UInt64.mul (a b : UInt64) : UInt64 := ⟨a.toBitVec * b.toBitVec⟩
 /--
 Unsigned division for 64-bit unsigned integers, discarding the remainder. Usually accessed
@@ -610,7 +602,7 @@ This operation is sometimes called “floor division.” Division by zero is def
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint64_div"]
+@[extern "lean_uint64_div", implicit_reducible]
 protected def UInt64.div (a b : UInt64) : UInt64 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
 /--
 The power operation, raising a 64-bit unsigned integer to a natural number power,
@@ -636,12 +628,12 @@ Examples:
 * `UInt64.mod 4 2 = 0`
 * `UInt64.mod 4 0 = 4`
 -/
-@[extern "lean_uint64_mod"]
+@[extern "lean_uint64_mod", implicit_reducible]
 protected def UInt64.mod (a b : UInt64) : UInt64 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 
 -- Note: This is deprecated, but still used in the `HMod` instance below.
 set_option linter.missingDocs false in
-@[deprecated UInt64.mod (since := "2024-09-23")]
+@[deprecated UInt64.mod +typeChanged (since := "2024-09-23")]
 protected def UInt64.modn (a : UInt64) (n : Nat) : UInt64 := ⟨Fin.modn a.toFin n⟩
 /--
 Bitwise and for 64-bit unsigned integers. Usually accessed via the `&&&` operator.
@@ -755,7 +747,7 @@ Examples:
  * `(if (5 : UInt64) < 5 then "yes" else "no") = "no"`
  * `show ¬((7 : UInt64) < 7) by decide`
 -/
-@[extern "lean_uint64_dec_lt"]
+@[extern "lean_uint64_dec_lt", instance_reducible]
 def UInt64.decLt (a b : UInt64) : Decidable (a < b) :=
   inferInstanceAs (Decidable (a.toBitVec < b.toBitVec))
 
@@ -771,7 +763,7 @@ Examples:
  * `(if (5 : UInt64) ≤ 15 then "yes" else "no") = "yes"`
  * `show (7 : UInt64) ≤ 7 by decide`
 -/
-@[extern "lean_uint64_dec_le"]
+@[extern "lean_uint64_dec_le", instance_reducible]
 def UInt64.decLe (a b : UInt64) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec ≤ b.toBitVec))
 
@@ -836,7 +828,7 @@ protected def USize.mod (a b : USize) : USize := ⟨a.toBitVec % b.toBitVec⟩
 
 -- Note: This is deprecated, but still used in the `HMod` instance below.
 set_option linter.missingDocs false in
-@[deprecated USize.mod (since := "2024-09-23")]
+@[deprecated USize.mod +typeChanged (since := "2024-09-23")]
 protected def USize.modn (a : USize) (n : Nat) : USize := ⟨Fin.modn a.toFin n⟩
 /--
 Bitwise and for word-sized unsigned integers. Usually accessed via the `&&&` operator.
@@ -952,6 +944,22 @@ This function is overridden at runtime with an efficient implementation.
 @[extern "lean_usize_to_uint64"]
 def USize.toUInt64 (a : USize) : UInt64 :=
   UInt64.ofNatLT a.toBitVec.toNat (Nat.lt_of_lt_of_le a.toBitVec.isLt USize.size_le)
+
+/--
+Convert a `USize` to `BitVec 32`, assuming that the system bit-width is 32.
+
+This operation is intended for proof purposes.
+-/
+def USize.toBitVec32 (a : USize) (h : System.Platform.numBits = 32) : BitVec 32 :=
+  a.toBitVec.cast h
+
+/--
+Convert a `USize` to `BitVec 64`, assuming that the system bit-width is 64.
+
+This operation is intended for proof purposes.
+-/
+def USize.toBitVec64 (a : USize) (h : System.Platform.numBits = 64) : BitVec 64 :=
+  a.toBitVec.cast h
 
 instance : Mul USize       := ⟨USize.mul⟩
 instance : Pow USize Nat   := ⟨USize.pow⟩

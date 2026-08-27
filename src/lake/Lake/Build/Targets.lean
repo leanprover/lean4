@@ -23,9 +23,9 @@ namespace Lake
 @[inline] public def KConfigDecl.get
   [Monad m] [MonadError m] [MonadLake m] (self : KConfigDecl kind)
 : m (ConfigTarget kind) := do
-  let some pkg ← findPackage? self.pkg
+  let some pkg ← findPackageByKey? self.pkg
     | error s!"package of target '{self.pkg}/{self.name}' not found in workspace"
-  let config := cast (by rw [self.kind_eq, pkg.name_eq]) self.config
+  let config := cast (by rw [self.kind_eq, pkg.keyName_eq]) self.config
   return ConfigTarget.mk pkg self.name config
 
 /-! ## Package Facets & Targets -/
@@ -40,13 +40,13 @@ public def Package.fetchTargetJob
 public protected def TargetDecl.fetch
   (self : TargetDecl) [FamilyOut (CustomData self.pkg) self.name α]
 : FetchM (Job α) := do
-  let some pkg ← findPackage? self.pkg
+  let some pkg ← findPackageByKey? self.pkg
     | error s!"package '{self.pkg}' of target '{self.name}' does not exist in workspace"
   fetch <| pkg.target self.name
 
 /-- Fetch the build job of the target. -/
 public def TargetDecl.fetchJob (self : TargetDecl) : FetchM OpaqueJob :=  do
-  let some pkg ← findPackage? self.pkg
+  let some pkg ← findPackageByKey? self.pkg
     | error s!"package '{self.pkg}' of target '{self.name}' does not exist in workspace"
   return (← (pkg.target self.name).fetch).toOpaque
 
@@ -79,6 +79,14 @@ public def Module.fetchFacetJob (name : Name) (self : Module) : FetchM OpaqueJob
   (self : LeanLibDecl) [Monad m] [MonadError m] [MonadLake m] : m LeanLib
 := KConfigDecl.get self
 
+/-- Fetch the build of the default facets of the library -/
+@[inline] public protected def LeanLib.fetch (self : LeanLib) : FetchM (Job Unit) :=
+  self.default.fetch
+
+/-- Fetch the build of the default facets of the library -/
+@[inline] public protected def LeanLibDecl.fetch (self : LeanLibDecl) : FetchM (Job Unit) := do
+  (← self.get).fetch
+
 /-- Fetch the build result of a library facet. -/
 @[inline] public protected def LibraryFacetDecl.fetch
   (lib : LeanLib) (self : LibraryFacetDecl) [FamilyOut FacetOut self.name α]
@@ -97,17 +105,17 @@ public def LeanLib.fetchFacetJob
 := KConfigDecl.get self
 
 /-- Fetch the build of the Lean executable. -/
-@[inline] public def LeanExe.fetch (self : LeanExe) : FetchM (Job FilePath) :=
+@[inline] public protected def LeanExe.fetch (self : LeanExe) : FetchM (Job FilePath) :=
   self.exe.fetch
 
 /-- Fetch the build of the Lean executable. -/
-@[inline] public def LeanExeDecl.fetch (self : LeanExeDecl) : FetchM (Job FilePath) := do
+@[inline] public protected def LeanExeDecl.fetch (self : LeanExeDecl) : FetchM (Job FilePath) := do
   (← self.get).fetch
 
 /-! ## Input File / Directory Targets -/
 
 /-- Fetch the input file. -/
-@[inline] public def InputFile.fetch (self : InputFile) : FetchM (Job FilePath) :=
+@[inline] public protected def InputFile.fetch (self : InputFile) : FetchM (Job FilePath) :=
   self.default.fetch
 
 /-- Get the input file in the workspace corresponding to this configuration. -/
@@ -116,11 +124,11 @@ public def LeanLib.fetchFacetJob
 := KConfigDecl.get self
 
 /-- Fetch the input file. -/
-@[inline] public def InputFileDecl.fetch (self : InputFileDecl) : FetchM (Job FilePath) := do
+@[inline] public protected def InputFileDecl.fetch (self : InputFileDecl) : FetchM (Job FilePath) := do
   (← self.get).default.fetch
 
 /-- Fetch the files in the input directory. -/
-@[inline] public def InputDir.fetch (self : InputDir) : FetchM (Job (Array FilePath)) :=
+@[inline] public protected def InputDir.fetch (self : InputDir) : FetchM (Job (Array FilePath)) :=
   self.default.fetch
 
 /-- Get the input directory in the workspace corresponding to this configuration. -/
@@ -129,5 +137,5 @@ public def LeanLib.fetchFacetJob
 := KConfigDecl.get self
 
 /-- Fetch the files in the input directory. -/
-@[inline] public def InputDirDecl.fetch (self : InputDirDecl) : FetchM (Job (Array FilePath)) := do
+@[inline] public protected def InputDirDecl.fetch (self : InputDirDecl) : FetchM (Job (Array FilePath)) := do
   (← self.get).default.fetch

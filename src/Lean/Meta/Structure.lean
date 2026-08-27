@@ -4,18 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Kyle Miller
 -/
 module
-
 prelude
 public import Lean.AddDecl
 public import Lean.Meta.AppBuilder
-
+import Lean.Structure
+import Lean.Meta.Transform
 public section
-
+namespace Lean.Meta
 /-!
 # Structure methods that require `MetaM` infrastructure
 -/
-
-namespace Lean.Meta
 
 /--
 If `struct` is an application of the form `S ..` with `S` a constant for a structure,
@@ -128,7 +126,7 @@ Each projection `x.i` can be either a native projection or from a projection fun
 -/
 def etaStruct? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do
   let .const ctor _ := e.getAppFn | return none
-  let some (ConstantInfo.ctorInfo fVal) := (← getEnv).find? ctor | return none
+  let some fVal ← isCtor? ctor | return none
   unless p fVal.induct do return none
   unless 0 < fVal.numFields && e.getAppNumArgs == fVal.numParams + fVal.numFields do return none
   let args := e.getAppArgs

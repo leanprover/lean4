@@ -19,38 +19,70 @@ module
 public def foo : String := "bar"
 EOF
 
-# Test cross-package `import all` is prevented by default
-test_err "cannot 'import all' across packages" build ErrorTest.CrossPackageImportAll
+# Test cross-package `import all`
+# previously prevented by default
+# test_err 'cannot `import all` the module' build ErrorTest.CrossPackageImportAll
+# currently allowed
+test_run build ErrorTest.CrossPackageImportAll
 # Test cross-package `import all` is allowed when `allowImportAll = true` is set
 test_run build Test.CrossPackageImportAll
 
 # Tests importing of a module's private segment
 # should not not be imported by a plain `import` in a module
 test_run build Test.Module.Import
-test_cmd_fails grep -F "Test/Generated/Module.olean.private" .lake/build/ir/Test/Module/Import.setup.json
+test_cmd_fails grep -F "TModule.olean.private" .lake/build/ir/Test/Module/Import.setup.json
 test_run build Test.Module.PublicImport
-test_cmd_fails grep -F "Test/Generated/Module.olean.private" .lake/build/ir/Test/Module/PublicImport.setup.json
+test_cmd_fails grep -F "Module.olean.private" .lake/build/ir/Test/Module/PublicImport.setup.json
 # should be imported by an `import all` in a module
 test_run build Test.Module.ImportAll
-test_cmd grep -F "Test/Generated/Module.olean.private" .lake/build/ir/Test/Module/ImportAll.setup.json
+test_cmd grep -F "Module.olean.private" .lake/build/ir/Test/Module/ImportAll.setup.json
 # including promoted imports
 test_run build Test.Module.PromoteImport
-test_cmd grep -F "Test/Generated/Module.olean.private" .lake/build/ir/Test/Module/PromoteImport.setup.json
+test_cmd grep -F "Module.olean.private" .lake/build/ir/Test/Module/PromoteImport.setup.json
 test_run build Test.Module.PromoteTransImport
-test_cmd grep -F "Test/Generated/Module.olean.private" .lake/build/ir/Test/Module/PromoteTransImport.setup.json
+test_cmd grep -F "Module.olean.private" .lake/build/ir/Test/Module/PromoteTransImport.setup.json
+# an `import all` should not be demoted by a `meta import`
+# and `meta import` should still propagate through transitive imports
+test_run build Test.Module.PromoteMetaImport
+test_cmd grep -F "ImportImport.olean.private" .lake/build/ir/Test/Module/PromoteMetaImport.setup.json
+test_cmd grep -F "Module.ir" .lake/build/ir/Test/Module/PromoteMetaImport.setup.json
+# an `import all` of a module should not block a later transitive `meta import` of it
+# from propagating meta reachability to that module's own non-exported imports
+test_run build Test.Module.MetaRevisitAll
+test_cmd grep -F "ImportImport.olean.private" .lake/build/ir/Test/Module/MetaRevisitAll.setup.json
+test_cmd grep -F "Module.olean" .lake/build/ir/Test/Module/MetaRevisitAll.setup.json
+# and likewise when the `import all` is itself transitive
+test_run build Test.Module.MetaRevisitTransAll
+test_cmd grep -F "Module.olean" .lake/build/ir/Test/Module/MetaRevisitTransAll.setup.json
 # should be imported by a non-module
 test_run build Test.NonModule.Import
-test_cmd grep -F "Test/Generated/Module.olean.private" .lake/build/ir/Test/NonModule/Import.setup.json
+test_cmd grep -F "Module.olean.private" .lake/build/ir/Test/NonModule/Import.setup.json
 # should not be imported by a module transitive import of a private `import all`
 test_run build Test.Module.ImportImportAll
-test_cmd_fails grep -F "Test/Generated/Module.olean.private" .lake/build/ir/Test/Module/ImportImportAll.setup.json
+test_cmd_fails grep -F "Module.olean.private" .lake/build/ir/Test/Module/ImportImportAll.setup.json
 # should not be imported by an `import all` of a private module `import`
 test_run build Test.Module.ImportAllImport
-test_cmd_fails grep -F "Test/Generated/Module.olean.private" .lake/build/ir/Test/Module/ImportAllImport.setup.json
+test_cmd_fails grep -F "Module.olean.private" .lake/build/ir/Test/Module/ImportAllImport.setup.json
 
 # Tests that the transitive module import of a private import does not include its artifacts
 test_run build Test.Module.ImportImport
-test_cmd_fails grep -F "Test/Generated/Module.olean" .lake/build/ir/Test/Module/ImportImport.setup.json
+test_cmd_fails grep -F "Module.olean" .lake/build/ir/Test/Module/ImportImport.setup.json
+
+# Tests that `meta import` properly includes transitive import artifacts
+# IR should be included for a transitive `public meta import`
+test_run build Test.Module.ImportPublicMetaImport
+test_cmd grep -F "Module.ir" .lake/build/ir/Test/Module/ImportPublicMetaImport.setup.json
+# IR should be included for private imports of a `meta import`ed module
+# https://github.com/leanprover/lean4/issues/13419
+test_run build Test.Module.MetaImportImport
+test_cmd grep -F "Module.ir" .lake/build/ir/Test/Module/MetaImportImport.setup.json
+# IR should be included when a module is re-visited with `needsMeta`
+# (reached via both a non-meta and a meta path)
+test_run build Test.Module.MetaRevisit
+test_cmd grep -F "Module.ir" .lake/build/ir/Test/Module/MetaRevisit.setup.json
+# IR should not be included for a transitive private `meta import`
+test_run build Test.Module.ImportMetaImport
+test_cmd_fails grep -F "Module.ir" .lake/build/ir/Test/Module/ImportMetaImport.setup.json
 
 # Build all tests before making an edit
 test_run build
@@ -141,8 +173,10 @@ test_run build Test.Module.Import Test.Module.PublicImport --no-build
 # should trigger a rebuild on a direct `meta import`
 test_out "Built Test.Module.MetaImport" build Test.Module.MetaImport -v
 test_out "Built Test.Module.PublicMetaImport" build Test.Module.PublicMetaImport -v
-# should trigger a rebuild on a transitive `meta import`
+# should trigger a rebuild on a `meta import` of a transitive `public import`
 test_out "Built Test.Module.MetaImportPublicImport" build Test.Module.MetaImportPublicImport -v
+# should trigger a rebuild on a `meta import` of a transitive private `import`
+test_out "Built Test.Module.MetaImportImport" build Test.Module.MetaImportImport -v
 # should trigger a rebuild on module transitive import of a `public meta import`
 test_out "Built Test.Module.ImportPublicMetaImport" build Test.Module.ImportPublicMetaImport -v
 # should not trigger a rebuild on module transitive import of a private `meta import`

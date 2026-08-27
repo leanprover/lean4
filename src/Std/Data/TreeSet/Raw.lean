@@ -11,3 +11,4 @@ public import Std.Data.TreeSet.Raw.Lemmas
 public import Std.Data.TreeSet.Raw.WF
 public import Std.Data.TreeSet.Raw.Iterator
 public import Std.Data.TreeSet.Raw.Slice
+public import Std.Data.TreeSet.Raw.DecidableEquiv

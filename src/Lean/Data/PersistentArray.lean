@@ -8,7 +8,9 @@ module
 prelude
 public import Init.Data.Nat.Fold
 public import Init.Data.UInt.Basic
-import Init.Data.String.Basic
+import Init.Data.String.Defs
+import Init.Data.ToString.Macro
+import Init.Omega
 
 public section
 
@@ -225,7 +227,7 @@ variable {β : Type v}
 set_option linter.unusedVariables.funArgs false in
 @[specialize]
 partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] [inh : Inhabited β]
-    (f : α → β → m (ForInStep β)) (n : PersistentArrayNode α) (b : β) : m (ForInStep β) := do
+    (f : α → β → m (ForInStep β)) (n : @&PersistentArrayNode α) (b : β) : m (ForInStep β) := do
   let mut b := b
   match n with
   | leaf vs =>
@@ -241,7 +243,7 @@ partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad 
       | ForInStep.yield bNew => b := bNew
     return ForInStep.yield b
 
-@[specialize] protected def forIn (t : PersistentArray α) (init : β) (f : α → β → m (ForInStep β)) : m β := do
+@[specialize] protected def forIn (t : @&PersistentArray α) (init : β) (f : α → β → m (ForInStep β)) : m β := do
   match (← forInAux (inh := ⟨init⟩) f t.root init) with
   | ForInStep.done b  => pure b
   | ForInStep.yield b =>
@@ -252,7 +254,7 @@ partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad 
       | ForInStep.yield bNew => b := bNew
     return b
 
-instance : ForIn m (PersistentArray α) α where
+instance [Monad m] : ForIn m (PersistentArray α) α where
   forIn := PersistentArray.forIn
 
 @[specialize] partial def findSomeMAux (f : α → m (Option β)) : PersistentArrayNode α → m (Option β)
@@ -277,8 +279,24 @@ instance : ForIn m (PersistentArray α) α where
   | node cs => cs.forM (fun c => forMAux f c)
   | leaf vs => vs.forM f
 
-@[specialize] def forM (t : PersistentArray α) (f : α → m PUnit) : m PUnit :=
+@[specialize] def forMFrom0 (t : PersistentArray α) (f : α → m PUnit) : m PUnit :=
   forMAux f t.root *> t.tail.forM f
+
+@[specialize] private partial def forFromMAux (f : α → m PUnit) : PersistentArrayNode α → USize → USize → m PUnit
+  | node cs, i, shift => do
+    let j    := (div2Shift i shift).toNat
+    forFromMAux f cs[j]! (mod2Shift i shift) (shift - initShift)
+    cs.forM (start := j+1) (forMAux f)
+  | leaf vs, i, _ => vs.forM (start := i.toNat) f
+
+@[specialize] def forM (t : PersistentArray α) (f : α → m PUnit) (start : Nat := 0) : m PUnit := do
+  if start == 0 then
+    forMFrom0 t f
+  else if start >= t.tailOff then
+    t.tail.forM (start := start - t.tailOff) f
+  else do
+    forFromMAux f t.root (USize.ofNat start) t.shift
+    t.tail.forM f
 
 end
 
@@ -379,10 +397,6 @@ def mkPersistentArray {α : Type u} (n : Nat) (v : α) : PArray α :=
 @[inline] def mkPArray {α : Type u} (n : Nat) (v : α) : PArray α :=
   mkPersistentArray n v
 
-end Lean
-
-open Lean (PersistentArray)
-
 /--
 Converts a list to a persistent array.
 -/
@@ -394,3 +408,5 @@ def List.toPArray' {α : Type u} (xs : List α) : PersistentArray α :=
 
 def Array.toPArray' {α : Type u} (xs : Array α) : PersistentArray α :=
   xs.foldl (init := .empty) fun p x => p.push x
+
+end Lean

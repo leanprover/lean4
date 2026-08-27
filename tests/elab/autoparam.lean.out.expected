@@ -1,0 +1,2 @@
+fun x => f2 x x ⋯ : Nat → Nat
+fun x => f3 x x ⋯ : Nat → Nat

@@ -8,6 +8,13 @@ module
 prelude
 import all Init.Data.Array.Basic
 public import Init.Data.Array.Lemmas
+import Init.Data.Array.Bootstrap
+import Init.Data.Bool
+import Init.Data.List.Erase
+import Init.Data.List.Nat.Basic
+import Init.Data.List.Nat.Erase
+import Init.Data.List.TakeDrop
+import Init.Omega
 
 public section
 
@@ -105,7 +112,7 @@ theorem eraseP_map {f : β → α} {xs : Array β} : (xs.map f).eraseP p = (xs.e
 theorem eraseP_filterMap {f : α → Option β} {xs : Array α} :
     (filterMap f xs).eraseP p = filterMap f (xs.eraseP (fun x => match f x with | some y => p y | none => false)) := by
   rcases xs with ⟨xs⟩
-  simpa using List.eraseP_filterMap
+  simpa using! List.eraseP_filterMap
 
 @[grind =]
 theorem eraseP_filter {f : α → Bool} {xs : Array α} :
@@ -316,16 +323,18 @@ theorem eraseIdx_eq_eraseIdxIfInBounds {xs : Array α} {i : Nat} (h : i < xs.siz
     xs.eraseIdx i h = xs.eraseIdxIfInBounds i := by
   simp [eraseIdxIfInBounds, h]
 
-@[grind =]
 theorem eraseIdx_eq_take_drop_succ {xs : Array α} {i : Nat} (h) :
     xs.eraseIdx i h = xs.take i ++ xs.drop (i + 1) := by
   rcases xs with ⟨xs⟩
   simp only [List.size_toArray] at h
   simp only [List.eraseIdx_toArray, List.eraseIdx_eq_take_drop_succ, take_eq_extract,
-    List.extract_toArray, List.extract_eq_drop_take, Nat.sub_zero, List.drop_zero, drop_eq_extract,
+    List.extract_toArray, List.extract_eq_take_drop, Nat.sub_zero, List.drop_zero, drop_eq_extract,
     List.size_toArray, List.append_toArray, mk.injEq, List.append_cancel_left_eq]
   rw [List.take_of_length_le]
   simp
+
+grind_pattern eraseIdx_eq_take_drop_succ => xs.eraseIdx i h, xs.take i
+grind_pattern eraseIdx_eq_take_drop_succ => xs.eraseIdx i h, xs.drop i
 
 @[grind =]
 theorem getElem?_eraseIdx {xs : Array α} {i : Nat} (h : i < xs.size) {j : Nat} :
@@ -388,9 +397,6 @@ theorem eraseIdx_append_of_size_le {xs : Array α} {k : Nat} (hk : xs.size ≤ k
   rcases ys with ⟨l'⟩
   simp at hk
   simp [List.eraseIdx_append_of_length_le, *]
-
-@[deprecated eraseIdx_append_of_size_le (since := "2025-06-11")]
-abbrev eraseIdx_append_of_length_le := @eraseIdx_append_of_size_le
 
 @[grind =]
 theorem eraseIdx_append {xs ys : Array α} (h : k < (xs ++ ys).size) :

@@ -7,6 +7,7 @@ module
 
 prelude
 public meta import Init.Meta
+public import Init.Notation
 
 public section
 

@@ -8,6 +8,7 @@ module
 prelude
 public import Init.System.FilePath
 public import Lake.Toml.Data
+import Init.Data.ToString.Macro
 
 open Lean
 
@@ -24,8 +25,10 @@ public structure Toml.DecodeError where
   ref : Syntax
   msg : String
 
+/-- Monad for decoders that do not abort. -/
 public abbrev Toml.DecodeM := EStateM Empty (Array DecodeError)
 
+/-- Monad for decoders that may abort. -/
 public abbrev Toml.EDecodeM := EStateM Unit (Array DecodeError)
 
 public class DecodeToml (α : Type) where
@@ -92,6 +95,9 @@ public def mergeErrors (x₁ : EDecodeM α) (x₂ : EDecodeM β) (f : α → β 
     | .ok b es => .ok (f a b) es
     | .error _ es => .error () es
   | .error _ es => .error () es
+
+@[inline] public def logDecodeErrorAt (ref : Syntax) (msg : String) : DecodeM Unit :=
+  fun es => .ok () (es.push {ref, msg})
 
 @[inline] public def throwDecodeErrorAt (ref : Syntax) (msg : String) : EDecodeM α :=
   fun es => .error () (es.push {ref, msg})

@@ -294,10 +294,10 @@ def forM (f : α → m PUnit) (t : Raw α cmp) : m PUnit :=
 def forIn (f : α → δ → m (ForInStep δ)) (init : δ) (t : Raw α cmp) : m δ :=
   t.inner.forIn (fun a _ c => f a c) init
 
-instance : ForM m (Raw α cmp) α where
+instance [Monad m] : ForM m (Raw α cmp) α where
   forM t f := t.forM f
 
-instance : ForIn m (Raw α cmp) α where
+instance [Monad m] : ForIn m (Raw α cmp) α where
   forIn t init f := t.forIn (fun a acc => f a acc) init
 
 @[inline, inherit_doc TreeSet.empty]
@@ -352,6 +352,21 @@ def inter (t₁ t₂ : Raw α cmp) : Raw α cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨TreeMap.Raw.inter t₁.inner t₂.inner⟩
 
 instance : Inter (Raw α cmp) := ⟨inter⟩
+
+@[inherit_doc TreeSet.beq] def beq (t₁ t₂ : Raw α cmp) : Bool :=
+  letI : Ord α := ⟨cmp⟩; TreeMap.Raw.beq t₁.inner t₂.inner
+
+instance : BEq (Raw α cmp) := ⟨beq⟩
+
+/--
+Computes the difference of the given tree sets.
+
+This function always iterates through the smaller set.
+-/
+def diff (t₁ t₂ : Raw α cmp) : Raw α cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨TreeMap.Raw.diff t₁.inner t₂.inner⟩
+
+instance : SDiff (Raw α cmp) := ⟨diff⟩
 
 
 @[inline, inherit_doc TreeSet.empty]

@@ -10,6 +10,7 @@ Tests that the builtin `rwa` elaborator is preferred to its bootstrap macro even
 -/
 
 set_option linter.unnecessaryRwa true
+set_option linter.deprecated.syntax true
 
 /--
 warning: `rw` already closes the goal
@@ -35,3 +36,12 @@ Note: This linter can be disabled with `set_option linter.unnecessaryRwa false`
 set_option linter.unusedVariables false in
 example (a b : Nat) (ha : a = 0) (h : a = b) : (0 : Nat) = 0 := by
   rwa [h] at ha
+
+/--
+warning: syntax 'Lean.Parser.Tactic.rwaAtMany' has been deprecated: use `rw [...] at h₁ h₂ <;> assumption` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+-/
+#guard_msgs in
+example {a b : α} {P Q : α → Prop} (ha : P a) (_hb : Q a) (h : a = b) : P b := by
+  rwa [h] at ha _hb

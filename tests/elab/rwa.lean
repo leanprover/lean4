@@ -6,11 +6,13 @@ public import Lean.Elab.Term.TermElabM
 /-!
 # Tests for `rwa`
 
-This tests first-goal isolation, discharging rewrite side goals, rewriting at a
-hypothesis, and warnings when the final closing step is unnecessary.
+This tests first-goal isolation, discharging rewrite side goals, rewriting at hypotheses,
+deprecated multi-location compatibility, and warnings when the final closing step is unnecessary.
 -/
 
+set_option linter.unusedVariables false
 set_option linter.unnecessaryRwa true
+set_option linter.deprecated.syntax true
 
 section SuggestionValidation
 
@@ -92,7 +94,6 @@ example (ha : P a) (h : a = b) : P b := by
 
 -- The rewritten hypothesis, rather than another matching assumption, must close
 -- the main goal.
-set_option linter.unusedVariables false in
 example (ha : P a) (hq : q) (h : a = b) : q := by
   fail_if_success rwa [h] at ha
   exact hq
@@ -111,6 +112,21 @@ example (ha : P a) (h : a = b) : P b ∧ True := by
   trivial
 
 end AtHypothesis
+
+section DeprecatedMultiLocation
+
+variable {a b : α} {P Q R : α → Prop}
+
+/--
+warning: syntax 'Lean.Parser.Tactic.rwaAtMany' has been deprecated: use `rw [...] at h₁ h₂ <;> assumption` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+-/
+#guard_msgs in
+example (ha : P a) (hb : Q a) (hc : R a) (h : a = b) : P b := by
+  rwa [h] at ha hb hc
+
+end DeprecatedMultiLocation
 
 section Unnecessary
 
@@ -147,7 +163,6 @@ example (hp : p) : a = b := by
   rwa [conditionalEq a b p]
 
 #guard_msgs in
-set_option linter.unusedVariables false in
 example (ha : P a) (hp : p) : (0 : Nat) = 0 := by
   rwa [conditionalEq a b p] at ha
 
@@ -160,7 +175,6 @@ Hint: Use `rw` instead of `rwa`:
 Note: This linter can be disabled with `set_option linter.unnecessaryRwa false`
 -/
 #guard_msgs in
-set_option linter.unusedVariables false in
 example (ha : P a) (h : a = b) : (0 : Nat) = 0 := by
   rwa [h] at ha
 

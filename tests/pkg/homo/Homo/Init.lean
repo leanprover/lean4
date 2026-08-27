@@ -114,9 +114,9 @@ Returns `true` if some theorem marked with `[grind_homo]` is applicable to `e`.
 
 Motivation: we don't want to start the simplifier and fail immediately.
 -/
-def isTarget (e : Expr) : CoreM Bool := do
+def isTarget (e : Expr) : MetaM Bool := do
   let thms ← getTheorems
-  return !(thms.getMatch e).isEmpty
+  return !(thms.getMatch (← getMCtx) e).isEmpty
 
 /--
 Internalization procedure for this module. See `homoExt.setMethods`

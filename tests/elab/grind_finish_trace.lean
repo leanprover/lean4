@@ -155,9 +155,9 @@ example (ge : m ≥ n) (x : BitVec n) (i : Nat) :
 
 /--
 info: Try these:
-  [apply] cases #52a6 <;>
+  [apply] cases #d36f <;>
       instantiate only [= BitVec.getElem_and] <;> instantiate only [= BitVec.getElem_or] <;> cases #de0f
-  [apply] finish only [= BitVec.getElem_and, = BitVec.getElem_or, #52a6, #de0f]
+  [apply] finish only [= BitVec.getElem_and, = BitVec.getElem_or, #d36f, #de0f]
 -/
 #guard_msgs in
 example (x y : BitVec 64) : (x ||| y) &&& x = x := by

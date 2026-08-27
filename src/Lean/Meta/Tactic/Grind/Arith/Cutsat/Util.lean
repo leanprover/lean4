@@ -8,7 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Simp.Arith.Int.Simp
 public section
-namespace Int.Linear
+namespace Int.Internal.Linear
 
 def Poly.isZero : Poly → Bool
   | .num 0 => true
@@ -26,15 +26,56 @@ where
   | none,   .add _ y p => go (some y) p
   | some x, .add _ y p => x > y && go (some y) p
 
-end Int.Linear
+end Int.Internal.Linear
 
 namespace Lean.Meta.Grind.Arith.Cutsat
+
+open Lean
 
 def get' : GoalM State := do
   cutsatExt.getState
 
 @[inline] def modify' (f : State → State) : GoalM Unit := do
   cutsatExt.modifyState f
+
+/-- Returns `true` if cutsat natively supports `type`. -/
+def isSupportedType (type : Expr) : GoalM Bool := do
+  if isNatType type || isIntType type then
+    return true
+  else match_expr type with
+    | Fin _ => return true
+    | BitVec _ => return true
+    | UInt8 => return true
+    | UInt16 => return true
+    | UInt32 => return true
+    | UInt64 => return true
+    | USize => return true
+    | Int8 => return true
+    | Int16 => return true
+    | Int32 => return true
+    | Int64 => return true
+    | ISize => return true
+    | _ => return false
+
+/--
+Returns `true` if numerals of the embedded type `α` can be evaluated, i.e., their
+embedded (`Fin.val`/`toNat`/`toInt`) value can be computed directly. Such numerals are
+not given embedding-accessor applications. Currently this means the modulus of `α` is
+known, but future embedded types may be evaluable without one.
+-/
+def canBeEvaluated (α : Expr) : GoalM Bool :=
+  match_expr α with
+  | Fin n => return (← getNatValue? n).isSome
+  | BitVec w => return (← getNatValue? w).isSome
+  | UInt8 => return true
+  | UInt16 => return true
+  | UInt32 => return true
+  | UInt64 => return true
+  | Int8 => return true
+  | Int16 => return true
+  | Int32 => return true
+  | Int64 => return true
+  | _ => return false -- USize, ISize
 
 /-- Returns `true` if the cutsat state is inconsistent. -/
 def inconsistent : GoalM Bool := do
@@ -71,20 +112,20 @@ opaque EqCnstr.assert (c : EqCnstr) : GoalM Unit
 def resetAssignmentFrom (x : Var) : GoalM Unit := do
   modify' fun s => { s with assignment := shrink s.assignment x }
 
-def _root_.Int.Linear.Poly.pp (p : Poly) : GoalM MessageData := do
+def _root_.Int.Internal.Linear.Poly.pp (p : Poly) : GoalM MessageData := do
   match p with
   | .num k => return m!"{k}"
   | .add 1 x p => go (quoteIfArithTerm (← getVar x)) p
   | .add k x p => go m!"{k}*{quoteIfArithTerm (← getVar x)}" p
 where
-  go (r : MessageData)  (p : Int.Linear.Poly) : GoalM MessageData := do
+  go (r : MessageData)  (p : Int.Internal.Linear.Poly) : GoalM MessageData := do
     match p with
     | .num 0 => return r
     | .num k => return m!"{r} + {k}"
     | .add 1 x p => go m!"{r} + {quoteIfArithTerm (← getVar x)}" p
     | .add k x p => go m!"{r} + {k}*{quoteIfArithTerm (← getVar x)}" p
 
-def _root_.Int.Linear.Poly.denoteExpr' (p : Poly) : GoalM Expr := do
+def _root_.Int.Internal.Linear.Poly.denoteExpr' (p : Poly) : GoalM Expr := do
   let vars ← getVars
   return (← p.denoteExpr (vars[·]!))
 
@@ -164,7 +205,7 @@ def addOcc (x : Var) (y : Var) : GoalM Unit := do
 Given `p` a polynomial being inserted into `lowers`, `uppers`, or `dvdCnstrs`,
 get its leading variable `y`, and adds `y` as an occurrence for the remaining variables in `p`.
 -/
-partial def _root_.Int.Linear.Poly.updateOccs (p : Poly) : GoalM Unit := do
+partial def _root_.Int.Internal.Linear.Poly.updateOccs (p : Poly) : GoalM Unit := do
   let .add _ y p := p | throwError "`grind` internal error, unexpected constant polynomial"
   let rec go (p : Poly) : GoalM Unit := do
     let .add _ x p := p | return ()
@@ -175,7 +216,7 @@ partial def _root_.Int.Linear.Poly.updateOccs (p : Poly) : GoalM Unit := do
 Tries to evaluate the polynomial `p` using the partial model/assignment built so far.
 The result is `none` if the polynomial contains variables that have not been assigned.
 -/
-def _root_.Int.Linear.Poly.eval? (p : Poly) : GoalM (Option Rat) := do
+def _root_.Int.Internal.Linear.Poly.eval? (p : Poly) : GoalM (Option Rat) := do
   let a := (← get').assignment
   let rec go (v : Rat) : Poly → Option Rat
     | .num k => some (v + k)
@@ -201,7 +242,7 @@ def DvdCnstr.satisfied (c : DvdCnstr) : GoalM LBool := do
   if v.den != 1 then return .false
   return decide (c.d ∣ v.num) |>.toLBool
 
-def _root_.Int.Linear.Poly.satisfiedLe (p : Poly) : GoalM LBool := do
+def _root_.Int.Internal.Linear.Poly.satisfiedLe (p : Poly) : GoalM LBool := do
   let some v ← p.eval? | return .undef
   return decide (v <= 0) |>.toLBool
 
@@ -232,7 +273,7 @@ def EqCnstr.satisfied (c : EqCnstr) : GoalM LBool := do
 Given a polynomial `p`, returns `some (x, k, c)` if `p` contains the monomial `k*x`,
 and `x` has been eliminated using the equality `c`.
 -/
-def _root_.Int.Linear.Poly.findVarToSubst (p : Poly) : GoalM (Option (Int × Var × EqCnstr)) := do
+def _root_.Int.Internal.Linear.Poly.findVarToSubst (p : Poly) : GoalM (Option (Int × Var × EqCnstr)) := do
   match p with
   | .num _ => return none
   | .add k x p =>

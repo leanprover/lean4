@@ -1,0 +1,6 @@
+name = "precompileModules-importLake"
+precompileModules = true
+defaultTargets = ["Foo"]
+
+[[lean_lib]]
+name = "Foo"

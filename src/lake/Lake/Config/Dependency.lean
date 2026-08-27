@@ -68,9 +68,9 @@ The source of a `Dependency`.
 That is, where Lake should look to materialize the dependency.
 -/
 public inductive DependencySrc where
-/- A package located at a fixed path relative to the dependent package's directory. -/
+/-- A package located at a fixed path relative to the dependent package's directory. -/
 | path (dir : FilePath)
-/- A package cloned from a Git repository available at a fixed Git `url`. -/
+/-- A package cloned from a Git repository available at a fixed Git `url`. -/
 | git (url : String) (rev : Option GitRev) (subDir : Option FilePath)
 deriving Inhabited, Repr
 

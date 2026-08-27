@@ -12,6 +12,7 @@ import Lean.Meta.CtorRecognizer
 open Lean Meta Simp
 public section
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /--
 This simproc reduces `T.ctorIdx (T.con …)` to the constructor index.
 It does not take part in simp's discrimination tree index, so can be costly on large goals.

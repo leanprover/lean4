@@ -49,6 +49,7 @@ public import Lean.Elab.Tactic.Impossible
 public import Lean.Elab.Tactic.Grind
 public import Lean.Elab.Tactic.Monotonicity
 public import Lean.Elab.Tactic.Try
+public import Lean.Elab.Tactic.AutoTry
 public import Lean.Elab.Tactic.AsAuxLemma
 public import Lean.Elab.Tactic.TreeTacAttr
 public import Lean.Elab.Tactic.ExposeNames
@@ -56,5 +57,6 @@ public import Lean.Elab.Tactic.SimpArith
 public import Lean.Elab.Tactic.Show
 public import Lean.Elab.Tactic.Lets
 public import Lean.Elab.Tactic.Do
+public import Lean.Elab.Tactic.VCGen
 public import Lean.Elab.Tactic.Decide
 public import Lean.Elab.Tactic.Cbv

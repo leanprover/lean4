@@ -288,6 +288,12 @@ public:
     */
     size_t log2() const;
 
+    /**
+       \brief Return an upper bound on the size in bytes of the representation,
+       i.e. the number of limbs times the bytes per limb. Used to bound memory usage.
+    */
+    size_t size_in_bytes() const;
+
     friend void power(mpz & a, mpz const & b, unsigned k);
     friend void _power(mpz & a, mpz const & b, unsigned k) { power(a, b, k); }
     friend mpz pow(mpz a, unsigned k) { power(a, a, k); return a; }

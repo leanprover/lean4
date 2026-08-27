@@ -1,0 +1,76 @@
+/-!
+# `mutual_multiuniverse`: blocks the lowering must refuse
+
+Each block below must produce an error rather than a silently wrong
+translation, so the messages are pinned.
+-/
+
+/-! ## A nested occurrence of a block member
+
+`List N2` is not a field the shadow can reconstruct: the shadow's `N2` carries
+no data, so there is nothing to squash a `List N2` into elementwise without
+lowering `List` itself. -/
+
+/--
+error: Unsupported constructor field in `mutual_multiuniverse` block: field 1 of `N1.mk` mentions a member of the block in a nested position, in the type
+  List N2
+
+Note: Nested occurrences are not supported: the shadow of a data member carries no data, so there is nothing to rebuild such a field from without lowering the surrounding type as well
+-/
+#guard_msgs in
+mutual_multiuniverse
+inductive N1 : Prop where
+  | mk : List N2 → N1
+inductive N2 : Type where
+  | mk : N1 → N2
+end
+
+/-! ## A member occurring in the *domain* of a field
+
+`(N4 → Nat) → N3` is not strictly positive; `mutual` rejects it too, but the
+lowering has to say so before the kernel gets a chance. -/
+
+/--
+error: Unsupported constructor field in `mutual_multiuniverse` block: field 1 of `N3.mk` takes an argument whose type mentions a member of the block
+
+Note: This is not a strictly positive occurrence, so the lowering has nothing to translate it to
+-/
+#guard_msgs in
+mutual_multiuniverse
+inductive N3 : Prop where
+  | mk : (N4 → Nat) → N3
+inductive N4 : Type where
+  | mk : N3 → N4
+end
+
+/-! ## Only `inductive` declarations are allowed -/
+
+/--
+error: invalid `mutual_multiuniverse` block: every element of the block must be an `inductive` declaration
+-/
+#guard_msgs in
+mutual_multiuniverse
+inductive S1 : Prop where
+  | mk : S2 → S1
+structure S2 : Type 1 where
+  fld : Type
+end
+
+/-! ## A field that does not fit its own member's universe is still an error;
+the check is just made per member rather than for the block as a whole. -/
+
+/--
+error: Invalid universe level in constructor `U2.mk`: Parameter `t` has type
+  Type 1
+at universe level
+  3
+which is not less than or equal to the inductive type's resulting universe level
+  1
+-/
+#guard_msgs in
+mutual_multiuniverse
+inductive U1 : Prop where
+  | mk : U2 → U1
+inductive U2 : Type 0 where
+  | mk : (t : Type 1) → U1 → U2
+end

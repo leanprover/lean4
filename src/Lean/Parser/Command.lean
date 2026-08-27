@@ -901,6 +901,47 @@ end
 @[builtin_command_parser] def «mutual» := leading_parser
   "mutual" >> many1 (ppLine >> notSymbol "end" >> commandParser) >>
   ppDedent (ppLine >> "end")
+
+/--
+A `mutual` block of inductive types whose members may live at *different*
+universes.
+
+The kernel requires the members of a mutual inductive block to share a
+universe, so such a block cannot be declared with `mutual`.  This command
+elaborates its contents exactly as `mutual` does, then translates the block
+into ordinary declarations the kernel does accept, and defines the types,
+constructors and recursors the block would have had.  It requires no extension
+of the type theory.
+
+```
+mutual_multiuniverse
+inductive Even : Nat → Prop where
+  | zero : Even 0
+  | succ : (n : Nat) → OddData n → Even (n + 1)
+inductive OddData : Nat → Type where
+  | succ : (n : Nat) → Even n → Nat → OddData (n + 1)
+end
+```
+
+The block-wide recursor -- the one whose motives range over every member -- is
+`X.mutualRec`.  Data members are honest inductive types under their own names,
+so `match`, `induction`, `cases`, `injection` and `#eval` all work on them as
+usual; `X.rec` is their native recursor, whose motives range over their
+strongly connected component of the block.
+
+The recursors are axiom-free, with one exception: if a `Prop` member has a
+constructor field that is a *function into* a data member, recursing on it has
+to choose data witnesses pointwise, and the recursors that do so depend on
+`Classical.choice`.
+
+A block whose members all live at the same universe is emitted natively, so
+`mutual_multiuniverse` accepts everything `mutual` does and means the same
+thing by it.
+-/
+@[builtin_command_parser] def «mutualMultiuniverse» := leading_parser
+  "mutual_multiuniverse" >> many1 (ppLine >> notSymbol "end" >> commandParser) >>
+  ppDedent (ppLine >> "end")
+
 def initializeKeyword := leading_parser
   "initialize " <|> "builtin_initialize "
 @[builtin_command_parser] def «initialize» := leading_parser

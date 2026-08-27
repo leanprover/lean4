@@ -236,7 +236,12 @@ where
     | _, _ => .anonymous
 
 
-@[builtin_macro Lean.Parser.Command.mutual]
+/-! The three `mutual` preprocessing macros below only rearrange `stx[1]`, the
+block's elements, so they apply verbatim to `mutual_multiuniverse`, whose
+syntax has the same shape. -/
+
+@[builtin_macro Lean.Parser.Command.mutual,
+  builtin_macro Lean.Parser.Command.mutualMultiuniverse]
 def expandMutualNamespace : Macro := fun stx => do
   let mut nss := #[]
   for elem in stx[1].getArgs do
@@ -254,7 +259,8 @@ def expandMutualNamespace : Macro := fun stx => do
   let stxNew := stx.setArg 1 (mkNullNode elemsNew)
   `(namespace $ns $(⟨stxNew⟩) end $ns)
 
-@[builtin_macro Lean.Parser.Command.mutual]
+@[builtin_macro Lean.Parser.Command.mutual,
+  builtin_macro Lean.Parser.Command.mutualMultiuniverse]
 def expandMutualElement : Macro := fun stx => do
   let mut elemsNew := #[]
   let mut modified := false
@@ -275,7 +281,8 @@ def expandMutualElement : Macro := fun stx => do
   else
     Macro.throwUnsupported
 
-@[builtin_macro Lean.Parser.Command.mutual]
+@[builtin_macro Lean.Parser.Command.mutual,
+  builtin_macro Lean.Parser.Command.mutualMultiuniverse]
 def expandMutualPreamble : Macro := fun stx =>
   match splitMutualPreamble stx[1].getArgs with
   | none => Macro.throwUnsupported
@@ -296,6 +303,15 @@ def elabMutual : CommandElab := fun stx => do
       elabMutualInductive stx[1].getArgs
     else
       throwError "invalid mutual block: either all elements of the block must be inductive/structure declarations, or they must all be definitions/theorems/abbrevs"
+
+@[builtin_command_elab «mutualMultiuniverse»]
+def elabMutualMultiuniverse : CommandElab := fun stx => do
+  withExporting (isExporting := (← getScope).isPublic) do
+  withoutCommandIncrementality true do
+    unless ← isMutualInductive stx do
+      throwError "invalid `mutual_multiuniverse` block: every element of the block must be an \
+        `inductive` declaration"
+    elabMultiuniverseInductive stx[1].getArgs
 
 /- leading_parser "attribute " >> "[" >> sepBy1 (eraseAttr <|> Term.attrInstance) ", " >> "]" >> many1 ident -/
 @[builtin_command_elab «attribute»] def elabAttr : CommandElab := fun stx => do

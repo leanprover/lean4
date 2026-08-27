@@ -54,10 +54,10 @@ abbrev Digit := UInt32
 abbrev DoubleDigit := UInt64
 
 /-- `sizeof(mpn_digit)`, which `mpn.h` fixes at 4. -/
-def digitBytes : Nat := 4
+@[reducible] def digitBytes : Nat := 4
 
 /-- `#define DIGIT_BITS (sizeof(mpn_digit)*8)` -/
-def digitBits : Nat := digitBytes * 8
+@[reducible] def digitBits : Nat := digitBytes * 8
 
 /-- `#define BASE ((mpn_double_digit)0x01 << DIGIT_BITS)` -/
 def base : Nat := 1 <<< digitBits
@@ -67,8 +67,7 @@ def maskFirst : Digit := ~~~((-1 : Digit) >>> 1)
 
 /-!
 The three constants above are what the C++ writes; the arithmetic below wants
-their values, and `omega` needs a literal rather than a shift. These are those
-values, proved rather than assumed, and it is they that the proofs unfold.
+their values, and `omega` needs a literal rather than a shift.
 -/
 
 @[simp] theorem digitBits_eq : digitBits = 32 := rfl
@@ -76,12 +75,6 @@ values, proved rather than assumed, and it is they that the proofs unfold.
 @[simp] theorem base_eq : base = 4294967296 := rfl
 
 @[simp] theorem maskFirst_eq : maskFirst = 0x80000000 := rfl
-
-/-- `(t << DIGIT_BITS) >> DIGIT_BITS`, which for a `uint64_t` is its low word. -/
-private def lo (t : DoubleDigit) : Digit := t.toUInt32
-
-/-- `t >> DIGIT_BITS`, which is its high word. -/
-private def hi (t : DoubleDigit) : Digit := (t >>> 32).toUInt32
 
 
 /-!
@@ -98,8 +91,9 @@ the type written in the source. `uint32_t` promotes to `unsigned int` rather
 than `int`, since `int` cannot represent all its values, so the bound for a
 digit shift is 32; `uint64_t` has rank at least `int` already and is not
 promoted, so the bound for a double digit is 64. Those happen to be `DIGIT_BITS`
-and `2 * DIGIT_BITS`, because `mpn_digit` is exactly `unsigned int` wide, which
-is why the bounds below are written in terms of `digitBits`.
+and `2 * DIGIT_BITS`, because `mpn_digit` is exactly `unsigned int` wide. The
+bounds below are stated on the C types and their own widths, so that they say
+what the standard says rather than what `mpn.h` happens to typedef.
 
 Each operation below wraps one of them with the hypothesis that pins it down.
 Taking the hypothesis in the definition rather than in a theorem about it means
@@ -109,46 +103,55 @@ specification.
 -/
 namespace CPP
 
-/-- `x << d` on `mpn_digit`, bounded by the width `uint32_t` promotes to. -/
-def shl (x : Digit) (d : Nat) (_h : d < digitBits) : Digit := x <<< UInt32.ofNat d
+/-- `x << d` on `unsigned int`. -/
+def shl (x : UInt32) (d : Nat) (_h : d < 32) : UInt32 := x <<< UInt32.ofNat d
 
-/-- `x >> d` on `mpn_digit`, bounded the same way. -/
-def shr (x : Digit) (d : Nat) (_h : d < digitBits) : Digit := x >>> UInt32.ofNat d
+/-- `x >> d` on `unsigned int`. -/
+def shr (x : UInt32) (d : Nat) (_h : d < 32) : UInt32 := x >>> UInt32.ofNat d
 
-/-- `t << d` on `mpn_double_digit`, which is not promoted, so its own width bounds it. -/
-def shlD (t : DoubleDigit) (d : Nat) (_h : d < 2 * digitBits) : DoubleDigit :=
-  t <<< UInt64.ofNat d
+/-- `t << d` on `uint64_t`. -/
+def shlD (t : UInt64) (d : Nat) (_h : d < 64) : UInt64 := t <<< UInt64.ofNat d
 
-/-- `t >> d` on `mpn_double_digit`, bounded the same way. -/
-def shrD (t : DoubleDigit) (d : Nat) (_h : d < 2 * digitBits) : DoubleDigit :=
-  t >>> UInt64.ofNat d
+/-- `t >> d` on `uint64_t`. -/
+def shrD (t : UInt64) (d : Nat) (_h : d < 64) : UInt64 := t >>> UInt64.ofNat d
 
-/-- `a / b` on `mpn_double_digit`; division by zero is undefined. -/
-def divD (a b : DoubleDigit) (_h : b ≠ 0) : DoubleDigit := a / b
+/-- `a / b` on `uint64_t`; division by zero is undefined. -/
+def divD (a b : UInt64) (_h : b ≠ 0) : UInt64 := a / b
 
-/-- `a % b` on `mpn_double_digit`. -/
-def modD (a b : DoubleDigit) (_h : b ≠ 0) : DoubleDigit := a % b
+/-- `a % b` on `uint64_t`. -/
+def modD (a b : UInt64) (_h : b ≠ 0) : UInt64 := a % b
 
-/-- `a / b` on `mpn_digit`. -/
-def div (a b : Digit) (_h : b ≠ 0) : Digit := a / b
+/-- `a / b` on `unsigned int`. -/
+def div (a b : UInt32) (_h : b ≠ 0) : UInt32 := a / b
 
-/-- `a % b` on `mpn_digit`. -/
-def mod (a b : Digit) (_h : b ≠ 0) : Digit := a % b
+/-- `a % b` on `unsigned int`. -/
+def mod (a b : UInt32) (_h : b ≠ 0) : UInt32 := a % b
 
-/-- `a - b` in `size_t`, which wraps to a huge value rather than going negative. -/
+/-- `a - b` on `size_t`, which wraps to a huge value rather than going negative. -/
 def sizeSub (a b : Nat) (_h : b ≤ a) : Nat := a - b
 
-@[simp] theorem shl_eq (x : Digit) (d : Nat) (h) : shl x d h = x <<< UInt32.ofNat d := rfl
-@[simp] theorem shr_eq (x : Digit) (d : Nat) (h) : shr x d h = x >>> UInt32.ofNat d := rfl
-@[simp] theorem shlD_eq (t : DoubleDigit) (d : Nat) (h) : shlD t d h = t <<< UInt64.ofNat d := rfl
-@[simp] theorem shrD_eq (t : DoubleDigit) (d : Nat) (h) : shrD t d h = t >>> UInt64.ofNat d := rfl
-@[simp] theorem divD_eq (a b : DoubleDigit) (h) : divD a b h = a / b := rfl
-@[simp] theorem modD_eq (a b : DoubleDigit) (h) : modD a b h = a % b := rfl
-@[simp] theorem div_eq (a b : Digit) (h) : div a b h = a / b := rfl
-@[simp] theorem mod_eq (a b : Digit) (h) : mod a b h = a % b := rfl
+@[simp] theorem shl_eq (x : UInt32) (d : Nat) (h) : shl x d h = x <<< UInt32.ofNat d := rfl
+@[simp] theorem shr_eq (x : UInt32) (d : Nat) (h) : shr x d h = x >>> UInt32.ofNat d := rfl
+@[simp] theorem shlD_eq (t : UInt64) (d : Nat) (h) : shlD t d h = t <<< UInt64.ofNat d := rfl
+@[simp] theorem shrD_eq (t : UInt64) (d : Nat) (h) : shrD t d h = t >>> UInt64.ofNat d := rfl
+@[simp] theorem divD_eq (a b : UInt64) (h) : divD a b h = a / b := rfl
+@[simp] theorem modD_eq (a b : UInt64) (h) : modD a b h = a % b := rfl
+@[simp] theorem div_eq (a b : UInt32) (h) : div a b h = a / b := rfl
+@[simp] theorem mod_eq (a b : UInt32) (h) : mod a b h = a % b := rfl
 @[simp] theorem sizeSub_eq (a b : Nat) (h) : sizeSub a b h = a - b := rfl
 
 end CPP
+
+/--
+`c[i+j] = (t << DIGIT_BITS) >> DIGIT_BITS`, the low word of a double digit. The
+`toUInt32` is the narrowing the assignment to an `mpn_digit` performs.
+-/
+private def lo (t : DoubleDigit) : Digit :=
+  (CPP.shrD (CPP.shlD t digitBits (by decide)) digitBits (by decide)).toUInt32
+
+/-- `k = t >> DIGIT_BITS`, the high word, narrowed the same way. -/
+private def hi (t : DoubleDigit) : Digit :=
+  (CPP.shrD t digitBits (by decide)).toUInt32
 
 /-! ## Digit-level bit facts
 
@@ -1531,9 +1534,10 @@ theorem subInPlace_spec (u b w : Array Digit) (off len : Nat)
 theorem lo_add_hi (t : DoubleDigit) : (lo t).toNat + (hi t).toNat * base = t.toNat := by
   have h := UInt64.toNat_lt_size t
   have hs : (UInt64.size : Nat) = 18446744073709551616 := rfl
-  have h32 : (UInt64.toNat 32 % 64) = 32 := rfl
-  simp only [lo, hi, base_eq, UInt64.toNat_toUInt32, UInt64.toNat_shiftRight, hs, h32,
-    Nat.shiftRight_eq_div_pow] at *
+  have h32 : (UInt64.ofNat digitBits).toNat % 64 = 32 := rfl
+  simp only [lo, hi, CPP.shrD_eq, CPP.shlD_eq, base_eq, UInt64.toNat_toUInt32,
+    UInt64.toNat_shiftRight, UInt64.toNat_shiftLeft, hs, h32,
+    Nat.shiftRight_eq_div_pow, Nat.shiftLeft_eq] at *
   omega
 
 /--

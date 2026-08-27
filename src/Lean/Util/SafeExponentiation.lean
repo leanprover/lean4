@@ -28,7 +28,7 @@ This method ensures there is at most one warning message of this kind in the mes
 -/
 def checkExponent (n : Nat) (warning := true) : CoreM Bool := do
   -- unrestricted acquisition: the threshold is part of the resolution cache key
-  -- (`Lean.Meta.SynthInstanceCacheKey.limits`)
+  -- (`Lean.Meta.SynthInstanceCacheKey.exponentiationThreshold`)
   let threshold := exponentiation.threshold.get (← getOptionsUnrestricted)
   if n > threshold then
     if (← pure warning <&&> logMessageKind `unsafe.exponentiation) then

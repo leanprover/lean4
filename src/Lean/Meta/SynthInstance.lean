@@ -685,7 +685,7 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
        synth
      tryCatchRuntimeEx
        -- unrestricted acquisition: the limit is part of the resolution cache key
-       -- (`SynthInstanceCacheKey.limits`)
+       -- (`SynthInstanceCacheKey.maxHeartbeats` and friends)
        (action.run { maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptionsUnrestricted) } |>.run' {})
        fun ex =>
          if ex.isRuntime then
@@ -1063,29 +1063,26 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
   let opts ← getOptionsUnrestricted
   let getB (n : Name) (d : Bool) : Bool :=
     ((opts.find? n).bind KVMap.Value.ofDataValue?).getD d
-  let flags : SynthDefEqFlags := {
-    respectTransparency                    := getB `backward.isDefEq.respectTransparency true
-    respectTransparencyTypes               := getB `backward.isDefEq.respectTransparency.types true
-    respectTransparencyInstanceSearchTypes := getB `backward.isDefEq.respectTransparency.instanceSearchTypes true
-    implicitBump                           := getB `backward.isDefEq.implicitBump true
-    reducibleClassField                    := getB `backward.whnf.reducibleClassField true
-    lazyProjDelta                          := getB `backward.isDefEq.lazyProjDelta true
-    lazyWhnfCore                           := getB `backward.isDefEq.lazyWhnfCore true
-    smartUnfolding                         := getB `smartUnfolding true
-    throwOnStuckAfterApp                   := getB `backward.isDefEq.throwOnStuckAfterApp false
-  }
-  -- Resource limits are part of the cache key (`SynthInstanceCacheKey.limits`): exceeding one
-  -- throws and results are only stored on the success path, so a limit cannot influence a
-  -- stored result, and keying by them makes that structural. Read by name because their
-  -- accessors live in modules this one does not import.
-  let getN (n : Name) (d : Nat) : Nat :=
-    ((opts.find? n).bind KVMap.Value.ofDataValue?).getD d
-  let limits : SynthLimits := {
-    maxHeartbeats           := getN `maxHeartbeats 200000
-    synthInstanceHeartbeats := getN `synthInstance.maxHeartbeats 20000
-    maxRecDepth             := getN `maxRecDepth 512
-    exponentiationThreshold := getN `exponentiation.threshold 256
-  }
+  let flags : SynthDefEqFlags := .ofFlags
+    (respectTransparency                    := getB `backward.isDefEq.respectTransparency true)
+    (respectTransparencyTypes               := getB `backward.isDefEq.respectTransparency.types true)
+    (respectTransparencyInstanceSearchTypes := getB `backward.isDefEq.respectTransparency.instanceSearchTypes true)
+    (implicitBump                           := getB `backward.isDefEq.implicitBump true)
+    (reducibleClassField                    := getB `backward.whnf.reducibleClassField true)
+    (lazyProjDelta                          := getB `backward.isDefEq.lazyProjDelta true)
+    (lazyWhnfCore                           := getB `backward.isDefEq.lazyWhnfCore true)
+    (smartUnfolding                         := getB `smartUnfolding true)
+    (throwOnStuckAfterApp                   := getB `backward.isDefEq.throwOnStuckAfterApp false)
+  -- Resource limits are part of the cache key: exceeding one throws and results are only stored
+  -- on the success path, so a limit cannot influence a stored result, and keying by them makes
+  -- that structural. Read by name because their accessors live in modules this one does not
+  -- import; stored unboxed, see `SynthInstanceCacheKey.maxHeartbeats`.
+  let getN (n : Name) (d : Nat) : UInt64 :=
+    (((opts.find? n).bind KVMap.Value.ofDataValue?).getD d : Nat).toUInt64
+  let maxHeartbeats           := getN `maxHeartbeats 200000
+  let synthInstanceHeartbeats := getN `synthInstance.maxHeartbeats 20000
+  let maxRecDepth             := getN `maxRecDepth 512
+  let exponentiationThreshold := getN `exponentiation.threshold 256
   withReader (fun ctx => { ctx with synthDefEqFlags? := some flags }) do
   withTraceNode `Meta.synthInstance
     (fun _ => return m!"{← instantiateMVars type}") do
@@ -1095,7 +1092,8 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     let type ← instantiateMVars type
     let { type, cacheKeyType, kind } ← preprocess type
     let cacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth,
-                      maxResultSize, defEqFlags := flags, limits }
+                      maxResultSize, defEqFlags := flags, maxHeartbeats,
+                      synthInstanceHeartbeats, maxRecDepth, exponentiationThreshold }
     let runSearch : MetaM (Option AbstractMVarsResult) :=
       withNewMCtxDepth (allowLevelAssignments := true) do
         match kind with

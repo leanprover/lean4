@@ -358,36 +358,47 @@ context. See `SynthInstanceCache`.
 abbrev SynthOptionAccessLog := Array RecordedOptionAccess
 
 /--
-Resource limits a type class resolution query runs under; part of the cache key, see
-`SynthInstanceCacheKey.limits`.
--/
-structure SynthLimits where
-  maxHeartbeats           : Nat
-  synthInstanceHeartbeats : Nat
-  maxRecDepth             : Nat
-  exponentiationThreshold : Nat
-  deriving Hashable, BEq, Inhabited
+The definitional-equality and unfolding compatibility flags a type class resolution query runs
+under, resolved once per query (`synthInstanceCore?`) so that their per-step reads inside the
+search avoid the recording accessors; see `getSynthDefEqFlag`.
 
-/--
-The definitional-equality and unfolding compatibility flags, resolved and recorded once per type
-class resolution query (`synthInstanceCore?`) so that their per-step reads inside the search
-avoid the recording accessors; see `getSynthDefEqFlag`. Being resolved up front, they are part
-of the cache key (`SynthInstanceCacheKey.defEqFlags`) rather than recorded dependencies: every
-query partitions on all of them, whether its search reaches the corresponding reads or not.
-They are global compatibility settings, so the sharing lost to this over-approximation is
-negligible.
+Packed into a single scalar rather than one field per flag: these are part of the cache key
+(`SynthInstanceCacheKey.defEqFlags`), which is hashed and compared on every cache probe, and a
+one-field structure is erased to its field, so the key stores an unboxed word instead of a pointer
+to a nine-field record.
 -/
 structure SynthDefEqFlags where
-  respectTransparency                    : Bool
-  respectTransparencyTypes               : Bool
-  respectTransparencyInstanceSearchTypes : Bool
-  implicitBump                           : Bool
-  reducibleClassField                    : Bool
-  lazyProjDelta                          : Bool
-  lazyWhnfCore                           : Bool
-  smartUnfolding                         : Bool
-  throwOnStuckAfterApp                   : Bool
+  /-- Packed flag bits; read them through the accessors below. -/
+  bits : UInt32
   deriving Inhabited, BEq, Hashable
+
+namespace SynthDefEqFlags
+
+@[inline] private def flag (b : Bool) (mask : UInt32) : UInt32 := if b then mask else 0
+
+@[inline] def respectTransparency (f : SynthDefEqFlags) : Bool := f.bits &&& 0x001 != 0
+@[inline] def respectTransparencyTypes (f : SynthDefEqFlags) : Bool := f.bits &&& 0x002 != 0
+@[inline] def respectTransparencyInstanceSearchTypes (f : SynthDefEqFlags) : Bool :=
+  f.bits &&& 0x004 != 0
+@[inline] def implicitBump (f : SynthDefEqFlags) : Bool := f.bits &&& 0x008 != 0
+@[inline] def reducibleClassField (f : SynthDefEqFlags) : Bool := f.bits &&& 0x010 != 0
+@[inline] def lazyProjDelta (f : SynthDefEqFlags) : Bool := f.bits &&& 0x020 != 0
+@[inline] def lazyWhnfCore (f : SynthDefEqFlags) : Bool := f.bits &&& 0x040 != 0
+@[inline] def smartUnfolding (f : SynthDefEqFlags) : Bool := f.bits &&& 0x080 != 0
+@[inline] def throwOnStuckAfterApp (f : SynthDefEqFlags) : Bool := f.bits &&& 0x100 != 0
+
+/-- Packs the flags in the order the accessors above read them. -/
+def ofFlags (respectTransparency respectTransparencyTypes respectTransparencyInstanceSearchTypes
+    implicitBump reducibleClassField lazyProjDelta lazyWhnfCore smartUnfolding
+    throwOnStuckAfterApp : Bool) : SynthDefEqFlags where
+  bits :=
+    flag respectTransparency 0x001 ||| flag respectTransparencyTypes 0x002 |||
+    flag respectTransparencyInstanceSearchTypes 0x004 ||| flag implicitBump 0x008 |||
+    flag reducibleClassField 0x010 ||| flag lazyProjDelta 0x020 |||
+    flag lazyWhnfCore 0x040 ||| flag smartUnfolding 0x080 |||
+    flag throwOnStuckAfterApp 0x100
+
+end SynthDefEqFlags
 
 -- Remark: we don't need to store `Config.toKey` because typeclass resolution uses a fixed configuration.
 structure SynthInstanceCacheKey where
@@ -407,18 +418,24 @@ structure SynthInstanceCacheKey where
   /--
   The definitional-equality flags the query runs under, resolved up front; see
   `SynthDefEqFlags`. Options read lazily during the search are recorded per entry instead
-  (`SynthOptionAccessLog`).
+  (`RecordedDeps`).
   -/
   defEqFlags        : SynthDefEqFlags
   /--
   The resource limits in effect for the query (`maxHeartbeats`, `synthInstance.maxHeartbeats`,
-  `maxRecDepth`, `exponentiation.threshold`). Exceeding a limit throws, and results are only
-  cached on the success path, so a limit cannot influence a stored result; keying by them
-  nevertheless makes that a structural property rather than an argument about exception paths,
-  and lets their (frequent, mostly out-of-query) reads be plain unrestricted reads. Limits are
-  effectively constant per module, so this does not partition the cache in practice.
+  `maxRecDepth`, `exponentiation.threshold`). Exceeding one throws, and results are only cached on
+  the success path, so a limit cannot influence a stored result; keying by them nevertheless makes
+  that a structural property rather than an argument about exception paths, and lets their
+  (frequent, mostly out-of-query) reads be plain unrestricted reads. Limits are effectively
+  constant per module, so this does not partition the cache in practice.
+
+  Stored as unboxed words for the same reason as `defEqFlags`. `Nat.toUInt64` wraps, so two absurd
+  settings could share a key; that is harmless here, as a limit cannot influence a stored result.
   -/
-  limits            : SynthLimits
+  maxHeartbeats           : UInt64
+  synthInstanceHeartbeats : UInt64
+  maxRecDepth             : UInt64
+  exponentiationThreshold : UInt64
   deriving Hashable, BEq
 
 /-- Resulting type for `abstractMVars` -/

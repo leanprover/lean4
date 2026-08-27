@@ -163,9 +163,10 @@ example (n : Nat) (a : A) (b : B) : B.fromA n a ≠ B.wrap b := by
 
 /-! The block-wide recursor is what to use when the recursion genuinely crosses
 members, and it is computable.  The code generator compiles no recursor
-application -- `B.rec` no more than `Nat.rec` -- so `B.mutualRec` is given a
-compiled companion that does the same recursion by cases, and definitions built
-from it both reduce in the kernel and evaluate. -/
+application -- `B.rec` no more than `Nat.rec` -- so `B.mutualRec` is paired with
+an implementation that does the same recursion by cases and a proved `@[csimp]`
+theorem that hands it to the compiler, and definitions built from it both reduce
+in the kernel and evaluate. -/
 
 def depth : B → Nat :=
   @B.mutualRec (fun _ => True) (fun _ => Nat) (fun _ => Nat)
@@ -194,7 +195,7 @@ example : depthC (C.pair (B.wrap (B.fromA 4 (A.fromC (C.higherUniv 1 Nat))))
 #guard_msgs in
 #eval depthC (C.pair (B.wrap (B.fromA 4 (A.fromC (C.higherUniv 1 Nat)))) (C.higherUniv 10 Nat))
 
--- the companion is compiler-only, so it changes nothing about the term
+-- `mutualRec` itself is untouched, so the term is what it was
 /-- info: 'depth' does not depend on any axioms -/
 #guard_msgs in
 #print axioms depth

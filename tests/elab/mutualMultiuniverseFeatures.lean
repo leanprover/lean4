@@ -87,7 +87,9 @@ example : odPayload 3 three = 9 := rfl
 
 This is the one shape that needs a choice principle: to recurse into a
 `Nat → Stream'` field from a `Prop`, the witnesses have to be selected
-pointwise. -/
+pointwise.  It is the field's type that matters, not which member carries it --
+a `Prop` member's recursor goes through the shadow of the whole block, so an
+infinitary field on a *data* member does it too. -/
 
 mutual_multiuniverse
 inductive Total : Prop where
@@ -357,6 +359,71 @@ def uTag' {α : Type u} : UD α → Nat :=
 #guard_msgs in
 #eval uTag' (UD.back (UP.mk (UD.val (3 : Nat) Nat)))
 
+/-! ## What makes the recursors computable
+
+The code generator compiles no recursor application, so each data member's
+`X.mutualRec` is paired with an implementation that does the same recursion by
+cases, and a `@[csimp]` theorem relating the two.  Both are ordinary
+declarations under predictable names; the theorem is proved rather than
+asserted, and the implementation is checked to terminate by Lean's own
+structural recursion.
+
+`CD.branch` also makes this the case where a *data* member recurses under a
+binder, so the implementation has to as well. -/
+
+mutual_multiuniverse
+inductive CP : Prop where
+  | mk : CD → CP
+inductive CD : Type 0 where
+  | leaf : Nat → CD
+  | branch : (Nat → CD) → CD
+end
+
+/-- info: CD.mutualRec.eq_impl : @CD.mutualRec = @CD.mutualRec.impl -/
+#guard_msgs in
+#check @CD.mutualRec.eq_impl
+
+-- `CD.branch` is infinitary, so the `Prop` member's recursor selects witnesses
+-- pointwise as above -- but the data member's recursor never touches the
+-- shadow, and neither does the implementation
+/-- info: 'CP.mutualRec' depends on axioms: [Classical.choice] -/
+#guard_msgs in
+#print axioms CP.mutualRec
+
+/-- info: 'CD.mutualRec' does not depend on any axioms -/
+#guard_msgs in
+#print axioms CD.mutualRec
+
+-- `funext` is all the proof needs, and it stays inside the theorem
+/-- info: 'CD.mutualRec.eq_impl' depends on axioms: [Quot.sound] -/
+#guard_msgs in
+#print axioms CD.mutualRec.eq_impl
+
+/-- info: 'CD.mutualRec.impl' does not depend on any axioms -/
+#guard_msgs in
+#print axioms CD.mutualRec.impl
+
+def cdSum : CD → Nat :=
+  @CD.mutualRec (fun _ => True) (fun _ => Nat)
+    (fun _ _ => trivial)
+    (fun n => n) (fun _ ih => ih 3)
+
+example : cdSum (CD.branch fun n => CD.leaf (n * 2)) = 6 := rfl
+
+/-- info: 6 -/
+#guard_msgs in
+#eval cdSum (CD.branch fun n => CD.leaf (n * 2))
+
+-- two levels of `branch`, so the implementation recurses under a binder twice
+/-- info: 33 -/
+#guard_msgs in
+#eval cdSum (CD.branch fun n => CD.branch fun m => CD.leaf (n * 10 + m))
+
+-- neither the implementation nor its theorem reaches the term
+/-- info: 'cdSum' does not depend on any axioms -/
+#guard_msgs in
+#print axioms cdSum
+
 /-! ## A homogeneous block is an ordinary `mutual` block
 
 `mutual_multiuniverse` accepts everything `mutual` does and means the same
@@ -377,8 +444,8 @@ example : @T1.mutualRec = @T1.rec := rfl
 #guard_msgs in
 #print axioms T1.rec
 
--- the alias still gets a compiled companion, so `mutualRec` is computable here
--- as well, even though the recursor it unfolds to is not
+-- the alias still gets an implementation and a `@[csimp]` theorem, so `mutualRec`
+-- is computable here as well, even though the recursor it unfolds to is not
 def t1Depth : T1 → Nat :=
   @T1.mutualRec (fun _ => Nat) (fun _ => Nat)
     (fun _ ih => ih + 1) (fun _ ih => ih + 1) 0
@@ -389,11 +456,48 @@ example : t1Depth (T1.mk (T2.mk (T1.mk T2.stop))) = 3 := rfl
 #guard_msgs in
 #eval t1Depth (T1.mk (T2.mk (T1.mk T2.stop)))
 
+/-! A homogeneous block can still fall into several components: `U` mentions
+`V`, but not the other way round.  The implementations follow the components
+rather than the block, so `U.mutualRec.impl` does not recurse into `V` itself --
+it calls `V.mutualRec`, and `V`'s own `@[csimp]` theorem, already registered by
+then, is what puts the code there. -/
+
+mutual_multiuniverse
+inductive V1 : Type where
+  | nil : V1
+  | wrap : V1 → V1
+inductive U1 : Type where
+  | mk : V1 → U1
+  | more : U1 → U1
+end
+
+/-- info: U1.mutualRec.eq_impl : @U1.mutualRec = @U1.mutualRec.impl -/
+#guard_msgs in
+#check @U1.mutualRec.eq_impl
+
+/-- info: V1.mutualRec.eq_impl : @V1.mutualRec = @V1.mutualRec.impl -/
+#guard_msgs in
+#check @V1.mutualRec.eq_impl
+
+def u1Len : U1 → Nat :=
+  @U1.mutualRec (fun _ => Nat) (fun _ => Nat) 0 (fun _ ih => ih + 1) (fun _ ih => ih)
+    (fun _ ih => ih + 100)
+
+example : u1Len (U1.more (U1.mk (V1.wrap (V1.wrap V1.nil)))) = 102 := rfl
+
+/-- info: 102 -/
+#guard_msgs in
+#eval u1Len (U1.more (U1.mk (V1.wrap (V1.wrap V1.nil))))
+
+/-- info: 'u1Len' does not depend on any axioms -/
+#guard_msgs in
+#print axioms u1Len
+
 /-! ## An all-`Prop` homogeneous block
 
-There is nothing to compute here, so no companion is emitted: the recursors are
-proofs and are erased.  Such a block still has to come out of the native path in
-one piece. -/
+There is nothing to compute here, so no implementation is emitted: the recursors
+are proofs and are erased.  Such a block still has to come out of the native
+path in one piece. -/
 
 mutual_multiuniverse
 inductive PEven : Nat → Prop where

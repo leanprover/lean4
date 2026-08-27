@@ -937,8 +937,10 @@ a `Prop`, so it carries no computational content.
 
 The recursors are computable.  The code generator compiles no recursor
 application at all -- `X.rec` no more than `Nat.rec` -- so each `X.mutualRec` is
-given a compiled companion that does the same recursion by cases, and
-definitions built from it both reduce in the kernel and `#eval`.
+paired with an implementation `X.mutualRec.impl` that does the same recursion by
+cases and a proved `@[csimp]` theorem `X.mutualRec.eq_impl` that puts it in the
+compiler's hands.  Definitions built from `X.mutualRec` therefore both reduce in
+the kernel and `#eval`.
 
 A block whose members all live at the same universe is emitted natively, so
 `mutual_multiuniverse` accepts everything `mutual` does and means the same

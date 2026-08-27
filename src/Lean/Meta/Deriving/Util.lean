@@ -490,4 +490,24 @@ def deriveSimpleLawTypeClass (derivedFrom : Name)
       return false
   return true
 
+def derivePrerequisite (className : Name) (preHandler : DerivingHandler)
+    (handler : DerivingHandler) : DerivingHandler := fun names => do
+  let prereqNames ← liftTermElabM do
+    let instances ← getGlobalInstancesIndex
+    let mut needToDerive := #[]
+    for name in names do
+      let typeFormer ← mkConstWithFreshMVarLevels name
+      let (typeArgs, _, _) ← forallMetaTelescopeReducing (← inferType typeFormer)
+      let typeApp := mkAppN typeFormer typeArgs
+      let classApp ← mkConstWithFreshMVarLevels className
+      let classApp := classApp.app typeApp
+      let (classArgs, _, _) ← forallMetaTelescopeReducing (← inferType classApp)
+      let classApp := mkAppN classApp classArgs
+      let expectedPath ← DiscrTree.mkPath classApp
+      let instanceEntries := instances.getEntriesWithKeys expectedPath
+      if instanceEntries.isEmpty then
+        needToDerive := needToDerive.push name
+    return needToDerive
+  preHandler prereqNames <&&> handler names
+
 end Lean.Meta.Deriving

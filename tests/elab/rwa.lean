@@ -92,6 +92,11 @@ variable {p q : Prop} {a b : α} {P : α → Prop}
 example (ha : P a) (h : a = b) : P b := by
   rwa [h] at ha
 
+/-- error: Unexpected term `ha rfl`; expected single reference to variable -/
+#guard_msgs in
+example (ha : a = a → p) : p := by
+  rwa [] at (ha rfl)
+
 -- The rewritten hypothesis, rather than another matching assumption, must close
 -- the main goal.
 example (ha : P a) (hq : q) (h : a = b) : q := by

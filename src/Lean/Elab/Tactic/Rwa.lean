@@ -72,7 +72,8 @@ def evalRwa : Tactic := fun stx => do
 @[builtin_tactic Lean.Parser.Tactic.rwaAt]
 def evalRwaAt : Tactic := fun stx => do
   match stx with
-  | `(tactic| rwa $rws:rwRuleSeq at $h:term) =>
+  | `(tactic| rwa $rws:rwRuleSeq at $h:term) => do
+    discard <| getFVarId h
     evalRwaCore stx
       (← `(tactic| rewrite $rws:rwRuleSeq at $h:term))
       (← `(tactic| rw $rws:rwRuleSeq at $h:term))

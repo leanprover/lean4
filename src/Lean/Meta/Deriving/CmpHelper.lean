@@ -967,7 +967,7 @@ Given `h : cmp = kind.eqIndicator`, try to prove `goal`, which must be a `HEq` a
 private partial def proveLawfulHEq (ctx : Context) (kind : Kind) (lawfulHyps : Array Expr)
     (idxOfField : FVarIdMap Nat) (ihs : Array (Option Expr)) (cmp hyp goal : Expr) : MetaM Expr :=
   go cmp hyp goal fun newGoal => do
-    let mkApp4 (.const ``HEq [u]) α _ l r := newGoal |
+    let mkApp4 (.const ``HEq [u]) α l _ r := newGoal |
       throwError "Unexpected goal after proveLawfulEq{indentExpr newGoal}"
     unless ← withTransparency .none <| isDefEq l r do
       throwError "Expected to be able to solve definitional equality of{indentExpr l}\nwith{indentExpr r}"
@@ -985,8 +985,11 @@ where
         -- Now we need to substitute
         let ty ← inferType a
         let u ← getLevel ty
-        let motive ← mkLambdaFVars #[b] goal
-        return mkApp6 (.const ``Eq.ndrec [0, u]) ty a motive (← k (motive.betaRev #[a])) b heq
+        let fwdDeps := (← collectForwardDeps #[b] (preserveOrder := true)).drop 1
+        let motive ← mkLambdaFVars #[b] (← mkForallFVars fwdDeps goal)
+        let reflCase ← forallBoundedTelescope (motive.betaRev #[a]) fwdDeps.size fun vars goal => do
+          mkLambdaFVars vars <| ← k goal
+        return mkAppN (mkApp6 (.const ``Eq.ndrec [0, u]) ty a motive reflCase b heq) fwdDeps
       | .cmpVar _i =>
         -- We have `cmp = cmpFn ⋯ (fieldᵢ ⋯) ⋯ (fieldᵢ' ⋯')`
         -- The proof we need here is `ihᵢ ⋯₁ ⋯ (fieldᵢ' ⋯')`
@@ -1001,7 +1004,7 @@ where
           -- That gives us `heq : lhs ≍ rhs`. However, at this point, we should be able to convert
           -- that into an equality; we need to be careful here though, `heq` doesn't typecheck until
           -- we substitute in its value later; currently it just uses a `motive` variable
-          let heq := mkAppN (mkAppN ih args) rightArgs
+          let heq := (mkAppN (mkAppN ih args) rightArgs).app hyp
           let α ← inferType lhs
           let u ← getLevel α
           let heq := mkApp4 (.const ``eq_of_heq [u]) α lhs rhs heq
@@ -1010,8 +1013,11 @@ where
           -- Now we need to substitute
           let ty ← inferType lhs
           let u ← getLevel ty
-          let motive ← mkLambdaFVars #[rhs] goal
-          return mkApp6 (.const ``Eq.ndrec [0, u]) ty lhs motive (← k (motive.betaRev #[lhs])) rhs heq
+          let fwdDeps := (← collectForwardDeps #[rhs] (preserveOrder := true)).drop 1
+          let motive ← mkLambdaFVars #[rhs] (← mkForallFVars fwdDeps goal)
+          let reflCase ← forallTelescope (motive.betaRev #[lhs]) fun vars goal => do
+            mkLambdaFVars vars <| ← k goal
+          return mkAppN (mkApp6 (.const ``Eq.ndrec [0, u]) ty lhs motive reflCase rhs heq) fwdDeps
     else if fn == kind.eqIndicator then
       -- this hypothesis gives us no usable information
       k goal
@@ -1024,11 +1030,20 @@ where
       let #[lhs, rhs] := cmp.getAppArgs | unreachable!
       let lhyp := mkApp3 kind.dependentChainLeft lhs rhs hyp
       let rhyp := mkApp3 kind.dependentChainRight lhs rhs hyp
-      go lhs lhyp goal fun newGoal => go (rhs.betaRev #[lhyp]) rhyp newGoal k
+      let rhs' := rhs.betaRev #[lhyp]
+      -- Revert `rhyp`
+      let revertedGoal : Expr := .forallE `rhyp (kind.mkEq rhs') goal .default
+      let res ← go lhs lhyp revertedGoal fun newGoal => do
+        forallBoundedTelescope newGoal (some 1) fun vars newGoal => do
+          let ty ← inferType vars[0]!
+          mkLambdaFVars vars <| ← go ty.appFn!.appArg! vars[0]! newGoal k
+      return res.app rhyp
     else if fn.isConstOf ``Eq.rec || fn.isConstOf ``Eq.ndrec then
       let args := cmp.getAppArgs
       -- the left and right hand sides should be equal; but not necessarily syntacticly
       assert! args.size >= 6
+      unless ← isDefEq args[1]! args[4]! do
+        throwError "Failed to reduce{indentExpr cmp}"
       go (args[3]!.beta (args.drop 6)) hyp goal k
     else
       throwError "Invalid goal for `CmpHelper.proveLawfulEq`:{indentExpr cmp}"
@@ -1077,6 +1092,7 @@ partial def makeLawfulEq (ctx : Context) : MetaM Unit := do
           let heq ← mkHEq lvars.back! rvars.back!
           mkLambdaFVars lvars (← mkForallFVars rvars <| .forallE `heq (kind.mkEq cmpApp) heq .default)
       motives := motives.push motive
+      idxOfMotive := idxOfMotive.insert motiveVar.fvarId! i
     let mut minors : Array Expr := .emptyWithCapacity recInfo.numMinors
     for i in 0...recInfo.numMinors do
       let minorVar := recVars[recInfo.numMotives + i]!
@@ -1094,8 +1110,8 @@ partial def makeLawfulEq (ctx : Context) : MetaM Unit := do
           let .const nm us := fn | throwError "unexpected minor type{indentExpr body}"
           let cinfo ← getConstInfoCtor nm
           let ctorParams := args.take cinfo.numParams
-          let elimApp := mkAppN (.const (mkConstructorElimName cinfo.induct nm) us) ctorParams
-          forallBoundedTelescope (motiveValue.betaRev motiveRevArgs) body.getAppNumArgs fun rvars body => do
+          let elimApp := mkAppN (.const (mkConstructorElimName cinfo.induct nm) (0 :: us)) ctorParams
+          forallBoundedTelescope (motiveValue.betaRev motiveRevArgs) motiveRevArgs.size fun rvars body => do
             let .forallE _ _ rhs _ := body | throwError "weird{indentExpr body}"
             let motive ← mkLambdaFVars rvars body
             let elimApp := mkAppN (elimApp.app motive) rvars
@@ -1112,23 +1128,23 @@ partial def makeLawfulEq (ctx : Context) : MetaM Unit := do
               let unfoldLemma := mkAppN (mkAppN ctorInfo.unfoldLemma fields) rfields
               let unfoldLemma := mkApp4 (.const ``Eq.symm [1]) kind.indicatorType cmpFnApp
                 unfolded unfoldLemma
-              withLocalDeclD `heq lhs fun hyp => do
+              withLocalDeclD `heq lhs fun hypVar => do
                 -- We have `lhs : cmpFnApp = eqIndicator` but want `unfolded = eqIndicator`
                 let hyp := mkApp6 (.const ``Eq.trans [1]) kind.indicatorType unfolded cmpFnApp
-                  kind.eqIndicator unfoldLemma hyp
+                  kind.eqIndicator unfoldLemma hypVar
                 let proof ← proveLawfulHEq ctx kind allLawfulHyps idxOfField ihs unfolded hyp rhs
-                mkLambdaFVars (rfields.push hyp) proof
+                mkLambdaFVars (rfields.push hypVar) proof
             let elimApp := mkApp2 elimApp (.bvar 0) elimMinor
             let thenBranch := .lam `hcidx condType elimApp .default
-            let ctorIdxLemma := mkAppRev (mkAppRev ctorIdxLemma motiveRevArgs) rvars
+            let ctorIdxLemma := mkAppN (mkAppRev ctorIdxLemma motiveRevArgs) rvars
             let cmpApp := mkAppN (mkAppRev cmpFn motiveRevArgs) rvars
             let elseBranch := .lam `hcidx (mkNot condType)
               (kind.elimEqOfNe cmpApp (mkAppRev ctorIdxFn motiveRevArgs) (mkAppN ctorIdxFn rvars)
                 (ctorIdxLemma.app (.bvar 0)) (.bvar 0) rhs) .default
             let dite := mkApp5 (.const ``dite [0]) body condType decCondType thenBranch elseBranch
             mkLambdaFVars (vars ++ rvars) dite
-      minors := minors.push minor
-      ctx.mkLemmas motiveVars motives minors newLawfulHyps Kind.mkLawfulName
+      minors := minors.push (minor.replaceFVars motiveVars motives)
+    ctx.mkLemmas motiveVars motives minors newLawfulHyps Kind.mkLawfulName
 
 def withNonNestedContext (indName : Name) (kind : Kind) (k : Context → MetaM α) : MetaM α := do
   let indInfo ← getConstInfoInduct indName

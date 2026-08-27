@@ -38,7 +38,7 @@ example (a b : Nat) (ha : a = 0) (h : a = b) : (0 : Nat) = 0 := by
   rwa [h] at ha
 
 /--
-warning: syntax 'Lean.Parser.Tactic.rwaAtMany' has been deprecated: use `rw [...] at h₁ h₂ <;> assumption` instead
+warning: syntax 'Lean.Parser.Tactic.rwaAtLegacyLocation' has been deprecated: use `rw [...] at ... <;> assumption` instead
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
 -/

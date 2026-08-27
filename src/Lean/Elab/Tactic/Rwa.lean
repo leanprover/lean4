@@ -43,41 +43,51 @@ private def logUnnecessaryRwa (initialState : SavedState) (ref : Syntax)
     msg := msg ++ hint
   Linter.logLint linter.unnecessaryRwa ref msg
 
-private def evalRwaCore (ref : Syntax) (rewrite replacement close : TSyntax `tactic) : TacticM Unit :=
+private def evalRwaCore (ref : Syntax) (rewrite : TacticM α) (replacement : TSyntax `tactic)
+    (close : α → TacticM Unit) : TacticM Unit :=
   Tactic.focus do
     let initialState ← saveState
-    evalTactic rewrite
+    let rewriteResult ← rewrite
     let closedByRfl ← Tactic.focus <|
       (do
         evalTactic (← `(tactic| with_reducible rfl))
         pure true) <|>
       (do
-        evalTactic close
+        close rewriteResult
         pure false)
     let sideGoals ← getUnsolvedGoals
     if closedByRfl && sideGoals.isEmpty then
       logUnnecessaryRwa initialState ref replacement
     evalTactic (← `(tactic| all_goals (first | with_reducible rfl | assumption | skip)))
 
+private def closeUsingFVar (fvarId : FVarId) : TacticM Unit := withMainContext do
+  let mvarId ← getMainGoal
+  let fvar := mkFVar fvarId
+  unless ← Meta.withAssignableSyntheticOpaque <|
+      Meta.isDefEq (← Meta.inferType fvar) (← mvarId.getType) do
+    Meta.throwTacticEx `rwa mvarId
+  closeMainGoal `rwa fvar
+
 @[builtin_tactic Lean.Parser.Tactic.rwa]
 def evalRwa : Tactic := fun stx => do
   match stx with
   | `(tactic| rwa $rws:rwRuleSeq) =>
     evalRwaCore stx
-      (← `(tactic| rewrite $rws:rwRuleSeq))
+      (evalTactic (← `(tactic| rewrite $rws:rwRuleSeq)))
       (← `(tactic| rw $rws:rwRuleSeq))
-      (← `(tactic| assumption))
+      fun _ => do evalTactic (← `(tactic| assumption))
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.rwaAt]
 def evalRwaAt : Tactic := fun stx => do
   match stx with
   | `(tactic| rwa $rws:rwRuleSeq at $h:term) => do
-    discard <| getFVarId h
+    let fvarId ← getFVarId h
     evalRwaCore stx
-      (← `(tactic| rewrite $rws:rwRuleSeq at $h:term))
+      (foldRWRulesSeq stx[0] rws fvarId fun fvarId symm term =>
+        rewriteLocalDeclCore term symm fvarId)
       (← `(tactic| rw $rws:rwRuleSeq at $h:term))
-      (← `(tactic| exact $h))
+      closeUsingFVar
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

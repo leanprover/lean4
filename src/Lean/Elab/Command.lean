@@ -893,7 +893,7 @@ open Lean.Parser.Term in
 /-- Return identifier names in the given bracketed binder. -/
 def getBracketedBinderIds : Syntax → CommandElabM (Array Name)
   | `(bracketedBinderF|($ids* $[: $ty?]? $(_annot?)?)) => return ids.map Syntax.getId
-  | `(bracketedBinderF|{$ids* $[: $ty?]?})             => return ids.map Syntax.getId
+  | `(bracketedBinderF|{$ids* $[: $ty?]? $(_annot?)?}) => return ids.map Syntax.getId
   | `(bracketedBinderF|⦃$ids* : $_⦄)                   => return ids.map Syntax.getId
   | `(bracketedBinderF|[$id : $_])                     => return #[id.getId]
   | `(bracketedBinderF|[$_])                           => return #[Name.anonymous]

@@ -356,7 +356,11 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
             if containsId ids binderId then
               throwErrorAt binderId "cannot update binder annotation of variables with default values/tactics"
         pure (ids, ty?, .default)
-      | `(bracketedBinderF|{$ids* $[: $ty?]?}) =>
+      | `(bracketedBinderF|{$ids* $[: $ty?]? $(annot?)?}) =>
+        if annot?.isSome then
+          for binderId in binderIds do
+            if containsId ids binderId then
+              throwErrorAt binderId "cannot update binder annotation of variables with default values/tactics"
         pure (ids, ty?, .implicit)
       | `(bracketedBinderF|⦃$ids* $[: $ty?]?⦄) =>
         pure (ids, ty?, .strictImplicit)

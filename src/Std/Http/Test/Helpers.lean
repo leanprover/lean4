@@ -362,8 +362,8 @@ def mkClient (mockServer : Mock.Server) (config : Client.Config := {})
   let some domain := URI.DomainName.ofString? "example.com"
     | throw (IO.userError "DomainName parse failed")
   let opened ← IO.mkRef (#[] : Array Client.Connection)
-  let connect : Client.Connector := fun _ _ _ config => do
-    let connection ← Client.Connection.new mockServer config
+  let connect : Client.Connector := fun origin config => do
+    let connection ← Client.Connection.new mockServer origin config
     opened.modify (·.push connection)
     return .ok connection
   let client ← Client.new config connect (maxRetries := 0)
@@ -390,14 +390,15 @@ def mkFollowingClient (servers : Array Mock.Server) (config : Client.Config := {
   let dialled ← IO.mkRef (#[] : Array URI.Origin)
   let opened ← IO.mkRef (#[] : Array Client.Connection)
 
-  let connect : Client.Connector := fun scheme host port config => do
+  let connect : Client.Connector := fun origin config => do
     let index ← nextServer.modifyGet fun index => (index, index + 1)
     let some server := servers[index]?
       | throw <| IO.userError
-          s!"the client opened more than {servers.size} connections (connection {index + 1} wanted {host})"
+          s!"the client opened more than {servers.size} connections \
+             (connection {index + 1} wanted {origin.host})"
     if index > 0 then
-      dialled.modify (·.push { scheme, host, port })
-    let connection ← Client.Connection.new server config
+      dialled.modify (·.push origin)
+    let connection ← Client.Connection.new server origin config
     opened.modify (·.push connection)
     return .ok connection
 
@@ -422,12 +423,12 @@ def mkRefusingClient (mockServer : Mock.Server) (config : Client.Config := {}) :
   let opened ← IO.mkRef (#[] : Array Client.Connection)
   let firstDial ← IO.mkRef true
 
-  let connect : Client.Connector := fun scheme host port config => do
+  let connect : Client.Connector := fun origin config => do
     if ← firstDial.modifyGet (fun first => (first, false)) then
-      let connection ← Client.Connection.new mockServer config
+      let connection ← Client.Connection.new mockServer origin config
       opened.modify (·.push connection)
       return .ok connection
-    dialled.set (some { scheme, host, port })
+    dialled.set (some origin)
     return .error (.connect "the redirect target must never be dialled")
 
   let client ← Client.new config connect (maxRetries := 0)

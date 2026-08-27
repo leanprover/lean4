@@ -407,10 +407,14 @@ Establishes that every named theorem in the solution proves the same statement
 as the challenge, uses no axiom outside the permitted list, and is accepted by
 the kernel.
 
-The solution is untrusted input: it is built and exported inside a `landrun`
-sandbox, and none of its `.olean` files is ever loaded into Lake's own address
-space. `landrun` is required; there is no unsandboxed mode, so this command is
-available on Linux only.
+The project is untrusted input: its configuration is evaluated, and its code
+built and exported, inside a `landrun` sandbox, and none of its `.olean` files
+is ever loaded into Lake's own address space. `landrun` is required; there is
+no unsandboxed mode, so this command is available on Linux only.
+
+The project has to carry a `lake-manifest.json`, because dependencies are
+resolved inside the sandbox and it cannot write to the project directory.
+Building the project once, before distributing it, is enough to write one.
 
 OPTIONS:
   --config=<file>       JSON file describing the challenge (see below)
@@ -445,8 +449,9 @@ EXIT CODES:
   0                     accepted
   1                     rejected: statement mismatch, forbidden axiom, kernel
                         rejection, or a build that did not succeed
-  2                     could not start: `landrun` is missing, or the
-                        configuration is missing, unreadable or malformed
+  2                     could not start: `landrun` or the manifest is missing,
+                        or the configuration is missing, unreadable or
+                        malformed
 
 ENVIRONMENT:
   COMPARATOR_LANDRUN    sandbox executable (default: `landrun` on PATH)

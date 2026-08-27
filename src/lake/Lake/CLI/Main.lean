@@ -1171,11 +1171,10 @@ protected def challenge : CliM PUnit := do
   let opts ← getThe LakeOptions
   noArgsRem do
   let (leanInstall, lakeInstall) ← opts.getInstall
-  -- Loading the workspace resolves dependencies and yields the `LEAN_PATH` the exporter needs;
-  -- the sandboxed builds would otherwise have to write the manifest into a read-only project.
-  let ws ← loadWorkspace (← mkLoadConfig opts)
-  exit <| ← Check.runChallenge opts.challengeConfig? leanInstall lakeInstall ws.root.dir
-    ws.augmentedLeanPath.toString
+  -- The workspace is deliberately not loaded here: evaluating the project's configuration is code
+  -- execution, and containing it is what the sandbox is for.
+  let cfg ← mkLoadConfig opts
+  exit <| ← Check.runChallenge opts.challengeConfig? leanInstall lakeInstall cfg.wsDir
 
 protected def script : CliM PUnit := do
   if let some cmd ← takeArg? then

@@ -13,6 +13,8 @@ public import Lake.Util.Exit
 public import Lean.Data.Json.FromToJson
 import Lean.Environment
 import Lean.Replay
+import Init.Data.String.Search
+import Init.Data.String.TakeDrop
 import Init.Data.ToString.Macro
 import Init.System.IO
 import Init.System.Platform
@@ -39,9 +41,15 @@ public structure Context where
   definitionNames : Array Lean.Name
   legalAxioms : Array Lean.Name
   leanPrefix : System.FilePath
-  gitLocation : System.FilePath
-  /-- `LEAN_PATH` for the exporter, so it finds the project's oleans inside the sandbox. -/
+  /-- Everything `git` needs to execute inside the sandbox. See `discoverGitExecPaths`. -/
+  gitExecPaths : Array System.FilePath
+  /-- The workspace's `LEAN_PATH`. Empty until `safeResolveWorkspace` records it. -/
   leanPath : String
+  /--
+  The workspace's `PATH`, so the exporter's own `lean` child resolves to this toolchain. Empty
+  until `safeResolveWorkspace` records it.
+  -/
+  binPath : String
   whichLandrun : String
   whichLake : System.FilePath
   whichLean4Export : System.FilePath
@@ -57,6 +65,8 @@ structure LandrunArgs where
   readablePaths : Array System.FilePath
   writablePaths : Array System.FilePath
   executablePaths : Array System.FilePath
+  /-- TCP ports the child may connect to. Landrun denies all of them by default. -/
+  connectPorts : Array String := #[]
 
 @[inline]
 def getExternalKernels : M (Std.TreeMap String (Array String)) := do return (← read).externalKernels
@@ -83,7 +93,7 @@ def getLegalAxioms : M (Array Lean.Name) := do return (← read).legalAxioms
 def getLeanPrefix : M System.FilePath := do return (← read).leanPrefix
 
 @[inline]
-def getGitLocation : M System.FilePath := do return (← read).gitLocation
+def getGitExecPaths : M (Array System.FilePath) := do return (← read).gitExecPaths
 
 /-- Resolves `exe` to an absolute path via `PATH`, or `none` if it is not there. -/
 def whichExe (exe : String) : IO (Option System.FilePath) := do
@@ -94,6 +104,58 @@ def whichExe (exe : String) : IO (Option System.FilePath) := do
     return none
   let path := out.stdout.trimAscii.toString
   return if path.isEmpty then none else some (path : System.FilePath)
+
+/--
+Reports the directories holding the shared libraries an executable loads.
+
+Landlock governs execute permission per path, and mapping a shared library needs it just as much as
+spawning a process does.
+-/
+def sharedLibDirs (exe : System.FilePath) : IO (Array String) := do
+  let out ← try IO.Process.output { cmd := "ldd", args := #[exe.toString] } catch _ => return #[]
+  if out.exitCode != 0 then return #[]
+  let mut dirs := #[]
+  for line in out.stdout.split '\n' |>.toStringList do
+    -- `libfoo.so.1 => /usr/lib/libfoo.so.1 (0x00007f...)`
+    if let [_, rest] := line.split "=> " |>.toStringList then
+      if let path :: _ := rest.split ' ' |>.toStringList then
+        let path : System.FilePath := path
+        if path.isAbsolute then
+          if let some parent := path.parent then
+            dirs := dirs.push parent.toString
+  return dirs
+
+/--
+Reports everything `git` needs in order to run inside the sandbox.
+
+Granting the `git` binary alone does not suffice: `git` forks helpers out of its exec-path and runs
+some of them through the shell it was built against, which need not be the system `/bin/sh`. Each
+of those needs execute permission in its own right, as do the libraries they load. `git` is asked
+for all of it, so no path is assumed.
+-/
+def discoverGitExecPaths (gitLocation : System.FilePath) : IO (Array System.FilePath) := do
+  let git ← try IO.FS.realPath gitLocation catch _ => pure gitLocation
+  let ask (args : Array String) : IO (Option String) := do
+    let out ← try IO.Process.output { cmd := git.toString, args } catch _ => return none
+    if out.exitCode != 0 then return none
+    let line := out.stdout.trimAscii.toString
+    return if line.isEmpty then none else some line
+
+  let mut paths := #[git.toString]
+  if let some dir := git.parent then
+    paths := paths.push dir.toString
+  if let some execPath ← ask #["--exec-path"] then
+    paths := paths.push execPath
+  let mut executables := #[git]
+  if let some shell ← ask #["var", "GIT_SHELL_PATH"] then
+    paths := paths.push shell
+    executables := executables.push shell
+  for exe in executables do
+    paths := paths ++ (← sharedLibDirs exe)
+
+  let deduped := paths.foldl (init := (#[] : Array String)) fun acc path =>
+    if acc.contains path then acc else acc.push path
+  return deduped.map System.FilePath.mk
 
 def missingLandrunError (cmd exe : String) : String :=
 s!"`lake {cmd}` needs `{exe}` to sandbox the code it checks, and it was not found.
@@ -110,6 +172,7 @@ def buildLandrunArgs (spawnArgs : LandrunArgs) : Array String :=
   let args := spawnArgs.readablePaths.foldl (init := args) (fun acc path => acc ++ #["--ro", path.toString])
   let args := spawnArgs.writablePaths.foldl (init := args) (fun acc path => acc ++ #["--rwx", path.toString])
   let args := spawnArgs.executablePaths.foldl (init := args) (fun acc path => acc ++ #["--rox", path.toString])
+  let args := spawnArgs.connectPorts.foldl (init := args) (fun acc port => acc ++ #["--connect-tcp", port])
   args ++ #["--", spawnArgs.cmd] ++ spawnArgs.args
 
 def runSandBoxedWithStdout (spawnArgs : LandrunArgs) : M String := do
@@ -138,12 +201,55 @@ def runSandBoxed (spawnArgs : LandrunArgs) : M Unit := do
   if ret != 0 then
     throw <| .userError s!"Child exited with {ret}"
 
+/--
+Materializes the project's dependencies into `.lake` and reports the environment the workspace
+defines, as `(LEAN_PATH, PATH)`.
+
+Resolution elaborates the project's configuration, which is code, so it must not run outside the
+sandbox; this is also the only step permitted to reach the network. `lake env` resolves and reports
+in one invocation, which is what lets the export step run the exporter directly: with the search
+path recorded here, that step needs neither `lake` nor `git` executable.
+-/
+def safeResolveWorkspace : M (String × String) := do
+  IO.println "Resolving dependencies"
+  let leanPrefix ← getLeanPrefix
+  let projectDir ← getProjectDir
+  let dotLakeDir := projectDir / ".lake"
+  let gitExecPaths ← getGitExecPaths
+
+  if !(← System.FilePath.pathExists dotLakeDir) then
+    IO.FS.createDir dotLakeDir
+
+  let whichLake := (← read).whichLake
+  let out ← runSandBoxedWithStdout {
+    cmd := whichLake.toString,
+    args := #["env"],
+    envPass := #["PATH", "HOME", "LEAN_ABORT_ON_PANIC"]
+    envOverride := #[("LEAN_ABORT_ON_PANIC", some "1")]
+    readablePaths := #[projectDir]
+    writablePaths := #[dotLakeDir]
+    executablePaths := #[leanPrefix, whichLake] ++ gitExecPaths
+    -- `https` and `ssh`, the transports Lake's git dependencies use.
+    connectPorts := #["443", "22"]
+  }
+
+  let mut leanPath := ""
+  let mut binPath := ""
+  for line in out.split '\n' |>.toStringList do
+    if let some rest := line.dropPrefix? "LEAN_PATH=" then
+      leanPath := rest.toString
+    else if let some rest := line.dropPrefix? "PATH=" then
+      binPath := rest.toString
+  if leanPath.isEmpty || binPath.isEmpty then
+    throw <| .userError "`lake env` did not report the project's search path"
+  return (leanPath, binPath)
+
 def safeLakeBuild (target : Lean.Name) : M Unit := do
   IO.println s!"Building {target}"
   let leanPrefix ← getLeanPrefix
   let projectDir ← getProjectDir
   let dotLakeDir := projectDir / ".lake"
-  let gitLocation ← getGitLocation
+  let gitExecPaths ← getGitExecPaths
 
   if !(← System.FilePath.pathExists dotLakeDir) then
     IO.FS.createDir dotLakeDir
@@ -156,7 +262,7 @@ def safeLakeBuild (target : Lean.Name) : M Unit := do
     envOverride := #[("LEAN_ABORT_ON_PANIC", some "1")]
     readablePaths := #[projectDir]
     writablePaths := #[dotLakeDir]
-    executablePaths := #[leanPrefix, whichLake, gitLocation]
+    executablePaths := #[leanPrefix, whichLake] ++ gitExecPaths
   }
 
 def safeExport (module : Lean.Name) (decls : Array Lean.Name) : M String := do
@@ -172,7 +278,8 @@ def safeExport (module : Lean.Name) (decls : Array Lean.Name) : M String := do
     cmd := whichLean4Export.toString
     args := args,
     envPass := #["PATH", "HOME", "LEAN_PATH", "LEAN_ABORT_ON_PANIC"]
-    envOverride := #[("LEAN_ABORT_ON_PANIC", some "1"), ("LEAN_PATH", some (← read).leanPath)]
+    envOverride := #[("LEAN_ABORT_ON_PANIC", some "1"), ("LEAN_PATH", some (← read).leanPath),
+      ("PATH", some (← read).binPath)]
     readablePaths := #[projectDir, dotLakeDir]
     writablePaths := #[]
     executablePaths := #[leanPrefix, whichLean4Export]
@@ -354,11 +461,24 @@ def cannotRun (msg : String) : IO ExitCode := do
   return 2
 
 /--
+Reports whether the project carries the manifest that sandboxed dependency resolution needs.
+
+Resolution writes the manifest, and the sandbox does not grant write access to the project
+directory, so a project without one fails inside the sandbox with a bare `permission denied`.
+-/
+def checkManifest (cmd : String) (projectDir : System.FilePath) : IO (Option ExitCode) := do
+  if ← (projectDir / "lake-manifest.json").pathExists then
+    return none
+  return some (← cannotRun s!"'{projectDir}' has no `lake-manifest.json`, and `lake {cmd}` resolves \
+    dependencies inside a sandbox that cannot write to the project directory. Run `lake build` \
+    there first.")
+
+/--
 Resolves the external tools the commands need and builds the context they share, or reports why
 that is not possible.
 -/
 def mkContext (cmd : String) (lean : LeanInstall) (lake : LakeInstall)
-    (projectDir : System.FilePath) (leanPath : String) : IO (Except ExitCode Context) := do
+    (projectDir : System.FilePath) : IO (Except ExitCode Context) := do
   if !System.Platform.isLinux then
     return .error (← cannotRun
       s!"`lake {cmd}` sandboxes the code it checks with `landrun`, which needs Linux Landlock. \
@@ -381,8 +501,9 @@ def mkContext (cmd : String) (lean : LeanInstall) (lake : LakeInstall)
     definitionNames := #[]
     legalAxioms := #[]
     leanPrefix := lean.sysroot
-    gitLocation := gitLocation
-    leanPath
+    gitExecPaths := ← discoverGitExecPaths gitLocation
+    leanPath := ""
+    binPath := ""
     whichLandrun := landrunPath.toString
     whichLake := lake.lake
     whichLean4Export
@@ -410,9 +531,9 @@ Runs `lake challenge`: builds and exports the challenge and the solution in a sa
 the solution against the challenge.
 -/
 public def runChallenge (configFile? : Option System.FilePath) (lean : LeanInstall)
-    (lake : LakeInstall) (projectDir : System.FilePath) (leanPath : String) : IO ExitCode := do
+    (lake : LakeInstall) (projectDir : System.FilePath) : IO ExitCode := do
   let base ←
-    match ← mkContext "challenge" lean lake projectDir leanPath with
+    match ← mkContext "challenge" lean lake projectDir with
     | .error rc => return rc
     | .ok ctx => pure ctx
 
@@ -435,8 +556,11 @@ public def runChallenge (configFile? : Option System.FilePath) (lean : LeanInsta
     | .error rc => return rc
     | .ok ks => pure ks
 
+  if let some rc ← checkManifest "challenge" base.projectDir then
+    return rc
+
   try
-    ReaderT.run compareIt { base with
+    let ctx := { base with
       challengeModule := cfg.challenge_module.toName,
       solutionModule := cfg.solution_module.toName,
       theoremNames,
@@ -444,6 +568,8 @@ public def runChallenge (configFile? : Option System.FilePath) (lean : LeanInsta
       legalAxioms := cfg.permitted_axioms.map String.toName,
       externalKernels
     }
+    let (leanPath, binPath) ← ReaderT.run safeResolveWorkspace ctx
+    ReaderT.run compareIt { ctx with leanPath, binPath }
     return 0
   catch e =>
     IO.eprintln s!"error: {e}"

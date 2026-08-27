@@ -1541,7 +1541,7 @@ static inline lean_obj_res lean_nat_mod(b_lean_obj_arg a1, b_lean_obj_arg a2) {
 }
 
 static inline LEAN_ALWAYS_INLINE bool lean_nat_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) {
-    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) || lean_is_scalar(a2))) {
         // This comparison is UB according to the standard but allowed as per the
         // GCC documentation and the address sanitizer does not complain about it.
         return a1 == a2;

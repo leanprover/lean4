@@ -15,6 +15,10 @@ public section
 namespace Lean.Elab.Tactic
 open scoped Lean.Parser.Tactic
 
+-- Macro elaboration cannot inspect builtin tactic registrations, so expose an internal marker.
+builtin_initialize
+  registerReservedNamePredicate fun _ name => name == `Lean.Elab.Tactic.rwaBuiltin
+
 /--
 Enables the unnecessary `rwa` linter, which reports when `rw` closes the goal without needing the
 final closing step.

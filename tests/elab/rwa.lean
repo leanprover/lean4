@@ -175,6 +175,16 @@ example (hp : p) (h : p ↔ q) : q := by
 
 end Unnecessary
 
+/--
+warning: `rw` already closes the goal
+
+Hint: Use `rw` instead of `rwa`:
+  [apply] rw [h]
+
+Note: This linter can be disabled with `set_option linter.unnecessaryRwa false`
+-/
+#guard_msgs in
 example {a b c : Nat} (h : a = b) (h' : b = c) : a = b ∧ b = c := by
   constructor
   rwa [h]
+  exact h'

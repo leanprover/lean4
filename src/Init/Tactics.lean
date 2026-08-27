@@ -656,6 +656,9 @@ macro_rules
   | `(tactic| rwa $rws:rwRuleSeq) => do
     if ← Macro.hasDecl `Lean.Elab.Tactic.evalRwa then
       Macro.throwUnsupported
+    match ← Macro.resolveGlobalName `Lean.Elab.Tactic.rwaBuiltin with
+    | List.nil => pure ()
+    | List.cons _ _ => Macro.throwUnsupported
     `(tactic|
       focus (
         rewrite $rws:rwRuleSeq
@@ -666,6 +669,9 @@ macro_rules
   | `(tactic| rwa $rws:rwRuleSeq at $h:term) => do
     if ← Macro.hasDecl `Lean.Elab.Tactic.evalRwaAt then
       Macro.throwUnsupported
+    match ← Macro.resolveGlobalName `Lean.Elab.Tactic.rwaBuiltin with
+    | List.nil => pure ()
+    | List.cons _ _ => Macro.throwUnsupported
     let hyp ← `(locationHyp| $h:term)
     let loc ← `(location| at $hyp:locationHyp)
     `(tactic|

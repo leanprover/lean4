@@ -201,11 +201,12 @@ private def assertAdvertisesNoBody (what : String) (result : Option Body.Length 
 
 /-- A connector handing out `servers` in order; opening more than there are fails the test. -/
 private def mockConnector (servers : Array Mock.Server) (opened : IO.Ref Nat) :
-    Client.Connector := fun _ host _ config => do
+    Client.Connector := fun origin config => do
   let index ← opened.modifyGet fun n => (n, n + 1)
   let some server := servers[index]?
-    | return .error (.connect s!"the pool opened more than {servers.size} connections (for {host})")
-  return .ok (← Client.Connection.new server config)
+    | return .error (.connect
+        s!"the pool opened more than {servers.size} connections (for {origin.host})")
+  return .ok (← Client.Connection.new server origin config)
 
 private def poolRequest : Async (Request Body.Empty) :=
   Request.new |>.method .get |>.uri! "/x" |>.header! "Host" "example.com" |>.empty

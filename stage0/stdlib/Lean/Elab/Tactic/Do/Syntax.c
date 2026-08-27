@@ -57,7 +57,7 @@ lean_object* l_Lean_Elab_Term_tryPostponeIfMVar(lean_object*, lean_object*, lean
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
@@ -1845,7 +1845,7 @@ goto v_reusejp_738_;
 v_reusejp_738_:
 {
 lean_object* v___x_740_; lean_object* v___x_741_; 
-v___x_740_ = lean_st_ref_set(v___y_721_, v___x_739_);
+v___x_740_ = lean_st_ref_put(v___y_721_, v___x_739_);
 v___x_741_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_741_, 0, v_fst_728_);
 return v___x_741_;
@@ -3123,11 +3123,13 @@ return v_res_1204_;
 }
 lean_object* runtime_initialize_Lean_Elab_BuiltinNotation(uint8_t builtin);
 lean_object* runtime_initialize_Std_Do_Triple_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic_Do_Syntax(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Elab_BuiltinNotation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

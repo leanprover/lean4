@@ -16,9 +16,9 @@ The injection function is `Fin.val`.
 -/
 
 attribute [grind hom]
-  Fin.val_add Fin.val_mul Fin.val_sub Fin.val_mod Fin.val_zero Fin.val_succ Fin.val_neg'
+  Fin.val_add Fin.val_mul Fin.val_sub Fin.val_mod Fin.val_succ Fin.val_neg'
   Fin.div_val Fin.and_val Fin.or_val Fin.xor_val Fin.shiftLeft_val Fin.shiftRight_val
-  Fin.val_ofNat Fin.le_def Fin.lt_def
+  Fin.le_def Fin.lt_def
 
 @[grind hom] theorem Lean.Grind.Fin.eq_iff_val_eq {n : Nat} (a b : Fin n) : a = b ↔ a.val = b.val :=
   ⟨Fin.val_eq_of_eq, Fin.eq_of_val_eq⟩
@@ -26,6 +26,9 @@ attribute [grind hom]
 @[grind hom] theorem Lean.Grind.Fin.val_ite {n : Nat} (c : Prop) [Decidable c] (x y : Fin n) :
     (if c then x else y).val = if c then x.val else y.val := by
   split <;> rfl
+
+@[grind hom] theorem Lean.Grind.Fin.val_OfNat_ofNat (n : Nat) [NeZero n] (a : Nat) : (OfNat.ofNat a : Fin n).val = a % n := by
+  dsimp [OfNat.ofNat]
 
 /-! Homomorphism predicate: the range fact for `Fin.val`, instantiated by `grind` for
 the terms it internalizes. -/

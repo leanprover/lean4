@@ -2,7 +2,7 @@ import Lean
 
 open Std.Do
 
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 
 theorem set_spec : ⦃⌜True⌝⦄ set (m := StateM Nat) 42 ⦃⇓_ s => ⌜s = 42⌝⦄ := by
   mvcgen

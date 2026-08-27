@@ -65,7 +65,7 @@ lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
@@ -795,7 +795,7 @@ lean_object* v___x_193_; lean_object* v___x_194_; lean_object* v___x_195_; lean_
 v___x_193_ = l_Lean_Doc_DeferredCheck_builtinHandlers;
 v___x_194_ = lean_st_ref_take(v___x_193_);
 v___x_195_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(v_key_190_, v_impl_191_, v___x_194_);
-v___x_196_ = lean_st_ref_set(v___x_193_, v___x_195_);
+v___x_196_ = lean_st_ref_put(v___x_193_, v___x_195_);
 v___x_197_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_197_, 0, v___x_196_);
 return v___x_197_;
@@ -833,7 +833,7 @@ _start:
 lean_object* v___x_205_; lean_object* v___x_206_; lean_object* v___x_207_; 
 v___x_205_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_ofExcept___at___00Lean_evalConstCheck___at___00__private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_DeferredCheck_getHandlerUnsafe_spec__0_spec__0_spec__1_spec__3___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_ofExcept___at___00Lean_evalConstCheck___at___00__private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_DeferredCheck_getHandlerUnsafe_spec__0_spec__0_spec__1_spec__3___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_ofExcept___at___00Lean_evalConstCheck___at___00__private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_DeferredCheck_getHandlerUnsafe_spec__0_spec__0_spec__1_spec__3___closed__1);
 v___x_206_ = lean_unsigned_to_nat(0u);
-v___x_207_ = lean_alloc_ctor(0, 10, 0);
+v___x_207_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_207_, 0, v___x_206_);
 lean_ctor_set(v___x_207_, 1, v___x_206_);
 lean_ctor_set(v___x_207_, 2, v___x_206_);
@@ -844,6 +844,7 @@ lean_ctor_set(v___x_207_, 6, v___x_205_);
 lean_ctor_set(v___x_207_, 7, v___x_205_);
 lean_ctor_set(v___x_207_, 8, v___x_205_);
 lean_ctor_set(v___x_207_, 9, v___x_205_);
+lean_ctor_set(v___x_207_, 10, v___x_205_);
 return v___x_207_;
 }
 }
@@ -1411,7 +1412,7 @@ goto v_reusejp_428_;
 v_reusejp_428_:
 {
 lean_object* v___x_430_; lean_object* v___x_431_; lean_object* v___x_432_; 
-v___x_430_ = lean_st_ref_set(v___y_409_, v___x_429_);
+v___x_430_ = lean_st_ref_put(v___y_409_, v___x_429_);
 v___x_431_ = lean_box(0);
 v___x_432_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_432_, 0, v___x_431_);
@@ -3012,11 +3013,13 @@ return v_res_1131_;
 }
 lean_object* runtime_initialize_Lean_Elab_Term_TermElabM(uint8_t builtin);
 lean_object* runtime_initialize_Lean_DocString_DeferredCheck(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_DocString_Builtin_Postponed(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Elab_Term_TermElabM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

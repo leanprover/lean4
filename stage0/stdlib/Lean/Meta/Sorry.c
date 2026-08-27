@@ -603,8 +603,8 @@ return v___x_187_;
 else
 {
 lean_object* v___x_188_; 
-lean_dec(v_pre_174_);
 lean_dec_ref_known(v_pre_173_, 2);
+lean_dec(v_pre_174_);
 lean_dec_ref_known(v_pre_172_, 2);
 lean_dec_ref_known(v_pre_171_, 2);
 lean_dec_ref_known(v_pre_170_, 2);
@@ -1589,11 +1589,13 @@ lean_object* runtime_initialize_Lean_Data_Lsp_Utf16(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_ForEachExpr(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_InferType(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Util_Recognizers(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Sorry(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Data_Lsp_Utf16(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

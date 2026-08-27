@@ -116,9 +116,13 @@ public def simpOverApplied (e : Expr) (numArgs : Nat) (simpFn : Expr → SimpM R
     if i == 0 then
       simpFn e
     else
-      let i := i - 1
       match h : e with
+      | .mdata _ b =>
+        -- `getMatchWithExtra` counts applications through `mdata`, so peel it without consuming `i`.
+        -- The wrapper is dropped from the result; the proof still applies since `mdata` is transparent.
+        visit b i
       | .app f a =>
+        let i := i - 1
         let fr ← visit f i
         let .forallE _ α β _ ← whnfD (← inferType f) | unreachable!
         if !β.hasLooseBVars then

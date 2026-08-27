@@ -4,41 +4,43 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 import Lean
-import Std.Internal
+import Std.WP
 import Std.Tactic.Do
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 set_option grind.warning false
 
 /-!
 # A frame-internalizing cost weakest precondition
 
 A cost transformer `TickT m := StateT Nat m` whose weakest precondition bakes in a *residuated* frame
-rule for a resource that is **not** the lattice meet. The resource is a `Nat` cost budget with
-separating conjunction `costConj r b = fun n => ⌜r ≤ n⌝ ⊓ b (n - r)` (hold `r` aside, run `b` on the
-rest) and magic wand `r -⋆ b = fun m => b (m + r)`. `TickT.wp` is the `PreservesSup.frameClosure` of
-the base wp over `costConj`, so every program frames every budget by construction, and a registered
-`@[frameproc]` lets plain `vcgen` infer and frame the budget across calls.
+rule for a resource that is **not** the lattice meet. The resource is a `Nat` tick counter with
+separating conjunction `costConj shift b = fun ticks => ⌜shift ≤ ticks⌝ ⊓ b (ticks - shift)`
+(Day convolution with a point mass: translate `b` by `shift`) and magic wand
+`shift -⋆ b = fun ticks => b (ticks + shift)`. `TickT.wp` is the `frameClosure` of the
+base wp over `costConj`, so every program frames every shift by construction, and a registered
+`@[frameproc]` lets plain `vcgen` infer and frame the shift across calls.
 -/
 
-open Lean Order Meta Elab Tactic Sym Std Internal.Do Std.Internal.Do.CompleteLattice
+open Lean Order Meta Elab Tactic Sym Sym.Internal Std WP
 
 /-! ## The cost separating conjunction -/
 
 variable {L : Type u} [CompleteLattice L]
 
-/-- The cost frame operator: hold the budget `r` aside and run `b` on the remaining cost.
-`costConj r b n` is `⌜r ≤ n⌝ ⊓ b (n - r)`: at least `r` cost available and `b` holds of the rest.
-This is separating conjunction for the `Nat` resource, over any assertion lattice. -/
-noncomputable def costConj (r : Nat) (b : Nat → L) : Nat → L := fun n => ⌜r ≤ n⌝ ⊓ b (n - r)
+/-- The cost separating conjunction: convolve `b` with a point mass at `shift`, translating `b` by
+`shift` ticks. `costConj shift b ticks` is `⌜shift ≤ ticks⌝ ⊓ b (ticks - shift)`: at least `shift`
+ticks available, and `b` holds of the rest. This is `∗` for the `Nat` resource. -/
+noncomputable def costConj (shift : Nat) (b : Nat → L) : Nat → L :=
+  fun ticks => ⌜shift ≤ ticks⌝ ⊓ b (ticks - shift)
 
 @[inherit_doc costConj] local infixr:67 " ⋆ " => costConj
 
 /-- Pointwise unfolding of `costConj`. As a `grind` normalization rule it eliminates `costConj`
-during preprocessing, so the applied form `costConj r b n s` reduces under any base state argument.
-Also builds the frame split rule. -/
-@[grind norm] theorem costConj_apply (r : Nat) (b : Nat → L) (n : Nat) :
-    costConj r b n = ⌜r ≤ n⌝ ⊓ b (n - r) := rfl
+during preprocessing, so the applied form `costConj shift b ticks s` reduces under any base state
+argument. Also builds the frame split rule. -/
+@[grind norm] theorem costConj_apply (shift : Nat) (b : Nat → L) (ticks : Nat) :
+    costConj shift b ticks = ⌜shift ≤ ticks⌝ ⊓ b (ticks - shift) := rfl
 
 /-- The guard `⌜p⌝ ⊓ ·` preserves arbitrary sups, for any complete lattice, because `⌜p⌝` is `⊤`/`⊥`. -/
 theorem ofProp_meet_sup (p : Prop) (X : L → Prop) :
@@ -58,11 +60,11 @@ theorem ofProp_meet_sup (p : Prop) (X : L → Prop) :
     rintro y ⟨x, hx, rfl⟩
     exact le_meet _ _ _ (meet_le_left _ _) (PartialOrder.rel_trans (meet_le_right _ _) (le_sup _ hx))
 
-instance (r : Nat) : PreservesSup (costConj (L := L) r) where
+instance (shift : Nat) : PreservesSup (costConj (L := L) shift) where
   map_sup s := by
-    funext n
-    show ⌜r ≤ n⌝ ⊓ (CompleteLattice.sup s) (n - r)
-      = CompleteLattice.sup (fun y => ∃ x, s x ∧ y = costConj r x) n
+    funext ticks
+    show ⌜shift ≤ ticks⌝ ⊓ (CompleteLattice.sup s) (ticks - shift)
+      = CompleteLattice.sup (fun y => ∃ x, s x ∧ y = costConj shift x) ticks
     simp only [sup_apply]
     rw [ofProp_meet_sup]
     congr 1
@@ -70,48 +72,51 @@ instance (r : Nat) : PreservesSup (costConj (L := L) r) where
     apply propext
     constructor
     · rintro ⟨w, ⟨f, hf, rfl⟩, rfl⟩
-      exact ⟨costConj r f, ⟨f, hf, rfl⟩, rfl⟩
+      exact ⟨costConj shift f, ⟨f, hf, rfl⟩, rfl⟩
     · rintro ⟨g, ⟨f, hf, rfl⟩, rfl⟩
-      exact ⟨f (n - r), ⟨f, hf, rfl⟩, rfl⟩
+      exact ⟨f (ticks - shift), ⟨f, hf, rfl⟩, rfl⟩
 
-/-- The cost magic wand: the upper adjoint of the slice `costConj r`, a plain shift
-`r -⋆ b = fun m => b (m + r)`. -/
+/-- The cost magic wand: the upper adjoint of `costConj shift`, the correlation
+`shift -⋆ b = fun ticks => b (ticks + shift)` translating `b` back up the counter. -/
 local notation:60 lhs:61 " -⋆ " rhs:61 => Lean.Order.PreservesSup.upperAdjoint (costConj lhs) rhs
 
-/-- The upper adjoint of `costConj r` is the cost magic wand `fun m => b (m + r)`, a shift of the
-budget back onto the counter. -/
+/-- The upper adjoint of `costConj shift` is the cost magic wand `fun ticks => b (ticks + shift)`,
+translating `b` back up the counter. -/
 @[grind =]
-theorem costConj_imp (r : Nat) (b : Nat → L) :
-    r -⋆ b = (fun m => b (m + r)) := by
+theorem costConj_imp (shift : Nat) (b : Nat → L) :
+    shift -⋆ b = (fun ticks => b (ticks + shift)) := by
   apply PartialOrder.rel_antisymm
   · unfold PreservesSup.upperAdjoint
     apply sup_le
-    intro x hx m
-    have := hx (m + r)
-    simp only [costConj, show m + r - r = m by omega] at this
+    intro x hx ticks
+    have := hx (ticks + shift)
+    simp only [costConj, show ticks + shift - shift = ticks by omega] at this
     exact PartialOrder.rel_trans (le_meet _ _ _ (le_ofProp _ _ (by omega)) PartialOrder.rel_refl) this
-  · refine PreservesSup.le_upperAdjoint (costConj r) (b := b) (x := fun m => b (m + r)) ?_
-    intro n
-    show (⌜r ≤ n⌝ ⊓ b (n - r + r)) ⊑ b n
+  · refine PreservesSup.le_upperAdjoint (costConj shift) (b := b)
+      (x := fun ticks => b (ticks + shift)) ?_
+    intro ticks
+    show (⌜shift ≤ ticks⌝ ⊓ b (ticks - shift + shift)) ⊑ b ticks
     rw [CompleteLattice.ofProp_intro_r]
     intro hle
-    rw [show n - r + r = n by omega]
+    rw [show ticks - shift + shift = ticks by omega]
 
-/-- The additive action law of `costConj`: composing two budgets `r` and `r'` is the same as holding
-them one after the other. -/
-theorem costConj_add (r r' : Nat) (a : Nat → L) :
-    costConj (r + r') a = costConj r (costConj r' a) := by
-  funext n
-  show ⌜r + r' ≤ n⌝ ⊓ a (n - (r + r')) = ⌜r ≤ n⌝ ⊓ (⌜r' ≤ n - r⌝ ⊓ a (n - r - r'))
+/-- The additive action law of `costConj`: composing two shifts `shift` and `shift'` is the same as
+translating one after the other. -/
+theorem costConj_add (shift shift' : Nat) (a : Nat → L) :
+    costConj (shift + shift') a = costConj shift (costConj shift' a) := by
+  funext ticks
+  show ⌜shift + shift' ≤ ticks⌝ ⊓ a (ticks - (shift + shift'))
+    = ⌜shift ≤ ticks⌝ ⊓ (⌜shift' ≤ ticks - shift⌝ ⊓ a (ticks - shift - shift'))
   rw [Nat.sub_sub, ← meet_assoc, ofProp_and,
-    show (r ≤ n ∧ r' ≤ n - r) = (r + r' ≤ n) from
+    show (shift ≤ ticks ∧ shift' ≤ ticks - shift) = (shift + shift' ≤ ticks) from
       propext ⟨fun ⟨_, _⟩ => by omega, fun h => ⟨by omega, by omega⟩⟩]
 
-/-- The unit of the `costConj` action: holding a zero budget is the identity. -/
+/-- The unit of the `costConj` action: a zero shift is the identity. -/
 theorem costConj_zero (a : Nat → L) : costConj 0 a = a := by
-  funext n
+  funext ticks
   rw [costConj_apply, Nat.sub_zero,
-    show (⌜0 ≤ n⌝ : L) = ⊤ from PartialOrder.rel_antisymm (le_top _) (top_le_ofProp _ (Nat.zero_le n)),
+    show (⌜0 ≤ ticks⌝ : L) = ⊤ from
+      PartialOrder.rel_antisymm (le_top _) (top_le_ofProp _ (Nat.zero_le ticks)),
     top_meet]
 
 /-! ## The cost transformer `TickT` and its weakest precondition -/
@@ -135,19 +140,19 @@ def TickT.run [Monad m] {α : Type} (x : TickT m α) : StateT Nat m α := x
 /-- The cost primitive: incur one unit of cost by incrementing the counter. -/
 def tick [Monad m] : TickT m Unit := show StateT Nat m Unit from modify (· + 1)
 
-/-- The frame-internalizing cost weakest precondition: the `PreservesSup.frameClosure` of the base
+/-- The frame-internalizing cost weakest precondition: the `frameClosure` of the base
 `StateT` wp over `costConj`. -/
 noncomputable def TickT.wp [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     {α : Type} (x : TickT m α) (Q : α → Nat → Pred) (E : EPred) : Nat → Pred :=
-  PreservesSup.frameClosure costConj (WP.wp x.run · E) Q
+  ((WP.wpTrans x.run).frameClosure costConj).apply Q E
 
-/-- The simp normal form for `TickT.wp`: the meet over all held budgets `r` of the base wp under the
-held-budget postcondition `⌜r ≤ m⌝ ⊓ Q a (m - r)`, offset by `r`. -/
+/-- The simp normal form for `TickT.wp`: the meet over all shifts `r` of the base wp under the
+shifted postcondition `⌜r ≤ m⌝ ⊓ Q a (m - r)`, offset by `r`. -/
 @[simp, grind =]
 theorem TickT.wp_apply_eq [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     {α : Type} (x : TickT m α) (Q : α → Nat → Pred) (E : EPred) (n : Nat) :
     TickT.wp x Q E n = ⨅ r, WP.wp x.run (fun a m => ⌜r ≤ m⌝ ⊓ Q a (m - r)) E (n + r) := by
-  simp only [TickT.wp, PreservesSup.frameClosure, iInf_apply, costConj_imp]
+  simp only [TickT.wp, PredTrans.apply_frameClosure, iInf_apply, costConj_imp]
   rfl
 
 theorem TickT.le_wp_tick [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
@@ -160,9 +165,9 @@ theorem TickT.le_wp_tick [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m
 /-- A cost-*discarding* program: it throws away the accumulated cost, resetting the counter to `0`. -/
 def dropCost : TickM Unit := show StateM Nat Unit from set 0
 
-/-- `dropCost` resets the counter, so `TickT.wp dropCost Q n = False` for every `Q`: holding a budget
-of `1` leaves the unsatisfiable `1 ≤ 0`. The frame closure rejects programs that lose held cost. -/
-example (Q : Unit → Nat → Prop) (E : EPost.Nil) (n : Nat) : TickT.wp dropCost Q E n = False := by
+/-- `dropCost` resets the counter, so `TickT.wp dropCost Q n = False` for every `Q`: a shift
+of `1` leaves the unsatisfiable `1 ≤ 0`. The frame closure rejects programs that lose held ticks. -/
+example (Q : Unit → Nat → Prop) (E : EStack⟨⟩) (n : Nat) : TickT.wp dropCost Q E n = False := by
   rw [TickT.wp_apply_eq, iInf_prop_eq_forall]
   refine propext ⟨fun h => ?_, False.elim⟩
   -- `h 1` is the `r = 1` conjunct, which reduces to `⌜1 ≤ 0⌝ ⊓ Q () 0`.
@@ -180,20 +185,20 @@ noncomputable instance TickT.instWPMonad [Assertion Pred] [Assertion EPred] [WPM
     WPMonad (TickT m) (Nat → Pred) EPred :=
   WPMonad.of_frameClosure (m := StateT Nat m) costConj costConj_add costConj_zero StateT.instWPMonad
 
-/-- The internalized frame rule: every program frames every budget `F` with respect to `costConj`. -/
+/-- The internalized frame rule: every program frames every shift `F` with respect to `costConj`. -/
 @[grind .]
 theorem frames_costConj [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     {α : Type} (x : TickT m α) (F : Nat) : WP.Frames costConj x F :=
   WP.Frames.of_frameClosure costConj (· + ·) costConj_add
-    ⟨fun y E Q' => WP.wp y.run Q' E, fun _ _ _ => rfl⟩
+    ⟨fun y => WP.wpTrans y.run, fun _ => rfl⟩
 
 /-- The frame rule, pointwise: holding `F` commutes into the postcondition of any `TickT` program. -/
 theorem tickFrames [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     {α : Type} (x : TickT m α) (F : Nat) (Q : α → Nat → Pred) (E : EPred) :
     F ⋆ TickT.wp x Q E ⊑ TickT.wp x (fun a => F ⋆ Q a) E :=
-  (frames_costConj (Pred := Pred) (EPred := EPred) x F).conj_wp_le_wp_conj Q E
+  (frames_costConj (Pred := Pred) (EPred := EPred) x F).op_wp_le_wp_op Q E
 
-/-- The sharp cost spec for `tick`: it costs exactly one unit. Threads the held budget `r` through the
+/-- The sharp cost spec for `tick`: it costs exactly one unit. Threads the shift `r` through the
 base `tick` spec. -/
 theorem TickT.le_wp_tick' [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     (Q : Unit → Nat → Pred) (E : EPred) (n : Nat) :
@@ -208,10 +213,10 @@ theorem TickT.le_wp_tick' [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPr
 
 /-! ## End-to-end `vcgen` via a registered `@[frameproc]`
 
-`tickFrameProc` holds the current cost as the budget; the registered `costSplit` decomposes a
-`costConj` goal into a budget side goal and a cost-shifted residual. -/
+`tickFrameProc` shifts by the current tick count and emits the split VC in its `costConj_apply`
+meet form, so the built-in meet split yields the tick guard and the shifted residual. -/
 
-open Lean.Elab.Tactic.Do.Internal Lean.Elab.Tactic.Do.Internal.VCGen
+open Lean.Elab.Tactic.VCGen
 
 /-- Exact spec for `tick`, registered so `vcgen` can decompose `tick` calls. -/
 @[spec] theorem tick_spec [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
@@ -220,33 +225,59 @@ open Lean.Elab.Tactic.Do.Internal Lean.Elab.Tactic.Do.Internal.VCGen
   intro n
   exact TickT.le_wp_tick' Q E n
 
-/-- The frame inference procedure: hold the budget given by the current cost, the first excess state
-argument of the `Nat → L` cost assertion. -/
-def tickFrameProc : FrameInferenceProc := fun _R _pre info _specPre => do
-  unless info.Pred.isArrow && info.Pred.bindingDomain!.isConstOf ``Nat do return none
-  let some cost := info.excessArgs[0]? | return none
-  -- Framing the whole cost leaves the residual budget `cost - cost`; skip when that normalizes to
-  -- `0` so the proc does not re-fire on its own residual.
-  let cost ← instantiateMVars cost
-  let thms := ({} : Lean.Meta.Sym.Simp.Theorems).insert
-    (← Lean.Meta.Sym.Simp.mkTheoremFromDecl ``Nat.sub_self)
-  let post := Lean.Meta.Sym.Simp.evalGround >> thms.rewrite
-  let cost := (← Lean.Meta.Sym.simp cost { post }).getResultExpr cost
-  if cost.nat? == some 0 then return none
-  return some cost
+/-- Assert a pure fact alongside a resource that is kept. -/
+theorem le_ofProp_meet_self {φ : Prop} (x : L) (h : φ) : x ⊑ ⌜φ⌝ ⊓ x :=
+  le_meet _ _ _ (le_ofProp _ _ h) PartialOrder.rel_refl
+
+/-- The frame inference procedure: shift by the pinned frame's amount, or by the whole current tick
+count (`i.excessArgs[0]`, the first excess state argument of the `Nat → L` cost assertion). It
+discharges the split VC `pre ⊑ (costConj shift W) ticks s⃗` itself. The spec applied at the
+shifted counter proves `pre ⊑ W (ticks - shift) s⃗`. This chains into `le_ofProp_meet_self`,
+stated at the cost lattice and applied to `s⃗` through the pointwise order on functions. The tick
+guard `shift ≤ ticks` remains as a subgoal. The chain only typechecks at the shifted counter, so
+it guards the open excess arguments of the spec application. -/
+def tickFrameProc : FrameInferenceProc := fun i => do
+  let ticks := i.unframedApp.excessArgs[0]!
+  let shift ← match i.providedFrame? with
+    | some r => pure r
+    | none => instantiateMVarsS ticks
+  -- Run the spec at the shifted counter, with deeper state left at the goal's.
+  let shifted ← mkAppNS (← mkConstS ``Nat.sub) #[ticks, shift]
+  let rest := i.unframedApp.excessArgs.extract 1 i.unframedApp.excessArgs.size
+  return .commit (#[shifted] ++ rest) fun goal => do
+    goal.frame.assign shift
+    -- The whole precondition is the footprint.
+    goal.footprint.assign i.pre
+    -- The lattice instances come from the frame operator and the goal entailment.
+    let op ← i.mkOpApp
+    let costL := op.getAppArgs[0]!
+    let costInst := op.getAppArgs[1]!
+    let us := op.getAppFn.constLevels!
+    let φ ← mkAppNS (← mkConstS ``Nat.le) #[shift, ticks]
+    -- A nested `Grind.main` run on a probe metavariable can discharge the guard here. The demo
+    -- keeps it as a subgoal.
+    let hle ← mkFreshExprSyntheticOpaqueMVar φ
+    let hmeet ← mkAppNS (← mkConstS ``le_ofProp_meet_self us)
+      #[costL, costInst, φ, ← mkAppNS goal.framedApp.wp #[shifted], hle]
+    -- The pointwise order on functions lets `hmeet` apply to the state arguments directly.
+    let happ ← mkAppNS hmeet rest
+    let ty ← Sym.inferType happ
+    let prf ← mkAppNS (← mkConstS ``Lean.Order.PartialOrder.rel_trans i.le.getAppFn.constLevels!)
+      (i.le.getAppArgs ++ #[i.pre, ty.appFn!.appArg!, ty.appArg!, goal.specProof, happ])
+    return { splitVCProof := prf, subgoals := [hle.mvarId!] }
 
 /-- Register the cost frame inference procedure for `vcgen`, indexed by the `TickT` program type. The
 frame operator `costConj` is built at the base lattice `L` read off the assertion type `Nat → L`, so it
-frames the cost over any base monad. Its `costConj_apply` rewrite unfolds `costConj r b n` to
-`⌜r ≤ n⌝ ⊓ b (n - r)`, inheriting the built-in meet terminal. -/
+frames the cost over any base monad. `costConj_apply` unfolds `costConj r b n` to
+`⌜r ≤ n⌝ ⊓ b (n - r)` when discharging the split VC. -/
 @[frameproc] def tickFP : FrameProc where
   prog := ``TickT
   mkOpAppM := fun info => Meta.mkAppOptM ``costConj #[some info.Pred.bindingBody!, none]
-  resourceTy := fun _ => pure (mkConst ``Nat)
-  op := { head := ``costConj, rewrites := #[``costConj_apply] }
-  proc := some tickFrameProc
+  mkResourceTy := fun _ => pure (mkConst ``Nat)
+  opHead := ``costConj
+  proc := tickFrameProc
 
-/-- End-to-end: plain `vcgen` infers the budget, applies the `costConj` gadget, fires the registered
+/-- End-to-end: plain `vcgen` infers the shift, applies the `costConj` gadget, fires the registered
 `costSplit`, and the meet machinery closes the residual. -/
 example : ⦃ (⊤ : Nat → Prop) ⦄ (tick : TickM Unit) ⦃ fun _ => (⊤ : Nat → Prop) ⦄ := by
   vcgen with finish [top_apply]
@@ -268,7 +299,7 @@ run_meta do
   let _ ← SymM.run <| mkLatticeOpRule rhs { head := ``keepFrame, rewrites := #[``keepFrame_apply] }
 
 -- Stripped of its rewrite the operator neither reduces nor closes, so its split would be the identity.
-/-- error: frame operator `keepFrame` neither reduces nor has a registered terminal; its lattice split rule would be the identity -/
+/-- error: lattice operator `keepFrame` neither reduces nor has a registered terminal; its split rule would be the identity -/
 #guard_msgs in
 run_meta do
   let rhs ← Meta.mkAppM ``keepFrame #[mkNatLit 3, mkConst ``keepPred]
@@ -290,7 +321,7 @@ local macro_rules
 @[spec] theorem tickList_spec {α : Type} (xs : List α) : tickList xs ⏱ xs.length := by
   unfold tickList
   vcgen invariants
-  | inv1 => fun cursor _ n _ => n = cursor.pos
+  | inv1 => fun pref _ _ n _ => n = pref.length
   with finish
 
 /-- Two loops in sequence: `vcgen` infers and frames the second call by the cost the first accrued,
@@ -299,7 +330,7 @@ example {α : Type} (xs ys : List α) :
     (do tickList xs; tickList ys : TickT (StateM Nat) Unit) ⏱ (xs.length + ys.length) := by
   vcgen with finish
 
-/-- The same goal with an explicit `frames` clause naming each call's budget. -/
+/-- The same goal with an explicit `frames` clause naming each call's shift. -/
 example {α : Type} (xs ys : List α) :
     (do tickList xs; tickList ys : TickT (StateM Nat) Unit) ⏱ (xs.length + ys.length) := by
   vcgen frames
@@ -353,5 +384,5 @@ example : ⦃ fun cost base => cost = 0 ∧ base = 0 ⦄ (tickAndBump)
 /-- The specs thread the exception postcondition `E` unchanged: over a base with exceptions
 (`ExceptT String Id`), `tick` still costs one and leaves the exception branch untouched. -/
 example : ⦃ fun cost => ⌜cost = 0⌝ ⦄ (tick : TickT (ExceptT String Id) Unit)
-    ⦃ fun _ cost => ⌜cost = 1⌝; epost⟨fun _ => (⊤ : Prop)⟩ ⦄ := by
+    ⦃ fun _ cost => ⌜cost = 1⌝; estack⟨fun _ => (⊤ : Prop)⟩ ⦄ := by
   vcgen with finish

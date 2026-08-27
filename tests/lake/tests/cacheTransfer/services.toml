@@ -1,0 +1,63 @@
+# A cache service for each fault mode of `server.py`.
+# `test.sh` replaces `%URL%` with the URL of the running mock server.
+
+[cache]
+defaultUploadService = "ok"
+
+[[cache.service]]
+name = "ok"
+type = "s3"
+artifactEndpoint = "%URL%/ok/a0"
+revisionEndpoint = "%URL%/ok/r0"
+
+[[cache.service]]
+name = "deny"
+type = "s3"
+artifactEndpoint = "%URL%/deny/a0"
+revisionEndpoint = "%URL%/deny/r0"
+
+[[cache.service]]
+name = "denyArtifacts"
+type = "s3"
+artifactEndpoint = "%URL%/deny/a0"
+revisionEndpoint = "%URL%/ok/r0"
+
+[[cache.service]]
+name = "denyRevisions"
+type = "s3"
+artifactEndpoint = "%URL%/ok/a0"
+revisionEndpoint = "%URL%/deny/r0"
+
+[[cache.service]]
+name = "corrupt"
+type = "s3"
+artifactEndpoint = "%URL%/corrupt/a0"
+revisionEndpoint = "%URL%/ok/r0"
+
+[[cache.service]]
+name = "truncate"
+type = "s3"
+artifactEndpoint = "%URL%/truncate/a0"
+revisionEndpoint = "%URL%/ok/r0"
+
+[[cache.service]]
+name = "reset"
+type = "s3"
+artifactEndpoint = "%URL%/reset/a0"
+revisionEndpoint = "%URL%/ok/r0"
+
+[[cache.service]]
+name = "empty"
+type = "s3"
+artifactEndpoint = "%URL%/empty/a0"
+revisionEndpoint = "%URL%/ok/r0"
+
+[[cache.service]]
+name = "badCount"
+type = "reservoir"
+apiEndpoint = "%URL%/badcount/api/v1"
+
+[[cache.service]]
+name = "apiError"
+type = "reservoir"
+apiEndpoint = "%URL%/apierror/api/v1"

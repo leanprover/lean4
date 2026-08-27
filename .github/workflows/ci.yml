@@ -266,6 +266,11 @@ jobs:
             const macos_arm = ${{ steps.set-level.outputs.macos-arm }};
             const target_stage = ${{ steps.set-level.outputs.target-stage }};
             const lakeCi = "${{ steps.set-level.outputs.lake-ci }}" == "true";
+            // A release build stamps the commit githash into its `.olean`s and enforces it, which
+            // makes every artifact commit-specific and thus unusable to the caches. Only what we
+            // actually ship is built that way; everything below it builds unstamped so that it can
+            // reuse cached artifacts.
+            const stamped = level >= 2;
             console.log(`level: ${level}, fast: ${fast}`);
             // use large runners where available (original repo)
             let large = ${{ github.repository == 'leanprover/lean4' }};
@@ -290,7 +295,10 @@ jobs:
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
                 "os": large ? chonk : "ubuntu-latest",
-                "release": true,
+                "release": stamped,
+                // Unstamped builds are published too (`pr-release.yml`, `grove.yml`), so always pack
+                // and upload the artifact.
+                "upload": true,
                 "enabled": true,
                 "check-rebootstrap": level >= 1,
                 // Done as part of test-bench
@@ -303,22 +311,10 @@ jobs:
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
                 // We are not warning-free yet on all platforms, start with Linux
-                // Do not (yet) use Lake cache on release
-                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror" + (level < 3 ? " -DUSE_LAKE_CACHE=ON" : ""),
-                "lake-actions-cache": level < 3,
-              },
-              {
-                "name": "Linux Lake (Cached)",
-                "os": large ? "nscloud-ubuntu-24.04-amd64-8x16" : "ubuntu-latest",
-                "enabled": true,
-                "check-rebootstrap": level >= 1,
-                // Done as part of test-bench
-                //"check-stage3": level >= 2,
-                "test": true,
-                "secondary": true,
-                // NOTE: `test-bench` currently seems to be broken on `ubuntu-latest`
-                "test-bench": large && level >= 2,
-                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror -DUSE_LAKE_CACHE=ON",
+                // A stamped build would reject the `.olean`s the cache holds from other commits, so
+                // it neither enables the cache for the build nor transfers it.
+                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror" + (stamped ? "" : " -DUSE_LAKE_CACHE=ON"),
+                "lake-cache": !stamped,
               },
               {
                 "name": "Linux RelWithAssert",
@@ -348,8 +344,8 @@ jobs:
                 // * `pkg/|lake/` tests sometimes time out (likely even hang), related to Lake CI
                 //   failures?
                 // * `kernelMaxRecDepth` stack-overflows in the interpreter.
-                // * `elab_bench` is too expensive to run with fsanitize (also can e.g. stack overflow).
-                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|elab_bench/'"
+                // * `*bench` is too expensive to run with fsanitize (also can e.g. stack overflow).
+                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/'"
               },
               {
                 "name": "Linux tsanitize",

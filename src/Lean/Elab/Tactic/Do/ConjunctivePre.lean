@@ -6,8 +6,9 @@ Authors: Sebastian Graf
 module
 
 prelude
+import Init.BinderNameHint
 public import Lean.Meta.Basic
-public import Std.Internal.Do.Triple.Basic
+public import Std.WP.Triple.Basic
 
 /-!
 # Conjunctive preconditions: spec applications that need no frame
@@ -60,10 +61,10 @@ updated state. `P` is never split into a footprint and a frame.
 
 `isConjunctiveInPosts` checks a sufficient syntactic condition: every occurrence of the schematic
 `Q`/`E` in `specPre` lies in a conjunctivity-preserving context — a `wp` post/exception-post, a
-`⊓`/`∧`/`⨅` operand, a `⇨` consequent, an `EPost.Cons.head` projection, an application `Q a⋯`, or
+`⊓`/`∧`/`⨅` operand, a `⇨` consequent, a `Prod.fst` projection, an application `Q a⋯`, or
 under a `λ` — and none in a premise or the program. For instance:
 
-    get   ↦  fun s => Q s s        throw  ↦  E.head err        bind  ↦  wp x (fun a => wp (f a) Q E) E
+    get   ↦  fun s => Q s s        throw  ↦  E.fst err        bind  ↦  wp x (fun a => wp (f a) Q E) E
 
 The `wp` context preserves conjunctivity only because the sub-program's `wp` is assumed conjunctive
 (`WPConjunctive`), a per-program fact that every combinator preserves; a non-conjunctive leaf states
@@ -92,9 +93,9 @@ re-routes the point-frame through the premises: the conclusion VC trivializes an
 lands at the current state, losslessly. The analysis stays with the premise-free fragment.
 -/
 
-namespace Lean.Elab.Tactic.Do.Internal.SpecAttr
+namespace Lean.Elab.Tactic.VCGen.SpecAttr
 
-open Lean Meta Std.Internal.Do Lean.Order
+open Lean Meta Std.WP Lean.Order
 
 /-- The precondition, program, postcondition, and exception postcondition of a spec conclusion in
 either `Triple` or `pre ⊑ wp …` shape. -/
@@ -114,7 +115,7 @@ private def occursMVar (mvarIds : Array MVarId) (e : Expr) : Bool :=
 /-- Whether `e` is conjunctive in the metavariables `qs`, as a sufficient syntactic condition: every
 occurrence of a `qs` metavariable lies in a conjunctive context — a `wp` postcondition or
 exception-postcondition argument (assuming the program's `wp` is conjunctive), a `⊓`/`∧`/`⨅` operand,
-a `⇨` consequent, an `EPost.Cons.head` projection, applied at a tail, or under a `λ`. -/
+a `⇨` consequent, a `Prod.fst` projection, applied at a tail, or under a `λ`. -/
 private partial def isConjunctiveIn (qs : Array MVarId) (e : Expr) : Bool :=
   if !occursMVar qs e then true else
   match e with
@@ -123,9 +124,11 @@ private partial def isConjunctiveIn (qs : Array MVarId) (e : Expr) : Bool :=
   | _ =>
     match e.getAppFn with
     | .mvar m => qs.contains m && e.getAppArgs.all (!occursMVar qs ·)
-    | .const ``EPost.Cons.head _ =>
-      -- `EPost.Cons.head` is a `⊓`-morphism (`EPost.Cons.head_meet`); its exception-stack argument
-      -- stays in a `⊓`-context, the rest (types and the applied exception) must be `qs`-free.
+    -- `binderNameHint v b e` is definitionally `e`; the hint rides along only to name binders.
+    | .const ``binderNameHint _ => isConjunctiveIn qs (e.getArg! 5)
+    | .const ``Prod.fst _ =>
+      -- `Prod.fst` is a `⊓`-morphism (`Prod.fst_meet`). Its exception-stack argument stays
+      -- in a `⊓`-context. The rest (types and the applied exception) must be `qs`-free.
       let args := e.getAppArgs
       match args[2]? with
       | some s => isConjunctiveIn qs s && (List.range args.size).all fun i => i == 2 || !occursMVar qs args[i]!
@@ -154,4 +157,4 @@ public def isConjunctiveInPosts (concl : Expr) (binders : Array Expr) : MetaM Bo
     if occursMVar qs (← inferType b) then return false
   return isConjunctiveIn qs pre
 
-end Lean.Elab.Tactic.Do.Internal.SpecAttr
+end Lean.Elab.Tactic.VCGen.SpecAttr

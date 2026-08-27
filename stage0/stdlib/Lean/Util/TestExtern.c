@@ -1063,9 +1063,9 @@ return v___x_312_;
 LEAN_EXPORT lean_object* l_Lean_elabTestExtern___lam__0___boxed(lean_object* v___x_315_, lean_object* v___x_316_, lean_object* v___x_317_, lean_object* v___x_318_, lean_object* v___y_319_, lean_object* v___y_320_, lean_object* v___y_321_, lean_object* v___y_322_, lean_object* v___y_323_, lean_object* v___y_324_, lean_object* v___y_325_){
 _start:
 {
-uint8_t v___x_5006__boxed_326_; lean_object* v_res_327_; 
-v___x_5006__boxed_326_ = lean_unbox(v___x_318_);
-v_res_327_ = l_Lean_elabTestExtern___lam__0(v___x_315_, v___x_316_, v___x_317_, v___x_5006__boxed_326_, v___y_319_, v___y_320_, v___y_321_, v___y_322_, v___y_323_, v___y_324_);
+uint8_t v___x_4041__boxed_326_; lean_object* v_res_327_; 
+v___x_4041__boxed_326_ = lean_unbox(v___x_318_);
+v_res_327_ = l_Lean_elabTestExtern___lam__0(v___x_315_, v___x_316_, v___x_317_, v___x_4041__boxed_326_, v___y_319_, v___y_320_, v___y_321_, v___y_322_, v___y_323_, v___y_324_);
 lean_dec(v___y_324_);
 lean_dec_ref(v___y_323_);
 lean_dec(v___y_322_);
@@ -1164,11 +1164,13 @@ return v_res_386_;
 }
 lean_object* runtime_initialize_Init_Notation(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Exception(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Util_TestExtern(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Notation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

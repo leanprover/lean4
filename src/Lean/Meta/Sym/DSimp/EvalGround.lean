@@ -41,6 +41,12 @@ abbrev evalUnaryInt16 : (op : Int16 → Int16) → (a : Expr) → DSimpM Result 
 abbrev evalUnaryInt32 : (op : Int32 → Int32) → (a : Expr) → DSimpM Result := evalUnary getInt32Value?
 abbrev evalUnaryInt64 : (op : Int64 → Int64) → (a : Expr) → DSimpM Result := evalUnary getInt64Value?
 
+def evalLog2 (a : Expr) (maxExponent : Nat) : DSimpM Result := do
+  let some n := getNatValue? a | return .rfl
+  if n > 2^maxExponent then return .rfl
+  let e ← share <| toExpr n.log2
+  return .step e (done := true)
+
 abbrev evalUnaryFin' (op : {n : Nat} → Fin n → Fin n) (a : Expr) : DSimpM Result := do
   let some a := getFinValue? a | return .rfl
   let e ← share <| toExpr (op a.val)
@@ -447,6 +453,12 @@ def evalBitVecOfNat (n a : Expr) : DSimpM Result := do
   let e ← share <| toExpr (BitVec.ofNat n a)
   return .step e (done := true)
 
+def evalBitVecOfNatClamp (n a : Expr) : DSimpM Result := do
+  let some n := getNatValue? n | return .rfl
+  let some a := getNatValue? a | return .rfl
+  let e ← share <| toExpr (BitVec.ofNatClamp n a)
+  return .step e (done := true)
+
 def evalInt8ToBitVec (a : Expr) : DSimpM Result := do
   let some v := getInt8Value? a | return .rfl
   let e ← share <| toExpr v.toBitVec
@@ -519,6 +531,7 @@ public def evalGround (config : EvalStepConfig := {}) : DSimproc := fun e =>
   | Complement.complement α _ a => evalComplement α a
   | Nat.gcd a b => evalBinNat Nat.gcd a b
   | Nat.succ a => evalUnaryNat (· + 1) a
+  | Nat.log2 a => evalLog2 a config.maxExponent
   | Int.gcd a b => evalIntGcd a b
   | Int.tdiv a b => evalBinInt Int.tdiv a b
   | Int.fdiv a b => evalBinInt Int.fdiv a b
@@ -573,6 +586,7 @@ public def evalGround (config : EvalStepConfig := {}) : DSimproc := fun e =>
   | BitVec.allOnes n => evalBitVecAllOnes n
   | BitVec.toNat _ a => evalBitVecToNat a
   | BitVec.ofNat n a => evalBitVecOfNat n a
+  | BitVec.ofNatClamp n a => evalBitVecOfNatClamp n a
   | BitVec.toInt _ a => evalBitVecToInt a
   | BitVec.ofInt n i => evalBitVecOfInt n i
   | BitVec.toFin _ a => evalBitVecToFin a

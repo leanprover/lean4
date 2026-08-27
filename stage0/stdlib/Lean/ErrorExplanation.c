@@ -1744,9 +1744,9 @@ return v___x_549_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_getErrorExplanationsRaw_spec__1___redArg___lam__0___boxed(lean_object* v___x_550_, lean_object* v_e_551_, lean_object* v_e_x27_552_){
 _start:
 {
-uint8_t v___x_400__boxed_553_; uint8_t v_res_554_; lean_object* v_r_555_; 
-v___x_400__boxed_553_ = lean_unbox(v___x_550_);
-v_res_554_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_getErrorExplanationsRaw_spec__1___redArg___lam__0(v___x_400__boxed_553_, v_e_551_, v_e_x27_552_);
+uint8_t v___x_411__boxed_553_; uint8_t v_res_554_; lean_object* v_r_555_; 
+v___x_411__boxed_553_ = lean_unbox(v___x_550_);
+v_res_554_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_getErrorExplanationsRaw_spec__1___redArg___lam__0(v___x_411__boxed_553_, v_e_551_, v_e_x27_552_);
 v_r_555_ = lean_box(v_res_554_);
 return v_r_555_;
 }
@@ -2042,11 +2042,13 @@ return v___x_681_;
 lean_object* runtime_initialize_Lean_Message(uint8_t builtin);
 lean_object* runtime_initialize_Lean_EnvExtension(uint8_t builtin);
 lean_object* runtime_initialize_Lean_DocString_Links(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_ErrorExplanation(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Message(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

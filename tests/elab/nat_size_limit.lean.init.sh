@@ -1,0 +1,1 @@
+export LEAN_NAT_MAX_SIZE=16

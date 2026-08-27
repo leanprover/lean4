@@ -49,6 +49,9 @@ open Lean Meta Simp Lean.Nat
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reduceSucc (Nat.succ _) := reduceUnary ``Nat.succ 1 (· + 1)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
+builtin_dsimproc [simp, seval] reduceLog2 (Nat.log2 _) := reduceUnary ``Nat.log2 1 Nat.log2
+
 
 /-
 The following code assumes users did not override the `Nat` instances for the arithmetic operators.

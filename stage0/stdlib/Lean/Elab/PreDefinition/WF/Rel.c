@@ -54,7 +54,7 @@ lean_object* l_Lean_Elab_FixedParamPerm_instantiateLambda(lean_object*, lean_obj
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEqGuarded(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_instInhabitedTerminationMeasure_default;
@@ -215,16 +215,16 @@ return v___x_1_;
 LEAN_EXPORT lean_object* l_panic___at___00Lean_Elab_WF_checkCodomains_spec__0(lean_object* v_msg_2_, lean_object* v___y_3_, lean_object* v___y_4_, lean_object* v___y_5_, lean_object* v___y_6_, lean_object* v___y_7_, lean_object* v___y_8_){
 _start:
 {
-lean_object* v___x_10_; lean_object* v___x_6826__overap_11_; lean_object* v___x_12_; 
+lean_object* v___x_10_; lean_object* v___x_6145__overap_11_; lean_object* v___x_12_; 
 v___x_10_ = lean_obj_once(&l_panic___at___00Lean_Elab_WF_checkCodomains_spec__0___closed__0, &l_panic___at___00Lean_Elab_WF_checkCodomains_spec__0___closed__0_once, _init_l_panic___at___00Lean_Elab_WF_checkCodomains_spec__0___closed__0);
-v___x_6826__overap_11_ = lean_panic_fn_borrowed(v___x_10_, v_msg_2_);
+v___x_6145__overap_11_ = lean_panic_fn_borrowed(v___x_10_, v_msg_2_);
 lean_inc(v___y_8_);
 lean_inc_ref(v___y_7_);
 lean_inc(v___y_6_);
 lean_inc_ref(v___y_5_);
 lean_inc(v___y_4_);
 lean_inc_ref(v___y_3_);
-v___x_12_ = lean_apply_7(v___x_6826__overap_11_, v___y_3_, v___y_4_, v___y_5_, v___y_6_, v___y_7_, v___y_8_, lean_box(0));
+v___x_12_ = lean_apply_7(v___x_6145__overap_11_, v___y_3_, v___y_4_, v___y_5_, v___y_6_, v___y_7_, v___y_8_, lean_box(0));
 return v___x_12_;
 }
 }
@@ -2149,22 +2149,22 @@ lean_object* v___x_683_; lean_object* v___x_684_; lean_object* v_ref_685_; lean_
 v___x_683_ = l_Lean_Elab_instInhabitedTerminationMeasure_default;
 v___x_684_ = lean_array_get_borrowed(v___x_683_, v_termMeasures_660_, v_a_662_);
 v_ref_685_ = lean_ctor_get(v___x_684_, 0);
-v___x_686_ = lean_unsigned_to_nat(0u);
-v___x_687_ = lean_obj_once(&l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_checkCodomains_spec__7___redArg___closed__1, &l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_checkCodomains_spec__7___redArg___closed__1_once, _init_l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_checkCodomains_spec__7___redArg___closed__1);
-v___x_688_ = lean_obj_once(&l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_checkCodomains_spec__7___redArg___closed__3, &l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_checkCodomains_spec__7___redArg___closed__3_once, _init_l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_checkCodomains_spec__7___redArg___closed__3);
-v___x_689_ = lean_box(0);
-v___x_690_ = lean_array_get_borrowed(v___x_689_, v_names_661_, v___x_686_);
+v___x_686_ = lean_box(0);
+v___x_687_ = lean_unsigned_to_nat(0u);
+v___x_688_ = lean_obj_once(&l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_checkCodomains_spec__7___redArg___closed__1, &l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_checkCodomains_spec__7___redArg___closed__1_once, _init_l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_checkCodomains_spec__7___redArg___closed__1);
+v___x_689_ = lean_obj_once(&l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_checkCodomains_spec__7___redArg___closed__3, &l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_checkCodomains_spec__7___redArg___closed__3_once, _init_l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_checkCodomains_spec__7___redArg___closed__3);
+v___x_690_ = lean_array_get_borrowed(v___x_686_, v_names_661_, v___x_687_);
 lean_inc(v___x_690_);
 v___x_691_ = l_Lean_MessageData_ofName(v___x_690_);
 v___x_692_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_692_, 0, v___x_688_);
+lean_ctor_set(v___x_692_, 0, v___x_689_);
 lean_ctor_set(v___x_692_, 1, v___x_691_);
 v___x_693_ = lean_obj_once(&l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_checkCodomains_spec__7___redArg___closed__5, &l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_checkCodomains_spec__7___redArg___closed__5_once, _init_l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_checkCodomains_spec__7___redArg___closed__5);
 v___x_694_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_694_, 0, v___x_692_);
 lean_ctor_set(v___x_694_, 1, v___x_693_);
 v___x_695_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_695_, 0, v___x_687_);
+lean_ctor_set(v___x_695_, 0, v___x_688_);
 lean_ctor_set(v___x_695_, 1, v___x_694_);
 lean_inc_ref(v___x_659_);
 v___x_696_ = l_Lean_indentExpr(v___x_659_);
@@ -2176,7 +2176,7 @@ v___x_699_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_699_, 0, v___x_695_);
 lean_ctor_set(v___x_699_, 1, v___x_698_);
 v___x_700_ = lean_obj_once(&l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_checkCodomains_spec__7___redArg___closed__7, &l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_checkCodomains_spec__7___redArg___closed__7_once, _init_l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_checkCodomains_spec__7___redArg___closed__7);
-v___x_701_ = lean_array_get_borrowed(v___x_689_, v_names_661_, v_a_662_);
+v___x_701_ = lean_array_get_borrowed(v___x_686_, v_names_661_, v_a_662_);
 lean_inc(v___x_701_);
 v___x_702_ = l_Lean_MessageData_ofName(v___x_701_);
 v___x_703_ = lean_alloc_ctor(7, 2, 0);
@@ -2671,7 +2671,7 @@ goto v_reusejp_927_;
 v_reusejp_927_:
 {
 lean_object* v___x_929_; lean_object* v___x_930_; 
-v___x_929_ = lean_st_ref_set(v___y_910_, v___x_928_);
+v___x_929_ = lean_st_ref_put(v___y_910_, v___x_928_);
 v___x_930_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_930_, 0, v_fst_917_);
 return v___x_930_;
@@ -3312,11 +3312,13 @@ lean_object* runtime_initialize_Lean_Meta_Tactic_Rename(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_PreDefinition_TerminationMeasure(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_PreDefinition_FixedParams(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_ArgsPacker(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_PreDefinition_WF_Rel(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Rename(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

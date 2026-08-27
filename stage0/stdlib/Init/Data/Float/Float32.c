@@ -221,12 +221,12 @@ return v___x_15_;
 LEAN_EXPORT lean_object* l_instDecidableEqFloat32_decEq___boxed(lean_object* v_x_16_, lean_object* v_x_17_){
 _start:
 {
-float v_x_25__boxed_18_; float v_x_26__boxed_19_; uint8_t v_res_20_; lean_object* v_r_21_; 
-v_x_25__boxed_18_ = lean_unbox_float32(v_x_16_);
+float v_x_31__boxed_18_; float v_x_32__boxed_19_; uint8_t v_res_20_; lean_object* v_r_21_; 
+v_x_31__boxed_18_ = lean_unbox_float32(v_x_16_);
 lean_dec_ref(v_x_16_);
-v_x_26__boxed_19_ = lean_unbox_float32(v_x_17_);
+v_x_32__boxed_19_ = lean_unbox_float32(v_x_17_);
 lean_dec_ref(v_x_17_);
-v_res_20_ = l_instDecidableEqFloat32_decEq(v_x_25__boxed_18_, v_x_26__boxed_19_);
+v_res_20_ = l_instDecidableEqFloat32_decEq(v_x_31__boxed_18_, v_x_32__boxed_19_);
 v_r_21_ = lean_box(v_res_20_);
 return v_r_21_;
 }
@@ -1045,11 +1045,13 @@ return v_r_403_;
 }
 lean_object* runtime_initialize_Init_Data_Float_Float(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Float_Model_Float32(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Float_Float32(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Float_Float(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

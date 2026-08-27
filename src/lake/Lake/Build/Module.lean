@@ -213,12 +213,24 @@ def computeModuleDeps
     else
       dynlibs := dynlibs.push impLib
   /-
-  On MacOS, Lake must be loaded as a plugin for
-  `import Lake` to work with precompiled modules.
-  https://github.com/leanprover/lean4/issues/7388
+  On Linux, dynlibs that use Lake symbols are linked against `libLake_shared.so` (`--as-needed`).
+  The runtime linker is not able to find `lib/lean/libLake_shared.so` on disk
+  because we do not set `LD_LIBRARY_PATH`,
+  and the `DT_RUNPATH` entry on `bin/lean` pointing to `lib/lean`
+  is ignored when resolving transitive dependencies.
+  So we load `libLake_shared.so` eagerly *in case it might be needed*
+  (we don't know whether it is needed because an imported `Lake.*` module
+  will not be present in `Module.transImports`).
+  TODO: load as dynlib instead of as plugin,
+  see https://github.com/leanprover/lean4/pull/14326
+
+  MacOS *can* resolve the dylib but needs a plugin to run initializers,
+  see https://github.com/leanprover/lean4/issues/7388
+  TODO: remove macOS case once initializers are compiled correctly,
+  see https://github.com/leanprover/lean4/issues/14359
   -/
-  if Platform.isOSX && !(plugins.isEmpty && dynlibs.isEmpty) then
-    plugins := plugins.push (← getLakeInstall).sharedDynlib
+  if (Platform.isLinux || Platform.isOSX) && !(plugins.isEmpty && dynlibs.isEmpty) then
+    plugins := plugins.insertIdx 0 (← getLakeInstall).sharedDynlib
   return {dynlibs, plugins}
 
 structure TransImportEntry where
@@ -236,30 +248,39 @@ partial def fetchTransImportArts
     let input ← (← mod.input.fetch).await
     let importAll := strictOr nonModule imp.importAll
     return enqueue importAll imp.isMeta input q
-  walk directArts {} q
+  walk directArts {} {} q
 where
-  walk s (metaVisited : NameSet) (q : Array TransImportEntry) := do
+  walk s (allVisited metaVisited : NameSet) (q : Array TransImportEntry) := do
     if h : 0 < q.size then
       let {mod, importAll, needsMeta} := q.back
       let q := q.pop
-      if let some arts := s.find? mod.name then
-        /-
-        A module system `import` may need to be promoted to a
-        wider import (`meta import`, `import all`) on another branch.
-        -/
-        -- Only re-process a module sitting at the plain public-module level: `.server` present =>
-        -- module, no `.private` => not already `import all`. An entry already at `import all` (with
-        -- `.private`) or a non-module (no `.server`) must not be re-inserted, as that would demote it.
-        let needsMeta := needsMeta && !metaVisited.contains mod.name
-        unless (importAll || needsMeta) && arts.oleanServer?.isSome && arts.oleanPrivate?.isNone do
-          return ← walk s metaVisited q
+      /-
+      A module system `import` may need to be promoted to a
+      wider import (`meta import`, `import all`) on another branch.
+
+      Track the two import dimensions separately: `allVisited` = raised to `.private` by
+      `import all`; `metaVisited` = made meta-reachable by a `meta import`. An `import all` visit
+      must not mark a module meta-visited, otherwise a later `meta` visit is skipped and the
+      module's children never inherit the meta requirement.
+      -/
+      let doAll := importAll && !allVisited.contains mod.name
+      let doMeta := needsMeta && !metaVisited.contains mod.name
+      let existing? := s.find? mod.name
+      -- Re-process an existing entry only to widen a module-system entry (`.server` present) with a
+      -- newly-required dimension. Otherwise, leave it untouched (nothing new, or a non-module entry).
+      if let some arts := existing? then
+        unless arts.oleanServer?.isSome && (doAll || doMeta) do
+          return ← walk s allVisited metaVisited q
+      let allVisited := if importAll then allVisited.insert mod.name else allVisited
+      let metaVisited := if needsMeta then metaVisited.insert mod.name else metaVisited
+      -- Widest level seen so far, never below an existing entry's (no demotion).
+      let wantAll := allVisited.contains mod.name || existing?.any (·.oleanPrivate?.isSome)
       let info ← (← mod.exportInfo.fetch).await
-      let arts := if importAll then info.allArts else info.arts
-      let s := s.insert mod.name arts
-      let metaVisited := if importAll || needsMeta then metaVisited.insert mod.name else metaVisited
+      let s := s.insert mod.name (if wantAll then info.allArts else info.arts)
       let input ← (← mod.input.fetch).await
+      -- `import all`/`meta import` are transitive. Propagate both flags to children.
       let q := enqueue importAll needsMeta input q
-      walk s metaVisited q
+      walk s allVisited metaVisited q
     else
       return s
   enqueue importAll needsMeta input q :=
@@ -825,7 +846,7 @@ public def Module.checkArtifactsExist (self : Module) (isModule : Bool) : BaseIO
 public protected def Module.checkExists (self : Module) (isModule : Bool) : BaseIO Bool := do
   self.ltarFile.pathExists <||> self.checkArtifactsExist isModule
 
-@[deprecated Module.checkExists (since := "2025-03-04")]
+@[deprecated Module.checkExists +typeChanged (since := "2025-03-04")]
 public instance : CheckExists Module := ⟨Module.checkExists (isModule := false)⟩
 
 public protected def Module.getMTime (self : Module) (isModule : Bool) : IO MTime := do
@@ -848,7 +869,7 @@ public protected def Module.getMTime (self : Module) (isModule : Bool) : IO MTim
     | .noFileOrDirectory .. => throw e
     | e => throw e
 
-@[deprecated Module.getMTime (since := "2025-03-04")]
+@[deprecated Module.getMTime +typeChanged (since := "2025-03-04")]
 public instance : GetMTime Module := ⟨Module.getMTime (isModule := false)⟩
 
 def ModuleOutputArtifacts.setMTime (self : ModuleOutputArtifacts) (mtime : MTime) : ModuleOutputArtifacts :=
@@ -1200,6 +1221,12 @@ public def Module.bcFacetConfig : ModuleFacetConfig bcFacet :=
       addTrace art.trace
       return art.path
 
+@[inline] def Package.getLeanIncludeDir? (pkg : Package) : JobM (Option (FilePath × BuildTrace)) := do
+  if pkg.bootstrap then
+    (← getBuildContext).leanIncludeDirs[pkg.wsIdx]?.join.getDM do
+        error "failed to fetch trace of the Lean include directory"
+  else return none
+
 /--
 Recursively build the module's object file from its C file produced by `lean`
 with `-DLEAN_EXPORTING` set, which exports Lean symbols defined within the C files.
@@ -1209,7 +1236,8 @@ def Module.recBuildLeanCToOExport (self : Module) : FetchM (Job FilePath) := do
   withRegisterJob s!"{self.name}:c.o{suffix}" <| withCurrPackage self.pkg do
   -- TODO: add option to pass a target triplet for cross compilation
   let leancArgs := self.leancArgs ++ #["-DLEAN_EXPORTING"]
-  buildLeanO self.coExportFile (← self.c.fetch) self.weakLeancArgs leancArgs self.leanIncludeDir?
+  let leanIncludeDir? ← self.pkg.getLeanIncludeDir?
+  Internal.buildLeanO self.coExportFile (← self.c.fetch) self.weakLeancArgs leancArgs leanIncludeDir?
 
 /-- The `ModuleFacetConfig` for the builtin `coExportFacet`. -/
 public def Module.coExportFacetConfig : ModuleFacetConfig coExportFacet :=
@@ -1223,7 +1251,8 @@ def Module.recBuildLeanCToONoExport (self : Module) : FetchM (Job FilePath) := d
   let suffix := if (← getIsVerbose) then " (without exports)" else ""
   withRegisterJob s!"{self.name}:c.o{suffix}" <| withCurrPackage self.pkg do
   -- TODO: add option to pass a target triplet for cross compilation
-  buildLeanO self.coNoExportFile (← self.c.fetch) self.weakLeancArgs self.leancArgs self.leanIncludeDir?
+  let leanIncludeDir? ← self.pkg.getLeanIncludeDir?
+  Internal.buildLeanO self.coNoExportFile (← self.c.fetch) self.weakLeancArgs self.leancArgs leanIncludeDir?
 
 /-- The `ModuleFacetConfig` for the builtin `coNoExportFacet`. -/
 public def Module.coNoExportFacetConfig : ModuleFacetConfig coNoExportFacet :=

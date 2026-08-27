@@ -187,23 +187,26 @@ private noncomputable def inhabitedFromRef {σ α} (r : Ref σ α) : ST σ α :=
 opaque mkRef {σ α} (a : α) : ST σ (Ref σ α) := pure { ref := Classical.choice RefPointed.property, h := Nonempty.intro a }
 @[extern "lean_st_ref_get"]
 opaque Ref.get {σ α} (r : @& Ref σ α) : ST σ α := inhabitedFromRef r
-@[extern "lean_st_ref_set"]
-opaque Ref.set {σ α} (r : @& Ref σ α) (a : α) : ST σ Unit
 @[extern "lean_st_ref_swap"]
 opaque Ref.swap {σ α} (r : @& Ref σ α) (a : α) : ST σ α := inhabitedFromRef r
 @[extern "lean_st_ref_take"]
 unsafe opaque Ref.take {σ α} (r : @& Ref σ α) : ST σ α := inhabitedFromRef r
+@[extern "lean_st_ref_put"]
+unsafe opaque Ref.put {σ α} (r : @& Ref σ α) (a : α) : ST σ Unit
 @[extern "lean_st_ref_ptr_eq"]
 opaque Ref.ptrEq {σ α} (r1 r2 : @& Ref σ α) : ST σ Bool
 
+@[inline] def Ref.set {σ α : Type} (r : Ref σ α) (a : α) : ST σ Unit := do
+  discard <| Ref.swap r a
+
 @[inline] unsafe def Ref.modifyUnsafe {σ α : Type} (r : Ref σ α) (f : α → α) : ST σ Unit := do
   let v ← Ref.take r
-  Ref.set r (f v)
+  Ref.put r (f v)
 
 @[inline] unsafe def Ref.modifyGetUnsafe {σ α β : Type} (r : Ref σ α) (f : α → β × α) : ST σ β := do
   let v ← Ref.take r
   let (b, a) := f v
-  Ref.set r a
+  Ref.put r a
   pure b
 
 @[implemented_by Ref.modifyUnsafe]
@@ -244,9 +247,18 @@ original value is returned.
 Reads the value of a mutable reference cell, removing it.
 
 This causes subsequent attempts to read from or take the reference cell to block until a new value
-is written using `ST.Ref.set`.
+is written using `ST.Ref.put`.
 -/
 @[inline] unsafe def Ref.take {α : Type} (r : Ref σ α) : m α := liftM <| Prim.Ref.take r
+
+/--
+Puts a value into a mutable reference, finishing the critical section opened by `ST.Ref.take`.
+
+This function assumes that `ST.Ref.take` has been called on `r` before and no other `ST.Ref.put`
+has since acted on `r`. Breaking this invariant may lead to undefined behavior.
+-/
+@[inline] unsafe def Ref.put {α : Type} (r : Ref σ α) (a : α) : m Unit := liftM <| Prim.Ref.put r a
+
 /--
 Checks whether two reference cells are in fact aliases for the same cell.
 

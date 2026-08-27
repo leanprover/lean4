@@ -583,10 +583,7 @@ structure Environment where
   private asyncConstsMap : VisibilityMap AsyncConsts := default
   /-- Information about this asynchronous branch of the environment, if any. -/
   private asyncCtx?   : Option AsyncContext := none
-  /--
-  Realized values belonging to imported declarations. Must be initialized by calling
-  `enableRealizationsForImports`.
-  -/
+  /-- Realized values belonging to imported declarations. Initialized by `finalizeImport`. -/
   private importRealizationCtx? : Option RealizationContext
   /--
   Realized values belonging to local declarations. This is a map from local declarations, which
@@ -639,8 +636,10 @@ def allImportedModuleNames (env : Environment) : Array Name :=
 private def asyncConsts (env : Environment) : AsyncConsts :=
   env.asyncConstsMap.get env
 
--- Used only when the kernel calls into the interpreter, and in `Lean.Kernel.Exception.mkCtx`. In
--- both cases, the environment should be temporary and not leak into elaboration.
+/--
+Constructs an elaboration environment from a given kernel environment's constants. All constants are
+accessible in both the private and public scope. All other data is empty.
+-/
 @[export lean_elab_environment_of_kernel_env]
 def ofKernelEnv (env : Kernel.Environment) : Environment :=
   { base.private := env, base.public := env, importRealizationCtx? := none }
@@ -775,7 +774,11 @@ private opaque isReservedName (env : Environment) (name : Name) : Bool
 /-- `findAsync?` after `base` access -/
 private def findAsyncCore? (env : Environment) (n : Name) (skipRealize := false) :
     Option AsyncConstantInfo := do
-  env.findAsyncConst? n (skipRealize := skipRealize) |>.map (·.constInfo)
+  if let some c := env.findAsyncConst? n (skipRealize := skipRealize) then
+    return c.constInfo
+  -- Also query local kernel map eventually; this should only be needed on `ofKernelEnv` results as
+  -- after importing, the `base` local map is and stays empty.
+  return .ofConstantInfo (← env.base.get env |>.constants.map₂.find? n)
 
 /-- Like `findAsyncCore?`; allocating tasks is (currently?) too costly to do always. -/
 private def findTaskCore (env : Environment) (n : Name) (skipRealize := false) :
@@ -794,9 +797,8 @@ private def findTaskCore (env : Environment) (n : Name) (skipRealize := false) :
         if let some c := allRealizations.find? n then
           return c.constInfo
         none
-    -- Not in the kernel environment nor in the name prefix of a known environment branch: undefined
-    -- by `addDeclCore` invariant.
-    .pure none
+    -- see `findAsyncCore?`
+    .pure <| .ofConstantInfo <$> (env.base.get env |>.constants.map₂.find? n)
 
 /--
 Looks up the given declaration name in the environment, avoiding forcing any in-progress elaboration

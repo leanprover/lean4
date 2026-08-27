@@ -1252,10 +1252,10 @@ return v___x_517_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Grind_Order_getNodeId_spec__0_spec__0___redArg___boxed(lean_object* v_x_518_, lean_object* v_x_519_, lean_object* v_x_520_){
 _start:
 {
-size_t v_x_1319__boxed_521_; lean_object* v_res_522_; 
-v_x_1319__boxed_521_ = lean_unbox_usize(v_x_519_);
+size_t v_x_1278__boxed_521_; lean_object* v_res_522_; 
+v_x_1278__boxed_521_ = lean_unbox_usize(v_x_519_);
 lean_dec(v_x_519_);
-v_res_522_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Grind_Order_getNodeId_spec__0_spec__0___redArg(v_x_518_, v_x_1319__boxed_521_, v_x_520_);
+v_res_522_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Grind_Order_getNodeId_spec__0_spec__0___redArg(v_x_518_, v_x_1278__boxed_521_, v_x_520_);
 lean_dec_ref(v_x_520_);
 lean_dec_ref(v_x_518_);
 return v_res_522_;
@@ -1458,10 +1458,10 @@ return v___x_600_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Grind_Order_getNodeId_spec__0_spec__0___boxed(lean_object* v_00_u03b2_601_, lean_object* v_x_602_, lean_object* v_x_603_, lean_object* v_x_604_){
 _start:
 {
-size_t v_x_1454__boxed_605_; lean_object* v_res_606_; 
-v_x_1454__boxed_605_ = lean_unbox_usize(v_x_603_);
+size_t v_x_1413__boxed_605_; lean_object* v_res_606_; 
+v_x_1413__boxed_605_ = lean_unbox_usize(v_x_603_);
 lean_dec(v_x_603_);
-v_res_606_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Grind_Order_getNodeId_spec__0_spec__0(v_00_u03b2_601_, v_x_602_, v_x_1454__boxed_605_, v_x_604_);
+v_res_606_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Grind_Order_getNodeId_spec__0_spec__0(v_00_u03b2_601_, v_x_602_, v_x_1413__boxed_605_, v_x_604_);
 lean_dec_ref(v_x_604_);
 lean_dec_ref(v_x_602_);
 return v_res_606_;
@@ -2597,11 +2597,13 @@ return v_res_1004_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Order_Types(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Order_OrderM(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Grind_Order_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

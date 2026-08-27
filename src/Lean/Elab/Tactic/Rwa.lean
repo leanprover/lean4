@@ -86,10 +86,11 @@ def evalRwa : Tactic := fun stx => do
 def evalRwaAt : Tactic := fun stx => do
   match stx with
   | `(tactic| rwa $rws:rwRuleSeq at $h:term) => do
-    let fvarId ← getFVarId h
     evalRwaCore stx
-      (foldRWRulesSeq stx[0] rws fvarId fun fvarId symm term =>
-        rewriteLocalDeclCore term symm fvarId)
+      (do
+        let fvarId ← getFVarId h
+        foldRWRulesSeq stx[0] rws fvarId fun fvarId symm term =>
+          rewriteLocalDeclCore term symm fvarId)
       (← `(tactic| rw $rws:rwRuleSeq at $h:term))
       closeUsingFVar
   | _ => throwUnsupportedSyntax

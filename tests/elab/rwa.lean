@@ -278,3 +278,12 @@ example {a b c : Nat} (h : a = b) (h' : b = c) : a = b ∧ b = c := by
   constructor
   rwa [h]
   exact h'
+
+/--
+@ +3:2...17
+error: No goals to be solved
+-/
+#guard_msgs (positions := true) in
+example {a b c : Nat} (h : a = b) (h' : b = c) : a = c := by
+  exact h.trans h'
+  rwa [← h] at h'

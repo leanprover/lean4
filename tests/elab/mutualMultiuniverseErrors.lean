@@ -92,3 +92,67 @@ error: failed to compile definition, consider marking it as 'noncomputable' beca
 -/
 #guard_msgs in
 def sqNat : Sq → Nat := fun s => Sq.mutualRec (motive := fun _ => Nat) 5 s
+
+/-! ## A member whose `Prop`-ness depends on a universe parameter
+
+Whether a member is `Prop` decides whether it becomes a shadow or an honest
+inductive, so it has to be decidable from the declaration.  A member at `Sort u`
+or `Sort (imax u v)` is `Prop` for some instantiations and not for others, and
+is refused upstream before the lowering runs.  Contrast a *field* at
+`Sort (imax _ _)`, which is fine -- see `mutualMultiuniverseFeatures`. -/
+
+universe u v
+
+/--
+error: Invalid universe polymorphic resulting type: The resulting universe is not `Prop`, but it may be `Prop` for some parameter values:
+  Sort u
+
+Hint: A possible solution is to use levels of the form `max 1 _` or `_ + 1` to ensure the universe is of the form `Type _`
+-/
+#guard_msgs in
+mutual_multiuniverse
+inductive EA : Prop where
+  | mk : EB → EA
+inductive EB : Sort u where
+  | leaf : Nat → EB
+  | fromA : EA → EB
+end
+
+/--
+error: Invalid universe polymorphic resulting type: The resulting universe is not `Prop`, but it may be `Prop` for some parameter values:
+  Sort (imax u v)
+
+Hint: A possible solution is to use levels of the form `max 1 _` or `_ + 1` to ensure the universe is of the form `Type _`
+-/
+#guard_msgs in
+mutual_multiuniverse
+inductive FA (α : Type u) (P : α → Sort v) : Prop where
+  | mk : FB α P → FA α P
+inductive FB (α : Type u) (P : α → Sort v) : Sort (imax u v) where
+  | fn : ((a : α) → P a) → FB α P
+  | back : FA α P → FB α P
+end
+
+/-! ## Two data members of one component at different universes
+
+They hold each other, so each universe would have to be at most the other; only
+the first direction gets as far as being reported. -/
+
+/--
+error: Invalid universe level in constructor `GB.toC`: Parameter has type
+  GC
+at universe level
+  v + 1
+which is not less than or equal to the inductive type's resulting universe level
+  u + 1
+-/
+#guard_msgs in
+mutual_multiuniverse
+inductive GA : Prop where
+  | mk : GB → GA
+inductive GB : Type u where
+  | leaf : Nat → GB
+  | toC : GC → GB
+inductive GC : Type v where
+  | fromB : GB → GC
+end

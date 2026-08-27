@@ -666,8 +666,6 @@ deprecated_syntax Lean.Parser.Tactic.rwaAtLegacyLocation
 -- These expansions allow the old stage0 to elaborate `rwa` while bootstrapping.
 macro_rules
   | `(tactic| rwa $rws:rwRuleSeq) => do
-    if ← Macro.hasDecl `Lean.Elab.Tactic.evalRwa then
-      Macro.throwUnsupported
     match ← Macro.resolveGlobalName `Lean.Elab.Tactic.rwaBuiltin with
     | List.nil => pure ()
     | List.cons _ _ => Macro.throwUnsupported
@@ -679,8 +677,6 @@ macro_rules
           | assumption)
         all_goals (first | with_reducible rfl | assumption | skip)))
   | `(tactic| rwa $rws:rwRuleSeq at $h:term) => do
-    if ← Macro.hasDecl `Lean.Elab.Tactic.evalRwaAt then
-      Macro.throwUnsupported
     match ← Macro.resolveGlobalName `Lean.Elab.Tactic.rwaBuiltin with
     | List.nil => pure ()
     | List.cons _ _ => Macro.throwUnsupported

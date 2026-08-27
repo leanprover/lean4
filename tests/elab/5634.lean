@@ -127,3 +127,30 @@ Note: This linter can be disabled with `set_option linter.unnecessarySimpa false
 #guard_msgs in
 example (h : foo n ≠ [n]) : False := by
   simpa [foo] using h
+
+/--
+warning: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp? at h
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+---
+info: Try this:
+  [apply] simpa only [not_true_eq_false] using h
+-/
+#guard_msgs in
+example (h : ¬ True) : False := by
+  simpa? using h
+
+/--
+warning: `simp` already closes the goal
+
+Hint: Use `simp` instead of `simpa`:
+  [apply] simp at h
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+-/
+#guard_msgs in
+example (h : ¬ True) : False := by
+  simpa using h

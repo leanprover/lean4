@@ -792,7 +792,7 @@ meta def dsimpArg := simpErase.binary `orelse simpLemma
 syntax dsimpArgs := " [" dsimpArg,*,? "]"
 
 /-- The common arguments of `simp?` and `simp?!`. -/
-syntax simpTraceArgsRest := optConfig (discharger)? (&" only")? (simpArgs)? (ppSpace location)?
+syntax simpTraceArgsRest := optConfig (discharger)? (&" only")? (simpArgs)? (location)?
 
 /--
 `simp?` takes the same arguments as `simp`, but reports an equivalent call to `simp only`

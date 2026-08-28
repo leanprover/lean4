@@ -428,6 +428,11 @@ theorem compare_eq (a b : Array Digit) :
     }
     c[len] = k;
 ```
+NOTE: `c` is a caller-supplied buffer that the C++ writes by index; the model
+pushes onto an empty array. The digits are the same sequence, and `c.size`
+becomes the loop counter, so `denote_push` carries a whole iteration and
+`addLoop_spec` can induct on `len` without also tracking that the digits above
+it are untouched. The trailing `c[len] = k` is the `push` in `add`.
 -/
 def addLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
   let mut c : Array Digit := #[]
@@ -435,10 +440,8 @@ def addLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
   for j in List.range len do
     let u_j := a.getD j 0
     let v_j := b.getD j 0
-    let r := u_j + v_j
-    let c1 := r < u_j
-    let cj := r + k
-    let c2 := cj < r
+    let r := u_j + v_j; let c1 := r < u_j
+    let cj := r + k; let c2 := cj < r
     c := c.push cj
     k := if c1 || c2 then 1 else 0
   return (c, k)
@@ -497,6 +500,9 @@ def add (a b : Array Digit) : Array Digit :=
         k = c1 | c2;
     }
 ```
+NOTE: `c` is written by index into a caller-supplied buffer and pushed here, for
+the reason given at `addLoop`. There is no trailing digit to write: the borrow
+leaves through `*pborrow`, which is the second result.
 -/
 def subLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
   let mut c : Array Digit := #[]

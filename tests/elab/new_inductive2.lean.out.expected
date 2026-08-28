@@ -7,7 +7,7 @@ number of indices: 0
 number of motives: 2
 number of minors: 2
 rules:
-for foo.mk (1 fields): fun motive_1 motive_2 mk mk_1 a => mk a (foo.rec_1 mk mk_1 a)
+for foo.mk (1 fields): fun motive_1 motive_2 mk arrow.mk a => mk a (foo.rec_1 mk arrow.mk a)
 @[reducible] protected def foo.below.{u} : {motive_1 : (t : foo) → Sort u} →
   {motive_2 : (t : arrow.{0, 0} Nat foo) → Sort u} → (t : foo) → Sort (max 1 u) :=
 fun {motive_1 : (t : foo) → Sort u} {motive_2 : (t : arrow.{0, 0} Nat foo) → Sort u} (t : foo) =>

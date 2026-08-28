@@ -921,7 +921,7 @@ struct elim_nested_inductive_result {
         expr const & I = get_app_fn(p->first);
         if (!is_constant(I))
             throw kernel_exception(aux_env, "failed to restore nested inductive types, nested occurrence is not an inductive type application");
-        return cnstr_name.replace_prefix(p->second, const_name(I));
+        return cnstr_name.replace_prefix(p->second, name());
     }
 
     expr restore_nested(expr e, environment const & aux_env, name_map<name> const & aux_rec_name_map = name_map<name>()) {
@@ -963,7 +963,7 @@ struct elim_nested_inductive_result {
                         expr I = get_app_args(new_nested, I_args);
                         if (!is_constant(I))
                             throw kernel_exception(aux_env, "failed to restore nested inductive types, nested occurrence is not an inductive type application");
-                        name new_fn_name = const_name(fn).replace_prefix(auxI_name, const_name(I));
+                        name new_fn_name = const_name(fn).replace_prefix(auxI_name, name());
                         expr new_fn = mk_constant(new_fn_name, const_levels(I));
                         expr new_t  = mk_app(mk_app(new_fn, I_args), args.size() - m_params.size(), args.data() + m_params.size());
                         return some_expr(new_t);
@@ -1116,7 +1116,7 @@ struct elim_nested_inductive_fn {
                 buffer<constructor> auxJ_constructors;
                 for (name const & J_cnstr_name : J_info.to_inductive_val().get_cnstrs()) {
                     constant_info J_cnstr_info = m_env.get(J_cnstr_name);
-                    name auxJ_cnstr_name = J_cnstr_name.replace_prefix(J_name, auxJ_name);
+                    name auxJ_cnstr_name = auxJ_name + J_cnstr_name;
                     /* auxJ_cnstr_type still has references to `J`, this will be fixed later when we process it. */
                     expr auxJ_cnstr_type    = instantiate_lparams(J_cnstr_info.get_type(), J_cnstr_info.get_lparams(), I_lvls);
                     auxJ_cnstr_type         = instantiate_pi_params(auxJ_cnstr_type, I_nparams, args.data());

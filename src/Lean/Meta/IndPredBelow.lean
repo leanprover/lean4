@@ -452,6 +452,7 @@ where
       let ctorInfo ← getConstInfoCtor ctorName
       let shortCtorName := ctorName.replacePrefix ctorInfo.induct .anonymous
       let belowCtor ← getConstInfoCtor (belowIndName ++ shortCtorName)
+        <|> getConstInfoCtor (belowIndName ++ ctorName)
       let type := belowCtor.instantiateTypeLevelParams us
       let fieldExprs ← fields.toArray.mapM (·.toExpr)
       trace[Meta.IndPredBelow.match] "instantiate {type} with {belowParams} {fieldExprs}}"

@@ -41,6 +41,15 @@ extern "C" {
 #define LEAN_NORETURN __attribute__((noreturn))
 #endif
 
+/* Marks a function whose returned pointer does not alias any other live pointer, like `malloc`. */
+#if defined(__GNUC__) || defined(__clang__)
+#define LEAN_ATTR_MALLOC __attribute__((malloc))
+#elif defined(_MSC_VER)
+#define LEAN_ATTR_MALLOC __declspec(restrict)
+#else
+#define LEAN_ATTR_MALLOC
+#endif
+
 #if defined(__GNUC__) || defined(__clang__)
 #define LEAN_UNLIKELY(x) (__builtin_expect((x), 0))
 #define LEAN_LIKELY(x) (__builtin_expect((x), 1))
@@ -475,22 +484,22 @@ static inline unsigned lean_get_slot_idx(unsigned sz) {
 
 LEAN_EXPORT void lean_inc_heartbeat(void);
 
+#ifdef LEAN_MIMALLOC
+/* Fused allocation entry point implemented in `runtime/mimalloc.cpp`: a single call covering the
+   heartbeat update, the (inlined) mimalloc fast path, and the `m_cs_sz` initialization. */
+LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_core(unsigned sz);
+#endif
+
 #ifndef __cplusplus
 void * malloc(size_t);  // avoid including big `stdlib.h`
 #endif
 
 static inline lean_object * lean_alloc_small_object(unsigned sz) {
-    lean_inc_heartbeat();
 #ifdef LEAN_MIMALLOC
-    // HACK: emulate behavior of small allocator to avoid `leangz` breakage for now
     // NOTE: `sz` is known at compile time for most callers
-    sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
-    void * mem = sz <= MI_SMALL_SIZE_MAX ? mi_malloc_small(sz) : mi_malloc(sz);
-    if (mem == 0) lean_internal_panic_out_of_memory();
-    lean_object * o = (lean_object*)mem;
-    o->m_cs_sz = sz;
-    return o;
+    return lean_alloc_small_object_core(lean_align(sz, LEAN_OBJECT_SIZE_DELTA));
 #else
+    lean_inc_heartbeat();
     void * mem = malloc(sizeof(size_t) + sz);
     if (mem == 0) lean_internal_panic_out_of_memory();
     *(size_t*)mem = sz;
@@ -771,8 +780,20 @@ static inline uint8_t * lean_ctor_scalar_cptr(lean_object * o) {
 
 static inline lean_object * lean_alloc_ctor(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
     assert(tag <= LeanMaxCtorTag && num_objs < LEAN_MAX_CTOR_FIELDS && scalar_sz < LEAN_MAX_CTOR_SCALARS_SIZE);
-    lean_object * o = lean_alloc_ctor_memory(lean_usize_add_checked(lean_usize_add_checked(sizeof(lean_ctor_object), lean_usize_mul_checked(sizeof(void*), num_objs)), scalar_sz));
+    size_t sz = lean_usize_add_checked(lean_usize_add_checked(sizeof(lean_ctor_object), lean_usize_mul_checked(sizeof(void*), num_objs)), scalar_sz);
+    lean_object * o = lean_alloc_ctor_memory((unsigned)sz);
+#ifdef LEAN_MIMALLOC
+    /* Rewrite the full header, including the `m_cs_sz` already set by the allocation, with
+       adjacent stores: for the constant arguments of compiled code this becomes a single store,
+       whereas `lean_set_st_header` would have to preserve `m_cs_sz` across the opaque call to
+       `lean_alloc_small_object_core` with a read-modify-write. */
+    lean_internal_set_rc(o, 1);
+    o->m_cs_sz = (unsigned)lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
+    o->m_other = num_objs;
+    o->m_tag   = tag;
+#else
     lean_set_st_header(o, tag, num_objs);
+#endif
     return o;
 }
 

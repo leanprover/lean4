@@ -19,11 +19,22 @@ compiled Lean code reaches the allocator, including the heartbeat update, with a
 
 extern "C" LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_core(unsigned sz) {
     lean_g_heartbeat++;
-    void * mem = mi_malloc(sz);
+    /* The callers guarantee `sz <= MI_SMALL_SIZE_MAX`, so `mi_malloc_small` applies; unlike
+       `mi_malloc` it does not have to test the size on the fast path. */
+    void * mem = mi_malloc_small(sz);
     if (LEAN_UNLIKELY(mem == NULL)) lean_internal_panic_out_of_memory();
     lean_object * o = (lean_object *)mem;
     /* `m_cs_sz` must be the exact (aligned) requested size, not mimalloc's potentially larger
        block size: `lean_small_object_size` and `leangz` rely on it. */
     o->m_cs_sz = sz;
     return o;
+}
+
+extern "C" LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_raw(unsigned sz) {
+    lean_g_heartbeat++;
+    void * mem = mi_malloc_small(sz);
+    if (LEAN_UNLIKELY(mem == NULL)) lean_internal_panic_out_of_memory();
+    /* The caller initializes the entire header, including `m_cs_sz`; leaving it out here keeps
+       `sz` dead after the allocation, so this compiles to a minimal leaf-like fast path. */
+    return (lean_object *)mem;
 }

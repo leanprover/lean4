@@ -120,7 +120,7 @@ where
             if let some pos' := stx[2*i].getPos? then
               if range.stop < pos' then
                 return i
-          (stx.getNumArgs + 1) / 2
+          pure <| (stx.getNumArgs + 1) / 2
         .tacticSeq (bracket || preferred pos) i ((stx, 0) :: stack)
       let mut childRes := none
       for i in (*...stx.getNumArgs).iter.stepSize 2 do

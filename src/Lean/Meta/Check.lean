@@ -17,6 +17,28 @@ This is not the Kernel type checker, but an auxiliary method for checking
 whether terms produced by tactics and `isDefEq` are type correct.
 -/
 
+namespace Lean.Linter
+
+/--
+Warn when the goal target is not type-correct at `.implicit` transparency, or when it contains an
+instance argument that only has the expected type above `.instances` transparency.
+
+The former happens when e.g. `unfold` leaves hypotheses whose types still refer to the pre-unfolded
+definition, preventing `rw`/`simp` from matching patterns. The latter happens when e.g. an `rfl`
+lemma rewrites a value without updating the instances mentioning it, preventing `rw`/`simp` from
+unifying the instance argument.
+
+The option lives here rather than next to the linter in `Lean.Linter.TacticTypeCheck` because
+`simp` reads it too, to run `findInstanceArgMismatch?` on its intermediate results.
+-/
+register_builtin_option linter.tacticCheckInstances : Bool := {
+  defValue := false
+  descr := "enable the linter that type-checks every tactic goal at `.implicit` transparency and \
+    checks its instance arguments at `.instances` transparency"
+}
+
+end Lean.Linter
+
 namespace Lean.Meta
 
 private def ensureType (e : Expr) : MetaM Unit := do
@@ -336,6 +358,65 @@ def check (e : Expr) (transparency : TransparencyMode := .all) : MetaM Unit :=
     catch ex =>
       trace[Meta.check] ex.toMessageData
       throw ex
+
+/--
+Describes the first application in `e` whose instance-implicit argument has the expected type at
+`.implicit` transparency but not at `.instances`, if there is one.
+
+`check e .implicit` accepts such an application, but `simp` and `rw` unify instance-implicit
+arguments at `.instances`, so a lemma mentioning the instance still fails to apply. This state
+typically arises when an `rfl` lemma rewrites a value without updating the instances mentioning it.
+-/
+partial def findInstanceArgMismatch? (e : Expr) : MetaM (Option MessageData) :=
+  withDefault <| visit e |>.run
+where
+  visit (e : Expr) : MonadCacheT ExprStructEq (Option MessageData) MetaM (Option MessageData) :=
+    checkCache { val := e : ExprStructEq } fun _ => do
+      match e with
+      | .forallE ..      => visitForall e
+      | .lam ..          => visitLambdaLet e
+      | .letE ..         => visitLambdaLet e
+      | .app f a         =>
+        if let some msg ← visit f then return some msg
+        if let some msg ← visit a then return some msg
+        visitApp f a
+      | .mdata _ e       => visit e
+      | .proj _ _ e      => visit e
+      | _                => return none
+
+  visitApp (f a : Expr) : MetaM (Option MessageData) := do
+    let (expectedType, binfo) ← try getFunctionDomain f catch _ => return none
+    unless binfo.isInstImplicit do return none
+    if let some className ← isClass? expectedType then
+      if isLaxInstanceDefeqClass (← getEnv) className then return none
+    let aType ← try inferType a catch _ => return none
+    let defEqAt (transparency : TransparencyMode) : MetaM Bool :=
+      withoutModifyingState <| withTransparency transparency <| isDefEqGuarded expectedType aType
+    if (← defEqAt .instances) then return none
+    -- A mismatch that persists at `.implicit` is an outright type error, which `check e .implicit`
+    -- reports with more context.
+    unless (← defEqAt .implicit) do return none
+    let app := (mkApp f a).setAppPPExplicit
+    addMessageContext m!"The instance argument{indentExpr a}\n\
+      {← mkHasTypeButIsExpectedMsg aType expectedType
+        (trailing? := m!"in the application{indentExpr app}") (trailingExprs := #[app])}"
+
+  visitLambdaLet (e : Expr) : MonadCacheT ExprStructEq (Option MessageData) MetaM (Option MessageData) :=
+    lambdaLetTelescope e fun xs b => do
+      for x in xs do
+        match ← getFVarLocalDecl x with
+        | .cdecl (type := t) .. =>
+          if let some msg ← visit t then return some msg
+        | .ldecl (type := t) (value := v) .. =>
+          if let some msg ← visit t then return some msg
+          if let some msg ← visit v then return some msg
+      visit b
+
+  visitForall (e : Expr) : MonadCacheT ExprStructEq (Option MessageData) MetaM (Option MessageData) :=
+    forallTelescope e fun xs b => do
+      for x in xs do
+        if let some msg ← visit (← getFVarLocalDecl x).type then return some msg
+      visit b
 
 /--
 Runs `x` and, on any error, lazily checks whether `e` is type-correct at `instances` transparency.

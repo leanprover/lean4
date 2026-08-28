@@ -731,6 +731,7 @@ private def parseOffset (withMinutes : Reason) (withSeconds : Reason) (withColon
 
   return Offset.ofSeconds ⟨hours.val * sign⟩
 
+set_option backward.isDefEq.respectTransparency false in
 private def parseWith (config : FormatConfig) : (mod : Modifier) → Parser (TypeFormat mod)
   | .G format =>
     match format with
@@ -740,13 +741,13 @@ private def parseWith (config : FormatConfig) : (mod : Modifier) → Parser (Typ
   | .y format =>
     match format with
     | .any => Int.ofNat <$> parseAtLeastNum 1
-    | .twoDigit => (2000 + ·) <$> Int.ofNat <$> parseNum 2
+    | .twoDigit => (fun x => (2000 + x : Int)) <$> Int.ofNat <$> parseNum 2
     | .fourDigit => Int.ofNat <$> parseNum 4
     | .extended n => Int.ofNat <$> parseNum n
   | .u format =>
     match format with
     | .any => parseSigned <| parseAtLeastNum 1
-    | .twoDigit => (2000 + ·) <$> Int.ofNat <$> parseNum 2
+    | .twoDigit => (fun x => (2000 + x : Int)) <$> Int.ofNat <$> parseNum 2
     | .fourDigit => parseSigned <| parseNum 4
     | .extended n => parseSigned <| parseNum n
   | .Y format =>

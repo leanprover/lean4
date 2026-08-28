@@ -368,13 +368,16 @@ one-field structure is erased to its field, so the key stores an unboxed word in
 to a nine-field record.
 -/
 structure SynthDefEqFlags where
-  /-- Packed flag bits; read them through the accessors below. -/
-  bits : UInt32
+  /--
+  Packed flag bits; read them through the accessors below. Bits 0 to 8 are the flags, bits 9 to 14
+  are free for further ones, and bit 15 is `armedBit` in a `Meta.Context.synthDefEqFlags` word.
+  -/
+  bits : UInt16
   deriving Inhabited, BEq, Hashable
 
 namespace SynthDefEqFlags
 
-@[inline] private def flag (b : Bool) (mask : UInt32) : UInt32 := if b then mask else 0
+@[inline] private def flag (b : Bool) (mask : UInt16) : UInt16 := if b then mask else 0
 
 @[inline] def respectTransparency (f : SynthDefEqFlags) : Bool := f.bits &&& 0x001 != 0
 @[inline] def respectTransparencyTypes (f : SynthDefEqFlags) : Bool := f.bits &&& 0x002 != 0
@@ -400,12 +403,19 @@ def ofFlags (respectTransparency respectTransparencyTypes respectTransparencyIns
 
 /--
 Marks a flag word as present in `Meta.Context.synthDefEqFlags`, so that "no flag set" stays
-distinguishable from "outside a query". Chosen above the flag bits, so the accessors ignore it.
+distinguishable from "outside a query". The topmost bit, so the accessors ignore it.
 -/
-def armedBit : UInt32 := 0x8000
+def armedBit : UInt16 := 0x8000
 
-/-- The `Meta.Context.synthDefEqFlags` word for `f`. -/
-@[inline] def toContextWord (f : SynthDefEqFlags) : UInt32 := f.bits ||| armedBit
+/--
+The `Meta.Context.synthDefEqFlags` word for `f`.
+
+The result is not interchangeable with `f`: the derived `BEq` and `Hashable` compare raw `bits`,
+so the armed word and `f` itself are distinct values denoting the same flags. Only the un-armed
+form may be stored in `SynthInstanceCacheKey.defEqFlags`; the armed one exists to be read back
+through the accessors, which mask `armedBit` out.
+-/
+@[inline] def toContextWord (f : SynthDefEqFlags) : UInt16 := f.bits ||| armedBit
 
 end SynthDefEqFlags
 
@@ -625,7 +635,7 @@ structure Context where
   every `withConfig`/`withTransparency`-style scope, where a pointer field costs a reference
   count operation each time. See `SynthDefEqFlags.toContextWord`.
   -/
-  synthDefEqFlags   : UInt32 := 0
+  synthDefEqFlags   : UInt16 := 0
   /--
   A predicate to control whether a constant can be unfolded or not at `whnf`.
   If set, overrides `Config.canUnfoldPredicateConfig`.

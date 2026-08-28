@@ -476,6 +476,9 @@ def setKind (lctx : LocalContext) (fvarId : FVarId)
 def setBinderInfo (lctx : LocalContext) (fvarId : FVarId) (bi : BinderInfo) : LocalContext :=
   modifyLocalDecl lctx fvarId fun decl => decl.setBinderInfo bi
 
+def setType (lctx : LocalContext) (fvarId : FVarId) (type : Expr) : LocalContext :=
+  modifyLocalDecl lctx fvarId fun decl => decl.setType type
+
 @[export lean_local_ctx_num_indices]
 def numIndices (lctx : LocalContext) : Nat :=
   lctx.decls.size

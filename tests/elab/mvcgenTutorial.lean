@@ -1,10 +1,9 @@
 import Std.Tactic.Do
 import Std.Tactic.BVDecide
 import Std.Data.HashSet
-set_option backward.do.legacy false
 
 set_option grind.warning false
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 
 open Std Do
 
@@ -212,8 +211,8 @@ instance : Monad Result where
 instance : LawfulMonad Result :=
   LawfulMonad.mk' _
     (by dsimp only [Functor.map]; grind)
-    (by dsimp only [bind]; grind)
-    (by dsimp only [bind]; grind)
+    (by dsimp only [bind, pure]; grind)
+    (by dsimp only [bind, pure]; grind)
 
 instance Result.instWP : WP Result (.except Error .pure) where
   wp

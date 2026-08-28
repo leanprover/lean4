@@ -515,9 +515,9 @@ mutual
     | .inc fvarId n check persistent k _ =>
       withNormFVarResult (← normFVar fvarId) fun fvarId => do
         return code.updateInc! fvarId n check persistent (← normCodeImp k)
-    | .dec fvarId n check persistent k _ =>
+    | .dec fvarId n check persistent objs? k _ =>
       withNormFVarResult (← normFVar fvarId) fun fvarId => do
-        return code.updateDec! fvarId n check persistent (← normCodeImp k)
+        return code.updateDec! fvarId n check persistent objs? (← normCodeImp k)
     | .del fvarId k _ =>
       withNormFVarResult (← normFVar fvarId) fun fvarId => do
         return code.updateDel! fvarId (← normCodeImp k)

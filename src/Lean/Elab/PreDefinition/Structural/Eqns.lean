@@ -151,7 +151,7 @@ public builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ←
   mkMapDeclarationExtension (exportEntriesFn := fun env s =>
     let all := s.toArray
     -- Do not export for non-exposed defs at exported/server levels
-    let exported := s.filter (fun n _ => (env.setExporting true).find? n |>.any (·.hasValue)) |>.toArray
+    let exported := s.filter (fun n _ => env.hasExposedBody n) |>.toArray
     { exported, server := exported, «private» := all })
 
 public def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (recArgPos : Nat)
@@ -163,7 +163,7 @@ public def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (r
 /-- Generate the "unfold" lemma for `declName`. -/
 def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := do
   let name := mkEqLikeNameFor (← getEnv) info.declName unfoldThmSuffix
-  realizeConst info.declNames[0]! name (doRealize name)
+  realizeConst info.declNames[0]! name (withEqnOptions declName (doRealize name))
   return name
 where
   doRealize name := withOptions (tactic.hygienic.set · false) do

@@ -13,7 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t l_instDecidableEqOrdering(uint8_t, uint8_t);
+lean_object* l_Ordering_ctorIdx(uint8_t);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_List_find_x3f___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Cell_ofEq___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Cell_ofEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -48,6 +49,8 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Cell_Const_get_x3f___boxed(lean
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Cell_Const_alter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Cell_Const_alter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Cell_Const_alter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_once_cell_t l_Std_DTreeMap_Internal_List_findCell___redArg___lam__0___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Std_DTreeMap_Internal_List_findCell___redArg___lam__0___closed__0;
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_List_findCell___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_List_findCell___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_List_findCell___redArg(lean_object*, lean_object*);
@@ -141,7 +144,7 @@ else
 lean_object* v_val_49_; lean_object* v___x_50_; 
 v_val_49_ = lean_ctor_get(v_v_x3f_47_, 0);
 lean_inc(v_val_49_);
-lean_dec_ref(v_v_x3f_47_);
+lean_dec_ref_known(v_v_x3f_47_, 1);
 v___x_50_ = l_Std_DTreeMap_Internal_Cell_ofEq___redArg(v_k_46_, v_val_49_);
 return v___x_50_;
 }
@@ -700,63 +703,76 @@ lean_dec_ref(v_inst_248_);
 return v_res_253_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_List_findCell___redArg___lam__0(lean_object* v_k_254_, lean_object* v_x_255_){
+static lean_object* _init_l_Std_DTreeMap_Internal_List_findCell___redArg___lam__0___closed__0(void){
 _start:
 {
-lean_object* v_fst_256_; lean_object* v___x_257_; uint8_t v___x_258_; uint8_t v___x_259_; uint8_t v___x_260_; 
-v_fst_256_ = lean_ctor_get(v_x_255_, 0);
-lean_inc(v_fst_256_);
-lean_dec_ref(v_x_255_);
-v___x_257_ = lean_apply_1(v_k_254_, v_fst_256_);
-v___x_258_ = 1;
-v___x_259_ = lean_unbox(v___x_257_);
-v___x_260_ = l_instDecidableEqOrdering(v___x_259_, v___x_258_);
-return v___x_260_;
+uint8_t v___x_254_; lean_object* v___x_255_; 
+v___x_254_ = 1;
+v___x_255_ = l_Ordering_ctorIdx(v___x_254_);
+return v___x_255_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_List_findCell___redArg___lam__0___boxed(lean_object* v_k_261_, lean_object* v_x_262_){
+LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_List_findCell___redArg___lam__0(lean_object* v_k_256_, lean_object* v_x_257_){
 _start:
 {
-uint8_t v_res_263_; lean_object* v_r_264_; 
-v_res_263_ = l_Std_DTreeMap_Internal_List_findCell___redArg___lam__0(v_k_261_, v_x_262_);
-v_r_264_ = lean_box(v_res_263_);
-return v_r_264_;
+lean_object* v_fst_258_; lean_object* v___x_259_; uint8_t v___x_260_; lean_object* v___x_261_; lean_object* v___x_262_; uint8_t v___x_263_; 
+v_fst_258_ = lean_ctor_get(v_x_257_, 0);
+lean_inc(v_fst_258_);
+lean_dec_ref(v_x_257_);
+v___x_259_ = lean_apply_1(v_k_256_, v_fst_258_);
+v___x_260_ = lean_unbox(v___x_259_);
+v___x_261_ = l_Ordering_ctorIdx(v___x_260_);
+v___x_262_ = lean_obj_once(&l_Std_DTreeMap_Internal_List_findCell___redArg___lam__0___closed__0, &l_Std_DTreeMap_Internal_List_findCell___redArg___lam__0___closed__0_once, _init_l_Std_DTreeMap_Internal_List_findCell___redArg___lam__0___closed__0);
+v___x_263_ = lean_nat_dec_eq(v___x_261_, v___x_262_);
+lean_dec(v___x_261_);
+return v___x_263_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_List_findCell___redArg(lean_object* v_l_265_, lean_object* v_k_266_){
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_List_findCell___redArg___lam__0___boxed(lean_object* v_k_264_, lean_object* v_x_265_){
 _start:
 {
-lean_object* v___f_267_; lean_object* v___x_268_; 
-v___f_267_ = lean_alloc_closure((void*)(l_Std_DTreeMap_Internal_List_findCell___redArg___lam__0___boxed), 2, 1);
-lean_closure_set(v___f_267_, 0, v_k_266_);
-v___x_268_ = l_List_find_x3f___redArg(v___f_267_, v_l_265_);
-return v___x_268_;
+uint8_t v_res_266_; lean_object* v_r_267_; 
+v_res_266_ = l_Std_DTreeMap_Internal_List_findCell___redArg___lam__0(v_k_264_, v_x_265_);
+v_r_267_ = lean_box(v_res_266_);
+return v_r_267_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_List_findCell(lean_object* v_00_u03b1_269_, lean_object* v_00_u03b2_270_, lean_object* v_inst_271_, lean_object* v_l_272_, lean_object* v_k_273_){
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_List_findCell___redArg(lean_object* v_l_268_, lean_object* v_k_269_){
 _start:
 {
-lean_object* v___x_274_; 
-v___x_274_ = l_Std_DTreeMap_Internal_List_findCell___redArg(v_l_272_, v_k_273_);
-return v___x_274_;
+lean_object* v___f_270_; lean_object* v___x_271_; 
+v___f_270_ = lean_alloc_closure((void*)(l_Std_DTreeMap_Internal_List_findCell___redArg___lam__0___boxed), 2, 1);
+lean_closure_set(v___f_270_, 0, v_k_269_);
+v___x_271_ = l_List_find_x3f___redArg(v___f_270_, v_l_268_);
+return v___x_271_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_List_findCell___boxed(lean_object* v_00_u03b1_275_, lean_object* v_00_u03b2_276_, lean_object* v_inst_277_, lean_object* v_l_278_, lean_object* v_k_279_){
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_List_findCell(lean_object* v_00_u03b1_272_, lean_object* v_00_u03b2_273_, lean_object* v_inst_274_, lean_object* v_l_275_, lean_object* v_k_276_){
 _start:
 {
-lean_object* v_res_280_; 
-v_res_280_ = l_Std_DTreeMap_Internal_List_findCell(v_00_u03b1_275_, v_00_u03b2_276_, v_inst_277_, v_l_278_, v_k_279_);
-lean_dec_ref(v_inst_277_);
-return v_res_280_;
+lean_object* v___x_277_; 
+v___x_277_ = l_Std_DTreeMap_Internal_List_findCell___redArg(v_l_275_, v_k_276_);
+return v___x_277_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_List_findCell___boxed(lean_object* v_00_u03b1_278_, lean_object* v_00_u03b2_279_, lean_object* v_inst_280_, lean_object* v_l_281_, lean_object* v_k_282_){
+_start:
+{
+lean_object* v_res_283_; 
+v_res_283_ = l_Std_DTreeMap_Internal_List_findCell(v_00_u03b1_278_, v_00_u03b2_279_, v_inst_280_, v_l_281_, v_k_282_);
+lean_dec_ref(v_inst_280_);
+return v_res_283_;
 }
 }
 lean_object* runtime_initialize_Std_Data_Internal_List_Associative(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Find(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_Cell(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Data_Internal_List_Associative(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

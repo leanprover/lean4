@@ -232,7 +232,7 @@ else
 lean_object* v_val_79_; 
 v_val_79_ = lean_ctor_get(v___x_78_, 0);
 lean_inc(v_val_79_);
-lean_dec_ref(v___x_78_);
+lean_dec_ref_known(v___x_78_, 1);
 v___y_61_ = v_val_79_;
 goto v___jp_60_;
 }
@@ -415,11 +415,13 @@ return v_res_142_;
 lean_object* runtime_initialize_Lean_Elab_Import(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Command(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Widget_InteractiveDiagnostic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_Snapshots(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Elab_Import(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

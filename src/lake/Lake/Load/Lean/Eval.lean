@@ -22,7 +22,7 @@ open System Lean
 namespace Lake
 
 /-- Unsafe implementation of `evalConstCheck`. -/
-private unsafe def unsafeEvalConstCheck
+unsafe def unsafeEvalConstCheck
   (env : Environment) (opts : Options) (α) [TypeName α] (const : Name)
 : Except String α :=
   match env.find? const with
@@ -44,12 +44,12 @@ Like `Lean.Environment.evalConstCheck`,
 but with plain universe-polymorphic `Except`.
 -/
 @[implemented_by unsafeEvalConstCheck]
-private opaque evalConstCheck
+opaque evalConstCheck
   (env : Environment) (opts : Options) (α : Type) [TypeName α] (const : Name)
 : Except String α
 
 /-- Construct a `DNameMap` from the declarations tagged with `attr`. -/
-private def mkDTagMap
+def mkDTagMap
   (env : Environment) (attr : OrderedTagAttribute)
   [Monad m] (f : (n : Name) → m (β n))
 : m (DNameMap β) :=
@@ -58,7 +58,7 @@ private def mkDTagMap
     return map.insert declName <| ← f declName
 
 /-- Construct a `NameMap` from the declarations tagged with `attr`. -/
-private def mkTagMap
+def mkTagMap
   (env : Environment) (attr : OrderedTagAttribute)
   [Monad m] (f : (n : Name) → m β)
 : m (NameMap β) :=
@@ -67,7 +67,7 @@ private def mkTagMap
     return map.insert declName <| ← f declName
 
 /-- Construct a `OrdNameMap` from the declarations tagged with `attr`. -/
-private def mkOrdTagMap
+def mkOrdTagMap
   (env : Environment) (attr : OrderedTagAttribute)
   [Monad m] (f : (n : Name) → m β)
 : m (OrdNameMap β) :=

@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Tactic.Simp
 public import Lean.Elab.Tactic.Do.Attr
 import Init.Omega
+import Lean.Elab.ConfigEval
 
 public section
 
@@ -21,7 +22,8 @@ builtin_initialize registerTraceClass `Elab.Tactic.Do.vcgen.split
 
 register_builtin_option mvcgen.warning : Bool := {
   defValue := true
-  descr    := "disable `mvcgen` usage warning"
+  descr    := "this option has no effect; `mvcgen` reports a deprecation warning controlled by \
+`linter.deprecated.syntax`"
 }
 
 inductive Fuel where

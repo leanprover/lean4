@@ -3,6 +3,10 @@ source ../common.sh
 
 ./clean.sh
 
+# Copy test data to a working directory to avoid initializing a Git repository
+# inside the checked-in source tree
+copy_to_work bar foo lakefile.lean lake-manifest-*.json
+
 # Since committing a Git repository to a Git repository is not well-supported,
 # We reinitialize the bar repository on each test. This requires updating the
 # locked manifest to the new hash to ensure things work properly.
@@ -54,7 +58,3 @@ test_manifest v7
 test_manifest v1.0.0
 test_manifest v1.1.0
 test_manifest v1.2.0
-
-# cleanup
-rm -rf bar/.git
-rm -f produced.out

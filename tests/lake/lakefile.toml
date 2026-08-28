@@ -1,7 +1,6 @@
 name = "lake"
 srcDir = "../../src/lake"
 defaultTargets = ["Lake", "lake"]
-leanOptions.backward.do.legacy = false
 
 [[lean_lib]]
 name = "Lake"

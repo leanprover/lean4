@@ -48,6 +48,9 @@ structure Context where
   subExpr        : SubExpr
   /-- Current recursion depth during delaboration. Used by the `pp.deepTerms false` option. -/
   depth          : Nat := 0
+  /-- Initial state of `LocalContext.numIndices`, to keep track of which variables were introduced
+  during delaboration. -/
+  lctxInitIndices : Nat
 
 structure State where
   /-- The number of `delab` steps so far. Used by `pp.maxSteps` to stop delaboration. -/
@@ -220,12 +223,21 @@ where
     stx := stx
   }
 
+/--
+Adds `DelabTermInfo` at the given position.
+
+Either `docString?` or `mkDocString?` can be provided. The `docString?` field is a convenient
+interface for `mkDocString?`.
+-/
 def addDelabTermInfo (pos : Pos) (stx : Syntax) (e : Expr) (isBinder : Bool := false)
-    (location? : Option DeclarationLocation := none) (docString? : Option String := none) (explicit : Bool := true) : DelabM Unit := do
+    (location? : Option DeclarationLocation := none)
+    (docString? : Option String := none)
+    (mkDocString? : Option (PPContext → IO String) := none)
+    (explicit : Bool := true) : DelabM Unit := do
   let info := Info.ofDelabTermInfo {
     toTermInfo := ← addTermInfo.mkTermInfo stx e (isBinder := isBinder)
     location?  := location?
-    docString? := docString?
+    mkDocString? := mkDocString? <|> docString?.map (fun _ => pure ·)
     explicit   := explicit
   }
   modify fun s => { s with infos := s.infos.insert pos info }
@@ -484,6 +496,7 @@ open SubExpr (Pos PosMap)
 open Delaborator (OptionsPerPos topDownAnalyze DelabM getPPOption)
 
 def delabLevel (l : Level) (prec : Nat) : MetaM Syntax.Level := do
+  let l ← if getPPInstantiateMVars (← getOptions) then instantiateLevelMVars l else pure l
   let mvars := getPPMVarsLevels (← getOptions)
   return Level.quote l prec (mvars := mvars) (lIndex? := (← getMCtx).findLevelIndex?)
 
@@ -514,7 +527,8 @@ def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab : DelabM �
             currNamespace := (← getCurrNamespace)
             openDecls := (← getOpenDecls)
             subExpr := SubExpr.mkRoot e
-            inPattern := opts.getInPattern }
+            inPattern := opts.getInPattern
+            lctxInitIndices := (← getLCtx).numIndices }
           |>.run { : Delaborator.State })
         (fun _ => unreachable!)
     return (stx, infos)

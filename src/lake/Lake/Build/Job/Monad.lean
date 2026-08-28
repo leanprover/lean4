@@ -192,14 +192,32 @@ public protected def await (self : Job α) : LogIO α := do
   | .error n {log, ..} => log.replay; throw n
   | .ok a {log, ..} => log.replay; pure a
 
-/-- Apply `f` asynchronously to the job's output. -/
+/--
+The result of a job continuation canceled by the build's cancellation token
+(see `BuildConfig.failFast`). The trace-level log entry keeps the job out of the
+failure summary while still explaining via the verbose output.
+
+Note two conventions we follow here:  
+- the monitor counts a job as failed when `log.maxLv ≥ failLv`, so entries on this path must stay
+below `failLv`
+- the result is an "ordinary" error. We provide `JobResult.isCanceled` to identify cancellations using the log.
+-/
+@[inline] def canceledResult (s : JobState) : JobResult α :=
+  .error s.log.endPos (s.logEntry (.trace cancelMessage))
+
+/--
+Apply `f` asynchronously to the job's output.
+If the build's cancellation token is set, errors without running `f`.
+-/
 @[nospecialize] public protected def mapM
   [kind : OptDataKind β] (self : Job α) (f : α → JobM β)
   (prio := Task.Priority.default) (sync := false)
 : SpawnM (Job β) := .ofFn fun fetch pkg? stack store ctx trace => do
   self.bindTask fun task => do
   BaseIO.mapTask (t := task) (prio := prio) (sync := sync) fun
-    | .ok a s =>
+    | .ok a s => do
+      if let some tk := ctx.cancelTk? then
+        if ← tk.isSet then return canceledResult s
       let trace := mixTrace trace s.trace
       withLoggedIO (f a) |>.toFn fetch pkg? stack store ctx {s with trace}
     | .error n s => return .error n s
@@ -207,6 +225,7 @@ public protected def await (self : Job α) : LogIO α := do
 /--
 Apply `f` asynchronously to the job's output
 and asynchronously await the resulting job.
+If the build's cancellation token is set, errors without running `f`.
 -/
 @[nospecialize] public def bindM
   [kind : OptDataKind β] (self : Job α) (f : α → JobM (Job β))
@@ -215,6 +234,8 @@ and asynchronously await the resulting job.
   self.bindTask fun task => do
   BaseIO.bindTask task (prio := prio) (sync := sync) fun
     | .ok a sa => do
+      if let some tk := ctx.cancelTk? then
+        if ← tk.isSet then return Task.pure (canceledResult sa)
       let trace := mixTrace trace sa.trace
       match (← withLoggedIO (f a) |>.toFn fetch pkg? stack store ctx {sa with trace}) with
       | .ok job sa =>
@@ -275,7 +296,7 @@ public def collectList (jobs : List (Job α)) (traceCaption := "<collection>") :
 public def collectArray (jobs : Array (Job α)) (traceCaption := "<collection>") : Job (Array α) :=
   jobs.foldl (zipWith (sync := true) Array.push) (traceRoot (Array.mkEmpty jobs.size) traceCaption)
 
-private instance : Nonempty ({α : Type u} → [Nonempty α] → α) := ⟨Classical.ofNonempty⟩
+instance : Nonempty ({α : Type u} → [Nonempty α] → α) := ⟨Classical.ofNonempty⟩
 
 /-- Merge an `Vector` of jobs into one, collecting their outputs into an `Array`. -/
 public def collectVector {α : Type u} [Nonempty α] (jobs : Vector (Job α) n) (traceCaption := "<collection>") : Job (Vector α n) :=

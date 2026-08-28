@@ -33,7 +33,7 @@ lean_object* v_val_6_; lean_object* v___x_7_;
 lean_dec(v_h__1_3_);
 v_val_6_ = lean_ctor_get(v_x_1_, 0);
 lean_inc(v_val_6_);
-lean_dec_ref(v_x_1_);
+lean_dec_ref_known(v_x_1_, 1);
 v___x_7_ = lean_apply_2(v_h__2_4_, v_val_6_, v_x_2_);
 return v___x_7_;
 }
@@ -55,7 +55,7 @@ lean_object* v_val_14_; lean_object* v___x_15_;
 lean_dec(v_h__1_11_);
 v_val_14_ = lean_ctor_get(v_x_9_, 0);
 lean_inc(v_val_14_);
-lean_dec_ref(v_x_9_);
+lean_dec_ref_known(v_x_9_, 1);
 v___x_15_ = lean_apply_2(v_h__2_12_, v_val_14_, v_x_10_);
 return v___x_15_;
 }
@@ -77,7 +77,7 @@ lean_object* v_val_21_; lean_object* v___x_22_;
 lean_dec(v_h__1_18_);
 v_val_21_ = lean_ctor_get(v_x_16_, 0);
 lean_inc(v_val_21_);
-lean_dec_ref(v_x_16_);
+lean_dec_ref_known(v_x_16_, 1);
 v___x_22_ = lean_apply_2(v_h__2_19_, v_val_21_, v_x_17_);
 return v___x_22_;
 }
@@ -99,7 +99,7 @@ lean_object* v_val_29_; lean_object* v___x_30_;
 lean_dec(v_h__1_26_);
 v_val_29_ = lean_ctor_get(v_x_24_, 0);
 lean_inc(v_val_29_);
-lean_dec_ref(v_x_24_);
+lean_dec_ref_known(v_x_24_, 1);
 v___x_30_ = lean_apply_2(v_h__2_27_, v_val_29_, v_x_25_);
 return v___x_30_;
 }
@@ -112,11 +112,13 @@ lean_object* runtime_initialize_Init_Data_String_Defs(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Intercalate(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Loop(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Lemmas_Iter(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_String_Iter_Intercalate(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

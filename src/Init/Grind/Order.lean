@@ -75,6 +75,9 @@ theorem nat_eq (a b : Nat) (x y : Int) : NatCast.natCast a = x → NatCast.natCa
 theorem of_nat_eq (a b : Nat) (x y : Int) : NatCast.natCast a = x → NatCast.natCast b = y → a = b → x = y := by
   intro _ _; subst x y; intro; simp [*]
 
+theorem of_natCast_eq {α : Type u} [NatCast α] (a b : Nat) (x y : α) : NatCast.natCast a = x → NatCast.natCast b = y → a = b → x = y := by
+  intro h₁ h₂ h; subst h; exact h₁.symm.trans h₂
+
 theorem le_of_not_le {α} [LE α] [Std.IsLinearPreorder α]
     {a b : α} : ¬ a ≤ b → b ≤ a := by
   intro h

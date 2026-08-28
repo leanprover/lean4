@@ -17,10 +17,10 @@ open Classical
 noncomputable def indicator (s : Set) (x : Nat) : Nat := if s x then 1 else 0
 
 @[simp] -- remove `simp` attribute --> works (and the trace changes)
-theorem indicator_of {s : Set} {a : Nat} (h : s a) : indicator s a = 1 := if_pos h
+theorem indicator_of {s : Set} {a : Nat} (h : s a) : indicator s a = 1 := ite_eq_left h
 
 @[simp]
-theorem indicator_of_not {s : Set} {a : Nat} (h : ¬ s a) : indicator s a = 0 := if_neg h
+theorem indicator_of_not {s : Set} {a : Nat} (h : ¬ s a) : indicator s a = 0 := ite_eq_right h
 
 /--
 info: Try this:

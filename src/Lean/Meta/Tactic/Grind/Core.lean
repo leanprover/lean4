@@ -346,6 +346,18 @@ where
     else
       internalize lhs generation p
       internalize rhs generation p
+      /-
+      As an optimization, `p` itself is not internalized in the E-graph, but
+      we still notify satellite solvers about it. Some satellite solvers (e.g.,
+      the homomorphism extension) only see asserted equalities through this
+      notification; others (e.g., `cutsat`) use it to register `lhs` and `rhs`
+      as their internal terms when `α` is a supported type.
+
+      This must run **before** `addEqCore`: `Solvers.mergeTerms` (invoked by
+      `addEqCore`) only fires `processNewEq` for solvers that have already
+      registered both `lhs` and `rhs`.
+      -/
+      Solvers.internalize p none
       addEqCore lhs rhs proof isHEq
 
 set_option compiler.ignoreBorrowAnnotation true in

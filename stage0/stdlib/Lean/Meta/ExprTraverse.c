@@ -148,9 +148,9 @@ return v___x_40_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprTraverse_0__Lean_Meta_traverseLambdaWithPos_visit___redArg___lam__1___boxed(lean_object* v_inst_41_, lean_object* v_inst_42_, lean_object* v_binderName_43_, lean_object* v_binderInfo_44_, lean_object* v___f_45_, lean_object* v_d_46_){
 _start:
 {
-uint8_t v_binderInfo_120__boxed_47_; lean_object* v_res_48_; 
-v_binderInfo_120__boxed_47_ = lean_unbox(v_binderInfo_44_);
-v_res_48_ = l___private_Lean_Meta_ExprTraverse_0__Lean_Meta_traverseLambdaWithPos_visit___redArg___lam__1(v_inst_41_, v_inst_42_, v_binderName_43_, v_binderInfo_120__boxed_47_, v___f_45_, v_d_46_);
+uint8_t v_binderInfo_116__boxed_47_; lean_object* v_res_48_; 
+v_binderInfo_116__boxed_47_ = lean_unbox(v_binderInfo_44_);
+v_res_48_ = l___private_Lean_Meta_ExprTraverse_0__Lean_Meta_traverseLambdaWithPos_visit___redArg___lam__1(v_inst_41_, v_inst_42_, v_binderName_43_, v_binderInfo_116__boxed_47_, v___f_45_, v_d_46_);
 return v_res_48_;
 }
 }
@@ -178,7 +178,7 @@ lean_inc_ref(v_binderType_67_);
 v_body_68_ = lean_ctor_get(v_a_64_, 2);
 lean_inc_ref(v_body_68_);
 v_binderInfo_69_ = lean_ctor_get_uint8(v_a_64_, sizeof(void*)*3 + 8);
-lean_dec_ref(v_a_64_);
+lean_dec_ref_known(v_a_64_, 3);
 lean_inc(v_f_61_);
 lean_inc_ref(v_inst_60_);
 lean_inc_ref(v_inst_58_);
@@ -320,7 +320,7 @@ lean_inc_ref(v_binderType_154_);
 v_body_155_ = lean_ctor_get(v_a_151_, 2);
 lean_inc_ref(v_body_155_);
 v_binderInfo_156_ = lean_ctor_get_uint8(v_a_151_, sizeof(void*)*3 + 8);
-lean_dec_ref(v_a_151_);
+lean_dec_ref_known(v_a_151_, 3);
 lean_inc(v_f_148_);
 lean_inc_ref(v_inst_147_);
 lean_inc_ref(v_inst_145_);
@@ -506,7 +506,7 @@ v_value_287_ = lean_ctor_get(v_x_283_, 2);
 lean_inc_ref(v_value_287_);
 v_body_288_ = lean_ctor_get(v_x_283_, 3);
 lean_inc_ref(v_body_288_);
-lean_dec_ref(v_x_283_);
+lean_dec_ref_known(v_x_283_, 4);
 lean_inc_n(v_f_280_, 2);
 lean_inc_ref(v_inst_279_);
 lean_inc_ref(v_inst_277_);
@@ -783,11 +783,13 @@ return v___x_427_;
 }
 }
 lean_object* runtime_initialize_Lean_SubExpr(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_ExprTraverse(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_SubExpr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

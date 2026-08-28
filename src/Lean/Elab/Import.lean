@@ -10,6 +10,7 @@ public import Lean.Parser.Module
 meta import Lean.Parser.Module
 import Lean.Compiler.ModPkgExt
 public import Lean.DeprecatedModule
+import Init.Data.String.Modify
 
 public section
 
@@ -65,17 +66,20 @@ def checkDeprecatedImports
     : MessageLog := Id.run do
   let mut opts := opts
   let mut ignoreDeprecatedImports : NameSet := {}
+  let mut importPositions : NameMap String.Pos.Raw := {}
   if let some headerStx := origHeaderStx? <|> headerStx? then
     match headerStx with
     | `(Parser.Module.header| $[module%$moduleTk]? $[prelude%$_]? $importsStx*) =>
       if moduleTk.any (·.getTrailing?.any (·.toString.contains "deprecated_module: ignore")) then
         opts := linter.deprecated.module.set opts false
       for impStx in importsStx do
-        if impStx.raw.getTrailing?.any (·.toString.contains "deprecated_module: ignore") then
-          match impStx with
-          | `(Parser.Module.import| $[public%$_]? $[meta%$_]? import $[all%$_]? $n) =>
+        match impStx with
+        | `(Parser.Module.import| $[public%$_]? $[meta%$_]? import $[all%$_]? $n) =>
+          if impStx.raw.getTrailing?.any (·.toString.contains "deprecated_module: ignore") then
             ignoreDeprecatedImports := ignoreDeprecatedImports.insert n.getId
-          | _ => pure ()
+          if let some pos := impStx.raw.getPos? then
+            importPositions := importPositions.insert n.getId pos
+        | _ => pure ()
     | _ => pure ()
   if !linter.deprecated.module.get opts then
     return messages
@@ -87,20 +91,57 @@ def checkDeprecatedImports
     | some idx =>
       match env.getDeprecatedModuleByIdx? idx with
       | some entry =>
-        let pos := inputCtx.fileMap.toPosition startPos
+        let pos := importPositions.find? imp.module |>.getD startPos
         messages.add {
           fileName := inputCtx.fileName
-          pos := pos
+          pos := inputCtx.fileMap.toPosition pos
           severity := .warning
           data := .tagged ``deprecatedModuleExt <| formatDeprecatedModuleWarning env idx imp.module entry
         }
       | none => messages
     | none => messages
 
+private def osForbiddenChars : Array Char :=
+  #['<', '>', '"', '|', '?', '*', '!']
+
+private def osForbiddenNames : Array String :=
+  #["CON", "PRN", "AUX", "NUL",
+    "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+    "COM¹", "COM²", "COM³",
+    "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
+    "LPT¹", "LPT²", "LPT³"]
+
+private def checkComponentPortability (comp : String) : Option String :=
+  if osForbiddenNames.contains comp.toUpper then
+    some s!"'{comp}' is a reserved file name on some operating systems"
+  else if let some c := osForbiddenChars.find? (comp.contains ·) then
+    some s!"contains character '{c}' which is forbidden on some operating systems"
+  else
+    none
+
+def checkModuleNamePortability
+    (mainModule : Name) (inputCtx : Parser.InputContext) (startPos : String.Pos.Raw)
+    (messages : MessageLog) : MessageLog :=
+  go mainModule messages
+where
+  go : Name → MessageLog → MessageLog
+    | .anonymous, messages => messages
+    | .str parent s, messages =>
+      let messages := match checkComponentPortability s with
+        | some reason => messages.add {
+            fileName := inputCtx.fileName
+            pos := inputCtx.fileMap.toPosition startPos
+            severity := .error
+            data := s!"module name '{mainModule}' is not portable: {reason}"
+          }
+        | none => messages
+      go parent messages
+    | .num parent _, messages => go parent messages
+
 def processHeaderCore
     (startPos : String.Pos.Raw) (imports : Array Import) (isModule : Bool)
     (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext)
-    (trustLevel : UInt32 := 0) (plugins : Array System.FilePath := #[]) (leakEnv := false)
+    (trustLevel : UInt32 := 0) (plugins : Array Plugin := #[]) (leakEnv := false)
     (mainModule := Name.anonymous) (package? : Option PkgId := none)
     (arts : NameMap ImportArtifacts := {})
     (headerStx? : Option HeaderSyntax := none)
@@ -124,6 +165,7 @@ def processHeaderCore
     pure (env, messages.add { fileName := inputCtx.fileName, data := toString e, pos := pos })
   let env := env.setMainModule mainModule |>.setModulePackage package?
   let messages := checkDeprecatedImports env imports opts inputCtx startPos messages headerStx? origHeaderStx?
+  let messages := checkModuleNamePortability mainModule inputCtx startPos messages
   return (env, messages)
 
 /--
@@ -135,7 +177,7 @@ backwards compatibility measure not compatible with the module system.
 @[inline] def processHeader
     (header : HeaderSyntax)
     (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext)
-    (trustLevel : UInt32 := 0) (plugins : Array System.FilePath := #[]) (leakEnv := false)
+    (trustLevel : UInt32 := 0) (plugins : Array Plugin := #[]) (leakEnv := false)
     (mainModule := Name.anonymous)
     : IO (Environment × MessageLog) := do
   processHeaderCore header.startPos header.imports header.isModule

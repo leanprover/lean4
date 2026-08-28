@@ -1,6 +1,6 @@
 import Std.Do.Triple.SpecLemmas
 
-@[specialize, expose]
+@[specialize]
 def List.newForIn (l : List α) (b : β) (kcons : α → (β → γ) → β → γ) (knil : β → γ) : γ :=
   match l with
   | []     => knil b

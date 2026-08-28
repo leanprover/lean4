@@ -70,7 +70,7 @@ protected theorem isGE_compare {a b : Nat} :
   rw [← Nat.compare_swap, Ordering.isGE_swap]
   exact Nat.isLE_compare
 
-public instance : Std.LawfulOrderOrd Nat where
+instance : Std.LawfulOrderOrd Nat where
   isLE_compare _ _ := Nat.isLE_compare
   isGE_compare _ _ := Nat.isGE_compare
 

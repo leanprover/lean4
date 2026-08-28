@@ -1,10 +1,25 @@
-import Std.Internal.Http.Data.Body
+import Std.Http.Data.Body
 
-open Std.Internal.IO Async
+open Std.Async
 open Std.Http
 open Std.Http.Body
 
 /-! ## Stream tests -/
+
+private def assertThrows {α : Type} (action : Async α) : Async Unit := do
+  let threw ←
+    try
+      let _ ← action
+      pure false
+    catch _ =>
+      pure true
+  assert! threw
+
+private def waitForInterest (stream : Body.Stream) : Async Unit := do
+  let hasInterest ← Selectable.one #[
+    .case stream.interestSelector pure
+  ]
+  assert! hasInterest
 
 -- Test send and recv on stream
 
@@ -73,6 +88,45 @@ def channelRecvAfterClose : Async Unit := do
 
 #eval channelRecvAfterClose.block
 
+-- Test Body.stream runs producer concurrently and transfers chunks
+
+def bodyStreamSends : Async Unit := do
+  let incoming ← Body.stream fun outgoing => do
+    outgoing.send (Chunk.ofByteArray "x".toUTF8)
+
+  let first ← incoming.recv
+  assert! first.isSome
+  assert! first.get!.data == "x".toUTF8
+
+  let done ← incoming.recv
+  assert! done.isNone
+
+#eval bodyStreamSends.block
+
+-- Test Body.stream closes channel with an error when generator throws
+
+def bodyStreamThrowSurfacesError : Async Unit := do
+  let incoming ← Body.stream fun _ => do
+    throw (.userError "boom")
+
+  assertThrows incoming.recv
+
+#eval bodyStreamThrowSurfacesError.block
+
+-- Test Body.stream surfaces generator errors after already-sent chunks
+
+def bodyStreamThrowAfterPartialSurfacesError : Async Unit := do
+  let incoming ← Body.stream fun outgoing => do
+    outgoing.send (Chunk.ofByteArray "partial".toUTF8)
+    throw (.userError "boom")
+
+  let first ← incoming.recv
+  assert! first.isSome
+  assert! first.get!.data == "partial".toUTF8
+  assertThrows incoming.recv
+
+#eval bodyStreamThrowAfterPartialSurfacesError.block
+
 -- Test for-in iteration collects chunks until close
 
 def channelForIn : Async Unit := do
@@ -107,6 +161,34 @@ def channelExtensions : Async Unit := do
   await sendTask
 
 #eval channelExtensions.block
+
+-- Test incomplete sends are collapsed before delivery
+
+def channelCollapseIncompleteChunks : Async Unit := do
+  let stream ← Body.mkStream
+
+  let first : Chunk := { data := "aaaaaaaaaa".toUTF8, extensions := #[(.mk "part", some <| .ofString! "first")] }
+  let second : Chunk := { data := "bbbbbbbbbb".toUTF8, extensions := #[(.mk "part", some <| .ofString! "second")] }
+  let last : Chunk := { data := "cccccccccccccccccccc".toUTF8, extensions := #[(.mk "part", some <| .ofString! "last")] }
+
+  stream.send first (incomplete := true)
+  stream.send second (incomplete := true)
+
+  let noChunkYet ← stream.tryRecv
+  assert! noChunkYet.isNone
+
+  let sendFinal ← async (t := AsyncTask) <| stream.send last
+  let result ← stream.recv
+
+  assert! result.isSome
+  let merged := result.get!
+  assert! merged.data == "aaaaaaaaaabbbbbbbbbbcccccccccccccccccccc".toUTF8
+  assert! merged.data.size == 40
+  assert! merged.extensions == #[(.mk "part", some <| .ofString! "first")]
+
+  await sendFinal
+
+#eval channelCollapseIncompleteChunks.block
 
 -- Test known size metadata
 
@@ -482,6 +564,20 @@ def anyFromEmpty : Async Unit := do
 
 #eval anyFromEmpty.block
 
+-- Test Any wrapping an Incoming channel receives chunks
+
+def anyFromChannel : Async Unit := do
+  let outgoing ← Body.mkStream
+  let any := Body.Any.ofBody outgoing
+
+  let sendTask ← async (t := AsyncTask) <| outgoing.send (Chunk.ofByteArray "data".toUTF8)
+  let result ← any.recv
+  assert! result.isSome
+  assert! result.get!.data == "data".toUTF8
+  await sendTask
+
+#eval anyFromChannel.block
+
 -- Test Any.close closes the underlying body
 
 def anyCloseForwards : Async Unit := do
@@ -712,6 +808,18 @@ def responseBuilderStream : Async Unit := do
 
 #eval responseBuilderStream.block
 
+-- Test Response.Builder.stream marks the streaming body as chunked
+
+def responseBuilderStreamKnownSize : Async Unit := do
+  let res ← Response.ok
+    |>.stream fun _ => do
+      pure ()
+
+  let size ← res.body.getKnownSize
+  assert! size == some .chunked
+
+#eval responseBuilderStreamKnownSize.block
+
 -- Test Response.Builder.noBody body is always closed and returns none
 
 def responseBuilderNoBodyAlwaysClosed : Async Unit := do
@@ -723,3 +831,145 @@ def responseBuilderNoBodyAlwaysClosed : Async Unit := do
   assert! result.isNone
 
 #eval responseBuilderNoBodyAlwaysClosed.block
+
+-- Test closeWithError: a recv issued *after* the stream is closed with an error surfaces it.
+
+def recvAfterCloseWithErrorThrows : Async Unit := do
+  let stream ← Body.mkStream
+  stream.closeWithError (IO.userError "boom")
+  assertThrows stream.recv
+
+#eval recvAfterCloseWithErrorThrows.block
+
+-- Test closeWithError: a recv already blocked before the close observes the error, not EOF.
+
+def blockedRecvSurfacesCloseError : Async Unit := do
+  let stream ← Body.mkStream
+  let recvTask ← async (t := AsyncTask) <| stream.recv
+  waitForInterest stream
+  stream.closeWithError (IO.userError "boom")
+  assertThrows (await recvTask)
+
+#eval blockedRecvSurfacesCloseError.block
+
+-- Test closeWithError: non-blocking Stream.tryRecv surfaces terminal errors at EOF.
+
+def tryRecvSurfacesCloseError : Async Unit := do
+  let stream ← Body.mkStream
+  stream.closeWithError (IO.userError "boom")
+  assertThrows stream.tryRecv
+
+#eval tryRecvSurfacesCloseError.block
+
+-- Test closeWithError: non-blocking Stream.tryRecvBody surfaces terminal errors at EOF.
+
+def tryRecvBodySurfacesCloseError : Async Unit := do
+  let stream ← Body.mkStream
+  stream.closeWithError (IO.userError "boom")
+  assertThrows stream.tryRecvBody
+
+#eval tryRecvBodySurfacesCloseError.block
+
+-- Test closeWithError: recvSelector's immediate path surfaces terminal errors at EOF.
+
+def recvSelectorSurfacesCloseError : Async Unit := do
+  let stream ← Body.mkStream
+  stream.closeWithError (IO.userError "boom")
+  assertThrows <| Selectable.one #[
+    .case stream.recvSelector pure
+  ]
+
+#eval recvSelectorSurfacesCloseError.block
+
+-- Test closeWithError: a recvSelector waiter registered before the close observes the error.
+
+def blockedRecvSelectorSurfacesCloseError : Async Unit := do
+  let stream ← Body.mkStream
+  let recvTask ← async (t := AsyncTask) <| Selectable.one #[
+    .case stream.recvSelector pure
+  ]
+  waitForInterest stream
+  stream.closeWithError (IO.userError "boom")
+  assertThrows (await recvTask)
+
+#eval blockedRecvSelectorSurfacesCloseError.block
+
+-- Test closeWithError: a consumer already blocked in `readAll` (Async) when the stream is closed
+-- with an error must observe a thrown exception, not a silent EOF / short read. This is the path
+-- the client's `abortState` relies on (e.g. response body limit exceeded, mid-stream failure).
+
+def asyncReadAllSurfacesCloseError : Async Unit := do
+  let stream ← Body.mkStream
+  -- `readAll` in `Async` goes through the `NextChunk Async` instance; the consumer blocks in `recv`.
+  let readTask ← async (t := AsyncTask) <| (stream.readAll (α := ByteArray) : Async ByteArray)
+  waitForInterest stream
+  stream.closeWithError (IO.userError "mid-stream failure")
+  assertThrows (await readTask)
+
+#eval asyncReadAllSurfacesCloseError.block
+
+-- Test closeWithError: for-in iteration surfaces terminal errors.
+
+def forInSurfacesCloseError : Async Unit := do
+  let stream ← Body.mkStream
+  stream.closeWithError (IO.userError "boom")
+  assertThrows do
+    let mut bytes := 0
+    for chunk in stream do
+      bytes := bytes + chunk.data.size
+
+#eval forInSurfacesCloseError.block
+
+-- Test closeWithError: ContextAsync for-in iteration surfaces terminal errors.
+
+def forInPrimeSurfacesCloseError : Async Unit := do
+  let stream ← Body.mkStream
+  stream.closeWithError (IO.userError "boom")
+  assertThrows <| ContextAsync.run do
+    let _ ← Std.Http.Body.Stream.forIn' stream 0 fun chunk bytes =>
+      pure (.yield (bytes + chunk.data.size))
+    pure ()
+
+#eval forInPrimeSurfacesCloseError.block
+
+-- Test drain-limit boundaries: below the limit does not close the stream.
+
+def drainLimitBelowDoesNotClose : Async Unit := do
+  let stream ← Body.mkStream
+  let closeCalled ← IO.mkRef false
+  let sendTask ← async (t := AsyncTask) <| do
+    stream.send (Chunk.ofByteArray "abc".toUTF8)
+    stream.close
+  stream.drain (drainLimit := some 4) (closeStream := closeCalled.set true)
+  assert! !(← closeCalled.get)
+  await sendTask
+
+#eval drainLimitBelowDoesNotClose.block
+
+-- Test drain-limit boundaries: exactly matching the limit does not close the stream.
+
+def drainLimitExactDoesNotClose : Async Unit := do
+  let stream ← Body.mkStream
+  let closeCalled ← IO.mkRef false
+  let sendTask ← async (t := AsyncTask) <| do
+    stream.send (Chunk.ofByteArray "abcd".toUTF8)
+    stream.close
+  stream.drain (drainLimit := some 4) (closeStream := closeCalled.set true)
+  assert! !(← closeCalled.get)
+  await sendTask
+
+#eval drainLimitExactDoesNotClose.block
+
+-- Test drain-limit boundaries: exceeding the limit closes the stream.
+
+def drainLimitExceededCloses : Async Unit := do
+  let stream ← Body.mkStream
+  let closeCalled ← IO.mkRef false
+  let sendTask ← async (t := AsyncTask) <| do
+    stream.send (Chunk.ofByteArray "abcde".toUTF8)
+    stream.close
+  stream.drain (drainLimit := some 4) (closeStream := closeCalled.set true)
+  assert! (← closeCalled.get)
+  await sendTask
+
+#eval drainLimitExceededCloses.block

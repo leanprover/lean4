@@ -24,36 +24,47 @@ namespace Lake
 
 /-! ## Build Lean & Static Lib -/
 
+private structure ModuleCollection where
+  mods : Array Module := #[]
+  modSet : ModuleSet := ∅
+  hasErrors : Bool := false
+
 /--
 Collect the local modules of a library.
 That is, the modules from `getModuleArray` plus their local transitive imports.
 -/
-private partial def LeanLib.recCollectLocalModules
+partial def LeanLib.recCollectLocalModules
   (self : LeanLib) : FetchM (Job (Array Module))
 := ensureJob do
-  let mut mods := #[]
-  let mut modSet := ModuleSet.empty
+  let mut col : ModuleCollection := {}
   for mod in (← self.getModuleArray) do
-    (mods, modSet) ← go mod mods modSet
-  return Job.pure mods
+    col ← go mod col (viaImport := false)
+  if col.hasErrors then
+    -- This is not considered a fatal error because we want the modules
+    -- built to provide better error categorization in the monitor.
+    logError s!"{self.name}: some modules have bad imports or could not be read"
+  return Job.pure col.mods
 where
-  go root mods modSet := do
-    let mut mods := mods
-    let mut modSet := modSet
-    unless modSet.contains root do
-      modSet := modSet.insert root
-      let imps ← (← root.imports.fetch).await
+  go root col (viaImport : Bool) := do
+    let mut col := col
+    unless col.modSet.contains root do
+      col := {col with modSet := col.modSet.insert root}
+      -- Importers report failures reached through imports. Directly reached modules
+      -- stay in the collection so their build jobs report those failures.
+      let some imps ← (← root.imports.fetch).wait?
+        | let col' := {col with hasErrors := true}
+          return if viaImport then col' else {col' with mods := col'.mods.push root}
       for mod in imps do
         if mod.lib.name = self.name then
-          (mods, modSet) ← go mod mods modSet
-      mods := mods.push root
-    return (mods, modSet)
+          col ← go mod col (viaImport := true)
+      col := {col with mods := col.mods.push root}
+    return col
 
 /-- The `LibraryFacetConfig` for the builtin `modulesFacet`. -/
-private def LeanLib.modulesFacetConfig : LibraryFacetConfig modulesFacet :=
+def LeanLib.modulesFacetConfig : LibraryFacetConfig modulesFacet :=
   mkFacetJobConfig LeanLib.recCollectLocalModules (buildable := false)
 
-private def LeanLib.recBuildLean
+def LeanLib.recBuildLean
   (self : LeanLib) : FetchM (Job Unit)
 := do
   let mods ← (← self.modules.fetch).await
@@ -64,7 +75,7 @@ private def LeanLib.recBuildLean
 public def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
   mkFacetJobConfig LeanLib.recBuildLean
 
-@[specialize] private def LeanLib.recBuildStatic
+@[specialize] def LeanLib.recBuildStatic
   (self : LeanLib) (shouldExport : Bool) : FetchM (Job FilePath)
 := do
   let suffix :=
@@ -114,7 +125,7 @@ public def LeanLib.staticExportFacetConfig : LibraryFacetConfig staticExportFace
 
 /-! ## Build Shared Lib -/
 
-private def LeanLib.recBuildShared (self : LeanLib) : FetchM (Job Dynlib) := do
+def LeanLib.recBuildShared (self : LeanLib) : FetchM (Job Dynlib) := do
   withRegisterJob s!"{self.name}:shared" <| withCurrPackage self.pkg do
   let mods ← (← self.modules.fetch).await
   let objJobs ← mods.flatMapM fun mod =>
@@ -149,7 +160,7 @@ public def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
 
 /--
 Build extra target dependencies of the library (e.g., `extraDepTargets`, `needs`). -/
-private def LeanLib.recBuildExtraDepTargets (self : LeanLib) : FetchM (Job Unit) := do
+def LeanLib.recBuildExtraDepTargets (self : LeanLib) : FetchM (Job Unit) := do
   let mut job := Job.nil s!"{self.pkg.baseName}/{self.name}:extraDep"
   job := job.mix (← self.pkg.extraDep.fetch)
   for target in self.extraDepTargets do
@@ -163,7 +174,7 @@ public def LeanLib.extraDepFacetConfig : LibraryFacetConfig extraDepFacet :=
   mkFacetJobConfig LeanLib.recBuildExtraDepTargets
 
 /-- Build the default facets for the library. -/
-private def LeanLib.recBuildDefaultFacets (self : LeanLib) : FetchM (Job Unit) := do
+def LeanLib.recBuildDefaultFacets (self : LeanLib) : FetchM (Job Unit) := do
   Job.mixArray <$> self.defaultFacets.mapM fun facet => do
     let job ← (self.facetCore facet).fetch
     return job.toOpaque

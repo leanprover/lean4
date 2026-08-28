@@ -15,7 +15,7 @@ public section
 namespace Lean.Elab.Deriving.Repr
 open Lean.Parser.Term
 open Meta
-open Std
+open _root_.Std
 
 def mkReprHeader (indVal : InductiveVal) : TermElabM Header := do
   let header ← mkHeader `Repr 1 indVal
@@ -41,7 +41,7 @@ def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Term :
       if (← isType x <||> isProof x) then
         fields ← `($fields ++ $fieldNameLit ++ " := " ++ "_")
       else
-        let indent := Syntax.mkNumLit <| toString ((toString fieldName |>.length) + " := ".length)
+        let indent := Syntax.mkNumLit <| toString ((toString fieldName |>.chars.length) + " := ".lengthAssumingAscii)
         fields ← `($fields ++ $fieldNameLit ++ " := " ++ (Format.group (Format.nest $indent (repr ($target.$(mkIdent fieldName):ident)))))
     `(Format.bracket "{ " $fields:term " }")
 

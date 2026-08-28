@@ -229,7 +229,7 @@ instance [Ring R] [LE R] [LT R] [LawfulOrderLT R] [IsPreorder R] [OrderedRing R]
     next => rfl
     next x =>
       rw [Semiring.ofNat_succ] at h
-      replace h := congrArg (· - 1) h; simp at h
+      replace h := congrArg (· - 1) h; try simp at h -- TODO(kmill): remove simp after stage0 update
       rw [Ring.sub_eq_add_neg, Semiring.add_assoc, AddCommGroup.add_neg_cancel,
           Ring.sub_eq_add_neg, AddCommMonoid.zero_add, Semiring.add_zero] at h
       have h₁ : (OfNat.ofNat x : R) < 0 := by

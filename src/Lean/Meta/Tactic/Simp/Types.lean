@@ -11,7 +11,7 @@ public import Lean.Meta.Eqns
 public import Lean.Meta.Tactic.Simp.SimpTheorems
 public import Lean.Meta.Tactic.Simp.SimpCongrTheorems
 import Lean.Meta.Tactic.Replace
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 public section
 namespace Lean.Meta
 namespace Simp
@@ -61,6 +61,9 @@ abbrev CongrCache := ExprMap (Option CongrTheorem)
 structure Context where
   private mk ::
   config            : Config := {}
+  /-- User-extensible configuration. Tactic options of the form `(user.optName := ...)`
+  set keys `tactic.simp.user.optName`, if there is a global option named `tactic.simp.user.optName`. -/
+  userConfig        : Options := {}
   /-- Local declarations to propagate to `Meta.Context` -/
   zetaDeltaSet      : FVarIdSet := {}
   /--
@@ -70,7 +73,7 @@ structure Context where
   metaConfig        : ConfigWithKey := default
   indexConfig       : ConfigWithKey := default
   /-- `maxDischargeDepth` from `config` as an `UInt32`. -/
-  maxDischargeDepth : UInt32 := UInt32.ofNatTruncate config.maxDischargeDepth
+  maxDischargeDepth : UInt32 := UInt32.ofNatClamp config.maxDischargeDepth
   simpTheorems      : SimpTheoremsArray := {}
   congrTheorems     : SimpCongrTheorems := {}
   /--
@@ -125,7 +128,7 @@ It disables `arith` if support theorems have not been defined yet.
 -/
 private def updateArith (c : Config) : CoreM Config := do
   if c.arith then
-    if (← getEnv).contains ``Nat.Linear.ExprCnstr.eq_of_toNormPoly_eq then
+    if (← getEnv).contains ``Nat.Internal.Linear.ExprCnstr.eq_of_toNormPoly_eq then
       return c
     else
       return { c with arith := false }
@@ -170,11 +173,11 @@ private def mkMetaConfig (c : Config) : MetaM ConfigWithKey := do
     transparency := .reducible
   : Meta.Config }.toConfigWithKey
 
-def mkContext (config : Config := {}) (simpTheorems : SimpTheoremsArray := {}) (congrTheorems : SimpCongrTheorems := {}) : MetaM Context := do
+def mkContext (config : Config := {}) (simpTheorems : SimpTheoremsArray := {}) (congrTheorems : SimpCongrTheorems := {}) (userConfig : Options := {}) : MetaM Context := do
   let config ← updateArith config
   let config ← if backward.dsimp.instances.get (← getOptions) then pure { config with instances := true } else pure config
   return {
-    config, simpTheorems, congrTheorems
+    config, userConfig, simpTheorems, congrTheorems
     metaConfig := (← mkMetaConfig config)
     indexConfig := (← mkIndexConfig config)
   }
@@ -463,6 +466,19 @@ def post (e : Expr) : SimpM Step := do
 @[inline]
 def getConfig : SimpM Config :=
   return (← getContext).config
+
+@[inline]
+def getUserConfig : SimpM Options :=
+  return (← getContext).userConfig
+
+def getUserConfigOption [KVMap.Value α] (opt : Lean.Option α) : SimpM α := do
+  if let some v := (← getUserConfig).get? opt.name then
+    return v
+  else
+    return Lean.Option.get (← getOptions) opt
+
+@[inline] def withUserConfig (f : Options → Options) : SimpM α → SimpM α :=
+  withTheReader Context (fun ctx => { ctx with userConfig := f ctx.userConfig})
 
 @[inline] def withParent (parent : Expr) (f : SimpM α) : SimpM α :=
   withTheReader Context (fun ctx => { ctx with parent? := parent }) f

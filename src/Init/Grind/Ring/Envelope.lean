@@ -35,6 +35,7 @@ local instance : Std.Associative (· * · : α → α → α) where
 @[local simp] def r : (α × α) → (α × α) → Prop
   | (a, b), (c, d) => ∃ k, a + d + k = b + c + k
 
+@[implicit_reducible]
 def Q := Quot (r α)
 
 variable {α}
@@ -50,7 +51,7 @@ theorem r_trans {a b c : α × α} : r α a b → r α b c → r α a c := by
   simp [r]
   intro k₁ h₁ k₂ h₂
   refine ⟨(k₁ + k₂ + b₁ + b₂), ?_⟩
-  replace h₁ := congrArg (· + (b₁ + c₂ + k₂)) h₁; simp at h₁
+  replace h₁ := congrArg (· + (b₁ + c₂ + k₂)) h₁; try simp at h₁ -- TODO(kmill): remove simp after stage0 update
   have haux₁ : a₁ + b₂ + k₁ + (b₁ + c₂ + k₂) = (a₁ + c₂) + (k₁ + k₂ + b₁ + b₂) := by ac_rfl
   have haux₂ : a₂ + b₁ + k₁ + (b₁ + c₂ + k₂) = (a₂ + c₁) + (k₁ + k₂ + b₁ + b₂) := by rw [h₂]; ac_rfl
   rw [haux₁, haux₂] at h₁
@@ -103,7 +104,7 @@ def Q.liftOn₂ (q₁ q₂ : Q α)
 
 attribute [local simp] Q.mk Q.liftOn₂
 
-def Q.ind {β : Q α → Prop} (mk : ∀ (a : α × α), β (Q.mk a)) (q : Q α) : β q :=
+theorem Q.ind {β : Q α → Prop} (mk : ∀ (a : α × α), β (Q.mk a)) (q : Q α) : β q :=
   Quot.ind mk q
 
 @[local simp] def natCast (n : Nat) : Q α :=
@@ -245,7 +246,7 @@ theorem neg_zsmul (i : Int) (a : Q α) : zsmul (-i) a = neg (zsmul i a) := by
     · have : i = 0 := by omega
       simp [this]
 
-@[implicit_reducible]
+@[instance_reducible]
 def ofSemiring : Ring (Q α) := {
   nsmul := ⟨nsmul⟩
   zsmul := ⟨zsmul⟩
@@ -359,7 +360,7 @@ instance (priority := high) {p} [Semiring α] [AddRightCancel α] [IsCharP α p]
         replace h := AddRightCancel.add_right_cancel _ _ _ h
         simp [Semiring.ofNat_eq_natCast, h]
       have := IsCharP.ofNat_ext_iff p |>.mp h
-      simp at this; assumption
+      exact this
     next =>
       intro h
       have := IsCharP.ofNat_ext_iff (α := α) p |>.mpr h
@@ -506,7 +507,7 @@ theorem mul_comm (a b : OfSemiring.Q α) : OfSemiring.mul a b = OfSemiring.mul b
   obtain ⟨⟨b₁, b₂⟩⟩ := b
   apply Quot.sound; refine ⟨0, ?_⟩; simp; ac_rfl
 
-@[implicit_reducible]
+@[instance_reducible]
 def ofCommSemiring : CommRing (OfSemiring.Q α) :=
   { OfSemiring.ofSemiring with
     mul_comm := mul_comm }

@@ -70,11 +70,11 @@ theorem mem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : 
   m.inductionOn fun _ => DHashMap.mem_congr hab
 
 @[simp, grind =]
-theorem contains_empty [EquivBEq α] [LawfulHashable α] {a : α} : (∅ : DHashMap α β).contains a = false :=
+theorem contains_empty [EquivBEq α] [LawfulHashable α] {a : α} : (∅ : ExtDHashMap α β).contains a = false :=
   DHashMap.contains_empty
 
 @[simp]
-theorem not_mem_empty [EquivBEq α] [LawfulHashable α] {a : α} : ¬a ∈ (∅ : DHashMap α β) :=
+theorem not_mem_empty [EquivBEq α] [LawfulHashable α] {a : α} : ¬a ∈ (∅ : ExtDHashMap α β) :=
   DHashMap.not_mem_empty
 
 theorem eq_empty_iff_forall_contains [EquivBEq α] [LawfulHashable α] : m = ∅ ↔ ∀ a, m.contains a = false :=
@@ -90,7 +90,7 @@ theorem insert_eq_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a
 
 @[simp]
 theorem singleton_eq_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a} :
-    Singleton.singleton p = (∅ : DHashMap α β).insert p.1 p.2 :=
+    Singleton.singleton p = (∅ : ExtDHashMap α β).insert p.1 p.2 :=
   rfl
 
 @[simp, grind =]
@@ -1886,7 +1886,7 @@ grind_pattern size_ofList_le => (ofList l).size
 @[simp]
 theorem ofList_eq_empty_iff [EquivBEq α] [LawfulHashable α] {l : List ((a : α) × β a)} :
     ofList l = ∅ ↔ l = [] := by
-  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using
+  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using!
     DHashMap.isEmpty_ofList
 
 theorem ofList_eq_foldl [EquivBEq α] [LawfulHashable α] {l : List ((a : α) × β a)} :
@@ -2043,7 +2043,7 @@ grind_pattern size_ofList_le => (ofList l).size
 @[simp]
 theorem ofList_eq_empty_iff [EquivBEq α] [LawfulHashable α] {l : List (α × β)} :
     ofList l = ∅ ↔ l = [] := by
-  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using
+  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using!
     DHashMap.Const.isEmpty_ofList
 
 theorem ofList_eq_foldl [EquivBEq α] [LawfulHashable α] {l : List (α × β)} :
@@ -2142,7 +2142,7 @@ theorem size_unitOfList_le [EquivBEq α] [LawfulHashable α]
 @[simp]
 theorem unitOfList_eq_empty_iff [EquivBEq α] [LawfulHashable α] {l : List α} :
     unitOfList l = ∅ ↔ l = [] := by
-  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using
+  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using!
     DHashMap.Const.isEmpty_unitOfList
 
 @[simp]
@@ -3117,7 +3117,7 @@ section Alter
 theorem alter_eq_empty_iff_erase_eq_empty [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
     m.alter k f = ∅ ↔ m.erase k = ∅ ∧ f (m.get? k) = none := by
   cases m with | mk m
-  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using
+  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using!
     DHashMap.isEmpty_alter_eq_isEmpty_erase
 
 @[simp]
@@ -3298,7 +3298,7 @@ variable {β : Type v} {m : ExtDHashMap α (fun _ => β)}
 theorem alter_eq_empty_iff_erase_eq_empty [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} :
     alter m k f = ∅ ↔ m.erase k = ∅ ∧ f (get? m k) = none := by
   cases m with | mk m
-  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using
+  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using!
     DHashMap.Const.isEmpty_alter_eq_isEmpty_erase
 
 @[simp]

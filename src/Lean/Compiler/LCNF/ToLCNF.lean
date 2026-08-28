@@ -213,11 +213,22 @@ structure Context where
   -/
   expectedType : Option Expr
 
+/--
+Key for the LCNF translation cache. `ignoreNoncomputable` is part of the key
+because entries cached in irrelevant positions skip the `checkComputable`
+check and must not be reused in relevant positions.
+-/
+structure CacheKey where
+  expr : Expr
+  expectedType? : Option Expr
+  ignoreNoncomputable : Bool
+  deriving BEq, Hashable
+
 structure State where
   /-- Local context containing the original Lean types (not LCNF ones). -/
   lctx : LocalContext := {}
   /-- Cache from Lean regular expression to LCNF argument. -/
-  cache : PHashMap (Expr × Option Expr) (Arg .pure) := {}
+  cache : PHashMap CacheKey (Arg .pure) := {}
   /--
   Determines whether caching has been disabled due to finding a use of
   a constant marked with `never_extract`.
@@ -328,7 +339,7 @@ def withNewScope (x : M α) : M α := do
     }
     set saved
 
-/-
+/--
 Replace free variables in `type'` that occur in `toAny` into `◾`.
 Recall that we populate `toAny` with the free variable ids of fields that
 are type formers. This can happen when we have a field whose type is, for example, `Type u`.
@@ -431,10 +442,49 @@ private def checkComputable (ref : Name) : M Unit := do
     return
   if ref matches ``Quot.mk | ``Quot.lift || isExtern (← getEnv) ref || (getImplementedBy? (← getEnv) ref).isSome then
     return
-  if isNoncomputable (← getEnv) ref then
+  -- The executable code of a recursive definition comes from its `_unsafe_rec` implementation (see
+  -- `getDeclInfo?`), so `ref` is noncomputable whenever that implementation is. This case arises in a
+  -- `noncomputable section`, where the failure to compile the `_unsafe_rec` version is tolerated and
+  -- only that auxiliary is marked `noncomputable`, leaving `ref` itself unmarked.
+  if isNoncomputable (← getEnv) ref || isNoncomputable (← getEnv) (mkUnsafeRecName ref) then
     throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{.ofConstName ref}', which is 'noncomputable'"
   else if getOriginalConstKind? (← getEnv) ref matches some .axiom | some .quot | some .induct | some .thm then
     throwNamedError lean.dependsOnNoncomputable f!"`{ref}` not supported by code generator; consider marking definition as `noncomputable`"
+
+/--
+Given a motive `fun ... => ∀ (h₁ : p₁) ... (hₙ : pₙ), ...` where all `pᵢ` are propositions,
+returns `min maxArgs n`.
+-/
+def countProofOverApp (motive : Expr) (maxArgs : Nat) : MetaM Nat := do
+  Meta.lambdaTelescope motive fun _ body => do
+    Meta.forallTelescope body fun forallVars _ => do
+      let n := min maxArgs forallVars.size
+      for h : i in 0...n do
+        have h : i < min maxArgs forallVars.size := h.2
+        unless ← Meta.isProof forallVars[i] do
+          return i
+      return n
+
+/--
+Given `e : ∀ (h₁ : p₁) ... (hₙ : pₙ), b h₁ ... hₙ`,
+returns the beta reduced `e (lcProof p₁) ... (lcProof pₙ)`.
+-/
+def mkProofOverApp (e : Expr) (n : Nat) : MetaM Expr := do
+  let mut type ← Meta.inferType e
+  if type.getNumHeadForalls < n then
+    type ← Meta.forallBoundedTelescope type n Meta.mkForallFVars
+  go type n #[]
+where
+  go (type : Expr) (n : Nat) (vars : Array Expr) : MetaM Expr :=
+    match n with
+    | 0 => return e.beta vars
+    | k + 1 =>
+      match type with
+      | .forallE _ t b _ =>
+        let t := t.instantiateRev vars
+        go b k (vars.push (mkLcProof t))
+      | .mdata _ type => go type n vars
+      | _ => Meta.throwFunctionExpected (e.beta vars)
 
 /--
 Eta reduce implicits. We use this function to eliminate introduced by the implicit lambda feature,
@@ -473,7 +523,9 @@ partial def toLCNF (e : Expr) (eType : Expr) : CompilerM (Code .pure) := do
 where
   visitCore (e : Expr) : M (Arg .pure) := withIncRecDepth do
     let eType? := (← read).expectedType
-    if let some arg := (← get).cache.find? (e, eType?) then
+    let ignoreNoncomputable := (← read).ignoreNoncomputable
+    let key : CacheKey := { expr := e, expectedType? := eType?, ignoreNoncomputable }
+    if let some arg := (← get).cache.find? key then
       return arg
     let r : Arg .pure ← match e with
       | .app ..      => visitApp e
@@ -485,7 +537,7 @@ where
       | .lit lit     => visitLit lit
       | .fvar fvarId => if (← get).toAny.contains fvarId then pure .erased else pure (.fvar fvarId)
       | .forallE .. | .mvar .. | .bvar .. | .sort ..  => unreachable!
-    modify fun s => if s.shouldCache then { s with cache := s.cache.insert (e, eType?) r } else s
+    modify fun s => if s.shouldCache then { s with cache := s.cache.insert key r } else s
     return r
 
   visit (e : Expr) : M (Arg .pure) := withIncRecDepth do
@@ -564,11 +616,11 @@ where
   /--
   Visit a `matcher`/`casesOn` alternative.
   -/
-  visitAlt (casesAltInfo : CasesAltInfo) (e : Expr) : M (Expr × (Alt .pure)) := do
+  visitAlt (casesAltInfo : CasesAltInfo) (e : Expr) (nproofs : Nat) : M (Expr × (Alt .pure)) := do
     withNewScope do
     match casesAltInfo with
     | .default numHyps =>
-      let c ← toCode (← visit (mkAppN e (Array.replicate numHyps erasedExpr)))
+      let c ← toCode (← visit (← liftMetaM <| mkProofOverApp e (numHyps + nproofs)))
       let altType ← c.inferType
       return (altType, .default c)
     | .ctor ctorName numParams =>
@@ -597,14 +649,16 @@ where
         not occur in the type of `as : List α`.
         -/
         p.update (← applyToAny p.type)
-      let c ← toCode (← visit e)
+      let c ← toCode (← visit (← liftMetaM <| mkProofOverApp e nproofs))
       let altType ← c.inferType
       return (altType, .alt ctorName ps c)
 
   visitCases (casesInfo : CasesInfo) (e : Expr) : M (Arg .pure) :=
     etaIfUnderApplied e casesInfo.arity do
       let args := e.getAppArgs
-      let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[*...casesInfo.arity]))
+      let nproofs ← liftMetaM <| countProofOverApp args[casesInfo.motivePos]! (args.size - casesInfo.arity)
+      let arity := casesInfo.arity + nproofs
+      let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[*...arity]))
       let typeName := casesInfo.indName
       let .inductInfo indVal ← getConstInfo typeName | unreachable!
       if casesInfo.numAlts == 0 then
@@ -634,13 +688,12 @@ where
               fieldArgs := fieldArgs.push fieldArg
             return fieldArgs
         let f := args[casesInfo.altsRange.lower]!
-        let arity := casesInfo.arity
-        if args.size == arity then
+        if args.size == casesInfo.arity then
           visit (mkAppN f fieldArgs)
         else
           withoutExpectedType do
-            let result ← visit (mkAppN f fieldArgs)
-            mkOverApplication result args casesInfo.arity
+            let result ← visit (← liftMetaM <| mkProofOverApp (mkAppN f fieldArgs) nproofs)
+            mkOverApplication result args arity
       else
         let mut alts := #[]
         let discr ← withoutExpectedType do
@@ -649,7 +702,7 @@ where
           | .fvar discrFVarId => pure discrFVarId
           | .erased | .type .. => mkAuxLetDecl .erased
         for i in casesInfo.altsRange, numParams in casesInfo.altNumParams do
-          let (altType, alt) ← visitAlt numParams args[i]!
+          let (altType, alt) ← visitAlt numParams args[i]! nproofs
           resultType := joinTypes altType resultType
           alts := alts.push alt
         let cases := ⟨typeName, resultType, discrFVarId, alts⟩
@@ -657,7 +710,7 @@ where
         pushElement (.cases auxDecl cases)
         let result := .fvar auxDecl.fvarId
         withoutExpectedType do
-          mkOverApplication result args casesInfo.arity
+          mkOverApplication result args arity
 
   visitCtor (arity : Nat) (e : Expr) : M (Arg .pure) :=
     withoutExpectedType do

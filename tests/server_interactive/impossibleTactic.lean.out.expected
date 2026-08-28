@@ -1,0 +1,20 @@
+{"textDocument": {"uri": "file:///impossibleTactic.lean"},
+ "position": {"line": 6, "character": 14}}
+{"rendered": "```lean\n⊢ ¬∀ (n : Nat), n = n + 1\n```",
+ "goals": ["⊢ ¬∀ (n : Nat), n = n + 1"]}
+{"textDocument": {"uri": "file:///impossibleTactic.lean"},
+ "position": {"line": 8, "character": 5}}
+{"range":
+ {"start": {"line": 8, "character": 4}, "end": {"line": 8, "character": 11}},
+ "contents":
+ {"value":
+  "Introduces one or more hypotheses, optionally naming and/or pattern-matching them.\nFor each hypothesis to be introduced, the remaining main goal's target type must\nbe a `let` or function type.\n\n* `intro` by itself introduces one anonymous hypothesis, which can be accessed\n  by e.g. `assumption`. It is equivalent to `intro _`.\n* `intro x y` introduces two hypotheses and names them. Individual hypotheses\n  can be anonymized via `_`, given a type ascription, or matched against a pattern:\n  ```lean\n  -- ... ⊢ α × β → ...\n  intro (a, b)\n  -- ..., a : α, b : β ⊢ ...\n  ```\n* `intro rfl` is short for `intro h; subst h`, if `h` is an equality where the left-hand or right-hand side\n  is a variable.\n* Alternatively, `intro` can be combined with pattern matching much like `fun`:\n  ```lean\n  intro\n  | n + 1, 0 => tac\n  | ...\n  ```\n",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///impossibleTactic.lean"},
+ "position": {"line": 10, "character": 5}}
+{"range":
+ {"start": {"line": 10, "character": 4}, "end": {"line": 10, "character": 41}},
+ "contents":
+ {"value":
+  "`exact e` closes the main goal if its target type matches that of `e`.\n",
+  "kind": "markdown"}}

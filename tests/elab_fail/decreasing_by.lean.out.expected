@@ -19,7 +19,6 @@ n m : Nat
 n m : Nat
 ⊢ Prod.Lex (fun a₁ a₂ => a₁ < a₂) (fun a₁ a₂ => a₁ < a₂) (dec1 n, 100) (n, m)
 decreasing_by.lean:85:0-85:22: error: unsolved goals
-case a
 n m : Nat
 ⊢ Prod.Lex (fun a₁ a₂ => a₁ < a₂) (fun a₁ a₂ => a₁ < a₂) (n, dec2 m) (n, m)
 

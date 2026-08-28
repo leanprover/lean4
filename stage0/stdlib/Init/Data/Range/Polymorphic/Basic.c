@@ -584,7 +584,7 @@ return v___x_148_;
 else
 {
 uint8_t v___x_149_; 
-lean_dec_ref(v___x_147_);
+lean_dec_ref_known(v___x_147_, 1);
 v___x_149_ = 0;
 return v___x_149_;
 }
@@ -616,7 +616,7 @@ return v___x_159_;
 else
 {
 uint8_t v___x_160_; 
-lean_dec_ref(v___x_158_);
+lean_dec_ref_known(v___x_158_, 1);
 v___x_160_ = 0;
 return v___x_160_;
 }
@@ -988,11 +988,13 @@ return v_res_498_;
 }
 lean_object* runtime_initialize_Init_Data_Range_Polymorphic_PRange(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Option_Instances(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Range_Polymorphic_PRange(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

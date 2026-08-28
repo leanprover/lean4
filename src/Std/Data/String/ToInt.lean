@@ -120,7 +120,7 @@ public theorem Slice.isInt_comp_copy : String.isInt ∘ String.Slice.copy = Stri
 
 @[simp]
 public theorem Slice.toInt?_copy {s : Slice} : s.copy.toInt? = s.toInt? := by
-  simpa [← isInt_toSlice] using Slice.toInt?_congr (by simp)
+  simpa [← isInt_toSlice] using! Slice.toInt?_congr (by simp)
 
 @[simp]
 public theorem Slice.toInt?_comp_copy : String.toInt? ∘ String.Slice.copy = String.Slice.toInt? := by
@@ -180,7 +180,7 @@ namespace Int
 
 @[simp]
 public theorem toInt?_repr (a : Int) : a.repr.toInt? = some a := by
-  rw [repr_eq_if]
+  rw [repr_eq_ite]
   split <;> (simp; omega)
 
 @[simp]

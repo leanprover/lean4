@@ -180,7 +180,7 @@ lean_object* v_val_29_; lean_object* v___x_30_;
 lean_dec(v_toPure_24_);
 v_val_29_ = lean_ctor_get(v_____do__lift_26_, 0);
 lean_inc(v_val_29_);
-lean_dec_ref(v_____do__lift_26_);
+lean_dec_ref_known(v_____do__lift_26_, 1);
 v___x_30_ = lean_apply_1(v_f_25_, v_val_29_);
 return v___x_30_;
 }
@@ -485,7 +485,7 @@ else
 lean_object* v_val_134_; lean_object* v___f_135_; lean_object* v___x_136_; lean_object* v___x_137_; lean_object* v___x_138_; 
 v_val_134_ = lean_ctor_get(v_____do__lift_131_, 0);
 lean_inc(v_val_134_);
-lean_dec_ref(v_____do__lift_131_);
+lean_dec_ref_known(v_____do__lift_131_, 1);
 v___f_135_ = lean_alloc_closure((void*)(l_OptionT_instMonad___redArg___lam__4), 3, 2);
 lean_closure_set(v___f_135_, 0, v_toPure_128_);
 lean_closure_set(v___f_135_, 1, v_val_134_);
@@ -1252,11 +1252,13 @@ return v___x_427_;
 }
 lean_object* runtime_initialize_Init_Data_Option_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Control_MonadAttach(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Control_Option(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Option_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

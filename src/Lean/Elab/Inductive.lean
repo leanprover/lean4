@@ -54,7 +54,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (isCoi
         if ctorModifiers.docString?.isSome then
           logErrorAt leadingDocComment "Duplicate doc string"
         ctorModifiers := { ctorModifiers with
-          docString? := some (⟨leadingDocComment⟩, doc.verso.get (← getOptions)) }
+          docString? := some ⟨leadingDocComment⟩ }
       if ctorModifiers.isPrivate && modifiers.isPrivate then
         let hint ← do
           let .original .. := modifiersStx.getHeadInfo | pure .nil
@@ -73,6 +73,8 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (isCoi
         throwError "Constructor cannot be `protected` because it is in a `private` inductive datatype"
       checkValidCtorModifier ctorModifiers
       let ctorName := ctor.getIdAt 3
+      if ctorName.hasMacroScopes && isCoinductive then
+        throwError "Coinductive predicates are not allowed inside of macro scopes"
       let ctorName := declName ++ ctorName
       let ctorName ← withRef ctor[3] <| applyVisibility ctorModifiers ctorName
       let (binders, type?) := expandOptDeclSig ctor[4]
@@ -83,6 +85,10 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (isCoi
     let computedFields ← (decl[5].getOptional?.map (·[1].getArgs) |>.getD #[]).mapM fun cf => withRef cf do
       return { ref := cf, modifiers := cf[0], fieldId := cf[1].getId, type := ⟨cf[3]⟩, matchAlts := ⟨cf[4]⟩ }
     let classes ← getOptDerivingClasses decl[6]
+    -- Wrap the `monotonicity_by` tactic block into a `by` term; the fixpoint machinery
+    -- elaborates it against the `monotone` goal of this predicate's functor.
+    let monotonicity? : Option Term ← decl[7].getOptional?.mapM fun stx =>
+      withRef stx `(by $(⟨stx[1]⟩))
     if decl[3][0].isToken ":=" then
       -- https://github.com/leanprover/lean4/issues/5236
       withRef decl[0] <| Linter.logLintIf Linter.linter.deprecated decl[3]
@@ -98,6 +104,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (isCoi
       computedFields
       docString?
       isCoinductive := isCoinductive
+      monotonicity?
     }
 
 private def isInductiveFamily (numParams : Nat) (indFVar : Expr) : TermElabM Bool := do

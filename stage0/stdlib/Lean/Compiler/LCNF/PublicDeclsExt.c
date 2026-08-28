@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_Environment_header(lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
 lean_object* l_List_lengthTR___redArg(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -23,7 +24,6 @@ uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtension___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Environment_header(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtension_modifyState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___00Lean_Compiler_LCNF_mkOrderedDeclSetExt_spec__0(lean_object*, lean_object*, lean_object*);
@@ -44,8 +44,8 @@ static const lean_ctor_object l_Lean_Compiler_LCNF_mkOrderedDeclSetExt___closed_
 static const lean_object* l_Lean_Compiler_LCNF_mkOrderedDeclSetExt___closed__3 = (const lean_object*)&l_Lean_Compiler_LCNF_mkOrderedDeclSetExt___closed__3_value;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_mkOrderedDeclSetExt();
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_mkOrderedDeclSetExt___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_initFn_00___x40_Lean_Compiler_LCNF_PublicDeclsExt_3596063923____hygCtx___hyg_2_();
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_initFn_00___x40_Lean_Compiler_LCNF_PublicDeclsExt_3596063923____hygCtx___hyg_2____boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_initFn_00___x40_Lean_Compiler_LCNF_PublicDeclsExt_3962556520____hygCtx___hyg_2_();
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_initFn_00___x40_Lean_Compiler_LCNF_PublicDeclsExt_3962556520____hygCtx___hyg_2____boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_publicDeclsExt;
 static const lean_ctor_object l_Lean_Compiler_LCNF_isDeclPublic___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(1) << 1) | 1))}};
 static const lean_object* l_Lean_Compiler_LCNF_isDeclPublic___closed__0 = (const lean_object*)&l_Lean_Compiler_LCNF_isDeclPublic___closed__0_value;
@@ -301,7 +301,7 @@ v_res_78_ = l_Lean_Compiler_LCNF_mkOrderedDeclSetExt();
 return v_res_78_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_initFn_00___x40_Lean_Compiler_LCNF_PublicDeclsExt_3596063923____hygCtx___hyg_2_(){
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_initFn_00___x40_Lean_Compiler_LCNF_PublicDeclsExt_3962556520____hygCtx___hyg_2_(){
 _start:
 {
 lean_object* v___x_80_; 
@@ -309,30 +309,32 @@ v___x_80_ = l_Lean_Compiler_LCNF_mkOrderedDeclSetExt();
 return v___x_80_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_initFn_00___x40_Lean_Compiler_LCNF_PublicDeclsExt_3596063923____hygCtx___hyg_2____boxed(lean_object* v_a_81_){
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_initFn_00___x40_Lean_Compiler_LCNF_PublicDeclsExt_3962556520____hygCtx___hyg_2____boxed(lean_object* v_a_81_){
 _start:
 {
 lean_object* v_res_82_; 
-v_res_82_ = l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_initFn_00___x40_Lean_Compiler_LCNF_PublicDeclsExt_3596063923____hygCtx___hyg_2_();
+v_res_82_ = l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_initFn_00___x40_Lean_Compiler_LCNF_PublicDeclsExt_3962556520____hygCtx___hyg_2_();
 return v_res_82_;
 }
 }
 LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_isDeclPublic(lean_object* v_env_87_, lean_object* v_declName_88_){
 _start:
 {
-lean_object* v___y_90_; lean_object* v___x_98_; uint8_t v_isModule_99_; 
-v___x_98_ = l_Lean_Environment_header(v_env_87_);
-v_isModule_99_ = lean_ctor_get_uint8(v___x_98_, sizeof(void*)*7 + 4);
-lean_dec_ref(v___x_98_);
-if (v_isModule_99_ == 0)
+lean_object* v___x_89_; uint8_t v_isModule_90_; 
+v___x_89_ = l_Lean_Environment_header(v_env_87_);
+v_isModule_90_ = lean_ctor_get_uint8(v___x_89_, sizeof(void*)*7 + 4);
+lean_dec_ref(v___x_89_);
+if (v_isModule_90_ == 0)
 {
-uint8_t v___x_100_; 
+uint8_t v___x_91_; 
 lean_dec_ref(v_env_87_);
-v___x_100_ = 1;
-return v___x_100_;
+v___x_91_ = 1;
+return v___x_91_;
 }
 else
 {
+lean_object* v___x_92_; lean_object* v___y_94_; 
+v___x_92_ = ((lean_object*)(l_Lean_Compiler_LCNF_isDeclPublic___closed__0));
 if (lean_obj_tag(v_declName_88_) == 1)
 {
 lean_object* v_pre_101_; lean_object* v_str_102_; lean_object* v___x_103_; uint8_t v___x_104_; 
@@ -342,35 +344,34 @@ v___x_103_ = ((lean_object*)(l_Lean_Compiler_LCNF_isDeclPublic___closed__1));
 v___x_104_ = lean_string_dec_eq(v_str_102_, v___x_103_);
 if (v___x_104_ == 0)
 {
-v___y_90_ = v_declName_88_;
-goto v___jp_89_;
+v___y_94_ = v_declName_88_;
+goto v___jp_93_;
 }
 else
 {
-v___y_90_ = v_pre_101_;
-goto v___jp_89_;
+v___y_94_ = v_pre_101_;
+goto v___jp_93_;
 }
 }
 else
 {
-v___y_90_ = v_declName_88_;
-goto v___jp_89_;
+v___y_94_ = v_declName_88_;
+goto v___jp_93_;
 }
-}
-v___jp_89_:
+v___jp_93_:
 {
-lean_object* v___x_91_; lean_object* v_asyncMode_92_; lean_object* v___x_93_; lean_object* v___x_94_; lean_object* v___x_95_; lean_object* v_snd_96_; uint8_t v___x_97_; 
-v___x_91_ = l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_publicDeclsExt;
-v_asyncMode_92_ = lean_ctor_get(v___x_91_, 2);
-v___x_93_ = ((lean_object*)(l_Lean_Compiler_LCNF_isDeclPublic___closed__0));
-v___x_94_ = lean_box(0);
-v___x_95_ = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(v___x_93_, v___x_91_, v_env_87_, v_asyncMode_92_, v___x_94_);
-v_snd_96_ = lean_ctor_get(v___x_95_, 1);
-lean_inc(v_snd_96_);
-lean_dec(v___x_95_);
-v___x_97_ = l_Lean_NameSet_contains(v_snd_96_, v___y_90_);
-lean_dec(v_snd_96_);
-return v___x_97_;
+lean_object* v___x_95_; lean_object* v_asyncMode_96_; lean_object* v___x_97_; lean_object* v___x_98_; lean_object* v_snd_99_; uint8_t v___x_100_; 
+v___x_95_ = l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_publicDeclsExt;
+v_asyncMode_96_ = lean_ctor_get(v___x_95_, 2);
+v___x_97_ = lean_box(0);
+v___x_98_ = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(v___x_92_, v___x_95_, v_env_87_, v_asyncMode_96_, v___x_97_);
+v_snd_99_ = lean_ctor_get(v___x_98_, 1);
+lean_inc(v_snd_99_);
+lean_dec(v___x_98_);
+v___x_100_ = l_Lean_NameSet_contains(v_snd_99_, v___y_94_);
+lean_dec(v_snd_99_);
+return v___x_100_;
+}
 }
 }
 }
@@ -462,15 +463,17 @@ return v_env_122_;
 }
 }
 lean_object* runtime_initialize_Lean_Environment(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF_PublicDeclsExt(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Environment(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_initFn_00___x40_Lean_Compiler_LCNF_PublicDeclsExt_3596063923____hygCtx___hyg_2_();
+res = l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_initFn_00___x40_Lean_Compiler_LCNF_PublicDeclsExt_3962556520____hygCtx___hyg_2_();
 if (lean_io_result_is_error(res)) return res;
 l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_publicDeclsExt = lean_io_result_get_value(res);
 lean_mark_persistent(l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_publicDeclsExt);

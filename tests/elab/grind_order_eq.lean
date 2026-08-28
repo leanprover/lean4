@@ -30,3 +30,6 @@ example
 example
     : a = b + 1 → a ≤ b + 2 := by
   grind -lia -linarith -ring (splits := 0) only
+
+-- Issue #13265: kernel error from `of_nat_eq` when the cast is to a non-`Int` type.
+example (j k : Nat) (h : j = k) : (j + 1 : Rat) = (k + 1 : Rat) := by grind

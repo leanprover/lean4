@@ -75,7 +75,7 @@ unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α)
         return acc
       else
         modify fun s => { s with visitedConsts := s.visitedConsts.insert c }
-        if ← isImplicitReducible c then
+        if ← isInstanceReducible c then
           return acc
         else
           f c acc
@@ -101,16 +101,26 @@ end Lean.Expr
 
 open Lean Meta MVarId in
 public def Lean.MVarId.getConstants (g : MVarId) : MetaM NameSet := withContext g do
-  let mut c := (← g.getType).getUsedConstantsAsSet
+  -- `instantiateMVars` is needed so that constants are not lost behind assigned
+  -- metavariables, e.g. the `?motive` left in a goal reached via `induction`.
+  -- Note: this does not recover constants behind non-ground delayed-assigned
+  -- metavariables. Without evidence this matters for premise selection,
+  -- for now we avoid the extra complexity of walking the metavariable graph.
+  let mut c := (← instantiateMVars (← g.getType)).getUsedConstantsAsSet
   for t in (← getLocalHyps) do
-    c := c ∪ (← inferType t).getUsedConstantsAsSet
+    c := c ∪ (← instantiateMVars (← inferType t)).getUsedConstantsAsSet
   return c
 
 open Lean Meta MVarId in
 public def Lean.MVarId.getRelevantConstants (g : MVarId) : MetaM NameSet := withContext g do
-  let mut c ← (← g.getType).relevantConstantsAsSet
+  -- `instantiateMVars` is needed so that constants are not lost behind assigned
+  -- metavariables, e.g. the `?motive` left in a goal reached via `induction`.
+  -- Note: this does not recover constants behind non-ground delayed-assigned
+  -- metavariables. Without evidence this matters for premise selection,
+  -- for now we avoid the extra complexity of walking the metavariable graph.
+  let mut c ← (← instantiateMVars (← g.getType)).relevantConstantsAsSet
   for t in (← getLocalHyps) do
-    c := c ∪ (← (← inferType t).relevantConstantsAsSet)
+    c := c ∪ (← (← instantiateMVars (← inferType t)).relevantConstantsAsSet)
   return c
 
 @[expose] public section
@@ -233,16 +243,18 @@ def filterGrindAnnotated (selector : Selector) : Selector := fun g c => do
 
 /--
 Combine two premise selectors by interspersing their results (ignoring scores).
-The parameter `ratio` (defaulting to 0.5) controls the ratio of suggestions from each selector
-while results are available from both.
+The parameter `ratio` (defaulting to 0.5) controls the fraction of suggestions drawn from
+`selector₁` while results are available from both. It is clamped to `[0, 1]`, and ties are
+resolved in favour of `selector₁`.
+
+Both selectors are asked for the full `maxSuggestions`, rather than a `ratio`-split share, so that
+if one selector returns fewer than its share the other can compensate. This doubles the retrieval
+work compared to splitting the budget.
 -/
 def intersperse (selector₁ selector₂ : Selector) (ratio : Float := 0.5) : Selector := fun g c => do
-  -- Calculate how many suggestions to request from each selector based on the ratio
-  let max₁ := (c.maxSuggestions.toFloat * ratio).toUInt32.toNat
-  let max₂ := (c.maxSuggestions.toFloat * (1 - ratio)).toUInt32.toNat
-
-  let suggestions₁ ← selector₁ g { c with maxSuggestions := max₁ }
-  let suggestions₂ ← selector₂ g { c with maxSuggestions := max₂ }
+  let ratio := min 1.0 (max 0.0 ratio)
+  let suggestions₁ ← selector₁ g c
+  let suggestions₂ ← selector₂ g c
 
   let mut result := #[]
   let mut i₁ := 0
@@ -252,9 +264,15 @@ def intersperse (selector₁ selector₂ : Selector) (ratio : Float := 0.5) : Se
 
   -- Intersperse while both arrays have elements
   while h : i₁ < suggestions₁.size ∧ i₂ < suggestions₂.size ∧ result.size < c.maxSuggestions do
-    -- Decide whether to take from selector₁ or selector₂ based on the ratio
-    let currentRatio := if count₁ + count₂ <= 0.0 then 0.0 else count₁ / (count₁ + count₂)
-    if currentRatio < ratio then
+    -- Take from whichever selector keeps the running fraction of `selector₁`
+    -- contributions closest to `ratio`. Comparing the two candidate next states
+    -- (rather than the achieved fraction) stays accurate at the endpoints, so
+    -- `ratio = 1` draws entirely from `selector₁` and `ratio = 0` entirely from
+    -- `selector₂` while both have results.
+    let total := count₁ + count₂
+    let errIfTake₁ := Float.abs ((count₁ + 1) / (total + 1) - ratio)
+    let errIfTake₂ := Float.abs (count₁ / (total + 1) - ratio)
+    if errIfTake₁ <= errIfTake₂ then
       result := result.push suggestions₁[i₁]
       i₁ := i₁ + 1
       count₁ := count₁ + 1
@@ -319,7 +337,7 @@ def isDeniedPremise (env : Environment) (name : Name) (allowPrivate : Bool := fa
   if name == ``sorryAx then return true
   -- Allow private names through if allowPrivate is set (e.g., for currentFile selector)
   if name.isInternalDetail && !(allowPrivate && isPrivateName name) then return true
-  if isImplicitReducibleCore env name then return true
+  if isInstanceReducibleCore env name then return true
   if Lean.Linter.isDeprecated env name then return true
   if (nameDenyListExt.getState env).any (fun p => name.anyS (· == p)) then return true
   if let some moduleIdx := env.getModuleIdxFor? name then

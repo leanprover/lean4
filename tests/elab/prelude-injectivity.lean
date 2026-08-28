@@ -20,7 +20,9 @@ gen_injective_theorems% Syntax.Preresolved
 gen_injective_theorems% Syntax.SepArray
 gen_injective_theorems% Syntax.TSepArray
 gen_injective_theorems% Try.Config
+gen_injective_theorems% Parser.Tactic.ConstructorConfig
 gen_injective_theorems% Parser.Tactic.DecideConfig
+gen_injective_theorems% Parser.Tactic.ImpossibleConfig
 gen_injective_theorems% Parser.Tactic.LibrarySearchConfig
 -/
 #guard_msgs in

@@ -241,6 +241,16 @@ example (d : Bool) (a b c : BitVec w) :
     ((bif d then a else c) == ~~~(bif d then b else c)) = (bif d then a == ~~~b else c == ~~~c) := by
   bv_normalize
 
+-- bv1 ite with constant branches
+example (t : BitVec 1) : (bif t == 0#1 then 0#1 else 1#1) = t := by bv_normalize
+example (t : BitVec 1) : (bif 0#1 == t then 0#1 else 1#1) = t := by bv_normalize
+example (t : BitVec 1) : (bif t == 1#1 then 1#1 else 0#1) = t := by bv_normalize
+example (t : BitVec 1) : (bif 1#1 == t then 1#1 else 0#1) = t := by bv_normalize
+example (t : BitVec 1) : (bif t == 0#1 then 1#1 else 0#1) = ~~~t := by bv_normalize
+example (t : BitVec 1) : (bif 0#1 == t then 1#1 else 0#1) = ~~~t := by bv_normalize
+example (t : BitVec 1) : (bif t == 1#1 then 0#1 else 1#1) = ~~~t := by bv_normalize
+example (t : BitVec 1) : (bif 1#1 == t then 0#1 else 1#1) = ~~~t := by bv_normalize
+
 -- bv_equal_const_not
 example (a : BitVec 32) : (~~~a = 0#32) ↔ (a = -1) := by
   bv_normalize
@@ -270,11 +280,11 @@ example (a b : BitVec 16) :
   bv_normalize
 
 -- extractLsb'_not_of_lt
-example (a b : BitVec 16) :
-    BitVec.extractLsb' 1 12 (~~~(a &&& b)) = ~~~(BitVec.extractLsb' 1 12 a &&& BitVec.extractLsb' 1 12 b) := by
+example (a : BitVec 16) :
+    BitVec.extractLsb' 1 12 (~~~a) = ~~~(BitVec.extractLsb' 1 12 a) := by
   bv_normalize
 
--- extractLsb'_if
+-- extractLsb'_ite
 example (a b : BitVec 16) (c : Bool) :
     BitVec.extractLsb' 1 12 (if c then a else b) = if c then BitVec.extractLsb' 1 12 a else BitVec.extractLsb' 1 12 b := by
   bv_normalize
@@ -691,8 +701,8 @@ section
 namespace NormalizeMul
 /- Test examples of the multiplication normalizer -/
 
-/-- This example does not yet work,
-  since we do not have the full Bitwuzla algorithm. -/
+/-- warning: declaration uses `sorry` -/
+#guard_msgs in
 example {x y z : BitVec 64} : ~~~(x &&& (y * z)) = (~~~x ||| ~~~(z * y)) := by
   sorry
 example (x y : BitVec 256) : x * y = y * x := by
@@ -706,6 +716,8 @@ end NormalizeMul
 
 def foo (x : Bool) : Prop := x = true
 
+/-- warning: declaration uses `sorry` -/
+#guard_msgs in
 example (x : Bool) (h1 h2 : x = true) : foo x := by
   bv_normalize
   have : x = true := by assumption

@@ -3,10 +3,10 @@ import Std.Tactic.Do
 
 open Std.Do
 
-/-- error: `mclear` expects at an identifier -/
+/-- error: `mclear` expects an identifier -/
 #guard_msgs (error) in
 example : True := by mclear
-/-- error: `mclear` expects at an identifier -/
+/-- error: `mclear` expects an identifier -/
 #guard_msgs (error) in
 example : True := by mclear
 /-- error: The syntax is `mhave h := term` -/

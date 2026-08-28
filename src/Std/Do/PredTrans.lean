@@ -49,7 +49,7 @@ def PredTrans.Conjunctive (t : PostCond α ps → Assertion ps) : Prop :=
   ∀ Q₁ Q₂, t (Q₁ ∧ₚ Q₂) ⊣⊢ₛ t Q₁ ∧ t Q₂
 
 /-- Any predicate transformer that is conjunctive is also monotonic. -/
-def PredTrans.Conjunctive.mono (t : PostCond α ps → Assertion ps) (h : PredTrans.Conjunctive t) : PredTrans.Monotonic t := by
+theorem PredTrans.Conjunctive.mono (t : PostCond α ps → Assertion ps) (h : PredTrans.Conjunctive t) : PredTrans.Monotonic t := by
   intro Q₁ Q₂ hq
   replace hq : Q₁ = (Q₁ ∧ₚ Q₂) := PostCond.and_left_of_entails hq
   rw [hq, (h Q₁ Q₂).to_eq]

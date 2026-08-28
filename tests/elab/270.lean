@@ -7,7 +7,6 @@ open CommAddSemigroup
 theorem addComm3 [CommAddSemigroup α] {a b c : α} : a + b + c = a + c + b := by {
     have h : b + c = c + b := addComm;
     have h' := congrArg (a + ·) h;
-    simp at h';
     rw [←addAssoc] at h';
     rw [←addAssoc (a := a)] at h';
     exact h';
@@ -21,7 +20,6 @@ theorem addComm4 [CommAddSemigroup α] {a b c : α} : a + b + c = a + c + b := b
 theorem addComm5 [CommAddSemigroup α] {a b c : α} : a + b + c = a + c + b := by {
     have h : b + c = c + b := addComm;
     have h' := congrArg (a + ·) h;
-    simp at h';
     rw [←addAssoc] at h';
     rw [←addAssoc (a := a)] at h';
     exact h';
@@ -30,7 +28,6 @@ theorem addComm5 [CommAddSemigroup α] {a b c : α} : a + b + c = a + c + b := b
 theorem addComm6 [CommAddSemigroup α] {a b c : α} : a + b + c = a + c + b := by {
     have h : b + c = c + b := addComm;
     have h' := congrArg (a + ·) h;
-    simp at h';
     rw [←addAssoc] at h';
     rw [←addAssoc] at h';
     exact h';

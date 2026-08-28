@@ -17,7 +17,7 @@ automatically cancels all child contexts.
 -/
 
 namespace Std
-open Std.Internal.IO.Async
+open Std.Async
 
 structure CancellationContext.State where
   /--

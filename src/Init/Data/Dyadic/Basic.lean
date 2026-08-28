@@ -63,22 +63,22 @@ theorem trailingZeros_zero : trailingZeros 0 = 0 := rfl
 theorem trailingZeros_two_mul_add_one (i : Int) :
     Int.trailingZeros (2 * i + 1) = 0 := by
   unfold trailingZeros trailingZeros.aux
-  rw [dif_neg (by omega)]
+  rw [dite_eq_right (by omega)]
   split <;> simp_all
 
 theorem trailingZeros_eq_zero_of_mod_eq {i : Int} (h : i % 2 = 1) :
     Int.trailingZeros i = 0 := by
   unfold trailingZeros trailingZeros.aux
-  rw [dif_neg (by omega)]
+  rw [dite_eq_right (by omega)]
   split <;> simp_all
 
 theorem trailingZeros_two_mul {i : Int} (h : i ≠ 0) :
     Int.trailingZeros (2 * i) = Int.trailingZeros i + 1 := by
-  rw [Int.trailingZeros, dif_neg (Int.mul_ne_zero (by decide) h), Int.trailingZeros.aux.eq_def]
+  rw [Int.trailingZeros, dite_eq_right (Int.mul_ne_zero (by decide) h), Int.trailingZeros.aux.eq_def]
   simp only [ne_eq, mul_emod_right, ↓reduceDIte, Int.reduceEq, not_false_eq_true,
     mul_ediv_cancel_left, Nat.zero_add]
   split
-  rw [trailingZeros, trailingZeros_aux_succ, dif_neg h]
+  rw [trailingZeros, trailingZeros_aux_succ, dite_eq_right h]
   apply congrArg Nat.succ (trailingZeros_aux_irrel ..) <;> omega
 
 theorem shiftRight_trailingZeros_mod_two {i : Int} (h : i ≠ 0) :
@@ -408,7 +408,7 @@ theorem ofIntWithPrec_shiftLeft_add {n : Nat} :
 
 /-- The "precision" of a dyadic number, i.e. in `n * 2^(-p)` with `n` odd the precision is `p`. -/
 -- TODO: If `WithBot` is upstreamed, replace this with `WithBot Int`.
-def precision : Dyadic → Option Int
+@[instance_reducible] def precision : Dyadic → Option Int
   | .zero => none
   | .ofOdd _ p _ => some p
 
@@ -494,7 +494,7 @@ theorem toRat_toDyadic (x : Rat) (prec : Int) :
     simp only [natCast_pow, natCast_ofNat, den_inv, num_pow, num_ofNat, Int.natAbs_pow,
       Int.reduceAbs, num_inv, den_pow, den_ofNat, Nat.one_pow, Int.cast_ofNat_Int, Int.mul_one]
     have : ¬ (2 ^ (prec + 1) : Int) = 0 := NeZero.out
-    simp only [if_neg this]
+    simp only [ite_eq_right this]
     have : (2 ^ (prec + 1) : Int).sign = 1 := by simpa using Int.pow_pos (by decide)
     simp only [this]
     have : x.den * 2 ^ (prec + 1) = 0 ↔ x.den = 0 := by

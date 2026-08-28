@@ -2,7 +2,7 @@ import Std.Tactic.Do
 
 open Std.Do
 
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 
 structure MyException where
 def F : EStateM MyException Unit Unit := do

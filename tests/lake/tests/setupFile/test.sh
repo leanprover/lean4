@@ -21,7 +21,7 @@ test_out '"plugins":[]' setup-file ImportFoo.lean
 test_out '"dynlibs":[]' setup-file ImportFoo.lean
 
 # Test that local imports are pre-resolved.
-test_out '"importArts":{"Test":["' setup-file ImportTest.lean
+test_out '"importArts":{"Test":[[' setup-file ImportTest.lean
 
 # Test that external imports are left unhandled.
 test_out '"importArts":{}' setup-file ImportFoo.lean

@@ -72,12 +72,14 @@ where
   maybeWithoutTopLevelHighlight : Bool → CodeWithInfos → CodeWithInfos
     | true, .tag _ tt => tt
     | _,    tt        => tt
-  ppExprForPopup (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
-    let mut e := e
+  ppExprForPopup (e : Expr) (explicit : Bool) : MetaM CodeWithInfos := do
     -- When hovering over a metavariable, we want to see its value, even if `pp.instantiateMVars` is false.
-    if explicit && e.isMVar then
-      if let some e' ← getExprMVarAssignment? e.mvarId! then
-        e := e'
+    if explicit then
+      if let .mvar mvarId := e then
+        if let some e' ← getExprMVarAssignment? mvarId then
+          return ← ppExprForPopupAux e' false
+    ppExprForPopupAux e explicit
+  ppExprForPopupAux (e : Expr) (explicit : Bool) : MetaM CodeWithInfos := do
     -- When `explicit` is false, keep the top-level tag so that users can also see the explicit version of the term on an additional hover.
     maybeWithoutTopLevelHighlight explicit <$> ppExprTagged e do
       if explicit then

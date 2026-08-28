@@ -9,6 +9,7 @@ Requirements
 - [CMake](http://www.cmake.org)
 - [GMP (GNU multiprecision library)](http://gmplib.org/)
 - [LibUV](https://libuv.org/)
+- [OpenSSL](https://www.openssl.org/)
 
 Platform-Specific Setup
 -----------------------
@@ -31,7 +32,7 @@ cmake --preset release
 make -C build/release -j$(nproc || sysctl -n hw.logicalcpu)
 ```
 
-For development, `cmake --preset dev` is recommended instead.
+For development, `cmake --preset dev-release` (reusing the same `build/release` output directory) is recommended instead.
 
 You can replace `$(nproc || sysctl -n hw.logicalcpu)` with the desired parallelism amount.
 
@@ -55,6 +56,19 @@ There are also two alternative presets that combine some of these options you ca
   `-DCMAKE_CXX_COMPILER=`\
   Select the C/C++ compilers to use. Official Lean releases currently use Clang;
   see also `.github/workflows/ci.yml` for the CI config.
+
+* `-DUSE_GMP=`\
+  Use GMP for arbitrary-precision integers (default `ON`). Lean requires GMP
+  6.3.0 or newer, because earlier versions contain bugs that can make Lean
+  produce unsound results. Set `-DUSE_GMP=OFF` to use Lean's built-in bignum
+  implementation instead, which needs no external GMP (safest; some performance
+  cost).
+
+* `-DFORCE_GMP=`\
+  Build against the GMP found on the system even if it is older than 6.3.0
+  (default `OFF`). Not recommended: Lean may produce unsound results in corner
+  cases. Independent kernels that do not depend on GMP will catch the
+  unsoundness.
 
 Lean will automatically use [CCache](https://ccache.dev/) if available to avoid
 redundant builds, especially after stage 0 has been updated.

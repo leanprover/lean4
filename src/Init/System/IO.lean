@@ -720,7 +720,7 @@ structure FS.Stream where
   /--
   Reads text up to and including the next newline from the stream.
 
-  If the returned string is empty, an end-of-file marker (EOF) has been reached.
+  If the returned string does not end with a newline, an end-of-file marker (EOF) has been reached.
   An EOF does not actually close a stream, so further reads may block and return more data.
   -/
   getLine : IO String
@@ -855,7 +855,7 @@ Writing to a handle is typically buffered, and may not immediately modify the fi
 
 /--
 Reads UTF-8-encoded text up to and including the next line break from the handle. If the returned
-string is empty, an end-of-file marker (EOF) has been reached.
+string does not end with a line break, an end-of-file marker (EOF) has been reached.
 
 Encountering an EOF does not close a handle. Subsequent reads may block and return more data.
 -/
@@ -1026,7 +1026,7 @@ and/or return data.
 partial def Handle.lines (h : Handle) : IO (Array String) := do
   let rec read (lines : Array String) := do
     let line ← h.getLine
-    if line.length == 0 then
+    if line.isEmpty then
       pure lines
     else if line.back == '\n' then
       let line := line.dropEnd 1 |>.copy
@@ -1672,37 +1672,6 @@ Creates a new mutable reference cell that contains `a`.
 def mkRef (a : α) : BaseIO (IO.Ref α) :=
   ST.mkRef a
 
-/--
-Mutable cell that can be passed around for purposes of cooperative task cancellation: request
-cancellation with `CancelToken.set` and check for it with `CancelToken.isSet`.
-
-This is a more flexible alternative to `Task.cancel` as the token can be shared between multiple
-tasks.
--/
-structure CancelToken where
-  private ref : IO.Ref Bool
-deriving Nonempty
-
-namespace CancelToken
-
-/-- Creates a new cancellation token. -/
-def new : BaseIO CancelToken :=
-  CancelToken.mk <$> IO.mkRef false
-
-/-- Activates a cancellation token. Idempotent. -/
-def set (tk : CancelToken) : BaseIO Unit :=
-  tk.ref.set true
-
-/-- Checks whether the cancellation token has been activated. -/
-def isSet (tk : CancelToken) : BaseIO Bool :=
-  tk.ref.get
-
--- separate definition as otherwise no unboxed version is generated
-@[export lean_io_cancel_token_is_set]
-private def isSetExport := @isSet
-
-end CancelToken
-
 namespace FS
 namespace Stream
 
@@ -1811,7 +1780,7 @@ and/or return data.
 partial def lines (s : Stream) : IO (Array String) := do
   let rec read (lines : Array String) := do
     let line ← s.getLine
-    if line.length == 0 then
+    if line.isEmpty then
       pure lines
     else if line.back == '\n' then
       let line := line.dropEnd 1 |>.copy

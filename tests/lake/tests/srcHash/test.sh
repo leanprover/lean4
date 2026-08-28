@@ -13,6 +13,10 @@ source ../common.sh
 
 ./clean.sh
 
+# Copy test data to a working directory to avoid initializing a Git repository
+# inside the checked-in source tree
+copy_to_work dep lakefile.toml
+
 # Initialize the dependency
 echo "# SETUP: Create v1"
 pushd dep
@@ -53,6 +57,3 @@ test_exp ! -f .lake/packages/dep/b.txt.hash
 test_run build dep
 # verify a rebuild occurred based on the new `b.txt`
 test_cmd_eq "2bc" cat .lake/packages/dep/.lake/build/c.txt
-
-# Cleanup
-rm -f produced.out dep/produced.out

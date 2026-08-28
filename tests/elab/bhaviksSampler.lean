@@ -1,6 +1,5 @@
 import Std.Data.TreeMap
 import Std.Tactic.Do
-set_option backward.do.legacy false
 
 /-!
 This test is based on code by Bhavik Mehta.
@@ -9,7 +8,7 @@ is now automated by the `mvcgen` tactic.
 -/
 
 set_option grind.warning false
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 
 section VendoredFromMathlib
 

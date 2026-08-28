@@ -9,7 +9,7 @@ prelude
 public import Lean.Data.Json
 import Init.Data.Nat.Fold
 meta import Init.Data.Nat.Fold
-import Lake.Util.String
+public import Lake.Util.String
 public import Init.Data.String.Search
 public import Init.Data.String.Extra
 import Init.Data.Option.Coe
@@ -68,23 +68,23 @@ export MixTrace (mixTrace)
 section
 variable [MixTrace τ] [NilTrace τ]
 
-/- Combine a `List` of traces (left-to-right). -/
+/-- Combine a `List` of traces (left-to-right). -/
 public def mixTraceList (traces : List τ) : τ :=
   traces.foldl mixTrace nilTrace
 
-/- Combine an `Array` of traces (left-to-right). -/
+/-- Combine an `Array` of traces (left-to-right). -/
 public def mixTraceArray (traces : Array τ) : τ :=
   traces.foldl mixTrace nilTrace
 
 variable [ComputeTrace α m τ]
 
-/- Compute the trace of each element of a `List` and combine them (left-to-right). -/
+/-- Compute the trace of each element of a `List` and combine them (left-to-right). -/
 @[inline] public def computeListTrace [MonadLiftT m n] [Monad n] (as : List α) : n τ :=
   as.foldlM (fun ts t => return mixTrace ts (← computeTrace t)) nilTrace
 
 public instance [Monad m] : ComputeTrace (List α) m τ := ⟨computeListTrace⟩
 
-/- Compute the trace of each element of an `Array` and combine them (left-to-right). -/
+/-- Compute the trace of each element of an `Array` and combine them (left-to-right). -/
 @[inline] public def computeArrayTrace [MonadLiftT m n] [Monad n] (as : Array α) : n τ :=
   as.foldlM (fun ts t => return mixTrace ts (← computeTrace t)) nilTrace
 
@@ -141,8 +141,8 @@ public def ofHex? (s : String) : Option Hash :=
   if s.utf8ByteSize = 16 && isHex s then ofHex s else none
 
 /-- Returns the hash as 16-digit lowercase hex string. -/
-public def hex (self : Hash) : String :=
-  lpad (String.ofList <| Nat.toDigits 16 self.val.toNat) '0' 16
+@[inline] public def hex (self : Hash) : String :=
+  lowerHexUInt64 self.val
 
 /-- Parse a hash from a string of decimal digits. -/
 public def ofDecimal? (s : String) : Option Hash :=
@@ -181,7 +181,7 @@ public instance : ToString Hash := ⟨Hash.toString⟩
 @[inline] public def ofByteArray (bytes : ByteArray) : Hash :=
   ofHashable bytes
 
-@[inline, deprecated ofHashable (since := "2026-02-06")]
+@[inline, deprecated ofHashable +typeChanged (since := "2026-02-06")]
 public def ofBool (b : Bool) : Hash  :=
   ofHashable b
 

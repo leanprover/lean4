@@ -7,12 +7,22 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.SynthInstance
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
+import Lean.Meta.Sym.Arith.Poly
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 open Sym.Arith
 
 def checkMaxSteps : GoalM Bool := do
   return (← get').steps >= (← getConfig).ringSteps
+
+def checkMaxDegree (p : Poly) : GoalM Bool := do
+  if p.degree >= (← getConfig).ringMaxDegree then
+    unless (← get').reportedMaxDegreeIssue do
+      modify' fun s => { s with reportedMaxDegreeIssue := true }
+      reportIssue! "ring polynomial degree {p.degree} exceeds threshold `(ringMaxDegree := {p.degree})`"
+    return true
+  else
+    return false
 
 def incSteps (n : Nat := 1) : GoalM Unit := do
   modify' fun s => { s with steps := s.steps + n }
@@ -29,6 +39,11 @@ structure RingM.Context where
   the simplification anyway, we may end up with a proof that `k * q = 0`, but
   we cannot deduce `q = 0` since the ring does not implement `NoNatZeroDivisors`
   See comment at `PolyDerivation`.
+
+  We also need it when destructively simplifying equations, i.e., when *replacing* an
+  equation with its simplified form (`EqCnstr.simplify` and `EqCnstr.simplifyBasis`):
+  the rewrite multiplies the equation by `k₁ = k/gcd k k'`, and the result is weaker than
+  the original equation when `k₁ ≠ ±1`. See **Note** at `EqCnstr.simplify`.
   -/
   checkCoeffDvd : Bool := false
 

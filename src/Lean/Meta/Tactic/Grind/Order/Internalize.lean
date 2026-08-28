@@ -166,9 +166,9 @@ def setStructId (e : Expr) : OrderM Unit := do
     exprToStructId := s.exprToStructId.insert { expr := e } structId
   }
 
-def updateTermMap (e eNew h : Expr) : GoalM Unit := do
+def updateTermMap (e eNew h α : Expr) : GoalM Unit := do
   modify' fun s => { s with
-    termMap    := s.termMap.insert { expr := e } (eNew, h)
+    termMap    := s.termMap.insert { expr := e } { e := eNew, h, α }
     termMapInv := s.termMapInv.insert { expr := eNew } (e, h)
   }
 
@@ -198,9 +198,9 @@ where
   getOriginal? (e : Expr) : GoalM (Option Expr) := do
     if let some (e', _) := (← get').termMapInv.find? { expr := e } then
       return some e'
-    let_expr NatCast.natCast _ _ a := e | return none
+    let_expr NatCast.natCast α _ a := e | return none
     if (← alreadyInternalized a) then
-      updateTermMap a e (← mkEqRefl e)
+      updateTermMap a e (← mkEqRefl e) α
       return some a
     else
       return none
@@ -290,7 +290,7 @@ def internalizeTerm (e : Expr) : OrderM Unit := do
 
 open Arith.Cutsat in
 def adaptNat (e : Expr) : GoalM Expr := do
-  if let some (eNew, _) := (← get').termMap.find? { expr := e } then
+  if let some { e := eNew, .. } := (← get').termMap.find? { expr := e } then
     return eNew
   else match_expr e with
     | LE.le _ _ lhs rhs => adaptCnstr lhs rhs (isLT := false)
@@ -307,12 +307,12 @@ where
     let h := mkApp6
         (mkConst (if isLT then ``Nat.ToInt.lt_eq else ``Nat.ToInt.le_eq))
         lhs rhs lhs' rhs' h₁ h₂
-    updateTermMap e eNew h
+    updateTermMap e eNew h (← getIntExpr)
     return eNew
 
   adaptTerm : GoalM Expr := do
     let (eNew, h) ← natToInt e
-    updateTermMap e eNew h
+    updateTermMap e eNew h (← getIntExpr)
     return eNew
 
 def adapt (α : Expr) (e : Expr) : GoalM (Expr × Expr) := do

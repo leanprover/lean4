@@ -24,7 +24,7 @@ info: optimize.eq_def (x✝ : Expr) :
 
 /--
 info: equations:
-@[defeq] theorem optimize.eq_1 : ∀ (i : BitVec 32), optimize (Expr.const i) = Expr.const i
+@[backward_defeq] theorem optimize.eq_1 : ∀ (i : BitVec 32), optimize (Expr.const i) = Expr.const i
 theorem optimize.eq_2 : ∀ (e1 : Expr) (bop : Unit) (i : BitVec 32),
   optimize e1 = Expr.const i → optimize (Expr.op bop e1) = Expr.op bop (Expr.const 0)
 theorem optimize.eq_3 : ∀ (e1 : Expr) (bop : Unit),
@@ -44,8 +44,8 @@ def optimize2 : Expr → Expr
 
 /--
 info: equations:
-@[defeq] theorem optimize2.eq_1 : ∀ (i : BitVec 32), optimize2 (Expr.const i) = Expr.const i
-@[defeq] theorem optimize2.eq_2 : ∀ (bop : Unit) (e1 : Expr),
+@[backward_defeq] theorem optimize2.eq_1 : ∀ (i : BitVec 32), optimize2 (Expr.const i) = Expr.const i
+@[backward_defeq] theorem optimize2.eq_2 : ∀ (bop : Unit) (e1 : Expr),
   optimize2 (Expr.op bop e1) =
     match optimize2 e1 with
     | Expr.const i => Expr.op bop (Expr.const 0)
@@ -65,8 +65,8 @@ def optimize3 : Expr → Expr
 
 /--
 info: equations:
-@[defeq] theorem optimize3.eq_1 : ∀ (i : BitVec 32), optimize3 (Expr.const i) = Expr.const i
-@[defeq] theorem optimize3.eq_2 : ∀ (bop : Unit) (i : BitVec 32),
+@[backward_defeq] theorem optimize3.eq_1 : ∀ (i : BitVec 32), optimize3 (Expr.const i) = Expr.const i
+@[backward_defeq] theorem optimize3.eq_2 : ∀ (bop : Unit) (i : BitVec 32),
   optimize3 (Expr.op bop (Expr.const i)) = Expr.op bop (optimize3 (Expr.const i))
 theorem optimize3.eq_3 : ∀ (bop : Unit) (e1 : Expr),
   (∀ (i : BitVec 32), e1 = Expr.const i → False) → optimize3 (Expr.op bop e1) = Expr.const 0

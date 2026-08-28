@@ -48,13 +48,13 @@ ifeq "${STAGE}" "0"
 endif
 
 # These can be phony since the inner Makefile/Lake will have the correct dependencies and avoid rebuilds
-.PHONY: Init Std Lean leanshared Lake libLake_shared lake lean LeanChecker leanchecker LeanIR
+.PHONY: Init Std Lean leanshared Lake libLake_shared lake lean LeanChecker leanchecker leanchecker-paranoid LeanIR
 
 ifeq "${USE_LAKE}" "ON"
 
 # build in parallel
 Init:
-	${PREV_STAGE}/bin/lake build -f ${CMAKE_BINARY_DIR}/lakefile.toml $(LAKE_EXTRA_ARGS)
+	LEAN_GITHASH=${LAKE_LEAN_GITHASH} ${PREV_STAGE}/bin/lake build -f ${CMAKE_BINARY_DIR}/lakefile.toml ${LEAN_EXTRA_LAKE_OPTS} $(LAKE_EXTRA_ARGS)
 
 Std Lean Lake Leanc LeanChecker LeanIR: Init
 
@@ -104,6 +104,7 @@ $(OUTBIN)/lake$(EXE): ${LIB}/temp/LakeMain.c.o.export.trace
 $(OUTBIN)/leanc$(EXE): $(OUTARC)/libLeanc.a.trace
 $(OUTBIN)/leanir$(EXE): $(OUTARC)/libLeanIR.a.trace
 $(OUTBIN)/leanchecker$(EXE): $(OUTARC)/libLeanChecker.a.trace
+$(OUTBIN)/leanchecker-paranoid$(EXE): $(OUTARC)/libLeanChecker.a.trace ${LIB}/lean/libInit.a.trace ${LIB}/lean/libStd.a.trace ${LIB}/lean/libLean.a.trace ${LIB}/lean/libLake.a.trace
 endif
 
 # we specify the precise file names here to avoid rebuilds
@@ -181,19 +182,19 @@ libLake_shared: $(OUTLIB)/libLake_shared$(SO)
 
 $(OUTBIN)/lake$(EXE): ${LIB}/temp/LakeMain.*o.export $(OUTLIB)/libLake_shared$(SO)
 	$(link-preamble)
-	$(LEANC_SH) $< -lLake_shared ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEANC_OPTS} -o $@
+	$(LEANC_SH) $< -lLake_shared ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${CMAKE_DYN_EXE_LINKER_FLAGS_MAKE} ${LEANC_OPTS} -o $@
 
 lake: $(OUTBIN)/lake$(EXE)
 
 $(OUTBIN)/lean$(EXE): $(OUTLIB)/libInit_shared$(SO) $(OUTLIB)/libleanshared_2$(SO) $(OUTLIB)/libleanshared_1$(SO) $(OUTLIB)/libleanshared$(SO) ${LIB}/temp/libleanmain.a
 	$(link-preamble)
-	$(LEANC_SH) ${LIB}/temp/libleanmain.a ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
+	$(LEANC_SH) ${LIB}/temp/libleanmain.a ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${CMAKE_DYN_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
 
 lean: $(OUTBIN)/lean$(EXE)
 
 $(OUTBIN)/leanc$(EXE): $(OUTARC)/libLeanc.a
 	$(link-preamble)
-	$(LEANC_SH) $< ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
+	$(LEANC_SH) $< ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${CMAKE_DYN_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
 
 leanc: $(OUTBIN)/leanc$(EXE)
 
@@ -201,12 +202,25 @@ $(OUTBIN)/leanir$(EXE): $(OUTARC)/libLeanIR.a
 	@echo "[    ] Building $@"
 # on Windows, must remove file before writing a new one (since the old one may be in use)
 	@rm -f $@
-	"${CMAKE_BINARY_DIR}/leanc.sh" $< ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} -o $@
+	"${CMAKE_BINARY_DIR}/leanc.sh" $< ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${CMAKE_DYN_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} -o $@
 
 leanir: $(OUTBIN)/leanir$(EXE)
 
 $(OUTBIN)/leanchecker$(EXE): $(OUTARC)/libLeanChecker.a $(OUTLIB)/libLake_shared$(SO)
 	$(link-preamble)
-	$(LEANC_SH) $< -lLake_shared ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
+	$(LEANC_SH) $< -lLake_shared ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${CMAKE_DYN_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
 
 leanchecker: $(OUTBIN)/leanchecker$(EXE)
+
+# Statically linked so that it gets its own mimalloc; see `LEANCHECKER_PARANOID_LINKER_FLAGS`.
+# Stripped because static linking makes it two orders of magnitude larger than the other binaries
+# and it neither runs the interpreter nor exports anything.
+$(OUTBIN)/leanchecker-paranoid$(EXE): $(OUTARC)/libLeanChecker.a $(OUTARC)/libmimalloc_paranoid.a $(OUTARC)/libinitialize_minimal.a
+	$(link-preamble)
+	$(LEANC_SH) $< ${LEANCHECKER_PARANOID_LINKER_FLAGS_MAKE} ${LEANC_OPTS} -o $@
+	"${CMAKE_STRIP}" $@
+# Double-check we've linked against the correct mimalloc; it would be sad if a build system change
+# were to silently disturb this.
+	@grep -q "corrupted free list entry" $@
+
+leanchecker-paranoid: $(OUTBIN)/leanchecker-paranoid$(EXE)

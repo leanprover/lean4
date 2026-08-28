@@ -389,7 +389,7 @@ mutual
 
 end
 
-/- Prove SizeOf spec lemma of the form `sizeOf <ctor-application> = 1 + sizeOf <field_1> + ... + sizeOf <field_n> -/
+/-- Prove SizeOf spec lemma of the form `sizeOf <ctor-application> = 1 + sizeOf <field_1> + ... + sizeOf <field_n> -/
 partial def main (lhs rhs : Expr) : M Expr := do
   if (← isDefEq lhs rhs) then
     mkEqRefl rhs
@@ -451,16 +451,18 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
       let thmType ← mkForallFVars thmParams target
       trace[Meta.sizeOf] "sizeOf spec theorem name: {thmName}"
       trace[Meta.sizeOf] "sizeOf spec theorem type: {thmType}"
-      let thmValue ← if indInfo.isNested then
-        SizeOfSpecNested.main lhs rhs |>.run {
-          indInfo, sizeOfFns, ctorName, params, localInsts, recMap
-        }
-      else
-        mkEqRefl rhs
-      let thmValue ← mkLambdaFVars thmParams thmValue
-      trace[Meta.sizeOf] "sizeOf spec theorem value: {thmValue}"
-      unless (← isDefEq (← inferType thmValue) thmType) do
-        throwError "type mismatch"
+      let thmValue ← withoutExporting do
+        let thmValue ← if indInfo.isNested then
+          SizeOfSpecNested.main lhs rhs |>.run {
+            indInfo, sizeOfFns, ctorName, params, localInsts, recMap
+          }
+        else
+          mkEqRefl rhs
+        let thmValue ← mkLambdaFVars thmParams thmValue
+        trace[Meta.sizeOf] "sizeOf spec theorem value: {thmValue}"
+        unless (← isDefEq (← inferType thmValue) thmType) do
+          throwError "type mismatch"
+        pure thmValue
       addDecl <| Declaration.thmDecl {
         name        := thmName
         levelParams := ctorInfo.levelParams
@@ -491,7 +493,8 @@ def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
   prependError m!"failed to generate `SizeOf` instance for `{.ofConstName typeName}`:" do
     let indInfo ← withoutExporting <| getConstInfoInduct typeName
     withExporting (isExporting := !isPrivateName typeName && !indInfo.ctors.any isPrivateName) do
-    if (← getEnv).contains ``SizeOf && genSizeOf.get (← getOptions) && !(← isInductivePredicate typeName) then
+    if (← getEnv).contains ``SizeOf && genSizeOf.get (← getOptions) && !(← isInductivePredicate typeName)
+       && (← isLargeEliminating typeName) then
       withTraceNode `Meta.sizeOf (fun _ => return m!"{typeName}") do
         unless indInfo.isUnsafe do
           let (fns, recMap) ← mkSizeOfFns typeName

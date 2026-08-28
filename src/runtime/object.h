@@ -289,6 +289,11 @@ inline void io_cancel_core(b_obj_arg t) { return lean_io_cancel_core(t); }
 inline bool io_get_task_state_core(b_obj_arg t) { return lean_io_get_task_state_core(t); }
 inline b_obj_res io_wait_any_core(b_obj_arg task_list) { return lean_io_wait_any_core(task_list); }
 
+/* Whether the promise's underlying task has been resolved. */
+inline bool promise_is_resolved(b_obj_arg p) {
+    return lean_io_get_task_state_core((lean_object *)lean_to_promise(p)->m_result) == LEAN_TASK_STATE_FINISHED;
+}
+
 // =======================================
 // External
 
@@ -469,8 +474,8 @@ LEAN_EXPORT void io_eprintln(obj_arg s);
 // ST ref primitives
 inline obj_res st_mk_ref(obj_arg v) { return lean_st_mk_ref(v); }
 inline obj_res st_ref_get(b_obj_arg r) { return lean_st_ref_get(r); }
-inline obj_res st_ref_set(b_obj_arg r, obj_arg v) { return lean_st_ref_set(r, v); }
-inline obj_res st_ref_reset(b_obj_arg r) { return lean_st_ref_reset(r); }
+inline obj_res st_ref_put(b_obj_arg r, obj_arg v) { return lean_st_ref_put(r, v); }
+inline obj_res st_ref_take(b_obj_arg r) { return lean_st_ref_take(r); }
 inline obj_res st_ref_swap(b_obj_arg r, obj_arg v) { return lean_st_ref_swap(r, v); }
 
 obj_res lean_promise_new();

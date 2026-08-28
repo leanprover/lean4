@@ -24,7 +24,7 @@
           stdenv = pkgs.overrideCC pkgs.stdenv llvmPackages.clang;
         } ({
           buildInputs = with pkgs; [
-            cmake gmp libuv ccache pkg-config
+            cmake gmp libuv ccache pkg-config openssl openssl.dev
             llvmPackages.bintools  # wrapped lld
             llvmPackages.llvm  # llvm-symbolizer for asan/lsan
             gdb
@@ -34,12 +34,46 @@
           hardeningDisable = [ "all" ];
           # more convenient `ctest` output
           CTEST_OUTPUT_ON_FAILURE = 1;
-        } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
-          GMP = (pkgsDist.gmp.override { withStatic = true; }).overrideAttrs (attrs:
-            pkgs.lib.optionalAttrs (pkgs.stdenv.system == "aarch64-linux") {
-              # would need additional linking setup on Linux aarch64, we don't use it anywhere else either
-              hardeningDisable = [ "stackprotector" ];
-            });
+        } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux (let
+          # Build OpenSSL 3 statically using pkgsDist's old-glibc stdenv,
+          # so the resulting static libs don't require newer glibc symbols.
+          opensslForDist = pkgsDist.stdenv.mkDerivation {
+            name = "openssl-static-3.6.0";
+            src = pkgs.fetchFromGitHub {
+              owner = "openssl";
+              repo = "openssl";
+              rev = "openssl-3.6.0";
+              hash = "sha256-EJnbK9ZMdN2ztTTQtb7VsEQvvbMYnY5HJ2LMJlw5FRg=";
+            };
+            nativeBuildInputs = [ pkgsDist.perl ];
+            configurePhase = ''
+              patchShebangs .
+              ./config --prefix=$out no-shared no-tests
+            '';
+            buildPhase = "make -j$NIX_BUILD_CORES";
+            installPhase = "make install_sw";
+          };
+          # nixpkgs-older ships GMP 6.1.2, but Lean requires 6.3.0: earlier versions
+          # contain bugs that can make Lean produce unsound results. Reuse pkgsDist's
+          # own packaging (fat build on x86, PIC, static), built from the same source
+          # as `pkgs.gmp` so releases and development use one GMP version.
+          gmpForDist = (pkgsDist.gmp.override { cxx = false; withStatic = true; }).overrideAttrs (attrs: {
+            name = "gmp-${pkgs.gmp.version}";
+            inherit (pkgs.gmp) src;
+            configureFlags = attrs.configureFlags ++ [
+              "--disable-shared"
+              # nixpkgs 18.03 pins the build triple only on ARM, but GMP's config.guess
+              # runtime-probes the CPU via /proc/cpuinfo on x86 too, which is broken on
+              # the multicore CI runners.
+              "--build=${pkgsDist.stdenv.buildPlatform.config}"
+            ];
+            doCheck = false;
+          } // pkgs.lib.optionalAttrs (pkgs.stdenv.system == "aarch64-linux") {
+            # would need additional linking setup on Linux aarch64, we don't use it anywhere else either
+            hardeningDisable = [ "stackprotector" ];
+          });
+        in {
+          GMP = gmpForDist;
           LIBUV = pkgsDist.libuv.overrideAttrs (attrs: {
             configureFlags = ["--enable-static"];
             hardeningDisable = [ "stackprotector" ];
@@ -53,13 +87,15 @@
             };
             doCheck = false;
           });
+          OPENSSL = opensslForDist;
+          OPENSSL_DEV = opensslForDist;
           GLIBC = pkgsDist.glibc;
           GLIBC_DEV = pkgsDist.glibc.dev;
           GCC_LIB = pkgsDist.gcc.cc.lib;
           ZLIB = pkgsDist.zlib;
           # for CI coredumps
           GDB = pkgsDist.gdb;
-        });
+        }));
     in {
       devShells.${system} = {
         # The default development shell for working on lean itself

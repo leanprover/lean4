@@ -258,7 +258,6 @@ private def finitenessRelation :
       | .atEnd .. => simp
     · cases h
 
-@[no_expose]
 instance : Std.Iterators.Finite (ForwardSliceSearcher s) Id :=
   .of_finitenessRelation finitenessRelation
 

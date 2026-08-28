@@ -33,7 +33,7 @@ theorem startsWith_iff {pat s : Slice} : startsWith pat s ↔ ∃ t, s.copy = pa
       rw [h₁] at this
       refine ⟨_, this.eq_append⟩
     rw [Pos.Raw.isValid_iff_isValidUTF8_extract_zero]
-    refine ⟨by simpa using h₁, ?_⟩
+    refine ⟨by simpa using! h₁, ?_⟩
     simp only [size_toByteArray] at h₂
     simpa [h₂] using pat.isValidUTF8
   · rintro ⟨t, rfl⟩

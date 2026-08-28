@@ -6,6 +6,9 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include <vector>
+#include <limits>
+#include <climits>
+#include <cstdlib>
 #include "runtime/interrupt.h"
 #include "runtime/sstream.h"
 #include "runtime/flet.h"
@@ -25,6 +28,12 @@ static name * g_kernel_fresh = nullptr;
 static expr * g_dont_care    = nullptr;
 static name * g_bool_true    = nullptr;
 static name * g_eager_reduce = nullptr;
+/* Upper bound (in bytes) on the numerals the kernel computes while reducing `Nat`
+   literals (see `reduce_nat`). Protects the kernel from spending unbounded memory
+   and time evaluating giant numerals. Configurable via the `LEAN_NAT_MAX_SIZE`
+   environment variable. */
+static size_t g_nat_max_size = 0;
+static const size_t LEAN_NAT_MAX_SIZE_DEFAULT = 128*1024*1024;    // 128 MB
 static expr * g_nat_zero     = nullptr;
 static expr * g_nat_succ     = nullptr;
 static expr * g_nat_add      = nullptr;
@@ -119,11 +128,12 @@ expr type_checker::infer_lambda(expr const & _e, bool infer_only) {
     expr e = _e;
     while (is_lambda(e)) {
         expr d    = instantiate_rev(binding_domain(e), fvars.size(), fvars.data());
-        expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(e), d, binding_info(e));
-        fvars.push_back(fvar);
         if (!infer_only) {
             ensure_sort_core(infer_type_core(d, infer_only), d);
         }
+        /* Extend the local context only after `d` has been checked, as `infer_pi` does. */
+        expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(e), d, binding_info(e));
+        fvars.push_back(fvar);
         e = binding_body(e);
     }
     expr r = infer_type_core(instantiate_rev(e, fvars.size(), fvars.data()), infer_only);
@@ -202,8 +212,6 @@ expr type_checker::infer_let(expr const & _e, bool infer_only) {
     while (is_let(e)) {
         expr type = instantiate_rev(let_type(e), fvars.size(), fvars.data());
         expr val  = instantiate_rev(let_value(e), fvars.size(), fvars.data());
-        expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, let_name(e), type, val);
-        fvars.push_back(fvar);
         if (!infer_only) {
             ensure_sort_core(infer_type_core(type, infer_only), type);
             expr val_type = infer_type_core(val, infer_only);
@@ -211,6 +219,9 @@ expr type_checker::infer_let(expr const & _e, bool infer_only) {
                 throw def_type_mismatch_exception(env(), m_lctx, let_name(e), val_type, type);
             }
         }
+        /* Extend the local context only after `type` and `val` have been checked, as `infer_pi` does. */
+        expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, let_name(e), type, val);
+        fvars.push_back(fvar);
         e = let_body(e);
     }
     expr r = infer_type_core(instantiate_rev(e, fvars.size(), fvars.data()), infer_only);
@@ -218,11 +229,26 @@ expr type_checker::infer_let(expr const & _e, bool infer_only) {
     return m_lctx.mk_pi(fvars, r, true);
 }
 
+/*
+Store the projection index in `result`, and return `false` if it does not fit.
+`nat::is_small` admits up to 63 bits, but projection indices are consumed as `unsigned`, so
+without the upper bound `.proj S 2^32 c` would be silently truncated into `.proj S 0 c`.
+*/
+static bool to_proj_idx(nat const & idx, unsigned & result) {
+    if (!idx.is_small())
+        return false;
+    size_t v = idx.get_small_value();
+    if (v > std::numeric_limits<unsigned>::max())
+        return false;
+    result = static_cast<unsigned>(v);
+    return true;
+}
+
 expr type_checker::infer_proj(expr const & e, bool infer_only) {
     expr type = whnf(infer_type_core(proj_expr(e), infer_only));
-    if (!proj_idx(e).is_small())
+    unsigned idx;
+    if (!to_proj_idx(proj_idx(e), idx))
         throw invalid_proj_exception(env(), m_lctx, e);
-    unsigned idx = proj_idx(e).get_small_value();
     buffer<expr> args;
     expr const & I = get_app_args(type, args);
     if (!is_constant(I))
@@ -265,12 +291,42 @@ expr type_checker::infer_proj(expr const & e, bool infer_only) {
     return r;
 }
 
+static size_t nat_size_in_bytes(nat const & n) { return lean_nat_size_in_bytes(n.raw()); }
+
+/* Throw a kernel exception when a `Nat` numeral is larger than `g_nat_max_size`.
+   `num_bytes` is an upper bound on its size. */
+static void check_nat_size(environment const & env, size_t num_bytes) {
+    if (num_bytes > g_nat_max_size)
+        throw kernel_exception(env, "the kernel refused a `Nat` numeral because its "
+            "size exceeds the maximum; increase the LEAN_NAT_MAX_SIZE environment "
+            "variable to allow it");
+}
+
+/* The runtime `Nat.pow` / `Nat.shiftLeft` require their second argument (the
+   exponent / shift amount) to fit in `unsigned int`. Return it as a `size_t`, or
+   throw a clean error instead of the runtime's `lean_internal_panic`. */
+static size_t get_count_arg(environment const & env, nat const & count, char const * op) {
+    if (count > static_cast<unsigned long>(UINT_MAX))
+        throw kernel_exception(env, sstream() << "the kernel refused to evaluate `" << op
+            << "` because its second argument does not fit in a 32-bit unsigned integer");
+    return count.get_small_value();
+}
+
+expr type_checker::infer_lit(expr const & e) {
+    // Bound the size of numerals entering the kernel (e.g. source literals), the
+    // same limit `reduce_nat` enforces on the numerals it computes.
+    if (is_nat_lit(e))
+        check_nat_size(env(), nat_size_in_bytes(lit_value(e).get_nat()));
+    return lit_type(lit_value(e));
+}
+
 /** \brief Return type of expression \c e, if \c infer_only is false, then it also check whether \c e is type correct or not.
     \pre closed(e) */
 expr type_checker::infer_type_core(expr const & e, bool infer_only) {
     if (has_loose_bvars(e))
         throw kernel_exception(env(), "type checker does not support loose bound variables, replace them with free variables before invoking it");
 
+    scope_rec_depth guard;
     check_system("type checker", /* do_check_interrupted */ true);
 
     auto it = m_st->m_infer_type[infer_only].find(e);
@@ -279,7 +335,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
 
     expr r;
     switch (e.kind()) {
-    case expr_kind::Lit:      r = lit_type(lit_value(e)); break;
+    case expr_kind::Lit:      r = infer_lit(e); break;
     case expr_kind::MData:    r = infer_type_core(mdata_expr(e), infer_only); break;
     case expr_kind::Proj:     r = infer_proj(e, infer_only); break;
     case expr_kind::FVar:     r = infer_fvar(e);  break;
@@ -325,7 +381,11 @@ expr type_checker::ensure_pi(expr const & e, expr const & s) {
 
 /** \brief Return true iff \c e is a proposition */
 bool type_checker::is_prop(expr const & e) {
-    return whnf(infer_type(e)) == mk_Prop();
+    expr s = ensure_sort(infer_type(e));
+    // The level must be tested for zero up to normalization: `imax 1 0` denotes `Prop` without
+    // being syntactically `zero`. Comparing `s` against `Prop` syntactically instead would let
+    // `infer_proj` extract non-proof data out of a proof, contradicting proof irrelevance.
+    return normalizes_to_zero(sort_level(s));
 }
 
 /** \brief Apply normalizer extensions to \c e.
@@ -339,7 +399,8 @@ optional<expr> type_checker::reduce_recursor(expr const & e, bool cheap_rec, boo
     if (optional<expr> r = inductive_reduce_rec(env(), e,
                                                 [&](expr const & e) { return cheap_rec ? whnf_core(e, cheap_rec, cheap_proj) : whnf(e); },
                                                 [&](expr const & e) { return infer(e); },
-                                                [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); })) {
+                                                [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); },
+                                                [&](expr const & e) { return is_prop(e); })) {
         return r;
     }
     return none_expr();
@@ -356,7 +417,7 @@ expr type_checker::whnf_fvar(expr const & e, bool cheap_rec, bool cheap_proj) {
 }
 
 /* Auxiliary method for `reduce_proj` */
-optional<expr> type_checker::reduce_proj_core(expr c, unsigned idx) {
+optional<expr> type_checker::reduce_proj_core(expr c, name const & sname, unsigned idx) {
     if (is_string_lit(c))
         c = whnf(string_lit_to_constructor(c));
     buffer<expr> args;
@@ -366,7 +427,13 @@ optional<expr> type_checker::reduce_proj_core(expr c, unsigned idx) {
     constant_info mk_info = env().get(const_name(mk));
     if (!mk_info.is_constructor())
         return none_expr();
-    unsigned nparams = mk_info.to_constructor_val().get_nparams();
+    constructor_val mk_val = mk_info.to_constructor_val();
+    /* `sname` selects which structure's field layout `idx` refers to, so a constructor of any other
+       inductive must not be projected. Only an ill-typed projection can reach this, since
+       `infer_proj` rejects a `sname` that disagrees with the projected expression's type. */
+    if (mk_val.get_induct() != sname)
+        return none_expr();
+    unsigned nparams = mk_val.get_nparams();
     if (nparams + idx < args.size())
         return some_expr(args[nparams + idx]);
     else
@@ -375,15 +442,15 @@ optional<expr> type_checker::reduce_proj_core(expr c, unsigned idx) {
 
 /* If `cheap == true`, then we don't perform delta-reduction when reducing major premise. */
 optional<expr> type_checker::reduce_proj(expr const & e, bool cheap_rec, bool cheap_proj) {
-    if (!proj_idx(e).is_small())
+    unsigned idx;
+    if (!to_proj_idx(proj_idx(e), idx))
         return none_expr();
-    unsigned idx = proj_idx(e).get_small_value();
     expr c;
     if (cheap_proj)
         c = whnf_core(proj_expr(e), cheap_rec, cheap_proj);
     else
         c = whnf(proj_expr(e));
-    return reduce_proj_core(c, idx);
+    return reduce_proj_core(c, proj_sname(e), idx);
 }
 
 static bool is_let_fvar(local_ctx const & lctx, expr const & e) {
@@ -399,6 +466,7 @@ static bool is_let_fvar(local_ctx const & lctx, expr const & e) {
     If `cheap == true`, then we don't perform delta-reduction when reducing major premise of recursors and projections.
     We also do not cache results. */
 expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
+    scope_rec_depth guard;
     check_system("type checker: whnf", /* do_check_interrupted */ true);
 
     // handle easy cases
@@ -573,27 +641,52 @@ static inline nat get_nat_val(expr const & e) {
     return lit_value(e).get_nat();
 }
 
-template<typename F> optional<expr> type_checker::reduce_bin_nat_op(F const & f, expr const & e) {
+template<typename F> optional<expr> type_checker::reduce_bin_nat_op(F const & f, expr const & e, bool check_size) {
     expr arg1 = whnf(app_arg(app_fn(e)));
     if (!is_nat_lit_ext(arg1)) return none_expr();
     expr arg2 = whnf(app_arg(e));
     if (!is_nat_lit_ext(arg2)) return none_expr();
     nat v1 = get_nat_val(arg1);
     nat v2 = get_nat_val(arg2);
-    return some_expr(mk_lit(literal(nat(f(v1.raw(), v2.raw())))));
+    nat r(f(v1.raw(), v2.raw()));
+    // `add`/`sub`/`mul` can accumulate large numerals in a recursor loop. Their
+    // operands are already bounded, so computing `r` is cheap; reject once the
+    // result itself exceeds the size limit.
+    if (check_size)
+        check_nat_size(env(), nat_size_in_bytes(r));
+    return some_expr(mk_lit(literal(r)));
 }
-
-#define ReducePowMaxExp 1<<24 // TODO: make it configurable
 
 optional<expr> type_checker::reduce_pow(expr const & e) {
     expr arg1 = whnf(app_arg(app_fn(e)));
     if (!is_nat_lit_ext(arg1)) return none_expr();
     expr arg2 = whnf(app_arg(e));
     if (!is_nat_lit_ext(arg2)) return none_expr();
-    nat v1 = get_nat_val(arg1);
-    nat v2 = get_nat_val(arg2);
-    if (v2 > nat(ReducePowMaxExp)) return none_expr();
-    return some_expr(mk_lit(literal(nat(nat_pow(v1.raw(), v2.raw())))));
+    nat base = get_nat_val(arg1);
+    nat exp  = get_nat_val(arg2);
+    size_t k = get_count_arg(env(), exp, "Nat.pow");
+    // `base^exp` has at most `size(base) * k` bytes (`base <= 1` yields `0`/`1`).
+    // Compare via division to avoid overflowing the product.
+    if (base > nat(1) && k != 0 && nat_size_in_bytes(base) > g_nat_max_size / k)
+        throw kernel_exception(env(), "the kernel refused to evaluate `Nat.pow` because "
+            "the result would exceed the maximum numeral size; increase the "
+            "LEAN_NAT_MAX_SIZE environment variable to allow it");
+    return some_expr(mk_lit(literal(nat(nat_pow(base.raw(), exp.raw())))));
+}
+
+optional<expr> type_checker::reduce_shiftLeft(expr const & e) {
+    expr arg1 = whnf(app_arg(app_fn(e)));
+    if (!is_nat_lit_ext(arg1)) return none_expr();
+    expr arg2 = whnf(app_arg(e));
+    if (!is_nat_lit_ext(arg2)) return none_expr();
+    nat v = get_nat_val(arg1); // value being shifted
+    nat shift = get_nat_val(arg2); // shift amount, in bits
+    // `v <<< shift = v * 2^shift` has about `size(v) + shift/8` bytes; `0 <<< _ = 0`.
+    if (!v.is_zero()) {
+        size_t k = get_count_arg(env(), shift, "Nat.shiftLeft");
+        check_nat_size(env(), nat_size_in_bytes(v) + k / 8 + 1);
+    }
+    return some_expr(mk_lit(literal(nat(lean_nat_shiftl(v.raw(), shift.raw())))));
 }
 
 template<typename F> optional<expr> type_checker::reduce_bin_nat_pred(F const & f, expr const & e) {
@@ -614,14 +707,16 @@ optional<expr> type_checker::reduce_nat(expr const & e) {
             expr arg = whnf(app_arg(e));
             if (!is_nat_lit_ext(arg)) return none_expr();
             nat v = get_nat_val(arg);
-            return some_expr(mk_lit(literal(nat(v+nat(1)))));
+            v = v + nat(1);
+            check_nat_size(env(), nat_size_in_bytes(v));
+            return some_expr(mk_lit(literal(v)));
         }
     } else if (nargs == 2) {
         expr const & f = app_fn(app_fn(e));
         if (!is_constant(f)) return none_expr();
-        if (f == *g_nat_add) return reduce_bin_nat_op(nat_add, e);
-        if (f == *g_nat_sub) return reduce_bin_nat_op(nat_sub, e);
-        if (f == *g_nat_mul) return reduce_bin_nat_op(nat_mul, e);
+        if (f == *g_nat_add) return reduce_bin_nat_op(nat_add, e, /* check_size */ true);
+        if (f == *g_nat_sub) return reduce_bin_nat_op(nat_sub, e, /* check_size */ true);
+        if (f == *g_nat_mul) return reduce_bin_nat_op(nat_mul, e, /* check_size */ true);
         if (f == *g_nat_pow) return reduce_pow(e);
         if (f == *g_nat_gcd) return reduce_bin_nat_op(nat_gcd, e);
         if (f == *g_nat_mod) return reduce_bin_nat_op(nat_mod, e);
@@ -631,7 +726,7 @@ optional<expr> type_checker::reduce_nat(expr const & e) {
         if (f == *g_nat_land) return reduce_bin_nat_op(nat_land, e);
         if (f == *g_nat_lor)  return reduce_bin_nat_op(nat_lor, e);
         if (f == *g_nat_xor)  return reduce_bin_nat_op(nat_lxor, e);
-        if (f == *g_nat_shiftLeft) return reduce_bin_nat_op(lean_nat_shiftl, e);
+        if (f == *g_nat_shiftLeft) return reduce_shiftLeft(e);
         if (f == *g_nat_shiftRight) return reduce_bin_nat_op(lean_nat_shiftr, e);
     }
     return none_expr();
@@ -737,8 +832,9 @@ bool type_checker::is_def_eq(levels const & ls1, levels const & ls2) {
 }
 
 /** \brief This is an auxiliary method for is_def_eq. It handles the "easy cases". */
-lbool type_checker::quick_is_def_eq(expr const & t, expr const & s, bool use_hash) {
-    if (m_st->m_eqv_manager.is_equiv(t, s, use_hash))
+lbool type_checker::quick_is_def_eq(expr const & t, expr const & s) {
+    /* Cheap structural check plus the positive `is_def_eq` cache. */
+    if (t == s || succeeded_before(t, s))
         return l_true;
     if (t.kind() == s.kind()) {
         switch (t.kind()) {
@@ -859,6 +955,25 @@ void type_checker::cache_failure(expr const & t, expr const & s) {
         m_st->m_failure.insert(mk_pair(t, s));
     else
         m_st->m_failure.insert(mk_pair(s, t));
+}
+
+bool type_checker::succeeded_before(expr const & t, expr const & s) const {
+    if (hash(t) < hash(s)) {
+        return m_st->m_success.find(mk_pair(t, s)) != m_st->m_success.end();
+    } else if (hash(t) > hash(s)) {
+        return m_st->m_success.find(mk_pair(s, t)) != m_st->m_success.end();
+    } else {
+        return
+            m_st->m_success.find(mk_pair(t, s)) != m_st->m_success.end() ||
+            m_st->m_success.find(mk_pair(s, t)) != m_st->m_success.end();
+    }
+}
+
+void type_checker::cache_success(expr const & t, expr const & s) {
+    if (hash(t) <= hash(s))
+        m_st->m_success.insert(mk_pair(t, s));
+    else
+        m_st->m_success.insert(mk_pair(s, t));
 }
 
 /**
@@ -1005,17 +1120,17 @@ Recall that the simpler approach used at `Meta.ExprDefEq` cannot be used in the
 kernel since it does not have access to reducibility annotations.
 The approach used here is more complicated, but it is also more powerful.
 */
-bool type_checker::lazy_delta_proj_reduction(expr & t_n, expr & s_n, nat const & idx) {
+bool type_checker::lazy_delta_proj_reduction(expr & t_n, expr & s_n, name const & sname, nat const & idx) {
     while (true) {
         switch (lazy_delta_reduction_step(t_n, s_n)) {
         case reduction_status::Continue:   break;
         case reduction_status::DefEqual:   return true;
         case reduction_status::DefUnknown:
         case reduction_status::DefDiff:
-            if (idx.is_small()) {
-                unsigned i = idx.get_small_value();
-                if (auto t = reduce_proj_core(t_n, i)) {
-                if (auto s = reduce_proj_core(s_n, i)) {
+            unsigned i;
+            if (to_proj_idx(idx, i)) {
+                if (auto t = reduce_proj_core(t_n, sname, i)) {
+                if (auto s = reduce_proj_core(s_n, sname, i)) {
                     return is_def_eq_core(*t, *s);
                 }}
             }
@@ -1054,9 +1169,9 @@ bool type_checker::is_def_eq_unit_like(expr const & t, expr const & s) {
 }
 
 bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
+    scope_rec_depth guard;
     check_system("is_definitionally_equal", /* do_check_interrupted */ true);
-    bool use_hash = true;
-    lbool r = quick_is_def_eq(t, s, use_hash);
+    lbool r = quick_is_def_eq(t, s);
     if (r != l_undef) return r == l_true;
 
     // Very basic support for proofs by reflection. If `t` has no free variables and `s` is `Bool.true`,
@@ -1098,10 +1213,10 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     if (is_fvar(t_n) && is_fvar(s_n) && fvar_name(t_n) == fvar_name(s_n))
         return true;
 
-    if (is_proj(t_n) && is_proj(s_n) && proj_idx(t_n) == proj_idx(s_n)) {
+    if (is_proj(t_n) && is_proj(s_n) && proj_sname(t_n) == proj_sname(s_n) && proj_idx(t_n) == proj_idx(s_n)) {
         expr t_c = proj_expr(t_n);
         expr s_c = proj_expr(s_n);
-        if (lazy_delta_proj_reduction(t_c, s_c, proj_idx(t_n)))
+        if (lazy_delta_proj_reduction(t_c, s_c, proj_sname(t_n), proj_idx(t_n)))
             return true;
     }
 
@@ -1133,7 +1248,7 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
 bool type_checker::is_def_eq(expr const & t, expr const & s) {
     bool r = is_def_eq_core(t, s);
     if (r)
-        m_st->m_eqv_manager.add_equiv(t, s);
+        cache_success(t, s);
     return r;
 }
 
@@ -1170,7 +1285,7 @@ type_checker::type_checker(state & st, local_ctx const & lctx, definition_safety
     m_definition_safety(ds), m_lparams(nullptr) {
 }
 
-type_checker::type_checker(type_checker && src):
+type_checker::type_checker(type_checker && src) noexcept:
     m_st_owner(src.m_st_owner), m_st(src.m_st), m_diag(src.m_diag), m_lctx(std::move(src.m_lctx)),
     m_definition_safety(src.m_definition_safety), m_lparams(src.m_lparams) {
     src.m_st_owner = false;
@@ -1187,7 +1302,21 @@ inline static expr * new_persistent_expr_const(name const & n) {
     return e;
 }
 
+/* Read `var` as a byte count, falling back to `default_value` when it is unset
+   or malformed. */
+static size_t read_nat_size_env(char const * var, size_t default_value) {
+    char const * s = getenv(var);
+    if (s == nullptr)
+        return default_value;
+    char * end = nullptr;
+    unsigned long long v = strtoull(s, &end, 10);
+    if (end == s || *end != '\0')
+        return default_value;
+    return static_cast<size_t>(v);
+}
+
 void initialize_type_checker() {
+    g_nat_max_size = read_nat_size_env("LEAN_NAT_MAX_SIZE", LEAN_NAT_MAX_SIZE_DEFAULT);
     g_kernel_fresh = new name("_kernel_fresh");
     mark_persistent(g_kernel_fresh->raw());
     g_bool_true    = new name{"Bool", "true"};

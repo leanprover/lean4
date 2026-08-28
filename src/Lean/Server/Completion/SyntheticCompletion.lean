@@ -117,12 +117,13 @@ private partial def isSyntheticTacticCompletion
     (cmdStx   : Syntax)
     : Bool := Id.run do
   let hoverFilePos := fileMap.toPosition hoverPos
-  go hoverFilePos cmdStx 0
+  go hoverFilePos cmdStx 0 none
 where
   go
-      (hoverFilePos : Position)
-      (stx : Syntax)
-      (leadingWs : Nat)
+      (hoverFilePos         : Position)
+      (stx                  : Syntax)
+      (leadingWs            : Nat)
+      (leadingTokenTailPos? : Option String.Pos.Raw)
       : Bool := Id.run do
     match stx.getPos?, stx.getTailPos? with
     | some startPos, some endPos =>
@@ -132,8 +133,9 @@ where
       if ! isCursorInCompletionRange then
         return false
       let mut wsBeforeArg := leadingWs
+      let mut lastArgTailPos? := leadingTokenTailPos?
       for arg in stx.getArgs do
-        if go hoverFilePos arg wsBeforeArg then
+        if go hoverFilePos arg wsBeforeArg lastArgTailPos? then
           return true
         -- We must account for the whitespace before an argument because the syntax nodes we use
         -- to identify tactic blocks only start *after* the whitespace following a `by`, and we
@@ -141,7 +143,12 @@ where
         -- This method of computing whitespace assumes that there are no syntax nodes without tokens
         -- after `by` and before the first proper tactic syntax.
         wsBeforeArg := arg.getTrailingSize
-      return isCompletionInEmptyTacticBlock stx
+        -- Track the tail position of the most recent preceding sibling that has a position so
+        -- that empty tactic blocks (which lack positions) can locate their opening token (e.g.
+        -- the `by` keyword) for indentation checking. The tail position lets us distinguish
+        -- cursors before and after the opener on the opener's line.
+        lastArgTailPos? := arg.getTailPos? <|> lastArgTailPos?
+      return isCompletionInEmptyTacticBlock stx lastArgTailPos?
         || isCompletionAfterSemicolon stx
         || isCompletionOnTacticBlockIndentation hoverFilePos stx
     | _, _ =>
@@ -150,7 +157,7 @@ where
       -- tactic blocks always occur within other syntax with ranges that let us narrow down the
       -- search to the degree that we can be sure that the cursor is indeed in this empty tactic
       -- block.
-      return isCompletionInEmptyTacticBlock stx
+      return isCompletionInEmptyTacticBlock stx leadingTokenTailPos?
 
   isCompletionOnTacticBlockIndentation
       (hoverFilePos : Position)
@@ -190,8 +197,47 @@ where
     else
       none
 
-  isCompletionInEmptyTacticBlock (stx : Syntax) : Bool :=
-    isCursorInProperWhitespace fileMap hoverPos && isEmptyTacticBlock stx
+  isCompletionInEmptyTacticBlock (stx : Syntax) (leadingTokenTailPos? : Option String.Pos.Raw) : Bool := Id.run do
+    if ! isCursorInProperWhitespace fileMap hoverPos then
+      return false
+    if ! isEmptyTacticBlock stx then
+      return false
+    -- Bracketed tactic blocks `{ ... }` are delimited by the braces themselves, so tactics
+    -- inserted in an empty bracketed block can appear at any column between the braces
+    -- (`withoutPosition` disables indentation constraints inside `tacticSeqBracketed`).
+    if stx.getKind == ``Parser.Tactic.tacticSeqBracketed then
+      let some openEndPos := stx[0].getTailPos?
+        | return false
+      let some closeStartPos := stx[2].getPos?
+        | return false
+      return openEndPos.byteIdx <= hoverPos.byteIdx && hoverPos.byteIdx <= closeStartPos.byteIdx
+    return isAtExpectedTacticIndentation leadingTokenTailPos?
+
+  -- After an empty tactic opener like `by`, tactics on a subsequent line must be inserted at an
+  -- increased indentation level (two spaces past the indentation of the line containing the
+  -- opener token). We mirror that here so that tactic completions are not offered in positions
+  -- where a tactic could not actually be inserted. On the same line as the opener, completions
+  -- are allowed only in the trailing whitespace past the opener — cursors earlier on the line
+  -- belong to the surrounding term, not to the tactic block.
+  isAtExpectedTacticIndentation (leadingTokenTailPos? : Option String.Pos.Raw) : Bool := Id.run do
+    let some tokenTailPos := leadingTokenTailPos?
+      | return true
+    let hoverFilePos := fileMap.toPosition hoverPos
+    let tokenTailFilePos := fileMap.toPosition tokenTailPos
+    if hoverFilePos.line == tokenTailFilePos.line then
+      return hoverPos.byteIdx >= tokenTailPos.byteIdx
+    let expectedColumn := countLeadingSpaces (fileMap.lineStart tokenTailFilePos.line) + 2
+    return hoverFilePos.column == expectedColumn
+
+  countLeadingSpaces (pos : String.Pos.Raw) : Nat := Id.run do
+    let mut p := pos
+    let mut n : Nat := 0
+    while ! p.atEnd fileMap.source do
+      if p.get fileMap.source != ' ' then
+        break
+      p := p.next fileMap.source
+      n := n + 1
+    return n
 
   isEmptyTacticBlock (stx : Syntax) : Bool :=
     stx.getKind == ``Parser.Tactic.tacticSeq && isEmpty stx

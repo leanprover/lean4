@@ -328,21 +328,43 @@ where
       result-relevant reads must go through `Lean.getRecordedOption`, all others through \
       `getOptionsUnrestricted`"
 
+/--
+Applies `f` to the options in scope of `x`, without the recording check of the `MonadWithOptions
+CoreM` instance.
+
+Each use must argue that `f`'s result on an option read through `Lean.getRecordedOption` does not
+depend on the ambient options; `Lean.withSetOption` satisfies that by construction.
+-/
+@[inline] def withOptionsUnrestricted (f : Options → Options) (x : CoreM α) : CoreM α := do
+  let options := f (← getOptionsUnrestricted)
+  let diag := diagnostics.get options
+  if Kernel.isDiagnosticsEnabled (← getEnv) != diag then
+    modifyEnv fun env => Kernel.enableDiag env diag
+  withReader
+    (fun ctx =>
+      { ctx with
+        options
+        diag
+        maxRecDepth := maxRecDepth.get options })
+    x
+
 instance : MonadWithOptions CoreM where
   withOptions f x := do
-    -- unrestricted: the reads below see either an unchanged value or a write by `f` done during
-    -- recording
-    let options := f (← getOptionsUnrestricted)
-    let diag := diagnostics.get options
-    if Kernel.isDiagnosticsEnabled (← getEnv) != diag then
-      modifyEnv fun env => Kernel.enableDiag env diag
-    withReader
-      (fun ctx =>
-        { ctx with
-          options
-          diag
-          maxRecDepth := maxRecDepth.get options })
-      x
+    let f := if (← read).recordingDeps then reportViolation f else f
+    withOptionsUnrestricted f x
+where
+  /--
+  Reports a violation and returns `f` unchanged, so that it is reported once instead of cascading
+  through the computation the transformed options are in scope of.
+
+  Kept out of line for the same reason as the one in `getOptions`: `panic!` is `@[inline]`, and
+  each inlined copy carries its own message constants.
+  -/
+  @[noinline] reportViolation (f : Options → Options) : Options → Options :=
+    have : Inhabited (Options → Options) := ⟨f⟩
+    panic! "options transformed inside a computation recording its dependencies; a transformer \
+      may derive a recorded option's value from the ambient options, which the dependency log \
+      does not capture. Use `Lean.withSetOption` for a value independent of the ambient options"
 
 -- Helper function for ensuring fields derived from e.g. options have the correct value.
 @[inline] private def withConsistentCtx (x : CoreM α) : CoreM α := do
@@ -714,6 +736,22 @@ export Core (CoreM mkFreshUserName checkSystem withCurrHeartbeats)
 
 @[inline] def withAtLeastMaxRecDepth [MonadFunctorT CoreM m] (max : Nat) : m α → m α :=
   monadMap (m := CoreM) <| withReader (fun ctx => { ctx with maxRecDepth := Nat.max max ctx.maxRecDepth })
+
+/--
+Runs the given computation with the option `name` set to `v`.
+
+Unlike `withOptions`, this is permitted inside a computation recording its dependencies: `v` does
+not come from the ambient options, so a recorded read of `name` in this scope observes `v` in every
+context, and an entry the computation caches stays valid wherever it validates.
+-/
+@[inline] def withSetOptionByName [MonadFunctorT CoreM m] [KVMap.Value β]
+    (name : Name) (v : β) : m α → m α :=
+  monadMap (m := CoreM) <| Core.withOptionsUnrestricted (·.set name v)
+
+/-- Variant of `withSetOptionByName` taking the option itself. -/
+@[inline] def withSetOption [MonadFunctorT CoreM m] [KVMap.Value β]
+    (opt : Lean.Option β) (v : β) : m α → m α :=
+  withSetOptionByName opt.name v
 
 @[inline] def catchInternalId [Monad m] [MonadExcept Exception m] (id : InternalExceptionId) (x : m α) (h : Exception → m α) : m α := do
   try

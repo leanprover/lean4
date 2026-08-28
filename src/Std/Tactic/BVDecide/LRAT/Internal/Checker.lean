@@ -35,7 +35,7 @@ where
           false
       | .addRat id clause pivot rupHints ratHints =>
         let clause := convertClause clause
-        if state.checkRat clause pivot rupHints ratHints then
+        if state.checkRat clause ⟨pivot.1 - 1, pivot.2⟩ rupHints ratHints then
           go (state.add clause) proof (idx + 1)
         else
           false

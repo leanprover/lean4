@@ -209,7 +209,7 @@ Retrieves all values whose patterns match the expression `e`.
 public def getMatch (mctx : MetavarContext) (d : DiscrTree α) (e : Expr) : Array α :=
   let result := match d.root.find? .star with
   | none              => .mkEmpty initCapacity
-  | some (.chain _ _) => panic! "unimpl"
+  | some (.chain _ _) => .mkEmpty initCapacity -- unreachable in well-formed trees!
   | some (.node vs _) => vs
   let e := resolveAssignedMVars mctx <| etaReduce e
   match d.root.find? (getKey e) with

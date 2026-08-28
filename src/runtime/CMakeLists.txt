@@ -1,22 +1,35 @@
 if(USE_MIMALLOC)
-  set(MIMALLOC_SRC ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src/static.c)
-  # (C flags are incomplete, compile as C++ instead like everything else). A source property rather
-  # than a target one, but it is the same for every variant below.
-  set_source_files_properties(${MIMALLOC_SRC} PROPERTIES LANGUAGE CXX)
+  # `mimalloc.cpp` #includes all of mimalloc (`static.c`, compiled as C++ like everything else)
+  # together with the runtime's fused allocation entry points so mimalloc's fast path inlines into
+  # them.
+  set(MIMALLOC_SRC ${CMAKE_CURRENT_SOURCE_DIR}/mimalloc.cpp)
   # make all symbols visible, always build with optimizations as otherwise Lean becomes too slow
-  set(MIMALLOC_OPTS -DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT -Wno-unused-function)
+  #
+  # MI_BLOCK_SCRUB=0 (see `script/mimalloc-lean.patch`): the runtime fully initializes every
+  # object header before the object can be read, so the freshly allocated block never leaks the
+  # free-list pointer that the scrub would clear. Secure builds keep the scrub regardless.
+  set(MIMALLOC_OPTS -DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT -DMI_BLOCK_SCRUB=0 -Wno-unused-function)
   if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang|Clang")
     list(APPEND MIMALLOC_OPTS -Wno-deprecated)
   endif()
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # GCC refuses to inline mimalloc's exported allocation functions into the entry points when
+    # compiling with -fPIC unless told that no symbol will be interposed (clang's default)
+    list(APPEND MIMALLOC_OPTS -fno-semantic-interposition)
+  endif()
 
   # One target per (mitigation level, TLS model) the build needs, each carrying its own
-  # `target_compile_options`. The flags cannot live on the shared source instead: source properties
-  # are directory-scoped and CMake emits them *after* target options, so a target trying to override
-  # the mitigation level would silently lose to whatever the source property set.
+  # `target_compile_options`.
   function(add_mimalloc_variant name type secure)
     add_library(${name} ${type} ${MIMALLOC_SRC})
-    # Lean code includes it as `lean/mimalloc.h`, but `static.c` itself wants the original directory
-    target_include_directories(${name} PRIVATE ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/include)
+    # Lean code includes it as `lean/mimalloc.h`, but `static.c` itself wants the original include
+    # directory, and `mimalloc.cpp` includes `static.c` from the source directory
+    target_include_directories(
+      ${name}
+      PRIVATE
+        ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/include
+        ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src
+    )
     target_compile_options(${name} PRIVATE ${MIMALLOC_OPTS} -DMI_SECURE=${secure} ${ARGN})
   endfunction()
 
@@ -82,6 +95,10 @@ set(
   uv/signal.cpp
   openssl.cpp
 )
+if(NOT USE_MIMALLOC)
+  # with mimalloc, `object_rc.cpp` is #included into `mimalloc.cpp` instead (see there)
+  list(APPEND RUNTIME_OBJS object_rc.cpp)
+endif()
 
 add_library(leanrt_initial-exec STATIC ${RUNTIME_OBJS})
 set_target_properties(leanrt_initial-exec PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})

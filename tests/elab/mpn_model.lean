@@ -81,9 +81,11 @@ their values, and `omega` needs a literal rather than a shift.
 ## The C++ operations that can be undefined
 
 Lean's operations are total where the C++'s are not: `x <<< d` masks the shift
-amount to `d % 32`, division by zero is zero, and `Nat` subtraction truncates.
-That makes a direct transliteration *defined* where the original is undefined,
-which is only sound while the undefined cases are unreachable.
+amount to `d % 32`, where the standard leaves a shift by at least the width of
+the promoted left operand undefined, and division by zero is zero, where the
+standard leaves it undefined. That makes a direct transliteration *defined*
+where the original is not, which is only sound while the undefined cases are
+unreachable.
 
 A shift is the subtle one. The standard leaves `E1 << E2` undefined once `E2`
 reaches the width of the *promoted* `E1`, which is not in general the width of
@@ -100,45 +102,36 @@ Taking the hypothesis in the definition rather than in a theorem about it means
 a use site cannot be written without discharging it, so the preconditions
 propagate to the callers that establish them instead of being restated at each
 specification.
+
+`size_t` underflow is deliberately absent: unsigned arithmetic is defined to
+wrap modulo 2^64, and `mpn.cpp` leans on that, using counters that wrap to
+`(size_t)-1` as the termination sentinel of a downward loop.
 -/
 namespace CPP
 
 /-- `x << d` on `unsigned int`. -/
-def shl (x : UInt32) (d : Nat) (_h : d < 32) : UInt32 := x <<< UInt32.ofNat d
+@[simp] def shl (x : UInt32) (d : Nat) (_h : d < 32) : UInt32 := x <<< UInt32.ofNat d
 
 /-- `x >> d` on `unsigned int`. -/
-def shr (x : UInt32) (d : Nat) (_h : d < 32) : UInt32 := x >>> UInt32.ofNat d
+@[simp] def shr (x : UInt32) (d : Nat) (_h : d < 32) : UInt32 := x >>> UInt32.ofNat d
 
 /-- `t << d` on `uint64_t`. -/
-def shlD (t : UInt64) (d : Nat) (_h : d < 64) : UInt64 := t <<< UInt64.ofNat d
+@[simp] def shlD (t : UInt64) (d : Nat) (_h : d < 64) : UInt64 := t <<< UInt64.ofNat d
 
 /-- `t >> d` on `uint64_t`. -/
-def shrD (t : UInt64) (d : Nat) (_h : d < 64) : UInt64 := t >>> UInt64.ofNat d
+@[simp] def shrD (t : UInt64) (d : Nat) (_h : d < 64) : UInt64 := t >>> UInt64.ofNat d
 
 /-- `a / b` on `uint64_t`; division by zero is undefined. -/
-def divD (a b : UInt64) (_h : b ≠ 0) : UInt64 := a / b
+@[simp] def divD (a b : UInt64) (_h : b ≠ 0) : UInt64 := a / b
 
 /-- `a % b` on `uint64_t`. -/
-def modD (a b : UInt64) (_h : b ≠ 0) : UInt64 := a % b
+@[simp] def modD (a b : UInt64) (_h : b ≠ 0) : UInt64 := a % b
 
 /-- `a / b` on `unsigned int`. -/
-def div (a b : UInt32) (_h : b ≠ 0) : UInt32 := a / b
+@[simp] def div (a b : UInt32) (_h : b ≠ 0) : UInt32 := a / b
 
 /-- `a % b` on `unsigned int`. -/
-def mod (a b : UInt32) (_h : b ≠ 0) : UInt32 := a % b
-
-/-- `a - b` on `size_t`, which wraps to a huge value rather than going negative. -/
-def sizeSub (a b : Nat) (_h : b ≤ a) : Nat := a - b
-
-@[simp] theorem shl_eq (x : UInt32) (d : Nat) (h) : shl x d h = x <<< UInt32.ofNat d := rfl
-@[simp] theorem shr_eq (x : UInt32) (d : Nat) (h) : shr x d h = x >>> UInt32.ofNat d := rfl
-@[simp] theorem shlD_eq (t : UInt64) (d : Nat) (h) : shlD t d h = t <<< UInt64.ofNat d := rfl
-@[simp] theorem shrD_eq (t : UInt64) (d : Nat) (h) : shrD t d h = t >>> UInt64.ofNat d := rfl
-@[simp] theorem divD_eq (a b : UInt64) (h) : divD a b h = a / b := rfl
-@[simp] theorem modD_eq (a b : UInt64) (h) : modD a b h = a % b := rfl
-@[simp] theorem div_eq (a b : UInt32) (h) : div a b h = a / b := rfl
-@[simp] theorem mod_eq (a b : UInt32) (h) : mod a b h = a % b := rfl
-@[simp] theorem sizeSub_eq (a b : Nat) (h) : sizeSub a b h = a - b := rfl
+@[simp] def mod (a b : UInt32) (_h : b ≠ 0) : UInt32 := a % b
 
 end CPP
 
@@ -742,7 +735,7 @@ def leadingZeros (x : Digit) : Fin digitBits :=
 private theorem leadingZeros_pred (x : Digit) {i : Nat} (hi : i < digitBits) :
     (CPP.shl x i hi &&& maskFirst == 0)
       = decide (x.toNat * 2 ^ i % base < 2147483648) := by
-  rw [CPP.shl_eq, topBit_test, toNat_shl x hi]
+  rw [CPP.shl, topBit_test, toNat_shl x hi]
 
 /--
 `div_normalize` shifts by exactly enough to set the top bit of the leading
@@ -1282,7 +1275,7 @@ that wraps whenever `lden > lnum + 1` and then overruns the buffer. The loop
 never legitimately iterates, since `lnum < lden` puts the bound at or below
 zero, and it has been removed.
 -/
-def div (numer denom : Array Digit) (hden : 0 < denom.size)
+@[simp] def div (numer denom : Array Digit) (hden : 0 < denom.size)
     (hsz : denom.size ≤ numer.size)
     (htop : 0 < (denom.getD (denom.size - 1) 0).toNat) : Array Digit × Array Digit :=
   let lnum := numer.size
@@ -1535,7 +1528,7 @@ theorem lo_add_hi (t : DoubleDigit) : (lo t).toNat + (hi t).toNat * base = t.toN
   have h := UInt64.toNat_lt_size t
   have hs : (UInt64.size : Nat) = 18446744073709551616 := rfl
   have h32 : (UInt64.ofNat digitBits).toNat % 64 = 32 := rfl
-  simp only [lo, hi, CPP.shrD_eq, CPP.shlD_eq, base_eq, UInt64.toNat_toUInt32,
+  simp only [lo, hi, CPP.shrD, CPP.shlD, base_eq, UInt64.toNat_toUInt32,
     UInt64.toNat_shiftRight, UInt64.toNat_shiftLeft, hs, h32,
     Nat.shiftRight_eq_div_pow, Nat.shiftLeft_eq] at *
   omega
@@ -1933,7 +1926,7 @@ theorem divNormalize_spec (numer denom : Array Digit) (hnum : 0 < numer.size)
 theorem toNat_lastBits (x : Digit) {d : Nat} (hd0 : 0 < d) (hd : d < digitBits) :
     (lastBits x d hd0).toNat = x.toNat % 2 ^ d := by
   have hd' : d < 32 := by simpa [digitBits_eq] using hd
-  simp only [lastBits, CPP.shr_eq, CPP.shl_eq]
+  simp only [lastBits, CPP.shr, CPP.shl]
   rw [toNat_shr _ (by simp [digitBits_eq]; omega), toNat_shl _ (by simp [digitBits_eq]; omega)]
   simp only [digitBits_eq]
   have hb : base = 2 ^ d * 2 ^ (32 - d) := by
@@ -3088,7 +3081,7 @@ theorem div_spec (numer denom : Array Digit)
     simp only [Bool.and_eq_true, decide_eq_true_eq] at hB
     have hN : denote numer = (numer.getD 0 0).toNat := by rw [denote, hB.1]; simp [denoteN]
     have hD : denote denom = (denom.getD 0 0).toNat := by rw [denote, hB.2]; simp [denoteN]
-    simp only [CPP.div_eq, CPP.mod_eq]
+    simp only [CPP.div, CPP.mod]
     exact ⟨by rw [denote_singleton, UInt32.toNat_div, hN, hD],
       by rw [denote_singleton, UInt32.toNat_mod, hN, hD]⟩
   · simp only [Bool.eq_false_iff.mpr hB, Bool.false_eq_true, dite_false]

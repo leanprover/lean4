@@ -38,3 +38,7 @@ extern "C" LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_ra
        `sz` dead after the allocation, so this compiles to a minimal leaf-like fast path. */
     return (lean_object *)mem;
 }
+
+/* Big-object allocation and the RC deletion machinery, in this TU for the same reason as the
+   entry points above: `mi_malloc`/`mi_free` inline into them. */
+#include "object_rc.cpp"

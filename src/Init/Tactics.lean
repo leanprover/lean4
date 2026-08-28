@@ -663,34 +663,6 @@ macro (name := rwaAtLegacyLocation) (priority := low) "rwa " rws:rwRuleSeq
 deprecated_syntax Lean.Parser.Tactic.rwaAtLegacyLocation
   "use `rw [...] at ... <;> assumption` instead" (since := "2026-08-27")
 
--- TODO: remove after stage0 update
--- These expansions allow the old stage0 to elaborate `rwa` while bootstrapping.
-macro_rules
-  | `(tactic| rwa $rws:rwRuleSeq) => do
-    match ← Macro.resolveGlobalName `Lean.Elab.Tactic.rwaBuiltin with
-    | List.nil => pure ()
-    | List.cons _ _ => Macro.throwUnsupported
-    `(tactic|
-      focus (
-        rewrite $rws:rwRuleSeq
-        focus (first
-          | with_reducible rfl
-          | assumption)
-        all_goals (first | with_reducible rfl | assumption | skip)))
-  | `(tactic| rwa $rws:rwRuleSeq at $h:term) => do
-    match ← Macro.resolveGlobalName `Lean.Elab.Tactic.rwaBuiltin with
-    | List.nil => pure ()
-    | List.cons _ _ => Macro.throwUnsupported
-    let hyp ← `(locationHyp| $h:term)
-    let loc ← `(location| at $hyp:locationHyp)
-    `(tactic|
-      focus (
-        rewrite $rws:rwRuleSeq $loc:location
-        focus (first
-          | with_reducible rfl
-          | exact $h)
-        all_goals (first | with_reducible rfl | assumption | skip)))
-
 /--
 The `injection` tactic is based on the fact that constructors of inductive data
 types are injections.

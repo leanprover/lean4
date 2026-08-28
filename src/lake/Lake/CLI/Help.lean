@@ -408,9 +408,10 @@ as the challenge, uses no axiom outside the permitted list, and is accepted by
 the kernel.
 
 The project is untrusted input: its configuration is evaluated, and its code
-built and exported, inside a `landrun` sandbox, and none of its `.olean` files
-is ever loaded into Lake's own address space. `landrun` is required; there is
-no unsandboxed mode, so this command is available on Linux only.
+built and exported, inside a `bwrap` sandbox, and none of its `.olean` files
+is ever loaded into Lake's own address space. `bubblewrap` is required, and
+needs either unprivileged user namespaces or to be installed setuid root;
+there is no unsandboxed mode, so this command is available on Linux only.
 
 The project has to carry a `lake-manifest.json`, because dependencies are
 resolved inside the sandbox and it cannot write to the project directory.
@@ -449,28 +450,27 @@ EXIT CODES:
   0                     accepted
   1                     rejected: statement mismatch, forbidden axiom, kernel
                         rejection, or a build that did not succeed
-  2                     could not start: `landrun` or the manifest is missing,
+  2                     could not start: `bwrap` or the manifest is missing,
                         or the configuration is missing, unreadable or
                         malformed
 
 ENVIRONMENT:
-  COMPARATOR_LANDRUN    sandbox executable (default: `landrun` on PATH)
+  COMPARATOR_BWRAP      sandbox executable (default: `bwrap` on PATH)
 
   The exporter is always the `leanexport` of this toolchain, and deliberately
   not configurable: the export format has to match the compiler that produced
   the `.olean` files being exported.
 
 HARDENING:
-  The sandbox bounds writes and TCP connections: only `.lake` is writable, and
-  only dependency resolution may connect, on the ports git's transports use.
-  It does not bound reads, execution, or non-TCP traffic.
+  `challenge` uses `bwrap` for sandboxing. `/` is bound read-only and the home directories are then
+  covered, so the code being judged builds against the system it expects and reads none of the
+  invoking user's files. Only `.lake` is writable. Only dependency resolution has a network, because
+  it has to fetch git dependencies; the build, the export and any external kernels run in an empty
+  network namespace.
 
-  Until the Landlock fix released in Linux 7.1 is widely available, `landrun`
-  can be escaped through an `AF_UNIX` socket. Where that matters, run the
-  command under a wrapper that removes the capability:
-
-    systemd-run --user --pty --property=RestrictAddressFamilies=~AF_UNIX \\
-      lake challenge --config challenge.json"
+  A dependency that can only be fetched with the invoking user's credentials is therefore out of
+  reach, since neither `~/.ssh` nor `~/.gitconfig` is visible. Challenge projects should depend on
+  public remotes."
 
 def helpCacheCli :=
 "Manage the Lake cache

@@ -220,6 +220,12 @@ string(APPEND LEANC_EXTRA_CC_FLAGS " -fstack-clash-protection")
 string(APPEND LEANC_EXTRA_CC_FLAGS " -ffp-contract=off")
 string(APPEND LEAN_EXTRA_CXX_FLAGS " -ffp-contract=off")
 
+# On Windows we want to disable writing COFF object file time stamps.
+# LLVM 23 seems to have a regression in this regard.
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+  string(APPEND LEANC_EXTRA_CC_FLAGS " -mno-incremental-linker-compatible")
+endif()
+
 if(NOT MULTI_THREAD)
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
   set(AUTO_THREAD_FINALIZATION OFF)

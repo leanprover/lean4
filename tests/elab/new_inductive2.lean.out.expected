@@ -1,13 +1,14 @@
-recursor foo.rec.{u} : {motive_1 : foo → Sort u} →
-  {motive_2 : arrow Nat foo → Sort u} →
-    ((a : arrow Nat foo) → motive_2 a → motive_1 (foo.mk a)) →
-      ((a : Nat → foo) → ((a_1 : Nat) → motive_1 (a a_1)) → motive_2 (arrow.mk a)) → (t : foo) → motive_1 t
+recursor foo.rec.{u} {motive_1 : foo → Sort u} {motive_2 : arrow Nat foo → Sort u}
+  (mk : (a : arrow Nat foo) → motive_2 a → motive_1 (foo.mk a)) :
+  ((a : Nat → foo) → ((a_1 : Nat) → motive_1 (a a_1)) → motive_2 (arrow.mk a)) → (t : foo) → motive_1 t
 number of parameters: 0
+number of motives: 2 (positions 1–2)
+number of minor premises: 2 (positions 3–4)
 number of indices: 0
-number of motives: 2
-number of minors: 2
+major premise position: 5
 rules:
-for foo.mk (1 fields): fun motive_1 motive_2 mk mk_1 a => mk a (foo.rec_1 mk mk_1 a)
+  foo.rec mk✝ mk (foo.mk a✝)
+    ==> mk✝ a✝ (foo.rec_1 mk✝ mk a✝)
 @[reducible] protected def foo.below.{u} : {motive_1 : (t : foo) → Sort u} →
   {motive_2 : (t : arrow.{0, 0} Nat foo) → Sort u} → (t : foo) → Sort (max 1 u) :=
 fun {motive_1 : (t : foo) → Sort u} {motive_2 : (t : arrow.{0, 0} Nat foo) → Sort u} (t : foo) =>

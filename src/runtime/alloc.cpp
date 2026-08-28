@@ -9,12 +9,6 @@ Author: Leonardo de Moura
 #include "runtime/debug.h"
 #include "runtime/alloc.h"
 
-#if defined(__GNUC__) || defined(__clang__)
-#define LEAN_NOINLINE __attribute__((noinline))
-#else
-#define LEAN_NOINLINE
-#endif
-
 #ifdef _MSC_VER
 extern "C" __declspec(thread) uint64_t lean_g_heartbeat = 0;
 #else

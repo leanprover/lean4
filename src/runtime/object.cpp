@@ -2366,7 +2366,9 @@ size_t lean_nat_to_size_t(obj_arg n) {
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_copy_sarray(obj_arg a, size_t cap) {
+/* Cold copy path; must stay out of line so that guards like `lean_sarray_ensure_capacity` remain
+   small enough to inline into the hot push functions below. */
+extern "C" LEAN_EXPORT LEAN_NOINLINE obj_res lean_copy_sarray(obj_arg a, size_t cap) {
     unsigned esz   = lean_sarray_elem_size(a);
     size_t sz      = lean_sarray_size(a);
     lean_assert(cap >= sz);
@@ -2428,7 +2430,14 @@ extern "C" LEAN_EXPORT obj_res lean_byte_array_data(obj_arg a) {
 }
 
 extern "C" LEAN_EXPORT obj_res lean_byte_array_push(obj_arg a, uint8 b) {
-    object * r = lean_sarray_ensure_exclusive(lean_sarray_ensure_capacity(a, lean_sarray_size(a) + 1, /* exact */ false));
+    /* The explicit fast path keeps the per-byte cost independent of whether the compiler inlines
+       the ensure functions (cf. `lean_array_push`). */
+    object * r;
+    if (lean_is_exclusive(a) && lean_sarray_size(a) < lean_sarray_capacity(a)) {
+        r = a;
+    } else {
+        r = lean_sarray_ensure_exclusive(lean_sarray_ensure_capacity(a, lean_sarray_size(a) + 1, /* exact */ false));
+    }
     size_t & sz  = lean_to_sarray(r)->m_size;
     uint8 * it   = lean_sarray_cptr(r) + sz;
     *it = b;
@@ -2491,7 +2500,13 @@ extern "C" LEAN_EXPORT obj_res lean_float_array_data(obj_arg a) {
 }
 
 extern "C" LEAN_EXPORT obj_res lean_float_array_push(obj_arg a, double d) {
-    object * r = lean_sarray_ensure_exclusive(lean_sarray_ensure_capacity(a, lean_sarray_size(a) + 1, /* exact */ false));
+    /* See the fast-path comment in `lean_byte_array_push`. */
+    object * r;
+    if (lean_is_exclusive(a) && lean_sarray_size(a) < lean_sarray_capacity(a)) {
+        r = a;
+    } else {
+        r = lean_sarray_ensure_exclusive(lean_sarray_ensure_capacity(a, lean_sarray_size(a) + 1, /* exact */ false));
+    }
     size_t & sz  = lean_to_sarray(r)->m_size;
     double * it  = reinterpret_cast<double*>(lean_sarray_cptr(r)) + sz;
     *it = d;

@@ -36,9 +36,11 @@ extern "C" {
 #define LEAN_ALLOCA(s) _alloca(s)
 #include <stdnoreturn.h>
 #define LEAN_NORETURN _Noreturn
+#define LEAN_NOINLINE __declspec(noinline)
 #else
 #define LEAN_ALLOCA(s) alloca(s)
 #define LEAN_NORETURN __attribute__((noreturn))
+#define LEAN_NOINLINE __attribute__((noinline))
 #endif
 
 /* Marks a function whose returned pointer does not alias any other live pointer, like `malloc`. */

@@ -962,37 +962,16 @@ private def insertCachedResult (key : SynthInstanceCacheKey) (log : RecordedDeps
   modifyCache fun c => { c with synthInstance := upsert c.synthInstance }
 
 /--
-Validates a cache entry's recorded dependencies against the current context: every recorded
-option lookup must give the same answer. Returns `none` if the entry may not be used.
--/
-private def validateDeps? (opts : Options) (_env : Environment)
-    (log : RecordedDeps) : BaseIO (Option (RecordedDeps × Bool)) := do
-  unless validOptionAccesses opts log.options do return none
-  return some (log, false)
-
-/--
-Returns the type class resolution cache entry for `key` from the transient
-(`Meta.Cache.synthInstance`), together with its recorded dependencies. Only entries whose
-recorded dependencies give the same answers in the current context are considered
-(`validateDeps?`); a re-stamped entry is re-inserted. See `SynthInstanceCache`.
+Returns the type class resolution cache entry for `key` together with its recorded dependencies.
+Only entries whose recorded option lookups give the same answers in the current context are
+considered. See `SynthInstanceCache`.
 -/
 private def findCachedResult? (key : SynthInstanceCacheKey) :
     MetaM (Option (RecordedDeps × Option AbstractMVarsResult)) := do
   -- unrestricted acquisition: only compared against recorded lookups (`validOptionAccesses`)
   let opts ← getOptionsUnrestricted
-  let env ← getEnv
-  let findIn (c : SynthInstanceCache) :
-      BaseIO (Option (RecordedDeps × Option AbstractMVarsResult × Bool)) := do
-    let some entries := c.find? key | return none
-    for (log, val?) in entries do
-      if let some (log, restamped) ← validateDeps? opts env log then
-        return some (log, val?, restamped)
-    return none
-  if let some (log, val?, restamped) ← findIn (← get).cache.synthInstance then
-    if restamped then
-      insertCachedResult key log val?
-    return some (log, val?)
-  return none
+  let some entries := (← get).cache.synthInstance.find? key | return none
+  return entries.find? fun (log, _) => validOptionAccesses opts log.options
 
 /--
 Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.

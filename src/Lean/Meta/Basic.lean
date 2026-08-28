@@ -459,15 +459,11 @@ def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
 
 /--
 Type class resolution cache. Each key holds one entry per observed combination of dependencies:
-the search records every result-relevant option lookup (`getRecordedOption`) and every observed
-environment dependency (accessed `.recorded` extensions and reducibility statuses; see
-`Lean.EnvExtension.TCResolutionAccess`) into the entry's `SynthDepLog`, and a lookup may only
-use an entry whose recorded dependencies give the same answers in the current context.
-Dependencies the search never observed do not partition the cache. The search observes no other
-options or extensions, as it runs with `Core.Context.recordingDeps` set, which diverts option
-acquisitions to the recording
-`Core.Context.recordingDeps` set, which divert by-name option reads to the recording
-accessors and panic on `.deny` extension accesses.
+the search records every result-relevant option lookup (`Lean.getRecordedOption`) into the
+entry's `RecordedDeps`, and a lookup may only use an entry whose recorded lookups give the same
+answers in the current context. Options the search never read do not partition the cache. The
+search reads no other options, as it runs with `Core.Context.recordingDeps` set, which diverts
+option acquisitions to the recording accessors.
 -/
 abbrev SynthInstanceCache :=
   PersistentHashMap SynthInstanceCacheKey (List (RecordedDeps × Option AbstractMVarsResult))
@@ -508,15 +504,7 @@ We should also investigate the impact on memory consumption.
 -/
 abbrev DefEqCache := PersistentHashMap DefEqCacheKey Bool
 
-/--
-Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
-
-The `synthInstance` field is the *transient* tier of the type class resolution cache: it has
-the lifetime of the current `Meta.State` and holds all entries, including context-sensitive ones
-(keys containing metavariables, or results with abstracted metavariables) whose validity is tied
-to the current elaboration context. Context-free entries are additionally stored in an
-environment extension so that they persist across commands (see `synthInstanceCacheExt`).
--/
+/-- Cache datastructures for type inference, type class resolution, whnf, and definitional equality. -/
 structure Cache where
   inferType      : InferTypeCache := {}
   funInfo        : FunInfoCache := {}

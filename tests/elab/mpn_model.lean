@@ -23,14 +23,14 @@ that layer. The `Num` type carries the normalization `mpz::set` establishes, so 
 
 `mpn` is the bottom. `denote_add`, `denote_sub`, `denote_mul`, `div_spec` and `compare_spec` prove
 `mpn_add`, `mpn_sub`, `mpn_mul`, `mpn_div` (by way of Knuth's Algorithm D) and `mpn_compare`.
-`mpn_to_string` is the one routine with no proof; the kernel does not reach it.
+`mpn_to_string` is not modelled, since `reduce_nat` never reaches it.
 
 Preconditions are arguments of the definitions rather than hypotheses of the specifications, so a
 use site cannot be written without discharging them, and the operations the C++ leaves undefined
 outside a range go through `CPP`, which takes the hypothesis that pins each one down. Where the C++
 asserts a fact that a release build then drops, since `lean_assert` is `DEBUG_CODE`, the branch
-resting on it is proved here instead: `natDiv_small_big` is one, and the arms of `natSub`, `natMod`,
-`natBle` and `natBeq` that answer without computing are others.
+resting on it is proved here instead, by the specification that covers it: the `small`/`big` arm of
+`natDiv` and the arms of `natSub`, `natMod`, `natBle` and `natBeq` that answer without computing.
 
 Each definition quotes the C++ it stands for, so the two can be read side by side without opening
 the source. Deviations are marked `NOTE:`. A loop that runs over a range is an `Id.run do` loop
@@ -86,16 +86,6 @@ the promoted left operand undefined, and division by zero is zero, where the
 standard leaves it undefined. That makes a direct transliteration *defined*
 where the original is not, which is only sound while the undefined cases are
 unreachable.
-
-A shift is the subtle one. The standard leaves `E1 << E2` undefined once `E2`
-reaches the width of the *promoted* `E1`, which is not in general the width of
-the type written in the source. `uint32_t` promotes to `unsigned int` rather
-than `int`, since `int` cannot represent all its values, so the bound for a
-digit shift is 32; `uint64_t` has rank at least `int` already and is not
-promoted, so the bound for a double digit is 64. Those happen to be `DIGIT_BITS`
-and `2 * DIGIT_BITS`, because `mpn_digit` is exactly `unsigned int` wide. The
-bounds below are stated on the C types and their own widths, so that they say
-what the standard says rather than what `mpn.h` happens to typedef.
 
 Each operation below wraps one of them with the hypothesis that pins it down.
 Taking the hypothesis in the definition rather than in a theorem about it means
@@ -1309,54 +1299,6 @@ zero, and it has been removed.
     let (u, q) := if lden = 1 then div1 u (v.getD (v.size - 1) 0) hnz else divN u v hnz
     let quot := copyInto (Array.replicate (lnum - lden + 1) 0) q 0 (min q.size (lnum - lden + 1))
     (quot, divUnnormalize u lden d.val d.isLt)
-
-/-! ## `mpn_to_string` -/
-
-/--
-`mpn_to_string`, repeated division by ten:
-```
-        size_t j = 0;
-        mpn_digit rem;
-        mpn_digit ten = 10;
-        while (!temp.empty() && (temp.size() > 1 || temp[0] != 0)) {
-            size_t d = div_normalize(&temp[0], temp.size(), &ten, 1, t_numer, t_denom);
-            div_1(t_numer, t_denom[0], &temp[0]);
-            div_unnormalize(t_numer, t_denom, d, &rem);
-            buf[j++] = '0' + rem;
-            while (!temp.empty() && temp.back() == 0)
-                temp.pop_back();
-        }
-```
-The C++ reverses the digits in place afterwards; the model collects them and
-reverses at the end. Its `while` is bounded here so that the definition is
-structurally terminating: `32 * lng + 16` is past the number of decimal digits
-any `lng`-digit value has.
-
-NOTE: for `lng == 0` the C++ decrements `j` from `0` past the end of `size_t`
-and then swaps around `SIZE_MAX/2` character pairs. `mpz::m_size` is always at
-least one, so no caller reaches it, and `mpn_to_string` now asserts `lng > 0`.
--/
-def toString (a : Array Digit) : String := Id.run do
-  let lng := a.size
-  if lng == 1 then
-    return ToString.toString a[0]!.toNat
-  let mut temp := a
-  let mut digits : Array Char := #[]
-  let ten : Array Digit := #[10]
-  for _ in [0:32 * lng + 16] do
-    if temp.isEmpty || (temp.size == 1 && temp[0]! == 0) then break
-    let (d, t_numer, t_denom) := divNormalize temp ten
-    -- NOTE: the divisor is ten, normalized, so it is never zero; `mpn_to_string`
-    -- is the one routine here with no correctness proof to discharge that, so it
-    -- tests instead of assuming.
-    let (u, q) := if h : t_denom[0]!.toUInt64 = 0 then (t_numer, #[])
-                  else div1 t_numer t_denom[0]! h
-    let rem := divUnnormalize u 1 d.val d.isLt
-    temp := q.extract 0 temp.size
-    digits := digits.push (Char.ofNat (48 + rem[0]!.toNat))
-    for _ in [0:lng] do
-      if !temp.isEmpty && temp.back! == 0 then temp := temp.pop else break
-  return String.ofList digits.toList.reverse
 
 /-! ## Correctness of `mpn_add` -/
 
@@ -4331,21 +4273,6 @@ theorem natDiv_val (a b : NatObj) : (natDiv a b).val = a.val / b.val := by
     | big m₂ h₂ =>
       simp only [natDiv]
       rw [mpzToNat_val, Num.val_div, NatObj.val, NatObj.val]
-
-/--
-The assertion `lean_nat_big_div` makes and a release build then drops:
-```
-    if (lean_is_scalar(a1)) {
-        lean_assert(mpz::of_size_t(lean_unbox(a1)) / mpz_value(a2) == 0);
-        return lean_box(0);
-    }
-```
-It returns the answer without dividing, which is right because a scalar cannot
-reach the range an `mpz` object occupies. That is the invariant `mpz_to_nat`
-maintains and the one this type carries.
--/
-theorem natDiv_small_big (n : Nat) (h : n ≤ maxSmallNat) (m : Num) (hm : maxSmallNat < m.val) :
-    (natDiv (.small n h) (.big m hm)).val = 0 := rfl
 
 /-- The `mpz` an object denotes, which is what `lean_nat_big_*` reads. -/
 def NatObj.toNum : NatObj → Num

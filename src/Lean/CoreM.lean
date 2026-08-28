@@ -311,14 +311,22 @@ instance : MonadOptions CoreM where
     let ctx ← read
     let options := ctx.options
     if ctx.recordingDeps then
-      -- The options are returned from the panic so that a violation reports once instead of
-      -- cascading through code that would otherwise see every option unset.
-      have : Inhabited Options := ⟨options⟩
-      return panic! "options acquired inside a computation recording its dependencies; \
-        result-relevant reads must go through `Lean.getRecordedOption`, all others through \
-        `getOptionsUnrestricted`"
+      return reportViolation options
     return options
   getOptionsUnrestricted := return (← read).options
+where
+  /--
+  Reports a violation and returns the options unchanged, so that it is reported once instead of
+  cascading through code that would otherwise see every option unset.
+
+  Kept out of line because `getOptions` is inlined at every call site in the codebase, and each
+  inlined copy of `panic!` carries its own message constants.
+  -/
+  @[noinline] reportViolation (options : Options) : Options :=
+    have : Inhabited Options := ⟨options⟩
+    panic! "options acquired inside a computation recording its dependencies; \
+      result-relevant reads must go through `Lean.getRecordedOption`, all others through \
+      `getOptionsUnrestricted`"
 
 instance : MonadWithOptions CoreM where
   withOptions f x := do

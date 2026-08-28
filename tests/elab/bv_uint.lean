@@ -66,8 +66,8 @@ example (a b c : USize) (h1 : a < b) (h2 : b < c) : a < c := by
 
 /--
 error: The prover found a counterexample, consider the following assignment:
-a = 18446744073709551615
-b = 18446744073709551615
+a = 0
+b = 0
 -/
 #guard_msgs in
 example (a b : USize) (h : System.Platform.numBits = 64) : a + b > a := by

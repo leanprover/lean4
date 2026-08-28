@@ -66,8 +66,8 @@ example (a b c : ISize) (h1 : a < b) (h2 : b < c) : a < c := by
 
 /--
 error: The prover found a counterexample, consider the following assignment:
-a = -1
-b = -1
+a = 0
+b = 0
 -/
 #guard_msgs in
 example (a b : ISize) (h : System.Platform.numBits = 64) : a + b > a := by

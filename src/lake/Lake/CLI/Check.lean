@@ -40,9 +40,6 @@ public structure Context where
   theoremNames : Array Lean.Name
   definitionNames : Array Lean.Name
   legalAxioms : Array Lean.Name
-  leanPrefix : System.FilePath
-  /-- Everything `git` needs to execute inside the sandbox. See `discoverGitExecPaths`. -/
-  gitExecPaths : Array System.FilePath
   /-- The workspace's `LEAN_PATH`. Empty until `safeResolveWorkspace` records it. -/
   leanPath : String
   /--
@@ -64,7 +61,6 @@ structure LandrunArgs where
   envOverride : Array (String × Option String) := #[]
   readablePaths : Array System.FilePath
   writablePaths : Array System.FilePath
-  executablePaths : Array System.FilePath
   /-- TCP ports the child may connect to. Landrun denies all of them by default. -/
   connectPorts : Array String := #[]
 
@@ -89,12 +85,6 @@ def getSolutionModule : M Lean.Name := do return (← read).solutionModule
 @[inline]
 def getLegalAxioms : M (Array Lean.Name) := do return (← read).legalAxioms
 
-@[inline]
-def getLeanPrefix : M System.FilePath := do return (← read).leanPrefix
-
-@[inline]
-def getGitExecPaths : M (Array System.FilePath) := do return (← read).gitExecPaths
-
 /-- Resolves `exe` to an absolute path via `PATH`, or `none` if it is not there. -/
 def whichExe (exe : String) : IO (Option System.FilePath) := do
   let out ←
@@ -104,58 +94,6 @@ def whichExe (exe : String) : IO (Option System.FilePath) := do
     return none
   let path := out.stdout.trimAscii.toString
   return if path.isEmpty then none else some (path : System.FilePath)
-
-/--
-Reports the directories holding the shared libraries an executable loads.
-
-Landlock governs execute permission per path, and mapping a shared library needs it just as much as
-spawning a process does.
--/
-def sharedLibDirs (exe : System.FilePath) : IO (Array String) := do
-  let out ← try IO.Process.output { cmd := "ldd", args := #[exe.toString] } catch _ => return #[]
-  if out.exitCode != 0 then return #[]
-  let mut dirs := #[]
-  for line in out.stdout.split '\n' |>.toStringList do
-    -- `libfoo.so.1 => /usr/lib/libfoo.so.1 (0x00007f...)`
-    if let [_, rest] := line.split "=> " |>.toStringList then
-      if let path :: _ := rest.split ' ' |>.toStringList then
-        let path : System.FilePath := path
-        if path.isAbsolute then
-          if let some parent := path.parent then
-            dirs := dirs.push parent.toString
-  return dirs
-
-/--
-Reports everything `git` needs in order to run inside the sandbox.
-
-Granting the `git` binary alone does not suffice: `git` forks helpers out of its exec-path and runs
-some of them through the shell it was built against, which need not be the system `/bin/sh`. Each
-of those needs execute permission in its own right, as do the libraries they load. `git` is asked
-for all of it, so no path is assumed.
--/
-def discoverGitExecPaths (gitLocation : System.FilePath) : IO (Array System.FilePath) := do
-  let git ← try IO.FS.realPath gitLocation catch _ => pure gitLocation
-  let ask (args : Array String) : IO (Option String) := do
-    let out ← try IO.Process.output { cmd := git.toString, args } catch _ => return none
-    if out.exitCode != 0 then return none
-    let line := out.stdout.trimAscii.toString
-    return if line.isEmpty then none else some line
-
-  let mut paths := #[git.toString]
-  if let some dir := git.parent then
-    paths := paths.push dir.toString
-  if let some execPath ← ask #["--exec-path"] then
-    paths := paths.push execPath
-  let mut executables := #[git]
-  if let some shell ← ask #["var", "GIT_SHELL_PATH"] then
-    paths := paths.push shell
-    executables := executables.push shell
-  for exe in executables do
-    paths := paths ++ (← sharedLibDirs exe)
-
-  let deduped := paths.foldl (init := (#[] : Array String)) fun acc path =>
-    if acc.contains path then acc else acc.push path
-  return deduped.map System.FilePath.mk
 
 def missingLandrunError (cmd exe : String) : String :=
 s!"`lake {cmd}` needs `{exe}` to sandbox the code it checks, and it was not found.
@@ -167,11 +105,15 @@ s!"`lake {cmd}` needs `{exe}` to sandbox the code it checks, and it was not foun
   is built and exported inside the sandbox."
 
 def buildLandrunArgs (spawnArgs : LandrunArgs) : Array String :=
-  let args := #["--best-effort", "--ro", "/", "--rw", "/dev", "-ldd", "-add-exec"]
+  -- Landlock rules are additive, so `--rox /` is read plus execute everywhere, narrowed back only
+  -- by what is granted write access below. Naming executables individually would not confine them:
+  -- Landlock checks execute permission at `execve`, on the binary and the ELF interpreter, and the
+  -- loader will run any dynamically linked binary passed to it as an argument, mapping it with read
+  -- access alone. See `helpChallenge` for what the sandbox does and does not bound.
+  let args := #["--best-effort", "--rox", "/", "--rw", "/dev"]
   let args := spawnArgs.envPass.foldl (init := args) (fun acc env => acc ++ #["--env", env])
   let args := spawnArgs.readablePaths.foldl (init := args) (fun acc path => acc ++ #["--ro", path.toString])
   let args := spawnArgs.writablePaths.foldl (init := args) (fun acc path => acc ++ #["--rwx", path.toString])
-  let args := spawnArgs.executablePaths.foldl (init := args) (fun acc path => acc ++ #["--rox", path.toString])
   let args := spawnArgs.connectPorts.foldl (init := args) (fun acc port => acc ++ #["--connect-tcp", port])
   args ++ #["--", spawnArgs.cmd] ++ spawnArgs.args
 
@@ -207,15 +149,13 @@ defines, as `(LEAN_PATH, PATH)`.
 
 Resolution elaborates the project's configuration, which is code, so it must not run outside the
 sandbox; this is also the only step permitted to reach the network. `lake env` resolves and reports
-in one invocation, which is what lets the export step run the exporter directly: with the search
-path recorded here, that step needs neither `lake` nor `git` executable.
+in one invocation, so the export step can run the exporter directly against the search path
+recorded here.
 -/
 def safeResolveWorkspace : M (String × String) := do
   IO.println "Resolving dependencies"
-  let leanPrefix ← getLeanPrefix
   let projectDir ← getProjectDir
   let dotLakeDir := projectDir / ".lake"
-  let gitExecPaths ← getGitExecPaths
 
   if !(← System.FilePath.pathExists dotLakeDir) then
     IO.FS.createDir dotLakeDir
@@ -228,7 +168,6 @@ def safeResolveWorkspace : M (String × String) := do
     envOverride := #[("LEAN_ABORT_ON_PANIC", some "1")]
     readablePaths := #[projectDir]
     writablePaths := #[dotLakeDir]
-    executablePaths := #[leanPrefix, whichLake] ++ gitExecPaths
     -- `https` and `ssh`, the transports Lake's git dependencies use.
     connectPorts := #["443", "22"]
   }
@@ -246,10 +185,8 @@ def safeResolveWorkspace : M (String × String) := do
 
 def safeLakeBuild (target : Lean.Name) : M Unit := do
   IO.println s!"Building {target}"
-  let leanPrefix ← getLeanPrefix
   let projectDir ← getProjectDir
   let dotLakeDir := projectDir / ".lake"
-  let gitExecPaths ← getGitExecPaths
 
   if !(← System.FilePath.pathExists dotLakeDir) then
     IO.FS.createDir dotLakeDir
@@ -262,7 +199,6 @@ def safeLakeBuild (target : Lean.Name) : M Unit := do
     envOverride := #[("LEAN_ABORT_ON_PANIC", some "1")]
     readablePaths := #[projectDir]
     writablePaths := #[dotLakeDir]
-    executablePaths := #[leanPrefix, whichLake] ++ gitExecPaths
   }
 
 def safeExport (module : Lean.Name) (decls : Array Lean.Name) : M String := do
@@ -270,7 +206,6 @@ def safeExport (module : Lean.Name) (decls : Array Lean.Name) : M String := do
   let baseArgs := #[module.toString, "--"]
   let args := decls.foldl (·.push <| ·.toString) baseArgs
 
-  let leanPrefix ← getLeanPrefix
   let projectDir ← getProjectDir
   let dotLakeDir := projectDir / ".lake"
   let whichLean4Export := (← read).whichLean4Export
@@ -282,7 +217,6 @@ def safeExport (module : Lean.Name) (decls : Array Lean.Name) : M String := do
       ("PATH", some (← read).binPath)]
     readablePaths := #[projectDir, dotLakeDir]
     writablePaths := #[]
-    executablePaths := #[leanPrefix, whichLean4Export]
   }
 
 def runExternalKernel (kernelName : String) (kernelCommand : Array String)
@@ -318,7 +252,6 @@ def runExternalKernel (kernelName : String) (kernelCommand : Array String)
       envPass := #[]
       readablePaths := #[configPath.toString, solutionPath.toString]
       writablePaths := #[]
-      executablePaths := #[]
     }
     let args := buildLandrunArgs spawnArgs
 
@@ -490,7 +423,7 @@ def mkContext (cmd : String) (lean : LeanInstall) (lake : LakeInstall)
   -- Always the bundled exporter: the export format has to match the compiler that produced the
   -- oleans, so letting this be pointed elsewhere would reintroduce the toolchain-pinning problem.
   let whichLean4Export := lean.binDir / "leanexport" |>.addExtension System.FilePath.exeExtension
-  let some gitLocation ← whichExe "git"
+  let some _ ← whichExe "git"
     | return .error (← cannotRun s!"`lake {cmd}` needs `git` on PATH to build inside the sandbox")
 
   return .ok {
@@ -500,8 +433,6 @@ def mkContext (cmd : String) (lean : LeanInstall) (lake : LakeInstall)
     theoremNames := #[]
     definitionNames := #[]
     legalAxioms := #[]
-    leanPrefix := lean.sysroot
-    gitExecPaths := ← discoverGitExecPaths gitLocation
     leanPath := ""
     binPath := ""
     whichLandrun := landrunPath.toString

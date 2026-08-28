@@ -461,6 +461,15 @@ ENVIRONMENT:
   the `.olean` files being exported.
 
 HARDENING:
+  The sandbox bounds writes and TCP connections: only `.lake` is writable, and
+  only dependency resolution may connect, on the ports git's transports use.
+  It does not bound reads, execution, or non-TCP traffic. Landlock filters the
+  filesystem view rather than constructing one, and its rules only ever grant,
+  so nothing can be carved back out of a broader grant; and it checks execute
+  permission at `execve` alone, which the dynamic loader performs on behalf of
+  any binary handed to it. Where the code being judged must not read the
+  invoking user's files, run the command as a user that cannot see them.
+
   Until the Landlock fix released in Linux 7.1 is widely available, `landrun`
   can be escaped through an `AF_UNIX` socket. Where that matters, run the
   command under a wrapper that removes the capability:

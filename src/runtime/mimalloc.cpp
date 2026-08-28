@@ -19,9 +19,10 @@ compiled Lean code reaches the allocator, including the heartbeat update, with a
 
 extern "C" LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_core(unsigned sz) {
     lean_g_heartbeat++;
-    /* The callers guarantee `sz <= MI_SMALL_SIZE_MAX`, so `mi_malloc_small` applies; unlike
-       `mi_malloc` it does not have to test the size on the fast path. */
-    void * mem = mi_malloc_small(sz);
+    /* The callers guarantee that `sz` is a positive multiple of `LEAN_OBJECT_SIZE_DELTA` of at
+       most `MI_SMALL_SIZE_MAX`, so `mi_malloc_small_aligned` (from `script/mimalloc-lean.patch`)
+       applies; unlike `mi_malloc` it neither tests nor rounds the size on the fast path. */
+    void * mem = mi_malloc_small_aligned(sz);
     if (LEAN_UNLIKELY(mem == NULL)) lean_internal_panic_out_of_memory();
     lean_object * o = (lean_object *)mem;
     /* `m_cs_sz` must be the exact (aligned) requested size, not mimalloc's potentially larger
@@ -32,7 +33,7 @@ extern "C" LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_co
 
 extern "C" LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_raw(unsigned sz) {
     lean_g_heartbeat++;
-    void * mem = mi_malloc_small(sz);
+    void * mem = mi_malloc_small_aligned(sz);
     if (LEAN_UNLIKELY(mem == NULL)) lean_internal_panic_out_of_memory();
     /* The caller initializes the entire header, including `m_cs_sz`; leaving it out here keeps
        `sz` dead after the allocation, so this compiles to a minimal leaf-like fast path. */

@@ -4,7 +4,11 @@ if(USE_MIMALLOC)
   # them.
   set(MIMALLOC_SRC ${CMAKE_CURRENT_SOURCE_DIR}/mimalloc.cpp)
   # make all symbols visible, always build with optimizations as otherwise Lean becomes too slow
-  set(MIMALLOC_OPTS -DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT -Wno-unused-function)
+  #
+  # MI_BLOCK_SCRUB=0 (see `script/mimalloc-lean.patch`): the runtime fully initializes every
+  # object header before the object can be read, so the freshly allocated block never leaks the
+  # free-list pointer that the scrub would clear. Secure builds keep the scrub regardless.
+  set(MIMALLOC_OPTS -DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT -DMI_BLOCK_SCRUB=0 -Wno-unused-function)
   if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang|Clang")
     list(APPEND MIMALLOC_OPTS -Wno-deprecated)
   endif()

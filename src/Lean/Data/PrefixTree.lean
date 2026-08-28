@@ -12,7 +12,7 @@ public section
 
 namespace Lean
 
-/- Similar to trie, but for arbitrary keys -/
+/-- Similar to trie, but for arbitrary keys -/
 inductive PrefixTreeNode (α : Type u) (β : Type v) (cmp : α → α → Ordering) where
   | Node : Option β → Std.TreeMap.Raw α (PrefixTreeNode α β cmp) cmp → PrefixTreeNode α β cmp
 
@@ -52,7 +52,7 @@ partial def find? (cmp : α → α → Ordering) (t : PrefixTreeNode α β cmp) 
       | some t => loop t ks
   loop t k
 
-/-- Returns the the value of the longest key in `t` that is a prefix of `k`, if any. -/
+/-- Returns the value of the longest key in `t` that is a prefix of `k`, if any. -/
 @[inline]
 partial def findLongestPrefix? (cmp : α → α → Ordering) (t : PrefixTreeNode α β cmp) (k : List α) : Option β :=
   let rec @[specialize] loop acc?

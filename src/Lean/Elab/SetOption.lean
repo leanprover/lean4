@@ -7,9 +7,15 @@ module
 
 prelude
 public import Lean.Elab.InfoTree
+public import Init.Syntax
 
 public section
 namespace Lean.Elab
+
+register_builtin_option linter.deprecated.options : Bool := {
+  defValue := true
+  descr := "if true, generate deprecation warnings for deprecated options"
+}
 
 variable [Monad m] [MonadOptions m] [MonadError m] [MonadLiftT (EIO Exception) m] [MonadInfoTree m]
 
@@ -42,7 +48,14 @@ where
         {indentExpr defValType}"
     | _ => throwUnconfigurable optionName
 
-def elabSetOption (id : Syntax) (val : Syntax) : m Options := do
+/--
+Elaborates `id` as an identifier representing an option name with value given by `val`, adding
+appropriate info to the infotrees.
+
+Validates that `val` has the correct type for values of the option `id`, and returns the updated
+`Options`. Does **not** update the options in the monad `m`.
+-/
+def elabSetOption (id : Syntax) (val : Syntax) : m (Options × OptionDecl) := do
   let ref ← getRef
   -- For completion purposes, we discard `val` and any later arguments.
   -- We include the first argument (the keyword) for position information in case `id` is `missing`.
@@ -50,9 +63,9 @@ def elabSetOption (id : Syntax) (val : Syntax) : m Options := do
   let optionName := id.getId.eraseMacroScopes
   let decl ← IO.toEIO (fun (ex : IO.Error) => Exception.error ref ex.toString) (getOptionDecl optionName)
   pushInfoLeaf <| .ofOptionInfo { stx := id, optionName, declName := decl.declName }
-  let rec setOption (val : DataValue) : m Options := do
+  let rec setOption (val : DataValue) : m (Options × OptionDecl) := do
     validateOptionValue optionName decl val
-    return (← getOptions).insert optionName val
+    return ((← getOptions).set optionName val, decl)
   match val.isStrLit? with
   | some str => setOption (DataValue.ofString str)
   | none     =>
@@ -67,5 +80,20 @@ def elabSetOption (id : Syntax) (val : Syntax) : m Options := do
       throwError "Unexpected set_option value `{val}`; expected a literal of type `{ctorType}`"
     else
       throwUnconfigurable optionName
+
+end Lean.Elab
+
+namespace Lean.Elab
+
+variable {m : Type → Type} [Monad m] [MonadOptions m] [MonadLog m] [AddMessageContext m]
+
+def checkDeprecatedOption (optionName : Name) (decl : OptionDecl) : m Unit := do
+  unless linter.deprecated.options.get (← getOptions) do return
+  let some dep := decl.deprecation? | return
+  let extraMsg := match dep.text?, dep.newName? with
+    | some text, _ => m!": {text}"
+    | none, some newName => m!": Use `{newName}` instead"
+    | none, none => m!""
+  logWarning m!"`{optionName}` has been deprecated{extraMsg}"
 
 end Lean.Elab

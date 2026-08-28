@@ -22,12 +22,12 @@ instance instDecidableEq {α} [inst : DecidableEq α] : DecidableEq (Option α) 
   match a with
   | none => match b with
     | none => .isTrue rfl
-    | some _ => .isFalse Option.noConfusion
+    | some _ => .isFalse (fun h => Option.noConfusion rfl (heq_of_eq h))
   | some a => match b with
-    | none => .isFalse Option.noConfusion
+    | none => .isFalse (fun h => Option.noConfusion rfl (heq_of_eq h))
     | some b => match inst a b with
       | .isTrue h => .isTrue (h ▸ rfl)
-      | .isFalse n => .isFalse (Option.noConfusion · n)
+      | .isFalse n => .isFalse (fun h => Option.noConfusion rfl (heq_of_eq h) (fun h' => absurd (eq_of_heq h') n))
 
 /--
 Equality with `none` is decidable even if the wrapped type does not have decidable equality.
@@ -37,7 +37,7 @@ instance decidableEqNone (o : Option α) : Decidable (o = none) :=
     compatibility with the `DecidableEq` instance. -/
   match o with
   | none => .isTrue rfl
-  | some _ => .isFalse Option.noConfusion
+  | some _ => .isFalse (fun h => Option.noConfusion rfl (heq_of_eq h))
 
 /--
 Equality with `none` is decidable even if the wrapped type does not have decidable equality.
@@ -47,7 +47,7 @@ instance decidableNoneEq (o : Option α) : Decidable (none = o) :=
     compatibility with the `DecidableEq` instance. -/
   match o with
   | none => .isTrue rfl
-  | some _ => .isFalse Option.noConfusion
+  | some _ => .isFalse (fun h => Option.noConfusion rfl (heq_of_eq h))
 
 deriving instance BEq for Option
 
@@ -58,7 +58,7 @@ deriving instance BEq for Option
 @[simp, grind =] theorem map_some (a) (f : α → β) : (some a).map f = some (f a) := rfl
 
 /-- Lifts an optional value to any `Alternative`, sending `none` to `failure`. -/
-def getM [Alternative m] : Option α → m α
+@[implicit_reducible] def getM [Alternative m] : Option α → m α
   | none     => failure
   | some a   => pure a
 
@@ -66,7 +66,7 @@ def getM [Alternative m] : Option α → m α
 @[simp, grind =] theorem getM_some [Alternative m] {a : α} : getM (some a) = (pure a : m α) := rfl
 
 /-- Returns `true` on `some x` and `false` on `none`. -/
-@[inline] def isSome : Option α → Bool
+@[inline, implicit_reducible] def isSome : Option α → Bool
   | some _ => true
   | none   => false
 
@@ -82,7 +82,7 @@ Examples:
  * `(none : Option Nat).isNone = true`
  * `(some Nat.add).isNone = false`
 -/
-@[inline] def isNone : Option α → Bool
+@[inline, implicit_reducible] def isNone : Option α → Bool
   | some _ => false
   | none   => true
 
@@ -118,17 +118,12 @@ Examples:
  * `(some 2).bind (Option.guard (· > 2)) = none`
  * `(some 4).bind (Option.guard (· > 2)) = some 4`
 -/
-@[inline] protected def bind : Option α → (α → Option β) → Option β
+@[inline, implicit_reducible] protected def bind : Option α → (α → Option β) → Option β
   | none,   _ => none
   | some a, f => f a
 
 @[simp, grind =] theorem bind_none (f : α → Option β) : none.bind f = none := rfl
 @[simp, grind =] theorem bind_some (a) (f : α → Option β) : (some a).bind f = f a := rfl
-
-@[deprecated bind_none (since := "2025-05-03")]
-abbrev none_bind := @bind_none
-@[deprecated bind_some (since := "2025-05-03")]
-abbrev some_bind := @bind_some
 
 /--
 Runs the monadic action `f` on `o`'s value, if any, and returns the result, or  `none` if there is
@@ -199,7 +194,7 @@ Examples:
  * `none.filter (fun x : Nat => x % 2 == 0) = none`
  * `none.filter (fun x : Nat => true) = none`
 -/
-@[always_inline, inline] protected def filter (p : α → Bool) : Option α → Option α
+@[always_inline, inline, implicit_reducible] protected def filter (p : α → Bool) : Option α → Option α
   | some a => if p a then some a else none
   | none   => none
 
@@ -211,7 +206,7 @@ Examples:
  * `(some 22).all (· % 2 == 0) = true
  * `none.all (fun x : Nat => x % 2 == 0) = true
 -/
-@[always_inline, inline] protected def all (p : α → Bool) : Option α → Bool
+@[always_inline, inline, implicit_reducible] protected def all (p : α → Bool) : Option α → Bool
   | some a => p a
   | none   => true
 
@@ -226,7 +221,7 @@ Examples:
  * `(some 22).any (· % 2 == 0) = true
  * `none.any (fun x : Nat => true) = false
 -/
-@[always_inline, inline] protected def any (p : α → Bool) : Option α → Bool
+@[always_inline, inline, implicit_reducible] protected def any (p : α → Bool) : Option α → Bool
   | some a => p a
   | none   => false
 
@@ -381,7 +376,7 @@ Examples:
 /--
 Extracts the value from an option that can be proven to be `some`.
 -/
-@[inline] def get {α : Type u} : (o : Option α) → isSome o → α
+@[inline, implicit_reducible] def get {α : Type u} : (o : Option α) → isSome o → α
   | some x, _ => x
 
 @[simp, grind =] theorem some_get : ∀ {x : Option α} (h : isSome x), some (x.get h) = x
@@ -398,7 +393,7 @@ Examples:
  * `Option.guard (· > 2) 1 = none`
  * `Option.guard (· > 2) 5 = some 5`
 -/
-@[inline] def guard (p : α → Bool) (a : α) : Option α :=
+@[inline, implicit_reducible] def guard (p : α → Bool) (a : α) : Option α :=
   if p a then some a else none
 
 /--
@@ -441,7 +436,7 @@ Examples:
  * `(some none).join = none`
  * `(some (some v)).join = some v`
 -/
-@[inline] def join (x : Option (Option α)) : Option α := x.bind id
+@[inline, implicit_reducible] def join (x : Option (Option α)) : Option α := x.bind id
 
 @[simp, grind =] theorem join_none : (none : Option (Option α)).join = none := rfl
 @[simp, grind =] theorem join_some : (some o).join = o := rfl
@@ -538,13 +533,6 @@ instance [Min α] : Min (Option α) where min := Option.min
 @[simp, grind =] theorem min_none_right [Min α] {o : Option α} : min o none = none := by
   cases o <;> rfl
 
-@[deprecated min_none_right (since := "2025-05-12")]
-theorem min_some_none [Min α] {a : α} : min (some a) none = none := rfl
-@[deprecated min_none_left (since := "2025-05-12")]
-theorem min_none_some [Min α] {b : α} : min none (some b) = none := rfl
-@[deprecated min_none_left (since := "2025-05-12")]
-theorem min_none_none [Min α] : min (none : Option α) none = none := rfl
-
 /--
 The maximum of two optional values.
 
@@ -570,14 +558,6 @@ instance [Max α] : Max (Option α) where max := Option.max
   cases o <;> rfl
 @[simp, grind =] theorem max_none_right [Max α] {o : Option α} : max o none = o := by
   cases o <;> rfl
-
-@[deprecated max_none_right (since := "2025-05-12")]
-theorem max_some_none [Max α] {a : α} : max (some a) none = some a := rfl
-@[deprecated max_none_left (since := "2025-05-12")]
-theorem max_none_some [Max α] {b : α} : max none (some b) = some b := rfl
-@[deprecated max_none_left (since := "2025-05-12")]
-theorem max_none_none [Max α] : max (none : Option α) none = none := rfl
-
 
 end Option
 

@@ -8,7 +8,9 @@ module
 prelude
 public import Init.Data.Range.Polymorphic.Basic
 import Init.Data.Nat.Lemmas
-import Init.Data.Order.Lemmas
+import Init.ByCases
+import Init.Data.Option.Lemmas
+import Init.Omega
 
 /-!
 This module provides instances that reduce the amount of code necessary to make a type compatible

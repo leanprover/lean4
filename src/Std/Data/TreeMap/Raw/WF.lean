@@ -123,4 +123,8 @@ theorem inter [TransCmp cmp] {t₁ t₂ : Raw α β cmp} (h₁ : t₁.WF) :
     (t₁ ∩ t₂).WF :=
   ⟨InnerWF.inter h₁⟩
 
+theorem diff [TransCmp cmp] {t₁ t₂ : Raw α β cmp} (h₁ : t₁.WF) :
+    (t₁ \ t₂).WF :=
+  ⟨InnerWF.diff h₁⟩
+
 end Std.TreeMap.Raw.WF

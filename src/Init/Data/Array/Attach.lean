@@ -6,8 +6,10 @@ Authors: Joachim Breitner, Mario Carneiro
 module
 
 prelude
-public import Init.Data.Array.Count
 import all Init.Data.List.Attach
+public import Init.Data.Array.Lemmas
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Count
 
 public section
 
@@ -96,7 +98,7 @@ well-founded recursion mechanism to prove that the function terminates.
 
 @[simp] theorem pmap_push {P : α → Prop} (f : ∀ a, P a → β) (a : α) (xs : Array α) (h : ∀ b ∈ xs.push a, P b) :
     pmap f (xs.push a) h =
-      (pmap f xs (fun a m => by simp at h; exact h a (.inl m))).push (f a (h a (by simp))) := by
+      (pmap f xs (fun a m => by simp [forall_or_eq_imp] at h; exact h.1 _ m)).push (f a (h a (by simp))) := by
   simp [pmap]
 
 @[simp] theorem attach_empty : (#[] : Array α).attach = #[] := rfl
@@ -151,7 +153,7 @@ theorem attachWith_congr {xs ys : Array α} (w : xs = ys) {P : α → Prop} {H :
 
 @[simp] theorem attachWith_push {a : α} {xs : Array α} {P : α → Prop} {H : ∀ x ∈ xs.push a, P x} :
     (xs.push a).attachWith P H =
-      (xs.attachWith P (fun x h => by simp at H; exact H x (.inl h))).push ⟨a, H a (by simp)⟩ := by
+      (xs.attachWith P (fun x h => by simp [forall_or_eq_imp] at H; exact H.1 _ h)).push ⟨a, H a (by simp)⟩ := by
   cases xs
   simp
 
@@ -159,6 +161,10 @@ theorem pmap_eq_map_attach {p : α → Prop} {f : ∀ a, p a → β} {xs : Array
     pmap f xs H = xs.attach.map fun x => f x.1 (H _ x.2) := by
   cases xs
   simp [List.pmap_eq_map_attach]
+
+theorem attachWith_eq_map_attach {xs : Array α} {P : α → Prop} {H : ∀ (a : α), a ∈ xs → P a} :
+    xs.attachWith P H = xs.attach.map fun ⟨x, h⟩ => ⟨x, H _ h⟩ := by
+  cases xs <;> simp_all [List.attachWith_eq_map_attach]
 
 @[simp]
 theorem pmap_eq_attachWith {p q : α → Prop} {f : ∀ a, p a → q a} {xs : Array α} (H) :
@@ -571,9 +577,6 @@ def unattach {α : Type _} {p : α → Prop} (xs : Array { x // p x }) : Array �
 
 @[simp] theorem unattach_empty {p : α → Prop} : (#[] : Array { x // p x }).unattach = #[] := by
   simp [unattach]
-
-@[deprecated unattach_empty (since := "2025-05-26")]
-abbrev unattach_nil := @unattach_empty
 
 @[simp] theorem unattach_push {p : α → Prop} {a : { x // p x }} {xs : Array { x // p x }} :
     (xs.push a).unattach = xs.unattach.push a.1 := by

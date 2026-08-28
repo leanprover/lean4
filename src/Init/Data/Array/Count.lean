@@ -7,8 +7,14 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-public import Init.Data.Array.Lemmas
-public import Init.Data.List.Nat.Count
+import Init.Grind.Util  -- shake: keep (`@[grind]` dependency)
+public import Init.BinderPredicates
+public import Init.Ext
+public import Init.NotationExtra
+import Init.Data.Array.Lemmas
+import Init.Data.Bool
+import Init.Data.List.Count
+import Init.Data.List.Nat.Count
 
 public section
 
@@ -62,12 +68,12 @@ theorem size_eq_countP_add_countP {xs : Array α} : xs.size = countP p xs + coun
   rcases xs with ⟨xs⟩
   simp [List.length_eq_countP_add_countP (p := p)]
 
-@[grind =]
 theorem countP_eq_size_filter {xs : Array α} : countP p xs = (filter p xs).size := by
   rcases xs with ⟨xs⟩
   simp [List.countP_eq_length_filter]
 
-@[grind =]
+grind_pattern countP_eq_size_filter => xs.countP p, xs.filter p
+
 theorem countP_eq_size_filter' : countP p = size ∘ filter p := by
   funext xs
   apply countP_eq_size_filter
@@ -75,6 +81,8 @@ theorem countP_eq_size_filter' : countP p = size ∘ filter p := by
 theorem countP_le_size : countP p xs ≤ xs.size := by
   simp only [countP_eq_size_filter]
   apply size_filter_le
+
+grind_pattern countP_le_size => countP p xs, xs.size
 
 @[simp, grind =] theorem countP_append {xs ys : Array α} : countP p (xs ++ ys) = countP p xs + countP p ys := by
   rcases xs with ⟨xs⟩
@@ -92,6 +100,18 @@ theorem countP_le_size : countP p xs ≤ xs.size := by
   rcases xs with ⟨xs⟩
   simp
 
+/-- This lemma is only relevant for `grind`. -/
+@[grind ←=]
+theorem _root_.Std.Internal.Array.countP_eq_zero_of_forall {xs : Array α} (h : ∀ x ∈ xs, ¬ p x) : xs.countP p = 0 :=
+  countP_eq_zero.mpr h
+
+/-- This lemma is only relevant for `grind`. -/
+theorem _root_.Std.Internal.Array.not_of_countP_eq_zero_of_mem {xs : Array α} (h : xs.countP p = 0) (h' : x ∈ xs) : ¬ p x :=
+   countP_eq_zero.mp h _ h'
+
+grind_pattern Std.Internal.Array.not_of_countP_eq_zero_of_mem => xs.countP p, x ∈ xs where
+  guard xs.countP p = 0
+
 @[simp] theorem countP_eq_size {p} : countP p xs = xs.size ↔ ∀ a ∈ xs, p a := by
   rcases xs with ⟨xs⟩
   simp
@@ -99,11 +119,13 @@ theorem countP_le_size : countP p xs ≤ xs.size := by
 theorem countP_replicate {a : α} {n : Nat} : countP p (replicate n a) = if p a then n else 0 := by
   simp [← List.toArray_replicate, List.countP_replicate]
 
+set_option backward.isDefEq.respectTransparency false in
 theorem boole_getElem_le_countP {xs : Array α} {i : Nat} (h : i < xs.size) :
     (if p xs[i] then 1 else 0) ≤ xs.countP p := by
   rcases xs with ⟨xs⟩
   simp [List.boole_getElem_le_countP]
 
+set_option backward.isDefEq.respectTransparency false in
 @[grind =]
 theorem countP_set {xs : Array α} {i : Nat} {a : α} (h : i < xs.size) :
     (xs.set i a).countP p = xs.countP p - (if p xs[i] then 1 else 0) + (if p a then 1 else 0) := by
@@ -189,11 +211,12 @@ theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
 
 theorem count_le_size {a : α} {xs : Array α} : count a xs ≤ xs.size := countP_le_size
 
-grind_pattern count_le_size => count a xs
+grind_pattern count_le_size => count a xs, xs.size
 
-@[grind =]
 theorem count_eq_size_filter {a : α} {xs : Array α} : count a xs = (filter (· == a) xs).size := by
   simp [count, countP_eq_size_filter]
+
+grind_pattern count_eq_size_filter => count a xs, (filter _ xs).size
 
 theorem count_le_count_push {a b : α} {xs : Array α} : count a xs ≤ count a (xs.push b) := by
   simp [count_push]
@@ -249,6 +272,8 @@ theorem not_mem_of_count_eq_zero {a : α} {xs : Array α} (h : count a xs = 0) :
 
 theorem count_eq_zero {xs : Array α} : count a xs = 0 ↔ a ∉ xs :=
   ⟨not_mem_of_count_eq_zero, count_eq_zero_of_not_mem⟩
+
+grind_pattern count_eq_zero => a ∈ xs, count a xs
 
 theorem count_eq_size {xs : Array α} : count a xs = xs.size ↔ ∀ b ∈ xs, a = b := by
   rw [count, countP_eq_size]
@@ -310,9 +335,9 @@ theorem count_erase (a b : α) (xs : Array α) : count a (xs.erase b) = count a 
   simp [List.count_erase]
 
 @[simp] theorem count_erase_self (a : α) (xs : Array α) :
-    count a (xs.erase a) = count a xs - 1 := by rw [count_erase, if_pos (by simp)]
+    count a (xs.erase a) = count a xs - 1 := by rw [count_erase, ite_eq_left (by simp)]
 
 @[simp] theorem count_erase_of_ne (ab : a ≠ b) (xs : Array α) : count a (xs.erase b) = count a xs := by
-  rw [count_erase, if_neg (by simpa using ab.symm), Nat.sub_zero]
+  rw [count_erase, ite_eq_right (by simpa using ab.symm), Nat.sub_zero]
 
 end count

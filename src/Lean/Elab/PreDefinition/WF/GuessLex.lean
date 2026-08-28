@@ -17,6 +17,8 @@ public import Lean.Elab.PreDefinition.TerminationMeasure
 public import Lean.Elab.PreDefinition.FixedParams
 public import Lean.Elab.PreDefinition.WF.Basic
 public import Lean.Data.Array
+import Lean.Meta.Tactic.Refl
+import Init.Data.Prod
 
 public section
 
@@ -227,7 +229,7 @@ where
         loop param f
 
   containsRecFn (e : Expr) : M recFnName α Bool := do
-    modifyGetThe (HasConstCache #[recFnName]) (·.contains e)
+    modifyGetThe (HasConstCache #[recFnName]) (HasConstCache.contains e |>.run)
 
   loop (param : Expr) (e : Expr) : M recFnName α Unit := do
     if !(← containsRecFn e) then
@@ -432,9 +434,9 @@ instance : ToFormat GuessLexRel where
 
 /-- Given a `GuessLexRel`, produce a binary `Expr` that relates two `Nat` values accordingly. -/
 def GuessLexRel.toNatRel : GuessLexRel → Expr
-  | lt => mkAppN (mkConst ``LT.lt [levelZero]) #[mkConst ``Nat, mkConst ``instLTNat]
-  | eq => mkAppN (mkConst ``Eq [levelOne]) #[mkConst ``Nat]
-  | le => mkAppN (mkConst ``LE.le [levelZero]) #[mkConst ``Nat, mkConst ``instLENat]
+  | lt => mkAppN (mkConst ``LT.lt [Level.zero]) #[mkConst ``Nat, mkConst ``instLTNat]
+  | eq => mkAppN (mkConst ``Eq [Level.one]) #[mkConst ``Nat]
+  | le => mkAppN (mkConst ``LE.le [Level.zero]) #[mkConst ``Nat, mkConst ``instLENat]
   | no_idea => unreachable!
 
 /--
@@ -480,7 +482,7 @@ def evalRecCall (callerName: Name) (decrTactic? : Option DecreasingBy) (callerMe
         continue
     return .no_idea
 
-/- A cache for `evalRecCall` -/
+/-- A cache for `evalRecCall` -/
 structure RecCallCache where mk'' ::
   callerName : Name
   decrTactic? : Option DecreasingBy
@@ -549,7 +551,7 @@ try first, when the mutually recursive functions have similar argument structure
 -/
 partial def generateCombinations? (numMeasures : Array Nat) (threshold : Nat := 32) :
     Option (Array (Array Nat)) :=
-  (do goUniform 0; go 0 #[]) |>.run #[] |>.2
+  (do goUniform 0; go 0 #[]) |>.run.run #[] |>.2
 where
   -- Enumerate all permissible uniform combinations
   goUniform (idx : Nat) : OptionT (StateM (Array (Array Nat))) Unit  := do
@@ -635,18 +637,18 @@ def formatTable : Array (Array String) → String := fun xss => Id.run do
   let mut colWidths := xss[0]!.map (fun _ => 0)
   for hi : i in *...xss.size do
     for hj : j in *...xss[i].size do
-      if xss[i][j].length > colWidths[j]! then
-        colWidths := colWidths.set! j xss[i][j].length
+      if xss[i][j].positions.length > colWidths[j]! then
+        colWidths := colWidths.set! j xss[i][j].positions.length
   let mut str := ""
   for hi : i in *...xss.size do
     for hj : j in *...xss[i].size do
       let s := xss[i][j]
       if j > 0 then -- right-align
-        for _ in *...(colWidths[j]! - s.length) do
+        for _ in *...(colWidths[j]! - s.positions.length) do
           str := str ++ " "
       str := str ++ s
       if j = 0 then -- left-align
-        for _ in *...(colWidths[j]! - s.length) do
+        for _ in *...(colWidths[j]! - s.positions.length) do
           str := str ++ " "
       if j + 1 < xss[i].size then
         str := str ++ " "
@@ -673,7 +675,7 @@ def RecCallWithContext.posString (rcc : RecCallWithContext) : MetaM String := do
 /-- How to present the basic measure in the table header, possibly abbreviated. -/
 def measureHeader (measure : BasicMeasure) : StateT (Nat × String) MetaM String := do
   let s ← measure.toString
-  if s.length > 5 then
+  if s.positions.length > 5 then
     let (i, footer) ← get
     let i := i + 1
     let footer := footer ++ s!"#{i}: {s}\n"
@@ -806,7 +808,7 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
   let recCalls := filterSubsumed recCalls
 
   -- For every function, the measures we want to use
-  -- (One for each non-forbiddend arg)
+  -- (One for each non-forbidden arg)
   let basicMeasures₁ ← simpleMeasures preDefs fixedParamPerms userVarNamess
   let basicMeasures₂ ← complexMeasures preDefs fixedParamPerms userVarNamess recCalls
   let basicMeasures := Array.zipWith (· ++ ·) basicMeasures₁ basicMeasures₂

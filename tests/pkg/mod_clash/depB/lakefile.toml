@@ -1,7 +1,10 @@
-name = "depB"
+name = "dep"
 
 [[lean_lib]]
 name = "Same"
+
+[[lean_lib]]
+name = "Similar"
 
 [[lean_lib]]
 name = "Diff"

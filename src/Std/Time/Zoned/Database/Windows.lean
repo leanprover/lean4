@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.SInt.Basic
 public import Std.Time.Zoned.Database.Basic
+import Init.While
 
 public section
 

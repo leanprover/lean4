@@ -61,7 +61,7 @@ mpz::mpz(mpz const & s) {
     mpz_init_set(m_val, s.m_val);
 }
 
-mpz::mpz(mpz && s):mpz() {
+mpz::mpz(mpz && s) noexcept : mpz() {
     mpz_swap(m_val, s.m_val);
 }
 
@@ -73,7 +73,7 @@ void mpz::set(mpz_t r) const {
     mpz_set(r, m_val);
 }
 
-void swap(mpz & a, mpz & b) {
+void swap(mpz & a, mpz & b) noexcept {
     mpz_swap(a.m_val, b.m_val);
 }
 
@@ -222,6 +222,10 @@ size_t mpz::log2() const {
     return r - 1;
 }
 
+size_t mpz::size_in_bytes() const {
+    return mpz_size(m_val) * sizeof(mp_limb_t);
+}
+
 mpz & mpz::operator&=(mpz const & o) {
     mpz_and(m_val, m_val, o.m_val);
     return *this;
@@ -304,7 +308,7 @@ void display(std::ostream & out, __mpz_struct const * v) {
         mpz_get_str(buffer, 10, v);
         out << buffer;
     } else {
-        std::unique_ptr<char> buffer(new char[sz]);
+        std::unique_ptr<char[]> buffer(new char[sz]);
         mpz_get_str(buffer.get(), 10, v);
         out << buffer.get();
     }
@@ -319,19 +323,19 @@ std::ostream & operator<<(std::ostream & out, mpz const & v) {
 /***** NON GMP VERSION ******/
 
 static void *mpz_alloc(size_t size) {
-#ifdef LEAN_SMALL_ALLOCATOR
-    return alloc(size);
-#elif defined(LEAN_MIMALLOC)
-    return mi_malloc(size);
+#ifdef LEAN_MIMALLOC
+    void * r = mi_malloc(size);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    return r;
 #else
-    return malloc(size);
+    void * r = malloc(size);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    return r;
 #endif
 }
 
 static void mpz_dealloc(void *ptr, size_t size) {
-#ifdef LEAN_SMALL_ALLOCATOR
-        dealloc(ptr, size);
-#elif defined(LEAN_MIMALLOC)
+#ifdef LEAN_MIMALLOC
         mi_free_size(ptr, size);
 #else
         free_sized(ptr, size);
@@ -340,7 +344,7 @@ static void mpz_dealloc(void *ptr, size_t size) {
 
 void mpz::allocate(size_t s) {
     m_size   = s;
-    m_digits = static_cast<mpn_digit*>(mpz_alloc(s * sizeof(mpn_digit)));
+    m_digits = static_cast<mpn_digit*>(mpz_alloc(lean_usize_mul_checked(s, sizeof(mpn_digit))));
 }
 
 void mpz::init() {
@@ -409,8 +413,8 @@ void mpz::init_int64(int64 v) {
 void mpz::init_mpz(mpz const & v) {
     m_sign   = v.m_sign;
     m_size   = v.m_size;
-    m_digits = static_cast<mpn_digit*>(mpz_alloc(m_size * sizeof(mpn_digit)));
-    memcpy(m_digits, v.m_digits, m_size * sizeof(mpn_digit));
+    m_digits = static_cast<mpn_digit*>(mpz_alloc(lean_usize_mul_checked(m_size, sizeof(mpn_digit))));
+    memcpy(m_digits, v.m_digits, lean_usize_mul_checked(m_size, sizeof(mpn_digit)));
 }
 
 mpz::mpz() {
@@ -441,7 +445,7 @@ mpz::mpz(mpz const & s) {
     init_mpz(s);
 }
 
-mpz::mpz(mpz && s):
+mpz::mpz(mpz && s) noexcept :
     m_sign(s.m_sign),
     m_size(s.m_size),
     m_digits(s.m_digits) {
@@ -454,7 +458,7 @@ mpz::~mpz() {
     }
 }
 
-void swap(mpz & a, mpz & b) {
+void swap(mpz & a, mpz & b) noexcept {
     std::swap(a.m_sign, b.m_sign);
     std::swap(a.m_size, b.m_size);
     std::swap(a.m_digits, b.m_digits);
@@ -854,6 +858,10 @@ static unsigned log2_uint(unsigned v) {
 
 size_t mpz::log2() const {
     return (m_size - 1)*sizeof(mpn_digit)*8 + log2_uint(m_digits[m_size - 1]);
+}
+
+size_t mpz::size_in_bytes() const {
+    return m_size * sizeof(mpn_digit);
 }
 
 mpz & mpz::operator&=(mpz const & o) {

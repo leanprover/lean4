@@ -82,34 +82,24 @@ def processNextEq : M Bool := do
       let eqType ← inferType (mkFVar eq)
       -- See `substRHS`. Recall that if `rhs` is a variable then if must be in `s.xs`
       if let some (_, lhs, rhs) ← matchEq? eqType then
-        -- Common case: Different constructors
-        match (← isConstructorApp? lhs), (← isConstructorApp? rhs) with
-        | some lhsCtor, some rhsCtor =>
-          if lhsCtor.name != rhsCtor.name then
-            return false -- If the constructors are different, we can discard the hypothesis even if it a heterogeneous equality
-        | _,_ => pure ()
         if (← isDefEq lhs rhs) then
+          let mvarId ← s.mvarId.clear eq
+          modify fun s => { s with mvarId }
           return true
         if rhs.isFVar && s.xs.contains rhs.fvarId! then
           substRHS eq rhs.fvarId!
           return true
-      if let some (α, lhs, β, rhs) ← matchHEq? eqType then
+      if let some _ ← matchHEq? eqType then
         -- Try to convert `HEq` into `Eq`
-        if (← isDefEq α β) then
-          let (eqNew, mvarId) ← heqToEq s.mvarId eq (tryToClear := true)
+        let (eqNew, mvarId) ← heqToEq s.mvarId eq (tryToClear := true)
+        if mvarId != s.mvarId then
           modify fun s => { s with mvarId, eqs := eqNew :: s.eqs }
           return true
-        -- If it is not possible, we try to show the hypothesis is redundant by substituting even variables that are not at `s.xs`, and then use contradiction.
+        -- If it is not possible, we try to show the hypothesis is redundant by substituting even
+        -- variables that are not at `s.xs`, and then use contradiction.
         else
-          match (← isConstructorApp? lhs), (← isConstructorApp? rhs) with
-          | some lhsCtor, some rhsCtor =>
-            if lhsCtor.name != rhsCtor.name then
-              return false -- If the constructors are different, we can discard the hypothesis even if it a heterogeneous equality
-            else if (← trySubstVarsAndContradiction s.mvarId) then
-              return false
-          | _, _ =>
-            if (← trySubstVarsAndContradiction s.mvarId) then
-              return false
+          if (← trySubstVarsAndContradiction s.mvarId) then
+            return false
       try
         -- Try to simplify equation using `injection` tactic.
         match (← injection s.mvarId eq) with
@@ -132,27 +122,39 @@ end SimpH
 
 
 /--
-  Auxiliary method for simplifying equational theorem hypotheses.
-
-  Recall that each equation contains additional hypotheses to ensure the associated case was not taken by previous cases.
-  We have one hypothesis for each previous case.
+Like `simpH?`, but works directly on a goal corresponding to the unsimplified equational theorem
+hypothesis, and either closes it or returns a residual goal whose type is the simplified equational
+theorem hypothesis.
 -/
-public partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := withDefault do
-  let numVars ← forallTelescope h fun ys _ => pure (ys.size - numEqs)
-  let mvarId := (← mkFreshExprSyntheticOpaqueMVar h).mvarId!
+public partial def simpH (mvarId : MVarId) (numEqs : Nat) : MetaM (Option MVarId) := withDefault do
+  let numVars ← forallTelescope (← mvarId.getType) fun ys _ => pure (ys.size - numEqs)
+  let mvarId ← mvarId.tryClearMany (← getLCtx).getFVarIds
   let (xs, mvarId) ← mvarId.introN numVars
   let (eqs, mvarId) ← mvarId.introN numEqs
   let (r, s) ← SimpH.go |>.run { mvarId, xs := xs.toList, eqs := eqs.toList }
   if r then
     s.mvarId.withContext do
-      let eqs := s.eqsNew.reverse.toArray.map mkFVar
-      let mut r ← mkForallFVars eqs (mkConst ``False)
+      let eqs := s.eqsNew.reverse.toArray
+      let mvarId' := s.mvarId
+      let mvarId' := (← mvarId'.revert eqs).2
       /- We only include variables in `xs` if there is a dependency. -/
-      for x in s.xs.reverse do
-        if (← dependsOn r x) then
-          r ← mkForallFVars #[mkFVar x] r
-      trace[Meta.Match.matchEqs] "simplified hypothesis{indentExpr r}"
-      check r
-      return some r
+      let r ← mvarId'.getType
+      mvarId'.withContext do
+      let xs ← s.xs.toArray.reverse.filterM (dependsOn r ·)
+      let mvarId' := (← mvarId'.revert xs).2
+      return (some mvarId')
   else
     return none
+
+/--
+  Auxiliary method for simplifying equational theorem hypotheses.
+
+  Recall that each equation contains additional hypotheses to ensure the associated case was not taken by previous cases.
+  We have one hypothesis for each previous case.
+-/
+public def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := do
+  let prf ← mkFreshExprSyntheticOpaqueMVar h
+  match (← simpH prf.mvarId! numEqs) with
+  | none   => return none
+  | some mvarId' =>
+    return some (← mvarId'.getType)

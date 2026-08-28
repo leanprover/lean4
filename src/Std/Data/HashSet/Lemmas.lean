@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Data.HashMap.Lemmas
 public import Std.Data.HashSet.Basic
+public import Std.Internal.ForIn.Basic
 
 @[expose] public section
 
@@ -65,7 +66,7 @@ theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == 
 theorem mem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : a ∈ m ↔ b ∈ m :=
   HashMap.mem_congr hab
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem contains_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : HashSet α).contains a = false :=
   HashMap.contains_emptyWithCapacity
 
@@ -106,7 +107,7 @@ theorem isEmpty_iff_forall_not_mem [EquivBEq α] [LawfulHashable α] :
 
 @[simp] theorem singleton_eq_insert {a : α} : Singleton.singleton a = (∅ : HashSet α).insert a := rfl
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem contains_insert [EquivBEq α] [LawfulHashable α] {k a : α} :
     (m.insert k).contains a = (k == a || m.contains a) :=
   HashMap.contains_insertIfNew
@@ -140,6 +141,8 @@ theorem contains_insert_self [EquivBEq α] [LawfulHashable α] {k : α} : (m.ins
 
 theorem mem_insert_self [EquivBEq α] [LawfulHashable α] {k : α} : k ∈ m.insert k := by simp
 
+theorem mem_of_get_eq {k v : α} {w} (_ : m.get k w = v) : k ∈ m := w
+
 @[simp, grind =]
 theorem size_emptyWithCapacity {c} : (emptyWithCapacity c : HashSet α).size = 0 :=
   HashMap.size_emptyWithCapacity
@@ -170,7 +173,7 @@ theorem size_insert_le [EquivBEq α] [LawfulHashable α] {k : α} :
     (m.insert k).size ≤ m.size + 1 :=
   HashMap.size_insertIfNew_le
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem erase_emptyWithCapacity {a : α} {c : Nat} : (emptyWithCapacity c : HashSet α).erase a = emptyWithCapacity c :=
   ext HashMap.erase_emptyWithCapacity
 
@@ -183,7 +186,7 @@ theorem isEmpty_erase [EquivBEq α] [LawfulHashable α] {k : α} :
     (m.erase k).isEmpty = (m.isEmpty || (m.size == 1 && m.contains k)) :=
   HashMap.isEmpty_erase
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem contains_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
     (m.erase k).contains a = (!(k == a) && m.contains a) :=
   HashMap.contains_erase
@@ -211,7 +214,7 @@ theorem size_le_size_erase [EquivBEq α] [LawfulHashable α] {k : α} :
     m.size ≤ (m.erase k).size + 1 :=
   HashMap.size_le_size_erase
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem get?_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : HashSet α).get? a = none :=
   HashMap.getKey?_emptyWithCapacity
 
@@ -223,7 +226,7 @@ theorem get?_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
     m.isEmpty = true → m.get? a = none :=
   HashMap.getKey?_of_isEmpty
 
-@[grind =] theorem get?_insert [EquivBEq α] [LawfulHashable α] {k a : α} :
+@[grind =, cbv_eval] theorem get?_insert [EquivBEq α] [LawfulHashable α] {k a : α} :
     (m.insert k).get? a = if k == a ∧ ¬k ∈ m then some k else m.get? a :=
   HashMap.getKey?_insertIfNew
 
@@ -260,7 +263,7 @@ theorem get?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] {a :
 theorem get?_eq_none [EquivBEq α] [LawfulHashable α] {a : α} : ¬a ∈ m → m.get? a = none :=
   HashMap.getKey?_eq_none
 
-@[grind =] theorem get?_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
+@[grind =, cbv_eval] theorem get?_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
     (m.erase k).get? a = if k == a then none else m.get? a :=
   HashMap.getKey?_erase
 
@@ -285,6 +288,10 @@ theorem get?_eq_some [LawfulBEq α] {k : α} (h : k ∈ m) : m.get? k = some k :
     (m.insert k).get a h₁ =
       if h₂ : k == a ∧ ¬k ∈ m then k else m.get a (mem_of_mem_insert' h₁ h₂) :=
   HashMap.getKey_insertIfNew (h₁ := h₁)
+
+theorem toList_insert_perm [EquivBEq α] [LawfulHashable α] {k : α} :
+    (m.insert k).toList.Perm (if k ∈ m then m.toList else k :: m.toList) :=
+  HashMap.keys_insertIfNew_perm
 
 @[simp, grind =]
 theorem get_erase [EquivBEq α] [LawfulHashable α] {k a : α} {h'} :
@@ -314,7 +321,7 @@ theorem get_congr [EquivBEq α] [LawfulHashable α] {k₁ k₂ : α} (h : k₁ =
 theorem get_eq [LawfulBEq α] {k : α} (h : k ∈ m) : m.get k h = k :=
   HashMap.getKey_eq h
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem get!_emptyWithCapacity [Inhabited α] {a : α} {c} : (emptyWithCapacity c : HashSet α).get! a = default :=
   HashMap.getKey!_emptyWithCapacity
 
@@ -326,7 +333,7 @@ theorem get!_of_isEmpty [Inhabited α] [EquivBEq α] [LawfulHashable α] {a : α
     m.isEmpty = true → m.get! a = default :=
   HashMap.getKey!_of_isEmpty
 
-@[grind =] theorem get!_insert [Inhabited α] [EquivBEq α] [LawfulHashable α] {k a : α} :
+@[grind =, cbv_eval] theorem get!_insert [Inhabited α] [EquivBEq α] [LawfulHashable α] {k a : α} :
     (m.insert k).get! a = if k == a ∧ ¬k ∈ m then k else m.get! a :=
   HashMap.getKey!_insertIfNew
 
@@ -338,7 +345,7 @@ theorem get!_eq_default [Inhabited α] [EquivBEq α] [LawfulHashable α] {a : α
     ¬a ∈ m → m.get! a = default :=
   HashMap.getKey!_eq_default
 
-@[grind =] theorem get!_erase [Inhabited α] [EquivBEq α] [LawfulHashable α] {k a : α} :
+@[grind =, cbv_eval] theorem get!_erase [Inhabited α] [EquivBEq α] [LawfulHashable α] {k a : α} :
     (m.erase k).get! a = if k == a then default else m.get! a :=
   HashMap.getKey!_erase
 
@@ -373,7 +380,7 @@ theorem get!_eq_of_contains [LawfulBEq α] [Inhabited α] {k : α} (h : m.contai
 theorem get!_eq_of_mem [LawfulBEq α] [Inhabited α] {k : α} (h : k ∈ m) : m.get! k = k :=
   HashMap.getKey!_eq_of_mem h
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem getD_emptyWithCapacity {a fallback : α} {c} : (emptyWithCapacity c : HashSet α).getD a fallback = fallback :=
   HashMap.getKeyD_emptyWithCapacity
 
@@ -385,7 +392,7 @@ theorem getD_of_isEmpty [EquivBEq α] [LawfulHashable α] {a fallback : α} :
     m.isEmpty = true → m.getD a fallback = fallback :=
   HashMap.getKeyD_of_isEmpty
 
-@[grind =] theorem getD_insert [EquivBEq α] [LawfulHashable α] {k a fallback : α} :
+@[grind =, cbv_eval] theorem getD_insert [EquivBEq α] [LawfulHashable α] {k a fallback : α} :
     (m.insert k).getD a fallback = if k == a ∧ ¬k ∈ m then k else m.getD a fallback :=
   HashMap.getKeyD_insertIfNew
 
@@ -398,7 +405,7 @@ theorem getD_eq_fallback [EquivBEq α] [LawfulHashable α] {a fallback : α} :
     ¬a ∈ m → m.getD a fallback = fallback :=
   HashMap.getKeyD_eq_fallback
 
-@[grind =] theorem getD_erase [EquivBEq α] [LawfulHashable α] {k a fallback : α} :
+@[grind =, cbv_eval] theorem getD_erase [EquivBEq α] [LawfulHashable α] {k a fallback : α} :
     (m.erase k).getD a fallback = if k == a then fallback else m.getD a fallback :=
   HashMap.getKeyD_erase
 
@@ -545,6 +552,14 @@ theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
     ForIn.forIn m init f = ForIn.forIn m.toList init f :=
   HashMap.forIn_eq_forIn_keys
 
+@[simp, grind =]
+theorem forIn_toList (c : HashSet α) : ForIn.toList c = c.toList :=
+  Std.Internal.ForIn.toList_eq_of_forIn_eq fun _ _ => forIn_eq_forIn_toList
+
+instance [Monad m'] [LawfulMonad m'] :
+    Std.Internal.PureForIn m' (HashSet α) α where
+  forIn_eq _ _ _ := by rw [forIn_toList]; exact forIn_eq_forIn_toList
+
 theorem foldM_eq_foldlM_toArray [Monad m'] [LawfulMonad m']
     {f : δ → α → m' δ} {init : δ} :
     m.foldM (fun d a => f d a) init = m.toArray.foldlM f init :=
@@ -583,7 +598,7 @@ theorem any_eq_true_iff_exists_mem_get [LawfulHashable α] [EquivBEq α]
 
 theorem any_eq_true_iff_exists_mem [LawfulBEq α] {p : α → Bool} :
     m.any p = true ↔ ∃ (a : α), a ∈ m ∧ p a := by
-  simpa using @HashMap.any_eq_true_iff_exists_mem_getElem _ _ _ _ _ _ (fun a b => p a)
+  simpa using! @HashMap.any_eq_true_iff_exists_mem_getElem _ _ _ _ _ _ (fun a b => p a)
 
 theorem any_eq_false_iff_forall_mem_get [LawfulHashable α] [EquivBEq α]
     {p : α → Bool} :
@@ -594,7 +609,7 @@ theorem any_eq_false_iff_forall_mem_get [LawfulHashable α] [EquivBEq α]
 theorem any_eq_false_iff_forall_mem [LawfulBEq α] {p : α → Bool} :
     m.any p = false ↔
       ∀ (a : α), a ∈ m → p a = false := by
-  simpa using @HashMap.any_eq_false_iff_forall_mem_getElem _ _ _ _ _ _ (fun a b => p a)
+  simpa using! @HashMap.any_eq_false_iff_forall_mem_getElem _ _ _ _ _ _ (fun a b => p a)
 
 @[simp]
 theorem all_toList [LawfulHashable α] [EquivBEq α] {p : α → Bool} :
@@ -617,11 +632,11 @@ theorem all_eq_false_iff_exists_mem_get [EquivBEq α] [LawfulHashable α]
 
 theorem all_eq_false_iff_exists_mem [LawfulBEq α] {p : α → Bool} :
     m.all p = false ↔ ∃ (a : α), a ∈ m ∧ p a = false := by
-  simpa using @HashMap.all_eq_false_iff_exists_mem_getElem _ _ _ _ _ _ (fun a b => p a)
+  simpa using! @HashMap.all_eq_false_iff_exists_mem_getElem _ _ _ _ _ _ (fun a b => p a)
 
 variable {ρ : Type v} [ForIn Id ρ α]
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem insertMany_nil :
     insertMany m [] = m :=
   ext HashMap.insertManyIfNewUnit_nil
@@ -631,7 +646,7 @@ theorem insertMany_list_singleton {k : α} :
     insertMany m [k] = m.insert k :=
   ext HashMap.insertManyIfNewUnit_list_singleton
 
-@[grind _=_] theorem insertMany_cons {l : List α} {k : α} :
+@[grind _=_, cbv_eval] theorem insertMany_cons {l : List α} {k : α} :
     insertMany m (k :: l) = insertMany (m.insert k) l :=
   ext HashMap.insertManyIfNewUnit_cons
 
@@ -779,6 +794,23 @@ theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α]
 theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α]
     {l : ρ} : (insertMany m l).isEmpty → m.isEmpty :=
   HashMap.isEmpty_of_isEmpty_insertManyIfNewUnit
+
+end
+
+section
+variable {m₁ m₂ : HashSet α}
+
+theorem Equiv.beq [EquivBEq α] [LawfulHashable α] (h : m₁ ~m m₂) : m₁ == m₂ :=
+  HashMap.Equiv.beq h.1
+
+theorem equiv_of_beq [LawfulBEq α] (h : m₁ == m₂) : m₁ ~m m₂ :=
+  ⟨HashMap.equiv_of_beq h⟩
+
+theorem beq_iff_equiv [LawfulBEq α] : (m₁ == m₂) ↔ m₁ ~m m₂ :=
+  ⟨equiv_of_beq, Equiv.beq⟩
+
+theorem Equiv.beq_congr [EquivBEq α] [LawfulHashable α] {m₃ m₄ : HashSet α} (h₁ : m₁ ~m m₃) (h₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) :=
+  HashMap.Equiv.beq_congr h₁.1 h₂.1
 
 end
 
@@ -1228,7 +1260,7 @@ end Diff
 
 section
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem ofArray_eq_ofList (a : Array α) :
     ofArray a = ofList a.toList := by
   apply ext
@@ -1249,11 +1281,10 @@ theorem ofList_singleton {k : α} :
       insertMany ((∅ : HashSet α).insert hd) tl :=
   ext HashMap.unitOfList_cons
 
+@[cbv_eval]
 theorem ofList_eq_insertMany_empty {l : List α} :
     ofList l = insertMany (∅ : HashSet α) l :=
-  match l with
-  | [] => by simp
-  | hd :: tl => by simp [ofList_cons, insertMany_cons]
+  ext HashMap.unitOfList_eq_insertManyIfNewUnit_empty
 
 @[simp, grind =]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
@@ -1439,6 +1470,24 @@ theorem empty_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] : ∅ ~m m ↔
 theorem equiv_iff_toList_perm [EquivBEq α] [LawfulHashable α] :
     m₁ ~m m₂ ↔ m₁.toList.Perm m₂.toList :=
   ⟨Equiv.toList_perm, Equiv.of_toList_perm⟩
+
+theorem equiv_iff_forall_mem_iff [LawfulBEq α] :
+    m₁ ~m m₂ ↔ (∀ k, k ∈ m₁ ↔ k ∈ m₂) :=
+  ⟨fun h _ => h.mem_iff, Equiv.of_forall_mem_iff⟩
+
+theorem insertMany_list_equiv_foldl {m : HashSet α} {l : List α} :
+    m.insertMany l ~m l.foldl (init := m) fun acc a => acc.insert a := by
+  constructor
+  rw [← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew a ())]
+  · exact HashMap.insertManyIfNewUnit_list_equiv_foldl
+  · exact fun _ _ => rfl
+
+theorem ofList_equiv_foldl {l : List α} :
+    ofList l ~m l.foldl (init := ∅) fun acc a => acc.insert a := by
+  constructor
+  rw [← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew a ())]
+  · exact HashMap.unitOfList_equiv_foldl
+  · exact fun _ _ => rfl
 
 end Equiv
 

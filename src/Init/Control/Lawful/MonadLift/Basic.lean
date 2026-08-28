@@ -6,7 +6,7 @@ Authors: Quang Dao
 module
 
 prelude
-public import Init.Control.Basic
+public import Init.Notation
 
 public section
 

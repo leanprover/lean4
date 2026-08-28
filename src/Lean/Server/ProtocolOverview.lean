@@ -152,9 +152,9 @@ def protocolOverview : Array MessageOverview := #[
   .notification {
     method := "textDocument/publishDiagnostics"
     direction := .serverToClient
-    kinds := #[.extendedParameterType #[``PublishDiagnosticsParams.diagnostics, ``DiagnosticWith.fullRange?, ``DiagnosticWith.isSilent?, ``DiagnosticWith.leanTags?]]
+    kinds := #[.extendedParameterType #[``PublishDiagnosticsParams.isIncremental?, ``PublishDiagnosticsParams.diagnostics, ``DiagnosticWith.fullRange?, ``DiagnosticWith.isSilent?, ``DiagnosticWith.leanTags?]]
     parameterType := PublishDiagnosticsParams
-    description := "Emitted by the language server whenever a new set of diagnostics becomes available for a file. Unlike most language servers, the Lean language server emits this notification incrementally while processing the file, not only when the full file has been processed."
+    description := "Emitted by the language server whenever a new set of diagnostics becomes available for a file. Unlike most language servers, the Lean language server emits this notification incrementally while processing the file, not only when the full file has been processed. If the client sets `LeanClientCapabilities.incrementalDiagnosticSupport` and `isIncremental` is `true`, the diagnostics in the notification should be appended to the existing diagnostics for the same document version rather than replacing them."
   },
   .notification {
     method := "$/lean/fileProgress"

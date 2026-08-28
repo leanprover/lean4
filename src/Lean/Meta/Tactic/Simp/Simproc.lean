@@ -153,9 +153,9 @@ def addSimprocAttrCore (ext : SimprocExtension) (declName : Name) (kind : Attrib
 def Simprocs.addCore (s : Simprocs) (keys : Array SimpTheoremKey) (declName : Name) (post : Bool) (proc : Sum Simproc DSimproc) : Simprocs :=
   let s := { s with simprocNames := s.simprocNames.insert declName, erased := s.erased.erase declName }
   if post then
-    { s with post := s.post.insertCore keys { declName, keys, post, proc } }
+    { s with post := s.post.insertKeyValue keys { declName, keys, post, proc } }
   else
-    { s with pre := s.pre.insertCore keys { declName, keys, post, proc } }
+    { s with pre := s.pre.insertKeyValue keys { declName, keys, post, proc } }
 
 /--
 Implements attributes `builtin_simproc` and `builtin_sevalproc`.
@@ -186,6 +186,13 @@ def Simprocs.add (s : Simprocs) (declName : Name) (post : Bool) : CoreM Simprocs
     throwError "Invalid `[simproc]` attribute: `{.ofConstName declName}` is not a simproc"
   return s.addCore keys declName post proc
 
+/--
+Applies `s` to `e` after peeling off `numExtraArgs` trailing arguments, and re-applies them to the
+result. This is how a simproc keyed on `f a b` fires on the over-application `f a b c`.
+
+`numExtraArgs` must be the number `getMatchWithExtra` returned for `e` itself; a number obtained for
+a different expression may exceed the number of arguments `e` has.
+-/
 def SimprocEntry.try (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM Step := do
   let mut extraArgs := #[]
   let mut e := e
@@ -213,6 +220,13 @@ def SimprocEntry.tryD (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM
   | .inl _ => return .continue
   | .inr proc => return (← proc e).addExtraArgs extraArgs
 
+/--
+Runs the applicable simprocs in `s` on `e`, and returns as soon as one of them rewrites `e`.
+
+We must not keep going with the remaining candidates: they were selected for `e`, and the number of
+extra arguments recorded for each of them only makes sense for `e`. The simplifier looks up
+candidates afresh when it revisits the rewritten expression.
+-/
 def simprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Expr) : SimpM Step := do
   let candidates ← withSimpIndexConfig <| s.getMatchWithExtra e
   if candidates.isEmpty then
@@ -220,36 +234,19 @@ def simprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Ex
     trace[Debug.Meta.Tactic.simp] "no {tag}-simprocs found for {e}"
     return .continue
   else
-    let mut e  := e
-    let mut proof? : Option Expr := none
-    let mut found := false
-    let mut cache := true
     for (simprocEntry, numExtraArgs) in candidates do
       unless erased.contains simprocEntry.declName do
-        let s ← simprocEntry.try numExtraArgs e
-        match s with
-        | .visit r =>
+        let step ← simprocEntry.try numExtraArgs e
+        match step with
+        | .visit r | .done r | .continue (some r) =>
           trace[Debug.Meta.Tactic.simp] "simproc result {e} => {r.expr}"
           recordSimpTheorem (.decl simprocEntry.declName post)
-          return .visit (← mkEqTransOptProofResult proof? cache r)
-        | .done r =>
-          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {r.expr}"
-          recordSimpTheorem (.decl simprocEntry.declName post)
-          return .done (← mkEqTransOptProofResult proof? cache r)
-        | .continue (some r) =>
-          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {r.expr}"
-          recordSimpTheorem (.decl simprocEntry.declName post)
-          e := r.expr
-          proof? ← mkEqTrans? proof? r.proof?
-          cache := cache && r.cache
-          found := true
+          return step
         | .continue none =>
           pure ()
-    if found then
-      return .continue (some { expr := e, proof?, cache })
-    else
-      return .continue
+    return .continue
 
+/-- Similar to `simprocCore`, but for `DSimproc`s. -/
 def dsimprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Expr) : SimpM DStep := do
   let candidates ← withSimpIndexConfig <| s.getMatchWithExtra e
   if candidates.isEmpty then
@@ -257,31 +254,17 @@ def dsimprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : E
     trace[Debug.Meta.Tactic.simp] "no {tag}-simprocs found for {e}"
     return .continue
   else
-    let mut e  := e
-    let mut found := false
     for (simprocEntry, numExtraArgs) in candidates do
       unless erased.contains simprocEntry.declName do
-        let s ← simprocEntry.tryD numExtraArgs e
-        match s with
-        | .visit eNew =>
+        let step ← simprocEntry.tryD numExtraArgs e
+        match step with
+        | .visit eNew | .done eNew | .continue (some eNew) =>
           trace[Debug.Meta.Tactic.simp] "simproc result {e} => {eNew}"
           recordSimpTheorem (.decl simprocEntry.declName post)
-          return .visit eNew
-        | .done eNew =>
-          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {eNew}"
-          recordSimpTheorem (.decl simprocEntry.declName post)
-          return .done eNew
-        | .continue (some eNew) =>
-          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {eNew}"
-          recordSimpTheorem (.decl simprocEntry.declName post)
-          e := eNew
-          found := true
+          return step
         | .continue none =>
           pure ()
-    if found then
-      return .continue (some e)
-    else
-      return .continue
+    return .continue
 
 abbrev SimprocsArray := Array Simprocs
 

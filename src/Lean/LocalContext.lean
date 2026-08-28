@@ -9,6 +9,8 @@ prelude
 public import Init.Data.Nat.Control
 public import Lean.Data.PersistentArray
 public import Lean.Expr
+import Init.Data.ToString.Macro
+import Init.Omega
 
 public section
 
@@ -474,6 +476,9 @@ def setKind (lctx : LocalContext) (fvarId : FVarId)
 def setBinderInfo (lctx : LocalContext) (fvarId : FVarId) (bi : BinderInfo) : LocalContext :=
   modifyLocalDecl lctx fvarId fun decl => decl.setBinderInfo bi
 
+def setType (lctx : LocalContext) (fvarId : FVarId) (type : Expr) : LocalContext :=
+  modifyLocalDecl lctx fvarId fun decl => decl.setType type
+
 @[export lean_local_ctx_num_indices]
 def numIndices (lctx : LocalContext) : Nat :=
   lctx.decls.size
@@ -491,8 +496,8 @@ def getAt? (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
     | none      => pure b
     | some decl => f decl b
 
-@[specialize] def forM [Monad m] (lctx : LocalContext) (f : LocalDecl → m PUnit) : m PUnit :=
-  lctx.decls.forM fun decl => match decl with
+@[specialize] def forM [Monad m] (lctx : LocalContext) (f : LocalDecl → m PUnit) (start := 0) : m PUnit :=
+  lctx.decls.forM (start := start) fun decl => match decl with
     | none      => pure PUnit.unit
     | some decl => f decl
 
@@ -641,15 +646,15 @@ Batched version of `Lean.LocalContext.findFromUserName?`.
 Finds the visible local declarations for each of the given `userNames` up to a certain `start`
 index exclusively, if any.
 -/
-def findFromUserNames (lctx : LocalContext) (userNames : Std.HashSet Name) (start := 0) : Array LocalDecl :=
+def findFromUserNames (lctx : LocalContext) (userNames : Std.HashMap Name α) (start := 0) : Array LocalDecl :=
   Array.reverse <| Id.run <| ExceptT.runCatch do
-    let (_, _, acc) ← lctx.foldrM (init := (userNames, lctx.numIndices, #[])) fun decl (userNames, num, acc) => do
+    let (_, acc) ← lctx.foldrM (init := (userNames, #[])) fun decl (userNames, acc) => do
       if userNames.isEmpty then throw acc -- stop when we found all user names
-      if num ≤ start then throw acc         -- stop when we reached the start index
+      if decl.index < start then throw acc       -- stop when we passed over the start index
       if userNames.contains decl.userName then
-        pure (userNames.erase decl.userName, num - 1, acc.push decl)
+        pure (userNames.erase decl.userName, acc.push decl)
       else
-        pure (userNames, num - 1, acc)
+        pure (userNames, acc)
     return acc.reverse
 
 end LocalContext

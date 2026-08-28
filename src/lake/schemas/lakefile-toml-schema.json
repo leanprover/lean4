@@ -149,6 +149,16 @@
                     },
                     "default": [],
                     "description": "Build key identifiers of Lean plugin targets to load during the elaboration of a module (via `lean --plugin`).\n\nFormat: `<target>[:<facet>]*`, where:\n- `<target>` is of the form `@<package>`, `@<package>/<targetName>`, +<module>` or `@<package>/+<module>`,\n- `<package>` may be empty to reference the default package,\n- `<facet>` is the name of a target facet."
+                },
+                "requiresModuleSystem": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether this package or library should be considered designed for use with the module system.\n\nIf enabled, Lake emits a warning whenever a module imports a module of this code unit without itself using the module system (i.e., without a `module` header). This applies both to downstream consumers and to non-module files within the same package, signalling that the code unit's API expects the visibility and elaboration semantics of the module system.\n\nImporters can opt out of the warning by setting `allowNonModules = true` on their own package or library."
+                },
+                "allowNonModules": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether this package or library permits non-module-system files without warning.\n\nBy default, when a non-module-system file in this code unit imports a module from a code unit that has set `requiresModuleSystem` (which may include this one itself), Lake emits a warning. Setting this to `true` suppresses those warnings, declaring that the code unit is knowingly mixing non-module-system files with module-system dependencies."
                 }
             }
         },
@@ -191,7 +201,7 @@
                         "libPrefixOnWindows": {
                             "type": "boolean",
                             "default": false,
-                            "description": "Whether static and shared binaries of this library should be prefixed with `lib` on Windows.\n\nUnlike Unix, Windows does not require native libraries to start with `lib` and, by convention, they usually do not. However, for consistent naming across all platforms, users may wish to enable this.\n\nDefaults to `false`."
+                            "description": "Whether static and shared binaries of this library should be prefixed with `lib` on Windows.\n\nUnlike Unix, Windows does not require native libraries to start with `lib` and, by convention, they usually do not. However, for consistent naming across all platforms, users may wish to enable this."
                         },
                         "allowImportAll": {
                             "type": "boolean",
@@ -355,7 +365,8 @@
                     "description": "A dependency on the local filesystem, specified by its path."
                 },
                 "git": {
-                    "type": "string",
+                    "type": ["string", "object"],
+                    "default": "",
                     "description": "A dependency in a Git repository, specified by its URL."
                 },
                 "subDir": {
@@ -461,13 +472,18 @@
                     "default": false,
                     "description": "Whether downstream packages can `import all` modules of this package.\n\nIf enabled, downstream users will be able to access the `private` internals of modules, including definition bodies not marked as `@[expose]`. This may also, in the future, prevent compiler optimization which rely on `private` definitions being inaccessible outside their own package."
                 },
+                "fixedToolchain": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether this package is expected to only function on a single toolchain (the package's toolchain).\n\nThis informs Lake's toolchain update procedure (in `lake update`) to prioritize this package's toolchain. It also avoids the need to separate input-to-output mappings for this package by toolchain version in the Lake cache."
+                },
                 "enableArtifactCache": {
                     "type": "boolean",
-                    "description": "Whether to enables Lake's local, offline artifact cache for the package.\n\nArtifacts (i.e., build products) of packages will be shared across local copies by storing them in a cache associated with the Lean toolchain.\nThis can significantly reduce initial build times and disk space usage when working with multiple copies of large projects or large dependencies.\n\nAs a caveat, build targets which support the artifact cache will not be stored in their usual location within the build directory. Thus, projects with custom build scripts that rely on specific location of artifacts may wish to disable this feature.\n\nIf not set, the cache will be disabled by default unless the `LAKE_ARTIFACT_CACHE` environment variable is set to true."
+                    "description": "Whether to enables Lake's local, offline artifact cache for the package.\n\nArtifacts (i.e., build products) of packages will be shared across local copies by storing them in a cache associated with the Lean toolchain.\nThis can significantly reduce initial build times and disk space usage when working with multiple copies of large projects or large dependencies.\n\nAs a caveat, build targets which support the artifact cache will not be stored in their usual location within the build directory. Thus, projects with custom build scripts that rely on specific location of artifacts may wish to disable this feature.\n\nIf `none` (the default), this will fallback to (in order):\n* The `LAKE_ARTIFACT_CACHE` environment variable (if set).\n* The workspace root's `enableArtifactCache` configuration (if set and this package is a dependency).\n* **Lake's default**: The package can use artifacts from the cache, but cannot write to it."
                 },
                 "restoreAllArtifacts": {
                     "type": "boolean",
-                    "description": "Whether, when the local artifact cache is enabled, Lake should copy all cached artifacts into the build directory. This ensures the build results are available to external consumers who expect them in the build directory."
+                    "description": "Whether, when the local artifact cache is enabled, Lake should copy all cached artifacts into the build directory. This ensures the build results are available to external consumers who expect them in the build directory.\n\nIf `none` (the default), this will fallback to (in order):\n* The `LAKE_RESTORE_ARTIFACTS` environment variable (if set).\n* The workspace root's `restoreAllArtifacts` configuration (if set and this package is a dependency).\n* **Lake's default**: `false`."
                 },
                 "srcDir": {
                     "type": "string",
@@ -561,6 +577,10 @@
                     },
                     "default": [],
                     "description": "Arguments to pass to the package's linter.\nThese arguments will come before those passed on the command line via `lake lint -- <args>...`."
+                },
+                "builtinLint": {
+                    "type": "boolean",
+                    "description": "Whether to run Lake's built-in linter on the package.\n\n* `true` — Always run built-in lints. When a lint driver is also configured, built-in lints run before the driver.\n* `false` — Never run built-in lints by default. `lake check-lint` will exit with a nonzero code if no lint driver is configured either.\n* unset (the default) — Currently equivalent to `false`. In a future release, an unset value will run built-in lints when no lint driver is configured (i.e., act like `true` as a fallback)."
                 },
                 "releaseRepo": {
                     "type": "string",

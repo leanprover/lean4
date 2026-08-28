@@ -100,7 +100,7 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
 
 @[simp] theorem pmap_push {P : α → Prop} {f : ∀ a, P a → β} {a : α} {xs : Vector α n} {h : ∀ b ∈ xs.push a, P b} :
     pmap f (xs.push a) h =
-      (pmap f xs (fun a m => by simp at h; exact h a (.inl m))).push (f a (h a (by simp))) := by
+      (pmap f xs (fun a m => by simp [forall_or_eq_imp] at h; exact h.1 _ m)).push (f a (h a (by simp))) := by
   simp [pmap]
 
 @[simp] theorem attach_empty : (#v[] : Vector α 0).attach = #v[] := rfl
@@ -139,15 +139,22 @@ theorem attachWith_congr {xs ys : Vector α n} (w : xs = ys) {P : α → Prop} {
   subst w
   simp
 
+@[congr]
+theorem mk_congr {xs ys : Array α} (h : xs = ys) {h' : xs.size = n} :
+    mk xs h' = mk ys (h ▸ h') := by
+  subst h
+  simp
+
 @[simp] theorem attach_push {a : α} {xs : Vector α n} :
     (xs.push a).attach =
       (xs.attach.map (fun ⟨x, h⟩ => ⟨x, mem_push_of_mem a h⟩)).push ⟨a, by simp⟩ := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.map_attach_eq_pmap]
+  apply Vector.ext
+  simp [Array.attachWith_eq_map_attach, Array.getElem_push]
 
 @[simp] theorem attachWith_push {a : α} {xs : Vector α n} {P : α → Prop} {H : ∀ x ∈ xs.push a, P x} :
     (xs.push a).attachWith P H =
-      (xs.attachWith P (fun x h => by simp at H; exact H x (.inl h))).push ⟨a, H a (by simp)⟩ := by
+      (xs.attachWith P (fun x h => by simp [forall_or_eq_imp] at H; exact H.1 _ h)).push ⟨a, H a (by simp)⟩ := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
@@ -224,7 +231,7 @@ theorem getElem?_pmap {p : α → Prop} {f : ∀ a, p a → β} {xs : Vector α 
 @[simp, grind =]
 theorem getElem_pmap {p : α → Prop} (f : ∀ a, p a → β) {xs : Vector α n} (h : ∀ a ∈ xs, p a) {i : Nat}
     (hn : i < n) :
-    (pmap f xs h)[i] = f (xs[i]) (h _ (by simp)) := by
+    (pmap f xs h)[i] = f (xs[i]) (h _ (getElem_mem hn)) := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
@@ -359,7 +366,10 @@ theorem pmap_append' {p : α → Prop} {f : ∀ a : α, p a → β} {xs : Vector
       ys.attach.map (fun ⟨y, h⟩ => (⟨y, mem_append_right xs h⟩ : { y // y ∈ xs ++ ys })) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, rfl⟩
-  simp [Array.map_attach_eq_pmap]
+  apply Vector.ext
+  intro i hi
+  rw [Vector.getElem_append]
+  simp [Array.attachWith_eq_map_attach, Array.getElem_append]
 
 @[simp] theorem attachWith_append {P : α → Prop} {xs : Vector α n} {ys : Vector α m}
     {H : ∀ (a : α), a ∈ xs ++ ys → P a} :
@@ -472,9 +482,6 @@ def unattach {α : Type _} {p : α → Prop} (xs : Vector { x // p x } n) : Vect
 
 theorem unattach_empty {p : α → Prop} : (#v[] : Vector { x // p x } 0).unattach = #v[] := by simp
 
-@[deprecated unattach_empty (since := "2025-05-26")]
-abbrev unattach_nil := @unattach_empty
-
 @[simp] theorem unattach_push {p : α → Prop} {a : { x // p x }} {xs : Vector { x // p x } n} :
     (xs.push a).unattach = xs.unattach.push a.1 := by
   simp only [unattach, Vector.map_push]
@@ -583,7 +590,8 @@ and simplifies these to the function directly taking the value.
   simp [Array.unattach_reverse]
 
 
-@[simp] theorem unattach_append {p : α → Prop} {xs ys : Vector { x // p x } n} :
+@[simp] theorem unattach_append {p : α → Prop}
+    {xs : Vector { x // p x } n} {ys : Vector { x // p x } m} :
     (xs ++ ys).unattach = xs.unattach ++ ys.unattach := by
   rcases xs
   rcases ys

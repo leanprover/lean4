@@ -16,7 +16,7 @@ set_option autoImplicit false
 /-!
 # Hash maps with unbundled well-formedness invariant
 
-This module develops the type `Std.HashMap.Raw` of dependent hash maps with unbundled
+This module develops the type `Std.HashMap.Raw` of hash maps with unbundled
 well-formedness invariant.
 
 This version is safe to use in nested inductive types. The well-formedness predicate is
@@ -249,6 +249,11 @@ instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
 instance [BEq α] [Hashable α] : Inter (Raw α β) := ⟨inter⟩
 
 instance [BEq α] [Hashable α] : SDiff (Raw α β) := ⟨diff⟩
+
+@[inherit_doc DHashMap.Raw.beq] def beq {β : Type v} [BEq α] [Hashable α] [BEq β] (m₁ m₂ : Raw α β) : Bool :=
+  DHashMap.Raw.Const.beq m₁.inner m₂.inner
+
+instance [BEq α] [Hashable α] [BEq β] : BEq (Raw α β) := ⟨beq⟩
 
 section Unverified
 

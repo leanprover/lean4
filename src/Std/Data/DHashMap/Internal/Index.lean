@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Data.UInt.Bitwise
+import Init.ByCases
+import Init.Data.UInt.Lemmas
 
 public section
 

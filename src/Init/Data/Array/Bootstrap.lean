@@ -7,8 +7,10 @@ Authors: Mario Carneiro
 module
 
 prelude
-public import Init.Data.List.TakeDrop
 import all Init.Data.Array.Basic
+public import Init.Data.List.Control
+import Init.Data.List.Lemmas
+import Init.Data.List.TakeDrop
 
 public section
 
@@ -50,7 +52,9 @@ theorem foldrM_eq_reverse_foldlM_toList.aux [Monad m]
   unfold foldrM.fold
   match i with
   | 0 => simp
-  | i+1 => rw [← List.take_concat_get h]; simp [← aux]
+  | i+1 =>
+    set_option backward.isDefEq.respectTransparency false in
+    rw [← List.take_concat_get h]; simp [← aux]
 
 theorem foldrM_eq_reverse_foldlM_toList [Monad m] {f : α → β → m β} {init : β} {xs : Array α} :
     xs.foldrM f init = xs.toList.reverse.foldlM (fun x y => f y x) init := by
@@ -72,9 +76,6 @@ theorem foldrM_eq_reverse_foldlM_toList [Monad m] {f : α → β → m β} {init
 @[simp, grind =] theorem toList_push {xs : Array α} {x : α} : (xs.push x).toList = xs.toList ++ [x] := by
   rcases xs with ⟨xs⟩
   simp [push, List.concat_eq_append]
-
-@[deprecated toList_push (since := "2025-05-26")]
-abbrev push_toList := @toList_push
 
 @[simp, grind =] theorem toListAppend_eq {xs : Array α} {l : List α} : xs.toListAppend l = xs.toList ++ l := by
   simp [toListAppend, ← foldr_toList]

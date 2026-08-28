@@ -7,10 +7,12 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Constructor
-public import Lean.Meta.Tactic.Assert
-public import Lean.Meta.Tactic.Cleanup
+public import Lean.Meta.Tactic.Replace
 public import Lean.Meta.Tactic.Rename
-public import Lean.Elab.Tactic.Config
+public import Lean.Elab.Tactic.Basic
+public import Lean.Elab.SyntheticMVars
+import Lean.Elab.ConfigEval
+import Lean.Meta.Hint
 
 public section
 
@@ -90,7 +92,7 @@ def closeMainGoalUsing (tacName : Name) (x : Expr → Name → TacticM Expr) (ch
         let mvars ← filterOldMVars (← getMVars val) mvarCounterSaved
         logUnassignedAndAbort mvars
       unless (← mvarId.checkedAssign val) do
-        throwTacticEx tacName mvarId m!"attempting to close the goal using{indentExpr val}\nthis is often due occurs-check failure")
+        throwTacticEx tacName mvarId m!"attempting to close the goal using{indentExpr val}\nthis is often due to an occurs-check failure")
     (fun ex => do
       pushGoal mvarId
       throw ex)
@@ -234,13 +236,10 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
   match stx with
   | `(tactic| specialize $e:term) =>
     let (e, mvarIds') ← elabTermWithHoles e none `specialize (allowNaturalHoles := true)
-    let h := e.getAppFn
-    if h.isFVar then
-      let localDecl ← h.fvarId!.getDecl
-      let mvarId ← (← getMainGoal).assert localDecl.userName (← inferType e).headBeta e
-      let (_, mvarId) ← mvarId.intro1P
-      let mvarId ← mvarId.tryClear h.fvarId!
-      replaceMainGoal (mvarIds' ++ [mvarId])
+    if let Expr.fvar fvarId := e.getLambdaBody.getAppFn then
+      let mvarId ← getMainGoal
+      let result ← mvarId.replace fvarId e (← inferType e).headBeta
+      replaceMainGoal (mvarIds' ++ [result.mvarId])
     else
       throwError "'specialize' requires a term of the form `h x_1 .. x_n` where `h` appears in the local context"
   | _ => throwUnsupportedSyntax
@@ -305,11 +304,27 @@ def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syn
   | `(tactic| apply $t) => evalApplyLikeTactic (fun g e => g.apply e (term? := some m!"`{e}`")) t
   | _ => throwUnsupportedSyntax
 
-@[builtin_tactic Lean.Parser.Tactic.constructor] def evalConstructor : Tactic := fun _ =>
+declare_config_elab elabConstructorConfig Parser.Tactic.ConstructorConfig
+
+private def evalConstructorCore (stx : Syntax) (cfg : Parser.Tactic.ConstructorConfig) : TacticM Unit :=
   withMainContext do
-    let mvarIds' ← (← getMainGoal).constructor
+    let (mvarIds', ctors) ← (← getMainGoal).constructorCore (findAll := !cfg.first)
+    if ctors.size > 1 then
+      let others := ctors.toList.drop 1
+      let othersMsg := MessageData.andList (others.map fun c => m!"`{MessageData.ofConstName c}`")
+      let suggestion : Meta.Hint.Suggestion :=
+        { suggestion := "constructor!", span? := stx[0], diffGranularity := .none }
+      let hint ← MessageData.hint
+        m!"Use `constructor!` to apply the first matching constructor without this warning:"
+        #[suggestion]
+      logWarning <| m!"Tactic `constructor` applied constructor \
+        `{MessageData.ofConstName ctors[0]!}`, but {othersMsg} also \
+        {if others.length == 1 then "matches" else "match"} the goal." ++ hint
     Term.synthesizeSyntheticMVarsNoPostponing
     replaceMainGoal mvarIds'
+
+@[builtin_tactic Lean.Parser.Tactic.constructor] def evalConstructor : Tactic := fun stx => do
+  evalConstructorCore stx (← elabConstructorConfig stx[1])
 
 @[builtin_tactic Lean.Parser.Tactic.withReducible] def evalWithReducible : Tactic := fun stx =>
   withReducible <| evalTactic stx[1]
@@ -317,8 +332,14 @@ def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syn
 @[builtin_tactic Lean.Parser.Tactic.withReducibleAndInstances] def evalWithReducibleAndInstances : Tactic := fun stx =>
   withReducibleAndInstances <| evalTactic stx[1]
 
+@[builtin_tactic Lean.Parser.Tactic.withImplicit] def evalWithImplicit : Tactic := fun stx =>
+  withImplicit <| evalTactic stx[1]
+
 @[builtin_tactic Lean.Parser.Tactic.withUnfoldingAll] def evalWithUnfoldingAll : Tactic := fun stx =>
   withTransparency TransparencyMode.all <| evalTactic stx[1]
+
+@[builtin_tactic Lean.Parser.Tactic.withUnfoldingNone] def evalWithUnfoldingNone : Tactic := fun stx =>
+  withTransparency TransparencyMode.none <| evalTactic stx[1]
 
 /--
   Elaborate `stx`. If it is a free variable, return it. Otherwise, assert it, and return the free variable.
@@ -357,216 +378,5 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
         | some fvarId => return fvarId
       replaceMainGoal [← (← getMainGoal).rename fvarId h.getId]
   | _ => throwUnsupportedSyntax
-
-
-/--
-Make sure `expectedType` does not contain free and metavariables.
-It applies zeta and zetaDelta-reduction to eliminate let-free-vars.
--/
-private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
-  let mut expectedType ← instantiateMVars expectedType
-  if expectedType.hasFVar then
-    expectedType ← zetaReduce expectedType
-  if expectedType.hasMVar then
-    throwError "Expected type must not contain metavariables{indentExpr expectedType}"
-  if expectedType.hasFVar then
-    throwError m!"Expected type must not contain free variables{indentExpr expectedType}"
-      ++ .hint' m!"Use the `+revert` option to automatically clean up and revert free variables"
-  return expectedType
-
-/--
-Given the decidable instance `inst`, reduces it and returns a decidable instance expression
-in whnf that can be regarded as the reason for the failure of `inst` to fully reduce.
--/
-private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := withIncRecDepth do
-  let inst ← whnf inst
-  -- If it's the Decidable recursor, then blame the major premise.
-  if inst.isAppOfArity ``Decidable.rec 5 then
-    return ← blameDecideReductionFailure inst.appArg!
-  -- If it is a matcher, look for a discriminant that's a Decidable instance to blame.
-  if let .const c _ := inst.getAppFn then
-    if let some info ← getMatcherInfo? c then
-      if inst.getAppNumArgs == info.arity then
-        let args := inst.getAppArgs
-        for i in *...info.numDiscrs do
-          let inst' := args[info.numParams + 1 + i]!
-          if (← Meta.isClass? (← inferType inst')) == ``Decidable then
-            let inst'' ← whnf inst'
-            if !(inst''.isAppOf ``isTrue || inst''.isAppOf ``isFalse) then
-              return ← blameDecideReductionFailure inst''
-  return inst
-
-private unsafe def elabNativeDecideCoreUnsafe (tacticName : Name) (expectedType : Expr) : TacticM Expr := do
-  let d ← mkDecide expectedType
-  let levels := (collectLevelParams {} expectedType).params.toList
-  let auxDeclName ← Term.mkAuxName `_nativeDecide
-  let decl := Declaration.defnDecl {
-    name := auxDeclName
-    levelParams := levels
-    type := mkConst ``Bool
-    value := d
-    hints := .abbrev
-    safety := .safe
-  }
-  try
-    -- disable async codegen so we can catch its exceptions; we don't want to report `evalConst`
-    -- failures below when the actual reason was a codegen failure
-    withOptions (Elab.async.set · false) do
-      addAndCompile decl
-  catch ex =>
-    throwError m!"Tactic `{tacticName}` failed. Error: {ex.toMessageData}"
-
-  -- get instance from `d`
-  let s := d.appArg!
-  let rflPrf ← mkEqRefl (toExpr true)
-  let levelParams := levels.map .param
-  let pf := mkApp3 (mkConst ``of_decide_eq_true) expectedType s <|
-    mkApp3 (mkConst ``Lean.ofReduceBool) (mkConst auxDeclName levelParams) (toExpr true) rflPrf
-  try
-    -- disable async TC so we can catch its exceptions
-    withOptions (Elab.async.set · false) do
-      let lemmaName ← mkAuxLemma levels expectedType pf
-      return .const lemmaName levelParams
-  catch ex =>
-    -- Diagnose error
-    throwError MessageData.ofLazyM (es := #[expectedType]) do
-      let r ←
-        try
-          evalConst Bool auxDeclName
-        catch ex =>
-          return m!"\
-            Tactic `{tacticName}` failed: Could not evaluate decidable instance. \
-            Error: {ex.toMessageData}"
-      if !r then
-        return m!"\
-          Tactic `{tacticName}` evaluated that the proposition\
-          {indentExpr expectedType}\n\
-          is false"
-      else
-        return m!"Tactic `{tacticName}` failed. Error: {ex.toMessageData}"
-
-@[implemented_by elabNativeDecideCoreUnsafe]
-private opaque elabNativeDecideCore (tacticName : Name) (expectedType : Expr) : TacticM Expr
-
-def evalDecideCore (tacticName : Name) (cfg : Parser.Tactic.DecideConfig) : TacticM Unit := do
-  if cfg.revert then
-    -- In revert mode: clean up the local context and then revert everything that is left.
-    liftMetaTactic1 fun g => do
-      let g ← g.cleanup
-      let (_, g) ← g.revert (clearAuxDeclsInsteadOfRevert := true) (← g.getDecl).lctx.getFVarIds
-      return g
-  closeMainGoalUsing tacticName fun expectedType _ => do
-    if cfg.kernel && cfg.native then
-      throwError "Tactic `{tacticName}` failed: Cannot simultaneously set both `+kernel` and `+native`"
-    let expectedType ← preprocessPropToDecide expectedType
-    if cfg.native then
-      elabNativeDecideCore tacticName expectedType
-    else if cfg.kernel then
-      doKernel expectedType
-    else
-      doElab expectedType
-where
-  doElab (expectedType : Expr) : TacticM Expr := do
-    let pf ← mkDecideProof expectedType
-    -- Get instance from `pf`
-    let s := pf.appFn!.appArg!
-    let r ← withAtLeastTransparency .default <| whnf s
-    if r.isAppOf ``isTrue then
-      -- Success!
-      -- While we have a proof from reduction, we do not embed it in the proof term,
-      -- and instead we let the kernel recompute it during type checking from the following more
-      -- efficient term. The kernel handles the unification `e =?= true` specially.
-      return pf
-    else
-      -- Diagnose the failure, lazily so that there is no performance impact if `decide` isn't being used interactively.
-      throwError MessageData.ofLazyM (es := #[expectedType]) do
-        diagnose expectedType s r
-
-  doKernel (expectedType : Expr) : TacticM Expr := do
-    let pf ← mkDecideProof expectedType
-    -- Get instance from `pf`
-    let s := pf.appFn!.appArg!
-    -- Reduce the decidable instance to (hopefully!) `isTrue` by passing `pf` to the kernel.
-    -- The `mkAuxLemma` function caches the result in two ways:
-    -- 1. First, the function makes use of a `type`-indexed cache per module.
-    -- 2. Second, once the proof is added to the environment, the kernel doesn't need to check the proof again.
-    let levelsInType := (collectLevelParams {} expectedType).params
-    -- Level variables occurring in `expectedType`, in ambient order
-    let lemmaLevels := (← Term.getLevelNames).reverse.filter levelsInType.contains
-    try
-      let lemmaName ← withOptions (Elab.async.set · false) do
-        mkAuxLemma lemmaLevels expectedType pf
-      return mkConst lemmaName (lemmaLevels.map .param)
-    catch ex =>
-      -- Diagnose the failure, lazily so that there is no performance impact if `decide` isn't being used interactively.
-      throwError MessageData.ofLazyM (es := #[expectedType]) do
-        let r ← withAtLeastTransparency .default <| whnf s
-        if r.isAppOf ``isTrue then
-          return m!"\
-            Tactic `{tacticName}` failed. The elaborator is able to reduce the \
-            `{.ofConstName ``Decidable}` instance, but the kernel fails with:\n\
-            {indentD ex.toMessageData}"
-        diagnose expectedType s r
-
-  diagnose (expectedType s : Expr) (r : Expr) : MetaM MessageData := do
-    if r.isAppOf ``isFalse then
-      return m!"\
-        Tactic `{tacticName}` proved that the proposition\
-        {indentExpr expectedType}\n\
-        is false"
-    -- Re-reduce the instance and collect diagnostics, to get all unfolded Decidable instances
-    let (reason, unfoldedInsts) ← withoutModifyingState <| withOptions (fun opt => diagnostics.set opt true) do
-      modifyDiag (fun _ => {})
-      let reason ← withAtLeastTransparency .default <| blameDecideReductionFailure s
-      let unfolded := (← get).diag.unfoldCounter.foldl (init := #[]) fun cs n _ => cs.push n
-      let unfoldedInsts ← unfolded |>.qsort Name.lt |>.filterMapM fun n => do
-        let e ← mkConstWithLevelParams n
-        if (← Meta.isClass? (← inferType e)) == ``Decidable then
-          return m!"`{.ofConst e}`"
-        else
-          return none
-      return (reason, unfoldedInsts)
-    let stuckMsg :=
-      if unfoldedInsts.isEmpty then
-        m!"Reduction got stuck at the `{.ofConstName ``Decidable}` instance{indentExpr reason}"
-      else
-        let instances := if unfoldedInsts.size == 1 then "instance" else "instances"
-        m!"After unfolding the {instances} {.andList unfoldedInsts.toList}, \
-        reduction got stuck at the `{.ofConstName ``Decidable}` instance{indentExpr reason}"
-    let hint :=
-      if reason.isAppOf ``Eq.rec then
-        .hint' m!"Reduction got stuck on `▸` ({.ofConstName ``Eq.rec}), \
-          which suggests that one of the `{.ofConstName ``Decidable}` instances is defined using tactics such as `rw` or `simp`. \
-          To avoid tactics, make use of functions such as \
-          `{.ofConstName ``inferInstanceAs}` or `{.ofConstName ``decidable_of_decidable_of_iff}` \
-          to alter a proposition."
-      else if reason.isAppOf ``Classical.choice then
-        .hint' m!"Reduction got stuck on `{.ofConstName ``Classical.choice}`, \
-          which indicates that a `{.ofConstName ``Decidable}` instance \
-          is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. \
-          The `{tacticName}` tactic works by evaluating a decision procedure via reduction, \
-          and it cannot make progress with such instances. \
-          This can occur due to the `open scoped Classical` command, which enables the instance \
-          `{.ofConstName ``Classical.propDecidable}`."
-      else
-        MessageData.nil
-    return m!"\
-      Tactic `{tacticName}` failed for proposition\
-      {indentExpr expectedType}\n\
-      because its `{.ofConstName ``Decidable}` instance\
-      {indentExpr s}\n\
-      did not reduce to `{.ofConstName ``isTrue}` or `{.ofConstName ``isFalse}`.\n\n\
-      {stuckMsg}{hint}"
-
-declare_config_elab elabDecideConfig Parser.Tactic.DecideConfig
-
-@[builtin_tactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun stx => do
-  let cfg ← elabDecideConfig stx[1]
-  evalDecideCore `decide cfg
-
-@[builtin_tactic Lean.Parser.Tactic.nativeDecide] def evalNativeDecide : Tactic := fun stx => do
-  let cfg ← elabDecideConfig stx[1]
-  let cfg := { cfg with native := true }
-  evalDecideCore `native_decide cfg
 
 end Lean.Elab.Tactic

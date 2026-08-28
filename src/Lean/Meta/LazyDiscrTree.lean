@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.CompletionName
 public import Lean.Meta.DiscrTree
+import Init.Omega
 
 public section
 
@@ -78,7 +79,7 @@ def tmpStar := mkMVar tmpMVarId
 def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Bool := do
   if h : i < infos.size then
     let info := infos[i]
-    if info.isInstImplicit then
+    if info.isInstance then
       return true
     else if info.isImplicit || info.isStrictImplicit then
       return !(← isType a)
@@ -159,7 +160,7 @@ def isNatOffset (fName : Name) (e : Expr) : MetaM Bool := do
   else
     return fName == ``Nat.succ && e.getAppNumArgs == 1
 
-/-
+/--
 This is a hook to determine if we should add an expression as a wildcard pattern.
 
 Clone of `Lean.Meta.DiscrTree.shouldAddAsStar`.  See it for more discussion.
@@ -260,7 +261,7 @@ def getKeyArgs (e : Expr) (isMatch root : Bool) :
   | .bvar _ | .letE _ _ _ _ _ | .lam _ _ _ _ | .mdata _ _ | .app _ _ | .sort _ =>
     return (.other, #[])
 
-/-
+/--
 Given an expression we are looking for patterns that match, return the key and sub-expressions.
 -/
 abbrev getMatchKeyArgs (e : Expr) (root : Bool) :
@@ -580,7 +581,7 @@ partial def appendResults (mr : MatchResult α) (a : Array α) : Array α :=
 
 end MatchResult
 
-/-
+/--
 A partial match captures the intermediate state of a match
 execution.
 
@@ -659,7 +660,7 @@ def getStarResult (root : Std.HashMap Key TrieIndex) : MatchM α (MatchResult α
     let (vs, _) ← evalNode idx
     pure <| ({} : MatchResult α).push (score := 1) vs
 
-/-
+/--
 Add partial match to cases if discriminator tree root map has potential matches.
 -/
 def pushRootCase (r : Std.HashMap Key TrieIndex) (k : Key) (args : Array Expr)
@@ -802,10 +803,27 @@ structure Cache where
 
 def Cache.empty (ngen : NameGenerator) : Cache := { ngen := ngen, core := {}, «meta» := {} }
 
+/--
+Check if a private declaration is accessible from the current environment.
+- Local private declarations (defined in current module) are always accessible.
+- Imported private declarations are accessible only in the module system with `import all`.
+-/
+private def isAccessiblePrivateName (env : Environment) (declName : Name) : Bool :=
+  if !isPrivateName declName then
+    false -- Not private; the isInternalDetail check should still apply
+  else
+    match env.getModuleIdxFor? declName with
+    | some modIdx =>
+      -- Imported private: accessible only in module system with `import all`
+      env.header.isModule && env.header.modules[modIdx]?.any (·.importAll)
+    | none =>
+      -- Local private: always accessible
+      true
+
 def blacklistInsertion (env : Environment) (declName : Name) : Bool :=
   !allowCompletion env declName
   || declName == ``sorryAx
-  || declName.isInternalDetail
+  || (declName.isInternalDetail && !isAccessiblePrivateName env declName)
   || (declName matches .str _ "inj")
   || (declName matches .str _ "noConfusionType")
 
@@ -816,15 +834,15 @@ def addConstImportData
     (d : ImportData)
     (cacheRef : IO.Ref Cache)
     (tree : PreDiscrTree α)
-    (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
-    (name : Name) (constInfo : ConstantInfo) : BaseIO (PreDiscrTree α) := do
-  if constInfo.isUnsafe then return tree
-  if blacklistInsertion env name then return tree
+    (act : Name → AsyncConstantInfo → MetaM (Array (InitEntry α)))
+    (c : AsyncConstantInfo) : BaseIO (PreDiscrTree α) := do
+  if c.isUnsafe then return tree
+  if blacklistInsertion env c.name then return tree
   let { ngen, core := core_cache, «meta» := meta_cache } ← cacheRef.get
   let mstate : Meta.State := { cache := meta_cache }
   cacheRef.set (Cache.empty ngen)
   let ctx : Meta.Context := { keyedConfig := Config.toConfigWithKey { transparency := .reducible } }
-  let cm := (act name constInfo).run ctx mstate
+  let cm := (act c.name c).run ctx mstate
   let cstate : Core.State := {env, cache := core_cache, ngen}
   match ←(cm.run cctx cstate).toBaseIO with
   | .ok ((a, ms), cs) =>
@@ -833,7 +851,7 @@ def addConstImportData
   | .error e =>
     let i : ImportFailure := {
       module := modName,
-      const := name,
+      const := c.name,
       exception := e
     }
     d.errors.modify (·.push i)
@@ -871,23 +889,22 @@ def toFlat (d : ImportData) (tree : PreDiscrTree α) :
 partial def loadImportedModule
     (cctx : Core.Context)
     (env : Environment)
-    (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
+    (act : Name → AsyncConstantInfo → MetaM (Array (InitEntry α)))
     (d : ImportData)
     (cacheRef : IO.Ref Cache)
     (tree : PreDiscrTree α)
     (mname : Name)
     (mdata : ModuleData)
     (i : Nat := 0) : BaseIO (PreDiscrTree α) := do
-  if h : i < mdata.constNames.size then
-    let name := mdata.constNames[i]
-    let constInfo  := mdata.constants[i]!
-    let tree ← addConstImportData cctx env mname d cacheRef tree act name constInfo
+  if h : i < mdata.constants.size then
+    let tree ← addConstImportData cctx env mname d cacheRef tree act
+      (.ofConstantInfo mdata.constants[i])
     loadImportedModule cctx env act d cacheRef tree mname mdata (i+1)
   else
     pure tree
 
 def createImportedEnvironmentSeq (cctx : Core.Context) (ngen : NameGenerator) (env : Environment)
-    (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
+    (act : Name → AsyncConstantInfo → MetaM (Array (InitEntry α)))
     (start stop : Nat) : BaseIO (InitResults α) := do
       let cacheRef ← IO.mkRef (Cache.empty ngen)
       go (← ImportData.new) cacheRef {} start stop
@@ -916,17 +933,72 @@ def createLocalPreDiscrTree
     (ngen : NameGenerator)
     (env : Environment)
     (d : ImportData)
-    (act : Name → ConstantInfo → MetaM (Array (InitEntry α))) :
+    (act : Name → AsyncConstantInfo → MetaM (Array (InitEntry α))) :
     BaseIO (PreDiscrTree α) := do
   let modName := env.header.mainModule
   let cacheRef ← IO.mkRef (Cache.empty ngen)
-  let act (t : PreDiscrTree α) (n : Name) (c : ConstantInfo) : BaseIO (PreDiscrTree α) :=
-        addConstImportData cctx env modName d cacheRef t act n c
-  let r ← (env.constants.map₂.foldlM (init := {}) act : BaseIO (PreDiscrTree α))
-  pure r
+  -- Iterate locally-added constants via `getLocalConstantInfos` rather than
+  -- `env.constants.map₂.foldlM`: the latter forces `env.checked`, which blocks on every pending
+  -- async theorem body in the file (see lean4#13705). The `AsyncConstantInfo` exposes the eagerly
+  -- committed signature, which is all the indexer needs.
+  let mut tree : PreDiscrTree α := {}
+  for c in ← env.getLocalConstantInfos (skipTheoremSubDecls := true) do
+    tree ← addConstImportData cctx env modName d cacheRef tree act c
+  return tree
 
 def dropKeys (t : LazyDiscrTree α) (keys : List (List LazyDiscrTree.Key)) : MetaM (LazyDiscrTree α) := do
   keys.foldlM (init := t) (·.dropKey ·)
+
+/-- Collect all values from a subtree recursively and clear them. -/
+partial def collectSubtreeAux (next : TrieIndex) : MatchM α (Array α) :=
+  if next = 0 then
+    pure #[]
+  else do
+    let (values, star, children) ← evalNode next
+    -- Collect from star subtrie
+    let starVals ← collectSubtreeAux star
+    -- Collect from all children
+    let mut childVals : Array α := #[]
+    for (_, childIdx) in children do
+      childVals := childVals ++ (← collectSubtreeAux childIdx)
+    -- Clear this node (keep structure but remove values)
+    modify (·.set! next {values := #[], star, children})
+    return values ++ starVals ++ childVals
+
+/-- Navigate to a key path and return all values in that subtree, then drop them. -/
+def extractKeyAux (next : TrieIndex) (rest : List Key) :
+    MatchM α (Array α) :=
+  if next = 0 then
+    pure #[]
+  else do
+    let (_, star, children) ← evalNode next
+    match rest with
+    | [] =>
+      -- At the target node: collect ALL values from entire subtree
+      collectSubtreeAux next
+    | k :: r => do
+      let next := if k == .star then star else children.getD k 0
+      extractKeyAux next r
+
+/-- Extract and drop entries at a specific key, returning the dropped entries. -/
+def extractKey (t : LazyDiscrTree α) (path : List LazyDiscrTree.Key) :
+    MetaM (Array α × LazyDiscrTree α) :=
+  match path with
+  | [] => pure (#[], t)
+  | rootKey :: rest => do
+    let idx := t.roots.getD rootKey 0
+    runMatch t (extractKeyAux idx rest)
+
+/-- Extract entries at the given keys and also drop them from the tree. -/
+def extractKeys (t : LazyDiscrTree α) (keys : List (List LazyDiscrTree.Key)) :
+    MetaM (Array α × LazyDiscrTree α) := do
+  let mut allExtracted : Array α := #[]
+  let mut tree := t
+  for path in keys do
+    let (extracted, newTree) ← extractKey tree path
+    allExtracted := allExtracted ++ extracted
+    tree := newTree
+  return (allExtracted, tree)
 
 def logImportFailure [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (f : ImportFailure) : m Unit :=
   logError m!"Processing failure with {f.const} in {f.module}:\n  {f.exception.toMessageData}"
@@ -934,7 +1006,7 @@ def logImportFailure [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions 
 /-- Create a discriminator tree for imported environment. -/
 def createImportedDiscrTree [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadLiftT BaseIO m]
     (cctx : Core.Context) (ngen : NameGenerator) (env : Environment)
-    (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
+    (act : Name → AsyncConstantInfo → MetaM (Array (InitEntry α)))
     (constantsPerTask : Nat := 1000) :
     m (LazyDiscrTree α) := do
   let n := env.header.moduleData.size
@@ -975,22 +1047,29 @@ def createTreeCtx (ctx : Core.Context) : Core.Context := {
   }
 
 def findImportMatches
-      (ext : EnvExtension (IO.Ref (Option (LazyDiscrTree α))))
-      (addEntry : Name → ConstantInfo → MetaM (Array (InitEntry α)))
+      (ref : IO.Ref (Option (LazyDiscrTree α)))
+      (addEntry : Name → AsyncConstantInfo → MetaM (Array (InitEntry α)))
       (droppedKeys : List (List LazyDiscrTree.Key) := [])
       (constantsPerTask : Nat := 1000)
+      (droppedEntriesRef : Option (IO.Ref (Option (Array α))) := none)
       (ty : Expr) : MetaM (MatchResult α) := do
   let cctx ← (read : CoreM Core.Context)
   let ngen ← getNGen
   let (cNGen, ngen) := ngen.mkChild
   setNGen ngen
-  let _ : Inhabited (IO.Ref (Option (LazyDiscrTree α))) := ⟨← IO.mkRef none⟩
-  let ref := ext.getState (←getEnv)
   let importTree ← (←ref.get).getDM $ do
     profileitM Exception  "lazy discriminator import initialization" (←getOptions) $ do
       let t ← createImportedDiscrTree (createTreeCtx cctx) cNGen (←getEnv) addEntry
                 (constantsPerTask := constantsPerTask)
-      dropKeys t droppedKeys
+      -- If a reference is provided, extract and append dropped entries
+      if let some droppedRef := droppedEntriesRef then
+        let (extracted, t) ← extractKeys t droppedKeys
+        -- Append to existing dropped entries (e.g., from module tree)
+        let existing := (← droppedRef.get).getD #[]
+        droppedRef.set (some (existing ++ extracted))
+        pure t
+      else
+        dropKeys t droppedKeys
   let (importCandidates, importTree) ← importTree.getMatch ty
   ref.set (some importTree)
   pure importCandidates
@@ -1007,7 +1086,7 @@ structure ModuleDiscrTreeRef (α : Type _)  where
 
 /-- Create a discriminator tree for current module declarations. -/
 def createModuleDiscrTree
-    (entriesForConst : Name → ConstantInfo → MetaM (Array (InitEntry α))) :
+    (entriesForConst : Name → AsyncConstantInfo → MetaM (Array (InitEntry α))) :
     CoreM (LazyDiscrTree α) := do
   let env ← getEnv
   let ngen ← getChildNgen
@@ -1019,12 +1098,23 @@ def createModuleDiscrTree
 
 /--
 Creates reference for lazy discriminator tree that only contains this module's definitions.
+If `droppedEntriesRef` is provided, dropped entries (e.g., star-indexed lemmas) are extracted
+and appended to the array in the reference.
 -/
-def createModuleTreeRef (entriesForConst : Name → ConstantInfo → MetaM (Array (InitEntry α)))
-    (droppedKeys : List (List LazyDiscrTree.Key)) : MetaM (ModuleDiscrTreeRef α) := do
+def createModuleTreeRef (entriesForConst : Name → AsyncConstantInfo → MetaM (Array (InitEntry α)))
+    (droppedKeys : List (List LazyDiscrTree.Key))
+    (droppedEntriesRef : Option (IO.Ref (Option (Array α))) := none) :
+    MetaM (ModuleDiscrTreeRef α) := do
   profileitM Exception "build module discriminator tree" (←getOptions) $ do
     let t ← createModuleDiscrTree entriesForConst
-    let t ← dropKeys t droppedKeys
+    let t ← if let some droppedRef := droppedEntriesRef then
+      let (extracted, t) ← extractKeys t droppedKeys
+      -- Append to existing dropped entries (if any)
+      let existing := (← droppedRef.get).getD #[]
+      droppedRef.set (some (existing ++ extracted))
+      pure t
+    else
+      dropKeys t droppedKeys
     pure { ref := ← IO.mkRef t }
 
 /--
@@ -1048,8 +1138,7 @@ based on priority and cache module declarations
 
 * `modulesTreeRef` points to the discriminator tree for local environment.
   Used for caching and created by `createLocalTree`.
-* `ext` should be an environment extension with an IO.Ref for caching the import lazy
-   discriminator tree.
+* `ref` is a process-global `IO.Ref` for caching the import lazy discriminator tree.
 * `addEntry` is the function for creating discriminator tree entries from constants.
 * `droppedKeys` contains keys we do not want to consider when searching for matches.
   It is used for dropping very general keys.
@@ -1060,14 +1149,15 @@ based on priority and cache module declarations
 -/
 def findMatchesExt
     (moduleTreeRef : ModuleDiscrTreeRef α)
-    (ext : EnvExtension (IO.Ref (Option (LazyDiscrTree α))))
-    (addEntry : Name → ConstantInfo → MetaM (Array (InitEntry α)))
+    (ref : IO.Ref (Option (LazyDiscrTree α)))
+    (addEntry : Name → AsyncConstantInfo → MetaM (Array (InitEntry α)))
     (droppedKeys : List (List LazyDiscrTree.Key) := [])
     (constantsPerTask : Nat := 1000)
+    (droppedEntriesRef : Option (IO.Ref (Option (Array α))) := none)
     (adjustResult : Nat → α → β)
     (ty : Expr) : MetaM (Array β) := do
   let moduleMatches ← findModuleMatches moduleTreeRef ty
-  let importMatches ← findImportMatches ext addEntry droppedKeys constantsPerTask ty
+  let importMatches ← findImportMatches ref addEntry droppedKeys constantsPerTask droppedEntriesRef ty
   return Array.mkEmpty (moduleMatches.size + importMatches.size)
           |> moduleMatches.appendResultsAux (f := adjustResult)
           |> importMatches.appendResultsAux (f := adjustResult)
@@ -1075,18 +1165,19 @@ def findMatchesExt
 /--
 `findMatches` searches for entries in a lazily initialized discriminator tree.
 
-* `ext` should be an environment extension with an IO.Ref for caching the import lazy
-   discriminator tree.
+* `ref` is a process-global `IO.Ref` for caching the import lazy discriminator tree.
 * `addEntry` is the function for creating discriminator tree entries from constants.
 * `droppedKeys` contains keys we do not want to consider when searching for matches.
   It is used for dropping very general keys.
+* `droppedEntriesRef` optionally stores entries dropped from the tree for later use.
 -/
-def findMatches (ext : EnvExtension (IO.Ref (Option (LazyDiscrTree α))))
-    (addEntry : Name → ConstantInfo → MetaM (Array (InitEntry α)))
+def findMatches (ref : IO.Ref (Option (LazyDiscrTree α)))
+    (addEntry : Name → AsyncConstantInfo → MetaM (Array (InitEntry α)))
     (droppedKeys : List (List LazyDiscrTree.Key) := [])
     (constantsPerTask : Nat := 1000)
+    (droppedEntriesRef : Option (IO.Ref (Option (Array α))) := none)
     (ty : Expr) : MetaM (Array α) := do
-
-  let moduleTreeRef ← createModuleTreeRef addEntry droppedKeys
+  -- Pass droppedEntriesRef to also capture star-indexed lemmas from the current module
+  let moduleTreeRef ← createModuleTreeRef addEntry droppedKeys droppedEntriesRef
   let incPrio _ v := v
-  findMatchesExt moduleTreeRef ext addEntry droppedKeys constantsPerTask incPrio ty
+  findMatchesExt moduleTreeRef ref addEntry droppedKeys constantsPerTask droppedEntriesRef incPrio ty

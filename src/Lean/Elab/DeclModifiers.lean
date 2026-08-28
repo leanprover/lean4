@@ -7,11 +7,19 @@ module
 
 prelude
 public import Lean.DocString.Add
+public import Lean.Linter.Init
 meta import Lean.Parser.Command
 
 public section
 
-namespace Lean.Elab
+namespace Lean
+
+register_builtin_option linter.redundantVisibility : Bool := {
+  defValue := false
+  descr := "warn on redundant `private`/`public` visibility modifiers"
+}
+
+namespace Elab
 
 /--
 Ensure the environment does not contain a declaration with name `declName`.
@@ -65,8 +73,43 @@ def Visibility.isPublic : Visibility → Bool
   | .public    => true
   | _          => false
 
+/--
+Returns whether the given visibility modifier should be interpreted as `public` in the current
+environment.
+
+NOTE: `Environment.isExporting` defaults to `false` when command elaborators are invoked for
+backward compatibility. It needs to be initialized apropriately first before calling this function
+as e.g. done in `elabDeclaration`.
+-/
 def Visibility.isInferredPublic (env : Environment) (v : Visibility) : Bool :=
   if env.isExporting || !env.header.isModule then !v.isPrivate else v.isPublic
+
+/-- Converts optional visibility syntax to a `Visibility` value. -/
+def elabVisibility [Monad m] [MonadError m] [MonadEnv m] [MonadOptions m] [MonadLog m]
+    [AddMessageContext m]
+    (vis? : Option (TSyntax ``Parser.Command.visibility)) :
+    m Visibility := do
+  let env ← getEnv
+  match vis? with
+  | none   => pure .regular
+  | some v =>
+    match v with
+    | `(Parser.Command.visibility| private) =>
+      if v.raw.getHeadInfo matches .original .. then  -- skip macro output
+        if env.header.isModule && !env.isExporting then
+          Linter.logLintIf linter.redundantVisibility v
+            m!"`private` has no effect in a `module` file outside `public section`; \
+            declarations are already `private` by default"
+      pure .private
+    | `(Parser.Command.visibility| public) =>
+      if v.raw.getHeadInfo matches .original .. then  -- skip macro output
+        if env.isExporting || !env.header.isModule then
+          Linter.logLintIf linter.redundantVisibility v
+            m!"`public` is the default visibility{
+              if env.header.isModule then " inside a `public section`" else ""
+            }; the modifier has no effect"
+      pure .public
+    | _ => throwErrorAt v "unexpected visibility modifier"
 
 /-- Whether a declaration is default, partial or nonrec. -/
 inductive RecKind where
@@ -76,16 +119,16 @@ inductive RecKind where
 /-- Codegen-relevant modifiers. -/
 inductive ComputeKind where
   | regular | «meta» | «noncomputable»
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Repr
 
 /-- Flags and data added to declarations (eg docstrings, attributes, `private`, `unsafe`, `partial`, ...). -/
 structure Modifiers where
   /-- Input syntax, used for adjusting declaration range (unless missing) -/
   stx             : TSyntax ``Parser.Command.declModifiers := ⟨.missing⟩
   /--
-  The docstring, if present, and whether it's Verso.
+  The docstring, if present.
   -/
-  docString?      : Option (TSyntax ``Parser.Command.docComment × Bool) := none
+  docString?      : Option (TSyntax ``Parser.Command.docComment) := none
   visibility      : Visibility := Visibility.regular
   isProtected     : Bool := false
   computeKind     : ComputeKind := .regular
@@ -101,15 +144,6 @@ def Modifiers.isInferredPublic (env : Environment) (m : Modifiers) : Bool :=
 
 def Modifiers.isPartial : Modifiers → Bool
   | { recKind := .partial, .. }  => true
-  | _                            => false
-
-/--
-Whether the declaration is explicitly `partial` or should be considered as such via `meta`. In the
-latter case, elaborators should not produce an error if partiality is unnecessary.
--/
-def Modifiers.isInferredPartial : Modifiers → Bool
-  | { recKind := .partial, .. }  => true
-  | { computeKind := .meta, .. } => true
   | _                            => false
 
 def Modifiers.isNonrec : Modifiers → Bool
@@ -133,6 +167,10 @@ def Modifiers.addFirstAttr (modifiers : Modifiers) (attr : Attribute) : Modifier
 /-- Filters attributes using `p` -/
 def Modifiers.filterAttrs (modifiers : Modifiers) (p : Attribute → Bool) : Modifiers :=
   { modifiers with attrs := modifiers.attrs.filter p }
+
+/-- Returns `true` if `modifiers` contains an attribute satisfying `p`. -/
+def Modifiers.anyAttr (modifiers : Modifiers) (p : Attribute → Bool) : Bool :=
+  modifiers.attrs.any p
 
 instance : ToFormat Modifiers := ⟨fun m =>
   let components : List Format :=
@@ -187,14 +225,8 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
       RecKind.partial
     else
       RecKind.nonrec
-  let docString? := docCommentStx.getOptional?.map (TSyntax.mk ·, doc.verso.get (← getOptions))
-  let visibility ← match visibilityStx.getOptional? with
-    | none   => pure .regular
-    | some v =>
-      match v with
-      | `(Parser.Command.visibility| private) => pure .private
-      | `(Parser.Command.visibility| public) => pure .public
-      | _ => throwErrorAt v "unexpected visibility modifier"
+  let docString? := docCommentStx.getOptional?.map (TSyntax.mk ·)
+  let visibility ← elabVisibility (visibilityStx.getOptional?.map (⟨·⟩))
   let isProtected := !protectedStx.isNone
   let attrs ← match attrsStx.getOptional? with
     | none       => pure #[]
@@ -276,8 +308,8 @@ structure ExpandDeclIdResult where
   declName   : Name
   /-- Universe parameter names provided using the `universe` command and `.{...}` notation. -/
   levelNames : List Name
-  /-- The docstring, and whether it's Verso -/
-  docString? : Option (TSyntax ``Parser.Command.docComment × Bool)
+  /-- The docstring. -/
+  docString? : Option (TSyntax ``Parser.Command.docComment)
 
 open Lean.Elab.Term (TermElabM)
 
@@ -311,5 +343,22 @@ def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : S
   return { shortName, declName, levelNames, docString? }
 
 end Methods
+
+namespace Term
+
+/--
+If `attrs` contains an `@[deprecated]` attribute, runs the action with `Term.Context.checkDeprecated`
+disabled, suppressing the `linter.deprecated` warning that would otherwise fire when a deprecated
+constant is referenced. Otherwise, runs the action unchanged.
+
+This implements the suppression rule from RFC #8942: deprecation warnings should not fire inside
+the body of a declaration that is itself marked `@[deprecated]`, since the references will go away
+along with the declaration.
+-/
+@[inline] def withDeprecationContextFromAttrs [MonadWithReaderOf Term.Context m]
+    (attrs : Array Attribute) : m α → m α :=
+  if attrs.any (·.name == `deprecated) then withoutCheckDeprecated else id
+
+end Term
 
 end Lean.Elab

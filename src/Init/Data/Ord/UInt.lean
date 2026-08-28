@@ -7,7 +7,10 @@ module
 
 prelude
 public import Init.Data.Order.Ord
-public import Init.Data.UInt.Lemmas
+public import Init.Data.Order.ClassesExtra
+public import Init.Data.UInt.Basic
+import Init.Data.UInt.Lemmas
+import Init.Data.Order.Lemmas
 
 public section
 
@@ -33,6 +36,10 @@ instance : TransOrd UInt8 :=
 instance : LawfulEqOrd UInt8 where
   eq_of_compare h := compareOfLessAndEq_eq_eq UInt8.le_refl UInt8.not_le |>.mp h
 
+instance : LawfulOrderOrd UInt8 where
+  isLE_compare _ _ := isLE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
+  isGE_compare _ _ := isGE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
+
 end UInt8
 
 namespace UInt16
@@ -46,6 +53,10 @@ instance : TransOrd UInt16 :=
 
 instance : LawfulEqOrd UInt16 where
   eq_of_compare h := compareOfLessAndEq_eq_eq UInt16.le_refl UInt16.not_le |>.mp h
+
+instance : LawfulOrderOrd UInt16 where
+  isLE_compare _ _ := isLE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
+  isGE_compare _ _ := isGE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
 
 end UInt16
 
@@ -61,6 +72,10 @@ instance : TransOrd UInt32 :=
 instance : LawfulEqOrd UInt32 where
   eq_of_compare h := compareOfLessAndEq_eq_eq UInt32.le_refl UInt32.not_le |>.mp h
 
+instance : LawfulOrderOrd UInt32 where
+  isLE_compare _ _ := isLE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
+  isGE_compare _ _ := isGE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
+
 end UInt32
 
 namespace UInt64
@@ -75,6 +90,10 @@ instance : TransOrd UInt64 :=
 instance : LawfulEqOrd UInt64 where
   eq_of_compare h := compareOfLessAndEq_eq_eq UInt64.le_refl UInt64.not_le |>.mp h
 
+instance : LawfulOrderOrd UInt64 where
+  isLE_compare _ _ := isLE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
+  isGE_compare _ _ := isGE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
+
 end UInt64
 
 namespace USize
@@ -88,5 +107,9 @@ instance : TransOrd USize :=
 
 instance : LawfulEqOrd USize where
   eq_of_compare h := compareOfLessAndEq_eq_eq USize.le_refl USize.not_le |>.mp h
+
+instance : LawfulOrderOrd USize where
+  isLE_compare _ _ := isLE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
+  isGE_compare _ _ := isGE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
 
 end USize

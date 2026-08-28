@@ -3,19 +3,16 @@ source ../common.sh
 
 ./clean.sh
 
+# Copy test data to a working directory to avoid initializing a Git repository
+# inside the checked-in source tree
+copy_to_work bar1 bar2 foo lakefile.lean packages.json
+
 # Since committing a Git repository to a Git repository is not well-supported,
 # We reinitialize the `bar1` repository on each test.
 echo "# SETUP"
-set -x
 pushd bar1
-git init
-git checkout -b master
-git config user.name test
-git config user.email test@example.com
-git add --all
-git commit -m "initial commit"
+init_git
 popd
-set +x
 
 # Test the functionality of package overrides
 
@@ -39,6 +36,3 @@ test_cmd cp packages.json .lake/package-overrides.json
 test_run resolve-deps -R -Kfoo
 test_out "bar2" exe bar
 test_out "foo" exe foo
-
-# Cleanup
-rm -f produced.out

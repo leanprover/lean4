@@ -26,10 +26,10 @@ namespace Lake
 /-! ### Build Key Helper Constructors -/
 
 public abbrev Module.key (self : Module) : BuildKey :=
-  .packageModule self.pkg.name self.name
+  .packageModule self.pkg.keyName self.name
 
 public abbrev ConfigTarget.key (self : ConfigTarget kind) : BuildKey :=
-  .packageTarget self.pkg.name self.name
+  .packageTarget self.pkg.keyName self.name
 
 public abbrev LeanExe.exeBuildKey (self : LeanExe) : BuildKey :=
   self.key.facet exeFacet
@@ -67,6 +67,7 @@ public structure ModuleImport extends Import where
 /-- A module's source file path plus its parsed header. -/
 public structure ModuleInput where
   path : FilePath
+  trace : BuildTrace
   header : ModuleHeader
   imports : Array ModuleImport
 
@@ -78,6 +79,28 @@ builtin_facet input : Module => ModuleInput
 
 /-- The direct local imports of the Lean module. -/
 builtin_facet imports : Module => Array Module
+
+/-- Dynamic information computed about a module before building. -/
+public structure ModulePreSetup where
+  trace : BuildTrace
+  srcMTime : MTime
+  srcFile : FilePath
+  isModule : Bool
+  directImports : Array ModuleImport
+  directImportArts : NameMap ImportArtifacts
+  plugins : Array Dynlib
+  dynlibs : Array Dynlib
+  leanOptions : LeanOptions
+
+/--
+The computed dynamic configuration of a module.
+
+In the process, this facet will build all of a module's dependencies,
+including transitive imports, plugins, and those specified by `needs`.
+
+**For internal use only.**
+-/
+builtin_facet presetup : Module => ModulePreSetup
 
 /-- The transitive local imports of the Lean module. -/
 builtin_facet transImports : Module => Array Module
@@ -137,8 +160,17 @@ namespace Module
 @[inherit_doc precompileImportsFacet] public abbrev precompileImports (self : Module) :=
   self.facetCore precompileImportsFacet
 
+@[inherit_doc presetupFacet] public abbrev presetup  (self : Module) :=
+  self.facetCore presetupFacet
+
 @[inherit_doc setupFacet] public abbrev setup  (self : Module) :=
   self.facetCore setupFacet
+
+@[inherit_doc depTraceFacet] public abbrev depTrace (self : Module) :=
+  self.facetCore depTraceFacet
+
+@[inherit_doc depHashFacet] public abbrev depHash (self : Module) :=
+  self.facetCore depHashFacet
 
 @[inherit_doc depsFacet] public abbrev deps  (self : Module) :=
   self.facetCore depsFacet
@@ -170,6 +202,9 @@ namespace Module
 @[inherit_doc ileanFacet] public abbrev ilean (self : Module)  :=
   self.facetCore ileanFacet
 
+@[inherit_doc irSigFacet] public abbrev irSig (self : Module) :=
+  self.facetCore irSigFacet
+
 @[inherit_doc irFacet] public abbrev ir (self : Module) :=
   self.facetCore irFacet
 
@@ -178,6 +213,9 @@ namespace Module
 
 @[inherit_doc cFacet] public abbrev bc (self : Module) :=
   self.facetCore bcFacet
+
+@[inherit_doc ltarFacet] public abbrev ltar (self : Module) :=
+  self.facetCore ltarFacet
 
 @[inherit_doc oFacet] public abbrev o (self : Module) :=
   self.facetCore oFacet
@@ -200,6 +238,12 @@ namespace Module
 @[inherit_doc bcoFacet] public abbrev bco (self : Module) :=
   self.facetCore bcoFacet
 
+@[inherit_doc linkInfoExportFacet] public abbrev linkInfoExport (self : Module) :=
+  self.facetCore linkInfoExportFacet
+
+@[inherit_doc linkInfoNoExportFacet] public abbrev linkInfoNoExport (self : Module) :=
+  self.facetCore linkInfoNoExportFacet
+
 @[inherit_doc dynlibFacet] public abbrev dynlib (self : Module) :=
   self.facetCore dynlibFacet
 
@@ -211,9 +255,9 @@ end Module
 public abbrev Package.target (target : Name) (self : Package) : BuildInfo :=
   .target self target
 
-/-
+/--
 Build info for applying the specified facet to the package.
-It is the user's obiligation to ensure the facet in question is a package facet.
+It is the user's obligation to ensure the facet in question is a package facet.
 -/
 public abbrev Package.facetCore (facet : Name) (self : Package) : BuildInfo :=
   .facet self.key facetKind (toFamily self) facet
@@ -264,9 +308,9 @@ end Package
 
 /-! #### Lean Library Infos -/
 
-/-
+/--
 Build info for applying the specified facet to the library.
-It is the user's obiligation to ensure the facet in question is a library facet.
+It is the user's obligation to ensure the facet in question is a library facet.
 -/
 public abbrev LeanLib.facetCore (facet : Name) (self : LeanLib) : BuildInfo :=
   .facet self.key facetKind (toFamily self) facet
@@ -276,6 +320,10 @@ public abbrev LeanLib.facet (facet : Name) (self : LeanLib) : BuildInfo :=
   self.facetCore (LeanLib.facetKind ++ facet)
 
 namespace LeanLib
+
+@[inherit_doc defaultFacet]
+public abbrev default (self : LeanLib) : BuildInfo :=
+  self.facetCore defaultFacet
 
 @[inherit_doc modulesFacet]
 public abbrev modules (self : LeanLib) : BuildInfo :=
@@ -305,58 +353,58 @@ end LeanLib
 
 /-! #### Lean Executable Infos -/
 
-/-
+/--
 Build info for applying the specified facet to the executable.
-It is the user's obiligation to ensure the facet in question is the executable facet.
+It is the user's obligation to ensure the facet in question is the executable facet.
 -/
 public abbrev LeanExe.facetCore (facet : Name) (self : LeanExe) : BuildInfo :=
   .facet self.key facetKind (toFamily self) facet
 
-/-- Build info of the Lean executable. -/
+@[inherit_doc exeFacet]
 public abbrev LeanExe.exe (self : LeanExe) : BuildInfo :=
   self.facetCore LeanExe.exeFacet
 
 /-! #### External Library Infos -/
 
-/-
+/--
 Build info for applying the specified facet to the external library.
-It is the user's obiligation to ensure the facet in question is an external library facet.
+It is the user's obligation to ensure the facet in question is an external library facet.
 -/
 public abbrev ExternLib.facetCore (facet : Name) (self : ExternLib) : BuildInfo :=
   .facet self.key facetKind (toFamily self) facet
 
-/-- Build info of the external library's static binary. -/
+@[inherit_doc staticFacet]
 public abbrev ExternLib.static (self : ExternLib) : BuildInfo :=
   self.facetCore ExternLib.staticFacet
 
-/-- Build info of the external library's shared binary. -/
+@[inherit_doc sharedFacet]
 public abbrev ExternLib.shared (self : ExternLib) : BuildInfo :=
   self.facetCore ExternLib.sharedFacet
 
-/-- Build info of the external library's dynlib. -/
+@[inherit_doc dynlibFacet]
 public abbrev ExternLib.dynlib (self : ExternLib) : BuildInfo :=
   self.facetCore ExternLib.dynlibFacet
 
 /-! #### Input File & Directory Infos -/
 
-/-
+/--
 Build info for applying the specified facet to the input file.
-It is the user's obiligation to ensure the facet in question is an external library facet.
+It is the user's obligation to ensure the facet in question is an external library facet.
 -/
 public abbrev InputFile.facetCore (facet : Name) (self : InputFile) : BuildInfo :=
   .facet self.key facetKind (toFamily self) facet
 
-/-- Build info of the input file's default facet. -/
+@[inherit_doc defaultFacet]
 public abbrev InputFile.default (self : InputFile) : BuildInfo :=
   self.facetCore InputFile.defaultFacet
 
-/-
+/--
 Build info for applying the specified facet to the input directory.
-It is the user's obiligation to ensure the facet in question is an external library facet.
+It is the user's obligation to ensure the facet in question is an external library facet.
 -/
 public abbrev InputDir.facetCore (facet : Name) (self : InputDir) : BuildInfo :=
   .facet self.key facetKind (toFamily self) facet
 
-/-- Build info of the input directory's default facet. -/
+@[inherit_doc defaultFacet]
 public abbrev InputDir.default (self : InputDir) : BuildInfo :=
   self.facetCore InputDir.defaultFacet

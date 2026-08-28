@@ -1,0 +1,6 @@
+grind_11134.lean:20:8-20:25: warning: declaration uses `sorry`
+grind_11134.lean:30:8-30:24: warning: declaration uses `sorry`
+grind_11134.lean:32:8-32:25: warning: declaration uses `sorry`
+grind_11134.lean:51:8-51:21: warning: declaration uses `sorry`
+grind_11134.lean:53:8-53:21: warning: declaration uses `sorry`
+grind_11134.lean:57:8-57:25: warning: declaration uses `sorry`

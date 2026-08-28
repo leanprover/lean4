@@ -18,6 +18,18 @@ public import Lean.Compiler.LCNF.ElimDeadBranches
 public import Lean.Compiler.LCNF.StructProjCases
 public import Lean.Compiler.LCNF.ExtractClosed
 public import Lean.Compiler.LCNF.Visibility
+public import Lean.Compiler.LCNF.Simp
+public import Lean.Compiler.LCNF.ToImpure
+public import Lean.Compiler.LCNF.PushProj
+public import Lean.Compiler.LCNF.ResetReuse
+public import Lean.Compiler.LCNF.SimpCase
+public import Lean.Compiler.LCNF.InferBorrow
+public import Lean.Compiler.LCNF.ExplicitBoxing
+public import Lean.Compiler.LCNF.ExplicitRC
+public import Lean.Compiler.LCNF.CoalesceRC
+public import Lean.Compiler.LCNF.Toposort
+public import Lean.Compiler.LCNF.ExpandResetReuse
+public import Lean.Compiler.LCNF.SimpleGroundExpr
 
 public section
 
@@ -35,13 +47,6 @@ def init : Pass where
   phase := .base
   shouldAlwaysRunCheck := true
 
-def checkMeta : Pass where
-  name  := `checkMeta
-  run   := fun decls => do
-    decls.forM LCNF.checkMeta
-    return decls
-  phase := .base
-
 -- Helper pass used for debugging purposes
 def trace (phase := Phase.base) : Pass where
   name  := `trace
@@ -51,6 +56,7 @@ def trace (phase := Phase.base) : Pass where
 def saveBase : Pass where
   occurrence := 0
   phase := .base
+  phaseOut := .base
   name := `saveBase
   run decls := decls.mapM fun decl => do
     (← normalizeFVarIds decl).saveBase
@@ -60,9 +66,22 @@ def saveBase : Pass where
 def saveMono : Pass where
   occurrence := 0
   phase := .mono
+  phaseOut := .mono
   name := `saveMono
   run decls := decls.mapM fun decl => do
     (← normalizeFVarIds decl).saveMono
+    return decl
+  shouldAlwaysRunCheck := true
+
+def saveImpure : Pass where
+  occurrence := 0
+  phase := .impure
+  phaseOut := .impure
+  name := `saveImpure
+  run decls := decls.mapM fun decl => do
+    let decl ← normalizeFVarIds decl
+    decl.saveImpure
+    modifyEnv fun env => recordFinalImpureDecl env decl.name
     return decl
   shouldAlwaysRunCheck := true
 
@@ -73,9 +92,6 @@ open Pass
 def builtinPassManager : PassManager := {
   basePasses := #[
     init,
-    -- Check meta accesses now before optimizations may obscure references. This check should stay in
-    -- `lean` if some compilation is moved out.
-    Pass.checkMeta,
     pullInstances,
     cse (shouldElimFunDecls := false),
     simp,
@@ -113,14 +129,33 @@ def builtinPassManager : PassManager := {
     commonJoinPointArgs,
     simp (occurrence := 4) (phase := .mono),
     floatLetIn (phase := .mono) (occurrence := 2),
-    elimDeadBranches,
     lambdaLifting,
+  ]
+  monoPassesNoLambda := #[
     extendJoinPointContext (phase := .mono) (occurrence := 1),
     simp (occurrence := 5) (phase := .mono),
+    elimDeadBranches,
     cse (occurrence := 2) (phase := .mono),
     saveMono,  -- End of mono phase
     inferVisibility (phase := .mono),
     extractClosed,
+    toImpure,
+  ]
+  impurePasses := #[
+    pushProj (occurrence := 0),
+    insertResetReuse,
+    elimDeadVars (phase := .impure) (occurrence := 0),
+    simpCase,
+    inferBorrow,
+    explicitBoxing,
+    explicitRc,
+    expandResetReuse,
+    coalesceRC,
+    pushProj (occurrence := 1),
+    detectSimpleGround,
+    inferVisibility (phase := .impure),
+    toposortPass,
+    saveImpure, -- End of impure phase
   ]
 }
 
@@ -166,6 +201,7 @@ builtin_initialize
 builtin_initialize
   registerTraceClass `Compiler.saveBase (inherited := true)
   registerTraceClass `Compiler.saveMono (inherited := true)
+  registerTraceClass `Compiler.saveImpure (inherited := true)
   registerTraceClass `Compiler.trace (inherited := true)
 
 end Lean.Compiler.LCNF

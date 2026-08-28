@@ -5,8 +5,11 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Module.Envelope
 public import Init.Grind.Ordered.Linarith
+import Init.Data.AC
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.LemmasAux
+import Init.Omega
 @[expose] public section
 namespace Lean.Grind.Linarith
 open Std
@@ -31,9 +34,9 @@ def Poly.denoteN {α} [NatModule α] (ctx : Context α) (p : Poly) : α :=
     else
       k.natAbs • v.denote ctx + denoteN ctx p
 
-def Poly.denoteN_nil {α} [NatModule α] (ctx : Context α) : Poly.denoteN ctx .nil = 0 := rfl
+theorem Poly.denoteN_nil {α} [NatModule α] (ctx : Context α) : Poly.denoteN ctx .nil = 0 := rfl
 
-def Poly.denoteN_add {α} [NatModule α] (ctx : Context α) (k : Int) (x : Var) (p : Poly)
+theorem Poly.denoteN_add {α} [NatModule α] (ctx : Context α) (k : Int) (x : Var) (p : Poly)
     : k ≥ 0 → Poly.denoteN ctx (.add k x p) = k.toNat • x.denote ctx + p.denoteN ctx := by
   intro h; simp [denoteN, cond_eq_ite]; split
   next => omega
@@ -79,9 +82,9 @@ theorem Poly.denoteN_append {α} [NatModule α] (ctx : Context α) (p₁ p₂ : 
 
 attribute [local simp] Poly.denoteN_append
 
-theorem Poly.denoteN_combine' {α} [NatModule α] (ctx : Context α) (fuel : Nat) (p₁ p₂ : Poly)
-    : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (p₁.combine' fuel p₂).denoteN ctx = p₁.denoteN ctx + p₂.denoteN ctx := by
-  fun_induction p₁.combine' fuel p₂ <;> intro h₁ h₂ <;> try simp [*, zero_add, add_zero]
+theorem Poly.denoteN_combine {α} [NatModule α] (ctx : Context α) (p₁ p₂ : Poly)
+    : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (p₁.combine p₂).denoteN ctx = p₁.denoteN ctx + p₂.denoteN ctx := by
+  fun_induction p₁.combine p₂ <;> intro h₁ h₂ <;> try simp [*, zero_add, add_zero]
   next hx _ h ih =>
     simp at hx
     simp +zetaDelta at h
@@ -102,10 +105,6 @@ theorem Poly.denoteN_combine' {α} [NatModule α] (ctx : Context α) (fuel : Nat
   next ih =>
     cases h₂; next h₂ =>
     simp [ih h₁ h₂, *]; ac_rfl
-
-theorem Poly.denoteN_combine {α} [NatModule α] (ctx : Context α) (p₁ p₂ : Poly)
-    : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (p₁.combine p₂).denoteN ctx = p₁.denoteN ctx + p₂.denoteN ctx := by
-  intros; simp [combine, denoteN_combine', *]
 
 theorem Poly.denoteN_mul' {α} [NatModule α] (ctx : Context α) (p : Poly) (k : Nat) : p.NonnegCoeffs → (p.mul' k).denoteN ctx = k • p.denoteN ctx := by
   induction p <;> simp [mul', *, nsmul_zero]
@@ -151,9 +150,8 @@ theorem Poly.append_Nonneg (p₁ p₂ : Poly) : p₁.NonnegCoeffs → p₂.Nonne
   fun_induction append <;> intro h₁ h₂; simp [*]
   next ih => cases h₁; constructor; assumption; apply ih <;> assumption
 
-theorem Poly.combine'_Nonneg (fuel : Nat) (p₁ p₂ : Poly) : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (p₁.combine' fuel p₂).NonnegCoeffs := by
-  fun_induction Poly.combine'
-  next => apply Poly.append_Nonneg
+theorem Poly.combine_Nonneg (p₁ p₂ : Poly) : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (p₁.combine p₂).NonnegCoeffs := by
+  fun_induction Poly.combine
   next => intros; assumption
   next => intros; assumption
   next ih =>
@@ -171,9 +169,6 @@ theorem Poly.combine'_Nonneg (fuel : Nat) (p₁ p₂ : Poly) : p₁.NonnegCoeffs
     intro h₁ h₂; cases h₁; cases h₂
     constructor; assumption
     apply ih; constructor; assumption; assumption; assumption
-
-theorem Poly.combine_Nonneg (p₁ p₂ : Poly) : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (p₁.combine p₂).NonnegCoeffs := by
-  simp [combine]; apply Poly.combine'_Nonneg
 
 theorem Expr.toPolyN_Nonneg (e : Expr) : e.toPolyN.NonnegCoeffs := by
   fun_induction toPolyN <;> try constructor <;> simp

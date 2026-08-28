@@ -12,6 +12,8 @@ public import Lean.AddDecl
 public import Lean.Meta.Transform
 public import Lean.Util.CollectFVars
 public import Lean.Util.CollectMVars
+import Init.Data.Range.Polymorphic.Iterators
+import Init.While
 
 public section
 
@@ -394,8 +396,8 @@ private partial def visitProj (e : Expr) (structName : Name) (idx : Nat) (struct
     return { expr := e.updateProj! struct, type? := lastFieldTy }
 
 private partial def visit (e : Expr) : M Result := do
-  withTraceNode `Meta.letToHave.debug (fun res =>
-      return m!"{if res.isOk then checkEmoji else crossEmoji} visit (check := {(← read).check}){indentExpr e}") do
+  withTraceNode `Meta.letToHave.debug (fun _ =>
+      return m!"visit (check := {(← read).check}){indentExpr e}") do
     match e with
     | .bvar .. => throwError "unexpected bound variable {e}"
     | .fvar .. => visitFVar e
@@ -413,8 +415,8 @@ end
 
 private def main (e : Expr) : MetaM Expr := do
   Prod.fst <$> withTraceNode `Meta.letToHave (fun
-      | .ok (_, msg) => pure m!"{checkEmoji} {msg}"
-      | .error ex => pure m!"{crossEmoji} {ex.toMessageData}") do
+      | .ok (_, msg) => pure msg
+      | .error ex => pure ex.toMessageData) do
     if hasDepLet e then
       withTrackingZetaDelta <|
       withTransparency TransparencyMode.all <|

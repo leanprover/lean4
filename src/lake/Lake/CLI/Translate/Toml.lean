@@ -23,7 +23,7 @@ open Lean System Toml
 
 /-! ## General Helpers -/
 
-private local instance : BEq FilePath where
+local instance : BEq FilePath where
   beq a b := a.normalize == b.normalize
 
 class EncodeField (σ : Type u) (name : Name) (α : Type u) where
@@ -69,7 +69,7 @@ public def Toml.encodeLeanOptions (opts : Array LeanOption) : Table :=
 public instance : ToToml (Array LeanOption) where
   toToml opts := .table .missing <| encodeLeanOptions opts
 
-@[inline] private def encodeSingleton? [ToToml? α] (name : Name) (a : α) : Option Value :=
+@[inline] def encodeSingleton? [ToToml? α] (name : Name) (a : α) : Option Value :=
   toToml? a |>.map fun v => toToml <| Table.empty.insert name v
 
 mutual
@@ -132,14 +132,24 @@ public protected def Dependency.toToml (dep : Dependency) (t : Table  := {}) : T
   let t := t
     |>.insert `name dep.name
     |>.insertD `scope dep.scope ""
-    |>.smartInsert `version dep.version?
+  let t :=
+    match dep.version with
+    | .none => t
+    | .git rev =>
+      match dep.src? with
+      | some (.git (rev := some gitRev) ..) =>
+        if gitRev == rev then
+          t -- `rev` will be set below
+        else t.insert `version s!"git#{rev}"
+      | _ => t.insert `rev rev
+    | .ver ver => t.insert `version ver.toString
   let t :=
     if let some src := dep.src? then
       match src with
       | .path dir => t.insert `path (toToml dir)
-      | .git url rev subDir? =>
+      | .git url rev? subDir? =>
         t.insert `git url
-        |>.smartInsert `rev rev
+        |>.smartInsert `rev rev?
         |>.smartInsert `subDir subDir?
     else
       t
@@ -149,7 +159,7 @@ public instance : ToToml Dependency := ⟨(toToml ·.toToml)⟩
 
 /-! ## Package & Target Configuration Encoders -/
 
-private meta def genToToml
+meta def genToToml
   (cmds : Array Command)
   (tyName : Name) [info : ConfigInfo tyName]
   (exclude : Array Name := #[])
@@ -189,7 +199,7 @@ gen_toml_encoders%
 
 @[inline] def Package.mkTomlTargets
   (pkg : Package) (kind : Name)
-  (toToml : {n : Name} → ConfigType kind pkg.name n → Table)
+  (toToml : {n : Name} → ConfigType kind pkg.keyName n → Table)
 : Array Table :=
   pkg.targetDecls.filterMap (·.config? kind |>.map toToml)
 
@@ -197,7 +207,7 @@ gen_toml_encoders%
 
 /-- Create a TOML table that encodes the declarative configuration of the package. -/
 public def Package.mkTomlConfig (pkg : Package) (t : Table := {}) : Table :=
-  let cfg : PackageConfig pkg.name pkg.origName :=
+  let cfg : PackageConfig pkg.keyName pkg.origName :=
     {pkg.config with testDriver := pkg.testDriver, lintDriver := pkg.lintDriver}
   cfg.toToml t
   |>.smartInsert `defaultTargets pkg.defaultTargets

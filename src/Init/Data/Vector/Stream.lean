@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Stream
 public import Init.Data.Vector.Basic
+import Init.Data.Slice.Array.Basic
 
 namespace Vector
 

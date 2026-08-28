@@ -10,6 +10,7 @@ public import Init.Data.ByteArray
 public import Init.Data.Slice.Basic
 public import Init.Data.Slice.Notation
 public import Init.Data.Range.Polymorphic.Nat
+import Init.Omega
 
 /-!
 This module defines the `ByteSlice` structure. It's a modified version of the `SubArray` code,
@@ -182,7 +183,7 @@ def toByteArray (s : ByteSlice) : ByteArray :=
 Comparison function
 -/
 @[extern "lean_byteslice_beq"]
-protected def beq (a b : ByteSlice) : Bool :=
+protected def beq (a b : @& ByteSlice) : Bool :=
   a.toByteArray == b.toByteArray
 
 instance : BEq ByteSlice := ⟨ByteSlice.beq⟩

@@ -6,8 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Option.Lemmas
 public import Init.Data.Order.Classes
+public import Init.Classical
+import Init.Data.Option.Lemmas
 
 public section
 
@@ -240,14 +241,21 @@ This propositional typeclass ensures that `UpwardEnumerable.succ?` will never re
 In other words, it ensures that there will always be a successor.
 -/
 class InfinitelyUpwardEnumerable (α : Type u) [UpwardEnumerable α] where
+  /--
+  Every element of `α` has a successor.
+  -/
   isSome_succ? : ∀ a : α, (UpwardEnumerable.succ? a).isSome
 
 /--
 This propositional typeclass ensures that `UpwardEnumerable.succ?` is injective.
 -/
 class LinearlyUpwardEnumerable (α : Type u) [UpwardEnumerable α] where
+  /-- The implementation of `UpwardEnumerable.succ?` for `α` is injective. -/
   eq_of_succ?_eq : ∀ a b : α, UpwardEnumerable.succ? a = UpwardEnumerable.succ? b → a = b
 
+/--
+If a type is infinitely upwardly enumerable, then every element has a successor.
+-/
 theorem UpwardEnumerable.isSome_succ? {α : Type u} [UpwardEnumerable α]
     [InfinitelyUpwardEnumerable α] {a : α} : (succ? a).isSome :=
   InfinitelyUpwardEnumerable.isSome_succ? a
@@ -256,12 +264,6 @@ theorem UpwardEnumerable.succ?_inj {α : Type u} [UpwardEnumerable α] [Linearly
     {a b : α} :
     succ? a = succ? b ↔ a = b :=
   ⟨LinearlyUpwardEnumerable.eq_of_succ?_eq a b, congrArg succ?⟩
-
-@[deprecated succ?_inj (since := "2025-09-03")]
-theorem UpwardEnumerable.eq_of_succ?_eq {α : Type u} [UpwardEnumerable α] [LinearlyUpwardEnumerable α]
-    {a b : α} (h : succ? a = succ? b) :
-    a = b :=
-  succ?_inj.mp h
 
 /--
 Maps elements of `α` to their immediate successor.
@@ -285,12 +287,6 @@ theorem UpwardEnumerable.succ_inj {α : Type u} [UpwardEnumerable α]
     [InfinitelyUpwardEnumerable α] [LinearlyUpwardEnumerable α] {a b : α} :
     succ a = succ b ↔ a = b := by
   simp [succ, Option.get_inj, succ?_inj]
-
-@[deprecated succ_inj (since := "2025-09-03")]
-theorem UpwardEnumerable.eq_of_succ_eq {α : Type u} [UpwardEnumerable α]
-    [InfinitelyUpwardEnumerable α] [LinearlyUpwardEnumerable α] {a b : α}
-    (h : succ a = succ b) : a = b :=
-  succ_inj.mp h
 
 theorem UpwardEnumerable.succ_eq_succ_iff {α : Type u} [UpwardEnumerable α]
     [InfinitelyUpwardEnumerable α] [LinearlyUpwardEnumerable α] {a b : α} :
@@ -318,7 +314,7 @@ This function uses an `UpwardEnumerable α` instance.
 
 If no other implementation is provided in UpwardEnumerable instance, succMany? repeatedly applies succ?.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def UpwardEnumerable.succMany {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α]
     (n : Nat) (a : α) :=
@@ -430,6 +426,7 @@ protected theorem UpwardEnumerable.le_iff {α : Type u} [LE α] [UpwardEnumerabl
     [LawfulUpwardEnumerableLE α] {a b : α} : a ≤ b ↔ UpwardEnumerable.LE a b :=
   LawfulUpwardEnumerableLE.le_iff a b
 
+@[expose, instance_reducible]
 def UpwardEnumerable.instLETransOfLawfulUpwardEnumerableLE {α : Type u} [LE α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] :
     Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) where
@@ -494,12 +491,13 @@ protected theorem UpwardEnumerable.lt_succ_iff {α : Type u} [UpwardEnumerable �
       ← succMany?_eq_some_iff_succMany] at hn
     exact ⟨n, hn⟩
 
+@[expose, instance_reducible]
 def UpwardEnumerable.instLTTransOfLawfulUpwardEnumerableLT {α : Type u} [LT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] :
     Trans (α := α) (· < ·) (· < ·) (· < ·) where
   trans := by simpa [UpwardEnumerable.lt_iff] using @UpwardEnumerable.lt_trans
 
-def UpwardEnumerable.instLawfulOrderLTOfLawfulUpwardEnumerableLT {α : Type u} [LT α] [LE α]
+theorem UpwardEnumerable.instLawfulOrderLTOfLawfulUpwardEnumerableLT {α : Type u} [LT α] [LE α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [LawfulUpwardEnumerableLE α] :
     LawfulOrderLT α where

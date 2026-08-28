@@ -12,6 +12,8 @@ import Lean.Util.SafeExponentiation
 public section
 namespace Lean.Meta
 
+open Lean
+
 private abbrev withInstantiatedMVars (e : Expr) (k : Expr → OptionT MetaM α) : OptionT MetaM α := do
   let eNew ← instantiateMVars e
   if eNew.getAppFn.isMVar then
@@ -19,6 +21,7 @@ private abbrev withInstantiatedMVars (e : Expr) (k : Expr → OptionT MetaM α) 
   else
     k eNew
 
+open Structural in -- TODO FIX
 /--
   Evaluate simple `Nat` expressions.
   Remark: this method assumes the given expression has type `Nat`. -/
@@ -104,7 +107,7 @@ private def isNatZero (e : Expr) : MetaM Bool := do
   | some v => return v == 0
   | _      => return false
 
-private def mkOffset (e : Expr) (offset : Nat) : MetaM Expr := do
+def mkOffset (e : Expr) (offset : Nat) : MetaM Expr := do
   if offset == 0 then
     return e
   else if (← isNatZero e) then

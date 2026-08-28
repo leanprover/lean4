@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.UInt.Basic
+public import Init.MetaTypes
 
 public section
 namespace Lean.Meta
@@ -18,18 +19,48 @@ def hash : TransparencyMode → UInt64
   | default   => 11
   | reducible => 13
   | instances => 17
+  | implicit  => 23
+  | none      => 19
 
 instance : Hashable TransparencyMode := ⟨hash⟩
 
+protected def toString : TransparencyMode → String
+  | all       => "all"
+  | default   => "default"
+  | reducible => "reducible"
+  | instances => "instances"
+  | implicit  => "implicit"
+  | none      => "none"
+
+instance : ToString TransparencyMode := ⟨TransparencyMode.toString⟩
+
 def lt : TransparencyMode → TransparencyMode → Bool
-  | reducible, default   => true
-  | reducible, all       => true
-  | reducible, instances => true
-  | instances, default   => true
-  | instances, all       => true
+  | _,         none      => false
+  | none,      _         => true
+  | _,         reducible => false
+  | reducible, _         => true
+  | _,         instances => false
+  | instances, _         => true
+  | _,         implicit  => false
+  | implicit,  _         => true
   | default,   all       => true
   | _,         _         => false
 
 end TransparencyMode
+
+example (a b c : TransparencyMode) : a.lt b → b.lt c → a.lt c := by
+  cases a <;> cases b <;> cases c <;> simp [TransparencyMode.lt]
+
+example (a : TransparencyMode) : ¬ a.lt a := by
+  cases a <;> simp [TransparencyMode.lt]
+
+example (a b : TransparencyMode) : a.lt b → ¬ b.lt a := by
+  cases a <;> cases b <;> simp [TransparencyMode.lt]
+
+example : TransparencyMode.lt .none .reducible := rfl
+example : TransparencyMode.lt .reducible .instances := rfl
+example : TransparencyMode.lt .instances .implicit := rfl
+example : TransparencyMode.lt .implicit .default := rfl
+example : TransparencyMode.lt .default .all := rfl
 
 end Lean.Meta

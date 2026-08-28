@@ -8,10 +8,12 @@ module
 prelude
 public import Lean.Data.Json
 public import Lake.Util.Date
-import Init.Data.String.Slice
+public import Init.Control.Do
 import Init.Data.String.TakeDrop
 import Lean.Data.Trie
 import Init.Data.String.Search
+import Init.Omega
+import Init.Data.String.Length
 
 /-! # Version
 
@@ -52,7 +54,7 @@ where
   termination_by p
 
 /-- Returns whether a version component is a wildcard. -/
-private def isWildVer (s : String.Slice) : Bool :=
+def isWildVer (s : String.Slice) : Bool :=
   let p := s.startPos
   if h : p ≠ s.endPos then
     if p.next h = s.endPos then
@@ -61,7 +63,7 @@ private def isWildVer (s : String.Slice) : Bool :=
     else false
   else false
 
-@[inline] private def parseVerNat (what : String) (s : String.Slice) : EStateM String σ Nat := do
+@[inline] def parseVerNat (what : String) (s : String.Slice) : EStateM String σ Nat := do
   let some v := s.toNat?
     | throw s!"invalid {what} version: expected numeral, got '{s.copy}'"
   return v
@@ -69,7 +71,7 @@ private def isWildVer (s : String.Slice) : Bool :=
 inductive VerComponent
 | none | wild | nat (n : Nat)
 
-private def parseVerComponent {σ} (what : String) (s? : Option String.Slice) : EStateM String σ VerComponent := do
+def parseVerComponent {σ} (what : String) (s? : Option String.Slice) : EStateM String σ VerComponent := do
     let some s := s?
       | return .none
     if isWildVer s then
@@ -88,7 +90,7 @@ def parseSpecialDescr? (s : String) : EStateM String s.Pos (Option String) := do
       let p := p.next h
       let p' := nextUntilWhitespace p
       set p'
-      let specialDescr := p.extract p'
+      let specialDescr := s.extract p p'
       return some specialDescr
     else
       return none
@@ -102,14 +104,14 @@ where
       nextUntilWhitespace (p.next h)
   termination_by p
 
-private def parseSpecialDescr (s : String) : EStateM String s.Pos String := do
+def parseSpecialDescr (s : String) : EStateM String s.Pos String := do
   let some specialDescr ← parseSpecialDescr? s
     | return ""
   if specialDescr.isEmpty then
     throw "invalid version: '-' suffix cannot be empty"
   return specialDescr
 
-private def runVerParse
+@[inline] def runVerParse
   (s : String) (x : (s : String) → EStateM String s.Pos α)
   (startPos := s.startPos) (endPos := s.endPos)
 : Except String α :=
@@ -151,7 +153,7 @@ def parseM (s : String) : EStateM String s.Pos SemVerCore := do
   catch e =>
     throw s!"invalid version core: {e}"
 
-@[inline] public def parse (s : String) : Except String SemVerCore := do
+public def parse (s : String) : Except String SemVerCore := do
   runVerParse s parseM
 
 public protected def toString (ver : SemVerCore) : String :=
@@ -207,7 +209,7 @@ public def parseM (s : String) : EStateM String s.Pos StdVer := do
   let specialDescr ← parseSpecialDescr s
   return {toSemVerCore := core, specialDescr}
 
-@[inline] public def parse (s : String) : Except String StdVer := do
+public def parse (s : String) : Except String StdVer := do
   runVerParse s parseM
 
 public protected def toString (ver : StdVer) : String :=
@@ -235,13 +237,14 @@ open ToolchainVer in
 /-- A Lean toolchain version. -/
 inductive ToolchainVer
 | release (ver : LeanVer)
-| nightly (date : Date)
+| nightly (date : Date) (rev : Option Nat := none)
 | pr (n : Nat)
 | other (v : String)
 with
   @[computed_field] toString : ToolchainVer → String
     | .release ver => s!"{defaultOrigin}:v{ver}"
-    | .nightly date => s!"{defaultOrigin}:nightly-{date}"
+    | .nightly date rev => s!"{defaultOrigin}:nightly-{date}" ++
+        match rev with | none => "" | some r => s!"-rev{r}"
     | .pr n => s!"{prOrigin}:pr-release-{n}"
     | .other v => v
 deriving Repr, DecidableEq
@@ -256,7 +259,7 @@ public def ofString (ver : String) : ToolchainVer := Id.run do
   let (origin, tag) :=
     if h : ¬colonPos.IsAtEnd then
       let pos := colonPos.next h
-      (ver.startPos.extract colonPos, pos.extract ver.endPos)
+      (ver.extract ver.startPos colonPos, ver.extract pos ver.endPos)
     else
       ("", ver)
   let noOrigin := origin.isEmpty
@@ -264,13 +267,20 @@ public def ofString (ver : String) : ToolchainVer := Id.run do
     if let .ok ver := StdVer.parse (tag.drop 1).copy then
       if noOrigin|| origin == defaultOrigin then
         return .release ver
-  else if let some date := tag.dropPrefix? "nightly-" then
-    if let some date := Date.ofString? date.toString then
-      if noOrigin then
-        return .nightly date
-      else if let some suffix := origin.dropPrefix? defaultOrigin then
-        if suffix.isEmpty || suffix == "-nightly" then
-          return .nightly date
+  else if let some rest := tag.dropPrefix? "nightly-" then
+    let rest := rest.toString
+    -- Dates are exactly 10 characters (YYYY-MM-DD); anything after must be a -revK suffix
+    if let some date := Date.ofString? (rest.take 10).toString then
+      let rev? : Option Nat := do
+        let suffix ← (rest.drop 10).dropPrefix? "-rev"
+        suffix.toString.toNat?
+      -- Accept if no suffix (plain nightly) or valid -revK suffix
+      if rest.chars.length ≤ 10 || rev?.isSome then
+        if noOrigin then
+          return .nightly date rev?
+        else if let some suffix := origin.dropPrefix? defaultOrigin then
+          if suffix.isEmpty || suffix == "-nightly" then
+            return .nightly date rev?
   else if let some n := tag.dropPrefix?  "pr-release-" then
     if let some n := n.toNat? then
       if noOrigin || origin == prOrigin then
@@ -301,7 +311,8 @@ public instance : FromJson ToolchainVer := ⟨(ToolchainVer.ofString <$> fromJso
 public def blt (a b : ToolchainVer) : Bool :=
   match a, b with
   | .release v1, .release v2 => v1 < v2
-  | .nightly d1, .nightly d2 => d1 < d2
+  | .nightly d1 r1, .nightly d2 r2 =>
+    d1 < d2 || (d1 == d2 && (r1.getD 0) < (r2.getD 0))
   | _, _ => false
 
 public instance : LT ToolchainVer := ⟨(·.blt ·)⟩
@@ -311,7 +322,8 @@ public instance decLt (a b : ToolchainVer) : Decidable (a < b) :=
 public def ble (a b : ToolchainVer) : Bool :=
   match a, b with
   | .release v1, .release v2 => v1 ≤ v2
-  | .nightly d1, .nightly d2 => d1 ≤ d2
+  | .nightly d1 r1, .nightly d2 r2 =>
+    d1 < d2 || (d1 == d2 && (r1.getD 0) ≤ (r2.getD 0))
   | .pr n1, .pr n2 => n1 = n2
   | .other v1, .other v2 => v1 = v2
   | _, _ => false
@@ -389,10 +401,14 @@ public instance : ToString ComparatorOp := ⟨ComparatorOp.toString⟩
 end ComparatorOp
 
 public structure VerComparator where
-  private innerMk ::
-    private ver : StdVer
-    private op : ComparatorOp
-    private includeSuffixes : Bool := false
+ /-- **For internal use only.** -/
+  mk ::
+    /-- **For internal use only.** -/
+    ver : StdVer
+    /-- **For internal use only.** -/
+    op : ComparatorOp
+    /-- **For internal use only.** -/
+    includeSuffixes : Bool := false
     deriving Repr
 
 namespace VerComparator
@@ -404,7 +420,10 @@ public def wild : VerComparator :=
 public instance : Inhabited VerComparator := ⟨.wild⟩
 
 def parseM (s : String) : EStateM String s.Pos VerComparator := do
+  let iniPos ← get
   let op ← ComparatorOp.parseM s
+  if (← get) = s.endPos then
+    throw s!"invalid comparison: expected version after `{s.sliceFrom iniPos}`"
   let core ← SemVerCore.parseM s
   if let some specialDescr ← parseSpecialDescr? s then
     if  specialDescr.isEmpty then
@@ -414,7 +433,7 @@ def parseM (s : String) : EStateM String s.Pos VerComparator := do
   else
     return {ver := .ofSemVerCore core, op}
 
-@[inline] public def parse (s : String) : Except String VerComparator := do
+public def parse (s : String) : Except String VerComparator := do
   runVerParse s parseM
 
 public def test (self : VerComparator) (ver : StdVer) : Bool :=
@@ -455,7 +474,8 @@ public  instance : ToString VerComparator := ⟨VerComparator.toString⟩
 end VerComparator
 
 public structure VerRange where
-  private innerMk ::
+  /-- **For internal use only.** -/
+  mk ::
     toString : String
     clauses : Array (Array VerComparator)
     deriving Repr, Inhabited
@@ -464,7 +484,7 @@ namespace VerRange
 
 public instance : ToString VerRange := ⟨VerRange.toString⟩
 
-public def ofClauses (clauses : Array (Array VerComparator)) : VerRange :=
+@[inline] public def ofClauses (clauses : Array (Array VerComparator)) : VerRange :=
   {toString := fmtOrs clauses, clauses}
 where
   fmtOrs ors :=
@@ -480,7 +500,7 @@ where
       ands.foldl (init := ands[0].toString) (start := 1) fun s v =>
         s!"{s}, {v}"
 
-partial def parseM (s : String) : EStateM String s.Pos VerRange := do
+@[inline] partial def parseM (s : String) : EStateM String s.Pos VerRange := do
   let clauses ← go true #[] #[]
   return {toString := s, clauses}
 where
@@ -498,15 +518,23 @@ where
           go false ors ands p
         | .error e p => .error e p
       else if c == '^' then
-        match parseCaret s ands (p.next h) with
-        | .ok ands p =>
-          go false ors ands p
-        | .error e p => .error e p
+        let p := p.next h
+        if p = s.endPos then
+          .error  "invalid caret range: expected version after `^`" p
+        else
+          match parseCaret s ands p with
+          | .ok ands p =>
+            go false ors ands p
+          | .error e p => .error e p
       else if c == '~' then
-        match parseTilde s ands (p.next h) with
-        | .ok ands p =>
-          go false ors ands p
-        | .error e p => .error e p
+        let p := p.next h
+        if p = s.endPos then
+          .error "invalid tilde range: expected version after `~`" p
+        else
+          match parseTilde s ands p with
+          | .ok ands p =>
+            go false ors ands p
+          | .error e p => .error e p
       else if c.isWhitespace then
         go needsRange ors ands (p.next h)
       else if c == ',' then
@@ -535,15 +563,16 @@ where
     let maxVer := StdVer.ofSemVerCore maxVer
     ands.push {op := .ge, ver := minVer} |>.push {op := .lt, ver := maxVer, includeSuffixes := true}
   parseWild (s : String) ands : EStateM String s.Pos _ := do
-    let cs ← parseVerComponents s
+    let cs ← parseVerComponents s -- `cs.size ≠ 0` due to how `parseWild` is called
+    -- Parsed first so its error is seen on arbitrary alphanumeric versions (e.g., `v1`, `1.o`, `beta`)
+    let major? ← parseVerComponent "major" cs[0]?
+    let minor? ← parseVerComponent "minor" cs[1]?
+    let patch? ← parseVerComponent "patch" cs[2]?
     if (← get).get?.any (· == '-') then
-      throw s!"invalid wildcard range: wildcard versions do not support suffixes"
-    else if cs.size = 0 ∨ cs.size > 3 then
+      throw "invalid wildcard range: wildcard versions do not support suffixes"
+    else if cs.size > 3 then
       throw s!"invalid wildcard range: incorrect number of components: got {cs.size}, expected 1-3"
     else
-      let major? ← parseVerComponent "major" cs[0]?
-      let minor? ← parseVerComponent "minor" cs[1]?
-      let patch? ← parseVerComponent "patch" cs[2]?
       match major?, minor?, patch? with
       | .nat major, .nat minor, .wild =>
         return appendRange ands {major, minor} {major, minor := minor + 1}
@@ -606,8 +635,10 @@ where
     else
       throw s!"invalid tilde range: incorrect number of components: got {cs.size}, expected 1-3"
 
-@[inline] public def parse (s : String) : Except String VerRange := do
+public def parse (s : String) : Except String VerRange := do
   runVerParse s parseM
+
+public instance : DecodeVersion VerRange := ⟨VerRange.parse⟩
 
 public def test (self : VerRange) (ver : StdVer) : Bool :=
   self.clauses.any (·.all (·.test ver))

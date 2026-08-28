@@ -7,6 +7,9 @@ module
 
 prelude
 public import Init.Data.Format.Basic
+public import Init.Control.Id
+public import Init.Data.UInt.BasicAux
+import Init.Data.Char.Basic
 
 public section
 open Sum Subtype Nat
@@ -225,7 +228,7 @@ Examples:
  * `USize.repr 307 = "307"`
 -/
 @[extern "lean_string_of_usize"]
-protected def _root_.USize.repr (n : @& USize) : String :=
+protected def _root_.USize.repr (n : USize) : String :=
   String.ofList (toDigits 10 n.toNat)
 
 /-- We statically allocate and memoize reprs for small natural numbers. -/
@@ -285,7 +288,7 @@ def toSuperDigits (n : Nat) : List Char :=
   toSuperDigitsAux n []
 
 /--
-Converts a natural number to a string that contains the its decimal representation as Unicode
+Converts a natural number to a string that contains its decimal representation as Unicode
 superscript digit characters.
 
 Examples:
@@ -336,7 +339,7 @@ def toSubDigits (n : Nat) : List Char :=
   toSubDigitsAux n []
 
 /--
-Converts a natural number to a string that contains the its decimal representation as Unicode
+Converts a natural number to a string that contains its decimal representation as Unicode
 subscript digit characters.
 
 Examples:
@@ -350,16 +353,6 @@ end Nat
 
 instance : Repr Nat where
   reprPrec n _ := Nat.repr n
-
-/--
-Returns the decimal string representation of an integer.
--/
-protected def Int.repr : Int → String
-    | ofNat m   => Nat.repr m
-    | negSucc m => String.Internal.append "-" (Nat.repr (succ m))
-
-instance : Repr Int where
-  reprPrec i prec := if i < 0 then Repr.addAppParen i.repr prec else i.repr
 
 def hexDigitRepr (n : Nat) : String :=
   String.singleton <| Nat.digitChar n

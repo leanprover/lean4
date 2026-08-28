@@ -1,0 +1,27 @@
+recursor foo.rec.{u} : {motive_1 : foo → Sort u} →
+  {motive_2 : arrow Nat foo → Sort u} →
+    ((a : arrow Nat foo) → motive_2 a → motive_1 (foo.mk a)) →
+      ((a : Nat → foo) → ((a_1 : Nat) → motive_1 (a a_1)) → motive_2 (arrow.mk a)) → (t : foo) → motive_1 t
+number of parameters: 0
+number of indices: 0
+number of motives: 2
+number of minors: 2
+rules:
+for foo.mk (1 fields): fun motive_1 motive_2 mk mk_1 a => mk a (foo.rec_1 mk mk_1 a)
+@[reducible] protected def foo.below.{u} : {motive_1 : (t : foo) → Sort u} →
+  {motive_2 : (t : arrow.{0, 0} Nat foo) → Sort u} → (t : foo) → Sort (max 1 u) :=
+fun {motive_1 : (t : foo) → Sort u} {motive_2 : (t : arrow.{0, 0} Nat foo) → Sort u} (t : foo) =>
+  @foo.rec.{(max 1 u) + 1} (fun (t : foo) => Sort (max 1 u)) (fun (t : arrow.{0, 0} Nat foo) => Sort (max 1 u))
+    (fun (a : arrow.{0, 0} Nat foo) (a_ih : Sort (max 1 u)) => PProd.{u, max 1 u} (motive_2 a) a_ih)
+    (fun (a : Nat → foo) (a_ih : Nat → Sort (max 1 u)) =>
+      (a_1 : Nat) → PProd.{u, max 1 u} (motive_1 (a a_1)) (a_ih a_1))
+    t
+@[reducible] protected def foo2.brecOn.{u} : {motive_1 : (t : foo2) → Sort u} →
+  {motive_2 : (t : arrow2) → Sort u} →
+    (t : foo2) →
+      (F_1 : (t : foo2) → (f : @foo2.below.{u} motive_1 motive_2 t) → motive_1 t) →
+        (F_2 : (t : arrow2) → (f : @arrow2.below.{u} motive_1 motive_2 t) → motive_2 t) → motive_1 t :=
+fun {motive_1 : (t : foo2) → Sort u} {motive_2 : (t : arrow2) → Sort u} (t : foo2)
+    (F_1 : (t : foo2) → (f : @foo2.below.{u} motive_1 motive_2 t) → motive_1 t)
+    (F_2 : (t : arrow2) → (f : @arrow2.below.{u} motive_1 motive_2 t) → motive_2 t) =>
+  (@foo2.brecOn.go.{u} motive_1 motive_2 t F_1 F_2).1

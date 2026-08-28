@@ -1,0 +1,2 @@
+Fin.mk.injEq {n : Nat} (val : Nat) (isLt : val < n) (val✝ : Nat) (isLt✝ : val✝ < n) :
+  (⟨val, isLt⟩ = ⟨val✝, isLt✝⟩) = (val = val✝)

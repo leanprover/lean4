@@ -8,7 +8,7 @@ jobs:
   check-stage0-on-queue:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         ref: ${{ github.event.pull_request.head.sha }}
         fetch-depth: 0
@@ -31,7 +31,7 @@ jobs:
 
     - if: github.event_name == 'pull_request'
       name: Set label
-      uses: actions/github-script@v8
+      uses: actions/github-script@v9
       with:
         script: |
           const { owner, repo, number: issue_number  } = context.issue;

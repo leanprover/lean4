@@ -6,7 +6,6 @@ Author: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Data.String.Basic
 public import Init.Data.String.Termination
 import Init.Data.ByteArray.Lemmas
 import Init.Data.Char.Lemmas
@@ -230,7 +229,7 @@ Examples:
 * `"Orange".toLower = "orange"`
 * `"ABc123".toLower = "abc123"`
 -/
-@[inline] def toLower (s : String) : String :=
+@[inline, expose] def toLower (s : String) : String :=
   s.map Char.toLower
 
 /--

@@ -15,6 +15,8 @@ public import Lake.Util.FilePath -- use scoped instance downstream
 public import Lake.Util.OrdHashSet
 public import Lake.Util.Name
 meta import all Lake.Util.OpaqueType
+import Lake.Util.OpaqueType
+import Lake.Util.IO
 
 open System Lean
 
@@ -24,8 +26,12 @@ public nonempty_type OpaquePostUpdateHook (pkg : Name)
 
 /-- A Lake package -- its location plus its configuration. -/
 public structure Package where
-  /-- The name of the package. -/
-  name : Name
+  /-- The index of the package in the workspace. Used to disambiguate packages with the same name. -/
+  wsIdx : Nat
+  /-- The assigned name of the package. -/
+  baseName : Name
+  /-- The package identifier used in target keys and configuration types. -/
+  keyName : Name := baseName.num wsIdx
   /-- The name specified by the package. -/
   origName : Name
   /-- The absolute path to the package's directory. -/
@@ -33,23 +39,27 @@ public structure Package where
   /-- The path to the package's directory relative to the workspace. -/
   relDir : FilePath
   /-- The package's user-defined configuration. -/
-  config : PackageConfig name origName
+  config : PackageConfig keyName origName
   /-- The absolute path to the package's configuration file. -/
   configFile : FilePath
   /-- The path to the package's configuration file (relative to `dir`). -/
   relConfigFile : FilePath
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
-  relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile |>.normalize
+  relManifestFile : FilePath
   /-- The package's scope (e.g., in Reservoir). -/
   scope : String
   /-- The URL to this package's Git remote. -/
   remoteUrl : String
   /-- Dependency configurations for the package. -/
   depConfigs : Array Dependency := #[]
+  /-- **For internal use only.** Workspace indices of the resolved direct dependencies of the package. -/
+  depIdxs : Array Nat := #[]
+  /-- **For internal use only.** Resolved direct dependences of the package. -/
+  depPkgs : Array Package := #[]
   /-- Target configurations in the order declared by the package. -/
-  targetDecls : Array (PConfigDecl name) := #[]
+  targetDecls : Array (PConfigDecl keyName) := #[]
   /-- Name-declaration map of target configurations in the package. -/
-  targetDeclMap : DNameMap (NConfigDecl name) :=
+  targetDeclMap : DNameMap (NConfigDecl keyName) :=
     targetDecls.foldl (fun m d => m.insert d.name (.mk d rfl)) {}
   /--
   The names of the package's targets to build by default
@@ -64,29 +74,37 @@ public structure Package where
   -/
   defaultScripts : Array Script := #[]
   /-- Post-`lake update` hooks for the package. -/
-  postUpdateHooks : Array (OpaquePostUpdateHook name) := #[]
+  postUpdateHooks : Array (OpaquePostUpdateHook keyName) := #[]
   /-- The package's `buildArchive`/`buildArchive?` configuration. -/
   buildArchive : String :=
-    if let some n := config.buildArchive then n else defaultBuildArchive name
+    if let some n := config.buildArchive then n else defaultBuildArchive baseName
   /-- The driver used for `lake test` when this package is the workspace root. -/
   testDriver : String := config.testDriver
   /-- The driver used for `lake lint` when this package is the workspace root. -/
   lintDriver : String := config.lintDriver
-  /--
-  Input-to-output(s) map for hashes of package artifacts.
-  If `none`, the artifact cache is disabled for the package.
-  -/
-  inputsRef? : Option CacheRef := none
-  /--
-  Input-to-output(s) map for hashes of package artifacts.
-  If `none`, the artifact cache is disabled for the package.
-  -/
-  outputsRef? : Option CacheRef := none
 
 deriving Inhabited
 
-public instance : Hashable Package where hash pkg := hash pkg.name
-public instance : BEq Package where beq p1 p2 := p1.name == p2.name
+namespace Package
+
+public instance : Hashable Package where hash pkg := hash pkg.keyName
+public instance : BEq Package where beq p1 p2 := p1.wsIdx == p2.wsIdx
+
+/-- Pretty prints the package's name. Used when outputting package names. -/
+@[inline] public def prettyName (self : Package) : String :=
+  self.baseName.toString (escape := false)
+
+public instance : QueryJson Package := ⟨(toJson ·.keyName)⟩
+public instance : QueryText Package := ⟨(·.prettyName)⟩
+
+@[deprecated "Use `baseName`, `keyName`, or `prettyName` instead" (since := "2025-12-03")]
+public abbrev name := @baseName
+
+/-- The (unscoped) name of the package as it appears in Reservoir URLs (before URI-encoding). -/
+@[inline] public def reservoirName (self : Package) : String :=
+  self.origName.toString (escape := false)
+
+end Package
 
 public abbrev PackageSet := Std.HashSet Package
 @[inline] public def PackageSet.empty : PackageSet := ∅
@@ -94,17 +112,22 @@ public abbrev PackageSet := Std.HashSet Package
 public abbrev OrdPackageSet := OrdHashSet Package
 @[inline] public def OrdPackageSet.empty : OrdPackageSet := OrdHashSet.empty
 
-public instance : ToJson Package := ⟨(toJson ·.name)⟩
-public instance : ToString Package := ⟨(·.name.toString)⟩
-
 /-- A package with a name known at type-level. -/
 public structure NPackage (n : Name) extends Package where
-  name_eq : toPackage.name = n
+  keyName_eq : toPackage.keyName = n
 
-attribute [simp] NPackage.name_eq
+namespace NPackage
+
+set_option linter.deprecated false in
+@[deprecated keyName_eq (since := "2025-12-03")]
+public theorem name_eq {self : NPackage n} : self.toPackage.keyName = n := self.keyName_eq
+
+attribute [simp] NPackage.keyName_eq
 
 public instance : CoeOut (NPackage n) Package := ⟨NPackage.toPackage⟩
-public instance : CoeDep Package pkg (NPackage pkg.name) := ⟨⟨pkg, rfl⟩⟩
+public instance : CoeDep Package pkg (NPackage pkg.keyName) := ⟨⟨pkg, rfl⟩⟩
+
+end NPackage
 
 /--
 The type of a post-update hooks monad.
@@ -125,16 +148,20 @@ public structure PostUpdateHookDecl where
 
 namespace Package
 
+/-- Returns whether this package is root package of the workspace. -/
+@[inline] public def isRoot (self : Package) : Bool  :=
+  self.wsIdx == 0
+
 /-- **For internal use.** Whether this package is Lean itself.  -/
 @[inline] public def bootstrap (self : Package) : Bool  :=
   self.config.bootstrap
 
 /-- The identifier passed to Lean to disambiguate the package's native symbols. -/
 public def id? (self : Package) : Option PkgId :=
-  if self.bootstrap then none else some <| self.name.toString (escape := false)
+  if self.bootstrap then none else some <| self.origName.toString (escape := false)
 
 /-- The package version. -/
-@[inline] public def version (self : Package) : LeanVer  :=
+@[inline] public def version (self : Package) : StdVer  :=
   self.config.version
 
 /-- The package's `versionTags` configuration. -/
@@ -221,13 +248,17 @@ public def id? (self : Package) : Option PkgId :=
 @[inline] public def isPlatformIndependent (self : Package) : Bool :=
   self.config.platformIndependent == some true
 
+/-- The package's `fixedToolchain` configuration. -/
+@[inline] public def fixedToolchain (self : Package) : Bool :=
+  self.config.fixedToolchain
+
 /-- The package's `releaseRepo`/`releaseRepo?` configuration. -/
 @[inline] public def releaseRepo? (self : Package) : Option String :=
   self.config.releaseRepo
 
 /-- The packages `remoteUrl` as an `Option` (`none` if empty). -/
 @[inline] public def remoteUrl? (self : Package) : Option String :=
-  if self.remoteUrl.isEmpty then some self.remoteUrl else none
+  if self.remoteUrl.isEmpty then none else some self.remoteUrl
 
 /-- The package's `lakeDir` joined with its `buildArchive`. -/
 @[inline] public def buildArchiveFile (self : Package) : FilePath :=
@@ -264,6 +295,14 @@ public def id? (self : Package) : Option PkgId :=
 /-- The package's `allowImportAll` configuration. -/
 @[inline] public def allowImportAll (self : Package) : Bool :=
   self.config.allowImportAll
+
+/-- The package's `requiresModuleSystem` configuration. -/
+@[inline] public def requiresModuleSystem (self : Package) : Bool :=
+  self.config.requiresModuleSystem
+
+/-- The package's `allowNonModules` configuration. -/
+@[inline] public def allowNonModules (self : Package) : Bool :=
+  self.config.allowNonModules
 
 /-- The package's `dynlibs` configuration. -/
 @[inline] public def dynlibs (self : Package) : TargetArray Dynlib :=
@@ -321,6 +360,10 @@ public def id? (self : Package) : Option PkgId :=
 @[inline] public def leanLibDir (self : Package) : FilePath :=
   self.buildDir / self.config.leanLibDir.normalize
 
+/-- **For internal use only.** The directory containing Lean header files in a bootstrap package. -/
+@[inline] public def bootstrapIncludeDir (self : Package) : FilePath :=
+  self.buildDir / "include"
+
 /--
 Where static libraries for the package are located.
 The package's `buildDir` joined with its `nativeLibDir` configuration.
@@ -351,16 +394,24 @@ The package's `buildDir` joined with its `nativeLibDir` configuration.
 @[inline] public def enableArtifactCache? (self : Package) : Option Bool :=
   self.config.enableArtifactCache?
 
-/-- The package's `restoreAllArtifacts` configuration. -/
-@[inline] public def restoreAllArtifacts (self : Package) : Bool :=
-  self.config.restoreAllArtifacts
+/-- The package's `restoreAllArtifacts?` configuration. -/
+@[inline] public def restoreAllArtifacts? (self : Package) : Option Bool :=
+  self.config.restoreAllArtifacts?
 
 /-- The directory within the Lake cache were package-scoped files are stored. -/
-public def cacheScope (self : Package) :=
-  self.name.toString (escape := false)
+public def cacheScope (self : Package) : String :=
+  self.baseName.toString (escape := false)
+
+/-- The cache scope used to identify the package on Reservoir. -/
+def reservoirScope (self : Package) : CacheServiceScope :=
+  .ofString s!"{self.scope}/{self.origName.toString (escape := false)}"
+
+/-- The cache scope used to identify the package on Reservoir (if the package is availa ble there). -/
+@[inline] public def reservoirScope? (self : Package) : Option CacheServiceScope :=
+  if self.scope.isEmpty then none else some self.reservoirScope
 
 /-- Try to find a target configuration in the package with the given name. -/
-public def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.name name) :=
+public def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.keyName name) :=
   self.targetDeclMap.get? name
 
 /-- Whether the given module is considered local to the package. -/
@@ -375,5 +426,4 @@ public def isBuildableModule (mod : Name) (self : Package) : Bool :=
 
 /-- Remove the package's build outputs (i.e., delete its build directory). -/
 public def clean (self : Package) : IO PUnit := do
-  if (← self.buildDir.pathExists) then
-    IO.FS.removeDirAll self.buildDir
+  removeDirAllIfExists self.buildDir

@@ -145,7 +145,7 @@ public def run?' {ε σ α : Type u} [Functor m] (init : σ) (x : EStateT ε σ 
 : StateT σ m α := fun s => do
   match (← x s) with
   | .ok a s => return (a, s)
-  | .error e s => h e s
+  | .error e s => StateT.run (h e) s
 
 /-- Lift the `m` monad into the `EStateT ε σ m` monad transformer. -/
 @[always_inline, inline]

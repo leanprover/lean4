@@ -9,7 +9,7 @@ module
 
 prelude
 public import Init.Data.Cast
-public import Init.Data.Nat.Div.Basic
+public import Init.Data.Nat.Basic
 
 public section
 
@@ -42,6 +42,7 @@ larger numbers use a fast arbitrary-precision arithmetic library (usually
 than the platform's pointer size (i.e. 63 bits on 64-bit architectures and 31 bits on 32-bit
 architectures).
 -/
+@[suggest_for ℤ]
 inductive Int : Type where
   /--
   A natural number is an integer.
@@ -98,6 +99,7 @@ Examples:
  * `Int.negOfNat 6 = -6`
  * `Int.negOfNat 0 = 0`
 -/
+@[implicit_reducible]
 def negOfNat : Nat → Int
   | 0      => 0
   | succ m => negSucc m
@@ -114,7 +116,7 @@ Examples:
  * `-(-6 : Int) = 6`
  * `(12 : Int).neg = -12`
 -/
-@[extern "lean_int_neg"]
+@[extern "lean_int_neg", implicit_reducible]
 protected def neg (n : @& Int) : Int :=
   match n with
   | ofNat n   => negOfNat n
@@ -140,6 +142,7 @@ Examples:
  * `Int.subNatNat 2 5 = -3`
  * `Int.subNatNat 0 13 = -13`
 -/
+@[implicit_reducible]
 def subNatNat (m n : Nat) : Int :=
   match (n - m : Nat) with
   | 0        => ofNat (m - n)  -- m ≥ n
@@ -156,7 +159,7 @@ Examples:
  * `(7 : Int) + (6 : Int) = 13`
  * `(6 : Int) + (-6 : Int) = 0`
 -/
-@[extern "lean_int_add"]
+@[extern "lean_int_add", implicit_reducible]
 protected def add (m n : @& Int) : Int :=
   match m, n with
   | ofNat m, ofNat n => ofNat (m + n)
@@ -179,7 +182,7 @@ Examples:
  * `(6 : Int) * (-6 : Int) = -36`
  * `(7 : Int) * (0 : Int) = 0`
 -/
-@[extern "lean_int_mul"]
+@[extern "lean_int_mul", implicit_reducible]
 protected def mul (m n : @& Int) : Int :=
   match m, n with
   | ofNat m, ofNat n => ofNat (m * n)
@@ -202,7 +205,7 @@ Examples:
 * `(7 : Int) - (0 : Int) = 7`
 * `(0 : Int) - (7 : Int) = -7`
 -/
-@[extern "lean_int_sub"]
+@[extern "lean_int_sub", implicit_reducible]
 protected def sub (m n : @& Int) : Int := m + (- n)
 
 instance : Sub Int where
@@ -249,7 +252,7 @@ Examples:
 * `if (6 : Int) = (3 : Int) * (2 : Int) then "yes" else "no" = "yes"`
 * `(¬ (6 : Int) = (3 : Int)) = true`
 -/
-@[extern "lean_int_dec_eq"]
+@[extern "lean_int_dec_eq", implicit_reducible]
 protected def decEq (a b : @& Int) : Decidable (a = b) :=
   match a, b with
   | ofNat a, ofNat b => match decEq a b with
@@ -274,11 +277,15 @@ set_option bootstrap.genMatcherCode false in
   ```
 
   Implemented by efficient native code. -/
-@[extern "lean_int_dec_nonneg"]
+@[extern "lean_int_dec_nonneg", implicit_reducible]
 def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
   match m with
   | ofNat m => isTrue <| NonNeg.mk m
-  | -[_ +1] => isFalse <| fun h => nomatch h
+  | -[i +1] => isFalse <| fun h =>
+    have : ∀ j, (j = -[i +1]) → NonNeg j → False := fun _ hj hnn =>
+      Int.NonNeg.casesOn (motive := fun j _ => j = -[i +1] → False) hnn
+        (fun _ h => Int.noConfusion h) hj
+    this -[i +1] rfl h
 
 /-- Decides whether `a ≤ b`.
 
@@ -318,7 +325,7 @@ Examples:
  * `(0 : Int).natAbs = 0`
  * `(-11 : Int).natAbs = 11`
 -/
-@[extern "lean_nat_abs", expose]
+@[extern "lean_nat_abs", implicit_reducible]
 def natAbs (m : @& Int) : Nat :=
   match m with
   | ofNat m => m
@@ -356,6 +363,7 @@ Examples:
 * `(0 : Int).toNat = 0`
 * `(-7 : Int).toNat = 0`
 -/
+@[implicit_reducible]
 def toNat : Int → Nat
   | ofNat n   => n
   | negSucc _ => 0
@@ -392,6 +400,7 @@ Examples:
 * `(0 : Int) ^ 10 = 0`
 * `(-7 : Int) ^ 3 = -343`
 -/
+@[implicit_reducible]
 protected def pow : Int → Nat → Int
   | (m : Nat), n => Int.ofNat (m ^ n)
   | m@-[_+1], n => if n % 2 = 0 then Int.ofNat (m.natAbs ^ n) else - Int.ofNat (m.natAbs ^ n)
@@ -408,20 +417,20 @@ instance : Min Int := minOfLe
 instance : Max Int := maxOfLe
 
 /-- Equality predicate for kernel reduction. -/
-@[expose] protected noncomputable def beq' (a b : Int) : Bool :=
+protected noncomputable def beq' (a b : Int) : Bool :=
   Int.rec
     (fun a => Int.rec (fun b => Nat.beq a b) (fun _ => false) b)
     (fun a => Int.rec (fun _ => false) (fun b => Nat.beq a b) b) a
 
 /-- `x ≤ y` for kernel reduction. -/
-@[expose] protected noncomputable def ble' (a b : Int) : Bool :=
+protected noncomputable def ble' (a b : Int) : Bool :=
   Int.rec
     (fun a => Int.rec (fun b => Nat.ble a b) (fun _ => false) b)
     (fun a => Int.rec (fun _ => true) (fun b => Nat.ble b a) b)
     a
 
 /-- `x < y` for kernel reduction. -/
-@[expose] protected noncomputable def blt' (a b : Int) : Bool :=
+protected noncomputable def blt' (a b : Int) : Bool :=
   Int.rec
     (fun a => Int.rec (fun b => Nat.blt a b) (fun _ => false) b)
     (fun a => Int.rec (fun _ => true) (fun b => Nat.blt b a) b)

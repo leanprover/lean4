@@ -23,6 +23,7 @@ public import Lake.Config.InputFile
 public import Lake.Config.InputFileConfig
 public import Lake.Config.InstallPath
 public import Lake.Config.Kinds
+public import Lake.Config.LakeConfig
 public import Lake.Config.Lang
 public import Lake.Config.LeanConfig
 public import Lake.Config.LeanExe

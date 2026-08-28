@@ -11,7 +11,6 @@ public import Lake.Config.TargetConfig
 public import Lake.Config.FacetConfig
 public import Lake.Build.Job.Register
 public import Lake.Build.Infos
-import Lake.DSL.DeclUtil
 
 /-! # DSL for Targets & Facets
 Macros for declaring Lake targets and facets.

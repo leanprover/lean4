@@ -13,13 +13,23 @@ public section
 namespace Lean
 
 private def recAppKey := `_recApp
+private def recAppPosKey := `_recAppPos
 
 /--
 We store the syntax at recursive applications to be able to generate better error messages
 when performing well-founded and structural recursion.
+
+We additionally store the source position as an extra key, so that two recursive applications
+that are structurally identical as `Syntax` but originate from different source positions
+still produce distinct `MData`. Otherwise hashconsing or simplification can merge them and
+attribute an error to the wrong call site (issue #13444).
 -/
 def mkRecAppWithSyntax (e : Expr) (stx : Syntax) : Expr :=
-  mkMData (KVMap.empty.insert recAppKey (.ofSyntax stx)) e
+  let m := KVMap.empty.insert recAppKey (.ofSyntax stx)
+  let m := match stx.getPos? with
+    | some p => m.insert recAppPosKey (.ofNat p.byteIdx)
+    | none   => m
+  mkMData m e
 
 /--
 Retrieve (if available) the syntax object attached to a recursive application.

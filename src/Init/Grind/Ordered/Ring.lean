@@ -8,6 +8,10 @@ module
 prelude
 public import Init.Grind.Ring.Basic
 public import Init.Grind.Ordered.Module
+import Init.Data.Nat.Lemmas
+import Init.Grind.Ordered.Order
+import Init.Omega
+import Init.RCases
 
 public section
 
@@ -44,7 +48,7 @@ theorem neg_one_lt_zero : (-1 : R) < 0 := by
 
 theorem ofNat_nonneg (x : Nat) : (OfNat.ofNat x : R) ≥ 0 := by
   induction x
-  next => simp [OfNat.ofNat, Zero.zero]; apply le_refl
+  next => simp [OfNat.ofNat, Zero.zero]
   next n ih =>
     have := OrderedRing.zero_lt_one (R := R)
     rw [Semiring.ofNat_succ]
@@ -134,8 +138,8 @@ theorem lt_of_intCast_lt_intCast (a b : Int) : (a : R) < (b : R) → a < b := by
     omega
 
 theorem natCast_le_natCast_of_le (a b : Nat) : a ≤ b → (a : R) ≤ (b : R) := by
-  induction a generalizing b <;> cases b <;> simp
-  next => simp [Semiring.natCast_zero, Std.IsPreorder.le_refl]
+  induction a generalizing b <;> cases b <;> simp [- Std.le_refl]
+  next => simp [Semiring.natCast_zero]
   next n =>
     have := ofNat_nonneg (R := R) n
     simp [Semiring.ofNat_eq_natCast] at this
@@ -150,6 +154,9 @@ theorem natCast_le_natCast_of_le (a b : Nat) : a ≤ b → (a : R) ≤ (b : R) :
     replace ih := ih _ h
     simp [Semiring.natCast_add, Semiring.natCast_one]
     exact OrderedAdd.add_le_left_iff _ |>.mp ih
+
+theorem natCast_nonneg {a : Nat} : 0 ≤ (a : R) := by
+  simpa [Semiring.natCast_zero] using natCast_le_natCast_of_le (R := R) _ _ (Nat.zero_le a)
 
 theorem natCast_lt_natCast_of_lt (a b : Nat) : a < b → (a : R) < (b : R) := by
   induction a generalizing b <;> cases b <;> simp
@@ -222,7 +229,7 @@ instance [Ring R] [LE R] [LT R] [LawfulOrderLT R] [IsPreorder R] [OrderedRing R]
     next => rfl
     next x =>
       rw [Semiring.ofNat_succ] at h
-      replace h := congrArg (· - 1) h; simp at h
+      replace h := congrArg (· - 1) h; try simp at h -- TODO(kmill): remove simp after stage0 update
       rw [Ring.sub_eq_add_neg, Semiring.add_assoc, AddCommGroup.add_neg_cancel,
           Ring.sub_eq_add_neg, AddCommMonoid.zero_add, Semiring.add_zero] at h
       have h₁ : (OfNat.ofNat x : R) < 0 := by

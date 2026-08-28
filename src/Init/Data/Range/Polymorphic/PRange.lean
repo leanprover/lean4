@@ -32,6 +32,7 @@ structure Rcc (α : Type u) where
   The upper bound of the range. {name (full := Rcc.upper)}`upper` is included in the range.
   -/
   upper : α
+deriving DecidableEq
 
 /--
 A range of elements of {given}`α` with a closed lower bound and an open upper bound.
@@ -48,6 +49,7 @@ structure Rco (α : Type u) where
   The upper bound of the range. {name (full := Rco.upper)}`upper` is not included in the range.
   -/
   upper : α
+deriving DecidableEq
 
 /--
 An upward-unbounded range of elements of {given}`α` with a closed lower bound.
@@ -60,6 +62,7 @@ structure Rci (α : Type u) where
   The lower bound of the range. {name (full := Rci.lower)}`lower` is included in the range.
   -/
   lower : α
+deriving DecidableEq
 
 /--
 A range of elements of {given}`α` with an open lower bound and a closed upper bound.
@@ -76,6 +79,7 @@ structure Roc (α : Type u) where
   The upper bound of the range. {name (full := Roc.upper)}`upper` is included in the range.
   -/
   upper : α
+deriving DecidableEq
 
 /--
 A range of elements of {given}`α` with an open lower and upper bounds.
@@ -92,6 +96,7 @@ structure Roo (α : Type u) where
   The upper bound of the range. {name (full := Roo.upper)}`upper` is not included in the range.
   -/
   upper : α
+deriving DecidableEq
 
 /--
 An upward-unbounded range of elements of {given}`α` with an open lower bound.
@@ -104,6 +109,7 @@ structure Roi (α : Type u) where
   The lower bound of the range. {name (full := Roi.lower)}`lower` is not included in the range.
   -/
   lower : α
+deriving DecidableEq
 
 /--
 A downward-unbounded range of elements of {given}`α` with a closed upper bound.
@@ -116,6 +122,7 @@ structure Ric (α : Type u) where
   The upper bound of the range. {name (full := Ric.upper)}`upper` is included in the range.
   -/
   upper : α
+deriving DecidableEq
 
 /--
 A downward-unbounded range of elements of {given}`α` with an open upper bound.
@@ -128,12 +135,14 @@ structure Rio (α : Type u) where
   The upper bound of the range. {name (full := Rio.upper)}`upper` is not included in the range.
   -/
   upper : α
+deriving DecidableEq
 
 /--
 A full range of all elements of {lit}`α`. Its only inhabitant is the range {lit}`*...*`, which is
 notation for {lean}`Rii.mk`.
 -/
-structure Rii (α : Type u) where
+structure Rii (α : Type u)
+deriving DecidableEq
 
 /-- `a...*` is the range of elements greater than or equal to {lit}`a`. See also {name}`Std.Rci`. -/
 syntax:max (term "...*") : term
@@ -193,7 +202,7 @@ macro_rules
   | `($a<...$b) => ``(Roo.mk $a $b)
 
 /--
-This type class ensures that right-closed ranges (i.e., for bounds {given}`a` and {given}`b`,
+This type class ensures that right-closed ranges (i.e., for bounds {given (type := "α")}`a` and {given (type := "α")}`b`,
 {lean}`a...=b`, {lean}`a<...=b` and {lean}`*...=b`) are always finite.
 This is a prerequisite for many functions and instances, such as
 {name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Rcc.toList` or {name}`ForIn'`.
@@ -207,7 +216,7 @@ class Rxc.IsAlwaysFinite (α : Type u) [UpwardEnumerable α] [LE α] : Prop wher
     ∃ n, (UpwardEnumerable.succMany? n init).elim True (¬ · ≤ hi)
 
 /--
-This type class ensures that right-open ranges (i.e., for bounds {given}`a` and {given}`b`,
+This type class ensures that right-open ranges (i.e., for bounds {given (type := "α")}`a` and {given (type := "α")}`b`,
 {lean}`a...b`, {lean}`a<...b` and {lean}`*...b`) are always finite.
 This is a prerequisite for many functions and instances, such as
 {name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Rco.toList` or {name}`ForIn'`.
@@ -221,7 +230,7 @@ class Rxo.IsAlwaysFinite (α : Type u) [UpwardEnumerable α] [LT α] : Prop wher
     ∃ n, (UpwardEnumerable.succMany? n init).elim True (¬ · < hi)
 
 /--
-This type class ensures that right-unbounded ranges (i.e., for a bound {given}`a`,
+This type class ensures that right-unbounded ranges (i.e., for a bound {given (type := "α")}`a`,
 {lean}`a...*`, {lean}`a<...*` and {lean}`*...*`) are always finite.
 This is a prerequisite for many functions and instances, such as
 {name (scope := "Init.Data.Range.Polymorphic.Iterators")}`Rci.toList` or {name}`ForIn'`.

@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-import Std.Data.DTreeMap.Internal.Lemmas
 public import Std.Data.DTreeMap.Raw.AdditionalOperations
 
 @[expose] public section
@@ -164,5 +163,9 @@ theorem union [TransCmp cmp] {t₁ t₂ : Raw α β cmp} (h₁ : t₁.WF) (h₂ 
 theorem inter [TransCmp cmp] {t₁ t₂ : Raw α β cmp} (h₁ : t₁.WF) :
     (t₁ ∩ t₂).WF :=
   ⟨Impl.WF.inter! h₁.out⟩
+
+theorem diff [TransCmp cmp] {t₁ t₂ : Raw α β cmp} (h₁ : t₁.WF) :
+    (t₁ \ t₂).WF :=
+  ⟨Impl.WF.diff! h₁.out⟩
 
 end Std.DTreeMap.Raw.WF.Const

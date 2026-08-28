@@ -6,9 +6,10 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Float
+public import Init.Data.Float.Float
 import Init.Ext
-public import Init.Data.Array.DecidableEq
+public import Init.GetElem
+public import Init.Data.ToString.Extra
 
 public section
 universe u
@@ -42,7 +43,7 @@ instance : EmptyCollection FloatArray where
 def push : FloatArray → Float → FloatArray
   | ⟨ds⟩, b => ⟨ds.push b⟩
 
-@[extern "lean_float_array_size"]
+@[extern "lean_float_array_size", tagged_return]
 def size : (@& FloatArray) → Nat
   | ⟨ds⟩ => ds.size
 
@@ -144,6 +145,8 @@ unsafe def foldlMUnsafe {β : Type v} {m : Type v → Type w} [Monad m] (f : β 
   if start < stop then
     if stop ≤ as.size then
       fold (USize.ofNat start) (USize.ofNat stop) init
+    else if start < as.size then
+      fold (USize.ofNat start) (USize.ofNat as.size) init
     else
       pure init
   else

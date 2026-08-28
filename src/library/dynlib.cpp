@@ -126,10 +126,10 @@ void load_dynlib(std::string path) {
     consume_io_result(lean_load_dynlib(mk_string(path)));
 }
 
-/* Lean.loadPlugin : System.FilePath -> IO Unit */
-extern "C" obj_res lean_load_plugin(obj_arg path);
+/* Lean.loadPlugin : System.FilePath -> Option String -> IO Unit */
+extern "C" obj_res lean_load_plugin(obj_arg path, obj_arg init_fn);
 
 void load_plugin(std::string path) {
-    consume_io_result(lean_load_plugin(mk_string(path)));
+    consume_io_result(lean_load_plugin(mk_string(path), box(0)));
 }
 }

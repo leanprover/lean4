@@ -8,8 +8,16 @@ module
 prelude
 import all Init.Data.Array.Basic
 import all Init.Data.Array.OfFn
-public import Init.Data.Array.MapIdx
-public import Init.Data.Array.Zip
+public import Init.BinderPredicates
+public import Init.Data.Nat.Lemmas
+public import Init.Ext
+import Init.ByCases
+import Init.Data.Array.Count
+import Init.Data.Array.MapIdx
+import Init.Data.Array.Zip
+import Init.Data.List.Find
+import Init.Data.List.Nat.Range
+import Init.Data.List.Range
 
 public section
 

@@ -74,7 +74,7 @@ structure DHashMap (α : Type u) (β : α → Type v) [BEq α] [Hashable α] whe
 
 namespace DHashMap
 
-@[inline, inherit_doc Raw.emptyWithCapacity] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) : DHashMap α β :=
+@[cbv_opaque, inline, inherit_doc Raw.emptyWithCapacity] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) : DHashMap α β :=
   ⟨Raw.emptyWithCapacity capacity, .emptyWithCapacity₀⟩
 
 instance [BEq α] [Hashable α] : EmptyCollection (DHashMap α β) where
@@ -90,7 +90,7 @@ structure Equiv (m₁ m₂ : DHashMap α β) where
 
 @[inherit_doc] scoped infixl:50 " ~m " => Equiv
 
-@[inline, inherit_doc Raw.insert] def insert (m : DHashMap α β) (a : α)
+@[cbv_opaque, inline, inherit_doc Raw.insert] def insert (m : DHashMap α β) (a : α)
     (b : β a) : DHashMap α β :=
   ⟨Raw₀.insert ⟨m.1, m.2.size_buckets_pos⟩ a b, .insert₀ m.2⟩
 
@@ -146,7 +146,7 @@ instance [BEq α] [Hashable α] {m : DHashMap α β} {a : α} : Decidable (a ∈
     (a : α) (fallback : β a) : β a :=
   Raw₀.getD ⟨m.1, m.2.size_buckets_pos⟩ a fallback
 
-@[inline, inherit_doc Raw.erase] def erase (m : DHashMap α β) (a : α) :
+@[cbv_opaque, inline, inherit_doc Raw.erase] def erase (m : DHashMap α β) (a : α) :
     DHashMap α β :=
   ⟨Raw₀.erase ⟨m.1, m.2.size_buckets_pos⟩ a, .erase₀ m.2⟩
 
@@ -261,7 +261,7 @@ define the `ForM` and `ForIn` instances for `HashMap`.
 
 end Const
 
-@[inline, inherit_doc Raw.filter] def filter (f : (a : α) → β a → Bool)
+@[cbv_opaque, inline, inherit_doc Raw.filter] def filter (f : (a : α) → β a → Bool)
     (m : DHashMap α β) : DHashMap α β :=
   ⟨Raw₀.filter f ⟨m.1, m.2.size_buckets_pos⟩, .filter₀ m.2⟩
 
@@ -359,6 +359,19 @@ This function always iterates through the smaller map, so the expected runtime i
 instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
 instance [BEq α] [Hashable α] : Inter (DHashMap α β) := ⟨inter⟩
 instance [BEq α] [Hashable α] : SDiff (DHashMap α β) := ⟨diff⟩
+
+/--
+Compares two hash maps using Boolean equality on keys and values.
+
+Returns `true` if the maps contain the same key-value pairs, `false` otherwise.
+-/
+def beq [LawfulBEq α] [∀ k, BEq (β k)] (a b : DHashMap α β) : Bool :=
+  Raw₀.beq ⟨a.1, a.2.size_buckets_pos⟩ ⟨b.1, b.2.size_buckets_pos⟩
+
+instance [LawfulBEq α] [∀ k, BEq (β k)] : BEq (DHashMap α β) := ⟨beq⟩
+
+@[inherit_doc DHashMap.beq] def Const.beq {β : Type v} [BEq α] [BEq β] (m₁ m₂ : DHashMap α (fun _ => β)) : Bool :=
+  Raw₀.Const.beq ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩
 
 section Unverified
 

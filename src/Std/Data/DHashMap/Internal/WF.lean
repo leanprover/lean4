@@ -12,6 +12,9 @@ import all Std.Data.DHashMap.Internal.Defs
 public import Std.Data.DHashMap.Internal.Model
 import all Std.Data.DHashMap.Internal.AssocList.Basic
 import all Std.Data.DHashMap.RawDef
+import Init.Data.Array.Bootstrap
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.TakeDrop
 
 public section
 
@@ -273,7 +276,20 @@ theorem forIn_eq_forIn_toListModel {δ : Type w} {l : Raw α β} {m : Type w →
       apply funext
       rintro (⟨d⟩|⟨d⟩)
       · simp
-      · simpa using ih'
+      · simpa using! ih'
+
+theorem all_eq_all_toListModel {p : (a: α) → β a → Bool} {m : Raw α β} :
+    m.all p = (toListModel m.buckets).all (fun x => p x.1 x.2) := by
+  simp only [Raw.all, ForIn.forIn, Bool.not_eq_true, Id.run_bind]
+  rw [forIn_eq_forIn_toListModel, ← toList_eq_toListModel, forIn_eq_forIn']
+  induction m.toList with
+  | nil => simp only [all_nil, forIn'_nil, Id.run_pure]
+  | cons hd tl ih =>
+    simp only [forIn'_eq_forIn, List.all_cons]
+    by_cases h : p hd.fst hd.snd = false
+    · simp [h]
+    · simp only [forIn'_eq_forIn] at ih
+      simp [h, ih]
 
 end Raw
 
@@ -347,7 +363,7 @@ private theorem expand.go_eq [BEq α] [Hashable α] [PartialEquivBEq α] (source
   suffices ∀ i, expand.go i source target =
     ((source.toList.drop i).flatMap AssocList.toList).foldl
       (fun acc p => reinsertAux hash acc p.1 p.2) target by
-    simpa using this 0
+    simpa using! this 0
   intro i
   induction i, source, target using expand.go.induct
   next i source target _ hi es newSource newTarget ih =>
@@ -738,7 +754,7 @@ theorem wfImp_alterₘ [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} 
     split
     next h₁ =>
       rw [containsₘ_eq_containsKey h] at h₁
-      simp only [length_alterKey, h.size_eq, dif_pos h₁]
+      simp only [length_alterKey, h.size_eq, dite_eq_left h₁]
       rw [containsₘ_eq_containsKey (by apply wfImp_updateBucket_alter h)]
       simp only [buckets_withComputedSize]
       simp only [containsKey_of_perm <| toListModel_updateBucket_alter h]
@@ -750,9 +766,9 @@ theorem wfImp_alterₘ [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} 
       rw [getValueCast?_eq_none <| Bool.not_eq_true _ ▸ h₁]
       split
       next heq =>
-        rw [heq, h.size_eq, length_eraseKey, if_neg h₁]
+        rw [heq, h.size_eq, length_eraseKey, ite_eq_right h₁]
       next heq =>
-        rw [heq, size_expandIfNecessary, consₘ, length_insertEntry, if_neg h₁, h.size_eq]
+        rw [heq, size_expandIfNecessary, consₘ, length_insertEntry, ite_eq_right h₁, h.size_eq]
 
 theorem wfImp_alter [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β}
     (h : Raw.WFImp m.1) {a : α} {f : Option (β a) → Option (β a)} : Raw.WFImp (m.alter a f).1 := by
@@ -836,7 +852,7 @@ theorem wfImp_alterₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] 
     split
     next h₁ =>
       rw [containsₘ_eq_containsKey h] at h₁
-      simp only [Const.length_alterKey, h.size_eq, dif_pos h₁]
+      simp only [Const.length_alterKey, h.size_eq, dite_eq_left h₁]
       rw [containsₘ_eq_containsKey (by apply wfImp_updateBucket_alter h)]
       simp only [buckets_withComputedSize]
       simp only [containsKey_of_perm <| toListModel_updateBucket_alter h]
@@ -848,9 +864,9 @@ theorem wfImp_alterₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] 
       rw [getValue?_eq_none.mpr <| Bool.not_eq_true _ ▸ h₁]
       split
       next heq =>
-        rw [heq, h.size_eq, length_eraseKey, if_neg h₁]
+        rw [heq, h.size_eq, length_eraseKey, ite_eq_right h₁]
       next heq =>
-        rw [heq, size_expandIfNecessary, consₘ, length_insertEntry, if_neg h₁, h.size_eq]
+        rw [heq, size_expandIfNecessary, consₘ, length_insertEntry, ite_eq_right h₁, h.size_eq]
 
 theorem wfImp_alter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α (fun _ => β)}
     (h : Raw.WFImp m.1) {a : α} {f : Option β → Option β} : Raw.WFImp (Const.alter m a f).1 := by
@@ -915,7 +931,7 @@ theorem toListModel_insertIfNewₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulH
     (h : Raw.WFImp m.1) {a : α} {b : β a} :
     Perm (toListModel (m.insertIfNewₘ a b).1.buckets)
       (insertEntryIfNew a b (toListModel m.1.buckets)) := by
-  rw [insertIfNewₘ, insertEntryIfNew, containsₘ_eq_containsKey h, cond_eq_ite]
+  rw [insertIfNewₘ, insertEntryIfNew, containsₘ_eq_containsKey h]
   split
   next h' => exact Perm.refl _
   next h' => exact (toListModel_expandIfNecessary _).trans (toListModel_consₘ m h a b)
@@ -1022,7 +1038,7 @@ theorem toListModel_eraseₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashabl
   split
   · exact toListModel_eraseₘaux m a h
   next h' =>
-    exact toListModel_perm_eraseKey_of_containsₘ_eq_false _ _ h (eq_false_of_ne_true h')
+    exact toListModel_perm_eraseKey_of_containsₘ_eq_false _ _ h (Bool.eq_false_of_ne_true h')
 
 theorem wfImp_eraseₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β} {a : α}
     (h : Raw.WFImp m.1) : Raw.WFImp (m.eraseₘ a).1 := by
@@ -1121,7 +1137,7 @@ theorem toListModel_insertListIfNewₘ [BEq α] [Hashable α] [EquivBEq α] [Law
 
 theorem insertMany_eq_insertListₘ_toListModel [BEq α] [Hashable α] (m m₂ : Raw₀ α β) :
     insertMany m m₂.1 = insertListₘ m (toListModel m₂.1.buckets) := by
-  simp only [insertMany, bind_pure_comp, map_pure, bind_pure]
+  simp only [insertMany, bind_pure]
   simp only [ForIn.forIn]
   simp only [Raw.forIn_eq_forIn_toListModel, forIn_pure_yield_eq_foldl, Id.run_pure]
   generalize toListModel m₂.val.buckets = l
@@ -1138,19 +1154,19 @@ theorem insertMany_eq_insertListₘ_toListModel [BEq α] [Hashable α] (m m₂ :
 
 theorem insertMany_array_eq_insertMany_toList [BEq α] [Hashable α] (m : Raw₀ α β) (a : Array ((k : α) × (β k))) :
     insertMany m a = insertMany m a.toList := by
-  simp only [insertMany, bind_pure_comp, map_pure, bind_pure, ← Array.forIn_toList, forIn_pure_yield_eq_foldl, Array.foldl_toList, Id.run_pure]
+  simp only [insertMany, bind_pure, ← Array.forIn_toList, forIn_pure_yield_eq_foldl, Array.foldl_toList, Id.run_pure]
 
 theorem Const.insertMany_array_eq_insertMany_toList [BEq α] [Hashable α] {β : Type v} (m : Raw₀ α fun _ => β) (a : Array (α × β)) :
     Const.insertMany m a = Const.insertMany m a.toList := by
-  simp only [insertMany, bind_pure_comp, map_pure, bind_pure, ← Array.forIn_toList, forIn_pure_yield_eq_foldl, Array.foldl_toList, Id.run_pure]
+  simp only [insertMany, bind_pure, ← Array.forIn_toList, forIn_pure_yield_eq_foldl, Array.foldl_toList, Id.run_pure]
 
 theorem Const.insertManyIfNewUnit_array_eq_insertManyIfNewUnit_toList [BEq α] [Hashable α] (m : Raw₀ α fun _ => Unit) (a : Array α) :
     Const.insertManyIfNewUnit m a = Const.insertManyIfNewUnit m a.toList := by
-  simp only [insertManyIfNewUnit, bind_pure_comp, map_pure, bind_pure, ← Array.forIn_toList, forIn_pure_yield_eq_foldl, Array.foldl_toList, Id.run_pure]
+  simp only [insertManyIfNewUnit, bind_pure, ← Array.forIn_toList, forIn_pure_yield_eq_foldl, Array.foldl_toList, Id.run_pure]
 
 theorem insertManyIfNew_eq_insertListIfNewₘ_toListModel [BEq α] [Hashable α] (m m₂ : Raw₀ α β) :
     insertManyIfNew m m₂.1 = insertListIfNewₘ m (toListModel m₂.1.buckets) := by
-  simp only [insertManyIfNew, bind_pure_comp, map_pure, bind_pure]
+  simp only [insertManyIfNew, bind_pure]
   simp only [ForIn.forIn]
   simp only [Raw.forIn_eq_forIn_toListModel, forIn_pure_yield_eq_foldl, Id.run_pure]
   generalize toListModel m₂.val.buckets = l
@@ -1331,6 +1347,11 @@ theorem toListModel_insertMany_list [BEq α] [Hashable α] [EquivBEq α] [Lawful
   apply toListModel_insertListₘ
   exact h
 
+theorem insertMany_list_eq_foldl [BEq α] [Hashable α]
+    {m : Raw₀ α β} {l : List ((a : α) × β a)} :
+    (insertMany m l).1 = l.foldl (init := m) fun a b => a.insert b.1 b.2 := by
+  simpa [insertMany] using (List.foldl_hom Subtype.val (by simp)).symm
+
 /-! # `eraseMany` -/
 
 theorem WF.eraseManyEntries [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {m : Raw α β}
@@ -1350,7 +1371,7 @@ theorem wf_eraseMany₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
 
 theorem eraseMany_eq_eraseListₘ_toListModel [BEq α] [Hashable α] (m m₂ : Raw₀ α β) :
     eraseManyEntries m m₂.1 = eraseListₘ m ((toListModel m₂.1.buckets).map (·.1)) := by
-  simp only [eraseManyEntries, bind_pure_comp, map_pure, bind_pure]
+  simp only [eraseManyEntries, bind_pure]
   simp only [ForIn.forIn]
   simp only [Raw.forIn_eq_forIn_toListModel, forIn_pure_yield_eq_foldl, Id.run_pure]
   generalize toListModel m₂.val.buckets = l
@@ -1428,6 +1449,11 @@ theorem toListModel_insertManyIfNew_list [BEq α] [Hashable α] [EquivBEq α] [L
   rw [insertManyIfNew_eq_insertListIfNewₘ]
   apply toListModel_insertListIfNewₘ
   exact h
+
+theorem insertManyIfNew_list_eq_foldl [BEq α] [Hashable α]
+    {m : Raw₀ α β} {l : List ((a : α) × β a)} :
+    (insertManyIfNew m l).1 = l.foldl (init := m) fun a b => a.insertIfNew b.1 b.2 := by
+  simpa [insertManyIfNew] using (List.foldl_hom Subtype.val (by simp)).symm
 
 /-! # `union` -/
 
@@ -1551,6 +1577,11 @@ theorem Const.wf_insertMany₀ {β : Type v} [BEq α] [Hashable α] [EquivBEq α
     {l : ρ} (h' : m.WF) : (Const.insertMany ⟨m, h⟩ l).1.1.WF :=
   (Raw₀.Const.insertMany ⟨m, h⟩ l).2 _ Raw.WF.insert₀ h'
 
+theorem Const.insertMany_list_eq_foldl {β : Type v} [BEq α] [Hashable α]
+    {m : Raw₀ α (fun _ => β)} {l : List (α × β)} :
+    (Const.insertMany m l).1 = l.foldl (init := m) fun a b => a.insert b.1 b.2 := by
+  simpa [Const.insertMany] using (List.foldl_hom Subtype.val (by simp)).symm
+
 /-! # `Const.insertListIfNewUnitₘ` -/
 
 theorem Const.toListModel_insertListIfNewUnitₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
@@ -1583,5 +1614,19 @@ theorem Const.wf_insertManyIfNewUnit₀ [BEq α] [Hashable α] [EquivBEq α] [La
     {ρ : Type w} [ForIn Id ρ α] {m : Raw α (fun _ => Unit)} {h : 0 < m.buckets.size}
     {l : ρ} (h' : m.WF) : (Const.insertManyIfNewUnit ⟨m, h⟩ l).1.1.WF :=
   (Raw₀.Const.insertManyIfNewUnit ⟨m, h⟩ l).2 _ Raw.WF.insertIfNew₀ h'
+
+theorem Const.insertManyIfNewUnit_list_eq_foldl [BEq α] [Hashable α]
+    {m : Raw₀ α (fun _ => Unit)} {l : List α} :
+    (Const.insertManyIfNewUnit m l).1 = l.foldl (init := m) fun a b => a.insertIfNew b () := by
+  simpa [Const.insertManyIfNewUnit] using (List.foldl_hom Subtype.val (by simp)).symm
+
+theorem beq_eq_beqModel [BEq α] [LawfulBEq α] [Hashable α] [∀ k, BEq (β k)] {m₁ m₂ : Raw₀ α β}  (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1) :
+    beq m₁ m₂ = beqModel (toListModel m₁.1.buckets) (toListModel m₂.1.buckets) := by
+  simp [beq, beqModel, Raw.size_eq_length h₁, Raw.size_eq_length h₂, Raw.all_eq_all_toListModel,
+    get?_eq_getValueCast? h₂]
+
+theorem Const.beq_eq_beqModel {β : Type v} [BEq α] [PartialEquivBEq α] [Hashable α] [LawfulHashable α] [BEq β] {m₁ m₂ : Raw₀ α (fun _ => β)} (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1) :
+    beq m₁ m₂ = Const.beqModel (toListModel m₁.1.buckets) (toListModel m₂.1.buckets) := by
+  simp [beq, Const.beqModel, Raw.size_eq_length h₁, Raw.size_eq_length h₂, Raw.all_eq_all_toListModel, get?_eq_getValue? h₂]
 
 end Raw₀

@@ -1,6 +1,0 @@
-collectDepsIssue.lean:5:0-5:1: error: don't know how to synthesize placeholder
-context:
-α : Type
-a : α
-⊢ List α
-collectDepsIssue.lean:8:8-8:11: warning: declaration uses 'sorry'

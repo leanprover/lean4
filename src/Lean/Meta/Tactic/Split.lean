@@ -57,6 +57,7 @@ where
         origin := .decl matchEqDeclName
         proof := mkConst matchEqDeclName
         rfl := (← isRflTheorem matchEqDeclName)
+        backwardRfl := (← isBackwardRflTheorem matchEqDeclName)
       }
       match (← withReducible <| Simp.tryTheorem? e simpTheorem) with
       | none => return .continue
@@ -101,7 +102,7 @@ private def throwInternalMisuseError [Monad m] [MonadError m] (msg : MessageData
 /--
 Split works best if all discriminants are already free variables. If they are not, it will generalize
 them, but that may fail if the motive is dependent. So to avoid that, we first generalize all
-non-FVar discriminants that are propositions; because of proof irrelvance, that's much simpler.
+non-FVar discriminants that are propositions; because of proof irrelevance, that's much simpler.
 -/
 private partial def generalizeMatchPropDiscrs (mvarId : MVarId) (discrs : Array Expr) : MetaM (Array Expr × MVarId) := mvarId.withContext do
   let mut mvarId := mvarId

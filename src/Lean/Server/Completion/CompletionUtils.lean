@@ -7,12 +7,56 @@ module
 
 prelude
 public import Lean.Meta.WHNF
+import Init.Data.String.Bootstrap
+import Init.Data.UInt.Lemmas
 
 public section
 
-partial def String.charactersIn (a b : String) : Bool :=
-  go ⟨0⟩ ⟨0⟩
+/--
+Returns `true` if the characters of `a` occur in `b` in order (not necessarily contiguously),
+compared case-insensitively via `Char.toLower`.
+
+This function assumes that `a` and `b` have size at most `USize.size`, which should be a safe
+assumption.
+-/
+partial def Lean.String.charactersIn (a b : String) : Bool :=
+  goFastScalar a.utf8ByteSize.toUSize b.utf8ByteSize.toUSize 0 0 rfl rfl
 where
+  /-
+  This function is the ASCII fast path for `go`. It caches the two case variants of the current
+  pattern byte in `lower`/`upper` (via `scan`) so that the hot loop scanning `b` only performs a
+  bounds check, a byte load, and two comparisons per byte.
+  -/
+  goFastScalar (aSize bSize aPos bPos : USize)
+      (ha : aSize = a.utf8ByteSize.toUSize) (hb : bSize = b.utf8ByteSize.toUSize) : Bool :=
+    if haPos : aPos < aSize then
+      let aByte := String.Internal.ugetUTF8Byte a aPos
+        (Std.lt_of_lt_of_le (USize.lt_iff_toNat_lt.1 haPos) (ha ▸ USize.toNat_ofNat_le))
+      -- If `a` contains a non-ASCII byte we give up on the fast path
+      if aByte &&& 0x80 != 0 then
+        go ⟨aPos.toNat⟩ ⟨bPos.toNat⟩
+      else
+        scan aByte.toAsciiLower aByte.toAsciiUpper aSize bSize aPos bPos ha hb
+    else
+      true
+
+  scan (lower upper : UInt8) (aSize bSize aPos bPos : USize)
+      (ha : aSize = a.utf8ByteSize.toUSize) (hb : bSize = b.utf8ByteSize.toUSize) : Bool :=
+    if hbPos : bPos < bSize then
+      let bByte := String.Internal.ugetUTF8Byte b bPos
+        (Std.lt_of_lt_of_le (USize.lt_iff_toNat_lt.1 hbPos) (hb ▸ USize.toNat_ofNat_le))
+      -- `lower` and `upper` are ASCII, so a non-ASCII byte can never match and it is fine to
+      -- check for a match first
+      if bByte == lower || bByte == upper then
+        goFastScalar aSize bSize (aPos + 1) (bPos + 1) ha hb
+      -- If `b` contains a non-ASCII byte we give up on the fast path
+      else if bByte &&& 0x80 != 0 then
+        go ⟨aPos.toNat⟩ ⟨bPos.toNat⟩
+      else
+        scan lower upper aSize bSize aPos (bPos + 1) ha hb
+    else
+      false
+
   go (aPos bPos : String.Pos.Raw) : Bool :=
     if ha : aPos.atEnd a then
       true

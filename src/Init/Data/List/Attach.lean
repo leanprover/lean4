@@ -7,8 +7,9 @@ module
 
 prelude
 import all Init.Data.List.Lemmas  -- for dsimping with `getElem?_cons_succ`
-public import Init.Data.List.Count
-public import Init.Data.Subtype.Basic
+public import Init.Data.List.Lemmas
+import Init.Data.List.Count
+import Init.Data.Subtype.Basic
 
 public section
 
@@ -132,6 +133,10 @@ theorem attachWith_cons {x : α} {xs : List α} {p : α → Prop} (h : ∀ a ∈
 theorem pmap_eq_map_attach {p : α → Prop} {f : ∀ a, p a → β} {l : List α} (H) :
     pmap f l H = l.attach.map fun x => f x.1 (H _ x.2) := by
   rw [attach, attachWith, map_pmap]; exact pmap_congr_left l fun _ _ _ _ => rfl
+
+theorem attachWith_eq_map_attach {xs : List α} {P : α → Prop} {H : ∀ (a : α), a ∈ xs → P a} :
+    xs.attachWith P H = xs.attach.map fun ⟨x, h⟩ => ⟨x, H _ h⟩ := by
+  induction xs <;> simp_all
 
 @[simp]
 theorem pmap_eq_attachWith {p q : α → Prop} {f : ∀ a, p a → q a} {l : List α} (H) :
@@ -403,7 +408,7 @@ theorem foldr_attach {l : List α} {f : α → β → β} {b : β} :
 
 theorem attach_map {l : List α} {f : α → β} :
     (l.map f).attach = l.attach.map (fun ⟨x, h⟩ => ⟨f x, mem_map_of_mem h⟩) := by
-  induction l <;> simp [*]
+  induction l <;> simp [*, map]
 
 theorem attachWith_map {l : List α} {f : α → β} {P : β → Prop} (H : ∀ (b : β), b ∈ l.map f → P b) :
     (l.map f).attachWith P H = (l.attachWith (P ∘ f) (fun _ h => H _ (mem_map_of_mem h))).map

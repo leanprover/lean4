@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
 public import Std.Sat.AIG.If
+import Init.Omega
 
 @[expose] public section
 
@@ -116,7 +117,7 @@ instance : AIG.LawfulVecOperator α AIG.ShiftTarget blastArithShiftRightConst wh
   decl_eq := by
     intros
     unfold blastArithShiftRightConst
-    simp
+    simp; rfl
 
 structure TwoPowShiftTarget (aig : AIG α) (w : Nat) where
   n : Nat

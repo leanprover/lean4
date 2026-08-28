@@ -7,7 +7,6 @@ Authors: Joachim Breitner
 module
 prelude
 public import Lean.Meta.Basic
-import Lean.Util.Recognizers
 import Lean.Meta.MatchUtil
 
 /-!
@@ -15,6 +14,8 @@ Utility functions around `Nat.hasNotBit`, used by sparse cases.
 -/
 
 open Lean Meta
+
+namespace Lean
 
 public def mkHasNotBit (e : Expr) (ns : Array Nat) : Expr := Id.run do
   let mut mask := 0
@@ -57,3 +58,5 @@ public def refutableHasNotBit? (e : Expr) : MetaM (Option Expr) := do
     else
       return none
   | _ => return none
+
+end Lean

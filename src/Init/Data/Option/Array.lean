@@ -6,9 +6,14 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.Array.Lemmas
-public import Init.Data.Option.List
 import all Init.Data.Option.Instances
+public import Init.Control.Lawful
+public import Init.Data.Option.Lemmas
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Lemmas
+import Init.Data.Bool
+import Init.Data.List.Zip
+import Init.Data.Option.List
 
 public section
 

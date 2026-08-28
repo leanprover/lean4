@@ -476,17 +476,6 @@ only those mappings where the function returns `some` value.
 @[inline] def keysArray (m : Raw α β) : Array α :=
   m.fold (fun acc k _ => acc.push k) (.emptyWithCapacity m.size)
 
-/-- Checks if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
-@[inline] def all (m : Raw α β) (p : (a : α) → β a → Bool) : Bool := Id.run do
-  for a in m do
-    if ¬ p a.1 a.2 then return false
-  return true
-
-/-- Checks if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
-@[inline] def any (m : Raw α β) (p : (a : α) → β a → Bool) : Bool := Id.run do
-  for a in m do
-    if p a.1 a.2 then return true
-  return false
 /--
 Computes the union of the given hash maps. If a key appears in both maps, the entry contained in
 the second argument will appear in the result.
@@ -521,6 +510,25 @@ This function always merges the smaller map into the larger map, so the expected
     m₂
 
 instance [BEq α] [Hashable α] : Inter (Raw α β) := ⟨inter⟩
+
+/--
+Compares two hash maps using Boolean equality on keys and values.
+
+Returns `true` if the maps contain the same key-value pairs, `false` otherwise.
+-/
+def beq [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] (m₁ m₂ : Raw α β) : Bool :=
+  if h : 0 < m₁.buckets.size ∧ 0 < m₂.buckets.size then
+    Raw₀.beq ⟨m₁, h.1⟩ ⟨m₂, h.2⟩
+  else
+    false
+
+instance [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] : BEq (Raw α β) := ⟨beq⟩
+
+@[inherit_doc DHashMap.Raw.beq] def Const.beq {β : Type v} [BEq α] [Hashable α] [BEq β] (m₁ m₂ : Raw α (fun _ => β)) : Bool :=
+  if h : 0 < m₁.buckets.size ∧ 0 < m₂.buckets.size then
+      Raw₀.Const.beq ⟨m₁, h.1⟩ ⟨m₂, h.2⟩
+  else
+    false
 
 /--
 Computes the difference of the given hash maps.
@@ -669,48 +677,49 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
   -- we can write down `DHashMap.map` and `DHashMap.filterMap` in `AdditionalOperations.lean`
   -- without requiring these proofs just to invoke the operations.
   /-- Internal implementation detail of the hash map -/
-  | wf {α β} [BEq α] [Hashable α] {m : Raw α β} : 0 < m.buckets.size →
+  | wf {α β : _} [BEq α] [Hashable α] {m : Raw α β} : 0 < m.buckets.size →
       (∀ [EquivBEq α] [LawfulHashable α], Raw.WFImp m) → WF m
   /-- Internal implementation detail of the hash map -/
-  | emptyWithCapacity₀ {α β} [BEq α] [Hashable α] {c} : WF (Raw₀.emptyWithCapacity c : Raw₀ α β).1
+  | emptyWithCapacity₀ {α β : _} [BEq α] [Hashable α] {c} : WF (Raw₀.emptyWithCapacity c : Raw₀ α β).1
   /-- Internal implementation detail of the hash map -/
-  | insert₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} : WF m → WF (Raw₀.insert ⟨m, h⟩ a b).1
+  | insert₀ {α β : _} [BEq α] [Hashable α] {m : Raw α β} {h a b} : WF m → WF (Raw₀.insert ⟨m, h⟩ a b).1
   /-- Internal implementation detail of the hash map -/
-  | containsThenInsert₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} :
+  | containsThenInsert₀ {α β : _} [BEq α] [Hashable α] {m : Raw α β} {h a b} :
       WF m → WF (Raw₀.containsThenInsert ⟨m, h⟩ a b).2.1
   /-- Internal implementation detail of the hash map -/
-  | containsThenInsertIfNew₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} :
+  | containsThenInsertIfNew₀ {α β : _} [BEq α] [Hashable α] {m : Raw α β} {h a b} :
       WF m → WF (Raw₀.containsThenInsertIfNew ⟨m, h⟩ a b).2.1
   /-- Internal implementation detail of the hash map -/
-  | erase₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a} : WF m → WF (Raw₀.erase ⟨m, h⟩ a).1
+  | erase₀ {α β : _} [BEq α] [Hashable α] {m : Raw α β} {h a} : WF m → WF (Raw₀.erase ⟨m, h⟩ a).1
   /-- Internal implementation detail of the hash map -/
-  | insertIfNew₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} :
+  | insertIfNew₀ {α β : _} [BEq α] [Hashable α] {m : Raw α β} {h a b} :
       WF m → WF (Raw₀.insertIfNew ⟨m, h⟩ a b).1
   /-- Internal implementation detail of the hash map -/
-  | getThenInsertIfNew?₀ {α β} [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {h a b} :
+  | getThenInsertIfNew?₀ {α β : _} [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {h a b} :
       WF m → WF (Raw₀.getThenInsertIfNew? ⟨m, h⟩ a b).2.1
   /-- Internal implementation detail of the hash map -/
-  | filter₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h f} : WF m → WF (Raw₀.filter f ⟨m, h⟩).1
+  | filter₀ {α β : _} [BEq α] [Hashable α] {m : Raw α β} {h f} : WF m → WF (Raw₀.filter f ⟨m, h⟩).1
   /-- Internal implementation detail of the hash map -/
-  | constGetThenInsertIfNew?₀ {α β} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a b} :
+  | constGetThenInsertIfNew?₀ {α β : _} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a b} :
       WF m → WF (Raw₀.Const.getThenInsertIfNew? ⟨m, h⟩ a b).2.1
   /-- Internal implementation detail of the hash map -/
-  | modify₀ {α β} [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {h a} {f : β a → β a} :
+  | modify₀ {α β : _} [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {h a} {f : β a → β a} :
       WF m → WF (Raw₀.modify ⟨m, h⟩ a f).1
   /-- Internal implementation detail of the hash map -/
-  | constModify₀ {α} {β : Type v} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a} {f : β → β} :
+  | constModify₀ {α : _} {β : Type v} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a} {f : β → β} :
       WF m → WF (Raw₀.Const.modify ⟨m, h⟩ a f).1
   /-- Internal implementation detail of the hash map -/
-  | alter₀ {α β} [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {h a}
+  | alter₀ {α β : _} [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {h a}
       {f : Option (β a) → Option (β a)} : WF m → WF (Raw₀.alter ⟨m, h⟩ a f).1
   /-- Internal implementation detail of the hash map -/
-  | constAlter₀ {α} {β : Type v} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a}
+  | constAlter₀ {α : _} {β : Type v} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a}
       {f : Option β → Option β} : WF m → WF (Raw₀.Const.alter ⟨m, h⟩ a f).1
   /-- Internal implementation detail of the hash map -/
-  | inter₀ {α β} [BEq α] [Hashable α] {m₁ m₂ : Raw α β} {h₁ h₂} : WF m₁ → WF m₂ → WF (Raw₀.inter ⟨m₁, h₁⟩ ⟨m₂, h₂⟩).1
+  | inter₀ {α β : _} [BEq α] [Hashable α] {m₁ m₂ : Raw α β} {h₁ h₂} : WF m₁ → WF m₂ → WF (Raw₀.inter ⟨m₁, h₁⟩ ⟨m₂, h₂⟩).1
 
 -- TODO: this needs to be deprecated, but there is a bootstrapping issue.
 -- @[deprecated WF.emptyWithCapacity₀ (since := "2025-03-12")]
+set_option linter.defProp false in
 @[inherit_doc Raw.WF.emptyWithCapacity₀]
 abbrev WF.empty₀ := @WF.emptyWithCapacity₀
 

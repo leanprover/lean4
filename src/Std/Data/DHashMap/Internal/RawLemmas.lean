@@ -11,6 +11,7 @@ import all Std.Data.DHashMap.Internal.Defs
 public import Std.Data.DHashMap.Internal.WF
 import all Std.Data.DHashMap.Raw
 import all Std.Data.DHashMap.Basic
+import all Std.Data.DHashMap.RawDef
 meta import Std.Data.DHashMap.Basic
 
 public section
@@ -162,7 +163,10 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`getEntry?, (``getEntry?_eq_getEntry?, #[`(getEntry?_of_perm _)])⟩,
      ⟨`getEntryD, (``getEntryD_eq_getEntryD, #[`(getEntryD_of_perm _)])⟩,
      ⟨`getEntry!, (``getEntry!_eq_getEntry!, #[`(getEntry!_of_perm _)])⟩,
+     ⟨`all, (``Raw.all_eq_all_toListModel, #[])⟩,
      ⟨`toList, (``Raw.toList_eq_toListModel, #[])⟩,
+     ⟨`Const.beq, (``Raw₀.Const.beq_eq_beqModel, #[])⟩,
+     ⟨`beq, (``beq_eq_beqModel, #[])⟩,
      ⟨`keys, (``Raw.keys_eq_keys_toListModel, #[`(perm_keys_congr_left)])⟩,
      ⟨`Const.toList, (``Raw.Const.toList_eq_toListModel_map, #[`(perm_map_congr_left)])⟩,
      ⟨`foldM, (``Raw.foldM_eq_foldlM_toListModel, #[])⟩,
@@ -401,6 +405,26 @@ theorem get_insert [LawfulBEq α] (h : m.1.WF) {k a : α} {v : β k} {h₁} :
 theorem get_insert_self [LawfulBEq α] (h : m.1.WF) {k : α} {v : β k} :
     (m.insert k v).get k (contains_insert_self _ h) = v := by
   simp_to_model [insert, get] using List.getValueCast_insertEntry_self
+
+theorem toList_insert_perm [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {v : β k} :
+    (m.insert k v).1.toList.Perm (⟨k, v⟩ :: m.1.toList.filter (¬k == ·.1)) := by
+  simp_to_model using List.Perm.trans (toListModel_insert _) <| List.insertEntry_perm_filter _ _ _
+
+theorem Const.toList_insert_perm {β : Type v} (m : Raw₀ α (fun _ => β)) [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {v : β} :
+    (Raw.Const.toList (m.insert k v).1).Perm ((k, v) :: (Raw.Const.toList m.1).filter (¬k == ·.1)) := by
+  simp_to_model
+  apply List.Perm.trans <| List.Perm.map _ <| toListModel_insert (by wf_trivial)
+  apply List.Perm.trans <| List.Const.map_insertEntry_perm_filter_map _ _ (by wf_trivial)
+  simp
+
+theorem keys_insertIfNew_perm [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {v : β k} :
+    (m.insertIfNew k v).1.keys.Perm (if m.contains k then m.1.keys else k :: m.1.keys) := by
+  simp_to_model
+  apply List.Perm.trans
+  simp only [keys_eq_map]
+  apply List.Perm.map _ <| toListModel_insertIfNew (by wf_trivial)
+  simp only [← keys_eq_map]
+  apply List.keys_insertEntryIfNew_perm
 
 @[simp]
 theorem get_erase [LawfulBEq α] (h : m.1.WF) {k a : α} {h'} :
@@ -1407,7 +1431,7 @@ end monadic
 omit [Hashable α] [BEq α] in
 theorem any_toList {p : (a : α) → β a → Bool} :
     m.1.toList.any (fun x => p x.1 x.2) = m.1.any p := by
-  simp only [Raw.any, ForIn.forIn, bind_pure_comp, map_pure, Id.run_bind]
+  simp only [Raw.any, ForIn.forIn, Id.run_bind]
   rw [forIn_eq_forIn_toList, forIn_eq_forIn']
   induction m.val.toList with
   | nil => simp
@@ -1415,8 +1439,7 @@ theorem any_toList {p : (a : α) → β a → Bool} :
     simp only [List.forIn'_cons, Id.run_bind, List.any_cons]
     by_cases h : p hd.fst hd.snd = true
     · simp [h]
-    · simp only [forIn'_eq_forIn] at ih
-      simp [h, ih]
+    · simp [h, ih]
 
 theorem any_eq_true [LawfulBEq α] {p : (a : α) → β a → Bool} (h : m.1.WF) :
     m.1.any p = true ↔ ∃ (a : α) (h : m.contains a), p a (m.get a h) := by
@@ -1453,16 +1476,7 @@ theorem any_eq_false [LawfulBEq α] {p : (a : α) → β a → Bool} (h : m.1.WF
 omit [Hashable α] [BEq α] in
 theorem all_toList {p : (a : α) → β a → Bool} :
     m.1.toList.all (fun x => p x.1 x.2) = m.1.all p := by
-  simp only [Raw.all, ForIn.forIn, Bool.not_eq_true, bind_pure_comp, map_pure, Id.run_bind]
-  rw [forIn_eq_forIn_toList, forIn_eq_forIn']
-  induction m.val.toList with
-  | nil => simp
-  | cons hd tl ih =>
-    simp only [forIn'_eq_forIn, List.all_cons]
-    by_cases h : p hd.fst hd.snd = false
-    · simp [h]
-    · simp only [forIn'_eq_forIn] at ih
-      simp [h, ih]
+  simp_to_model
 
 omit [Hashable α] [BEq α] in
 theorem all_eq_not_any_not {p : (a : α) → β a → Bool} :
@@ -1489,7 +1503,7 @@ variable {β : Type v} (m : Raw₀ α (fun _ => β))
 omit [Hashable α] [BEq α] in
 theorem any_toList {p : (_ : α) → β → Bool} :
     (Raw.Const.toList m.1).any (fun x => p x.1 x.2) = m.1.any p := by
-  simp only [Raw.any, ForIn.forIn, bind_pure_comp, map_pure, Id.run_bind]
+  simp only [Raw.any, ForIn.forIn, Id.run_bind]
   rw [forIn_eq_forIn_toList, forIn_eq_forIn']
   induction Raw.Const.toList m.1 with
   | nil => simp
@@ -1497,8 +1511,7 @@ theorem any_toList {p : (_ : α) → β → Bool} :
     simp only [List.forIn'_cons, Id.run_bind, List.any_cons]
     by_cases h : p hd.fst hd.snd = true
     · simp [h]
-    · simp only at ih
-      simp [h, ih]
+    · simp [h, ih]
 
 theorem any_eq_true [LawfulHashable α] [EquivBEq α] {p : (_ : α) → β → Bool} (h : m.1.WF) :
     m.1.any p = true ↔ ∃ (a : α) (h : m.contains a), p (m.getKey a h) (Const.get m a h) := by
@@ -1554,7 +1567,7 @@ theorem any_eq_false' [LawfulBEq α] {p : (_ : α) → β → Bool} (h : m.1.WF)
 omit [BEq α] [Hashable α] in
 theorem all_toList {p : (_ : α) → β → Bool} :
     (Raw.Const.toList m.1).all (fun x => p x.1 x.2) = m.1.all p := by
-  simp only [Raw.all, ForIn.forIn, Bool.not_eq_true, bind_pure_comp, map_pure, Id.run_bind]
+  simp only [Raw.all, ForIn.forIn, Bool.not_eq_true, Id.run_bind]
   rw [forIn_eq_forIn_toList, forIn_eq_forIn']
   induction Raw.Const.toList m.1 with
   | nil => simp
@@ -1562,8 +1575,7 @@ theorem all_toList {p : (_ : α) → β → Bool} :
     simp only [List.forIn'_cons, Id.run_bind, List.all_cons]
     by_cases h : p hd.fst hd.snd = false
     · simp [h]
-    · simp only at ih
-      simp [h, ih]
+    · simp [h, ih]
 
 theorem all_eq_true [EquivBEq α] [LawfulHashable α] {p : (a : α) → β → Bool} (h : m.1.WF) :
     m.1.all p = true ↔ ∀ (a : α) (h : m.contains a), p (m.getKey a h) (Const.get m a h) := by
@@ -2590,8 +2602,44 @@ end Const
 
 end insertMany
 
-section Union
+section BEq
+variable {m₁ m₂ : Raw₀ α β} [LawfulBEq α] [∀ k, BEq (β k)]
 
+theorem Equiv.beq [∀ k, ReflBEq (β k)] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : m₁.1.Equiv m₂.1 → beq m₁ m₂ := by
+  simp_to_model using List.beqModel_eq_true_of_perm
+
+theorem equiv_of_beq [∀ k, LawfulBEq (β k)] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq m₁ m₂ = true → m₁.1.Equiv m₂.1 := by
+  simp_to_model using List.perm_of_beqModel
+
+theorem beq_iff_equiv [∀ k, LawfulBEq (β k)] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq m₁ m₂ = true ↔ m₁.1.Equiv m₂.1 :=
+  ⟨equiv_of_beq h₁ h₂, Equiv.beq h₁ h₂⟩
+
+theorem Equiv.beq_congr {m₃ m₄ : Raw₀ α β} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (h₄ : m₄.val.WF) :
+    m₁.1.Equiv m₃.1 → m₂.1.Equiv m₄.1 → Raw₀.beq m₁ m₂ = Raw₀.beq m₃ m₄ := by
+  simp_to_model using List.beqModel_congr
+
+end BEq
+
+section
+
+variable {β : Type v} {m₁ m₂ : Raw₀ α (fun _ => β)}
+
+theorem Const.Equiv.beq [LawfulHashable α] [EquivBEq α] [BEq β] [ReflBEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : m₁.1.Equiv m₂.1 → Const.beq m₁ m₂ := by
+  simp_to_model using List.Const.beqModel_eq_true_of_perm
+
+theorem Const.equiv_of_beq [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq m₁ m₂ = true → m₁.1.Equiv m₂.1 := by
+  simp_to_model using List.Const.perm_of_beqModel
+
+theorem Const.beq_iff_equiv [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq m₁ m₂ = true ↔ m₁.1.Equiv m₂.1 :=
+  ⟨equiv_of_beq h₁ h₂, Equiv.beq h₁ h₂⟩
+
+theorem Const.Equiv.beq_congr [EquivBEq α] [LawfulHashable α] {m₃ m₄ : Raw₀ α (fun _ => β)} [BEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (h₄ : m₄.val.WF) :
+    m₁.1.Equiv m₃.1 → m₂.1.Equiv m₄.1 → Const.beq m₁ m₂ = Const.beq m₃ m₄ := by
+  simp_to_model using List.Const.beqModel_congr
+
+end
+
+section Union
 variable (m₁ m₂ : Raw₀ α β)
 
 variable {m₁ m₂}
@@ -3747,10 +3795,10 @@ theorem get_alter [LawfulBEq α] (h : m.1.WF) {k k' : α} {f : Option (β k) →
     (hc : (m.alter k f).contains k') :
     (m.alter k f).get k' hc =
       if heq : k == k' then
-        haveI h' : (f (m.get? k)).isSome := by rwa [contains_alter _ h, if_pos heq] at hc
+        haveI h' : (f (m.get? k)).isSome := by rwa [contains_alter _ h, ite_eq_left heq] at hc
         cast (congrArg β (eq_of_beq heq)) <| (f (m.get? k)).get <| h'
       else
-        haveI h' : m.contains k' := by rwa [contains_alter _ h, if_neg heq] at hc
+        haveI h' : m.contains k' := by rwa [contains_alter _ h, ite_eq_right heq] at hc
         m.get k' h' := by
   simp_to_model [alter, contains, get, get?] using List.getValueCast_alterKey
 
@@ -3808,7 +3856,7 @@ theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} (h : m.1.WF)
       if heq : k == k' then
         k
       else
-        haveI h' : m.contains k' := by rwa [contains_alter _ h, if_neg heq] at hc
+        haveI h' : m.contains k' := by rwa [contains_alter _ h, ite_eq_right heq] at hc
         m.getKey k' h' := by
   simp_to_model [alter, getKey, contains] using List.getKey_alterKey
 
@@ -3899,10 +3947,10 @@ theorem get_alter (h : m.1.WF) {k k' : α} {f : Option β → Option β}
     (hc : (Const.alter m k f).contains k') :
     Const.get (Const.alter m k f) k' hc =
       if heq : k == k' then
-        haveI h' : (f (Const.get? m k)).isSome := by rwa [contains_alter _ h, if_pos heq] at hc
+        haveI h' : (f (Const.get? m k)).isSome := by rwa [contains_alter _ h, ite_eq_left heq] at hc
         (f (Const.get? m k)).get <| h'
       else
-        haveI h' : m.contains k' := by rwa [contains_alter _ h, if_neg heq] at hc
+        haveI h' : m.contains k' := by rwa [contains_alter _ h, ite_eq_right heq] at hc
         Const.get m k' h' := by
   simp_to_model [Const.alter, Const.get, Const.get?] using List.Const.getValue_alterKey
 
@@ -3954,7 +4002,7 @@ theorem getKey_alter [Inhabited α] {k k' : α} (h : m.1.WF) {f : Option β → 
       if heq : k == k' then
         k
       else
-        haveI h' : m.contains k' := by rwa [contains_alter _ h, if_neg heq] at hc
+        haveI h' : m.contains k' := by rwa [contains_alter _ h, ite_eq_right heq] at hc
         m.getKey k' h' := by
   simp_to_model [Const.alter, Const.get?, getKey] using List.Const.getKey_alterKey
 
@@ -4256,6 +4304,20 @@ theorem filterMap_equiv_congr {γ : α → Type w} (h : m₁.1 ~m m₂.1)
     {f : (a : α) → β a → Option (γ a)} : (m₁.filterMap f).1 ~m (m₂.filterMap f).1 := by
   simp_to_model [filterMap, Equiv] using h.1.filterMap _
 
+theorem insertMany_list_equiv_foldl [BEq α] [Hashable α] {l : List ((a : α) × β a)} :
+    (m₁.insertMany l).1 ~m (l.foldl (init := m₁) (fun acc p => acc.insert p.1 p.2)) := by
+  rw [insertMany_list_eq_foldl, ← List.foldl_hom (g₂ := fun acc p => acc.insert p.1 p.2) Subtype.val]
+  · simp_to_model [Equiv] using List.Perm.refl
+  · intro x y
+    simp [Raw.insert, x.property]
+
+theorem insertManyIfNew_list_equiv_foldl [BEq α] [Hashable α] {l : List ((a : α) × β a)} :
+    (m₁.insertManyIfNew l).1 ~m (l.foldl (init := m₁) (fun acc p => acc.insertIfNew p.1 p.2)) := by
+  rw [insertManyIfNew_list_eq_foldl, ← List.foldl_hom (g₂ := fun acc p => acc.insertIfNew p.1 p.2) Subtype.val]
+  · simp_to_model [Equiv] using List.Perm.refl
+  · intro x y
+    simp [Raw.insertIfNew, x.property]
+
 namespace Const
 
 theorem equiv_iff_toList_perm_toList {β : Type v} (m₁ m₂ : Raw α fun _ => β) :
@@ -4375,6 +4437,22 @@ theorem equiv_of_forall_get?_eq [LawfulBEq α] (h₁ : m₁.1.WF) (h₂ : m₂.1
 namespace Const
 
 variable {β : Type v} (m₁ m₂ : Raw₀ α fun _ => β)
+
+theorem insertMany_list_equiv_foldl {l : List (α × β)} :
+    (insertMany m₁ l).1 ~m (l.foldl (init := m₁) (fun (acc : Raw α fun _ => β) p => acc.insert p.1 p.2)) := by
+  rw [insertMany_list_eq_foldl, ← List.foldl_hom (g₂ := fun acc p => acc.insert p.1 p.2) Subtype.val]
+  · simp_to_model [Equiv] using List.Perm.refl
+  · intro x y
+    simp [Raw.insert, x.property]
+
+theorem insertManyIfNewUnit_list_equiv_foldl (m₁ : Raw₀ α fun _ => Unit) {l : List α} :
+    (insertManyIfNewUnit m₁ l).1 ~m (l.foldl (init := m₁) (fun acc a => acc.insertIfNew a ())) := by
+  rw [insertManyIfNewUnit_list_eq_foldl,
+    ← List.foldl_hom (g₂ := fun acc a => acc.insertIfNew a ()) Subtype.val]
+  · simp_to_model [Equiv] using List.Perm.refl
+  · intro x y
+    simp [Raw.insertIfNew, x.property]
+
 variable [EquivBEq α] [LawfulHashable α]
 
 theorem get?_eq_of_equiv (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ~m m₂.1) {k : α} :
@@ -5110,6 +5188,14 @@ theorem toList_map {α : Type u} (m : Raw₀ α fun _ => β)
 end Const
 
 end map
+
+end Raw₀
+
+namespace Raw₀
+
+/-- Internal implementation detail -/
+def decidableEquiv [BEq α] [LawfulBEq α] [Hashable α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] (m₁ m₂ : Raw₀ α β) (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : Decidable (m₁.1.Equiv m₂.1) :=
+  decidable_of_iff _ ⟨Raw₀.equiv_of_beq h₁ h₂, Raw₀.Equiv.beq h₁ h₂⟩
 
 end Raw₀
 

@@ -6,8 +6,19 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Nat.TakeDrop
-public import Init.Data.List.Erase
+public import Init.Data.Nat.Lemmas
+public import Init.Ext
+import Init.ByCases
+import Init.Data.List.Erase
+import Init.Data.List.Find
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Pairwise
+import Init.Data.List.Range
+import Init.Data.List.Zip
+import Init.Data.Nat.Dvd
+import Init.Data.Option.Lemmas
+import Init.Omega
+import Init.TacticsExtra
 
 public section
 
@@ -38,9 +49,9 @@ theorem getLast?_range' {n : Nat} : (range' s n).getLast? = if n = 0 then none e
   | succ n ih =>
     rw [range'_succ, getLast?_cons, ih]
     by_cases h : n = 0
-    · rw [if_pos h]
+    · rw [ite_eq_left h]
       simp [h]
-    · rw [if_neg h]
+    · rw [ite_eq_right h]
       simp
 
 @[simp, grind =] theorem getLast_range' {n : Nat} (h) : (range' s n).getLast h = s + n - 1 := by
@@ -168,7 +179,7 @@ theorem count_range_1' {a s n} :
   · obtain ⟨i, h, rfl⟩ := h
     simp [h]
   · simp at h
-    rw [if_neg]
+    rw [ite_eq_right]
     simp only [not_and, Nat.not_lt]
     intro w
     specialize h (a - s)

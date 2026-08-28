@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Tactic.Util
 public import Lean.PrettyPrinter
 import Lean.Meta.AppBuilder
+import Init.Omega
 
 public section
 
@@ -127,7 +128,6 @@ def postprocessAppMVars (tacticName : Name) (mvarId : MVarId) (newMVars : Array 
     (synthAssignedInstances := true) (allowSynthFailures := false) : MetaM Unit := do
   synthAppInstances tacticName mvarId newMVars binderInfos synthAssignedInstances allowSynthFailures
   -- TODO: default and auto params
-  appendParentTag mvarId newMVars binderInfos
 
 private def dependsOnOthers (mvar : Expr) (otherMVars : Array Expr) : MetaM Bool :=
   otherMVars.anyM fun otherMVar => do
@@ -222,6 +222,7 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
     let e ← instantiateMVars e
     mvarId.assign (mkAppN e newMVars)
     let newMVars ← newMVars.filterM fun mvar => not <$> mvar.mvarId!.isAssigned
+    appendParentTag mvarId newMVars binderInfos
     let otherMVarIds ← getMVarsNoDelayed e
     let newMVarIds ← reorderGoals newMVars cfg.newGoals
     let otherMVarIds := otherMVarIds.filter fun mvarId => !newMVarIds.contains mvarId

@@ -6,9 +6,11 @@ Authors: Jeremy Avigad, Leonardo de Moura, Mario Carneiro, Markus Himmel
 module
 
 prelude
-public import Init.Data.Nat.Dvd
 public import Init.NotationExtra
-public import Init.RCases
+public import Init.Data.Nat.Div.Basic
+import Init.Data.Nat.Dvd
+import Init.RCases
+import Init.WFTactics
 
 public section
 
@@ -58,7 +60,7 @@ theorem gcd_def (x y : Nat) : gcd x y = if x = 0 then y else gcd (y % x) x := by
   cases n with
   | zero => simp
   | succ n =>
-    -- `simp [gcd_succ]` produces an invalid term unless `gcd_succ` is proved with `id rfl` instead
+    -- `simp [gcd_succ]` produces an invalid term unless `gcd_succ` is proved with `(rfl)` instead
     rw [gcd_succ]
     exact gcd_zero_left _
 instance : Std.LawfulIdentity gcd 0 where
@@ -128,6 +130,9 @@ theorem gcd_assoc (m n k : Nat) : gcd (gcd m n) k = gcd m (gcd n k) :=
         (Nat.dvd_trans (gcd_dvd_right m (gcd n k)) (gcd_dvd_left n k)))
       (Nat.dvd_trans (gcd_dvd_right m (gcd n k)) (gcd_dvd_right n k)))
 instance : Std.Associative gcd := ⟨gcd_assoc⟩
+
+theorem gcd_left_comm (m n k : Nat) : gcd m (gcd n k) = gcd n (gcd m k) := by
+  rw [← gcd_assoc, ← gcd_assoc, gcd_comm m n]
 
 @[simp] theorem gcd_one_right (n : Nat) : gcd n 1 = 1 := (gcd_comm n 1).trans (gcd_one_left n)
 

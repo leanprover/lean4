@@ -10,6 +10,7 @@ public import Std.Data.Iterators.Producers.Array
 public import Init.Data.Iterators.Combinators.FlatMap
 public import Std.Data.DHashMap.Basic
 public import Std.Data.DHashMap.Internal.AssocList.Iterator
+import Init.Data.Iterators.Combinators.FilterMap
 
 /-!
 # Iterators on `DHashMap` and `DHashMap.Raw`

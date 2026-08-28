@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Elab.Attributes
+import Init.Syntax
 
 public section
 

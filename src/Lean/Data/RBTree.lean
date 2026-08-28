@@ -6,7 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Data.RBMap
+public import Lean.Data.RBMap -- deprecated_module: ignore
+
+deprecated_module "`Lean.RBTree` is deprecated; use `Std.TreeSet` instead" (since := "2026-06-01")
 
 public section
 namespace Lean

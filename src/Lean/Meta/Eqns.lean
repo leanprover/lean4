@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Match.MatcherInfo
 public import Lean.DefEqAttrib
+public import Lean.Meta.RecExt
 public import Lean.Meta.LetToHave
 import Lean.Meta.AppBuilder
 
@@ -18,6 +19,7 @@ namespace Lean.Meta
 register_builtin_option backward.eqns.nonrecursive : Bool := {
     defValue := true
     descr    := "Create fine-grained equational lemmas even for non-recursive definitions."
+    deprecation? := some { since := "2026-03-30" }
   }
 
 register_builtin_option backward.eqns.deepRecursiveSplit : Bool := {
@@ -27,6 +29,7 @@ register_builtin_option backward.eqns.deepRecursiveSplit : Bool := {
                 that do not contain recursive calls do not cause further splits in the \
                 equational lemmas. This was the behavior before Lean 4.12, and the purpose of \
                 this option is to help migrating old code."
+    deprecation? := some { since := "2026-03-30" }
   }
 
 
@@ -34,31 +37,17 @@ register_builtin_option backward.eqns.deepRecursiveSplit : Bool := {
 These options affect the generation of equational theorems in a significant way. For these, their
 value at definition time, not realization time, should matter.
 
-This is implemented by
- * eagerly realizing the equations when they are set to a non-default value
- * when realizing them lazily, reset the options to their default
+This is implemented by storing their values at definition time (when non-default) in an environment
+extension, and restoring them when the equations are lazily realized.
 -/
-def eqnAffectingOptions : Array (Lean.Option Bool) := #[backward.eqns.nonrecursive, backward.eqns.deepRecursiveSplit]
+def eqnAffectingOptions : Array (Lean.Option Bool) :=
+  #[backward.eqns.nonrecursive, backward.eqns.deepRecursiveSplit, backward.defeqAttrib.useBackward]
 
-/--
-Environment extension for storing which declarations are recursive.
-This information is populated by the `PreDefinition` module, but the simplifier
-uses when unfolding declarations.
--/
-builtin_initialize recExt : TagDeclarationExtension ←
-  mkTagDeclarationExtension `recExt (asyncMode := .async .asyncEnv)
-
-/--
-Marks the given declaration as recursive.
--/
-def markAsRecursive (declName : Name) : CoreM Unit :=
-  modifyEnv (recExt.tag · declName)
-
-/--
-Returns `true` if `declName` was defined using well-founded recursion, or structural recursion.
--/
-def isRecursiveDefinition (declName : Name) : CoreM Bool :=
-  return recExt.isTagged (← getEnv) declName
+/-- Environment extension that stores the values of `eqnAffectingOptions` at definition time,
+keyed by declaration name. Only populated when at least one option has a non-default value.
+Stores an association list of (option name, value) pairs for options that differ from defaults. -/
+builtin_initialize eqnOptionsExt : MapDeclarationExtension (Array (Name × DataValue)) ←
+  mkMapDeclarationExtension (asyncMode := .local)
 
 def eqnThmSuffixBase := "eq"
 def eqnThmSuffixBasePrefix := eqnThmSuffixBase ++ "_"
@@ -89,7 +78,7 @@ def declFromEqLikeName (env : Environment) (name : Name) : Option (Name × Strin
   return none
 
 def mkEqLikeNameFor (env : Environment) (declName : Name) (suffix : String) : Name :=
-  let isExposed := !env.header.isModule || ((env.setExporting true).find? declName).elim false (·.hasValue)
+  let isExposed := env.hasExposedBody declName
   let name := .str declName suffix
   let name := if isExposed then name else mkPrivateName env name
   name
@@ -111,7 +100,7 @@ builtin_initialize registerReservedNamePredicate fun env n => Id.run do
   if let some (declName, suffix) := declFromEqLikeName env n then
     -- The reserved name predicate has to be precise, as `resolveExact`
     -- will believe it. So make sure that `n` is exactly the name we expect,
-    -- including the privat prefix.
+    -- including the private prefix.
     n == mkEqLikeNameFor env declName suffix
   else
     false
@@ -150,9 +139,13 @@ def registerGetEqnsFn (f : GetEqnsFn) : IO Unit := do
     throw (IO.userError "failed to register equation getter, this kind of extension can only be registered during initialization")
   getEqnsFnsRef.modify (f :: ·)
 
-/-- Returns `true` iff `declName` is a definition and its type is not a proposition. -/
+/-- Returns `true` iff `declName` is a definition and its type is not a proposition.
+    Returns `false` for matchers since their equations are handled by `Lean.Meta.Match.MatchEqs`. -/
 private def shouldGenerateEqnThms (declName : Name) : MetaM Bool := do
   if let some { kind := .defn, sig, .. } := (← getEnv).findAsync? declName then
+    -- Matcher equations are handled separately in Lean.Meta.Match.MatchEqs
+    if isMatcherCore (← getEnv) declName then
+      return false
     return !(← isProp sig.get.type)
   else
     return false
@@ -167,11 +160,29 @@ builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
   registerEnvExtension (pure {}) (asyncMode := .local)
 
 /--
+Runs `act` with the equation-affecting options restored to the values stored for `declName`
+at definition time (or reset to their defaults if none were stored). Use this inside
+`realizeConst` callbacks, which otherwise see the caller-independent `ctx.opts` rather than
+the outer `getEqnsFor?` context. -/
+def withEqnOptions (declName : Name) (act : MetaM α) : MetaM α := do
+  let env ← getEnv
+  let setOpts : Options → Options :=
+    if let some values := eqnOptionsExt.find? env declName then
+      fun os => Id.run do
+        let mut os := eqnAffectingOptions.foldl (fun os o => o.set os o.defValue) os
+        for (name, v) in values do
+          os := os.insert name v
+        return os
+    else
+      fun os => eqnAffectingOptions.foldl (fun os o => o.set os o.defValue) os
+  withOptions setOpts act
+
+/--
 Simple equation theorem for nonrecursive definitions.
 -/
 def mkSimpleEqThm (declName : Name) (name : Name) : MetaM (Option Name) := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
-    realizeConst declName name (doRealize name info)
+    realizeConst declName name (withEqnOptions declName (doRealize name info))
     return some name
   else
     return none
@@ -242,19 +253,22 @@ private def getEqnsFor?Core (declName : Name) : MetaM (Option (Array Name)) := w
 Returns equation theorems for the given declaration.
 -/
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := withLCtx {} {} do
-  -- This is the entry point for lazy equation generation. Ignore the current value
-  -- of the options, and revert to the default.
-  withOptions (eqnAffectingOptions.foldl fun os o => o.set os o.defValue) do
+  withEqnOptions declName do
     getEqnsFor?Core declName
 
 /--
-If any equation theorem affecting option is not the default value, create the equations now.
+If any equation theorem affecting option is not the default value, store the option values
+for later use during lazy equation generation.
 -/
-def generateEagerEqns (declName : Name) : MetaM Unit := do
+def saveEqnAffectingOptions (declName : Name) : MetaM Unit := do
   let opts ← getOptions
-  if eqnAffectingOptions.any fun o => o.get opts != o.defValue then
-    trace[Elab.definition.eqns] "generating eager equations for {declName}"
-    let _ ← getEqnsFor?Core declName
+  let mut nonDefaults : Array (Name × DataValue) := #[]
+  for o in eqnAffectingOptions do
+    if o.get opts != o.defValue then
+      nonDefaults := nonDefaults.push (o.name, KVMap.Value.toDataValue (o.get opts))
+  unless nonDefaults.isEmpty do
+    trace[Elab.definition.eqns] "saving equation-affecting options for {declName}"
+    modifyEnv (eqnOptionsExt.insert · declName nonDefaults)
 
 @[expose] def GetUnfoldEqnFn := Name → MetaM (Option Name)
 
@@ -319,7 +333,7 @@ def getUnfoldEqnFor? (declName : Name) (nonRec := false) : MetaM (Option Name) :
 
 builtin_initialize
   registerReservedNameAction fun name => do
-    withTraceNode `ReservedNameAction (pure m!"{exceptBoolEmoji ·} Lean.Meta.Eqns reserved name action for {name}") do
+    withTraceNode `ReservedNameAction (fun _ => pure m!"Lean.Meta.Eqns reserved name action for {name}") do
       if let some (declName, suffix) := declFromEqLikeName (← getEnv) name then
         if name == mkEqLikeNameFor (← getEnv) declName suffix then
           if isEqnReservedNameSuffix suffix then

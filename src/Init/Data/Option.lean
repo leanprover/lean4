@@ -15,3 +15,4 @@ public import Init.Data.Option.Attach
 public import Init.Data.Option.List
 public import Init.Data.Option.Monadic
 public import Init.Data.Option.Array
+public import Init.Data.Option.Function

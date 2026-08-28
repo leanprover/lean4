@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.ToString
 import Lake.Version
-import Init.Data.String.Basic
 
 namespace Lake
 
@@ -27,9 +26,11 @@ COMMANDS:
   check-build           check if any default build targets are configured
   test                  test the package using the configured test driver
   check-test            check if there is a properly configured test driver
-  lint                  lint the package using the configured lint driver
+  lint                  lint the package
   check-lint            check if there is a properly configured lint driver
   clean                 remove build outputs
+  shake                 minimize imports in source files
+  challenge             judge a solution against a challenge
   env <cmd> <args>...   execute a command in Lake's environment
   lean <file>           elaborate a Lean file in Lake's context
   update                update dependencies and save them to the manifest
@@ -55,7 +56,9 @@ BASIC OPTIONS:
   --packages=file       JSON file of package entries that override the manifest
   --reconfigure, -R     elaborate configuration files instead of using OLeans
   --keep-toolchain      do not update toolchain on workspace update
+  --allow-empty         accept bare builds with no default targets configured
   --no-build            exit immediately if a build target is not up-to-date
+  --fail-fast           stop scheduling new build jobs after the first required failure
   --no-cache            build packages locally; do not download build caches
   --try-cache           attempt to download build caches for supported packages
   --json, -J            output JSON-formatted results (in `lake query`)
@@ -242,17 +245,63 @@ package or its dependencies. It merely verifies that one is specified.
 "
 
 def helpLint :=
-"Lint the workspace's root package using its configured lint driver
+"Lint the workspace's root package
 
 USAGE:
-  lake lint [-- <args>...]
+  lake lint [OPTIONS] [<MODULE>...] [-- <args>...]
+
+By default, runs the package's configured lint driver. If `builtinLint` is
+set to `true` in the package configuration, builtin lints also run.
+
+Builtin linting (`--builtin-lint`, `--builtin-only`, `--linters`,
+`--lint-only`, or `builtinLint = true` in the package configuration) drives a
+build of the targeted modules with the requested linter options enabled.
+The lint driver path on its own does not trigger a build.
+
+Which environment linters run on a declaration is determined by the linter
+options in effect when that declaration was built (e.g. via `set_option` in
+the source, or via `--linters`/`--lint-only` below). Both override those
+options for the lint build; `--lint-only` additionally restricts the reported
+output to exactly the linters its spec enables.
+
+Positional `MODULE` arguments narrow only the builtin lints; if omitted,
+the workspace's default target roots are used. The lint driver is invoked
+with `lintDriverArgs` from the package config plus any arguments after
+`--`; the `MODULE` list is not passed to it.
+
+OPTIONS:
+  --builtin-lint        run builtin environment and text linters
+  --builtin-only        run only builtin linters, skip the lint driver
+  --linters <spec>      override linter options for the lint build; <spec> is a
+                        comma-separated list of linter option names, each
+                        optionally prefixed with `-` to disable it. A name
+                        beginning with `.` is shorthand for the `linter.`
+                        prefix, so `.foo` means `linter.foo`. E.g.
+                        `--linters=.foo,-linter.bar`. Repeatable; later
+                        entries override earlier ones for the same linter
+  --lint-only <spec>    like `--linters`, but report ONLY the linters the spec
+                        positively enables, suppressing every other linter
+                        (including default-on linters that are not named).
+                        Expands `linter.all` and linter sets. Uses the same
+                        `<spec>` syntax as `--linters`; switching between
+                        `--linters` and `--lint-only` replaces the prior spec
+  --record-exceptions   record each linter warning as a
+                        `set_option <linter> false in` exception by editing the
+                        offending source files in place, silencing the warning
+                        for that declaration. Implies `--builtin-lint`.
+  --code-quality        records each linter warning as a code quality check result
+                        and runs the registered code quality checks.
+                        Setting this flag will skip lint driver.
+  --checks <mods>       comma-separated list of workspace modules providing
+                        package code quality checks; they are imported
+                        alongside each linted module (implies --code-quality)
 
 A lint driver can be configured by either setting the `lintDriver` package
-configuration option by tagging a script or executable `@[lint_driver]`.
-A definition in dependency can be used as a test driver by using the
-`<pkg>/<name>` syntax for the 'testDriver' configuration option.
+configuration option or by tagging a script or executable `@[lint_driver]`.
+A definition in a dependency can be used as a lint driver by using the
+`<pkg>/<name>` syntax for the 'lintDriver' configuration option.
 
-A script lint driver will be run with the  package configuration's
+A script lint driver will be run with the package configuration's
 `lintDriverArgs` plus the CLI `args`. An executable lint driver will be
 built and then run like a script.
 "
@@ -271,13 +320,13 @@ package or its dependencies. It merely verifies that one is specified.
 "
 
 def helpPack :=
-"Pack build artifacts into a archive for distribution
+"Pack build artifacts into an archive for distribution
 
 USAGE:
   lake pack [<file.tgz>]
 
 Packs the root package's `buildDir` into a gzip tar archive using `tar`.
-If a path for the archive is not specified, creates a archive in the package's
+If a path for the archive is not specified, creates an archive in the package's
 Lake directory (`.lake`) named according to its `buildArchive` setting.
 
 Does NOT build any artifacts. It just packs the existing ones."
@@ -310,6 +359,110 @@ USAGE:
 If no package is specified, deletes the build directories of every package in
 the workspace. Otherwise, just deletes those of the specified packages."
 
+def helpShake :=
+"Minimize imports in Lean source files
+
+USAGE:
+  lake shake [OPTIONS] [<MODULE>...]
+
+Checks the current project for unused imports by analyzing generated `.olean`
+files to deduce required imports and ensuring that every import contributes
+some constant or other elaboration dependency.
+
+ARGUMENTS:
+  <MODULE>              A module path like `Mathlib`. All files transitively
+                        reachable from the provided module(s) will be checked.
+                        If not specified, uses the package's default targets.
+
+OPTIONS:
+  --force               Skip the `lake build --no-build` sanity check
+  --keep-implied        Preserve imports implied by other imports
+  --keep-prefix         Prefer parent module imports over specific submodules
+  --keep-public         Preserve all `public` imports for API stability
+  --add-public          Add new imports as `public` if they were in the
+                        original public closure
+  --explain             Show which constants require each import
+  --fix                 Apply suggested fixes directly to source files
+  --gh-style            Output in GitHub problem matcher format
+
+ANNOTATIONS:
+  Source files can contain special comments to control shake behavior:
+
+  * `module -- shake: keep-downstream`
+    Preserves this module in all downstream modules
+
+  * `module -- shake: keep-all`
+    Preserves all existing imports in this module
+
+  * `import X -- shake: keep`
+    Preserves this specific import"
+
+def helpChallenge :=
+"Judge a solution against a challenge
+
+USAGE:
+  lake challenge --config <FILE>
+
+Establishes that every named theorem in the solution proves the same statement
+as the challenge, uses no axiom outside the permitted list, and is accepted by
+the kernel.
+
+The solution is untrusted input: it is built and exported inside a `landrun`
+sandbox, and none of its `.olean` files is ever loaded into Lake's own address
+space. `landrun` is required; there is no unsandboxed mode, so this command is
+available on Linux only.
+
+OPTIONS:
+  --config=<file>       JSON file describing the challenge (see below)
+
+CONFIGURATION:
+  The challenge author writes the file and distributes it with the project, so
+  that a solver need only point `lake challenge` at it:
+
+  {
+    \"challenge_module\": \"Challenge\",
+    \"solution_module\": \"Solution\",
+    \"theorem_names\": [\"imo2024_p1\"],
+    \"definition_names\": [],
+    \"permitted_axioms\": [\"propext\", \"Quot.sound\", \"Classical.choice\"],
+    \"external_kernels\": {\"nanoda\": [\"nanoda_bin\"]}
+  }
+
+  `challenge_module`, `solution_module`, `theorem_names` and
+  `permitted_axioms` are required; the rest may be omitted.
+  `definition_names` lists the challenge's definition holes.
+  `permitted_axioms` is deliberately not defaulted: it is what the verdict
+  means, so the challenge author states it. The three above are the ones
+  `#print axioms` treats as a clean proof.
+
+  `external_kernels` names additional checkers to run over the export, each as
+  the command to execute; the solution must satisfy every one of them as well
+  as Lean's own kernel. `enable_nanoda: true` is still accepted and is
+  equivalent to a \"nanoda\" entry of [\"nanoda_bin\"]; name the command in
+  `external_kernels` instead to run it from elsewhere.
+
+EXIT CODES:
+  0                     accepted
+  1                     rejected: statement mismatch, forbidden axiom, kernel
+                        rejection, or a build that did not succeed
+  2                     could not start: `landrun` is missing, or the
+                        configuration is missing, unreadable or malformed
+
+ENVIRONMENT:
+  COMPARATOR_LANDRUN    sandbox executable (default: `landrun` on PATH)
+
+  The exporter is always the `leanexport` of this toolchain, and deliberately
+  not configurable: the export format has to match the compiler that produced
+  the `.olean` files being exported.
+
+HARDENING:
+  Until the Landlock fix released in Linux 7.1 is widely available, `landrun`
+  can be escaped through an `AF_UNIX` socket. Where that matters, run the
+  command under a wrapper that removes the capability:
+
+    systemd-run --user --pty --property=RestrictAddressFamilies=~AF_UNIX \\
+      lake challenge --config challenge.json"
+
 def helpCacheCli :=
 "Manage the Lake cache
 
@@ -317,97 +470,227 @@ USAGE:
   lake cache <COMMAND>
 
 COMMANDS:
-  get [<mappings>]      download artifacts into the Lake cache
-  put <mappings>        upload artifacts to a remote cache
+  get [<mappings>]      download build outputs into the local Lake cache
+  put <mappings>        upload build outputs to a remote cache
+  add <mappings>        add input-to-output mappings to the Lake cache
+  clean                 removes ALL from the local Lake cache
+  services              print configured remote cache services
+
+STAGING COMMANDS:
+  stage <map> <dir>     copy build outputs from the cache to a directory
+  unstage <dir>         cache build outputs from a staging directory
+  put-staged <dir>      upload build outputs from a staging directory
 
 See `lake cache help <command>` for more information on a specific command."
 
 def helpCacheGet :=
-"Download artifacts from a remote service into the Lake cache
+"Download build outputs from a remote service into the Lake cache
 
 USAGE:
   lake cache get [<mappings>]
 
 OPTIONS:
   --max-revs=<n>                  backtrack up to n revisions (default: 100)
-  --rev=<commit-hash>             uses this exact revision to lookup artifacts
-  --repo=<github-repo>            GitHub repository of the package or a fork
-  --platform=<target-triple>      with Reservoir or --repo, sets the platform
-  --toolchain=<name>              with Reservoir or --repo, sets the toolchain
-  --scope=<remote-scope>          scope for a custom endpoint
+  --rev=<commit-hash>             lookup artifacts only for set revision
+  --package=<name>                fetch outputs for set package
+  --service=<name>                fetch outputs from set cache service
+  --repo=<github-repo>            GitHub repository of the package or its fork
+  --platform=<target-triple>      with Reservoir or --repo, set the platform
+  --toolchain=<name>              with Reservoir or --repo, set the toolchain
+  --scope=<remote-scope>          verbatim scope for a custom endpoint
+  --mappings-only                 only download mappings, delay artifacts
+  --force-download                redownload existing files
 
-Downloads artifacts for packages in the workspace from a remote cache service.
-The cache service used can be configured via the environment variables:
+Downloads build outputs for packages in the workspace from a remote cache
+service. The cache service used can be specified via the `--service` option.
+Otherwise, Lake will use the configured default or, if none, Reservoir. See
+`lake cache services` for more information on how to configure services.
 
-  LAKE_CACHE_ARTIFACT_ENDPOINT  base URL for artifact downloads
-  LAKE_CACHE_REVISION_ENDPOINT  base URL for the mapping download
+By default, Lake will use Reservoir to download outputs for each
+dependency in the workspace (in order). Non-Reservoir dependencies will be
+skipped. If instead an input-to-outputs mappings file, `--scope`, or `--repo`
+is provided, Lake will default to downloading build outputs for the root
+package. In either case, if `--package` is specified, Lake will switch to
+only downloading outputs for it.
 
-If neither of these are set, Lake will use Reservoir.
+To determine what to download, Lake searches for input-to-output mappings for
+a given build of a package via the cache service. This mapping is identified
+by a Git revision and prefixed with a scope derived from the package's name,
+GitHub repository, Lean toolchain, and current platform. The exact configuration
+can be customized using options.
 
-If an input-to-outputs mappings file, `--scope`, or `--repo` is provided,
-Lake will download artifacts for the root package. Otherwise, it will use
-Reservoir to download artifacts for each dependency in workspace (in order).
-Non-Reservoir dependencies will be skipped.
-
-To determine the artifacts to download, Lake searches for input-to-output
-mappings for a given build of the package via the cache service. This mapping
-is identified by a Git revision and prefixed with a scope derived from the
-package's name, GitHub repository, Lean toolchain, and current platform.
-The exact configuration can be customized using options.
-
-For Reservoir, setting `--repo` will make Lake lookup artifacts for the root
+For Reservoir, setting `--repo` will cause Lake to lookup outputs for the
 package by a repository name, rather than the package's. This can be used to
-download artifacts for a fork of the Reservoir package (if such artifacts are
+download outputs for a fork of the Reservoir package (if such artifacts are
 available). The `--platform` and `--toolchain` options can be used to download
 artifacts for a different platform/toolchain configuration than Lake detects.
-For a custom endpoint, the full prefix Lake uses can be set via  `--scope`.
+For a custom endpoint, the full prefix Lake uses can be set via `--scope`.
 
 If `--rev` is not set, Lake uses the package's current revision to lookup
 artifacts. If no mappings are found, Lake will backtrack the Git history up to
 `--max-revs`, looking for a revision with mappings. If `--max-revs` is 0, Lake
 will search the repository's entire history (or as far as Git will allow).
 
+By default, Lake will download both the input-to-output mappings and the
+output artifacts for a package. By using `--mappings-only`, Lake will only
+download the mappings and delay downloading artifacts until they are needed.
+
 If a download for an artifact fails or the download process for a whole
 package fails, Lake will report this and continue on to the next. Once done,
 if any download failed, Lake will exit with a nonzero status code."
 
 def helpCachePut :=
-"Upload artifacts from the Lake cache to a remote service
+"Upload build outputs from the Lake cache to a remote service
 
 USAGE:
-  lake cache put <mappings> <scope-option>
+  lake cache put <mappings>
 
-Uploads the input-to-outputs mappings contained in the specified file along
-with the corresponding output artifacts to a remote cache. The cache service
-used is configured via the environment variables:
-
-  LAKE_CACHE_KEY                  authentication key for requests
-  LAKE_CACHE_ARTIFACT_ENDPOINT    base URL for artifact uploads
-  LAKE_CACHE_REVISION_ENDPOINT    base URL for the mapping upload
-
-Files are uploaded using the AWS Signature Version 4 authentication protocol
-via `curl`. Thus, the service should generally be an S3-compatible bucket.
-
-Since Lake does not currently use cryptographically secure hashes for
-artifacts and outputs, uploads to the cache are prefixed with a scope to avoid
-clashes. This scoped is configured with the following options:
-
-  --scope=<remote-scope>          sets a fixed scope
-  --repo=<github-repo>            uses the repository + toolchain & platform
+OPTIONS:
+  --service=<name>                upload to set cache service
+  --scope=<remote-scope>          upload under set scope verbatim
+  --repo=<github-repo>            scope w/ repository + toolchain & platform
   --toolchain=<name>              with --repo, sets the toolchain
   --platform=<target-triple>      with --repo, sets the platform
 
-At least one of `--scope` or `--repo` must be set. If `--repo` is used, Lake
-will produce a scope by augmenting the repository with toolchain and platform
-information as it deems necessary. If `--scope` is set, Lake will use the
-specified scope verbatim.
+Uploads the input-to-output mappings contained in the specified file along
+with the corresponding output artifacts to a remote cache. The cache service
+used can be specified via the `--service` option. If not specified, Lake will
+use the system default, or error if none is configured. See the help page of
+`lake cache services` for more information on how to configure services.
+
+Files are uploaded using the AWS Signature Version 4 authentication protocol
+via `curl`. Thus, the service should generally be an S3-compatible bucket.
+The authentication key is set via the `LAKE_CACHE_KEY` environment variable.
+
+Since Lake does not currently use cryptographically secure hashes for
+artifacts and outputs, uploads to the cache are prefixed with a scope to
+avoid clashes. This is controlled by `--scope` or `--repo`. With `--repo`,
+Lake will produce a scope by augmenting the repository with toolchain and
+platform information as it deems necessary. With `--scope`, Lake will use
+the specified scope verbatim.
 
 Artifacts are uploaded to the artifact endpoint with a file name derived
 from their Lake content hash (and prefixed by the repository or scope).
 The mappings file is uploaded to the revision endpoint with a file name
 derived from the package's current Git revision (and prefixed by the
-full scope). As such, the command will warn if the the work tree currently
+full scope). As such, the command will warn if the work tree currently
 has changes."
+
+def helpCacheAdd :=
+"Add input-to-output mappings to the Lake cache
+
+USAGE:
+  lake cache add <mappings>
+
+OPTIONS:
+  --package=<name>                add mappings to set package
+  --service=<name>                cache service to fetch from on demand
+  --scope=<remote-scope>          the prefix of artifacts within the service
+  --repo=<github-repo>            for Reservoir, a GitHub repository scope
+  --no-overwrite                  do not overwrite existing mappings
+
+Reads a list of input-to-output mappings from the provided file and adds
+them to the local Lake cache. Mappings already in the cache are overwritten
+unless `--no-overwrite` is specified. Mappings are added for the root package
+unless `--package` is specified.
+
+If `--service` is provided, the output artifacts can then be fetched lazily
+from that service during a Lake build. The service must either be `reservoir`
+or be configured through the Lake system configuration (see the help page of
+`lake cache services` for details).
+
+Since Lake does not currently use cryptographically secure hashes for
+artifacts and outputs, artifacts in a cache service are prefixed with a scope
+to avoid clashes. For Reservoir, this scope can either be a package (set via
+`--scope`) or a repository (set via `--repo`). For S3 services, both options
+are synonymous."
+
+def helpCacheStage :=
+"Copy build outputs from the cache to a staging directory
+
+USAGE:
+  lake cache stage <mappings> <staging-directory> [--force-overwrite]
+
+Creates the staging directory and copies the mappings file to it. Then,
+it copies all artifacts described within the mappings file from the cache to
+the staging directory. Artifacts in the staging directory are not overwritten
+unless `--force-overwrite` is specified. Errors if any of the artifacts
+described cannot be found in the cache."
+
+def helpCacheUnstage :=
+"Cache build outputs from a staging directory
+
+USAGE:
+  lake cache unstage <staging-directory> [--force-overwrite]
+
+Copies the mappings and artifacts stored in staging directory (e.g., via
+`lake cache stage`) back into the cache.
+
+Reads the mappings file located at `outputs.jsonl` within the staging
+directory and writes the mappings to the Lake cache. Then, it copies the
+described artifacts from the staging directory into the cache. Mappings and
+artifacts already in the cache are not overwritten unless `--force-overwrite`
+is specified."
+
+def helpCachePutStaged :=
+"Upload build outputs from a staging directory to a remote service
+
+USAGE:
+  lake cache put-staged <staging-directory>
+
+OPTIONS:
+  --rev=<commit-hash>             upload for set revision
+  --service=<name>                upload to set cache service
+  --scope=<remote-scope>          upload under set scope verbatim
+  --repo=<github-repo>            scope w/ repository + toolchain & platform
+  --toolchain=<name>              with --repo, set the toolchain
+  --platform=<target-triple>      with --repo, set the platform
+
+Works like `lake cache put` but uploads outputs from the staging directory
+instead of the Lake cache.
+
+Does not configure the workspace and thus does not execute arbitrary user
+code. However, because of this, the package's platform and toolchain settings
+will not be automatically detected for `--repo` and must be specified manually
+via `--platform` and `--toolchain` (if needed).
+
+Lake will still, by default, detect the target revision from the workspace
+directory's current Git revision. To upload outputs for a different revision,
+specify it with `--rev`."
+
+def helpCacheClean :=
+"Removes ALL files from the local Lake cache
+
+USAGE:
+  lake cache clean
+
+Deletes the configured Lake cache directory. If a workspace configuration
+exists, this will delete the cache directory it uses. Otherwise, it will
+delete the default Lake cache directory for the system."
+
+def helpCacheServices :=
+"Print configured remote cache services
+
+USAGE:
+  lake cache services
+
+Prints the name of each configured remote cache services (one per line).
+Additional services can be added by modifying the system Lake configuration.
+The exact location of the this configuration file is system dependent and can
+be set by `LAKE_CONFIG`, but it is usually located at `~/.lake/config.toml`.
+
+The configuration of the system cache could look something like the following:
+
+  cache.defaultService = \"my-s3\"
+  cache.defaultUploadService = \"my-s3\"
+
+  [[cache.service]]
+  name = \"my-s3\"
+  kind = \"s3\"
+  artifactEndpoint = \"https://my-s3.com/a0\"
+  revisionEndpoint = \"https://my-s3.com/r0\"
+
+If no `cache.defaultService` is configured, Lake will use Reservoir by default."
 
 def helpScriptCli :=
 "Manage Lake scripts
@@ -539,6 +822,12 @@ public def helpScript : (cmd : String) → String
 public def helpCache : (cmd : String) → String
 | "get"                 => helpCacheGet
 | "put"                 => helpCachePut
+| "add"                 => helpCacheAdd
+| "stage"               => helpCacheStage
+| "unstage"             => helpCacheUnstage
+| "put-staged"          => helpCachePutStaged
+| "clean"               => helpCacheClean
+| "services"            => helpCacheServices
 | _                     => helpCacheCli
 
 public def help : (cmd : String) → String
@@ -557,6 +846,8 @@ public def help : (cmd : String) → String
 | "lint"                => helpLint
 | "check-lint"          => helpCheckLint
 | "clean"               => helpClean
+| "shake"               => helpShake
+| "challenge"           => helpChallenge
 | "script"              => helpScriptCli
 | "scripts"             => helpScriptList
 | "run"                 => helpScriptRun

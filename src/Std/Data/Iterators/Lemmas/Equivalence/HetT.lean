@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 public import Init.Data.Iterators.PostconditionMonad
+public import Init.Classical
 
 @[expose] public section
 
@@ -27,6 +28,7 @@ class ComputableSmall (α : Type v) where
 class Small (α : Type v) : Prop where
   h : Nonempty (ComputableSmall.{u} α)
 
+@[instance_reducible]
 noncomputable def ComputableSmall.choose (α : Type v) [small : Small.{u} α] : ComputableSmall.{u} α :=
   haveI : Nonempty (ComputableSmall.{u} α) := Small.h
   Classical.ofNonempty (α := ComputableSmall.{u} α)
@@ -40,7 +42,7 @@ structure USquash (α : Type v) [small : Small.{u} α] where
 def USquashOrUnit (α : Type v) := open Classical in if _ : Small.{u} α then USquash.{u} α else PUnit
 
 theorem uSquash_eq_uSquashOrUnit {α : Type v} [Small.{u} α] : USquash.{u} α = USquashOrUnit.{u} α := by
-  rw [USquashOrUnit, dif_pos]
+  rw [USquashOrUnit, dite_eq_left]
 
 noncomputable def USquash.deflate [small : Small.{u} α] (x : α) : USquash.{u} α := USquash.mk' (ComputableSmall.choose α |>.deflate x)
 
@@ -92,7 +94,7 @@ instance {α : Type v} {x : α} : Small.{u} (Subtype (· = x)) where
     inflate_deflate := by rintro ⟨_, rfl⟩; rfl
   }⟩
 
-def Small.of_surjective (α : Type v) {β : Type w} (f : α → β) [Small.{u} α]
+theorem Small.of_surjective (α : Type v) {β : Type w} (f : α → β) [Small.{u} α]
     (h : ∀ b, ∃ a, f a = b) : Small.{u} β where
   h := ⟨{
     Target := Quot (fun a a' : USquash α => f a.inflate = f a'.inflate)
@@ -107,7 +109,7 @@ def Small.of_surjective (α : Type v) {β : Type w} (f : α → β) [Small.{u} �
 
 instance {α : Type v} {β : Type w} {f : α → β} [Small.{u} α] :
     Small.{u} { b : β // ∃ a, f a = b } := .of_surjective α (fun a => ⟨f a, a, rfl⟩)
-        (fun b => ⟨b.2.choose, by simp; ext; exact b.2.choose_spec⟩)
+        (fun b => ⟨b.2.choose, by ext; exact b.2.choose_spec⟩)
 
 theorem Small.map {α : Type v} {β : Type w} (P : α → Prop) (f : (a : α) → P a → β)
     [Small.{u} { a // P a }] :
@@ -123,7 +125,7 @@ instance {α : Type v} {β : α → Type w} [Small.{u} α] [∀ a, Small.{u} (β
         ((a : USquash α) × (USquash (β a.inflate)))
         (fun x => ⟨x.1.inflate, x.2.inflate⟩)
         (fun b => ⟨⟨.deflate b.1, .deflate (USquash.inflate_deflate ▸ b.2)⟩,
-          (by rcases b with ⟨b₁, b₂⟩; simp [eqRec_heq])⟩)
+          (by rcases b with ⟨b₁, b₂⟩; simp)⟩)
 
 theorem Small.pbind {α : Type v} {β : Type w} (P : α → Prop) (Q : (a : α) → P a → β → Prop)
     (i₁ : Small.{u} { a // P a }) (i₂ : ∀ a h, Small.{u} { b // Q a h b }) :
@@ -185,7 +187,8 @@ attribute [-simp] HetT.mk.injEq
 /--
 Converts `PostconditionT m α` to `HetT m α`, preserving the postcondition property.
 -/
-@[expose] noncomputable def HetT.ofPostconditionT [Monad m] (x : PostconditionT m α) : HetT m α :=
+@[implicit_reducible]
+noncomputable def HetT.ofPostconditionT [Monad m] (x : PostconditionT m α) : HetT m α :=
   ⟨x.Property, inferInstance, USquash.deflate <$> x.operation⟩
 
 noncomputable instance (m : Type w → Type w') [Monad m] : MonadLift m (HetT m) where
@@ -196,7 +199,8 @@ Lifts `x : m α` into `HetT m α` with the trivial postcondition.
 
 Caution: This is not a lawful monad lifting function
 -/
-@[expose] noncomputable def HetT.lift {α : Type w} {m : Type w → Type w'} [Monad m] (x : m α) :
+@[implicit_reducible]
+noncomputable def HetT.lift {α : Type w} {m : Type w → Type w'} [Monad m] (x : m α) :
     HetT m α :=
   x
 
@@ -204,14 +208,14 @@ Caution: This is not a lawful monad lifting function
 A universe-heterogeneous version of `Pure.pure`. Given `a : α`, it returns an element of `HetT m α`
 with the postcondition `(a = ·)`.
 -/
-protected noncomputable def HetT.pure {m : Type w → Type w'} [Pure m] {α : Type v}
+@[implicit_reducible] protected noncomputable def HetT.pure {m : Type w → Type w'} [Pure m] {α : Type v}
     (a : α) : HetT m α :=
   ⟨(a = ·), inferInstance, pure (.deflate ⟨a, rfl⟩)⟩
 
 /--
 A generalization of `HetT.map` that provides the postcondition property to the mapping function.
 -/
-protected noncomputable def HetT.pmap {m : Type w → Type w'} [Functor m] {α : Type u} {β : Type v}
+@[implicit_reducible] protected noncomputable def HetT.pmap {m : Type w → Type w'} [Functor m] {α : Type u} {β : Type v}
     (x : HetT m α) (f : (a : α) → x.Property a → β) : HetT m β :=
   have : Small.{w} (Subtype x.Property) := x.small
   have := Small.map x.Property f
@@ -220,14 +224,15 @@ protected noncomputable def HetT.pmap {m : Type w → Type w'} [Functor m] {α :
 /--
 A universe-heterogeneous version of `Functor.map`.
 -/
-protected noncomputable def HetT.map {m : Type w → Type w'} [Functor m] {α : Type u} {β : Type v}
+@[implicit_reducible] protected noncomputable def HetT.map {m : Type w → Type w'} [Functor m] {α : Type u} {β : Type v}
     (f : α → β) (x : HetT m α) : HetT m β :=
   x.pmap (fun a _ => f a)
 
 /--
 A generalization of `HetT.bind` that provides the postcondition property to the mapping function.
 -/
-@[expose] protected noncomputable def HetT.pbind {m : Type w → Type w'} [Monad m] {α : Type u} {β : Type v}
+@[implicit_reducible]
+protected noncomputable def HetT.pbind {m : Type w → Type w'} [Monad m] {α : Type u} {β : Type v}
     (x : HetT m α) (f : (a : α) → x.Property a → HetT m β) : HetT m β :=
   have := x.small
   have := fun a h => (f a h).small
@@ -239,7 +244,7 @@ A generalization of `HetT.bind` that provides the postcondition property to the 
 /--
 A universe-heterogeneous version of `Bind.bind`.
 -/
-protected noncomputable def HetT.bind {m : Type w → Type w'} [Monad m] {α : Type u} {β : Type v}
+@[implicit_reducible] protected noncomputable def HetT.bind {m : Type w → Type w'} [Monad m] {α : Type u} {β : Type v}
     (x : HetT m α) (f : α → HetT m β) : HetT m β :=
   have := x.small
   have := fun a => (f a).small
@@ -288,7 +293,8 @@ theorem HetT.prun_ofPostconditionT [Monad m] [LawfulMonad m] {x : PostconditionT
 /--
 If the monad `m` is liftable to `n`, lifts `HetT m α` to `HetT n α`.
 -/
-@[expose] noncomputable def HetT.liftInner {m : Type w → Type w'} (n : Type w → Type w'') [MonadLiftT m n]
+@[implicit_reducible]
+noncomputable def HetT.liftInner {m : Type w → Type w'} (n : Type w → Type w'') [MonadLiftT m n]
     (x : HetT m α) : HetT n α :=
   ⟨x.Property, x.small, x.operation⟩
 

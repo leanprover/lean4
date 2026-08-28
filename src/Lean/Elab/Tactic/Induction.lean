@@ -10,18 +10,23 @@ import Lean.Parser.Tactic
 public import Lean.Meta.Tactic.ElimInfo
 public import Lean.Elab.Tactic.ElabTerm
 import Lean.Meta.Tactic.FunIndCollect
-import Lean.Elab.App
-import Lean.Elab.Tactic.Generalize
-import Lean.ErrorExplanations.InductionWithNoAlts
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
+import Lean.Elab.Binders
+import Lean.Meta.Tactic.Generalize
 
 
 public section
+
+namespace Lean
 
 register_builtin_option tactic.customEliminators : Bool := {
   defValue := true
   descr    := "enable using custom eliminators in the 'induction' and 'cases' tactics \
     defined using the '@[induction_eliminator]' and '@[cases_eliminator]' attributes"
 }
+
+end Lean
 
 end
 
@@ -49,7 +54,7 @@ def getAltName? (alt : Syntax) : Option Name :=
   else
     let ident := head[1]
     if ident.isOfKind identKind then some ident.getId.eraseMacroScopes else none
-/-- Returns true if the the alternative is for a wildcard, and that the wildcard is not due to a syntax error. -/
+/-- Returns true if the alternative is for a wildcard, and that the wildcard is not due to a syntax error. -/
 def isAltWildcard (altStx : Syntax) : Bool :=
   getAltName? altStx == some `_
 /-- Returns the `inductionAlt` `ident <|> hole` -/
@@ -233,7 +238,7 @@ public partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag :
 
 /--
 Given a goal `... targets ... |- C[targets, complexArgs]` associated with `mvarId`,
-where `complexArgs` are the the complex (i.e. non-target) arguments to the motive in the conclusion
+where `complexArgs` are the complex (i.e. non-target) arguments to the motive in the conclusion
 of the eliminator, construct `motiveArg := fun targets rs => C[targets, rs]`
 
 This checks if the type of the complex arguments match what's expected by the motive, and
@@ -306,20 +311,19 @@ def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : TacticM Unit 
       else
         throwOrLogErrorAt altStx m!"Invalid alternative name `{altName}`: {msg}"
 
-/-- Given the goal `altMVarId` for a given alternative that introduces `numFields` new variables,
-    return the number of explicit variables. Recall that when the `@` is not used, only the explicit variables can
-    be named by the user. -/
-def getNumExplicitFields (altMVarId : MVarId) (numFields : Nat) : MetaM Nat := altMVarId.withContext do
-  let target ← altMVarId.getType
+/-- Given the goal `altMVarId` for an alternative that introduces `numFields` new variables, return
+    how many the user can name when the `@` modifier is absent: the explicit and the `let`-bound
+    ones (`introN` names `let`-bound binders as explicit). -/
+def getNumExplicitFields (altMVarId : MVarId) (numFields : Nat) : MetaM Nat :=
   withoutModifyingState do
-    -- The `numFields` count includes explicit, implicit and let-bound variables.
-    -- `forallMetaBoundTelescope` will reduce let-bindings, so we don't just count how many
-    -- explicit binders are in `bis`, but how many implicit ones.
-    -- If this turns out to be insufficient, then the real (and complicated) logic for which
-    -- arguments are explicit or implicit can be found in `introNImp`,
-    let (_, bis, _) ← forallMetaBoundedTelescope target numFields
-    let numImplicits := (bis.filter (!·.isExplicit)).size
-    return numFields - numImplicits
+    -- Introduce the fields as the subsequent `introN` will, so the two agree on which are nameable.
+    let (fvarIds, altMVarId) ← altMVarId.introN numFields
+    altMVarId.withContext do
+      let mut numExplicit := 0
+      for fvarId in fvarIds do
+        if (← fvarId.getDecl).binderInfo.isExplicit then
+          numExplicit := numExplicit + 1
+      return numExplicit
 
 def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Array FVarId) : TermElabM Unit :=
   withSaveInfoContext <| altMVarId.withContext do
@@ -360,11 +364,18 @@ where
         let altPromises ← altStxs.mapM fun _ => IO.Promise.new
         let cancelTk? := (← readThe Core.Context).cancelTk?
         tacSnap.new.resolve {
-          -- save all relevant syntax here for comparison with next document version
-          stx := mkNullNode altStxs
-          diagnostics := .empty
-          inner? := none
-          finished := { stx? := mkNullNode altStxs, reportingRange := .inherit, task := finished.resultD default, cancelTk? }
+          transformed.raw := {
+            -- save all relevant syntax here for comparison with next document version
+            stx := mkNullNode altStxs
+            diagnostics := .empty
+            inner? := none
+            finished := {
+              stx? := mkNullNode altStxs, task := finished.resultD default, cancelTk?
+              -- Do not cover up progress from `next` as no significant work happens after `next` and
+              -- before `finished` is resolved.
+              reportingRange := .skip
+            }
+          }
           next := Array.zipWith
             (fun stx prom => { stx? := some stx, task := prom.resultD default, cancelTk? })
             altStxs altPromises
@@ -374,10 +385,12 @@ where
             let old ← tacSnap.old?
             -- waiting is fine here: this is the old version of the snapshot resolved above
             -- immediately at the beginning of the tactic
-            let old := old.val.get
+            -- (access to `raw` is fine here as there should be no transformation in this case
+            -- anyway, see `resolve` above)
+            let oldParsed := old.val.get.transformed.raw
             -- use old version of `mkNullNode altsSyntax` as guard, will be compared with new
             -- version and picked apart in `applyAltStx`
-            return ⟨old.stx, (← old.next[i]?)⟩
+            return ⟨oldParsed.stx, (← old.val.get.next[i]?)⟩
           new := prom
         }
         finished.resolve {
@@ -660,7 +673,7 @@ def checkForInductionWithNoAlts (tacticKind : String) (optInductionAlts : Syntax
     -- Usually errors are suppressed for syntax containing `.missing` nodes, but this named error is
     -- listed in `Lean.Core.getAndEmptySnapshotTasks` as an error that ignores suppression.
     throwNamedErrorAt optInductionAlts lean.inductionWithNoAlts
-      m!"Invalid syntax for {tacticKind} tactic: The `with` keyword must followed by a tactic or by an alternative (e.g. `| zero =>`), but here it is followed by the identifier `{var}`."
+      m!"Invalid syntax for {tacticKind} tactic: The `with` keyword must be followed by a tactic or by an alternative (e.g. `| zero =>`), but here it is followed by the identifier `{var}`."
 
 /--
 Separate out the optional `with` tactics from the rest of the alternates
@@ -993,9 +1006,13 @@ def evalInduction : Tactic := fun stx =>
   match expandInduction? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
-    let (targets, toTag) ← elabElimTargets stx[1].getSepArgs
-    let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := true)
-    let targets ← withMainContext <| addImplicitTargets elimInfo targets
+    -- Disable tactic incrementality during setup to prevent nested `by` blocks (e.g. in `using`)
+    -- from consuming the snapshot meant for `evalAlts`.
+    let (targets, toTag, elimInfo) ← Term.withoutTacticIncrementality true do
+      let (targets, toTag) ← elabElimTargets stx[1].getSepArgs
+      let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := true)
+      let targets ← withMainContext <| addImplicitTargets elimInfo targets
+      return (targets, toTag, elimInfo)
     evalInductionCore stx elimInfo targets toTag
 
 
@@ -1014,11 +1031,11 @@ Elaborates the `foo args` of `fun_induction` or `fun_cases`, inferring the args 
 def elabFunTargetCall (cases : Bool) (stx : Syntax) : TacticM Expr := do
   match stx with
   | `($id:ident) =>
-    let fnName ← realizeGlobalConstNoOverload id
+    let fnName ← realizeGlobalConstNoOverloadWithInfo id
     let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
     let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
       let theoremKind := if cases then "cases" else "induction"
-      throwError "No functional {theoremKind} theorem for `{.ofConstName fnName}`, or function is mutually recursive "
+      throwError "No functional {theoremKind} theorem for `{.ofConstName fnName}`, or the function is mutually recursive"
     let candidates ← FunInd.collect funIndInfo (← getMainGoal)
     if candidates.isEmpty then
       throwError "Could not find suitable call of `{.ofConstName fnName}` in the goal"
@@ -1041,7 +1058,7 @@ def elabFunTarget (cases : Bool) (stx : Syntax) : TacticM (ElimInfo × Array Exp
     let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
     let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
       let theoremKind := if cases then "cases" else "induction"
-      throwError "No functional {theoremKind} theorem for `{.ofConstName fnName}`, or function is mutually recursive "
+      throwError "No functional {theoremKind} theorem for `{.ofConstName fnName}`, or the function is mutually recursive"
     if funArgs.size != funIndInfo.params.size then
       throwError "Expected fully applied application of `{.ofConstName fnName}` with \
         {funIndInfo.params.size} arguments, but found {funArgs.size} arguments"
@@ -1075,8 +1092,10 @@ def evalFunInduction : Tactic := fun stx =>
   match expandInduction? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
-    let (elimInfo, targets) ← elabFunTarget (cases := false) stx[1]
-    let targets ← generalizeTargets targets
+    let (elimInfo, targets) ← Term.withoutTacticIncrementality true do
+      let (elimInfo, targets) ← elabFunTarget (cases := false) stx[1]
+      let targets ← generalizeTargets targets
+      return (elimInfo, targets)
     evalInductionCore stx elimInfo targets
 
 /--
@@ -1116,9 +1135,11 @@ def evalCases : Tactic := fun stx =>
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
     -- syntax (name := cases) "cases " elimTarget,+ (" using " term)? (inductionAlts)? : tactic
-    let (targets, toTag) ← elabElimTargets stx[1].getSepArgs
-    let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := false)
-    let targets ← withMainContext <| addImplicitTargets elimInfo targets
+    let (targets, toTag, elimInfo) ← Term.withoutTacticIncrementality true do
+      let (targets, toTag) ← elabElimTargets stx[1].getSepArgs
+      let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := false)
+      let targets ← withMainContext <| addImplicitTargets elimInfo targets
+      return (targets, toTag, elimInfo)
     evalCasesCore stx elimInfo targets toTag
 
 @[builtin_tactic Lean.Parser.Tactic.funCases, builtin_incremental]
@@ -1126,8 +1147,10 @@ def evalFunCases : Tactic := fun stx =>
   match expandInduction? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
-    let (elimInfo, targets) ← elabFunTarget (cases := true) stx[1]
-    let targets ← generalizeTargets targets
+    let (elimInfo, targets) ← Term.withoutTacticIncrementality true do
+      let (elimInfo, targets) ← elabFunTarget (cases := true) stx[1]
+      let targets ← generalizeTargets targets
+      return (elimInfo, targets)
     evalCasesCore stx elimInfo targets
 
 builtin_initialize

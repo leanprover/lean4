@@ -4,14 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Eqns
 public import Lean.Elab.Command
 import Lean.PrettyPrinter.Delaborator.Builtins
-
 public section
-
 namespace Lean.Elab.Command
 
 private def throwUnknownId (id : Name) : CommandElabM Unit :=
@@ -29,9 +26,11 @@ private def levelParamsToMessageData (levelParams : List Name) : MessageData :=
 private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (safety : DefinitionSafety) (sig : Bool := true) : CommandElabM MessageData := do
   let mut attrs := #[]
   match (← getReducibilityStatus id) with
-  | ReducibilityStatus.irreducible =>   attrs := attrs.push m!"irreducible"
-  | ReducibilityStatus.reducible =>     attrs := attrs.push m!"reducible"
-  | ReducibilityStatus.semireducible => pure ()
+  | .irreducible =>   attrs := attrs.push m!"irreducible"
+  | .reducible =>     attrs := attrs.push m!"reducible"
+  | .implicitReducible => attrs := attrs.push m!"implicit_reducible"
+  | .instanceReducible => attrs := attrs.push m!"instance_reducible"
+  | .semireducible => pure ()
 
   let env ← getEnv
   if env.header.isModule && (env.setExporting true |>.find? id |>.any (·.isDefinition)) then
@@ -39,6 +38,8 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
 
   if defeqAttr.hasTag (← getEnv) id then
     attrs := attrs.push m!"defeq"
+  else if backwardDefeqAttr.hasTag (← getEnv) id then
+    attrs := attrs.push m!"backward_defeq"
 
   let mut m : MessageData := m!""
   unless attrs.isEmpty do
@@ -52,7 +53,7 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   let id' ← match privateToUserName? id with
     | some id' =>
       m := m ++ "private "
-      pure id'
+      if getPPPrivateNames (← getOptions) then pure id else pure id'
     | none =>
       pure id
 
@@ -241,14 +242,10 @@ private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
   if axioms.isEmpty then
     logInfo m!"'{constName}' does not depend on any axioms"
   else
-    logInfo m!"'{constName}' depends on axioms: {axioms.qsort Name.lt |>.toList}"
+    logInfo m!"'{constName}' depends on axioms: {axioms.qsort Name.lt |>.map MessageData.ofConstName |>.toList}"
 
 @[builtin_command_elab «printAxioms»] def elabPrintAxioms : CommandElab
   | `(#print%$tk axioms $id) => withRef tk do
-    if (← getEnv).header.isModule then
-      throwError "cannot use `#print axioms` in a `module`; consider temporarily removing the \
-        `module` header or placing the command in a separate file"
-
     let cs ← liftCoreM <| realizeGlobalConstWithInfos id
     cs.forM printAxiomsOf
   | _ => throwUnsupportedSyntax

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Injection
+import Init.Data.Nat.Internal.Linear
 
 public section
 
@@ -58,7 +59,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
       | some (_, a, b) =>
         /-
           Remark: we do not check `isDefeq` here because we would fail to substitute equalities
-          such as `x = t` and `t = x` when `x` and `t` are proofs (proof irrelanvance).
+          such as `x = t` and `t = x` when `x` and `t` are proofs (proof irrelevance).
         -/
         /- Remark: we use `let rec` here because otherwise the compiler would generate an insane amount of code.
           We can remove the `rec` after we fix the eagerly inlining issue in the compiler. -/
@@ -80,7 +81,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
             throwError "Dependent elimination failed: Failed to solve equation{indentExpr eqDecl.type}"
         /- Special support for offset equalities -/
         let injectionOffset? (a b : Expr) := do
-          unless (← getEnv).contains ``Nat.elimOffset do return none
+          unless (← getEnv).contains ``Nat.Internal.elimOffset do return none
           let some (xa, ka) ← toOffset? a | return none
           let some (xb, kb) ← toOffset? b | return none
           if ka == 0 || kb == 0 then return none -- use default noConfusion
@@ -95,7 +96,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
           let newTarget ← mkArrow (← mkEq x y) target
           let tag ← mvarId.getTag
           let newMVar ← mkFreshExprSyntheticOpaqueMVar newTarget tag
-          let val := mkAppN (mkConst ``Nat.elimOffset [u]) #[target, x, y, mkNatLit k, eqDecl.toExpr, newMVar]
+          let val := mkAppN (mkConst ``Nat.Internal.elimOffset [u]) #[target, x, y, mkNatLit k, eqDecl.toExpr, newMVar]
           mvarId.assign val
           let mvarId ← newMVar.mvarId!.tryClear eqDecl.fvarId
           return some mvarId

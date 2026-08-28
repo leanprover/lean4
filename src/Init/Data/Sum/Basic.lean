@@ -7,13 +7,14 @@ module
 
 prelude
 public import Init.PropLemmas
+import Init.LawfulBEqTactics
 
 public section
 
 /-!
 # Disjoint union of types
 
-This file defines basic operations on the the sum type `α ⊕ β`.
+This file defines basic operations on the sum type `α ⊕ β`.
 
 `α ⊕ β` is the type made of a copy of `α` and a copy of `β`. It is also called *disjoint union*.
 
@@ -46,7 +47,9 @@ universe signature in consequence. The `Prop` version is `Or`.
 
 namespace Sum
 
-deriving instance BEq for Sum
+@[expose] section
+deriving instance BEq, ReflBEq, LawfulBEq for Sum
+end
 
 section get
 

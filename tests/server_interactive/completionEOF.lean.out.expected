@@ -1,0 +1,7 @@
+{"textDocument": {"uri": "file:///completionEOF.lean"},
+ "position": {"line": 8, "character": 9}}
+{"items":
+ [{"label": "And",
+   "kind": 21,
+   "data": ["file:///completionEOF.lean", 8, 9, 0, "cAnd"]}],
+ "isIncomplete": false}

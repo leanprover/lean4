@@ -6,12 +6,11 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Lean.Elab.Command
 public import Lean.Meta.Eval
 public import Lean.Meta.CompletionName
-public import Lean.Linter.Deprecated
 public import Init.Data.Random
 public import Lean.Elab.Tactic.Grind.Annotated
+import Init.Omega
 
 /-!
 # An API for library suggestion algorithms.
@@ -66,7 +65,7 @@ unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α)
     | .app f a           =>
       let fi ← getFunInfo f (some 1)
       if fi.paramInfo[0]!.isInstImplicit then
-        -- Don't visit implicit arguments.
+        -- Don't visit instance implicit arguments.
         visit f acc
       else
         visit a (← visit f acc)
@@ -76,7 +75,7 @@ unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α)
         return acc
       else
         modify fun s => { s with visitedConsts := s.visitedConsts.insert c }
-        if ← isInstance c then
+        if ← isInstanceReducible c then
           return acc
         else
           f c acc
@@ -92,26 +91,36 @@ end FoldRelevantConstantsImpl
 @[implemented_by FoldRelevantConstantsImpl.foldUnsafe]
 public opaque foldRelevantConstants {α : Type} (e : Expr) (init : α) (f : Name → α → MetaM α) : MetaM α := pure init
 
-/-- Collect the constants occuring in `e` (once each), skipping instance arguments and proofs. -/
+/-- Collect the constants occurring in `e` (once each), skipping instance arguments and proofs. -/
 public def relevantConstants (e : Expr) : MetaM (Array Name) := foldRelevantConstants e #[] (fun n ns => return ns.push n)
 
-/-- Collect the constants occuring in `e` (once each), skipping instance arguments and proofs. -/
+/-- Collect the constants occurring in `e` (once each), skipping instance arguments and proofs. -/
 public def relevantConstantsAsSet (e : Expr) : MetaM NameSet := foldRelevantConstants e ∅ (fun n ns => return ns.insert n)
 
 end Lean.Expr
 
 open Lean Meta MVarId in
 public def Lean.MVarId.getConstants (g : MVarId) : MetaM NameSet := withContext g do
-  let mut c := (← g.getType).getUsedConstantsAsSet
+  -- `instantiateMVars` is needed so that constants are not lost behind assigned
+  -- metavariables, e.g. the `?motive` left in a goal reached via `induction`.
+  -- Note: this does not recover constants behind non-ground delayed-assigned
+  -- metavariables. Without evidence this matters for premise selection,
+  -- for now we avoid the extra complexity of walking the metavariable graph.
+  let mut c := (← instantiateMVars (← g.getType)).getUsedConstantsAsSet
   for t in (← getLocalHyps) do
-    c := c ∪ (← inferType t).getUsedConstantsAsSet
+    c := c ∪ (← instantiateMVars (← inferType t)).getUsedConstantsAsSet
   return c
 
 open Lean Meta MVarId in
 public def Lean.MVarId.getRelevantConstants (g : MVarId) : MetaM NameSet := withContext g do
-  let mut c ← (← g.getType).relevantConstantsAsSet
+  -- `instantiateMVars` is needed so that constants are not lost behind assigned
+  -- metavariables, e.g. the `?motive` left in a goal reached via `induction`.
+  -- Note: this does not recover constants behind non-ground delayed-assigned
+  -- metavariables. Without evidence this matters for premise selection,
+  -- for now we avoid the extra complexity of walking the metavariable graph.
+  let mut c ← (← instantiateMVars (← g.getType)).relevantConstantsAsSet
   for t in (← getLocalHyps) do
-    c := c ∪ (← (← inferType t).relevantConstantsAsSet)
+    c := c ∪ (← (← instantiateMVars (← inferType t)).relevantConstantsAsSet)
   return c
 
 @[expose] public section
@@ -234,16 +243,18 @@ def filterGrindAnnotated (selector : Selector) : Selector := fun g c => do
 
 /--
 Combine two premise selectors by interspersing their results (ignoring scores).
-The parameter `ratio` (defaulting to 0.5) controls the ratio of suggestions from each selector
-while results are available from both.
+The parameter `ratio` (defaulting to 0.5) controls the fraction of suggestions drawn from
+`selector₁` while results are available from both. It is clamped to `[0, 1]`, and ties are
+resolved in favour of `selector₁`.
+
+Both selectors are asked for the full `maxSuggestions`, rather than a `ratio`-split share, so that
+if one selector returns fewer than its share the other can compensate. This doubles the retrieval
+work compared to splitting the budget.
 -/
 def intersperse (selector₁ selector₂ : Selector) (ratio : Float := 0.5) : Selector := fun g c => do
-  -- Calculate how many suggestions to request from each selector based on the ratio
-  let max₁ := (c.maxSuggestions.toFloat * ratio).toUInt32.toNat
-  let max₂ := (c.maxSuggestions.toFloat * (1 - ratio)).toUInt32.toNat
-
-  let suggestions₁ ← selector₁ g { c with maxSuggestions := max₁ }
-  let suggestions₂ ← selector₂ g { c with maxSuggestions := max₂ }
+  let ratio := min 1.0 (max 0.0 ratio)
+  let suggestions₁ ← selector₁ g c
+  let suggestions₂ ← selector₂ g c
 
   let mut result := #[]
   let mut i₁ := 0
@@ -253,9 +264,15 @@ def intersperse (selector₁ selector₂ : Selector) (ratio : Float := 0.5) : Se
 
   -- Intersperse while both arrays have elements
   while h : i₁ < suggestions₁.size ∧ i₂ < suggestions₂.size ∧ result.size < c.maxSuggestions do
-    -- Decide whether to take from selector₁ or selector₂ based on the ratio
-    let currentRatio := if count₁ + count₂ <= 0.0 then 0.0 else count₁ / (count₁ + count₂)
-    if currentRatio < ratio then
+    -- Take from whichever selector keeps the running fraction of `selector₁`
+    -- contributions closest to `ratio`. Comparing the two candidate next states
+    -- (rather than the achieved fraction) stays accurate at the endpoints, so
+    -- `ratio = 1` draws entirely from `selector₁` and `ratio = 0` entirely from
+    -- `selector₂` while both have results.
+    let total := count₁ + count₂
+    let errIfTake₁ := Float.abs ((count₁ + 1) / (total + 1) - ratio)
+    let errIfTake₂ := Float.abs (count₁ / (total + 1) - ratio)
+    if errIfTake₁ <= errIfTake₂ then
       result := result.push suggestions₁[i₁]
       i₁ := i₁ + 1
       count₁ := count₁ + 1
@@ -316,10 +333,11 @@ builtin_initialize typePrefixDenyListExt : SimplePersistentEnvExtension Name (Li
 def isDeniedModule (env : Environment) (moduleName : Name) : Bool :=
   (moduleDenyListExt.getState env).any fun p => moduleName.anyS (· == p)
 
-def isDeniedPremise (env : Environment) (name : Name) : Bool := Id.run do
+def isDeniedPremise (env : Environment) (name : Name) (allowPrivate : Bool := false) : Bool := Id.run do
   if name == ``sorryAx then return true
-  if name.isInternalDetail then return true
-  if Lean.Meta.isInstanceCore env name then return true
+  -- Allow private names through if allowPrivate is set (e.g., for currentFile selector)
+  if name.isInternalDetail && !(allowPrivate && isPrivateName name) then return true
+  if isInstanceReducibleCore env name then return true
   if Lean.Linter.isDeprecated env name then return true
   if (nameDenyListExt.getState env).any (fun p => name.anyS (· == p)) then return true
   if let some moduleIdx := env.getModuleIdxFor? name then
@@ -358,55 +376,53 @@ def currentFile : Selector := fun _ cfg => do
   let max := cfg.maxSuggestions
   -- Use map₂ from the staged map, which contains locally defined constants
   let mut suggestions := #[]
-  for (name, ci) in env.constants.map₂.toList do
+  for (name, _) in env.constants.map₂ do
     if suggestions.size >= max then
       break
-    if isDeniedPremise env name then
+    -- Allow private names since they're accessible from the current module
+    if isDeniedPremise env name (allowPrivate := true) then
       continue
-    match ci with
-    | .thmInfo _ => suggestions := suggestions.push { name := name, score := 1.0 }
-    | _ => continue
+    if wasOriginallyTheorem env name then
+      suggestions := suggestions.push { name := name, score := 1.0 }
   return suggestions
 
-builtin_initialize librarySuggestionsExt : SimplePersistentEnvExtension Syntax (Option Syntax) ←
+builtin_initialize librarySuggestionsExt : SimplePersistentEnvExtension Name (Option Name) ←
   registerSimplePersistentEnvExtension {
-    addEntryFn := fun _ stx => some stx  -- Last entry wins
+    addEntryFn := fun _ name => some name  -- Last entry wins
     addImportedFn := fun entries =>
-      -- Take the last selector syntax from all imported modules
+      -- Take the last selector name from all imported modules
       entries.foldl (init := none) fun acc moduleEntries =>
-        moduleEntries.foldl (init := acc) fun _ stx => some stx
+        moduleEntries.foldl (init := acc) fun _ name => some name
   }
 
-/--
-Helper function to elaborate and evaluate selector syntax.
-This is shared by both validation (`elabSetLibrarySuggestions`) and retrieval (`getSelector`).
--/
-def elabAndEvalSelector (stx : Syntax) : MetaM Selector :=
-  Elab.Term.TermElabM.run' do
-    let selectorTerm ← Elab.Term.elabTermEnsuringType stx (some (Expr.const ``Selector []))
-    unsafe Meta.evalExpr Selector (Expr.const ``Selector []) selectorTerm
+/-- Attribute for registering library suggestions selectors. -/
+builtin_initialize librarySuggestionsAttr : TagAttribute ←
+  registerTagAttribute `library_suggestions "library suggestions selector" fun declName => do
+    let decl ← getConstInfo declName
+    unless decl.type == mkConst ``Selector do
+      throwError "declaration '{declName}' must have type `Selector`"
+    modifyEnv fun env => librarySuggestionsExt.addEntry env declName
 
 /--
-Get the currently registered library suggestions selector by evaluating the stored syntax.
+Get the currently registered library suggestions selector by looking up the stored declaration name.
 Returns `none` if no selector is registered or if evaluation fails.
-
-Uses `Term.elabTermEnsuringType` to elaborate arbitrary syntax (not just identifiers).
 -/
-def getSelector : MetaM (Option Selector) := do
-  let some stx := librarySuggestionsExt.getState (← getEnv) | return none
+unsafe def getSelectorImpl : MetaM (Option Selector) := do
+  let some declName := librarySuggestionsExt.getState (← getEnv) | return none
   try
-    let selector ← elabAndEvalSelector stx
-    return some selector
+    evalConstCheck Selector ``Selector declName
   catch _ =>
     return none
+
+@[implemented_by getSelectorImpl]
+opaque getSelector : MetaM (Option Selector)
 
 /-- Generate library suggestions for the given metavariable, using the currently registered library suggestions engine. -/
 def select (m : MVarId) (c : Config := {}) : MetaM (Array Suggestion) := do
   let some selector ← getSelector |
     throwError "No library suggestions engine registered. \
-      (Note that Lean does not provide a default library suggestions engine, \
-      these must be provided by a downstream library, \
-      and configured using `set_library_suggestions`.)"
+      (Add `import Lean.LibrarySuggestions.Default` to use Lean's built-in engine, \
+      or use `set_library_suggestions` to configure a custom one.)"
   selector m c
 
 /-!
@@ -425,14 +441,10 @@ def elabSetLibrarySuggestions : CommandElab
   | `(command| set_library_suggestions $selector) => do
     if `Lean.LibrarySuggestions.Basic ∉ (← getEnv).header.moduleNames then
       logWarning "Add `import Lean.LibrarySuggestions.Basic` before using the `set_library_suggestions` command."
-    -- Validate that the syntax can be elaborated (to catch errors early)
-    liftTermElabM do
-      try
-        discard <| elabAndEvalSelector selector
-      catch _ =>
-        throwError "Failed to elaborate {selector} as a `MVarId → Config → MetaM (Array Suggestion)`."
-    -- Store the syntax (not the evaluated Selector) for persistence
-    modifyEnv fun env => librarySuggestionsExt.addEntry env selector
+    -- Generate a fresh name for the selector definition
+    let name ← liftMacroM <| Macro.addMacroScope `_librarySuggestions
+    -- Elaborate the definition with the library_suggestions attribute
+    elabCommand (← `(@[library_suggestions] public meta def $(mkIdent name) : Selector := $selector))
   | _ => throwUnsupportedSyntax
 
 open Lean.Elab.Tactic in

@@ -11,7 +11,7 @@ public import Lean.Server.ServerTask
 
 public section
 
-namespace IO
+namespace Lean
 
 universe u v
 
@@ -137,4 +137,4 @@ where
 
 end AsyncList
 
-end IO
+end Lean

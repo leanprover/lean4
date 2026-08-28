@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Parser.Extension
-import Init.Data.String.Search
 
 public section
 

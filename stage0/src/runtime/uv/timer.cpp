@@ -41,7 +41,7 @@ void initialize_libuv_timer() {
 }
 
 static bool timer_promise_is_finished(lean_uv_timer_object * timer) {
-    return lean_io_get_task_state_core((lean_object *)lean_to_promise(timer->m_promise)->m_result) == 2;
+    return promise_is_resolved(timer->m_promise);
 }
 
 void handle_timer_event(uv_timer_t* handle) {
@@ -77,12 +77,19 @@ void handle_timer_event(uv_timer_t* handle) {
 /* Std.Internal.UV.Timer.mk (timeout : UInt64) (repeating : Bool) : IO Timer */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t repeating) {
     lean_uv_timer_object * timer = (lean_uv_timer_object*)malloc(sizeof(lean_uv_timer_object));
+    if (timer == nullptr) {
+        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+    }
     timer->m_timeout = timeout;
     timer->m_repeating = repeating;
     timer->m_state = TIMER_STATE_INITIAL;
     timer->m_promise = NULL;
 
     uv_timer_t * uv_timer = (uv_timer_t*)malloc(sizeof(uv_timer_t));
+    if (uv_timer == nullptr) {
+        free(timer);
+        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+    }
 
     event_loop_lock(&global_ev);
     int result = uv_timer_init(global_ev.loop, uv_timer);
@@ -114,11 +121,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
     auto setup_timer = [create_promise, obj, timer]() {
         lean_assert(timer->m_promise == NULL);
 
-        timer->m_promise = create_promise();
+        lean_object* promise = create_promise();
+        timer->m_promise = promise;
         timer->m_state = TIMER_STATE_RUNNING;
 
         // The event loop must keep the timer alive for the duration of the run time.
         lean_inc(obj);
+        lean_inc(promise);
 
         int result = uv_timer_start(
             timer->m_uv_timer,
@@ -127,15 +136,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
             timer->m_repeating ? timer->m_timeout : 0
         );
 
-        event_loop_unlock(&global_ev);
-
         if (result != 0) {
             lean_dec(obj);
+            event_loop_unlock(&global_ev);
             return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
-        } else {
-            lean_inc(timer->m_promise);
-            return lean_io_result_mk_ok(timer->m_promise);
         }
+
+        event_loop_unlock(&global_ev);
+
+        return lean_io_result_mk_ok(promise);
     };
 
     event_loop_lock(&global_ev);

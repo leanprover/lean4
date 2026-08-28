@@ -9,6 +9,11 @@ prelude
 public import Std.Data.DHashMap.Internal.Raw
 public import Std.Data.DHashMap.Internal.RawLemmas
 import all Std.Data.DHashMap.Raw
+import Init.ByCases
+import Init.Data.List.Find
+import Init.Data.List.Impl
+import Init.Data.List.Pairwise
+import Init.Data.Prod
 
 public section
 
@@ -48,7 +53,7 @@ private meta def baseNames : Array Name :=
     ``getKey?_eq, ``getKey_eq, ``getKey!_eq, ``getKeyD_eq,
     ``insertMany_eq, ``Const.insertMany_eq, ``Const.insertManyIfNewUnit_eq, ``ofArray_eq, ``Const.ofArray_eq,
     ``ofList_eq, ``Const.ofList_eq, ``Const.unitOfList_eq, ``Const.unitOfArray_eq,
-    ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq, ``union_eq, ``inter_eq, ``diff_eq]
+    ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq, ``union_eq, ``inter_eq, ``diff_eq, ``beq_eq, ``Const.beq_eq]
 
 
 /-- Internal implementation detail of the hash map -/
@@ -442,6 +447,19 @@ end Const
 theorem get_insert_self [LawfulBEq α] (h : m.WF) {k : α} {v : β k} :
     (m.insert k v).get k (mem_insert_self h) = v := by
   simp_to_raw using Raw₀.get_insert_self ⟨m, _⟩
+
+theorem toList_insert_perm [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β k} :
+    (m.insert k v).toList.Perm (⟨k, v⟩ :: m.toList.filter (¬k == ·.1)) := by
+  simp_to_raw using Raw₀.toList_insert_perm ⟨m, _⟩
+
+theorem Const.toList_insert_perm {β : Type v} {m : Raw α (fun _ => β)} [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β} :
+    (Const.toList (m.insert k v)).Perm ((k, v) :: (Const.toList m).filter (¬k == ·.1)) := by
+  simp_to_raw using Raw₀.Const.toList_insert_perm ⟨m, _⟩
+
+theorem keys_insertIfNew_perm [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β k} :
+    (m.insertIfNew k v).keys.Perm (if k ∈ m then m.keys else k :: m.keys) := by
+  simp only [Membership.mem]
+  simp_to_raw using Raw₀.keys_insertIfNew_perm ⟨m, _⟩
 
 @[simp, grind =]
 theorem get_erase [LawfulBEq α] (h : m.WF) {k a : α} {h'} :
@@ -1180,6 +1198,8 @@ theorem getThenInsertIfNew?_fst [LawfulBEq α] (h : m.WF) {k : α} {v : β k} :
 theorem getThenInsertIfNew?_snd [LawfulBEq α] (h : m.WF) {k : α} {v : β k} :
     (m.getThenInsertIfNew? k v).2 = m.insertIfNew k v := by
   simp_to_raw using congrArg Subtype.val (Raw₀.getThenInsertIfNew?_snd _)
+
+theorem mem_of_get_eq [LawfulBEq α] {k : α} {v : β k} {w} (_ : m.get k w = v) : k ∈ m := w
 
 namespace Const
 
@@ -3759,6 +3779,46 @@ variable [BEq α] [Hashable α]
 
 open Internal.Raw Internal.Raw₀
 
+section BEq
+variable {m₁ m₂ : Raw α β} [LawfulBEq α] [∀ k, BEq (β k)]
+
+theorem Equiv.beq [∀ k, ReflBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ ~m m₂) : m₁ == m₂ := by
+  simp only [BEq.beq]
+  simp_to_raw using Raw₀.Equiv.beq
+
+theorem equiv_of_beq [∀ k, LawfulBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ == m₂) : m₁ ~m m₂ := by
+  revert h
+  simp only [BEq.beq]
+  simp_to_raw using Raw₀.equiv_of_beq
+
+theorem beq_iff_equiv [∀ k, LawfulBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ == m₂) ↔ m₁ ~m m₂ :=
+  ⟨equiv_of_beq h₁ h₂, Equiv.beq h₁ h₂⟩
+
+theorem Equiv.beq_congr {m₃ m₄ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) := by
+  simp only [BEq.beq]
+  simp_to_raw using Raw₀.Equiv.beq_congr
+
+end BEq
+
+section
+
+variable {β : Type v} {m₁ m₂ : Raw α (fun _ => β)}
+
+theorem Const.Equiv.beq [EquivBEq α] [LawfulHashable α] [BEq β] [ReflBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ ~m m₂) : beq m₁ m₂ := by
+  simp_to_raw using Raw₀.Const.Equiv.beq
+
+theorem Const.equiv_of_beq [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : beq m₁ m₂ = true) : m₁ ~m m₂ := by
+  revert h
+  simp_to_raw using Raw₀.Const.equiv_of_beq
+
+theorem Const.beq_iff_equiv [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : beq m₁ m₂ = true ↔ m₁ ~m m₂ :=
+  ⟨equiv_of_beq h₁ h₂, Equiv.beq h₁ h₂⟩
+
+theorem Const.Equiv.beq_congr [EquivBEq α] [LawfulHashable α] [BEq β] {m₃ m₄ : Raw  α (fun _ => β)} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : Raw.Const.beq m₁ m₂ = Raw.Const.beq m₃ m₄ := by
+  simp_to_raw using Raw₀.Const.Equiv.beq_congr
+
+end
+
 @[simp, grind =]
 theorem ofArray_eq_ofList (a : Array ((a : α) × (β a))) :
     ofArray a = ofList a.toList := by
@@ -4094,6 +4154,9 @@ theorem unitOfList_cons {hd : α} {tl : List α} :
   simp_to_raw
   rw [Raw₀.Const.insertManyIfNewUnit_emptyWithCapacity_list_cons]
 
+theorem unitOfList_eq_insertManyIfNewUnit_empty {l : List α} :
+    unitOfList l = insertManyIfNewUnit ∅ l := (rfl)
+
 @[simp]
 theorem contains_unitOfList [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :
@@ -4224,7 +4287,7 @@ theorem mem_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)
 
 theorem mem_alter_of_beq [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} (h : m.WF)
     (he : k == k') : k' ∈ m.alter k f ↔ (f (m.get? k)).isSome := by
-  rw [mem_alter h, if_pos he]
+  rw [mem_alter h, ite_eq_left he]
 
 @[simp]
 theorem contains_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
@@ -4447,7 +4510,7 @@ theorem mem_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β �
 
 theorem mem_alter_of_beq [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β → Option β}
     (h : m.WF) (he : k == k') : k' ∈ Const.alter m k f ↔ (f (Const.get? m k)).isSome := by
-  rw [mem_alter h, if_pos he]
+  rw [mem_alter h, ite_eq_left he]
 
 @[simp]
 theorem contains_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β}
@@ -5174,6 +5237,36 @@ theorem empty_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF) : �
 theorem equiv_iff_toList_perm {m₁ m₂ : DHashMap.Raw α β} [EquivBEq α] [LawfulHashable α] :
     m₁ ~m m₂ ↔ m₁.toList.Perm m₂.toList :=
   ⟨Equiv.toList_perm, Equiv.of_toList_perm⟩
+
+theorem insertMany_list_equiv_foldl {m : DHashMap.Raw α β} {l : List ((a : α) × β a)} (h : m.WF) :
+    m.insertMany l ~m l.foldl (init := m) fun acc p => acc.insert p.1 p.2 := by
+  rw [insertMany_eq h]
+  exact (Raw₀.insertMany_list_equiv_foldl ⟨m, h.size_buckets_pos⟩ (l := l))
+
+theorem ofList_equiv_foldl {l : List ((a : α) × β a)} :
+    ofList l ~m l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2 :=
+  insertMany_list_equiv_foldl .empty
+
+theorem Const.insertMany_list_equiv_foldl {β : Type v} {m : DHashMap.Raw α fun _ => β}
+    {l : List (α × β)} (h : m.WF) :
+    insertMany m l ~m l.foldl (init := m) fun acc p => acc.insert p.1 p.2 := by
+  rw [Const.insertMany_eq h]
+  exact (Raw₀.Const.insertMany_list_equiv_foldl ⟨m, h.size_buckets_pos⟩ (l := l))
+
+theorem Const.ofList_equiv_foldl {β : Type v} {l : List (α × β)} :
+    ofList l ~m l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2 :=
+  insertMany_list_equiv_foldl .empty
+
+theorem Const.insertManyIfNewUnit_list_equiv_foldl {m : DHashMap.Raw α fun _ => Unit}
+    {l : List α} (h : m.WF) :
+    insertManyIfNewUnit m l ~m
+      l.foldl (init := m) fun acc a => acc.insertIfNew a () := by
+  rw [Const.insertManyIfNewUnit_eq h]
+  exact (Raw₀.Const.insertManyIfNewUnit_list_equiv_foldl ⟨m, h.size_buckets_pos⟩ (l := l))
+
+theorem Const.unitOfList_equiv_foldl {l : List α} :
+    unitOfList l ~m l.foldl (init := ∅) fun acc a => acc.insertIfNew a () :=
+  insertManyIfNewUnit_list_equiv_foldl .empty
 
 namespace Const
 

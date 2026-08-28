@@ -1,0 +1,7 @@
+fun x => x + 1 : Nat → Nat
+(fun h => bif h then h else !h) (0 == 0) : Bool
+let h := 0 == 0;
+bif h then h else !h : Bool
+fun x =>
+  let x := 0;
+  x : Nat → Nat

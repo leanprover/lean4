@@ -7,7 +7,10 @@ module
 
 prelude
 public import Lean.Setup
-import Init.Data.String.Termination
+import Init.Data.String.TakeDrop
+import Init.Data.UInt.Lemmas
+import Init.Omega
+import Init.Data.String.Lemmas.FindPos
 
 namespace String
 
@@ -45,7 +48,7 @@ def mangleAux (s : String) (pos : s.Pos) (r : String) : String :=
     mangleAux s pos (pushHex 8 c.val (r ++ "_U"))
 termination_by pos
 
-public def mangle (s : String) : String :=
+public def Internal.mangle (s : String) : String :=
   mangleAux s s.startPos ""
 
 end String
@@ -117,7 +120,7 @@ def needDisambiguation (prev : Name) (next : String) : Bool :=
 def Name.mangleAux : Name → String
   | Name.anonymous => ""
   | Name.str p s =>
-    let m := String.mangle s
+    let m := String.Internal.mangle s
     match p with
     | Name.anonymous =>
       if checkDisambiguation m m.startPos then "00" ++ m else m
@@ -134,19 +137,37 @@ public def Name.mangle (n : Name) (pre : String := "l_") : String :=
   pre ++ Name.mangleAux n
 
 /--
+Given `s = nm.mangle pre` for some `nm : Name` and `pre : String` with `nm != Name.anonymous`,
+returns `(mkBoxedName nm).mangle pre`. This is used in the interpreter to find names of boxed
+IR declarations.
+-/
+@[export lean_mk_mangled_boxed_name]
+public def mkMangledBoxedName (s : String) : String :=
+  if s.endsWith "__" then
+    s ++ "_00__boxed"
+  else
+    s ++ "___boxed"
+
+/--
 The mangled name of the name used to create the module initialization function.
 
 This also used for the library name of a module plugin.
 -/
 public def mkModuleInitializationStem (moduleName : Name) (pkg? : Option PkgId := none) : String :=
-  let pre := pkg?.elim "" (s!"{·.mangle}_")
+  let pre := pkg?.elim "" (s!"{String.Internal.mangle ·}_")
   moduleName.mangle pre
 
-public def mkModuleInitializationFunctionName (moduleName : Name) (pkg? : Option PkgId := none) : String :=
-  "initialize_" ++ mkModuleInitializationStem moduleName pkg?
+public def mkModuleInitializationPrefix (phases : IRPhases) : String :=
+  match phases with
+  | .comptime => "meta_"
+  | .runtime  => "runtime_"
+  | .all      => ""
+
+public def mkModuleInitializationFunctionName (moduleName : Name) (pkg? : Option PkgId := none) (phases : IRPhases := .all) : String :=
+  mkModuleInitializationPrefix phases ++ "initialize_" ++ mkModuleInitializationStem moduleName pkg?
 
 public def mkPackageSymbolPrefix (pkg? : Option PkgId) : String :=
-  pkg?.elim "l_" (s!"lp_{·.mangle}_")
+  pkg?.elim "l_" (s!"lp_{String.Internal.mangle ·}_")
 
 -- assumes `s` has been generated `Name.mangle n ""`
 def Name.demangleAux (s : String) (p₀ : s.Pos) (res : Name)

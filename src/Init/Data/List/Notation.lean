@@ -6,7 +6,8 @@ Author: Leonardo de Moura
 module
 
 prelude
-public meta import Init.Data.Nat.Div.Basic
+public meta import Init.Grind.Tactics
+public import Init.Notation
 
 public section
 

@@ -7,8 +7,12 @@ module
 
 prelude
 public import Init.Data.Nat.Lcm
-public import Init.Data.Int.DivMod.Lemmas
-public import Init.Data.Int.Pow
+public import Init.Data.Int.DivMod.Basic
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.Pow
+import Init.Data.Nat.Dvd
+import Init.Omega
+import Init.RCases
 
 public section
 
@@ -113,6 +117,8 @@ theorem gcd_eq_right_iff_dvd (hb : 0 ≤ b) : gcd a b = b ↔ b ∣ a := by
 
 theorem gcd_assoc (a b c : Int) : gcd (gcd a b) c = gcd a (gcd b c) := Nat.gcd_assoc ..
 
+theorem gcd_left_comm (a b c : Int) : gcd a (gcd b c) = gcd b (gcd a c) := Nat.gcd_left_comm ..
+
 theorem gcd_mul_left (m n k : Int) : gcd (m * n) (m * k) = m.natAbs * gcd n k := by
   simp [gcd_eq_natAbs_gcd_natAbs, Nat.gcd_mul_left, natAbs_mul]
 
@@ -141,8 +147,12 @@ theorem ediv_gcd_ne_zero_of_ne_zero_left (b : Int) (h : a ≠ 0) : a / gcd a b �
   rw [← natAbs_pos, natAbs_ediv_of_dvd (gcd_dvd_left _ _), natAbs_natCast]
   exact natAbs_div_gcd_pos_of_ne_zero_left _ h
 
-theorem ediv_gcd_ne_zero_if_ne_zero_right (a : Int) (h : b ≠ 0) : b / gcd a b ≠ 0 := by
+theorem ediv_gcd_ne_zero_of_ne_zero_right (a : Int) (h : b ≠ 0) : b / gcd a b ≠ 0 := by
   simpa [gcd_comm] using ediv_gcd_ne_zero_of_ne_zero_left a h
+
+@[deprecated ediv_gcd_ne_zero_of_ne_zero_right (since := "2026-07-21")]
+theorem ediv_gcd_ne_zero_if_ne_zero_right (a : Int) (h : b ≠ 0) : b / gcd a b ≠ 0 :=
+  ediv_gcd_ne_zero_of_ne_zero_right a h
 
 theorem eq_zero_of_gcd_eq_zero_left (h : gcd a b = 0) : a = 0 :=
   natAbs_eq_zero.1 (Nat.eq_zero_of_gcd_eq_zero_left h)

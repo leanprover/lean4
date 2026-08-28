@@ -1,0 +1,14 @@
+[grind.ematch.instance] Array.size_set: (bs.set i₂ v₂ ⋯).size = bs.size
+[grind.ematch.instance] Array.size_set: (as.set i₁ v₁ ⋯).size = as.size
+[grind.ematch.instance] Array.getElem_set_ne: ∀ (pj : j < bs.size), i₂ ≠ j → (bs.set i₂ v₂ ⋯)[j] = bs[j]
+[grind.ematch.instance] Array.getElem_set_ne: ∀ (pj : j < as.size), i₁ ≠ j → (as.set i₁ v₁ ⋯)[j] = as[j]
+[grind.ematch.instance] Array.size_set: (bs.set i₂ v₂ ⋯).size = bs.size
+[grind.ematch.instance] Array.size_set: (as.set i₁ v₁ ⋯).size = as.size
+[grind.ematch.instance] Array.getElem_set_ne: ∀ (pj : j < bs.size), i₂ ≠ j → (bs.set i₂ v₂ ⋯)[j] = bs[j]
+[grind.ematch.instance] Array.getElem_set_ne: ∀ (pj : j < as.size), i₁ ≠ j → (as.set i₁ v₁ ⋯)[j] = as[j]
+[grind.ematch.instance] Array.size_set: (bs.set i₂ v₂ ⋯).size = bs.size
+[grind.ematch.instance] Array.size_set: (as.set i₁ v₁ ⋯).size = as.size
+[grind.ematch.instance] Array.getElem_set_ne: ∀ (pj : j < bs.size), i₂ ≠ j → (bs.set i₂ v₂ ⋯)[j] = bs[j]
+[grind.ematch.instance] Array.getElem_set_ne: ∀ (pj : j < as.size), i₁ ≠ j → (as.set i₁ v₁ ⋯)[j] = as[j]
+[grind.ematch.pattern] fx: [@f #1 #0 (@f _ #0 #0)]
+grind_ematch2.lean:70:19-70:21: warning: declaration uses `sorry`

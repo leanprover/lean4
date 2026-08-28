@@ -7,11 +7,10 @@ module
 
 prelude
 public import Lean.Meta.Diagnostics
+public import Lean.Meta.WrapInstance
 public import Lean.Elab.Open
 public import Lean.Elab.SetOption
 public import Lean.Elab.Eval
-meta import Lean.Parser.Command
-import Lean.ExtraModUses
 import Lean.Compiler.NoncomputableAttr
 
 public section
@@ -20,11 +19,11 @@ namespace Lean.Elab.Term
 open Meta
 
 @[builtin_term_elab «prop»] def elabProp : TermElab := fun _ _ =>
-  return mkSort levelZero
+  return mkSort Level.zero
 
 private def elabOptLevel (stx : Syntax) : TermElabM Level :=
   if stx.isNone then
-    pure levelZero
+    pure Level.zero
   else
     elabLevel stx[0]
 
@@ -157,6 +156,24 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
       tryPostpone
     elabTerm b expectedType?
   | _ => throwUnsupportedSyntax
+
+@[builtin_term_elab «waitForExpectedType»] def elabWaitForExpectedType : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(wait_for_expected_type% $e) =>
+    tryPostponeIfNoneOrMVar expectedType?
+    elabTerm e expectedType?
+  | _ => throwUnsupportedSyntax
+
+/-- Returns `true` if `stx` is a `by` expression with an empty tactic body
+(not a parse error producing `.missing`).
+The structure is: `node byTactic [atom "by", node tacticSeq [node tacticSeq1Indented [node null []]]]` -/
+def isEmptyByBlock (stx : Syntax) : Bool :=
+  stx.getNumArgs == 2 &&
+  stx[1].getNumArgs >= 1 &&
+  stx[1][0].isOfKind ``Lean.Parser.Tactic.tacticSeq1Indented &&
+  stx[1][0].getNumArgs >= 1 &&
+  stx[1][0][0].getNumArgs == 0 &&
+  !stx[1][0][0].isMissing
 
 @[builtin_term_elab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
   match expectedType? with
@@ -315,6 +332,58 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
     return val
   | _ => panic! "resolveId? returned an unexpected expression"
 
+/--
+Rebuild a type application with fresh synthetic metavariables for instance-implicit arguments.
+Non-instance-implicit arguments are assigned from the original application's arguments.
+If the function is over-applied, extra arguments are preserved.
+-/
+private def resynthInstImplicitArgs (type : Expr) : TermElabM Expr := do
+  let fn := type.getAppFn
+  let args := type.getAppArgs
+  let (mvars, bis, _) ← forallMetaTelescope (← inferType fn)
+  for i in [:mvars.size] do
+    if bis[i]!.isInstImplicit then
+      mvars[i]!.mvarId!.assign (← mkInstMVar (← inferType mvars[i]!))
+    else
+      mvars[i]!.mvarId!.assign args[i]!
+  let args := mvars ++ args.drop mvars.size
+  instantiateMVars (mkAppN fn args)
+
+@[builtin_term_elab Lean.Parser.Term.inferInstanceAs] def elabInferInstanceAs : TermElab := fun stx expectedType? => do
+  -- The type argument is the last child (works for both `inferInstanceAs T` and `inferInstanceAs <| T`)
+  let typeStx := stx[stx.getNumArgs - 1]!
+  if !backward.inferInstanceAs.wrap.get (← getOptions) then
+    return (← elabTerm (← `(_root_.inferInstanceAs $(⟨typeStx⟩))) expectedType?)
+
+  let some expectedType ← tryPostponeIfHasMVars? expectedType? |
+    throwError (m!"`inferInstanceAs` failed, expected type contains metavariables{indentD expectedType?}" ++
+      .note "`inferInstanceAs` requires full knowledge of the expected (\"target\") type to do its \
+        instance translation. If you do not intend to transport instances between two types, \
+        consider using `inferInstance` or `(inferInstance : expectedType)` instead.")
+  let type ← withSynthesize do
+    let type ← elabType typeStx
+    -- Unify with expected type to resolve metavariables (e.g., `_` placeholders)
+    discard <| isDefEq type expectedType
+    return type
+  -- Re-infer instance-implicit args, so that synthesis is not influenced by the expected type's
+  -- instance choices.
+  let type ← withSynthesize <| resynthInstImplicitArgs type
+  let type ← instantiateMVars type
+  let inst ← synthInstance type
+  let inst ← if backward.inferInstanceAs.wrap.get (← getOptions) then
+    -- Wrap instance so its type matches the expected type exactly.
+    let logCompileErrors := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
+    let isMeta := (← read).declName?.any (isMarkedMeta (← getEnv))
+    -- The auxiliary definitions `wrapInstance` introduces bridge `type` and `expectedType`, so their
+    -- bodies are only well-typed when the definitions whose unfolding the bridge requires are
+    -- exposed (#14147).
+    let exposedDefEq ← withExporting <| isDefEqGuarded type expectedType
+    wrapInstance inst expectedType (logCompileErrors := logCompileErrors) (isMeta := isMeta)
+      (exposeAux := exposedDefEq)
+  else
+    pure inst
+  ensureHasType expectedType? inst
+
 @[builtin_term_elab clear] def elabClear : TermElab := fun stx expectedType? => do
   let some (.fvar fvarId) ← isLocalIdent? stx[1]
     | throwErrorAt stx[1] "not in scope"
@@ -339,15 +408,16 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
     pushScope
     let openDecls ← elabOpenDecl decl
     withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
-      elabTerm e expectedType?
+      withSaveInfoContext <| elabTerm e expectedType?
   finally
     popScope
 
 @[builtin_term_elab «set_option»] def elabSetOption : TermElab := fun stx expectedType? => do
-  let options ← Elab.elabSetOption stx[1] stx[3]
+  let (options, decl) ← Elab.elabSetOption stx[1] stx[3]
+  withRef stx[1] <| Elab.checkDeprecatedOption (stx[1].getId.eraseMacroScopes) decl
   withOptions (fun _ => options) do
     try
-      elabTerm stx[5] expectedType?
+      withSaveInfoContext <| elabTerm stx[5] expectedType?
     finally
       if stx[1].getId == `diagnostics then
         reportDiag
@@ -385,11 +455,13 @@ private opaque evalFilePath (stx : Syntax) : TermElabM System.FilePath
       let name ← mkAuxDeclName `_private
       withoutExporting do
         let e ← elabTermAndSynthesize e expectedType?
-        let compile := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
-        let e ← mkAuxDefinitionFor (compile := compile) name e
-        if compile then
-          -- Inline as changing visibility should not affect run time.
-          setInlineAttribute name
+        let e ← mkAuxDefinitionFor (compile := false) name e
+        -- Inline as changing visibility should not affect run time.
+        setInlineAttribute name
+        if (← read).declName?.any (isMarkedMeta (← getEnv)) then
+          modifyEnv (markMeta · name)
+        let logCompileErrors := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
+        compileDecls (logErrors := logCompileErrors) #[name]
         return e
     else
       elabTerm e expectedType?

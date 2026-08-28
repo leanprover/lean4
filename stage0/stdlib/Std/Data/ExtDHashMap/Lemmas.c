@@ -13,6 +13,42 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* runtime_initialize_Std_Data_ExtDHashMap_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_ExtDHashMap_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_DHashMap_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_DHashMap_Raw(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_DHashMap_Internal_Defs(uint8_t builtin);
+void lean_initialize_runtime_module();
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Data_ExtDHashMap_Lemmas(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+lean_initialize_runtime_module();
+res = runtime_initialize_Std_Data_ExtDHashMap_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_ExtDHashMap_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_DHashMap_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_DHashMap_Raw(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_DHashMap_Internal_Defs(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Data_ExtDHashMap_Lemmas(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Std_Data_ExtDHashMap_Basic(uint8_t builtin);
 lean_object* initialize_Std_Data_ExtDHashMap_Basic(uint8_t builtin);
 lean_object* initialize_Std_Data_DHashMap_Basic(uint8_t builtin);
@@ -38,7 +74,13 @@ lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_Internal_Defs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Std_Data_ExtDHashMap_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Data_ExtDHashMap_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Data_ExtDHashMap_Lemmas(builtin);
 }
 #ifdef __cplusplus
 }

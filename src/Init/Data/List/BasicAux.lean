@@ -6,7 +6,12 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Nat.Linear
+public import Init.GetElem
+public import Init.WFTactics
+import Init.ByCases
+import Init.Classical
+import Init.Data.Array.Basic
+import Init.Data.Nat.Internal.Linear
 
 public section
 
@@ -57,7 +62,7 @@ Examples:
 @[expose]
 def getLast! [Inhabited α] : List α → α
   | []    => panic! "empty list"
-  | a::as => getLast (a::as) (fun h => List.noConfusion h)
+  | a::as => getLast (a::as) (fun h => List.noConfusion rfl (heq_of_eq h))
 
 /-! ## Head and tail -/
 

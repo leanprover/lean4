@@ -6,9 +6,15 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Int.LemmasAux
-public import Init.TacticsExtra
 public import Init.Grind.Module.Basic
+import Init.ByCases
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.LemmasAux
+import Init.Data.Int.Pow
+import Init.Data.Nat.Div.Lemmas
+import Init.Data.Nat.Lemmas
+import Init.Omega
+import Init.RCases
 
 public section
 
@@ -88,6 +94,8 @@ class Semiring (α : Type u) extends Add α, Mul α where
   -/
   nsmul_eq_natCast_mul : ∀ n : Nat, ∀ a : α, n • a = Nat.cast n * a := by intros; rfl
 
+attribute [implicit_reducible] Semiring.npow Semiring.ofNat Semiring.natCast
+
 /--
 A ring, i.e. a type equipped with addition, negation, multiplication, and a map from the integers,
 satisfying appropriate compatibilities.
@@ -111,6 +119,8 @@ class Ring (α : Type u) extends Semiring α, Neg α, Sub α where
   intCast_ofNat : ∀ n : Nat, Int.cast (OfNat.ofNat (α := Int) n) = OfNat.ofNat (α := α) n := by intros; rfl
   /-- The canonical map from the integers is consistent with negation. -/
   intCast_neg : ∀ i : Int, Int.cast (R := α) (-i) = -Int.cast i := by intros; rfl
+
+attribute [implicit_reducible] Ring.intCast Ring.zsmul
 
 /--
 A commutative semiring, i.e. a semiring with commutative multiplication.
@@ -490,7 +500,9 @@ private theorem mk'_aux {x y : Nat} (p : Nat) (h : y ≤ x) :
       simp [Nat.mul_sub, Nat.mul_comm p k₁, Nat.mul_comm p k₂]
       omega
 
+set_option linter.defProp false in
 /-- Alternative constructor when `α` is a `Ring`. -/
+@[instance_reducible]
 def mk' (p : Nat) (α : Type u) [Ring α]
     (ofNat_eq_zero_iff : ∀ (x : Nat), OfNat.ofNat (α := α) x = 0 ↔ x % p = 0) : IsCharP α p where
   ofNat_ext_iff {x y} := by
@@ -553,6 +565,28 @@ end Ring
 
 end IsCharP
 
+/--
+`PowIdentity α p` states that `x ^ p = x` holds for all elements of `α`.
+
+The primary source of instances is Fermat's little theorem: for a finite field with `q` elements,
+`x ^ q = x` for every `x`. For `Fin p` or `ZMod p` with prime `p`, this gives `x ^ p = x`.
+
+The `grind` ring solver uses this typeclass to add the relation `x ^ p - x = 0` to the
+Groebner basis, which allows it to reduce high-degree polynomials. Mathlib can provide
+instances for general finite fields via `FiniteField.pow_card`.
+-/
+class PowIdentity (α : Type u) [CommSemiring α] (p : outParam Nat) : Prop where
+  /-- Every element satisfies `x ^ p = x`. -/
+  pow_eq (x : α) : x ^ p = x
+
+namespace PowIdentity
+
+variable [CommSemiring α] [PowIdentity α p]
+
+theorem pow (x : α) : x ^ p = x := pow_eq x
+
+end PowIdentity
+
 open AddCommGroup
 
 theorem no_int_zero_divisors {α : Type u} [IntModule α] [NoNatZeroDivisors α] {k : Int} {a : α}
@@ -568,7 +602,8 @@ theorem no_int_zero_divisors {α : Type u} [IntModule α] [NoNatZeroDivisors α]
     rw [IntModule.neg_zsmul]
     intro _ h
     replace h := congrArg (-·) h
-    dsimp only at h
+    -- TODO(kmill): remove after stage0 update
+    try dsimp only at h
     rw [neg_neg, neg_zero] at h
     rw [IntModule.zsmul_natCast_eq_nsmul] at h
     exact NoNatZeroDivisors.eq_zero_of_mul_eq_zero (Nat.succ_ne_zero _) h

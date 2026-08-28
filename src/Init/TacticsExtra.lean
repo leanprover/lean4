@@ -6,7 +6,9 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.NotationExtra
+public meta import Init.Meta
+public import Init.Tactics
+import Init.Data.Array.Basic
 
 public section
 

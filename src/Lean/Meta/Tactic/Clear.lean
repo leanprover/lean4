@@ -7,6 +7,8 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Util
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
 
 public section
 

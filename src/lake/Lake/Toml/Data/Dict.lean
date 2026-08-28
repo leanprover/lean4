@@ -19,7 +19,7 @@ open Lean
 
 namespace Lake.Toml
 
-/- An insertion-ordered key-value mapping backed by a red-black tree. -/
+/-- An insertion-ordered key-value mapping backed by a red-black tree. -/
 public structure RBDict (α : Type u) (β : Type v) (cmp : α → α → Ordering)  where
   items : Array (α × β)
   indices : Std.TreeMap α Nat cmp

@@ -5,8 +5,12 @@ Authors: Kim Morrison
 -/
 module
 prelude
-public import Init.Data.Int.DivMod.Lemmas
-public import Init.Data.Int.Pow
+import Init.ByCases
+import Init.Data.Int.DivMod.Bootstrap
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Pow
+import Init.RCases
 
 /-!
 # Lemmas about divisibility of powers

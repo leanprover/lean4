@@ -1,0 +1,95 @@
+List.mapM.{u, v, w} {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) (as : List α) : m (List β)
+Array.mapM.{u, v, w} {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) :
+  m (Array β)
+Vector.mapM.{u_1, u_2, u_3} {m : Type u_1 → Type u_2} {α : Type u_3} {β : Type u_1} {n : Nat} [Monad m] (f : α → m β)
+  (xs : Vector α n) : m (Vector β n)
+List.flatMapM.{u, v, w} {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (List β)) (as : List α) :
+  m (List β)
+Array.flatMapM.{u, u_1, u_2} {α : Type u} {m : Type u_1 → Type u_2} {β : Type u_1} [Monad m] (f : α → m (Array β))
+  (as : Array α) : m (Array β)
+Vector.flatMapM.{u_1, u_2, u_3} {m : Type u_1 → Type u_2} {α : Type u_3} {n : Nat} {β : Type u_1} {k : Nat} [Monad m]
+  (xs : Vector α n) (f : α → m (Vector β k)) : m (Vector β (n * k))
+List.mapFinIdxM.{u_1, u_2, u_3} {m : Type u_1 → Type u_2} {α : Type u_3} {β : Type u_1} [Monad m] (as : List α)
+  (f : (i : Nat) → α → i < as.length → m β) : m (List β)
+Array.mapFinIdxM.{u, v, w} {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α)
+  (f : (i : Nat) → α → i < as.size → m β) : m (Array β)
+Vector.mapFinIdxM.{u, v, w} {n : Nat} {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (xs : Vector α n)
+  (f : (i : Nat) → α → i < n → m β) : m (Vector β n)
+List.mapIdxM.{u_1, u_2, u_3} {m : Type u_1 → Type u_2} {α : Type u_3} {β : Type u_1} [Monad m] (f : Nat → α → m β)
+  (as : List α) : m (List β)
+Array.mapIdxM.{u, v, w} {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : Nat → α → m β) (as : Array α) :
+  m (Array β)
+Vector.mapIdxM.{u, v, w} {n : Nat} {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : Nat → α → m β)
+  (xs : Vector α n) : m (Vector β n)
+List.firstM.{u, v, w} {m : Type u → Type v} [Alternative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m β
+Array.firstM.{u, v, w} {β : Type v} {α : Type u} {m : Type v → Type w} [Alternative m] (f : α → m β) (as : Array α) :
+  m β
+Vector.firstM.{u, v, w} {β : Type v} {n : Nat} {α : Type u} {m : Type v → Type w} [Alternative m] (f : α → m β)
+  (xs : Vector α n) : m β
+List.forM.{u, v, w} {m : Type u → Type v} [Monad m] {α : Type w} (as : List α) (f : α → m PUnit) : m PUnit
+Array.forM.{u, v, w} {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Array α) (start : Nat := 0)
+  (stop : Nat := as.size) : m PUnit
+Vector.forM.{u_1, u_2, u_3} {m : Type u_1 → Type u_2} {α : Type u_3} {n : Nat} [Monad m] (xs : Vector α n)
+  (f : α → m PUnit) : m PUnit
+List.filterM.{v} {m : Type → Type v} [Monad m] {α : Type} (p : α → m Bool) (as : List α) : m (List α)
+Array.filterM.{u_1} {m : Type → Type u_1} {α : Type} [Monad m] (p : α → m Bool) (as : Array α) (start : Nat := 0)
+  (stop : Nat := as.size) : m (Array α)
+List.filterRevM.{v} {m : Type → Type v} [Monad m] {α : Type} (p : α → m Bool) (as : List α) : m (List α)
+Array.filterRevM.{u_1} {m : Type → Type u_1} {α : Type} [Monad m] (p : α → m Bool) (as : Array α)
+  (start : Nat := as.size) (stop : Nat := 0) : m (Array α)
+List.filterMapM.{u, v, w} {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (Option β))
+  (as : List α) : m (List β)
+Array.filterMapM.{u, u_1, u_2} {α : Type u} {m : Type u_1 → Type u_2} {β : Type u_1} [Monad m] (f : α → m (Option β))
+  (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : m (Array β)
+List.foldlM.{u, v, w} {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} (f : s → α → m s) (init : s) :
+  List α → m s
+Array.foldlM.{u, v, w} {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β)
+  (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : m β
+Vector.foldlM.{u_1, u_2, u_3} {m : Type u_1 → Type u_2} {β : Type u_1} {α : Type u_3} {n : Nat} [Monad m]
+  (f : β → α → m β) (b : β) (xs : Vector α n) : m β
+List.foldrM.{u, v, w} {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} (f : α → s → m s) (init : s)
+  (l : List α) : m s
+Array.foldrM.{u, v, w} {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → β → m β) (init : β)
+  (as : Array α) (start : Nat := as.size) (stop : Nat := 0) : m β
+Vector.foldrM.{u_1, u_2, u_3} {m : Type u_1 → Type u_2} {α : Type u_3} {β : Type u_1} {n : Nat} [Monad m]
+  (f : α → β → m β) (b : β) (xs : Vector α n) : m β
+List.findM?.{u} {m : Type → Type u} [Monad m] {α : Type} (p : α → m Bool) : List α → m (Option α)
+Array.findM?.{u_1} {m : Type → Type u_1} {α : Type} [Monad m] (p : α → m Bool) (as : Array α) : m (Option α)
+Vector.findM? {n : Nat} {α : Type} {m : Type → Type} [Monad m] (f : α → m Bool) (as : Vector α n) : m (Option α)
+List.findSomeM?.{u, v, w} {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (Option β)) :
+  List α → m (Option β)
+Array.findSomeM?.{u, v, w} {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m (Option β))
+  (as : Array α) : m (Option β)
+Vector.findSomeM?.{u_1, u_2, u_3} {m : Type u_1 → Type u_2} {α : Type u_3} {β : Type u_1} {n : Nat} [Monad m]
+  (f : α → m (Option β)) (as : Vector α n) : m (Option β)
+List.anyM.{u, v} {m : Type → Type u} [Monad m] {α : Type v} (p : α → m Bool) (l : List α) : m Bool
+Array.anyM.{u, w} {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Array α) (start : Nat := 0)
+  (stop : Nat := as.size) : m Bool
+Vector.anyM.{u_1, u_2} {m : Type → Type u_1} {α : Type u_2} {n : Nat} [Monad m] (p : α → m Bool) (xs : Vector α n) :
+  m Bool
+List.allM.{u, v} {m : Type → Type u} [Monad m] {α : Type v} (p : α → m Bool) (l : List α) : m Bool
+Array.allM.{u, w} {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Array α) (start : Nat := 0)
+  (stop : Nat := as.size) : m Bool
+Vector.allM.{u_1, u_2} {m : Type → Type u_1} {α : Type u_2} {n : Nat} [Monad m] (p : α → m Bool) (xs : Vector α n) :
+  m Bool
+List.instForIn'InferInstanceMembershipOfMonad
+Array.instForIn'InferInstanceMembershipOfMonad
+Vector.instForIn'InferInstanceMembershipOfMonad
+List.forM.{u, v, w} {m : Type u → Type v} [Monad m] {α : Type w} (as : List α) (f : α → m PUnit) : m PUnit
+Array.forM.{u, v, w} {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Array α) (start : Nat := 0)
+  (stop : Nat := as.size) : m PUnit
+Vector.forM.{u_1, u_2, u_3} {m : Type u_1 → Type u_2} {α : Type u_3} {n : Nat} [Monad m] (xs : Vector α n)
+  (f : α → m PUnit) : m PUnit
+List.instForMOfMonad
+Array.instForMOfMonad
+Vector.instForMOfMonad
+List.instFunctor
+Array.instFunctor
+Array.modifyM.{u, u_1} {α : Type u} {m : Type u → Type u_1} [Monad m] (xs : Array α) (i : Nat) (f : α → m α) :
+  m (Array α)
+Array.forRevM.{u, v, w} {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Array α)
+  (start : Nat := as.size) (stop : Nat := 0) : m PUnit
+Array.findRevM?.{w} {α : Type} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Array α) : m (Option α)
+Array.findSomeRevM?.{u, v, w} {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m (Option β))
+  (as : Array α) : m (Option β)
+Array.findIdxM?.{u, u_1} {α : Type u} {m : Type → Type u_1} [Monad m] (p : α → m Bool) (as : Array α) : m (Option Nat)

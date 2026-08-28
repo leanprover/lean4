@@ -10,6 +10,7 @@ public import Init.Data.Order.Factories
 import all Init.Data.Order.Factories
 public import Init.Classical
 public import Init.Data.BEq
+import Init.Data.Bool
 
 namespace Std
 
@@ -90,8 +91,12 @@ end AxiomaticInstances
 
 section LE
 
+@[simp]
 public theorem le_refl {α : Type u} [LE α] [Refl (α := α) (· ≤ ·)] (a : α) : a ≤ a := by
   simp [Refl.refl]
+
+public theorem le_of_eq [LE α] [Refl (α := α) (· ≤ ·)] {a b : α} : a = b → a ≤ b :=
+  (· ▸ le_refl _)
 
 public theorem le_antisymm {α : Type u} [LE α] [Std.Antisymm (α := α) (· ≤ ·)] {a b : α}
     (hab : a ≤ b) (hba : b ≤ a) : a = b :=
@@ -142,6 +147,10 @@ public theorem not_gt_of_lt {α : Type u} [LT α] [i : Std.Asymm (α := α) (· 
     (h : a < b) : ¬ b < a :=
   i.asymm a b h
 
+public theorem lt_irrefl {α : Type u} [LT α] [i : Std.Irrefl (α := α) (· < ·)] {a : α} :
+    ¬ a < a :=
+  i.irrefl a
+
 public theorem le_of_lt {α : Type u} [LT α] [LE α] [LawfulOrderLT α] {a b : α} (h : a < b) :
     a ≤ b := (lt_iff_le_and_not_ge.1 h).1
 
@@ -156,7 +165,7 @@ public instance {α : Type u} [LT α] [LE α] [LawfulOrderLT α] :
     intro h h'
     exact h.2.elim h'.1
 
-@[deprecated instIrreflOfAsymm (since := "2025-10-24")]
+@[deprecated instIrreflOfAsymm +typeChanged (since := "2025-10-24")]
 public theorem instIrreflLtOfIsPreorderOfLawfulOrderLT {α : Type u} [LT α] [LE α]
     [LawfulOrderLT α] : Std.Irrefl (α := α) (· < ·) := inferInstance
 
@@ -192,7 +201,7 @@ public instance {α : Type u} {_ : LT α} [LE α] [LawfulOrderLT α]
     simp only [not_lt] at hab hbc ⊢
     exact le_trans hbc hab
 
-@[deprecated Asymm.total_not (since := "2025-10-24")]
+@[deprecated Asymm.total_not +typeChanged (since := "2025-10-24")]
 public theorem instTotalNotLtOfLawfulOrderLTOfLe {α : Type u} {_ : LT α} [LE α] [LawfulOrderLT α]
     : Total (α := α) (¬ · < ·) := Asymm.total_not
 
@@ -221,6 +230,22 @@ public theorem lt_of_le_of_ne {α : Type u} [LE α] [LT α]
   simp only [lt_iff_le_and_not_ge, hle, true_and, Classical.not_not, imp_false]
   intro hge
   exact hne.elim <| Std.Antisymm.antisymm a b hle hge
+
+public theorem ne_of_lt {α : Type u} [LT α] [Std.Irrefl (α := α) (· < ·)] {a b : α} : a < b → a ≠ b :=
+  fun h h' => absurd (h' ▸ h) (h' ▸ lt_irrefl)
+
+public theorem le_iff_lt_or_eq [LE α] [LT α] [LawfulOrderLT α] [IsPartialOrder α] {a b : α} :
+    a ≤ b ↔ a < b ∨ a = b := by
+  refine ⟨fun h => ?_, fun h => h.elim le_of_lt le_of_eq⟩
+  simp [Classical.or_iff_not_imp_left, Std.lt_iff_le_and_not_ge, h, ← Std.le_antisymm_iff]
+
+public theorem lt_iff_le_and_ne [LE α] [LT α] [LawfulOrderLT α] [IsPartialOrder α] {a b : α} :
+    a < b ↔ a ≤ b ∧ a ≠ b := by
+  simpa [le_iff_lt_or_eq, or_and_right] using Std.ne_of_lt
+
+public theorem lt_trichotomy [LT α] [Std.Trichotomous (α := α) (· < ·)] (a b : α) :
+    a < b ∨ a = b ∨ b < a :=
+  Trichotomous.rel_or_eq_or_rel_swap
 
 end LT
 end Std
@@ -354,19 +379,25 @@ public instance {α : Type u} [LE α] [Min α] [IsLinearOrder α] [LawfulOrderMi
     Std.Associative (min : α → α → α) where
   assoc a b c := by apply le_antisymm <;> simp [min_le, le_min_iff, le_refl]
 
-public theorem min_eq_if {α : Type u} [LE α] [DecidableLE α] {_ : Min α}
+public theorem min_eq_ite {α : Type u} [LE α] [DecidableLE α] {_ : Min α}
     [LawfulOrderLeftLeaningMin α] {a b : α} :
     min a b = if a ≤ b then a else b := by
   split <;> rename_i h
   · simp [LawfulOrderLeftLeaningMin.min_eq_left _ _ h]
   · simp [LawfulOrderLeftLeaningMin.min_eq_right _ _ h]
 
-public theorem max_eq_if {α : Type u} [LE α] [DecidableLE α] {_ : Max α}
+@[deprecated Std.min_eq_ite (since := "2026-07-21")]
+public theorem min_eq_if {α : Type u} [LE α] [DecidableLE α] {_ : Min α} [Std.LawfulOrderLeftLeaningMin α] {a : α} {b : α} : Min.min a b = if a ≤ b then a else b := Std.min_eq_ite
+
+public theorem max_eq_ite {α : Type u} [LE α] [DecidableLE α] {_ : Max α}
     [LawfulOrderLeftLeaningMax α] {a b : α} :
     max a b = if b ≤ a then a else b := by
   split <;> rename_i h
   · simp [LawfulOrderLeftLeaningMax.max_eq_left _ _ h]
   · simp [LawfulOrderLeftLeaningMax.max_eq_right _ _ h]
+
+@[deprecated Std.max_eq_ite (since := "2026-07-21")]
+public theorem max_eq_if {α : Type u} [LE α] [DecidableLE α] {_ : Max α} [Std.LawfulOrderLeftLeaningMax α] {a : α} {b : α} : Max.max a b = if b ≤ a then a else b := Std.max_eq_ite
 
 public instance {α : Type u} [LE α] [Min α] [IsLinearOrder α] [LawfulOrderInf α] :
     LawfulOrderLeftLeaningMin α where

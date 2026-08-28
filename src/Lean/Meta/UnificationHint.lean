@@ -32,7 +32,7 @@ private def config : ConfigWithKey :=
   { iota := false, proj := .no : Config }.toConfigWithKey
 
 def UnificationHints.add (hints : UnificationHints) (e : UnificationHintEntry) : UnificationHints :=
-  { hints with discrTree := hints.discrTree.insertCore e.keys e.val }
+  { hints with discrTree := hints.discrTree.insertKeyValue e.keys e.val }
 
 builtin_initialize unificationHintExtension : SimpleScopedEnvExtension UnificationHintEntry UnificationHints ←
   registerSimpleScopedEnvExtension {
@@ -114,7 +114,7 @@ where
 
   tryCandidate candidate : MetaM Bool :=
     withTraceNode `Meta.isDefEq.hint
-      (return m!"{exceptBoolEmoji ·} hint {candidate} at {t} =?= {s}") do
+      (fun _ => return m!"hint {candidate} at {t} =?= {s}") do
     checkpointDefEq do
       let cinfo ← getConstInfo candidate
       let us ← cinfo.levelParams.mapM fun _ => mkFreshLevelMVar

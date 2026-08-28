@@ -7,11 +7,17 @@ module
 
 prelude
 public import Init.Data.Iterators.Combinators.Monadic.Take
-public import Init.Data.Iterators.Lemmas.Consumers.Monadic
+public import Init.Data.Iterators.Consumers.Monadic.Collect
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+import Init.Data.Iterators.Lemmas.Monadic.Basic
+import Init.Data.Nat.Lemmas
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators Std.Iterators.Types
+
+namespace Iterators.Types
 
 theorem Take.isPlausibleStep_take_yield [Monad m] [Iterator α m β] {n : Nat}
     {it : IterM (α := α) m β} (h : it.IsPlausibleStep (.yield it' out)) :
@@ -23,6 +29,8 @@ theorem Take.isPlausibleStep_take_skip [Monad m] [Iterator α m β] {n : Nat}
     (it.take (n + 1)).IsPlausibleStep (.skip (it'.take (n + 1))) :=
   (.skip h (by simp [IterM.take]))
 
+end Iterators.Types
+
 theorem IterM.step_take {α m β} [Monad m] [Iterator α m β] {n : Nat}
     {it : IterM (α := α) m β} :
     (it.take n).step = (match n with
@@ -32,7 +40,7 @@ theorem IterM.step_take {α m β} [Monad m] [Iterator α m β] {n : Nat}
         | .yield it' out h => pure <| .deflate <| .yield (it'.take k) out (Take.isPlausibleStep_take_yield h)
         | .skip it' h => pure <| .deflate <| .skip (it'.take (k + 1)) (Take.isPlausibleStep_take_skip h)
         | .done h => pure <| .deflate <| .done (.done h)) := by
-  simp only [take, step, Iterator.step, internalState_toIterM]
+  simp only [take, step, Iterator.step, IterM.internalState_mk]
   cases n
   case zero => rfl
   case succ k =>
@@ -42,7 +50,6 @@ theorem IterM.step_take {α m β} [Monad m] [Iterator α m β] {n : Nat}
 
 theorem IterM.toList_take_zero {α m β} [Monad m] [LawfulMonad m] [Iterator α m β]
     [Finite (Take α m) m]
-    [IteratorCollect (Take α m) m m] [LawfulIteratorCollect (Take α m) m m]
     {it : IterM (α := α) m β} :
     (it.take 0).toList = pure [] := by
   rw [toList_eq_match_step]
@@ -55,14 +62,13 @@ theorem IterM.step_toTake {α m β} [Monad m] [Iterator α m β] [Finite α m]
         | .yield it' out h => pure <| .deflate <| .yield it'.toTake out (.yield h Nat.zero_ne_one)
         | .skip it' h => pure <| .deflate <| .skip it'.toTake (.skip h Nat.zero_ne_one)
         | .done h => pure <| .deflate <| .done (.done h)) := by
-  simp only [toTake, step, Iterator.step, internalState_toIterM]
+  simp only [toTake, step, Iterator.step, IterM.internalState_mk]
   apply bind_congr
   intro step
   cases step.inflate using PlausibleIterStep.casesOn <;> rfl
 
 @[simp]
 theorem IterM.toList_toTake {α m β} [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
-    [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {it : IterM (α := α) m β} :
     it.toTake.toList = it.toList := by
   induction it using IterM.inductSteps with | step it ihy ihs
@@ -74,4 +80,4 @@ theorem IterM.toList_toTake {α m β} [Monad m] [LawfulMonad m] [Iterator α m �
   · simp [ihs ‹_›]
   · simp
 
-end Std.Iterators
+end Std

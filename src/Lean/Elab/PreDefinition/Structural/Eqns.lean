@@ -8,12 +8,12 @@ module
 prelude
 public import Lean.Elab.PreDefinition.FixedParams
 import Lean.Elab.PreDefinition.EqnsUtils
-import Lean.Meta.Tactic.Split
+import Lean.Meta.Tactic.CasesOnStuckLHS
+import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.Simp.Main
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Structural.Basic
-import Lean.Meta.Match.MatchEqs
-import Lean.Meta.Tactic.Rewrite
+import Lean.Meta.Tactic.Delta
+import Lean.Meta.Tactic.CasesOnStuckLHS
+import Lean.Meta.Tactic.Split
 
 namespace Lean.Elab
 open Meta
@@ -73,7 +73,7 @@ Creates the proof of the unfolding theorem for `declName` with type `type`. It
    is solved using `rfl` or `contradiction`.
 -/
 partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
-  withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} proving:{indentExpr type}") do
+  withTraceNode `Elab.definition.structural.eqns (fun _ => return m!"proving:{indentExpr type}") do
     prependError m!"failed to generate equational theorem for `{.ofConstName declName}`" do
     withNewMCtxDepth do
       let main ← mkFreshExprSyntheticOpaqueMVar type
@@ -83,7 +83,7 @@ partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
       instantiateMVars main
 where
   goUnfold (mvarId : MVarId) : MetaM Unit := do
-    withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} goUnfold:\n{MessageData.ofGoal mvarId}") do
+    withTraceNode `Elab.definition.structural.eqns (fun _ => return m!"goUnfold:\n{MessageData.ofGoal mvarId}") do
     let mvarId' ← mvarId.withContext do
       -- This should now be headed by `.brecOn`
       let goal ← mvarId.getType
@@ -110,7 +110,7 @@ where
     go mvarId'
 
   go (mvarId : MVarId) : MetaM Unit := do
-    withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} step:\n{MessageData.ofGoal mvarId}") do
+    withTraceNode `Elab.definition.structural.eqns (fun _ => return m!"step:\n{MessageData.ofGoal mvarId}") do
       if (← tryURefl mvarId) then
         trace[Elab.definition.structural.eqns] "tryURefl succeeded"
         return ()
@@ -148,9 +148,11 @@ where
             throwError "no progress at goal\n{MessageData.ofGoal mvarId}"
 
 public builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ←
-  mkMapDeclarationExtension (exportEntriesFn := fun env s _ =>
-    -- Do not export for non-exposed defs
-    s.filter (fun n _ => env.find? n |>.any (·.hasValue)) |>.toArray)
+  mkMapDeclarationExtension (exportEntriesFn := fun env s =>
+    let all := s.toArray
+    -- Do not export for non-exposed defs at exported/server levels
+    let exported := s.filter (fun n _ => env.hasExposedBody n) |>.toArray
+    { exported, server := exported, «private» := all })
 
 public def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (recArgPos : Nat)
     (fixedParamPerms : FixedParamPerms) : CoreM Unit := do
@@ -161,7 +163,7 @@ public def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (r
 /-- Generate the "unfold" lemma for `declName`. -/
 def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := do
   let name := mkEqLikeNameFor (← getEnv) info.declName unfoldThmSuffix
-  realizeConst info.declNames[0]! name (doRealize name)
+  realizeConst info.declNames[0]! name (withEqnOptions declName (doRealize name))
   return name
 where
   doRealize name := withOptions (tactic.hygienic.set · false) do
@@ -184,6 +186,7 @@ def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
   else
     return none
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_get_structural_rec_arg_pos]
 def getStructuralRecArgPosImp? (declName : Name) : CoreM (Option Nat) := do
   let some info := eqnInfoExt.find? (← getEnv) declName | return none

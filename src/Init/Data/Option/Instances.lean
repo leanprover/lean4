@@ -16,9 +16,9 @@ namespace Option
 
 theorem eq_of_eq_some {α : Type u} : ∀ {x y : Option α}, (∀ z, x = some z ↔ y = some z) → x = y
   | none,   none,   _ => rfl
-  | none,   some z, h => Option.noConfusion ((h z).2 rfl)
-  | some z, none,   h => Option.noConfusion ((h z).1 rfl)
-  | some _, some w, h => Option.noConfusion ((h w).2 rfl) (congrArg some)
+  | none,   some z, h => Option.noConfusion rfl (heq_of_eq ((h z).2 rfl))
+  | some z, none,   h => Option.noConfusion rfl (heq_of_eq ((h z).1 rfl))
+  | some _, some w, h => Option.noConfusion rfl (heq_of_eq ((h w).2 rfl)) (fun h => congrArg some (eq_of_heq h))
 
 theorem eq_none_of_isNone {α : Type u} : ∀ {o : Option α}, o.isNone → o = none
   | none, _ => rfl
@@ -134,14 +134,14 @@ some ⟨3, ⋯⟩
 none
 ```
 -/
-@[inline, expose] def pelim (o : Option α) (b : β) (f : (a : α) → o = some a → β) : β :=
+@[inline, expose, implicit_reducible] def pelim (o : Option α) (b : β) (f : (a : α) → o = some a → β) : β :=
   match o with
   | none => b
   | some a => f a rfl
 
 /-- Partial filter. If `o : Option α`, `p : (a : α) → o = some a → Bool`, then `o.pfilter p` is
 the same as `o.filter p` but `p` is passed the proof that `o = some a`. -/
-@[inline, expose] def pfilter (o : Option α) (p : (a : α) → o = some a → Bool) : Option α :=
+@[inline, expose, implicit_reducible] def pfilter (o : Option α) (p : (a : α) → o = some a → Bool) : Option α :=
   match o with
   | none => none
   | some a => bif p a rfl then o else none
@@ -172,10 +172,10 @@ instance [Monad m] : ForM m (Option α) α :=
   ⟨Option.forM⟩
 
 instance [Monad m] : ForIn' m (Option α) α inferInstance where
-  forIn' x init f := do
+  forIn' x init f :=
     match x with
     | none => return init
-    | some a =>
+    | some a => do
       match ← f a rfl init with
       | .done r | .yield r => return r
 

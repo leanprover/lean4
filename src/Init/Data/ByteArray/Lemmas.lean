@@ -7,6 +7,11 @@ module
 
 prelude
 public import Init.Data.ByteArray.Basic
+import Init.ByCases
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Extract
+import Init.Data.Array.Lemmas
+import Init.Omega
 
 public section
 
@@ -273,7 +278,7 @@ theorem data_set {as : ByteArray} {i : Nat} {h : i < as.size} {a : UInt8} :
 theorem set_eq_push_extract_append_extract {as : ByteArray} {i : Nat} (h : i < as.size) {a : UInt8} :
     as.set i a h = (as.extract 0 i).push a ++ as.extract (i + 1) as.size := by
   ext1
-  simpa using Array.set_eq_push_extract_append_extract _
+  simpa using! Array.set_eq_push_extract_append_extract _
 
 @[simp]
 theorem append_toByteArray_singleton {as : ByteArray} {a : UInt8} :
@@ -285,5 +290,119 @@ theorem append_toByteArray_singleton {as : ByteArray} {a : UInt8} :
 theorem extract_zero_max_size {a : ByteArray} {i : Nat} : a.extract 0 (max i a.size) = a := by
   ext1
   simp [Nat.le_max_right]
+
+theorem append_eq_append_iff_of_size_eq_left {ws xs ys zs : ByteArray} (h : ws.size = xs.size) :
+    ws ++ ys = xs ++ zs ↔ ws = xs ∧ ys = zs := by
+  simpa [ByteArray.ext_iff] using Array.append_eq_append_iff_of_size_eq_left h
+
+theorem append_eq_append_iff_of_size_eq_right {ws xs ys zs : ByteArray} (h : ys.size = zs.size) :
+    ws ++ ys = xs ++ zs ↔ ws = xs ∧ ys = zs := by
+  simpa [ByteArray.ext_iff] using Array.append_eq_append_iff_of_size_eq_right h
+
+@[simp]
+theorem size_push {bs : ByteArray} {b : UInt8} : (bs.push b).size = bs.size + 1 := by
+  rw [ByteArray.size, data_push, Array.size_push, ← ByteArray.size]
+
+theorem ext_getElem {a b : ByteArray} (h₀ : a.size = b.size) (h : ∀ (i : Nat) hi hi', a[i]'hi = b[i]'hi') : a = b := by
+  rw [ByteArray.ext_iff]
+  apply Array.ext (by simpa using h₀)
+  simpa [← ByteArray.getElem_eq_getElem_data]
+
+@[simp]
+theorem _root_.List.toByteArray_inj {l l' : List UInt8} : l.toByteArray = l'.toByteArray ↔ l = l' := by
+  simp [ByteArray.ext_iff]
+
+theorem extract_eq_extract_iff_getElem {as bs : ByteArray} {i j len : Nat}
+    (hi : i + len ≤ as.size) (hj : j + len ≤ bs.size) :
+    as.extract i (i + len) = bs.extract j (j + len) ↔ ∀ k, (hk : k < len) → as[i + k] = bs[j + k] := by
+  induction len with
+  | zero => simp
+  | succ len ih =>
+    rw [← Nat.add_assoc, ← Nat.add_assoc, ByteArray.extract_eq_extract_append_extract (i + len) (by omega) (by omega),
+      ByteArray.extract_eq_extract_append_extract (a := bs) (j + len) (by omega) (by omega),
+      ByteArray.append_eq_append_iff_of_size_eq_left (by simp; omega), ih (by omega) (by omega),
+      ByteArray.extract_add_one (by omega), ByteArray.extract_add_one (by omega)]
+    simp only [List.toByteArray_inj, List.cons.injEq, and_true]
+    refine ⟨fun ⟨h, h'⟩ k hk => ?_, fun h => ⟨fun k hk => h k (by omega), h len (by omega)⟩⟩
+    by_cases hk' : k < len
+    · exact h k hk'
+    · exact (by omega : k = len) ▸ h'
+
+theorem getElem!_push_lt (data : ByteArray) (b : UInt8) (i : Nat) (hi : i < data.size) :
+    (data.push b)[i]! = data[i]! := by
+  have hi' : i < (data.push b).size := by
+    simp only [ByteArray.size_push]
+    omega
+  rw [getElem!_pos (data.push b) i hi', getElem!_pos data i hi]
+  exact Array.getElem_push_lt hi
+
+@[simp] theorem getElem!_push_eq (data : ByteArray) (b : UInt8) :
+    (data.push b)[data.size]! = b := by
+  have h : data.size < (data.push b).size := by
+    simp only [ByteArray.size_push]
+    omega
+  rw [getElem!_pos (data.push b) data.size h]
+  exact Array.getElem_push_eq
+
+@[grind =] theorem getElem!_push (data : ByteArray) (b : UInt8) (i : Nat) :
+    (data.push b)[i]! = if i = data.size then b else data[i]! := by
+  split
+  · subst i
+    exact getElem!_push_eq data b
+  · by_cases hi : i < data.size
+    · exact getElem!_push_lt data b i hi
+    · rw [getElem!_neg data i hi,
+        getElem!_neg (data.push b) i (by simp only [ByteArray.size_push]; omega)]
+
+private theorem getElem!_eq_data_getElem! (data : ByteArray) (i : Nat) :
+    data[i]! = data.data[i]! := by
+  by_cases h : i < data.size
+  · rw [getElem!_pos data i h, getElem!_pos data.data i h]
+    rfl
+  · rw [getElem!_neg data i h, getElem!_neg data.data i h]
+
+@[simp, grind =] theorem size_set! (data : ByteArray) (i : Nat) (v : UInt8) :
+    (data.set! i v).size = data.size := by
+  show (data.data.setIfInBounds i v).size = data.data.size
+  exact Array.size_setIfInBounds ..
+
+@[simp] theorem getElem!_set!_self (data : ByteArray) (i : Nat) (v : UInt8) (h : i < data.size) :
+    (data.set! i v)[i]! = v := by
+  rw [getElem!_eq_data_getElem!]
+  show (data.data.set! i v)[i]! = v
+  simp only [Array.set!_eq_setIfInBounds, Array.getElem!_eq_getD, Array.getD_eq_getD_getElem?,
+    Array.getElem?_setIfInBounds_self_of_lt h, Option.getD_some]
+
+@[simp] theorem getElem!_set!_ne (data : ByteArray) (i j : Nat) (v : UInt8) (hij : i ≠ j) :
+    (data.set! i v)[j]! = data[j]! := by
+  rw [getElem!_eq_data_getElem!, getElem!_eq_data_getElem!]
+  show (data.data.set! i v)[j]! = data.data[j]!
+  simp only [Array.set!_eq_setIfInBounds, Array.getElem!_eq_getD, Array.getD_eq_getD_getElem?,
+    Array.getElem?_setIfInBounds_ne hij]
+
+@[grind =] theorem getElem!_set! (data : ByteArray) (i : Nat) (v : UInt8) (j : Nat) (h : i < data.size) :
+    (data.set! i v)[j]! = if i = j then v else data[j]! := by
+  split
+  · next hij => subst hij; exact getElem!_set!_self data i v h
+  · next hij => exact getElem!_set!_ne data i j v hij
+
+@[simp] theorem getElem_set!_ne (data : ByteArray) (i j : Nat) (v : UInt8) (hij : i ≠ j)
+    (hj : j < data.size) :
+    (data.set! i v)[j]'(by rw [size_set!]; exact hj) = data[j] := by
+  rw [← getElem!_pos (data.set! i v) j (by rw [size_set!]; exact hj),
+    ← getElem!_pos data j hj,
+    getElem!_set!_ne _ _ _ _ hij]
+
+@[simp] theorem getElem_set!_self (data : ByteArray) (i : Nat) (v : UInt8) (h : i < data.size) :
+    (data.set! i v)[i]'(by rw [size_set!]; exact h) = v := by
+  rw [← getElem!_pos (data.set! i v) i (by rw [size_set!]; exact h),
+    getElem!_set!_self _ _ _ h]
+
+@[grind =] theorem getElem_set! (data : ByteArray) (i j : Nat) (v : UInt8) (h : i < data.size)
+    (hj : j < data.size) :
+    (data.set! i v)[j]'(by rw [size_set!]; exact hj) = if i = j then v else data[j] := by
+  split
+  · next hij => subst hij; exact getElem_set!_self data i v h
+  · next hij => exact getElem_set!_ne data i j v hij hj
 
 end ByteArray

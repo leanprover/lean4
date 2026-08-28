@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Data.Trie
 public import Lean.DocString.Extension
+import Init.Data.String.OrderInstances
 
 public section
 
@@ -182,8 +183,16 @@ structure CacheableParserContext where
   quotDepth          : Nat := 0
   suppressInsideQuot : Bool := false
   savedPos?          : Option String.Pos.Raw := none
-  forbiddenTk?       : Option Token := none
-  deriving BEq
+  forbiddenTks       : Array Token := #[]
+
+/-- Compares `forbiddenTks` by pointer first: contexts overwhelmingly share the array object (the
+empty default, or the array created on entering a `withForbidden` region), so parser-cache key
+comparisons skip the element walk. -/
+instance : BEq CacheableParserContext where
+  beq a b := a.prec == b.prec && a.quotDepth == b.quotDepth &&
+    a.suppressInsideQuot == b.suppressInsideQuot && a.savedPos? == b.savedPos? &&
+    withPtrEq a.forbiddenTks b.forbiddenTks (fun _ => a.forbiddenTks == b.forbiddenTks)
+      (fun h => by rw [h]; exact beq_self_eq_true _)
 
 /-- Parser context updateable in `adaptUncacheableContextFn`. -/
 structure ParserContextCore extends InputContext, ParserModuleContext, CacheableParserContext where
@@ -468,6 +477,7 @@ def seq : FirstTokens → FirstTokens → FirstTokens
   | epsilon,      tks          => tks
   | optTokens s₁, optTokens s₂ => optTokens (s₁ ++ s₂)
   | optTokens s₁, tokens s₂    => tokens (s₁ ++ s₂)
+  | optTokens _,  unknown      => unknown
   | tks,          _            => tks
 
 def toOptional : FirstTokens → FirstTokens
@@ -555,7 +565,7 @@ def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.r
   let s := withStackDrop initStackSz p c { s with lhsPrec := 0, errorMsg := none }
   if s.stxStack.raw.size != initStackSz + 1 then
     panic! s!"withCacheFn: unexpected stack growth {s.stxStack.raw}"
-  { s with cache.parserCache := s.cache.parserCache.insert key ⟨s.stxStack.back, s.lhsPrec, s.pos, s.errorMsg⟩ }
+  return { s with cache.parserCache := s.cache.parserCache.insert key ⟨s.stxStack.back, s.lhsPrec, s.pos, s.errorMsg⟩ }
 
 @[inherit_doc withCacheFn, builtin_doc]
 def withCache (parserName : Name) : Parser → Parser := withFn (withCacheFn parserName)

@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
+import Lean.Meta.Sym.Arith.Poly
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 
@@ -49,7 +49,7 @@ private def checkRingInvs : RingM Unit := do
   checkDiseqs
 
 def checkInvariants : GoalM Unit := do
-  unless grind.debug.get (← getOptions) do return ()
+  if (← isDebugEnabled) then
   for ringId in *...(← get').rings.size do
     RingM.run ringId do
       assert! (← getRingId) == ringId

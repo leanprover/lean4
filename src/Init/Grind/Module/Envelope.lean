@@ -7,8 +7,9 @@ module
 
 prelude
 public import Init.Grind.Ordered.Module
-public import Init.Data.AC
 import all Init.Data.AC
+import Init.Omega
+import Init.RCases
 
 public section
 
@@ -31,7 +32,7 @@ local instance : Std.Commutative (· + · : α → α → α) where
 @[local simp] def r : (α × α) → (α × α) → Prop
   | (a, b), (c, d) => ∃ k, a + d + k = b + c + k
 
-def Q := Quot (r α)
+@[expose, implicit_reducible] def Q := Quot (r α)
 
 variable {α}
 
@@ -46,7 +47,7 @@ theorem r_trans {a b c : α × α} : r α a b → r α b c → r α a c := by
   simp [r]
   intro k₁ h₁ k₂ h₂
   refine ⟨(k₁ + k₂ + b₁ + b₂), ?_⟩
-  replace h₁ := congrArg (· + (b₁ + c₂ + k₂)) h₁; simp at h₁
+  replace h₁ := congrArg (· + (b₁ + c₂ + k₂)) h₁; try simp at h₁ -- TODO(kmill) remove simp after stage0 update
   have haux₁ : a₁ + b₂ + k₁ + (b₁ + c₂ + k₂) = (a₁ + c₂) + (k₁ + k₂ + b₁ + b₂) := by ac_rfl
   have haux₂ : a₂ + b₁ + k₁ + (b₁ + c₂ + k₂) = (a₂ + c₁) + (k₁ + k₂ + b₁ + b₂) := by rw [h₂]; ac_rfl
   rw [haux₁, haux₂] at h₁
@@ -67,7 +68,7 @@ def Q.liftOn₂ (q₁ q₂ : Q α)
 
 attribute [local simp] Q.mk Q.liftOn₂ AddCommMonoid.add_zero
 
-def Q.ind {β : Q α → Prop} (mk : ∀ (a : α × α), β (Q.mk a)) (q : Q α) : β q :=
+theorem Q.ind {β : Q α → Prop} (mk : ∀ (a : α × α), β (Q.mk a)) (q : Q α) : β q :=
   Quot.ind mk q
 
 @[local simp] def nsmul (n : Nat) (q : Q α) : (Q α) :=
@@ -160,10 +161,10 @@ theorem add_zsmul (a b : Int) (c : Q α) : zsmul (a + b) c = add (zsmul a c) (zs
   induction c using Q.ind with | _ c
   rcases c with ⟨c₁, c₂⟩; simp
   by_cases hb : b < 0
-  · simp only [if_pos hb]
+  · simp only [ite_eq_left hb]
     by_cases ha : a < 0
-    · simp only [if_pos ha]
-      rw [if_pos (by omega)]
+    · simp only [ite_eq_left ha]
+      rw [ite_eq_left (by omega)]
       apply Quot.sound
       refine ⟨0, ?_⟩
       rw [Int.natAbs_add_of_nonpos (by omega) (by omega), NatModule.add_nsmul, NatModule.add_nsmul]
@@ -179,7 +180,7 @@ theorem add_zsmul (a b : Int) (c : Q α) : zsmul (a + b) c = add (zsmul a c) (zs
         have : (a + b).natAbs + b.natAbs = a.natAbs := by omega
         simp [← this]
         ac_rfl
-  · simp only [if_neg hb]
+  · simp only [ite_eq_right hb]
     by_cases ha : a < 0
     · split
       · apply Quot.sound
@@ -192,8 +193,8 @@ theorem add_zsmul (a b : Int) (c : Q α) : zsmul (a + b) c = add (zsmul a c) (zs
         have : (a + b).natAbs + a.natAbs = b.natAbs := by omega
         simp [← this]
         ac_rfl
-    · simp only [if_neg ha]
-      rw [if_neg (by omega)]
+    · simp only [ite_eq_right ha]
+      rw [ite_eq_right (by omega)]
       apply Quot.sound
       refine ⟨0, ?_⟩
       rw [Int.natAbs_add_of_nonneg (by omega) (by omega), NatModule.add_nsmul, NatModule.add_nsmul]
@@ -203,6 +204,7 @@ theorem zsmul_natCast_eq_nsmul (n : Nat) (a : Q α) : zsmul (n : Int) a = nsmul 
   induction a using Q.ind with | _ a
   rcases a with ⟨a₁, a₂⟩; simp; omega
 
+@[instance_reducible]
 def ofNatModule : IntModule (Q α) := {
   nsmul := ⟨nsmul⟩,
   zsmul := ⟨zsmul⟩,
@@ -304,7 +306,7 @@ instance [LE α] [IsPreorder α] [OrderedAdd α] : IsPreorder (OfNatModule.Q α)
     obtain ⟨⟨a₁, a₂⟩⟩ := a
     change Q.mk _ ≤ Q.mk _
     simp only [mk_le_mk]
-    simp [AddCommMonoid.add_comm]; exact le_refl (a₁ + a₂)
+    simp [AddCommMonoid.add_comm]
   le_trans {a b c} h₁ h₂ := by
     induction a using Q.ind with | _ a
     induction b using Q.ind with | _ b

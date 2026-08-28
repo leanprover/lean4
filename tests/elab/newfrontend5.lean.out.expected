@@ -1,0 +1,50 @@
+Type mismatch
+  g
+has type
+  ?m → ?m
+but is expected to have type
+  β✝ → β✝
+Type mismatch
+  g
+has type
+  ?m → ?m
+but is expected to have type
+  β✝ → β✝
+let g := @id;
+foo g true : Bool
+foo (fun {β} => id) true : Bool
+foo (@id) true : Bool
+foo (fun {β} b => b) true : Bool
+foo (fun β b => b) true : Bool
+Type mismatch
+  b
+has type
+  Type ?u
+of sort `Type (?u + 1)` but is expected to have type
+  b → b
+of sort `Type ?u`
+foo (fun b => sorry) true : Bool
+foo (fun β b => b) true : Bool
+h (x : Nat := @OfNat.ofNat Nat (nat_lit 10) (instOfNatNat (nat_lit 10)))
+  (y : Nat := @OfNat.ofNat Nat (nat_lit 20) (instOfNatNat (nat_lit 20))) : Nat
+let f := @h;
+f (@OfNat.ofNat Nat (nat_lit 10) (instOfNatNat (nat_lit 10)))
+  (@OfNat.ofNat Nat (nat_lit 20) (instOfNatNat (nat_lit 20))) : Nat
+let f := fun x =>
+  @HAdd.hAdd (optParam Nat (@OfNat.ofNat Nat (nat_lit 10) (instOfNatNat (nat_lit 10)))) Nat
+    (optParam Nat (@OfNat.ofNat Nat (nat_lit 10) (instOfNatNat (nat_lit 10))))
+    (@instHAdd (optParam Nat (@OfNat.ofNat Nat (nat_lit 10) (instOfNatNat (nat_lit 10)))) instAddNat) x
+    (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)));
+@HAdd.hAdd (optParam Nat (@OfNat.ofNat Nat (nat_lit 10) (instOfNatNat (nat_lit 10))))
+  (optParam Nat (@OfNat.ofNat Nat (nat_lit 10) (instOfNatNat (nat_lit 10))))
+  (optParam Nat (@OfNat.ofNat Nat (nat_lit 10) (instOfNatNat (nat_lit 10))))
+  (@instHAdd (optParam Nat (@OfNat.ofNat Nat (nat_lit 10) (instOfNatNat (nat_lit 10)))) instAddNat)
+  (f (@OfNat.ofNat Nat (nat_lit 10) (instOfNatNat (nat_lit 10))))
+  (f
+    (@OfNat.ofNat Nat (nat_lit 1)
+      (instOfNatNat (nat_lit 1)))) : optParam Nat (@OfNat.ofNat Nat (nat_lit 10) (instOfNatNat (nat_lit 10)))
+fun x =>
+  x : optParam Nat (@OfNat.ofNat Nat (nat_lit 10) (instOfNatNat (nat_lit 10))) →
+  optParam Nat (@OfNat.ofNat Nat (nat_lit 10) (instOfNatNat (nat_lit 10)))
+have x := @OfNat.ofNat Nat (nat_lit 10) (instOfNatNat (nat_lit 10));
+@HAdd.hAdd Nat Nat Nat (@instHAdd Nat instAddNat) x (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) : Nat

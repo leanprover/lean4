@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Data.DTreeMap.Raw.Iterator
 public import Std.Data.TreeMap.Raw.Basic
+import Init.Data.Iterators.Lemmas.Combinators.FilterMap
 
 /-!
 # Iterators on `DTreeMap.Raw`

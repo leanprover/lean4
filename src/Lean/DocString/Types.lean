@@ -10,6 +10,7 @@ prelude
 
 public import Init.Data.Ord
 import Init.Data.Nat.Compare
+public import Init.Data.Array.GetLit
 
 set_option linter.missingDocs true
 

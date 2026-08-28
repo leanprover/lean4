@@ -824,9 +824,6 @@ def SepArray.ofElemsUsingRef [Monad m] [MonadRef m] {sep} (elems : Array Syntax)
   let ref ← getRef;
   return ⟨mkSepArray elems (if String.Internal.isEmpty sep then mkNullNode else mkAtomFrom ref sep)⟩
 
-instance : Coe (Array Syntax) (SepArray sep) where
-  coe := SepArray.ofElems
-
 /--
 Constructs a typed separated array from elements by adding suitable separators.
 The provided array should not include the separators.
@@ -1579,8 +1576,8 @@ instance : EmptyCollection (SepArray sep) where
 instance : EmptyCollection (TSepArray sep k) where
   emptyCollection := ⟨∅⟩
 
-instance : CoeOut (SepArray sep) (Array Syntax) where
-  coe := SepArray.getElems
+instance : CoeOut (TSepArray k sep) (SepArray sep) where
+  coe v := ⟨v.elemsAndSeps⟩
 
 instance : CoeOut (TSepArray k sep) (TSyntaxArray k) where
   coe := TSepArray.getElems

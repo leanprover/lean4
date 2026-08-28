@@ -1,0 +1,1 @@
+theorem bad : False := sorry

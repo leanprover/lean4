@@ -1176,6 +1176,17 @@ protected def challenge : CliM PUnit := do
   let cfg ← mkLoadConfig opts
   exit <| ← Check.runChallenge opts.challengeConfig? leanInstall lakeInstall cfg.wsDir
 
+/-- The `lake check` command: check this project against the kernel. -/
+protected def check : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  noArgsRem do
+  let (leanInstall, lakeInstall) ← opts.getInstall
+  -- The workspace is deliberately not loaded here: evaluating the project's configuration is code
+  -- execution, and containing it is what the sandbox is for.
+  let cfg ← mkLoadConfig opts
+  exit <| ← Check.runCheck leanInstall lakeInstall cfg.wsDir
+
 protected def script : CliM PUnit := do
   if let some cmd ← takeArg? then
     processLeadingOptions lakeOption -- between `lake script <cmd>` and args
@@ -1332,6 +1343,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "clean"               => lake.clean
 | "shake"               => lake.shake
 | "challenge"           => lake.challenge
+| "check"               => lake.check
 | "script"              => lake.script
 | "scripts"             => lake.script.list
 | "run"                 => lake.script.run

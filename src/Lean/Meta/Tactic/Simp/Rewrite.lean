@@ -591,12 +591,15 @@ private def dischargeUsingAssumption? (e : Expr) : SimpM (Option Expr) := do
 /--
   Tries to solve `e` using `unifyEq?`.
   It assumes that `isEqnThmHypothesis e` is `true`.
+
+  The local declarations in `toClear` are removed from the goal before proving it, so that they
+  cannot occur in the resulting proof. `tryClearMany` keeps the ones `e` depends on.
 -/
-partial def dischargeEqnThmHypothesis? (e : Expr) : MetaM (Option Expr) := do
+partial def dischargeEqnThmHypothesis? (e : Expr) (toClear : Array FVarId := #[]) : MetaM (Option Expr) := do
   assert! isEqnThmHypothesis e
   let mvar ← mkFreshExprSyntheticOpaqueMVar e
   withCanUnfoldAtMatcherPred do
-    if let .none ← go? mvar.mvarId! then
+    if let .none ← go? (← mvar.mvarId!.tryClearMany toClear) then
       instantiateMVars mvar
     else
       return none
@@ -634,11 +637,26 @@ def dischargeRfl (e : Expr) : SimpM (Option Expr) := do
     return .none
 
 
+/--
+The local declarations that `simp` itself introduced, e.g. when descending into the branches of an
+`ite`. A discharger must not use them unless `contextual := true`, because its proof ends up in a
+`simp` result that is cached under a key that does not mention them.
+See the comment at `Methods.wellBehavedDischarge`.
+-/
+private def newLocalDecls : SimpM (Array FVarId) := do
+  if (← getConfig).contextual then return #[]
+  let lctxInitIndices := (← readThe Simp.Context).lctxInitIndices
+  let mut toClear := #[]
+  for localDecl in (← getLCtx) do
+    if localDecl.index >= lctxInitIndices then
+      toClear := toClear.push localDecl.fvarId
+  return toClear
+
 def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
   let e := e.cleanupAnnotations
   if isEqnThmHypothesis e then
     if let some r ← dischargeUsingAssumption? e then return some r
-    if let some r ← dischargeEqnThmHypothesis? e then return some r
+    if let some r ← dischargeEqnThmHypothesis? e (← newLocalDecls) then return some r
   let r ← simp e
   if let some p ← dischargeRfl r.expr then
     return some (mkApp4 (mkConst ``Eq.mpr [Level.zero]) e r.expr (← r.getProof) p)

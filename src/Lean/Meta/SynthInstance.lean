@@ -946,7 +946,8 @@ private def _root_.Lean.RecordedDeps.mergeInto (child parent : RecordedDeps) : R
 
 /--
 Identity of two dependency logs for entry replacement in `insertCachedResult`: the same option
-lookups with the same answers.
+lookups with the same answers. Both operands are stored logs, whose accesses `insertCachedResult`
+puts in a canonical order, so comparing the arrays compares the sets.
 -/
 private def sameDepIdentity (a b : RecordedDeps) : Bool :=
   a.options == b.options
@@ -960,10 +961,16 @@ within a command.
 private def insertCachedResult (key : SynthInstanceCacheKey) (log : RecordedDeps)
     (result? : Option AbstractMVarsResult) : MetaM Unit := do
   -- One entry per observed dependency combination; replace an entry with the same identity.
+  -- Sorted so that `sameDepIdentity` compares dependency sets: the recorded order is the order the
+  -- search happened to reach each option in, which differs between searches of the same key, and
+  -- two orderings of one set would otherwise coexist as separate entries for every lookup to walk.
+  -- Names are unique in a log, so the order is total.
   -- The watermark is scratch for the recording phase; a stored entry is validated against the
   -- ambient options of whatever query reads it, so retaining it would only pin an `Options` per
   -- entry.
-  let log := { log with base := {} }
+  let log := { log with
+    options := log.options.qsort (fun a b => Name.quickLt a.name b.name)
+    base := {} }
   let upsert (c : SynthInstanceCache) : SynthInstanceCache :=
     c.insert key <| (log, result?) :: (c.find? key |>.getD [] |>.filter fun e => !sameDepIdentity e.1 log)
   modifyCache fun c => { c with synthInstance := upsert c.synthInstance }

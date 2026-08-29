@@ -3,8 +3,11 @@ if(USE_MIMALLOC)
   # (C flags are incomplete, compile as C++ instead like everything else). A source property rather
   # than a target one, but it is the same for every variant below.
   set_source_files_properties(${MIMALLOC_SRC} PROPERTIES LANGUAGE CXX)
-  # make all symbols visible, always build with optimizations as otherwise Lean becomes too slow
-  set(MIMALLOC_OPTS -DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT -Wno-unused-function)
+  # Make all symbols visible, always build with optimizations as otherwise Lean becomes too slow.
+  # `MI_MAX_ALIGN_SIZE=8` means that an object with two fields will take 24 bytes instead of 32 bytes.
+  # The default value 16 is only necessary for mimalloc to be compatible with the system allocator, which
+  # we do not care about.
+  set(MIMALLOC_OPTS -DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT -DMI_MAX_ALIGN_SIZE=8 -Wno-unused-function)
   if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang|Clang")
     list(APPEND MIMALLOC_OPTS -Wno-deprecated)
   endif()

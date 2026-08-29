@@ -903,11 +903,6 @@ def getRecordedOption [KVMap.Value α] (opt : Lean.Option α) : CoreM α := do
   recordOptionAccess { name := opt.name, value := raw }
   return (raw.bind KVMap.Value.ofDataValue?).getD opt.defValue
 
-/-- By-name variant of `getRecordedOption`, for options that cannot be referenced directly. -/
-def getRecordedBoolOption (name : Name) (defVal := false) : CoreM Bool := do
-  let raw := (← getOptionsUnrestricted).find? name
-  recordOptionAccess { name, value := raw }
-  return (raw.bind KVMap.Value.ofDataValue?).getD defVal
 
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts

@@ -187,6 +187,15 @@ structure Cache where
 structure State where
   /-- Current environment. -/
   env             : Environment
+  /--
+  Current recursion depth, maintained by `MonadRecDepth`.
+
+  This lives in the state rather than the context because `withReader` cannot reuse the context
+  record, so keeping it there made every recursion step rebuild `Context` and pay one reference
+  count increment per pointer field. The state is held in a `StateRefT` ref and can be updated in
+  place instead.
+  -/
+  currRecDepth    : Nat := 0
   /-- Next macro scope. We use macro scopes to avoid accidental name capture. -/
   nextMacroScope  : MacroScope     := firstFrontendMacroScope + 1
   /-- Name generator for producing unique `FVarId`s, `MVarId`s, and `LMVarId`s -/
@@ -235,7 +244,6 @@ structure Context.Cold where
 /-- Context for the CoreM monad. -/
 structure Context extends Context.Cold where
   options        : Options := {}
-  currRecDepth   : Nat := 0
   maxRecDepth    : Nat := 1000
   ref            : Syntax := Syntax.missing
   currNamespace  : Name := Name.anonymous
@@ -316,8 +324,10 @@ instance : MonadDeclNameGenerator CoreM where
   setDeclNGen ngen := modify fun s => { s with auxDeclNGen := ngen }
 
 instance : MonadRecDepth CoreM where
-  withRecDepth d x := withReader (fun ctx => { ctx with currRecDepth := d }) x
-  getRecDepth := return (← read).currRecDepth
+  withRecDepth d x := do
+    let old ← modifyGet fun s => (s.currRecDepth, { s with currRecDepth := d })
+    try x finally modify fun s => { s with currRecDepth := old }
+  getRecDepth := return (← get).currRecDepth
   getMaxRecDepth := return (← read).maxRecDepth
 
 instance : MonadResolveName CoreM where
@@ -338,8 +348,8 @@ instance : Elab.MonadInfoTree CoreM where
   modifyInfoState f := modify fun s => { s with infoState := f s.infoState }
 
 @[inline] def modifyCache (f : Cache → Cache) : CoreM Unit :=
-  modify fun ⟨env, next, ngen, auxDeclNGen, trace, cache, messages, infoState, snaps⟩ =>
-   ⟨env, next, ngen, auxDeclNGen, trace, f cache, messages, infoState, snaps⟩
+  modify fun ⟨env, recDepth, next, ngen, auxDeclNGen, trace, cache, messages, infoState, snaps⟩ =>
+   ⟨env, recDepth, next, ngen, auxDeclNGen, trace, f cache, messages, infoState, snaps⟩
 
 @[inline] def modifyInstLevelTypeCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
   modifyCache fun ⟨c₁, c₂⟩ => ⟨f c₁, c₂⟩

@@ -938,7 +938,10 @@ whatever the nested one did.
 -/
 private def _root_.Lean.RecordedDeps.mergeInto (child parent : RecordedDeps) : RecordedDeps :=
   let options := child.options.foldl (init := parent.options) fun l a =>
-    if l.any (·.name == a.name) then l else l.push a
+    -- Judged against the parent's watermark, as in `recordOptionAccess`: an access answering
+    -- differently from it was served by a write the parent itself opened, so it is a dependency
+    -- of the nested query but not of this one.
+    if l.any (·.name == a.name) || parent.base.find? a.name != a.value then l else l.push a
   { parent with options }
 
 /--
@@ -957,6 +960,10 @@ within a command.
 private def insertCachedResult (key : SynthInstanceCacheKey) (log : RecordedDeps)
     (result? : Option AbstractMVarsResult) : MetaM Unit := do
   -- One entry per observed dependency combination; replace an entry with the same identity.
+  -- The watermark is scratch for the recording phase; a stored entry is validated against the
+  -- ambient options of whatever query reads it, so retaining it would only pin an `Options` per
+  -- entry.
+  let log := { log with base := {} }
   let upsert (c : SynthInstanceCache) : SynthInstanceCache :=
     c.insert key <| (log, result?) :: (c.find? key |>.getD [] |>.filter fun e => !sameDepIdentity e.1 log)
   modifyCache fun c => { c with synthInstance := upsert c.synthInstance }
@@ -1031,7 +1038,10 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
   -- enclosing query observed the result.
   let parentDeps := (← getThe Core.State).recordedDeps
   let parentRecording := (← readThe Core.Context).recordingDeps
-  modifyThe Core.State fun s => { s with recordedDeps := {} }
+  -- The watermark the query's lookups are judged against, read at the point `findCachedResult?`
+  -- later validates against, so recorded and validated values agree by construction.
+  let base ← getOptionsUnrestricted
+  modifyThe Core.State fun s => { s with recordedDeps := { base } }
   try
   -- Mark the query as recording; the marker is scoped to the search, so only the accumulator
   -- has to be restored below.

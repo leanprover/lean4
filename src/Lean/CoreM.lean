@@ -189,6 +189,13 @@ structure RecordedDeps where
   these lookups give the same answers in the current context.
   -/
   options : Array RecordedOptionAccess := #[]
+  /--
+  The options in effect when recording started, which is also what a cached entry is validated
+  against. A lookup that answers differently from this was served by a write inside the recording
+  computation (`Lean.withSetOption`), so it does not depend on the ambient options and is not a
+  dependency; compare the `constBirthGen` watermark used for declarations.
+  -/
+  base : Options := {}
   deriving Inhabited
 
 namespace Core
@@ -874,11 +881,15 @@ def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
 
 private def recordOptionAccess (access : RecordedOptionAccess) : CoreM Unit := do
   if (← read).recordingDeps then
-    -- Read-before-write: repeated lookups of the same option dominate (e.g. per `isDefEq` step),
-    -- and the membership test avoids the state update for them.
+    -- The membership test comes first because repeated lookups of the same option dominate (e.g.
+    -- per `isDefEq` step), so the common path neither consults `base` nor updates the state.
+    -- Only a lookup answering as `base` does is a dependency, which makes the log independent of
+    -- the order the lookups happen in: a write-scoped lookup can neither be logged nor take the
+    -- slot of the ambient one.
     let d := (← get).recordedDeps
     unless d.options.any (·.name == access.name) do
-      Core.modifyRecordedDeps fun ⟨options⟩ => ⟨options.push access⟩
+      if d.base.find? access.name == access.value then
+        Core.modifyRecordedDeps fun deps => { deps with options := deps.options.push access }
 
 /--
 Reads an option inside a recording computation, recording the lookup as an option dependency

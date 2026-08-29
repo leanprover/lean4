@@ -10,7 +10,6 @@ public import Lake.Config.FacetConfig
 public import Lake.Build.Job.Monad
 public import Lake.Build.Infos
 import Lean.Elab.ParseImportsFast
-public import Lean.Compiler.Options
 import Lake.Util.Proc
 import Lake.Build.Job.Register
 import Lake.Build.Common
@@ -358,95 +357,71 @@ def ModuleImportInfo.addImport
           {info with directArts := info.directArts.insert imp.module expInfo.arts}
         else
           info
-      if imp.isMeta then
-        {info with trace := info.trace.mix expInfo.metaTransTrace |>.mix expInfo.metaArtsTrace.withoutInputs}
-      else
-        {info with trace := info.trace.mix expInfo.transTrace |>.mix expInfo.artsTrace.withoutInputs}
+      {info with trace :=
+        if imp.isMeta then
+          info.trace.mix expInfo.metaTransTrace |>.mix expInfo.metaArtsTrace.withoutInputs
+        else
+          info.trace.mix expInfo.transTrace |>.mix expInfo.artsTrace.withoutInputs
+      }
   let info := {info with
     legacyTransTrace := info.legacyTransTrace
-      |>.mix expInfo.legacyTransTrace
-      |>.mix expInfo.allArtsTrace.withoutInputs
-      |>.withoutInputs
+    |>.mix expInfo.legacyTransTrace
+    |>.mix expInfo.allArtsTrace.withoutInputs
+    |>.withoutInputs
   }
-  let info :=
-    if imp.importAll then
-      {info with
-        allTransTrace := info.allTransTrace
-          |>.mix expInfo.allTransTrace
-          |>.mix expInfo.allArtsTrace.withoutInputs
-          |>.withoutInputs
-      }
-    else if imp.isMeta then
-      {info with
-        allTransTrace := info.allTransTrace
-          |>.mix expInfo.metaTransTrace
-          |>.mix expInfo.metaArtsTrace.withoutInputs
-          |>.withoutInputs
-      }
-    else
-      {info with
-        allTransTrace := info.allTransTrace
-          |>.mix expInfo.transTrace
-          |>.mix expInfo.artsTrace.withoutInputs
-          |>.withoutInputs
-      }
+  let info := {info with
+    allTransTrace :=
+      if imp.importAll then
+        info.allTransTrace
+        |>.mix expInfo.allTransTrace
+        |>.mix expInfo.allArtsTrace.withoutInputs
+        |>.withoutInputs
+      else if imp.isMeta then
+        info.allTransTrace
+        |>.mix expInfo.metaTransTrace
+        |>.mix expInfo.metaArtsTrace.withoutInputs
+        |>.withoutInputs
+      else
+        info.allTransTrace
+        |>.mix expInfo.transTrace
+        |>.mix expInfo.artsTrace.withoutInputs
+        |>.withoutInputs
+  }
   let info := {info with
     metaTransTrace := info.metaTransTrace
-      |>.mix expInfo.metaTransTrace
-      |>.mix expInfo.metaArtsTrace.withoutInputs
-      |>.withoutInputs
+    |>.mix expInfo.metaTransTrace
+    |>.mix expInfo.metaArtsTrace.withoutInputs
+    |>.withoutInputs
   }
-  /-
-  `leanir` reads the `.ir.sig` of every import with data and the full `.ir` of those `import all`ed
-  (`importModulesCore` with `loadIRSig`, which also ignores `meta`). As at the root of that import
-  it has data for every direct import, `irSigTrace` mixes one in unconditionally, whereas
-  `irSigTransTrace` mixes in only the exported ones, as for `transTrace`.
-  -/
-  let info :=
-    if nonModule || imp.importAll then
-      {info with
-        irSigTrace := info.irSigTrace
-          |>.mix expInfo.allTransTrace
-          |>.mix expInfo.allArtsTrace.withoutInputs
-      }
-    else
-      {info with
-        irSigTrace := info.irSigTrace
-          |>.mix expInfo.irSigTransTrace
-          |>.mix expInfo.irSigArtsTrace.withoutInputs
-      }
-  let info :=
-    if !imp.isExported then
-      info
-    else if imp.importAll then
-      {info with
-        irSigTransTrace := info.irSigTransTrace
-          |>.mix expInfo.allTransTrace
-          |>.mix expInfo.allArtsTrace.withoutInputs
-          |>.withoutInputs
-      }
-    else
-      {info with
-        irSigTransTrace := info.irSigTransTrace
-          |>.mix expInfo.irSigTransTrace
-          |>.mix expInfo.irSigArtsTrace.withoutInputs
-          |>.withoutInputs
-      }
+  let info := {info with
+    irSigTrace :=
+      if nonModule || imp.importAll then
+        info.irSigTrace
+        |>.mix expInfo.allTransTrace
+        |>.mix expInfo.allArtsTrace.withoutInputs
+      else
+        info.irSigTrace
+        |>.mix expInfo.irSigTransTrace
+        |>.mix expInfo.irSigArtsTrace.withoutInputs
+  }
   if imp.isExported then
-    if imp.isMeta then
-      {info with
-        transTrace := info.transTrace
+    {info with
+      transTrace :=
+        if imp.isMeta then
+          info.transTrace
           |>.mix expInfo.metaTransTrace
           |>.mix expInfo.metaArtsTrace.withoutInputs
           |>.withoutInputs
-      }
-    else
-      {info with
-        transTrace := info.transTrace
+        else
+          info.transTrace
           |>.mix expInfo.transTrace
           |>.mix expInfo.artsTrace.withoutInputs
           |>.withoutInputs
-      }
+      irSigTransTrace := info.irSigTransTrace
+      |>.mix expInfo.irSigTransTrace
+      |>.mix expInfo.irSigArtsTrace.withoutInputs
+      |>.withoutInputs
+    }
   else
     info
 

@@ -91,8 +91,8 @@ public def main (args : List String) : IO UInt32 := do
     -- level exported because otherwise we would try to load the current module's `.ir`
     finalizeImport (leakEnv := true) (loadExts := false) (level := .exported) (loadIRSig := true) s imports opts
   let env := env.setMainModule modName
-  -- `finalizeImport` above runs with `loadExts := false`, so the package recorded by `lean` in
-  -- `modPkgExt` is not restored. Native symbols are prefixed by it, so take it from the setup.
+  -- As the environment imports the module to compile, it does not inherit its package.
+  -- Take it from the setup.
   let env := env.setModulePackage setup.package?
 
   let initExt {α β σ} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) : IO Environment := do

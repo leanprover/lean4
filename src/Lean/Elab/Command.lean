@@ -267,7 +267,6 @@ private def runCore (x : CoreM α) : CommandElabM α := do
   let coreCtx : Core.Context := {
     fileName           := ctx.fileName
     fileMap            := ctx.fileMap
-    currRecDepth       := ctx.currRecDepth
     maxRecDepth        := s.maxRecDepth
     ref                := ctx.ref
     currNamespace      := scope.currNamespace
@@ -288,7 +287,7 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     infoState.lazyAssignment := s.infoState.lazyAssignment
     traceState := s.traceState
     snapshotTasks := s.snapshotTasks
-  }
+  } (ctxHot := { currRecDepth := ctx.currRecDepth })
   let (ea, coreS) ← liftM x
   modify fun s => { s with
     env                      := coreS.env
@@ -1096,7 +1095,7 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
     cmd.run {
       fileName := ctx.fileName
       fileMap := ctx.fileMap
-      currRecDepth := ctx.currRecDepth
+      currRecDepth := (← MonadRecDepth.getRecDepth)
       currMacroScope := ctx.currMacroScope
       ref := ctx.ref
       snap? := none

@@ -232,10 +232,9 @@ structure Context.Cold where
   inheritedTraceOptions : Std.HashSet Name := {}
   deriving Nonempty
 
-/-- Context for the CoreM monad. -/
+/-- Main context for the CoreM monad. -/
 structure Context extends Context.Cold where
   options        : Options := {}
-  currRecDepth   : Nat := 0
   maxRecDepth    : Nat := 1000
   ref            : Syntax := Syntax.missing
   currNamespace  : Name := Name.anonymous
@@ -255,6 +254,12 @@ structure Context extends Context.Cold where
   suppressElabErrors : Bool := false
   deriving Nonempty
 
+/-- Additional context put in a separate reader for fastest access. -/
+-- Should likely remain a single field for structure unboxing
+structure Context.Hot where
+  currRecDepth   : Nat := 0
+  deriving Inhabited
+
 /-- CoreM is a monad for manipulating the Lean environment.
 It is the base monad for `MetaM`.
 The main features it provides are:
@@ -263,7 +268,13 @@ The main features it provides are:
 - Lean options context
 - the current open namespace
 -/
-abbrev CoreM := ReaderT Context <| StateRefT State (EIO Exception)
+/-
+The current recursion depth has its own reader layer rather than a `Context` field as `withReader`
+cannot reuse the `Context` object still referenced by the caller and modifying the depth is by far
+the most common context change. The layer sits *inside* the `Context` reader so that a bare `read`
+still resolves to `Context`.
+-/
+abbrev CoreM := ReaderT Context <| ReaderT Context.Hot <| StateRefT State (EIO Exception)
 
 -- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
 -- whole monad stack at every use site. May eventually be covered by `deriving`.
@@ -316,8 +327,8 @@ instance : MonadDeclNameGenerator CoreM where
   setDeclNGen ngen := modify fun s => { s with auxDeclNGen := ngen }
 
 instance : MonadRecDepth CoreM where
-  withRecDepth d x := withReader (fun ctx => { ctx with currRecDepth := d }) x
-  getRecDepth := return (← read).currRecDepth
+  withRecDepth d x := fun ctx => withTheReader Context.Hot (fun _ => { ctx with currRecDepth := d }) (x ctx)
+  getRecDepth := fun _ => return (← readThe Context.Hot).currRecDepth
   getMaxRecDepth := return (← read).maxRecDepth
 
 instance : MonadResolveName CoreM where
@@ -437,11 +448,13 @@ that are conditionally inaccessible, depending on the current value of the `tact
 def mkFreshUserName (n : Name) : CoreM Name :=
   mkFreshNameImp n
 
-@[inline] def CoreM.run (x : CoreM α) (ctx : Context) (s : State) : EIO Exception (α × State) :=
-  ((withConsistentCtx x) ctx).run s
+@[inline] def CoreM.run (x : CoreM α) (ctx : Context) (s : State) (ctxHot : Context.Hot := {}) :
+    EIO Exception (α × State) :=
+  (((withConsistentCtx x) ctx) ctxHot).run s
 
-@[inline] def CoreM.run' (x : CoreM α) (ctx : Context) (s : State) : EIO Exception α :=
-  Prod.fst <$> x.run ctx s
+@[inline] def CoreM.run' (x : CoreM α) (ctx : Context) (s : State) (ctxHot : Context.Hot := {}) :
+    EIO Exception α :=
+  Prod.fst <$> x.run ctx s ctxHot
 
 /--
 Run a `CoreM` monad in IO.

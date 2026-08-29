@@ -12,15 +12,15 @@ trace: [Compiler.saveMono] size: 0
       ⊥
 ---
 trace: [Compiler.saveMono] size: 5
-    def _private.elab.emptyLcnf.0._eval._lam_0 _x.1 _x.2 _y.3 @&_y.4 @&_y.5 @&_y.6 @&_y.7 @&_y.8 _y.9 : EST.Out
+    def _private.elab.emptyLcnf.0._eval._lam_0 _x.1 _x.2 _y.3 @&_y.4 @&_y.5 @&_y.6 @&_y.7 @&_y.8 @&_y.9 _y.10 : EST.Out
       Lean.Exception lcAny PUnit :=
-      let _x.10 := Lean.Compiler.compile _x.1 _y.7 _y.8 _y.9;
-      cases _x.10 : EST.Out Lean.Exception lcAny PUnit
-      | EST.Out.ok a.11 a.12 =>
-        let _x.13 := @EST.Out.ok ◾ ◾ ◾ _x.2 a.12;
-        return _x.13
-      | EST.Out.error a.14 a.15 =>
-        return _x.10
+      let _x.11 := Lean.Compiler.compile _x.1 _y.7 _y.8 _y.9 _y.10;
+      cases _x.11 : EST.Out Lean.Exception lcAny PUnit
+      | EST.Out.ok a.12 a.13 =>
+        let _x.14 := @EST.Out.ok ◾ ◾ ◾ _x.2 a.13;
+        return _x.14
+      | EST.Out.error a.15 a.16 =>
+        return _x.11
 [Compiler.saveMono] size: 8
     def _private.elab.emptyLcnf.0._eval @&a @&a a.1 : EST.Out Lean.Exception lcAny PUnit :=
       let _x.2 := "f";

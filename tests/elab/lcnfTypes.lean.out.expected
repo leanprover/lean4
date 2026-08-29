@@ -17,8 +17,12 @@ MonadControl.restoreM : {m : Type u → Type v} → {n : Type u → Type w} → 
 Decidable.casesOn : {p : Prop} → {motive : Decidable ◾ → Sort u} → Decidable ◾ → (Bool → ◾ → motive lcAny) → motive lcAny
 Lean.getConstInfo : {m : Type → Type} → [Monad m] → [MonadEnv m] → [MonadError m] → Name → m ConstantInfo
 Lean.Meta.instMonadMetaM : Monad fun α =>
-  Context → ST.Ref lcAny State → Core.Context → ST.Ref lcAny Core.State → lcVoid → EST.Out Exception lcAny α
-Lean.Meta.inferType : Expr → Context → ST.Ref lcAny State → Core.Context → ST.Ref lcAny Core.State → lcVoid → EST.Out Exception lcAny Expr
+  Context →
+    ST.Ref lcAny State → Core.Context → Core.Context.Hot → ST.Ref lcAny Core.State → lcVoid → EST.Out Exception lcAny α
+Lean.Meta.inferType : Expr →
+  Context →
+    ST.Ref lcAny State →
+      Core.Context → Core.Context.Hot → ST.Ref lcAny Core.State → lcVoid → EST.Out Exception lcAny Expr
 Lean.Elab.Term.elabTerm : Syntax →
   Option Expr →
     Bool →
@@ -26,7 +30,8 @@ Lean.Elab.Term.elabTerm : Syntax →
         Elab.Term.Context →
           ST.Ref lcAny Elab.Term.State →
             Context →
-              ST.Ref lcAny State → Core.Context → ST.Ref lcAny Core.State → lcVoid → EST.Out Exception lcAny Expr
+              ST.Ref lcAny State →
+                Core.Context → Core.Context.Hot → ST.Ref lcAny Core.State → lcVoid → EST.Out Exception lcAny Expr
 Nat.add : Nat → Nat → Nat
 Magma.mul : Magma → lcAny → lcAny → lcAny
 weird1 : Bool → lcAny
@@ -43,10 +48,11 @@ MonadControl.restoreM : {m n : lcErased} → [self : MonadControl lcAny lcAny] �
 Decidable.casesOn : {p motive : lcErased} → Bool → (Bool → lcErased → lcAny) → lcAny
 Lean.getConstInfo : {m : lcErased} → [Monad lcAny] → [MonadEnv lcAny] → [MonadError lcAny] → Name → lcAny
 Lean.Meta.instMonadMetaM : Monad lcAny
-Lean.Meta.inferType : Expr → Context → lcAny → Core.Context → lcAny → lcVoid → EST.Out Exception lcAny Expr
+Lean.Meta.inferType : Expr → Context → lcAny → Core.Context → Nat → lcAny → lcVoid → EST.Out Exception lcAny Expr
 Lean.Elab.Term.elabTerm : Syntax →
   Option Expr →
     Bool →
-      Bool → Elab.Term.Context → lcAny → Context → lcAny → Core.Context → lcAny → lcVoid → EST.Out Exception lcAny Expr
+      Bool →
+        Elab.Term.Context → lcAny → Context → lcAny → Core.Context → Nat → lcAny → lcVoid → EST.Out Exception lcAny Expr
 Nat.add : Nat → Nat → Nat
 Fin.add : {n : Nat} → Nat → Nat → Nat

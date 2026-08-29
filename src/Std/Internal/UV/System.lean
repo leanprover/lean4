@@ -273,6 +273,19 @@ contains a null byte.
 @[extern "lean_uv_realpath"]
 opaque realPath : @& ByteArray → IO ByteArray
 
+/--
+Whether `path` itself is a symbolic link, read without following it.
+
+Returns `false` if `path` names nothing, so a caller that has already learned a name is missing can
+tell a symbolic link whose target does not exist from a name that is not there at all — `realPath`
+reports both as `ENOENT`. Every other failure is raised.
+
+Takes raw bytes, since a path need not be valid UTF-8 (see `cwd`). Fails if `path` contains a null
+byte.
+-/
+@[extern "lean_uv_is_symlink"]
+opaque isSymlink : @& ByteArray → IO Bool
+
 end System
 end UV
 end Internal

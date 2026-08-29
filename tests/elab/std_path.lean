@@ -1,4 +1,5 @@
 import Std.Path
+import Std.Data.HashMap
 
 /-!
 Tests for `Std.Path` — covers parsing, rendering, structural operations, file-name helpers,
@@ -8,12 +9,12 @@ normalization, glob matching, and the `parents` iterator.
 open Std
 
 -- Helpers to cut noise
-private def posix (s : String) : Path := (Path.ofPosixString s).get!
-private def win   (s : String) : Path := (Path.ofWindowsString s).get!
+private def posix (s : String) : Path := (Path.ofPosixString? s).get!
+private def win   (s : String) : Path := (Path.ofWindowsString? s).get!
 
 
 -- ---------------------------------------------------------------------------
--- Section: ofPosixString / toPosixString round-trips
+-- Section: ofPosixString? / toPosixString round-trips
 -- ---------------------------------------------------------------------------
 
 section PosixRoundtrip
@@ -39,17 +40,17 @@ section PosixRoundtrip
 -- double-dot preserved
 #guard (posix "a/../b").toPosixString = "a/../b"
 -- empty string → none
-#guard Path.ofPosixString "" = none
+#guard Path.ofPosixString? "" = none
 -- null byte → none (invalid on every platform)
-#guard Path.ofPosixString "a\x00b" = none
--- ofPosixString! agrees with ofPosixString on valid input
+#guard Path.ofPosixString? "a\x00b" = none
+-- ofPosixString! agrees with ofPosixString? on valid input
 #guard Path.ofPosixString! "/usr/local/bin" == posix "/usr/local/bin"
 
 end PosixRoundtrip
 
 
 -- ---------------------------------------------------------------------------
--- Section: ofWindowsString / toWindowsString round-trips
+-- Section: ofWindowsString? / toWindowsString round-trips
 -- ---------------------------------------------------------------------------
 
 section WindowsRoundtrip
@@ -78,11 +79,11 @@ section WindowsRoundtrip
 #guard (win "a//b").toWindowsString = "a\\b"
 -- root-only with trailing slashes
 #guard (win "\\\\").toWindowsString = "\\"
--- empty string → none (parity with ofPosixString)
-#guard Path.ofWindowsString "" = none
--- null byte → none (parity with ofPosixString)
-#guard Path.ofWindowsString "a\x00b" = none
--- ofWindowsString! agrees with ofWindowsString on valid input
+-- empty string → none (parity with ofPosixString?)
+#guard Path.ofWindowsString? "" = none
+-- null byte → none (parity with ofPosixString?)
+#guard Path.ofWindowsString? "a\x00b" = none
+-- ofWindowsString! agrees with ofWindowsString? on valid input
 #guard Path.ofWindowsString! "C:\\Users\\foo" == win "C:\\Users\\foo"
 -- a leading "\\" introduces a prefix rather than collapsing to a root (see the Prefix section)
 #guard (win "\\\\server\\share").toWindowsString = "\\\\server\\share"
@@ -97,45 +98,142 @@ end WindowsRoundtrip
 section Prefix
 
 -- UNC: `\\server\share` parses as one prefix, not as a root plus two segments.
-#guard (win "\\\\server\\share").winPrefix? == some "\\\\server\\share".toByteArray
-#guard (win "\\\\server\\share\\dir\\file.txt").winPrefix? == some "\\\\server\\share".toByteArray
+#guard (win "\\\\server\\share").windowsPrefix? == some "\\\\server\\share".toByteArray
+#guard (win "\\\\server\\share\\dir\\file.txt").windowsPrefix? == some "\\\\server\\share".toByteArray
 #guard (win "\\\\server\\share\\dir\\file.txt").toWindowsString = "\\\\server\\share\\dir\\file.txt"
 -- a server with no share
-#guard (win "\\\\server").winPrefix? == some "\\\\server".toByteArray
+#guard (win "\\\\server").windowsPrefix? == some "\\\\server".toByteArray
 #guard (win "\\\\server").toWindowsString = "\\\\server"
 -- forward slashes introduce a prefix too, as on Windows itself
 #guard (win "//server/share/x").toWindowsString = "\\\\server\\share\\x"
 -- a bare `\\` is a root, keeping `\\` and `\` equivalent
-#guard (win "\\\\").winPrefix? == none
+#guard (win "\\\\").windowsPrefix? == none
 #guard (win "\\\\").toWindowsString = "\\"
 
 -- Device namespace: `\\.\name` is captured like a UNC share, so only the first segment after
 -- `\\.\` belongs to the prefix.
-#guard (win "\\\\.\\COM42").winPrefix? == some "\\\\.\\COM42".toByteArray
+#guard (win "\\\\.\\COM42").windowsPrefix? == some "\\\\.\\COM42".toByteArray
 #guard (win "\\\\.\\COM42").toWindowsString = "\\\\.\\COM42"
-#guard (win "\\\\.\\pipe\\name").winPrefix? == some "\\\\.\\pipe".toByteArray
+#guard (win "\\\\.\\pipe\\name").windowsPrefix? == some "\\\\.\\pipe".toByteArray
 #guard (win "\\\\.\\pipe\\name").toWindowsString = "\\\\.\\pipe\\name"
 
--- Verbatim: the whole path after `\\?\` is the prefix, with no segments of its own.
-#guard (win "\\\\?\\C:\\foo").winPrefix? == some "\\\\?\\C:\\foo".toByteArray
-#guard (win "\\\\?\\C:\\foo").segments.isEmpty
+-- Verbatim: the prefix is `\\?\` plus the volume segment behind it; the rest splits as usual.
+#guard (win "\\\\?\\C:\\foo").windowsPrefix? == some "\\\\?\\C:".toByteArray
+#guard (win "\\\\?\\C:\\foo").segments.map toString = #["foo"]
 #guard (win "\\\\?\\C:\\foo").toWindowsString = "\\\\?\\C:\\foo"
-#guard (win "\\\\?\\cat_pics").winPrefix? == some "\\\\?\\cat_pics".toByteArray
+#guard (win "\\\\?\\cat_pics").windowsPrefix? == some "\\\\?\\cat_pics".toByteArray
 #guard (win "\\\\?\\cat_pics").toWindowsString = "\\\\?\\cat_pics"
-#guard (win "\\\\?\\UNC\\server\\share").winPrefix? == some "\\\\?\\UNC\\server\\share".toByteArray
+#guard (win "\\\\?\\UNC\\server\\share").windowsPrefix? == some "\\\\?\\UNC\\server\\share".toByteArray
 #guard (win "\\\\?\\UNC\\server\\share").toWindowsString = "\\\\?\\UNC\\server\\share"
--- Windows normalizes nothing in a verbatim path, so neither does `normalize`, and separators and
--- repeated separators survive exactly as written.
-#guard (win "\\\\?\\a\\b\\..\\c").winPrefix? == some "\\\\?\\a\\b\\..\\c".toByteArray
+-- Segments below a verbatim prefix behave like any other, so file names and parents work.
+#guard (win "\\\\?\\C:\\dir\\doc.txt").filename?.map toString = some "doc.txt"
+#guard (win "\\\\?\\C:\\dir\\doc.txt").extension?.map toString = some "txt"
+#guard (win "\\\\?\\C:\\dir\\doc.txt").parent?.map Path.toWindowsString = some "\\\\?\\C:\\dir"
+-- Windows gives `/` no meaning inside a verbatim path, so it stays part of the volume name.
+#guard (win "\\\\?\\a/b").windowsPrefix? == some "\\\\?\\a/b".toByteArray
+#guard (win "\\\\?\\a/b").segments.isEmpty
+#guard (win "\\\\?\\a\\b/c\\d").segments.map toString = #["b/c", "d"]
+-- A name holding `/` is still an ordinary name, so the byte-level accessors see it even though no
+-- `Filename` can carry it.
+#guard (win "\\\\?\\a\\b/c.txt").fileStem? = some "b/c".toByteArray
+#guard (win "\\\\?\\a\\b/c.txt").filePrefix? = some "b/c".toByteArray
+#guard (win "\\\\?\\a\\b/c.txt").extension? = some (Path.Extension.mk "txt".toByteArray)
+#guard (win "\\\\?\\a\\b/c.txt").suffixes = #["txt".toByteArray]
+#guard (win "\\\\?\\a\\b/c.txt").removeExtension.toWindowsString = "\\\\?\\a\\b/c"
+#guard (win "\\\\?\\a\\.hidden/x").isHidden = true
+#guard (win "\\\\?\\a\\b/c.txt").filename? = none
+-- `.` and `..` are ordinary names below a verbatim prefix, so they are file names there too, and
+-- the usual trailing-dot rule applies: `..` is the stem `.` with an empty, and so absent, extension.
+#guard (win "\\\\?\\a\\..").fileStem? = some ".".toByteArray
+#guard (win "\\\\?\\a\\..").extension? = none
+-- Windows hands a verbatim path to the filesystem unnormalized, so `.` and `..` are ordinary names
+-- there and `normalize` leaves them alone.
+#guard (win "\\\\?\\a\\b\\..\\c").windowsPrefix? == some "\\\\?\\a".toByteArray
+#guard (win "\\\\?\\a\\b\\..\\c").segments.map toString = #["b", "..", "c"]
 #guard (win "\\\\?\\a\\b\\..\\c").normalize == win "\\\\?\\a\\b\\..\\c"
-#guard (win "\\\\?\\a\\.\\\\b\\").toWindowsString = "\\\\?\\a\\.\\\\b\\"
-#guard (win "\\\\?\\a/b").winPrefix? == some "\\\\?\\a/b".toByteArray
+#guard (win "\\\\?\\a\\.\\b").normalize.toWindowsString = "\\\\?\\a\\.\\b"
+-- `normalize` leaves a verbatim path alone, so `join` is what resolves a `.` or `..` arriving from
+-- a path parsed under ordinary rules — after the join there is nothing left to resolve.
+#guard (win "\\\\?\\a").isVerbatim = true
+
+-- `..a` minus its extension would be `.`, which names a directory rather than a file and would
+-- re-parse as a different path, so the name is kept whole.
+#guard (posix "..a").removeExtension == posix "..a"
+#guard (posix "...").removeExtension == posix "..."
+#guard (posix "x/..a").removeExtension == posix "x/..a"
+#guard (posix "archive.tar.gz").removeExtension == posix "archive.tar"
+
+-- No path renders as the empty byte string, which no parser would read back.
+#guard Path.empty.toPosixBytes == ".".toByteArray
+#guard Path.empty.toWindowsBytes == ".".toByteArray
+#guard (win "\\\\?\\a/b").toPosixBytes == ".".toByteArray
+
+-- `isUnder` resolves `.` and `..` before comparing, where `startsWith` compares as written.
+#guard (posix "/safe/../etc/passwd").startsWith (posix "/safe") = true
+#guard (posix "/safe/../etc/passwd").isUnder (posix "/safe") = false
+#guard (posix "/safe/a/b").isUnder (posix "/safe") = true
+#guard (posix "/safe").isUnder (posix "/safe") = true
+#guard (posix "/safebar").isUnder (posix "/safe") = false
+#guard (posix "a/../../b").isUnder (posix "a") = false
+#guard (posix "a/b").isUnder (posix "a") = true
+
+-- A `*` matching greedily must still agree with trying every split.
+#guard (posix "axxxb").matchGlob "a*b" = true
+#guard (posix "ab").matchGlob "a*b" = true
+#guard (posix "ab").matchGlob "a*a*b" = false
+#guard (posix "aab").matchGlob "a*a*b" = true
+#guard (posix "a/b/c").matchGlob "a/**/c" = true
+#guard (posix "a/c").matchGlob "a/**/c" = true
+#guard (posix "a").matchGlob "**/a" = true
+#guard (posix "x/y/a").matchGlob "**/a" = true
+#guard (posix "x/y/a").matchGlob "**/b" = false
+-- A pattern with many stars against a long name is linear per star, not exponential in their
+-- number; this returns promptly rather than hanging.
+#guard (posix "logs/------------------------------------------.log").matchGlob
+  "logs/*-*-*-*-*-*-*-*-*-*-*-*.txt" = false
+#guard ((win "\\\\?\\C:\\a") / (posix "../b")).toWindowsString = "\\\\?\\C:\\b"
+#guard ((win "\\\\?\\C:\\a") / (posix "./b")).toWindowsString = "\\\\?\\C:\\a\\b"
+-- `..` at the root has nothing to pop and drops out
+#guard ((win "\\\\?\\C:\\") / (posix "../../a")).toWindowsString = "\\\\?\\C:\\a"
+-- a rooted right operand keeps only the prefix, then folds into it
+#guard ((win "\\\\?\\C:\\a\\b") / (win "\\c\\..\\d")).toWindowsString = "\\\\?\\C:\\d"
+-- a `.` or `..` the verbatim parser itself produced is an ordinary name and is never folded
+#guard ((win "\\\\?\\C:\\a") / (win "\\\\?\\C:\\..\\b")).toWindowsString = "\\\\?\\C:\\..\\b"
+-- Only the literal `\\?\` spelling is verbatim. `//?/x` is a device path Windows normalizes like
+-- any other, so the parser refuses `?` as a server name rather than canonicalizing it into the
+-- verbatim marker: the `.` and `..` here were read as the current and parent directory, and an
+-- anchor claiming they are ordinary names would leave `normalize` unable to resolve them.
+#guard (win "//?/x/a/./b").isVerbatim = false
+#guard (win "//?/x/a/./b").windowsPrefix? = none
+#guard (win "//?/x/a/./b").normalize.toWindowsString = "\\?\\x\\a\\b"
+-- so a `..` spelled this way no longer walks out of a directory unchecked
+#guard (win "//?/C:/uploads/../../../Windows/System32").isUnder (win "\\\\?\\C:\\uploads") = false
+-- every other Windows shape is normalized, as Windows normalizes it
+#guard (win "\\\\server\\share").isVerbatim = false
+#guard (win "\\\\.\\COM42").isVerbatim = false
+#guard (win "\\\\.\\COM42\\a\\..\\b").normalize.toWindowsString = "\\\\.\\COM42\\b"
+#guard (win "C:\\a").isVerbatim = false
+#guard (posix "/a").isVerbatim = false
+-- Runs of separators and a trailing separator collapse here as they do in every other path.
+#guard (win "\\\\?\\a\\.\\\\b\\").toWindowsString = "\\\\?\\a\\.\\b"
 -- the marker itself must be spelled with backslashes; `//?/x` is a path Windows does normalize
-#guard (win "//?/x").winPrefix? == some "\\\\?\\x".toByteArray
+#guard (win "//?/x").windowsPrefix? = none
+#guard (win "//?/x").toWindowsString = "\\?\\x"
+-- A run of separators between the server and the share collapses as it does everywhere else, so the
+-- name behind it stays the share instead of becoming the first segment -- which the renderer could
+-- not write back, having only one separator to put after a server.
+#guard (win "\\\\server\\\\share\\dir").windowsPrefix? == some "\\\\server\\share".toByteArray
+#guard (win "//server//share/dir").toWindowsString = "\\\\server\\share\\dir"
+#guard (win "\\\\a\\/x").windowsPrefix? == some "\\\\a\\x".toByteArray
+#guard (win "\\\\.\\\\pipe\\name").windowsPrefix? == some "\\\\.\\pipe".toByteArray
+#guard (win "\\\\?\\UNC\\\\server\\share").windowsPrefix? == some "\\\\?\\UNC\\server\\share".toByteArray
+-- a separator run with no name behind it is still just the root
+#guard (win "\\\\server\\\\").windowsPrefix? == some "\\\\server".toByteArray
+#guard (win "\\\\server\\\\").toWindowsString = "\\\\server\\"
 -- the `?` and `.` markers are never re-read as a server name, even with nothing after them
-#guard (win "\\\\?\\").winPrefix? == some "\\\\?\\".toByteArray
+#guard (win "\\\\?\\").windowsPrefix? == some "\\\\?\\".toByteArray
 #guard (win "\\\\?\\").toWindowsString = "\\\\?\\"
-#guard (win "\\\\.\\").winPrefix? == some "\\\\.".toByteArray
+#guard (win "\\\\.\\").windowsPrefix? == some "\\\\.".toByteArray
 #guard (win "\\\\.\\").toWindowsString = "\\\\.\\"
 -- joining onto a verbatim path adds the separator the prefix does not carry
 #guard ((win "\\\\?\\C:\\foo") / (win "bar")).toWindowsString = "\\\\?\\C:\\foo\\bar"
@@ -170,11 +268,11 @@ section Prefix
 #guard (win "\\\\server\\share\\").toWindowsString = "\\\\server\\share\\"
 
 -- The prefix is the top of the tree: it has no parent, and `..` cannot climb past it.
-#guard (win "\\\\server\\share").parent = none
-#guard (win "\\\\server\\share\\").parent = none
-#guard (win "\\\\server\\share\\dir\\f").parent == some (win "\\\\server\\share\\dir")
+#guard (win "\\\\server\\share").parent? = none
+#guard (win "\\\\server\\share\\").parent? = none
+#guard (win "\\\\server\\share\\dir\\f").parent? == some (win "\\\\server\\share\\dir")
 #guard (win "\\\\server\\share\\..\\x").normalize == win "\\\\server\\share\\x"
-#guard ((win "\\\\server\\share") / (win "..")).normalize == win "\\\\server\\share"
+#guard ((win "\\\\server\\share") / (win "..")).normalize == win "\\\\server\\share\\"
 -- a drive letter with no root keeps a leading `..`, like any other relative path
 #guard (win "C:..\\x").normalize == win "C:..\\x"
 
@@ -246,6 +344,15 @@ section Anchor
 #guard (win "C:foo").root? = none
 #guard (win "C:foo").anchorBytes = "C:".toByteArray
 #guard (win "\\foo").drive? = none
+-- Windows treats `c:` and `C:` as one drive, so `==` and `hash` fold the letter's case...
+#guard (win "c:\\foo") == win "C:\\foo"
+#guard hash (win "c:\\foo") = hash (win "C:\\foo")
+-- ...but the bytes are kept as written, so `=` is byte identity and rendering is lossless.
+#guard !(decide (win "c:\\foo" = win "C:\\foo"))
+#guard (win "c:\\foo").drive? = some "c:".toByteArray
+#guard (win "c:\\foo").toWindowsString = "c:\\foo"
+-- Only a drive letter folds; a verbatim volume name is compared byte for byte.
+#guard !((win "\\\\?\\c:\\foo") == win "\\\\?\\C:\\foo")
 #guard (win "\\foo").root? = some "\\".toByteArray
 #guard (win "\\foo").anchorBytes = "\\".toByteArray
 
@@ -315,11 +422,11 @@ section AnchorModel
 #guard (posix "..").normalize.toPosixString = ".."
 #guard (posix "a/..").normalize.toPosixString = "."
 
--- `parent` walks off the segments and stops at the anchor.
-#guard ((win "C:a").parent.map Path.toWindowsString) = some "C:"
-#guard ((win "C:").parent.map Path.toWindowsString) = none
-#guard ((posix "/a").parent.map Path.toPosixString) = some "/"
-#guard ((posix "/").parent.map Path.toPosixString) = none
+-- `parent?` walks off the segments and stops at the anchor.
+#guard ((win "C:a").parent?.map Path.toWindowsString) = some "C:"
+#guard ((win "C:").parent?.map Path.toWindowsString) = none
+#guard ((posix "/a").parent?.map Path.toPosixString) = some "/"
+#guard ((posix "/").parent?.map Path.toPosixString) = none
 
 -- `startsWith` compares anchors exactly, matching `endsWith` and `relativeTo?`; `\\server\share`
 -- and `\\server\share\` are distinct anchors, so neither starts with the other.
@@ -364,6 +471,15 @@ section Join
 #guard ((win "\\\\server\\share\\a").join (win "\\b")).toWindowsString = "\\\\server\\share\\b"
 #guard ((win "a\\b").join (win "\\c")).toWindowsString = "\\c"
 
+-- Putting a segment under a prefix that was standing alone writes the root the prefix does not
+-- carry; without it the render would read back as a longer prefix instead.
+#guard ((win "\\\\server\\share") / (win "a")).toWindowsString = "\\\\server\\share\\a"
+#guard ((win "\\\\server\\share") / (win "a")).toWindowsBytes?.isSome
+#guard ((win "\\\\.\\COM42") / (win "a")).toWindowsBytes?.isSome
+#guard ((win "\\\\?\\C:") / (win "a")).toWindowsBytes?.isSome
+-- a bare drive letter is the one prefix a segment may follow directly
+#guard ((win "C:") / (win "a")).toWindowsString = "C:a"
+
 end Join
 
 
@@ -406,6 +522,16 @@ section Normalize
 #guard (posix "/a/../..").normalize.normalize.toPosixString =
        (posix "/a/../..").normalize.toPosixString
 
+-- A relative path that normalizes to nothing keeps no segment standing in for the working
+-- directory: it still renders as ".", but it no longer reads as one directory deep, which is what
+-- `startsWith` and `relativeTo?` build on.
+#guard (posix ".").normalize.segments.isEmpty
+#guard (posix "a/..").normalize.segments.isEmpty
+#guard (posix "a/b").isUnder (posix ".")
+#guard (posix "./a").isUnder (posix ".")
+#guard (posix "a/../b").isUnder (posix "a/..")
+#guard (posix "/safe/../etc").isUnder (posix "/safe") = false
+
 end Normalize
 
 
@@ -416,23 +542,47 @@ end Normalize
 section Parent
 
 -- typical case
-#guard (posix "/a/b/c").parent.map (·.toPosixString) = some "/a/b"
+#guard (posix "/a/b/c").parent?.map (·.toPosixString) = some "/a/b"
 -- one level from root
-#guard (posix "/a").parent.map (·.toPosixString) = some "/"
+#guard (posix "/a").parent?.map (·.toPosixString) = some "/"
 -- root has no parent
-#guard (posix "/").parent = none
+#guard (posix "/").parent? = none
 -- relative single segment → "."
-#guard (posix "a").parent.map (·.toPosixString) = some "."
+#guard (posix "a").parent?.map (·.toPosixString) = some "."
 -- relative two segments
-#guard (posix "a/b").parent.map (·.toPosixString) = some "a"
--- "." is its own parent
-#guard (posix ".").parent.map (·.toPosixString) = some "."
+#guard (posix "a/b").parent?.map (·.toPosixString) = some "a"
+-- "." names the working directory itself, so it has no parent
+#guard (posix ".").parent? = none
+#guard (posix ".").isCurrentDir
+#guard !(posix "a").isCurrentDir
+#guard !(posix "./a").isCurrentDir
+#guard !(posix "/").isCurrentDir
 -- ".." parent
-#guard (posix "..").parent.map (·.toPosixString) = some "."
+#guard (posix "..").parent?.map (·.toPosixString) = some "."
+-- A trailing `.` is not a component of its own: it goes with the name it stands on, so `"a/b/."`
+-- has the same parent as `"a/b"`.
+#guard (posix "a/.").parent?.map (·.toPosixString) = some "."
+#guard (posix "a/b/.").parent?.map (·.toPosixString) = some "a"
+#guard (posix "a/b/c/.").parent?.map (·.toPosixString) = some "a/b"
+#guard (posix "a/./.").parent?.map (·.toPosixString) = some "."
+#guard (posix "/a/.").parent?.map (·.toPosixString) = some "/"
+#guard (posix "/.").parent? = none
+-- `"./."` names the working directory, like `"."`, so it has no parent either
+#guard (posix "./.").parent? = none
+-- ".." is a component: it is dropped, not resolved
+#guard (posix "a/b/..").parent?.map (·.toPosixString) = some "a/b"
+#guard (posix "a/b/../.").parent?.map (·.toPosixString) = some "a/b"
+#guard (posix "../.").parent?.map (·.toPosixString) = some "."
+-- an interior `.` is left as written
+#guard (posix "a/./b").parent?.map (·.toPosixString) = some "a/."
+-- `parent?` and `filename?` read the same components, so they compose
+#guard (posix "a/b/.").parent?.map (·.toPosixString) = some "a"
+#guard (posix "a/b/.").filename? = some (Path.Filename.mk "b".toByteArray)
+#guard (posix "a/b/c/.").parents.toList.map (·.toPosixString) = ["a/b", "a", "."]
 -- empty path has no parent
-#guard (default : Path).parent = none
+#guard (default : Path).parent? = none
 -- Windows drive-relative: parent of "C:foo" is the bare drive "C:"
-#guard (win "C:foo").parent.map (·.toWindowsString) = some "C:"
+#guard (win "C:foo").parent?.map (·.toWindowsString) = some "C:"
 
 end Parent
 
@@ -457,35 +607,48 @@ end ParentsIter
 
 
 -- ---------------------------------------------------------------------------
--- Section: fileName / fileStem / extension / hasExtension
+-- Section: filename? / fileStem? / extension? / hasExtension
 -- ---------------------------------------------------------------------------
 
 section FileInfo
 
--- fileName
-#guard (posix "/usr/local/bin/lean").fileName = some (Path.Filename.mk "lean".toByteArray)
-#guard (posix "archive.tar.gz").fileName = some (Path.Filename.mk "archive.tar.gz".toByteArray)
-#guard (posix "/").fileName = none
-#guard (posix "a/..").fileName = none
-#guard (posix "a/.").fileName = none
-#guard (default : Path).fileName = none
+-- filename?
+#guard (posix "/usr/local/bin/lean").filename? = some (Path.Filename.mk "lean".toByteArray)
+#guard (posix "archive.tar.gz").filename? = some (Path.Filename.mk "archive.tar.gz".toByteArray)
+#guard (posix "/").filename? = none
+#guard (posix "a/..").filename? = none
+#guard (default : Path).filename? = none
+-- a trailing `.` names the same entry as the segment before it
+#guard (posix "a/.").filename? = some (Path.Filename.mk "a".toByteArray)
+#guard (posix "a/b.txt/./.").filename? = some (Path.Filename.mk "b.txt".toByteArray)
+#guard (posix ".").filename? = none
+#guard (posix "./.").filename? = none
+#guard (posix "a/../.").filename? = none
+#guard (posix "a/b.txt/.").extension? = some (Path.Extension.mk "txt".toByteArray)
+#guard (posix "a/.hidden/.").isHidden = true
+#guard ((posix "a/b/.").setFilename (Path.Filename.mk "d".toByteArray)).toPosixString = "a/d"
 
--- fileStem
-#guard (posix "Main.lean").fileStem = some "Main".toByteArray
-#guard (posix "archive.tar.gz").fileStem = some "archive.tar".toByteArray
-#guard (posix "Makefile").fileStem = some "Makefile".toByteArray
-#guard (posix ".gitignore").fileStem = some ".gitignore".toByteArray
-#guard (posix ".hidden.lean").fileStem = some ".hidden".toByteArray
-#guard (posix "/").fileStem = none
+-- fileStem?
+#guard (posix "Main.lean").fileStem? = some "Main".toByteArray
+#guard (posix "archive.tar.gz").fileStem? = some "archive.tar".toByteArray
+#guard (posix "Makefile").fileStem? = some "Makefile".toByteArray
+#guard (posix ".gitignore").fileStem? = some ".gitignore".toByteArray
+#guard (posix ".hidden.lean").fileStem? = some ".hidden".toByteArray
+#guard (posix "/").fileStem? = none
 
--- extension
-#guard (posix "Main.lean").extension = some (Path.Extension.mk "lean".toByteArray)
-#guard (posix "archive.tar.gz").extension = some (Path.Extension.mk "gz".toByteArray)
-#guard (posix "Makefile").extension = none
-#guard (posix ".gitignore").extension = none
-#guard (posix ".hidden.lean").extension = some (Path.Extension.mk "lean".toByteArray)
-#guard (posix "/").extension = none
+-- extension?
+#guard (posix "Main.lean").extension? = some (Path.Extension.mk "lean".toByteArray)
+#guard (posix "archive.tar.gz").extension? = some (Path.Extension.mk "gz".toByteArray)
+#guard (posix "Makefile").extension? = none
+#guard (posix ".gitignore").extension? = none
+#guard (posix ".hidden.lean").extension? = some (Path.Extension.mk "lean".toByteArray)
+#guard (posix "/").extension? = none
 
+-- `removeExtension` strips any `.` past the first byte, which need not be one `hasExtension` sees:
+-- an empty extension is one no `Extension` can hold.
+#guard (posix "a.").hasExtension = false
+#guard (posix "a.").removeExtension.toPosixString = "a"
+#guard (posix "a.b.").removeExtension.toPosixString = "a.b"
 -- hasExtension
 #guard (posix "foo.txt").hasExtension = true
 #guard (posix "Makefile").hasExtension = false
@@ -558,24 +721,24 @@ section Suffixes
        (posix "archive.tar.gz").suffixes
 -- dotfile: stem is the whole name (including dot), so withStem replaces entirely
 #guard ((posix ".gitignore").withStem (.mk "profile".toByteArray)).toPosixString = "profile"
--- dotfile: withExtension appends since fileStem is the whole name and there's no extension
+-- dotfile: withExtension appends since fileStem? is the whole name and there's no extension
 #guard ((posix ".gitignore").withExtension (.mk "bak".toByteArray)).toPosixString = ".gitignore.bak"
 
 end Suffixes
 
 
 -- ---------------------------------------------------------------------------
--- Section: setFileName / withFileName / withExtension / addExtension
+-- Section: setFilename / withExtension / addExtension
 -- ---------------------------------------------------------------------------
 
 section Modification
 
--- setFileName
-#guard ((posix "a/b/c").setFileName (Path.Filename.mk "d".toByteArray)).toPosixString = "a/b/d"
-#guard ((posix "/").setFileName (Path.Filename.mk "d".toByteArray)).toPosixString = "/"  -- no-op on root
-#guard ((posix "a/..").setFileName (Path.Filename.mk "d".toByteArray)).toPosixString = "a/.."  -- no-op on parent component
+-- setFilename
+#guard ((posix "a/b/c").setFilename (Path.Filename.mk "d".toByteArray)).toPosixString = "a/b/d"
+#guard ((posix "/").setFilename (Path.Filename.mk "d".toByteArray)).toPosixString = "/"  -- no-op on root
+#guard ((posix "a/..").setFilename (Path.Filename.mk "d".toByteArray)).toPosixString = "a/.."  -- no-op on parent component
 -- single-segment relative path: result has no parent prefix
-#guard ((posix "foo").setFileName (Path.Filename.mk "bar".toByteArray)).toPosixString = "bar"
+#guard ((posix "foo").setFilename (Path.Filename.mk "bar".toByteArray)).toPosixString = "bar"
 
 -- withExtension
 #guard ((posix "a/b.tar.gz").withExtension (Path.Extension.mk "xz".toByteArray)).toPosixString = "a/b.tar.xz"
@@ -599,6 +762,71 @@ section Modification
 #guard ((posix "a/b.txt").addExtension (Path.Extension.mk "bak".toByteArray) |>.removeExtension).toPosixString = "a/b.txt"
 
 end Modification
+
+
+-- ---------------------------------------------------------------------------
+-- Section: `.` is not a component
+-- ---------------------------------------------------------------------------
+
+section Components
+
+-- `components` drops every `.` and keeps everything else, `..` included.
+#guard (posix "a/./b").components = #[.normal "a".toByteArray, .normal "b".toByteArray]
+#guard (posix "./a/././b/.").components = #[.normal "a".toByteArray, .normal "b".toByteArray]
+#guard (posix "a/../b").components
+  = #[.normal "a".toByteArray, .parent, .normal "b".toByteArray]
+#guard (posix ".").components = #[]
+#guard (posix "./.").components = #[]
+#guard (posix "/").components = #[]
+#guard Path.empty.components = #[]
+-- inside a verbatim path `.` is an ordinary name, so it is a component like any other
+#guard (win "\\\\?\\C:\\a\\.\\b").components
+  = #[.normal "a".toByteArray, .normal ".".toByteArray, .normal "b".toByteArray]
+
+-- A `.` is kept in `segments`, so rendering is still lossless.
+#guard (posix "a/./b").toPosixString = "a/./b"
+#guard (posix "a/.").toPosixString = "a/."
+
+-- `==`, `compare`, and `hash` all read the components, so a `.` never separates two paths.
+#guard (posix "a/./b") == (posix "a/b")
+#guard compare (posix "a/./b") (posix "a/b") = .eq
+#guard hash (posix "a/./b") == hash (posix "a/b")
+#guard (posix "a/b/.") == (posix "a/b")
+#guard (posix ".") == Path.empty
+#guard hash (posix ".") == hash Path.empty
+#guard (posix "/usr/./bin") == (posix "/usr/bin")
+-- but `=` is still byte identity, which is what keeps rendering faithful
+#guard !(decide ((posix "a/./b") = (posix "a/b")))
+-- `..` is a component, so it does separate them
+#guard !((posix "a/../b") == (posix "b"))
+#guard !((posix "a/..") == (posix "."))
+
+-- The same rule reaches every operation that asks what a path names.
+#guard (posix "a/b/.").filename? = some (Path.Filename.mk "b".toByteArray)
+#guard (posix "a/./b").parent?.map (·.toPosixString) = some "a/."
+#guard (posix "/usr/bin/.").endsWith (posix "bin")
+#guard (posix "/usr/./bin").startsWith (posix "/usr")
+#guard (posix "/usr/./bin").startsWith (posix "/usr/bin")
+#guard ((posix "a/./b/c").dropPrefix? (posix "a/b")).map (·.toPosixString) = some "c"
+#guard ((posix "a/.").dropPrefix? (posix "a")).map (·.toPosixString) = some "."
+#guard (posix "a/./b").matchGlob "a/b"
+#guard (posix "a/./b").matchGlob "a/*"
+#guard (posix ".").matchGlob "."
+#guard Path.empty.matchGlob "."
+#guard (posix "/.").isRoot
+#guard (posix "./.").isCurrentDir
+#guard Path.empty.isCurrentDir
+#guard ((posix "a/./b").relativeTo? (posix "a/c")).map (·.toPosixString) = some "../c"
+
+-- `isEmpty` is the one question about the representation rather than the location, so it still
+-- separates the paths that `==` identifies.
+#guard (posix ".").isEmpty = false
+#guard Path.empty.isEmpty = true
+
+-- Paths are usable as keys: two spellings of one path land on one entry.
+#guard (Std.HashMap.emptyWithCapacity.insert (posix "a/./b") 1 |>.insert (posix "a/b") 2).size = 1
+
+end Components
 
 
 -- ---------------------------------------------------------------------------
@@ -647,7 +875,9 @@ end StartEnd
 section DropPrefix
 
 #guard ((posix "/usr/local/bin").dropPrefix? (posix "/usr")).map (·.toPosixString) = some "local/bin"
-#guard ((posix "/usr/local/bin").dropPrefix? (posix "/usr/local/bin")).map (·.toPosixString) = some ""
+-- nothing left below the prefix: the path has no segments and renders as ".", never as "",
+-- which no parser would read back
+#guard ((posix "/usr/local/bin").dropPrefix? (posix "/usr/local/bin")).map (·.toPosixString) = some "."
 #guard (posix "/usr/local/bin").dropPrefix? (posix "/etc") = none
 #guard ((posix "a/b/c").dropPrefix? (posix "a/b")).map (·.toPosixString) = some "c"
 -- not a prefix
@@ -664,8 +894,8 @@ end DropPrefix
 
 section RelativeTo
 
--- same directory → empty relative path (renders as ""; join with base gives base)
-#guard ((posix "/a/b").relativeTo? (posix "/a/b")).map (·.toPosixString) = some ""
+-- same directory → a relative path with no segments, rendering as "."; join with base gives base
+#guard ((posix "/a/b").relativeTo? (posix "/a/b")).map (·.toPosixString) = some "."
 -- sibling file
 #guard ((posix "/a/b").relativeTo? (posix "/a/c")).map (·.toPosixString) = some "../c"
 -- deeper target
@@ -698,12 +928,28 @@ private def relInvariant (base target : Path) : Bool :=
 #guard relInvariant (posix "/a/b") (posix "/a/b")
 #guard relInvariant (posix "a/b") (posix "a/c")
 
+-- `.` names no directory, so it is neither ascended out of nor emitted. `normalize` produces
+-- exactly this base, so the invariant has to hold for it.
+#guard ((posix ".").relativeTo? (posix "a/c")).map (·.toPosixString) = some "a/c"
+#guard relInvariant (posix ".") (posix "a/c")
+#guard relInvariant (posix "a/..").normalize (posix "b")
+#guard ((posix "./x").relativeTo? (posix "./x/y")).map (·.toPosixString) = some "y"
+#guard ((posix "/a/./b").relativeTo? (posix "/a/c")).map (·.toPosixString) = some "../c"
+-- a `..` in `base` that `target` does not share names a directory nothing can lead back into
+#guard (posix "..").relativeTo? (posix "c") = none
+#guard (posix "a/../..").relativeTo? (posix "b") = none
+#guard ((posix "../a").relativeTo? (posix "../b")).map (·.toPosixString) = some "../b"
+
 end RelativeTo
 
 
 -- ---------------------------------------------------------------------------
 -- Section: matchGlob
 -- ---------------------------------------------------------------------------
+
+-- matchGlob is syntactic, like `startsWith` and unlike `isUnder`: no `.` or `..` is resolved first.
+#guard (posix "uploads/../secret").matchGlob "uploads/**"
+#guard (posix "uploads/../secret").isUnder (posix "uploads") = false
 
 section Glob
 
@@ -753,10 +999,12 @@ section Glob
 #guard (posix "a/b").matchGlob "a/b[x" = false
 -- an unterminated class in a non-final segment is likewise rejected
 #guard (posix "a/b").matchGlob "a[/b" = false
--- matchGlob operates on raw components and does not normalize: a literal "." segment is only matched
--- by a pattern that also has a segment there.
-#guard (posix "a/./b").matchGlob "a/b" = false
-#guard (posix "a/./b").matchGlob "a/*/b" = true
+-- matchGlob reads the path's components, so a `.` is not matched against a segment of the pattern;
+-- a `..` is a component and is matched as written rather than resolved.
+#guard (posix "a/./b").matchGlob "a/b" = true
+#guard (posix "a/./b").matchGlob "a/*/b" = false
+#guard (posix "a/../b").matchGlob "a/*/b" = true
+#guard (posix "a/../b").matchGlob "b" = false
 -- by default, a Windows drive prefix is ignored: a generic pattern matches without mentioning it,
 -- and a pattern that does mention it fails (the drive component isn't there to match against)
 #guard (win "C:\\Users\\foo").matchGlob "**/Users/foo" = true
@@ -765,6 +1013,90 @@ section Glob
 #guard (win "C:\\Users\\foo").matchGlob "C:/**/Users/foo" (matchDrivePrefix := true) = true
 #guard (win "C:\\Users\\foo").matchGlob "**/Users/foo" (matchDrivePrefix := true) = true
 #guard (win "D:\\Users\\foo").matchGlob "C:/**/Users/foo" (matchDrivePrefix := true) = false
+-- Under matchDrivePrefix the prefix *is* the leading segment, so an absolute path takes a single
+-- separator after it: emitting the root's empty segment as well would demand the doubled "C://a".
+#guard (win "C:\\a").matchGlob "C:/a" (matchDrivePrefix := true) = true
+#guard (win "C:\\a\\b").matchGlob "C:/a/b" (matchDrivePrefix := true) = true
+#guard (win "C:\\").matchGlob "C:" (matchDrivePrefix := true) = true
+#guard (win "\\\\server\\share\\a").matchGlob "\\\\server\\share/a" (matchDrivePrefix := true) = true
+-- A root is the only thing the pattern language cannot tell from its absence once a prefix stands
+-- in the leading segment, so the drive-relative path matches the same pattern.
+#guard (win "C:a").matchGlob "C:/a" (matchDrivePrefix := true) = true
+
+-- Every separator in a pattern counts. A path is parsed with its repeated and trailing separators
+-- collapsed, so a pattern that spells one names a segment no path has and matches nothing.
+#guard (posix "/").matchGlob "/" = true
+#guard (posix "/usr").matchGlob "/usr" = true
+#guard (posix "/x").matchGlob "//x" = false
+#guard (posix "a/b").matchGlob "a/b/" = false
+#guard (posix "a/b").matchGlob "a//b" = false
+#guard (posix "a/b/").segments.size = 2
+-- A path is matched as its rendering split back on `/`, so a root writes an empty leading segment,
+-- and a bare root, whose whole rendering is `"/"`, writes one on either side of it.
+#guard (posix "/").matchGlob "/*" = true
+#guard (posix "/x").matchGlob "/*" = true
+#guard (posix "/").matchGlob "/**" = true
+#guard (posix "x").matchGlob "/x" = false
+
+-- `**` is a segment of its own or a syntax error: reading `a**b` as `a*b` would hand back a weaker
+-- pattern than the one written.
+#guard (posix "axb").matchGlob "a**b" = false
+#guard (posix "xa").matchGlob "**a" = false
+#guard (posix "a/xb").matchGlob "a/**b" = false
+#guard (posix "a/b").matchGlob "a/***" = false
+-- A `**` before a further segment matches zero or more of them, but a trailing one has to take a
+-- segment of its own: the `/` written before it still has to be there.
+#guard (posix "a/c").matchGlob "a/**/c" = true
+#guard (posix "a").matchGlob "a/**" = false
+#guard (posix "a/b").matchGlob "a/**" = true
+#guard (posix "a").matchGlob "**" = true
+-- A `**` takes the separator after it with it, so `a/**/` is `a/**`.
+#guard (posix "a").matchGlob "a/**/" = false
+#guard (posix "a/b").matchGlob "a/**/" = true
+#guard (posix "a").matchGlob "**/" = true
+
+-- A `]` right after `[` or `[!` is an ordinary member, so a class can hold one...
+#guard (posix "]").matchGlob "[]]" = true
+#guard (posix "a").matchGlob "[]a]" = true
+#guard (posix "]").matchGlob "[]a]" = true
+#guard (posix "a").matchGlob "[!]]" = true
+#guard (posix "]").matchGlob "[!]]" = false
+-- ...and `[]` and `[!]` are unterminated rather than empty classes.
+#guard (posix "x").matchGlob "[]" = false
+#guard (posix "a").matchGlob "[!]" = false
+
+-- Case-insensitive matching folds ASCII letters on both sides of the comparison.
+#guard (posix "src/MAIN.lean").matchGlob "src/main.lean" = false
+#guard (posix "src/MAIN.lean").matchGlob "src/main.lean" (caseInsensitive := true) = true
+#guard (posix "SRC/Main.LEAN").matchGlob "src/*.lean" (caseInsensitive := true) = true
+#guard (posix "SRC/x/Main.lean").matchGlob "src/**/main.lean" (caseInsensitive := true) = true
+#guard (posix "src/AB.lean").matchGlob "src/??.lean" (caseInsensitive := true) = true
+-- A class member folds like a literal...
+#guard (posix "src/B.lean").matchGlob "src/[abc].lean" (caseInsensitive := true) = true
+#guard (posix "src/D.lean").matchGlob "src/[abc].lean" (caseInsensitive := true) = false
+-- ...and so does a negated one, so the excluded letter is excluded in either case.
+#guard (posix "src/A.lean").matchGlob "src/[!abc].lean" (caseInsensitive := true) = false
+#guard (posix "src/a.lean").matchGlob "src/[!ABC].lean" (caseInsensitive := true) = false
+#guard (posix "src/d.lean").matchGlob "src/[!ABC].lean" (caseInsensitive := true) = true
+-- A range is tested against the character in both ASCII cases, so it need not be written in the
+-- case that appears in the path.
+#guard (posix "src/B.lean").matchGlob "src/[a-z].lean" (caseInsensitive := true) = true
+#guard (posix "src/b.lean").matchGlob "src/[A-Z].lean" (caseInsensitive := true) = true
+#guard (posix "src/B.lean").matchGlob "src/[!a-z].lean" (caseInsensitive := true) = false
+-- Folding the character rather than the range's endpoints keeps a range that spans non-letters
+-- meaningful: `[@-B]` still holds `@`, and it holds `a` because `A` is in it.
+#guard (posix "@").matchGlob "[@-B]" (caseInsensitive := true) = true
+#guard (posix "A").matchGlob "[@-B]" (caseInsensitive := true) = true
+#guard (posix "a").matchGlob "[@-B]" (caseInsensitive := true) = true
+#guard (posix "a").matchGlob "[@-B]" = false
+-- Folding is ASCII-only, so a non-ASCII letter matches only as written.
+#guard (posix "\u00c9").matchGlob "\u00e9" (caseInsensitive := true) = false
+#guard (posix "\u00c9").matchGlob "\u00c9" (caseInsensitive := true) = true
+-- A Windows prefix is a segment like any other, so it folds too.
+#guard (win "c:\\a").matchGlob "C:/a" (matchDrivePrefix := true) = false
+#guard (win "c:\\a").matchGlob "C:/a" (matchDrivePrefix := true) (caseInsensitive := true) = true
+-- Folding never applies to the separator, so it cannot make `*` cross a segment boundary.
+#guard (posix "a/b").matchGlob "a*b" (caseInsensitive := true) = false
 
 end Glob
 
@@ -819,29 +1151,29 @@ section IsRoot
 end IsRoot
 
 -- ---------------------------------------------------------------------------
--- Section: filePrefix
+-- Section: filePrefix?
 -- ---------------------------------------------------------------------------
 
 section FilePrefix
 
 -- removes everything from first dot
-#guard (posix "foo.tar.gz").filePrefix = some "foo".toByteArray
+#guard (posix "foo.tar.gz").filePrefix? = some "foo".toByteArray
 -- single extension
-#guard (posix "foo.txt").filePrefix = some "foo".toByteArray
+#guard (posix "foo.txt").filePrefix? = some "foo".toByteArray
 -- no extension: whole name is the prefix
-#guard (posix "Makefile").filePrefix = some "Makefile".toByteArray
+#guard (posix "Makefile").filePrefix? = some "Makefile".toByteArray
 -- leading-dot file with no extension: whole name preserved
-#guard (posix ".gitignore").filePrefix = some ".gitignore".toByteArray
+#guard (posix ".gitignore").filePrefix? = some ".gitignore".toByteArray
 -- leading-dot file with extension: leading dot kept, rest up to first dot
-#guard (posix ".hidden.tar.gz").filePrefix = some ".hidden".toByteArray
-#guard (posix ".hidden.lean").filePrefix = some ".hidden".toByteArray
+#guard (posix ".hidden.tar.gz").filePrefix? = some ".hidden".toByteArray
+#guard (posix ".hidden.lean").filePrefix? = some ".hidden".toByteArray
 -- no file name → none
-#guard (posix "/").filePrefix = none
-#guard (posix "a/..").filePrefix = none
-#guard Path.empty.filePrefix = none
--- consistency with fileStem: filePrefix drops all extensions, fileStem only last
-#guard (posix "a.b.c").filePrefix = some "a".toByteArray
-#guard (posix "a.b.c").fileStem    = some "a.b".toByteArray
+#guard (posix "/").filePrefix? = none
+#guard (posix "a/..").filePrefix? = none
+#guard Path.empty.filePrefix? = none
+-- consistency with fileStem?: filePrefix? drops all extensions, fileStem? only last
+#guard (posix "a.b.c").filePrefix? = some "a".toByteArray
+#guard (posix "a.b.c").fileStem?    = some "a.b".toByteArray
 
 end FilePrefix
 
@@ -858,29 +1190,29 @@ section RawBytes
 
 -- "a\xffb": a lone 0xff begins no well-formed UTF-8 encoding.
 private def illFormed : ByteArray := ⟨#[0x61, 0xff, 0x62]⟩
-private def raw : Path := (Path.ofPosixBytes ("/tmp/".toByteArray ++ illFormed)).get!
+private def raw : Path := (Path.ofPosixBytes? ("/tmp/".toByteArray ++ illFormed)).get!
 
 -- The bytes round-trip exactly.
 #guard raw.toPosixBytes == "/tmp/".toByteArray ++ illFormed
-#guard raw.fileName.map (·.value) == some illFormed
-#guard raw.parent.map (·.toPosixBytes) == some "/tmp".toByteArray
+#guard raw.filename?.map (·.value) == some illFormed
+#guard raw.parent?.map (·.toPosixBytes) == some "/tmp".toByteArray
 
 -- Rendering to a `String` replaces the ill-formed byte with U+FFFD.
 #guard raw.toPosixString = "/tmp/a" ++ String.singleton (Char.ofNat 0xfffd) ++ "b"
-#guard raw.fileName.map (·.toString) = some ("a" ++ String.singleton (Char.ofNat 0xfffd) ++ "b")
+#guard raw.filename?.map (·.toString) = some ("a" ++ String.singleton (Char.ofNat 0xfffd) ++ "b")
 
 -- Globs match the decoded segment, so the ill-formed byte counts as one character.
 #guard raw.matchGlob "**/a?b" = true
 
 -- The string parsers are the byte parsers applied to the UTF-8 encoding.
-#guard Path.ofPosixString "/a/b" == Path.ofPosixBytes "/a/b".toByteArray
-#guard Path.ofWindowsString "C:\\a" == Path.ofWindowsBytes "C:\\a".toByteArray
+#guard Path.ofPosixString? "/a/b" == Path.ofPosixBytes? "/a/b".toByteArray
+#guard Path.ofWindowsString? "C:\\a" == Path.ofWindowsBytes? "C:\\a".toByteArray
 
 -- Empty input and null bytes are rejected in byte form too.
-#guard Path.ofPosixBytes ByteArray.empty == none
-#guard Path.ofWindowsBytes ByteArray.empty == none
-#guard Path.ofPosixBytes ⟨#[0x61, 0x00, 0x62]⟩ == none
-#guard Path.ofWindowsBytes ⟨#[0x61, 0x00, 0x62]⟩ == none
+#guard Path.ofPosixBytes? ByteArray.empty == none
+#guard Path.ofWindowsBytes? ByteArray.empty == none
+#guard Path.ofPosixBytes? ⟨#[0x61, 0x00, 0x62]⟩ == none
+#guard Path.ofWindowsBytes? ⟨#[0x61, 0x00, 0x62]⟩ == none
 
 -- A name that is not valid UTF-8 is still a valid `Filename` and `Extension`.
 #guard (Path.Filename.ofBytes? illFormed).isSome
@@ -892,7 +1224,161 @@ end RawBytes
 
 
 -- ---------------------------------------------------------------------------
--- Section: IO boundary (pathSeparator / fromBytes / toBytes / fromString /
+-- Section: WTF-8 and byte-level edges
+--
+-- The section above covers a POSIX name that is not valid UTF-8. This one covers
+-- what is left: Windows bytes are WTF-8, which encodes an unpaired surrogate that
+-- UTF-8 has no encoding for at all, and the byte-level order, `Repr`, and
+-- rendering checks all have to hold up on names no `String` can carry.
+-- ---------------------------------------------------------------------------
+
+section Wtf8Edges
+
+private def bs (s : String) : ByteArray := s.toByteArray
+private def pb (b : ByteArray) : Path := (Path.ofPosixBytes? b).get!
+
+-- `ED A0 80` encodes U+D800, an unpaired surrogate: a legal Windows path that no
+-- UTF-8 decoder accepts and no `String` can hold.
+private def surrogate : ByteArray := ⟨#[0xed, 0xa0, 0x80]⟩
+
+-- A lone continuation byte followed by a byte that begins no encoding at all.
+private def loose : ByteArray := ⟨#[0x80, 0xfe]⟩
+
+-- A surrogate survives both parsers and both renderers untouched.
+#guard (pb (bs "/" ++ surrogate ++ bs "/b")).toPosixBytes == bs "/" ++ surrogate ++ bs "/b"
+#guard (Path.ofWindowsBytes? (bs "C:\\" ++ surrogate)).get!.toWindowsBytes == bs "C:\\" ++ surrogate
+
+-- Decoding replaces one `U+FFFD` per byte that begins no well-formed encoding, so
+-- the three bytes of a surrogate give three rather than one.
+#guard (pb (bs "a/" ++ surrogate)).toPosixString.length == 5
+#guard (pb (bs "a/" ++ loose)).toPosixString.length == 4
+
+-- The name accessors past `filename?` hand the bytes back as parsed, not as decoded.
+#guard (pb (bs "a/x." ++ surrogate)).extension?.map (·.value) == some surrogate
+#guard (pb (bs "a/" ++ loose ++ bs ".txt")).fileStem? == some loose
+#guard (pb (bs "a/" ++ loose ++ bs ".txt")).filePrefix? == some loose
+
+-- `Filename` and `Extension` police separators and the null byte, not encoding.
+#guard (Path.Filename.ofBytes? surrogate).isSome
+#guard (Path.Filename.ofBytes? (bs "a" ++ ⟨#[0x5c]⟩)).isNone
+#guard (Path.Filename.ofBytes? (loose ++ ⟨#[0x00]⟩)).isNone
+#guard (Path.Extension.ofBytes? (surrogate ++ ⟨#[0x2e]⟩)).isNone
+
+-- Bytes compare unsigned, so `0x80` sorts above `0x7f` rather than below it, and a
+-- proper prefix still sorts ahead of what extends it.
+#guard compare (Path.Segment.normal ⟨#[0x80]⟩) (Path.Segment.normal ⟨#[0x7f]⟩) == .gt
+#guard compare (Path.Segment.normal ⟨#[0xff]⟩) (Path.Segment.normal ⟨#[0x01]⟩) == .gt
+#guard compare (Path.Segment.normal loose) (Path.Segment.normal (loose ++ bs "a")) == .lt
+
+-- `==`, `compare`, and `hash` agree on bytes no `String` can hold.
+#guard (Path.Segment.normal surrogate) == (Path.Segment.normal surrogate)
+#guard hash (Path.Segment.normal surrogate) == hash (Path.Segment.normal surrogate)
+#guard !((Path.Segment.normal loose) == (Path.Segment.normal surrogate))
+#guard (pb (bs "a/" ++ surrogate)) == (pb (bs "a/" ++ surrogate))
+
+-- A glob matches each ill-formed byte as the single `U+FFFD` it would decode to, so
+-- a surrogate takes three `?` and not one, and never matches an ASCII class.
+#guard (pb (bs "a/" ++ surrogate)).matchGlob "a/???"
+#guard !((pb (bs "a/" ++ surrogate)).matchGlob "a/?")
+#guard (pb (bs "a/" ++ loose ++ bs ".lean")).matchGlob "a/*.lean"
+#guard !((pb (bs "a/" ++ loose)).matchGlob "a/[a-z][a-z]")
+
+-- A `Repr` that cannot spell the bytes as a string literal falls back to the byte
+-- array, so what it prints still rebuilds the value.
+#guard (repr (Path.Segment.normal loose)).pretty ==
+  "Std.Path.Segment.normal (ByteArray.mk #[128, 254])"
+#guard (repr ((Path.Filename.ofBytes? loose).get!)).pretty ==
+  "Std.Path.Filename.mk (ByteArray.mk #[128, 254])"
+
+-- A POSIX name may hold a `\`, which Windows syntax reads as a separator, so the
+-- checked Windows render refuses it rather than silently splitting the name in two.
+#guard (pb (bs "a/b\\c")).toPosixBytes?.isSome
+#guard (pb (bs "a/b\\c")).toWindowsBytes?.isNone
+#guard (pb (bs "a/b\\c")).toWindowsBytes == bs "a\\b\\c"
+
+end Wtf8Edges
+
+
+-- ---------------------------------------------------------------------------
+-- Section: checked rendering (toPosixBytes? / toWindowsBytes? and the `String`
+-- counterparts). The unchecked renderers are total and can name a different
+-- path; these return `none` in exactly the cases `toBytes` refuses.
+-- ---------------------------------------------------------------------------
+
+section CheckedRender
+
+-- A path anchored to nothing renders under either syntax.
+#guard (posix "src/Main.lean").toPosixString? = some "src/Main.lean"
+#guard (posix "src/Main.lean").toWindowsString? = some "src\\Main.lean"
+#guard (win "src\\Main.lean").toPosixString? = some "src/Main.lean"
+#guard (win "src\\Main.lean").toWindowsString? = some "src\\Main.lean"
+#guard (posix "../x/./y").toWindowsString? = some "..\\x\\.\\y"
+#guard (posix "a b/c d").toWindowsString? = some "a b\\c d"
+
+-- Parsing `a\b` as POSIX and `a/b` as Windows gives the same value, so both render both ways.
+#guard (posix "a/b") == (win "a\\b")
+#guard (posix "a/b").toPosixBytes? == some "a/b".toByteArray
+#guard (posix "a/b").toWindowsBytes? == some "a\\b".toByteArray
+
+-- A Windows prefix has no POSIX spelling. Unchecked, each of these names somewhere else.
+#guard (win "C:\\Users").toPosixString = "/Users"
+#guard (win "C:\\Users").toPosixBytes? = none
+#guard (win "C:foo\\bar").toPosixString = "foo/bar"
+#guard (win "C:foo\\bar").toPosixBytes? = none
+#guard (win "\\foo").toPosixString = "/foo"
+#guard (win "\\foo").toPosixBytes? = none
+-- A share or device path loses everything that named the host and renders as `.`.
+#guard (win "\\\\server\\share").toPosixString = "."
+#guard (win "\\\\server\\share").toPosixBytes? = none
+#guard (win "\\\\server\\share\\a").toPosixString = "/a"
+#guard (win "\\\\server\\share\\a").toPosixBytes? = none
+#guard (win "\\\\?\\C:\\x").toPosixBytes? = none
+#guard (win "\\\\.\\COM1").toPosixBytes? = none
+
+-- A POSIX root is not a Windows root: `\a` names the root of whichever drive is current.
+#guard (posix "/usr/lib").toWindowsString = "\\usr\\lib"
+#guard (posix "/usr/lib").toWindowsBytes? = none
+
+-- `\` is an ordinary byte in a POSIX name, and Windows syntax would split it in two.
+#guard (posix "a\\b").segments.size = 1
+#guard (posix "a\\b").toWindowsString = "a\\b"
+#guard (posix "a\\b").toWindowsBytes? = none
+#guard (posix "a\\b").toPosixBytes? = some "a\\b".toByteArray
+
+-- A leading segment that reads back as a drive prefix is rejected, even though the path is
+-- anchored to nothing and carries no separator of its own.
+#guard (posix "C:a").segments.size = 1
+#guard (posix "C:a").toWindowsString = "C:a"
+#guard (posix "C:a").toWindowsBytes? = none
+#guard (posix "C:/a").toWindowsBytes? = none
+#guard (posix "x/C:y").toWindowsBytes? = some "x\\C:y".toByteArray
+
+-- Checking is on the bytes, so an ill-formed name is judged before it is decoded.
+#guard raw.toPosixBytes? == some ("/tmp/".toByteArray ++ illFormed)
+#guard raw.toWindowsBytes? = none
+
+-- A successful check returns exactly what the unchecked renderer produced.
+#guard (posix "a/b/c").toPosixBytes? == some (posix "a/b/c").toPosixBytes
+#guard (win "C:\\a").toWindowsBytes? == some (win "C:\\a").toWindowsBytes
+
+-- `Path.empty` renders as `.`, which reads back as the one-segment `.` path rather than as
+-- `Path.empty` itself. The check admits it anyway: the two name the same location, and it is what
+-- a relative path that cancels to nothing normalizes to, so refusing it would leave the results of
+-- `normalize`, `dropPrefix?`, and `relativeTo?` unrenderable.
+#guard Path.empty.toPosixBytes? == some ".".toByteArray
+#guard Path.empty.toWindowsBytes? == some ".".toByteArray
+#guard (posix "a/..").normalize.toPosixString? = some "."
+#guard (posix ".").normalize.toWindowsString? = some "."
+#guard ((posix "/a/b").relativeTo? (posix "/a/b")).bind (·.toPosixString?) = some "."
+#guard ((posix "a/b").dropPrefix? (posix "a/b")).bind (·.toPosixString?) = some "."
+-- A Windows-prefixed path with no segments also renders as `.`, and that one is a genuine loss.
+#guard (win "\\\\server\\share").toPosixBytes == ".".toByteArray
+#guard (win "\\\\server\\share").toPosixBytes? = none
+
+end CheckedRender
+
+-- ---------------------------------------------------------------------------
+-- Section: IO boundary (pathSeparator / ofBytes / toBytes / ofString /
 -- toString / currentDir / cwd / resolve). These exercise the platform-native
 -- rendering path and the `lean_uv_cwd` and `lean_uv_realpath` FFI bindings.
 -- Assertions are written to hold on both POSIX and Windows hosts.
@@ -907,13 +1393,24 @@ section IOOps
   unless seps.contains sep do
     throw (IO.userError "pathSeparators must contain pathSeparator")
 
--- `fromString` / `toString` round-trip a path built from the native separator.
+-- `ofString` / `toString` round-trip a path built from the native separator.
 #eval do
   let sep ← Path.pathSeparator
   let raw := s!"{sep}usr{sep}local{sep}bin"
-  let rendered ← (← Path.fromString raw).toString
+  let rendered ← (← Path.ofString raw).toString
   unless rendered == raw do
-    throw (IO.userError s!"fromString/toString round-trip failed: {rendered}")
+    throw (IO.userError s!"ofString/toString round-trip failed: {rendered}")
+
+-- `toBytes` is the host's checked renderer: it succeeds on exactly the paths whose
+-- `toPosixBytes?` / `toWindowsBytes?` succeeds, and returns the same bytes.
+#eval show IO Unit from do
+  let cases : Array Path := #[posix "a/b", posix "/usr/lib", posix "a\\b", posix "C:a",
+    win "C:\\Users", win "\\foo", win "\\\\server\\share", win "src\\Main.lean"]
+  for p in cases do
+    let expected := if System.Platform.isWindows then p.toWindowsBytes? else p.toPosixBytes?
+    let actual := (← p.toBytes.toBaseIO).toOption
+    unless actual == expected do
+      throw (IO.userError s!"toBytes disagrees with the pure check on {p.toPosixString}")
 
 -- `cwd` turns a relative path into an absolute one, keeping the tail.
 #eval do
@@ -941,18 +1438,18 @@ section IOOps
   | .ok _ => throw (IO.userError "resolve should have failed on a nonexistent path")
   | .error _ => pure () : IO Unit)
 
--- `fromBytes` / `toBytes` round-trip a path that no `String` can hold.
+-- `ofBytes` / `toBytes` round-trip a path that no `String` can hold.
 #eval do
   let sep ← Path.pathSeparator
   let rawBytes := s!"usr{sep}".toByteArray ++ illFormed
-  let p ← Path.fromBytes rawBytes
+  let p ← Path.ofBytes rawBytes
   unless (← p.toBytes) == rawBytes do
-    throw (IO.userError "fromBytes/toBytes round-trip lost bytes")
+    throw (IO.userError "ofBytes/toBytes round-trip lost bytes")
 
 -- `toString` is the lossy view of the same path.
 #eval do
   let sep ← Path.pathSeparator
-  let p ← Path.fromBytes (s!"usr{sep}".toByteArray ++ illFormed)
+  let p ← Path.ofBytes (s!"usr{sep}".toByteArray ++ illFormed)
   unless (← p.toString) == s!"usr{sep}a" ++ String.singleton (Char.ofNat 0xfffd) ++ "b" do
     throw (IO.userError s!"toString should replace the ill-formed byte: {← p.toString}")
 
@@ -965,11 +1462,11 @@ section IOOps
 -- more than one byte per character.
 #eval show IO Unit from IO.FS.withTempDir fun dir => do
   let name := Path.Filename.ofString! "caf\u00e9-\u65e5\u672c.txt"
-  let dirPath ← Path.fromString dir.toString
+  let dirPath ← Path.ofString dir.toString
   let file := dirPath / name
   IO.FS.writeFile (← file.toString) ""
   let resolved ← Path.resolve file
-  unless resolved.fileName.map (·.value) == some name.value do
+  unless resolved.filename?.map (·.value) == some name.value do
     throw (IO.userError s!"resolve mangled a non-ASCII file name: {← resolved.toString}")
 
 -- The same, for a name that is not valid UTF-8 at all. Only a file system that accepts such a name
@@ -979,10 +1476,185 @@ section IOOps
   let created ← (IO.Process.run
     { cmd := "sh", args := #["-c", s!"cd '{dir}' && touch \"$(printf 'a\\377b')\""] }).toBaseIO
   if created.isOk then
-    let dirPath ← Path.fromString dir.toString
+    let dirPath ← Path.ofString dir.toString
     let bad := dirPath / (Path.Filename.ofBytes? illFormed).get!
     let resolved ← Path.resolve bad
-    unless resolved.fileName.map (·.value) == some illFormed do
+    unless resolved.filename?.map (·.value) == some illFormed do
       throw (IO.userError s!"resolve mangled a non-UTF-8 file name: {← resolved.toString}")
 
+-- `resolveWithin` must judge a path by where it actually leads, not by how it is spelled: a
+-- symbolic link out of the tree escapes, and a `..` behind one is not the identity `normalize`
+-- would make it. `isUnder` is the lexical test and cannot see either.
+#eval show IO Unit from IO.FS.withTempDir fun dir => do
+  let base := (← Path.ofString dir.toString) / Path.Filename.mk "jail".toByteArray
+  let inside := base / Path.Filename.mk "sub".toByteArray
+  IO.FS.createDirAll (← inside.toString)
+  IO.FS.createDirAll (← ((← Path.ofString dir.toString) / Path.Filename.mk "outside".toByteArray).toString)
+  IO.FS.writeFile (← (inside / Path.Filename.mk "ok.txt".toByteArray).toString) ""
+  let _ ← IO.Process.run
+    { cmd := "sh", args := #["-c", s!"cd '{dir}/jail' && ln -s ../outside escape && ln -s sub in \
+       && ln -s ../outside/gone dangling && ln -s sub/gone inner \
+       && ln -s dangling tolink"] }
+
+  let ok (rel : String) : IO Unit := do
+    discard <| base.resolveWithin (posix rel)
+  let rejects (rel : String) : IO Unit := do
+    if (← (base.resolveWithin (posix rel)).toBaseIO).isOk then
+      throw (IO.userError s!"resolveWithin admitted a path it cannot vouch for: {rel}")
+
+  ok "sub/ok.txt"
+  -- a path that does not exist yet is still resolvable, so a file can be created through the check
+  ok "sub/new.txt"
+  ok "new/deep/nested.txt"
+  ok "in/ok.txt"
+  ok "sub/../sub/ok.txt"
+  rejects "../outside"
+  rejects "escape/x"
+  -- the `..` here cancels the link only lexically; on the file system it lands outside
+  rejects "escape/../../outside/x"
+  -- an absolute path would replace the base under `join` rather than extend it
+  rejects "/etc/passwd"
+
+  -- A symbolic link whose target does not exist is `noFileOrDirectory` to `resolve`, exactly as a
+  -- name that is not there at all is. Taking it for the latter and appending it as written would
+  -- return a path inside the jail that the OS still follows out of it, so it is refused.
+  rejects "dangling"
+  rejects "dangling/x"
+  -- refused whichever way the link points, since `resolve` cannot see where that is
+  rejects "inner"
+  -- a link pointing at a dangling link is caught at the first `isSymlink`, with no chasing: this is
+  -- the case that reading the link and resolving it by hand would have needed loop detection for
+  rejects "tolink"
+
+  -- `isSymlink` is what separates the two, and it is what `resolveWithin` rests on.
+  unless ← (base / Path.Filename.mk "dangling".toByteArray).isSymlink do
+    throw (IO.userError "isSymlink should see a link whose target is missing")
+  unless ← (base / Path.Filename.mk "escape".toByteArray).isSymlink do
+    throw (IO.userError "isSymlink should see a link whose target exists")
+  if ← (base / posix "sub/ok.txt").isSymlink then
+    throw (IO.userError "isSymlink should be false for an ordinary file")
+  if ← (base / Path.Filename.mk "gone".toByteArray).isSymlink then
+    throw (IO.userError "isSymlink should be false for a name that is not there")
+
+  -- `isUnder` is blind to the link, which is why `resolveWithin` exists
+  unless (base / posix "escape/x").isUnder base do
+    throw (IO.userError "isUnder should accept the lexically-contained path")
+
 end IOOps
+
+
+-- ---------------------------------------------------------------------------
+-- Section: Ord, LT/LE
+-- ---------------------------------------------------------------------------
+
+section Ordering
+
+-- Segments sort by kind, so the two special names come ahead of every ordinary one.
+#guard compare Path.Segment.current Path.Segment.parent = .lt
+#guard compare Path.Segment.parent (Path.Segment.normal "a".toByteArray) = .lt
+#guard compare (Path.Segment.normal "a".toByteArray) (Path.Segment.normal "b".toByteArray) = .lt
+-- a proper prefix sorts ahead of what extends it
+#guard compare (Path.Segment.normal "a".toByteArray) (Path.Segment.normal "ab".toByteArray) = .lt
+-- the ordinary names only a verbatim path produces stay distinct from the special segments
+#guard compare Path.Segment.parent (Path.Segment.normal "..".toByteArray) = .lt
+
+-- Anchors sort by kind, and two Windows anchors by prefix and then by root.
+#guard compare Path.Anchor.neutral Path.Anchor.posix = .lt
+#guard compare Path.Anchor.posix (Path.Anchor.ofWindows none true) = .lt
+#guard compare (Path.Anchor.ofWindows (some "C:".toByteArray) false)
+               (Path.Anchor.ofWindows (some "C:".toByteArray) true) = .lt
+#guard compare (Path.Anchor.ofWindows (some "C:".toByteArray) true)
+               (Path.Anchor.ofWindows (some "D:".toByteArray) true) = .lt
+
+-- Paths sort by anchor first, then segment by segment.
+#guard compare (posix "a") (posix "/a") = .lt
+#guard compare (posix "a/b") (posix "a/c") = .lt
+#guard compare (posix "a") (posix "a/b") = .lt
+#guard compare (posix "a/b") (posix "a/b") = .eq
+#guard compare Path.empty (posix "a") = .lt
+
+-- `compare` folds drive-letter case exactly as `==` does, so the two agree where `=` does not.
+#guard (win "c:/a") == (win "C:/a")
+#guard compare (win "c:/a") (win "C:/a") = .eq
+#guard compare (win "c:/a") (win "C:/b") = .lt
+#guard !(decide ((win "c:/a") = (win "C:/a")))
+
+-- `<` and `≤` follow `compare`, and both are decidable.
+#guard posix "a" < posix "b"
+#guard posix "a" ≤ posix "a"
+#guard !(posix "b" < posix "a")
+#guard !(posix "b" ≤ posix "a")
+
+-- Sorting a set of paths is what the order is for.
+#guard ((#[posix "b", posix "/a", posix "a/b", posix "a"].qsort (· < ·)).map (·.toPosixString))
+  = #["a", "a/b", "b", "/a"]
+
+-- File names and extensions order by their bytes.
+#guard compare (Path.Filename.ofString! "a") (Path.Filename.ofString! "b") = .lt
+#guard Path.Filename.ofString! "a" < Path.Filename.ofString! "ab"
+#guard compare (Path.Extension.ofString! "gz") (Path.Extension.ofString! "tar") = .lt
+
+end Ordering
+
+
+-- ---------------------------------------------------------------------------
+-- Section: Repr
+-- ---------------------------------------------------------------------------
+
+section Reprs
+
+-- A path reprs as the call that rebuilds it, in the syntax of the flavour it was parsed with.
+/-- info: Std.Path.ofPosixString! "/usr/bin" -/
+#guard_msgs in #eval posix "/usr/bin"
+
+/-- info: Std.Path.ofWindowsString! "C:\\Users" -/
+#guard_msgs in #eval win "C:\\Users"
+
+/-- info: Std.Path.ofWindowsString! "\\\\server\\share\\a" -/
+#guard_msgs in #eval win "\\\\server\\share\\a"
+
+-- Nothing is normalized away first, so the repr reproduces the path as written.
+/-- info: Std.Path.ofPosixString! "a/./../b" -/
+#guard_msgs in #eval posix "a/./../b"
+
+-- `Path.empty` renders as `.`, which reads back as a different path, so it reprs as itself.
+/-- info: Std.Path.empty -/
+#guard_msgs in #eval Path.empty
+
+/-- info: Std.Path.ofPosixString! "." -/
+#guard_msgs in #eval posix "."
+
+-- A path whose render would not read back falls back to the anchor and segments. Here the `/` is an
+-- ordinary byte in a name the verbatim parser produced, and no POSIX rendering can say so.
+/--
+info: Std.Path.mk Std.Path.Anchor.neutral #[Std.Path.Segment.parent, Std.Path.Segment.normal "a/b".toByteArray]
+-/
+#guard_msgs in
+#eval (Path.relativeTo? (win "\\\\?\\C:\\x") (win "\\\\?\\C:\\a/b")).get!
+
+-- So does a path whose bytes no string literal can hold.
+/-- info: Std.Path.mk Std.Path.Anchor.posix #[Std.Path.Segment.normal (ByteArray.mk #[255, 254])] -/
+#guard_msgs in
+#eval (Path.ofPosixBytes? ("/".toByteArray ++ ⟨#[0xff, 0xfe]⟩)).get!
+
+-- The components repr as the terms that rebuild them.
+/-- info: Std.Path.Filename.ofString! "Main.lean" -/
+#guard_msgs in #eval Path.Filename.ofString! "Main.lean"
+
+/-- info: Std.Path.Extension.ofString! "lean" -/
+#guard_msgs in #eval Path.Extension.ofString! "lean"
+
+/-- info: Std.Path.Segment.current -/
+#guard_msgs in #eval Path.Segment.current
+
+/-- info: Std.Path.Segment.normal "src".toByteArray -/
+#guard_msgs in #eval Path.Segment.normal "src".toByteArray
+
+/-- info: Std.Path.Anchor.posix -/
+#guard_msgs in #eval Path.Anchor.posix
+
+-- A Windows prefix is shown in the case it was written in, which is what rendering writes back.
+/-- info: Std.Path.Anchor.windows (some "c:".toByteArray) true -/
+#guard_msgs in #eval (win "c:/a").anchor
+
+end Reprs

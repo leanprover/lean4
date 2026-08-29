@@ -590,6 +590,51 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_realpath(b_obj_arg path) {
     return lean_io_result_mk_ok(resolved);
 }
 
+// libuv reports a symbolic link through `st_mode` on every platform it supports, but MSVC's
+// `sys/stat.h` declares neither of the two constants needed to read it back out.
+#ifndef S_IFMT
+#define S_IFMT 0170000
+#endif
+#ifndef S_IFLNK
+#define S_IFLNK 0120000
+#endif
+
+// Std.Internal.UV.System.isSymlink : @& ByteArray → IO Bool
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_is_symlink(b_obj_arg path) {
+    const char* path_data = (const char*)lean_sarray_cptr(path);
+    size_t path_size = lean_sarray_size(path);
+
+    // No platform permits an embedded NUL in a path, and the OS would take it as the end of one.
+    if (memchr(path_data, '\0', path_size) != nullptr) {
+        lean_obj_res str = lean_mk_string_from_bytes(path_data, path_size);
+        lean_obj_res err = mk_embedded_nul_error(str);
+        lean_dec(str);
+        return err;
+    }
+
+    std::string path_str(path_data, path_size);
+
+    uv_fs_t req;
+    int result = uv_fs_lstat(nullptr, &req, path_str.c_str(), nullptr);
+
+    if (result < 0) {
+        uv_fs_req_cleanup(&req);
+        // A name that is not there is not a link, which is the answer callers are asking for; every
+        // other failure is a question the OS declined to answer and has to be raised.
+        if (result == UV_ENOENT) {
+            return lean_io_result_mk_ok(lean_box(0));
+        }
+        lean_obj_res str = lean_mk_string_from_bytes(path_data, path_size);
+        lean_obj_res err = lean_io_result_mk_error(lean_decode_uv_error(result, str));
+        lean_dec(str);
+        return err;
+    }
+
+    bool is_link = (req.statbuf.st_mode & S_IFMT) == S_IFLNK;
+    uv_fs_req_cleanup(&req);
+    return lean_io_result_mk_ok(lean_box(is_link ? 1 : 0));
+}
+
 #else
 
 // Std.Internal.UV.System.getProcessTitle : IO String
@@ -785,6 +830,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_available_memory() {
 
 // Std.Internal.UV.System.realPath : @& ByteArray → IO ByteArray
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_realpath(b_obj_arg path) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
+
+// Std.Internal.UV.System.isSymlink : @& ByteArray → IO Bool
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_is_symlink(b_obj_arg path) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );

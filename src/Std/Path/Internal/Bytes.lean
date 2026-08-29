@@ -8,6 +8,9 @@ module
 prelude
 public import Init.Data.ByteArray
 public import Init.Data.String
+public import Init.Data.Ord.Array
+public import Init.Data.Ord.UInt
+public import Init.Data.Repr
 import Init.Omega
 
 -- Exposed so that `Path.ValidFilename` and `Path.ValidExtension`, which are built from the
@@ -19,7 +22,12 @@ import Init.Omega
 
 `Std.Path` stores every component as raw bytes rather than as a `String`: a path is an arbitrary
 byte string on POSIX and a possibly ill-formed UTF-16 string on Windows, so on neither platform is
-it guaranteed to be valid UTF-8.
+it guaranteed to be valid UTF-8, which every `String` is.
+
+The Windows bytes are WTF-8, the extension of UTF-8 that gives an unpaired surrogate — which a
+Windows path may legally hold and a `Char` may not — a three-byte encoding of its own. Both
+encodings put the high bit on every byte of a multi-byte sequence, so the ASCII bytes the parsers
+give meaning to never occur inside a character.
 
 This module holds the byte-level operations the path API needs. Wherever the API hands a component
 back as a `String` it decodes with `String.fromUTF8Lossy`.
@@ -68,6 +76,11 @@ The bytes of `\\?\`, which introduce a verbatim path.
 def verbatimMarker : ByteArray := ⟨#[backslash, backslash, question, backslash]⟩
 
 /--
+The bytes of `UNC`, which mark a verbatim path as naming a network share.
+-/
+def uncTag : ByteArray := "UNC".toByteArray
+
+/--
 The bytes of `.`, the current-directory segment.
 -/
 def dotBytes : ByteArray := ⟨#[dot]⟩
@@ -76,6 +89,12 @@ def dotBytes : ByteArray := ⟨#[dot]⟩
 The bytes of `..`, the parent-directory segment.
 -/
 def dotDotBytes : ByteArray := ⟨#[dot, dot]⟩
+
+/--
+The bytes of `?`, the server name a UNC prefix may not have: canonicalizing it would spell the
+verbatim marker.
+-/
+def questionBytes : ByteArray := ⟨#[question]⟩
 
 /--
 The bytes of `/`, the POSIX root separator.
@@ -102,6 +121,21 @@ absolute as it stands.
 -/
 def isDrivePrefix (b : ByteArray) : Bool :=
   b.size == 2 && isDriveLetter b[0]! && b[1]! == colon
+
+/--
+The uppercase form of `b` if it is an ASCII lowercase letter, and `b` itself otherwise.
+-/
+def toUpperByte (b : UInt8) : UInt8 :=
+  if 'a'.toUInt8 ≤ b && b ≤ 'z'.toUInt8 then b - 0x20 else b
+
+/--
+A drive-letter prefix with its letter uppercased; any other prefix is returned unchanged.
+
+Used to compare and hash anchors, not to build them: Windows treats `c:` and `C:` as the same drive,
+but a parsed path keeps the case it was written in so that rendering it is lossless.
+-/
+def normalizeDrivePrefix (b : ByteArray) : ByteArray :=
+  if isDrivePrefix b then ⟨#[toUpperByte b[0]!, colon]⟩ else b
 
 /--
 Whether `b` is a separator in Windows syntax, which accepts both `\` and `/`.
@@ -149,6 +183,16 @@ def startsWithByte (b : ByteArray) (x : UInt8) : Bool :=
   if h : 0 < b.size then b[0] == x else false
 
 /--
+Whether `b` begins with `pre`.
+-/
+def startsWithBytes (b pre : ByteArray) : Bool :=
+  pre.size ≤ b.size && go pre.size
+where
+  go : Nat → Bool
+    | 0 => true
+    | i + 1 => b[i]! == pre[i]! && go i
+
+/--
 Whether `b` contains the byte `x` anywhere.
 -/
 def containsByte (b : ByteArray) (x : UInt8) : Bool :=
@@ -163,6 +207,33 @@ where
   go : Nat → Option Nat
     | 0 => none
     | i + 1 => if b[i]! == x then some i else go i
+
+/--
+Compare two byte strings lexicographically, so that a proper prefix sorts ahead of what extends it.
+-/
+def compareBytes (a b : ByteArray) : Ordering :=
+  compare a.data b.data
+
+/--
+The order `Std.Path` puts on the raw bytes of a prefix, a segment, or a file name.
+
+Scoped rather than global: core provides no `Ord ByteArray`, and the one this module needs should
+not become the ambient choice for every other user of the type.
+-/
+scoped instance : Ord ByteArray := ⟨compareBytes⟩
+
+/--
+Raw bytes as a term that rebuilds them: a string literal encoded back with `toByteArray` when they
+are valid UTF-8, and the underlying byte array otherwise.
+
+Windows bytes are WTF-8, so a path holding an unpaired surrogate takes the second form even though
+it is a perfectly ordinary path there. The result is parenthesized where it needs to be, so it can
+be dropped straight into argument position.
+-/
+def reprBytes (b : ByteArray) : Std.Format :=
+  match String.fromUTF8? b with
+  | some s => repr s ++ ".toByteArray"
+  | none => "(ByteArray.mk " ++ repr b.data ++ ")"
 
 /--
 Splits the bytes of `b` from `start` onwards at every occurrence of `x`, dropping the separators and

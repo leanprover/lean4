@@ -17,6 +17,11 @@ open Std
 -- usable with the rest of the pure API, e.g. `/`
 #guard path("a") / path("b") == path("a/b")
 
+-- `.`, `..`, non-ASCII names and repeated separators all survive the parse
+#guard path("a/./../b").segments.map toString = #["a", ".", "..", "b"]
+#guard path("a//b/").toPosixString = "a/b"
+#guard path("héllo/wörld").toPosixString = "héllo/wörld"
+
 -- invalid literal (empty string) is a compile-time error, not a runtime panic
 /-- error: invalid path: "" -/
 #guard_msgs in

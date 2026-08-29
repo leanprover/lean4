@@ -213,12 +213,27 @@ structure State where
   snapshotTasks : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
   deriving Nonempty
 
-/-- Context for the CoreM monad. -/
-structure Context where
+/--
+The pointer-valued fields of `Core.Context` that are updated at most a handful of times per command.
+
+`withReader` can never reuse the `Context` record, so every `withRef`, `withOptions` or
+`withIncRecDepth` pays one reference count increment per pointer field. Grouping these fields into a
+subobject makes them cost a single increment together.
+-/
+structure Context.Cold where
   /-- Name of the file being compiled. -/
   fileName       : String
   /-- Auxiliary datastructure for converting `String.Pos` into Line/Column number. -/
   fileMap        : FileMap
+  quotContext    : Name := .anonymous
+  /-- If set, used to cancel elaboration from outside when results are not needed anymore. -/
+  cancelTk?      : Option IO.CancelToken := none
+  /-- Cache of `Lean.inheritedTraceOptions`. -/
+  inheritedTraceOptions : Std.HashSet Name := {}
+  deriving Nonempty
+
+/-- Context for the CoreM monad. -/
+structure Context extends Context.Cold where
   options        : Options := {}
   currRecDepth   : Nat := 0
   maxRecDepth    : Nat := 1000
@@ -227,22 +242,17 @@ structure Context where
   openDecls      : List OpenDecl := []
   initHeartbeats : Nat := 0
   maxHeartbeats  : Nat := getMaxHeartbeats options
-  quotContext    : Name := .anonymous
   currMacroScope : MacroScope := firstFrontendMacroScope
   /--
   If `diag := true`, different parts of the system collect diagnostics.
   Use the `set_option diag true` to set it to true.
   -/
   diag           : Bool := false
-  /-- If set, used to cancel elaboration from outside when results are not needed anymore. -/
-  cancelTk?      : Option IO.CancelToken := none
   /--
   If set (when `showPartialSyntaxErrors` is not set and parsing failed), suppresses most elaboration
   errors; see also `logMessage` below.
   -/
   suppressElabErrors : Bool := false
-  /-- Cache of `Lean.inheritedTraceOptions`. -/
-  inheritedTraceOptions : Std.HashSet Name := {}
   deriving Nonempty
 
 /-- CoreM is a monad for manipulating the Lean environment.

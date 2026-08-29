@@ -960,6 +960,16 @@ def proveEqUnitLikeApp (lhs rhs : Expr) (hyp : Expr) : MetaM Expr := do
     let f ← mkLambdaFVars #[var] f
     return mkApp6 (.const ``congrArg [appLvl, fnLvl]) appType fnType lhs rhs f hyp
 
+/-- Replace `b` (a free variable) with `a` in the body of `k` -/
+def withSubst (goal : Expr) (a b : Expr) (a_eq_b : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do
+  let ty ← inferType a
+  let u ← getLevel ty
+  let fwdDeps := (← collectForwardDeps #[b] (preserveOrder := true)).drop 1
+  let motive ← mkLambdaFVars #[b] (← mkForallFVars fwdDeps goal)
+  let reflCase ← forallBoundedTelescope (motive.betaRev #[a]) fwdDeps.size fun vars goal => do
+    mkLambdaFVars vars <| ← k goal
+  return mkAppN (mkApp6 (.const ``Eq.ndrec [0, u]) ty a motive reflCase b a_eq_b) fwdDeps
+
 /--
 Given `h : cmp = kind.eqIndicator`, try to prove `goal`, which must be a `HEq` application.
 -/
@@ -983,13 +993,7 @@ where
         let b := cmp.appArg!
         let heq := (cmp.updateFn lawfulHyps[i]!).app hyp
         -- Now we need to substitute
-        let ty ← inferType a
-        let u ← getLevel ty
-        let fwdDeps := (← collectForwardDeps #[b] (preserveOrder := true)).drop 1
-        let motive ← mkLambdaFVars #[b] (← mkForallFVars fwdDeps goal)
-        let reflCase ← forallBoundedTelescope (motive.betaRev #[a]) fwdDeps.size fun vars goal => do
-          mkLambdaFVars vars <| ← k goal
-        return mkAppN (mkApp6 (.const ``Eq.ndrec [0, u]) ty a motive reflCase b heq) fwdDeps
+        withSubst goal a b heq k
       | .cmpVar _i =>
         -- We have `cmp = cmpFn ⋯ (fieldᵢ ⋯) ⋯ (fieldᵢ' ⋯')`
         -- The proof we need here is `ihᵢ ⋯₁ ⋯ (fieldᵢ' ⋯')`
@@ -1011,13 +1015,7 @@ where
           -- Turn the equality `fieldᵢ ⋯ = fieldᵢ' ⋯'` into an equality `fieldᵢ = fieldᵢ'`
           let heq ← proveEqUnitLikeApp lhs rhs heq
           -- Now we need to substitute
-          let ty ← inferType lhs
-          let u ← getLevel ty
-          let fwdDeps := (← collectForwardDeps #[rhs] (preserveOrder := true)).drop 1
-          let motive ← mkLambdaFVars #[rhs] (← mkForallFVars fwdDeps goal)
-          let reflCase ← forallTelescope (motive.betaRev #[lhs]) fun vars goal => do
-            mkLambdaFVars vars <| ← k goal
-          return mkAppN (mkApp6 (.const ``Eq.ndrec [0, u]) ty lhs motive reflCase rhs heq) fwdDeps
+          withSubst goal lhs rhs heq k
     else if fn == kind.eqIndicator then
       -- this hypothesis gives us no usable information
       k goal
@@ -1047,6 +1045,45 @@ where
       go (args[3]!.beta (args.drop 6)) hyp goal k
     else
       throwError "Invalid goal for `CmpHelper.proveLawfulEq`:{indentExpr cmp}"
+
+def mkMaybeCtorElim (motive : Expr) (majors : Array Expr) (targetCtor : Name)
+    (ctorBranch : (fields : Array Expr) → (motiveArgs : Array Expr) → MetaM Expr)
+    (fallbackBranch : Expr → MetaM Expr) : MetaM Expr := do
+  let goal := motive.beta majors
+  let goalLvl ← getLevel goal
+  let ctorInfo ← getConstInfoCtor targetCtor
+  let indInfo ← getConstInfoInduct ctorInfo.induct
+  let type ← whnf (← inferType majors.back!)
+  type.withApp fun fn args => do
+    let .const nm us := fn |
+      throwError "Invalid input to `mkMaybeCtorElim`; expected inductive type at{indentExpr fn}"
+    unless nm = indInfo.name do
+      throwError "Invalid input to `mkMaybeCtorElim`; expected `{.ofConstName targetCtor}` to be a \
+        constructor of `{.ofConstName nm}`"
+    assert! args.size = indInfo.numParams + indInfo.numIndices
+    let params := args.take indInfo.numParams
+    let ctorApp := mkAppN (.const ctorInfo.name us) params
+    let branch ← forallTelescope (← inferType ctorApp) fun fields body => do
+      let indices := body.getAppArgsN indInfo.numIndices
+      mkLambdaFVars fields <| ← ctorBranch fields (indices.push (mkAppN ctorApp fields))
+    if indInfo.numCtors = 1 then
+      -- construct `casesOn` instead
+      let casesOnApp := mkAppN (.const (mkCasesOnName indInfo.name) (goalLvl :: us)) params
+      let casesOnApp := casesOnApp.app motive
+      let casesOnApp := mkAppN casesOnApp majors
+      return casesOnApp.app branch
+    let elimApp := mkAppN (.const (mkConstructorElimName indInfo.name ctorInfo.name) (goalLvl :: us)) params
+    let elimApp := elimApp.app motive
+    let elimApp := mkAppN elimApp majors
+    let elimApp := mkApp2 elimApp (.bvar 0) branch
+    let ctorIdx := mkAppN (mkAppN (.const (mkCtorIdxName indInfo.name) us) params) majors
+    let eq := mkApp3 (.const ``Eq [1]) Nat.mkType ctorIdx (mkRawNatLit ctorInfo.cidx)
+    let decEq := mkApp2 (.const ``Nat.decEq []) ctorIdx (mkRawNatLit ctorInfo.cidx)
+    let thenBranch := .lam `hcidx eq elimApp .default
+    let elseBranch ← withLocalDeclD `hcidx (mkNot eq) fun hcidx => do
+      mkLambdaFVars #[hcidx] <| ← fallbackBranch hcidx
+    let dite := mkApp5 (.const ``dite [goalLvl]) goal eq decEq thenBranch elseBranch
+    return dite
 
 -- specifially, this proves `cmp ... a ... b = eqIndicator → a ≍ b`
 partial def makeLawfulEq (ctx : Context) : MetaM Unit := do
@@ -1101,8 +1138,6 @@ partial def makeLawfulEq (ctx : Context) : MetaM Unit := do
       let minor ← forallTelescope minorType fun vars body => do
         let (fields, idxOfField, ihs) ← decodeMinorVars vars idxOfMotive
         let motiveIdx := idxOfMotive.get! body.getAppFn.fvarId!
-        let cmpFn := ctx.cmpVars[motiveIdx]!
-        let ctorIdxLemma := ctx.ctorIdxLemmas[motiveIdx]!
         let motiveValue := motives[motiveIdx]!
         let ctorApp := body.appArg!
         let motiveRevArgs := body.getAppRevArgs
@@ -1110,20 +1145,15 @@ partial def makeLawfulEq (ctx : Context) : MetaM Unit := do
           let .const nm us := fn | throwError "unexpected minor type{indentExpr body}"
           let cinfo ← getConstInfoCtor nm
           let ctorParams := args.take cinfo.numParams
-          let elimApp := mkAppN (.const (mkConstructorElimName cinfo.induct nm) (0 :: us)) ctorParams
+          --let elimApp := mkAppN (.const (mkConstructorElimName cinfo.induct nm) (0 :: us)) ctorParams
           forallBoundedTelescope (motiveValue.betaRev motiveRevArgs) motiveRevArgs.size fun rvars body => do
             let .forallE _ _ rhs _ := body | throwError "weird{indentExpr body}"
             let motive ← mkLambdaFVars rvars body
-            let elimApp := mkAppN (elimApp.app motive) rvars
-            let ctorIdxFn := mkAppN (.const (mkCtorIdxName cinfo.induct) us) ctorParams
-            let condType := mkApp3 (.const ``Eq [1]) Nat.mkType (mkAppN ctorIdxFn rvars) (mkRawNatLit cinfo.cidx)
-            let decCondType := mkApp2 (.const ``Nat.decEq []) (mkAppN ctorIdxFn rvars) (mkRawNatLit cinfo.cidx)
-            let elimMinor ← forallBoundedTelescope minorType fields.size fun rfields body' => do
-              let newMotiveRevArgs := body'.getForallBody.getAppRevArgs
-              let .forallE _ lhs rhs _ := motive.betaRev newMotiveRevArgs |
-                throwError "weird 2{indentExpr (motive.betaRev newMotiveRevArgs)}"
+            let ctorBranch (rfields : Array Expr) (newMotiveArgs : Array Expr) : MetaM Expr := do
+              let .forallE _ lhs rhs _ := motive.beta newMotiveArgs |
+                throwError "weird 2{indentExpr (motive.beta newMotiveArgs)}"
               let some (_, cmpFnApp, _) := lhs.eq? |
-                throwError "weird 3{indentExpr (motive.betaRev newMotiveRevArgs)}"
+                throwError "weird 3{indentExpr (motive.beta newMotiveArgs)}"
               let unfolded := ctorInfo.unfoldResult.beta (fields ++ rfields)
               let unfoldLemma := mkAppN (mkAppN ctorInfo.unfoldLemma fields) rfields
               let unfoldLemma := mkApp4 (.const ``Eq.symm [1]) kind.indicatorType cmpFnApp
@@ -1133,20 +1163,20 @@ partial def makeLawfulEq (ctx : Context) : MetaM Unit := do
                 let hyp := mkApp6 (.const ``Eq.trans [1]) kind.indicatorType unfolded cmpFnApp
                   kind.eqIndicator unfoldLemma hypVar
                 let proof ← proveLawfulHEq ctx kind allLawfulHyps idxOfField ihs unfolded hyp rhs
-                mkLambdaFVars (rfields.push hypVar) proof
-            let elimApp := mkApp2 elimApp (.bvar 0) elimMinor
-            let thenBranch := .lam `hcidx condType elimApp .default
-            let ctorIdxLemma := mkAppN (mkAppRev ctorIdxLemma motiveRevArgs) rvars
-            let cmpApp := mkAppN (mkAppRev cmpFn motiveRevArgs) rvars
-            let elseBranch := .lam `hcidx (mkNot condType)
-              (kind.elimEqOfNe cmpApp (mkAppRev ctorIdxFn motiveRevArgs) (mkAppN ctorIdxFn rvars)
-                (ctorIdxLemma.app (.bvar 0)) (.bvar 0) rhs) .default
-            let dite := mkApp5 (.const ``dite [0]) body condType decCondType thenBranch elseBranch
-            mkLambdaFVars (vars ++ rvars) dite
+                mkLambdaFVars #[hypVar] proof
+            let fallbackBranch (hcidx : Expr) : MetaM Expr := do
+              let ctorIdxLemma := ctx.ctorIdxLemmas[motiveIdx]!
+              let ctorIdxLemma := mkAppN (mkAppRev ctorIdxLemma motiveRevArgs) rvars
+              let cmpApp := ctx.cmpVars[motiveIdx]!
+              let cmpApp := mkAppN (mkAppRev cmpApp motiveRevArgs) rvars
+              let ctorIdxFn := mkAppN (.const (mkCtorIdxName cinfo.induct) us) ctorParams
+              return kind.elimEqOfNe cmpApp (mkAppRev ctorIdxFn motiveRevArgs) (mkAppN ctorIdxFn rvars)
+                (ctorIdxLemma.app hcidx) hcidx rhs
+            mkLambdaFVars (vars ++ rvars) <| ← mkMaybeCtorElim motive rvars nm ctorBranch fallbackBranch
       minors := minors.push (minor.replaceFVars motiveVars motives)
     ctx.mkLemmas motiveVars motives minors newLawfulHyps Kind.mkLawfulName
 
-def withNonNestedContext (indName : Name) (kind : Kind) (k : Context → MetaM α) : MetaM α := do
+def withNonNestedContext (indName : Name) (kind : Kind) (k : Context → MetaM α) : MetaM α := withoutExporting do
   let indInfo ← getConstInfoInduct indName
   if indInfo.isNested then
     throwError "Invalid input to `withNonNestedContext`, expected non-nested inductive"
@@ -1216,17 +1246,13 @@ def withNonNestedContext (indName : Name) (kind : Kind) (k : Context → MetaM �
 
 open Deriving
 
-def deriveCmpClass (k : Kind) : Elab.DerivingHandler := mkInductiveDerivingHandler (needSucc := true) do
-  if ← eliminatesToProp then
-    return false
-  let indInfo := (← read).indInfo
-  unless (← getEnv).contains (k.mkHelperName indInfo.name) do
-    makeCmpHelpers indInfo.name k
-  let helperApp := mkAppN (.const (k.mkHelperName indInfo.name) (← read).lparams) (← read).indParams
+private def fillInHelperArgs (indInfo : InductiveVal) (helperApp : Expr)
+    (makeCmp : (ty : Expr) → DerivingM (Expr × Expr))
+    (makeLawful : (ty : Expr) → (cmpInst : Expr) → DerivingM Expr) : DerivingM (Array Expr) := do
   let helperType ← inferType helperApp
   let nargs := helperType.getForallArity
   let helperVarsCount := nargs - 2 * (indInfo.numIndices + 1)
-  let values ← forallBoundedTelescope helperType helperVarsCount fun vars _ => do
+  forallBoundedTelescope helperType helperVarsCount fun vars _ => do
     let mut values := #[]
     let mut instMap : FVarIdMap Expr := {}
     for var in vars do
@@ -1240,20 +1266,34 @@ def deriveCmpClass (k : Kind) : Elab.DerivingHandler := mkInductiveDerivingHandl
           let .fvar f := lhs.getAppFn | unreachable!
           let some inst := instMap.get? f | unreachable!
           let inst := inst.beta vars
-          let lvl ← getDecLevel ty
-          let lawInst ← synthInstanceDeriving <| mkApp2 (.const k.lawfulEqClassName [lvl]) ty inst
-          mkLambdaFVars vars <| .app (k.lawfulEqField lvl ty inst) lawInst
+          mkLambdaFVars vars <| ← makeLawful ty inst
         values := values.push val
       else
         -- comparison function
         let (val, inst) ← forallBoundedTelescope varType (some (arity - 2)) fun vars body => do
           let .forallE _ ty _ _ := body | unreachable!
-          let lvl ← getDecLevel ty
-          let inst ← synthInstanceDeriving <| .app (.const k.className [lvl]) ty
-          return (← mkLambdaFVars vars <| .app (k.cmpField lvl ty) inst, ← mkLambdaFVars vars inst)
+          let (cmp, inst) ← makeCmp ty
+          return (← mkLambdaFVars vars cmp, ← mkLambdaFVars vars inst)
         values := values.push val
         instMap := instMap.insert var.fvarId! inst
-    pure values
+    return values
+
+def deriveCmpClass (k : Kind) : Elab.DerivingHandler := mkInductiveDerivingHandler (needSucc := true) do
+  if ← eliminatesToProp then
+    return false
+  let indInfo := (← read).indInfo
+  unless (← getEnv).contains (k.mkHelperName indInfo.name) do
+    makeCmpHelpers indInfo.name k
+  let helperApp := mkAppN (.const (k.mkHelperName indInfo.name) (← read).lparams) (← read).indParams
+  let makeCmp (ty : Expr) : DerivingM (Expr × Expr) := do
+    let lvl ← getDecLevel ty
+    let inst ← synthInstanceDeriving <| .app (.const k.className [lvl]) ty
+    return (.app (k.cmpField lvl ty) inst, inst)
+  let makeLawful (ty inst : Expr) : DerivingM Expr := do
+    let lvl ← getDecLevel ty
+    let lawInst ← synthInstanceDeriving <| mkApp2 (.const k.lawfulEqClassName [lvl]) ty inst
+    return .app (k.lawfulEqField lvl ty inst) lawInst
+  let values ← fillInHelperArgs indInfo helperApp makeCmp makeLawful
   let hyps ← produceInstanceHyps
   let lvl ← decLevel (← read).indLevel
   for name in (← read).names do
@@ -1357,6 +1397,99 @@ def deriveLawfulEqClass (k : Kind) : Elab.DerivingHandler :=
   mkInstanceForDeriving (← produceInstanceHyps) type proof
   return true
 
+def deriveDecidableEq : Elab.DerivingHandler := mkInductiveDerivingHandler (needSucc := false) do
+  if ← eliminatesToProp then
+    return false
+  let k := Kind.beq
+  let indInfo := (← read).indInfo
+  unless (← getEnv).contains (k.mkHelperName indInfo.name) do
+    makeCmpHelpers indInfo.name k
+  unless (← getEnv).contains (k.mkReflName indInfo.name) do
+    withNonNestedContext indInfo.name k makeRefl
+  unless (← getEnv).contains (k.mkLawfulName indInfo.name) do
+    withNonNestedContext indInfo.name k makeLawfulEq
+  -- Construct the helper arguments
+  let helperApp := mkAppN (.const (k.mkHelperName indInfo.name) (← read).lparams) (← read).indParams
+  let makeCmp (ty : Expr) : DerivingM (Expr × Expr) := do
+    let lvl ← getLevel ty
+    let inst ← synthInstanceDeriving <| .app (.const ``DecidableEq [lvl]) ty
+    withLocalDeclD `a ty fun a => do
+    withLocalDeclD `b ty fun b => do
+    let eq := mkApp3 (.const ``Eq [lvl]) ty a b
+    return (← mkLambdaFVars #[a, b] <| mkApp2 (.const ``decide []) eq (mkApp2 inst a b), inst)
+  let makeLawful (ty inst : Expr) : DerivingM Expr := do
+    let lvl ← getLevel ty
+    withLocalDeclD `a ty fun a => do
+    withLocalDeclD `b ty fun b => do
+    let eq := mkApp3 (.const ``Eq [lvl]) ty a b
+    mkLambdaFVars #[a, b] <| mkApp2 (.const ``of_decide_eq_true []) eq (mkApp2 inst a b)
+  let values ← fillInHelperArgs indInfo helperApp makeCmp makeLawful
+  let helperApp := mkAppN helperApp values
+  -- Construct the reflexivity arguments
+  let reflProof := helperApp.replaceFn (k.mkReflName indInfo.name)
+  let reflProofType ← inferType reflProof
+  let arity := reflProofType.getForallArity
+  let nhyps := arity - (indInfo.numIndices + 1)
+  let reflHyps ← forallBoundedTelescope reflProofType nhyps fun hypVars _ => do
+    hypVars.mapM fun hypVar => do
+      let ty ← inferType hypVar
+      forallTelescope ty fun hypParams body => do
+        let mkApp3 (.const ``Eq _) _ decide _ := body |
+          throwError "Unexpected hypothesis{indentExpr body}"
+        let mkApp2 (.const ``decide []) p@(mkApp3 (.const ``Eq [u]) ty a b) inst := decide |
+          throwError "Unexpected hypothesis{indentExpr body}"
+        unless a == b do
+          throwError "Unexpected hypothesis{indentExpr body}"
+        mkLambdaFVars hypParams <| mkApp3 (.const ``decide_eq_true []) p inst
+          (mkApp2 (.const ``rfl [u]) ty a)
+  -- Construct the lawfulness arguments
+  let lawfulProof := helperApp.replaceFn (k.mkLawfulName indInfo.name)
+  let lawfulProofType ← inferType lawfulProof
+  let arity := lawfulProofType.getForallArity
+  let nhyps := arity - 2 * (indInfo.numIndices + 1) - 1
+  let lawfulHyps ← forallBoundedTelescope lawfulProofType nhyps fun hypVars _ => do
+    hypVars.mapM fun hypVar => do
+      let ty ← inferType hypVar
+      let arity := ty.getForallArity
+      forallBoundedTelescope ty (some (arity - 1)) fun hypParams body => do
+        let .forallE _ (mkApp3 (.const ``Eq _) _ decide _) _ _ := body |
+          throwError "Unexpected hypothesis{indentExpr body}"
+        let mkApp2 (.const ``decide []) p@(mkApp3 (.const ``Eq [_]) _ _ _) inst := decide |
+          throwError "Unexpected hypothesis{indentExpr body}"
+        mkLambdaFVars hypParams <| mkApp2 (.const ``of_decide_eq_true []) p inst
+  let hyps ← produceInstanceHyps
+  let lvl := (← read).indLevel
+  for name in (← read).names do
+    let indApp := mkAppN (.const name (← read).lparams) (← read).indParams
+    forallTelescopeReducing (← inferType indApp) fun indices _ => do
+      let indApp := mkAppN indApp indices
+      withLocalDeclD `a indApp fun a => do
+      withLocalDeclD `b indApp fun b => do
+      let eq := mkApp3 (.const ``Eq [lvl]) indApp a b
+      let helperBase := mkAppN (.const (k.mkHelperName name) (← read).lparams) (← read).indParams
+      let helperBase := mkAppN helperBase values
+      let helperBase := mkAppN ((mkAppN helperBase indices).app a) indices
+      let helperApp := helperBase.app b
+      -- helper ⋯ a ⋯ a = true
+      let reflApp := mkAppN (.const (k.mkReflName name) (← read).lparams) (← read).indParams
+      let reflApp := mkAppN (mkAppN reflApp values) reflHyps
+      let reflApp := (mkAppN reflApp indices).app a
+      -- a = b → helper ⋯ a ⋯ b = true
+      let reflApp := mkApp5 (.const ``Eq.ndrec [0, lvl]) indApp a
+          (.lam `b indApp (k.mkEq (helperBase.app (.bvar 0))) .default) reflApp b
+      -- helper ⋯ a ⋯ b = true → a ≍ b
+      let lawfulApp := mkAppN (.const (k.mkLawfulName name) (← read).lparams) (← read).indParams
+      let lawfulApp := mkAppN (mkAppN lawfulApp values) lawfulHyps
+      let lawfulApp := (mkAppN ((mkAppN lawfulApp indices).app a) indices).app b
+      -- helper ⋯ a ⋯ b = true → a = b
+      let lawfulApp : Expr := .lam `heq (k.mkEq helperApp)
+        (mkApp4 (.const ``eq_of_heq [lvl]) indApp a b (lawfulApp.app (.bvar 0))) .default
+      let reflects := mkApp4 (.const ``Bool.Reflects.of_imp []) helperApp eq lawfulApp reflApp
+      let decidable := mkApp3 (.const ``Decidable.intro []) eq helperApp reflects
+      mkInstanceForDeriving hyps (← mkForallFVars indices <| .app (.const ``DecidableEq [lvl]) indApp)
+        (← mkLambdaFVars (indices.push a |>.push b) decidable)
+  return true
+
 builtin_initialize
   registerReservedNamePredicate fun env nm => Id.run do
     let .str pre sfx := nm | return false
@@ -1370,5 +1503,6 @@ builtin_initialize
     Elab.registerDerivingHandler kind.className (deriveCmpClass kind)
     Elab.registerDerivingHandler kind.reflClassName (deriveReflCmpClass kind)
     Elab.registerDerivingHandler kind.lawfulEqClassName (deriveLawfulEqClass kind)
+  Elab.registerDerivingHandler ``DecidableEq deriveDecidableEq
 
 end Lean.Meta.CmpHelper

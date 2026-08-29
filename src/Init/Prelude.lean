@@ -1272,6 +1272,12 @@ instance [dp : Decidable p] : Decidable (Not p) where
     | isTrue  hp => absurd hp
     | isFalse hp => hp
 
+theorem Bool.Reflects.of_imp {x : Bool} {p : Prop} (h₁ : Eq x true → p) (h₂ : p → Eq x true) :
+    x.Reflects p :=
+  match x with
+  | false => fun hp => Bool.noConfusion (h₂ hp)
+  | true => h₁ rfl
+
 /--
 Decides whether two Booleans are equal.
 

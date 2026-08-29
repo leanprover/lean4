@@ -151,10 +151,14 @@ def getParentId : IO PId :=
 
 /--
 Gets the current working directory.
+
+`System.FilePath` holds a `String`, so a directory whose name is not valid UTF-8 comes back with
+every byte outside a well-formed encoding replaced by `U+FFFD`. Use `Std.Path.currentDir` to read
+it without loss.
 -/
 @[inline]
 def getCwd : IO System.FilePath :=
-  UV.System.cwd
+  System.FilePath.mk <$> String.fromUTF8Lossy <$> UV.System.cwd
 
 /--
 Changes the current working directory to a new one.

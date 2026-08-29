@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Path.Component
+public import Init.Data.String.Decode
 public import Std.Internal.Parsec.String
 
 public section
@@ -33,6 +33,15 @@ Internal glob pattern representation and matching for `Path.matchGlob`.
 `src/**/*.lean` matches every path that starts with `src/`, ends with a segment matching
 `*.lean`, and has any number of segments (including none) in between, e.g. `src/Foo.lean` and
 `src/Std/Path/Internal/Glob.lean`, but not `src/Foo.txt` or `other/Foo.lean`.
+
+## Matching
+
+Matching walks the pattern and the path in step, at two levels: `matchSegments` over whole segments,
+and `matchParts` over the bytes of one segment. `**` and `*` each try every split of what is left.
+
+The path is never decoded: a segment's bytes are matched as they are, and a byte that begins no
+well-formed UTF-8 encoding counts as one `U+FFFD` character — exactly what the segment would have
+decoded to.
 -/
 
 namespace Std.Path.Internal
@@ -60,20 +69,21 @@ A compiled glob pattern: a sequence of segments separated by `/`.
 -/
 abbrev Glob := Array GlobSegment
 
-open Std Path.Internal Std.Internal Parsec String
+open Std.Internal Parsec String
 
 /--
 Parse the body of a `[...]` character class, after the opening `[`.
 -/
-private partial def globClassBody : Parser (Array (Char ⊕ Char × Char)) := do
-  if ← flag (pchar ']') then return #[]
+private partial def globClassBody (acc : Array (Char ⊕ Char × Char)) :
+    Parser (Array (Char ⊕ Char × Char)) := do
+  if ← «matches» (pchar ']') then return acc
   let c ← satisfy (· != ']')
   let elem ← attempt (do
       let _ ← pchar '-'
       let d ← satisfy (· != ']')
       return Sum.inr (c, d))
     <|> pure (Sum.inl c)
-  return #[elem] ++ (← globClassBody)
+  globClassBody (acc.push elem)
 
 /-- Parse one `GlobPart` token within a single path segment (stops at `/`). -/
 private def globPart : Parser GlobPart :=
@@ -83,8 +93,8 @@ private def globPart : Parser GlobPart :=
     | '*' => return .star
     | '?' => return .question
     | '[' =>
-      let negated ← flag (pchar '!')
-      return .charClass negated (← globClassBody)
+      let negated ← «matches» (pchar '!')
+      return .charClass negated (← globClassBody #[])
     | c => return .lit c
 
 /-- Parse one glob segment: `**` (doublestar) or a sequence of `GlobPart`s. -/
@@ -110,48 +120,68 @@ def parseGlob (pattern : String) : Option Glob :=
   | .ok g => some g
   | .error _ => none
 
-private partial def starThenParser (p : Parser Unit) : Parser Unit :=
-  attempt p <|> (any *> starThenParser p)
+/--
+The character encoded at byte offset `i` of `b`, with the number of bytes it occupies.
 
-private def globPartToParser (part : GlobPart) (cont : Parser Unit) : Parser Unit :=
+A byte that begins no well-formed encoding decodes to a single `U+FFFD`, exactly as
+`String.fromUTF8Lossy` renders it, so matching the raw bytes agrees with matching the decoded
+segment without having to decode it first.
+-/
+private def charAt (b : ByteArray) (i : Nat) : Char × Nat :=
+  match b.utf8DecodeChar? i with
+  | some c => (c, c.utf8Size)
+  | none => (Char.ofNat 0xfffd, 1)
+
+/-- Whether the single character `c` matches `part`. `.star` is handled by `matchParts`. -/
+private def matchPart (part : GlobPart) (c : Char) : Bool :=
   match part with
-  | .lit c => pchar c *> cont
-  | .question => any *> cont
-  | .star => starThenParser cont
-  | .charClass neg elems =>
-    attempt (do
-      let c ← any
-      let m := elems.any fun | .inl c' => c == c' | .inr (lo, hi) => lo ≤ c && c ≤ hi
-      unless (if neg then !m else m) do fail "no match")
-    *> cont
+  | .lit c' => c == c'
+  | .question => true
+  | .star => true
+  | .charClass negated elems =>
+    let hit := elems.any fun | .inl c' => c == c' | .inr (lo, hi) => lo ≤ c && c ≤ hi
+    negated != hit
 
-private def matchParts (parts : Array GlobPart) (s : String) : Bool :=
-  match Parser.run (parts.foldr globPartToParser eof) s with
-  | .ok _ => true
-  | .error _ => false
+/--
+Match `parts` from token `pi` against the bytes of one path segment, from byte offset `i`.
+-/
+private partial def matchParts (parts : Array GlobPart) (b : ByteArray) (pi i : Nat) : Bool :=
+  if h : pi ≥ parts.size then
+    i ≥ b.size
+  else
+    match parts[pi]'(Nat.lt_of_not_le h) with
+    | .star =>
+      let rec tryFrom (i' : Nat) : Bool :=
+        matchParts parts b (pi + 1) i' ||
+        (i' < b.size && tryFrom (i' + (charAt b i').2))
+      tryFrom i
 
-/-- The string a glob pattern segment is matched against for a given path component. -/
-private def componentSegment : Path.Component → String
-  | .winPrefix v => v.toWindowsString
-  | .root _ => ""
-  | .current => "."
-  | .parent => ".."
-  | .normal v => v
+    | part =>
+      i < b.size &&
+        (let (c, w) := charAt b i
+         matchPart part c && matchParts parts b (pi + 1) (i + w))
 
-partial def matchSegments (glob : Glob) (comps : Array Path.Component) (gi ci : Nat) : Bool :=
-  if h : gi >= glob.size then
-    ci >= comps.size
+/--
+Match `glob` from segment `gi` against `segs` from segment `ci`.
+
+`segs` holds the raw bytes of the path's glob-visible segments, one per element: `?` and a character
+class each match one character of a segment, and every byte that is not part of a well-formed UTF-8
+encoding matches as a single `U+FFFD`.
+-/
+partial def matchSegments (glob : Glob) (segs : Array ByteArray) (gi ci : Nat) : Bool :=
+  if h : gi ≥ glob.size then
+    ci ≥ segs.size
   else
     match glob[gi]'(Nat.lt_of_not_le h) with
     | .doublestar =>
       let rec tryFrom (ci' : Nat) : Bool :=
-        matchSegments glob comps (gi + 1) ci' ||
-        (ci' < comps.size && tryFrom (ci' + 1))
+        matchSegments glob segs (gi + 1) ci' ||
+        (ci' < segs.size && tryFrom (ci' + 1))
       tryFrom ci
 
     | .pattern parts =>
-      ci < comps.size &&
-      matchParts parts (componentSegment comps[ci]!) &&
-      matchSegments glob comps (gi + 1) (ci + 1)
+      ci < segs.size &&
+      matchParts parts segs[ci]! 0 0 &&
+      matchSegments glob segs (gi + 1) (ci + 1)
 
 end Std.Path.Internal

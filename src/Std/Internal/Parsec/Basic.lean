@@ -163,7 +163,7 @@ def many1 (p : Parsec ι α) : Parsec ι <| Array α := do manyCore p #[← p]
 Try `p`, returning `true` if it succeeds or `false` if it fails without consuming input.
 -/
 @[inline]
-def flag (p : Parsec ι α) : Parsec ι Bool :=
+def «matches» (p : Parsec ι α) : Parsec ι Bool :=
   (attempt p *> pure true) <|> pure false
 
 /--

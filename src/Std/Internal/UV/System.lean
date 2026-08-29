@@ -129,10 +129,13 @@ Gets information about the system's CPUs.
 opaque cpuInfo : IO (Array CPUInfo)
 
 /--
-Gets the current working directory.
+Gets the current working directory, as raw bytes.
+
+Paths are byte strings on POSIX and WTF-8 on Windows, so the result is not guaranteed to be valid
+UTF-8; decode it with `String.fromUTF8Lossy` only where losing information is acceptable.
 -/
 @[extern "lean_uv_cwd"]
-opaque cwd : IO String
+opaque cwd : IO ByteArray
 
 /--
 Changes the current working directory.
@@ -263,9 +266,12 @@ opaque availableMemory : IO UInt64
 /--
 Resolve the canonical absolute path of `path`, expanding all symlinks. Fails if any component
 does not exist on the file system.
+
+Takes and returns raw bytes, since a path need not be valid UTF-8 (see `cwd`). Fails if `path`
+contains a null byte.
 -/
 @[extern "lean_uv_realpath"]
-opaque realPath : @& String → IO String
+opaque realPath : @& ByteArray → IO ByteArray
 
 end System
 end UV

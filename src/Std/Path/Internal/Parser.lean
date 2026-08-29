@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Path.Component
-public import Std.Internal.Parsec.String
+public import Std.Internal.Parsec.ByteArray
 
 public section
 
@@ -15,116 +15,116 @@ public section
 # Path.Parser
 
 POSIX and Windows path parsers for `Std.Path`.
+
+Both parsers work on raw bytes. Every character they give meaning to (`/`, `\`, `:`, `?`) is ASCII,
+and UTF-8 is self-synchronizing, so a byte-level scan splits UTF-8 input exactly where a
+character-level one would while still accepting input that is not valid UTF-8 at all. Segments are
+sliced out of the input rather than accumulated byte by byte.
+
+Neither parser can fail: any byte string the caller does not reject outright (empty, or containing a
+null byte) denotes some path.
+
+Every alternative below is wrapped in `attempt`, since `orElse` backtracks only when the failing
+branch consumed nothing.
 -/
 
 namespace Std.Path.Internal
 
-open Std.Internal.Parsec Std.Internal.Parsec.String
+open Std.Internal.Parsec Std.Internal.Parsec.ByteArray
 
-private def classifySegment (s : String) : Path.Component :=
-  if s == ".." then .parent
-  else if s == "." then .current
-  else .normal s
-
-private def isWinSep (c : Char) : Bool :=
-  c == '\\' || c == '/'
-
-private def parseDrive : Parser String :=
-  attempt do
-    let c ← satisfy Char.isAlpha
-    discard <| pchar ':'
-    return String.singleton c ++ ":"
-
-private def posixSeg : Parser Path.Component :=
-  many1Chars (satisfy (· != '/')) <&> classifySegment
-
-private def winSegString : Parser String :=
-  many1Chars (satisfy (fun c => !isWinSep c))
+/-!
+The `limit` threaded through these parsers is the size of the whole input. The `AtMost` combinators
+are the ones that succeed at end of input rather than failing with `.eof`, and they take a bound; no
+run of bytes within the input can exceed its size, so the bound never truncates.
+-/
 
 /--
-Like `winSegString` but also matches an empty segment, for the prefix bodies that are already
-identified by the marker introducing them.
+The longest run of bytes that are not separators, which must be non-empty.
 -/
-private def winSegStringOpt : Parser String :=
-  manyChars (satisfy (fun c => !isWinSep c))
-
-private def winSeg : Parser Path.Component :=
-  winSegString <&> classifySegment
+private def segment (isSep : UInt8 → Bool) (limit : Nat) : Parser Path.Segment :=
+  (.ofBytes ·.toByteArray) <$> takeWhile1AtMost (!isSep ·) limit
 
 /--
-Parse the `server` and optional `share` of a UNC prefix, after whatever introduces it.
+Skip a run of separators, of any length including none.
 -/
-private def parseShare : Parser (String × String) := do
-  let server ← winSegString
-  let share ← attempt (satisfy isWinSep *> winSegString) <|> pure ""
-  return (server, share)
+private def skipSeps (isSep : UInt8 → Bool) (limit : Nat) : Parser Unit :=
+  discard <| takeWhileAtMost isSep limit
 
 /--
-Parse the body of a verbatim prefix, after the introducing `\\?\`.
+Every segment of the remaining input, with the runs of separators between them dropped, so that
+leading, repeated, and trailing separators contribute no empty segments.
 -/
-private def parseVerbatimBody : Parser Path.Prefix :=
-  attempt (do
-    discard <| pstring "UNC"
-    discard <| satisfy isWinSep
-    let (server, share) ← parseShare
-    return .verbatimUNC server share) <|>
-  attempt (.verbatimDisk <$> parseDrive) <|>
-  (.verbatim <$> winSegStringOpt)
+private def segments (isSep : UInt8 → Bool) (limit : Nat) : Parser (Array Path.Segment) := do
+  skipSeps isSep limit
+  many (attempt (segment isSep limit <* skipSeps isSep limit))
 
 /--
-Parse a `\\`-introduced prefix: a verbatim path, a device path, or a UNC share.
+A verbatim path: the literal `\\?\` marker and the whole rest of the input behind it, which Windows
+hands to the filesystem exactly as written. All of it is the prefix, so nothing is left to split
+into segments and `normalize` has nothing to rewrite.
 
-A bare `\\` is not one, and is left to be parsed as a root, keeping `\\` and `\` equivalent as they
-are on Windows itself.
+The marker must be spelled with backslashes, since Windows normalizes `//?/x` like any other path.
 -/
-private def parseDoubleSepPrefix : Parser Path.Prefix := do
+private def verbatimPrefix (limit : Nat) : Parser ByteArray := attempt do
+  skipBytes verbatimMarker
+  let rest ← takeWhileAtMost (fun _ => true) limit
+  return verbatimMarker ++ rest.toByteArray
+
+/--
+A UNC share (`\\server\share`) or a device path (`\\.\COM42`) — one shape: `\\` followed by up to
+two segments, returned with its separators canonicalized to `\`.
+
+A bare `\\` is not a prefix but a root, keeping `\\` and `\` equivalent as they are on Windows
+itself. The share is optional too, so the separator in `\\server\` stays behind as the root.
+-/
+private def uncPrefix (limit : Nat) : Parser ByteArray := attempt do
   discard <| satisfy isWinSep
   discard <| satisfy isWinSep
-  attempt (do
-    discard <| pchar '?'
-    discard <| satisfy isWinSep
-    parseVerbatimBody) <|>
-  attempt (do
-    discard <| pchar '.'
-    discard <| satisfy isWinSep
-    .deviceNS <$> winSegStringOpt) <|>
-  (do
-    let (server, share) ← parseShare
-    return .unc server share)
+  let server ← takeWhile1AtMost (!isWinSep ·) limit
+  let share ← attempt (do
+      discard <| satisfy isWinSep
+      let share ← takeWhile1AtMost (!isWinSep ·) limit
+      return backslashBytes ++ share.toByteArray)
+    <|> pure .empty
+  return uncMarker ++ server.toByteArray ++ share
 
-private def parsePrefix : Parser (Option Path.Prefix) :=
-  attempt (some <$> parseDoubleSepPrefix) <|>
-  attempt (some <$> (.disk <$> parseDrive)) <|>
+/--
+A drive letter with its colon, e.g. `C:`.
+-/
+private def drivePrefix : Parser ByteArray := attempt do
+  let drive := (← take 2).toByteArray
+  if isDrivePrefix drive then return drive else fail "expected a drive letter"
+
+/--
+The Windows prefix at the front of the input, if there is one.
+
+Only these three shapes are a prefix; a leading segment with neither a `:` nor a `\\` ahead of it is
+an ordinary name, so `foo\bar` is anchored to nothing.
+-/
+private def winPrefix (limit : Nat) : Parser (Option ByteArray) :=
+  (some <$> verbatimPrefix limit) <|>
+  (some <$> uncPrefix limit) <|>
+  (some <$> drivePrefix) <|>
   pure none
 
-def posixPathParser : Parser (Array Path.Component) := do
-  let hasRoot ← flag (pchar '/')
-  discard <| manyChars (attempt (pchar '/'))
+/--
+Parse a POSIX path, in which `/` is the only separator and a leading one is the root.
+-/
+def parsePosix (b : ByteArray) : Path.Anchor × Array Path.Segment :=
+  let parser : Parser _ := do
+    let rooted ← «matches» (pbyte slash)
+    return (if rooted then .posix else .neutral, ← segments (· == slash) b.size)
+  parser.run b |>.toOption.getD (.neutral, #[])
 
-  let init := if hasRoot then #[.root "/"] else #[]
-
-  match ← optional posixSeg with
-  | none =>
-    return init
-  | some first =>
-    let rest ← many (attempt (many1Chars (pchar '/') *> posixSeg))
-    discard <| manyChars (pchar '/')
-    return init ++ #[first] ++ rest
-
-def windowsPathParser : Parser (Array Path.Component) := do
-  let pfx ← parsePrefix
-  let prefixInit := pfx.elim #[] (#[.winPrefix ·])
-  let hasRoot ← flag (satisfy isWinSep)
-  discard <| manyChars (attempt (satisfy isWinSep))
-
-  let init := if hasRoot then prefixInit.push (.root "\\") else prefixInit
-
-  match ← optional winSeg with
-  | none =>
-    return init
-  | some first =>
-    let rest ← many (attempt (many1Chars (satisfy isWinSep) *> winSeg))
-    discard <| manyChars (satisfy isWinSep)
-    return init ++ #[first] ++ rest
+/--
+Parse a Windows path, in which both `\` and `/` separate, an optional prefix comes first, and a
+separator behind that prefix is the root.
+-/
+def parseWindows (b : ByteArray) : Path.Anchor × Array Path.Segment :=
+  let parser : Parser _ := do
+    let pre ← winPrefix b.size
+    let rooted ← «matches» (satisfy isWinSep)
+    return (.ofWindows pre rooted, ← segments isWinSep b.size)
+  parser.run b |>.toOption.getD (.neutral, #[])
 
 end Std.Path.Internal

@@ -75,7 +75,9 @@ class replace_rec_fn {
     }
 public:
     template<typename F>
-    replace_rec_fn(F const & f, bool use_cache):m_f(f), m_use_cache(use_cache) {}
+    replace_rec_fn(F const & f, bool use_cache):m_f(f), m_use_cache(use_cache) {
+        if (use_cache) m_cache.reserve(128);
+    }
 
     expr operator()(expr const & e) { return apply(e, 0); }
 };

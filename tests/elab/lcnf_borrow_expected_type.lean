@@ -151,7 +151,7 @@ trace: [Compiler.explicitRc] size: 22
       inc fst;
       let _x.1 := wrap fst;
       let res := List.lengthTR._redArg _x.1;
-      dec _x.1;
+      dec[ref] _x.1;
       let _x.2 := measuree snd;
       let _x.3 := Nat.add res _x.2;
       dec _x.2;
@@ -199,7 +199,7 @@ trace: [Compiler.explicitRc] size: 33
       dec[ref] right;
       let _x.1 := wrap fst;
       let res := List.lengthTR._redArg _x.1;
-      dec _x.1;
+      dec[ref] _x.1;
       let _x.2 := measuree snd;
       dec snd;
       let _x.3 := Nat.add res _x.2;

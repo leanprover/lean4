@@ -7,7 +7,7 @@ package test
 Test logging in Lake CLI
 -/
 
-def cfgLogLv? := (get_config? log).bind LogLevel.ofString?
+def cfgLogLv? := (get_config? log).bind (LogLevel.ofString? ·)
 
 meta if cfgLogLv?.isSome then
   run_cmd Lean.log "bar" cfgLogLv?.get!.toMessageSeverity

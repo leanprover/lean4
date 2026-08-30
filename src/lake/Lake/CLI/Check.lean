@@ -332,10 +332,18 @@ def primitiveTargets : M (Array Lean.Name) := do
     ``Char.ofNat,
     ``List,
     ``eagerReduce,
+    ``Nat,
+    ``String,
+    ``String.mk,
+    ``Char,
+    ``optParam,
+    ``autoParam,
+    ``semiOutParam,
+    ``outParam
   ]
 
 def builtinTargets : M (Array Lean.Name) := do
-  let mut additional := #[``Nat, ``String, ``String.mk, ``Char]
+  let mut additional := #[]
   if (← getLegalAxioms).contains ``Quot.sound then
     additional := additional ++ #[``Quot, ``Quot.mk, ``Quot.lift, ``Quot.ind]
   return additional

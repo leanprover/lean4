@@ -266,7 +266,7 @@ def getKeyD [EquivBEq α] [LawfulHashable α] (m : ExtDHashMap α β) (a : α) (
     (fun m m' (h : m ~m m') => h.getKeyD_eq)
 
 @[inline, inherit_doc DHashMap.size]
-def size [EquivBEq α] [LawfulHashable α] (m : ExtDHashMap α β) : Nat :=
+def size [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] (m : ExtDHashMap α β) : Nat :=
   m.lift (fun m => m.size) (fun m m' (h : m ~m m') => h.size_eq)
 
 @[inline, inherit_doc DHashMap.isEmpty]

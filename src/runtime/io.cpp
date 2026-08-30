@@ -1620,14 +1620,14 @@ extern "C" LEAN_EXPORT obj_res lean_runtime_mark_persistent(obj_arg a) {
 }
 
 #if defined(__has_feature)
-#if __has_feature(address_sanitizer)
+#if __has_feature(address_sanitizer) || __has_feature(hwaddress_sanitizer)
 #include <sanitizer/lsan_interface.h>
 #endif
 #endif
 
 extern "C" LEAN_EXPORT obj_res lean_runtime_forget(obj_arg o) {
 #if defined(__has_feature)
-#if __has_feature(address_sanitizer)
+#if __has_feature(address_sanitizer) || __has_feature(hwaddress_sanitizer)
     __lsan_ignore_object(o);
 #endif
 #endif

@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Path.Component
-public import Std.Internal.Parsec.ByteArray
+import Init.Omega
 
 public section
 
@@ -26,115 +26,129 @@ Segments are sliced out of the input rather than accumulated byte by byte.
 
 Neither parser can fail: any byte string the caller does not reject outright (empty, or containing a
 null byte) denotes some path.
-
-Every alternative below is wrapped in `attempt`, since `orElse` backtracks only when the failing
-branch consumed nothing.
 -/
 
 namespace Std.Path.Internal
 
-open Std.Internal.Parsec Std.Internal.Parsec.ByteArray
-
-/-!
-The `limit` threaded through these parsers is the size of the whole input. The `AtMost` combinators
-are the ones that succeed at end of input rather than failing with `.eof`, and they take a bound; no
-run of bytes within the input can exceed its size, so the bound never truncates.
+/--
+The index of the first byte at or after `i` that satisfies `p`, or `b.size` if there is none.
 -/
+private def findFrom (b : ByteArray) (p : UInt8 → Bool) (i : Nat) : Nat :=
+  (b.findIdx? p (start := i)).getD b.size
 
 /--
-The longest run of bytes that are not separators, which must be non-empty, read as a segment by
-`classify`.
+Every segment of `b` from `start` on, classified by `classify`, with the runs of separators between
+them dropped, so that leading, repeated, and trailing separators contribute no empty segments.
 -/
-private def segment (classify : ByteArray → Path.Segment) (isSep : UInt8 → Bool) (limit : Nat) :
-    Parser Path.Segment :=
-  (classify ·.toByteArray) <$> takeWhile1AtMost (!isSep ·) limit
+private def scanSegments (classify : ByteArray → Path.Segment) (isSep : UInt8 → Bool)
+    (b : ByteArray) (start : Nat) : Array Path.Segment :=
+  go start start #[]
+where
+  go (from_ i : Nat) (acc : Array Path.Segment) : Array Path.Segment :=
+    if h : i < b.size then
+      if isSep b[i] then
+        go (i + 1) (i + 1) (if from_ < i then acc.push (classify (b.extract from_ i)) else acc)
+      else
+        go from_ (i + 1) acc
+    else if from_ < b.size then
+      acc.push (classify (b.extract from_ b.size))
+    else
+      acc
+  termination_by b.size - i
 
 /--
-Skip a run of separators, of any length including none.
+Whether `b` holds `pat` starting at index `i`, ignoring the case of ASCII letters.
+
+Case-insensitive because the one caller matches the `UNC` tag of a verbatim path, which Windows
+resolves through the object manager and so reads in any case.
 -/
-private def skipSeps (isSep : UInt8 → Bool) (limit : Nat) : Parser Unit :=
-  discard <| takeWhileAtMost isSep limit
+private def matchesAt (b pat : ByteArray) (i : Nat) : Bool :=
+  i + pat.size ≤ b.size && go pat.size
+where
+  go : Nat → Bool
+    | 0 => true
+    | k + 1 => toUpperByte b[i + k]! == toUpperByte pat[k]! && go k
 
 /--
-Every segment of the remaining input, with the runs of separators between them dropped, so that
-leading, repeated, and trailing separators contribute no empty segments.
+The prefix of a verbatim path — the literal `\\?\` marker plus the segment behind it, which names
+the volume the rest of the path is read against — together with the index just past it, or `none` if
+`b` does not carry the marker.
+
+Only `\` ends the volume segment. Inside a verbatim path Windows gives `/` no meaning, so `\\?\a/b`
+names one volume called `a/b` rather than an `a` holding a `b`.
+
+`\\?\UNC\server\share` names a network share, and its two segments belong to the prefix just as they
+do in the non-verbatim `\\server\share`; the separator runs between them are written back as a
+single `\`. A `\\?\UNC` with no share behind it is an ordinary volume segment instead.
+
+The `UNC` tag is recognized in any case, since Windows resolves it through the object manager: were
+only the uppercase spelling a prefix, `\\?\unc\server\share` would put the server and share in
+ordinary segments below the root, and the share would stop being the floor that `parent?` and
+`dropPrefix?` cannot walk past. The tag is kept in the case it was written in, so rendering the
+path writes it back as it came.
+
+The marker itself must be spelled with backslashes, since Windows normalizes `//?/x` like any other
+path. `\\?\` with nothing behind it names no volume, so it is not a prefix at all.
 -/
-private def segments (classify : ByteArray → Path.Segment) (isSep : UInt8 → Bool) (limit : Nat) :
-    Parser (Array Path.Segment) := do
-  skipSeps isSep limit
-  many (attempt (segment classify isSep limit <* skipSeps isSep limit))
+private def scanVerbatimPrefix (b : ByteArray) : Option (ByteArray × Nat) :=
+  if !startsWithBytes b verbatimMarker then none else
+  let n := verbatimMarker.size
+  let unc :=
+    if matchesAt b uncTag n then
+      let i := n + uncTag.size
+      let serverStart := findFrom b (· != backslash) i
+      let serverEnd := findFrom b (· == backslash) serverStart
+      if i < serverStart && serverStart < serverEnd then
+        let server := b.extract n i ++ backslashBytes ++ b.extract serverStart serverEnd
+        let shareStart := findFrom b (· != backslash) serverEnd
+        let shareEnd := findFrom b (· == backslash) shareStart
+        if serverEnd < shareStart && shareStart < shareEnd then
+          some (server ++ backslashBytes ++ b.extract shareStart shareEnd, shareEnd)
+        else
+          some (server, serverEnd)
+      else none
+    else none
+  match unc with
+  | some (body, e) => some (verbatimMarker ++ body, e)
+  | none =>
+    let e := findFrom b (· == backslash) n
+    if e == n then none else some (verbatimMarker ++ b.extract n e, e)
 
 /--
-A verbatim path prefix: the literal `\\?\` marker plus the first segment behind it, which names the
-volume the rest of the path is read against.
+The prefix at the front of a non-verbatim Windows path, with its separators canonicalized to `\`,
+together with the index just past it.
 
-Only `\` ends that segment. Inside a verbatim path Windows gives `/` no meaning, so `\\?\a/b` names
-one volume called `a/b` rather than an `a` holding a `b`.
-
-`\\?\UNC\server\share` names a network share, and its two segments belong to the prefix just as
-they do in the non-verbatim `\\server\share`.
-
-The marker must be spelled with backslashes, since Windows normalizes `//?/x` like any other path.
+Only two shapes are a prefix: a UNC share or device path (`\\` followed by up to two segments), and
+a drive letter with its colon. A leading segment with neither a `:` nor a `\\` ahead of it is an
+ordinary name, so `foo\bar` is anchored to nothing. `?` is refused as a server name, since
+canonicalizing it would spell the verbatim marker.
 -/
-private def verbatimPrefix (limit : Nat) : Parser ByteArray := attempt do
-  skipBytes verbatimMarker
-  let body ←
-    (attempt do
-        skipBytes uncTag
-        discard <| takeWhile1AtMost (· == backslash) limit
-        let server ← takeWhile1AtMost (· != backslash) limit
-        let share ← attempt (do
-            discard <| takeWhile1AtMost (· == backslash) limit
-            let share ← takeWhile1AtMost (· != backslash) limit
-            return backslashBytes ++ share.toByteArray)
-          <|> pure .empty
-        return uncTag ++ backslashBytes ++ server.toByteArray ++ share)
-      <|> ((·.toByteArray) <$> takeWhileAtMost (· != backslash) limit)
-  return verbatimMarker ++ body
-
-/--
-A UNC share (`\\server\share`) or a device path (`\\.\COM42`) — one shape: `\\` followed by up to
-two segments, returned with its separators canonicalized to `\`.
--/
-private def uncPrefix (limit : Nat) : Parser ByteArray := attempt do
-  discard <| satisfy isWinSep
-  discard <| satisfy isWinSep
-  let server ← takeWhile1AtMost (!isWinSep ·) limit
-  if server.toByteArray == questionBytes then fail "`?` is not a server name"
-  let share ← attempt (do
-      discard <| takeWhile1AtMost isWinSep limit
-      let share ← takeWhile1AtMost (!isWinSep ·) limit
-      return backslashBytes ++ share.toByteArray)
-    <|> pure .empty
-  return uncMarker ++ server.toByteArray ++ share
-
-/--
-A drive letter with its colon, e.g. `C:`.
--/
-private def drivePrefix : Parser ByteArray := attempt do
-  let drive := (← take 2).toByteArray
-  if isDrivePrefix drive then return drive else fail "expected a drive letter"
-
-/--
-The prefix at the front of a non-verbatim Windows path, if there is one.
-
-Only these two shapes are a prefix; a leading segment with neither a `:` nor a `\\` ahead of it is
-an ordinary name, so `foo\bar` is anchored to nothing.
--/
-private def windowsPrefix (limit : Nat) : Parser (Option ByteArray) :=
-  (some <$> uncPrefix limit) <|>
-  (some <$> drivePrefix) <|>
-  pure none
+private def scanWindowsPrefix (b : ByteArray) : Option ByteArray × Nat :=
+  let unc :=
+    if 2 ≤ b.size && isWinSep b[0]! && isWinSep b[1]! then
+      let serverEnd := findFrom b isWinSep 2
+      let server := b.extract 2 serverEnd
+      if 2 < serverEnd && server != questionBytes then
+        let shareStart := findFrom b (!isWinSep ·) serverEnd
+        let shareEnd := findFrom b isWinSep shareStart
+        if serverEnd < shareStart && shareStart < shareEnd then
+          some (uncMarker ++ server ++ backslashBytes ++ b.extract shareStart shareEnd, shareEnd)
+        else
+          some (uncMarker ++ server, serverEnd)
+      else none
+    else none
+  match unc with
+  | some (pre, e) => (some pre, e)
+  | none =>
+    if 2 ≤ b.size && isDriveLetter b[0]! && b[1]! == colon then (some (b.extract 0 2), 2)
+    else (none, 0)
 
 /--
 Parse a POSIX path, in which `/` is the only separator and a leading one is the root.
 -/
 def parsePosix (b : ByteArray) : Path.Anchor × Array Path.Segment :=
-  let parser : Parser _ := do
-    let rooted ← «matches» (pbyte slash)
-    return (if rooted then .posix else .neutral,
-      ← segments Path.Segment.ofBytes (· == slash) b.size)
-  parser.run b |>.toOption.getD (.neutral, #[])
+  (if startsWithByte b slash then .posix else .neutral,
+    scanSegments Path.Segment.ofBytes (· == slash) b 0)
 
 /--
 Parse a Windows path, in which both `\` and `/` separate, an optional prefix comes first, and a
@@ -145,15 +159,13 @@ normalizing it: only `\` separates, and `.` and `..` are ordinary names rather t
 segments `normalize` rewrites.
 -/
 def parseWindows (b : ByteArray) : Path.Anchor × Array Path.Segment :=
-  let verbatim : Parser _ := attempt do
-    let pre ← verbatimPrefix b.size
-    let rooted ← «matches» (pbyte backslash)
-    return (.ofWindows (some pre) rooted,
-      ← segments Path.Segment.normal (· == backslash) b.size)
-  let ordinary : Parser _ := do
-    let pre ← windowsPrefix b.size
-    let rooted ← «matches» (satisfy isWinSep)
-    return (.ofWindows pre rooted, ← segments Path.Segment.ofBytes isWinSep b.size)
-  (verbatim <|> ordinary).run b |>.toOption.getD (.neutral, #[])
+  match scanVerbatimPrefix b with
+  | some (pre, i) =>
+    (.ofWindows (some pre) (i < b.size && b[i]! == backslash),
+      scanSegments Path.Segment.normal (· == backslash) b i)
+  | none =>
+    let (pre, i) := scanWindowsPrefix b
+    (.ofWindows pre (i < b.size && isWinSep b[i]!),
+      scanSegments Path.Segment.ofBytes isWinSep b i)
 
 end Std.Path.Internal

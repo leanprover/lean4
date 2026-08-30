@@ -110,67 +110,115 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_cpu_info() {
     return lean_io_result_mk_ok(lean_cpu_infos);
 }
 
-// Std.Internal.UV.System.cwd : IO ByteArray
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_cwd() {
-    char buffer[PATH_MAX];
-    size_t size = sizeof(buffer);
+// Read a path out of a libuv getter that writes into a caller-supplied buffer.
+//
+// A path is not bounded by `PATH_MAX`: a directory nested past it is reachable by relative `chdir`,
+// and the bound is 1024 on macOS against 4096 on Linux, so a fixed buffer makes the same directory
+// work on one platform and fail on the other. libuv reports a buffer that is too small as
+// `UV_ENOBUFS`, setting `*size` to what it needs; `uv_cwd` on POSIX instead forwards `getcwd`'s
+// `UV_ERANGE` without setting `*size`, so that case grows the buffer itself.
+//
+// `malloc` rather than `std::vector`, so that exhausting memory reaches Lean as an `IO` error
+// instead of throwing out of an `extern "C"` frame that has no handler for it.
+static lean_obj_res uv_read_path(int (*get)(char*, size_t*)) {
+    size_t capacity = PATH_MAX;
 
-    int result = uv_cwd(buffer, &size);
+    // A getter that keeps asking for more stops here rather than growing without bound.
+    while (capacity <= (1u << 20)) {
+        char* buffer = static_cast<char*>(malloc(capacity));
 
-    if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        if (buffer == nullptr) {
+            return lean_io_result_mk_error(lean_decode_uv_error(UV_ENOMEM, nullptr));
+        }
+
+        size_t size = capacity;
+        int result = get(buffer, &size);
+
+        if (result == UV_ENOBUFS || result == UV_ERANGE) {
+            size_t next = (result == UV_ENOBUFS && size > capacity) ? size : capacity * 2;
+            free(buffer);
+            capacity = next;
+            continue;
+        }
+
+        if (result < 0) {
+            free(buffer);
+            return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        }
+
+        // The getter sets `size` to the length of the path it wrote, excluding the terminating NUL.
+        lean_object* path = lean_alloc_sarray(1, size, size);
+        memcpy(lean_sarray_cptr(path), buffer, size);
+        free(buffer);
+        return lean_io_result_mk_ok(path);
     }
 
-    // `uv_cwd` sets `size` to the length of the path it wrote, excluding the terminating NUL.
-    lean_object* path = lean_alloc_sarray(1, size, size);
-    memcpy(lean_sarray_cptr(path), buffer, size);
-    return lean_io_result_mk_ok(path);
+    return lean_io_result_mk_error(lean_decode_uv_error(UV_ENAMETOOLONG, nullptr));
 }
 
-// Std.Internal.UV.System.chdir : @& String → IO Unit
+// Copy a `ByteArray` path into a NUL-terminated buffer libuv can take, or `nullptr` if the
+// allocation fails.
+//
+// The array is not NUL-terminated and the caller has already rejected an embedded NUL, so a copy is
+// unavoidable. `malloc` rather than `std::string`, whose allocation failure throws — and a C++
+// exception unwinding out of an `extern "C"` frame reaches Lean-generated code with no handler for
+// it. Free with `free`.
+static char* copy_path_cstr(const char* data, size_t size) {
+    char* out = static_cast<char*>(malloc(size + 1));
+
+    if (out != nullptr) {
+        memcpy(out, data, size);
+        out[size] = '\0';
+    }
+
+    return out;
+}
+
+// Std.Internal.UV.System.cwd : IO ByteArray
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_cwd() {
+    return uv_read_path(uv_cwd);
+}
+
+// Std.Internal.UV.System.chdir : @& ByteArray → IO Unit
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_chdir(b_obj_arg path) {
-    const char* path_str = lean_string_cstr(path);
-    if (strlen(path_str) != lean_string_size(path) - 1) {
-        return mk_embedded_nul_error(path);
+    const char* path_data = (const char*)lean_sarray_cptr(path);
+    size_t path_size = lean_sarray_size(path);
+
+    // No platform permits an embedded NUL in a path, and the OS would take it as the end of one.
+    if (memchr(path_data, '\0', path_size) != nullptr) {
+        lean_obj_res str = lean_mk_string_from_bytes(path_data, path_size);
+        lean_obj_res err = mk_embedded_nul_error(str);
+        lean_dec(str);
+        return err;
+    }
+
+    char* path_str = copy_path_cstr(path_data, path_size);
+
+    if (path_str == nullptr) {
+        return lean_io_result_mk_error(lean_decode_uv_error(UV_ENOMEM, nullptr));
     }
 
     int result = uv_chdir(path_str);
+    free(path_str);
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, path));
+        lean_obj_res str = lean_mk_string_from_bytes(path_data, path_size);
+        lean_obj_res err = lean_io_result_mk_error(lean_decode_uv_error(result, str));
+        lean_dec(str);
+        return err;
     }
 
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-// Std.Internal.UV.System.osHomedir : IO String
+// Std.Internal.UV.System.osHomedir : IO ByteArray
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_homedir() {
-    char buffer[PATH_MAX];
-    size_t size = sizeof(buffer);
-
-    int result = uv_os_homedir(buffer, &size);
-
-    if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
-    }
-
-    lean_object* lean_homedir = lean_mk_string(buffer);
-    return lean_io_result_mk_ok(lean_homedir);
+    return uv_read_path(uv_os_homedir);
 }
 
-// Std.Internal.UV.System.osTmpdir : IO String
+// Std.Internal.UV.System.osTmpdir : IO ByteArray
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_tmpdir() {
-    char buffer[PATH_MAX];
-    size_t size = sizeof(buffer);
-
-    int result = uv_os_tmpdir(buffer, &size);
-
-    if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
-    }
-
-    lean_object* lean_tmpdir = lean_mk_string(buffer);
-    return lean_io_result_mk_ok(lean_tmpdir);
+    return uv_read_path(uv_os_tmpdir);
 }
 
 // Std.Internal.UV.System.osGetPasswd : IO PasswdInfo
@@ -569,10 +617,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_realpath(b_obj_arg path) {
         return err;
     }
 
-    std::string path_str(path_data, path_size);
+    char* path_str = copy_path_cstr(path_data, path_size);
+
+    if (path_str == nullptr) {
+        return lean_io_result_mk_error(lean_decode_uv_error(UV_ENOMEM, nullptr));
+    }
 
     uv_fs_t req;
-    int result = uv_fs_realpath(nullptr, &req, path_str.c_str(), nullptr);
+    int result = uv_fs_realpath(nullptr, &req, path_str, nullptr);
+    free(path_str);
 
     if (result < 0) {
         lean_obj_res str = lean_mk_string_from_bytes(path_data, path_size);
@@ -612,10 +665,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_is_symlink(b_obj_arg path) {
         return err;
     }
 
-    std::string path_str(path_data, path_size);
+    char* path_str = copy_path_cstr(path_data, path_size);
+
+    if (path_str == nullptr) {
+        return lean_io_result_mk_error(lean_decode_uv_error(UV_ENOMEM, nullptr));
+    }
 
     uv_fs_t req;
-    int result = uv_fs_lstat(nullptr, &req, path_str.c_str(), nullptr);
+    int result = uv_fs_lstat(nullptr, &req, path_str, nullptr);
+    free(path_str);
 
     if (result < 0) {
         uv_fs_req_cleanup(&req);
@@ -686,21 +744,21 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_cwd() {
     );
 }
 
-// Std.Internal.UV.System.chdir : String → IO Unit
+// Std.Internal.UV.System.chdir : @& ByteArray → IO Unit
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_chdir(b_obj_arg path) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );
 }
 
-// Std.Internal.UV.System.osHomedir : IO String
+// Std.Internal.UV.System.osHomedir : IO ByteArray
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_homedir() {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );
 }
 
-// Std.Internal.UV.System.osTmpdir : IO String
+// Std.Internal.UV.System.osTmpdir : IO ByteArray
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_tmpdir() {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")

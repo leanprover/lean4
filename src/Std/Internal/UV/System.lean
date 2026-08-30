@@ -138,22 +138,30 @@ UTF-8; decode it with `String.fromUTF8Lossy` only where losing information is ac
 opaque cwd : IO ByteArray
 
 /--
-Changes the current working directory.
+Changes the current working directory, taking the path as raw bytes.
+
+Bytes rather than a `String`, so that a directory a `String` cannot spell — arbitrary bytes on POSIX
+and an unpaired surrogate on Windows — is reachable. See `cwd` for the same reasoning on the way in.
 -/
 @[extern "lean_uv_chdir"]
-opaque chdir : @& String → IO Unit
+opaque chdir : @& ByteArray → IO Unit
 
 /--
-Gets the path to the current user's home directory.
+Gets the path to the current user's home directory, as raw bytes.
+
+Paths are byte strings on POSIX and WTF-8 on Windows, so the result is not guaranteed to be valid
+UTF-8; decode it with `String.fromUTF8Lossy` only where losing information is acceptable.
 -/
 @[extern "lean_uv_os_homedir"]
-opaque osHomedir : IO String
+opaque osHomedir : IO ByteArray
 
 /--
-Gets the path to the temporary directory.
+Gets the path to the temporary directory, as raw bytes.
+
+Not guaranteed to be valid UTF-8, for the same reason as `osHomedir`.
 -/
 @[extern "lean_uv_os_tmpdir"]
-opaque osTmpdir : IO String
+opaque osTmpdir : IO ByteArray
 
 /--
 Gets a subset of the password file entry for the current user.

@@ -162,10 +162,13 @@ def getCwd : IO System.FilePath :=
 
 /--
 Changes the current working directory to a new one.
+
+`System.FilePath` holds a `String`, so a directory whose name is not valid UTF-8 cannot be named
+here at all. Use `Std.Path.setCurrentDir` to enter one.
 -/
 @[inline]
 def setCwd (path : System.FilePath) : IO Unit :=
-  UV.System.chdir path.toString
+  UV.System.chdir path.toString.toUTF8
 
 /--
 Gets the scheduling priority of a process.

@@ -65,37 +65,55 @@ deriving Inhabited, DecidableEq
 namespace Path.Anchor
 
 /--
-Two anchors are equal when they name the same location. The case of a Windows drive letter is
-folded, since Windows treats `c:` and `C:` as the same drive; every other prefix — a UNC share, a
-device path, a verbatim path — is compared byte for byte.
+Whether the anchor starts at a root: it writes a root separator, or carries a prefix that supplies
+one (any prefix but a bare drive letter, e.g. `\\server\share`).
+-/
+def hasRoot : Anchor → Bool
+  | .posix => true
+  | .neutral => false
+  | .windows pre rooted => rooted || pre.any (!isDrivePrefix ·)
+
+/--
+Two anchors are equal when they name the same location. The case of a Windows prefix is folded
+throughout — the drive letter, a UNC server and share, a device name, the volume of a verbatim path
+— since Windows resolves every one of them case-insensitively, so `c:\foo == C:\foo` and
+`\\?\unc\srv\shr == \\?\UNC\srv\shr`.
+
+Two anchors also agree when one writes a root separator and the other has a prefix that supplies
+one, since they start at the same place: `\\server\share` and `\\server\share\` are equal, while
+the drive-relative `C:` and the rooted `C:\` are not.
 
 This is deliberately coarser than the propositional equality `DecidableEq` decides, which stays byte
-identity, so `LawfulBEq Anchor` does not hold: `c:\foo == C:\foo` while the two paths still render
-differently. Use `==` to ask whether two paths name the same thing and `=` to ask whether they were
-written the same way.
+identity, so `LawfulBEq Anchor` does not hold: the pairs above still render differently. Use `==` to
+ask whether two paths name the same thing and `=` to ask whether they were written the same way.
+
+Note this folds only the prefix. A verbatim path is not equal to the plain path naming the same
+location — `\\?\C:\x` and `C:\x` carry different prefixes — because the two are not
+interchangeable elsewhere: `normalize` rewrites one and leaves the other alone.
 -/
 instance : BEq Anchor where
   beq
     | .neutral, .neutral => true
     | .posix, .posix => true
-    | .windows p₁ r₁, .windows p₂ r₂ =>
-        r₁ == r₂ && p₁.map normalizeDrivePrefix == p₂.map normalizeDrivePrefix
+    | a₁@(.windows p₁ _), a₂@(.windows p₂ _) =>
+        a₁.hasRoot == a₂.hasRoot && p₁.map normalizePrefix == p₂.map normalizePrefix
     | _, _ => false
 
 /--
-The order agrees with `BEq`, so a drive letter is folded to one case before comparing and the
+The order agrees with `BEq`, so a Windows prefix is folded to one case before comparing and the
 anchors of `c:\` and `C:\` compare `.eq`. Like `BEq`, that makes it coarser than the propositional
 equality `DecidableEq` decides.
 
 Anchors sort by kind — `neutral`, then `posix`, then `windows` — and two Windows anchors by prefix,
-then by whether a root follows.
+then by whether they start at a root.
 -/
 instance : Ord Anchor where
   compare
     | .neutral, .neutral => .eq
     | .posix, .posix => .eq
-    | .windows p₁ r₁, .windows p₂ r₂ =>
-        compare (p₁.map normalizeDrivePrefix) (p₂.map normalizeDrivePrefix) |>.then (compare r₁ r₂)
+    | a₁@(.windows p₁ _), a₂@(.windows p₂ _) =>
+        compare (p₁.map normalizePrefix) (p₂.map normalizePrefix)
+          |>.then (compare a₁.hasRoot a₂.hasRoot)
     | .neutral, _ => .lt
     | _, .neutral => .gt
     | .posix, _ => .lt
@@ -120,15 +138,15 @@ instance : Repr Anchor where
       Repr.addAppParen ("Std.Path.Anchor.windows " ++ prefixRepr ++ " " ++ repr rooted) prec
 
 /--
-Hashes agree with `BEq`: a drive letter is folded to one case before hashing, so `c:` and `C:` land
-in the same bucket.
+Hashes agree with `BEq`: a Windows prefix is folded to one case before hashing and a prefix that
+supplies a root hashes as rooted, so every pair the two call equal lands in the same bucket.
 -/
 instance : Hashable Anchor where
   hash
     | .neutral => 3
     | .posix => 5
-    | .windows pre rooted =>
-        mixHash 7 (mixHash (hash rooted) (hash (pre.map normalizeDrivePrefix)))
+    | a@(.windows pre _) =>
+        mixHash 7 (mixHash (hash a.hasRoot) (hash (pre.map normalizePrefix)))
 
 /--
 A Windows anchor with prefix `pre` and a root separator if `rooted`.
@@ -182,16 +200,6 @@ def root? : Anchor → Option ByteArray
   | .posix => some slashBytes
   | .windows _ true => some backslashBytes
   | _ => none
-
-/--
-Whether the anchor starts at a root: it writes a root separator, or carries a prefix that supplies
-one (any prefix but a bare drive letter, e.g. `\\server\share`).
-
-Weaker than `isAbsolute`: a Windows path can start at a root and still be relative, since `\foo`
-names the root of whichever drive is current.
--/
-def hasRoot (a : Anchor) : Bool :=
-  a.root?.isSome || a.prefix?.any (!isDrivePrefix ·)
 
 /--
 Whether the anchor introduces a verbatim path, i.e. carries the `\\?\` marker.

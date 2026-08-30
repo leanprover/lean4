@@ -88,10 +88,16 @@ def q := p / (Path.ofPosixString! "lib")
 
 -- Platform-sensitive parsing (IO)
 def main : IO Unit := do
-  let home ← Path.ofString ((← IO.getEnv "HOME").getD "")
-  let cfg := home / (Path.ofPosixString! ".config/lean")
+  let cfg := (← Path.homeDir) / (Path.ofPosixString! ".config/lean")
   IO.println (← cfg.toString)
 ```
+
+## Locations the OS names
+
+`Path.currentDir`, `Path.homeDir`, and `Path.tempDir` read the working, home, and temporary
+directories as raw bytes, so a directory whose name is not valid UTF-8 survives intact.
+`Path.exeExtension` gives the extension an executable binary carries on the host, and
+`Path.SearchPath` splits and rejoins a `PATH`-style list on the host's separator.
 
 ## Path literals
 
@@ -113,4 +119,45 @@ before a further segment, one or more at the end of the pattern:
 ```
 
 Matching is case-sensitive; pass `caseInsensitive := true` to fold ASCII letters instead.
+
+## Taking a path from somewhere else
+
+A path that arrived from outside the program — a request, an archive entry, a configuration file —
+is input, and the operations below are the ones that treat it as such.
+
+`Path.resolveWithin` is the only one that gives an answer about the file system. It resolves a
+relative path beneath a base directory and fails unless it really lands there, so a symbolic link
+pointing out of the tree is caught even when a `..` behind it makes the path look contained. The
+answer is about the moment of the call and not about the moment the caller uses it: nothing stops
+another process from replacing a component with a symbolic link in between, so open the result and
+work from the handle rather than re-deriving the path.
+
+Everything else is lexical, and lexical answers are about spelling:
+
+- `Path.joinRelative?` refuses a right-hand side that is anchored, which under `join` would replace
+  the base rather than extend it — `"/srv/uploads"` joined with `"/etc/passwd"` is `/etc/passwd`.
+- `Path.isUnder` resolves `.` and `..` in both paths and asks whether one is below the other. It is
+  sound only where no segment above a `..` is a symbolic link, so use it to reject obviously
+  escaping input rather than to admit input as safe.
+- `Path.isNormalized` says whether a path is already free of `.` and of `..` that something cancels.
+- `Path.startsWith`, `Path.endsWith`, and `Path.matchGlob` compare a path as written, leaving `..`
+  unresolved. `"uploads/../secret"` matches `"uploads/**"`.
+
+Two things these comparisons do not know about:
+
+- **Case.** Names are compared byte for byte, so `"/etc"` and `"/ETC"` are different paths to `==`,
+  `compare`, `isUnder`, and `startsWith`, while Windows and macOS default to file systems that treat
+  them as one name. Whether case matters is a property of the file system a path lands on rather
+  than of the platform it was written for — Linux has case-folding directories and Windows has
+  case-sensitive ones — so it is not something the type can settle. Where a comparison has to hold
+  against the file system, resolve first.
+- **Windows short names.** `PROGRA~1` and `Program Files` name one directory, and only the file
+  system knows which pairs those are.
+
+`Path.isWindowsPortable` covers the other direction: names that mean something else to Windows than
+they say. Win32 strips a trailing `.` or space from a name, reserves `CON`, `NUL`, `COM1` and their
+relatives in every directory, and keeps `"`, `*`, `:`, `<`, `>`, `?` and `|` for itself, so
+`dir/foo.` reaches `dir\foo` and `a/b:c` opens an alternate data stream. Each of those is an
+ordinary POSIX file name that `Filename` accepts, which is why the check lives at the Windows
+boundary: `toWindowsBytes?` and, on a Windows host, `toBytes` refuse a path it rejects.
 -/

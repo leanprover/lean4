@@ -274,17 +274,22 @@ def getEnv : IO Environment := do
 
 /--
 Gets the current user's home directory.
+
+A `FilePath` holds a `String`, so a home directory whose name is not valid UTF-8 comes back with
+every ill-formed byte replaced by `U+FFFD`. Use `Std.Path.homeDir` to keep it intact.
 -/
 @[inline]
 def getHomeDir : IO FilePath :=
-  FilePath.mk <$> UV.System.osHomedir
+  (FilePath.mk ∘ String.fromUTF8Lossy) <$> UV.System.osHomedir
 
 /--
 Gets the temporary directory.
+
+Decoding is lossy in the same way as `getHomeDir`; use `Std.Path.tempDir` to keep the path intact.
 -/
 @[inline]
 def getTmpDir : IO FilePath := do
-  FilePath.mk <$> UV.System.osTmpdir
+  (FilePath.mk ∘ String.fromUTF8Lossy) <$> UV.System.osTmpdir
 
 /--
 Gets the current user by using `passwd`.

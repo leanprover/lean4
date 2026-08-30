@@ -56,9 +56,19 @@ The byte `:`.
 def colon : UInt8 := 0x3a
 
 /--
+The byte `;`.
+-/
+def semicolon : UInt8 := 0x3b
+
+/--
 The byte `?`.
 -/
 def question : UInt8 := 0x3f
+
+/--
+The byte ` `.
+-/
+def space : UInt8 := 0x20
 
 /--
 The null byte, which no platform permits in a path.
@@ -129,13 +139,22 @@ def toUpperByte (b : UInt8) : UInt8 :=
   if 'a'.toUInt8 ≤ b && b ≤ 'z'.toUInt8 then b - 0x20 else b
 
 /--
-A drive-letter prefix with its letter uppercased; any other prefix is returned unchanged.
-
-Used to compare and hash anchors, not to build them: Windows treats `c:` and `C:` as the same drive,
-but a parsed path keeps the case it was written in so that rendering it is lossless.
+`b` with every ASCII letter uppercased.
 -/
-def normalizeDrivePrefix (b : ByteArray) : ByteArray :=
-  if isDrivePrefix b then ⟨#[toUpperByte b[0]!, colon]⟩ else b
+def toUpperBytes (b : ByteArray) : ByteArray :=
+  ⟨b.data.map toUpperByte⟩
+
+/--
+A Windows prefix folded to the form anchors are compared and hashed in.
+
+Every part of a Windows prefix is case-insensitive to the OS — the drive letter, the server and
+share of a UNC path, a device name, and the volume of a verbatim path all resolve through
+case-insensitive lookups — so folding the whole prefix is what makes two spellings of one location
+compare equal. Used to compare and hash anchors, not to build them: a parsed path keeps the case it
+was written in so that rendering it is lossless.
+-/
+def normalizePrefix (b : ByteArray) : ByteArray :=
+  toUpperBytes b
 
 /--
 Whether `b` is a separator in Windows syntax, which accepts both `\` and `/`.
@@ -175,6 +194,69 @@ extension from the next.
 -/
 def isExtensionByte (b : UInt8) : Bool :=
   isFilenameByte b && b != dot
+
+/--
+Whether `b` may appear in a Windows file name.
+
+Windows keeps the ASCII control bytes and seven printable ones for itself: `"`, `*`, `:`, `<`, `>`,
+`?`, and `|`. A `:` opens an alternate data stream rather than naming a file, `?` and `*` are the
+wildcards the file system APIs expand, and the rest are rejected outright, so a name holding one
+reaches a different file or none at all.
+-/
+def isPortableWindowsByte (b : UInt8) : Bool :=
+  isFilenameByte b && space ≤ b &&
+    -- `"`, `*`, `:`, `<`, `>`, `?`, `|`
+    b != 0x22 && b != 0x2a && b != colon && b != 0x3c && b != 0x3e && b != question && b != 0x7c
+
+/--
+The bytes of `b` with any trailing spaces removed.
+
+Win32 strips them on the way to the file system, so they are gone before a name is looked up as a
+device: `"CON "` reaches the console just as `"CON"` does.
+-/
+def dropTrailingSpaces (b : ByteArray) : ByteArray :=
+  b.extract 0 (go b.size)
+where
+  go : Nat → Nat
+    | 0 => 0
+    | i + 1 => if b[i]! == space then go i else i + 1
+
+/--
+Whether `b` names one of the DOS devices Windows reserves in every directory: `CON`, `PRN`, `AUX`,
+`NUL`, `COM0`–`COM9`, `LPT0`–`LPT9`, `CONIN$`, and `CONOUT$`.
+
+The reservation is on the name up to its first `.`, ignores case, and survives trailing spaces,
+which Win32 strips before the lookup: `con`, `CON.txt`, `CON .txt`, and `com1.tar.gz` all reach the
+console or a serial port rather than a file of that name.
+-/
+def isReservedDeviceName (b : ByteArray) : Bool :=
+  let stem := dropTrailingSpaces (b.extract 0 ((b.findIdx? (· == dot)).getD b.size))
+  let upper := toUpperBytes stem
+  if stem.size == 3 then
+    upper == "CON".toByteArray || upper == "PRN".toByteArray || upper == "AUX".toByteArray ||
+      upper == "NUL".toByteArray
+  else if stem.size == 4 then
+    let head := upper.extract 0 3
+    (head == "COM".toByteArray || head == "LPT".toByteArray) &&
+      '0'.toUInt8 ≤ stem[3]! && stem[3]! ≤ '9'.toUInt8
+  else
+    upper == "CONIN$".toByteArray || upper == "CONOUT$".toByteArray
+
+/--
+Whether `b` is a file name Windows reads back as itself.
+
+Windows strips a trailing `.` or space from a name, reserves the DOS device names in every
+directory, and gives seven printable ASCII bytes and the control bytes a meaning of their own. A
+name failing any of those is one the OS resolves to something else, or to nothing.
+
+This is about the syntax Win32 applies on its way to the file system, not about `ValidFilename`:
+every one of these names is an ordinary POSIX file name, and a verbatim (`\\?\`) path reaches all of
+them, which is why the check belongs where a path is rendered for Windows rather than where a name
+is built.
+-/
+def isPortableWindowsName (b : ByteArray) : Bool :=
+  !b.isEmpty && !isReservedDeviceName b && allBytes b isPortableWindowsByte &&
+    b[b.size - 1]! != dot && b[b.size - 1]! != space
 
 /--
 Whether `b` begins with the byte `x`.

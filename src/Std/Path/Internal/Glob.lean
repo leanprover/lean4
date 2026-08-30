@@ -102,7 +102,7 @@ private def globPart : Parser GlobPart :=
     | '*' => return .star
     | '?' => return .question
     | '[' =>
-      let negated ← «matches» (pchar '!')
+      let negated ← «matches» (pchar '!' <|> pchar '^')
       return .charClass negated (← globClassBody #[])
     | c => return .lit c
 
@@ -201,8 +201,14 @@ Match `parts` from token `pi` against the bytes of one path segment, from byte o
 `star` records the most recent `*`: the token index it sits at, and the byte offset it currently
 consumes up to. On a mismatch the search resumes just past that offset, giving the `*` one more
 character. Only the most recent `*` needs remembering, because any earlier one can always hand its
-work to a later one, so a pattern with `k` stars costs `O(k · n)` rather than the `O(n^k)` of trying
-every split — enough to keep `*-*-*-*.log` from hanging on an attacker-chosen file name.
+work to a later one, which is what rules out the `O(n^k)` of trying every split.
+
+The cost is `O(m · n)` in the length of the pattern and of the segment, and the star count does not
+enter into it: each retry advances the `*` by one character and rescans the tokens behind it, so the
+worst case is a single `*` in front of a long literal run — `*` followed by 2 KB of literal, against
+a 4 KB segment, is on the order of 100 ms. A pattern and a path that both come from outside the
+program are therefore a denial-of-service pair; bound the pattern length before matching untrusted
+input against an untrusted path.
 -/
 private partial def matchPartsFrom (parts : Array GlobPart) (b : ByteArray) (caseInsensitive : Bool)
     (pi i : Nat) (star : Option (Nat × Nat)) : Bool :=

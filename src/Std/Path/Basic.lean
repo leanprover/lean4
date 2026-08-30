@@ -126,15 +126,19 @@ private def extensionDot? (name : ByteArray) : Option Nat :=
 
 /--
 A valid file name: non-empty, not `.` or `..`, and contains no separator (`/`, `\`) or null byte.
-Satisfied by `by decide` for the UTF-8 encoding of a string literal.
+
+Satisfied by `by decide` for the UTF-8 encoding of a string literal of up to 119 bytes — note that
+is bytes and not characters, so a 40-character CJK name is already past it. Beyond that the scan
+exceeds the default `maxRecDepth`; raising it works but costs time quadratic in the length. Build a
+longer name with `Filename.ofString?`, which checks it at run time instead.
 -/
 abbrev ValidFilename (x : ByteArray) : Prop :=
   ¬x.isEmpty ∧ ¬Internal.isDotSegment x ∧ Internal.allBytes x Internal.isFilenameByte
 
 /--
 A valid file extension: non-empty and contains no separator (`/`, `\`), dot (`.`), or null byte.
-Pass without the leading `.` — the dot is added by the caller. Satisfied by `by decide` for the
-UTF-8 encoding of a string literal.
+Pass without the leading `.` — the dot is added by the caller. Satisfied by `by decide` under the
+same length bound as `ValidFilename`.
 -/
 abbrev ValidExtension (x : ByteArray) : Prop :=
   ¬x.isEmpty ∧ Internal.allBytes x Internal.isExtensionByte
@@ -320,6 +324,151 @@ instance : ToString Extension := ⟨Extension.toString⟩
 
 end Extension
 
+/-!
+The byte-level name surgery below is shared by `Path`, which applies it to the last component of a
+path, and `Filename`, which applies it to a name standing on its own. `Path` cannot go through
+`Filename` to reach it: a verbatim Windows path holds names no `Filename` can carry, since `/` is an
+ordinary byte there.
+-/
+
+/--
+`name` up to the `.` that introduces its last extension, or all of `name` when it has none.
+-/
+private def stemOf (name : ByteArray) : ByteArray :=
+  (extensionDot? name).elim name (name.extract 0 ·)
+
+/--
+`name` up to the `.` that introduces its first extension, or all of `name` when it has none.
+-/
+private def prefixOf (name : ByteArray) : ByteArray :=
+  name.extract 0 (stemEnd name)
+
+/--
+The last extension of `name`, without its leading `.`, or `none` when it has none that an
+`Extension` can hold.
+-/
+private def extensionOf? (name : ByteArray) : Option Extension := do
+  let dot ← extensionDot? name
+  Extension.ofBytes? (name.extract (dot + 1) name.size)
+
+/--
+Every extension of `name`, in order, dropping the pieces no `Extension` can hold.
+-/
+private def suffixesOf (name : ByteArray) : Array Extension :=
+  let firstDot := stemEnd name
+  if firstDot == name.size then #[]
+  else (Internal.splitOnByteFrom name Internal.dot (firstDot + 1)).filterMap Extension.ofBytes?
+
+namespace Filename
+
+/--
+The name up to the `.` that introduces its last extension, validated as a `Filename`.
+
+`none` for a stem that truncation leaves as `.` or `..`, as `"..a"` does. The result round-trips
+directly into `withStem` with no re-validation needed.
+
+Examples:
+- `(ofString! "Main.lean").stem? = some (.mk "Main".toByteArray)`
+- `(ofString! "archive.tar.gz").stem? = some (.mk "archive.tar".toByteArray)`
+-/
+def stem? (f : Filename) : Option Filename :=
+  ofBytes? (stemOf f.value)
+
+/--
+The name up to the `.` that introduces its first extension, validated as a `Filename`. `none` in the
+same case as `stem?`.
+
+Examples:
+- `(ofString! "foo.tar.gz").prefix? = some (.mk "foo".toByteArray)`
+- `(ofString! ".hidden.tar.gz").prefix? = some (.mk ".hidden".toByteArray)`
+-/
+def prefix? (f : Filename) : Option Filename :=
+  ofBytes? (prefixOf f.value)
+
+/--
+The last extension, without the leading `.`.
+
+`none` when the name has none, including the trailing-dot `"a."`, whose extension would be empty,
+and the dotfile `".gitignore"`, whose leading `.` introduces no extension.
+-/
+def extension? (f : Filename) : Option Extension :=
+  extensionOf? f.value
+
+/--
+True if the name has at least one extension.
+-/
+def hasExtension (f : Filename) : Bool :=
+  f.extension?.isSome
+
+/--
+All extensions of the name, in order, without leading `.`.
+
+A piece no `Extension` can hold is dropped, as it is in `extension?`: the empty piece a doubled or
+trailing dot leaves, so `"a..b"` and `"a.b."` both have the single suffix `b`.
+-/
+def suffixes (f : Filename) : Array Extension :=
+  suffixesOf f.value
+
+/--
+Replace the last extension with `ext`, appending it if the name has none.
+
+"Has none" is what `hasExtension` reports, so a name ending in `.` is appended to rather than
+truncated: `"backup."` becomes `"backup..gz"`, since the empty extension is one no `Extension` can
+hold and there is nothing there to replace.
+-/
+def withExtension (f : Filename) (ext : Extension) : Filename :=
+  -- A stem is never empty, and `ext` holds no separator, `.`, or null byte, so the result is a
+  -- valid file name and the fallback is unreachable.
+  let base := if (extensionOf? f.value).isSome then stemOf f.value else f.value
+  (ofBytes? (base ++ Internal.dotBytes ++ ext.value)).getD f
+
+/--
+Append `ext` to the name, keeping any extension it already has.
+-/
+def addExtension (f : Filename) (ext : Extension) : Filename :=
+  (ofBytes? (f.value ++ Internal.dotBytes ++ ext.value)).getD f
+
+/--
+Remove the last extension, keeping any earlier ones.
+
+The name is returned unchanged when it carries no `.` past its first byte, and when truncation would
+leave `.` or `..`, which name a directory rather than a file: `"..a"` and `"..."` keep what they
+have. The `.` need not introduce an `Extension`, so a trailing dot is stripped and `"a."` becomes
+`"a"`.
+-/
+def removeExtension (f : Filename) : Filename :=
+  match extensionDot? f.value with
+  | none => f
+  | some dot => (ofBytes? (f.value.extract 0 dot)).getD f
+
+/--
+Replace the stem — all of the name before the last extension — with `stem`, keeping that extension.
+
+The setter for `stem?`, so `"archive.tar.gz"` becomes `"backup.gz"`: the `.tar` was part of the
+stem. Use `withPrefix` to keep every extension instead.
+
+`stem` is spliced in as written, so a `.` inside it introduces an extension of its own and the
+getter no longer returns it: `"README".withStem "v1.2"` is `"v1.2"`, whose stem is `"v1"`. The
+getter/setter law holds for a `stem` that carries no `.`.
+-/
+def withStem (f : Filename) (stem : Filename) : Filename :=
+  let tail := (extensionDot? f.value).elim .empty (f.value.extract · f.value.size)
+  (ofBytes? (stem.value ++ tail)).getD f
+
+/--
+Replace the prefix — all of the name before the first extension — with `name`, keeping every
+extension.
+
+The setter for `prefix?`, and the complement of `withExtension`: `(f.withPrefix n).suffixes =
+f.suffixes` for a `name` that carries no `.`. One that does brings extensions of its own, which the
+result keeps ahead of `f`'s.
+-/
+def withPrefix (f : Filename) (name : Filename) : Filename :=
+  let tail := f.value.extract (stemEnd f.value) f.value.size
+  (ofBytes? (name.value ++ tail)).getD f
+
+end Filename
+
 /--
 The empty path: no anchor and no segments. Joining any path with `empty` yields that path
 unchanged.
@@ -471,10 +620,32 @@ def join (p p₂ : Path) : Path :=
       if p.isVerbatim then { anchor, segments := pushVerbatim p.segments p₂.segments }
       else { anchor, segments := p.segments ++ p₂.segments }
   | .windows none rooted =>
-    if p.isVerbatim then
+    -- A rooted Windows path with no prefix names the root of whichever drive is current, so it
+    -- keeps only `p`'s prefix. On a POSIX `p` there is no drive and no prefix to keep; the root it
+    -- asks for is the one `p` already stands on, so the result stays POSIX rather than turning into
+    -- a drive-relative Windows path that `isAbsolute` then reports as relative.
+    if p.anchor matches .posix then
+      { anchor := .posix, segments := p₂.segments }
+    else if p.isVerbatim then
       { anchor := .ofWindows p.windowsPrefix? rooted, segments := pushVerbatim #[] p₂.segments }
     else { p₂ with anchor := .ofWindows p.windowsPrefix? rooted }
   | _ => p₂
+
+/--
+Append `other` to `p`, or `none` if `other` is anchored and so would replace `p` rather than extend
+it.
+
+`join` follows the rule every platform uses, that the anchored path wins: `"/srv/uploads"` joined
+with `"/etc/passwd"` is `/etc/passwd`, and joined with the Windows `"\foo"` it is `/foo`. That is
+the right answer for a path the program wrote and the wrong one for a path a caller supplied, so
+this is `join` with that outcome ruled out.
+
+It is a check on the anchor alone, which is the half that can be settled without asking the file
+system. A `..` in `other` still walks up out of `p`; pair this with `isUnder` for a lexical answer
+about where that lands, or use `resolveWithin` for one that holds on disk.
+-/
+def joinRelative? (p other : Path) : Option Path :=
+  if other.anchor matches .neutral then some (p.join other) else none
 
 /--
 The anchor rendered as raw bytes: prefix concatenated with root (e.g. `"C:\\"`,
@@ -519,6 +690,20 @@ def normalize (p : Path) : Path :=
   -- directory: `.` is what such a path renders as, and holding a `.current` segment instead would
   -- make `normalize` produce a path that `startsWith` and `relativeTo?` read as one directory deep.
   { p with segments := acc }
+
+/--
+True if `normalize` leaves `p` alone: it holds no `.`, and no `..` that a name before it cancels or
+that a root swallows.
+
+A leading `..` under an unrooted anchor is normalized already, since nothing in the path names the
+directory it ascends from: `"../a"` and the drive-relative `"C:..\a"` pass, while `"/../a"` and
+`"a/../b"` do not. A verbatim Windows path always passes, since `normalize` leaves one alone.
+
+This asks about the spelling, so it compares segments rather than components: `"a/./b"` is not
+normalized even though it `==` the `"a/b"` that is.
+-/
+def isNormalized (p : Path) : Bool :=
+  p.normalize.segments == p.segments
 
 /-!
 The operations below ask what a path names, so they read `components` rather than `segments`: a
@@ -621,33 +806,47 @@ def filename? (p : Path) : Option Filename :=
   p.lastName?.bind Filename.ofBytes?
 
 /--
-The filename without the last extension, as raw bytes.
-
-Returns `none` when the last component is not an ordinary name (see `lastName?`).
-
-Examples:
-- `(ofPosixString! "src/Main.lean").fileStem? = some "Main".toByteArray`
-- `(ofPosixString! "archive.tar.gz").fileStem? = some "archive.tar".toByteArray`
+The raw bytes of the last component up to the `.` that introduces its last extension.
 -/
-def fileStem? (p : Path) : Option ByteArray := do
-  let name ← p.lastName?
-  return (extensionDot? name).elim name (name.extract 0 ·)
+private def stemBytes? (p : Path) : Option ByteArray :=
+  p.lastName?.map stemOf
 
 /--
-The filename stem before the first extension (i.e. before the first `.` after any leading dot), as
-raw bytes.
+The raw bytes of the last component up to the `.` that introduces its first extension.
+-/
+private def prefixBytes? (p : Path) : Option ByteArray :=
+  p.lastName?.map prefixOf
 
-Returns `none` when the last component is not an ordinary name (see `lastName?`).
+/--
+The filename without the last extension, validated as a `Filename`.
+
+Returns `none` when the last component is not an ordinary name (see `lastName?`), and, as
+`filename?` does, for a stem no `Filename` can carry: one holding a separator, which only a verbatim
+Windows path produces, and one that truncation leaves as `.` or `..`, as `"..a"` does. The result
+round-trips directly into `withFileStem` with no re-validation needed.
 
 Examples:
-- `(ofPosixString! "foo.tar.gz").filePrefix? = some "foo".toByteArray`
-- `(ofPosixString! ".hidden").filePrefix? = some ".hidden".toByteArray`
-- `(ofPosixString! ".hidden.tar.gz").filePrefix? = some ".hidden".toByteArray`
-- `(ofPosixString! "Makefile").filePrefix? = some "Makefile".toByteArray`
+- `(ofPosixString! "src/Main.lean").fileStem? = some (.mk "Main".toByteArray)`
+- `(ofPosixString! "archive.tar.gz").fileStem? = some (.mk "archive.tar".toByteArray)`
 -/
-def filePrefix? (p : Path) : Option ByteArray := do
-  let name ← p.lastName?
-  return name.extract 0 (stemEnd name)
+def fileStem? (p : Path) : Option Filename :=
+  p.stemBytes?.bind Filename.ofBytes?
+
+/--
+The filename stem before the first extension (i.e. before the first `.` after any leading dot),
+validated as a `Filename`.
+
+Returns `none` in the same cases as `fileStem?`. The result round-trips directly into
+`withFilePrefix` with no re-validation needed.
+
+Examples:
+- `(ofPosixString! "foo.tar.gz").filePrefix? = some (.mk "foo".toByteArray)`
+- `(ofPosixString! ".hidden").filePrefix? = some (.mk ".hidden".toByteArray)`
+- `(ofPosixString! ".hidden.tar.gz").filePrefix? = some (.mk ".hidden".toByteArray)`
+- `(ofPosixString! "Makefile").filePrefix? = some (.mk "Makefile".toByteArray)`
+-/
+def filePrefix? (p : Path) : Option Filename :=
+  p.prefixBytes?.bind Filename.ofBytes?
 
 /--
 The last file extension, validated as an `Extension` (without the leading `.`).
@@ -662,10 +861,8 @@ Examples:
 - `(ofPosixString! "archive.tar.gz").extension? = some (.mk "gz".toByteArray)`
 - `(ofPosixString! "Makefile").extension? = none`
 -/
-def extension? (p : Path) : Option Extension := do
-  let name ← p.lastName?
-  let dot ← extensionDot? name
-  Extension.ofBytes? (name.extract (dot + 1) name.size)
+def extension? (p : Path) : Option Extension :=
+  p.lastName?.bind extensionOf?
 
 /--
 True if the file name has at least one extension.
@@ -715,15 +912,19 @@ def setFilename (p : Path) (name : Filename) : Path :=
 /--
 Replace the last file extension with `ext` (without leading `.`).
 
-If the filename currently has no extension, `ext` is appended. If the path has no file name (e.g. it
-is a root or empty), `p` is returned unchanged. Use `removeExtension` to strip an extension instead.
-For a compile-time-known extension, `p.withExtension (.mk "gz".toByteArray)` just works; for a runtime
-`String`, validate it first with `Extension.ofString?`.
+If the filename currently has no extension — what `hasExtension` reports, so a name ending in `.`
+counts as having none — `ext` is appended and `"dir/backup."` becomes `"dir/backup..gz"`. If the
+path has no file name (e.g. it is a root or empty), `p` is returned unchanged. Use `removeExtension`
+to strip an extension instead. For a compile-time-known extension,
+`p.withExtension (.mk "gz".toByteArray)` just works; for a runtime `String`, validate it first with
+`Extension.ofString?`.
 -/
 def withExtension (p : Path) (ext : Extension) : Path :=
-  match p.fileStem? with
+  match p.lastName? with
   | none => p
-  | some stem => p.setLastSegment (stem ++ Internal.dotBytes ++ ext.value)
+  | some name =>
+    let base := if (extensionOf? name).isSome then stemOf name else name
+    p.setLastSegment (base ++ Internal.dotBytes ++ ext.value)
 
 /--
 Append `ext` (without leading `.`) to the file name, without removing any existing extensions.
@@ -749,32 +950,50 @@ def removeExtension (p : Path) : Path :=
   | some name => (extensionDot? name).elim p fun dot => p.setLastSegment (name.extract 0 dot)
 
 /--
-All file extensions of the last segment, in order, without leading `.`, as raw bytes.
+All file extensions of the last segment, in order, without leading `.`, each validated as an
+`Extension`.
+
+A piece no `Extension` can hold is dropped, matching what `extension?` already does with the last
+one: the empty piece a doubled or trailing dot produces, so `"a..b"` and `"a.b."` both have the
+single suffix `b`, and, in a verbatim Windows path, a piece holding a separator.
 
 Examples:
-- `(ofPosixString! "archive.tar.gz").suffixes = #["tar".toByteArray, "gz".toByteArray]`
+- `(ofPosixString! "archive.tar.gz").suffixes = #[.mk "tar".toByteArray, .mk "gz".toByteArray]`
 - `(ofPosixString! "Makefile").suffixes = #[]`
 -/
-def suffixes (p : Path) : Array ByteArray :=
-  match p.lastName? with
-  | none => #[]
-  | some name =>
-    let firstDot := stemEnd name
-    if firstDot == name.size then #[]
-    else Internal.splitOnByteFrom name Internal.dot (firstDot + 1)
+def suffixes (p : Path) : Array Extension :=
+  (p.lastName?.map suffixesOf).getD #[]
 
 /--
-Replace the stem (all of the filename before the extensions) with `stem`, keeping every existing
-extension intact.
+Replace the file prefix (all of the filename before the first extension) with `name`, keeping every
+existing extension intact.
 
-Complement of `withExtension`: `p.withStem s |>.suffixes = p.suffixes`. For a compile-time-known
-stem, `p.withStem (.mk "backup".toByteArray)` just works; for a runtime `String`, validate it first with
-`Filename.ofString?`.
+The setter for `filePrefix?`, and the complement of `withExtension`:
+`p.withFilePrefix n |>.suffixes = p.suffixes` for a `name` that carries no `.`. One that does brings
+extensions of its own, which the result keeps ahead of `p`'s. Use `withFileStem` to keep only the
+last extension instead. For a compile-time-known name, `p.withFilePrefix (.mk "backup".toByteArray)` just works;
+for a runtime `String`, validate it first with `Filename.ofString?`.
 -/
-def withStem (p : Path) (stem : Filename) : Path :=
+def withFilePrefix (p : Path) (name : Filename) : Path :=
   match p.lastName? with
   | none => p
-  | some name => p.setLastSegment (stem.value ++ name.extract (stemEnd name) name.size)
+  | some old => p.setLastSegment (name.value ++ old.extract (stemEnd old) old.size)
+
+/--
+Replace the stem (all of the filename before the last extension) with `stem`, keeping that last
+extension intact.
+
+The setter for `fileStem?`, so `"a/archive.tar.gz"` becomes `"a/backup.gz"` — the `.tar` was part of
+the stem. Use `withFilePrefix` to keep every extension instead.
+
+`stem` is spliced in as written, so a `.` inside it introduces an extension of its own and the
+getter no longer returns it. The getter/setter law holds for a `stem` that carries no `.`.
+-/
+def withFileStem (p : Path) (stem : Filename) : Path :=
+  match p.lastName? with
+  | none => p
+  | some name =>
+    p.setLastSegment (stem.value ++ (extensionDot? name).elim .empty (name.extract · name.size))
 
 /--
 A measure that `parent?` strictly decreases, which is what makes `parents` terminate.
@@ -866,6 +1085,11 @@ All ancestors of `p`, from the immediate parent up to (and including) the root, 
 
 For `ofPosixString! "/a/b/c"` this yields an iterator over the paths
 `["/a/b", "/a", "/"]`.
+
+Each ancestor is a path of its own, so walking all of them copies segments a number of times
+quadratic in the depth of `p`. That is the cost of the values, not of finding them; a caller that
+only needs to look at each ancestor's last component should read `components` directly rather than
+walk this on a path whose depth it did not choose.
 -/
 def parents (p : Path) : Iter (α := ParentsIterator) Path :=
   (IterM.mk (m := Id) (β := Path) ⟨p⟩).toIter
@@ -903,14 +1127,34 @@ def endsWith (p suffix : Path) : Bool :=
     p.anchor == suffix.anchor && pc == sc
 
 /--
+Whether `s` still means what it said once it stands under a neutral anchor.
+
+A verbatim Windows path holds `.`, `..`, and `/` as ordinary name bytes, so a segment carrying any
+of them names one entry there and a different structure anywhere else. Moving such a segment onto an
+unanchored path would turn those bytes back into the syntax they were standing in for, which is why
+the operations that re-anchor a component refuse it rather than handing back a path whose `..`
+walk up.
+-/
+private def isNeutralSegment : Segment → Bool
+  | .current | .parent => true
+  | .normal v =>
+    !Internal.isDotSegment v && !Internal.containsByte v Internal.slash &&
+      !Internal.containsByte v Internal.backslash
+
+/--
 Remove `prefx` from the beginning of `p` (component-wise), leaving an unanchored path.
 
 Returns `none` if `p` does not start with `prefx`. The result holds the components that remain, so
 any `.` in `p` is dropped along the way and a `p` that is all prefix yields `Path.empty`.
+
+Also `none` when a remaining component has no unanchored spelling, which only a verbatim Windows
+path produces: `\\?\C:\up\..` holds one entry literally named `..`, and there is no relative path
+that names it without the `..` being read as the parent directory instead.
 -/
 def dropPrefix? (p prefx : Path) : Option Path :=
   if p.startsWith prefx then
-    some { anchor := .neutral, segments := p.components.extract prefx.components.size }
+    let rest := p.components.extract prefx.components.size
+    if rest.all isNeutralSegment then some { anchor := .neutral, segments := rest } else none
   else
     none
 
@@ -919,15 +1163,28 @@ True if `p` names `base` itself or something below it, after resolving `.` and `
 
 `"uploads/../etc/passwd".isUnder "uploads"` is `false`, where `startsWith` would say `true`.
 
+A `..` that `normalize` could not cancel is what ascends out of `base`, so any left standing past
+the part `base` accounts for means `p` escapes: `"../../etc".isUnder "."` is `false`, and so is
+`"../../etc".isUnder ".."`, which reaches the grandparent rather than staying under the parent.
+Only an unrooted anchor keeps such a `..` at all — under a root there is nothing above to reach.
+
 This is a lexical test, and `..` is only lexically sound when no segment above it is a symbolic
 link: with `uploads/link` pointing at `/`, `"uploads/link/../etc".isUnder "uploads"` is `true` while
 the file the OS opens is `/etc`. Names are also compared byte for byte, so it answers `false` for
-`"/ETC"` under `"/etc"` on the case-insensitive file systems Windows and macOS default to. Use it
-to reject obviously-escaping input; use `resolveWithin` for a decision that has to hold against the
-file system.
+`"/ETC"` under `"/etc"` on the case-insensitive file systems Windows and macOS default to, and
+`false` for `"\\?\C:\x"` under `"C:\x"`, which name one location on Windows but carry different
+prefixes here. Use it to reject obviously-escaping input; use `resolveWithin` for a decision that
+has to hold against the file system.
+
+A verbatim (`\\?\`) path is compared as written, since `normalize` leaves one alone: `..` is an
+ordinary name below such a path rather than a step upwards, so it does not escape.
 -/
 def isUnder (p base : Path) : Bool :=
-  p.normalize.startsWith base.normalize
+  let p := p.normalize
+  let b := base.normalize
+  let bc := b.components
+  let pc := p.components
+  p.anchor == b.anchor && bc.isPrefixOf pc && !(pc.extract bc.size).any (· matches .parent)
 
 /--
 How many leading segments `a` and `b` have in common.
@@ -954,7 +1211,12 @@ it contains `.` or `..`).
 Returns `none` if `base` and `target` have different anchors (e.g. different drive letters or
 network shares on Windows, or one absolute and one relative), and if a `..` in `base` outlives the
 part `target` shares with it: nothing names the directory such a `..` ascended out of, so no
-relative path leads back into it.
+relative path leads back into it. Also `none` when a component of `target` has no unanchored
+spelling — see `dropPrefix?`, which refuses the same verbatim names for the same reason.
+
+The stated equation holds up to `==` rather than `=`: the anchors are compared with `==`, so a
+`base` and `target` that differ only in the case of a drive letter are related by a result that
+keeps `base`'s spelling.
 -/
 def relativeTo? (base target : Path) : Option Path :=
   if base.anchor != target.anchor then
@@ -963,11 +1225,12 @@ def relativeTo? (base target : Path) : Option Path :=
     let b := base.components
     let t := target.components
     let n := commonPrefixLength b t
-    if (b.extract n).any (· == Segment.parent) then
+    let rest := t.extract n
+    if (b.extract n).any (· == Segment.parent) || !rest.all isNeutralSegment then
       none
     else
       let ups := Array.replicate (b.size - n) Segment.parent
-      some { anchor := .neutral, segments := ups ++ t.extract n }
+      some { anchor := .neutral, segments := ups ++ rest }
 
 /--
 `b`, or `"."` if `b` is empty.
@@ -1092,12 +1355,16 @@ Supported wildcards:
 - a `]` right after `[` or `[!` is an ordinary member, so `"[]]"` is the class of `]` and `"[]"` and
   `"[!]"` are unterminated
 
-Matching is case-sensitive. Pass `caseInsensitive := true` to fold ASCII letters instead, which
-suits the case-insensitive file systems Windows and macOS default to: `"src/main.lean"` then matches
-`src/MAIN.lean`. Folding applies to literals and to character classes, and a range is tested against
-the character in both ASCII cases, so `"[a-z]"` matches `B` and `"[A-Z]"` matches `b`. Letters
-outside ASCII are matched as written, and `?`, `*` and `**` are unaffected — the path is split into
-segments before matching, so folding can never make a wildcard cross a `/`.
+Matching is case-sensitive. Pass `caseInsensitive := true` to fold ASCII letters: `"src/main.lean"`
+then matches `src/MAIN.lean`. Folding applies to literals and to character classes, and a range is
+tested against the character in both ASCII cases, so `"[a-z]"` matches `B` and `"[A-Z]"` matches
+`b`. `?`, `*` and `**` are unaffected — the path is split into segments before matching, so folding
+can never make a wildcard cross a `/`.
+
+Only ASCII letters fold. The case-insensitive file systems Windows and macOS default to fold far
+more than that, so this flag does not decide the way they do: `"ÖFFENTLICH.txt"` does not match
+`öffentlich.txt`, which on such a volume is the same file. A pattern that has to agree with the file
+system about which names collide cannot be built from this flag alone.
 
 The pattern is decoded as UTF-8 while the path is not, so `?` and a character class each match one
 character of a segment, and a byte that is not part of a well-formed encoding matches as a single
@@ -1222,6 +1489,23 @@ private def checkedRender (p : Path) (parse : ByteArray → Option Path) (b : By
   if parse b == some p then some b else none
 
 /--
+True if POSIX syntax reads `p.toPosixBytes` back as `p`, decided from the structure of `p` rather
+than by rendering and re-parsing it.
+
+Every Windows anchor is refused: the POSIX render drops the prefix and writes any root as `/`, so
+the bytes come back carrying a `neutral` or `posix` anchor that names somewhere else. A `normal`
+segment has to come back as one segment and as an ordinary name, which rules out one that is empty,
+holds a `/`, spells `.` or `..`, or holds the null byte that no parser accepts. Only a verbatim
+Windows path holds such a segment, and `dropPrefix?` and `relativeTo?` can carry one out of one.
+-/
+private def isPosixRenderable (p : Path) : Bool :=
+  !(p.anchor matches .windows ..) && p.segments.all fun
+    | .normal v =>
+      !v.isEmpty && !Internal.isDotSegment v &&
+        (v.findIdx? fun b => b == Internal.slash || b == Internal.nul).isNone
+    | _ => true
+
+/--
 Render `p` to a POSIX-style byte string using `/` as the separator, or `none` if POSIX syntax would
 not read the result back as the same location. Pure.
 
@@ -1229,48 +1513,119 @@ Rendering a path across the flavour it was parsed with is lossy, and lossy in a 
 another well-formed path rather than an error: `C:\Users` renders as `/Users` and `\\server\share`
 as `.`. This is `toPosixBytes` with that outcome ruled out, so a `some` is the path itself in POSIX
 syntax and nothing else. The check is `==`, so it reads back the same path rather than the same
-value; `Path.empty` renders as `.` and passes. See `checkedRender`.
+value; `Path.empty` renders as `.` and passes. See `isPosixRenderable`.
 
 Use this wherever the rendered path is handed on to name a file, and `toPosixBytes` only where the
 result is for display.
 -/
 def toPosixBytes? (p : Path) : Option ByteArray :=
-  checkedRender p ofPosixBytes? p.toPosixBytes
+  if p.isPosixRenderable then some p.toPosixBytes else none
+
+/--
+True if every ordinary name in `p` is one Windows reads back as itself.
+
+Windows strips a trailing `.` or space from a name, reserves the DOS device names (`CON`, `NUL`,
+`COM1`, …) in every directory, and keeps `"`, `*`, `:`, `<`, `>`, `?`, `|` and the control bytes for
+itself. Each of those is an ordinary POSIX file name that `ValidFilename` admits, so a path can
+carry one and only stop naming what it says at the Windows boundary: `a/b:c` opens an alternate
+data stream of `b`, `dir/foo.` reaches `dir\foo`, and `dir/NUL` reaches the null device.
+
+A verbatim (`\\?\`) path is exempt, since Windows hands one to the file system as written and every
+such name is reachable through it.
+
+`toWindowsBytes?` and, on a Windows host, `toBytes` refuse a path this rejects. The Windows prefix
+itself is not examined: it is written by the parser rather than by the caller.
+-/
+def isWindowsPortable (p : Path) : Bool :=
+  p.isVerbatim || p.segments.all fun
+    | .normal v => Internal.isPortableWindowsName v
+    | _ => true
 
 /--
 Render `p` to a Windows-style byte string using `\` as the separator, or `none` if Windows syntax
 would not read the result back as the same location. Pure. See `toPosixBytes?`; the losses here are
 a POSIX root becoming drive-relative, and a segment holding Windows syntax — a `\`, or a leading
 drive letter — being read as more than a name.
+
+Reading the render back is not on its own enough here, because Win32 normalizes a path further than
+this parser does. A name Windows resolves to another name — see `isWindowsPortable` — is refused
+too, so a `some` is a byte string the OS opens as `p` rather than one this library merely parses as
+`p`.
 -/
 def toWindowsBytes? (p : Path) : Option ByteArray :=
-  checkedRender p ofWindowsBytes? p.toWindowsBytes
+  if p.isWindowsPortable then checkedRender p ofWindowsBytes? p.toWindowsBytes else none
 
 /--
 Render `p` to a POSIX-style `String` using `/` as the separator, or `none` if POSIX syntax would not
 read the result back as `p`. See `toPosixBytes?`.
 
-Only the render is checked; the decoding is as lossy as `toPosixString`'s, so a path whose bytes are
-not valid UTF-8 still comes back with `U+FFFD` in it. Use `toPosixBytes?` to render without loss.
+The decoding is checked as well as the render, so a path whose bytes are not valid UTF-8 is refused
+rather than coming back with `U+FFFD` standing in for them. Decoding one lossily would map many
+distinct paths onto a single `String`, and a `String` this returns is meant to name what `p` names.
+Use `toPosixBytes?` for a render that keeps such a path, or `toPosixString` to decode lossily on
+purpose.
 -/
 def toPosixString? (p : Path) : Option String :=
-  String.fromUTF8Lossy <$> p.toPosixBytes?
+  p.toPosixBytes?.bind String.fromUTF8?
 
 /--
 Render `p` to a Windows-style `String` using `\` as the separator, or `none` if Windows syntax would
 not read the result back as `p`. See `toWindowsBytes?` and the decoding note on `toPosixString?`.
+
+A Windows path may legally hold an unpaired surrogate, which is WTF-8 rather than UTF-8 and so has
+no `String` spelling; this returns `none` for one. Use `toWindowsBytes?` to keep it.
 -/
 def toWindowsString? (p : Path) : Option String :=
-  String.fromUTF8Lossy <$> p.toWindowsBytes?
+  p.toWindowsBytes?.bind String.fromUTF8?
+
+/--
+`p` with its segments replaced by `segments`, or `none` if the result is not a path the flavour of
+`p` can hold.
+
+A `Path` keeps its segments free of anything the syntax it was parsed with gives meaning to — a
+separator, a null byte, an empty name — and its constructor is private so that nothing can put one
+there. This is the way back in for a caller that took a path apart with `components` and wants to
+put it together again: the result is rendered and read back, and it has to come out as itself.
+
+The anchor comes from `p`, so a verbatim path admits the names only it can hold, where `/` is an
+ordinary byte, and rejects a `.` or `..` that ordinary syntax would resolve. Only the structure is
+checked, not `isWindowsPortable`: this is the inverse of parsing, so it accepts every path a parse
+produces.
+-/
+def withSegments? (p : Path) (segments : Array Segment) : Option Path :=
+  let q := { p with segments }
+  let ok := match q.anchor with
+    | .windows .. => (checkedRender q ofWindowsBytes? q.toWindowsBytes).isSome
+    | _ => q.isPosixRenderable
+  if ok then some q else none
+
+/--
+An unanchored path built from `segments`, or `none` if one of them is not a name a path can hold.
+See `withSegments?`.
+-/
+def ofSegments? (segments : Array Segment) : Option Path :=
+  empty.withSegments? segments
+
+/--
+The path with anchor `anchor` and segments `segments`, taken as given.
+
+Nothing is checked, so unlike `withSegments?` this admits a segment the anchor's syntax cannot spell,
+and the result is then a path that `toBytes` refuses to render on any platform. Build paths with the
+parsers and the structural operations; this is for code that has to rebuild a `Path` from the two
+fields it was taken apart into, such as a serializer that must reproduce it exactly.
+-/
+def ofParts (anchor : Anchor) (segments : Array Segment) : Path :=
+  { anchor, segments }
 
 /--
 A path as the term that rebuilds it: the parse call for the flavour it was parsed with, in the
 syntax that flavour renders.
 
-Falls back to the anchor and segments spelled out whenever that call would not reproduce the path —
-because the checked render refuses it (a segment holding syntax the flavour gives meaning to), or
-because its bytes are not valid UTF-8 and no string literal can hold them. `Path.empty` is shown as
-itself rather than as the `.` it renders to, which reads back as a different path.
+Falls back to `ofParts` with the anchor and segments spelled out whenever that call would not
+reproduce the path — because the checked render refuses it (a segment holding syntax the flavour
+gives meaning to), or because its bytes are not valid UTF-8 and no string literal can hold them.
+`Path.empty` is shown as itself rather than as the `.` it renders to, which reads back as a
+different path.
 -/
 instance : Repr Path where
   reprPrec p prec :=
@@ -1282,9 +1637,8 @@ instance : Repr Path where
         | _ => ("Std.Path.ofPosixString! ", p.toPosixBytes?)
       match rendered.bind String.fromUTF8? with
       | some s => Repr.addAppParen (call ++ repr s) prec
-      -- `Path.mk` is private, so this form is for reading rather than for pasting back.
       | none =>
-        Repr.addAppParen ("Std.Path.mk " ++ reprArg p.anchor ++ " " ++ reprArg p.segments) prec
+        Repr.addAppParen ("Std.Path.ofParts " ++ reprArg p.anchor ++ " " ++ reprArg p.segments) prec
 
 section IO
 
@@ -1301,6 +1655,29 @@ On POSIX: `['/']`. On Windows: `['\\', '/']`.
 -/
 def pathSeparators : IO (List Char) :=
   return if System.Platform.isWindows then ['\\', '/'] else ['/']
+
+/--
+The extension an executable binary carries on the current platform: `exe` on Windows, and `none`
+elsewhere, where an executable file needs no extension at all.
+
+`p.addExtension` takes an `Extension`, so the `none` case is the one to skip rather than an empty
+extension to append:
+
+```lean
+let exe := match ← Path.exeExtension with
+  | some ext => p.addExtension ext
+  | none => p
+```
+-/
+def exeExtension : IO (Option Extension) :=
+  return if System.Platform.isWindows then some (.mk "exe".toByteArray) else none
+
+/--
+The character that separates the entries of a search path such as `PATH`: `;` on Windows and `:`
+elsewhere.
+-/
+def searchPathSeparator : IO Char :=
+  return if System.Platform.isWindows then ';' else ':'
 
 /--
 Parse `b` using the platform-native separator and format, delegating to `ofPosixBytes?` on POSIX and
@@ -1360,6 +1737,34 @@ def currentDir : IO Path :=
   ofBytes =<< Internal.UV.System.cwd
 
 /--
+Change the process's current working directory to `p`.
+
+Written as raw bytes, so a directory whose name is not valid UTF-8 can be entered. The render is
+checked the way `toBytes` checks it, so a path the host's syntax would not read back as `p` fails
+rather than moving the process somewhere else.
+-/
+def setCurrentDir (p : Path) : IO Unit :=
+  Internal.UV.System.chdir =<< p.toBytes
+
+/--
+The current user's home directory: `$HOME` on POSIX, falling back to the password database, and the
+user profile directory on Windows.
+
+Read as raw bytes, like `currentDir`. Fails if the OS reports no home directory for the user.
+-/
+def homeDir : IO Path :=
+  ofBytes =<< Internal.UV.System.osHomedir
+
+/--
+The directory the OS designates for temporary files: `$TMPDIR` and its relatives on POSIX, and the
+Windows temporary path otherwise.
+
+Read as raw bytes, like `currentDir`. This only names the directory; it creates nothing in it.
+-/
+def tempDir : IO Path :=
+  ofBytes =<< Internal.UV.System.osTmpdir
+
+/--
 Resolve `p` against the process's current working directory if it is relative.
 
 If `p` is already absolute, it is returned unchanged. A drive-relative Windows path (e.g. `C:foo`) is
@@ -1393,9 +1798,11 @@ def resolve (p : Path) : IO Path :=
 /--
 True if `p` itself is a symbolic link, read without following it.
 
-`false` if `p` names nothing. A symbolic link whose target is missing is indistinguishable from a
-missing name to `resolve`, which fails with `noFileOrDirectory` for both, so this is what separates
-them.
+`false` if `p` names nothing. Only a missing name is quiet: every other failure is raised, so a `p`
+whose parent is not a directory (`ENOTDIR`) throws rather than answering `false`.
+
+A symbolic link whose target is missing is indistinguishable from a missing name to `resolve`, which
+fails with `noFileOrDirectory` for both, so this is what separates them.
 -/
 def isSymlink (p : Path) : IO Bool :=
   Internal.UV.System.isSymlink =<< p.toBytes
@@ -1467,6 +1874,75 @@ def resolveWithin (base p : Path) : IO Path := do
   unless resolved.isUnder root do
     throw <| .userError s!"path escapes {(base.toPosixString).quote}"
   return resolved
+
+/--
+A list of directories to search in order, such as the value of the `PATH` environment variable.
+-/
+abbrev SearchPath := List Path
+
+namespace SearchPath
+
+/--
+Split a search path on the platform's separator, as raw bytes.
+
+An empty entry becomes `Path.empty`, which every renderer writes as `.`: POSIX gives a zero-length
+entry in `PATH` exactly that meaning, and dropping it instead would silently change which
+directories a lookup covers. Entries are kept in order, so the first match still wins.
+
+Fails on an entry containing a null byte, which no platform permits in a path.
+-/
+def ofBytes (b : ByteArray) : IO SearchPath := do
+  let sep := if System.Platform.isWindows then Internal.semicolon else Internal.colon
+  (Internal.splitOnByteFrom b sep 0).toList.mapM fun entry =>
+    if entry.isEmpty then pure Path.empty else Path.ofBytes entry
+
+/--
+Split a search path on the platform's separator.
+
+Encoding the `String` loses nothing, but a search path read from the environment need not be valid
+UTF-8 in the first place; use `ofBytes` for one that came from the OS.
+-/
+def ofString (s : String) : IO SearchPath :=
+  ofBytes s.toByteArray
+
+/--
+Join the entries with the platform's separator, as raw bytes, ready to be put back in the
+environment.
+
+Each entry is rendered with `Path.toBytes`, so an entry the host's syntax would not read back
+unchanged fails rather than being written out as a different directory. An entry whose rendering
+holds the separator itself fails for the same reason: it is one directory going in and two or more
+coming back out, and a name ending in the separator would add an empty entry, which is the working
+directory. The separator is an ordinary name byte on POSIX, so this is reachable from any caller
+that builds a path out of a directory name it did not choose.
+
+An empty list renders as the empty byte string, which `ofBytes` reads back as a single empty entry,
+i.e. as the working directory. No byte string means "no directories", so a caller clearing a search
+path has to unset the variable rather than write this out.
+-/
+def toBytes (sp : SearchPath) : IO ByteArray := do
+  let sepByte := if System.Platform.isWindows then Internal.semicolon else Internal.colon
+  let sep := ByteArray.mk #[sepByte]
+  let entries ← sp.mapM fun p => do
+    let b ← p.toBytes
+    if Internal.containsByte b sepByte then
+      throw <| .userError s!"search path entry {(String.fromUTF8Lossy b).quote} contains the entry \
+        separator, so writing it out would name different directories than it holds"
+    return b
+  return match entries with
+    | [] => .empty
+    | e :: rest => rest.foldl (fun acc x => acc ++ sep ++ x) e
+
+/--
+Join the entries with the platform's separator.
+
+Decoding is lossy in the same way as `Path.toString`; use `toBytes` to build the value without
+loss.
+-/
+protected def toString (sp : SearchPath) : IO String :=
+  String.fromUTF8Lossy <$> sp.toBytes
+
+end SearchPath
 
 end IO
 end Path

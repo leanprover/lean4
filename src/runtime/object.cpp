@@ -765,7 +765,10 @@ class task_manager {
     unsigned                                      m_queues_size{0};
     unsigned                                      m_max_prio{0};
     condition_variable                            m_queue_cv;
-    condition_variable                            m_task_finished_cv;
+    // Per-task waiters: when a thread calls task_get/wait_any, it registers
+    // its stack-local CV here. resolve_core notifies only relevant waiters
+    // instead of broadcasting to all waiters (thundering herd).
+    std::unordered_map<lean_task_object *, std::vector<condition_variable *>> m_task_waiters;
     condition_variable                            m_dedicated_finished_cv;
     bool                                          m_shutting_down{false};
 
@@ -932,7 +935,7 @@ class task_manager {
         /* After the task has been finished and we propagated
            dependencies, we can release `imp` and keep just the value */
         free_task_imp(imp);
-        m_task_finished_cv.notify_all();
+        notify_task_waiters(t);
     }
 
     void handle_finished(unique_lock<mutex> & lock, lean_task_object * t, lean_task_imp * imp) {
@@ -950,6 +953,29 @@ class task_manager {
                 enqueue_core(lock, it);
             }
             it = next_it;
+        }
+    }
+
+    void notify_task_waiters(lean_task_object * t) {
+        auto it = m_task_waiters.find(t);
+        if (it != m_task_waiters.end()) {
+            for (auto * cv : it->second)
+                cv->notify_one();
+            m_task_waiters.erase(it);
+        }
+    }
+
+    void register_waiter(lean_task_object * t, condition_variable * cv) {
+        m_task_waiters[t].push_back(cv);
+    }
+
+    void unregister_waiter(lean_task_object * t, condition_variable * cv) {
+        auto it = m_task_waiters.find(t);
+        if (it != m_task_waiters.end()) {
+            auto & v = it->second;
+            v.erase(std::remove(v.begin(), v.end(), cv), v.end());
+            if (v.empty())
+                m_task_waiters.erase(it);
         }
     }
 
@@ -1040,7 +1066,12 @@ public:
             else
                 m_queue_cv.notify_one();
         }
-        m_task_finished_cv.wait(lock, [&]() { return t->m_value != nullptr; });
+        condition_variable cv;
+        register_waiter(t, &cv);
+        cv.wait(lock, [&]() { return t->m_value != nullptr; });
+        // waiter already removed by notify_task_waiters on success,
+        // but clean up in case of spurious predicate match
+        unregister_waiter(t, &cv);
         if (in_pool) {
             m_max_std_workers--;
         }
@@ -1050,11 +1081,29 @@ public:
         if (object * t = wait_any_check(task_list))
             return t;
         unique_lock<mutex> lock(m_mutex);
-        while (true) {
-            if (object * t = wait_any_check(task_list))
-                return t;
-            m_task_finished_cv.wait(lock);
+        condition_variable cv;
+        // Register our CV on all pending tasks in the list
+        object * it = task_list;
+        while (!is_scalar(it)) {
+            lean_task_object * t = lean_to_task(lean_ctor_get(it, 0));
+            if (!t->m_value)
+                register_waiter(t, &cv);
+            it = cnstr_get(it, 1);
         }
+        object * result = nullptr;
+        while (true) {
+            if ((result = wait_any_check(task_list)))
+                break;
+            cv.wait(lock);
+        }
+        // Unregister from all remaining tasks
+        it = task_list;
+        while (!is_scalar(it)) {
+            lean_task_object * t = lean_to_task(lean_ctor_get(it, 0));
+            unregister_waiter(t, &cv);
+            it = cnstr_get(it, 1);
+        }
+        return result;
     }
 
     void deactivate_task(lean_task_object * t) {

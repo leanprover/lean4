@@ -2078,7 +2078,7 @@ private def withMVarContextImp (mvarId : MVarId) (x : MetaM α) : MetaM α := do
   withLocalContextImp mvarDecl.lctx mvarDecl.localInstances x
 
 /--
-Executes `x` using the given metavariable `LocalContext` and `LocalInstances`.
+`withContext mvarID x` executes `x` using the given metavariable `LocalContext` and `LocalInstances`.
 The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
 different from the current ones. -/
 def _root_.Lean.MVarId.withContext (mvarId : MVarId) : n α → n α :=

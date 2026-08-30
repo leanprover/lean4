@@ -25,59 +25,71 @@ def empty : PrefixTreeNode α β cmp :=
   PrefixTreeNode.Node none ∅
 
 @[inline]
-partial def insert (cmp : α → α → Ordering) (t : PrefixTreeNode α β cmp) (k : List α) (val : β) : PrefixTreeNode α β cmp :=
-  let rec @[specialize] insertEmpty (k : List α) : PrefixTreeNode α β cmp :=
-    match k with
-    | [] => PrefixTreeNode.Node (some val) ∅
-    | k :: ks =>
-      let t := insertEmpty ks
-      PrefixTreeNode.Node none {(k, t)}
-  let rec @[specialize] loop
-    | PrefixTreeNode.Node _ m, [] =>
-      PrefixTreeNode.Node (some val) m -- overrides old value
-    | PrefixTreeNode.Node v m, k :: ks =>
-      let t := match m.get? k with
-        | none   => insertEmpty ks
-        | some t => loop t ks
-      PrefixTreeNode.Node v (m.insert k t)
-  loop t k
+partial def insert (cmp : α → α → Ordering) (t : PrefixTreeNode α β cmp) (k : Array α) (val : β) : PrefixTreeNode α β cmp :=
+  let rec @[specialize] insertEmpty (idx : Nat) : PrefixTreeNode α β cmp :=
+    if h : idx < k.size then
+      let t := insertEmpty (idx + 1)
+      PrefixTreeNode.Node none {(k[idx], t)}
+    else
+      PrefixTreeNode.Node (some val) ∅
+  let rec @[specialize] loop (node : PrefixTreeNode α β cmp) (idx : Nat) :=
+    match node with
+    | .Node v m =>
+      if h : idx < k.size then
+          let elem := k[idx]
+          let t := match m.get? elem with
+            | none   => insertEmpty (idx + 1)
+            | some t => loop t (idx + 1)
+          PrefixTreeNode.Node v (m.insert elem t)
+      else
+        PrefixTreeNode.Node (some val) m -- overrides old value
+  loop t 0
 
 @[specialize]
-partial def find? (cmp : α → α → Ordering) (t : PrefixTreeNode α β cmp) (k : List α) : Option β :=
-  let rec @[specialize] loop
-    | PrefixTreeNode.Node val _, [] => val
-    | PrefixTreeNode.Node _   m, k :: ks =>
-      match m.get? k with
-      | none   => none
-      | some t => loop t ks
-  loop t k
+partial def find? (cmp : α → α → Ordering) (t : PrefixTreeNode α β cmp) (k : Array α) : Option β :=
+  let rec @[specialize] loop (node : PrefixTreeNode α β cmp) (idx : Nat) :=
+    match node with
+    | .Node val m =>
+      if h : idx < k.size then
+        match m.get? k[idx] with
+        | none   => none
+        | some t => loop t (idx + 1)
+      else
+        val
+  loop t 0
 
 /-- Returns the value of the longest key in `t` that is a prefix of `k`, if any. -/
 @[inline]
-partial def findLongestPrefix? (cmp : α → α → Ordering) (t : PrefixTreeNode α β cmp) (k : List α) : Option β :=
-  let rec @[specialize] loop acc?
-    | PrefixTreeNode.Node val _, [] => val <|> acc?
-    | PrefixTreeNode.Node val m, k :: ks =>
-      match m.get? k with
-      | none   => val
-      | some t => loop (val <|> acc?) t ks
-  loop none t k
+partial def findLongestPrefix? (cmp : α → α → Ordering) (t : PrefixTreeNode α β cmp) (k : Array α) : Option β :=
+  let rec @[specialize] loop acc? (node : PrefixTreeNode α β cmp) (idx : Nat) :=
+    match node with
+    | .Node val m =>
+      if h : idx < k.size then
+        match m.get? k[idx] with
+        | none   => val
+        | some t => loop (val <|> acc?) t (idx + 1)
+      else
+        val <|> acc?
+  loop none t 0
 
 @[inline]
-partial def foldMatchingM [Monad m] (cmp : α → α → Ordering) (t : PrefixTreeNode α β cmp) (k : List α) (init : σ) (f : β → σ → m σ) : m σ :=
+partial def foldMatchingM [Monad m] (cmp : α → α → Ordering) (t : PrefixTreeNode α β cmp) (k : Array α) (init : σ) (f : β → σ → m σ) : m σ :=
   let rec @[specialize] fold : PrefixTreeNode α β cmp → σ → m σ
     | PrefixTreeNode.Node b? n, d => do
       let d ← match b? with
         | none   => pure d
         | some b => f b d
       n.foldlM (init := d) fun d _ t => fold t d
-  let rec @[specialize] find : List α → PrefixTreeNode α β cmp → σ → m σ
-    | [],    t, d => fold t d
-    | k::ks, PrefixTreeNode.Node _ m, d =>
-      match m.get? k with
-      | none   => pure init
-      | some t => find ks t d
-  find k t init
+  let rec @[specialize] find (idx : Nat) (node : PrefixTreeNode α β cmp) (d : σ) : m σ :=
+    if h : idx < k.size then
+      match node with
+      | PrefixTreeNode.Node _ m =>
+        match m.get? k[idx] with
+        | none   => pure init
+        | some t => find (idx + 1) t d
+    else
+      fold node d
+  find 0 t init
 
 inductive WellFormed (cmp : α → α → Ordering) : PrefixTreeNode α β cmp → Prop where
   | emptyWff  : WellFormed cmp empty
@@ -100,31 +112,31 @@ instance : EmptyCollection (PrefixTree α β p) where
   emptyCollection := PrefixTree.empty
 
 @[inline]
-def PrefixTree.insert (t : PrefixTree α β p) (k : List α) (v : β) : PrefixTree α β p :=
+def PrefixTree.insert (t : PrefixTree α β p) (k : Array α) (v : β) : PrefixTree α β p :=
   ⟨t.val.insert p k v, WellFormed.insertWff t.property⟩
 
 @[inline]
-def PrefixTree.find? (t : PrefixTree α β p) (k : List α) : Option β :=
+def PrefixTree.find? (t : PrefixTree α β p) (k : Array α) : Option β :=
   t.val.find? p k
 
 @[inline, inherit_doc PrefixTreeNode.findLongestPrefix?]
-def PrefixTree.findLongestPrefix? (t : PrefixTree α β p) (k : List α) : Option β :=
+def PrefixTree.findLongestPrefix? (t : PrefixTree α β p) (k : Array α) : Option β :=
   t.val.findLongestPrefix? p k
 
 @[inline]
-def PrefixTree.foldMatchingM [Monad m] (t : PrefixTree α β p) (k : List α) (init : σ) (f : β → σ → m σ) : m σ :=
+def PrefixTree.foldMatchingM [Monad m] (t : PrefixTree α β p) (k : Array α) (init : σ) (f : β → σ → m σ) : m σ :=
   t.val.foldMatchingM p k init f
 
 @[inline]
 def PrefixTree.foldM [Monad m] (t : PrefixTree α β p) (init : σ) (f : β → σ → m σ) : m σ :=
-  t.foldMatchingM [] init f
+  t.foldMatchingM #[] init f
 
 @[inline]
-def PrefixTree.forMatchingM [Monad m] (t : PrefixTree α β p) (k : List α) (f : β → m Unit) : m Unit :=
+def PrefixTree.forMatchingM [Monad m] (t : PrefixTree α β p) (k : Array α) (f : β → m Unit) : m Unit :=
   t.val.foldMatchingM p k () (fun b _ => f b)
 
 @[inline]
 def PrefixTree.forM [Monad m] (t : PrefixTree α β p) (f : β → m Unit) : m Unit :=
-  t.forMatchingM [] f
+  t.forMatchingM #[] f
 
 end Lean

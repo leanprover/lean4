@@ -458,7 +458,12 @@ private def mkAnswer (cNode : ConsumerNode) : MetaM Answer :=
   withMCtx cNode.mctx do
     let val ← instantiateMVars cNode.mvar
     trace[Meta.synthInstance.newAnswer] "size: {cNode.size}, val: {val}"
-    let result ← abstractMVars val -- assignable metavariables become parameters
+    -- Assignable metavariables become parameters.
+    -- See the note at `applyAbstractResult?` about level metavariables (in a nutshell: instance synthesis
+    -- uses `check` to solve for the level metavariables, as a workaround for level metavariable assignments
+    -- not persisting across `withNewMCtxDepth`). Without `levelsNotFixed`, the `result` would have level
+    -- metavariables that only exist in the current metavariable context.
+    let result ← abstractMVars val (levelsNotFixed := true)
     let resultType ← inferType result.expr
     return { result, resultType, size := cNode.size + 1 }
 
@@ -955,7 +960,7 @@ private def cacheResult (cacheKey : SynthInstanceCacheKey) (kind : PreprocessKin
       | some result =>
         -- See `applyCachedAbstractResult?` If new metavariables have **not** been introduced,
         -- we don't need to perform extra checks again when reusing result.
-        modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey (some { expr := result, paramNames := #[], mvars := #[] }) }
+        modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey (some { expr := result, paramNames := #[], lmvars := #[], exprArgs := #[] }) }
     else
       modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey (some abstResult) }
 

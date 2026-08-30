@@ -361,15 +361,23 @@ structure SynthInstanceCacheKey where
   synthPendingDepth : Nat
   deriving Hashable, BEq
 
-/-- Resulting type for `abstractMVars` -/
+/-- Resulting type for `abstractMVars`. -/
 structure AbstractMVarsResult where
+  /-- Level parameters that replaced the corresponding level metavariables in `lmvars`. -/
   paramNames : Array Name
-  mvars      : Array Expr
+  /-- The level metavariables that were abstracted. -/
+  lmvars     : Array Level
+  /-- Expressions to use to instantiate the abstracted expression.
+  Currently these are just the abstracted metavariables. -/
+  exprArgs      : Array Expr
+  /-- The resulting abstracted expression.
+  Invariant: `(expr.instantiateLevelParams paramNames.toList lmvars.toList).beta exprArgs`
+  is equivalent to the original expression before abstraction. -/
   expr       : Expr
   deriving Inhabited, BEq
 
 def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
-  r.mvars.size
+  r.exprArgs.size
 
 abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option AbstractMVarsResult)
 

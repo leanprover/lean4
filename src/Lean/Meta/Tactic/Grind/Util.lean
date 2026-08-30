@@ -40,11 +40,10 @@ def _root_.Lean.MVarId.abstractMVars (mvarId : MVarId) : MetaM MVarId := do
   let type ← instantiateMVars (← mvarId.getType)
   unless type.hasExprMVar do return mvarId
   mvarId.withContext do
-  let r ← Meta.abstractMVars type (levels := false)
-  let typeNew ← lambdaTelescope r.expr fun xs body => mkForallFVars xs body
+  let r ← Meta.abstractMVars type (levels := false) (isLambda := false)
   let tag ← mvarId.getTag
-  let mvarNew ← mkFreshExprSyntheticOpaqueMVar typeNew tag
-  mvarId.assign (mkAppN mvarNew r.mvars)
+  let mvarNew ← mkFreshExprSyntheticOpaqueMVar r.expr tag
+  mvarId.assign (mkAppN mvarNew r.exprArgs)
   return mvarNew.mvarId!
 
 def _root_.Lean.MVarId.transformTarget (mvarId : MVarId) (f : Expr → MetaM Expr) : MetaM MVarId := mvarId.withContext do

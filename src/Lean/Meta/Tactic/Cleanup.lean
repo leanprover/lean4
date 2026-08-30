@@ -47,10 +47,10 @@ where
       let usedSet := (← get).2
       unless usedSet.contains localDecl.fvarId do
         if (← isProp localDecl.type) then
-          if (← dependsOnPred localDecl.type usedSet.contains) then
+          if (← findExprDependsOn localDecl.type usedSet.contains) then
             addUsedFVar localDecl.fvarId
         if let some v := localDecl.value? then
-          if (← dependsOnPred v usedSet.contains) then
+          if (← findExprDependsOn v usedSet.contains) then
             addUsedFVar localDecl.fvarId
 
   collectProps : StateRefT (Bool × FVarIdSet) MetaM Unit := do

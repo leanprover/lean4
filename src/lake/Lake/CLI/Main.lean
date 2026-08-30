@@ -76,7 +76,7 @@ public structure LakeOptions where
   platform? : Option CachePlatform := none
   toolchain? : Option CacheToolchain := none
   rev? : Option GitRev := none
-  maxRevs : Nat := 100
+  maxRevs? : Option Nat := none
   shake : Shake.Args := {}
   challengeConfig? : Option FilePath := none
   builtinLint : BuiltinLint.Args := {}
@@ -327,7 +327,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--max-revs" => do
   let some n ← (·.toNat?) <$> takeOptArg "--max-revs" "number of revisions"
     | error "argument to `--max-revs` should be a natural number"
-  modifyThe LakeOptions ({· with maxRevs := n})
+  modifyThe LakeOptions ({· with maxRevs? := some n})
 | "--log-level"   => do
   let outLv ← takeOptArg' "--log-level" "log level" LogLevel.ofString?
   modifyThe LakeOptions ({· with outLv? := outLv})
@@ -488,6 +488,44 @@ def serviceNotFound (service : String) (configuredServices : Array CacheServiceC
 def endpointDeprecation : String :=
    "configuring the cache service via environment variables is deprecated; use --service instead"
 
+/-- Default number of revisions the `nearest` policy backtracks when discovering a mapping. -/
+private def defaultMaxRevs : Nat := 100
+
+/--
+Discovers the cached mapping for `repo`'s current checkout under `policy`. Revisions
+are probed nearest-first with `lookup` (which yields `none` when a revision has no
+mapping); the first hit is returned, else a "not found" error labelled with `scope` is
+raised. `pkgName` labels diagnostics and `failLv` escalates warnings as usual.
+
+- `nearest` walks history from `HEAD`, bounded by `maxRevs?` (default `defaultMaxRevs`,
+  `0` = unbounded).
+- `head` consults only `HEAD`, so `maxRevs?` does not apply and is ignored with a
+  warning.
+-/
+private def discoverOutputs
+  (policy : RevDiscovery) (repo : GitRepo)
+  (maxRevs? : Option Nat) (failLv : LogLevel) (pkgName : String) (scope : CacheServiceScope)
+  (lookup : GitRev → LoggerIO (Option α))
+: LoggerIO α := do
+  match policy with
+  | .head =>
+    if maxRevs?.isSome then
+      logWarning s!"{pkgName}: `--max-revs` is ignored for a `head` service; \
+        only the current revision is consulted"
+      if failLv ≤ .warning then
+        failure
+    let some map ← (← repo.getHeadRevisions 1).findSomeM? lookup
+      | error s!"{scope}: no outputs found for the current revision"
+    return map
+  | .nearest =>
+    let n := maxRevs?.getD defaultMaxRevs
+    let revs ← repo.getHeadRevisions n
+    let some map ← revs.findSomeM? lookup
+      | let revisions :=
+          if n = 0 || revs.size < n then "for any revision" else s!"in {n} revisions from HEAD"
+        error s!"{scope}: no outputs found {revisions}"
+    return map
+
 protected def get : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
@@ -606,15 +644,8 @@ where
             only artifacts for committed code will be downloaded"
           if opts.failLv ≤ .warning then
             failure
-        let n := opts.maxRevs
-        let revs ← repo.getHeadRevisions n
-        let map? ← revs.findSomeM? fun rev =>
+        discoverOutputs service.revDiscovery repo opts.maxRevs? opts.failLv pkg.prettyName remoteScope fun rev =>
           service.downloadRevisionOutputs? rev cache pkg.cacheScope remoteScope platform toolchain opts.forceDownload
-        let some map := map?
-          | let revisions :=
-              if n = 0 || revs.size < n then "for any revision" else s!"in {n} revisions from HEAD"
-            error s!"{remoteScope}: no outputs found {revisions}"
-        return map
     cache.writeMap pkg.cacheScope map service.name? (some remoteScope) overwrite
     unless opts.mappingsOnly do
       let descrs ← map.collectOutputDescrs

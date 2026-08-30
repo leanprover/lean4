@@ -10,6 +10,14 @@ type = "s3"
 artifactEndpoint = "%URL%/ok/a0"
 revisionEndpoint = "%URL%/ok/r0"
 
+# The same store, restricted to the mapping of the revision being built
+[[cache.service]]
+name = "okHead"
+type = "s3"
+artifactEndpoint = "%URL%/ok/a0"
+revisionEndpoint = "%URL%/ok/r0"
+revDiscovery = "head"
+
 [[cache.service]]
 name = "deny"
 type = "s3"

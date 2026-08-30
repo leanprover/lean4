@@ -308,6 +308,12 @@ test_err 'unexpected response' cache get --scope=test --service=denyArtifacts
 match_text 'AccessDenied' produced.out
 test_artifacts 0
 
+# Verify a `head` service serves the mapping of the revision being built
+test_cmd rm -rf .lake/build "$CACHE_DIR"
+test_out 'downloaded artifact' cache get --scope=test --service=okHead
+test_artifacts "$NUM_ARTS"
+test_run build Test --no-build
+
 # Verify a rejected outputs download is reported
 test_cmd rm -rf .lake/build "$CACHE_DIR"
 test_err 'output lookup failed' cache get --scope=test --service=deny
@@ -315,8 +321,23 @@ test_err 'output lookup failed' cache get --scope=test --service=deny
 # Verify a revision without outputs is reported
 test_cmd git commit --allow-empty -m "no outputs"
 test_err 'no outputs found' cache get --scope=test --service=ok --max-revs=1
+# Verify a `head` service does not fall back to an earlier revision
+test_err 'no outputs found for the current revision' \
+  cache get --scope=test --service=okHead
+# Verify `--max-revs` does not override the policy: it is ignored, with a
+# warning that `--wfail` escalates to an error
+test_err 'no outputs found for the current revision' \
+  cache get --scope=test --service=okHead --max-revs=0
+test_err '`--max-revs` is ignored for a `head` service' \
+  cache get --scope=test --service=okHead --max-revs=0 --wfail
 # Verify the revision search finds the outputs of an earlier revision
 test_run cache get --scope=test --service=ok
+test_artifacts "$NUM_ARTS"
+test_run build Test --no-build
+
+# Verify `--rev` selects a revision regardless of the discovery policy
+test_cmd rm -rf .lake/build "$CACHE_DIR"
+test_run cache get --scope=test --service=okHead --rev=HEAD~1
 test_artifacts "$NUM_ARTS"
 test_run build Test --no-build
 

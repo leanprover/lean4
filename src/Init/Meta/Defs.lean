@@ -1731,7 +1731,7 @@ abbrev NewGoals := ApplyNewGoals
 /-- Configures the behavior of the `rewrite` and `rw` tactics. -/
 structure Config where
   /-- The transparency mode to use for unfolding -/
-  transparency : TransparencyMode := .reducible
+  transparency : TransparencyMode := .instances
   /-- Whether to support offset constraints such as `?x + 1 =?= e` -/
   offsetCnstrs : Bool := true
   /-- Which occurrences to rewrite-/

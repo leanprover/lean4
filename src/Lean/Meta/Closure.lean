@@ -451,6 +451,36 @@ def mkAuxDefinitionFor (name : Name) (value : Expr) (zetaDelta : Bool := false)
   mkAuxDefinition name type value (zetaDelta := zetaDelta) (compile := compile)
     (logCompileErrors := logCompileErrors)
 
+structure AuxDefCache where
+  defs : PHashMap Expr (Name × List Name) := {}
+  deriving Inhabited
+
+builtin_initialize auxDefCacheExt : EnvExtension AuxDefCache ←
+  registerEnvExtension (pure {}) (asyncMode := .local)
+
+/--
+  Like `mkAuxDefinition`, but with a type-based cache to deduplicate definitions with the same
+  closed type. Returns the application of the cached or new definition to the appropriate arguments.
+-/
+def mkAuxDefinitionCached (type : Expr) (value : Expr) (kind? : Option Name := none)
+    (zetaDelta : Bool := false) (compile : Bool := true) (logCompileErrors : Bool := true) : MetaM Expr := do
+  let result ← Closure.mkValueTypeClosure type value zetaDelta
+  let env ← getEnv
+  let s := auxDefCacheExt.getState env
+  if let some (name, levelParams') := s.defs.find? result.type then
+    if result.levelParams.toList == levelParams' then
+      return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
+  let name ← mkAuxDeclName (kind := kind?.getD `_auxDef)
+  let hints := ReducibilityHints.regular (getMaxHeight env result.value + 1)
+  let decl := Declaration.defnDecl (← mkDefinitionValInferringUnsafe name result.levelParams.toList
+    result.type result.value hints)
+  addDecl decl
+  if compile then
+    compileDecl decl (logErrors := logCompileErrors)
+  modifyEnv fun env => auxDefCacheExt.modifyState env fun ⟨defs⟩ =>
+    ⟨defs.insert result.type (name, result.levelParams.toList)⟩
+  return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
+
 /--
   Create an auxiliary theorem with the given name, type and value. It is similar to `mkAuxDefinition`.
 -/

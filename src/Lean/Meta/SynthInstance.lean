@@ -10,6 +10,7 @@ prelude
 public import Init.Data.Array.InsertionSort
 public import Lean.Meta.Instances
 public import Lean.Meta.AbstractMVars
+import Lean.Meta.Closure
 public import Lean.Meta.Check
 import Init.While
 import Lean.Util.CollectFVars
@@ -456,11 +457,17 @@ def isNewAnswer (oldAnswers : Array Answer) (answer : Answer) : Bool :=
 
 private def mkAnswer (cNode : ConsumerNode) : MetaM Answer :=
   withMCtx cNode.mctx do
-    let val ← instantiateMVars cNode.mvar
-    trace[Meta.synthInstance.newAnswer] "size: {cNode.size}, val: {val}"
+    let mut val ← instantiateMVars cNode.mvar
+    let mut size := cNode.size + 1
+    trace[Meta.synthInstance.newAnswer] "size: {size}, val: {val}"
+    if size ≥ 64 then
+      let type ← inferType val
+      val ← mkAuxDefinitionCached type val (kind? := `_inst) (logCompileErrors := false)
+      setReducibilityStatus val.getAppFn.constName! .reducible
+      size := 1
     let result ← abstractMVars val -- assignable metavariables become parameters
     let resultType ← inferType result.expr
-    return { result, resultType, size := cNode.size + 1 }
+    return { result, resultType, size }
 
 /--
   Create a new answer after `cNode` resolved all subgoals.
@@ -1010,7 +1017,8 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       return result?
 
 def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do
-  synthInstanceCore? type maxResultSize?
+  let some result ← synthInstanceCore? type maxResultSize? | return none
+  return some result
 
 /--
   Return `LOption.some r` if succeeded, `LOption.none` if it failed, and `LOption.undef` if

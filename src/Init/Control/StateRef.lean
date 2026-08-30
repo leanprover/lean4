@@ -55,7 +55,7 @@ variable {ω σ : Type} {m : Type → Type} {α : Type}
 Runs an action from the underlying monad in the monad with state. The state is not modified.
 
 This function is typically implicitly accessed via a `MonadLiftT` instance as part of [automatic
-lifting](lean-manual://section/monad-lifting).
+lifting](lean-manual://section/lifting-monads).
 -/
 @[always_inline, inline]
 protected def lift (x : m α) : StateRefT' ω σ m α :=

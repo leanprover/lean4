@@ -55,6 +55,12 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #define LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE true
 #endif
 
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+#include <sanitizer/lsan_interface.h>
+#endif
+#endif
+
 namespace lean {
 namespace ir {
 // C++ wrappers of Lean data types
@@ -358,7 +364,23 @@ void * lookup_symbol_in_cur_exe(char const * sym) {
     }
     return nullptr;
 #else
-    return dlsym(RTLD_DEFAULT, sym);
+    // On the first `dlsym` on a thread, glibc lazily allocates a small thread-local buffer for
+    // `dlerror` that is only freed during the thread's teardown (a pthread TLS-key destructor). A
+    // task-pool worker that performed a lookup may still be tearing down when LeakSanitizer runs
+    // its end-of-process check, so the not-yet-freed buffer would be reported as a (benign,
+    // bounded, glibc-internal) leak. Ignore allocations made during the lookup.
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+    __lsan_disable();
+#endif
+#endif
+    void * addr = dlsym(RTLD_DEFAULT, sym);
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+    __lsan_enable();
+#endif
+#endif
+    return addr;
 #endif
 }
 

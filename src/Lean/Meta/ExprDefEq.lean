@@ -19,7 +19,7 @@ register_builtin_option backward.isDefEq.lazyProjDelta : Bool := {
 }
 
 register_builtin_option backward.isDefEq.lazyWhnfCore : Bool := {
-  defValue := true
+  defValue := false
   descr    := "specifies transparency mode when normalizing constraints of the form `(f a).i =?= s`, if `true` only reducible definitions and instances are unfolded when reducing `f a`. Otherwise, the default setting is used"
 }
 

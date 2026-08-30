@@ -661,6 +661,16 @@ where
               |>.unzip
           emit "("; emitArgs args; emit ")"
       | _ => throwError s!"failed to emit extern application '{fn}'"
+    match decl.type with
+    | tagged =>
+      emit <| s!"__builtin_assume(((size_t)("
+      emit decl.binderName
+      emitLn ") & 1) == 1);"
+    | object =>
+      emit <| s!"__builtin_assume(((size_t)("
+      emit decl.binderName
+      emitLn ") & 1) != 1);"
+    | _ => return ()
 
   emitPap (fn : Name) (args : Array (Arg .impure)) : EmitM Unit := do
     let some sig ← getImpureSignature? fn | unreachable!

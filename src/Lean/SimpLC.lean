@@ -13,6 +13,7 @@ public meta import Lean.Elab.Tactic.Conv.Congr
 public meta import Lean.Meta.Tactic.TryThis
 public meta import Lean.Elab.Command
 public meta import Lean.Meta.Tactic.Simp.SimpTheorems
+public meta import Lean.Meta.DiscrTree.Util
 public meta import Lean.Elab.Term.TermElabM
 public meta import Lean.Elab.Tactic.Conv.Basic
 public meta import Lean.Meta.Tactic.Simp.Attr
@@ -157,7 +158,7 @@ partial def checkSimpLC (root_only : Bool) (tac? : Option (TSyntax `Lean.Parser.
       let good ← withoutModifingMVarAssignment do withCurrHeartbeats do
         if simplc.stderr.get (← getOptions) then
           IO.eprintln s!"{thm1.origin.key} {thm2.origin.key}"
-        withTraceNode `simplc (do return m!"{exceptBoolEmoji ·} {← critPair.pp}") do
+        withTraceNode `simplc (fun _ => return m!"{← critPair.pp}") do
           let val2  ← thm2.getValue
           let type2 ← inferType val2
           let (hyps2, _bis, type2) ← forallMetaTelescopeReducing type2

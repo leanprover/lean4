@@ -78,9 +78,8 @@ structure Instances where
   instanceNames : PHashMap Name InstanceEntry := {}
   erased        : PHashSet Name := {}
   /--
-  Counter incremented on every instance addition or erasure. Consumers such as
-  `Lean.Elab.Command.SectionVarsCache` compare revisions to detect that the instance table
-  is unchanged.
+  Counter of the changes of the table. A consumer compares two revisions to detect that the
+  table is unchanged.
   -/
   revision      : Nat := 0
   deriving Inhabited
@@ -391,10 +390,15 @@ abbrev PrioritySet := Std.TreeSet Nat (fun x y => compare y x)
 structure DefaultInstances where
   defaultInstances : NameMap (List (Name × Nat)) := {}
   priorities       : PrioritySet := {}
+  /--
+  Counter of the changes of the table. A consumer compares two revisions to detect that the
+  table is unchanged.
+  -/
+  revision         : Nat := 0
   deriving Inhabited
 
 def addDefaultInstanceEntry (d : DefaultInstances) (e : DefaultInstanceEntry) : DefaultInstances :=
-  let d := { d with priorities := d.priorities.insert e.priority }
+  let d := { d with priorities := d.priorities.insert e.priority, revision := d.revision + 1 }
   match d.defaultInstances.find? e.className with
   | some insts => { d with defaultInstances := d.defaultInstances.insert e.className <| (e.instanceName, e.priority) :: insts }
   | none       => { d with defaultInstances := d.defaultInstances.insert e.className [(e.instanceName, e.priority)] }

@@ -30,35 +30,82 @@ opaque LinterStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
 instance : Inhabited LinterState := LinterStateSpec.snd
 
 /--
-Cached elaboration of the section variables (`Scope.varDecls`) of a scope.
-
-Every command that runs `runTermElabM` puts the section variables into its local context, and
-re-elaborating the binders for each command is costly: a binder type whose class takes
-instance-implicit arguments, such as `[Module R M]`, runs type-class synthesis on each
-elaboration. This cache stores the elaborated binders of one scope so that the commands of the
-scope can reuse them. See `Elab.cacheSectionVars` for the reuse conditions.
+Identifies the elaboration context of the section variables of a scope. The section variables of
+two commands with the same key elaborate to the same binders.
 -/
-structure SectionVarsCache where
+structure SectionVarsCacheKey where
   /--
-  The scope the binders were elaborated in, compared by pointer identity. Every scope update
-  creates a new `Scope` value, so this comparison conservatively invalidates the cache whenever
-  the scope changes in any way (new `variable`, `open`, `set_option`, `universe`, `include`,
-  `omit`, or a scope push or pop).
+  The scope. The test of a key compares scopes by pointer identity. Every update of a scope makes
+  a new `Scope` value, so any change of the scope gives a different key.
   -/
   scope : Scope
   /--
-  The value of `Meta.Instances.revision` at elaboration time. A new global instance can change
-  the instance-implicit arguments synthesized inside the binder types, so the cache is not
-  reused after the instance table changes.
+  The revision of the instance table. A change of the table can change the arguments that the
+  elaboration of a binder type synthesizes.
   -/
   instancesRevision : Nat
   /--
-  The elaborated binders as a closed `∀`-telescope with `Sort 0` as an arbitrary body,
-  one binder per entry of `Scope.varUIds`. Blocks that auto-bind implicit variables are not
-  cached. The level metavariables in the term are replaced with fresh ones on each reuse, so
-  each command can still constrain the universes of the section variables independently.
+  The revision of the default instance table. A change of the table can also change the arguments
+  that the elaboration of a binder type synthesizes.
   -/
-  telescope : Expr
+  defaultInstancesRevision : Nat
+
+private unsafe def ptrEqScopeUnsafe (a b : Scope) : Bool := ptrEq a b
+
+/--
+Pointer-identity test for scopes. The reference implementation returns `false`. The test is
+therefore conservative, and a negative result only costs an elaboration.
+-/
+@[implemented_by ptrEqScopeUnsafe]
+private def ptrEqScope (_ _ : Scope) : Bool := false
+
+/-- Tests whether two keys agree. The test is conservative, because it compares the scopes by
+pointer identity. -/
+private def SectionVarsCacheKey.isSame (key key' : SectionVarsCacheKey) : Bool :=
+  ptrEqScope key.scope key'.scope
+    && key.instancesRevision == key'.instancesRevision
+    && key.defaultInstancesRevision == key'.defaultInstancesRevision
+
+/-- The outcome of the elaboration of the section variables of one key. -/
+inductive SectionVarsCacheResult where
+  /--
+  The binders as a closed `∀`-telescope with `Sort 0` as the body, and with one binder per entry
+  of `Scope.varUIds`, and the binder identifier of each binder. Each reuse replaces the level
+  metavariables with fresh ones, so every command constrains the universes of the section
+  variables on its own. A reuse reopens the telescope, which makes new free variables, and adds a
+  binder info node for each identifier.
+  -/
+  | telescope (telescope : Expr) (binderIds : Array Syntax)
+  /--
+  A telescope does not reproduce the elaboration of the binders. The commands of the key
+  elaborate the binders again, and they do not build a telescope again.
+  -/
+  | notReusable
+
+/-- The elaboration of the section variables of one key. -/
+structure SectionVarsCacheEntry where
+  /-- The key of the elaboration. -/
+  key : SectionVarsCacheKey
+  /-- The outcome of the elaboration. -/
+  result : SectionVarsCacheResult
+
+/--
+Cached elaboration of the section variables (`Scope.varDecls`) of a scope.
+
+Every command that runs `runTermElabM` puts the section variables into its local context. The
+elaboration of the binders for each command is costly, because the elaboration of a binder type
+can run type-class synthesis. The cache holds the binders of one key, and the commands with the
+same key reuse them. See `Elab.cacheSectionVars` for the conditions of the reuse.
+-/
+structure SectionVarsCache where
+  /-- The elaborated section variables, if the cache holds them. -/
+  entry? : Option SectionVarsCacheEntry := none
+  /--
+  The key of the last miss. The cache takes an entry only after the same key misses twice. The
+  construction of the telescope has a cost, and a key that does not recur gives no reuse.
+  -/
+  lastMiss? : Option SectionVarsCacheKey := none
+  deriving Inhabited
 
 structure State where
   env            : Environment
@@ -74,14 +121,7 @@ structure State where
   snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
   prevLinterStates : Option (Task (Array LinterState)) := none
   codeQualityEntryTasks : Array (Task (Array Linter.CodeQualityLogEntry)) := #[]
-  sectionVarsCache : Option SectionVarsCache := none
-  /--
-  The scope and instance-table revision of the last `runTermElabM` cache miss. The elaborated
-  binders are stored in `sectionVarsCache` only when the same scope and revision miss twice:
-  building the closed telescope can be costly, and a scope that never recurs (for example the
-  ephemeral scope of a `set_option ... in` prefix) would pay that cost without any reuse.
-  -/
-  sectionVarsLastMiss : Option (Scope × Nat) := none
+  sectionVarsCache : SectionVarsCache := {}
   deriving Nonempty
 
 structure Context where
@@ -1065,81 +1105,87 @@ variable (n : Nat)
 -/
 register_builtin_option Elab.cacheSectionVars : Bool := {
   defValue := true
-  descr := "cache the elaboration of section variables (`variable` command binders) and reuse it \
-    across the commands of a scope instead of re-elaborating the binders for each command\
+  descr := "cache the elaboration of the section variables of a scope, and reuse it across the \
+    commands of the scope\
     \n\
-    \nThe cache is invalidated by any scope change (`variable`, `open`, `set_option`, `universe`, \
-      `include`, `omit`, entering or ending a `section` or `namespace`) and by any change to the \
-      global instance table. One observable difference remains: a global declaration made between \
-      two commands of a scope does not change how the identifiers in the binder types of earlier \
-      `variable` commands resolve for the second command, whereas re-elaboration would resolve \
-      them again."
+    \nThe cache approximates the elaboration of the binders in the current environment. It \
+      tracks the changes that can change the result of the type-class synthesis in the binder \
+      types, and it does not track the other changes. Any change of the scope invalidates the \
+      cache, and so does a change of the instance table or of the default instance table. Two \
+      differences remain. A declaration between two commands of a scope does not change how the \
+      identifiers in the binder types of earlier `variable` commands resolve, and a change of \
+      reducibility does not run the synthesis in the binder types again."
 }
 
-private unsafe def ptrEqScopeUnsafe (a b : Scope) : Bool := ptrEq a b
-
 /--
-Pointer-identity test for scopes, used to validate `SectionVarsCache`. The reference
-implementation conservatively returns `false`; a missed reuse only costs re-elaboration.
+Reuses the section variables of `entry`: reopens the telescope in the local context with fresh
+level metavariables, and runs `elabFn` on the free variables. It elaborates no binder syntax.
 -/
-@[implemented_by ptrEqScopeUnsafe]
-private def ptrEqScope (_ _ : Scope) : Bool := false
-
-/--
-Reuses the elaborated section variables in `cache`: reintroduces the binders of
-`cache.telescope` into the local context with fresh level metavariables and runs `elabFn`
-on the resulting free variables, without re-elaborating any binder syntax.
--/
-private def withSectionVarsFromCache (cache : SectionVarsCache) (varUIds : Array Name)
-    (elabFn : Array Expr → TermElabM α) : TermElabM α := do
-  -- `Term.elabBinders` runs its continuation inside `universeConstraintsCheckpoint`, so the
-  -- reuse path must do the same: the checkpoint solves the pending universe constraints of the
-  -- command and reports the failures.
+private def withSectionVarsFromCache (cachedTelescope : Expr) (binderIds : Array Syntax)
+    (varUIds : Array Name) (elabFn : Array Expr → TermElabM α) : TermElabM α := do
+  -- `Term.elabBinders` runs its continuation inside `universeConstraintsCheckpoint`. The reuse
+  -- path does the same, so that the command solves its universe constraints and reports the
+  -- failures.
   let act : TermElabM α :=
     Term.universeConstraintsCheckpoint do
-      -- Give each command its own copy of the level metavariables, so that a command can still
-      -- constrain the universes of the section variables independently, as re-elaboration
-      -- would.
-      let lmvarIds := (collectLevelMVars {} cache.telescope).result
+      -- Each command gets its own copy of the level metavariables, so that it constrains the
+      -- universes of the section variables on its own.
+      let lmvarIds := (collectLevelMVars {} cachedTelescope).result
       let mut subst := #[]
       for id in lmvarIds do
         subst := subst.push (id, ← Meta.mkFreshLevelMVar)
-      let telescope := cache.telescope.replaceLevel fun
+      let telescope := cachedTelescope.replaceLevel fun
         | .mvar id => subst.findSome? fun (id', u) => if id' == id then some u else none
         | _ => none
-      Meta.forallTelescope telescope fun xs _ => do
+      Meta.forallBoundedTelescope telescope varUIds.size fun xs _ => do
+        -- The free variables are new. The language server finds the binder of a free variable
+        -- through its info node, so add a node for each binder again.
+        for binderId in binderIds, x in xs do
+          Term.addLocalVarInfo binderId x
         let mut sectionFVars := {}
-        for i in [:varUIds.size] do
-          sectionFVars := sectionFVars.insert varUIds[i]! xs[i]!
+        for uid in varUIds, x in xs do
+          sectionFVars := sectionFVars.insert uid x
         withReader ({ · with sectionFVars := sectionFVars }) do
           Term.withoutAutoBoundImplicit <| elabFn xs
-  -- With `autoImplicit` enabled, `Term.withAutoBoundImplicit` runs its continuation one
-  -- recursion-depth frame deeper; mirror the frame so that depth-limited commands behave the
-  -- same with and without reuse.
+  -- `Term.withAutoBoundImplicit` runs its continuation one recursion-depth frame deeper when
+  -- `autoImplicit` is on. The reuse path mirrors the frame, so that the recursion depth agrees.
   if autoImplicit.get (← getOptions) then withIncRecDepth act else act
 
 def runTermElabM (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
   let scope ← getScope
-  let cacheEnabled := Elab.cacheSectionVars.get scope.opts
-  let instancesRevision := (Meta.instanceExtension.getState (← getEnv)).revision
+  -- A scope without section variables has nothing to reuse, and the work of the cache would
+  -- cost more than the elaboration of the empty block.
+  let cacheEnabled := !scope.varDecls.isEmpty && Elab.cacheSectionVars.get scope.opts
+  -- The key of the entry to store, if this command must store one.
+  let mut saveKey? : Option SectionVarsCacheKey := none
   if cacheEnabled then
-    if let some cache := (← get).sectionVarsCache then
-      if ptrEqScope cache.scope scope && cache.instancesRevision == instancesRevision then
-        return (← liftTermElabM <| withSectionVarsFromCache cache scope.varUIds elabFn)
-  -- Store the elaborated binders only when the same scope misses twice (see
-  -- `State.sectionVarsLastMiss`).
-  let recurringMiss ←
-    match (← get).sectionVarsLastMiss with
-    | some (missScope, missRevision) =>
-      pure <| ptrEqScope missScope scope && missRevision == instancesRevision
-    | none => pure false
-  unless recurringMiss do
-    modify fun s => { s with sectionVarsLastMiss := some (scope, instancesRevision) }
-  let shouldSave := cacheEnabled && recurringMiss
-  let cacheRef ← IO.mkRef (none : Option SectionVarsCache)
+    let env ← getEnv
+    let key : SectionVarsCacheKey := {
+      scope
+      instancesRevision := (Meta.instanceExtension.getState env).revision
+      defaultInstancesRevision := (Meta.defaultInstanceExtension.getState env).revision
+    }
+    let cache := (← get).sectionVarsCache
+    let hit? := match cache.entry? with
+      | some entry => if entry.key.isSame key then some entry.result else none
+      | none => none
+    match hit? with
+    | some (.telescope telescope binderIds) =>
+      return (← liftTermElabM <|
+        withSectionVarsFromCache telescope binderIds scope.varUIds elabFn)
+    | some .notReusable => pure ()
+    | none =>
+      if cache.lastMiss?.any (·.isSame key) then
+        saveKey? := some key
+      else
+        modify fun s => { s with sectionVarsCache.lastMiss? := some key }
+  let entryRef ← IO.mkRef (none : Option SectionVarsCacheEntry)
   let a ← liftTermElabM <|
     Term.withAutoBoundImplicit <|
-      Term.elabBinders scope.varDecls fun xs => do
+      -- `elabBindersEx` also reports the binder syntax of each free variable. A later reuse
+      -- needs it for the binder info nodes.
+      Term.elabBindersEx scope.varDecls fun binders => do
+        let xs := binders.map (·.2)
         -- We need to synthesize postponed terms because this is a checkpoint for the auto-bound implicit feature
         -- If we don't use this checkpoint here, then auto-bound implicits in the postponed terms will not be handled correctly.
         Term.synthesizeSyntheticMVarsNoPostponing
@@ -1152,40 +1198,35 @@ def runTermElabM (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
           Core.resetMessageLog
           let xs ← Term.addAutoBoundImplicits xs none
           if xs.all (·.isFVar) then
-            -- Cache the elaborated binders, except in the cases in which re-elaboration is not
-            -- reproducible from the telescope alone:
-            -- * an auto-bound implicit variable resolves to a global declaration of the same
-            --   name as soon as one appears, so its meaning can change between the commands of
-            --   the scope (`xs` has more entries than `varUIds` when auto-bound variables are
-            --   present);
-            -- * a postponed universe constraint from the binder types is re-created and solved
-            --   within each command, and the telescope does not capture it;
-            -- * a `_` placeholder in a binder type remains a metavariable that each command can
-            --   constrain independently;
-            -- * error recovery can leave `sorry` in the binder types;
-            -- * an auto-bound universe name (a growth of the level names) turns into a
-            --   differently named universe parameter when the reused level metavariable is
-            --   fresh.
-            if shouldSave && xs.size == scope.varUIds.size then
-              let telescope ← instantiateMVars (← Meta.mkForallFVars xs (mkSort Level.zero))
-              unless telescope.hasExprMVar || telescope.hasSorry ||
-                  !(← Meta.getPostponed).isEmpty ||
-                  (← Term.getLevelNames) != scope.levelNames do
-                cacheRef.set <| some {
-                  scope := scope
-                  instancesRevision := instancesRevision
-                  telescope := telescope
-                }
+            -- The telescope reproduces the elaboration only when the binders are closed and
+            -- final. An auto-bound variable can resolve to a later declaration, a metavariable
+            -- or a postponed universe constraint belongs to a single command, error recovery
+            -- leaves `sorry`, and a new universe name would change the parameter names.
+            if let some saveKey := saveKey? then
+              let result ←
+                if xs.size != scope.varUIds.size then
+                  pure .notReusable
+                else
+                  let telescope ← instantiateMVars (← Meta.mkForallFVars xs (mkSort Level.zero))
+                  if telescope.hasExprMVar || telescope.hasSorry ||
+                      !(← Meta.getPostponed).isEmpty ||
+                      (← Term.getLevelNames) != scope.levelNames then
+                    pure .notReusable
+                  else
+                    pure <| .telescope telescope (binders.map (·.1))
+              entryRef.set <| some { key := saveKey, result }
             Term.withoutAutoBoundImplicit <| elabFn xs
           else
+            if let some saveKey := saveKey? then
+              entryRef.set <| some { key := saveKey, result := .notReusable }
             -- Abstract any mvars that appear in `xs` using `mkForallFVars` (the type `mkSort Level.zero` is an arbitrary placeholder)
             -- and then rebuild the local context from scratch.
             -- Resetting prevents the local context from including the original fvars from `xs`.
             let ctxType ← Meta.mkForallFVars' xs (mkSort Level.zero)
             Meta.withLCtx {} {} <| Meta.forallBoundedTelescope ctxType xs.size fun xs _ =>
               Term.withoutAutoBoundImplicit <| elabFn xs
-  if let some cache ← cacheRef.get then
-    modify fun s => { s with sectionVarsCache := some cache }
+  if let some entry ← entryRef.get then
+    modify fun s => { s with sectionVarsCache.entry? := some entry }
   return a
 
 private def liftAttrM {α} (x : AttrM α) : CommandElabM α := do

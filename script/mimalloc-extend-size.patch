@@ -1,0 +1,11 @@
+--- a/src/page.c
++++ b/src/page.c
+@@ -615,7 +615,7 @@
+   Page initialize and extend the capacity
+ ----------------------------------------------------------- */
+ 
+-#define MI_MAX_EXTEND_SIZE    (8*1024)      // heuristic, one or two OS pages seems to work well.
++#define MI_MAX_EXTEND_SIZE    (4*1024)      // heuristic, one or two OS pages seems to work well.
+ #if (MI_SECURE>=2)
+ #define MI_MIN_EXTEND         (8*MI_SECURE) // extend at least by this many
+ #else

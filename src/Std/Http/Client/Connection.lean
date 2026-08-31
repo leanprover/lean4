@@ -1012,7 +1012,7 @@ private def challengeKind? (status : Status) : Option Challenge.Kind :=
 client allows reuse at all, the response did not ask for closure, and its body is framed by
 something other than the connection close itself (RFC 9112 §6.3).
 -/
-private def leavesConnectionReusable (config : Config) (method : Method) (head : Response.Head) : Bool :=
+def leavesConnectionReusable (config : Config) (method : Method) (head : Response.Head) : Bool :=
   config.enableKeepAlive
   ∧ H1.Message.Head.shouldKeepAlive (dir := .sending) head
   ∧ (responseBodySize method head).isSome

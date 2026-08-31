@@ -430,7 +430,7 @@ v_mctx_100_ = lean_ctor_get(v___x_99_, 0);
 lean_inc_ref(v_mctx_100_);
 lean_dec(v___x_99_);
 v_lctx_101_ = lean_ctor_get(v___y_92_, 2);
-v_options_102_ = lean_ctor_get(v___y_94_, 2);
+v_options_102_ = lean_ctor_get(v___y_94_, 1);
 lean_inc_ref(v_options_102_);
 lean_inc_ref(v_lctx_101_);
 v___x_103_ = lean_alloc_ctor(0, 4, 0);
@@ -462,7 +462,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Grind_Arith_Linear
 _start:
 {
 lean_object* v_ref_119_; lean_object* v___x_120_; lean_object* v_a_121_; lean_object* v___x_123_; uint8_t v_isShared_124_; uint8_t v_isSharedCheck_129_; 
-v_ref_119_ = lean_ctor_get(v___y_116_, 5);
+v_ref_119_ = lean_ctor_get(v___y_116_, 4);
 v___x_120_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Meta_Grind_Arith_Linear_getNatStruct_spec__0_spec__0(v_msg_113_, v___y_114_, v___y_115_, v___y_116_, v___y_117_);
 v_a_121_ = lean_ctor_get(v___x_120_, 0);
 v_isSharedCheck_129_ = !lean_is_exclusive(v___x_120_);

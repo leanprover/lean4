@@ -2237,9 +2237,9 @@ LEAN_EXPORT lean_object* l_Lean_Widget_ppExprTagged(lean_object* v_e_686_, lean_
 _start:
 {
 lean_object* v_e_694_; lean_object* v_options_698_; lean_object* v_currNamespace_699_; lean_object* v_openDecls_700_; lean_object* v___x_701_; uint8_t v___x_702_; 
-v_options_698_ = lean_ctor_get(v_a_690_, 2);
-v_currNamespace_699_ = lean_ctor_get(v_a_690_, 6);
-v_openDecls_700_ = lean_ctor_get(v_a_690_, 7);
+v_options_698_ = lean_ctor_get(v_a_690_, 1);
+v_currNamespace_699_ = lean_ctor_get(v_a_690_, 5);
+v_openDecls_700_ = lean_ctor_get(v_a_690_, 6);
 v___x_701_ = l_Lean_pp_raw;
 v___x_702_ = l_Lean_Option_get___at___00Lean_Widget_ppExprTagged_spec__0(v_options_698_, v___x_701_);
 if (v___x_702_ == 0)

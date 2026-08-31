@@ -622,7 +622,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabMVarAux___lam__0(
 _start:
 {
 lean_object* v_ref_117_; uint8_t v___x_118_; lean_object* v___x_119_; lean_object* v___x_120_; 
-v_ref_117_ = lean_ctor_get(v___y_114_, 5);
+v_ref_117_ = lean_ctor_get(v___y_114_, 4);
 v___x_118_ = 0;
 v___x_119_ = l_Lean_SourceInfo_fromRef(v_ref_117_, v___x_118_);
 v___x_120_ = lean_alloc_ctor(0, 1, 0);
@@ -646,7 +646,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabMVarAux___lam__1(
 _start:
 {
 lean_object* v_ref_143_; uint8_t v___x_144_; lean_object* v___x_145_; lean_object* v___x_146_; lean_object* v___x_147_; lean_object* v___x_148_; lean_object* v___x_149_; lean_object* v___x_150_; lean_object* v___x_151_; lean_object* v___x_152_; 
-v_ref_143_ = lean_ctor_get(v___y_140_, 5);
+v_ref_143_ = lean_ctor_get(v___y_140_, 4);
 v___x_144_ = 0;
 v___x_145_ = l_Lean_SourceInfo_fromRef(v_ref_143_, v___x_144_);
 v___x_146_ = ((lean_object*)(l_Lean_PrettyPrinter_Delaborator_delabMVarAux___lam__1___closed__4));
@@ -1127,7 +1127,7 @@ LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Delaborator_Metavariable
 _start:
 {
 lean_object* v_options_358_; lean_object* v___f_359_; lean_object* v___f_360_; lean_object* v___f_361_; uint8_t v___x_362_; uint8_t v___x_363_; lean_object* v___x_364_; 
-v_options_358_ = lean_ctor_get(v_a_355_, 2);
+v_options_358_ = lean_ctor_get(v_a_355_, 1);
 v___f_359_ = ((lean_object*)(l___private_Lean_PrettyPrinter_Delaborator_Metavariable_0__Lean_PrettyPrinter_Delaborator_delabMVarAsStr___closed__0));
 v___f_360_ = ((lean_object*)(l___private_Lean_PrettyPrinter_Delaborator_Metavariable_0__Lean_PrettyPrinter_Delaborator_delabMVarAsStr___closed__1));
 v___f_361_ = ((lean_object*)(l___private_Lean_PrettyPrinter_Delaborator_Metavariable_0__Lean_PrettyPrinter_Delaborator_delabMVarAsStr___closed__3));

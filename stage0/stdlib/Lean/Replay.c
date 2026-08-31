@@ -64,7 +64,7 @@ lean_object* lean_mk_io_user_error(lean_object*);
 uint8_t l_Lean_instBEqConstructorVal_beq(lean_object*, lean_object*);
 uint8_t l_Lean_instBEqRecursorVal_beq(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
-lean_object* lean_elab_environment_of_kernel_env(lean_object*);
+lean_object* l_Lean_Environment_ofKernelEnv(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_erase___at___00__private_Lean_Replay_0__Lean_Kernel_Environment_Replay_isTodo_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_erase___at___00__private_Lean_Replay_0__Lean_Kernel_Environment_Replay_isTodo_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Replay_0__Lean_Kernel_Environment_Replay_isTodo___redArg(lean_object*, lean_object*);
@@ -6899,7 +6899,7 @@ goto v_resetjp_1757_;
 v_resetjp_1757_:
 {
 lean_object* v___x_1760_; lean_object* v___x_1762_; 
-v___x_1760_ = lean_elab_environment_of_kernel_env(v_a_1756_);
+v___x_1760_ = l_Lean_Environment_ofKernelEnv(v_a_1756_);
 if (v_isShared_1759_ == 0)
 {
 lean_ctor_set(v___x_1758_, 0, v___x_1760_);

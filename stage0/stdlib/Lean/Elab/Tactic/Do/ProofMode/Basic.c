@@ -1428,12 +1428,12 @@ return v_res_395_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Elab_Tactic_Do_ProofMode_mStartMVar_spec__0_spec__0_spec__2___redArg___boxed(lean_object* v_x_396_, lean_object* v_x_397_, lean_object* v_x_398_, lean_object* v_x_399_, lean_object* v_x_400_){
 _start:
 {
-size_t v_x_3288__boxed_401_; size_t v_x_3289__boxed_402_; lean_object* v_res_403_; 
-v_x_3288__boxed_401_ = lean_unbox_usize(v_x_397_);
+size_t v_x_3285__boxed_401_; size_t v_x_3286__boxed_402_; lean_object* v_res_403_; 
+v_x_3285__boxed_401_ = lean_unbox_usize(v_x_397_);
 lean_dec(v_x_397_);
-v_x_3289__boxed_402_ = lean_unbox_usize(v_x_398_);
+v_x_3286__boxed_402_ = lean_unbox_usize(v_x_398_);
 lean_dec(v_x_398_);
-v_res_403_ = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Elab_Tactic_Do_ProofMode_mStartMVar_spec__0_spec__0_spec__2___redArg(v_x_396_, v_x_3288__boxed_401_, v_x_3289__boxed_402_, v_x_399_, v_x_400_);
+v_res_403_ = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Elab_Tactic_Do_ProofMode_mStartMVar_spec__0_spec__0_spec__2___redArg(v_x_396_, v_x_3285__boxed_401_, v_x_3286__boxed_402_, v_x_399_, v_x_400_);
 return v_res_403_;
 }
 }
@@ -1601,7 +1601,7 @@ v_mctx_464_ = lean_ctor_get(v___x_463_, 0);
 lean_inc_ref(v_mctx_464_);
 lean_dec(v___x_463_);
 v_lctx_465_ = lean_ctor_get(v___y_456_, 2);
-v_options_466_ = lean_ctor_get(v___y_458_, 2);
+v_options_466_ = lean_ctor_get(v___y_458_, 1);
 lean_inc_ref(v_options_466_);
 lean_inc_ref(v_lctx_465_);
 v___x_467_ = lean_alloc_ctor(0, 4, 0);
@@ -1633,7 +1633,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Elab_Tactic_Do_ProofMod
 _start:
 {
 lean_object* v_ref_483_; lean_object* v___x_484_; lean_object* v_a_485_; lean_object* v___x_487_; uint8_t v_isShared_488_; uint8_t v_isSharedCheck_493_; 
-v_ref_483_ = lean_ctor_get(v___y_480_, 5);
+v_ref_483_ = lean_ctor_get(v___y_480_, 4);
 v___x_484_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Elab_Tactic_Do_ProofMode_mStartMVar_spec__1_spec__2(v_msg_477_, v___y_478_, v___y_479_, v___y_480_, v___y_481_);
 v_a_485_ = lean_ctor_get(v___x_484_, 0);
 v_isSharedCheck_493_ = !lean_is_exclusive(v___x_484_);
@@ -2419,12 +2419,12 @@ return v___x_707_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Elab_Tactic_Do_ProofMode_mStartMVar_spec__0_spec__0_spec__2___boxed(lean_object* v_00_u03b2_708_, lean_object* v_x_709_, lean_object* v_x_710_, lean_object* v_x_711_, lean_object* v_x_712_, lean_object* v_x_713_){
 _start:
 {
-size_t v_x_3900__boxed_714_; size_t v_x_3901__boxed_715_; lean_object* v_res_716_; 
-v_x_3900__boxed_714_ = lean_unbox_usize(v_x_710_);
+size_t v_x_3897__boxed_714_; size_t v_x_3898__boxed_715_; lean_object* v_res_716_; 
+v_x_3897__boxed_714_ = lean_unbox_usize(v_x_710_);
 lean_dec(v_x_710_);
-v_x_3901__boxed_715_ = lean_unbox_usize(v_x_711_);
+v_x_3898__boxed_715_ = lean_unbox_usize(v_x_711_);
 lean_dec(v_x_711_);
-v_res_716_ = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Elab_Tactic_Do_ProofMode_mStartMVar_spec__0_spec__0_spec__2(v_00_u03b2_708_, v_x_709_, v_x_3900__boxed_714_, v_x_3901__boxed_715_, v_x_712_, v_x_713_);
+v_res_716_ = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Elab_Tactic_Do_ProofMode_mStartMVar_spec__0_spec__0_spec__2(v_00_u03b2_708_, v_x_709_, v_x_3897__boxed_714_, v_x_3898__boxed_715_, v_x_712_, v_x_713_);
 return v_res_716_;
 }
 }
@@ -3057,7 +3057,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Elab_Tactic_Do_ProofMod
 _start:
 {
 lean_object* v_ref_1026_; lean_object* v___x_1027_; lean_object* v_a_1028_; lean_object* v___x_1030_; uint8_t v_isShared_1031_; uint8_t v_isSharedCheck_1036_; 
-v_ref_1026_ = lean_ctor_get(v___y_1023_, 5);
+v_ref_1026_ = lean_ctor_get(v___y_1023_, 4);
 v___x_1027_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Elab_Tactic_Do_ProofMode_mStartMVar_spec__1_spec__2(v_msg_1020_, v___y_1021_, v___y_1022_, v___y_1023_, v___y_1024_);
 v_a_1028_ = lean_ctor_get(v___x_1027_, 0);
 v_isSharedCheck_1036_ = !lean_is_exclusive(v___x_1027_);

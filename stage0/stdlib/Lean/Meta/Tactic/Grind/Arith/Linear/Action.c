@@ -46,7 +46,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_linarith___lam__0(lean_object*
 _start:
 {
 lean_object* v_ref_22_; uint8_t v___x_23_; lean_object* v___x_24_; lean_object* v___x_25_; lean_object* v___x_26_; lean_object* v___x_27_; lean_object* v___x_28_; lean_object* v___x_29_; 
-v_ref_22_ = lean_ctor_get(v___y_19_, 5);
+v_ref_22_ = lean_ctor_get(v___y_19_, 4);
 v___x_23_ = 0;
 v___x_24_ = l_Lean_SourceInfo_fromRef(v_ref_22_, v___x_23_);
 v___x_25_ = ((lean_object*)(l_Lean_Meta_Grind_Action_linarith___lam__0___closed__4));

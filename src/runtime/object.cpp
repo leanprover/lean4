@@ -602,7 +602,11 @@ extern "C" LEAN_EXPORT void lean_mark_persistent(object * o) {
             if (tag <= LeanMaxCtorTag) {
                 object ** it  = lean_ctor_obj_cptr(o);
                 object ** end = it + lean_ctor_num_objs(o);
-                for (; it != end; ++it) todo.push_back(*it);
+                for (; it != end; ++it) {
+                    if (!lean_is_scalar(*it)) {
+                        todo.push_back(*it);
+                    }
+                }
             } else {
                 switch (tag) {
                 case LeanScalarArray:
@@ -677,7 +681,11 @@ extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
             if (tag <= LeanMaxCtorTag) {
                 object ** it  = lean_ctor_obj_cptr(o);
                 object ** end = it + lean_ctor_num_objs(o);
-                for (; it != end; ++it) todo.push_back(*it);
+                for (; it != end; ++it) {
+                    if (!lean_is_scalar(*it)) {
+                        todo.push_back(*it);
+                    }
+                }
             } else {
                 switch (tag) {
                 case LeanScalarArray:

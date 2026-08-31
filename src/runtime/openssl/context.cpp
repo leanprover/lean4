@@ -237,8 +237,18 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert_file, 
 }
 
 // Shared skeleton of the client constructors; `load_ca` returns nullptr or an IO error to propagate.
+// `has_ca` says whether the caller supplied CA material at all, which decides whether dropping the
+// platform anchors would leave nothing behind. `load_ca` is what enforces that supplied material
+// actually yields a certificate, so the two together guarantee a verifying context has an anchor.
 template<typename LoadCA>
-static lean_obj_res mk_client_ctx(uint8_t verify_peer, LoadCA load_ca) {
+static lean_obj_res mk_client_ctx(uint8_t verify_peer, uint8_t trust_system_roots, bool has_ca,
+                                  LoadCA load_ca) {
+    if (verify_peer && !trust_system_roots && !has_ca) {
+        return mk_ssl_invalid_argument(
+            "no trust anchors: peer verification is on, the platform trust anchors are excluded, "
+            "and no CA certificate was given");
+    }
+
     lean_obj_res err = nullptr;
     ssl_ctx_ptr ctx = mk_ssl_ctx_base(TLS_client_method(), &err);
     if (ctx == nullptr) return err;
@@ -249,16 +259,19 @@ static lean_obj_res mk_client_ctx(uint8_t verify_peer, LoadCA load_ca) {
         return wrap_ssl_context(std::move(ctx));
     }
 
-    std::string detail;
+    if (trust_system_roots) {
+        std::string detail;
 
-    if (!load_system_trust_store(ctx.get(), &detail)) {
-        std::string msg("failed to load system trust store");
-        if (!detail.empty()) msg += ": " + detail;
+        if (!load_system_trust_store(ctx.get(), &detail)) {
+            std::string msg("failed to load system trust store");
+            if (!detail.empty()) msg += ": " + detail;
 
-        return lean_io_result_mk_error(mk_openssl_error(msg.c_str()));
+            return lean_io_result_mk_error(mk_openssl_error(msg.c_str()));
+        }
     }
 
-    // The caller's own CAs are added on top of the platform anchors, not in place of them.
+    // The caller's own CAs are added to whatever the store already holds: on top of the platform
+    // anchors, or into an otherwise empty store when those were excluded.
     if (lean_obj_res ca_err = load_ca(ctx.get())) return ca_err;
 
     SSL_CTX_set_verify(ctx.get(), SSL_VERIFY_PEER, nullptr);
@@ -300,13 +313,15 @@ static lean_obj_res load_ca_bundle(SSL_CTX * ctx, BIO * bio, char const * unread
     return nullptr;
 }
 
-/* Std.Internal.SSL.Context.Client.mkImpl (caFile : @& String) (verifyPeer : Bool) : IO Context.Client */
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca_file, uint8_t verify_peer) {
+/* Std.Internal.SSL.Context.Client.mkImpl (caFile : @& String) (verifyPeer trustSystemRoots : Bool) : IO Context.Client */
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca_file, uint8_t verify_peer,
+                                                           uint8_t trust_system_roots) {
     if (lean_obj_res err = reject_embedded_nul(ca_file)) return err;
 
-    return mk_client_ctx(verify_peer, [&](SSL_CTX * ctx) -> lean_obj_res {
-        const char * ca = lean_string_cstr(ca_file);
+    const char * ca = lean_string_cstr(ca_file);
 
+    return mk_client_ctx(verify_peer, trust_system_roots, ca[0] != '\0',
+                         [&](SSL_CTX * ctx) -> lean_obj_res {
         // An empty CA path leaves the client with just the system trust anchors.
         if (ca[0] == '\0') return nullptr;
 
@@ -316,12 +331,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca_file, ui
     });
 }
 
-/* Std.Internal.SSL.Context.Client.mkFromPEM (caPEM : @& String) (verifyPeer : Bool) : IO Context.Client */
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client_from_pem(b_obj_arg ca_pem, uint8_t verify_peer) {
-    return mk_client_ctx(verify_peer, [&](SSL_CTX * ctx) -> lean_obj_res {
-        const char * pem = lean_string_cstr(ca_pem);
-        size_t pem_size = lean_string_size(ca_pem) - 1;
+/* Std.Internal.SSL.Context.Client.mkFromPEM (caPEM : @& String) (verifyPeer trustSystemRoots : Bool) : IO Context.Client */
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client_from_pem(b_obj_arg ca_pem, uint8_t verify_peer,
+                                                                    uint8_t trust_system_roots) {
+    const char * pem = lean_string_cstr(ca_pem);
+    size_t pem_size = lean_string_size(ca_pem) - 1;
 
+    return mk_client_ctx(verify_peer, trust_system_roots, pem_size != 0,
+                         [&](SSL_CTX * ctx) -> lean_obj_res {
         if (pem_size == 0) return nullptr;
         if (pem_size > INT_MAX) return mk_ssl_invalid_argument("the CA PEM string is too large");
 
@@ -340,11 +357,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg /*cert_file
     lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg /*ca_file*/, uint8_t /*verify_peer*/) {
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg /*ca_file*/,
+        uint8_t /*verify_peer*/, uint8_t /*trust_system_roots*/) {
     lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client_from_pem(b_obj_arg /*ca_pem*/, uint8_t /*verify_peer*/) {
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client_from_pem(b_obj_arg /*ca_pem*/,
+        uint8_t /*verify_peer*/, uint8_t /*trust_system_roots*/) {
     lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
 }
 

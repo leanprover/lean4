@@ -768,22 +768,20 @@ public def Module.clearOutputHashes (mod : Module) : IO PUnit := do
 
 /-- Cache the file hashes of the module build outputs in `.hash` files. -/
 public def Module.cacheOutputHashes (mod : Module) : IO PUnit := do
-  if (← mod.ltarFile.pathExists) then
-    cacheFileHash mod.ltarFile
-  cacheFileHash mod.oleanFile
-  if (← mod.oleanServerFile.pathExists) then
-    cacheFileHash mod.oleanServerFile
-  if (← mod.oleanPrivateFile.pathExists)  then
-    cacheFileHash mod.oleanPrivateFile
-  cacheFileHash mod.ileanFile
-  if (← mod.irSigFile.pathExists) then
-    cacheFileHash mod.irSigFile
-  if (← mod.irFile.pathExists)  then
-    cacheFileHash mod.irFile
-  if (← mod.cFile.pathExists) then
-    cacheFileHash mod.cFile
-  if Lean.Internal.hasLLVMBackend () then
-    cacheFileHash mod.bcFile
+  -- Hashes on not conditional on module metadata (e.g., `isModule`).
+  -- Lake will determine which files to use (and which to delete) as part of the build proccess.
+  try
+    cacheFileHashIfExists mod.ltarFile
+    cacheFileHashIfExists mod.oleanFile
+    cacheFileHashIfExists mod.oleanServerFile
+    cacheFileHashIfExists mod.oleanPrivateFile
+    cacheFileHashIfExists mod.ileanFile
+    cacheFileHashIfExists mod.irSigFile
+    cacheFileHashIfExists mod.irFile
+    cacheFileHashIfExists mod.cFile
+    cacheFileHashIfExists mod.bcFile
+  catch e =>
+    error s!"failed to save output hashes: {e}"
 
 def ModuleOutputDescrs.resolve
   (descrs : ModuleOutputDescrs) (service? : Option CacheServiceName) (scope? : Option CacheServiceScope)

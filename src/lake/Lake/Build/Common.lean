@@ -387,6 +387,19 @@ public def cacheFileHash (file : FilePath) (text := false) : IO Unit := do
   let hash ← computeFileHash file text
   writeFileHash file hash
 
+/--
+If `file` exists, computes its hash and saves it to a `.hash` file.
+
+If `text := true`, `file` is hashed as a text file rather than a binary file.
+-/
+public def cacheFileHashIfExists (file : FilePath) (text := false) : IO Unit := do
+  try
+    let hash ← computeFileHash file text
+    writeFileHash file hash
+  catch
+    | .noFileOrDirectory .. => pure ()
+    | e => throw e
+
 /-- Remove the cached hash of a file (its `.hash` file) if it exists. -/
 public def clearFileHash (file : FilePath) : IO Unit := do
   removeFileIfExists <| file.toString ++ ".hash"

@@ -5,9 +5,24 @@ defaultTargets = ["codegen"]
 experimental.module = true
 compiler.postponeCompile = true
 
+[[require]]
+name = "dep"
+path = "dep"
+
 [[lean_lib]]
 name = "Test"
+
+# A library that opts back out of postponement, to mix both within one package
+[[lean_lib]]
+name = "Plain"
+
+[lean_lib.leanOptions]
+compiler.postponeCompile = false
 
 [[lean_exe]]
 name = "codegen"
 root = "Main"
+
+[[lean_exe]]
+name = "mixed"
+root = "Mixed"

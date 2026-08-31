@@ -9,7 +9,7 @@ source ../common.sh
 # ---
 
 # The rebuild tests below edit the sources, so work on a copy
-copy_to_work lakefile.toml Main.lean Test.lean Test Eval.lean
+copy_to_work lakefile.toml Main.lean Mixed.lean Test.lean Test Plain.lean Plain Eval.lean dep
 
 # Elaboration alone does not generate code
 test_run build Test.A
@@ -36,6 +36,35 @@ test_cmd_eq 42 lean --setup eval.setup.json -DElab.inServer=true Eval.lean
 # The generated code links and runs
 echo "# TEST: link and run"
 test_eq 42 exe codegen
+
+# ---
+# Tests mixing postponed and non-postponed code generation
+# ---
+
+echo "# TEST: mixed postponement"
+
+# A library can opt back out of postponement, so that its elaboration generates code as usual
+test_run build Plain.P
+match_text '"compiler.postponeCompile": false' .lake/build/ir/Plain/P.setup.json
+test_exp -f .lake/build/ir/Plain/P.c
+
+# A postponed module can import a non-postponed one from the same package
+test_out "Built Test.UsesPlain:irArts" build Test.UsesPlain:c -v
+match_text 'Plain/P.ir"' .lake/build/ir/Test/UsesPlain.irsetup.json
+# and from a package that does not postpone at all
+test_out "Built Test.UsesDep:irArts" build Test.UsesDep:c -v
+test_exp -f dep/.lake/build/ir/Dep.setup.json
+no_match_text "compiler.postponeCompile" dep/.lake/build/ir/Dep.setup.json
+match_text 'Dep.ir"' .lake/build/ir/Test/UsesDep.irsetup.json
+
+# The reverse direction needs `import all`: a module that generates code during its own
+# elaboration reads its imports' IR from their `.olean`s, and a postponed module writes none
+test_err "unexpected use of noncomputable declaration" build Plain.BadImport
+test_run build Plain.UsesTest
+test_exp -f .lake/build/ir/Plain/UsesTest.c
+
+# The mixture links and runs
+test_eq 1123 exe mixed
 
 # ---
 # Tests that `leanir` is only rerun when needed

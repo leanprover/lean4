@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
+#include <utility>
 #include <lean/lean.h>
 #include "runtime/mpz.h"
 
@@ -23,6 +24,7 @@ struct mpz_object {
     mpz         m_value;
     mpz_object() {}
     explicit mpz_object(mpz const & m):m_value(m) {}
+    explicit mpz_object(mpz && m):m_value(std::move(m)) {}
 };
 
 typedef lean_external_class         external_object_class;
@@ -175,6 +177,8 @@ inline object* apply_m(object* f, unsigned n, object** args) { return lean_apply
 // MPZ
 
 LEAN_EXPORT object * alloc_mpz(mpz const &);
+/* Steals the limbs of `m` instead of copying them into the new object. */
+LEAN_EXPORT object * alloc_mpz(mpz &&);
 inline mpz_object * to_mpz(object * o) { lean_assert(is_mpz(o)); return (mpz_object*)o; }
 
 // =======================================
@@ -318,12 +322,20 @@ inline obj_res mk_except_err(obj_arg v) { obj_res r = alloc_cnstr(0, 1, 0); cnst
 
 inline mpz const & mpz_value(b_obj_arg o) { return to_mpz(o)->m_value; }
 LEAN_EXPORT object * mpz_to_nat_core(mpz const & m);
+LEAN_EXPORT object * mpz_to_nat_core(mpz && m);
 inline object * mk_nat_obj_core(mpz const & m) { return mpz_to_nat_core(m); }
+inline object * mk_nat_obj_core(mpz && m) { return mpz_to_nat_core(std::move(m)); }
 inline obj_res mk_nat_obj(mpz const & m) {
     if (m.is_size_t() && m.get_size_t() <= LEAN_MAX_SMALL_NAT)
         return box(m.get_size_t());
     else
         return mk_nat_obj_core(m);
+}
+inline obj_res mk_nat_obj(mpz && m) {
+    if (m.is_size_t() && m.get_size_t() <= LEAN_MAX_SMALL_NAT)
+        return box(m.get_size_t());
+    else
+        return mk_nat_obj_core(std::move(m));
 }
 inline obj_res usize_to_nat(usize n) { return lean_usize_to_nat(n); }
 inline obj_res mk_nat_obj(unsigned n) { return lean_unsigned_to_nat(n); }
@@ -350,9 +362,16 @@ inline obj_res nat_lxor(b_obj_arg a1, b_obj_arg a2) { return lean_nat_lxor(a1, a
 // =======================================
 // Integers
 LEAN_EXPORT object * mk_int_obj_core(mpz const & m);
+LEAN_EXPORT object * mk_int_obj_core(mpz && m);
 inline obj_res mk_int_obj(mpz const & m) {
     if (m < LEAN_MIN_SMALL_INT || m > LEAN_MAX_SMALL_INT)
         return mk_int_obj_core(m);
+    else
+        return box(static_cast<unsigned>(m.get_int()));
+}
+inline obj_res mk_int_obj(mpz && m) {
+    if (m < LEAN_MIN_SMALL_INT || m > LEAN_MAX_SMALL_INT)
+        return mk_int_obj_core(std::move(m));
     else
         return box(static_cast<unsigned>(m.get_int()));
 }

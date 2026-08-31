@@ -9,10 +9,10 @@ Author: Leonardo de Moura
 #include "runtime/debug.h"
 #include "runtime/alloc.h"
 
-#if defined(__GNUC__) || defined(__clang__)
-#define LEAN_NOINLINE __attribute__((noinline))
+#ifdef _MSC_VER
+extern "C" __declspec(thread) uint64_t lean_g_heartbeat = 0;
 #else
-#define LEAN_NOINLINE
+extern "C" __thread uint64_t lean_g_heartbeat = 0;
 #endif
 
 namespace lean {
@@ -23,14 +23,12 @@ void initialize_alloc() {
 void finalize_alloc() {
 }
 
-LEAN_THREAD_VALUE(uint64_t, g_heartbeat, 0);
-
 void set_heartbeats(uint64_t count) {
-    g_heartbeat = count;
+    lean_g_heartbeat = count;
 }
 
 void add_heartbeats(uint64_t count) {
-    g_heartbeat += count;
+    lean_g_heartbeat += count;
 }
 
 extern "C" LEAN_EXPORT void lean_inc_heartbeat() {
@@ -38,7 +36,21 @@ extern "C" LEAN_EXPORT void lean_inc_heartbeat() {
 }
 
 uint64_t get_num_heartbeats() {
-    return g_heartbeat;
+    return lean_g_heartbeat;
 }
+
+#ifdef LEAN_MIMALLOC
+extern "C" LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_core(unsigned sz) {
+    lean_g_heartbeat++;
+    // the callers guarantee `sz > 0 && sz % LEAN_OBJECT_SIZE_DELTA == 0 && sz <= MI_SMALL_SIZE_MAX`
+    void * mem = mi_malloc_small(sz);
+    if (LEAN_UNLIKELY(mem == NULL)) lean_internal_panic_out_of_memory();
+    lean_object * o = (lean_object *)mem;
+    /* `m_cs_sz` must be the exact (aligned) requested size, not mimalloc's potentially larger
+       block size: `lean_small_object_size` and `leangz` rely on it. */
+    o->m_cs_sz = sz;
+    return o;
+}
+#endif
 
 }

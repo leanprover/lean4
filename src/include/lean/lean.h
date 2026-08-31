@@ -41,6 +41,15 @@ extern "C" {
 #define LEAN_NORETURN __attribute__((noreturn))
 #endif
 
+/* Marks a function whose returned pointer does not alias any other live pointer, like `malloc`. */
+#if defined(__GNUC__) || defined(__clang__)
+#define LEAN_ATTR_MALLOC __attribute__((malloc))
+#elif defined(_MSC_VER)
+#define LEAN_ATTR_MALLOC __declspec(restrict)
+#else
+#define LEAN_ATTR_MALLOC
+#endif
+
 #if defined(__GNUC__) || defined(__clang__)
 #define LEAN_UNLIKELY(x) (__builtin_expect((x), 0))
 #define LEAN_LIKELY(x) (__builtin_expect((x), 1))
@@ -474,22 +483,33 @@ static inline unsigned lean_get_slot_idx(unsigned sz) {
 
 LEAN_EXPORT void lean_inc_heartbeat(void);
 
+#ifdef LEAN_MIMALLOC
+/* Fused small-object allocation entry point implemented in `runtime/alloc.cpp`: a single call
+   covering the heartbeat update and the mimalloc allocation. Requires `sz` to be a positive
+   multiple of `LEAN_OBJECT_SIZE_DELTA` of at most `MI_SMALL_SIZE_MAX`; initializes `m_cs_sz`. */
+LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_core(unsigned sz);
+#endif
+
 #ifndef __cplusplus
 void * malloc(size_t);  // avoid including big `stdlib.h`
 #endif
 
 static inline lean_object * lean_alloc_small_object(unsigned sz) {
-    lean_inc_heartbeat();
 #ifdef LEAN_MIMALLOC
-    // HACK: emulate behavior of small allocator to avoid `leangz` breakage for now
-    // NOTE: `sz` is known at compile time for most callers
+    // NOTE: `sz` is known at compile time for most callers, folding the branch below
     sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
-    void * mem = sz <= MI_SMALL_SIZE_MAX ? mi_malloc_small(sz) : mi_malloc(sz);
+    if (LEAN_LIKELY(sz <= MI_SMALL_SIZE_MAX)) {
+        return lean_alloc_small_object_core(sz);
+    }
+    lean_inc_heartbeat();
+    void * mem = mi_malloc(sz);
     if (mem == 0) lean_internal_panic_out_of_memory();
     lean_object * o = (lean_object*)mem;
+    // see the `m_cs_sz` comment at `lean_alloc_small_object_core`
     o->m_cs_sz = sz;
     return o;
 #else
+    lean_inc_heartbeat();
     void * mem = malloc(sizeof(size_t) + sz);
     if (mem == 0) lean_internal_panic_out_of_memory();
     *(size_t*)mem = sz;

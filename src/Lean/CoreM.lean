@@ -324,7 +324,7 @@ instance : MonadEnv CoreM where
   modifyEnv f := modify fun s => { s with env := f s.env, cache := {} }
 
 instance : MonadOptions CoreM where
-  getOptions := private do
+  getOptions := do
     let ctx ← read
     let options := ctx.options
     if ctx.recordingDeps then

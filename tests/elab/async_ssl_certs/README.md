@@ -1,6 +1,6 @@
 # TLS test certificate fixtures
 
-Self-signed certificates used by the `async_ssl_*` tests. These contain **no secrets**: the
+Certificate fixtures used by the `async_ssl_*` tests, self-signed but for `intermediate.pem`. These contain **no secrets**: the
 private key exists only so the tests can drive a real TLS handshake, and nothing outside the
 test suite trusts these certificates. They are committed as fixtures (instead of generated at
 test time) so the tests neither shell out to the `openssl` CLI nor depend on it being
@@ -8,8 +8,8 @@ installed — subprocess spawning in these tests also produced spurious LeakSani
 in the sanitizer CI build.
 
 All certificates are signed by `key.pem` (RSA-2048) and are valid until 2126, with two exceptions:
-`expired.pem`, whose validity window is entirely in 2020 (used to verify that expired certificates
-are rejected), and `weakcert.pem`, which is self-signed under a throwaway 512-bit key that is not
+`expired.pem`, whose validity window is entirely in 2020 (building a context parses a certificate
+without checking its validity period, so this one is rejected only at handshake time), and `weakcert.pem`, which is self-signed under a throwaway 512-bit key that is not
 kept.
 
 | file | subject | notes |
@@ -27,6 +27,7 @@ kept.
 | `expired.pem` | `CN=localhost` | valid 2020-01-01 → 2020-01-02 only |
 | `corrupt.pem` | | `cert.pem` with one bit flipped in the first DER byte (`SEQUENCE` tag → `SET`) |
 | `weakcert.pem` | `CN=localhost` | self-signed under a 512-bit RSA key; parses perfectly but is below every security level a build may default to, so it is refused on policy grounds rather than as unreadable PEM |
+| `intermediate.pem` | `CN=Test Intermediate CA` | a CA signed by `cert.pem` rather than by itself, so no chain can terminate at it; the only fixture whose issuer differs from its subject |
 | `crl.pem` | | a CRL issued by `cert.pem`; the non-certificate bundle entry that is *not* a private key, so it is what distinguishes "holds no certificates" from "could not be read" |
 
 `corrupt.pem` still has intact PEM armour and valid base64 — it differs from `cert.pem` by a single
@@ -55,6 +56,10 @@ openssl rsa -in key.pem -traditional -out tradkey.pem
 # sit exactly on security level 1's floor, making the test depend on which level the build defaults to.
 openssl req -x509 -newkey rsa:512 -keyout weakkey.pem -out weakcert.pem -days 36500 -nodes \
   -subj "/CN=localhost" && rm weakkey.pem
+openssl req -new -key key2.pem -out inter.csr -subj "/CN=Test Intermediate CA"
+openssl x509 -req -in inter.csr -CA cert.pem -CAkey key.pem -set_serial 42 -days 36500 \
+  -extfile <(printf 'basicConstraints=critical,CA:TRUE\nkeyUsage=critical,keyCertSign,cRLSign\n') \
+  -out intermediate.pem && rm inter.csr
 mkdir -p ca/newcerts && touch ca/index.txt && echo 01 > ca/crlnumber
 printf '[ca]\ndefault_ca=CA_default\n[CA_default]\ndatabase=./ca/index.txt\ncrlnumber=./ca/crlnumber\ndefault_md=sha256\ndefault_crl_days=36500\n' > ca/openssl.cnf
 openssl ca -config ca/openssl.cnf -gencrl -cert cert.pem -keyfile key.pem -out crl.pem && rm -r ca

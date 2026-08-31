@@ -152,10 +152,23 @@ structure Config where
   With `false` none of that is consulted, environment variables included, and only `ca` is trusted.
   -/
   trustSystemRoots : Bool := true
+  /--
+  Whether a certificate in the trust store may anchor a chain without being self-signed itself.
+
+  With `false`, the default, a chain is accepted only once it reaches a self-signed certificate, so
+  an intermediate CA cannot serve as a trust anchor. Supplying nothing but intermediates as `ca`
+  while also excluding the platform anchors then describes a context that could never verify
+  anything, and is rejected outright rather than left to fail at every handshake. Alongside the
+  platform anchors an intermediate is merely redundant, so it passes.
+
+  With `true` any certificate in the store anchors a chain, which is what pinning to an intermediate
+  rather than to the root above it requires.
+  -/
+  allowPartialChain : Bool := false
 
 @[extern "lean_ssl_ctx_mk_client"]
 private opaque mkImpl (ca : @& String) (caIsFile : Bool) (hasCA : Bool) (verifyPeer : Bool)
-    (trustSystemRoots : Bool) : IO Context.Client
+    (trustSystemRoots : Bool) (allowPartialChain : Bool) : IO Context.Client
 
 /--
 Creates a client-side TLS context trusting the anchors named by `cfg`.
@@ -165,17 +178,18 @@ issued by any other authority, public roots included, is then rejected. `ca` mus
 one certificate in that case, since a verifying context with no anchor at all could never complete a
 handshake; that combination is refused here rather than at connection time.
 
-A trusted CA has to be self-signed, whichever way it is supplied: a chain is only accepted once it
-reaches a self-signed certificate, so trusting an intermediate alone loads without complaint and
-then fails every handshake.
+A trusted CA has to be self-signed unless `allowPartialChain` says otherwise, since a chain is only
+accepted once it reaches a self-signed certificate. Pinning to nothing but intermediates is refused
+here rather than failing at every handshake.
 
 Verifying the peer proves the certificate chains to a trusted anchor; it does **not** prove the
 certificate belongs to the host being connected to. Binding a hostname is the session layer's job.
 -/
 def mk (cfg : Config := {}) : IO Context.Client :=
   match cfg.ca with
-  | none => mkImpl "" false false cfg.verifyPeer cfg.trustSystemRoots
-  | some ca => mkImpl ca.bytes ca.isFile true cfg.verifyPeer cfg.trustSystemRoots
+  | none => mkImpl "" false false cfg.verifyPeer cfg.trustSystemRoots cfg.allowPartialChain
+  | some ca =>
+    mkImpl ca.bytes ca.isFile true cfg.verifyPeer cfg.trustSystemRoots cfg.allowPartialChain
 
 end Client
 end Context

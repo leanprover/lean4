@@ -8,17 +8,7 @@ Author: Leonardo de Moura
 #include <stddef.h>
 #include <stdint.h>
 #include <lean/lean.h>
-
-/* The heartbeat counter of the current thread; incremented on every small-object allocation.
-   Non-static with C linkage so that allocation fast paths in other runtime translation units can
-   increment it without a function call. */
-extern "C" {
-#ifdef _MSC_VER
-extern __declspec(thread) uint64_t lean_g_heartbeat;
-#else
-extern __thread uint64_t lean_g_heartbeat;
-#endif
-}
+#include "runtime/alloc_tls.h"
 
 namespace lean {
 LEAN_EXPORT void * alloc(size_t sz);

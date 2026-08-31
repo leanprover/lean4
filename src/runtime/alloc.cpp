@@ -9,10 +9,13 @@ Author: Leonardo de Moura
 #include "runtime/debug.h"
 #include "runtime/alloc.h"
 
+#ifndef LEAN_MIMALLOC
+// with mimalloc, `runtime/mimalloc.cpp` defines it instead (see `runtime/alloc_tls.h`)
 #ifdef _MSC_VER
-extern "C" __declspec(thread) uint64_t lean_g_heartbeat = 0;
+extern "C" __declspec(thread) lean_runtime_tls lean_g_tls = {};
 #else
-extern "C" __thread uint64_t lean_g_heartbeat = 0;
+extern "C" __thread lean_runtime_tls lean_g_tls = {};
+#endif
 #endif
 
 namespace lean {
@@ -24,11 +27,11 @@ void finalize_alloc() {
 }
 
 void set_heartbeats(uint64_t count) {
-    lean_g_heartbeat = count;
+    lean_g_tls.heartbeat = count;
 }
 
 void add_heartbeats(uint64_t count) {
-    lean_g_heartbeat += count;
+    lean_g_tls.heartbeat += count;
 }
 
 extern "C" LEAN_EXPORT void lean_inc_heartbeat() {
@@ -36,7 +39,7 @@ extern "C" LEAN_EXPORT void lean_inc_heartbeat() {
 }
 
 uint64_t get_num_heartbeats() {
-    return lean_g_heartbeat;
+    return lean_g_tls.heartbeat;
 }
 
 }

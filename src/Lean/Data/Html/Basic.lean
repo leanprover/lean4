@@ -127,24 +127,22 @@ where
       letI : Quote Html `term := ⟨q⟩
       mkCApp ``Html.seq #[quote s]
 
-/-- Visit the entire tree, applying rewrites in some monad.
-{name}`element` and {name}`seq` are applied post-traversal, receiving already-visited children.
-Return {lean (type := "Option Html")}`none` to signal that no rewrite is to be performed. -/
-partial def visitM [Monad m]
-    (element : (tag : String) → (attrs : Array (String × String)) → (children : Html) →
-      m (Option Html) := fun _ _ _ => pure none)
-    (text : String → m (Option Html) := fun _ => pure none)
-    (raw : String → m (Option Html) := fun _ => pure none)
-    (seq : Array Html → m (Option Html) := fun _ => pure none)
-    (html : Html) : m Html :=
-  match html with
+/-- Rewrites the forest by using {name}`fn` to transform every node.
+Traversal proceeds in post-order:
+{name}`fn` receives {name}`element` and {name}`seq` nodes with already-rewritten children. -/
+partial def rewritePostM [Monad m] (fn : Html → m Html) : Html → m Html
   | .element tag attrs children => do
-    let children' ← visitM element text raw seq children
-    return (← element tag attrs children').getD (.element tag attrs children')
-  | .text t => return (← text t).getD html
-  | .raw r => return (← raw r).getD html
+    let children' ← rewritePostM fn children
+    fn (.element tag attrs children')
   | .seq s => do
-    let s' ← s.mapM (visitM element text raw seq)
-    return (← seq s').getD (.seq s')
+    let s' ← s.mapM (rewritePostM fn)
+    fn (.seq s')
+  | h => fn h
+
+/-- Rewrites the forest by using {name}`fn` to transform every node.
+Traversal proceeds in post-order:
+{name}`fn` receives {name}`element` and {name}`seq` nodes with already-rewritten children. -/
+partial def rewritePost [Monad m] (fn : Html → Html) (h : Html) : Html :=
+  rewritePostM (m := Id) fn h |>.run
 
 end Lean.Html

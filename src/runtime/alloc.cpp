@@ -9,13 +9,10 @@ Author: Leonardo de Moura
 #include "runtime/debug.h"
 #include "runtime/alloc.h"
 
-#ifndef LEAN_MIMALLOC
-// with mimalloc, `runtime/mimalloc.cpp` defines it instead (see `runtime/alloc_tls.h`)
 #ifdef _MSC_VER
 extern "C" __declspec(thread) lean_runtime_tls lean_g_tls = {};
 #else
 extern "C" __thread lean_runtime_tls lean_g_tls = {};
-#endif
 #endif
 
 namespace lean {

@@ -48,7 +48,7 @@ def ofString (escape : Bool) : String → Html :=
 
 instance : Coe String Html := ⟨.text⟩
 
-/-- Append two HTML forests. -/
+/-- Appends two HTML forests. -/
 def append : Html → Html → Html
   | .seq #[], h        => h
   | h,        .seq #[] => h
@@ -59,26 +59,18 @@ def append : Html → Html → Html
 
 instance : Append Html := ⟨.append⟩
 
-/-- Merges an array of HTML values by appending them.
+/-- Merges a collection of HTML values by appending them.
 
 Equivalent to {name}`Html.seq`, but may produce a more compact representation. -/
-def ofArray (hs : Array Html) : Html := Id.run do
+@[suggest_for Lean.Html.ofArray Lean.Html.ofList]
+def ofCollection {ρ : Type w} [ForIn Id ρ Html] (hs : ρ) : Html := Id.run do
   let mut out := .empty
   for h in hs do
     out := out ++ h
   return out
 
-/-- Merges a list of HTML values by appending them.
-
-Equivalent to {lean}`Html.seq hs.toArray`, but may produce a more compact representation. -/
-def ofList (hs : List Html) : Html := Id.run do
-  let mut out := .empty
-  for h in hs do
-    out := out ++ h
-  return out
-
-instance : Coe (Array Html) Html := ⟨ofArray⟩
-instance : Coe (List Html) Html := ⟨ofList⟩
+instance : Coe (Array Html) Html := ⟨ofCollection⟩
+instance : Coe (List Html) Html := ⟨ofCollection⟩
 
 /-- A compact JSON encoding of {name}`Html`. -/
 instance : ToJson Html where

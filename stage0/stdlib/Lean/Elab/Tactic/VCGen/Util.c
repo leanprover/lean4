@@ -1925,10 +1925,10 @@ lean_object* v___y_597_ = _args[15];
 lean_object* v___y_598_ = _args[16];
 _start:
 {
-uint8_t v___x_30045__boxed_599_; uint8_t v_debug_boxed_600_; lean_object* v_res_601_; 
-v___x_30045__boxed_599_ = lean_unbox(v___x_585_);
+uint8_t v___x_30042__boxed_599_; uint8_t v_debug_boxed_600_; lean_object* v_res_601_; 
+v___x_30042__boxed_599_ = lean_unbox(v___x_585_);
 v_debug_boxed_600_ = lean_unbox(v_debug_586_);
-v_res_601_ = l_Lean_Elab_Tactic_VCGen_Lean_Meta_Sym_BackwardRule_applyChecked___lam__0(v_a_582_, v___x_583_, v_rule_584_, v___x_30045__boxed_599_, v_debug_boxed_600_, v___y_587_, v___y_588_, v___y_589_, v___y_590_, v___y_591_, v___y_592_, v___y_593_, v___y_594_, v___y_595_, v___y_596_, v___y_597_);
+v_res_601_ = l_Lean_Elab_Tactic_VCGen_Lean_Meta_Sym_BackwardRule_applyChecked___lam__0(v_a_582_, v___x_583_, v_rule_584_, v___x_30042__boxed_599_, v_debug_boxed_600_, v___y_587_, v___y_588_, v___y_589_, v___y_590_, v___y_591_, v___y_592_, v___y_593_, v___y_594_, v___y_595_, v___y_596_, v___y_597_);
 lean_dec(v___y_597_);
 lean_dec_ref(v___y_596_);
 lean_dec(v___y_595_);
@@ -1956,7 +1956,7 @@ v_mctx_611_ = lean_ctor_get(v___x_610_, 0);
 lean_inc_ref(v_mctx_611_);
 lean_dec(v___x_610_);
 v_lctx_612_ = lean_ctor_get(v___y_603_, 2);
-v_options_613_ = lean_ctor_get(v___y_605_, 2);
+v_options_613_ = lean_ctor_get(v___y_605_, 1);
 lean_inc_ref(v_options_613_);
 lean_inc_ref(v_lctx_612_);
 v___x_614_ = lean_alloc_ctor(0, 4, 0);
@@ -1988,7 +1988,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Elab_Tactic_VCGen_Lean_
 _start:
 {
 lean_object* v_ref_630_; lean_object* v___x_631_; lean_object* v_a_632_; lean_object* v___x_634_; uint8_t v_isShared_635_; uint8_t v_isSharedCheck_640_; 
-v_ref_630_ = lean_ctor_get(v___y_627_, 5);
+v_ref_630_ = lean_ctor_get(v___y_627_, 4);
 v___x_631_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Elab_Tactic_VCGen_Lean_Meta_Sym_BackwardRule_applyChecked_spec__1_spec__1(v_msg_624_, v___y_625_, v___y_626_, v___y_627_, v___y_628_);
 v_a_632_ = lean_ctor_get(v___x_631_, 0);
 v_isSharedCheck_640_ = !lean_is_exclusive(v___x_631_);

@@ -233,17 +233,6 @@ private def isDefEqEta (a b : Expr) : MetaM LBool := do
   else
     return .undef
 
-/-- Support for `Lean.reduceBool` and `Lean.reduceNat` -/
-def isDefEqNative (s t : Expr) : MetaM LBool := do
-  let isDefEq (s t) : MetaM LBool := toLBoolM <| Meta.isExprDefEqAux s t
-  let s? ← reduceNative? s
-  let t? ← reduceNative? t
-  match s?, t? with
-  | some s, some t => isDefEq s t
-  | some s, none   => isDefEq s t
-  | none,   some t => isDefEq s t
-  | none,   none   => pure LBool.undef
-
 /-- Support for reducing Nat basic operations. -/
 def isDefEqNat (s t : Expr) : MetaM LBool := do
   let isDefEq (s t) : MetaM LBool := toLBoolM <| Meta.isExprDefEqAux s t
@@ -2376,7 +2365,7 @@ private def isDefEqProjInst (t : Expr) (s : Expr) : MetaM LBool := do
 
 /--
 The special cases tried *after* the main `isExprDefEqExpensive` machinery has failed, as opposed
-to the early ones (`isDefEqNative`, `isDefEqNat`, `isDefEqOffset`).
+to the early ones (`isDefEqNat`, `isDefEqOffset`).
 
 `.false` means one of them decided the terms are *not* definitionally equal, and must not be read
 as "declined". `.undef` means they all declined — note that `isDefEqUnitLike` returning `false`
@@ -2428,7 +2417,6 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   if t != t' || s != s' then
     Meta.isExprDefEqAux t' s'
   else
-    whenUndefDo (isDefEqNative t s) do
     whenUndefDo (isDefEqNat t s) do
     whenUndefDo (isDefEqOffset t s) do
     whenUndefDo (isDefEqDelta t s) do

@@ -10,6 +10,7 @@ public import Lake.Util.Exit
 public import Lake.Load.Config
 public import Lake.CLI.Error
 public import Lake.CLI.Shake
+public import Lake.CLI.Check
 import Lake.Version
 import Lake.Build.Run
 import Lake.Build.Targets
@@ -77,6 +78,7 @@ public structure LakeOptions where
   rev? : Option GitRev := none
   maxRevs : Nat := 100
   shake : Shake.Args := {}
+  challengeConfig? : Option FilePath := none
   builtinLint : BuiltinLint.Args := {}
   /-- Whether `lake lint` should also run builtin lints (via `--builtin-lint`). -/
   runBuiltinLint : Bool := false
@@ -397,6 +399,10 @@ def lakeLongOption : (opt : String) → CliM PUnit
   let mod ← takeOptArg "--only" "minimize only this module"
   modifyThe LakeOptions fun opts =>
     {opts with shake.onlyMods := opts.shake.onlyMods.push mod.toName}
+-- Challenge options
+| "--config" => do
+  let file ← takeOptArg "--config" "path"
+  modifyThe LakeOptions ({· with challengeConfig? := some file})
 | opt             =>  throw <| CliError.unknownLongOption opt
 
 def lakeOption :=
@@ -1159,6 +1165,17 @@ protected def shake : CliM PUnit := do
   if exitCode != 0 then
     exit exitCode
 
+/-- The `lake challenge` command: judge a solution against a challenge. -/
+protected def challenge : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  noArgsRem do
+  let (leanInstall, lakeInstall) ← opts.getInstall
+  -- The workspace is deliberately not loaded here: evaluating the project's configuration is code
+  -- execution, and containing it is what the sandbox is for.
+  let cfg ← mkLoadConfig opts
+  exit <| ← Check.runChallenge opts.challengeConfig? leanInstall lakeInstall cfg.wsDir
+
 protected def script : CliM PUnit := do
   if let some cmd ← takeArg? then
     processLeadingOptions lakeOption -- between `lake script <cmd>` and args
@@ -1314,6 +1331,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "check-lint"          => lake.checkLint
 | "clean"               => lake.clean
 | "shake"               => lake.shake
+| "challenge"           => lake.challenge
 | "script"              => lake.script
 | "scripts"             => lake.script.list
 | "run"                 => lake.script.run

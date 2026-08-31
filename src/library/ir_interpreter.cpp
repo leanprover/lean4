@@ -1165,15 +1165,6 @@ object * run_boxed(elab_environment const & env, options const & opts, name cons
     return interpreter::with_interpreter<object *>(env, opts, fn, [&](interpreter & interp) { return interp.call_boxed(fn, n, args); });
 }
 
-extern "C" obj_res lean_elab_environment_of_kernel_env(obj_arg);
-elab_environment elab_environment_of_kernel_env(environment const & env) {
-    return elab_environment(lean_elab_environment_of_kernel_env(env.to_obj_arg()));
-}
-
-object * run_boxed_kernel(environment const & env, options const & opts, name const & fn, unsigned n, object **args) {
-    return run_boxed(elab_environment_of_kernel_env(env), opts, fn, n, args);
-}
-
 uint32 run_main(elab_environment const & env, options const & opts, list_ref<string_ref> const & args) {
     return interpreter::with_interpreter<uint32>(env, opts, "main", [&](interpreter & interp) { return interp.run_main(args); });
 }

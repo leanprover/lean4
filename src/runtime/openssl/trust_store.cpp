@@ -126,9 +126,12 @@ enum class trust_setting { unspecified, trusted, denied };
 static trust_setting tls_trust_setting(SecCertificateRef cert, SecTrustSettingsDomain domain) {
     CFArrayRef settings = nullptr;
 
-    if (SecTrustSettingsCopyTrustSettings(cert, domain, &settings) != errSecSuccess || settings == nullptr) {
+    if (SecTrustSettingsCopyTrustSettings(cert, domain, &settings) != errSecSuccess) {
+        if (settings != nullptr) CFRelease(settings);
         return trust_setting::unspecified;
     }
+
+    if (settings == nullptr) return trust_setting::unspecified;
 
     // An empty settings array is how Apple encodes unconditional trust.
     CFIndex count = CFArrayGetCount(settings);

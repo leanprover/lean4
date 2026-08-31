@@ -45,33 +45,24 @@ struct pem_source {
     size_t size() const { return lean_string_size(obj) - 1; }
 };
 
-// Reports a failure against a path, as an errno-derived IO error where the errno is meaningful.
-static lean_obj_res mk_ssl_file_error(b_obj_arg file, char const * msg) {
+// Reports a failure against a path. `errnum` is the `errno` the open failed with, or 0 for a
+// failure with no OS error behind it (unparsable PEM, a key that does not match its certificate).
+static lean_obj_res mk_ssl_file_error(b_obj_arg file, char const * msg, int errnum = 0) {
     ERR_clear_error();
 
-    char const * path = lean_string_cstr(file);
-    int errnum = 0;
-    std::string detail(msg);
     struct stat st;
 
-    if (stat(path, &st) != 0) {
-        errnum = errno;
-    } else if (S_ISREG(st.st_mode)) {
-        FILE * probe = fopen(path, "rb");
-        if (probe == nullptr) errnum = errno; else fclose(probe);
-    } else {
-        detail += " (the path is not a regular file)";
+    if (stat(lean_string_cstr(file), &st) == 0 && !S_ISREG(st.st_mode)) {
+        lean_inc(file);
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument_file(
+            file, EINVAL, mk_string(std::string(msg) + " (the path is not a regular file)")));
     }
 
-    if (errnum == ENOENT || errnum == EACCES || errnum == EPERM || errnum == ENOTDIR ||
-        errnum == ELOOP || errnum == ENAMETOOLONG || errnum == EMFILE || errnum == ENFILE ||
-        errnum == ENOMEM) {
-        return lean_io_result_mk_error(decode_io_error(errnum, file));
-    }
+    if (errnum != 0) return lean_io_result_mk_error(decode_io_error(errnum, file));
 
     lean_inc(file);
     return lean_io_result_mk_error(lean_mk_io_error_invalid_argument_file(
-        file, errnum != 0 ? errnum : EINVAL, mk_string(detail)));
+        file, EINVAL, mk_string(msg)));
 }
 
 static int reject_encrypted_pem(char *, int, int, void *) { return -1; }
@@ -83,15 +74,18 @@ static lean_obj_res mk_ssl_invalid_argument(char const * msg) {
 }
 
 // Reports a failure against PEM material, naming the path when there is one to name.
-static lean_obj_res mk_pem_error(pem_source src, char const * msg) {
-    return src.is_file ? mk_ssl_file_error(src.obj, msg) : mk_ssl_invalid_argument(msg);
+static lean_obj_res mk_pem_error(pem_source src, char const * msg, int errnum = 0) {
+    return src.is_file ? mk_ssl_file_error(src.obj, msg, errnum) : mk_ssl_invalid_argument(msg);
 }
 
 // Opens `src` for reading. On failure returns nullptr and stores an IO error in `*err`.
 static BIO * open_pem_bio(pem_source src, char const * unreadable, lean_obj_res * err) {
     if (src.is_file) {
+        // Captured here rather than recovered later by re-opening the path, which would both race
+        // and lose the distinction between an open failure and an unreadable file.
+        errno = 0;
         BIO * bio = BIO_new_file(src.data(), "r");
-        if (bio == nullptr) *err = mk_ssl_file_error(src.obj, unreadable);
+        if (bio == nullptr) *err = mk_ssl_file_error(src.obj, unreadable, errno);
         return bio;
     }
 
@@ -116,10 +110,8 @@ static bool rejected_by_security_level() {
            reason == SSL_R_CA_MD_TOO_WEAK;
 }
 
-lean_object * mk_openssl_error(char const * where, int ssl_err) {
+lean_object * mk_openssl_error(char const * where) {
     std::string msg(where);
-
-    if (ssl_err != 0) msg += " (ssl_error=" + std::to_string(ssl_err) + ")";
 
     for (int i = 0; i < 10; i++) {
         unsigned long err = ERR_get_error();
@@ -157,10 +149,6 @@ static void configure_ctx_options(SSL_CTX * ctx) {
         // No effect on TLS 1.3, which replaced renegotiation with key updates.
         SSL_OP_NO_RENEGOTIATION |
 
-        // Mitigates CRIME, where compression leaks secret bytes via ciphertext length. Already the
-        // default since OpenSSL 1.1, but set explicitly so the intent is clear.
-        SSL_OP_NO_COMPRESSION |
-
         // Disables RFC 5077 session tickets in TLS 1.2. In TLS 1.3 it only downgrades them to the
         // stateful form; the call below is what stops those being sent.
         SSL_OP_NO_TICKET
@@ -192,11 +180,6 @@ static void configure_ctx_options(SSL_CTX * ctx) {
 // Creates a configured SSL_CTX, or returns nullptr with an IO error stored in `*err`.
 static ssl_ctx_ptr mk_ssl_ctx_base(const SSL_METHOD * method, lean_obj_res * err) {
     ERR_clear_error();
-
-    if (!ensure_openssl_initialized()) {
-        *err = mk_openssl_io_error("OPENSSL_init_ssl failed");
-        return nullptr;
-    }
 
     ssl_ctx_ptr ctx(SSL_CTX_new(method));
 
@@ -306,10 +289,8 @@ static lean_obj_res load_server_credentials(SSL_CTX * ctx, pem_source cert, pem_
     return nullptr;
 }
 
-/* Std.Internal.SSL.Context.Server.mkImpl (cert : @& String) (certIsFile : Bool)
-   (key : @& String) (keyIsFile : Bool) : IO Context.Server */
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert, uint8_t cert_is_file,
-                                                           b_obj_arg key, uint8_t key_is_file) {
+static lean_obj_res mk_server_ctx(b_obj_arg cert, uint8_t cert_is_file, b_obj_arg key,
+                                  uint8_t key_is_file) {
     pem_source cert_src{cert, cert_is_file != 0};
     pem_source key_src{key, key_is_file != 0};
 
@@ -336,14 +317,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert, uint8
 }
 
 // Adds every certificate `src` yields to the trust store, on top of whatever it already holds.
-static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src) {
-    char const * unreadable = src.is_file
-        ? "could not read PEM CA certificates"
-        : "could not read PEM CA certificates from the given string";
+// With `require_self_signed`, the material must also hold a certificate a chain can terminate at.
+static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src, bool require_self_signed) {
+    ERR_clear_error();
 
-    char const * no_certs = src.is_file
-        ? "the CA file contains no certificates"
-        : "the given CA PEM string contains no certificates";
+    char const * unreadable = "could not read PEM CA certificates";
+    char const * no_certs = "the CA material contains no certificates";
 
     lean_obj_res err = nullptr;
     BIO * bio = open_pem_bio(src, unreadable, &err);
@@ -357,6 +336,7 @@ static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src) {
 
     X509_STORE * store = SSL_CTX_get_cert_store(ctx);
     int cert_count = 0;
+    bool any_self_signed = false;
 
     for (int i = 0, n = sk_X509_INFO_num(infos); i < n; i++) {
         // A bundle may hold private keys and CRLs; only certificates are anchors.
@@ -364,6 +344,10 @@ static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src) {
 
         if (cert == nullptr) continue;
         cert_count++;
+
+        // `EXFLAG_SS` is the same notion of self-signed that chain building terminates on. A bundle
+        // pairing a root with the intermediates below it therefore passes on the strength of the root.
+        if ((X509_get_extension_flags(cert) & EXFLAG_SS) != 0) any_self_signed = true;
 
         if (X509_STORE_add_cert(store, cert) != 1) {
             err = mk_openssl_io_error("X509_STORE_add_cert failed");
@@ -376,6 +360,12 @@ static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src) {
     if (err != nullptr) return err;
     if (cert_count == 0) return mk_pem_error(src, no_certs);
 
+    if (require_self_signed && !any_self_signed) {
+        return mk_pem_error(src,
+            "the CA material holds no self-signed certificate, so no chain can terminate in it "
+            "(supply the root, or allow partial chains to anchor at an intermediate)");
+    }
+
     return nullptr;
 }
 
@@ -383,8 +373,8 @@ static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src) {
 // platform anchors would leave nothing behind. `load_ca_bundle` is what enforces that supplied
 // material actually yields a certificate, so the two together guarantee a verifying context has an
 // anchor.
-static lean_obj_res mk_client_ctx(uint8_t verify_peer, uint8_t trust_system_roots, bool has_ca,
-                                  pem_source ca) {
+static lean_obj_res mk_client_ctx(uint8_t verify_peer, uint8_t trust_system_roots,
+                                  uint8_t allow_partial_chain, bool has_ca, pem_source ca) {
     if (verify_peer && !trust_system_roots && !has_ca) {
         return mk_ssl_invalid_argument(
             "no trust anchors: peer verification is on, the platform trust anchors are excluded, "
@@ -401,6 +391,12 @@ static lean_obj_res mk_client_ctx(uint8_t verify_peer, uint8_t trust_system_root
         return wrap_ssl_context(std::move(ctx));
     }
 
+    if (allow_partial_chain) {
+        // Lets chain building stop at any certificate in the store rather than only at a self-signed
+        // one, which is what anchoring on an intermediate requires.
+        X509_VERIFY_PARAM_set_flags(SSL_CTX_get0_param(ctx.get()), X509_V_FLAG_PARTIAL_CHAIN);
+    }
+
     if (trust_system_roots) {
         std::string detail;
 
@@ -415,18 +411,20 @@ static lean_obj_res mk_client_ctx(uint8_t verify_peer, uint8_t trust_system_root
     // The caller's own CAs are added to whatever the store already holds: on top of the platform
     // anchors, or into an otherwise empty store when those were excluded.
     if (has_ca) {
-        if (lean_obj_res ca_err = load_ca_bundle(ctx.get(), ca)) return ca_err;
+        // An anchor that cannot terminate a chain is only a dead configuration when it is the sole
+        // source of anchors; alongside the platform roots it is merely redundant.
+        bool require_self_signed = !allow_partial_chain && !trust_system_roots;
+
+        if (lean_obj_res ca_err = load_ca_bundle(ctx.get(), ca, require_self_signed)) return ca_err;
     }
 
     SSL_CTX_set_verify(ctx.get(), SSL_VERIFY_PEER, nullptr);
     return wrap_ssl_context(std::move(ctx));
 }
 
-/* Std.Internal.SSL.Context.Client.mkImpl (ca : @& String) (caIsFile hasCA verifyPeer
-   trustSystemRoots : Bool) : IO Context.Client */
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca, uint8_t ca_is_file,
-                                                           uint8_t has_ca, uint8_t verify_peer,
-                                                           uint8_t trust_system_roots) {
+static lean_obj_res mk_client_ctx_checked(b_obj_arg ca, uint8_t ca_is_file, uint8_t has_ca,
+                                          uint8_t verify_peer, uint8_t trust_system_roots,
+                                          uint8_t allow_partial_chain) {
     pem_source ca_src{ca, ca_is_file != 0};
 
     // Checked before `verifyPeer` is consulted, so a path that could never be opened is reported as
@@ -435,7 +433,38 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca, uint8_t
         if (lean_obj_res err = reject_embedded_nul(ca)) return err;
     }
 
-    return mk_client_ctx(verify_peer, trust_system_roots, has_ca != 0, ca_src);
+    return mk_client_ctx(verify_peer, trust_system_roots, allow_partial_chain, has_ca != 0, ca_src);
+}
+
+// Runs a constructor behind the two guards every entry point needs: OpenSSL initialized before any
+// `ERR_*` call can register `atexit(OPENSSL_cleanup)` behind `OPENSSL_INIT_NO_ATEXIT`'s back, and no
+// C++ exception escaping into Lean-generated code.
+template<typename F>
+static lean_obj_res ssl_entry_point(F && build) {
+    try {
+        if (!ensure_openssl_initialized()) {
+            return lean_io_result_mk_error(lean_mk_io_user_error(
+                mk_string("OPENSSL_init_ssl failed")));
+        }
+
+        return build();
+    } catch (std::exception & ex) {
+        return lean_io_result_mk_error(lean_mk_io_user_error(mk_string(ex.what())));
+    }
+}
+
+/* Std.Internal.SSL.Context.Server.mkImpl (cert : @& String) (certIsFile : Bool)
+   (key : @& String) (keyIsFile : Bool) : IO Context.Server */
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert, uint8_t cert_is_file, b_obj_arg key, uint8_t key_is_file) {
+    return ssl_entry_point([&] { return mk_server_ctx(cert, cert_is_file, key, key_is_file); });
+}
+
+/* Std.Internal.SSL.Context.Client.mkImpl (ca : @& String) (caIsFile hasCA verifyPeer
+   trustSystemRoots allowPartialChain : Bool) : IO Context.Client */
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca, uint8_t ca_is_file, uint8_t has_ca, uint8_t verify_peer, uint8_t trust_system_roots, uint8_t allow_partial_chain) {
+    return ssl_entry_point([&] {
+        return mk_client_ctx_checked(ca, ca_is_file, has_ca, verify_peer, trust_system_roots, allow_partial_chain);
+    });
 }
 
 #else
@@ -448,7 +477,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg /*cert*/,
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg /*ca*/, uint8_t /*ca_is_file*/,
-        uint8_t /*has_ca*/, uint8_t /*verify_peer*/, uint8_t /*trust_system_roots*/) {
+        uint8_t /*has_ca*/, uint8_t /*verify_peer*/, uint8_t /*trust_system_roots*/,
+        uint8_t /*allow_partial_chain*/) {
     lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
 }
 

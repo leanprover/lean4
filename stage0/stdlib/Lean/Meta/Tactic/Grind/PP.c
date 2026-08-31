@@ -1513,7 +1513,7 @@ return v___x_308_;
 v___jp_283_:
 {
 lean_object* v_options_289_; lean_object* v___x_290_; uint8_t v___x_291_; 
-v_options_289_ = lean_ctor_get(v___y_287_, 2);
+v_options_289_ = lean_ctor_get(v___y_287_, 1);
 v___x_290_ = l_Lean_Meta_Grind_grind_debug;
 v___x_291_ = l_Lean_Option_get___at___00__private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_Goal_ppENodeDecl_spec__0(v_options_289_, v___x_290_);
 if (v___x_291_ == 0)
@@ -7381,7 +7381,7 @@ goto v_resetjp_2312_;
 v_resetjp_2312_:
 {
 lean_object* v_ref_2315_; lean_object* v___x_2316_; lean_object* v___x_2317_; lean_object* v___x_2318_; lean_object* v___x_2319_; lean_object* v___x_2321_; 
-v_ref_2315_ = lean_ctor_get(v_a_2241_, 5);
+v_ref_2315_ = lean_ctor_get(v_a_2241_, 4);
 v___x_2316_ = lean_io_error_to_string(v_a_2311_);
 v___x_2317_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_2317_, 0, v___x_2316_);
@@ -8539,7 +8539,7 @@ goto v_resetjp_2730_;
 v_resetjp_2730_:
 {
 lean_object* v_ref_2733_; lean_object* v___x_2734_; lean_object* v___x_2735_; lean_object* v___x_2736_; lean_object* v___x_2737_; lean_object* v___x_2739_; 
-v_ref_2733_ = lean_ctor_get(v___y_2707_, 5);
+v_ref_2733_ = lean_ctor_get(v___y_2707_, 4);
 v___x_2734_ = lean_io_error_to_string(v_a_2729_);
 v___x_2735_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_2735_, 0, v___x_2734_);
@@ -8593,7 +8593,7 @@ goto v_resetjp_2743_;
 v_resetjp_2743_:
 {
 lean_object* v_ref_2746_; lean_object* v___x_2747_; lean_object* v___x_2748_; lean_object* v___x_2749_; lean_object* v___x_2750_; lean_object* v___x_2752_; 
-v_ref_2746_ = lean_ctor_get(v___y_2707_, 5);
+v_ref_2746_ = lean_ctor_get(v___y_2707_, 4);
 v___x_2747_ = lean_io_error_to_string(v_a_2742_);
 v___x_2748_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_2748_, 0, v___x_2747_);
@@ -9336,7 +9336,7 @@ v_mctx_3097_ = lean_ctor_get(v___x_3096_, 0);
 lean_inc_ref(v_mctx_3097_);
 lean_dec(v___x_3096_);
 v_lctx_3098_ = lean_ctor_get(v___y_3089_, 2);
-v_options_3099_ = lean_ctor_get(v___y_3091_, 2);
+v_options_3099_ = lean_ctor_get(v___y_3091_, 1);
 lean_inc_ref(v_options_3099_);
 lean_inc_ref(v_lctx_3098_);
 v___x_3100_ = lean_alloc_ctor(0, 4, 0);

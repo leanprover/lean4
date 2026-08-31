@@ -48,7 +48,7 @@ ifeq "${STAGE}" "0"
 endif
 
 # These can be phony since the inner Makefile/Lake will have the correct dependencies and avoid rebuilds
-.PHONY: Init Std Lean leanshared Lake libLake_shared lake lean LeanChecker leanchecker leanchecker-paranoid LeanIR
+.PHONY: Init Std Lean leanshared Lake libLake_shared lake lean LeanChecker leanchecker leanchecker-paranoid LeanIR LeanExport leanexport
 
 ifeq "${USE_LAKE}" "ON"
 
@@ -56,7 +56,7 @@ ifeq "${USE_LAKE}" "ON"
 Init:
 	LEAN_GITHASH=${LAKE_LEAN_GITHASH} ${PREV_STAGE}/bin/lake build -f ${CMAKE_BINARY_DIR}/lakefile.toml ${LEAN_EXTRA_LAKE_OPTS} $(LAKE_EXTRA_ARGS)
 
-Std Lean Lake Leanc LeanChecker LeanIR: Init
+Std Lean LeanExport Lake Leanc LeanChecker LeanIR: Init
 
 else
 
@@ -78,7 +78,10 @@ ifneq "${STAGE}" "0"
 	+"${LEAN_BIN}/leanmake" -C "${CMAKE_BINARY_DIR}/leanc" lib PKG=Leanc $(LEANMAKE_OPTS) OUT="$(OUTARC)" LIB_OUT="$(OUTARC)" OLEAN_OUT="$(OUTARC)"
 endif
 
-Lake: Lean
+LeanExport: Lean
+	+"${LEAN_BIN}/leanmake" lib lib.export PKG=LeanExport $(LEANMAKE_OPTS) OUT="$(OUTARC)" LIB_OUT="$(OUTARC)" TEMP_OUT="${LIB}/temp" OLEAN_OUT="$(OUTARC)"
+
+Lake: LeanExport
 # lake is in its own subdirectory, so must adjust relative paths...
 	+"${LEAN_BIN}/leanmake" -C lake lib lib.export ../${LIB}/temp/LakeMain.o.export  PKG=Lake $(LEANMAKE_OPTS) OUT="../${LIB}" LIB_OUT="../${LIB}/lean" TEMP_OUT="../${LIB}/temp" OLEAN_OUT="../${LIB}/lean" EXTRA_SRC_ROOTS=LakeMain.lean
 
@@ -99,12 +102,13 @@ ${LIB}/temp/empty.c:
 ifeq "${USE_LAKE}" "ON"
 $(OUTLIB)/libInit_shared$(SO): ${LIB}/lean/libInit.a.export.trace ${LIB}/lean/libStd.a.export.trace
 $(OUTLIB)/libleanshared$(SO): ${LIB}/lean/libLean.a.export.trace
-$(OUTLIB)/libLake_shared$(SO): ${LIB}/lean/libLean.a.export.trace ${LIB}/lean/libLake.a.export.trace
+$(OUTLIB)/libLake_shared$(SO): ${LIB}/lean/libLean.a.export.trace ${LIB}/lean/libLake.a.export.trace ${LIB}/lean/libLeanExport.a.export.trace
 $(OUTBIN)/lake$(EXE): ${LIB}/temp/LakeMain.c.o.export.trace
 $(OUTBIN)/leanc$(EXE): $(OUTARC)/libLeanc.a.trace
 $(OUTBIN)/leanir$(EXE): $(OUTARC)/libLeanIR.a.trace
 $(OUTBIN)/leanchecker$(EXE): $(OUTARC)/libLeanChecker.a.trace
 $(OUTBIN)/leanchecker-paranoid$(EXE): $(OUTARC)/libLeanChecker.a.trace ${LIB}/lean/libInit.a.trace ${LIB}/lean/libStd.a.trace ${LIB}/lean/libLean.a.trace ${LIB}/lean/libLake.a.trace
+$(OUTBIN)/leanexport$(EXE): $(OUTARC)/libLeanExport.a.trace
 endif
 
 # we specify the precise file names here to avoid rebuilds
@@ -173,7 +177,7 @@ endif
 
 leanshared: $(OUTLIB)/libleanshared$(SO)
 
-$(OUTLIB)/libLake_shared$(SO): $(OUTLIB)/libInit_shared$(SO) $(OUTLIB)/libleanshared_2$(SO) $(OUTLIB)/libleanshared_1$(SO) $(OUTLIB)/libleanshared$(SO) ${LIB}/lean/libLean.a.export ${LIB}/lean/libLake.a.export
+$(OUTLIB)/libLake_shared$(SO): $(OUTLIB)/libInit_shared$(SO) $(OUTLIB)/libleanshared_2$(SO) $(OUTLIB)/libleanshared_1$(SO) $(OUTLIB)/libleanshared$(SO) ${LIB}/lean/libLean.a.export ${LIB}/lean/libLake.a.export ${LIB}/lean/libLeanExport.a.export
 	$(link-preamble)
 	$(LEANC_SH) -shared -o $@ \
 	  ${LAKESHARED_LINKER_FLAGS} -lleanshared -lleanshared_2 -lleanshared_1 -lInit_shared ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
@@ -205,6 +209,12 @@ $(OUTBIN)/leanir$(EXE): $(OUTARC)/libLeanIR.a
 	"${CMAKE_BINARY_DIR}/leanc.sh" $< ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${CMAKE_DYN_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} -o $@
 
 leanir: $(OUTBIN)/leanir$(EXE)
+
+$(OUTBIN)/leanexport$(EXE): $(OUTARC)/libLeanExport.a
+	$(link-preamble)
+	$(LEANC_SH) $< ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${CMAKE_DYN_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
+
+leanexport: $(OUTBIN)/leanexport$(EXE)
 
 $(OUTBIN)/leanchecker$(EXE): $(OUTARC)/libLeanChecker.a $(OUTLIB)/libLake_shared$(SO)
 	$(link-preamble)

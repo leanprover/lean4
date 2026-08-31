@@ -220,6 +220,12 @@ string(APPEND LEANC_EXTRA_CC_FLAGS " -fstack-clash-protection")
 string(APPEND LEANC_EXTRA_CC_FLAGS " -ffp-contract=off")
 string(APPEND LEAN_EXTRA_CXX_FLAGS " -ffp-contract=off")
 
+# On Windows we want to disable writing COFF object file time stamps.
+# LLVM 23 seems to have a regression in this regard.
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+  string(APPEND LEANC_EXTRA_CC_FLAGS " -mno-incremental-linker-compatible")
+endif()
+
 if(NOT MULTI_THREAD)
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
   set(AUTO_THREAD_FINALIZATION OFF)
@@ -544,8 +550,8 @@ if(NOT LEAN_STANDALONE)
   string(APPEND CMAKE_EXE_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 endif()
 
-# flags for user binaries = flags for toolchain binaries + Lake
-set(LEANC_STATIC_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lLake")
+# flags for user binaries = flags for toolchain binaries + Lake (and deps)
+set(LEANC_STATIC_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lLake -lLeanExport")
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LEANC_SHARED_LINKER_FLAGS " ${TOOLCHAIN_SHARED_LINKER_FLAGS} -Wl,--as-needed -lLake_shared -Wl,--no-as-needed")
 else()
@@ -607,7 +613,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,-soname=libleanshared.so")
   string(
     APPEND LAKESHARED_LINKER_FLAGS
-    " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive -Wl,-soname=libLake_shared.so"
+    " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLeanExport.a.export -Wl,-soname=libLake_shared.so"
   )
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath=$ORIGIN/../lib:$ORIGIN/../lib/lean")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
@@ -618,7 +624,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   string(APPEND LEANSHARED_LINKER_FLAGS " -install_name @rpath/libleanshared.dylib")
   string(
     APPEND LAKESHARED_LINKER_FLAGS
-    " -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -install_name @rpath/libLake_shared.dylib"
+    " -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export ${CMAKE_BINARY_DIR}/lib/lean/libLeanExport.a.export -install_name @rpath/libLake_shared.dylib"
   )
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
@@ -627,7 +633,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Windows")
   string(
     APPEND LAKESHARED_LINKER_FLAGS
-    " -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libLake_shared.dll.a -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive"
+    " -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libLake_shared.dll.a -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLeanExport.a.export"
   )
 endif()
 
@@ -922,6 +928,7 @@ set(
   Init
   Std
   Lean
+  LeanExport
   Leanc
   LeanIR
 )
@@ -1051,6 +1058,7 @@ endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   add_custom_target(leanir ALL DEPENDS leanshared COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanir VERBATIM)
+  add_custom_target(leanexport ALL DEPENDS leanshared COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanexport VERBATIM)
 endif()
 
 # use Bash version for building, use Lean version in bin/ for tests & distribution

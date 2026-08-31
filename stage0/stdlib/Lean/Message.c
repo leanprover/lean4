@@ -115,7 +115,7 @@ lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TSyntax_expandInterpolatedStr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_elab_environment_of_kernel_env(lean_object*);
+lean_object* l_Lean_Environment_ofKernelEnv(lean_object*);
 lean_object* l_String_Slice_Pos_prev_x3f(lean_object*, lean_object*);
 lean_object* l_String_Slice_Pos_get_x3f(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
@@ -15770,7 +15770,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Message_0__Lean_Kernel_Exception_mkCtx
 _start:
 {
 lean_object* v___x_4683_; lean_object* v___x_4684_; lean_object* v___x_4685_; lean_object* v___x_4686_; 
-v___x_4683_ = lean_elab_environment_of_kernel_env(v_env_4679_);
+v___x_4683_ = l_Lean_Environment_ofKernelEnv(v_env_4679_);
 v___x_4684_ = lean_obj_once(&l___private_Lean_Message_0__Lean_MessageData_hasSyntheticSorry_visit___closed__2, &l___private_Lean_Message_0__Lean_MessageData_hasSyntheticSorry_visit___closed__2_once, _init_l___private_Lean_Message_0__Lean_MessageData_hasSyntheticSorry_visit___closed__2);
 v___x_4685_ = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(v___x_4685_, 0, v___x_4683_);

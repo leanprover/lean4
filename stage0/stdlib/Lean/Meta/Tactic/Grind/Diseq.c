@@ -1608,7 +1608,7 @@ v_mctx_542_ = lean_ctor_get(v___x_541_, 0);
 lean_inc_ref(v_mctx_542_);
 lean_dec(v___x_541_);
 v_lctx_543_ = lean_ctor_get(v___y_534_, 2);
-v_options_544_ = lean_ctor_get(v___y_536_, 2);
+v_options_544_ = lean_ctor_get(v___y_536_, 1);
 lean_inc_ref(v_options_544_);
 lean_inc_ref(v_lctx_543_);
 v___x_545_ = lean_alloc_ctor(0, 4, 0);
@@ -1640,7 +1640,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Grind_mkDiseqProof
 _start:
 {
 lean_object* v_ref_561_; lean_object* v___x_562_; lean_object* v_a_563_; lean_object* v___x_565_; uint8_t v_isShared_566_; uint8_t v_isSharedCheck_571_; 
-v_ref_561_ = lean_ctor_get(v___y_558_, 5);
+v_ref_561_ = lean_ctor_get(v___y_558_, 4);
 v___x_562_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Meta_Grind_mkDiseqProof_spec__0_spec__0(v_msg_555_, v___y_556_, v___y_557_, v___y_558_, v___y_559_);
 v_a_563_ = lean_ctor_get(v___x_562_, 0);
 v_isSharedCheck_571_ = !lean_is_exclusive(v___x_562_);

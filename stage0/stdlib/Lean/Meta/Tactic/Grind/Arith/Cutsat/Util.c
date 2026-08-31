@@ -3770,7 +3770,7 @@ v_mctx_1328_ = lean_ctor_get(v___x_1327_, 0);
 lean_inc_ref(v_mctx_1328_);
 lean_dec(v___x_1327_);
 v_lctx_1329_ = lean_ctor_get(v___y_1320_, 2);
-v_options_1330_ = lean_ctor_get(v___y_1322_, 2);
+v_options_1330_ = lean_ctor_get(v___y_1322_, 1);
 lean_inc_ref(v_options_1330_);
 lean_inc_ref(v_lctx_1329_);
 v___x_1331_ = lean_alloc_ctor(0, 4, 0);
@@ -3802,7 +3802,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Grind_Arith_Cutsat
 _start:
 {
 lean_object* v_ref_1347_; lean_object* v___x_1348_; lean_object* v_a_1349_; lean_object* v___x_1351_; uint8_t v_isShared_1352_; uint8_t v_isSharedCheck_1357_; 
-v_ref_1347_ = lean_ctor_get(v___y_1344_, 5);
+v_ref_1347_ = lean_ctor_get(v___y_1344_, 4);
 v___x_1348_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Meta_Grind_Arith_Cutsat_DvdCnstr_throwUnexpected_spec__0_spec__0(v_msg_1341_, v___y_1342_, v___y_1343_, v___y_1344_, v___y_1345_);
 v_a_1349_ = lean_ctor_get(v___x_1348_, 0);
 v_isSharedCheck_1357_ = !lean_is_exclusive(v___x_1348_);

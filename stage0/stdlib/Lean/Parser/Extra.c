@@ -7376,7 +7376,7 @@ LEAN_EXPORT lean_object* l_Lean_ppDedent_formatter(lean_object* v_p_3570_, lean_
 _start:
 {
 lean_object* v_options_3576_; lean_object* v___x_3577_; lean_object* v___x_3578_; lean_object* v___x_3579_; lean_object* v___x_3580_; lean_object* v___x_3581_; lean_object* v___x_3582_; 
-v_options_3576_ = lean_ctor_get(v_a_3573_, 2);
+v_options_3576_ = lean_ctor_get(v_a_3573_, 1);
 v___x_3577_ = lean_obj_once(&l_Lean_ppDedent_formatter___closed__0, &l_Lean_ppDedent_formatter___closed__0_once, _init_l_Lean_ppDedent_formatter___closed__0);
 v___x_3578_ = l_Lean_Std_Format_getIndent(v_options_3576_);
 v___x_3579_ = lean_nat_to_int(v___x_3578_);
@@ -7576,7 +7576,7 @@ goto v_resetjp_3655_;
 v_resetjp_3655_:
 {
 lean_object* v_options_3658_; lean_object* v___x_3659_; lean_object* v_v_3660_; lean_object* v_xs_x27_3661_; lean_object* v___x_3662_; lean_object* v___x_3663_; lean_object* v___x_3664_; lean_object* v___x_3665_; lean_object* v___x_3666_; lean_object* v___x_3668_; 
-v_options_3658_ = lean_ctor_get(v_a_3627_, 2);
+v_options_3658_ = lean_ctor_get(v_a_3627_, 1);
 v___x_3659_ = l_Lean_Std_Format_getIndent(v_options_3658_);
 v_v_3660_ = lean_array_fget(v_stack_3649_, v___x_3653_);
 v_xs_x27_3661_ = lean_array_fset(v_stack_3649_, v___x_3653_, v___x_3650_);

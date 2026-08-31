@@ -675,7 +675,7 @@ v___x_164_ = lean_st_ref_get(v___y_162_);
 v_env_165_ = lean_ctor_get(v___x_164_, 0);
 lean_inc_ref(v_env_165_);
 lean_dec(v___x_164_);
-v_options_166_ = lean_ctor_get(v___y_161_, 2);
+v_options_166_ = lean_ctor_get(v___y_161_, 1);
 v___x_167_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_PostprocessTraces_findStoredTrace_spec__0_spec__0___closed__2, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_PostprocessTraces_findStoredTrace_spec__0_spec__0___closed__2_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_PostprocessTraces_findStoredTrace_spec__0_spec__0___closed__2);
 v___x_168_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_PostprocessTraces_findStoredTrace_spec__0_spec__0___closed__5, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_PostprocessTraces_findStoredTrace_spec__0_spec__0___closed__5_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_PostprocessTraces_findStoredTrace_spec__0_spec__0___closed__5);
 lean_inc_ref(v_options_166_);
@@ -706,7 +706,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_PostprocessTraces_findS
 _start:
 {
 lean_object* v_ref_181_; lean_object* v___x_182_; lean_object* v_a_183_; lean_object* v___x_185_; uint8_t v_isShared_186_; uint8_t v_isSharedCheck_191_; 
-v_ref_181_ = lean_ctor_get(v___y_178_, 5);
+v_ref_181_ = lean_ctor_get(v___y_178_, 4);
 v___x_182_ = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_PostprocessTraces_findStoredTrace_spec__0_spec__0(v_msg_177_, v___y_178_, v___y_179_);
 v_a_183_ = lean_ctor_get(v___x_182_, 0);
 v_isSharedCheck_191_ = !lean_is_exclusive(v___x_182_);

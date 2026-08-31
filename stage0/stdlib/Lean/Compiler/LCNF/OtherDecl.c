@@ -80,8 +80,8 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Compiler_LCNF_getOtherD
 _start:
 {
 lean_object* v_options_13_; lean_object* v_ref_14_; lean_object* v___x_15_; lean_object* v___x_16_; lean_object* v___x_17_; 
-v_options_13_ = lean_ctor_get(v___y_10_, 2);
-v_ref_14_ = lean_ctor_get(v___y_10_, 5);
+v_options_13_ = lean_ctor_get(v___y_10_, 1);
+v_ref_14_ = lean_ctor_get(v___y_10_, 4);
 v___x_15_ = lean_st_ref_get(v___y_11_);
 v___x_16_ = lean_st_ref_get(v___y_9_);
 v___x_17_ = l_Lean_Compiler_LCNF_getPurity___redArg(v___y_8_);

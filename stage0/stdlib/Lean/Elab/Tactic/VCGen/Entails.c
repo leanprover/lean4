@@ -271,7 +271,7 @@ v_mctx_10_ = lean_ctor_get(v___x_9_, 0);
 lean_inc_ref(v_mctx_10_);
 lean_dec(v___x_9_);
 v_lctx_11_ = lean_ctor_get(v___y_2_, 2);
-v_options_12_ = lean_ctor_get(v___y_4_, 2);
+v_options_12_ = lean_ctor_get(v___y_4_, 1);
 lean_inc_ref(v_options_12_);
 lean_inc_ref(v_lctx_11_);
 v___x_13_ = lean_alloc_ctor(0, 4, 0);
@@ -303,7 +303,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Elab_Tactic_VCGen_unfol
 _start:
 {
 lean_object* v_ref_29_; lean_object* v___x_30_; lean_object* v_a_31_; lean_object* v___x_33_; uint8_t v_isShared_34_; uint8_t v_isSharedCheck_39_; 
-v_ref_29_ = lean_ctor_get(v___y_26_, 5);
+v_ref_29_ = lean_ctor_get(v___y_26_, 4);
 v___x_30_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Elab_Tactic_VCGen_unfoldTriple_spec__0_spec__0(v_msg_23_, v___y_24_, v___y_25_, v___y_26_, v___y_27_);
 v_a_31_ = lean_ctor_get(v___x_30_, 0);
 v_isSharedCheck_39_ = !lean_is_exclusive(v___x_30_);

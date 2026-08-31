@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Server.Requests
+public import Lean.Server.FileWorker.Markdown
 
 public section
 
@@ -225,7 +226,6 @@ private def HandleOverlapState.token (st : HandleOverlapState) (t : AbsoluteLspS
     return st
 
 
-
 /--
 Eliminates overlapping tokens by selecting a single “best” token for each interval between token
 boundaries.
@@ -328,13 +328,273 @@ private def splitStr (text : FileMap) (stx : Syntax) : Array Syntax := Id.run do
   return stxs
 
 
+/-! ## Markdown highlighting
 
-open Lean.Doc.Syntax in
+Walks the result of the full Markdown parse (`Lean.Server.FileWorker.Markdown.parseDocument`,
+which runs both passes) and emits `LeanSemanticToken`s. The walk is purely structural — no
+inline parsing happens here; each `Block (Array Inline)` already carries its parsed inlines
+with file-anchored positions.
+-/
+
+namespace Markdown
+
+/-- Block context for combining markup highlighting types. -/
+private inductive MarkupBlockCtxt where
+  | none
+  | heading
+  | quote
+  | list
+
+/--
+Active markup attributes during the walk: which emphasis is in scope and the
+nearest enclosing block context. `markupTypeOf?` maps an attribute set to the
+matching `SemanticTokenType` constructor (or `none` for plain text in plain
+context, which is not emitted as a markup token).
+-/
+private structure MarkupAttrs where
+  bold   : Bool := false
+  italic : Bool := false
+  block  : MarkupBlockCtxt := .none
+
+@[inline] private def MarkupAttrs.withBold (a : MarkupAttrs) : MarkupAttrs :=
+  { a with bold := true }
+
+@[inline] private def MarkupAttrs.withItalic (a : MarkupAttrs) : MarkupAttrs :=
+  { a with italic := true }
+
+@[inline] private def MarkupAttrs.withBlock (a : MarkupAttrs) (b : MarkupBlockCtxt) : MarkupAttrs :=
+  { a with block := b }
+
+private def markupTypeOf : MarkupAttrs → SemanticTokenType
+  | { bold := false, italic := false, block := .none } => .markupDocText
+  | { bold := true,  italic := false, block := .none } => .markupBold
+  | { bold := false, italic := true,  block := .none } => .markupItalic
+  | { bold := true,  italic := true,  block := .none } => .markupBoldItalic
+  | { bold := false, italic := false, block := .heading } => .markupHeading
+  | { bold := true,  italic := false, block := .heading } => .markupBoldHeading
+  | { bold := false, italic := true,  block := .heading } => .markupItalicHeading
+  | { bold := true,  italic := true,  block := .heading } => .markupBoldItalicHeading
+  | { bold := false, italic := false, block := .quote } => .markupQuote
+  | { bold := true,  italic := false, block := .quote } => .markupBoldQuote
+  | { bold := false, italic := true,  block := .quote } => .markupItalicQuote
+  | { bold := true,  italic := true,  block := .quote } => .markupBoldItalicQuote
+  | { bold := false, italic := false, block := .list } => .markupList
+  | { bold := true,  italic := false, block := .list } => .markupBoldList
+  | { bold := false, italic := true,  block := .list } => .markupItalicList
+  | { bold := true,  italic := true,  block := .list } => .markupBoldItalicList
+
+/--
+Converts a `Syntax.Range` to a `Syntax` carrying the same source span.
+The resulting syntax is suitable as a `LeanSemanticToken.stx`; the LSP layer
+already handles raw byte offsets via `text.utf8PosToLspPos`.
+-/
+@[inline] private def srcRangeToSyntax (r : Syntax.Range) : Syntax :=
+  Syntax.ofRange ⟨r.start, r.stop⟩
+
+/--
+Pushes one `LeanSemanticToken` per source line covered by `r`. Single-line ranges go through
+unchanged; multi-line ranges (e.g. fenced code blocks) are split at newline boundaries.
+-/
+private def pushSplit (text : FileMap) (out : Array LeanSemanticToken)
+    (r : Syntax.Range) (tokenType : SemanticTokenType) (priority : Nat := 5) :
+    Array LeanSemanticToken := Id.run do
+  if r.start == r.stop then return out
+  let stx := srcRangeToSyntax r
+  let mut out := out
+  for line in splitStr text stx do
+    out := out.push { stx := line, type := tokenType, priority }
+  return out
+
+/--
+Pushes a single-line `LeanSemanticToken` directly without going through `splitStr`. The caller
+guarantees `r` does not span a newline.
+-/
+@[inline] private def pushTok (out : Array LeanSemanticToken) (r : Syntax.Range)
+    (tokenType : SemanticTokenType) (priority : Nat := 5) : Array LeanSemanticToken :=
+  if r.start == r.stop then out
+  else out.push { stx := srcRangeToSyntax r, type := tokenType, priority }
+
+private partial def emitInlines (text : FileMap) (a : MarkupAttrs)
+    (inlines : Array Markdown.Inline) (out : Array LeanSemanticToken) :
+    Array LeanSemanticToken := Id.run do
+  let mut out := out
+  for i in inlines do
+    out := emitInline text a i out
+  return out
+where
+  emitInline (text : FileMap) (a : MarkupAttrs) (i : Markdown.Inline)
+      (out : Array LeanSemanticToken) : Array LeanSemanticToken := Id.run do
+    let mut out := out
+    match i with
+    | .text r =>
+      -- A soft break emits a one-byte `.text` covering just the `\n`. The
+      -- inline tree retains it so downstream consumers (e.g. an HTML
+      -- renderer) can reproduce the line ending, but for LSP semantic
+      -- tokens it would translate to a multi-line token, which VS Code
+      -- doesn't support.
+      let isNewlineOnly := r.start.byteIdx + 1 == r.stop.byteIdx
+        && r.start.get text.source == '\n'
+      unless isNewlineOnly do
+        out := pushTok out r (markupTypeOf a) (priority := 4)
+    | .code openTicks content closeTicks =>
+      out := pushTok out openTicks .keyword
+      out := pushTok out closeTicks .keyword
+      out := pushSplit text out content .markupInlineCode (priority := 6)
+    | .italic openDelim content closeDelim =>
+      out := pushTok out openDelim .keyword
+      out := pushTok out closeDelim .keyword
+      out := emitInlines text a.withItalic content out
+    | .bold openDelim content closeDelim =>
+      out := pushTok out openDelim .keyword
+      out := pushTok out closeDelim .keyword
+      out := emitInlines text a.withBold content out
+    | .link openBracket inner closeBracket target =>
+      out := emitBracketed none openBracket inner closeBracket target out
+    | .image bang openBracket alt closeBracket target =>
+      out := emitBracketed (some bang) openBracket alt closeBracket target out
+    | .hardBreak _ => pure ()
+    | .autolink openAngle url closeAngle _ =>
+      out := pushTok out openAngle .keyword
+      out := pushTok out closeAngle .keyword
+      out := pushTok out url .markupUrl
+    return out
+
+  /--
+  Emits the structural tokens for a reference-style link's bracket pair(s).
+
+  For full form, the link's text content is walked as ordinary inlines and the second `[label]`
+  brackets get keyword/cross-ref tokens. For collapsed and shortcut form, the link text *is* the
+  label, so `markupCrossReference` covers the bracket interior in place of the inline walk. In
+  collapsed form, the empty `[]` is annotated as a keyword.
+  -/
+  emitReferenceForm (text : FileMap) (a : MarkupAttrs)
+      (out : Array LeanSemanticToken) (interior : Syntax.Range)
+      (inner : Array Markdown.Inline) (form : Markdown.ReferenceLinkForm) :
+      Array LeanSemanticToken := Id.run do
+    let mut out := out
+    match form with
+    | .full openB label closeB =>
+      out := emitInlines text a inner out
+      out := pushTok out openB .keyword
+      out := pushTok out closeB .keyword
+      out := pushTok out label .markupCrossReference (priority := 6)
+    | .collapsed openB closeB =>
+      out := pushTok out interior .markupCrossReference (priority := 6)
+      out := pushTok out openB .keyword
+      out := pushTok out closeB .keyword
+    | .shortcut =>
+      out := pushTok out interior .markupCrossReference (priority := 6)
+    return out
+
+  /--
+  Emits the tokens shared by `[…]…` links and `![…]…` images.
+  -/
+  emitBracketed (bang? : Option Syntax.Range)
+      (openBracket : Syntax.Range) (inner : Array Markdown.Inline)
+      (closeBracket : Syntax.Range) (target : Markdown.LinkTarget)
+      (out : Array LeanSemanticToken) : Array LeanSemanticToken := Id.run do
+    let mut out := out
+    if let some bang := bang? then
+      out := pushTok out bang .keyword
+    out := pushTok out openBracket .keyword
+    out := pushTok out closeBracket .keyword
+    let interior : Syntax.Range :=
+      { start := openBracket.stop, stop := closeBracket.start }
+    match target with
+    | .inline openParen url closeParen title? =>
+      out := emitInlines text a inner out
+      out := pushTok out openParen .keyword
+      out := pushTok out url .markupUrl
+      if let some t := title? then out := pushTok out t .string
+      out := pushTok out closeParen .keyword
+    | .reference _ _ form =>
+      out := emitReferenceForm text a out interior inner form
+    return out
+
+/--
+Emits the structural tokens of a matched link reference definition: keyword on the brackets and
+colon, cross-reference on the label, URL on the destination, and string on the optional title. The
+label and title may span multiple source lines, so they are split at line boundaries.
+-/
+private def emitRefDef (text : FileMap) (out : Array LeanSemanticToken) (r : RefDef) :
+    Array LeanSemanticToken := Id.run do
+  let mut out := out
+  out := pushTok out r.openBracket .keyword
+  out := pushSplit text out r.label .markupCrossReference
+  out := pushTok out r.closeBracket .keyword
+  out := pushTok out r.colon .keyword
+  out := pushTok out r.url .markupUrl
+  if let some t := r.title? then
+    out := pushSplit text out t .string
+  return out
+
+private partial def emitBlocks (text : FileMap) (a : MarkupAttrs)
+    (blocks : Array (Markdown.Block (Array Markdown.Inline)))
+    (out : Array LeanSemanticToken) : Array LeanSemanticToken := Id.run do
+  let mut out := out
+  for b in blocks do
+    out := emitBlock text a b out
+  return out
+where
+  emitBlock (text : FileMap) (a : MarkupAttrs)
+      (b : Markdown.Block (Array Markdown.Inline))
+      (out : Array LeanSemanticToken) : Array LeanSemanticToken := Id.run do
+    let mut out := out
+    match b with
+    | .paragraph lines =>
+      for inls in lines do
+        out := emitInlines text a inls out
+    | .atxHeading hashes content closeHashes? =>
+      out := pushTok out hashes .keyword
+      if let some c := closeHashes? then out := pushTok out c .keyword
+      out := emitInlines text (a.withBlock .heading) content out
+    | .setextHeading _ lines underline =>
+      for inls in lines do
+        out := emitInlines text (a.withBlock .heading) inls out
+      out := pushTok out underline .keyword
+    | .fencedCode info openFence closeFence? lines =>
+      out := pushTok out openFence .keyword
+      if let some c := closeFence? then out := pushTok out c .keyword
+      if let some tag := info.infoString? then
+        out := pushTok out tag .function
+      for line in lines do
+        out := pushSplit text out line .markupCodeBlock
+    | .indentedCode lines =>
+      for (range, _) in lines do
+        out := pushTok out range .markupCodeBlock
+    | .blockquote markers children =>
+      for m in markers do
+        out := pushTok out m .keyword
+      out := emitBlocks text (a.withBlock .quote) children out
+    | .list _ _ items =>
+      out := emitBlocks text (a.withBlock .list) items out
+    | .listItem marker children =>
+      out := pushTok out marker .keyword
+      out := emitBlocks text (a.withBlock .list) children out
+    | .linkRefDef m =>
+      out := emitRefDef text out m
+    | .thematicBreak line =>
+      out := pushTok out line .keyword
+    return out
+
+end Markdown
+
+/--
+Collects semantic tokens for a Markdown docstring. Block delimiters (`#`, `>`, list markers, fence
+runs, brackets) are emitted as `.keyword`; URL targets as `.markupUrl`; code block contents as
+`.markupCodeBlock`; and inline emphasis as the appropriate `markup*` type combined with the
+enclosing block context. Undecorated text is emitted as `.markupDocText`.
+-/
+def collectMarkdownTokens (text : FileMap) (startPos endPos : String.Pos.Raw) :
+    Array LeanSemanticToken :=
+  Markdown.emitBlocks text {} (Markdown.parseDocument text.source startPos endPos) #[]
+
+open Lean.Doc.Syntax Markdown in
 private partial def collectVersoTokens
     (text : FileMap)
     (stx : Syntax) (getTokens : (stx : Syntax) → Array LeanSemanticToken) :
     Array LeanSemanticToken :=
-  go stx |>.run #[] |>.2
+  go {} stx |>.run #[] |>.2
 where
   tok (tk : Syntax) (k : SemanticTokenType) : StateM (Array LeanSemanticToken) Unit :=
     let priority :=
@@ -346,7 +606,7 @@ where
       | _ => 5
     modify (·.push { stx := tk, type := k, priority })
 
-  go (stx : Syntax) : StateM (Array LeanSemanticToken) Unit := do
+  go (a : MarkupAttrs) (stx : Syntax) : StateM (Array LeanSemanticToken) Unit := do
   match stx with
   | `(arg_val| $x:ident )
   | `(arg_val| $x:str )
@@ -356,12 +616,12 @@ where
     tok tk1 .keyword
     tok x .property
     tok tk2 .keyword
-    go v
+    go a v
     tok tk3 .keyword
   | `(named_no_paren| $x:ident :=%$tk $v:arg_val ) =>
     tok x .property
     tok tk .keyword
-    go v
+    go a v
   | `(flag_on| +%$tk$x)  | `(flag_off| -%$tk$x) =>
     tok tk .keyword
     tok x .property
@@ -373,21 +633,26 @@ where
     tok tk1 .keyword
     tok s .string
     tok tk2 .keyword
-  | `(inline|$_:str) | `(inline|line! $_) => pure () -- No tokens for plain text or line breaks
-  | `(inline| *[%$tk1 $inls* ]%$tk2) | `(inline|_[%$tk1 $inls* ]%$tk2) =>
+  | `(inline|$s:str) => tok s (markupTypeOf a)
+  | `(inline|line! $_) => pure () -- No token for line breaks
+  | `(inline| *[%$tk1 $inls* ]%$tk2) =>
     tok tk1 .keyword
-    inls.forM go
+    inls.forM (go a.withBold)
+    tok tk2 .keyword
+  | `(inline|_[%$tk1 $inls* ]%$tk2) =>
+    tok tk1 .keyword
+    inls.forM (go a.withItalic)
     tok tk2 .keyword
   | `(inline| link[%$tk1 $inls* ]%$tk2 $ref) =>
     tok tk1 .keyword
-    inls.forM go
+    inls.forM (go a)
     tok tk2 .keyword
-    go ref
+    go a ref
   | `(inline| image(%$tk1 $s )%$tk2 $ref) =>
     tok tk1 .keyword
     tok s .string
     tok tk2 .keyword
-    go ref
+    go a ref
   | `(inline| footnote(%$tk1 $s )%$tk2) =>
     tok tk1 .keyword
     tok s .property
@@ -399,10 +664,10 @@ where
   | `(inline| role{%$tk1 $x $args* }%$tk2 [%$tk3 $inls* ]%$tk4) =>
     tok tk1 .keyword
     tok x .function
-    args.forM go
+    args.forM (go a)
     tok tk2 .keyword
     tok tk3 .keyword
-    inls.forM go
+    inls.forM (go a)
     tok tk4 .keyword
   | `(inline| \math%$tk1 code(%$tk2 $s )%$tk3)
   | `(inline| \displaymath%$tk1 code(%$tk2 $s )%$tk3) =>
@@ -412,28 +677,28 @@ where
     tok tk3 .keyword
   | `(list_item| *%$tk $inls*) =>
     tok tk .keyword
-    inls.forM go
+    inls.forM (go (a.withBlock .list))
   | `(desc| :%$tk $inls* => $blks*) =>
     tok tk .keyword
-    inls.forM go
-    blks.forM go
-  | `(block|para[$inl*]) => inl.forM go
+    inls.forM (go (a.withBlock .list))
+    blks.forM (go (a.withBlock .list))
+  | `(block|para[$inl*]) => inl.forM (go a)
   | `(block| ```%$tk1 $x $args* | $s ```%$tk2)=>
     tok tk1 .keyword
     tok x .function
-    args.forM go
+    args.forM (go a)
     for line in splitStr text s do tok line .string
     tok tk2 .keyword
   | `(block| :::%$tk1 $x $args* { $blks* }%$tk2)=>
     tok tk1 .keyword
     tok x .function
-    args.forM go
-    blks.forM go
+    args.forM (go a)
+    blks.forM (go a)
     tok tk2 .keyword
   | `(block| command{%$tk1 $x $args*}%$tk2)=>
     tok tk1 .keyword
     tok x .function
-    args.forM go
+    args.forM (go a)
     tok tk2 .keyword
   | `(block| %%%%$tk1 $vals* %%%%$tk2)=>
     tok tk1 .keyword
@@ -448,16 +713,19 @@ where
     tok tk1 .keyword
     tok s .property
     tok tk2 .keyword
-    inls.forM go
+    inls.forM (go a)
   | `(block| header(%$tk $_ ){ $inls* })=>
     tok tk .keyword
-    inls.forM go
+    inls.forM (go (a.withBlock .heading))
+  | `(block| >%$tk $blks*) =>
+    tok tk .keyword
+    blks.forM (go (a.withBlock .quote))
   | `(block|ul{$items*}) | `(block|ol($_){$items*}) | `(block|dl{$items*}) =>
-    items.forM go
+    items.forM (go a)
   | other =>
     let k := other.getKind
     if k == nullKind || k == ``Lean.Parser.Command.versoCommentBody then
-      other.getArgs.forM go
+      other.getArgs.forM (go a)
 
 /--
 Collects all semantic tokens that can be deduced purely from `Syntax`
@@ -474,9 +742,13 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) �
     if noHighlightKinds.contains stx.getKind then
       return #[]
     if docKinds.contains stx.getKind then
-      -- Docs are only highlighted in Verso format, in which case `stx[1]` is a node.
+      -- Verso docstrings have `stx[1]` as a syntax node; plain (CommonMark)
+      -- docstrings have `stx[1]` as a single atom whose source span covers
+      -- the docstring body.
       if stx[1].isAtom then
-        return #[]
+        let some ⟨startPos, endPos⟩ := stx[1].getRange?
+          | return #[]
+        return collectMarkdownTokens text startPos endPos
       else
         return collectVersoTokens text stx[1] (collectSyntaxBasedSemanticTokens text)
     let mut tokens :=

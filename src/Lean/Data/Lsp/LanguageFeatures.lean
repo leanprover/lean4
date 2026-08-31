@@ -454,6 +454,46 @@ inductive SemanticTokenType where
   | decorator
   -- Extensions
   | leanSorryLike
+  -- Markdown/Verso markup highlighting. The composing types combine an
+  -- emphasis subset (none, bold, italic, or both) with a block context (none,
+  -- heading, blockquote, list).
+  | markupBold
+  | markupItalic
+  | markupBoldItalic
+  | markupHeading
+  | markupBoldHeading
+  | markupItalicHeading
+  | markupBoldItalicHeading
+  | markupQuote
+  | markupBoldQuote
+  | markupItalicQuote
+  | markupBoldItalicQuote
+  | markupList
+  | markupBoldList
+  | markupItalicList
+  | markupBoldItalicList
+  | markupInlineCode
+  | markupCodeBlock
+  /--
+  Plain markup text inside a docstring or moduledoc. This is used for Verso or Markdown content that
+  is not otherwise styled, allowing themes to apply the correct style.
+  -/
+  | markupDocText
+  /--
+  Plain markup text outside of a docstring or moduledoc. This is used for Verso or Markdown content
+  that is not otherwise styled in contexts that are not docstrings (such as full-document Verso
+  content), allowing themes to style it the way they would ordinary text content.
+  -/
+  | markupPlainText
+  /--
+  A URL literal in an inline link/image target or autolink.
+  -/
+  | markupUrl
+  /--
+  A cross-reference label: the `[label]` of a link reference definition, or the label part of a
+  reference-style or shortcut link.
+  -/
+  | markupCrossReference
   deriving ToJson, FromJson, BEq, Hashable
 
 -- must be in the same order as the constructors
@@ -461,7 +501,13 @@ def SemanticTokenType.names : Array String :=
   #["keyword", "variable", "property", "function", "namespace", "type", "class",
     "enum", "interface", "struct", "typeParameter", "parameter", "enumMember",
     "event", "method", "macro", "modifier", "comment", "string", "number",
-    "regexp", "operator", "decorator", "leanSorryLike"]
+    "regexp", "operator", "decorator", "leanSorryLike",
+    "markupBold", "markupItalic", "markupBoldItalic",
+    "markupHeading", "markupBoldHeading", "markupItalicHeading", "markupBoldItalicHeading",
+    "markupQuote", "markupBoldQuote", "markupItalicQuote", "markupBoldItalicQuote",
+    "markupList", "markupBoldList", "markupItalicList", "markupBoldItalicList",
+    "markupInlineCode", "markupCodeBlock",
+    "markupDocText", "markupPlainText", "markupUrl", "markupCrossReference"]
 
 def SemanticTokenType.toNat (tokenType : SemanticTokenType) : Nat :=
   tokenType.ctorIdx

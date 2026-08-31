@@ -267,7 +267,6 @@ private def runCore (x : CoreM α) : CommandElabM α := do
   let coreCtx : Core.Context := {
     fileName           := ctx.fileName
     fileMap            := ctx.fileMap
-    currRecDepth       := ctx.currRecDepth
     maxRecDepth        := s.maxRecDepth
     ref                := ctx.ref
     currNamespace      := scope.currNamespace
@@ -280,6 +279,7 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     suppressElabErrors := ctx.suppressElabErrors }
   let x : EIO _ _ := x.run coreCtx {
     env
+    currRecDepth := ctx.currRecDepth
     ngen := s.ngen
     auxDeclNGen := s.auxDeclNGen
     nextMacroScope := s.nextMacroScope
@@ -1096,7 +1096,7 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
     cmd.run {
       fileName := ctx.fileName
       fileMap := ctx.fileMap
-      currRecDepth := ctx.currRecDepth
+      currRecDepth := s.currRecDepth
       currMacroScope := ctx.currMacroScope
       ref := ctx.ref
       snap? := none

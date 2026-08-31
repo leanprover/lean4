@@ -474,17 +474,64 @@ static inline unsigned lean_get_slot_idx(unsigned sz) {
 
 LEAN_EXPORT void lean_inc_heartbeat(void);
 
+/* The heartbeat counter is bumped on every small-object allocation, so the increment is exposed
+   here rather than paid for as a call. `initial-exec` reduces it to a `%fs`-relative add and lets
+   the compiler share the thread-pointer load between the allocations of a single function; it is
+   valid because the counter lives in the runtime, which is never itself dynamically loaded late. */
+#if (defined(__GNUC__) || defined(__clang__)) && !defined(_WIN32) && !defined(__EMSCRIPTEN__)
+#define LEAN_HEARTBEAT_TLS __attribute__((tls_model("initial-exec")))
+LEAN_EXPORT extern __thread uint64_t lean_heartbeat LEAN_HEARTBEAT_TLS;
+#endif
+
+static inline void lean_inc_heartbeat_inline(void) {
+#ifdef LEAN_HEARTBEAT_TLS
+    lean_heartbeat++;
+#else
+    lean_inc_heartbeat();
+#endif
+}
+
 #ifndef __cplusplus
 void * malloc(size_t);  // avoid including big `stdlib.h`
 #endif
 
+/* MEASUREMENT PATCH, NOT FOR MERGE. Replicates mimalloc's small-allocation fast path inline so
+   that the call, the frame, the argument shuffle and the (already performed) size rounding fold
+   away, and so the size-class index becomes a constant displacement. Enabled by building with
+   `-DLEAN_MI_INLINE_FASTPATH`; see the commit message for the two blockers that stop this being
+   shippable as written.
+
+   The offsets are read off the vendored mimalloc build: `mi_theap_t.pages_free_direct` at 0x118
+   indexed by byte size, `mi_page_t.free` at 0x8, `mi_page_t.used` (uint16) at 0x10. They are only
+   valid because this build sets MI_SECURE=0 and MI_PADDING=0, so there is neither free-list
+   encoding nor a padding canary. */
+#if defined(LEAN_EXPORTING) && defined(LEAN_MI_INLINE_FASTPATH)
+/* `mi_theap_get_default` is public API, so no hidden mimalloc symbol is needed to obtain the
+   theap; only the pop below relies on the layout, since `mi_theap_t` is opaque publicly. */
+extern __thread void * lean_mi_theap LEAN_HEARTBEAT_TLS;
+LEAN_EXPORT void * lean_mi_malloc_small_slow(size_t sz);
+static inline void * lean_mi_malloc_small_fast(size_t sz) {
+    char * theap = (char *)lean_mi_theap;
+    char * page = *(char **)(theap + 0x118 + sz);
+    void ** block = *(void ***)(page + 0x8);
+    if (LEAN_UNLIKELY(block == 0)) return lean_mi_malloc_small_slow(sz);
+    *(void **)(page + 0x8) = *block;
+    (*(unsigned short *)(page + 0x10))++;
+    *block = 0;
+    return (void *)block;
+}
+#define LEAN_MI_MALLOC_SMALL(sz) lean_mi_malloc_small_fast(sz)
+#else
+#define LEAN_MI_MALLOC_SMALL(sz) mi_malloc_small(sz)
+#endif
+
 static inline lean_object * lean_alloc_small_object(unsigned sz) {
-    lean_inc_heartbeat();
+    lean_inc_heartbeat_inline();
 #ifdef LEAN_MIMALLOC
     // HACK: emulate behavior of small allocator to avoid `leangz` breakage for now
     // NOTE: `sz` is known at compile time for most callers
     sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
-    void * mem = sz <= MI_SMALL_SIZE_MAX ? mi_malloc_small(sz) : mi_malloc(sz);
+    void * mem = sz <= MI_SMALL_SIZE_MAX ? LEAN_MI_MALLOC_SMALL(sz) : mi_malloc(sz);
     if (mem == 0) lean_internal_panic_out_of_memory();
     lean_object * o = (lean_object*)mem;
     o->m_cs_sz = sz;

@@ -50,7 +50,7 @@ leanOptions.linter.coreInternal = true
 #weakLeanArgs = ["-DmaxErrors=1"]
 
 # CMake's `LEANC_EXTRA_CC_FLAGS`
-moreLeancArgs = [${LEAN_MORE_LEANC_ARGS_TOML}]
+moreLeancArgs = ["-DLEAN_MI_INLINE_FASTPATH", "-DLEAN_MI_REV=5", ${LEAN_MORE_LEANC_ARGS_TOML}]
 
 # CMake's `LEANC_INTERNAL_FLAGS`
 weakLeancArgs = [${LEAN_WEAK_LEANC_ARGS_TOML}]

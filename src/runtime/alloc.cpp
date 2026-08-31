@@ -39,18 +39,4 @@ uint64_t get_num_heartbeats() {
     return lean_g_heartbeat;
 }
 
-#ifdef LEAN_MIMALLOC
-extern "C" LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_core(unsigned sz) {
-    lean_g_heartbeat++;
-    // the callers guarantee `sz > 0 && sz % LEAN_OBJECT_SIZE_DELTA == 0 && sz <= MI_SMALL_SIZE_MAX`
-    void * mem = mi_malloc_small(sz);
-    if (LEAN_UNLIKELY(mem == NULL)) lean_internal_panic_out_of_memory();
-    lean_object * o = (lean_object *)mem;
-    /* `m_cs_sz` must be the exact (aligned) requested size, not mimalloc's potentially larger
-       block size: `lean_small_object_size` and `leangz` rely on it. */
-    o->m_cs_sz = sz;
-    return o;
-}
-#endif
-
 }

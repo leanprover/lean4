@@ -484,9 +484,10 @@ static inline unsigned lean_get_slot_idx(unsigned sz) {
 LEAN_EXPORT void lean_inc_heartbeat(void);
 
 #ifdef LEAN_MIMALLOC
-/* Fused small-object allocation entry point implemented in `runtime/alloc.cpp`: a single call
-   covering the heartbeat update and the mimalloc allocation. Requires `sz` to be a positive
-   multiple of `LEAN_OBJECT_SIZE_DELTA` of at most `MI_SMALL_SIZE_MAX`; initializes `m_cs_sz`. */
+/* Fused small-object allocation entry point implemented in `runtime/mimalloc.cpp`: a single call
+   covering the heartbeat update and the (inlined) mimalloc fast path. Requires `sz` to be a
+   positive multiple of `LEAN_OBJECT_SIZE_DELTA` of at most `MI_SMALL_SIZE_MAX`; initializes
+   `m_cs_sz`. */
 LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_core(unsigned sz);
 #endif
 

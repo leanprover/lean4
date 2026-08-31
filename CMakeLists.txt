@@ -137,6 +137,9 @@ if(USE_MIMALLOC)
     # cadical, it might be worth reorganizing the directory structure.
     SOURCE_DIR
     "${CMAKE_BINARY_DIR}/mimalloc/src/mimalloc"
+    # `git checkout` first so re-configuring an already-patched checkout is a no-op
+    PATCH_COMMAND git checkout -- src/alloc.c src/free.c
+    COMMAND git apply "${LEAN_SOURCE_DIR}/script/mimalloc-used-rmw.patch"
     EXCLUDE_FROM_ALL
   )
   FetchContent_MakeAvailable(mimalloc)

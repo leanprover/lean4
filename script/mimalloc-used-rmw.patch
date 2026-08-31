@@ -1,0 +1,47 @@
+--- a/src/alloc.c
++++ b/src/alloc.c
+@@ -39,10 +39,12 @@
+ 
+   // check the free list
+   mi_block_t* const block = page->free;
++  #if MI_ARCH_ARM64
+   const mi_used_t used = page->used;
+   #if defined(__GNUC__) 
+   __asm("" : : : "memory");  // alway load used before the test
+   #endif  
++  #endif
+   if (block == NULL) {
+     return _mi_malloc_generic(theap, size, (zero ? 1 : 0), ppage);
+   }
+@@ -54,7 +56,11 @@
+   mi_track_mem_undefined(block,sizeof(*block));
+   block->next = 0;  // don't leak internal data
+   page->free = next;
++  #if MI_ARCH_ARM64
+   page->used = used+1;
++  #else
++  page->used++;  // single read-modify-write; one instruction on x86-64
++  #endif
+   mi_assert_internal(page->free == NULL || _mi_ptr_page(page->free) == page);
+   mi_assert_internal(page->block_size < MI_MAX_ALIGN_SIZE || _mi_is_aligned(block, MI_MAX_ALIGN_SIZE));
+ 
+--- a/src/free.c
++++ b/src/free.c
+@@ -42,11 +42,17 @@
+   #endif
+   
+   // actual free: push on the local free list
++  #if MI_ARCH_ARM64
+   const mi_used_t used = page->used - 1;
+   mi_block_set_next(page, block, page->local_free);
+   page->used = used;
+   page->local_free = block;
+   if mi_unlikely(used==0) {  
++  #else
++  mi_block_set_next(page, block, page->local_free);
++  page->local_free = block;
++  if mi_unlikely(--page->used == 0) {  // single read-modify-write
++  #endif
+     if (page->retire_expire==0) { // no need to re-retire retired pages (happens when we alloc/free one block repeatedly in an empty page)
+       _mi_page_retire(page); 
+     }
